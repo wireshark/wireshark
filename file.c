@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.210 2000/08/24 06:19:51 guy Exp $
+ * $Id: file.c,v 1.211 2000/08/24 06:45:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -97,7 +97,7 @@ static guint32 prevsec, prevusec;
 static void read_packet(capture_file *cf, int offset);
 
 static void rescan_packets(capture_file *cf, const char *action,
-	gboolean refilter);
+	gboolean refilter, gboolean redissect);
 
 static void set_selected_row(int row);
 
@@ -846,21 +846,22 @@ filter_packets(capture_file *cf, gchar *dftext)
     dfilter_destroy(cf->dfcode);
   cf->dfcode = dfcode;
 
-  /* Now rescan the packet list, applying the new filter. */
-  rescan_packets(cf, "Filtering", TRUE);
+  /* Now rescan the packet list, applying the new filter, but not
+     throwing away information constructed on a previous pass. */
+  rescan_packets(cf, "Filtering", TRUE, FALSE);
   return 1;
 }
 
 void
 colorize_packets(capture_file *cf)
 {
-  rescan_packets(cf, "Colorizing", FALSE);
+  rescan_packets(cf, "Colorizing", FALSE, FALSE);
 }
 
 void
 redissect_packets(capture_file *cf)
 {
-  rescan_packets(cf, "Reprocessing", TRUE);
+  rescan_packets(cf, "Reprocessing", TRUE, TRUE);
 }
 
 /* Rescan the list of packets, reconstructing the CList.
@@ -868,9 +869,15 @@ redissect_packets(capture_file *cf)
    "action" describes why we're doing this; it's used in the progress
    dialog box.
 
-   "refilter" is TRUE if we need to re-evaluate the filter expression. */
+   "refilter" is TRUE if we need to re-evaluate the filter expression.
+
+   "redissect" is TRUE if we need to make the dissectors reconstruct
+   any state information they have (because a preference that affects
+   some dissector has changed, meaning some dissector might construct
+   its state differently from the way it was constructed the last time). */
 static void
-rescan_packets(capture_file *cf, const char *action, gboolean refilter)
+rescan_packets(capture_file *cf, const char *action, gboolean refilter,
+		gboolean redissect)
 {
   frame_data *fdata;
   progdlg_t *progbar;
@@ -891,6 +898,19 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter)
   /* We don't yet know what row that frame will be on, if any, after we
      rebuild the clist, however. */
   selected_row = -1;
+
+  if (redissect) {
+    /* We need to re-initialize all the state information that protocols
+       keep, because some preference that controls a dissector has changed,
+       which might cause the state information to be constructed differently
+       by that dissector. */
+
+    /* Initialize the table of conversations. */
+    conversation_init();
+
+    /* Initialize protocol-specific variables */
+    init_all_protocols();
+  }
 
   /* Freeze the packet list while we redo it, so we don't get any
      screen updates while it happens. */
@@ -956,6 +976,12 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter)
     }
 
     count++;
+
+    if (redissect) {
+      /* Since all state for the frame was destroyed, mark the frame
+       * as not visited. */
+      fdata->flags.visited = 0;
+    }
 
     wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
     	cf->pd, fdata->cap_len);
