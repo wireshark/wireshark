@@ -2,7 +2,7 @@
  * Routines for iSCSI dissection
  * Copyright 2001, Eurologic and Mark Burton <markb@ordern.com>
  *
- * $Id: packet-iscsi.c,v 1.38 2002/08/28 21:00:18 jmayer Exp $
+ * $Id: packet-iscsi.c,v 1.39 2002/08/29 19:33:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -568,12 +568,22 @@ static guint32 crc32Table[256] = {
 
 #define CRC32C_PRELOAD 0xffffffff
 
+/* 
+ * Byte swap fix contributed by Dave Wysochanski <davidw@netapp.com>
+ */
+#define CRC32C_SWAP(crc32c_value) \
+		(((crc32c_value & 0xff000000) >> 24) | \
+		((crc32c_value & 0x00ff0000) >>	 8) | \
+		((crc32c_value & 0x0000ff00) <<	 8) | \
+		((crc32c_value & 0x000000ff) << 24))
+
 static guint32
 calculateCRC32(const void *buf, int len, guint32 crc) {
     guint8 *p = (guint8 *)buf;
+    crc = CRC32C_SWAP(crc);
     while(len-- > 0)
         crc = crc32Table[(crc ^ *p++) & 0xff] ^ (crc >> 8);
-    return crc;
+    return CRC32C_SWAP(crc);
 }
 
 /*
