@@ -1,4 +1,4 @@
-$Id: NEWS,v 1.150 2004/05/14 04:20:29 gerald Exp $
+$Id: NEWS,v 1.151 2004/05/14 04:25:41 gerald Exp $
 
 == May 13, 2004
 
@@ -49,7 +49,7 @@ Updated protocol support
 
 Capture file support
 
-  EyeSDN, nettl,
+  EyeSDN, nettl
 
 
 == March 25, 2004
