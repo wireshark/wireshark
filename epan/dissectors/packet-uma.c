@@ -196,8 +196,13 @@ static int hf_uma_urr_ap_service_name_type = -1;
 static int hf_uma_urr_ap_Service_name_value = -1;
 static int hf_uma_urr_uma_service_zone_icon_ind = -1;
 static int hf_uma_urr_uma_service_zone_str_len = -1;
+static int hf_uma_urr_window_size	= -1;
+static int hf_uma_urr_uma_codec_mode	= -1;
+static int hf_uma_urr_UTRAN_cell_id_disc = -1;
 static int hf_uma_urr_ms_radio_id		= -1;
 static int hf_uma_urr_uma_service_zone_str = -1;
+static int hf_uma_urr_suti				= -1;
+static int hf_uma_urr_uma_mps			= -1;
 static int hf_uma_urr_unc_ipv4			= -1;
 static int hf_uma_unc_FQDN				= -1;
 static int hf_uma_urr_GPRS_user_data_transport_ipv4 = -1;
@@ -621,20 +626,22 @@ static const value_string register_reject_cause_vals[] = {
 	
 /* L3 Protocol discriminator values according to TS 24 007 (640)  */
 static const value_string protocol_discriminator_vals[] = {
-	{0x0,		"group call control"},
+	{0x0,		"Group call control"},
 	{0x1,		"broadcast call control"},
 	{0x2,		"Reserved: was allocated in earlier phases of the protocol"},
-	{0x3,		"call control; call related SS messages"},
+	{0x3,		"Call Control; call related SS messages"},
 	{0x4,		"GPRS Transparent Transport Protocol (GTTP)"},
-	{0x5,		"mobility management messages"},
-	{0x6,		"radio resources management messages"},
+	{0x5,		"Mobility Management messages"},
+	{0x6,		"Radio Resources Management messages"},
+	{0x7,		"Unknown"},
 	{0x8,		"GPRS mobility management messages"},
 	{0x9,		"SMS messages"},
 	{0xa,		"GPRS session management messages"},
-	{0xb,		"non call related SS messages"},
+	{0xb,		"Non call related SS messages"},
 	{0xc,		"Location services specified in 3GPP TS 44.071 [8a]"},
-	{0xe,		"reserved for extension of the PD to one octet length "},
-	{0xf,		"reserved for tests procedures described in 3GPP TS 44.014 [5a] and 3GPP TS 34.109 [17a]."},
+	{0xd,		"Unknown"},
+	{0xe,		"Reserved for extension of the PD to one octet length "},
+	{0xf,		"Reserved for tests procedures described in 3GPP TS 44.014 [5a] and 3GPP TS 34.109 [17a]."},
 	{ 0,	NULL }
 };
 /* Channel Mode  */
@@ -909,6 +916,13 @@ static const value_string ICMI_vals[] = {
 	{ 1,		"The initial codec mode is defined by the Start Mode field"},
 	{ 0,	NULL }
 };
+/* MPS, Manual PLMN Selection indicator (octet 3) */
+static const value_string mps_vals[] = {
+	{ 0,		"The MS is in Automatic PLMN selection mode."},
+	{ 1,		"The MS is in Manual PLMN selection mode and request the listof PLMN identities that may provide UMAN service in the current location."},
+	{ 2,		"The MS is in Manual PLMN selection mode and tries to register; no PLMN list is needed."},
+	{ 0,	NULL }
+};
 /* LBLI, Location Black List indicator (octet 3) */
 static const value_string LBLI_vals[] = {
 	{ 0,		"MCC"},
@@ -958,6 +972,27 @@ static const value_string channel_vals[] = {
 static const value_string RI_vals[] = {
 	{ 0,		"The flow control condition continues to exist"},
 	{ 1,		"The flow control condition no longer exists"},
+	{ 0,	NULL }
+};
+
+/* Window Size (octet 3 to octet n) */
+
+static const value_string window_size_vals[] = {
+	{ 0,		"Window size 1 (single redundancy)"},
+	{ 1,		"Window size 2 (double redundancy)"},
+	{ 0,	NULL }
+};
+
+static const value_string UTRAN_cell_id_disc_vals[] = {
+	{ 0,		"PLMN-ID, LAC and a 28-bit Cell Id are used to identify the target UTRAN cell."},
+	{ 0,	NULL }
+};
+
+/* SUTI, Serving UNC table indicator indicator (octet 3) */
+
+static const value_string suti_vals[] = {
+	{ 0,		"The MS is not allowed to store information in the stored Serving UNC table."},
+	{ 1,		"The MS is allowed to store information in the stored Serving UNC table."},
 	{ 0,	NULL }
 };
 	/* Code to actually dissect the packets */
@@ -1547,16 +1582,40 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		break;
 	case 63:
 		/* RTP Redundancy Configuration */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_window_size, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uma_codec_mode, tvb, ie_offset, 1, FALSE);
+		break;
 	case 64:
-		/* UTRAN Classmark */
+		/* UTRAN Classmark 
+		 * The rest of the IE is the INTER RAT HANDOVER INFO coded as in
+		 * [TS 25.331], not including IEI and length, if present
+		 */
+		break;
 	case 65:
-		/* Classmark Enquiry Mask */
+		/* Classmark Enquiry Mask 
+		 * The rest of the IE is the Classmark Enquiry Mask coded as in [TS 44.018], not including IEI and length, if present
+		 */
+		break;
 	case 66:
-		/* UTRAN Cell Identifier List */
+		/* UTRAN Cell Identifier List 
+		 * UTRAN Cell Identification Discriminator
+		 */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_UTRAN_cell_id_disc, tvb, ie_offset, 1, FALSE);
+		octet = tvb_get_guint8(tvb,ie_offset);
+		ie_offset++;
+		if ( octet == 0 ){
+			ie_offset = dissect_location_area_id(tvb, urr_ie_tree, ie_offset);
+			/* The octets 9-12 are coded as shown in 3GPP TS 25.331, Table 'Cell identity'. */
+		}
+		break;
 	case 67:
 		/* Serving UNC table indicator */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_suti, tvb, ie_offset, 1, FALSE);
+		break;
 	case 68:
 		/* Registration indicators */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uma_mps, tvb, ie_offset, 1, FALSE);
+		break;
 	case 69:
 		/* UMA PLMN List */
 	case 70:
@@ -1933,7 +1992,7 @@ proto_register_uma(void)
 		},
 		{ &hf_uma_urr_ECMC,
 			{ "ECMC, Early Classmark Sending Control","uma.urr.is_rej_cau",
-			FT_UINT8,BASE_DEC,  VALS(EC_vals), 0x2,          
+			FT_UINT8,BASE_DEC,  VALS(ECMC_vals), 0x2,          
 			"ECMC, Early Classmark Sending Control", HFILL }
 		},
 		{ &hf_uma_urr_NMO,
@@ -2113,7 +2172,7 @@ proto_register_uma(void)
 		},
 		{ &hf_uma_urr_ps_sup_cap,
 			{ "PS capability (pseudo-synchronization capability)","uma.urr.ps_sup_cap",
-			FT_UINT8,BASE_DEC,  VALS(RF_power_capability_vals), 0x40,          
+			FT_UINT8,BASE_DEC,  VALS(ps_sup_cap_vals), 0x40,          
 			"PS capability (pseudo-synchronization capability)", HFILL }
 		},
 		{ &hf_uma_urr_SS_screening_indicator,
@@ -2375,6 +2434,31 @@ proto_register_uma(void)
 			{ "Length of UMA Service Zone string","uma.urr.service_zone_str_len",
 			FT_UINT8,BASE_DEC,  NULL, 0x0,          
 			"Length of UMA Service Zone string", HFILL }
+		},
+		{ &hf_uma_urr_window_size,
+			{ "Window Size","uma.urr.uma_window_size",
+			FT_UINT8,BASE_DEC,  VALS(window_size_vals), 0x3,          
+			"Window Size", HFILL }
+		},
+		{ &hf_uma_urr_uma_codec_mode,
+			{ "Codec Mode","uma.urr.uma_codec_mode",
+			FT_UINT8,BASE_DEC,  NULL, 0xc0,          
+			"Codec Mode", HFILL }
+		},
+		{ &hf_uma_urr_UTRAN_cell_id_disc,
+			{ "UTRAN Cell Identification Discriminator","uma.urr.uma_UTRAN_cell_id_disc",
+			FT_UINT8,BASE_DEC,  VALS(UTRAN_cell_id_disc_vals), 0x0f,          
+			"UTRAN Cell Identification Discriminator", HFILL }
+		},
+		{ &hf_uma_urr_suti,
+			{ "SUTI, Serving UNC table indicator indicator","uma.urr.uma_suti",
+			FT_UINT8,BASE_DEC,  VALS(suti_vals), 0x01,          
+			"SUTI, Serving UNC table indicator indicator", HFILL }
+		},
+		{ &hf_uma_urr_uma_mps,
+			{ "UMPS, Manual PLMN Selection indicator","uma.urr.mps",
+			FT_UINT8,BASE_DEC,  VALS(mps_vals), 0x3,          
+			"MPS, Manual PLMN Selection indicator", HFILL }
 		},
 		{ &hf_uma_urr_ms_radio_id,
 			{ "MS Radio Identity","uma.urr.ms_radio_id",
