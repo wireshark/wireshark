@@ -2293,6 +2293,10 @@ Jon Ringle		<ml-ethereal [AT] ringle.org> {
 	Conversations demarked by setup frame number 
 }
 
+Tim Endean		<endeant [AT] hotmail.com> {
+	Dissector for INAP protocol
+}
+
 And assorted fixes and enhancements by the people listed above
 and by:
 
