@@ -2,7 +2,7 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-lapb.c,v 1.33 2002/01/21 07:36:36 guy Exp $
+ * $Id: packet-lapb.c,v 1.34 2002/01/24 09:20:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,8 +81,8 @@ dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 	    col_set_str(pinfo->cinfo, COL_INFO, "Invalid LAPB frame");
 	if (tree)
-	    ti = proto_tree_add_protocol_format(tree, proto_lapb, tvb, 0,
-			    tvb_length(tvb), "Invalid LAPB frame");
+	    ti = proto_tree_add_protocol_format(tree, proto_lapb, tvb, 0, -1,
+			    "Invalid LAPB frame");
 	return;
     }
 
@@ -106,7 +106,7 @@ dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    ett_lapb_control, is_response, FALSE);
 
     /* not end of frame ==> X.25 */
-    if (tvb_length(tvb) > 2) {
+    if (tvb_reported_length(tvb) > 2) {
 	    next_tvb = tvb_new_subset(tvb, 2, -1, -1);
 	    call_dissector(x25_handle, next_tvb, pinfo, tree);
     }

@@ -8,7 +8,7 @@
  *
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-m3ua.c,v 1.11 2002/01/21 07:36:37 guy Exp $
+ * $Id: packet-m3ua.c,v 1.12 2002/01/24 09:20:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -802,7 +802,7 @@ dissect_m3ua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree
   
   if (m3ua_tree) {
     /* extract zero or more parameters and process them individually */
-    while(tvb_length_remaining(message_tvb, offset)) {
+    while(tvb_reported_length_remaining(message_tvb, offset)) {
       length         = tvb_get_ntohs(message_tvb, offset + PARAMETER_LENGTH_OFFSET);
       padding_length = nr_of_padding_bytes(length);
       total_length   = length + padding_length;
@@ -829,7 +829,7 @@ dissect_m3ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the m3ua protocol tree */
-    m3ua_item = proto_tree_add_item(tree, proto_m3ua, message_tvb, 0, tvb_length(message_tvb), FALSE);
+    m3ua_item = proto_tree_add_item(tree, proto_m3ua, message_tvb, 0, -1, FALSE);
     m3ua_tree = proto_item_add_subtree(m3ua_item, ett_m3ua);
   } else {
     m3ua_tree = NULL;

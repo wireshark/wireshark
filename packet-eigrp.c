@@ -2,7 +2,7 @@
  * Routines for EIGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-eigrp.c,v 1.20 2002/01/21 07:36:34 guy Exp $
+ * $Id: packet-eigrp.c,v 1.21 2002/01/24 09:20:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -166,8 +166,8 @@ dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   if (tree) {
 
-     ti = proto_tree_add_protocol_format(tree, proto_eigrp, tvb, 0,
-              tvb_length(tvb), "Cisco EIGRP ");
+     ti = proto_tree_add_protocol_format(tree, proto_eigrp, tvb, 0, -1,
+              "Cisco EIGRP");
               
      eigrp_tree = proto_item_add_subtree(ti, ett_eigrp);
   
@@ -185,7 +185,7 @@ dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	return;
 	}
 
-     while ( tvb_length_remaining(tvb,offset)>0 ) {
+     while ( tvb_reported_length_remaining(tvb,offset)>0 ) {
 
 	     tlv = tvb_get_ntohs(tvb,offset);
 	     size =  tvb_get_ntohs(tvb,offset+2);

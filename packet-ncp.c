@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.54 2002/01/21 07:36:37 guy Exp $
+ * $Id: packet-ncp.c,v 1.55 2002/01/24 09:20:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -275,7 +275,7 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	nw_connection = (header.conn_high << 16) + header.conn_low;
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ncp, tvb, 0, tvb_length(tvb), FALSE);
+		ti = proto_tree_add_item(tree, proto_ncp, tvb, 0, -1, FALSE);
 		ncp_tree = proto_item_add_subtree(ti, ett_ncp);
 
 		if ( pinfo->ptype == PT_TCP || pinfo->ptype == PT_UDP ) {

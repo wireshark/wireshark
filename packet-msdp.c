@@ -4,7 +4,7 @@
  *
  * Copyright 2001, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-msdp.c,v 1.5 2002/01/21 07:36:37 guy Exp $
+ * $Id: packet-msdp.c,v 1.6 2002/01/24 09:20:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -200,11 +200,11 @@ dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 guint8 type;
                 guint16 length;
 
-                ti = proto_tree_add_item(tree, proto_msdp, tvb, 0, tvb_length(tvb), FALSE);
+                ti = proto_tree_add_item(tree, proto_msdp, tvb, 0, -1, FALSE);
                 msdp_tree = proto_item_add_subtree(ti, ett_msdp);
 
                 offset = 0;
-                while (tvb_length_remaining(tvb, offset) >= 3) {
+                while (tvb_reported_length_remaining(tvb, offset) >= 3) {
                         type = tvb_get_guint8(tvb, offset);
                         length = tvb_get_ntohs(tvb, offset + 1);
                         if (length < 3)
@@ -236,7 +236,7 @@ dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 if (tvb_length_remaining(tvb, offset) > 0)
                         proto_tree_add_text(msdp_tree, tvb, offset,
-                                            tvb_length_remaining(tvb, offset), "Trailing junk");
+                                            -1, "Trailing junk");
         }
 
         return;
@@ -285,14 +285,14 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /*
          * Check if an encapsulated multicast IPv4 packet follows
          */
-        if (tvb_length_remaining(tvb, *offset) > 0) {
+        if (tvb_reported_length_remaining(tvb, *offset) > 0) {
                 proto_item *ei;
                 proto_tree *enc_tree;
                 tvbuff_t *next_tvb;
 
-                ei = proto_tree_add_text(tree, tvb, *offset, tvb_length_remaining(tvb, *offset),
+                ei = proto_tree_add_text(tree, tvb, *offset, -1,
                                          "Encapsulated IPv4 packet: %u bytes",
-                                         tvb_length_remaining(tvb, *offset));
+                                         tvb_reported_length_remaining(tvb, *offset));
                 enc_tree = proto_item_add_subtree(ei, ett_msdp_sa_enc_data);
 
                 next_tvb = tvb_new_subset(tvb, *offset, -1, -1);

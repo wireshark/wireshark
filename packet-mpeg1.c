@@ -2,7 +2,7 @@
  *
  * Routines for RFC 2250 MPEG-1 dissection
  *
- * $Id: packet-mpeg1.c,v 1.5 2002/01/21 07:36:37 guy Exp $
+ * $Id: packet-mpeg1.c,v 1.6 2002/01/24 09:20:49 guy Exp $
  * 
  * Copyright 2001, 
  * Francisco Javier Cabello Torres, <fjcabello@vtools.es>
@@ -169,7 +169,7 @@ dissect_mpeg1( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	
 	if ( tree ) 
 	  {
-	    ti = proto_tree_add_item( tree, proto_mpg, tvb, offset, tvb_length( tvb ), FALSE );
+	    ti = proto_tree_add_item( tree, proto_mpg, tvb, offset, -1, FALSE );
 	    mpg_tree = proto_item_add_subtree( ti, ett_mpg );
 	    
 	    proto_tree_add_uint( mpg_tree, hf_rtp_mpg_mbz, tvb, offset, 1, mpg_mbz );

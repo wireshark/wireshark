@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.28 2002/01/21 07:36:48 guy Exp $
+ * $Id: packet-x11.c,v 1.29 2002/01/24 09:20:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2853,8 +2853,7 @@ dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
       if (!tree) return;
-      ti = proto_tree_add_item(tree, proto_x11, tvb, 0,
-			       tvb_length(tvb), FALSE);
+      ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, FALSE);
       x11_tree = proto_item_add_subtree(ti, ett_x11);
 
       cur_offset = 0;
@@ -2880,8 +2879,7 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
       if (tree) {
-	    ti = proto_tree_add_item(tree, proto_x11, tvb, 0,
-		tvb_length(tvb), FALSE);
+	    ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, FALSE);
 	    x11_tree = proto_item_add_subtree(ti, ett_x11);
 
 /* Code to process the packet goes here */

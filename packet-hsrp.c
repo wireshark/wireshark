@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-hsrp.c,v 1.21 2002/01/21 07:36:35 guy Exp $
+ * $Id: packet-hsrp.c,v 1.22 2002/01/24 09:20:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -128,7 +128,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 guint8 auth_buf[8 + 1];
 
                 offset = 0;
-                ti = proto_tree_add_item(tree, proto_hsrp, tvb, offset, tvb_length(tvb), FALSE);
+                ti = proto_tree_add_item(tree, proto_hsrp, tvb, offset, -1, FALSE);
                 hsrp_tree = proto_item_add_subtree(ti, ett_hsrp);
 
                 proto_tree_add_item(hsrp_tree, hf_hsrp_version, tvb, offset, 1, FALSE);

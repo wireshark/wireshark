@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.34 2002/01/21 07:36:43 guy Exp $
+ * $Id: packet-socks.c,v 1.35 2002/01/24 09:20:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -409,8 +409,8 @@ socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Version: 5, UDP Associated packet");
 			
 	if ( tree) {
-    		ti = proto_tree_add_protocol_format( tree, proto_socks, tvb, offset,
-    			tvb_length_remaining(tvb, offset), "Socks" );
+    		ti = proto_tree_add_protocol_format( tree, proto_socks, tvb,
+    			offset, -1, "Socks" );
 
 		socks_tree = proto_item_add_subtree(ti, ett_socks);
 
@@ -897,8 +897,7 @@ display_ping_and_tracert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 			col_append_str(pinfo->cinfo, COL_INFO, ", Results");
 
 		if ( tree){
-			proto_tree_add_text(tree, tvb, offset,
-				tvb_length_remaining(tvb, offset),
+			proto_tree_add_text(tree, tvb, offset, -1,
    		 		(hash_info->command  == PING_COMMAND) ?
    		 		"Ping Results:" :
    	 			"Traceroute Results");
@@ -1035,8 +1034,8 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 /* if proto tree, decode and display */
 
 	if (tree) {			
-    		ti = proto_tree_add_item( tree, proto_socks, tvb, offset,
-    			tvb_length_remaining(tvb, offset), FALSE );
+    		ti = proto_tree_add_item( tree, proto_socks, tvb, offset, -1,
+    			FALSE );
 
 		socks_tree = proto_item_add_subtree(ti, ett_socks);
 

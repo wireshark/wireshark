@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-auto_rp.c,v 1.17 2002/01/21 07:36:32 guy Exp $
+ * $Id: packet-auto_rp.c,v 1.18 2002/01/24 09:20:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -143,7 +143,7 @@ static void dissect_auto_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 guint16 holdtime;
 
                 offset = 0;
-                ti = proto_tree_add_item(tree, proto_auto_rp, tvb, offset, tvb_length(tvb), FALSE);
+                ti = proto_tree_add_item(tree, proto_auto_rp, tvb, offset, -1, FALSE);
                 auto_rp_tree = proto_item_add_subtree(ti, ett_auto_rp);
 
                 tv = proto_tree_add_text(auto_rp_tree, tvb, offset, 1, "Version: %s, Packet type: %s",

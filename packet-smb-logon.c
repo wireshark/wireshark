@@ -2,7 +2,7 @@
  * Routines for SMB net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.21 2001/12/10 00:25:34 guy Exp $
+ * $Id: packet-smb-logon.c,v 1.22 2002/01/24 09:20:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -362,7 +362,7 @@ dissect_smb_pdc_startup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
 	/* A short Announce will not have the rest */
 
-	if (tvb_length_remaining(tvb, offset) != 0) { 
+	if (tvb_reported_length_remaining(tvb, offset) != 0) { 
 
 	  if (offset % 2) offset++;      /* word align ... */
 
@@ -817,7 +817,7 @@ dissect_smb_logon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     	if (tree) {
 		item = proto_tree_add_item(tree, proto_smb_logon, tvb,
-			offset,	tvb_length_remaining(tvb, offset), FALSE);
+			offset,	-1, FALSE);
 
 		smb_logon_tree = proto_item_add_subtree(item, ett_smb_logon);
 	}

@@ -2,7 +2,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <sraab@cisco.com>
  *
- * $Id: packet-mip.c,v 1.26 2002/01/21 07:36:37 guy Exp $
+ * $Id: packet-mip.c,v 1.27 2002/01/24 09:20:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -181,8 +181,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, packet_info *pinfo,
   if (!tree) return;
 
   /* Add our tree, if we have extensions */
-  ti = proto_tree_add_text(tree, tvb, offset,
-		tvb_length_remaining(tvb, offset), "Extensions");
+  ti = proto_tree_add_text(tree, tvb, offset, -1, "Extensions");
   exts_tree = proto_item_add_subtree(ti, ett_mip_exts);
 
   /* And, handle each extension */
@@ -295,7 +294,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				   ip_to_str(tvb_get_ptr(tvb,12,4)));
 	
 	if (tree) {
-	  ti = proto_tree_add_item(tree, proto_mip, tvb, offset, tvb_length(tvb), FALSE);
+	  ti = proto_tree_add_item(tree, proto_mip, tvb, offset, -1, FALSE);
 	  mip_tree = proto_item_add_subtree(ti, ett_mip);
 	  
 	  /* type */
@@ -347,7 +346,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	
 	if (tree) {
 	  /* Add Subtree */
-	  ti = proto_tree_add_item(tree, proto_mip, tvb, offset, tvb_length(tvb), FALSE);
+	  ti = proto_tree_add_item(tree, proto_mip, tvb, offset, -1, FALSE);
 	  mip_tree = proto_item_add_subtree(ti, ett_mip);
 	  
 	  /* Type */

@@ -2,7 +2,7 @@
  * Routines for who protocol (see man rwhod)
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-who.c,v 1.22 2002/01/21 07:36:47 guy Exp $
+ * $Id: packet-who.c,v 1.23 2002/01/24 09:20:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -112,8 +112,8 @@ dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ts.nsecs = 0;
 
 	if (tree) {
-		who_ti = proto_tree_add_item(tree, proto_who, tvb, offset,
-		    tvb_length(tvb), FALSE);
+		who_ti = proto_tree_add_item(tree, proto_who, tvb, offset, -1,
+		    FALSE);
 		who_tree = proto_item_add_subtree(who_ti, ett_who);
 	}
 

@@ -1,7 +1,7 @@
 /* packet-beep.c
  * Routines for BEEP packet disassembly
  *
- * $Id: packet-beep.c,v 1.3 2002/01/21 07:36:32 guy Exp $
+ * $Id: packet-beep.c,v 1.4 2002/01/24 09:20:47 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  * Modified 2001 Darren New <dnew@invisible.net> for BEEP.
@@ -929,7 +929,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree) {  /* Build the tree info ... */
 
-    ti = proto_tree_add_item(tree, proto_beep, tvb, offset, tvb_length(tvb), FALSE);
+    ti = proto_tree_add_item(tree, proto_beep, tvb, offset, -1, FALSE);
 
     beep_tree = proto_item_add_subtree(ti, ett_beep);
 

@@ -2,7 +2,7 @@
  * Routines for nntp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-nntp.c,v 1.23 2002/01/21 07:36:38 guy Exp $
+ * $Id: packet-nntp.c,v 1.24 2002/01/24 09:20:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -83,8 +83,8 @@ dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_nntp, tvb, offset,
-		    tvb_length_remaining(tvb, offset), FALSE);
+		ti = proto_tree_add_item(tree, proto_nntp, tvb, offset, -1,
+		    FALSE);
 		nntp_tree = proto_item_add_subtree(ti, ett_nntp);
 
 		if (pinfo->match_port == pinfo->destport) {

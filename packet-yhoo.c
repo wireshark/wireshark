@@ -2,7 +2,7 @@
  * Routines for yahoo messenger packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-yhoo.c,v 1.21 2002/01/21 07:36:48 guy Exp $
+ * $Id: packet-yhoo.c,v 1.22 2002/01/24 09:20:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -109,7 +109,6 @@ dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree      *yhoo_tree, *ti;
 	int offset = 0;
-	int length = 0;
 
 	if (pinfo->srcport != TCP_PORT_YHOO && pinfo->destport != TCP_PORT_YHOO) {
 		/* Not the Yahoo port - not a Yahoo Messenger packet. */
@@ -123,8 +122,6 @@ dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		   tell. */
 		return FALSE;
 	}
-
-	length = tvb_length(tvb);
 
 	if (memcmp(tvb_get_ptr(tvb, offset, 4), "YPNS", 4) != 0 &&
 	    memcmp(tvb_get_ptr(tvb, offset, 4), "YHOO", 4) != 0) {
@@ -146,8 +143,8 @@ dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_yhoo, tvb, offset, 
-			tvb_length_remaining(tvb, offset), FALSE);
+		ti = proto_tree_add_item(tree, proto_yhoo, tvb, offset, -1,
+			FALSE);
 		yhoo_tree = proto_item_add_subtree(ti, ett_yhoo);
 
 		proto_tree_add_item(yhoo_tree, hf_yhoo_version, tvb, 
@@ -187,7 +184,7 @@ dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 36;
 
 		proto_tree_add_item(yhoo_tree, hf_yhoo_content, tvb, 
-			offset, length-offset, TRUE);
+			offset, tvb_length_remaining(tvb, offset), TRUE);
 	}
 
 	return TRUE;

@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.22 2001/12/23 21:36:57 guy Exp $
+ * $Id: packet-nlm.c,v 1.23 2002/01/24 09:20:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -160,7 +160,7 @@ dissect_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int version, i
 
 	if (tree) {
 		lock_item = proto_tree_add_item(tree, hf_nlm_lock, tvb,
-				offset, tvb_length_remaining(tvb, offset), FALSE);
+				offset, -1, FALSE);
 		if (lock_item)
 			lock_tree = proto_item_add_subtree(lock_item, ett_nlm_lock);
 	}
@@ -252,9 +252,7 @@ dissect_nlm_test_res(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (tree) {
 		lock_item = proto_tree_add_item(tree, hf_nlm_test_stat, tvb,
-				offset, 
-				tvb_length_remaining(tvb, offset),
-				FALSE);
+				offset, -1, FALSE);
 		if (lock_item)
 			lock_tree = proto_item_add_subtree(lock_item, 
 				ett_nlm_lock);
@@ -264,15 +262,13 @@ dissect_nlm_test_res(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    offset);
 
 	/* last structure is optional, only supplied for stat==1 (LOCKED) */
-	if(!tvb_length_remaining(tvb, offset)){
+	if(tvb_reported_length_remaining(tvb, offset) == 0){
 		return offset;
 	}
 
 	if (tree) {
 		lock_item = proto_tree_add_item(lock_tree, hf_nlm_holder, tvb,
-				offset, 
-				tvb_length_remaining(tvb, offset), 
-				FALSE);
+				offset, -1, FALSE);
 		if (lock_item)
 			lock_tree = proto_item_add_subtree(lock_item, 
 				ett_nlm_lock);
@@ -313,9 +309,7 @@ dissect_nlm_share(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (tree) {
 		lock_item = proto_tree_add_item(tree, hf_nlm_share, tvb,
-				offset, 
-				tvb_length_remaining(tvb, offset), 
-				FALSE);
+				offset, -1, FALSE);
 		if (lock_item)
 			lock_tree = proto_item_add_subtree(lock_item, 
 				ett_nlm_lock);

@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.33 2002/01/21 07:36:36 guy Exp $
+ * $Id: packet-ldap.c,v 1.34 2002/01/24 09:20:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -913,10 +913,10 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
       if (tree)
       {
-        ti = proto_tree_add_item(tree, proto_ldap, tvb, message_start,
-			         tvb_length(tvb), FALSE);
+        ti = proto_tree_add_item(tree, proto_ldap, tvb, message_start, -1,
+			         FALSE);
         ldap_tree = proto_item_add_subtree(ti, ett_ldap);
-        proto_tree_add_text(ldap_tree, tvb, message_start, tvb_length(tvb),
+        proto_tree_add_text(ldap_tree, tvb, message_start, -1,
 			    "Invalid LDAP packet");
       }
       break;

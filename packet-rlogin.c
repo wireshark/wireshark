@@ -2,7 +2,7 @@
  * Routines for unix rlogin packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-rlogin.c,v 1.25 2002/01/21 07:36:41 guy Exp $
+ * $Id: packet-rlogin.c,v 1.26 2002/01/24 09:20:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -189,8 +189,7 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 	gint		ti_offset;
 	proto_item      *user_info_item,  *window_info_item;
 
- 	ti = proto_tree_add_item( tree, proto_rlogin, tvb, 0,
-			tvb_length(tvb), FALSE);
+ 	ti = proto_tree_add_item( tree, proto_rlogin, tvb, 0, -1, FALSE);
 
 	rlogin_tree = proto_item_add_subtree(ti, ett_rlogin);
 
@@ -243,7 +242,7 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 		 * First frame of conversation, hence user info?
 		 */
 		user_info_item = proto_tree_add_item( rlogin_tree, hf_user_info, tvb,
-			offset, tvb_length_remaining(tvb, offset), FALSE);
+			offset, -1, FALSE);
 
 		/*
 		 * Do server user name.
@@ -333,8 +332,7 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 		/*
 		 * There's more data in the frame.
 		 */
-		proto_tree_add_text(rlogin_tree, tvb, offset,
-		    tvb_length_remaining(tvb, offset), "Data");
+		proto_tree_add_text(rlogin_tree, tvb, offset, -1, "Data");
 	}
 }	
 

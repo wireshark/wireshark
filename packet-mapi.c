@@ -1,7 +1,7 @@
 /* packet-mapi.c
  * Routines for MSX mapi packet dissection
  *
- * $Id: packet-mapi.c,v 1.19 2002/01/21 07:36:37 guy Exp $
+ * $Id: packet-mapi.c,v 1.20 2002/01/24 09:20:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -84,23 +84,22 @@ dissect_mapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	if (tree) 
 	{
-		ti = proto_tree_add_item(tree, proto_mapi, tvb, 0,
-		    tvb_length(tvb), FALSE);
+		ti = proto_tree_add_item(tree, proto_mapi, tvb, 0, -1, FALSE);
 		mapi_tree = proto_item_add_subtree(ti, ett_mapi);
 
 		if (pinfo->match_port == pinfo->destport)
 		{
 		        proto_tree_add_boolean_hidden(mapi_tree, hf_mapi_request, tvb,
-						   0, tvb_length(tvb), TRUE);
-			proto_tree_add_text(mapi_tree, tvb, 0,
-				tvb_length(tvb), "Request: <opaque data>" );
+						   0, 0, TRUE);
+			proto_tree_add_text(mapi_tree, tvb, 0, -1,
+				"Request: <opaque data>" );
 		}
 		else
 		{
 		        proto_tree_add_boolean_hidden(mapi_tree, hf_mapi_response, tvb,
-						   0, tvb_length(tvb), TRUE);
-			proto_tree_add_text(mapi_tree, tvb, 0,
-				tvb_length(tvb), "Response: <opaque data>");
+						   0, 0, TRUE);
+			proto_tree_add_text(mapi_tree, tvb, 0, -1,
+				"Response: <opaque data>");
 		}
 	}
 }

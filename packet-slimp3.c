@@ -6,7 +6,7 @@
  * Adds support for the data packet protocol for the SliMP3
  * See www.slimdevices.com for details.
  *
- * $Id: packet-slimp3.c,v 1.2 2002/01/21 07:36:42 guy Exp $
+ * $Id: packet-slimp3.c,v 1.3 2002/01/24 09:20:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -199,8 +199,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     addc_strp = addc_str;
     if (tree) {
 
-	ti = proto_tree_add_item(tree, proto_slimp3, tvb, offset,
-				 tvb_length_remaining(tvb, offset), FALSE);
+	ti = proto_tree_add_item(tree, proto_slimp3, tvb, offset, -1, FALSE);
 	slimp3_tree = proto_item_add_subtree(ti, ett_slimp3);
 
 	proto_tree_add_uint(slimp3_tree, hf_slimp3_opcode, tvb,
@@ -259,7 +258,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    /* Loop through the commands */
 	    i1 = 18;
 	    in_str = 0;
-	    while (i1 < tvb_length_remaining(tvb, offset)) {
+	    while (i1 < tvb_reported_length_remaining(tvb, offset)) {
 		switch(tvb_get_guint8(tvb, offset + i1)) {
 		case 0:
 		    in_str = 0; 
@@ -374,11 +373,11 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				       tvb, offset, 1, FALSE);
 	    if (pinfo->destport == UDP_PORT_SLIMP3) {
 		/* Hello response; client->server */
-		proto_tree_add_text(slimp3_tree, tvb, offset, tvb_length_remaining(tvb, offset), 
+		proto_tree_add_text(slimp3_tree, tvb, offset, -1, 
 				    "I2C Response (Client --> Server)");
 	    } else {
 		/* Hello request; server->client */
-		proto_tree_add_text(slimp3_tree, tvb, offset, tvb_length_remaining(tvb, offset), 
+		proto_tree_add_text(slimp3_tree, tvb, offset, -1, 
 				    "I2C Request (Server --> Client)");
 	    }
 	}
@@ -411,8 +410,8 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 	    proto_tree_add_item_hidden(slimp3_tree, hf_slimp3_data,
 				       tvb, offset, 1, FALSE);
-	    proto_tree_add_text(slimp3_tree, tvb, offset, tvb_length_remaining(tvb, offset), 
-				"Length: %d bytes", tvb_length_remaining(tvb, offset+18));
+	    proto_tree_add_text(slimp3_tree, tvb, offset, -1, 
+				"Length: %d bytes", tvb_reported_length_remaining(tvb, offset+18));
 	    proto_tree_add_text(slimp3_tree, tvb, offset+2, 2, 
 				"Buffer offset: %d bytes.", 
 				tvb_get_ntohs(tvb, offset+2) * 2);
@@ -420,7 +419,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Length: %d bytes, Offset: %d bytes.",
-			    tvb_length_remaining(tvb, offset+18),
+			    tvb_reported_length_remaining(tvb, offset+18),
 			    tvb_get_ntohs(tvb, offset+2) * 2);
 	}
 	break;
@@ -466,8 +465,8 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     default:
 	if (tree) {
-	    proto_tree_add_text(slimp3_tree, tvb, offset, tvb_length_remaining(tvb, offset),
-				"Data (%d bytes)", tvb_length_remaining(tvb, offset));
+	    proto_tree_add_text(slimp3_tree, tvb, offset, -1,
+				"Data (%d bytes)", tvb_reported_length_remaining(tvb, offset));
 	}
 	break;
 

@@ -1,7 +1,7 @@
 /* packet-yppasswd.c
  * Routines for yppasswd dissection
  *
- * $Id: packet-yppasswd.c,v 1.4 2001/06/18 02:17:58 guy Exp $
+ * $Id: packet-yppasswd.c,v 1.5 2002/01/24 09:20:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,7 +60,7 @@ dissect_yppasswd_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 			offset, NULL);
 
 	lock_item = proto_tree_add_item(tree, hf_yppasswd_newpw, tvb,
-			offset, tvb_length_remaining(tvb, offset), FALSE);
+			offset, -1, FALSE);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_yppasswd_newpw);
 

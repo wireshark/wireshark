@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.45 2002/01/21 07:36:35 guy Exp $
+ * $Id: packet-http.c,v 1.46 2002/01/24 09:20:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -135,8 +135,8 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_http, tvb, offset,
-		    tvb_length_remaining(tvb, offset), FALSE);
+		ti = proto_tree_add_item(tree, proto_http, tvb, offset, -1,
+		    FALSE);
 		http_tree = proto_item_add_subtree(ti, ett_http);
 	}
 

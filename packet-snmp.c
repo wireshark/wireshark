@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.78 2002/01/21 07:36:43 guy Exp $
+ * $Id: packet-snmp.c,v 1.79 2002/01/24 09:20:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1496,8 +1496,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		col_add_str(pinfo->cinfo, COL_PROTOCOL, proto_name);
 
 	if (tree) {
-		item = proto_tree_add_item(tree, proto, tvb, offset,
-		    tvb_length_remaining(tvb, offset), FALSE);
+		item = proto_tree_add_item(tree, proto, tvb, offset, -1, FALSE);
 		snmp_tree = proto_item_add_subtree(item, ett);
 	}
 
@@ -1883,8 +1882,7 @@ dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMUX");
 
 	if (tree) {
-		item = proto_tree_add_item(tree, proto, tvb, offset,
-		    tvb_length_remaining(tvb, offset), FALSE);
+		item = proto_tree_add_item(tree, proto, tvb, offset, -1, FALSE);
 		smux_tree = proto_item_add_subtree(item, ett);
 	}
 

@@ -1,7 +1,7 @@
 /* packet-stat.c
  * Routines for stat dissection
  *
- * $Id: packet-stat.c,v 1.11 2001/12/23 21:36:58 guy Exp $
+ * $Id: packet-stat.c,v 1.12 2002/01/24 09:20:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -129,7 +129,7 @@ dissect_stat_stat_res(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 	if (tree) {
 		lock_item = proto_tree_add_item(tree, hf_stat_stat_res, tvb,
-				offset, tvb_length_remaining(tvb, offset), FALSE);
+				offset, -1, FALSE);
 		if (lock_item)
 			lock_tree = proto_item_add_subtree(lock_item, ett_stat_stat_res);
 	}

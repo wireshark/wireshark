@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-vrrp.c,v 1.20 2002/01/21 07:36:44 guy Exp $
+ * $Id: packet-vrrp.c,v 1.21 2002/01/24 09:20:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -115,8 +115,7 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 guint16 cksum, computed_cksum;
                 guint8 auth_buf[VRRP_AUTH_DATA_LEN+1];
 
-                ti = proto_tree_add_item(tree, proto_vrrp, tvb, 0,
-                                         tvb_length(tvb), FALSE);
+                ti = proto_tree_add_item(tree, proto_vrrp, tvb, 0, -1, FALSE);
                 vrrp_tree = proto_item_add_subtree(ti, ett_vrrp);
 
                 tv = proto_tree_add_uint_format(vrrp_tree, hf_vrrp_ver_type,

@@ -12,7 +12,7 @@
  * Routines for NDMP dissection
  * 2001 Ronnie Sahlberg (see AUTHORS for email)
  *
- * $Id: packet-ndmp.c,v 1.11 2002/01/21 23:35:32 guy Exp $
+ * $Id: packet-ndmp.c,v 1.12 2002/01/24 09:20:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2313,13 +2313,13 @@ dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 
 	if(ndmp_commands[i].cmd==0){
 		/* we do not know this message */
-		proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Unknown type of NDMP message: 0x%02x", nh->msg);
+		proto_tree_add_text(tree, tvb, offset, -1, "Unknown type of NDMP message: 0x%02x", nh->msg);
 		offset+=tvb_length_remaining(tvb, offset);
 		return offset;
 	}
 
 	if(tree){
-		cmd_item = proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), 
+		cmd_item = proto_tree_add_text(tree, tvb, offset, -1, 
 			msg_vals[i].strptr);
 		cmd_tree = proto_item_add_subtree(cmd_item, ett_ndmp);
 	}

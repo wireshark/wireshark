@@ -2,7 +2,7 @@
  * Routines for DLSw packet dissection (Data Link Switching)
  * Copyright 2001, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-dlsw.c,v 1.3 2002/01/21 07:36:33 guy Exp $
+ * $Id: packet-dlsw.c,v 1.4 2002/01/24 09:20:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -218,7 +218,7 @@ dissect_dlsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
  if (tree) 
  {
-   ti = proto_tree_add_item(tree, proto_dlsw, tvb, 0, tvb_length(tvb), FALSE);
+   ti = proto_tree_add_item(tree, proto_dlsw, tvb, 0, -1, FALSE);
    dlsw_tree = proto_item_add_subtree(ti, ett_dlsw);
    
    hlen=tvb_get_guint8(tvb,1);

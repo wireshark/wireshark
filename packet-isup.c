@@ -2,7 +2,7 @@
  * Routines for ISUP dissection
  * Copyright 2001, Martina Obermeier <martina.obermeier@icn.siemens.de>
  *
- * $Id: packet-isup.c,v 1.8 2002/01/21 07:36:36 guy Exp $
+ * $Id: packet-isup.c,v 1.9 2002/01/24 09:20:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3917,7 +3917,7 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_isup, tvb, 0, tvb_length(tvb), FALSE);
+		ti = proto_tree_add_item(tree, proto_isup, tvb, 0, -1, FALSE);
 		isup_tree = proto_item_add_subtree(ti, ett_isup);
 
 		/* dissect CIC in main dissector since pass-along message type carrying complete IUSP message w/o CIC needs 

@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for Oracle TNS packet dissection
  *
- * $Id: packet-tns.c,v 1.27 2002/01/21 07:36:44 guy Exp $
+ * $Id: packet-tns.c,v 1.28 2002/01/24 09:20:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -177,13 +177,13 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	{
 		if ( is_sns )
 		{
-			ti = proto_tree_add_text(tns_tree, tvb, offset,
-			    tvb_length_remaining(tvb, offset), "Secure Network Services");
+			ti = proto_tree_add_text(tns_tree, tvb, offset, -1,
+			    "Secure Network Services");
 		}
 		else
 		{
-			ti = proto_tree_add_text(tns_tree, tvb, offset,
-			    tvb_length_remaining(tvb, offset), "Data");		
+			ti = proto_tree_add_text(tns_tree, tvb, offset, -1,
+			    "Data");		
 		}
 		data_tree = proto_item_add_subtree(ti, ett_tns_data);
 
@@ -240,8 +240,8 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if ( tree )
 	{
-		ti = proto_tree_add_text(tns_tree, tvb, offset,
-		    tvb_length_remaining(tvb, offset), "Connect");
+		ti = proto_tree_add_text(tns_tree, tvb, offset, -1,
+		    "Connect");
 		connect_tree = proto_item_add_subtree(ti, ett_tns_connect);
 
 		proto_tree_add_boolean_hidden(tns_tree, hf_tns_connect, tvb,
@@ -372,7 +372,7 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	{
 		proto_tree_add_item(connect_tree, hf_tns_connect_data, tvb,
 			tns_offset+cd_offset,
-			tvb_length(tvb)-(tns_offset+cd_offset), FALSE);
+			tvb_length_remaining(tvb, tns_offset+cd_offset), FALSE);
 	}
 	return;
 }
@@ -387,8 +387,8 @@ static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if ( tree )
 	{
-		ti = proto_tree_add_text(tns_tree, tvb, offset,
-		    tvb_length_remaining(tvb, offset), "Accept");
+		ti = proto_tree_add_text(tns_tree, tvb, offset, -1,
+		    "Accept");
 		accept_tree = proto_item_add_subtree(ti, ett_tns_accept);
 
 		proto_tree_add_boolean_hidden(tns_tree, hf_tns_accept, tvb,
@@ -469,7 +469,7 @@ static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	{
 		proto_tree_add_item(accept_tree, hf_tns_accept_data, tvb,
 			tns_offset+accept_offset,
-			tvb_length(tvb)-(tns_offset+accept_offset), FALSE);
+			tvb_length_remaining(tvb, tns_offset+accept_offset), FALSE);
 	}
 	return;
 }
@@ -482,8 +482,8 @@ static void dissect_tns_refuse(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if ( tree )
 	{
-		ti = proto_tree_add_text(tns_tree, tvb, offset,
-		    tvb_length_remaining(tvb, offset), "Refuse");
+		ti = proto_tree_add_text(tns_tree, tvb, offset, -1,
+		    "Refuse");
 		refuse_tree = proto_item_add_subtree(ti, ett_tns_refuse);
 
 		proto_tree_add_boolean_hidden(tns_tree, hf_tns_refuse, tvb,
@@ -519,7 +519,7 @@ static void dissect_tns_refuse(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( refuse_tree )
 	{
 		proto_tree_add_item(refuse_tree, hf_tns_refuse_data, tvb,
-			offset, tvb_length(tvb)-offset, FALSE);
+			offset, tvb_length_remaining(tvb, offset), FALSE);
 	}
 	return;
 }
@@ -532,8 +532,8 @@ static void dissect_tns_abort(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if ( tree )
 	{
-		ti = proto_tree_add_text(tns_tree, tvb, offset,
-		    tvb_length_remaining(tvb, offset), "Abort");
+		ti = proto_tree_add_text(tns_tree, tvb, offset, -1,
+		    "Abort");
 		abort_tree = proto_item_add_subtree(ti, ett_tns_abort);
 
 		proto_tree_add_boolean_hidden(tns_tree, hf_tns_abort, tvb,
@@ -577,13 +577,13 @@ static void dissect_tns_marker(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	{
 		if ( is_attention )
 		{
-			ti = proto_tree_add_text(tns_tree, tvb, offset,
-			    tvb_length_remaining(tvb, offset), "Marker");
+			ti = proto_tree_add_text(tns_tree, tvb, offset, -1,
+			    "Marker");
 		}
 		else
 		{
-			ti = proto_tree_add_text(tns_tree, tvb, offset,
-			    tvb_length_remaining(tvb, offset), "Attention");
+			ti = proto_tree_add_text(tns_tree, tvb, offset, -1,
+			    "Attention");
 		}
 
 		marker_tree = proto_item_add_subtree(ti, ett_tns_marker);
@@ -634,8 +634,8 @@ static void dissect_tns_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if ( tree )
 	{
-		ti = proto_tree_add_text(tns_tree, tvb, offset,
-		    tvb_length_remaining(tvb, offset), "Redirect");
+		ti = proto_tree_add_text(tns_tree, tvb, offset, -1,
+		    "Redirect");
 		redirect_tree = proto_item_add_subtree(ti, ett_tns_redirect);
 
 		proto_tree_add_boolean_hidden(tns_tree, hf_tns_redirect, tvb,
@@ -657,7 +657,7 @@ static void dissect_tns_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( redirect_tree )
 	{
 		proto_tree_add_item(redirect_tree, hf_tns_redirect_data, tvb,
-			offset, tvb_length(tvb)-offset, FALSE);
+			offset, tvb_length_remaining(tvb, offset), FALSE);
 	}
 	return;
 }
@@ -669,8 +669,8 @@ static void dissect_tns_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if ( tree )
 	{
-		ti = proto_tree_add_text(tns_tree, tvb, offset,
-		    tvb_length_remaining(tvb, offset), "Control");
+		ti = proto_tree_add_text(tns_tree, tvb, offset, -1,
+		    "Control");
 		control_tree = proto_item_add_subtree(ti, ett_tns_control);
 
 		proto_tree_add_boolean_hidden(tns_tree, hf_tns_control, tvb,
@@ -692,7 +692,7 @@ static void dissect_tns_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( control_tree )
 	{
 		proto_tree_add_item(control_tree, hf_tns_control_data, tvb,
-			offset, tvb_length(tvb)-offset, FALSE);
+			offset, tvb_length_remaining(tvb, offset), FALSE);
 	}
 	return;
 }
@@ -718,19 +718,18 @@ dissect_tns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) 
 	{
-		ti = proto_tree_add_item(tree, proto_tns, tvb, 0,
-		    tvb_length(tvb), FALSE);
+		ti = proto_tree_add_item(tree, proto_tns, tvb, 0, -1, FALSE);
 		tns_tree = proto_item_add_subtree(ti, ett_tns);
 
 		if (pinfo->match_port == pinfo->destport)
 		{
 			proto_tree_add_boolean_hidden(tns_tree, hf_tns_request,
-			   tvb, offset, tvb_length(tvb), TRUE);
+			   tvb, offset, 0, TRUE);
 		}
 		else
 		{
 			proto_tree_add_boolean_hidden(tns_tree, hf_tns_response,
-			    tvb, offset, tvb_length(tvb), TRUE);
+			    tvb, offset, 0, TRUE);
 		}
 	}
 

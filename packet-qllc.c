@@ -2,7 +2,7 @@
  * Routines for QLLC protocol - Qualified? LLC
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-qllc.c,v 1.4 2002/01/21 07:36:40 guy Exp $
+ * $Id: packet-qllc.c,v 1.5 2002/01/24 09:20:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -91,8 +91,8 @@ dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
-		qllc_ti = proto_tree_add_item(tree, proto_qllc, tvb, 0,
-		    tvb_length(tvb), FALSE);
+		qllc_ti = proto_tree_add_item(tree, proto_qllc, tvb, 0, -1,
+		    FALSE);
 		qllc_tree = proto_item_add_subtree(qllc_ti, ett_qllc);
 
     }

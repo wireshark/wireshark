@@ -3,7 +3,7 @@
  * Based on 3GPP TS 25.413 V3.4.0
  * Copyright 2001, Martin Held <Martin.Held@icn.siemens.de>
  *
- * $Id: packet-ranap.c,v 1.10 2002/01/21 07:36:40 guy Exp $
+ * $Id: packet-ranap.c,v 1.11 2002/01/24 09:20:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3424,13 +3424,9 @@ dissect_IE_CriticalityDiagnostics(tvbuff_t *tvb, proto_tree *ie_tree)
 static int
 dissect_unknown_IE(tvbuff_t *tvb, proto_tree *ie_tree)
 {
-  guint		length;
-  	
   if (ie_tree)
   {	
-     length = tvb_length(tvb);
-     
-     proto_tree_add_text(ie_tree, tvb, 0, length,
+     proto_tree_add_text(ie_tree, tvb, 0, -1,
 	   		   "IE Contents (dissection not implemented)"); 
   }
   return(0);	
@@ -3991,7 +3987,6 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gint		tmp_bitoffset = 0;
   guint		extension_present;  
   
-  gint		ie_tvb_length;
   tvbuff_t	*ie_tvb;
   
 
@@ -4042,7 +4037,7 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) 
   {
     /* create the ranap protocol tree */
-    ranap_item = proto_tree_add_item(tree, proto_ranap, tvb, 0, tvb_length(tvb), FALSE);
+    ranap_item = proto_tree_add_item(tree, proto_ranap, tvb, 0, -1, FALSE);
     ranap_tree = proto_item_add_subtree(ranap_item, ett_ranap);
     
     /* Add fields to ranap protocol tree */
@@ -4086,8 +4081,7 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   offset = PDU_NUMBER_OF_OCTETS_OFFSET + number_of_octets_size;
            
   /* create a tvb containing the remainder of the PDU */
-  ie_tvb_length = tvb_length(tvb)- offset;
-  ie_tvb = tvb_new_subset(tvb, offset, ie_tvb_length, ie_tvb_length);			
+  ie_tvb = tvb_new_subset(tvb, offset, -1, -1);
 			
   /* dissect the ies */
   dissect_ranap_ie_container(ie_tvb, pinfo, tree, ranap_tree);			

@@ -6,7 +6,7 @@
  *
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sua.c,v 1.5 2002/01/21 07:36:44 guy Exp $
+ * $Id: packet-sua.c,v 1.6 2002/01/24 09:20:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1957,7 +1957,7 @@ dissect_sua_tlv_list(tvbuff_t *tlv_tvb, proto_tree *sua_tree, gint initial_offse
   
   offset = initial_offset;
   
-  while(tvb_length_remaining(tlv_tvb, offset)) {
+  while(tvb_reported_length_remaining(tlv_tvb, offset)) {
     length         = tvb_get_ntohs(tlv_tvb, offset + PARAMETER_LENGTH_OFFSET);
     padding_length = nr_of_padding_bytes(length);
     total_length   = length + padding_length;
@@ -2078,13 +2078,13 @@ static void
 dissect_sua_light_payload(tvbuff_t *payload_tvb, packet_info *pinfo,
                           guint16 subsystem_number, proto_tree *sual_tree, proto_tree *tree)
 {
-  guint		payload_length = tvb_length(payload_tvb);
+  guint		payload_length = tvb_reported_length(payload_tvb);
 	
   /* do lookup with the subdissector table */
   if ( ! dissector_try_port (sua_light_dissector_table, subsystem_number, payload_tvb, pinfo, tree))
   {
      if (sual_tree)
-       proto_tree_add_text(sual_tree, payload_tvb, 0, payload_length, "Payload: %u byte%s", payload_length, plurality(payload_length, "", "s"));
+       proto_tree_add_text(sual_tree, payload_tvb, 0, -1, "Payload: %u byte%s", payload_length, plurality(payload_length, "", "s"));
   }
 }
 
@@ -2143,7 +2143,7 @@ dissect_sua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the sua protocol tree */
-    sua_item = proto_tree_add_item(tree, proto_sua, message_tvb, 0, tvb_length(message_tvb), FALSE);
+    sua_item = proto_tree_add_item(tree, proto_sua, message_tvb, 0, -1, FALSE);
     sua_tree = proto_item_add_subtree(sua_item, ett_sua);
   } else {
     sua_tree = NULL;

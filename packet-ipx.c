@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.100 2002/01/21 23:35:31 guy Exp $
+ * $Id: packet-ipx.c,v 1.101 2002/01/24 09:20:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -394,7 +394,7 @@ dissect_ipxmsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ipxmsg, tvb, 0, tvb_length(tvb), FALSE);
+		ti = proto_tree_add_item(tree, proto_ipxmsg, tvb, 0, -1, FALSE);
 		msg_tree = proto_item_add_subtree(ti, ett_ipxmsg);
 
 		proto_tree_add_uint(msg_tree, hf_msg_conn, tvb, 0, 1, conn_number);
@@ -431,7 +431,7 @@ dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ipxrip, tvb, 0, tvb_length(tvb), FALSE);
+		ti = proto_tree_add_item(tree, proto_ipxrip, tvb, 0, -1, FALSE);
 		rip_tree = proto_item_add_subtree(ti, ett_ipxrip);
 
 		if (operation < 2) {
@@ -453,9 +453,9 @@ dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_text(rip_tree, tvb, 0, 2, "Unknown RIP packet type");
 		}
 
-		available_length = tvb_length(tvb);
+		available_length = tvb_reported_length(tvb);
 		for (cursor =  2; cursor < available_length; cursor += 8) {
-			memcpy(&route.network, tvb_get_ptr(tvb, cursor, 4), 4);
+			tvb_memcpy(tvb, (guint8 *)&route.network, cursor, 4);
 			route.hops = tvb_get_ntohs(tvb, cursor+4);
 			route.ticks = tvb_get_ntohs(tvb, cursor+6);
 
@@ -762,7 +762,7 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_sap, tvb, 0, tvb_length(tvb), FALSE);
+		ti = proto_tree_add_item(tree, proto_sap, tvb, 0, -1, FALSE);
 		sap_tree = proto_item_add_subtree(ti, ett_ipxsap);
 
 		if (query.query_type >= 1 && query.query_type <= 4) {
@@ -785,12 +785,15 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (query.query_type == IPX_SAP_GENERAL_RESPONSE ||
 				query.query_type == IPX_SAP_NEAREST_RESPONSE) { /* responses */
 
-			int available_length = tvb_length(tvb);
+			int available_length = tvb_reported_length(tvb);
 			for (cursor =  2; (cursor + 64) <= available_length; cursor += 64) {
 				server.server_type = tvb_get_ntohs(tvb, cursor);
-				memcpy(server.server_name, tvb_get_ptr(tvb, cursor+2, 48), 48);
-				memcpy(&server.server_network, tvb_get_ptr(tvb, cursor+50, 4), 4);
-				memcpy(&server.server_node, tvb_get_ptr(tvb, cursor+54, 6), 6);
+				tvb_memcpy(tvb, (guint8 *)server.server_name,
+				    cursor+2, 48);
+				tvb_memcpy(tvb, (guint8 *)&server.server_network,
+				    cursor+50, 4);
+				tvb_memcpy(tvb, (guint8 *)&server.server_node,
+				    cursor+54, 6);
 				server.server_port = tvb_get_ntohs(tvb, cursor+60);
 				server.intermediate_network = tvb_get_ntohs(tvb, cursor+62);
 

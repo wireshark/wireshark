@@ -2,7 +2,7 @@
  * Routines for DHCPv6 packet disassembly
  * Jun-ichiro itojun Hagino <itojun@iijlab.net>
  *
- * $Id: packet-dhcpv6.c,v 1.3 2002/01/21 07:36:33 guy Exp $
+ * $Id: packet-dhcpv6.c,v 1.4 2002/01/24 09:20:47 guy Exp $
  *
  * The information used comes from:
  * draft-ietf-dhc-dhcpv6-22.txt
@@ -203,8 +203,7 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_dhcpv6, tvb, 0,
-		    tvb_length(tvb), FALSE);
+		ti = proto_tree_add_item(tree, proto_dhcpv6, tvb, 0, -1, FALSE);
 		bp_tree = proto_item_add_subtree(ti, ett_dhcpv6);
 
 		proto_tree_add_uint(bp_tree, hf_dhcpv6_msgtype, tvb, 0, 1,

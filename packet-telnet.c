@@ -2,7 +2,7 @@
  * Routines for telnet packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.28 2002/01/21 07:36:44 guy Exp $
+ * $Id: packet-telnet.c,v 1.29 2002/01/24 09:20:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -377,8 +377,7 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  int data_len;
 	  gint iac_offset;
 
-	  ti = proto_tree_add_item(tree, proto_telnet, tvb, offset,
-	    tvb_length_remaining(tvb, offset), FALSE);
+	  ti = proto_tree_add_item(tree, proto_telnet, tvb, offset, -1, FALSE);
 	  telnet_tree = proto_item_add_subtree(ti, ett_telnet);
 
 	  /*

@@ -2,7 +2,7 @@
  * Routines for rquota dissection
  * Copyright 2001, Mike Frisch <frisch@hummingbird.com>
  *
- * $Id: packet-rquota.c,v 1.5 2001/11/27 22:37:20 guy Exp $
+ * $Id: packet-rquota.c,v 1.6 2002/01/24 09:20:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,7 +77,7 @@ dissect_rquota(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 	proto_tree *lock_tree = NULL;
 
 	lock_item = proto_tree_add_item(tree, hf_rquota_rquota, tvb,
-			offset, tvb_length_remaining(tvb, offset), FALSE);
+			offset, -1, FALSE);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_rquota_rquota);
 

@@ -4,7 +4,7 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quake.c,v 1.24 2002/01/21 07:36:40 guy Exp $
+ * $Id: packet-quake.c,v 1.25 2002/01/24 09:20:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -453,7 +453,7 @@ dissect_quake_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		control_item = proto_tree_add_text(tree, tvb,
-				0, tvb_length(tvb), "Control %s: %s",
+				0, -1, "Control %s: %s",
 				val_to_str(direction, names_control_direction, "%u"),
 				val_to_str(command, names_control_command, "%u"));
 		if (control_item)
@@ -531,7 +531,7 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		quake_item = proto_tree_add_item(tree, proto_quake,
-				tvb, 0, tvb_length(tvb), FALSE);
+				tvb, 0, -1, FALSE);
 		if (quake_item)
 			quake_tree = proto_item_add_subtree(quake_item, ett_quake);
 	}
@@ -744,4 +744,3 @@ proto_register_quake(void)
 					"Set the UDP port for the Quake Server",
 					10, &gbl_quakeServerPort);
 }
-

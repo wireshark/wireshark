@@ -1,7 +1,7 @@
 /* packet-spray.c
  * 2001  Ronnie Sahlberg   <See AUTHORS for email>
  *
- * $Id: packet-spray.c,v 1.6 2001/12/23 21:36:57 guy Exp $
+ * $Id: packet-spray.c,v 1.7 2002/01/24 09:20:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,7 +56,7 @@ dissect_get_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 			hf_spray_counter, offset);
 
 	lock_item = proto_tree_add_item(tree, hf_spray_clock, tvb,
-			offset, tvb_length_remaining(tvb, offset), FALSE);
+			offset, -1, FALSE);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_spray_clock);
 

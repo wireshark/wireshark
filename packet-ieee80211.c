@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.47 2002/01/21 07:36:35 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.48 2002/01/24 09:20:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -816,7 +816,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 
   if (tree)
     {
-      ti = proto_tree_add_item (tree, proto_wlan_mgt, tvb, 0, tvb_length(tvb), FALSE);
+      ti = proto_tree_add_item (tree, proto_wlan_mgt, tvb, 0, -1, FALSE);
       mgt_tree = proto_item_add_subtree (ti, ett_80211_mgt);
 
       switch (COMPOSE_FRAME_TYPE(fcf))

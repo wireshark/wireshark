@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.63 2002/01/21 07:36:35 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.64 2002/01/24 09:20:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -659,10 +659,10 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
     if (ni->ni_type == ICMP6_NI_QUERY) {
 	switch (ni->ni_code) {
 	case ICMP6_NI_SUBJ_IPV6:
-	    n = tvb_length_remaining(tvb, offset + sizeof(*ni));
+	    n = tvb_reported_length_remaining(tvb, offset + sizeof(*ni));
 	    n /= sizeof(struct e_in6_addr);
 	    tf = proto_tree_add_text(tree, tvb,
-		offset + sizeof(*ni), tvb_length_remaining(tvb, offset), "IPv6 subject addresses");
+		offset + sizeof(*ni), -1, "IPv6 subject addresses");
 	    field_tree = proto_item_add_subtree(tf, ett_nodeinfo_subject6);
 	    p = offset + sizeof *ni;
 	    for (i = 0; i < n; i++) {
@@ -690,10 +690,10 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	    off = tvb_length_remaining(tvb, offset + sizeof(*ni) + l);
 	    break;
 	case ICMP6_NI_SUBJ_IPV4:
-	    n = tvb_length_remaining(tvb, offset + sizeof(*ni));
+	    n = tvb_reported_length_remaining(tvb, offset + sizeof(*ni));
 	    n /= sizeof(guint32);
 	    tf = proto_tree_add_text(tree, tvb,
-		offset + sizeof(*ni), tvb_length_remaining(tvb, offset), "IPv4 subject addresses");
+		offset + sizeof(*ni), -1, "IPv4 subject addresses");
 	    field_tree = proto_item_add_subtree(tf, ett_nodeinfo_subject4);
 	    p = offset + sizeof *ni;
 	    for (i = 0; i < n; i++) {
@@ -712,7 +712,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	case NI_QTYPE_SUPTYPES:
 	    p = offset + sizeof *ni;
 	    tf = proto_tree_add_text(tree, tvb,
-		offset + sizeof(*ni), tvb_length_remaining(tvb, p),
+		offset + sizeof(*ni), -1,
 		"Supported type bitmap%s",
 		(flags & 0x0001) ? ", compressed" : "");
 	    field_tree = proto_item_add_subtree(tf,
@@ -720,7 +720,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	    n = 0;
 	    while (tvb_bytes_exist(tvb, p, sizeof(guint32))) { /* XXXX Check what? */
 		if ((flags & 0x0001) == 0) {
-		    l = tvb_length_remaining(tvb, offset + sizeof(*ni));
+		    l = tvb_reported_length_remaining(tvb, offset + sizeof(*ni));
 		    l /= sizeof(guint32);
 		    i = 0;
 		} else {
@@ -750,12 +750,11 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	    proto_tree_add_text(tree, tvb, offset + sizeof(*ni),
 		sizeof(gint32), "TTL: %d", (gint32)tvb_get_ntohl(tvb, offset + sizeof *ni));
 	    tf = proto_tree_add_text(tree, tvb,
-		offset + sizeof(*ni) + sizeof(guint32),
-		tvb_length_remaining(tvb, offset),
+		offset + sizeof(*ni) + sizeof(guint32),	-1,
 		"DNS labels");
 	    field_tree = proto_item_add_subtree(tf, ett_nodeinfo_nodedns);
 	    j = offset + sizeof (*ni) + sizeof(guint32);
-	    while (j < tvb_length(tvb)) {
+	    while (j < tvb_reported_length(tvb)) {
 		l = get_dns_name(tvb, j,
 		   offset + sizeof (*ni) + sizeof(guint32),
 		   dname,sizeof(dname));
@@ -773,10 +772,10 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	    off = tvb_length_remaining(tvb, offset);
 	    break;
 	case NI_QTYPE_NODEADDR:
-	    n = tvb_length_remaining(tvb, offset + sizeof(*ni));
+	    n = tvb_reported_length_remaining(tvb, offset + sizeof(*ni));
 	    n /= sizeof(gint32) + sizeof(struct e_in6_addr);
 	    tf = proto_tree_add_text(tree, tvb,
-		offset + sizeof(*ni), tvb_length_remaining(tvb, offset), "IPv6 node addresses");
+		offset + sizeof(*ni), -1, "IPv6 node addresses");
 	    field_tree = proto_item_add_subtree(tf, ett_nodeinfo_node6);
 	    p = offset + sizeof (*ni);
 	    for (i = 0; i < n; i++) {
@@ -792,10 +791,10 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	    off = tvb_length_remaining(tvb, offset);
 	    break;
 	case NI_QTYPE_IPV4ADDR:
-	    n = tvb_length_remaining(tvb, offset + sizeof(*ni));
+	    n = tvb_reported_length_remaining(tvb, offset + sizeof(*ni));
 	    n /= sizeof(gint32) + sizeof(guint32);
 	    tf = proto_tree_add_text(tree, tvb,
-		offset + sizeof(*ni), tvb_length_remaining(tvb, offset), "IPv4 node addresses");
+		offset + sizeof(*ni), -1, "IPv4 node addresses");
 	    field_tree = proto_item_add_subtree(tf, ett_nodeinfo_node4);
 	    p = offset + sizeof *ni;
 	    for (i = 0; i < n; i++) {

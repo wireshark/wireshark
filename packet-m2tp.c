@@ -5,7 +5,7 @@
  *
  * Copyright 2001, Heinz Prantner <heinz.prantner[AT]radisys.com>
  *
- * $Id: packet-m2tp.c,v 1.2 2002/01/21 07:36:37 guy Exp $
+ * $Id: packet-m2tp.c,v 1.3 2002/01/24 09:20:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -526,7 +526,7 @@ dissect_m2tp_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2tp
   offset += COMMON_HEADER_LENGTH;
   
   /* extract zero or more parameters and process them individually */
-  while(tvb_length_remaining(message_tvb, offset)) {
+  while(tvb_reported_length_remaining(message_tvb, offset)) {
     length         = tvb_get_ntohs(message_tvb, offset + PARAMETER_LENGTH_OFFSET);
     padding_length = nr_of_padding_bytes(length);
     total_length   = length + padding_length;
@@ -553,7 +553,7 @@ dissect_m2tp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the m2tp protocol tree */
-    m2tp_item = proto_tree_add_item(tree, proto_m2tp, message_tvb, 0, tvb_length(message_tvb), FALSE);
+    m2tp_item = proto_tree_add_item(tree, proto_m2tp, message_tvb, 0, -1, FALSE);
     m2tp_tree = proto_item_add_subtree(m2tp_item, ett_m2tp);
   } else {
     m2tp_item = NULL;

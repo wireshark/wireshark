@@ -2,7 +2,7 @@
  * Routines for cisco tacacs/xtacacs/tacacs+ packet dissection
  * Copyright 2001, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-tacacs.c,v 1.20 2002/01/21 23:35:32 guy Exp $
+ * $Id: packet-tacacs.c,v 1.21 2002/01/24 09:20:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -151,7 +151,7 @@ dissect_tacacs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) 
 	{
 		ti = proto_tree_add_protocol_format(tree, proto_tacacs,
-		 tvb, 0, tvb_length(tvb), version==0?"TACACS":"XTACACS");
+		 tvb, 0, -1, version==0?"TACACS":"XTACACS");
 		tacacs_tree = proto_item_add_subtree(ti, ett_tacacs);
 
 		proto_tree_add_uint(tacacs_tree, hf_tacacs_version, tvb, 0, 1,
@@ -353,7 +353,7 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) 
 	{
 		ti = proto_tree_add_protocol_format(tree, proto_tacplus,
-		 tvb, 0, tvb_length(tvb), "TACACS+");
+		 tvb, 0, -1, "TACACS+");
 
 		tacplus_tree = proto_item_add_subtree(ti, ett_tacplus);
 		if (pinfo->match_port == pinfo->destport)

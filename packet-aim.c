@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim.c,v 1.13 2002/01/21 07:36:32 guy Exp $
+ * $Id: packet-aim.c,v 1.14 2002/01/24 09:20:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -143,7 +143,7 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    necessary to generate protocol tree items. */
   if (tree) {
     
-    ti = proto_tree_add_item(tree, proto_aim, tvb, 0, tvb_length(tvb), FALSE); 
+    ti = proto_tree_add_item(tree, proto_aim, tvb, 0, -1, FALSE); 
     aim_tree = proto_item_add_subtree(ti, ett_aim);
     proto_tree_add_uint(aim_tree, hf_aim_cmd_start, tvb, 0, 1, '*');  
     proto_tree_add_uint(aim_tree, hf_aim_channel, tvb, 1, 1, hdr_channel);

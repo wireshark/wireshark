@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.63 2002/01/21 07:36:48 guy Exp $
+ * $Id: packet-x25.c,v 1.64 2002/01/24 09:20:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1514,8 +1514,8 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 	    col_set_str(pinfo->cinfo, COL_INFO, "Invalid/short X.25 packet");
 	if (tree)
-	    proto_tree_add_protocol_format(tree, proto_x25, tvb, 0,
-		    tvb_length(tvb), "Invalid/short X.25 packet");
+	    proto_tree_add_protocol_format(tree, proto_x25, tvb, 0, -1,
+		    "Invalid/short X.25 packet");
 	return;
     }
 
@@ -1579,8 +1579,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    guint8 prt_id;
 
 	    if (x25_tree) {
-		ti = proto_tree_add_text(x25_tree, tvb, localoffset,
-			tvb_length_remaining(tvb, localoffset),
+		ti = proto_tree_add_text(x25_tree, tvb, localoffset, -1,
 			"User data");
 		userdata_tree = proto_item_add_subtree(ti, ett_x25_user_data);
 	    }
@@ -1782,8 +1781,8 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    }
 	    if (localoffset < tvb_length(tvb)) {
 		if (userdata_tree) {
-		    proto_tree_add_text(userdata_tree, tvb, localoffset,
-				tvb_length(tvb)-localoffset, "Data");
+		    proto_tree_add_text(userdata_tree, tvb, localoffset, -1,
+				"Data");
 		}
 		localoffset = tvb_length(tvb);
 	    }

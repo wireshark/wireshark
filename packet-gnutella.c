@@ -2,7 +2,7 @@
  * Routines for gnutella dissection
  * Copyright 2001, B. Johannessen <bob@havoq.com>
  *
- * $Id: packet-gnutella.c,v 1.11 2002/01/21 07:36:34 guy Exp $
+ * $Id: packet-gnutella.c,v 1.12 2002/01/24 09:20:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -405,7 +405,7 @@ static void dissect_gnutella(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			proto_gnutella,
 			tvb,
 			0,
-			tvb_length(tvb),
+			-1,
 			FALSE);
 		gnutella_tree = proto_item_add_subtree(ti, ett_gnutella);
 

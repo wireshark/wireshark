@@ -2,7 +2,7 @@
  * Routines for SMB Browser packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.c,v 1.20 2002/01/21 07:36:42 guy Exp $
+ * $Id: packet-smb-browse.c,v 1.21 2002/01/24 09:20:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -559,7 +559,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, proto_smb_browse, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
+		item = proto_tree_add_item(parent_tree, proto_smb_browse, tvb, offset, -1, TRUE);
 
 		tree = proto_item_add_subtree(item, ett_browse);
 	}
@@ -786,7 +786,7 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, proto_smb_browse, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
+		item = proto_tree_add_item(parent_tree, proto_smb_browse, tvb, offset, -1, TRUE);
 
 		tree = proto_item_add_subtree(item, ett_browse);
 	}

@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TFTP Option Extension
  *
- * $Id: packet-tftp.c,v 1.35 2002/01/21 07:36:44 guy Exp $
+ * $Id: packet-tftp.c,v 1.36 2002/01/24 09:20:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -143,8 +143,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 
-	  ti = proto_tree_add_item(tree, proto_tftp, tvb, offset,
-			    tvb_length_remaining(tvb, offset), FALSE);
+	  ti = proto_tree_add_item(tree, proto_tftp, tvb, offset, -1, FALSE);
 	  tftp_tree = proto_item_add_subtree(ti, ett_tftp);
 
 	  proto_tree_add_uint(tftp_tree, hf_tftp_opcode, tvb,
@@ -220,8 +219,8 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  offset += 2;
 
 	  if (tree) {
-	    proto_tree_add_text(tftp_tree, tvb, offset, tvb_length_remaining(tvb, offset),
-		"Data (%d bytes)", tvb_length_remaining(tvb, offset));
+	    proto_tree_add_text(tftp_tree, tvb, offset, -1,
+		"Data (%d bytes)", tvb_reported_length_remaining(tvb, offset));
 	  }
 	  break;
 
@@ -266,8 +265,8 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	default:
 	  if (tree) {
-	    proto_tree_add_text(tftp_tree, tvb, offset, tvb_length_remaining(tvb, offset),
-		"Data (%d bytes)", tvb_length_remaining(tvb, offset));
+	    proto_tree_add_text(tftp_tree, tvb, offset, -1,
+		"Data (%d bytes)", tvb_reported_length_remaining(tvb, offset));
 	  }
 	  break;
 

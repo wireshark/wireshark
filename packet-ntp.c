@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.33 2002/01/21 07:36:38 guy Exp $
+ * $Id: packet-ntp.c,v 1.34 2002/01/24 09:20:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -280,8 +280,7 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		/* Adding NTP item and subtree */
-		ti = proto_tree_add_item(tree, proto_ntp, tvb, 0,
-		    tvb_length(tvb), FALSE);
+		ti = proto_tree_add_item(tree, proto_ntp, tvb, 0, -1, FALSE);
 		ntp_tree = proto_item_add_subtree(ti, ett_ntp);
 
 		flags = tvb_get_guint8(tvb, 0);

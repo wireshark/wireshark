@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sap.c,v 1.26 2002/01/21 07:36:41 guy Exp $
+ * $Id: packet-sap.c,v 1.27 2002/01/24 09:20:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -162,8 +162,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
 	if (tree) {
-	  si = proto_tree_add_item(tree, proto_sap, tvb, offset,
-	      tvb_length_remaining(tvb, offset), FALSE);
+	  si = proto_tree_add_item(tree, proto_sap, tvb, offset, -1, FALSE);
 	  sap_tree = proto_item_add_subtree(si, ett_sap);
 
 	  sif = proto_tree_add_uint(sap_tree, hf_sap_flags, tvb, offset, 1, vers_flags);
@@ -232,8 +231,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                   if (is_enc && is_comp) mangle = "compressed and encrypted";
                   else if (is_enc) mangle = "encrypted";
                   else mangle = "compressed";
-                  proto_tree_add_text(sap_tree, tvb, offset,
-                                      tvb_length_remaining(tvb, offset),
+                  proto_tree_add_text(sap_tree, tvb, offset, -1,
                                       "The rest of the packet is %s", mangle);
                   return;
           }

@@ -15,7 +15,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@clarent.com>
  *
- * $Id: packet-sip.c,v 1.21 2002/01/21 07:36:42 guy Exp $
+ * $Id: packet-sip.c,v 1.22 2002/01/24 09:20:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -124,7 +124,7 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_item *ti, *th;
                 proto_tree *sip_tree, *hdr_tree;
 
-                ti = proto_tree_add_item(tree, proto_sip, tvb, 0, tvb_length(tvb), FALSE);
+                ti = proto_tree_add_item(tree, proto_sip, tvb, 0, -1, FALSE);
                 sip_tree = proto_item_add_subtree(ti, ett_sip);
 
                 proto_tree_add_text(sip_tree, tvb, 0, next_offset, "%s-Line: %s",

@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-rtp.c,v 1.32 2002/01/21 07:36:41 guy Exp $
+ * $Id: packet-rtp.c,v 1.33 2002/01/24 09:20:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -365,7 +365,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		}
 
 		if ( tree ) {
-			ti = proto_tree_add_item( tree, proto_rtp, tvb, offset, tvb_length_remaining( tvb, offset ), FALSE );
+			ti = proto_tree_add_item( tree, proto_rtp, tvb, offset, -1, FALSE );
 			rtp_tree = proto_item_add_subtree( ti, ett_rtp );
 		
 			proto_tree_add_uint( rtp_tree, hf_rtp_version, tvb,
@@ -404,7 +404,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	}
 
 	if ( tree ) {
-		ti = proto_tree_add_item( tree, proto_rtp, tvb, offset, tvb_length_remaining( tvb, offset ), FALSE );
+		ti = proto_tree_add_item( tree, proto_rtp, tvb, offset, -1, FALSE );
 		rtp_tree = proto_item_add_subtree( ti, ett_rtp );
 		
 		proto_tree_add_uint( rtp_tree, hf_rtp_version, tvb,

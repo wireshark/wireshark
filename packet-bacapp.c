@@ -2,7 +2,7 @@
  * Routines for BACnet (APDU) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bacapp.c,v 1.9 2002/01/21 07:36:32 guy Exp $
+ * $Id: packet-bacapp.c,v 1.10 2002/01/24 09:20:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -92,7 +92,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_append_fstr(pinfo->cinfo, COL_INFO, "(%s)",
 		bacapp_type_name(bacapp_type));
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_bacapp, tvb, offset, tvb_length(tvb), FALSE);
+		ti = proto_tree_add_item(tree, proto_bacapp, tvb, offset, -1, FALSE);
 
 		bacapp_tree = proto_item_add_subtree(ti, ett_bacapp);
 

@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.37 2002/01/21 07:36:38 guy Exp $
+ * $Id: packet-pim.c,v 1.38 2002/01/24 09:20:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -135,8 +135,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	col_clear(pinfo->cinfo, COL_INFO);
 
     if (tree) {
-	ti = proto_tree_add_item(tree, proto_pim, tvb, offset,
-	    tvb_length_remaining(tvb, offset), FALSE);
+	ti = proto_tree_add_item(tree, proto_pim, tvb, offset, -1, FALSE);
 	pim_tree = proto_item_add_subtree(ti, ett_pim);
 
 	/* Put IGMP type, 0x14, into the tree */
@@ -280,8 +279,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 * e.g. an IPv6 data packet is encapsulated in IPv6 PIM packet.
 			 */
 		    if (pinfo->src.type == AT_IPv4) {
-			    proto_tree_add_text(pimopt_tree, tvb, offset,
-						tvb_length_remaining(tvb, offset),
+			    proto_tree_add_text(pimopt_tree, tvb, offset, -1,
 						"IPv4 dummy header");
 			    proto_tree_add_text(pimopt_tree, tvb, offset + 12, 4,
 						"Source: %s",
@@ -293,8 +291,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			    struct ip6_hdr ip6_hdr;
 			    tvb_memcpy(tvb, (guint8 *)&ip6_hdr, offset,
 				       tvb_length_remaining(tvb, offset));
-			    proto_tree_add_text(pimopt_tree, tvb, offset,
-						tvb_length_remaining(tvb, offset),
+			    proto_tree_add_text(pimopt_tree, tvb, offset, -1,
 						"IPv6 dummy header");
 			    proto_tree_add_text(pimopt_tree, tvb,
 						offset + offsetof(struct ip6_hdr, ip6_src), 16,
@@ -305,8 +302,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						"Group: %s",
 						ip6_to_str(&ip6_hdr.ip6_dst));
 		    } else
-			    proto_tree_add_text(pimopt_tree, tvb, offset,
-						tvb_length_remaining(tvb, offset),
+			    proto_tree_add_text(pimopt_tree, tvb, offset, -1,
 						"Dummy header for an unknown protocol");
 		    break;
 	    case 4:	/* IPv4 */
@@ -324,8 +320,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #endif
 		    break;
 	    default:
-		    proto_tree_add_text(pimopt_tree, tvb,
-			offset, tvb_length_remaining(tvb, offset),
+		    proto_tree_add_text(pimopt_tree, tvb, offset, -1,
 			"Unknown IP version %d", (v_hl & 0xf0) >> 4);
 		    break;
 	    }
@@ -650,8 +645,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	col_add_str(pinfo->cinfo, COL_INFO, typestr); 
 
     if (tree) {
-	ti = proto_tree_add_item(tree, proto_pim, tvb, offset,
-	    tvb_length_remaining(tvb, offset), FALSE);
+	ti = proto_tree_add_item(tree, proto_pim, tvb, offset, -1, FALSE);
 	pim_tree = proto_item_add_subtree(ti, ett_pim);
 
 	proto_tree_add_uint(pim_tree, hf_pim_version, tvb, offset, 1,
@@ -741,8 +735,8 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	offset += 4;
 
 	if (tvb_reported_length_remaining(tvb, offset) > 0) {
-	    tiopt = proto_tree_add_text(pim_tree, tvb, offset,
-	        tvb_length_remaining(tvb, offset), "PIM parameters");
+	    tiopt = proto_tree_add_text(pim_tree, tvb, offset, -1,
+	        "PIM parameters");
 	    pimopt_tree = proto_item_add_subtree(tiopt, ett_pim);
 	} else
 	    goto done;
@@ -805,8 +799,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 			 * e.g. an IPv6 data packet is encapsulated in IPv6 PIM packet.
 			 */
 		    if (pinfo->src.type == AT_IPv4) {
-			    proto_tree_add_text(pimopt_tree, tvb, offset,
-						tvb_length_remaining(tvb, offset),
+			    proto_tree_add_text(pimopt_tree, tvb, offset, -1,
 						"IPv4 dummy header");
 			    proto_tree_add_text(pimopt_tree, tvb, offset + 12, 4,
 						"Source: %s",
@@ -818,8 +811,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 			    struct ip6_hdr ip6_hdr;
 			    tvb_memcpy(tvb, (guint8 *)&ip6_hdr, offset,
 				       tvb_length_remaining(tvb, offset));
-			    proto_tree_add_text(pimopt_tree, tvb, offset,
-						tvb_length_remaining(tvb, offset),
+			    proto_tree_add_text(pimopt_tree, tvb, offset, -1,
 						"IPv6 dummy header");
 			    proto_tree_add_text(pimopt_tree, tvb,
 						offset + offsetof(struct ip6_hdr, ip6_src), 16,
@@ -830,8 +822,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 						"Group: %s",
 						ip6_to_str(&ip6_hdr.ip6_dst));
 		    } else
-			    proto_tree_add_text(pimopt_tree, tvb, offset,
-						tvb_length_remaining(tvb, offset),
+			    proto_tree_add_text(pimopt_tree, tvb, offset, -1,
 						"Dummy header for an unknown protocol");
 		    break;
 	    case 4:	/* IPv4 */
@@ -849,8 +840,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 #endif
 		    break;
 	    default:
-		    proto_tree_add_text(pimopt_tree, tvb,
-			offset, tvb_length_remaining(tvb, offset),
+		    proto_tree_add_text(pimopt_tree, tvb, offset, -1,
 			"Unknown IP version %d", (v_hl & 0xf0) >> 4);
 		    break;
 	    }

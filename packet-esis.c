@@ -2,7 +2,7 @@
  * Routines for ISO/OSI End System to Intermediate System  
  * Routing Exchange Protocol ISO 9542.
  *
- * $Id: packet-esis.c,v 1.21 2002/01/24 07:24:56 guy Exp $
+ * $Id: packet-esis.c,v 1.22 2002/01/24 09:20:47 guy Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
@@ -149,7 +149,7 @@ esis_dissect_unknown( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   va_list ap;
 
   va_start(ap, fmat);
-  proto_tree_add_text_valist(tree, tvb, 0, tvb_length(tvb), fmat, ap);
+  proto_tree_add_text_valist(tree, tvb, 0, -1, fmat, ap);
   va_end(ap);
 }
 
@@ -170,7 +170,7 @@ esis_dissect_esh_pdu( u_char len, tvbuff_t *tvb, packet_info *pinfo,
     no_sa  = tvb_get_guint8(tvb, offset);
     len   -= 1;
 
-    ti = proto_tree_add_text( tree, tvb, offset, tvb_length_remaining(tvb, offset),
+    ti = proto_tree_add_text( tree, tvb, offset, -1,
             "Number of Source Addresses (SA, Format: NSAP) : %u", no_sa );
     offset++;
     
@@ -299,7 +299,7 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
    tvb_memcpy(tvb, (guint8 *)&ehdr, 0, sizeof ehdr);
    
    if (tree) {
-     ti = proto_tree_add_item(tree, proto_esis, tvb, 0, tvb_length(tvb), FALSE);
+     ti = proto_tree_add_item(tree, proto_esis, tvb, 0, -1, FALSE);
      esis_tree = proto_item_add_subtree(ti, ett_esis);
 
      if (ehdr.esis_version != ESIS_REQUIRED_VERSION){

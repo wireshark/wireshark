@@ -1,7 +1,7 @@
 /* packet-isis-snp.c
  * Routines for decoding isis complete & partial SNP and their payload
  *
- * $Id: packet-isis-snp.c,v 1.13 2002/01/21 07:36:36 guy Exp $
+ * $Id: packet-isis-snp.c,v 1.14 2002/01/24 09:20:49 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -248,8 +248,8 @@ isis_dissect_isis_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int 		len;
 
 	if (tree) {
-		ti = proto_tree_add_text(tree, tvb, offset,
-		    tvb_length_remaining(tvb, offset), PROTO_STRING_CSNP);
+		ti = proto_tree_add_text(tree, tvb, offset, -1,
+		    PROTO_STRING_CSNP);
 		csnp_tree = proto_item_add_subtree(ti, ett_isis_csnp);
 	}
 
@@ -324,8 +324,8 @@ isis_dissect_isis_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int 		len;
 
 	if (tree) {
-		ti = proto_tree_add_text(tree, tvb, offset,
-		    tvb_length_remaining(tvb, offset), PROTO_STRING_PSNP);
+		ti = proto_tree_add_text(tree, tvb, offset, -1,
+		    PROTO_STRING_PSNP);
 		psnp_tree = proto_item_add_subtree(ti, ett_isis_psnp);
 	}
 

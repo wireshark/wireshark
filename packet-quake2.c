@@ -7,7 +7,7 @@
  *	http://www.dgs.monash.edu.au/~timf/bottim/
  *	http://www.opt-sci.Arizona.EDU/Pandora/default.asp
  *
- * $Id: packet-quake2.c,v 1.8 2002/01/21 07:36:40 guy Exp $
+ * $Id: packet-quake2.c,v 1.9 2002/01/24 09:20:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,7 +86,7 @@ dissect_quake2_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 	marker = tvb_get_ntohl(tvb, 0);
 	if (tree) {
 		cl_item = proto_tree_add_text(tree, tvb,
-				0, tvb_length(tvb), "Connectionless");
+				0, -1, "Connectionless");
 		if (cl_item)
 			cl_tree = proto_item_add_subtree(
 				cl_item, ett_quake2_connectionless);
@@ -171,7 +171,7 @@ dissect_quake2_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 
 	if (tree) {
 		game_item = proto_tree_add_text(tree, tvb,
-				0, tvb_length(tvb), "Game");
+				0, -1, "Game");
 		if (game_item)
 			game_tree = proto_item_add_subtree(
 				game_item, ett_quake2_game);
@@ -236,8 +236,7 @@ dissect_quake2_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 			proto_tree *c_tree = NULL;
 			if (tree) {
 				c_item = proto_tree_add_text(game_tree, next_tvb,
-				0, tvb_length(next_tvb),
-				"Client Commands");
+				0, -1, "Client Commands");
 				if (c_item) {
 					c_tree = proto_item_add_subtree(
 						c_item, ett_quake2_game_clc);
@@ -250,8 +249,7 @@ dissect_quake2_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 			proto_tree *c_tree = NULL;
 			if (tree) {
 				c_item = proto_tree_add_text(game_tree, next_tvb,
-				0, tvb_length(next_tvb),
-				"Server Commands");
+				0, -1, "Server Commands");
 				if (c_item) {
 					c_tree = proto_item_add_subtree(
 					c_item, ett_quake2_game_svc);
@@ -281,7 +279,7 @@ dissect_quake2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		quake2_item = proto_tree_add_item(tree, proto_quake2,
-				tvb, 0, tvb_length(tvb), FALSE);
+				tvb, 0, -1, FALSE);
 		if (quake2_item)
 			quake2_tree = proto_item_add_subtree(
 				quake2_item, ett_quake2);

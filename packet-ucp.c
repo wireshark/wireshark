@@ -2,7 +2,7 @@
  * Routines for Universal Computer Protocol dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-ucp.c,v 1.10 2002/01/21 07:36:44 guy Exp $
+ * $Id: packet-ucp.c,v 1.11 2002/01/24 09:20:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1612,8 +1612,7 @@ dissect_ucp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree) {
 
 	/* create display subtree for the protocol */
-	ti = proto_tree_add_item(tree, proto_ucp, tvb, 0,
-				 tvb_length(tvb), FALSE);
+	ti = proto_tree_add_item(tree, proto_ucp, tvb, 0, -1, FALSE);
 
 	ucp_tree = proto_item_add_subtree(ti, ett_ucp);
 	/*

@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs.c,v 1.39 2002/01/21 07:36:32 guy Exp $
+ * $Id: packet-afs.c,v 1.40 2002/01/24 09:20:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -357,12 +357,12 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_afs, tvb, offset, 
-				tvb_length_remaining(tvb, offset), FALSE);
+		ti = proto_tree_add_item(tree, proto_afs, tvb, offset, -1,
+				FALSE);
 		afs_tree = proto_item_add_subtree(ti, ett_afs);
 
 		proto_tree_add_text(afs_tree, tvb,
-			offset, tvb_length_remaining(tvb, offset),
+			offset, -1,
 			"Service: %s%s%s %s",
 			VALID_OPCODE(opcode) ? "" : "Encrypted ",
 			typenode == hf_afs_ubik ? "UBIK - " : "",

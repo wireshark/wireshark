@@ -1,7 +1,7 @@
 /* packet-isis-hello.c
  * Routines for decoding isis hello packets and their CLVs
  *
- * $Id: packet-isis-hello.c,v 1.25 2002/01/21 07:36:36 guy Exp $
+ * $Id: packet-isis-hello.c,v 1.26 2002/01/24 09:20:49 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -615,8 +615,7 @@ isis_dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	const guint8	*lan_id;
 
 	if (tree) {
-		ti = proto_tree_add_text(tree, tvb, offset,
-		    tvb_length_remaining(tvb, offset), "ISIS HELLO");
+		ti = proto_tree_add_text(tree, tvb, offset, -1, "ISIS HELLO");
 		hello_tree = proto_item_add_subtree(ti, ett_isis_hello);
 		octet = tvb_get_guint8(tvb, offset);
 		proto_tree_add_uint_format(hello_tree,

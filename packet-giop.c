@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.54 2002/01/21 07:36:34 guy Exp $
+ * $Id: packet-giop.c,v 1.55 2002/01/24 09:20:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3082,8 +3082,7 @@ static void dissect_giop_reply (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
   guint32 mfn;			/* matching frame number */
 
   if (tree) {
-    tf = proto_tree_add_text (tree, tvb, offset,
-			      tvb_length (tvb),
+    tf = proto_tree_add_text (tree, tvb, offset, -1,
 			      "General Inter-ORB Protocol Reply");
     if (reply_tree == NULL)
       {
@@ -3168,8 +3167,7 @@ static void dissect_giop_reply_1_2 (tvbuff_t * tvb, packet_info * pinfo,
   guint32 mfn;			/* matching frame number */
   
   if (tree) {
-    tf = proto_tree_add_text (tree, tvb, offset,
-			      tvb_length (tvb),
+    tf = proto_tree_add_text (tree, tvb, offset, -1,
 			      "General Inter-ORB Protocol Reply");
     reply_tree = proto_item_add_subtree (tf, ett_giop_reply);
   }
@@ -3247,8 +3245,7 @@ static void dissect_giop_cancel_request (tvbuff_t * tvb, packet_info * pinfo,
   proto_item *tf;
 
   if (tree) {
-    tf = proto_tree_add_text (tree, tvb, offset,
-			      tvb_length (tvb),
+    tf = proto_tree_add_text (tree, tvb, offset, -1,
 			      "General Inter-ORB Protocol CancelRequest");
     cancel_request_tree = proto_item_add_subtree (tf, ett_giop_cancel_request);
   }
@@ -3307,8 +3304,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
 
   if (tree)
     {
-      tf = proto_tree_add_text (tree, tvb, offset,
-				tvb_length (tvb),
+      tf = proto_tree_add_text (tree, tvb, offset, -1,
 				"General Inter-ORB Protocol Request");
       if (request_tree == NULL)
 	{
@@ -3531,8 +3527,7 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
 
   if (tree)
     {
-      tf = proto_tree_add_text (tree, tvb, offset,
-				tvb_length (tvb),
+      tf = proto_tree_add_text (tree, tvb, offset, -1,
 				"General Inter-ORB Protocol Request");
       request_tree = proto_item_add_subtree (tf, ett_giop_reply);
     }
@@ -3661,8 +3656,7 @@ dissect_giop_locate_request( tvbuff_t * tvb, packet_info * pinfo,
 
   if (tree)
     {
-      tf = proto_tree_add_text (tree, tvb, offset,
-				tvb_length (tvb),
+      tf = proto_tree_add_text (tree, tvb, offset, -1,
 				"General Inter-ORB Locate Request");
       if (locate_request_tree == NULL)
 	{
@@ -3730,8 +3724,7 @@ dissect_giop_locate_reply( tvbuff_t * tvb, packet_info * pinfo,
 
   if (tree)
     {
-      tf = proto_tree_add_text (tree, tvb, offset,
-				tvb_length (tvb),
+      tf = proto_tree_add_text (tree, tvb, offset, -1,
 				"General Inter-ORB Locate Reply");
       if (locate_reply_tree == NULL)
 	{
@@ -3804,8 +3797,7 @@ dissect_giop_fragment( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
   if (tree)
     {
-      tf = proto_tree_add_text (tree, tvb, offset,
-				tvb_length (tvb),
+      tf = proto_tree_add_text (tree, tvb, offset, -1,
 				"General Inter-ORB Fragment");
       if (fragment_tree == NULL)
 	{
@@ -3907,11 +3899,9 @@ gboolean dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
 	}
       if (tree)
 	{
-	  ti = proto_tree_add_item (tree, proto_giop, tvb, 0,
-				    tvb_length (tvb), FALSE);
+	  ti = proto_tree_add_item (tree, proto_giop, tvb, 0, -1, FALSE);
 	  clnp_tree = proto_item_add_subtree (ti, ett_giop);
-	  proto_tree_add_text (clnp_tree, giop_header_tvb, 0,
-			       tvb_length (giop_header_tvb),
+	  proto_tree_add_text (clnp_tree, giop_header_tvb, 0, -1,
 			       "Version %u.%u not supported",
 			       header.GIOP_version.major,
 			       header.GIOP_version.minor);
@@ -4373,7 +4363,7 @@ void decode_IOR(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offse
   /* create a subtree */
 
   if (ptree) {
-    tf = proto_tree_add_text (ptree, tvb, *offset, tvb_length (tvb), "IOR");
+    tf = proto_tree_add_text (ptree, tvb, *offset, -1, "IOR");
     tree = proto_item_add_subtree (tf, ett_giop_ior);
   }
 
@@ -4750,7 +4740,7 @@ void decode_ServiceContextList(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt
   /* create a subtree */
 
   if (ptree) {
-    tf = proto_tree_add_text (ptree, tvb, *offset, tvb_length (tvb), "ServiceContextList");
+    tf = proto_tree_add_text (ptree, tvb, *offset, -1, "ServiceContextList");
     tree = proto_item_add_subtree (tf, ett_giop_scl);
   }
 

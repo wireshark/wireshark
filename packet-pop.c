@@ -2,7 +2,7 @@
  * Routines for pop packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-pop.c,v 1.29 2002/01/21 07:36:38 guy Exp $
+ * $Id: packet-pop.c,v 1.30 2002/01/24 09:20:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -107,8 +107,8 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_pop, tvb, offset,
-		    tvb_length_remaining(tvb, offset), FALSE);
+		ti = proto_tree_add_item(tree, proto_pop, tvb, offset, -1,
+		    FALSE);
 		pop_tree = proto_item_add_subtree(ti, ett_pop);
 
 		if (is_continuation) {

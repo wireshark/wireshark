@@ -6,7 +6,7 @@
  *       In particular I have not had an opportunity to see how it 
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.28 2002/01/21 07:36:43 guy Exp $
+ * $Id: packet-srvloc.c,v 1.29 2002/01/24 09:20:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -244,8 +244,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             val_to_str(function, srvloc_functions, "Unknown Function (%u)"));
         
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_srvloc, tvb, offset,
-                                 tvb_length(tvb), FALSE);
+        ti = proto_tree_add_item(tree, proto_srvloc, tvb, offset, -1, FALSE);
         srvloc_tree = proto_item_add_subtree(ti, ett_srvloc);
     
         proto_tree_add_uint(srvloc_tree, hf_srvloc_version, tvb, offset, 1,
@@ -486,7 +485,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
             default:
-                proto_tree_add_text(srvloc_tree, tvb, offset, tvb_length_remaining(tvb, offset), "Unknown Function Type");
+                proto_tree_add_text(srvloc_tree, tvb, offset, -1, "Unknown Function Type");
         };
     };
 }

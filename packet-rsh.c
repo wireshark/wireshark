@@ -4,7 +4,7 @@
  * Robert Tsai <rtsai@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rsh.c,v 1.15 2002/01/21 07:36:41 guy Exp $
+ * $Id: packet-rsh.c,v 1.16 2002/01/24 09:20:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,8 +71,8 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    tvb_format_text(tvb, offset, linelen));
 	}
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_rsh, tvb, offset,
-		    tvb_length_remaining(tvb, offset), FALSE);
+		ti = proto_tree_add_item(tree, proto_rsh, tvb, offset, -1,
+		    FALSE);
 		rsh_tree = proto_item_add_subtree(ti, ett_rsh);
 
 		/*

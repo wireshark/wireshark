@@ -2,7 +2,7 @@
  * Routines for imap packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-imap.c,v 1.18 2002/01/21 07:36:35 guy Exp $
+ * $Id: packet-imap.c,v 1.19 2002/01/24 09:20:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -93,8 +93,8 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_imap, tvb, offset,
-		    tvb_length_remaining(tvb, offset), FALSE);
+		ti = proto_tree_add_item(tree, proto_imap, tvb, offset, -1,
+		    FALSE);
 		imap_tree = proto_item_add_subtree(ti, ett_imap);
 
 		if (is_request) {

@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Gerald Combs <gerald@ethereal.com>
  *
- * $Id: packet-syslog.c,v 1.14 2002/01/21 07:36:44 guy Exp $
+ * $Id: packet-syslog.c,v 1.15 2002/01/24 09:20:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -149,8 +149,6 @@ static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
     
-  msg_len = tvb_length(tvb);
-  
   if (tvb_get_guint8(tvb, 0) == '<' && isdigit(tvb_get_guint8(tvb, 1))) {
     msg_off++;
     pri = 0;
@@ -187,13 +185,13 @@ static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   
   if (tree) {
     if (pri >= 0) {
-      ti = proto_tree_add_protocol_format(tree, proto_syslog, tvb, 0,
-        tvb_length(tvb), "Syslog message: %s.%s: %s",
+      ti = proto_tree_add_protocol_format(tree, proto_syslog, tvb, 0, -1,
+        "Syslog message: %s.%s: %s",
         val_to_str(fac, short_fac, "UNKNOWN"),
         val_to_str(lev, short_lev, "UNKNOWN"), msg_str);
     } else {
-      ti = proto_tree_add_protocol_format(tree, proto_syslog, tvb, 0,
-        tvb_length(tvb), "Syslog message: (unknown): %s", msg_str);
+      ti = proto_tree_add_protocol_format(tree, proto_syslog, tvb, 0, -1,
+        "Syslog message: (unknown): %s", msg_str);
     }
     syslog_tree = proto_item_add_subtree(ti, ett_syslog);
     if (pri >= 0) {

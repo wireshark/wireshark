@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.16 2002/01/21 07:36:33 guy Exp $
+ * $Id: packet-cops.c,v 1.17 2002/01/24 09:20:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -283,7 +283,7 @@ static void dissect_cops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		gint garbage;
 
                 offset = 0;
-                ti = proto_tree_add_item(tree, proto_cops, tvb, offset, tvb_length(tvb), FALSE);
+                ti = proto_tree_add_item(tree, proto_cops, tvb, offset, -1, FALSE);
                 cops_tree = proto_item_add_subtree(ti, ett_cops);
 
                 /* Version and flags share the same byte, put them in a subtree */
@@ -392,7 +392,7 @@ static int dissect_cops_object(tvbuff_t *tvb, guint32 offset, proto_tree *tree)
         char *type_str;
         int ret;
 
-        if (tvb_length_remaining(tvb, offset) < COPS_OBJECT_HDR_SIZE)
+        if (tvb_reported_length_remaining(tvb, offset) < COPS_OBJECT_HDR_SIZE)
                 return 0;
 
         object_len = tvb_get_ntohs(tvb, offset);

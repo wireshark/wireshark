@@ -3,7 +3,7 @@
  *
  * Uwe Girlich <uwe@planetquake.com>
  *
- * $Id: packet-quake3.c,v 1.9 2002/01/21 07:36:40 guy Exp $
+ * $Id: packet-quake3.c,v 1.10 2002/01/24 09:20:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -164,7 +164,7 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 	marker = tvb_get_ntohl(tvb, 0);
 	if (tree) {
 		cl_item = proto_tree_add_text(tree, tvb,
-				0, tvb_length(tvb), "Connectionless");
+				0, -1, "Connectionless");
 		if (cl_item)
 			cl_tree = proto_item_add_subtree(
 				cl_item, ett_quake3_connectionless);
@@ -277,7 +277,7 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 		/* now we decode all the rest */
 		base = offset + 18;
 		/* '/', ip-address in network order, port in network order */
-		while (tvb_length_remaining(tvb, base) >= 7) {
+		while (tvb_reported_length_remaining(tvb, base) >= 7) {
 			guint32		ip_addr;
 			guint16		udp_port;
 			proto_item	*server_item = NULL;
@@ -393,7 +393,7 @@ dissect_quake3_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 
 	if (tree) {
 		game_item = proto_tree_add_text(tree, tvb,
-				0, tvb_length(tvb), "Game");
+				0, -1, "Game");
 		if (game_item)
 			game_tree = proto_item_add_subtree(
 				game_item, ett_quake3_game);
@@ -458,8 +458,7 @@ dissect_quake3_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 			proto_tree *c_tree = NULL;
 			if (tree) {
 				c_item = proto_tree_add_text(game_tree, next_tvb,
-				0, tvb_length(next_tvb),
-				"Client Commands");
+				0, -1, "Client Commands");
 				if (c_item) {
 					c_tree = proto_item_add_subtree(
 						c_item, ett_quake3_game_clc);
@@ -472,8 +471,7 @@ dissect_quake3_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 			proto_tree *c_tree = NULL;
 			if (tree) {
 				c_item = proto_tree_add_text(game_tree, next_tvb,
-				0, tvb_length(next_tvb),
-				"Server Commands");
+				0, -1, "Server Commands");
 				if (c_item) {
 					c_tree = proto_item_add_subtree(
 					c_item, ett_quake3_game_svc);
@@ -500,7 +498,7 @@ dissect_quake3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		quake3_item = proto_tree_add_item(tree, proto_quake3,
-				tvb, 0, tvb_length(tvb), FALSE);
+				tvb, 0, -1, FALSE);
 		if (quake3_item)
 			quake3_tree = proto_item_add_subtree(
 				quake3_item, ett_quake3);

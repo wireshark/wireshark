@@ -3,7 +3,7 @@
  * see http://ddt.sourceforge.net/
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-ddtp.c,v 1.19 2002/01/21 07:36:33 guy Exp $
+ * $Id: packet-ddtp.c,v 1.20 2002/01/24 09:20:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -110,8 +110,7 @@ dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     	col_clear (pinfo->cinfo, COL_INFO);
     }
     if (tree) {
-	ti = proto_tree_add_item(tree, proto_ddtp, tvb, 0,
-		tvb_length(tvb), FALSE);
+	ti = proto_tree_add_item(tree, proto_ddtp, tvb, 0, -1, FALSE);
 	ddtp_tree = proto_item_add_subtree(ti, ett_ddtp);
 
 	proto_tree_add_item(ddtp_tree, hf_ddtp_version, tvb, 0, 4, FALSE);

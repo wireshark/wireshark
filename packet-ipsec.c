@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.37 2002/01/21 07:36:35 guy Exp $
+ * $Id: packet-ipsec.c,v 1.38 2002/01/24 09:20:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -221,8 +221,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * (ie none)
      */
     if(tree) {
-	ti = proto_tree_add_item(tree, proto_esp, tvb, 0,
-				 tvb_length(tvb), FALSE);
+	ti = proto_tree_add_item(tree, proto_esp, tvb, 0, -1, FALSE);
 	esp_tree = proto_item_add_subtree(ti, ett_esp);
 	proto_tree_add_uint(esp_tree, hf_esp_spi, tvb, 
 			    offsetof(struct newesp, esp_spi), 4,
@@ -267,8 +266,7 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * (ie none)
      */
     if (tree) {
-	ti = proto_tree_add_item(tree, proto_ipcomp, tvb, 0,
-	    tvb_length(tvb), FALSE);
+	ti = proto_tree_add_item(tree, proto_ipcomp, tvb, 0, -1, FALSE);
 	ipcomp_tree = proto_item_add_subtree(ti, ett_ipcomp);
 
 	proto_tree_add_text(ipcomp_tree, tvb,

@@ -5,7 +5,7 @@
 * Charles Levert <charles@comm.polymtl.ca>
 * Copyright 2001 Charles Levert
 *
-* $Id: packet-cups.c,v 1.9 2002/01/21 07:36:33 guy Exp $
+* $Id: packet-cups.c,v 1.10 2002/01/24 09:20:47 guy Exp $
 * 
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -170,8 +170,8 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_cups, tvb, offset,
-		    tvb_length_remaining(tvb, offset), FALSE);
+		ti = proto_tree_add_item(tree, proto_cups, tvb, offset, -1,
+		    FALSE);
 		cups_tree = proto_item_add_subtree(ti, ett_cups);
 	}
 

@@ -1,7 +1,7 @@
 /* packet-klm.c    2001 Ronnie Sahlberg <See AUTHORS for email>
  * Routines for klm dissection
  *
- * $Id: packet-klm.c,v 1.6 2001/12/23 21:36:57 guy Exp $
+ * $Id: packet-klm.c,v 1.7 2002/01/24 09:20:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,7 +71,7 @@ dissect_holder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	proto_tree* lock_tree = NULL;
 
 	lock_item = proto_tree_add_item(tree, hf_klm_holder, tvb,
-			offset, tvb_length_remaining(tvb, offset), FALSE);
+			offset, -1, FALSE);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_klm_holder);
 
@@ -97,7 +97,7 @@ dissect_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	proto_tree* lock_tree = NULL;
 
 	lock_item = proto_tree_add_item(tree, hf_klm_lock, tvb,
-			offset, tvb_length_remaining(tvb, offset), FALSE);
+			offset, -1, FALSE);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_klm_lock);
 
@@ -258,4 +258,3 @@ proto_reg_handoff_klm(void)
 	/* Register the procedure tables */
 	rpc_init_proc_table(KLM_PROGRAM, 1, klm1_proc);
 }
-

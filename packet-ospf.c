@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.54 2002/01/21 07:36:38 guy Exp $
+ * $Id: packet-ospf.c,v 1.55 2002/01/24 09:20:50 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -465,9 +465,7 @@ dissect_ospf_hello(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
     proto_tree *ospf_hello_tree;
     proto_item *ti; 
 
-    ti = proto_tree_add_text(tree, tvb, offset,
-			     tvb_length_remaining(tvb, offset),
-			     "OSPF Hello Packet");
+    ti = proto_tree_add_text(tree, tvb, offset, -1, "OSPF Hello Packet");
     ospf_hello_tree = proto_item_add_subtree(ti, ett_ospf_hello);
     
     switch (version ) {
@@ -536,9 +534,7 @@ dissect_ospf_db_desc(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version
     char flags_string[20] = "";
 
     if (tree) {
-	ti = proto_tree_add_text(tree, tvb, offset,
-				 tvb_length_remaining(tvb, offset),
-				 "OSPF DB Description"); 
+	ti = proto_tree_add_text(tree, tvb, offset, -1, "OSPF DB Description"); 
 	ospf_db_desc_tree = proto_item_add_subtree(ti, ett_ospf_desc);
 
         switch (version ) {
@@ -682,9 +678,7 @@ dissect_ospf_ls_upd(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
     guint32 lsa_nr;
     guint32 lsa_counter; 
 
-    ti = proto_tree_add_text(tree, tvb, offset,
-			     tvb_length_remaining(tvb, offset),
-			     "LS Update Packet");
+    ti = proto_tree_add_text(tree, tvb, offset, -1, "LS Update Packet");
     ospf_lsa_upd_tree = proto_item_add_subtree(ti, ett_ospf_lsa_upd);
 
     lsa_nr = tvb_get_ntohl(tvb, offset);

@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.20 2002/01/21 07:36:34 guy Exp $
+ * $Id: packet-gtp.c,v 1.21 2002/01/24 09:20:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4722,7 +4722,7 @@ dissect_gtpv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 			
 		/* dissect GTP header */
-		ti = proto_tree_add_item(tree, proto_gtpv0, tvb, 0, tvb_length(tvb), FALSE);
+		ti = proto_tree_add_item(tree, proto_gtpv0, tvb, 0, -1, FALSE);
 		gtpv0_tree = proto_item_add_subtree(ti, ett_gtp);
 
 		tf = proto_tree_add_uint(gtpv0_tree, hf_gtpv0_flags, tvb, 0, 1, gtpv0_hdr.flags);
@@ -4812,7 +4812,7 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 	if (tree) {
 			
-		ti = proto_tree_add_item(tree, proto_gtpv1, tvb, 0, tvb_length(tvb), FALSE);
+		ti = proto_tree_add_item(tree, proto_gtpv1, tvb, 0, -1, FALSE);
 		gtpv1_tree = proto_item_add_subtree(ti, ett_gtp);
 
 		tf = proto_tree_add_uint(gtpv1_tree, hf_gtpv1_flags, tvb, 0, 1, gtpv1_hdr.flags);

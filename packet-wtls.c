@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTLS component of WAP traffic.
  * 
- * $Id: packet-wtls.c,v 1.17 2002/01/21 07:36:47 guy Exp $
+ * $Id: packet-wtls.c,v 1.18 2002/01/24 09:20:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -367,10 +367,10 @@ dissect_wtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_wtls, tvb, offset_wtls,
-				 tvb_length(tvb), bo_little_endian);
+				 -1, bo_little_endian);
 		wtls_tree = proto_item_add_subtree(ti, ett_wtls);
 
-		for (offset_wtls=0; offset_wtls < (tvb_length(tvb)-1);) {
+		for (offset_wtls=0; offset_wtls < (tvb_reported_length(tvb)-1);) {
 			pdut = tvb_get_guint8 (tvb, offset_wtls);
 
 			offset = offset_wtls+1;
@@ -384,7 +384,7 @@ dissect_wtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				count += offset-offset_wtls;
 			}
 			else {
-				count = tvb_length (tvb)-offset_wtls;
+				count = tvb_length_remaining (tvb, offset_wtls);
 			}
 			ti = proto_tree_add_uint(wtls_tree, hf_wtls_record, tvb, offset_wtls,
 				 count, pdut);
@@ -411,7 +411,7 @@ dissect_wtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset+=2;
 			}
 			else {
-				count = tvb_length (tvb)-offset;
+				count = tvb_length_remaining (tvb, offset);
 			}
 
 			if (pdut & WTLS_RECORD_TYPE_CIPHER_CUR) {

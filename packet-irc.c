@@ -1,7 +1,7 @@
 /* packet-irc.c
  * Routines for IRC packet dissection
  *
- * $Id: packet-irc.c,v 1.17 2002/01/21 07:36:35 guy Exp $
+ * $Id: packet-irc.c,v 1.18 2002/01/24 09:20:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -92,8 +92,7 @@ dissect_irc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree)
 	{
-		ti = proto_tree_add_item(tree, proto_irc, tvb, 0,
-		    tvb_length(tvb), FALSE);
+		ti = proto_tree_add_item(tree, proto_irc, tvb, 0, -1, FALSE);
 		irc_tree = proto_item_add_subtree(ti, ett_irc);
 
 		/*

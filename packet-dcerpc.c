@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.25 2002/01/23 05:37:38 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.26 2002/01/24 09:20:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -461,7 +461,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     if (tree) {
         proto_item *sub_item;
         sub_item = proto_tree_add_item (tree, sub_proto->proto, tvb, offset, 
-                                        tvb_length (tvb) - offset, FALSE);
+                                        -1, FALSE);
 
         if (sub_item) {
             sub_tree = proto_item_add_subtree (sub_item, sub_proto->ett);
@@ -1301,7 +1301,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     hdr.serial_lo = tvb_get_guint8 (tvb, offset++);
 
     if (tree) {
-        ti = proto_tree_add_item (tree, proto_dcerpc, tvb, 0, tvb_length(tvb), FALSE);
+        ti = proto_tree_add_item (tree, proto_dcerpc, tvb, 0, -1, FALSE);
         if (ti) {
             dcerpc_tree = proto_item_add_subtree(ti, ett_dcerpc);
         }

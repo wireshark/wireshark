@@ -2,7 +2,7 @@
  * Routines for IGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  * 
- * $Id: packet-igrp.c,v 1.11 2002/01/21 07:36:35 guy Exp $
+ * $Id: packet-igrp.c,v 1.12 2002/01/24 09:20:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -87,8 +87,8 @@ static void dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   
   if (tree) {
-      ti = proto_tree_add_protocol_format(tree, proto_igrp, tvb, 0,
-        tvb_length(tvb), "Cisco IGRP ");
+      ti = proto_tree_add_protocol_format(tree, proto_igrp, tvb, 0, -1,
+        "Cisco IGRP");
         
       igrp_tree = proto_item_add_subtree(ti, ett_igrp);
       
