@@ -209,5 +209,5 @@ AC_DEFUN(AC_WIRETAP_ZLIB_CHECK,
         dnl with "gzgets()" should have the other routines we
         dnl depend on, such as "gzseek()", "gztell()", and "zError()".
         dnl
-        AC_CHECK_LIB(z, gzseek,,enable_zlib=no)
+        AC_CHECK_LIB(z, gzgets,,enable_zlib=no)
 ])
