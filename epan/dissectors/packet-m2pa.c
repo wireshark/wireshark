@@ -2,7 +2,8 @@
  * Routines for MTP2 Peer Adaptation Layer dissection
  * It is hopefully (needs testing) compliant to
  * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m2pa-02.txt
- * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m2pa-11.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m2pa-08.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m2pa-12.txt
  *
  * Copyright 2001, 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>,
  * updated by Michael Tuexen <tuexen [AT] fh-muenster.de>
