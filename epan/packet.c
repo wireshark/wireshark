@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.80 2002/10/28 23:04:15 guy Exp $
+ * $Id: packet.c,v 1.81 2002/10/29 05:15:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -381,6 +381,14 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 	else {
 		(*handle->dissector.old)(tvb, pinfo, tree);
 		ret = tvb_length(tvb);
+		if (ret == 0) {
+			/*
+			 * XXX - a tvbuff can have 0 bytes of data in
+			 * it, so we have to make sure we don't return
+			 * 0.
+			 */
+			ret = 1;
+		}
 	}
 	pinfo->current_proto = saved_proto;
 	pinfo->can_desegment = saved_can_desegment;
