@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.16 2004/01/21 21:19:32 ulfl Exp $
+ * $Id: dlg_utils.c,v 1.17 2004/01/22 20:33:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -139,7 +139,7 @@ dlg_button_row_new(gchar *stock_id_first, ...)
         dlg_button_new(button_hbox, stock_id_first);
         return button_hbox;
     } else {
-        /* if more than one button, sort buttons from left to right /*
+        /* if more than one button, sort buttons from left to right */
         /* (the whole button cluster will then be right aligned) */
         gtk_button_box_set_layout (GTK_BUTTON_BOX(button_hbox), GTK_BUTTONBOX_END);
         gtk_button_box_set_spacing(GTK_BUTTON_BOX(button_hbox), 5);
