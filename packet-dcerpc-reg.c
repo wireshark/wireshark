@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\winreg packet disassembly
  * Copyright 2001-2003 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-reg.c,v 1.17 2003/06/05 04:22:03 guy Exp $
+ * $Id: packet-dcerpc-reg.c,v 1.18 2003/06/17 05:29:46 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -102,8 +102,6 @@ RegOpenHKLM_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		dissect_open_data,
 		NDR_POINTER_UNIQUE, "Unknown", -1);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -130,8 +128,6 @@ RegOpenHKLM_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_item_append_text(hnd_item, ": HKLM handle");
 	}
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -149,8 +145,6 @@ RegOpenHKU_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep,
 		dissect_open_data,
 		NDR_POINTER_UNIQUE, "Unknown", -1);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -178,8 +172,6 @@ RegOpenHKU_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_item_append_text(hnd_item, ": HKU handle");
 	}
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -197,8 +189,6 @@ RegOpenHKCR_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep,
 		dissect_open_data,
 		NDR_POINTER_UNIQUE, "Unknown", -1);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -226,8 +216,6 @@ RegOpenHKCR_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_item_append_text(hnd_item, ": HKCR handle");
 	}
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -245,8 +233,6 @@ RegClose_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep,
 		hf_hnd, NULL, NULL, FALSE, TRUE);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -262,8 +248,6 @@ RegClose_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_ntstatus(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -284,8 +268,6 @@ RegQueryKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_ndr_counted_string(
 		tvb, offset, pinfo, tree, drep, hf_querykey_class, 0);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -333,8 +315,6 @@ RegQueryKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ntstatus(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -363,8 +343,6 @@ RegOpenEntry_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep,
 		hf_access_mask, NULL);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -392,8 +370,6 @@ RegOpenEntry_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_item_append_text(hnd_item, ": OpenEntry handle");
 	}
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -411,8 +387,6 @@ RegUnknown1A_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep,
 		hf_hnd, NULL, NULL, FALSE, FALSE);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -428,8 +402,6 @@ RegUnknown1A_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_ntstatus(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -448,8 +420,6 @@ RegEnumKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep,
 		hf_hnd, NULL, NULL, FALSE, FALSE);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -461,8 +431,6 @@ RegEnumKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_ntstatus(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -483,8 +451,6 @@ RegFoo_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* Parse packet */
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -498,8 +464,6 @@ RegFoo_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_ntstatus(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }

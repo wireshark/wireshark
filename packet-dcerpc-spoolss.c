@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.100 2003/06/05 04:22:04 guy Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.101 2003/06/17 05:29:45 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -554,8 +554,6 @@ static int SpoolssClosePrinter_q(tvbuff_t *tvb, int offset,
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				pol_name);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -572,8 +570,6 @@ static int SpoolssClosePrinter_r(tvbuff_t *tvb, int offset,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -693,8 +689,6 @@ static int SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_offered, NULL);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -728,8 +722,6 @@ static int SpoolssGetPrinterData_r(tvbuff_t *tvb, int offset,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -791,8 +783,6 @@ static int SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_needed, NULL);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -831,8 +821,6 @@ static int SpoolssGetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -875,8 +863,6 @@ static int SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_offered, NULL);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -891,8 +877,6 @@ static int SpoolssSetPrinterData_r(tvbuff_t *tvb, int offset,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -953,8 +937,6 @@ static int SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep,
 		hf_setprinterdataex_real_len, NULL);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -969,8 +951,6 @@ static int SpoolssSetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -2545,8 +2525,6 @@ static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_USER_LEVEL_CTR(tvb, offset, pinfo, tree, drep);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -2607,8 +2585,6 @@ static int SpoolssOpenPrinterEx_r(tvbuff_t *tvb, int offset,
 				proto_item_append_text(hnd_item, ": %s", name);
 		}
 	}
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -3135,8 +3111,6 @@ static int SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 		dissect_NOTIFY_OPTIONS_ARRAY_CTR, NDR_POINTER_UNIQUE,
 		"Notify Options Container", -1);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -3148,8 +3122,6 @@ static int SpoolssRFFPCNEX_r(tvbuff_t *tvb, int offset,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -3195,8 +3167,6 @@ static int SpoolssReplyOpenPrinter_q(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_replyopenprinter_unk1, 
 		NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -3259,8 +3229,6 @@ static int SpoolssReplyOpenPrinter_r(tvbuff_t *tvb, int offset,
 		}
 	}
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -3296,8 +3264,6 @@ static int SpoolssGetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_offered, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -3372,8 +3338,6 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -3533,8 +3497,6 @@ static int SpoolssSetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep,
 		hf_setprinter_cmd, NULL);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -3545,8 +3507,6 @@ static int SpoolssSetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -3653,8 +3613,6 @@ static int SpoolssEnumForms_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_offered, NULL);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -3702,8 +3660,6 @@ static int SpoolssEnumForms_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -3721,8 +3677,6 @@ static int SpoolssDeletePrinter_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
 		FALSE, FALSE);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -3738,8 +3692,6 @@ static int SpoolssDeletePrinter_r(tvbuff_t *tvb, int offset,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -3801,8 +3753,6 @@ static int SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -3846,8 +3796,6 @@ static int SpoolssEnumPrinterData_q(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep,
 		hf_enumprinterdata_data_offered, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -3911,8 +3859,6 @@ static int SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -3995,8 +3941,6 @@ static int SpoolssEnumPrinters_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_offered, NULL);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -4019,8 +3963,6 @@ static int SpoolssEnumPrinters_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -4045,8 +3987,6 @@ static int SpoolssAddPrinterDriver_q(tvbuff_t *tvb, int offset,
 	offset = dissect_spoolss_DRIVER_INFO_CTR(
 		tvb, offset, pinfo, tree, drep);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 #endif
@@ -4058,8 +3998,6 @@ static int SpoolssAddPrinterDriver_r(tvbuff_t *tvb, int offset,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -4194,8 +4132,6 @@ static int SpoolssAddForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_FORM_CTR(tvb, offset, pinfo, tree, drep);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -4209,8 +4145,6 @@ static int SpoolssAddForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -4242,8 +4176,6 @@ static int SpoolssDeleteForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	g_free(name);
 	
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -4257,8 +4189,6 @@ static int SpoolssDeleteForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -4299,8 +4229,6 @@ static int SpoolssSetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_FORM_CTR(tvb, offset, pinfo, tree, drep);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -4314,8 +4242,6 @@ static int SpoolssSetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -4361,8 +4287,6 @@ static int SpoolssGetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_offered, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -4412,8 +4336,6 @@ static int SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -4664,8 +4586,6 @@ static int SpoolssEnumJobs_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_offered, NULL);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -4717,8 +4637,6 @@ static int SpoolssEnumJobs_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -4763,8 +4681,6 @@ static int SpoolssSetJob_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			val_to_str(cmd, setjob_commands, "Unknown (%d)"),
 			jobid);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -4775,8 +4691,6 @@ static int SpoolssSetJob_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -4814,8 +4728,6 @@ static int SpoolssGetJob_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_offered, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -4857,8 +4769,6 @@ static int SpoolssGetJob_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -4886,8 +4796,6 @@ static int SpoolssStartPagePrinter_q(tvbuff_t *tvb, int offset,
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				pol_name);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -4899,8 +4807,6 @@ static int SpoolssStartPagePrinter_r(tvbuff_t *tvb, int offset,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -4929,8 +4835,6 @@ static int SpoolssEndPagePrinter_q(tvbuff_t *tvb, int offset,
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				pol_name);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -4942,8 +4846,6 @@ static int SpoolssEndPagePrinter_r(tvbuff_t *tvb, int offset,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -5089,8 +4991,6 @@ static int SpoolssStartDocPrinter_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_spoolss_doc_info_ctr(tvb, offset, pinfo, tree, drep);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -5105,8 +5005,6 @@ static int SpoolssStartDocPrinter_r(tvbuff_t *tvb, int offset,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -5135,7 +5033,6 @@ static int SpoolssEndDocPrinter_q(tvbuff_t *tvb, int offset,
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				pol_name);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -5148,8 +5045,6 @@ static int SpoolssEndDocPrinter_r(tvbuff_t *tvb, int offset,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -5202,8 +5097,6 @@ static int SpoolssWritePrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	proto_item_set_len(item, size + 4);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -5224,8 +5117,6 @@ static int SpoolssWritePrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -5258,8 +5149,6 @@ static int SpoolssDeletePrinterData_q(tvbuff_t *tvb, int offset,
 
 	g_free(value_name);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -5274,8 +5163,6 @@ static int SpoolssDeletePrinterData_r(tvbuff_t *tvb, int offset,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -5411,8 +5298,6 @@ static int SpoolssEnumPrinterDrivers_q(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_offered, NULL);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -5463,8 +5348,6 @@ static int SpoolssEnumPrinterDrivers_r(tvbuff_t *tvb, int offset,
 done:
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -5519,8 +5402,6 @@ static int SpoolssGetPrinterDriver2_q(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_clientminorversion, NULL);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -5567,8 +5448,6 @@ static int SpoolssGetPrinterDriver2_r(tvbuff_t *tvb, int offset,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -6111,8 +5990,6 @@ static int SpoolssRFNPCNEX_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		dissect_NOTIFY_OPTIONS_ARRAY_CTR, NDR_POINTER_UNIQUE,
 		"Notify Options Array Container", -1);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -6128,8 +6005,6 @@ static int SpoolssRFNPCNEX_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -6172,8 +6047,6 @@ static int SpoolssRRPCN_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* Notify info */
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -6187,8 +6060,6 @@ static int SpoolssRRPCN_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -6207,8 +6078,6 @@ static int SpoolssReplyClosePrinter_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
 		FALSE, TRUE);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -6224,8 +6093,6 @@ static int SpoolssReplyClosePrinter_r(tvbuff_t *tvb, int offset,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -6243,8 +6110,6 @@ static int SpoolssFCPN_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
 		FALSE, FALSE);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -6255,8 +6120,6 @@ static int SpoolssFCPN_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -6290,8 +6153,6 @@ static int SpoolssRouterReplyPrinter_q(tvbuff_t *tvb, int offset, packet_info *p
 		tvb, offset, pinfo, tree, drep,
 		hf_routerreplyprinter_changeid, NULL);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -6302,8 +6163,6 @@ static int SpoolssRouterReplyPrinter_r(tvbuff_t *tvb, int offset, packet_info *p
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -6375,8 +6234,6 @@ static int SpoolssEnumPrinterKey_q(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_needed, NULL);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -6393,8 +6250,6 @@ static int SpoolssEnumPrinterKey_r(tvbuff_t *tvb, int offset,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -6436,8 +6291,6 @@ static int SpoolssEnumPrinterDataEx_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_offered, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }
@@ -6602,8 +6455,6 @@ static int SpoolssEnumPrinterDataEx_r(tvbuff_t *tvb, int offset,
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -6623,8 +6474,6 @@ static int SpoolssFoo_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* Parse packet */
 
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
 	return offset;
 }
 
@@ -6638,8 +6487,6 @@ static int SpoolssFoo_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
-
-	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
 }

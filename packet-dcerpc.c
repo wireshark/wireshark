@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.129 2003/06/12 08:33:29 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.130 2003/06/17 05:29:45 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1742,6 +1742,17 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
             } CATCH(ReportedBoundsError) {
                 show_reported_bounds_error(tvb, pinfo, tree);
             } ENDTRY;
+
+
+	    /* If we have a subdissector and it didn't dissect all data in
+               the tvb, make a note of it. */
+
+	    if (tvb_length_remaining(tvb, offset)) {
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(pinfo->cinfo, COL_INFO,
+					"[Long frame (%d bytes)]",
+					tvb_length_remaining(tvb, offset));
+	    }
 
             pinfo->current_proto = saved_proto;
             pinfo->private_data = saved_private_data;

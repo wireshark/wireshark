@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.75 2003/06/05 04:22:03 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.76 2003/06/17 05:29:46 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -653,28 +653,6 @@ static void init_pol_hash(void)
 	}
 
 	pol_hash = g_hash_table_new(pol_hash_fn, pol_hash_compare);
-}
-
-/* Check if there is unparsed data remaining in a frame and display an
-   error.  I guess this could be made into an exception like the malformed
-   frame exception.  For the DCERPC over SMB dissectors a long frame
-   indicates a bug in a dissector. */
-
-void dcerpc_smb_check_long_frame(tvbuff_t *tvb, int offset,
-				 packet_info *pinfo, proto_tree *tree)
-{
-	if (tvb_length_remaining(tvb, offset) != 0) {
-
-		proto_tree_add_text(
-			tree, tvb, offset, tvb_length_remaining(tvb, offset),
-			"[Long frame (%d bytes): SPOOLSS]",
-			tvb_length_remaining(tvb, offset));
-
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO,
-					"[Long frame (%d bytes): SPOOLSS]",
-					tvb_length_remaining(tvb, offset));
-	}
 }
 
 /* Dissect a NT status code */
