@@ -26,7 +26,7 @@ do
 	else
 		srcfile=$srcdir/$f
 	fi
-	grep '^proto_register_[a-z_0-9A-Z]* *(' $srcfile 2>/dev/null
+	grep '^proto_register_[a-z_0-9A-Z]* *(' $srcfile 2>/dev/null | grep -v ';'
 done | sed -e 's/^.*://' -e 's/^\([a-z_0-9A-Z]*\).*/  {extern void \1 (void); \1 ();}/' >>register.c-tmp
 for f in "$@"
 do
@@ -36,7 +36,7 @@ do
 	else
 		srcfile=$srcdir/$f
 	fi
-	grep '^void proto_register_[a-z_0-9A-Z]* *(' $srcfile 2>/dev/null
+	grep '^void proto_register_[a-z_0-9A-Z]* *(' $srcfile 2>/dev/null | grep -v ';'
 done | sed -e 's/^.*://' -e 's/^void \([a-z_0-9A-Z]*\).*/  {extern void \1 (void); \1 ();}/' >>register.c-tmp
 echo '}' >>register.c-tmp
 
@@ -52,7 +52,7 @@ do
 	else
 		srcfile=$srcdir/$f
 	fi
-	grep '^proto_reg_handoff_[a-z_0-9A-Z]* *(' $srcfile 2>/dev/null
+	grep '^proto_reg_handoff_[a-z_0-9A-Z]* *(' $srcfile 2>/dev/null | grep -v ';'
 done | sed -e 's/^.*://' -e 's/^\([a-z_0-9A-Z]*\).*/  {extern void \1 (void); \1 ();}/' >>register.c-tmp
 for f in "$@"
 do
@@ -62,7 +62,7 @@ do
 	else
 		srcfile=$srcdir/$f
 	fi
-	grep '^void proto_reg_handoff_[a-z_0-9A-Z]* *(' $srcfile 2>/dev/null
+	grep '^void proto_reg_handoff_[a-z_0-9A-Z]* *(' $srcfile 2>/dev/null | grep -v ';'
 done | sed -e 's/^.*://' -e 's/^void \([a-z_0-9A-Z]*\).*/  {extern void \1 (void); \1 ();}/' >>register.c-tmp
 echo '}' >>register.c-tmp
 mv register.c-tmp register.c

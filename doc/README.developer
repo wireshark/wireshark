@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.16 2000/08/18 13:47:42 deniel Exp $
+$Id: README.developer,v 1.17 2000/10/22 20:01:14 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a protocol dissector and the use some of the important functions and variables 
@@ -57,7 +57,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.16 2000/08/18 13:47:42 deniel Exp $" in the comment will be updated by CVS when the file is
+The "$Id: README.developer,v 1.17 2000/10/22 20:01:14 guy Exp $" in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
 
@@ -66,7 +66,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.16 2000/08/18 13:47:42 deniel Exp $
+ * $Id: README.developer,v 1.17 2000/10/22 20:01:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -413,7 +413,12 @@ proto_register_XXX( void )
  
 }
  
-	and so on should work.
+	and so on should work;
+
+	the line containing the "register" routine's name must not
+	contain a semicolon (those lines are ignored, in the hopes of
+	not treating declarations of those routines as definitions of
+	those routines).
 
 For every protocol or field that a dissector wants to register, a variable of
 type int needs to be used to keep track of the protocol. The IDs are
