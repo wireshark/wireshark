@@ -25,7 +25,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.14.2.1 2002/02/16 16:28:57 gram Exp $
+$Id: ncp2222.py,v 1.14.2.2 2002/02/16 19:36:45 gram Exp $
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
 and Greg Morris <GMORRIS@novell.com>.
@@ -182,6 +182,7 @@ class PTVC(NamedList):
 			field = record[REC_FIELD]
 			endianness = record[REC_ENDIANNESS]
 
+			# Variable
 			var_name = record[REC_VAR]
 			if var_name:
 				# Did we already define this var?
@@ -196,6 +197,7 @@ class PTVC(NamedList):
 			else:
 				var = NO_VAR
 
+			# Repeat
 			repeat_name = record[REC_REPEAT]
 			if repeat_name:
 				# Do we have this var?
@@ -596,6 +598,7 @@ class Type:
 		self.abbrev = abbrev
 		self.descr = descr
 		self.bytes = bytes
+		self.endianness = endianness
 
 	def Length(self):
 		return self.bytes
@@ -925,6 +928,11 @@ ArchivedTime.Display("BASE_HEX")
 ArchivedDate			= uint16("archived_date", "Archived Date")
 ArchivedDate.Display("BASE_HEX")
 ArchivedDateAndTime		= uint32("archived_date_and_time", "Archived Date & Time")
+ArchiveInfoStruct		= struct("archive_info_struct", [
+	uint16("archive_info_struct_archive_time", "Archived Time",LE),
+	uint16("archive_info_struct_archive_date", "Archived Date",LE),
+	uint32("archive_info_struct_archive_id", "Archiver ID"),
+])
 ArchiverID			= uint32("archiver_id", "Archiver ID")
 ArchiverID.Display("BASE_HEX")
 AssociatedNameSpace		= byte("associated_name_space", "Associated Name Space")
@@ -952,7 +960,43 @@ AttributesDefLow		= bitfield8("attr_def_low", "Attributes", [
 	bf_boolean8(0x20, "att_def_archive", "Archive"),
 	bf_boolean8(0x80, "att_def_shareable", "Shareable"),
 ])
+AttributesStruct		= struct("attributes_struct", [
+	bitfield8("attr_struct_def_low", "Attributes", [
+		bf_boolean8(0x01, "att_def_ro", "Read Only"),
+		bf_boolean8(0x02, "att_def_hidden", "Hidden"),
+		bf_boolean8(0x04, "att_def_system", "System"),
+		bf_boolean8(0x08, "att_def_execute", "Execute"),
+		bf_boolean8(0x10, "att_def_sub_only", "Subdirectories Only"),
+		bf_boolean8(0x20, "att_def_archive", "Archive"),
+		bf_boolean8(0x80, "att_def_shareable", "Shareable"),
+	]),
+	bitfield8("attr_struct_def_low_2", "Attributes (byte 2)", [
+		bf_boolean8(0x10, "att_def_transaction", "Transactional"),
+		bf_boolean8(0x40, "att_def_read_audit", "Read Audit"),
+		bf_boolean8(0x80, "att_def_write_audit", "Write Audit"),
+	]),
+	bitfield8("attr_struct_def_low_3", "Attributes (byte 3)", [
+		bf_boolean8(0x01, "att_def_purge", "Purge"),
+		bf_boolean8(0x02, "att_def_reninhibit", "Rename Inhibit"),
+		bf_boolean8(0x04, "att_def_delinhibit", "Delete Inhibit"),
+		bf_boolean8(0x08, "att_def_cpyinhibit", "Copy Inhibit"),
+	]),
+	byte( "attr_struct_reserved", "Reserved" ),
+	uint16("attr_struct_flags_def", "Flags",LE),
+])
 AttributeValidFlag 		= uint32("attribute_valid_flag", "Attribute Valid Flag")
+AuditFlag			= val_string8("audit_flag", "Audit Flag", [
+	[ 0x00, "Do NOT audit object" ],
+	[ 0x01, "Audit object" ],
+])
+AuditHandle			= uint32("audit_handle", "Audit File Handle")
+AuditHandle.Display("BASE_HEX")
+AuditID				= uint32("audit_id", "Audit ID")
+AuditID.Display("BASE_HEX")
+AuditIDType			= val_string16("audit_id_type", "Audit ID Type", [
+	[ 0x0000, "Volume" ],
+	[ 0x0001, "Container" ],
+])
 AvailableBlocks			= uint32("available_blocks", "Available Blocks")
 AvailableClusters		= uint16("available_clusters", "Available Clusters")
 AvailableDirectorySlots		= uint16("available_directory_slots", "Available Directory Slots")
@@ -1028,9 +1072,21 @@ ChannelSynchronizationState 	= val_string8("channel_synchronization_state", "Cha
 ])
 ChargeAmount			= uint32("charge_amount", "Charge Amount")
 ChargeInformation		= uint32("charge_information", "Charge Information")
+ClientCompFlag			= val_string16("client_comp_flag", "Completion Flag", [
+	[ 0x0000, "Successful" ],
+	[ 0x0001, "Illegal Station Number" ],
+	[ 0x0002, "Client Not Logged In" ],
+	[ 0x0003, "Client Not Accepting Messages" ],
+	[ 0x0004, "Client Already has a Message" ],
+	[ 0x0096, "No Alloc Space for the Message" ],
+	[ 0xfd, "Bad Station Number" ],
+	[ 0xff, "Failure" ],
+])	
 ClientIDNumber			= uint32("client_id_number", "Client ID Number")
 ClientIDNumber.Display("BASE_HEX")
-ClientListCount			= uint16("client_list_count", "Client List Count")
+ClientList			= uint32("client_list", "Client List")
+ClientListCount			= uint16("client_list_cnt", "Client List Count")
+ClientListLen			= uint8("client_list_len", "Client List Length")
 ClientRecordArea		= fw_string("client_record_area", "Client Record Area", 152)
 ClientStation			= uint32("client_station", "Client Station")
 ClientTaskNumber		= uint32("client_task_number", "Client Task Number")
@@ -1050,6 +1106,8 @@ ConfiguredMaxBinderyObjects	= uint16("configured_max_bindery_objects", "Configur
 ConfiguredMaxOpenFiles		= uint16("configured_max_open_files", "Configured Max Open Files")
 ConfiguredMaxRoutingBuffers	= uint16("configured_max_routing_buffers", "Configured Max Routing Buffers")
 ConfiguredMaxSimultaneousTransactions = uint16("cfg_max_simultaneous_transactions", "Configured Max Simultaneous Transactions")
+ConnListLen			= uint8("conn_list_len", "Connection List Length")
+ConnNumberList			= uint32("conn_number_list", "Connection Number")
 ConnectionControlBits 		= bitfield8("conn_ctrl_bits", "Connection Control", [
 	bf_boolean8(0x01, "enable_brdcasts", "Enable Broadcasts"),
 	bf_boolean8(0x02, "enable_personal_brdcasts", "Enable Personal Broadcasts"),
@@ -1080,11 +1138,16 @@ ControllerType			= byte("controller_type", "Controller Type")
 Cookie1 			= uint32("cookie_1", "Cookie 1")
 Cookie2 			= uint32("cookie_2", "Cookie 2")
 Copies				= byte( "copies", "Copies" )
-CreationTime			= uint16("creation_time", "Creation Time")
-CreationTime.Display("BASE_HEX")
 CreationDate 			= uint16("creation_date", "Creation Date")
 CreationDate.Display("BASE_HEX")
 CreationDateAndTime		= uint32("creation_date_and_time", "Creation Date & Time")
+CreationInfoStruct		= struct("creation_info_struct", [
+	uint16("creation_info_struct_creation_time", "Creation Time",LE),
+	uint16("creation_info_struct_creation_date", "Creation Date",LE),
+	uint32("creation_info_struct_creator_id", "Creator ID"),
+])
+CreationTime			= uint16("creation_time", "Creation Time")
+CreationTime.Display("BASE_HEX")
 CreatorID			= uint32("creator_id", "Creator ID")
 CreatorID.Display("BASE_HEX")
 CreatorNameSpaceNumber		= val_string8("creator_name_space_number", "Creator Name Space Number", [
@@ -1134,6 +1197,9 @@ DataStreamName			= fw_string("data_stream_name", "Data Stream Name", 255)
 DataStreamNumber		= byte("data_stream_number", "Data Stream Number")
 DataStreamsCount		= uint32("data_streams_count", "Data Streams Count")
 DataStreamSize			= uint32("data_stream_size", "Size")
+DataStreamSizeStruct		= struct("data_stream_size_struct", [
+	uint32("data_stream_size_struct_size", "Data Stream Size",LE),
+])
 DataStreamSpaceAlloc 		= uint32( "data_stream_space_alloc", "Space Allocated for Data Stream" )
 Day 				= byte("s_day", "Day")
 DayOfWeek			= val_string8("s_day_of_week", "Day of Week", [
@@ -1190,7 +1256,7 @@ DirHandleLong			= uint32("dir_handle_long", "Directory Handle")
 DirectoryBase 			= uint16("dir_base", "Directory Base")
 DirectoryBase.Display("BASE_HEX")
 DirectoryCount			= uint16("dir_count", "Directory Count")
-DirectoryEntryNumber	 	= uint32("directory_entry_number", "Directory Entry Number", LE)
+DirectoryEntryNumber	 	= uint32("directory_entry_number", "Directory Entry Number")
 DirectoryEntryNumber.Display('BASE_HEX')
 DirectoryEntryNumberWord 	= uint16("directory_entry_number_word", "Directory Entry Number")
 DirectoryID			= uint16("directory_id", "Directory ID")
@@ -1200,6 +1266,11 @@ DirectoryNumber.Display("BASE_HEX")
 DirectoryPath			= fw_string("directory_path", "Directory Path", 16)
 DirectoryServicesObjectID	= uint32("directory_services_object_id", "Directory Services Object ID")
 DirectoryServicesObjectID.Display("BASE_HEX")
+DirEntryStruct			= struct("dir_entry_struct", [
+	uint32("dir_entry_struct_number", "Directory Entry Number",LE),
+	uint32("dir_entry_struct_dos_number", "DOS Directory Entry Number",LE),
+	uint32("dir_entry_struct_vol_number", "Volume Number",LE),
+])
 DirtyCacheBuffers 		= uint16("dirty_cache_buffers", "Dirty Cache Buffers")
 DiskChannelNumber		= byte("disk_channel_number", "Disk Channel Number")
 DiskChannelTable 		= val_string8("disk_channel_table", "Disk Channel Table", [
@@ -1230,12 +1301,11 @@ DOSDirectoryBase		= uint32("dos_directory_base", "DOS Directory Base")
 DOSDirectoryBase.Display("BASE_HEX")
 DOSDirectoryEntry		= uint32("dos_directory_entry", "DOS Directory Entry")
 DOSDirectoryEntry.Display("BASE_HEX")
-DOSDirectoryEntryNumber 	= uint32("dos_directory_entry_number", "DOS Directory Entry Number", LE)
+DOSDirectoryEntryNumber 	= uint32("dos_directory_entry_number", "DOS Directory Entry Number")
 DOSDirectoryEntryNumber.Display('BASE_HEX')
 DOSFileAttributes		= byte("dos_file_attributes", "DOS File Attributes")
 DOSParentDirectoryEntry			= uint32("dos_parent_directory_entry", "DOS Parent Directory Entry")
 DOSSequence			= uint32("dos_sequence", "DOS Sequence")
-
 DriveCylinders 			= uint16("drive_cylinders", "Drive Cylinders")
 DriveDefinitionString 		= fw_string("drive_definition_string", "Drive Definition", 64)
 DriveHeads 			= byte("drive_heads", "Drive Heads")
@@ -1246,6 +1316,9 @@ DriveRemovableFlag 		= val_string8("drive_removable_flag", "Drive Removable Flag
 	[ 0xff, "Removable" ],
 ])
 DriveSize 			= uint32("drive_size", "Drive Size")
+DSSpaceAllocateStruct		= struct("ds_space_alloc_struct", [
+	uint32("ds_space_alloc_struct_space_alloc", "Data Stream Space Alloc",LE),
+])
 DstEAFlags			= val_string16("dst_ea_flags", "Destination EA Flags", [
 	[ 0x0000, "Return EAHandle/Reserved,Information Level 0" ],
 	[ 0x0001, "Return NetWareHandle/Reserved,Information Level 0" ],
@@ -1483,6 +1556,11 @@ EAFlags				= val_string16("ea_flags", "EA Flags", [
 ])
 EAHandle			= uint32("ea_handle", "EA Handle")
 EAHandleOrNetWareHandleOrVolume	= uint32("ea_handle_or_netware_handle_or_volume", "EAHandle or NetWare Handle or Volume (see EAFlags)")
+EAInfoStruct			= struct("ea_info_struct", [
+	uint32("ea_info_struct_data_size", "Extended Attributes Data Size",LE),
+	uint32("ea_info_struct_count", "Extended Attributes Count",LE),
+	uint32("ea_info_struct_key_size", "Extended Attributes Key Size",LE),
+])
 EAKeyLength			= uint16("ea_key_length", "EA Key Length")
 EAKeySize			= uint32("ea_key_size", "Key Size")
 EAKeySizeDuplicated		= uint32("ea_key_size_duplicated", "Key Size Duplicated")
@@ -1677,7 +1755,7 @@ FileName14			= fw_string("file_name_14", "Filename", 14)
 FileNameLen			= byte("file_name_len", "Filename Length")
 FileOffset			= uint32("file_offset", "File Offset")
 FilePath			= nstring8("file_path", "File Path")
-FileSize			= uint32("file_size", "File Size", LE)
+FileSize			= uint32("file_size", "File Size")
 FileTime			= uint16("file_time", "File Time")
 Filler				= byte("filler", "Filler")
 FinderAttrHigh			= bitfield8("finder_attr_high", "Finder Info Attributes (byte 2)", [
@@ -2011,6 +2089,12 @@ ModifyDOSInfoMaskLow		= bitfield8("modify_dos_info_mask_low", "Modify DOS Info M
 	bf_boolean8(0x40, "modify_dos_parent", "Archive Time"),
 	bf_boolean8(0x80, "modify_dos_search", "Archiver ID"),
 ])	
+ModifyInfoStruct		= struct("modify_info_struct", [
+	uint16("modify_info_struct_modify_time", "Modified Time",LE),
+	uint16("modify_info_struct_modify_date", "Modified Date",LE),
+	uint32("modify_info_struct_modify_id", "Modifier ID"),
+	uint32("modify_info_struct_last_access", "Last Access Date",LE),
+])
 Month				= val_string8("s_month", "Month", [
 	[ 0x01, "January"],
 	[ 0x02, "Febuary"],
@@ -2043,7 +2127,7 @@ NameSpace 			= val_string8("name_space", "Name Space", [
 	[ 0x01, "MAC" ],
 	[ 0x02, "NFS" ],
 	[ 0x03, "FTAM" ],
-	[ 0x04, "OS/2" ],
+	[ 0x04, "OS/2, Long" ],
 ])
 NamesSpaceInfoMask1			= bitfield8("ns_info_mask1", "Names Space Info Mask", [
 	bf_boolean8(0x01, "ns_info_mask_modify", "Modify Name"),
@@ -2272,16 +2356,41 @@ NonFreeableLimboSectors		= uint32("non_freeable_limbo_sectors", "Non Freeable Li
 NotUsableSubAllocSectors	= uint32("not_usable_sub_alloc_sectors", "Not Usable Sub Alloc Sectors")
 NotYetPurgeableBlocks		= uint32("not_yet_purgeable_blocks", "Not Yet Purgeable Blocks")
 NumberOfDataStreams 		= uint16("number_of_data_streams", "Number of Data Streams")
-NumberOfEntries			= byte("number_of_entries", "Number Of Entries")
-NumberOfLocks			= byte("number_of_locks", "Number of Locks")
+NumberOfEntries			= uint8("number_of_entries", "Number Of Entries")
+NumberOfLocks			= uint8("number_of_locks", "Number of Locks")
 NumberOfMinutesToDelay		= uint32("number_of_minutes_to_delay", "Number of Minutes to Delay")
 NumberOfNCPExtensions		= uint32("number_of_ncp_extensions", "Number Of NCP Extensions")
 NumberOfNSLoaded		= uint16("number_of_ns_loaded", "Number Of Name Spaces Loaded")
 NumberOfRecords			= uint16("number_of_records", "Number of Records")
 NumberOfSemaphores		= uint16("number_of_semaphores", "Number Of Semaphores")
-NumberOfStations		= byte("number_of_stations", "Number of Stations")
+NumberOfStations		= uint8("number_of_stations", "Number of Stations")
 NSInfoBitMask			= uint32("ns_info_bit_mask", "Name Space Info Bit Mask")
+NSInfoStruct			= struct("ns_info_struct", [
+	val_string8("ns_info_struct_number", "Creator Name Space", [
+		[ 0x00, "DOS" ],
+		[ 0x01, "MAC" ],
+		[ 0x02, "NFS" ],
+		[ 0x03, "FTAM" ],
+		[ 0x04, "OS/2, Long" ],
+	]),
+	bytes("ns_info_struct_reserved3", "Reserved", 3),
+])
 NSSpecificInfo			= fw_string("ns_specific_info", "Name Space Specific Info", 512)					 
+NWAuditStatus			= struct("nw_audit_status", [
+	uint16("audit_ver_date", "Auditing Version Date",LE),
+	uint16("audit_file_ver_date", "Audit File Version Date",LE),
+	val_string16("audit_enable_flag", "Auditing Enabled Flag", [
+		[ 0x0000, "Auditing Disabled" ],
+		[ 0x0100, "Auditing Enabled" ],
+	]),
+	uint16("res_struct", "Reserved"),
+	uint32("audit_file_size", "Audit File Size",LE),
+	uint32("modified_counter", "Modified Counter",LE),
+	uint32("audit_file_max_size", "Audit File Maximum Size",LE),
+	uint32("audit_file_size_threshold", "Audit File Size Threshold",LE),
+	uint32("audit_record_count", "Audit Record Count",LE),
+	uint32("auditing_flags", "Auditing Flags",LE),
+])
 
 ObjectFlags			= val_string8("object_flags", "Object Flags", [
 	[ 0x00, "Dynamic object" ],
@@ -2293,6 +2402,10 @@ ObjectHasProperties 		= val_string8("object_has_properites", "Object Has Propert
 ])
 ObjectID			= uint32("object_id", "Object ID")
 ObjectID.Display('BASE_HEX')
+ObjectIDStruct			= struct("object_id_struct", [
+	uint32("object_id_struct", "Object ID"), 
+	uint32("restriction_struct", "Restriction"),
+])
 ObjectIDCount 			= uint16("object_id_count", "Object ID Count")
 ObjectIDInfo			= uint32("object_id_info", "Object Information")
 ObjectInfoReturnCount		= uint32("object_info_rtn_count", "Object Information Count")
@@ -2357,15 +2470,12 @@ OpenCreateAction		= bitfield8("open_create_action", "Open Create Action", [
 	bf_boolean8(0x08, "open_create_action_compressed", "Compressed"),
 	bf_boolean8(0x80, "open_create_action_read_only", "Read Only"),
 ])	
-OpenCreateMode 			= val_string8("open_create_mode", "Open Create Mode", [
-	[ 0x00, "Invalid action" ],
-	[ 0x01, "Open existing file (file must exist)" ],
-	[ 0x02, "Open existing file and truncate it, else create a new file" ],
-	[ 0x03, "Open existing file and truncate it (file must exist)" ],
-	[ 0x08, "Create new file or subdirectory (file or subdirectory cannot exist)" ],
-	[ 0x09, "Open existing file or create a new file" ],
-	[ 0x0a, "Open existing file and truncate it, else create a new file" ],
-	[ 0x0b, "Open existing file and truncate it, else create a new file" ],
+OpenCreateMode 			= bitfield8("open_create_mode", "Open Create Mode", [
+	bf_boolean8(0x01, "open_create_mode_open", "Open existing file (file must exist)"),
+	bf_boolean8(0x02, "open_create_mode_replace", "Replace existing file"),
+	bf_boolean8(0x08, "open_create_mode_create", "Create new file or subdirectory (file or subdirectory cannot exist)"),
+#	bf_boolean8(0x40, "open_create_mode_ro", "Read Only Mode"),
+	bf_boolean8(0x80, "open_create_mode_oplock", "Open Callback (Op-Lock)"),
 ])
 OpenForReadCount 		= uint16("open_for_read_count", "Open For Read Count")
 OpenForWriteCount 		= uint16("open_for_write_count", "Open For Write Count")
@@ -2591,6 +2701,7 @@ ReturnInfoMaskLow 		= bitfield8("ret_info_mask_low", "Return Information", [
 	bf_boolean8(0x40, "ret_info_mask_arch", "Return Archive Information"),
 	bf_boolean8(0x80, "ret_info_mask_mod", "Return Modify Information"),
 ])
+ReturnedListCount		= uint32("returned_list_count", "Returned List Count")
 RevQueryFlag			= val_string8("rev_query_flag", "Revoke Rights Query Flag", [
 	[ 0x00, "Do not query the locks engine for access rights" ],
 	[ 0x01, "Query the locks engine and return the access rights" ],
@@ -2605,7 +2716,21 @@ RightsGrantMask 		= bitfield8("rights_grant_mask", "Grant Rights", [
 	bf_boolean8(0x40, "rights_grant_mask_search", "Search"),
 	bf_boolean8(0x80, "rights_grant_mask_mod", "Modify"),
 ])
-ReturnedListCount		= uint32("returned_list_count", "Returned List Count")
+RightsInfoStruct		= struct("rights_info_struct", [
+	bitfield8("rights_info_struct_inherited_rights_mask_low", "Inherited Rights Mask", [
+		bf_boolean8(0x01, "rights_info_struct_read", "Read Rights"),
+		bf_boolean8(0x02, "rights_info_struct_write", "Write Rights"),
+		bf_boolean8(0x04, "rights_info_struct_open", "Open Rights"),
+		bf_boolean8(0x08, "rights_info_struct_create", "Create Rights"),
+		bf_boolean8(0x10, "rights_info_struct_delete", "Delete Rights"),
+		bf_boolean8(0x20, "rights_info_struct_parent", "Change Access"),
+		bf_boolean8(0x40, "rights_info_struct_search", "See Files Flag"),
+		bf_boolean8(0x80, "rights_info_struct_modify", "Modify Rights"),
+	]),
+	bitfield8("rights_info_struct_inherited_rights_mask_high", "Inherited Rights Mask (byte 2)", [
+		bf_boolean8(0x01, "rights_info_struct_supervisor", "Supervisor"),
+	]),
+])
 RightsRevokeMask 		= bitfield8("rights_revoke_mask", "Revoke Rights", [
 	bf_boolean8(0x01, "rights_revoke_mask_read", "Read"),
 	bf_boolean8(0x02, "rights_revoke_mask_write", "Write"),
@@ -2643,6 +2768,7 @@ SearchBitMap				= bitfield8("search_bit_map", "Search Bit Map", [
 	bf_boolean8(0x04, "search_bit_map_sub", "Subdirectory"),
 	bf_boolean8(0x08, "search_bit_map_files", "Files"),
 ])	
+SearchConnNumber			= uint32("search_conn_number", "Search Connection Number")
 SearchInstance				= uint32("search_instance", "Search Instance")
 SearchPattern				= nstring8("search_pattern", "Search Pattern")
 SearchSequence				= bytes("search_sequence", "Search Sequence", 9)
@@ -2674,6 +2800,8 @@ SendStatus				= val_string8("send_status", "Send Status", [
 	[ 0x03, "Client Not Accepting Messages" ],
 	[ 0x04, "Client Already has a Message" ],
 	[ 0x96, "No Alloc Space for the Message" ],
+	[ 0xfd, "Bad Station Number" ],
+	[ 0xff, "Failure" ],
 ])
 SequenceByte			= byte("sequence_byte", "Sequence")
 SequenceNumber			= uint32("sequence_number", "Sequence Number")
@@ -2759,7 +2887,7 @@ StatusFlagBitsLow		= bitfield8("status_flag_bits_low", "Status Flag", [
 ])
 SubAllocClusters		= uint32("sub_alloc_clusters", "Sub Alloc Clusters")
 SubAllocFreeableClusters 	= uint32("sub_alloc_freeable_clusters", "Sub Alloc Freeable Clusters")
-Subdirectory			= uint32("sub_directory", "Subdirectory", LE)
+Subdirectory			= uint32("sub_directory", "Subdirectory")
 Subdirectory.Display("BASE_HEX")
 SuggestedFileSize		= uint32("suggested_file_size", "Suggested File Size")
 SupportModuleID			= uint32("support_module_id", "Support Module ID")
@@ -2779,7 +2907,7 @@ SynchName			= nstring8("synch_name", "Synch Name")
 SystemIntervalMarker		= uint32("system_interval_marker", "System Interval Marker")
 
 TabSize				= byte( "tab_size", "Tab Size" )
-TargetClientList		= uint32("target_client_list", "Target List")
+TargetClientList		= uint8("target_client_list", "Target Client List")
 TargetConnectionNumber		= uint16("target_connection_number", "Target Connection Number")
 TargetDirectoryBase		= uint32("target_directory_base", "Target Directory Base")
 TargetDirHandle			= byte("target_dir_handle", "Target Directory Handle")
@@ -2817,6 +2945,10 @@ TotalRequest			= uint32("total_request", "Total Request")
 TotalRequestPackets		= uint32("total_request_packets", "Total Request Packets")
 TotalRoutedPackets 		= uint32("total_routed_packets", "Total Routed Packets")
 TotalServerMemory 		= uint16("total_server_memory", "Total Server Memory")
+TotalStreamSizeStruct		= struct("total_stream_size_struct", [
+	uint32("total_stream_size_struct_space_alloc", "Total Data Stream Disk Space Alloc",LE),
+	uint16("total_stream_size_struct_num_of_streams", "Number of Data Streams",LE),
+])
 TotalTransactionsBackedOut	= uint32("total_trans_backed_out", "Total Transactions Backed Out")
 TotalTransactionsPerformed	= uint32("total_trans_performed", "Total Transactions Performed")
 TotalUnfilledBackoutRequests    = uint16("total_unfilled_backout_requests", "Total Unfilled Backout Requests")
@@ -3310,6 +3442,9 @@ def ExamineVars(vars, structs_hash, vars_hash):
 			ExamineVars(struct_vars, structs_hash, vars_hash)
 		else:
 			vars_hash[repr(var)] = var
+			if isinstance(var, bitfield):
+				sub_vars = var.SubVariables()
+				ExamineVars(sub_vars, structs_hash, vars_hash)
 
 def produce_code():
 
@@ -3354,6 +3489,7 @@ static int ptvc_struct_int_storage;
 /* Values used in the count-variable ("var"/"repeat") logic. */
 #define NO_VAR -1
 #define NO_REPEAT -1"""
+
 
 	if global_highest_var > -1:
 		print "#define NUM_REPEAT_VARS\t%d" % (global_highest_var + 1)
@@ -3405,8 +3541,10 @@ static int hf_ncp_connection_status = -1;
 
 
 	# Print the hf variable declarations
-	for var in variables_used_hash.values():
-		print "static int " + var.HFName() + " = -1;"
+#	for var in variables_used_hash.values():
+	for key, var in variables_used_hash.items():
+		print "static int " + var.HFName() + " = -1;",
+		print "          /*key = %s */" % (key,)
 
 
 	# Print the value_string's
@@ -3675,6 +3813,7 @@ def main():
 	# Set stdout to the output file
 	sys.stdout = out_file
 
+	msg.write("Processing NCP definitions...\n")
 	# Run the code, and if we catch any exception,
 	# erase the output file.
 	try:
@@ -3941,11 +4080,13 @@ def define_ncp2222():
 	# 2222/1500, 21/00
 	pkt = NCP(0x1500, "Send Broadcast Message (old)", 'message')
 	pkt.Request((13, 70), [
-		rec( 10, 2, ClientListCount ),
+		rec( 10, 1, ClientListLen, var="x" ),
+		rec( 11, 1, TargetClientList, repeat="x" ),
 		rec( 12, (1, 58), TargetMessage ),
 	])
-	pkt.Reply((9,66), [
-		rec( 8, (1, 58), SendStatus )
+	pkt.Reply(10, [
+		rec( 8, 1, ClientListLen, var="x" ),
+		rec( 9, 1, SendStatus, repeat="x" )
 	])
 	pkt.CompletionCodes([0x0000, 0xfd00])
 
@@ -3976,16 +4117,16 @@ def define_ncp2222():
 	])
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000])
-
 	# 2222/150A, 21/10
 	pkt = NCP(0x150A, "Send Broadcast Message", 'message')
 	pkt.Request((17, 74), [
-		rec( 10, 2, ClientListCount, LE ),
-		rec( 12, 4, TargetClientList, LE ),
+		rec( 10, 2, ClientListCount, LE, var="x" ),
+		rec( 12, 4, ClientList, LE, repeat="x" ),
 		rec( 16, (1, 58), TargetMessage ),
 	])
-	pkt.Reply((9,66), [
-		rec( 8, (1, 58), SendStatus )
+	pkt.Reply(14, [
+		rec( 8, 2, ClientListCount, LE, var="x" ),
+		rec( 10, 4, ClientCompFlag, LE, repeat="x" ),
 	])
 	pkt.CompletionCodes([0x0000, 0xfd00])
 
@@ -4001,8 +4142,8 @@ def define_ncp2222():
 	pkt = NCP(0x150C, "Connection Message Control", 'message')
 	pkt.Request(22, [
 		rec( 10, 4, ConnectionControlBits ),
-		rec( 14, 4, ConnectionListCount ),
-		rec( 18, 4, ConnectionList ),
+		rec( 14, 4, ConnectionListCount, LE, var="x" ),
+		rec( 18, 4, ConnectionList, LE, repeat="x" ),
 	])
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0xff00])
@@ -4423,10 +4564,8 @@ def define_ncp2222():
 		rec( 11, 4, SequenceNumber, LE ),
 	])
 	pkt.Reply(17, [
-		rec( 8, 1, NumberOfEntries ),
-		#There are multiple entries up to 16 in this packet 
-		rec( 9, 4, ObjectID ),
-		rec( 13, 4, Restriction, LE ),
+		rec( 8, 1, NumberOfEntries, var="x" ),
+		rec( 9, 8, ObjectIDStruct, repeat="x" ),
 	])
 	pkt.CompletionCodes([0x0000, 0x9800])
 	# 2222/1621, 22/33
@@ -5084,12 +5223,14 @@ def define_ncp2222():
 	pkt.CompletionCodes([0x0000])
 	# 2222/171B, 23/27
 	pkt = NCP(0x171B, "Get Object Connection List", 'file')
-	pkt.Request( 60, [
-		rec( 10, 2, ObjectType ),
-		rec( 12, 48, ObjectNameLen ),
+	pkt.Request( (17,64), [
+		rec( 10, 4, SearchConnNumber, LE ),
+		rec( 14, 2, ObjectType ),
+		rec( 16, (1,48), ObjectName ),
 	])
-	pkt.Reply( (12, 136), [
-		rec( 8, (4, 128), ConnectionNumberList ),
+	pkt.Reply( 13, [
+		rec( 8, 1, ConnListLen, var="x" ),
+		rec( 9, 4, ConnectionNumberList, repeat="x" ),
 	])
 	pkt.CompletionCodes([0x0000, 0x9600, 0xf001, 0xfc06, 0xfe07, 0xff00])
 	# 2222/171C, 23/28
@@ -6240,10 +6381,10 @@ def define_ncp2222():
 	pkt.CompletionCodes([0x0000, 0xc601])
 	# 2222/17D1, 23/209
 	pkt = NCP(0x17D1, "Send Console Broadcast (old)", 'stats')
-	pkt.Request(15, [
-		rec( 10, 1, NumberOfStations ),
-		#Station list records are repeated by NumberOfStations value, See NCP docs
-		rec( 11, 4, StationList ),
+	pkt.Request((13,267), [
+		rec( 10, 1, NumberOfStations, var="x" ),
+		rec( 11, 1, StationList, repeat="x" ),
+		rec( 12, (1, 255), TargetMessage ),
 	])
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0xc601, 0xfd00])
@@ -6864,10 +7005,10 @@ def define_ncp2222():
 	pkt.CompletionCodes([0x0000, 0x9600, 0xc601, 0xfd00, 0xff00])
 	# 2222/17FD, 23/253
 	pkt = NCP(0x17FD, "Send Console Broadcast", 'stats')
-	pkt.Request(15, [
-		rec( 10, 1, NumberOfStations ),
-		#Station list records are repeated by NumberOfStations value, See NCP docs
-		rec( 11, 4, StationList ),
+	pkt.Request((16, 270), [
+		rec( 10, 1, NumberOfStations, var="x" ),
+		rec( 11, 4, StationList, LE, repeat="x" ),
+		rec( 15, (1, 255), TargetMessage ),
 	])
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0xc601, 0xfd00])
@@ -9159,14 +9300,24 @@ def define_ncp2222():
 			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
 	# 2222/5801, 8801
 	pkt = NCP(0x5801, "Query Volume Audit Status", "auditing", has_length=0)
-	pkt.Request(8)
-	pkt.Reply(8)
+	pkt.Request(12, [
+		rec( 8, 4, ConnectionNumber, LE ),
+	])
+	pkt.Reply(40, [
+		rec(8, 32, NWAuditStatus ),
+	])
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
 	# 2222/5802, 8802
 	pkt = NCP(0x5802, "Add User Audit Property", "auditing", has_length=0)
-	pkt.Request(8)
+	pkt.Request(25, [
+		rec(8, 4, AuditIDType, LE ),
+		rec(12, 4, AuditID ),
+		rec(16, 4, AuditHandle ),
+		rec(20, 4, ObjectID ),
+		rec(24, 1, AuditFlag ),
+	])
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
@@ -9638,8 +9789,15 @@ def define_ncp2222():
 	pkt.CompletionCodes([0x0000, 0xfb00, 0xfe0c, 0xff00])
 	# 2222/68C8, 104/200
 	pkt = NCP(0x68C8, "Query Container Audit Status", "auditing", has_length=0)
-	pkt.Request(8)
-	pkt.Reply(8)
+	pkt.Request(12, [
+		rec( 8, 4, ConnectionNumber, LE ),
+#		rec( 12, 4, AuditIDType, LE ),
+#		rec( 16, 4, AuditID ),
+#		rec( 20, 2, BufferSize ),
+	])
+	pkt.Reply(40, [
+		rec(8, 32, NWAuditStatus ),
+	])
 	pkt.CompletionCodes([0x0000, 0xa700, 0xfb00, 0xfe0c, 0xff00])
 	# 2222/68CA, 104/202
 	pkt = NCP(0x68CA, "Add Auditor Access", "auditing", has_length=0)
