@@ -5,7 +5,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.70 2002/12/17 04:05:21 gerald Exp $
+ * $Id: packet-radius.c,v 1.71 2002/12/17 22:14:54 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,7 +42,7 @@
 #include "packet-q931.h"
 #include "packet-gtp.h"
 #include "prefs.h"
-#include "md5.h"
+#include "crypt-md5.h"
 
 static int proto_radius = -1;
 static int hf_radius_length = -1;

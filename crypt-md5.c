@@ -21,7 +21,7 @@
   ghost@aladdin.com
 
  */
-/* $Id: crypt-md5.c,v 1.1 2002/12/17 16:06:53 gerald Exp $ */
+/* $Id: crypt-md5.c,v 1.2 2002/12/17 22:14:54 oabad Exp $ */
 /*
   Independent implementation of MD5 (RFC 1321).
 
@@ -51,7 +51,7 @@
   1999-05-03 lpd Original version.
  */
 
-#include "md5.h"
+#include "crypt-md5.h"
 #include <string.h>
 
 #undef BYTE_ORDER	/* 1 = big-endian, -1 = little-endian, 0 = unknown */
