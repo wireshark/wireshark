@@ -300,7 +300,7 @@ svnversion.h: FORCE
 #
 # Build the short version of the authors file for the about dialog
 #
-AUTHORS-SHORT: AUTHORS make-authors-short.pl
+AUTHORS-SHORT: AUTHORS make-authors-short.pl make-authors-short2.pl
 	$(PERL) $(srcdir)/make-authors-short.pl < AUTHORS > AUTHORS-SHORT
 
 #
@@ -521,6 +521,7 @@ EXTRA_DIST = \
 	image/icon_layout_6.xpm \
 	image/wiretap.rc.in	\
 	make-authors-short.pl	\
+	make-authors-short2.pl	\
 	make-manuf		\
 	make-tapreg-dotc	\
 	make-version.pl		\

@@ -227,7 +227,7 @@ svnversion.h:
 #
 # Build the short version of the authors file for the about dialog
 #
-AUTHORS-SHORT: AUTHORS make-authors-short.pl
+AUTHORS-SHORT: AUTHORS make-authors-short.pl make-authors-short2.pl
 	$(PERL) make-authors-short.pl < AUTHORS > AUTHORS-SHORT
 
 
