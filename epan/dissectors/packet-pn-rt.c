@@ -151,128 +151,129 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   		return;
   }
 
-  /* build protocol tree only, if tree is really used */
-  if (tree) {
-        /* build some "raw" data */
-		u16FrameID = tvb_get_ntohs(tvb, 0);
-        if (u16FrameID < 0x0100) {
-        	pszProtShort 	= "PN-RTC0";
-            pszProtAddInfo  = "Synchronization, ";
-        	pszProtSummary  = "Isochronous-Real-Time";
-        	pszProtComment	= "0x0000-0x00FF: Isochronous-Real-Time: Time-sync";
-            bCyclic         = TRUE;
-        } else if (u16FrameID < 0x8000){
-        	pszProtShort 	= "PN-RTC3";
-            pszProtAddInfo  = "RTC3, ";
-        	pszProtSummary  = "Isochronous-Real-Time";
-        	pszProtComment	= "0x0100-0x7FFF: Isochronous-Real-Time(class=3): Cyclic";
-            bCyclic         = TRUE;
-        } else if (u16FrameID < 0xbf00){
-        	pszProtShort 	= "PN-RTC2";
-            pszProtAddInfo  = "RTC2, ";
-        	pszProtSummary 	= "cyclic Real-Time";
-        	pszProtComment	= "0x8000-0xBEFF: Real-Time(class=2): Cyclic";
-            bCyclic         = TRUE;
-        } else if (u16FrameID < 0xc000){
-        	pszProtShort 	= "PN-RTC2";
-            pszProtAddInfo  = "Multicast, ";
-        	pszProtSummary 	= "cyclic Real-Time";
-        	pszProtComment	= "0xBF00-0xBFFF: Real-Time(class=2 multicast): Cyclic";
-            bCyclic         = TRUE;
-        } else if (u16FrameID < 0xfb00){
-        	pszProtShort 	= "PN-RTC1";
-            pszProtAddInfo  = "RTC1, ";
-        	pszProtSummary 	= "cyclic Real-Time";
-        	pszProtComment	= "0xC000-0xFAFF: Real-Time(class=1): Cyclic";
-            bCyclic         = TRUE;
-        } else if (u16FrameID < 0xfc00){
-        	pszProtShort 	= "PN-RTC1";
-            pszProtAddInfo  = "Multicast, ";
-        	pszProtSummary 	= "cyclic Real-Time";
-        	pszProtComment	= "0xFB00-0xFBFF: Real-Time(class=1 multicast): Cyclic";
-            bCyclic         = TRUE;
-        } else if (u16FrameID < 0xfe00){
-        	pszProtShort 	= "PN-RTA";
-            pszProtAddInfo  = "Reserved, ";
-        	pszProtSummary	= "acyclic Real-Time";
-        	pszProtComment	= "0xFC00-0xFDFF: Real-Time: Acyclic high priority";
-            bCyclic         = FALSE;
-        	if (u16FrameID == 0xfc01) {
-				pszProtShort 	= "PN-RTA";
-                pszProtAddInfo  = "Alarm High, ";
-	        	pszProtSummary	= "acyclic Real-Time";
-	        	pszProtComment	= "Real-Time: Acyclic PN-IO Alarm high priority";
-        	}
-        } else if (u16FrameID < 0xff00){
-        	pszProtShort 	= "PN-RTA";
-            pszProtAddInfo  = "Reserved, ";
-        	pszProtSummary	= "acyclic Real-Time";
-        	pszProtComment	= "0xFE00-0xFEFF: Real-Time: Acyclic low priority";
-            bCyclic         = FALSE;
-        	if (u16FrameID == 0xfe01) {
-				pszProtShort 	= "PN-RTA";
-                pszProtAddInfo  = "Alarm Low, ";
-	        	pszProtSummary	= "acyclic Real-Time";
-	        	pszProtComment	= "Real-Time: Acyclic PN-IO Alarm low priority";
-        	}
-        	if (u16FrameID == 0xfefd) {
-				pszProtShort 	= "PN-RTA";
-                pszProtAddInfo  = "";
-	        	pszProtSummary	= "acyclic Real-Time";
-	        	pszProtComment	= "Real-Time: DCP (Dynamic Configuration Protocol)";
-        	}
-        	if (u16FrameID == 0xfefe) {
-				pszProtShort 	= "PN-RTA";
-                pszProtAddInfo  = "";
-	        	pszProtSummary	= "acyclic Real-Time";
-	        	pszProtComment	= "Real-Time: DCP (Dynamic Configuration Protocol) multicast response";
-        	}
-        	if (u16FrameID == 0xfeff) {
-				pszProtShort 	= "PN-RTA";
-                pszProtAddInfo  = "";
-	        	pszProtSummary	= "acyclic Real-Time";
-	        	pszProtComment	= "Real-Time: DCP (Dynamic Configuration Protocol) multicast";
-        	}
-        } else {
-			pszProtShort 	= "PN-RT";
-            pszProtAddInfo  = "Reserved";
-        	pszProtSummary	= "Real-Time";
-        	pszProtComment	= "0xFF00-0xFFFF: reserved ID";
-            bCyclic         = FALSE;
-	    }
 
-        /* decode optional cyclic fields at the packet end and build the summary line */
-        if (bCyclic) {
-            /* cyclic transfer has cycle counter, data status and transfer status fields at the end */
-		    u16CycleCounter = tvb_get_ntohs(tvb, tvb_len - 4);
-		    u8DataStatus = tvb_get_guint8(tvb, tvb_len - 2);
-	        u8TransferStatus = tvb_get_guint8(tvb, tvb_len - 1);
-
-		    snprintf (szFieldSummary, sizeof(szFieldSummary),
-				      "%sFrameID: 0x%04x, DataLen: %4u, Cycle: %5u (%s,%s,%s,%s)",
-				    pszProtAddInfo, u16FrameID, tvb_len - 2 - 4, u16CycleCounter,
-			        (u8DataStatus & 0x04) ? "Valid" : "Invalid",
-			        (u8DataStatus & 0x01) ? "Primary" : "Backup",
-			        (u8DataStatus & 0x20) ? "Ok" : "Problem",
-			        (u8DataStatus & 0x10) ? "Run" : "Stop");
-
-            /* user data length is packet len - frame id - optional cyclic status fields */
-            data_len = tvb_len - 2 - 4;
-        } else {
-            /* satisfy the gcc compiler, so it won't throw an "uninitialized" warning */
-		    u16CycleCounter     = 0;
-		    u8DataStatus        = 0;
-	        u8TransferStatus    = 0;
-
-            /* acyclic transfer has no fields at the end */
-		    snprintf (szFieldSummary, sizeof(szFieldSummary),
-				      "%sFrameID: 0x%04x, DataLen: %4u",
-				    pszProtAddInfo, u16FrameID, tvb_len - 2);
-
-            /* user data length is packet len - frame id field */
-            data_len = tvb_len - 2;
+    /* build some "raw" data */
+	u16FrameID = tvb_get_ntohs(tvb, 0);
+    if (u16FrameID < 0x0100) {
+        pszProtShort 	= "PN-RTC0";
+        pszProtAddInfo  = "Synchronization, ";
+        pszProtSummary  = "Isochronous-Real-Time";
+        pszProtComment	= "0x0000-0x00FF: Isochronous-Real-Time: Time-sync";
+        bCyclic         = TRUE;
+    } else if (u16FrameID < 0x8000){
+        pszProtShort 	= "PN-RTC3";
+        pszProtAddInfo  = "RTC3, ";
+        pszProtSummary  = "Isochronous-Real-Time";
+        pszProtComment	= "0x0100-0x7FFF: Isochronous-Real-Time(class=3): Cyclic";
+        bCyclic         = TRUE;
+    } else if (u16FrameID < 0xbf00){
+        pszProtShort 	= "PN-RTC2";
+        pszProtAddInfo  = "RTC2, ";
+        pszProtSummary 	= "cyclic Real-Time";
+        pszProtComment	= "0x8000-0xBEFF: Real-Time(class=2): Cyclic";
+        bCyclic         = TRUE;
+    } else if (u16FrameID < 0xc000){
+        pszProtShort 	= "PN-RTC2";
+        pszProtAddInfo  = "Multicast, ";
+        pszProtSummary 	= "cyclic Real-Time";
+        pszProtComment	= "0xBF00-0xBFFF: Real-Time(class=2 multicast): Cyclic";
+        bCyclic         = TRUE;
+    } else if (u16FrameID < 0xfb00){
+        pszProtShort 	= "PN-RTC1";
+        pszProtAddInfo  = "RTC1, ";
+        pszProtSummary 	= "cyclic Real-Time";
+        pszProtComment	= "0xC000-0xFAFF: Real-Time(class=1): Cyclic";
+        bCyclic         = TRUE;
+    } else if (u16FrameID < 0xfc00){
+        pszProtShort 	= "PN-RTC1";
+        pszProtAddInfo  = "Multicast, ";
+        pszProtSummary 	= "cyclic Real-Time";
+        pszProtComment	= "0xFB00-0xFBFF: Real-Time(class=1 multicast): Cyclic";
+        bCyclic         = TRUE;
+    } else if (u16FrameID < 0xfe00){
+        pszProtShort 	= "PN-RTA";
+        pszProtAddInfo  = "Reserved, ";
+        pszProtSummary	= "acyclic Real-Time";
+        pszProtComment	= "0xFC00-0xFDFF: Real-Time: Acyclic high priority";
+        bCyclic         = FALSE;
+        if (u16FrameID == 0xfc01) {
+			pszProtShort 	= "PN-RTA";
+            pszProtAddInfo  = "Alarm High, ";
+	        pszProtSummary	= "acyclic Real-Time";
+	        pszProtComment	= "Real-Time: Acyclic PN-IO Alarm high priority";
         }
+    } else if (u16FrameID < 0xff00){
+        pszProtShort 	= "PN-RTA";
+        pszProtAddInfo  = "Reserved, ";
+        pszProtSummary	= "acyclic Real-Time";
+        pszProtComment	= "0xFE00-0xFEFF: Real-Time: Acyclic low priority";
+        bCyclic         = FALSE;
+        if (u16FrameID == 0xfe01) {
+			pszProtShort 	= "PN-RTA";
+            pszProtAddInfo  = "Alarm Low, ";
+	        pszProtSummary	= "acyclic Real-Time";
+	        pszProtComment	= "Real-Time: Acyclic PN-IO Alarm low priority";
+        }
+        if (u16FrameID == 0xfefd) {
+			pszProtShort 	= "PN-RTA";
+            pszProtAddInfo  = "";
+	        pszProtSummary	= "acyclic Real-Time";
+	        pszProtComment	= "Real-Time: DCP (Dynamic Configuration Protocol)";
+        }
+        if (u16FrameID == 0xfefe) {
+			pszProtShort 	= "PN-RTA";
+            pszProtAddInfo  = "";
+	        pszProtSummary	= "acyclic Real-Time";
+	        pszProtComment	= "Real-Time: DCP (Dynamic Configuration Protocol) multicast response";
+        }
+        if (u16FrameID == 0xfeff) {
+			pszProtShort 	= "PN-RTA";
+            pszProtAddInfo  = "";
+	        pszProtSummary	= "acyclic Real-Time";
+	        pszProtComment	= "Real-Time: DCP (Dynamic Configuration Protocol) multicast";
+        }
+    } else {
+		pszProtShort 	= "PN-RT";
+        pszProtAddInfo  = "Reserved";
+        pszProtSummary	= "Real-Time";
+        pszProtComment	= "0xFF00-0xFFFF: reserved ID";
+        bCyclic         = FALSE;
+	}
 
+    /* decode optional cyclic fields at the packet end and build the summary line */
+    if (bCyclic) {
+        /* cyclic transfer has cycle counter, data status and transfer status fields at the end */
+		u16CycleCounter = tvb_get_ntohs(tvb, tvb_len - 4);
+		u8DataStatus = tvb_get_guint8(tvb, tvb_len - 2);
+	    u8TransferStatus = tvb_get_guint8(tvb, tvb_len - 1);
+
+		snprintf (szFieldSummary, sizeof(szFieldSummary),
+				  "%sFrameID: 0x%04x, DataLen: %4u, Cycle: %5u (%s,%s,%s,%s)",
+				pszProtAddInfo, u16FrameID, tvb_len - 2 - 4, u16CycleCounter,
+			    (u8DataStatus & 0x04) ? "Valid" : "Invalid",
+			    (u8DataStatus & 0x01) ? "Primary" : "Backup",
+			    (u8DataStatus & 0x20) ? "Ok" : "Problem",
+			    (u8DataStatus & 0x10) ? "Run" : "Stop");
+
+        /* user data length is packet len - frame id - optional cyclic status fields */
+        data_len = tvb_len - 2 - 4;
+    } else {
+        /* satisfy the gcc compiler, so it won't throw an "uninitialized" warning */
+		u16CycleCounter     = 0;
+		u8DataStatus        = 0;
+	    u8TransferStatus    = 0;
+
+        /* acyclic transfer has no fields at the end */
+		snprintf (szFieldSummary, sizeof(szFieldSummary),
+				  "%sFrameID: 0x%04x, DataLen: %4u",
+				pszProtAddInfo, u16FrameID, tvb_len - 2);
+
+        /* user data length is packet len - frame id field */
+        data_len = tvb_len - 2;
+    }
+
+    /* build protocol tree only, if tree is really used */
+    if (tree) {
 		/* build pn_rt protocol tree with summary line */
 	    if (pn_rt_summary_in_tree) {
 	      ti = proto_tree_add_protocol_format(tree, proto_pn_rt, tvb, 0, -1,
@@ -320,26 +321,26 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    "TransferStatus: 0x%02x (OK)", u8TransferStatus);
 		    }
         }
+    }
 		
-		/* update column info now */
-        if (check_col(pinfo->cinfo, COL_INFO))
-          col_add_fstr(pinfo->cinfo, COL_INFO, szFieldSummary);
-	  	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	    	col_add_str(pinfo->cinfo, COL_PROTOCOL, pszProtShort);
+	/* update column info now */
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_add_fstr(pinfo->cinfo, COL_INFO, szFieldSummary);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	    col_add_str(pinfo->cinfo, COL_PROTOCOL, pszProtShort);
 
-        pinfo->private_data = GUINT_TO_POINTER( (guint32) u16FrameID);
+    pinfo->private_data = GUINT_TO_POINTER( (guint32) u16FrameID);
 
-		/* get frame user data tvb (without header and footer) */
-		next_tvb = tvb_new_subset(tvb, 2, data_len, data_len);
+	/* get frame user data tvb (without header and footer) */
+	next_tvb = tvb_new_subset(tvb, 2, data_len, data_len);
 
-        /* ask heuristics, if some sub-dissector is interested in this packet payload */
-        if(!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree)) {
-            /*if (check_col(pinfo->cinfo, COL_INFO))
-                  col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown");*/
+    /* ask heuristics, if some sub-dissector is interested in this packet payload */
+    if(!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree)) {
+        /*if (check_col(pinfo->cinfo, COL_INFO))
+              col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown");*/
 
-            /* Oh, well, we don't know this; dissect it as data. */
-            call_dissector(data_handle, next_tvb, pinfo, tree);
-        }
+        /* Oh, well, we don't know this; dissect it as data. */
+        call_dissector(data_handle, next_tvb, pinfo, tree);
     }
 }
 

@@ -1086,17 +1086,19 @@ dissect_PNIO_C_SDU(tvbuff_t *tvb, int offset,
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	    col_add_str(pinfo->cinfo, COL_PROTOCOL, "PNIO");
 
-	data_item = proto_tree_add_protocol_format(tree, proto_pn_io, tvb, offset, tvb_length(tvb),
-				"PROFINET IO Cyclic Service Data Unit: %u bytes", tvb_length(tvb));
-    data_tree = proto_item_add_subtree(data_item, ett_pn_io_rtc);
+    if(tree) {
+	    data_item = proto_tree_add_protocol_format(tree, proto_pn_io, tvb, offset, tvb_length(tvb),
+				    "PROFINET IO Cyclic Service Data Unit: %u bytes", tvb_length(tvb));
+        data_tree = proto_item_add_subtree(data_item, ett_pn_io_rtc);
 
-    offset = dissect_PNIO_IOxS(tvb, offset, pinfo, data_tree, drep);
+        offset = dissect_PNIO_IOxS(tvb, offset, pinfo, data_tree, drep);
 
-    /* XXX - dissect the remaining data */
-    /* this will be one or more DataItems followed by an optional GAP and RTCPadding */
-    /* as we don't have the required context information to dissect the specific DataItems, this will be tricky :-( */
-	data_item = proto_tree_add_protocol_format(data_tree, proto_pn_io, tvb, offset, tvb_length_remaining(tvb, offset),
-				"Data: %u bytes (including GAP and RTCPadding)", tvb_length_remaining(tvb, offset));
+        /* XXX - dissect the remaining data */
+        /* this will be one or more DataItems followed by an optional GAP and RTCPadding */
+        /* as we don't have the required context information to dissect the specific DataItems, this will be tricky :-( */
+	    data_item = proto_tree_add_protocol_format(data_tree, proto_pn_io, tvb, offset, tvb_length_remaining(tvb, offset),
+				    "Data: %u bytes (including GAP and RTCPadding)", tvb_length_remaining(tvb, offset));
+    }
 
     return offset;
 }
