@@ -1,7 +1,7 @@
 /* ftypes.h
  * Definitions for field types
  *
- * $Id: ftypes.h,v 1.33 2004/06/24 21:50:05 sahlberg Exp $
+ * $Id: ftypes.h,v 1.34 2004/07/04 00:28:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -234,7 +234,7 @@ fvalue_init(fvalue_t *fv, ftenum_t ftype);
 /* Free all memory used by an fvalue_t. With MSVC and a 
  * libethereal.dll, we need a special declaration.
  */
-ETH_VAR_IMPORT fvalue_t *fvalue_free_list;
+ETH_VAR_IMPORT SLAB_FREE_LIST_DECLARE(fvalue_t)
 
 
 #define FVALUE_CLEANUP(fv)					\
@@ -249,7 +249,7 @@ ETH_VAR_IMPORT fvalue_t *fvalue_free_list;
 #define FVALUE_FREE(fv)						\
 	{							\
 		FVALUE_CLEANUP(fv)				\
-		SLAB_FREE(fv, fvalue_free_list);		\
+		SLAB_FREE(fv, fvalue_t);			\
 	}
 
 

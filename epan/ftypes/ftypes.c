@@ -1,5 +1,5 @@
 /*
- * $Id: ftypes.c,v 1.24 2004/06/28 06:01:33 guy Exp $
+ * $Id: ftypes.c,v 1.25 2004/07/04 00:28:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,7 +32,7 @@
 static ftype_t* type_list[FT_NUM_TYPES];
 
 /* Space for quickly allocating/de-allocating fvalue_t's */
-fvalue_t *fvalue_free_list=NULL;
+SLAB_FREE_LIST_DECLARE(fvalue_t)
 
 /* These are the ftype registration functions that need to be called.
  * This list and the initialization function could be produced
@@ -213,7 +213,7 @@ fvalue_new(ftenum_t ftype)
 	ftype_t			*ft;
 	FvalueNewFunc		new_value;
 
-	SLAB_ALLOC(fv, fvalue_free_list);
+	SLAB_ALLOC(fv, fvalue_t);
 
 	FTYPE_LOOKUP(ftype, ft);
 	fv->ftype = ft;

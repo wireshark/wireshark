@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.132 2004/05/01 15:15:08 ulfl Exp $
+ * $Id: proto.c,v 1.133 2004/07/04 00:28:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -153,34 +153,34 @@ static GMemChunk *gmc_hfinfo = NULL;
 
 /* Contains information about a field when a dissector calls
  * proto_tree_add_item.  */
-static field_info *field_info_free_list=NULL;
+static SLAB_FREE_LIST_DEFINE(field_info)
 static field_info *field_info_tmp=NULL;
 #define FIELD_INFO_NEW(fi)					\
-	SLAB_ALLOC(fi, field_info_free_list)
+	SLAB_ALLOC(fi, field_info)
 #define FIELD_INFO_FREE(fi)					\
-	SLAB_FREE(fi, field_info_free_list)
+	SLAB_FREE(fi, field_info)
 
 
 
 /* Contains the space for proto_nodes. */
-static proto_node *proto_node_free_list=NULL;
+static SLAB_FREE_LIST_DEFINE(proto_node)
 #define PROTO_NODE_NEW(node)				\
-	SLAB_ALLOC(node, proto_node_free_list)		\
+	SLAB_ALLOC(node, proto_node)			\
 	node->first_child = NULL;			\
 	node->last_child = NULL;			\
 	node->next = NULL;
 
 #define PROTO_NODE_FREE(node)				\
-	SLAB_FREE(node, proto_node_free_list)
+	SLAB_FREE(node, proto_node)
 
 
 
 /* String space for protocol and field items for the GUI */
-static item_label_t *item_label_free_list = NULL;
+static SLAB_FREE_LIST_DEFINE(item_label_t)
 #define ITEM_LABEL_NEW(il)				\
-	SLAB_ALLOC(il, item_label_free_list)
+	SLAB_ALLOC(il, item_label_t)
 #define ITEM_LABEL_FREE(il)				\
-	SLAB_FREE(il, item_label_free_list)
+	SLAB_FREE(il, item_label_t)
 
 
 
@@ -658,7 +658,7 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		 * good thing we saved it, now we can reverse the
 		 * memory leak and reclaim it.
 		 */
-		SLAB_FREE(field_info_tmp, field_info_free_list);
+		SLAB_FREE(field_info_tmp, field_info);
 	}
 	/* we might throw an exception, keep track of this one
 	 * across the "dangerous" section below.

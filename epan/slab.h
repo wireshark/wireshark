@@ -1,7 +1,7 @@
 /* slab.h
  * Definitions for very simple slab handling
  *
- * $Id: slab.h,v 1.2 2003/12/03 08:53:36 guy Exp $
+ * $Id: slab.h,v 1.3 2004/07/04 00:28:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,11 +31,23 @@ typedef struct _freed_item {
 	struct _freed_item *next;
 } freed_item_t;
 
+/*
+ * Generate definition of the free list pointer.
+ */
+#define SLAB_FREE_LIST_DEFINE(type)		\
+	type *type ## _free_list = NULL;
+
+/*
+ * Generate an external declaration of the free list pointer.
+ */
+#define SLAB_FREE_LIST_DECLARE(type)		\
+	type *type ## _free_list;
+
 /* we never free any memory we have allocated, when it is returned to us
    we just store it in the free list until (hopefully) it gets used again
 */
-#define SLAB_ALLOC(item, list)					\
-	if(!list){						\
+#define SLAB_ALLOC(item, type)					\
+	if(!type ## _free_list){						\
 		int i;						\
 		char *tmp;					\
 		tmp=(char *)g_malloc(NITEMS_PER_SLAB*		\
@@ -44,21 +56,21 @@ typedef struct _freed_item {
 		for(i=0;i<NITEMS_PER_SLAB;i++){			\
 			item=(void *)tmp;			\
 			((freed_item_t *)((void *)item))->next=	\
-			    (freed_item_t *)((void *)list);	\
-			list=item;				\
+			    (freed_item_t *)((void *)type ## _free_list);\
+			type ## _free_list=item;			\
 			tmp+=					\
 			    ((sizeof(*item) > sizeof(freed_item_t)) ?\
 				sizeof(*item) : sizeof(freed_item_t));\
 		}						\
 	}							\
-	item=list;						\
-	list=(void *)(((freed_item_t *)((void *)item))->next);
+	item=type ## _free_list;					\
+	type ## _free_list=(void *)(((freed_item_t *)((void *)item))->next);
 
-#define SLAB_FREE(item, list)				\
-{							\
-	((freed_item_t *)((void *)item))->next=		\
-	    (freed_item_t *)((void *)list);		\
-	list=item;					\
+#define SLAB_FREE(item, type)					\
+{								\
+	((freed_item_t *)((void *)item))->next=			\
+	    (freed_item_t *)((void *)type ## _free_list);	\
+	type ## _free_list=item;					\
 }
 
 #endif /* slab.h */
