@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.7 2003/10/10 10:16:03 guy Exp $
+ * $Id: rtp_analysis.c,v 1.8 2003/10/31 19:45:16 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -114,8 +114,11 @@ typedef enum {
 /****************************************************************************/
 /* structure that holds the information about the forward and reversed direction */
 typedef struct _tap_rtp_stat_t {
+	gboolean first_packet;     /* do not use in code that is called after rtp_packet_analyse */
+	                           /* use (flags & STAT_FLAG_FIRST) instead */
+	/* all of the following fields will be initialized after
+	 rtp_packet_analyse has been called */
 	guint32 flags;             /* see STAT_FLAG-defines below */
-	gboolean first_packet;
 	guint16 seq_num;
 	guint32 timestamp;
 	guint32 delta_timestamp;
@@ -329,7 +332,6 @@ static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 {
 	double current_time;
 	double current_jitter;
-	gboolean first_packet = statinfo->first_packet;
 
 	statinfo->flags = 0;
 
@@ -350,13 +352,13 @@ static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	statinfo->jitter = current_jitter;
 
 	/*  is this the first packet we got in this direction? */
-	if (first_packet) {
-		statinfo->first_packet = FALSE;
+	if (statinfo->first_packet) {
 		statinfo->start_seq_nr = rtpinfo->info_seq_num;
 		statinfo->start_time = current_time;
 		statinfo->delay = 0;
 		statinfo->jitter = 0;
 		statinfo->flags |= STAT_FLAG_FIRST;
+		statinfo->first_packet = FALSE;
 	}
 	/* is it a packet with the mark bit set? */
 	if (rtpinfo->info_marker_set) {
@@ -409,7 +411,7 @@ static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 
 	/* if the current seq number equals the last one or if we are here for
 	* the first time, then it is ok, we just store the current one as the last one */
-	if ( (statinfo->seq_num+1 == rtpinfo->info_seq_num) || (first_packet) )
+	if ( (statinfo->seq_num+1 == rtpinfo->info_seq_num) || (statinfo->flags & STAT_FLAG_FIRST) )
 		statinfo->seq_num = rtpinfo->info_seq_num;
 	/* if the first one is 65535. XXX same problem as above: if seq 65535 or 0 is lost... */
 	else if ( (statinfo->seq_num == 65535) && (rtpinfo->info_seq_num == 0) )
@@ -494,7 +496,7 @@ static int rtp_packet_add_info(GtkCList *clist,
 	}
 
 	/*  is this the first packet we got in this direction? */
-	if (statinfo->first_packet) {
+	if (statinfo->flags & STAT_FLAG_FIRST) {
 		add_to_clist(clist,
 			pinfo->fd->num, rtpinfo->info_seq_num,
 			0,
@@ -529,7 +531,7 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 	gint16 tmp;
 
 	/*  is this the first packet we got in this direction? */
-	if (statinfo->first_packet) {
+	if (statinfo->flags & STAT_FLAG_FIRST) {
 		if (saveinfo->fp == NULL) {
 			saveinfo->saved = FALSE;
 			saveinfo->error_type = TAP_RTP_FILE_OPEN_ERROR;
@@ -562,6 +564,7 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 
 	/* do we need to insert some silence? */
 	if ((rtpinfo->info_marker_set) &&
+		!(statinfo->flags & STAT_FLAG_FIRST) &&
 		(statinfo->delta_timestamp > (rtpinfo->info_payload_len - rtpinfo->info_padding_count)) )  {
 		/* the amount of silence should be the difference between
 		* the last timestamp and the current one minus x
@@ -606,7 +609,7 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 	}
 	/* comfort noise? - do nothing */
 	else if (rtpinfo->info_payload_type == PT_CN
-		&& rtpinfo->info_payload_type == PT_CN_OLD) {
+		|| rtpinfo->info_payload_type == PT_CN_OLD) {
 	}
 	/* unsupported codec or XXX other error */
 	else {
