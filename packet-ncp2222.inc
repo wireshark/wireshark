@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.44 2002/10/19 20:28:54 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.45 2002/10/21 18:56:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -561,7 +561,7 @@ typedef struct {
         guint32                 req_nds_flags;
         guint8                  nds_request_verb;
         guint8                  nds_version;
-        char *                  object_name;
+        char                    object_name[256];
 } ncp_req_hash_value;
 
 typedef struct {
@@ -727,7 +727,7 @@ ncp_hash_insert(conversation_t *conversation, guint8 nw_sequence,
         request_value->req_nds_flags = 0;
 	request_value->nds_request_verb = 0;
 	request_value->nds_version = 0;
-	request_value->object_name = NULL;
+	strcpy(request_value->object_name, " ");
         
         g_hash_table_insert(ncp_req_hash, request_key, request_value);
 
@@ -912,6 +912,7 @@ typedef struct {
 #define MVTYPE_LIST_PARTITIONS		12
 #define MVTYPE_CLASS_NAMES		13
 #define MVTYPE_MODIFY_CLASS		14
+#define MVTYPE_ADD_ATTR_REQUEST         15
 
 typedef struct {
         guint8          vtype;
@@ -1371,7 +1372,12 @@ get_string(tvbuff_t* tvb, guint offset, guint str_length, char *dest_buf)
         {
                 strcpy(dest_buf, "String too long to process");
                 return;
-        }        
+        }
+        dest_buf[0] = '\0';        
+        if(str_length == 0)
+        {
+                return;
+        }
         for ( i = 0; i < str_length; i++ )
         {
                 c_char = tvb_get_guint8(tvb, offset );
@@ -1435,16 +1441,16 @@ get_info_type(gchar* check_string)
 static void
 process_bitfield(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
 {
-        char                    flags_str[512];
-        char *                  sep = NULL;
+        gchar                   flags_str[512];
+        gchar                   *sep;
 	proto_item		*tinew;
 	proto_tree		*flags_tree;
         guint32                 i;
         guint32                 bvalue = 0;
 
         bvalue = 0x00000001;
-        strcpy(flags_str, "");
-        sep = "";
+        flags_str[0]='\0';
+        sep="";
         for (i = 0 ; i < (values->vlength*8); i++ ) {
                 if (values->vvalue & bvalue) 
                 {
@@ -1538,7 +1544,7 @@ process_bitfield(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                 case 0x00000004:
 	                                proto_tree_add_item(flags_tree, values->bit3hfname, tvb, values->voffset, values->vlength, TRUE);
                                         break;
-                                case 0x0000008:
+                                case 0x00000008:
                                         proto_tree_add_item(flags_tree, values->bit4hfname, tvb, values->voffset, values->vlength, TRUE);
                                         break;
                                 case 0x00000010:
@@ -1644,18 +1650,18 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                                        proto_tree_add_string(nvtree, hf_value_string, tvb, voffset, 
                                            value1, vvalues->vstring);
                                        voffset = voffset + value1;    
+                                       voffset += align_4(tvb, voffset);
                                }            
-                               voffset += align_4(tvb, voffset);
                                break;
                        case 0x00000007:        /* Boolean */
                                value1 = tvb_get_letohl(tvb, voffset); /* length of field */
                                if (value1==0)
                                {
-                               vvalues->vstring = "False";
+                                       vvalues->vstring = "False";
                                }
                                else
                                {
-                               vvalues->vstring = "True";
+                                       vvalues->vstring = "True";
                                }
                                proto_tree_add_string(nvtree, hf_value_string, tvb, voffset, 
                                            value1, vvalues->vstring);
@@ -1809,7 +1815,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                                         voffset += 4;
                                }
                                number_of_items = tvb_get_letohl(tvb, voffset);  /* Number of Addresses */
-                               aditem = proto_tree_add_uint_format(vtree, hf_nds_uint32value, tvb, voffset,
+                               aditem = proto_tree_add_uint_format(nvtree, hf_nds_uint32value, tvb, voffset,
                                         4, number_of_items, "Number of Addresses: %u", number_of_items);
         
                                adtree = proto_item_add_subtree(aditem, ett_nds);
@@ -2033,6 +2039,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
                                 value2, values->vstring);
                         values->voffset=ioffset + value2;
                         ioffset = values->voffset;
+                        ioffset += align_4(tvb, ioffset);
                         break;
                 case 2: /* Based */
                         value1 = tvb_get_letohl(tvb, ioffset);   /* ES Type */
@@ -2070,6 +2077,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
                                                 value3, values->vstring);
                                         values->voffset=ioffset + value3;
                                         ioffset = values->voffset;
+                                        ioffset += align_4(tvb, ioffset);
                                         break;
                                 case 2: /* Based */
                                         break;
@@ -2157,6 +2165,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
                                                 value3, values->vstring);
                                         values->voffset=ioffset + value3;
                                         ioffset = values->voffset;
+                                        ioffset += align_4(tvb, ioffset);
                                         break;
                                 case 2: /* Based */
                                         break;
@@ -2308,6 +2317,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
                                                 value3, values->vstring);
                                         values->voffset=ioffset + value3;
                                         ioffset = values->voffset;
+                                        ioffset += align_4(tvb, ioffset);
                                         break;
                                 case 2: /* Based */
                                         break;
@@ -2443,6 +2453,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
 	proto_item      *sub2item;
                
        	strcpy(mval_buf.buffer, "");
+        
         if(values->mvtype != MVTYPE_LIST_PARTITIONS)
         {
                 nitem = proto_tree_add_uint_format(ncp_tree, values->hfname, tvb, values->voffset+ioffset,
@@ -2507,7 +2518,10 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                                 values->vstring = mval_buf.buffer;
                                                 proto_tree_add_string(ntree, hf_mv_string, tvb, ioffset, 
                                                         value2, values->vstring);        
-                                                values->voffset=ioffset + value2;
+                                                ioffset += value2;
+                                                ioffset += align_4(tvb, ioffset);
+                                                values->voffset = ioffset; 
+        
                                                 print_nds_values(ntree, tvb, value1, values);        
                                                 ioffset = values->voffset;
                                         }
@@ -2745,6 +2759,23 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                         }
                         break;
 
+                case MVTYPE_ADD_ATTR_REQUEST:	/* Add Attribute Request */
+                        for (i = 1 ; i <= values->vvalue; i++ )
+                        {
+                                value1 = tvb_get_letohl(tvb, ioffset);
+                                ioffset = ioffset + 4;
+                                get_string(tvb, ioffset, value1, mval_buf.buffer);
+                                values->vstring = mval_buf.buffer;                                
+                                proto_tree_add_string(ntree, hf_mv_string, tvb, ioffset, 
+                                        value1, values->vstring);
+                                ioffset = ioffset + value1;        
+                                ioffset += align_4(tvb, ioffset);
+                                values->voffset = ioffset;
+                                print_nds_values(ntree, tvb, 9, values);        
+                                ioffset = values->voffset;
+                        }
+                        break;
+                        
                 case MVTYPE_READ_CLASS_REQ:	/* Read Class Request */
                         for (i = 1 ; i <= values->vvalue; i++ )
                         {
@@ -3608,7 +3639,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                                         }
                                                 }        
                                         }
-                                        if(values->vflags == 2 || values->vflags == 4)   /* Class Definitions of Super Classes */
+                                        /*if(values->vflags == 2 || values->vflags == 4)*/   /* Class Definitions of Super Classes */
+                                        if(values->vflags == 4)   /* Class Definitions of Super Classes */
                                         {
                                                 value1 = tvb_get_letohl(tvb, ioffset);  /* Containment Classes */
                                                 sub2item = proto_tree_add_uint_format(sub1tree, hf_nds_purge, tvb, ioffset,
@@ -4241,11 +4273,13 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
         gboolean                        resolve_eid=FALSE;
         guint32                         global_eid=0;
         gboolean                        add_eid = FALSE;
-        char                            *global_object_name='\0';
+        char                            global_object_name[256];
 	int				i;
+        guint32                         bvalue=0;
         
-        strcpy(reply_buffer.buffer, "");
-
+	strcpy(reply_buffer.buffer, "");
+	strcpy(global_object_name, "");
+	
 	if (!pinfo->fd->flags.visited) {
 		/* Find the conversation whence the request would have come. */
 		conversation = find_conversation(&pinfo->src, &pinfo->dst,
@@ -4300,18 +4334,20 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
             ncp_rec->subfunc==0x02)
         {
                 nds_offset = 8;
-                nds_reply_buffer = tvb_get_letohl(tvb, nds_offset);        
-                nds_frag = tvb_get_letohl(tvb, 12);        
+                nds_reply_buffer = tvb_get_letohl(tvb, nds_offset);
+                nds_offset += 4;        
+                nds_frag = tvb_get_letohl(tvb, nds_offset);        
                 if (nds_reply_buffer > 7)
                 {                        
-                        nds_offset = 16; 
+                        nds_offset += 4; 
                         nds_error_code = tvb_get_letohl(tvb, nds_offset);
                         nds_error_string = match_strval(nds_error_code, nds_reply_errors);
                         if (nds_error_string == NULL)
                         {
-                                nds_offset = 19;
+                                /*nds_offset = 19;
                                 nds_error_code = tvb_get_letohl(tvb, nds_offset);
-                                nds_error_string = match_strval(nds_error_code, nds_reply_errors);
+                                nds_error_string = match_strval(nds_error_code, nds_reply_errors);*/
+                                nds_error_string = "NDS Error - No Definition Found";
                         }
                         if (nds_error_string == NULL || nds_error_code == 0x00000000)
                         {
@@ -4368,7 +4404,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 
                 /* Decode NDS Reply packets */
                 if (ncp_rec) {
-                        if (ncp_rec->func == 0x68 && ncp_rec->subfunc == 0x01) {
+                        if ((ncp_rec->func == 0x68 && ncp_rec->subfunc == 0x01) && completion_code == 0) {
                                 ping_version = tvb_get_guint8(tvb, 8);
                 		proto_tree_add_item(ncp_tree, hf_ping_version, tvb, 8, 1, TRUE);
                                 if (ping_version == 9) {
@@ -4382,25 +4418,294 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                 else {
                                         nds_offset = 12;
                                         nds_flags = request_value->req_nds_flags;
-                                        if (nds_flags & 0x00200000) {
-                                                nds_offset = nds_offset+4;
-                                        }
-                                        if (nds_flags & 0x00000002) {
-                                            	proto_tree_add_item(ncp_tree, hf_nds_reply_depth, tvb, nds_offset, 4, TRUE);
-                                                nds_offset = nds_offset+4;
-                                        }
-                                        if (nds_flags & 0x00000004) {
-                                            	proto_tree_add_item(ncp_tree, hf_nds_reply_rev, tvb, nds_offset, 4, TRUE);
-                                                nds_offset = nds_offset+4;
-                                        }
-                                        if (nds_flags & 0x00000008) {
-                                            	proto_tree_add_item(ncp_tree, hf_nds_reply_flags, tvb, nds_offset, 4, TRUE);
-                                                nds_offset = nds_offset+4;
-                                        }
-                                        if (nds_flags & 0x00020000) {
-                                                nds_string_len = tvb_get_letohl(tvb, nds_offset);
-                                                get_string(tvb, nds_offset+4, nds_string_len, reply_buffer.buffer);
-                                                proto_tree_add_text(ncp_tree, tvb, nds_offset+4, nds_string_len, "NDS Tree Name: %s", reply_buffer.buffer);
+                                        bvalue = 0x00000001;
+                                		
+                                        for (i = 0 ; i < 32; i++ ) {
+                                                if (nds_flags & bvalue) 
+                                                {
+                                                        switch(bvalue)
+                                                        {
+                                                                case 0x00000001:   /* Supported Fields */
+                                                                        pvalues[0].vvalue = tvb_get_letohs(tvb, nds_offset);
+                                                                        pvalues[0].vtype = VTYPE_BITFIELD;
+                                                                        pvalues[0].vstring = "";
+                                                                        pvalues[0].vdesc = "Ping (low) Supported Fields:";
+                                                                        pvalues[0].vlength = 2;
+                                                                        pvalues[0].hfname= hf_nds_rflags;
+                                                                        pvalues[0].voffset = nds_offset;
+                                                                        pvalues[0].bit1 = "Supported Fields";
+                                                                        pvalues[0].bit1hfname = hf_bit1pingflags1;
+                                                                        pvalues[0].bit2 = "Depth";
+                                                                        pvalues[0].bit2hfname = hf_bit2pingflags1;
+                                                                        pvalues[0].bit3 = "Revision";
+                                                                        pvalues[0].bit3hfname = hf_bit3pingflags1;
+                                                                        pvalues[0].bit4 = "Flags";
+                                                                        pvalues[0].bit4hfname = hf_bit4pingflags1;
+                                                                        pvalues[0].bit5 = "Verification Flags";
+                                                                        pvalues[0].bit5hfname = hf_bit5pingflags1;
+                                                                        pvalues[0].bit6 = "Letter Version";
+                                                                        pvalues[0].bit6hfname = hf_bit6pingflags1;
+                                                                        pvalues[0].bit7 = "OS Version";
+                                                                        pvalues[0].bit7hfname = hf_bit7pingflags1;
+                                                                        pvalues[0].bit8 = "License Flags";
+                                                                        pvalues[0].bit8hfname = hf_bit8pingflags1;
+                                                                        pvalues[0].bit9 = "DS Time";
+                                                                        pvalues[0].bit9hfname = hf_bit9pingflags1;
+                                                                        pvalues[0].bit10 = "Not Defined";
+                                                                        pvalues[0].bit10hfname = hf_bit10pingflags1;
+                                                                        pvalues[0].bit11 = "Not Defined";
+                                                                        pvalues[0].bit11hfname = hf_bit11pingflags1;
+                                                                        pvalues[0].bit12 = "Not Defined";
+                                                                        pvalues[0].bit12hfname = hf_bit12pingflags1;
+                                                                        pvalues[0].bit13 = "Not Defined";
+                                                                        pvalues[0].bit13hfname = hf_bit13pingflags1;
+                                                                        pvalues[0].bit14 = "Not Defined";
+                                                                        pvalues[0].bit14hfname = hf_bit14pingflags1;
+                                                                        pvalues[0].bit15 = "Not Defined";
+                                                                        pvalues[0].bit15hfname = hf_bit15pingflags1;
+                                                                        pvalues[0].bit16 = "Not Defined";
+                                                                        pvalues[0].bit16hfname = hf_bit16pingflags1;
+                                                                        
+                                                                        process_bitfield(ncp_tree, tvb, &pvalues[0]);
+                                                                        nds_offset += 2;
+                                                                        
+                                                                        pvalues[0].vvalue = tvb_get_letohs(tvb, nds_offset);
+                                                                        pvalues[0].vtype = VTYPE_BITFIELD;
+                                                                        pvalues[0].vstring = "";
+                                                                        pvalues[0].vdesc = "Ping (high) Supported Fields:";
+                                                                        pvalues[0].vlength = 2;
+                                                                        pvalues[0].hfname= hf_nds_rflags;
+                                                                        pvalues[0].voffset = nds_offset;
+                                                                        pvalues[0].bit1 = "Sap Name";
+                                                                        pvalues[0].bit1hfname = hf_bit1pingflags2;
+                                                                        pvalues[0].bit2 = "Tree Name";
+                                                                        pvalues[0].bit2hfname = hf_bit2pingflags2;
+                                                                        pvalues[0].bit3 = "OS Name";
+                                                                        pvalues[0].bit3hfname = hf_bit3pingflags2;
+                                                                        pvalues[0].bit4 = "Hardware Name";
+                                                                        pvalues[0].bit4hfname = hf_bit4pingflags2;
+                                                                        pvalues[0].bit5 = "Vendor Name";
+                                                                        pvalues[0].bit5hfname = hf_bit5pingflags2;
+                                                                        pvalues[0].bit6 = "Not Defined";
+                                                                        pvalues[0].bit6hfname = hf_bit6pingflags2;
+                                                                        pvalues[0].bit7 = "Not Defined";
+                                                                        pvalues[0].bit7hfname = hf_bit7pingflags2;
+                                                                        pvalues[0].bit8 = "Not Defined";
+                                                                        pvalues[0].bit8hfname = hf_bit8pingflags2;
+                                                                        pvalues[0].bit9 = "Not Defined";
+                                                                        pvalues[0].bit9hfname = hf_bit9pingflags2;
+                                                                        pvalues[0].bit10 = "Not Defined";
+                                                                        pvalues[0].bit10hfname = hf_bit10pingflags2;
+                                                                        pvalues[0].bit11 = "Not Defined";
+                                                                        pvalues[0].bit11hfname = hf_bit11pingflags2;
+                                                                        pvalues[0].bit12 = "Not Defined";
+                                                                        pvalues[0].bit12hfname = hf_bit12pingflags2;
+                                                                        pvalues[0].bit13 = "Not Defined";
+                                                                        pvalues[0].bit13hfname = hf_bit13pingflags2;
+                                                                        pvalues[0].bit14 = "Not Defined";
+                                                                        pvalues[0].bit14hfname = hf_bit14pingflags2;
+                                                                        pvalues[0].bit15 = "Not Defined";
+                                                                        pvalues[0].bit15hfname = hf_bit15pingflags2;
+                                                                        pvalues[0].bit16 = "Not Defined";
+                                                                        pvalues[0].bit16hfname = hf_bit16pingflags2;
+                                                                        
+                                                                        process_bitfield(ncp_tree, tvb, &pvalues[0]);
+                                                                        nds_offset += 2;
+                                                                        break;
+                                                                case 0x00000002:
+                                                                    	proto_tree_add_item(ncp_tree, hf_nds_reply_depth, tvb, nds_offset, 4, TRUE);
+                                                                        nds_offset += 4;
+                                                                        break;
+                                                                case 0x00000004:
+                                                                    	proto_tree_add_item(ncp_tree, hf_nds_reply_rev, tvb, nds_offset, 4, TRUE);
+                                                                        nds_offset += 4;
+                                                                        break;
+                                                                case 0x00000008:
+                                                                        pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
+                                                                        pvalues[0].vtype = VTYPE_BITFIELD;
+                                                                        pvalues[0].vstring = "";
+                                                                        pvalues[0].vdesc = "Ping Flags:";
+                                                                        pvalues[0].vlength = 4;
+                                                                        pvalues[0].hfname= hf_nds_rflags;
+                                                                        pvalues[0].voffset = nds_offset;
+                                                                        pvalues[0].bit1 = "Root Most Master Replica";
+                                                                        pvalues[0].bit1hfname = hf_bit1pingpflags1;
+                                                                        pvalues[0].bit2 = "Time Synchronized";
+                                                                        pvalues[0].bit2hfname = hf_bit2pingpflags1;
+                                                                        pvalues[0].bit3 = "Not Defined";
+                                                                        pvalues[0].bit3hfname = hf_bit3pingpflags1;
+                                                                        pvalues[0].bit4 = "Not Defined";
+                                                                        pvalues[0].bit4hfname = hf_bit4pingpflags1;
+                                                                        pvalues[0].bit5 = "Not Defined";
+                                                                        pvalues[0].bit5hfname = hf_bit5pingpflags1;
+                                                                        pvalues[0].bit6 = "Not Defined";
+                                                                        pvalues[0].bit6hfname = hf_bit6pingpflags1;
+                                                                        pvalues[0].bit7 = "Not Defined";
+                                                                        pvalues[0].bit7hfname = hf_bit7pingpflags1;
+                                                                        pvalues[0].bit8 = "Not Defined";
+                                                                        pvalues[0].bit8hfname = hf_bit8pingpflags1;
+                                                                        pvalues[0].bit9 = "Not Defined";
+                                                                        pvalues[0].bit9hfname = hf_bit9pingpflags1;
+                                                                        pvalues[0].bit10 = "Not Defined";
+                                                                        pvalues[0].bit10hfname = hf_bit10pingpflags1;
+                                                                        pvalues[0].bit11 = "Not Defined";
+                                                                        pvalues[0].bit11hfname = hf_bit11pingpflags1;
+                                                                        pvalues[0].bit12 = "Not Defined";
+                                                                        pvalues[0].bit12hfname = hf_bit12pingpflags1;
+                                                                        pvalues[0].bit13 = "Not Defined";
+                                                                        pvalues[0].bit13hfname = hf_bit13pingpflags1;
+                                                                        pvalues[0].bit14 = "Not Defined";
+                                                                        pvalues[0].bit14hfname = hf_bit14pingpflags1;
+                                                                        pvalues[0].bit15 = "Not Defined";
+                                                                        pvalues[0].bit15hfname = hf_bit15pingpflags1;
+                                                                        pvalues[0].bit16 = "Not Defined";
+                                                                        pvalues[0].bit16hfname = hf_bit16pingpflags1;
+                                                                        
+                                                                        process_bitfield(ncp_tree, tvb, &pvalues[0]);
+                                                                        nds_offset += 4;
+                                                                        break;
+                                                                case 0x00000010:
+                                                                        pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
+                                                                        pvalues[0].vtype = VTYPE_BITFIELD;
+                                                                        pvalues[0].vstring = "";
+                                                                        pvalues[0].vdesc = "Verification Flags:";
+                                                                        pvalues[0].vlength = 4;
+                                                                        pvalues[0].hfname= hf_nds_rflags;
+                                                                        pvalues[0].voffset = nds_offset;
+                                                                        pvalues[0].bit1 = "Checksum";
+                                                                        pvalues[0].bit1hfname = hf_bit1pingvflags1;
+                                                                        pvalues[0].bit2 = "CRC32";
+                                                                        pvalues[0].bit2hfname = hf_bit2pingvflags1;
+                                                                        pvalues[0].bit3 = "Not Defined";
+                                                                        pvalues[0].bit3hfname = hf_bit3pingvflags1;
+                                                                        pvalues[0].bit4 = "Not Defined";
+                                                                        pvalues[0].bit4hfname = hf_bit4pingvflags1;
+                                                                        pvalues[0].bit5 = "Not Defined";
+                                                                        pvalues[0].bit5hfname = hf_bit5pingvflags1;
+                                                                        pvalues[0].bit6 = "Not Defined";
+                                                                        pvalues[0].bit6hfname = hf_bit6pingvflags1;
+                                                                        pvalues[0].bit7 = "Not Defined";
+                                                                        pvalues[0].bit7hfname = hf_bit7pingvflags1;
+                                                                        pvalues[0].bit8 = "Not Defined";
+                                                                        pvalues[0].bit8hfname = hf_bit8pingvflags1;
+                                                                        pvalues[0].bit9 = "Not Defined";
+                                                                        pvalues[0].bit9hfname = hf_bit9pingvflags1;
+                                                                        pvalues[0].bit10 = "Not Defined";
+                                                                        pvalues[0].bit10hfname = hf_bit10pingvflags1;
+                                                                        pvalues[0].bit11 = "Not Defined";
+                                                                        pvalues[0].bit11hfname = hf_bit11pingvflags1;
+                                                                        pvalues[0].bit12 = "Not Defined";
+                                                                        pvalues[0].bit12hfname = hf_bit12pingvflags1;
+                                                                        pvalues[0].bit13 = "Not Defined";
+                                                                        pvalues[0].bit13hfname = hf_bit13pingvflags1;
+                                                                        pvalues[0].bit14 = "Not Defined";
+                                                                        pvalues[0].bit14hfname = hf_bit14pingvflags1;
+                                                                        pvalues[0].bit15 = "Not Defined";
+                                                                        pvalues[0].bit15hfname = hf_bit15pingvflags1;
+                                                                        pvalues[0].bit16 = "Not Defined";
+                                                                        pvalues[0].bit16hfname = hf_bit16pingvflags1;
+                                                                        
+                                                                        process_bitfield(ncp_tree, tvb, &pvalues[0]);
+                                                                        nds_offset += 4;
+                                                                        break;
+                                                                case 0x00000020:
+                                                                    	proto_tree_add_item(ncp_tree, hf_nds_letter_ver, tvb, nds_offset, 4, TRUE);
+                                                                        nds_offset += 4;
+                                                                        break;
+                                                                case 0x00000040:
+                                                                    	proto_tree_add_item(ncp_tree, hf_nds_os_ver, tvb, nds_offset, 4, TRUE);
+                                                                        nds_offset += 4;
+                                                                        break;
+                                                                case 0x00000080:
+                                                                    	proto_tree_add_item(ncp_tree, hf_nds_lic_flags, tvb, nds_offset, 4, TRUE);
+                                                                        nds_offset += 4;
+                                                                        break;
+                                                                case 0x00000100:
+                                                                    	proto_tree_add_item(ncp_tree, hf_nds_ds_time, tvb, nds_offset, 4, TRUE);
+                                                                        nds_offset += 4;
+                                                                        break;
+                                                                case 0x00010000:
+                                                                        nds_string_len = tvb_get_letohl(tvb, nds_offset);
+                                                                        nds_offset += 4;
+                                                                        get_string(tvb, nds_offset, nds_string_len, reply_buffer.buffer);
+                                                                        proto_tree_add_text(ncp_tree, tvb, nds_offset, nds_string_len, "SAP Name: %s", reply_buffer.buffer);
+                                                                        nds_offset += nds_string_len;
+                                                                        nds_offset += align_4(tvb, nds_offset);
+                                                                        nds_offset += 2;
+                                                                        break;
+                                                                case 0x00020000:
+                                                                        nds_string_len = tvb_get_letohl(tvb, nds_offset);
+                                                                        nds_offset += 4;
+                                                                        get_string(tvb, nds_offset, nds_string_len, reply_buffer.buffer);
+                                                                        proto_tree_add_text(ncp_tree, tvb, nds_offset, nds_string_len, "NDS Tree Name: %s", reply_buffer.buffer);
+                                                                        nds_offset += nds_string_len;
+                                                                        nds_offset += align_4(tvb, nds_offset);
+                                                                        break;
+                                                                case 0x00040000:
+                                                                        nds_string_len = tvb_get_letohl(tvb, nds_offset);
+                                                                        nds_offset += 4;
+                                                                        get_string(tvb, nds_offset, nds_string_len, reply_buffer.buffer);
+                                                                        proto_tree_add_text(ncp_tree, tvb, nds_offset, nds_string_len, "OS Name: %s", reply_buffer.buffer);
+                                                                        nds_offset += nds_string_len;
+                                                                        nds_offset += align_4(tvb, nds_offset);
+                                                                        break;
+                                                                case 0x00080000:
+                                                                        nds_string_len = tvb_get_letohl(tvb, nds_offset);
+                                                                        nds_offset += 4;
+                                                                        get_string(tvb, nds_offset, nds_string_len, reply_buffer.buffer);
+                                                                        proto_tree_add_text(ncp_tree, tvb, nds_offset, nds_string_len, "Hardware Name: %s", reply_buffer.buffer);
+                                                                        nds_offset += nds_string_len;
+                                                                        nds_offset += align_4(tvb, nds_offset);
+                                                                        break;
+                                                                case 0x00100000:
+                                                                        nds_string_len = tvb_get_letohl(tvb, nds_offset);
+                                                                        nds_offset += 4;
+                                                                        get_string(tvb, nds_offset, nds_string_len, reply_buffer.buffer);
+                                                                        proto_tree_add_text(ncp_tree, tvb, nds_offset, nds_string_len, "Vendor Name: %s", reply_buffer.buffer);
+                                                                        nds_offset += nds_string_len;
+                                                                        nds_offset += align_4(tvb, nds_offset);
+                                                                        break;
+                                                                case 0x00000200:
+                                                                        /* Not Defined */
+                                                                case 0x00000400:
+                                                                        /* Not Defined */
+                                                                case 0x00000800:
+                                                                        /* Not Defined */
+                                                                case 0x00001000:
+                                                                        /* Not Defined */
+                                                                case 0x00002000:
+                                                                        /* Not Defined */
+                                                                case 0x00004000:
+                                                                        /* Not Defined */
+                                                                case 0x00008000:
+                                                                        /* Not Defined */
+                                                                case 0x00200000:
+                                                                        /* Not Defined */
+                                                                case 0x00400000:
+                                                                        /* Not Defined */
+                                                                case 0x00800000:
+                                                                        /* Not Defined */
+                                                                case 0x01000000:
+                                                                        /* Not Defined */
+                                                                case 0x02000000:
+                                                                        /* Not Defined */
+                                                                case 0x04000000:
+                                                                        /* Not Defined */
+                                                                case 0x08000000:
+                                                                        /* Not Defined */
+                                                                case 0x10000000:
+                                                                        /* Not Defined */
+                                                                case 0x20000000:
+                                                                        /* Not Defined */
+                                                                case 0x40000000:
+                                                                        /* Not Defined */
+                                                                case 0x80000000:
+                                                                        /* Not Defined */
+                                                                default:
+                                                                        break;
+                                                        }
+                                                }
+                                                bvalue = bvalue*2;
                                         }
                                 }        
                         }
@@ -4409,11 +4714,13 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                 nds_offset = 8;
                                         
                                 nds_reply_buffer = tvb_get_letohl(tvb, nds_offset);        
-                                proto_tree_add_uint(ncp_tree, hf_ncp_fragment_size, tvb, 8,
+                                proto_tree_add_uint(ncp_tree, hf_ncp_fragment_size, tvb, nds_offset,
                                         4, nds_reply_buffer);
-                                nds_frag = tvb_get_letohl(tvb, 12);        
-                                proto_tree_add_uint(ncp_tree, hf_ncp_fragment_handle, tvb, 12,
+                                nds_offset += 4;
+                                nds_frag = tvb_get_letohl(tvb, nds_offset);        
+                                proto_tree_add_uint(ncp_tree, hf_ncp_fragment_handle, tvb, nds_offset,
                                         4, nds_frag);
+                                nds_offset += 4;        
                                 if (nds_reply_buffer > 7)
                                 {                        
                                         proto_tree_add_uint_format(ncp_tree, hf_nds_reply_error, tvb, nds_offset,
@@ -4461,7 +4768,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 pvalues[1].vtype = VTYPE_UINT32;
                                                                                 pvalues[1].vdesc = "Entry ID: 0x%08x";
                                                                                 add_eid = TRUE;
-                                                                                global_object_name = request_value->object_name;
+                                                                                strcpy(global_object_name, request_value->object_name);
                                                                                 global_eid = pvalues[1].vvalue;
                                                                                 pvalues[1].vlength = 4;
                                                                                 pvalues[1].voffset = nds_offset;
@@ -4482,7 +4789,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 pvalues[1].vdesc = "Entry ID: 0x%08x";
                                                                                 add_eid = TRUE;
                                                                                 global_eid = pvalues[1].vvalue;
-                                                                                global_object_name = request_value->object_name;
+                                                                                strcpy(global_object_name, request_value->object_name);
                                                                                 pvalues[1].vlength = 4;
                                                                                 pvalues[1].voffset = nds_offset;
                                                                                 pvalues[1].hfname = hf_nds_eid;
@@ -4543,7 +4850,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 pvalues[2].vdesc = "Entry ID: 0x%08x";
                                                                                 add_eid = TRUE;
                                                                                 global_eid = pvalues[2].vvalue;
-                                                                                global_object_name = request_value->object_name;
+                                                                                strcpy(global_object_name, request_value->object_name);
                                                                                 pvalues[2].vlength = 4;
                                                                                 pvalues[2].voffset = nds_offset;
                                                                                 pvalues[2].hfname = hf_nds_eid;
@@ -4591,7 +4898,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 pvalues[2].vdesc = "Entry ID: 0x%08x";
                                                                                 add_eid = TRUE;
                                                                                 global_eid = pvalues[2].vvalue;
-                                                                                global_object_name = request_value->object_name;
+                                                                                strcpy(global_object_name, request_value->object_name);
                                                                                 pvalues[2].vlength = 4;
                                                                                 pvalues[2].voffset = nds_offset;
                                                                                 pvalues[2].hfname = hf_nds_eid;
@@ -4609,7 +4916,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                                 add_eid = TRUE;
                                                                                 global_eid = pvalues[2].vvalue;
-                                                                                global_object_name = request_value->object_name;
+                                                                                strcpy(global_object_name, request_value->object_name);
                                                                                 pvalues[2].vtype = VTYPE_UINT32;
                                                                                 pvalues[2].vdesc = "Entry ID: 0x%08x";
                                                                                 pvalues[2].vlength = 4;
@@ -4671,7 +4978,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 pvalues[3].vtype = VTYPE_UINT32;
                                                                                 pvalues[3].vdesc = "Entry ID: 0x%08x";
                                                                                 add_eid = TRUE;
-                                                                                global_object_name = request_value->object_name;
+                                                                                strcpy(global_object_name, request_value->object_name);
                                                                                 global_eid = pvalues[3].vvalue;
                                                                                 pvalues[3].vlength = 4;
                                                                                 pvalues[3].voffset = nds_offset;
@@ -5242,7 +5549,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                         {
 			                        request_eid_value = ncp_eid_hash_lookup(conversation, global_eid);
 			                        if (request_eid_value) {
-                                                        global_object_name = request_eid_value->object_name;
+                                                        strcpy(global_object_name, request_eid_value->object_name);
                                                         proto_tree_add_string_format(ncp_tree, hf_nds_name, tvb, 6, 0,
 	        		        	                global_object_name, "NDS Name for EID - %s",
 		        		                        global_object_name);
@@ -5349,7 +5656,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
         guint32                 foffset = 0;
         guint32                 nds_reply_buffer;
         nw_uni_t                req_buffer;
-        char *                  global_object_name="\0";
+        char                    global_object_name[256];
         guint32                 global_eid=0;
         gboolean                resolve_eid=FALSE;
         guint32                 global_flags=0;
@@ -5366,8 +5673,10 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 		pvalues[i].vstring = string_buffer[i];
 		pvalues[i].mvtype = 0;
 	}
-
+        
         strcpy(req_buffer.buffer, "");
+        strcpy(global_object_name, "");
+        
         func = tvb_get_guint8(tvb, 6);
         subfunc = tvb_get_guint8(tvb, 7);
         
@@ -5469,7 +5778,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         foffset = foffset + 4;
                                         get_string(tvb, pvalues[3].voffset, pvalues[3].vlength, req_buffer.buffer);
                                         pvalues[3].vstring = req_buffer.buffer;
-                                        global_object_name = req_buffer.buffer;
+                                        strcpy(global_object_name, req_buffer.buffer);
                                         pvalues[3].hfname= hf_nds_name;
                                         foffset = foffset+pvalues[3].vlength;
                                         foffset += align_4(tvb, foffset);
@@ -5945,7 +6254,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset + 4;
                                 get_string(tvb, pvalues[2].voffset, pvalues[2].vlength, req_buffer.buffer);
                                 pvalues[2].vstring = req_buffer.buffer;
-                                global_object_name = req_buffer.buffer;
+                                strcpy(global_object_name, req_buffer.buffer);
                                 pvalues[2].hfname= hf_nds_name;
                                 foffset = foffset+pvalues[2].vlength;
                                 foffset += align_4(tvb, foffset);
@@ -6142,8 +6451,113 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
                                 break;
                         case 0x07:    
-                                verb_string = "Add Entry";
-                                pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
+                                verb_string = "Add Entry ->";
+                                pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
+                                pvalues[0].vstring = "";
+                                pvalues[0].vtype = VTYPE_UINT32;
+                                pvalues[0].vdesc = "Version: %u";
+                                pvalues[0].vlength = 4;
+                                pvalues[0].voffset = foffset;
+                                pvalues[0].hfname= hf_nds_ver;
+                                foffset = foffset+pvalues[0].vlength;
+                                pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
+                                pvalues[1].vtype = VTYPE_UINT32;
+                                pvalues[1].vstring = "";
+                                pvalues[1].vdesc = "Request Flags: 0x%08x"; 
+                                pvalues[1].vlength = 4;
+                                pvalues[1].hfname= hf_nds_rflags;
+                                pvalues[1].voffset = foffset;
+                                foffset = foffset+4;
+                                if(pvalues[0].vvalue == 0)
+                                {
+                                        pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
+                                        pvalues[2].vstring = "";
+                                        pvalues[2].vtype = VTYPE_UINT32;
+                                        pvalues[2].vdesc = "Parent Entry ID: 0x%08x";
+                                        pvalues[2].vlength = 4;
+                                        resolve_eid = FALSE;
+                                        global_eid = pvalues[2].vvalue;
+                                        pvalues[2].voffset = foffset;
+                                        pvalues[2].hfname= hf_nds_eid;
+                                        foffset = foffset+pvalues[2].vlength;
+                                        pvalues[3].vtype = VTYPE_STRING;
+                                        pvalues[3].vdesc = "Relative Distinguished Name: %s";
+                                        pvalues[3].vstring = "";
+                                        pvalues[3].mvtype = MVTYPE_ATTR_REQUEST;
+                                        pvalues[3].vvalue = 0;
+                                        pvalues[3].vlength = 256;
+                                        pvalues[3].vlength = tvb_get_letohl(tvb, foffset);
+                                        if (pvalues[3].vlength == 0x00)
+                                        {
+                                                pvalues[3].vtype = VTYPE_NONE;
+                                                break;
+                                        }
+                                        pvalues[3].voffset = foffset+4;
+                                        foffset = foffset + 4;
+                                        get_string(tvb, pvalues[3].voffset, pvalues[3].vlength, req_buffer.buffer);
+                                        pvalues[3].vstring = req_buffer.buffer;
+                                        strcpy(global_object_name, req_buffer.buffer);
+                                        pvalues[3].hfname= hf_nds_relative_dn;
+                                        foffset = foffset+pvalues[3].vlength;
+                                        foffset += align_4(tvb, foffset);
+                                        pvalues[4].vvalue = tvb_get_letohl(tvb, foffset);
+                                        pvalues[4].vtype = VTYPE_MULTIVALUE_UINT32;
+                                        pvalues[4].vstring = "";
+                                        pvalues[4].vdesc = "Attributes: %u";
+                                        pvalues[4].vlength = 4;
+                                        pvalues[4].voffset = foffset;
+                                        pvalues[4].mvtype = MVTYPE_ADD_ATTR_REQUEST;
+                                        pvalues[4].hfname= hf_nds_attr;
+                                }
+                                else
+                                {
+                                        pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
+                                        pvalues[2].vstring = "";
+                                        pvalues[2].vtype = VTYPE_UINT32;
+                                        pvalues[2].vdesc = "Iteration Handle: 0x%08x";
+                                        pvalues[2].vlength = 4;
+                                        pvalues[2].voffset = foffset;
+                                        pvalues[2].hfname= hf_nds_iteration;
+                                        foffset = foffset+pvalues[2].vlength;
+                                        pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
+                                        pvalues[3].vstring = "";
+                                        pvalues[3].vtype = VTYPE_UINT32;
+                                        pvalues[3].vdesc = "Parent Entry ID: 0x%08x";
+                                        pvalues[3].vlength = 4;
+                                        resolve_eid = FALSE;
+                                        global_eid = pvalues[3].vvalue;
+                                        pvalues[3].voffset = foffset;
+                                        pvalues[3].hfname= hf_nds_eid;
+                                        foffset = foffset+pvalues[3].vlength;
+                                        pvalues[4].vtype = VTYPE_STRING;
+                                        pvalues[4].vdesc = "Relative Distinguished Name: %s";
+                                        pvalues[4].vstring = "";
+                                        pvalues[4].mvtype = MVTYPE_ATTR_REQUEST;
+                                        pvalues[4].vvalue = 0;
+                                        pvalues[4].vlength = 256;
+                                        pvalues[4].vlength = tvb_get_letohl(tvb, foffset);
+                                        if (pvalues[4].vlength == 0x00)
+                                        {
+                                                pvalues[4].vtype = VTYPE_NONE;
+                                                break;
+                                        }
+                                        pvalues[4].voffset = foffset+4;
+                                        foffset = foffset + 4;
+                                        get_string(tvb, pvalues[4].voffset, pvalues[4].vlength, req_buffer.buffer);
+                                        pvalues[4].vstring = req_buffer.buffer;
+                                        strcpy(global_object_name, req_buffer.buffer);
+                                        pvalues[4].hfname= hf_nds_relative_dn;
+                                        foffset = foffset+pvalues[4].vlength;
+                                        foffset += align_4(tvb, foffset);
+                                        pvalues[5].vvalue = tvb_get_letohl(tvb, foffset);
+                                        pvalues[5].vtype = VTYPE_MULTIVALUE_UINT32;
+                                        pvalues[5].vstring = "";
+                                        pvalues[5].vdesc = "Attributes: %u";
+                                        pvalues[5].vlength = 4;
+                                        pvalues[5].voffset = foffset;
+                                        pvalues[5].mvtype = MVTYPE_ADD_ATTR_REQUEST;
+                                        pvalues[5].hfname= hf_nds_attr;
+                                }
                                 break;
                         case 0x08:    
                                 verb_string = "Remove Entry";
@@ -6173,36 +6587,72 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[0].voffset = foffset;
                                 pvalues[0].hfname= hf_nds_ver;
                                 foffset = foffset+pvalues[0].vlength;
-                                pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[1].vtype = VTYPE_UINT32;
-                                pvalues[1].vdesc = "Request Flags: 0x%08x";  /* always 0 */
-                                pvalues[1].vlength = 4;
-                                pvalues[1].hfname= hf_nds_rflags;
-                                pvalues[1].voffset = foffset;
-                                foffset = foffset+4;
-                                pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[2].vtype = VTYPE_UINT32;
-                                pvalues[2].vdesc = "Iteration Handle: 0x%08x";  /* always 0 */
-                                pvalues[2].vlength = 4;
-                                pvalues[2].hfname= hf_nds_iteration;
-                                pvalues[2].voffset = foffset;
-                                foffset = foffset+4;
-                                pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[3].vtype = VTYPE_UINT32;
-                                pvalues[3].vdesc = "Entry ID: 0x%08x";
-                                pvalues[3].vlength = 4;
-                                pvalues[3].voffset = foffset;
-                                resolve_eid = TRUE;
-                                global_eid = pvalues[3].vvalue;
-                                pvalues[3].hfname = hf_nds_eid;
-                                foffset = foffset+pvalues[3].vlength;
-                                pvalues[4].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[4].vtype = VTYPE_MULTIVALUE_UINT32;
-                                pvalues[4].vdesc = "Number of Attributes to Change %u";
-                                pvalues[4].vlength = 4;
-                                pvalues[4].mvtype = MVTYPE_MODIFY_ATTR_REQUEST;
-                                pvalues[4].hfname= hf_nds_number_of_changes;
-                                pvalues[4].voffset = foffset;
+                                if(pvalues[0].vvalue == 0)
+                                {
+                                        pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
+                                        pvalues[1].vtype = VTYPE_UINT32;
+                                        pvalues[1].vstring = "";
+                                        pvalues[1].vdesc = "Iteration Handle: 0x%08x";  /* always 0 */
+                                        pvalues[1].vlength = 4;
+                                        pvalues[1].hfname= hf_nds_iteration;
+                                        pvalues[1].voffset = foffset;
+                                        foffset = foffset+4;
+                                        pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
+                                        pvalues[2].vstring = "";
+                                        pvalues[2].vtype = VTYPE_UINT32;
+                                        pvalues[2].vdesc = "Entry ID: 0x%08x";
+                                        pvalues[2].vlength = 4;
+                                        pvalues[2].voffset = foffset;
+                                        resolve_eid = TRUE;
+                                        global_eid = pvalues[2].vvalue;
+                                        pvalues[2].hfname = hf_nds_eid;
+                                        foffset = foffset+pvalues[2].vlength;
+                                        pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
+                                        pvalues[3].vtype = VTYPE_MULTIVALUE_UINT32;
+                                        pvalues[3].vstring = "";
+                                        pvalues[3].vdesc = "Number of Attributes to Change %u";
+                                        pvalues[3].vlength = 4;
+                                        pvalues[3].mvtype = MVTYPE_MODIFY_ATTR_REQUEST;
+                                        pvalues[3].hfname= hf_nds_number_of_changes;
+                                        pvalues[3].voffset = foffset;
+                                }
+                                else
+                                {
+                                        pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
+                                        pvalues[1].vtype = VTYPE_UINT32;
+                                        pvalues[1].vstring = "";
+                                        pvalues[1].vdesc = "Request Flags: 0x%08x";  /* always 0 */
+                                        pvalues[1].vlength = 4;
+                                        pvalues[1].hfname= hf_nds_rflags;
+                                        pvalues[1].voffset = foffset;
+                                        foffset = foffset+4;
+                                        pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
+                                        pvalues[2].vtype = VTYPE_UINT32;
+                                        pvalues[2].vstring = "";
+                                        pvalues[2].vdesc = "Iteration Handle: 0x%08x";  /* always 0 */
+                                        pvalues[2].vlength = 4;
+                                        pvalues[2].hfname= hf_nds_iteration;
+                                        pvalues[2].voffset = foffset;
+                                        foffset = foffset+4;
+                                        pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
+                                        pvalues[3].vstring = "";
+                                        pvalues[3].vtype = VTYPE_UINT32;
+                                        pvalues[3].vdesc = "Entry ID: 0x%08x";
+                                        pvalues[3].vlength = 4;
+                                        pvalues[3].voffset = foffset;
+                                        resolve_eid = TRUE;
+                                        global_eid = pvalues[3].vvalue;
+                                        pvalues[3].hfname = hf_nds_eid;
+                                        foffset = foffset+pvalues[3].vlength;
+                                        pvalues[4].vvalue = tvb_get_letohl(tvb, foffset);
+                                        pvalues[4].vtype = VTYPE_MULTIVALUE_UINT32;
+                                        pvalues[4].vstring = "";
+                                        pvalues[4].vdesc = "Number of Attributes to Change %u";
+                                        pvalues[4].vlength = 4;
+                                        pvalues[4].mvtype = MVTYPE_MODIFY_ATTR_REQUEST;
+                                        pvalues[4].hfname= hf_nds_number_of_changes;
+                                        pvalues[4].voffset = foffset;
+                                }
                                 break;
                         case 0x0a:    
                                 verb_string = "Modify RDN";
@@ -6307,7 +6757,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset + 4;
                                 get_string(tvb, pvalues[2].voffset, pvalues[2].vlength, req_buffer.buffer);
                                 pvalues[2].vstring = req_buffer.buffer;
-                                global_object_name = req_buffer.buffer;
+                                strcpy(global_object_name, req_buffer.buffer);
                                 pvalues[2].hfname= hf_nds_name;
                                 foffset = foffset+pvalues[2].vlength;
                                 foffset += align_4(tvb, foffset);
@@ -6373,7 +6823,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset + 4;
                                 get_string(tvb, pvalues[1].voffset, pvalues[1].vlength, req_buffer.buffer);
                                 pvalues[1].vstring = req_buffer.buffer;
-                                global_object_name = req_buffer.buffer;
+                                strcpy(global_object_name, req_buffer.buffer);
                                 pvalues[1].hfname= hf_nds_attribute_dn;
                                 break;
                         case 0x0e:    
@@ -6413,17 +6863,18 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
                                 if (pvalues[3].vvalue == 0x00000000)
                                 {
-                                        pvalues[3].vstring = "Return All Classes = False";
+                                        pvalues[3].vstring = "Do Not Return All Classes";
+                                        pvalues[3].mvtype = 0;
                                 }        
                                 else
                                 {
-                                        pvalues[3].vstring = "Return All Classes = True";
+                                        pvalues[3].vstring = "Return All Classes";
+                                        pvalues[3].mvtype = MVTYPE_ATTR_REQUEST;
                                 }
                                 pvalues[3].vtype = VTYPE_STRING;
-                                pvalues[3].vdesc = "Return all Classes %s";
+                                pvalues[3].vdesc = "%s";
                                 pvalues[3].vlength = 4;
                                 pvalues[3].voffset = foffset;
-                                pvalues[3].mvtype = 0;
                                 pvalues[3].hfname= hf_nds_return_all_classes;
                                 foffset = foffset + pvalues[3].vlength;
                                 foffset += align_4(tvb, foffset);
@@ -6459,7 +6910,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset + 4;
                                 get_string(tvb, pvalues[1].voffset, pvalues[1].vlength, req_buffer.buffer);
                                 pvalues[1].vstring = req_buffer.buffer;
-                                global_object_name = req_buffer.buffer;
+                                strcpy(global_object_name, req_buffer.buffer);
                                 pvalues[1].hfname= hf_nds_base_class;
                                 foffset = foffset+pvalues[1].vlength;
                                 foffset += align_4(tvb, foffset);
@@ -6495,7 +6946,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset + 4;
                                 get_string(tvb, pvalues[1].voffset, pvalues[1].vlength, req_buffer.buffer);
                                 pvalues[1].vstring = req_buffer.buffer;
-                                global_object_name = req_buffer.buffer;
+                                strcpy(global_object_name, req_buffer.buffer);
                                 pvalues[1].hfname= hf_nds_base;
                                 break;
                         case 0x12:    
@@ -7362,6 +7813,15 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 						case VTYPE_STRING:
 							proto_tree_add_string_format(ncp_tree, pvalues[i].hfname, tvb, pvalues[i].voffset, 
 							    pvalues[i].vlength, pvalues[i].vstring, pvalues[i].vdesc, pvalues[i].vstring);
+							if (pvalues[i].mvtype == MVTYPE_ATTR_REQUEST) {
+								/*
+								 * The "vstring" value is set to the input ES type
+								 * for MVTYPE_PROC_ENTRY_SPECIFIERS,
+								 * to add string to columninfo
+								 */
+								if (check_col(pinfo->cinfo, COL_INFO))
+									col_append_str(pinfo->cinfo, COL_INFO, pvalues[i].vstring);
+							}
 							break;
 
 						case VTYPE_BITFIELD:
@@ -7375,7 +7835,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 								 * The "vstring" value is set to the input ES type
 								 * by "process_multivalues()".
 								 */
-								global_object_name = pvalues[i].vstring;
+								strcpy(global_object_name, pvalues[i].vstring);
 							}
 							if (pvalues[i].mvtype == MVTYPE_ATTR_REQUEST || pvalues[i].mvtype == MVTYPE_PROC_ENTRY_SPECIFIERS) {
 								/*
@@ -7404,25 +7864,25 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 							    pvalues[i].vtype);
 							break;
 						}
+                                                /* For NDS requests with just an EID, resolve name from hash table. */
+                                        }
+                                                request_eid_value = ncp_eid_hash_lookup(conversation, global_eid);
                                                 if(resolve_eid) {
-                
-                                                        /* For NDS requests with just an EID, resolve name from hash table. */
-                                                        request_eid_value = ncp_eid_hash_lookup(conversation, global_eid);
                                                         if (request_eid_value) {
-                                                                global_object_name = request_eid_value->object_name;
+                                                                strcpy(global_object_name, request_eid_value->object_name);
                                                                 if (check_col(pinfo->cinfo, COL_INFO)) 
                                                                 {
                                                                         col_append_str(pinfo->cinfo, COL_INFO, ", Object Name - ");
                                                                         col_append_str(pinfo->cinfo, COL_INFO, global_object_name);
                                                                 }
-                                                        }
-                                                }        
-                                        }
+                                                                /*resolve_eid = FALSE;*/
+                                                        }        
+                                                }
                                         if (request_value)
                                         {
                                                 request_value->nds_request_verb = nds_verb;
                                                 request_value->nds_version = nds_version;
-                                                request_value->object_name = global_object_name;
+                                                strcpy(request_value->object_name, global_object_name);
                                                 request_value->req_nds_flags = global_flags;
                                         }
                                 }
@@ -7457,15 +7917,19 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
 	ptvcursor_t		*ptvc = NULL;
 	proto_tree		*temp_tree = NULL;
         gint                    length_remaining = 0;
-	char			flags_str[256];
-        char *                  sep = NULL;
-	proto_tree		*flags_tree;
         guint32                 nds_flags;
-	proto_item		*tinew;
-        guint32                 nds_flag_tree = 0x00020000;
-        guint32                 nds_flag_depth = 0x00000002;
-        guint32                 nds_flag_rev = 0x00000004;
-        guint32                 nds_flag_flags = 0x00000008;
+        guint32                 ping_version;
+	nds_val			pvalue;
+	char			string_buffer[1024];
+        
+	pvalue.vvalue = 0;
+	pvalue.vlength = 0;
+	pvalue.voffset = 0;
+	pvalue.hfname = 0;
+	pvalue.vdesc = "";
+	string_buffer[0] = '\0';
+	pvalue.vstring = string_buffer;
+	pvalue.mvtype = 0;
         
 	func = tvb_get_guint8(tvb, 6);
         subfunc = tvb_get_guint8(tvb, 7);
@@ -7553,51 +8017,97 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
                                         
 			length_remaining = tvb_reported_length_remaining(tvb, 8);
 			if (length_remaining >= 8) {
-				proto_tree_add_item(ncp_tree, hf_nds_version, tvb, 8, 4,
-					FALSE);
-
+                                ping_version = tvb_get_letohl(tvb, 8);
+				proto_tree_add_uint(ncp_tree, hf_nds_ping_version, tvb, 8,
+				    4, ping_version);
 				nds_flags = tvb_get_letohl(tvb, 12);
 				if (request_value)
 					request_value->req_nds_flags = nds_flags;
 
-				strcpy(flags_str, " ");
-				sep = "(";
-				if (nds_flags & nds_flag_tree) {
-					strcat(flags_str, sep);
-					strcat(flags_str, "Tree");
-					sep = ",";
-				}
-				if (nds_flags & nds_flag_depth) {
-					strcat(flags_str, sep);
-					strcat(flags_str, "Depth");
-					sep = ",";
-				}
-				if (nds_flags & nds_flag_rev) {
-					strcat(flags_str, sep);
-					strcat(flags_str, "Revision");
-					sep = ",";
-				}
-				if (nds_flags & nds_flag_flags) {
-					strcat(flags_str, sep);
-					strcat(flags_str, "Flags");
-				}
-				if (flags_str[0] != '\0') {
-					strcat(flags_str, ")");
-					tinew = proto_tree_add_uint_format(ncp_tree, hf_nds_flags,
-						tvb, 12, 4, nds_flags, "Flags: 0x%08x -%s", nds_flags,
-						flags_str);
-
-					flags_tree = proto_item_add_subtree(tinew, ett_nds);
-                                                
-					proto_tree_add_item(flags_tree, hf_nds_flags_tree,
-						tvb, 12, 4, TRUE);
-					proto_tree_add_item(flags_tree, hf_nds_flags_flags,
-						tvb, 12, 4, TRUE);
-					proto_tree_add_item(flags_tree, hf_nds_flags_rev,
-						tvb, 12, 4, TRUE);
-					proto_tree_add_item(flags_tree, hf_nds_flags_depth,
-						tvb, 12, 4, TRUE);
-				}
+				
+                                pvalue.vvalue = tvb_get_letohs(tvb, 12);
+                                pvalue.vtype = VTYPE_BITFIELD;
+                                pvalue.vstring = "";
+                                pvalue.vdesc = "Ping (low) Request Flags:";
+                                pvalue.vlength = 2;
+                                pvalue.hfname= hf_nds_rflags;
+                                pvalue.voffset = 12;
+                                pvalue.bit1 = "Supported Fields";
+                                pvalue.bit1hfname = hf_bit1pingflags1;
+                                pvalue.bit2 = "Depth";
+                                pvalue.bit2hfname = hf_bit2pingflags1;
+                                pvalue.bit3 = "Revision";
+                                pvalue.bit3hfname = hf_bit3pingflags1;
+                                pvalue.bit4 = "Flags";
+                                pvalue.bit4hfname = hf_bit4pingflags1;
+                                pvalue.bit5 = "Verification Flags";
+                                pvalue.bit5hfname = hf_bit5pingflags1;
+                                pvalue.bit6 = "Letter Version";
+                                pvalue.bit6hfname = hf_bit6pingflags1;
+                                pvalue.bit7 = "OS Version";
+                                pvalue.bit7hfname = hf_bit7pingflags1;
+                                pvalue.bit8 = "License Flags";
+                                pvalue.bit8hfname = hf_bit8pingflags1;
+                                pvalue.bit9 = "DS Time";
+                                pvalue.bit9hfname = hf_bit9pingflags1;
+                                pvalue.bit10 = "Not Defined";
+                                pvalue.bit10hfname = hf_bit10pingflags1;
+                                pvalue.bit11 = "Not Defined";
+                                pvalue.bit11hfname = hf_bit11pingflags1;
+                                pvalue.bit12 = "Not Defined";
+                                pvalue.bit12hfname = hf_bit12pingflags1;
+                                pvalue.bit13 = "Not Defined";
+                                pvalue.bit13hfname = hf_bit13pingflags1;
+                                pvalue.bit14 = "Not Defined";
+                                pvalue.bit14hfname = hf_bit14pingflags1;
+                                pvalue.bit15 = "Not Defined";
+                                pvalue.bit15hfname = hf_bit15pingflags1;
+                                pvalue.bit16 = "Not Defined";
+                                pvalue.bit16hfname = hf_bit16pingflags1;
+                                
+                                process_bitfield(ncp_tree, tvb, &pvalue);
+                                
+                                pvalue.vvalue = tvb_get_letohs(tvb, 14);
+                                pvalue.vtype = VTYPE_BITFIELD;
+                                pvalue.vstring = "";
+                                pvalue.vdesc = "Ping (high) Request Flags:";
+                                pvalue.vlength = 2;
+                                pvalue.hfname= hf_nds_rflags;
+                                pvalue.voffset = 14;
+                                pvalue.bit1 = "Sap Name";
+                                pvalue.bit1hfname = hf_bit1pingflags2;
+                                pvalue.bit2 = "Tree Name";
+                                pvalue.bit2hfname = hf_bit2pingflags2;
+                                pvalue.bit3 = "OS Name";
+                                pvalue.bit3hfname = hf_bit3pingflags2;
+                                pvalue.bit4 = "Hardware Name";
+                                pvalue.bit4hfname = hf_bit4pingflags2;
+                                pvalue.bit5 = "Vendor Name";
+                                pvalue.bit5hfname = hf_bit5pingflags2;
+                                pvalue.bit6 = "Not Defined";
+                                pvalue.bit6hfname = hf_bit6pingflags2;
+                                pvalue.bit7 = "Not Defined";
+                                pvalue.bit7hfname = hf_bit7pingflags2;
+                                pvalue.bit8 = "Not Defined";
+                                pvalue.bit8hfname = hf_bit8pingflags2;
+                                pvalue.bit9 = "Not Defined";
+                                pvalue.bit9hfname = hf_bit9pingflags2;
+                                pvalue.bit10 = "Not Defined";
+                                pvalue.bit10hfname = hf_bit10pingflags2;
+                                pvalue.bit11 = "Not Defined";
+                                pvalue.bit11hfname = hf_bit11pingflags2;
+                                pvalue.bit12 = "Not Defined";
+                                pvalue.bit12hfname = hf_bit12pingflags2;
+                                pvalue.bit13 = "Not Defined";
+                                pvalue.bit13hfname = hf_bit13pingflags2;
+                                pvalue.bit14 = "Not Defined";
+                                pvalue.bit14hfname = hf_bit14pingflags2;
+                                pvalue.bit15 = "Not Defined";
+                                pvalue.bit15hfname = hf_bit15pingflags2;
+                                pvalue.bit16 = "Not Defined";
+                                pvalue.bit16hfname = hf_bit16pingflags2;
+                                
+                                process_bitfield(ncp_tree, tvb, &pvalue);
 			}
 			break;
        

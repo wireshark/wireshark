@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.38 2002/10/10 23:52:50 guy Exp $
+$Id: ncp2222.py,v 1.39 2002/10/21 18:56:50 guy Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -5552,10 +5552,6 @@ static int hf_ncp_nds_verb = -1;
 static int hf_ping_version = -1;
 static int hf_nds_version = -1;
 static int hf_nds_flags = -1;
-static int hf_nds_flags_tree = -1;
-static int hf_nds_flags_depth = -1;
-static int hf_nds_flags_rev = -1;
-static int hf_nds_flags_flags = -1;
 static int hf_nds_reply_depth = -1;
 static int hf_nds_reply_rev = -1;
 static int hf_nds_reply_flags = -1;
@@ -5876,6 +5872,75 @@ static int hf_nds_child_part_id = -1;
 static int hf_nds_master_part_id = -1;
 static int hf_nds_target_name = -1;
 static int hf_nds_super = -1;
+static int hf_bit1pingflags2 = -1;
+static int hf_bit2pingflags2 = -1;
+static int hf_bit3pingflags2 = -1;
+static int hf_bit4pingflags2 = -1;
+static int hf_bit5pingflags2 = -1;
+static int hf_bit6pingflags2 = -1;
+static int hf_bit7pingflags2 = -1;
+static int hf_bit8pingflags2 = -1;
+static int hf_bit9pingflags2 = -1;
+static int hf_bit10pingflags2 = -1;
+static int hf_bit11pingflags2 = -1;
+static int hf_bit12pingflags2 = -1;
+static int hf_bit13pingflags2 = -1;
+static int hf_bit14pingflags2 = -1;
+static int hf_bit15pingflags2 = -1;
+static int hf_bit16pingflags2 = -1;
+static int hf_bit1pingflags1 = -1;
+static int hf_bit2pingflags1 = -1;
+static int hf_bit3pingflags1 = -1;
+static int hf_bit4pingflags1 = -1;
+static int hf_bit5pingflags1 = -1;
+static int hf_bit6pingflags1 = -1;
+static int hf_bit7pingflags1 = -1;
+static int hf_bit8pingflags1 = -1;
+static int hf_bit9pingflags1 = -1;
+static int hf_bit10pingflags1 = -1;
+static int hf_bit11pingflags1 = -1;
+static int hf_bit12pingflags1 = -1;
+static int hf_bit13pingflags1 = -1;
+static int hf_bit14pingflags1 = -1;
+static int hf_bit15pingflags1 = -1;
+static int hf_bit16pingflags1 = -1;
+static int hf_bit1pingpflags1 = -1;
+static int hf_bit2pingpflags1 = -1;
+static int hf_bit3pingpflags1 = -1;
+static int hf_bit4pingpflags1 = -1;
+static int hf_bit5pingpflags1 = -1;
+static int hf_bit6pingpflags1 = -1;
+static int hf_bit7pingpflags1 = -1;
+static int hf_bit8pingpflags1 = -1;
+static int hf_bit9pingpflags1 = -1;
+static int hf_bit10pingpflags1 = -1;
+static int hf_bit11pingpflags1 = -1;
+static int hf_bit12pingpflags1 = -1;
+static int hf_bit13pingpflags1 = -1;
+static int hf_bit14pingpflags1 = -1;
+static int hf_bit15pingpflags1 = -1;
+static int hf_bit16pingpflags1 = -1;
+static int hf_bit1pingvflags1 = -1;
+static int hf_bit2pingvflags1 = -1;
+static int hf_bit3pingvflags1 = -1;
+static int hf_bit4pingvflags1 = -1;
+static int hf_bit5pingvflags1 = -1;
+static int hf_bit6pingvflags1 = -1;
+static int hf_bit7pingvflags1 = -1;
+static int hf_bit8pingvflags1 = -1;
+static int hf_bit9pingvflags1 = -1;
+static int hf_bit10pingvflags1 = -1;
+static int hf_bit11pingvflags1 = -1;
+static int hf_bit12pingvflags1 = -1;
+static int hf_bit13pingvflags1 = -1;
+static int hf_bit14pingvflags1 = -1;
+static int hf_bit15pingvflags1 = -1;
+static int hf_bit16pingvflags1 = -1;
+static int hf_nds_letter_ver = -1;
+static int hf_nds_os_ver = -1;
+static int hf_nds_lic_flags = -1;
+static int hf_nds_ds_time = -1;
+static int hf_nds_ping_version = -1;
 
 
 	"""
@@ -6320,7 +6385,7 @@ proto_register_ncp2222(void)
         { "NDS Version", "ncp.ping_version", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
         
 	{ &hf_nds_version,
-	{ "NDS Version", "ncp.nds_version", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "NDS Version", "ncp.nds_version", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
         
 	{ &hf_nds_tree_name,                             
 	{ "Tree Name", "ncp.nds_tree_name", FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }},
@@ -6358,18 +6423,7 @@ proto_register_ncp2222(void)
         { &hf_nds_flags, 
         { "NDS Return Flags", "ncp.nds_flags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
         
-        { &hf_nds_flags_tree, 
-        { "Tree", "ncp.nds_flags.tree", FT_BOOLEAN, 32, NULL, NTREE, "Return Tree?", HFILL }},
-        
-        { &hf_nds_flags_depth, 
-        { "Depth", "ncp.nds_flags.depth", FT_BOOLEAN, 32, NULL, NDEPTH, "Return Depth?", HFILL }},
-        
-        { &hf_nds_flags_rev, 
-        { "Rev", "ncp.nds_flags.rev", FT_BOOLEAN, 32, NULL, NREV, "Return NDS Revision?", HFILL }},
-        
-        { &hf_nds_flags_flags, 
-        { "Flags", "ncp.nds_flags.flags", FT_BOOLEAN, 32, NULL, NFLAGS, "Return Flags?", HFILL }},
-        
+       
 	{ &hf_nds_reply_depth,
 	{ "Distance from Root", "ncp.ndsdepth", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 	
@@ -7329,9 +7383,215 @@ proto_register_ncp2222(void)
 	{ "Target Server Name", "ncp.nds_target_dn", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
 
 
+        { &hf_bit1pingflags1, 
+        { "Supported Fields", "ncp.bit1pingflags1", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
 
+        { &hf_bit2pingflags1, 
+        { "Depth", "ncp.bit2pingflags1", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+                     
+        { &hf_bit3pingflags1, 
+        { "Revision", "ncp.bit3pingflags1", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        
+        { &hf_bit4pingflags1, 
+        { "Flags", "ncp.bit4pingflags1", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        
+        { &hf_bit5pingflags1, 
+        { "Verification Flags", "ncp.bit5pingflags1", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        
+        { &hf_bit6pingflags1, 
+        { "Letter Version", "ncp.bit6pingflags1", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        
+        { &hf_bit7pingflags1, 
+        { "OS Version", "ncp.bit7pingflags1", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        
+        { &hf_bit8pingflags1, 
+        { "License Flags", "ncp.bit8pingflags1", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        
+        { &hf_bit9pingflags1, 
+        { "DS Time", "ncp.bit9pingflags1", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        
+        { &hf_bit10pingflags1, 
+        { "Not Defined", "ncp.bit10pingflags1", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        
+        { &hf_bit11pingflags1, 
+        { "Not Defined", "ncp.bit11pingflags1", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        
+        { &hf_bit12pingflags1, 
+        { "Not Defined", "ncp.bit12pingflags1", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        
+        { &hf_bit13pingflags1, 
+        { "Not Defined", "ncp.bit13pingflags1", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        
+        { &hf_bit14pingflags1, 
+        { "Not Defined", "ncp.bit14pingflags1", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        
+        { &hf_bit15pingflags1, 
+        { "Not Defined", "ncp.bit15pingflags1", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        
+        { &hf_bit16pingflags1, 
+        { "Not Defined", "ncp.bit16pingflags1", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+
+        { &hf_bit1pingflags2, 
+        { "Sap Name", "ncp.bit1pingflags2", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+
+        { &hf_bit2pingflags2, 
+        { "Tree Name", "ncp.bit2pingflags2", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+                     
+        { &hf_bit3pingflags2, 
+        { "OS Name", "ncp.bit3pingflags2", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        
+        { &hf_bit4pingflags2, 
+        { "Hardware Name", "ncp.bit4pingflags2", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        
+        { &hf_bit5pingflags2, 
+        { "Vendor Name", "ncp.bit5pingflags2", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        
+        { &hf_bit6pingflags2, 
+        { "Not Defined", "ncp.bit6pingflags2", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        
+        { &hf_bit7pingflags2, 
+        { "Not Defined", "ncp.bit7pingflags2", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        
+        { &hf_bit8pingflags2, 
+        { "Not Defined", "ncp.bit8pingflags2", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        
+        { &hf_bit9pingflags2, 
+        { "Not Defined", "ncp.bit9pingflags2", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        
+        { &hf_bit10pingflags2, 
+        { "Not Defined", "ncp.bit10pingflags2", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        
+        { &hf_bit11pingflags2, 
+        { "Not Defined", "ncp.bit11pingflags2", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        
+        { &hf_bit12pingflags2, 
+        { "Not Defined", "ncp.bit12pingflags2", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        
+        { &hf_bit13pingflags2, 
+        { "Not Defined", "ncp.bit13pingflags2", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        
+        { &hf_bit14pingflags2, 
+        { "Not Defined", "ncp.bit14pingflags2", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        
+        { &hf_bit15pingflags2, 
+        { "Not Defined", "ncp.bit15pingflags2", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        
+        { &hf_bit16pingflags2, 
+        { "Not Defined", "ncp.bit16pingflags2", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+     
+        { &hf_bit1pingpflags1, 
+        { "Root Most Master Replica", "ncp.bit1pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+
+        { &hf_bit2pingpflags1, 
+        { "Time Synchronized", "ncp.bit2pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+                     
+        { &hf_bit3pingpflags1, 
+        { "Not Defined", "ncp.bit3pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        
+        { &hf_bit4pingpflags1, 
+        { "Not Defined", "ncp.bit4pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        
+        { &hf_bit5pingpflags1, 
+        { "Not Defined", "ncp.bit5pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        
+        { &hf_bit6pingpflags1, 
+        { "Not Defined", "ncp.bit6pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        
+        { &hf_bit7pingpflags1, 
+        { "Not Defined", "ncp.bit7pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        
+        { &hf_bit8pingpflags1, 
+        { "Not Defined", "ncp.bit8pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        
+        { &hf_bit9pingpflags1, 
+        { "Not Defined", "ncp.bit9pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        
+        { &hf_bit10pingpflags1, 
+        { "Not Defined", "ncp.bit10pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        
+        { &hf_bit11pingpflags1, 
+        { "Not Defined", "ncp.bit11pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        
+        { &hf_bit12pingpflags1, 
+        { "Not Defined", "ncp.bit12pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        
+        { &hf_bit13pingpflags1, 
+        { "Not Defined", "ncp.bit13pingpflags1", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        
+        { &hf_bit14pingpflags1, 
+        { "Not Defined", "ncp.bit14pingpflags1", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        
+        { &hf_bit15pingpflags1, 
+        { "Not Defined", "ncp.bit15pingpflags1", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        
+        { &hf_bit16pingpflags1, 
+        { "Not Defined", "ncp.bit16pingpflags1", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
     
+        { &hf_bit1pingvflags1, 
+        { "Checksum", "ncp.bit1pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+
+        { &hf_bit2pingvflags1, 
+        { "CRC32", "ncp.bit2pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+                     
+        { &hf_bit3pingvflags1, 
+        { "Not Defined", "ncp.bit3pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        
+        { &hf_bit4pingvflags1, 
+        { "Not Defined", "ncp.bit4pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        
+        { &hf_bit5pingvflags1, 
+        { "Not Defined", "ncp.bit5pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        
+        { &hf_bit6pingvflags1, 
+        { "Not Defined", "ncp.bit6pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        
+        { &hf_bit7pingvflags1, 
+        { "Not Defined", "ncp.bit7pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        
+        { &hf_bit8pingvflags1, 
+        { "Not Defined", "ncp.bit8pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        
+        { &hf_bit9pingvflags1, 
+        { "Not Defined", "ncp.bit9pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        
+        { &hf_bit10pingvflags1, 
+        { "Not Defined", "ncp.bit10pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        
+        { &hf_bit11pingvflags1, 
+        { "Not Defined", "ncp.bit11pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        
+        { &hf_bit12pingvflags1, 
+        { "Not Defined", "ncp.bit12pingvflags1", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        
+        { &hf_bit13pingvflags1, 
+        { "Not Defined", "ncp.bit13pingvflags1", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        
+        { &hf_bit14pingvflags1, 
+        { "Not Defined", "ncp.bit14pingvflags1", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        
+        { &hf_bit15pingvflags1, 
+        { "Not Defined", "ncp.bit15pingvflags1", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        
+        { &hf_bit16pingvflags1, 
+        { "Not Defined", "ncp.bit16pingvflags1", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+
+    { &hf_nds_letter_ver,
+	{ "Letter Version", "ncp.nds_letter_ver", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
     
+    { &hf_nds_os_ver,
+	{ "OS Version", "ncp.nds_os_ver", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_lic_flags,
+	{ "License Flags", "ncp.nds_lic_flags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_ds_time,
+	{ "DS Time", "ncp.nds_ds_time", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_ping_version,
+	{ "Ping Version", "ncp.nds_ping_version", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+
+
+  
  """                
 	# Print the registration code for the hf variables
 	for var in sorted_vars:
@@ -11095,7 +11355,7 @@ def define_ncp2222():
 		rec( 18, 2, MaxBytes, BE ),	
 	])
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x8300, 0x8800, 0x9400, 0x9500, 0xa201, 0xff1b])
+	pkt.CompletionCodes([0x0000, 0x0104, 0x8300, 0x8800, 0x9400, 0x9500, 0xa201, 0xff1b])
 	# 2222/4A, 74
 	pkt = NCP(0x4A, "Copy from One File to Another", 'file')
 	pkt.Request(30, [
@@ -11473,7 +11733,7 @@ def define_ncp2222():
 	], info_str=(Path, "Rename or Move: %s", "/%s"))
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
-			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9200, 0x9600,
+			     0x8701, 0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9200, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5705, 87/05
 	pkt = NCP(0x5705, "Scan File or Subdirectory for Trustees", 'file', has_length=0)
