@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.1 2000/08/13 14:03:49 deniel Exp $
+ * $Id: proto_dlg.c,v 1.2 2000/08/16 20:14:24 deniel Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -33,8 +33,6 @@
  * other fields (hfinfo is currently limited since protocols and fields 
  * share the same structure type).
  *        
- * The protocol display should be sorted (by abbreviation).
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -67,6 +65,14 @@ static void show_proto_selection(GtkWidget *main, GtkWidget *container);
 static gboolean set_proto_selection(GtkWidget *);
 
 static GtkWidget *proto_w = NULL;
+
+/* list of protocols */
+static GSList *protocol_list = NULL;
+
+typedef struct protocol_data {
+  char 	*abbrev;
+  int  	hfinfo_index;
+} protocol_data_t;
 
 void proto_cb(GtkWidget *w, gpointer data)
 {
@@ -168,9 +174,20 @@ void proto_cb(GtkWidget *w, gpointer data)
 
 static void proto_close_cb(GtkWidget *w, gpointer data)
 {
+  GSList *entry;
+
   if (proto_w)
     gtk_widget_destroy(proto_w);
   proto_w = NULL;
+  
+  /* remove protocol list */
+  if (protocol_list) {
+    for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
+      g_free(entry->data);
+    }
+    g_slist_free(protocol_list);
+    protocol_list = NULL;    
+  }
 }
 
 static void proto_ok_cb(GtkWidget *ok_bt, gpointer parent_w) 
@@ -190,42 +207,39 @@ static void proto_apply_cb(GtkWidget *ok_bt, gpointer parent_w)
 
 static gboolean set_proto_selection(GtkWidget *parent_w)
 {
-  int i;
+  GSList *entry;
   gboolean need_redissect = FALSE;
 
-  for (i = 0; i < proto_registrar_n() ; i++) {
-    if (proto_registrar_is_protocol(i)) {
-      GtkWidget *button;
-      header_field_info *hfinfo;
-      hfinfo = proto_registrar_get_nth(i);
-
-      if (strcmp(hfinfo->abbrev, "data") == 0 ||
-	  strcmp(hfinfo->abbrev, "text") == 0 ||
-	  strcmp(hfinfo->abbrev, "malformed") == 0 ||
-	  strcmp(hfinfo->abbrev, "short") == 0 ||
-	  strcmp(hfinfo->abbrev, "frame") == 0) continue;
-
-      button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
-						 hfinfo->abbrev);      
-      /* XXX optimization but should not use display field */
-      if (hfinfo->display != GTK_TOGGLE_BUTTON (button)->active) {
-	proto_set_decoding(i, GTK_TOGGLE_BUTTON (button)->active);
-	need_redissect = TRUE;
-      }  
-    }	  
+  for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
+    GtkWidget *button;
+    header_field_info *hfinfo;
+    protocol_data_t *p = entry->data;
+    hfinfo = proto_registrar_get_nth(p->hfinfo_index);
+    button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
+					       hfinfo->abbrev);      
+    /* XXX optimization but should not use display field */
+    if (hfinfo->display != GTK_TOGGLE_BUTTON (button)->active) {
+      proto_set_decoding(p->hfinfo_index, GTK_TOGGLE_BUTTON (button)->active);
+      need_redissect = TRUE;
+    }  
   }
 
-  return need_redissect;
+return need_redissect;
 
 } /* set_proto_selection */
+
+gint protocol_data_compare(gconstpointer a, gconstpointer b)
+{
+  return strcmp(((protocol_data_t *)a)->abbrev, 
+		((protocol_data_t *)b)->abbrev);
+}
 
 static void show_proto_selection(GtkWidget *main, GtkWidget *container)
 {
 
-  /* XXX : we should sort the protocol abbrev */
-
 #define NB_COL	7
 
+  GSList *entry;
   GtkTooltips *tooltips;
   GtkWidget *table;
   int i, t = 0, l = 0, nb_line, nb_proto = 0;
@@ -233,13 +247,27 @@ static void show_proto_selection(GtkWidget *main, GtkWidget *container)
   /* Obtain the number of "true" protocols */
 
   for (i = 0; i < proto_registrar_n() ; i++) {
+
     if (proto_registrar_is_protocol(i)) {
+
+      protocol_data_t *p;
+      header_field_info *hfinfo;
+      hfinfo = proto_registrar_get_nth(i);	  
+
+      if (strcmp(hfinfo->abbrev, "data") == 0 ||
+	  strcmp(hfinfo->abbrev, "text") == 0 ||
+	  strcmp(hfinfo->abbrev, "malformed") == 0 ||
+	  strcmp(hfinfo->abbrev, "short") == 0 ||
+	  strcmp(hfinfo->abbrev, "frame") == 0) continue;
+
+      p = g_malloc(sizeof(protocol_data_t));
+      p->abbrev = hfinfo->abbrev;
+      p->hfinfo_index = i;
+      protocol_list = g_slist_insert_sorted(protocol_list, 
+					    p, protocol_data_compare);     
       nb_proto ++;
     }
   }
-
-  /* XXX ignore "data", "malformed", "short", "frame", "text" */
-  nb_proto -= 5;
 
   /* create a table (n x NB_COL) of buttons */
 
@@ -254,33 +282,25 @@ static void show_proto_selection(GtkWidget *main, GtkWidget *container)
 
   nb_proto = 0;
 
-  for (i = 0; i < proto_registrar_n() ; i++) {
-    if (proto_registrar_is_protocol(i)) {
-      GtkWidget *button;
-      header_field_info *hfinfo;
-      hfinfo = proto_registrar_get_nth(i);
-
-      if (strcmp(hfinfo->abbrev, "data") == 0 ||
-	  strcmp(hfinfo->abbrev, "text") == 0 ||
-	  strcmp(hfinfo->abbrev, "malformed") == 0 ||
-	  strcmp(hfinfo->abbrev, "short") == 0 ||
-	  strcmp(hfinfo->abbrev, "frame") == 0) continue;
-	  
-      /* button label is the protocol abbrev */
-      button = gtk_toggle_button_new_with_label (hfinfo->abbrev);
-      /* tip is the complete protocol name */
-      gtk_tooltips_set_tip(tooltips, button, hfinfo->name, NULL);
-      gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), hfinfo->display);
-      gtk_object_set_data(GTK_OBJECT(main), hfinfo->abbrev, button);
-      gtk_table_attach_defaults (GTK_TABLE (table), button, l, l+1, t, t+1);
-      gtk_widget_show (button);
-      if (++nb_proto % NB_COL) {
-	l++;
-      }
-      else {
-	l = 0;
-	t++;
-      }
+  for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
+    GtkWidget *button;
+    header_field_info *hfinfo;
+    protocol_data_t *p = entry->data;
+    hfinfo = proto_registrar_get_nth(p->hfinfo_index);	  
+    /* button label is the protocol abbrev */
+    button = gtk_toggle_button_new_with_label(hfinfo->abbrev);
+    /* tip is the complete protocol name */
+    gtk_tooltips_set_tip(tooltips, button, hfinfo->name, NULL);
+    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), hfinfo->display);
+    gtk_object_set_data(GTK_OBJECT(main), hfinfo->abbrev, button);
+    gtk_table_attach_defaults (GTK_TABLE (table), button, l, l+1, t, t+1);
+    gtk_widget_show (button);
+    if (++nb_proto % NB_COL) {
+      l++;
+    }
+    else {
+      l = 0;
+      t++;
     }
   }
 
