@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.40 1999/10/13 06:47:48 guy Exp $
+ * $Id: proto.c,v 1.41 1999/10/14 01:28:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -161,6 +161,7 @@ void proto_register_tr(void);
 void proto_register_trmac(void);
 void proto_register_udp(void);
 void proto_register_x25(void);
+void proto_register_yhoo(void);
 
 /* special-case header field used within proto.c */
 int hf_text_only = 1;
@@ -278,6 +279,7 @@ proto_init(void)
 	proto_register_trmac();
 	proto_register_udp();
 	proto_register_x25();
+	proto_register_yhoo();
 
 	/* Register one special-case FT_TEXT_ONLY field for use when
 		converting ethereal to new-style proto_tree. These fields

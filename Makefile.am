@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.82 1999/10/13 06:47:47 guy Exp $
+# $Id: Makefile.am,v 1.83 1999/10/14 01:28:27 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -122,6 +122,8 @@ ethereal_SOURCES = \
 	packet-vines.c \
 	packet-vines.h \
 	packet-x25.c   \
+	packet-yhoo.c  \
+	packet-yhoo.h  \
 	packet.c       \
 	packet.h       \
 	prefs.c        \

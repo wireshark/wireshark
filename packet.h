@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.106 1999/10/13 06:47:46 guy Exp $
+ * $Id: packet.h,v 1.107 1999/10/14 01:28:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -360,6 +360,7 @@ enum {
 	ETT_SNA_RH_1,
 	ETT_SNA_RH_2,
 	ETT_SNA_RU,
+	ETT_YHOO,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
 
@@ -521,6 +522,7 @@ void dissect_vines_rtp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_vines_spp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_payload_ppp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_x25(const u_char *, int, frame_data *, proto_tree *);
+void dissect_yhoo(const u_char *, int, frame_data *, proto_tree *);
 
 void dissect_smb(const u_char *, int, frame_data *, proto_tree *, int);
 void dissect_pptp(const u_char *, int, frame_data *, proto_tree *);
