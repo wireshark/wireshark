@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.65 2003/03/26 19:45:21 guy Exp $
+ * $Id: packet-wsp.c,v 1.66 2003/03/27 19:15:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -83,6 +83,8 @@ static int hf_wsp_parameter_start_info			= HF_EMPTY;
 static int hf_wsp_parameter_comment			= HF_EMPTY;
 static int hf_wsp_parameter_domain			= HF_EMPTY;
 static int hf_wsp_parameter_path			= HF_EMPTY;
+static int hf_wsp_parameter_sec			= HF_EMPTY;
+static int hf_wsp_parameter_mac			= HF_EMPTY;
 static int hf_wsp_parameter_upart_type			= HF_EMPTY;
 static int hf_wsp_parameter_upart_type_value		= HF_EMPTY;
 static int hf_wsp_reply_data				= HF_EMPTY;
@@ -882,6 +884,19 @@ static const value_string vals_transfer_encoding[] = {
 	{ 0x00, NULL }
 };
 
+
+/* Parameters and well-known encodings */
+static const value_string vals_wsp_parameter_sec[] = {
+	{ 0x00,	"NETWPIN" },
+	{ 0x01,	"USERPIN" },
+	{ 0x02,	"USERNETWPIN" },
+	{ 0x03,	"USERPINMAC" },
+
+	{ 0x00, NULL }
+};
+
+
+
 /*
  * Redirect flags.
  */
@@ -1220,11 +1235,6 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* Find the PDU type */
 	pdut = tvb_get_guint8 (tvb, offset);
-	/* Map extended methods to the main method */
-	if ((pdut >= 0x50) && (pdut <= 0x5F))
-		pdut = GET;
-	else if ((pdut >= 0x70) && (pdut <= 0x7F))
-		pdut = POST;
 
 	/* Develop the string to put in the Info column */
 	if (check_col(pinfo->cinfo, COL_INFO))
@@ -1238,7 +1248,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_wsp, tvb, 0, -1,
 		    bo_little_endian);
-	        wsp_tree = proto_item_add_subtree(ti, ett_wsp);
+		wsp_tree = proto_item_add_subtree(ti, ett_wsp);
 
 /* Code to process the packet goes here */
 /*
@@ -1264,6 +1274,13 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		     );
 	}
 	offset++;
+
+	/* Map extended methods to the main method now the Column info has been written;
+	 * this way we can dissect the extended method PDUs. */
+	if ((pdut >= 0x50) && (pdut <= 0x5F))
+		pdut = GET;
+	else if ((pdut >= 0x70) && (pdut <= 0x7F))
+		pdut = POST;
 
 	switch (pdut)
 	{
@@ -1376,18 +1393,17 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					tmp_tvb = tvb_new_subset (tvb, nextOffset, headerLength, headerLength);
 					add_headers (wsp_tree, tmp_tvb);
 				}
-
-				/* TODO: Post DATA */
-				/* Runs from start of headers+headerLength to end of frame */
 				offset = nextOffset+headerLength;
-				tmp_tvb = tvb_new_subset (tvb, offset, tvb_reported_length (tvb)-offset, tvb_reported_length (tvb)-offset);
-				add_post_data (wsp_tree, tmp_tvb, contentType, contentTypeStr);
 			}
+			/* POST data - First check whether a subdissector exists for the content type */
 			if (tvb_reported_length_remaining(tvb, headerStart + count + uriLength + headersLength) > 0)
 			{
 				tmp_tvb = tvb_new_subset (tvb, headerStart + count + uriLength + headersLength, -1, -1);
+				/* Try finding a dissector for the content first, then fallback */
 				if (!dissector_try_port(wsp_dissector_table, contentType, tmp_tvb, pinfo, tree))
-					dissector_try_heuristic(heur_subdissector_list, tmp_tvb, pinfo, tree);
+					if (!dissector_try_heuristic(heur_subdissector_list, tmp_tvb, pinfo, tree))
+						if (tree) /* Only display if needed */
+							add_post_data (wsp_tree, tmp_tvb, contentType, contentTypeStr);
 			}
 			break;
 
@@ -1417,19 +1433,17 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					add_headers (wsp_tree, tmp_tvb);
 				}
 				offset += count+headersLength+1;
-
-				/* TODO: Data - decode WBXML */
-				/* Runs from offset+1+count+headerLength+1 to end of frame */
-				if (tvb_reported_length_remaining (tvb, offset) > 0)
-				{
-					ti = proto_tree_add_item (wsp_tree, hf_wsp_reply_data,tvb,offset,-1,bo_little_endian);
-				}
 			}
+			/* REPLY data - First check whether a subdissector exists for the content type */
 			if (tvb_reported_length_remaining(tvb, headerStart + headersLength) > 0)
 			{
 				tmp_tvb = tvb_new_subset (tvb, headerStart + headersLength, -1, -1);
+				/* Try finding a dissector for the content first, then fallback */
 				if (!dissector_try_port(wsp_dissector_table, contentType, tmp_tvb, pinfo, tree))
-					dissector_try_heuristic(heur_subdissector_list, tmp_tvb, pinfo, tree);
+					if (!dissector_try_heuristic(heur_subdissector_list, tmp_tvb, pinfo, tree))
+						if (tree) /* Only display if needed */
+							ti = proto_tree_add_item (wsp_tree, hf_wsp_reply_data,
+									tmp_tvb, 0, -1, bo_little_endian);
 			}
 			break;
 
@@ -1460,18 +1474,17 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					add_headers (wsp_tree, tmp_tvb);
 				}
 				offset += headersLength;
-
-				/* Push DATA */
-				if (tvb_reported_length_remaining (tvb, offset) > 0)
-				{
-					ti = proto_tree_add_item (wsp_tree, hf_wsp_push_data,tvb,offset,-1,bo_little_endian);
-				}
 			}
+			/* PUSH data - First check whether a subdissector exists for the content type */
 			if (tvb_reported_length_remaining(tvb, headerStart + headersLength) > 0)
 			{
 				tmp_tvb = tvb_new_subset (tvb, headerStart + headersLength, -1, -1);
+				/* Try finding a dissector for the content first, then fallback */
 				if (!dissector_try_port(wsp_dissector_table, contentType, tmp_tvb, pinfo, tree))
-					dissector_try_heuristic(heur_subdissector_list, tmp_tvb, pinfo, tree);
+					if (!dissector_try_heuristic(heur_subdissector_list, tmp_tvb, pinfo, tree))
+						if (tree) /* Only display if needed */
+							ti = proto_tree_add_item (wsp_tree, hf_wsp_push_data,
+									tmp_tvb, 0, -1, bo_little_endian);
 			}
 			break;
 
@@ -1861,7 +1874,7 @@ add_well_known_header (proto_tree *tree, tvbuff_t *tvb, int offset,
 
 	default:
 		proto_tree_add_text (tree, header_buff, 0, headerLen,
-		    "Unsupported Header: %s",
+		    "Undecoded Header: %s",
 		    val_to_str (headerType, vals_field_names, "Unknown (0x%02X)"));
 		break;
 	}
@@ -2115,7 +2128,7 @@ add_well_known_openwave_header (proto_tree *tree, tvbuff_t *tvb, int offset,
 
 	default:
 	        proto_tree_add_text (tree, header_buff, 0, headerLen,
-		    "Unsupported Openwave Header: %s",
+		    "Undecoded Openwave Header: %s",
 		    val_to_str (headerType, vals_openwave_field_names, "Unknown (0x%02X)"));
 		break;
 	}
@@ -2164,7 +2177,7 @@ add_unknown_header (proto_tree *tree, tvbuff_t *tvb, int offset,
 	headerLen = offset - headerStart;
 
 	proto_tree_add_text (tree, tvb, headerStart, headerLen,
-		       "Unsupported Header (0x%02X)", headerType);
+		       "Undecoded Header (0x%02X)", headerType);
 	return offset;
 }
 
@@ -3079,7 +3092,7 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type)
 				break;
 			default:
 				proto_tree_add_text (wsp_capabilities, tvb , capabilitiesStart, length+1,
-				       "Unsupported Header (0x%02X)", peek & 0x7F);
+				       "Undecoded Header (0x%02X)", peek & 0x7F);
 				break;
 		}
 		offset=capabilitiesStart+length+1;
@@ -3566,61 +3579,83 @@ add_parameter (proto_tree *tree, tvbuff_t *value_buff, int offset)
 
 	switch (value) {
 
-	case 0x01:	/* Charset */
-		offset = add_parameter_charset (tree, value_buff, startOffset, offset);
-		break;
+		case 0x01:	/* WSP 1.1 encoding - Charset: Well-known-charset */
+			offset = add_parameter_charset (tree, value_buff, startOffset, offset);
+			break;
 
-	case 0x03:	/* Type */
-		offset = add_parameter_type (tree, value_buff, startOffset, offset);
-		break;
+		case 0x03:	/* WSP 1.1 encoding - Type: Integer-value */
+			offset = add_parameter_type (tree, value_buff, startOffset, offset);
+			break;
 
-	case 0x05:	/* Name */
-		offset = add_parameter_text (tree, value_buff, startOffset, offset,
-				    hf_wsp_parameter_name, "Name");
-		break;
+		case 0x05:	/* WSP 1.1 encoding - Name: Text-string */
+		case 0x17:	/* WSP 1.4 encoding - Name: Text-value */
+			offset = add_parameter_text (tree, value_buff, startOffset, offset,
+					    hf_wsp_parameter_name, "Name");
+			break;
 
-	case 0x06:	/* Filename */
-		offset = add_parameter_text (tree, value_buff, startOffset, offset,
-				    hf_wsp_parameter_filename, "Filename");
-		break;
+		case 0x06:	/* WSP 1.1 encoding - Filename: Text-string */
+		case 0x18:	/* WSP 1.4 encoding - Filename: Text-value */
+			offset = add_parameter_text (tree, value_buff, startOffset, offset,
+					    hf_wsp_parameter_filename, "Filename");
+			break;
 
-	case 0x09:	/* Type (special) */
-		offset = add_constrained_encoding(tree, value_buff, startOffset, offset);
-		break;
+		case 0x09:	/* WSP 1.2 encoding - Type (special): Constrained-encoding */
+			offset = add_constrained_encoding(tree, value_buff, startOffset, offset);
+			break;
 
-	case 0x0A:	/* Start */
-		offset = add_parameter_text (tree, value_buff, startOffset, offset,
-				    hf_wsp_parameter_start, "Start");
-		break;
+		case 0x0A:	/* WSP 1.2 encoding - Start: Text-string */
+		case 0x19:	/* WSP 1.4 encoding - Start (with multipart/related): Text-value */
+			offset = add_parameter_text (tree, value_buff, startOffset, offset,
+					    hf_wsp_parameter_start, "Start");
+			break;
 
-	case 0x0B:	/* Start-info */
-		offset = add_parameter_text (tree, value_buff, startOffset, offset,
-				    hf_wsp_parameter_start_info, "Start-info");
-		break;
+		case 0x0B:	/* WSP 1.2 encoding - Start-info: Text-string */
+		case 0x1A:	/* WSP 1.4 encoding - Start-info (with multipart/related): Text-value */
+			offset = add_parameter_text (tree, value_buff, startOffset, offset,
+					    hf_wsp_parameter_start_info, "Start-info");
+			break;
 
-	case 0x0C:	/* Comment */
-		offset = add_parameter_text (tree, value_buff, startOffset, offset,
-				    hf_wsp_parameter_comment, "Comment");
-		break;
+		case 0x0C:	/* WSP 1.3 encoding - Comment: Text-string */
+		case 0x1B:	/* WSP 1.4 encoding - Comment: Text-value */
+			offset = add_parameter_text (tree, value_buff, startOffset, offset,
+					    hf_wsp_parameter_comment, "Comment");
+			break;
 
-	case 0x0D:	/* Domain */
-		offset = add_parameter_text (tree, value_buff, startOffset, offset,
-				    hf_wsp_parameter_domain, "Domain");
-		break;
+		case 0x0D:	/* WSP 1.3 encoding - Domain: Text-string */
+		case 0x1C:	/* WSP 1.4 encoding - Domain: Text-value */
+			offset = add_parameter_text (tree, value_buff, startOffset, offset,
+					    hf_wsp_parameter_domain, "Domain");
+			break;
 
-	case 0x0F:	/* Path */
-		offset = add_parameter_text (tree, value_buff, startOffset, offset,
-				    hf_wsp_parameter_path, "Path");
-		break;
+		case 0x0F:	/* WSP 1.3 encoding - Path: Text-string */
+		case 0x1D:	/* WSP 1.4 encoding - Path: Text-value */
+			offset = add_parameter_text (tree, value_buff, startOffset, offset,
+					    hf_wsp_parameter_path, "Path");
+			break;
 
-	case 0x00:	/* Q */
-	case 0x02:	/* Level */
-	case 0x07:	/* Differences */
-	case 0x08:	/* Padding */
-	case 0x0E:	/* Max-Age */
-	case 0x10:	/* Secure */
-	default:
-		break;
+		case 0x11:	/* WSP 1.4 encoding - SEC: Short-integer (OCTET) */
+			proto_tree_add_uint (tree, hf_wsp_parameter_sec, value_buff, startOffset, 2,
+					tvb_get_guint8 (value_buff, startOffset+1) & 0x7F);
+			offset++;
+			break;
+		
+		case 0x12:	/* WSP 1.4 encoding - MAC: Text-value */
+			offset = add_parameter_text (tree, value_buff, startOffset, offset,
+					    hf_wsp_parameter_mac, "MAC");
+			break;
+		
+		case 0x00:	/* WSP 1.1 encoding - Q: Q-value */
+		case 0x02:	/* WSP 1.1 encoding - Level: Version-value */
+		case 0x07:	/* WSP 1.1 encoding - Differences: Field-name */
+		case 0x08:	/* WSP 1.1 encoding - Padding: Short-integer */
+		case 0x0E:	/* WSP 1.3 encoding - Max-Age: Delta-seconds-value */
+		case 0x10:	/* WSP 1.3 encoding - Secure: No-value */
+		case 0x13:	/* WSP 1.4 encoding - Creation-date: Date-value */
+		case 0x14:	/* WSP 1.4 encoding - Modification-date: Date-value */
+		case 0x15:	/* WSP 1.4 encoding - Read-date: Date-value */
+		case 0x16:	/* WSP 1.4 encoding - Size: Integer-value */
+		default:
+			break;
 	}
 
 	return offset;
@@ -4191,6 +4226,20 @@ proto_register_wsp(void)
 				"Path", HFILL
 			}
 		},
+		{ &hf_wsp_parameter_sec,
+			{ 	"SEC",
+				"wsp.content_type.parameter.sec",
+				 FT_UINT8, BASE_HEX, VALS (vals_wsp_parameter_sec), 0x00,
+				"SEC parameter (Content-Type: application/vnd.wap.connectivity-wbxml)", HFILL
+			}
+		},
+		{ &hf_wsp_parameter_mac,
+			{ 	"MAC",
+				"wsp.content_type.parameter.mac",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"MAC parameter (Content-Type: application/vnd.wap.connectivity-wbxml)", HFILL
+			}
+		},
 		{ &hf_wsp_parameter_upart_type,
 			{ 	"Type",
 				"wsp.content_type.parameter.upart.type",
@@ -4217,7 +4266,7 @@ proto_register_wsp(void)
 				"wsp.header.shift",
 				 /*FT_NONE, BASE_DEC, NULL, 0x00,*/
 				 FT_UINT8, BASE_HEX, NULL, 0x00,
-				"Shift code", HFILL
+				"Header code page shift code", HFILL
 			}
 		},
 		{ &hf_wsp_header_accept,
