@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.11 2000/04/25 08:55:11 gram Exp $
+$Id: README.developer,v 1.12 2000/04/29 07:57:43 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a protocol dissector and the use some of the important functions and variables 
@@ -57,7 +57,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.11 2000/04/25 08:55:11 gram Exp $" in the comment will be updated by CVS when the file is
+The "$Id: README.developer,v 1.12 2000/04/29 07:57:43 guy Exp $" in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
 
@@ -66,7 +66,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.11 2000/04/25 08:55:11 gram Exp $
+ * $Id: README.developer,v 1.12 2000/04/29 07:57:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -959,7 +959,39 @@ and later do
 
 after the "type" and "value" fields have been extracted and dissected.
 
-1.7 Editing Makefile.am and Makefile.nmake to add your dissector.
+1.7 Utility routines
+
+1.7.1 match_strval and val_to_str
+
+A dissector may need to convert a value to a string, using a
+'value_string' structure, by hand, rather than by declaring a field with
+an associated 'value_string' structure; this might be used, for example,
+to generate a COL_INFO line for a frame.
+
+'match_strval()' will do that:
+
+	gchar*
+	match_strval(guint32 val, const value_string *vs)
+
+It will look up the value 'val' in the 'value_string' table pointed to
+by 'vs', and return either the corresponding string, or NULL if the
+value could not be found in the table.
+
+'val_to_str()' can be used to generate a string for values not found in
+the table:
+
+	gchar*
+	val_to_str(guint32 val, const value_string *vs, const char *fmt)
+
+If the value 'val' is found in the 'value_string' table pointed to by
+'vs', 'val_to_str' will return the corresponding string; otherwise, it
+will use 'fmt' as an 'sprintf'-style format, with 'val' as an argument,
+to generate a string, and will return a pointer to that string. 
+(Currently, it has three 64-byte static buffers, and cycles through
+them; this permits the results of up to three calls to 'val_to_str' to
+be passed as arguments to a routine using those strings.)
+
+1.8 Editing Makefile.am and Makefile.nmake to add your dissector.
 
 To arrange that your dissector will be built as part of Ethereal, you
 must add the name of the source file for your dissector, and the header
@@ -979,9 +1011,9 @@ in order for you to build Ethereal on your machine, but both changes
 will need to be checked in to the Ethereal source code, to allow it to
 build on all platforms.
 
-1.8 Using the CVS source code tree.
+1.9 Using the CVS source code tree.
 
-1.9 Submitting code for your new dissector.
+1.10 Submitting code for your new dissector.
 
 2. Advanced dissector topics.
 
