@@ -147,6 +147,7 @@ plugin_ldadd = \
 	plugins/giop/packet-coseventcomm.o \
 	plugins/gryphon/packet-gryphon.o \
 	plugins/irda/packet-irda.o \
+	plugins/irda/packet-ircomm.o \
 	plugins/lwres/packet-lwres.o \
 	plugins/megaco/packet-megaco.o \
 	plugins/mgcp/packet-mgcp.o \
