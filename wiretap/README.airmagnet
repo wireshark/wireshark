@@ -9,10 +9,24 @@ This is NOT the intention to write a file importer in the forseeable
 future.
 
 Exact timestamp decoding still unkown:
-From decoded examples:
+From a diffrent decoded examplefile:
 06 51 49 1b     Timestamp  (105990427)  =  03:30:27.497544
 06 51 4a cd     Timestamp  (105990861)  =  03:30:27.497978  (+434)
 06 51 4b ce     Timestamp  (105991118)  =  03:30:27.498235  (+257)
+
+Timestamps this file:
+Frame1: 15a5 2fb4	363147188	-
+Frame2: 15a5 3a8e	363149966	+ 1778
+Frame3: 15a5 3c50	363150416	+  550
+Frame4: 15a5 487d	363153533
+Frame5: 15a5 49d9	363153881
+Frame6: 15a5 4bcf	363154383
+Frame7: 15a5 53da	363156442
+Frame8: 15a5 59e4	363157988
+Frame9: 15cc 9da8	365731240
+FrameA: 15db dd60	366730592
+FrameB: 15dc 04f6	366740726
+FrameC: 15df 5d29	366959913
 
 Unknown stuff:
 Header: 0000 0000 0002 | 3b93 d886
@@ -51,7 +65,7 @@ Recordstructure:
  2 Bytes: unknown (0x0002)
  4 Bytes: Timestamp
  1 Byte:  DataRate ((AND 7f) / 2 in Mbit/s)
- 1 Byte:  Channel (1-13: Chan 1-13, 14: Chan 36, 15: Chan 40, ..., 19: Chan 52, ...)
+ 1 Byte:  Channel (1-13: Chan 1-13, 15: Chan 36, 16: Chan 40, ..., 19: Chan 52, ...)
  1 Byte:  SignalStrength (%)
  1 Byte:  NoiseLevel (%)
 LL Bytes: Capturedata
@@ -78,7 +92,7 @@ Length: 0x36
 0000070: 15a5 2fb4		Timestamp
 0000074: 02			DataRate
 0000075: 06			Channel
-0000076: 64			SignalStrengthi (%)
+0000076: 64			SignalStrength (%)
 0000077: 01			NoiseLevel (%)
 -------- ieee 802.11
 0000078: b000			Type/Subtype/Frame Control
