@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.35 2003/12/02 10:23:18 sahlberg Exp $
+ * $Id: tvbuff.h,v 1.36 2003/12/03 09:50:40 sahlberg Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -284,8 +284,11 @@ extern gint tvb_reported_length_remaining(tvbuff_t *tvb, gint offset);
    Also adjusts the data length. */
 extern void tvb_set_reported_length(tvbuff_t*, guint);
 
+extern int offset_from_real_beginning(tvbuff_t *tvb, int counter);
+
 /* Returns the offset from the first byte of real data. */
-extern gint tvb_raw_offset(tvbuff_t*);
+#define TVB_RAW_OFFSET(tvb)			\
+	((tvb->raw_offset==-1)?(tvb->raw_offset = offset_from_real_beginning(tvb, 0)):tvb->raw_offset)
 
 /************** START OF ACCESSORS ****************/
 /* All accessors will throw an exception if appropriate */

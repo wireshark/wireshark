@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.52 2003/12/02 10:23:18 sahlberg Exp $
+ * $Id: tvbuff.c,v 1.53 2003/12/03 09:50:40 sahlberg Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -717,7 +717,7 @@ first_real_data_ptr(tvbuff_t *tvb)
 	return NULL;
 }
 
-static int
+int
 offset_from_real_beginning(tvbuff_t *tvb, int counter)
 {
 	tvbuff_t	*member;
@@ -735,15 +735,6 @@ offset_from_real_beginning(tvbuff_t *tvb, int counter)
 
 	g_assert_not_reached();
 	return 0;
-}
-
-gint
-tvb_raw_offset(tvbuff_t *tvb)
-{
-	if (tvb->raw_offset == -1) {
-		tvb->raw_offset = offset_from_real_beginning(tvb, 0);
-	}
-	return tvb->raw_offset;
 }
 
 static guint8*

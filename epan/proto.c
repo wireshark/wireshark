@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.122 2003/12/03 09:28:22 guy Exp $
+ * $Id: proto.c,v 1.123 2003/12/03 09:50:40 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1884,9 +1884,7 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 
 	fi->hfinfo = hfinfo;
 	fi->start = start;
-	if (tvb) {
-		fi->start += tvb_raw_offset(tvb);
-	}
+	fi->start+=(tvb)?TVB_RAW_OFFSET(tvb):0;
 	fi->length = *length;
 	fi->tree_type = -1;
 	fi->visible = PTREE_DATA(tree)->visible;
@@ -2001,7 +1999,7 @@ proto_item_set_end(proto_item *pi, tvbuff_t *tvb, gint end)
 	if (pi == NULL)
 		return;
 	fi = PITEM_FINFO(pi);
-	end += tvb_raw_offset(tvb);
+	end += TVB_RAW_OFFSET(tvb);
 	fi->length = end - fi->start;
 }
 
