@@ -8,7 +8,10 @@ config.h.in
 config.log
 config.status
 configure
+coseventcomm.la
 cosnaming.la
+packet-coseventcomm.lo
+packet-coseventcomm-static.lo
 packet-cosnaming.lo
 packet-cosnaming-static.lo
 stamp-h
