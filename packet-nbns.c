@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.11 1999/01/04 09:13:46 guy Exp $
+ * $Id: packet-nbns.c,v 1.12 1999/01/05 08:48:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -116,6 +116,45 @@ struct nbdgm_header {
 #define RCODE_ACTIVE    (6<<0)
 #define RCODE_CONFLICT  (7<<0)
 
+/* Values for the "NB_FLAGS" field of RR data.  From RFC 1001 and 1002,
+ * except for NB_FLAGS_ONT_H_NODE, which was discovered by looking at
+ * packet traces. */
+#define	NB_FLAGS_ONT		(3<<(15-2))	/* bits for node type */
+#define	NB_FLAGS_ONT_B_NODE	(0<<(15-2))	/* B-mode node */
+#define	NB_FLAGS_ONT_P_NODE	(1<<(15-2))	/* P-mode node */
+#define	NB_FLAGS_ONT_M_NODE	(2<<(15-2))	/* M-mode node */
+#define	NB_FLAGS_ONT_H_NODE	(3<<(15-2))	/* H-mode node */
+
+#define	NB_FLAGS_G		(1<<(15-0))	/* group name */
+
+/* Values for the "NAME_FLAGS" field of a NODE_NAME entry in T_NBSTAT
+ * RR data.  From RFC 1001 and 1002, except for NAME_FLAGS_ONT_H_NODE,
+ * which was discovered by looking at packet traces. */
+#define	NAME_FLAGS_PRM		(1<<(15-6))	/* name is permanent node name */
+
+#define	NAME_FLAGS_ACT		(1<<(15-5))	/* name is active */
+
+#define	NAME_FLAGS_CNF		(1<<(15-4))	/* name is in conflict */
+
+#define	NAME_FLAGS_DRG		(1<<(15-3))	/* name is being deregistered */
+
+#define	NAME_FLAGS_ONT		(3<<(15-2))	/* bits for node type */
+#define	NAME_FLAGS_ONT_B_NODE	(0<<(15-2))	/* B-mode node */
+#define	NAME_FLAGS_ONT_P_NODE	(1<<(15-2))	/* P-mode node */
+#define	NAME_FLAGS_ONT_M_NODE	(2<<(15-2))	/* M-mode node */
+
+#define	NAME_FLAGS_G		(1<<(15-0))	/* group name */
+
+static const value_string opcode_vals[] = {
+	  { OPCODE_QUERY,          "Name query"                 },
+	  { OPCODE_REGISTRATION,   "Registration"               },
+	  { OPCODE_RELEASE,        "Release"                    },
+	  { OPCODE_WACK,           "Wait for acknowledgment"    },
+	  { OPCODE_REFRESH,        "Refresh"                    },
+	  { OPCODE_REFRESHALT,     "Refresh (alternate opcode)" },
+	  { OPCODE_MHREGISTRATION, "Multi-homed registration"   },
+	  { 0,                     NULL                         }
+};
 
 static char *
 nbns_type_name (int type)
@@ -307,6 +346,176 @@ dissect_nbns_query(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 	return dptr - data_start;
 }
 
+static void
+nbns_add_nbns_flags(GtkWidget *nbns_tree, int offset, u_short flags,
+    int is_wack)
+{
+	char buf[128+1];
+	GtkWidget *field_tree, *tf;
+	static const value_string rcode_vals[] = {
+		  { RCODE_NOERROR,   "No error"              },
+		  { RCODE_FMTERROR,  "Format error"          },
+		  { RCODE_SERVFAIL,  "Server failure"        },
+		  { RCODE_NAMEERROR, "Name error"            },
+		  { RCODE_NOTIMPL,   "Not implemented"       },
+		  { RCODE_REFUSED,   "Refused"               },
+		  { RCODE_ACTIVE,    "Name is active"        },
+		  { RCODE_CONFLICT,  "Name is in conflict"   },
+		  { 0,               NULL                    }
+	};
+
+	strcpy(buf, val_to_str(flags & F_OPCODE, opcode_vals,
+			"Unknown (%x)"));
+	if (flags & F_RESPONSE && !is_wack) {
+		strcat(buf, " response");
+		strcat(buf, ", ");
+		strcat(buf, val_to_str(flags & F_RCODE, rcode_vals,
+		    "Unknown error (%x)"));
+	}
+	tf = add_item_to_tree(nbns_tree, offset, 2,
+			"Flags: 0x%04x (%s)", flags, buf);
+	field_tree = gtk_tree_new();
+	add_subtree(tf, field_tree, ETT_NBNS_FLAGS);
+	add_item_to_tree(field_tree, offset, 2, "%s",
+			decode_boolean_bitfield(flags, F_RESPONSE,
+				2*8, "Response", "Query"));
+	add_item_to_tree(field_tree, offset, 2, "%s",
+			decode_enumerated_bitfield(flags, F_OPCODE,
+				2*8, opcode_vals, "%s"));
+	if (flags & F_RESPONSE) {
+		add_item_to_tree(field_tree, offset, 2,
+			"%s",
+			decode_boolean_bitfield(flags, F_AUTHORITATIVE,
+				2*8,
+				"Server is an authority for domain",
+				"Server isn't an authority for domain"));
+	}
+	add_item_to_tree(field_tree, offset, 2, "%s",
+			decode_boolean_bitfield(flags, F_TRUNCATED,
+				2*8,
+				"Message is truncated",
+				"Message is not truncated"));
+	add_item_to_tree(field_tree, offset, 2, "%s",
+			decode_boolean_bitfield(flags, F_RECDESIRED,
+				2*8,
+				"Do query recursively",
+				"Don't do query recursively"));
+	if (flags & F_RESPONSE) {
+		add_item_to_tree(field_tree, offset, 2,
+			"%s",
+			decode_boolean_bitfield(flags, F_RECAVAIL,
+				2*8,
+				"Server can do recursive queries",
+				"Server can't do recursive queries"));
+	}
+	add_item_to_tree(field_tree, offset, 2, "%s",
+			decode_boolean_bitfield(flags, F_BROADCAST,
+				2*8,
+				"Broadcast packet",
+				"Not a broadcast packet"));
+	if (flags & F_RESPONSE && !is_wack) {
+		add_item_to_tree(field_tree, offset, 2,
+			"%s",
+			decode_enumerated_bitfield(flags, F_RCODE,
+				2*8,
+				rcode_vals, "%s"));
+	}
+}
+
+static void
+nbns_add_nb_flags(GtkWidget *rr_tree, int offset, u_short flags)
+{
+	char buf[128+1];
+	GtkWidget *field_tree, *tf;
+	static const value_string nb_flags_ont_vals[] = {
+		  { NB_FLAGS_ONT_B_NODE, "B-node" },
+		  { NB_FLAGS_ONT_P_NODE, "P-node" },
+		  { NB_FLAGS_ONT_M_NODE, "M-node" },
+		  { NB_FLAGS_ONT_H_NODE, "H-node" },
+		  { 0,                   NULL     }
+	};
+
+	strcpy(buf, val_to_str(flags & NB_FLAGS_ONT, nb_flags_ont_vals,
+	    "Unknown"));
+	strcat(buf, ", ");
+	if (flags & NB_FLAGS_G)
+		strcat(buf, "group");
+	else
+		strcat(buf, "unique");
+	tf = add_item_to_tree(rr_tree, offset, 2, "Flags: 0x%x (%s)", flags,
+			buf);
+	field_tree = gtk_tree_new();
+	add_subtree(tf, field_tree, ETT_NBNS_NB_FLAGS);
+	add_item_to_tree(field_tree, offset, 2, "%s",
+			decode_boolean_bitfield(flags, NB_FLAGS_G,
+				2*8,
+				"Group name",
+				"Unique name"));
+	add_item_to_tree(field_tree, offset, 2, "%s",
+			decode_enumerated_bitfield(flags, NB_FLAGS_ONT,
+				2*8, nb_flags_ont_vals, "%s"));
+}
+
+static void
+nbns_add_name_flags(GtkWidget *rr_tree, int offset, u_short flags)
+{
+	char buf[128+1];
+	GtkWidget *field_tree, *tf;
+	static const value_string name_flags_ont_vals[] = {
+		  { NAME_FLAGS_ONT_B_NODE, "B-node" },
+		  { NAME_FLAGS_ONT_P_NODE, "P-node" },
+		  { NAME_FLAGS_ONT_M_NODE, "M-node" },
+		  { 0,                     NULL     }
+	};
+
+	strcpy(buf, val_to_str(flags & NAME_FLAGS_ONT, name_flags_ont_vals,
+	    "Unknown"));
+	strcat(buf, ", ");
+	if (flags & NAME_FLAGS_G)
+		strcat(buf, "group");
+	else
+		strcat(buf, "unique");
+	if (flags & NAME_FLAGS_DRG)
+		strcat(buf, ", being deregistered");
+	if (flags & NAME_FLAGS_CNF)
+		strcat(buf, ", in conflict");
+	if (flags & NAME_FLAGS_ACT)
+		strcat(buf, ", active");
+	if (flags & NAME_FLAGS_PRM)
+		strcat(buf, ", permanent node name");
+	tf = add_item_to_tree(rr_tree, offset, 2, "Name flags: 0x%x (%s)",
+			flags, buf);
+	field_tree = gtk_tree_new();
+	add_subtree(tf, field_tree, ETT_NBNS_NAME_FLAGS);
+	add_item_to_tree(field_tree, offset, 2, "%s",
+			decode_boolean_bitfield(flags, NAME_FLAGS_G,
+				2*8,
+				"Group name",
+				"Unique name"));
+	add_item_to_tree(field_tree, offset, 2, "%s",
+			decode_enumerated_bitfield(flags, NAME_FLAGS_ONT,
+				2*8, name_flags_ont_vals, "%s"));
+	add_item_to_tree(field_tree, offset, 2, "%s",
+			decode_boolean_bitfield(flags, NAME_FLAGS_DRG,
+				2*8,
+				"Name is being deregistered",
+				"Name is not being deregistered"));
+	add_item_to_tree(field_tree, offset, 2, "%s",
+			decode_boolean_bitfield(flags, NAME_FLAGS_CNF,
+				2*8,
+				"Name is in conflict",
+				"Name is not in conflict"));
+	add_item_to_tree(field_tree, offset, 2, "%s",
+			decode_boolean_bitfield(flags, NAME_FLAGS_ACT,
+				2*8,
+				"Name is active",
+				"Name is not active"));
+	add_item_to_tree(field_tree, offset, 2, "%s",
+			decode_boolean_bitfield(flags, NAME_FLAGS_PRM,
+				2*8,
+				"Permanent node name",
+				"Not permanent node name"));
+}
 
 static int
 dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
@@ -362,8 +571,7 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 				}
 				flags = pntohs(dptr);
 				dptr += 2;
-				add_item_to_tree(rr_tree, offset, 2,
-				    "Flags: 0x%x", flags);
+				nbns_add_nbns_flags(rr_tree, offset, flags, 1);
 				offset += 2;
 				data_len -= 2;
 			} else {
@@ -374,8 +582,7 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 				}
 				flags = pntohs(dptr);
 				dptr += 2;
-				add_item_to_tree(rr_tree, offset, 2,
-				    "Flags: 0x%x", flags);
+				nbns_add_nb_flags(rr_tree, offset, flags);
 				offset += 2;
 				data_len -= 2;
 
@@ -439,8 +646,7 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 				}
 				name_flags = pntohs(dptr);
 				dptr += 2;
-				add_item_to_tree(rr_tree, offset, 2,
-				    "Name flags: 0x%x", name_flags);
+				nbns_add_name_flags(rr_tree, offset, name_flags);
 				offset += 2;
 				data_len -= 2;
 
@@ -703,31 +909,9 @@ void
 dissect_nbns(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 {
 	const u_char		*nbns_data_ptr;
-	GtkWidget		*nbns_tree, *ti, *field_tree, *tf;
+	GtkWidget		*nbns_tree, *ti;
 	guint16			id, flags, quest, ans, auth, add;
-	char			buf[128+1];
 	int			cur_off;
-	static const value_string opcode_vals[] = {
-		  { OPCODE_QUERY,          "Name query"                 },
-		  { OPCODE_REGISTRATION,   "Registration"               },
-		  { OPCODE_RELEASE,        "Release"                    },
-		  { OPCODE_WACK,           "Wait for acknowledgment"    },
-		  { OPCODE_REFRESH,        "Refresh"                    },
-		  { OPCODE_REFRESHALT,     "Refresh (alternate opcode)" },
-		  { OPCODE_MHREGISTRATION, "Multi-homed registration"   },
-		  { 0,                     NULL                         }
-	};
-	static const value_string rcode_vals[] = {
-		  { RCODE_NOERROR,   "No error"              },
-		  { RCODE_FMTERROR,  "Format error"          },
-		  { RCODE_SERVFAIL,  "Server failure"        },
-		  { RCODE_NAMEERROR, "Name error"            },
-		  { RCODE_NOTIMPL,   "Not implemented"       },
-		  { RCODE_REFUSED,   "Refused"               },
-		  { RCODE_ACTIVE,    "Name is active"        },
-		  { RCODE_CONFLICT,  "Name is in conflict"   },
-		  { 0,               NULL                    }
-	};
 
 	nbns_data_ptr = &pd[offset];
 
@@ -757,62 +941,7 @@ dissect_nbns(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 		add_item_to_tree(nbns_tree, offset + NBNS_ID, 2,
 				"Transaction ID: 0x%04X", id);
 
-		strcpy(buf, val_to_str(flags & F_OPCODE, opcode_vals,
-				"Unknown (%x)"));
-		if (flags & F_RESPONSE) {
-			strcat(buf, " response");
-			strcat(buf, ", ");
-			strcat(buf, val_to_str(flags & F_RCODE, rcode_vals,
-			    "Unknown error (%x)"));
-		}
-		tf = add_item_to_tree(nbns_tree, offset + NBNS_FLAGS, 2,
-				"Flags: 0x%04x (%s)", flags, buf);
-		field_tree = gtk_tree_new();
-		add_subtree(tf, field_tree, ETT_NBNS_FLAGS);
-		add_item_to_tree(field_tree, offset + NBNS_FLAGS, 2, "%s",
-		    decode_boolean_bitfield(flags, F_RESPONSE,
-		      2*8, "Response", "Query"));
-		add_item_to_tree(field_tree, offset + NBNS_FLAGS, 2, "%s",
-		    decode_enumerated_bitfield(flags, F_OPCODE,
-		      2*8, opcode_vals, "%s"));
-		if (flags & F_RESPONSE) {
-			add_item_to_tree(field_tree, offset + NBNS_FLAGS, 2,
-				"%s",
-				decode_boolean_bitfield(flags, F_AUTHORITATIVE,
-					2*8,
-					"Server is an authority for domain",
-					"Server isn't an authority for domain"));
-		}
-		add_item_to_tree(field_tree, offset + NBNS_FLAGS, 2, "%s",
-				decode_boolean_bitfield(flags, F_TRUNCATED,
-					2*8,
-					"Message is truncated",
-					"Message is not truncated"));
-		add_item_to_tree(field_tree, offset + NBNS_FLAGS, 2, "%s",
-				decode_boolean_bitfield(flags, F_RECDESIRED,
-					2*8,
-					"Do query recursively",
-					"Don't do query recursively"));
-		if (flags & F_RESPONSE) {
-			add_item_to_tree(field_tree, offset + NBNS_FLAGS, 2,
-				"%s",
-				decode_boolean_bitfield(flags, F_RECAVAIL,
-					2*8,
-					"Server can do recursive queries",
-					"Server can't do recursive queries"));
-		}
-		add_item_to_tree(field_tree, offset + NBNS_FLAGS, 2, "%s",
-				decode_boolean_bitfield(flags, F_BROADCAST,
-					2*8,
-					"Broadcast packet",
-					"Not a broadcast packet"));
-		if (flags & F_RESPONSE) {
-			add_item_to_tree(field_tree, offset + NBNS_FLAGS, 2,
-				"%s",
-				decode_enumerated_bitfield(flags, F_RCODE,
-					2*8,
-					rcode_vals, "%s"));
-		}
+		nbns_add_nbns_flags(nbns_tree, offset + NBNS_FLAGS, flags, 0);
 		add_item_to_tree(nbns_tree, offset + NBNS_QUEST, 2,
 					"Questions: %d",
 					quest);
