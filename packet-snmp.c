@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.91 2002/04/01 21:59:59 guy Exp $
+ * $Id: packet-snmp.c,v 1.92 2002/04/08 01:55:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -643,10 +643,11 @@ snmp_variable_decode(proto_tree *snmp_tree,
 #ifdef HAVE_UCD_SNMP
 	struct variable_list variable;
 	long value;
-#endif	/* HAVE_UCD_SNMP */
+#else /* HAVE_UCD_SNMP */
 	unsigned int i;
 	gchar *buf;
 	int len;
+#endif	/* HAVE_UCD_SNMP */
 
 	/* parse the type of the object */
 	start = asn1->offset;
