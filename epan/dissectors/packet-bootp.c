@@ -1383,12 +1383,7 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 	proto_tree *o43pxeclient_v_tree;
 	proto_item *vti;
 
-	struct o43pxeclient_opt_info {
-		char	*text;
-		enum field_type	ft;
-	};
-
-	static struct o43pxeclient_opt_info o43pxeclient_opt[]= {
+	static struct opt_info o43pxeclient_opt[]= {
 		/* 0 */ {"nop", special},	/* dummy */
 		/* 1 */ {"PXE mtftp IP", ipv4_list},
 		/* 2 */ {"PXE mtftp client port", val_u_le_short},
@@ -1451,7 +1446,7 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 			"Unknown suboption %d (%d byte%s)", subopt, subopt_len,
 			plurality(subopt_len, "", "s"));
 	} else {
-		switch (o43pxeclient_opt[subopt].ft) {
+		switch (o43pxeclient_opt[subopt].ftype) {
 
 		case special:
 			/* I may need to decode that properly one day */
@@ -1535,12 +1530,7 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 	guint8 subopt, byte_val;
 	guint8 subopt_len;
 
-	struct o43cablelabs_opt_info {
-		char	*text;
-		enum field_type	ft;
-	};
-
-	static struct o43cablelabs_opt_info o43cablelabs_opt[]= {
+	static struct opt_info o43cablelabs_opt[]= {
 		/* 0 */ {"nop", special},	/* dummy */
 		/* 1 */ {"Suboption Request List", string},
 		/* 2 */ {"Device Type", string},
@@ -1622,7 +1612,7 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 			"Suboption %d: Unassigned (%d byte%s)", subopt, subopt_len,
 			plurality(subopt_len, "", "s"));
 	} else {
-		switch (o43cablelabs_opt[subopt].ft) {
+		switch (o43cablelabs_opt[subopt].ftype) {
 
 		case special:
 			if ( subopt == 8 ) {	/* OUI */
@@ -1702,7 +1692,7 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 	struct o63_opt_info {
 		char	*truet;
 		char 	*falset;
-		enum field_type	ft;
+		enum field_type	ftype;
 	};
 
 	static struct o63_opt_info o63_opt[]= {
@@ -1735,7 +1725,7 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 	if (subopt > array_length(o63_opt)) {
 		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "Unknown suboption %d", subopt);
 	} else {
-		switch (o63_opt[subopt].ft) {
+		switch (o63_opt[subopt].ftype) {
 
 		case presence:
 			if (subopt_len != 0) {
