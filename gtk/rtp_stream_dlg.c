@@ -261,7 +261,7 @@ rtpstream_on_goto                      (GtkButton       *button _U_,
 {
 	if (selected_stream_fwd)
 	{
-		goto_frame(&cfile, selected_stream_fwd->first_frame_num);
+		cf_goto_frame(&cfile, selected_stream_fwd->first_frame_num);
 	}
 }
 */

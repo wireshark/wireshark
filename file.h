@@ -34,88 +34,364 @@
 
 #include "cfile.h"
 
-/* Return values from "cf_read()", "cf_continue_tail()", and
-   "cf_finish_tail()". */
+/** Return values from various cf_xxx functions. */
 typedef enum {
-	READ_SUCCESS,	/* read succeeded */
-	READ_ERROR,	/* read got an error */
-	READ_ABORTED	/* read aborted by user */
-} read_status_t;
+	CF_OK,	                /**< operation succeeded */
+	CF_ERROR,	            /**< operation got an error (function may provide err with details) */
+	CF_ABORTED,	            /**< operation aborted by user */
+	CF_PRINT_OPEN_ERROR,    /**< print operation failed while opening printer */
+	CF_PRINT_WRITE_ERROR    /**< print operation failed while writing to the printer */
+} cf_status_t;
 
-int  cf_open(char *, gboolean, capture_file *);
-void cf_close(capture_file *);
-void cf_reload(void);
-read_status_t cf_read(capture_file *);
-int  cf_start_tail(char *, gboolean, capture_file *);
-read_status_t cf_continue_tail(capture_file *, int, int *);
-read_status_t cf_finish_tail(capture_file *, int *);
-/* size_t read_frame_header(capture_file *); */
-gboolean cf_save(char *fname, capture_file * cf, packet_range_t *range, guint save_format);
-const gchar *cf_get_display_name(capture_file *);
+/**
+ * Open a capture file.
+ *
+ * @param cf the capture file to be opened
+ * @param fname the filename to be opened
+ * @param is_tempfile is this a temporary file?
+ * @return one of cf_status_t
+ */
+cf_status_t cf_open(capture_file *cf, char *fname, gboolean is_tempfile, int *err);
+
+/**
+ * Close a capture file.
+ *
+ * @param cf the capture file to be closed
+ */
+void cf_close(capture_file *cf);
+
+/**
+ * Reload a capture file.
+ *
+ * @param cf the capture file to be reloaded
+ */
+void cf_reload(capture_file *cf);
+
+/**
+ * Read all packets of a capture file into the internal structures.
+ * 
+ * @param cf the capture file to be read
+ * @return one of cf_status_t
+ */
+cf_status_t cf_read(capture_file *cf);
+
+/**
+ * Start reading from the end of a capture file.
+ * This is used in "Update list of packets in Real-Time".
+ * 
+ * @param cf the capture file to be read from
+ * @param fname the filename to be read from
+ * @param is_tempfile is this a temporary file?
+ * @param err the error code, if an error had occured
+ * @return one of cf_status_t
+ */
+cf_status_t cf_start_tail(capture_file *cf, char *fname, gboolean is_tempfile, int *err);
+
+/**
+ * Read packets from the "end" of a capture file.
+ * 
+ * @param cf the capture file to be read from
+ * @param to_read the number of packets to read
+ * @param err the error code, if an error had occured
+ * @return one of cf_status_t
+ */
+cf_status_t cf_continue_tail(capture_file *cf, int to_read, int *err);
+
+/**
+ * Finish reading from "end" of a capture file.
+ * 
+ * @param cf the capture file to be read from
+ * @param err the error code, if an error had occured
+ * @return one of cf_status_t
+ */
+cf_status_t cf_finish_tail(capture_file *cf, int *err);
+
+/**
+ * Save a capture file (or a range of it).
+ * 
+ * @param cf the capture file to save to
+ * @param fname the filename to save to
+ * @param range the range of packets to save
+ * @param save_format the format of the file to save (libpcap, ...)
+ * @return one of cf_status_t
+ */
+cf_status_t cf_save(capture_file * cf, char *fname, packet_range_t *range, guint save_format);
+
+/**
+ * Get a displayable name of the capture file.
+ * 
+ * @param cf the capture file
+ * @return the displayable name (don't have to be g_free'd)
+ */
+const gchar *cf_get_display_name(capture_file *cf);
+
+/**
+ * Get the number of packets in the capture file.
+ * 
+ * @param cf the capture file
+ * @return the number of packets in the capture file
+ */
 int cf_packet_count(capture_file *cf);
+
+/**
+ * Is this capture file a temporary file?
+ * 
+ * @param cf the capture file
+ * @return TRUE if it's a temporary file, FALSE otherwise
+ */
 gboolean cf_is_tempfile(capture_file *cf);
-void cf_set_drops_known(capture_file *cf, gboolean drops_known);
-void cf_set_drops(capture_file *cf, guint32 drops);
+
+/**
+ * Get the interface name to capture from.
+ * 
+ * @param cf the capture file
+ * @return the interface name (don't have to be g_free'd)
+ */
 gchar *cf_get_iface(capture_file *cf);
-void cf_set_rfcode(capture_file *cf, dfilter_t *rfcode);
+
+/**
+ * Get the capture filter of this capture file.
+ * 
+ * @param cf the capture file
+ * @return the capture filter (don't have to be g_free'd)
+ */
 gchar *cf_get_cfilter(capture_file *cf);
 
+/**
+ * Set flag, if the number of packet drops while capturing are known or not.
+ * 
+ * @param cf the capture file
+ * @param drops_known TRUE if the number of packet drops are known, FALSE otherwise
+ */
+void cf_set_drops_known(capture_file *cf, gboolean drops_known);
+
+/**
+ * Set the number of packet drops while capturing.
+ * 
+ * @param cf the capture file
+ * @param drops the number of packet drops occured while capturing
+ */
+void cf_set_drops(capture_file *cf, guint32 drops);
+
+/**
+ * Set the read filter.
+ * @todo this shouldn't be required, remove it somehow
+ * 
+ * @param cf the capture file
+ * @param rfcode the readfilter
+ */
+void cf_set_rfcode(capture_file *cf, dfilter_t *rfcode);
+
+/**
+ * "Display Filter" packets in the capture file.
+ * 
+ * @param cf the capture file
+ * @param dfilter the display filter
+ * @param force TRUE if do in any case, FALSE only if dfilter changed
+ * @return one of cf_status_t
+ */
+cf_status_t cf_filter_packets(capture_file *cf, gchar *dfilter, gboolean force);
+
+/**
+ * At least one "Refence Time" flag has changed, rescan all packets.
+ * 
+ * @param cf the capture file
+ */
+void cf_reftime_packets(capture_file *cf);
+
+/**
+ * At least one "Refence Time" flag has changed, rescan all packets.
+ * 
+ * @param cf the capture file
+ */
+void cf_colorize_packets(capture_file *cf);
+
+/**
+ * "Something" has changed, rescan all packets.
+ * 
+ * @param cf the capture file
+ */
+void cf_redissect_packets(capture_file *cf);
+
+/**
+ * A tap listener want's to rescan all packets.
+ * 
+ * @param cf the capture file
+ * @return one of cf_status_t
+ */
+cf_status_t cf_retap_packets(capture_file *cf);
+
+/**
+ * The time format has changed, rescan all packets.
+ * 
+ * @param cf the capture file
+ */
+void cf_change_time_formats(capture_file *cf);
+
+/**
+ * Print the capture file.
+ * 
+ * @param cf the capture file
+ * @param print_args the arguments what and how to print
+ * @return one of cf_status_t
+ */
+cf_status_t cf_print_packets(capture_file *cf, print_args_t *print_args);
+
+/**
+ * Print (export) the capture file into PDML format.
+ * 
+ * @param cf the capture file
+ * @param print_args the arguments what and how to export
+ * @return one of cf_status_t
+ */
+cf_status_t cf_write_pdml_packets(capture_file *cf, print_args_t *print_args);
+
+/**
+ * Print (export) the capture file into PSML format.
+ * 
+ * @param cf the capture file
+ * @param print_args the arguments what and how to export
+ * @return one of cf_status_t
+ */
+cf_status_t cf_write_psml_packets(capture_file *cf, print_args_t *print_args);
+
+/**
+ * Find Packet in protocol tree.
+ * 
+ * @param cf the capture file
+ * @param string the string to find
+ * @return TRUE if a packet was found, FALSE otherwise
+ */
+gboolean cf_find_packet_protocol_tree(capture_file *cf, const char *string);
+
+/**
+ * Find Packet in summary line.
+ * 
+ * @param cf the capture file
+ * @param string the string to find
+ * @return TRUE if a packet was found, FALSE otherwise
+ */
+gboolean cf_find_packet_summary_line(capture_file *cf, const char *string);
+
+/**
+ * Find Packet in packet data.
+ * 
+ * @param cf the capture file
+ * @param string the string to find
+ * @param string_size the size of the string to find
+ * @return TRUE if a packet was found, FALSE otherwise
+ */
+gboolean cf_find_packet_data(capture_file *cf, const guint8 *string,
+			  size_t string_size);
+
+/**
+ * Find Packet by display filter.
+ * 
+ * @param cf the capture file
+ * @param sfcode the display filter to find a packet for
+ * @return TRUE if a packet was found, FALSE otherwise
+ */
+gboolean cf_find_packet_dfilter(capture_file *cf, dfilter_t *sfcode);
+
+/**
+ * GoTo Packet in first row.
+ * 
+ * @param cf the capture file
+ * @return TRUE if the first row exists, FALSE otherwise
+ */
+gboolean cf_goto_top_frame(capture_file *cf);
+
+/**
+ * GoTo Packet in last row.
+ * 
+ * @param cf the capture file
+ * @return TRUE if last row exists, FALSE otherwise
+ */
+gboolean cf_goto_bottom_frame(capture_file *cf);
+
+/**
+ * GoTo Packet with the given row.
+ * 
+ * @param cf the capture file
+ * @param row the row to go to
+ * @return TRUE if this row exists, FALSE otherwise
+ */
+gboolean cf_goto_frame(capture_file *cf, guint row);
+
+/**
+ * Go to frame specified by currently selected protocol tree field.
+ * (Go To Corresponding Packet)
+ * @todo this is ugly and should be improved!
+ *
+ * @param cf the capture file
+ * @return TRUE if this packet exists, FALSE otherwise
+ */
+gboolean cf_goto_framenum(capture_file *cf);
+
+/**
+ * Select the packet in the given row.
+ *
+ * @param cf the capture file
+ * @param row the row to select
+ */
+void cf_select_packet(capture_file *cf, int row);
+
+/**
+ * Unselect all packets, if any.
+ *
+ * @param cf the capture file
+ * @param row the row to select
+ */
+void cf_unselect_packet(capture_file *cf);
+
+/**
+ * Unselect all protocol tree fields, if any.
+ *
+ * @param cf the capture file
+ * @param row the row to select
+ */
+void cf_unselect_field(capture_file *cf);
+
+/**
+ * Mark a particular frame in a particular capture.
+ *
+ * @param cf the capture file
+ * @param frame the frame to be marked
+ */
+void cf_mark_frame(capture_file *cf, frame_data *frame);
+
+/**
+ * Unmark a particular frame in a particular capture.
+ *
+ * @param cf the capture file
+ * @param frame the frame to be unmarked
+ */
+void cf_unmark_frame(capture_file *cf, frame_data *frame);
+
+/**
+ * Convert error number and info to a complete message.
+ *
+ * @param err the error number
+ * @param err_info the additional info about this error (e.g. filename)
+ * @return statically allocated error message
+ */
+char *cf_read_error_message(int err, gchar *err_info);
+
+/**
+ * Merge two (or more) capture files into one.
+ * @todo is this the right place for this function? It doesn't have to do a lot with capture_file.
+ *
+ * @param out_filename output filename
+ * @param out_fd output file descriptor
+ * @param in_file_count the number of input files to merge
+ * @param in_filnames array of input filenames
+ * @param file_type the output filetype
+ * @param do_append FALSE to merge chronologically, TRUE simply append
+ * @return TRUE if merging suceeded, FALSE otherwise
+ */
 gboolean
 cf_merge_files(const char *out_filename, int out_fd, int in_file_count,
                char *const *in_filenames, int file_type, gboolean do_append);
 
-gboolean filter_packets(capture_file *cf, gchar *dfilter, gboolean force);
-void reftime_packets(capture_file *);
-void colorize_packets(capture_file *);
-void redissect_packets(capture_file *cf);
-int retap_packets(capture_file *cf);
-typedef enum {
-	PP_OK,
-	PP_OPEN_ERROR,
-	PP_WRITE_ERROR
-} pp_return_t;
-pp_return_t print_packets(capture_file *cf, print_args_t *print_args);
-pp_return_t write_pdml_packets(capture_file *cf, print_args_t *print_args);
-pp_return_t write_psml_packets(capture_file *cf, print_args_t *print_args);
-
-void change_time_formats(capture_file *);
-
-gboolean find_packet_protocol_tree(capture_file *cf, const char *string);
-gboolean find_packet_summary_line(capture_file *cf, const char *string);
-gboolean find_packet_data(capture_file *cf, const guint8 *string,
-			  size_t string_size);
-gboolean find_packet_dfilter(capture_file *cf, dfilter_t *sfcode);
-
-guint8 get_int_value(char char_val);
-gboolean find_ascii(capture_file *cf, char *ascii_text, gboolean ascii_search, char *ftype, gboolean case_type);
-gboolean find_in_gtk_data(capture_file *cf, gpointer *data, char *ascii_text, gboolean case_type, gboolean search_type);
-gboolean goto_frame(capture_file *cf, guint fnumber);
-gboolean goto_bottom_frame(capture_file *cf);
-gboolean goto_top_frame(capture_file *cf);
-void goto_framenum(capture_file *cf);
-
-
-void select_packet(capture_file *, int);
-void unselect_packet(capture_file *);
-
-void unselect_field(capture_file *);
-
-/*
- * Mark a particular frame in a particular capture.
- */
-void mark_frame(capture_file *, frame_data *);
-
-/*
- * Unmark a particular frame in a particular capture.
- */
-void unmark_frame(capture_file *, frame_data *);
-
-/* Moves or copies a file. Returns 0 on failure, 1 on success */
-int file_mv(char *from, char *to);
-
-/* Copies a file. Returns 0 on failure, 1 on success */
-int file_cp(char *from, char *to);
-
-char *cf_read_error_message(int, gchar *);
 
 #endif /* file.h */

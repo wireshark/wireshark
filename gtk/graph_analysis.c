@@ -668,7 +668,7 @@ static gint button_press_event(GtkWidget *widget, GdkEventButton *event _U_)
 		user_data->dlg.needs_redraw=TRUE;
 		dialog_graph_draw(user_data);
 
-		goto_frame(&cfile, user_data->dlg.items[item].frame_num);
+		cf_goto_frame(&cfile, user_data->dlg.items[item].frame_num);
 
         return TRUE;
 }

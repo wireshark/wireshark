@@ -231,7 +231,7 @@ gtk_ldapstat_init(char *optarg)
     gtk_widget_show_all(ldap->win);
     window_present(ldap->win);
 	
-    retap_packets(&cfile);
+    cf_retap_packets(&cfile);
 }
 
 

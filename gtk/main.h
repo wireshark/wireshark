@@ -252,7 +252,7 @@ extern void main_widgets_rearrange(void);
 extern void main_widgets_show_or_hide(void);
 
 /** Apply a new filter string. 
- *  Call filter_packets() and add this filter string to the recent filter list.
+ *  Call cf_filter_packets() and add this filter string to the recent filter list.
  *
  * @param cf the capture file
  * @param dftext the new filter string

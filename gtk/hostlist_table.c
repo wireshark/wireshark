@@ -768,7 +768,7 @@ init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char 
     gtk_widget_show_all(hosttable->win);
     window_present(hosttable->win);
 
-    retap_packets(&cfile);
+    cf_retap_packets(&cfile);
 	
     /* Keep clist frozen to cause modifications to the clist (inserts, appends, others that are extremely slow
 	   in GTK2) to not be drawn, allow refreshes to occur at strategic points for performance */
@@ -956,7 +956,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_widget_show_all(win);
     window_present(win);
 
-    retap_packets(&cfile);
+    cf_retap_packets(&cfile);
 
     /* after retapping, redraw table */
     for (page=1; page<=GPOINTER_TO_INT(pages[0]); page++) {

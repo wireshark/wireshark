@@ -502,7 +502,7 @@ gtk_httpstat_init(char *optarg)
     window_present(sp->win);
 
 	http_init_hash(sp);
-	retap_packets(&cfile);
+	cf_retap_packets(&cfile);
 }
 
 static tap_dfilter_dlg http_stat_dlg = {

@@ -769,7 +769,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 #ifdef _WIN32
   gboolean win_printer = FALSE;
 #endif
-  pp_return_t   status;
+  cf_status_t   status;
 
   args = (print_args_t *)OBJECT_GET_DATA(ok_bt, PRINT_ARGS_KEY);
 
@@ -857,9 +857,9 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 
   /* Now print/export the packets */
   if (export_as_pdml)
-    status = write_pdml_packets(&cfile, args);
+    status = cf_write_pdml_packets(&cfile, args);
   else if (export_as_psml)
-    status = write_psml_packets(&cfile, args);
+    status = cf_write_psml_packets(&cfile, args);
   else {
     switch (args->format) {
 
@@ -899,14 +899,14 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
       g_assert_not_reached();
       return;
     }
-    status = print_packets(&cfile, args);
+    status = cf_print_packets(&cfile, args);
   }
   switch (status) {
 
-  case PP_OK:
+  case CF_OK:
     break;
 
-  case PP_OPEN_ERROR:
+  case CF_PRINT_OPEN_ERROR:
     if (args->to_file)
       open_failure_alert_box(args->file, errno, TRUE);
     else
@@ -914,7 +914,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
         args->cmd);
     break;
 
-  case PP_WRITE_ERROR:
+  case CF_PRINT_WRITE_ERROR:
     if (args->to_file)
       write_failure_alert_box(args->file, errno);
     else

@@ -1073,7 +1073,7 @@ color_clear_cmd(GtkWidget *widget)
             "Could not delete filter file: %s", strerror(errno));
 
     /* colorize list */
-    colorize_packets(&cfile);
+    cf_colorize_packets(&cfile);
 
     /* Destroy the dialog box. */
     /* XXX: is this useful? user might want to continue with editing new colors */
@@ -1113,7 +1113,7 @@ static void
 color_ok_cb(GtkButton *button _U_, gpointer user_data _U_)
 {
   /* colorize list */
-  colorize_packets(&cfile);
+  cf_colorize_packets(&cfile);
 
   /* Destroy the dialog box. */
   window_destroy(colorize_win);
@@ -1132,7 +1132,7 @@ color_cancel_cb(GtkWidget *widget _U_, gpointer user_data _U_)
 static void
 color_apply_cb(GtkButton *button _U_, gpointer user_data _U_)
 {
-  colorize_packets(&cfile);
+  cf_colorize_packets(&cfile);
 }
 
 /* Create an "Edit Color Filter" dialog for a given color filter, and

@@ -134,7 +134,7 @@ goto_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
     return;
   }
 
-  if (goto_frame(&cfile, fnumber)) {
+  if (cf_goto_frame(&cfile, fnumber)) {
     /* We succeeded in going to that frame; we're done. */
     window_destroy(GTK_WIDGET(parent_w));
   }
@@ -146,19 +146,19 @@ goto_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 void
 goto_framenum_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-    goto_framenum(&cfile);
+    cf_goto_framenum(&cfile);
 }
 
 void
 goto_top_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-    goto_top_frame(&cfile);
+    cf_goto_top_frame(&cfile);
 }
 
 void
 goto_bottom_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-    goto_bottom_frame(&cfile);
+    cf_goto_bottom_frame(&cfile);
 }
 
 

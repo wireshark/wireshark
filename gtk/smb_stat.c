@@ -234,7 +234,7 @@ gtk_smbstat_init(char *optarg)
     gtk_widget_show_all(ss->win);
     window_present(ss->win);
 	
-    retap_packets(&cfile);
+    cf_retap_packets(&cfile);
 }
 
 

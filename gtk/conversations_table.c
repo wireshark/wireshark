@@ -1283,7 +1283,7 @@ init_conversation_table(gboolean hide_ports, char *table_name, char *tap_name, c
     gtk_widget_show_all(conversations->win);
     window_present(conversations->win);
 
-    retap_packets(&cfile);
+    cf_retap_packets(&cfile);
 
 	
     /* Keep clist frozen to cause modifications to the clist (inserts, appends, others that are extremely slow
@@ -1471,7 +1471,7 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_widget_show_all(win);
     window_present(win);
 
-    retap_packets(&cfile);
+    cf_retap_packets(&cfile);
 
     /* after retapping, redraw table */
     for (page=1; page<=GPOINTER_TO_INT(pages[0]); page++) {

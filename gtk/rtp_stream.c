@@ -286,7 +286,7 @@ static int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _
 		if (rtp_stream_info_cmp(&tmp_strinfo, tapinfo->filter_stream_fwd)==0
 			|| rtp_stream_info_cmp(&tmp_strinfo, tapinfo->filter_stream_rev)==0)
 		{
-			mark_frame(&cfile, pinfo->fd);
+			cf_mark_frame(&cfile, pinfo->fd);
 		}
 	}
 
@@ -302,7 +302,7 @@ void rtpstream_scan(void)
 		register_tap_listener_rtp_stream();
 
 	the_tapinfo_struct.mode = TAP_ANALYSE;
-	retap_packets(&cfile);
+	cf_retap_packets(&cfile);
 
 	if (!was_registered)
 		remove_tap_listener_rtp_stream();
@@ -333,7 +333,7 @@ gboolean rtpstream_save(rtp_stream_info_t* stream, const gchar *filename)
 
 	the_tapinfo_struct.mode = TAP_SAVE;
 	the_tapinfo_struct.filter_stream_fwd = stream;
-	retap_packets(&cfile);
+	cf_retap_packets(&cfile);
 	the_tapinfo_struct.mode = TAP_ANALYSE;
 
 	if (!was_registered)
@@ -364,7 +364,7 @@ void rtpstream_mark(rtp_stream_info_t* stream_fwd, rtp_stream_info_t* stream_rev
 	the_tapinfo_struct.mode = TAP_MARK;
 	the_tapinfo_struct.filter_stream_fwd = stream_fwd;
 	the_tapinfo_struct.filter_stream_rev = stream_rev;
-	retap_packets(&cfile);
+	cf_retap_packets(&cfile);
 	the_tapinfo_struct.mode = TAP_ANALYSE;
 
 	if (!was_registered)

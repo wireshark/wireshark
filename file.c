@@ -84,7 +84,6 @@
 #include <epan/prefs.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/conversation.h>
-#include "globals.h"
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 #include "tap_dfilter_dlg.h"
@@ -143,23 +142,22 @@ static   gboolean copy_binary_file(char *from_filename, char *to_filename);
 #define	FRAME_DATA_CHUNK_SIZE	1024
 
 
-int
-cf_open(char *fname, gboolean is_tempfile, capture_file *cf)
+cf_status_t
+cf_open(capture_file *cf, char *fname, gboolean is_tempfile, int *err)
 {
   wtap       *wth;
-  int         err;
   gchar       *err_info;
   int         fd;
   struct stat cf_stat;
 
-  wth = wtap_open_offline(fname, &err, &err_info, TRUE);
+  wth = wtap_open_offline(fname, err, &err_info, TRUE);
   if (wth == NULL)
     goto fail;
 
   /* Find the size of the file. */
   fd = wtap_fd(wth);
   if (fstat(fd, &cf_stat) < 0) {
-    err = errno;
+    *err = errno;
     wtap_close(wth);
     goto fail;
   }
@@ -213,11 +211,11 @@ cf_open(char *fname, gboolean is_tempfile, capture_file *cf)
 	G_ALLOC_AND_FREE);
   g_assert(cf->plist_chunk);
 
-  return (0);
+  return CF_OK;
 
 fail:
-  cf_open_failure_alert_box(fname, err, err_info, FALSE, 0);
-  return (err);
+  cf_open_failure_alert_box(fname, *err, err_info, FALSE, 0);
+  return CF_ERROR;
 }
 
 /* Reset everything to a pristine state */
@@ -256,7 +254,7 @@ cf_close(capture_file *cf)
   }
   cf->plist = NULL;
   cf->plist_end = NULL;
-  unselect_packet(cf);	/* nothing to select */
+  cf_unselect_packet(cf);	/* nothing to select */
   cf->first_displayed = NULL;
   cf->last_displayed = NULL;
 
@@ -342,7 +340,7 @@ set_display_filename(capture_file *cf)
   g_free(win_name);
 }
 
-read_status_t
+cf_status_t
 cf_read(capture_file *cf)
 {
   int         err;
@@ -432,13 +430,13 @@ cf_read(capture_file *cf)
 
     if (stop_flag) {
       /* Well, the user decided to abort the read.  Destroy the progress
-         bar, close the capture file, and return READ_ABORTED so our caller
+         bar, close the capture file, and return CF_ABORTED so our caller
 	 can do whatever is appropriate when that happens. */
       destroy_progress_dlg(progbar);
       cf->state = FILE_READ_ABORTED;	/* so that we're allowed to close it */
       packet_list_thaw();		/* undo our freeze */
       cf_close(cf);
-      return (READ_ABORTED);
+      return CF_ABORTED;
     }
     read_packet(cf, data_offset);
   }
@@ -525,20 +523,20 @@ cf_read(capture_file *cf)
     }
     snprintf(err_str, sizeof err_str, errmsg);
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, err_str);
-    return (READ_ERROR);
+    return CF_ERROR;
   } else
-    return (READ_SUCCESS);
+    return CF_OK;
 }
 
 #ifdef HAVE_LIBPCAP
-int
-cf_start_tail(char *fname, gboolean is_tempfile, capture_file *cf)
-{
-  int     err;
-  gchar *capture_msg;
 
-  err = cf_open(fname, is_tempfile, cf);
-  if (err == 0) {
+cf_start_tail(capture_file *cf, char *fname, gboolean is_tempfile, int *err)
+{
+  gchar *capture_msg;
+  cf_status_t cf_status;
+
+  cf_status = cf_open(cf, fname, is_tempfile, err);
+  if (cf_status == CF_OK) {
     /* Disable menu items that make no sense if you're currently running
        a capture. */
     set_menus_for_capture_in_progress(TRUE);
@@ -552,11 +550,12 @@ cf_start_tail(char *fname, gboolean is_tempfile, capture_file *cf)
     statusbar_push_file_msg(capture_msg);
 
     g_free(capture_msg);
+
   }
-  return err;
+  return cf_status;
 }
 
-read_status_t
+cf_status_t
 cf_continue_tail(capture_file *cf, int to_read, int *err)
 {
   long data_offset = 0;
@@ -585,21 +584,21 @@ cf_continue_tail(capture_file *cf, int to_read, int *err)
     packet_list_moveto_end();
 
   if (cf->state == FILE_READ_ABORTED) {
-    /* Well, the user decided to exit Ethereal.  Return READ_ABORTED
+    /* Well, the user decided to exit Ethereal.  Return CF_ABORTED
        so that our caller can kill off the capture child process;
        this will cause an EOF on the pipe from the child, so
        "cf_finish_tail()" will be called, and it will clean up
        and exit. */
-    return READ_ABORTED;
+    return CF_ABORTED;
   } else if (*err != 0) {
     /* We got an error reading the capture file.
        XXX - pop up a dialog box? */
-    return (READ_ERROR);
+    return CF_ERROR;
   } else
-    return (READ_SUCCESS);
+    return CF_OK;
 }
 
-read_status_t
+cf_status_t
 cf_finish_tail(capture_file *cf, int *err)
 {
   gchar *err_info;
@@ -623,10 +622,10 @@ cf_finish_tail(capture_file *cf, int *err)
     /* Well, the user decided to abort the read.  We're only called
        when the child capture process closes the pipe to us (meaning
        it's probably exited), so we can just close the capture
-       file; we return READ_ABORTED so our caller can do whatever
+       file; we return CF_ABORTED so our caller can do whatever
        is appropriate when that happens. */
     cf_close(cf);
-    return READ_ABORTED;
+    return CF_ABORTED;
   }
 
   packet_list_thaw();
@@ -676,9 +675,9 @@ cf_finish_tail(capture_file *cf, int *err)
   if (*err != 0) {
     /* We got an error reading the capture file.
        XXX - pop up a dialog box? */
-    return (READ_ERROR);
+    return CF_ERROR;
   } else {
-    return (READ_SUCCESS);
+    return CF_OK;
   }
 }
 #endif /* HAVE_LIBPCAP */
@@ -903,14 +902,14 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
        XXX - we must do this before we add the row to the display,
        as, if the display's GtkCList's selection mode is
        GTK_SELECTION_BROWSE, when the first entry is added to it,
-       "select_packet()" will be called, and it will fetch the row
+       "cf_select_packet()" will be called, and it will fetch the row
        data for the 0th row, and will get a null pointer rather than
        "fdata", as "gtk_clist_append()" won't yet have returned and
        thus "gtk_clist_set_row_data()" won't yet have been called.
 
        We thus need to leave behind bread crumbs so that
-       "select_packet()" can find this frame.  See the comment
-       in "select_packet()". */
+       "cf_select_packet()" can find this frame.  See the comment
+       in "cf_select_packet()". */
     if (cf->first_displayed == NULL)
       cf->first_displayed = fdata;
 
@@ -1198,8 +1197,8 @@ cf_merge_files(const char *out_filename, int out_fd, int in_file_count,
   return (!got_read_error && !got_write_error);
 }
 
-gboolean
-filter_packets(capture_file *cf, gchar *dftext, gboolean force)
+cf_status_t
+cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
 {
   dfilter_t *dfcode;
   char      *filter_new = dftext ? dftext : "";
@@ -1207,7 +1206,7 @@ filter_packets(capture_file *cf, gchar *dftext, gboolean force)
 
   /* if new filter equals old one, do nothing unless told to do so */
   if (!force && strcmp(filter_new, filter_old) == 0) {
-    return TRUE;
+    return CF_OK;
   }
 
   if (dftext == NULL) {
@@ -1234,7 +1233,7 @@ filter_packets(capture_file *cf, gchar *dftext, gboolean force)
       g_free(safe_dfilter_error_msg);
       g_free(safe_dftext);
       g_free(dftext);
-      return FALSE;
+      return CF_ERROR;
     }
 
     /* Was it empty? */
@@ -1260,23 +1259,23 @@ filter_packets(capture_file *cf, gchar *dftext, gboolean force)
   } else {
     rescan_packets(cf, "Filtering", dftext, TRUE, FALSE);
   }
-  return TRUE;
+  return CF_OK;
 }
 
 void
-colorize_packets(capture_file *cf)
+cf_colorize_packets(capture_file *cf)
 {
   rescan_packets(cf, "Colorizing", "all packets", FALSE, FALSE);
 }
 
 void
-reftime_packets(capture_file *cf)
+cf_reftime_packets(capture_file *cf)
 {
   rescan_packets(cf, "Updating Reftime", "all packets", FALSE, FALSE);
 }
 
 void
-redissect_packets(capture_file *cf)
+cf_redissect_packets(capture_file *cf)
 {
   rescan_packets(cf, "Reprocessing", "all packets", TRUE, TRUE);
 }
@@ -1545,7 +1544,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
 
   if (selected_row == -1) {
     /* There are no frames displayed at all. */
-    unselect_packet(cf);
+    cf_unselect_packet(cf);
   } else {
     /* Either the frame that was selected passed the filter, or we've
        found the nearest displayed frame to that frame.  Select it, make
@@ -1692,8 +1691,8 @@ retap_packet(capture_file *cf _U_, frame_data *fdata,
   return TRUE;
 }
 
-int
-retap_packets(capture_file *cf)
+cf_status_t 
+cf_retap_packets(capture_file *cf)
 {
   packet_range_t range;
 
@@ -1714,14 +1713,14 @@ retap_packets(capture_file *cf)
   case PSP_STOPPED:
     /* Well, the user decided to abort the refiltering.
        Return FALSE so our caller knows they did that. */
-    return FALSE;
+    return CF_ERROR;
 
   case PSP_FAILED:
     /* Error while retapping. */
-    return FALSE;
+    return CF_ERROR;
   }
 
-  return TRUE;
+  return CF_OK;
 }
 
 typedef struct {
@@ -1882,8 +1881,8 @@ fail:
   return FALSE;
 }
 
-pp_return_t
-print_packets(capture_file *cf, print_args_t *print_args)
+cf_status_t
+cf_print_packets(capture_file *cf, print_args_t *print_args)
 {
   int         i;
   print_callback_args_t callback_args;
@@ -1906,7 +1905,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
 
   if (!print_preamble(print_args->stream, cf->filename)) {
     destroy_print_stream(print_args->stream);
-    return PP_WRITE_ERROR;
+    return CF_PRINT_WRITE_ERROR;
   }
 
   if (print_args->print_summary) {
@@ -2000,18 +1999,18 @@ print_packets(capture_file *cf, print_args_t *print_args)
        have to write to a file and then hand that to the print
        program to make it actually not print anything. */
     destroy_print_stream(print_args->stream);
-    return PP_WRITE_ERROR;
+    return CF_PRINT_WRITE_ERROR;
   }
 
   if (!print_finale(print_args->stream)) {
     destroy_print_stream(print_args->stream);
-    return PP_WRITE_ERROR;
+    return CF_PRINT_WRITE_ERROR;
   }
 
   if (!destroy_print_stream(print_args->stream))
-    return PP_WRITE_ERROR;
+    return CF_PRINT_WRITE_ERROR;
 
-  return PP_OK;
+  return CF_OK;
 }
 
 static gboolean
@@ -2034,20 +2033,20 @@ write_pdml_packet(capture_file *cf _U_, frame_data *fdata,
   return !ferror(fh);
 }
 
-pp_return_t
-write_pdml_packets(capture_file *cf, print_args_t *print_args)
+cf_status_t
+cf_write_pdml_packets(capture_file *cf, print_args_t *print_args)
 {
   FILE        *fh;
   psp_return_t ret;
 
   fh = fopen(print_args->file, "w");
   if (fh == NULL)
-    return PP_OPEN_ERROR;	/* attempt to open destination failed */
+    return CF_PRINT_OPEN_ERROR;	/* attempt to open destination failed */
 
   write_pdml_preamble(fh);
   if (ferror(fh)) {
     fclose(fh);
-    return PP_WRITE_ERROR;
+    return CF_PRINT_WRITE_ERROR;
   }
 
   /* Iterate through the list of packets, printing the packets we were
@@ -2069,19 +2068,19 @@ write_pdml_packets(capture_file *cf, print_args_t *print_args)
   case PSP_FAILED:
     /* Error while printing. */
     fclose(fh);
-    return PP_WRITE_ERROR;
+    return CF_PRINT_WRITE_ERROR;
   }
 
   write_pdml_finale(fh);
   if (ferror(fh)) {
     fclose(fh);
-    return PP_WRITE_ERROR;
+    return CF_PRINT_WRITE_ERROR;
   }
 
   /* XXX - check for an error */
   fclose(fh);
 
-  return PP_OK;
+  return CF_OK;
 }
 
 static gboolean
@@ -2104,20 +2103,20 @@ write_psml_packet(capture_file *cf, frame_data *fdata,
   return !ferror(fh);
 }
 
-pp_return_t
-write_psml_packets(capture_file *cf, print_args_t *print_args)
+cf_status_t
+cf_write_psml_packets(capture_file *cf, print_args_t *print_args)
 {
   FILE        *fh;
   psp_return_t ret;
 
   fh = fopen(print_args->file, "w");
   if (fh == NULL)
-    return PP_OPEN_ERROR;	/* attempt to open destination failed */
+    return CF_PRINT_OPEN_ERROR;	/* attempt to open destination failed */
 
   write_psml_preamble(fh);
   if (ferror(fh)) {
     fclose(fh);
-    return PP_WRITE_ERROR;
+    return CF_PRINT_WRITE_ERROR;
   }
 
   /* Iterate through the list of packets, printing the packets we were
@@ -2139,26 +2138,26 @@ write_psml_packets(capture_file *cf, print_args_t *print_args)
   case PSP_FAILED:
     /* Error while printing. */
     fclose(fh);
-    return PP_WRITE_ERROR;
+    return CF_PRINT_WRITE_ERROR;
   }
 
   write_psml_finale(fh);
   if (ferror(fh)) {
     fclose(fh);
-    return PP_WRITE_ERROR;
+    return CF_PRINT_WRITE_ERROR;
   }
 
   /* XXX - check for an error */
   fclose(fh);
 
-  return PP_OK;
+  return CF_OK;
 }
 
 /* Scan through the packet list and change all columns that use the
    "command-line-specified" time stamp format to use the current
    value of that format. */
 void
-change_time_formats(capture_file *cf)
+cf_change_time_formats(capture_file *cf)
 {
   frame_data *fdata;
   progdlg_t  *progbar = NULL;
@@ -2324,7 +2323,7 @@ typedef struct {
 } match_data;
 
 gboolean
-find_packet_protocol_tree(capture_file *cf, const char *string)
+cf_find_packet_protocol_tree(capture_file *cf, const char *string)
 {
   match_data		mdata;
 
@@ -2408,7 +2407,7 @@ match_subtree_text(proto_node *node, gpointer data)
 }
 
 gboolean
-find_packet_summary_line(capture_file *cf, const char *string)
+cf_find_packet_summary_line(capture_file *cf, const char *string)
 {
   match_data		mdata;
 
@@ -2469,7 +2468,7 @@ typedef struct {
 } cbs_t;	/* "Counted byte string" */
 
 gboolean
-find_packet_data(capture_file *cf, const guint8 *string, size_t string_size)
+cf_find_packet_data(capture_file *cf, const guint8 *string, size_t string_size)
 {
   cbs_t info;
 
@@ -2618,7 +2617,7 @@ match_binary(capture_file *cf, frame_data *fdata, void *criterion)
 }
 
 gboolean
-find_packet_dfilter(capture_file *cf, dfilter_t *sfcode)
+cf_find_packet_dfilter(capture_file *cf, dfilter_t *sfcode)
 {
   return find_packet(cf, match_dfilter, sfcode);
 }
@@ -2811,7 +2810,7 @@ find_packet(capture_file *cf,
 }
 
 gboolean
-goto_frame(capture_file *cf, guint fnumber)
+cf_goto_frame(capture_file *cf, guint fnumber)
 {
   frame_data *fdata;
   int row;
@@ -2844,7 +2843,7 @@ goto_frame(capture_file *cf, guint fnumber)
 }
 
 gboolean
-goto_top_frame(capture_file *cf)
+cf_goto_top_frame(capture_file *cf)
 {
   frame_data *fdata;
   int row;
@@ -2872,7 +2871,7 @@ goto_top_frame(capture_file *cf)
 }
 
 gboolean
-goto_bottom_frame(capture_file *cf)
+cf_goto_bottom_frame(capture_file *cf)
 {
   frame_data *fdata;
   int row;
@@ -2901,8 +2900,8 @@ goto_bottom_frame(capture_file *cf)
 /*
  * Go to frame specified by currently selected protocol tree item.
  */
-void
-goto_framenum(capture_file *cf)
+gboolean
+cf_goto_framenum(capture_file *cf)
 {
   header_field_info       *hfinfo;
   guint32                 framenum;
@@ -2913,14 +2912,16 @@ goto_framenum(capture_file *cf)
     if (hfinfo->type == FT_FRAMENUM) {
       framenum = fvalue_get_integer(&cf->finfo_selected->value);
       if (framenum != 0)
-        goto_frame(cf, framenum);
+        return cf_goto_frame(cf, framenum);
       }
   }
+
+  return FALSE;
 }
 
 /* Select the packet on a given row. */
 void
-select_packet(capture_file *cf, int row)
+cf_select_packet(capture_file *cf, int row)
 {
   frame_data *fdata;
   int err;
@@ -2936,10 +2937,10 @@ select_packet(capture_file *cf, int row)
        our version and the vanilla GTK+ version).
 
        This means that a "select-row" signal is emitted; this causes
-       "packet_list_select_cb()" to be called, which causes "select_packet()"
+       "packet_list_select_cb()" to be called, which causes "cf_select_packet()"
        to be called.
 
-       "select_packet()" fetches, above, the data associated with the
+       "cf_select_packet()" fetches, above, the data associated with the
        row that was selected; however, as "gtk_clist_append()", which
        called "real_insert_row()", hasn't yet returned, we haven't yet
        associated any data with that row, so we get back a null pointer.
@@ -2993,7 +2994,7 @@ select_packet(capture_file *cf, int row)
 
 /* Unselect the selected packet, if any. */
 void
-unselect_packet(capture_file *cf)
+cf_unselect_packet(capture_file *cf)
 {
   /* Destroy the epan_dissect_t for the unselected packet. */
   if (cf->edt != NULL) {
@@ -3009,12 +3010,12 @@ unselect_packet(capture_file *cf)
   set_menus_for_selected_packet(cf);
 
   /* No protocol tree means no selected field. */
-  unselect_field(cf);
+  cf_unselect_field(cf);
 }
 
 /* Unset the selected protocol tree field, if any. */
 void
-unselect_field(capture_file *cf)
+cf_unselect_field(capture_file *cf)
 {
   statusbar_pop_field_msg();
   cf->finfo_selected = NULL;
@@ -3025,7 +3026,7 @@ unselect_field(capture_file *cf)
  * Mark a particular frame.
  */
 void
-mark_frame(capture_file *cf, frame_data *frame)
+cf_mark_frame(capture_file *cf, frame_data *frame)
 {
   if (! frame->flags.marked) {
     frame->flags.marked = TRUE;
@@ -3038,7 +3039,7 @@ mark_frame(capture_file *cf, frame_data *frame)
  * Unmark a particular frame.
  */
 void
-unmark_frame(capture_file *cf, frame_data *frame)
+cf_unmark_frame(capture_file *cf, frame_data *frame)
 {
   if (frame->flags.marked) {
     frame->flags.marked = FALSE;
@@ -3083,8 +3084,8 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
   return TRUE;
 }
 
-gboolean
-cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
+cf_status_t
+cf_save(capture_file *cf, char *fname, packet_range_t *range, guint save_format)
 {
   gchar        *from_filename;
   const gchar  *name_ptr;
@@ -3248,19 +3249,19 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
        time if the file is large. */
     cf->user_saved = TRUE;
 
-    if ((err = cf_open(fname, FALSE, cf)) == 0) {
+    if ((cf_open(cf, fname, FALSE, &err)) == CF_OK) {
       /* XXX - report errors if this fails?
          What should we return if it fails or is aborted? */
       switch (cf_read(cf)) {
 
-      case READ_SUCCESS:
-      case READ_ERROR:
+      case CF_OK:
+      case CF_ERROR:
 	/* Just because we got an error, that doesn't mean we were unable
 	   to read any of the file; we handle what we could get from the
 	   file. */
 	break;
 
-      case READ_ABORTED:
+      case CF_ABORTED:
 	/* The user bailed out of re-reading the capture file; the
 	   capture file has been closed - just return (without
 	   changing any menu settings; "cf_close()" set them
@@ -3270,12 +3271,12 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
       set_menus_for_unsaved_capture_file(FALSE);
     }
   }
-  return TRUE;
+  return CF_OK;
 
 fail:
   /* Pop the "Saving:" message off the status bar. */
   statusbar_pop_file_msg();
-  return FALSE;
+  return CF_ERROR;
 }
 
 static void
@@ -3507,9 +3508,10 @@ cf_close_failure_alert_box(const char *filename, int err)
 
 /* Reload the current capture file. */
 void
-cf_reload() {
+cf_reload(capture_file *cf) {
   gchar *filename;
   gboolean is_tempfile;
+  int err;
 
   /* If the file could be opened, "cf_open()" calls "cf_close()"
      to get rid of state for the old capture file before filling in state
@@ -3519,22 +3521,22 @@ cf_reload() {
      a temporary file, mark it as not being a temporary file, and then
      reopen it as the type of file it was.
 
-     Also, "cf_close()" will free "cfile.filename", so we must make
+     Also, "cf_close()" will free "cf->filename", so we must make
      a copy of it first. */
-  filename = g_strdup(cfile.filename);
-  is_tempfile = cfile.is_tempfile;
-  cfile.is_tempfile = FALSE;
-  if (cf_open(filename, is_tempfile, &cfile) == 0) {
-    switch (cf_read(&cfile)) {
+  filename = g_strdup(cf->filename);
+  is_tempfile = cf->is_tempfile;
+  cf->is_tempfile = FALSE;
+  if (cf_open(cf, filename, is_tempfile, &err) == CF_OK) {
+    switch (cf_read(cf)) {
 
-    case READ_SUCCESS:
-    case READ_ERROR:
+    case CF_OK:
+    case CF_ERROR:
       /* Just because we got an error, that doesn't mean we were unable
          to read any of the file; we handle what we could get from the
          file. */
       break;
 
-    case READ_ABORTED:
+    case CF_ABORTED:
       /* The user bailed out of re-reading the capture file; the
          capture file has been closed - just free the capture file name
          string and return (without changing the last containing
@@ -3543,13 +3545,13 @@ cf_reload() {
       return;
     }
   } else {
-    /* The open failed, so "cfile.is_tempfile" wasn't set to "is_tempfile".
-       Instead, the file was left open, so we should restore "cfile.is_tempfile"
+    /* The open failed, so "cf->is_tempfile" wasn't set to "is_tempfile".
+       Instead, the file was left open, so we should restore "cf->is_tempfile"
        ourselves.
 
        XXX - change the menu?  Presumably "cf_open()" will do that;
        make sure it does! */
-    cfile.is_tempfile = is_tempfile;
+    cf->is_tempfile = is_tempfile;
   }
   /* "cf_open()" made a copy of the file name we handed it, so
      we should free up our copy. */

@@ -633,7 +633,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   cfile.summary_data = summary_data;
 
   if (cfile.hex) {
-    found_packet = find_packet_data(&cfile, bytes, nbytes);
+    found_packet = cf_find_packet_data(&cfile, bytes, nbytes);
     g_free(bytes);
     if (!found_packet) {
       /* We didn't find a packet */
@@ -648,7 +648,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
     /* OK, what are we searching? */
     if (cfile.decode_data) {
       /* The text in the protocol tree */
-      found_packet = find_packet_protocol_tree(&cfile, string);
+      found_packet = cf_find_packet_protocol_tree(&cfile, string);
       g_free(string);
       if (!found_packet) {
         /* We didn't find the packet. */
@@ -660,7 +660,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
       }
     } else if (cfile.summary_data) {
       /* The text in the summary line */
-      found_packet = find_packet_summary_line(&cfile, string);
+      found_packet = cf_find_packet_summary_line(&cfile, string);
       g_free(string);
       if (!found_packet) {
         /* We didn't find the packet. */
@@ -672,7 +672,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
       }
     } else {
       /* The raw packet data */
-      found_packet = find_packet_data(&cfile, string, strlen(string));
+      found_packet = cf_find_packet_data(&cfile, string, strlen(string));
       g_free(string);
       if (!found_packet) {
         /* We didn't find the packet. */
@@ -684,7 +684,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
       }
     }
   } else {
-    found_packet = find_packet_dfilter(&cfile, sfcode);
+    found_packet = cf_find_packet_dfilter(&cfile, sfcode);
     dfilter_free(sfcode);
     if (!found_packet) {
       /* We didn't find a packet */
@@ -732,20 +732,20 @@ find_previous_next(GtkWidget *w, gpointer d, gboolean sens)
 	 */
         return;
       }
-      find_packet_data(&cfile, bytes, nbytes);
+      cf_find_packet_data(&cfile, bytes, nbytes);
       g_free(bytes);
     } else if (cfile.string) {
       string = convert_string_case(cfile.sfilter, cfile.case_type);
       /* OK, what are we searching? */
       if (cfile.decode_data) {
         /* The text in the protocol tree */
-        find_packet_protocol_tree(&cfile, string);
+        cf_find_packet_protocol_tree(&cfile, string);
       } else if (cfile.summary_data) {
         /* The text in the summary line */
-        find_packet_summary_line(&cfile, string);
+        cf_find_packet_summary_line(&cfile, string);
       } else {
         /* The raw packet data */
-        find_packet_data(&cfile, string, strlen(string));
+        cf_find_packet_data(&cfile, string, strlen(string));
       }
       g_free(string);
     } else {
@@ -763,7 +763,7 @@ find_previous_next(GtkWidget *w, gpointer d, gboolean sens)
 	 */
         return;
       }
-      find_packet_dfilter(&cfile, sfcode);
+      cf_find_packet_dfilter(&cfile, sfcode);
       dfilter_free(sfcode);
     }
   } else
@@ -807,7 +807,7 @@ find_previous_next_frame_with_filter(char *filter, gboolean backwards)
      */
     return;
   }
-  find_packet_dfilter(&cfile, sfcode);
+  cf_find_packet_dfilter(&cfile, sfcode);
   dfilter_free(sfcode);
   cfile.sbackward=sbackwards_saved;
 }

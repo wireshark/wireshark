@@ -437,7 +437,7 @@ decode_clear_all(void)
 
     decode_dcerpc_reset_all();
 
-    redissect_packets(&cfile);
+    cf_redissect_packets(&cfile);
 }
 
 
@@ -905,7 +905,7 @@ decode_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
     g_slist_free(decode_dimmable);
     decode_dimmable = NULL;
 
-    redissect_packets(&cfile);
+    cf_redissect_packets(&cfile);
 }
 
 /*
@@ -934,7 +934,7 @@ decode_apply_cb (GtkWidget *apply_bt _U_, gpointer parent_w)
     func = OBJECT_GET_DATA(notebook_pg, E_PAGE_ACTION);
     func(notebook_pg);
 
-    redissect_packets(&cfile);
+    cf_redissect_packets(&cfile);
 }
 
 /*

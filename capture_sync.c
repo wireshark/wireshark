@@ -485,26 +485,32 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
 
     /* The child process started a capture.
        Attempt to open the capture file and set up to read it. */
-    err = cf_start_tail(capture_opts->save_file, is_tempfile, capture_opts->cf);
-    if (err != 0) {
-      /* We weren't able to open the capture file; user has been
-	 alerted. Close the sync pipe. */
+    switch(cf_start_tail(capture_opts->cf, capture_opts->save_file, is_tempfile, &err)) {
+    case CF_OK:
+        /* We were able to open and set up to read the capture file;
+           arrange that our callback be called whenever it's possible
+           to read from the sync pipe, so that it's called when
+           the child process wants to tell us something. */
+        pipe_input_set_handler(sync_pipe[PIPE_READ], (gpointer) capture_opts, &capture_opts->fork_child, sync_pipe_input_cb);
 
-      close(sync_pipe[PIPE_READ]);
+        return TRUE;
+        break;
+    case CF_ERROR:
+        /* We weren't able to open the capture file; user has been
+        alerted. Close the sync pipe. */
 
-      /* Don't unlink the save file - leave it around, for debugging
-	 purposes. */
-      g_free(capture_opts->save_file);
-      capture_opts->save_file = NULL;
-      return FALSE;
+        close(sync_pipe[PIPE_READ]);
+
+        /* Don't unlink the save file - leave it around, for debugging
+        purposes. */
+        g_free(capture_opts->save_file);
+        capture_opts->save_file = NULL;
+        return FALSE;
+        break;
+    default:
+        g_assert_not_reached();
+        return FALSE;
     }
-    /* We were able to open and set up to read the capture file;
-       arrange that our callback be called whenever it's possible
-       to read from the sync pipe, so that it's called when
-       the child process wants to tell us something. */
-    pipe_input_set_handler(sync_pipe[PIPE_READ], (gpointer) capture_opts, &capture_opts->fork_child, sync_pipe_input_cb);
-
-    return TRUE;
 }
 
 
@@ -533,7 +539,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
        XXX - do something if this fails? */
     switch (cf_finish_tail(capture_opts->cf, &err)) {
 
-    case READ_SUCCESS:
+    case CF_OK:
         if(cf_packet_count(capture_opts->cf) == 0) {
           simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
           "%sNo packets captured!%s\n\n"
@@ -543,13 +549,13 @@ sync_pipe_input_cb(gint source, gpointer user_data)
           cf_close(capture_opts->cf);
         }
         break;
-    case READ_ERROR:
+    case CF_ERROR:
       /* Just because we got an error, that doesn't mean we were unable
          to read any of the file; we handle what we could get from the
          file. */
       break;
 
-    case READ_ABORTED:
+    case CF_ABORTED:
       /* Exit by leaving the main loop, so that any quit functions
          we registered get called. */
       main_window_quit();
@@ -624,8 +630,8 @@ sync_pipe_input_cb(gint source, gpointer user_data)
      XXX - do something if this fails? */
   switch (cf_continue_tail(capture_opts->cf, to_read, &err)) {
 
-  case READ_SUCCESS:
-  case READ_ERROR:
+  case CF_OK:
+  case CF_ERROR:
     /* Just because we got an error, that doesn't mean we were unable
        to read any of the file; we handle what we could get from the
        file.
@@ -633,7 +639,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
        XXX - abort on a read error? */
     break;
 
-  case READ_ABORTED:
+  case CF_ABORTED:
     /* Kill the child capture process; the user wants to exit, and we
        shouldn't just leave it running. */
     kill_capture_child(capture_opts);

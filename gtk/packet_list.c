@@ -268,7 +268,7 @@ packet_list_select_cb(GtkWidget *w _U_, gint row, gint col _U_, gpointer evt _U_
   while( (gtk_notebook_get_nth_page( GTK_NOTEBOOK(byte_nb_ptr), 0)))
     gtk_notebook_remove_page( GTK_NOTEBOOK(byte_nb_ptr), 0);
 
-  select_packet(&cfile, row);
+  cf_select_packet(&cfile, row);
   gtk_widget_grab_focus(packet_list);
   packet_history_add(row);
 }
@@ -276,7 +276,7 @@ packet_list_select_cb(GtkWidget *w _U_, gint row, gint col _U_, gpointer evt _U_
 static void
 packet_list_unselect_cb(GtkWidget *w _U_, gint row _U_, gint col _U_, gpointer evt _U_) {
 
-  unselect_packet(&cfile);
+  cf_unselect_packet(&cfile);
 }
 
 /* mark packets */
@@ -287,7 +287,7 @@ set_frame_mark(gboolean set, frame_data *frame, gint row) {
   if (row == -1)
     return;
   if (set) {
-    mark_frame(&cfile, frame);
+    cf_mark_frame(&cfile, frame);
     color_t_to_gdkcolor(&fg, &prefs.gui_marked_fg);
     color_t_to_gdkcolor(&bg, &prefs.gui_marked_bg);
     eth_clist_set_foreground(ETH_CLIST(packet_list), row, &fg);
@@ -295,7 +295,7 @@ set_frame_mark(gboolean set, frame_data *frame, gint row) {
   } else {
     color_filter_t *cfilter = frame->color_filter;
 
-    unmark_frame(&cfile, frame);
+    cf_unmark_frame(&cfile, frame);
     /* Restore the color from the matching color filter if any */
     if (cfilter) { /* The packet matches a color filter */
       color_t_to_gdkcolor(&fg, &cfilter->fg_color);
@@ -446,7 +446,7 @@ set_plist_sel_browse(gboolean val)
 	}
 
 	if (cfile.finfo_selected)
-		unselect_packet(&cfile);
+		cf_unselect_packet(&cfile);
 
         mode = new_mode;
         eth_clist_set_selection_mode(ETH_CLIST(packet_list), mode);

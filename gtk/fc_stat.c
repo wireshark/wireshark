@@ -196,7 +196,7 @@ gtk_fcstat_init(char *optarg)
 	gtk_widget_show_all(fc->win);
     window_present(fc->win);
 
-    retap_packets(&cfile);
+    cf_retap_packets(&cfile);
 }
 
 

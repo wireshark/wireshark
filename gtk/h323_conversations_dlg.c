@@ -570,7 +570,7 @@ h323conversations_init_tap(char *dummy _U_)
 	h245conversations_init_tap();
 
 	/* Scan for H323 conversations conversationss (redissect all packets) */
-	retap_packets(&cfile);
+	cf_retap_packets(&cfile);
 
 	/* Show the dialog box with the list of conversationss */
 	h323conversations_dlg_show(h323conversations_get_info()->strinfo_list);

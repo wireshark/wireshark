@@ -136,7 +136,7 @@ sctp_error_on_frame (GtkButton *button _U_, gpointer user_data _U_)
 		return;
 
 	if (selected_packet)
-		goto_frame(&cfile, selected_packet->frame_number);
+		cf_goto_frame(&cfile, selected_packet->frame_number);
 }
 
 

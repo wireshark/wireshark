@@ -235,7 +235,7 @@ redraw_hex_dump_all(void)
      The only workaround is to freshly select the frame, which will remove any 
      existing notebook tabs and "restart" the whole byte view again. */
   if (cfile.current_frame != NULL)
-    goto_frame(&cfile, cfile.current_frame->num);
+    cf_goto_frame(&cfile, cfile.current_frame->num);
 #endif
 }
 
@@ -1768,7 +1768,7 @@ void
 tree_view_follow_link(field_info   *fi)
 {
     if(fi->hfinfo->type == FT_FRAMENUM) {
-        goto_frame(&cfile, fi->value.value.integer);
+        cf_goto_frame(&cfile, fi->value.value.integer);
     }
 }
 

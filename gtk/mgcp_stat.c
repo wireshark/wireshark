@@ -311,7 +311,7 @@ gtk_mgcpstat_init(char *optarg)
     gtk_widget_show_all(ms->win);
     window_present(ms->win);
 	
-    retap_packets(&cfile);
+    cf_retap_packets(&cfile);
 }
 
 static tap_dfilter_dlg mgcp_srt_dlg = {

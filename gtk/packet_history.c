@@ -142,7 +142,7 @@ void packet_history_back(void) {
 
             /* goto that packet but don't change history */
             ignore_jump = TRUE;
-            goto_frame(&cfile, GPOINTER_TO_INT(previous->data) +1);
+            cf_goto_frame(&cfile, GPOINTER_TO_INT(previous->data) +1);
             ignore_jump = FALSE;
         }
     }
@@ -163,7 +163,7 @@ void packet_history_forward(void) {
 
             /* goto that packet but don't change history */
             ignore_jump = TRUE;
-            goto_frame(&cfile, GPOINTER_TO_INT(next->data) +1);
+            cf_goto_frame(&cfile, GPOINTER_TO_INT(next->data) +1);
             ignore_jump = FALSE;
         }
     }

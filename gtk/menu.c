@@ -990,7 +990,7 @@ menu_open_recent_file_cmd(GtkWidget *w)
 	gtk_label_get(GTK_LABEL(menu_item_child), &cf_name);
 
 	/* open and read the capture file (this will close an existing file) */
-	if ((err = cf_open(cf_name, FALSE, &cfile)) == 0) {
+	if (cf_open(&cfile, cf_name, FALSE, &err) == CF_OK) {
 		cf_read(&cfile);
 	} else {
 		/* the capture file isn't existing any longer, remove menu item */
@@ -1245,7 +1245,7 @@ timestamp_absolute_cb(GtkWidget *w _U_, gpointer d _U_)
     if (recent.gui_time_format != TS_ABSOLUTE) {
         set_timestamp_setting(TS_ABSOLUTE);
         recent.gui_time_format  = TS_ABSOLUTE;
-        change_time_formats(&cfile);
+        cf_change_time_formats(&cfile);
     }
 }
 
@@ -1255,7 +1255,7 @@ timestamp_absolute_date_cb(GtkWidget *w _U_, gpointer d _U_)
     if (recent.gui_time_format != TS_ABSOLUTE_WITH_DATE) {
         set_timestamp_setting(TS_ABSOLUTE_WITH_DATE);
         recent.gui_time_format  = TS_ABSOLUTE_WITH_DATE;
-        change_time_formats(&cfile);
+        cf_change_time_formats(&cfile);
     }
 }
 
@@ -1265,7 +1265,7 @@ timestamp_relative_cb(GtkWidget *w _U_, gpointer d _U_)
     if (recent.gui_time_format != TS_RELATIVE) {
         set_timestamp_setting(TS_RELATIVE);
         recent.gui_time_format  = TS_RELATIVE;
-        change_time_formats(&cfile);
+        cf_change_time_formats(&cfile);
     }
 }
 
@@ -1275,7 +1275,7 @@ timestamp_delta_cb(GtkWidget *w _U_, gpointer d _U_)
     if (recent.gui_time_format != TS_DELTA) {
         set_timestamp_setting(TS_DELTA);
         recent.gui_time_format  = TS_DELTA;
-        change_time_formats(&cfile);
+        cf_change_time_formats(&cfile);
     }
 }
 

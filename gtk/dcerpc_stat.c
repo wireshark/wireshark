@@ -331,7 +331,7 @@ gtk_dcerpcstat_init(char *optarg)
     gtk_widget_show_all(rs->win);
     window_present(rs->win);
 
-    retap_packets(&cfile);
+    cf_retap_packets(&cfile);
 }
 
 

@@ -676,7 +676,7 @@ file_open_ok_cb(GtkWidget *w, gpointer fs) {
   }
 
   /* Try to open the capture file. */
-  if ((err = cf_open(cf_name, FALSE, &cfile)) != 0) {
+  if (cf_open(&cfile, cf_name, FALSE, &err) != CF_OK) {
     /* We couldn't open it; don't dismiss the open dialog box,
        just leave it around so that the user can, after they
        dismiss the alert box popped up for the open error,
@@ -715,14 +715,14 @@ file_open_ok_cb(GtkWidget *w, gpointer fs) {
 
   switch (cf_read(&cfile)) {
 
-  case READ_SUCCESS:
-  case READ_ERROR:
+  case CF_OK:
+  case CF_ERROR:
     /* Just because we got an error, that doesn't mean we were unable
        to read any of the file; we handle what we could get from the
        file. */
     break;
 
-  case READ_ABORTED:
+  case CF_ABORTED:
     /* The user bailed out of re-reading the capture file; the
        capture file has been closed - just free the capture file name
        string and return (without changing the last containing
@@ -1069,7 +1069,7 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
   window_destroy(GTK_WIDGET (fs));
 
   /* Try to open the merged capture file. */
-  if ((err = cf_open(tmpname, TRUE /* temporary file */, &cfile)) != 0) {
+  if (cf_open(&cfile, tmpname, TRUE /* temporary file */, &err) != CF_OK) {
     /* We couldn't open it; don't dismiss the open dialog box,
        just leave it around so that the user can, after they
        dismiss the alert box popped up for the open error,
@@ -1086,14 +1086,14 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
 
   switch (cf_read(&cfile)) {
 
-  case READ_SUCCESS:
-  case READ_ERROR:
+  case CF_OK:
+  case CF_ERROR:
     /* Just because we got an error, that doesn't mean we were unable
        to read any of the file; we handle what we could get from the
        file. */
     break;
 
-  case READ_ABORTED:
+  case CF_ABORTED:
     /* The user bailed out of re-reading the capture file; the
        capture file has been closed - just free the capture file name
        string and return (without changing the last containing
@@ -1440,7 +1440,7 @@ file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
 
   /* Write out the packets (all, or only the ones from the current
      range) to the file with the specified name. */
-  if (! cf_save(cf_name, &cfile, &range, filetype)) {
+  if (cf_save(&cfile, cf_name, &range, filetype) != CF_OK) {
     /* The write failed; don't dismiss the open dialog box,
        just leave it around so that the user can, after they
        dismiss the alert box popped up for the error, try again. */
@@ -1458,7 +1458,7 @@ file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
   }
 
   /* The write succeeded; get rid of the file selection box. */
-  /* cf_save might already closed our dialog! */
+  /* cf_save() might already closed our dialog! */
   if (file_save_as_w)
     window_destroy(GTK_WIDGET (fs));
 
@@ -1518,7 +1518,7 @@ file_save_as_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 /* Reload a file using the current read and display filters */
 void
 file_reload_cmd_cb(GtkWidget *w _U_, gpointer data _U_) {
-  cf_reload();
+  cf_reload(&cfile);
 }
 
 /******************** Color Filters *********************************/

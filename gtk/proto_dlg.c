@@ -416,14 +416,14 @@ proto_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   redissect = set_proto_selection(GTK_WIDGET(parent_w));
   window_destroy(GTK_WIDGET(parent_w));
   if (redissect)
-    redissect_packets(&cfile);
+    cf_redissect_packets(&cfile);
 }
 
 static void
 proto_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
 {
   if (set_proto_selection(GTK_WIDGET(parent_w)))
-    redissect_packets(&cfile);
+    cf_redissect_packets(&cfile);
 }
 
 static void
@@ -458,7 +458,7 @@ proto_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
 
   if (must_redissect) {
     /* Redissect all the packets, and re-evaluate the display filter. */
-    redissect_packets(&cfile);
+    cf_redissect_packets(&cfile);
   }
 }
 
@@ -470,7 +470,7 @@ proto_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
   redissect = revert_proto_selection();
   window_destroy(GTK_WIDGET(parent_w));
   if (redissect)
-    redissect_packets(&cfile);
+    cf_redissect_packets(&cfile);
 }
 
 static gboolean

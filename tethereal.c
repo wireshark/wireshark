@@ -1578,8 +1578,7 @@ main(int argc, char *argv[])
     setgid(getgid());
 #endif
 
-    err = cf_open(cf_name, FALSE, &cfile);
-    if (err != 0) {
+    if (cf_open(&cfile, cf_name, FALSE, &err) != CF_OK) {
       epan_cleanup();
       exit(2);
     }
@@ -3197,15 +3196,14 @@ open_failure_message(const char *filename, int err, gboolean for_writing)
   fprintf(stderr, "\n");
 }
 
-int
-cf_open(char *fname, gboolean is_tempfile, capture_file *cf)
+cf_status_t 
+cf_open(capture_file *cf, char *fname, gboolean is_tempfile, int *err)
 {
   wtap       *wth;
-  int         err;
   gchar       *err_info;
   char        err_msg[2048+1];
 
-  wth = wtap_open_offline(fname, &err, &err_info, FALSE);
+  wth = wtap_open_offline(fname, err, &err_info, FALSE);
   if (wth == NULL)
     goto fail;
 
@@ -3245,13 +3243,13 @@ cf_open(char *fname, gboolean is_tempfile, capture_file *cf)
   firstsec = 0, firstusec = 0;
   prevsec = 0, prevusec = 0;
 
-  return (0);
+  return CF_OK;
 
 fail:
   snprintf(err_msg, sizeof err_msg,
-           cf_open_error_message(err, err_info, FALSE, 0), fname);
+           cf_open_error_message(*err, err_info, FALSE, 0), fname);
   fprintf(stderr, "tethereal: %s\n", err_msg);
-  return (err);
+  return CF_ERROR;
 }
 
 #ifdef HAVE_LIBPCAP

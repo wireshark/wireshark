@@ -688,7 +688,7 @@ voip_calls_init_tap(char *dummy _U_)
 	}
 	
 	/* Scan for VoIP calls calls (redissect all packets) */
-	retap_packets(&cfile);
+	cf_retap_packets(&cfile);
 	
 	/* Tap listener will be removed and cleaned up in voip_calls_on_destroy */
 }

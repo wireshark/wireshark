@@ -2613,11 +2613,11 @@ static void graph_select_segment (struct graph *g, int x, int y)
 				break;
 			case ELMT_LINE:
 				if (line_detect_collision (e, x, y))
-					goto_frame(&cfile, e->parent->num);
+					cf_goto_frame(&cfile, e->parent->num);
 				break;
 			case ELMT_ARC:
 				if (arc_detect_collision (e, x, y))
-					goto_frame(&cfile, e->parent->num);
+					cf_goto_frame(&cfile, e->parent->num);
 				break;
 			default:
 				break;

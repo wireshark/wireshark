@@ -198,7 +198,7 @@ normal_do_capture(capture_options *capture_opts, gboolean is_tempfile)
       return FALSE;
     }
     /* Capture succeeded; attempt to read in the capture file. */
-    if ((err = cf_open(capture_opts->save_file, is_tempfile, capture_opts->cf)) != 0) {
+    if (cf_open(capture_opts->cf, capture_opts->save_file, is_tempfile, &err) != CF_OK) {
       /* We're not doing a capture any more, so we don't have a save
 	 file. */
       if (capture_opts->multi_files_on) {
@@ -246,14 +246,14 @@ normal_do_capture(capture_options *capture_opts, gboolean is_tempfile)
     }
     switch (cf_read(capture_opts->cf)) {
 
-    case READ_SUCCESS:
-    case READ_ERROR:
+    case CF_OK:
+    case CF_ERROR:
       /* Just because we got an error, that doesn't mean we were unable
          to read any of the file; we handle what we could get from the
          file. */
       break;
 
-    case READ_ABORTED:
+    case CF_ABORTED:
       /* Exit by leaving the main loop, so that any quit functions
          we registered get called. */
       main_window_nested_quit();

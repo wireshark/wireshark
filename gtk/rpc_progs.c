@@ -406,7 +406,7 @@ gtk_rpcprogs_init(char *optarg _U_)
 	gtk_widget_show_all(win);
 	window_present(win);
 	
-	redissect_packets(&cfile);
+	cf_redissect_packets(&cfile);
 }
 
 static void

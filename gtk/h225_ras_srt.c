@@ -336,7 +336,7 @@ gtk_h225rassrt_init(char *optarg)
 	gtk_widget_show_all(hs->win);
     window_present(hs->win);
 
-    retap_packets(&cfile);
+    cf_retap_packets(&cfile);
 }
 
 void

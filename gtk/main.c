@@ -501,7 +501,7 @@ dfilter_combo_add_recent(gchar *s) {
 }
 
 
-/* call filter_packets() and add this filter string to the recent filter list */
+/* call cf_filter_packets() and add this filter string to the recent filter list */
 gboolean
 main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
 {
@@ -511,14 +511,14 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
   gboolean   add_filter = TRUE;
   gboolean   free_filter = TRUE;
   char      *s;
-  gboolean   filter_packets_ret;
-
+  cf_status_t cf_status;
   s = g_strdup(dftext);
 
   /* GtkCombos don't let us get at their list contents easily, so we maintain
      our own filter list, and feed it to gtk_combo_set_popdown_strings when
      a new filter is added. */
-  if ((filter_packets_ret = filter_packets(cf, s, force))) {
+  cf_status = cf_filter_packets(cf, s, force);
+  if (cf_status == CF_OK) {
     li = g_list_first(filter_list);
     while (li) {
       if (li->data && strcmp(s, li->data) == 0)
@@ -542,7 +542,11 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
   if (free_filter)
     g_free(s);
 
-  return filter_packets_ret;
+  if (cf_status == CF_OK) {
+    return TRUE;
+  } else {
+    return FALSE;
+  }
 }
 
 
@@ -580,7 +584,7 @@ set_frame_reftime(gboolean set, frame_data *frame, gint row) {
   } else {
     frame->flags.ref_time=0;
   }
-  reftime_packets(&cfile);
+  cf_reftime_packets(&cfile);
 }
 
 void 
@@ -643,7 +647,7 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
         if (byte_data == NULL)
             return;	/* none */
 
-        unselect_field(&cfile);
+        cf_unselect_field(&cfile);
         packet_hex_print(GTK_TEXT_VIEW(byte_view), byte_data,
                          cfile.current_frame, NULL, byte_len);
         return;
@@ -740,7 +744,7 @@ tree_view_unselect_row_cb(GtkCTree *ctree _U_, GList *node _U_, gint column _U_,
 	if (data == NULL)
 		return;	/* none */
 
-	unselect_field(&cfile);
+	cf_unselect_field(&cfile);
 	packet_hex_print(GTK_TEXT(byte_view), data, cfile.current_frame,
 		NULL, len);
 }
@@ -1432,7 +1436,7 @@ dnd_merge_files(int in_file_count, char **in_filenames)
     cf_close(&cfile);
 
     /* Try to open the merged capture file. */
-    if ((err = cf_open(tmpname, TRUE /* temporary file */, &cfile)) != 0) {
+    if (cf_open(&cfile, tmpname, TRUE /* temporary file */, &err) != CF_OK) {
 	/* We couldn't open it; don't dismiss the open dialog box,
 	   just leave it around so that the user can, after they
 	   dismiss the alert box popped up for the open error,
@@ -1442,14 +1446,14 @@ dnd_merge_files(int in_file_count, char **in_filenames)
 
     switch (cf_read(&cfile)) {
 
-    case READ_SUCCESS:
-    case READ_ERROR:
+    case CF_OK:
+    case CF_ERROR:
 	/* Just because we got an error, that doesn't mean we were unable
 	   to read any of the file; we handle what we could get from the
 	   file. */
 	break;
 
-    case READ_ABORTED:
+    case CF_ABORTED:
 	/* The user bailed out of re-reading the capture file; the
 	   capture file has been closed - just free the capture file name
 	   string and return (without changing the last containing
@@ -1517,7 +1521,7 @@ dnd_open_file_cmd(GtkSelectionData *selection_data)
         break;
     case(1):
         /* open and read the capture file (this will close an existing file) */
-	    if ((err = cf_open(in_filenames[0], FALSE, &cfile)) == 0) {
+	    if (cf_open(&cfile, in_filenames[0], FALSE, &err) == CF_OK) {
 		    cf_read(&cfile);
             add_menu_recent_capture_file(in_filenames[0]);
 	    } else {
@@ -2563,7 +2567,7 @@ main(int argc, char *argv[])
         }
       }
       if (!rfilter_parse_failed) {
-        if ((err = cf_open(cf_name, FALSE, &cfile)) == 0) {
+        if (cf_open(&cfile, cf_name, FALSE, &err) == CF_OK) {
           /* "cf_open()" succeeded, so it closed the previous
 	     capture file, and thus destroyed any previous read filter
 	     attached to "cf". */
@@ -2580,14 +2584,14 @@ main(int argc, char *argv[])
           /* Read the capture file. */
           switch (cf_read(&cfile)) {
 
-          case READ_SUCCESS:
-          case READ_ERROR:
+          case CF_OK:
+          case CF_ERROR:
             /* Just because we got an error, that doesn't mean we were unable
                to read any of the file; we handle what we could get from the
                file. */
             break;
 
-          case READ_ABORTED:
+          case CF_ABORTED:
             /* Exit now. */
             gtk_exit(0);
             break;

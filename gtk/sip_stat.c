@@ -648,7 +648,7 @@ gtk_sipstat_init(char *optarg)
     window_present(sp->win);
 
     sip_init_hash(sp);
-    retap_packets(&cfile);
+    cf_retap_packets(&cfile);
 }
 
 static tap_dfilter_dlg sip_stat_dlg = {

@@ -333,7 +333,7 @@ static void on_goto_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
         if (user_data->selected_clist1!=NULL) {
                 fnumber = GPOINTER_TO_UINT(gtk_clist_get_row_data(
                         GTK_CLIST(user_data->selected_clist1), user_data->selected_row) );
-               goto_frame(&cfile, fnumber);
+               cf_goto_frame(&cfile, fnumber);
         }
 }
 
@@ -408,7 +408,7 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
         }
 
         /* retap all packets */
-        retap_packets(&cfile);
+        cf_retap_packets(&cfile);
 
         /* remove tap listener again */
         protect_thread_critical_region();
