@@ -1580,6 +1580,7 @@ Christian Falckenberg <christian.falckenberg [AT] nortelnetworks.com> {
 
 Huagang Xie <xie [AT] lids.org> {
 	MySQL support
+	SSH support
 }
 
 cfs 2895 <cjs2895 [AT] hotmail.com> {
