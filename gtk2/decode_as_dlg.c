@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.2 2002/09/05 18:48:51 jmayer Exp $
+ * $Id: decode_as_dlg.c,v 1.3 2002/09/07 18:35:16 oabad Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -530,6 +530,7 @@ decode_change_one_dissector(gchar *table_name, gint selector, GtkTreeView *list)
     } else {
 	dissector_change(table_name, selector, handle);
     }
+    g_free(abbrev);
 }
 
 
