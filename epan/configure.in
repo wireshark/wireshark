@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.64 2004/03/04 06:29:42 guy Exp $
+# $Id: configure.in,v 1.65 2004/03/04 08:53:02 jmayer Exp $
 #
 AC_INIT(epan.c)
 
@@ -20,9 +20,11 @@ AC_PROG_YACC
 AM_PROG_LEX
 AC_PROG_LIBTOOL
 AC_PATH_PROG(LEX, flex)
+AC_PATH_PROG(PERL, perl)
 AC_PATH_PROG(PYTHON, python)
 
 AC_SUBST(FLEX_PATH)
+AC_SUBST(PERL)
 AC_SUBST(PYTHON)
 
 #
