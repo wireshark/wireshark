@@ -1,7 +1,7 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.32 2004/05/01 22:55:22 obiot Exp $
+ * $Id: simple_dialog.c,v 1.33 2004/05/16 18:42:55 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -261,9 +261,33 @@ vsimple_dialog(gint type, gint btn_mask, const gchar *msg_format, va_list ap)
   gchar             *message;
   queued_message_t *queued_message;
   GtkWidget        *win;
+#if GTK_MAJOR_VERSION >= 2
+  GdkWindowState state = 0;
+#endif
 
   /* Format the message. */
   message = g_strdup_vprintf(msg_format, ap);
+
+#if GTK_MAJOR_VERSION >= 2
+  if (top_level != NULL) {
+    state = gdk_window_get_state(top_level->window);
+  }
+
+  /* If the main window is iconified, don't show the dialog, and don't
+     queue up the message for later display. If showing up a dialog, 
+     while main window is iconified, program will become unresponsive!
+     If it would be queued, there's no point to show the dialog. So it's not 
+     shown until another one is shown, which will be very confusing.
+     
+     XXX - get a callback when main window is shown again and call 
+     display_queued_messages() in this callback. And of course, queue up 
+     the message for display until this happens */
+  if (state & GDK_WINDOW_STATE_ICONIFIED) {
+    g_log(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "Discarded message, while main window iconified:\n%s", message);
+    g_free(message);
+    return NULL;
+  }
+#endif
 
   /* If we don't yet have a main window, queue up the message for later
      display. */
