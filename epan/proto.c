@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.58 2002/03/19 08:42:16 guy Exp $
+ * $Id: proto.c,v 1.59 2002/04/01 02:00:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -214,12 +214,6 @@ proto_init(const char *plugin_dir,void (register_all_protocols)(void),
 		G_ALLOC_AND_FREE);
 
 	gpa_hfinfo = g_ptr_array_new();
-
-	/* Allocate "tree_is_expanded", with one element for ETT_NONE,
-	   and initialize that element to FALSE. */
-	tree_is_expanded = g_malloc(sizeof (gint));
-	tree_is_expanded[0] = FALSE;
-	num_tree_types = 1;
 
 	/* Initialize the ftype subsystem */
 	ftypes_initialize();
@@ -1664,7 +1658,7 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		fi->start += tvb_raw_offset(tvb);
 	}
 	fi->length = *length;
-	fi->tree_type = ETT_NONE;
+	fi->tree_type = -1;
 	fi->visible = PTREE_DATA(tree)->visible;
 	fi->representation = NULL;
 
@@ -2074,22 +2068,13 @@ proto_register_subtree_array(gint **indices, int num_indices)
 	gint	**ptr = indices;
 
 	/*
-	 * Add "num_indices" elements to "tree_is_expanded".
-	 */
-	tree_is_expanded = g_realloc(tree_is_expanded,
-	    (num_tree_types + num_indices)*sizeof (gint));
-
-	/*
 	 * Assign "num_indices" subtree numbers starting at "num_tree_types",
 	 * returning the indices through the pointers in the array whose
-	 * first element is pointed to by "indices", set to FALSE the
-	 * elements to which those subtree numbers refer, and update
+	 * first element is pointed to by "indices", and update
 	 * "num_tree_types" appropriately.
 	 */
-	for (i = 0; i < num_indices; i++, ptr++, num_tree_types++) {
-		tree_is_expanded[num_tree_types] = FALSE;
+	for (i = 0; i < num_indices; i++, ptr++, num_tree_types++)
 		**ptr = num_tree_types;
-	}
 }
 
 void

@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.49 2002/03/31 23:11:04 guy Exp $
+ * $Id: proto_draw.c,v 1.50 2002/04/01 02:00:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -166,6 +166,7 @@ expand_tree(GtkCTree *ctree, GtkCTreeNode *node, gpointer user_data _U_)
 
 	finfo = gtk_ctree_node_get_row_data( ctree, node);
 	g_assert(finfo);
+	g_assert(finfo->tree_type >= 0 && finfo->tree_type < num_tree_types);
 
 	val = &tree_is_expanded[finfo->tree_type];
 	*val = TRUE;
@@ -179,6 +180,7 @@ collapse_tree(GtkCTree *ctree, GtkCTreeNode *node, gpointer user_data _U_)
 
 	finfo = gtk_ctree_node_get_row_data( ctree, node);
 	g_assert(finfo);
+	g_assert(finfo->tree_type >= 0 && finfo->tree_type < num_tree_types);
 
 	val = &tree_is_expanded[finfo->tree_type];
 	*val = FALSE;
@@ -905,6 +907,7 @@ proto_tree_draw_node(GNode *node, gpointer data)
 
 	if (g_node_n_children(node) > 0) {
 		is_leaf = FALSE;
+		g_assert(fi->tree_type >= 0 && fi->tree_type < num_tree_types);
 		if (tree_is_expanded[fi->tree_type]) {
 			is_expanded = TRUE;
 		}

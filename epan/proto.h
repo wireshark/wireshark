@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.28 2002/02/18 01:08:42 guy Exp $
+ * $Id: proto.h,v 1.29 2002/04/01 02:00:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -556,10 +556,7 @@ extern void proto_registrar_dump(void);
 
 /* Points to the first element of an array of Booleans, indexed by
    a subtree item type; that array element is TRUE if subtrees of
-   an item of that type are to be expanded.
-
-   ETT_NONE is reserved for unregistered subtree types. */
-#define	ETT_NONE	0
+   an item of that type are to be expanded. */
 extern gboolean	     *tree_is_expanded;
 
 /* Number of elements in that array. */
