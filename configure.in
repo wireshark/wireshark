@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.154 2002/02/27 09:42:38 guy Exp $
+# $Id: configure.in,v 1.155 2002/03/01 03:42:13 gerald Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -499,7 +499,7 @@ AC_SUBST(SSL_LIBS)
 
 dnl SNMP Check
 AC_ARG_ENABLE(snmp,
-[  --enable-snmp           use SNMP library, if available.  [default=yes]],,enable_snmp=yes)
+[  --enable-snmp           use SNMP library, if available.  [default=no]],,enable_snmp=no)
 
 SNMP_LIBS=''
 AC_MSG_CHECKING(whether to use SNMP library if available)
