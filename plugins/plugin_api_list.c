@@ -525,3 +525,7 @@ void dcerpc_init_uuid (int proto, int ett, e_uuid_t *uuid, guint16 ver, dcerpc_s
 int dissect_ndr_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         proto_tree *tree, guint8 *drep,
                         int hfindex, guint32 *pdata);
+
+proto_item *proto_tree_add_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+		gint start, gint length, guint64 value);			
+

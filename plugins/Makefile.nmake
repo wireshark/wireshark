@@ -136,6 +136,8 @@ clean:
 	rm -f plugin_api.obj $(PDB_FILE)
 	cd acn
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../agentx
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../artnet
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../asn1
@@ -179,6 +181,8 @@ clean:
 distclean: clean
 	cd acn
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../agentx
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../artnet
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../asn1
@@ -221,6 +225,8 @@ distclean: clean
 
 maintainer-clean: distclean
 	cd acn
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../agentx
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../artnet
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
