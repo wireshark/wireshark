@@ -908,6 +908,7 @@ Motonori Shindo <mshindo[AT]mshindo.net> {
 	OSPF fixes
 	Support for reading CoSine L2 debug output
 	Assorted LDP enhancements and fixes
+	Key Information dissection in EAPOL-Key messages
 }
 
 Terje Krogdahl <tekr[AT]nextra.com> {
