@@ -42,6 +42,18 @@
  *
  * for PCT 1 draft specs.
  *
+ * See 
+ *
+ *	http://research.sun.com/projects/crypto/draft-ietf-tls-ecc-05.txt
+ *
+ * for Elliptic Curve Cryptography cipher suites.
+ *
+ * See
+ *
+ * 	http://www.ietf.org/internet-drafts/draft-ietf-tls-camellia-04.txt
+ *
+ * for Camellia-based cipher suites.
+ *
  * Notes:
  *
  *   - Uses conversations in a no-malloc fashion.  Since we just want to
@@ -347,6 +359,18 @@ static const value_string ssl_20_cipher_suites[] = {
     { 0x000038, "TLS_DHE_DSS_WITH_AES_256_CBC_SHA" },
     { 0x000039, "TLS_DHE_RSA_WITH_AES_256_CBC_SHA" },
     { 0x00003A, "TLS_DH_anon_WITH_AES_256_CBC_SHA" },
+    { 0x000041, "TLS_RSA_WITH_CAMELLIA_128_CBC_SHA" },
+    { 0x000042, "TLS_DH_DSS_WITH_CAMELLIA_128_CBC_SHA" },
+    { 0x000043, "TLS_DH_RSA_WITH_CAMELLIA_128_CBC_SHA" },
+    { 0x000044, "TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA" },
+    { 0x000045, "TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA" },
+    { 0x000046, "TLS_DH_anon_WITH_CAMELLIA_128_CBC_SHA" },
+    { 0x000047, "TLS_ECDH_ECDSA_WITH_NULL_SHA" },
+    { 0x000048, "TLS_ECDH_ECDSA_WITH_RC4_128_SHA" },
+    { 0x000049, "TLS_ECDH_ECDSA_WITH_DES_CBC_SHA" },
+    { 0x00004A, "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA" },
+    { 0x00004B, "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA" },
+    { 0x00004C, "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA" },
     { 0x000060, "TLS_RSA_EXPORT1024_WITH_RC4_56_MD5" },
     { 0x000061, "TLS_RSA_EXPORT1024_WITH_RC2_CBC_56_MD5" },
     { 0x000062, "TLS_RSA_EXPORT1024_WITH_DES_CBC_SHA" },
@@ -354,6 +378,12 @@ static const value_string ssl_20_cipher_suites[] = {
     { 0x000064, "TLS_RSA_EXPORT1024_WITH_RC4_56_SHA" },
     { 0x000065, "TLS_DHE_DSS_EXPORT1024_WITH_RC4_56_SHA" },
     { 0x000066, "TLS_DHE_DSS_WITH_RC4_128_SHA" },
+    { 0x000084, "TLS_RSA_WITH_CAMELLIA_256_CBC_SHA" },
+    { 0x000085, "TLS_DH_DSS_WITH_CAMELLIA_256_CBC_SHA" },
+    { 0x000086, "TLS_DH_RSA_WITH_CAMELLIA_256_CBC_SHA" },
+    { 0x000087, "TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA" },
+    { 0x000088, "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA" },
+    { 0x000089, "TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA" },
     /* these from http://www.mozilla.org/projects/
          security/pki/nss/ssl/fips-ssl-ciphersuites.html */
     { 0x00fefe, "SSL_RSA_FIPS_WITH_DES_CBC_SHA"},
