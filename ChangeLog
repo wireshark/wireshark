@@ -104,7 +104,7 @@ Changed paths:
    M /trunk/epan/dissectors/Makefile.common
    A /trunk/epan/dissectors/packet-dhcp-failover.c
 
-M. Ortega y Strupp      <moys@loplof.de>
+M. Ortega y Strupp      <moys [AT] loplof.de>
 ISC DHCP Server 3.0 failover protocol dissection
 
 Note: I tried to make the port configurable via prefs
@@ -7228,7 +7228,7 @@ Changed paths:
    M /trunk/doc/README.idl2eth
    M /trunk/idl2eth.sh
 
-From Debian. Likely author: Frederic Peters <fpeters@debian.org>
+From Debian. Likely author: Frederic Peters <fpeters [AT] debian.org>
  * Updated omniorb URL (closes: #257512)
  run pod2man with --section=4 for ethereal-filter
 
@@ -7271,7 +7271,7 @@ This patch has been part of RedHat since 0.9.16, unfortunately
 the patch never made it into the mainline source.
 
 The patch seems to be authored by Phil Knirsch  (from ethereal.spec:
-* Tue Nov 25 2003 Phil Knirsch <pknirsch@redhat.com> 0.9.16-3
+* Tue Nov 25 2003 Phil Knirsch <pknirsch [AT] redhat.com> 0.9.16-3
 - Fixed out of bound array access (#110749).
 
 
@@ -7386,7 +7386,7 @@ r11368 | ulfl | 2004-07-12 16:00:40 -0500 (Mon, 12 Jul 2004) | 3 lines
 Changed paths:
    M /trunk/mergecap.c
 
-bugfix to a bug reported by jprakashbabu@hotpop.com:
+bugfix to a bug reported by jprakashbabu [AT] hotpop.com:
 mergecap didn't created a new output file
 
 ------------------------------------------------------------------------
