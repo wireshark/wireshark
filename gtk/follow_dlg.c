@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.18 2002/01/18 07:25:22 guy Exp $
+ * $Id: follow_dlg.c,v 1.19 2002/01/18 19:46:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -561,7 +561,9 @@ follow_read_stream(follow_info_t *follow_info,
 				/* Now dump bytes as text */
 				for (i = 0; i < 16 && current_pos + i < nchars;
 				     i++) {
-				    hexbuf[cur++] = (isprint(buffer[current_pos + i]) ? buffer[current_pos + i] : '.' );
+				    hexbuf[cur++] =
+				        (isprint((guchar)buffer[current_pos + i]) ?
+				        buffer[current_pos + i] : '.' );
 				    if (i == 7) {
 					hexbuf[cur++] = ' ';
 				    } 
