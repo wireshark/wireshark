@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.26 2000/11/13 08:58:01 guy Exp $
+ * $Id: packet-http.c,v 1.27 2000/11/15 08:27:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,7 +40,6 @@
 
 #include <glib.h>
 #include "packet.h"
-#include "packet-ipp.h"
 #include "strutil.h"
 
 typedef enum _http_type {
@@ -62,6 +61,8 @@ static gint ett_http = -1;
 
 static int is_http_request_or_reply(const u_char *data, int linelen, http_type_t *type);
 
+static dissector_handle_t ipp_handle;
+
 void
 dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -79,7 +80,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	CHECK_DISPLAY_AS_DATA(proto_http, tvb, pinfo, tree);
 
-	pinfo->current_proto = is_ipp ? "IPP" : "HTTP";
+	pinfo->current_proto = "HTTP";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_add_str(pinfo->fd, COL_PROTOCOL, is_ipp ? "IPP" : "HTTP");
@@ -218,7 +219,6 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	datalen = tvb_length_remaining(tvb, offset);
 	if (datalen > 0) {
 		tvbuff_t *new_tvb = tvb_new_subset(tvb, offset, -1, -1);
-		const guint8 *pd;
 
 		if (is_ipp) {
 			/*
@@ -228,12 +228,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (ti != NULL)
 				proto_item_set_len(ti, offset);
 
-			/*
-			 * Now create a tvbuff for the IPP stuff, and dissect
-			 * it.
-			 */
-			tvb_compat(new_tvb, &pd, &offset);
-			dissect_ipp(pd, offset, pinfo->fd, tree);
+			call_dissector(ipp_handle, new_tvb, pinfo, tree);
 		} else
 			dissect_data(new_tvb, pinfo, http_tree);
 	}
@@ -322,4 +317,9 @@ proto_reg_handoff_http(void)
 	dissector_add("tcp.port", TCP_ALT_PORT_HTTP, dissect_http);
 	dissector_add("tcp.port", TCP_PORT_PROXY_HTTP, dissect_http);
 	dissector_add("tcp.port", TCP_PORT_PROXY_ADMIN_HTTP, dissect_http);
+
+	/*
+	 * Get a handle for the IPP dissector.
+	 */
+	ipp_handle = find_dissector("ipp");
 }

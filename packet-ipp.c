@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-ipp.c,v 1.14 2000/11/13 07:18:46 guy Exp $
+ * $Id: packet-ipp.c,v 1.15 2000/11/15 08:27:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -143,56 +143,61 @@ static const value_string status_vals[] = {
     { 0,                                 NULL }
 };
 
-static int parse_attributes(const u_char *pd, int offset, frame_data *fd,
-    proto_tree *tree);
-static proto_tree *add_integer_tree(proto_tree *tree, const u_char *pd,
+static int parse_attributes(tvbuff_t *tvb, int offset, proto_tree *tree);
+static proto_tree *add_integer_tree(proto_tree *tree, tvbuff_t *tvb,
     int offset, int name_length, int value_length);
 static void add_integer_value(guint tag, gchar *tag_desc, proto_tree *tree,
-    const u_char *pd, int offset, int name_length, int value_length);
-static proto_tree *add_octetstring_tree(proto_tree *tree, const u_char *pd,
+    tvbuff_t *tvb, int offset, int name_length, int value_length);
+static proto_tree *add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb,
     int offset, int name_length, int value_length);
 static void add_octetstring_value(guint tag, gchar *tag_desc, proto_tree *tree,
-    const u_char *pd, int offset, int name_length, int value_length);
-static proto_tree *add_charstring_tree(proto_tree *tree, const u_char *pd,
+    tvbuff_t *tvb, int offset, int name_length, int value_length);
+static proto_tree *add_charstring_tree(proto_tree *tree, tvbuff_t *tvb,
     int offset, int name_length, int value_length);
 static void add_charstring_value(guint tag, gchar *tag_desc, proto_tree *tree,
-    const u_char *pd, int offset, int name_length, int value_length);
+    tvbuff_t *tvb, int offset, int name_length, int value_length);
 static int add_value_head(guint tag, gchar *tag_desc, proto_tree *tree,
-    const u_char *pd, int offset, int name_length, int value_length);
+    tvbuff_t *tvb, int offset, int name_length, int value_length);
 
-void dissect_ipp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+static void
+dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree *ipp_tree;
 	proto_item *ti;
-	gboolean is_request = (pi.destport == 631);
+	int offset = 0;
+	gboolean is_request = (pinfo->destport == 631);
 	guint16 status_code;
 	gchar *status_fmt;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_ipp, pd, offset, fd, tree);
+	CHECK_DISPLAY_AS_DATA(proto_ipp, tvb, pinfo, tree);
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "IPP");
-	if (check_col(fd, COL_INFO)) {
+	pinfo->current_proto = "IPP";
+
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_add_str(pinfo->fd, COL_PROTOCOL, "IPP");
+	if (check_col(pinfo->fd, COL_INFO)) {
 		if (is_request)
-			col_add_str(fd, COL_INFO, "IPP request");
+			col_add_str(pinfo->fd, COL_INFO, "IPP request");
 		else
-			col_add_str(fd, COL_INFO, "IPP response");
+			col_add_str(pinfo->fd, COL_INFO, "IPP response");
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ipp, NullTVB, offset, END_OF_FRAME, FALSE);
+		ti = proto_tree_add_item(tree, proto_ipp, tvb, offset,
+		    tvb_length_remaining(tvb, offset), FALSE);
 		ipp_tree = proto_item_add_subtree(ti, ett_ipp);
 
-		proto_tree_add_text(ipp_tree, NullTVB, offset, 2, "Version: %u.%u",
-		    pd[offset], pd[offset + 1]);
+		proto_tree_add_text(ipp_tree, tvb, offset, 2, "Version: %u.%u",
+		    tvb_get_guint8(tvb, offset),
+		    tvb_get_guint8(tvb, offset + 1));
 		offset += 2;
 
 		if (is_request) {
-			proto_tree_add_text(ipp_tree, NullTVB, offset, 2, "Operation-id: %s",
-			    val_to_str(pntohs(&pd[offset]), operation_vals,
+			proto_tree_add_text(ipp_tree, tvb, offset, 2, "Operation-id: %s",
+			    val_to_str(tvb_get_ntohs(tvb, offset), operation_vals,
 			        "Unknown (0x%04x)"));
 		} else {
-			status_code = pntohs(&pd[offset]);
+			status_code = tvb_get_ntohs(tvb, offset);
 			switch (status_code & STATUS_TYPE_MASK) {
 
 			case STATUS_SUCCESSFUL:
@@ -219,19 +224,23 @@ void dissect_ipp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				status_fmt = "Unknown (0x%04x)";
 				break;
 			}
-			proto_tree_add_text(ipp_tree, NullTVB, offset, 2, "Status-code: %s",
+			proto_tree_add_text(ipp_tree, tvb, offset, 2, "Status-code: %s",
 			    val_to_str(status_code, status_vals, status_fmt));
 		}
 		offset += 2;
 
-		proto_tree_add_text(ipp_tree, NullTVB, offset, 4, "Request ID: %u",
-		    pntohl(&pd[offset]));
+		proto_tree_add_text(ipp_tree, tvb, offset, 4, "Request ID: %u",
+		    tvb_get_ntohl(tvb, offset));
 		offset += 4;
 
-		offset = parse_attributes(pd, offset, fd, ipp_tree);
+		offset = parse_attributes(tvb, offset, ipp_tree);
 
-		if (IS_DATA_IN_FRAME(offset))
-			old_dissect_data(pd, offset, fd, ipp_tree);
+		if (tvb_offset_exists(tvb, offset)) {
+			proto_tree_add_text(ipp_tree, tvb, offset,
+			    tvb_length_remaining(tvb, offset),
+			    "Data (%d bytes)",
+			    tvb_length_remaining(tvb, offset));
+		}
 	}
 }
 
@@ -296,7 +305,7 @@ static const value_string tag_vals[] = {
 };
 
 static int
-parse_attributes(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+parse_attributes(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	guint8 tag;
 	gchar *tag_desc;
@@ -306,8 +315,8 @@ parse_attributes(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	int start_offset = offset;
 	proto_tree *attr_tree = tree;
 
-	while (IS_DATA_IN_FRAME(offset)) {
-		tag = pd[offset];
+	while (tvb_offset_exists(tvb, offset)) {
+		tag = tvb_get_guint8(tvb, offset);
 		tag_desc = val_to_str(tag, tag_vals, "Reserved (0x%02x)");
 		if (TAG_TYPE(tag) == TAG_TYPE_DELIMITER) {
 			/*
@@ -338,7 +347,7 @@ parse_attributes(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			/*
 			 * Now create a new item for this tag.
 			 */
-			tas = proto_tree_add_text(tree, NullTVB, offset, 1,
+			tas = proto_tree_add_text(tree, tvb, offset, 1,
 			    "%s", tag_desc);
 			offset++;
 			if (tag == TAG_END_OF_ATTRIBUTES) {
@@ -351,42 +360,17 @@ parse_attributes(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			/*
 			 * Value tag - get the name length.
 			 */
-			if (!BYTES_ARE_IN_FRAME(offset + 1, 2)) {
-				/*
-				 * We ran past the end of the frame.
-				 * Quit (we need to be able to handle
-				 * stuff that crosses frames to do more)
-				 */
-				break;
-			}
-			name_length = pntohs(&pd[offset + 1]);
+			name_length = tvb_get_ntohs(tvb, offset + 1);
 
 			/*
 			 * OK, get the value length.
 			 */
-			if (!BYTES_ARE_IN_FRAME(offset + 1 + 2, name_length)) {
-				/*
-				 * We ran past the end of the frame.
-				 * Quit (we need to be able to handle
-				 * stuff that crosses frames to do more)
-				 */
-				break;
-			}
-			value_length = pntohs(&pd[offset + 1 + 2 + name_length]);
+			value_length = tvb_get_ntohs(tvb, offset + 1 + 2 + name_length);
 
 			/*
 			 * OK, does the value run past the end of the
 			 * frame?
 			 */
-			if (!BYTES_ARE_IN_FRAME(offset + 1 + 2 + name_length + 2,
-			    value_length)) {
-				/*
-				 * We ran past the end of the frame.
-				 * Quit (we need to be able to handle
-				 * stuff that crosses frames to do more)
-				 */
-				break;
-			}
 			if (as_tree == NULL) {
 				/*
 				 * OK, there's an attribute to hang
@@ -409,10 +393,10 @@ parse_attributes(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 					 * start a tree for it.
 					 */
 					attr_tree = add_integer_tree(as_tree,
-					    pd, offset, name_length,
+					    tvb, offset, name_length,
 					    value_length);
 				}
-				add_integer_value(tag, tag_desc, attr_tree, pd,
+				add_integer_value(tag, tag_desc, attr_tree, tvb,
 				    offset, name_length, value_length);
 				break;
 
@@ -424,11 +408,11 @@ parse_attributes(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 					 * start a tree for it.
 					 */
 					attr_tree = add_octetstring_tree(as_tree,
-					    pd, offset, name_length,
+					    tvb, offset, name_length,
 					    value_length);
 				}
 				add_octetstring_value(tag, tag_desc,
-				    attr_tree, pd, offset, name_length,
+				    attr_tree, tvb, offset, name_length,
 				    value_length);
 				break;
 
@@ -440,11 +424,11 @@ parse_attributes(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 					 * start a tree for it.
 					 */
 					attr_tree = add_charstring_tree(as_tree,
-					    pd, offset, name_length,
+					    tvb, offset, name_length,
 					    value_length);
 				}
 				add_charstring_value(tag, tag_desc,
-				    attr_tree, pd, offset, name_length,
+				    attr_tree, tvb, offset, name_length,
 				    value_length);
 				break;
 			}
@@ -456,103 +440,108 @@ parse_attributes(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 }
 
 static proto_tree *
-add_integer_tree(proto_tree *tree, const u_char *pd, int offset,
+add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
     int name_length, int value_length)
 {
 	proto_item *ti;
 
 	if (value_length != 4) {
-		ti = proto_tree_add_text(tree, NullTVB, offset,
+		ti = proto_tree_add_text(tree, tvb, offset,
 		    1 + 2 + name_length + 2 + value_length,
 		    "%.*s: Invalid integer (length is %u, should be 4)",
-		    name_length, &pd[offset + 1 + 2],
+		    name_length,
+		    tvb_get_ptr(tvb, offset + 1 + 2, name_length),
 		    value_length);
 	} else {
-		ti = proto_tree_add_text(tree, NullTVB, offset,
+		ti = proto_tree_add_text(tree, tvb, offset,
 		    1 + 2 + name_length + 2 + value_length,
 		    "%.*s: %u",
-		    name_length, &pd[offset + 1 + 2],
-		    pntohl(&pd[offset + 1 + 2 + name_length + 2]));
+		    name_length,
+		    tvb_get_ptr(tvb, offset + 1 + 2, name_length),
+		    tvb_get_ntohl(tvb, offset + 1 + 2 + name_length + 2));
 	}
 	return proto_item_add_subtree(ti, ett_ipp_attr);
 }
 
 static void
 add_integer_value(guint tag, gchar *tag_desc, proto_tree *tree,
-    const u_char *pd, int offset, int name_length, int value_length)
+    tvbuff_t *tvb, int offset, int name_length, int value_length)
 {
-	offset = add_value_head(tag, tag_desc, tree, pd, offset,
+	offset = add_value_head(tag, tag_desc, tree, tvb, offset,
 	    name_length, value_length);
 	if (value_length == 4) {
-		proto_tree_add_text(tree, NullTVB, offset, value_length,
-		    "Value: %u", pntohl(&pd[offset]));
+		proto_tree_add_text(tree, tvb, offset, value_length,
+		    "Value: %u", tvb_get_ntohl(tvb, offset));
 	}
 }
 
 static proto_tree *
-add_octetstring_tree(proto_tree *tree, const u_char *pd, int offset,
+add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
     int name_length, int value_length)
 {
 	proto_item *ti;
 
-	ti = proto_tree_add_text(tree, NullTVB, offset,
+	ti = proto_tree_add_text(tree, tvb, offset,
 	    1 + 2 + name_length + 2 + value_length,
 	    "%.*s: %s",
 	    name_length,
-	    &pd[offset + 1 + 2],
-	    bytes_to_str(&pd[offset + 1 + 2 + name_length + 2], value_length));
+	    tvb_get_ptr(tvb, offset + 1 + 2, name_length),
+	    tvb_bytes_to_str(tvb, offset + 1 + 2 + name_length + 2, value_length));
 	return proto_item_add_subtree(ti, ett_ipp_attr);
 }
 
 static void
 add_octetstring_value(guint tag, gchar *tag_desc, proto_tree *tree,
-    const u_char *pd, int offset, int name_length, int value_length)
+    tvbuff_t *tvb, int offset, int name_length, int value_length)
 {
-	offset = add_value_head(tag, tag_desc, tree, pd, offset,
+	offset = add_value_head(tag, tag_desc, tree, tvb, offset,
 	    name_length, value_length);
-	proto_tree_add_text(tree, NullTVB, offset, value_length,
-	    "Value: %s", bytes_to_str(&pd[offset], value_length));
+	proto_tree_add_text(tree, tvb, offset, value_length,
+	    "Value: %s", tvb_bytes_to_str(tvb, offset, value_length));
 }
 
 static proto_tree *
-add_charstring_tree(proto_tree *tree, const u_char *pd, int offset,
+add_charstring_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
     int name_length, int value_length)
 {
 	proto_item *ti;
 
-	ti = proto_tree_add_text(tree, NullTVB, offset,
+	ti = proto_tree_add_text(tree, tvb, offset,
 	    1 + 2 + name_length + 2 + value_length,
 	    "%.*s: %.*s",
-	    name_length, &pd[offset + 1 + 2],
-	    value_length, &pd[offset + 1 + 2 + name_length + 2]);
+	    name_length,
+	    tvb_get_ptr(tvb, offset + 1 + 2, name_length),
+	    value_length,
+	    tvb_get_ptr(tvb, offset + 1 + 2 + name_length + 2, value_length));
 	return proto_item_add_subtree(ti, ett_ipp_attr);
 }
 
 static void
 add_charstring_value(guint tag, gchar *tag_desc, proto_tree *tree,
-    const u_char *pd, int offset, int name_length, int value_length)
+    tvbuff_t *tvb, int offset, int name_length, int value_length)
 {
-	offset = add_value_head(tag, tag_desc, tree, pd, offset,
+	offset = add_value_head(tag, tag_desc, tree, tvb, offset,
 	    name_length, value_length);
-	proto_tree_add_text(tree, NullTVB, offset, value_length,
-	    "Value: %.*s", value_length, &pd[offset]);
+	proto_tree_add_text(tree, tvb, offset, value_length,
+	    "Value: %.*s", value_length, tvb_get_ptr(tvb, offset, value_length));
 }
 
 static int
 add_value_head(guint tag, gchar *tag_desc, proto_tree *tree,
-    const u_char *pd, int offset, int name_length, int value_length)
+    tvbuff_t *tvb, int offset, int name_length, int value_length)
 {
-	proto_tree_add_text(tree, NullTVB, offset, 1, "Tag: %s", tag_desc);
+	proto_tree_add_text(tree, tvb, offset, 1, "Tag: %s", tag_desc);
 	offset += 1;
-	proto_tree_add_text(tree, NullTVB, offset, 2, "Name length: %u",
+	proto_tree_add_text(tree, tvb, offset, 2, "Name length: %u",
 	    name_length);
 	offset += 2;
 	if (name_length != 0) {
-		proto_tree_add_text(tree, NullTVB, offset, name_length,
-		    "Name: %.*s", name_length, &pd[offset]);
+		proto_tree_add_text(tree, tvb, offset, name_length,
+		    "Name: %.*s", name_length,
+		    tvb_get_ptr(tvb, offset, name_length));
 	}
 	offset += name_length;
-	proto_tree_add_text(tree, NullTVB, offset, 2, "Value length: %u",
+	proto_tree_add_text(tree, tvb, offset, 2, "Value length: %u",
 	    value_length);
 	offset += 2;
 	return offset;
@@ -574,6 +563,14 @@ proto_register_ipp(void)
         proto_ipp = proto_register_protocol("Internet Printing Protocol", "ipp");
  /*       proto_register_field_array(proto_ipp, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
+
+	/*
+	 * Register the dissector by name, so other dissectors can
+	 * grab it by name rather than just referring to it directly
+	 * (you can't refer to it directly from a plugin dissector
+	 * on Windows without stuffing it into the Big Transfer Vector).
+	 */
+	register_dissector("ipp", dissect_ipp);
 }
 
 void
