@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.67 2002/06/19 09:18:45 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.68 2002/06/19 17:57:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1630,7 +1630,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       can_decrypt = TRUE;
     }
 
-    if (!can_decrypt || (next_tvb = try_decrypt_wep(tvb, hdr_len, reported_len - hdr_len + 4)) == NULL) {
+    if (!can_decrypt || (next_tvb = try_decrypt_wep(tvb, hdr_len, reported_len + 8)) == NULL) {
       /*
        * WEP decode impossible or failed, treat payload as raw data
        * and don't attempt fragment reassembly or further dissection.
@@ -1647,14 +1647,11 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
      * WEP decryption successful!
      *
      * Use the tvbuff we got back from the decryption; the data starts at
-     * the beginning, and doesn't include the 802.11 header or the WEP
-     * IV, so subtract "hdr_len + 4" from the lengths we computed above,
-     * and set "hdr_len" to 0 so the code below starts at the beginning
-     * of "next_tvb".
+     * the beginning.  The lengths are already correct for the decoded WEP
+     * payload.
      */
-    reported_len -= hdr_len + 4;
-    len -= hdr_len + 4;
     hdr_len = 0;
+
   } else {
     /*
      * Not a WEP-encrypted frame; just use the data from the tvbuff
