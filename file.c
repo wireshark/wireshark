@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.376 2004/04/20 22:34:08 ulfl Exp $
+ * $Id: file.c,v 1.377 2004/04/22 17:03:20 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1491,6 +1491,7 @@ typedef struct {
   gboolean      print_header_line;
   char         *header_line_buf;
   int           header_line_buf_len;
+  gboolean      print_formfeed;
   gboolean      print_separator;
   char         *line_buf;
   int           line_buf_len;
@@ -1520,10 +1521,14 @@ print_packet(capture_file *cf, frame_data *fdata,
   epan_dissect_run(edt, pseudo_header, pd, fdata, &cf->cinfo);
   epan_dissect_fill_in_columns(edt);
 
-  if (args->print_separator)
-    print_line(args->print_fh, 0, args->print_args->format, "");
+  if (args->print_formfeed) {
+    print_formfeed(args->print_fh, args->print_args->format);
+  } else {
+      if (args->print_separator)
+        print_line(args->print_fh, 0, args->print_args->format, "");
+  }
 
-  if (args->print_args->print_summary) {
+  if (args->print_args->print_summary || args->print_args->format == PR_FMT_PS) {
     if (args->print_header_line) {
       print_line(args->print_fh, 0, args->print_args->format,
                  args->header_line_buf);
@@ -1557,7 +1562,12 @@ print_packet(capture_file *cf, frame_data *fdata,
         *cp++ = ' ';
     }
     *cp = '\0';
-    print_line(args->print_fh, 0, args->print_args->format, args->line_buf);
+
+    print_packet_header(args->print_fh, args->print_args->format, fdata->num, args->line_buf);
+
+    if (args->print_args->print_summary) {
+        print_line(args->print_fh, 0, args->print_args->format, args->line_buf);
+    }
   } /* if (print_summary) */
   
   if (args->print_args->print_dissections != print_dissections_none) {
@@ -1589,6 +1599,11 @@ print_packet(capture_file *cf, frame_data *fdata,
 
   epan_dissect_free(edt);
 
+  /* do we want to have a formfeed between each packet from now on? */
+  if(args->print_args->print_formfeed) {
+    args->print_formfeed = TRUE;
+  }
+
   return !ferror(args->print_fh);
 }
 
@@ -1619,11 +1634,12 @@ print_packets(capture_file *cf, print_args_t *print_args)
   callback_args.print_header_line = TRUE;
   callback_args.header_line_buf = NULL;
   callback_args.header_line_buf_len = 256;
+  callback_args.print_formfeed = FALSE;
   callback_args.print_separator = FALSE;
   callback_args.line_buf = NULL;
   callback_args.line_buf_len = 256;
   callback_args.col_widths = NULL;
-  if (print_args->print_summary) {
+  if (print_args->print_summary || print_args->format == PR_FMT_PS) {
     /* We're printing packet summaries.  Allocate the header line buffer
        and get the column widths. */
     callback_args.header_line_buf = g_malloc(callback_args.header_line_buf_len + 1);

@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.67 2004/04/17 11:50:14 ulfl Exp $
+ * $Id: print_dlg.c,v 1.68 2004/04/22 17:03:21 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -92,6 +92,7 @@ static gchar * print_cmd;
 #define PRINT_AS_DISPLAYED_RB_KEY "printer_as_displayed_radio_button"
 #define PRINT_EXPAND_ALL_RB_KEY   "printer_expand_all_radio_button"
 #define PRINT_HEX_CB_KEY          "printer_hex_check_button"
+#define PRINT_FORMFEED_CB_KEY     "printer_formfeed_check_button"
 
 #define PRINT_BT_KEY              "printer_button"
 
@@ -340,6 +341,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   GtkWidget     *details_hb, *details_vb;
   GtkWidget     *collapse_all_rb, *as_displayed_rb, *expand_all_rb;
   GtkWidget     *hex_cb;
+  GtkWidget     *sep, *formfeed_cb;
 
   GtkWidget     *bbox, *ok_bt, *cancel_bt;
 
@@ -689,6 +691,19 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_container_add(GTK_CONTAINER(format_vb), hex_cb);
   gtk_widget_show(hex_cb);
 
+  /* seperator */
+  sep = gtk_hseparator_new();
+  gtk_container_add(GTK_CONTAINER(format_vb), sep);
+  gtk_widget_show(sep);
+
+  /* "Each packet on a new page" check button. */
+  formfeed_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Each packet on a new page", accel_group);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(formfeed_cb), FALSE);
+  gtk_tooltips_set_tip (tooltips, formfeed_cb, ("When checked, a new page will be used for each packet printed. "
+      "This is done by adding a formfeed (or similar) between the packet printouts."), NULL);
+  gtk_container_add(GTK_CONTAINER(format_vb), formfeed_cb);
+  gtk_widget_show(formfeed_cb);
+
 
   OBJECT_SET_DATA(print_w, PRINT_SUMMARY_CB_KEY, summary_cb);
   OBJECT_SET_DATA(print_w, PRINT_DETAILS_CB_KEY, details_cb);
@@ -724,6 +739,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   OBJECT_SET_DATA(ok_bt, PRINT_AS_DISPLAYED_RB_KEY, as_displayed_rb);
   OBJECT_SET_DATA(ok_bt, PRINT_EXPAND_ALL_RB_KEY, expand_all_rb);
   OBJECT_SET_DATA(ok_bt, PRINT_HEX_CB_KEY, hex_cb);
+  OBJECT_SET_DATA(ok_bt, PRINT_FORMFEED_CB_KEY, formfeed_cb);
   SIGNAL_CONNECT(ok_bt, "clicked", print_ok_cb, print_w);
   gtk_widget_grab_default(ok_bt);
 
@@ -909,6 +925,9 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_HEX_CB_KEY);
   print_args.print_hex = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button));
+
+  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_FORMFEED_CB_KEY);
+  print_args.print_formfeed = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button));
 
   print_args.range = range;
 

@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.77 2004/04/20 22:34:08 ulfl Exp $
+ * $Id: print.c,v 1.78 2004/04/22 17:03:20 ulfl Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -715,8 +715,9 @@ print_preamble(FILE *fh, gint format, gchar *filename)
         break;
     case(PR_FMT_PS):
 		print_ps_preamble(fh);
-		fputs("%% Set the font to 8 point\n", fh);
-		fputs("/Courier findfont 8 scalefont setfont\n", fh);
+
+		fputs("%% Set the font to 10 point\n", fh);
+		fputs("/Courier findfont 10 scalefont setfont\n", fh);
 		fputs("\n", fh);
 		fputs("%% the page title\n", fh);
 		ps_clean_string(psbuffer, filename, MAX_PS_LINE_LENGTH);
@@ -732,6 +733,53 @@ print_preamble(FILE *fh, gint format, gchar *filename)
 		fputs("<?xml version=\"1.0\"?>\n", fh);
 		fputs("<psml version=\"" PSML_VERSION "\" ", fh);
 		fprintf(fh, "creator=\"%s/%s\">\n", PACKAGE, VERSION);
+        break;
+    default:
+		g_assert_not_reached();
+	}
+}
+
+void
+print_packet_header(FILE *fh, gint format, guint32 number, gchar *summary) {
+	char		psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
+
+    
+    switch(format) {
+    case(PR_FMT_TEXT):
+        /* do nothing */
+        break;
+    case(PR_FMT_PS):
+		ps_clean_string(psbuffer, summary, MAX_PS_LINE_LENGTH);
+        fprintf(fh, "[/Dest /__frame%u__ /Title (%s)   /OUT pdfmark\n", number, psbuffer);
+        fputs("[/View [/XYZ -4 currentpoint matrix currentmatrix matrix defaultmatrix\n", fh);
+        fputs("matrix invertmatrix matrix concatmatrix transform exch pop 20 add null]\n", fh);
+        fprintf(fh, "/Dest /__frame%u__ /DEST pdfmark\n", number);
+        break;
+    case(PR_FMT_PDML):
+        /* do nothing */
+        break;
+    case(PR_FMT_PSML):
+        /* do nothing */
+        break;
+    default:
+		g_assert_not_reached();
+	}
+}
+
+void
+print_formfeed(FILE *fh, gint format) {
+    switch(format) {
+    case(PR_FMT_TEXT):
+		fputs("\f", fh);
+        break;
+    case(PR_FMT_PS):
+		fputs("formfeed\n", fh);
+        break;
+    case(PR_FMT_PDML):
+        /* do nothing */
+        break;
+    case(PR_FMT_PSML):
+        /* do nothing */
         break;
     default:
 		g_assert_not_reached();
