@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.75 2003/01/30 22:38:47 guy Exp $
+ * $Id: netxray.c,v 1.76 2003/01/31 01:02:08 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -280,7 +280,7 @@ int netxray_open(wtap *wth, int *err)
 				/*
 				 * Frame Relay.
 				 */
-				file_encap = WTAP_ENCAP_FRELAY;
+				file_encap = WTAP_ENCAP_FRELAY_WITH_PHDR;
 				break;
 
 			case 6:
@@ -633,8 +633,9 @@ netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
 			break;
 
 		case WTAP_ENCAP_LAPB:
+		case WTAP_ENCAP_FRELAY_WITH_PHDR:
 			/*
-			 * LAPB/X.25.
+			 * LAPB/X.25 and Frame Relay.
 			 *
 			 * The bottommost bit of byte 12 of "hdr.hdr_2_x.xxx"
 			 * is the direction flag.  (Probably true for other
@@ -944,11 +945,11 @@ static const struct {
 	int	wtap_encap_value;
 	int	ndis_value;
 } wtap_encap_2_0[] = {
-    { WTAP_ENCAP_ETHERNET, 0 },		/* -> NDIS Ethernet */
-    { WTAP_ENCAP_TOKEN_RING, 1 },	/* -> NDIS Token Ring */
-    { WTAP_ENCAP_FDDI, 2 },		/* -> NDIS FDDI */
-    { WTAP_ENCAP_FDDI_BITSWAPPED, 2 },	/* -> NDIS FDDI */
-    { WTAP_ENCAP_FRELAY, 3 },		/* -> NDIS WAN(PPP) */
+    { WTAP_ENCAP_ETHERNET, 0 },			/* -> NDIS Ethernet */
+    { WTAP_ENCAP_TOKEN_RING, 1 },		/* -> NDIS Token Ring */
+    { WTAP_ENCAP_FDDI, 2 },			/* -> NDIS FDDI */
+    { WTAP_ENCAP_FDDI_BITSWAPPED, 2 },		/* -> NDIS FDDI */
+    { WTAP_ENCAP_FRELAY_WITH_PHDR, 3 },		/* -> NDIS WAN(PPP) */
 };
 #define NUM_WTAP_ENCAPS_2_0 (sizeof wtap_encap_2_0 / sizeof wtap_encap_2_0[0])
 
@@ -1048,11 +1049,17 @@ static gboolean netxray_dump_2_0(wtap_dumper *wdh,
     rec_hdr.orig_len = htoles(phdr->len);
     rec_hdr.incl_len = htoles(phdr->caplen);
 
-    if (phdr->pkt_encap == WTAP_ENCAP_IEEE_802_11_WITH_RADIO)
-    {
-        rec_hdr.xxx[12] = pseudo_header->ieee_802_11.channel;
-        rec_hdr.xxx[13] = pseudo_header->ieee_802_11.data_rate;
-        rec_hdr.xxx[14] = pseudo_header->ieee_802_11.signal_level;
+    switch (phdr->pkt_encap) {
+
+    case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
+	rec_hdr.xxx[12] = pseudo_header->ieee_802_11.channel;
+	rec_hdr.xxx[13] = pseudo_header->ieee_802_11.data_rate;
+	rec_hdr.xxx[14] = pseudo_header->ieee_802_11.signal_level;
+	break;
+
+    case WTAP_ENCAP_FRELAY_WITH_PHDR:
+	rec_hdr.xxx[12] |= (pseudo_header->x25.flags & FROM_DCE) ? 0x00 : 0x01;
+	break;
     }
 
     nwritten = fwrite(&rec_hdr, 1, sizeof(rec_hdr), wdh->fh);
@@ -1118,7 +1125,7 @@ static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err)
     file_hdr.timehi = htolel(0);
     switch (wdh->encap) {
 
-    case WTAP_ENCAP_FRELAY:
+    case WTAP_ENCAP_FRELAY_WITH_PHDR:
 	file_hdr.xxb[20] = 4;
 	break;
     }

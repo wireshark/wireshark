@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.108 2003/01/14 19:52:47 guy Exp $
+ * $Id: ngsniffer.c,v 1.109 2003/01/31 01:02:09 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -546,7 +546,7 @@ int ngsniffer_open(wtap *wth, int *err)
 			 * one we've seen is a Frame Relay capture,
 			 * so mark it as Frame Relay for now.
 			 */
-			wth->file_encap = WTAP_ENCAP_FRELAY;
+			wth->file_encap = WTAP_ENCAP_FRELAY_WITH_PHDR;
 			break;
 		}
 	}
@@ -830,7 +830,7 @@ process_rec_header2_v145(wtap *wth, unsigned char *buffer, guint16 length,
 		break;
 
 	case NET_FRAME_RELAY:
-		wth->file_encap = WTAP_ENCAP_FRELAY;
+		wth->file_encap = WTAP_ENCAP_FRELAY_WITH_PHDR;
 		break;
 
 	case NET_ROUTER:
@@ -1255,7 +1255,7 @@ static void set_pseudo_header_frame2(wtap *wth,
 		break;
 
 	case WTAP_ENCAP_LAPB:
-	case WTAP_ENCAP_FRELAY:
+	case WTAP_ENCAP_FRELAY_WITH_PHDR:
 	case WTAP_ENCAP_PER_PACKET:
 		pseudo_header->x25.flags = (frame2->fs & 0x80) ? 0x00 : FROM_DCE;
 		break;
@@ -1632,7 +1632,7 @@ static int infer_pkt_encap(const guint8 *pd, int len)
 		 * file, where we might just not yet have found where
 		 * the subtype is specified in the capture?
 		 */
-		return WTAP_ENCAP_FRELAY;
+		return WTAP_ENCAP_FRELAY_WITH_PHDR;
 	}
 
 	if (len >= 2) {

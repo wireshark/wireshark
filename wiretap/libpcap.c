@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.91 2003/01/23 04:04:00 guy Exp $
+ * $Id: libpcap.c,v 1.92 2003/01/31 01:02:07 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1217,15 +1217,32 @@ static int wtap_wtap_encap_to_pcap_encap(int encap)
 {
 	unsigned int i;
 
-	/*
-	 * Special-case WTAP_ENCAP_FDDI and WTAP_ENCAP_FDDI_BITSWAPPED;
-	 * both of them get mapped to DLT_FDDI (even though that may
-	 * mean that the bit order in the FDDI MAC addresses is wrong;
-	 * so it goes - libpcap format doesn't record the byte order,
-	 * so that's not fixable).
-	 */
-	if (encap == WTAP_ENCAP_FDDI || encap == WTAP_ENCAP_FDDI_BITSWAPPED)
+	switch (encap) {
+
+	case WTAP_ENCAP_FDDI:
+	case WTAP_ENCAP_FDDI_BITSWAPPED:
+		/*
+		 * Special-case WTAP_ENCAP_FDDI and
+		 * WTAP_ENCAP_FDDI_BITSWAPPED; both of them get mapped
+		 * to DLT_FDDI (even though that may mean that the bit
+		 * order in the FDDI MAC addresses is wrong; so it goes
+		 * - libpcap format doesn't record the byte order,
+		 * so that's not fixable).
+		 */
 		return 10;	/* that's DLT_FDDI */
+
+	case WTAP_ENCAP_PPP_WITH_PHDR:
+		/*
+		 * Also special-case PPP and Frame Relay with direction
+		 * bits; map them to PPP and Frame Relay, even though
+		 * that means that the direction of the packet is lost.
+		 */
+		return 9;
+
+	case WTAP_ENCAP_FRELAY_WITH_PHDR:
+		return 107;
+	}
+
 	for (i = 0; i < NUM_PCAP_ENCAPS; i++) {
 		if (pcap_to_wtap_map[i].wtap_encap_value == encap)
 			return pcap_to_wtap_map[i].dlt_value;

@@ -2,7 +2,7 @@
  * File read and write routines for Visual Networks cap files.
  * Copyright (c) 2001, Tom Nisbet  tnisbet@visualnetworks.com
  *
- * $Id: visual.c,v 1.11 2002/08/28 20:30:45 jmayer Exp $
+ * $Id: visual.c,v 1.12 2003/01/31 01:02:11 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -172,11 +172,26 @@ int visual_open(wtap *wth, int *err)
        get sorted out after the first packet is read. */
     switch (pletohs(&vfile_hdr.media_type))
     {
-    case  6: encap = WTAP_ENCAP_ETHERNET;   break;
-    case  9: encap = WTAP_ENCAP_TOKEN_RING; break;
-    case 16: encap = WTAP_ENCAP_LAPB;       break;
-    case 22: encap = WTAP_ENCAP_CHDLC;      break;
-    case 32: encap = WTAP_ENCAP_FRELAY;     break;
+    case  6:
+        encap = WTAP_ENCAP_ETHERNET;
+        break;
+
+    case  9:
+        encap = WTAP_ENCAP_TOKEN_RING;
+        break;
+
+    case 16:
+        encap = WTAP_ENCAP_LAPB;
+        break;
+
+    case 22:
+        encap = WTAP_ENCAP_CHDLC;
+        break;
+
+    case 32:
+        encap = WTAP_ENCAP_FRELAY_WITH_PHDR;
+        break;
+
     default:
         g_message("visual: network type %u unknown or unsupported",
                   vfile_hdr.media_type);
@@ -297,7 +312,7 @@ static gboolean visual_read(wtap *wth, int *err, long *data_offset)
         wth->pseudo_header.p2p.sent = (packet_status & PS_SENT) ? TRUE : FALSE;
         break;
 
-    case WTAP_ENCAP_FRELAY:
+    case WTAP_ENCAP_FRELAY_WITH_PHDR:
     case WTAP_ENCAP_LAPB:
         wth->pseudo_header.x25.flags =
             (packet_status & PS_SENT) ? 0x00 : FROM_DCE;
@@ -373,7 +388,7 @@ static gboolean visual_seek_read (wtap *wth, long seek_off,
         pseudo_header->p2p.sent = (packet_status & PS_SENT) ? TRUE : FALSE;
         break;
 
-    case WTAP_ENCAP_FRELAY:
+    case WTAP_ENCAP_FRELAY_WITH_PHDR:
     case WTAP_ENCAP_LAPB:
         pseudo_header->x25.flags = (packet_status & PS_SENT) ? 0x00 : FROM_DCE;
         break;
@@ -399,7 +414,7 @@ int visual_dump_can_write_encap(int encap)
     case WTAP_ENCAP_TOKEN_RING:
     case WTAP_ENCAP_LAPB:
     case WTAP_ENCAP_CHDLC:
-    case WTAP_ENCAP_FRELAY:
+    case WTAP_ENCAP_FRELAY_WITH_PHDR:
     case WTAP_ENCAP_PPP:
     case WTAP_ENCAP_PPP_WITH_PHDR:
         return 0;
@@ -507,7 +522,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     case WTAP_ENCAP_CHDLC:      /* HDLC Router */
         vpkt_hdr.encap_hint = 13;
         break;
-    case WTAP_ENCAP_FRELAY:     /* Frame Relay Auto-detect */
+    case WTAP_ENCAP_FRELAY_WITH_PHDR:     /* Frame Relay Auto-detect */
         vpkt_hdr.encap_hint = 12;
         break;
     case WTAP_ENCAP_LAPB:       /* Unknown */
@@ -527,7 +542,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
         packet_status |= (pseudo_header->p2p.sent ? PS_SENT : 0x00);
         break;
 
-    case WTAP_ENCAP_FRELAY:
+    case WTAP_ENCAP_FRELAY_WITH_PHDR:
     case WTAP_ENCAP_LAPB:
         packet_status |=
             ((pseudo_header->x25.flags & FROM_DCE) ? 0x00 : PS_SENT);
@@ -641,13 +656,27 @@ static gboolean visual_dump_close(wtap_dumper *wdh, int *err)
     /* Translate the encapsulation type */
     switch (wdh->encap)
     {
-    case WTAP_ENCAP_ETHERNET:   vfile_hdr.media_type = htoles(6);   break;
-    case WTAP_ENCAP_TOKEN_RING: vfile_hdr.media_type = htoles(9);   break;
-    case WTAP_ENCAP_LAPB:       vfile_hdr.media_type = htoles(16);  break;
+    case WTAP_ENCAP_ETHERNET:
+        vfile_hdr.media_type = htoles(6);
+        break;
+
+    case WTAP_ENCAP_TOKEN_RING:
+        vfile_hdr.media_type = htoles(9);
+        break;
+
+    case WTAP_ENCAP_LAPB:
+        vfile_hdr.media_type = htoles(16);
+        break;
+
     case WTAP_ENCAP_PPP:        /* PPP is differentiated from CHDLC in PktHdr */
     case WTAP_ENCAP_PPP_WITH_PHDR:
-    case WTAP_ENCAP_CHDLC:      vfile_hdr.media_type = htoles(22);  break;
-    case WTAP_ENCAP_FRELAY:     vfile_hdr.media_type = htoles(32);  break;
+    case WTAP_ENCAP_CHDLC:
+        vfile_hdr.media_type = htoles(22);
+        break;
+
+    case WTAP_ENCAP_FRELAY_WITH_PHDR:
+        vfile_hdr.media_type = htoles(32);
+        break;
     }
 
     /* Write the file header following the magic bytes. */

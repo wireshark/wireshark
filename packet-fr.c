@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.32 2002/10/22 08:22:02 guy Exp $
+ * $Id: packet-fr.c,v 1.33 2003/01/31 01:02:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -429,6 +429,7 @@ void proto_reg_handoff_fr(void)
 
   fr_handle = create_dissector_handle(dissect_fr, proto_fr);
   dissector_add("wtap_encap", WTAP_ENCAP_FRELAY, fr_handle);
+  dissector_add("wtap_encap", WTAP_ENCAP_FRELAY_WITH_PHDR, fr_handle);
   dissector_add("gre.proto", GRE_FR, fr_handle);
   data_handle = find_dissector("data");
 }
