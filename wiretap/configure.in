@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.25 2000/10/17 07:30:35 guy Exp $
+# $Id: configure.in,v 1.26 2001/04/17 22:47:37 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -62,8 +62,35 @@ else
 	AC_MSG_RESULT(none needed)
 fi
 
-# Checks for glib first, or gtk+ if not present
+# Check for glib.
 AM_PATH_GLIB(1.1.0, CFLAGS="$CFLAGS $GLIB_CFLAGS" LIBS="$LIBS $GLIB_LIBS")
+
+#
+# Arrange that we search for header files in "/usr/local/include",
+# as various packages we use ("libpcap", "zlib") may have been installed
+# under "/usr/local/include".
+#
+# We do this after checking for GLib, so that "-I/usr/local/include"
+# comes after any "-I" flags added by "AM_PATH_GLIB"; if the user has
+# installed a pre-1.2.9 version of GLib, it'd probably go under
+# "/usr/local", and if they then install 1.2.9 or later without
+# uninstalling the pre-1.2.9 version, 1.2.9's header files won't be
+# in "/usr/local/include" (they're put in a separate directory so that
+# GLib 1.2[.x] and 1.3[.x]/2.x can coexist), and if we search
+# "/usr/local/include" before searching the directory "AM_PATH_GLIB"
+# specifies, we may pick up headers from the older version.
+#
+CFLAGS="$CFLAGS -I/usr/local/include"
+CPPFLAGS="$CPPFLAGS -I/usr/local/include"
+
+#
+# Arrange that we search for libraries in "/usr/local/lib", as we'll
+# be testing whether zlib has gzgets, and we need to be able to find
+# zlib even if it's in "/usr/local/lib".
+#
+# We do this after checking for GLib; see above.
+#
+LDFLAGS="$LDFLAGS -L/usr/local/lib"
 
 dnl Checks for header files
 AC_HEADER_STDC
