@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.78 2001/01/03 16:41:07 gram Exp $
+ * $Id: packet-smb.c,v 1.79 2001/01/29 08:14:41 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -10478,6 +10478,7 @@ static const value_string DOS_errors[] = {
   {SMBE_badshare, "Share mode on file conflict with open mode"},
   {SMBE_lock, "Lock request conflicts with existing lock"},
   {SMBE_unsup, "Request unsupported, returned by Win 95"},
+  {SMBE_nosuchshare, "Requested share does not exist"},
   {SMBE_filexists, "File in operation already exists"},
   {SMBE_cannotopen, "Cannot open the file specified"},
   {SMBE_unknownlevel, "Unknown level??"},
