@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.43 2003/10/20 06:06:26 oabad Exp $
+ * $Id: gui_prefs.c,v 1.44 2003/11/11 05:09:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -256,6 +256,21 @@ gui_prefs_show(void)
 	    "Save window size:", NULL, prefs.gui_geometry_save_size);
 	OBJECT_SET_DATA(main_vb, GEOMETRY_SIZE_KEY, save_size_cb);
 
+	/* Allow user to select where they want the File Open dialog to open to
+	 * by default */
+	fileopen_rb = create_preference_radio_buttons(main_tb, pos++,
+	    "File Open dialog behavior:", NULL, gui_fileopen_vals,
+	    prefs.gui_fileopen_style);
+        
+	/* Directory to default File Open dialog to */
+	fileopen_dir_te = create_preference_entry(main_tb, pos++, "Directory:",
+	    NULL, prefs.gui_fileopen_dir);
+	OBJECT_SET_DATA(main_vb, GUI_FILEOPEN_KEY, fileopen_rb);
+        OBJECT_SET_DATA(main_vb, GUI_FILEOPEN_DIR_KEY, fileopen_dir_te);
+	SIGNAL_CONNECT(fileopen_rb, "clicked", fileopen_selected_cb, main_vb);
+        SIGNAL_CONNECT(fileopen_dir_te, "focus-out-event",
+                       fileopen_dir_changed_cb, main_vb);
+
 	/* "Font..." button - click to open a font selection dialog box. */
 #if GTK_MAJOR_VERSION < 2
 	font_bt = gtk_button_new_with_label("Font...");
@@ -273,20 +288,6 @@ gui_prefs_show(void)
 #endif
 	SIGNAL_CONNECT(color_bt, "clicked", color_browse_cb, NULL);
 	gtk_table_attach_defaults( GTK_TABLE(main_tb), color_bt, 2, 3, 1, 2 );
-        
-        /* Directory to default File Open dialog to */
-        fileopen_dir_te = create_preference_entry(main_tb, 9, "Directory:",
-                                                  NULL, prefs.gui_fileopen_dir);
-        OBJECT_SET_DATA(main_vb, GUI_FILEOPEN_DIR_KEY, fileopen_dir_te);
-        SIGNAL_CONNECT(fileopen_dir_te, "focus-out-event",
-                       fileopen_dir_changed_cb, main_vb);
-
-        /* Allow user to select where they want the File Open dialog to open to
-         * by default */
-        fileopen_rb = create_preference_radio_buttons(main_tb, 8, "File Open dialog behavior:", 
-            NULL, gui_fileopen_vals, prefs.gui_fileopen_style);
-        SIGNAL_CONNECT(fileopen_rb, "clicked", fileopen_selected_cb, main_vb);
-        OBJECT_SET_DATA(main_vb, GUI_FILEOPEN_KEY, fileopen_rb);
 
         fileopen_selected_cb(NULL, main_vb);        
 
