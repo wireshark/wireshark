@@ -2,7 +2,7 @@
 # Automake file for the EPAN library
 # (Ethereal Protocol ANalyzer Library)
 #
-# $Id: Makefile.am,v 1.48 2004/05/11 11:19:26 guy Exp $
+# $Id: Makefile.am,v 1.49 2004/06/09 03:08:12 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -125,7 +125,7 @@ MAINTAINERCLEANFILES =	\
 # Add the object files for missing routines, if any.
 #
 libethereal_la_LIBADD = @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@ dfilter/libdfilter.la ftypes/libftypes.la @KRB5_LIBS@
-libethereal_la_DEPENDENCIES = @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@ dfilter/libdfilter.la ftypes/libftypes.la
+libethereal_la_DEPENDENCIES = @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@ dfilter/libdfilter.la ftypes/libftypes.la doxygen
 
 ../packet-ncp2222.c : $(srcdir)/../ncp2222.py
 	$(PYTHON) $(srcdir)/../ncp2222.py -o $@
@@ -249,3 +249,14 @@ plugin_src =
 
 endif		# HAVE_PLUGINS
 
+# Doxygen
+doxygen.tmp: ../config.nmake doxygen.cfg
+	sed -e s/@VERSION@/$(VERSION)/ \
+	    < doxygen.cfg > $@
+
+doxygen-run:
+if HAVE_DOXYGEN
+	$(DOXYGEN) doxygen.tmp
+endif		# HAVE_DOXYGEN
+
+doxygen: doxygen.tmp doxygen-run

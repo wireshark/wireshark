@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for the GTK interface routines for Ethereal
 #
-# $Id: Makefile.am,v 1.100 2004/06/03 21:46:27 guy Exp $
+# $Id: Makefile.am,v 1.101 2004/06/09 03:08:13 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -102,6 +102,8 @@ libui_a_SOURCES = \
 	$(ETHEREAL_TAP_SRC)
 endif
 
+libui_a_DEPENDENCIES = doxygen
+
 EXTRA_DIST = \
 	doxygen.cfg \
 	Makefile.common \
@@ -111,3 +113,16 @@ EXTRA_DIST = \
 
 # Common headers
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap
+
+# Doxygen
+doxygen.tmp: ../config.nmake doxygen.cfg
+	sed -e s/@VERSION@/$(VERSION)/ \
+	    < doxygen.cfg > $@
+
+doxygen-run:
+if HAVE_DOXYGEN
+	$(DOXYGEN) doxygen.tmp
+endif		# HAVE_DOXYGEN
+
+doxygen: doxygen.tmp doxygen-run
+

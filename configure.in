@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.264 2004/05/26 12:08:15 jmayer Exp $
+# $Id: configure.in,v 1.265 2004/06/09 03:08:12 gerald Exp $
 #
 AC_INIT(etypes.h)
 
@@ -38,6 +38,11 @@ AC_SUBST(POD2MAN)
 AC_SUBST(LEX)
 AC_SUBST(FLEX_PATH)
 AC_SUBST(PYTHON)
+
+# Check for doxygen
+AC_PATH_PROG(DOXYGEN, doxygen)
+AC_CHECK_PROG(HAVE_DOXYGEN, doxygen, "yes", "no")
+AM_CONDITIONAL(HAVE_DOXYGEN, test x$HAVE_DOXYGEN = xyes)
 
 # Check for packaging utilities
 # For now, we check to see if the various packaging utilites are in our
