@@ -7,7 +7,7 @@ proper helper routines
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.c,v 1.18 2003/10/09 20:52:57 guy Exp $
+ * $Id: packet-per.c,v 1.19 2003/10/09 22:35:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -929,7 +929,7 @@ DEBUG_ENTRY("dissect_per_choice");
 	/* first check if there should be an extension bit for this CHOICE.
 	   we do this by just checking the first choice arm 
 	 */
-	if(choice[0].extension==NO_EXTENSIONS){
+	if(choice[0].extension==ASN1_NO_EXTENSIONS){
 		extension_present=0;
 	} else {
 		proto_tree *etr=NULL;
@@ -946,8 +946,8 @@ DEBUG_ENTRY("dissect_per_choice");
 	extension_root_entries=0;
 	for(i=0;choice[i].name;i++){
 		switch(choice[i].extension){
-		case NO_EXTENSIONS:
-		case EXTENSION_ROOT:
+		case ASN1_NO_EXTENSIONS:
+		case ASN1_EXTENSION_ROOT:
          if(choice[i].value<min_choice){
             min_choice=choice[i].value;
          }
@@ -1018,7 +1018,7 @@ DEBUG_ENTRY("dissect_per_choice");
 
 		index=-1;
 		for(i=0;choice[i].name;i++){
-			if(choice[i].extension==NOT_EXTENSION_ROOT){
+			if(choice[i].extension==ASN1_NOT_EXTENSION_ROOT){
 				if(!choice_index){
 					index=i;
 					break;
@@ -1064,7 +1064,7 @@ index_get_optional_name(per_sequence_t *sequence, int index)
 	int i;
 
 	for(i=0;sequence[i].name;i++){
-		if((sequence[i].extension!=NOT_EXTENSION_ROOT)&&(sequence[i].optional==ASN1_OPTIONAL)){
+		if((sequence[i].extension!=ASN1_NOT_EXTENSION_ROOT)&&(sequence[i].optional==ASN1_OPTIONAL)){
 			if(index==0){
 				return sequence[i].name;
 			}
@@ -1080,7 +1080,7 @@ index_get_extension_name(per_sequence_t *sequence, int index)
 	int i;
 
 	for(i=0;sequence[i].name;i++){
-		if(sequence[i].extension==NOT_EXTENSION_ROOT){
+		if(sequence[i].extension==ASN1_NOT_EXTENSION_ROOT){
 			if(index==0){
 				return sequence[i].name;
 			}
@@ -1124,7 +1124,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 	 */
 	/* 18.1 */
 	extension_flag=0;
-	if(sequence[0].extension==NO_EXTENSIONS){
+	if(sequence[0].extension==ASN1_NO_EXTENSIONS){
 		extension_present=0;
 	} else {
 		proto_tree *etr=NULL;
@@ -1138,7 +1138,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 	/* 18.2 */
 	num_opts=0;
 	for(i=0;sequence[i].name;i++){
-		if((sequence[i].extension!=NOT_EXTENSION_ROOT)&&(sequence[i].optional==ASN1_OPTIONAL)){
+		if((sequence[i].extension!=ASN1_NOT_EXTENSION_ROOT)&&(sequence[i].optional==ASN1_OPTIONAL)){
 			num_opts++;
 		}
 	}
@@ -1166,8 +1166,8 @@ DEBUG_ENTRY("dissect_per_sequence");
 
 	/* 18.4 */
 	for(i=0;sequence[i].name;i++){
-		if( (sequence[i].extension==NO_EXTENSIONS)
-		||  (sequence[i].extension==EXTENSION_ROOT) ){
+		if( (sequence[i].extension==ASN1_NO_EXTENSIONS)
+		||  (sequence[i].extension==ASN1_EXTENSION_ROOT) ){
 			if(sequence[i].optional==ASN1_OPTIONAL){
 				gboolean is_present;
 				is_present=(1<<(num_opts-1))&optional_mask;
@@ -1232,7 +1232,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 		/* find how many extensions we know about */
 		num_known_extensions=0;
 		for(i=0;sequence[i].name;i++){
-			if(sequence[i].extension==NOT_EXTENSION_ROOT){
+			if(sequence[i].extension==ASN1_NOT_EXTENSION_ROOT){
 				num_known_extensions++;
 			}
 		}
@@ -1260,7 +1260,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 
 			extension_index=0;
 			for(j=0,k=0;sequence[j].name;j++){
-				if(sequence[j].extension==NOT_EXTENSION_ROOT){
+				if(sequence[j].extension==ASN1_NOT_EXTENSION_ROOT){
 					if(k==i){
 						extension_index=j;
 						break;

@@ -2,7 +2,7 @@
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.h,v 1.10 2003/10/09 20:52:57 guy Exp $
+ * $Id: packet-per.h,v 1.11 2003/10/09 22:35:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,9 +32,9 @@ fprintf(stderr,"Not decoded yet in packet : %d  [%s]\n", pinfo->fd->num,x);
 */
 
 /* values for extensions */
-#define NO_EXTENSIONS		0
-#define EXTENSION_ROOT		1
-#define NOT_EXTENSION_ROOT	2
+#define ASN1_NO_EXTENSIONS	0
+#define ASN1_EXTENSION_ROOT	1
+#define ASN1_NOT_EXTENSION_ROOT	2
 
 /* value for optional */
 #define ASN1_NOT_OPTIONAL	0

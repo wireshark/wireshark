@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h225.c,v 1.15 2003/10/09 20:52:56 guy Exp $
+ * $Id: packet-h225.c,v 1.16 2003/10/09 22:35:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1110,11 +1110,11 @@ static const value_string PresentationIndicator_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t PresentationIndicator_choice[] = {
-	{ 0, "presentationAllowed", EXTENSION_ROOT,
+	{ 0, "presentationAllowed", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL},
-	{ 1, "presentationRestricted", EXTENSION_ROOT,
+	{ 1, "presentationRestricted", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL},
-	{ 2, "addressNotAvailable", EXTENSION_ROOT,
+	{ 2, "addressNotAvailable", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL},
 	{ 0, NULL, 0, NULL }
 };
@@ -1135,15 +1135,15 @@ static const value_string conferenceGoal_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t conferenceGoal_choice[] = {
-	{ 0, "create", EXTENSION_ROOT, 
+	{ 0, "create", ASN1_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 1, "join", EXTENSION_ROOT, 
+	{ 1, "join", ASN1_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 2, "invite", EXTENSION_ROOT, 
+	{ 2, "invite", ASN1_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 3, "capability-negotiation", NOT_EXTENSION_ROOT, 
+	{ 3, "capability-negotiation", ASN1_NOT_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 4, "callIndependentSupplementaryService", NOT_EXTENSION_ROOT, 
+	{ 4, "callIndependentSupplementaryService", ASN1_NOT_EXTENSION_ROOT, 
 		dissect_h225_NULL },
 	{ 0, NULL, 0, NULL }
 };
@@ -1166,19 +1166,19 @@ static const value_string ScnConnectionType_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t ScnConnectionType_choice[] = {
-	{ 0, "unknown", EXTENSION_ROOT,
+	{ 0, "unknown", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "bChannel", EXTENSION_ROOT,
+	{ 1, "bChannel", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "hybrid2x64", EXTENSION_ROOT,
+	{ 2, "hybrid2x64", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 3, "hybrid384", EXTENSION_ROOT,
+	{ 3, "hybrid384", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 4, "hybrid1536", EXTENSION_ROOT,
+	{ 4, "hybrid1536", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 5, "hybrid1920", EXTENSION_ROOT,
+	{ 5, "hybrid1920", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 6, "multirate", EXTENSION_ROOT,
+	{ 6, "multirate", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
 	{ 0, NULL, 0, NULL }
 };
@@ -1200,17 +1200,17 @@ static const value_string ScnConnectionAggregation_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t ScnConnectionAggregation_choice[] = {
-	{ 0, "auto", EXTENSION_ROOT,
+	{ 0, "auto", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "none", EXTENSION_ROOT,
+	{ 1, "none", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "h221", EXTENSION_ROOT,
+	{ 2, "h221", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 3, "bonded-mode1", EXTENSION_ROOT,
+	{ 3, "bonded-mode1", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 4, "bonded-mode2", EXTENSION_ROOT,
+	{ 4, "bonded-mode2", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 5, "bonded-mode3", EXTENSION_ROOT,
+	{ 5, "bonded-mode3", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
 	{ 0, NULL, 0, NULL }
 };
@@ -1237,27 +1237,27 @@ static const value_string FacilityReason_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t FacilityReason_choice[] = {
-	{ 0, "routeCallToGatekeeper", EXTENSION_ROOT,
+	{ 0, "routeCallToGatekeeper", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "callForwarded", EXTENSION_ROOT,
+	{ 1, "callForwarded", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "routeCallToMC", EXTENSION_ROOT,
+	{ 2, "routeCallToMC", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 3, "undefinedReason", EXTENSION_ROOT,
+	{ 3, "undefinedReason", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 4, "conferenceListChoice", NOT_EXTENSION_ROOT,
+	{ 4, "conferenceListChoice", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 5, "startH245", NOT_EXTENSION_ROOT,
+	{ 5, "startH245", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 6, "noH245", NOT_EXTENSION_ROOT,
+	{ 6, "noH245", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 7, "newTokens", NOT_EXTENSION_ROOT,
+	{ 7, "newTokens", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 8, "featureSetUpdate", NOT_EXTENSION_ROOT,
+	{ 8, "featureSetUpdate", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 9, "forwardedElements", NOT_EXTENSION_ROOT,
+	{ 9, "forwardedElements", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 10, "transportedInformation", NOT_EXTENSION_ROOT,
+	{ 10, "transportedInformation", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
 	{ 0, NULL, 0, NULL }
 };
@@ -1280,17 +1280,17 @@ static const value_string PublicTypeOfNumber_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t PublicTypeOfNumber_choice[] = {
-	{ 0, "unknown", EXTENSION_ROOT,
+	{ 0, "unknown", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "internationalNumber", EXTENSION_ROOT,
+	{ 1, "internationalNumber", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "nationalNumber", EXTENSION_ROOT,
+	{ 2, "nationalNumber", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 3, "networkSpecificNumber", EXTENSION_ROOT,
+	{ 3, "networkSpecificNumber", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 4, "subscriberNumber", EXTENSION_ROOT,
+	{ 4, "subscriberNumber", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 5, "abbreviatedNumber", EXTENSION_ROOT,
+	{ 5, "abbreviatedNumber", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
 	{ 0, NULL, 0, NULL }
 };
@@ -1313,17 +1313,17 @@ static const value_string PrivateTypeOfNumber_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t PrivateTypeOfNumber_choice[] = {
-	{ 0, "unknown", EXTENSION_ROOT,
+	{ 0, "unknown", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "level2RegionalNumber", EXTENSION_ROOT,
+	{ 1, "level2RegionalNumber", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "level1RegionalNumber", EXTENSION_ROOT,
+	{ 2, "level1RegionalNumber", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 3, "pISNSpecificNumber", EXTENSION_ROOT,
+	{ 3, "pISNSpecificNumber", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 4, "localNumber", EXTENSION_ROOT,
+	{ 4, "localNumber", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 5, "abbreviatedNumber", EXTENSION_ROOT,
+	{ 5, "abbreviatedNumber", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
 	{ 0, NULL, 0, NULL }
 };
@@ -1342,11 +1342,11 @@ static const value_string UseSpecifiedTransport_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t UseSpecifiedTransport_choice[] = {
-	{ 0, "tcp", EXTENSION_ROOT,
+	{ 0, "tcp", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "annexE", EXTENSION_ROOT,
+	{ 1, "annexE", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "sctp", NOT_EXTENSION_ROOT,
+	{ 2, "sctp", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
 	{ 0, NULL, 0, NULL }
 };
@@ -1379,37 +1379,37 @@ static const value_string SecurityErrors_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t SecurityErrors_choice[] = {
-	{ 0, "securityWrongSyncTime", EXTENSION_ROOT,
+	{ 0, "securityWrongSyncTime", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "securityReplay", EXTENSION_ROOT,
+	{ 1, "securityReplay", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "securityWrongGeneralID", EXTENSION_ROOT,
+	{ 2, "securityWrongGeneralID", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 3, "securityWrongSendersID", EXTENSION_ROOT,
+	{ 3, "securityWrongSendersID", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 4, "securityIntegrityFailed", EXTENSION_ROOT,
+	{ 4, "securityIntegrityFailed", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 5, "securityWrongOID", EXTENSION_ROOT,
+	{ 5, "securityWrongOID", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 6, "securityDHmismatch", EXTENSION_ROOT,
+	{ 6, "securityDHmismatch", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 7, "securityCertificateExpired", EXTENSION_ROOT,
+	{ 7, "securityCertificateExpired", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 8, "securityCertificateDateInvalid", EXTENSION_ROOT,
+	{ 8, "securityCertificateDateInvalid", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 9, "securityCertificateRevoked", EXTENSION_ROOT,
+	{ 9, "securityCertificateRevoked", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 10, "securityCertificateNotReadable", EXTENSION_ROOT,
+	{ 10, "securityCertificateNotReadable", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 11, "securityCertificateSignatureInvalid", EXTENSION_ROOT,
+	{ 11, "securityCertificateSignatureInvalid", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 12, "securityCertificateMissing", EXTENSION_ROOT,
+	{ 12, "securityCertificateMissing", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 13, "securityCertificateIncomplete", EXTENSION_ROOT,
+	{ 13, "securityCertificateIncomplete", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 14, "securityUnsupportedCertificateAlgOID", EXTENSION_ROOT,
+	{ 14, "securityUnsupportedCertificateAlgOID", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 15, "securityUnknownCA", EXTENSION_ROOT,
+	{ 15, "securityUnknownCA", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
 	{ 0, NULL, 0, NULL }
 };
@@ -1432,17 +1432,17 @@ static const value_string SecurityErrors2_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t SecurityErrors2_choice[] = {
-	{ 0, "securityWrongSyncTime", EXTENSION_ROOT,
+	{ 0, "securityWrongSyncTime", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "securityReplay", EXTENSION_ROOT,
+	{ 1, "securityReplay", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "securityWrongGeneralID", EXTENSION_ROOT,
+	{ 2, "securityWrongGeneralID", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 3, "securityWrongSendersID", EXTENSION_ROOT,
+	{ 3, "securityWrongSendersID", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 4, "securityIntegrityFailed", EXTENSION_ROOT,
+	{ 4, "securityIntegrityFailed", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 5, "securityWrongOID", EXTENSION_ROOT,
+	{ 5, "securityWrongOID", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
 	{ 0, NULL, 0, NULL }
 };
@@ -1461,11 +1461,11 @@ static const value_string ServiceControlSession_reason_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t ServiceControlSession_reason_choice[] = {
-	{ 0, "open", EXTENSION_ROOT,
+	{ 0, "open", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "refresh", EXTENSION_ROOT,
+	{ 1, "refresh", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "close", EXTENSION_ROOT,
+	{ 2, "close", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
 	{ 0, NULL, 0, NULL }
 };
@@ -1484,9 +1484,9 @@ static const value_string billingMode_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t billingMode_choice[] = {
-	{ 0, "credit", EXTENSION_ROOT,
+	{ 0, "credit", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "debit", EXTENSION_ROOT,
+	{ 1, "debit", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
 	{ 0, NULL, 0, NULL }
 };
@@ -1505,9 +1505,9 @@ static const value_string CCSCcallStartingPoint_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t CCSCcallStartingPoint_choice[] = {
-	{ 0, "alerting", EXTENSION_ROOT,
+	{ 0, "alerting", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "connect", EXTENSION_ROOT,
+	{ 1, "connect", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
 	{ 0, NULL, 0, NULL }
 };
@@ -1532,21 +1532,21 @@ static const value_string GatekeeperRejectReason_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t GatekeeperRejectReason_choice[] = {
-	{ 0, "resourceUnavailable", EXTENSION_ROOT,
+	{ 0, "resourceUnavailable", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "terminalExcluded", EXTENSION_ROOT,
+	{ 1, "terminalExcluded", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "invalidRevision", EXTENSION_ROOT,
+	{ 2, "invalidRevision", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 3, "undefinedReason", EXTENSION_ROOT,
+	{ 3, "undefinedReason", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 4, "securityDenial", NOT_EXTENSION_ROOT,
+	{ 4, "securityDenial", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 5, "genericDataReason", NOT_EXTENSION_ROOT,
+	{ 5, "genericDataReason", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 6, "neededFeatureNotSupported", NOT_EXTENSION_ROOT,
+	{ 6, "neededFeatureNotSupported", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 7, "securityError", NOT_EXTENSION_ROOT,
+	{ 7, "securityError", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_SecurityErrors },
 	{ 0, NULL, 0, NULL }
 };
@@ -1569,17 +1569,17 @@ static const value_string UnregRequestReason_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t UnregRequestReason_choice[] = {
-	{ 0, "reregistrationRequired", EXTENSION_ROOT,
+	{ 0, "reregistrationRequired", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "ttlExpired", EXTENSION_ROOT,
+	{ 1, "ttlExpired", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "securityDenial", EXTENSION_ROOT,
+	{ 2, "securityDenial", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 3, "undefinedReason", EXTENSION_ROOT,
+	{ 3, "undefinedReason", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 4, "maintenance", NOT_EXTENSION_ROOT,
+	{ 4, "maintenance", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 5, "securityError", NOT_EXTENSION_ROOT,
+	{ 5, "securityError", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_SecurityErrors2 },
 	{ 0, NULL, 0, NULL }
 };
@@ -1602,17 +1602,17 @@ static const value_string UnregRejectReason_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t UnregRejectReason_choice[] = {
-	{ 0, "notCurrentlyRegistered", EXTENSION_ROOT,
+	{ 0, "notCurrentlyRegistered", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "callInProgress", EXTENSION_ROOT,
+	{ 1, "callInProgress", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "undefinedReason", EXTENSION_ROOT,
+	{ 2, "undefinedReason", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 3, "permissionDenied", NOT_EXTENSION_ROOT,
+	{ 3, "permissionDenied", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 4, "securityDenial", NOT_EXTENSION_ROOT,
+	{ 4, "securityDenial", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 5, "securityError", NOT_EXTENSION_ROOT,
+	{ 5, "securityError", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_SecurityErrors2 },
 	{ 0, NULL, 0, NULL }
 };
@@ -1633,13 +1633,13 @@ static const value_string CallType_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t CallType_choice[] = {
-	{ 0, "pointToPoint", EXTENSION_ROOT,
+	{ 0, "pointToPoint", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "oneToN", EXTENSION_ROOT,
+	{ 1, "oneToN", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "nToOne", EXTENSION_ROOT,
+	{ 2, "nToOne", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 3, "nToN", EXTENSION_ROOT,
+	{ 3, "nToN", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
 	{ 0, NULL, 0, NULL }
 };
@@ -1657,9 +1657,9 @@ static const value_string CallModel_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t CallModel_choice[] = {
-	{ 0, "direct", EXTENSION_ROOT,
+	{ 0, "direct", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "gatekeeperRouted", EXTENSION_ROOT,
+	{ 1, "gatekeeperRouted", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
 	{ 0, NULL, 0, NULL }
 };
@@ -1679,11 +1679,11 @@ static const value_string TransportQOS_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t TransportQOS_choice[] = {
-	{ 0, "endpointControlled", EXTENSION_ROOT,
+	{ 0, "endpointControlled", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "gatekeeperControlled", EXTENSION_ROOT,
+	{ 1, "gatekeeperControlled", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "noControl", EXTENSION_ROOT,
+	{ 2, "noControl", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
 	{ 0, NULL, 0, NULL }
 };
@@ -1707,21 +1707,21 @@ static const value_string BandRejectReason_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t BandRejectReason_choice[] = {
-	{ 0, "notBound", EXTENSION_ROOT,
+	{ 0, "notBound", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "invalidConferenceID", EXTENSION_ROOT,
+	{ 1, "invalidConferenceID", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "invalidPermission", EXTENSION_ROOT,
+	{ 2, "invalidPermission", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 3, "insufficientResources", EXTENSION_ROOT,
+	{ 3, "insufficientResources", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 4, "invalidRevision", EXTENSION_ROOT,
+	{ 4, "invalidRevision", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 5, "undefinedReason", EXTENSION_ROOT,
+	{ 5, "undefinedReason", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 6, "securityDenial", NOT_EXTENSION_ROOT,
+	{ 6, "securityDenial", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 7, "securityError", NOT_EXTENSION_ROOT,
+	{ 7, "securityError", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_SecurityErrors2 },
 	{ 0, NULL, 0, NULL }
 };
@@ -1741,11 +1741,11 @@ static const value_string DisengageReason_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t DisengageReason_choice[] = {
-	{ 0, "forcedDrop", EXTENSION_ROOT,
+	{ 0, "forcedDrop", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "normalDrop", EXTENSION_ROOT,
+	{ 1, "normalDrop", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "undefinedReason", EXTENSION_ROOT,
+	{ 2, "undefinedReason", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
 	{ 0, NULL, 0, NULL }
 };
@@ -1766,13 +1766,13 @@ static const value_string DisengageRejectReason_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t DisengageRejectReason_choice[] = {
-	{ 0, "notRegistered", EXTENSION_ROOT,
+	{ 0, "notRegistered", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "requestToDropOther", EXTENSION_ROOT,
+	{ 1, "requestToDropOther", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "securityDenial", NOT_EXTENSION_ROOT,
+	{ 2, "securityDenial", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 3, "securityError", NOT_EXTENSION_ROOT,
+	{ 3, "securityError", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_SecurityErrors2 },
 	{ 0, NULL, 0, NULL }
 };
@@ -1794,13 +1794,13 @@ static const value_string InfoRequestNakReason_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t InfoRequestNakReason_choice[] = {
-	{ 0, "notRegistered", EXTENSION_ROOT,
+	{ 0, "notRegistered", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "securityDenial", EXTENSION_ROOT,
+	{ 1, "securityDenial", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "undefinedReason", EXTENSION_ROOT,
+	{ 2, "undefinedReason", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 3, "securityError", NOT_EXTENSION_ROOT,
+	{ 3, "securityError", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_SecurityErrors2 },
 	{ 0, NULL, 0, NULL }
 };
@@ -1822,15 +1822,15 @@ static const value_string SCRresult_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t SCRresult_choice[] = {
-	{ 0, "started", EXTENSION_ROOT,
+	{ 0, "started", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "failed", EXTENSION_ROOT,
+	{ 1, "failed", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "stopped", EXTENSION_ROOT,
+	{ 2, "stopped", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 3, "notAvailable", EXTENSION_ROOT,
+	{ 3, "notAvailable", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 4, "neededFeatureNotSupported", EXTENSION_ROOT,
+	{ 4, "neededFeatureNotSupported", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
 	{ 0, NULL, 0, NULL }
 };
@@ -1879,11 +1879,11 @@ dissect_h225_manufacturerCode(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 }
 
 static per_sequence_t H221NonStandard_sequence[] = {
-	{ "t35CountryCode", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "t35CountryCode", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_t35CountryCode },
-	{ "t35Extension", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
+	{ "t35Extension", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h225_t35Extension },
-	{ "manufacturerCode", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "manufacturerCode", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_manufacturerCode },
 	{ NULL, 0, 0, NULL }
 };
@@ -1909,9 +1909,9 @@ static const value_string NonStandardIdentifier_vals[] = {
 	{ 0, NULL }
 };
 static per_choice_t NonStandardIdentifier_choice[] = {
-	{ 0,	"object", EXTENSION_ROOT,
+	{ 0,	"object", ASN1_EXTENSION_ROOT,
 		dissect_h225_object },
-	{ 1,	"h221NonStandard", EXTENSION_ROOT, 
+	{ 1,	"h221NonStandard", ASN1_EXTENSION_ROOT, 
 		dissect_h225_h221NonStandard },
 	{ 0, NULL, 0, NULL }
 };
@@ -1961,9 +1961,9 @@ dissect_h225_nsp_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 }
 
 static per_sequence_t NonStandardParameter_sequence[] = {
-	{ "nonStandardIdentifier", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ "nonStandardIdentifier", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h225_nonStandardIdentifier },
-	{ "data", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ "data", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h225_nsp_data },
 	{ NULL, 0, 0, NULL }
 };
@@ -1990,7 +1990,7 @@ dissect_h225_nonStandardData(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 }
 
 static per_sequence_t GatekeeperInfo_sequence[] = {
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
 	{ NULL, 0, 0, NULL }
 };
@@ -2016,11 +2016,11 @@ static const value_string SecurityServiceMode_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t SecurityServiceMode_choice[] = {
-	{ 0, "nonStandard", EXTENSION_ROOT,
+	{ 0, "nonStandard", ASN1_EXTENSION_ROOT,
 		dissect_h225_nonStandard },
-	{ 1, "none", EXTENSION_ROOT,
+	{ 1, "none", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "default", EXTENSION_ROOT,
+	{ 2, "default", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
 	{ 0, NULL, 0, NULL }
 };
@@ -2046,13 +2046,13 @@ dissect_h225_SecurityServiceMode_integrity(tvbuff_t *tvb, int offset, packet_inf
 
 
 static per_sequence_t SecurityCapabilities_sequence[] = {
-	{ "nonStandard", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandard", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandard },
-	{ "encryption", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "encryption", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_SecurityServiceMode_encryption },
-	{ "authenticaton", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "authenticaton", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_SecurityServiceMode_authentication },
-	{ "integrity", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "integrity", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_SecurityServiceMode_integrity },
 	{ NULL, 0, 0, NULL }
 };
@@ -2080,13 +2080,13 @@ static const value_string H245Security_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t H245Security_choice[] = {
-	{ 0, "nonStandard", EXTENSION_ROOT,
+	{ 0, "nonStandard", ASN1_EXTENSION_ROOT,
 		dissect_h225_nonStandard },
-	{ 1, "noSecurity", EXTENSION_ROOT,
+	{ 1, "noSecurity", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "tls", EXTENSION_ROOT,
+	{ 2, "tls", ASN1_EXTENSION_ROOT,
 		dissect_h225_SecurityCapabilities_tls },
-	{ 3, "ipsec", EXTENSION_ROOT,
+	{ 3, "ipsec", ASN1_EXTENSION_ROOT,
 		dissect_h225_SecurityCapabilities_ipsec },
 	{ 0, NULL, 0, NULL }
 };
@@ -2116,13 +2116,13 @@ dissect_h225_nonStandardUsageTypes(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 
 static per_sequence_t RasUsageInfoTypes_sequence[] = {
-	{ "nonStandardUsageTypes", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "nonStandardUsageTypes", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_nonStandardUsageTypes },
-	{ "startTime", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "startTime", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
-	{ "endTime", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "endTime", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
-	{ "terminationCause", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "terminationCause", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
 	{ NULL, 0, 0, NULL }
 };
@@ -2195,11 +2195,11 @@ dissect_h225_channelMultiplier(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 
 static per_sequence_t DataRate_sequence[] = {
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL, 
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h225_nonStandardData },
-	{ "channelRate", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
+	{ "channelRate", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h225_channelRate },
-	{ "channelMultiplier", EXTENSION_ROOT, ASN1_OPTIONAL, 
+	{ "channelMultiplier", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h225_channelMultiplier },
 	{ NULL, 0, 0, NULL }
 };
@@ -2226,7 +2226,7 @@ dissect_h225_dataRatesSupported(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 static per_sequence_t TerminalInfo_sequence[] = {
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL, 
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h225_nonStandardData },
 	{ NULL, 0, 0, NULL }
 };
@@ -2247,11 +2247,11 @@ dissect_h225_h248Message(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 
 static per_sequence_t StimulusControl_sequence[] = {
-	{ "nonStandard", EXTENSION_ROOT, ASN1_OPTIONAL, 
+	{ "nonStandard", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h225_nonStandard },
-	{ "isText", EXTENSION_ROOT, ASN1_OPTIONAL, 
+	{ "isText", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h225_NULL },
-	{ "h248Message", EXTENSION_ROOT, ASN1_OPTIONAL, 
+	{ "h248Message", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL, 
 		dissect_h225_h248Message},
 	{ NULL, 0, 0, NULL }
 };
@@ -2320,57 +2320,57 @@ static const value_string ReleaseCompleteReason_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t ReleaseCompleteReason_choice[] = {
-	{ 0, "noBandwidth", EXTENSION_ROOT, 
+	{ 0, "noBandwidth", ASN1_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 1, "gatekeeperResources", EXTENSION_ROOT, 
+	{ 1, "gatekeeperResources", ASN1_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 2, "unreachableDestination", EXTENSION_ROOT, 
+	{ 2, "unreachableDestination", ASN1_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 3, "destinationRejection", EXTENSION_ROOT, 
+	{ 3, "destinationRejection", ASN1_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 4, "invalidRevision", EXTENSION_ROOT, 
+	{ 4, "invalidRevision", ASN1_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 5, "noPermission", EXTENSION_ROOT, 
+	{ 5, "noPermission", ASN1_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 6, "unreachableGatekeeper", EXTENSION_ROOT, 
+	{ 6, "unreachableGatekeeper", ASN1_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 7, "gatewayResources", EXTENSION_ROOT, 
+	{ 7, "gatewayResources", ASN1_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 8, "badFormatAddress", EXTENSION_ROOT, 
+	{ 8, "badFormatAddress", ASN1_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 9, "adaptiveBusy", EXTENSION_ROOT, 
+	{ 9, "adaptiveBusy", ASN1_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 10, "inConf", EXTENSION_ROOT, 
+	{ 10, "inConf", ASN1_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 11, "undefinedReason", EXTENSION_ROOT, 
+	{ 11, "undefinedReason", ASN1_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 12, "facilityCallDeflection", NOT_EXTENSION_ROOT, 
+	{ 12, "facilityCallDeflection", ASN1_NOT_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 13, "securityDenied", NOT_EXTENSION_ROOT, 
+	{ 13, "securityDenied", ASN1_NOT_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 14, "calledPartyNotRegistered", NOT_EXTENSION_ROOT, 
+	{ 14, "calledPartyNotRegistered", ASN1_NOT_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 15, "callerNotRegistered", NOT_EXTENSION_ROOT, 
+	{ 15, "callerNotRegistered", ASN1_NOT_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 16, "newConnectionNeeded", NOT_EXTENSION_ROOT, 
+	{ 16, "newConnectionNeeded", ASN1_NOT_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 17, "nonStandardReason", NOT_EXTENSION_ROOT, 
+	{ 17, "nonStandardReason", ASN1_NOT_EXTENSION_ROOT, 
 		dissect_h225_nonStandardReason },
-	{ 18, "replaceWithConferenceInvite", NOT_EXTENSION_ROOT, 
+	{ 18, "replaceWithConferenceInvite", ASN1_NOT_EXTENSION_ROOT, 
 		dissect_h225_replaceWithConferenceInvite },
-	{ 19, "genericDataReason", NOT_EXTENSION_ROOT, 
+	{ 19, "genericDataReason", ASN1_NOT_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 20, "neededFeatureNotSupported", NOT_EXTENSION_ROOT, 
+	{ 20, "neededFeatureNotSupported", ASN1_NOT_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 21, "tunnelledSignallingRejected", NOT_EXTENSION_ROOT, 
+	{ 21, "tunnelledSignallingRejected", ASN1_NOT_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 22, "invalidCID", NOT_EXTENSION_ROOT, 
+	{ 22, "invalidCID", ASN1_NOT_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 23, "invalidCID", NOT_EXTENSION_ROOT, 
+	{ 23, "invalidCID", ASN1_NOT_EXTENSION_ROOT, 
 		dissect_h225_NULL },
-	{ 24, "securityError", NOT_EXTENSION_ROOT, 
+	{ 24, "securityError", ASN1_NOT_EXTENSION_ROOT, 
 		dissect_h225_SecurityErrors },
-	{ 25, "hopCountExceeded", NOT_EXTENSION_ROOT, 
+	{ 25, "hopCountExceeded", ASN1_NOT_EXTENSION_ROOT, 
 		dissect_h225_NULL },
 	{ 0, NULL, 0, NULL }
 };
@@ -2393,11 +2393,11 @@ dissect_h225_numberOfScnConnections(tvbuff_t *tvb, int offset, packet_info *pinf
 }
 
 static per_sequence_t connectionParameters_sequence[] = {
-	{ "connectionType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "connectionType", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ScnConnectionType },
-	{ "numberOfScnConnections", EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
+	{ "numberOfScnConnections", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, 
 		dissect_h225_numberOfScnConnections },
-	{ "connectionAggregation", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "connectionAggregation", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ScnConnectionAggregation },
 	{ NULL, 0, 0, NULL }
 };
@@ -2421,11 +2421,11 @@ dissect_h225_RequestSeqNum(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 }
 
 static per_sequence_t RasUsageSpecification_when_sequence[] = {
-	{ "start", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "start", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
-	{ "end", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "end", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
-	{ "inIrr", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "inIrr", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
 	{ NULL, 0, 0, NULL }
 };
@@ -2439,9 +2439,9 @@ dissect_h225_RasUsageSpecification_when(tvbuff_t *tvb, int offset, packet_info *
 
 
 static per_sequence_t RasUsageSpecification_callStartingPoint_sequence[] = {
-	{ "alerting", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "alerting", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
-	{ "connect", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "connect", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
 	{ NULL, 0, 0, NULL }
 };
@@ -2456,11 +2456,11 @@ dissect_h225_RasUsageSpecification_callStartingPoint(tvbuff_t *tvb, int offset, 
 
 
 static per_sequence_t RasUsageSpecification_sequence[] = {
-	{ "when", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "when", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RasUsageSpecification_when },
-	{ "callStartingPoint", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "callStartingPoint", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_RasUsageSpecification_callStartingPoint },
-	{ "required", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "required", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RasUsageInfoTypes },
 	{ NULL, 0, 0, NULL }
 };
@@ -2501,9 +2501,9 @@ dissect_h225_ipAddress_port(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 
 static per_sequence_t ipAddress_sequence[] = {
-	{ "ip", NO_EXTENSIONS, ASN1_NOT_OPTIONAL, 
+	{ "ip", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL, 
 		dissect_h225_ipAddress_ip },
-	{ "port", NO_EXTENSIONS, ASN1_NOT_OPTIONAL, 
+	{ "port", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL, 
 		dissect_h225_ipAddress_port },
 	{ NULL, 0, 0, NULL }
 };
@@ -2522,9 +2522,9 @@ static const value_string routing_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t routing_choice[] = {
-	{ 0, "strict", EXTENSION_ROOT,
+	{ 0, "strict", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "loose", EXTENSION_ROOT,
+	{ 1, "loose", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
 	{ 0, NULL, 0, NULL }
 };
@@ -2546,13 +2546,13 @@ dissect_h225_route(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 }
 
 static per_sequence_t ipSourceRoute_sequence[] = {
-	{ "ip", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "ip", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ipAddress_ip },
-	{ "port", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "port", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ipAddress_port },
-	{ "route", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "route", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_route },
-	{ "routing", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "routing", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_routing },
 	{ NULL, 0, 0, NULL }
 };
@@ -2591,11 +2591,11 @@ dissect_h225_ipxPort(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 }
 
 static per_sequence_t ipxAddress_sequence[] = {
-	{ "node", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ "node", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h225_ipxNode },
-	{ "netnum", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ "netnum", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h225_ipxNetnum },
-	{ "port", NO_EXTENSIONS, ASN1_NOT_OPTIONAL, 
+	{ "port", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL, 
 		dissect_h225_ipxPort },
 	{ NULL, 0, 0, NULL }
 };
@@ -2626,9 +2626,9 @@ dissect_h225_ipv6Address_port(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 
 static per_sequence_t ip6Address_sequence[] = {
-	{ "ip", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "ip", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ipv6Address_ip },
-	{ "port", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "port", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ipv6Address_port },
 	{ NULL, 0, 0, NULL }
 };
@@ -2678,19 +2678,19 @@ static const value_string TransportAddress_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t TransportAddress_choice[] = {
-	{ 0, "ipAddress", EXTENSION_ROOT,
+	{ 0, "ipAddress", ASN1_EXTENSION_ROOT,
 		dissect_h225_ipAddress },
-	{ 1, "ipSourceRoute", EXTENSION_ROOT,
+	{ 1, "ipSourceRoute", ASN1_EXTENSION_ROOT,
 		dissect_h225_ipSourceRoute },
-	{ 2, "ipxAddress", EXTENSION_ROOT,
+	{ 2, "ipxAddress", ASN1_EXTENSION_ROOT,
 		dissect_h225_ipxAddress },
-	{ 3, "ip6Address", EXTENSION_ROOT,
+	{ 3, "ip6Address", ASN1_EXTENSION_ROOT,
 		dissect_h225_ip6Address },
-	{ 4, "netBios", EXTENSION_ROOT,
+	{ 4, "netBios", ASN1_EXTENSION_ROOT,
 		dissect_h225_netBios },
-	{ 5, "nsap", EXTENSION_ROOT,
+	{ 5, "nsap", ASN1_EXTENSION_ROOT,
 		dissect_h225_nsap },
-	{ 6, "nonStandardAddress", EXTENSION_ROOT,
+	{ 6, "nonStandardAddress", ASN1_EXTENSION_ROOT,
 		dissect_h225_nonStandardAddress },
 	{ 0, NULL, 0, NULL }
 };
@@ -2784,9 +2784,9 @@ dissect_h225_TransportAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 
 static per_sequence_t TransportChannelInfo_sequence[] = {
-	{ "sendAddress", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "sendAddress", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_sendAddress },
-	{ "recvAddress", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "recvAddress", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_recvAddress },
 	{ NULL, 0, 0, NULL }
 };
@@ -2832,9 +2832,9 @@ dissect_h225_carrierIdentificationCode(tvbuff_t *tvb, int offset, packet_info *p
 }
 
 static per_sequence_t CarrierInfo_sequence[] = {
-	{ "carrierIdentificationCode", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "carrierIdentificationCode", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_carrierIdentificationCode },
-	{ "carrierName", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "carrierName", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_carrierName },
 	{ NULL, 0, 0, NULL }
 };
@@ -2863,13 +2863,13 @@ static const value_string InfoRequestResponseStatus_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t InfoRequestResponseStatus_choice[] = {
-	{ 0, "complete", EXTENSION_ROOT,
+	{ 0, "complete", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "incomplete", EXTENSION_ROOT,
+	{ 1, "incomplete", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "segment", EXTENSION_ROOT,
+	{ 2, "segment", ASN1_EXTENSION_ROOT,
 		dissect_h225_segment },
-	{ 3, "invalidCall", EXTENSION_ROOT,
+	{ 3, "invalidCall", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
 	{ 0, NULL, 0, NULL }
 };
@@ -2891,7 +2891,7 @@ dissect_h225_guid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 }
 
 static per_sequence_t CallIdentifier_sequence[] = {
-	{ "guid", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "guid", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_guid },
 	{ NULL, 0, 0, NULL }
 };
@@ -2920,9 +2920,9 @@ dissect_h225_threadId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 
 static per_sequence_t CallLinkage_sequence[] = {
-	{ "globalCallId", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "globalCallId", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_globalCallId },
-	{ "threadId", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "threadId", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_threadId },
 	{ NULL, 0, 0, NULL }
 };
@@ -2976,13 +2976,13 @@ dissect_h225_GatekeeperIdentifier(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static per_sequence_t AlternateGK_sequence[] = {
-	{ "rasAddress", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "rasAddress", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_rasAddress },
-	{ "gatekeeperIdentifier", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "gatekeeperIdentifier", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_GatekeeperIdentifier },
-	{ "needToRegister", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "needToRegister", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_needToRegister },
-	{ "priority", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "priority", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_priority },
 	{ NULL, 0, 0, NULL }
 };
@@ -3008,9 +3008,9 @@ dissect_h225_altGKisPermanent(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 }
 
 static per_sequence_t AltGKInfo_sequence[] = {
-	{ "alternateGatekeeper", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "alternateGatekeeper", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_alternateGatekeeper },
-	{ "altGKisPermanent", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "altGKisPermanent", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_altGKisPermanent },
 	{ NULL, 0, 0, NULL }
 };
@@ -3035,9 +3035,9 @@ dissect_h225_sctp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 	return offset;
 }
 static per_sequence_t AlternateTransportAddress_sequence[] = {
-	{ "annexE", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "annexE", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_annexE },
-	{ "sctp", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "sctp", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_sctp },
 	{ NULL, 0, 0, NULL }
 };
@@ -3129,31 +3129,31 @@ dissect_h225_notify_bool(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 
 static per_sequence_t UUIEsRequested_sequence[] = {
-	{ "setup", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "setup", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_setup_bool },
-	{ "callProceeding", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callProceeding", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_callProceeding_bool },
-	{ "connect", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "connect", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_connect_bool },
-	{ "alerting", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "alerting", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_alerting_bool },
-	{ "information", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "information", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_information_bool },
-	{ "releaseComplete", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "releaseComplete", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_releaseComplete_bool },
-	{ "facility", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "facility", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_facility_bool },
-	{ "progress", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "progress", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_progress_bool },
-	{ "empty", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "empty", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_empty_bool },
-	{ "status", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "status", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_status_bool },
-	{ "statusInquiry", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "statusInquiry", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_statusInquiry_bool },
-	{ "setupAcknowledge", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "setupAcknowledge", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_setupAcknowledge_bool },
-	{ "notify", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "notify", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_notify_bool },
 	{ NULL, 0, 0, NULL }
 };
@@ -3182,9 +3182,9 @@ dissect_h225_threePartyService(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 
 static per_sequence_t Q954Details_sequence[] = {
-	{ "conferenceCalling", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "conferenceCalling", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_conferenceCalling },
-	{ "threePartyService", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "threePartyService", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_threePartyService },
 	{ NULL, 0, 0, NULL }
 };
@@ -3247,21 +3247,21 @@ dissect_h225_q957Full(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 }
 
 static per_sequence_t QseriesOptions_sequence[] = {
-	{ "q932Full", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "q932Full", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_q932Full },
-	{ "q951Full", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "q951Full", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_q951Full },
-	{ "q952Full", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "q952Full", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_q952Full },
-	{ "q953Full", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "q953Full", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_q953Full },
-	{ "q955Full", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "q955Full", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_q955Full },
-	{ "q956Full", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "q956Full", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_q956Full },
-	{ "q957Full", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "q957Full", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_q957Full },
-	{ "q954Info", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "q954Info", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_Q954Info },
 	{ NULL, 0, 0, NULL }
 };
@@ -3306,21 +3306,21 @@ dissect_h225_associatedSessionIds(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 static per_sequence_t RTPSession_sequence[] = {
-	{ "rtpAddress", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "rtpAddress", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_rtpAddress },
-	{ "rtcpAddress", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "rtcpAddress", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_rtcpAddress },
-	{ "cname", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "cname", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_cname },
-	{ "ssrc", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "ssrc", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ssrc },
-	{ "sessionId", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "sessionId", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RTPsessionId },
-	{ "associatedSessionIds", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "associatedSessionIds", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_associatedSessionIds },
-	{ "multicast", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "multicast", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
-	{ "bandwidth", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "bandwidth", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_BandWidth },
 	{ NULL, 0, 0, NULL }
 };
@@ -3355,13 +3355,13 @@ dissect_h225_ProtocolIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 }
 
 static per_sequence_t StatusUUIE_sequence[] = {
-	{ "protocolIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "protocolIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
-	{ "callIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallIdentifier },
-	{ "tokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
 	{ NULL, 0, 0, NULL }
 };
@@ -3372,13 +3372,13 @@ dissect_h225_StatusUUIE(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 	return offset;
 }
 static per_sequence_t StatusInquiryUUIE_sequence[] = {
-	{ "protocolIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "protocolIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
-	{ "callIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallIdentifier },
-	{ "tokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
 	{ NULL, 0, 0, NULL }
 };
@@ -3389,13 +3389,13 @@ dissect_h225_StatusInquiryUUIE(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 	return offset;
 }
 static per_sequence_t SetupAcknowledgeUUIE_sequence[] = {
-	{ "protocolIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "protocolIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
-	{ "callIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallIdentifier },
-	{ "tokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
 	{ NULL, 0, 0, NULL }
 };
@@ -3406,13 +3406,13 @@ dissect_h225_SetupAcknowledgeUUIE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 static per_sequence_t NotifyUUIE_sequence[] = {
-	{ "protocolIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "protocolIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
-	{ "callIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallIdentifier },
-	{ "tokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
 	{ NULL, 0, 0, NULL }
 };
@@ -3474,17 +3474,17 @@ dissect_h225_vplmn(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 
 static per_sequence_t GSMUIM_sequence[] = {
-	{ "imsi", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "imsi", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_imsi },
-	{ "tmsi", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tmsi", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tmsi },
-	{ "msisdn", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "msisdn", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_msisdn },
-	{ "imei", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "imei", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_imei },
-	{ "hplmn", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "hplmn", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_hplmn },
-	{ "vplmn", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "vplmn", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_vplmn },
 	{ NULL, 0, 0, NULL }
 };
@@ -3516,9 +3516,9 @@ static const value_string systemid_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t systemid_choice[] = {
-	{ 0, "sid", EXTENSION_ROOT,
+	{ 0, "sid", ASN1_EXTENSION_ROOT,
 		dissect_h225_sid },
-	{ 1, "mid", EXTENSION_ROOT,
+	{ 1, "mid", ASN1_EXTENSION_ROOT,
 		dissect_h225_mid },
 	{ 0, NULL, 0, NULL }
 };
@@ -3601,29 +3601,29 @@ dissect_h225_soc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 }
 
 static per_sequence_t ANSI41UIM_sequence[] = {
-	{ "imsi", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "imsi", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_imsi },
-	{ "min", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "min", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_min },
-	{ "mdn", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "mdn", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_mdn },
-	{ "msisdn", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "msisdn", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_msisdn },
-	{ "esn", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "esn", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_esn },
-	{ "mscid", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "mscid", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_mscid },
-	{ "systemid", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "systemid", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_systemid },
-	{ "systemMyTypeCode", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "systemMyTypeCode", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_systemMyTypeCode },
-	{ "systemAccessType", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "systemAccessType", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_systemAccessType },
-	{ "qualificationInformationCode", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "qualificationInformationCode", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_qualificationInformationCode },
-	{ "sesn", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "sesn", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_sesn },
-	{ "soc", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "soc", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_soc },
 	{ NULL, 0, 0, NULL }
 };
@@ -3641,9 +3641,9 @@ static const value_string MobileUIM_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t MobileUIM_choice[] = {
-	{ 0, "ansi41uim", EXTENSION_ROOT,
+	{ 0, "ansi41uim", ASN1_EXTENSION_ROOT,
 		dissect_h225_ANSI41UIM },
-	{ 1, "gsmuim", EXTENSION_ROOT,
+	{ 1, "gsmuim", ASN1_EXTENSION_ROOT,
 		dissect_h225_GSMUIM },
 	{ 0, NULL, 0, NULL }
 };
@@ -3696,9 +3696,9 @@ dissect_h225_privateNumberDigits(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 static per_sequence_t e164Number_sequence[] = {
-	{ "publicTypeOfNumber", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ "publicTypeOfNumber", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h225_PublicTypeOfNumber },
-	{ "publicNumberDigits", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ "publicNumberDigits", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h225_publicNumberDigits },
 	{ NULL, 0, 0, NULL }
 };
@@ -3709,9 +3709,9 @@ dissect_h225_e164Number(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 	return offset;
 }
 static per_sequence_t privateNumber_sequence[] = {
-	{ "privateTypeOfNumber", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ "privateTypeOfNumber", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h225_PrivateTypeOfNumber },
-	{ "privateNumberDigits", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ "privateNumberDigits", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h225_privateNumberDigits },
 	{ NULL, 0, 0, NULL }
 };
@@ -3731,15 +3731,15 @@ static const value_string PartyNumber_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t PartyNumber_choice[] = {
-	{ 0, "e164Number", EXTENSION_ROOT,
+	{ 0, "e164Number", ASN1_EXTENSION_ROOT,
 		dissect_h225_e164Number },
-	{ 1, "dataPartyNumber", EXTENSION_ROOT,
+	{ 1, "dataPartyNumber", ASN1_EXTENSION_ROOT,
 		dissect_h225_dataPartyNumber },
-	{ 2, "telexPartyNumber", EXTENSION_ROOT,
+	{ 2, "telexPartyNumber", ASN1_EXTENSION_ROOT,
 		dissect_h225_telexPartyNumber },
-	{ 3, "privateNumber", EXTENSION_ROOT,
+	{ 3, "privateNumber", ASN1_EXTENSION_ROOT,
 		dissect_h225_privateNumber },
-	{ 4, "nationalStandardPartyNumber", EXTENSION_ROOT,
+	{ 4, "nationalStandardPartyNumber", ASN1_EXTENSION_ROOT,
 		dissect_h225_nationalStandardPartyNumber },
 	{ 0, NULL, 0, NULL }
 };
@@ -3776,9 +3776,9 @@ dissect_h225_protocolVariant(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 	return offset;
 }
 static per_sequence_t TunnelledProtocolAlternateIdentifier_sequence[] = {
-	{ "protocolType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "protocolType", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_protocolType },
-	{ "protocolVariant", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "protocolVariant", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_protocolVariant },
 	{ NULL, 0, 0, NULL }
 };
@@ -3831,19 +3831,19 @@ static const value_string AliasAddress_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t AliasAddress_choice[] = {
-	{ 0, "dialedDigits", EXTENSION_ROOT,
+	{ 0, "dialedDigits", ASN1_EXTENSION_ROOT,
 		dissect_h225_dialedDigits },
-	{ 1, "h323ID", EXTENSION_ROOT,
+	{ 1, "h323ID", ASN1_EXTENSION_ROOT,
 		dissect_h225_h323Id },
-	{ 2, "urlID", NOT_EXTENSION_ROOT,
+	{ 2, "urlID", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_urlId },
-	{ 3, "transportID", NOT_EXTENSION_ROOT,
+	{ 3, "transportID", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_transportID },
-	{ 4, "emailID", NOT_EXTENSION_ROOT,
+	{ 4, "emailID", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_emailId },
-	{ 5, "partyNumber", NOT_EXTENSION_ROOT,
+	{ 5, "partyNumber", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_PartyNumber },
-	{ 6, "mobileUIM", NOT_EXTENSION_ROOT,
+	{ 6, "mobileUIM", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_MobileUIM },
 	{ 0, NULL, 0, NULL }
 };
@@ -3885,9 +3885,9 @@ dissect_h225_prefix(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 }
 
 static per_sequence_t SupportedPrefix_sequence[] = {
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "prefix", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "prefix", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_prefix },
 	{ NULL, 0, 0, NULL }
 };
@@ -3907,11 +3907,11 @@ dissect_h225_SupportedPrefixes(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 
 static per_sequence_t H310Caps_sequence[] = {
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "dataRatesSupported", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "dataRatesSupported", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_dataRatesSupported },
-	{ "supportedPrefixes", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "supportedPrefixes", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_SupportedPrefixes },
 	{ NULL, 0, 0, NULL }
 };
@@ -3924,11 +3924,11 @@ dissect_h225_H310Caps(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 
 static per_sequence_t H320Caps_sequence[] = {
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "dataRatesSupported", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "dataRatesSupported", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_dataRatesSupported },
-	{ "supportedPrefixes", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "supportedPrefixes", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_SupportedPrefixes },
 	{ NULL, 0, 0, NULL }
 };
@@ -3941,11 +3941,11 @@ dissect_h225_H320Caps(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 
 static per_sequence_t H321Caps_sequence[] = {
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "dataRatesSupported", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "dataRatesSupported", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_dataRatesSupported },
-	{ "supportedPrefixes", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "supportedPrefixes", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_SupportedPrefixes },
 	{ NULL, 0, 0, NULL }
 };
@@ -3958,11 +3958,11 @@ dissect_h225_H321Caps(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 
 static per_sequence_t H322Caps_sequence[] = {
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "dataRatesSupported", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "dataRatesSupported", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_dataRatesSupported },
-	{ "supportedPrefixes", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "supportedPrefixes", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_SupportedPrefixes },
 	{ NULL, 0, 0, NULL }
 };
@@ -3975,11 +3975,11 @@ dissect_h225_H322Caps(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 
 static per_sequence_t H323Caps_sequence[] = {
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "dataRatesSupported", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "dataRatesSupported", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_dataRatesSupported },
-	{ "supportedPrefixes", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "supportedPrefixes", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_SupportedPrefixes },
 	{ NULL, 0, 0, NULL }
 };
@@ -3992,11 +3992,11 @@ dissect_h225_H323Caps(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 
 static per_sequence_t H324Caps_sequence[] = {
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "dataRatesSupported", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "dataRatesSupported", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_dataRatesSupported },
-	{ "supportedPrefixes", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "supportedPrefixes", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_SupportedPrefixes },
 	{ NULL, 0, 0, NULL }
 };
@@ -4009,11 +4009,11 @@ dissect_h225_H324Caps(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 
 static per_sequence_t VoiceCaps_sequence[] = {
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "dataRatesSupported", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "dataRatesSupported", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_dataRatesSupported },
-	{ "supportedPrefixes", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "supportedPrefixes", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_SupportedPrefixes },
 	{ NULL, 0, 0, NULL }
 };
@@ -4026,11 +4026,11 @@ dissect_h225_VoiceCaps(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 
 static per_sequence_t T120OnlyCaps_sequence[] = {
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "dataRatesSupported", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "dataRatesSupported", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_dataRatesSupported },
-	{ "supportedPrefixes", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "supportedPrefixes", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_SupportedPrefixes },
 	{ NULL, 0, 0, NULL }
 };
@@ -4042,11 +4042,11 @@ dissect_h225_T120OnlyCaps(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 }
 
 static per_sequence_t NonStandardProtocol_sequence[] = {
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "dataRatesSupported", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "dataRatesSupported", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_dataRatesSupported },
-	{ "supportedPrefixes", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "supportedPrefixes", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_SupportedPrefixes },
 	{ NULL, 0, 0, NULL }
 };
@@ -4059,11 +4059,11 @@ dissect_h225_NonStandardProtocol(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 static per_sequence_t SIPCaps_sequence[] = {
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "dataRatesSupported", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "dataRatesSupported", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_dataRatesSupported },
-	{ "supportedPrefixes", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "supportedPrefixes", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_SupportedPrefixes },
 	{ NULL, 0, 0, NULL }
 };
@@ -4075,9 +4075,9 @@ dissect_h225_SIPCaps(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 }
 
 static per_sequence_t AddressPattern_range_sequence[] = {
-	{ "startOfRange", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ "startOfRange", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h225_startOfRange },
-	{ "endOfRange", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ "endOfRange", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h225_endOfRange },
 	{ NULL, 0, 0, NULL }
 };
@@ -4095,9 +4095,9 @@ static const value_string AddressPattern_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t AddressPattern_choice[] = {
-	{ 0, "wildcard", EXTENSION_ROOT,
+	{ 0, "wildcard", ASN1_EXTENSION_ROOT,
 		dissect_h225_wildcard },
-	{ 0, "range", EXTENSION_ROOT,
+	{ 0, "range", ASN1_EXTENSION_ROOT,
 		dissect_h225_AddressPattern_range },
 	{ 0, NULL, 0, NULL }
 };
@@ -4108,11 +4108,11 @@ dissect_h225_AddressPattern(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 	return offset;
 }
 static per_sequence_t ConferenceList_sequence[] = {
-	{ "conferenceID", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "conferenceID", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_conferenceID },
-	{ "conferenceAlias", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "conferenceAlias", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_conferenceAlias },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
 	{ NULL, 0, 0, NULL }
 };
@@ -4130,15 +4130,15 @@ dissect_h225_conferences(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	return offset;
 }
 static per_sequence_t T38FaxAnnexbOnlyCaps_sequence[] = {
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "dataRatesSupported", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "dataRatesSupported", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_dataRatesSupported },
-	{ "supportedPrefixes", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "supportedPrefixes", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_SupportedPrefixes },
-	{ "t38FaxProtocol", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "t38FaxProtocol", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_DataProtocolCapability },
-	{ "t38FaxProfile", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "t38FaxProfile", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_T38FaxProfile },
 	{ NULL, 0, 0, NULL }
 };
@@ -4166,29 +4166,29 @@ static const value_string SupportedProtocols_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t SupportedProtocols_choice[] = {
-	{ 0, "nonStandardData", EXTENSION_ROOT,
+	{ 0, "nonStandardData", ASN1_EXTENSION_ROOT,
 		dissect_h225_nonStandardData },
-	{ 1, "h310", EXTENSION_ROOT,
+	{ 1, "h310", ASN1_EXTENSION_ROOT,
 		dissect_h225_H310Caps },
-	{ 2, "h320", EXTENSION_ROOT,
+	{ 2, "h320", ASN1_EXTENSION_ROOT,
 		dissect_h225_H320Caps },
-	{ 3, "h321", EXTENSION_ROOT,
+	{ 3, "h321", ASN1_EXTENSION_ROOT,
 		dissect_h225_H321Caps },
-	{ 4, "h322", EXTENSION_ROOT,
+	{ 4, "h322", ASN1_EXTENSION_ROOT,
 		dissect_h225_H322Caps },
-	{ 5, "h323", EXTENSION_ROOT,
+	{ 5, "h323", ASN1_EXTENSION_ROOT,
 		dissect_h225_H323Caps },
-	{ 6, "h324", EXTENSION_ROOT,
+	{ 6, "h324", ASN1_EXTENSION_ROOT,
 		dissect_h225_H324Caps },
-	{ 7, "voice", EXTENSION_ROOT,
+	{ 7, "voice", ASN1_EXTENSION_ROOT,
 		dissect_h225_VoiceCaps },
-	{ 8, "t120-only", EXTENSION_ROOT,
+	{ 8, "t120-only", ASN1_EXTENSION_ROOT,
 		dissect_h225_T120OnlyCaps },
-	{ 9, "nonStandardProtocol", NOT_EXTENSION_ROOT,
+	{ 9, "nonStandardProtocol", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NonStandardProtocol },
-	{ 10, "t38FaxAnnexbOnly", NOT_EXTENSION_ROOT,
+	{ 10, "t38FaxAnnexbOnly", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_T38FaxAnnexbOnlyCaps },
-	{ 11, "sip", NOT_EXTENSION_ROOT,
+	{ 11, "sip", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_SIPCaps },
 	{ 0, NULL, 0, NULL }
 };
@@ -4209,9 +4209,9 @@ dissect_h225_protocol(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 
 static per_sequence_t GatewayInfo_sequence[] = {
-	{ "protocol", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "protocol", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_protocol },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
 	{ NULL, 0, 0, NULL }
 };
@@ -4222,9 +4222,9 @@ dissect_h225_gateway(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	return offset;
 }
 static per_sequence_t McuInfo_sequence[] = {
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "protocol", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "protocol", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_protocol },
 	{ NULL, 0, 0, NULL }
 };
@@ -4245,9 +4245,9 @@ dissect_h225_tunnelledProtocolObjectID(tvbuff_t *tvb, int offset, packet_info *p
 
 
 static per_sequence_t TunnelledProtocol_id_sequence[] = {
-	{ "tunnelledProtocolObjectID", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "tunnelledProtocolObjectID", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_tunnelledProtocolObjectID },
-	{ "tunnelledProtocolAlternateID", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "tunnelledProtocolAlternateID", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_TunnelledProtocolAlternateIdentifier },
 	{ NULL, 0, 0, NULL }
 };
@@ -4265,9 +4265,9 @@ dissect_h225_TunnelledProtocol_subIdentifier(tvbuff_t *tvb, int offset, packet_i
 	return offset;
 }
 static per_sequence_t TunnelledProtocol_sequence[] = {
-	{ "id", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "id", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_TunnelledProtocol_id },
-	{ "subIdentifier", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "subIdentifier", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_TunnelledProtocol_subIdentifier },
 	{ NULL, 0, 0, NULL }
 };
@@ -4307,9 +4307,9 @@ dissect_h225_CicInfo_cic(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 }
 
 static per_sequence_t CicInfo_sequence[] = {
-	{ "cic", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "cic", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CicInfo_cic },
-	{ "pointCode", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "pointCode", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CicInfo_pointCode },
 	{ NULL, 0, 0, NULL }
 };
@@ -4344,9 +4344,9 @@ dissect_h225_GroupID_group(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 }
 
 static per_sequence_t GroupID_sequence[] = {
-	{ "member", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "member", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_GroupID_member },
-	{ "group", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "group", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_GroupID_group },
 	{ NULL, 0, 0, NULL }
 };
@@ -4358,11 +4358,11 @@ dissect_h225_GroupID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 }
 
 static per_sequence_t CircuitIdentifier_sequence[] = {
-	{ "cic", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cic", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CicInfo },
-	{ "group", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "group", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_GroupID },
-	{ "carrier", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "carrier", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CarrierInfo },
 	{ NULL, 0, 0, NULL }
 };
@@ -4412,11 +4412,11 @@ static const value_string GenericIdentifier_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t GenericIdentifier_choice[] = {
-	{ 0, "standard", EXTENSION_ROOT,
+	{ 0, "standard", ASN1_EXTENSION_ROOT,
 		dissect_h225_Generic_standard },
-	{ 1, "oid", EXTENSION_ROOT,
+	{ 1, "oid", ASN1_EXTENSION_ROOT,
 		dissect_h225_Generic_oid },
-	{ 2, "nonStandard", EXTENSION_ROOT,
+	{ 2, "nonStandard", ASN1_EXTENSION_ROOT,
 		dissect_h225_Generic_nonStandard },
 	{ 0, NULL, 0, NULL }
 };
@@ -4430,9 +4430,9 @@ dissect_h225_GenericIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 static int dissect_h225_Content(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 
 static per_sequence_t EnumeratedParameter_sequence[] = {
-	{ "id", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "id", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_GenericIdentifier },
-	{ "content", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "content", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_Content },
 	{ NULL, 0, 0, NULL }
 };
@@ -4452,9 +4452,9 @@ dissect_h225_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 }
 
 static per_sequence_t GenericData_sequence[] = {
-	{ "id", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "id", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_GenericIdentifier },
-	{ "parameters", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "parameters", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_parameters },
 	{ NULL, 0, 0, NULL }
 };
@@ -4574,29 +4574,29 @@ static const value_string Content_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t Content_choice[] = {
-	{ 0, "raw", EXTENSION_ROOT,
+	{ 0, "raw", ASN1_EXTENSION_ROOT,
 		dissect_h225_Content_raw },
-	{ 1, "text", EXTENSION_ROOT,
+	{ 1, "text", ASN1_EXTENSION_ROOT,
 		dissect_h225_Content_text },
-	{ 2, "unicode", EXTENSION_ROOT,
+	{ 2, "unicode", ASN1_EXTENSION_ROOT,
 		dissect_h225_Content_unicode },
-	{ 3, "bool", EXTENSION_ROOT,
+	{ 3, "bool", ASN1_EXTENSION_ROOT,
 		dissect_h225_Content_bool },
-	{ 4, "number8", EXTENSION_ROOT,
+	{ 4, "number8", ASN1_EXTENSION_ROOT,
 		dissect_h225_Content_number8 },
-	{ 5, "number16", EXTENSION_ROOT,
+	{ 5, "number16", ASN1_EXTENSION_ROOT,
 		dissect_h225_number16 },
-	{ 6, "number32", EXTENSION_ROOT,
+	{ 6, "number32", ASN1_EXTENSION_ROOT,
 		dissect_h225_Content_number32 },
-	{ 7, "id", EXTENSION_ROOT,
+	{ 7, "id", ASN1_EXTENSION_ROOT,
 		dissect_h225_GenericIdentifier },
-	{ 8, "alias", EXTENSION_ROOT,
+	{ 8, "alias", ASN1_EXTENSION_ROOT,
 		dissect_h225_AliasAddress },
-	{ 9, "transport", EXTENSION_ROOT,
+	{ 9, "transport", ASN1_EXTENSION_ROOT,
 		dissect_h225_TransportAddress },
-	{ 10, "compound", EXTENSION_ROOT,
+	{ 10, "compound", ASN1_EXTENSION_ROOT,
 		dissect_h225_Content_compound },
-	{ 11, "nested", EXTENSION_ROOT,
+	{ 11, "nested", ASN1_EXTENSION_ROOT,
 		dissect_h225_Content_nested },
 	{ 0, NULL, 0, NULL }
 };
@@ -4637,13 +4637,13 @@ dissect_h225_supportedFeatures(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 }
 
 static per_sequence_t FeatureSet_sequence[] = {
-	{ "replacementFeatureSet", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "replacementFeatureSet", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_replacementFeatureSet },
-	{ "neededFeatures", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "neededFeatures", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_neededFeatures },
-	{ "desiredFeatures", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "desiredFeatures", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_desiredFeatures },
-	{ "supportedFeatures", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "supportedFeatures", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_supportedFeatures },
 	{ NULL, 0, 0, NULL }
 };
@@ -4672,11 +4672,11 @@ dissect_h225_CallsAvailable_group(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static per_sequence_t CallsAvailable_sequence[] = {
-	{ "calls", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "calls", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallsAvailable_calls },
-	{ "group", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "group", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CallsAvailable_group },
-	{ "carrier", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "carrier", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CarrierInfo },
 	{ NULL, 0, 0, NULL }
 };
@@ -4771,29 +4771,29 @@ dissect_h225_sipGwCallsAvailable(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 	return offset;
 }
 static per_sequence_t CallCapacityInfo_sequence[] = {
-	{ "voiceGwCallsAvailable", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "voiceGwCallsAvailable", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_voiceGwCallsAvailable },
-	{ "h310GwCallsAvailable", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "h310GwCallsAvailable", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_h310GwCallsAvailable },
-	{ "h320GwCallsAvailable", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "h320GwCallsAvailable", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_h320GwCallsAvailable },
-	{ "h321GwCallsAvailable", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "h321GwCallsAvailable", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_h321GwCallsAvailable },
-	{ "h322GwCallsAvailable", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "h322GwCallsAvailable", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_h322GwCallsAvailable },
-	{ "h323GwCallsAvailable", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "h323GwCallsAvailable", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_h323GwCallsAvailable },
-	{ "h324GwCallsAvailable", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "h324GwCallsAvailable", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_h324GwCallsAvailable },
-	{ "t120OnlyGwCallsAvailable", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "t120OnlyGwCallsAvailable", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_t120OnlyGwCallsAvailable },
-	{ "t38FaxAnnexbOnlyGwCallsAvailable", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "t38FaxAnnexbOnlyGwCallsAvailable", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_t38FaxAnnexbOnlyGwCallsAvailable },
-	{ "terminalCallsAvailable", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "terminalCallsAvailable", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_terminalCallsAvailable },
-	{ "mcuCallsAvailable", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "mcuCallsAvailable", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_mcuCallsAvailable },
-	{ "sipGwCallsAvailable", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "sipGwCallsAvailable", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_sipGwCallsAvailable },
 	{ NULL, 0, 0, NULL }
 };
@@ -4811,9 +4811,9 @@ dissect_h225_currentCallCapacity(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 static per_sequence_t CallCapacity_sequence[] = {
-	{ "maximumCallCapacity", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "maximumCallCapacity", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_maximumCallCapacity },
-	{ "currentCallCapacity", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "currentCallCapacity", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_currentCallCapacity },
 	{ NULL, 0, 0, NULL }
 };
@@ -4846,13 +4846,13 @@ dissect_h225_enterpriseNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 }
 
 static per_sequence_t VendorIdentifier_sequence[] = {
-	{ "vendor", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "vendor", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h245_h221NonStandard },
-	{ "productId", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "productId", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_productID },
-	{ "versionId", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "versionId", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_versionID },
-	{ "enterpriseNumber", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "enterpriseNumber", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_enterpriseNumber },
 	{ NULL, 0, 0, NULL }
 };
@@ -4872,7 +4872,7 @@ dissect_h225_canReportCallCapacity(tvbuff_t *tvb, int offset, packet_info *pinfo
 }
 
 static per_sequence_t CapacityReportingCapability_sequence[] = {
-	{ "canReportCallCapacity", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "canReportCallCapacity", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_canReportCallCapacity },
 	{ NULL, 0, 0, NULL }
 };
@@ -4898,9 +4898,9 @@ dissect_h225_canEnforceDurationLimit(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 static per_sequence_t CallCreditCapability_sequence[] = {
-	{ "canDisplayAmountString", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "canDisplayAmountString", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_canDisplayAmountString },
-	{ "canEnforceDurationLimit", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "canEnforceDurationLimit", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_canEnforceDurationLimit },
 	{ NULL, 0, 0, NULL }
 };
@@ -4926,13 +4926,13 @@ dissect_h225_BandwidthDetails_multicast(tvbuff_t *tvb, int offset, packet_info *
 }
 
 static per_sequence_t BandwidthDetails_sequence[] = {
-	{ "sender", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "sender", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_BandwidthDetails_sender },
-	{ "multicast", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "multicast", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_BandwidthDetails_multicast },
-	{ "bandwidth", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "bandwidth", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_BandWidth },
-	{ "rtcpAddresses", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "rtcpAddresses", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_rtcpAddress },
 	{ NULL, 0, 0, NULL }
 };
@@ -4956,9 +4956,9 @@ static const value_string CallTerminationCause_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t CallTerminationCause_choice[] = {
-	{ 0, "releaseCompleteReason", EXTENSION_ROOT,
+	{ 0, "releaseCompleteReason", ASN1_EXTENSION_ROOT,
 		dissect_h225_ReleaseCompleteReason },
-	{ 1, "releaseCompleteCauseIE", EXTENSION_ROOT,
+	{ 1, "releaseCompleteCauseIE", ASN1_EXTENSION_ROOT,
 		dissect_h225_releaseCompleteCauseIE },
 	{ 0, NULL, 0, NULL }
 };
@@ -4970,11 +4970,11 @@ dissect_h225_CallTerminationCause(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static per_sequence_t CircuitInfo_sequence[] = {
-	{ "sourceCircuitID", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "sourceCircuitID", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_sourceCircuitID },
-	{ "destinationCircuitID", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "destinationCircuitID", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_destinationCircuitID },
-	{ "genericData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
 	{ NULL, 0, 0, NULL }
 };
@@ -5013,19 +5013,19 @@ dissect_h225_fastConnectRefused(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 }
 
 static per_sequence_t InformationUUIE_sequence[] = {
-	{ "protocolIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "protocolIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
-	{ "callIdentifier", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callIdentifier", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallIdentifier },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "fastStart", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "fastStart", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_fastStart },
-	{ "fastConnectRefused", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "fastConnectRefused", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_fastConnectRefused },
-	{ "circuitInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "circuitInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CircuitInfo },
 	{ NULL, 0, 0, NULL }
 };
@@ -5069,49 +5069,49 @@ static const value_string AdmissionRejectReason_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t AdmissionRejectReason_choice[] = {
-	{ 0, "calledPartyNotRegistered", EXTENSION_ROOT,
+	{ 0, "calledPartyNotRegistered", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "invalidPermission", EXTENSION_ROOT,
+	{ 1, "invalidPermission", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "requestDenied", EXTENSION_ROOT,
+	{ 2, "requestDenied", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 3, "undefinedReason", EXTENSION_ROOT,
+	{ 3, "undefinedReason", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 4, "callerNotRegistered", EXTENSION_ROOT,
+	{ 4, "callerNotRegistered", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 5, "routeCallToGatekeeper", EXTENSION_ROOT,
+	{ 5, "routeCallToGatekeeper", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 6, "invalidEndpointIdentifier", EXTENSION_ROOT,
+	{ 6, "invalidEndpointIdentifier", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 7, "resourceUnavailable", EXTENSION_ROOT,
+	{ 7, "resourceUnavailable", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 8, "securityDenial", NOT_EXTENSION_ROOT,
+	{ 8, "securityDenial", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 9, "qosControlNotSupported", NOT_EXTENSION_ROOT,
+	{ 9, "qosControlNotSupported", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 10, "incompleteAddress", NOT_EXTENSION_ROOT,
+	{ 10, "incompleteAddress", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 11, "aliasesInconsistent", NOT_EXTENSION_ROOT,
+	{ 11, "aliasesInconsistent", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 12, "routeCallToSCN", NOT_EXTENSION_ROOT,
+	{ 12, "routeCallToSCN", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_routeCallToSCN },
-	{ 13, "exceedsCallCapacity", NOT_EXTENSION_ROOT,
+	{ 13, "exceedsCallCapacity", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 14, "collectDestination", NOT_EXTENSION_ROOT,
+	{ 14, "collectDestination", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 15, "collectPIN", NOT_EXTENSION_ROOT,
+	{ 15, "collectPIN", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 16, "genericDataReason", NOT_EXTENSION_ROOT,
+	{ 16, "genericDataReason", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 17, "neededFeatureNotSupported", NOT_EXTENSION_ROOT,
+	{ 17, "neededFeatureNotSupported", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 18, "securityErrors", NOT_EXTENSION_ROOT,
+	{ 18, "securityErrors", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_SecurityErrors2 },
-	{ 19, "securityDHmismatch", NOT_EXTENSION_ROOT,
+	{ 19, "securityDHmismatch", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 20, "noRouteToDestination", NOT_EXTENSION_ROOT,
+	{ 20, "noRouteToDestination", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 21, "unallocatedNumber", NOT_EXTENSION_ROOT,
+	{ 21, "unallocatedNumber", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
 	{ 0, NULL, 0, NULL }
 };
@@ -5135,9 +5135,9 @@ static const value_string EncryptIntAlg_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t EncryptIntAlg_choice[] = {
-	{ 0, "nonStandard", EXTENSION_ROOT,
+	{ 0, "nonStandard", ASN1_EXTENSION_ROOT,
 		dissect_h225_nonStandard },
-	{ 1, "isoAlgorithm", EXTENSION_ROOT,
+	{ 1, "isoAlgorithm", ASN1_EXTENSION_ROOT,
 		dissect_h225_isoAlgorithm },
 	{ 0, NULL, 0, NULL }
 };
@@ -5170,13 +5170,13 @@ static const value_string NonIsoIntegrityMechanism_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t NonIsoIntegrityMechanism_choice[] = {
-	{ 0, "hMAC-MD5", EXTENSION_ROOT,
+	{ 0, "hMAC-MD5", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "hMAC_iso10118_2_s", EXTENSION_ROOT,
+	{ 1, "hMAC_iso10118_2_s", ASN1_EXTENSION_ROOT,
 		dissect_h225_hMAC_iso10118_2_s },
-	{ 2, "hMAC_iso10118_2_l", EXTENSION_ROOT,
+	{ 2, "hMAC_iso10118_2_l", ASN1_EXTENSION_ROOT,
 		dissect_h225_hMAC_iso10118_2_l },
-	{ 3, "hMAC_iso10118_3", EXTENSION_ROOT,
+	{ 3, "hMAC_iso10118_3", ASN1_EXTENSION_ROOT,
 		dissect_h225_hMAC_iso10118_3 },
 	{ 0, NULL, 0, NULL }
 };
@@ -5202,13 +5202,13 @@ static const value_string IntegrityMechanism_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t IntegrityMechanism_choice[] = {
-	{ 0, "nonStandard", EXTENSION_ROOT,
+	{ 0, "nonStandard", ASN1_EXTENSION_ROOT,
 		dissect_h225_nonStandard },
-	{ 1, "digSig", EXTENSION_ROOT,
+	{ 1, "digSig", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "iso9797", EXTENSION_ROOT,
+	{ 2, "iso9797", ASN1_EXTENSION_ROOT,
 		dissect_h225_iso9797 },
-	{ 3, "nonIsoIM", EXTENSION_ROOT,
+	{ 3, "nonIsoIM", ASN1_EXTENSION_ROOT,
 		dissect_h225_NonIsoIntegrityMechanism },
 	{ 0, NULL, 0, NULL }
 };
@@ -5239,37 +5239,37 @@ static const value_string LocationRejectReason_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t LocationRejectReason_choice[] = {
-	{ 0, "notRegistered", EXTENSION_ROOT,
+	{ 0, "notRegistered", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "invalidPermission", EXTENSION_ROOT,
+	{ 1, "invalidPermission", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "requestDenied", EXTENSION_ROOT,
+	{ 2, "requestDenied", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 3, "undefinedReason", EXTENSION_ROOT,
+	{ 3, "undefinedReason", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 4, "securityDenial", NOT_EXTENSION_ROOT,
+	{ 4, "securityDenial", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 5, "aliasesInconsistent", NOT_EXTENSION_ROOT,
+	{ 5, "aliasesInconsistent", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 6, "routeCalltoSCN", NOT_EXTENSION_ROOT,
+	{ 6, "routeCalltoSCN", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_routeCallToSCN },
-	{ 7, "resourceUnavailable", NOT_EXTENSION_ROOT,
+	{ 7, "resourceUnavailable", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 8, "genericDataReason", NOT_EXTENSION_ROOT,
+	{ 8, "genericDataReason", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 9, "neededFeatureNotSupported", NOT_EXTENSION_ROOT,
+	{ 9, "neededFeatureNotSupported", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{10, "hopCountExceeded", NOT_EXTENSION_ROOT,
+	{10, "hopCountExceeded", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{11, "incompleteAddress", NOT_EXTENSION_ROOT,
+	{11, "incompleteAddress", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{12, "securityError", NOT_EXTENSION_ROOT,
+	{12, "securityError", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_SecurityErrors2 },
-	{13, "securityDHmismatch", NOT_EXTENSION_ROOT,
+	{13, "securityDHmismatch", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{14, "noRouteToDestination", NOT_EXTENSION_ROOT,
+	{14, "noRouteToDestination", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{15, "unallocatedNumber", NOT_EXTENSION_ROOT,
+	{15, "unallocatedNumber", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
 	{ 0, NULL, 0, NULL }
 };
@@ -5304,25 +5304,25 @@ dissect_h225_undefinedNode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 
 static per_sequence_t EndPointType_sequence[] = {
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "vendor", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "vendor", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_VendorIdentifier },
-	{ "gatekeeper", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "gatekeeper", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_GatekeeperInfo },
-	{ "gateway", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "gateway", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_gateway },
-	{ "mcu", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "mcu", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_mcu },
-	{ "terminal", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "terminal", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_TerminalInfo },
-	{ "mc", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "mc", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_mc },
-	{ "undefinedNode", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "undefinedNode", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_undefinedNode },
-	{ "set", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "set", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_EndpointType_set },
-	{ "supportedTunnelledProtocols", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "supportedTunnelledProtocols", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_TunnelledProtocol },
 	{ NULL, 0, 0, NULL }
 };
@@ -5365,29 +5365,29 @@ dissect_h225_maintainConnection(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 	return offset;
 }
 static per_sequence_t CallProceedingUUIE_sequence[] = {
-	{ "protocolIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "protocolIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
-	{ "destinationInfo", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "destinationInfo", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_destinationInfo },
-	{ "h245Address", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "h245Address", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_h245Address },
-	{ "callIdentifier", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callIdentifier", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallIdentifier },
-	{ "h245SecurityMode", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "h245SecurityMode", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_H245Security },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "fastStart", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "fastStart", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_fastStart },
-	{ "multipleCalls", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "multipleCalls", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_multipleCalls },
-	{ "maintainConnection", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "maintainConnection", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_maintainConnection },
-	{ "fastConnectRefused", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "fastConnectRefused", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
-	{ "featureSet", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "featureSet", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_FeatureSet },
 	{ NULL, 0, 0, NULL }
 };
@@ -5399,9 +5399,9 @@ dissect_h225_CallProceedingUUIE(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 }
 
 static per_sequence_t CapacityReportingSpecification_when_sequence[] = {
-	{ "callStart", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callStart", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_NULL },
-	{ "callEnd", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "callEnd", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
 	{ NULL, 0, 0, NULL }
 };
@@ -5413,7 +5413,7 @@ dissect_h225_CapacityReportingSpecification_when(tvbuff_t *tvb, int offset, pack
 }
 
 static per_sequence_t CapacityReportingSpecification_sequence[] = {
-	{ "when", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "when", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CapacityReportingSpecification_when },
 	{ NULL, 0, 0, NULL }
 };
@@ -5424,27 +5424,27 @@ dissect_h225_CapacityReportingSpecification(tvbuff_t *tvb, int offset, packet_in
 	return offset;
 }
 static per_sequence_t ProgressUUIE_sequence[] = {
-	{ "protocolIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "protocolIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
-	{ "destinationInfo", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "destinationInfo", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_destinationInfo },
-	{ "h245Address", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "h245Address", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_h245Address },
-	{ "callIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallIdentifier },
-	{ "h245SecurityMode", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "h245SecurityMode", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_H245Security },
-	{ "tokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "fastStart", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "fastStart", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_fastStart },
-	{ "multipleCalls", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "multipleCalls", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_multipleCalls },
-	{ "maintainConnection", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "maintainConnection", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_maintainConnection },
-	{ "fastConnectRefused", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "fastConnectRefused", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
 	{ NULL, 0, 0, NULL }
 };
@@ -5486,31 +5486,31 @@ dissect_h225_callSignalAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 
 static per_sequence_t EndPoint_sequence[] = {
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "aliasAddress", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "aliasAddress", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_AliasAddress },
-	{ "callSignalAddress", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "callSignalAddress", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_callSignalAddress },
-	{ "rasAddress", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "rasAddress", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_rasAddress_sequence },
-	{ "endpointType", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "endpointType", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_EndPointType },
-	{ "tokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "priority", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "priority", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_priority },
-	{ "remoteExtensionAddress", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "remoteExtensionAddress", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_remoteExtensionAddress },
-	{ "destExtraCallInfo", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "destExtraCallInfo", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_destExtraCallInfo },
-	{ "alternateTransportAddresses", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "alternateTransportAddresses", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_AlternateTransportAddress },
-	{ "circuitInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "circuitInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CircuitInfo },
-	{ "featureSet", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "featureSet", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_FeatureSet },
 	{ NULL, 0, 0, NULL }
 };
@@ -5543,9 +5543,9 @@ dissect_h225_algorithmOID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 }
 
 static per_sequence_t ICV_sequence[] = {
-	{ "algorithmOID", NO_EXTENSIONS, ASN1_OPTIONAL,
+	{ "algorithmOID", ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
 		dissect_h225_algorithmOID },
-	{ "icv", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ "icv", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h225_icv },
 	{ NULL, 0, 0, NULL }
 };
@@ -5557,21 +5557,21 @@ dissect_h225_ICV(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 }
 
 static per_sequence_t BandwidthConfirm_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "bandWidth", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "bandWidth", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_BandWidth },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "capacity", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "capacity", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CallCapacity },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
 	{ NULL, 0, 0, NULL }
 };
@@ -5584,17 +5584,17 @@ dissect_h225_BandwidthConfirm(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 
 static per_sequence_t UnregistrationConfirm_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
 	{ NULL, 0, 0, NULL }
 };
@@ -5605,19 +5605,19 @@ dissect_h225_UnregistrationConfirm(tvbuff_t *tvb, int offset, packet_info *pinfo
 	return offset;
 }
 static per_sequence_t NonStandardMessage_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "featureSet", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "featureSet", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_FeatureSet },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
 	{ NULL, 0, 0, NULL }
 };
@@ -5630,15 +5630,15 @@ dissect_h225_NonStandardMessage(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 static per_sequence_t InfoRequestAck_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "tokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ NULL, 0, 0, NULL }
 };
@@ -5649,19 +5649,19 @@ dissect_h225_InfoRequestAck(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 	return offset;
 }
 static per_sequence_t InfoRequestNak_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "nakReason", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "nakReason", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_InfoRequestNakReason },
-	{ "altGKInfo", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "altGKInfo", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_AltGKInfo },
-	{ "tokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
 	{ NULL, 0, 0, NULL }
 };
@@ -5673,19 +5673,19 @@ dissect_h225_InfoRequestNak(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 static per_sequence_t ResourcesAvailableConfirm_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "protocolIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "protocolIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "tokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_genericData },
 	{ NULL, 0, 0, NULL }
 };
@@ -5732,41 +5732,41 @@ dissect_h225_endpointAlias(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 
 static per_sequence_t GatekeeperRequest_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "protocolIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "protocolIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "rasAddress", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "rasAddress", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_rasAddress },
-	{ "endpointType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "endpointType", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_EndPointType },
-	{ "gatekeeperIdentifier", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "gatekeeperIdentifier", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_GatekeeperIdentifier },
-	{ "callServices", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "callServices", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_callServices },
-	{ "endpointAlias", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "endpointAlias", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_endpointAlias },
-	{ "alternateEndpoints", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "alternateEndpoints", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_alternateEndpoints },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
 /*XXX from h235 AuthenticationMechanism */
-	{ "authenticationCapability", NOT_EXTENSION_ROOT, ASN1_OPTIONAL, NULL },
-	{ "algorithmOIDs", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "authenticationCapability", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL, NULL },
+	{ "algorithmOIDs", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_algorithmOIDs },
-	{ "integrity", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrity", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_integrity },
-	{ "integrityCheckValue", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "supportsAltGK", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "supportsAltGK", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
-	{ "featureSet", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "featureSet", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_FeatureSet },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
 	{ NULL, 0, 0, NULL }
 };
@@ -5778,21 +5778,21 @@ dissect_h225_GatekeeperRequest(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 }
 
 static per_sequence_t ServiceControlResponse_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "result", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "result", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_SCRresult },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "tokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "featureSet", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "featureSet", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_FeatureSet },
-	{ "genericData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
 	{ NULL, 0, 0, NULL }
 };
@@ -5806,21 +5806,21 @@ dissect_h225_ServiceControlResponse(tvbuff_t *tvb, int offset, packet_info *pinf
 
 
 static per_sequence_t DisengageReject_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "rejectReason", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "rejectReason", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_DisengageRejectReason },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "altGKInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "altGKInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_AltGKInfo },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
 	{ NULL, 0, 0, NULL }
 };
@@ -5834,23 +5834,23 @@ dissect_h225_DisengageReject(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 
 static per_sequence_t BandwidthReject_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "rejectReason", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "rejectReason", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_BandRejectReason },
-	{ "allowedBandWidth", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "allowedBandWidth", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_allowedBandWidth },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "altGKInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "altGKInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_AltGKInfo },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
 	{ NULL, 0, 0, NULL }
 };
@@ -5864,21 +5864,21 @@ dissect_h225_BandwidthReject(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 
 static per_sequence_t UnregistrationReject_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "rejectReason", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "rejectReason", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_UnregRejectReason },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "altGKInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "altGKInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_AltGKInfo },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
 	{ NULL, 0, 0, NULL }
 };
@@ -5905,35 +5905,35 @@ dissect_h225_EndpointIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 }
 
 static per_sequence_t UnregistrationRequest_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "callSignalAddress", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callSignalAddress", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_callSignalAddress },
-	{ "endpointAlias", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "endpointAlias", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_endpointAlias },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "endpointIdentifier", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "endpointIdentifier", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_EndpointIdentifier },
-	{ "alternateEndpoints", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "alternateEndpoints", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_alternateEndpoints },
-	{ "gatekeeperIdentifier", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "gatekeeperIdentifier", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_GatekeeperIdentifier },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "reason", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "reason", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_UnregRequestReason },
-	{ "endpointAliasPattern", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "endpointAliasPattern", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_endpointAliasPattern },
-	{ "supportedPrefixes", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "supportedPrefixes", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_SupportedPrefixes },
-	{ "alternateGatekeeper", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "alternateGatekeeper", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_alternateGatekeeper },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
 	{ NULL, 0, 0, NULL }
 };
@@ -5963,11 +5963,11 @@ dissect_h225_terminalAliasPattern(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static per_sequence_t invalidTerminalAliases_sequence[] = {
-	{ "terminalAlias", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "terminalAlias", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_terminalAlias },
-	{ "terminalAliasPattern", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "terminalAliasPattern", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_terminalAliasPattern },
-	{ "supportedPrefixes", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "supportedPrefixes", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_SupportedPrefixes },
 	{ NULL, 0, 0, NULL }
 };
@@ -6016,41 +6016,41 @@ static const value_string RegistrationRejectReason_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t RegistrationRejectReason_choice[] = {
-	{ 0, "discoveryRequired", EXTENSION_ROOT,
+	{ 0, "discoveryRequired", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 1, "invalidRevision", EXTENSION_ROOT,
+	{ 1, "invalidRevision", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 2, "invalidCallSignalAddress", EXTENSION_ROOT,
+	{ 2, "invalidCallSignalAddress", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 3, "invalidRASAddress", EXTENSION_ROOT,
+	{ 3, "invalidRASAddress", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 4, "duplicateAlias", EXTENSION_ROOT,
+	{ 4, "duplicateAlias", ASN1_EXTENSION_ROOT,
 		dissect_h225_duplicateAlias },
-	{ 5, "invalidTerminalType", EXTENSION_ROOT,
+	{ 5, "invalidTerminalType", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 6, "undefinedReason", EXTENSION_ROOT,
+	{ 6, "undefinedReason", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 7, "transportNotSupported", EXTENSION_ROOT,
+	{ 7, "transportNotSupported", ASN1_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 8, "transportQOSNotSupported", NOT_EXTENSION_ROOT,
+	{ 8, "transportQOSNotSupported", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 9, "resourceUnavailable", NOT_EXTENSION_ROOT,
+	{ 9, "resourceUnavailable", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 10, "invalidAlias", NOT_EXTENSION_ROOT,
+	{ 10, "invalidAlias", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 11, "securityDenial", NOT_EXTENSION_ROOT,
+	{ 11, "securityDenial", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 12, "fullRegistrationRequired", NOT_EXTENSION_ROOT,
+	{ 12, "fullRegistrationRequired", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 13, "additiveRegistrationNotSupported", NOT_EXTENSION_ROOT,
+	{ 13, "additiveRegistrationNotSupported", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 14, "invalidTerminalAliases", NOT_EXTENSION_ROOT,
+	{ 14, "invalidTerminalAliases", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_invalidTerminalAliases },
-	{ 15, "genericDataReason", NOT_EXTENSION_ROOT,
+	{ 15, "genericDataReason", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 16, "neededFeatureNotSupported", NOT_EXTENSION_ROOT,
+	{ 16, "neededFeatureNotSupported", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 17, "securityError", NOT_EXTENSION_ROOT,
+	{ 17, "securityError", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_SecurityErrors },
 	{ 0, NULL, 0, NULL }
 };
@@ -6067,27 +6067,27 @@ dissect_h225_RegistrationRejectReason(tvbuff_t *tvb, int offset, packet_info *pi
 
 
 static per_sequence_t RegistrationReject_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "protocolIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "protocolIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "rejectReason", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "rejectReason", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RegistrationRejectReason },
-	{ "gatekeeperIdentifier", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "gatekeeperIdentifier", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_GatekeeperIdentifier },
-	{ "altGKInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "altGKInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_AltGKInfo },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "featureSet", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "featureSet", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_FeatureSet },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
 	{ NULL, 0, 0, NULL }
 };
@@ -6100,27 +6100,27 @@ dissect_h225_RegistrationReject(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 static per_sequence_t GatekeeperReject_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "protocolIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "protocolIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "gatekeeperIdentifier", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "gatekeeperIdentifier", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_GatekeeperIdentifier },
-	{ "rejectReason", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "rejectReason", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_GatekeeperRejectReason },
-	{ "altGKInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "altGKInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_AltGKInfo },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "featureSet", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "featureSet", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_FeatureSet },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
 	{ NULL, 0, 0, NULL }
 };
@@ -6149,27 +6149,27 @@ dissect_h225_protocols(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 }
 
 static per_sequence_t ResourcesAvailableIndicate_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "protocolIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "protocolIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "endpointIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "endpointIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_EndpointIdentifier },
-	{ "protocols", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "protocols", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_protocols },
-	{ "almostOutOfResources", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "almostOutOfResources", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_almostOutOfResources },
-	{ "tokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "capacity", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "capacity", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CallCapacity },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
 	{ NULL, 0, 0, NULL }
 };
@@ -6209,15 +6209,15 @@ dissect_h225_enforceCallDurationLimit(tvbuff_t *tvb, int offset, packet_info *pi
 
 
 static per_sequence_t CallCreditServiceControl_sequence[] = {
-	{ "amountString", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "amountString", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_amountString },
-	{ "billingMode", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "billingMode", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_billingMode },
-	{ "callDurationLimit", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "callDurationLimit", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_callDurationLimit },
-	{ "enforceCallDurationLimit", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "enforceCallDurationLimit", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_enforceCallDurationLimit },
-	{ "callStartingPoint", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "callStartingPoint", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CCSCcallStartingPoint },
 	{ NULL, 0, 0, NULL }
 };
@@ -6248,11 +6248,11 @@ dissect_h225_ScreeningIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 }
 
 static per_sequence_t ExtendedAliasAddress_sequence[] = {
-	{ "address", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "address", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_AliasAddress },
-	{ "presentationIndicator", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "presentationIndicator", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_PresentationIndicator },
-	{ "screeningIndicator", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "screeningIndicator", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ScreeningIndicator },
 	{ NULL, 0, 0, NULL }
 };
@@ -6274,15 +6274,15 @@ dissect_h225_messageNotUnderstood(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static per_sequence_t UnknownMessageResponse_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "messageNotUnderstood", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "messageNotUnderstood", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_messageNotUnderstood },
 	{ NULL, 0, 0, NULL }
 };
@@ -6385,75 +6385,75 @@ dissect_h225_DestinationInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 
 static per_sequence_t AdmissionRequest_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "callType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callType", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallType },
-	{ "callModel", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "callModel", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CallModel },
-	{ "endpointIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "endpointIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_EndpointIdentifier },
-	{ "DestinationInfo", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "DestinationInfo", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_DestinationInfo },
-	{ "destCallSignalAddress", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "destCallSignalAddress", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_destCallSignalAddress },
-	{ "destExtraCallInfo", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "destExtraCallInfo", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_destExtraCallInfo },
-	{ "srcInfo", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "srcInfo", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_srcInfo },
-	{ "sourceCallSignalAddress", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "sourceCallSignalAddress", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_sourceCallSignalAddress },
-	{ "bandWidth", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "bandWidth", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_BandWidth },
-	{ "callReferenceValue", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callReferenceValue", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallReferenceValue },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "callServices", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "callServices", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_callServices },
-	{ "conferenceID", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "conferenceID", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_conferenceID },
-	{ "activeMC", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "activeMC", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_activeMC },
-	{ "answerCall", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "answerCall", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_answerCall },
-	{ "canMapAlias", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "canMapAlias", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_canMapAlias },
-	{ "callIdentifier", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callIdentifier", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallIdentifier },
-	{ "srcAlternatives", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "srcAlternatives", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_srcAlternatives },
-	{ "destAlternatives", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "destAlternatives", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_destAlternatives },
-	{ "gatekeeperIdentifier", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "gatekeeperIdentifier", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_GatekeeperIdentifier },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "transportQOS", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "transportQOS", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_TransportQOS },
-	{ "willSupplyUUIEs", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "willSupplyUUIEs", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_willSupplyUUIEs },
-	{ "callLinkage", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "callLinkage", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CallLinkage },
-	{ "gatewayDataRate", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "gatewayDataRate", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_gatewayDataRate },
-	{ "capacity", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "capacity", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CallCapacity },
-	{ "circuitInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "circuitInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CircuitInfo },
-	{ "desiredProtocols", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "desiredProtocols", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_desiredProtocols },
-	{ "desiredTunnelledProtocol", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "desiredTunnelledProtocol", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_desiredTunnelledProtocol },
-	{ "featureSet", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "featureSet", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_FeatureSet },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
-	{ "canMapSrcAlias", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "canMapSrcAlias", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_canMapSrcAlias },
 	{ NULL, 0, 0, NULL }
 };
@@ -6476,35 +6476,35 @@ dissect_h225_nextSegmentRequested(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static per_sequence_t InfoRequest_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "callReferenceValue", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callReferenceValue", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallReferenceValue },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "replyAddress", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "replyAddress", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_replyAddress },
-	{ "callIdentifier", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callIdentifier", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallIdentifier },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "uuiesRequested", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "uuiesRequested", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_UUIEsRequested },
-	{ "callLinkage", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "callLinkage", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CallLinkage },
-	{ "usageInfoRequested", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "usageInfoRequested", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_RasUsageInfoTypes },
-	{ "segmentedResponseSupported", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "segmentedResponseSupported", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
-	{ "nextSegmentRequested", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nextSegmentRequested", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nextSegmentRequested },
-	{ "capacityInfoRequested", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "capacityInfoRequested", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
 	{ NULL, 0, 0, NULL }
 };
@@ -6526,17 +6526,17 @@ dissect_h225_delay(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 }
 
 static per_sequence_t RequestInProgress_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "tokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "delay", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "delay", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_delay },
 	{ NULL, 0, 0, NULL }
 };
@@ -6571,13 +6571,13 @@ static const value_string ServiceControlDescriptor_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t ServiceControlDescriptor_choice[] = {
-	{ 0, "url", EXTENSION_ROOT,
+	{ 0, "url", ASN1_EXTENSION_ROOT,
 		dissect_h225_url },
-	{ 1, "signal", EXTENSION_ROOT,
+	{ 1, "signal", ASN1_EXTENSION_ROOT,
 		dissect_h225_H248SignalsDescriptor },
-	{ 2, "nonStandard", EXTENSION_ROOT,
+	{ 2, "nonStandard", ASN1_EXTENSION_ROOT,
 		dissect_h225_nonStandard },
-	{ 3, "callCreditServiceControl", EXTENSION_ROOT,
+	{ 3, "callCreditServiceControl", ASN1_EXTENSION_ROOT,
 		dissect_h225_CallCreditServiceControl },
 	{ 0, NULL, 0, NULL }
 };
@@ -6600,11 +6600,11 @@ dissect_h225_sessionId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 }
 
 static per_sequence_t ServiceControlSession_sequence[] = {
-	{ "sessionId", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "sessionId", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_sessionId },
-	{ "contents", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "contents", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ServiceControlDescriptor },
-	{ "reason", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "reason", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ServiceControlSession_reason },
 	{ NULL, 0, 0, NULL }
 };
@@ -6634,39 +6634,39 @@ dissect_h225_alertingAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 
 static per_sequence_t AlertingUUIE_sequence[] = {
-	{ "protocolIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "protocolIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
-	{ "destinationInfo", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "destinationInfo", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_destinationInfo },
-	{ "h245Address", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "h245Address", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_h245Address },
-	{ "callIdentifier", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callIdentifier", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallIdentifier },
-	{ "h245SecurityMode", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "h245SecurityMode", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_H245Security },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "fastStart", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "fastStart", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_fastStart },
-	{ "multipleCalls", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "multipleCalls", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_multipleCalls },
-	{ "maintainConnection", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "maintainConnection", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_maintainConnection },
-	{ "alertingAddress", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "alertingAddress", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_alertingAddress },
-	{ "presentationIndicator", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "presentationIndicator", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_PresentationIndicator },
-	{ "screeningIndicator", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "screeningIndicator", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ScreeningIndicator },
-	{ "fastConnectRefused", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "fastConnectRefused", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
-	{ "serviceControl", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "serviceControl", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_serviceControl },
-	{ "capacity", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "capacity", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CallCapacity },
-	{ "featureSet", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "featureSet", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_FeatureSet },
 	{ NULL, 0, 0, NULL }
 };
@@ -6686,27 +6686,27 @@ dissect_h225_busyAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 
 static per_sequence_t ReleaseCompleteUUIE_sequence[] = {
-	{ "protocolIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "protocolIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
-	{ "reason", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "reason", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ReleaseCompleteReason },
-	{ "callIdentifier", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callIdentifier", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallIdentifier },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "busyAddress", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "busyAddress", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_busyAddress },
-	{ "presentationIndicator", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "presentationIndicator", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_PresentationIndicator },
-	{ "screeningIndicator", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "screeningIndicator", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ScreeningIndicator },
-	{ "capacity", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "capacity", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CallCapacity },
-	{ "serviceControl", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "serviceControl", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_serviceControl },
-	{ "featureSet", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "featureSet", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_FeatureSet },
 	{ NULL, 0, 0, NULL }
 };
@@ -6725,47 +6725,47 @@ dissect_h225_alternativeAliasAddress(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 static per_sequence_t FacilityUUIE_sequence[] = {
-	{ "protocolIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "protocolIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
-	{ "alternativeAddress", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "alternativeAddress", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_alternativeAddress },
-	{ "alternativeAliasAddress", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "alternativeAliasAddress", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_alternativeAliasAddress },
-	{ "conferenceID", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "conferenceID", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_conferenceID },
-	{ "reason", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "reason", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_FacilityReason },
-	{ "callIdentifier", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callIdentifier", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallIdentifier },
-	{ "destExtraCallInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "destExtraCallInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_destExtraCallInfo },
-	{ "remoteExtensionAddress", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "remoteExtensionAddress", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_RemoteExtensionAddress },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "conferences", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "conferences", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_conferences },
-	{ "h245Address", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "h245Address", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_h245Address },
-	{ "fastStart", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "fastStart", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_fastStart },
-	{ "multipleCalls", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "multipleCalls", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_multipleCalls },
-	{ "maintainConnection", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "maintainConnection", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_maintainConnection },
-	{ "fastConnectRefused", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "fastConnectRefused", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
-	{ "serviceControl", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "serviceControl", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_serviceControl },
-	{ "circuitInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "circuitInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CircuitInfo },
-	{ "featureSet", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "featureSet", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_FeatureSet },
-	{ "destinationInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "destinationInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_destinationInfo },
-	{ "h245SecurityMode", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "h245SecurityMode", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_H245Security },
 	{ NULL, 0, 0, NULL }
 };
@@ -6777,27 +6777,27 @@ dissect_h225_FacilityUUIE(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 }
 
 static per_sequence_t AdmissionReject_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "rejectReason", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "rejectReason", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_AdmissionRejectReason },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "altGKInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "altGKInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_AltGKInfo },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "callSignalAddress", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "callSignalAddress", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_callSignalAddress },
-	{ "integrityCheckValue", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "serviceControl", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "serviceControl", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_serviceControl },
-	{ "featureSet", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "featureSet", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_FeatureSet },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
 	{ NULL, 0, 0, NULL }
 };
@@ -6915,85 +6915,85 @@ dissect_h225_additionalSourceAddresses(tvbuff_t *tvb, int offset, packet_info *p
 
 
 static per_sequence_t SetupUUIE_sequence[] = {
-	{ "protocolIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "protocolIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
-	{ "h245Address", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "h245Address", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_h245Address },
-	{ "sourceAddress", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "sourceAddress", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_sourceAddress },
-	{ "sourceInfo", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "sourceInfo", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_sourceInfo },
-	{ "destinationAddress", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "destinationAddress", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_destinationAddress },
-	{ "destCallSignalAddress", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "destCallSignalAddress", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_destCallSignalAddress },
-	{ "destExtraCallInfo", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "destExtraCallInfo", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_destExtraCallInfo },
-	{ "destExtraCRV", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "destExtraCRV", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_destExtraCRV },
-	{ "activeMC", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "activeMC", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_activeMC },
-	{ "conferenceID", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "conferenceID", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_conferenceID },
-	{ "conferenceGoal", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "conferenceGoal", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_conferenceGoal },
-	{ "callServices", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "callServices", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_callServices },
-	{ "callType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callType", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallType },
-	{ "sourceCallSignalAddress", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "sourceCallSignalAddress", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_sourceCallSignalAddress },
-	{ "RemoteExtensionAddress", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "RemoteExtensionAddress", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_RemoteExtensionAddress },
-	{ "callIdentifier", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callIdentifier", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallIdentifier },
-	{ "h245SecurityCapability", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "h245SecurityCapability", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_h245SecurityCapability },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "fastStart", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "fastStart", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_fastStart },
-	{ "mediaWaitForConnect", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "mediaWaitForConnect", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_mediaWaitForConnect },
-	{ "canOverlapSend", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "canOverlapSend", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_canOverlapSend },
-	{ "endpointIdentifier", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "endpointIdentifier", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_EndpointIdentifier },
-	{ "multipleCalls", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "multipleCalls", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_multipleCalls },
-	{ "maintainConnection", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "maintainConnection", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_maintainConnection },
-	{ "connectionParameters", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "connectionParameters", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_connectionParameters },
-	{ "languages", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "languages", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_languages },
-	{ "presentationIndicator", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "presentationIndicator", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_PresentationIndicator },
-	{ "screeningIndicator", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "screeningIndicator", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ScreeningIndicator },
-	{ "serviceControl", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "serviceControl", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_serviceControl },
-	{ "symmetricOperationRequired", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "symmetricOperationRequired", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
-	{ "capacity", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "capacity", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CallCapacity },
-	{ "circuitInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "circuitInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CircuitInfo },
-	{ "desiredProtocols", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "desiredProtocols", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_desiredProtocols },
-	{ "neededFeatures", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "neededFeatures", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_neededFeatures },
-	{ "desiredFeatures", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "desiredFeatures", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_desiredFeatures },
-	{ "supportedFeatures", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "supportedFeatures", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_supportedFeatures },
-	{ "parallelH245Control", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "parallelH245Control", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_parallelH245Control },
-	{ "additionalSourceAddresses", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "additionalSourceAddresses", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_additionalSourceAddresses },
-	{ "hopCount", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "hopCount", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_hopCount },
 	{ NULL, 0, 0, NULL }
 };
@@ -7014,43 +7014,43 @@ dissect_h225_connectedAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 }
 
 static per_sequence_t ConnectUUIE_sequence[] = {
-	{ "protocolIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "protocolIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
-	{ "h245Address", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "h245Address", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_h245Address },
-	{ "destinationInfo", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "destinationInfo", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_destinationInfo },
-	{ "conferenceID", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "conferenceID", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_conferenceID },
-	{ "callIdentifier", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callIdentifier", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallIdentifier },
-	{ "h245SecurityMode", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "h245SecurityMode", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_H245Security },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "fastStart", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "fastStart", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_fastStart },
-	{ "multipleCalls", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "multipleCalls", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_multipleCalls },
-	{ "maintainConnection", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "maintainConnection", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_maintainConnection },
-	{ "languages", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "languages", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_languages },
-	{ "connectedAddress", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "connectedAddress", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_connectedAddress },
-	{ "presentationIndicator", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "presentationIndicator", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_PresentationIndicator },
-	{ "screeningIndicator", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "screeningIndicator", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ScreeningIndicator },
-	{ "fastConnectRefused", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "fastConnectRefused", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
-	{ "serviceControl", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "serviceControl", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_serviceControl },
-	{ "capacity", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "capacity", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CallCapacity },
-	{ "featureSet", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "featureSet", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_FeatureSet },
 	{ NULL, 0, 0, NULL }
 };
@@ -7079,31 +7079,31 @@ static const value_string h323_message_body_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t h323_message_body_choice[] = {
-	{ 0, "setup", EXTENSION_ROOT,
+	{ 0, "setup", ASN1_EXTENSION_ROOT,
 		dissect_h225_SetupUUIE },
-	{ 1, "callProceeding", EXTENSION_ROOT,
+	{ 1, "callProceeding", ASN1_EXTENSION_ROOT,
 		dissect_h225_CallProceedingUUIE },
-	{ 2, "connect", EXTENSION_ROOT,
+	{ 2, "connect", ASN1_EXTENSION_ROOT,
 		dissect_h225_ConnectUUIE },
-	{ 3, "alerting", EXTENSION_ROOT,
+	{ 3, "alerting", ASN1_EXTENSION_ROOT,
 		dissect_h225_AlertingUUIE },
-	{ 4, "information", EXTENSION_ROOT,
+	{ 4, "information", ASN1_EXTENSION_ROOT,
 		dissect_h225_InformationUUIE },
-	{ 5, "releaseComplete", EXTENSION_ROOT,
+	{ 5, "releaseComplete", ASN1_EXTENSION_ROOT,
 		dissect_h225_ReleaseCompleteUUIE },
-	{ 6, "facility", EXTENSION_ROOT,
+	{ 6, "facility", ASN1_EXTENSION_ROOT,
 		dissect_h225_FacilityUUIE },
-	{ 7, "progress", NOT_EXTENSION_ROOT,
+	{ 7, "progress", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_ProgressUUIE },
-	{ 8, "empty", NOT_EXTENSION_ROOT,
+	{ 8, "empty", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NULL },
-	{ 9, "status", NOT_EXTENSION_ROOT,
+	{ 9, "status", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_StatusUUIE },
-	{ 10, "statusInquiry", NOT_EXTENSION_ROOT,
+	{ 10, "statusInquiry", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_StatusInquiryUUIE },
-	{ 11, "setupAcknowledge", NOT_EXTENSION_ROOT,
+	{ 11, "setupAcknowledge", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_SetupAcknowledgeUUIE },
-	{ 12, "notify", NOT_EXTENSION_ROOT,
+	{ 12, "notify", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_NotifyUUIE },
 	{ 0, NULL, 0, NULL }
 };
@@ -7150,47 +7150,47 @@ dissect_h225_modifiedSrcInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 
 static per_sequence_t LocationConfirm_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "callSignalAddress2", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callSignalAddress2", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallSignalAddress2 },
-	{ "rasAddress", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "rasAddress", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_rasAddress },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "DestinationInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "DestinationInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_DestinationInfo },
-	{ "destExtraCallInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "destExtraCallInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_destExtraCallInfo },
-	{ "destinationType", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "destinationType", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_destinationType },
-	{ "remoteExtensionAddress", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "remoteExtensionAddress", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_remoteExtensionAddress },
-	{ "alternateEndpoints", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "alternateEndpoints", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_alternateEndpoints },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "alternateTransportAddresses", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "alternateTransportAddresses", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_AlternateTransportAddress },
-	{ "supportedProtocols", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "supportedProtocols", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_supportedProtocols },
-	{ "multipleCalls", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "multipleCalls", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_multipleCalls },
-	{ "featureSet", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "featureSet", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_FeatureSet },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
-	{ "circuitInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "circuitInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CircuitInfo },
-	{ "serviceControl", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "serviceControl", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_serviceControl },
-	{ "modifiedSrcInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "modifiedSrcInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_modifiedSrcInfo },
-	{ "bandWidth", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "bandWidth", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_BandWidth },
 	{ NULL, 0, 0, NULL }
 };
@@ -7202,25 +7202,25 @@ dissect_h225_LocationConfirm(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 }
 
 static per_sequence_t LocationReject_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "rejectReason", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "rejectReason", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_LocationRejectReason },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "altGKInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "altGKInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_AltGKInfo },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "featureSet", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "featureSet", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_FeatureSet },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
-	{ "serviceControl", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "serviceControl", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_serviceControl },
 	{ NULL, 0, 0, NULL }
 };
@@ -7240,11 +7240,11 @@ dissect_h225_answeredCall(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 }
 
 static per_sequence_t callSpecific_sequence[] = {
-	{ "callIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallIdentifier },
-	{ "conferenceID", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "conferenceID", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_conferenceID },
-	{ "answeredCall", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "answeredCall", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_answeredCall },
 	{ NULL, 0, 0, NULL }
 };
@@ -7256,25 +7256,25 @@ dissect_h225_callSpecific(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 }
 
 static per_sequence_t ServiceControlIndication_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		 dissect_h225_RequestSeqNum },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "serviceControl", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "serviceControl", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_serviceControl },
-	{ "endpointIdentifier", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "endpointIdentifier", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_EndpointIdentifier },
-	{ "callSpecific", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "callSpecific", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_callSpecific },
-	{ "tokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "featureSet", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "featureSet", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_FeatureSet },
-	{ "genericData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
 	{ NULL, 0, 0, NULL }
 };
@@ -7323,13 +7323,13 @@ dissect_h225_nonStandardUsageFields(tvbuff_t *tvb, int offset, packet_info *pinf
 
 
 static per_sequence_t RasUsageInformation_sequence[] = {
-	{ "nonStandardUsageFields", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "nonStandardUsageFields", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_nonStandardUsageFields },
-	{ "alertingTime", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "alertingTime", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_alertingTime },
-	{ "connectTime", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "connectTime", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_connectTime },
-	{ "endTime", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "endTime", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_endTime },
 	{ NULL, 0, 0, NULL }
 };
@@ -7352,33 +7352,33 @@ dissect_h225_TimeToLive(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 }
 
 static per_sequence_t GatekeeperConfirm_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "protocolIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "protocolIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "gatekeeperIdentifier", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "gatekeeperIdentifier", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_GatekeeperIdentifier },
-	{ "rasAddress", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "rasAddress", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_rasAddress },
-	{ "alternateGatekeeper", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "alternateGatekeeper", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_alternateGatekeeper },
 /*XXX from h235 AuthenticationMechanism */
-	{ "authenticationMode", NOT_EXTENSION_ROOT, ASN1_OPTIONAL, NULL },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "authenticationMode", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL, NULL },
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "algorithmOID", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "algorithmOID", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_algorithmOID },
-	{ "integrity", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrity", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_integrity },
-	{ "integrityCheckValue", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "featureSet", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "featureSet", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_FeatureSet },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
 	{ NULL, 0, 0, NULL }
 };
@@ -7423,71 +7423,71 @@ dissect_h225_supportedH248Packages(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 
 static per_sequence_t RegistrationRequest_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "protocolIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "protocolIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "discoveryComplete", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "discoveryComplete", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_discoveryComplete },
-	{ "callSignalAddress", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callSignalAddress", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_callSignalAddress },
-	{ "rasAddress_sequence", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "rasAddress_sequence", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_rasAddress_sequence },
-	{ "terminalType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "terminalType", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_terminalType },
-	{ "terminalAlias", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "terminalAlias", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_terminalAlias },
-	{ "gatekeeperIdentifier", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "gatekeeperIdentifier", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_GatekeeperIdentifier },
-	{ "endpointVendor", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "endpointVendor", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_VendorIdentifier },
-	{ "alternateEndpoints", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "alternateEndpoints", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_alternateEndpoints },
-	{ "timeToLive", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "timeToLive", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_TimeToLive },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "keepAlive", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "keepAlive", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_keepAlive },
-	{ "endpointIdentifier", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "endpointIdentifier", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_EndpointIdentifier },
-	{ "willSupplyUUIEs", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "willSupplyUUIEs", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_willSupplyUUIEs },
-	{ "maintainConnection", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "maintainConnection", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_maintainConnection },
-	{ "alternateTransportAddresses", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "alternateTransportAddresses", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_AlternateTransportAddress },
-	{ "additiveRegistration", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "additiveRegistration", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
-	{ "terminalAliasPattern", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "terminalAliasPattern", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_terminalAliasPattern },
-	{ "supportsAltGK", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "supportsAltGK", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
-	{ "usageReportingCapability", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "usageReportingCapability", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_usageReportingCapability },
-	{ "multipleCalls", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "multipleCalls", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_multipleCalls },
-	{ "supportedH248Packages", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "supportedH248Packages", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_supportedH248Packages },
-	{ "callCreditCapability", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "callCreditCapability", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CallCreditCapability },
-	{ "capacityReportingCapability", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "capacityReportingCapability", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CapacityReportingCapability },
-	{ "capacity", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "capacity", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CallCapacity },
-	{ "featureSet", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "featureSet", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_FeatureSet },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
-	{ "restart", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "restart", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
-	{ "supportsACFSequences", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "supportsACFSequences", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
 	{ NULL, 0, 0, NULL }
 };
@@ -7500,23 +7500,23 @@ dissect_h225_RegistrationRequest(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 static per_sequence_t DisengageConfirm_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "capacity", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "capacity", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CallCapacity },
-	{ "circuitInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "circuitInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CircuitInfo },
-	{ "usageInformation", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "usageInformation", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_RasUsageInformation },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
 	{ NULL, 0, 0, NULL }
 };
@@ -7553,61 +7553,61 @@ dissect_h225_usageSpec(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 }
 
 static per_sequence_t AdmissionConfirm_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "bandWidth", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "bandWidth", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_BandWidth },
-	{ "callModel", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callModel", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallModel },
-	{ "destCallSignalAddress", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "destCallSignalAddress", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_destCallSignalAddress },
-	{ "irrFrequency", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "irrFrequency", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_irrFrequency },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "DestinationInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "DestinationInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_DestinationInfo },
-	{ "destExtraCallInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "destExtraCallInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_destExtraCallInfo },
-	{ "destinationType", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "destinationType", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_destinationType },
-	{ "remoteExtensionAddress", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "remoteExtensionAddress", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_remoteExtensionAddress },
-	{ "alternateEndpoints", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "alternateEndpoints", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_alternateEndpoints },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "transportQOS", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "transportQOS", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_TransportQOS },
-	{ "willRespondToIRR", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "willRespondToIRR", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_willRespondToIRR },
-	{ "uuiesRequested", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "uuiesRequested", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_UUIEsRequested },
-	{ "languages", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "languages", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_languages },
-	{ "alternateTransportAddresses", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "alternateTransportAddresses", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_AlternateTransportAddress },
-	{ "useSpecifiedTransport", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "useSpecifiedTransport", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_UseSpecifiedTransport },
-	{ "circuitInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "circuitInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CircuitInfo },
-	{ "usageSpec", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "usageSpec", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_usageSpec },
-	{ "supportedProtocols", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "supportedProtocols", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_supportedProtocols },
-	{ "serviceControl", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "serviceControl", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_serviceControl },
-	{ "multipleCalls", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "multipleCalls", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_multipleCalls },
-	{ "featureSet", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "featureSet", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_FeatureSet },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
-	{ "modifiedSrcInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "modifiedSrcInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_modifiedSrcInfo },
 	{ NULL, 0, 0, NULL }
 };
@@ -7620,43 +7620,43 @@ dissect_h225_AdmissionConfirm(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 
 static per_sequence_t DisengageRequest_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "endpointIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "endpointIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_EndpointIdentifier },
-	{ "conferenceID", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "conferenceID", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_conferenceID },
-	{ "callReferenceValue", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callReferenceValue", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallReferenceValue },
-	{ "disengageReason", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "disengageReason", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_DisengageReason },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "callIdentifier", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callIdentifier", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallIdentifier },
-	{ "gatekeeperIdentifier", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "gatekeeperIdentifier", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_GatekeeperIdentifier },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "answeredCall", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "answeredCall", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_answeredCall },
-	{ "callLinkage", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "callLinkage", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CallLinkage },
-	{ "capacity", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "capacity", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CallCapacity },
-	{ "circuitInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "circuitInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CircuitInfo },
-	{ "usageInformation", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "usageInformation", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_RasUsageInformation },
-	{ "terminationCause", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "terminationCause", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CallTerminationCause },
-	{ "serviceControl", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "serviceControl", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_serviceControl },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
 	{ NULL, 0, 0, NULL }
 };
@@ -7692,47 +7692,47 @@ dissect_h225_sourceEndpointInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 }
 
 static per_sequence_t LocationRequest_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "endpointIdentifier", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "endpointIdentifier", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_EndpointIdentifier },
-	{ "DestinationInfo", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "DestinationInfo", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_DestinationInfo },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "replyAddress", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "replyAddress", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_replyAddress },
-	{ "SourceInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "SourceInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_SourceInfo },
-	{ "canMapAlias", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "canMapAlias", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_canMapAlias },
-	{ "gatekeeperIdentifier", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "gatekeeperIdentifier", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_GatekeeperIdentifier },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "desiredProtocols", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "desiredProtocols", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_desiredProtocols },
-	{ "desiredTunnelledProtocol", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "desiredTunnelledProtocol", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_desiredTunnelledProtocol },
-	{ "featureSet", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "featureSet", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_FeatureSet },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
-	{ "hopCount255", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "hopCount255", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_hopCount255 },
-	{ "circuitInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "circuitInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CircuitInfo },
-	{ "callIdentifier", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "callIdentifier", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CallIdentifier },
-	{ "bandWidth", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "bandWidth", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_BandWidth },
-	{ "sourceEndpointInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "sourceEndpointInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_sourceEndpointInfo },
-	{ "canMapSrcAlias", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "canMapSrcAlias", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_canMapSrcAlias },
 	{ NULL, 0, 0, NULL }
 };
@@ -7751,41 +7751,41 @@ dissect_h225_bandwidthDetails(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 }
 
 static per_sequence_t BandwidthRequest_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "endpointIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "endpointIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_EndpointIdentifier },
-	{ "conferenceID", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "conferenceID", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_conferenceID },
-	{ "callReferenceValue", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callReferenceValue", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallReferenceValue },
-	{ "callType", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "callType", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CallType },
-	{ "bandWidth", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "bandWidth", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_BandWidth },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "callIdentifier", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callIdentifier", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallIdentifier },
-	{ "gatekeeperIdentifier", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "gatekeeperIdentifier", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_GatekeeperIdentifier },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "answeredCall", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "answeredCall", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_answeredCall },
-	{ "callLinkage", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "callLinkage", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CallLinkage },
-	{ "capacity", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "capacity", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CallCapacity },
-	{ "usageInformation", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "usageInformation", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_RasUsageInformation },
-	{ "bandwidthDetails", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "bandwidthDetails", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_bandwidthDetails },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
 	{ NULL, 0, 0, NULL }
 };
@@ -7846,13 +7846,13 @@ dissect_h225_h4501SupplementaryService(tvbuff_t *tvb, int offset, packet_info *p
 
 
 static per_sequence_t tunnelledSignallingMessage_sequence[] = {
-	{ "tunnelledProtocolID", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "tunnelledProtocolID", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_TunnelledProtocol },
-	{ "messageContent", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "messageContent", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_messageContent },
-	{ "tunnellingRequired", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tunnellingRequired", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
 	{ NULL, 0, 0, NULL }
 };
@@ -7917,27 +7917,27 @@ dissect_h225_nonStandardControl(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 static per_sequence_t H323_UU_PDU_sequence[] = {
-	{ "h323_message_body", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "h323_message_body", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_h323_message_body },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "h4501SupplementaryService", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "h4501SupplementaryService", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_h4501SupplementaryService },
-	{ "h245Tunneling", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "h245Tunneling", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_h245Tunneling },
-	{ "h245Control", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "h245Control", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_h245Control },
-	{ "nonStandardControl", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardControl", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardControl },
-	{ "callLinkage", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "callLinkage", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CallLinkage },
-	{ "tunnelledSignallingMessage", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tunnelledSignallingMessage", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tunnelledSignallingMessage },
-	{ "provisionalRespToH245Tunneling", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "provisionalRespToH245Tunneling", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
-	{ "stimulusControl", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "stimulusControl", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_StimulusControl },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
 	{ NULL, 0, 0, NULL }
 };
@@ -7972,21 +7972,21 @@ dissect_h225_useGKCallSignalAddressToAnswer(tvbuff_t *tvb, int offset, packet_in
 }
 
 static per_sequence_t preGrantedARQ_sequence[] = {
-	{ "makeCall", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "makeCall", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_makeCall },
-	{ "useGKCallSignalAddressToMakeCall", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "useGKCallSignalAddressToMakeCall", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_useGKCallSignalAddressToMakeCall },
-	{ "answerCall", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "answerCall", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_answerCall },
-	{ "useGKCallSignalAddressToAnswer", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "useGKCallSignalAddressToAnswer", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_useGKCallSignalAddressToAnswer },
-	{ "irrFrequencyInCall", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "irrFrequencyInCall", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_irrFrequency },
-	{ "totalBandwidthRestriction", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "totalBandwidthRestriction", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_totalBandwidthRestriction },
-	{ "alternateTransportAddresses", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "alternateTransportAddresses", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_AlternateTransportAddress },
-	{ "useSpecifiedTransport", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "useSpecifiedTransport", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_UseSpecifiedTransport },
 	{ NULL, 0, 0, NULL }
 };
@@ -8000,53 +8000,53 @@ dissect_h225_preGrantedARQ(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 
 static per_sequence_t RegistrationConfirm_sequence[] = {
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "protocolIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "protocolIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_ProtocolIdentifier },
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "callSignalAddress", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callSignalAddress", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_callSignalAddress },
-	{ "terminalAlias", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "terminalAlias", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_terminalAlias },
-	{ "gatekeeperIdentifier", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "gatekeeperIdentifier", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_GatekeeperIdentifier },
-	{ "endpointIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "endpointIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_EndpointIdentifier },
-	{ "alternateGatekeeper", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "alternateGatekeeper", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_alternateGatekeeper },
-	{ "timeToLive", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "timeToLive", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_TimeToLive },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "willRespondToIRR", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "willRespondToIRR", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_willRespondToIRR },
-	{ "preGrantedARQ", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "preGrantedARQ", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_preGrantedARQ },
-	{ "maintainConnection", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "maintainConnection", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_maintainConnection },
-	{ "serviceControl", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "serviceControl", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_serviceControl },
-	{ "supportsAdditiveRegistration", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "supportsAdditiveRegistration", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_NULL },
-	{ "terminalAliasPattern", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "terminalAliasPattern", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_terminalAliasPattern },
-	{ "supportedPrefixes", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "supportedPrefixes", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_SupportedPrefixes },
-	{ "usageSpec", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "usageSpec", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_usageSpec },
-	{ "featureServerAlias", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "featureServerAlias", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_featureServerAlias },
-	{ "capacityReportingSpec", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "capacityReportingSpec", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CapacityReportingSpecification },
-	{ "featureSet", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "featureSet", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_FeatureSet },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
 	{ NULL, 0, 0, NULL }
 };
@@ -8066,9 +8066,9 @@ dissect_h225_sent(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 }
 
 static per_sequence_t pdu_item_sequence[] = {
-	{ "h323pdu", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ "h323pdu", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h225_H323_UU_PDU },
-	{ "sent", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ "sent", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_h225_sent },
 	{ NULL, 0, 0, NULL }
 };
@@ -8127,45 +8127,45 @@ dissect_h225_substituteConfIDs(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 
 static per_sequence_t perCallInfo_item_sequence[] = {
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "callReferenceValue", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callReferenceValue", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallReferenceValue },
-	{ "conferenceID", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "conferenceID", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_conferenceID },
-	{ "originator", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "originator", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_originator },
-	{ "audio", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "audio", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_audio },
-	{ "video", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "video", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_video },
-	{ "data", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "data", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_data },
-	{ "h245", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "h245", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_h245 },
-	{ "callSignaling", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callSignaling", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_callSignaling },
-	{ "callType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callType", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallType },
-	{ "bandWidth", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "bandWidth", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_BandWidth },
-	{ "callModel", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callModel", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallModel },
-	{ "callIdentifier", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callIdentifier", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_CallIdentifier },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "substituteConfIDs", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "substituteConfIDs", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_substituteConfIDs },
-	{ "pdu", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "pdu", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_pdu },
-	{ "callLinkage", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "callLinkage", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CallLinkage },
-	{ "usageInformation", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "usageInformation", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_RasUsageInformation },
-	{ "circuitInfo", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "circuitInfo", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CircuitInfo },
 	{ NULL, 0, 0, NULL }
 };
@@ -8204,37 +8204,37 @@ dissect_h225_unsolicited(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 }
 
 static per_sequence_t InfoRequestResponse_sequence[] = {
-	{ "nonStandardData", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "nonStandardData", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_nonStandardData },
-	{ "requestSeqNum", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "requestSeqNum", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_RequestSeqNum },
-	{ "endpointType", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "endpointType", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_EndPointType },
-	{ "endpointIdentifier", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "endpointIdentifier", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_EndpointIdentifier },
-	{ "rasAddress", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "rasAddress", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_rasAddress },
-	{ "callSignalAddress", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "callSignalAddress", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_callSignalAddress },
-	{ "endpointAlias", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "endpointAlias", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_endpointAlias },
-	{ "perCallInfo", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "perCallInfo", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_perCallInfo },
-	{ "tokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
-	{ "cryptoTokens", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-	{ "integrityCheckValue", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "integrityCheckValue", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_ICV },
-	{ "needResponse", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "needResponse", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_needResponse },
-	{ "capacity", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "capacity", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_CallCapacity },
-	{ "irrStatus", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "irrStatus", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_InfoRequestResponseStatus },
-	{ "unsolicited", NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "unsolicited", ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_unsolicited },
-	{ "genericData", NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "genericData", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_genericData },
 	{ NULL, 0, 0, NULL }
 };
@@ -8264,9 +8264,9 @@ dissect_h225_user_information(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 }
 
 static per_sequence_t user_data_sequence[] = {
-	{ "protocol-discriminator", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "protocol-discriminator", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_protocol_discriminator },
-	{ "user-information", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "user-information", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_user_information },
 	{ NULL, 0, 0, NULL }
 };
@@ -8317,71 +8317,71 @@ static const value_string RasMessage_vals[] = {
 	{ 0, NULL}
 };
 static per_choice_t RasMessage_choice[] = {
-	{ 0, "gatekeeperRequest", EXTENSION_ROOT,
+	{ 0, "gatekeeperRequest", ASN1_EXTENSION_ROOT,
 		dissect_h225_GatekeeperRequest },
-	{ 1, "gatekeeperConfirm", EXTENSION_ROOT,
+	{ 1, "gatekeeperConfirm", ASN1_EXTENSION_ROOT,
 		dissect_h225_GatekeeperConfirm },
-	{ 2, "gatekeeperReject", EXTENSION_ROOT,
+	{ 2, "gatekeeperReject", ASN1_EXTENSION_ROOT,
 		dissect_h225_GatekeeperReject },
-	{ 3, "registrationRequest", EXTENSION_ROOT,
+	{ 3, "registrationRequest", ASN1_EXTENSION_ROOT,
 		dissect_h225_RegistrationRequest },
-	{ 4, "registrationConfirm", EXTENSION_ROOT,
+	{ 4, "registrationConfirm", ASN1_EXTENSION_ROOT,
 		dissect_h225_RegistrationConfirm },
-	{ 5, "registrationReject", EXTENSION_ROOT,
+	{ 5, "registrationReject", ASN1_EXTENSION_ROOT,
 		dissect_h225_RegistrationReject },
-	{ 6, "unregistrationRequest", EXTENSION_ROOT,
+	{ 6, "unregistrationRequest", ASN1_EXTENSION_ROOT,
 		dissect_h225_UnregistrationRequest },
-	{ 7, "unregistrationConfirm", EXTENSION_ROOT,
+	{ 7, "unregistrationConfirm", ASN1_EXTENSION_ROOT,
 		dissect_h225_UnregistrationConfirm },
-	{ 8, "unregistrationReject", EXTENSION_ROOT,
+	{ 8, "unregistrationReject", ASN1_EXTENSION_ROOT,
 		dissect_h225_UnregistrationReject },
-	{ 9, "admissionRequest", EXTENSION_ROOT,
+	{ 9, "admissionRequest", ASN1_EXTENSION_ROOT,
 		dissect_h225_AdmissionRequest },
-	{10, "admissionConfirm", EXTENSION_ROOT,
+	{10, "admissionConfirm", ASN1_EXTENSION_ROOT,
 		dissect_h225_AdmissionConfirm },
-	{11, "admissionReject", EXTENSION_ROOT,
+	{11, "admissionReject", ASN1_EXTENSION_ROOT,
 		dissect_h225_AdmissionReject },
-	{12, "bandwidthRequest", EXTENSION_ROOT,
+	{12, "bandwidthRequest", ASN1_EXTENSION_ROOT,
 		dissect_h225_BandwidthRequest },
-	{13, "bandwidthConfirm", EXTENSION_ROOT,
+	{13, "bandwidthConfirm", ASN1_EXTENSION_ROOT,
 		dissect_h225_BandwidthConfirm },
-	{14, "bandwidthReject", EXTENSION_ROOT,
+	{14, "bandwidthReject", ASN1_EXTENSION_ROOT,
 		dissect_h225_BandwidthReject },
-	{15, "disengageRequest", EXTENSION_ROOT,
+	{15, "disengageRequest", ASN1_EXTENSION_ROOT,
 		dissect_h225_DisengageRequest },
-	{16, "disengageConfirm", EXTENSION_ROOT,
+	{16, "disengageConfirm", ASN1_EXTENSION_ROOT,
 		dissect_h225_DisengageConfirm },
-	{17, "disengageReject", EXTENSION_ROOT,
+	{17, "disengageReject", ASN1_EXTENSION_ROOT,
 		dissect_h225_DisengageReject },
-	{18, "locationRequest", EXTENSION_ROOT,
+	{18, "locationRequest", ASN1_EXTENSION_ROOT,
 		dissect_h225_LocationRequest },
-	{19, "locationConfirm", EXTENSION_ROOT,
+	{19, "locationConfirm", ASN1_EXTENSION_ROOT,
 		dissect_h225_LocationConfirm },
-	{20, "locationReject", EXTENSION_ROOT,
+	{20, "locationReject", ASN1_EXTENSION_ROOT,
 		dissect_h225_LocationReject },
-	{21, "infoRequest", EXTENSION_ROOT,
+	{21, "infoRequest", ASN1_EXTENSION_ROOT,
 		dissect_h225_InfoRequest },
-	{22, "infoRequestResponse", EXTENSION_ROOT,
+	{22, "infoRequestResponse", ASN1_EXTENSION_ROOT,
 		dissect_h225_InfoRequestResponse },
-	{23, "nonStandardMessage", EXTENSION_ROOT,
+	{23, "nonStandardMessage", ASN1_EXTENSION_ROOT,
 		dissect_h225_NonStandardMessage },
-	{24, "unknownMessageResponse", EXTENSION_ROOT,
+	{24, "unknownMessageResponse", ASN1_EXTENSION_ROOT,
 		dissect_h225_UnknownMessageResponse },
-	{25, "requestInProgress", NOT_EXTENSION_ROOT,
+	{25, "requestInProgress", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_RequestInProgress },
-	{26, "resourcesAvailableIndicate", NOT_EXTENSION_ROOT,
+	{26, "resourcesAvailableIndicate", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_ResourcesAvailableIndicate },
-	{27, "resourcesAvailableConfirm", NOT_EXTENSION_ROOT,
+	{27, "resourcesAvailableConfirm", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_ResourcesAvailableConfirm },
-	{28, "infoRequestAck", NOT_EXTENSION_ROOT,
+	{28, "infoRequestAck", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_InfoRequestAck },
-	{29, "infoRequestNak", NOT_EXTENSION_ROOT,
+	{29, "infoRequestNak", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_InfoRequestNak },
-	{30, "serviceControlIndication", NOT_EXTENSION_ROOT,
+	{30, "serviceControlIndication", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_ServiceControlIndication },
-	{31, "serviceControlResponse", NOT_EXTENSION_ROOT,
+	{31, "serviceControlResponse", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_ServiceControlResponse },
-	{32, "admissionConfirmSequence", NOT_EXTENSION_ROOT,
+	{32, "admissionConfirmSequence", ASN1_NOT_EXTENSION_ROOT,
 		dissect_h225_admissionConfirmSequence },
 	{ 0, NULL, 0, NULL }
 };
@@ -8414,9 +8414,9 @@ dissect_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 static per_sequence_t H323_UserInformation_sequence[] = {
-	{ "h323_uu_pdu", EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ "h323_uu_pdu", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
 		dissect_h225_H323_UU_PDU },
-	{ "user_data", EXTENSION_ROOT, ASN1_OPTIONAL,
+	{ "user_data", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_user_data },
 	{ NULL, 0, 0, NULL }
 };

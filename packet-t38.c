@@ -2,7 +2,7 @@
  * Routines for T.38 packet dissection
  * 2003  Hans Viens
  *
- * $Id: packet-t38.c,v 1.2 2003/10/09 20:52:57 guy Exp $
+ * $Id: packet-t38.c,v 1.3 2003/10/09 22:35:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,51 +89,51 @@ dissect_t38_NULL(tvbuff_t *tvb _U_, int offset, packet_info *pinfo _U_, proto_tr
 }
 
 static per_choice_t t30_indicator_choice[] = {
-	{ 0, "no-signal", EXTENSION_ROOT,
+	{ 0, "no-signal", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 1, "cng", EXTENSION_ROOT,
+	{ 1, "cng", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 2, "ced", EXTENSION_ROOT,
+	{ 2, "ced", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 3, "v21-preamble", EXTENSION_ROOT,
+	{ 3, "v21-preamble", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 4, "v27-2400-training", EXTENSION_ROOT,
+	{ 4, "v27-2400-training", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 5, "v27-4800-training", EXTENSION_ROOT,
+	{ 5, "v27-4800-training", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 6, "v29-7200-training", EXTENSION_ROOT,
+	{ 6, "v29-7200-training", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 7, "v29-9600-training", EXTENSION_ROOT,
+	{ 7, "v29-9600-training", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 8, "v17-7200-short-training", EXTENSION_ROOT,
+	{ 8, "v17-7200-short-training", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 9, "v17-7200-long-training", EXTENSION_ROOT,
+	{ 9, "v17-7200-long-training", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 10, "v17-9600-short-training", EXTENSION_ROOT,
+	{ 10, "v17-9600-short-training", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 11, "v17-9600-long-training", EXTENSION_ROOT,
+	{ 11, "v17-9600-long-training", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 12, "v17-12000-short-training", EXTENSION_ROOT,
+	{ 12, "v17-12000-short-training", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 13, "v17-12000-long-training", EXTENSION_ROOT,
+	{ 13, "v17-12000-long-training", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 14, "v17-14400-short-training", EXTENSION_ROOT,
+	{ 14, "v17-14400-short-training", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 15, "v17-14400-long-training", EXTENSION_ROOT,
+	{ 15, "v17-14400-long-training", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 16, "v8-ansam", NOT_EXTENSION_ROOT,
+	{ 16, "v8-ansam", ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 17, "v8-signal", NOT_EXTENSION_ROOT,
+	{ 17, "v8-signal", ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 18, "v34-cntl-channel-1200", NOT_EXTENSION_ROOT,
+	{ 18, "v34-cntl-channel-1200", ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 19, "v34-pri-channel", NOT_EXTENSION_ROOT,
+	{ 19, "v34-pri-channel", ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 20, "v34-CC-retrain", NOT_EXTENSION_ROOT,
+	{ 20, "v34-CC-retrain", ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 21, "v33-12000-training", NOT_EXTENSION_ROOT,
+	{ 21, "v33-12000-training", ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 22, "v33-14400-training", NOT_EXTENSION_ROOT,
+	{ 22, "v33-14400-training", ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
 	{ 0, NULL, 0, NULL }
 };
@@ -175,35 +175,35 @@ dissect_t38_t30_indicator(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 }
 
 static per_choice_t data_choice[] = {
-	{ 0, "v21", EXTENSION_ROOT,
+	{ 0, "v21", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 1, "v27-2400", EXTENSION_ROOT,
+	{ 1, "v27-2400", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 2, "v27-4800", EXTENSION_ROOT,
+	{ 2, "v27-4800", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 3, "v29-7200", EXTENSION_ROOT,
+	{ 3, "v29-7200", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 4, "v29-9600", EXTENSION_ROOT,
+	{ 4, "v29-9600", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 5, "v17-7200", EXTENSION_ROOT,
+	{ 5, "v17-7200", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 6, "v17-9600", EXTENSION_ROOT,
+	{ 6, "v17-9600", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 7, "v17-12000", EXTENSION_ROOT,
+	{ 7, "v17-12000", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 8, "v17-14400", EXTENSION_ROOT,
+	{ 8, "v17-14400", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 9, "v8", NOT_EXTENSION_ROOT,
+	{ 9, "v8", ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 10, "v34-pri-rate", NOT_EXTENSION_ROOT,
+	{ 10, "v34-pri-rate", ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 11, "v34-CC-1200", NOT_EXTENSION_ROOT,
+	{ 11, "v34-CC-1200", ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 12, "v34-pri-ch", NOT_EXTENSION_ROOT,
+	{ 12, "v34-pri-ch", ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 13, "v33-12000", NOT_EXTENSION_ROOT,
+	{ 13, "v33-12000", ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
-	{ 14, "v33-14400", NOT_EXTENSION_ROOT,
+	{ 14, "v33-14400", ASN1_NOT_EXTENSION_ROOT,
 		dissect_t38_NULL},
 	{ 0, NULL, 0, NULL }
 };
@@ -217,13 +217,13 @@ static const value_string data_vals[] = {
 	{ 5, "v17-7200" },
 	{ 6, "v17-9600" },
 	{ 7, "v17-12000" },
-    { 8, "v17-14400" },
-    { 9, "v8" },
-    { 10, "v34-pri-rate" },
-    { 11, "v34-CC-1200" },
-    { 12, "v34-pri-ch" },
-    { 13, "v33-12000" },
-    { 14, "v33-14400" },
+	{ 8, "v17-14400" },
+	{ 9, "v8" },
+	{ 10, "v34-pri-rate" },
+	{ 11, "v34-CC-1200" },
+	{ 12, "v34-pri-ch" },
+	{ 13, "v33-12000" },
+	{ 14, "v33-14400" },
 	{ 0, NULL },
 };
 
@@ -237,9 +237,9 @@ dissect_t38_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 }
 
 static per_choice_t Type_of_msg_choice[] = {
-	{ 0, "t30-indicator", NO_EXTENSIONS,
+	{ 0, "t30-indicator", ASN1_NO_EXTENSIONS,
 		dissect_t38_t30_indicator},
-	{ 1, "data", NO_EXTENSIONS,
+	{ 1, "data", ASN1_NO_EXTENSIONS,
 		dissect_t38_data},
 	{ 0, NULL, 0, NULL }
 };
@@ -260,21 +260,21 @@ dissect_t38_Type_of_msg(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 }
 
 static per_choice_t Data_Field_field_type_choice[] = {
-	{ 0, "hdlc-data", NO_EXTENSIONS,
+	{ 0, "hdlc-data", ASN1_NO_EXTENSIONS,
 		dissect_t38_NULL},
-	{ 1, "hdlc-sig-end", NO_EXTENSIONS,
+	{ 1, "hdlc-sig-end", ASN1_NO_EXTENSIONS,
 		dissect_t38_NULL},
-	{ 2, "hdlc-fcs-OK", NO_EXTENSIONS,
+	{ 2, "hdlc-fcs-OK", ASN1_NO_EXTENSIONS,
 		dissect_t38_NULL},
-	{ 3, "hdlc-fcs-BAD", NO_EXTENSIONS,
+	{ 3, "hdlc-fcs-BAD", ASN1_NO_EXTENSIONS,
 		dissect_t38_NULL},
-	{ 4, "hdlc-fcs-OK-sig-end", NO_EXTENSIONS,
+	{ 4, "hdlc-fcs-OK-sig-end", ASN1_NO_EXTENSIONS,
 		dissect_t38_NULL},
-	{ 5, "hdlc-fcs-BAD-sig-end", NO_EXTENSIONS,
+	{ 5, "hdlc-fcs-BAD-sig-end", ASN1_NO_EXTENSIONS,
 		dissect_t38_NULL},
-	{ 6, "t4-non-ecm-data", NO_EXTENSIONS,
+	{ 6, "t4-non-ecm-data", ASN1_NO_EXTENSIONS,
 		dissect_t38_NULL},
-	{ 7, "t4-non-ecm-sig-end", NO_EXTENSIONS,
+	{ 7, "t4-non-ecm-sig-end", ASN1_NO_EXTENSIONS,
 		dissect_t38_NULL},
 	{ 0, NULL, 0, NULL }
 };
@@ -310,9 +310,9 @@ dissect_t38_Data_Field_field_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static per_sequence_t Data_Field_item_sequence[] = {
-	{ "field-type", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ "field-type", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_Data_Field_field_type },
-	{ "field-data", NO_EXTENSIONS, ASN1_OPTIONAL,
+	{ "field-data", ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
 		dissect_t38_Data_Field_field_data },
 	{ NULL, 0, 0, NULL }
 };
@@ -336,9 +336,9 @@ dissect_t38_Data_Field(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 }
 
 static per_sequence_t IFPPacket_sequence[] = {
-	{ "type-of-msg", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ "type-of-msg", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_Type_of_msg },
-	{ "data-field", NO_EXTENSIONS, ASN1_OPTIONAL,
+	{ "data-field", ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
 		dissect_t38_Data_Field },
 	{ NULL, 0, 0, NULL }
 };
@@ -427,9 +427,9 @@ dissect_t38_fec_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 }
 
 static per_sequence_t fec_info_sequence[] = {
-	{ "fec-npackets", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ "fec-npackets", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_fec_npackets },
-	{ "fec-data", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ "fec-data", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_fec_data },
 	{ NULL, 0, 0, NULL }
 };
@@ -444,9 +444,9 @@ dissect_t38_fec_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 }
 
 static per_choice_t error_recovery_choice[] = {
-	{ 0, "secondary-ifp-packets", NO_EXTENSIONS,
+	{ 0, "secondary-ifp-packets", ASN1_NO_EXTENSIONS,
 		dissect_t38_secondary_ifp_packets},
-	{ 1, "fec-info", NO_EXTENSIONS,
+	{ 1, "fec-info", ASN1_NO_EXTENSIONS,
 		dissect_t38_fec_info},
 	{ 0, NULL, 0, NULL }
 };
@@ -467,11 +467,11 @@ dissect_t38_error_recovery(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 }
 
 static per_sequence_t UDPTLPacket_sequence[] = {
-	{ "seq-number", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ "seq-number", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_seq_number },
-	{ "primary-ifp-packet", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ "primary-ifp-packet", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_primary_ifp_packet },
-	{ "error-recovery", NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+	{ "error-recovery", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_error_recovery },
 	{ NULL, 0, 0, NULL }
 };
