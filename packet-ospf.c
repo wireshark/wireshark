@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.43 2001/09/05 19:53:41 guy Exp $
+ * $Id: packet-ospf.c,v 1.44 2001/09/11 06:38:57 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -533,10 +533,11 @@ dissect_ospf_db_desc(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version
 			    tvb_get_ntohl(tvb, offset + 4));
 
                 offset += 8;
+                break;
 
             case OSPF_VERSION_3:
 
-	        reserved = tvb_get_guint8(tvb, 16);
+	        reserved = tvb_get_guint8(tvb, offset);
 	        proto_tree_add_text(ospf_db_desc_tree, tvb, offset, 1, (reserved == 0 ? "Reserved: %u" : "Reserved: %u (incorrect, should be 0)"),
 				reserved);
 
@@ -545,7 +546,7 @@ dissect_ospf_db_desc(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version
                 proto_tree_add_text(ospf_db_desc_tree, tvb, offset + 4, 2, "Interface MTU: %u",
 			    tvb_get_ntohs(tvb, offset+4));
 
-	        reserved = tvb_get_guint8(tvb, 22);
+	        reserved = tvb_get_guint8(tvb, offset + 6);
 	        proto_tree_add_text(ospf_db_desc_tree, tvb, offset + 6, 1, (reserved == 0 ? "Reserved: %u" : "Reserved: %u (incorrect, should be 0)"),
 				reserved);
 
@@ -569,15 +570,12 @@ dissect_ospf_db_desc(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version
 			    tvb_get_ntohl(tvb, offset + 8));
 
                 offset += 12;
-
-        break;
-
-
-    default:
-        break;
-    }
+                break;
 
 
+            default:
+                break;
+	}
     }
 
     /* LS Headers will be processed here */
