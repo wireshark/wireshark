@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.42 2003/01/22 00:45:29 sahlberg Exp $
+$Id: ncp2222.py,v 1.43 2003/01/30 22:39:51 guy Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -2662,7 +2662,7 @@ MediaObjectType                 = val_string8("media_object_type", "Object Type"
         [ 0x0e, "Unknown" ],
 ])        
 MemberName			= nstring8("member_name", "Member Name")
-MemberType			= val_string8("member_type", "Member Type", [
+MemberType			= val_string16("member_type", "Member Type", [
 	[ 0x0000,	"Unknown" ],
 	[ 0x0001,	"User" ],
 	[ 0x0002,	"User group" ],
@@ -9259,11 +9259,11 @@ def define_ncp2222():
 			     0xf100, 0xf800, 0xfb02, 0xfc03, 0xfe01, 0xff00])
 	# 2222/1741, 23/65
 	pkt = NCP(0x1741, "Add Bindery Object To Set", 'bindery')
-	pkt.Request((19,128), [
+	pkt.Request((17,126), [
 		rec( 10, 2, ObjectType, BE ),
 		rec( 12, (1,48), ObjectName ),
 		rec( -1, (1,16), PropertyName ),
-		rec( -1, 4, MemberType, BE ),
+		rec( -1, 2, MemberType, BE ),
 		rec( -1, (1,48), MemberName ),
 	], info_str=(MemberName, "Add Bindery Object to Set: %s", ", %s"))
 	pkt.Reply(8)
@@ -9272,11 +9272,11 @@ def define_ncp2222():
 			     0xff00])
 	# 2222/1742, 23/66
 	pkt = NCP(0x1742, "Delete Bindery Object From Set", 'bindery')
-	pkt.Request((19,128), [
+	pkt.Request((17,126), [
 		rec( 10, 2, ObjectType, BE ),
 		rec( 12, (1,48), ObjectName ),
 		rec( -1, (1,16), PropertyName ),
-		rec( -1, 4, MemberType, BE ),
+		rec( -1, 2, MemberType, BE ),
 		rec( -1, (1,48), MemberName ),
 	], info_str=(MemberName, "Delete Bindery Object from Set: %s", ", %s"))
 	pkt.Reply(8)
@@ -9284,11 +9284,11 @@ def define_ncp2222():
 			     0xfc03, 0xfe01, 0xff00])
 	# 2222/1743, 23/67
 	pkt = NCP(0x1743, "Is Bindery Object In Set", 'bindery')
-	pkt.Request((19,128), [
+	pkt.Request((17,126), [
 		rec( 10, 2, ObjectType, BE ),
 		rec( 12, (1,48), ObjectName ),
 		rec( -1, (1,16), PropertyName ),
-		rec( -1, 4, MemberType, BE ),
+		rec( -1, 2, MemberType, BE ),
 		rec( -1, (1,48), MemberName ),
 	], info_str=(MemberName, "Is Bindery Object in Set: %s", ", %s"))
 	pkt.Reply(8)
