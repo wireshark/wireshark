@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.125 2004/04/08 08:05:20 guy Exp $
+ * $Id: capture_dlg.c,v 1.126 2004/04/08 19:07:43 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -962,10 +962,11 @@ capture_prep(void)
      widgets. */
   capture_prep_adjust_sensitivity(NULL, cap_open_w);
 
-  /* Catch the "activate" signal on the filter and file name text
+  /* Catch the "activate" signal on the text
      entries, so that if the user types Return there, we act as if the
      "OK" button had been selected, as happens if Return is typed if some
      widget that *doesn't* handle the Return key has the input focus. */
+  dlg_set_activate(GTK_COMBO(if_cb)->entry, ok_bt);
   dlg_set_activate(filter_te, ok_bt);
   dlg_set_activate(file_te, ok_bt);
 
