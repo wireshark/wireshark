@@ -40,7 +40,12 @@ DOCUMENT SECTION
   <!ENTITY DocumentLegalNotice "<para>Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.1 or any later version published by the Free Software Foundation; with the Invariant Sections being LIST THEIR TITLES, with the Front-Cover Texts being LIST, and with the Back-Cover Texts being LIST. A copy of the license is included in the section entitled &quot;GNU Free Documentation License&quot;</para><para>All logos and trademarks in this document are property of their respective owner.</para>">
 
   <!ENTITY EtherealWebSite "http://www.ethereal.com">
+  <!ENTITY EtherealDownloadPage "&EtherealWebSite;/download.html">
+  <!ENTITY EtherealAuthorsPage "&EtherealWebSite;/introduction.html#authors">
+  <!ENTITY EtherealFAQPage "&EtherealWebSite;/faq.html">
   <!ENTITY EtherealDevMailList "ethereal-dev[AT]ethereal.com">
+  <!ENTITY EtherealUsersGuidePage "&EtherealWebSite;/docs/#usersguide">
+  <!ENTITY GPLWebsite "http://www.gnu.org/copyleft/gpl.html">
 
 <!--
 Ethereal Info
@@ -57,6 +62,7 @@ FILE SECTION
 <!-- These are the actual files that make up the document -->
   <!ENTITY BookMetaInformation SYSTEM "dg-src/EDG_meta_info.xml">
   <!ENTITY Preface SYSTEM "dg-src/EDG_preface.xml">
+  <!ENTITY Introduction SYSTEM "dg-src/EDG_chapter_introduction.xml">
 
 <!-- These refer to graphics files and figures contained in the document -->
   <!-- 1st Chapter -->
@@ -67,6 +73,7 @@ FILE SECTION
 <subtitle>&DocumentSubTitle;</subtitle>
 &BookMetaInformation;
 &Preface;
+&Introduction;
 <!--
 
 &Glossary;

@@ -5,13 +5,18 @@
   <section id="PreForeword">
   <title>Foreword</title>
   <para>
-    Frequently people new to Ethereal development are asking questions 
-	about how to implement new features to Ethereal. This book tries to give 
-	you a guide to start your own experiments into the wonderful world of 
-	Ethereal development.
+	This book tries to give you a guide to start your own experiments into 
+	the wonderful world of Ethereal development.
   </para>
   <para>
-    We hope that you find it useful, and look forward to your comments.
+	Developers who are new to Ethereal are often having a hard time getting 
+	their development environment up and running. This is
+	especially true for win32 developers, as a lot of the tools and methods
+	used when building Ethereal are much more common in the unix world than
+	on win32.
+  </para>
+  <para>
+    We hope that you find this book useful, and look forward to your comments.
   </para>
   </section>
 
@@ -45,8 +50,8 @@
       </listitem>
       <listitem>
 	<para>
-	  Guy Harris, for many helpful hints and a great deal of patience 
-	  in reviewing this document.
+      Guy Harris, for many helpful hints and his effort in maintaining
+      the various contributions on the mailing lists.
 	</para>
       </listitem>
     </itemizedlist>
@@ -56,10 +61,12 @@
 	helpful feedback on this document:
     <itemizedlist>
       <listitem>
-      <para>XXX - We hopefully might get some feedback in the future :-)
+      <para>XXX - Please give feedback :-)
       </para>
       </listitem>
     </itemizedlist>
+	And of course a big thank you to the many, many contributors of the 
+	Ethereal development community!
   </para>
   </section>
 
@@ -100,6 +107,7 @@
      <!-- <ulink url="&LatestVersionWebsite;">&LatestVersionWebsite;</ulink>; 
       and at: --> 
       <ulink url="&EtherealWebSite;/docs/developer-guide/"/>.
+	  XXX - is that true?
     </para>
    <!-- <para>
       In addition, you can find a PDF version of the guide at: 
