@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.711 2004/02/22 08:30:41 ulfl Exp $
+# $Id: Makefile.am,v 1.712 2004/02/22 08:58:19 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -66,7 +66,7 @@ man1_MANS = @ethereal_man@ @editcap_man@ @mergecap_man@ @tethereal_man@ @text2pc
 man4_MANS = @etherealfilter_man@
 man_MANS =
 
-EXTRA_PROGRAMS = ethereal tethereal editcap mergecap dftest text2pcap
+EXTRA_PROGRAMS = ethereal tethereal editcap mergecap dftest randpkt text2pcap
 EXTRA_SCRIPTS = idl2eth
 
 #
@@ -401,12 +401,15 @@ ps.c: print.ps rdps
 rdps: rdps.c
 	$(CC) $(CFLAGS) -o rdps $(srcdir)/rdps.c
 
-randpkt.o: randpkt.c
-	$(CC) -DHAVE_CONFIG_H -I. `glib-config --cflags` -c $(srcdir)/randpkt.c
+randpkt_additional_libs = wiretap/libwiretap.a
 
-randpkt: randpkt.o wiretap/libwiretap.a
-	$(LINK) -o randpkt randpkt.o wiretap/libwiretap.a `glib-config --libs` -lz
+randpkt_DEPENDENCIES = \
+	$(randpkt_additional_libs)
 
+randpkt_LDADD = \
+	$(randpkt_additional_libs) \
+	@GLIB_LIBS@ -lm \
+	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@
 
 dftest_additional_libs =		\
 	wiretap/libwiretap.a		\
