@@ -834,6 +834,7 @@ B<http://ethereal.zing.org>.
   Dietmar Petras           <DPetras@ELSA.de> 
   Fred Reimer              <fwr@ga.prestige.net>
   Florian Lohoff           <flo@rfc822.org>
+  Jochen Friedrich         <jochen+ethereal@scram.de>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

@@ -262,7 +262,11 @@ Fred Reimer <fwr@ga.prestige.net> {
 Florian Lohoff <flo@rfc822.org> {
 	RADIUS tunnel attribute support
 	RADIUS tunnel attribute tagging support from Internet-Draft
-	http://www.ietf.org/internet-drafts/draft-ietf-radius-tunnel-auth-09.txt
+http://www.ietf.org/internet-drafts/draft-ietf-radius-tunnel-auth-09.txt
+}
+
+Jochen Friedrich <jochen+ethereal@scram.de> {
+	Fix to IPv6 fragment handling
 }
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to

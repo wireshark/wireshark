@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.30 2000/03/14 06:03:22 guy Exp $
+ * $Id: packet-ipv6.c,v 1.31 2000/03/21 04:15:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -137,18 +137,19 @@ dissect_routing6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 }
 
 static int
-dissect_frag6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_frag6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, 
+    int *fragstart) {
     struct ip6_frag frag;
     int len;
 
     memcpy(&frag, (void *) &pd[offset], sizeof(frag));
     len = sizeof(frag);
-
+    *fragstart = ntohs(frag.ip6f_offlg) & 0xfff8;
     if (check_col(fd, COL_INFO)) {
 	col_add_fstr(fd, COL_INFO,
 	    "IPv6 fragment (nxt=%s (0x%02x) off=0x%04x id=0x%x)",
 	    ipprotostr(frag.ip6f_nxt), frag.ip6f_nxt,
-	    (frag.ip6f_offlg >> 3) & 0x1fff, frag.ip6f_ident);
+	    *fragstart, frag.ip6f_ident);
     }
     return len;
 }
@@ -254,6 +255,7 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   guint8 nxt;
   int advance;
   int poffset;
+  int frag;
 
   struct ip6_hdr ipv6;
 
@@ -332,6 +334,7 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   /* start of the new header (could be a extension header) */
   nxt = pd[poffset = offset + offsetof(struct ip6_hdr, ip6_nxt)];
   offset += sizeof(struct ip6_hdr);
+  frag = 0;
 
 again:
     switch (nxt) {
@@ -349,7 +352,7 @@ again:
 	offset += advance;
 	goto again;
     case IP_PROTO_FRAGMENT:
-	advance = dissect_frag6(pd, offset, fd, tree);
+	advance = dissect_frag6(pd, offset, fd, tree, &frag);
 	nxt = pd[poffset = offset];
 	offset += advance;
 	goto again;
@@ -357,7 +360,10 @@ again:
 #ifdef TEST_FINALHDR
 	proto_tree_add_item_hidden(ipv6_tree, hf_ipv6_final, poffset, 1, nxt);
 #endif
-	dissect_icmpv6(pd, offset, fd, tree);
+	if (!frag)
+		dissect_icmpv6(pd, offset, fd, tree);
+	else
+		dissect_data(pd, offset, fd, tree);
 	break;
     case IP_PROTO_NONE:
 #ifdef TEST_FINALHDR
@@ -384,13 +390,19 @@ again:
 #ifdef TEST_FINALHDR
 	proto_tree_add_item_hidden(ipv6_tree, hf_ipv6_final, poffset, 1, nxt);
 #endif
-	dissect_tcp(pd, offset, fd, tree);
+	if (!frag)
+		dissect_tcp(pd, offset, fd, tree);
+	else
+		dissect_data(pd, offset, fd, tree);
 	break;
     case IP_PROTO_UDP:
 #ifdef TEST_FINALHDR
 	proto_tree_add_item_hidden(ipv6_tree, hf_ipv6_final, poffset, 1, nxt);
 #endif
-	dissect_udp(pd, offset, fd, tree);
+	if (!frag)
+		dissect_udp(pd, offset, fd, tree);
+	else
+		dissect_data(pd, offset, fd, tree);
 	break;
     case IP_PROTO_PIM:
 #ifdef TEST_FINALHDR
