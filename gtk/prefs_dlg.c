@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.86 2004/05/27 21:42:54 guy Exp $
+ * $Id: prefs_dlg.c,v 1.87 2004/06/10 10:09:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,7 +62,7 @@ static void     prefs_main_ok_cb(GtkWidget *, gpointer);
 static void     prefs_main_apply_cb(GtkWidget *, gpointer);
 static void     prefs_main_save_cb(GtkWidget *, gpointer);
 static void     prefs_main_cancel_cb(GtkWidget *, gpointer);
-static gboolean prefs_main_delete_cb(GtkWidget *, gpointer);
+static gboolean prefs_main_delete_event_cb(GtkWidget *, GdkEvent *, gpointer);
 static void     prefs_main_destroy_cb(GtkWidget *, gpointer);
 #if GTK_MAJOR_VERSION < 2
 static void	prefs_tree_select_cb(GtkCTree *, GtkCTreeNode *, gint,
@@ -610,7 +610,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 
   gtk_widget_grab_default(ok_bt);
 
-  SIGNAL_CONNECT(prefs_w, "delete_event", prefs_main_delete_cb, prefs_w);
+  SIGNAL_CONNECT(prefs_w, "delete_event", prefs_main_delete_event_cb, prefs_w);
   SIGNAL_CONNECT(prefs_w, "destroy", prefs_main_destroy_cb, prefs_w);
 
   gtk_widget_show(prefs_w);
@@ -1229,9 +1229,10 @@ prefs_main_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
 
 /* Treat this as a cancel, by calling "prefs_main_cancel_cb()" */
 static gboolean
-prefs_main_delete_cb(GtkWidget *prefs_w _U_, gpointer parent_w)
+prefs_main_delete_event_cb(GtkWidget *prefs_w, GdkEvent *event _U_,
+                           gpointer parent_w _U_)
 {
-  prefs_main_cancel_cb(NULL, parent_w);
+  prefs_main_cancel_cb(NULL, prefs_w);
   return FALSE;
 }
 

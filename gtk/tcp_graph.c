@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.62 2004/05/26 03:49:24 ulfl Exp $
+ * $Id: tcp_graph.c,v 1.63 2004/06/10 10:09:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -405,6 +405,7 @@ static void control_panel_add_origin_page (struct graph * , GtkWidget * );
 static void control_panel_add_cross_page (struct graph * , GtkWidget * );
 static void control_panel_add_graph_type_page (struct graph * , GtkWidget * );
 static void callback_toplevel_destroy (GtkWidget * , gpointer );
+static gboolean callback_delete_event(GtkWidget * , GdkEvent * , gpointer);
 static void callback_close (GtkWidget * , gpointer );
 static void callback_time_origin (GtkWidget * , gpointer );
 static void callback_seq_origin (GtkWidget * , gpointer );
@@ -865,50 +866,50 @@ static void callback_toplevel_destroy (GtkWidget *widget _U_, gpointer data)
 
 static void control_panel_create (struct graph *g)
 {
-	GtkWidget *toplevel, *notebook;
-	GtkWidget *table;
-	GtkWidget *help_bt, *close_bt, *bbox;
+    GtkWidget *toplevel, *notebook;
+    GtkWidget *table;
+    GtkWidget *help_bt, *close_bt, *bbox;
 #define WINDOW_TITLE_LENGTH 64
-	char window_title[WINDOW_TITLE_LENGTH];
+    char window_title[WINDOW_TITLE_LENGTH];
 
-	debug(DBS_FENTRY) puts ("control_panel_create()");
+    debug(DBS_FENTRY) puts ("control_panel_create()");
 
-	notebook = gtk_notebook_new ();
-	control_panel_add_zoom_page (g, notebook);
-	control_panel_add_magnify_page (g, notebook);
-	control_panel_add_origin_page (g, notebook);
-	control_panel_add_cross_page (g, notebook);
-	control_panel_add_graph_type_page (g, notebook);
+    notebook = gtk_notebook_new ();
+    control_panel_add_zoom_page (g, notebook);
+    control_panel_add_magnify_page (g, notebook);
+    control_panel_add_origin_page (g, notebook);
+    control_panel_add_cross_page (g, notebook);
+    control_panel_add_graph_type_page (g, notebook);
 
-	g_snprintf (window_title, WINDOW_TITLE_LENGTH,
-				"Graph %d - Control - Ethereal", refnum);
-	toplevel = dlg_window_new ("tcp-graph-control");
+    g_snprintf (window_title, WINDOW_TITLE_LENGTH,
+                "Graph %d - Control - Ethereal", refnum);
+    toplevel = dlg_window_new ("tcp-graph-control");
     gtk_window_set_title(GTK_WINDOW(toplevel), window_title);
 
-	table = gtk_table_new (2, 1,  FALSE);
-	gtk_container_add (GTK_CONTAINER (toplevel), table);
+    table = gtk_table_new (2, 1,  FALSE);
+    gtk_container_add (GTK_CONTAINER (toplevel), table);
 
-	gtk_table_attach (GTK_TABLE (table), notebook, 0, 1, 0, 1,
-                          GTK_FILL|GTK_EXPAND, GTK_FILL, 5, 5);
+    gtk_table_attach (GTK_TABLE (table), notebook, 0, 1, 0, 1,
+                      GTK_FILL|GTK_EXPAND, GTK_FILL, 5, 5);
 
-	/* Button row. */
-	bbox = dlg_button_row_new(GTK_STOCK_HELP, GTK_STOCK_CLOSE, NULL);
-	gtk_table_attach (GTK_TABLE (table), bbox, 0, 1, 1, 2,
-                          GTK_FILL|GTK_EXPAND, GTK_FILL, 5, 5);
+    /* Button row. */
+    bbox = dlg_button_row_new(GTK_STOCK_HELP, GTK_STOCK_CLOSE, NULL);
+    gtk_table_attach (GTK_TABLE (table), bbox, 0, 1, 1, 2,
+                      GTK_FILL|GTK_EXPAND, GTK_FILL, 5, 5);
 
-	help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
-	SIGNAL_CONNECT(help_bt, "clicked", callback_create_help, g);
+    help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+    SIGNAL_CONNECT(help_bt, "clicked", callback_create_help, g);
 
-	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+    close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
     window_set_cancel_button(toplevel, close_bt, NULL);
-	SIGNAL_CONNECT(close_bt, "clicked", callback_close, g);
+    SIGNAL_CONNECT(close_bt, "clicked", callback_close, g);
 
-    SIGNAL_CONNECT(toplevel, "delete_event", callback_close, g);
-	SIGNAL_CONNECT(toplevel, "destroy", callback_toplevel_destroy, g);
+    SIGNAL_CONNECT(toplevel, "delete_event", callback_delete_event, g);
+    SIGNAL_CONNECT(toplevel, "destroy", callback_toplevel_destroy, g);
 
-	/* gtk_widget_show_all (table); */
-	/* g->gui.control_panel = table; */
-	gtk_widget_show_all (toplevel);
+    /* gtk_widget_show_all (table); */
+    /* g->gui.control_panel = table; */
+    gtk_widget_show_all (toplevel);
     window_present(toplevel);
 
     g->gui.control_panel = toplevel;
@@ -1009,6 +1010,15 @@ static void control_panel_add_graph_type_page (struct graph *g, GtkWidget *n)
 	gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
 	label = gtk_label_new ("Graph type");
 	gtk_notebook_append_page (GTK_NOTEBOOK (n), frame, label);
+}
+
+/* Treat this as a cancel, by calling "callback_close()" */
+static gboolean
+callback_delete_event(GtkWidget *widget _U_, GdkEvent *event _U_,
+                      gpointer data)
+{
+	callback_close(NULL, data);
+	return FALSE;
 }
 
 static void callback_close (GtkWidget *widget _U_, gpointer data)

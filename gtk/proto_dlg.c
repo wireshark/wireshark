@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.34 2004/05/27 19:59:49 ulfl Exp $
+ * $Id: proto_dlg.c,v 1.35 2004/06/10 10:09:58 guy Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -43,7 +43,7 @@
 #include "disabled_protos.h"
 #include <epan/filesystem.h>
 
-static gboolean proto_delete_cb(GtkWidget *, gpointer);
+static gboolean proto_delete_event_cb(GtkWidget *, GdkEvent *, gpointer);
 static void proto_ok_cb(GtkWidget *, gpointer);
 static void proto_apply_cb(GtkWidget *, gpointer);
 static void proto_save_cb(GtkWidget *, gpointer);
@@ -236,7 +236,7 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   button = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
   window_set_cancel_button(proto_w, button, proto_cancel_cb);
 
-  SIGNAL_CONNECT(proto_w, "delete_event", proto_delete_cb, NULL);
+  SIGNAL_CONNECT(proto_w, "delete_event", proto_delete_event_cb, NULL);
   SIGNAL_CONNECT(proto_w, "destroy", proto_destroy_cb, NULL);
 
   gtk_quit_add_destroy(gtk_main_level(), GTK_OBJECT(proto_w));
@@ -391,7 +391,8 @@ proto_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
    a higher-level handler that says "OK, we've been asked to delete
    this, so destroy it"? */
 static gboolean
-proto_delete_cb(GtkWidget *proto_w, gpointer dummy _U_)
+proto_delete_event_cb(GtkWidget *proto_w, GdkEvent *event _U_,
+                      gpointer dummy _U_)
 {
   proto_cancel_cb(NULL, proto_w);
   return FALSE;

@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.58 2004/06/10 09:46:26 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.59 2004/06/10 10:09:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1019,6 +1019,15 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
 #endif
 }
 
+/* Treat this as a cancel, by calling "prefs_main_cancel_cb()" */
+static gboolean
+dfilter_expr_dlg_delete_event_cb(GtkWidget *w _U_, GdkEvent *event _U_,
+                                 gpointer parent_w)
+{
+	dfilter_expr_dlg_cancel_cb(NULL, parent_w);
+	return FALSE;
+}
+
 static void
 dfilter_expr_dlg_cancel_cb(GtkWidget *w _U_, gpointer parent_w)
 {
@@ -1474,7 +1483,8 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
                                   GTK_SELECTION_BROWSE);
 #endif
 
-    SIGNAL_CONNECT(window, "delete_event", dfilter_expr_dlg_cancel_cb, window);
+    SIGNAL_CONNECT(window, "delete_event", dfilter_expr_dlg_delete_event_cb,
+                   window);
 
     /*
      * Catch the "destroy" signal on our top-level window, and,
