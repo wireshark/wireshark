@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.417 2004/05/09 10:03:36 guy Exp $
+# $Id: Makefile.nmake,v 1.418 2004/05/13 20:54:39 obiot Exp $
 
 include config.nmake
 include <win32.mak>
@@ -125,7 +125,7 @@ packaging: all
 	cd ..
 	cd ..
 
-seperate_packaging: all
+separate_packaging: all
 	cd packaging
 	cd nsis
 !IFDEF GTK1_DIR
@@ -436,7 +436,7 @@ setup: verify_apps
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		gtk2 gtk2/atk-dev-1.4.0.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
-		gtk-wimp gtk2/gtk-wimp-0.5.3-bin.zip
+		gtk-wimp gtk2/gtk-wimp-0.5.4-bin.zip
 !ENDIF
 	@echo.
 	@echo Ethereal is ready to build.
