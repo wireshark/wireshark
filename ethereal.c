@@ -1,6 +1,6 @@
-/* ethereal.c
+/* ETHEREal.c
  *
- * $Id: ethereal.c,v 1.84 1999/08/14 18:51:25 gram Exp $
+ * $Id: ethereal.c,v 1.85 1999/08/14 19:53:31 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -120,6 +120,7 @@ gchar        comp_info_str[256];
 gchar       *ethereal_path = NULL;
 gchar       *medium_font = MONO_MEDIUM_FONT;
 gchar       *bold_font = MONO_BOLD_FONT;
+gchar       *last_open_dir = NULL;
 
 ts_type timestamp_type = RELATIVE;
 
@@ -366,6 +367,9 @@ void
 file_open_cmd_cb(GtkWidget *w, gpointer data) {
   GtkWidget *filter_hbox, *filter_bt, *filter_te;
 
+  if (last_open_dir)
+	  chdir(last_open_dir);
+
   file_sel = gtk_file_selection_new ("Ethereal: Open Capture File");
   
   /* Connect the ok_button to file_open_ok_cb function and pass along a
@@ -373,9 +377,7 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
   gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (file_sel)->ok_button),
     "clicked", (GtkSignalFunc) file_open_ok_cb, file_sel );
 
-  /* Gilbert --- I added this if statement. Is this right? */
-  if (w)
-    gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_sel)->ok_button),
+  gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_sel)->ok_button),
       E_DFILTER_TE_KEY, gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY));
 
   filter_hbox = gtk_hbox_new(FALSE, 1);
@@ -419,9 +421,9 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
 
 static void
 file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
-  gchar     *cf_name;
+  gchar     *cf_name, *s;
   GtkWidget *filter_te;
-  gchar     *rfilter, *s;
+  gchar     *rfilter;
   int        err;
 
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (fs)));
@@ -434,15 +436,27 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   gtk_widget_hide(GTK_WIDGET (fs));
   gtk_widget_destroy(GTK_WIDGET (fs));
 
-  /* this depends upon load_cap_file removing the filename from
-   * cf_name, leaving only the path to the directory. */
-  if ((err = load_cap_file(cf_name, rfilter, &cf)) == 0)
-    chdir(cf_name);
-  g_free(cf_name);
-  if (err == 0) {
+  /* save the directory name. We can write over cf_name */
+  if ((err = load_cap_file(cf_name, rfilter, &cf)) == 0) {
+	  s = strrchr(cf_name, '/');
+	  if (s && last_open_dir) {
+		  *s = '\0';
+		  if (strcmp(last_open_dir, cf_name) != 0) {
+			  g_free(last_open_dir);
+			  last_open_dir = g_strdup(cf_name);
+		  }
+	  }
+	  else if (s) { /* ! last_open_dir */
+		  *s = '\0';
+		  last_open_dir = g_strdup(cf_name);
+	  }
+	  else {
+		  last_open_dir = NULL;
+	  }
     set_menu_sensitivity("/File/Save", FALSE);
     set_menu_sensitivity("/File/Save As...", TRUE);
   }
+  g_free(cf_name);
 }
 
 /* Close a file */
@@ -454,7 +468,7 @@ file_close_cmd_cb(GtkWidget *widget, gpointer data) {
 void
 file_save_cmd_cb(GtkWidget *w, gpointer data) {
   file_sel = gtk_file_selection_new ("Ethereal: Save Capture File");
-  
+ 
   /* Connect the ok_button to file_save_ok_cb function and pass along a
      pointer to the file selection box widget */
   gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (file_sel)->ok_button),
@@ -499,6 +513,7 @@ file_save_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 
 	if (!file_mv(cf.save_file, cf_name))
 		return;
+
 	g_free(cf.save_file);
 	cf.save_file = g_strdup(cf_name);
 	cf.user_saved = 1;
@@ -517,13 +532,12 @@ file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 	cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
 	gtk_widget_hide(GTK_WIDGET (fs));
 	gtk_widget_destroy(GTK_WIDGET (fs));
-
-	if (!file_cp(cf.save_file, cf_name))
+	if (!file_cp(cf.filename, cf_name))
 		return;
-	g_free(cf.save_file);
-	cf.save_file = g_strdup(cf_name);
+	g_free(cf.filename);
+	cf.filename = g_strdup(cf_name);
 	cf.user_saved = 1;
-	err = load_cap_file(cf_name, g_strdup(cf.rfilter), &cf);
+	err = load_cap_file(cf.filename, g_strdup(cf.rfilter), &cf);
 	if (err == 0) {
 		set_menu_sensitivity("/File/Save", FALSE);
 		set_menu_sensitivity("/File/Save As...", TRUE);
@@ -993,7 +1007,7 @@ print_usage(void) {
 int
 main(int argc, char *argv[])
 {
-  char               *command_name;
+  char               *command_name, *s;
   int                  i;
 #ifndef WIN32
   int                  opt;
@@ -1042,7 +1056,7 @@ main(int argc, char *argv[])
        failed. */
     pf_open_errno = errno;
   }
-    
+
   /* Initialize the capture file struct */
   cf.plist		= NULL;
   cf.plist_end		= NULL;
@@ -1131,6 +1145,12 @@ main(int argc, char *argv[])
 #endif
       case 'r':        /* Read capture file xxx */
         cf_name = g_strdup(optarg);
+	s = strrchr(cf_name, '/');
+	if (s) {
+		last_open_dir = cf_name;
+		*s = '\0';
+		cf_name = g_strdup(optarg);
+	}
         break;
       case 'R':        /* Read file filter */
         rfilter = g_strdup(optarg);
