@@ -9,7 +9,7 @@
  *
  * (append your name here for newer version)
  *
- * $Id: packet-tcap.c,v 1.4 2003/12/02 02:58:32 guy Exp $
+ * $Id: packet-tcap.c,v 1.5 2003/12/29 00:41:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2783,6 +2783,15 @@ proto_reg_handoff_tcap(void)
     dissector_add("sccp.ssn", 10, tcap_handle); /* EIR */
     dissector_add("sccp.ssn", 11, tcap_handle); /* SMS/MC */
     dissector_add("sccp.ssn", 12, tcap_handle); /* IS41 OTAF */
+
+    dissector_add("sua.ssn", 5, tcap_handle); /* MAP*/
+    dissector_add("sua.ssn", 6, tcap_handle); /* HLR*/
+    dissector_add("sua.ssn", 7, tcap_handle); /* VLR */
+    dissector_add("sua.ssn", 8, tcap_handle); /* MSC */
+    dissector_add("sua.ssn", 9, tcap_handle); /* EIR */
+    dissector_add("sua.ssn", 10, tcap_handle); /* EIR */
+    dissector_add("sua.ssn", 11, tcap_handle); /* SMS/MC */
+    dissector_add("sua.ssn", 12, tcap_handle); /* IS41 OTAF */
 
     data_handle = find_dissector("data");
 }
