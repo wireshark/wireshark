@@ -2167,6 +2167,7 @@ B<http://www.ethereal.com>.
   Nick Black               <dank [AT] reflexsecurity.com>
   Bill Guyton              <guyton [AT] bguyton.com>
   Love Hörnquist Åstrand   <lha [AT] it.su.se>
+  Thomas Palmer            <Thomas.Palmer [AT] Gunter.AF.mil>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.421 2004/04/06 16:08:56 gerald Exp $
+ * $Id: main.c,v 1.422 2004/04/06 19:02:18 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3546,9 +3546,7 @@ void foreach_remove_a_child(GtkWidget *widget, gpointer data) {
 void main_widgets_rearrange(void) {
     gint widgets = 0;
     GtkWidget *w[10];
-    /* XXX: add this to the recent settings */
-    gboolean filter_toolbar_show_in_statusbar = TRUE;
-
+    gboolean filter_toolbar_show_in_statusbar = prefs.filter_toolbar_show_in_statusbar;
 
     /* be a bit faster */
     gtk_widget_hide(main_vbox);

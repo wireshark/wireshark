@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.127 2004/02/28 04:39:12 guy Exp $
+ * $Id: prefs.c,v 1.128 2004/04/06 19:02:17 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -921,6 +921,7 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
     prefs.gui_ptree_line_style = 0;
     prefs.gui_ptree_expander_style = 1;
     prefs.gui_hex_dump_highlight_style = 1;
+    prefs.filter_toolbar_show_in_statusbar = FALSE;
     prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
 #ifdef WIN32
     prefs.gui_font_name1 = g_strdup("-*-lucida console-medium-r-*-*-*-100-*-*-*-*-*-*");
@@ -1271,6 +1272,7 @@ prefs_set_pref(char *prefarg)
 #define PRS_GUI_PLIST_SEL_BROWSE         "gui.packet_list_sel_browse"
 #define PRS_GUI_PTREE_SEL_BROWSE         "gui.protocol_tree_sel_browse"
 #define PRS_GUI_ALTERN_COLORS            "gui.tree_view_altern_colors"
+#define PRS_GUI_FILTER_TOOLBAR_IN_STATUSBAR "gui.filter_toolbar_show_in_statusbar"
 #define PRS_GUI_PTREE_LINE_STYLE         "gui.protocol_tree_line_style"
 #define PRS_GUI_PTREE_EXPANDER_STYLE     "gui.protocol_tree_expander_style"
 #define PRS_GUI_HEX_DUMP_HIGHLIGHT_STYLE "gui.hex_dump_highlight_style"
@@ -1524,6 +1526,13 @@ set_pref(gchar *pref_name, gchar *value)
   } else if (strcmp(pref_name, PRS_GUI_HEX_DUMP_HIGHLIGHT_STYLE) == 0) {
     prefs.gui_hex_dump_highlight_style =
 	find_index_from_string_array(value, gui_hex_dump_highlight_style_text, 1);
+  } else if (strcmp(pref_name, PRS_GUI_FILTER_TOOLBAR_IN_STATUSBAR) == 0) {
+    if (strcasecmp(value, "true") == 0) {
+            prefs.filter_toolbar_show_in_statusbar = TRUE;
+    }
+    else {
+            prefs.filter_toolbar_show_in_statusbar = FALSE;
+    }
   } else if (strcmp(pref_name, PRS_GUI_TOOLBAR_MAIN_SHOW) == 0) {
     /* obsoleted by recent setting */
   } else if (strcmp(pref_name, PRS_GUI_TOOLBAR_MAIN_STYLE) == 0) {
@@ -2110,6 +2119,11 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_GUI_ALTERN_COLORS ": %s\n",
 		  prefs.gui_altern_colors == TRUE ? "TRUE" : "FALSE");
 
+  fprintf(pf, "\n# Place filter toolbar inside the statusbar?\n");
+  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  fprintf(pf, PRS_GUI_FILTER_TOOLBAR_IN_STATUSBAR ": %s\n",
+                 prefs.filter_toolbar_show_in_statusbar == TRUE ? "TRUE" : "FALSE");
+
   fprintf(pf, "\n# Protocol-tree line style.\n");
   fprintf(pf, "# One of: NONE, SOLID, DOTTED, TABBED\n");
   fprintf(pf, PRS_GUI_PTREE_LINE_STYLE ": %s\n",
@@ -2262,6 +2276,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_plist_sel_browse = src->gui_plist_sel_browse;
   dest->gui_ptree_sel_browse = src->gui_ptree_sel_browse;
   dest->gui_altern_colors = src->gui_altern_colors;
+  dest->filter_toolbar_show_in_statusbar = src->filter_toolbar_show_in_statusbar;
   dest->gui_ptree_line_style = src->gui_ptree_line_style;
   dest->gui_ptree_expander_style = src->gui_ptree_expander_style;
   dest->gui_hex_dump_highlight_style = src->gui_hex_dump_highlight_style;

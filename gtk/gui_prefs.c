@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.66 2004/03/13 15:15:24 ulfl Exp $
+ * $Id: gui_prefs.c,v 1.67 2004/04/06 19:02:18 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,6 +62,7 @@ static gint recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_,
 #else
 #define ALTERN_COLORS_KEY               "altern_colors"
 #endif
+#define FILTER_TOOLBAR_PLACEMENT_KEY    "filter_toolbar_show_in_statusbar"
 #define HEX_DUMP_HIGHLIGHT_STYLE_KEY	"hex_dump_highlight_style"
 #define GEOMETRY_POSITION_KEY		"geometry_position"
 #define GEOMETRY_SIZE_KEY		"geometry_size"
@@ -108,6 +109,12 @@ static const enum_val_t altern_colors_vals[] = {
 	{ NULL,      0 }
 };
 #endif
+
+static const enum_val_t filter_toolbar_placement_vals[] = {
+    { "Below the main toolbar",  FALSE },
+    { "Insert into statusbar",  TRUE },
+    { NULL,      0 }
+};
 
 static const enum_val_t highlight_style_vals[] = {
   	{ "Bold",     FALSE },
@@ -156,6 +163,7 @@ gui_prefs_show(void)
 	GtkWidget *scrollbar_om, *plist_browse_om;
 	GtkWidget *ptree_browse_om, *highlight_style_om;
 	GtkWidget *fileopen_rb, *fileopen_dir_te, *toolbar_style_om;
+    GtkWidget *filter_toolbar_placement_om;
 	GtkWidget *recent_files_count_max_te;
 	GtkWidget *save_position_cb, *save_size_cb, *save_maximized_cb;
 #if GTK_MAJOR_VERSION < 2
@@ -236,6 +244,12 @@ gui_prefs_show(void)
 	    prefs.gui_toolbar_main_style);
 	OBJECT_SET_DATA(main_vb, GUI_TOOLBAR_STYLE_KEY,
 	    toolbar_style_om);
+
+    /* Placement of Filter toolbar */
+    filter_toolbar_placement_om = create_preference_option_menu(main_tb, pos++,
+       "Filter toolbar placement:", NULL,
+       filter_toolbar_placement_vals, prefs.filter_toolbar_show_in_statusbar);
+    OBJECT_SET_DATA(main_vb, FILTER_TOOLBAR_PLACEMENT_KEY, filter_toolbar_placement_om);
 
 	/* Geometry prefs */
 	save_position_cb = create_preference_check_button(main_tb, pos++,
@@ -422,6 +436,8 @@ gui_prefs_fetch(GtkWidget *w)
 	prefs.gui_altern_colors = fetch_enum_value(
 	    OBJECT_GET_DATA(w, ALTERN_COLORS_KEY), altern_colors_vals);
 #endif
+    prefs.filter_toolbar_show_in_statusbar = fetch_enum_value(
+        OBJECT_GET_DATA(w, FILTER_TOOLBAR_PLACEMENT_KEY), filter_toolbar_placement_vals);
 	prefs.gui_hex_dump_highlight_style = fetch_enum_value(
 	    OBJECT_GET_DATA(w, HEX_DUMP_HIGHLIGHT_STYLE_KEY),
 	    highlight_style_vals);
@@ -505,6 +521,7 @@ gui_prefs_apply(GtkWidget *w _U_)
 	set_plist_sel_browse(prefs.gui_plist_sel_browse);
 	set_ptree_sel_browse_all(prefs.gui_ptree_sel_browse);
 	set_tree_styles_all();
+    main_widgets_rearrange();
 }
 
 void
