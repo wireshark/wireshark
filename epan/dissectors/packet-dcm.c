@@ -354,7 +354,7 @@ dcm_abort2str(guint8 reason)
     char *s = "";
     switch (reason) {
     case 0:  s = "not specified"; break;
-    case 1:  s = "unrecoginized"; break;
+    case 1:  s = "unrecognized"; break;
     case 2:  s = "unexpected"; break;
     case 4:  s = "unrecognized parameter"; break;
     case 5:  s = "unexpected parameter"; break;
