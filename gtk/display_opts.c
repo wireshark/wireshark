@@ -1,12 +1,11 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.21 2001/05/31 08:36:45 guy Exp $
+ * $Id: display_opts.c,v 1.22 2001/06/18 06:18:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -63,7 +62,6 @@
 #include "prefs.h"
 
 extern capture_file  cfile;
-extern GtkWidget *packet_list;
 
 /* Display callback data keys */
 #define E_DISPLAY_TIME_ABS_KEY   "display_time_abs"
