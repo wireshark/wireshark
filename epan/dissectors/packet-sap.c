@@ -197,7 +197,15 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                   has_pad = auth_flags&MCAST_SAP_AUTH_BIT_P;
                   if (has_pad)
-                         pad_len = tvb_get_guint8(tvb, offset+auth_data_len-1);
+			  pad_len = tvb_get_guint8(tvb, offset+auth_data_len-1);
+
+		  if ((int) auth_data_len - pad_len - 1 < 0) {
+        		  proto_tree_add_text(sa_tree, tvb, 0, 0,
+                        		      "Bogus authentication length (%d) or pad length (%d)",
+                        		      auth_len, pad_len);
+        		  return;
+		  }
+		  
 
                   proto_tree_add_text(sa_tree, tvb, offset+1, auth_data_len-pad_len-1,
                                       "Authentication subheader: (%u byte%s)",
