@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.66 1999/12/09 07:19:18 guy Exp $
+ * $Id: main.c,v 1.67 1999/12/10 06:28:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1309,7 +1309,7 @@ main(int argc, char *argv[])
 
   filter_bt = gtk_button_new_with_label("Filter:");
   gtk_signal_connect(GTK_OBJECT(filter_bt), "clicked",
-    GTK_SIGNAL_FUNC(prefs_cb), (gpointer) E_PR_PG_FILTER);
+    GTK_SIGNAL_FUNC(filter_dialog_cb), NULL);
   gtk_box_pack_start(GTK_BOX(stat_hbox), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
   
@@ -1338,6 +1338,7 @@ main(int argc, char *argv[])
    * that text entry pointer */
   set_menu_object_data("/File/Open...", E_DFILTER_TE_KEY, filter_te);
   set_menu_object_data("/File/Reload", E_DFILTER_TE_KEY, filter_te);
+  set_menu_object_data("/Edit/Filters...", E_FILT_TE_PTR_KEY, filter_te);
   set_menu_object_data("/Display/Match Selected", E_DFILTER_TE_KEY, filter_te);
   set_menu_object_data("/Tools/Follow TCP Stream", E_DFILTER_TE_KEY, filter_te);
 

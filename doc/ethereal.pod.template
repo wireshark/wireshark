@@ -206,7 +206,14 @@ Exits the application.
 
 =item Edit:Preferences
 
-Sets the packet printing and filter options (see L<"Preferences"> below).
+Sets the packet printing, column display, and TCP stream coloring
+options (see L<"Preferences"> below).
+
+=item Edit:Filters
+
+Edits the saved list of filters, allowing filters to be added, changed,
+or deleted, and lets a selected filter be applied to the current
+capture, if any.
 
 =item Capture:Start
 
@@ -318,8 +325,7 @@ packets are displayed.
 =item Preferences
 
 The I<Preferences> dialog lets you select the output format of packets
-printed using the I<File:Print Packet> menu item and configure
-commonly-used filters.
+printed using the I<File:Print Packet> menu item.
 
 =over 6
 
@@ -332,51 +338,6 @@ entry box is the command to send files to (usually B<lpr>), and the
 I<File:> entry box lets you enter the name of the file you wish to save
 to.  Additinally, you can select the I<File:> button to browse the file
 system for a particular save file.
-
-=item Filter Preferences
-
-The I<Filters> page lets you create and modify filters, and set the
-default filter to use when capturing data or opening a capture file.
-
-The I<Filter name> entry specifies a descriptive name for a filter, e.g.
-B<Web and DNS traffic>.  The I<Filter string> entry is the text that
-actually describes the filtering action to take, as described above.The
-dialog buttons perform the following actions:
-
-=over 6
-
-=item New
-
-If there is text in the two entry boxes, it creates a new associated list
-item.
-
-=item Change
-
-Modifies the currently selected list item to match what's in the entry
-boxes.
-
-=item Copy
-
-Makes a copy of the currently selected list item.
-
-=item Delete
-
-Deletes the currently selected list item.
-
-=item OK
-
-Sets the currently selected list item as the active filter.  If  nothing
-is selected, turns filtering off.
-
-=item Save
-
-Saves the current filter list in F<$HOME/.ethereal/filters>.
-
-=item Cancel
-
-Closes the dialog without making any changes.
-
-=back
 
 =item Column Preferences
 
@@ -420,14 +381,66 @@ Closes the dialog without making any changes.
 
 =back
 
-=back
-
-=item TCP Streams
+=item TCP Stream Preferences
 
 The I<TCP Streams> page can be used to change the color of the text
 displayed in the TCP stream window.  To change a color, simply select
 an attribute from the "Set:" menu and use the color selector to get the
 desired color.  The new text colors are displayed in a sample window.
+
+=back
+
+=item Filters
+
+The I<Filters> dialog lets you create and modify filters, and set the
+default filter to use when capturing data or opening a capture file.
+
+The I<Filter name> entry specifies a descriptive name for a filter, e.g.
+B<Web and DNS traffic>.  The I<Filter string> entry is the text that
+actually describes the filtering action to take, as described above.The
+dialog buttons perform the following actions:
+
+=over 6
+
+=item New
+
+If there is text in the two entry boxes, it creates a new associated list
+item.
+
+=item Change
+
+Modifies the currently selected list item to match what's in the entry
+boxes.
+
+=item Copy
+
+Makes a copy of the currently selected list item.
+
+=item Delete
+
+Deletes the currently selected list item.
+
+=item Apply
+
+Sets the currently selected list item as the active filter, and applies
+it to the current capture, if any.
+(The currently selected list item must be a display filter, not a
+capture filter.)  If nothing is selected, turns filtering off.
+
+=item OK
+
+Sets the currently selected list item as the active filter.  If nothing
+is selected, turns filtering off.
+
+=item Save
+
+Saves the current filter list in F<$HOME/.ethereal/filters>.
+
+=item Cancel
+
+Closes the dialog without making any changes.
+
+=back
 
 =item Capture Preferences
 

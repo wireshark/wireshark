@@ -1,7 +1,7 @@
 /* filter_prefs.c
  * Dialog boxes for preferences for filter sets
  *
- * $Id: filter_prefs.c,v 1.5 1999/09/19 14:27:44 gerald Exp $
+ * $Id: filter_prefs.c,v 1.6 1999/12/10 06:28:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -49,6 +49,7 @@
 #define E_FILT_NAME_KEY "filter_name"
 #define E_FILT_LBL_KEY  "filter_label"
 #define E_FILT_CM_KEY   "in_cancel_mode"
+#define E_FILTER_WIDGET_KEY "filter_widget"
 
 typedef struct _filter_def {
   char *name;
@@ -61,10 +62,14 @@ typedef struct _filter_cb_data {
 } filter_cb_data;
 
 
-static GtkWidget   *filter_l, *chg_bt, *copy_bt, *del_bt, *name_te, *filter_te;
+static GtkWidget   *filter_l, *chg_bt, *copy_bt, *del_bt, *name_te, *filter_te, *apply_bt;
 static GList       *fl = NULL;
 
 static void get_filter_list(void);
+static void filter_dlg_ok(GtkWidget *ok_bt, gpointer parent_w);
+static void filter_dlg_save(GtkWidget *save_bt, gpointer parent_w);
+static void filter_dlg_cancel(GtkWidget *cancel_bt, gpointer parent_w);
+static void filter_sel_apply_cb(GtkWidget *cancel_bt, gpointer parent_w);
 
 void
 get_filter_list() {
@@ -119,7 +124,90 @@ get_filter_list() {
   fclose(ff);
   g_free(ff_path);
 }
+/* the window that pops up for filter editing/applying */
+void
+filter_dialog_cb(GtkWidget *w)
+{
+	GtkWidget	*main_w,	/* main window */
+			*main_vb,	/* main container */
+			*bbox, 		/* button container */
+			*ok_bt, 	/* ok button */
+			*save_bt, 	/* save button */
+			*cancel_bt;	/* cancel button */ 
+	GtkWidget *filter_te = NULL;	/* filter text entry */
+	GtkWidget *filter_pg = NULL;	/* filter settings box */
 
+	/* get the text entry widget from the caller */
+	if(w != NULL) {
+		filter_te = gtk_object_get_data(GTK_OBJECT(w), E_FILT_TE_PTR_KEY);
+	}
+
+	main_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title(GTK_WINDOW(main_w), "Ethereal: Filters");
+
+	main_vb = gtk_vbox_new(FALSE, 5);
+	gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+	gtk_container_add(GTK_CONTAINER(main_w), main_vb);
+	gtk_widget_show(main_vb);
+
+	filter_pg = filter_prefs_show(filter_te);
+	gtk_box_pack_start(GTK_BOX(main_vb), filter_pg, TRUE, TRUE, 0);
+	gtk_object_set_data(GTK_OBJECT(filter_pg), E_FILT_TE_PTR_KEY, filter_te);
+	gtk_object_set_data(GTK_OBJECT(main_w), E_FILTER_WIDGET_KEY, filter_pg);
+	gtk_widget_show(filter_te);
+
+	bbox = gtk_hbutton_box_new();
+	gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
+	gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
+	gtk_container_add(GTK_CONTAINER(main_vb), bbox);
+	gtk_widget_show(bbox);
+
+	ok_bt = gtk_button_new_with_label ("OK");
+	gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
+		GTK_SIGNAL_FUNC(filter_dlg_ok), GTK_OBJECT(main_w));
+	GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
+	gtk_box_pack_start(GTK_BOX(bbox), ok_bt, TRUE, TRUE, 0);
+	gtk_widget_grab_default(ok_bt);
+	gtk_widget_show(ok_bt);
+
+	save_bt = gtk_button_new_with_label ("Save");
+	gtk_signal_connect(GTK_OBJECT(save_bt), "clicked",
+		GTK_SIGNAL_FUNC(filter_dlg_save), GTK_OBJECT(main_w));
+	GTK_WIDGET_SET_FLAGS(save_bt, GTK_CAN_DEFAULT);
+	gtk_box_pack_start(GTK_BOX(bbox), save_bt, TRUE, TRUE, 0);
+	gtk_widget_show(save_bt);
+
+	cancel_bt = gtk_button_new_with_label ("Cancel");
+	gtk_signal_connect(GTK_OBJECT(cancel_bt), "clicked",
+		GTK_SIGNAL_FUNC(filter_dlg_cancel), GTK_OBJECT(main_w));
+	GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
+	gtk_box_pack_start(GTK_BOX(bbox), cancel_bt, TRUE, TRUE, 0);
+	gtk_widget_show(cancel_bt);
+
+
+	gtk_widget_show(main_w);
+}
+
+static void
+filter_dlg_ok(GtkWidget *ok_bt, gpointer parent_w)
+{
+	filter_prefs_ok(gtk_object_get_data(GTK_OBJECT(parent_w), E_FILTER_WIDGET_KEY));
+	gtk_widget_destroy(GTK_WIDGET(parent_w));
+}
+
+static void
+filter_dlg_save(GtkWidget *save_bt, gpointer parent_w)
+{
+	filter_prefs_save(gtk_object_get_data(GTK_OBJECT(parent_w), E_FILTER_WIDGET_KEY));
+}
+
+static void
+filter_dlg_cancel(GtkWidget *cancel_bt, gpointer parent_w)
+{
+	filter_prefs_cancel(gtk_object_get_data(GTK_OBJECT(parent_w),  E_FILTER_WIDGET_KEY));
+	gtk_widget_destroy(GTK_WIDGET(parent_w));
+}
+	
 /* Create and display the filter selection widgets. */
 /* Called when the 'Filter' preference notebook page is selected. */
 GtkWidget *
@@ -179,7 +267,14 @@ filter_prefs_show(GtkWidget *w) {
     GTK_SIGNAL_FUNC(filter_sel_del_cb), NULL);
   gtk_container_add(GTK_CONTAINER(list_bb), del_bt);
   gtk_widget_show(del_bt);
-  
+
+  apply_bt = gtk_button_new_with_label("Apply");
+  gtk_widget_set_sensitive(apply_bt, FALSE);
+  gtk_signal_connect(GTK_OBJECT(apply_bt), "clicked",
+    GTK_SIGNAL_FUNC(filter_sel_apply_cb), w);
+  gtk_container_add(GTK_CONTAINER(list_bb), apply_bt);
+  gtk_widget_show(apply_bt);
+
   filter_sc = gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(filter_sc),
     GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
@@ -284,6 +379,7 @@ filter_sel_list_cb(GtkWidget *l, gpointer data) {
     gtk_widget_set_sensitive(chg_bt, sensitivity);
     gtk_widget_set_sensitive(copy_bt, sensitivity);
     gtk_widget_set_sensitive(del_bt, sensitivity);
+    gtk_widget_set_sensitive(apply_bt, sensitivity);
   }
 }
 
@@ -401,6 +497,26 @@ filter_sel_del_cb(GtkWidget *w, gpointer data) {
       gtk_list_clear_items(GTK_LIST(filter_l), pos, pos + 1);
     } 
   }
+}
+
+void
+filter_sel_apply_cb(GtkWidget *w, gpointer data)
+{
+	GList      *flp, *sl;
+	GtkObject  *l_item;
+	filter_def *filt;
+	GtkWidget  *mw_filt = data;
+	
+	sl = GTK_LIST(filter_l)->selection;
+	if (sl != NULL && mw_filt != NULL) {  /* Place something in the filter box. */
+		l_item = GTK_OBJECT(sl->data);
+		flp    = (GList *) gtk_object_get_data(l_item, E_FILT_NAME_KEY);
+		if (flp) {
+			filt = (filter_def *) flp->data;
+			gtk_entry_set_text(GTK_ENTRY(mw_filt), filt->strval);
+			gtk_signal_emit_by_name(GTK_OBJECT(mw_filt), "activate");
+		}
+	}
 }
 
 void
