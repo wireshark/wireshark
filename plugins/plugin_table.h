@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.11 2000/11/18 21:41:40 guy Exp $
+ * $Id: plugin_table.h,v 1.12 2001/01/03 07:37:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -39,7 +39,7 @@ typedef void (*addr_col_append_str)(frame_data*, gint, gchar*);
 typedef void (*addr_dfilter_init)(void);
 typedef void (*addr_dfilter_cleanup)(void);
 
-typedef int (*addr_proto_register_protocol)(char*, char*);
+typedef int (*addr_proto_register_protocol)(char*, char*, char*);
 typedef void (*addr_proto_register_field_array)(int, hf_register_info*, int);
 typedef void (*addr_proto_register_subtree_array)(int**, int);
 
