@@ -42,12 +42,13 @@ Pro>, B<Etherpeek>, B<RADCOM>'s WAN/LAN analyzer, B<Lucent/Ascend>
 router debug output, HP-UX's B<nettl>, the dump output from B<Toshiba's>
 ISDN routers, the output from B<i4btrace> from the ISDN4BSD project, the
 output in B<IPLog> format from the Cisco Secure Intrusion Detection
-System, B<pppd logs> (pppdump format), and the output from VMS's
-B<TCPIPtrace> utility.  There is no need to tell B<Ethereal> what type
-of file you are reading; it will determine the file type by itself. 
-B<Ethereal> is also capable of reading any of these file formats if they
-are compressed using gzip.  B<Ethereal> recognizes this directly from
-the file; the '.gz' extension is not required for this purpose.
+System, B<pppd logs> (pppdump format), the output from VMS's
+B<TCPIPtrace> utility, and the text output from the B<DBS Etherwatch>
+VMS utility.  There is no need to tell B<Ethereal> what type of file you
+are reading; it will determine the file type by itself.  B<Ethereal> is
+also capable of reading any of these file formats if they are compressed
+using gzip.  B<Ethereal> recognizes this directly from the file; the
+'.gz' extension is not required for this purpose.
 
 Like other protocol analyzers, B<Ethereal>'s main window shows 3 views
 of a packet.  It shows a summary line, briefly describing what the

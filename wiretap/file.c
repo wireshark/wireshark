@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.70 2001/10/18 20:29:56 guy Exp $
+ * $Id: file.c,v 1.71 2001/10/19 20:18:48 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -61,6 +61,7 @@
 #include "pppdump.h"
 #include "etherpeek.h"
 #include "vms.h"
+#include "dbs-etherwatch.h"
 
 /* The open_file_* routines should return:
  *
@@ -109,6 +110,7 @@ static int (*open_routines[])(wtap *, int *) = {
 	i4btrace_open,
 	csids_open,
 	vms_open,
+	dbs_etherwatch_open,
 };
 
 #define	N_FILE_TYPES	(sizeof open_routines / sizeof open_routines[0])
@@ -370,6 +372,10 @@ static const struct file_type_info {
 
 	/* WTAP_FILE_VMS */
 	{ "TCPIPtrace (VMS)", NULL,
+	  NULL, NULL},
+
+	/* WTAP_FILE_DBS_ETHERWATCH */
+	{ "DBS Etherwatch (VMS)", NULL,
 	  NULL, NULL},
 };
 

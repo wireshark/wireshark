@@ -831,7 +831,8 @@ Steffen Weinreich <steve[AT]weinreich.org> {
 }
 
 Marc Milgram <mmilgram[AT]arrayinc.com> {
-    VMS TCPIPtrace wiretap module
+	VMS TCPIPtrace wiretap module
+	DBS Etherwatch wiretap module
 }
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to

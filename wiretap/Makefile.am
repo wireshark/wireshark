@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Wiretap
 #
-# $Id: Makefile.am,v 1.34 2001/10/18 20:29:56 guy Exp $
+# $Id: Makefile.am,v 1.35 2001/10/19 20:18:48 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -42,6 +42,8 @@ libwiretap_a_SOURCES = \
 	buffer.h		\
 	csids.c			\
 	csids.h			\
+	dbs-etherwatch.c	\
+	dbs-etherwatch.h	\
 	etherpeek.c             \
 	etherpeek.h             \
 	file.c			\

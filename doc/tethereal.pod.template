@@ -41,13 +41,14 @@ B<NetXray>, B<Sniffer Pro>, B<Etherpeek>, B<RADCOM>'s WAN/LAN analyzer,
 B<Lucent/Ascend> router debug output, HP-UX's B<nettl>, the dump output
 from B<Toshiba's> ISDN routers, the output from B<i4btrace> from the
 ISDN4BSD project, the output in B<IPLog> format from the Cisco Secure
-Intrusion Detection System, B<pppd logs> (pppdump format), and the
-output from VMS's B<TCPIPtrace> utility.  There is no need to tell
-B<Tethereal> what type of file you are reading; it will determine the
-file type by itself.  B<Tethereal> is also capable of reading any of
-these file formats if they are compressed using gzip.  B<Tethereal>
-recognizes this directly from the file; the '.gz' extension is not
-required for this purpose.
+Intrusion Detection System, B<pppd logs> (pppdump format), the output
+from VMS's B<TCPIPtrace> utility, and the text output from the
+B<DBS Etherwatch> VMS utility.  There is no need to tell B<Tethereal>
+what type of file you are reading; it will determine the file type by
+itself.  B<Tethereal> is also capable of reading any of these file
+formats if they are compressed using gzip.  B<Tethereal> recognizes this
+directly from the file; the '.gz' extension is not required for this
+purpose.
 
 If the B<-w> flag is not specified, B<Tethereal> prints a decoded form
 of the packets it captures or reads; otherwise, it writes those packets
