@@ -1,8 +1,12 @@
 /* packet-ipx.c
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
+ * NDPS support added by Greg Morris (gmorris@novell.com)
  *
- * $Id: packet-ipx.c,v 1.122 2003/04/06 22:50:00 guy Exp $
+ * Portions Copyright (c) 2000-2002 by Gilbert Ramirez.
+ * Portions Copyright (c) Novell, Inc. 2002-2003
+ *
+ * $Id: packet-ipx.c,v 1.123 2003/04/08 00:39:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +42,9 @@
 #include "llcsaps.h"
 #include "aftypes.h"
 #include "arcnet_pids.h"
+#include <epan/conversation.h>
+
+#define SPX_PACKET_INIT_COUNT	200
 
 /* The information in this module (IPX, SPX, NCP) comes from:
 	NetWare LAN Analysis, Second Edition
@@ -199,7 +206,6 @@ static const value_string ipxmsg_sigchar_vals[] = {
 	{ 0, NULL }
 };
 
-
 void
 capture_ipx(packet_counts *ld)
 {
@@ -339,7 +345,125 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	call_dissector(data_handle,next_tvb, pinfo, tree);
 }
+/* ================================================================= */
+/* SPX Hash Functions                                                */
+/* ================================================================= */
 
+typedef struct {
+	conversation_t	*conversation;
+	guint32		    spx_src;
+} spx_hash_key;
+
+typedef struct {
+        guint16             spx_seq;
+        guint16             spx_ack;
+        guint16             spx_all;
+        guint32             num;
+        gboolean            retransmission;
+} spx_hash_value;
+
+static GHashTable *spx_hash = NULL;
+static GMemChunk *spx_hash_keys = NULL;
+static GMemChunk *spx_hash_values = NULL;
+
+/* Hash Functions */
+gint
+spx_equal(gconstpointer v, gconstpointer v2)
+{
+	const spx_hash_key	*val1 = (const spx_hash_key*)v;
+	const spx_hash_key	*val2 = (const spx_hash_key*)v2;
+
+	if (val1->conversation == val2->conversation &&
+	    val1->spx_src  == val2->spx_src ) {
+		return 1;
+	}
+	return 0;
+}
+
+guint
+spx_hash_func(gconstpointer v)
+{
+	const spx_hash_key	*spx_key = (const spx_hash_key*)v;
+	return GPOINTER_TO_UINT(spx_key->conversation) + spx_key->spx_src;
+}
+
+/* Initializes the hash table and the mem_chunk area each time a new
+ * file is loaded or re-loaded in ethereal */
+static void
+spx_init_protocol(void)
+{
+
+	if (spx_hash)
+		g_hash_table_destroy(spx_hash);
+	if (spx_hash_keys)
+		g_mem_chunk_destroy(spx_hash_keys);
+	if (spx_hash_values)
+		g_mem_chunk_destroy(spx_hash_values);
+
+	spx_hash = g_hash_table_new(spx_hash_func, spx_equal);
+	spx_hash_keys = g_mem_chunk_new("spx_hash_keys",
+			sizeof(spx_hash_key),
+			SPX_PACKET_INIT_COUNT * sizeof(spx_hash_key),
+			G_ALLOC_ONLY);
+	spx_hash_values = g_mem_chunk_new("spx_hash_values",
+			sizeof(spx_hash_value),
+			SPX_PACKET_INIT_COUNT * sizeof(spx_hash_value),
+			G_ALLOC_ONLY);
+}
+
+/* After the sequential run, we don't need the spx hash and keys
+ * anymore; the lookups have already been done and the vital info
+ * saved in the reply-packets' private_data in the frame_data struct. */
+static void
+spx_postseq_cleanup(void)
+{
+	if (spx_hash) {
+		/* Destroy the hash, but don't clean up request_condition data. */
+		g_hash_table_destroy(spx_hash);
+		spx_hash = NULL;
+	}
+	if (spx_hash_keys) {
+		g_mem_chunk_destroy(spx_hash_keys);
+		spx_hash_keys = NULL;
+	}
+	/* Don't free the spx_hash_values, as they're
+	 * needed during random-access processing of the proto_tree.*/
+}
+
+spx_hash_value*
+spx_hash_insert(conversation_t *conversation, guint32 spx_src)
+{
+	spx_hash_key		*key;
+	spx_hash_value		*value;
+
+	/* Now remember the packet, so we can find it if we later. */
+	key = g_mem_chunk_alloc(spx_hash_keys);
+	key->conversation = conversation;
+	key->spx_src = spx_src;
+
+	value = g_mem_chunk_alloc(spx_hash_values);
+	value->spx_seq = 0;
+	value->spx_ack = 0;
+	value->spx_all = 0;
+	value->num = 0;
+	value->retransmission = FALSE;
+       
+	g_hash_table_insert(spx_hash, key, value);
+
+	return value;
+}
+
+/* Returns the spx_rec*, or NULL if not found. */
+spx_hash_value*
+spx_hash_lookup(conversation_t *conversation, guint32 spx_src)
+{
+	spx_hash_key		key;
+
+	key.conversation = conversation;
+	key.spx_src = spx_src;
+
+	return g_hash_table_lookup(spx_hash, &key);
+}
 
 /* ================================================================= */
 /* SPX                                                               */
@@ -395,6 +519,9 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		datastream_type;
 	const char	*spx_msg_string;
 	guint16		low_socket, high_socket;
+	guint32		src;
+	spx_hash_value	*pkt_value = NULL;
+	conversation_t	*conversation = NULL;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPX");
@@ -427,6 +554,57 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(spx_tree, hf_spx_seq_nr, tvb,  6, 2, FALSE);
 		proto_tree_add_item(spx_tree, hf_spx_ack_nr, tvb,  8, 2, FALSE);
 		proto_tree_add_item(spx_tree, hf_spx_all_nr, tvb, 10, 2, FALSE);
+	}
+	src = tvb_get_ntohs(tvb, 0)+tvb_get_ntohs(tvb, 2)+tvb_get_ntohs(tvb, 4)+tvb_get_ntohs(tvb, 6)+tvb_get_ntohs(tvb, 8);
+	/* SPX is Connection Oriented and Delivery Guaranteed
+	 *  We need to flag retransmissions by the SPX protocol
+	 */
+	if (!pinfo->fd->flags.visited) {
+		conversation = find_conversation(&pinfo->src, &pinfo->dst,
+		    PT_NCP, pinfo->srcport, pinfo->srcport, 0);
+    
+		if (conversation == NULL) {
+			/*
+			 * It's not part of any conversation - create a new
+			 * one.
+			 */
+			conversation = conversation_new(&pinfo->src,
+			    &pinfo->dst, PT_NCP, pinfo->srcport,
+			    pinfo->srcport, 0);
+			pkt_value = spx_hash_insert(conversation, src);
+			pkt_value->spx_seq = tvb_get_ntohs(tvb, 6);
+			pkt_value->spx_ack = tvb_get_ntohs(tvb, 8);
+			pkt_value->spx_all = tvb_get_ntohs(tvb, 10);
+			pkt_value->num = pinfo->fd->num;
+			pkt_value->retransmission = FALSE;
+		} else {
+			pkt_value = spx_hash_lookup(conversation, src);
+			if (pkt_value &&
+			    tvb_reported_length_remaining(tvb, SPX_HEADER_LEN) > 0) {
+				if (check_col(pinfo->cinfo, COL_INFO)) {
+					col_add_fstr(pinfo->cinfo, COL_INFO,
+					"[Retransmission] Original Packet %u",
+					pkt_value->num);
+				}
+				pkt_value->spx_seq = tvb_get_ntohs(tvb, 6);
+				pkt_value->spx_ack = tvb_get_ntohs(tvb, 8);
+				pkt_value->spx_all = tvb_get_ntohs(tvb, 10);
+				pkt_value->retransmission = TRUE;
+			} else {
+				pkt_value = spx_hash_insert(conversation, src);
+				pkt_value->spx_seq = tvb_get_ntohs(tvb, 6);
+				pkt_value->spx_ack = tvb_get_ntohs(tvb, 8);
+				pkt_value->spx_all = tvb_get_ntohs(tvb, 10);
+				pkt_value->num = pinfo->fd->num;
+				pkt_value->retransmission = FALSE;
+			}
+		}
+		/*
+		 * Store the spx info so that subidissectors know what this
+		 * is.
+		 * Note: num will equal retransmitted source packet number.
+		 */
+		pinfo->private_data = pkt_value;
 	}
 
 	if (tvb_reported_length_remaining(tvb, SPX_HEADER_LEN) > 0) {
@@ -572,8 +750,6 @@ dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 }
-
-
 
 /*
  * Some of these are from ncpfs, others are from the book,
@@ -1063,6 +1239,9 @@ proto_register_ipx(void)
 	    "IPX socket", FT_UINT16, BASE_HEX);
 	spx_socket_dissector_table = register_dissector_table("spx.socket",
 	    "SPX socket", FT_UINT16, BASE_HEX);
+	
+	register_init_routine(&spx_init_protocol);
+	register_postseq_cleanup_routine(&spx_postseq_cleanup);
 }
 
 void
@@ -1080,8 +1259,8 @@ proto_reg_handoff_ipx(void)
 	dissector_add("llc.dsap", SAP_NETWARE, ipx_handle);
 	dissector_add("null.type", BSD_AF_IPX, ipx_handle);
 	dissector_add("gre.proto", ETHERTYPE_IPX, ipx_handle);
-        dissector_add("arcnet.protocol_id", ARCNET_PROTO_IPX, ipx_handle);
-        dissector_add("arcnet.protocol_id", ARCNET_PROTO_NOVELL_EC, ipx_handle);
+	dissector_add("arcnet.protocol_id", ARCNET_PROTO_IPX, ipx_handle);
+	dissector_add("arcnet.protocol_id", ARCNET_PROTO_NOVELL_EC, ipx_handle);
 
 	spx_handle = create_dissector_handle(dissect_spx, proto_spx);
 	dissector_add("ipx.packet_type", IPX_PACKET_TYPE_SPX, spx_handle);
