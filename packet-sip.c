@@ -18,7 +18,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.56 2004/01/19 23:08:02 obiot Exp $
+ * $Id: packet-sip.c,v 1.57 2004/01/19 23:48:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -708,7 +708,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #else
 					media_type_str_lower_case = g_ascii_strdown(media_type_str, -1);
 #endif
-					/* Please do NOT g_free(media_type_str) here */
+					g_free(media_type_str);
 					break;
 
 				case POS_CONTACT :
@@ -749,14 +749,13 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* give the content type parameters to sub dissectors */
 		
-		if ( media_type_str != NULL ) {
+		if ( media_type_str_lower_case != NULL ) {
 			void *save_private_data = pinfo->private_data;
 			pinfo->private_data = content_type_parameter_str;
 			found_match = dissector_try_string(media_type_dissector_table,
 							   media_type_str_lower_case,
 							   next_tvb, pinfo,
 							   message_body_tree);
-			g_free(media_type_str);
 			g_free(media_type_str_lower_case);
 			g_free(content_type_parameter_str);
 			pinfo->private_data = save_private_data;
