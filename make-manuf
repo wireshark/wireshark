@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: make-manuf,v 1.8 2002/11/18 02:49:36 jmayer Exp $
+# $Id: make-manuf,v 1.9 2002/11/19 09:47:37 jmayer Exp $
 #
 # Make-manuf - Creates a file containing ethernet OUIs and their
 # company IDs.  It merges the databases at
@@ -54,7 +54,7 @@ sub shorten
   $manuf =~ s/^\s+//g;
   $manuf =~ s/\s+/ /g;
   # Truncate all names to a reasonable length, say 10 characters.
-  $manuf = substr($manuf, 0, 20); # XXX 20 for testing only
+  $manuf = substr($manuf, 0, 10);
   # Remove trailing whitespaces
   $manuf =~ s/\s+$//g;
   # Convert to consistent case
