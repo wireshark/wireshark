@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.31 2003/05/04 18:50:53 gerald Exp $
+ * $Id: resolv.c,v 1.32 2003/05/05 00:53:06 guy Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -1424,7 +1424,7 @@ static guint ipxnet_addr_lookup(const guchar *name, gboolean *success)
 #ifdef HAVE_GNU_ADNS
 
 void 
-host_name_lookup_init() {
+host_name_lookup_init(void) {
   /* XXX - Any flags we should be using? */
   /* XXX - We could provide config settings for DNS servers, and
            pass them to ADNS with adns_init_strcfg */
@@ -1482,11 +1482,12 @@ host_name_lookup_process(gpointer data _U_) {
     }
   }
 
+  /* Keep the timeout in place */
   return 1;
 }
 
 void
-host_name_lookup_cleanup() {
+host_name_lookup_cleanup(void) {
   void *qdata;
 
   adns_queue_head = g_list_first(adns_queue_head);
@@ -1497,6 +1498,22 @@ host_name_lookup_cleanup() {
   }
   
   adns_finish(ads);
+}
+
+#else
+
+void
+host_name_lookup_init(void) {
+}
+
+gint
+host_name_lookup_process(gpointer data _U_) {
+  /* Kill the timeout, as there's nothing for it to do */
+  return 0;
+}
+
+void
+host_name_lookup_cleanup(void) {
 }
 
 #endif /* HAVE_GNU_ADNS */

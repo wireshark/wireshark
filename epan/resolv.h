@@ -1,7 +1,7 @@
 /* resolv.h
  * Definitions for network object lookup
  *
- * $Id: resolv.h,v 1.11 2003/05/04 18:50:54 gerald Exp $
+ * $Id: resolv.h,v 1.12 2003/05/05 00:53:06 guy Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -67,10 +67,10 @@ extern guchar *get_tcp_port(guint port);
 extern guchar *get_sctp_port(guint port);
 
 /* host_name_lookup_init fires up an ADNS socket if we're using ADNS */
-extern void host_name_lookup_init();
+extern void host_name_lookup_init(void);
 
 /* host_name_lookup_cleanup cleans up an ADNS socket if we're using ADNS */
-extern void host_name_lookup_cleanup();
+extern void host_name_lookup_cleanup(void);
 
 /* get_hostname returns the host name or "%d.%d.%d.%d" if not found */
 extern guchar *get_hostname(guint addr);
