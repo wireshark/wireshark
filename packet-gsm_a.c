@@ -38,7 +38,7 @@
  *   Formats and coding
  *   (3GPP TS 24.080 version 4.3.0 Release 4)
  *
- * $Id: packet-gsm_a.c,v 1.10 2003/12/21 04:31:56 jmayer Exp $
+ * $Id: packet-gsm_a.c,v 1.11 2004/02/20 10:50:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -722,11 +722,6 @@ static dissector_table_t sms_dissector_table;	/* SMS TPDU */
 
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
-
-/*
- * current RP message type
- */
-static gint gsm_a_rp_type;
 
 /*
  * this should be set on a per message basis, if possible
@@ -6200,7 +6195,7 @@ de_rp_user_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
      */
     tpdu_tvb = tvb_new_subset(tvb, curr_offset, len, len);
 
-    dissector_try_port(sms_dissector_table, gsm_a_rp_type, tpdu_tvb, g_pinfo, g_tree);
+    dissector_try_port(sms_dissector_table, 0, tpdu_tvb, g_pinfo, g_tree);
 
     curr_offset += len;
 
@@ -10169,8 +10164,6 @@ dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     else
     {
-	gsm_a_rp_type = oct;
-
 	rp_item =
 	    proto_tree_add_protocol_format(tree, proto_a_rp, tvb, 0, -1,
 		"GSM A-I/F RP - %s",
