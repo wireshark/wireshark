@@ -167,6 +167,7 @@ Olivier Abad <oabad[AT]noos.fr> {
 
 Thierry Andry <Thierry.Andry[AT]advalvas.be> {
 	Linux ATM Classical IP support
+	More filterable fields in SNMP
 }
 
 Jeff Foster <jfoste[AT]woodward.com> {

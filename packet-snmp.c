@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.104 2003/03/02 21:52:21 guy Exp $
+ * $Id: packet-snmp.c,v 1.105 2003/04/18 21:05:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -124,6 +124,14 @@ static gint ett_global = -1;
 static gint ett_flags = -1;
 static gint ett_secur = -1;
 
+static int hf_snmp_version = -1;
+static int hf_snmp_community = -1;
+static int hf_snmp_pdutype = -1;
+static int hf_snmp_agent = -1;
+static int hf_snmp_enterprise = -1;
+static int hf_snmp_traptype = -1;
+static int hf_snmp_spectraptype = -1;
+static int hf_snmp_timestamp = -1;
 static int hf_snmpv3_flags = -1;
 static int hf_snmpv3_flags_auth = -1;
 static int hf_snmpv3_flags_crypt = -1;
@@ -939,6 +947,8 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	subid_t *enterprise;
 	guint enterprise_length;
 
+	guint32 agent_ipaddr;
+
 	guint8 *agent_address;
 	guint agent_address_length;
 
@@ -967,8 +977,8 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		col_add_str(pinfo->cinfo, COL_INFO, pdu_type_string);
 	length = asn1.offset - start;
 	if (tree) {
-		proto_tree_add_text(tree, tvb, offset, length,
-		    "PDU type: %s", pdu_type_string);
+		proto_tree_add_uint(tree, hf_snmp_pdutype, tvb, offset, length,
+		    pdu_type);
 	}
 	offset += length;
 
@@ -1050,8 +1060,8 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 		if (tree) {
 			oid_string = format_oid(enterprise, enterprise_length);
-			proto_tree_add_text(tree, tvb, offset, length,
-			    "Enterprise: %s", oid_string);
+			proto_tree_add_string(tree, hf_snmp_enterprise, tvb,
+			    offset, length, SAFE_STRING(oid_string));
 			g_free(oid_string);
 		}
 		g_free(enterprise);
@@ -1094,10 +1104,10 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				    "Agent address: <length is %u, not 4>",
 				    agent_address_length);
 			} else {
-				proto_tree_add_text(tree, tvb, offset,
-				    length,
-				    "Agent address: %s",
-				    ip_to_str(agent_address));
+				memcpy((guint8 *)&agent_ipaddr, agent_address,
+				    agent_address_length);
+				proto_tree_add_ipv4(tree, hf_snmp_agent, tvb,
+				    offset, length, agent_ipaddr);
 			}
 		}
 		g_free(agent_address);
@@ -1111,9 +1121,8 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			return;
 		}
 		if (tree) {
-			proto_tree_add_text(tree, tvb, offset, length,
-			    "Trap type: %s",
-			    val_to_str(trap_type, trap_types, "Unknown (%u)"));
+			proto_tree_add_uint(tree, hf_snmp_traptype, tvb,
+			    offset, length, trap_type);
 		}
 		offset += length;
 
@@ -1125,9 +1134,8 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			return;
 		}
 		if (tree) {
-			proto_tree_add_text(tree, tvb, offset, length,
-			    "Specific trap type: %u (%#x)",
-			    specific_type, specific_type);
+			proto_tree_add_uint(tree, hf_snmp_spectraptype, tvb,
+			    offset, length, specific_type);
 		}
 		offset += length;
 
@@ -1155,8 +1163,8 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 		length = asn1.offset - start;
 		if (tree) {
-			proto_tree_add_text(tree, tvb, offset, length,
-			    "Timestamp: %u", timestamp);
+			proto_tree_add_uint(tree, hf_snmp_timestamp, tvb,
+			    offset, length, timestamp);
 		}
 		offset += length;
 		break;
@@ -1369,6 +1377,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 enginetime;
 
 	guchar *msgflags;
+	guchar *commustr;
 	guchar *community;
 	guchar *secparm;
 	guchar *cengineid;
@@ -1429,9 +1438,8 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		return;
 	}
 	if (snmp_tree) {
-		proto_tree_add_text(snmp_tree, tvb, offset, length,
-		    "Version: %s",
-		    val_to_str(version, versions, "Unknown version %#x"));
+		proto_tree_add_uint(snmp_tree, hf_snmp_version, tvb, offset,
+		    length, version);
 	}
 	offset += length;
 
@@ -1447,9 +1455,13 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			return;
 		}
 		if (tree) {
-			proto_tree_add_text(snmp_tree, tvb, offset, length,
-			    "Community: %.*s", community_length,
-			    SAFE_STRING(community));
+			commustr = g_malloc(community_length+1);
+			memcpy(commustr, community, community_length);
+			commustr[community_length] = '\0';
+
+			proto_tree_add_string(snmp_tree, hf_snmp_community,
+			    tvb, offset, length, commustr);
+			g_free(commustr);
 		}
 		g_free(community);
 		offset += length;
@@ -2069,6 +2081,30 @@ proto_register_snmp(void)
 #endif
 
 	static hf_register_info hf[] = {
+		{ &hf_snmp_version,
+		{ "Version", "snmp.version", FT_UINT8, BASE_DEC, VALS(versions),
+		    0x0, "", HFILL }},
+		{ &hf_snmp_community,
+		{ "Community", "snmp.community", FT_STRING, BASE_NONE, NULL,
+		    0x0, "", HFILL }},
+		{ &hf_snmp_pdutype,
+		{ "PDU type", "snmp.pdutype", FT_UINT8, BASE_DEC, VALS(pdu_types),
+		    0x0, "", HFILL }},
+		{ &hf_snmp_agent,
+		{ "Agent address", "snmp.agent", FT_IPv4, BASE_NONE, NULL,
+		    0x0, "", HFILL }},
+		{ &hf_snmp_enterprise,
+		{ "Enterprise", "snmp.enterprise", FT_STRING, BASE_NONE, NULL,
+		    0x0, "", HFILL }},
+		{ &hf_snmp_traptype,
+		{ "Trap type", "snmp.traptype", FT_UINT8, BASE_DEC, VALS(trap_types),
+		    0x0, "", HFILL }},
+		{ &hf_snmp_spectraptype,
+		{ "Specific trap type", "snmp.spectraptype", FT_UINT32, BASE_DEC, NULL,
+		    0x0, "", HFILL }},
+		{ &hf_snmp_timestamp,
+		{ "Timestamp", "snmp.timestamp", FT_UINT8, BASE_DEC, NULL,
+		    0x0, "", HFILL }},
 		{ &hf_snmpv3_flags,
 		{ "SNMPv3 Flags", "snmpv3.flags", FT_UINT8, BASE_HEX, NULL,
 		    0x0, "", HFILL }},
