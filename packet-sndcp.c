@@ -2,7 +2,7 @@
  * Routines for Subnetwork Dependent Convergence Protocol (SNDCP) dissection
  * Copyright 2000, Christian Falckenberg <christian.falckenberg@nortelnetworks.com>
  *
- * $Id: packet-sndcp.c,v 1.1 2004/04/13 04:36:19 guy Exp $
+ * $Id: packet-sndcp.c,v 1.2 2004/04/13 04:45:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -277,7 +277,7 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (!unack) {
       npdu = npdu_field1 = tvb_get_guint8(tvb,offset);
       if (check_col(pinfo->cinfo, COL_INFO))
-	col_add_fstr(pinfo->cinfo, COL_INFO, "SN-DATA N-PDU %d ", npdu_field1);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "SN-DATA N-PDU %d", npdu_field1);
       if (tree) {
 	npdu_field_item = proto_tree_add_text(sndcp_tree, tvb, offset,1, "Acknowledged mode, N-PDU %d", npdu_field1 );
 	npdu_field_tree = proto_item_add_subtree(npdu_field_item, ett_sndcp_npdu_field);
@@ -351,7 +351,7 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 	  col_append_fstr(pinfo->cinfo, COL_INFO,
-			  "(N-PDU payload reassembled in packet %u)",
+			  " (N-PDU payload reassembled in packet %u)",
 			  fd_npdu->reassembled_in);
 	}
 	if (tree) {
@@ -363,9 +363,9 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        */
       if (check_col(pinfo->cinfo, COL_INFO)) {
 	if (unack)
-	  col_append_fstr(pinfo->cinfo, COL_INFO, "(Unreassembled fragment %u)", segment);
+	  col_append_fstr(pinfo->cinfo, COL_INFO, " (Unreassembled fragment %u)", segment);
 	else
-	  col_append_str(pinfo->cinfo, COL_INFO, "(Unreassembled fragment)");
+	  col_append_str(pinfo->cinfo, COL_INFO, " (Unreassembled fragment)");
       }
       if (tree) {
 	proto_tree_add_text(sndcp_tree, tvb, offset, -1, "Payload");
