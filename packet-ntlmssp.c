@@ -2,7 +2,7 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.27 2002/11/07 08:01:19 guy Exp $
+ * $Id: packet-ntlmssp.c,v 1.28 2002/11/08 01:45:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -518,17 +518,45 @@ dissect_ntlmssp_address_list (tvbuff_t *tvb, int offset,
 }
 
 static int
-dissect_ntlmssp_challenge (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree)
+dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
+			   proto_tree *ntlmssp_tree)
 {
   guint32 negotiate_flags;
   int item_start, item_end;
   int data_start, data_end;
+  guint32 *flag_info;
+  conversation_t *conversation;
+  gboolean no_sess_key = FALSE;
   gboolean unicode_strings = FALSE;
 
   /* need to find unicode flag */
   negotiate_flags = tvb_get_letohl (tvb, offset+8);
   if (negotiate_flags & NTLMSSP_NEGOTIATE_UNICODE)
     unicode_strings = TRUE;
+
+  /*
+   * Get flag info from the original negotiate message, if any.
+   * Then update the NTLMSSP_NEGOTIATE_UNICODE flag to match the
+   * value in this message.
+   */
+  conversation = find_conversation(&pinfo->src, &pinfo->dst,
+				   pinfo->ptype, pinfo->srcport,
+				   pinfo->destport, 0);
+  if (!conversation) { /* Create one */
+    conversation = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype, 
+				    pinfo->srcport, pinfo->destport, 0);
+  }
+
+  flag_info = conversation_get_proto_data(conversation, proto_ntlmssp);
+  if (flag_info) {
+    *flag_info &= ~NTLMSSP_NEGOTIATE_UNICODE;
+    *flag_info |= (negotiate_flags & NTLMSSP_NEGOTIATE_UNICODE);
+  } else {
+    flag_info = g_mem_chunk_alloc(flag_info_chunk);
+    *flag_info = negotiate_flags;
+
+    conversation_add_proto_data(conversation, proto_ntlmssp, flag_info);
+  }
 
   /* Domain name */
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, unicode_strings, 
@@ -724,7 +752,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
 
     case NTLMSSP_CHALLENGE:
-      offset = dissect_ntlmssp_challenge (tvb, offset, ntlmssp_tree);
+      offset = dissect_ntlmssp_challenge (tvb, pinfo, offset, ntlmssp_tree);
       break;
 
     case NTLMSSP_AUTH:
