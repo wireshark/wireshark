@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.23 1999/09/24 05:49:52 guy Exp $
+ * $Id: ngsniffer.c,v 1.24 1999/09/30 20:34:26 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -237,7 +237,7 @@ struct frame4_rec {
 
 /* values for V.timeunit */
 #define NUM_NGSNIFF_TIMEUNITS 7
-static double Usec[] = { 15.0, 0.838096, 15.0, 0.5, 2.0, 0.0, 0.1 };
+static double Usec[] = { 15.0, 0.838096, 15.0, 0.5, 2.0, 1.0, 0.1 };
 
 static int ngsniffer_read(wtap *wth, int *err);
 
