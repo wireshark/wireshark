@@ -1,7 +1,7 @@
 /* filesystem.c
  * Filesystem utility routines
  *
- * $Id: filesystem.c,v 1.12 2001/10/23 08:15:11 guy Exp $
+ * $Id: filesystem.c,v 1.13 2001/10/24 06:13:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -293,23 +293,34 @@ get_systemfile_dir(void)
 /*
  * Name of directory, under the user's home directory, in which
  * personal configuration files are stored.
- *
+ */
+#ifdef WIN32
+#define PF_DIR "Ethereal"
+#else
+/*
  * XXX - should this be ".libepan"? For backwards-compatibility, I'll keep
  * it ".ethereal" for now.
  */
 #define PF_DIR ".ethereal"
+#endif
 
 /*
  * Get the directory in which personal configuration files reside;
- * it's PF_DIR, under the user's home directory.
+ * in UNIX-compatible systems, it's ".ethereal", under the user's home
+ * directory, and on Windows systems, it's "Ethereal", under %APPDATA%
+ * or, if %APPDATA% isn't set, it's "%USERPROFILE%\Application Data"
+ * (which is what %APPDATA% normally is on Windows 2000).
  */
 const char *
 get_persconffile_dir(void)
 {
-#ifndef WIN32
+#ifdef WIN32
+	char *appdatadir;
+	char *userprofiledir;
+#else
+	char *homedir;
 	struct passwd *pwd;
 #endif
-	char *homedir;
 	static char *pf_dir = NULL;
 
 	/* Return the cached value, if available */
@@ -318,19 +329,40 @@ get_persconffile_dir(void)
 
 #ifdef WIN32
 	/*
-	 * Use %USERPROFILE%, so that configuration files are stored
-	 * in the user profile, rather than in the home directory.
+	 * Use %APPDATA% or %USERPROFILE%, so that configuration files are
+	 * stored in the user profile, rather than in the home directory.
 	 * The Windows convention is to store configuration information
 	 * in the user profile, and doing so means you can use
 	 * Ethereal even if the home directory is an inaccessible
 	 * network drive.
 	 */
-	homedir = getenv("USERPROFILE");
-	if (homedir == NULL) {
+	appdatadir = getenv("APPDATA");
+	if (appdatadir != NULL) {
 		/*
-		 * Give up and use "C:".
+		 * Concatenate %APPDATA% with "\Ethereal".
 		 */
-		homedir = "C:";
+		pf_dir = g_malloc(strlen(appdatadir) + strlen(PF_DIR) + 2);
+		sprintf(pf_dir, "%s" G_DIR_SEPARATOR_S "%s", appdatadir,
+		    PF_DIR);
+	} else {
+		/*
+		 * OK, %APPDATA% wasn't set, so use
+		 * %USERPROFILE%\Application Data.
+		 */
+		userprofiledir = getenv("USERPROFILE");
+		if (userprofiledir != NULL) {
+			pf_dir = g_malloc(strlen(userprofiledir) +
+			   strlen("Application Data" + strlen(PF_DIR) + 3);
+			sprintf(pf_dir,
+			    "%s" G_DIR_SEPARATOR_S "Application Data" G_DIR_SEPARATOR_S "%s",
+			    userprofiledir, PF_DIR);
+		} else {
+			/*
+			 * Give up and use "C:".
+			 */
+			pf_dir = g_malloc(strlen("C:") + strlen(PF_DIR) + 2);
+			sprintf(pf_dir, "C:" G_DIR_SEPARATOR_S "%s", PF_DIR);
+		}
 	}
 #else
 	/*
@@ -353,29 +385,48 @@ get_persconffile_dir(void)
 		} else
 			homedir = "/tmp";
 	}
-#endif
-
 	pf_dir = g_malloc(strlen(homedir) + strlen(PF_DIR) + 2);
 	sprintf(pf_dir, "%s" G_DIR_SEPARATOR_S "%s", homedir, PF_DIR);
+#endif
+
 	return pf_dir;
 }
 
 /*
  * Create the directory that holds personal configuration files, if
  * necessary.  If we attempted to create it, and failed, return -1 and
- * set "*pf_dir_path_return" to the pathname of the directory; otherwise,
+ * set "*pf_dir_path_return" to the pathname of the directory we failed
+ * to create (it's g_mallocated, so our caller should free it); otherwise,
  * return 0.
  */
 int
-create_persconffile_dir(const char **pf_dir_path_return)
+create_persconffile_dir(char **pf_dir_path_return)
 {
 	const char *pf_dir_path;
 	struct stat s_buf;
 	int ret;
 
 	pf_dir_path = get_persconffile_dir();
-	if (stat(pf_dir_path, &s_buf) != 0) {
+	if (stat(pf_dir_path, &s_buf) != 0 && errno == ENOENT) {
 #ifdef WIN32
+		/*
+		 * Does the parent directory of that directory
+		 * exist?  %APPDATA% may not exist even though
+		 * %USERPROFILE% does.
+		 */
+		pf_dir_path_copy = g_strdup(pf_dir_path);
+		pf_dir_parent_path = get_dirname(pf_dir_path_copy);
+		if (stat(pf_dir_parent_path, &s_buf) != 0) {
+			/*
+			 * No - make it first.
+			 */
+			ret = mkdir(pf_dir_parent_path);
+			if (ret == -1) {
+				*pf_dir_path_return = pf_dir_parent_path;
+				return -1;
+			}
+		}
+		g_free(pf_dir_path_copy);
 		ret = mkdir(pf_dir_path);
 #else
 		ret = mkdir(pf_dir_path, 0755);
@@ -390,6 +441,6 @@ create_persconffile_dir(const char **pf_dir_path_return)
 		ret = 0;
 	}
 	if (ret == -1)
-		*pf_dir_path_return = pf_dir_path;
+		*pf_dir_path_return = g_strdup(pf_dir_path);
 	return ret;
 }

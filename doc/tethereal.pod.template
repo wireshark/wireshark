@@ -442,7 +442,9 @@ under the main installation directory (for example, F</usr/local/etc>)
 on UNIX-compatible systems, and in the main installation directory (for
 example, F<C:\Program Files\Ethereal>) on Windows systems, and the
 personal preferences file, which is F<$HOME/.ethereal/preferences> on
-UNIX-compatible systems and F<%USERPROFILE%\.ethereal\preferences> on
+UNIX-compatible systems and F<%APPDATA%\Ethereal\preferences> (or, if
+%APPDATA% isn't defined,
+F<%USERPROFILE%\Application Data\Ethereal\preferences>) on
 Windows systems, contain system-wide and personal preference settings,
 respectively.  The file contains preference settings of the form
 I<prefname>B<:>I<value>, one per line, where I<prefname> is the name of
@@ -463,8 +465,10 @@ UNIX-compatible systems, and in the main installation directory (for
 example, F<C:\Program Files\Ethereal>) on Windows systems, is consulted
 to correlate 6-byte hardware addresses to names.  If an address is not
 found in the F<ethers> file, the F<$HOME/.ethereal/ethers> file on
-UNIX-compatible systems, and the F<%USERPROFILE%\.ethereal\ethers> file
-on Windows systems is consulted next.  Each line contains one hardware
+UNIX-compatible systems, and the F<%APPDATA%\Ethereal\ethers> file (or, if
+%APPDATA% isn't defined, the
+F<%USERPROFILE%\Application Data\Ethereal\ethers> file) on Windows
+systems is consulted next.  Each line contains one hardware
 address and name, separated by whitespace.  The digits of the hardware
 address are separated by either a colon (:), a dash (-), or a period
 (.).  The following three lines are valid lines of an ethers file:
@@ -486,7 +490,9 @@ UNIX-compatible systems, and in the main installation directory (for
 example, F<C:\Program Files\Ethereal>) on Windows systems, correlates
 4-byte IPX network numbers to names.  If a network number is not found
 in the F<ipxnets> file, the F<$HOME/.ethereal/ipxnets> file on
-UNIX-compatible systems, and the F<%USERPROFILE%\.ethereal\ipxnets> file
+UNIX-compatible systems, and the F<%APPDATA%\Ethereal\ipxnets> file (or,
+if %APPDATA% isn't defined, the
+F<%USERPROFILE%\Application Data\Ethereal\ipxnets> file)
 on Windows systems, is consulted next.  The format is the same as the
 F<ethers> file, except that each address if four bytes instead of six. 
 Additionally, the address can be represented a single hexadecimal

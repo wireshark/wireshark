@@ -693,11 +693,15 @@ filter, and applies it to the current capture.
 =item Save
 
 Saves the current filter list in F<$HOME/.ethereal/cfilters> on
-UNIX-compatible systems, and F<%USERPROFILE%\.ethereal\cfilters> on
-Windows systems, if the list of filters being edited is the list of
+UNIX-compatible systems, and F<%APPDATA%\Ethereal\cfilters> (or, if
+%APPDATA% isn't defined,
+F<%USERPROFILE%\Application Data\Ethereal\cfilters>)
+on Windows systems, if the list of filters being edited is the list of
 capture filters, or in F<$HOME/.ethereal/dfilters> on UNIX-compatible
-systems, and F<%USERPROFILE%\.ethereal\dfilters> on Windows systems, if
-the list of filters being edited is the list of display filters.
+systems, and F<%APPDATA%\Ethereal\dfilters> (or, if %APPDATA% isn't
+defined, F<%USERPROFILE%\Application Data\Ethereal\dfilters>) on Windows
+systems, if the list of filters being edited is the list of display
+filters.
 
 =item Close
 
@@ -758,7 +762,8 @@ F</usr/local/lib/ethereal/plugins/$VERSION>, and
 F<$HOME/.ethereal/plugins> on UNIX-compatible systems, and in the
 F<plugins\$VERSION> directory under the main installation directory (for
 example, F<C:\Program Files\Ethereal\plugins\$VERSION>) and
-F<%USERPROFILE%\.ethereal\plugins\$VERSION> on Windows
+F<%APPDATA%\Ethereal\plugins\$VERSION> (or, if %APPDATA% isn't defined,
+F<%USERPROFILE%\Application Data\Ethereal\plugins\$VERSION>) on Windows
 systems; $VERSION is the version number of the plugin interface, which
 is typically the version number of Ethereal.  Note that a dissector
 plugin module may support more than one protocol; there is not
@@ -969,7 +974,9 @@ under the main installation directory (for example, F</usr/local/etc>)
 on UNIX-compatible systems, and in the main installation directory (for
 example, F<C:\Program Files\Ethereal>) on Windows systems, and the
 personal preferences file, which is F<$HOME/.ethereal/preferences> on
-UNIX-compatible systems and F<%USERPROFILE%\.ethereal\preferences> on
+UNIX-compatible systems and F<%APPDATA%\Ethereal\preferences> (or, if
+%APPDATA% isn't defined,
+F<%USERPROFILE%\Application Data\Ethereal\preferences>) on
 Windows systems, contain system-wide and personal preference settings,
 respectively.  The file contains preference settings of the form
 I<prefname>B<:>I<value>, one per line, where I<prefname> is the name of
@@ -995,8 +1002,10 @@ UNIX-compatible systems, and in the main installation directory (for
 example, F<C:\Program Files\Ethereal>) on Windows systems, is consulted
 to correlate 6-byte hardware addresses to names.  If an address is not
 found in the F<ethers> file, the F<$HOME/.ethereal/ethers> file on
-UNIX-compatible systems, and the F<%USERPROFILE%\.ethereal\ethers> file
-on Windows systems is consulted next.  Each line contains one hardware
+UNIX-compatible systems, and the F<%APPDATA%\Ethereal\ethers> file (or, if
+%APPDATA% isn't defined, the
+F<%USERPROFILE%\Application Data\Ethereal\ethers> file) on Windows
+systems is consulted next.  Each line contains one hardware
 address and name, separated by whitespace.  The digits of the hardware
 address are separated by either a colon (:), a dash (-), or a period
 (.).  The following three lines are valid lines of an ethers file:
@@ -1018,7 +1027,9 @@ UNIX-compatible systems, and in the main installation directory (for
 example, F<C:\Program Files\Ethereal>) on Windows systems, correlates
 4-byte IPX network numbers to names.  If a network number is not found
 in the F<ipxnets> file, the F<$HOME/.ethereal/ipxnets> file on
-UNIX-compatible systems, and the F<%USERPROFILE%\.ethereal\ipxnets> file
+UNIX-compatible systems, and the F<%APPDATA%\Ethereal\ipxnets> file (or,
+if %APPDATA% isn't defined, the
+F<%USERPROFILE%\Application Data\Ethereal\ipxnets> file)
 on Windows systems, is consulted next.  The format is the same as the
 F<ethers> file, except that each address if four bytes instead of six. 
 Additionally, the address can be represented a single hexadecimal

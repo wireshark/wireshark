@@ -1,7 +1,7 @@
 /* filesystem.h
  * Filesystem utility definitions
  *
- * $Id: filesystem.h,v 1.8 2001/10/23 05:00:59 guy Exp $
+ * $Id: filesystem.h,v 1.9 2001/10/24 06:13:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,9 +79,10 @@ const char *get_persconffile_dir(void);
 /*
  * Create the directory that holds personal configuration files, if
  * necessary.  If we attempted to create it, and failed, return -1 and
- * set "*pf_dir_path_return" to the pathname of the directory; otherwise,
+ * set "*pf_dir_path_return" to the pathname of the directory we failed
+ * to create (it's g_mallocated, so our caller should free it); otherwise,
  * return 0.
  */
-int create_persconffile_dir(const char **pf_dir_path_return);
+int create_persconffile_dir(char **pf_dir_path_return);
 
 #endif /* FILESYSTEM_H */

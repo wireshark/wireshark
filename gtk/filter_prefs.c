@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.31 2001/10/23 05:01:02 guy Exp $
+ * $Id: filter_prefs.c,v 1.32 2001/10/24 06:13:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -708,7 +708,7 @@ static void
 filter_dlg_save_cb(GtkWidget *save_bt, gpointer data)
 {
 	filter_list_type_t list = *(filter_list_type_t *)data;
-	const char *pf_dir_path;
+	char *pf_dir_path;
 	char *f_path;
 	int f_save_errno;
 	char *filter_type;
@@ -719,6 +719,7 @@ filter_dlg_save_cb(GtkWidget *save_bt, gpointer data)
 		simple_dialog(ESD_TYPE_WARN, NULL,
 		    "Can't create directory\n\"%s\"\nfor filter files: %s.",
 		    pf_dir_path, strerror(errno));
+		g_free(pf_dir_path);
 		return;
 	}
 
