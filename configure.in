@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.253 2004/03/25 11:21:05 guy Exp $
+# $Id: configure.in,v 1.254 2004/03/27 11:52:51 jmayer Exp $
 #
 AC_INIT(etypes.h)
 
@@ -34,7 +34,9 @@ AC_PATH_PROG(LEX, flex)
 AC_PATH_PROG(PYTHON, python)
 
 AC_SUBST(PERL)
+AC_SUBST(POD2MAN)
 AC_SUBST(LEX)
+AC_SUBST(FLEX_PATH)
 AC_SUBST(PYTHON)
 
 # Check for packaging utilities
@@ -66,7 +68,7 @@ AC_SUBST(HAVE_RPM)
 # argument will compile with non-GCC compilers.
 #
 AC_ARG_WITH(extra-gcc-checks,
-[  --with-extra-gcc-checks do additional -W checks in GCC.  [default=no]],
+[  --with-extra-gcc-checks Do additional -W checks in GCC.  [default=no]],
 [
 	if test $withval != no
 	then
@@ -243,7 +245,16 @@ if test "x$enable_profile_build" = "xyes" ; then
 else
 	AC_MSG_RESULT(no)
 fi
-	
+
+# Create DATAFILE_DIR #define for config.h
+datafiledir=$datadir/ethereal
+datafiledir=`(
+    test "x$prefix" = xNONE && prefix=$ac_default_prefix
+    test "x$exec_prefix" = xNONE && exec_prefix=${prefix}
+    eval echo "$datafiledir"
+)`
+AC_DEFINE_UNQUOTED(DATAFILE_DIR,"$datafiledir", [Directory for data])
+
 # GTK checks
 # We don't add $GLIB_LIBS to LIBS, because we don't want to force all
 # programs to be built with GTK+.
@@ -578,12 +589,10 @@ AM_CONDITIONAL(SETUID_INSTALL, test x$enable_setuid_install = xyes)
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS(fcntl.h sys/ioctl.h sys/time.h unistd.h stdarg.h netdb.h)
-AC_CHECK_HEADERS(sys/stat.h sys/sockio.h sys/types.h sys/socket.h)
-AC_CHECK_HEADERS(sys/utsname.h sys/wait.h)
+AC_CHECK_HEADERS(direct.h dirent.h fcntl.h netdb.h stdarg.h stddef.h unistd.h)
+AC_CHECK_HEADERS(sys/ioctl.h sys/param.h sys/socket.h sys/sockio.h sys/stat.h sys/time.h sys/types.h sys/utsname.h sys/wait.h)
 AC_CHECK_HEADERS(netinet/in.h)
-AC_CHECK_HEADERS(stddef.h)
-AC_CHECK_HEADERS(arpa/inet.h)
+AC_CHECK_HEADERS(arpa/inet.h arpa/nameser.h)
 AC_CHECK_HEADERS(iconv.h)
 
 dnl SSL Check
@@ -817,6 +826,78 @@ fi
 AC_SUBST(MKSTEMP_C)
 AC_SUBST(MKSTEMP_O)
 
+AC_CHECK_FUNC(inet_aton, INET_ATON_O="",
+  INET_ATON_O="inet_aton.lo")
+if test "$ac_cv_func_inet_aton" = no ; then
+  INET_ATON_C="inet_aton.c"
+  INET_ATON_O="inet_aton.lo"
+  AC_DEFINE(NEED_INET_ATON_H, 1, [Define if inet/aton.h needs to be included])
+fi
+AC_SUBST(INET_ATON_C)
+AC_SUBST(INET_ATON_O)
+
+AC_SEARCH_LIBS(inet_pton, [socket nsl], [
+  dnl check for pre-BIND82 inet_pton() bug.
+  AC_MSG_CHECKING(for broken inet_pton)
+  AC_TRY_RUN([#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+int main()
+{
+#ifdef AF_INET6
+  char buf[16];
+  /* this should return 0 (error) */
+  return inet_pton(AF_INET6, "0:1:2:3:4:5:6:7:", buf);
+#else
+  return 1;
+#endif
+}], [AC_MSG_RESULT(ok);
+have_inet_pton=yes], [AC_MSG_RESULT(broken);
+have_inet_pton=no], [AC_MSG_RESULT(cross compiling, assume it is broken);
+have_inet_pton=no])],
+have_inet_pton=no)
+if test "$have_inet_pton" = no; then
+  INET_PTON_C="inet_pton.c"
+  INET_PTON_O="inet_pton.lo"
+else
+  INET_PTON_C=""
+  INET_PTON_O=""
+fi
+AC_SUBST(INET_PTON_C)
+AC_SUBST(INET_PTON_O)
+
+AC_SEARCH_LIBS(inet_ntop, [socket nsl], [
+  AC_MSG_CHECKING([for inet_ntop prototype])
+  AC_TRY_COMPILE([#include <stdio.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+extern const char *inet_ntop(int, const void *, char *, size_t);],, [
+    AC_MSG_RESULT(yes)
+    AC_DEFINE(HAVE_INET_NTOP_PROTO, 1,
+    [Define if inet_ntop() prototype exists])], [
+    AC_TRY_COMPILE([#include <stdio.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+extern const char *inet_ntop(int, const void *, char *, socklen_t);],, [
+      AC_MSG_RESULT(yes)
+      AC_DEFINE(HAVE_INET_NTOP_PROTO, 1,
+      [Define if inet_ntop() prototype exists])], [
+      AC_MSG_RESULT(no)])])
+  INET_NTOP_O=""], [
+  INET_NTOP_C="inet_ntop.c"
+  INET_NTOP_O="inet_ntop.lo"
+  AC_DEFINE(NEED_INET_V6DEFS_H, 1,
+  [Define if inet/v6defs.h needs to be included])])
+AC_SUBST(INET_NTOP_C)
+AC_SUBST(INET_NTOP_O)
+
 AC_CHECK_FUNC(strptime, STRPTIME_O="",
   [STRPTIME_O="strptime.o"
    AC_DEFINE(NEED_STRPTIME_H, 1, [Define if strptime.h needs to be included])
@@ -898,10 +979,13 @@ fi
 AC_SUBST(ENABLE_STATIC)
 
 AM_CONFIG_HEADER(config.h)
-AC_CONFIG_SUBDIRS(epan wiretap)
+AC_CONFIG_SUBDIRS(wiretap)
 AC_OUTPUT(
   Makefile
   doc/Makefile
+  epan/Makefile
+  epan/dfilter/Makefile
+  epan/ftypes/Makefile
   gtk/Makefile
   help/Makefile
   packaging/Makefile

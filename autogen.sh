@@ -2,7 +2,7 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.33 2004/03/15 12:21:52 jmayer Exp $
+# $Id: autogen.sh,v 1.34 2004/03/27 11:52:51 jmayer Exp $
 
 DIE=true
 PROJECT="Ethereal"
@@ -102,7 +102,7 @@ rm -f config.guess config.sub
 mv config.guess.save-libtool config.guess
 mv config.sub.save-libtool config.sub
 
-for dir in . epan wiretap ;  do
+for dir in . wiretap ;  do
   echo processing $dir
   (
     cd $dir
