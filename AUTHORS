@@ -1147,6 +1147,7 @@ Jouni Malinen <jkmaline[AT]cc.hut.fi> {
 	802.11 authentication frame dissection bug fix
 	Fix offset of challenge element in 802.11 dissector
 	Show fragmented 802.11 frames as fragments
+	EAP bug fix for NAK packets.
 }
 
 Paul E. Erkkila <pee[AT]erkkila.org> {

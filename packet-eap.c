@@ -2,7 +2,7 @@
  * Routines for EAP Extensible Authentication Protocol dissection
  * RFC 2284
  *
- * $Id: packet-eap.c,v 1.28 2002/08/28 21:00:12 jmayer Exp $
+ * $Id: packet-eap.c,v 1.29 2002/09/07 23:49:58 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -414,8 +414,9 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       **********************************************************************/
       case EAP_TYPE_NAK:
 	if (tree) {
-	  proto_tree_add_uint(eap_tree, hf_eap_type_nak, tvb,
-			      offset, size, eap_type);
+	  proto_tree_add_item(eap_tree, hf_eap_type_nak, tvb,
+			      offset, 1, TRUE);
+	  offset++;
 	}
 	break;
       /*********************************************************************
@@ -806,7 +807,7 @@ proto_register_eap(void)
 		"Type", "eap.type", FT_UINT8, BASE_DEC,
 		VALS(eap_type_vals), 0x0, "", HFILL }},
 	{ &hf_eap_type_nak, {
-		"Desired Auth Type", "eap.type", FT_UINT8, BASE_DEC,
+		"Desired Auth Type", "eap.desired_type", FT_UINT8, BASE_DEC,
 		VALS(eap_type_vals), 0x0, "", HFILL }},
 	{ &hf_eaptls_fragment,
 	  { "EAP-TLS Fragment", "eaptls.fragment",
