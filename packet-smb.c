@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.176 2001/11/29 09:05:22 guy Exp $
+ * $Id: packet-smb.c,v 1.177 2001/12/05 00:25:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -10592,7 +10592,6 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		/* transaction2 */
 		if (si->sip != NULL) {
 			t2i = si->sip->extra_info;
-			si->info_level = t2i->info_level;
 		} else
 			t2i = NULL;
 		if (t2i == NULL) {
@@ -10605,25 +10604,28 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			if (check_col(pinfo->fd, COL_INFO)) {
 				col_append_fstr(pinfo->fd, COL_INFO, "<unknown>");
 			}
-		} else if (t2i->subcmd == -1) {
-			/*
-			 * We didn't manage to extract the subcommand
-			 * from the matching request (perhaps because
-			 * the frame was short), so we don't know what
-			 * type of transaction this is.
-			 */
-			proto_tree_add_text(tree, tvb, 0, 0,
-				"Subcommand: <UNKNOWN> since transaction code wasn't found in request packet");
-			if (check_col(pinfo->fd, COL_INFO)) {
-				col_append_fstr(pinfo->fd, COL_INFO, "<unknown>");
-			}
 		} else {
-			proto_tree_add_uint(tree, hf_smb_trans2_subcmd, tvb, 0, 0, t2i->subcmd);
-			if (check_col(pinfo->fd, COL_INFO)) {
-				col_append_fstr(pinfo->fd, COL_INFO, " %s",
-					val_to_str(t2i->subcmd,
-						trans2_cmd_vals, 
-						"<unknown (0x%02x)>"));
+			si->info_level = t2i->info_level;
+			if (t2i->subcmd == -1) {
+				/*
+				 * We didn't manage to extract the subcommand
+				 * from the matching request (perhaps because
+				 * the frame was short), so we don't know what
+				 * type of transaction this is.
+				 */
+				proto_tree_add_text(tree, tvb, 0, 0,
+					"Subcommand: <UNKNOWN> since transaction code wasn't found in request packet");
+				if (check_col(pinfo->fd, COL_INFO)) {
+					col_append_fstr(pinfo->fd, COL_INFO, "<unknown>");
+				}
+			} else {
+				proto_tree_add_uint(tree, hf_smb_trans2_subcmd, tvb, 0, 0, t2i->subcmd);
+				if (check_col(pinfo->fd, COL_INFO)) {
+					col_append_fstr(pinfo->fd, COL_INFO, " %s",
+						val_to_str(t2i->subcmd,
+							trans2_cmd_vals, 
+							"<unknown (0x%02x)>"));
+				}
 			}
 		}
 		break;
