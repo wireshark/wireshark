@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.56 2003/04/19 06:04:20 guy Exp $
+ * $Id: packet-vines.c,v 1.57 2003/04/22 08:37:55 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -259,7 +259,6 @@ proto_reg_handoff_vines_llc(void)
 
 	vines_llc_handle = create_dissector_handle(dissect_vines_llc,
 	    proto_vines_llc);
-	dissector_add("llc.dsap", SAP_VINES1, vines_llc_handle);
 	dissector_add("llc.dsap", SAP_VINES2, vines_llc_handle);
 }
 

@@ -1,7 +1,7 @@
 /* packet-vines.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-vines.h,v 1.16 2003/04/18 01:47:52 guy Exp $
+ * $Id: packet-vines.h,v 1.17 2003/04/22 08:37:55 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -40,6 +40,33 @@
  * and at
  *
  *	http://www.synapse.de/ban/HTML/P_VINES/Eng/P_vines.html
+ *
+ * The document at
+ *
+ *	http://www.watersprings.org/pub/id/draft-ietf-rmonmib-rmonprot-v2-00.txt
+ *
+ * lists a bunch of values of protocol identifier fields for various
+ * protocols.  It speaks of the Vines Fragmentation Protocol,
+ * the "Vines Token Ring Protocol" which appears to be the same as the
+ * "Vines LLC" protocol here, the Vines echo protocol, Vines IP, and
+ * protocols running atop Vines IP.
+ *
+ * The LLC values it describes are:
+ *
+ *	0xbc	(SAP_VINES2) Vines Token Ring a/k/a Vines LLC
+ *
+ * It doesn't mention 0xba (SAP_VINES1).
+ *
+ * The Vines Token Ring/Vines LLC protocol identifier values it
+ * describes are:
+ *
+ *	0xba	Vines IP
+ *	0xbb	Vines Echo
+ *
+ * The Ethernet type values it describes are:
+ *
+ *	0x0bad	(ETHERTYPE_VINES) Vines IP
+ *	0x0baf	Vines Echo
  */
 
 #ifndef __PACKETVINES_H__
