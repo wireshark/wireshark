@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.56 1999/12/18 13:39:03 sharpe Exp $
+ * $Id: packet-smb.c,v 1.57 1999/12/23 20:47:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -463,7 +463,9 @@ dissect_unknown_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
  * Dissect a UNIX like date ...
  */
 
-struct tm *gtime;
+struct tm *_gtime; /* Add leading underscore ("_") to prevent symbol
+                      conflict with /usr/include/time.h on some NetBSD
+                      systems */
 
 static char *
 dissect_smbu_date(guint16 date, guint16 time)
@@ -472,9 +474,9 @@ dissect_smbu_date(guint16 date, guint16 time)
   static char         datebuf[4+2+2+2+1];
   time_t              ltime = (date << 16) + time;
 
-  gtime = gmtime(&ltime);
+  _gtime = gmtime(&ltime);
   sprintf(datebuf, "%04d-%02d-%02d",
-	  1900 + (gtime -> tm_year), gtime -> tm_mon, gtime -> tm_mday);
+	  1900 + (_gtime -> tm_year), _gtime -> tm_mon, _gtime -> tm_mday);
 
   return datebuf;
 
@@ -490,7 +492,7 @@ dissect_smbu_time(guint16 date, guint16 time)
   static char timebuf[2+2+2+2+1];
 
   sprintf(timebuf, "%02d:%02d:%02d",
-          gtime -> tm_hour, gtime -> tm_min, gtime -> tm_sec);
+          _gtime -> tm_hour, _gtime -> tm_min, _gtime -> tm_sec);
 
   return timebuf;
 
