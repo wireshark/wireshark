@@ -983,10 +983,10 @@ single display filter field can be specified.
 The following restrictions apply to type and field combinations:
 
 SUM: available for all types of integers and will calculate the SUM of
-all occurences of this field in teh capture.  Note that some field can
-occur multiple times in the same packet and then all instances will be
-summed up.  Example: 'tcp.len' which will count the amount of payload
-data transferred across tcp in each interval.
+all occurences of this field in the measurement interval.  Note that
+some field can occur multiple times in the same packet and then all
+instances will be summed up.  Example: 'tcp.len' which will count the
+amount of payload data transferred across TCP in each interval.
 
 COUNT: available for all field types. This will COUNT the number of times
 certain field occurs in each interval. Note that some fields
