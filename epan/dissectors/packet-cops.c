@@ -2644,6 +2644,7 @@ cops_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint8 op
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"D-QoS Transaction ID");
+     offset += 4;
 
      /* Transaction Identifier */
      info_to_display(tvb,stt,offset,2,"D-QoS Transaction Identifier", NULL,FMT_DEC,&hf_cops_pc_transaction_id);
@@ -2674,6 +2675,7 @@ cops_subscriber_id_v4(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      /* Create a subtree */
      tv = info_to_cops_subtree(tvb,st,n,offset,"Subscriber ID (IPv4)");
+     offset += 4;
 
      /* Subscriber Identifier */
      info_to_display(tvb,tv,offset,4,"Subscriber Identifier (IPv4)", NULL,FMT_IPv4,&hf_cops_pc_subscriber_id_ipv4);
@@ -2687,6 +2689,7 @@ cops_subscriber_id_v6(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      /* Create a subtree */
      tv = info_to_cops_subtree(tvb,st,n,offset,"Subscriber ID (IPv6)");
+     offset += 4;
 
      /* Subscriber Identifier */
      info_to_display(tvb,tv,offset,16,"Subscriber Identifier (IPv6)", NULL,FMT_IPv6,&hf_cops_pc_subscriber_id_ipv6);
@@ -2700,6 +2703,7 @@ cops_gate_id(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"Gate ID");
+     offset += 4;
 
      /* Gate Identifier */
      info_to_display(tvb,stt,offset,4,"Gate Identifier", NULL,FMT_HEX,&hf_cops_pc_gate_id);
@@ -2713,6 +2717,7 @@ cops_activity_count(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"Activity Count");
+     offset += 4;
 
      /* Activity Count */
      info_to_display(tvb,stt,offset,4,"Count", NULL,FMT_DEC,&hf_cops_pc_activity_count);
@@ -2726,6 +2731,7 @@ cops_gate_specs(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"Gate Specifications");
+     offset += 4;
 
      /* Direction */
      info_to_display(tvb,stt,offset,1,"Direction",table_cops_direction,FMT_DEC,&hf_cops_pc_direction);
@@ -2819,6 +2825,7 @@ cops_surveillance_parameters(tvbuff_t *tvb, proto_tree *st, guint n, guint32 off
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"Electronic Surveillance Parameters");
+     offset += 4;
 
      /* DF IP Address for CDC */
      info_to_display(tvb,stt,offset,4,"DF IP Address for CDC", NULL,FMT_IPv4,&hf_cops_pc_dfcdc_ip);
@@ -2875,6 +2882,7 @@ cops_event_generation_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offse
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"Event Generation Info");
+     offset += 4;
 
      /* Primary Record Keeping Server IP Address */
      info_to_display(tvb,stt,offset,4,"PRKS IP Address", NULL,FMT_IPv4,&hf_cops_pc_prks_ip);
@@ -2934,6 +2942,7 @@ cops_remote_gate_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"Remote Gate Info");
+     offset += 4;
 
      /* CMTS IP Address */
      info_to_display(tvb,stt,offset,4,"CMTS IP Address", NULL,FMT_IPv4,&hf_cops_pc_cmts_ip);
@@ -2984,6 +2993,7 @@ cops_packetcable_reason(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) 
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"PacketCable Reason");
+     offset += 4;
 
      /* Reason Code */
      code16 = tvb_get_ntohs(tvb,offset);
@@ -3009,6 +3019,7 @@ cops_packetcable_error(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"PacketCable Error");
+     offset += 4;
 
      /* Error Code */
      info_to_display(tvb,stt,offset,2,"Error Code",table_cops_packetcable_error,FMT_DEC,&hf_cops_pc_packetcable_err_code);
@@ -3029,6 +3040,7 @@ cops_mm_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint8
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"MM Transaction ID");
+     offset += 4;
 
      /* Transaction Identifier */
      info_to_display(tvb,stt,offset,2,"Multimedia Transaction Identifier", NULL,FMT_DEC,&hf_cops_pc_transaction_id);
@@ -3059,6 +3071,7 @@ cops_amid(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"AMID");
+     offset += 4;
 
      /* Gate Identifier */
      info_to_display(tvb,stt,offset,4,"Application Manager ID", NULL,FMT_DEC,&hf_cops_pcmm_amid);
@@ -3074,6 +3087,7 @@ cops_mm_gate_spec(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"Gate Spec");
+     offset += 4;
 
      /* Flags */
      gs_flags = tvb_get_guint8(tvb, offset);
@@ -3128,6 +3142,7 @@ cops_classifier(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"Classifier");
+     offset += 4;
 
      /* Protocol ID */
      info_to_display(tvb,stt,offset,2,"Protocol ID",NULL,FMT_DEC,&hf_cops_pcmm_classifier_protocol_id);
@@ -3173,6 +3188,7 @@ cops_flow_spec(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"Flow Spec");
+     offset += 4;
 
      /* Envelope */
      info_to_display(tvb,stt,offset,1,"Envelope",NULL,FMT_DEC,&hf_cops_pcmm_flow_spec_envelope);
@@ -3294,6 +3310,7 @@ cops_docsis_service_class_name(tvbuff_t *tvb, proto_tree *st, guint object_len, 
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,object_len,offset,"DOCSIS Service Class Name");
+     offset += 4;
 
      /* Envelope */
      info_to_display(tvb,stt,offset,1,"Envelope",NULL,FMT_DEC,&hf_cops_pcmm_envelope);
@@ -3318,6 +3335,7 @@ cops_best_effort_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset)
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"Best Effort Service");
+     offset += 4;
 
      /* Envelope */
      info_to_display(tvb,stt,offset,1,"Envelope",NULL,FMT_DEC,&hf_cops_pcmm_envelope);
@@ -3444,6 +3462,7 @@ cops_non_real_time_polling_service(tvbuff_t *tvb, proto_tree *st, guint n, guint
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"Non-Real-Time Polling Service");
+     offset += 4;
 
      /* Envelope */
      info_to_display(tvb,stt,offset,1,"Envelope",NULL,FMT_DEC,&hf_cops_pcmm_envelope);
@@ -3582,6 +3601,7 @@ cops_real_time_polling_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 o
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"Real-Time Polling Service");
+     offset += 4;
 
      /* Envelope */
      info_to_display(tvb,stt,offset,1,"Envelope",NULL,FMT_DEC,&hf_cops_pcmm_envelope);
@@ -3711,6 +3731,7 @@ cops_unsolicited_grant_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 o
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"Unsolicited Grant Service");
+     offset += 4;
 
      /* Envelope */
      info_to_display(tvb,stt,offset,1,"Envelope",NULL,FMT_DEC,&hf_cops_pcmm_envelope);
@@ -3813,6 +3834,7 @@ cops_ugs_with_activity_detection(tvbuff_t *tvb, proto_tree *st, guint n, guint32
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"Unsolicited Grant Service with Activity Detection");
+     offset += 4;
 
      /* Envelope */
      info_to_display(tvb,stt,offset,1,"Envelope",NULL,FMT_DEC,&hf_cops_pcmm_envelope);
@@ -3939,6 +3961,7 @@ cops_downstream_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) 
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"Downstream Service");
+     offset += 4;
 
      /* Envelope */
      info_to_display(tvb,stt,offset,1,"Envelope",NULL,FMT_DEC,&hf_cops_pcmm_envelope);
@@ -4066,6 +4089,7 @@ cops_mm_event_generation_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 of
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"Event Generation Info");
+     offset += 4;
 
      /* Primary Record Keeping Server IP Address */
      info_to_display(tvb,stt,offset,4,"PRKS IP Address", NULL,FMT_IPv4,&hf_cops_pc_prks_ip);
@@ -4117,6 +4141,7 @@ cops_volume_based_usage_limit(tvbuff_t *tvb, proto_tree *st, guint object_len, g
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,object_len,offset,"Volume-Based Usage Limit");
+     offset += 4;
 
      /* Usage Limit */
      proto_tree_add_item(stt, hf_cops_pcmm_volume_based_usage_limit, tvb, offset, 8,
@@ -4131,6 +4156,7 @@ cops_time_based_usage_limit(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offs
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"Time-Based Usage Limit");
+     offset += 4;
 
      /* Time Limit */
      info_to_display(tvb,stt,offset,4,"Time Limit", NULL,FMT_DEC,&hf_cops_pcmm_time_based_usage_limit);
@@ -4145,6 +4171,7 @@ cops_opaque_data(tvbuff_t *tvb, proto_tree *st, guint object_len, guint32 offset
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,object_len,offset,"Opaque Data");
+     offset += 4;
 
      /* Opaque Data */
      proto_tree_add_text(stt, tvb, offset, 8,"Opaque Data");
@@ -4158,6 +4185,7 @@ cops_gate_time_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"Gate Time Info");
+     offset += 4;
 
      /* Gate Time Info */
      info_to_display(tvb,stt,offset,4,"Time Committed", NULL,FMT_DEC,&hf_cops_pcmm_gate_time_info);
@@ -4172,6 +4200,7 @@ cops_gate_usage_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"Gate Usage Info");
+     offset += 4;
 
      /* Gate Time Info */
      info_to_display(tvb,stt,offset,4,"Octet Count", NULL,FMT_DEC,&hf_cops_pcmm_gate_usage_info);
@@ -4187,6 +4216,7 @@ cops_packetcable_mm_error(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"PacketCable Error");
+     offset += 4;
 
      code = tvb_get_ntohs(tvb, offset);
      proto_tree_add_uint_format(stt, hf_cops_pcmm_packetcable_error_code, tvb, offset, 2, code,
@@ -4213,6 +4243,7 @@ cops_gate_state(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"Gate State");
+     offset += 4;
 
      /* State */
      info_to_display(tvb,stt,offset,2,"State",pcmm_gate_state,FMT_DEC,&hf_cops_pcmm_packetcable_gate_state);
@@ -4231,6 +4262,7 @@ cops_version_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      /* Create a subtree */
      stt = info_to_cops_subtree(tvb,st,n,offset,"Version Info");
+     offset += 4;
 
      /* State */
      info_to_display(tvb,stt,offset,2,"Major Version Number",NULL,FMT_DEC,&hf_cops_pcmm_packetcable_version_info_major);
@@ -4290,9 +4322,6 @@ cops_analyze_packetcable_dqos_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
        /* Glom the s_num and s_type together to make switching easier */
        num_type_glob = s_num << 8 | s_type;
 
-       /* Tune offset */
-       offset += 4;
-
        /* Perform the appropriate functions */
        switch (num_type_glob){
         case PCDQ_TRANSACTION_ID:
@@ -4331,7 +4360,7 @@ cops_analyze_packetcable_dqos_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
        }
 
        /* Tune offset */
-       offset += object_len-4;
+       offset += object_len;
 
        /* See what we can still get from the buffer */
        remdata = tvb_length_remaining(tvb, offset);
@@ -4427,9 +4456,6 @@ cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
        /* Glom the s_num and s_type together to make switching easier */
        num_type_glob = s_num << 8 | s_type;
 
-       /* Tune offset */
-       offset += 4;
-
        /* Perform the appropriate functions */
        switch (num_type_glob){
         case PCMM_TRANSACTION_ID:
@@ -4504,7 +4530,7 @@ cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
        }
 
        /* Tune offset */
-       offset += object_len-4;
+       offset += object_len;
 
        /* See what we can still get from the buffer */
        remdata = tvb_length_remaining(tvb, offset);
