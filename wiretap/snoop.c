@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.55 2002/08/28 20:30:45 jmayer Exp $
+ * $Id: snoop.c,v 1.56 2002/09/04 19:29:59 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -84,9 +84,10 @@ static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
  *
  *	http://mrpink.lerc.nasa.gov/118x/support.html
  *
- * has links to modified versions of "tcpdump" and "libpcap" for SUNatm
- * DLPI support; they suggest the 3.0 verson of SUNatm uses those
- * values.
+ * had links to modified versions of "tcpdump" and "libpcap" for SUNatm
+ * DLPI support; they suggested that the 3.0 verson of SUNatm uses those
+ * values.  The Wayback Machine archived that page, but not the stuff
+ * to which it linked, unfortunately.
  *
  * It also has a link to "convert.c", which is a program to convert files
  * from the format written by the "atmsnoop" program that comes with the
@@ -107,16 +108,23 @@ static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
  *
  * Source to an "atmdump" package, which includes a modified version of
  * "libpcap" to handle SunATM DLPI and an ATM driver for FreeBSD, and
- * also includes "atmdump", which is a modified "tcpdump", says that an
+ * also includes "atmdump", which is a modified "tcpdump", is available
+ * at
+ *
+ *	ftp://ftp.cs.ndsu.nodak.edu/pub/freebsd/atm/atm-bpf.tgz
+ *
+ * and that code also indicates that DL_IPATM is used, and that an
  * ATM packet handed up from the Sun driver for the Sun SBus ATM card on
  * Solaris 2.5.1 has 1 byte of direction, 1 byte of VPI, 2 bytes of VCI,
- * and then the ATM PDU, and suggests that the direction byte is 0x80 for
+ * and then the ATM PDU, and suggests that the direction flag is 0x80 for
  * "transmitted" (presumably meaning DTE->DCE) and presumably not 0x80 for
- * "received" (presumably meaning DCE->DTE).
+ * "received" (presumably meaning DCE->DTE).  That code was used as the
+ * basis for the SunATM support in current CVS versions of libpcap and
+ * tcpdump, and it works.
  *
  * In fact, the "direction" byte appears to have some other stuff, perhaps
  * a traffic type, in the lower 7 bits, with the 8th bit indicating the
- * direction.
+ * direction.  That appears to be the case.
  *
  * I don't know what the encapsulation of any of the other types is, so I
  * leave them all as WTAP_ENCAP_UNKNOWN.  I also don't know whether "snoop"
@@ -127,7 +135,7 @@ static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
  *
  * See
  *
- *	http://www.shomiti.com/support/TNCapFileFormat.htm
+ *	http://web.archive.org/web/20010906213807/http://www.shomiti.com/support/TNCapFileFormat.htm
  *
  * for information on Shomiti's mutant flavor of snoop.  For some unknown
  * unknown reason, they decided not to just Go With The DLPI Flow, and
