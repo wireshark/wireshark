@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.97 2003/12/17 22:43:21 obiot Exp $
+ * $Id: packet-wsp.c,v 1.98 2003/12/19 20:16:04 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,8 +62,8 @@
 /* General-purpose debug logger.
  * Requires double parentheses because of variable arguments of printf().
  *
- * Enable debug logging for WBXML by defining AM_FLAGS
- * so that it contains "-DDEBUG_wbxml"
+ * Enable debug logging for WSP by defining AM_CFLAGS
+ * so that it contains "-DDEBUG_wsp"
  */
 #ifdef DEBUG_wsp
 #define DebugLog(x) \
@@ -2093,7 +2093,10 @@ add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
 	*textual_content = NULL;
 	*well_known_content = 0;
 
+	DebugLog(("add_content_type() - START\n"));
+
 	wkh_1_WellKnownValue;
+		DebugLog(("add_content_type() - Well-known - Start\n"));
 		*textual_content = val_to_str(val_id & 0x7F, vals_content_types,
 				"<Unknown media type identifier 0x%X>");
 		ti = proto_tree_add_string(tree, hf_hdr_content_type,
@@ -2101,7 +2104,9 @@ add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
 				*textual_content);
 		*well_known_content = val_id & 0x7F;
 		ok = TRUE;
+		DebugLog(("add_content_type() - Well-known - End\n"));
 	wkh_2_TextualValue;
+		DebugLog(("add_content_type() - Textual - Start\n"));
 		/* Sometimes with a No-Content response, a NULL content type
 		 * is reported. Process this correctly! */
 		if (*val_str) {
@@ -2119,10 +2124,13 @@ add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
 			*well_known_content = 0;
 		}
 		ok = TRUE;
+		DebugLog(("add_content_type() - Textual - End\n"));
 	wkh_3_ValueWithLength;
+		DebugLog(("add_content_type() - General form - Start\n"));
 		off = val_start + val_len_len;
 		peek = tvb_get_guint8(tvb, off);
 		if (is_text_string(peek)) {
+			DebugLog(("add_content_type() - General form - extension-media\n"));
 			get_extension_media(val_str, tvb, off, len, ok);
 			/* As we're using val_str, it is automatically g_free()d */
 			/* ??? Not sure anymore, we're in wkh_3, not in wkh_2 ! */
@@ -2133,6 +2141,7 @@ add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
 			*textual_content = g_strdup(val_str);
 			*well_known_content = 0;
 		} else if (is_integer_value(peek)) {
+			DebugLog(("add_content_type() - General form - integer_value\n"));
 			get_integer_value(val, tvb, off, len, ok);
 			if (ok) {
 				*textual_content = val_to_str(val, vals_content_types,
@@ -2146,11 +2155,17 @@ add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
 		} /* else ok = FALSE */
 		/* Remember: offset == val_start + val_len_len + val_len */
 		if (ok && (off < offset)) { /* Add parameters if any */
+			DebugLog(("add_content_type() - General form - parameters\n"));
 			parameter_tree = proto_item_add_subtree (ti, ett_header);
 			while (off < offset) {
+				DebugLog(("add_content_type() - General form - parameter start "
+							"(off = %u)\n", off));
 				off = parameter (parameter_tree, ti, tvb, off, offset - off);
+				DebugLog(("add_content_type() - General form - parameter end "
+							"(off = %u)\n", off));
 			}
 		}
+		DebugLog(("add_content_type() - General form - End\n"));
 
 	wkh_4_End(hf_hdr_content_type);
 }
@@ -3843,20 +3858,30 @@ wkh_content_type_header(openwave_x_up_proxy_push_accept,
 
 
 #define parameter_text(hf,lowercase,Uppercase,value) \
+	DebugLog(("parameter with text_string value: " Uppercase "\n")); \
 	get_text_string(val_str, tvb, offset, val_len, ok); \
 	if (ok) { \
+		DebugLog(("OK, valid text_string value found!\n")); \
+		DebugLog(("Adding val_str to the header field in proto tree\n")); \
 		proto_tree_add_string(tree, hf, \
 				tvb, start, type_len + val_len, val_str); \
+		DebugLog(("Creating str to append to ti\n")); \
 		str = g_strdup_printf("; " lowercase "=%s", val_str); \
+		DebugLog(("Appending str to ti\n")); \
 		proto_item_append_string(ti, str); \
+		DebugLog(("\tFreeing str [%s]\n", str)); \
 		g_free(str); \
+		DebugLog(("\tFreeing val_str [%s]\n", val_str)); \
 		g_free(val_str); \
 		offset += val_len; \
 	} else { \
+		DebugLog(("\tError: invalid parameter value!\n")); \
 		proto_tree_add_string(tree, hf, tvb, start, len - start, \
 				InvalidParameterValue(Uppercase, value)); \
 		offset = start + len; /* Skip to end of buffer */ \
-	}
+	} \
+	DebugLog(("parameter with text_string value - END\n"));
+	
 
 #define parameter_text_value(hf,lowercase,Uppercase,value) \
 	get_text_string(val_str, tvb, offset, val_len, ok); \
@@ -3917,15 +3942,18 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 	gchar *s;
 	gboolean ok;
 
+	DebugLog(("parameter(start = %u, len = %u)\n", start, len));
 	if (is_token_text (peek)) {
 		/*
 		 * Untyped parameter
 		 */
+		DebugLog(("parameter() - Untyped - Start\n"));
 		get_token_text (str,tvb,start,val_len,ok); /* Should always succeed */
 		if (ok) { /* Found a textual parameter name: str */
 			offset += val_len;
 			get_text_value(val_str, tvb, offset, val_len, ok);
 			if (ok) { /* Also found a textual parameter value: val_str */
+				DebugLog(("Trying textual parameter value.\n"));
 				offset += val_len;
 				if (is_quoted_string(val_str[0])) { /* Add trailing quote! */
 					if (is_quoted_string(val_str[val_len-2])) {
@@ -3947,10 +3975,15 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 				}
 				/* TODO - check if we can insert a searchable field in the
 				 * protocol tree for the untyped parameter case */
+				DebugLog(("parameter() - Untyped: %s\n", s));
 				proto_item_append_string(ti, s);
+				DebugLog(("Freeing s\n"));
 				g_free(s);
+				DebugLog(("Freeing val_str\n"));
 				g_free(val_str);
+				DebugLog(("Done!\n"));
 			} else { /* Try integer value */
+				DebugLog(("Trying integer parameter value.\n"));
 				get_integer_value (val,tvb,offset,val_len,ok);
 				if (ok) { /* Also found a valid integer parameter value: val */
 					offset += val_len;
@@ -3958,10 +3991,12 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 							"%s: %u", str, val);
 					s = g_strdup_printf("; %s=%u", str, val);
 					proto_item_append_string(ti, s);
+					DebugLog(("parameter() - Untyped: %s\n", s));
 					g_free(s);
 					/* TODO - check if we can insert a searchable field in the
 					 * protocol tree for the untyped parameter case */
 				} else { /* Error: neither token-text not Integer-value */
+					DebugLog(("Invalid untyped parameter value!\n"));
 					proto_tree_add_text (tree, tvb, start, offset - start,
 							"<Error: Invalid untyped parameter definition>");
 					offset = start + len; /* Skip to end of buffer */
@@ -3969,11 +4004,13 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 			}
 			g_free(str);
 		}
+		DebugLog(("parameter() - Untyped - End\n"));
 		return offset;
 	}
 	/*
 	 * Else: Typed parameter
 	 */
+	DebugLog(("parameter() - Typed - Start\n"));
 	get_integer_value (type,tvb,start,type_len,ok);
 	if (!ok) {
 		proto_tree_add_text (tree, tvb, start, offset - start,
@@ -3982,6 +4019,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 	}
 	offset += type_len;
 	/* Now offset points to the parameter value */
+	DebugLog(("Typed parameter = 0x%02x\n", type));
 	switch (type) {
 		case 0x01:	/* WSP 1.1 encoding - Charset: Well-known-charset */
 			get_integer_value(val, tvb, offset, val_len, ok);
@@ -4159,12 +4197,14 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 		case 0x15:	/* WSP 1.4 encoding - Read-date: Date-value */
 		case 0x16:	/* WSP 1.4 encoding - Size: Integer-value */
 		default:
+			DebugLog(("Skipping remaining parameters from here\n"));
 			proto_tree_add_text(tree, tvb, start, len - start, 
 					"Undecoded parameter type 0x%02x - decoding stopped",
 					type);
 			offset = start + len; /* Skip the parameters */
 			break;
 	}
+	DebugLog(("parameter() - Typed - End\n"));
 	return offset;
 }
 
@@ -5452,6 +5492,8 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType,
 	proto_item *ti;
 	proto_tree *sub_tree;
 
+	DebugLog(("add_post_data() - START\n"));
+
 	/* VERIFY ti = proto_tree_add_item (tree, hf_wsp_post_data,tvb,offset,-1,bo_little_endian); */
 	ti = proto_tree_add_item (tree, hf_wsp_post_data,tvb,offset,-1,bo_little_endian);
 	sub_tree = proto_item_add_subtree(ti, ett_post);
@@ -5496,6 +5538,7 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType,
 	{
 		add_multipart_data(sub_tree, tvb);
 	}
+	DebugLog(("add_post_data() - END\n"));
 }
 
 static void
