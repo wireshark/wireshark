@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for DIAMETER packet disassembly
  *
- * $Id: packet-diameter.c,v 1.25 2001/07/30 20:08:44 guy Exp $
+ * $Id: packet-diameter.c,v 1.26 2001/08/04 19:50:33 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -749,7 +749,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 		  /* data = ntohll(data); */
 		  proto_tree_add_int_format(avpi_tree, hf_diameter_avp_data_int64,
 									tvb, offset, avpDataLength, data,
-									"Value: 0x%016llx (%lld)", (unsigned long long)data, data );
+									"Value: 0x%016llx (%lld)", data, data );
 		}
 		break;
 	  case DIAMETER_UNSIGNED64:
