@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.7 2000/01/31 19:50:58 oabad Exp $
+ * $Id: plugins.c,v 1.8 2000/02/03 21:31:03 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -432,21 +432,39 @@ init_plugins()
     {
 	plugins_scan_dir(std_plug_dir);
 	plugins_scan_dir(local_plug_dir);
-        if ((strcmp(std_plug_dir, PLUGIN_DIR) != 0) &&
-            (strcmp(local_plug_dir, PLUGIN_DIR) != 0))
-        {
-	    if (stat(std_plug_dir, &std_dir_stat) == 0 &&
-		stat(local_plug_dir, &local_dir_stat) == 0 &&
-		stat(PLUGIN_DIR, &plugin_dir_stat) == 0)
+	if ((strcmp(std_plug_dir, PLUGIN_DIR) != 0) &&
+		(strcmp(local_plug_dir, PLUGIN_DIR) != 0))
+	{
+	    if (stat(PLUGIN_DIR, &plugin_dir_stat) == 0)
 	    {
-		/* check if PLUGIN_DIR is really different from std_dir and local_dir */
-		if ((plugin_dir_stat.st_dev != std_dir_stat.st_dev ||
-		     plugin_dir_stat.st_ino != std_dir_stat.st_ino) &&
-		    (plugin_dir_stat.st_dev != local_dir_stat.st_dev ||
-		     plugin_dir_stat.st_ino != local_dir_stat.st_ino))
-		    plugins_scan_dir(PLUGIN_DIR);
+		/* check if PLUGIN_DIR is really different from std_dir and
+		 * local_dir if they exist ! */
+		if (stat(std_plug_dir, &std_dir_stat) == 0)
+		{
+		    if (stat(local_plug_dir, &local_dir_stat) == 0)
+		    {
+			if ((plugin_dir_stat.st_dev != std_dir_stat.st_dev ||
+				    plugin_dir_stat.st_ino != std_dir_stat.st_ino) &&
+				(plugin_dir_stat.st_dev != local_dir_stat.st_dev ||
+				 plugin_dir_stat.st_ino != local_dir_stat.st_ino))
+			    plugins_scan_dir(PLUGIN_DIR);
+		    }
+		    else
+		    {
+			if ((plugin_dir_stat.st_dev != std_dir_stat.st_dev ||
+				    plugin_dir_stat.st_ino != std_dir_stat.st_ino))
+			    plugins_scan_dir(PLUGIN_DIR);
+		    }
+		}
+		else if (stat(local_plug_dir, &local_dir_stat) == 0)
+		{
+		    if ((plugin_dir_stat.st_dev != local_dir_stat.st_dev ||
+				plugin_dir_stat.st_ino != local_dir_stat.st_ino))
+			plugins_scan_dir(PLUGIN_DIR);
+		}
+		else plugins_scan_dir(PLUGIN_DIR);
 	    }
-        }
+	}
 	if (!user_plug_dir)
 	{
 	    user_plug_dir = (gchar *)g_malloc(strlen(get_home_dir()) + 19);
