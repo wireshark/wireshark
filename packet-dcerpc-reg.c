@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\winreg packet disassembly
  * Copyright 2001, 2002 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-reg.c,v 1.8 2002/07/05 19:34:12 guy Exp $
+ * $Id: packet-dcerpc-reg.c,v 1.9 2002/07/05 20:41:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,7 +33,6 @@
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-reg.h"
 #include "smb.h"
-#include "packet-smb-common.h"
 
 /* Global hf index fields */
 
@@ -368,8 +367,8 @@ RegQueryKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep,
 		hf_querykey_secdesc, NULL);
 
-	offset = dissect_smb_64bit_time(
-		tvb, tree, offset, hf_querykey_modtime);
+	offset = dissect_ndr_nt_NTTIME(
+		tvb, offset, pinfo, tree, drep, hf_querykey_modtime);
 
 	offset = dissect_ntstatus(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
