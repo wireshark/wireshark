@@ -1,14 +1,17 @@
 /* packet-gsm_sms_ud.c
  * Routines for GSM SMS TP-UD (GSM 03.40) dissection
  *
- * Separated from the SMPP dissector by Chris Wilson <chris@mxtelecom.com>
+ * $Id: packet-gsm_sms_ud.c,v 1.4 2004/01/27 17:17:31 obiot Exp $
+ *
+ * Refer to the AUTHORS file or the AUTHORS section in the man page
+ * for contacting the author(s) of this file.
+ *
+ * Separated from the SMPP dissector by Chris Wilson.
  *
  * UDH and WSP dissection of SMS message, Short Message reassembly,
  * "Decode Short Message with Port Number UDH as CL-WSP" preference,
  * "Always try subdissection of 1st fragment" preference,
  * provided by Olivier Biot.
- *
- * $Id: packet-gsm_sms_ud.c,v 1.3 2004/01/27 00:30:46 obiot Exp $
  *
  * Note on SMS Message reassembly
  * ------------------------------
@@ -611,6 +614,8 @@ proto_reg_handoff_gsm_sms_ud(void)
 	dissector_handle_t gsm_sms_ud_handle;
 	gsm_sms_ud_handle = create_dissector_handle(dissect_gsm_sms_ud,
 			proto_gsm_sms_ud);
+	wsp_handle = find_dissector("wsp-cl");
+	g_assert(wsp_handle);
 }
 
 
