@@ -240,5 +240,6 @@ typedef void (*addr_dissector_reset_string) (const char *, const gchar *);
 typedef gboolean (*addr_dissector_try_string) (dissector_table_t, const gchar *, tvbuff_t *, packet_info *, proto_tree *);
 typedef dissector_handle_t (*addr_dissector_get_string_handle) (dissector_table_t, const gchar *);
 typedef char *(*addr_get_datafile_path) (const char *);
+typedef char *(*addr_get_tempfile_path) (const char *);
 typedef void (*addr_register_heur_dissector_list) (const char *, heur_dissector_list_t *);
 typedef gboolean (*addr_dissector_try_heuristic) (heur_dissector_list_t, tvbuff_t *, packet_info *, proto_tree *);

@@ -240,5 +240,6 @@ p_dissector_reset_string = pat->p_dissector_reset_string;
 p_dissector_try_string = pat->p_dissector_try_string;
 p_dissector_get_string_handle = pat->p_dissector_get_string_handle;
 p_get_datafile_path = pat->p_get_datafile_path;
+p_get_tempfile_path = pat->p_get_tempfile_path;
 p_register_heur_dissector_list = pat->p_register_heur_dissector_list;
 p_dissector_try_heuristic = pat->p_dissector_try_heuristic;
