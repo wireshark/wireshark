@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.435 2004/05/17 21:15:28 ulfl Exp $
+ * $Id: main.c,v 1.436 2004/05/20 12:01:12 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,70 +72,73 @@
 #include <epan/epan.h>
 #include <epan/filesystem.h>
 #include <epan/epan_dissect.h>
-
-#include "cvsversion.h"
-#include "main.h"
 #include <epan/timestamp.h>
 #include <epan/packet.h>
-#include "capture.h"
-#include "summary.h"
+#include <epan/plugins.h>
+#include <epan/dfilter/dfilter.h>
+#include <epan/strutil.h>
+#include <epan/resolv.h>
+
+/* general (not GTK specific) */
+#include "cvsversion.h"
 #include "file.h"
+#include "summary.h"
 #include "filters.h"
 #include "disabled_protos.h"
 #include "prefs.h"
-#include "menu.h"
-#include "../menu.h"
+#include "filter_prefs.h"
+#include "layout_prefs.h"
 #include "color.h"
 #include "color_filters.h"
 #include "color_utils.h"
-#include "filter_prefs.h"
-#include "layout_prefs.h"
-#include "file_dlg.h"
-#include "column.h"
 #include "print.h"
-#include <epan/resolv.h>
+#include "simple_dialog.h"
+#include "register.h"
+#include "prefs-int.h"
+#include "ringbuffer.h"
+#include "../ui_util.h"     /* beware: ui_util.h exists twice! */
+#include "tap.h"
+#include "util.h"
+#include "version_info.h"
+#include "capture.h"
 #ifdef HAVE_LIBPCAP
 #include "pcap-util.h"
 #endif
-#include "statusbar.h"
-#include "alert_box.h"
-#include "simple_dialog.h"
-#include "dlg_utils.h"
-#include "proto_draw.h"
-#include <epan/dfilter/dfilter.h>
-#include "keys.h"
-#include "packet_win.h"
-#include "gtkglobals.h"
-#include <epan/plugins.h>
-#include "colors.h"
-#include <epan/strutil.h>
-#include "register.h"
-#include <prefs-int.h>
-#include "ringbuffer.h"
-#include "../ui_util.h"
-#include "ui_util.h"
-#include "toolbar.h"
-#include "../tap.h"
-#include "../util.h"
-#include "../version_info.h"
-#include "compat_macros.h"
-#include "find_dlg.h"
-#include "packet_list.h"
-#include "recent.h"
-#include "follow_dlg.h"
-#include <epan/timestamp.h>
-
 #ifdef WIN32
 #include "capture-wpcap.h"
 #endif
 
+/* GTK related */
+#include "statusbar.h"
+#include "alert_box.h"
+#include "dlg_utils.h"
+#include "gtkglobals.h"
+#include "colors.h"
+#include "ui_util.h"        /* beware: ui_util.h exists twice! */
+#include "compat_macros.h"
+
+#include "main.h"
+#include "menu.h"
+#include "../menu.h"
+#include "file_dlg.h"
+#include "column.h"
+#include "proto_draw.h"
+#include "keys.h"
+#include "packet_win.h"
+#include "toolbar.h"
+#include "find_dlg.h"
+#include "packet_list.h"
+#include "recent.h"
+#include "follow_dlg.h"
+
+
 capture_file cfile;
 GtkWidget   *main_display_filter_widget=NULL;
 GtkWidget   *top_level = NULL, *tree_view, *byte_nb_ptr, *tv_scrollw;
-GtkWidget   *none_lb, *main_pane_v1, *main_pane_v2, *main_pane_h1, *main_pane_h2;
-GtkWidget   *main_first_pane, *main_second_pane;
-GtkWidget   *status_pane;
-GtkWidget   *menubar, *main_vbox, *main_tb, *pkt_scrollw, *stat_hbox, *filter_tb;
+static GtkWidget   *none_lb, *main_pane_v1, *main_pane_v2, *main_pane_h1, *main_pane_h2;
+static GtkWidget   *main_first_pane, *main_second_pane;
+static GtkWidget   *status_pane;
+static GtkWidget   *menubar, *main_vbox, *main_tb, *pkt_scrollw, *stat_hbox, *filter_tb;
 static GtkWidget	*info_bar;
 static GtkWidget    *packets_bar = NULL;
 #if GTK_MAJOR_VERSION < 2
@@ -147,7 +150,7 @@ PangoFontDescription *m_r_font, *m_b_font;
 static guint    main_ctx, file_ctx, help_ctx;
 static guint        packets_ctx;
 static gchar        *packets_str = NULL;
-static GString *comp_info_str, *runtime_info_str;
+GString *comp_info_str, *runtime_info_str;
 gchar       *ethereal_path = NULL;
 gchar       *last_open_dir = NULL;
 static gboolean updated_last_open_dir = FALSE;
@@ -168,7 +171,6 @@ static void console_log_handler(const char *log_domain,
 static gboolean list_link_layer_types;
 #endif
 
-static void about_ethereal_destroy_cb(GtkWidget *, gpointer);
 static void create_main_window(gint, gint, gint, e_prefs*);
 static void file_quit_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_);
 static void main_save_window_geometry(GtkWidget *widget);
@@ -181,100 +183,7 @@ static void try_to_get_windows_font_gtk2 (void);
 #define E_DFILTER_CM_KEY          "display_filter_combo"
 #define E_DFILTER_FL_KEY          "display_filter_list"
 
-/* About Ethereal window */
-#define MAX_ABOUT_MSG_LEN 2048
 
-/*
- * Keep a static pointer to the current "About Ethereal" window, if any, so
- * that if somebody tries to do "About Ethereal" while there's already an
- * "About Ethereal" window up, we just pop up the existing one, rather than
- * creating a new one.
- */
-static GtkWidget *about_ethereal_w;
-
-void
-about_ethereal( GtkWidget *w _U_, gpointer data _U_ )
-{
-  GtkWidget   *main_vb, *top_hb, *msg_label, *bbox, *ok_btn;
-  gchar        message[MAX_ABOUT_MSG_LEN];
-
-  if (about_ethereal_w != NULL) {
-    /* There's already an "About Ethereal" dialog box; reactivate it. */
-    reactivate_window(about_ethereal_w);
-    return;
-  }
-
-  /*
-   * XXX - use GtkDialog?  The GNOME 2.x GnomeAbout widget does.
-   * Should we use GtkDialog for simple_dialog() as well?  Or
-   * is the GTK+ 2.x GtkDialog appropriate but the 1.2[.x] one
-   * not?  (The GNOME 1.x GnomeAbout widget uses GnomeDialog.)
-   */
-  about_ethereal_w = dlg_window_new("About Ethereal");
-  SIGNAL_CONNECT(about_ethereal_w, "destroy", about_ethereal_destroy_cb, NULL);
-  gtk_container_border_width(GTK_CONTAINER(about_ethereal_w), 7);
-
-  /* Container for our rows */
-  main_vb = gtk_vbox_new(FALSE, 5);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
-  gtk_container_add(GTK_CONTAINER(about_ethereal_w), main_vb);
-  gtk_widget_show(main_vb);
-
-  /* Top row: Message text */
-  top_hb = gtk_hbox_new(FALSE, 10);
-  gtk_container_add(GTK_CONTAINER(main_vb), top_hb);
-  gtk_widget_show(top_hb);
-
-  /* Construct the message string */
-  g_snprintf(message, MAX_ABOUT_MSG_LEN,
-	   "Ethereal - Network Protocol Analyzer\n\n"
-	   
-	   "Version " VERSION
-#ifdef CVSVERSION
-	   " (" CVSVERSION ")"
-#endif
-	   " (C) 1998-2004 Gerald Combs <gerald@ethereal.com>\n\n"
-
-       "%s\n"
-       "%s\n\n"
-
-       "Ethereal is Open Source software released under the GNU General Public License.\n\n"
-
-	   "Check the man page for complete documentation and\n"
-	   "for the list of contributors.\n\n"
-
-	   "See http://www.ethereal.com for more information.",
-	    comp_info_str->str, runtime_info_str->str);
-
-  msg_label = gtk_label_new(message);
-  gtk_label_set_justify(GTK_LABEL(msg_label), GTK_JUSTIFY_FILL);
-  gtk_container_add(GTK_CONTAINER(top_hb), msg_label);
-  gtk_widget_show(msg_label);
-
-  /* Button row */
-  bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
-  gtk_container_add(GTK_CONTAINER(main_vb), bbox);
-  gtk_widget_show(bbox);
-
-  ok_btn = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
-  SIGNAL_CONNECT_OBJECT(ok_btn, "clicked", gtk_widget_destroy,
-                        about_ethereal_w);
-  gtk_widget_grab_default(ok_btn);
-
-  /* Catch the "key_press_event" signal in the window, so that we can catch
-     the ESC key being pressed and act as if the "Cancel" button had
-     been selected. */
-  dlg_set_cancel(about_ethereal_w, ok_btn);
-
-  gtk_widget_show(about_ethereal_w);
-}
-
-static void
-about_ethereal_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
-{
-  /* Note that we no longer have an "About Ethereal" dialog box. */
-  about_ethereal_w = NULL;
-}
 
 #if GTK_MAJOR_VERSION < 2
 void

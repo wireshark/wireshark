@@ -1,7 +1,7 @@
 /* main.h
  * Global defines, etc.
  *
- * $Id: main.h,v 1.47 2004/05/13 15:28:02 ulfl Exp $
+ * $Id: main.h,v 1.48 2004/05/20 12:01:13 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,7 +62,7 @@ typedef struct _selection_info {
 extern GtkStyle *item_style;
 #endif
 
-void about_ethereal( GtkWidget *, gpointer);
+void about_ethereal_cb( GtkWidget *, gpointer);
 void goto_framenum_cb(GtkWidget *, gpointer);
 void goto_top_frame_cb(GtkWidget *w _U_, gpointer d _U_);
 void goto_bottom_frame_cb(GtkWidget *w _U_, gpointer d _U_);
