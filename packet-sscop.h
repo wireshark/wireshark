@@ -1,6 +1,6 @@
 /* packet-sscop.h
  *
- * $Id: packet-sscop.h,v 1.1 2000/02/15 21:03:13 gram Exp $
+ * $Id: packet-sscop.h,v 1.2 2000/05/29 08:57:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -22,5 +22,4 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-
-void dissect_sscop(const u_char *, int, frame_data *, proto_tree *);
+void dissect_sscop(tvbuff_t *, packet_info *, proto_tree *);

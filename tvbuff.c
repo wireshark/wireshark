@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.3 2000/05/16 04:44:14 gram Exp $
+ * $Id: tvbuff.c,v 1.4 2000/05/29 08:57:42 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -122,7 +122,7 @@ struct tvbuff {
 	guint			length;
 
 	/* Reported length. */
-	gint			reported_length;
+	guint			reported_length;
 
 	/* Offset from beginning of first TVBUFF_REAL. */
 	gint			raw_offset;
@@ -329,7 +329,15 @@ tvb_new_real_data(const guint8* data, guint length, gint reported_length)
  * and a length that is possible -1 (which means "to the end of the data").
  * Returns TRUE/FALSE indicating whether the offset is in bounds or
  * not. The integer ptrs are modified with the new offset and length.
- * No exception is thrown. */
+ * No exception is thrown.
+ *
+ * XXX - we return TRUE, not FALSE, if the offset is positive and right
+ * after the end of the tvbuff (i.e., equal to the length).  We do this
+ * so that a dissector constructing a subset tvbuff for the next protocol
+ * will get a zero-length tvbuff, not an exception, if there's no data
+ * left for the next protocol - we want the next protocol to be the one
+ * that gets an exception, so the error is reported as an error in that
+ * protocol rather than the containing protocol.  */
 static gboolean
 compute_offset_length(tvbuff_t *tvb, gint offset, gint length,
 		guint *offset_ptr, guint *length_ptr, int *exception)
@@ -339,22 +347,40 @@ compute_offset_length(tvbuff_t *tvb, gint offset, gint length,
 
 	/* Compute the offset */
 	if (offset >= 0) {
-		*offset_ptr = offset;
-	}
-	else if ((tvb->reported_length > -1) && -offset > tvb->reported_length) {
-		if (exception) {
-			*exception = ReportedBoundsError;
+		/* Positive offset - relative to the beginning of the packet. */
+		if (offset > tvb->reported_length) {
+			if (exception) {
+				*exception = ReportedBoundsError;
+			}
+			return FALSE;
 		}
-		return FALSE;
-	}
-	else if (-offset > tvb->length) {
-		if (exception) {
-			*exception = BoundsError;
+		else if (offset > tvb->length) {
+			if (exception) {
+				*exception = BoundsError;
+			}
+			return FALSE;
 		}
-		return FALSE;
+		else {
+			*offset_ptr = offset;
+		}
 	}
 	else {
-		*offset_ptr = tvb->length + offset;
+		/* Negative offset - relative to the end of the packet. */
+		if (-offset > tvb->reported_length) {
+			if (exception) {
+				*exception = ReportedBoundsError;
+			}
+			return FALSE;
+		}
+		else if (-offset > tvb->length) {
+			if (exception) {
+				*exception = BoundsError;
+			}
+			return FALSE;
+		}
+		else {
+			*offset_ptr = tvb->length + offset;
+		}
 	}
 
 	/* Compute the length */
@@ -382,12 +408,6 @@ check_offset_length_no_exception(tvbuff_t *tvb, gint offset, gint length,
 
 	if (*offset_ptr + *length_ptr <= tvb->length) {
 		return TRUE;
-	}
-	else if (tvb->reported_length == -1) {
-		if (exception) {
-			*exception = BoundsError;
-		}
-		return FALSE;
 	}
 	else if (*offset_ptr + *length_ptr <= tvb->reported_length) {
 		if (exception) {
@@ -441,7 +461,13 @@ tvb_set_subset(tvbuff_t *tvb, tvbuff_t *backing,
 	tvb_increment_usage_count(backing, 1);
 	tvb->tvbuffs.subset.tvb		= backing;
 	tvb->length			= tvb->tvbuffs.subset.length;
-	tvb->reported_length		= reported_length;
+	g_assert(reported_length >= -1);
+	if (reported_length == -1) {
+		tvb->reported_length	= backing->reported_length - tvb->tvbuffs.subset.offset;
+	}
+	else {
+		tvb->reported_length	= reported_length;
+	}
 	tvb->initialized		= TRUE;
 	add_to_used_in_list(backing, tvb);
 
@@ -573,12 +599,23 @@ tvb_offset_exists(tvbuff_t *tvb, gint offset)
 	guint		abs_offset, abs_length;
 
 	g_assert(tvb->initialized);
-	if (compute_offset_length(tvb, offset, -1, &abs_offset, &abs_length, NULL)) {
+	if (!compute_offset_length(tvb, offset, -1, &abs_offset, &abs_length, NULL))
+		return FALSE;
+
+	if (abs_offset < tvb->length) {
 		return TRUE;
 	}
 	else {
 		return FALSE;
 	}
+}
+
+guint
+tvb_reported_length(tvbuff_t* tvb)
+{
+	g_assert(tvb->initialized);
+
+	return tvb->reported_length;
 }
 
 

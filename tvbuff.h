@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.3 2000/05/16 04:44:14 gram Exp $
+ * $Id: tvbuff.h,v 1.4 2000/05/29 08:57:42 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -179,12 +179,15 @@ gboolean tvb_bytes_exist(tvbuff_t*, gint offset, gint length);
 /* Checks (w/o throwing exception) that offset exists in buffer */
 gboolean tvb_offset_exists(tvbuff_t*, gint offset);
 
+/* Get reported length of buffer */
+guint tvb_reported_length(tvbuff_t*);
+
 /* Returns the offset from the first byte of real data. This is
  * the same value as 'offset' in tvb_compat() */
 gint tvb_raw_offset(tvbuff_t*);
 
 /************** START OF ACCESSORS ****************/
-/* All accessors will throw BoundsError if appropriate */
+/* All accessors will throw BoundsError or ReportedBoundsError if appropriate */
 
 guint8  tvb_get_guint8(tvbuff_t*, gint offset);
 

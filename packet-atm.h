@@ -1,6 +1,6 @@
 /* packet-atm.h
  *
- * $Id: packet-atm.h,v 1.3 2000/05/19 23:06:08 gram Exp $
+ * $Id: packet-atm.h,v 1.4 2000/05/29 08:57:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -22,5 +22,4 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-void dissect_atm(union wtap_pseudo_header *, const u_char *, frame_data *,
-    proto_tree *);
+void dissect_atm(tvbuff_t *, packet_info *, proto_tree *);

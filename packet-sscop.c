@@ -2,7 +2,7 @@
  * Routines for SSCOP (Q.2110, Q.SAAL) frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sscop.c,v 1.7 2000/05/11 08:15:52 gram Exp $
+ * $Id: packet-sscop.c,v 1.8 2000/05/29 08:57:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -108,54 +108,51 @@ static const value_string sscop_type_vals[] = {
 /*
  * PDU type.
  */
-#define	SSCOP_PDU_TYPE	(pi.len - 4)	/* single byte */
+#define	SSCOP_PDU_TYPE	(reported_length - 4)	/* single byte */
 
 /*
  * Begin PDU, Begin Acknowledge PDU (no N(SQ) in it), Resynchronization
  * PDU, Resynchronization Acknowledge PDU (no N(SQ) in it in Q.SAAL),
  * Error Recovery PDU, Error Recovery Acknoledge PDU (no N(SQ) in it).
  */
-#define	SSCOP_N_SQ	(pi.len - 5)	/* One byte */
-#define	SSCOP_N_MR	(pi.len - 4)	/* lower 3 bytes thereof */
+#define	SSCOP_N_SQ	(reported_length - 5)	/* One byte */
+#define	SSCOP_N_MR	(reported_length - 4)	/* lower 3 bytes thereof */
 
 /*
  * Sequenced Data PDU (no N(PS) in it), Sequenced Data with Poll PDU,
  * Poll PDU.
  */
-#define	SSCOP_N_PS	(pi.len - 8)	/* lower 3 bytes thereof */
-#define	SSCOP_N_S	(pi.len - 4)	/* lower 3 bytes thereof */
+#define	SSCOP_N_PS	(reported_length - 8)	/* lower 3 bytes thereof */
+#define	SSCOP_N_S	(reported_length - 4)	/* lower 3 bytes thereof */
 
 /*
  * Solicited Status PDU, Unsolicited Status PDU (no N(PS) in it).
  */
-#define	SSCOP_SS_N_PS	(pi.len - 12)	/* lower 3 bytes thereof */
-#define	SSCOP_SS_N_MR	(pi.len - 8)	/* lower 3 bytes thereof */
-#define	SSCOP_SS_N_R	(pi.len - 4)	/* lower 3 bytes thereof */
+#define	SSCOP_SS_N_PS	(reported_length - 12)	/* lower 3 bytes thereof */
+#define	SSCOP_SS_N_MR	(reported_length - 8)	/* lower 3 bytes thereof */
+#define	SSCOP_SS_N_R	(reported_length - 4)	/* lower 3 bytes thereof */
 
 void
-dissect_sscop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
+dissect_sscop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+  guint reported_length;
   proto_item *ti;
   proto_tree *sscop_tree = NULL;
+  guint8 sscop_pdu_type;
   guint8 pdu_type;
   int pdu_len;
   int pad_len;
+  tvbuff_t *next_tvb;
 
-  /*
-   * The SSCOP "header" is a trailer, and the PDU type is in the
-   * last-minus-3 byte of the frame; if the captured length is less
-   * than the actual length by 3 or more bytes, give up, as we don't
-   * have the PDU type.
-   */
-  if ((pi.len - pi.captured_len) >= 3) {
-    dissect_data(pd, offset, fd, tree);
-    return;
-  }
-  pdu_type = pd[SSCOP_PDU_TYPE] & SSCOP_TYPE_MASK;
-  if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "SSCOP");
-  if (check_col(fd, COL_INFO))
-    col_add_str(fd, COL_INFO, val_to_str(pdu_type, sscop_type_vals,
+  pinfo->current_proto = "SSCOP";
+
+  reported_length = tvb_reported_length(tvb);	/* frame length */
+  sscop_pdu_type = tvb_get_guint8(tvb, SSCOP_PDU_TYPE);
+  pdu_type = sscop_pdu_type & SSCOP_TYPE_MASK;
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_add_str(pinfo->fd, COL_PROTOCOL, "SSCOP");
+  if (check_col(pinfo->fd, COL_INFO))
+    col_add_str(pinfo->fd, COL_INFO, val_to_str(pdu_type, sscop_type_vals,
 					"Unknown PDU type (0x%02x)"));
 
   /*
@@ -165,7 +162,7 @@ dissect_sscop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   switch (pdu_type) {
 
   case SSCOP_SD:
-    pad_len = (pd[SSCOP_PDU_TYPE] >> 6) & 0x03;
+    pad_len = (sscop_pdu_type >> 6) & 0x03;
     pdu_len = 4;
     break;
 
@@ -177,26 +174,27 @@ dissect_sscop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 #if 0
   case SSCOP_SDP:
 #endif
-    pad_len = (pd[SSCOP_PDU_TYPE] >> 6) & 0x03;
+    pad_len = (sscop_pdu_type >> 6) & 0x03;
     pdu_len = 8;
     break;
 
   case SSCOP_UD:
-    pad_len = (pd[SSCOP_PDU_TYPE] >> 6) & 0x03;
+    pad_len = (sscop_pdu_type >> 6) & 0x03;
     pdu_len = 4;
     break;
 
   default:
     pad_len = 0;
-    pdu_len = pi.len;	/* No payload, just SSCOP */
+    pdu_len = reported_length;	/* No payload, just SSCOP */
     break;
   }
   if (tree) {
-    ti = proto_tree_add_protocol_format(tree, proto_sscop, NullTVB, pi.len - pdu_len,
+    ti = proto_tree_add_protocol_format(tree, proto_sscop, tvb,
+					reported_length - pdu_len,
     					pdu_len, "SSCOP");
     sscop_tree = proto_item_add_subtree(ti, ett_sscop);
 
-    proto_tree_add_text(sscop_tree, NullTVB, SSCOP_PDU_TYPE, 1,
+    proto_tree_add_text(sscop_tree, tvb, SSCOP_PDU_TYPE, 1,
 			"PDU Type: %s",
 			val_to_str(pdu_type, sscop_type_vals,
 				"Unknown (0x%02x)"));
@@ -206,63 +204,63 @@ dissect_sscop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     case SSCOP_BGN:
     case SSCOP_RS:
     case SSCOP_ER:
-      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_N_SQ, 1,
-          "N(SQ): %u", pd[SSCOP_N_SQ]);
-      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_N_MR + 1, 3,
-          "N(MR): %u", pntohl(&pd[SSCOP_N_MR]) & 0xFFFFFF);
+      proto_tree_add_text(sscop_tree, tvb, SSCOP_N_SQ, 1,
+          "N(SQ): %u", tvb_get_guint8(tvb, SSCOP_N_SQ));
+      proto_tree_add_text(sscop_tree, tvb, SSCOP_N_MR + 1, 3,
+          "N(MR): %u", tvb_get_ntohl(tvb, SSCOP_N_MR) & 0xFFFFFF);
       break;
 
     case SSCOP_END:
-      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_PDU_TYPE, 1,
-          "Source: %s", (pd[SSCOP_PDU_TYPE] & SSCOP_S) ? "SSCOP" : "User");
+      proto_tree_add_text(sscop_tree, tvb, SSCOP_PDU_TYPE, 1,
+          "Source: %s", (sscop_pdu_type & SSCOP_S) ? "SSCOP" : "User");
       break;
 
     case SSCOP_BGAK:
     case SSCOP_RSAK:
-      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_N_MR + 1, 3,
-          "N(MR): %u", pntohl(&pd[SSCOP_N_MR]) & 0xFFFFFF);
+      proto_tree_add_text(sscop_tree, tvb, SSCOP_N_MR + 1, 3,
+          "N(MR): %u", tvb_get_ntohl(tvb, SSCOP_N_MR) & 0xFFFFFF);
       break;
 
     case SSCOP_ERAK:
-      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_N_MR + 3, 3,
-          "N(MR): %u", pntohl(&pd[SSCOP_N_MR]) & 0xFFFFFF);
+      proto_tree_add_text(sscop_tree, tvb, SSCOP_N_MR + 3, 3,
+          "N(MR): %u", tvb_get_ntohl(tvb, SSCOP_N_MR) & 0xFFFFFF);
       break;
 
     case SSCOP_SD:
-      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_N_S + 1, 3,
-          "N(S): %u", pntohl(&pd[SSCOP_N_S]) & 0xFFFFFF);
+      proto_tree_add_text(sscop_tree, tvb, SSCOP_N_S + 1, 3,
+          "N(S): %u", tvb_get_ntohl(tvb, SSCOP_N_S) & 0xFFFFFF);
       break;
 
 #if 0
     case SSCOP_SDP:
 #endif
     case SSCOP_POLL:
-      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_N_PS + 1, 3,
-          "N(PS): %u", pntohl(&pd[SSCOP_N_PS]) & 0xFFFFFF);
-      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_N_S + 1, 3,
-          "N(S): %u", pntohl(&pd[SSCOP_N_S]) & 0xFFFFFF);
+      proto_tree_add_text(sscop_tree, tvb, SSCOP_N_PS + 1, 3,
+          "N(PS): %u", tvb_get_ntohl(tvb, SSCOP_N_PS) & 0xFFFFFF);
+      proto_tree_add_text(sscop_tree, tvb, SSCOP_N_S + 1, 3,
+          "N(S): %u", tvb_get_ntohl(tvb, SSCOP_N_S) & 0xFFFFFF);
       break;
 
     case SSCOP_STAT:
       /*
        * XXX - dissect the list elements....
        */
-      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_SS_N_PS + 1, 3,
-          "N(PS): %u", pntohl(&pd[SSCOP_SS_N_PS]) & 0xFFFFFF);
-      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_SS_N_MR + 1, 3,
-          "N(MR): %u", pntohl(&pd[SSCOP_SS_N_MR]) & 0xFFFFFF);
-      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_SS_N_R + 1, 3,
-          "N(R): %u", pntohl(&pd[SSCOP_SS_N_R]) & 0xFFFFFF);
+      proto_tree_add_text(sscop_tree, tvb, SSCOP_SS_N_PS + 1, 3,
+          "N(PS): %u", tvb_get_ntohl(tvb, SSCOP_SS_N_PS) & 0xFFFFFF);
+      proto_tree_add_text(sscop_tree, tvb, SSCOP_SS_N_MR + 1, 3,
+          "N(MR): %u", tvb_get_ntohl(tvb, SSCOP_SS_N_MR) & 0xFFFFFF);
+      proto_tree_add_text(sscop_tree, tvb, SSCOP_SS_N_R + 1, 3,
+          "N(R): %u", tvb_get_ntohl(tvb, SSCOP_SS_N_R) & 0xFFFFFF);
       break;
 
     case SSCOP_USTAT:
       /*
        * XXX - dissect the list elements....
        */
-      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_SS_N_MR + 1, 3,
-          "N(MR): %u", pntohl(&pd[SSCOP_SS_N_MR]) & 0xFFFFFF);
-      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_SS_N_R + 1, 3,
-          "N(R): %u", pntohl(&pd[SSCOP_SS_N_R]) & 0xFFFFFF);
+      proto_tree_add_text(sscop_tree, tvb, SSCOP_SS_N_MR + 1, 3,
+          "N(MR): %u", tvb_get_ntohl(tvb, SSCOP_SS_N_MR) & 0xFFFFFF);
+      proto_tree_add_text(sscop_tree, tvb, SSCOP_SS_N_R + 1, 3,
+          "N(R): %u", tvb_get_ntohl(tvb, SSCOP_SS_N_R) & 0xFFFFFF);
       break;
     }
   }
@@ -285,27 +283,32 @@ dissect_sscop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   case SSCOP_SDP:
 #endif
     if (tree) {
-      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_PDU_TYPE, 1,
+      proto_tree_add_text(sscop_tree, tvb, SSCOP_PDU_TYPE, 1,
 			"Pad length: %u", pad_len);
     }
 
     /*
      * Compute length of data in PDU - subtract the trailer length
-     * and the pad length.
+     * and the pad length from the reported length.
      */
-    pi.len -= (pdu_len + pad_len);
-    if (pi.len < pi.captured_len)
-      pi.captured_len = pi.len;
+    reported_length -= (pdu_len + pad_len);
 
     /*
      * XXX - if more than just Q.2931 uses SSCOP, we need to tell
      * SSCOP what dissector to use here.
      */
-    if (pi.len != 0) {
+    if (reported_length != 0) {
+      /*
+       * We know that we have all of the payload, because we know we have
+       * at least 4 bytes of data after the payload, i.e. the SSCOP trailer.
+       * Therefore, we know that the captured length of the payload is
+       * equal to the length of the payload.
+       */
+      next_tvb = tvb_new_subset(tvb, 0, reported_length, reported_length);
       if (pdu_type == SSCOP_SD)
-        dissect_q2931(pd, offset, fd, tree);
+        dissect_q2931(next_tvb, pinfo, tree);
       else
-        dissect_data(pd, offset, fd, tree);
+        dissect_data_tvb(next_tvb, pinfo, tree);
     }
     break;
   }

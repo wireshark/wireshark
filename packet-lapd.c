@@ -2,7 +2,7 @@
  * Routines for LAPD frame disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lapd.c,v 1.8 2000/05/19 23:06:09 gram Exp $
+ * $Id: packet-lapd.c,v 1.9 2000/05/29 08:57:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -91,6 +91,7 @@ dissect_lapd(const union wtap_pseudo_header *pseudo_header, const u_char *pd,
 	proto_item	*ti;
 	guint16		control;
 	int		lapd_header_len;
+	tvbuff_t	*new_tvb;
 
 	guint16	address, cr, sapi;
 
@@ -141,20 +142,21 @@ dissect_lapd(const union wtap_pseudo_header *pseudo_header, const u_char *pd,
 	    ett_lapd_control, is_response, TRUE);
 	lapd_header_len += XDLC_CONTROL_LEN(control, TRUE);
 
+	new_tvb = tvb_new_subset(pi.compat_top_tvb, lapd_header_len, -1, -1);
 	if (XDLC_IS_INFORMATION(control)) {
 		/* call next protocol */
 		switch (sapi) {
 
 		case LAPD_SAPI_Q931:
-			dissect_q931(pd, lapd_header_len, fd, tree);
+			dissect_q931(new_tvb, &pi, tree);
 			break;
 
 		default:
-			dissect_data(pd, lapd_header_len, fd, tree);
+			dissect_data_tvb(new_tvb, &pi, tree);
 			break;
 		}
 	} else
-		dissect_data(pd, lapd_header_len, fd, tree);
+		dissect_data_tvb(new_tvb, &pi, tree);
 }
 
 void

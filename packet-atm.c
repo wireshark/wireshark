@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.20 2000/05/19 23:06:08 gram Exp $
+ * $Id: packet-atm.c,v 1.21 2000/05/29 08:57:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -148,22 +148,22 @@ static const value_string le_control_lan_type_vals[] = {
 };
 
 static void
-dissect_le_client(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
+dissect_le_client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *ti;
   proto_tree *lane_tree;
 
   if (tree) {
-    ti = proto_tree_add_protocol_format(tree, proto_atm_lane, NullTVB, offset, 2, "ATM LANE");
+    ti = proto_tree_add_protocol_format(tree, proto_atm_lane, tvb, 0, 2, "ATM LANE");
     lane_tree = proto_item_add_subtree(ti, ett_atm_lane);
 
-    proto_tree_add_text(lane_tree, NullTVB, offset, 2, "LE Client: 0x%04X",
-			pntohs(&pd[offset]));
+    proto_tree_add_text(lane_tree, tvb, 0, 2, "LE Client: 0x%04X",
+			tvb_get_ntohs(tvb, 0));
   }
 }
 
 static void
-dissect_lan_destination(const u_char *pd, int offset, const char *type, proto_tree *tree) 
+dissect_lan_destination(tvbuff_t *tvb, int offset, const char *type, proto_tree *tree) 
 {
   proto_item *td;
   proto_tree *dest_tree;
@@ -172,11 +172,11 @@ dissect_lan_destination(const u_char *pd, int offset, const char *type, proto_tr
   proto_tree *rd_tree;
   guint16 route_descriptor;
 
-  td = proto_tree_add_text(tree, NullTVB, offset, 8, "%s LAN destination",
+  td = proto_tree_add_text(tree, tvb, offset, 8, "%s LAN destination",
     			type);
   dest_tree = proto_item_add_subtree(td, ett_atm_lane_lc_lan_dest);
-  tag = pntohs(&pd[offset]);
-  proto_tree_add_text(dest_tree, NullTVB, offset, 2, "Tag: %s",
+  tag = tvb_get_ntohs(tvb, offset);
+  proto_tree_add_text(dest_tree, tvb, offset, 2, "Tag: %s",
 	val_to_str(tag, le_control_landest_tag_vals,
 				"Unknown (0x%04X)"));
   offset += 2;
@@ -184,20 +184,20 @@ dissect_lan_destination(const u_char *pd, int offset, const char *type, proto_tr
   switch (tag) {
 
   case TAG_MAC_ADDRESS:
-    proto_tree_add_text(dest_tree, NullTVB, offset, 6, "MAC address: %s",
-			ether_to_str((u_char *)&pd[offset]));
+    proto_tree_add_text(dest_tree, tvb, offset, 6, "MAC address: %s",
+			ether_to_str(tvb_get_ptr(tvb, offset, 6)));
     break;
 
   case TAG_ROUTE_DESCRIPTOR:
     offset += 4;
-    route_descriptor = pntohs(&pd[offset]);
-    trd = proto_tree_add_text(dest_tree, NullTVB, offset, 2, "Route descriptor: 0x%02X",
+    route_descriptor = tvb_get_ntohs(tvb, offset);
+    trd = proto_tree_add_text(dest_tree, tvb, offset, 2, "Route descriptor: 0x%02X",
     			route_descriptor);
     rd_tree = proto_item_add_subtree(td, ett_atm_lane_lc_lan_dest_rd);
-    proto_tree_add_text(rd_tree, NullTVB, offset, 2,
+    proto_tree_add_text(rd_tree, tvb, offset, 2,
 	    decode_numeric_bitfield(route_descriptor, 0xFFF0, 2*8,
 			"LAN ID = %u"));
-    proto_tree_add_text(rd_tree, NullTVB, offset, 2,
+    proto_tree_add_text(rd_tree, tvb, offset, 2,
 	    decode_numeric_bitfield(route_descriptor, 0x000F, 2*8,
 			"Bridge number = %u"));
     break;
@@ -245,10 +245,11 @@ static const value_string le_tlv_type_vals[] = {
 };
 
 static void
-dissect_le_control(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
+dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *ti;
   proto_tree *lane_tree;
+  int offset = 0;
   proto_item *tf;
   proto_tree *flags_tree;
   proto_item *ttlv;
@@ -259,27 +260,27 @@ dissect_le_control(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
   guint32 tlv_type;
   guint8 tlv_length;
 
-  if (check_col(fd, COL_INFO))
-    col_add_str(fd, COL_INFO, "LE Control");
+  if (check_col(pinfo->fd, COL_INFO))
+    col_add_str(pinfo->fd, COL_INFO, "LE Control");
 
   if (tree) {
-    ti = proto_tree_add_protocol_format(tree, proto_atm_lane, NullTVB, offset, 108, "ATM LANE");
+    ti = proto_tree_add_protocol_format(tree, proto_atm_lane, tvb, offset, 108, "ATM LANE");
     lane_tree = proto_item_add_subtree(ti, ett_atm_lane);
 
-    proto_tree_add_text(lane_tree, NullTVB, offset, 2, "Marker: 0x%04X",
-			pntohs(&pd[offset]));
+    proto_tree_add_text(lane_tree, tvb, offset, 2, "Marker: 0x%04X",
+			tvb_get_ntohs(tvb, offset));
     offset += 2;
 
-    proto_tree_add_text(lane_tree, NullTVB, offset, 1, "Protocol: 0x%02X",
-			pd[offset]);
+    proto_tree_add_text(lane_tree, tvb, offset, 1, "Protocol: 0x%02X",
+			tvb_get_guint8(tvb, offset));
     offset += 1;
 
-    proto_tree_add_text(lane_tree, NullTVB, offset, 1, "Version: 0x%02X",
-			pd[offset]);
+    proto_tree_add_text(lane_tree, tvb, offset, 1, "Version: 0x%02X",
+			tvb_get_guint8(tvb, offset));
     offset += 1;
 
-    opcode = pntohs(&pd[offset]);
-    proto_tree_add_text(lane_tree, NullTVB, offset, 2, "Opcode: %s",
+    opcode = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_text(lane_tree, tvb, offset, 2, "Opcode: %s",
 	val_to_str(opcode, le_control_opcode_vals,
 				"Unknown (0x%04X)"));
     offset += 2;
@@ -291,80 +292,80 @@ dissect_le_control(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 
     if (opcode & 0x0100) {
       /* Response; decode status. */
-      proto_tree_add_text(lane_tree, NullTVB, offset, 2, "Status: %s",
-	val_to_str(pntohs(&pd[offset]), le_control_status_vals,
+      proto_tree_add_text(lane_tree, tvb, offset, 2, "Status: %s",
+	val_to_str(tvb_get_ntohs(tvb, offset), le_control_status_vals,
 				"Unknown (0x%04X)"));
     }
     offset += 2;
 
-    proto_tree_add_text(lane_tree, NullTVB, offset, 4, "Transaction ID: 0x%08X",
-    			pntohl(&pd[offset]));
+    proto_tree_add_text(lane_tree, tvb, offset, 4, "Transaction ID: 0x%08X",
+			tvb_get_ntohl(tvb, offset));
     offset += 4;
 
-    proto_tree_add_text(lane_tree, NullTVB, offset, 2, "Requester LECID: 0x%04X",
-    			pntohs(&pd[offset]));
+    proto_tree_add_text(lane_tree, tvb, offset, 2, "Requester LECID: 0x%04X",
+			tvb_get_ntohs(tvb, offset));
     offset += 2;
 
-    flags = pntohs(&pd[offset]);
-    tf = proto_tree_add_text(lane_tree, NullTVB, offset, 2, "Flags: 0x%04X",
-    			pntohs(&pd[offset]));
+    flags = tvb_get_ntohs(tvb, offset);
+    tf = proto_tree_add_text(lane_tree, tvb, offset, 2, "Flags: 0x%04X",
+			flags);
     flags_tree = proto_item_add_subtree(tf, ett_atm_lane_lc_flags);
-    proto_tree_add_text(flags_tree, NullTVB, offset, 2, "%s",
+    proto_tree_add_text(flags_tree, tvb, offset, 2, "%s",
 	decode_boolean_bitfield(flags, 0x0001, 8*2,
 				"Remote address", "Local address"));
-    proto_tree_add_text(flags_tree, NullTVB, offset, 2, "%s",
+    proto_tree_add_text(flags_tree, tvb, offset, 2, "%s",
 	decode_boolean_bitfield(flags, 0x0080, 8*2,
 				"Proxy", "Not proxy"));
-    proto_tree_add_text(flags_tree, NullTVB, offset, 2, "%s",
+    proto_tree_add_text(flags_tree, tvb, offset, 2, "%s",
 	decode_boolean_bitfield(flags, 0x0100, 8*2,
 				"Topology change", "No topology change"));
     offset += 2;
 
-    dissect_lan_destination(pd, offset, "Source", lane_tree);
+    dissect_lan_destination(tvb, offset, "Source", lane_tree);
     offset += 8;
 
-    dissect_lan_destination(pd, offset, "Target", lane_tree);
+    dissect_lan_destination(tvb, offset, "Target", lane_tree);
     offset += 8;
 
-    proto_tree_add_text(lane_tree, NullTVB, offset, 20, "Source ATM Address: %s",
-    			bytes_to_str(&pd[offset], 20));
+    proto_tree_add_text(lane_tree, tvb, offset, 20, "Source ATM Address: %s",
+			bytes_to_str(tvb_get_ptr(tvb, offset, 20), 20));
     offset += 20;
 
-    proto_tree_add_text(lane_tree, NullTVB, offset, 1, "LAN type: %s",
-	val_to_str(pd[offset], le_control_lan_type_vals,
+    proto_tree_add_text(lane_tree, tvb, offset, 1, "LAN type: %s",
+	val_to_str(tvb_get_guint8(tvb, offset), le_control_lan_type_vals,
 				"Unknown (0x%02X)"));
     offset += 1;
 
-    proto_tree_add_text(lane_tree, NullTVB, offset, 1, "Maximum frame size: %u",
-			pd[offset]);
+    proto_tree_add_text(lane_tree, tvb, offset, 1, "Maximum frame size: %u",
+			tvb_get_guint8(tvb, offset));
     offset += 1;
 
-    num_tlvs = pd[offset];
-    proto_tree_add_text(lane_tree, NullTVB, offset, 1, "Number of TLVs: %u",
+    num_tlvs = tvb_get_guint8(tvb, offset);
+    proto_tree_add_text(lane_tree, tvb, offset, 1, "Number of TLVs: %u",
 			num_tlvs);
     offset += 1;
 
-    proto_tree_add_text(lane_tree, NullTVB, offset, 1, "ELAN name size: %u",
-			pd[offset]);
+    proto_tree_add_text(lane_tree, tvb, offset, 1, "ELAN name size: %u",
+			tvb_get_guint8(tvb, offset));
     offset += 1;
 
-    proto_tree_add_text(lane_tree, NullTVB, offset, 20, "Target ATM Address: %s",
-    			bytes_to_str(&pd[offset], 20));
+    proto_tree_add_text(lane_tree, tvb, offset, 20, "Target ATM Address: %s",
+			bytes_to_str(tvb_get_ptr(tvb, offset, 20), 20));
     offset += 20;
 
-    proto_tree_add_text(lane_tree, NullTVB, offset, 32, "ELAN name: %s",
-    			bytes_to_str(&pd[offset], 32));
+    proto_tree_add_text(lane_tree, tvb, offset, 32, "ELAN name: %s",
+			bytes_to_str(tvb_get_ptr(tvb, offset, 32), 32));
     offset += 32;
 
     while (num_tlvs != 0) {
-      tlv_type = pntohl(&pd[offset]);
-      tlv_length = pd[offset+4];
-      ttlv = proto_tree_add_text(lane_tree, NullTVB, offset, 5+tlv_length, "TLV type: %s",
+      tlv_type = tvb_get_ntohl(tvb, offset);
+      tlv_length = tvb_get_guint8(tvb, offset+4);
+      ttlv = proto_tree_add_text(lane_tree, tvb, offset, 5+tlv_length, "TLV type: %s",
 	val_to_str(tlv_type, le_tlv_type_vals, "Unknown (0x%08x)"));
       tlv_tree = proto_item_add_subtree(ttlv, ett_atm_lane_lc_tlv);
-      proto_tree_add_text(tlv_tree, NullTVB, offset, 4, "TLV Type: %s",
+      proto_tree_add_text(tlv_tree, tvb, offset, 4, "TLV Type: %s",
 	val_to_str(tlv_type, le_tlv_type_vals, "Unknown (0x%08x)"));
-      proto_tree_add_text(tlv_tree, NullTVB, offset+4, 1, "TLV Length: %u", tlv_length);
+      proto_tree_add_text(tlv_tree, tvb, offset+4, 1, "TLV Length: %u", tlv_length);
       offset += 5+tlv_length;
       num_tlvs--;
     }
@@ -372,47 +373,47 @@ dissect_le_control(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 }
 
 static void
-dissect_lane(const union wtap_pseudo_header *pseudo_header, const u_char *pd,
-		int offset, frame_data *fd, proto_tree *tree) 
+dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
 {
   tvbuff_t	*next_tvb;
   tvbuff_t	*next_tvb_le_client;
 
+  pinfo->current_proto = "ATM LANE";
 
-  if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "ATM LANE");
-  if (check_col(fd, COL_INFO))
-    col_add_str(fd, COL_INFO, "ATM LANE");
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_add_str(pinfo->fd, COL_PROTOCOL, "ATM LANE");
+  if (check_col(pinfo->fd, COL_INFO))
+    col_add_str(pinfo->fd, COL_INFO, "ATM LANE");
 
   /* Is it LE Control, 802.3, 802.5, or "none of the above"? */
-  switch (pseudo_header->ngsniffer_atm.AppHLType) {
+  switch (pinfo->pseudo_header->ngsniffer_atm.AppHLType) {
 
   case AHLT_LANE_LE_CTRL:
-    dissect_le_control(pd, offset, fd, tree);
+    dissect_le_control(tvb, pinfo, tree);
     break;
 
   case AHLT_LANE_802_3:
   case AHLT_LANE_802_3_MC:
-    dissect_le_client(pd, offset, fd, tree);
+    dissect_le_client(tvb, pinfo, tree);
 
     /* Dissect as Ethernet */
-    next_tvb_le_client	= tvb_new_subset(pi.compat_top_tvb, offset+2, -1, -1);
-    dissect_eth(next_tvb_le_client, &pi, tree);
+    next_tvb_le_client	= tvb_new_subset(tvb, 2, -1, -1);
+    dissect_eth(next_tvb_le_client, pinfo, tree);
     break;
 
   case AHLT_LANE_802_5:
   case AHLT_LANE_802_5_MC:
-    dissect_le_client(pd, offset, fd, tree);
+    dissect_le_client(tvb, pinfo, tree);
 
     /* Dissect as Token-Ring */
-    next_tvb_le_client	= tvb_new_subset(pi.compat_top_tvb, offset+2, -1, -1);
-    dissect_tr(next_tvb_le_client, &pi, tree);
+    next_tvb_le_client	= tvb_new_subset(tvb, 2, -1, -1);
+    dissect_tr(next_tvb_le_client, pinfo, tree);
     break;
 
   default:
     /* Dump it as raw data. */
-    next_tvb		= tvb_new_subset(pi.compat_top_tvb, offset,   -1, -1);
-    dissect_data_tvb(next_tvb, &pi, tree);
+    next_tvb		= tvb_new_subset(tvb, 0, -1, -1);
+    dissect_data_tvb(next_tvb, pinfo, tree);
     break;
   }
 }
@@ -485,21 +486,22 @@ static const value_string ipsilon_type_vals[] = {
  * We at least know it's AAL5....
  */
 static void
-atm_guess_content(union wtap_pseudo_header *pseudo_header, const u_char *pd,
-    frame_data *fd)
+atm_guess_content(tvbuff_t *tvb, packet_info *pinfo)
 {
-	if (pseudo_header->ngsniffer_atm.Vpi == 0) {
+	guint8 byte0, byte1, byte2;
+
+	if (pinfo->pseudo_header->ngsniffer_atm.Vpi == 0) {
 		/*
 		 * Traffic on some PVCs with a VPI of 0 and certain
 		 * VCIs is of particular types.
 		 */
-		switch (pseudo_header->ngsniffer_atm.Vci) {
+		switch (pinfo->pseudo_header->ngsniffer_atm.Vci) {
 
 		case 5:
 			/*
 			 * Signalling AAL.
 			 */
-			pseudo_header->ngsniffer_atm.AppTrafType =
+			pinfo->pseudo_header->ngsniffer_atm.AppTrafType =
 			    ATT_AAL_SIGNALLING;
 			return;
 
@@ -507,7 +509,7 @@ atm_guess_content(union wtap_pseudo_header *pseudo_header, const u_char *pd,
 			/*
 			 * ILMI.
 			 */
-			pseudo_header->ngsniffer_atm.AppTrafType |=
+			pinfo->pseudo_header->ngsniffer_atm.AppTrafType |=
 			    ATT_HL_ILMI;
 			return;
 		}
@@ -517,22 +519,25 @@ atm_guess_content(union wtap_pseudo_header *pseudo_header, const u_char *pd,
 	 * OK, we can't tell what it is based on the VPI/VCI; try
 	 * guessing based on the contents.
 	 */
-	if (pd[0] == 0xaa && pd[1] == 0xaa && pd[2] == 0x03) {
+	byte0 = tvb_get_guint8(tvb, 0);
+	byte1 = tvb_get_guint8(tvb, 1);
+	byte2 = tvb_get_guint8(tvb, 2);
+	if (byte0 == 0xaa && byte1 == 0xaa && byte2 == 0x03) {
 		/*
 		 * Looks like a SNAP header; assume it's LLC multiplexed
 		 * RFC 1483 traffic.
 		 */
-		pseudo_header->ngsniffer_atm.AppTrafType |= ATT_HL_LLCMX;
+		pinfo->pseudo_header->ngsniffer_atm.AppTrafType |= ATT_HL_LLCMX;
 	} else {
 		/*
 		 * Assume it's LANE.
 		 */
-		pseudo_header->ngsniffer_atm.AppTrafType |= ATT_HL_LANE;
-		if (pd[0] == 0xff && pd[1] == 0x00) {
+		pinfo->pseudo_header->ngsniffer_atm.AppTrafType |= ATT_HL_LANE;
+		if (byte0 == 0xff && byte1 == 0x00) {
 			/*
 			 * Looks like LE Control traffic.
 			 */
-			pseudo_header->ngsniffer_atm.AppHLType =
+			pinfo->pseudo_header->ngsniffer_atm.AppHLType =
 			    AHLT_LANE_LE_CTRL;
 		} else {
 			/*
@@ -543,28 +548,29 @@ atm_guess_content(union wtap_pseudo_header *pseudo_header, const u_char *pd,
 			 * still be situations where the user has to
 			 * tell us.
 			 */
-			pseudo_header->ngsniffer_atm.AppHLType =
+			pinfo->pseudo_header->ngsniffer_atm.AppHLType =
 			    AHLT_LANE_802_3;
 		}
 	}
 }
 
 void
-dissect_atm(union wtap_pseudo_header *pseudo_header, const u_char *pd,
-		frame_data *fd, proto_tree *tree) 
+dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  int        offset = 0;
-  proto_tree *atm_tree;
-  proto_item *ti;
-  guint       aal_type;
-  guint       hl_type;
-  tvbuff_t*   next_tvb;
+  proto_tree   *atm_tree;
+  proto_item   *ti;
+  guint         aal_type;
+  guint         hl_type;
+  const guint8 *pd;
+  int           offset;
 
-  aal_type = pseudo_header->ngsniffer_atm.AppTrafType & ATT_AALTYPE;
-  hl_type = pseudo_header->ngsniffer_atm.AppTrafType & ATT_HLTYPE;
+  pinfo->current_proto = "ATM";
+
+  aal_type = pinfo->pseudo_header->ngsniffer_atm.AppTrafType & ATT_AALTYPE;
+  hl_type = pinfo->pseudo_header->ngsniffer_atm.AppTrafType & ATT_HLTYPE;
   if (aal_type == ATT_AAL5) {
     if (hl_type == ATT_HL_UNKNOWN ||
-	pseudo_header->ngsniffer_atm.AppHLType == AHLT_UNKNOWN) {
+	pinfo->pseudo_header->ngsniffer_atm.AppHLType == AHLT_UNKNOWN) {
       /*
        * The joys of a connection-oriented link layer; the type of
        * traffic may be implied by the connection on which it's
@@ -585,106 +591,106 @@ dissect_atm(union wtap_pseudo_header *pseudo_header, const u_char *pd,
        * by which the user can specify what sort of traffic is on a
        * particular circuit.
        */
-      atm_guess_content(pseudo_header, pd, fd);
+      atm_guess_content(tvb, pinfo);
 
       /*
        * OK, now get the AAL type and high-layer type again.
        */
-      aal_type = pseudo_header->ngsniffer_atm.AppTrafType & ATT_AALTYPE;
-      hl_type = pseudo_header->ngsniffer_atm.AppTrafType & ATT_HLTYPE;
+      aal_type = pinfo->pseudo_header->ngsniffer_atm.AppTrafType & ATT_AALTYPE;
+      hl_type = pinfo->pseudo_header->ngsniffer_atm.AppTrafType & ATT_HLTYPE;
     }
   }
 
-  if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "ATM");
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_add_str(pinfo->fd, COL_PROTOCOL, "ATM");
 
-  switch (pseudo_header->ngsniffer_atm.channel) {
+  switch (pinfo->pseudo_header->ngsniffer_atm.channel) {
 
   case 0:
     /* Traffic from DCE to DTE. */
-    if (check_col(fd, COL_RES_DL_DST))
-      col_add_str(fd, COL_RES_DL_DST, "DTE");
-    if (check_col(fd, COL_RES_DL_SRC))
-      col_add_str(fd, COL_RES_DL_SRC, "DCE");
+    if (check_col(pinfo->fd, COL_RES_DL_DST))
+      col_add_str(pinfo->fd, COL_RES_DL_DST, "DTE");
+    if (check_col(pinfo->fd, COL_RES_DL_SRC))
+      col_add_str(pinfo->fd, COL_RES_DL_SRC, "DCE");
     break;
 
   case 1:
     /* Traffic from DTE to DCE. */
-    if (check_col(fd, COL_RES_DL_DST))
-      col_add_str(fd, COL_RES_DL_DST, "DCE");
-    if (check_col(fd, COL_RES_DL_SRC))
-      col_add_str(fd, COL_RES_DL_SRC, "DTE");
+    if (check_col(pinfo->fd, COL_RES_DL_DST))
+      col_add_str(pinfo->fd, COL_RES_DL_DST, "DCE");
+    if (check_col(pinfo->fd, COL_RES_DL_SRC))
+      col_add_str(pinfo->fd, COL_RES_DL_SRC, "DTE");
     break;
   }
 
-  if (check_col(fd, COL_INFO)) {
+  if (check_col(pinfo->fd, COL_INFO)) {
     if (aal_type == ATT_AAL5) {
-      col_add_fstr(fd, COL_INFO, "AAL5 %s",
+      col_add_fstr(pinfo->fd, COL_INFO, "AAL5 %s",
 		val_to_str(hl_type, aal5_hltype_vals,
 				"Unknown traffic type (%x)"));
     } else {
-      col_add_str(fd, COL_INFO,
+      col_add_str(pinfo->fd, COL_INFO,
 		val_to_str(aal_type, aal_vals, "Unknown AAL (%x)"));
     }
   }
 
   if (tree) {
-    ti = proto_tree_add_protocol_format(tree, proto_atm, NullTVB, 0, 0, "ATM");
+    ti = proto_tree_add_protocol_format(tree, proto_atm, tvb, 0, 0, "ATM");
     atm_tree = proto_item_add_subtree(ti, ett_atm);
 
-    proto_tree_add_text(atm_tree, NullTVB, 0, 0, "AAL: %s",
+    proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL: %s",
 	val_to_str(aal_type, aal_vals, "Unknown AAL (%x)"));
     if (aal_type == ATT_AAL5) {
-      proto_tree_add_text(atm_tree, NullTVB, 0, 0, "Traffic type: %s",
+      proto_tree_add_text(atm_tree, tvb, 0, 0, "Traffic type: %s",
 	val_to_str(hl_type, aal5_hltype_vals, "Unknown AAL5 traffic type (%x)"));
       switch (hl_type) {
 
       case ATT_HL_LLCMX:
-        proto_tree_add_text(atm_tree, NullTVB, 0, 0, "LLC multiplexed traffic");
+        proto_tree_add_text(atm_tree, tvb, 0, 0, "LLC multiplexed traffic");
         break;
 
       case ATT_HL_VCMX:
-        proto_tree_add_text(atm_tree, NullTVB, 0, 0, "VC multiplexed traffic type: %s",
-		val_to_str(pseudo_header->ngsniffer_atm.AppHLType,
+        proto_tree_add_text(atm_tree, tvb, 0, 0, "VC multiplexed traffic type: %s",
+		val_to_str(pinfo->pseudo_header->ngsniffer_atm.AppHLType,
 			vcmx_type_vals, "Unknown VCMX traffic type (%x)"));
         break;
 
       case ATT_HL_LANE:
-        proto_tree_add_text(atm_tree, NullTVB, 0, 0, "LANE traffic type: %s",
-		val_to_str(pseudo_header->ngsniffer_atm.AppHLType,
+        proto_tree_add_text(atm_tree, tvb, 0, 0, "LANE traffic type: %s",
+		val_to_str(pinfo->pseudo_header->ngsniffer_atm.AppHLType,
 			lane_type_vals, "Unknown LANE traffic type (%x)"));
         break;
 
       case ATT_HL_IPSILON:
-        proto_tree_add_text(atm_tree, NullTVB, 0, 0, "Ipsilon traffic type: %s",
-		val_to_str(pseudo_header->ngsniffer_atm.AppHLType,
+        proto_tree_add_text(atm_tree, tvb, 0, 0, "Ipsilon traffic type: %s",
+		val_to_str(pinfo->pseudo_header->ngsniffer_atm.AppHLType,
 			ipsilon_type_vals, "Unknown Ipsilon traffic type (%x)"));
         break;
       }
     }
-    proto_tree_add_item(atm_tree, hf_atm_vpi, NullTVB, 0, 0,
-		pseudo_header->ngsniffer_atm.Vpi);
-    proto_tree_add_item(atm_tree, hf_atm_vci, NullTVB, 0, 0,
-		pseudo_header->ngsniffer_atm.Vci);
-    switch (pseudo_header->ngsniffer_atm.channel) {
+    proto_tree_add_item(atm_tree, hf_atm_vpi, tvb, 0, 0,
+		pinfo->pseudo_header->ngsniffer_atm.Vpi);
+    proto_tree_add_item(atm_tree, hf_atm_vci, tvb, 0, 0,
+		pinfo->pseudo_header->ngsniffer_atm.Vci);
+    switch (pinfo->pseudo_header->ngsniffer_atm.channel) {
 
     case 0:
       /* Traffic from DCE to DTE. */
-      proto_tree_add_text(atm_tree, NullTVB, 0, 0, "Channel: DCE->DTE");
+      proto_tree_add_text(atm_tree, tvb, 0, 0, "Channel: DCE->DTE");
       break;
 
     case 1:
       /* Traffic from DTE to DCE. */
-      proto_tree_add_text(atm_tree, NullTVB, 0, 0, "Channel: DTE->DCE");
+      proto_tree_add_text(atm_tree, tvb, 0, 0, "Channel: DTE->DCE");
       break;
 
     default:
       /* Sniffers shouldn't provide anything other than 0 or 1. */
-      proto_tree_add_text(atm_tree, NullTVB, 0, 0, "Channel: %u",
- 		pseudo_header->ngsniffer_atm.channel);
+      proto_tree_add_text(atm_tree, tvb, 0, 0, "Channel: %u",
+ 		pinfo->pseudo_header->ngsniffer_atm.channel);
       break;
     }
-    if (pseudo_header->ngsniffer_atm.cells != 0) {
+    if (pinfo->pseudo_header->ngsniffer_atm.cells != 0) {
       /*
        * If the cell count is 0, assume it means we don't know how
        * many cells it was.
@@ -696,15 +702,15 @@ dissect_atm(union wtap_pseudo_header *pseudo_header, const u_char *pd,
        * some other way of indicating whether we have the AAL5 trailer
        * information.
        */
-      proto_tree_add_text(atm_tree, NullTVB, 0, 0, "Cells: %u",
-		pseudo_header->ngsniffer_atm.cells);
+      proto_tree_add_text(atm_tree, tvb, 0, 0, "Cells: %u",
+		pinfo->pseudo_header->ngsniffer_atm.cells);
       if (aal_type == ATT_AAL5) {
-        proto_tree_add_text(atm_tree, NullTVB, 0, 0, "AAL5 U2U: %u",
-		pseudo_header->ngsniffer_atm.aal5t_u2u);
-        proto_tree_add_text(atm_tree, NullTVB, 0, 0, "AAL5 len: %u",
-		pseudo_header->ngsniffer_atm.aal5t_len);
-        proto_tree_add_text(atm_tree, NullTVB, 0, 0, "AAL5 checksum: 0x%08X",
-		pseudo_header->ngsniffer_atm.aal5t_chksum);
+        proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 U2U: %u",
+		pinfo->pseudo_header->ngsniffer_atm.aal5t_u2u);
+        proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 len: %u",
+		pinfo->pseudo_header->ngsniffer_atm.aal5t_len);
+        proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 checksum: 0x%08X",
+		pinfo->pseudo_header->ngsniffer_atm.aal5t_chksum);
       }
     }
   }
@@ -712,7 +718,7 @@ dissect_atm(union wtap_pseudo_header *pseudo_header, const u_char *pd,
   switch (aal_type) {
 
   case ATT_AAL_SIGNALLING:
-    dissect_sscop(pd, offset, fd, tree);
+    dissect_sscop(tvb, pinfo, tree);
     break;
 
   case ATT_AAL5:
@@ -720,24 +726,24 @@ dissect_atm(union wtap_pseudo_header *pseudo_header, const u_char *pd,
 
     case ATT_HL_LLCMX:
       /* Dissect as WTAP_ENCAP_ATM_RFC1483 */
-      /* The ATM iptrace capture that we have hows LLC at this point,
+      /* The ATM iptrace capture that we have shows LLC at this point,
        * so that's what I'm calling */
-      next_tvb = tvb_new_subset(pi.compat_top_tvb, offset, -1, -1);
-      dissect_llc(next_tvb, &pi, tree);
+      dissect_llc(tvb, &pi, tree);
       break;
 
     case ATT_HL_LANE:
-      dissect_lane(pseudo_header, pd, offset, fd, tree);
+      dissect_lane(tvb, pinfo, tree);
       break;
 
     case ATT_HL_ILMI:
-      dissect_snmp_pdu(pd, offset, fd, tree, "ILMI", proto_ilmi, ett_ilmi);
+      tvb_compat(tvb, &pd, &offset);
+      dissect_snmp_pdu(pd, offset, pinfo->fd, tree, "ILMI", proto_ilmi, ett_ilmi);
       break;
 
     default:
       if (tree) {
         /* Dump it as raw data. */
-        dissect_data(pd, offset, fd, tree);
+        dissect_data_tvb(tvb, pinfo, tree);
         break;
       }
     }
@@ -746,7 +752,7 @@ dissect_atm(union wtap_pseudo_header *pseudo_header, const u_char *pd,
   default:
     if (tree) {
       /* Dump it as raw data.  (Is this a single cell?) */
-      dissect_data(pd, offset, fd, tree);
+      dissect_data_tvb(tvb, pinfo, tree);
     }
     break;
   }

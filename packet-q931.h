@@ -2,7 +2,7 @@
  * Declarations of exported routines for Q.931 and Q.2931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.h,v 1.2 2000/02/15 21:02:56 gram Exp $
+ * $Id: packet-q931.h,v 1.3 2000/05/29 08:57:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -24,13 +24,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-void dissect_q931(const u_char *, int, frame_data *, proto_tree *);
+void dissect_q931(tvbuff_t *, packet_info *, proto_tree *);
 
-extern void dissect_q931_bearer_capability_ie(const u_char *, int, int,
+extern void dissect_q931_bearer_capability_ie(tvbuff_t *, int, int,
     proto_tree *);
 
-extern void dissect_q931_high_layer_compat_ie(const u_char *, int, int,
+extern void dissect_q931_high_layer_compat_ie(tvbuff_t *, int, int,
     proto_tree *);
 
-extern void dissect_q931_progress_indicator_ie(const u_char *, int, int,
+extern void dissect_q931_progress_indicator_ie(tvbuff_t *, int, int,
     proto_tree *);
