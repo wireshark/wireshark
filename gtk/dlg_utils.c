@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.24 2004/03/29 22:55:13 guy Exp $
+ * $Id: dlg_utils.c,v 1.25 2004/03/29 23:03:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -328,24 +328,28 @@ file_selection_new(const gchar *title, file_selection_action_t action)
 {
   GtkWidget *win;
   GtkFileChooserAction gtk_action;
+  const gchar *ok_button_text;
 
   switch (action) {
 
   case FILE_SELECTION_OPEN:
     gtk_action = GTK_FILE_CHOOSER_ACTION_OPEN;
+    ok_button_text = GTK_STOCK_OPEN;
     break;
 
   case FILE_SELECTION_SAVE:
     gtk_action = GTK_FILE_CHOOSER_ACTION_SAVE;
+    ok_button_text = GTK_STOCK_SAVE;
     break;
 
   default:
     g_assert_not_reached();
     gtk_action = -1;
+    ok_button_text = NULL;
     break;
   }
   win = gtk_file_chooser_dialog_new(title, GTK_WINDOW(top_level), gtk_action,
-                                    GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                                    ok_button_text, GTK_RESPONSE_ACCEPT,
                                     GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
                                     NULL);
   gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);
