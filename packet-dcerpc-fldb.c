@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz file/flserver/fldb_proc.idl
  *
- * $Id: packet-dcerpc-fldb.c,v 1.6 2004/02/18 06:08:29 guy Exp $
+ * $Id: packet-dcerpc-fldb.c,v 1.7 2004/02/21 04:55:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1112,10 +1112,8 @@ fldb_dissect_getsiteinfo_resp (tvbuff_t * tvb, int offset,
 			       packet_info * pinfo, proto_tree * tree,
 			       guint8 * drep)
 {
+
   dcerpc_info *di;
-
-
-  gint buff_remaining = 0;
   const guint8 *namestring;
   e_uuid_t owner, objid;
   guint32 creationquota, creationuses, deletedflag, spare2, spare3, spare4,
@@ -1148,31 +1146,13 @@ fldb_dissect_getsiteinfo_resp (tvbuff_t * tvb, int offset,
 
   offset += 48;			/* part of kerbprin before name... */
 
-  buff_remaining = tvb_length_remaining (tvb, offset);
-  buff_remaining -= 64;		/* size of values left to read. */
+  proto_tree_add_string (tree, hf_fldb_namestring, tvb, offset, hf_fldb_namestring_size, tvb_get_ptr (tvb, offset, 64));
+  namestring = tvb_get_ptr (tvb, offset, 64);
+  offset += 64;
+  if (check_col (pinfo->cinfo, COL_INFO))
+    col_append_fstr (pinfo->cinfo, COL_INFO, " %s", namestring);
 
-  if (buff_remaining < 254)
-    {
-      proto_tree_add_string (tree, hf_fldb_namestring, tvb, offset,
-			     hf_fldb_namestring_size, tvb_get_ptr (tvb,
-								   offset,
-								   buff_remaining));
-      namestring = tvb_get_ptr (tvb, offset, buff_remaining);
-      offset += buff_remaining;
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_fstr (pinfo->cinfo, COL_INFO, " %s", namestring);
-    }
-  else
-    {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_fstr (pinfo->cinfo, COL_INFO,
-			 " :FIXME!: Invalid string length of  %u",
-			 buff_remaining);
-    }
-
-  offset =
-    dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep, hf_fldb_uuid_owner,
-			&owner);
+  offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep, hf_fldb_uuid_owner, &owner);
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO,
 		     " Owner - %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
@@ -1191,8 +1171,6 @@ fldb_dissect_getsiteinfo_resp (tvbuff_t * tvb, int offset,
 		     objid.Data4[1], objid.Data4[2], objid.Data4[3],
 		     objid.Data4[4], objid.Data4[5], objid.Data4[6],
 		     objid.Data4[7]);
-
-
 
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fldb_creationquota,
@@ -2078,10 +2056,10 @@ proto_register_fldb (void)
      {"nextstartp", "fldb.nextstartp", FT_UINT32, BASE_DEC, NULL, 0x0, "",
       HFILL}},
     {&hf_fldb_afsNameString_t_principalName_size,
-     {"Principal Name Size", "fldb.principalName_size", FT_UINT32, BASE_HEX,
+     {"Principal Name Size", "fldb.principalName_size", FT_UINT32, BASE_DEC,
       NULL, 0x0, "", HFILL}},
     {&hf_fldb_afsNameString_t_principalName_size2,
-     {"Principal Name Size2", "fldb.principalName_size2", FT_UINT32, BASE_HEX,
+     {"Principal Name Size2", "fldb.principalName_size2", FT_UINT32, BASE_DEC,
       NULL, 0x0, "", HFILL}},
     {&hf_fldb_afsNameString_t_principalName_string,
      {"Principal Name", "fldb.NameString_principal", FT_STRING, BASE_NONE,
