@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.48 2000/02/09 17:15:47 gram Exp $
+ * $Id: packet-udp.c,v 1.49 2000/02/09 19:09:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -305,7 +305,6 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       udp_hash_add(MAX(uh_sport, uh_dport), dissect_tftp);  /* Add to table */
       dissect_tftp(pd, offset, fd, tree);
   } else if (PORT_IS(UDP_PORT_TIME)) {
-      /* This is the first point of call, but it adds a dynamic call */
       dissect_time(pd, offset, fd, tree);
   } else if (PORT_IS(UDP_PORT_RADIUS) ||
 		PORT_IS(UDP_PORT_RADACCT) ||
