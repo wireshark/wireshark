@@ -3,7 +3,7 @@
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2001, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
  *
- * $Id: packet-nfs.c,v 1.61 2002/01/12 10:24:46 guy Exp $
+ * $Id: packet-nfs.c,v 1.62 2002/01/14 12:22:58 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6780,28 +6780,28 @@ proto_register_nfs(void)
 			NULL, 0, "nfs.count3_dircount", HFILL }},
 
 		{ &hf_nfs_fsstat3_resok_tbytes, {
-			"tbytes", "nfs.fsstat3_resok.tbytes", FT_UINT64, BASE_DEC,
-			NULL, 0, "nfs.fsstat3_resok.tbytes", HFILL }},
+			"Total bytes", "nfs.fsstat3_resok.tbytes", FT_UINT64, BASE_DEC,
+			NULL, 0, "Total bytes", HFILL }},
 
 		{ &hf_nfs_fsstat3_resok_fbytes, {
-			"fbytes", "nfs.fsstat3_resok.fbytes", FT_UINT64, BASE_DEC,
-			NULL, 0, "nfs.fsstat3_resok.fbytes", HFILL }},
+			"Free bytes", "nfs.fsstat3_resok.fbytes", FT_UINT64, BASE_DEC,
+			NULL, 0, "Free bytes", HFILL }},
 
 		{ &hf_nfs_fsstat3_resok_abytes, {
-			"abytes", "nfs.fsstat3_resok.abytes", FT_UINT64, BASE_DEC,
-			NULL, 0, "nfs.fsstat3_resok.abytes", HFILL }},
+			"Available free bytes", "nfs.fsstat3_resok.abytes", FT_UINT64, BASE_DEC,
+			NULL, 0, "Available free bytes", HFILL }},
 
 		{ &hf_nfs_fsstat3_resok_tfiles, {
-			"tfiles", "nfs.fsstat3_resok.tfiles", FT_UINT64, BASE_DEC,
-			NULL, 0, "nfs.fsstat3_resok.tfiles", HFILL }},
+			"Total file slots", "nfs.fsstat3_resok.tfiles", FT_UINT64, BASE_DEC,
+			NULL, 0, "Total file slots", HFILL }},
 
 		{ &hf_nfs_fsstat3_resok_ffiles, {
-			"ffiles", "nfs.fsstat3_resok.ffiles", FT_UINT64, BASE_DEC,
-			NULL, 0, "nfs.fsstat3_resok.ffiles", HFILL }},
+			"Free file slots", "nfs.fsstat3_resok.ffiles", FT_UINT64, BASE_DEC,
+			NULL, 0, "Free file slots", HFILL }},
 
 		{ &hf_nfs_fsstat3_resok_afiles, {
-			"afiles", "nfs.fsstat3_resok.afiles", FT_UINT64, BASE_DEC,
-			NULL, 0, "nfs.fsstat3_resok.afiles", HFILL }},
+			"Available free file slots", "nfs.fsstat3_resok.afiles", FT_UINT64, BASE_DEC,
+			NULL, 0, "Available free file slots", HFILL }},
 
 		/* NFSv4 */
 
