@@ -1,10 +1,10 @@
 /* packet-giop.h
- * Declarations of outines for GIOP (CDR) dissection
+ * Declaration of routines for GIOP/IIOP (CDR) dissection
  * Copyright 2000, Frank Singleton <frank.singleton@ericsson.com>
  *
  * Based on CORBAv2.4.2  Chapter 15 GIOP Description.
  *
- * $Id: packet-giop.h,v 1.5 2001/06/29 20:49:29 guy Exp $
+ * $Id: packet-giop.h,v 1.6 2001/08/03 20:51:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
