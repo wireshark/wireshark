@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.43 2002/10/19 01:05:44 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.44 2002/10/19 20:28:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3165,7 +3165,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                                         case 0x00000001:                /* Information Flags */
                                                                 temp_values.vvalue = tvb_get_letohs(tvb, ioffset);
                                                                 temp_values.vtype = VTYPE_BITFIELD;
-                                                                temp_values.vstring = "";
+                                                                temp_values.vstring = mval_buf.buffer;
                                                                 temp_values.vdesc = "Information Flags (low) Byte:";
                                                                 temp_values.vlength = 2;
                                                                 temp_values.hfname= hf_nds_rflags;
@@ -3206,7 +3206,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                                                 ioffset = ioffset+2;
                                                                 temp_values.vvalue = tvb_get_letohs(tvb, ioffset);
                                                                 temp_values.vtype = VTYPE_BITFIELD;
-                                                                temp_values.vstring = "";
+                                                                temp_values.vstring = mval_buf.buffer;
                                                                 temp_values.vdesc = "Information Flags (high) Byte:";
                                                                 temp_values.vlength = 2;
                                                                 temp_values.hfname= hf_nds_rflags;
@@ -3255,7 +3255,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                                         case 0x00000004:                /* Entry Flags */
                                                                 temp_values.vvalue = tvb_get_letohl(tvb, ioffset);
                                                                 temp_values.vtype = VTYPE_BITFIELD;
-                                                                temp_values.vstring = "";
+                                                                temp_values.vstring = mval_buf.buffer;
                                                                 temp_values.vdesc = "Entry Flags:";
                                                                 temp_values.vlength = 2;
                                                                 temp_values.hfname= hf_nds_eflags;
@@ -3470,7 +3470,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                 {
                                         temp_values.vvalue = tvb_get_letohl(tvb, ioffset);
                                         temp_values.vtype = VTYPE_BITFIELD;
-                                        temp_values.vstring = "";
+                                        temp_values.vstring = mval_buf.buffer;
                                         temp_values.vdesc = "Class Flags:";
                                         temp_values.vlength = 2;
                                         temp_values.hfname= hf_nds_cflags;
@@ -4237,6 +4237,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
         char *                          nds_error_string = NULL;
         guint32                         nds_frag=0;
 	nds_val				pvalues[9];
+	char				string_buffer[9][1024];
         gboolean                        resolve_eid=FALSE;
         guint32                         global_eid=0;
         gboolean                        add_eid = FALSE;
@@ -4429,7 +4430,9 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 						pvalues[i].voffset = 0;
 						pvalues[i].hfname = 0;
 						pvalues[i].vdesc = "";
-						pvalues[i].vstring = "";
+						string_buffer[i][0] = '\0';
+						pvalues[i].vstring = string_buffer[i];
+						pvalues[i].mvtype = 0;
 					}
                                         switch (request_value->nds_request_verb)
                                         {
@@ -4455,7 +4458,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 break;
                                                                         case 1:         /* Local Entry */
                                                                                 pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                                                pvalues[1].vstring = "";
                                                                                 pvalues[1].vtype = VTYPE_UINT32;
                                                                                 pvalues[1].vdesc = "Entry ID: 0x%08x";
                                                                                 add_eid = TRUE;
@@ -4467,7 +4469,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 nds_offset = nds_offset+pvalues[1].vlength;
                                                                                 pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                                 pvalues[2].vtype = VTYPE_MULTIVALUE_UINT32;
-                                                                                pvalues[2].vstring = "";
                                                                                 pvalues[2].vdesc = "Referral Records: %u";
                                                                                 pvalues[2].vlength = 4;
                                                                                 pvalues[2].voffset = nds_offset;
@@ -4477,7 +4478,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                         case 2:         /* Remote Entry */
                                                                                 nds_offset += 4;   /* GUINT32 reserved field */
                                                                                 pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                                                pvalues[1].vstring = "";
                                                                                 pvalues[1].vtype = VTYPE_UINT32;
                                                                                 pvalues[1].vdesc = "Entry ID: 0x%08x";
                                                                                 add_eid = TRUE;
@@ -4489,7 +4489,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 nds_offset = nds_offset+pvalues[1].vlength;
                                                                                 pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                                 pvalues[2].vtype = VTYPE_MULTIVALUE_UINT32;
-                                                                                pvalues[2].vstring = "";
                                                                                 pvalues[2].vdesc = "Referral Records: %u";
                                                                                 pvalues[2].vlength = 4;
                                                                                 pvalues[2].voffset = nds_offset;
@@ -4499,7 +4498,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                         case 3:         /* Alias Entry */
                                                                                 pvalues[1].vtype = VTYPE_STRING;
                                                                                 pvalues[1].vdesc = "Alias Name: %s";
-                                                                                pvalues[1].vstring = "";
                                                                                 pvalues[1].mvtype = MVTYPE_ATTR_REQUEST;
                                                                                 pvalues[1].vvalue = 0;
                                                                                 pvalues[1].vlength = 256;
@@ -4518,7 +4516,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 break;
                                                                         case 4:         /* Referral Information */
                                                                                 pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                                                pvalues[1].vstring = "";
                                                                                 pvalues[1].vtype = VTYPE_UINT32;
                                                                                 pvalues[1].vdesc = "Distance Object is From Root: 0x%08x";
                                                                                 pvalues[1].vlength = 4;
@@ -4527,7 +4524,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 nds_offset = nds_offset+pvalues[1].vlength;
                                                                                 pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                                 pvalues[2].vtype = VTYPE_MULTIVALUE_UINT32;
-                                                                                pvalues[2].vstring = "";
                                                                                 pvalues[2].vdesc = "Referral Records: %u";
                                                                                 pvalues[2].vlength = 4;
                                                                                 pvalues[2].voffset = nds_offset;
@@ -4536,7 +4532,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 break;
                                                                         case 6:          /* Entry and Referrals */
                                                                                 pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                                                pvalues[1].vstring = "";
                                                                                 pvalues[1].vtype = VTYPE_UINT32;
                                                                                 pvalues[1].vdesc = "Result Flags: 0x%08x";
                                                                                 pvalues[1].vlength = 4;
@@ -4544,7 +4539,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 pvalues[1].hfname = hf_nds_result_flags;
                                                                                 nds_offset = nds_offset+pvalues[1].vlength;
                                                                                 pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                                                pvalues[2].vstring = "";
                                                                                 pvalues[2].vtype = VTYPE_UINT32;
                                                                                 pvalues[2].vdesc = "Entry ID: 0x%08x";
                                                                                 add_eid = TRUE;
@@ -4556,7 +4550,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 nds_offset = nds_offset+pvalues[2].vlength;
                                                                                 pvalues[3].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                                 pvalues[3].vtype = VTYPE_MULTIVALUE_UINT32;
-                                                                                pvalues[3].vstring = "";
                                                                                 pvalues[3].vdesc = "Referral Records: %u";
                                                                                 pvalues[3].vlength = 4;
                                                                                 pvalues[3].voffset = nds_offset;
@@ -4570,7 +4563,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         else
                                                         {
                                                                 pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                                pvalues[0].vstring = "";
                                                                 pvalues[0].vtype = VTYPE_UINT32;
                                                                 pvalues[0].vdesc = "CRC: 0x%08x";
                                                                 pvalues[0].vlength = 4;
@@ -4595,7 +4587,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 break;
                                                                         case 1:         /* Local Entry */
                                                                                 pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                                                pvalues[2].vstring = "";
                                                                                 pvalues[2].vtype = VTYPE_UINT32;
                                                                                 pvalues[2].vdesc = "Entry ID: 0x%08x";
                                                                                 add_eid = TRUE;
@@ -4607,7 +4598,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 nds_offset = nds_offset+pvalues[2].vlength;
                                                                                 pvalues[3].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                                 pvalues[3].vtype = VTYPE_MULTIVALUE_UINT32;
-                                                                                pvalues[3].vstring = "";
                                                                                 pvalues[3].vdesc = "Referral Records: %u";
                                                                                 pvalues[3].vlength = 4;
                                                                                 pvalues[3].voffset = nds_offset;
@@ -4617,7 +4607,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                         case 2:         /* Remote Entry */
                                                                                 nds_offset += 4;   /* GUINT32 reserved field */
                                                                                 pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                                                pvalues[2].vstring = "";
                                                                                 add_eid = TRUE;
                                                                                 global_eid = pvalues[2].vvalue;
                                                                                 global_object_name = request_value->object_name;
@@ -4629,7 +4618,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 nds_offset = nds_offset+pvalues[2].vlength;
                                                                                 pvalues[3].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                                 pvalues[3].vtype = VTYPE_MULTIVALUE_UINT32;
-                                                                                pvalues[3].vstring = "";
                                                                                 pvalues[3].vdesc = "Referral Records: %u";
                                                                                 pvalues[3].vlength = 4;
                                                                                 pvalues[3].voffset = nds_offset;
@@ -4639,7 +4627,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                         case 3:         /* Alias Entry */
                                                                                 pvalues[2].vtype = VTYPE_STRING;
                                                                                 pvalues[2].vdesc = "Alias Name: %s";
-                                                                                pvalues[2].vstring = "";
                                                                                 pvalues[2].mvtype = MVTYPE_ATTR_REQUEST;
                                                                                 pvalues[2].vvalue = 0;
                                                                                 pvalues[2].vlength = 256;
@@ -4658,7 +4645,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 break;
                                                                         case 4:         /* Referral Information */
                                                                                 pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                                                pvalues[2].vstring = "";
                                                                                 pvalues[2].vtype = VTYPE_UINT32;
                                                                                 pvalues[2].vdesc = "Distance Object is From Root: 0x%08x";
                                                                                 pvalues[2].vlength = 4;
@@ -4667,7 +4653,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 nds_offset = nds_offset+pvalues[2].vlength;
                                                                                 pvalues[3].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                                 pvalues[3].vtype = VTYPE_MULTIVALUE_UINT32;
-                                                                                pvalues[3].vstring = "";
                                                                                 pvalues[3].vdesc = "Referral Records: %u";
                                                                                 pvalues[3].vlength = 4;
                                                                                 pvalues[3].voffset = nds_offset;
@@ -4676,7 +4661,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 break;
                                                                         case 6:          /* Entry and Referrals */
                                                                                 pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                                                pvalues[2].vstring = "";
                                                                                 pvalues[2].vtype = VTYPE_UINT32;
                                                                                 pvalues[2].vdesc = "Result Flags: 0x%08x";
                                                                                 pvalues[2].vlength = 4;
@@ -4684,7 +4668,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 pvalues[2].hfname = hf_nds_result_flags;
                                                                                 nds_offset = nds_offset+pvalues[2].vlength;
                                                                                 pvalues[3].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                                                pvalues[3].vstring = "";
                                                                                 pvalues[3].vtype = VTYPE_UINT32;
                                                                                 pvalues[3].vdesc = "Entry ID: 0x%08x";
                                                                                 add_eid = TRUE;
@@ -4696,7 +4679,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 nds_offset = nds_offset+pvalues[3].vlength;
                                                                                 pvalues[4].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                                 pvalues[4].vtype = VTYPE_MULTIVALUE_UINT32;
-                                                                                pvalues[4].vstring = "";
                                                                                 pvalues[4].vdesc = "Referral Records: %u";
                                                                                 pvalues[4].vlength = 4;
                                                                                 pvalues[4].voffset = nds_offset;
@@ -4715,7 +4697,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         { 
                                                                 pvalues[0].vvalue = 1;
                                                                 pvalues[0].vtype = VTYPE_MULTIVALUE_UINT32;
-                                                                pvalues[0].vstring = "";
                                                                 pvalues[0].vdesc = "Entry Information";
                                                                 pvalues[0].vlength = 0;
                                                                 pvalues[0].voffset = nds_offset-4;
@@ -4726,7 +4707,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         else
                                                         {
                                                                 pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                                pvalues[0].vstring = "";
                                                                 pvalues[0].vtype = VTYPE_UINT32;
                                                                 pvalues[0].vdesc = "CRC: 0x%08x";
                                                                 pvalues[0].vlength = 4;
@@ -4735,7 +4715,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                 nds_offset = nds_offset+pvalues[0].vlength;
                                                                 pvalues[1].vvalue = 1;
                                                                 pvalues[1].vtype = VTYPE_MULTIVALUE_UINT32;
-                                                                pvalues[1].vstring = "";
                                                                 pvalues[1].vdesc = "Entry Information";
                                                                 pvalues[1].vlength = 0;
                                                                 pvalues[1].voffset = nds_offset-4;
@@ -4749,7 +4728,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         if(request_value->nds_version != 0x000000fe)
                                                         { 
                                                                 pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                                pvalues[0].vstring = "";
                                                                 pvalues[0].vtype = VTYPE_UINT32;
                                                                 pvalues[0].vdesc = "Iteration Handle: 0x%08x";
                                                                 pvalues[0].vlength = 4;
@@ -4770,7 +4748,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                 nds_offset = nds_offset+pvalues[1].vlength;
                                                                 pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                 pvalues[2].vtype = VTYPE_MULTIVALUE_UINT32;
-                                                                pvalues[2].vstring = "";
                                                                 pvalues[2].vdesc = "Number of Attributes: %u";
                                                                 pvalues[2].vlength = 4;
                                                                 pvalues[2].voffset = nds_offset;
@@ -4782,7 +4759,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         else
                                                         {
                                                                 pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                                pvalues[0].vstring = "";
                                                                 pvalues[0].vtype = VTYPE_UINT32;
                                                                 pvalues[0].vdesc = "CRC: 0x%08x";
                                                                 pvalues[0].vlength = 4;
@@ -4790,7 +4766,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                 pvalues[0].hfname = hf_nds_crc;
                                                                 nds_offset = nds_offset+pvalues[0].vlength;
                                                                 pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                                pvalues[1].vstring = "";
                                                                 pvalues[1].vtype = VTYPE_UINT32;
                                                                 pvalues[1].vdesc = "Iteration Handle: 0x%08x";
                                                                 pvalues[1].vlength = 4;
@@ -4811,7 +4786,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                 nds_offset = nds_offset+pvalues[2].vlength;
                                                                 pvalues[3].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                 pvalues[3].vtype = VTYPE_MULTIVALUE_UINT32;
-                                                                pvalues[3].vstring = "";
                                                                 pvalues[3].vdesc = "Number of Attributes: %u";
                                                                 pvalues[3].vlength = 4;
                                                                 pvalues[3].voffset = nds_offset;
@@ -4843,7 +4817,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                 case 0x05:    
                                                         verb_string = "List";
                                                         pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                        pvalues[0].vstring = "";
                                                         pvalues[0].vtype = VTYPE_UINT32;
                                                         pvalues[0].vdesc = "Iteration Handle: 0x%08x";
                                                         pvalues[0].vlength = 4;
@@ -4852,7 +4825,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         nds_offset = nds_offset+pvalues[0].vlength;
                                                         pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                         pvalues[1].vtype = VTYPE_MULTIVALUE_UINT32;
-                                                        pvalues[1].vstring = "";
                                                         pvalues[1].vdesc = "Entry Information";
                                                         pvalues[1].vlength = 0;
                                                         pvalues[1].voffset = nds_offset;
@@ -4890,7 +4862,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                 case 0x0f:    
                                                         verb_string = "Read Class Definition";
                                                         pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                        pvalues[0].vstring = "";
                                                         pvalues[0].vtype = VTYPE_UINT32;
                                                         pvalues[0].vdesc = "Iteration Handle: 0x%08x";
                                                         pvalues[0].vlength = 4;
@@ -4912,7 +4883,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         nds_offset = nds_offset + pvalues[1].vlength;
                                                         pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);;
                                                         pvalues[2].vtype = VTYPE_MULTIVALUE_UINT32;
-                                                        pvalues[2].vstring = "";
                                                         pvalues[2].vdesc = "Class Definitions %u";
                                                         pvalues[2].vlength = 0;
                                                         pvalues[2].voffset = nds_offset;
@@ -4929,7 +4899,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                 case 0x12:    
                                                         verb_string = "List Containable Classes";
                                                         pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                        pvalues[0].vstring = "";
                                                         pvalues[0].vtype = VTYPE_UINT32;
                                                         pvalues[0].vdesc = "Iteration Handle: 0x%08x";
                                                         pvalues[0].vlength = 4;
@@ -4938,7 +4907,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         nds_offset = nds_offset+pvalues[0].vlength;
                                                         pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                         pvalues[1].vtype = VTYPE_MULTIVALUE_UINT32;
-                                                        pvalues[1].vstring = "";
                                                         pvalues[1].vdesc = "Classes: %u";
                                                         pvalues[1].vlength = 4;
                                                         pvalues[1].voffset = nds_offset;
@@ -4947,7 +4915,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         break;
                                                 case 0x13:    
                                                         pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                        pvalues[0].vstring = "";
                                                         pvalues[0].vtype = VTYPE_UINT32;
                                                         pvalues[0].vdesc = "Privileges: 0x%08x";
                                                         pvalues[0].vlength = 4;
@@ -4964,7 +4931,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                 case 0x16:    
                                                         verb_string = "List Partitions";
                                                         pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                        pvalues[0].vstring = "";
                                                         pvalues[0].vtype = VTYPE_UINT32;
                                                         pvalues[0].vdesc = "Iteration Handle: 0x%08x";
                                                         pvalues[0].vlength = 4;
@@ -4973,7 +4939,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         nds_offset = nds_offset+pvalues[0].vlength;
                                                         pvalues[1].vtype = VTYPE_STRING;
                                                         pvalues[1].vdesc = "Server Distinguished Name: %s";
-                                                        pvalues[1].vstring = "";
                                                         pvalues[1].mvtype = MVTYPE_ATTR_REQUEST;
                                                         pvalues[1].vvalue = 0;
                                                         pvalues[1].vlength = 256;
@@ -4992,7 +4957,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         nds_offset += align_4(tvb, nds_offset);
                                                         pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                         pvalues[2].vtype = VTYPE_MULTIVALUE_UINT32;
-                                                        pvalues[2].vstring = "";
                                                         pvalues[2].vdesc = "Replicas: %u";
                                                         pvalues[2].vlength = 4;
                                                         pvalues[2].voffset = nds_offset;
@@ -5024,7 +4988,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                 case 0x1b:    
                                                         verb_string = "Open Stream";
                                                         pvalues[0].vvalue = tvb_get_ntohl(tvb, nds_offset);
-                                                        pvalues[0].vstring = "";
                                                         pvalues[0].vtype = VTYPE_UINT32;
                                                         pvalues[0].vdesc = "File Handle: 0x%08x";
                                                         pvalues[0].vlength = 4;
@@ -5032,7 +4995,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         pvalues[0].hfname = hf_nds_file_handle;
                                                         nds_offset = nds_offset+pvalues[0].vlength;
                                                         pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                        pvalues[1].vstring = "";
                                                         pvalues[1].vtype = VTYPE_UINT32;
                                                         pvalues[1].vdesc = "File Size: %u";
                                                         pvalues[1].vlength = 4;
@@ -5121,7 +5083,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         { 
                                                                 pvalues[0].vtype = VTYPE_STRING;
                                                                 pvalues[0].vdesc = "Distinguished Name: %s";
-                                                                pvalues[0].vstring = "";
                                                                 pvalues[0].mvtype = MVTYPE_ATTR_REQUEST;
                                                                 pvalues[0].vvalue = 0;
                                                                 pvalues[0].vlength = 256;
@@ -5139,7 +5100,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                 pvalues[0].hfname= hf_nds_name;
                                                                 pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                 pvalues[1].vtype = VTYPE_MULTIVALUE_UINT32;
-                                                                pvalues[1].vstring = "";
                                                                 pvalues[1].vdesc = "Referral Records: %u";
                                                                 pvalues[1].vlength = 4;
                                                                 pvalues[1].voffset = nds_offset;
@@ -5149,7 +5109,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         else
                                                         {
                                                                 pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                                pvalues[0].vstring = "";
                                                                 pvalues[0].vtype = VTYPE_UINT32;
                                                                 pvalues[0].vdesc = "Iteration Handle: 0x%08x";
                                                                 pvalues[0].vlength = 4;
@@ -5158,7 +5117,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                 nds_offset = nds_offset+pvalues[0].vlength;
                                                                 pvalues[1].vtype = VTYPE_STRING;
                                                                 pvalues[1].vdesc = "Distinguished Name: %s";
-                                                                pvalues[1].vstring = "";
                                                                 pvalues[1].mvtype = MVTYPE_ATTR_REQUEST;
                                                                 pvalues[1].vvalue = 0;
                                                                 pvalues[1].vlength = 256;
@@ -5176,7 +5134,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                 pvalues[1].hfname= hf_nds_name;
                                                                 pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                 pvalues[2].vtype = VTYPE_MULTIVALUE_UINT32;
-                                                                pvalues[2].vstring = "";
                                                                 pvalues[2].vdesc = "Referral Records: %u";
                                                                 pvalues[2].vlength = 4;
                                                                 pvalues[2].voffset = nds_offset;
@@ -5387,6 +5344,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
         char *                  verb_string = "";
         guint32                 nds_frag = 0;
         nds_val			pvalues[9];
+	char			string_buffer[9][1024];
         guint8                  nds_version = 0;
         guint32                 foffset = 0;
         guint32                 nds_reply_buffer;
@@ -5399,6 +5357,13 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
         
 	for (i = 0; i < 9; i++) {
 		pvalues[i].vtype = 0;
+		pvalues[i].vvalue = 0;
+		pvalues[i].vlength = 0;
+		pvalues[i].voffset = 0;
+		pvalues[i].hfname = 0;
+		pvalues[i].vdesc = "";
+		string_buffer[i][0] = '\0';
+		pvalues[i].vstring = string_buffer[i];
 		pvalues[i].mvtype = 0;
 	}
 
@@ -5435,7 +5400,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 verb_string = "Resolve Name -> ";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 nds_version = pvalues[0].vvalue;
-                                pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
                                 pvalues[0].vlength = 4;
@@ -5444,7 +5408,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[0].vlength;
                                 pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[1].vtype = VTYPE_BITFIELD;
-                                pvalues[1].vstring = "";
                                 pvalues[1].vdesc = "Flags:";
                                 pvalues[1].vlength = 2;
                                 pvalues[1].hfname= hf_nds_nflags;
@@ -5486,7 +5449,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 {
                                         pvalues[2].vtype = VTYPE_UINT32;
                                         pvalues[2].vdesc = "Scope: %u";
-                                        pvalues[2].vstring = "";
                                         pvalues[2].vlength = 4;
                                         pvalues[2].voffset = foffset;
                                         pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
@@ -5494,7 +5456,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         foffset = foffset+pvalues[2].vlength;
                                         pvalues[3].vtype = VTYPE_STRING;
                                         pvalues[3].vdesc = "Name: %s";
-                                        pvalues[3].vstring = "";
                                         pvalues[3].mvtype = MVTYPE_ATTR_REQUEST;
                                         pvalues[3].vvalue = 0;
                                         pvalues[3].vlength = 256;
@@ -5514,7 +5475,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         foffset += align_4(tvb, foffset);
                                         pvalues[4].vvalue = tvb_get_letohl(tvb, foffset);
                                         pvalues[4].vtype = VTYPE_MULTIVALUE_UINT32;
-                                        pvalues[4].vstring = "";
                                         pvalues[4].vdesc = "Communications Transports: %u";
                                         pvalues[4].vlength = 4;
                                         pvalues[4].hfname= hf_nds_comm_trans;
@@ -5523,7 +5483,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         foffset = foffset + (pvalues[4].vvalue * 4) + 4;
                                         pvalues[5].vvalue = tvb_get_letohl(tvb, foffset);
                                         pvalues[5].vtype = VTYPE_MULTIVALUE_UINT32;
-                                        pvalues[5].vstring = "";
                                         pvalues[5].vdesc = "Tree Walker Transport Type: %u";
                                         pvalues[5].vlength = 4;
                                         pvalues[5].mvtype = MVTYPE_ADDR_REFERRAL_REQUEST;
@@ -5534,7 +5493,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 {
                                         pvalues[2].vtype = VTYPE_UINT32;
                                         pvalues[2].vdesc = "Minimum DS Version: %u";
-                                        pvalues[2].vstring = "";
                                         pvalues[2].vlength = 4;
                                         pvalues[2].voffset = foffset;
                                         pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
@@ -5542,7 +5500,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         foffset = foffset+pvalues[2].vlength;
                                         pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
                                         pvalues[3].vtype = VTYPE_MULTIVALUE_UINT32;
-                                        pvalues[3].vstring = "";
                                         pvalues[3].vdesc = "Number of Versions to Include: %u";
                                         pvalues[3].vlength = 4;
                                         pvalues[3].mvtype = MVTYPE_ATTR_REQUEST2;
@@ -5551,7 +5508,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         foffset += (pvalues[3].vvalue * 4) + 4;
                                         pvalues[4].vvalue = tvb_get_letohl(tvb, foffset);
                                         pvalues[4].vtype = VTYPE_MULTIVALUE_UINT32;
-                                        pvalues[4].vstring = "";
                                         pvalues[4].vdesc = "Number of Versions to Exclude: %u";
                                         pvalues[4].vlength = 4;
                                         pvalues[4].mvtype = MVTYPE_ATTR_REQUEST2;
@@ -5560,7 +5516,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         foffset += 4;
                                         pvalues[5].vtype = VTYPE_UINT32;
                                         pvalues[5].vdesc = "DN Output Type: %u";
-                                        pvalues[5].vstring = "";
                                         pvalues[5].vlength = 4;
                                         pvalues[5].voffset = foffset;
                                         pvalues[5].vvalue = tvb_get_letohl(tvb, foffset);
@@ -5568,7 +5523,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         foffset = foffset+pvalues[5].vlength;
                                         pvalues[6].vtype = VTYPE_UINT32;
                                         pvalues[6].vdesc = "Nested Output Type: %u";
-                                        pvalues[6].vstring = "";
                                         pvalues[6].vlength = 4;
                                         pvalues[6].voffset = foffset;
                                         pvalues[6].vvalue = tvb_get_letohl(tvb, foffset);
@@ -5576,7 +5530,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         foffset = foffset+pvalues[6].vlength;
                                         pvalues[7].vtype = VTYPE_STRING;
                                         pvalues[7].vdesc = "Output Delimiter: %s";
-                                        pvalues[7].vstring = "";
                                         pvalues[7].mvtype = MVTYPE_ATTR_REQUEST;
                                         pvalues[7].vvalue = 0;
                                         pvalues[7].vlength = 256;
@@ -5590,7 +5543,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         foffset += align_4(tvb, foffset);
                                         pvalues[8].vvalue = tvb_get_letohl(tvb, foffset);
                                         pvalues[8].vtype = VTYPE_MULTIVALUE_UINT32;
-                                        pvalues[8].vstring = "";
                                         pvalues[8].vdesc = "Size of Entry Specifier: %u";
                                         pvalues[8].vlength = 4;
                                         pvalues[8].mvtype = MVTYPE_PROC_ENTRY_SPECIFIERS;
@@ -5601,7 +5553,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                         case 0x02:    
                                 verb_string = "Read Entry Information";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
                                 pvalues[0].vlength = 4;
@@ -5612,7 +5563,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 {
                                         case 0:
                                                 pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-                                                pvalues[1].vstring = "";
                                                 pvalues[1].vtype = VTYPE_UINT32;
                                                 pvalues[1].vdesc = "Entry ID: 0x%08x";
                                                 pvalues[1].vlength = 4;
@@ -5625,7 +5575,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         case 1:
                                                 pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
                                                 pvalues[1].vtype = VTYPE_BITFIELD;
-                                                pvalues[1].vstring = "";
                                                 pvalues[1].vdesc = "Request Flags:";
                                                 pvalues[1].vlength = 2;
                                                 pvalues[1].hfname= hf_nds_rflags;
@@ -5686,7 +5635,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                                 }
                                                 foffset = foffset+4;
                                                 pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-                                                pvalues[3].vstring = "";
                                                 pvalues[3].vtype = VTYPE_UINT32;
                                                 pvalues[3].vdesc = "Entry ID: 0x%08x";
                                                 pvalues[3].vlength = 4;
@@ -5699,7 +5647,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         case 2:
                                                 pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
                                                 pvalues[1].vtype = VTYPE_BITFIELD;
-                                                pvalues[1].vstring = "";
                                                 pvalues[1].vdesc = "Request Flags:";
                                                 pvalues[1].vlength = 2;
                                                 pvalues[1].hfname= hf_nds_rflags;
@@ -5762,7 +5709,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                                 pvalues[3].vvalue = tvb_get_letohs(tvb, foffset);
                                                 global_flags = tvb_get_letohl(tvb, foffset);
                                                 pvalues[3].vtype = VTYPE_BITFIELD;
-                                                pvalues[3].vstring = "";
                                                 pvalues[3].vdesc = "Information Flags (low) Byte:";
                                                 pvalues[3].vlength = 2;
                                                 pvalues[3].hfname= hf_nds_rflags;
@@ -5802,7 +5748,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                                 foffset = foffset+2;
                                                 pvalues[4].vvalue = tvb_get_letohs(tvb, foffset);
                                                 pvalues[4].vtype = VTYPE_BITFIELD;
-                                                pvalues[4].vstring = "";
                                                 pvalues[4].vdesc = "Information Flags (high) Byte:";
                                                 pvalues[4].vlength = 2;
                                                 pvalues[4].hfname= hf_nds_rflags;
@@ -5841,7 +5786,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                                 pvalues[4].bit16hfname = hf_bit16infoflagsh;
                                                 foffset = foffset+2;
                                                 pvalues[5].vvalue = tvb_get_letohl(tvb, foffset);
-                                                pvalues[5].vstring = "";
                                                 pvalues[5].vtype = VTYPE_UINT32;
                                                 pvalues[5].vdesc = "Entry ID: 0x%08x";
                                                 pvalues[5].vlength = 4;
@@ -5859,7 +5803,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                         case 0x03:    
                                 verb_string = "Read -> ";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
                                 pvalues[0].vlength = 4;
@@ -5869,7 +5812,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 if(pvalues[0].vvalue == 0)
                                 {
                                         pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-                                        pvalues[1].vstring = "";
                                         pvalues[1].vtype = VTYPE_UINT32;
                                         pvalues[1].vdesc = "Iteration Handle: 0x%08x";
                                         pvalues[1].vlength = 4;
@@ -5877,7 +5819,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         pvalues[1].hfname= hf_nds_iteration;
                                         foffset = foffset+pvalues[1].vlength;
                                         pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-                                        pvalues[2].vstring = "";
                                         pvalues[2].vtype = VTYPE_UINT32;
                                         pvalues[2].vdesc = "Entry ID: 0x%08x";
                                         pvalues[2].vlength = 4;
@@ -5901,7 +5842,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         pvalues[3].hfname= hf_nds_info_type;
                                         foffset = foffset + pvalues[3].vlength;
                                         pvalues[4].vvalue = tvb_get_letohl(tvb, foffset);
-                                        pvalues[4].vstring = "";
                                         pvalues[4].vtype = VTYPE_UINT32;
                                         pvalues[4].vdesc = "All Attributes: %u";
                                         pvalues[4].vlength = 4;
@@ -5910,7 +5850,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         foffset = foffset+pvalues[4].vlength;
                                         pvalues[5].vvalue = tvb_get_letohl(tvb, foffset);
                                         pvalues[5].vtype = VTYPE_MULTIVALUE_UINT32;
-                                        pvalues[5].vstring = "";
                                         pvalues[5].vdesc = "Attributes: %u";
                                         pvalues[5].vlength = 4;
                                         pvalues[5].voffset = foffset;
@@ -5920,7 +5859,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 else
                                 {
                                         pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-                                        pvalues[1].vstring = "";
                                         pvalues[1].vtype = VTYPE_UINT32;
                                         pvalues[1].vdesc = "Request Flags: 0x%08x";
                                         pvalues[1].vlength = 4;
@@ -5928,7 +5866,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         pvalues[1].hfname= hf_nds_req_flags;
                                         foffset = foffset+pvalues[1].vlength;
                                         pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-                                        pvalues[2].vstring = "";
                                         pvalues[2].vtype = VTYPE_UINT32;
                                         pvalues[2].vdesc = "Iteration Handle: 0x%08x";
                                         pvalues[2].vlength = 4;
@@ -5936,7 +5873,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         pvalues[2].hfname= hf_nds_iteration;
                                         foffset = foffset+pvalues[2].vlength;
                                         pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-                                        pvalues[3].vstring = "";
                                         pvalues[3].vtype = VTYPE_UINT32;
                                         pvalues[3].vdesc = "Entry ID: 0x%08x";
                                         pvalues[3].vlength = 4;
@@ -5960,7 +5896,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         pvalues[4].mvtype = MVTYPE_ATTR_REQUEST;
                                         foffset = foffset+pvalues[4].vlength;
                                         pvalues[5].vvalue = tvb_get_letohl(tvb, foffset);
-                                        pvalues[5].vstring = "";
                                         pvalues[5].vtype = VTYPE_UINT32;
                                         pvalues[5].vdesc = "All Attributes: %u";
                                         pvalues[5].vlength = 4;
@@ -5969,7 +5904,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         foffset = foffset+pvalues[5].vlength;
                                         pvalues[6].vvalue = tvb_get_letohl(tvb, foffset);
                                         pvalues[6].vtype = VTYPE_MULTIVALUE_UINT32;
-                                        pvalues[6].vstring = "";
                                         pvalues[6].vdesc = "Attributes: %u";
                                         pvalues[6].vlength = 4;
                                         pvalues[6].voffset = foffset;
@@ -5980,7 +5914,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                         case 0x04:    
                                 verb_string = "Compare";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
                                 pvalues[0].vlength = 4;
@@ -5988,7 +5921,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[0].hfname= hf_nds_ver;
                                 foffset = foffset+pvalues[0].vlength;
                                 pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[1].vstring = "";
                                 pvalues[1].vtype = VTYPE_UINT32;
                                 pvalues[1].vdesc = "Entry ID: 0x%08x";
                                 pvalues[1].vlength = 4;
@@ -6000,7 +5932,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset += 4;       /* Attribute Count = 1 */
                                 pvalues[2].vtype = VTYPE_STRING;
                                 pvalues[2].vdesc = "Attribute Name Being Compared: %s";
-                                pvalues[2].vstring = "";
                                 pvalues[2].mvtype = MVTYPE_ATTR_REQUEST;
                                 pvalues[2].vvalue = 0;
                                 pvalues[2].vlength = 256;
@@ -6027,7 +5958,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                         case 0x05:    
                                 verb_string = "List -> ";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
                                 pvalues[0].vlength = 4;
@@ -6036,7 +5966,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[0].vlength;
                                 pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[1].vtype = VTYPE_BITFIELD;
-                                pvalues[1].vstring = "";
                                 pvalues[1].vdesc = "Request Flags:";
                                 pvalues[1].vlength = 2;
                                 pvalues[1].hfname= hf_nds_rflags;
@@ -6076,7 +6005,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[1].vlength;
                                 foffset += 2;
                                 pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[2].vstring = "";
                                 pvalues[2].vtype = VTYPE_UINT32;
                                 pvalues[2].vdesc = "Iteration Handle: 0x%08x";
                                 pvalues[2].vlength = 4;
@@ -6084,7 +6012,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[2].hfname= hf_nds_iteration;
                                 foffset = foffset+pvalues[2].vlength;
                                 pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[3].vstring = "";
                                 pvalues[3].vtype = VTYPE_UINT32;
                                 pvalues[3].vdesc = "Parent ID: 0x%08x";
                                 pvalues[3].vlength = 4;
@@ -6094,7 +6021,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[4].vvalue = tvb_get_letohs(tvb, foffset);
                                 global_flags = tvb_get_letohl(tvb, foffset);
                                 pvalues[4].vtype = VTYPE_BITFIELD;
-                                pvalues[4].vstring = "";
                                 pvalues[4].vdesc = "Information Flags (low) Byte:";
                                 pvalues[4].vlength = 2;
                                 pvalues[4].hfname= hf_nds_rflags;
@@ -6134,7 +6060,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+2;
                                 pvalues[5].vvalue = tvb_get_letohs(tvb, foffset);
                                 pvalues[5].vtype = VTYPE_BITFIELD;
-                                pvalues[5].vstring = "";
                                 pvalues[5].vdesc = "Information Flags (high) Byte:";
                                 pvalues[5].vlength = 2;
                                 pvalues[5].hfname= hf_nds_rflags;
@@ -6174,7 +6099,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+2;
                                 pvalues[6].vtype = VTYPE_STRING;
                                 pvalues[6].vdesc = "Name Filter: %s";
-                                pvalues[6].vstring = "";
                                 pvalues[6].mvtype = MVTYPE_ATTR_REQUEST;
                                 pvalues[6].vvalue = 0;
                                 pvalues[6].vlength = 256;
@@ -6191,7 +6115,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset += align_4(tvb, foffset);
                                 pvalues[7].vtype = VTYPE_STRING;
                                 pvalues[7].vdesc = "Class Filter: %s";
-                                pvalues[7].vstring = "";
                                 pvalues[7].mvtype = MVTYPE_ATTR_REQUEST;
                                 pvalues[7].vvalue = 0;
                                 pvalues[7].vlength = 256;
@@ -6208,7 +6131,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset += align_4(tvb, foffset);
                                 pvalues[8].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[8].vtype = VTYPE_MULTIVALUE_UINT32;
-                                pvalues[8].vstring = "";
                                 pvalues[8].vdesc = "Seconds %u";
                                 pvalues[8].vlength = 4;
                                 pvalues[8].mvtype = MVTYPE_PRINT_TIMESTAMP;
@@ -6226,7 +6148,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                         case 0x08:    
                                 verb_string = "Remove Entry";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
                                 pvalues[0].vlength = 4;
@@ -6234,7 +6155,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[0].hfname= hf_nds_ver;
                                 foffset = foffset+pvalues[0].vlength;
                                 pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[1].vstring = "";
                                 pvalues[1].vtype = VTYPE_UINT32;
                                 pvalues[1].vdesc = "Entry ID: 0x%08x";
                                 pvalues[1].vlength = 4;
@@ -6247,7 +6167,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                         case 0x09:    
                                 verb_string = "Modify Entry";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
                                 pvalues[0].vlength = 4;
@@ -6256,7 +6175,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[0].vlength;
                                 pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[1].vtype = VTYPE_UINT32;
-                                pvalues[1].vstring = "";
                                 pvalues[1].vdesc = "Request Flags: 0x%08x";  /* always 0 */
                                 pvalues[1].vlength = 4;
                                 pvalues[1].hfname= hf_nds_rflags;
@@ -6264,14 +6182,12 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+4;
                                 pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[2].vtype = VTYPE_UINT32;
-                                pvalues[2].vstring = "";
                                 pvalues[2].vdesc = "Iteration Handle: 0x%08x";  /* always 0 */
                                 pvalues[2].vlength = 4;
                                 pvalues[2].hfname= hf_nds_iteration;
                                 pvalues[2].voffset = foffset;
                                 foffset = foffset+4;
                                 pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[3].vstring = "";
                                 pvalues[3].vtype = VTYPE_UINT32;
                                 pvalues[3].vdesc = "Entry ID: 0x%08x";
                                 pvalues[3].vlength = 4;
@@ -6282,7 +6198,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[3].vlength;
                                 pvalues[4].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[4].vtype = VTYPE_MULTIVALUE_UINT32;
-                                pvalues[4].vstring = "";
                                 pvalues[4].vdesc = "Number of Attributes to Change %u";
                                 pvalues[4].vlength = 4;
                                 pvalues[4].mvtype = MVTYPE_MODIFY_ATTR_REQUEST;
@@ -6292,7 +6207,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                         case 0x0a:    
                                 verb_string = "Modify RDN";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
                                 pvalues[0].vlength = 4;
@@ -6300,7 +6214,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[0].hfname= hf_nds_ver;
                                 foffset = foffset+pvalues[0].vlength;
                                 pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[1].vstring = "";
                                 pvalues[1].vtype = VTYPE_UINT32;
                                 pvalues[1].vdesc = "Entry ID: 0x%08x";
                                 pvalues[1].vlength = 4;
@@ -6320,7 +6233,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset += align_4(tvb, foffset);
                                 pvalues[3].vtype = VTYPE_STRING;
                                 pvalues[3].vdesc = "New RDN: %s";
-                                pvalues[3].vstring = "";
                                 pvalues[3].mvtype = 0;
                                 pvalues[3].vvalue = 0;
                                 pvalues[3].vlength = 256;
@@ -6334,7 +6246,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                         case 0x0b:    
                                 verb_string = "Define Attribute ->";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
                                 pvalues[0].vlength = 4;
@@ -6344,7 +6255,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[1].vvalue = tvb_get_letohs(tvb, foffset);
                                 global_flags = tvb_get_letohl(tvb, foffset);
                                 pvalues[1].vtype = VTYPE_BITFIELD;
-                                pvalues[1].vstring = "";
                                 pvalues[1].vdesc = "Attribute Constraints:";
                                 pvalues[1].vlength = 2;
                                 pvalues[1].hfname= hf_nds_acflags;
@@ -6384,7 +6294,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+4;
                                 pvalues[2].vtype = VTYPE_STRING;
                                 pvalues[2].vdesc = "Attribute Name: %s";
-                                pvalues[2].vstring = "";
                                 pvalues[2].mvtype = MVTYPE_ATTR_REQUEST;
                                 pvalues[2].vvalue = 0;
                                 pvalues[2].vlength = 256;
@@ -6416,7 +6325,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[3].mvtype = 0;
                                 foffset = foffset+pvalues[3].vlength;
                                 pvalues[4].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[4].vstring = "";
                                 pvalues[4].vtype = VTYPE_UINT32;
                                 pvalues[4].vdesc = "Lower Limit Value %u";
                                 pvalues[4].vlength = 4;
@@ -6424,7 +6332,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[4].hfname = hf_nds_lower;
                                 foffset += 4;
                                 pvalues[5].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[5].vstring = "";
                                 pvalues[5].vtype = VTYPE_UINT32;
                                 pvalues[5].vdesc = "Upper Limit Value %u";
                                 pvalues[5].vlength = 4;
@@ -6432,7 +6339,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[5].hfname = hf_nds_upper;
                                 pvalues[6].vvalue = tvb_get_letohl(tvb, foffset); /* Length of bytes field */
                                 foffset += 4;
-                                pvalues[6].vstring = "";
                                 pvalues[6].vtype = VTYPE_BYTES;
                                 pvalues[6].vdesc = "ASN.1 ID";
                                 pvalues[6].vlength = pvalues[6].vvalue;
@@ -6446,7 +6352,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                         case 0x0d:    
                                 verb_string = "Remove Attribute Definition";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
                                 pvalues[0].vlength = 4;
@@ -6455,7 +6360,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[0].vlength;
                                 pvalues[1].vtype = VTYPE_STRING;
                                 pvalues[1].vdesc = "Attribute Name: %s";
-                                pvalues[1].vstring = "";
                                 pvalues[1].mvtype = MVTYPE_ATTR_REQUEST;
                                 pvalues[1].vvalue = 0;
                                 pvalues[1].vlength = 256;
@@ -6479,7 +6383,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                         case 0x0f:    
                                 verb_string = "Read Class Definition ->";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
                                 pvalues[0].vlength = 4;
@@ -6487,7 +6390,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[0].hfname= hf_nds_ver;
                                 foffset = foffset+pvalues[0].vlength;
                                 pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[1].vstring = "";
                                 pvalues[1].vtype = VTYPE_UINT32;
                                 pvalues[1].vdesc = "Iteration Handle: 0x%08x";
                                 pvalues[1].vlength = 4;
@@ -6527,7 +6429,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset += align_4(tvb, foffset);
                                 pvalues[4].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[4].vtype = VTYPE_MULTIVALUE_UINT32;
-                                pvalues[4].vstring = "";
                                 pvalues[4].vdesc = "Classes: %d";
                                 pvalues[4].vlength = 4;
                                 pvalues[4].voffset = foffset;
@@ -6537,7 +6438,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                         case 0x10:    
                                 verb_string = "Modify Class Definition -> ";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
                                 pvalues[0].vlength = 4;
@@ -6546,7 +6446,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[0].vlength;
                                 pvalues[1].vtype = VTYPE_STRING;
                                 pvalues[1].vdesc = "Class Name: %s";
-                                pvalues[1].vstring = "";
                                 pvalues[1].mvtype = MVTYPE_ATTR_REQUEST;
                                 pvalues[1].vvalue = 0;
                                 pvalues[1].vlength = 256;
@@ -6566,7 +6465,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset += align_4(tvb, foffset);
                                 pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[2].vtype = VTYPE_MULTIVALUE_UINT32;
-                                pvalues[2].vstring = "";
                                 pvalues[2].vdesc = "Number of Attributes to Add: %u";
                                 pvalues[2].vlength = 4;
                                 pvalues[2].voffset = foffset;
@@ -6576,7 +6474,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                         case 0x11:    
                                 verb_string = "Remove Class Definition";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
                                 pvalues[0].vlength = 4;
@@ -6585,7 +6482,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[0].vlength;
                                 pvalues[1].vtype = VTYPE_STRING;
                                 pvalues[1].vdesc = "Class Name: %s";
-                                pvalues[1].vstring = "";
                                 pvalues[1].mvtype = MVTYPE_ATTR_REQUEST;
                                 pvalues[1].vvalue = 0;
                                 pvalues[1].vlength = 256;
@@ -6605,7 +6501,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                         case 0x12:    
                                 verb_string = "List Containable Classes";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
                                 pvalues[0].vlength = 4;
@@ -6613,7 +6508,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[0].hfname= hf_nds_ver;
                                 foffset = foffset+pvalues[0].vlength;
                                 pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[1].vstring = "";
                                 pvalues[1].vtype = VTYPE_UINT32;
                                 pvalues[1].vdesc = "Iteration Handle: 0x%08x";
                                 pvalues[1].vlength = 4;
@@ -6621,7 +6515,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[1].hfname= hf_nds_iteration;
                                 foffset = foffset+pvalues[1].vlength;
                                 pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[2].vstring = "";
                                 pvalues[2].vtype = VTYPE_UINT32;
                                 pvalues[2].vdesc = "Entry ID: 0x%08x";
                                 pvalues[2].vlength = 4;
@@ -6634,7 +6527,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                         case 0x13:    
                                 verb_string = "Get Effective Rights -> ";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
                                 pvalues[0].vlength = 4;
@@ -6642,7 +6534,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[0].hfname= hf_nds_ver;
                                 foffset = foffset+pvalues[0].vlength;
                                 pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[1].vstring = "";
                                 pvalues[1].vtype = VTYPE_UINT32;
                                 pvalues[1].vdesc = "Entry ID: 0x%08x";
                                 pvalues[1].vlength = 4;
@@ -6653,7 +6544,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[1].vlength;
                                 pvalues[2].vtype = VTYPE_STRING;
                                 pvalues[2].vdesc = "Trustee Name: %s";
-                                pvalues[2].vstring = "";
                                 pvalues[2].mvtype = MVTYPE_ATTR_REQUEST;
                                 pvalues[2].vvalue = 0;
                                 pvalues[2].vlength = 256;
@@ -6672,7 +6562,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset += align_4(tvb, foffset);
                                 pvalues[3].vtype = VTYPE_STRING;
                                 pvalues[3].vdesc = "Attribute to be Checked: %s";
-                                pvalues[3].vstring = "";
                                 pvalues[3].mvtype = 0;
                                 pvalues[3].vvalue = 0;
                                 pvalues[3].vlength = 256;
@@ -6692,7 +6581,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 {
                                         pvalues[4].vtype = VTYPE_STRING;
                                         pvalues[4].vdesc = "Security Equivalence: %s";
-                                        pvalues[4].vstring = "";
                                         pvalues[4].mvtype = MVTYPE_ATTR_REQUEST;
                                         pvalues[4].vvalue = 0;
                                         pvalues[4].vlength = 256;
@@ -6721,7 +6609,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                         case 0x16:    
                                 verb_string = "List Partitions";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
                                 pvalues[0].vlength = 4;
@@ -6730,7 +6617,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[0].vlength;
                                 pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[1].vtype = VTYPE_BITFIELD;
-                                pvalues[1].vstring = "";
                                 pvalues[1].vdesc = "Request Flags:";
                                 pvalues[1].vlength = 2;
                                 pvalues[1].hfname= hf_nds_rflags;
@@ -6769,7 +6655,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[1].bit16hfname = hf_nds_bit16;
                                 foffset = foffset+pvalues[1].vlength;
                                 pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[2].vstring = "";
                                 pvalues[2].vtype = VTYPE_UINT32;
                                 pvalues[2].vdesc = "Iteration Handle: 0x%08x";
                                 pvalues[2].vlength = 4;
@@ -6783,7 +6668,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 }
                                 pvalues[3].vvalue = tvb_get_letohs(tvb, foffset);
                                 pvalues[3].vtype = VTYPE_BITFIELD;
-                                pvalues[3].vstring = "";
                                 pvalues[3].vdesc = "Information Flags (low) Byte:";
                                 pvalues[3].vlength = 2;
                                 pvalues[3].hfname= hf_nds_rflags;
@@ -6824,7 +6708,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+2;
                                 pvalues[4].vvalue = tvb_get_letohs(tvb, foffset);
                                 pvalues[4].vtype = VTYPE_BITFIELD;
-                                pvalues[4].vstring = "";
                                 pvalues[4].vdesc = "Information Flags (high) Byte:";
                                 pvalues[4].vlength = 2;
                                 pvalues[4].hfname= hf_nds_rflags;
@@ -6867,7 +6750,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         break;
                                 }
                                 pvalues[5].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[5].vstring = "";
                                 pvalues[5].vtype = VTYPE_UINT32;
                                 pvalues[5].vdesc = "Partition Root ID: 0x%08x";
                                 pvalues[5].vlength = 4;
@@ -6879,7 +6761,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 verb_string = "Split Partition";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 nds_version = pvalues[0].vvalue;
-                                pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
                                 pvalues[0].vlength = 4;
@@ -6888,7 +6769,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[0].vlength;
                                 pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
                                 nds_version = pvalues[1].vvalue;
-                                pvalues[1].vstring = "";
                                 pvalues[1].vtype = VTYPE_UINT32;
                                 pvalues[1].vdesc = "Flags: 0x%08x";
                                 pvalues[1].vlength = 4;
@@ -6896,7 +6776,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[1].voffset = foffset;
                                 foffset = foffset+pvalues[1].vlength;
                                 pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[2].vstring = "";
                                 pvalues[2].vtype = VTYPE_UINT32;
                                 pvalues[2].vdesc = "New Partition Root ID: 0x%08x";
                                 pvalues[2].vlength = 4;
@@ -6908,7 +6787,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 verb_string = "Join Partitions";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 nds_version = pvalues[0].vvalue;
-                                pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
                                 pvalues[0].vlength = 4;
@@ -6917,7 +6795,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[0].vlength;
                                 pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
                                 nds_version = pvalues[1].vvalue;
-                                pvalues[1].vstring = "";
                                 pvalues[1].vtype = VTYPE_UINT32;
                                 pvalues[1].vdesc = "Flags: 0x%08x";
                                 pvalues[1].vlength = 4;
@@ -6925,7 +6802,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[1].voffset = foffset;
                                 foffset = foffset+pvalues[1].vlength;
                                 pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[2].vstring = "";
                                 pvalues[2].vtype = VTYPE_UINT32;
                                 pvalues[2].vdesc = "Child Partition Root ID: 0x%08x";
                                 pvalues[2].vlength = 4;
@@ -6937,7 +6813,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 verb_string = "Add Replica";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 nds_version = pvalues[0].vvalue;
-                                pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
                                 pvalues[0].vlength = 4;
@@ -6946,7 +6821,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[0].vlength;
                                 pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
                                 nds_version = pvalues[1].vvalue;
-                                pvalues[1].vstring = "";
                                 pvalues[1].vtype = VTYPE_UINT32;
                                 pvalues[1].vdesc = "Flags: 0x%08x";
                                 pvalues[1].vlength = 4;
@@ -6954,7 +6828,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[1].voffset = foffset;
                                 foffset = foffset+pvalues[1].vlength;
                                 pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[2].vstring = "";
                                 pvalues[2].vtype = VTYPE_UINT32;
                                 pvalues[2].vdesc = "Master Partition Root ID: 0x%08x";
                                 pvalues[2].vlength = 4;
@@ -6976,7 +6849,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset + pvalues[3].vlength;
                                 pvalues[4].vtype = VTYPE_STRING;
                                 pvalues[4].vdesc = "Target Server Name: %s";
-                                pvalues[4].vstring = "";
                                 pvalues[4].mvtype = 0;
                                 pvalues[4].vvalue = 0;
                                 pvalues[4].vlength = 256;
@@ -6999,7 +6871,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 verb_string = "Open Stream -> ";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 nds_version = pvalues[0].vvalue;
-                                pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
                                 pvalues[0].vlength = 4;
@@ -7008,7 +6879,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[0].vlength;
                                 pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
                                 nds_version = pvalues[1].vvalue;
-                                pvalues[1].vstring = "";
                                 pvalues[1].vtype = VTYPE_UINT32;
                                 pvalues[1].vdesc = "Streams Flags: 0x%08x";
                                 pvalues[1].vlength = 4;
@@ -7016,7 +6886,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[1].voffset = foffset;
                                 foffset = foffset+pvalues[1].vlength;
                                 pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[2].vstring = "";
                                 pvalues[2].vtype = VTYPE_UINT32;
                                 pvalues[2].vdesc = "Entry ID: 0x%08x";
                                 pvalues[2].vlength = 4;
@@ -7027,7 +6896,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[2].vlength;
                                 pvalues[3].vtype = VTYPE_STRING;
                                 pvalues[3].vdesc = "Stream Name: %s";
-                                pvalues[3].vstring = "";
                                 pvalues[3].mvtype = MVTYPE_ATTR_REQUEST;
                                 pvalues[3].vvalue = 0;
                                 pvalues[3].vlength = 256;
@@ -7088,7 +6956,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 verb_string = "Synchronize Partition";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
                                 nds_version = pvalues[0].vvalue;
-                                pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
                                 pvalues[0].vlength = 4;
@@ -7097,7 +6964,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[0].vlength;
                                 pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
                                 nds_version = pvalues[1].vvalue;
-                                pvalues[1].vstring = "";
                                 pvalues[1].vtype = VTYPE_UINT32;
                                 pvalues[1].vdesc = "Flags: 0x%08x";
                                 pvalues[1].vlength = 4;
@@ -7105,7 +6971,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[1].voffset = foffset;
                                 foffset = foffset+pvalues[1].vlength;
                                 pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[2].vstring = "";
                                 pvalues[2].vtype = VTYPE_UINT32;
                                 pvalues[2].vdesc = "Time Delay in Seconds: %u";
                                 pvalues[2].vlength = 4;
@@ -7116,7 +6981,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 {
                                         pvalues[3].vtype = VTYPE_STRING;
                                         pvalues[3].vdesc = "Root Most Object Name: %s";
-                                        pvalues[3].vstring = "";
                                         pvalues[3].mvtype = MVTYPE_ATTR_REQUEST;
                                         pvalues[3].vvalue = 0;
                                         pvalues[3].vlength = 256;
@@ -7136,7 +7000,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 else
                                 {
                                         pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-                                        pvalues[3].vstring = "";
                                         pvalues[3].vtype = VTYPE_UINT32;
                                         pvalues[3].vdesc = "Entry ID: 0x%08x";
                                         pvalues[3].vlength = 4;
@@ -7224,7 +7087,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                         case 0x39:    
                                 verb_string = "Begin Login";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
                                 pvalues[0].vlength = 4;
@@ -7232,7 +7094,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[0].hfname= hf_nds_ver;
                                 foffset = foffset+pvalues[0].vlength;
                                 pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[1].vstring = "";
                                 pvalues[1].vtype = VTYPE_UINT32;
                                 pvalues[1].vdesc = "Entry ID: 0x%08x";
                                 pvalues[1].vlength = 4;
@@ -7245,7 +7106,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                         case 0x3a:    
                                 verb_string = "Finish Login";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Reply Buffer Size: %u";
                                 pvalues[0].vlength = 4;
@@ -7253,7 +7113,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[0].hfname= hf_nds_buffer_size;
                                 foffset = foffset+pvalues[0].vlength;
                                 pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[1].vstring = "";
                                 pvalues[1].vtype = VTYPE_UINT32;
                                 pvalues[1].vdesc = "Version: %u";
                                 pvalues[1].vlength = 4;
@@ -7261,7 +7120,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[1].hfname= hf_nds_ver;
                                 foffset = foffset+pvalues[1].vlength;
                                 pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[2].vstring = "";
                                 pvalues[2].vtype = VTYPE_UINT32;
                                 pvalues[2].vdesc = "Entry ID: 0x%08x";
                                 pvalues[2].vlength = 4;
@@ -7274,7 +7132,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                         case 0x3b:    
                                 verb_string = "Begin Authentication";
                                 pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[0].vstring = "";
                                 pvalues[0].vtype = VTYPE_UINT32;
                                 pvalues[0].vdesc = "Version: %u";
                                 pvalues[0].vlength = 4;
@@ -7282,7 +7139,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[0].hfname= hf_nds_ver;
                                 foffset = foffset+pvalues[0].vlength;
                                 pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[1].vstring = "";
                                 pvalues[1].vtype = VTYPE_UINT32;
                                 pvalues[1].vdesc = "Entry ID: 0x%08x";
                                 pvalues[1].vlength = 4;
