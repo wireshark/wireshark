@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.85 2003/11/01 02:30:17 guy Exp $
+ * $Id: capture_dlg.c,v 1.86 2003/11/03 10:40:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -135,7 +135,11 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   gchar *entry_text;
   gchar *if_text;
   gchar *if_name;
+  GList *if_list;
+  GList *if_entry;
+  if_info_t *if_info;
   GList *lt_list;
+  int err;
   char err_buf[PCAP_ERRBUF_SIZE];
   GtkWidget *lt_menu, *lt_menu_item;
   GList *lt_entry;
@@ -154,10 +158,42 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
     if_name++;
   }
 
-  if (*if_name != '\0')
-    lt_list = get_pcap_linktype_list(if_name, err_buf);
-  else
-    lt_list = NULL;
+  /*
+   * If the interface name is in the list of known interfaces, get
+   * its list of link-layer types and set the option menu to display it.
+   *
+   * If it's not, don't bother - the user might be in the middle of
+   * editing the list, or it might be a remote device in which case
+   * getting the list could take an arbitrarily-long period of time.
+   * The list currently won't contain any remote devices (as
+   * "pcap_findalldevs()" doesn't know about remote devices, and neither
+   * does the code we use if "pcap_findalldevs()" isn't available), but
+   * should contain all the local devices on which you can capture.
+   */
+  lt_list = NULL;
+  if (*if_name != '\0') {
+    /*
+     * Try to get the list of known interfaces.
+     */
+    if_list = get_interface_list(&err, err_buf);
+    if (if_list != NULL) {
+      /*
+       * We have the list - check it.
+       */
+      for (if_entry = if_list; if_entry != NULL;
+	   if_entry = g_list_next(if_entry)) {
+	if_info = if_entry->data;
+	if (strcmp(if_info->name, if_name) == 0) {
+	  /*
+	   * It's in the list.
+	   * Get the list of link-layer types for it.
+	   */
+	  lt_list = get_pcap_linktype_list(if_name, err_buf);
+	}
+      }
+      free_interface_list(if_list);
+    }
+  }
   g_free(entry_text);
   num_supported_link_types = 0;
   for (lt_entry = lt_list; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
@@ -179,6 +215,8 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
     gtk_menu_append(GTK_MENU(lt_menu), lt_menu_item);
     gtk_widget_show(lt_menu_item);
   }
+  if (lt_list != NULL)
+    free_pcap_linktype_list(lt_list);
   gtk_option_menu_set_menu(GTK_OPTION_MENU(linktype_om), lt_menu);
   gtk_widget_set_sensitive(linktype_lb, num_supported_link_types != 0);
   gtk_widget_set_sensitive(linktype_om, num_supported_link_types != 0);
@@ -313,7 +351,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(capture_vb), linktype_hb);
   gtk_widget_show(linktype_hb);
 
-  linktype_lb = gtk_label_new("Data link type:");
+  linktype_lb = gtk_label_new("Link-layer header type:");
   gtk_box_pack_start(GTK_BOX(linktype_hb), linktype_lb, FALSE, FALSE, 6);
   gtk_widget_show(linktype_lb);
 
