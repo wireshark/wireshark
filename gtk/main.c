@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.453 2004/07/06 19:16:04 gerald Exp $
+ * $Id: main.c,v 1.454 2004/07/07 16:31:30 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1759,20 +1759,21 @@ main(int argc, char *argv[])
      tell it so with a "-p" flag.
 
      Otherwise, set promiscuous mode from the preferences setting. */
-  if (capture_child)
-    capture_opts.promisc_mode = TRUE;
-  else
-    capture_opts.promisc_mode = prefs->capture_prom_mode;
+  /* the same applies to other preferences settings as well. */
+  if (capture_child) {
+    capture_opts.promisc_mode   = TRUE;     /* maybe changed by command line below */
+    capture_opts.show_info      = TRUE;     /* maybe changed by command line below */
+    capture_opts.sync_mode      = TRUE;     /* always true in child process */
+    auto_scroll_live            = FALSE;    /* doesn't matter in child process */
 
-  /* Set "Update list of packets in real time" mode from the preferences
-     setting. */
-  capture_opts.sync_mode = prefs->capture_real_time;
+  } else {
+    capture_opts.promisc_mode   = prefs->capture_prom_mode;
+    capture_opts.show_info      = prefs->capture_show_info;
+    capture_opts.sync_mode      = prefs->capture_real_time;
+    auto_scroll_live            = prefs->capture_auto_scroll;
+  }
 
-  /* And do the same for "Automatic scrolling in live capture" mode. */
-  auto_scroll_live = prefs->capture_auto_scroll;
-
-  capture_opts.show_info = prefs->capture_show_info;
-#endif
+#endif /* HAVE_LIBPCAP */
 
   /* Set the name resolution code's flags from the preferences. */
   g_resolv_flags = prefs->name_resolve;
