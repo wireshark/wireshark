@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.15 2002/04/08 00:27:36 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.16 2002/04/09 04:41:40 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1873,6 +1873,14 @@ static int SpoolssSetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * FORM_REL
  */
 
+static const value_string form_type_vals[] =
+{
+	{ FORM_USER, "FORM_USER" },
+	{ FORM_BUILTIN, "FORM_BUILTIN" },
+	{ FORM_PRINTER, "FORM_PRINTER" },
+	{ 0, NULL }
+};
+
 static gint ett_FORM_REL = -1;
 
 static int prs_FORM_REL(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -1881,12 +1889,16 @@ static int prs_FORM_REL(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	proto_item *item;
 	proto_tree *subtree;
+	guint32 flags;
 
 	item = proto_tree_add_text(tree, tvb, offset, 0, "FORM_REL");
 
 	subtree = proto_item_add_subtree(item, ett_FORM_REL);
 
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Flags");
+	offset = prs_uint32(tvb, offset, pinfo, subtree, &flags, NULL);
+
+	proto_tree_add_text(subtree, tvb, offset - 4, 4, "Flags: %s",
+			    val_to_str(flags, form_type_vals, "Unknown type"));
 
 	offset = prs_relstr(tvb, offset, pinfo, subtree, dp_list,
 			    struct_start, NULL, "Name");
@@ -2422,7 +2434,7 @@ static int prs_FORM_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	proto_item *item;
 	proto_tree *subtree;
-	guint32 ptr = 0;
+	guint32 ptr = 0, flags;
 
 	item = proto_tree_add_text(tree, tvb, offset, 0, "FORM_1");
 
@@ -2433,7 +2445,10 @@ static int prs_FORM_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (ptr)
 		defer_ptr(dp_list, prs_UNISTR2_dp, subtree);
 
-	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Flags");
+	offset = prs_uint32(tvb, offset, pinfo, subtree, &flags, NULL);
+
+	proto_tree_add_text(subtree, tvb, offset - 4, 4, "Flags: %s",
+			    val_to_str(flags, form_type_vals, "Unknown type"));
 
 	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Unknown");
 
