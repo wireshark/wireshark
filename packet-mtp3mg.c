@@ -8,7 +8,7 @@
  *
  * Copyright 2003, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-mtp3mg.c,v 1.1 2003/01/02 20:44:32 guy Exp $
+ * $Id: packet-mtp3mg.c,v 1.2 2003/01/06 02:18:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,9 +51,6 @@ extern Standard_Type mtp3_standard;
 #define MTP3MG_SI 0
 #define MTP3MG_ITU_TEST_SI 1
 #define MTP3MG_ANSI_TEST_SI 2
-
-/* SS7 is little-endian */
-#define BYTE_ORDER TRUE
 
 #define H0H1_LENGTH 1
 #define H0_MASK     0x0f
@@ -424,12 +421,12 @@ dissect_mtp3mg_chm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (mtp3_standard == ANSI_STANDARD)
 	{
 	    proto_tree_add_item(tree, hf_mtp3mg_coo_ansi_slc, tvb, 0,
-				COO_LENGTH, BYTE_ORDER);
+				COO_LENGTH, TRUE);
 	    proto_tree_add_item(tree, hf_mtp3mg_coo_ansi_fsn, tvb, 0,
-				COO_LENGTH, BYTE_ORDER);
+				COO_LENGTH, TRUE);
 	} else {
 	    proto_tree_add_item(tree, hf_mtp3mg_coo_itu_fsn, tvb, 0,
-				COO_LENGTH, BYTE_ORDER);
+				COO_LENGTH, TRUE);
 	}
 	break;
 
@@ -443,7 +440,7 @@ dissect_mtp3mg_chm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				ANSI_XCO_LENGTH, TRUE);
 	} else {
 	    proto_tree_add_item(tree, hf_mtp3mg_xco_itu_fsn, tvb, 0,
-				ITU_XCO_LENGTH, BYTE_ORDER);
+				ITU_XCO_LENGTH, TRUE);
 	}
 	break;
 
@@ -457,7 +454,7 @@ dissect_mtp3mg_chm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				ANSI_CBD_LENGTH, TRUE);
 	} else {
 	    proto_tree_add_item(tree, hf_mtp3mg_cbd_itu_cbc, tvb, 0,
-				ITU_CBD_LENGTH, BYTE_ORDER);
+				ITU_CBD_LENGTH, TRUE);
 	}
 	break;
 
@@ -481,7 +478,7 @@ dissect_mtp3mg_ecm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (mtp3_standard == ANSI_STANDARD)
 	{
 	    proto_tree_add_item(tree, hf_mtp3mg_eco_ansi_slc, tvb, 0,
-				ANSI_ECO_LENGTH, BYTE_ORDER);
+				ANSI_ECO_LENGTH, TRUE);
 	}
 	/* else: nothing to dissect */
 	break;
@@ -536,14 +533,14 @@ dissect_mtp3mg_fcm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	    proto_tree_add_item(tree, hf_mtp3mg_tfc_ansi_status, tvb,
 				ANSI_TFC_STATUS_OFFSET, ANSI_TFC_STATUS_LENGTH,
-				BYTE_ORDER);
+				TRUE);
 	} else {
 	    proto_tree_add_item(tree, hf_mtp3mg_tfc_itu_apc, tvb, 0,
-				ITU_PC_LENGTH, BYTE_ORDER);
+				ITU_PC_LENGTH, TRUE);
 
 	    /* Congestion level is a national option */
 	    proto_tree_add_item(tree, hf_mtp3mg_tfc_itu_status, tvb, 0,
-				ITU_TFC_STATUS_LENGTH, BYTE_ORDER);
+				ITU_TFC_STATUS_LENGTH, TRUE);
 	}
 	break;
 
@@ -600,7 +597,7 @@ dissect_mtp3mg_tfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		dissect_mtp3mg_unknown_message(tvb, tree);
 	    else
 		proto_tree_add_item(tree, hf_mtp3mg_tfm_itu_apc, tvb, 0,
-				    ITU_PC_LENGTH, BYTE_ORDER);
+				    ITU_PC_LENGTH, TRUE);
 	}
 	break;
 
@@ -653,7 +650,7 @@ dissect_mtp3mg_rsm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	} else {
 	    if (h1 == RSM_H1_RST || h1 == RSM_H1_RSR)
 		proto_tree_add_item(tree, hf_mtp3mg_rsm_itu_apc, tvb, 0,
-				    ITU_PC_LENGTH, BYTE_ORDER);
+				    ITU_PC_LENGTH, TRUE);
 	    else
 		dissect_mtp3mg_unknown_message(tvb, tree);
 	}
@@ -685,7 +682,7 @@ dissect_mtp3mg_mim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (mtp3_standard == ANSI_STANDARD)
 	{
 	    proto_tree_add_item(tree, hf_mtp3mg_mim_ansi_slc, tvb, 0,
-				ANSI_MIM_LENGTH, BYTE_ORDER);
+				ANSI_MIM_LENGTH, TRUE);
 	}
 	/* else: nothing to dissect */
 	break;
@@ -733,12 +730,12 @@ dissect_mtp3mg_dlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (mtp3_standard == ANSI_STANDARD)
 	{
 	    proto_tree_add_item(tree, hf_mtp3mg_dlc_ansi_slc, tvb, 0,
-				ANSI_DLC_LENGTH, BYTE_ORDER);
+				ANSI_DLC_LENGTH, TRUE);
 	    proto_tree_add_item(tree, hf_mtp3mg_dlc_ansi_link, tvb, 0,
-				ANSI_DLC_LENGTH, BYTE_ORDER);
+				ANSI_DLC_LENGTH, TRUE);
 	} else {
 	    proto_tree_add_item(tree, hf_mtp3mg_dlc_itu_link, tvb, 0,
-				ITU_DLC_LENGTH, BYTE_ORDER);
+				ITU_DLC_LENGTH, TRUE);
 	}
 	break;
     case DLM_H1_CSS:
@@ -792,16 +789,16 @@ dissect_mtp3mg_ufc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				ANSI_NETWORK_OFFSET, ANSI_NCM_LENGTH, apc);
 
 	    proto_tree_add_item(tree, hf_mtp3mg_upu_user, tvb,
-				ANSI_UPU_USER_OFFSET, UPU_USER_LENGTH, BYTE_ORDER);
+				ANSI_UPU_USER_OFFSET, UPU_USER_LENGTH, TRUE);
 	    proto_tree_add_item(tree, hf_mtp3mg_upu_cause, tvb,
-				ANSI_UPU_USER_OFFSET, UPU_USER_LENGTH, BYTE_ORDER);
+				ANSI_UPU_USER_OFFSET, UPU_USER_LENGTH, TRUE);
 	} else {
 	    proto_tree_add_item(tree, hf_mtp3mg_upu_itu_apc, tvb, 0,
-				ITU_PC_LENGTH, BYTE_ORDER);
+				ITU_PC_LENGTH, TRUE);
 	    proto_tree_add_item(tree, hf_mtp3mg_upu_user, tvb,
-				ITU_UPU_USER_OFFSET, UPU_USER_LENGTH, BYTE_ORDER);
+				ITU_UPU_USER_OFFSET, UPU_USER_LENGTH, TRUE);
 	    proto_tree_add_item(tree, hf_mtp3mg_upu_cause, tvb,
-				ITU_UPU_USER_OFFSET, UPU_USER_LENGTH, BYTE_ORDER);
+				ITU_UPU_USER_OFFSET, UPU_USER_LENGTH, TRUE);
 	}
 	break;
 
@@ -825,7 +822,7 @@ dissect_mtp3mg_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case TEST_H1_SLTM:
     case TEST_H1_SLTA:
 	proto_tree_add_item(tree, hf_mtp3mg_test_length, tvb, 0, TEST_LENGTH,
-			    BYTE_ORDER);
+			    TRUE);
 
 	length = tvb_get_guint8(tvb, 0) >> TEST_LENGTH_SHIFT;
 	proto_tree_add_text(tree, tvb, TEST_PATTERN_OFFSET, length,
@@ -856,7 +853,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree) {
 	/* create display subtree for the protocol */
 	mtp3mg_item = proto_tree_add_item(tree, proto_mtp3mg, tvb, 0, -1,
-					  BYTE_ORDER);
+					  TRUE);
 	mtp3mg_tree = proto_item_add_subtree(mtp3mg_item, ett_mtp3mg);
     }
 
@@ -868,7 +865,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {	/* Test messages */
 
 	proto_tree_add_item(mtp3mg_tree, hf_mtp3test_h0, tvb, 0, H0H1_LENGTH,
-			    BYTE_ORDER);
+			    TRUE);
 	/* H1 is added below */
 
 	h0 = tvb_get_guint8(tvb, 0) & H0_MASK;
@@ -880,7 +877,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 	case TEST_H0_SLT:
 	    proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_test_h1, tvb, 0,
-				H0H1_LENGTH, BYTE_ORDER);
+				H0H1_LENGTH, TRUE);
 	    dissect_mtp3mg_test(payload_tvb, pinfo, mtp3mg_tree, h1);
 	    break;
 
@@ -894,7 +891,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     } else {	/* Real management messages */
 
 	proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_h0, tvb, 0, H0H1_LENGTH,
-			    BYTE_ORDER);
+			    TRUE);
 	/* H1 is added below */
 
 	h0 = tvb_get_guint8(tvb, 0) & H0_MASK;
@@ -906,47 +903,47 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 	case H0_CHM:
 	    proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_chm_h1, tvb, 0,
-				H0H1_LENGTH, BYTE_ORDER);
+				H0H1_LENGTH, TRUE);
 	    dissect_mtp3mg_chm(payload_tvb, pinfo, mtp3mg_tree, h1);
 	    break;
 	case H0_ECM:
 	    proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_ecm_h1, tvb, 0,
-				H0H1_LENGTH, BYTE_ORDER);
+				H0H1_LENGTH, TRUE);
 	    dissect_mtp3mg_ecm(payload_tvb, pinfo, mtp3mg_tree, h1);
 	    break;
 	case H0_FCM:
 	    proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_fcm_h1, tvb, 0,
-				H0H1_LENGTH, BYTE_ORDER);
+				H0H1_LENGTH, TRUE);
 	    dissect_mtp3mg_fcm(payload_tvb, pinfo, mtp3mg_tree, h1);
 	    break;
 	case H0_TFM:
 	    proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_tfm_h1, tvb, 0,
-				H0H1_LENGTH, BYTE_ORDER);
+				H0H1_LENGTH, TRUE);
 	    dissect_mtp3mg_tfm(payload_tvb, pinfo, mtp3mg_tree, h1);
 	    break;
 	case H0_RSM:
 	    proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_rsm_h1, tvb, 0,
-				H0H1_LENGTH, BYTE_ORDER);
+				H0H1_LENGTH, TRUE);
 	    dissect_mtp3mg_rsm(payload_tvb, pinfo, mtp3mg_tree, h1);
 	    break;
 	case H0_MIM:
 	    proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_mim_h1, tvb, 0,
-				H0H1_LENGTH, BYTE_ORDER);
+				H0H1_LENGTH, TRUE);
 	    dissect_mtp3mg_mim(payload_tvb, pinfo, mtp3mg_tree, h1);
 	    break;
 	case H0_TRM:
 	    proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_trm_h1, tvb, 0,
-				H0H1_LENGTH, BYTE_ORDER);
+				H0H1_LENGTH, TRUE);
 	    dissect_mtp3mg_trm(payload_tvb, pinfo, mtp3mg_tree, h1);
 	    break;
 	case H0_DLM:
 	    proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_dlm_h1, tvb, 0,
-				H0H1_LENGTH, BYTE_ORDER);
+				H0H1_LENGTH, TRUE);
 	    dissect_mtp3mg_dlm(payload_tvb, pinfo, mtp3mg_tree, h1);
 	    break;
 	case H0_UFC:
 	    proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_ufc_h1, tvb, 0,
-				H0H1_LENGTH, BYTE_ORDER);
+				H0H1_LENGTH, TRUE);
 	    dissect_mtp3mg_ufc(payload_tvb, pinfo, mtp3mg_tree, h1);
 	    break;
 
