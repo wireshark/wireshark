@@ -3,7 +3,7 @@
  * Helper routines common to all service response time statistics
  * tap.
  *
- * $Id: service_response_time_table.c,v 1.4 2003/06/21 06:45:49 sahlberg Exp $
+ * $Id: service_response_time_table.c,v 1.5 2003/06/22 04:00:21 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,7 +71,7 @@ srt_click_column_cb(GtkCList *clist, gint column, gpointer data)
 	} else {
 		/* Columns 2-5   Count, Min, Max, Avg are sorted in descending
 			order by default.
-		   Columns 0 and 1 sort by ascending order by default 
+		   Columns 0 and 1 sort by ascending order by default
 		*/
 		if(column>=2){
 			clist->sort_type = GTK_SORT_DESCENDING;
@@ -106,7 +106,7 @@ srt_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 		return strcmp (text1, text2);
 	case 0:
 	case 2:
-		i1=atoi(text1);	
+		i1=atoi(text1);
 		i2=atoi(text2);
 		return i1-i2;
 	case 3:
@@ -121,7 +121,7 @@ srt_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 		return -1;
 	}
 	g_assert_not_reached();
-	return 0;	
+	return 0;
 }
 
 void
@@ -140,8 +140,10 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox)
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(rst->scrolled_window), GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
 	gtk_box_pack_start(GTK_BOX(vbox), rst->scrolled_window, TRUE, TRUE, 0);
 
-
 	rst->table=(GtkCList *)gtk_clist_new(6);
+
+	gtk_widget_show(GTK_WIDGET(rst->table));
+	gtk_widget_show(rst->scrolled_window);
 
 	col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * 6);
 	win_style = gtk_widget_get_style(rst->scrolled_window);
@@ -163,10 +165,10 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox)
 		col_arrows[i].ascend_pm = gtk_pixmap_new(ascend_pm, ascend_bm);
 		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm, 1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
 		col_arrows[i].descend_pm = gtk_pixmap_new(descend_pm, descend_bm);
+		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
 		if (i == 2) {
 			gtk_widget_show(col_arrows[i].descend_pm);
 		}
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
 		gtk_clist_set_column_widget(GTK_CLIST(rst->table), i, col_arrows[i].table);
 		gtk_widget_show(col_arrows[i].table);
 	}
@@ -192,7 +194,7 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox)
 
 	SIGNAL_CONNECT(rst->table, "click-column", srt_click_column_cb, col_arrows);
 
-	gtk_widget_show((GtkWidget *)rst->table);
+	gtk_widget_show(GTK_WIDGET(rst->table));
 	gtk_widget_show(rst->scrolled_window);
 
 
@@ -239,7 +241,7 @@ add_srt_table_data(srt_stat_table *rst, int index, nstime_t *req_time, packet_in
 	nstime_t delta;
 
 	rp=&rst->procedures[index];
-	
+
 	/* calculate time delta between request and reply */
 	delta.secs=pinfo->fd->abs_secs-req_time->secs;
 	delta.nsecs=pinfo->fd->abs_usecs*1000-req_time->nsecs;
@@ -344,7 +346,7 @@ reset_srt_table_data(srt_stat_table *rst)
 	int i;
 
 	for(i=0;i<rst->num_procs;i++){
-		rst->procedures[i].num=0;	
+		rst->procedures[i].num=0;
 		rst->procedures[i].min.secs=0;
 		rst->procedures[i].min.nsecs=0;
 		rst->procedures[i].max.secs=0;

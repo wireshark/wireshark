@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.10 2003/06/21 09:50:19 guy Exp $
+ * $Id: dcerpc_stat.c,v 1.11 2003/06/22 04:00:21 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -222,13 +222,16 @@ gtk_dcerpcstat_init(char *optarg)
 	gtk_box_pack_start(GTK_BOX(vbox), filter_label, FALSE, FALSE, 0);
 	gtk_widget_show(filter_label);
 
-
 	for(i=0,max_procs=0;procs[i].name;i++){
 		if(procs[i].num>max_procs){
 			max_procs=procs[i].num;
 		}
 	}
 	rs->num_procedures=max_procs+1;
+
+	/* We must display TOP LEVEL Widget before calling init_srt_table() */
+	gtk_widget_show(rs->win);
+
 	init_srt_table(&rs->srt_table, max_procs+1, vbox);
 
        	for(i=0;i<(max_procs+1);i++){

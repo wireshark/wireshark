@@ -1,7 +1,7 @@
 /* smb_stat.c
  * smb_stat   2003 Ronnie Sahlberg
  *
- * $Id: smb_stat.c,v 1.8 2003/06/21 09:50:19 guy Exp $
+ * $Id: smb_stat.c,v 1.9 2003/06/22 04:00:21 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -170,6 +170,10 @@ gtk_smbstat_init(char *optarg)
 	label=gtk_label_new("SMB Commands");
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 	gtk_widget_show(label);
+
+	/* We must display TOP LEVEL Widget before calling init_srt_table() */
+	gtk_widget_show(ss->win);
+
 	init_srt_table(&ss->smb_srt_table, 256, vbox);
 	for(i=0;i<256;i++){
 		init_srt_table_row(&ss->smb_srt_table, i, val_to_str(i, smb_cmd_vals, "Unknown(0x%02x)"));

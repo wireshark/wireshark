@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.11 2003/06/21 09:50:19 guy Exp $
+ * $Id: rpc_stat.c,v 1.12 2003/06/22 04:00:21 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -223,11 +223,13 @@ gtk_rpcstat_init(char *optarg)
 	gtk_box_pack_start(GTK_BOX(vbox), filter_label, FALSE, FALSE, 0);
 	gtk_widget_show(filter_label);
 
-
 	rpc_min_proc=-1;
 	rpc_max_proc=-1;
 	g_hash_table_foreach(rpc_procs, (GHFunc)rpcstat_find_procs, NULL);
 	rs->num_procedures=rpc_max_proc+1;
+
+	/* We must display TOP LEVEL Widget before calling init_srt_table() */
+	gtk_widget_show(rs->win);
 
 	init_srt_table(&rs->srt_table, rpc_max_proc+1, vbox);
 
@@ -423,7 +425,7 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	filter_entry=gtk_entry_new_with_max_length(250);
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_entry, FALSE, FALSE, 0);
 	gtk_widget_show(filter_entry);
-	
+
 	gtk_box_pack_start(GTK_BOX(dlg_box), filter_box, TRUE, TRUE, 0);
 	gtk_widget_show(filter_box);
 
