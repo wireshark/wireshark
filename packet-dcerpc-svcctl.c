@@ -3,7 +3,7 @@
  * Copyright 2003, Tim Potter <tpot@samba.org>
  * Copyright 2003, Ronnie Sahlberg,  added function dissectors
  *
- * $Id: packet-dcerpc-svcctl.c,v 1.4 2003/04/27 04:38:10 sahlberg Exp $
+ * $Id: packet-dcerpc-svcctl.c,v 1.5 2003/04/27 06:05:43 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,6 +55,9 @@ static int hf_svcctl_required_size = -1;
 static int hf_svcctl_is_locked = -1;
 static int hf_svcctl_lock_duration = -1;
 static int hf_svcctl_lock_owner = -1;
+static int hf_svcctl_service_type = -1;
+static int hf_svcctl_service_state = -1;
+static int hf_svcctl_resume = -1;
 
 static gint ett_dcerpc_svcctl = -1;
 
@@ -67,6 +70,18 @@ static guint16 ver_dcerpc_svcctl = 2;
 
 
 
+static int
+svcctl_dissect_pointer_long(tvbuff_t *tvb, int offset,
+                             packet_info *pinfo, proto_tree *tree,
+                             char *drep)
+{
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     di->hf_index, NULL);
+	return offset;
+}
 
 static void
 svcctl_scm_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
@@ -351,6 +366,62 @@ svcctl_dissect_QueryServiceLockStatus_reply(tvbuff_t *tvb, int offset,
 
 
 
+#define SERVICE_DRIVER	0x0b
+#define SERVICE_WIN32	0x30
+static const value_string svcctl_service_type_vals[] = {
+	{ SERVICE_DRIVER,	"SERVICE_DRIVER" },
+	{ SERVICE_WIN32,	"SERVICE_WIN32" },
+	{ 0, NULL }
+};
+
+#define SERVICE_ACTIVE		0x01
+#define SERVICE_INACTIVE	0x02
+#define SERVICE_STATE_ALL	0x03
+static const value_string svcctl_service_status_vals[] = {
+	{ SERVICE_ACTIVE,	"SERVICE_ACTIVE" },
+	{ SERVICE_INACTIVE,	"SERVICE_INACTIVE" },
+	{ SERVICE_STATE_ALL,	"SERVICE_STATE_ALL" },
+	{ 0, NULL }
+};
+
+/*
+ * IDL long EnumServicesStatus(
+ * IDL      [in] SC_HANDLE db_handle,
+ * IDL      [in] long type,
+ * IDL      [in] long status,
+ * IDL      [in] long buf_size,
+ * IDL      [in][unique] long *resume_handle, 
+ * IDL );
+ */
+static int
+svcctl_dissect_EnumServicesStatus_rqst(tvbuff_t *tvb, int offset, 
+				  packet_info *pinfo, proto_tree *tree,
+				  char *drep)
+{
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_svcctl_hnd, NULL,
+		FALSE, TRUE);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_svcctl_service_type, NULL);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_svcctl_service_state, NULL);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_svcctl_size, NULL);
+
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			svcctl_dissect_pointer_long, NDR_POINTER_UNIQUE,
+			"Resume Handle", hf_svcctl_resume);
+
+	return offset;
+}
+
+
+
+
+
 static dcerpc_sub_dissector dcerpc_svcctl_dissectors[] = {
 	{ SVC_CLOSE_SERVICE_HANDLE, "CloseServiceHandle", 
 		svcctl_dissect_CloseServiceHandle_rqst, 
@@ -371,6 +442,9 @@ static dcerpc_sub_dissector dcerpc_svcctl_dissectors[] = {
 	{ SVC_QUERY_SVC_CONFIG, "Query config", NULL, NULL },
 	{ SVC_START_SERVICE, "Start", NULL, NULL },
 	{ SVC_QUERY_DISP_NAME, "Query display name", NULL, NULL },
+	{ SVC_ENUM_SERVICES_STATUS, "EnumServicesStatus",
+		svcctl_dissect_EnumServicesStatus_rqst, 
+		NULL },
 	{ SVC_OPEN_SC_MANAGER, "OpenSCManager",
 		svcctl_dissect_OpenSCManager_rqst,
 		svcctl_dissect_OpenSCManager_reply },
@@ -395,11 +469,13 @@ static const value_string svcctl_opnum_vals[] = {
 	{ SVC_QUERY_SVC_CONFIG, "Query config" },
 	{ SVC_START_SERVICE, "Start" },
 	{ SVC_QUERY_DISP_NAME, "Query display name" },
+	{ SVC_ENUM_SERVICES_STATUS, "EnumServicesStatus" },
 	{ SVC_OPEN_SC_MANAGER, "OpenSCManager" },
 	{ SVC_OPEN_SERVICE_A, "Open Service A" },
 	{ SVC_QUERY_SERVICE_LOCK_STATUS, "QueryServiceLockStatus" },
 	{ 0, NULL }
 };
+
 
 void
 proto_register_dcerpc_svcctl(void)
@@ -459,6 +535,16 @@ proto_register_dcerpc_svcctl(void)
 	  { &hf_svcctl_lock_owner,
 	    { "Owner", "svcctl.lock_owner", FT_STRING, BASE_NONE,
 	      NULL, 0x0, "SVCCTL the user that holds the database lock", HFILL }},
+	  { &hf_svcctl_service_type,
+	    { "Type", "svcctl.service_type", FT_UINT32, BASE_DEC,
+	      VALS(svcctl_service_type_vals), 0x0, "SVCCTL type of service", HFILL }},
+
+	  { &hf_svcctl_service_state,
+	    { "State", "svcctl.service_state", FT_UINT32, BASE_DEC,
+	      VALS(svcctl_service_status_vals), 0x0, "SVCCTL service state", HFILL }},
+	  { &hf_svcctl_resume,
+	    { "Resume Handle", "svcctl.resume", FT_UINT32, BASE_DEC,
+	      NULL, 0x0, "SVCCTL resume handle", HFILL }},
 	};
 
         static gint *ett[] = {

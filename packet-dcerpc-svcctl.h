@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\svcctl packet disassembly
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-svcctl.h,v 1.4 2003/04/27 04:38:10 sahlberg Exp $
+ * $Id: packet-dcerpc-svcctl.h,v 1.5 2003/04/27 06:05:43 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 #define SVC_QUERY_SVC_CONFIG  0x11
 #define SVC_START_SERVICE     0x13
 #define SVC_QUERY_DISP_NAME   0x14
+#define SVC_ENUM_SERVICES_STATUS	0x1a
 #define SVC_OPEN_SC_MANAGER     0x1b
 #define SVC_OPEN_SERVICE_A    0x1c
 #define SVC_QUERY_SERVICE_LOCK_STATUS	0x1e
