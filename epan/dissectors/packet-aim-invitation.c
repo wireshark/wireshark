@@ -41,53 +41,29 @@
 
 #define FAMILY_INVITATION 0x0006
 
-/* Family Invitation */
-#define FAMILY_INVITATION_ERROR       0x0001
-#define FAMILY_INVITATION_FRIEND_REQ  0x0002
-#define FAMILY_INVITATION_FRIEND_REPL 0x0003
-#define FAMILY_INVITATION_DEFAULT     0xffff
-
-static const value_string aim_fnac_family_invitation[] = {
-  { FAMILY_INVITATION_ERROR, "Error" },
-  { FAMILY_INVITATION_FRIEND_REQ, "Invite a friend to join AIM" },
-  { FAMILY_INVITATION_FRIEND_REPL, "Invitation Ack" },
-  { FAMILY_INVITATION_DEFAULT, "Invitation Default" },
-  { 0, NULL }
-};
-
 /* Initialize the protocol and registered fields */
 static int proto_aim_invitation = -1;
 
 static int ett_aim_invitation = -1;
 
-static int dissect_aim_invitation(tvbuff_t *tvb, packet_info *pinfo,
-                       proto_tree *tree)
+static int dissect_aim_invitation_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *invite_tree)
 {
-  int offset = 0;
-  struct aiminfo *aiminfo = pinfo->private_data;
-  proto_item *ti = NULL;
-  proto_tree *invite_tree = NULL;
-                                                                                
-  if(tree) {
-	ti = proto_tree_add_text(tree, tvb, 0, -1,"AIM Invite Service");
-    invite_tree = proto_item_add_subtree(ti, ett_aim_invitation);
-  }
-
-  switch(aiminfo->subtype) {
- 	case FAMILY_INVITATION_ERROR:
-      return dissect_aim_snac_error(tvb, pinfo, offset, invite_tree);
-    case FAMILY_INVITATION_FRIEND_REQ:
-       while(tvb_length_remaining(tvb, offset) > 0) {
-          offset = dissect_aim_tlv(tvb, pinfo, offset, invite_tree, onlinebuddy_tlvs);
-	   }
-	   return 0;
-    case FAMILY_INVITATION_FRIEND_REPL:
-		return 0;
-  }
-
-  return 0;
+	int offset = 0;
+	while(tvb_length_remaining(tvb, offset) > 0) {
+		offset = dissect_aim_tlv(tvb, pinfo, offset, invite_tree, onlinebuddy_tlvs);
+	}
+	return offset;
 }
-                                                                                
+
+static const aim_subtype aim_fnac_family_invitation[] = {
+	{ 0x0001, "Error", dissect_aim_snac_error },
+	{ 0x0002, "Invite a friend to join AIM", dissect_aim_invitation_req },
+	{ 0x0003, "Invitation Ack", NULL },
+	{ 0, NULL, NULL }
+};
+
+
+
 /* Register the protocol with Ethereal */
 void
 proto_register_aim_invitation(void)
@@ -108,9 +84,5 @@ proto_register_aim_invitation(void)
 void
 proto_reg_handoff_aim_invitation(void)
 {
-  dissector_handle_t aim_handle;
-  
-  aim_handle = new_create_dissector_handle(dissect_aim_invitation, proto_aim_invitation);
-  dissector_add("aim.family", FAMILY_INVITATION, aim_handle);
-  aim_init_family(FAMILY_INVITATION, "Invitation", aim_fnac_family_invitation);
+  aim_init_family(proto_aim_invitation, ett_aim_invitation, FAMILY_INVITATION, aim_fnac_family_invitation);
 }

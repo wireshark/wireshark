@@ -45,67 +45,6 @@
 /* SNAC families */
 #define FAMILY_GENERIC    0x0001
 
-/* Family Generic */
-#define FAMILY_GENERIC_ERROR          0x0001
-#define FAMILY_GENERIC_CLIENTREADY    0x0002
-#define FAMILY_GENERIC_SERVERREADY    0x0003
-#define FAMILY_GENERIC_SERVICEREQ     0x0004
-#define FAMILY_GENERIC_REDIRECT       0x0005
-#define FAMILY_GENERIC_RATEINFOREQ    0x0006
-#define FAMILY_GENERIC_RATEINFO       0x0007
-#define FAMILY_GENERIC_RATEINFOACK    0x0008
-#define FAMILY_GENERIC_RATECHANGE     0x000a
-#define FAMILY_GENERIC_SERVERPAUSE    0x000b
-#define FAMILY_GENERIC_CLIENTPAUSEACK 0x000c
-#define FAMILY_GENERIC_SERVERRESUME   0x000d
-#define FAMILY_GENERIC_REQSELFINFO    0x000e
-#define FAMILY_GENERIC_SELFINFO       0x000f
-#define FAMILY_GENERIC_EVIL           0x0010
-#define FAMILY_GENERIC_SETIDLE        0x0011
-#define FAMILY_GENERIC_MIGRATIONREQ   0x0012
-#define FAMILY_GENERIC_MOTD           0x0013
-#define FAMILY_GENERIC_SETPRIVFLAGS   0x0014
-#define FAMILY_GENERIC_WELLKNOWNURL   0x0015
-#define FAMILY_GENERIC_NOP            0x0016
-#define FAMILY_GENERIC_CAPABILITIES   0x0017
-#define FAMILY_GENERIC_CAPACK         0x0018
-#define FAMILY_GENERIC_SETSTATUS      0x001e
-#define FAMILY_GENERIC_CLIENTVERREQ   0x001f
-#define FAMILY_GENERIC_CLIENTVERREPL  0x0020
-#define FAMILY_GENERIC_EXT_STATUS_REP 0x0021
-#define FAMILY_GENERIC_DEFAULT        0xffff
-
-static const value_string aim_fnac_family_generic[] = {
-  { FAMILY_GENERIC_ERROR, "Error" },
-  { FAMILY_GENERIC_CLIENTREADY , "Client Ready" },
-  { FAMILY_GENERIC_SERVERREADY, "Server Ready" },
-  { FAMILY_GENERIC_SERVICEREQ, "Service Request" },
-  { FAMILY_GENERIC_REDIRECT, "Redirect" },
-  { FAMILY_GENERIC_RATEINFOREQ, "Rate Info Request" },
-  { FAMILY_GENERIC_RATEINFO, "Rate Info" },
-  { FAMILY_GENERIC_RATEINFOACK, "Rate Info Ack" },
-  { FAMILY_GENERIC_RATECHANGE, "Rate Change" },
-  { FAMILY_GENERIC_SERVERPAUSE, "Server Pause" },
-  { FAMILY_GENERIC_CLIENTPAUSEACK, "Client Pause Ack" },
-  { FAMILY_GENERIC_SERVERRESUME, "Server Resume" },
-  { FAMILY_GENERIC_REQSELFINFO, "Self Info Request" },
-  { FAMILY_GENERIC_SELFINFO, "Self Info" },
-  { FAMILY_GENERIC_EVIL, "Evil" },
-  { FAMILY_GENERIC_SETIDLE, "Set Idle" },
-  { FAMILY_GENERIC_MIGRATIONREQ, "Migration Request" },
-  { FAMILY_GENERIC_MOTD, "Message Of The Day" },
-  { FAMILY_GENERIC_SETPRIVFLAGS, "Set Privilege Flags" },
-  { FAMILY_GENERIC_WELLKNOWNURL, "Well Known URL" },
-  { FAMILY_GENERIC_NOP, "noop" },
-  { FAMILY_GENERIC_CAPABILITIES, "Capabilities" },
-  { FAMILY_GENERIC_CAPACK, "Capabilities Ack" },
-  { FAMILY_GENERIC_SETSTATUS, "Set Status (ICQ specific)" },
-  { FAMILY_GENERIC_CLIENTVERREQ, "Client Verification Requst" },
-  { FAMILY_GENERIC_CLIENTVERREPL, "Client Verification Reply" },
-  { FAMILY_GENERIC_EXT_STATUS_REP, "Extended Status Reply" },
-  { FAMILY_GENERIC_DEFAULT, "Generic Default" },
-  { 0, NULL }
-};
 
 #define FAMILY_GENERIC_MOTD_MOTDTYPE_MDT_UPGRADE       0x0001
 #define FAMILY_GENERIC_MOTD_MOTDTYPE_ADV_UPGRADE       0x0002
@@ -167,9 +106,6 @@ static const value_string ext_status_flags[] = {
 	{ 0, NULL },
 };
 
-static int dissect_aim_snac_generic(tvbuff_t *tvb, packet_info *pinfo, 
-				     proto_tree *tree);
-
 /* Initialize the protocol and registered fields */
 static int proto_aim_generic = -1;
 static int hf_generic_motd_motdtype = -1;
@@ -216,7 +152,8 @@ static gint ett_generic_rateinfo_groups = -1;
 static gint ett_generic_rateinfo_group = -1;
 
 static int dissect_rate_class(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
-					proto_tree *class_tree) {
+							  proto_tree *class_tree) 
+{
 	proto_tree_add_uint(class_tree, hf_generic_rateinfo_classid, tvb, offset, 2, tvb_get_ntohs(tvb, offset));offset+=2;
 	proto_tree_add_uint(class_tree, hf_generic_rateinfo_windowsize, tvb, offset, 4, tvb_get_ntoh24(tvb, offset));offset+=4;
 	proto_tree_add_uint(class_tree, hf_generic_rateinfo_clearlevel, tvb, offset, 4, tvb_get_ntoh24(tvb, offset));offset+=4;
@@ -231,13 +168,14 @@ static int dissect_rate_class(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
 }
 
 static int dissect_generic_rateinfo(tvbuff_t *tvb, packet_info *pinfo _U_, 
-				    proto_tree *tree) {
+									proto_tree *tree) 
+{
 	int offset = 0;
 	guint16 i;
 	proto_item *ti;
 	guint16 numclasses = tvb_get_ntohs(tvb, 0);	
 	proto_tree *classes_tree = NULL, *groups_tree, *group_tree;
-    proto_tree_add_uint(tree, hf_generic_rateinfo_numclasses, tvb, 0, 2, numclasses );
+	proto_tree_add_uint(tree, hf_generic_rateinfo_numclasses, tvb, 0, 2, numclasses );
 	offset+=2;
 
 	if(tree) {
@@ -266,226 +204,293 @@ static int dissect_generic_rateinfo(tvbuff_t *tvb, packet_info *pinfo _U_,
 		numpairs = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_uint(group_tree, hf_generic_rateinfo_numpairs, tvb, offset, 2, numpairs); offset+=2;
 		for(j = 0; j < numpairs; j++) {
-			const char *fam_name, *subtype_name;
-			guint16 family; 
-			guint16 subtype;
-			family = tvb_get_ntohs(tvb, offset); offset+=2;
-			subtype = tvb_get_ntohs(tvb, offset); offset+=2;
+			guint16 family_id; 
+			guint16 subtype_id;
+			const aim_family *family;
+			const aim_subtype *subtype;
+			family_id = tvb_get_ntohs(tvb, offset); offset+=2;
+			subtype_id = tvb_get_ntohs(tvb, offset); offset+=2;
 
-			fam_name = aim_get_familyname(family);
-			subtype_name = aim_get_subtypename(family, subtype);
+			family = aim_get_family(family_id);
+			subtype = aim_get_subtype(family_id, subtype_id);
 
-			proto_tree_add_text(group_tree, tvb, offset-4, 4, "Family: %s (0x%04x), Subtype: %s (0x%04x)", fam_name?fam_name:"Unknown", family, subtype_name?subtype_name:"Unknown", subtype);
+			proto_tree_add_text(group_tree, tvb, offset-4, 4, "Family: %s (0x%04x), Subtype: %s (0x%04x)", family?family->name:"Unknown", family_id, subtype?subtype->name:"Unknown", subtype_id);
 		}
 	}
-	
+
 	return offset;
 }
 
-static int dissect_aim_snac_generic(tvbuff_t *tvb, packet_info *pinfo, 
-				    proto_tree *tree)
+static int dissect_aim_generic_clientready(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
 {
 	int offset = 0;
-	const char *name;
-	struct aiminfo *aiminfo = pinfo->private_data;
-	guint16 n, i;
-  	proto_item *ti = NULL;
-	proto_tree *gen_tree = NULL;
-	proto_tree *entry = NULL;
+	proto_item *ti = proto_tree_add_text(gen_tree, tvb, 0, tvb_length_remaining(tvb, 0), "Supported services");
+	proto_tree *entry = proto_item_add_subtree(ti, ett_generic_clientready);
 
-	if(tree) {
-		ti = proto_tree_add_text(tree, tvb, 0, -1,"AIM Generic Service");
-		gen_tree = proto_item_add_subtree(ti, ett_generic);
+	while(tvb_length_remaining(tvb, offset) > 0) {
+		guint16 famnum = tvb_get_ntohs(tvb, offset);
+		const aim_family *family = aim_get_family(famnum);
+
+		proto_tree *subentry;
+		ti = proto_tree_add_text(entry, tvb, offset, 2, "%s (0x%x)", family?family->name:"Unknown Family", famnum);
+		offset+=2;
+
+		subentry = proto_item_add_subtree(ti, ett_generic_clientready_item);
+
+		proto_tree_add_text(subentry, tvb, offset, 2, "Version: %d", tvb_get_ntohs(tvb, offset) ); offset += 2;
+		proto_tree_add_text(subentry, tvb, offset, 4, "DLL Version: %u", tvb_get_ntoh24(tvb, offset) ); offset += 4;
 	}
-	
-	if ((name = match_strval(aiminfo->subtype, aim_fnac_family_generic)) != NULL) {
-	  if (ti) proto_item_append_text(ti, ", %s", name);
-
-      if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, name);
-	}
-
-  switch(aiminfo->subtype)
-    {
-	case FAMILY_GENERIC_ERROR:
-      return dissect_aim_snac_error(tvb, pinfo, 0, gen_tree);
-	case FAMILY_GENERIC_CLIENTREADY:
-	   ti = proto_tree_add_text(gen_tree, tvb, 0, tvb_length_remaining(tvb, 0), "Supported services");
-	   entry = proto_item_add_subtree(ti, ett_generic_clientready);
-	   while(tvb_length_remaining(tvb, offset) > 0) {
-			guint16 famnum = tvb_get_ntohs(tvb, offset);
-			const char *famname = aim_get_familyname(famnum);
-			proto_tree *subentry;
-			ti = proto_tree_add_text(entry, tvb, offset, 2, "%s (0x%x)", famname?famname:"Unknown Family", famnum);
-			offset+=2;
-			
-			subentry = proto_item_add_subtree(ti, ett_generic_clientready_item);
-
-			proto_tree_add_text(subentry, tvb, offset, 2, "Version: %d", tvb_get_ntohs(tvb, offset) ); offset += 2;
-			proto_tree_add_text(subentry, tvb, offset, 4, "DLL Version: %u", tvb_get_ntoh24(tvb, offset) ); offset += 4;
-	  }
-	  return offset;
-	case FAMILY_GENERIC_SERVERREADY:
-	   ti = proto_tree_add_text(gen_tree, tvb, offset, tvb_length_remaining(tvb, offset), "Supported services");
-	   entry = proto_item_add_subtree(ti, ett_generic_clientready);
-	   while(tvb_length_remaining(tvb, offset) > 0) {
-			guint16 famnum = tvb_get_ntohs(tvb, offset);
-			const char *famname = aim_get_familyname(famnum);
-			proto_tree_add_text(entry, tvb, offset, 2, "%s (0x%x)", famname?famname:"Unknown Family", famnum);
-			offset+=2;
-	  }
-	  return offset;
-	case FAMILY_GENERIC_SERVICEREQ:
-	  name = aim_get_familyname( tvb_get_ntohs(tvb, offset) );
-      proto_tree_add_uint_format(gen_tree, hf_generic_servicereq_service, tvb, offset, 2, tvb_get_ntohs(tvb, offset), "%s (0x%04x)", name?name:"Unknown", tvb_get_ntohs(tvb, offset) );
-	  offset+=2;
-	  return offset;
-	case FAMILY_GENERIC_REDIRECT:
-	  while(tvb_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv(tvb, pinfo, offset, gen_tree, client_tlvs);
-	  }
-	  return offset;
-	case FAMILY_GENERIC_CAPABILITIES:
-	   ti = proto_tree_add_text(gen_tree, tvb, offset, tvb_length_remaining(tvb, offset), "Requested services");
-	   entry = proto_item_add_subtree(ti, ett_generic_clientready);
-	   while(tvb_length_remaining(tvb, offset) > 0) {
-			guint16 famnum = tvb_get_ntohs(tvb, offset);
-			const char *famname = aim_get_familyname(famnum);
-			ti = proto_tree_add_text(entry, tvb, offset, 4, "%s (0x%x), Version: %d", famname?famname:"Unknown Family", famnum, tvb_get_ntohs(tvb, offset+2));
-			offset += 4;
-	  }
-	  return offset;
-	case FAMILY_GENERIC_CAPACK:
-	   ti = proto_tree_add_text(gen_tree, tvb, offset, tvb_length_remaining(tvb, offset), "Accepted requested services");
-	   entry = proto_item_add_subtree(ti, ett_generic_clientready);
-	   while(tvb_length_remaining(tvb, offset) > 0) {
-			guint16 famnum = tvb_get_ntohs(tvb, offset);
-			const char *famname = aim_get_familyname(famnum);
-			ti = proto_tree_add_text(entry, tvb, offset, 4, "%s (0x%x), Version: %d", famname?famname:"Unknown Family", famnum, tvb_get_ntohs(tvb, offset+2));
-			offset += 4;
-	  }
-	   return offset;
-
-
-    case FAMILY_GENERIC_MOTD: 
-      proto_tree_add_item(gen_tree, hf_generic_motd_motdtype, tvb, offset, 
-			  2, tvb_get_ntohs(tvb, offset));
-	  offset+=2;
-	  while(tvb_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv(tvb, pinfo, offset, gen_tree, motd_tlvs);
-	  }
-	  return offset;
-
-	case FAMILY_GENERIC_RATEINFO:
-	  return dissect_generic_rateinfo(tvb, pinfo, gen_tree);
-	case FAMILY_GENERIC_RATEINFOACK:
-	  while(tvb_length_remaining(tvb, offset) > 0) {
-		  proto_tree_add_uint(gen_tree, hf_generic_rateinfoack_group, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
-		  offset+=2;
-	  }
-	  return offset;
-	case FAMILY_GENERIC_RATECHANGE:
-	  proto_tree_add_uint(gen_tree, hf_generic_ratechange_msg, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
-	  offset+=2;
-	  offset = dissect_rate_class(tvb, pinfo, offset, gen_tree);
-	  break;
-	  
-
-	case FAMILY_GENERIC_CLIENTPAUSEACK:
-	   while(tvb_length_remaining(tvb, offset) > 0) {
-			guint16 famnum = tvb_get_ntohs(tvb, offset);
-			const char *famname = aim_get_familyname(famnum);
-			proto_tree_add_text(gen_tree, tvb, offset, 4, "Family: %s (0x%x)", famname?famname:"Unknown Family", famnum);
-			offset += 2;
-	  }
-	  return offset;
-	case FAMILY_GENERIC_SERVERRESUME:
-	case FAMILY_GENERIC_REQSELFINFO:
-	case FAMILY_GENERIC_NOP:
-	case FAMILY_GENERIC_SERVERPAUSE:
-	case FAMILY_GENERIC_RATEINFOREQ:
-	  /* No data */
-	  return offset;
-	case FAMILY_GENERIC_MIGRATIONREQ:
-	  n = tvb_get_ntohs(tvb, offset);offset+=2;
-	  proto_tree_add_uint(gen_tree, hf_generic_migration_numfams, tvb, offset, 2, n);
-	  ti = proto_tree_add_text(gen_tree, tvb, offset, 2 * n, "Families to migrate");
-	  entry = proto_item_add_subtree(ti, ett_generic_migratefamilies);
-	  for(i = 0; i < n; i++) {
-			guint16 famnum = tvb_get_ntohs(tvb, offset);
-			const char *famname = aim_get_familyname(famnum);
-			proto_tree_add_text(gen_tree, tvb, offset, 4, "Family: %s (0x%x)", famname?famname:"Unknown Family", famnum);
-			offset += 2;
-	  }
-
-	  while(tvb_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv(tvb, pinfo, offset, gen_tree, client_tlvs);
-	  }
-
-	  return offset;
-	case FAMILY_GENERIC_SETPRIVFLAGS:
-	  {
-		  guint32 flags = tvb_get_ntoh24(tvb, offset); 
-		  ti = proto_tree_add_uint(gen_tree, hf_generic_priv_flags, tvb, offset, 4, flags);
-		  entry = proto_item_add_subtree(ti, ett_generic_priv_flags);
-		  proto_tree_add_boolean(entry, hf_generic_allow_idle_see, tvb, offset, 4, flags);
-		  proto_tree_add_boolean(entry, hf_generic_allow_member_see, tvb, offset, 4, flags);
-		  offset+=4;
-	  }
-	  return offset;
-	case FAMILY_GENERIC_SELFINFO:
-	  offset = dissect_aim_buddyname(tvb, pinfo, offset, gen_tree);
-	  proto_tree_add_item(gen_tree, hf_generic_selfinfo_warninglevel, tvb, offset, 2, FALSE);
-	  offset += 2;
-	  return dissect_aim_tlv_list(tvb, pinfo, offset, gen_tree, onlinebuddy_tlvs);
-	case FAMILY_GENERIC_EVIL:
-	  proto_tree_add_item(gen_tree, hf_generic_evil_new_warn_level, tvb, offset, 2, FALSE);
-	  while(tvb_length_remaining(tvb, offset)) {
-		offset = dissect_aim_userinfo(tvb, pinfo, offset, gen_tree);
-	  }
-	  return offset;
-	case FAMILY_GENERIC_SETIDLE:
-	  proto_tree_add_item(gen_tree, hf_generic_idle_time, tvb, offset, 2, FALSE);
-	  return 4;
-	case FAMILY_GENERIC_SETSTATUS:
-	  while(tvb_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv(tvb, pinfo, offset, gen_tree, onlinebuddy_tlvs);
-	  }
-	  return offset;
-	case FAMILY_GENERIC_CLIENTVERREQ:
-	  proto_tree_add_item(gen_tree, hf_generic_client_ver_req_offset, tvb, offset, 4, FALSE);
-	  offset+=4;
-	  proto_tree_add_item(gen_tree, hf_generic_client_ver_req_length, tvb, offset, 4, FALSE);
-	  return offset+4;
-	case FAMILY_GENERIC_CLIENTVERREPL:
-	  proto_tree_add_item(gen_tree, hf_generic_client_ver_req_hash, tvb, offset, 16, FALSE);
-	  return 16;
-	case FAMILY_GENERIC_WELLKNOWNURL:
-	  /* FIXME */
-	  return 0;
-	case FAMILY_GENERIC_EXT_STATUS_REP:
-	  {
-		  guint8 length;
-	  proto_tree_add_item(gen_tree, hf_generic_ext_status_type, tvb, offset, 2, FALSE); offset += 2;
-	  proto_tree_add_item(gen_tree, hf_generic_ext_status_flags, tvb, offset, 1, FALSE); offset += 1;
-	  proto_tree_add_item(gen_tree, hf_generic_ext_status_length, tvb, offset, 1, FALSE); length = tvb_get_guint8(tvb, offset); offset += 1;
-	  proto_tree_add_item(gen_tree, hf_generic_ext_status_data, tvb, offset, length, FALSE); offset += 1;
-	  return offset;
-	  }
-	default: return 0;
-    }
-  return 0;
+	return offset;
 }
+
+
+static int dissect_aim_generic_serverready(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
+{
+	int offset = 0;
+	proto_item *ti = proto_tree_add_text(gen_tree, tvb, offset, tvb_length_remaining(tvb, offset), "Supported services");
+	proto_tree *entry = proto_item_add_subtree(ti, ett_generic_clientready);
+	
+	while(tvb_length_remaining(tvb, offset) > 0) {
+		guint16 famnum = tvb_get_ntohs(tvb, offset);
+		const aim_family *family = aim_get_family(famnum);
+		proto_tree_add_text(entry, tvb, offset, 2, "%s (0x%x)", family?family->name:"Unknown Family", famnum);
+		offset+=2;
+	}
+	return offset;
+}
+
+
+static int dissect_aim_generic_service_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
+{
+	int offset = 0;
+	const aim_family *family = aim_get_family( tvb_get_ntohs(tvb, offset) );
+
+	proto_tree_add_uint_format(gen_tree, hf_generic_servicereq_service, tvb, offset, 2, tvb_get_ntohs(tvb, offset), "%s (0x%04x)", family?family->name:"Unknown", tvb_get_ntohs(tvb, offset) );
+	offset+=2;
+	return offset;
+}
+
+static int dissect_aim_generic_redirect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gen_tree)
+{
+	int offset = 0;
+	while(tvb_length_remaining(tvb, offset) > 0) {
+		offset = dissect_aim_tlv(tvb, pinfo, offset, gen_tree, client_tlvs);
+	}
+	return offset;
+}
+
+static int dissect_aim_generic_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
+{
+	int offset = 0;
+	proto_item *ti = proto_tree_add_text(gen_tree, tvb, offset, tvb_length_remaining(tvb, offset), "Requested services");
+	proto_tree *entry = proto_item_add_subtree(ti, ett_generic_clientready);
+
+	while(tvb_length_remaining(tvb, offset) > 0) {
+		guint16 famnum = tvb_get_ntohs(tvb, offset);
+		const aim_family *family = aim_get_family(famnum);
+		ti = proto_tree_add_text(entry, tvb, offset, 4, "%s (0x%x), Version: %d", family?family->name:"Unknown Family", famnum, tvb_get_ntohs(tvb, offset+2));
+		offset += 4;
+	}
+	return offset;
+}
+
+static int dissect_aim_generic_capack(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
+{
+	int offset = 0;
+	proto_item *ti = proto_tree_add_text(gen_tree, tvb, offset, tvb_length_remaining(tvb, offset), "Accepted requested services");
+	proto_tree *entry = proto_item_add_subtree(ti, ett_generic_clientready);
+
+	while(tvb_length_remaining(tvb, offset) > 0) {
+		guint16 famnum = tvb_get_ntohs(tvb, offset);
+		const aim_family *family = aim_get_family(famnum);
+		ti = proto_tree_add_text(entry, tvb, offset, 4, "%s (0x%x), Version: %d", family?family->name:"Unknown Family", famnum, tvb_get_ntohs(tvb, offset+2));
+		offset += 4;
+	}
+	return offset;
+}
+
+static int dissect_aim_generic_motd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gen_tree)
+{
+	int offset = 0;
+	proto_tree_add_item(gen_tree, hf_generic_motd_motdtype, tvb, offset, 
+						2, tvb_get_ntohs(tvb, offset));
+	offset+=2;
+	while(tvb_length_remaining(tvb, offset) > 0) {
+		offset = dissect_aim_tlv(tvb, pinfo, offset, gen_tree, motd_tlvs);
+	}
+	return offset;
+}
+
+static int dissect_aim_generic_rateinfoack(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
+{
+	int offset = 0;
+	while(tvb_length_remaining(tvb, offset) > 0) {
+		proto_tree_add_uint(gen_tree, hf_generic_rateinfoack_group, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
+		offset+=2;
+	}
+	return offset;
+}
+
+static int dissect_aim_generic_ratechange(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gen_tree)
+{
+	int offset = 0;
+	proto_tree_add_uint(gen_tree, hf_generic_ratechange_msg, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
+	offset+=2;
+	offset = dissect_rate_class(tvb, pinfo, offset, gen_tree);
+	return offset;
+}
+
+
+static int dissect_aim_generic_clientpauseack(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
+{
+	int offset = 0;
+	while(tvb_length_remaining(tvb, offset) > 0) {
+		guint16 famnum = tvb_get_ntohs(tvb, offset);
+		const aim_family *family = aim_get_family(famnum);
+		proto_tree_add_text(gen_tree, tvb, offset, 4, "Family: %s (0x%x)", family?family->name:"Unknown Family", famnum);
+		offset += 2;
+	}
+	return offset;
+}
+
+static int dissect_aim_generic_migration_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gen_tree)
+{
+	int offset = 0;
+	guint32 n, i;
+	proto_item *ti;
+	proto_tree *entry;
+
+	n = tvb_get_ntohs(tvb, offset);offset+=2;
+	proto_tree_add_uint(gen_tree, hf_generic_migration_numfams, tvb, offset, 2, n);
+	ti = proto_tree_add_text(gen_tree, tvb, offset, 2 * n, "Families to migrate");
+	entry = proto_item_add_subtree(ti, ett_generic_migratefamilies);
+	for(i = 0; i < n; i++) {
+		guint16 famnum = tvb_get_ntohs(tvb, offset);
+		const aim_family *family = aim_get_family(famnum);
+		proto_tree_add_text(gen_tree, tvb, offset, 4, "Family: %s (0x%x)", family?family->name:"Unknown Family", famnum);
+		offset += 2;
+	}
+
+	while(tvb_length_remaining(tvb, offset) > 0) {
+		offset = dissect_aim_tlv(tvb, pinfo, offset, gen_tree, client_tlvs);
+	}
+
+	return offset;
+}
+
+static int dissect_aim_generic_setprivflags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
+{
+	int offset = 0;
+	guint32 flags = tvb_get_ntoh24(tvb, offset); 
+	proto_item *ti = proto_tree_add_uint(gen_tree, hf_generic_priv_flags, tvb, offset, 4, flags);
+	proto_tree *entry = proto_item_add_subtree(ti, ett_generic_priv_flags);
+	proto_tree_add_boolean(entry, hf_generic_allow_idle_see, tvb, offset, 4, flags);
+	proto_tree_add_boolean(entry, hf_generic_allow_member_see, tvb, offset, 4, flags);
+	offset+=4;
+	return offset;
+}
+
+static int dissect_aim_generic_selfinfo_repl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gen_tree)
+{
+	int offset = dissect_aim_buddyname(tvb, pinfo, 0, gen_tree);
+	proto_tree_add_item(gen_tree, hf_generic_selfinfo_warninglevel, tvb, offset, 2, FALSE);
+	offset += 2;
+	return dissect_aim_tlv_list(tvb, pinfo, offset, gen_tree, onlinebuddy_tlvs);
+}
+
+static int dissect_aim_generic_evil(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gen_tree)
+{
+	int offset = 0;
+	proto_tree_add_item(gen_tree, hf_generic_evil_new_warn_level, tvb, offset, 2, FALSE);
+	while(tvb_length_remaining(tvb, offset)) {
+		offset = dissect_aim_userinfo(tvb, pinfo, offset, gen_tree);
+	}
+	return offset;
+}
+
+static int dissect_aim_generic_setidle(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
+{
+	proto_tree_add_item(gen_tree, hf_generic_idle_time, tvb, 0, 2, FALSE);
+	return 2;
+}
+
+static int dissect_aim_generic_ext_status_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gen_tree)
+{
+	int offset = 0;
+	while(tvb_length_remaining(tvb, offset) > 0) {
+		offset = dissect_aim_tlv(tvb, pinfo, offset, gen_tree, onlinebuddy_tlvs);
+	}
+	return offset;
+}
+
+static int dissect_aim_generic_clientver_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
+{
+	int offset = 0;
+	proto_tree_add_item(gen_tree, hf_generic_client_ver_req_offset, tvb, offset, 4, FALSE);
+	offset+=4;
+	proto_tree_add_item(gen_tree, hf_generic_client_ver_req_length, tvb, offset, 4, FALSE);
+	return offset+4;
+}
+
+static int dissect_aim_generic_clientver_repl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
+{
+	proto_tree_add_item(gen_tree, hf_generic_client_ver_req_hash, tvb, 0, 16, FALSE);
+	return 16;
+}
+
+static int dissect_aim_generic_ext_status_repl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
+{
+	guint8 length;
+	int offset = 0;
+	proto_tree_add_item(gen_tree, hf_generic_ext_status_type, tvb, offset, 2, FALSE); offset += 2;
+	proto_tree_add_item(gen_tree, hf_generic_ext_status_flags, tvb, offset, 1, FALSE); offset += 1;
+	proto_tree_add_item(gen_tree, hf_generic_ext_status_length, tvb, offset, 1, FALSE); length = tvb_get_guint8(tvb, offset); offset += 1;
+	proto_tree_add_item(gen_tree, hf_generic_ext_status_data, tvb, offset, length, FALSE); offset += 1;
+	return offset;
+}
+
+static const aim_subtype aim_fnac_family_generic[] = {
+	{ 0x0001, "Error", dissect_aim_snac_error },
+	{ 0x0002, "Client Ready", dissect_aim_generic_clientready },
+	{ 0x0003, "Server Ready", dissect_aim_generic_serverready  },
+	{ 0x0004, "Service Request", dissect_aim_generic_service_req },
+	{ 0x0005, "Redirect", dissect_aim_generic_redirect },
+	{ 0x0006, "Rate Info Request", NULL},
+	{ 0x0007, "Rate Info", dissect_generic_rateinfo },
+	{ 0x0008, "Rate Info Ack", dissect_aim_generic_rateinfoack },
+	{ 0x000a, "Rate Change", dissect_aim_generic_ratechange },
+	{ 0x000b, "Server Pause", NULL },
+	{ 0x000c, "Client Pause Ack", dissect_aim_generic_clientpauseack },
+	{ 0x000d, "Server Resume", NULL },
+	{ 0x000e, "Self Info Request", NULL },
+	{ 0x000f, "Self Info Reply", dissect_aim_generic_selfinfo_repl },
+	{ 0x0010, "Evil", dissect_aim_generic_evil },
+	{ 0x0011, "Set Idle", dissect_aim_generic_setidle },
+	{ 0x0012, "Migration Request", dissect_aim_generic_migration_req },
+	{ 0x0013, "Message Of The Day", dissect_aim_generic_motd },
+	{ 0x0014, "Set Privilege Flags", dissect_aim_generic_setprivflags },
+	{ 0x0015, "Well Known URL", NULL }, /* FIXME */
+	{ 0x0016, "noop", NULL },
+	{ 0x0017, "Capabilities",  dissect_aim_generic_capabilities },
+	{ 0x0018, "Capabilities Ack", dissect_aim_generic_capack },
+	{ 0x001e, "Set Extended Status Request", dissect_aim_generic_ext_status_req },
+	{ 0x001f, "Client Verification Request",  dissect_aim_generic_clientver_req },
+	{ 0x0020, "Client Verification Reply", dissect_aim_generic_clientver_repl },
+	{ 0x0021, "Set Extended Status Reply", dissect_aim_generic_ext_status_repl },
+	{ 0, NULL, NULL }
+};
+
 
 /* Register the protocol with Ethereal */
 void
 proto_register_aim_generic(void)
 {
 
-/* Setup list of header fields */
-  static hf_register_info hf[] = {
-	{ &hf_generic_servicereq_service, 
-	  { "Requested Service", "generic.servicereq.service", FT_UINT16,
-		  BASE_HEX, NULL, 0x0, "", HFILL },
+	/* Setup list of header fields */
+	static hf_register_info hf[] = {
+		{ &hf_generic_servicereq_service, 
+			{ "Requested Service", "generic.servicereq.service", FT_UINT16,
+				BASE_HEX, NULL, 0x0, "", HFILL },
 	},
 	{ &hf_generic_motd_motdtype, 
 	  { "MOTD Type", "generic.motd.motdtype", FT_UINT16,
@@ -603,8 +608,5 @@ proto_register_aim_generic(void)
 void
 proto_reg_handoff_aim_generic(void)
 {
-  dissector_handle_t aim_handle;
-  aim_handle = new_create_dissector_handle(dissect_aim_snac_generic, proto_aim_generic);
-  dissector_add("aim.family", FAMILY_GENERIC, aim_handle);
-  aim_init_family(FAMILY_GENERIC, "Generic", aim_fnac_family_generic);
+  aim_init_family(proto_aim_generic, ett_generic, FAMILY_GENERIC, aim_fnac_family_generic);
 }

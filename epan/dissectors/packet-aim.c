@@ -246,6 +246,7 @@ static int dissect_aim_tlv_value_dcinfo(proto_item *ti, guint16 valueid _U_, tvb
 #define AIM_ONLINEBUDDY_UNKNOWN        0x000e
 #define AIM_ONLINEBUDDY_SESSIONLEN     0x000f
 #define AIM_ONLINEBUDDY_ICQSESSIONLEN  0x0010
+#define AIM_ONLINEBUDDY_AVAILMSG	   0x001d
 
 const aim_tlv onlinebuddy_tlvs[] = {
   { AIM_ONLINEBUDDY_USERCLASS, "User class", dissect_aim_tlv_value_userclass },
@@ -254,19 +255,14 @@ const aim_tlv onlinebuddy_tlvs[] = {
   { AIM_ONLINEBUDDY_STATUS, "Online status", dissect_aim_tlv_value_userstatus },
   { AIM_ONLINEBUDDY_IPADDR, "User IP Address", dissect_aim_tlv_value_ipv4 },
   { AIM_ONLINEBUDDY_DCINFO, "DC Info", dissect_aim_tlv_value_dcinfo},
-  { AIM_ONLINEBUDDY_CAPINFO, "Capability Info", dissect_aim_tlv_value_bytes },
+  { AIM_ONLINEBUDDY_CAPINFO, "Capability Info", dissect_aim_tlv_value_client_capabilities },
   { AIM_ONLINEBUDDY_MEMBERSINCE, "Member since", dissect_aim_tlv_value_time },
   { AIM_ONLINEBUDDY_UNKNOWN, "Unknown", dissect_aim_tlv_value_uint16 },
   { AIM_ONLINEBUDDY_TIMEUPDATE, "Time update", dissect_aim_tlv_value_bytes },
   { AIM_ONLINEBUDDY_SESSIONLEN, "Session Length (sec)", dissect_aim_tlv_value_uint32 },
   { AIM_ONLINEBUDDY_ICQSESSIONLEN, "ICQ Session Length (sec)", dissect_aim_tlv_value_uint32 },
+  { AIM_ONLINEBUDDY_AVAILMSG, "Available Message", dissect_aim_tlv_value_bytes },
   { 0, "Unknown", NULL }
-};
-
-struct aim_family {
-	guint16 family;
-	const char *name;
-	const value_string *subtypes;
 };
 
 static GList *families = NULL;
@@ -473,13 +469,17 @@ static void dissect_aim_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
 }
-
-const char *aim_get_subtypename( guint16 famnum, guint16 subtype )
+const aim_subtype *aim_get_subtype( guint16 famnum, guint16 subtype )
 {
 	GList *gl = families;
 	while(gl) {
-		struct aim_family *fam = gl->data;
-		if(fam->family == famnum) return match_strval(subtype, fam->subtypes);
+		aim_family *fam = gl->data;
+		if(fam->family == famnum) {
+			int i;
+			for(i = 0; fam->subtypes[i].name; i++) {
+				if(fam->subtypes[i].id == subtype) return &(fam->subtypes[i]);
+			}
+		}
 		gl = gl->next;
 	}
 
@@ -487,12 +487,12 @@ const char *aim_get_subtypename( guint16 famnum, guint16 subtype )
 
 }
 
-const char *aim_get_familyname( guint16 famnum ) 
+const aim_family *aim_get_family( guint16 famnum ) 
 {
 	GList *gl = families;
 	while(gl) {
-		struct aim_family *fam = gl->data;
-		if(fam->family == famnum) return fam->name;
+		aim_family *fam = gl->data;
+		if(fam->family == famnum) return fam;
 		gl = gl->next;
 	}
 
@@ -589,13 +589,17 @@ void aim_get_message( guchar *msg, tvbuff_t *tvb, int msg_offset, int msg_length
   }
 }
 
-void aim_init_family(guint16 family, const char *name, const value_string *subtypes) 
+void aim_init_family(int proto, int ett, guint16 family, const aim_subtype *subtypes) 
 {
-	struct aim_family *fam = g_new(struct aim_family, 1);
-	fam->name = g_strdup(name);
+	aim_family *fam = g_new(aim_family, 1);
+	fam->proto = find_protocol_by_id(proto);
+	fam->name = proto_get_protocol_short_name(fam->proto);
 	fam->family = family;
 	fam->subtypes = subtypes;
 	families = g_list_append(families, fam);
+
+	fam->proto_id = proto;
+	fam->ett = ett;
 }
 
 static void dissect_aim_newconn(tvbuff_t *tvb, packet_info *pinfo, 
@@ -618,16 +622,16 @@ static void dissect_aim_newconn(tvbuff_t *tvb, packet_info *pinfo,
 
 
 int dissect_aim_snac_error(tvbuff_t *tvb, packet_info *pinfo, 
-			     int offset, proto_tree *aim_tree)
+			     proto_tree *aim_tree)
 {
   char *name;
-  if ((name = match_strval(tvb_get_ntohs(tvb, offset), aim_snac_errors)) != NULL) {
+  if ((name = match_strval(tvb_get_ntohs(tvb, 0), aim_snac_errors)) != NULL) {
      if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO, name);
   }
 
   proto_tree_add_item (aim_tree, hf_aim_snac_error,
-			   tvb, offset, 2, FALSE);
+			   tvb, 0, 2, FALSE);
   return tvb_length_remaining(tvb, 2);
 }
 
@@ -653,45 +657,44 @@ int dissect_aim_fnac_flags(tvbuff_t *tvb, int offset, int len, proto_item *ti, g
 static void dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, 
 			     int offset, proto_tree *aim_tree, proto_tree *root_tree)
 {
-  guint16 family;
-  guint16 subtype;
+  guint16 family_id;
+  guint16 subtype_id;
   guint16 flags;
   guint32 id;
   proto_item *ti1;
   struct aiminfo aiminfo;
-  const char *fam_name, *subtype_name;
   proto_tree *aim_tree_fnac = NULL;
   tvbuff_t *subtvb;
   int orig_offset;
+  const aim_subtype *subtype;
+  proto_tree *family_tree = NULL;
+  const aim_family *family;
 
   orig_offset = offset;
-  family = tvb_get_ntohs(tvb, offset);
-  fam_name = aim_get_familyname(family);
+  family_id = tvb_get_ntohs(tvb, offset);
+  family = aim_get_family(family_id);
   offset += 2;
-  subtype = tvb_get_ntohs(tvb, offset);
-  subtype_name = aim_get_subtypename(family, subtype);
+  subtype_id = tvb_get_ntohs(tvb, offset);
+  subtype = aim_get_subtype(family_id, subtype_id);
   offset += 2;
   flags = tvb_get_ntohs(tvb, offset);
   offset += 2;
   id = tvb_get_ntohl(tvb, offset);
   offset += 4;
   
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "SNAC data");
-  }
-  
+ 
   if( aim_tree )
     {
       offset = orig_offset;
-      ti1 = proto_tree_add_text(aim_tree, tvb, 6, 10, "FNAC");
+      ti1 = proto_tree_add_text(aim_tree, tvb, 6, 10, "FNAC: Family: 0x%04x, Subtype: %04x", family_id, subtype_id);
       aim_tree_fnac = proto_item_add_subtree(ti1, ett_aim_fnac);
 
       proto_tree_add_text (aim_tree_fnac, 
-			   tvb, offset, 2, "Family: %s (0x%04x)", fam_name?fam_name:"Unknown", family);
+			   tvb, offset, 2, "Family: %s (0x%04x)", family?family->name:"Unknown", family_id);
       offset += 2;
 
       proto_tree_add_text (aim_tree_fnac, 
-			   tvb, offset, 2, "Subtype: %s (0x%04x)", subtype_name?subtype_name:"Unknown", subtype);
+			   tvb, offset, 2, "Subtype: %s (0x%04x)", (subtype && subtype->name)?subtype->name:"Unknown", subtype_id);
       offset += 2;
 
       ti1 = proto_tree_add_uint(aim_tree_fnac, hf_aim_fnac_flags, tvb, offset, 
@@ -717,21 +720,37 @@ static void dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo,
 
   subtvb = tvb_new_subset(tvb, offset, -1, -1);
   aiminfo.tcpinfo = pinfo->private_data;
-  aiminfo.family = family;
-  aiminfo.subtype = subtype;
+  aiminfo.family = family_id;
+  aiminfo.subtype = subtype_id;
   pinfo->private_data = &aiminfo;
+
+  if (check_col(pinfo->cinfo, COL_PROTOCOL) && family) {
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, family->name);
+  }
   
   if (check_col(pinfo->cinfo, COL_INFO)) {
-     if(fam_name) col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", fam_name);
-	 else col_append_fstr(pinfo->cinfo, COL_INFO, ", Family: 0x%04x", family);
-	 if(subtype_name) col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", subtype_name);
-	 else col_append_fstr(pinfo->cinfo, COL_INFO, ", Subtype: 0x%04x", subtype);
+	 if(subtype) {
+		 col_set_str(pinfo->cinfo, COL_INFO, family->name);
+		 col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", subtype->name);
+	 } else {
+	    col_set_str(pinfo->cinfo, COL_INFO, "SNAC data");
+	  
+     	if(family) col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", family->name);
+	 	else col_append_fstr(pinfo->cinfo, COL_INFO, ", Family: 0x%04x", family_id);
+
+	 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Subtype: 0x%04x", subtype_id);
+	 }
   }
 
-  if(tvb_length_remaining(tvb, offset) == 0 || !dissector_try_port(subdissector_table, family, subtvb, pinfo, root_tree)) {
-    /* Show the undissected payload */
-    if (tvb_length_remaining(tvb, offset) > 0)
-      proto_tree_add_item(aim_tree, hf_aim_data, tvb, offset, -1, FALSE);
+  if(aim_tree && family) 
+  {
+	proto_item *ti = proto_tree_add_item(root_tree, family->proto_id, subtvb, 0, -1, FALSE); 
+	family_tree = proto_item_add_subtree(ti, family->ett);
+	if(subtype) proto_item_append_text(ti, ", %s", subtype->name);
+  }
+
+  if(tvb_length_remaining(tvb, offset) > 0 && subtype && subtype->dissector) {
+	  subtype->dissector(subtvb, pinfo, family_tree);	 
   }
 }
 
@@ -922,9 +941,24 @@ static const aim_client_capabilities client_caps[] = {
 	 {0xf2e7c7f4, 0xfead, 0x4dfb,
 		 {0xb2, 0x35, 0x36, 0x79, 0x8b, 0xdf, 0x00, 0x00}}},
 
+	{ "Unknown 1", 
+	 {0x0946f004, 0x4c7f, 0x11d1, 
+		 {0x82, 0x22, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00}}},
+
+	{ "Unknown 2", 
+	 {0x0946f004, 0x4c7f, 0x11d1, 
+		 {0x82, 0x22, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00}}},
+
+	{ "Unknown 3",
+	 {0x09460103, 0x4c7f, 0x11d1,
+		 {0x82, 0x22, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00}}},
+
+	{ "Unknown 4",
+	 {0x0946f003, 0x4c7f, 0x11d1,
+		 {0x82, 0x22, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00}}},
+
 	{ "Unknown", {0x0, 0x0, 0x0, { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 } } }
 };
-
 
 int dissect_aim_tlv_value_client_capabilities(proto_item *ti _U_, guint16 valueid _U_, tvbuff_t *tvb)
 {
@@ -937,28 +971,28 @@ int dissect_aim_tlv_value_client_capabilities(proto_item *ti _U_, guint16 valuei
 	
   	while (tvb_length_remaining(tvb, offset) > 0) {
 		int i;
-		const aim_client_capabilities *caps;
-		guint32 Data1 = tvb_get_ntoh24(tvb, offset);
-		guint16 Data2 = tvb_get_ntohs(tvb, offset+4);
-		guint16 Data3 = tvb_get_ntohs(tvb, offset+6);
-		guint8 Data4[8];
-		tvb_memcpy(tvb, Data4, offset+8, 8);
+		const aim_client_capabilities *caps = NULL;
+		e_uuid_t clsid;
 
-		caps = &client_caps[0];
+		clsid.Data1 = tvb_get_ntohl(tvb, offset);
+		clsid.Data2 = tvb_get_ntohs(tvb, offset+4);
+		clsid.Data3 = tvb_get_ntohs(tvb, offset+6);
+		tvb_memcpy(tvb, clsid.Data4, offset+8, 8);
 
-		for(i = 0; !strcmp(client_caps[i].description, "Unknown"); i++) {
-			caps = &client_caps[i];
+		for(i = 0; client_caps[i].description; i++) {
 
-			if(Data1 == caps->clsid.Data1 && Data2 == caps->clsid.Data2 && 
-			   Data3 == caps->clsid.Data3 && !memcmp(caps->clsid.Data4, Data4, 8))
+			if(memcmp(&(client_caps[i].clsid), &clsid, sizeof(e_uuid_t)) == 0) {
+				caps = &client_caps[i];
 				break;
+			}
 		}
 
 		proto_tree_add_text(entry, tvb, offset, 16, 
-			"%s {%06x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}", 
-			caps->description, Data1, Data2, 
-			Data3, Data4[0], Data4[1], Data4[2], Data4[3], Data4[4],
-			Data4[5], Data4[6], Data4[7]
+			"%s {%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}", 
+			caps?caps->description:"Unknown", clsid.Data1, clsid.Data2, 
+			clsid.Data3, clsid.Data4[0], clsid.Data4[1], clsid.Data4[2], 
+			clsid.Data4[3], clsid.Data4[4],	clsid.Data4[5], clsid.Data4[6], 
+			clsid.Data4[7]
 			);
 
 		offset+=16;

@@ -41,21 +41,6 @@
 
 #define FAMILY_ICQ        0x0015
 
-/* Family ICQ */
-#define FAMILY_ICQ_ERROR              0x0001
-#define FAMILY_ICQ_LOGINREQUEST       0x0002
-#define FAMILY_ICQ_LOGINRESPONSE      0x0003
-#define FAMILY_ICQ_AUTHREQUEST        0x0006
-#define FAMILY_ICQ_AUTHRESPONSE       0x0007
-
-static const value_string aim_fnac_family_icq[] = {
-  { FAMILY_ICQ_ERROR, "Error" },
-  { FAMILY_ICQ_LOGINREQUEST, "Login Request" },
-  { FAMILY_ICQ_LOGINRESPONSE, "Login Response" },
-  { FAMILY_ICQ_AUTHREQUEST, "Auth Request" },
-  { FAMILY_ICQ_AUTHRESPONSE, "Auth Response" },
-  { 0, NULL }
-};
 
 #define ICQ_CLI_OFFLINE_MESSAGE_REQ 	0x003c
 #define ICQ_CLI_DELETE_OFFLINE_MSGS		0x003e
@@ -72,7 +57,8 @@ static const value_string aim_icq_data_types[] = {
   { 0, NULL }
 };
 
-int dissect_aim_tlv_value_icq(proto_item *ti, guint16, tvbuff_t *);
+
+static int dissect_aim_tlv_value_icq(proto_item *ti, guint16 subtype, tvbuff_t *tvb);
 
 #define TLV_ICQ_META_DATA 			  0x0001
 
@@ -88,13 +74,12 @@ static int proto_aim_icq = -1;
 static gint ett_aim_icq      = -1;
 static gint ett_aim_icq_tlv  = -1;
 
-
 static gint hf_icq_tlv_data_chunk_size = -1;
 static gint hf_icq_tlv_request_owner_uid = -1;
 static gint hf_icq_tlv_request_type = -1;
 static gint hf_icq_tlv_request_seq_num = -1;
 
-int dissect_aim_tlv_value_icq(proto_item *ti _U_, guint16 subtype _U_, tvbuff_t *tvb _U_)
+static int dissect_aim_tlv_value_icq(proto_item *ti _U_, guint16 subtype _U_, tvbuff_t *tvb _U_)
 {
 	int offset = 0;
 	proto_tree *t = proto_item_add_subtree(ti, ett_aim_icq_tlv);
@@ -115,24 +100,20 @@ int dissect_aim_tlv_value_icq(proto_item *ti _U_, guint16 subtype _U_, tvbuff_t 
 	return 0;
 }
 
-static int dissect_aim_icq(tvbuff_t *tvb, packet_info *pinfo, 
-				    proto_tree *tree)
+static int dissect_aim_icq_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-   struct aiminfo *aiminfo = pinfo->private_data;
-   int offset = 0;
-   switch(aiminfo->subtype) {
-   case FAMILY_ICQ_ERROR:
-	   return dissect_aim_snac_error(tvb, pinfo, offset, tree);
-   case FAMILY_ICQ_LOGINREQUEST:
-   case FAMILY_ICQ_LOGINRESPONSE:
-	   return dissect_aim_tlv(tvb, pinfo, offset, tree, icq_tlv);
-   case FAMILY_ICQ_AUTHREQUEST:
-   case FAMILY_ICQ_AUTHRESPONSE:
-	   /* FIXME */
-	default:
-	   return 0;
-   }
+	return dissect_aim_tlv(tvb, pinfo, 0, tree, icq_tlv);
 }
+
+static const aim_subtype aim_fnac_family_icq[] = {
+  { 0x0001, "Error", dissect_aim_snac_error },
+  { 0x0002, "Login Request", dissect_aim_icq_tlv },
+  { 0x0003, "Login Response", dissect_aim_icq_tlv },
+  { 0x0006, "Auth Request", NULL },
+  { 0x0007, "Auth Response", NULL },
+  { 0, NULL, NULL }
+};
+
 
 /* Register the protocol with Ethereal */
 void
@@ -172,9 +153,5 @@ proto_register_aim_icq(void)
 void
 proto_reg_handoff_aim_icq(void)
 {
-  dissector_handle_t aim_handle;
-
-  aim_handle = new_create_dissector_handle(dissect_aim_icq, proto_aim_icq);
-  dissector_add("aim.family", FAMILY_ICQ, aim_handle);
-  aim_init_family(FAMILY_ICQ, "ICQ", aim_fnac_family_icq);
+  aim_init_family(proto_aim_icq, ett_aim_icq, FAMILY_ICQ, aim_fnac_family_icq);
 }

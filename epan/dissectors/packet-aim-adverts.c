@@ -41,51 +41,22 @@
 
 #define FAMILY_ADVERTS    0x0005
 
-/* Family Advertising */
-#define FAMILY_ADVERTS_ERROR          0x0001
-#define FAMILY_ADVERTS_REQUEST        0x0002
-#define FAMILY_ADVERTS_DATA           0x0003
-#define FAMILY_ADVERTS_DEFAULT        0xffff
-
-static const value_string aim_fnac_family_adverts[] = {
-  { FAMILY_ADVERTS_ERROR, "Error" },
-  { FAMILY_ADVERTS_REQUEST, "Request" },
-  { FAMILY_ADVERTS_DATA, "Data (GIF)" },
-  { FAMILY_ADVERTS_DEFAULT, "Adverts Default" },
-  { 0, NULL }
+static const aim_subtype aim_fnac_family_adverts[] = {
+  { 0x0001, "Error", dissect_aim_snac_error },
+  { 0x0002, "Request", NULL },
+	/* FIXME: */
+	/* From other sources, I understand this response contains 
+	 * a GIF file, haven't actually seen one though. And this
+	 * family appears to be deprecated, so we might never find out.. */
+  { 0x0003, "Data (GIF)", NULL },
+  { 0, NULL, NULL }
 };
-
 
 /* Initialize the protocol and registered fields */
 static int proto_aim_adverts = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_aim_adverts      = -1;
-
-static int dissect_aim_adverts(tvbuff_t *tvb _U_, 
-				     packet_info *pinfo _U_, 
-				     proto_tree *tree _U_)
-{
-	struct aiminfo *aiminfo = pinfo->private_data;
-	int offset = 0;
-
-	switch(aiminfo->subtype) {
-		case FAMILY_ADVERTS_ERROR:
-		return dissect_aim_snac_error(tvb, pinfo, offset, tree);
-		break;
-		case FAMILY_ADVERTS_REQUEST:
-			/* FIXME */
-		return 0;
-		case FAMILY_ADVERTS_DATA:
-			/* FIXME: */
-			/* From other sources, I understand this response contains 
-			 * a GIF file, haven't actually seen one though. And this
-			 * family appears to be deprecated, so we might never find out.. */
-		return 0;
-	}
-
-	return 0;
-}
 
 /* Register the protocol with Ethereal */
 void
@@ -114,8 +85,5 @@ proto_register_aim_adverts(void)
 void
 proto_reg_handoff_aim_adverts(void)
 {
-  dissector_handle_t aim_handle;
-  aim_handle = new_create_dissector_handle(dissect_aim_adverts, proto_aim_adverts);
-  dissector_add("aim.family", FAMILY_ADVERTS, aim_handle);
-  aim_init_family(FAMILY_ADVERTS, "Advertisements", aim_fnac_family_adverts);
+  aim_init_family(proto_aim_adverts, ett_aim_adverts, FAMILY_ADVERTS, aim_fnac_family_adverts);
 }

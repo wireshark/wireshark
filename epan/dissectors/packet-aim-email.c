@@ -41,39 +41,18 @@
 
 #define FAMILY_EMAIL    0x0018
 
-/* Family Advertising */
-#define FAMILY_EMAIL_STATUS_REQ			0x0006
-#define FAMILY_EMAIL_STATUS_REPL		0x0007
-#define FAMILY_EMAIL_ACTIVATE			0x0016
-
-static const value_string aim_fnac_family_email[] = {
-  { FAMILY_EMAIL_STATUS_REQ, "Email Status Request" },
-  { FAMILY_EMAIL_STATUS_REPL, "Email Status Reply" },
-  { FAMILY_EMAIL_ACTIVATE, "Activate Email" },
-  { 0, NULL }
+static const aim_subtype aim_fnac_family_email[] = {
+  { 0x0006, "Email Status Request", NULL },
+  { 0x0007, "Email Status Reply", NULL },
+  { 0x0016, "Activate Email", NULL },
+  { 0, NULL, NULL }
 };
-
 
 /* Initialize the protocol and registered fields */
 static int proto_aim_email = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_aim_email      = -1;
-
-static int dissect_aim_email(tvbuff_t *tvb _U_, 
-				     packet_info *pinfo _U_, 
-				     proto_tree *tree _U_)
-{
-	struct aiminfo *aiminfo = pinfo->private_data;
-
-	switch(aiminfo->subtype) {
-	default:
-			/* FIXME */
-		return 0;
-	}
-
-	return 0;
-}
 
 /* Register the protocol with Ethereal */
 void
@@ -102,8 +81,5 @@ proto_register_aim_email(void)
 void
 proto_reg_handoff_aim_email(void)
 {
-  dissector_handle_t aim_handle;
-  aim_handle = new_create_dissector_handle(dissect_aim_email, proto_aim_email);
-  dissector_add("aim.family", FAMILY_EMAIL, aim_handle);
-  aim_init_family(FAMILY_EMAIL, "E-mail", aim_fnac_family_email);
+  aim_init_family(proto_aim_email, ett_aim_email, FAMILY_EMAIL, aim_fnac_family_email);
 }

@@ -42,28 +42,6 @@
 #define FAMILY_BOS        0x0009
 
 /* Family BOS (Misc) */
-#define FAMILY_BOS_ERROR              0x0001
-#define FAMILY_BOS_RIGHTSQUERY        0x0002
-#define FAMILY_BOS_RIGHTS             0x0003
-#define FAMILY_BOS_SET_GROUP_PERM     0x0004
-#define FAMILY_BOS_ADD_TO_VISIBLE     0x0005
-#define FAMILY_BOS_DEL_FROM_VISIBLE   0x0006
-#define FAMILY_BOS_ADD_TO_INVISIBLE   0x0007
-#define FAMILY_BOS_DEL_FROM_INVISIBLE 0x0008
-#define FAMILY_BOS_DEFAULT            0xffff
-
-static const value_string aim_fnac_family_bos[] = {
-  { FAMILY_BOS_ERROR, "Error" },
-  { FAMILY_BOS_RIGHTSQUERY, "Rights Query" },
-  { FAMILY_BOS_RIGHTS, "Rights" },
-  { FAMILY_BOS_SET_GROUP_PERM, "Set Group Permissions Mask" },
-  { FAMILY_BOS_ADD_TO_VISIBLE, "Add To Visible List" },
-  { FAMILY_BOS_DEL_FROM_VISIBLE, "Delete From Visible List" },
-  { FAMILY_BOS_ADD_TO_INVISIBLE, "Add To Invisible List" },
-  { FAMILY_BOS_DEL_FROM_INVISIBLE, "Delete From Invisible List" },
-  { FAMILY_BOS_DEFAULT, "BOS Default" },
-  { 0, NULL }
-};
 
 #define CLASS_UNCONFIRMED 			 0x0001
 #define CLASS_ADMINISTRATOR			 0x0002
@@ -95,45 +73,28 @@ static int hf_aim_bos_class = -1;
 /* Initialize the subtree pointers */
 static gint ett_aim_bos      = -1;
 
-static int dissect_aim_bos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-	struct aiminfo *aiminfo = pinfo->private_data;
+static int dissect_aim_bos_set_group_perm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *bos_tree) 
+{
 	int offset = 0;
-	proto_item *ti;
-	proto_tree *bos_tree = NULL;
-	guint32 userclass;
+	guint32 userclass = tvb_get_ntohl(tvb, offset);
+	proto_item *ti = proto_tree_add_uint(bos_tree, hf_aim_bos_class, tvb, offset, 4, userclass); 
+	return dissect_aim_userclass(tvb, offset, 4, ti, userclass);
+}
 
-	if(tree) {
-		ti = proto_tree_add_text(tree, tvb, 0, -1,"AIM Privacy Management Service");
-		bos_tree = proto_item_add_subtree(ti, ett_aim_bos);
+static int dissect_aim_bos_rights(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bos_tree) {
+	int offset = 0;
+	while(tvb_reported_length_remaining(tvb, offset) > 0) {
+		offset = dissect_aim_tlv(tvb, pinfo, offset, bos_tree, privacy_tlvs);
 	}
+	return offset;
+}
 
-	switch(aiminfo->subtype) {
-		case FAMILY_BOS_ERROR:
-			return dissect_aim_snac_error(tvb, pinfo, offset, bos_tree);
-		case FAMILY_BOS_RIGHTSQUERY:
-			/* No data */
-			return 0;
-		case FAMILY_BOS_SET_GROUP_PERM:
-			userclass = tvb_get_ntohl(tvb, offset);
-			ti = proto_tree_add_uint(bos_tree, hf_aim_bos_class, tvb, offset, 4, userclass); 
-			return dissect_aim_userclass(tvb, offset, 4, ti, userclass);
-		case FAMILY_BOS_RIGHTS:
-			while(tvb_reported_length_remaining(tvb, offset) > 0) {
-				offset = dissect_aim_tlv(tvb, pinfo, offset, bos_tree, privacy_tlvs);
-			}
-			return offset;
-		case FAMILY_BOS_ADD_TO_VISIBLE:
-		case FAMILY_BOS_DEL_FROM_VISIBLE:
-	  	case FAMILY_BOS_ADD_TO_INVISIBLE:
-	  	case FAMILY_BOS_DEL_FROM_INVISIBLE:
-			while(tvb_reported_length_remaining(tvb, offset) > 0) {
-				offset = dissect_aim_buddyname(tvb, pinfo, offset, bos_tree);
-			}
-			return offset;
-			
-		default:
-			return 0;
+static int dissect_aim_bos_buddyname(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bos_tree) {
+	int offset = 0;
+	while(tvb_reported_length_remaining(tvb, offset) > 0) {
+		offset = dissect_aim_buddyname(tvb, pinfo, offset, bos_tree);
 	}
+	return offset;
 }
 
 /* Register the protocol with Ethereal */
@@ -141,35 +102,43 @@ void
 proto_register_aim_bos(void)
 {
 
-/* Setup list of header fields */
-  static hf_register_info hf[] = {
-    { &hf_aim_bos_data,
-      { "Data", "aim.data", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
-    },
-	{ &hf_aim_bos_class,
-	   { "User class", "aim.bos.userclass", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL },
-	},
-  };
+	/* Setup list of header fields */
+	static hf_register_info hf[] = {
+		{ &hf_aim_bos_data,
+			{ "Data", "aim.data", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{ &hf_aim_bos_class,
+			{ "User class", "aim.bos.userclass", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL },
+		},
+	};
 
-/* Setup protocol subtree array */
-  static gint *ett[] = {
-    &ett_aim_bos,
-  };
+	/* Setup protocol subtree array */
+	static gint *ett[] = {
+		&ett_aim_bos,
+	};
 
-/* Register the protocol name and description */
-  proto_aim_bos = proto_register_protocol("AIM Privacy Management Service", "AIM BOS", "aim_bos");
+	/* Register the protocol name and description */
+	proto_aim_bos = proto_register_protocol("AIM Privacy Management Service", "AIM BOS", "aim_bos");
 
-/* Required function calls to register the header fields and subtrees used */
-  proto_register_field_array(proto_aim_bos, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+	/* Required function calls to register the header fields and subtrees used */
+	proto_register_field_array(proto_aim_bos, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
+
+static const aim_subtype aim_fnac_family_bos[] = {
+	{ 0x0001, "Error", dissect_aim_snac_error },
+	{ 0x0002, "Rights Query", NULL },
+	{ 0x0003, "Rights" , dissect_aim_bos_rights },
+	{ 0x0004, "Set Group Permissions Mask", dissect_aim_bos_set_group_perm },
+	{ 0x0005, "Add To Visible List", dissect_aim_bos_buddyname },
+	{ 0x0006, "Delete From Visible List", dissect_aim_bos_buddyname },
+	{ 0x0007, "Add To Invisible List", dissect_aim_bos_buddyname },
+	{ 0x0008, "Delete From Invisible List", dissect_aim_bos_buddyname },
+	{ 0, NULL, NULL }
+};
 
 void
 proto_reg_handoff_aim_bos(void)
 {
-  dissector_handle_t aim_handle;
-
-  aim_handle = new_create_dissector_handle(dissect_aim_bos, proto_aim_bos);
-  dissector_add("aim.family", FAMILY_BOS, aim_handle);
-  aim_init_family(FAMILY_BOS, "Privacy Management Service", aim_fnac_family_bos);
+	aim_init_family(proto_aim_bos, ett_aim_bos, FAMILY_BOS, aim_fnac_family_bos);
 }

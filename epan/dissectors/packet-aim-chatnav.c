@@ -41,68 +41,23 @@
 
 #define FAMILY_CHAT_NAV   0x000D
 
-/* Family Chat Navigation */
-#define FAMILY_CHATNAV_ERROR          0x0001
-#define FAMILY_CHATNAV_LIMITS_REQ     0x0002
-#define FAMILY_CHATNAV_EXCHANGE_REQ   0x0003
-#define FAMILY_CHATNAV_ROOM_INFO_REQ  0x0004
-#define FAMILY_CHATNAV_ROOMIF_EXT_REQ 0x0005
-#define FAMILY_CHATNAV_MEMBERLIST_REQ 0x0006
-#define FAMILY_CHATNAV_SEARCH_ROOM    0x0007
-#define FAMILY_CHATNAV_CREATE_ROOM    0x0008
-#define FAMILY_CHATNAV_INFO_REPLY     0x0009
-#define FAMILY_CHATNAV_DEFAULT        0xffff
-
-static const value_string aim_fnac_family_chatnav[] = {
-  { FAMILY_CHATNAV_ERROR, "Error" },
-  { FAMILY_CHATNAV_LIMITS_REQ, "Request Limits" },
-  { FAMILY_CHATNAV_EXCHANGE_REQ, "Request Exchange" },
-  { FAMILY_CHATNAV_ROOM_INFO_REQ, "Request Room Information" },
-  { FAMILY_CHATNAV_ROOMIF_EXT_REQ, "Request Extended Room Information" },
-  { FAMILY_CHATNAV_MEMBERLIST_REQ, "Request Member List" },
-  { FAMILY_CHATNAV_SEARCH_ROOM, "Search Room" },
-  { FAMILY_CHATNAV_CREATE_ROOM, "Create" },
-  { FAMILY_CHATNAV_INFO_REPLY, "Info" },
-  { FAMILY_CHATNAV_DEFAULT, "ChatNav Default" },
-  { 0, NULL }
+static const aim_subtype aim_fnac_family_chatnav[] = {
+  { 0x0001, "Error", dissect_aim_snac_error },
+  { 0x0002, "Request Limits", NULL },
+  { 0x0003, "Request Exchange", NULL },
+  { 0x0004, "Request Room Information", NULL },
+  { 0x0005, "Request Extended Room Information", NULL },
+  { 0x0006, "Request Member List", NULL },
+  { 0x0007, "Search Room", NULL },
+  { 0x0008, "Create", NULL },
+  { 0x0009, "Info", NULL },
+  { 0, NULL, NULL }
 };
 
 /* Initialize the protocol and registered fields */
 static int proto_aim_chatnav = -1;
 
-int ett_aim_chatnav = -1;
-
-static int dissect_aim_chatnav(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  struct aiminfo *aiminfo = pinfo->private_data;
-	
-  proto_item *ti;
-  proto_tree *chatnav_tree = NULL;
-
-  if(tree) {
-      ti = proto_tree_add_text(tree, tvb, 0, -1, "Chat Navigation Service");
-      chatnav_tree = proto_item_add_subtree(ti, ett_aim_chatnav);
-  }
-
-  switch(aiminfo->subtype) {
-	  case FAMILY_CHATNAV_ERROR:
-		  return dissect_aim_snac_error(tvb, pinfo, 0, chatnav_tree);
-	case FAMILY_CHATNAV_LIMITS_REQ:
-		  /* No data */
-		  return 0;
-	case FAMILY_CHATNAV_EXCHANGE_REQ:
-	case FAMILY_CHATNAV_ROOM_INFO_REQ:
-	case FAMILY_CHATNAV_ROOMIF_EXT_REQ:
-	case FAMILY_CHATNAV_MEMBERLIST_REQ:
-	case FAMILY_CHATNAV_SEARCH_ROOM:
-	case FAMILY_CHATNAV_CREATE_ROOM:
-	case FAMILY_CHATNAV_INFO_REPLY:
-	case FAMILY_CHATNAV_DEFAULT:
-  /* FIXME */
-	  return 0;
-	default: return 0;
-  }
-}
+static int ett_aim_chatnav = -1;
 
 /* Register the protocol with Ethereal */
 void
@@ -130,10 +85,5 @@ proto_register_aim_chatnav(void)
 void
 proto_reg_handoff_aim_chatnav(void)
 {
-  dissector_handle_t aim_handle;
-
-  aim_handle = new_create_dissector_handle(dissect_aim_chatnav, proto_aim_chatnav);
-  dissector_add("aim.family", FAMILY_CHAT_NAV, aim_handle);
-  
-  aim_init_family(FAMILY_CHAT_NAV, "Chat Navigation", aim_fnac_family_chatnav);
+	aim_init_family(proto_aim_chatnav, ett_aim_chatnav, FAMILY_CHAT_NAV, aim_fnac_family_chatnav);
 }

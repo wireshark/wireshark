@@ -42,35 +42,6 @@
 
 #define FAMILY_SIGNON     0x0017
 
-/* Family Signon */
-#define FAMILY_SIGNON_ERROR          0x0001
-#define FAMILY_SIGNON_LOGON          0x0002
-#define FAMILY_SIGNON_LOGON_REPLY    0x0003
-#define FAMILY_SIGNON_UIN_REQ        0x0004
-#define FAMILY_SIGNON_UIN_REPL       0x0005
-#define FAMILY_SIGNON_SIGNON         0x0006
-#define FAMILY_SIGNON_SIGNON_REPLY   0x0007
-#define FAMILY_SIGNON_S_SECUREID_REQ 0x000a
-#define FAMILY_SIGNON_C_SECUREID_REP 0x000b
-
-static const value_string aim_fnac_family_signon[] = {
-  { FAMILY_SIGNON_LOGON, "Logon" },
-  { FAMILY_SIGNON_LOGON_REPLY, "Logon Reply" },
-  { FAMILY_SIGNON_UIN_REQ, "Request UIN" },
-  { FAMILY_SIGNON_UIN_REPL, "New UIN response" },
-  { FAMILY_SIGNON_SIGNON, "Sign-on" },
-  { FAMILY_SIGNON_SIGNON_REPLY, "Sign-on Reply" },
-  { FAMILY_SIGNON_S_SECUREID_REQ, "Server SecureID Request" },
-  { FAMILY_SIGNON_C_SECUREID_REP, "Client SecureID Reply" },
-  { 0, NULL }
-};
-
-static int dissect_aim_snac_signon(tvbuff_t *tvb, packet_info *pinfo, 
-				    proto_tree *tree);
-static int dissect_aim_snac_signon_logon(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
-static int dissect_aim_snac_signon_logon_reply(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
-static int dissect_aim_snac_signon_signon(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
-static int dissect_aim_snac_signon_signon_reply(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
 
 /* Initialize the protocol and registered fields */
 static int proto_aim_signon = -1;
@@ -82,59 +53,21 @@ static int hf_aim_signon_challenge = -1;
 /* Initialize the subtree pointers */
 static gint ett_aim_signon   = -1;
 
-static int dissect_aim_snac_signon(tvbuff_t *tvb, packet_info *pinfo, 
-				    proto_tree *tree)
-{
-	struct aiminfo *aiminfo = pinfo->private_data;
-	int offset = 0;
-
-	proto_item *ti = NULL;
-	proto_tree *signon_tree = NULL;
-	if(tree) {
-		ti = proto_tree_add_text(tree, tvb, 0, -1,"AIM Signon");
-		signon_tree = proto_item_add_subtree(ti, ett_aim_signon);
-	}                                                                                   
-	
-  switch(aiminfo->subtype)
-    {
-	case FAMILY_SIGNON_ERROR:
-      return dissect_aim_snac_error(tvb, pinfo, offset, signon_tree);
-    case FAMILY_SIGNON_LOGON:
-      return dissect_aim_snac_signon_logon(tvb, pinfo, offset, signon_tree);
-    case FAMILY_SIGNON_LOGON_REPLY:
-      return dissect_aim_snac_signon_logon_reply(tvb, pinfo, offset, signon_tree);
-    case FAMILY_SIGNON_SIGNON:
-      return dissect_aim_snac_signon_signon(tvb, pinfo, offset, signon_tree);
-    case FAMILY_SIGNON_SIGNON_REPLY:
-      return dissect_aim_snac_signon_signon_reply(tvb, pinfo, offset, signon_tree);
-	case FAMILY_SIGNON_S_SECUREID_REQ:
-	  /* No data */
-	  return 0;
-	case FAMILY_SIGNON_UIN_REQ:
-	case FAMILY_SIGNON_UIN_REPL:
-	case FAMILY_SIGNON_C_SECUREID_REP:
-	/*FIXME*/	
-	default:
-	  return 0;
-    }
-}
-
 static int dissect_aim_snac_signon_logon(tvbuff_t *tvb, packet_info *pinfo, 
-					  int offset, proto_tree *tree)
+					  proto_tree *tree)
 {
-  while (tvb_length_remaining(tvb, offset) > 0) {
-    offset = dissect_aim_tlv(tvb, pinfo, offset, tree, client_tlvs);
-  }
-  return offset;
+	int offset = 0;
+	while (tvb_length_remaining(tvb, offset) > 0) {
+		offset = dissect_aim_tlv(tvb, pinfo, offset, tree, client_tlvs);
+	}
+	return offset;
 }
 
 static int dissect_aim_snac_signon_logon_reply(tvbuff_t *tvb, 
 						packet_info *pinfo, 
-						int offset, proto_tree *tree)
+						proto_tree *tree)
 {
-    if (check_col(pinfo->cinfo, COL_INFO)) 
-      col_append_fstr(pinfo->cinfo, COL_INFO, ", Login information reply");
-
+	int offset = 0;
     while (tvb_length_remaining(tvb, offset) > 0) {
       offset = dissect_aim_tlv(tvb, pinfo, offset, tree, client_tlvs);
     }
@@ -142,93 +75,99 @@ static int dissect_aim_snac_signon_logon_reply(tvbuff_t *tvb,
 }
 
 static int dissect_aim_snac_signon_signon(tvbuff_t *tvb, packet_info *pinfo, 
-					   int offset, proto_tree *tree)
+					   proto_tree *tree)
 {
-  guint8 buddyname_length = 0;
-  char buddyname[MAX_BUDDYNAME_LENGTH + 1];
+	guint8 buddyname_length = 0;
+	int offset = 0;
+	char buddyname[MAX_BUDDYNAME_LENGTH + 1];
 
-  /* Info Type */
-  proto_tree_add_item(tree, hf_aim_infotype, tvb, offset, 2, FALSE);
-  offset += 2;
+	/* Info Type */
+	proto_tree_add_item(tree, hf_aim_infotype, tvb, offset, 2, FALSE);
+	offset += 2;
 
-  /* Unknown */
-  offset += 1;
+	/* Unknown */
+	offset += 1;
 
-  /* Buddy Name */
-  buddyname_length = aim_get_buddyname( buddyname, tvb, offset, offset + 1 );
-  
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_append_fstr(pinfo->cinfo, COL_INFO, " Username: %s",
-                    format_text(buddyname, buddyname_length));
-  }
-  
-  if(tree) {
-    proto_tree_add_text(tree, tvb, offset + 1, buddyname_length, 
-			"Screen Name: %s",
-			format_text(buddyname, buddyname_length));
-  }
-  
-  offset += buddyname_length + 1;
-  return offset;
+	/* Buddy Name */
+	buddyname_length = aim_get_buddyname( buddyname, tvb, offset, offset + 1 );
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " Username: %s",
+						format_text(buddyname, buddyname_length));
+	}
+
+	if(tree) {
+		offset+=dissect_aim_buddyname(tvb, pinfo, offset, tree);
+	}
+
+	return offset;
 }
 
 static int dissect_aim_snac_signon_signon_reply(tvbuff_t *tvb, 
-						 packet_info *pinfo, 
-						 int offset, proto_tree *tree)
+												packet_info *pinfo _U_, 
+												proto_tree *tree)
 {
-  guint16 challenge_length = 0;
+	int offset = 0;
+	guint16 challenge_length = 0;
 
-  if (check_col(pinfo->cinfo, COL_INFO)) 
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", Sign-on reply");
+	/* Logon Challenge Length */
+	challenge_length = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item(tree, hf_aim_signon_challenge_len, tvb, offset, 2, FALSE);
+	offset += 2;
 
-  /* Logon Challenge Length */
-  challenge_length = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_item(tree, hf_aim_signon_challenge_len, tvb, offset, 2, FALSE);
-  offset += 2;
-
-  /* Challenge */
-  proto_tree_add_item(tree, hf_aim_signon_challenge, tvb, offset, challenge_length, FALSE);
-  offset += challenge_length;
-  return offset;
+	/* Challenge */
+	proto_tree_add_item(tree, hf_aim_signon_challenge, tvb, offset, challenge_length, FALSE);
+	offset += challenge_length;
+	return offset;
 }
+
+static const aim_subtype aim_fnac_family_signon[] = {
+	{ 0x0001, "Error", dissect_aim_snac_error },
+	{ 0x0002, "Logon", dissect_aim_snac_signon_logon },
+	{ 0x0003, "Logon Reply", dissect_aim_snac_signon_logon_reply },
+	{ 0x0004, "Request UIN", NULL },
+	{ 0x0005, "New UIN response", NULL },
+	{ 0x0006, "Sign-on", dissect_aim_snac_signon_signon },
+	{ 0x0007, "Sign-on Reply", dissect_aim_snac_signon_signon_reply },
+	{ 0x000a, "Server SecureID Request", NULL },
+	{ 0x000b, "Client SecureID Reply", NULL },
+	{ 0, NULL, NULL }
+};
+
 
 /* Register the protocol with Ethereal */
 void
 proto_register_aim_signon(void)
 {
 
-/* Setup list of header fields */
-  static hf_register_info hf[] = {
-    { &hf_aim_infotype,
-      { "Infotype", "aim.infotype", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
-    },
-    { &hf_aim_signon_challenge_len,
-      { "Signon challenge length", "aim.signon.challengelen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
-    },
-    { &hf_aim_signon_challenge,
-      { "Signon challenge", "aim.signon.challenge", FT_STRING, BASE_HEX, NULL, 0x0, "", HFILL }
-    },
-  };
+	/* Setup list of header fields */
+	static hf_register_info hf[] = {
+		{ &hf_aim_infotype,
+			{ "Infotype", "aim.infotype", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{ &hf_aim_signon_challenge_len,
+			{ "Signon challenge length", "aim.signon.challengelen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+		},
+		{ &hf_aim_signon_challenge,
+			{ "Signon challenge", "aim.signon.challenge", FT_STRING, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+	};
 
-/* Setup protocol subtree array */
-  static gint *ett[] = {
-    &ett_aim_signon,
-  };
+	/* Setup protocol subtree array */
+	static gint *ett[] = {
+		&ett_aim_signon,
+	};
 
-/* Register the protocol name and description */
-  proto_aim_signon = proto_register_protocol("AIM Signon", "AIM Signon", "aim_signon");
+	/* Register the protocol name and description */
+	proto_aim_signon = proto_register_protocol("AIM Signon", "AIM Signon", "aim_signon");
 
-/* Required function calls to register the header fields and subtrees used */
-  proto_register_field_array(proto_aim_signon, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+	/* Required function calls to register the header fields and subtrees used */
+	proto_register_field_array(proto_aim_signon, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_aim_signon(void)
 {
-  dissector_handle_t aim_handle;
-
-  aim_handle = new_create_dissector_handle(dissect_aim_snac_signon, proto_aim_signon);
-  dissector_add("aim.family", FAMILY_SIGNON, aim_handle);
-  aim_init_family(FAMILY_SIGNON, "Signon", aim_fnac_family_signon);
+	aim_init_family(proto_aim_signon, ett_aim_signon, FAMILY_SIGNON, aim_fnac_family_signon);
 }

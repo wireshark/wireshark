@@ -41,55 +41,27 @@
 
 #define FAMILY_DIRECTORY  0x000F
 
-#define FAMILY_DIRECTORY_ERROR			    0x0001
-#define FAMILY_DIRECTORY_SEARCH_USER_REQ	0x0002
-#define FAMILY_DIRECTORY_SEARCH_USER_REPL   0x0003
-#define FAMILY_DIRECTORY_INTERESTS_LIST_REQ 0x0004
-#define FAMILY_DIRECTORY_INTERESTS_LIST_REP 0x0005
-
-static const value_string aim_fnac_family_directory[] = {
-	{ FAMILY_DIRECTORY_ERROR, "Error" },
-	{ FAMILY_DIRECTORY_SEARCH_USER_REQ, "Client search for user request" },
-	{ FAMILY_DIRECTORY_SEARCH_USER_REPL, "Server reply for search request (found users)" },
-	{ FAMILY_DIRECTORY_INTERESTS_LIST_REQ, "Request interests list from server" },
-	{ FAMILY_DIRECTORY_INTERESTS_LIST_REP, "Interests list" },
-	{ 0, NULL },
-};
-
 static int proto_aim_directory = -1;
 static int ett_aim_directory = -1;
 
-static int dissect_aim_directory(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_aim_directory_user_repl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	struct aiminfo *aiminfo = pinfo->private_data;
-	proto_item *ti;
 	int offset = 0;
-	proto_tree *directory_tree = NULL;
-
-    if(tree) {
-    	ti = proto_tree_add_text(tree, tvb, 0, -1, "Directory Service");
-    	directory_tree = proto_item_add_subtree(ti, ett_aim_directory);
-   	}
-
-	switch(aiminfo->subtype) {
-	case FAMILY_DIRECTORY_ERROR:
-		return dissect_aim_snac_error(tvb, pinfo, 0, directory_tree);
-	case FAMILY_DIRECTORY_INTERESTS_LIST_REQ:
-		return 0;
-	case FAMILY_DIRECTORY_SEARCH_USER_REQ:
-		/* FIXME */
-		return 0;
-	case FAMILY_DIRECTORY_SEARCH_USER_REPL:
-		while (tvb_length_remaining(tvb, offset) > 0) {
-			offset = dissect_aim_tlv(tvb, pinfo, offset, tree, client_tlvs);
-		}
-		return offset;
-	case FAMILY_DIRECTORY_INTERESTS_LIST_REP:
-		/* FIXME */
-		return 0;
+	while (tvb_length_remaining(tvb, offset) > 0) {
+		offset = dissect_aim_tlv(tvb, pinfo, offset, tree, client_tlvs);
 	}
-	return 0;
+	return offset;
 }
+
+static const aim_subtype aim_fnac_family_directory[] = {
+	{ 0x0001, "Error", dissect_aim_snac_error },
+	{ 0x0002, "Client search for user request", NULL },
+	{ 0x0003, "Server reply for search request (found users)", dissect_aim_directory_user_repl },
+	{ 0x0004, "Request interests list from server", NULL },
+	{ 0x0005, "Interests list", NULL },
+	{ 0, NULL, NULL },
+};
+
 
 /* Register the protocol with Ethereal */
 void
@@ -117,8 +89,5 @@ proto_register_aim_directory(void)
 void
 proto_reg_handoff_aim_directory(void)
 {
-  dissector_handle_t aim_handle;
-  aim_handle = new_create_dissector_handle(dissect_aim_directory, proto_aim_directory);
-  dissector_add("aim.family", FAMILY_DIRECTORY, aim_handle); 
-  aim_init_family(FAMILY_DIRECTORY, "Directory", aim_fnac_family_directory);
+  aim_init_family(proto_aim_directory, ett_aim_directory, FAMILY_DIRECTORY, aim_fnac_family_directory);
 }

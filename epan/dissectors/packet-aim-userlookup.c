@@ -41,20 +41,6 @@
 
 #define FAMILY_USERLOOKUP 0x000A
 
-/* Family User Lookup */
-#define FAMILY_USERLOOKUP_ERROR        0x0001
-#define FAMILY_USERLOOKUP_SEARCHEMAIL  0x0002
-#define FAMILY_USERLOOKUP_SEARCHRESULT 0x0003
-#define FAMILY_USERLOOKUP_DEFAULT      0xffff
-
-static const value_string aim_fnac_family_userlookup[] = {
-  { FAMILY_USERLOOKUP_ERROR, "Error" },
-  { FAMILY_USERLOOKUP_SEARCHEMAIL, "Search for user by email address" },
-  { FAMILY_USERLOOKUP_SEARCHRESULT, "Search results" },
-  { FAMILY_USERLOOKUP_DEFAULT, "Userlookup Default" },
-  { 0, NULL }
-};
-
 /* Initialize the protocol and registered fields */
 static int hf_aim_userlookup_email = -1;
 static int proto_aim_userlookup = -1;
@@ -62,36 +48,28 @@ static int proto_aim_userlookup = -1;
 /* Initialize the subtree pointers */
 static gint ett_aim_userlookup = -1;
 
-static int dissect_aim_snac_userlookup(tvbuff_t *tvb _U_, packet_info *pinfo, 
-					proto_tree *tree _U_)
+static int dissect_aim_userlookup_search(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *lookup_tree)
 {
-	struct aiminfo *aiminfo = pinfo->private_data;
-	int offset = 0;
-	
-    proto_item *ti = NULL;
-    proto_tree *lookup_tree = NULL;
-                                                                                
-    if(tree) {
-        ti = proto_tree_add_text(tree, tvb, 0, -1,"AIM Lookup Service");
-		lookup_tree = proto_item_add_subtree(ti, ett_aim_userlookup);
-    }
-
-
-	switch(aiminfo->subtype) {
-	case FAMILY_USERLOOKUP_ERROR:
-      return dissect_aim_snac_error(tvb, pinfo, offset, tree);
-	case FAMILY_USERLOOKUP_SEARCHEMAIL:
 	  proto_tree_add_item(lookup_tree, hf_aim_userlookup_email, tvb, 0, tvb_length(tvb), FALSE);
 	  return tvb_length(tvb);
-	case FAMILY_USERLOOKUP_SEARCHRESULT:
-        while(tvb_length_remaining(tvb, offset) > 0) {
-            offset = dissect_aim_tlv(tvb, pinfo, offset, lookup_tree, client_tlvs);
-        }
-		return offset;
-	}
-
-	return 0;
 }
+
+
+static int dissect_aim_userlookup_result(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lookup_tree)
+{
+	int offset = 0;
+	while(tvb_length_remaining(tvb, offset) > 0) {
+    	offset = dissect_aim_tlv(tvb, pinfo, offset, lookup_tree, client_tlvs);
+    }
+	return offset;
+}
+
+static const aim_subtype aim_fnac_family_userlookup[] = {
+  { 0x0001, "Error", dissect_aim_snac_error },
+  { 0x0002, "Search for user by email address", dissect_aim_userlookup_search },
+  { 0x0003, "Search results", dissect_aim_userlookup_result },
+  { 0, NULL, NULL }
+};
 
 /* Register the protocol with Ethereal */
 void
@@ -120,8 +98,5 @@ proto_register_aim_userlookup(void)
 void
 proto_reg_handoff_aim_userlookup(void)
 {
-  dissector_handle_t aim_handle;
-  aim_handle = new_create_dissector_handle(dissect_aim_snac_userlookup, proto_aim_userlookup);
-  dissector_add("aim.family", FAMILY_USERLOOKUP, aim_handle);
-  aim_init_family(FAMILY_USERLOOKUP, "User Lookup", aim_fnac_family_userlookup);
+  aim_init_family(proto_aim_userlookup, ett_aim_userlookup, FAMILY_USERLOOKUP, aim_fnac_family_userlookup);
 }

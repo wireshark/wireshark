@@ -41,27 +41,20 @@
 
 #define FAMILY_STATS      0x000B
 
-/* Family User Stats */
-#define FAMILY_STATS_ERROR             0x0001
-#define FAMILY_STATS_SETREPORTINTERVAL 0x0002
-#define FAMILY_STATS_REPORTREQ         0x0003
-#define FAMILY_STATS_REPORTACK         0x0004
-#define FAMILY_STATS_DEFAULT           0xffff
-
-static const value_string aim_fnac_family_stats[] = {
-  { FAMILY_STATS_ERROR, "Error" },
-  { FAMILY_STATS_SETREPORTINTERVAL, "Set Report Interval" },
-  { FAMILY_STATS_REPORTREQ, "Report Request" },
-  { FAMILY_STATS_REPORTACK, "Report Ack" },
-  { FAMILY_STATS_DEFAULT, "Stats Default" },
-  { 0, NULL }
-};
-
 /* Initialize the protocol and registered fields */
 static int proto_aim_stats = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_aim_stats    = -1;
+
+static const aim_subtype aim_fnac_family_stats[] = {
+  { 0x0001, "Error", dissect_aim_snac_error },
+  { 0x0002, "Set Report Interval", NULL },
+  { 0x0003, "Report Request", NULL },
+  { 0x0004, "Report Ack", NULL },
+  { 0, NULL, NULL }
+};
+
 
 /* Register the protocol with Ethereal */
 void
@@ -90,8 +83,5 @@ proto_register_aim_stats(void)
 void
 proto_reg_handoff_aim_stats(void)
 {
-  /*dissector_handle_t aim_handle;*/
-/*FIXME:  aim_handle = new_create_dissector_handle(dissect_aim_snac_stats, proto_aim_stats);
-  dissector_add("aim.family", FAMILY_STATS, aim_handle);*/
-  aim_init_family(FAMILY_STATS, "Statistic", aim_fnac_family_stats);
+  aim_init_family(proto_aim_stats, ett_aim_stats, FAMILY_STATS, aim_fnac_family_stats);
 }

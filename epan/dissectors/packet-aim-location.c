@@ -43,32 +43,6 @@
 /* SNAC families */
 #define FAMILY_LOCATION   0x0002
 
-/* Family Location Services */
-#define FAMILY_LOCATION_ERROR         0x0001
-#define FAMILY_LOCATION_REQRIGHTS     0x0002
-#define FAMILY_LOCATION_RIGHTSINFO    0x0003
-#define FAMILY_LOCATION_SETUSERINFO   0x0004
-#define FAMILY_LOCATION_REQUSERINFO   0x0005
-#define FAMILY_LOCATION_USERINFO      0x0006
-#define FAMILY_LOCATION_WATCHERSUBREQ 0x0007
-#define FAMILY_LOCATION_WATCHERNOT    0x0008
-#define FAMILY_LOCATION_USER_INFO_QUERY 0x0015
-#define FAMILY_LOCATION_DEFAULT       0xffff
-
-static const value_string aim_fnac_family_location[] = {
-  { FAMILY_LOCATION_ERROR, "Error" },
-  { FAMILY_LOCATION_REQRIGHTS, "Request Rights" },
-  { FAMILY_LOCATION_RIGHTSINFO, "Rights Info" },
-  { FAMILY_LOCATION_SETUSERINFO, "Set User Info" },
-  { FAMILY_LOCATION_REQUSERINFO, "Request User Info" },
-  { FAMILY_LOCATION_USERINFO, "User Info" },
-  { FAMILY_LOCATION_WATCHERSUBREQ, "Watcher Subrequest" },
-  { FAMILY_LOCATION_WATCHERNOT, "Watcher Notification" },
-  { FAMILY_LOCATION_DEFAULT, "Location Default" },
-  { FAMILY_LOCATION_USER_INFO_QUERY, "User Info Query" },
-  { 0, NULL }
-};
-
 #define FAMILY_LOCATION_USERINFO_INFOENCODING  0x0001
 #define FAMILY_LOCATION_USERINFO_INFOMSG       0x0002
 #define FAMILY_LOCATION_USERINFO_AWAYENCODING  0x0003
@@ -114,9 +88,6 @@ static const value_string aim_snac_location_request_user_info_infotypes[] = {
   { 0, NULL }
 };
 
-static int dissect_aim_snac_location_request_user_information(tvbuff_t *tvb, int offset, proto_tree *tree);
-static int dissect_aim_snac_location_user_information(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
-
 /* Initialize the protocol and registered fields */
 static int proto_aim_location = -1;
 static int hf_aim_snac_location_request_user_info_infotype = -1;
@@ -127,146 +98,142 @@ static int hf_aim_buddyname = -1;
 /* Initialize the subtree pointers */
 static gint ett_aim_location    = -1;
 
-static int dissect_aim_location(tvbuff_t *tvb, packet_info *pinfo, 
-				      proto_tree *tree )
+static int dissect_aim_location_rightsinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *loc_tree)
 {
-	struct aiminfo *aiminfo = pinfo->private_data;
 	int offset = 0;
-	 proto_item *ti = NULL;
-    proto_tree *loc_tree = NULL;
-
-    if(tree) {
-        ti = proto_tree_add_text(tree, tvb, 0, -1,"AIM Location Service");
-        loc_tree = proto_item_add_subtree(ti, ett_aim_location);
-    }
-
-  switch(aiminfo->subtype)
-    {
-	case FAMILY_LOCATION_ERROR:
-      return dissect_aim_snac_error(tvb, pinfo, offset, loc_tree);
-    case FAMILY_LOCATION_REQUSERINFO:
-      return dissect_aim_snac_location_request_user_information(tvb, offset, loc_tree);
-    case FAMILY_LOCATION_USERINFO:
-      return dissect_aim_snac_location_user_information(tvb, pinfo, offset, loc_tree);
-	case FAMILY_LOCATION_REQRIGHTS:
-	  /* No data */
-	  return 0;
-	case FAMILY_LOCATION_RIGHTSINFO:
-	   while(tvb_length_remaining(tvb, offset) > 0) {
+	while(tvb_length_remaining(tvb, offset) > 0) {
 		offset = dissect_aim_tlv(tvb, pinfo, offset, loc_tree, location_rights_tlvs);
-	  }
-	  return 0;
-	case FAMILY_LOCATION_SETUSERINFO:
-	  while(tvb_length_remaining(tvb, offset) > 0) {
+	}
+	return offset;
+}
+
+static int dissect_aim_location_setuserinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *loc_tree)
+{
+	int offset = 0;
+	while(tvb_length_remaining(tvb, offset) > 0) {
 		offset = dissect_aim_tlv(tvb, pinfo, offset, loc_tree, location_userinfo_tlvs);
-	  }
-	  return 0;
-	case FAMILY_LOCATION_WATCHERSUBREQ:
-	  /* FIXME */
-	  return 0;
-	case FAMILY_LOCATION_WATCHERNOT:
-	  while(tvb_length_remaining(tvb, offset) > 0) {
-		  offset = dissect_aim_buddyname(tvb, pinfo, offset, loc_tree);
-	  }
-	  return offset;
-	case FAMILY_LOCATION_USER_INFO_QUERY:
-	  offset = dissect_aim_buddyname(tvb, pinfo, offset+4, loc_tree);
-	  return offset;
-	default:
-	  return 0;
-    }
+	}
+	return offset;
+}
+
+static int dissect_aim_location_watcher_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *loc_tree)
+{
+	int offset = 0;
+	while(tvb_length_remaining(tvb, offset) > 0) {
+		offset = dissect_aim_buddyname(tvb, pinfo, offset, loc_tree);
+	}
+	return offset;
+}
+
+static int dissect_aim_location_user_info_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *loc_tree)
+{
+	return dissect_aim_buddyname(tvb, pinfo, 4, loc_tree);
 }
 
 static int dissect_aim_snac_location_request_user_information(tvbuff_t *tvb, 
-							  int offset,
-							  proto_tree *tree)
+															  packet_info *pinfo _U_,
+															  proto_tree *tree)
 {
-  guint8 buddyname_length = 0;
+	int offset = 0;
+	guint8 buddyname_length = 0;
 
-  /* Info Type */
-  proto_tree_add_item(tree, hf_aim_snac_location_request_user_info_infotype, 
-		      tvb, offset, 2, FALSE);
-  offset += 2;
+	/* Info Type */
+	proto_tree_add_item(tree, hf_aim_snac_location_request_user_info_infotype, 
+						tvb, offset, 2, FALSE);
+	offset += 2;
 
-  /* Buddy Name length */
-  buddyname_length = tvb_get_guint8(tvb, offset);
-  proto_tree_add_item(tree, hf_aim_buddyname_len, tvb, offset, 1, FALSE);
-  offset += 1;
-  
-  /* Buddy name */
-  proto_tree_add_item(tree, hf_aim_buddyname, tvb, offset, buddyname_length, FALSE);
-  offset += buddyname_length;
+	/* Buddy Name length */
+	buddyname_length = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_aim_buddyname_len, tvb, offset, 1, FALSE);
+	offset += 1;
 
-  return offset;
+	/* Buddy name */
+	proto_tree_add_item(tree, hf_aim_buddyname, tvb, offset, buddyname_length, FALSE);
+	offset += buddyname_length;
+
+	return offset;
 }
 
 static int dissect_aim_snac_location_user_information(tvbuff_t *tvb, 
-						       packet_info *pinfo _U_, 
-						  int offset, proto_tree *tree)
+													  packet_info *pinfo _U_, 
+													  proto_tree *tree)
 {
-  guint8 buddyname_length = 0;
+	int offset = 0;
+	guint8 buddyname_length = 0;
 
-  /* Buddy Name length */
-  buddyname_length = tvb_get_guint8(tvb, offset);
-  proto_tree_add_item(tree, hf_aim_buddyname_len, tvb, offset, 1, FALSE);
-  offset += 1;
-  
-  /* Buddy name */
-  proto_tree_add_item(tree, hf_aim_buddyname, tvb, offset, buddyname_length, FALSE);
-  offset += buddyname_length;
+	/* Buddy Name length */
+	buddyname_length = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_aim_buddyname_len, tvb, offset, 1, FALSE);
+	offset += 1;
 
-  /* Warning level */
-  proto_tree_add_item(tree, hf_aim_userinfo_warninglevel, tvb, offset, 2, FALSE);
-  offset += 2;
+	/* Buddy name */
+	proto_tree_add_item(tree, hf_aim_buddyname, tvb, offset, buddyname_length, FALSE);
+	offset += buddyname_length;
 
-  offset = dissect_aim_tlv_list(tvb, pinfo, offset, tree, onlinebuddy_tlvs);
+	/* Warning level */
+	proto_tree_add_item(tree, hf_aim_userinfo_warninglevel, tvb, offset, 2, FALSE);
+	offset += 2;
 
-  while(tvb_length_remaining(tvb, offset) > 0) {
-	  offset = dissect_aim_tlv(tvb, pinfo, offset, tree, msg_tlv);
-  }
+	offset = dissect_aim_tlv_list(tvb, pinfo, offset, tree, onlinebuddy_tlvs);
 
-  return offset;
+	while(tvb_length_remaining(tvb, offset) > 0) {
+		offset = dissect_aim_tlv(tvb, pinfo, offset, tree, msg_tlv);
+	}
+
+	return offset;
 }
+
+static const aim_subtype aim_fnac_family_location[] = {
+	{ 0x0001, "Error", dissect_aim_snac_error },
+	{ 0x0002, "Request Rights", NULL },
+	{ 0x0003, "Rights Info", dissect_aim_location_rightsinfo },
+	{ 0x0004, "Set User Info", dissect_aim_location_setuserinfo },
+	{ 0x0005, "Request User Info", dissect_aim_snac_location_request_user_information },
+	{ 0x0006, "User Info", dissect_aim_snac_location_user_information },
+	{ 0x0007, "Watcher Subrequest", NULL },
+	{ 0x0008, "Watcher Notification", dissect_aim_location_watcher_notification },
+	{ 0x0015, "User Info Query", dissect_aim_location_user_info_query },
+	{ 0, NULL, NULL }
+};
+
+
 
 void
 proto_register_aim_location(void)
 {
 
-/* Setup list of header fields */
-  static hf_register_info hf[] = {
-    { &hf_aim_buddyname_len,
-      { "Buddyname len", "aim.buddynamelen", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
-    },
-    { &hf_aim_buddyname,
-      { "Buddy Name", "aim.buddyname", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }
-    },
-    { &hf_aim_userinfo_warninglevel,
-      { "Warning Level", "aim.userinfo.warninglevel", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
-    },
-    { &hf_aim_snac_location_request_user_info_infotype,
-      { "Infotype", "aim.snac.location.request_user_info.infotype", FT_UINT16, BASE_HEX, VALS(aim_snac_location_request_user_info_infotypes), 0x0,
-	"", HFILL }
-    },
-  };
+	/* Setup list of header fields */
+	static hf_register_info hf[] = {
+		{ &hf_aim_buddyname_len,
+			{ "Buddyname len", "aim.buddynamelen", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+		},
+		{ &hf_aim_buddyname,
+			{ "Buddy Name", "aim.buddyname", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }
+		},
+		{ &hf_aim_userinfo_warninglevel,
+			{ "Warning Level", "aim.userinfo.warninglevel", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
+		},
+		{ &hf_aim_snac_location_request_user_info_infotype,
+			{ "Infotype", "aim.snac.location.request_user_info.infotype", FT_UINT16, BASE_HEX, VALS(aim_snac_location_request_user_info_infotypes), 0x0,
+				"", HFILL }
+		},
+	};
 
-/* Setup protocol subtree array */
-  static gint *ett[] = {
-    &ett_aim_location,
-  };
+	/* Setup protocol subtree array */
+	static gint *ett[] = {
+		&ett_aim_location,
+	};
 
-/* Register the protocol name and description */
-  proto_aim_location = proto_register_protocol("AIM Location", "AIM Location", "aim_location");
+	/* Register the protocol name and description */
+	proto_aim_location = proto_register_protocol("AIM Location", "AIM Location", "aim_location");
 
-/* Required function calls to register the header fields and subtrees used */
-  proto_register_field_array(proto_aim_location, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+	/* Required function calls to register the header fields and subtrees used */
+	proto_register_field_array(proto_aim_location, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_aim_location(void)
 {
-  dissector_handle_t aim_handle;
-  aim_handle = new_create_dissector_handle(dissect_aim_location, proto_aim_location);
-  dissector_add("aim.family", FAMILY_LOCATION, aim_handle);
-  aim_init_family(FAMILY_LOCATION, "Location", aim_fnac_family_location);
+	aim_init_family(proto_aim_location, ett_aim_location, FAMILY_LOCATION, aim_fnac_family_location);
 }

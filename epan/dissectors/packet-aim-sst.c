@@ -41,22 +41,6 @@
 
 #define FAMILY_SST    0x0010
 
-/* Family Advertising */
-#define FAMILY_SST_ERROR          		0x0001
-#define FAMILY_SST_UPLOAD_ICON_REQ	  	0x0002
-#define FAMILY_SST_UPLOAD_ICON_REPL	  	0x0003
-#define FAMILY_SST_DOWNLOAD_ICON_REQ	0x0004
-#define FAMILY_SST_DOWNLOAD_ICON_REPL	0x0005
-
-static const value_string aim_fnac_family_sst[] = {
-  { FAMILY_SST_ERROR, "Error" },
-  { FAMILY_SST_UPLOAD_ICON_REQ, "Upload Buddy Icon Request" },
-  { FAMILY_SST_UPLOAD_ICON_REPL, "Upload Buddy Icon Reply" },
-  { FAMILY_SST_DOWNLOAD_ICON_REQ, "Download Buddy Icon Request" },
-  { FAMILY_SST_DOWNLOAD_ICON_REPL, "Download Buddy Icon Reply" },
-  { 0, NULL }
-};
-
 
 /* Initialize the protocol and registered fields */
 static int proto_aim_sst = -1;
@@ -64,22 +48,15 @@ static int proto_aim_sst = -1;
 /* Initialize the subtree pointers */
 static gint ett_aim_sst      = -1;
 
-static int dissect_aim_sst(tvbuff_t *tvb _U_, 
-				     packet_info *pinfo _U_, 
-				     proto_tree *tree _U_)
-{
-	struct aiminfo *aiminfo = pinfo->private_data;
-	int offset = 0;
+static const aim_subtype aim_fnac_family_sst[] = {
+  { 0x0001, "Error", dissect_aim_snac_error },
+  { 0x0002, "Upload Buddy Icon Request", NULL },
+  { 0x0003, "Upload Buddy Icon Reply", NULL },
+  { 0x0004, "Download Buddy Icon Request", NULL },
+  { 0x0005, "Download Buddy Icon Reply", NULL },
+  { 0, NULL, NULL }
+};
 
-	switch(aiminfo->subtype) {
-		case FAMILY_SST_ERROR:
-		return dissect_aim_snac_error(tvb, pinfo, offset, tree);
-		default:
-		return 0;
-	}
-
-	return 0;
-}
 
 /* Register the protocol with Ethereal */
 void
@@ -108,8 +85,5 @@ proto_register_aim_sst(void)
 void
 proto_reg_handoff_aim_sst(void)
 {
-  dissector_handle_t aim_handle;
-  aim_handle = new_create_dissector_handle(dissect_aim_sst, proto_aim_sst);
-  dissector_add("aim.family", FAMILY_SST, aim_handle);
-  aim_init_family(FAMILY_SST, "Server Stored Themes", aim_fnac_family_sst);
+  aim_init_family(proto_aim_sst, ett_aim_sst, FAMILY_SST, aim_fnac_family_sst);
 }
