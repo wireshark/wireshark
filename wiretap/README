@@ -1,4 +1,4 @@
-$Id: README,v 1.5 1999/01/02 06:10:55 gram Exp $
+$Id: README,v 1.6 1999/01/02 06:50:30 gram Exp $
 
 Wiretap is a library that is being developed as a future replacement for
 libpcap, the current standard Unix library for packet capturing. Libpcap is
@@ -66,11 +66,12 @@ The Solaris 2.x "snoop" program's format is documented in RFC 1761.
 
 "iptrace"
 ---------
-This is the capture program that comes with AIX 3.x and 4.x. It has an
-undocumented, yet very simple, file format. The interesting thing about
-iptrace is that it will record packets coming in from all network interfaces;
-a single iptrace file can contain multiple datalink types. I have tested
-iptrace on ethernet and token-ring; if you can provide an iptrace file with
+This is the capture program that comes with AIX 3.x and 4.x. Right now wiretap
+only supports iptrace 2.0 (AIX4) because I don't have access to an AIX3
+machine.  iptrace has an undocumented, yet very simple, file format.
+The interesting thing about iptrace is that it will record packets coming in from
+all network interfaces; a single iptrace file can contain multiple datalink types.
+I have tested iptrace on ethernet and token-ring; if you can provide an iptrace file with
 any other datalink type, I would appreciate a copy. (with the output from
 'ipreport' too, if possible).
 
