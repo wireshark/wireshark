@@ -2,7 +2,7 @@
  *
  * Routines for ITU-T Recommendation H.261 dissection
  *
- * $Id: packet-h261.c,v 1.14 2002/02/01 04:34:15 gram Exp $
+ * $Id: packet-h261.c,v 1.15 2002/02/01 07:37:20 guy Exp $
  * 
  * Copyright 2000, Philips Electronics N.V.
  * Andreas Sikkema <andreas.sikkema@philips.com>
@@ -213,7 +213,7 @@ proto_register_h261(void)
 		{ 
 			&hf_h261_hmvd,
 			{ 
-				"Horizontal motion vctor data", 
+				"Horizontal motion vector data", 
 				"h261.hmvd", 
 				FT_UINT8, 
 				BASE_DEC, 
