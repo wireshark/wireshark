@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.132 1999/12/04 08:51:41 guy Exp $
+ * $Id: file.c,v 1.133 1999/12/04 08:59:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -163,7 +163,6 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
   cf->user_saved = !is_tempfile;
 
   cf->cd_t      = wtap_file_type(cf->wth);
-  cf->cd_t_desc = wtap_file_type_string(cf->cd_t);
   cf->first_packet = TRUE;
   cf->count     = 0;
   cf->drops     = 0;

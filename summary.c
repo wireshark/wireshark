@@ -1,7 +1,7 @@
 /* summary.c
  * Routines for capture file summary window
  *
- * $Id: summary.c,v 1.13 1999/10/11 06:39:01 guy Exp $
+ * $Id: summary.c,v 1.14 1999/12/04 08:59:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -175,7 +175,8 @@ summary_prep_cb(GtkWidget *w, gpointer d) {
   add_string_to_box(string_buff, file_box);
 
   /* format */
-  snprintf(string_buff, SUM_STR_MAX, "Format: %s", cf.cd_t_desc);
+  snprintf(string_buff, SUM_STR_MAX, "Format: %s",
+		wtap_file_type_string(cf.cd_t));
   add_string_to_box(string_buff, file_box);
 
   /* snapshot length */

@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.58 1999/11/30 20:49:47 guy Exp $
+ * $Id: file.h,v 1.59 1999/12/04 08:59:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -81,7 +81,6 @@ typedef struct _capture_file {
   gboolean     user_saved;/* If capture file is temporary, has it been saved by user yet? */
   long         f_len;     /* Length of capture file */
   guint16      cd_t;      /* File type of capture file */
-  const gchar *cd_t_desc; /* Description of that file type */
   gboolean     first_packet; /* TRUE if we're looking at the first packet */
   int          lnk_t;     /* Link-layer type with which to save capture */
   guint32      vers;      /* Version.  For tcpdump minor is appended to major */
