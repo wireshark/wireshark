@@ -2,7 +2,7 @@
  * Routines for laplink dissection
  * Copyright 2003, Brad Hards <bradh@frogmouth.net>
  *
- * $Id: packet-laplink.c,v 1.3 2003/10/20 19:25:48 guy Exp $
+ * $Id: packet-laplink.c,v 1.4 2003/10/20 23:05:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -222,6 +222,7 @@ proto_register_laplink(void)
 		&ett_laplink,
 	};
 
+	module_t *laplink_module;
 
 /* Register the protocol name and description */
 	proto_laplink = proto_register_protocol("Laplink",
@@ -230,8 +231,6 @@ proto_register_laplink(void)
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_laplink, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
-	module_t *laplink_module;
 
 	laplink_module = prefs_register_protocol(proto_laplink, NULL);
 	prefs_register_bool_preference(laplink_module, "desegment_laplink_over_tcp",
