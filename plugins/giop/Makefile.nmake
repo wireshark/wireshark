@@ -1,0 +1,21 @@
+#
+# $Id: Makefile.nmake,v 1.1 2001/07/19 21:30:17 guy Exp $
+#
+
+include ..\..\config.nmake
+
+############### no need to modify below this line #########
+
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../epan /I../../wiretap \
+	/I$(GLIB_DIR) /I$(GTK_DIR) /I$(GLIB_DIR)/gmodule \
+	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
+	/I$(PCAP_DIR)\include $(LOCAL_CFLAGS)
+
+OBJECTS=packet-cosnaming.obj 
+
+cosnaming.dll cosnaming.exp cosnaming.lib : packet-cosnaming.obj ..\plugin_api.obj
+	link -dll /out:cosnaming.dll packet-cosnaming.obj ..\plugin_api.obj \
+	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib
+
+clean:
+	rm -f $(OBJECTS) cosnaming.dll cosnaming.exp cosnaming.lib

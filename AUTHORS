@@ -485,6 +485,7 @@ Johan Jorgensen <johan.jorgensen@axis.com> {
 Frank Singleton <frank.singleton@ericsson.com> {
 	Short integer CDR support for GIOP
 	Support for protocols running atop GIOP
+	GIOP CosNaming support
 }
 
 Kevin Shi <techishi@ms22.hinet.net> {

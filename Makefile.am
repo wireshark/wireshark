@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.353 2001/07/16 21:04:12 guy Exp $
+# $Id: Makefile.am,v 1.354 2001/07/19 21:30:14 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -269,6 +269,7 @@ DISSECTOR_SRC = \
 
 PLUGIN_SRC = \
 	plugins/mgcp/packet-mgcp.c	\
+	plugins/giop/packet-cosnaming.c	\
 	plugins/gryphon/packet-gryphon.c 
 
 noinst_HEADERS = \
@@ -492,6 +493,7 @@ ethereal_DEPENDENCIES = \
 	$(ethereal_optional_objects)	\
 	$(ethereal_additional_libs)	\
 	plugins/gryphon/gryphon.la \
+	plugins/giop/cosnaming.la \
 	plugins/mgcp/mgcp.la
 
 ethereal_static_DEPENDENCIES = \
@@ -512,12 +514,14 @@ ethereal_LDADD = \
 	"-dlopen" self	\
 	"-dlopen" plugins/gryphon/gryphon.la \
 	"-dlopen" plugins/mgcp/mgcp.la \
+	"-dlopen" plugins/giop/cosnaming.la \
 	@PCAP_LIBS@ @GTK_LIBS@
 
 ethereal_static_LDADD = \
 	"-all-static" 			\
 	plugins/mgcp/packet-mgcp-static.o		\
 	plugins/gryphon/packet-gryphon-static.o		\
+	plugins/giop/packet-cosnaming-static.o		\
 	$(ethereal_optional_objects)	\
 	$(ethereal_additional_libs)	\
 	@SNMP_LIBS@ @SSL_LIBS@		\
@@ -551,6 +555,7 @@ tethereal_DEPENDENCIES = \
 	$(ethereal_optional_objects)	\
 	$(tethereal_additional_libs)	\
 	plugins/gryphon/gryphon.la	\
+	plugins/giop/cosnaming.la	\
 	plugins/mgcp/mgcp.la
 
 tethereal_static_DEPENDENCIES = \
@@ -565,6 +570,7 @@ tethereal_LDADD = wiretap/libwiretap.a	\
 	"-dlopen" self	\
 	"-dlopen" plugins/gryphon/gryphon.la \
 	"-dlopen" plugins/mgcp/mgcp.la \
+	"-dlopen" plugins/giop/cosnaming.la \
 	@GLIB_LIBS@ -lm \
 	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@
 
@@ -572,6 +578,7 @@ tethereal_static_LDADD = \
 	"-all-static"		\
 	plugins/mgcp/packet-mgcp-static.o		\
 	plugins/gryphon/packet-gryphon-static.o		\
+	plugins/giop/packet-cosnaming-static.o		\
 	wiretap/libwiretap.a	\
 	$(ethereal_optional_objects)	\
 	$(tethereal_additional_libs)	\
