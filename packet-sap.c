@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sap.c,v 1.2 1999/11/17 06:52:19 guy Exp $
+ * $Id: packet-sap.c,v 1.3 1999/11/22 21:41:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -146,9 +146,8 @@ void dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
                 col_add_str(fd, COL_PROTOCOL, "SAP");
         
         if (check_col(fd, COL_INFO)) {
-                col_add_fstr(fd, COL_INFO, "V%d session %s, originating source %s", sap_version,
-                             (is_del) ? "deletion" : "announcement",
-                             (is_ipv6) ? ip6_to_str((struct e_in6_addr*)(pd+offset+4)) : ip_to_str(pd+offset+4));
+                col_add_fstr(fd, COL_INFO, "%s (v%u)",
+                             (is_del) ? "Deletion" : "Announcement", sap_version);
         }
 
 	if (tree) {
