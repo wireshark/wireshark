@@ -1,7 +1,7 @@
 /* range.h
  * Packet range routines (save, print, ...)
  *
- * $Id: range.h,v 1.2 2003/12/29 20:40:44 guy Exp $
+ * $Id: range.h,v 1.3 2003/12/29 20:53:39 ulfl Exp $
  *
  * Dick Gooris <gooris@lucent.com>
  * Ulf Lamping <ulf.lamping@web.de>
@@ -69,7 +69,7 @@ extern gboolean packet_range_process_all(packet_range_t *range);
 /* do we have to process this packet? */
 extern range_process_e packet_range_process(packet_range_t *range, frame_data *fdata);
 
-extern void packet_range_convert_str(gchar *es);
+extern void packet_range_convert_str(const gchar *es);
 
 
 #endif /* __PRINT_RANGE_H__ */
