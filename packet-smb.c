@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.237 2002/03/27 04:27:04 guy Exp $
+ * $Id: packet-smb.c,v 1.238 2002/03/27 20:58:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -13036,15 +13036,14 @@ static char *decode_smb_error(guint8 errcls, guint16 errcode)
    name of the largest country. Apologies for this. If this offends you,
    here is the table to change that.
 
-   This also includes the code of 0 for "Default", and some fixes for
-   errors in the Unicode Consortium's table.
+   This also includes the code of 0 for "Default", which isn't in
+   that list, but is in Microsoft's SDKs and the Cygnus "winnls.h"
+   header file.  Presumably it means "don't override the setting
+   on the user's machine".
 
-   Future versions of Microsoft's "winnls.h" header file may include
+   Future versions of Microsoft's "winnls.h" header file might include
    additional codes; the current version matches the Unicode Consortium's
-   table, except for the additional code 0 for "Default", and two
-   errors (that have been reported to the Unicode Consortium, so the
-   page at the URL listed above might include fixes for those errors
-   in the future).
+   table.
 */
 const value_string ms_country_codes[] = {
 	{  0,	"Default"},
