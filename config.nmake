@@ -1,4 +1,4 @@
-# $Id: config.nmake,v 1.94 2004/07/06 16:29:18 gerald Exp $
+# $Id: config.nmake,v 1.95 2004/07/07 19:15:46 gerald Exp $
 
 VERSION=0.10.5
 #
@@ -54,16 +54,16 @@ GLIB_DIR=$(ETHEREAL_LIBS)\glib
 # reside.
 #
 GTK1_DIR=$(ETHEREAL_LIBS)\gtk+
-#GTK2_DIR=$(ETHEREAL_LIBS)\gtk2
+GTK2_DIR=$(ETHEREAL_LIBS)\gtk2
 
 # Declare the version of your gtk2 and pango. (MAJOR + MINOR Version number
 # but without MICRO version number) 
 # These macros are used by the nsis installer script and by the setup target.
 #
-GTK2_INST_VERSION=2.2
-PANGO_INST_VERSION=1.2
-#GTK2_INST_VERSION=2.4
-#PANGO_INST_VERSION=1.4
+#GTK2_INST_VERSION=2.2
+#PANGO_INST_VERSION=1.2
+GTK2_INST_VERSION=2.4
+PANGO_INST_VERSION=1.4
 
 #
 # If you have GTK-Wimp, set this to the pathname of the directory in
@@ -72,7 +72,7 @@ PANGO_INST_VERSION=1.2
 # If you don't have GTK-Wimp, comment this line out, so that GTK-Wimp isn't
 # defined.
 #
-#GTK_WIMP_DIR=$(ETHEREAL_LIBS)\gtk-wimp
+GTK_WIMP_DIR=$(ETHEREAL_LIBS)\gtk-wimp
 
 #
 # If you have Zlib, set this to the pathname of the directory in
