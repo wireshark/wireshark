@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.199 2002/12/29 01:25:01 guy Exp $
+ * $Id: capture.c,v 1.200 2002/12/31 21:06:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1468,8 +1468,9 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 		       open_err_str);
 
   if (pch == NULL) {
+    /* We couldn't open "cfile.iface" as a network device. */
 #ifdef _WIN32
-    /* Well, we couldn't start the capture.
+    /* On Windows, we don't support capturing on pipes, so we give up.
        If this is a child process that does the capturing in sync
        mode or fork mode, it shouldn't do any UI stuff until we pop up the
        capture-progress window, and, since we couldn't start the
