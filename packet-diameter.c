@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.62 2004/03/05 22:25:23 obiot Exp $
+ * $Id: packet-diameter.c,v 1.63 2004/03/21 23:10:31 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -22,6 +22,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * References:
+ * 2004-03-11
+ * http://www.ietf.org/rfc/rfc3588.txt
+ * http://www.iana.org/assignments/radius-types
+ * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-cc-03.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-nasreq-14.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-mobileip-16.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-sip-app-01.txt
+ * http://www.ietf.org/html.charters/aaa-charter.html
  */
 
 #ifdef HAVE_CONFIG_H
@@ -72,7 +81,9 @@ typedef enum {
   DIAMETER_QOS_FILTER_RULE,    /* OctetString */
   DIAMETER_MIP_REG_REQ,        /* OctetString */
   DIAMETER_VENDOR_ID,           /* Integer32  */
-  DIAMETER_APPLICATION_ID
+  DIAMETER_APPLICATION_ID,
+  DIAMETER_URI,					/* OctetString */
+  DIAMETER_SESSION_ID			/* OctetString */
 
 } diameterDataType;
 
@@ -97,6 +108,9 @@ static value_string TypeValues[]={
   {  DIAMETER_MIP_REG_REQ,     "MIPRegistrationRequest"},
   {  DIAMETER_VENDOR_ID,       "VendorId"},
   {  DIAMETER_APPLICATION_ID,  "AppId"},
+  {  DIAMETER_URI,				"DiameterURI"},
+  {  DIAMETER_SESSION_ID,		"Session-Id"},
+	
   {0, (char *)NULL}
 };
 
@@ -159,6 +173,7 @@ static const true_false_string reserved_set = {
   "*** Error! Reserved Bit is Set",
   "Ok"
 };
+
 static int proto_diameter = -1;
 static int hf_diameter_length = -1;
 static int hf_diameter_code = -1;
@@ -170,7 +185,7 @@ static int hf_diameter_flags = -1;
 static int hf_diameter_flags_request = -1;
 static int hf_diameter_flags_proxyable = -1;
 static int hf_diameter_flags_error = -1;
-static int hf_diameter_flags_reserved3 = -1;
+static int hf_diameter_flags_T		= -1;
 static int hf_diameter_flags_reserved4 = -1;
 static int hf_diameter_flags_reserved5 = -1;
 static int hf_diameter_flags_reserved6 = -1;
@@ -199,7 +214,7 @@ static int hf_diameter_avp_data_string = -1;
 static int hf_diameter_avp_data_v4addr = -1;
 static int hf_diameter_avp_data_v6addr = -1;
 static int hf_diameter_avp_data_time = -1;
-
+static int hf_diameter_avp_session_id		= -1;
 static gint ett_diameter = -1;
 static gint ett_diameter_flags = -1;
 static gint ett_diameter_avp = -1;
@@ -237,12 +252,12 @@ typedef struct _e_avphdr {
 #define DIAM_FLAGS_R 0x80
 #define DIAM_FLAGS_P 0x40
 #define DIAM_FLAGS_E 0x20
-#define DIAM_FLAGS_RESERVED3 0x10
+#define DIAM_FLAGS_T 0x10
 #define DIAM_FLAGS_RESERVED4 0x08
 #define DIAM_FLAGS_RESERVED5 0x04
 #define DIAM_FLAGS_RESERVED6 0x02
 #define DIAM_FLAGS_RESERVED7 0x01
-#define DIAM_FLAGS_RESERVED  0x1f
+#define DIAM_FLAGS_RESERVED  0x0f
 
 #define DIAM_LENGTH_MASK  0x00ffffffl
 #define DIAM_COMMAND_MASK DIAM_LENGTH_MASK
@@ -346,7 +361,7 @@ addStaticAVP(int code, gchar *name, diameterDataType type, value_string *values)
   entry->type = type;
   entry->values = vEntry;
   if (vEntry)
-	entry->type = DIAMETER_INTEGER32;
+	entry->type = DIAMETER_ENUMERATED;
 
   /* And, add it to the list */
   entry->next = avpListHead;
@@ -1163,7 +1178,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_boolean(flags_tree, hf_diameter_flags_request, tvb, offset, 1, flags);
 	proto_tree_add_boolean(flags_tree, hf_diameter_flags_proxyable, tvb, offset, 1, flags);
 	proto_tree_add_boolean(flags_tree, hf_diameter_flags_error, tvb, offset, 1, flags);
-	proto_tree_add_boolean(flags_tree, hf_diameter_flags_reserved3, tvb, offset, 1, flags);
+	proto_tree_add_boolean(flags_tree, hf_diameter_flags_T, tvb, offset, 1, flags);
 	proto_tree_add_boolean(flags_tree, hf_diameter_flags_reserved4, tvb, offset, 1, flags);
 	proto_tree_add_boolean(flags_tree, hf_diameter_flags_reserved5, tvb, offset, 1, flags);
 	proto_tree_add_boolean(flags_tree, hf_diameter_flags_reserved6, tvb, offset, 1, flags);
@@ -1419,8 +1434,9 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 	  g_warning("Diameter: Invalid AVP: Reserved bit set.  flags = 0x%x,"
 				" resFl=0x%x",
 				flags, AVP_FLAGS_RESERVED);
-	  /* For now, don't set bad packet, since I'm accidentally setting a wrong bit */
-	  /* BadPacket = TRUE; */
+	  /* For now, don't set bad packet, since I'm accidentally setting a wrong bit 
+	   BadPacket = TRUE; 
+	   */
 	}
 
 	/*
@@ -1690,6 +1706,18 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 		safe_dissect_mip(tvb, pinfo, avpi_tree, offset, avpDataLength);
 		break;
 
+	  case DIAMETER_SESSION_ID:
+		  {
+			  const guint8 *data;
+			  data = tvb_get_ptr(tvb, offset, avpDataLength);
+			  proto_tree_add_string_format(avpi_tree, hf_diameter_avp_session_id,
+				  tvb, offset, avpDataLength, data,
+				  "Session ID: %*.*s",
+				  (int)avpDataLength,
+				  (int)avpDataLength, data);
+		  }
+		break;
+
 	  default:
 	  case DIAMETER_OCTET_STRING:
 		proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
@@ -1761,9 +1789,9 @@ proto_register_diameter(void)
 		{ &hf_diameter_flags_error,
 		  { "Error","diameter.flags.error", FT_BOOLEAN, 8, TFS(&flags_set_truth), DIAM_FLAGS_E,
 			"", HFILL }},
-		{ &hf_diameter_flags_reserved3,
-		  { "Reserved","diameter.flags.reserved3", FT_BOOLEAN, 8, TFS(&reserved_set),
-			DIAM_FLAGS_RESERVED3, "", HFILL }},
+		{ &hf_diameter_flags_T,
+		  { "T(Potentially re-transmitted message)","diameter.flags.T", FT_BOOLEAN, 8, TFS(&flags_set_truth),DIAM_FLAGS_T,
+			"", HFILL }},
 		{ &hf_diameter_flags_reserved4,
 		  { "Reserved","diameter.flags.reserved4", FT_BOOLEAN, 8, TFS(&reserved_set),
 			DIAM_FLAGS_RESERVED4, "", HFILL }},
@@ -1855,6 +1883,9 @@ proto_register_diameter(void)
 		{ &hf_diameter_avp_data_time,
 		  { "Time","diameter.avp.data.time", FT_ABSOLUTE_TIME, BASE_NONE,
 		    NULL, 0x0, "", HFILL }},
+		{ &hf_diameter_avp_session_id,
+		  { "Session ID","diameter.avp.session_id", FT_STRING, BASE_NONE,
+		    NULL, 0x0, "", HFILL }},
 
 	};
 	static gint *ett[] = {
@@ -1922,3 +1953,4 @@ proto_register_diameter(void)
 	prefs_register_obsolete_preference(diameter_module, "udp.port");
 	prefs_register_obsolete_preference(diameter_module, "command_in_header");
 } /* proto_register_diameter */
+
