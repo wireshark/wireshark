@@ -2893,8 +2893,10 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * then we should just forget about the windowscaling completely.
    */
   if(!pinfo->fd->flags.visited){
-    if((tcph->th_flags & (TH_SYN|TH_ACK))==(TH_SYN|TH_ACK)) {
-      verify_tcp_window_scaling(pinfo);
+    if(tcp_analyze_seq && tcp_relative_seq){
+      if((tcph->th_flags & (TH_SYN|TH_ACK))==(TH_SYN|TH_ACK)) {
+        verify_tcp_window_scaling(pinfo);
+      }
     }
   }
 
