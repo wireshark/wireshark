@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.69 2001/08/05 10:09:38 guy Exp $
+ * $Id: packet-ppp.c,v 1.70 2001/08/05 19:44:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -220,6 +220,9 @@ static void dissect_lcp_async_map_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 static void dissect_lcp_protocol_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 			int offset, guint length, frame_data *fd,
 			proto_tree *tree);
+static void dissect_lcp_authprot_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, frame_data *fd,
+			proto_tree *tree);
 static void dissect_lcp_magicnumber_opt(const ip_tcp_opt *optp,
 			tvbuff_t *tvb, int offset, guint length,
 			frame_data *fd, proto_tree *tree);
@@ -272,7 +275,7 @@ static const ip_tcp_opt lcp_opts[] = {
 		&ett_lcp_authprot_opt,
 		VARIABLE_LENGTH,
 		4,
-		dissect_lcp_protocol_opt
+		dissect_lcp_authprot_opt
 	},
 	{
 		CI_QUALITY,
@@ -445,6 +448,21 @@ static const ip_tcp_opt lcp_opts[] = {
 };
 
 #define N_LCP_OPTS	(sizeof lcp_opts / sizeof lcp_opts[0])
+
+/* 
+ * CHAP Algorithms
+ */
+#define CHAP_ALG_MD5	0x05	/* CHAP with MD5 */
+#define CHAP_ALG_MSV1	0x80	/* MS-CHAPv1 */
+#define CHAP_ALG_MSV2	0x81	/* MS-CHAPv2 */
+
+static const value_string chap_alg_vals[] = {
+	{CHAP_ALG_MD5,	"CHAP with MD5" },
+	{CHAP_ALG_MSV1,	"MS-CHAP" },
+	{CHAP_ALG_MSV2,	"MS-CHAP-2" },
+	{0,          	NULL }
+};
+
 
 /*
  * Options.  (IPCP)
@@ -760,6 +778,40 @@ dissect_lcp_protocol_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 }
 
 static void
+dissect_lcp_authprot_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+			 guint length, frame_data *fd, proto_tree *tree)
+{
+  guint16 protocol;
+  guint8 algorithm;
+  proto_item *tf;
+  proto_tree *field_tree = NULL;
+  
+  tf = proto_tree_add_text(tree, tvb, offset, length, "%s: %u byte%s",
+	  optp->name, length, plurality(length, "", "s"));
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  offset += 2;
+  length -= 2;
+  protocol = tvb_get_ntohs(tvb, offset);
+  proto_tree_add_text(field_tree, tvb, offset, 2, "%s: %s (0x%02x)", optp->name,
+		val_to_str(protocol, ppp_vals, "Unknown"), protocol);
+  offset += 2;
+  length -= 2;
+  if (length > 0) {
+    if (protocol == PPP_CHAP) {
+      algorithm = tvb_get_guint8(tvb, offset);
+      proto_tree_add_text(field_tree, tvb, offset, length, 
+			  "Algorithm: %s (0x%02x)", 
+			  val_to_str(algorithm, chap_alg_vals, "Unknown"), 
+			  algorithm);
+      offset++;
+    } else {
+      proto_tree_add_text(field_tree, tvb, offset, length, "Data (%d byte%s)", length,
+    			plurality(length, "", "s"));
+    }
+  }
+}
+
+static void
 dissect_lcp_magicnumber_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 			int offset, guint length, frame_data *fd,
 			proto_tree *tree)
@@ -831,7 +883,7 @@ static const value_string callback_op_vals[] = {
 	{2, "Message is location identifier" },
 	{3, "Message is E.164" },
 	{4, "Message is distinguished name" },
-	{5, "unassinged"},
+	{5, "unassigned"},
 	{6, "Location is determined during CBCP negotiation" },
 	{0, NULL }
 };
