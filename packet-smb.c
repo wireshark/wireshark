@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.330 2003/04/17 20:30:41 guy Exp $
+ * $Id: packet-smb.c,v 1.331 2003/04/18 18:07:50 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -398,6 +398,7 @@ static int hf_smb_nt_access_mask_read = -1;
 static int hf_smb_nt_create_bits_oplock = -1;
 static int hf_smb_nt_create_bits_boplock = -1;
 static int hf_smb_nt_create_bits_dir = -1;
+static int hf_smb_nt_create_bits_ext_resp = -1;
 static int hf_smb_nt_create_options_directory_file = -1;
 static int hf_smb_nt_create_options_write_through = -1;
 static int hf_smb_nt_create_options_sequential_only = -1;
@@ -4868,6 +4869,9 @@ static const value_string oa_open_vals[] = {
 	{ 1,		"The file existed and was opened"},
 	{ 2,		"The file did not exist but was created"},
 	{ 3,		"The file existed and was truncated"},
+	{ 0x8001,       "The file existed and was opened, and an OpLock was granted"}, 
+	{ 0x8002,       "The file did not exist but was created, and an OpLock was granted"},
+	{ 0x8002,       "The file existed and was truncated, and an OpLock was granted"},
 	{0,	NULL}
 };
 static const true_false_string tfs_oa_lock = {
@@ -6413,6 +6417,11 @@ static const true_false_string tfs_nt_create_bits_dir = {
 	"Target of open can be a file"
 };
 
+static const true_false_string tfs_nt_create_bits_ext_resp = {
+  "Extended responses required",
+  "Extended responses NOT required"
+};
+
 static const true_false_string tfs_nt_access_mask_generic_read = {
 	"GENERIC READ is set",
 	"Generic read is NOT set"
@@ -6720,7 +6729,15 @@ dissect_nt_create_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	 * Network Monitor doesn't say what the 0x00000010 bit is.
 	 * Does the Win32 API documentation, or NT Native API book,
 	 * suggest anything?
+	 *
+	 * That is the extended response desired bit ... RJS, from Samba
+	 * Well, maybe. Samba thinks it is, and uses it to encode
+	 * OpLock granted as the high order bit of the Action field
+	 * in the response. However, Windows does not do that. Or at least
+	 * Win2K doesn't.
 	 */
+	proto_tree_add_boolean(tree, hf_smb_nt_create_bits_ext_resp,
+			       tvb, offset, 4, mask);
 	proto_tree_add_boolean(tree, hf_smb_nt_create_bits_dir,
 		tvb, offset, 4, mask);
 	proto_tree_add_boolean(tree, hf_smb_nt_create_bits_boplock,
@@ -9318,6 +9335,7 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	/* create action */
 	/*XXX is this really the same as create disposition in the request? it looks so*/
+	/* No, it is not. It is the same as the create action from an Open&X request ... RJS */
 	proto_tree_add_item(tree, hf_smb_create_action, tvb, offset, 4, TRUE);
 	offset += 4;
 
@@ -17264,6 +17282,10 @@ proto_register_smb(void)
 		{ "Create Directory", "smb.nt.create.dir", FT_BOOLEAN, 32,
 		TFS(&tfs_nt_create_bits_dir), 0x00000008, "Must target of open be a directory?", HFILL }},
 
+	{ &hf_smb_nt_create_bits_ext_resp,
+	  { "Extended Response", "smb.nt.create.ext", FT_BOOLEAN, 32, 
+	    TFS(&tfs_nt_create_bits_ext_resp), 0x00000010, "Extended response required?", HFILL }},
+
 	{ &hf_smb_nt_create_options_directory_file,
 		{ "Directory", "smb.nt.create_options.directory", FT_BOOLEAN, 32,
 		TFS(&tfs_nt_create_options_directory), 0x00000001, "Should file being opened/created be a directory?", HFILL }},
@@ -17424,7 +17446,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_create_action,
 		{ "Create action", "smb.create.action", FT_UINT32, BASE_DEC,
-		VALS(create_disposition_vals), 0, "Type of action taken", HFILL }},
+		VALS(oa_open_vals), 0, "Type of action taken", HFILL }},
 
 	{ &hf_smb_file_id,
 		{ "Server unique file ID", "smb.create.file_id", FT_UINT32, BASE_HEX,
