@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.53 2002/02/24 06:45:14 guy Exp $
+ * $Id: packet.h,v 1.54 2002/02/26 11:55:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -90,8 +90,24 @@ typedef struct dissector_handle *dissector_handle_t;
 struct dissector_table;
 typedef struct dissector_table *dissector_table_t;
 
-/* types for sub-dissector lookup */
+/*
+ * Dissector that returns nothing.
+ */
 typedef void (*dissector_t)(tvbuff_t *, packet_info *, proto_tree *);
+
+/*
+ * Dissector that returns:
+ *
+ *	the amount of data in the protocol's PDU, if it was able to
+ *	dissect all the data;
+ *
+ *	0, if the tvbuff doesn't contain a PDU for that protocol;
+ *
+ *	the negative of the amount of additional data needed, if
+ *	we need more data (e.g., from subsequent TCP segments) to
+ *	dissect the entire PDU.
+ */
+typedef int (*new_dissector_t)(tvbuff_t *, packet_info *, proto_tree *);
 
 typedef void (*DATFunc) (gchar *table_name, gpointer key, gpointer value, gpointer user_data);
 typedef void (*DATFunc_handle) (gchar *table_name, gpointer value, gpointer user_data);
@@ -184,6 +200,8 @@ extern gboolean dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 /* Register a dissector. */
 extern void register_dissector(const char *name, dissector_t dissector,
     int proto);
+extern void new_register_dissector(const char *name, new_dissector_t dissector,
+    int proto);
 
 /* Get the short name of the protocol for a dissector handle. */
 extern char *dissector_handle_get_short_name(dissector_handle_t handle);
@@ -196,7 +214,7 @@ extern dissector_handle_t create_dissector_handle(dissector_t dissector,
     int proto);
 
 /* Call a dissector through a handle. */
-extern void call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
+extern int call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree);
 
 /* Do all one-time initialization. */

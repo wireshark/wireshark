@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.62 2002/02/25 21:02:10 guy Exp $
+ * $Id: packet.c,v 1.63 2002/02/26 11:55:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -312,7 +312,11 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
  */
 struct dissector_handle {
 	const char	*name;		/* dissector name */
-	dissector_t	dissector;
+	gboolean	is_new;		/* TRUE if new-style dissector */
+	union {
+		dissector_t	old;
+		new_dissector_t	new;
+	} dissector;
 	int		proto_index;
 };
 
@@ -496,9 +500,11 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	dtbl_entry_t *dtbl_entry;
+	struct dissector_handle *handle;
 	const char *saved_proto;
 	guint32 saved_match_port;
 	guint16 saved_can_desegment;
+	int ret;
 
 	dtbl_entry = g_hash_table_lookup(sub_dissectors->hash_table,
 	    GUINT_TO_POINTER(port));
@@ -506,7 +512,8 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 		/*
 		 * Is there currently a dissector handle for this entry?
 		 */
-		if (dtbl_entry->current == NULL) {
+		handle = dtbl_entry->current;
+		if (handle == NULL) {
 			/*
 			 * No - pretend this dissector didn't exist,
 			 * so that other dissectors might have a chance
@@ -518,8 +525,8 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 		/*
 		 * Yes - is its protocol enabled?
 		 */
-		if (dtbl_entry->current->proto_index != -1 &&
-		    !proto_is_protocol_enabled(dtbl_entry->current->proto_index)) {
+		if (handle->proto_index != -1 &&
+		    !proto_is_protocol_enabled(handle->proto_index)) {
 			/*
 			 * No - pretend this dissector didn't exist,
 			 * so that other dissectors might have a chance
@@ -545,15 +552,31 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 		 */
 		pinfo->can_desegment = saved_can_desegment-(saved_can_desegment>0);
 		pinfo->match_port = port;
-		if (dtbl_entry->current->proto_index != -1) {
+		if (handle->proto_index != -1) {
 			pinfo->current_proto =
-			    proto_get_protocol_short_name(dtbl_entry->current->proto_index);
+			    proto_get_protocol_short_name(handle->proto_index);
 		}
-		(*dtbl_entry->current->dissector)(tvb, pinfo, tree);
+		if (handle->is_new)
+			ret = (*handle->dissector.new)(tvb, pinfo, tree);
+		else {
+			(*handle->dissector.old)(tvb, pinfo, tree);
+			ret = 1;
+		}
 		pinfo->current_proto = saved_proto;
 		pinfo->match_port = saved_match_port;
 		pinfo->can_desegment = saved_can_desegment;
-		return TRUE;
+
+		/*
+		 * If a new-style dissector returned 0, it means that
+		 * it didn't think this tvbuff represented a packet for
+		 * its protocol, and didn't dissect anything.
+		 *
+		 * Old-style dissectors can't reject the packet.
+		 *
+		 * If the packet was rejected, we return FALSE, otherwise
+		 * we return TRUE.
+		 */
+		return ret != 0;
 	} 
 	return FALSE;
 }
@@ -983,7 +1006,32 @@ register_dissector(const char *name, dissector_t dissector, int proto)
 
 	handle = g_malloc(sizeof (struct dissector_handle));
 	handle->name = name;
-	handle->dissector = dissector;
+	handle->is_new = FALSE;
+	handle->dissector.old = dissector;
+	handle->proto_index = proto;
+	
+	g_hash_table_insert(registered_dissectors, (gpointer)name,
+	    (gpointer) handle);
+}
+
+void
+new_register_dissector(const char *name, new_dissector_t dissector, int proto)
+{
+	struct dissector_handle *handle;
+
+	/* Create our hash table if it doesn't already exist */
+	if (registered_dissectors == NULL) {
+		registered_dissectors = g_hash_table_new(g_str_hash, g_str_equal);
+		g_assert(registered_dissectors != NULL);
+	}
+
+	/* Make sure the registration is unique */
+	g_assert(g_hash_table_lookup(registered_dissectors, name) == NULL);
+
+	handle = g_malloc(sizeof (struct dissector_handle));
+	handle->name = name;
+	handle->is_new = TRUE;
+	handle->dissector.new = dissector;
 	handle->proto_index = proto;
 	
 	g_hash_table_insert(registered_dissectors, (gpointer)name,
@@ -991,11 +1039,12 @@ register_dissector(const char *name, dissector_t dissector, int proto)
 }
 
 /* Call a dissector through a handle. */
-void
+int
 call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree)
 {
 	const char *saved_proto;
+	int ret;
 
 	if (handle->proto_index != -1 &&
 	    !proto_is_protocol_enabled(handle->proto_index)) {
@@ -1004,8 +1053,8 @@ call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
 		 */
 	        g_assert(data_handle != NULL);
 		g_assert(data_handle->proto_index != -1);
-		call_dissector(data_handle,tvb, pinfo, tree);
-		return;
+		call_dissector(data_handle, tvb, pinfo, tree);
+		return tvb_length(tvb);
 	}
 
 	saved_proto = pinfo->current_proto;
@@ -1013,6 +1062,12 @@ call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
 		pinfo->current_proto =
 		    proto_get_protocol_short_name(handle->proto_index);
 	}
-	(*handle->dissector)(tvb, pinfo, tree);
+	if (handle->is_new)
+		ret = (*handle->dissector.new)(tvb, pinfo, tree);
+	else {
+		(*handle->dissector.old)(tvb, pinfo, tree);
+		ret = tvb_length(tvb);
+	}
 	pinfo->current_proto = saved_proto;
+	return ret;
 }

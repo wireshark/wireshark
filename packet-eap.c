@@ -2,7 +2,7 @@
  * Routines for EAP Extensible Authentication Protocol dissection
  * RFC 2284
  *
- * $Id: packet-eap.c,v 1.14 2002/02/26 00:51:41 guy Exp $
+ * $Id: packet-eap.c,v 1.15 2002/02/26 11:55:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,14 +79,15 @@ static const value_string eap_type_vals[] = {
     { 0,            NULL }
 };
 
-static void
-dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		 gboolean fragmented)
 {
   guint8      eap_code;
   guint8      eap_id;
   guint16     eap_len;
   guint8      eap_type;
-  guint       len;
+  gint        len;
   proto_tree *ti;
   proto_tree *eap_tree = NULL;
 
@@ -103,9 +104,17 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   eap_len = tvb_get_ntohs(tvb, 2);
   len = eap_len;
 
-  /* at least for now, until we get defragmentation support */
-  if (len>tvb_length(tvb))
-    len=tvb_length(tvb);
+  if (fragmented) {
+    /*
+     * This is an EAP fragment inside, for example, RADIUS.  If we don't
+     * have all of the packet data, return the negative of the amount of
+     * additional data we need.
+     */
+    int reported_len = tvb_reported_length_remaining(tvb, 0);
+
+    if (reported_len < len)
+      return -(len - reported_len);
+  }
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_eap, tvb, 0, len, FALSE);
@@ -133,8 +142,8 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_uint(eap_tree, hf_eap_type, tvb, 4, 1, eap_type);
 
       if (len > 5) {
-	guint   offset = 5;
-	guint   size   = len - offset;
+	int     offset = 5;
+	gint    size   = len - offset;
 
 	switch (eap_type) {
 
@@ -181,6 +190,20 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
     }
   }
+
+  return tvb_length(tvb);
+}
+
+static int
+dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  return dissect_eap_data(tvb, pinfo, tree, FALSE);
+}
+
+static int
+dissect_eap_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  return dissect_eap_data(tvb, pinfo, tree, TRUE);
 }
 
 void
@@ -209,7 +232,8 @@ proto_register_eap(void)
   proto_register_field_array(proto_eap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_dissector("eap", dissect_eap, proto_eap);
+  new_register_dissector("eap", dissect_eap, proto_eap);
+  new_register_dissector("eap_fragment", dissect_eap_fragment, proto_eap);
 }
 
 void

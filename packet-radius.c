@@ -2,7 +2,9 @@
  * Routines for RADIUS packet disassembly
  * Copyright 1999 Johan Feyaerts
  *
- * $Id: packet-radius.c,v 1.48 2002/02/26 00:51:41 guy Exp $
+ * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
+ *
+ * $Id: packet-radius.c,v 1.49 2002/02/26 11:55:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,7 +55,7 @@ static gint ett_radius = -1;
 static gint ett_radius_avp = -1;
 static gint ett_radius_eap = -1;
 
-static dissector_handle_t eap_handle;
+static dissector_handle_t eap_fragment_handle;
 
 #define UDP_PORT_RADIUS		1645
 #define UDP_PORT_RADIUS_NEW	1812
@@ -874,11 +876,15 @@ gchar *rd_value_to_str(e_avphdr *avph, tvbuff_t *tvb, int offset)
 
 
 void dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
-				   int avplength,packet_info *pinfo) {
+				   int avplength,packet_info *pinfo)
+{
 /* adds the attribute value pairs to the tree */
   e_avphdr avph;
   gchar *avptpstrval;
   gchar *valstr;
+  guint8 *reassembled_data = NULL;
+  int reassembled_data_len = 0;
+  int data_needed = 0;
 
   if (avplength==0)
   {
@@ -886,59 +892,159 @@ void dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
         return;
   }
 
-  while (avplength > 0 )
+  /*
+   * In case we throw an exception, clean up whatever stuff we've
+   * allocated (if any).
+   */
+  CLEANUP_PUSH(g_free, reassembled_data);
+
+  while (avplength > 0)
   {
+    tvb_memcpy(tvb,(guint8 *)&avph,offset,sizeof(e_avphdr));
+    avptpstrval = match_strval(avph.avp_type, radius_attrib_type_vals);
+    if (avptpstrval == NULL)
+      avptpstrval = "Unknown Type";
+    if (avph.avp_length < 2) {
+      /*
+       * This AVP is bogus - the length includes the type and length
+       * fields, so it must be >= 2.
+       */
+      proto_tree_add_text(tree, tvb, offset, avph.avp_length,
+	"t:%s(%u) l:%u (length not >= 2)",
+	 avptpstrval,avph.avp_type,avph.avp_length);
+      break;
+    }
 
-     tvb_memcpy(tvb,(guint8 *)&avph,offset,sizeof(e_avphdr));
-     avptpstrval=match_strval(avph.avp_type, radius_attrib_type_vals);
-     if (avptpstrval == NULL) avptpstrval="Unknown Type";
-     if (avph.avp_length < 2) {
-	/*
-	 * This AVP is bogus - the length includes the type and length
-	 * fields, so it must be >= 2.
-	 */
-	proto_tree_add_text(tree, tvb, offset, avph.avp_length,
-	  "t:%s(%u) l:%u (length not >= 2)",
-	   avptpstrval,avph.avp_type,avph.avp_length);
-	break;
-     }
+    if (avph.avp_type == RD_TP_EAP_MESSAGE) {
+      proto_item *ti;
+      proto_tree *eap_tree;
+      gint tvb_len;
+      tvbuff_t *next_tvb;
+      int data_len;
+      int result;
 
-     if (avph.avp_type == RD_TP_EAP_MESSAGE) {
-       proto_item *ti;
-       proto_tree *eap_tree;
-       gint tvb_len;
-       tvbuff_t *next_tvb;
-       ti = proto_tree_add_text(tree, tvb,offset,avph.avp_length,"t:%s(%u) l:%u",
-				avptpstrval,avph.avp_type,avph.avp_length);
-       eap_tree = proto_item_add_subtree(ti, ett_radius_eap);
-       tvb_len = tvb_length_remaining(tvb, offset+2);
-       if (avph.avp_length-2 < tvb_len)
-         tvb_len = avph.avp_length-2;
-       next_tvb = tvb_new_subset(tvb, offset+2, tvb_len, avph.avp_length-2);
+      ti = proto_tree_add_text(tree, tvb,offset,avph.avp_length,"t:%s(%u) l:%u",
+			       avptpstrval,avph.avp_type,avph.avp_length);
+      eap_tree = proto_item_add_subtree(ti, ett_radius_eap);
+      tvb_len = tvb_length_remaining(tvb, offset+2);
+      data_len = avph.avp_length-2;
+      if (data_len < tvb_len)
+        tvb_len = data_len;
+      next_tvb = tvb_new_subset(tvb, offset+2, tvb_len, data_len);
 
-       /*
-        * Set the columns non-writable, so that the packet list
-        * shows this as an RADIUS packet, not as an EAP packet.
-        *
-        * XXX - we'll call the EAP dissector only if we're building
-        * a protocol tree.  The EAP dissector currently saves no state,
-        * and won't be modifying the columns, so that's OK right now,
-        * but it might call the SSL dissector - if that maintains state
-        * needed for dissection, we'll have to arrange that AVPs be
-        * dissected even if we're not building a protocol tree.
-        */
-       col_set_writable(pinfo->cinfo, FALSE);
-       call_dissector(eap_handle, next_tvb, pinfo, eap_tree);
-     } else {
-       valstr=rd_value_to_str(&avph, tvb, offset);
-       proto_tree_add_text(tree, tvb,offset,avph.avp_length,
-			   "t:%s(%u) l:%u, %s",
-			   avptpstrval,avph.avp_type,avph.avp_length,valstr);
-     }
+      /*
+       * Set the columns non-writable, so that the packet list
+       * shows this as an RADIUS packet, not as an EAP packet.
+       *
+       * XXX - we'll call the EAP dissector only if we're building
+       * a protocol tree.  The EAP dissector currently saves no state,
+       * and won't be modifying the columns, so that's OK right now,
+       * but it might call the SSL dissector - if that maintains state
+       * needed for dissection, we'll have to arrange that AVPs be
+       * dissected even if we're not building a protocol tree.
+       */
+      col_set_writable(pinfo->cinfo, FALSE);
 
-     offset=offset+avph.avp_length;
-     avplength=avplength-avph.avp_length;
+      /*
+       * RFC 2869 says, in section 5.13, describing the EAP-Message
+       * attribute:
+       *
+       *    The String field contains EAP packets, as defined in [3].  If
+       *    multiple EAP-Message attributes are present in a packet their
+       *    values should be concatenated; this allows EAP packets longer than
+       *    253 octets to be passed by RADIUS.
+       *
+       * Do reassembly of EAP-Message attributes.
+       */
+
+      /* Are we in the process of reassembling? */
+      if (reassembled_data != NULL) {
+        /* Yes - show this as an EAP fragment. */
+        proto_tree_add_text(eap_tree, next_tvb, 0, -1, "EAP fragment");
+
+        /*
+         * Do we have all of the data in this fragment?
+         */
+        if (tvb_len >= data_len) {
+          /*
+           * Yes - add it to the reassembled data.
+           */
+          tvb_memcpy(next_tvb, reassembled_data + reassembled_data_len,
+		     0, data_len);
+          reassembled_data_len += data_len;
+          data_needed -= data_len;
+          if (data_needed <= 0) {
+            /*
+             * We got at least as much data as we needed; we're done
+             * reassembling.
+             * XXX - what if we got more?
+             */
+
+            /*
+             * Allocate a new tvbuff, referring to the reassembled payload.
+             */
+            next_tvb = tvb_new_real_data(reassembled_data, reassembled_data_len,
+					 reassembled_data_len);
+
+            /*
+             * We have a tvbuff that refers to this data, so we shouldn't
+             * free this data if we throw an exception; clear
+             * "reassembled_data", so the cleanup handler won't free it.
+             */
+            reassembled_data = NULL;
+            reassembled_data_len = 0;
+            data_needed = 0;
+
+            /*
+             * Arrange that the allocated packet data copy be freed when the
+             * tvbuff is freed.
+             */
+            tvb_set_free_cb(next_tvb, g_free);
+
+            /*
+             * Add the tvbuff to the list of tvbuffs to which the tvbuff we
+             * were handed refers, so it'll get cleaned up when that tvbuff
+             * is cleaned up.
+             */
+            tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+
+            /* Add the defragmented data to the data source list. */
+            add_new_data_source(pinfo->fd, next_tvb, "Reassembled EAP");
+
+            /* Now dissect it. */
+	    call_dissector(eap_fragment_handle, next_tvb, pinfo, eap_tree);
+	  }
+	}
+      } else {
+        /*
+         * No - hand it to the dissector.
+         */
+        result = call_dissector(eap_fragment_handle, next_tvb, pinfo, eap_tree);
+        if (result < 0) {
+          /* This is only part of the full EAP packet; start reassembly. */
+          proto_tree_add_text(eap_tree, next_tvb, 0, -1, "EAP fragment");
+          reassembled_data_len = data_len;
+          data_needed = -result;
+          reassembled_data = g_malloc(reassembled_data_len + data_needed);
+          tvb_memcpy(next_tvb, reassembled_data, 0, reassembled_data_len);
+        }
+      }
+    } else {
+      valstr = rd_value_to_str(&avph, tvb, offset);
+      proto_tree_add_text(tree, tvb,offset,avph.avp_length,
+			  "t:%s(%u) l:%u, %s",
+			  avptpstrval,avph.avp_type,avph.avp_length,valstr);
+    }
+
+    offset = offset+avph.avp_length;
+    avplength = avplength-avph.avp_length;
   }
+
+  /*
+   * Call the cleanup handler to free any reassembled data we haven't
+   * attached to a tvbuff, and pop the handler.
+   */
+  CLEANUP_CALL_AND_POP;
 }
 
 static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -1046,9 +1152,9 @@ proto_reg_handoff_radius(void)
 	dissector_handle_t radius_handle;
 
 	/*
-	 * Get a handle for the EAP dissector.
+	 * Get a handle for the EAP fragment dissector.
 	 */
-	eap_handle = find_dissector("eap");
+	eap_fragment_handle = find_dissector("eap_fragment");
 
 	radius_handle = create_dissector_handle(dissect_radius, proto_radius);
 	dissector_add("udp.port", UDP_PORT_RADIUS, radius_handle);
