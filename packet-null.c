@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.10 1999/07/29 05:47:00 gram Exp $
+ * $Id: packet-null.c,v 1.11 1999/08/21 17:56:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -76,6 +76,10 @@ capture_null( const u_char *pd, guint32 cap_len, packet_counts *ld ) {
     case 0x0800:
     case 0x0021:
     case 0x2100:
+    case 0x0057:
+    case 0x5700:
+    case 0x86DD:
+    case 0xDD86:
       capture_ip(pd, 4, cap_len, ld);
       break;
     default:
@@ -133,6 +137,12 @@ dissect_null( const u_char *pd, frame_data *fd, proto_tree *tree ) {
     case 0x0021:
     case 0x2100:
       dissect_ip(pd, 4, fd, tree);
+      break;
+    case 0x86DD:
+    case 0xDD86:
+    case 0x0057:
+    case 0x5700:
+      dissect_ipv6(pd, 4, fd, tree);
       break;
     default:
       dissect_data(pd, 4, fd, tree);
