@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.157 2001/11/09 07:44:47 guy Exp $
+ * $Id: capture.c,v 1.158 2001/11/20 21:59:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1157,32 +1157,32 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr)
   /* update capture statistics */
   switch (ld->linktype) {
     case WTAP_ENCAP_ETHERNET:
-      capture_eth(pd, 0, &ld->counts);
+      capture_eth(pd, 0, whdr.caplen, &ld->counts);
       break;
     case WTAP_ENCAP_FDDI:
     case WTAP_ENCAP_FDDI_BITSWAPPED:
-      capture_fddi(pd, &ld->counts);
+      capture_fddi(pd, whdr.caplen, &ld->counts);
       break;
     case WTAP_ENCAP_TOKEN_RING:
-      capture_tr(pd, 0, &ld->counts);
+      capture_tr(pd, 0, whdr.caplen, &ld->counts);
       break;
     case WTAP_ENCAP_NULL:
-      capture_null(pd, &ld->counts);
+      capture_null(pd, whdr.caplen, &ld->counts);
       break;
     case WTAP_ENCAP_PPP:
-      capture_ppp_hdlc(pd, 0, &ld->counts);
+      capture_ppp_hdlc(pd, 0, whdr.caplen, &ld->counts);
       break;
     case WTAP_ENCAP_RAW_IP:
-      capture_raw(pd, &ld->counts);
+      capture_raw(pd, whdr.caplen, &ld->counts);
       break;
     case WTAP_ENCAP_LINUX_ATM_CLIP:
-      capture_clip(pd, &ld->counts);
+      capture_clip(pd, whdr.caplen, &ld->counts);
       break;
     case WTAP_ENCAP_IEEE_802_11:
-      capture_ieee80211(pd, 0, &ld->counts);
+      capture_ieee80211(pd, 0, whdr.caplen, &ld->counts);
       break;
     case WTAP_ENCAP_CHDLC:
-      capture_chdlc(pd, 0, &ld->counts);
+      capture_chdlc(pd, 0, whdr.caplen, &ld->counts);
       break;
     /* XXX - FreeBSD may append 4-byte ATM pseudo-header to DLT_ATM_RFC1483,
        with LLC header following; we should implement it at some
@@ -1881,29 +1881,29 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
     
   switch (ld->linktype) {
     case WTAP_ENCAP_ETHERNET:
-      capture_eth(pd, 0, &ld->counts);
+      capture_eth(pd, 0, phdr->len, &ld->counts);
       break;
     case WTAP_ENCAP_FDDI:
     case WTAP_ENCAP_FDDI_BITSWAPPED:
-      capture_fddi(pd, &ld->counts);
+      capture_fddi(pd, phdr->len, &ld->counts);
       break;
     case WTAP_ENCAP_TOKEN_RING:
-      capture_tr(pd, 0, &ld->counts);
+      capture_tr(pd, 0, phdr->len, &ld->counts);
       break;
     case WTAP_ENCAP_NULL:
-      capture_null(pd, &ld->counts);
+      capture_null(pd, phdr->len, &ld->counts);
       break;
     case WTAP_ENCAP_PPP:
-      capture_ppp_hdlc(pd, 0, &ld->counts);
+      capture_ppp_hdlc(pd, 0, phdr->len, &ld->counts);
       break;
     case WTAP_ENCAP_RAW_IP:
-      capture_raw(pd, &ld->counts);
+      capture_raw(pd, phdr->len, &ld->counts);
       break;
     case WTAP_ENCAP_SLL:
-      capture_sll(pd, &ld->counts);
+      capture_sll(pd, phdr->len, &ld->counts);
       break;
     case WTAP_ENCAP_LINUX_ATM_CLIP:
-      capture_clip(pd, &ld->counts);
+      capture_clip(pd, phdr->len, &ld->counts);
       break;
     /* XXX - FreeBSD may append 4-byte ATM pseudo-header to DLT_ATM_RFC1483,
        with LLC header following; we should implement it at some

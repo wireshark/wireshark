@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.38 2001/11/20 20:57:10 guy Exp $
+ * $Id: packet.h,v 1.39 2001/11/20 21:59:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,11 +43,9 @@
 #define array_length(x)	(sizeof x / sizeof x[0])
 
 /* Check whether the "len" bytes of data starting at "offset" is
- * entirely inside the captured data for this packet.
- * XXX - change it to take the captured length as an argument, and
- * change the capture routines to take the captured length as an
- * argument. */
-#define	BYTES_ARE_IN_FRAME(offset, len)	((offset) + (len) <= pi.captured_len)
+ * entirely inside the captured data for this packet. */
+#define	BYTES_ARE_IN_FRAME(offset, captured_len, len) \
+	((offset) + (len) <= (captured_len))
 
 /* To pass one of two strings, singular or plural */
 #define plurality(d,s,p) ((d) == 1 ? (s) : (p))
@@ -233,8 +231,8 @@ extern void dissect_data(tvbuff_t *tvb, int, packet_info *pinfo,
 
 
 /* These functions are in packet-ethertype.c */
-extern void capture_ethertype(guint16 etype, int offset,
-		const u_char *pd, packet_counts *ld);
+extern void capture_ethertype(guint16 etype, const u_char *pd, int offset,
+		int len, packet_counts *ld);
 extern void ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_ethertype,
 		packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
 		int etype_id, int trailer_id);

@@ -1,11 +1,10 @@
 /* packet-ppp.h
  *
- * $Id: packet-ppp.h,v 1.7 2001/03/30 06:15:47 guy Exp $
+ * $Id: packet-ppp.h,v 1.8 2001/11/20 21:59:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,6 +24,6 @@
 #ifndef __PACKET_PPP_H__
 #define __PACKET_PPP_H__
 
-void capture_ppp_hdlc(const u_char *, int, packet_counts *);
+void capture_ppp_hdlc(const u_char *, int, int, packet_counts *);
 
 #endif

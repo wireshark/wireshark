@@ -1,12 +1,11 @@
 /* packet-isl.c
  * Routines for Cisco ISL Ethernet header disassembly
  *
- * $Id: packet-isl.c,v 1.25 2001/06/18 02:17:48 guy Exp $
+ * $Id: packet-isl.c,v 1.26 2001/11/20 21:59:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -86,11 +85,11 @@ static dissector_handle_t eth_handle;
 static dissector_handle_t tr_handle;
 
 void
-capture_isl(const u_char *pd, int offset, packet_counts *ld)
+capture_isl(const u_char *pd, int offset, int len, packet_counts *ld)
 {
   guint8 type;
 
-  if (!BYTES_ARE_IN_FRAME(offset, ISL_HEADER_SIZE)) {
+  if (!BYTES_ARE_IN_FRAME(offset, len, ISL_HEADER_SIZE)) {
     ld->other++;
     return;
   }
@@ -101,12 +100,12 @@ capture_isl(const u_char *pd, int offset, packet_counts *ld)
 
   case TYPE_ETHER:
     offset += 14+12;	/* skip the header */
-    capture_eth(pd, offset, ld);
+    capture_eth(pd, offset, len, ld);
     break;
 
   case TYPE_TR:
     offset += 14+17;	/* skip the header */
-    capture_tr(pd, offset, ld);
+    capture_tr(pd, offset, len, ld);
     break;
 
   default:

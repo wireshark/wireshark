@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-tr.c,v 1.64 2001/11/13 23:55:30 gram Exp $
+ * $Id: packet-tr.c,v 1.65 2001/11/20 21:59:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -179,7 +179,7 @@ static void
 add_ring_bridge_pairs(int rcf_len, tvbuff_t*, proto_tree *tree);
 
 void
-capture_tr(const u_char *pd, int offset, packet_counts *ld) {
+capture_tr(const u_char *pd, int offset, int len, packet_counts *ld) {
 
 	int			source_routed = 0;
 	int			frame_type;
@@ -192,7 +192,7 @@ capture_tr(const u_char *pd, int offset, packet_counts *ld) {
 	guint8			trn_fc;		/* field control field */
 	const guint8		*trn_shost;	/* source host */
 
-	if (!BYTES_ARE_IN_FRAME(offset, TR_MIN_HEADER_LEN)) {
+	if (!BYTES_ARE_IN_FRAME(offset, len, TR_MIN_HEADER_LEN)) {
 		ld->other++;
 		return;
 	}
@@ -284,7 +284,7 @@ capture_tr(const u_char *pd, int offset, packet_counts *ld) {
 			ld->other++;
 			break;
 		case 1:
-			capture_llc(pd, offset, ld);
+			capture_llc(pd, offset, len, ld);
 			break;
 		default:
 			/* non-MAC, non-LLC, i.e., "Reserved" */

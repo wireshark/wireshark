@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.46 2001/06/18 02:17:50 guy Exp $
+ * $Id: packet-null.c,v 1.47 2001/11/20 21:59:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,7 +74,7 @@ static const value_string family_vals[] = {
 static dissector_handle_t ppp_hdlc_handle;
 
 void
-capture_null( const u_char *pd, packet_counts *ld )
+capture_null( const u_char *pd, int len, packet_counts *ld )
 {
   guint32 null_header;
 
@@ -163,15 +163,23 @@ capture_null( const u_char *pd, packet_counts *ld )
    * given that the effect of inserting the two 0 bytes depends only
    * on the byte order of the machine reading the file.)
    */
+  if (!BYTES_ARE_IN_FRAME(0, len, 2)) {
+    ld->other++;
+    return;
+  }
   if (pd[0] == 0xFF && pd[1] == 0x03) {
     /*
      * Hand it to PPP.
      */
-    capture_ppp_hdlc(pd, 0, ld);
+    capture_ppp_hdlc(pd, 0, len, ld);
   } else {
     /*
      * Treat it as a normal DLT_NULL header.
      */
+    if (!BYTES_ARE_IN_FRAME(0, len, (int)sizeof(null_header))) {
+      ld->other++;
+      return;
+    }
     memcpy((char *)&null_header, (char *)&pd[0], sizeof(null_header));
 
     if ((null_header & 0xFFFF0000) != 0) {
@@ -190,12 +198,12 @@ capture_null( const u_char *pd, packet_counts *ld )
      * BSD derivatives have different values?).
      */
     if (null_header > IEEE_802_3_MAX_LEN)
-      capture_ethertype(null_header, 4, pd, ld);
+      capture_ethertype(null_header, pd, 4, len, ld);
     else {
       switch (null_header) {
 
       case BSD_AF_INET:
-        capture_ip(pd, 4, ld);
+        capture_ip(pd, 4, len, ld);
         break;
 
       default:

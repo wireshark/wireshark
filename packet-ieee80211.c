@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.40 2001/09/25 02:21:15 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.41 2001/11/20 21:59:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -381,9 +381,14 @@ find_header_length (guint16 fcf)
 /*          This is the capture function used to update packet counts        */
 /* ************************************************************************* */
 void
-capture_ieee80211 (const u_char * pd, int offset, packet_counts * ld)
+capture_ieee80211 (const u_char * pd, int offset, int len, packet_counts * ld)
 {
   guint16 fcf, hdr_length;
+
+  if (!BYTES_ARE_IN_FRAME(offset, len, 2)) {
+    ld->other++;
+    return;
+  }
 
   fcf = pletohs (&pd[0]);
 
@@ -412,11 +417,15 @@ capture_ieee80211 (const u_char * pd, int offset, packet_counts * ld)
          Ethernet dissector, i.e. checking for 0xffff as the first
          four bytes of the payload and, if we find it, treating it
          as an IPX frame. */
+      if (!BYTES_ARE_IN_FRAME(offset+hdr_length, len, 2)) {
+        ld->other++;
+        return;
+      }
       if (pd[offset+hdr_length] == 0xff && pd[offset+hdr_length+1] == 0xff) {
-        capture_ipx (pd, offset + hdr_length, ld);
+        capture_ipx (pd, offset + hdr_length, len, ld);
       }
       else {
-        capture_llc (pd, offset + hdr_length, ld);
+        capture_llc (pd, offset + hdr_length, len, ld);
       }
       break;
 

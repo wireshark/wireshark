@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.66 2001/06/29 09:42:45 guy Exp $
+ * $Id: packet-eth.c,v 1.67 2001/11/20 21:59:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,12 +71,12 @@ static dissector_handle_t isl_handle;
 #define ETHERNET_SNAP	3
 
 void
-capture_eth(const u_char *pd, int offset, packet_counts *ld)
+capture_eth(const u_char *pd, int offset, int len, packet_counts *ld)
 {
   guint16    etype, length;
   int     ethhdr_type;	/* the type of ethernet frame */
 
-  if (!BYTES_ARE_IN_FRAME(offset, ETH_HEADER_SIZE)) {
+  if (!BYTES_ARE_IN_FRAME(offset, len, ETH_HEADER_SIZE)) {
     ld->other++;
     return;
   }
@@ -106,7 +106,7 @@ capture_eth(const u_char *pd, int offset, packet_counts *ld)
        01-00-0C-00-00 for ISL frames. */
     if (pd[offset] == 0x01 && pd[offset+1] == 0x00 && pd[offset+2] == 0x0C
 	&& pd[offset+3] == 0x00 && pd[offset+4] == 0x00) {
-      capture_isl(pd, offset, ld);
+      capture_isl(pd, offset, len, ld);
       return;
     }
 
@@ -127,13 +127,13 @@ capture_eth(const u_char *pd, int offset, packet_counts *ld)
 
   switch (ethhdr_type) {
     case ETHERNET_802_3:
-      capture_ipx(pd, offset, ld);
+      capture_ipx(pd, offset, len, ld);
       break;
     case ETHERNET_802_2:
-      capture_llc(pd, offset, ld);
+      capture_llc(pd, offset, len, ld);
       break;
     case ETHERNET_II:
-      capture_ethertype(etype, offset, pd, ld);
+      capture_ethertype(etype, pd, offset, len, ld);
       break;
   }
 }

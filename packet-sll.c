@@ -1,12 +1,11 @@
 /* packet-sll.c
  * Routines for disassembly of packets from Linux "cooked mode" captures
  *
- * $Id: packet-sll.c,v 1.11 2001/07/16 05:16:58 guy Exp $
+ * $Id: packet-sll.c,v 1.12 2001/11/20 21:59:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -35,6 +34,7 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
+#include "packet-sll.h"
 #include "packet-ipx.h"
 #include "packet-llc.h"
 #include "resolv.h"
@@ -92,11 +92,11 @@ static dissector_handle_t ipx_handle;
 static dissector_handle_t llc_handle;
 
 void
-capture_sll(const u_char *pd, packet_counts *ld)
+capture_sll(const u_char *pd, int len, packet_counts *ld)
 {
 	guint16 protocol;
 
-	if (!BYTES_ARE_IN_FRAME(0, SLL_HEADER_SIZE)) {
+	if (!BYTES_ARE_IN_FRAME(0, len, SLL_HEADER_SIZE)) {
 		ld->other++;
 		return;
 	}
@@ -112,7 +112,7 @@ capture_sll(const u_char *pd, packet_counts *ld)
 			/*
 			 * 802.2 LLC.
 			 */
-			capture_llc(pd, SLL_HEADER_SIZE, ld);
+			capture_llc(pd, len, SLL_HEADER_SIZE, ld);
 			break;
 
 		case LINUX_SLL_P_802_3:
@@ -120,7 +120,7 @@ capture_sll(const u_char *pd, packet_counts *ld)
 			 * Novell IPX inside 802.3 with no 802.2 LLC
 			 * header.
 			 */
-			capture_ipx(pd, SLL_HEADER_SIZE, ld);
+			capture_ipx(pd, len, SLL_HEADER_SIZE, ld);
 			break;
 
 		default:
@@ -128,7 +128,7 @@ capture_sll(const u_char *pd, packet_counts *ld)
 			break;
 		}
 	} else
-		capture_ethertype(protocol, SLL_HEADER_SIZE, pd, ld);
+		capture_ethertype(protocol, pd, SLL_HEADER_SIZE, len, ld);
 }
 
 static void

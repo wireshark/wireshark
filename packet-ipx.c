@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.91 2001/11/13 23:55:29 gram Exp $
+ * $Id: packet-ipx.c,v 1.92 2001/11/20 21:59:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -190,7 +190,7 @@ static const value_string ipxmsg_sigchar_vals[] = {
 };
 
 void
-capture_ipx(const u_char *pd, int offset, packet_counts *ld)
+capture_ipx(const u_char *pd, int offset, int len, packet_counts *ld)
 {
 	ld->ipx++;
 }

@@ -1,10 +1,10 @@
 /* packet-raw.c
  * Routines for raw packet disassembly
  *
- * $Id: packet-raw.c,v 1.26 2001/03/30 06:15:47 guy Exp $
+ * $Id: packet-raw.c,v 1.27 2001/11/20 21:59:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  *
  * This file created and by Mike Hall <mlh@io.com>
  * Copyright 1998
@@ -47,7 +47,7 @@ static dissector_handle_t ip_handle;
 static dissector_handle_t ppp_hdlc_handle;
 
 void
-capture_raw(const u_char *pd, packet_counts *ld)
+capture_raw(const u_char *pd, int len, packet_counts *ld)
 {
   /* So far, the only time we get raw connection types are with Linux and
    * Irix PPP connections.  We can't tell what type of data is coming down
@@ -57,25 +57,25 @@ capture_raw(const u_char *pd, packet_counts *ld)
   /* Currently, the Linux 2.1.xxx PPP driver passes back some of the header
    * sometimes.  This check should be removed when 2.2 is out.
    */
-  if (BYTES_ARE_IN_FRAME(0,2) && pd[0] == 0xff && pd[1] == 0x03) {
-    capture_ppp_hdlc(pd, 0, ld);
+  if (BYTES_ARE_IN_FRAME(0,len,2) && pd[0] == 0xff && pd[1] == 0x03) {
+    capture_ppp_hdlc(pd, 0, len, ld);
   }
   /* The Linux ISDN driver sends a fake MAC address before the PPP header
    * on its ippp interfaces... */
-  else if (BYTES_ARE_IN_FRAME(0,8) && pd[6] == 0xff && pd[7] == 0x03) {
-    capture_ppp_hdlc(pd, 6, ld);
+  else if (BYTES_ARE_IN_FRAME(0,len,8) && pd[6] == 0xff && pd[7] == 0x03) {
+    capture_ppp_hdlc(pd, 6, len, ld);
   }
   /* ...except when it just puts out one byte before the PPP header... */
-  else if (BYTES_ARE_IN_FRAME(0,3) && pd[1] == 0xff && pd[2] == 0x03) {
-    capture_ppp_hdlc(pd, 1, ld);
+  else if (BYTES_ARE_IN_FRAME(0,len,3) && pd[1] == 0xff && pd[2] == 0x03) {
+    capture_ppp_hdlc(pd, 1, len, ld);
   }
   /* ...and if the connection is currently down, it sends 10 bytes of zeroes
    * instead of a fake MAC address and PPP header. */
-  else if (BYTES_ARE_IN_FRAME(0,10) && memcmp(pd, zeroes, 10) == 0) {
-    capture_ip(pd, 10, ld);
+  else if (BYTES_ARE_IN_FRAME(0,len,10) && memcmp(pd, zeroes, 10) == 0) {
+    capture_ip(pd, 10, len, ld);
   }
   else {
-    capture_ip(pd, 0, ld);
+    capture_ip(pd, 0, len, ld);
   }
 }
 

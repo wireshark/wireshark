@@ -1,15 +1,14 @@
 /* packet-vines.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-vines.h,v 1.9 2001/04/17 00:46:03 guy Exp $
+ * $Id: packet-vines.h,v 1.10 2001/11/20 21:59:13 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  * Joerg Mayer <jmayer@loplof.de>
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -109,6 +108,6 @@ typedef struct _e_vsmb {
   guint32 vsmb_ttw;
 } e_vsmb;
 
-void capture_vines(const u_char *, int, packet_counts *);
+void capture_vines(const u_char *, int, int, packet_counts *);
 
 #endif /* packet-vines.h */

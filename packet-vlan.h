@@ -1,11 +1,10 @@
 /* packet-vlan.h
  *
- * $Id: packet-vlan.h,v 1.3 2000/08/11 13:33:57 deniel Exp $
+ * $Id: packet-vlan.h,v 1.4 2001/11/20 21:59:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,6 +24,6 @@
 #ifndef __PACKET_VLAN_H__
 #define __PACKET_VLAN_H__
 
-void capture_vlan(const u_char *, int, packet_counts *);
+void capture_vlan(const u_char *, int, int, packet_counts *);
 
 #endif

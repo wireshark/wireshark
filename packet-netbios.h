@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.h,v 1.11 2001/09/29 00:57:36 guy Exp $
+ * $Id: packet-netbios.h,v 1.12 2001/11/20 21:59:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,7 +32,7 @@
 /* Length of NetBIOS names */
 #define NETBIOS_NAME_LEN	16
 
-void capture_netbios(const u_char *, int, packet_counts *);
+void capture_netbios(const u_char *, int, int, packet_counts *);
 
 extern int process_netbios_name(const u_char *name_ptr, char *name_ret);
 extern int get_netbios_name(tvbuff_t *tvb, int offset,

@@ -2,12 +2,11 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-llc.c,v 1.88 2001/11/13 23:55:30 gram Exp $
+ * $Id: packet-llc.c,v 1.89 2001/11/20 21:59:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -67,7 +66,7 @@ static dissector_handle_t eth_handle;
 static dissector_handle_t fddi_handle;
 static dissector_handle_t tr_handle;
 
-typedef void (capture_func_t)(const u_char *, int, packet_counts *);
+typedef void (capture_func_t)(const u_char *, int, int, packet_counts *);
 
 /* The SAP info is split into two tables, one value_string table and one
  * table of sap_info. This is so that the value_string can be used in the
@@ -191,7 +190,7 @@ sap_capture_func(u_char sap) {
 }
 
 void
-capture_llc(const u_char *pd, int offset, packet_counts *ld) {
+capture_llc(const u_char *pd, int offset, int len, packet_counts *ld) {
 
 	int		is_snap;
 	guint16		control;
@@ -200,7 +199,7 @@ capture_llc(const u_char *pd, int offset, packet_counts *ld) {
 	guint16		etype;
 	capture_func_t	*capture;
 
-	if (!BYTES_ARE_IN_FRAME(offset, 2)) {
+	if (!BYTES_ARE_IN_FRAME(offset, len, 2)) {
 		ld->other++;
 		return;
 	}
@@ -218,7 +217,7 @@ capture_llc(const u_char *pd, int offset, packet_counts *ld) {
 	llc_header_len += XDLC_CONTROL_LEN(control, TRUE);
 	if (is_snap)
 		llc_header_len += 5;	/* 3 bytes of OUI, 2 bytes of protocol ID */
-	if (!BYTES_ARE_IN_FRAME(offset, llc_header_len)) {
+	if (!BYTES_ARE_IN_FRAME(offset, len, llc_header_len)) {
 		ld->other++;
 		return;
 	}
@@ -239,12 +238,12 @@ capture_llc(const u_char *pd, int offset, packet_counts *ld) {
 				   AppleTalk data packets - but used
 				   OUI_ENCAP_ETHER and an Ethernet
 				   packet type for AARP packets. */
-				capture_ethertype(etype, offset+8, pd,
+				capture_ethertype(etype, pd, offset+8, len,
 				    ld);
 				break;
 			case OUI_CISCO:
-				capture_ethertype(etype,
-						offset + 8, pd, ld);
+				capture_ethertype(etype, pd, offset + 8, len,
+				    ld);
 				break;
 			default:
 				ld->other++;
@@ -260,7 +259,7 @@ capture_llc(const u_char *pd, int offset, packet_counts *ld) {
 			offset += llc_header_len;
 
 			if (capture) {
-				capture(pd, offset, ld);
+				capture(pd, offset, len, ld);
 			}
 			else {
 				ld->other++;

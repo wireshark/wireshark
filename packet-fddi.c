@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.51 2001/07/03 04:56:45 guy Exp $
+ * $Id: packet-fddi.c,v 1.52 2001/11/20 21:59:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -139,11 +139,11 @@ swap_mac_addr(u_char *swapped_addr, const u_char *orig_addr)
 
 
 void
-capture_fddi(const u_char *pd, packet_counts *ld)
+capture_fddi(const u_char *pd, int len, packet_counts *ld)
 {
   int        offset = 0, fc;
 
-  if (!BYTES_ARE_IN_FRAME(0, FDDI_HEADER_SIZE)) {
+  if (!BYTES_ARE_IN_FRAME(0, len, FDDI_HEADER_SIZE)) {
     ld->other++;
     return;
   }
@@ -171,7 +171,7 @@ capture_fddi(const u_char *pd, packet_counts *ld)
     case FDDI_FC_LLC_ASYNC + 13 :
     case FDDI_FC_LLC_ASYNC + 14 :
     case FDDI_FC_LLC_ASYNC + 15 :
-      capture_llc(pd, offset, ld);
+      capture_llc(pd, offset, len, ld);
       return;
     default :
       ld->other++;

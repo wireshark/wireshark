@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.144 2001/11/15 10:58:48 guy Exp $
+ * $Id: packet-ip.c,v 1.145 2001/11/20 21:59:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -333,8 +333,8 @@ ip_defragment_init(void)
 }
 
 void
-capture_ip(const u_char *pd, int offset, packet_counts *ld) {
-  if (!BYTES_ARE_IN_FRAME(offset, IPH_MIN_LEN)) {
+capture_ip(const u_char *pd, int offset, int len, packet_counts *ld) {
+  if (!BYTES_ARE_IN_FRAME(offset, len, IPH_MIN_LEN)) {
     ld->other++;
     return;
   }

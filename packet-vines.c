@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.33 2001/06/18 02:17:53 guy Exp $
+ * $Id: packet-vines.c,v 1.34 2001/11/20 21:59:13 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -9,7 +9,6 @@
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  * Joerg Mayer <jmayer@loplof.de>
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -72,7 +71,7 @@ static void dissect_vines_spp(tvbuff_t *, packet_info *, proto_tree *);
 static void dissect_vines(tvbuff_t *, packet_info *, proto_tree *);
 
 void
-capture_vines(const u_char *pd, int offset, packet_counts *ld)
+capture_vines(const u_char *pd, int offset, int len, packet_counts *ld)
 {
 	ld->vines++;
 }

@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.74 2001/11/04 04:50:12 guy Exp $
+ * $Id: packet-ppp.c,v 1.75 2001/11/20 21:59:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -952,20 +952,28 @@ fcs32(guint32 fcs,
 }
 
 void
-capture_ppp_hdlc( const u_char *pd, int offset, packet_counts *ld ) {
+capture_ppp_hdlc( const u_char *pd, int offset, int len, packet_counts *ld ) {
+  if (!BYTES_ARE_IN_FRAME(offset, len, 2)) {
+    ld->other++;
+    return;
+  }
   if (pd[0] == CHDLC_ADDR_UNICAST || pd[0] == CHDLC_ADDR_MULTICAST) {
-    capture_chdlc(pd, offset, ld);
+    capture_chdlc(pd, offset, len, ld);
+    return;
+  }
+  if (!BYTES_ARE_IN_FRAME(offset, len, 4)) {
+    ld->other++;
     return;
   }
   switch (pntohs(&pd[offset + 2])) {
     case PPP_IP:
-      capture_ip(pd, offset + 4, ld);
+      capture_ip(pd, offset + 4, len, ld);
       break;
     case PPP_IPX:
-      capture_ipx(pd, offset + 4, ld);
+      capture_ipx(pd, offset + 4, len, ld);
       break;
     case PPP_VINES:
-      capture_vines(pd, offset + 4, ld);
+      capture_vines(pd, offset + 4, len, ld);
       break;
     default:
       ld->other++;

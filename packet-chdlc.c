@@ -1,10 +1,11 @@
 /* packet-chdlc.c
  * Routines for Cisco HDLC packet disassembly
  *
- * $Id: packet-chdlc.c,v 1.4 2001/06/18 02:17:45 guy Exp $
+ * $Id: packet-chdlc.c,v 1.5 2001/11/20 21:59:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
+ * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -99,10 +100,14 @@ const value_string chdlc_vals[] = {
 };
 
 void
-capture_chdlc( const u_char *pd, int offset, packet_counts *ld ) {
+capture_chdlc( const u_char *pd, int offset, int len, packet_counts *ld ) {
+  if (!BYTES_ARE_IN_FRAME(offset, len, 2)) {
+    ld->other++;
+    return;
+  }
   switch (pntohs(&pd[offset + 2])) {
     case ETHERTYPE_IP:
-      capture_ip(pd, offset + 4, ld);
+      capture_ip(pd, offset + 4, len, ld);
       break;
     default:
       ld->other++;

@@ -1,14 +1,13 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.20 2001/11/13 23:55:29 gram Exp $
+ * $Id: packet-ethertype.c,v 1.21 2001/11/20 21:59:12 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -100,21 +99,21 @@ static void add_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
     tvbuff_t *next_tvb, int offset_after_etype, guint length_before);
 
 void
-capture_ethertype(guint16 etype, int offset,
-		const u_char *pd, packet_counts *ld)
+capture_ethertype(guint16 etype, const u_char *pd, int offset, int len,
+		  packet_counts *ld)
 {
   switch (etype) {
     case ETHERTYPE_IP:
-      capture_ip(pd, offset, ld);
+      capture_ip(pd, offset, len, ld);
       break;
     case ETHERTYPE_IPX:
-      capture_ipx(pd, offset, ld);
+      capture_ipx(pd, offset, len, ld);
       break;
     case ETHERTYPE_VLAN:
-      capture_vlan(pd, offset, ld);
+      capture_vlan(pd, offset, len, ld);
       break;
     case ETHERTYPE_VINES:
-      capture_vines(pd, offset, ld);
+      capture_vines(pd, offset, len, ld);
       break;
     default:
       ld->other++;
