@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.43 2002/05/02 06:46:31 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.44 2002/05/02 08:18:53 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -192,6 +192,26 @@ lsa_dissect_pointer_UNICODE_STRING(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
 			di->hf_index, di->levels);
+	return offset;
+}
+
+static int
+lsa_dissect_pointer_pointer_UNICODE_STRING(tvbuff_t *tvb, int offset, 
+                             packet_info *pinfo, proto_tree *tree, 
+                             char *drep)
+{
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
+		"DOMAIN pointer: ", di->hf_index, 0);
+
 	return offset;
 }
 
@@ -3520,6 +3540,50 @@ lsa_dissect_lsalookupsids2_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+lsa_dissect_lsagetusername_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+
+	/* [in, unique, string] WCHAR *server */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		dissect_lsa_openpolicy_server, NDR_POINTER_UNIQUE,
+		"Server:", hf_lsa_server, 0);
+
+	/* [in, out, ref] LSA_UNICODE_STRING **user */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
+		"ACCOUNT pointer: ", hf_lsa_acct, 0);
+
+	/* [in, out, unique] LSA_UNICODE_STRING **domain */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_pointer_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
+		"DOMAIN pointer: ", hf_lsa_domain, 0);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsagetusername_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in, out, ref] LSA_UNICODE_STRING **user */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
+		"ACCOUNT pointer: ", hf_lsa_acct, 0);
+
+	/* [in, out, unique] LSA_UNICODE_STRING **domain */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_pointer_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
+		"DOMAIN pointer: ", hf_lsa_domain, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
 
 
 static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
@@ -3659,11 +3723,8 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 		lsa_dissect_lsaopenpolicy2_rqst,
 		lsa_dissect_lsaopenpolicy2_reply },
 	{ LSA_LSAGETUSERNAME, "LSAGETUSERNAME",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsagetusername_rqst,
 		lsa_dissect_lsagetusername_reply },
-#endif
 	{ LSA_LSAFUNCTION_2E, "LSAFUNCTION_2E",
 		lsa_dissect_lsafunction_2e_rqst,
 		lsa_dissect_lsafunction_2e_reply },
