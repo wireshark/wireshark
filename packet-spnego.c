@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.18 2002/08/30 16:17:29 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.19 2002/08/31 07:26:10 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -271,7 +271,7 @@ dissect_spnego_mechListMIC(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	  /* Naughty ... but we have to adjust for what we never took */
 
-	  hnd->offset += 4;
+	  hnd->offset += len1;
 	  offset += len1;
 
 	}
@@ -350,9 +350,10 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	offset = hnd->offset;
 
-	len1 -= 2; /* Account for the Header above ... */
-
 	while (len1) {
+	  int hdr_ofs;
+
+	  hdr_ofs = hnd->offset;
 
 	  ret = asn1_header_decode(hnd, &cls, &con, &tag, &def, &len);
 
@@ -363,12 +364,15 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	  }
 
 	  if (!(cls == ASN1_CTX && con == ASN1_CON)) {
-	    proto_tree_add_text(
-				subtree, tvb, offset, 0,
+	    proto_tree_add_text(subtree, tvb, offset, 0,
 				"Unknown header (cls=%d, con=%d, tag=%d)",
 				cls, con, tag);
 	    goto done;
 	  }
+
+	  /* Adjust for the length of the header */
+
+	  len1 -= (hnd->offset - hdr_ofs);
 
 	  /* Should be one of the fields */
 
@@ -402,7 +406,7 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	    break;
 	  }
 
-	  len1 -= (len + 2); /* Account for header */
+	  len1 -= len;
 
 	}
 
@@ -578,7 +582,6 @@ dissect_spnego_responseToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	return offset + nbytes;
 }
 
-
 static int
 dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			    proto_tree *tree, ASN1_SCK *hnd)
@@ -626,6 +629,9 @@ dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = hnd->offset;
 
 	while (len1) {
+	  int hdr_ofs;
+
+	  hdr_ofs = hnd->offset; 
 
 	  ret = asn1_header_decode(hnd, &cls, &con, &tag, &def, &len);
 
@@ -642,6 +648,10 @@ dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 				cls, con, tag);
 	    goto done;
 	  }
+
+	  /* Adjust for the length of the header */
+
+	  len1 -= (hnd->offset - hdr_ofs);
 
 	  /* Should be one of the fields */
 
@@ -677,9 +687,8 @@ dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	    break;
 	  }
 
-	  len1 -= (len + 2); /* FIXME: The +2 may be wrong */
+	  len1 -= len;
 
-	  printf("len1 = %d\n", len1);
 	}
 
  done:

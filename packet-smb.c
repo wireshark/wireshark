@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.290 2002/08/31 05:31:41 sharpe Exp $
+ * $Id: packet-smb.c,v 1.291 2002/08/31 07:26:10 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2373,6 +2373,9 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 				call_dissector(
 					gssapi_handle, gssapi_tvb, pinfo,
 					gssapi_tree);
+
+				if (si->ct)
+				  si->ct->raw_ntlmssp = 0;
 
 				COUNT_BYTES(bc);
 			}
