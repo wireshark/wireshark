@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.36 2000/08/13 14:07:54 deniel Exp $
+ * $Id: packet-rpc.c,v 1.37 2000/08/14 07:47:19 girlich Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1285,7 +1285,6 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		offset = dissect_rpc_verf(pd, offset, fd, rpc_tree);
 
 		/* go to the next dissector */
-		/* goto dissect_rpc_prog; */
 
 	} /* end of RPC call */
 	else if (msg_type == RPC_REPLY)
@@ -1387,8 +1386,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			offset += 4;
 			switch (accept_state) {
 				case SUCCESS:
-					/* now goto the lower protocol */
-					goto dissect_rpc_prog;
+					/* go to the next dissector */
 				break;
 				case PROG_MISMATCH:
 					if (!BYTES_ARE_IN_FRAME(offset,8))
@@ -1448,9 +1446,6 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		} 
 	} /* end of RPC reply */
 
-dissect_rpc_prog:
-	/* I know, goto is evil but it works as it is. */
-
 	/* now we know, that RPC was shorter */
 	if (rpc_item) {
 		proto_item_set_len(rpc_item, offset - offset_old);
@@ -1486,11 +1481,14 @@ dissect_rpc_prog:
 			break;
 		case AUTH_GSS_DATA:
 			if (gss_svc == AUTH_GSS_SVC_NONE) {
-				if (dissect_function != NULL)
+				if (dissect_function != NULL && 
+					proto_is_protocol_enabled(proto))
 					offset = dissect_function(pd, offset, fd, ptree);
 			}
 			else if (gss_svc == AUTH_GSS_SVC_INTEGRITY) {
-				offset = dissect_rpc_authgss_integ_data(pd, offset, fd, ptree, dissect_function);
+				offset = dissect_rpc_authgss_integ_data(pd, offset, fd, ptree, 
+				(proto_is_protocol_enabled(proto) ? 
+				dissect_function : NULL));
 			}
 			else if (gss_svc == AUTH_GSS_SVC_PRIVACY) {
 				offset = dissect_rpc_authgss_priv_data(pd, offset, fd, ptree);
@@ -1501,7 +1499,8 @@ dissect_rpc_prog:
 			break;
 		}
 	}
-	else if (dissect_function != NULL) {
+	else if (dissect_function != NULL &&
+		proto_is_protocol_enabled(proto)) {
 		offset = dissect_function(pd, offset, fd, ptree);
 	}
 
