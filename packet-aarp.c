@@ -1,7 +1,7 @@
 /* packet-aarp.c
  * Routines for Appletalk ARP packet disassembly
  *
- * $Id: packet-aarp.c,v 1.11 1999/10/12 06:20:00 gram Exp $
+ * $Id: packet-aarp.c,v 1.12 1999/10/16 08:27:25 deniel Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -119,22 +119,13 @@ dissect_aarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       ti = proto_tree_add_item_format(tree, proto_aarp, offset, 28, NULL,
         "Unknown AARP (opcode 0x%04x)", ea.op);
     aarp_tree = proto_item_add_subtree(ti, ETT_AARP);
-    proto_tree_add_item_format(aarp_tree, hf_aarp_hard_type, offset,      2,
-			       ea.htype,
-			       "Hardware type: 0x%04x", 
-			       ea.htype);
-    proto_tree_add_item_format(aarp_tree, hf_aarp_proto_type, offset +  2, 2,
-			       ea.ptype,
-			       "Protocol type: 0x%04x",
-			       ea.ptype);
-    proto_tree_add_item_format(aarp_tree, hf_aarp_hard_size, offset +  4, 1,
-			       ea.halen,
-			       "Hardware size: 0x%02x", 
-			       ea.halen);
-    proto_tree_add_item_format(aarp_tree, hf_aarp_proto_size, offset +  5, 1,
-			       ea.palen,
-			       "Protocol size: 0x%02x", 
-			       ea.palen);
+    proto_tree_add_item(aarp_tree, hf_aarp_hard_type, offset, 2, ea.htype);
+    proto_tree_add_item(aarp_tree, hf_aarp_proto_type, offset +  2, 2, 
+			ea.ptype);
+    proto_tree_add_item(aarp_tree, hf_aarp_hard_size, offset +  4, 1,
+			ea.halen);
+    proto_tree_add_item(aarp_tree, hf_aarp_proto_size, offset +  5, 1,
+			ea.palen);
     proto_tree_add_item_format(aarp_tree, hf_aarp_opcode, offset +  6, 2,
 			       ea.op,
 			       "Opcode: 0x%04x (%s)",
@@ -183,39 +174,48 @@ proto_register_aarp(void)
 {
   static hf_register_info hf[] = {
     { &hf_aarp_hard_type,
-      { "Hardware type", "aarp.hard.type",	FT_UINT16, BASE_HEX, 	NULL, 0x0,
+      { "Hardware type",	"aarp.hard.type",	
+	FT_UINT16,	BASE_HEX,	NULL,	0x0,
       	"" }},
 
     { &hf_aarp_proto_type,
-      { "Protocol type", "aarp.proto.type",	FT_UINT16, BASE_HEX, 	NULL, 0x0,
+      { "Protocol type",	"aarp.proto.type",	
+	FT_UINT16,	BASE_HEX, 	NULL,	0x0,
       	"" }},    
 
     { &hf_aarp_hard_size,
-      { "Hardware size", "aarp.hard.size",	FT_UINT8, BASE_DEC, 	NULL, 0x0,
+      { "Hardware size",	"aarp.hard.size",	
+	FT_UINT8,	BASE_DEC, 	NULL,	0x0,
       	"" }},
 
     { &hf_aarp_proto_size,
-      { "Protocol size", "aarp.proto.size",	FT_UINT8, BASE_DEC, 	NULL, 0x0,
+      { "Protocol size",	"aarp.proto.size",	
+	FT_UINT8,	BASE_DEC, 	NULL,	0x0,
       	"" }},
 
     { &hf_aarp_opcode,
-      { "Opcode",	 "aarp.opcode",		FT_UINT16, BASE_DEC,	NULL, 0x0,
+      { "Opcode",		"aarp.opcode",
+	FT_UINT16,	BASE_DEC,	NULL,	0x0,
       	"" }},
 
     { &hf_aarp_src_ether,
-      { "Sender ether",	 "aarp.src.ether",	FT_ETHER, BASE_NONE,	NULL, 0x0,
+      { "Sender ether",		"aarp.src.ether",
+	FT_ETHER,	BASE_NONE,	NULL,	0x0,
       	"" }},
 
     { &hf_aarp_src_id,
-      { "Sender ID",	 "aarp.src.id",		FT_UINT32, BASE_HEX,	NULL, 0x0,
+      { "Sender ID",		"aarp.src.id",
+	FT_UINT32,	BASE_HEX,	NULL,	0x0,
       	"" }},
 
     { &hf_aarp_dst_ether,
-      { "Target ether",	 "aarp.dst.ether",	FT_ETHER, BASE_NONE,	NULL, 0x0,
+      { "Target ether",		"aarp.dst.ether",
+	FT_ETHER,	BASE_NONE,	NULL,	0x0,
       	"" }},
 
     { &hf_aarp_dst_id,
-      { "Target ID",	 "aarp.dst.id",		FT_UINT32, BASE_HEX,	NULL, 0x0,
+      { "Target ID",		"aarp.dst.id",		
+	FT_UINT32,	BASE_HEX,	NULL,	0x0,
       	"" }},
   };
 
