@@ -86,6 +86,7 @@ gchar           *iface)
   GtkWidget         *counts_fr, *running_tb, *running_label, *bbox;
   capture_info_ui_t *info;
   gchar             *cap_w_title;
+  gchar             *title_iface;
 
   info = g_malloc0(sizeof(capture_info_ui_t));
   info->counts[0].title = "Total";
@@ -113,10 +114,14 @@ gchar           *iface)
   info->counts[11].title = "Other";
   info->counts[11].value_ptr = &(cinfo->counts->other);
 
-  cap_w_title = g_strdup_printf("Ethereal: Capture - Interface %s", iface);
+  /* use user-defined title if preference is set */
+  title_iface = g_strdup_printf("Ethereal: Capture - Interface %s", iface);
+  cap_w_title = create_user_window_title(title_iface);
 
   info->cap_w = dlg_window_new(cap_w_title);
+  g_free(title_iface);
   g_free(cap_w_title);
+
   gtk_window_set_modal(GTK_WINDOW(info->cap_w), TRUE);
 
   /* Container for capture display widgets */

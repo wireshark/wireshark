@@ -2951,6 +2951,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     GList         *filter_list = NULL;
     GtkTooltips   *tooltips;
     GtkAccelGroup *accel;
+	gchar         *title;
     /* Display filter construct dialog has an Apply button, and "OK" not
        only sets our text widget, it activates it (i.e., it causes us to
        filter the capture). */
@@ -2960,8 +2961,12 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
         TRUE
     };
 
+    /* use user-defined title if preference is set */
+    title = create_user_window_title("The Ethereal Network Analyzer");
+
     /* Main window */
-    top_level = window_new(GTK_WINDOW_TOPLEVEL, "The Ethereal Network Analyzer");
+    top_level = window_new(GTK_WINDOW_TOPLEVEL, title);
+    g_free(title);
 
     tooltips = gtk_tooltips_new();
 
@@ -3159,3 +3164,4 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     status_pane = gtk_hpaned_new();
     gtk_widget_show(status_pane);
 }
+

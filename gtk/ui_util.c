@@ -570,8 +570,13 @@ GtkWidget *xpm_to_widget(const char ** xpm) {
 void
 set_main_window_name(gchar *window_name)
 {
-  gtk_window_set_title(GTK_WINDOW(top_level), window_name);
-  gdk_window_set_icon_name(top_level->window, window_name);
+  gchar *title;
+
+  /* use user-defined window title if preference is set */
+  title = create_user_window_title(window_name);
+  gtk_window_set_title(GTK_WINDOW(top_level), title);
+  gdk_window_set_icon_name(top_level->window, title);
+  g_free(title);
 }
 
 
@@ -1012,4 +1017,22 @@ copy_to_clipboard(GString *str)
         gtk_editable_select_region((GtkEditable *)text, 0, -1); /* Select ALL text */
         gtk_editable_copy_clipboard((GtkEditable *)text); /* Copy the byte data into the clipboard */
 #endif
+}
+
+/*
+ * Create a new window title string with user-defined title preference.
+ * (Or ignore it if unspecified).
+ */
+gchar *
+create_user_window_title(gchar *caption)
+{
+	/* fail-safe */
+	if (caption == NULL)
+		return g_strdup("");
+
+	/* no user-defined title specified */
+	if ((prefs.gui_window_title == NULL) || (*prefs.gui_window_title == '\0'))
+		return g_strdup(caption);
+
+	return g_strdup_printf("%s %s", prefs.gui_window_title, caption);
 }

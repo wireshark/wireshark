@@ -134,6 +134,7 @@ typedef struct _e_prefs {
   gboolean gui_ask_unsaved;
   gboolean gui_find_wrap;
   gchar   *gui_webbrowser;
+  gchar   *gui_window_title;
   layout_type_e gui_layout_type;
   layout_pane_content_e gui_layout_content_1;
   layout_pane_content_e gui_layout_content_2;

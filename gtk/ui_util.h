@@ -297,4 +297,12 @@ extern GtkWidget *xpm_to_widget_from_parent(GtkWidget *parent, const char ** xpm
  */
 extern void copy_to_clipboard(GString *str);  
 
+/** Create a new window title that includes user-defined preference string.
+ *
+ * @param caption string you want included in title (appended to user-defined string)
+ * @return a newly created title string including user-defined preference (if specified)
+ */
+extern gchar *create_user_window_title(gchar *caption);
+
+
 #endif /* __GTKGUIUI_UTIL_H__ */

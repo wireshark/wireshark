@@ -527,6 +527,7 @@ capture_prep(void)
   GtkWidget     *buffer_size_lb, *buffer_size_sb;
 #endif
   guint32       value;
+  gchar         *cap_title;
 
   if (cap_open_w != NULL) {
     /* There's already a "Capture Options" dialog box; reactivate it. */
@@ -566,7 +567,11 @@ capture_prep(void)
     g_free(cant_get_if_list_errstr);
   }
 
-  cap_open_w = dlg_window_new("Ethereal: Capture Options");
+  /* use user-defined title if preference is set */
+  cap_title = create_user_window_title("Ethereal: Capture Options");
+
+  cap_open_w = dlg_window_new(cap_title);
+  g_free(cap_title);
 
   tooltips = gtk_tooltips_new();
 

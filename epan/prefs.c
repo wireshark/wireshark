@@ -1046,6 +1046,7 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
     prefs.gui_ask_unsaved            = TRUE;
     prefs.gui_find_wrap              = TRUE;
     prefs.gui_webbrowser             = g_strdup("mozilla %s");
+    prefs.gui_window_title           = g_strdup("");
     prefs.gui_layout_type            = layout_type_5;
     prefs.gui_layout_content_1       = layout_pane_content_plist;
     prefs.gui_layout_content_2       = layout_pane_content_pdetails;
@@ -1360,6 +1361,7 @@ prefs_set_pref(char *prefarg)
 #define PRS_GUI_TOOLBAR_MAIN_SHOW        "gui.toolbar_main_show"
 #define PRS_GUI_TOOLBAR_MAIN_STYLE       "gui.toolbar_main_style"
 #define PRS_GUI_WEBBROWSER               "gui.webbrowser"
+#define PRS_GUI_WINDOW_TITLE             "gui.window_title"
 #define PRS_GUI_LAYOUT_TYPE              "gui.layout_type"
 #define PRS_GUI_LAYOUT_CONTENT_1         "gui.layout_content_1"
 #define PRS_GUI_LAYOUT_CONTENT_2         "gui.layout_content_2"
@@ -1695,6 +1697,10 @@ set_pref(gchar *pref_name, gchar *value)
   } else if (strcmp(pref_name, PRS_GUI_WEBBROWSER) == 0) {
     g_free(prefs.gui_webbrowser);
     prefs.gui_webbrowser = g_strdup(value);
+  } else if (strcmp(pref_name, PRS_GUI_WINDOW_TITLE) == 0) {
+    if (prefs.gui_window_title != NULL)
+      g_free(prefs.gui_window_title);
+    prefs.gui_window_title = g_strdup(value);
   } else if (strcmp(pref_name, PRS_GUI_LAYOUT_TYPE) == 0) {
     prefs.gui_layout_type = strtoul(value, NULL, 10);
     if (prefs.gui_layout_type == layout_unused ||
@@ -2306,6 +2312,10 @@ write_prefs(char **pf_path_return)
   fprintf(pf, "# Ex: mozilla %%s\n");
   fprintf(pf, PRS_GUI_WEBBROWSER ": %s\n", prefs.gui_webbrowser);
 
+  fprintf(pf, "\n# Custom window title. (Prepended to existing titles.)\n");
+  fprintf(pf, PRS_GUI_WINDOW_TITLE ": %s\n",
+              prefs.gui_window_title);
+
   fprintf (pf, "\n######## User Interface: Layout ########\n");
 
   fprintf(pf, "\n# Layout type (1-6).\n");
@@ -2510,6 +2520,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_geometry_save_size = src->gui_geometry_save_size;
   dest->gui_geometry_save_maximized = src->gui_geometry_save_maximized;
   dest->gui_webbrowser = g_strdup(src->gui_webbrowser);
+  dest->gui_window_title = g_strdup(src->gui_window_title);
 /*  values for the capture dialog box */
   dest->capture_device = g_strdup(src->capture_device);
   dest->capture_devices_descr = g_strdup(src->capture_devices_descr);
@@ -2550,6 +2561,10 @@ free_prefs(e_prefs *pr)
   }
   g_free(pr->gui_webbrowser);
   pr->gui_webbrowser = NULL;
+  if (pr->gui_window_title != NULL) {
+    g_free(pr->gui_window_title);
+    pr->gui_window_title = NULL;
+  }
   if (pr->capture_device != NULL) {
     g_free(pr->capture_device);
     pr->capture_device = NULL;
@@ -2579,3 +2594,4 @@ free_col_info(e_prefs *pr)
   g_list_free(pr->col_list);
   pr->col_list = NULL;
 }
+

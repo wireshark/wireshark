@@ -80,6 +80,7 @@ static gint recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_,
 #define GUI_ASK_UNSAVED_KEY     "ask_unsaved"
 #define GUI_WEBBROWSER_KEY	    "webbrowser"
 #define GUI_FIND_WRAP_KEY       "find_wrap"
+#define GUI_WINDOW_TITLE_KEY    "window_title"
 
 #define GUI_TOOLBAR_STYLE_KEY	"toolbar_style"
 
@@ -173,9 +174,9 @@ static char recent_files_count_max_str[128] = "";
 static char open_file_preview_str[128] = "";
 
 #if GTK_MAJOR_VERSION < 2
-#define GUI_TABLE_ROWS 10
+#define GUI_TABLE_ROWS 11
 #else
-#define GUI_TABLE_ROWS 9
+#define GUI_TABLE_ROWS 10
 #endif
 
 GtkWidget*
@@ -192,6 +193,7 @@ gui_prefs_show(void)
     GtkWidget *filter_toolbar_placement_om;
 	GtkWidget *recent_files_count_max_te, *ask_unsaved_cb, *find_wrap_cb;
     GtkWidget *webbrowser_te;
+    GtkWidget *window_title_te;
 	GtkWidget *save_position_cb, *save_size_cb, *save_maximized_cb;
 #if GTK_MAJOR_VERSION < 2
 	GtkWidget *expander_style_om, *line_style_om;
@@ -343,13 +345,18 @@ gui_prefs_show(void)
 	OBJECT_SET_DATA(main_vb, GUI_FIND_WRAP_KEY, find_wrap_cb);
 
 	/* Webbrowser */
-    if(browser_needs_pref()) {
+    if (browser_needs_pref()) {
 	    webbrowser_te = create_preference_entry(main_tb, pos++, 
             "Web browser command:", NULL, prefs.gui_webbrowser);
 	    gtk_entry_set_text(GTK_ENTRY(webbrowser_te), prefs.gui_webbrowser);
 	    OBJECT_SET_DATA(main_vb, GUI_WEBBROWSER_KEY, webbrowser_te);
     }
 
+	/* Window title */
+    window_title_te = create_preference_entry(main_tb, pos++,
+        "Custom window title (prepended to existing titles):", NULL, prefs.gui_window_title);
+    gtk_entry_set_text(GTK_ENTRY(window_title_te), prefs.gui_window_title);
+    OBJECT_SET_DATA(main_vb, GUI_WINDOW_TITLE_KEY, window_title_te);
 
 	/* Show 'em what we got */
 	gtk_widget_show_all(main_vb);
@@ -456,12 +463,16 @@ gui_prefs_fetch(GtkWidget *w)
     prefs.gui_find_wrap = 
 	    gtk_toggle_button_get_active(OBJECT_GET_DATA(w, GUI_FIND_WRAP_KEY));
     
-    if(browser_needs_pref()) {
+    if (browser_needs_pref()) {
 		g_free(prefs.gui_webbrowser);
 	    prefs.gui_webbrowser = g_strdup(gtk_entry_get_text(
 		    GTK_ENTRY(OBJECT_GET_DATA(w, GUI_WEBBROWSER_KEY))));
     }
 
+    if (prefs.gui_window_title != NULL)
+		g_free(prefs.gui_window_title);
+	prefs.gui_window_title = g_strdup(gtk_entry_get_text(
+		GTK_ENTRY(OBJECT_GET_DATA(w, GUI_WINDOW_TITLE_KEY))));
 
 	/*
 	 * XXX - we need to have a way to fetch the preferences into
@@ -631,3 +642,4 @@ fileopen_selected_cb(GtkWidget *mybutton_rb _U_, gpointer parent_w)
     }
     return;
 }
+
