@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.28 2002/08/31 22:22:29 guy Exp $
+ * $Id: packet-kerberos.c,v 1.29 2002/09/01 01:31:55 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1381,6 +1381,10 @@ proto_reg_handoff_kerberos(void)
     dissector_add("tcp.port", TCP_PORT_KERBEROS, kerberos_handle);
 
     gssapi_init_oid("1.2.840.48018.1.2.2", proto_kerberos, ett_kerberos,
+                    kerberos_handle);
+    /* Also register the stupidly incorrect one MS created for Kerberos */
+    /* If you look at the binary, you will see they added one extra bit */
+    gssapi_init_oid("1.2.840.113554.1.2.2", proto_kerberos, ett_kerberos,
                     kerberos_handle);
 }
 
