@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.242 2002/04/16 02:42:24 guy Exp $
+ * $Id: packet-smb.c,v 1.243 2002/04/17 15:11:30 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6928,7 +6928,12 @@ dissect_nt_sec_desc_type(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tr
 	return offset;
 }
 
-
+/* this function is also called from DCREPC services and then the NDR syntax must be followed.
+   we assume that owner SID , group SID, SACL DACL objects are always stored in order (when present)
+   and that all of them are aligned on a 4 byte boundary.
+   We no longer use the xxx_offset other than to check that they are non-NULL to be compatible with
+   DCERPC NDR Unique pointer handling.
+   len is no longer used and should be removed */
 int
 dissect_nt_sec_desc(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int len)
 {
@@ -6942,7 +6947,7 @@ dissect_nt_sec_desc(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *p
 	guint32 dacl_offset;
 
 	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, len,
+		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
 					   "NT Security Descriptor");
 		tree = proto_item_add_subtree(item, ett_smb_sec_desc);
 	}
@@ -6980,27 +6985,28 @@ dissect_nt_sec_desc(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *p
 
 	  /*owner SID*/
 	  if(owner_sid_offset){
-	    dissect_nt_sid(tvb, pinfo, old_offset+owner_sid_offset, tree, "Owner");
+	    offset = dissect_nt_sid(tvb, pinfo, offset, tree, "Owner");
 	  }
 
 	  /*group SID*/
 	  if(group_sid_offset){
-	    dissect_nt_sid(tvb, pinfo, old_offset+group_sid_offset, tree, "Group");
+	    offset = dissect_nt_sid(tvb, pinfo, offset, tree, "Group");
 	  }
 
 	  /* sacl */
 	  if(sacl_offset){
-	    dissect_nt_acl(tvb, pinfo, old_offset+sacl_offset, tree, "System (SACL)");
+	    offset = dissect_nt_acl(tvb, pinfo, offset, tree, "System (SACL)");
 	  }
 
 	  /* dacl */
 	  if(dacl_offset){
-	    dissect_nt_acl(tvb, pinfo, old_offset+dacl_offset, tree, "User (DACL)");
+	    offset = dissect_nt_acl(tvb, pinfo, offset, tree, "User (DACL)");
 	  }
 
 	}
 
-	return offset+len;
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
 }
 
 static int

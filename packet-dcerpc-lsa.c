@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.14 2002/04/17 13:48:56 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.15 2002/04/17 15:11:30 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -143,6 +143,24 @@ lsa_dissect_pointer_UNICODE_STRING(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+lsa_dissect_pointer_STRING(tvbuff_t *tvb, int offset, 
+                             packet_info *pinfo, proto_tree *tree, 
+                             char *drep)
+{
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	offset = dissect_ndr_nt_STRING(tvb, offset, pinfo, tree, drep,
+			di->hf_index, di->levels);
+	return offset;
+}
+
 
 static int
 lsa_dissect_LSA_SECRET_data(tvbuff_t *tvb, int offset, 
@@ -191,28 +209,6 @@ lsa_dissect_LSA_SECRET(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static int
-lsa_dissect_LSA_SECURITY_DESCRIPTOR_data(tvbuff_t *tvb, int offset, 
-                             packet_info *pinfo, proto_tree *tree,
-                             char *drep)
-{
-	guint32 len;
-	dcerpc_info *di;
-	
-	di=pinfo->private_data;
-	if(di->conformant_run){
-		/*just a run to handle conformant arrays, nothing to dissect */
-		return offset;
-	}
-
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_lsa_sd_size, &len);
-
-	dissect_nt_sec_desc(tvb, pinfo, offset, tree, len);
-	offset += len;
-
-	return offset;
-}
 int
 lsa_dissect_LSA_SECURITY_DESCRIPTOR(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
@@ -228,11 +224,7 @@ lsa_dissect_LSA_SECURITY_DESCRIPTOR(tvbuff_t *tvb, int offset,
 		tree = proto_item_add_subtree(item, ett_LSA_SECURITY_DESCRIPTOR);
 	}
 
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_lsa_sd_size, NULL);
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			lsa_dissect_LSA_SECURITY_DESCRIPTOR_data, NDR_POINTER_UNIQUE,
-			"LSA SECURITY DESCRIPTOR data:", -1, 0);
+	offset = dissect_nt_sec_desc(tvb, pinfo, offset, tree, 0);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
@@ -242,7 +234,9 @@ static int
 lsa_dissect_LPSTR(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
-/*qqq*/
+	offset = dissect_ndr_uint8 (tvb, offset, pinfo, tree, drep,
+			hf_lsa_unknown_char, NULL);
+
 	return offset;
 }
 
@@ -323,14 +317,14 @@ lsa_dissect_LSA_OBJECT_ATTRIBUTES(tvbuff_t *tvb, int offset,
 
 	/* attribute name */	
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		lsa_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
+		lsa_dissect_pointer_STRING, NDR_POINTER_UNIQUE,
 		"NAME pointer: ", hf_lsa_obj_attr_name, 0);
 
 	/* Attr */
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_lsa_obj_attr, NULL);
 
-	/* security descriptor */	
+	/* security descriptor */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_LSA_SECURITY_DESCRIPTOR, NDR_POINTER_UNIQUE,
 		"LSA_SECURITY_DESCRIPTOR pointer: ", -1, 0);
@@ -389,6 +383,37 @@ lsa_dissect_lsaopenpolicy_rqst(tvbuff_t *tvb, int offset,
 
 static int
 lsa_dissect_lsaopenpolicy_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_HANDLE, NDR_POINTER_REF,
+		"LSA_HANDLE pointer: hnd", -1, 0);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsaopenpolicy2_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
+		"Server:", hf_lsa_server, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_OBJECT_ATTRIBUTES, NDR_POINTER_REF,
+		"", -1, 0);
+
+	offset = lsa_dissect_ACCESS_MASK(tvb, offset,
+		pinfo, tree, drep);
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsaopenpolicy2_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -1430,9 +1455,8 @@ lsa_dissect_LSA_PRIVILEGE(tvbuff_t *tvb, int offset,
 	}
 
 	/* privilege name */	
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		lsa_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
-		"NAME pointer: ", hf_lsa_privilege_name, 0);
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+			hf_lsa_privilege_name, 0);
 
 	/* LUID */
 	offset = dissect_nt_LUID(tvb, offset, pinfo, tree, drep);
@@ -1920,8 +1944,8 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 		lsa_dissect_lsaretrieveprivatedata_reply },
 #endif
 	{ LSA_LSAOPENPOLICY2, "LSAOPENPOLICY2",
-		lsa_dissect_lsaopenpolicy_rqst,
-		lsa_dissect_lsaopenpolicy_reply },
+		lsa_dissect_lsaopenpolicy2_rqst,
+		lsa_dissect_lsaopenpolicy2_reply },
 	{ LSA_LSAGETUSERNAME, "LSAGETUSERNAME",
 		NULL, NULL },
 #ifdef REMOVED
