@@ -100,20 +100,12 @@ static gint ett_aim_location    = -1;
 
 static int dissect_aim_location_rightsinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *loc_tree)
 {
-	int offset = 0;
-	while(tvb_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv(tvb, pinfo, offset, loc_tree, location_rights_tlvs);
-	}
-	return offset;
+	return dissect_aim_tlv_sequence(tvb, pinfo, 0, loc_tree, location_rights_tlvs);
 }
 
 static int dissect_aim_location_setuserinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *loc_tree)
 {
-	int offset = 0;
-	while(tvb_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv(tvb, pinfo, offset, loc_tree, location_userinfo_tlvs);
-	}
-	return offset;
+	return dissect_aim_tlv_sequence(tvb, pinfo, 0, loc_tree, location_userinfo_tlvs);
 }
 
 static int dissect_aim_location_watcher_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *loc_tree)
@@ -176,11 +168,7 @@ static int dissect_aim_snac_location_user_information(tvbuff_t *tvb,
 
 	offset = dissect_aim_tlv_list(tvb, pinfo, offset, tree, onlinebuddy_tlvs);
 
-	while(tvb_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv(tvb, pinfo, offset, tree, msg_tlv);
-	}
-
-	return offset;
+	return dissect_aim_tlv_sequence(tvb, pinfo, offset, tree, msg_tlv);
 }
 
 static const aim_subtype aim_fnac_family_location[] = {

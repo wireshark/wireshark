@@ -77,21 +77,14 @@ static int dissect_aim_admin_accnt_info_repl(tvbuff_t *tvb, packet_info *pinfo, 
 
 static int dissect_aim_admin_info_change_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *admin_tree) 
 {
-	int offset = 0;
-	while(tvb_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv(tvb, pinfo, offset, admin_tree, client_tlvs);
-	}
-	return offset;
+	return dissect_aim_tlv_sequence(tvb, pinfo, 0, admin_tree, client_tlvs);
 }
 
 static int dissect_aim_admin_cfrm_repl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *admin_tree) 
 {
 	int offset = 0;	
 	proto_tree_add_uint(admin_tree, hf_admin_confirm_status, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
-	while(tvb_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv(tvb, pinfo, offset, admin_tree, client_tlvs);
-	}
-	return offset;
+	return dissect_aim_tlv_sequence(tvb, pinfo, offset, admin_tree, client_tlvs);
 }
 
 static const aim_subtype aim_fnac_family_admin[] = {

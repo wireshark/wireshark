@@ -265,6 +265,38 @@ const aim_tlv onlinebuddy_tlvs[] = {
   { 0, "Unknown", NULL }
 };
 
+#define DC_DISABLED		0x0000
+#define DC_HTTPS		0x0001
+#define DC_SOCKS		0x0002
+#define DC_NORMAL		0x0003
+#define DC_IMPOSSIBLE	0x0004
+
+static const value_string dc_types[] = {
+	{ DC_DISABLED, "DC disabled" },
+	{ DC_HTTPS, "DC thru firewall or HTTPS proxy" },
+	{ DC_SOCKS, "DC thru SOCKS proxy" },
+	{ DC_NORMAL, "Regular connection" },
+	{ DC_IMPOSSIBLE, "DC not possible " },
+	{ 0, "Unknown" },
+};
+
+#define PROTO_VERSION_ICQ98		0x0004
+#define PROTO_VERSION_ICQ99		0x0006
+#define PROTO_VERSION_ICQ2K		0x0007
+#define PROTO_VERSION_ICQ2K1	0x0008
+#define PROTO_VERSION_ICQLITE	0x0009
+#define PROTO_VERSION_ICQ2K3B	0x000A
+
+static const value_string protocol_versions[] = {
+	{ PROTO_VERSION_ICQ98, "ICQ '98" },
+	{ PROTO_VERSION_ICQ99, "ICQ '99" },
+	{ PROTO_VERSION_ICQ2K, "ICQ 2000" },
+	{ PROTO_VERSION_ICQ2K1, "ICQ 2001" },
+	{ PROTO_VERSION_ICQLITE, "ICQ Lite" },
+	{ PROTO_VERSION_ICQ2K3B, "ICQ 2003B" },
+	{ 0, "Unknown" },
+};
+
 static GList *families = NULL;
 
 #define AIM_MOTD_TLV_MOTD					   0x000B
@@ -358,9 +390,21 @@ static int hf_aim_messageblock_charset = -1;
 static int hf_aim_messageblock_charsubset = -1;
 static int hf_aim_messageblock_message = -1;
 
+static int hf_aim_dcinfo_ip = -1;
+static int hf_aim_dcinfo_tcpport = -1;
+static int hf_aim_dcinfo_type = -1;
+static int hf_aim_dcinfo_proto_version = -1;
+static int hf_aim_dcinfo_auth_cookie = -1;
+static int hf_aim_dcinfo_webport = -1;
+static int hf_aim_dcinfo_client_future = -1;
+static int hf_aim_dcinfo_last_info_update = -1;
+static int hf_aim_dcinfo_last_ext_info_update = -1;
+static int hf_aim_dcinfo_last_ext_status_update = -1;
+static int hf_aim_dcinfo_unknown = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_aim          = -1;
+static gint ett_aim_dcinfo	 = -1;
 static gint ett_aim_buddyname= -1;
 static gint ett_aim_fnac     = -1;
 static gint ett_aim_fnac_flags = -1;
@@ -611,9 +655,7 @@ static void dissect_aim_newconn(tvbuff_t *tvb, packet_info *pinfo,
   if (tvb_length_remaining(tvb, offset) > 0) {
 	  proto_tree_add_item(tree, hf_aim_authcookie, tvb, offset, 4, FALSE);
 	  offset+=4;
-	  while(tvb_reported_length_remaining(tvb, offset) > 0) {
-		  offset = dissect_aim_tlv(tvb, pinfo, offset, tree, client_tlvs);
-	  }
+	  offset = dissect_aim_tlv_sequence(tvb, pinfo, offset, tree, client_tlvs);
   }
 
   if (tvb_length_remaining(tvb, offset) > 0)
@@ -785,9 +827,7 @@ static void dissect_aim_close_conn(tvbuff_t *tvb, packet_info *pinfo,
     col_add_fstr(pinfo->cinfo, COL_INFO, "Close Connection");
   }	  
   
-  while(tvb_reported_length_remaining(tvb, offset) > 0) {
-	  offset = dissect_aim_tlv(tvb, pinfo, offset, tree, client_tlvs);
-  }
+  offset = dissect_aim_tlv_sequence(tvb, pinfo, offset, tree, client_tlvs);
 }
 
 static void dissect_aim_unknown_channel(tvbuff_t *tvb, packet_info *pinfo, 
@@ -1040,10 +1080,25 @@ static int dissect_aim_tlv_value_userstatus(proto_item *ti _U_, guint16 valueid 
 	return tvb_length(tvb);
 }
 
-static int dissect_aim_tlv_value_dcinfo(proto_item *ti _U_, guint16 valueid _U_, tvbuff_t *tvb)
+static int dissect_aim_tlv_value_dcinfo(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb)
 {
-	/* FIXME */
-	return tvb_length(tvb);
+	int offset = 0;
+	
+	proto_tree *dctree = proto_item_add_subtree(ti, ett_aim_dcinfo);
+	
+  	proto_tree_add_item(dctree, hf_aim_dcinfo_ip , tvb, offset, 4, FALSE); offset+=4;
+	proto_tree_add_item(dctree, hf_aim_dcinfo_tcpport, tvb, offset, 4, FALSE); offset+=4;
+	proto_tree_add_item(dctree, hf_aim_dcinfo_type, tvb, offset, 1, FALSE); offset+=1;
+	proto_tree_add_item(dctree, hf_aim_dcinfo_proto_version, tvb, offset, 2, FALSE); offset+=2;
+	proto_tree_add_item(dctree, hf_aim_dcinfo_auth_cookie, tvb, offset, 4, FALSE); offset+=2;
+	proto_tree_add_item(dctree, hf_aim_dcinfo_webport, tvb, offset, 4, FALSE); offset+=4;
+	proto_tree_add_item(dctree, hf_aim_dcinfo_client_future, tvb, offset, 4, FALSE); offset+=4;
+	proto_tree_add_item(dctree, hf_aim_dcinfo_last_info_update, tvb, offset, 4, FALSE); offset+=4;
+	proto_tree_add_item(dctree, hf_aim_dcinfo_last_ext_info_update, tvb, offset, 4, FALSE); offset+=4;
+	proto_tree_add_item(dctree, hf_aim_dcinfo_last_ext_status_update, tvb, offset, 4, FALSE); offset+=4;
+	proto_tree_add_item(dctree, hf_aim_dcinfo_unknown, tvb, offset, 2, FALSE); offset+=2;
+
+	return offset;
 }
 
 int dissect_aim_tlv_value_string (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb)
@@ -1217,7 +1272,16 @@ int dissect_aim_tlv(tvbuff_t *tvb, packet_info *pinfo _U_,
   return offset;
 }
 
-int dissect_aim_tlv_list(tvbuff_t *tvb, packet_info *pinfo _U_, 
+int dissect_aim_tlv_sequence(tvbuff_t *tvb, packet_info *pinfo, 
+							 int offset, proto_tree *tree, const aim_tlv *tlv_table)
+{
+	while (tvb_length_remaining(tvb, offset) > 0) {
+		offset = dissect_aim_tlv(tvb, pinfo, offset, tree, tlv_table);
+	}
+	return offset;
+}
+
+int dissect_aim_tlv_list(tvbuff_t *tvb, packet_info *pinfo, 
 			   int offset, proto_tree *tree, const aim_tlv *tlv_table)
 {
     guint16 i, tlv_count = tvb_get_ntohs(tvb, offset);
@@ -1359,11 +1423,46 @@ proto_register_aim(void)
     { &hf_aim_messageblock_message,
 		{ "Message", "aim.messageblock.message", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL },
 	},
+	{ &hf_aim_dcinfo_ip,
+		{ "Internal IP address", "aim.dcinfo.addr", FT_IPv4, BASE_NONE, NULL, 0x0, "", HFILL },
+	},
+	{ &hf_aim_dcinfo_tcpport,
+		{ "TCP Port", "aim.dcinfo.tcpport", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL },
+	},
+	{ &hf_aim_dcinfo_type,
+		{ "Type", "aim.dcinfo.type", FT_UINT8, BASE_HEX, VALS(dc_types), 0x0, "", HFILL },
+	},
+	{ &hf_aim_dcinfo_proto_version,
+		{ "Protocol Version", "aim.dcinfo.proto_version", FT_UINT16, BASE_DEC, VALS(protocol_versions), 0x0, "", HFILL },
+	},
+	{ &hf_aim_dcinfo_auth_cookie,
+		{ "Authorization Cookie", "aim.dcinfo.auth_cookie", FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL },
+	},
+	{ &hf_aim_dcinfo_webport,
+		{ "Web Front Port", "aim.dcinfo.webport", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL },
+	},
+	{ &hf_aim_dcinfo_client_future,
+		{ "Client Futures", "aim.dcinfo.client_futures", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL },
+	},
+	{ &hf_aim_dcinfo_last_info_update,
+		{ "Last Info Update", "aim.dcinfo.last_info_update", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL },
+	},
+	{ &hf_aim_dcinfo_last_ext_info_update,
+		{ "Last Extended Info Update", "aim.dcinfo.last_ext_info_update", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL },
+	},
+	{ &hf_aim_dcinfo_last_ext_status_update,
+		{ "Last Extended Status Update", "aim.dcinfo.last_ext_status_update", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL },
+	},
+	{ &hf_aim_dcinfo_unknown,
+		{ "Unknown", "aim.dcinfo.unknown", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
+	},
+
   };
 
   /* Setup protocol subtree array */
   static gint *ett[] = {
 	  &ett_aim,
+	  &ett_aim_dcinfo,
 	  &ett_aim_fnac,
 	  &ett_aim_fnac_flags,
 	  &ett_aim_tlv,

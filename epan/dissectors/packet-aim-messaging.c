@@ -153,12 +153,8 @@ static int dissect_aim_msg_incoming(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	offset = dissect_aim_userinfo(tvb, pinfo, offset, msg_tree);
 
-	while(tvb_reported_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv(tvb, pinfo, offset, msg_tree, 
+	return dissect_aim_tlv_sequence(tvb, pinfo, offset, msg_tree, 
 								 messaging_incoming_ch1_tlvs);
-	}
-
-	return offset;
 }
 
 static int dissect_aim_msg_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *msg_tree)

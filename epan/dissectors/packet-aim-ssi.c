@@ -146,11 +146,7 @@ static int dissect_ssi_ssi_item(tvbuff_t *tvb, packet_info *pinfo,
 
 static int dissect_aim_ssi_rightsinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ssi_tree)
 {
-	int offset = 0;
-	while(tvb_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv(tvb, pinfo, offset, ssi_tree, ssi_rightsinfo_tlvs);
-	}
-	return offset;
+	return dissect_aim_tlv_sequence(tvb, pinfo, 0, ssi_tree, ssi_rightsinfo_tlvs);
 }
 
 static int dissect_aim_ssi_was_added(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ssi_tree)

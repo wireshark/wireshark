@@ -81,15 +81,13 @@ static int dissect_aim_bos_set_group_perm(tvbuff_t *tvb, packet_info *pinfo _U_,
 	return dissect_aim_userclass(tvb, offset, 4, ti, userclass);
 }
 
-static int dissect_aim_bos_rights(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bos_tree) {
-	int offset = 0;
-	while(tvb_reported_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv(tvb, pinfo, offset, bos_tree, privacy_tlvs);
-	}
-	return offset;
+static int dissect_aim_bos_rights(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bos_tree) 
+{
+	return dissect_aim_tlv_sequence(tvb, pinfo, 0, bos_tree, privacy_tlvs);
 }
 
-static int dissect_aim_bos_buddyname(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bos_tree) {
+static int dissect_aim_bos_buddyname(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bos_tree) 
+{
 	int offset = 0;
 	while(tvb_reported_length_remaining(tvb, offset) > 0) {
 		offset = dissect_aim_buddyname(tvb, pinfo, offset, bos_tree);

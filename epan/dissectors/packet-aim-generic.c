@@ -272,11 +272,7 @@ static int dissect_aim_generic_service_req(tvbuff_t *tvb, packet_info *pinfo _U_
 
 static int dissect_aim_generic_redirect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gen_tree)
 {
-	int offset = 0;
-	while(tvb_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv(tvb, pinfo, offset, gen_tree, client_tlvs);
-	}
-	return offset;
+	return dissect_aim_tlv_sequence(tvb, pinfo, 0, gen_tree, client_tlvs);
 }
 
 static int dissect_aim_generic_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
@@ -315,10 +311,7 @@ static int dissect_aim_generic_motd(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	proto_tree_add_item(gen_tree, hf_generic_motd_motdtype, tvb, offset, 
 						2, tvb_get_ntohs(tvb, offset));
 	offset+=2;
-	while(tvb_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv(tvb, pinfo, offset, gen_tree, motd_tlvs);
-	}
-	return offset;
+	return dissect_aim_tlv_sequence(tvb, pinfo, offset, gen_tree, motd_tlvs);
 }
 
 static int dissect_aim_generic_rateinfoack(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
@@ -371,11 +364,7 @@ static int dissect_aim_generic_migration_req(tvbuff_t *tvb, packet_info *pinfo, 
 		offset += 2;
 	}
 
-	while(tvb_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv(tvb, pinfo, offset, gen_tree, client_tlvs);
-	}
-
-	return offset;
+	return dissect_aim_tlv_sequence(tvb, pinfo, offset, gen_tree, client_tlvs);
 }
 
 static int dissect_aim_generic_setprivflags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
@@ -416,11 +405,7 @@ static int dissect_aim_generic_setidle(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 
 static int dissect_aim_generic_ext_status_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gen_tree)
 {
-	int offset = 0;
-	while(tvb_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv(tvb, pinfo, offset, gen_tree, onlinebuddy_tlvs);
-	}
-	return offset;
+	return dissect_aim_tlv_sequence(tvb, pinfo, 0, gen_tree, onlinebuddy_tlvs);
 }
 
 static int dissect_aim_generic_clientver_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)

@@ -48,11 +48,7 @@ static int ett_aim_invitation = -1;
 
 static int dissect_aim_invitation_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *invite_tree)
 {
-	int offset = 0;
-	while(tvb_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv(tvb, pinfo, offset, invite_tree, onlinebuddy_tlvs);
-	}
-	return offset;
+	return dissect_aim_tlv_sequence(tvb, pinfo, 0, invite_tree, onlinebuddy_tlvs);
 }
 
 static const aim_subtype aim_fnac_family_invitation[] = {

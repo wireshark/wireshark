@@ -66,6 +66,7 @@ int dissect_aim_snac_error(tvbuff_t *tvb, packet_info *pinfo,
 
 int dissect_aim_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *tree, const aim_tlv *);
 int dissect_aim_tlv_list(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *tree, const aim_tlv *);
+int dissect_aim_tlv_sequence(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *tree, const aim_tlv *);
 
 const aim_family *aim_get_family( guint16 family );
 const aim_subtype *aim_get_subtype( guint16 family, guint16 subtype);

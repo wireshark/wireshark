@@ -44,16 +44,104 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_aim_sst = -1;
+static int hf_aim_sst_unknown = -1;
+static int hf_aim_sst_md5_hash = -1;
+static int hf_aim_sst_md5_hash_size = -1;
+static int hf_aim_sst_ref_num = -1;
+static int hf_aim_sst_icon_size = -1;
+static int hf_aim_sst_icon = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_aim_sst      = -1;
 
+static int dissect_aim_sst_buddy_down_req (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	int offset = dissect_aim_buddyname(tvb, pinfo, 0, tree);
+	guint8 md5_size;
+
+	proto_tree_add_item(tree, hf_aim_sst_unknown, tvb, offset, 4, FALSE);
+	offset+=4;
+
+	proto_tree_add_item(tree, hf_aim_sst_md5_hash_size, tvb, offset, 1, FALSE);
+	md5_size = tvb_get_guint8(tvb, offset);
+	offset++;
+
+	proto_tree_add_item(tree, hf_aim_sst_md5_hash, tvb, offset, md5_size, FALSE);
+
+	offset+=md5_size;
+	return offset;
+}
+
+static int dissect_aim_sst_buddy_down_repl (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	int offset = dissect_aim_buddyname(tvb, pinfo, 0, tree);
+	guint8 md5_size;
+	guint16 icon_size;
+
+	proto_tree_add_item(tree, hf_aim_sst_unknown, tvb, offset, 3, FALSE);
+	offset+=3;
+
+	proto_tree_add_item(tree, hf_aim_sst_md5_hash_size, tvb, offset, 1, FALSE);
+	md5_size = tvb_get_guint8(tvb, offset);
+	offset++;
+
+	proto_tree_add_item(tree, hf_aim_sst_md5_hash, tvb, offset, md5_size, FALSE);
+
+	offset+=md5_size;
+
+	proto_tree_add_item(tree, hf_aim_sst_icon_size, tvb, offset, 2, FALSE);
+	icon_size = tvb_get_ntohs(tvb, offset);
+	offset+=2;
+
+	proto_tree_add_item(tree, hf_aim_sst_icon, tvb, offset, icon_size, FALSE);
+
+	offset+=icon_size;
+
+	return offset;
+}
+
+static int dissect_aim_sst_buddy_up_repl (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	int offset = 0;
+	guint8 md5_size;
+
+	proto_tree_add_item(tree, hf_aim_sst_unknown, tvb, offset, 4, FALSE);
+	offset+=4;
+
+	proto_tree_add_item(tree, hf_aim_sst_md5_hash_size, tvb, offset, 1, FALSE);
+	md5_size = tvb_get_guint8(tvb, offset);
+	offset++;
+
+	proto_tree_add_item(tree, hf_aim_sst_md5_hash, tvb, offset, md5_size, FALSE);
+
+	offset+=md5_size;
+	return offset;
+}
+
+static int dissect_aim_sst_buddy_up_req (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	int offset = 0;
+	guint16 icon_size;
+
+	proto_tree_add_item(tree, hf_aim_sst_ref_num, tvb, offset, 2, FALSE);
+	offset+=2;
+
+	proto_tree_add_item(tree, hf_aim_sst_icon_size, tvb, offset, 2, FALSE);
+	icon_size = tvb_get_ntohs(tvb, offset);
+	offset+=2;
+
+	proto_tree_add_item(tree, hf_aim_sst_icon, tvb, offset, icon_size, FALSE);
+
+	offset+=icon_size;
+	return offset;
+}
+
 static const aim_subtype aim_fnac_family_sst[] = {
   { 0x0001, "Error", dissect_aim_snac_error },
-  { 0x0002, "Upload Buddy Icon Request", NULL },
-  { 0x0003, "Upload Buddy Icon Reply", NULL },
-  { 0x0004, "Download Buddy Icon Request", NULL },
-  { 0x0005, "Download Buddy Icon Reply", NULL },
+  { 0x0002, "Upload Buddy Icon Request", dissect_aim_sst_buddy_up_req },
+  { 0x0003, "Upload Buddy Icon Reply", dissect_aim_sst_buddy_up_repl },
+  { 0x0004, "Download Buddy Icon Request", dissect_aim_sst_buddy_down_req },
+  { 0x0005, "Download Buddy Icon Reply", dissect_aim_sst_buddy_down_repl },
   { 0, NULL, NULL }
 };
 
@@ -64,9 +152,26 @@ proto_register_aim_sst(void)
 {
 
 /* Setup list of header fields */
-/*FIXME
   static hf_register_info hf[] = {
-  };*/
+	  { &hf_aim_sst_md5_hash,
+		  { "MD5 Hash", "aim.sst.md5", FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL },
+	  }, 
+	  { &hf_aim_sst_md5_hash_size,
+		  { "MD5 Hash Size", "aim.sst.md5.size", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL },
+	  },
+	  { &hf_aim_sst_unknown,
+		  { "Unknown Data", "aim.sst.unknown", FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL },
+	  },
+	  { &hf_aim_sst_ref_num,
+		  { "Reference Number", "aim.sst.ref_num", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
+	  },
+	  { &hf_aim_sst_icon_size,
+		  { "Icon Size", "aim.sst.icon_size", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
+	  },
+	  { &hf_aim_sst_icon,
+		  { "Icon", "aim.sst.icon", FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL },
+	  },
+  };
 
 /* Setup protocol subtree array */
   static gint *ett[] = {
@@ -77,8 +182,7 @@ proto_register_aim_sst(void)
   proto_aim_sst = proto_register_protocol("AIM Server Side Themes", "AIM SST", "aim_sst");
 
 /* Required function calls to register the header fields and subtrees used */
-/*FIXME
-  proto_register_field_array(proto_aim_sst, hf, array_length(hf));*/
+  proto_register_field_array(proto_aim_sst, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
 

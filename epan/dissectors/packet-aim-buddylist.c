@@ -73,11 +73,7 @@ static int dissect_aim_buddylist_buddylist(tvbuff_t *tvb, packet_info *pinfo, pr
 
 static int dissect_aim_buddylist_rights_repl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *buddy_tree) 
 {
-	int offset = 0;
-	while(tvb_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv( tvb, pinfo, offset, buddy_tree, buddylist_tlvs);
-	}
-	return offset;
+	return dissect_aim_tlv_sequence(tvb, pinfo, 0, buddy_tree, buddylist_tlvs);
 }
 
 static int dissect_aim_buddylist_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *buddy_tree)
