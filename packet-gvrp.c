@@ -2,7 +2,7 @@
  * Routines for GVRP (GARP VLAN Registration Protocol) dissection
  * Copyright 2000, Kevin Shi <techishi@ms22.hinet.net>
  *
- * $Id: packet-gvrp.c,v 1.10 2002/01/21 07:36:34 guy Exp $
+ * $Id: packet-gvrp.c,v 1.11 2002/05/30 05:26:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -145,7 +145,9 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 	    proto_tree_add_text(gvrp_tree, tvb, GARP_PROTOCOL_ID, sizeof(guint16), 
  "   (Warning: this version of Ethereal only knows about protocol id = 1)");
-	    call_dissector(data_handle,tvb_new_subset(tvb, GARP_PROTOCOL_ID + sizeof(guint16), -1,tvb_reported_length_remaining(tvb,GARP_PROTOCOL_ID + sizeof(guint16))), pinfo, tree);
+	    call_dissector(data_handle,
+	        tvb_new_subset(tvb, GARP_PROTOCOL_ID + sizeof(guint16), -1, -1),
+	        pinfo, tree);
 	    return;
 	}
 
@@ -175,7 +177,8 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		else
 		{
-		    call_dissector(data_handle,tvb_new_subset(tvb, offset, -1,tvb_reported_length_remaining(tvb,offset)),pinfo, tree);
+		    call_dissector(data_handle,
+		        tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
 		    return;
 		}
 	    }
@@ -192,7 +195,8 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    /* GVRP only supports one attribute type. */
 	    if (octet != GVRP_ATTRIBUTE_TYPE)
 	    {
-		call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
+		call_dissector(data_handle, tvb_new_subset(tvb, offset,-1, -1),
+		    pinfo, tree);
 		return;
 	    }
 
@@ -225,7 +229,8 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    }
 		    else
 		    {
-			call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
+			call_dissector(data_handle,
+			    tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
 			return;
 		    }
 		}
@@ -256,7 +261,9 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    case GVRP_EVENT_LEAVEALL:
 			if (octet != GVRP_LENGTH_LEAVEALL)
 			{
-			    call_dissector(data_handle,tvb_new_subset(tvb, offset, -1,tvb_reported_length_remaining(tvb,offset)),pinfo, tree);
+			    call_dissector(data_handle,
+			        tvb_new_subset(tvb, offset, -1, -1), pinfo,
+			        tree);
 			    return;
 			}
 			break;
@@ -268,7 +275,9 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		     case GVRP_EVENT_EMPTY:
 			if (octet != GVRP_LENGTH_NON_LEAVEALL)
 			{
-			    call_dissector(data_handle,tvb_new_subset(tvb, offset, -1,tvb_reported_length_remaining(tvb,offset)),pinfo, tree);
+			    call_dissector(data_handle,
+			        tvb_new_subset(tvb, offset, -1, -1),pinfo,
+			        tree);
 			    return;
 			}
 
@@ -281,7 +290,8 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 
 		     default:
-			call_dissector(data_handle,tvb_new_subset(tvb, offset, -1,tvb_reported_length_remaining(tvb,offset)),pinfo, tree);
+			call_dissector(data_handle,
+			    tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
 			return;
 		    }
 		}

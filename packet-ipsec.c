@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.39 2002/05/10 23:20:38 guy Exp $
+ * $Id: packet-ipsec.c,v 1.40 2002/05/30 05:26:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -229,7 +229,9 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_uint(esp_tree, hf_esp_sequence, tvb,
 			    offsetof(struct newesp, esp_seq), 4,
 			    (guint32)ntohl(esp.esp_seq));
-	call_dissector(data_handle,tvb_new_subset(tvb, sizeof(struct newesp),-1,tvb_reported_length_remaining(tvb,sizeof(struct newesp))), pinfo, esp_tree);
+	call_dissector(data_handle,
+	    tvb_new_subset(tvb, sizeof(struct newesp), -1, -1),
+	    pinfo, esp_tree);
     }
 }
 
@@ -279,7 +281,9 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_uint(ipcomp_tree, hf_ipcomp_cpi, tvb, 
 	    offsetof(struct ipcomp, comp_cpi), 2,
 	    ntohs(ipcomp.comp_cpi));
-	call_dissector(data_handle,tvb_new_subset(tvb, sizeof(struct ipcomp), -1,tvb_reported_length_remaining(tvb,sizeof(struct ipcomp))),pinfo, ipcomp_tree);
+	call_dissector(data_handle,
+	    tvb_new_subset(tvb, sizeof(struct ipcomp), -1, -1), pinfo,
+	    ipcomp_tree);
     }
 }
 

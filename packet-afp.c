@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.15 2002/05/11 22:40:40 guy Exp $
+ * $Id: packet-afp.c,v 1.16 2002/05/30 05:26:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2640,8 +2640,10 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = dissect_reply_afp_write(tvb, pinfo, afp_tree, offset);break;
 		}
 	}
-	if (tree && offset < len)
-		call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, afp_tree);
+	if (tree && offset < len) {
+		call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1),
+		    pinfo, afp_tree);
+	}
 }
 
 static void afp_reinit( void)
