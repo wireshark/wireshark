@@ -50,6 +50,12 @@
  *   Stage 3
  *   (3GPP TS 24.008 version 5.9.0 Release 5)
  *
+ *   Reference [8]
+ *   Mobile radio interface Layer 3 specification;
+ *   Core network protocols;
+ *   Stage 3
+ *   (3GPP TS 24.008 version 6.7.0 Release 6)
+ *
  * $Id$
  *
  * Ethereal - Network traffic analyzer
