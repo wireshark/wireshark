@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.21 2002/05/01 00:01:57 guy Exp $
+ * $Id: packet-kerberos.c,v 1.22 2002/07/29 02:03:54 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,6 +122,7 @@ static gint ett_additional_tickets = -1;
 #define KRB5_ADDR_ISO        0x07
 #define KRB5_ADDR_DECNET     0x0c
 #define KRB5_ADDR_APPLETALK  0x10
+#define KRB5_ADDR_NETBIOS    0x14
 
 /* encryption type constants */
 #define KRB5_ENCTYPE_NULL                0
@@ -322,6 +323,7 @@ static const value_string krb5_address_types[] = {
     { KRB5_ADDR_ISO,		"ISO"},
     { KRB5_ADDR_DECNET,		"DECNET"},
     { KRB5_ADDR_APPLETALK,	"APPLETALK"},
+    { KRB5_ADDR_NETBIOS,     	"NETBIOS"},
     { 0,                        NULL },
 };
 
@@ -1165,6 +1167,11 @@ dissect_Addresses(ASN1_SCK *asn1p, packet_info *pinfo,
                                         str_len, "Value: %d.%d.%d.%d",
                                         str[0], str[1], str[2], str[3]);
                     break;
+
+             	case KRB5_ADDR_NETBIOS:
+               	    proto_tree_add_text(address_tree, asn1p->tvb, tmp_pos2,
+                             		str_len, "Value: %s", str);
+               	    break;
                     
                 default:
                     proto_tree_add_text(address_tree, asn1p->tvb, tmp_pos2,
