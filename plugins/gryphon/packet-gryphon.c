@@ -48,10 +48,6 @@
 G_MODULE_EXPORT const gchar version[] = VERSION;
 #endif
 
-#ifndef G_HAVE_GINT64
-#error "Sorry, this won't compile without 64-bit integer support"
-#endif
-
 /*
  * See
  *
@@ -906,29 +902,36 @@ eventnum(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 resp_time(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int     hours, minutes, seconds, fraction;
-    union {
-    	unsigned int		lng[2];
-	guint64			lnglng;
-    } ts;
-    time_t          timestamp;
-    char   date[45];
+    guint64 ts;
+    time_t  timestamp;
+    struct tm *tmp;
+    static const char *mon_names[12] = {
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec"
+    };
 
-    /* XXX This code is neither Endianess independent, nor will it work
-     * on platforms that do not support the *optional* guin64 type
-     */
-    ts.lng[1] = tvb_get_ntohl(tvb, offset);
-    ts.lng[0] = tvb_get_ntohl(tvb, offset + 4);
-    timestamp = (time_t) (ts.lnglng / 100000L);
-    strncpy (date, ctime(&timestamp), sizeof(date));
-    date[strlen(date)-1] = 0x00;
-    proto_tree_add_text(pt, tvb, offset, 8, "Date/Time: %s", date);
-    timestamp = ts.lng[0];
-    hours = timestamp /(100000 * 60 *60);
-    minutes = (timestamp / (100000 * 60)) % 60;
-    seconds = (timestamp / 100000) % 60;
-    fraction = timestamp % 100000;
-    proto_tree_add_text(pt, tvb, offset+4, 4, "Timestamp: %d:%02d:%02d.%05d", hours, minutes, seconds, fraction);
+    ts = tvb_get_ntoh64(tvb, offset);
+    timestamp = (time_t) (ts / 100000);
+    tmp = localtime(&timestamp);
+    proto_tree_add_text(pt, tvb, offset, 8,
+        "Date/Time: %s %d, %d %02d:%02d:%02d.%05u",
+        mon_names[tmp->tm_mon],
+        tmp->tm_mday,
+        tmp->tm_year + 1900,
+        tmp->tm_hour,
+        tmp->tm_min,
+        tmp->tm_sec,
+        (guint) (ts % 100000));
     offset += 8;
     return offset;
 }
