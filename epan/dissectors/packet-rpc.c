@@ -1369,36 +1369,40 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if ((value = g_hash_table_lookup(rpc_procs,&key)) != NULL) {
 		dissect_function = value->dissect_call;
 
-		/* Keep track of the address and port whence the call came,
-		   and the port to which the call is being sent, so that
-		   we can match up calls with replies.
+		/* Keep track of the address whence the call came, and the
+		   port to which the call is being sent, so that we can
+		   match up calls with replies.
 
 		   If the transport is connection-oriented (we check, for
-		   now, only for "pinfo->ptype" of PT_TCP), we take
-		   into account the address from which the call was sent
+		   now, only for "pinfo->ptype" of PT_TCP), we also take
+		   into account the port from which the call was sent
 		   and the address to which the call was sent, because
-		   the addresses of the two endpoints should be the same
-		   for all calls and replies.
+		   the addresses and ports of the two endpoints should be
+		   the same for all calls and replies.  (XXX - what if
+		   the connection is broken and re-established?)
 
 		   If the transport is connectionless, we don't worry
 		   about the address to which the call was sent and from
 		   which the reply was sent, because there's no
 		   guarantee that the reply will come from the address
-		   to which the call was sent. */
+		   to which the call was sent.  We also don't worry about
+		   the port *from* which the call was sent and *to* which
+		   the reply was sent, because some clients (*cough* OS X
+		   NFS client *cough) might send retransmissions from a
+		   different port from the original request. */
 		if (pinfo->ptype == PT_TCP) {
 			conversation = find_conversation(&pinfo->src,
 			    &pinfo->dst, pinfo->ptype, pinfo->srcport,
 			    pinfo->destport, 0);
 		} else {
 			/*
-			 * XXX - can we just use NO_ADDR_B?  Unfortunately,
-			 * you currently still have to pass a non-null
+			 * XXX - you currently still have to pass a non-null
 			 * pointer for the second address argument even
-			 * if you do that.
+			 * if you use NO_ADDR_B.
 			 */
 			conversation = find_conversation(&pinfo->src,
-			    &null_address, pinfo->ptype, pinfo->srcport,
-			    pinfo->destport, 0);
+			    &null_address, pinfo->ptype, pinfo->destport,
+			    0, NO_ADDR_B|NO_PORT_B);
 		}
 		if (conversation == NULL) {
 			/* It's not part of any conversation - create a new
@@ -1413,8 +1417,8 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				    pinfo->destport, 0);
 			} else {
 				conversation = conversation_new(&pinfo->src,
-				    &null_address, pinfo->ptype, pinfo->srcport,
-				    pinfo->destport, 0);
+				    &null_address, pinfo->ptype, pinfo->destport,
+				    0, NO_ADDR2|NO_PORT2);
 			}
 		}
 
@@ -1504,34 +1508,36 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* Look for the matching call in the hash table of indirect
 	   calls.  A reply must match a call that we've seen, and the
-	   reply must be sent to the same port and address that the
-	   call came from, and must come from the port to which the
-	   call was sent.
+	   reply must be sent to the same address that the call came
+	   from, and must come from the port to which the call was sent.
 
 	   If the transport is connection-oriented (we check, for
 	   now, only for "pinfo->ptype" of PT_TCP), we take
-	   into account the address from which the call was sent
+	   into account the port from which the call was sent
 	   and the address to which the call was sent, because
-	   the addresses of the two endpoints should be the same
-	   for all calls and replies.
+	   the addresses and ports of the two endpoints should be
+	   the same for all calls and replies.
 
 	   If the transport is connectionless, we don't worry
 	   about the address to which the call was sent and from
 	   which the reply was sent, because there's no
 	   guarantee that the reply will come from the address
-	   to which the call was sent. */
+	   to which the call was sent.  We also don't worry about
+	   the port *from* which the call was sent and *to* which
+	   the reply was sent, because some clients (*cough* OS X
+	   NFS client *cough) might send retransmissions from a
+	   different port from the original request. */
 	if (pinfo->ptype == PT_TCP) {
 		conversation = find_conversation(&pinfo->src, &pinfo->dst,
 		    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	} else {
 		/*
-		 * XXX - can we just use NO_ADDR_B?  Unfortunately,
-		 * you currently still have to pass a non-null
+		 * XXX - you currently still have to pass a non-null
 		 * pointer for the second address argument even
-		 * if you do that.
+		 * if you use NO_ADDR_B.
 		 */
-		conversation = find_conversation(&null_address, &pinfo->dst,
-		    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+		conversation = find_conversation(&pinfo->dst, &null_address,
+		    pinfo->ptype, pinfo->srcport, 0, NO_ADDR_B|NO_PORT_B);
 	}
 	if (conversation == NULL) {
 		/* We haven't seen an RPC call for that conversation,
@@ -1778,35 +1784,38 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	case RPC_REPLY:
 		/* Check for RPC reply.  A reply must match a call that
 		   we've seen, and the reply must be sent to the same
-		   port and address that the call came from, and must
-		   come from the port to which the call was sent.
+		   address that the call came from, and must come from
+		   the port to which the call was sent.
 
 		   If the transport is connection-oriented (we check, for
 		   now, only for "pinfo->ptype" of PT_TCP), we take
-		   into account the address from which the call was sent
+		   into account the port from which the call was sent
 		   and the address to which the call was sent, because
-		   the addresses of the two endpoints should be the same
-		   for all calls and replies.
+		   the addresses and ports of the two endpoints should be
+		   the same for all calls and replies.
 
 		   If the transport is connectionless, we don't worry
 		   about the address to which the call was sent and from
 		   which the reply was sent, because there's no
 		   guarantee that the reply will come from the address
-		   to which the call was sent. */
+		   to which the call was sent.  We also don't worry about
+		   the port *from* which the call was sent and *to* which
+		   the reply was sent, because some clients (*cough* OS X
+		   NFS client *cough) might send retransmissions from a
+		   different port from the original request. */
 		if (pinfo->ptype == PT_TCP) {
 			conversation = find_conversation(&pinfo->src,
 			    &pinfo->dst, pinfo->ptype, pinfo->srcport,
 			    pinfo->destport, 0);
 		} else {
 			/*
-			 * XXX - can we just use NO_ADDR_B?  Unfortunately,
-			 * you currently still have to pass a non-null
+			 * XXX - you currently still have to pass a non-null
 			 * pointer for the second address argument even
-			 * if you do that.
+			 * if you use NO_ADDR_B.
 			 */
-			conversation = find_conversation(&null_address,
-			    &pinfo->dst, pinfo->ptype, pinfo->srcport,
-			    pinfo->destport, 0);
+			conversation = find_conversation(&pinfo->dst,
+			    &null_address, pinfo->ptype, pinfo->srcport,
+			    0, NO_ADDR_B|NO_PORT_B);
 		}
 		if (conversation == NULL) {
 			/* We haven't seen an RPC call for that conversation,
@@ -2008,36 +2017,40 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				msg_type_name);
 		}
 
-		/* Keep track of the address and port whence the call came,
-		   and the port to which the call is being sent, so that
-		   we can match up calls with replies.
+		/* Keep track of the address whence the call came, and the
+		   port to which the call is being sent, so that we can
+		   match up calls with replies.
 
 		   If the transport is connection-oriented (we check, for
-		   now, only for "pinfo->ptype" of PT_TCP), we take
-		   into account the address from which the call was sent
+		   now, only for "pinfo->ptype" of PT_TCP), we also take
+		   into account the port from which the call was sent
 		   and the address to which the call was sent, because
-		   the addresses of the two endpoints should be the same
-		   for all calls and replies.
+		   the addresses and ports of the two endpoints should be
+		   the same for all calls and replies.  (XXX - what if
+		   the connection is broken and re-established?)
 
 		   If the transport is connectionless, we don't worry
 		   about the address to which the call was sent and from
 		   which the reply was sent, because there's no
 		   guarantee that the reply will come from the address
-		   to which the call was sent. */
+		   to which the call was sent.  We also don't worry about
+		   the port *from* which the call was sent and *to* which
+		   the reply was sent, because some clients (*cough* OS X
+		   NFS client *cough) might send retransmissions from a
+		   different port from the original request. */
 		if (pinfo->ptype == PT_TCP) {
 			conversation = find_conversation(&pinfo->src,
 			    &pinfo->dst, pinfo->ptype, pinfo->srcport,
 			    pinfo->destport, 0);
 		} else {
 			/*
-			 * XXX - can we just use NO_ADDR_B?  Unfortunately,
-			 * you currently still have to pass a non-null
+			 * XXX - you currently still have to pass a non-null
 			 * pointer for the second address argument even
-			 * if you do that.
+			 * if you use NO_ADDR_B.
 			 */
 			conversation = find_conversation(&pinfo->src,
-			    &null_address, pinfo->ptype, pinfo->srcport,
-			    pinfo->destport, 0);
+			    &null_address, pinfo->ptype, pinfo->destport,
+			    0, NO_ADDR_B|NO_PORT_B);
 		}
 		if (conversation == NULL) {
 			/* It's not part of any conversation - create a new
@@ -2048,8 +2061,8 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				    pinfo->destport, 0);
 			} else {
 				conversation = conversation_new(&pinfo->src,
-				    &null_address, pinfo->ptype, pinfo->srcport,
-				    pinfo->destport, 0);
+				    &null_address, pinfo->ptype, pinfo->destport,
+				    0, NO_ADDR2|NO_PORT2);
 			}
 		}
 
