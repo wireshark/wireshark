@@ -7,7 +7,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.109 2004/05/10 22:20:24 obiot Exp $
+ * $Id: packet-http.c,v 1.110 2004/06/02 06:35:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -114,7 +114,7 @@ static gboolean http_decompress_body = FALSE;
 #define TCP_PORT_PROXY_HTTP		3128
 #define TCP_PORT_PROXY_ADMIN_HTTP	3132
 #define TCP_ALT_PORT_HTTP		8080
-
+#define TCP_PORT_HKP			11371
 /*
  * SSDP is implemented atop HTTP (yes, it really *does* run over UDP).
  */
@@ -1683,6 +1683,7 @@ proto_reg_handoff_http(void)
 	dissector_add("tcp.port", TCP_ALT_PORT_HTTP, http_handle);
 	dissector_add("tcp.port", TCP_PORT_PROXY_HTTP, http_handle);
 	dissector_add("tcp.port", TCP_PORT_PROXY_ADMIN_HTTP, http_handle);
+	dissector_add("tcp.port", TCP_PORT_HKP, http_handle);
 
 	/*
 	 * XXX - is there anything to dissect in the body of an SSDP
