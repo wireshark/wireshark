@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.686 2004/01/10 04:09:14 guy Exp $
+# $Id: Makefile.am,v 1.687 2004/01/10 16:34:27 obiot Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -1154,12 +1154,12 @@ dftest_LDADD = \
 dftest_LDFLAGS = -export-dynamic
 
 CLEANFILES =	\
+	@rdps_bin@ \
 	idl2eth
 
-DISTCLEANFILES =	\
+DISTCLEANFILES = \
 	aclocal-missing/*.m4 \
-	ps.c		\
-	rdps		\
+	ps.c \
 	*~
 
 MAINTAINERCLEANFILES =		\

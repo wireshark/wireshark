@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.242 2004/01/09 00:34:20 guy Exp $
+# $Id: configure.in,v 1.243 2004/01/10 16:34:27 obiot Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -337,6 +337,8 @@ fi
 AC_SUBST(ethereal_bin)
 AC_SUBST(ethereal_man)
 
+rdps_bin="rdps\$(EXEEXT)"
+AC_SUBST(rdps_bin)
 
 
 # Enable/disable tethereal
