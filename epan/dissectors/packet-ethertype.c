@@ -88,6 +88,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_SLOW_PROTOCOLS,	"Slow Protocols"		},
     {ETHERTYPE_RTMAC,		"Real-Time Media Access Control" },
     {ETHERTYPE_RTCFG,		"Real-Time Configuration Protocol" },
+	{ETHERTYPE_CDMA2000_A10_UBS,"CDMA200 A10 Unstructured byte stream" },
     {ETHERTYPE_PROFINET,	"PROFInet"			},
 
     /*

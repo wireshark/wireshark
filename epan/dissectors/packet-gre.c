@@ -78,9 +78,10 @@ static const value_string typevals[] = {
 	{ GRE_WCCP,            "WCCP"},
 	{ ETHERTYPE_IPX,       "IPX"},
 	{ ETHERTYPE_ETHBRIDGE, "Transparent Ethernet bridging" },
-	{ GRE_FR,              "Frame Relay"},
+	{ ETHERTYPE_RAW_FR,    "Frame Relay"},
 	{ ETHERTYPE_IPv6,      "IPv6" },
 	{ ETHERTYPE_MPLS,      "MPLS label switched packet" },
+	{ ETHERTYPE_CDMA2000_A10_UBS,"CDMA200 A10 Unstructured byte stream" },
 	{ 0,                   NULL }
 };
 
