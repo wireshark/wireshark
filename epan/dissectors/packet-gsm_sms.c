@@ -730,6 +730,7 @@ static void
 dis_field_scts_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
     guint8	oct, oct2, oct3;
+    char sign;
 
 
     oct = tvb_get_guint8(tvb, offset);
@@ -766,10 +767,13 @@ dis_field_scts_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 
     oct = tvb_get_guint8(tvb, offset);
 
+    sign = (oct & 0x08)?'-':'+';
+    oct = ((oct >> 4) + (oct & 0x07) * 10) * 15;
+
     proto_tree_add_text(tree,
 	tvb, offset, 1,
-	"Timezone %d",
-	oct);
+	"Timezone: GMT %c %d hours %d minutes",
+	sign, oct / 60, oct % 60);
 }
 
 /* 9.2.3.11 */
@@ -2415,9 +2419,9 @@ dis_msg_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 
     oct = tvb_get_guint8(tvb, offset);
 
-    DIS_FIELD_SRR(tree, 0x20, offset);
+    DIS_FIELD_UDHI(tree, 0x40, offset, udhi);
 
-    DIS_FIELD_UDHI(tree, 0x04, offset, udhi);
+    DIS_FIELD_SRR(tree, 0x20, offset);
 
     DIS_FIELD_MTI(tree, 0x03, offset);
 
