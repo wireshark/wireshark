@@ -2,7 +2,7 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.6 2002/08/10 23:16:37 guy Exp $
+ * $Id: packet-ntlmssp.c,v 1.7 2002/08/18 20:33:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -324,19 +324,23 @@ dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset,
   offset += 2;
 
   /* Calling workstation name buffer? */
-  proto_tree_add_uint(ntlmssp_tree, hf_ntlmssp_negotiate_workstation_buffer,
+  proto_tree_add_item(ntlmssp_tree, hf_ntlmssp_negotiate_workstation_buffer,
 		      tvb, offset, 4, TRUE);
   offset += 4;
 
   /* Calling workstation name */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_negotiate_workstation,
-		       tvb, offset, workstation_length, FALSE);
-  offset += workstation_length;
+  if (workstation_length != 0) {
+    proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_negotiate_workstation,
+			 tvb, offset, workstation_length, FALSE);
+    offset += workstation_length;
+  }
 
   /* Calling domain name */
-  proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_negotiate_domain,
-		       tvb, offset, domain_length, FALSE);
-  offset += domain_length;
+  if (domain_length != 0) {
+    proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_negotiate_domain,
+			 tvb, offset, domain_length, FALSE);
+    offset += domain_length;
+  }
 
   return offset;
 }
@@ -497,34 +501,52 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree)
     unicode_strings = TRUE;
 
   /* Domain name */
-  bc = domain_length;
-  domain = get_unicode_or_ascii_string(tvb, &offset,
-				       unicode_strings, &result_length,
-				       FALSE, FALSE, &bc);
+  if (domain_length != 0) {
+    bc = domain_length;
+    domain = get_unicode_or_ascii_string(tvb, &offset,
+					 unicode_strings, &result_length,
+					 FALSE, FALSE, &bc);
+    if (domain == NULL) {
+      offset += domain_length;
+      return offset;
+    }
 
-  proto_tree_add_string(ntlmssp_tree, hf_ntlmssp_auth_domain, tvb, 
-			offset, result_length, domain);
-  offset += domain_length;
+    proto_tree_add_string(ntlmssp_tree, hf_ntlmssp_auth_domain, tvb, 
+			  offset, result_length, domain);
+    offset += domain_length;
+  }
 
   /* User name */
-  bc = username_length;
-  username = get_unicode_or_ascii_string(tvb, &offset,
-					 unicode_strings, &result_length,
-					 FALSE, FALSE, &bc);
+  if (username_length != 0) {
+    bc = username_length;
+    username = get_unicode_or_ascii_string(tvb, &offset,
+					   unicode_strings, &result_length,
+					   FALSE, FALSE, &bc);
+    if (username == NULL) {
+      offset += username_length;
+      return offset;
+    }
 
-  proto_tree_add_string(ntlmssp_tree, hf_ntlmssp_auth_username, tvb, 
-			offset, result_length, username);
-  offset += username_length;
+    proto_tree_add_string(ntlmssp_tree, hf_ntlmssp_auth_username, tvb, 
+			  offset, result_length, username);
+    offset += username_length;
+  }
 
   /* Host name */
-  bc = hostname_length;
-  hostname = get_unicode_or_ascii_string(tvb, &offset,
-					 unicode_strings, &result_length,
-					 FALSE, FALSE, &bc);
+  if (hostname_length != 0) {
+    bc = hostname_length;
+    hostname = get_unicode_or_ascii_string(tvb, &offset,
+					   unicode_strings, &result_length,
+					   FALSE, FALSE, &bc);
+    if (hostname == NULL) {
+      offset += hostname_length;
+      return offset;
+    }
 
-  proto_tree_add_string(ntlmssp_tree, hf_ntlmssp_auth_hostname, tvb, 
-			offset, result_length, hostname);
-  offset += hostname_length;
+    proto_tree_add_string(ntlmssp_tree, hf_ntlmssp_auth_hostname, tvb, 
+			  offset, result_length, hostname);
+    offset += hostname_length;
+  }
 
   /* Lan Manager Response */
   proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth_lmresponse,
