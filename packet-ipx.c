@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.93 2001/11/25 01:13:27 guy Exp $
+ * $Id: packet-ipx.c,v 1.94 2001/11/25 01:28:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -614,8 +614,6 @@ server_type(guint16 type)
 		{ 0x0278,	"Directory Server (Netware 4.x)" },
 		{ 0x027b,	"Netware Management Agent" },
 		{ 0x0280,	"Novell File and Printer Sharing Service for PC" },
-		{ 0x030c,	"HP LaserJet / Quick Silver" },
-		{ 0x03dd,	"Banyan ENS for Netware Client NLM" },
 		{ 0x0304,	"Novell SAA Gateway" },
 		{ 0x0308,	"COM or VERMED 1" },
 		{ 0x030a,	"Galacticomm's Worldgroup Server" },
@@ -639,6 +637,7 @@ server_type(guint16 type)
 		{ 0x03c7,	"LANspool 3.5 (Intel)" },
 		{ 0x03d7,	"Lexmark printer server (type 4033-011)" },
 		{ 0x03d8,	"Lexmark XLE printer server (type 4033-301)" },
+		{ 0x03dd,	"Banyan ENS for Netware Client NLM" },
 		{ 0x03de,	"Gupta Sequel Base Server or NetWare SQL" },
 		{ 0x03e1,	"Univel Unixware" },
 		{ 0x03e4,	"Univel Unixware" },
