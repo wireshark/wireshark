@@ -1,7 +1,7 @@
 /* resolv.h
  * Definitions for network object lookup
  *
- * $Id: resolv.h,v 1.1 2000/09/28 03:28:54 gram Exp $
+ * $Id: resolv.h,v 1.2 2000/10/16 23:17:40 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -27,16 +27,6 @@
 
 #ifndef __RESOLV_H__
 #define __RESOLV_H__
-
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
-
-#define EPATH_ETHERS 		"/etc/ethers"
-#define EPATH_IPXNETS 		"/etc/ipxnets"
-#define EPATH_MANUF  		DATAFILE_DIR "/manuf"
-#define EPATH_PERSONAL_ETHERS 	".ethereal/ethers"  /* with "$HOME/" prefix */
-#define EPATH_PERSONAL_IPXNETS 	".ethereal/ipxnets" /* with "$HOME/" prefix */
 
 #ifndef MAXNAMELEN
 #define MAXNAMELEN  	64	/* max name length (hostname and port name) */

@@ -2,7 +2,7 @@
 # Automake file for the EPAN library
 # (Ethereal Protocol ANalyzer Library)
 #
-# $Id: Makefile.am,v 1.9 2000/10/14 04:31:25 gram Exp $
+# $Id: Makefile.am,v 1.10 2000/10/16 23:17:39 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -30,8 +30,11 @@ YFLAGS=-d -p dfilter_
 # EPAN will eventually be a shared library. While I move source code around,
 # however, it is an archive library.
 
+ACLOCAL_AMFLAGS = `../aclocal-flags`
+
 noinst_LIBRARIES = libethereal.a
 
+INCLUDES = -I$(srcdir)/..
 
 libethereal_a_SOURCES = \
 	conversation.c		\
@@ -81,6 +84,12 @@ EXTRA_DIST = \
 CLEANFILES = \
 	libethereal.a	\
 	*~
+
+#
+# Add the object files for missing routines, if any.
+#
+libethereal_a_LIBADD = @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@
+libethereal_a_DEPENDENCIES = @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@
 
 dfilter-scanner.c : dfilter-scanner.l
 	$(LEX) -Pdfilter_ -odfilter-scanner.c $(srcdir)/dfilter-scanner.l

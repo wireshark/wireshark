@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.1 2000/09/28 03:28:53 gram Exp $
+ * $Id: resolv.c,v 1.2 2000/10/16 23:17:40 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -83,6 +83,12 @@
 #include "globals.h"
 #include "resolv.h"
 #include "util.h"
+
+#define EPATH_ETHERS 		"/etc/ethers"
+#define EPATH_IPXNETS 		"/etc/ipxnets"
+#define EPATH_MANUF  		DATAFILE_DIR "/manuf"
+#define EPATH_PERSONAL_ETHERS 	".ethereal/ethers"  /* with "$HOME/" prefix */
+#define EPATH_PERSONAL_IPXNETS 	".ethereal/ipxnets" /* with "$HOME/" prefix */
 
 #define MAXMANUFLEN	9	/* max vendor name length with ending '\0' */
 #define HASHETHSIZE	1024

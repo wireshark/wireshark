@@ -1,7 +1,7 @@
 /* plugins.h
  * definitions for plugins structures
  *
- * $Id: plugins.h,v 1.1 2000/09/27 04:54:51 gram Exp $
+ * $Id: plugins.h,v 1.2 2000/10/16 23:17:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,19 +29,8 @@
 #include <glib.h>
 #include <gmodule.h>
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#ifdef HAVE_DLFCN_H
-#define HAVE_PLUGINS 1
-#endif
-#endif /* HAVE_CONFIG_H */
-
 #include "dfilter.h"
 #include "packet.h"
-
-#ifdef HAVE_WINSOCK_H
-#include <winsock.h>
-#endif
 
 typedef struct _plugin {
     GModule	*handle;          /* handle returned by dlopen */
@@ -68,7 +57,7 @@ void *disable_plugin(const gchar *, const gchar *);
 void *find_plugin(const gchar *, const gchar *);
 gboolean is_enabled(const gchar *, const gchar *);
 void plugin_replace_filter(const gchar *, const gchar *, const gchar *, dfilter *);
-int save_plugin_status();
-void init_plugins();
+int save_plugin_status(void);
+void init_plugins(const char *);
 
 #endif /* __PLUGINS_H__ */

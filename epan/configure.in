@@ -1,0 +1,119 @@
+# $Id: configure.in,v 1.1 2000/10/16 23:17:39 guy Exp $
+dnl
+dnl Process this file with autoconf 2.13 or later to produce a
+dnl configure script; 2.12 doesn't generate a "configure" script that
+dnl defines SHELL, and "Makefile.in" has
+dnl
+dnl	SHELL = @SHELL@
+dnl
+dnl which requires it to be defined - and there may be other problems
+dnl with pre-2.13 "autoconf" as well.
+dnl
+AC_INIT(epan.c)
+
+AC_PREREQ(2.13)
+
+AM_INIT_AUTOMAKE(libethereal.a, 0.0.0)
+AM_CONFIG_HEADER(config.h)
+
+dnl Checks for programs.
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_YACC
+AM_PROG_LEX
+AC_PROG_RANLIB
+AC_PATH_PROG(LEX, flex)
+
+AC_SUBST(FLEX_PATH)
+
+# If we're running gcc, add '-Wall' to CFLAGS.
+AC_MSG_CHECKING(to see if we can add '-Wall' to CFLAGS)
+if test x$GCC != x ; then
+  CFLAGS="-Wall $CFLAGS"
+  AC_MSG_RESULT(yes)
+else
+  AC_MSG_RESULT(no)
+fi
+
+# Create DATAFILE_DIR #define for config.h
+DATAFILE_DIR=$sysconfdir
+DATAFILE_DIR=`(
+    test "x$prefix" = xNONE && prefix=$ac_default_prefix
+    test "x$exec_prefix" = xNONE && exec_prefix=${prefix}
+    eval echo "$DATAFILE_DIR"
+)`
+AC_DEFINE_UNQUOTED(DATAFILE_DIR,"$DATAFILE_DIR")
+AC_SUBST(DATAFILE_DIR)
+
+# Checks for glib first, or gtk+ if not present
+AM_PATH_GLIB(1.1.0, CFLAGS="$CFLAGS $GLIB_CFLAGS" LIBS="$LIBS $GLIB_LIBS")
+
+dnl Checks for header files
+AC_HEADER_STDC
+AC_CHECK_HEADERS(stdarg.h direct.h dirent.h fcntl.h netdb.h unistd.h)
+AC_CHECK_HEADERS(sys/param.h sys/socket.h sys/stat.h sys/time.h sys/types.h)
+AC_CHECK_HEADERS(netinet/in.h)
+AC_CHECK_HEADERS(arpa/inet.h arpa/nameser.h)
+AC_CHECK_HEADERS(dlfcn.h)
+
+#
+# XXX - we should also somehow arrange to support dynamic linking on
+# HP-UX, even though it hasn't yet, apparently, implemented the
+# UNIX standard "dlopen()" interface atop its own interface.
+#
+if test "$ac_cv_header_dlfcn_h" = yes ; then
+  AC_DEFINE(HAVE_PLUGINS)
+fi
+
+AC_CHECK_FUNC(inet_aton, INET_ATON_O="",
+  INET_ATON_O="inet_aton.o")
+if test "$ac_cv_func_inet_aton" = no ; then
+  INET_ATON_C="inet_aton.c"
+  INET_ATON_O="inet_aton.o"
+  AC_DEFINE(NEED_INET_ATON_H)
+fi
+AC_SUBST(INET_ATON_C)
+AC_SUBST(INET_ATON_O)
+
+AC_CHECK_FUNC(inet_pton, [
+  dnl check for pre-BIND82 inet_pton() bug.
+  AC_MSG_CHECKING(for broken inet_pton)
+  AC_TRY_RUN([#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+int main()
+{
+#ifdef AF_INET6
+  char buf[16];
+  /* this should return 0 (error) */
+  return inet_pton(AF_INET6, "0:1:2:3:4:5:6:7:", buf);
+#else
+  return 1;
+#endif
+}], [AC_MSG_RESULT(ok);
+have_inet_pton=yes], [AC_MSG_RESULT(broken);
+have_inet_pton=no], [AC_MSG_RESULT(cross compiling, assume it is broken);
+have_inet_pton=no])],
+have_inet_pton=no)
+if test "$have_inet_pton" = no; then
+  INET_PTON_C="inet_pton.c"
+  INET_PTON_O="inet_pton.o"
+else
+  INET_PTON_C=""
+  INET_PTON_O=""
+fi
+AC_SUBST(INET_PTON_C)
+AC_SUBST(INET_PTON_O)
+
+AC_CHECK_FUNC(inet_ntop, INET_NTOP_O="",
+  INET_NTOP_O="inet_ntop.o")
+if test "$ac_cv_func_inet_ntop" = no ; then
+  INET_NTOP_C="inet_ntop.c"
+  INET_NTOP_O="inet_ntop.o"
+  AC_DEFINE(NEED_INET_V6DEFS_H)
+fi
+AC_SUBST(INET_NTOP_C)
+AC_SUBST(INET_NTOP_O)
+
+AC_OUTPUT(Makefile)

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.159 2000/09/27 04:55:05 gram Exp $
+ * $Id: main.c,v 1.160 2000/10/16 23:18:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -856,7 +856,7 @@ main(int argc, char *argv[])
      "-G" flag, as the "-G" flag dumps a list of fields registered
      by the dissectors, and we must do it before we read the preferences,
      in case any dissectors register preferences. */
-  epan_init();
+  epan_init(PLUGIN_DIR);
 
   /* Now register the preferences for any non-dissector modules.
      We must do that before we read the preferences as well. */

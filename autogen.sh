@@ -2,7 +2,7 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.11 2000/10/14 04:09:04 gram Exp $
+# $Id: autogen.sh,v 1.12 2000/10/16 23:18:03 guy Exp $
 
 DIE=true
 PROJECT="Ethereal"
@@ -77,7 +77,7 @@ if test -z "$*"; then
 fi
 
 aclocal_flags="`./aclocal-flags`"
-for dir in . wiretap ;  do
+for dir in . epan wiretap ;  do
   echo processing $dir
   (
     cd $dir

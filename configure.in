@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.103 2000/09/27 04:54:24 gram Exp $
+# $Id: configure.in,v 1.104 2000/10/16 23:18:03 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -239,13 +239,13 @@ fi
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS(fcntl.h sys/ioctl.h sys/time.h unistd.h stdarg.h netdb.h dirent.h)
+AC_CHECK_HEADERS(fcntl.h sys/ioctl.h sys/time.h unistd.h stdarg.h netdb.h)
 AC_CHECK_HEADERS(sys/stat.h sys/sockio.h sys/types.h sys/socket.h)
-AC_CHECK_HEADERS(sys/wait.h sys/param.h)
+AC_CHECK_HEADERS(sys/wait.h)
 AC_CHECK_HEADERS(netinet/in.h)
 AC_CHECK_HEADERS(stddef.h)
 AC_CHECK_HEADERS(dlfcn.h)
-AC_CHECK_HEADERS(arpa/inet.h arpa/nameser.h)
+AC_CHECK_HEADERS(arpa/inet.h)
 
 dnl SNMP Check
 AC_ARG_ENABLE(snmp,
@@ -358,57 +358,6 @@ if test "$ac_cv_func_mkstemp" = no ; then
 fi
 AC_SUBST(MKSTEMP_C)
 AC_SUBST(MKSTEMP_O)
-
-AC_CHECK_FUNC(inet_aton, INET_ATON_O="",
-  INET_ATON_O="inet_aton.o")
-if test "$ac_cv_func_inet_aton" = no ; then
-  INET_ATON_C="inet_aton.c"
-  INET_ATON_O="inet_aton.o"
-  AC_DEFINE(NEED_INET_ATON_H)
-fi
-AC_SUBST(INET_ATON_C)
-AC_SUBST(INET_ATON_O)
-
-AC_CHECK_FUNC(inet_pton, [
-  dnl check for pre-BIND82 inet_pton() bug.
-  AC_MSG_CHECKING(for broken inet_pton)
-  AC_TRY_RUN([#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-int main()
-{
-#ifdef AF_INET6
-  char buf[16];
-  /* this should return 0 (error) */
-  return inet_pton(AF_INET6, "0:1:2:3:4:5:6:7:", buf);
-#else
-  return 1;
-#endif
-}], [AC_MSG_RESULT(ok);
-have_inet_pton=yes], [AC_MSG_RESULT(broken);
-have_inet_pton=no], [AC_MSG_RESULT(cross compiling, assume it is broken);
-have_inet_pton=no])],
-have_inet_pton=no)
-if test "$have_inet_pton" = no; then
-  INET_PTON_C="inet_pton.c"
-  INET_PTON_O="inet_pton.o"
-else
-  INET_PTON_C=""
-  INET_PTON_O=""
-fi
-AC_SUBST(INET_PTON_C)
-AC_SUBST(INET_PTON_O)
-
-AC_CHECK_FUNC(inet_ntop, INET_NTOP_O="",
-  INET_NTOP_O="inet_ntop.o")
-if test "$ac_cv_func_inet_ntop" = no ; then
-  INET_NTOP_C="inet_ntop.c"
-  INET_NTOP_O="inet_ntop.o"
-  AC_DEFINE(NEED_INET_V6DEFS_H)
-fi
-AC_SUBST(INET_NTOP_C)
-AC_SUBST(INET_NTOP_O)
 
 AC_CHECK_FUNCS(getprotobynumber gethostbyname2)
 

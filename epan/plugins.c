@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.2 2000/09/28 03:16:16 gram Exp $
+ * $Id: plugins.c,v 1.3 2000/10/16 23:17:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -266,7 +266,7 @@ plugin_replace_filter(const gchar *name, const gchar *version,
  */
 
 int
-save_plugin_status()
+save_plugin_status(void)
 {
     gchar  *pf_path;
     FILE   *statusfile;
@@ -467,7 +467,7 @@ plugins_scan_dir(const char *dirname)
  * init plugins
  */
 void
-init_plugins()
+init_plugins(const char *plugin_dir)
 {
     struct stat std_dir_stat, local_dir_stat, plugin_dir_stat;
 
@@ -539,12 +539,12 @@ init_plugins()
 
 	plugins_scan_dir(std_plug_dir);
 	plugins_scan_dir(local_plug_dir);
-	if ((strcmp(std_plug_dir, PLUGIN_DIR) != 0) &&
-		(strcmp(local_plug_dir, PLUGIN_DIR) != 0))
+	if ((strcmp(std_plug_dir, plugin_dir) != 0) &&
+		(strcmp(local_plug_dir, plugin_dir) != 0))
 	{
-	    if (stat(PLUGIN_DIR, &plugin_dir_stat) == 0)
+	    if (stat(plugin_dir, &plugin_dir_stat) == 0)
 	    {
-		/* check if PLUGIN_DIR is really different from std_dir and
+		/* check if plugin_dir is really different from std_dir and
 		 * local_dir if they exist ! */
 		if (stat(std_plug_dir, &std_dir_stat) == 0)
 		{
@@ -554,22 +554,22 @@ init_plugins()
 				    plugin_dir_stat.st_ino != std_dir_stat.st_ino) &&
 				(plugin_dir_stat.st_dev != local_dir_stat.st_dev ||
 				 plugin_dir_stat.st_ino != local_dir_stat.st_ino))
-			    plugins_scan_dir(PLUGIN_DIR);
+			    plugins_scan_dir(plugin_dir);
 		    }
 		    else
 		    {
 			if ((plugin_dir_stat.st_dev != std_dir_stat.st_dev ||
 				    plugin_dir_stat.st_ino != std_dir_stat.st_ino))
-			    plugins_scan_dir(PLUGIN_DIR);
+			    plugins_scan_dir(plugin_dir);
 		    }
 		}
 		else if (stat(local_plug_dir, &local_dir_stat) == 0)
 		{
 		    if ((plugin_dir_stat.st_dev != local_dir_stat.st_dev ||
 				plugin_dir_stat.st_ino != local_dir_stat.st_ino))
-			plugins_scan_dir(PLUGIN_DIR);
+			plugins_scan_dir(plugin_dir);
 		}
-		else plugins_scan_dir(PLUGIN_DIR);
+		else plugins_scan_dir(plugin_dir);
 	    }
 	}
 	if (!user_plug_dir)

@@ -1,7 +1,7 @@
 /* acconfig.h
  * #ifdefs to be controlled by "configure"
  *
- * $Id: acconfig.h,v 1.17 2000/10/16 23:18:03 guy Exp $
+ * $Id: acconfig.h,v 1.1 2000/10/16 23:17:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,20 +23,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#undef PACKAGE
-
-#undef VERSION
-
-#undef HAVE_SA_LEN
+#undef HAVE_PLUGINS
 
 #undef DATAFILE_DIR
 
-#undef NEED_SNPRINTF_H
+#undef NEED_INET_ATON_H
 
-#undef NEED_STRERROR_H
-
-#undef NEED_MKSTEMP
-
-#undef HAVE_LIBPCAP
-
-#undef PLUGIN_DIR
+#undef NEED_INET_V6DEFS_H
