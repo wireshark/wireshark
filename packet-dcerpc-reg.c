@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\winreg packet disassembly
  * Copyright 2001-2003 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-reg.c,v 1.22 2003/09/28 11:35:20 tpot Exp $
+ * $Id: packet-dcerpc-reg.c,v 1.23 2003/10/24 00:35:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,6 +71,14 @@ static int hf_openkey_unknown1 = -1;
 /* GetVersion */
 
 static int hf_getversion_version = -1;
+
+/* Shutdown */
+static int hf_shutdown_message = -1;
+static int hf_shutdown_seconds = -1;
+static int hf_shutdown_force = -1;
+static int hf_shutdown_reboot = -1;
+static int hf_shutdown_server = -1;
+static int hf_shutdown_reason = -1;
 
 /* Data that is passed to a open call */
 
@@ -573,6 +581,85 @@ RegQueryValue_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
+/* Reg Shutdown functions */
+static int
+dissect_shutdown_server(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_uint16(
+		tvb, offset, pinfo, tree, drep, hf_shutdown_server, NULL);
+
+	return offset;
+}
+
+static int
+dissect_shutdown_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_counted_string(
+		tvb, offset, pinfo, tree, drep, hf_shutdown_message, 0);
+
+	return offset;
+}
+
+static int
+RegShutdown_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	 proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, tree, drep,
+		dissect_shutdown_server, NDR_POINTER_UNIQUE,
+		"Server", -1);
+
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, tree, drep,
+		dissect_shutdown_message, NDR_POINTER_UNIQUE,
+		"message", -1);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep, hf_shutdown_seconds, NULL);
+	
+	offset = dissect_ndr_uint8(
+		tvb, offset, pinfo, tree, drep, hf_shutdown_force, NULL);
+	offset = dissect_ndr_uint8(
+		tvb, offset, pinfo, tree, drep, hf_shutdown_reboot, NULL);
+		
+	return offset;
+}
+
+static int
+RegShutdown_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	 proto_tree *tree, char *drep)
+{
+	offset = dissect_ntstatus(
+		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
+
+	return offset;
+}
+
+static int
+RegAbortShutdown_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		   proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, tree, drep,
+		dissect_shutdown_server, NDR_POINTER_UNIQUE,
+		"Server", -1);	
+		
+	return offset;
+}
+
+static int
+RegShutdownEx_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		proto_tree *tree, char *drep)
+{
+	offset = RegShutdown_q(tvb, offset, pinfo, tree, drep);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep, hf_shutdown_reason, NULL);
+		
+	return offset;
+}
+
 #if 0
 
 /* Templates for new subdissectors */
@@ -662,14 +749,16 @@ static dcerpc_sub_dissector dcerpc_reg_dissectors[] = {
         { REG_SET_KEY_SEC, "SetKeySecurity", NULL, NULL },
         { REG_SET_VALUE, "SetValue", NULL, NULL },
         { REG_UNLOAD_KEY, "UnLoadKey", NULL, NULL },
-        { REG_INITIATE_SYSTEM_SHUTDOWN, "InitiateSystemShutdown", NULL, NULL },
-        { REG_ABORT_SYSTEM_SHUTDOWN, "AbortSystemShutdown", NULL, NULL },
+        { REG_INITIATE_SYSTEM_SHUTDOWN, "InitiateSystemShutdown", 
+	  RegShutdown_q, RegShutdown_r },
+        { REG_ABORT_SYSTEM_SHUTDOWN, "AbortSystemShutdown", 
+	  RegAbortShutdown_q, RegShutdown_r },
         { REG_GET_VERSION, "GetVersion", RegGetVersion_q, RegGetVersion_r },
 	{ REG_OPEN_HKCC, "OpenHKCC", NULL, NULL },
 	{ REG_OPEN_HKDD, "OpenHKDD", NULL, NULL },
 	{ REG_QUERY_MULTIPLE_VALUES, "QueryMultipleValues", NULL, NULL },
 	{ REG_INITIATE_SYSTEM_SHUTDOWN_EX, "InitiateSystemShutdownEx", 
-	  NULL, NULL },
+	  RegShutdownEx_q, RegShutdown_r },
 	{ REG_SAVE_KEY_EX, "SaveKeyEx", NULL, NULL },
 	{ REG_OPEN_HKPT, "OpenHKPT", NULL, NULL },
 	{ REG_OPEN_HKPN, "OpenHKPN", NULL, NULL },
@@ -787,6 +876,31 @@ proto_register_dcerpc_reg(void)
 		{ &hf_getversion_version,
 		  { "Version", "reg.getversion.version", FT_UINT32, BASE_HEX,
 		    NULL, 0x0, "Version", HFILL }},
+
+		/* Shutdown */
+		{ &hf_shutdown_message,
+		  { "Message", "reg.shutdown.message", FT_STRING, BASE_NONE,
+		    NULL, 0x0, "Message", HFILL }},
+
+		{ &hf_shutdown_seconds,
+		  { "Seconds", "reg.shutdown.seconds", FT_UINT32, BASE_DEC,
+		    NULL, 0x00, "Seconds", HFILL }},
+
+		{ &hf_shutdown_force,
+		  { "Force applications shut", "reg.shutdown.force", FT_UINT8,
+		    BASE_DEC, NULL, 0x00, "Force applications shut", HFILL }},
+
+		{ &hf_shutdown_reboot,
+		  { "Reboot", "reg.shutdown.reboot", FT_UINT8, BASE_DEC, 
+		    NULL, 0x00, "Reboot", HFILL }},
+
+		{ &hf_shutdown_server,
+		  { "Server", "reg.shutdown.server", FT_UINT16, BASE_HEX, 
+		    NULL, 0x00, "Server", HFILL }},
+
+		{ &hf_shutdown_reason,
+		  { "Reason", "reg.shutdown.reason", FT_UINT32, BASE_HEX,
+		    NULL, 0x00, "Reason", HFILL }}
 
 	};
 
