@@ -2,10 +2,11 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-bootp.c,v 1.59 2001/12/10 00:25:26 guy Exp $
+ * $Id: packet-bootp.c,v 1.60 2001/12/27 22:49:02 guy Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
+ * RFC 1497: BOOTP extensions
  * RFC 1542: Clarifications and Extensions for the Bootstrap Protocol
  * RFC 2131: Dynamic Host Configuration Protocol
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
@@ -413,7 +414,24 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	 * Get the length of the option, and the number of bytes it
 	 * consumes (the length doesn't include the option code or
 	 * length bytes).
+	 *
+	 * On the first pass, check first whether we have the length
+	 * byte, so that we don't throw an exception; if we throw an
+	 * exception in the first pass, which is only checking for options
+	 * whose values we need in order to properly dissect the packet
+	 * on the second pass, we won't actually dissect the options, so
+	 * you won't be able to see which option had the problem.
 	 */
+	if (first_pass) {
+		if (!tvb_bytes_exist(tvb, voff+1, 1)) {
+			/*
+			 * We don't have the length byte; just return 1
+			 * as the number of bytes we consumed, to count
+			 * the code byte.
+			 */
+			return 1;
+		}
+	}
 	vlen = tvb_get_guint8(tvb, voff+1);
 	consumed = vlen + 2;
 
@@ -426,19 +444,25 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	 *
 	 *	60 (Vendor class identifier) - we need this in order to
 	 *	   interpret the vendor-specific info
+	 *
+	 * We also check, before fetching anything, to make sure we
+	 * have the entire item we're fetching, so that we don't throw
+	 * an exception.
 	 */
 	if (first_pass) {
-		switch (code) {
+		if (tvb_bytes_exist(tvb, voff+2, consumed-2)) {
+			switch (code) {
 
-		case 53:
-			*dhcp_type_p =
-			    get_dhcp_type(tvb_get_guint8(tvb, voff+2));
-			break;
+			case 53:
+				*dhcp_type_p =
+				    get_dhcp_type(tvb_get_guint8(tvb, voff+2));
+				break;
 
-		case 60:
-			*vendor_class_id_p =
-			    tvb_get_ptr(tvb, voff+2, consumed-2);
-			break;
+			case 60:
+				*vendor_class_id_p =
+				    tvb_get_ptr(tvb, voff+2, consumed-2);
+				break;
+			}
 		}
 
 		/*
