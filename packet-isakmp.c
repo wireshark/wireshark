@@ -4,7 +4,7 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.45 2001/10/25 23:40:28 guy Exp $
+ * $Id: packet-isakmp.c,v 1.46 2001/10/25 23:51:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -197,7 +197,6 @@ struct udp_encap_hdr {
 static proto_tree *dissect_payload_header(tvbuff_t *, int, int, guint8,
     guint8 *, guint16 *, proto_tree *);
 
-static void dissect_none(tvbuff_t *, int, int, proto_tree *);
 static void dissect_sa(tvbuff_t *, int, int, proto_tree *);
 static void dissect_proposal(tvbuff_t *, int, int, proto_tree *);
 static void dissect_transform(tvbuff_t *, int, int, proto_tree *, guint8);
@@ -236,10 +235,10 @@ static struct strfunc {
   const char *	str;
   void          (*func)(tvbuff_t *, int, int, proto_tree *);
 } strfuncs[NUM_LOAD_TYPES] = {
-  {"NONE",			dissect_none      },
+  {"NONE",			NULL              },
   {"Security Association",	dissect_sa        },
   {"Proposal",			dissect_proposal  },
-  {"Transform",			NULL },
+  {"Transform",			NULL              },
   {"Key Exchange",		dissect_key_exch  },
   {"Identification",		dissect_id        },
   {"Certificate",		dissect_cert      },
@@ -478,11 +477,6 @@ dissect_payload_header(tvbuff_t *tvb, int offset, int length, guint8 payload,
   *next_payload_p = next_payload;
   *payload_length_p = payload_length;
   return ntree;
-}
-
-static void
-dissect_none(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
-{
 }
 
 static void
