@@ -418,6 +418,7 @@ Michael Tuexen <Michael.Tuexen[AT]icn.siemens.de> {
 	Update of M2PA support to draft 3
 	MTP2 support
 	SCTP support in text2pcap
+	SCCP-atop-M3UA support
 }
 
 Bruce Korb <bkorb[AT]sco.com> {

@@ -6,7 +6,7 @@
  *
  * Copyright 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-sccp.c,v 1.1 2002/03/04 22:39:22 guy Exp $
+ * $Id: packet-sccp.c,v 1.2 2002/03/05 00:09:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2199,6 +2199,7 @@ proto_reg_handoff_sccp(void)
   sccp_handle = create_dissector_handle(dissect_sccp, proto_sccp);
 
   dissector_add("mtp3.service_indicator", SCCP_SI, sccp_handle);
+  dissector_add("m3ua.protocol_data_si", SCCP_SI, sccp_handle);
 
   data_handle = find_dissector("data");
 }
