@@ -37,6 +37,10 @@
 
 /* 
  * erf - Endace ERF (Extensible Record Format)
+ *
+ * See
+ *
+ *	http://www.endace.com/support/EndaceRecordFormat.pdf
  */
 
 #ifdef HAVE_CONFIG_H
