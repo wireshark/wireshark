@@ -2,7 +2,7 @@
  * Routines for Q.933 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q933.c,v 1.2 2003/09/03 18:27:55 guy Exp $
+ * $Id: packet-q933.c,v 1.3 2003/10/30 08:34:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,24 +33,24 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include "nlpid.h"
-#include "prefs.h"
 
-#include "packet-tpkt.h"
-
-static int proto_q933 = -1;
-static int hf_q933_discriminator = -1;
-static int hf_q933_call_ref_len = -1;
-static int hf_q933_call_ref_flag = -1;
-static int hf_q933_call_ref = -1;
-static int hf_q933_message_type = -1;
-static int hf_q933_cause_value = -1;
+static int proto_q933			= -1;
+static int hf_q933_discriminator	= -1;
+static int hf_q933_call_ref_len		= -1;
+static int hf_q933_call_ref_flag	= -1;
+static int hf_q933_call_ref		= -1;
+static int hf_q933_message_type		= -1;
+static int hf_q933_cause_value		= -1;
+static int hf_q933_number_type		= -1;
+static int hf_q933_numbering_plan	= -1;
+static int hf_q933_extension_ind	= -1;
 static int hf_q933_calling_party_number = -1;
-static int hf_q933_called_party_number = -1;
-static int hf_q933_connected_number = -1;
-static int hf_q933_redirecting_number = -1;
+static int hf_q933_called_party_number	= -1;
+static int hf_q933_connected_number	= -1;
+static int hf_q933_redirecting_number	= -1;
 
-static gint ett_q933 = -1;
-static gint ett_q933_ie = -1;
+static gint ett_q933			= -1;
+static gint ett_q933_ie			= -1;
 
 /*
  * Q.933 message types.
@@ -123,6 +123,11 @@ static const true_false_string tfs_call_ref_flag = {
  * Variable-length IEs.
  */
 #define	Q933_IE_VL_EXTENSION		0x80	/* Extension flag */
+static const true_false_string q933_extension_ind_value = {
+  "information continues through the next octet",
+  "last octet",
+};
+
 
 /*
  * Codeset 0 (default).
@@ -915,7 +920,7 @@ dissect_q933_cause_ie(tvbuff_t *tvb, int offset, int len,
 		return;
 	octet = tvb_get_guint8(tvb, offset);
 	cause_value = octet & 0x7F;
-	proto_tree_add_uint(tree, hf_cause_value, tvb, 0, 1, cause_value);
+	proto_tree_add_uint(tree, hf_cause_value, tvb, offset, 1, cause_value);
 	offset += 1;
 	len -= 1;
 
@@ -1502,12 +1507,12 @@ dissect_q933_reverse_charge_ind_ie(tvbuff_t *tvb, int offset, int len,
  * Dissect a (phone) number information element.
  */
 static const value_string q933_number_type_vals[] = {
-	{ 0x00, "Unknown" },
-	{ 0x10, "International number" },
-	{ 0x20, "National number" },
-	{ 0x30, "Network specific number" },
-	{ 0x40, "Subscriber number" },
-	{ 0x60, "Abbreviated number" },
+	{ 0x0, "Unknown" },
+	{ 0x1, "International number" },
+	{ 0x2, "National number" },
+	{ 0x3, "Network specific number" },
+	{ 0x4, "Subscriber number" },
+	{ 0x6, "Abbreviated number" },
 	{ 0,    NULL }
 };
 
@@ -1556,14 +1561,10 @@ dissect_q933_number_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 	octet = tvb_get_guint8(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Type of number: %s",
-	    val_to_str(octet & 0x70, q933_number_type_vals,
-	      "Unknown (0x%02X)"));
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Numbering plan: %s",
-	    val_to_str(octet & 0x0F, q933_numbering_plan_vals,
-	      "Unknown (0x%02X)"));
+	proto_tree_add_uint(tree, hf_q933_numbering_plan, tvb, offset, 1, octet);
+	proto_tree_add_uint(tree, hf_q933_number_type, tvb, offset, 1, octet);
+	proto_tree_add_boolean(tree, hf_q933_extension_ind, tvb, offset, 1, octet);
+	
 	offset += 1;
 	len -= 1;
 
@@ -2090,6 +2091,19 @@ proto_register_q933(void)
 
 		{ &hf_q933_cause_value,
 		  { "Cause value", "q933.cause_value", FT_UINT8, BASE_DEC, VALS(q933_cause_code_vals), 0x0,
+			"", HFILL }},
+
+		{ &hf_q933_number_type,
+		  { "Number type", "q933.number_type", FT_UINT8, BASE_HEX, VALS(q933_number_type_vals), 0x70,
+			"", HFILL }},
+
+		{ &hf_q933_numbering_plan,
+		  { "numbering plan", "q933.numbering_plan", FT_UINT8, BASE_HEX, VALS(q933_numbering_plan_vals), 0x0f,
+			"", HFILL }},
+
+		{ &hf_q933_extension_ind,
+		  { "Extension indicator",  "q933.extension_ind",
+			FT_BOOLEAN, 8, TFS(&q933_extension_ind_value), 0x80,
 			"", HFILL }},
 
 		{ &hf_q933_calling_party_number,
