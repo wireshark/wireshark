@@ -1,7 +1,7 @@
 /* Edit capture files.  We can delete records, or simply convert from one 
  * format to another format.
  *
- * $Id: editcap.c,v 1.13 2000/12/03 21:11:05 guy Exp $
+ * $Id: editcap.c,v 1.14 2001/04/20 22:35:19 guy Exp $
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.
@@ -325,7 +325,6 @@ int main(int argc, char *argv[])
     }
   }
 
-  exit(0);
-  return 0;  /* Silence compiler warnings */
+  return 0;
 }
   
