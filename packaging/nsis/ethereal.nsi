@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.49 2004/02/18 20:45:54 gerald Exp $
+; $Id: ethereal.nsi,v 1.50 2004/02/24 18:51:40 ulfl Exp $
 
  
 !ifdef MAKENSIS_MODERN_UI
@@ -235,6 +235,20 @@ File "${GTK2_DIR}\lib\pango\1.2.0\modules\pango-*.dll"
 SectionEnd
 !endif
 
+!ifdef GTK_WIMP_DIR
+Section "GTK-Wimp" SecGTKWimp
+;-------------------------------------------
+!ifdef GTK1_DIR & GTK2_DIR
+SectionIn 2
+!endif
+SetOutPath $INSTDIR\lib\gtk-2.0\2.2.0\engines
+File "${GTK_WIMP_DIR}\libwimp.dll"
+SetOutPath $INSTDIR\share\themes\Default\gtk-2.0
+File "${GTK_WIMP_DIR}\Theme\gtk-2.0\gtkrc"
+
+SectionEnd
+!endif
+
 Section "Tethereal" SecTethereal
 ;-------------------------------------------
 !ifdef GTK1_DIR & GTK2_DIR
@@ -365,9 +379,11 @@ DeleteRegKey HKEY_LOCAL_MACHINE SOFTWARE\Ethereal
 ; regardless if we currently installed GTK1 or 2, try to uninstall GTK2 files too
 Delete "$INSTDIR\etc\gtk-2.0\*.*"
 Delete "$INSTDIR\etc\pango\*.*"
+Delete "$INSTDIR\lib\gtk-2.0\2.2.0\engines\*.*"
 Delete "$INSTDIR\lib\gtk-2.0\2.2.0\loaders\*.*"
 Delete "$INSTDIR\lib\gtk-2.0\2.2.0\immodules\*.*"
 Delete "$INSTDIR\lib\pango\1.2.0\modules\*.*"
+Delete "$INSTDIR\share\themes\Default\gtk-2.0\*.*"
 Delete "$INSTDIR\help\*.*"
 Delete "$INSTDIR\plugins\${VERSION}\*.*"
 Delete "$INSTDIR\plugins\*.*"
@@ -387,6 +403,7 @@ Delete "$DESKTOP\Ethereal.lnk"
 RMDir "$INSTDIR\etc\gtk-2.0"
 RMDir "$INSTDIR\etc\pango"
 RMDir "$INSTDIR\etc"
+RMDir "$INSTDIR\lib\gtk-2.0\2.2.0\engines"
 RMDir "$INSTDIR\lib\gtk-2.0\2.2.0\loaders"
 RMDir "$INSTDIR\lib\gtk-2.0\2.2.0\immodules"
 RMDir "$INSTDIR\lib\gtk-2.0\2.2.0"
@@ -395,6 +412,10 @@ RMDir "$INSTDIR\lib\pango\1.2.0\modules"
 RMDir "$INSTDIR\lib\pango\1.2.0"
 RMDir "$INSTDIR\lib\pango"
 RMDir "$INSTDIR\lib"
+RMDir "$INSTDIR\share\themes\Default\gtk-2.0"
+RMDir "$INSTDIR\share\themes\Default"
+RMDir "$INSTDIR\share\themes"
+RMDir "$INSTDIR\share"
 RMDir "$SMPROGRAMS\Ethereal"
 RMDir "$INSTDIR\help"
 RMDir "$INSTDIR\plugins\${VERSION}"
@@ -419,6 +440,7 @@ SectionEnd
 !ifdef GTK2_DIR  
   !insertmacro MUI_DESCRIPTION_TEXT ${SecEtherealGTK2} "${PROGRAM_NAME} is a GUI network protocol analyzer (using the modern GTK2 GUI toolkit)."
 !endif  
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecGTKWimp} "GTKWimp is the GTK2 windows impersonator (native Win32 look and feel)."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecTethereal} "Tethereal is a network protocol analyzer."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecEditCap} "Editcap is a program that reads a capture file and writes some or all of the packets into another capture file."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Text2pcap is a program that reads in an ASCII hex dump and writes the data into a libpcap-style capture file."

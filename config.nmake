@@ -1,4 +1,4 @@
-# $Id: config.nmake,v 1.82 2004/02/23 21:53:05 gerald Exp $
+# $Id: config.nmake,v 1.83 2004/02/24 18:51:39 ulfl Exp $
 
 VERSION=0.10.2
 #
@@ -55,6 +55,15 @@ GLIB_DIR=$(ETHEREAL_LIBS)\glib
 #
 GTK1_DIR=$(ETHEREAL_LIBS)\gtk+
 #GTK2_DIR=$(ETHEREAL_LIBS)\gtk2
+
+#
+# If you have GTK-Wimp, set this to the pathname of the directory in
+# which the files are stored.
+#
+# If you don't have GTK-Wimp, comment this line out, so that GTK-Wimp isn't
+# defined.
+#
+#GTK_WIMP_DIR=$(ETHEREAL_LIBS)\gtk-wimp
 
 #
 # If you have Zlib, set this to the pathname of the directory in

@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.37 2004/02/18 20:45:54 gerald Exp $
+# $Id: Makefile.nmake,v 1.38 2004/02/24 18:51:40 ulfl Exp $
 #
 # NSIS is a free packager/installer/uninstaller program for Win32.
 # It was originally written for the Winamp package, but various
@@ -91,6 +91,9 @@ $(DEST)-setup-$(VERSION).exe : ethereal.nsi $(DELIVERABLES) Makefile.nmake
 !ENDIF
 !IFDEF GTK2_DIR
 	/DGTK2_DIR=$(GTK2_DIR) \
+!ENDIF	
+!IFDEF GTK_WIMP_DIR
+	/DGTK_WIMP_DIR=$(GTK_WIMP_DIR) \
 !ENDIF	
 	/DGLIB_DIR=$(GLIB_DIR) \
 	/DICONV_DIR=$(ICONV_DIR) \
