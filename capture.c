@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.213 2003/11/01 02:30:14 guy Exp $
+ * $Id: capture.c,v 1.214 2003/11/14 21:18:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -106,28 +106,25 @@
 #endif
 
 /*
- * XXX - the various BSDs appear to define BSD in <sys/param.h>; we don't
- * want to include it if it's not present on this platform, however.
- */
-#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__) || defined(__APPLE__)
-#ifndef BSD
-#define BSD
-#endif /* BSD */
-#endif /* defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__) || defined(__APPLE__) */
-
-/*
  * We don't want to do a "select()" on the pcap_t's file descriptor on
  * BSD (because "select()" doesn't work correctly on BPF devices on at
  * least some releases of some flavors of BSD), and we don't want to do
  * it on Windows (because "select()" is something for sockets, not for
- * arbitrary handles).
+ * arbitrary handles).  (Note that "Windows" here includes Cygwin;
+ * even in its pretend-it's-UNIX environment, we're using WinPcap, not
+ * a UNIX libpcap.)
  *
  * We *do* want to do it on other platforms, as, on other platforms (with
  * the possible exception of Ultrix and Digital UNIX), the read timeout
  * doesn't expire if no packets have arrived, so a "pcap_dispatch()" call
  * will block until packets arrive, causing the UI to hang.
+ *
+ * XXX - the various BSDs appear to define BSD in <sys/param.h>; we don't
+ * want to include it if it's not present on this platform, however.
  */
-#if !defined(BSD) && !defined(_WIN32)
+#if !defined(__FreeBSD__) && !defined(__NetBSD__) && defined(__OpenBSD__) && \
+    !defined(__bsdi__) && !defined(__APPLE__) && !defined(_WIN32) && \
+    !defined(__CYGWIN__)
 # define MUST_DO_SELECT
 #endif
 
