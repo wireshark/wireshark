@@ -1785,7 +1785,7 @@ dissect_snmpv3_kickstart(tvbuff_t * tvb, proto_tree *tree, guint16 start, guint1
 }
 
 static void
-dissect_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
 {
 
   proto_item *it;
@@ -1797,16 +1797,12 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   total_len = tvb_length_remaining (tvb, 0);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_clear (pinfo->cinfo, COL_INFO);
-
 
   if (tree)
     {
       it =
 	proto_tree_add_protocol_format (tree, proto_docsis_tlv, tvb, 0,
-					tvb_length_remaining (tvb, 0),
-					"TLV Data");
+					total_len, "TLV Data");
       tlv_tree = proto_item_add_subtree (it, ett_docsis_tlv);
       while (pos < total_len)
 	{
