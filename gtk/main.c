@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.196 2001/04/24 00:28:21 guy Exp $
+ * $Id: main.c,v 1.197 2001/05/01 00:18:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1088,7 +1088,7 @@ main(int argc, char *argv[])
         break;
       case 'S':        /* "Sync" mode: used for following file ala tail -f */
 #ifdef HAVE_LIBPCAP
-        prefs->capture_auto_scroll = TRUE;
+        prefs->capture_real_time = TRUE;
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;

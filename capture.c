@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.148 2001/04/13 14:59:28 jfoster Exp $
+ * $Id: capture.c,v 1.149 2001/05/01 00:18:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -303,7 +303,7 @@ do_capture(char *capfile_name)
   g_assert(cfile.save_file == NULL);
   cfile.save_file = capfile_name;
 
-  if (prefs.capture_auto_scroll) {	/* do the capture in a child process */
+  if (prefs.capture_real_time) {	/* do the capture in a child process */
     char ssnap[24];
     char scount[24];	/* need a constant for len of numbers */
     char save_file_fd[24];
