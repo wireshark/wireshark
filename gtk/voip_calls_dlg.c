@@ -214,7 +214,7 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
                                         gpointer         user_data _U_)
 {
 	gchar *filter_string = NULL;
-	gchar *filter_string_fwd = NULL;
+	const gchar *filter_string_fwd = NULL;
 	gchar filter_prepend[5];
 	sip_calls_info_t *tmp_sipinfo;
 	isup_calls_info_t *tmp_isupinfo;
