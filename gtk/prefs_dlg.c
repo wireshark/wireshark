@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.18 2000/08/15 20:41:58 deniel Exp $
+ * $Id: prefs_dlg.c,v 1.19 2000/08/15 20:53:24 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -643,9 +643,9 @@ properties_cb(GtkWidget *w, gpointer dummy)
   if (finfo_selected) {
     header_field_info *hfinfo = finfo_selected->hfinfo;
     if (hfinfo->parent == -1) {
-      title = prefs_get_title_by_name(hfinfo->abbrev);
+      title = (gchar *)prefs_get_title_by_name(hfinfo->abbrev);
     } else {
-      title =
+      title = (gchar *)
 	prefs_get_title_by_name(proto_registrar_get_abbrev(hfinfo->parent));
     }
   } else {

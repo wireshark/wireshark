@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.35 2000/08/15 20:42:09 deniel Exp $
+ * $Id: prefs.c,v 1.36 2000/08/15 20:53:30 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -240,7 +240,7 @@ prefs_is_registered_protocol(char *name)
 /*
  * Returns the module title of a registered protocol
  */
-char *
+const char *
 prefs_get_title_by_name(char *name)
 {
 	module_t *m = find_module(name);

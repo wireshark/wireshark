@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.18 2000/08/15 20:42:10 deniel Exp $
+ * $Id: prefs.h,v 1.19 2000/08/15 20:53:31 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -95,7 +95,7 @@ gboolean prefs_is_registered_protocol(char *name);
 /*
  * Returns the module title of a registered protocol (or NULL if unknown)
  */
-char *prefs_get_title_by_name(char *name);
+const char *prefs_get_title_by_name(char *name);
 
 /*
  * Register a preference with an unsigned integral value.
