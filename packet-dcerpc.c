@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.107 2003/02/10 06:25:10 tpot Exp $
+ * $Id: packet-dcerpc.c,v 1.108 2003/02/11 02:18:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1004,13 +1004,14 @@ fake_unicode(tvbuff_t *tvb, int offset, int len)
 int
 dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 		     proto_tree *tree, char *drep, int size_is,
-		     int hfinfo, gboolean add_subtree, char **data)
+		     int hfindex, gboolean add_subtree, char **data)
 {
     dcerpc_info *di;
     proto_item *string_item;
     proto_tree *string_tree;
     guint32 len, buffer_len;
     char *s;
+    header_field_info *hfinfo;
 
     di=pinfo->private_data;
     if(di->conformant_run){
@@ -1020,7 +1021,7 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     if (add_subtree) {
         string_item = proto_tree_add_text(tree, tvb, offset, 0, "%s",
-                                          proto_registrar_get_name(hfinfo));
+                                          proto_registrar_get_name(hfindex));
         string_tree = proto_item_add_subtree(string_item, ett_dcerpc_string);
     } else {
         string_item = NULL;
@@ -1044,15 +1045,29 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (offset % size_is)
         offset += size_is - (offset % size_is);
 
-    if (tree && buffer_len)
-        proto_tree_add_item(string_tree, hfinfo, tvb, offset, buffer_len,
-                            drep[0] & 0x10);
-
-    if (size_is == sizeof(guint16))
+    if (size_is == sizeof(guint16)) {
             s = fake_unicode(tvb, offset, buffer_len / 2);
-    else {
+            /*
+             * XXX - we don't support a string type with Unicode
+             * characters, so if this is a string item, we make
+             * its value be the "fake Unicode" string.
+             */
+            if (tree && buffer_len) {
+                hfinfo = proto_registrar_get_nth(hfindex);
+                if (hfinfo->type == FT_STRING) {
+                    proto_tree_add_string(string_tree, hfindex, tvb, offset,
+                                        buffer_len, s);
+                } else {
+                    proto_tree_add_item(string_tree, hfindex, tvb, offset,
+                                        buffer_len, drep[0] & 0x10);
+                }
+            }
+    } else {
             s = g_malloc(buffer_len + 1);
             tvb_memcpy(tvb, s, offset, buffer_len);
+            if (tree && buffer_len)
+                proto_tree_add_item(string_tree, hfindex, tvb, offset,
+                                    buffer_len, drep[0] & 0x10);
     }
 
     if (string_item != NULL)
