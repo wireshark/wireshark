@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.33 2003/12/13 22:23:18 guy Exp $
+ * $Id: dcerpc_stat.c,v 1.34 2003/12/15 20:15:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,7 +89,7 @@ dcerpcstat_gen_title(rpcstat_t *rs)
 {
 	char *title;
 
-	title = g_strdup_printf("DCE-RPC Service Response Time statistics for %s version %d.%d: %s", rs->prog, rs->ver&0xff, rs->ver>>8, cf_get_display_name(&cfile));
+	title = g_strdup_printf("DCE-RPC Service Response Time statistics for %s version %u.%u: %s", rs->prog, rs->ver&0xff, rs->ver>>8, cf_get_display_name(&cfile));
 	return title;
 }
 
@@ -190,6 +190,7 @@ gtk_dcerpcstat_init(char *optarg)
 	e_uuid_t uuid;
 	int d1,d2,d3,d40,d41,d42,d43,d44,d45,d46,d47;
 	int major, minor;
+	guint16 ver;
 	int pos=0;
         char *filter=NULL;
         GString *error_string;
@@ -216,22 +217,28 @@ gtk_dcerpcstat_init(char *optarg)
 		fprintf(stderr, "ethereal: invalid \"-z dcerpc,srt,<uuid>,<major version>.<minor version>[,<filter>]\" argument\n");
 		exit(1);
 	}
+	if (major < 0 || major > 255) {
+		fprintf(stderr,"ethereal: dcerpcstat_init() Major version number %d is invalid - must be positive and <= 255\n", major);
+		exit(1);
+	}
+	if (minor < 0 || minor > 255) {
+		fprintf(stderr,"ethereal: dcerpcstat_init() Minor version number %d is invalid - must be positive and <= 255\n", minor);
+		exit(1);
+	}
+	ver = ((minor<<8)|(major&0xff));
 
 
 	rs=g_malloc(sizeof(rpcstat_t));
-	if (major < 0 || major > 255 || minor < 0 || minor > 255)
-		rs->prog = NULL;	/* bogus major or minor */
-	else
-		rs->prog=dcerpc_get_proto_name(&uuid, (guint16) ((minor<<8)|(major&0xff)) );
+	rs->prog=dcerpc_get_proto_name(&uuid, ver);
 	if(!rs->prog){
 		g_free(rs);
-		fprintf(stderr,"ethereal: dcerpcstat_init() Protocol with uuid:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x v%d.%d not supported\n",uuid.Data1,uuid.Data2,uuid.Data3,uuid.Data4[0],uuid.Data4[1],uuid.Data4[2],uuid.Data4[3],uuid.Data4[4],uuid.Data4[5],uuid.Data4[6],uuid.Data4[7],major,minor);
+		fprintf(stderr,"ethereal: dcerpcstat_init() Protocol with uuid:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x v%u.%u not supported\n",uuid.Data1,uuid.Data2,uuid.Data3,uuid.Data4[0],uuid.Data4[1],uuid.Data4[2],uuid.Data4[3],uuid.Data4[4],uuid.Data4[5],uuid.Data4[6],uuid.Data4[7],major,minor);
 		exit(1);
 	}
-	hf_opnum=dcerpc_get_proto_hf_opnum(&uuid, (guint16) ((minor<<8)|(major&0xff)) );
-	procs=dcerpc_get_proto_sub_dissector(&uuid, (guint16) ((minor<<8)|(major&0xff)) );
+	hf_opnum=dcerpc_get_proto_hf_opnum(&uuid, ver);
+	procs=dcerpc_get_proto_sub_dissector(&uuid, ver);
 	rs->uuid=uuid;
-	rs->ver=(minor<<8)|(major&0xff);
+	rs->ver=ver;
 
 	rs->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(rs->win), 550, 400);
@@ -322,7 +329,7 @@ dcerpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 
 	str = g_string_new("dcerpc,srt");
 	g_string_sprintfa(str,
-	    ",%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d",
+	    ",%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%u.%u",
 	    dcerpc_uuid_program->Data1, dcerpc_uuid_program->Data2,
 	    dcerpc_uuid_program->Data3,
 	    dcerpc_uuid_program->Data4[0], dcerpc_uuid_program->Data4[1],
@@ -362,7 +369,7 @@ dcerpcstat_find_vers(gpointer *key, gpointer *value _U_, gpointer *user_data _U_
 		return NULL;
 	}
 
-	sprintf(vs,"%d.%d",k->ver&0xff,k->ver>>8);
+	sprintf(vs,"%u.%u",k->ver&0xff,k->ver>>8);
 	menu_item=gtk_menu_item_new_with_label(vs);
 	SIGNAL_CONNECT(menu_item, "activate", dcerpcstat_version_select,
                        ((int)k->ver));

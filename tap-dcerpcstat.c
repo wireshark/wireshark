@@ -1,7 +1,7 @@
 /* tap-dcerpcstat.c
  * dcerpcstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-dcerpcstat.c,v 1.6 2003/09/03 10:10:17 sahlberg Exp $
+ * $Id: tap-dcerpcstat.c,v 1.7 2003/12/15 20:15:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -158,7 +158,7 @@ dcerpcstat_draw(void *prs)
 #endif
 	printf("\n");
 	printf("===================================================================\n");
-	printf("%s Version %d.%d RTT Statistics:\n", rs->prog, rs->ver&0xff,rs->ver>>8);
+	printf("%s Version %u.%u RTT Statistics:\n", rs->prog, rs->ver&0xff,rs->ver>>8);
 	printf("Filter: %s\n",rs->filter?rs->filter:"");
 	printf("Procedure                  Calls   Min RTT   Max RTT   Avg RTT\n");
 	for(i=0;i<rs->num_procedures;i++){
@@ -194,6 +194,7 @@ dcerpcstat_init(char *optarg)
 	e_uuid_t uuid;
 	int d1,d2,d3,d40,d41,d42,d43,d44,d45,d46,d47;
 	int major, minor;
+	guint16 ver;
 	int pos=0;
         char *filter=NULL;
         GString *error_string;
@@ -219,18 +220,26 @@ dcerpcstat_init(char *optarg)
 		fprintf(stderr, "tethereal: invalid \"-z dcerpc,rtt,<uuid>,<major version>.<minor version>[,<filter>]\" argument\n");
 		exit(1);
 	}
-
-
-	rs=g_malloc(sizeof(rpcstat_t));
-	rs->prog=dcerpc_get_proto_name(&uuid, (minor<<8)|(major&0xff) );
-	if(!rs->prog){
-		g_free(rs);
-		fprintf(stderr,"tethereal: dcerpcstat_init() Protocol with uuid:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x v%d.%d not supported\n",uuid.Data1,uuid.Data2,uuid.Data3,uuid.Data4[0],uuid.Data4[1],uuid.Data4[2],uuid.Data4[3],uuid.Data4[4],uuid.Data4[5],uuid.Data4[6],uuid.Data4[7],major,minor);
+	if (major < 0 || major > 255) {
+		fprintf(stderr,"tethereal: dcerpcstat_init() Major version number %d is invalid - must be positive and <= 255\n", major);
 		exit(1);
 	}
-	procs=dcerpc_get_proto_sub_dissector(&uuid, (minor<<8)|(major&0xff) );
+	if (minor < 0 || minor > 255) {
+		fprintf(stderr,"tethereal: dcerpcstat_init() Minor version number %d is invalid - must be positive and <= 255\n", minor);
+		exit(1);
+	}
+	ver = ((minor<<8)|(major&0xff));
+
+	rs=g_malloc(sizeof(rpcstat_t));
+	rs->prog=dcerpc_get_proto_name(&uuid, ver);
+	if(!rs->prog){
+		g_free(rs);
+		fprintf(stderr,"tethereal: dcerpcstat_init() Protocol with uuid:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x v%u.%u not supported\n",uuid.Data1,uuid.Data2,uuid.Data3,uuid.Data4[0],uuid.Data4[1],uuid.Data4[2],uuid.Data4[3],uuid.Data4[4],uuid.Data4[5],uuid.Data4[6],uuid.Data4[7],major,minor);
+		exit(1);
+	}
+	procs=dcerpc_get_proto_sub_dissector(&uuid, ver);
 	rs->uuid=uuid;
-	rs->ver=(minor<<8)|(major&0xff);
+	rs->ver=ver;
 
 	if(filter){
 		rs->filter=g_malloc(strlen(filter)+1);
