@@ -11,7 +11,7 @@
  *        DICOM packets correctly.  
  *        This should probably be documented somewhere besides here.)
  *
- * $Id: packet-dcm.c,v 1.2 2004/05/08 13:39:36 obiot Exp $
+ * $Id: packet-dcm.c,v 1.3 2004/05/08 21:31:52 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -865,23 +865,25 @@ dissect_dcm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32 len, tlen;
     dcmState_t *dcm_data;
 
-    if (10 > (tlen = tvb_reported_length(tvb)))
-	return FALSE;			/* not long enough */
-    if (1 != (pdu = tvb_get_guint8(tvb, 0)))
-	return FALSE;		 /* look for the start */
-    if (1 != (vers = tvb_get_ntohs(tvb, 6)))
-	return FALSE;		/* not version 1 */
-    len = 6 + tvb_get_ntohl(tvb, 2);
-    if (len < tlen)
-	return FALSE;		/* packet is > decl len */
-
     conv = find_conversation(&pinfo->src, &pinfo->dst,
 	pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 
     if (NULL == conv) {
-	/*
-	 * No conversation found
+	/* No conversation found.
+	 * only look for the first packet of a DICOM conversation.
+	 * if we don't get the first packet, we cannot decode the rest
+	 * of the session.
 	 */
+	if (10 > (tlen = tvb_reported_length(tvb)))
+	    return FALSE;			/* not long enough */
+	if (1 != (pdu = tvb_get_guint8(tvb, 0)))
+	    return FALSE;		 /* look for the start */
+	if (1 != (vers = tvb_get_ntohs(tvb, 6)))
+	    return FALSE;		/* not version 1 */
+	len = 6 + tvb_get_ntohl(tvb, 2);
+	if (len < tlen)
+	    return FALSE;		/* packet is > decl len */
+
     	conv = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype,
 		pinfo->srcport, pinfo->destport, 0);
 	if (NULL == (dcm_data = mkds()))
