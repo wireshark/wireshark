@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.9 1999/10/11 06:39:25 guy Exp $
+ * $Id: file_dlg.c,v 1.10 1999/10/12 05:01:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -121,12 +121,9 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (fs)));
   filter_te = gtk_object_get_data(GTK_OBJECT(w), E_RFILTER_TE_KEY);
   rfilter = gtk_entry_get_text(GTK_ENTRY(filter_te));
-  if (rfilter[0] != '\0') {
-	rfcode = dfilter_compile(rfilter);
-	if (rfcode != NULL) {
-		simple_dialog(ESD_TYPE_WARN, NULL, dfilter_error_msg);
-		return;
-	}
+  if (dfilter_compile(rfilter, &rfcode) != 0) {
+    simple_dialog(ESD_TYPE_WARN, NULL, dfilter_error_msg);
+    return;
   }
 
   /* Try to open the capture file. */

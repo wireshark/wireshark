@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.13 1999/10/11 06:39:02 guy Exp $
+ * $Id: colors.c,v 1.14 1999/10/12 05:00:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -116,10 +116,10 @@ colors_init(capture_file *cf)
 	new_color_filter(cf->colors, default_colors[i].proto, default_colors[i].proto);
 	color_filter(cf,i)->bg_color = color;
 
-	color_filter(cf,i)->c_colorfilter = dfilter_compile(default_colors[i].proto);
-	if(color_filter(cf,i)->c_colorfilter == NULL){
+	if (dfilter_compile(default_colors[i].proto,
+	    &color_filter(cf,i)->c_colorfilter) != 0) {
 		simple_dialog(ESD_TYPE_WARN, NULL,
-		  "Cannot compile default filter %s.\n%s",
+		  "Cannot compile default color filter %s.\n%s",
 		  default_colors[i].proto, dfilter_error_msg);
 		/* should reject this filter */
 	}
@@ -243,10 +243,9 @@ read_filters(capture_file *cf)
 		name, filter, &bg_r, &bg_g, &bg_b, &fg_r, &fg_g, &fg_b) == 8){
 		/* we got a filter */
 
-	    temp_dfilter = dfilter_compile(filter);
-	    if(temp_dfilter == NULL){
+	    if(dfilter_compile(filter, &temp_dfilter) != 0){
 		simple_dialog(ESD_TYPE_WARN, NULL,
-		 "Could not compile filter %s from saved filters because\n%s",
+		 "Could not compile color filter %s from saved filters.\n%s",
 		 name, dfilter_error_msg);
 		continue;
 	    }
@@ -589,9 +588,7 @@ colorize_ok_cb                         (GtkButton       *button,
 
 
 
-  compiled_filter = dfilter_compile(filter_text);
-  
-  if(compiled_filter == NULL ){
+  if(dfilter_compile(filter_text, &compiled_filter) != 0 ){
 	simple_dialog(ESD_TYPE_WARN, NULL, "Filter \"%s\" did not compile correctly.\n"
 		" Please try again. Filter unchanged.\n%s\n", filter_name,dfilter_error_msg);
   } else {

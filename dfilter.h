@@ -1,7 +1,7 @@
 /* dfilter.h
  * Definitions for display filters
  *
- * $Id: dfilter.h,v 1.13 1999/10/12 04:21:11 gram Exp $
+ * $Id: dfilter.h,v 1.14 1999/10/12 05:00:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,8 +25,6 @@
 
 #ifndef __DFILTER_H__
 #define __DFILTER_H__
-
-#define DFILTER_CONTAINS_FILTER(x)	((x) != NULL && (x)->dftree)
 
 /* dfilter_error_msg is NULL if there was no error during dfilter_compile,
  * otherwise it points to a displayable error message. */
@@ -58,7 +56,7 @@ dfilter* dfilter_new(void);
 void dfilter_destroy(dfilter *df);
 
 /* Compile display filter text */
-dfilter* dfilter_compile(gchar* dfilter_text);
+int dfilter_compile(gchar* dfilter_text, dfilter** dfp);
 
 /* Apply compiled dfilter to a proto_tree */
 gboolean dfilter_apply(dfilter *df, proto_tree *ptree, const guint8* pd);

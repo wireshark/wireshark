@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.107 1999/10/12 04:21:11 gram Exp $
+ * $Id: file.c,v 1.108 1999/10/12 05:00:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -622,11 +622,11 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
   }
 
   /* Apply the filters */
-  if (DFILTER_CONTAINS_FILTER(cf->dfcode) ||
+  if (cf->dfcode != NULL ||
       CFILTERS_CONTAINS_FILTER(cf)) {
 	protocol_tree = proto_tree_create_root();
 	dissect_packet(buf, fdata, protocol_tree);
-	if( DFILTER_CONTAINS_FILTER(cf->dfcode) )
+	if (cf->dfcode != NULL)
 		fdata->passed_dfilter = dfilter_apply(cf->dfcode, protocol_tree, cf->pd);
 	else
 		fdata->passed_dfilter = TRUE;
@@ -749,12 +749,10 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
 
   passed = TRUE;
   if (cf->rfcode) {
-	  if (DFILTER_CONTAINS_FILTER(cf->rfcode)) {
-	    protocol_tree = proto_tree_create_root();
-	    dissect_packet(buf, fdata, protocol_tree);
-	    passed = dfilter_apply(cf->rfcode, protocol_tree, cf->pd);
-	    proto_tree_free(protocol_tree);
-	  }
+    protocol_tree = proto_tree_create_root();
+    dissect_packet(buf, fdata, protocol_tree);
+    passed = dfilter_apply(cf->rfcode, protocol_tree, cf->pd);
+    proto_tree_free(protocol_tree);
   }   
   if (passed) {
     plist_end = cf->plist_end;
@@ -782,20 +780,17 @@ filter_packets(capture_file *cf, gchar *dftext)
     /*
      * We have a filter; try to compile it.
      */
-    dfcode = dfilter_compile(dftext);
-    if (dfcode == NULL) {
+    if (dfilter_compile(dftext, &dfcode) != 0) {
+      /* The attempt failed; report an error. */
       simple_dialog(ESD_TYPE_WARN, NULL, dfilter_error_msg);
       return;
     }
 
     /* Was it empty? */
-    if (dfcode->dftree == NULL) {
-      /* Yes - free the filter text and filter code, and set them to
-         NULL. */
+    if (dfcode == NULL) {
+      /* Yes - free the filter text, and set it to null. */
       g_free(dftext);
       dftext = NULL;
-      dfilter_destroy(dfcode);
-      dfcode = NULL;
     }
   }
 

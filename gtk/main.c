@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.20 1999/10/11 18:02:46 guy Exp $
+ * $Id: main.c,v 1.21 1999/10/12 05:01:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -862,14 +862,16 @@ main(int argc, char *argv[])
        up on top of us. */
     if (cf_name) {
       if (rfilter != NULL) {
-        rfcode = dfilter_compile(rfilter);
-        if (rfcode == NULL) {
+        if (dfilter_compile(rfilter, &rfcode) != 0) {
           simple_dialog(ESD_TYPE_WARN, NULL, dfilter_error_msg);
           rfilter_parse_failed = TRUE;
         }
       }
       if (!rfilter_parse_failed) {
         if ((err = open_cap_file(cf_name, &cf)) == 0) {
+          /* "open_cap_file()" succeeded, so it closed the previous
+	     capture file, and thus destroyed any previous read filter
+	     attached to "cf". */
           cf.rfcode = rfcode;
           err = read_cap_file(&cf);
           s = strrchr(cf_name, '/');
@@ -878,6 +880,9 @@ main(int argc, char *argv[])
             *s = '\0';
           }
           set_menu_sensitivity("/File/Save As...", TRUE);
+        } else {
+          dfilter_destroy(rfcode);
+          cf.rfcode = NULL;
         }
       }
     }
