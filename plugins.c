@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.8 2000/02/03 21:31:03 oabad Exp $
+ * $Id: plugins.c,v 1.9 2000/02/07 17:07:44 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -57,12 +57,22 @@
 #include "globals.h"
 #include "util.h"
 
+#ifdef PLUGINS_NEED_ADDRESS_TABLE
+#include "plugins/plugin_api.h"
+plugin_address_table_t	patable;
+extern int hf_text_only;
+#endif
 
 /* linked list of all plugins */
 plugin *plugin_list;
 
+#ifdef WIN32
+static gchar std_plug_dir[] = "c:/program files/ethereal/plugins/0.8";
+static gchar local_plug_dir[] = "c:/ethereal/plugins/0.8";
+#else
 static gchar std_plug_dir[] = "/usr/lib/ethereal/plugins/0.8";
 static gchar local_plug_dir[] = "/usr/local/lib/ethereal/plugins/0.8";
+#endif
 static gchar *user_plug_dir = NULL;
 static gchar *plugin_status_file = NULL;
 
@@ -289,7 +299,7 @@ check_plugin_status(gchar *name, gchar *version, GModule *handle,
     gchar   *ref_string;
     guint16  ref_string_len;
     gchar    line[512];
-    void   (*proto_init)();
+    void   (*plugin_init)(void*);
     dfilter *filter;
 
     if (!statusfile) return;
@@ -306,9 +316,18 @@ check_plugin_status(gchar *name, gchar *version, GModule *handle,
 	else { /* found the plugin */
 	    if (line[ref_string_len+1] == '1') {
 		enable_plugin(name, version);
-		if (g_module_symbol(handle, "proto_init", (gpointer*)&proto_init) == TRUE) {
-		    proto_init();
+		if (g_module_symbol(handle, "plugin_init", (gpointer*)&plugin_init) == TRUE) {
+#ifdef PLUGINS_NEED_ADDRESS_TABLE
+		    plugin_init(&patable);
+#else
+		    plugin_init(NULL);
+#endif
 		}
+#ifdef PLUGINS_NEED_ADDRESS_TABLE
+		else {
+			return;
+		}
+#endif
 	    }
 
 	    if (fgets(line, 512, statusfile) == NULL) return;
@@ -360,12 +379,11 @@ plugins_scan_dir(const char *dirname)
 	    if (!(strcmp(file->d_name, "..") &&
 		  strcmp(file->d_name, "."))) continue;
 
-            /* skip anything but .la */
+            /* skip anything but files with LT_LIB_EXT */
             dot = strrchr(file->d_name, '.');
-            if (dot == NULL || ! strcmp(dot, LT_LIB_EXT)) continue;
+            if (dot == NULL || strcmp(dot, LT_LIB_EXT) != 0) continue;
 
 	    sprintf(filename, "%s/%s", dirname, file->d_name);
-
 	    if ((handle = g_module_open(filename, 0)) == NULL) continue;
 	    name = (gchar *)file->d_name;
 	    if (g_module_symbol(handle, "version", (gpointer*)&version) == FALSE)
@@ -430,6 +448,32 @@ init_plugins()
 
     if (plugin_list == NULL)      /* ensure init_plugins is only run once */
     {
+
+#ifdef PLUGINS_NEED_ADDRESS_TABLE
+#ifdef pi
+#undef pi
+#endif
+	/* Intialize address table */
+	patable.check_col			= check_col;
+	patable.col_add_fstr			= col_add_fstr;
+	patable.col_append_fstr			= col_append_str;
+	patable.col_add_str			= col_add_str;
+	patable.col_append_str			= col_append_str;
+
+	patable.dfilter_init			= dfilter_init;
+	patable.dfilter_cleanup			= dfilter_cleanup;
+
+	patable.pi				= &pi;
+
+	patable.proto_register_protocol		= proto_register_protocol;
+	patable.proto_register_field_array	= proto_register_field_array;
+	patable.proto_register_subtree_array	= proto_register_subtree_array;
+
+	patable.proto_item_add_subtree		= proto_item_add_subtree;
+	patable._proto_tree_add_item_value	= _proto_tree_add_item_value;
+	patable.hf_text_only			= hf_text_only;
+#endif
+
 	plugins_scan_dir(std_plug_dir);
 	plugins_scan_dir(local_plug_dir);
 	if ((strcmp(std_plug_dir, PLUGIN_DIR) != 0) &&

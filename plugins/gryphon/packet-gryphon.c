@@ -1,7 +1,7 @@
 /* packet-gryphon.c
  * Routines for Gryphon protocol packet disassembly
  *
- * $Id: packet-gryphon.c,v 1.4 2000/01/08 19:37:11 gram Exp $
+ * $Id: packet-gryphon.c,v 1.5 2000/02/07 17:08:27 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
@@ -29,6 +29,8 @@
 #include "config.h"
 #endif
 
+#include "plugins/plugin_api.h"
+
 #include "moduleinfo.h"
 
 #ifdef HAVE_SYS_TYPES_H
@@ -37,6 +39,7 @@
 
 #include <string.h>
 #include <ctype.h>
+#include <time.h>
 
 #include <glib.h>
 #ifdef HAVE_NETINET_IN_H
@@ -46,10 +49,14 @@
 #include "dfilter.h"
 #include "packet-gryphon.h"
 
-const gchar version[] = VERSION;
-const gchar desc[] = "DG Gryphon Protocol";
-const gchar protocol[] = "tcp";
-const gchar filter_string[] = "tcp.port == 7000";
+DLLEXPORT const gchar version[] = VERSION;
+DLLEXPORT const gchar desc[] = "DG Gryphon Protocol";
+DLLEXPORT const gchar protocol[] = "tcp";
+DLLEXPORT const gchar filter_string[] = "tcp.port == 7000";
+
+#ifndef G_HAVE_GINT64
+#error "Sorry, this won't compile without 64-bit integer support"
+#endif                                                                  
 
 static int proto_gryphon = -1;
 
@@ -78,14 +85,10 @@ static gint ett_gryphon_pgm_list = -1;
 static gint ett_gryphon_pgm_status = -1;
 static gint ett_gryphon_pgm_options = -1;
 
-#define gryphon_LTX_desc          desc
-#define gryphon_LTX_dissector     dissector
-#define gryphon_LTX_filter_string filter_string
-#define gryphon_LTX_proto_init    proto_init
-#define gryphon_LTX_protocol      protocol
-#define gryphon_LTX_version       version
 
-void dissector(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+
+DLLEXPORT void
+dissector(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 
     proto_tree	    *gryphon_tree, *header_tree, *body_tree;
@@ -647,15 +650,15 @@ resp_time (int src, const u_char **data, const u_char *dataend, int *offset, int
 {
     int     hours, minutes, seconds, fraction;
     union {
-    	unsigned int	   lng[2];
-	unsigned long long int  lnglng;
+    	unsigned int		lng[2];
+	unsigned gint64		lnglng;
     } ts;
     unsigned int    timestamp;
     unsigned char   date[45];
-    
+   
     ts.lng[1] = pntohl ((unsigned int *)(*data));
     ts.lng[0] = pntohl ((unsigned int *)((*data)+4));
-    timestamp = ts.lnglng / 100000LL;
+    timestamp = ts.lnglng / 100000L;
     strncpy (date, ctime((time_t*)&timestamp), sizeof(date));
     date[strlen(date)-1] = 0x00;
     proto_tree_add_text(pt, *offset, 8, "Date/Time: %s", date);
@@ -1517,8 +1520,8 @@ blm_mode (int src, const u_char **data, const u_char *dataend, int *offset, int 
     BUMP (*offset, *data, 4);
 }
 
-void
-proto_init(void)
+DLLEXPORT void
+plugin_init(plugin_address_table_t *pat)
 {
     static hf_register_info hf[] = {
 	{ &hf_gryph_src,
@@ -1560,7 +1563,7 @@ proto_init(void)
 	&ett_gryphon_pgm_status,
 	&ett_gryphon_pgm_options,
     };
-    
+    plugin_address_table_init(pat);
     dfilter_cleanup();
     proto_gryphon = proto_register_protocol("DG Gryphon Protocol", "gryphon");
     proto_register_field_array(proto_gryphon, hf, array_length(hf));

@@ -84,3 +84,4 @@
 #define _WINDOWS                1*/
 
 #define HAVE_PLUGINS		1
+#define PLUGINS_NEED_ADDRESS_TABLE 1

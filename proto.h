@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.21 2000/01/22 04:59:55 guy Exp $
+ * $Id: proto.h,v 1.22 2000/02/07 17:07:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -178,6 +178,12 @@ proto_register_field_array(int parent, hf_register_info *hf, int num_records);
 
 void
 proto_register_subtree_array(gint **indices, int num_indices);
+
+/* We have to make this prototype accessible for plugin_api.c, but we
+   don't want anybody except plugin_api.c to use it directly */
+proto_item *
+_proto_tree_add_item_value(proto_tree *tree, int hfindex, gint start,
+	gint length, int include_format, int visible, va_list ap);
 
 proto_item *
 proto_tree_add_item(proto_tree *tree, int hfindex, gint start,

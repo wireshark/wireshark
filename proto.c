@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.52 2000/01/22 04:59:55 guy Exp $
+ * $Id: proto.c,v 1.53 2000/02/07 17:07:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -75,9 +75,6 @@ proto_tree_free_node(GNode *node, gpointer data);
 static struct header_field_info*
 find_hfinfo_record(int hfindex);
 
-static proto_item *
-proto_tree_add_item_value(proto_tree *tree, int hfindex, gint start,
-	gint length, int include_format, int visible, va_list ap);
 
 static void fill_label_boolean(field_info *fi, gchar *label_str);
 static void fill_label_uint(field_info *fi, gchar *label_str);
@@ -235,7 +232,7 @@ proto_tree_add_item(proto_tree *tree, int hfindex, gint start, gint length, ...)
 	va_list		ap;
 
 	va_start(ap, length);
-	pi = proto_tree_add_item_value(tree, hfindex, start, length, 0, 1, ap);
+	pi = _proto_tree_add_item_value(tree, hfindex, start, length, 0, 1, ap);
 	va_end(ap);
 
 	return pi;
@@ -248,7 +245,7 @@ proto_tree_add_item_hidden(proto_tree *tree, int hfindex, gint start, gint lengt
 	va_list		ap;
 
 	va_start(ap, length);
-	pi = proto_tree_add_item_value(tree, hfindex, start, length, 0, 0, ap);
+	pi = _proto_tree_add_item_value(tree, hfindex, start, length, 0, 0, ap);
 	va_end(ap);
 
 	return pi;
@@ -261,7 +258,7 @@ proto_tree_add_item_format(proto_tree *tree, int hfindex, gint start, gint lengt
 	va_list		ap;
 
 	va_start(ap, length);
-	pi = proto_tree_add_item_value(tree, hfindex, start, length, 1, 1, ap);
+	pi = _proto_tree_add_item_value(tree, hfindex, start, length, 1, 1, ap);
 	va_end(ap);
 
 	return pi;
@@ -274,7 +271,7 @@ proto_tree_add_notext(proto_tree *tree, gint start, gint length, ...)
 	va_list		ap;
 
 	va_start(ap, length);
-	pi = proto_tree_add_item_value(tree, hf_text_only, start, length, 0, 1, ap);
+	pi = _proto_tree_add_item_value(tree, hf_text_only, start, length, 0, 1, ap);
 	va_end(ap);
 
 	return pi;
@@ -287,14 +284,14 @@ proto_tree_add_text(proto_tree *tree, gint start, gint length, ...)
 	va_list		ap;
 
 	va_start(ap, length);
-	pi = proto_tree_add_item_value(tree, hf_text_only, start, length, 1, 1, ap);
+	pi = _proto_tree_add_item_value(tree, hf_text_only, start, length, 1, 1, ap);
 	va_end(ap);
 
 	return pi;
 }
 
-static proto_item *
-proto_tree_add_item_value(proto_tree *tree, int hfindex, gint start,
+proto_item *
+_proto_tree_add_item_value(proto_tree *tree, int hfindex, gint start,
 	gint length, int include_format, int visible, va_list ap)
 {
 	proto_item	*pi;
