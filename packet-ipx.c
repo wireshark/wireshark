@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.36 1999/11/22 06:03:45 gram Exp $
+ * $Id: packet-ipx.c,v 1.37 1999/11/30 08:45:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -197,15 +197,17 @@ port_func(guint16 port) {
 }
 
 #define IPX_PACKET_TYPE_IPX		0
-#define IPX_PACKET_TYPE_IPX_4		4
+#define IPX_PACKET_TYPE_RIP		1
+#define IPX_PACKET_TYPE_PEP		4
 #define IPX_PACKET_TYPE_SPX		5
 #define IPX_PACKET_TYPE_NCP		17
-#define IPX_PACKET_TYPE_WANBCAST	20
+#define IPX_PACKET_TYPE_WANBCAST	20	/* propagated NetBIOS packet? */
 
 static const value_string ipx_packet_type_vals[] = {
 	{ IPX_PACKET_TYPE_IPX,		"IPX" },
-	{ IPX_PACKET_TYPE_IPX_4,	"IPX" },
-				/* NetMon calls it "IPX" */
+	{ IPX_PACKET_TYPE_RIP,		"RIP" },
+	{ IPX_PACKET_TYPE_PEP,		"PEP" },
+				/* Packet Exchange Protocol */
 	{ IPX_PACKET_TYPE_SPX,		"SPX" },
 	{ 16,				"Experimental Protocol" },
 	{ IPX_PACKET_TYPE_NCP,		"NCP" },
@@ -393,7 +395,7 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			break;
 
 		case IPX_PACKET_TYPE_WANBCAST:
-		case IPX_PACKET_TYPE_IPX_4:
+		case IPX_PACKET_TYPE_PEP:
 			if (ipx_dsocket == IPX_SOCKET_NETBIOS) {
 				dissect_nbipx(pd, offset, fd, tree);
 				break;
