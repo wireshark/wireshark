@@ -1,7 +1,7 @@
 /* smb_stat.c
  * smb_stat   2003 Ronnie Sahlberg
  *
- * $Id: smb_stat.c,v 1.1 2003/01/22 00:42:05 sahlberg Exp $
+ * $Id: smb_stat.c,v 1.2 2003/04/22 09:30:59 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -474,7 +474,7 @@ gtk_smbstat_init(char *optarg)
 	if(register_tap_listener("smb", ss, filter, smbstat_reset, smbstat_packet, smbstat_draw)){
 		char str[256];
 		/* error, we failed to attach to the tap. clean up */
-		snprintf(str,255,"Could not attach to tap using filter:%s",filter?filter:"");
+		snprintf(str,255,"Could not attach to tap using filter:%s\nMaybe the filter string is invalid?",filter?filter:"");
 		simple_dialog(ESD_TYPE_WARN, NULL, str);
 		g_free(ss->filter);
 		g_free(ss);
@@ -493,9 +493,72 @@ register_tap_listener_gtksmbstat(void)
 }
 
 
+static GtkWidget *dlg=NULL, *dlg_box;
+static GtkWidget *filter_box;
+static GtkWidget *filter_label, *filter_entry;
+static GtkWidget *start_button;
+
+static void
+dlg_destroy_cb(void)
+{
+	dlg=NULL;
+}
+
+static void
+smbstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
+{
+	char *filter;
+	char str[256];
+
+	filter=(char *)gtk_entry_get_text(GTK_ENTRY(filter_entry));
+	if(filter[0]==0){
+		gtk_smbstat_init("smb,rtt");
+	} else {
+		sprintf(str,"smb,rtt,%s", filter);
+		gtk_smbstat_init(str);
+	}
+}
+
 void
 gtk_smbstat_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_smbstat_init("smb,rtt");
+	/* if the window is already open, bring it to front */
+	if(dlg){
+		gdk_window_raise(dlg->window);
+		return;
+	}
+
+	dlg=gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title(GTK_WINDOW(dlg), "SMB RTT Statistics");
+	SIGNAL_CONNECT(dlg, "destroy", dlg_destroy_cb, NULL);
+	dlg_box=gtk_vbox_new(FALSE, 0);
+	gtk_container_add(GTK_CONTAINER(dlg), dlg_box);
+	gtk_widget_show(dlg_box);
+
+
+	/* filter box */
+	filter_box=gtk_hbox_new(FALSE, 10);
+	/* Filter label */
+	gtk_container_set_border_width(GTK_CONTAINER(filter_box), 10);
+	filter_label=gtk_label_new("Filter:");
+	gtk_box_pack_start(GTK_BOX(filter_box), filter_label, FALSE, FALSE, 0);
+	gtk_widget_show(filter_label);
+
+	filter_entry=gtk_entry_new_with_max_length(250);
+	gtk_box_pack_start(GTK_BOX(filter_box), filter_entry, FALSE, FALSE, 0);
+	gtk_widget_show(filter_entry);
+	
+	gtk_box_pack_start(GTK_BOX(dlg_box), filter_box, TRUE, TRUE, 0);
+	gtk_widget_show(filter_box);
+
+
+	/* the start button */
+	start_button=gtk_button_new_with_label("Create Stat");
+        SIGNAL_CONNECT_OBJECT(start_button, "clicked",
+                              smbstat_start_button_clicked, NULL);
+	gtk_box_pack_start(GTK_BOX(dlg_box), start_button, TRUE, TRUE, 0);
+	gtk_widget_show(start_button);
+
+	gtk_widget_show_all(dlg);
 }
 
