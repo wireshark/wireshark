@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-h248.c                                                            */
+/* .\packet-h248.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p h248 -c h248.cnf -s packet-h248-template MEGACO.asn */
 
 /* Input file: packet-h248-template.c */
@@ -63,6 +63,8 @@ static int hf_h248_event_name		= -1;
 static int hf_h248_signal_name		= -1;
 static int hf_h248_package_bcp_BNCChar_PDU = -1;
 static int hf_h248_package_annex_C_ACodec = -1;
+static int hf_h248_package_annex_C_tdmc_ec = -1;
+static int hf_h248_package_annex_C_tdmc_gain = -1;
 static int hf_h248_package_annex_C_TMR = -1;
 static int hf_h248_package_annex_C_Mediatx = -1;
 static int hf_h248_package_annex_C_USI = -1;
@@ -677,38 +679,45 @@ static const value_string h248_package_annex_C_Mediatx_vals[] = {
   {   0x0004, "Ipv6" },
 	{0,     NULL}
 };
+
+
+static const true_false_string h248_tdmc_ec_vals = {
+	"On",
+	"Off"
+};
 static void 
 dissect_h248_annex_C_PDU(gboolean implicit_tag, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 name_minor) {
 	int offset = 0;
 	tvbuff_t *new_tvb;
 
 	switch ( name_minor ){
-		case 0x1001: /* Media */
-			proto_tree_add_text(tree, tvb, offset, -1,"Media");
-			break;
-		case 0x1006: /* ACodec Ref.: ITU-T Rec. Q.765.5 */
-			offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_h248_package_annex_C_ACodec, &new_tvb);
-			break;
-		case 0x3001: /* Mediatx */
-			offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_h248_package_annex_C_Mediatx, NULL);
-			break;
-		case 0x3002: /* BIR */
-			offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_h248_package_annex_C_BIR, &new_tvb);
-			break;
-		case 0x3003: /* NSAP */
-			offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_h248_package_annex_C_NSAP, &new_tvb);
-			dissect_nsap(new_tvb, 0,tvb_length_remaining(new_tvb, 0), tree);
-			break;
-		case 0x9001: /* TMR */
-			offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_h248_package_annex_C_TMR, NULL);
-			break;
-		case 0x9023: /* User Service Information */
-			offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_h248_package_annex_C_USI, &new_tvb);
-			dissect_q931_bearer_capability_ie(new_tvb, 0, 3, tree);
-			break;
-		default:
-			proto_tree_add_text(tree, tvb, offset, -1,"PropertyID not decoded(yet) 0x%x",name_minor);
-			break;
+
+	case 0x1001: /* Media */
+		proto_tree_add_text(tree, tvb, offset, -1,"Media");
+		break;
+	case 0x1006: /* ACodec Ref.: ITU-T Rec. Q.765.5 */
+		offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_h248_package_annex_C_ACodec, &new_tvb);
+		break;
+	case 0x3001: /* Mediatx */
+		offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_h248_package_annex_C_Mediatx, NULL);
+		break;
+	case 0x3002: /* BIR */
+		offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_h248_package_annex_C_BIR, &new_tvb);
+		break;
+	case 0x3003: /* NSAP */
+		offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_h248_package_annex_C_NSAP, &new_tvb);
+		dissect_nsap(new_tvb, 0,tvb_length_remaining(new_tvb, 0), tree);
+		break;
+	case 0x9001: /* TMR */
+		offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_h248_package_annex_C_TMR, NULL);
+		break;
+	case 0x9023: /* User Service Information */
+		offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_h248_package_annex_C_USI, &new_tvb);
+		dissect_q931_bearer_capability_ie(new_tvb, 0, 3, tree);
+		break;
+	default:
+		proto_tree_add_text(tree, tvb, offset, -1,"PropertyID not decoded(yet) 0x%x",name_minor);
+		break;
 	}
 }
 
@@ -804,6 +813,18 @@ guint offset=0;
 		case 0x0001: /* g H.248.1 Annex E */
 			proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset), "H.248: Dissector for Package/ID:0x%04x not implemented (yet).", name_major);
 			break;
+		case 0x000d: /* tdmc H.248.1 Annex E */
+			switch (name_minor){
+				case 0x0008: /*ec*/
+					offset = dissect_ber_boolean(TRUE, pinfo, tree, tvb, offset, hf_h248_package_annex_C_tdmc_ec);
+					break;
+				case 0x000a: /* gain */
+					offset = dissect_ber_integer(TRUE, pinfo, tree, tvb, offset, hf_h248_package_annex_C_tdmc_gain, NULL);
+					break;
+				default:
+					proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset), "H.248: Dissector for Package/ID:0x%04x not implemented (yet).", name_major);
+					break;
+			}
 		case 0x001e: /* Bearer Characteristics Q.1950 Annex A */
 			offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_h248_package_bcp_BNCChar_PDU, NULL);
 			break;
@@ -4191,6 +4212,14 @@ void proto_register_h248(void) {
       { "BNCChar", "h248.package_bcp.BNCChar",
         FT_UINT32, BASE_DEC, VALS(BNCChar_vals), 0,
         "BNCChar", HFILL }},
+	{ &hf_h248_package_annex_C_tdmc_ec,
+      { "Echo Cancellation", "h248.package_annex_C.tdmc.ec",
+        FT_BOOLEAN, 8, TFS(&h248_tdmc_ec_vals), 0,
+        "Echo Cancellation", HFILL }},
+	{ &hf_h248_package_annex_C_tdmc_gain,
+      { "Gain", "h248.package_annex_C.tdmc.gain",
+        FT_UINT32, BASE_HEX, NULL, 0,
+        "Gain", HFILL }},
 	{ &hf_h248_package_annex_C_ACodec,
       { "ACodec", "h248.package_annex_C.ACodec",
         FT_BYTES, BASE_HEX, NULL, 0,
