@@ -3,7 +3,7 @@
  * (ISAKMP) (RFC 2408)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.35 2001/02/13 20:47:17 guy Exp $
+ * $Id: packet-isakmp.c,v 1.36 2001/02/28 10:22:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -186,133 +186,24 @@ struct isakmp_hdr {
   guint8	length[4];
 };
 
-struct sa_hdr {
-  guint8	next_payload;
-  guint8	reserved;
-  guint8	length[2];
-  guint8	doi[4];
-  guint8	situation[4];
-};
+static proto_tree *dissect_payload_header(tvbuff_t *, int, int, guint8,
+    guint8 *, guint16 *, proto_tree *);
 
-struct proposal_hdr {
-  guint8	next_payload;
-  guint8	reserved;
-  guint8	length[2];
-  guint8	proposal_num;
-  guint8	protocol_id;
-  guint8	spi_size;
-  guint8	num_transforms;
-};
-
-struct trans_hdr {
-  guint8	next_payload;
-  guint8	reserved;
-  guint8	length[2];
-  guint8	transform_num;
-  guint8	transform_id;
-  guint8	reserved2[2];
-};
-
-#define TRANS_LEN(p)	(pntohs(&((struct trans_hdr *)(p))->length))
-
-struct ke_hdr {
-  guint8	next_payload;
-  guint8	reserved;
-  guint8	length[2];
-};
-
-struct id_hdr {
-  guint8	next_payload;
-  guint8	reserved;
-  guint8	length[2];
-  guint8	id_type;
-  guint8	protocol_id;
-  guint8	port[2];
-};
-
-struct cert_hdr {
-  guint8	next_payload;
-  guint8	reserved;
-  guint8	length[2];
-  guint8	cert_enc;
-};
-
-struct certreq_hdr {
-  guint8	next_payload;
-  guint8	reserved;
-  guint8	length[2];
-  guint8	cert_type;
-};
-
-struct hash_hdr {
-  guint8	next_payload;
-  guint8	reserved;
-  guint8	length[2];
-};
-
-struct sig_hdr {
-  guint8	next_payload;
-  guint8	reserved;
-  guint8	length[2];
-};
-
-struct nonce_hdr {
-  guint8	next_payload;
-  guint8	reserved;
-  guint8	length[2];
-};
-
-struct notif_hdr {
-  guint8	next_payload;
-  guint8	reserved;
-  guint8	length[2];
-  guint8	doi[4];
-  guint8	protocol_id;
-  guint8	spi_size;
-  guint8	msgtype[2];
-};
-
-struct delete_hdr {
-  guint8	next_payload;
-  guint8	reserved;
-  guint8	length[2];
-  guint8	doi[4];
-  guint8	protocol_id;
-  guint8	spi_size;
-  guint8	num_spis[2];
-};
-
-struct vid_hdr {
-  guint8	next_payload;
-  guint8	reserved;
-  guint8	length[2];
-};
-
-struct cfg_hdr {
-  guint8	next_payload;
-  guint8	reserved;
-  guint8	length[2];
-  guint8	type;
-  guint8	reserved2;
-  guint8	identifier[2];
-};
-
-static void dissect_none(const u_char *, int, frame_data *, proto_tree *);
-static void dissect_sa(const u_char *, int, frame_data *, proto_tree *);
-static void dissect_proposal(const u_char *, int, frame_data *, proto_tree *);
-static void dissect_transform(const u_char *, int, frame_data *, proto_tree *,
-		guint8);
-static void dissect_key_exch(const u_char *, int, frame_data *, proto_tree *);
-static void dissect_id(const u_char *, int, frame_data *, proto_tree *);
-static void dissect_cert(const u_char *, int, frame_data *, proto_tree *);
-static void dissect_certreq(const u_char *, int, frame_data *, proto_tree *);
-static void dissect_hash(const u_char *, int, frame_data *, proto_tree *);
-static void dissect_sig(const u_char *, int, frame_data *, proto_tree *);
-static void dissect_nonce(const u_char *, int, frame_data *, proto_tree *);
-static void dissect_notif(const u_char *, int, frame_data *, proto_tree *);
-static void dissect_delete(const u_char *, int, frame_data *, proto_tree *);
-static void dissect_vid(const u_char *, int, frame_data *, proto_tree *);
-static void dissect_config(const u_char *, int, frame_data *, proto_tree *);
+static void dissect_none(tvbuff_t *, int, int, proto_tree *);
+static void dissect_sa(tvbuff_t *, int, int, proto_tree *);
+static void dissect_proposal(tvbuff_t *, int, int, proto_tree *);
+static void dissect_transform(tvbuff_t *, int, int, proto_tree *, guint8);
+static void dissect_key_exch(tvbuff_t *, int, int, proto_tree *);
+static void dissect_id(tvbuff_t *, int, int, proto_tree *);
+static void dissect_cert(tvbuff_t *, int, int, proto_tree *);
+static void dissect_certreq(tvbuff_t *, int, int, proto_tree *);
+static void dissect_hash(tvbuff_t *, int, int, proto_tree *);
+static void dissect_sig(tvbuff_t *, int, int, proto_tree *);
+static void dissect_nonce(tvbuff_t *, int, int, proto_tree *);
+static void dissect_notif(tvbuff_t *, int, int, proto_tree *);
+static void dissect_delete(tvbuff_t *, int, int, proto_tree *);
+static void dissect_vid(tvbuff_t *, int, int, proto_tree *);
+static void dissect_config(tvbuff_t *, int, int, proto_tree *);
 
 static const char *payloadtype2str(guint8);
 static const char *exchtype2str(guint8);
@@ -320,18 +211,21 @@ static const char *doitype2str(guint32);
 static const char *msgtype2str(guint16);
 static const char *situation2str(guint32);
 static const char *value2str(int, guint16, guint16);
-static const char *num2str(const guint8 *, guint16);
 static const char *attrtype2str(guint8);
 static const char *cfgattrident2str(guint16);
 static const char *certtype2str(guint8);
+
+static gboolean get_num(tvbuff_t *, int, guint16, guint32 *);
+
+#define LOAD_TYPE_PROPOSAL	2	/* payload type for Proposal */
+#define	LOAD_TYPE_TRANSFORM	3	/* payload type for Transform */
 #define NUM_LOAD_TYPES		15
 #define loadtype2str(t)	\
   ((t < NUM_LOAD_TYPES) ? strfuncs[t].str : "Unknown payload type")
-#define	LOAD_TYPE_TRANSFORM	3
 
 static struct strfunc {
   const char *	str;
-  void          (*func)(const u_char *, int, frame_data *, proto_tree *);
+  void          (*func)(tvbuff_t *, int, int, proto_tree *);
 } strfuncs[NUM_LOAD_TYPES] = {
   {"NONE",			dissect_none      },
   {"Security Association",	dissect_sa        },
@@ -351,47 +245,52 @@ static struct strfunc {
 };
 
 static void
-dissect_isakmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
-  
-  struct isakmp_hdr *	hdr = (struct isakmp_hdr *)(pd + offset);
+dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  int			offset = 0;
+  struct isakmp_hdr *	hdr;
   guint32		len;
+  guint8		payload, next_payload;
+  guint16		payload_length;
+  proto_tree *		ntree;
 
-  OLD_CHECK_DISPLAY_AS_DATA(proto_isakmp, pd, offset, fd, tree);
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_set_str(pinfo->fd, COL_PROTOCOL, "ISAKMP");
+  if (check_col(pinfo->fd, COL_INFO))
+    col_clear(pinfo->fd, COL_INFO);
   
-  if (check_col(fd, COL_PROTOCOL))
-    col_set_str(fd, COL_PROTOCOL, "ISAKMP");
-  
+  hdr = (struct isakmp_hdr *)tvb_get_ptr(tvb, 0, sizeof (struct isakmp_hdr));
   len = pntohl(&hdr->length);
   
-  if (check_col(fd, COL_INFO))
-    col_add_fstr(fd, COL_INFO, "%s", exchtype2str(hdr->exch_type));
+  if (check_col(pinfo->fd, COL_INFO))
+    col_add_str(pinfo->fd, COL_INFO, exchtype2str(hdr->exch_type));
   
-  if (IS_DATA_IN_FRAME(offset) && tree) {
+  if (tree) {
     proto_item *	ti;
     proto_tree *	isakmp_tree;
     
-    ti = proto_tree_add_item(tree, proto_isakmp, NullTVB, offset, len, FALSE);
+    ti = proto_tree_add_item(tree, proto_isakmp, tvb, offset, len, FALSE);
     isakmp_tree = proto_item_add_subtree(ti, ett_isakmp);
     
-    proto_tree_add_text(isakmp_tree, NullTVB, offset, sizeof(hdr->icookie),
+    proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr->icookie),
 			"Initiator cookie");
     offset += sizeof(hdr->icookie);
     
-    proto_tree_add_text(isakmp_tree, NullTVB, offset, sizeof(hdr->rcookie),
+    proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr->rcookie),
 			"Responder cookie");
     offset += sizeof(hdr->rcookie);
 
-    proto_tree_add_text(isakmp_tree, NullTVB, offset, sizeof(hdr->next_payload),
+    proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr->next_payload),
 			"Next payload: %s (%u)",
 			payloadtype2str(hdr->next_payload), hdr->next_payload);
     offset += sizeof(hdr->next_payload);
 
-    proto_tree_add_text(isakmp_tree, NullTVB, offset, sizeof(hdr->version),
+    proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr->version),
 			"Version: %u.%u",
 			hi_nibble(hdr->version), lo_nibble(hdr->version));
     offset += sizeof(hdr->version);
     
-    proto_tree_add_text(isakmp_tree, NullTVB, offset, sizeof(hdr->exch_type),
+    proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr->exch_type),
 			"Exchange type: %s (%u)",
 			exchtype2str(hdr->exch_type), hdr->exch_type);
     offset += sizeof(hdr->exch_type);
@@ -400,207 +299,231 @@ dissect_isakmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       proto_item *	fti;
       proto_tree *	ftree;
       
-      fti   = proto_tree_add_text(isakmp_tree, NullTVB, offset, sizeof(hdr->flags), "Flags");
+      fti   = proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr->flags), "Flags");
       ftree = proto_item_add_subtree(fti, ett_isakmp_flags);
       
-      proto_tree_add_text(ftree, NullTVB, offset, 1, "%s",
+      proto_tree_add_text(ftree, tvb, offset, 1, "%s",
 			  decode_boolean_bitfield(hdr->flags, E_FLAG, sizeof(hdr->flags)*8,
 						  "Encryption", "No encryption"));
-      proto_tree_add_text(ftree, NullTVB, offset, 1, "%s",
+      proto_tree_add_text(ftree, tvb, offset, 1, "%s",
 			  decode_boolean_bitfield(hdr->flags, C_FLAG, sizeof(hdr->flags)*8,
 						  "Commit", "No commit"));
-      proto_tree_add_text(ftree, NullTVB, offset, 1, "%s",
+      proto_tree_add_text(ftree, tvb, offset, 1, "%s",
 			  decode_boolean_bitfield(hdr->flags, A_FLAG, sizeof(hdr->flags)*8,
 						  "Authentication", "No authentication"));
       offset += sizeof(hdr->flags);
     }
 
-    proto_tree_add_text(isakmp_tree, NullTVB, offset, sizeof(hdr->message_id),
+    proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr->message_id),
         "Message ID: 0x%02x%02x%02x%02x", hdr->message_id[0],
         hdr->message_id[1], hdr->message_id[2], hdr->message_id[3]);
     offset += sizeof(hdr->message_id);
     
-    proto_tree_add_text(isakmp_tree, NullTVB, offset, sizeof(hdr->length),
+    proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr->length),
 			"Length: %u", len);
     offset += sizeof(hdr->length);
+    len -= sizeof(*hdr);
 
     if (hdr->flags & E_FLAG) {
-      if (IS_DATA_IN_FRAME(offset) && isakmp_tree) {
-        proto_tree_add_text(isakmp_tree, NullTVB, offset, END_OF_FRAME,
+      if (len && isakmp_tree) {
+        proto_tree_add_text(isakmp_tree, tvb, offset, len,
 			"Encrypted payload (%d byte%s)",
-			END_OF_FRAME, plurality(END_OF_FRAME, "", "s"));
+			len, plurality(len, "", "s"));
       }
     } else {
-      if (hdr->next_payload < NUM_LOAD_TYPES) {
-        if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
-          dissect_transform(pd, offset, fd, isakmp_tree, 0);	/* XXX - protocol ID? */
-        else
-          (*strfuncs[hdr->next_payload].func)(pd, offset, fd, isakmp_tree);
+      for (payload = hdr->next_payload; len != 0; payload = next_payload) {
+        ntree = dissect_payload_header(tvb, offset, len, payload,
+            &next_payload, &payload_length, isakmp_tree);
+        if (ntree == NULL)
+          break;
+        if (payload_length >= 4) {
+          if (payload < NUM_LOAD_TYPES) {
+            if (next_payload == LOAD_TYPE_TRANSFORM)
+              dissect_transform(tvb, offset + 4, payload_length - 4, ntree, 0);
+            	/* XXX - protocol ID? */
+            else
+              (*strfuncs[payload].func)(tvb, offset + 4, payload_length - 4, ntree);
+          }
+          else {
+            proto_tree_add_text(ntree, tvb, offset + 4, payload_length - 4,
+                "Payload");
+          }
+        }
+        offset += payload_length;
+        len -= payload_length;
       }
-      else
-        old_dissect_data(pd, offset, fd, isakmp_tree);
     }
   }
 }
 
-static void
-dissect_none(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+static proto_tree *
+dissect_payload_header(tvbuff_t *tvb, int offset, int length, guint8 payload,
+    guint8 *next_payload_p, guint16 *payload_length_p, proto_tree *tree)
+{
+  guint8		next_payload;
+  guint16		payload_length;
+  proto_item *		ti;
+  proto_tree *		ntree;
+
+  if (length < 4) {
+    proto_tree_add_text(tree, tvb, offset, length,
+          "Not enough room in payload for all transforms");
+    return NULL;
+  }
+  next_payload = tvb_get_guint8(tvb, offset);
+  payload_length = tvb_get_ntohs(tvb, offset + 2);
+
+  ti = proto_tree_add_text(tree, tvb, offset, payload_length,
+            "%s payload", loadtype2str(payload));
+  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
+
+  proto_tree_add_text(ntree, tvb, offset, 1,
+		      "Next payload: %s (%u)",
+		      payloadtype2str(next_payload), next_payload);
+  proto_tree_add_text(ntree, tvb, offset+2, 2, "Length: %u", payload_length);
+
+  *next_payload_p = next_payload;
+  *payload_length_p = payload_length;
+  return ntree;
 }
 
 static void
-dissect_sa(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_none(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+{
+}
 
-  struct sa_hdr *	hdr	  = (struct sa_hdr *)(pd + offset);
-  guint16		length	  = pntohs(&hdr->length);
-  guint32		doi	  = pntohl(&hdr->doi);
-  guint32		situation = pntohl(&hdr->situation);
-  proto_item *		ti	  = proto_tree_add_text(tree, NullTVB, offset, length, "Security Association payload");
+static void
+dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+{
+  guint32		doi;
+  guint32		situation;
+  guint8		next_payload;
+  guint16		payload_length;
   proto_tree *		ntree;
 
-  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->next_payload),
-		      "Next payload: %s (%u)",
-		      payloadtype2str(hdr->next_payload), hdr->next_payload);
-  offset += sizeof(hdr->next_payload) * 2;
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(length),
-		      "Length: %u", length);
-  offset += sizeof(length);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(doi),
+  doi = tvb_get_ntohl(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 4,
 		      "Domain of interpretation: %s (%u)",
 		      doitype2str(doi), doi);
-  offset += sizeof(doi);
+  offset += 4;
+  length -= 4;
   
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(situation),
+  situation = tvb_get_ntohl(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 4,
 		      "Situation: %s (%u)",
 		      situation2str(situation), situation);
-  offset += sizeof(situation);
+  offset += 4;
+  length -= 4;
   
-  dissect_proposal(pd, offset, fd, ntree);
-  offset += (length - sizeof(*hdr));
-  
-  if (hdr->next_payload < NUM_LOAD_TYPES) {
-    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
-      dissect_transform(pd, offset, fd, tree, 0);	/* XXX - protocol ID? */
-    else
-      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
-  }
-  else
-    old_dissect_data(pd, offset, fd, tree);
+  ntree = dissect_payload_header(tvb, offset, length, LOAD_TYPE_PROPOSAL,
+    &next_payload, &payload_length, tree);
+  if (ntree != NULL)
+    dissect_proposal(tvb, offset + 4, payload_length - 4, ntree);
 }
 
 static void
-dissect_proposal(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
-
-  struct proposal_hdr *	hdr	= (struct proposal_hdr *)(pd + offset);
-  guint16		length	= pntohs(&hdr->length);
-  proto_item *		ti	= proto_tree_add_text(tree, NullTVB, offset, length, "Proposal payload");
-  proto_tree *		ntree;
-
-  int			next_hdr_offset = offset + length;
-
-  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->next_payload),
-		      "Next payload: %s (%u)",
-		      payloadtype2str(hdr->next_payload), hdr->next_payload);
-  offset += sizeof(hdr->next_payload) * 2;
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(length),
-		      "Length: %u", length);
-  offset += sizeof(length);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->proposal_num),
-		      "Proposal number: %u", hdr->proposal_num);
-  offset += sizeof(hdr->proposal_num);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->protocol_id),
-		      "Protocol ID: %s (%u)",
-		      proto2str(hdr->protocol_id), hdr->protocol_id);
-  offset += sizeof(hdr->protocol_id);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->spi_size),
-		      "SPI size: %u", hdr->spi_size);
-  offset += sizeof(hdr->spi_size);
-
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->num_transforms),
-		      "Number of transforms: %u", hdr->num_transforms);
-  offset += sizeof(hdr->num_transforms);
-
-  if (hdr->spi_size) {
-    proto_tree_add_text(ntree, NullTVB, offset, hdr->spi_size, "SPI");
-    offset += hdr->spi_size;
-  }
-
-  if (hdr->num_transforms > 0)
-    dissect_transform(pd, offset, fd, ntree, hdr->protocol_id);
-
-  if (hdr->next_payload < NUM_LOAD_TYPES) {
-    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
-      dissect_transform(pd, next_hdr_offset, fd, tree, 0);	/* XXX - protocol ID? */
-    else
-      (*strfuncs[hdr->next_payload].func)(pd, next_hdr_offset, fd, tree);
-  }
-  else
-    old_dissect_data(pd, next_hdr_offset, fd, tree);
-}
-
-static void
-dissect_transform(const u_char *pd, int offset, frame_data *fd,
-		proto_tree *tree, guint8 protocol_id)
+dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 {
-
-  struct trans_hdr *	hdr	= (struct trans_hdr *)(pd + offset);
-  guint16		length	= pntohs(&hdr->length);
-  int                   slength = length;
-  proto_item *		ti	= proto_tree_add_text(tree, NullTVB, offset, length, "Transform payload");
+  guint8		protocol_id;
+  guint8		spi_size;
+  guint8		num_transforms;
+  guint8		next_payload;
+  guint16		payload_length;
   proto_tree *		ntree;
 
-  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
+  proto_tree_add_text(tree, tvb, offset, 1,
+		      "Proposal number: %u", tvb_get_guint8(tvb, offset));
+  offset += 1;
+  length -= 1;
   
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->next_payload),
-		      "Next payload: %s (%u)",
-		      payloadtype2str(hdr->next_payload), hdr->next_payload);
-  offset += sizeof(hdr->next_payload) * 2;
+  protocol_id = tvb_get_guint8(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 1,
+		      "Protocol ID: %s (%u)",
+		      proto2str(protocol_id), protocol_id);
+  offset += 1;
+  length -= 1;
   
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(length),
-		      "Length: %u", length);
-  offset += sizeof(length);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->transform_num),
-		      "Transform number: %u", hdr->transform_num);
-  offset += sizeof(hdr->transform_num);
+  spi_size = tvb_get_guint8(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 1,
+		      "SPI size: %u", spi_size);
+  offset += 1;
+  length -= 1;
 
+  num_transforms = tvb_get_guint8(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 1,
+		      "Number of transforms: %u", num_transforms);
+  offset += 1;
+  length -= 1;
+
+  if (spi_size) {
+    proto_tree_add_text(tree, tvb, offset, spi_size, "SPI");
+    offset += spi_size;
+    length -= spi_size;
+  }
+
+  while (num_transforms > 0) {
+    ntree = dissect_payload_header(tvb, offset, length, LOAD_TYPE_TRANSFORM,
+      &next_payload, &payload_length, tree);
+    if (ntree == NULL)
+      break;
+    if (length < payload_length) {
+      proto_tree_add_text(tree, tvb, offset + 4, length,
+          "Not enough room in payload for all transforms");
+      break;
+    }
+    if (payload_length >= 4)
+      dissect_transform(tvb, offset + 4, payload_length - 4, ntree, protocol_id);
+    else
+      proto_tree_add_text(ntree, tvb, offset + 4, payload_length - 4, "Payload");
+    offset += payload_length;
+    length -= payload_length;
+    num_transforms--;
+  }
+}
+
+static void
+dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
+    guint8 protocol_id)
+{
+  guint8		transform_id;
+
+  proto_tree_add_text(tree, tvb, offset, 1,
+		      "Transform number: %u", tvb_get_guint8(tvb, offset));
+  offset += 1;
+  length -= 1;
+
+  transform_id = tvb_get_guint8(tvb, offset);
   switch (protocol_id) {
   default:
   case 1:	/* ISAKMP */
-    proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->transform_id),
+    proto_tree_add_text(tree, tvb, offset, 1,
 			"Transform ID: %s (%u)",
-			trans2str(hdr->transform_id), hdr->transform_id);
+			trans2str(transform_id), transform_id);
     break;
   case 2:	/* AH */
-    proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->transform_id),
+    proto_tree_add_text(tree, tvb, offset, 1,
 			"Transform ID: %s (%u)",
-			ah_trans2str(hdr->transform_id), hdr->transform_id);
+			ah_trans2str(transform_id), transform_id);
     break;
   case 3:	/* ESP */
-    proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->transform_id),
+    proto_tree_add_text(tree, tvb, offset, 1,
 			"Transform ID: %s (%u)",
-			esp_trans2str(hdr->transform_id), hdr->transform_id);
+			esp_trans2str(transform_id), transform_id);
     break;
   }
-  offset += sizeof(hdr->transform_id) + sizeof(hdr->reserved2);
+  offset += 3;
+  length -= 3;
   
-  slength -= sizeof(*hdr);
-  while (slength>0) {
-    const char *str = NULL;
+  while (length>0) {
+    const char *str;
     int ike_phase1 = 0;
-    guint16 type    = pntohs(pd + offset) & 0x7fff;
-    guint16 val_len = pntohs(pd + offset + 2);
+    guint16 aft     = tvb_get_ntohs(tvb, offset);
+    guint16 type    = aft & 0x7fff;
+    guint16 len;
+    guint32 val;
+    guint pack_len;
 
-    if (protocol_id == 1 && hdr->transform_id == 1) {
+    if (protocol_id == 1 && transform_id == 1) {
       ike_phase1 = 1;
       str = p1_atttype2str(type);
     }
@@ -608,505 +531,285 @@ dissect_transform(const u_char *pd, int offset, frame_data *fd,
       str = atttype2str(type);
     }
 
-    if (pd[offset] & 0x80) {
-      proto_tree_add_text(ntree, NullTVB, offset, 4,
+    if (aft & 0x8000) {
+      val = tvb_get_ntohs(tvb, offset + 2);
+      proto_tree_add_text(tree, tvb, offset, 4,
 			  "%s (%u): %s (%u)",
 			  str, type,
-			  value2str(ike_phase1, type, val_len), val_len);
+			  value2str(ike_phase1, type, val), val);
       offset += 4;
-      slength -= 4;
+      length -= 4;
     }
     else {
-      guint16	pack_len = 4 + val_len;
-      
-      proto_tree_add_text(ntree, NullTVB, offset, pack_len,
-			  "%s (%u): %s",
-			  str, type,
-			  num2str(pd + offset + 4, val_len));
+      len = tvb_get_ntohs(tvb, offset + 2);
+      pack_len = 4 + len;
+      if (!get_num(tvb, offset + 4, len, &val)) {
+        proto_tree_add_text(tree, tvb, offset, pack_len,
+			    "%s (%u): <too big (%u bytes)>",
+			    str, type, len);
+      } else {
+        proto_tree_add_text(tree, tvb, offset, pack_len,
+			    "%s (%u): %s (%u)",
+			    str, type,
+			    value2str(ike_phase1, type, val), val);
+      }
       offset += pack_len;
-      slength -= pack_len;
+      length -= pack_len;
     }
-#if 0 /* the last byte will fail with this test */
-    if (!IS_DATA_IN_FRAME(offset)) {
-	    proto_tree_add_text(ntree, NullTVB, 0, 0,
-			    "Bad Offset: %u", offset);
-	    return;
-    }
-#endif
   }
-
-  if (hdr->next_payload < NUM_LOAD_TYPES) {
-    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
-      dissect_transform(pd, offset, fd, tree, protocol_id);
-    else
-      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
-  }
-  else
-    old_dissect_data(pd, offset, fd, tree);
 }
 
 static void
-dissect_key_exch(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
-
-  struct ke_hdr *	hdr	= (struct ke_hdr *)(pd + offset);
-  guint16		length	= pntohs(&hdr->length);
-  proto_item *		ti	= proto_tree_add_text(tree, NullTVB, offset, length, "Key Exchange payload");
-  proto_tree *		ntree;
-
-  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->next_payload),
-		      "Next payload: %s (%u)",
-		      payloadtype2str(hdr->next_payload), hdr->next_payload);
-  offset += sizeof(hdr->next_payload) * 2;
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(length),
-		      "Length: %u", length);
-  offset += sizeof(length);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, length - sizeof(*hdr), "Key Exchange Data");
-  offset += (length - sizeof(*hdr));
-  
-  if (hdr->next_payload < NUM_LOAD_TYPES) {
-    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
-      dissect_transform(pd, offset, fd, tree, 0);	/* XXX - protocol ID? */
-    else
-      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
-  }
-  else
-    old_dissect_data(pd, offset, fd, tree);
+dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+{
+  proto_tree_add_text(tree, tvb, offset, length, "Key Exchange Data");
 }
 
 static void
-dissect_id(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+{
+  guint8		id_type;
+  guint8		protocol_id;
+  guint16		port;
 
-  struct id_hdr *	hdr	= (struct id_hdr *)(pd + offset);
-  guint16		length	= pntohs(&hdr->length);
-  proto_item *		ti	= proto_tree_add_text(tree, NullTVB, offset, length, "Identification payload");
-  proto_tree *		ntree;
+  id_type = tvb_get_guint8(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 1,
+		      "ID type: %s (%u)", id2str(id_type), id_type);
+  offset += 1;
+  length -= 1;
 
-  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->next_payload),
-		      "Next payload: %s (%u)",
-		      payloadtype2str(hdr->next_payload), hdr->next_payload);
-  offset += sizeof(hdr->next_payload) * 2;
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(length),
-		      "Length: %u", length);
-  offset += sizeof(length);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->id_type),
-		      "ID type: %s (%u)", id2str(hdr->id_type), hdr->id_type);
-  offset += sizeof(hdr->id_type);
+  protocol_id = tvb_get_guint8(tvb, offset);
+  if (protocol_id == 0) {
+    proto_tree_add_text(tree, tvb, offset, 1,
+			"Protocol ID: Unused");
+  } else {
+    proto_tree_add_text(tree, tvb, offset, 1,
+			"Protocol ID: %s (%u)",
+			ipprotostr(protocol_id), protocol_id);
+  }
+  offset += 1;
+  length -= 1;
 
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->protocol_id),
-		      "Protocol ID: %u", hdr->protocol_id);
-  offset += sizeof(hdr->protocol_id);
+  port = tvb_get_ntohs(tvb, offset);
+  if (port == 0)
+    proto_tree_add_text(tree, tvb, offset, 2, "Port: Unused");
+  else
+    proto_tree_add_text(tree, tvb, offset, 2, "Port: %u", port);
+  offset += 2;
+  length -= 2;
   
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->port),
-		      "Port: %u", pntohs(&hdr->port));
-  offset += sizeof(hdr->port);
-  
-  switch (hdr->id_type) {
+  switch (id_type) {
     case 1:
     case 4:
-      proto_tree_add_text(ntree, NullTVB, offset, length-sizeof(*hdr),
-			  "Identification data: %s", ip_to_str(pd+offset));
+      proto_tree_add_text(tree, tvb, offset, length,
+			  "Identification data: %s",
+			  ip_to_str(tvb_get_ptr(tvb, offset, 4)));
       break;
     case 2:
     case 3:
-      proto_tree_add_text(ntree, NullTVB, offset, length-sizeof(*hdr),
-			  "Identification data: %s", (char *)(pd+offset));
+      proto_tree_add_text(tree, tvb, offset, length,
+			  "Identification data: %.*s", length,
+			  tvb_get_ptr(tvb, offset, length));
       break;
     default:
-      proto_tree_add_text(ntree, NullTVB, offset, length - sizeof(*hdr), "Identification Data");
+      proto_tree_add_text(tree, tvb, offset, length, "Identification Data");
+      break;
   }
-  offset += (length - sizeof(*hdr));
-  
-  if (hdr->next_payload < NUM_LOAD_TYPES) {
-    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
-      dissect_transform(pd, offset, fd, tree, 0);	/* XXX - protocol ID? */
-    else
-      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
-  }
-  else
-    old_dissect_data(pd, offset, fd, tree);
 }
 
 static void
-dissect_cert(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_cert(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+{
+  guint8		cert_enc;
 
-  struct cert_hdr *	hdr	= (struct cert_hdr *)(pd + offset);
-  guint16		length	= pntohs(&hdr->length);
-  proto_item *		ti	= proto_tree_add_text(tree, NullTVB, offset, length, "Certificate payload");
-  proto_tree *		ntree;
+  cert_enc = tvb_get_guint8(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 1,
+		      "Certificate encoding: %u - %s",
+		      cert_enc, certtype2str(cert_enc));
+  offset += 1;
+  length -= 1;
 
-  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->next_payload),
-		      "Next payload: %s (%u)",
-		      payloadtype2str(hdr->next_payload), hdr->next_payload);
-  offset += sizeof(hdr->next_payload) * 2;
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(length),
-		      "Length: %u", length);
-  offset += sizeof(length);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->cert_enc),
-		      "Certificate encoding: %u - %s", hdr->cert_enc,certtype2str(hdr->cert_enc));
-  offset += sizeof(hdr->cert_enc);
-
-  proto_tree_add_text(ntree, NullTVB, offset, length - sizeof(*hdr), "Certificate Data");
-  offset += (length - sizeof(*hdr));
-  
-  if (hdr->next_payload < NUM_LOAD_TYPES) {
-    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
-      dissect_transform(pd, offset, fd, tree, 0);	/* XXX - protocol ID? */
-    else
-      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
-  }
-  else
-    old_dissect_data(pd, offset, fd, tree);
+  proto_tree_add_text(tree, tvb, offset, length, "Certificate Data");
 }
 
 static void
-dissect_certreq(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_certreq(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+{
+  guint8		cert_type;
 
-  struct certreq_hdr *	hdr	= (struct certreq_hdr *)(pd + offset);
-  guint16		length	= pntohs(&hdr->length);
-  proto_item *		ti	= proto_tree_add_text(tree, NullTVB, offset, length, "Certificate Request payload");
-  proto_tree *		ntree;
+  cert_type = tvb_get_guint8(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 1,
+		      "Certificate type: %u - %s",
+		      cert_type, certtype2str(cert_type));
+  offset += 1;
+  length -= 1;
 
-  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->next_payload),
-		      "Next payload: %s (%u)",
-		      payloadtype2str(hdr->next_payload), hdr->next_payload);
-  offset += sizeof(hdr->next_payload) * 2;
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(length),
-		      "Length: %u", length);
-  offset += sizeof(length);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->cert_type),
-		      "Certificate type: %u - %s", hdr->cert_type,certtype2str(hdr->cert_type));
-  offset += sizeof(hdr->cert_type);
-
-  proto_tree_add_text(ntree, NullTVB, offset, length - sizeof(*hdr), "Certificate Authority");
-  offset += (length - sizeof(*hdr));
-  
-  if (hdr->next_payload < NUM_LOAD_TYPES) {
-    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
-      dissect_transform(pd, offset, fd, tree, 0);	/* XXX - protocol ID? */
-    else
-      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
-  }
-  else
-    old_dissect_data(pd, offset, fd, tree);
+  proto_tree_add_text(tree, tvb, offset, length, "Certificate Authority");
 }
 
 static void
-dissect_hash(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
-
-  struct hash_hdr *	hdr	= (struct hash_hdr *)(pd + offset);
-  guint16		length	= pntohs(&hdr->length);
-  proto_item *		ti	= proto_tree_add_text(tree, NullTVB, offset, length, "Hash payload");
-  proto_tree *		ntree;
-
-  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->next_payload),
-		      "Next payload: %s (%u)",
-		      payloadtype2str(hdr->next_payload), hdr->next_payload);
-  offset += sizeof(hdr->next_payload) * 2;
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(length),
-		      "Length: %u", length);
-  offset += sizeof(length);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, length - sizeof(*hdr), "Hash Data");
-  offset += (length - sizeof(*hdr));
-  
-  if (hdr->next_payload < NUM_LOAD_TYPES) {
-    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
-      dissect_transform(pd, offset, fd, tree, 0);	/* XXX - protocol ID? */
-    else
-      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
-  }
-  else
-    old_dissect_data(pd, offset, fd, tree);
+dissect_hash(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+{
+  proto_tree_add_text(tree, tvb, offset, length, "Hash Data");
 }
 
 static void
-dissect_sig(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
-
-  struct sig_hdr *	hdr	= (struct sig_hdr *)(pd + offset);
-  guint16		length	= pntohs(&hdr->length);
-  proto_item *		ti	= proto_tree_add_text(tree, NullTVB, offset, length, "Signature payload");
-  proto_tree *		ntree;
-
-  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->next_payload),
-		      "Next payload: %s (%u)",
-		      payloadtype2str(hdr->next_payload), hdr->next_payload);
-  offset += sizeof(hdr->next_payload) * 2;
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(length),
-		      "Length: %u", length);
-  offset += sizeof(length);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, length - sizeof(*hdr), "Signature Data");
-  offset += (length - sizeof(*hdr));
-  
-  if (hdr->next_payload < NUM_LOAD_TYPES) {
-    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
-      dissect_transform(pd, offset, fd, tree, 0);	/* XXX - protocol ID? */
-    else
-      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
-  }
-  else
-    old_dissect_data(pd, offset, fd, tree);
+dissect_sig(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+{
+  proto_tree_add_text(tree, tvb, offset, length, "Signature Data");
 }
 
 static void
-dissect_nonce(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
-
-  struct nonce_hdr *	hdr	= (struct nonce_hdr *)(pd + offset);
-  guint16		length	= pntohs(&hdr->length);
-  proto_item *		ti	= proto_tree_add_text(tree, NullTVB, offset, length, "Nonce payload");
-  proto_tree *		ntree;
-
-  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->next_payload),
-		      "Next payload: %s (%u)",
-		      payloadtype2str(hdr->next_payload), hdr->next_payload);
-  offset += sizeof(hdr->next_payload) * 2;
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(length),
-		      "Length: %u", length);
-  offset += sizeof(length);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, length - sizeof(*hdr), "Nonce Data");
-  offset += (length - sizeof(*hdr));
-  
-  if (hdr->next_payload < NUM_LOAD_TYPES) {
-    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
-      dissect_transform(pd, offset, fd, tree, 0);	/* XXX - protocol ID? */
-    else
-      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
-  }
-  else
-    old_dissect_data(pd, offset, fd, tree);
+dissect_nonce(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+{
+  proto_tree_add_text(tree, tvb, offset, length, "Nonce Data");
 }
 
 static void
-dissect_notif(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+{
+  guint32		doi;
+  guint8		protocol_id;
+  guint8		spi_size;
+  guint16		msgtype;
 
-  struct notif_hdr *	hdr	= (struct notif_hdr *)(pd + offset);
-  guint16		length	= pntohs(&hdr->length);
-  guint32		doi	= pntohl(&hdr->doi);
-  guint16		msgtype = pntohs(&hdr->msgtype);
-  proto_item *		ti	= proto_tree_add_text(tree, NullTVB, offset, length, "Notification payload");
-  proto_tree *		ntree;
+  doi = tvb_get_ntohl(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 4,
+		      "Domain of Interpretation: %s (%u)",
+		      doitype2str(doi), doi);
+  offset += 4;
+  length -= 4;
 
-  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->next_payload),
-		      "Next payload: %s (%u)",
-		      payloadtype2str(hdr->next_payload), hdr->next_payload);
-  offset += sizeof(hdr->next_payload) * 2;
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(length),
-		      "Length: %u", length);
-  offset += sizeof(length);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(doi),
-		      "Domain of Interpretation: %s (%u)", doitype2str(doi), doi);
-  offset += sizeof(doi);
-
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->protocol_id),
+  protocol_id = tvb_get_guint8(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 1,
 		      "Protocol ID: %s (%u)",
-		      proto2str(hdr->protocol_id), hdr->protocol_id);
-  offset += sizeof(hdr->protocol_id);
+		      proto2str(protocol_id), protocol_id);
+  offset += 1;
+  length -= 1;
   
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->spi_size),
-		      "SPI size: %u", hdr->spi_size);
-  offset += sizeof(hdr->spi_size);
+  spi_size = tvb_get_guint8(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 1,
+		      "SPI size: %u", spi_size);
+  offset += 1;
+  length -= 1;
   
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(msgtype),
+  msgtype = tvb_get_ntohs(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 2,
 		      "Message type: %s (%u)", msgtype2str(msgtype), msgtype);
-  offset += sizeof(msgtype);
+  offset += 2;
+  length -= 2;
 
-  if (hdr->spi_size) {
-    proto_tree_add_text(ntree, NullTVB, offset, hdr->spi_size, "Security Parameter Index");
-    offset += hdr->spi_size;
+  if (spi_size) {
+    proto_tree_add_text(tree, tvb, offset, spi_size, "Security Parameter Index");
+    offset += spi_size;
+    length -= spi_size;
   }
 
-  if (((int)length - sizeof(*hdr)) > 0) {
-    proto_tree_add_text(ntree, NullTVB, offset, length - sizeof(*hdr) - hdr->spi_size,
-			"Notification Data");
-    offset += (length - sizeof(*hdr) - hdr->spi_size);
-  }
-  
-  if (hdr->next_payload < NUM_LOAD_TYPES) {
-    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
-      dissect_transform(pd, offset, fd, tree, 0);	/* XXX - protocol ID? */
-    else
-      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
-  }
-  else
-    old_dissect_data(pd, offset, fd, tree);
+  if (length > 0)
+    proto_tree_add_text(tree, tvb, offset, length, "Notification Data");
 }
 
 static void
-dissect_delete(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
-
-  struct delete_hdr *	hdr	 = (struct delete_hdr *)(pd + offset);
-  guint16		length	 = pntohs(&hdr->length);
-  guint32		doi	 = pntohl(&hdr->doi);
-  guint16		num_spis = pntohs(&hdr->num_spis);
-  proto_item *		ti	 = proto_tree_add_text(tree, NullTVB, offset, length, "Delete payload");
-  proto_tree *		ntree;
+dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+{
+  guint32		doi;
+  guint8		protocol_id;
+  guint8		spi_size;
+  guint16		num_spis;
   guint16		i;
   
-  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->next_payload),
-		      "Next payload: %s (%u)",
-		      payloadtype2str(hdr->next_payload), hdr->next_payload);
-  offset += sizeof(hdr->next_payload) * 2;
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(length),
-		      "Length: %u", length);
-  offset += sizeof(length);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(doi),
-		      "Domain of Interpretation: %s (%u)", doitype2str(doi), doi);
-  offset += sizeof(doi);
+  doi = tvb_get_ntohl(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 4,
+		      "Domain of Interpretation: %s (%u)",
+		      doitype2str(doi), doi);
+  offset += 4;
+  length -= 4;
 
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->protocol_id),
+  protocol_id = tvb_get_guint8(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 1,
 		      "Protocol ID: %s (%u)",
-		      proto2str(hdr->protocol_id), hdr->protocol_id);
-  offset += sizeof(hdr->protocol_id);
+		      proto2str(protocol_id), protocol_id);
+  offset += 1;
+  length -= 1;
   
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->spi_size),
-		      "SPI size: %u", hdr->spi_size);
-  offset += sizeof(hdr->spi_size);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, num_spis,
+  spi_size = tvb_get_guint8(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 1,
+		      "SPI size: %u", spi_size);
+  offset += 1;
+  length -= 1;
+
+  num_spis = tvb_get_ntohs(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 2,
 		      "Number of SPIs: %u", num_spis);
-  offset += sizeof(hdr->num_spis);
+  offset += 2;
+  length -= 2;
   
   for (i = 0; i < num_spis; ++i) {
-    proto_tree_add_text(ntree, NullTVB, offset, hdr->spi_size,
+    if (length < spi_size) {
+      proto_tree_add_text(tree, tvb, offset, length,
+          "Not enough room in payload for all SPI's");
+      break;
+    }
+    proto_tree_add_text(tree, tvb, offset, spi_size,
 			"SPI (%d)", i);
-    offset += hdr->spi_size;
+    offset += spi_size;
+    length -= spi_size;
   }
-
-  if (hdr->next_payload < NUM_LOAD_TYPES) {
-    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
-      dissect_transform(pd, offset, fd, tree, 0);	/* XXX - protocol ID? */
-    else
-      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
-  }
-  else
-    old_dissect_data(pd, offset, fd, tree);
 }
 
 static void
-dissect_vid(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
-
-  struct vid_hdr *	hdr	= (struct vid_hdr *)(pd + offset);
-  guint16		length	= pntohs(&hdr->length);
-  proto_item *		ti	= proto_tree_add_text(tree, NullTVB, offset, length, "Vendor ID payload");
-  proto_tree *		ntree;
-
-  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->next_payload),
-		      "Next payload: %s (%u)",
-		      payloadtype2str(hdr->next_payload), hdr->next_payload);
-  offset += sizeof(hdr->next_payload) * 2;
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(length),
-		      "Length: %u", length);
-  offset += sizeof(length);
-  
-  proto_tree_add_text(ntree, NullTVB, offset, length - sizeof(*hdr), "Vendor ID");
-  offset += (length - sizeof(*hdr));
-  
-  if (hdr->next_payload < NUM_LOAD_TYPES) {
-    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
-      dissect_transform(pd, offset, fd, tree, 0);	/* XXX - protocol ID? */
-    else
-      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
-  }
-  else
-    old_dissect_data(pd, offset, fd, tree);
+dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+{
+  proto_tree_add_text(tree, tvb, offset, length, "Vendor ID");
 }
 
 static void
-dissect_config(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_config(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+{
+  guint8		type;
 
-  struct cfg_hdr * 	hdr	 = (struct cfg_hdr *)(pd + offset);
-  guint16		length	 = pntohs(&hdr->length);
-  int                   slength  = length;
-  proto_item *		ti	 = proto_tree_add_text(tree, NullTVB, offset, length, "Attribute payload");
-  proto_tree *		ntree;
+  type = tvb_get_guint8(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 1,
+		      "Type %s (%u)",attrtype2str(type),type);
+  
+  offset += 2;
+  length -= 2;
+  
+  proto_tree_add_text(tree, tvb, offset, 2,
+                      "Identifier: %u", tvb_get_ntohs(tvb, offset));
+  offset += 2;
+  length -= 2;
+  
+  while(length>0) {
+    guint16 aft     = tvb_get_ntohs(tvb, offset);
+    guint16 type    = aft & 0x7fff;
+    guint16 len;
+    guint32 val;
+    guint pack_len;
 
-  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
-
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->next_payload),
-		      "Next payload: %s (%u)",
-		      payloadtype2str(hdr->next_payload), hdr->next_payload);
-  offset += sizeof(hdr->next_payload) *2;
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(length),
-		     "Length: %u", length);
-  offset += sizeof(length);
-  
-  proto_tree_add_text(ntree,NullTVB, offset, sizeof(hdr->type),
-		      "Type %s (%u)",attrtype2str(hdr->type),hdr->type);
-  
-  offset += (sizeof(hdr->type) + sizeof(hdr->reserved2));
-  
-  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->identifier),
-                      "Identifier: %u", pntohs(&hdr->identifier));
-  offset += sizeof(hdr->identifier);
-  slength -= sizeof(*hdr);
-  
-  while(slength>0) {
-    guint16 type = pntohs(pd + offset) & 0x7fff;
-    guint16 val_len = pntohs(pd + offset + 2);
-    
-    if(pd[offset] & 0x80) {
-      proto_tree_add_text(ntree, NullTVB, offset, 4,
-			  "%s (%u)",cfgattrident2str(type),val_len);
+    if (aft & 0x8000) {
+      val = tvb_get_ntohs(tvb, offset + 2);
+      proto_tree_add_text(tree, tvb, offset, 4,
+			  "%s (%u)", cfgattrident2str(type), val);
       offset += 4;
-      slength -= 4;
+      length -= 4;
     }
     else {
-      guint pack_len = 4 + val_len;
-
-      proto_tree_add_text(ntree, NullTVB, offset, 4,
-			  "%s (%se)", cfgattrident2str(type), num2str(pd + offset + 4, val_len));
+      len = tvb_get_ntohs(tvb, offset + 2);
+      pack_len = 4 + len;
+      if (!get_num(tvb, offset + 4, len, &val)) {
+        proto_tree_add_text(tree, tvb, offset, pack_len,
+			    "%s: <too big (%u bytes)>",
+			    cfgattrident2str(type), len);
+      } else {
+        proto_tree_add_text(tree, tvb, offset, 4,
+			    "%s (%ue)", cfgattrident2str(type),
+			    val);
+      }
       offset += pack_len;
-      slength -= pack_len;
+      length -= pack_len;
     }
   }
-
-  if (hdr->next_payload < NUM_LOAD_TYPES) {
-    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
-      dissect_transform(pd, offset, fd, tree, 0);       /* XXX - protocol ID? */
-    else
-      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
-  }
-  else
-    old_dissect_data(pd, offset, fd, tree);
- 
 }
 
 static const char *
@@ -1427,54 +1130,50 @@ certtype2str(guint8 type) {
   return msgs[type];
 }
 
-static const char *
-num2str(const guint8 *pd, guint16 len) {
+static gboolean
+get_num(tvbuff_t *tvb, int offset, guint16 len, guint32 *num_p) {
 
-#define NUMSTR_LEN	1024
-  static char		numstr[NUMSTR_LEN];
-  
   switch (len) {
   case 1:
-    snprintf(numstr, NUMSTR_LEN, "%u", *pd);
+    *num_p = tvb_get_guint8(tvb, offset);
     break;
   case 2:
-    snprintf(numstr, NUMSTR_LEN, "%u", pntohs(pd));
+    *num_p = tvb_get_ntohs(tvb, offset);
     break;
   case 3:
-    snprintf(numstr, NUMSTR_LEN, "%u", pntohl(pd) & 0x0fff);
+    *num_p = tvb_get_ntoh24(tvb, offset);
     break;
   case 4:
-    snprintf(numstr, NUMSTR_LEN, "%u", pntohl(pd));
+    *num_p = tvb_get_ntohl(tvb, offset);
     break;
   default:
-    snprintf(numstr, NUMSTR_LEN, "<too big>");
+    return FALSE;
   }
 
-  return numstr;
+  return TRUE;
 }
 
 void
 proto_register_isakmp(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "isakmp.abbreviation", TYPE, VALS_POINTER }},
-        };*/
-	static gint *ett[] = {
-		&ett_isakmp,
-		&ett_isakmp_flags,
-		&ett_isakmp_payload,
-	};
+/*  static hf_register_info hf[] = {
+    { &variable,
+    { "Name",           "isakmp.abbreviation", TYPE, VALS_POINTER }},
+  };*/
+  static gint *ett[] = {
+    &ett_isakmp,
+    &ett_isakmp_flags,
+    &ett_isakmp_payload,
+  };
 
-        proto_isakmp = proto_register_protocol("Internet Security Association and Key Management Protocol",
+  proto_isakmp = proto_register_protocol("Internet Security Association and Key Management Protocol",
 					       "ISAKMP", "isakmp");
- /*       proto_register_field_array(proto_isakmp, hf, array_length(hf));*/
-	proto_register_subtree_array(ett, array_length(ett));
+/*  proto_register_field_array(proto_isakmp, hf, array_length(hf));*/
+  proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_isakmp(void)
 {
-	old_dissector_add("udp.port", UDP_PORT_ISAKMP, dissect_isakmp,
-	    proto_isakmp);
+  dissector_add("udp.port", UDP_PORT_ISAKMP, dissect_isakmp, proto_isakmp);
 }
