@@ -145,11 +145,13 @@ loadLibXML(void)
 	}
 	XmlStub.xmlSubstituteEntitiesDefault=(int(*)(int))symbol;
 
-	if (!g_module_symbol(handle, "xmlDoValidityCheckingDefaultValue", &symbol)) {
+#ifdef ETHEREAL_XML_DO_VALIDITY_CHECKING
+  if (!g_module_symbol(handle, "xmlDoValidityCheckingDefaultValue", &symbol)) {
 		g_warning("Unable to find \"xmlDoValidityCheckingDefaultValue\"");
 		error=TRUE;
 	}
 	XmlStub.xmlDoValidityCheckingDefaultValue = (int *)symbol;
+#endif
 
 	/*
 	 * Return if any of the above functions set our error flag.
