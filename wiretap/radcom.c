@@ -230,6 +230,7 @@ static int radcom_read(wtap *wth, int *err)
 	}
 	wth->data_offset += 2;
 	length = pletohs(&length);
+	if (length == 0) return 0;
 
 	if (wth->file_encap == WTAP_ENCAP_LAPB)
 		length -= 2; /* FCS */
