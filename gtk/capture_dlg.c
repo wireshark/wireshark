@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.26 2000/06/15 08:02:42 guy Exp $
+ * $Id: capture_dlg.c,v 1.27 2000/06/27 04:35:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -160,8 +160,8 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   if_cb = gtk_combo_new();
   if (if_list != NULL)
     gtk_combo_set_popdown_strings(GTK_COMBO(if_cb), if_list);
-  if (cf.iface)
-    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry), cf.iface);
+  if (cfile.iface)
+    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry), cfile.iface);
   else if (if_list)
     gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry), if_list->data);
   gtk_box_pack_start(GTK_BOX(if_hb), if_cb, FALSE, FALSE, 0);
@@ -179,8 +179,8 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_widget_show(count_lb);
   
   count_list = g_list_append(count_list, count_item1);
-  if (cf.count) {
-    snprintf(count_item2, 15, "%d", cf.count);
+  if (cfile.count) {
+    snprintf(count_item2, 15, "%d", cfile.count);
     count_list = g_list_append(count_list, count_item2);
   }
 
@@ -204,7 +204,7 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_widget_show(filter_bt);
   
   filter_te = gtk_entry_new();
-  if (cf.cfilter) gtk_entry_set_text(GTK_ENTRY(filter_te), cf.cfilter);
+  if (cfile.cfilter) gtk_entry_set_text(GTK_ENTRY(filter_te), cfile.cfilter);
   gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_te, TRUE, TRUE, 0);
   gtk_widget_show(filter_te);
@@ -235,7 +235,7 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_box_pack_start(GTK_BOX(caplen_hb), snap_lb, FALSE, FALSE, 6);
   gtk_widget_show(snap_lb);
 
-  adj = (GtkAdjustment *) gtk_adjustment_new((float) cf.snap,
+  adj = (GtkAdjustment *) gtk_adjustment_new((float) cfile.snap,
     MIN_PACKET_SIZE, WTAP_MAX_PACKET_SIZE, 1.0, 10.0, 0.0);
   snap_sb = gtk_spin_button_new (adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (snap_sb), TRUE);
@@ -437,12 +437,12 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
     g_free(if_name);
     return;
   }
-  if (cf.iface)
-    g_free(cf.iface);
-  cf.iface = g_strdup(if_name);
+  if (cfile.iface)
+    g_free(cfile.iface);
+  cfile.iface = g_strdup(if_name);
   g_free(if_text);
 
-  /* XXX - don't try to get clever and set "cf.filter" to NULL if the
+  /* XXX - don't try to get clever and set "cfile.filter" to NULL if the
      filter string is empty, as an indication that we don't have a filter
      and thus don't have to set a filter when capturing - the version of
      libpcap in Red Hat Linux 6.1, and versions based on later patches
@@ -451,10 +451,10 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
      no filter is set, which means no packets arrive as input on that
      socket, which means Ethereal never sees any packets. */
   filter_text = gtk_entry_get_text(GTK_ENTRY(filter_te));
-  if (cf.cfilter)
-    g_free(cf.cfilter);
+  if (cfile.cfilter)
+    g_free(cfile.cfilter);
   g_assert(filter_text != NULL);
-  cf.cfilter = g_strdup(filter_text); 
+  cfile.cfilter = g_strdup(filter_text); 
 
   save_file = gtk_entry_get_text(GTK_ENTRY(file_te));
   if (save_file && save_file[0]) {
@@ -465,13 +465,13 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
     save_file = NULL;
   }
 
-  cf.count = atoi(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(count_cb)->entry)));
+  cfile.count = atoi(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(count_cb)->entry)));
 
-  cf.snap = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(snap_sb));
-  if (cf.snap < 1)
-    cf.snap = WTAP_MAX_PACKET_SIZE;
-  else if (cf.snap < MIN_PACKET_SIZE)
-    cf.snap = MIN_PACKET_SIZE;
+  cfile.snap = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(snap_sb));
+  if (cfile.snap < 1)
+    cfile.snap = WTAP_MAX_PACKET_SIZE;
+  else if (cfile.snap < MIN_PACKET_SIZE)
+    cfile.snap = MIN_PACKET_SIZE;
 
   sync_mode = GTK_TOGGLE_BUTTON (sync_cb)->active;
 

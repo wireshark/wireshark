@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.2 2000/02/12 08:42:26 guy Exp $
+ * $Id: color_dlg.c,v 1.3 2000/06/27 04:35:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -95,7 +95,7 @@ color_display_cb(GtkWidget *w, gpointer d)
     reactivate_window(colorize_win);
   } else {
     /* Create a new "Colorize Display" dialog. */
-    colorize_win = colorize_dialog_new(cf.colors);
+    colorize_win = colorize_dialog_new(cfile.colors);
   }
 }
 
@@ -575,7 +575,7 @@ color_ok_cb                            (GtkButton       *button,
                                         gpointer         user_data)
 {
   /* colorize list */
-  colorize_packets(&cf);
+  colorize_packets(&cfile);
 
   /* Destroy the dialog box. */
   gtk_widget_destroy(colorize_win);
@@ -596,7 +596,7 @@ static void
 color_apply_cb                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  colorize_packets(&cf);
+  colorize_packets(&cfile);
 }
 
 /* Create an "Edit color filter" dialog for a given color filter, and
@@ -916,17 +916,17 @@ edit_color_filter_ok_cb                (GtkButton       *button,
 	colorf->fg_color = new_fg_color;
 	colorf->bg_color = new_bg_color;
 	gtk_clist_set_foreground(GTK_CLIST(color_filters),
-	    cf.colors->row_selected, &new_fg_color);
+	    cfile.colors->row_selected, &new_fg_color);
 	gtk_clist_set_background(GTK_CLIST(color_filters),
-	    cf.colors->row_selected, &new_bg_color);
+	    cfile.colors->row_selected, &new_bg_color);
 	if(colorf->c_colorfilter != NULL)
 	    dfilter_destroy(colorf->c_colorfilter);
 	colorf->c_colorfilter = compiled_filter;
 	/* gtk_clist_set_text frees old text (if any) and allocates new space */
 	gtk_clist_set_text(GTK_CLIST(color_filters),
-		cf.colors->row_selected, 0, filter_name);
+		cfile.colors->row_selected, 0, filter_name);
 	gtk_clist_set_text(GTK_CLIST(color_filters),
-		cf.colors->row_selected, 1, filter_text);
+		cfile.colors->row_selected, 1, filter_text);
 
 	/* Destroy the dialog box. */
 	gtk_widget_destroy(dialog);

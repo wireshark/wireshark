@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.17 2000/05/08 07:13:40 guy Exp $
+ * $Id: print_dlg.c,v 1.18 2000/06/27 04:36:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -508,7 +508,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 
   /* Now print the packets */
-  if (!print_packets(&cf, &print_args)) {
+  if (!print_packets(&cfile, &print_args)) {
     if (print_args.to_file)
       simple_dialog(ESD_TYPE_WARN, NULL,
         file_write_error_message(errno), print_args.dest);
@@ -590,8 +590,8 @@ file_print_packet_cmd_cb(GtkWidget *widget, gpointer data) {
   print_args.print_summary = FALSE;
   print_args.print_hex = FALSE;
   print_args.expand_all = TRUE;
-  proto_tree_print(TRUE, &print_args, (GNode*) cf.protocol_tree, cf.pd,
-		cf.current_frame, fh);
+  proto_tree_print(TRUE, &print_args, (GNode*) cfile.protocol_tree, cfile.pd,
+		cfile.current_frame, fh);
   print_finale(fh, prefs.pr_format);
   close_print_dest(print_args.to_file, fh);
 }

@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.24 2000/06/02 03:35:39 gram Exp $
+ * $Id: file_dlg.c,v 1.25 2000/06/27 04:36:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -197,7 +197,7 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   }
 
   /* Try to open the capture file. */
-  if ((err = open_cap_file(cf_name, FALSE, &cf)) != 0) {
+  if ((err = open_cap_file(cf_name, FALSE, &cfile)) != 0) {
     /* We couldn't open it; don't dismiss the open dialog box,
        just leave it around so that the user can, after they
        dismiss the alert box popped up for the open error,
@@ -211,7 +211,7 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   /* Attach the new read filter to "cf" ("open_cap_file()" succeeded, so
      it closed the previous capture file, and thus destroyed any
      previous read filter attached to "cf"). */
-  cf.rfcode = rfcode;
+  cfile.rfcode = rfcode;
 
   /* Set the global resolving variable */
   resolv_cb = gtk_object_get_data(GTK_OBJECT(w), E_FILE_RESOLVE_KEY);
@@ -221,7 +221,7 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   gtk_widget_hide(GTK_WIDGET (fs));
   gtk_widget_destroy(GTK_WIDGET (fs));
 
-  err = read_cap_file(&cf);
+  err = read_cap_file(&cfile);
   /* Save the name of the containing directory specified in the path name,
      if any; we can write over cf_name, which is a good thing, given that
      "get_dirname()" does write over its argument. */
@@ -269,13 +269,13 @@ file_open_destroy_cb(GtkWidget *win, gpointer user_data)
 /* Close a file */
 void
 file_close_cmd_cb(GtkWidget *widget, gpointer data) {
-  close_cap_file(&cf, info_bar);
+  close_cap_file(&cfile, info_bar);
 }
 
 void
 file_save_cmd_cb(GtkWidget *w, gpointer data) {
   /* If the file's already been saved, do nothing.  */
-  if (cf.user_saved)
+  if (cfile.user_saved)
     return;
 
   /* Do a "Save As". */
@@ -294,7 +294,7 @@ can_save_with_wiretap(int ft)
   /* To save a file with Wiretap, Wiretap has to handle that format,
      and its code to handle that format must be able to write a file
      with this file's encapsulation type. */
-  return wtap_dump_can_open(ft) && wtap_dump_can_write_encap(ft, cf.lnk_t);
+  return wtap_dump_can_open(ft) && wtap_dump_can_write_encap(ft, cfile.lnk_t);
 }
 
 /* Generate a list of the file types we can save this file as.
@@ -325,7 +325,7 @@ set_file_type_list(GtkWidget *option_menu)
   /* Check all file types. */
   index = 0;
   for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
-    if (filtered || ft != cf.cd_t) {
+    if (filtered || ft != cfile.cd_t) {
       /* Filtered, or a different file type.  We have to use Wiretap. */
       if (!can_save_with_wiretap(ft))
         continue;	/* We can't. */
@@ -396,7 +396,7 @@ file_save_as_cmd_cb(GtkWidget *w, gpointer data)
 
   /* Default to saving all packets, in the file's current format. */
   filtered = FALSE;
-  filetype = cf.cd_t;
+  filetype = cfile.cd_t;
 
   file_save_as_w = gtk_file_selection_new ("Ethereal: Save Capture File As");
   gtk_signal_connect(GTK_OBJECT(file_save_as_w), "destroy",
@@ -463,7 +463,7 @@ file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 
   /* Write out the packets (all, or only the ones that are currently
      displayed) to the file with the specified name. */
-  save_cap_file(cf_name, &cf, filtered, filetype);
+  save_cap_file(cf_name, &cfile, filtered, filetype);
 
   /* If "save_cap_file()" saved the file name we handed it, it saved
      a copy, so we should free up our copy. */
@@ -487,9 +487,9 @@ file_reload_cmd_cb(GtkWidget *w, gpointer data) {
 
   filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
 
-  if (cf.dfilter)
-    g_free(cf.dfilter);
-  cf.dfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te)));
+  if (cfile.dfilter)
+    g_free(cfile.dfilter);
+  cfile.dfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te)));
 
   /* If the file could be opened, "open_cap_file()" calls "close_cap_file()"
      to get rid of state for the old capture file before filling in state
@@ -499,21 +499,21 @@ file_reload_cmd_cb(GtkWidget *w, gpointer data) {
      a temporary file, mark it as not being a temporary file, and then
      reopen it as the type of file it was.
 
-     Also, "close_cap_file()" will free "cf.filename", so we must make
+     Also, "close_cap_file()" will free "cfile.filename", so we must make
      a copy of it first. */
-  filename = strdup(cf.filename);
-  is_tempfile = cf.is_tempfile;
-  cf.is_tempfile = FALSE;
-  if (open_cap_file(filename, is_tempfile, &cf) == 0)
-    read_cap_file(&cf);
+  filename = strdup(cfile.filename);
+  is_tempfile = cfile.is_tempfile;
+  cfile.is_tempfile = FALSE;
+  if (open_cap_file(filename, is_tempfile, &cfile) == 0)
+    read_cap_file(&cfile);
   else {
-    /* The open failed, so "cf.is_tempfile" wasn't set to "is_tempfile".
-       Instead, the file was left open, so we should restore "cf.is_tempfile"
+    /* The open failed, so "cfile.is_tempfile" wasn't set to "is_tempfile".
+       Instead, the file was left open, so we should restore "cfile.is_tempfile"
        ourselves.
 
        XXX - change the menu?  Presumably "open_cap_file()" will do that;
        make sure it does! */
-    cf.is_tempfile = is_tempfile;
+    cfile.is_tempfile = is_tempfile;
   }
   /* "open_cap_file()" made a copy of the file name we handed it, so
      we should free up our copy. */

@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.10 2000/05/08 04:53:20 guy Exp $
+ * $Id: find_dlg.c,v 1.11 2000/06/27 04:36:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -112,7 +112,7 @@ find_frame_cb(GtkWidget *w, gpointer d)
   gtk_widget_show(filter_bt);
   
   filter_te = gtk_entry_new();
-  if (cf.sfilter) gtk_entry_set_text(GTK_ENTRY(filter_te), cf.sfilter);
+  if (cfile.sfilter) gtk_entry_set_text(GTK_ENTRY(filter_te), cfile.sfilter);
   gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_te, TRUE, TRUE, 0);
   gtk_widget_show(filter_te);
@@ -124,14 +124,14 @@ find_frame_cb(GtkWidget *w, gpointer d)
 
   forward_rb = dlg_radio_button_new_with_label_with_mnemonic(NULL, "_Forward",
 			accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(forward_rb), !cf.sbackward);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(forward_rb), !cfile.sbackward);
   gtk_box_pack_start(GTK_BOX(direction_hb), forward_rb, TRUE, TRUE, 0);
   gtk_widget_show(forward_rb);
 
   backward_rb = dlg_radio_button_new_with_label_with_mnemonic(
                gtk_radio_button_group(GTK_RADIO_BUTTON(forward_rb)),
                "_Backward", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(backward_rb), cf.sbackward);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(backward_rb), cfile.sbackward);
   gtk_box_pack_start(GTK_BOX(direction_hb), backward_rb, TRUE, TRUE, 0);
   gtk_widget_show(backward_rb);
 
@@ -210,13 +210,13 @@ find_frame_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   /*
    * Remember the filter.
    */
-  if (cf.sfilter)
-    g_free(cf.sfilter);
-  cf.sfilter = g_strdup(filter_text);
+  if (cfile.sfilter)
+    g_free(cfile.sfilter);
+  cfile.sfilter = g_strdup(filter_text);
 
-  cf.sbackward = GTK_TOGGLE_BUTTON (backward_rb)->active;
+  cfile.sbackward = GTK_TOGGLE_BUTTON (backward_rb)->active;
 
-  if (!find_packet(&cf, sfcode)) {
+  if (!find_packet(&cfile, sfcode)) {
     /* We didn't find the packet. */
     simple_dialog(ESD_TYPE_WARN, NULL, "No packet matched that filter.");
     return;

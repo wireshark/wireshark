@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.8 2000/05/19 23:06:32 gram Exp $
+ * $Id: packet_win.c,v 1.9 2000/06/27 04:36:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -109,9 +109,9 @@ void new_window_cb(GtkWidget *w){
 					/* data from the packet_list GtkCList */
         /* Find what row this packet is in. */
         row = gtk_clist_find_row_from_data(GTK_CLIST(packet_list),
-	    cf.current_frame);
+	    cfile.current_frame);
 	g_assert(row != -1);
-	for( i = 0; i < cf.cinfo.num_cols; ++i){
+	for( i = 0; i < cfile.cinfo.num_cols; ++i){
 					
 		if ( gtk_clist_get_text(GTK_CLIST( packet_list), 
 				row, i, &TextPtr)){
@@ -166,14 +166,14 @@ create_new_window ( char *Title, gint tv_size, gint bv_size){
   /* Allocate data structure to represent this window. */
   DataPtr = (struct PacketWinData *) g_malloc(sizeof(struct PacketWinData));
 
-  DataPtr->cap_len = cf.current_frame->cap_len;
-  DataPtr->encoding = cf.current_frame->flags.encoding;
-  memcpy(&DataPtr->pseudo_header, &cf.pseudo_header, sizeof DataPtr->pseudo_header);
+  DataPtr->cap_len = cfile.current_frame->cap_len;
+  DataPtr->encoding = cfile.current_frame->flags.encoding;
+  memcpy(&DataPtr->pseudo_header, &cfile.pseudo_header, sizeof DataPtr->pseudo_header);
   DataPtr->pd = g_malloc(DataPtr->cap_len);
-  memcpy(DataPtr->pd, cf.pd, DataPtr->cap_len);
+  memcpy(DataPtr->pd, cfile.pd, DataPtr->cap_len);
   DataPtr->protocol_tree = proto_tree_create_root();
   proto_tree_is_visible = TRUE;
-  dissect_packet(&DataPtr->pseudo_header, DataPtr->pd, cf.current_frame,
+  dissect_packet(&DataPtr->pseudo_header, DataPtr->pd, cfile.current_frame,
 		DataPtr->protocol_tree);
   proto_tree_is_visible = FALSE;
   DataPtr->main = main_w;

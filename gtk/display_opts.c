@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.7 2000/05/08 05:51:37 guy Exp $
+ * $Id: display_opts.c,v 1.8 2000/06/27 04:35:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -65,7 +65,7 @@
 #include "ui_util.h"
 #include "dlg_utils.h"
 
-extern capture_file  cf;
+extern capture_file  cfile;
 extern GtkWidget *packet_list;
 
 /* Display callback data keys */
@@ -247,7 +247,7 @@ display_opt_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 
-  change_time_formats(&cf);
+  change_time_formats(&cfile);
 }
 
 static void
@@ -281,7 +281,7 @@ display_opt_apply_cb(GtkWidget *ok_bt, gpointer parent_w) {
 					     E_DISPLAY_IP_DSCP_KEY);
   g_ip_dscp_actif = (GTK_TOGGLE_BUTTON (button)->active);
 
-  change_time_formats(&cf);
+  change_time_formats(&cfile);
 }
 
 static void
@@ -289,7 +289,7 @@ display_opt_close_cb(GtkWidget *close_bt, gpointer parent_w) {
 
   if (timestamp_type != prev_timestamp_type) {
     timestamp_type = prev_timestamp_type;
-    change_time_formats(&cf);
+    change_time_formats(&cfile);
   }
 
   gtk_grab_remove(GTK_WIDGET(parent_w));

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.189 2000/05/19 23:06:06 gram Exp $
+ * $Id: file.c,v 1.190 2000/06/27 04:35:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -174,6 +174,7 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
 	sizeof(frame_data),
 	FRAME_DATA_CHUNK_SIZE * sizeof(frame_data),
 	G_ALLOC_AND_FREE);
+  g_assert(cf->plist_chunk);
 
   return (0);
 

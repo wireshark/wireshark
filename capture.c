@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.108 2000/06/15 08:02:20 guy Exp $
+ * $Id: capture.c,v 1.109 2000/06/27 04:35:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -163,23 +163,23 @@ do_capture(char *capfile_name)
 
   if (capfile_name != NULL) {
     /* Try to open/create the specified file for use as a capture buffer. */
-    cf.save_file_fd = open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT, 0600);
+    cfile.save_file_fd = open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT, 0600);
     is_tempfile = FALSE;
   } else {
     /* Choose a random name for the capture buffer */
-    cf.save_file_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
+    cfile.save_file_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
     capfile_name = g_strdup(tmpname);
     is_tempfile = TRUE;
   }
-  if (cf.save_file_fd == -1) {
+  if (cfile.save_file_fd == -1) {
     simple_dialog(ESD_TYPE_WARN, NULL,
 	"The file to which the capture would be saved (\"%s\")"
 	"could not be opened: %s.", capfile_name, strerror(errno));
     return;
   }
-  close_cap_file(&cf, info_bar);
-  g_assert(cf.save_file == NULL);
-  cf.save_file = capfile_name;
+  close_cap_file(&cfile, info_bar);
+  g_assert(cfile.save_file == NULL);
+  cfile.save_file = capfile_name;
 
   if (sync_mode) {	/* do the capture in a child process */
     int  fork_child;
@@ -193,9 +193,9 @@ do_capture(char *capfile_name)
     char *filterstring;
 #endif
 
-    sprintf(ssnap,"%d",cf.snap); /* in lieu of itoa */
-    sprintf(scount,"%d",cf.count);
-    sprintf(save_file_fd,"%d",cf.save_file_fd);
+    sprintf(ssnap,"%d",cfile.snap); /* in lieu of itoa */
+    sprintf(scount,"%d",cfile.count);
+    sprintf(save_file_fd,"%d",cfile.save_file_fd);
 
 #ifdef _WIN32
     /* Create a pipe for the child process */
@@ -203,9 +203,9 @@ do_capture(char *capfile_name)
     if(_pipe(sync_pipe, 512, O_BINARY) < 0) {
       /* Couldn't create the pipe between parent and child. */
       error = errno;
-      unlink(cf.save_file);
-      g_free(cf.save_file);
-      cf.save_file = NULL;
+      unlink(cfile.save_file);
+      g_free(cfile.save_file);
+      cfile.save_file = NULL;
       simple_dialog(ESD_TYPE_WARN, NULL, "Couldn't create sync pipe: %s",
                         strerror(error));
       return;
@@ -214,16 +214,16 @@ do_capture(char *capfile_name)
     /* Convert pipe write handle to a string and pass to child */
     itoa(sync_pipe[WRITE], sync_pipe_fd, 10);
     /* Convert filter string to a quote delimited string */
-    filterstring = g_new(char, strlen(cf.cfilter) + 3);
-    sprintf(filterstring, "\"%s\"", cf.cfilter);
-    filterstring[strlen(cf.cfilter) + 2] = 0;
+    filterstring = g_new(char, strlen(cfile.cfilter) + 3);
+    sprintf(filterstring, "\"%s\"", cfile.cfilter);
+    filterstring[strlen(cfile.cfilter) + 2] = 0;
     /* Spawn process */
-    fork_child = spawnlp(_P_NOWAIT, ethereal_path, CHILD_NAME, "-i", cf.iface,
-                         "-w", cf.save_file, "-W", save_file_fd,
+    fork_child = spawnlp(_P_NOWAIT, ethereal_path, CHILD_NAME, "-i", cfile.iface,
+                         "-w", cfile.save_file, "-W", save_file_fd,
                          "-c", scount, "-s", ssnap,
                          "-Z", sync_pipe_fd,
-                         strlen(cf.cfilter) == 0 ? (const char *)NULL : "-f",
-                         strlen(cf.cfilter) == 0 ? (const char *)NULL : filterstring,
+                         strlen(cfile.cfilter) == 0 ? (const char *)NULL : "-f",
+                         strlen(cfile.cfilter) == 0 ? (const char *)NULL : filterstring,
                          (const char *)NULL);
     g_free(filterstring);
     /* Keep a copy for later evaluation by _cwait() */
@@ -233,9 +233,9 @@ do_capture(char *capfile_name)
     if (pipe(sync_pipe) < 0) {
       /* Couldn't create the pipe between parent and child. */
       error = errno;
-      unlink(cf.save_file);
-      g_free(cf.save_file);
-      cf.save_file = NULL;
+      unlink(cfile.save_file);
+      g_free(cfile.save_file);
+      cfile.save_file = NULL;
       simple_dialog(ESD_TYPE_WARN, NULL, "Couldn't create sync pipe: %s",
 			strerror(error));
       return;
@@ -257,12 +257,12 @@ do_capture(char *capfile_name)
       close(1);
       dup(sync_pipe[WRITE]);
       close(sync_pipe[READ]);
-      execlp(ethereal_path, CHILD_NAME, "-i", cf.iface,
-		"-w", cf.save_file, "-W", save_file_fd,
+      execlp(ethereal_path, CHILD_NAME, "-i", cfile.iface,
+		"-w", cfile.save_file, "-W", save_file_fd,
 		"-c", scount, "-s", ssnap, 
 		"-m", medium_font, "-b", bold_font,
-		(cf.cfilter == NULL)? 0 : "-f",
-		(cf.cfilter == NULL)? 0 : cf.cfilter,
+		(cfile.cfilter == NULL)? 0 : "-f",
+		(cfile.cfilter == NULL)? 0 : cfile.cfilter,
 		(const char *)NULL);	
       snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
 		ethereal_path, strerror(errno));
@@ -287,15 +287,15 @@ do_capture(char *capfile_name)
 
     /* Close the save file FD, as we won't be using it - we'll be opening
        it and reading the save file through Wiretap. */
-    close(cf.save_file_fd);
+    close(cfile.save_file_fd);
 
     if (fork_child == -1) {
       /* We couldn't even create the child process. */
       error = errno;
       close(sync_pipe[READ]);
-      unlink(cf.save_file);
-      g_free(cf.save_file);
-      cf.save_file = NULL;
+      unlink(cfile.save_file);
+      g_free(cfile.save_file);
+      cfile.save_file = NULL;
       simple_dialog(ESD_TYPE_WARN, NULL, "Couldn't create child process: %s",
 			strerror(error));
       return;
@@ -315,9 +315,9 @@ do_capture(char *capfile_name)
 	   and report the failure.
 	   XXX - reap the child process and report the status in detail. */
 	close(sync_pipe[READ]);
-	unlink(cf.save_file);
-	g_free(cf.save_file);
-	cf.save_file = NULL;
+	unlink(cfile.save_file);
+	g_free(cfile.save_file);
+	cfile.save_file = NULL;
 	simple_dialog(ESD_TYPE_WARN, NULL, "Capture child process died");
 	return;
       }
@@ -328,9 +328,9 @@ do_capture(char *capfile_name)
 	   Close the read side of the sync pipe, remove the capture file,
 	   and report the failure. */
 	close(sync_pipe[READ]);
-	unlink(cf.save_file);
-	g_free(cf.save_file);
-	cf.save_file = NULL;
+	unlink(cfile.save_file);
+	g_free(cfile.save_file);
+	cfile.save_file = NULL;
 	simple_dialog(ESD_TYPE_WARN, NULL,
 			"Capture child process sent us a bad message");
 	return;
@@ -339,7 +339,7 @@ do_capture(char *capfile_name)
     }
     if (byte_count == 0) {
       /* Success.  Open the capture file, and set up to read it. */
-      err = start_tail_cap_file(cf.save_file, is_tempfile, &cf);
+      err = start_tail_cap_file(cfile.save_file, is_tempfile, &cfile);
       if (err == 0) {
 	/* We were able to open and set up to read the capture file;
 	   arrange that our callback be called whenever it's possible
@@ -357,22 +357,22 @@ do_capture(char *capfile_name)
 				       GDK_INPUT_READ|GDK_INPUT_EXCEPTION,
 				       cap_file_input_cb,
 				       NULL,
-				       (gpointer) &cf,
+				       (gpointer) &cfile,
 				       NULL);
 #endif
       } else {
 	/* We weren't able to open the capture file; complain, and
 	   close the sync pipe. */
 	simple_dialog(ESD_TYPE_WARN, NULL,
-			file_open_error_message(err, FALSE), cf.save_file);
+			file_open_error_message(err, FALSE), cfile.save_file);
 
 	/* Close the sync pipe. */
 	close(sync_pipe[READ]);
 
 	/* Don't unlink the save file - leave it around, for debugging
 	   purposes. */
-	g_free(cf.save_file);
-	cf.save_file = NULL;
+	g_free(cfile.save_file);
+	cfile.save_file = NULL;
       }
     } else {
       /* Failure - the child process sent us a message indicating
@@ -398,9 +398,9 @@ do_capture(char *capfile_name)
 	close(sync_pipe[READ]);
 
 	/* Get rid of the save file - the capture never started. */
-	unlink(cf.save_file);
-	g_free(cf.save_file);
-	cf.save_file = NULL;
+	unlink(cfile.save_file);
+	g_free(cfile.save_file);
+	cfile.save_file = NULL;
       }
     }
   } else {
@@ -412,16 +412,16 @@ do_capture(char *capfile_name)
     }
     if (capture_succeeded) {
       /* Capture succeeded; read in the capture file. */
-      if ((err = open_cap_file(cf.save_file, is_tempfile, &cf)) == 0) {
+      if ((err = open_cap_file(cfile.save_file, is_tempfile, &cfile)) == 0) {
         /* Set the read filter to NULL. */
-        cf.rfcode = NULL;
-        err = read_cap_file(&cf);
+        cfile.rfcode = NULL;
+        err = read_cap_file(&cfile);
       }
     }
     /* We're not doing a capture any more, so we don't have a save
        file. */
-    g_free(cf.save_file);
-    cf.save_file = NULL;
+    g_free(cfile.save_file);
+    cfile.save_file = NULL;
   }
 }
 
@@ -453,7 +453,7 @@ cap_timer_cb(gpointer data)
     gtk_timeout_remove(cap_timer_id);
 
     /* And call the real handler */
-    cap_file_input_cb((gpointer) &cf, 0, 0);
+    cap_file_input_cb((gpointer) &cfile, 0, 0);
 
     /* Return false so that the timer is not run again */
     return FALSE;
@@ -693,7 +693,7 @@ capture(void)
 
   ld.go             = TRUE;
   ld.counts.total   = 0;
-  ld.max            = cf.count;
+  ld.max            = cfile.count;
   ld.linktype       = WTAP_ENCAP_UNKNOWN;
   ld.sync_packets   = 0;
   ld.counts.sctp    = 0;
@@ -709,7 +709,7 @@ capture(void)
   ld.pdh            = NULL;
 
   /* Open the network interface to capture from it. */
-  pch = pcap_open_live(cf.iface, cf.snap, 1, CAP_READ_TIMEOUT, err_str);
+  pch = pcap_open_live(cfile.iface, cfile.snap, 1, CAP_READ_TIMEOUT, err_str);
 
   if (pch == NULL) {
     /* Well, we couldn't start the capture.
@@ -727,19 +727,19 @@ capture(void)
     goto error;
   }
 
-  if (cf.cfilter) {
+  if (cfile.cfilter) {
     /* A capture filter was specified; set it up. */
-    if (pcap_lookupnet (cf.iface, &netnum, &netmask, err_str) < 0) {
+    if (pcap_lookupnet (cfile.iface, &netnum, &netmask, err_str) < 0) {
       snprintf(errmsg, sizeof errmsg,
         "Can't use filter:  Couldn't obtain netmask info (%s).", err_str);
       goto error;
     }
-    if (pcap_compile(pch, &cf.fcode, cf.cfilter, 1, netmask) < 0) {
+    if (pcap_compile(pch, &cfile.fcode, cfile.cfilter, 1, netmask) < 0) {
       snprintf(errmsg, sizeof errmsg, "Unable to parse filter string (%s).",
 	pcap_geterr(pch));
       goto error;
     }
-    if (pcap_setfilter(pch, &cf.fcode) < 0) {
+    if (pcap_setfilter(pch, &cfile.fcode) < 0) {
       snprintf(errmsg, sizeof errmsg, "Can't install filter (%s).",
 	pcap_geterr(pch));
       goto error;
@@ -753,7 +753,7 @@ capture(void)
              " that Ethereal doesn't support.");
     goto error;
   }
-  ld.pdh = wtap_dump_fdopen(cf.save_file_fd, WTAP_FILE_PCAP,
+  ld.pdh = wtap_dump_fdopen(cfile.save_file_fd, WTAP_FILE_PCAP,
 		ld.linktype, pcap_snapshot(pch), &err);
 
   if (ld.pdh == NULL) {
@@ -774,11 +774,11 @@ capture(void)
       if (err < 0) {
         sprintf(errmsg, "The file to which the capture would be"
                      " saved (\"%s\") could not be opened: Error %d.",
- 			cf.save_file, err);
+ 			cfile.save_file, err);
       } else {
         sprintf(errmsg, "The file to which the capture would be"
                      " saved (\"%s\") could not be opened: %s.",
- 			cf.save_file, strerror(err));
+ 			cfile.save_file, strerror(err));
       }
       break;
     }
@@ -994,7 +994,7 @@ capture(void)
       simple_dialog(ESD_TYPE_WARN, NULL,
 		"The file to which the capture was being"
 		" saved (\"%s\") could not be closed: %s.",
-		cf.save_file, wtap_strerror(err));
+		cfile.save_file, wtap_strerror(err));
       break;
     }
   }
@@ -1008,13 +1008,13 @@ capture(void)
 error:
   /* We can't use the save file, and we have no wtap_dump stream
      to close in order to close it, so close the FD directly. */
-  close(cf.save_file_fd);
+  close(cfile.save_file_fd);
 
   /* We couldn't even start the capture, so get rid of the capture
      file. */
-  unlink(cf.save_file); /* silently ignore error */
-  g_free(cf.save_file);
-  cf.save_file = NULL;
+  unlink(cfile.save_file); /* silently ignore error */
+  g_free(cfile.save_file);
+  cfile.save_file = NULL;
   if (capture_child) {
     /* This is the child process for a sync mode capture.
        Send the error message to our parent, so they can display a

@@ -1,7 +1,7 @@
 /* goto_dlg.c
  * Routines for "go to frame" window
  *
- * $Id: goto_dlg.c,v 1.6 2000/05/02 08:04:31 guy Exp $
+ * $Id: goto_dlg.c,v 1.7 2000/06/27 04:36:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -150,7 +150,7 @@ goto_frame_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
     return;
   }
 
-  switch (goto_frame(&cf, fnumber)) {
+  switch (goto_frame(&cfile, fnumber)) {
 
   case NO_SUCH_FRAME:
     simple_dialog(ESD_TYPE_WARN, NULL, "There is no frame with that frame number.");

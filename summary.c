@@ -1,7 +1,7 @@
 /* summary.c
  * Routines for capture file summary info
  *
- * $Id: summary.c,v 1.17 2000/04/13 20:39:18 gram Exp $
+ * $Id: summary.c,v 1.18 2000/06/27 04:35:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -71,31 +71,31 @@ summary_fill_in(summary_tally *st)
   st->filtered_count = 0;
 
   /* initialize the tally */
-  if (cf.plist != NULL) {
-    first_frame = cf.plist;
+  if (cfile.plist != NULL) {
+    first_frame = cfile.plist;
     st->start_time = secs_usecs(first_frame->abs_secs,first_frame->abs_usecs);
     st->stop_time = secs_usecs(first_frame->abs_secs,first_frame->abs_usecs);
-    cur_glist = cf.plist;
+    cur_glist = cfile.plist;
 
-    for (i = 0; i < cf.count; i++) {
+    for (i = 0; i < cfile.count; i++) {
       cur_frame = cur_glist;
       tally_frame_data(cur_frame, st);
       cur_glist = cur_glist->next;
     }
   }
 
-  st->filename = cf.filename;
-  st->file_length = cf.f_len;
-  st->encap_type = cf.cd_t;
-  st->snap = cf.snap;
-  st->elapsed_time = secs_usecs(cf.esec, cf.eusec);
-  st->packet_count = cf.count;
-  st->drops = cf.drops;
-  st->iface = cf.iface;
-  st->dfilter = cf.dfilter;
+  st->filename = cfile.filename;
+  st->file_length = cfile.f_len;
+  st->encap_type = cfile.cd_t;
+  st->snap = cfile.snap;
+  st->elapsed_time = secs_usecs(cfile.esec, cfile.eusec);
+  st->packet_count = cfile.count;
+  st->drops = cfile.drops;
+  st->iface = cfile.iface;
+  st->dfilter = cfile.dfilter;
 
 #ifdef HAVE_LIBPCAP
-  st->cfilter = cf.cfilter;
+  st->cfilter = cfile.cfilter;
 #else
   st->cfilter = NULL;
 #endif

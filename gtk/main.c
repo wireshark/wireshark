@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.122 2000/06/24 05:06:29 guy Exp $
+ * $Id: main.c,v 1.123 2000/06/27 04:36:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -119,7 +119,7 @@
 
 FILE        *data_out_file = NULL;
 packet_info  pi;
-capture_file cf;
+capture_file cfile;
 GtkWidget   *top_level, *packet_list, *tree_view, *byte_view,
             *prog_bar, *info_bar, *tv_scrollw, *pkt_scrollw;
 static GtkWidget	*bv_scrollw;
@@ -207,7 +207,7 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
     gtk_entry_set_text(GTK_ENTRY(filter_te), follow_filter);
 
     /* Run the display filter so it goes in effect. */
-    filter_packets(&cf, follow_filter);
+    filter_packets(&cfile, follow_filter);
 
     /* the data_out_file should now be full of the streams information */
     fclose( data_out_file );
@@ -692,7 +692,7 @@ match_selected_cb(GtkWidget *w, gpointer data)
 			break;
 #endif
 		default:
-		    c = cf.pd + finfo_selected->start;
+		    c = cfile.pd + finfo_selected->start;
 		    buf = g_malloc0(32 + finfo_selected->length * 3);
 		    ptr = buf;
 
@@ -720,7 +720,7 @@ match_selected_cb(GtkWidget *w, gpointer data)
     gtk_entry_set_text(GTK_ENTRY(filter_te), buf);
 
     /* Run the display filter so it goes in effect. */
-    filter_packets(&cf, buf);
+    filter_packets(&cfile, buf);
 
     /* Don't g_free(buf) here. filter_packets() will do it the next time it's called */
 }
@@ -796,7 +796,7 @@ filter_activate_cb(GtkWidget *w, gpointer data)
   /* GtkCombos don't let us get at their list contents easily, so we maintain
      our own filter list, and feed it to gtk_combo_set_popdown_strings when
      a new filter is added. */
-  if (filter_packets(&cf, g_strdup(s))) {
+  if (filter_packets(&cfile, g_strdup(s))) {
     li = g_list_first(filter_list);
     while (li) {
       if (li->data && strcmp(s, li->data) == 0)
@@ -827,7 +827,7 @@ filter_reset_cb(GtkWidget *w, gpointer data)
     gtk_entry_set_text(GTK_ENTRY(filter_te), "");
   }
 
-  filter_packets(&cf, NULL);
+  filter_packets(&cfile, NULL);
 }
 
 /* GTKClist compare routine, overrides default to allow numeric comparison */
@@ -842,7 +842,7 @@ packet_list_compare(GtkCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
   double  num1 = atof(text1);
   double  num2 = atof(text2);
   
-  gint  col_fmt = cf.cinfo.col_fmt[clist->sort_column];
+  gint  col_fmt = cfile.cinfo.col_fmt[clist->sort_column];
   
   if ((col_fmt == COL_NUMBER) || (col_fmt == COL_REL_TIME) || (col_fmt == COL_DELTA_TIME) ||
       ((col_fmt == COL_CLS_TIME) && (timestamp_type == RELATIVE)) ||
@@ -898,12 +898,12 @@ static void
 packet_list_select_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
 
   blank_packetinfo();
-  select_packet(&cf, row);
+  select_packet(&cfile, row);
 }
 
 static void
 packet_list_unselect_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
-  unselect_packet(&cf);
+  unselect_packet(&cfile);
 }
 
 static void
@@ -917,34 +917,34 @@ tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user
 
 	finfo_selected = finfo;
 
-	packet_hex_print(GTK_TEXT(byte_view), cf.pd, cf.current_frame->cap_len, 
-		finfo->start, finfo->length, cf.current_frame->flags.encoding);
+	packet_hex_print(GTK_TEXT(byte_view), cfile.pd, cfile.current_frame->cap_len, 
+		finfo->start, finfo->length, cfile.current_frame->flags.encoding);
 }
 
 static void
 tree_view_unselect_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user_data)
 {
 	finfo_selected = NULL;
-	packet_hex_print(GTK_TEXT(byte_view), cf.pd, cf.current_frame->cap_len, 
-		-1, -1, cf.current_frame->flags.encoding);
+	packet_hex_print(GTK_TEXT(byte_view), cfile.pd, cfile.current_frame->cap_len, 
+		-1, -1, cfile.current_frame->flags.encoding);
 }
 
 void collapse_all_cb(GtkWidget *widget, gpointer data) {
-  if (cf.protocol_tree)
-    collapse_all_tree(cf.protocol_tree, tree_view);
+  if (cfile.protocol_tree)
+    collapse_all_tree(cfile.protocol_tree, tree_view);
 }
 
 void expand_all_cb(GtkWidget *widget, gpointer data) {
-  if (cf.protocol_tree)
-    expand_all_tree(cf.protocol_tree, tree_view);
+  if (cfile.protocol_tree)
+    expand_all_tree(cfile.protocol_tree, tree_view);
 }
 
 void resolve_name_cb(GtkWidget *widget, gpointer data) {
-  if (cf.protocol_tree) {
+  if (cfile.protocol_tree) {
     int tmp = g_resolving_actif;
     g_resolving_actif = 1;
     gtk_clist_clear ( GTK_CLIST(tree_view) );
-    proto_tree_draw(cf.protocol_tree, tree_view);
+    proto_tree_draw(cfile.protocol_tree, tree_view);
     g_resolving_actif = tmp;
   }
 }
@@ -1001,7 +1001,7 @@ void
 set_plist_sel_browse(gboolean val)
 {
 	if (finfo_selected)
-		unselect_packet(&cf);
+		unselect_packet(&cfile);
 
 	/* Yeah, GTK uses "browse" in the case where we do not, but oh well. I think
 	 * "browse" in Ethereal makes more sense than "SINGLE" in GTK+ */
@@ -1116,8 +1116,9 @@ file_quit_cmd_cb (GtkWidget *widget, gpointer data)
 	   which we'd call here, and another routine that
 	   calls that routine and also cleans up the UI, which
 	   we'd call elsewhere? */
-	close_cap_file(&cf, info_bar);
+	close_cap_file(&cfile, info_bar);
 
+  fprintf( stderr, "file_quit_cmd_cb: About to call gtk_main_quit()\n");
 	/* Exit by leaving the main loop, so that any quit functions
 	   we registered get called. */
 	gtk_main_quit();
@@ -1231,29 +1232,29 @@ main(int argc, char *argv[])
   }
 
   /* Initialize the capture file struct */
-  cf.plist		= NULL;
-  cf.plist_end		= NULL;
-  cf.wth		= NULL;
-  cf.filename		= NULL;
-  cf.user_saved		= FALSE;
-  cf.is_tempfile	= FALSE;
-  cf.rfcode		= NULL;
-  cf.dfilter		= NULL;
-  cf.dfcode		= NULL;
+  cfile.plist		= NULL;
+  cfile.plist_end		= NULL;
+  cfile.wth		= NULL;
+  cfile.filename		= NULL;
+  cfile.user_saved		= FALSE;
+  cfile.is_tempfile	= FALSE;
+  cfile.rfcode		= NULL;
+  cfile.dfilter		= NULL;
+  cfile.dfcode		= NULL;
 #ifdef HAVE_LIBPCAP
-  cf.cfilter		= g_strdup(EMPTY_FILTER);
+  cfile.cfilter		= g_strdup(EMPTY_FILTER);
 #endif
-  cf.iface		= NULL;
-  cf.save_file		= NULL;
-  cf.save_file_fd	= -1;
-  cf.snap		= WTAP_MAX_PACKET_SIZE;
-  cf.count		= 0;
-  cf.cinfo.num_cols	= prefs->num_cols;
-  cf.cinfo.col_fmt      = (gint *) g_malloc(sizeof(gint) * cf.cinfo.num_cols);
-  cf.cinfo.fmt_matx	= (gboolean **) g_malloc(sizeof(gboolean *) * cf.cinfo.num_cols);
-  cf.cinfo.col_width	= (gint *) g_malloc(sizeof(gint) * cf.cinfo.num_cols);
-  cf.cinfo.col_title    = (gchar **) g_malloc(sizeof(gchar *) * cf.cinfo.num_cols);
-  cf.cinfo.col_data	= (gchar **) g_malloc(sizeof(gchar *) * cf.cinfo.num_cols);
+  cfile.iface		= NULL;
+  cfile.save_file		= NULL;
+  cfile.save_file_fd	= -1;
+  cfile.snap		= WTAP_MAX_PACKET_SIZE;
+  cfile.count		= 0;
+  cfile.cinfo.num_cols	= prefs->num_cols;
+  cfile.cinfo.col_fmt      = (gint *) g_malloc(sizeof(gint) * cfile.cinfo.num_cols);
+  cfile.cinfo.fmt_matx	= (gboolean **) g_malloc(sizeof(gboolean *) * cfile.cinfo.num_cols);
+  cfile.cinfo.col_width	= (gint *) g_malloc(sizeof(gint) * cfile.cinfo.num_cols);
+  cfile.cinfo.col_title    = (gchar **) g_malloc(sizeof(gchar *) * cfile.cinfo.num_cols);
+  cfile.cinfo.col_data	= (gchar **) g_malloc(sizeof(gchar *) * cfile.cinfo.num_cols);
 
   /* Assemble the compile-time options */
   snprintf(comp_info_str, 256,
@@ -1309,7 +1310,7 @@ main(int argc, char *argv[])
         break;
       case 'c':        /* Capture xxx packets */
 #ifdef HAVE_LIBPCAP
-        cf.count = atoi(optarg);
+        cfile.count = atoi(optarg);
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -1320,9 +1321,9 @@ main(int argc, char *argv[])
 	break;
       case 'f':
 #ifdef HAVE_LIBPCAP
-	if (cf.cfilter)
-		g_free(cf.cfilter);
-	cf.cfilter = g_strdup(optarg);
+	if (cfile.cfilter)
+		g_free(cfile.cfilter);
+	cfile.cfilter = g_strdup(optarg);
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -1334,7 +1335,7 @@ main(int argc, char *argv[])
         break;
       case 'i':        /* Use interface xxx */
 #ifdef HAVE_LIBPCAP
-        cf.iface = g_strdup(optarg);
+        cfile.iface = g_strdup(optarg);
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -1377,7 +1378,7 @@ main(int argc, char *argv[])
         break;
       case 's':        /* Set the snapshot (capture) length */
 #ifdef HAVE_LIBPCAP
-        cf.snap = atoi(optarg);
+        cfile.snap = atoi(optarg);
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -1423,7 +1424,7 @@ main(int argc, char *argv[])
 	break;
       case 'W':        /* Write to capture file FD xxx */
 #ifdef HAVE_LIBPCAP
-        cf.save_file_fd = atoi(optarg);
+        cfile.save_file_fd = atoi(optarg);
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -1463,7 +1464,7 @@ main(int argc, char *argv[])
   if (start_capture) {
     /* We're supposed to do a live capture; did the user specify an interface
        to use? */
-    if (cf.iface == NULL) {
+    if (cfile.iface == NULL) {
       /* No - pick the first one from the list of interfaces. */
       if_list = get_interface_list(&err, err_str);
       if (if_list == NULL) {
@@ -1480,12 +1481,12 @@ main(int argc, char *argv[])
         }
         exit(2);
       }
-      cf.iface = g_strdup(if_list->data);	/* first interface */
+      cfile.iface = g_strdup(if_list->data);	/* first interface */
       free_interface_list(if_list);
     }
   }
   if (capture_child) {
-    if (cf.save_file_fd == -1) {
+    if (cfile.save_file_fd == -1) {
       /* XXX - send this to the standard output as something our parent
          should put in an error message box? */
       fprintf(stderr, "%s: \"-W\" flag not specified\n", CHILD_NAME);
@@ -1495,22 +1496,22 @@ main(int argc, char *argv[])
 #endif
 
   /* Build the column format array */  
-  for (i = 0; i < cf.cinfo.num_cols; i++) {
-    cf.cinfo.col_fmt[i] = get_column_format(i);
-    cf.cinfo.col_title[i] = g_strdup(get_column_title(i));
-    cf.cinfo.fmt_matx[i] = (gboolean *) g_malloc0(sizeof(gboolean) *
+  for (i = 0; i < cfile.cinfo.num_cols; i++) {
+    cfile.cinfo.col_fmt[i] = get_column_format(i);
+    cfile.cinfo.col_title[i] = g_strdup(get_column_title(i));
+    cfile.cinfo.fmt_matx[i] = (gboolean *) g_malloc0(sizeof(gboolean) *
       NUM_COL_FMTS);
-    get_column_format_matches(cf.cinfo.fmt_matx[i], cf.cinfo.col_fmt[i]);
-    if (cf.cinfo.col_fmt[i] == COL_INFO)
-      cf.cinfo.col_data[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_INFO_LEN);
+    get_column_format_matches(cfile.cinfo.fmt_matx[i], cfile.cinfo.col_fmt[i]);
+    if (cfile.cinfo.col_fmt[i] == COL_INFO)
+      cfile.cinfo.col_data[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_INFO_LEN);
     else
-      cf.cinfo.col_data[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
+      cfile.cinfo.col_data[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
   }
 
-  if (cf.snap < 1)
-    cf.snap = WTAP_MAX_PACKET_SIZE;
-  else if (cf.snap < MIN_PACKET_SIZE)
-    cf.snap = MIN_PACKET_SIZE;
+  if (cfile.snap < 1)
+    cfile.snap = WTAP_MAX_PACKET_SIZE;
+  else if (cfile.snap < MIN_PACKET_SIZE)
+    cfile.snap = MIN_PACKET_SIZE;
   
   rc_file = (gchar *) g_malloc(strlen(get_home_dir()) + strlen(RC_FILE) + 4);
   sprintf(rc_file, "%s/%s", get_home_dir(), RC_FILE);
@@ -1546,7 +1547,7 @@ main(int argc, char *argv[])
     gtk_widget_show(top_level);
     set_menus_for_capture_file(FALSE);
 
-    cf.colors = colfilter_new();
+    cfile.colors = colfilter_new();
 
     /* If we were given the name of a capture file, read it in now;
        we defer it until now, so that, if we can't open it, and pop
@@ -1562,12 +1563,12 @@ main(int argc, char *argv[])
         }
       }
       if (!rfilter_parse_failed) {
-        if ((err = open_cap_file(cf_name, FALSE, &cf)) == 0) {
+        if ((err = open_cap_file(cf_name, FALSE, &cfile)) == 0) {
           /* "open_cap_file()" succeeded, so it closed the previous
 	     capture file, and thus destroyed any previous read filter
 	     attached to "cf". */
-          cf.rfcode = rfcode;
-          err = read_cap_file(&cf);
+          cfile.rfcode = rfcode;
+          err = read_cap_file(&cfile);
           /* Save the name of the containing directory specified in the
 	     path name, if any; we can write over cf_name, which is a
              good thing, given that "get_dirname()" does write over its
@@ -1577,7 +1578,7 @@ main(int argc, char *argv[])
             last_open_dir = s;
         } else {
           dfilter_destroy(rfcode);
-          cf.rfcode = NULL;
+          cfile.rfcode = NULL;
         }
       }
     }
@@ -1706,7 +1707,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   gtk_widget_show(pkt_scrollw);
   gtk_paned_add1(GTK_PANED(u_pane), pkt_scrollw);
 
-  packet_list = gtk_clist_new_with_titles(cf.cinfo.num_cols, cf.cinfo.col_title);
+  packet_list = gtk_clist_new_with_titles(cfile.cinfo.num_cols, cfile.cinfo.col_title);
   gtk_container_add(GTK_CONTAINER(pkt_scrollw), packet_list);
   
   set_plist_sel_browse(prefs->gui_plist_sel_browse);
@@ -1721,18 +1722,18 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     GTK_SIGNAL_FUNC(packet_list_select_cb), NULL);
   gtk_signal_connect(GTK_OBJECT(packet_list), "unselect_row",
     GTK_SIGNAL_FUNC(packet_list_unselect_cb), NULL);
-  for (i = 0; i < cf.cinfo.num_cols; i++) {
-    if (get_column_resize_type(cf.cinfo.col_fmt[i]) != RESIZE_MANUAL)
+  for (i = 0; i < cfile.cinfo.num_cols; i++) {
+    if (get_column_resize_type(cfile.cinfo.col_fmt[i]) != RESIZE_MANUAL)
       gtk_clist_set_column_auto_resize(GTK_CLIST(packet_list), i, TRUE);
 
     /* Right-justify the packet number column. */
-    if (cf.cinfo.col_fmt[i] == COL_NUMBER)
+    if (cfile.cinfo.col_fmt[i] == COL_NUMBER)
       gtk_clist_set_column_justification(GTK_CLIST(packet_list), i, 
         GTK_JUSTIFY_RIGHT);
 
     /* Save static column sizes to use during a "-S" capture, so that
        the columns don't resize during a live capture. */
-    cf.cinfo.col_width[i] = gdk_string_width(pl_style->font,
+    cfile.cinfo.col_width[i] = gdk_string_width(pl_style->font,
 			        get_column_longest_string(get_column_format(i)));
   }
   gtk_widget_set_usize(packet_list, -1, pl_size);

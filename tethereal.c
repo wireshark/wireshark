@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.30 2000/06/15 07:49:25 guy Exp $
+ * $Id: tethereal.c,v 1.31 2000/06/27 04:35:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -117,7 +117,7 @@ static void wtap_dispatch_cb_print(u_char *, const struct wtap_pkthdr *, int,
 static gchar *col_info(frame_data *, gint);
 
 packet_info  pi;
-capture_file cf;
+capture_file cfile;
 FILE        *data_out_file = NULL;
 guint        main_ctx, file_ctx;
 ts_type timestamp_type = RELATIVE;
@@ -194,29 +194,29 @@ main(int argc, char *argv[])
   }
     
   /* Initialize the capture file struct */
-  cf.plist		= NULL;
-  cf.plist_end		= NULL;
-  cf.wth		= NULL;
-  cf.filename		= NULL;
-  cf.user_saved		= FALSE;
-  cf.is_tempfile	= FALSE;
-  cf.rfcode		= NULL;
-  cf.dfilter		= NULL;
-  cf.dfcode		= NULL;
+  cfile.plist		= NULL;
+  cfile.plist_end		= NULL;
+  cfile.wth		= NULL;
+  cfile.filename		= NULL;
+  cfile.user_saved		= FALSE;
+  cfile.is_tempfile	= FALSE;
+  cfile.rfcode		= NULL;
+  cfile.dfilter		= NULL;
+  cfile.dfcode		= NULL;
 #ifdef HAVE_LIBPCAP
-  cf.cfilter		= g_strdup("");
+  cfile.cfilter		= g_strdup("");
 #endif
-  cf.iface		= NULL;
-  cf.save_file		= NULL;
-  cf.save_file_fd	= -1;
-  cf.snap		= WTAP_MAX_PACKET_SIZE;
-  cf.count		= 0;
-  cf.cinfo.num_cols	= prefs->num_cols;
-  cf.cinfo.col_fmt      = (gint *) g_malloc(sizeof(gint) * cf.cinfo.num_cols);
-  cf.cinfo.fmt_matx	= (gboolean **) g_malloc(sizeof(gboolean *) * cf.cinfo.num_cols);
-  cf.cinfo.col_width	= (gint *) g_malloc(sizeof(gint) * cf.cinfo.num_cols);
-  cf.cinfo.col_title    = (gchar **) g_malloc(sizeof(gchar *) * cf.cinfo.num_cols);
-  cf.cinfo.col_data	= (gchar **) g_malloc(sizeof(gchar *) * cf.cinfo.num_cols);
+  cfile.iface		= NULL;
+  cfile.save_file		= NULL;
+  cfile.save_file_fd	= -1;
+  cfile.snap		= WTAP_MAX_PACKET_SIZE;
+  cfile.count		= 0;
+  cfile.cinfo.num_cols	= prefs->num_cols;
+  cfile.cinfo.col_fmt      = (gint *) g_malloc(sizeof(gint) * cfile.cinfo.num_cols);
+  cfile.cinfo.fmt_matx	= (gboolean **) g_malloc(sizeof(gboolean *) * cfile.cinfo.num_cols);
+  cfile.cinfo.col_width	= (gint *) g_malloc(sizeof(gint) * cfile.cinfo.num_cols);
+  cfile.cinfo.col_title    = (gchar **) g_malloc(sizeof(gchar *) * cfile.cinfo.num_cols);
+  cfile.cinfo.col_data	= (gchar **) g_malloc(sizeof(gchar *) * cfile.cinfo.num_cols);
 
   /* Assemble the compile-time options */
   snprintf(comp_info_str, 256,
@@ -278,7 +278,7 @@ main(int argc, char *argv[])
       case 'f':
 #ifdef HAVE_LIBPCAP
         capture_filter_specified = TRUE;
-	cf.cfilter = g_strdup(optarg);
+	cfile.cfilter = g_strdup(optarg);
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -298,7 +298,7 @@ main(int argc, char *argv[])
         break;
       case 'i':        /* Use interface xxx */
 #ifdef HAVE_LIBPCAP
-        cf.iface = g_strdup(optarg);
+        cfile.iface = g_strdup(optarg);
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -315,7 +315,7 @@ main(int argc, char *argv[])
         break;
       case 's':        /* Set the snapshot (capture) length */
 #ifdef HAVE_LIBPCAP
-        cf.snap = atoi(optarg);
+        cfile.snap = atoi(optarg);
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -341,7 +341,7 @@ main(int argc, char *argv[])
         exit(0);
         break;
       case 'w':        /* Write to capture file xxx */
-        cf.save_file = g_strdup(optarg);
+        cfile.save_file = g_strdup(optarg);
 	break;
       case 'V':        /* Verbose */
         verbose = TRUE;
@@ -371,7 +371,7 @@ main(int argc, char *argv[])
 "tethereal: Capture filters were specified both with \"-f\" and with additional command-line arguments\n");
         exit(2);
       }
-      cf.cfilter = get_args_as_string(argc, argv, optind);
+      cfile.cfilter = get_args_as_string(argc, argv, optind);
 #else
       capture_option_specified = TRUE;
 #endif
@@ -386,22 +386,22 @@ main(int argc, char *argv[])
     print_usage();
 
   /* Build the column format array */  
-  for (i = 0; i < cf.cinfo.num_cols; i++) {
-    cf.cinfo.col_fmt[i] = get_column_format(i);
-    cf.cinfo.col_title[i] = g_strdup(get_column_title(i));
-    cf.cinfo.fmt_matx[i] = (gboolean *) g_malloc0(sizeof(gboolean) *
+  for (i = 0; i < cfile.cinfo.num_cols; i++) {
+    cfile.cinfo.col_fmt[i] = get_column_format(i);
+    cfile.cinfo.col_title[i] = g_strdup(get_column_title(i));
+    cfile.cinfo.fmt_matx[i] = (gboolean *) g_malloc0(sizeof(gboolean) *
       NUM_COL_FMTS);
-    get_column_format_matches(cf.cinfo.fmt_matx[i], cf.cinfo.col_fmt[i]);
-    if (cf.cinfo.col_fmt[i] == COL_INFO)
-      cf.cinfo.col_data[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_INFO_LEN);
+    get_column_format_matches(cfile.cinfo.fmt_matx[i], cfile.cinfo.col_fmt[i]);
+    if (cfile.cinfo.col_fmt[i] == COL_INFO)
+      cfile.cinfo.col_data[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_INFO_LEN);
     else
-      cf.cinfo.col_data[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
+      cfile.cinfo.col_data[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
   }
 
-  if (cf.snap < 1)
-    cf.snap = WTAP_MAX_PACKET_SIZE;
-  else if (cf.snap < MIN_PACKET_SIZE)
-    cf.snap = MIN_PACKET_SIZE;
+  if (cfile.snap < 1)
+    cfile.snap = WTAP_MAX_PACKET_SIZE;
+  else if (cfile.snap < MIN_PACKET_SIZE)
+    cfile.snap = MIN_PACKET_SIZE;
   
   dissect_init();   /* Init anything that needs initializing */
 
@@ -412,14 +412,14 @@ main(int argc, char *argv[])
       exit(2);
     }
   }
-  cf.rfcode = rfcode;
+  cfile.rfcode = rfcode;
   if (cf_name) {
-    err = open_cap_file(cf_name, FALSE, &cf);
+    err = open_cap_file(cf_name, FALSE, &cfile);
     if (err != 0) {
       dissect_cleanup();
       exit(2);
     }
-    err = load_cap_file(&cf, out_file_type);
+    err = load_cap_file(&cfile, out_file_type);
     if (err != 0) {
       dissect_cleanup();
       exit(2);
@@ -430,7 +430,7 @@ main(int argc, char *argv[])
        do we have support for live captures? */
 #ifdef HAVE_LIBPCAP
     /* Yes; did the user specify an interface to use? */
-    if (cf.iface == NULL) {
+    if (cfile.iface == NULL) {
         /* No - pick the first one from the list of interfaces. */
         if_list = get_interface_list(&err, err_str);
         if (if_list == NULL) {
@@ -447,7 +447,7 @@ main(int argc, char *argv[])
             }
             exit(2);
         }
-        cf.iface = g_strdup(if_list->data);	/* first interface */
+        cfile.iface = g_strdup(if_list->data);	/* first interface */
         free_interface_list(if_list);
     }
     capture(packet_count, out_file_type);
@@ -485,7 +485,7 @@ capture(int packet_count, int out_file_type)
   ld.pdh            = NULL;
 
   /* Open the network interface to capture from it. */
-  ld.pch = pcap_open_live(cf.iface, cf.snap, 1, 1000, err_str);
+  ld.pch = pcap_open_live(cfile.iface, cfile.snap, 1, 1000, err_str);
 
   if (ld.pch == NULL) {
     /* Well, we couldn't start the capture.
@@ -500,19 +500,19 @@ capture(int packet_count, int out_file_type)
     goto error;
   }
 
-  if (cf.cfilter) {
+  if (cfile.cfilter) {
     /* A capture filter was specified; set it up. */
-    if (pcap_lookupnet (cf.iface, &netnum, &netmask, err_str) < 0) {
+    if (pcap_lookupnet (cfile.iface, &netnum, &netmask, err_str) < 0) {
       snprintf(errmsg, sizeof errmsg,
         "Can't use filter:  Couldn't obtain netmask info (%s).", err_str);
       goto error;
     }
-    if (pcap_compile(ld.pch, &cf.fcode, cf.cfilter, 1, netmask) < 0) {
+    if (pcap_compile(ld.pch, &cfile.fcode, cfile.cfilter, 1, netmask) < 0) {
       snprintf(errmsg, sizeof errmsg, "Unable to parse filter string (%s).",
 	pcap_geterr(ld.pch));
       goto error;
     }
-    if (pcap_setfilter(ld.pch, &cf.fcode) < 0) {
+    if (pcap_setfilter(ld.pch, &cfile.fcode) < 0) {
       snprintf(errmsg, sizeof errmsg, "Can't install filter (%s).",
 	pcap_geterr(ld.pch));
       goto error;
@@ -520,14 +520,14 @@ capture(int packet_count, int out_file_type)
   }
 
   ld.linktype = wtap_pcap_encap_to_wtap_encap(pcap_datalink(ld.pch));
-  if (cf.save_file != NULL) {
+  if (cfile.save_file != NULL) {
     /* Set up to write to the capture file. */
     if (ld.linktype == WTAP_ENCAP_UNKNOWN) {
       strcpy(errmsg, "The network you're capturing from is of a type"
                " that Tethereal doesn't support.");
       goto error;
     }
-    ld.pdh = wtap_dump_open(cf.save_file, out_file_type,
+    ld.pdh = wtap_dump_open(cfile.save_file, out_file_type,
 		ld.linktype, pcap_snapshot(ld.pch), &err);
 
     if (ld.pdh == NULL) {
@@ -557,11 +557,11 @@ capture(int packet_count, int out_file_type)
         if (err < 0) {
           sprintf(errmsg, "The file to which the capture would be"
                        " written (\"%s\") could not be opened: Error %d.",
-   			cf.save_file, err);
+   			cfile.save_file, err);
         } else {
           sprintf(errmsg, "The file to which the capture would be"
                        " written (\"%s\") could not be opened: %s.",
- 			cf.save_file, strerror(err));
+ 			cfile.save_file, strerror(err));
         }
         break;
       }
@@ -581,7 +581,7 @@ capture(int packet_count, int out_file_type)
 #endif
 
   /* Let the user know what interface was chosen. */
-  printf("Capturing on %s\n", cf.iface);
+  printf("Capturing on %s\n", cfile.iface);
 
   inpkts = pcap_loop(ld.pch, packet_count, capture_pcap_cb, (u_char *) &ld);
   pcap_close(ld.pch);
@@ -589,8 +589,8 @@ capture(int packet_count, int out_file_type)
   return TRUE;
 
 error:
-  g_free(cf.save_file);
-  cf.save_file = NULL;
+  g_free(cfile.save_file);
+  cfile.save_file = NULL;
   fprintf(stderr, "tethereal: %s\n", errmsg);
   if (ld.pch != NULL)
     pcap_close(ld.pch);
@@ -612,12 +612,12 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   whdr.len = phdr->len;
   whdr.pkt_encap = ld->linktype;
 
-  args.cf = &cf;
+  args.cf = &cfile;
   args.pdh = ld->pdh;
   if (ld->pdh) {
     wtap_dispatch_cb_write((u_char *)&args, &whdr, 0, NULL, pd);
-    cf.count++;
-    printf("\r%u ", cf.count);
+    cfile.count++;
+    printf("\r%u ", cfile.count);
     fflush(stdout);
   } else {
     wtap_dispatch_cb_print((u_char *)&args, &whdr, 0, NULL, pd);

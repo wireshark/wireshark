@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.94 2000/05/31 05:07:57 guy Exp $
+ * $Id: packet.c,v 1.95 2000/06/27 04:35:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -96,7 +96,7 @@
 
 #include "plugins.h"
 
-extern capture_file  cf;
+extern capture_file  cfile;
 
 static int proto_frame = -1;
 static int hf_frame_arrival_time = -1;
