@@ -92,7 +92,7 @@ proper helper routines
  * Routines for H.245 packet dissection
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-h245.c,v 1.3 2003/07/06 11:11:41 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.4 2003/07/07 10:22:59 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -131,6 +131,7 @@ static dissector_handle_t MultimediaSystemControlMessage_handle;
 
 static int proto_h245 = -1;
 static int hf_h245_pdu_type = -1;
+static int hf_h245_GeneralString_length = -1;
 static int hf_h245_extension_bit = -1;
 static int hf_h245_extension_present_bit = -1;
 static int hf_h245_choice_extension = -1;
@@ -1704,11 +1705,29 @@ DEBUG_ENTRY("dissect_per_normally_small_nonnegative_whole_number");
 
 	
 /* this function reads a GeneralString */
+/* currently based on pure guesswork since RFC2833 didnt tell me much
+   i guess that the PER encoding for this is a normally-small-whole-number
+   followed by a ascii string.
+
+   based on pure guesswork.  it looks ok in the only capture i have where 
+   there is a 1 byte general string encoded
+*/
 guint32
-dissect_per_GeneralString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index _U_)
+dissect_per_GeneralString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index)
 {
-DEBUG_ENTRY("dissect_per_GeneralString");
-NOT_DECODED_YET("GeneralString");
+	proto_tree *etr=NULL;
+	guint32 length;
+
+	if(display_internal_per_fields){
+		etr=tree;
+	}
+
+	offset=dissect_per_length_determinant(tvb, offset, pinfo, etr, hf_h245_GeneralString_length, &length);
+
+	proto_tree_add_string(tree, hf_index, tvb, (offset>>3), length, tvb_get_ptr(tvb, (offset>>3), length));
+
+	offset+=length*8;
+	
 	return offset;
 }
 
@@ -22444,6 +22463,9 @@ proto_register_h245(void)
 	{ &hf_h245_object_identifier_length,
 		{ "Object Length", "h245.object_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Length of the object identifier", HFILL }},
+	{ &hf_h245_GeneralString_length,
+		{ "GeneralString Length", "h245.generalstring_length", FT_UINT32, BASE_DEC,
+		NULL, 0, "Length of the GeneralString", HFILL }},
 	{ &hf_h245_object,
 		{ "Object", "h245.object", FT_STRING, BASE_NONE,
 		NULL, 0, "Object Identifier", HFILL }},
