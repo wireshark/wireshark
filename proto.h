@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.20 1999/11/16 11:43:07 guy Exp $
+ * $Id: proto.h,v 1.21 2000/01/22 04:59:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -151,6 +151,9 @@ void proto_init(void);
 /* Frees memory used by proto routines. Called at program shutdown */
 void proto_cleanup(void);
 
+/* Set text of proto_item after having already been created. */
+void proto_item_set_text(proto_item *ti, ...);
+
 /* Set length of proto_item after having already been created. */
 void proto_item_set_len(proto_item *ti, gint length);
 
@@ -187,6 +190,9 @@ proto_tree_add_item_hidden(proto_tree *tree, int hfindex, gint start,
 proto_item *
 proto_tree_add_item_format(proto_tree *tree, int hfindex, gint start,
 	gint length, ...);
+
+proto_item *
+proto_tree_add_notext(proto_tree *tree, gint start, gint length, ...);
 
 proto_item *
 proto_tree_add_text(proto_tree *tree, gint start, gint length, ...);

@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.51 1999/12/05 02:33:52 guy Exp $
+ * $Id: proto.c,v 1.52 2000/01/22 04:59:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -268,6 +268,19 @@ proto_tree_add_item_format(proto_tree *tree, int hfindex, gint start, gint lengt
 }
 
 proto_item *
+proto_tree_add_notext(proto_tree *tree, gint start, gint length, ...)
+{
+	proto_item	*pi;
+	va_list		ap;
+
+	va_start(ap, length);
+	pi = proto_tree_add_item_value(tree, hf_text_only, start, length, 0, 1, ap);
+	va_end(ap);
+
+	return pi;
+}
+
+proto_item *
 proto_tree_add_text(proto_tree *tree, gint start, gint length, ...)
 {
 	proto_item	*pi;
@@ -400,8 +413,8 @@ NOTES
 
 	/* are there any formatting arguments? */
 	if (visible && include_format) {
-		fi->representation = g_mem_chunk_alloc(gmc_item_labels);
 		format = va_arg(ap, char*);
+		fi->representation = g_mem_chunk_alloc(gmc_item_labels);
 		vsnprintf(fi->representation, ITEM_LABEL_LENGTH,
 				format, ap);
 	}
@@ -410,6 +423,24 @@ NOTES
 	}
 
 	return pi;
+}
+
+void
+proto_item_set_text(proto_item *pi, ...)
+{
+	field_info *fi = (field_info*) (((GNode*)pi)->data);
+	va_list	ap;
+	char *format;
+
+	if (fi->representation)
+		g_mem_chunk_free(gmc_item_labels, fi->representation);
+
+	fi->representation = g_mem_chunk_alloc(gmc_item_labels);
+	va_start(ap, pi);
+	format = va_arg(ap, char*);
+	vsnprintf(fi->representation, ITEM_LABEL_LENGTH,
+				format, ap);
+	va_end(ap);
 }
 
 void

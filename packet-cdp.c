@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.19 2000/01/13 18:02:24 guy Exp $
+ * $Id: packet-cdp.c,v 1.20 2000/01/22 04:59:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -148,8 +148,7 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			case TYPE_ADDRESS:
 				/* Addresses */
 				tlvi = proto_tree_add_text(cdp_tree, offset,
-				    4, "Addresses",
-				    type, length);
+				    length, "Addresses");
 				tlv_tree = proto_item_add_subtree(tlvi,
 				    ett_cdp_tlv);
 				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype,
@@ -291,6 +290,7 @@ dissect_address_tlv(const u_char *pd, int offset, int length, proto_tree *tree)
     proto_tree *address_tree;
     guint8 protocol_type;
     guint8 protocol_length;
+    int nlpid;
     char *protocol_str;
     guint16 address_length;
     char *address_type_str;
@@ -298,93 +298,63 @@ dissect_address_tlv(const u_char *pd, int offset, int length, proto_tree *tree)
 
     if (length < 1)
         return -1;
+    ti = proto_tree_add_notext(tree, offset, length);
+    address_tree = proto_item_add_subtree(ti, ett_cdp_address);
     protocol_type = pd[offset];
-    if (length < 2) {
-        ti = proto_tree_add_text(tree, offset, length, "Truncated address");
-	address_tree = proto_item_add_subtree(ti, ett_cdp_address);
-        proto_tree_add_text(address_tree, offset, 1, "Protocol type: %s",
-	  val_to_str(protocol_type, proto_type_vals, "Unknown (0x%02x)"));
-	return -1;
-    }
-    protocol_length = pd[offset + 1];
-    if (length < 2 + protocol_length) {
-        ti = proto_tree_add_text(tree, offset, length, "Truncated address");
-	address_tree = proto_item_add_subtree(ti, ett_cdp_address);
-        proto_tree_add_text(address_tree, offset, 1, "Protocol type: %s",
-	  val_to_str(protocol_type, proto_type_vals, "Unknown (0x%02x)"));
-	offset += 1;
-        proto_tree_add_text(address_tree, offset, 1, "Protocol length: %u",
-          protocol_length);
-	return -1;
-    }
+    proto_tree_add_text(address_tree, offset, 1, "Protocol type: %s",
+	val_to_str(protocol_type, proto_type_vals, "Unknown (0x%02x)"));
+    offset += 1;
+    length -= 1;
 
-    if (length < 2 + protocol_length) {
-        ti = proto_tree_add_text(tree, offset, length, "Truncated address");
-	address_tree = proto_item_add_subtree(ti, ett_cdp_address);
-        proto_tree_add_text(address_tree, offset, 1, "Protocol type: %s",
-          val_to_str(protocol_type, proto_type_vals, "Unknown (0x%02x)"));
-        offset += 1;
-        length -= 1;
-        proto_tree_add_text(address_tree, offset, 1, "Protocol length: %u",
-          protocol_length);
-        offset += 1;
-        length -= 1;
+    if (length < 1) {
+        proto_item_set_text(ti, "Truncated address");
+	return -1;
+    }
+    protocol_length = pd[offset];
+    proto_tree_add_text(address_tree, offset, 1, "Protocol length: %u",
+			protocol_length);
+    offset += 1;
+    length -= 1;
+
+    if (length < protocol_length) {
+        proto_item_set_text(ti, "Truncated address");
         if (length != 0) {
             proto_tree_add_text(address_tree, offset, length,
               "Protocol: %s (truncated)", bytes_to_str(&pd[offset], length));
         }
 	return -1;
     }
-
     protocol_str = NULL;
-    if (protocol_type == PROTO_TYPE_NLPID && protocol_length == 1)
-    	protocol_str = val_to_str(pd[offset + 2], nlpid_vals, "Unknown (0x%02x)");
+    if (protocol_type == PROTO_TYPE_NLPID && protocol_length == 1) {
+    	nlpid = pd[offset];
+    	protocol_str = val_to_str(nlpid, nlpid_vals, "Unknown (0x%02x)");
+    } else
+        nlpid = -1;
     if (protocol_str == NULL)
         protocol_str = bytes_to_str(&pd[offset], protocol_length);
+    proto_tree_add_text(address_tree, offset, protocol_length,
+			"Protocol: %s", protocol_str);
+    offset += protocol_length;
+    length -= protocol_length;
 
-    if (length < 2 + protocol_length + 2) {
-        ti = proto_tree_add_text(tree, offset, length, "Truncated address");
-	address_tree = proto_item_add_subtree(ti, ett_cdp_address);
-        proto_tree_add_text(address_tree, offset, 1, "Protocol type: %s",
-          val_to_str(protocol_type, proto_type_vals, "Unknown (0x%02x)"));
-        offset += 1;
-        length -= 1;
-        proto_tree_add_text(address_tree, offset, 1, "Protocol length: %u",
-          protocol_length);
-        offset += 1;
-        length -= 1;
-        proto_tree_add_text(address_tree, offset, protocol_length,
-          "Protocol: %s", protocol_str);
+    if (length < 2) {
+        proto_item_set_text(ti, "Truncated address");
 	return -1;
     }
-    address_length = pntohs(&pd[offset + 2 + protocol_length]);
+    address_length = pntohs(&pd[offset]);
+    proto_tree_add_text(address_tree, offset, 2, "Address length: %u",
+			address_length);
+    offset += 2;
+    length -= 2;
 
-    if (length < 2 + protocol_length + 2 + address_length) {
-        ti = proto_tree_add_text(tree, offset, length, "Truncated address");
-	address_tree = proto_item_add_subtree(ti, ett_cdp_address);
-        proto_tree_add_text(address_tree, offset, 1, "Protocol type: %s",
-          val_to_str(protocol_type, proto_type_vals, "Unknown (0x%02x)"));
-        offset += 1;
-        length -= 1;
-        proto_tree_add_text(address_tree, offset, 1, "Protocol length: %u",
-          protocol_length);
-        offset += 1;
-        length -= 1;
-        proto_tree_add_text(address_tree, offset, protocol_length,
-          "Protocol: %s", protocol_str);
-        offset += protocol_length;
-        length -= protocol_length;
-        proto_tree_add_text(address_tree, offset, 2, "Address length: %u",
-          address_length);
-        offset += 2;
-        length -= 2;
+    if (length < address_length) {
+        proto_item_set_text(ti, "Truncated address");
         if (length != 0) {
             proto_tree_add_text(address_tree, offset, length,
               "Address: %s (truncated)", bytes_to_str(&pd[offset], length));
         }
 	return -1;
     }
-
     /* XXX - the Cisco document seems to be saying that, for 802.2-format
        protocol types, 0xAAAA03 0x000000 0x0800 is IPv6, but 0x0800 is
        the Ethernet protocol type for IPv4. */
@@ -392,7 +362,7 @@ dissect_address_tlv(const u_char *pd, int offset, int length, proto_tree *tree)
     address_type_str = NULL;
     address_str = NULL;
     if (protocol_type == PROTO_TYPE_NLPID && protocol_length == 1) {
-        switch (pd[offset + 2]) {
+        switch (nlpid) {
 
         /* XXX - dissect NLPID_ISO8473_CLNP as OSI CLNP address? */
 
@@ -400,7 +370,7 @@ dissect_address_tlv(const u_char *pd, int offset, int length, proto_tree *tree)
             if (address_length == 4) {
                 /* The address is an IP address. */
                 address_type_str = "IP address";
-                address_str = ip_to_str(&pd[offset + 2 + protocol_length + 2]);
+                address_str = ip_to_str(&pd[offset]);
             }
             break;
         }
@@ -408,28 +378,9 @@ dissect_address_tlv(const u_char *pd, int offset, int length, proto_tree *tree)
     if (address_type_str == NULL)
         address_type_str = "Address";
     if (address_str == NULL) {
-        address_str = bytes_to_str(&pd[offset + 2 + protocol_length + 2],
-	  address_length);
+        address_str = bytes_to_str(&pd[offset], address_length);
     }
-    ti = proto_tree_add_text(tree, offset, length, "%s: %s",
-      address_type_str, address_str);
-    address_tree = proto_item_add_subtree(ti, ett_cdp_address);
-    proto_tree_add_text(address_tree, offset, 1, "Protocol type: %s",
-      val_to_str(protocol_type, proto_type_vals, "Unknown (0x%02x)"));
-    offset += 1;
-    length -= 1;
-    proto_tree_add_text(address_tree, offset, 1, "Protocol length: %u",
-      protocol_length);
-    offset += 1;
-    length -= 1;
-    proto_tree_add_text(address_tree, offset, protocol_length,
-      "Protocol: %s", protocol_str);
-    offset += protocol_length;
-    length -= protocol_length;
-    proto_tree_add_text(address_tree, offset, 2, "Address length: %u",
-      address_length);
-    offset += 2;
-    length -= 2;
+    proto_item_set_text(ti, "%s: %s", address_type_str, address_str);
     proto_tree_add_text(address_tree, offset, address_length, "%s: %s",
       address_type_str, address_str);
     return 2 + protocol_length + 2 + address_length;
