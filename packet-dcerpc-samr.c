@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.91 2003/05/22 11:32:06 sahlberg Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.92 2003/05/22 11:58:54 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,7 +40,6 @@
 #include "packet-smb-common.h"
 #include "crypt-md4.h"
 #include "crypt-rc4.h"
-#include "packet-smb-sidsnooping.h"
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
