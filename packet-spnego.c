@@ -5,7 +5,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-spnego.c,v 1.53 2004/04/30 06:24:35 ulfl Exp $
+ * $Id: packet-spnego.c,v 1.54 2004/04/30 22:19:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -728,6 +728,7 @@ dissect_spnego_mechToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	gboolean def;
 	int ret;
 	guint cls, con, tag, nbytes;
+	gint length_remaining, reported_length_remaining;
 	tvbuff_t *token_tvb;
 
 	/*
@@ -756,28 +757,33 @@ dissect_spnego_mechToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	/* Dont try to create an item with more bytes than remains in the
 	 * frame or we will not even attempt to dissect those bytes we
 	 * do have. (since there will be an exception)
+	 *
+	 * We use "tvb_ensure_length_remaining()" so that we throw
+	 * an exception if there's nothing to dissect.
 	 */
-	if((gint)nbytes>tvb_length_remaining(tvb,offset)){
-		nbytes=tvb_length_remaining(tvb,offset);
-	}
+	length_remaining = tvb_ensure_length_remaining(tvb,offset);
+	reported_length_remaining = tvb_reported_length_remaining(tvb,offset);
+	if ((guint)length_remaining > nbytes)
+		length_remaining = nbytes;
+	if ((guint)reported_length_remaining > nbytes)
+		reported_length_remaining = nbytes;
 	item = proto_tree_add_item(tree, hf_spnego_mechtoken, tvb, offset, 
-				   nbytes, FALSE);
+				   length_remaining, FALSE);
 	subtree = proto_item_add_subtree(item, ett_spnego_mechtoken);
 
 	/*
 	 * Now, we should be able to dispatch after creating a new TVB.
 	 */
 
-	token_tvb = tvb_new_subset(tvb, offset, nbytes, -1);
+	token_tvb = tvb_new_subset(tvb, offset, length_remaining,
+	    reported_length_remaining);
 	if (next_level_dissector)
 	  call_dissector(next_level_dissector, token_tvb, pinfo, subtree);
 
 	hnd->offset += nbytes; /* Update this ... */
 
- done:
-
-  return offset + nbytes;
-
+done:
+	return offset + nbytes;
 }
 
 static int
