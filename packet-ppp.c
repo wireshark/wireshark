@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.98 2002/10/14 23:23:20 guy Exp $
+ * $Id: packet-ppp.c,v 1.99 2002/11/04 03:57:34 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3504,10 +3504,10 @@ proto_register_pap(void)
 {
   static gint *ett[] = {
     &ett_pap,
-	&ett_pap_data,
-	&ett_pap_peer_id,
-	&ett_pap_password,
-	&ett_pap_message,
+    &ett_pap_data,
+    &ett_pap_peer_id,
+    &ett_pap_password,
+    &ett_pap_message,
   };
 
   proto_pap = proto_register_protocol("PPP Password Authentication Protocol", "PPP PAP",
@@ -3629,6 +3629,7 @@ proto_register_mplscp(void)
 {
   static gint *ett[] = {
     &ett_mplscp,
+    &ett_mplscp_options,
   };
 
   proto_mplscp = proto_register_protocol("PPP MPLS Control Protocol",
@@ -3656,6 +3657,7 @@ proto_register_cdpcp(void)
 {
   static gint *ett[] = {
     &ett_cdpcp,
+    &ett_cdpcp_options,
   };
 
   proto_cdpcp = proto_register_protocol("PPP CDP Control Protocol",
