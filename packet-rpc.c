@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.64 2001/07/03 02:05:47 guy Exp $
+ * $Id: packet-rpc.c,v 1.65 2001/08/30 18:33:30 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1068,12 +1068,14 @@ dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_uint(gtree, hf_rpc_authgss_seq,
 				    tvb, offset+4, 4, seq);
 	}
+	offset += 8;
+
 	if (dissect_function != NULL) {
 		/* offset = */
 		call_dissect_function(tvb, pinfo, gtree, offset,
 				      dissect_function, progname);
 	}
-	offset += 8 + length;
+	offset += length - 4;
 	offset = dissect_rpc_data(tvb, pinfo, tree, hf_rpc_authgss_checksum,
 			offset);
 	return offset;
@@ -1498,13 +1500,12 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proc = tvb_get_ntohl(tvb, offset+12);
 
 		/* Check for RPCSEC_GSS */
-		if (proc == 0) {
-			flavor = tvb_get_ntohl(tvb, offset+16);
-			if (flavor == RPCSEC_GSS) {
-				gss_proc = tvb_get_ntohl(tvb, offset+28);
-				gss_svc = tvb_get_ntohl(tvb, offset+34);
-			}
+		flavor = tvb_get_ntohl(tvb, offset+16);
+		if (flavor == RPCSEC_GSS) {
+			gss_proc = tvb_get_ntohl(tvb, offset+28);
+			gss_svc = tvb_get_ntohl(tvb, offset+36);
 		}
+
 		key.prog = prog;
 		key.vers = vers;
 		key.proc = proc;
@@ -2041,6 +2042,7 @@ proto_register_rpc(void)
 		&ett_rpc_cred,
 		&ett_rpc_verf,
 		&ett_rpc_gids,
+		&ett_rpc_gss_data,
 		&ett_rpc_array,
 	};
 

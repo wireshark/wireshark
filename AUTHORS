@@ -500,6 +500,7 @@ Mike Frisch <mfrisch[AT]saturn.tlug.org> {
 	rquota support
 	AUTH_DES support
 	Tvbuffified NFS dissector
+	RPCSEC_GSS fixes
 }
 
 Burke Lau <burke_lau[AT]agilent.com> {
