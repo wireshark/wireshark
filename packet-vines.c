@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.53 2003/04/18 09:31:00 guy Exp $
+ * $Id: packet-vines.c,v 1.54 2003/04/18 17:34:37 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -992,12 +992,14 @@ proto_reg_handoff_vines_arp(void)
 #define VRTP_OP_UPDATE_RESPONSE	0x02
 #define VRTP_OP_REDIRECT	0x03
 #define VRTP_OP_REINITIALIZE	0x04
+#define VRTP_OP_REDIRECT2	0x06
 
 static const value_string vines_rtp_operation_type_vals[] = {
 	{ VRTP_OP_REQUEST,         "Request" },
 	{ VRTP_OP_UPDATE_RESPONSE, "Update/response" },
 	{ VRTP_OP_REDIRECT,        "Redirect" },
 	{ VRTP_OP_REINITIALIZE,    "Reinitialize" },
+	{ VRTP_OP_REDIRECT2,       "Redirect" },
 	{ 0,                       NULL }
 };
 
@@ -1106,10 +1108,11 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			switch (operation_type) {
 
 			case VRTP_OP_REDIRECT:
+			case VRTP_OP_REDIRECT2:
 				proto_tree_add_text(vines_rtp_tree, tvb,
 						    offset, 2,
 						    "Version: 0x%02x",
-						    tvb_get_ntohl(tvb, offset));
+						    tvb_get_ntohs(tvb, offset));
 				offset += 2;
 				link_addr_length = tvb_get_guint8(tvb, offset);
 				proto_tree_add_text(vines_rtp_tree, tvb,
@@ -1197,53 +1200,10 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case VRTP_OP_REQUEST:
 				requested_info = tvb_get_guint8(tvb, offset);
-				ti = proto_tree_add_text(vines_rtp_tree, tvb,
+				proto_tree_add_text(vines_rtp_tree, tvb,
 						    offset, 1,
 						    "Requested Info: 0x%02x",
 						    requested_info);
-				subtree = proto_item_add_subtree(ti,
-				    ett_vines_rtp_req_info);
-				proto_tree_add_text(subtree, tvb,
-				    offset, 1,
-				    decode_boolean_bitfield(requested_info,
-				      0x08, 1*8,
-				      "Simple response only",
-				      "Not simple response only"));
-				proto_tree_add_text(subtree, tvb,
-				    offset, 1,
-				    decode_boolean_bitfield(requested_info,
-				      0x04, 1*8,
-				      "Full topology",
-				      "Not full topology"));
-				proto_tree_add_text(subtree, tvb,
-				    offset, 1,
-				    decode_boolean_bitfield(requested_info,
-				      0x02, 1*8,
-				      "Routing information since specified time",
-				      "Not routing information since specified time"));
-				proto_tree_add_text(subtree, tvb,
-				    offset, 1,
-				    decode_boolean_bitfield(requested_info,
-				      0x01, 1*8,
-				      "Routing information for specified list",
-				      "Not routing information for specified list"));
-				offset += 1;
-				offset += 1;	/* reserved */
-				if (requested_info & 0x01) {
-					while (tvb_reported_length_remaining(tvb, offset) > 0) {
-						proto_tree_add_text(vines_rtp_tree, tvb,
-							    offset, 4,
-							    "Network Number: 0x%08x",
-							    tvb_get_ntohl(tvb, offset));
-						offset += 4;
-					}
-				}
-				if (requested_info & 0x02) {
-					proto_tree_add_text(vines_rtp_tree, tvb,
-						    offset, 4,
-						    "Sequence Number: %u",
-						    tvb_get_ntohl(tvb, offset));
-				}
 				break;
 
 			case VRTP_OP_UPDATE_RESPONSE:
@@ -1267,20 +1227,20 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    offset, 1,
 				    decode_boolean_bitfield(control_flags,
 				      0x10, 1*8,
-				      "Synchronization update",
-				      "Not synchronization update"));
+				      "Part of routing table synchronization broadcast",
+				      "Not part of routing table synchronization broadcast"));
 				proto_tree_add_text(subtree, tvb,
 				    offset, 1,
 				    decode_boolean_bitfield(control_flags,
 				      0x08, 1*8,
-				      "Full topology update",
-				      "Not full topology update"));
+				      "Part of full topology update",
+				      "Not part of full topology update"));
 				proto_tree_add_text(subtree, tvb,
 				    offset, 1,
 				    decode_boolean_bitfield(control_flags,
 				      0x04, 1*8,
-				      "Contains only specifically requested info",
-				      "Doesn't contain only specifically requested info"));
+				      "A response to a specific request",
+				      "Not a response to a specific request"));
 				/* XXX - need reassembly? */
 				proto_tree_add_text(subtree, tvb,
 				    offset, 1,
@@ -1366,7 +1326,7 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_text(vines_rtp_tree, tvb,
 						    offset, 2,
 						    "Metric to Destination: %u",
-						    tvb_get_ntohl(tvb, offset));
+						    tvb_get_ntohs(tvb, offset));
 				offset += 2;
 				node_type = tvb_get_guint8(tvb, offset);
 				proto_tree_add_text(vines_rtp_tree, tvb,
@@ -1393,7 +1353,7 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_text(vines_rtp_tree, tvb,
 						    offset, 2,
 						    "Metric to Preferred Gateway: %u",
-						    tvb_get_ntohl(tvb, offset));
+						    tvb_get_ntohs(tvb, offset));
 				offset += 2;
 				node_type = tvb_get_guint8(tvb, offset);
 				proto_tree_add_text(vines_rtp_tree, tvb,
@@ -1493,7 +1453,7 @@ srtp_show_machine_info(proto_tree *tree, tvbuff_t *tvb, int offset, char *tag)
 	    vines_addr_to_str(tvb_get_ptr(tvb, offset, VINES_ADDR_LEN)));
 	offset += VINES_ADDR_LEN;
 	proto_tree_add_text(tree, tvb, offset, 2,
-	    "Metric to %s: %u", tag, tvb_get_ntohl(tvb, offset));
+	    "Metric to %s: %u", tag, tvb_get_ntohs(tvb, offset));
 	offset += 2;
 	node_type = tvb_get_guint8(tvb, offset);
 	proto_tree_add_text(tree, tvb, offset, 1,
