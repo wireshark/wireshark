@@ -80,6 +80,7 @@ libethereal.exp: libethereal.dll
 
 #DISSECTOR_SUPPORT_SRC = $(DISSECTOR_SUPPORT_SRC:../=)
 DISSECTOR_SUPPORT_OBJECTS = $(DISSECTOR_SUPPORT_SRC:.c=.obj)
+#DISSECTOR_SUPPORT_OBJECTS = $(DISSECTOR_SUPPORT_OBJECTS:../=)
 
 libethereal.dll: ..\config.h $(OBJECTS) libethereal.def ftypes dfilter dissectors $(DISSECTOR_SUPPORT_OBJECTS) doxygen $(EXTRA_OBJECTS) ..\image\libethereal.res
 	echo libethereal.dll
@@ -88,7 +89,7 @@ libethereal.dll: ..\config.h $(OBJECTS) libethereal.def ftypes dfilter dissector
 		/DEF:libethereal.def /OUT:libethereal.dll \
 		/IMPLIB:libethereal.lib $(OBJECTS) $(libethereal_LIBS) \
 		..\image\libethereal.res  dissectors\register.obj \
-		 $(DISSECTOR_SUPPORT_OBJECTS) $(EXTRA_OBJECTS)
+		 $(DISSECTOR_SUPPORT_OBJECTS:../=) $(EXTRA_OBJECTS)
 
 ethereal.lib	: ..\config.h $(OBJECTS)
 	link /lib /out:ethereal.lib $(OBJECTS) $(EXTRA_OBJECTS)
@@ -99,7 +100,7 @@ ethereal.lib	: ..\config.h $(OBJECTS)
 	cd epan
 
 clean:
-	rm -f $(OBJECTS) ethereal.lib libethereal.dll libethereal.lib libethereal.exp $(PDB_FILE) doxygen.cfg html/*.*
+	rm -f $(OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS:../=) $(EXTRA_OBJECTS) ethereal.lib libethereal.dll libethereal.lib libethereal.exp $(PDB_FILE) doxygen.cfg html/*.*
     if exist html rmdir html	
 	cd ftypes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
