@@ -1417,6 +1417,7 @@ B<http://www.ethereal.com>.
   Chenjiang Hu             <chu[AT]chiaro.com>
   Kan Sasaki               <sasaki[AT]fcc.ad.jp>
   Stefan Wenk              <stefan.wenk[AT]gmx.at>
+  Ruud Linders             <ruud[AT]lucent.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

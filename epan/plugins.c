@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.52 2002/05/05 00:34:11 guy Exp $
+ * $Id: plugins.c,v 1.53 2002/05/14 10:32:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -197,7 +197,12 @@ plugins_scan_dir(const char *dirname)
 
 	    snprintf(filename, FILENAME_LEN, "%s" G_DIR_SEPARATOR_S "%s",
 	        dirname, file->d_name);
-	    if ((handle = g_module_open(filename, 0)) == NULL) continue;
+	    if ((handle = g_module_open(filename, 0)) == NULL)
+	    {
+		g_warning("Couldn't load module %s: %s", filename,
+			  g_module_error());
+		continue;
+	    }
 	    name = (gchar *)file->d_name;
 	    if (g_module_symbol(handle, "version", (gpointer*)&version) == FALSE)
 	    {
@@ -221,7 +226,8 @@ plugins_scan_dir(const char *dirname)
 		 */
 		if (!g_module_symbol(handle, "plugin_init", (gpointer*)&init))
 		{
-		    g_warning("The plugin %s has a plugin_reg_handoff symbol but no plugin_init routine", name);
+		    g_warning("The plugin %s has a plugin_reg_handoff symbol but no plugin_init routine",
+			      name, filename);
 		    g_module_close(handle);
 		    continue;
 		}

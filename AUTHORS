@@ -1187,6 +1187,10 @@ Stefan Wenk <stefan.wenk[AT]gmx.at> {
 	SIP heuristic dissector
 }
 
+Ruud Linders <ruud[AT]lucent.com> {
+	Report errors from "g_module_open()"
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
