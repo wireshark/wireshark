@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.15 1999/07/29 05:46:52 gram Exp $
+ * $Id: packet-arp.c,v 1.16 1999/07/30 05:42:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -218,11 +218,11 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
   if (tree) {
     if ((op_str = match_strval(ar_op, op_vals)))
-      ti = proto_tree_add_item_format(tree, proto_arp, offset, 8 + 2*ar_hln + 2*ar_pln,
-        op_str);
+      ti = proto_tree_add_item_format(tree, proto_arp, offset,
+        8 + 2*ar_hln + 2*ar_pln, NULL, op_str);
     else
-      ti = proto_tree_add_item_format(tree, proto_arp, offset, 8 + 2*ar_hln + 2*ar_pln,
-        "Unknown ARP (opcode 0x%04x)", ar_op);
+      ti = proto_tree_add_item_format(tree, proto_arp, offset,
+        8 + 2*ar_hln + 2*ar_pln, NULL, "Unknown ARP (opcode 0x%04x)", ar_op);
     arp_tree = proto_item_add_subtree(ti, ETT_ARP);
     proto_tree_add_text(arp_tree, offset + AR_HRD, 2,
       "Hardware type: %s", arphrdtype_to_str(ar_hrd, "Unknown (0x%04x)"));
