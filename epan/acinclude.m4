@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.2 2003/05/04 18:50:53 gerald Exp $
+dnl $Id: acinclude.m4,v 1.3 2003/08/21 07:17:09 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -157,7 +157,10 @@ AC_DEFUN(AC_ETHEREAL_ADNS_CHECK,
 	want_adns=defaultyes
 
 	AC_ARG_WITH(adns,
-	[  --with-adns=DIR          use GNU ADNS, located in directory DIR.], [
+changequote(<<, >>)dnl
+<<  --with-adns[=DIR]       use GNU ADNS (located in directory DIR, if supplied).   [default=yes, if present]>>,
+changequote([, ])dnl
+	[
 	if   test "x$withval" = "xno";  then
 		want_adns=no
 	elif test "x$withval" = "xyes"; then
