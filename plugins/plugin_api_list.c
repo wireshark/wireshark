@@ -39,6 +39,8 @@
 #include <epan/dissectors/packet-tpkt.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-rpc.h>
+#include <epan/dissectors/packet-rtp.h>
+#include <epan/dissectors/packet-rtcp.h>
 #include "tap.h"
 #include "asn1.h"
 #include "xdlc.h"
@@ -492,3 +494,8 @@ gfloat tvb_get_ntohieee_float(tvbuff_t*, gint offset);
 gdouble tvb_get_ntohieee_double(tvbuff_t*, gint offset);
 gfloat tvb_get_letohieee_float(tvbuff_t*, gint offset);
 gdouble tvb_get_letohieee_double(tvbuff_t*, gint offset);
+
+proto_item *proto_tree_add_debug_text(proto_tree *tree, const char *format, ...);
+
+void rtp_add_address(packet_info *pinfo, address *addr, int port, int other_port, gchar *setup_method, guint32 setup_frame_number);
+void rtcp_add_address(packet_info *pinfo, address *addr, int port, int other_port, gchar *setup_method, guint32 setup_frame_number);

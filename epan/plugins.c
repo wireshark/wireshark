@@ -70,6 +70,8 @@
 #include "asn1.h"
 #include <epan/dissectors/packet-per.h>
 #include <epan/dissectors/packet-ber.h>
+#include <epan/dissectors/packet-rtp.h>
+#include <epan/dissectors/packet-rtcp.h>
 #include "xdlc.h"
 #include "crc16.h"
 #include "report_err.h"

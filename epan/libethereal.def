@@ -374,6 +374,7 @@ proto_tree_add_boolean_hidden
 proto_tree_add_bytes
 proto_tree_add_bytes_format
 proto_tree_add_bytes_hidden
+proto_tree_add_debug_text
 proto_tree_add_double
 proto_tree_add_double_format
 proto_tree_add_double_hidden
@@ -446,6 +447,8 @@ rpc_progs                       DATA
 rpc_prog_hf
 rpc_prog_name
 rpc_roundup
+rtcp_add_address
+rtp_add_address
 rtp_payload_type_vals           DATA
 set_actual_length
 set_timestamp_setting
