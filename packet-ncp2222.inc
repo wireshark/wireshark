@@ -11,7 +11,7 @@
  * Portions Copyright (c) Gilbert Ramirez 2000-2002
  * Portions Copyright (c) Novell, Inc. 2000-2003
  *
- * $Id: packet-ncp2222.inc,v 1.54 2003/04/09 08:36:54 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.55 2003/04/25 20:36:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -618,17 +618,6 @@ typedef struct {
 typedef struct {
 	guint32		nw_eid;
 } ncp_req_eid_hash_key;
-
-typedef struct {
-        const ncp_record	*ncp_rec;
-        gboolean		*req_cond_results;
-        guint32			req_frame_num;
-	nstime_t		req_frame_time;
-        guint32                 req_nds_flags;
-        guint8                  nds_request_verb;
-        guint8                  nds_version;
-        char                    object_name[256];
-} ncp_req_hash_value;
 
 typedef struct {
         char   		        object_name[256];
@@ -1417,13 +1406,19 @@ align_4(tvbuff_t *tvb, guint32 aoffset)
        return 0;
 }
        
+/*
+ * These routines process both ASCII and Unicode strings, although
+ * they handle only Unicode strings that have only ISO 8859-1
+ * characters, as they recognize Unicode characters by the 0
+ * high-order byte.
+ */
 static void
 get_string(tvbuff_t* tvb, guint offset, guint str_length, char *dest_buf)
 {
         guint32 i;
         guint16 c_char;
         guint32 length_remaining = 0;
-        
+
         length_remaining = tvb_length_remaining(tvb, offset);
         if(str_length > length_remaining || str_length > 1024)  
         {
@@ -1442,8 +1437,8 @@ get_string(tvbuff_t* tvb, guint offset, guint str_length, char *dest_buf)
                 {
                         if (c_char != 0x00)
                         { 
-                        c_char = 0x2e;
-                        dest_buf[i] = c_char & 0xff;
+                                c_char = '.';
+                                dest_buf[i] = c_char & 0xff;
                         }
                         else
                         {
@@ -1464,8 +1459,53 @@ get_string(tvbuff_t* tvb, guint offset, guint str_length, char *dest_buf)
                         return;
                 }        
         }
-dest_buf[i] = '\0';
-return;
+        dest_buf[i] = '\0';
+        return;
+}
+
+static void
+uni_to_string(char * data, guint32 str_length, char *dest_buf)
+{
+        guint32 i;
+        guint16 c_char;
+        guint32 length_remaining = 0;
+
+        length_remaining = str_length;
+        dest_buf[0] = '\0';        
+        if(str_length == 0)
+        {
+                return;
+        }
+        for ( i = 0; i < str_length; i++ )
+        {
+                c_char = data[i];
+                if (c_char<0x20 || c_char>0x7e)
+                {
+                        if (c_char != 0x00)
+                        { 
+                                c_char = '.';
+                                dest_buf[i] = c_char & 0xff;
+                        }
+                        else
+                        {
+                                i--;
+                                str_length--;
+                        }
+                }
+                else
+                {
+                        dest_buf[i] = c_char & 0xff;
+                }
+                length_remaining--;
+                
+                if(length_remaining==0)
+                {
+                        dest_buf[i+1] = '\0';
+                        return;
+                }        
+        }
+        dest_buf[i] = '\0';
+        return;
 }
 
 /*************************************
@@ -4249,6 +4289,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 		if (run_info_str) {
 			GPtrArray *parray;
                         char*   byte_string;
+                        char    non_uni_string[1024];
 			int i, len;
 			field_info *finfo;
                         int info_type;
@@ -4268,22 +4309,29 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                                 if (info_type != 0) {    /* Is this  a string or not? */
                                        
                                         if (info_type == 1) {   /* Is this bytes? */
-                                        byte_string = bytes_to_str(fvalue_get(finfo->value), fvalue_length(finfo->value));
-                                        col_append_fstr(pinfo->cinfo, COL_INFO,
-      		               	                (const gchar*) ncp_rec->req_info_str->first_string,
-                               	                byte_string);
+                                                byte_string = bytes_to_str(fvalue_get(finfo->value), fvalue_length(finfo->value));
+                                                col_append_fstr(pinfo->cinfo, COL_INFO,
+              		               	                (const gchar*) ncp_rec->req_info_str->first_string,
+                                       	                byte_string);
                                         }
                                         else
                                         {
-                                                
-                                        col_append_fstr(pinfo->cinfo, COL_INFO,
-      		               	                (const gchar*) ncp_rec->req_info_str->first_string,
-                               	                fvalue_get(finfo->value));
+                                                if (info_type == 2) {   /* Is this a String? */
+                                                        uni_to_string(fvalue_get(finfo->value), fvalue_length(finfo->value), non_uni_string);
+                                                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                      		               	                (const gchar*) ncp_rec->req_info_str->first_string,
+                                              	                non_uni_string);
+                                                }
+                                                else
+                                                {
+                                                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                      		               	                (const gchar*) ncp_rec->req_info_str->first_string,
+                                               	                fvalue_get(finfo->value));
+                                                }
                                         }
                                 }
                                 else
                                 {
-                                
             			        col_append_fstr(pinfo->cinfo, COL_INFO,
                 			        (const gchar*) ncp_rec->req_info_str->first_string,
         		        	        fvalue_get_integer(finfo->value));
@@ -4291,6 +4339,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                         }
 			if (len > 1) {
 				for (i = 1; i < len; i++) {
+                                        non_uni_string[0]='\0';
 					finfo = g_ptr_array_index(parray, i);
                                         info_type = get_info_type((const gchar*) ncp_rec->req_info_str->repeat_string);
                                                                     
@@ -4304,15 +4353,22 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                                               }
                                               else
                                               {
-                                                        
-                                                col_append_fstr(pinfo->cinfo, COL_INFO,
-              		               	                (const gchar*) ncp_rec->req_info_str->repeat_string,
-                                       	                fvalue_get(finfo->value));
+                                                        if (info_type == 2) {   /* Is this a String? */
+                                                                uni_to_string(fvalue_get(finfo->value), fvalue_length(finfo->value), non_uni_string);
+                                                                col_append_fstr(pinfo->cinfo, COL_INFO,
+                              		               	                (const gchar*) ncp_rec->req_info_str->repeat_string,
+                                                       	                non_uni_string);
+                                                        }
+                                                        else
+                                                        {
+                                                                col_append_fstr(pinfo->cinfo, COL_INFO,
+                              		               	                (const gchar*) ncp_rec->req_info_str->repeat_string,
+                                                       	                fvalue_get(finfo->value));
+                                                        }
                                               }
                                         }
                                         else
                                         {
-                                        
                     			        col_append_fstr(pinfo->cinfo, COL_INFO,
                         			        (const gchar*) ncp_rec->req_info_str->repeat_string,
                 		        	        fvalue_get_integer(finfo->value));

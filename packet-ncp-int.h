@@ -6,7 +6,7 @@
  * Portions Copyright (c) Gilbert Ramirez 2000-2002
  * Portions Copyright (c) Novell, Inc. 2000-2003
  *
- * $Id: packet-ncp-int.h,v 1.13 2003/04/08 00:40:37 guy Exp $
+ * $Id: packet-ncp-int.h,v 1.14 2003/04/25 20:36:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,6 +86,17 @@ typedef struct {
 } ncp_record;
 
 
+typedef struct {
+	const ncp_record	*ncp_rec;
+	gboolean		*req_cond_results;
+	guint32			req_frame_num;
+	nstime_t		req_frame_time;
+	guint32			req_nds_flags;
+	guint8			nds_request_verb;
+	guint8			nds_version;
+	char			object_name[256];
+} ncp_req_hash_value;
+
 void dissect_ncp_request(tvbuff_t*, packet_info*, guint16,
 		guint8, guint16, proto_tree*);
 
@@ -97,6 +108,10 @@ void dissect_ping_req(tvbuff_t *, packet_info*, guint16, guint8,
 
 void dissect_nds_request(tvbuff_t*, packet_info*, guint16,
 		guint8, guint16, proto_tree*);
+
+void dissect_nmas_request(tvbuff_t*, packet_info*, proto_tree*, ncp_req_hash_value*);
+
+void dissect_nmas_reply(tvbuff_t*, packet_info*, proto_tree*, guint8, guint8, ncp_req_hash_value*);
 
 extern int proto_ncp;
 extern gint ett_ncp;
@@ -112,7 +127,7 @@ extern gint ett_nds;
 #define NCP_DEALLOCATE_SLOT	0x5555
 #define NCP_BURST_MODE_XFER	0x7777
 #define NCP_POSITIVE_ACK	0x9999
-#define NCP_BROADCAST_SLOT  0xbbbb
-#define NCP_LIP_ECHO        0x4c69
+#define NCP_BROADCAST_SLOT	0xbbbb
+#define NCP_LIP_ECHO		0x4c69
 
 #endif
