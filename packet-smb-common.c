@@ -1,8 +1,8 @@
-/* packet-smb-common.h
+/* packet-smb-common.c
  * Common routines for smb packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-common.c,v 1.1 2000/02/14 04:02:06 guy Exp $
+ * $Id: packet-smb-common.c,v 1.2 2000/02/14 04:05:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -139,4 +139,3 @@ display_flags( struct flag_array_type *flag_array, int length,
 		++array_ptr;
 	}
 }	
-
