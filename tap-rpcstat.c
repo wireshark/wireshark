@@ -1,7 +1,7 @@
 /* tap-rpcstat.c
  * rpcstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-rpcstat.c,v 1.10 2003/11/27 22:14:24 guy Exp $
+ * $Id: tap-rpcstat.c,v 1.11 2003/11/27 22:15:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -272,7 +272,7 @@ rpcstat_find_procs(gpointer *key, gpointer *value _U_, gpointer *user_data _U_)
 /* When called, this function will create a new instance of rpcstat.
  * program and version are whick onc-rpc program/version we want to
  * collect statistics for.
- * This function is called from tethereal when it parses the -Z rpc, arguments
+ * This function is called from tethereal when it parses the -z rpc, arguments
  * and it creates a new instance to store statistics in and registers this
  * new instance for the rpc tap.
  */

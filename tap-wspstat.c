@@ -1,7 +1,7 @@
 /* tap-rpcstat.c
  * wspstat   2003 Jean-Michel FAYARD
  *
- * $Id: tap-wspstat.c,v 1.1 2003/09/02 22:47:58 guy Exp $
+ * $Id: tap-wspstat.c,v 1.2 2003/11/27 22:15:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -208,7 +208,7 @@ wspstat_draw(void *psp)
 /* When called, this function will create a new instance of wspstat.
  * program and version are whick onc-rpc program/version we want to
  * collect statistics for.
- * This function is called from tethereal when it parses the -Z wsp, arguments
+ * This function is called from tethereal when it parses the -z wsp, arguments
  * and it creates a new instance to store statistics in and registers this
  * new instance for the wsp tap.
  */
