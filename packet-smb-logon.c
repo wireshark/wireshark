@@ -2,7 +2,7 @@
  * Routines for smb net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.11 2001/01/03 06:55:32 guy Exp $
+ * $Id: packet-smb-logon.c,v 1.12 2001/01/11 19:40:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -481,8 +481,8 @@ static char* CommandName[] = {
 	"LM1.0/LM2.0 Response to Interrogate Request",	/* 0x0E */
 	"LM2.0 Response during LOGON pause",		/* 0x0F */
 	"LM2.0 Response - user unknown",		/* 0x10 */
-	"LM2.0 Announce account updates ",		/* 0x11 */
-	"SAM LOGON request from client ",		/* 0x12 */
+	"LM2.0 Announce account updates",		/* 0x11 */
+	"SAM LOGON request from client",		/* 0x12 */
 	"Response to SAM LOGON request",		/* 0x13 */
 	"SAM Response during LOGON pause",		/* 0x14 */
 	"SAM Response - user unknown",			/* 0x15 */
