@@ -650,9 +650,7 @@ static gint ett_ptp_time2 = -1;
 static void
 dissect_ptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint8	ptp_control, ptp_mm_messagekey;
-	/*TODO:The following is not good; should allocate dynamically*/
-	guint8	info_str[80];
+	guint8	ptp_control, ptp_mm_messagekey = 0;
 	nstime_t ts;	/*time structure with seconds and nanoseconds*/
 
 /* Set up structures needed to add the protocol subtree and manage it */
@@ -676,40 +674,37 @@ dissect_ptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Create and set the string for "Info" column */
 	switch(ptp_control){
 		case PTP_SYNC_MESSAGE:{
-			sprintf(info_str, "Sync Message");
 			if (check_col(pinfo->cinfo, COL_INFO))
-				col_add_str(pinfo->cinfo, COL_INFO, info_str);
+				col_set_str(pinfo->cinfo, COL_INFO, "Sync Message");
 			break;
 		}
 		case PTP_DELAY_REQ_MESSAGE:{
-			sprintf(info_str, "Delay_Request Message");
 			if (check_col(pinfo->cinfo, COL_INFO))
-				col_add_str(pinfo->cinfo, COL_INFO, info_str);
+				col_set_str(pinfo->cinfo, COL_INFO, "Delay_Request Message");
 			break;
 		}
 		case PTP_FOLLOWUP_MESSAGE:{
-			sprintf(info_str, "Follow_Up Message");
 			if (check_col(pinfo->cinfo, COL_INFO))
-				col_add_str(pinfo->cinfo, COL_INFO, info_str);
+				col_set_str(pinfo->cinfo, COL_INFO, "Follow_Up Message");
 			break;
 		}
 		case PTP_DELAY_RESP_MESSAGE:{
-			sprintf(info_str, "Delay_Response Message");
 			if (check_col(pinfo->cinfo, COL_INFO))
-				col_add_str(pinfo->cinfo, COL_INFO, info_str);
+				col_set_str(pinfo->cinfo, COL_INFO, "Delay_Response Message");
 			break;
 		}
 		case PTP_MANAGEMENT_MESSAGE:{
 			if (check_col(pinfo->cinfo, COL_INFO)){
-					col_add_fstr(pinfo->cinfo, COL_INFO, "Management Message (%s)",
-					match_strval(ptp_mm_messagekey, ptp_managementMessageKey_infocolumn_vals));
+				col_add_fstr(pinfo->cinfo, COL_INFO, "Management Message (%s)",
+				    val_to_str(ptp_mm_messagekey,
+				        ptp_managementMessageKey_infocolumn_vals,
+				        "Unknown message key %u"));
 			}
 			break;
 		}
 		default:{
-			sprintf(info_str, "Unknown Message");
 			if (check_col(pinfo->cinfo, COL_INFO))
-				col_add_str(pinfo->cinfo, COL_INFO, info_str);
+				col_add_str(pinfo->cinfo, COL_INFO, "Unknown Message");
 			break;
 		}
 	}
