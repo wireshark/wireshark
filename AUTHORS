@@ -494,6 +494,7 @@ Ronnie Sahlberg <rsahlber@bigpond.net.au> {
 	Support for status monitor protocol and status monitor callback
 	    protocol
 	YPSERV dissector enhancements
+	BOOTPARAM dissector enhancements
 }
 
 Borosa Tomislav <tomislav.borosa@SIEMENS.HR> {

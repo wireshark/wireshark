@@ -1,7 +1,7 @@
 /* packet-bootparams.c
  * Routines for bootparams dissection
  *
- * $Id: packet-bootparams.c,v 1.16 2001/01/28 03:39:48 guy Exp $
+ * $Id: packet-bootparams.c,v 1.17 2001/03/18 02:07:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -49,90 +49,91 @@ static int hf_bootparams_fileid = -1;
 static int hf_bootparams_filepath = -1;
 static int hf_bootparams_hostaddr = -1;
 static int hf_bootparams_routeraddr = -1;
+static int hf_bootparams_addresstype = -1;
 
 static gint ett_bootparams = -1;
 
-int dissect_bp_address(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree, int hfindex)
+
+static const value_string addr_type[] =
+{
+	{ 	1,	"IPv4-ADDR"	},
+	{	0,	NULL		}
+};
+
+static int
+dissect_bp_address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hfindex)
 {
 	guint32 type;
 	guint32 ipaddr;
 
-	/* get the address type */
-	if ( !BYTES_ARE_IN_FRAME(offset, 1)) return offset;
-	type = pntohl(&pd[offset]); /* type of address */
-/*
-ZZZZZZZZZZZZZZZZZZZ Check type:
-	proto_tree_add_item(tree, hf_bootparams_addresstype, NullTVB,
-		offset, 4, type);
-*/
-	offset += 4;
 
-	if ( type != 1 ) /* only know how to handle this type of address */
-	{
-		return offset;
+	type = tvb_get_ntohl(tvb, offset);
+	
+	offset = dissect_rpc_uint32_tvb(tvb, pinfo, tree, hf_bootparams_addresstype, offset);
+
+	switch(type){
+	case 1:
+		ipaddr = ((tvb_get_guint8(tvb, offset+3 )&0xff)<<24) 
+			|((tvb_get_guint8(tvb, offset+7 )&0xff)<<16)
+			|((tvb_get_guint8(tvb, offset+11)&0xff)<<8 )
+			|((tvb_get_guint8(tvb, offset+15)&0xff) );
+		proto_tree_add_ipv4(tree, hfindex, tvb, 
+			offset, 16, ntohl(ipaddr));
+		offset += 16;
+		break;
+
+	default:
+		break;
 	}
-
-	/* get the address itself - weird ass format */
-	if ( ! BYTES_ARE_IN_FRAME(offset, 16)) return offset;
-	ipaddr = (pd[offset+3]<<24) + (pd[offset+7]<<16) +
-		(pd[offset+11]<<8) + (pd[offset+15]);
-	proto_tree_add_ipv4(tree, hfindex, NullTVB, 
-		offset, 16, ntohl(ipaddr));
-	offset += 16;
 
 	return offset;
 }
 
 
-/* Dissect a getfile call */
-int dissect_getfile_call(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree)
+static int
+dissect_getfile_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	if ( tree )
 	{
-		offset = dissect_rpc_string(pd,offset,fd,tree,hf_bootparams_host,NULL);
-		offset = dissect_rpc_string(pd,offset,fd,tree,hf_bootparams_fileid,NULL);
+		offset = dissect_rpc_string_tvb(tvb, pinfo, tree, hf_bootparams_host, offset, NULL);
+		offset = dissect_rpc_string_tvb(tvb, pinfo, tree, hf_bootparams_fileid, offset, NULL);
 	}
 	
 	return offset;
 }
 
-/* Dissect a getfile reply */
-int dissect_getfile_reply(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree)
+static int
+dissect_getfile_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	if ( tree )
 	{
-		offset = dissect_rpc_string(pd,offset,fd,tree,hf_bootparams_host,NULL);
-		offset = dissect_bp_address(pd,offset,fd,tree,hf_bootparams_hostaddr);
-		offset = dissect_rpc_string(pd,offset,fd,tree,hf_bootparams_filepath,NULL);
+		offset = dissect_rpc_string_tvb(tvb, pinfo, tree, hf_bootparams_host, offset, NULL);
+		offset = dissect_bp_address(tvb, offset, pinfo, tree, hf_bootparams_hostaddr);
+		offset = dissect_rpc_string_tvb(tvb, pinfo, tree, hf_bootparams_filepath, offset, NULL);
 	}
 	
 	return offset;
 }
 
-/* Dissect a whoami call */
-int dissect_whoami_call(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree)
+static int
+dissect_whoami_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	if ( tree )
 	{
-		offset = dissect_bp_address(pd,offset,fd,tree,hf_bootparams_hostaddr);
+		offset = dissect_bp_address(tvb, offset, pinfo, tree, hf_bootparams_hostaddr);
 	}
 	
 	return offset;
 }
 
-/* Dissect a whoami reply */
-int dissect_whoami_reply(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree)
+static int
+dissect_whoami_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	if ( tree )
 	{
-		offset = dissect_rpc_string(pd,offset,fd,tree,hf_bootparams_host,NULL);
-		offset = dissect_rpc_string(pd,offset,fd,tree,hf_bootparams_domain,NULL);
-		offset = dissect_bp_address(pd,offset,fd,tree,hf_bootparams_routeraddr);
+		offset = dissect_rpc_string_tvb(tvb, pinfo, tree, hf_bootparams_host, offset, NULL);
+		offset = dissect_rpc_string_tvb(tvb, pinfo, tree, hf_bootparams_domain, offset, NULL);
+		offset = dissect_bp_address(tvb, offset, pinfo, tree, hf_bootparams_routeraddr);
 	}
 	
 	return offset;
@@ -140,7 +141,7 @@ int dissect_whoami_reply(const u_char *pd, int offset, frame_data *fd,
 
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: type of arguments is "void". */
-static const old_vsff bootparams1_proc[] = {
+static const vsff bootparams1_proc[] = {
 	{ BOOTPARAMSPROC_NULL, "NULL",
 		NULL, NULL },
 	{ BOOTPARAMSPROC_WHOAMI, "WHOAMI", 
@@ -174,6 +175,9 @@ proto_register_bootparams(void)
 		{ &hf_bootparams_routeraddr, {
 			"Router Address", "bootparams.routeraddr", FT_IPv4, BASE_DEC,
 			NULL, 0, "Router Address" }},
+		{ &hf_bootparams_addresstype, {
+			"Address Type", "bootparams.type", FT_UINT32, BASE_DEC,
+			VALS(addr_type), 0, "Address Type" }},
 	};
 	static gint *ett[] = {
 		&ett_bootparams,
@@ -191,5 +195,5 @@ proto_reg_handoff_bootparams(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_bootparams, BOOTPARAMS_PROGRAM, ett_bootparams);
 	/* Register the procedure tables */
-	old_rpc_init_proc_table(BOOTPARAMS_PROGRAM, 1, bootparams1_proc);
+	rpc_init_proc_table(BOOTPARAMS_PROGRAM, 1, bootparams1_proc);
 }
