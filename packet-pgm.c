@@ -1,7 +1,7 @@
 /* packet-pgm.c
  * Routines for PGM packet disassembly, RFC 3208
  *
- * $Id: packet-pgm.c,v 1.23 2004/03/09 06:46:03 guy Exp $
+ * $Id: packet-pgm.c,v 1.24 2004/03/09 20:23:20 guy Exp $
  *
  * Copyright (c) 2000 by Talarian Corp
  *
@@ -82,7 +82,6 @@ typedef struct {
 	nshort_t res;             /* reserved */
 	nlong_t path;             /* Path NLA */
 } pgm_spm_t;
-static const size_t PGM_SPM_SZ = sizeof(pgm_type)+sizeof(pgm_spm_t);
 #define spm_ntoh(_p) \
 	(_p)->sqn = g_ntohl((_p)->sqn); \
 	(_p)->trail = g_ntohl((_p)->trail); \
@@ -98,7 +97,6 @@ typedef struct {
 #define data_ntoh(_p) \
 	(_p)->sqn = g_ntohl((_p)->sqn); \
 	(_p)->trail = g_ntohl((_p)->trail)
-static const size_t PGM_DATA_HDR_SZ = sizeof(pgm_type)+sizeof(pgm_data_t);
 
 /* The PGM NAK (NAK/N-NAK/NCF) header */
 typedef struct {
@@ -110,7 +108,6 @@ typedef struct {
 	nshort_t grp_res;        /* reserved */
 	nlong_t grp;             /* Multicast group NLA */
 } pgm_nak_t;
-static const size_t PGM_NAK_SZ = sizeof(pgm_type)+sizeof(pgm_nak_t);
 #define nak_ntoh(_p) \
 	(_p)->sqn = g_ntohl((_p)->sqn); \
 	(_p)->src_afi = g_ntohs((_p)->src_afi); \
@@ -130,7 +127,6 @@ typedef struct {
 	nlong_t rand_str;        /* POLL random string */
 	nlong_t matching_bmask;  /* POLL matching bitmask */
 } pgm_poll_t;
-static const size_t PGM_POLL_SZ = sizeof(pgm_type)+sizeof(pgm_poll_t);
 #define poll_ntoh(_p) \
 	(_p)->sqn = g_ntohl((_p)->sqn); \
 	(_p)->round = g_ntohs((_p)->round); \
@@ -147,7 +143,6 @@ typedef struct {
 	nshort_t round;          /* POLR Round */
 	nshort_t res;            /* reserved */
 } pgm_polr_t;
-static const size_t PGM_POLR_SZ = sizeof(pgm_type)+sizeof(pgm_polr_t);
 #define polr_ntoh(_p) \
 	(_p)->sqn = g_ntohl((_p)->sqn); \
 	(_p)->round = g_ntohs((_p)->round); \
@@ -158,7 +153,6 @@ typedef struct {
 	nlong_t rx_max_sqn;      /* RX_MAX sequence number */
 	nlong_t bitmap;          /* Received Packet Bitmap */
 } pgm_ack_t;
-static const size_t PGM_ACK_SZ = sizeof(pgm_type)+sizeof(pgm_ack_t);
 #define ack_ntoh(_p) \
 	(_p)->rx_max_sqn = g_ntohl((_p)->rx_max_sqn); \
 	(_p)->bitmap = g_ntohl((_p)->bitmap)
@@ -668,8 +662,9 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			if (genopts.len < sizeof optdata) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
 					offset+1, 1, genopts.len,
-					"Length: %u (bogus, must be >= %u)",
-					genopts.len, sizeof optdata);
+					"Length: %u (bogus, must be >= %lu)",
+					genopts.len,
+					(unsigned long)sizeof optdata);
 				break;
 			}
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
@@ -699,8 +694,9 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			if (genopts.len < sizeof optdata) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
 					offset+1, 1, genopts.len,
-					"Length: %u (bogus, must be >= %u)",
-					genopts.len, sizeof optdata);
+					"Length: %u (bogus, must be >= %lu)",
+					genopts.len,
+					(unsigned long) sizeof optdata);
 				break;
 			}
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
@@ -731,8 +727,9 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			if (genopts.len < sizeof optdata) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
 					offset+1, 1, genopts.len,
-					"Length: %u (bogus, must be >= %u)",
-					genopts.len, sizeof optdata);
+					"Length: %u (bogus, must be >= %lu)",
+					genopts.len,
+					(unsigned long) sizeof optdata);
 				break;
 			}
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
@@ -765,8 +762,9 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			if (genopts.len < sizeof optdata) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
 					offset+1, 1, genopts.len,
-					"Length: %u (bogus, must be >= %u)",
-					genopts.len, sizeof optdata);
+					"Length: %u (bogus, must be >= %lu)",
+					genopts.len,
+					(unsigned long) sizeof optdata);
 				break;
 			}
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
@@ -833,8 +831,9 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			if (genopts.len < sizeof optdata) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
 					offset+1, 1, genopts.len,
-					"Length: %u (bogus, must be >= %u)",
-					genopts.len, sizeof optdata);
+					"Length: %u (bogus, must be >= %lu)",
+					genopts.len,
+					(unsigned long) sizeof optdata);
 				break;
 			}
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
@@ -890,8 +889,9 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			if (genopts.len < sizeof optdata) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
 					offset+1, 1, genopts.len,
-					"Length: %u (bogus, must be >= %u)",
-					genopts.len, sizeof optdata);
+					"Length: %u (bogus, must be >= %lu)",
+					genopts.len,
+					(unsigned long) sizeof optdata);
 				break;
 			}
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
@@ -947,8 +947,9 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			if (genopts.len < sizeof optdata) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
 					offset+1, 1, genopts.len,
-					"Length: %u (bogus, must be >= %u)",
-					genopts.len, sizeof optdata);
+					"Length: %u (bogus, must be >= %lu)",
+					genopts.len,
+					(unsigned long) sizeof optdata);
 				break;
 			}
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
@@ -981,8 +982,9 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			if (genopts.len < sizeof optdata) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
 					offset+1, 1, genopts.len,
-					"Length: %u (bogus, must be >= %u)",
-					genopts.len, sizeof optdata);
+					"Length: %u (bogus, must be >= %lu)",
+					genopts.len,
+					(unsigned long) sizeof optdata);
 				break;
 			}
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
@@ -1015,8 +1017,9 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			if (genopts.len < sizeof optdata) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
 					offset+1, 1, genopts.len,
-					"Length: %u (bogus, must be >= %u)",
-					genopts.len, sizeof optdata);
+					"Length: %u (bogus, must be >= %lu)",
+					genopts.len,
+					(unsigned long) sizeof optdata);
 				break;
 			}
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
@@ -1069,8 +1072,9 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			if (genopts.len < sizeof optdata) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
 					offset+1, 1, genopts.len,
-					"Length: %u (bogus, must be >= %u)",
-					genopts.len, sizeof optdata);
+					"Length: %u (bogus, must be >= %lu)",
+					genopts.len,
+					(unsigned long) sizeof optdata);
 				break;
 			}
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb,
