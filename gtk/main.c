@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.17 1999/10/02 19:57:30 guy Exp $
+ * $Id: main.c,v 1.18 1999/10/09 14:05:04 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -279,7 +279,7 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
 void
 match_selected_cb(GtkWidget *w, gpointer data)
 {
-    char *buf = g_malloc(1024);
+    char *buf;
     GtkWidget *filter_te = NULL;
     char *ptr;
     int i;
@@ -296,6 +296,7 @@ match_selected_cb(GtkWidget *w, gpointer data)
     }
 
     c = cf.pd + tree_selected_start;
+    buf = g_malloc(32 + tree_selected_len * 3);
     ptr = buf;
 
     sprintf(ptr, "frame[%d : %d] == ", tree_selected_start, tree_selected_len);
