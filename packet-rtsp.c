@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.54 2003/12/22 23:43:35 guy Exp $
+ * $Id: packet-rtsp.c,v 1.55 2003/12/23 00:01:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,13 +72,17 @@ static gboolean rtsp_desegment_headers = FALSE;
  */
 static gboolean rtsp_desegment_body = FALSE;
 
+/* http://www.iana.org/assignments/port-numberslists two rtsp ports */
 #define TCP_PORT_RTSP			554
+#define TCP_ALTERNATE_PORT_RTSP		8554
 static guint global_rtsp_tcp_port = TCP_PORT_RTSP;
+static guint global_rtsp_tcp_alternate_port = TCP_ALTERNATE_PORT_RTSP;
 /*
 * Variables to allow for proper deletion of dissector registration when
 * the user changes port from the gui.
 */
 static guint tcp_port = 0;
+static guint tcp_alternate_port = 0;
 
 /*
  * Takes an array of bytes, assumed to contain a null-terminated
@@ -929,6 +933,10 @@ proto_register_rtsp(void)
 		"RTSP TCP Port",
 		"Set the TCP port for RTSP messages",
 		10, &global_rtsp_tcp_port);
+	prefs_register_uint_preference(rtsp_module, "tcp.alternate_port",
+		"Alternate RTSP TCP Port",
+		"Set the alternate TCP port for RTSP messages",
+		10, &global_rtsp_tcp_alternate_port);
 	prefs_register_bool_preference(rtsp_module, "desegment_rtsp_headers",
 	    "Desegment all RTSP headers spanning multiple TCP segments",
 	    "Whether the RTSP dissector should desegment all headers "
@@ -958,13 +966,15 @@ proto_reg_handoff_rtsp(void)
 	}
 	else {
 		dissector_delete("tcp.port", tcp_port, rtsp_handle);
-
+		dissector_delete("tcp.port", tcp_alternate_port, rtsp_handle);
 	}
 	/* Set our port number for future use */
 	
 	tcp_port = global_rtsp_tcp_port;
+	tcp_alternate_port = global_rtsp_tcp_alternate_port;
 	
 	dissector_add("tcp.port", tcp_port, rtsp_handle);
+	dissector_add("tcp.port", tcp_alternate_port, rtsp_handle);
 
 	sdp_handle = find_dissector("sdp");
 	rtp_handle = find_dissector("rtp");
