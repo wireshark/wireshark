@@ -2,7 +2,7 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.11 2002/04/22 08:50:49 guy Exp $
+ * $Id: packet-dsi.c,v 1.12 2002/04/25 23:58:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,8 @@
 #include "prefs.h"
 #include "packet-frame.h"
 
+#include "packet-afp.h"
+
 /* The information in this module (DSI) comes from:
 
   AFP 2.1 & 2.2.pdf contained in AppleShare_IP_6.3_SDK
@@ -79,8 +81,11 @@ static gint ett_dsi = -1;
 static gboolean dsi_desegment = TRUE;
 
 static dissector_handle_t data_handle;
+static dissector_handle_t afp_handle;
 
 #define TCP_PORT_DSI			548
+
+#define DSI_BLOCKSIZ            16
 
 /* DSI flags */
 #define DSIFL_REQUEST    0x00
@@ -122,6 +127,7 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint32		dsi_code;
 	guint32		dsi_length;
 	guint32		dsi_reserved;
+	struct		aspinfo aspinfo;
  
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DSI");
@@ -162,7 +168,28 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			"Length: %u bytes", dsi_length);
 		proto_tree_add_uint(dsi_tree, hf_dsi_reserved, tvb,
 			12, 4, dsi_reserved);
-		call_dissector(data_handle,tvb_new_subset(tvb, 16,-1,tvb_reported_length_remaining(tvb,16)), pinfo, dsi_tree);
+	}
+	else 
+		dsi_tree = tree;
+
+	if (dsi_command == DSIFUNC_CMD || dsi_command == DSIFUNC_WRITE) {
+  		tvbuff_t   *new_tvb;
+		int len = tvb_reported_length_remaining(tvb,DSI_BLOCKSIZ);
+
+		if (len) {
+			aspinfo.reply = dsi_flags & 1;
+			aspinfo.command = dsi_command;
+			aspinfo.seq = dsi_requestid;
+			aspinfo.code = dsi_code;
+			pinfo->private_data = &aspinfo;
+		  	proto_item_set_len(dsi_tree, DSI_BLOCKSIZ);
+
+			new_tvb = tvb_new_subset(tvb, DSI_BLOCKSIZ,-1,len);
+			call_dissector(afp_handle, new_tvb, pinfo, tree);
+  		}
+  	}
+	else if (tree) {	
+ 		call_dissector(data_handle,tvb_new_subset(tvb, DSI_BLOCKSIZ,-1,tvb_reported_length_remaining(tvb,DSI_BLOCKSIZ)), pinfo, dsi_tree); 
 	}
 }
 
@@ -339,4 +366,5 @@ proto_reg_handoff_dsi(void)
   dissector_add("tcp.port", TCP_PORT_DSI, dsi_handle);
 
   data_handle = find_dissector("data");
+  afp_handle = find_dissector("afp");
 }

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.424 2002/04/25 23:35:51 guy Exp $
+# $Id: Makefile.am,v 1.425 2002/04/25 23:58:02 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -73,6 +73,7 @@ sysconf_DATA = manuf dictionary.dtd dictionary.xml mobileipv4.xml \
 
 DISSECTOR_SRC = \
 	packet-aarp.c  \
+	packet-afp.c   \
 	packet-afs.c   \
 	packet-aim.c   \
 	packet-aodv.c  \
@@ -346,6 +347,7 @@ plugin_ldadd =
 endif
 
 noinst_HEADERS = \
+	packet-afp.h   \
 	packet-afs.h   \
 	packet-afs-macros.h \
 	packet-afs-register-info.h \

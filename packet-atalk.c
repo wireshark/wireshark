@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.63 2002/04/24 06:03:33 guy Exp $
+ * $Id: packet-atalk.c,v 1.64 2002/04/25 23:58:02 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -42,6 +42,11 @@
 #include "ppptypes.h"
 #include "aftypes.h"
 #include <epan/atalk-utils.h>
+#include <epan/conversation.h>
+
+#include "packet-afp.h"
+
+static dissector_handle_t afp_handle;
 
 static int proto_llap = -1;
 static int hf_llap_dst = -1;
@@ -60,6 +65,115 @@ static int hf_ddp_dst_socket = -1;
 static int hf_ddp_src_socket = -1;
 static int hf_ddp_type = -1;
 
+
+/* --------------------------------------
+ * ATP protocol parameters
+ * from netatalk/include/atalk/atp.h
+ */
+#define ATP_MAXDATA     (578+4)         /* maximum ATP data size */
+#define ATP_BUFSIZ      587             /* maximum packet size */
+#define ATP_HDRSIZE     5               /* includes DDP type field */
+ 
+#define ATP_TRELMASK    0x07            /* mask all but TREL */
+#define ATP_RELTIME     30              /* base release timer (in secs) */
+  
+#define ATP_TREL30      0x0             /* release time codes */
+#define ATP_TREL1M      0x1             /* these are passed in flags of */
+#define ATP_TREL2M      0x2             /* atp_sreq call, and set in the */
+#define ATP_TREL4M      0x3             /* packet control info. */
+#define ATP_TREL8M      0x4
+
+/* flags for ATP options (and control byte)
+*/
+#define ATP_NONE        0
+#define ATP_STS         1 /* (1<<3)          Transaction Status */
+#define ATP_EOM         2 /* (1<<4)          End Of Message */
+#define ATP_XO          4 /* (1<<5)          eXactly Once mode */
+ 
+/* function codes
+*/
+#define ATP_FUNCMASK    (3<<6)          /* mask all but function */
+  
+#define ATP_TREQ        1 /* (1<<6)        Trans. REQuest */
+#define ATP_TRESP       2 /* (2<<6)        Trans. RESPonse */
+#define ATP_TREL        3 /* (3<<6)        Trans. RELease */
+
+/* ------------------------- */    
+static dissector_handle_t asp_handle;
+
+static int proto_atp = -1;
+static int hf_atp_ctrlinfo = -1; /* u_int8_t  control information */
+static int hf_atp_function = -1; /* bits 7,6  function */
+static int hf_atp_option   = -1; /* bits 5,4,3  option */
+
+static int hf_atp_bitmap = -1;   /* u_int8_t  bitmap or sequence number */
+static int hf_atp_tid = -1;      /* u_int16_t transaction id. */
+
+/* --------------------------------
+ * from netatalk/include/atalk/ats.h
+ */
+ 
+#define ASPFUNC_CLOSE   1
+#define ASPFUNC_CMD     2
+#define ASPFUNC_STAT    3
+#define ASPFUNC_OPEN    4
+#define ASPFUNC_TICKLE  5
+#define ASPFUNC_WRITE   6
+#define ASPFUNC_WRTCONT 7
+#define ASPFUNC_ATTN    8
+
+#define ASP_HDRSIZ      4 
+#define ASPERR_OK       0x0000
+#define ASPERR_BADVERS  0xfbd6
+#define ASPERR_BUFSMALL 0xfbd5
+#define ASPERR_NOSESS   0xfbd4
+#define ASPERR_NOSERV   0xfbd3
+#define ASPERR_PARM     0xfbd2
+#define ASPERR_SERVBUSY 0xfbd1
+#define ASPERR_SESSCLOS 0xfbd0
+#define ASPERR_SIZERR   0xfbcf
+#define ASPERR_TOOMANY  0xfbce
+#define ASPERR_NOACK    0xfbcd
+
+static int proto_asp = -1;
+static int hf_asp_func = -1;
+static int hf_asp_error = -1;
+
+static guint asp_packet_init_count = 200;
+
+typedef struct {
+	guint32 conversation;
+	guint16	seq;
+} asp_request_key;
+ 
+typedef struct {
+	guint8	command;
+} asp_request_val;
+ 
+static GHashTable *asp_request_hash = NULL;
+static GMemChunk *asp_request_keys = NULL;
+static GMemChunk *asp_request_vals = NULL;
+
+/* Hash Functions */
+static gint  asp_equal (gconstpointer v, gconstpointer v2)
+{
+	asp_request_key *val1 = (asp_request_key*)v;
+	asp_request_key *val2 = (asp_request_key*)v2;
+
+	if (val1->conversation == val2->conversation &&
+			val1->seq == val2->seq) {
+		return 1;
+	}
+	return 0;
+}
+
+static guint asp_hash  (gconstpointer v)
+{
+        asp_request_key *asp_key = (asp_request_key*)v;
+        return asp_key->seq;
+}
+
+/* ------------------------------------ */
 static int proto_nbp = -1;
 static int hf_nbp_op = -1;
 static int hf_nbp_info = -1;
@@ -83,6 +197,11 @@ static int hf_rtmp_tuple_range_start = -1;
 static int hf_rtmp_tuple_range_end = -1;
 static int hf_rtmp_tuple_dist = -1;
 static int hf_rtmp_function = -1;
+
+static gint ett_atp = -1;
+
+static gint ett_atp_info = -1;
+static gint ett_asp = -1;
 
 static gint ett_nbp = -1;
 static gint ett_nbp_info = -1;
@@ -148,6 +267,86 @@ static const value_string nbp_op_vals[] = {
   {NBP_REPLY, "reply"},
   {0, NULL}
 };
+
+static const value_string atp_function_vals[] = {
+  {ATP_TREQ        ,"REQuest"},
+  {ATP_TRESP       ,"RESPonse"},
+  {ATP_TREL        ,"RELease"},
+  {0, NULL}
+};
+
+static const value_string atp_option_vals[] = {
+  {ATP_NONE	   ,"None"},
+  {ATP_STS         ,"Transaction Status"},
+  {ATP_EOM         ,"End Of Message"},
+  {ATP_XO          ,"eXactly Once mode"},
+  {0, NULL}
+};
+
+/*
+*/
+static const value_string asp_func_vals[] = {
+  {ASPFUNC_CLOSE,	"CloseSession" },
+  {ASPFUNC_CMD,		"Command" },
+  {ASPFUNC_STAT,	"GetStatus" },
+  {ASPFUNC_OPEN,	"OpenSession" },
+  {ASPFUNC_TICKLE,	"Tickle" },
+  {ASPFUNC_WRITE,	"Write" },
+  {ASPFUNC_WRTCONT, "Write Cont" },
+  {ASPFUNC_ATTN,	"Attention" },
+  {0,			NULL } };
+
+static const value_string asp_error_vals[] = {
+  {AFP_OK			, "success"},
+  {AFPERR_ACCESS	, "permission denied" },
+  {AFPERR_AUTHCONT	, "logincont" },
+  {AFPERR_BADUAM	, "uam doesn't exist" },
+  {AFPERR_BADVERS	, "bad afp version number" },
+  {AFPERR_BITMAP	, "invalid bitmap" },
+  {AFPERR_CANTMOVE 	, "can't move file" },
+  {AFPERR_DENYCONF	, "file synchronization locks conflict" },
+  {AFPERR_DIRNEMPT	, "directory not empty" },
+  {AFPERR_DFULL		, "disk full" },
+  {AFPERR_EOF		, "end of file" },
+  {AFPERR_BUSY		, "FileBusy" },
+  {AFPERR_FLATVOL  	, "volume doesn't support directories" },
+  {AFPERR_NOITEM	, "ItemNotFound" },
+  {AFPERR_LOCK     	, "LockErr" },
+  {AFPERR_MISC     	, "misc. err" },
+  {AFPERR_NLOCK    	, "no more locks" },
+  {AFPERR_NOSRVR	, "no response by server at that address" },
+  {AFPERR_EXIST		, "object already exists" },
+  {AFPERR_NOOBJ		, "object not found" },
+  {AFPERR_PARAM		, "parameter error" },
+  {AFPERR_NORANGE  	, "no range lock" },
+  {AFPERR_RANGEOVR 	, "range overlap" },
+  {AFPERR_SESSCLOS 	, "session closed" },
+  {AFPERR_NOTAUTH	, "user not authenticated" },
+  {AFPERR_NOOP		, "command not supported" },
+  {AFPERR_BADTYPE	, "object is the wrong type" },
+  {AFPERR_NFILE		, "too many files open" },
+  {AFPERR_SHUTDOWN	, "server is going down" },
+  {AFPERR_NORENAME 	, "can't rename" },
+  {AFPERR_NODIR		, "couldn't find directory" },
+  {AFPERR_ITYPE		, "wrong icon type" },
+  {AFPERR_VLOCK		, "volume locked" },
+  {AFPERR_OLOCK    	, "object locked" },
+  {AFPERR_CTNSHRD  	, "share point contains a share point" },
+  {AFPERR_NOID     	, "file thread not found" },
+  {AFPERR_EXISTID  	, "file already has an id" },
+  {AFPERR_DIFFVOL  	, "different volume" },
+  {AFPERR_CATCHNG  	, "catalog has changed" },
+  {AFPERR_SAMEOBJ  	, "source file == destination file" },
+  {AFPERR_BADID    	, "non-existent file id" },
+  {AFPERR_PWDSAME  	, "same password/can't change password" },
+  {AFPERR_PWDSHORT 	, "password too short" },
+  {AFPERR_PWDEXPR  	, "password expired" },
+  {AFPERR_INSHRD   	, "folder being shared is inside a shared folder." },
+  {AFPERR_INTRASH   , "shared folder in trash." },
+  {AFPERR_PWDCHNG   , "password needs to be changed" },
+  {AFPERR_PWDPOLCY  , "password fails policy check" },
+  {AFPERR_USRLOGIN  , "user already logged on" },
+  {0,			NULL } };
 
 /*
  * XXX - do this with an FT_UINT_STRING?
@@ -367,6 +566,179 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   return;
 }
 
+/* ----------------------------- 
+   FIXME : need desegmentation 
+   atp.function == 0x80 (response)
+   atp.bitmap 0 .. 7
+   until atp.option == 0x10 (end of message)
+*/
+static void
+dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  proto_tree *atp_tree;
+  proto_item *ti;
+  proto_tree *atp_info_tree;
+  proto_item *info_item;
+  int offset = 0;
+  guint8 ctrlinfo;
+  guint op;
+  guint16 tid;
+  struct aspinfo aspinfo;
+  tvbuff_t   *new_tvb;
+  int len;
+  
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
+
+  ctrlinfo = tvb_get_guint8(tvb, offset);
+  op = ctrlinfo >> 6;
+  tid = tvb_get_ntohs(tvb, offset +2);
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s transaction %d", 
+    	val_to_str(op, atp_function_vals, "Unknown (0x%01x)"), 
+    	tid);
+  }  
+  aspinfo.reply   = (0x80 == (ctrlinfo & 0xC0))?1:0;
+  aspinfo.release = (0xC0 == (ctrlinfo & 0xC0))?1:0;
+
+  aspinfo.seq = tid;
+  aspinfo.code = 0;
+
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_atp, tvb, offset, -1, FALSE);
+    atp_tree = proto_item_add_subtree(ti, ett_atp);
+	proto_item_set_len(atp_tree, ATP_HDRSIZE -1);
+
+    info_item = proto_tree_add_item(atp_tree, hf_atp_ctrlinfo, tvb, offset, 1, FALSE);
+    atp_info_tree = proto_item_add_subtree(info_item, ett_atp_info);
+
+	proto_tree_add_item(atp_info_tree, hf_atp_function, tvb, offset, 1, FALSE);
+	proto_tree_add_item(atp_info_tree, hf_atp_option, tvb, offset, 1, FALSE);
+
+	if (!aspinfo.reply) {
+		guint8 bitmap = tvb_get_guint8(tvb, offset +1);
+		guint8 nbe = 0;
+		guint8 t = bitmap;
+		
+		while(t) {
+			nbe++;
+			t >>= 1;
+		}
+		proto_tree_add_text(atp_tree, tvb, offset +1, 1, "Bitmap: 0x%02x  %d packet(s) max",
+							bitmap, nbe);
+	}
+    else {
+    	proto_tree_add_item(atp_tree, hf_atp_bitmap, tvb, offset +1, 1, FALSE);
+	}
+    proto_tree_add_item(atp_tree, hf_atp_tid, tvb, offset +2, 2, FALSE);
+  }
+
+  pinfo->private_data = &aspinfo;
+  len = tvb_reported_length_remaining(tvb,ATP_HDRSIZE -1);
+  new_tvb = tvb_new_subset(tvb, ATP_HDRSIZE -1,-1,len);
+  call_dissector(asp_handle, new_tvb, pinfo, tree);
+
+  return;
+}
+
+/* ----------------------------- */
+static void
+dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
+{
+  struct aspinfo *aspinfo = pinfo->private_data;
+  int offset = 0;
+  proto_tree *asp_tree = NULL;
+  proto_item *ti;
+  guint8 fn;
+  gint32 error;
+  int len;
+  conversation_t	*conversation;
+  asp_request_key request_key, *new_request_key;
+  asp_request_val *request_val;
+    
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ASP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
+
+  conversation = find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype,
+		pinfo->srcport, pinfo->destport, 0);
+
+  if (conversation == NULL)
+  {
+	conversation = conversation_new(&pinfo->src, &pinfo->dst,
+			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+  }
+
+  request_key.conversation = conversation->index;	
+  request_key.seq = aspinfo->seq;
+
+  request_val = (asp_request_val *) g_hash_table_lookup(
+								asp_request_hash, &request_key);
+
+  if (!request_val && !aspinfo->reply && !aspinfo->release)  {
+	 fn = tvb_get_guint8(tvb, offset);
+     new_request_key = g_mem_chunk_alloc(asp_request_keys);
+	 *new_request_key = request_key;
+
+	 request_val = g_mem_chunk_alloc(asp_request_vals);
+	 request_val->command = fn;
+
+	 g_hash_table_insert(asp_request_hash, new_request_key,
+								request_val);
+  }
+
+  if (!request_val) { 
+	return;
+  }
+
+  fn = request_val->command;
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+	if (aspinfo->reply)
+    	col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %d",aspinfo->seq);
+	else if (aspinfo->release)
+    	col_add_fstr(pinfo->cinfo, COL_INFO, "Release tid %d",aspinfo->seq);
+    else
+    	col_add_fstr(pinfo->cinfo, COL_INFO, "Function: %s  tid %d",
+      				val_to_str(fn, asp_func_vals, "Unknown (0x%01x)"), aspinfo->seq);
+  }
+
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_asp, tvb, offset, -1, FALSE);
+    asp_tree = proto_item_add_subtree(ti, ett_asp);
+    if (!aspinfo->reply && !aspinfo->release) {
+    	proto_tree_add_item(asp_tree, hf_asp_func, tvb, offset, 1, FALSE);
+    }
+    else { /* error code */
+		error = tvb_get_ntohl(tvb, offset);
+		if (error <= 0) 
+	    	proto_tree_add_item(asp_tree, hf_asp_error, tvb, offset, 4, FALSE);
+    }
+  }
+  aspinfo->command = fn;
+  offset += 4;
+  len = tvb_reported_length_remaining(tvb,offset);
+  if (!aspinfo->release &&
+  		   (fn == ASPFUNC_CMD || fn  == ASPFUNC_WRITE)) {
+	tvbuff_t   *new_tvb;
+
+	if (len) {
+
+		if (asp_tree)
+			proto_item_set_len(asp_tree, 4); 
+		new_tvb = tvb_new_subset(tvb, offset,-1,len);
+		call_dissector(afp_handle, new_tvb, pinfo, tree);  	
+	}
+  }
+  else {	
+	call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,len), pinfo, tree); 
+  }
+}
+
+
 static void
 dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, guint8 dnode,
 		  guint8 snode, proto_tree *tree)
@@ -560,6 +932,29 @@ dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   call_dissector(data_handle,new_tvb, pinfo, tree);
 }
 
+static void asp_reinit( void)
+{
+
+	if (asp_request_hash)
+		g_hash_table_destroy(asp_request_hash);
+	if (asp_request_keys)
+		g_mem_chunk_destroy(asp_request_keys);
+	if (asp_request_vals)
+		g_mem_chunk_destroy(asp_request_vals);
+
+	asp_request_hash = g_hash_table_new(asp_hash, asp_equal);
+
+	asp_request_keys = g_mem_chunk_new("asp_request_keys",
+		sizeof(asp_request_key),
+		asp_packet_init_count * sizeof(asp_request_key),
+		G_ALLOC_AND_FREE);
+	asp_request_vals = g_mem_chunk_new("asp_request_vals",
+		sizeof(asp_request_val),
+		asp_packet_init_count * sizeof(asp_request_val),
+		G_ALLOC_AND_FREE);
+
+}
+
 void
 proto_register_atalk(void)
 {
@@ -682,16 +1077,50 @@ proto_register_atalk(void)
 		VALS(rtmp_function_vals), 0x0, "Request Function", HFILL }}
   };
 
+  static hf_register_info hf_atp[] = {
+    { &hf_atp_ctrlinfo,
+      { "control info",		"atp.ctrlinfo",	FT_UINT8,  BASE_HEX, 
+		NULL, 0, "control info", HFILL }},
 
+    { &hf_atp_function,
+      { "function",		"atp.function",	FT_UINT8,  BASE_DEC, 
+		VALS(atp_function_vals), 0xC0, "function code", HFILL }},
+
+    
+    { &hf_atp_option,
+      { "option",		"atp.option",	FT_UINT8,  BASE_DEC, 
+		VALS(atp_option_vals), 0x38, "options", HFILL }},
+
+    { &hf_atp_bitmap,
+      { "Bitmap",		"atp.bitmap",	FT_UINT8,  BASE_HEX, 
+		NULL, 0x0, "bitmap or sequence number", HFILL }},
+    { &hf_atp_tid,
+      { "tid",		"atp.tid",	FT_UINT16,  BASE_DEC, 
+		NULL, 0,   "transaction id", HFILL }},
+  };
+
+  static hf_register_info hf_asp[] = {
+    { &hf_asp_func,
+      { "asp function",		"asp.function",	FT_UINT8,  BASE_DEC, 
+		VALS(asp_func_vals), 0, "asp function", HFILL }},
+
+    { &hf_asp_error,
+      { "asp error",		"asp.error",	FT_INT32,  BASE_DEC, 
+		VALS(asp_error_vals), 0, "return error code", HFILL }},
+  };
+  
   static gint *ett[] = {
   	&ett_llap,
 	&ett_ddp,
+	&ett_atp,
+	&ett_atp_info,
+	&ett_asp,
 	&ett_nbp,
 	&ett_nbp_info,
 	&ett_nbp_node,
 	&ett_pstring,
 	&ett_rtmp,
-	&ett_rtmp_tuple
+	&ett_rtmp_tuple,
   };
 
   proto_llap = proto_register_protocol("LocalTalk Link Access Protocol", "LLAP", "llap");
@@ -702,6 +1131,12 @@ proto_register_atalk(void)
 
   proto_nbp = proto_register_protocol("Name Binding Protocol", "NBP", "nbp");
   proto_register_field_array(proto_nbp, hf_nbp, array_length(hf_nbp));
+
+  proto_atp = proto_register_protocol("AppleTalk Transaction Protocol packet", "ATP", "atp");
+  proto_register_field_array(proto_atp, hf_atp, array_length(hf_atp));
+
+  proto_asp = proto_register_protocol("AppleTalk Stream Protocol", "ASP", "asp");
+  proto_register_field_array(proto_asp, hf_asp, array_length(hf_asp));
 
   proto_rtmp = proto_register_protocol("Routing Table Maintenance Protocol",
 				       "RTMP", "rtmp");
@@ -718,6 +1153,7 @@ void
 proto_reg_handoff_atalk(void)
 {
   dissector_handle_t ddp_handle, nbp_handle, rtmp_request_handle;
+  dissector_handle_t atp_handle;
   dissector_handle_t rtmp_data_handle, llap_handle;
 
   ddp_handle = create_dissector_handle(dissect_ddp, proto_ddp);
@@ -729,6 +1165,11 @@ proto_reg_handoff_atalk(void)
   nbp_handle = create_dissector_handle(dissect_nbp, proto_nbp);
   dissector_add("ddp.type", DDP_NBP, nbp_handle);
 
+  atp_handle = create_dissector_handle(dissect_atp, proto_atp);
+  dissector_add("ddp.type", DDP_ATP, atp_handle);
+
+  asp_handle = create_dissector_handle(dissect_asp, proto_asp);
+
   rtmp_request_handle = create_dissector_handle(dissect_rtmp_request, proto_rtmp);
   rtmp_data_handle = create_dissector_handle(dissect_rtmp_data, proto_rtmp);
   dissector_add("ddp.type", DDP_RTMPREQ, rtmp_request_handle);
@@ -737,5 +1178,8 @@ proto_reg_handoff_atalk(void)
   llap_handle = create_dissector_handle(dissect_llap, proto_llap);
   dissector_add("wtap_encap", WTAP_ENCAP_LOCALTALK, llap_handle);
 
+  register_init_routine( &asp_reinit);
+
+  afp_handle = find_dissector("afp");
   data_handle = find_dissector("data");
 }
