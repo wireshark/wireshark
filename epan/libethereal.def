@@ -268,6 +268,7 @@ gsm_a_pd_str                    DATA
 gsm_map_opr_code_strings        DATA
 g_resolv_flags                  DATA
 h323_message_body_vals          DATA
+have_tap_listeners
 heur_dissector_add
 host_name_lookup_process
 incomplete_tcp_stream           DATA
@@ -424,6 +425,7 @@ rpc_proc_name
 rpc_progs                       DATA
 rpc_prog_hf
 rpc_prog_name
+rtp_payload_type_vals           DATA
 set_actual_length
 set_timestamp_setting
 show_fragment_seq_tree
