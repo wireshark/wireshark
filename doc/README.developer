@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.81 2003/10/09 21:18:41 guy Exp $
+$Id: README.developer,v 1.82 2003/10/20 23:07:43 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -26,6 +26,10 @@ example, doesn't do so by default).
 
 Don't use zero-length arrays; not all compilers support them.  If an
 array would have no members, just leave it out.
+
+Don't declare variables in the middle of executable code; not all C
+compilers support that.  Variables should be declared outside a
+function, or at the beginning of a function or compound statement.
 
 Don't use "inline"; not all compilers support it.  If you want to have a
 function be an inline function if the compiler supports it, use
@@ -231,7 +235,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.81 2003/10/09 21:18:41 guy Exp $"
+The "$Id: README.developer,v 1.82 2003/10/20 23:07:43 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -241,7 +245,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.81 2003/10/09 21:18:41 guy Exp $
+ * $Id: README.developer,v 1.82 2003/10/20 23:07:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
