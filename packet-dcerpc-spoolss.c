@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.76 2003/01/30 08:19:39 guy Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.77 2003/01/30 23:41:28 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -946,6 +946,8 @@ dissect_unistr2(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	if (pdata)
 		*pdata = data;
+	else
+		g_free(data);
 
 	return offset;
 }
@@ -1039,7 +1041,7 @@ static int SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	char *value_name = NULL;
+	char *value_name;
 
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0,
@@ -1054,14 +1056,16 @@ static int SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
 		FALSE, FALSE);
 
+	value_name = dcv->private_data;
+
 	offset = dissect_unistr2(
 		tvb, offset, pinfo, tree, drep, hf_printerdata_value,
-		&value_name);
+		value_name ? NULL : &value_name);
+
+	dcv->private_data = value_name;
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", value_name);
-
-	dcv->private_data = value_name;
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_offered, NULL);
@@ -1096,9 +1100,6 @@ static int SpoolssGetPrinterData_r(tvbuff_t *tvb, int offset,
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", data);
 	}
-
-	if (dcv->private_data)
-		g_free(dcv->private_data);
 
 	offset = dissect_printerdata_data(
 		tvb, offset, pinfo, tree, drep, type);
@@ -1157,7 +1158,9 @@ static int SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s/%s",
 				key_name, value_name);
 
-	dcv->private_data = g_strdup_printf("%s/%s", key_name, value_name);
+	if (!dcv->private_data)
+		dcv->private_data = g_strdup_printf(
+			"%s/%s", key_name, value_name);
 
 	/*
 	 * We're done with key_name, so we can call the cleanup handler to
@@ -1206,9 +1209,6 @@ static int SpoolssGetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", data);
 	}
-
-	if (dcv->private_data)
-		g_free(dcv->private_data);
 
 	if (size)
 		dissect_printerdata_data(tvb, offset, pinfo, tree, drep, type);
@@ -2767,8 +2767,6 @@ static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 	offset = dissect_USER_LEVEL_CTR(tvb, offset, pinfo, tree, drep);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
-
-//	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 	return offset;
 }
