@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-tr.c,v 1.47 2000/10/17 11:05:23 gram Exp $
+ * $Id: packet-tr.c,v 1.48 2000/11/13 05:11:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -307,11 +307,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	volatile guint8		c1_nonsr;
 	volatile guint8		c2_nonsr;
 	volatile guint16	first2_sr;
-
-	/* I make tr_tvb static because I need to set it before any TRY block.
-	 * If tr_tvb were not static, the possibility exists that the value
-	 * I give to tr_tvb would be clobbered. */
-	static tvbuff_t	*tr_tvb = NULL;
+	tvbuff_t		*volatile tr_tvb;
 
 	/* The trn_hdr struct, as separate variables */
 	guint8			trn_ac;		/* access control field */

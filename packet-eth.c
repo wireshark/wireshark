@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.44 2000/08/13 14:08:10 deniel Exp $
+ * $Id: packet-eth.c,v 1.45 2000/11/13 05:11:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -147,22 +147,16 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   const guint8		*pd;
 
   volatile guint16	etype;
-  volatile int		ethhdr_type;	/* the type of ethernet frame */
+  volatile int		ethhdr_type;	/* the type of Ethernet frame */
   volatile int		eth_offset;
   volatile guint16  	length;
-
-  /* These are static because gcc says that they might get clobbered
-   * otherwise. */
-  static tvbuff_t	*next_tvb = NULL;
-  static tvbuff_t	*trailer_tvb;
-  static proto_tree	*fh_tree;
+  tvbuff_t		*volatile next_tvb;
+  tvbuff_t		*volatile trailer_tvb;
+  proto_tree		*volatile fh_tree;
 
   CHECK_DISPLAY_AS_DATA(proto_eth, tvb, pinfo, tree);
 
   tvb_compat(tvb, &pd, (int*)&eth_offset);
-
-  /* Reset this static variable to NULL since I test it's value later */
-  trailer_tvb = NULL;
 
   pinfo->current_proto = "Ethernet";
   orig_captured_len = pinfo->captured_len;
@@ -277,7 +271,8 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  ENDTRY;
   }
   else {
-     next_tvb = tvb_new_subset(tvb, ETH_HEADER_SIZE, -1, -1);
+     next_tvb = NULL;	/* "ethertype()" will create the next tvb for us */
+     trailer_tvb = NULL;	/* we don't know how big the trailer is */
   }
 
   switch (ethhdr_type) {
