@@ -30,8 +30,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <glib.h>
 #include <string.h>
+#include <errno.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -41,18 +41,18 @@
 #include <sys/time.h>
 #endif
 
-#include <string.h>
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
+
+#include <glib.h>
+
 #include <epan/packet.h>
 #include "wtap.h"
 
 #ifdef NEED_GETOPT_H
 #include "getopt.h"
 #endif
-
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-
 
 static gboolean cap_file_type = FALSE;      /* Do not report capture type     */
 static gboolean cap_packet_count = FALSE;   /* Do not produce packet count    */
@@ -117,7 +117,7 @@ print_stats(capture_info *cf_info)
 }
 
 static int 
-process_cap_file(wtap *wth)
+process_cap_file(wtap *wth, const char *filename)
 {
   int			err;
   gchar			*err_info;
@@ -151,13 +151,25 @@ process_cap_file(wtap *wth)
   }
   
   if (err != 0) {
-    fprintf(stderr, "Error after reading %i packets\n", packet);
-    exit(1);
+    fprintf(stderr,
+            "capinfos: An error occurred after reading %u packets from \"%s\": %s.\n",
+	    packet, filename, wtap_strerror(err));
+    switch (err) {
+
+    case WTAP_ERR_UNSUPPORTED:
+    case WTAP_ERR_UNSUPPORTED_ENCAP:
+    case WTAP_ERR_BAD_RECORD:
+      fprintf(stderr, "(%s)\n", err_info);
+      break;
+    }
+    return 1;
   }
 
   /* File size */
   if (fstat(wtap_fd(wth), &cf_stat) < 0) {
-    wtap_close(wth);
+    fprintf(stderr,
+            "capinfos: Can't fstat \"%s\": %s.\n",
+	    filename, strerror(errno));
     return 1;
   }
   
@@ -183,9 +195,10 @@ process_cap_file(wtap *wth)
   /* Avg packet size */
   cf_info.packet_size = (double)bytes/packet;
   
+  printf("File name: %s\n", filename);
   print_stats(&cf_info);
 
-return 0;
+  return 0;
 }
 
 static void usage(gboolean is_error)
@@ -328,8 +341,7 @@ int main(int argc, char *argv[])
 
     if (opt > optind)
       printf("\n");
-    printf("File name: %s\n", argv[opt]);
-    status = process_cap_file(wth);
+    status = process_cap_file(wth, argv[opt]);
   
     wtap_close(wth);
     if (status)
