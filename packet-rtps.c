@@ -12,7 +12,7 @@
  * version: 2004/04/15 9:40:45
  * dedication to Kj :]
  *
- * $Id: packet-rtps.c,v 1.4 2004/04/18 18:55:13 guy Exp $
+ * $Id: packet-rtps.c,v 1.5 2004/04/18 19:52:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -700,7 +700,6 @@ get_bitmap(tvbuff_t *tvb, gint *p_offset, gboolean little_endian,
   proto_tree             *rtps_bitmap_tree;
   gint                    i = 0;
   gint                    offset = *p_offset;
-  guint32                 bitmap = 0x0;
   SequenceNumber          sequenceNumber;
 
   /* making subtree for the bitmap */
