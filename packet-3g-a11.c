@@ -8,7 +8,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <sraab@cisco.com>
  *
- * $Id: packet-3g-a11.c,v 1.1 2004/03/05 10:56:15 guy Exp $
+ * $Id: packet-3g-a11.c,v 1.2 2004/03/05 22:17:09 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -189,8 +189,8 @@ typedef enum {
   RU_AUTH_EXT = 40,       /* 3GPP2 IOS4.2 */
   MN_NAI_EXT = 131,
   MF_CHALLENGE_EXT = 132, /* RFC 3012 */
-  OLD_NVSE_EXT = 133,/* RFC 3115 */
-  NVSE_EXT = 134,    /* RFC 3115 */
+  OLD_NVSE_EXT = 133,     /* RFC 3115 */
+  NVSE_EXT = 134          /* RFC 3115 */
 } MIP_EXTS;
 
 
@@ -308,7 +308,7 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
   int     attribute_type;
   guint      offset0;
   guint      i;
-  u_char     str_val[MAX_STRVAL];
+  guchar     str_val[MAX_STRVAL];
 
   /* None of this really matters if we don't have a tree */
   if (!tree) return;
@@ -435,7 +435,7 @@ dissect_a11_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
   guint8        ext_subtype=0;
   size_t        hdrLen;
 
-  u_int16_t     apptype = -1;
+  guint16       apptype = -1;
 
   /* None of this really matters if we don't have a tree */
   if (!tree) return;
@@ -1067,7 +1067,7 @@ void proto_register_a11(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_a11, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-};
+}
 
 void
 proto_reg_handoff_a11(void)
