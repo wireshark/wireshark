@@ -1,7 +1,7 @@
 /* plugin_api.c
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.c,v 1.50 2003/05/01 21:10:43 guy Exp $
+ * $Id: plugin_api.c,v 1.51 2003/06/03 02:32:55 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -254,4 +254,6 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_except_free				= pat->p_except_free;
 	p_except_pop				= pat->p_except_pop;
 	p_except_setup_try			= pat->p_except_setup_try;
+
+	p_col_set_fence				= pat->p_col_set_fence;
 }

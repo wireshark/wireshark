@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.13 2003/06/02 18:40:02 gerald Exp $
+; $Id: ethereal.nsi,v 1.14 2003/06/03 02:32:55 gerald Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -184,6 +184,11 @@ Section "Uninstall"
 
 DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal"
 DeleteRegKey HKEY_LOCAL_MACHINE SOFTWARE\Ethereal
+
+;
+; UnInstall for every user
+;
+SetShellVarContext all
 
 Delete "$INSTDIR\plugins\${VERSION}\*.*"
 Delete "$INSTDIR\plugins\*.*"

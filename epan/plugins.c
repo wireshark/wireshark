@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.70 2003/05/01 21:10:42 guy Exp $
+ * $Id: plugins.c,v 1.71 2003/06/03 02:32:54 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -144,13 +144,19 @@ static void
 plugins_scan_dir(const char *dirname)
 {
 #define FILENAME_LEN	1024
+#if GLIB_MAJOR_VERSION < 2
     gchar         *hack_path;       /* pathname used to construct lt_lib_ext */
     gchar         *lt_lib_ext;      /* extension for loadable modules */
     DIR           *dir;             /* scanned directory */
     struct dirent *file;            /* current file */
+    gchar         *name;
+#else /* GLIB 2 */
+    GDir          *dir;             /* scanned directory */
+    GError        **dummy;
+    const gchar   *name;
+#endif
     gchar          filename[FILENAME_LEN];   /* current file name */
     GModule       *handle;          /* handle returned by dlopen */
-    gchar         *name;
     gchar         *version;
     void         (*init)(void *);
     void         (*reg_handoff)(void);
@@ -168,6 +174,8 @@ plugins_scan_dir(const char *dirname)
      * to use, but that's not checked into the GLib CVS tree yet,
      * and we can't use it on systems that don't have GLib 2.0.
      */
+
+#if GLIB_MAJOR_VERSION < 2
     hack_path = g_module_build_path("", "");
     lt_lib_ext = strrchr(hack_path, '.');
     if (lt_lib_ext == NULL)
@@ -202,6 +210,27 @@ plugins_scan_dir(const char *dirname)
 		continue;
 	    }
 	    name = (gchar *)file->d_name;
+#else /* GLIB 2 */
+    dummy = g_malloc(sizeof(GError *));
+    *dummy = NULL;
+    if ((dir = g_dir_open(dirname, 0, dummy)) != NULL)
+    {
+    	while ((name = g_dir_read_name(dir)) != NULL)
+	{
+	    /* skip anything but files with G_MODULE_SUFFIX */
+            dot = strrchr(name, '.');
+            if (dot == NULL || strcmp(dot+1, G_MODULE_SUFFIX) != 0) continue;
+
+	    snprintf(filename, FILENAME_LEN, "%s" G_DIR_SEPARATOR_S "%s",
+	        dirname, name);
+
+	    if ((handle = g_module_open(filename, 0)) == NULL)
+	    {
+		g_warning("Couldn't load module %s: %s", filename,
+			  g_module_error());
+		continue;
+	    }
+#endif
 	    if (g_module_symbol(handle, "version", (gpointer*)&version) == FALSE)
 	    {
 	        g_warning("The plugin %s has no version symbol", name);
@@ -234,7 +263,7 @@ plugins_scan_dir(const char *dirname)
 		 * We have a "plugin_reg_handoff()" routine, so we don't
 		 * need the protocol, filter string, or dissector pointer.
 		 */
-		if ((cr = add_plugin(handle, g_strdup(file->d_name), version,
+		if ((cr = add_plugin(handle, g_strdup(name), version,
 				     reg_handoff)))
 		{
 		    if (cr == EEXIST)
@@ -268,9 +297,16 @@ plugins_scan_dir(const char *dirname)
 		    "Those are no longer supported.\n", name, version);
 	    }
 	}
+#if GLIB_MAJOR_VERSION < 2
 	closedir(dir);
     }
     g_free(hack_path);
+#else /* GLIB 2 */
+	g_dir_close(dir);
+    }
+    g_clear_error(dummy);
+    g_free(dummy);
+#endif
 }
 
 /*
@@ -489,7 +525,7 @@ init_plugins(const char *plugin_dir)
 	patable.p_fragment_delete		= fragment_delete;
 	patable.p_show_fragment_tree		= show_fragment_tree;
 	patable.p_show_fragment_seq_tree	= show_fragment_seq_tree;
-	
+
 	patable.p_register_tap			= register_tap;
 	patable.p_tap_queue_packet		= tap_queue_packet;
 
@@ -517,7 +553,7 @@ init_plugins(const char *plugin_dir)
 	patable.p_asn1_oid_decode		= asn1_oid_decode;
 	patable.p_asn1_sequence_decode		= asn1_sequence_decode;
 	patable.p_asn1_err_to_str		= asn1_err_to_str;
-	
+
 	patable.p_proto_item_set_end		= proto_item_set_end;
 	patable.p_proto_tree_add_none_format	= proto_tree_add_none_format;
 
@@ -533,6 +569,8 @@ init_plugins(const char *plugin_dir)
 	patable.p_except_free			= except_free;
 	patable.p_except_pop			= except_pop;
 	patable.p_except_setup_try		= except_setup_try;
+
+	patable.p_col_set_fence			= col_set_fence;
 #endif
 
 #ifdef WIN32
