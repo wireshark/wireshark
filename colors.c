@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.4 1999/08/25 03:22:45 guy Exp $
+ * $Id: colors.c,v 1.5 1999/08/28 02:18:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -89,15 +89,11 @@ colors_init(capture_file *cf)
   if( !gdk_colormap_alloc_color(sys_cmap, &WHITE, TRUE, TRUE)){
 	/* oops */
 	simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate color white.");
-	fprintf(stderr,"Color allocation failed\n");
-        fflush(stderr);
   }
 
   if( !gdk_colormap_alloc_color(sys_cmap, &BLACK, TRUE, TRUE)){
 	/* oops */
 	simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate color black.");
-	fprintf(stderr,"Color allocation failed\n");
-        fflush(stderr);
   }
 
 #ifdef READ_DEFAULT_COLOR_LIST
@@ -109,8 +105,6 @@ colors_init(capture_file *cf)
 		/* oops */
 		simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate color %s.",
 		    default_colors[i].color);
-		fprintf(stderr,"Color allocation failed\n");
-		fflush(stderr);
 	}
 
 	new_color_filter(cf->colors, default_colors[i].proto, default_colors[i].proto);
@@ -128,9 +122,6 @@ colors_init(capture_file *cf)
   }
 #endif
   read_filters(cf);
-
-  fprintf(stderr,"Colors initialized\n");
-  fflush(stderr);
 }
 
 void
@@ -263,8 +254,6 @@ read_filters(capture_file *cf)
 			simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate fg color specified"
 			    "in input file for %s.", name);
 
-			fprintf(stderr,"Color allocation failed\n");
-			fflush(stderr);
 			i++;
 			continue;
 	    }
@@ -272,8 +261,6 @@ read_filters(capture_file *cf)
 			/* oops */
 			simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate bg color specified"
 			    "in input file for %s.", name);
-			fprintf(stderr,"Color allocation failed\n");
-			fflush(stderr);
 			i++;
 			continue;
 	    }
