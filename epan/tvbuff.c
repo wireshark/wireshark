@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.22 2001/11/03 00:19:26 guy Exp $
+ * $Id: tvbuff.c,v 1.23 2001/11/03 03:41:35 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -143,7 +143,7 @@ tvb_init(tvbuff_t *tvb, tvbuff_type type)
 	tvb->real_data		= NULL;
 	tvb->raw_offset		= -1;
 	tvb->used_in		= NULL;
-    tvb->ds_name        = NULL;
+	tvb->ds_name		= NULL;
 
 	switch(type) {
 		case TVBUFF_REAL_DATA:
