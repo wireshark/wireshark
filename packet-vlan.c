@@ -1,7 +1,7 @@
 /* packet-vlan.c
  * Routines for VLAN 802.1Q ethernet header disassembly
  *
- * $Id: packet-vlan.c,v 1.1 1999/10/20 22:41:11 guy Exp $
+ * $Id: packet-vlan.c,v 1.2 1999/11/05 18:50:52 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,7 +47,7 @@ static int hf_vlan_cfi = -1;
 void
 dissect_vlan(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_tree *ti, *vlan_tree = NULL;
-  guint16 tci,proto;
+  guint16 tci,encap_proto;
 
   if (!BYTES_ARE_IN_FRAME(offset, 2*sizeof(guint16))) {
     return;
@@ -56,11 +56,12 @@ dissect_vlan(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "VLAN");
 
-  tci = ntohs( *((int *)pd) );
-  proto = ntohs( *((int *)pd) );
+  tci = pntohs( &pd[offset] );
+  encap_proto = pntohs( &pd[offset+2] );
+
   if (check_col(fd, COL_INFO)) {
     col_add_fstr(fd, COL_INFO, "PRI: %d  CFI: %d  ID: %d",
-      (tci >> 5), (tci & (1 << 4)), (tci & 0xFFF));
+      (tci >> 13), ((tci >> 12) & 1), (tci & 0xFFF));
   }
 
   if (tree) {
@@ -72,7 +73,7 @@ dissect_vlan(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     proto_tree_add_item(vlan_tree, hf_vlan_id, offset, 2, tci);
   }
 
-  ethertype(proto, offset+4, pd, fd, tree, vlan_tree, hf_vlan_etype);
+  ethertype(encap_proto, offset+4, pd, fd, tree, vlan_tree, hf_vlan_etype);
 }
 
 void
