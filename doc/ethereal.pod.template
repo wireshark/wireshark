@@ -1062,6 +1062,7 @@ B<http://www.ethereal.com>.
   David Hampton            <dhampton@mac.com>
   Kent Engström            <kent@unit.liu.se>
   Ronnie Sahlberg          <rsahlber@bigpond.net.au>
+  Alexandre P. Ferreira    <alexandref@spliceip.com.br>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

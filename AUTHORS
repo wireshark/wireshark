@@ -494,6 +494,11 @@ Borosa Tomislav <tomislav.borosa@SIEMENS.HR> {
 	Updates to mobile IPv6
 }
 
+Alexandre P. Ferreira <alexandref@spliceip.com.br> {
+	WTLS support
+	WSP fixes
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
