@@ -1,8 +1,8 @@
 /* sna-utils.c
  * Routines for SNA
- * Gilbert Ramirez <gram@xiexie.org>
+ * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: sna-utils.c,v 1.2 2001/04/01 07:06:24 hagbard Exp $
+ * $Id: sna-utils.c,v 1.3 2001/11/13 23:55:37 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

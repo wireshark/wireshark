@@ -1,8 +1,8 @@
 /* packet-who.c
  * Routines for who protocol (see man rwhod)
- * Gilbert Ramirez <gram@xiexie.org>
+ * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-who.c,v 1.18 2001/09/14 07:10:06 guy Exp $
+ * $Id: packet-who.c,v 1.19 2001/11/13 23:55:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

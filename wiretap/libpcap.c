@@ -1,9 +1,9 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.56 2001/11/09 07:44:51 guy Exp $
+ * $Id: libpcap.c,v 1.57 2001/11/13 23:55:43 gram Exp $
  *
  * Wiretap Library
- * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
+ * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

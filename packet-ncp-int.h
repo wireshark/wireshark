@@ -1,8 +1,8 @@
 /* packet-ncp-int.h
  * Structures and functions for NetWare Core Protocol.
- * Gilbert Ramirez <gram@xiexie.org>
+ * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp-int.h,v 1.3 2001/06/28 02:42:48 gram Exp $
+ * $Id: packet-ncp-int.h,v 1.4 2001/11/13 23:55:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

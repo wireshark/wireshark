@@ -4,9 +4,9 @@
  * Creates random packet traces. Useful for debugging sniffers by testing
  * assumptions about the veracity of the data found in the packet.
  *
- * $Id: randpkt.c,v 1.10 2001/03/31 10:13:11 guy Exp $
+ * $Id: randpkt.c,v 1.11 2001/11/13 23:55:30 gram Exp $
  *
- * Copyright (C) 1999 by Gilbert Ramirez <gram@xiexie.org>
+ * Copyright (C) 1999 by Gilbert Ramirez <gram@alumni.rice.edu>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

@@ -1,9 +1,7 @@
 /* ipproto.c
  * Routines for converting IPv4 protocol/v6 nxthdr field into string
  *
- * $Id: ipproto.c,v 1.14 2001/07/21 10:27:12 guy Exp $
- *
- * Gilbert Ramirez <gram@xiexie.org>
+ * $Id: ipproto.c,v 1.15 2001/11/13 23:55:29 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,9 +1,9 @@
 /* ascend.c
  *
- * $Id: ascend.c,v 1.25 2001/10/04 08:30:35 guy Exp $
+ * $Id: ascend.c,v 1.26 2001/11/13 23:55:43 gram Exp $
  *
  * Wiretap Library
- * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
+ * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

@@ -1,8 +1,8 @@
 /* packet-lapd.c
  * Routines for LAPD frame disassembly
- * Gilbert Ramirez <gram@xiexie.org>
+ * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-lapd.c,v 1.23 2001/06/18 02:17:48 guy Exp $
+ * $Id: packet-lapd.c,v 1.24 2001/11/13 23:55:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

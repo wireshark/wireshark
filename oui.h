@@ -1,8 +1,7 @@
 /* oui.h
  * Definitions of OUIs
- * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: oui.h,v 1.10 2001/06/02 03:04:12 guy Exp $
+ * $Id: oui.h,v 1.11 2001/11/13 23:55:29 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

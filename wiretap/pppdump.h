@@ -1,8 +1,8 @@
 /* pppdump.h
  *
- * $Id: pppdump.h,v 1.1 2000/09/19 17:22:10 gram Exp $
+ * $Id: pppdump.h,v 1.2 2001/11/13 23:55:44 gram Exp $
  *
- * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
+ * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

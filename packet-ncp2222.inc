@@ -5,9 +5,9 @@
  * #include'd instead of being in a separate compilation unit so
  * that all the data tables in packet-ncp2222.c can remain static.
  *
- * Gilbert Ramirez <gram@xiexie.org>
+ * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp2222.inc,v 1.4 2001/09/03 10:33:05 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.5 2001/11/13 23:55:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

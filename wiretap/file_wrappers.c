@@ -1,9 +1,9 @@
 /* file_wrappers.c
  *
- * $Id: file_wrappers.c,v 1.8 2001/09/20 16:36:45 ashokn Exp $
+ * $Id: file_wrappers.c,v 1.9 2001/11/13 23:55:43 gram Exp $
  *
  * Wiretap Library
- * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
+ * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

@@ -3,9 +3,9 @@
  * IPv4 address class. They understand how to take netmasks into consideration
  * during equivalence testing.
  *
- * Gilbert Ramirez <gram@xiexie.org>
+ * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: ipv4.h,v 1.2 2001/02/01 20:21:16 gram Exp $
+ * $Id: ipv4.h,v 1.3 2001/11/13 23:55:37 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

@@ -1,9 +1,9 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.42 2001/10/25 20:29:23 gram Exp $
+ * $Id: netxray.c,v 1.43 2001/11/13 23:55:43 gram Exp $
  *
  * Wiretap Library
- * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
+ * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

@@ -1,9 +1,9 @@
 /* etherpeek.h
  *
- * $Id: etherpeek.h,v 1.1 2001/02/22 22:03:31 guy Exp $
+ * $Id: etherpeek.h,v 1.2 2001/11/13 23:55:43 gram Exp $
  *
  * Wiretap Library
- * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
+ * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

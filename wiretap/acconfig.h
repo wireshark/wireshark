@@ -1,9 +1,9 @@
 /* acconfig.h
  *
- * $Id: acconfig.h,v 1.5 2000/10/17 00:09:43 guy Exp $
+ * $Id: acconfig.h,v 1.6 2001/11/13 23:55:42 gram Exp $
  *
  * Wiretap Library
- * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
+ * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

@@ -1,12 +1,13 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.97 2001/11/09 07:44:48 guy Exp $
+ * $Id: tethereal.c,v 1.98 2001/11/13 23:55:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
- * Text-mode variant, by Gilbert Ramirez <gram@xiexie.org>.
+ * Text-mode variant, by Gilbert Ramirez <gram@alumni.rice.edu>
+ * and Guy Harris <guy@alum.mit.edu>.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

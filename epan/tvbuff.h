@@ -9,9 +9,9 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.17 2001/10/31 07:47:27 guy Exp $
+ * $Id: tvbuff.h,v 1.18 2001/11/13 23:55:37 gram Exp $
  *
- * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
+ * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,8 +1,8 @@
 /* packet-trmac.c
  * Routines for Token-Ring Media Access Control
- * Gilbert Ramirez <gram@xiexie.org>
+ * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-trmac.c,v 1.32 2001/06/18 02:17:53 guy Exp $
+ * $Id: packet-trmac.c,v 1.33 2001/11/13 23:55:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

@@ -2,8 +2,8 @@
  * Definitions for generating PostScript(R) packet output.
  *
  *
- * $Id: ps.h,v 1.3 2000/01/22 06:22:19 guy Exp $
- * Gilbert Ramirez <gram@xiexie.org>
+ * $Id: ps.h,v 1.4 2001/11/13 23:55:30 gram Exp $
+ * Gilbert Ramirez <gram@alumni.rice.edu>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

@@ -1,9 +1,9 @@
 /* toshiba.c
  *
- * $Id: toshiba.c,v 1.17 2001/10/25 20:29:24 gram Exp $
+ * $Id: toshiba.c,v 1.18 2001/11/13 23:55:44 gram Exp $
  *
  * Wiretap Library
- * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
+ * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

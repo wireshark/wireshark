@@ -1,9 +1,9 @@
 /* ptvcursor.h
  * 
  * Proto Tree TVBuff cursor
- * Gilbert Ramirez <gram@xiexie.org>
+ * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: ptvcursor.h,v 1.2 2000/08/11 13:34:25 deniel Exp $
+ * $Id: ptvcursor.h,v 1.3 2001/11/13 23:55:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

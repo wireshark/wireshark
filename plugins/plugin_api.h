@@ -1,10 +1,10 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.27 2001/11/04 22:14:43 guy Exp $
+ * $Id: plugin_api.h,v 1.28 2001/11/13 23:55:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
- * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
+ * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

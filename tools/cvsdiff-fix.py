@@ -6,9 +6,9 @@
 # recursive diff, and unflattens it so that it can be
 # applied correctly with "patch".
 #
-# $Id: cvsdiff-fix.py,v 1.1 2001/02/23 16:30:51 gram Exp $
+# $Id: cvsdiff-fix.py,v 1.2 2001/11/13 23:55:41 gram Exp $
 #
-# Copyright (C) 2001 by Gilbert Ramirez <gram@xiexie.org>
+# Copyright (C) 2001 by Gilbert Ramirez <gram@alumni.rice.edu>
 #  
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License

@@ -1,4 +1,4 @@
-$Id: README,v 1.28 2001/10/19 20:18:48 guy Exp $
+$Id: README,v 1.29 2001/11/13 23:55:42 gram Exp $
 
 Wiretap is a library that is being developed as a future replacement for
 libpcap, the current standard Unix library for packet capturing. Libpcap
@@ -157,5 +157,5 @@ Text output from DBS Etherwatch is supported.  DBS Etherwatch is available
 from: http://www.users.bigpond.com/dbsneddon/software.htm.
 
 
-Gilbert Ramirez <gram@xiexie.org>
+Gilbert Ramirez <gram@alumni.rice.edu>
 Guy Harris <guy@alum.mit.edu>

@@ -1,4 +1,4 @@
-$Id: README,v 1.48 2001/03/06 18:41:29 gram Exp $
+$Id: README,v 1.49 2001/11/13 23:55:29 gram Exp $
 
 General Information
 ------- -----------
@@ -243,5 +243,5 @@ Use at your own risk.
 
 
 Gerald Combs <gerald@ethereal.com>
-Gilbert Ramirez <gram@xiexie.org>
+Gilbert Ramirez <gram@alumni.rice.edu>
 Guy Harris <guy@alum.mit.edu>

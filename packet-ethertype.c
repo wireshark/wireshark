@@ -1,9 +1,9 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.19 2001/11/06 20:30:39 guy Exp $
+ * $Id: packet-ethertype.c,v 1.20 2001/11/13 23:55:29 gram Exp $
  *
- * Gilbert Ramirez <gram@xiexie.org>
+ * Gilbert Ramirez <gram@alumni.rice.edu>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

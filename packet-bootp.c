@@ -1,8 +1,8 @@
 /* packet-bootp.c
  * Routines for BOOTP/DHCP packet disassembly
- * Gilbert Ramirez <gram@xiexie.org>
+ * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-bootp.c,v 1.56 2001/10/31 08:43:09 guy Exp $
+ * $Id: packet-bootp.c,v 1.57 2001/11/13 23:55:29 gram Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol

@@ -1,8 +1,8 @@
 /* packet-data.c
  * Routines for raw data (default case)
- * Gilbert Ramirez <gram@xiexie.org>
+ * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-data.c,v 1.22 2001/10/31 05:59:18 guy Exp $
+ * $Id: packet-data.c,v 1.23 2001/11/13 23:55:29 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

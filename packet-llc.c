@@ -1,8 +1,8 @@
 /* packet-llc.c
  * Routines for IEEE 802.2 LLC layer
- * Gilbert Ramirez <gram@xiexie.org>
+ * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-llc.c,v 1.87 2001/06/18 02:17:48 guy Exp $
+ * $Id: packet-llc.c,v 1.88 2001/11/13 23:55:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

@@ -20,9 +20,9 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.10 2001/06/28 02:42:48 gram Exp $
+$Id: ncp2222.py,v 1.11 2001/11/13 23:55:29 gram Exp $
 
-Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
+Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

@@ -2,9 +2,7 @@
  * Declarations of IP protocol numbers, and of routines for converting
  * IP protocol numbers into strings.
  *
- * $Id: ipproto.h,v 1.3 2001/07/21 10:27:12 guy Exp $
- *
- * Gilbert Ramirez <gram@xiexie.org>
+ * $Id: ipproto.h,v 1.4 2001/11/13 23:55:29 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

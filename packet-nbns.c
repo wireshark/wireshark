@@ -1,10 +1,9 @@
 /* packet-nbns.c
  * Routines for NetBIOS-over-TCP packet disassembly (the name dates back
  * to when it had only NBNS)
- * Gilbert Ramirez <gram@xiexie.org>
- * Much stuff added by Guy Harris <guy@alum.mit.edu>
+ * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.63 2001/11/03 00:58:49 guy Exp $
+ * $Id: packet-nbns.c,v 1.64 2001/11/13 23:55:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
