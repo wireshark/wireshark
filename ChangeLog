@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.13 2002/12/08 03:38:19 gerald Exp $
+$Id: ChangeLog,v 1.14 2002/12/08 03:59:03 gerald Exp $
 
 Overview of changes in Ethereal 0.9.8:
 * Display AFS KAUTH information (Loic Tortay)
@@ -390,7 +390,7 @@ Overview of changes in Ethereal 0.9.8:
 * Add make-tapreg-dotc to the distribution (Gerald)
 * Add RCS IDs to ChangeLog and NEWS (Gerald)
 * Add Fibre Channel support (Dinesh)
-* Add Fibre Channel files to Makefile.am (Gerald)
+* Add Fibre Channel files to Makefile.am and Makefile.nmake (Gerald)
 
 
 Overview of changes in Ethereal 0.9.7:
