@@ -2055,6 +2055,7 @@ write_psml_packet(capture_file *cf, frame_data *fdata,
   /* Fill in the column information, but don't create the protocol tree. */
   edt = epan_dissect_new(FALSE, FALSE);
   epan_dissect_run(edt, pseudo_header, pd, fdata, &cf->cinfo);
+  epan_dissect_fill_in_columns(edt);
 
   /* Write out the information in that tree. */
   proto_tree_write_psml(edt, fh);
