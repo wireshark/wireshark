@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.9 2000/12/24 22:00:55 nneul Exp $
+ * $Id: packet-kerberos.c,v 1.10 2000/12/25 06:59:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -788,6 +788,24 @@ dissect_PrincipalName(char *title, ASN1_SCK *asn1p, frame_data *fd,
     KRB_DECODE_CONTEXT_HEAD_OR_DIE("principal name-string", 1);
     KRB_SEQ_HEAD_DECODE_OR_DIE("principal name-string sequence-of");
     total_len = item_len;
+    if (total_len == 0) {
+      /* There are no name strings in this PrincipalName, so we can't
+         put any in the top-level item. */
+      return offset - start_offset;
+    }
+
+    /* Put the first name string in the top-level item. */
+    KRB_DECODE_GENERAL_STRING_OR_DIE("principal name", name, name_len, item_len);
+    if (princ_tree) {
+        proto_item_set_text(item, "%s: %.*s", title, (int) name_len, name);
+        proto_tree_add_text(princ_tree, NullTVB, offset, item_len,
+                            "Name: %.*s", (int) name_len, name);
+    }
+    total_len -= item_len;
+    offset += item_len;
+
+    /* Now process the rest of the strings.
+       XXX - put them in the item as well? */
     while (total_len > 0) {
         KRB_DECODE_GENERAL_STRING_OR_DIE("principal name", name, name_len, item_len);
         if (princ_tree) {
