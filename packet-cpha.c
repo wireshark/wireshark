@@ -2,7 +2,7 @@
  * Routines for the Check Point High-Availability Protocol (CPHAP)
  * Copyright 2002, Yaniv Kaul <ykaul-at-netvision.net.il> 
  *
- * $Id: packet-cpha.c,v 1.1 2002/08/14 18:48:16 guy Exp $
+ * $Id: packet-cpha.c,v 1.2 2002/08/20 22:56:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,7 +122,7 @@ struct fwhap_if_state_s {
 #define NUM_OPCODE_TYPES 10
 
 static const char *opcode_type_str_short[NUM_OPCODE_TYPES+1] = {
-  "Uknown",
+  "Unknown",
   "FWHA_MY_STATE", 	
   "FWHA_QUERY_STATE",
   "FWHA_IF_PROBE_REQ",
@@ -136,7 +136,7 @@ static const char *opcode_type_str_short[NUM_OPCODE_TYPES+1] = {
 };
 
 static const char *opcode_type_str_long[NUM_OPCODE_TYPES+1] = {
-  "Uknown OpCode",
+  "Unknown OpCode",
   "Report source machine's state",
   "Query other machine's state",
   "Interface active check request",
@@ -190,7 +190,7 @@ static const char *ha_mode2str(guint16);
 static const char *status2str(guint16);
 static const char *state2str(guint8);
 
-static void
+static int
 dissect_cpha(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   int			offset = 0;
@@ -201,6 +201,26 @@ dissect_cpha(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *		ntree = NULL;
   static char		info[30];
   guint16		opcode;
+
+  /*
+   * If the magic number or protocol version is unknown, don't treat this
+   * frame as a CPHA frame.
+   */
+  if (!tvb_bytes_exist(tvb, 0, 4)) {
+    /* Not enough data for the magic number or protocol version */
+    return 0;
+  }
+  hdr.magic_number = tvb_get_ntohs(tvb, 0);
+  hdr.ha_protocol_ver = tvb_get_ntohs(tvb, 2);
+  if (ha_magic_num2str(hdr.magic_number) == NULL) {
+    /* Bad magic number */
+    return 0;
+  }
+  if (version2str(hdr.ha_protocol_ver) == NULL) {
+    /* Bad version number */
+    return 0;
+  }
+
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CPHA");
   if (check_col(pinfo->cinfo, COL_INFO))
@@ -262,22 +282,24 @@ dissect_cpha(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ntree = proto_item_add_subtree(nti, ett_cphap);
  
     switch(opcode) {
-	case 1: dissect_my_state(tvb, offset, ntree); // FWHAP_MY_STATE
+	case 1: dissect_my_state(tvb, offset, ntree); /* FWHAP_MY_STATE */
 		break;
 	case 2: break;
-	case 3:						 // FWHAP_IF_PROBE_REQ
-	case 4: dissect_probe(tvb, offset, ntree);   // FWHAP_IF_PROBE_RPLY
+	case 3:					     /* FWHAP_IF_PROBE_REQ */
+	case 4: dissect_probe(tvb, offset, ntree);   /* FWHAP_IF_PROBE_RPLY */
 		break;
 	case 5: break;
-	case 6: dissect_conf_reply(tvb, offset, ntree); // FWHAP_IFCONF_RPLY
+	case 6: dissect_conf_reply(tvb, offset, ntree); /* FWHAP_IFCONF_RPLY */
 		break;
-	case 7: dissect_lb_conf(tvb, offset, ntree); // FWHAP_LB_CONF
+	case 7: dissect_lb_conf(tvb, offset, ntree); /* FWHAP_LB_CONF */
 		break;
-	case 9: dissect_policy_change(tvb, offset, ntree); //FWHAP_POLICY_CHANGE
+	case 9: dissect_policy_change(tvb, offset, ntree); /* FWHAP_POLICY_CHANGE */
 		break;
 	default: break;
     }
   }
+
+  return tvb_length(tvb);
 }
 
 static void dissect_my_state(tvbuff_t * tvb, int offset, proto_tree * tree) {
@@ -417,7 +439,7 @@ static const char *
 ha_magic_num2str(guint16 magic) {
   if(magic == CPHA_MAGIC)
 	return "correct";
-  return "wrong magic number!";
+  return NULL;
 }
 
 static const char *
@@ -428,7 +450,7 @@ version2str(guint16 version) {
 		break;
 	case 530: return "NG Feature Pack 3";
   }
-  return "Unkown protocol version";
+  return NULL;
 }
 static const char *
 opcode2str_short(guint16 opcode) {
@@ -542,6 +564,6 @@ proto_reg_handoff_cpha(void)
 {
   dissector_handle_t cpha_handle;
 
-  cpha_handle = create_dissector_handle(dissect_cpha, proto_cphap);
+  cpha_handle = new_create_dissector_handle(dissect_cpha, proto_cphap);
   dissector_add("udp.port", UDP_PORT_CPHA, cpha_handle);
 }
