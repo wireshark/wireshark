@@ -1,7 +1,7 @@
 /* packet-igmp.c   2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
  * Routines for IGMP packet disassembly
  *
- * $Id: packet-igmp.c,v 1.8 2001/07/02 09:23:02 guy Exp $
+ * $Id: packet-igmp.c,v 1.9 2001/07/10 20:55:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,6 +53,15 @@
 
 
    * Differs in second byte of protocol. Always 0 in V1
+
+
+	Multicast traceroute was taken from
+	draft-ietf-idmr-traceroute-ipm-07.txt
+
+	Size in bytes for each packet
+	type    draft-ietf-idmr-traceroute-ipm-07.ps
+	0x1e      24 + n*32
+	0x1f      24 + n*32 (n == 0 for Query) 
 
    x DVMRP Protocol  see packet-dvmrp.c
 
@@ -122,11 +131,31 @@ static int hf_record_type = -1;
 static int hf_aux_data_len = -1;
 static int hf_maddr = -1;
 static int hf_aux_data = -1;
+static int hf_mtrace_max_hops = -1;
+static int hf_mtrace_saddr = -1;
+static int hf_mtrace_raddr = -1;
+static int hf_mtrace_rspaddr = -1;
+static int hf_mtrace_resp_ttl = -1;
+static int hf_mtrace_q_id = -1;
+static int hf_mtrace_q_arrival = -1;
+static int hf_mtrace_q_inaddr = -1;
+static int hf_mtrace_q_outaddr = -1;
+static int hf_mtrace_q_prevrtr = -1;
+static int hf_mtrace_q_inpkt = -1;
+static int hf_mtrace_q_outpkt = -1;
+static int hf_mtrace_q_total = -1;
+static int hf_mtrace_q_rtg_proto = -1;
+static int hf_mtrace_q_fwd_ttl = -1;
+static int hf_mtrace_q_mbz = -1;
+static int hf_mtrace_q_s = -1;
+static int hf_mtrace_q_src_mask = -1;
+static int hf_mtrace_q_fwd_code = -1;
 
 static int ett_igmp = -1;
 static int ett_group_record = -1;
 static int ett_sqrv_bits = -1;
 static int ett_max_resp = -1;
+static int ett_mtrace_block = -1;
 
 #define MC_ALL_ROUTERS		0xe0000002
 #define MC_ALL_IGMPV3_ROUTERS	0xe0000016
@@ -146,14 +175,19 @@ static int ett_max_resp = -1;
 #define IGMP_V1_PIM_ROUTING_MESSAGE	0x14
 #define IGMP_V2_MEMBERSHIP_REPORT	0x16
 #define IGMP_V2_LEAVE_GROUP		0x17
-#define IGMP_V1_TRACEROUTE_RESPONSE	0x1e	/* XXX */
-#define IGMP_V1_TRACEROUTE_MESSAGE	0x1f	/* XXX */
+#define IGMP_V1_TRACEROUTE_RESPONSE	0x1e
+#define IGMP_V1_TRACEROUTE_MESSAGE	0x1f
 #define IGMP_V3_MEMBERSHIP_REPORT	0x22
 #define IGMP_TYPE_0x23			0x23
 #define IGMP_TYPE_0x24			0x24
 #define IGMP_TYPE_0x25			0x25
 #define IGMP_TYPE_0x26			0x26
 	
+#define IGMP_TRACEROUTE_HDR_LEN           24
+#define IGMP_TRACEROUTE_RSP_LEN           32
+#define IGMP_TRACEROUTE_RESPONSE        0x1e
+#define IGMP_TRACEROUTE_QUERY_REQ       0x1f
+
 static const value_string commands[] = {
 	{IGMP_V0_CREATE_GROUP_REQUEST,	"Create Group Request"		},
 	{IGMP_V0_CREATE_GROUP_REPLY,	"Create Group Reply"		},
@@ -169,8 +203,6 @@ static const value_string commands[] = {
 	{IGMP_V1_PIM_ROUTING_MESSAGE,	"PIM Routing Message"		},
 	{IGMP_V2_MEMBERSHIP_REPORT,	"Membership Report"		},
 	{IGMP_V2_LEAVE_GROUP,		"Leave Group"			},
-	{IGMP_V1_TRACEROUTE_RESPONSE,	"Traceroute Response"		},
-	{IGMP_V1_TRACEROUTE_MESSAGE,	"Traceroute Message"		},
 	{IGMP_V3_MEMBERSHIP_REPORT,	"Membership Report"		},
 	{0,		NULL}
 };
@@ -225,6 +257,40 @@ static const value_string vs_record_type[] = {
 	{IGMP_V3_ALLOW_NEW_SOURCES, 	"Allow New Sources"		},
 	{IGMP_V3_BLOCK_OLD_SOURCES, 	"Block Old Sources"		},
 	{ 0,	NULL}
+};
+
+static const value_string mtrace_rtg_vals[] = {
+	{1,  "DVMRP"                                        },
+	{2,  "MOSPF"                                        },
+	{3,  "PIM"                                          },
+	{4,  "CBT"                                          },
+	{5,  "PIM using special routing table"              },
+	{6,  "PIM using a static route"                     },
+	{7,  "DVMRP using a static route"                   },
+	{8,  "PIM using MBGP (aka BGP4+) route"             },
+	{9,  "CBT using special routing table"              },
+	{10, "CBT using a static route"                     },
+	{11, "PIM using state created by Assert processing" },
+	{0,  NULL}
+};
+
+static const value_string mtrace_fwd_code_vals[] = {
+	{0x00, "NO_ERROR"       },
+	{0x01, "WRONG_IF"       },
+	{0x02, "PRUNE_SENT"     },
+	{0x03, "PRUNE_RCVD"     },
+	{0x04, "SCOPED"         },
+	{0x05, "NO_ROUTE"       },
+	{0x06, "WRONG_LAST_HOP" },
+	{0x07, "NOT_FORWARDING" },
+	{0x08, "REACHED_RP"     },
+	{0x09, "RPF_IF"         },
+	{0x0A, "NO_MULTICAST"   },
+	{0x0B, "INFO_HIDDEN"    },
+	{0x81, "NO_SPACE"       },
+	{0x82, "OLD_ROUTER"     },
+	{0x83, "ADMIN_PROHIB"   },
+	{0, NULL}
 };
 
 #define PRINT_IGMP_VERSION(version) 					\
@@ -355,7 +421,7 @@ dissect_v3_group_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	guint16 num;
 	guint32 ip;
 
-	ip = tvb_get_letohl(tvb, offset+4);
+	tvb_memcpy(tvb, (guint8 *)&ip, offset+4, 4);
 	item = proto_tree_add_text(parent_tree, tvb, offset, 0, 
 		"Group Record : %s  %s", 
 			ip_to_str((gchar*)&ip), 
@@ -364,7 +430,7 @@ dissect_v3_group_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	tree = proto_item_add_subtree(item, ett_group_record);
 
 	/* record type */
-	proto_tree_add_uint(tree, hf_record_type, tvb, offset, 1, tvb_get_guint8(tvb, offset));
+	proto_tree_add_item(tree, hf_record_type, tvb, offset, 1, FALSE);
 	offset += 1;
 
 	/* aux data len */
@@ -378,20 +444,19 @@ dissect_v3_group_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	offset += 2;
 
 	/* multicast address */
-	proto_tree_add_ipv4(tree, hf_maddr, tvb, 
-		offset, 4, tvb_get_letohl(tvb, offset));
+	proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, FALSE);
 	offset += 4;
 
 	/* source addresses */
 	while(num--){
-		proto_tree_add_ipv4(tree, hf_saddr, tvb, 
-			offset, 4, tvb_get_letohl(tvb, offset));
+		proto_tree_add_item(tree, hf_saddr, tvb, offset, 4, FALSE);
 		offset += 4;
 	}
 
 	/* aux data */
 	if(adl){
-		proto_tree_add_bytes(tree, hf_aux_data, tvb, offset, adl*4, tvb_get_ptr(tvb, offset, adl*4));
+		proto_tree_add_item(tree, hf_aux_data, tvb, offset, adl*4,
+		    FALSE);
 		offset += adl*4;
 	}
 
@@ -445,14 +510,14 @@ dissect_igmp_v3_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int t
 	offset += 2;
 
 	/* group address */
-	proto_tree_add_ipv4(tree, hf_maddr, tvb, offset, 4, tvb_get_letohl(tvb, offset));
+	proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, FALSE);
 	offset +=4;
 
 	/* bitmask for S and QRV */
 	offset = dissect_v3_sqrv_bits(tvb, pinfo, tree, offset);
 
 	/* qqic */
-	proto_tree_add_uint(tree, hf_qqic, tvb, offset, 1, tvb_get_guint8(tvb, offset));
+	proto_tree_add_item(tree, hf_qqic, tvb, offset, 1, FALSE);
 	offset += 1;
 
 	/*number of sources*/
@@ -460,8 +525,7 @@ dissect_igmp_v3_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int t
 	offset += 2;
 
 	while(num--){
-		proto_tree_add_ipv4(tree, hf_saddr, tvb, 
-			offset, 4, tvb_get_letohl(tvb, offset));
+		proto_tree_add_item(tree, hf_saddr, tvb, offset, 4, FALSE);
 		offset += 4;
 	}
 
@@ -487,7 +551,7 @@ dissect_igmp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, i
 	offset += 2;
 
 	/* group address */
-	proto_tree_add_ipv4(tree, hf_maddr, tvb, offset, 4, tvb_get_letohl(tvb, offset));
+	proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, FALSE);
 	offset +=4;
 
 	return offset;
@@ -507,7 +571,7 @@ dissect_igmp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, i
 	offset += 2;
 
 	/* group address */
-	proto_tree_add_ipv4(tree, hf_maddr, tvb, offset, 4, tvb_get_letohl(tvb, offset));
+	proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, FALSE);
 	offset +=4;
 
 	return offset;
@@ -539,19 +603,154 @@ dissect_igmp_v0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, i
 	offset += 2;
 
 	/* identifier */
-	proto_tree_add_uint(tree, hf_identifier, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
+	proto_tree_add_item(tree, hf_identifier, tvb, offset, 4, FALSE);
 	offset += 4;
 
 	/* group address */
-	proto_tree_add_ipv4(tree, hf_maddr, tvb, offset, 4, tvb_get_letohl(tvb, offset));
+	proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, FALSE);
 	offset +=4;
 
 	/* access key */
-	proto_tree_add_bytes(tree, hf_access_key, tvb, offset, 8, tvb_get_ptr(tvb, offset, 8));
+	proto_tree_add_item(tree, hf_access_key, tvb, offset, 8, FALSE);
 	offset +=8;
 
 	return offset;		
 } 
+
+/* dissector for multicast traceroute, rfc???? */
+static int
+dissect_igmp_mtrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, int offset)
+{
+	char *typestr, *blocks = NULL;
+	char buf[20];
+
+	/* All multicast traceroute packets (Query, Request and
+	 * Response) have the same fixed header. Request and Response
+	 * have one or more response data blocks following this fixed
+	 * header. Since Query and Request share the same IGMP type,
+	 * the method to differentiate between them is to check the
+	 * IGMP packet length. Queries are only
+	 * IGMP_TRACEROUTE_HDR_LEN bytes long.
+	 */
+	if (type == IGMP_TRACEROUTE_RESPONSE) {
+		int i = (tvb_reported_length_remaining(tvb, offset) - IGMP_TRACEROUTE_HDR_LEN) / IGMP_TRACEROUTE_RSP_LEN;
+		snprintf(buf, sizeof buf, ", %d block%s", i, plurality(i, "", "s"));
+		typestr = "Traceroute Response";
+		blocks = buf;
+	} else if (tvb_length_remaining(tvb, offset) == IGMP_TRACEROUTE_HDR_LEN)
+		typestr = "Traceroute Query";
+	else
+		typestr = "Traceroute Request";
+
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_set_str(pinfo->fd, COL_INFO, typestr);
+		if (blocks) col_append_str(pinfo->fd, COL_INFO, blocks);
+	}
+
+	/* First add hidden for filtering, then add text for display purposes */
+	proto_tree_add_uint_hidden(tree, hf_type, tvb, offset, 1, type);
+	proto_tree_add_text(tree, tvb, offset, 1, "Type: %s (0x%x)", typestr, type);
+	offset += 1;
+
+	/* maximum number of hops that the requester wants to trace */
+	proto_tree_add_item(tree, hf_mtrace_max_hops, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	/* - 2 since the checksum covers the whole IGMP packet (the entire IP payload) */
+	igmp_checksum(tree, tvb, tvb_length_remaining(tvb, offset - 2));
+	offset += 2;
+
+	/* group address to be traced */
+	proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, FALSE);
+	offset += 4;
+
+	/* address of multicast source for the path being traced */
+	proto_tree_add_item(tree, hf_mtrace_saddr, tvb, offset, 4, FALSE);
+	offset += 4;
+
+	/* address of multicast receiver for the path being traced */
+	proto_tree_add_item(tree, hf_mtrace_raddr, tvb, offset, 4, FALSE);
+	offset += 4;
+
+	/* address where the completed traceroute response packet gets sent */
+	proto_tree_add_item(tree, hf_mtrace_rspaddr, tvb, offset, 4, FALSE);
+	offset += 4;
+
+	/* for multicasted responses, TTL at which to multicast the response */
+	proto_tree_add_item(tree, hf_mtrace_resp_ttl, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	/* unique identifier for this traceroute request (for e.g. duplicate/delay detection) */
+	proto_tree_add_item(tree, hf_mtrace_q_id, tvb, offset, 3, FALSE);
+	offset += 3;
+
+	/* If this was Query, we only had the fixed header */
+	if (tvb_reported_length_remaining(tvb, offset) == 0)
+		return offset;
+
+	/* Loop through the response data blocks */
+        while (tvb_reported_length_remaining(tvb, offset) >= IGMP_TRACEROUTE_RSP_LEN) {
+                proto_item *bi;
+                proto_tree *block_tree;
+
+                bi = proto_tree_add_text(tree, tvb, offset, IGMP_TRACEROUTE_RSP_LEN,
+                                         "Response data block: %s -> %s,  Proto: %s,  Forwarding Code: %s",
+                                         ip_to_str(tvb_get_ptr(tvb, offset + 4, 4)),
+                                         ip_to_str(tvb_get_ptr(tvb, offset + 8, 4)),
+                                         val_to_str(tvb_get_guint8(tvb, offset + 28), mtrace_rtg_vals, "Unknown"),
+                                         val_to_str(tvb_get_guint8(tvb, offset + 31), mtrace_fwd_code_vals, "Unknown"));
+                block_tree = proto_item_add_subtree(bi, ett_mtrace_block);
+
+		/* Query Arrival Time */
+		proto_tree_add_item(block_tree, hf_mtrace_q_arrival, tvb, offset, 4, FALSE);
+		offset += 4;
+
+		/* Incoming Interface Address */
+		proto_tree_add_item(block_tree, hf_mtrace_q_inaddr, tvb, offset, 4, FALSE);
+		offset += 4;
+
+		/* Outgoing Interface Address */
+		proto_tree_add_item(block_tree, hf_mtrace_q_outaddr, tvb, offset, 4, FALSE);
+		offset += 4;
+
+		/* Previous-Hop Router Address */
+		proto_tree_add_item(block_tree, hf_mtrace_q_prevrtr, tvb, offset, 4, FALSE);
+		offset += 4;
+
+		/* Input packet count on incoming interface */
+		proto_tree_add_item(block_tree, hf_mtrace_q_inpkt, tvb, offset, 4, FALSE);
+		offset += 4;
+
+		/* Output packet count on outgoing interface */
+		proto_tree_add_item(block_tree, hf_mtrace_q_outpkt, tvb, offset, 4, FALSE);
+		offset += 4;
+
+		/* Total number of packets for this source-group pair */
+		proto_tree_add_item(block_tree, hf_mtrace_q_total, tvb, offset, 4, FALSE);
+		offset += 4;
+
+		/* Routing protocol in use between this and previous-hop router */
+		proto_tree_add_item(block_tree, hf_mtrace_q_rtg_proto, tvb, offset, 1, FALSE);
+		offset += 1;
+
+		/* TTL that a packet is required to be forwarded */
+		proto_tree_add_item(block_tree, hf_mtrace_q_fwd_ttl, tvb, offset, 1, FALSE);
+		offset += 1;
+
+		/* Must be zeroed and ignored bit, S bit and src network mask length */
+		proto_tree_add_item(block_tree, hf_mtrace_q_mbz, tvb, offset, 1, FALSE);
+		proto_tree_add_item(block_tree, hf_mtrace_q_s, tvb, offset, 1, FALSE);
+		proto_tree_add_item(block_tree, hf_mtrace_q_src_mask, tvb, offset, 1, FALSE);
+		offset += 1;
+
+		/* Forwarding information/error code */
+		proto_tree_add_item(block_tree, hf_mtrace_q_fwd_code, tvb, offset, 1, FALSE);	
+		offset += 1;
+	}
+
+
+	return offset;
+}
 
 static void
 dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
@@ -621,22 +820,9 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		offset = dissect_igmp_v2(tvb, pinfo, tree, type, offset);
 		break;
 
-	case IGMP_V1_TRACEROUTE_RESPONSE:
-		/* XXX - V1 or V2? */
-		offset = dissect_igmp_v1(tvb, pinfo, tree, type, offset);
-		/*
-		 * XXX - dissect the rest as traceroute response; see the
-		 * tcpdump IGMP dissector.
-		 */
-		break;
-
-	case IGMP_V1_TRACEROUTE_MESSAGE:
-		/* XXX - V1 or V2? */
-		offset = dissect_igmp_v1(tvb, pinfo, tree, type, offset);
-		/*
-		 * XXX - dissect the rest as traceroute message; see the
-		 * tcpdump IGMP dissector.
-		 */
+	case IGMP_TRACEROUTE_RESPONSE:
+	case IGMP_TRACEROUTE_QUERY_REQ:
+		offset = dissect_igmp_mtrace(tvb, pinfo, tree, type, offset);
 		break;
 
 	case IGMP_V3_MEMBERSHIP_REPORT:
@@ -782,12 +968,89 @@ proto_register_igmp(void)
 			{ "Mantissa", "igmp.max_resp.mant", FT_UINT8, BASE_HEX,
 			NULL, IGMP_MAX_RESP_MANT, "Maxmimum Response Time, Mantissa", HFILL }},
 
+		{ &hf_mtrace_max_hops,
+			{ "# hops", "igmp.mtrace.max_hops", FT_UINT8, BASE_DEC,
+			NULL, 0, "Maxmimum Number of Hops to Trace", HFILL }},
+
+		{ &hf_mtrace_saddr,
+			{ "Source Address", "igmp.mtrace.saddr", FT_IPv4, BASE_NONE,
+			  NULL, 0, "Multicast Source for the Path Being Traced", HFILL }},
+
+		{ &hf_mtrace_raddr,
+			{ "Receiver Address", "igmp.mtrace.raddr", FT_IPv4, BASE_NONE,
+			  NULL, 0, "Multicast Receiver for the Path Being Traced", HFILL }},
+
+		{ &hf_mtrace_rspaddr,
+			{ "Response Address", "igmp.mtrace.rspaddr", FT_IPv4, BASE_NONE,
+			  NULL, 0, "Destination of Completed Traceroute Response", HFILL }},
+
+		{ &hf_mtrace_resp_ttl,
+			{ "Response TTL", "igmp.mtrace.resp_ttl", FT_UINT8, BASE_DEC,
+			NULL, 0, "TTL for Multicasted Responses", HFILL }},
+
+		{ &hf_mtrace_q_id,
+			{ "Query ID", "igmp.mtrace.q_id", FT_UINT24, BASE_DEC,
+			NULL, 0, "Identifier for this Traceroute Request", HFILL }},
+
+		{ &hf_mtrace_q_arrival,
+			{ "Query Arrival", "igmp.mtrace.q_arrival", FT_UINT32, BASE_DEC,
+			NULL, 0, "Query Arrival Time", HFILL }},
+
+		{ &hf_mtrace_q_inaddr,
+			{ "In itf addr", "igmp.mtrace.q_inaddr", FT_IPv4, BASE_NONE,
+			NULL, 0, "Incoming Interface Address", HFILL }},
+
+		{ &hf_mtrace_q_outaddr,
+			{ "Out itf addr", "igmp.mtrace.q_outaddr", FT_IPv4, BASE_NONE,
+			NULL, 0, "Outgoing Interface Address", HFILL }},
+
+		{ &hf_mtrace_q_prevrtr,
+			{ "Previous rtr addr", "igmp.mtrace.q_prevrtr", FT_IPv4, BASE_NONE,
+			NULL, 0, "Previous-Hop Router Address", HFILL }},
+
+		{ &hf_mtrace_q_inpkt,
+			{ "In pkts", "igmp.mtrace.q_inpkt", FT_UINT32, BASE_DEC,
+			NULL, 0, "Input packet count on incoming interface", HFILL }},
+
+		{ &hf_mtrace_q_outpkt,
+			{ "Out pkts", "igmp.mtrace.q_outpkt", FT_UINT32, BASE_DEC,
+			NULL, 0, "Output packet count on outgoing interface", HFILL }},
+
+		{ &hf_mtrace_q_total,
+			{ "S,G pkt count", "igmp.mtrace.q_total", FT_UINT32, BASE_DEC,
+			NULL, 0, "Total number of packets for this source-group pair", HFILL }},
+
+		{ &hf_mtrace_q_rtg_proto,
+			{ "Rtg Protocol", "igmp.mtrace.q_rtg_proto", FT_UINT8, BASE_DEC,
+			VALS(&mtrace_rtg_vals), 0, "Routing protocol between this and previous hop rtr", HFILL }},
+
+		{ &hf_mtrace_q_fwd_ttl,
+			{ "FwdTTL", "igmp.mtrace.q_fwd_ttl", FT_UINT8, BASE_DEC,
+			NULL, 0, "TTL required for forwarding", HFILL }},
+
+		{ &hf_mtrace_q_mbz,
+			{ "MBZ", "igmp.mtrace.q_mbz", FT_UINT8, BASE_HEX,
+			NULL, 0x80, "Must be zeroed on transmission and ignored on reception", HFILL }},
+
+		{ &hf_mtrace_q_s,
+			{ "S", "igmp.mtrace.q_s", FT_UINT8, BASE_HEX,
+			NULL, 0x40, "Set if S,G packet count is for source network", HFILL }},
+
+		{ &hf_mtrace_q_src_mask,
+			{ "Src Mask", "igmp.mtrace.q_src_mask", FT_UINT8, BASE_HEX,
+			NULL, 0x3F, "Source mask length. 63 when forwarding on group state", HFILL }},
+
+		{ &hf_mtrace_q_fwd_code,
+			{ "Forwarding Code", "igmp.mtrace.q_fwd_code", FT_UINT8, BASE_HEX,
+			VALS(&mtrace_fwd_code_vals), 0, "Forwarding information/error code", HFILL }},
+
 	};
 	static gint *ett[] = {
 		&ett_igmp,
 		&ett_group_record,
 		&ett_sqrv_bits,
 		&ett_max_resp,
+		&ett_mtrace_block,
 	};
 
 	proto_igmp = proto_register_protocol("Internet Group Management Protocol",

@@ -235,6 +235,7 @@ Heikki Vatiainen <hessu@cs.tut.fi> {
 	PIM enhancements and fixes
 	Support for Enter/Return toggling expansion of selected protocol
 	    tree item
+	IGMP fixes and multicast traceroute support
 }
 
 Greg Hankins <gregh@twoguys.org> {
