@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for the GTK interface routines for Ethereal
 #
-# $Id: Makefile.am,v 1.49 2002/11/14 10:32:21 sahlberg Exp $
+# $Id: Makefile.am,v 1.50 2002/12/03 01:26:31 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -191,5 +191,6 @@ endif
 
 EXTRA_DIST = \
 	Makefile.nmake \
+	compat_macros.h \
 	print_mswin.c  \
 	print_mswin.h
