@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.20 1999/07/13 02:53:26 gram Exp $
+ * $Id: wtap.h,v 1.21 1999/07/28 23:16:42 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -25,7 +25,14 @@
 #define __WTAP_H__
 
 /* Encapsulation types. Choose names that truly reflect
- * what is contained in the packet trace file. */
+ * what is contained in the packet trace file.
+ *
+ * WTAP_ENCAP_LINUX_ATM_CLIP is the encapsulation you get with the
+ * ATM on Linux code from <http://lrcwww.epfl.ch/linux-atm/>;
+ * that code adds a DLT_ATM_CLIP DLT_ code of 19, and that
+ * encapsulation isn't the same as the DLT_ATM_RFC1483 encapsulation
+ * presumably used on some BSD systems, which we turn into
+ * WTAP_ENCAP_ATM_RFC1483. */
 #define WTAP_ENCAP_NONE				0
 #define WTAP_ENCAP_ETHERNET			1
 #define WTAP_ENCAP_TR				2
@@ -35,9 +42,10 @@
 #define WTAP_ENCAP_RAW_IP			6
 #define WTAP_ENCAP_ARCNET			7
 #define WTAP_ENCAP_ATM_RFC1483			8
+#define WTAP_ENCAP_LINUX_ATM_CLIP		9
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			9
+#define WTAP_NUM_ENCAP_TYPES			10
 
 /* File types that can be read by wiretap */
 #define WTAP_FILE_UNKNOWN			0

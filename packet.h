@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.74 1999/07/28 03:29:00 guy Exp $
+ * $Id: packet.h,v 1.75 1999/07/28 23:16:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -203,6 +203,7 @@ enum {
 	ETT_OSPF_LSA,
 	ETT_LPD,
 	ETT_RAW,
+	ETT_CLIP,
 	ETT_BOOTP,
 	ETT_BOOTP_OPTION,
 	ETT_IPv6,
@@ -354,6 +355,7 @@ void dissect_packet(const u_char *, frame_data *, proto_tree *);
  * Routines should take three args: packet data *, cap_len, packet_counts *
  * They should never modify the packet data.
  */
+void capture_clip(const u_char *, guint32, packet_counts *);
 void capture_eth(const u_char *, guint32, packet_counts *);
 void capture_fddi(const u_char *, guint32, packet_counts *);
 void capture_null(const u_char *, guint32, packet_counts *);
@@ -375,6 +377,7 @@ void capture_ip(const u_char *, int, guint32, packet_counts *);
  * Routines should take three args: packet data *, frame_data *, tree *
  * They should never modify the packet data.
  */
+void dissect_clip(const u_char *, frame_data *, proto_tree *);
 void dissect_eth(const u_char *, frame_data *, proto_tree *);
 void dissect_fddi(const u_char *, frame_data *, proto_tree *);
 void dissect_null(const u_char *, frame_data *, proto_tree *);

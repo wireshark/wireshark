@@ -37,6 +37,7 @@ ethereal_SOURCES = \
 	packet-atalk.c \
 	packet-bootp.c \
 	packet-cdp.c   \
+	packet-clip.c  \
 	packet-data.c  \
 	packet-dns.c   \
 	packet-dns.h   \

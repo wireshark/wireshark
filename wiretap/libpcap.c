@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.5 1999/07/13 02:53:24 gram Exp $
+ * $Id: libpcap.c,v 1.6 1999/07/28 23:16:42 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -87,7 +87,14 @@ int libpcap_open(wtap *wth)
 		WTAP_ENCAP_PPP,
 		WTAP_ENCAP_FDDI,
 		WTAP_ENCAP_ATM_RFC1483,
-		WTAP_ENCAP_RAW_IP
+		WTAP_ENCAP_RAW_IP,
+		WTAP_ENCAP_NONE,
+		WTAP_ENCAP_NONE,
+		WTAP_ENCAP_NONE,
+		WTAP_ENCAP_NONE,
+		WTAP_ENCAP_NONE,
+		WTAP_ENCAP_NONE,
+		WTAP_ENCAP_LINUX_ATM_CLIP
 	};
 	#define NUM_PCAP_ENCAPS (sizeof pcap_encap / sizeof pcap_encap[0])
 	int byte_swapped = 0;

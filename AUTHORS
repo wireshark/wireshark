@@ -117,6 +117,10 @@ Olivier Abad <Olivier.Abad@capway.com> {
 	X.25 support in iptrace files
 }
 
+Thierry Andry <Thierry.Andry@advalvas.be> {
+	Linux ATM Classical IP support
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
