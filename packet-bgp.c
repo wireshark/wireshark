@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.76 2003/04/24 09:00:27 guy Exp $
+ * $Id: packet-bgp.c,v 1.77 2003/04/25 14:44:43 gerald Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -2744,6 +2744,9 @@ proto_register_bgp(void)
 	  NULL, 0x0, "", HFILL}},
       { &hf_bgp_withdrawn_prefix,
         { "Withdrawn prefix", "bgp.withdrawn_prefix", FT_IPv4, BASE_NONE,
+          NULL, 0x0, "", HFILL}}, 
+      { &hf_bgp_cluster_list,
+        { "Cluster List", "bgp.cluster_list", FT_BYTES, BASE_HEX,
           NULL, 0x0, "", HFILL}}, 
     };
 
