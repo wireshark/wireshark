@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.425 2004/06/26 02:16:15 guy Exp $
+# $Id: Makefile.nmake,v 1.426 2004/07/13 19:30:02 gerald Exp $
 
 include config.nmake
 include <win32.mak>
@@ -346,7 +346,7 @@ wiretap::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
-gtk:: help config.h cvsversion.h AUTHORS-SHORT
+gtk:: help config.h cvsversion.h AUTHORS-SHORT doxygen
 	cd gtk
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake GTK_CFLAGS="$(GTK1_CFLAGS)" GTK_LIBS="$(GTK1_LIBS)" libui.lib
 	cd ..
@@ -360,7 +360,7 @@ gtk2:: help config.h cvsversion.h AUTHORS-SHORT
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake GTK_CFLAGS="$(GTK2_CFLAGS)" GTK_LIBS="$(GTK2_LIBS)" libui.lib
 	cd ..
 
-epan:: packet-ncp2222.c x11-declarations.h x11-register-info.h dissectors.lib
+epan:: packet-ncp2222.c x11-declarations.h x11-register-info.h dissectors.lib doxygen
 	cd epan
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
@@ -379,6 +379,17 @@ help::
 	cd help
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
+
+doxygen.cfg: config.nmake doxygen.cfg.in
+	sed -e s/@VERSION@/$(VERSION)/ \
+	    < doxygen.cfg.in > $@
+
+doxygen-run:
+!IFDEF DOXYGEN
+	$(DOXYGEN) doxygen.cfg
+!ENDIF
+
+doxygen: doxygen.cfg doxygen-run
 
 REQUIRED_APPS=\
 	$(SH)	\
