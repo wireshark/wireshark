@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.84 2000/09/21 00:44:09 guy Exp $
+ * $Id: packet-tcp.c,v 1.85 2000/09/21 00:55:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -416,6 +416,7 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   guint      hlen;
   guint      optlen;
   guint      packet_max = pi.len;
+  guint32    seglen;
   guint32    nxtseq;
 
   OLD_CHECK_DISPLAY_AS_DATA(proto_tcp, pd, offset, fd, tree);
@@ -454,8 +455,11 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   
   hlen = hi_nibble(th.th_off_x2) * 4;  /* TCP header length, in bytes */
 
+  /* Compute the length of data in this segment. */
+  seglen = pi.len - (offset + hlen);
+
   /* Compute the sequence number of next octet after this segment. */
-  nxtseq = th.th_seq + (pi.len - (offset + hlen));
+  nxtseq = th.th_seq + seglen;
 
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "TCP");
@@ -465,11 +469,11 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     if (th.th_flags & TH_URG)
       info_len = snprintf(info_str, COL_MAX_LEN, "%s > %s [%s] Seq=%u Ack=%u Win=%u Urg=%u Len=%d",
         get_tcp_port(th.th_sport), get_tcp_port(th.th_dport), flags,
-        th.th_seq, th.th_ack, th.th_win, th.th_urp, pi.len - offset - hlen);
+        th.th_seq, th.th_ack, th.th_win, th.th_urp, seglen);
     else
       info_len = snprintf(info_str, COL_MAX_LEN, "%s > %s [%s] Seq=%u Ack=%u Win=%u Len=%d",
         get_tcp_port(th.th_sport), get_tcp_port(th.th_dport), flags,
-        th.th_seq, th.th_ack, th.th_win, pi.len - offset - hlen);
+        th.th_seq, th.th_ack, th.th_win, seglen);
     /* The info column is actually written after the options are decoded */
   }
   
@@ -561,7 +565,7 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
  
   if( data_out_file ) {
     reassemble_tcp( th.th_seq,		/* sequence number */
-        ( pi.len - offset ),		/* data length */
+        seglen,				/* data length */
         ( pd+offset ),			/* data */
         ( pi.captured_len - offset ),	/* captured data length */
         ( th.th_flags & TH_SYN ),	/* is syn set? */
