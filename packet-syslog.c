@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Gerald Combs <gerald@zing.org>
  *
- * $Id: packet-syslog.c,v 1.3 2000/06/15 03:48:43 gram Exp $
+ * $Id: packet-syslog.c,v 1.4 2000/06/18 22:12:14 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,9 +45,7 @@
 /* The maximum number if priority digits to read in. */
 #define MAX_DIGITS 3
 
-/* On my RH 6.2 box, memcpy overwrites nearby chunks of memory if this is
-   a multiple of four...  */
-#define COL_INFO_LEN 35
+#define COL_INFO_LEN 32
 #define ELLIPSIS "..." /* ISO 8859-1 doesn't appear to have a real ellipsis. */
 
 static const value_string short_lev[] = {
@@ -180,10 +178,9 @@ static void dissect_syslog(const u_char *pd, int o, frame_data *fd, proto_tree *
 
   /* Copy the message into a string buffer, with a trailing ellipsis if needed. */
   msg_len = tvb_length_remaining(tvb, msg_off);
-  if (msg_len > ellipsis_len) {
+  if (msg_len >= COL_INFO_LEN) {
     tvb_memcpy(tvb, msg_str, msg_off, ellipsis_len);
     strcpy (msg_str + ellipsis_len, ELLIPSIS);
-    msg_str[COL_INFO_LEN] = '\0';
   } else {
     tvb_memcpy(tvb, msg_str, msg_off, msg_len);
     msg_str[msg_len] = '\0';
