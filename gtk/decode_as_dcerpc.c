@@ -340,7 +340,8 @@ decode_dcerpc_add_to_list(gpointer key, gpointer value, gpointer user_data)
     dcerpc_uuid_key *k = key;
     dcerpc_uuid_value *v = value;
 
-    decode_add_to_list("DCE-RPC", v->name, key, user_data);
+    if(strcmp(v->name, "(none)"))
+        decode_add_to_list("DCE-RPC", v->name, key, user_data);
 }
 
 
