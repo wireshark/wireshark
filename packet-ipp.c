@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-ipp.c,v 1.6 2000/03/06 19:53:44 guy Exp $
+ * $Id: packet-ipp.c,v 1.7 2000/03/07 06:28:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -144,19 +144,19 @@ static const value_string status_vals[] = {
 static int parse_attributes(const u_char *pd, int offset, frame_data *fd,
     proto_tree *tree);
 static proto_tree *add_integer_tree(proto_tree *tree, const u_char *pd,
-    int offset, int name_length, guint value_length);
+    int offset, int name_length, int value_length);
 static void add_integer_value(guint tag, gchar *tag_desc, proto_tree *tree,
-    const u_char *pd, int offset, guint name_length, guint value_length);
+    const u_char *pd, int offset, int name_length, int value_length);
 static proto_tree *add_octetstring_tree(proto_tree *tree, const u_char *pd,
-    int offset, int name_length, guint value_length);
+    int offset, int name_length, int value_length);
 static void add_octetstring_value(guint tag, gchar *tag_desc, proto_tree *tree,
-    const u_char *pd, int offset, guint name_length, guint value_length);
+    const u_char *pd, int offset, int name_length, int value_length);
 static proto_tree *add_charstring_tree(proto_tree *tree, const u_char *pd,
-    int offset, int name_length, guint value_length);
+    int offset, int name_length, int value_length);
 static void add_charstring_value(guint tag, gchar *tag_desc, proto_tree *tree,
-    const u_char *pd, int offset, int name_length, guint value_length);
+    const u_char *pd, int offset, int name_length, int value_length);
 static int add_value_head(guint tag, gchar *tag_desc, proto_tree *tree,
-    const u_char *pd, int offset, int name_length, guint value_length);
+    const u_char *pd, int offset, int name_length, int value_length);
 
 void dissect_ipp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
@@ -296,7 +296,7 @@ parse_attributes(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	guint8 tag;
 	gchar *tag_desc;
-	guint16 name_length, value_length;
+	int name_length, value_length;
 	proto_tree *as_tree = tree;
 	proto_item *tas = NULL;
 	int start_offset = offset;
@@ -453,7 +453,7 @@ parse_attributes(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 static proto_tree *
 add_integer_tree(proto_tree *tree, const u_char *pd, int offset,
-    int name_length, guint value_length)
+    int name_length, int value_length)
 {
 	proto_item *ti;
 
@@ -475,7 +475,7 @@ add_integer_tree(proto_tree *tree, const u_char *pd, int offset,
 
 static void
 add_integer_value(guint tag, gchar *tag_desc, proto_tree *tree,
-    const u_char *pd, int offset, guint name_length, guint value_length)
+    const u_char *pd, int offset, int name_length, int value_length)
 {
 	offset = add_value_head(tag, tag_desc, tree, pd, offset,
 	    name_length, value_length);
@@ -487,7 +487,7 @@ add_integer_value(guint tag, gchar *tag_desc, proto_tree *tree,
 
 static proto_tree *
 add_octetstring_tree(proto_tree *tree, const u_char *pd, int offset,
-    int name_length, guint value_length)
+    int name_length, int value_length)
 {
 	proto_item *ti;
 
@@ -502,7 +502,7 @@ add_octetstring_tree(proto_tree *tree, const u_char *pd, int offset,
 
 static void
 add_octetstring_value(guint tag, gchar *tag_desc, proto_tree *tree,
-    const u_char *pd, int offset, guint name_length, guint value_length)
+    const u_char *pd, int offset, int name_length, int value_length)
 {
 	offset = add_value_head(tag, tag_desc, tree, pd, offset,
 	    name_length, value_length);
@@ -512,7 +512,7 @@ add_octetstring_value(guint tag, gchar *tag_desc, proto_tree *tree,
 
 static proto_tree *
 add_charstring_tree(proto_tree *tree, const u_char *pd, int offset,
-    int name_length, guint value_length)
+    int name_length, int value_length)
 {
 	proto_item *ti;
 
@@ -526,7 +526,7 @@ add_charstring_tree(proto_tree *tree, const u_char *pd, int offset,
 
 static void
 add_charstring_value(guint tag, gchar *tag_desc, proto_tree *tree,
-    const u_char *pd, int offset, int name_length, guint value_length)
+    const u_char *pd, int offset, int name_length, int value_length)
 {
 	offset = add_value_head(tag, tag_desc, tree, pd, offset,
 	    name_length, value_length);
@@ -536,7 +536,7 @@ add_charstring_value(guint tag, gchar *tag_desc, proto_tree *tree,
 
 static int
 add_value_head(guint tag, gchar *tag_desc, proto_tree *tree,
-    const u_char *pd, int offset, int name_length, guint value_length)
+    const u_char *pd, int offset, int name_length, int value_length)
 {
 	proto_tree_add_text(tree, offset, 1, "Tag: %s", tag_desc);
 	offset += 1;
