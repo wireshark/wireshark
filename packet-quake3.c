@@ -3,10 +3,10 @@
  *
  * Uwe Girlich <uwe@planetquake.com>
  *
- * $Id: packet-quake3.c,v 1.3 2001/09/01 14:47:48 girlich Exp $
+ * $Id: packet-quake3.c,v 1.4 2001/10/13 07:43:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-quake2.c
@@ -661,11 +661,11 @@ proto_register_quake3(void)
 	/* Register a configuration option for port */
 	quake3_module = prefs_register_protocol(proto_quake3,
 		proto_reg_handoff_quake3);
-	prefs_register_uint_preference(quake3_module, "udp.port",
+	prefs_register_uint_preference(quake3_module, "udp.arena_port",
 					"Quake III Arena Server UDP Base Port",
 					"Set the UDP base port for the Quake III Arena Server",
 					10, &gbl_quake3_server_port);
-	prefs_register_uint_preference(quake3_module, "udp.port",
+	prefs_register_uint_preference(quake3_module, "udp.master_port",
 					"Quake III Arena Master Server UDP Base Port",
 					"Set the UDP base port for the Quake III Arena Master Server",
 					10, &gbl_quake3_master_port);

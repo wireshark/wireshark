@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.61 2001/08/21 06:39:14 guy Exp $
+ * $Id: prefs.c,v 1.62 2001/10/13 07:43:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,10 +77,14 @@ static gchar *pf_path = NULL;
  * XXX - variables to allow us to attempt to interpret the first
  * "mgcp.{tcp,udp}.port" in a preferences file as
  * "mgcp.{tcp,udp}.gateway_port" and the second as
- * "mgcp.{tcp,udp}.callagent_port".
+ * "mgcp.{tcp,udp}.callagent_port", and to allow us to interpret the
+ * first "quake3.udp.port" in a preferences file as
+ * "quake3.udp.arena_port" and the second as
+ * "quake3.udp.master_port".
  */
 static int mgcp_tcp_port_count;
 static int mgcp_udp_port_count;
+static int quake3_udp_port_count;
 
 e_prefs prefs;
 
@@ -783,11 +787,12 @@ read_prefs_file(const char *pf_path, FILE *pf)
   gint      var_len = 0, val_len = 0, fline = 1, pline = 1;
 
   /*
-   * Start out the counters of "mgcp.{tcp,udp}.port" entries we've
-   * seen.
+   * Start out the counters of "mgcp.{tcp,udp}.port" and
+   * "quake3.udp.port" entries we've seen.
    */
   mgcp_tcp_port_count = 0;
   mgcp_udp_port_count = 0;
+  quake3_udp_port_count = 0;
 
   while ((got_c = getc(pf)) != EOF) {
     if (got_c == '\n') {
@@ -906,14 +911,16 @@ prefs_set_pref(char *prefarg)
 	int ret;
 
 	/*
-	 * Set the counters of "mgcp.{tcp,udp}.port" entries we've
-	 * seen to values that keep us from trying to interpret tham
-	 * as "mgcp.{tcp,udp}.gateway_port" or "mgcp.{tcp,udp}.callagent_port",
-	 * as, from the command line, we have no way of guessing which
-	 * the user had in mind.
+	 * Set the counters of "mgcp.{tcp,udp}.port" and "quake3.udp.port"
+	 * entries we've seen to values that keep us from trying to
+	 * interpret tham as "mgcp.{tcp,udp}.gateway_port",
+	 * "mgcp.{tcp,udp}.callagent_port", "quake3.udp.arena_port",
+	 * or "quake3.udp.master+port", as, from the command line, we have
+	 * no way of guessing which the user had in mind.
 	 */
 	mgcp_tcp_port_count = -1;
 	mgcp_udp_port_count = -1;
+	quake3_udp_port_count = -1;
 
 	colonp = strchr(prefarg, ':');
 	if (colonp == NULL)
@@ -1248,52 +1255,67 @@ set_pref(gchar *pref_name, gchar *value)
     dotp++;			/* skip past separator to preference name */
     pref = find_preference(module, dotp);
 
-    /*
-     * XXX - "mgcp.display raw text toggle" and "mgcp.display dissect tree"
-     * rather than "mgcp.display_raw_text" and "mgcp.display_dissect_tree"
-     * were used in earlier versions of Ethereal; if we didn't find the
-     * preference, it was an MGCP preference, and its name was
-     * "display raw text toggle" or "display dissect tree", look for
-     * "display_raw_text" or "display_dissect_tree" instead.
-     *
-     * "mgcp.tcp.port" and "mgcp.udp.port" are harder to handle, as both
-     * the gateway and callagent ports were given those names; we interpret
-     * the first as "mgcp.{tcp,udp}.gateway_port" and the second as
-     * "mgcp.{tcp,udp}.callagent_port", as that's the order in which
-     * they were registered by the MCCP dissector and thus that's the
-     * order in which they were written to the preferences file.  (If
-     * we're not reading the preferences file, but are handling stuff
-     * from a "-o" command-line option, we have no clue which the user
-     * had in mind - they should have used "mgcp.{tcp,udp}.gateway_port"
-     * or "mgcp.{tcp,udp}.callagent_port" instead.)
-     */
-    if (pref == NULL && strncmp(pref_name, "mgcp.", 5) == 0) {
-      if (strcmp(dotp, "display raw text toggle") == 0)
-        pref = find_preference(module, "display_raw_text");
-      else if (strcmp(dotp, "display dissect tree") == 0)
-        pref = find_preference(module, "display_dissect_tree");
-      else if (strcmp(dotp, "tcp.port") == 0) {
-	mgcp_tcp_port_count++;
-	if (mgcp_tcp_port_count == 1) {
-	  /* It's the first one */
-	  pref = find_preference(module, "tcp.gateway_port");
-	} else if (mgcp_tcp_port_count == 2) {
-	  /* It's the second one */
-	  pref = find_preference(module, "tcp.callagent_port");
+    if (pref == NULL) {
+      if (strncmp(pref_name, "mgcp.", 5) == 0) {
+        /*
+         * XXX - "mgcp.display raw text toggle" and "mgcp.display dissect tree"
+         * rather than "mgcp.display_raw_text" and "mgcp.display_dissect_tree"
+         * were used in earlier versions of Ethereal; if we didn't find the
+         * preference, it was an MGCP preference, and its name was
+         * "display raw text toggle" or "display dissect tree", look for
+         * "display_raw_text" or "display_dissect_tree" instead.
+         *
+         * "mgcp.tcp.port" and "mgcp.udp.port" are harder to handle, as both
+         * the gateway and callagent ports were given those names; we interpret
+         * the first as "mgcp.{tcp,udp}.gateway_port" and the second as
+         * "mgcp.{tcp,udp}.callagent_port", as that's the order in which
+         * they were registered by the MCCP dissector and thus that's the
+         * order in which they were written to the preferences file.  (If
+         * we're not reading the preferences file, but are handling stuff
+         * from a "-o" command-line option, we have no clue which the user
+         * had in mind - they should have used "mgcp.{tcp,udp}.gateway_port"
+         * or "mgcp.{tcp,udp}.callagent_port" instead.)
+         */
+        if (strcmp(dotp, "display raw text toggle") == 0)
+          pref = find_preference(module, "display_raw_text");
+        else if (strcmp(dotp, "display dissect tree") == 0)
+          pref = find_preference(module, "display_dissect_tree");
+        else if (strcmp(dotp, "tcp.port") == 0) {
+          mgcp_tcp_port_count++;
+          if (mgcp_tcp_port_count == 1) {
+            /* It's the first one */
+            pref = find_preference(module, "tcp.gateway_port");
+ 	  } else if (mgcp_tcp_port_count == 2) {
+            /* It's the second one */
+            pref = find_preference(module, "tcp.callagent_port");
+	  }
+          /* Otherwise it's from the command line, and we don't bother
+             mapping it. */
+	} else if (strcmp(dotp, "udp.port") == 0) {
+          mgcp_udp_port_count++;
+          if (mgcp_udp_port_count == 1) {
+            /* It's the first one */
+            pref = find_preference(module, "udp.gateway_port");
+	  } else if (mgcp_udp_port_count == 2) {
+            /* It's the second one */
+            pref = find_preference(module, "udp.callagent_port");
+	  }
+          /* Otherwise it's from the command line, and we don't bother
+             mapping it. */
 	}
-	/* Otherwise it's from the command line, and we don't bother
-	   mapping it. */
-      } else if (strcmp(dotp, "udp.port") == 0) {
-	mgcp_udp_port_count++;
-	if (mgcp_udp_port_count == 1) {
-	  /* It's the first one */
-	  pref = find_preference(module, "udp.gateway_port");
-	} else if (mgcp_udp_port_count == 2) {
-	  /* It's the second one */
-	  pref = find_preference(module, "udp.callagent_port");
-	}
-	/* Otherwise it's from the command line, and we don't bother
-	   mapping it. */
+      } else if (strncmp(pref_name, "quake3.", 6) == 0) {
+	if (strcmp(dotp, "udp.port") == 0) {
+          quake3_udp_port_count++;
+          if (quake3_udp_port_count == 1) {
+            /* It's the first one */
+            pref = find_preference(module, "udp.arena_port");
+	  } else if (quake3_udp_port_count == 2) {
+            /* It's the second one */
+            pref = find_preference(module, "udp.master_port");
+	  }
+          /* Otherwise it's from the command line, and we don't bother
+             mapping it. */
+        }
       }
     }
     if (pref == NULL)
