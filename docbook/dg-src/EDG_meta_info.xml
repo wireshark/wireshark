@@ -8,8 +8,8 @@
       <affiliation><orgname>&AuthorOrgName;</orgname></affiliation>
     </author>
   </authorgroup>
-  <edition>&DocumentEdition;</edition>
-  <pubdate>&DocumentPubDate;</pubdate>
+  <!--<edition>&DocumentEdition;</edition>
+  <pubdate>&DocumentPubDate;</pubdate>-->
   <copyright><year>&DocumentCopyrightYear;</year>
     <holder>&DocumentCopyrightHolder;</holder>
   </copyright>

@@ -28,16 +28,17 @@ DOCUMENT SECTION
 -->
 
   <!ENTITY DocumentTitle "<application>Ethereal</application> Developer's Guide">
-  <!ENTITY DocumentSubTitle "">
+  <!ENTITY DocumentSubTitle "&DocumentVersion; for Ethereal &EtherealCurrentVersion;">
   <!ENTITY DocumentTitleAbbreviation "EDG">
 
   <!ENTITY DocumentCopyrightHolder "Ulf Lamping">
   <!ENTITY DocumentCopyrightYear "2004">
 
-  <!ENTITY DocumentEdition "First edition">
+  <!ENTITY DocumentEdition "Draft">
+  <!ENTITY DocumentVersion "Draft 0.01">
   <!ENTITY DocumentPubDate "2004">
 
-  <!ENTITY DocumentLegalNotice "<para>Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.1 or any later version published by the Free Software Foundation; with the Invariant Sections being LIST THEIR TITLES, with the Front-Cover Texts being LIST, and with the Back-Cover Texts being LIST. A copy of the license is included in the section entitled &quot;GNU Free Documentation License&quot;</para><para>All logos and trademarks in this document are property of their respective owner.</para>">
+<!ENTITY DocumentLegalNotice "<para>Permission is granted to copy, distribute and/or modify this document under the terms of the GNU General Public License, Version 2 or any later version published by the Free Software Foundation.</para><para>All logos and trademarks in this document are property of their respective owner.</para>">
 
   <!ENTITY EtherealWebSite "http://www.ethereal.com">
   <!ENTITY EtherealDownloadPage "&EtherealWebSite;/download.html">
@@ -67,6 +68,8 @@ FILE SECTION
   <!ENTITY Libraries SYSTEM "dg-src/EDG_chapter_libraries.xml">
   <!ENTITY Sources SYSTEM "dg-src/EDG_chapter_sources.xml">
   <!ENTITY UserInterface SYSTEM "dg-src/EDG_chapter_userinterface.xml">
+
+  <!ENTITY AppGPL SYSTEM    "GPL_appendix.xml">
 
 <!-- These refer to graphics files and figures contained in the document -->
   <!-- 1st Chapter -->
@@ -99,6 +102,8 @@ The second part of this book will describe how to do the actual Ethereal develop
 </partintro>
 &UserInterface;
 </part>
+
+&AppGPL;
 <!--
 
 &Glossary;
