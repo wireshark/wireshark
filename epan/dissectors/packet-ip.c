@@ -1768,6 +1768,7 @@ proto_reg_handoff_ip(void)
 	dissector_add("x.25.spi", NLPID_IP, ip_handle);
         dissector_add("arcnet.protocol_id", ARCNET_PROTO_IP_1051, ip_handle);
         dissector_add("arcnet.protocol_id", ARCNET_PROTO_IP_1201, ip_handle);
+	dissector_add_handle("udp.port", ip_handle);
 }
 
 void

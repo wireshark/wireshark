@@ -249,7 +249,7 @@ void fec_dissector(struct _fec_ptr f, tvbuff_t *tvb, proto_tree *tree, guint *of
 	}
 }
 
-void fec_dissector_free(struct _fec *fec)
+void fec_dissector_free(struct _fec *fec _U_)
 {
 
 }
@@ -258,13 +258,13 @@ void fec_dissector_free(struct _fec *fec)
 /* ----------- */
 
 /* Set/Reset preferences to default values */
-void fec_prefs_set_default(struct _fec_prefs *prefs)
+void fec_prefs_set_default(struct _fec_prefs *prefs _U_)
 {
 
 }
 
 /* Register preferences */
-void fec_prefs_register(struct _fec_prefs *prefs, module_t *module)
+void fec_prefs_register(struct _fec_prefs *prefs _U_, module_t *module _U_)
 {
 
 }
