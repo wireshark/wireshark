@@ -2,7 +2,7 @@
  * Routines for Reliable UDP Protocol.
  * Copyright 2004, Duncan Sargeant <dunc-ethereal@rcpt.to>
  *
- * $Id: packet-rudp.c,v 1.4 2004/03/30 18:30:28 guy Exp $
+ * $Id: packet-rudp.c,v 1.5 2004/03/30 19:36:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -85,11 +85,18 @@ dissect_rudp(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 	tvbuff_t * next_tvb = NULL;
 	proto_tree *rudp_tree = NULL, *flags_tree;
 	proto_item *ti = NULL;
-	int flags[] = { hf_rudp_flags_syn, hf_rudp_flags_ack, hf_rudp_flags_eak,
-		       	hf_rudp_flags_rst, hf_rudp_flags_nul, hf_rudp_flags_chk,
-		       	hf_rudp_flags_tcs, hf_rudp_flags_0 };
+	int flags[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	int i;
 	guint8 hlen;
+
+	flags[0] = hf_rudp_flags_syn;
+	flags[1] = hf_rudp_flags_ack;
+	flags[2] = hf_rudp_flags_eak;
+	flags[3] = hf_rudp_flags_rst;
+	flags[4] = hf_rudp_flags_nul;
+	flags[5] = hf_rudp_flags_chk;
+	flags[6] = hf_rudp_flags_tcs;
+	flags[7] = hf_rudp_flags_0;
 
 	hlen = tvb_get_guint8(tvb, 1);
 
