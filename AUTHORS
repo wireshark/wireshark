@@ -2227,8 +2227,9 @@ Francesco Fondelli	<fondelli.francesco [AT] tiscali.it> {
 	ICE protocol support
 }
 
-And assorted fixes and enhancements by the people listed above and by:
 
+And assorted fixes and enhancements by the people listed above
+and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
 Georgi Guninski         <guninski [AT] guninski.com>
@@ -2304,19 +2305,19 @@ René Pilz		<rene.pilz [AT] ftw.at>
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
-Dan Lasley <dlasley[AT]promus.com> gave permission for his dumpit() hex-dump
-routine to be used.
+Dan Lasley <dlasley[AT]promus.com> gave permission for his
+dumpit() hex-dump routine to be used.
 
-Mattia Cazzola <mattiac[AT]alinet.it> provided a patch to the hex dump
-display routine.
+Mattia Cazzola <mattiac[AT]alinet.it> provided a patch to the
+hex dump display routine.
 
 We use the exception module from Kazlib, a C library written by
-Kaz Kylheku <kaz[AT]ashi.footprints.net>. Thanks goes to him for his
-well-written library. The Kazlib home page can be found at
+Kaz Kylheku <kaz[AT]ashi.footprints.net>. Thanks go to him for
+his well-written library. The Kazlib home page can be found at
 http://users.footprints.net/~kaz/kazlib.html
 
-Henrik Brix Andersen <brix[AT]gimp.org> gave permission for his webbrowser 
-calling routine to be used.
+Henrik Brix Andersen <brix[AT]gimp.org> gave permission for his
+webbrowser calling routine to be used.
 
-Christophe Devine <c.devine[at]cr0.net> gave permission for his SHA1 
-routiunes to be used. 
+Christophe Devine <c.devine[at]cr0.net> gave permission for his
+SHA1 routines to be used. 
