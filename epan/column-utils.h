@@ -47,7 +47,7 @@ extern void	col_set_writable(column_info *, gboolean);
 extern gint	check_col(column_info *, gint);
 extern void	col_set_fence(column_info *, gint);
 extern void	col_clear(column_info *, gint);
-extern void	col_set_str(column_info *, gint, gchar *);
+extern void	col_set_str(column_info *, gint, const gchar *);
 #if __GNUC__ >= 2
 extern void	col_add_fstr(column_info *, gint, const gchar *, ...)
     __attribute__((format (printf, 3, 4)));
