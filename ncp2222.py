@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.14.2.22 2002/03/06 23:19:32 gram Exp $
+$Id: ncp2222.py,v 1.14.2.23 2002/03/07 18:24:55 gram Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -970,6 +970,12 @@ class val_string16(val_string):
 	bytes		= 2
 	value_format	= "0x%04x"
 
+class val_string32(val_string):
+	type		= "val_string32"
+	ftype		= "FT_UINT32"
+	bytes		= 4
+	value_format	= "0x%08x"
+
 class bytes(Type):
 	type	= 'bytes'
 	ftype	= 'FT_BYTES'
@@ -1047,32 +1053,64 @@ class bf_uint(Type):
 	disp	= None
 
 	def __init__(self, bitmask, abbrev, descr, endianness=LE):
-		bytes = int(self.disp) / 8
-		Type.__init__(self, abbrev, descr, bytes, endianness)
+		Type.__init__(self, abbrev, descr, self.bytes, endianness)
 		self.bitmask = bitmask
 
 	def Mask(self):
 		return self.bitmask
 
+class bf_val_str(bf_uint):
+	type	= "bf_uint"
+	disp	= None
+
+	def __init__(self, bitmask, abbrev, descr, val_string_array, endiannes=LE):
+		bf_uint.__init__(self, bitmask, abbrev, descr, endiannes)
+		self.values = val_string_array
+
+	def ValuesName(self):
+		return "VALS(%s)" % (self.ValuesCName())
+
 class bf_boolean8(bf_uint, boolean8):
 	type	= "bf_boolean8"
 	ftype	= "FT_BOOLEAN"
 	disp	= "8"
+	bytes	= 1
 
 class bf_boolean16(bf_uint, boolean16):
 	type	= "bf_boolean16"
 	ftype	= "FT_BOOLEAN"
 	disp	= "16"
+	bytes	= 2
 
 class bf_boolean24(bf_uint, boolean24):
 	type	= "bf_boolean24"
 	ftype	= "FT_BOOLEAN"
 	disp	= "24"
+	bytes	= 3
 
 class bf_boolean32(bf_uint, boolean32):
 	type	= "bf_boolean32"
 	ftype	= "FT_BOOLEAN"
 	disp	= "32"
+	bytes	= 4
+
+class bf_val_str8(bf_val_str, val_string8):
+	type    = "bf_val_str8"
+	ftype   = "FT_UINT8"
+	disp    = "BASE_HEX"
+	bytes	= 1
+
+class bf_val_str16(bf_val_str, val_string16):
+	type    = "bf_val_str16"
+	ftype   = "FT_UINT16"
+	disp    = "BASE_HEX"
+	bytes	= 2
+
+class bf_val_str32(bf_val_str, val_string32):
+	type    = "bf_val_str32"
+	ftype   = "FT_UINT32"
+	disp    = "BASE_HEX"
+	bytes	= 4
 
 ##############################################################################
 # NCP Field Types. Defined in Appendix A of "Programmer's Guide..."
@@ -1267,7 +1305,7 @@ ChangeBits2			= bitfield8("change_bits_2", "Change Bits (byte 2)", [
 	bf_boolean8(0x02, "change_bits_utime", "Update Time"),
 	bf_boolean8(0x04, "change_bits_uid", "Update ID"),
 	bf_boolean8(0x08, "change_bits_acc_date", "Access Date"),
-	bf_boolean8(0x10, "change_bits_max_acc_mask", "Maximum Access Mask"),
+	bf_boolean8(0x10, "change_bits_max_acc_mask", "Maximum Access bf_uint"),
 	bf_boolean8(0x20, "change_bits_max_space", "Maximum Space"),
 ])
 ChannelState 			= val_string8("channel_state", "Channel State", [
@@ -3529,11 +3567,18 @@ TimesyncStatus                  = bitfield32("timesync_status_flags", "Timesync 
 	bf_boolean32(0x00000002, "timesync_status_net_sync", "Time is Synchronized to the Network"), 
         bf_boolean32(0x00000004, "timesync_status_active", "Time Synchronization is Active"),
 	bf_boolean32(0x00000008, "timesync_status_external", "External Time Synchronization Active"),
-        bf_boolean32(0x00000100, "timesync_status_client", "Client Time Server"),
-	bf_boolean32(0x00000200, "timesync_status_second", "Secondary Time Server"),
-	bf_boolean32(0x00000300, "timesync_status_primary", "Primary Time Server"),
-	bf_boolean32(0x00000400, "timesync_status_ref", "Reference Time Server"),
-	bf_boolean32(0x00000500, "timesync_status_single", "Single Reference Time Server"),
+#	bf_boolean32(0x00000100, "timesync_status_client", "Client Time Server"),
+#	bf_boolean32(0x00000200, "timesync_status_second", "Secondary Time Server"),
+#	bf_boolean32(0x00000300, "timesync_status_primary", "Primary Time Server"),
+#	bf_boolean32(0x00000400, "timesync_status_ref", "Reference Time Server"),
+#	bf_boolean32(0x00000500, "timesync_status_single", "Single Reference Time Server"),
+	bf_val_str32(0x00000700, "timesync_status_server_type", "Time Server Type", [
+		[ 0x01, "Client Time Server" ],
+		[ 0x02, "Secondary Time Server" ],
+		[ 0x03, "Primary Time Server" ],
+		[ 0x04, "Reference Time Server" ],
+		[ 0x05, "Single Reference Time Server" ],
+	]),
 	bf_boolean32(0x000f0000, "timesync_status_ext_sync", "External Clock Status"),
 ])        
 TimeToNet                       = uint16("time_to_net", "Time To Net")
