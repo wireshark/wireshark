@@ -398,7 +398,7 @@ register_tap_listener_gtkisup_stat(void)
     GString		*err_p;
 
 
-    register_ethereal_tap("isup,", isup_stat_gtk_init);
+    register_tap_listener_cmd_arg("isup,", isup_stat_gtk_init);
 
     memset((void *) &stat, 0, sizeof(isup_stat_t));
 

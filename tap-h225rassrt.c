@@ -247,5 +247,5 @@ h225rassrt_init(char *optarg)
 void
 register_tap_listener_h225rassrt(void)
 {
-	register_ethereal_tap("h225,srt", h225rassrt_init);
+	register_tap_listener_cmd_arg("h225,srt", h225rassrt_init);
 }

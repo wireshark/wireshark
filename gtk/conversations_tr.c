@@ -78,7 +78,7 @@ tr_conversation_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_tr_conversation(void)
 {
-	register_ethereal_tap("conv,tr", tr_conversation_init);
+	register_tap_listener_cmd_arg("conv,tr", tr_conversation_init);
 
 	register_tap_menu_item("Token Ring", REGISTER_TAP_GROUP_CONVERSATION_LIST,
 	    tr_conversation_cb, NULL, NULL, NULL);

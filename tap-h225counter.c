@@ -423,5 +423,5 @@ h225counter_init(char *optarg)
 void
 register_tap_listener_h225counter(void)
 {
-	register_ethereal_tap("h225,counter", h225counter_init);
+	register_tap_listener_cmd_arg("h225,counter", h225counter_init);
 }

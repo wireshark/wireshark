@@ -424,7 +424,7 @@ register_tap_listener_gtkansi_map_stat(void)
     GString		*err_p;
 
 
-    register_ethereal_tap("ansi_map,", ansi_map_stat_gtk_init);
+    register_tap_listener_cmd_arg("ansi_map,", ansi_map_stat_gtk_init);
 
     memset((void *) &stat, 0, sizeof(ansi_map_stat_t));
 

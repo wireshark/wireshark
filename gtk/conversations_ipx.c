@@ -78,7 +78,7 @@ ipx_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_ipx_conversation(void)
 {
-	register_ethereal_tap("conv,ipx", ipx_conversation_init);
+	register_tap_listener_cmd_arg("conv,ipx", ipx_conversation_init);
 
 	register_tap_menu_item("IPX", REGISTER_TAP_GROUP_CONVERSATION_LIST,
 	    ipx_endpoints_cb, NULL, NULL, NULL);

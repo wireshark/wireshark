@@ -242,7 +242,7 @@ rpcprogs_init(char *optarg _U_)
 void
 register_tap_listener_rpcprogs(void)
 {
-	register_ethereal_tap("rpc,programs", rpcprogs_init);
+	register_tap_listener_cmd_arg("rpc,programs", rpcprogs_init);
 }
 
 

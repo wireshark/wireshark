@@ -325,5 +325,5 @@ gtk_httpstat_init(char *optarg)
 void
 register_tap_listener_gtkhttpstat(void)
 {
-	register_ethereal_tap("http,stat,", gtk_httpstat_init);
+	register_tap_listener_cmd_arg("http,stat,", gtk_httpstat_init);
 }

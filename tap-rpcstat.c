@@ -360,6 +360,6 @@ rpcstat_init(char *optarg)
 void
 register_tap_listener_rpcstat(void)
 {
-	register_ethereal_tap("rpc,rtt,", rpcstat_init);
+	register_tap_listener_cmd_arg("rpc,rtt,", rpcstat_init);
 }
 

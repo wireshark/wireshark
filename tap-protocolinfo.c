@@ -142,6 +142,6 @@ protocolinfo_init(char *optarg)
 void
 register_tap_listener_protocolinfo(void)
 {
-	register_ethereal_tap("proto,colinfo,", protocolinfo_init);
+	register_tap_listener_cmd_arg("proto,colinfo,", protocolinfo_init);
 }
 

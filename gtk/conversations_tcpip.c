@@ -78,7 +78,7 @@ tcpip_conversation_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_tcpip_conversation(void)
 {
-	register_ethereal_tap("conv,tcp", tcpip_conversation_init);
+	register_tap_listener_cmd_arg("conv,tcp", tcpip_conversation_init);
 
 	register_tap_menu_item("TCP (IPv4 & IPv6)", REGISTER_TAP_GROUP_CONVERSATION_LIST,
 	    tcpip_conversation_cb, NULL, NULL, NULL);

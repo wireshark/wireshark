@@ -300,5 +300,5 @@ gsm_a_stat_init(char *optarg)
 void
 register_tap_listener_gsm_astat(void)
 {
-    register_ethereal_tap("gsm_a,", gsm_a_stat_init);
+    register_tap_listener_cmd_arg("gsm_a,", gsm_a_stat_init);
 }

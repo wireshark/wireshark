@@ -390,5 +390,5 @@ sipstat_init(char *optarg)
 void
 register_tap_listener_sipstat(void)
 {
-	register_ethereal_tap("sip,stat", sipstat_init);
+	register_tap_listener_cmd_arg("sip,stat", sipstat_init);
 }

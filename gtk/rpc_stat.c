@@ -536,7 +536,7 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtkrpcstat(void)
 {
-	register_ethereal_tap("rpc,srt,", gtk_rpcstat_init);
+	register_tap_listener_cmd_arg("rpc,srt,", gtk_rpcstat_init);
 
 	register_tap_menu_item("ONC-RPC...", REGISTER_TAP_GROUP_RESPONSE_TIME,
 	    gtk_rpcstat_cb, NULL, NULL, NULL);

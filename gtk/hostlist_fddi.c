@@ -83,7 +83,7 @@ gtk_fddi_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_fddi_hostlist(void)
 {
-	register_ethereal_tap("hosts,fddi", gtk_fddi_hostlist_init);
+	register_tap_listener_cmd_arg("hosts,fddi", gtk_fddi_hostlist_init);
 
 	register_tap_menu_item("FDDI", REGISTER_TAP_GROUP_ENDPOINT_LIST,
 	    gtk_fddi_hostlist_cb, NULL, NULL, NULL);

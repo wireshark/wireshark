@@ -95,6 +95,6 @@ smbsids_init(char *optarg _U_)
 void
 register_tap_listener_smbsids(void)
 {
-	register_ethereal_tap("smb,sids", smbsids_init);
+	register_tap_listener_cmd_arg("smb,sids", smbsids_init);
 }
 

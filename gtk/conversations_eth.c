@@ -78,7 +78,7 @@ eth_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_eth_conversation(void)
 {
-	register_ethereal_tap("conv,eth", eth_conversation_init);
+	register_tap_listener_cmd_arg("conv,eth", eth_conversation_init);
 
 	register_tap_menu_item("Ethernet", REGISTER_TAP_GROUP_CONVERSATION_LIST,
 	    eth_endpoints_cb, NULL, NULL, NULL);

@@ -458,7 +458,7 @@ register_tap_listener_gtkgsm_map_stat(void)
     GString		*err_p;
 
 
-    register_ethereal_tap("gsm_map,", gsm_map_stat_gtk_init);
+    register_tap_listener_cmd_arg("gsm_map,", gsm_map_stat_gtk_init);
 
     memset((void *) &gsm_map_stat, 0, sizeof(gsm_map_stat_t));
 

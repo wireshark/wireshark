@@ -76,7 +76,7 @@ ip_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_ip_conversation(void)
 {
-	register_ethereal_tap("conv,ip", ip_conversation_init);
+	register_tap_listener_cmd_arg("conv,ip", ip_conversation_init);
 
 	register_tap_menu_item("IPv4", REGISTER_TAP_GROUP_CONVERSATION_LIST,
 	    ip_endpoints_cb, NULL, NULL, NULL);

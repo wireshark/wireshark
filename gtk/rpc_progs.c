@@ -418,7 +418,7 @@ gtk_rpcprogs_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtkrpcprogs(void)
 {
-	register_ethereal_tap("rpc,programs", gtk_rpcprogs_init);
+	register_tap_listener_cmd_arg("rpc,programs", gtk_rpcprogs_init);
 
 	register_tap_menu_item("ONC-RPC Programs", REGISTER_TAP_GROUP_NONE,
 	gtk_rpcprogs_cb, NULL, NULL, NULL);

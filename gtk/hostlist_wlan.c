@@ -81,7 +81,7 @@ gtk_wlan_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_wlan_hostlist(void)
 {
-        register_ethereal_tap("hosts,wlan", gtk_wlan_hostlist_init);
+        register_tap_listener_cmd_arg("hosts,wlan", gtk_wlan_hostlist_init);
 
         register_tap_menu_item("WLAN", REGISTER_TAP_GROUP_ENDPOINT_LIST,
             gtk_wlan_hostlist_cb, NULL, NULL, NULL);

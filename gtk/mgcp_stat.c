@@ -326,7 +326,7 @@ register_tap_listener_gtkmgcpstat(void)
 {
 	/* We don't register this tap, if we don't have the mgcp plugin loaded.*/
 	if (find_tap_id("mgcp")) {
-		register_ethereal_tap("mgcp,srt", gtk_mgcpstat_init);
+		register_tap_listener_cmd_arg("mgcp,srt", gtk_mgcpstat_init);
 
 		register_tap_menu_item("MGCP...", REGISTER_TAP_GROUP_RESPONSE_TIME,
 		    gtk_tap_dfilter_dlg_cb, NULL, NULL, &(mgcp_srt_dlg));

@@ -662,7 +662,7 @@ static tap_dfilter_dlg sip_stat_dlg = {
 void
 register_tap_listener_gtksipstat(void)
 {
-    register_ethereal_tap("sip,stat", gtk_sipstat_init);
+    register_tap_listener_cmd_arg("sip,stat", gtk_sipstat_init);
 
     register_tap_menu_item("SIP", REGISTER_TAP_GROUP_NONE,
                            gtk_tap_dfilter_dlg_cb, NULL, NULL, &(sip_stat_dlg));

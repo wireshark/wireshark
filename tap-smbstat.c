@@ -279,6 +279,6 @@ smbstat_init(char *optarg)
 void
 register_tap_listener_smbstat(void)
 {
-	register_ethereal_tap("smb,rtt", smbstat_init);
+	register_tap_listener_cmd_arg("smb,rtt", smbstat_init);
 }
 

@@ -165,5 +165,5 @@ ansi_a_stat_init(char *optarg)
 void
 register_tap_listener_ansi_astat(void)
 {
-    register_ethereal_tap("ansi_a,", ansi_a_stat_init);
+    register_tap_listener_cmd_arg("ansi_a,", ansi_a_stat_init);
 }

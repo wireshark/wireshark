@@ -460,7 +460,7 @@ register_tap_listener_gtkansi_a_stat(void)
     GString		*err_p;
 
 
-    register_ethereal_tap("ansi_a,", ansi_a_stat_gtk_init);
+    register_tap_listener_cmd_arg("ansi_a,", ansi_a_stat_gtk_init);
 
     memset((void *) &stat, 0, sizeof(ansi_a_stat_t));
 

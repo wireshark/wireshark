@@ -312,7 +312,7 @@ gtk_fcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtkfcstat(void)
 {
-	register_ethereal_tap("fc,srt", gtk_fcstat_init);
+	register_tap_listener_cmd_arg("fc,srt", gtk_fcstat_init);
 
 	register_tap_menu_item("Fibre Channel...", REGISTER_TAP_GROUP_RESPONSE_TIME,
 	    gtk_fcstat_cb, NULL, NULL, NULL);

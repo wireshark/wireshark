@@ -351,7 +351,7 @@ gtk_smbstat_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtksmbstat(void)
 {
-	register_ethereal_tap("smb,srt", gtk_smbstat_init);
+	register_tap_listener_cmd_arg("smb,srt", gtk_smbstat_init);
 
 	register_tap_menu_item("SMB...", REGISTER_TAP_GROUP_RESPONSE_TIME,
 	    gtk_smbstat_cb, NULL, NULL, NULL);

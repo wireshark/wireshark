@@ -181,6 +181,6 @@ dhcpstat_init(char *optarg)
 void
 register_tap_listener_gtkdhcpstat(void)
 {
-	register_ethereal_tap("bootp,stat,", dhcpstat_init);
+	register_tap_listener_cmd_arg("bootp,stat,", dhcpstat_init);
 }
 

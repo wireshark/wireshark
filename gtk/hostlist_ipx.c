@@ -83,7 +83,7 @@ gtk_ipx_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_ipx_hostlist(void)
 {
-	register_ethereal_tap("hosts,ipx", gtk_ipx_hostlist_init);
+	register_tap_listener_cmd_arg("hosts,ipx", gtk_ipx_hostlist_init);
 
 	register_tap_menu_item("IPX", REGISTER_TAP_GROUP_ENDPOINT_LIST,
 	    gtk_ipx_hostlist_cb, NULL, NULL, NULL);

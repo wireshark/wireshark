@@ -347,7 +347,7 @@ gtk_ldapstat_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtkldapstat(void)
 {
-	register_ethereal_tap("ldap,srt", gtk_ldapstat_init);
+	register_tap_listener_cmd_arg("ldap,srt", gtk_ldapstat_init);
 
 	register_tap_menu_item("LDAP...", REGISTER_TAP_GROUP_RESPONSE_TIME,
 	    gtk_ldapstat_cb, NULL, NULL, NULL);

@@ -261,5 +261,5 @@ sctpstat_init(char *optarg)
 void
 register_tap_listener_sctpstat(void)
 {
-	register_ethereal_tap("sctp,stat", sctpstat_init);
+	register_tap_listener_cmd_arg("sctp,stat", sctpstat_init);
 }

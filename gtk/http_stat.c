@@ -515,7 +515,7 @@ static tap_dfilter_dlg http_stat_dlg = {
 void
 register_tap_listener_gtkhttpstat(void)
 {
-	register_ethereal_tap("http,stat", gtk_httpstat_init);
+	register_tap_listener_cmd_arg("http,stat", gtk_httpstat_init);
 
 	register_tap_menu_item("HTTP/Packet Counter", REGISTER_TAP_GROUP_NONE,
 	    gtk_tap_dfilter_dlg_cb, NULL, NULL, &(http_stat_dlg));

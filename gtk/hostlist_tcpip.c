@@ -83,7 +83,7 @@ gtk_tcpip_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_tcpip_hostlist(void)
 {
-	register_ethereal_tap("endpoints,tcp", gtk_tcpip_hostlist_init);
+	register_tap_listener_cmd_arg("endpoints,tcp", gtk_tcpip_hostlist_init);
 
 	register_tap_menu_item("TCP (IPv4 & IPv6)", REGISTER_TAP_GROUP_ENDPOINT_LIST,
 	    gtk_tcpip_hostlist_cb, NULL, NULL, NULL);

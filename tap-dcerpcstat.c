@@ -305,5 +305,5 @@ dcerpcstat_init(char *optarg)
 void
 register_tap_listener_dcerpcstat(void)
 {
-	register_ethereal_tap("dcerpc,rtt,", dcerpcstat_init);
+	register_tap_listener_cmd_arg("dcerpc,rtt,", dcerpcstat_init);
 }

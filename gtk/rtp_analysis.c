@@ -3649,7 +3649,7 @@ rtp_analysis_init(char *dummy _U_)
 void
 register_tap_listener_rtp_analysis(void)
 {
-	register_ethereal_tap("rtp", rtp_analysis_init);
+	register_tap_listener_cmd_arg("rtp", rtp_analysis_init);
 
 	register_tap_menu_item("RTP/Stream Analysis...", REGISTER_TAP_GROUP_NONE,
 	    rtp_analysis_cb, NULL, NULL, NULL);

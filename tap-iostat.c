@@ -650,5 +650,5 @@ iostat_init(char *optarg)
 void
 register_tap_listener_iostat(void)
 {
-	register_ethereal_tap("io,stat,", iostat_init);
+	register_tap_listener_cmd_arg("io,stat,", iostat_init);
 }

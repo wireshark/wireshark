@@ -216,6 +216,6 @@ protohierstat_init(char *optarg)
 void
 register_tap_listener_protohierstat(void)
 {
-	register_ethereal_tap("io,phs", protohierstat_init);
+	register_tap_listener_cmd_arg("io,phs", protohierstat_init);
 }
 

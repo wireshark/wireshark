@@ -113,7 +113,7 @@ void register_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_) {
 	cfg->pr = g_malloc(sizeof(tree_cfg_pres));
 	cfg->pr->init_string = g_strdup_printf("%s,tree",cfg->abbr);
 
-	register_ethereal_tap(cfg->pr->init_string, init_stats_tree);
+	register_tap_listener_cmd_arg(cfg->pr->init_string, init_stats_tree);
 	
 }
 

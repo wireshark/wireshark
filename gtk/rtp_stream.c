@@ -438,7 +438,7 @@ register_tap_listener_rtp_stream(void)
 	GString *error_string;
 
 	if (!the_tapinfo_struct.is_registered) {
-		register_ethereal_tap("rtp", rtpstream_init_tap);
+		register_tap_listener_cmd_arg("rtp", rtpstream_init_tap);
 
 		error_string = register_tap_listener("rtp", &the_tapinfo_struct,
 			NULL, rtpstream_reset_cb, rtpstream_packet,

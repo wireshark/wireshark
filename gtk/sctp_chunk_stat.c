@@ -344,7 +344,7 @@ sctpstat_init(char *optarg)
 void
 register_tap_listener_sctpstat(void)
 {
-	register_ethereal_tap("sctp,stat", sctpstat_init);
+	register_tap_listener_cmd_arg("sctp,stat", sctpstat_init);
 
 	register_tap_menu_item("SCTP/Chunk Counter", REGISTER_TAP_GROUP_NONE,
 	                       gtk_tap_dfilter_dlg_cb, NULL, NULL, &(sctp_stat_dlg));

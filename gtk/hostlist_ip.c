@@ -82,7 +82,7 @@ gtk_ip_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_ip_hostlist(void)
 {
-	register_ethereal_tap("hosts,ip", gtk_ip_hostlist_init);
+	register_tap_listener_cmd_arg("hosts,ip", gtk_ip_hostlist_init);
 
 	register_tap_menu_item("IPv4", REGISTER_TAP_GROUP_ENDPOINT_LIST,
 		gtk_ip_hostlist_cb, NULL, NULL, NULL);

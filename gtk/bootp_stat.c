@@ -281,7 +281,7 @@ static tap_dfilter_dlg dhcp_stat_dlg = {
 void
 register_tap_listener_gtkdhcpstat(void)
 {
-	register_ethereal_tap("bootp,stat", dhcpstat_init);
+	register_tap_listener_cmd_arg("bootp,stat", dhcpstat_init);
 
 	register_tap_menu_item("BOOTP-DHCP", REGISTER_TAP_GROUP_NONE,
 	    gtk_tap_dfilter_dlg_cb, NULL, NULL, &(dhcp_stat_dlg));

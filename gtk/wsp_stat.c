@@ -425,7 +425,7 @@ static tap_dfilter_dlg wsp_stat_dlg = {
 void
 register_tap_listener_gtkwspstat(void)
 {
-	register_ethereal_tap("wsp,stat", gtk_wspstat_init);
+	register_tap_listener_cmd_arg("wsp,stat", gtk_wspstat_init);
 
 	register_tap_menu_item("WAP-WSP...", REGISTER_TAP_GROUP_NONE,
 	    gtk_tap_dfilter_dlg_cb, NULL, NULL, &(wsp_stat_dlg));

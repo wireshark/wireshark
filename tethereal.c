@@ -266,28 +266,6 @@ print_usage(gboolean print_ver)
   fprintf(output, "\tdefault is libpcap\n");
 }
 
-/* structure to keep track of what tap listeners have been registered.
- */
-typedef struct _ethereal_tap_list {
-	struct _ethereal_tap_list *next;
-	char *cmd;
-	void (*func)(char *arg);
-} ethereal_tap_list;
-static ethereal_tap_list *tap_list=NULL;
-
-void
-register_ethereal_tap(char *cmd, void (*func)(char *arg))
-{
-	ethereal_tap_list *newtl;
-
-	newtl=malloc(sizeof(ethereal_tap_list));
-	newtl->next=tap_list;
-	tap_list=newtl;
-	newtl->cmd=cmd;
-	newtl->func=func;
-
-}
-
 /*
  * For a dissector table, print on the stream described by output,
  * its short name (which is what's used in the "-d" option) and its
@@ -634,11 +612,6 @@ add_decode_as(const gchar *cl_param)
   return TRUE;
 }
 
-typedef struct {
-  ethereal_tap_list *tli;
-  char              *arg;
-} tap_to_run_t;
-
 int
 main(int argc, char *argv[])
 {
@@ -685,9 +658,6 @@ main(int argc, char *argv[])
   dfilter_t           *rfcode = NULL;
   e_prefs             *prefs;
   char                 badopt;
-  ethereal_tap_list   *tli;
-  tap_to_run_t        *tap_to_run;
-  GSList              *taps_to_run = NULL;
   
 #ifdef HAVE_LIBPCAP
   capture_opts_init(&capture_opts, NULL /* cfile */);
@@ -1049,28 +1019,17 @@ main(int argc, char *argv[])
         print_hex = TRUE;
         break;
       case 'z':
-        for(tli=tap_list;tli;tli=tli->next){
-          if(!strncmp(tli->cmd,optarg,strlen(tli->cmd))){
-            /* We won't call the init function for the tap this soon
-               as it would disallow MATE's fields (which are registered
-               by the preferences set callback) from being used as
-               part of a tap filter.  Instead, we just add the argument
-               to a list of tap arguments. */
-            tap_to_run = g_malloc(sizeof (tap_to_run_t));
-            tap_to_run->tli = tli;
-            tap_to_run->arg = g_strdup(optarg);
-            taps_to_run = g_slist_append(taps_to_run, tap_to_run);
-            break;
-          }
-        }
-        if(!tli){
-          fprintf(stderr,"tethereal: invalid -z argument.\n");
-          fprintf(stderr,"  -z argument must be one of :\n");
-          for(tli=tap_list;tli;tli=tli->next){
-            fprintf(stderr,"     %s\n",tli->cmd);
-          }
-          exit(1);
-        }
+        /* We won't call the init function for the tap this soon
+           as it would disallow MATE's fields (which are registered
+           by the preferences set callback) from being used as
+           part of a tap filter.  Instead, we just add the argument
+           to a list of tap arguments. */
+        if (!process_tap_cmd_arg(optarg)) {
+	  fprintf(stderr,"tethereal: invalid -z argument.\n");
+	  fprintf(stderr,"  -z argument must be one of :\n");
+	  list_tap_cmd_args();
+	  exit(1);
+	}
         break;
       default:
       case '?':        /* Bad flag - print usage message */
@@ -1249,13 +1208,7 @@ main(int argc, char *argv[])
   /* At this point MATE will have registered its field array so we can
      have a filter with one of MATE's late-registered fields as part
      of the tap's filter.  We can now process all the "-z" arguments. */
-  while (taps_to_run != NULL) {
-    tap_to_run = taps_to_run->data;
-    (*tap_to_run->tli->func)(tap_to_run->arg);
-    g_free(tap_to_run->arg);
-    g_free(tap_to_run);
-    taps_to_run = g_slist_remove(taps_to_run, tap_to_run);
-  }
+  start_requested_taps();
   
   /* disabled protocols as per configuration file */
   if (gdp_path == NULL && dp_path == NULL) {

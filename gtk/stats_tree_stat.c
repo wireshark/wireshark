@@ -370,7 +370,7 @@ static void register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p 
 
 	s = g_strdup_printf("%s,tree",cfg->abbr);
 	
-	register_ethereal_tap(s, init_gtk_tree);
+	register_tap_listener_cmd_arg(s, init_gtk_tree);
 	
 	cfg->pr = g_malloc(sizeof(tree_pres));
 	

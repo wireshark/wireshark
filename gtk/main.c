@@ -1172,28 +1172,6 @@ unprotect_thread_critical_region(void)
 #endif
 }
 
-/* structure to keep track of what tap listeners have been registered.
- */
-typedef struct _ethereal_tap_list {
-	struct _ethereal_tap_list *next;
-	char *cmd;
-	void (*func)(char *arg);
-} ethereal_tap_list;
-static ethereal_tap_list *tap_list=NULL;
-
-void
-register_ethereal_tap(char *cmd, void (*func)(char *arg))
-{
-	ethereal_tap_list *newtl;
-
-	newtl=malloc(sizeof(ethereal_tap_list));
-	newtl->next=tap_list;
-	tap_list=newtl;
-	newtl->cmd=cmd;
-	newtl->func=func;
-
-}
-
 /* Set the file name in the status line, in the name for the main window,
    and in the name for the main window's icon. */
 static void
@@ -1478,11 +1456,6 @@ void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
     }
 }
 
-typedef struct {
-  ethereal_tap_list *tli;
-  char              *arg;
-} tap_to_run_t;
-
 /* And now our feature presentation... [ fade to music ] */
 int
 main(int argc, char *argv[])
@@ -1530,9 +1503,6 @@ main(int argc, char *argv[])
   gboolean             rfilter_parse_failed = FALSE;
   e_prefs             *prefs;
   char                 badopt;
-  ethereal_tap_list   *tli;
-  tap_to_run_t        *tap_to_run;
-  GSList              *taps_to_run = NULL;
   GtkWidget           *splash_win = NULL;
   gboolean             capture_child; /* True if this is the child for "-S" */
 
@@ -1972,28 +1942,17 @@ main(int argc, char *argv[])
         exit(0);
         break;
       case 'z':
-        for(tli=tap_list;tli;tli=tli->next){
-          if(!strncmp(tli->cmd,optarg,strlen(tli->cmd))){
-            /* We won't call the init function for the tap this soon
-               as it would disallow MATE's fields (which are registered
-               by the preferences set callback) from being used as
-               part of a tap filter.  Instead, we just add the argument
-               to a list of tap arguments. */
-            tap_to_run = g_malloc(sizeof (tap_to_run_t));
-            tap_to_run->tli = tli;
-            tap_to_run->arg = g_strdup(optarg);
-            taps_to_run = g_slist_append(taps_to_run, tap_to_run);
-            break;
-          }
-        }
-        if(!tli){
-          fprintf(stderr,"ethereal: invalid -z argument.\n");
-          fprintf(stderr,"  -z argument must be one of :\n");
-          for(tli=tap_list;tli;tli=tli->next){
-            fprintf(stderr,"     %s\n",tli->cmd);
-          }
-          exit(1);
-        }
+        /* We won't call the init function for the tap this soon
+           as it would disallow MATE's fields (which are registered
+           by the preferences set callback) from being used as
+           part of a tap filter.  Instead, we just add the argument
+           to a list of tap arguments. */
+        if (!process_tap_cmd_arg(optarg)) {
+	  fprintf(stderr,"ethereal: invalid -z argument.\n");
+	  fprintf(stderr,"  -z argument must be one of :\n");
+	  list_tap_cmd_args();
+	  exit(1);
+	}
         break;
       default:
       case '?':        /* Bad flag - print usage message */
@@ -2338,13 +2297,7 @@ main(int argc, char *argv[])
            registered its field array and we can have a filter with
            one of MATE's late-registered fields as part of the tap's
            filter. */
-        while (taps_to_run != NULL) {
-          tap_to_run = taps_to_run->data;
-          (*tap_to_run->tli->func)(tap_to_run->arg);
-          g_free(tap_to_run->arg);
-          g_free(tap_to_run);
-          taps_to_run = g_slist_remove(taps_to_run, tap_to_run);
-        }
+        start_requested_taps();
 
         /* Read the capture file. */
         switch (cf_read(&cfile)) {
@@ -2398,13 +2351,7 @@ main(int argc, char *argv[])
            registered its field array and we can have a filter with
            one of MATE's late-registered fields as part of the tap's
            filter. */
-        while (taps_to_run != NULL) {
-          tap_to_run = taps_to_run->data;
-          (*tap_to_run->tli->func)(tap_to_run->arg);
-          g_free(tap_to_run->arg);
-          g_free(tap_to_run);
-          taps_to_run = g_slist_remove(taps_to_run, tap_to_run);
-        }
+        start_requested_taps();
       }
     }
     else {

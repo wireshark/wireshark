@@ -280,5 +280,5 @@ wspstat_init(char *optarg)
 void 
 register_tap_listener_wspstat(void)
 {
-	register_ethereal_tap("wsp,stat,", wspstat_init);
+	register_tap_listener_cmd_arg("wsp,stat,", wspstat_init);
 }

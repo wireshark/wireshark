@@ -710,5 +710,5 @@ iousers_init(char *optarg)
 void
 register_tap_listener_iousers(void)
 {
-	register_ethereal_tap("conv,", iousers_init);
+	register_tap_listener_cmd_arg("conv,", iousers_init);
 }

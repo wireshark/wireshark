@@ -28,5 +28,4 @@
 extern void register_all_protocols(void);
 extern void register_all_protocol_handoffs(void);
 extern void register_all_tap_listeners(void);
-extern void register_ethereal_tap(char *str, void (*init)(char *));
 #endif /* __REGISTER_H__ */

@@ -1930,7 +1930,7 @@ gtk_iostat_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtk_iostat(void)
 {
-	register_ethereal_tap("io,stat", gtk_iostat_init);
+	register_tap_listener_cmd_arg("io,stat", gtk_iostat_init);
 
 	register_tap_menu_item("_IO Graphs", REGISTER_TAP_GROUP_GENERIC,
         gtk_iostat_cb, NULL, NULL, NULL);

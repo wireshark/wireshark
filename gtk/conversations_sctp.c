@@ -87,7 +87,7 @@ sctp_conversation_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_sctp_conversation(void)
 {
-	register_ethereal_tap("conv,sctp", sctp_conversation_init);
+	register_tap_listener_cmd_arg("conv,sctp", sctp_conversation_init);
 
 	register_tap_menu_item("SCTP", REGISTER_TAP_GROUP_CONVERSATION_LIST,
 	    sctp_conversation_cb, NULL, NULL, NULL);

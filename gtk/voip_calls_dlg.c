@@ -766,7 +766,7 @@ void voip_calls_launch(GtkWidget *w _U_, gpointer data _U_)
 void
 register_tap_listener_voip_calls_dlg(void)
 {
-	register_ethereal_tap("voip,calls",voip_calls_init_tap);
+	register_tap_listener_cmd_arg("voip,calls",voip_calls_init_tap);
 	register_tap_menu_item("VoIP Calls...", REGISTER_TAP_GROUP_NONE,
 	    voip_calls_launch, NULL, NULL, NULL);
 	    

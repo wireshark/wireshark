@@ -447,7 +447,7 @@ register_tap_listener_gtkmtp3_stat(void)
     GString		*err_p;
 
 
-    register_ethereal_tap("mtp3,", mtp3_stat_gtk_init);
+    register_tap_listener_cmd_arg("mtp3,", mtp3_stat_gtk_init);
 
     memset((void *) &mtp3_stat, 0, sizeof(mtp3_stat_t));
 
