@@ -2,7 +2,7 @@
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-mmse.c,v 1.21 2003/11/19 02:58:02 guy Exp $
+ * $Id: packet-mmse.c,v 1.22 2003/12/07 03:17:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -868,7 +868,7 @@ proto_reg_handoff_mmse(void)
     dissector_add_string("wsp.content_type.literal",
 			"application/vnd.wap.mms-message",
   			mmse_handle);
-    dissector_add_string("http.content_type",
+    dissector_add_string("media_type",
 			"application/vnd.wap.mms-message",
   			mmse_handle);
 }

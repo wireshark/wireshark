@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.73 2003/11/18 08:04:39 guy Exp $
+ * $Id: packet-http.c,v 1.74 2003/12/07 03:17:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1088,10 +1088,12 @@ proto_register_http(void)
 
 	/*
 	 * Dissectors can register themselves in this table.
+	 * It's just "media_type", not "http.content_type", because
+	 * it's an Internet media type, usable by other protocols as well.
 	 */
 	content_type_subdissector_table =
-	    register_dissector_table("http.content_type",
-		"HTTP content type", FT_STRING, BASE_NONE);
+	    register_dissector_table("media_type",
+		"Internet media type", FT_STRING, BASE_NONE);
 
 	/*
 	 * Heuristic dissectors SHOULD register themselves in
