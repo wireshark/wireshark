@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.2 1998/09/27 22:12:41 gerald Exp $
+ * $Id: packet-vines.c,v 1.3 1998/11/12 00:06:39 gram Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -28,7 +28,6 @@
 #include "config.h"
 
 #include <gtk/gtk.h>
-#include <pcap.h>
 
 #include <stdio.h>
 

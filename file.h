@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.4 1998/10/12 01:40:49 gerald Exp $
+ * $Id: file.h,v 1.5 1998/11/12 00:06:21 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,7 +29,11 @@
 #include <sys/types.h>
 #include <sys/time.h>
 
-#include <pcap.h>
+#ifdef WITH_WIRETAP
+ #include <wtap.h>
+#else
+ #include <pcap.h>
+#endif
 
 /* Data file formats */
 #define CD_UNKNOWN    0
@@ -67,7 +71,11 @@ typedef struct _capture_file {
   guint32     snap;      /* Captured packet length */
   gchar      *iface;     /* Interface */
   gchar      *save_file; /* File to write capture data */
+#ifdef WITH_WIRETAP
+  wtap     *wth;       /* Wiretap session */
+#else
   pcap_t     *pfh;       /* Pcap session */
+#endif
   gchar      *dfilter;   /* Display filter string */
   gchar      *cfilter;   /* Capture filter string */
   bpf_prog    fcode;     /* Compiled filter program */
@@ -97,7 +105,11 @@ typedef struct _snoop_frame_hdr {
 int  open_cap_file(char *, capture_file *);
 void close_cap_file(capture_file *, GtkWidget *, guint);
 int  load_cap_file(char *, capture_file *);
+#ifdef WITH_WIRETAP
+void wtap_dispatch_cb(u_char *, const struct wtap_pkthdr *, const u_char *);
+#else
 void pcap_dispatch_cb(u_char *, const struct pcap_pkthdr *, const u_char *);
+#endif
 /* size_t read_frame_header(capture_file *); */
 
 #endif /* file.h */

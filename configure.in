@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.9 1998/10/28 21:52:48 gerald Exp $
+# $Id: configure.in,v 1.10 1998/11/12 00:06:18 gram Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
@@ -9,6 +9,7 @@ AC_CANONICAL_HOST
 
 dnl Checks for programs.
 AC_PROG_CC
+AC_PROG_RANLIB
 
 # Create DATAFILE_DIR #define for config.h
 DATAFILE_DIR=$sysconfdir
@@ -60,6 +61,27 @@ else
   AC_MSG_RESULT(not found)
 fi
 
+# Wiretap check
+AC_MSG_CHECKING(whether to include wiretap library)
+AC_ARG_WITH(wiretap,
+[  --with-wiretap          Include wiretap library.
+  --without-wiretap       Don't include wiretap library (default)],
+	[ case "$withval" in
+		yes)
+			AC_MSG_RESULT(yes)
+			AC_DEFINE(WITH_WIRETAP)
+			CFLAGS="$CFLAGS -Iwiretap"
+			LIBWIRETAP_A="wiretap/libwiretap.a"
+			;;
+		*)
+			AC_MSG_RESULT(no)
+			LIBWIRETAP_A=""
+			;;
+	esac ],
+	AC_MSG_RESULT(no)
+)
+AC_SUBST(LIBWIRETAP_A)
+
 dnl Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h strings.h sys/ioctl.h sys/time.h unistd.h stdarg.h)
@@ -94,4 +116,5 @@ AC_SUBST(SNPRINTF_C)
 AC_SUBST(SNPRINTF_O)
 
 AM_CONFIG_HEADER(config.h)
-AC_OUTPUT(Makefile)
+#AC_CONFIG_SUBDIRS(wiretap)
+AC_OUTPUT(Makefile wiretap/Makefile)

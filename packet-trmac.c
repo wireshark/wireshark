@@ -2,7 +2,7 @@
  * Routines for Token-Ring Media Access Control
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-trmac.c,v 1.6 1998/10/22 04:03:40 gram Exp $
+ * $Id: packet-trmac.c,v 1.7 1998/11/12 00:06:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -32,7 +32,6 @@
 # include <sys/types.h>
 #endif
 
-#include <pcap.h>
 
 #include <gtk/gtk.h>
 

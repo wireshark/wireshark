@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.10 1998/10/28 01:16:47 guy Exp $
+ * $Id: packet-ip.c,v 1.11 1998/11/12 00:06:28 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,7 +28,6 @@
 #endif
 
 #include <gtk/gtk.h>
-#include <pcap.h>
 
 #include <stdio.h>
 

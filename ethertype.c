@@ -2,7 +2,7 @@
  * Routines for calling the right protocol for the ethertype.
  * This is called by both packet-eth.c (Ethernet II) and packet-llc.c (SNAP)
  *
- * $Id: ethertype.c,v 1.8 1998/11/03 07:45:09 guy Exp $
+ * $Id: ethertype.c,v 1.9 1998/11/12 00:06:20 gram Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -37,8 +37,6 @@
 #include <gtk/gtk.h>
 
 #include <stdio.h>
-
-#include <pcap.h>
 
 #include "ethereal.h"
 #include "packet.h"

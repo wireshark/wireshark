@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.5 1998/10/15 06:55:42 guy Exp $
+ * $Id: packet-nbns.c,v 1.6 1998/11/12 00:06:32 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,7 +30,6 @@
 #endif
 
 #include <gtk/gtk.h>
-#include <pcap.h>
 
 #include <stdio.h>
 #include <memory.h>

@@ -2,7 +2,7 @@
  * Routines for LPR and LPRng packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-lpd.c,v 1.3 1998/09/27 22:12:32 gerald Exp $
+ * $Id: packet-lpd.c,v 1.4 1998/11/12 00:06:31 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -41,7 +41,6 @@
 # include <netinet/in.h>
 #endif
 
-#include <pcap.h>
 
 #include "ethereal.h"
 #include "packet.h"

@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.3 1998/09/27 22:12:30 gerald Exp $
+ * $Id: packet-ipv6.c,v 1.4 1998/11/12 00:06:29 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,7 +28,6 @@
 #endif
 
 #include <gtk/gtk.h>
-#include <pcap.h>
 
 #include <stdio.h>
 

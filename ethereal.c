@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.10 1998/10/29 15:58:59 gerald Exp $
+ * $Id: ethereal.c,v 1.11 1998/11/12 00:06:19 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,7 +44,7 @@
 #endif
 
 #include <gtk/gtk.h>
-#include <pcap.h>
+#include <pcap.h> /* needed for capture.h */
 
 #include <stdio.h>
 #include <string.h>
@@ -268,7 +268,11 @@ void
 packet_list_select_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
   GList      *l;
 
-  if (cf.pfh) return;  
+#ifdef WITH_WIRETAP
+  if (cf.wth) return; 
+#else
+  if (cf.pfh) return;
+#endif
   blank_packetinfo();
   gtk_text_freeze(GTK_TEXT(byte_view));
   gtk_text_set_point(GTK_TEXT(byte_view), 0);
@@ -377,7 +381,11 @@ main(int argc, char *argv[])
 
   /* Initialize the capture file struct */
   cf.plist     = NULL;
+#ifdef WITH_WIRETAP
+  cf.wth       = NULL;
+#else
   cf.pfh       = NULL;
+#endif
   cf.fh        = NULL;
   cf.dfilter   = NULL;
   cf.cfilter   = NULL;

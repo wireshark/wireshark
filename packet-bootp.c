@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-bootp.c,v 1.7 1998/10/13 03:39:15 gram Exp $
+ * $Id: packet-bootp.c,v 1.8 1998/11/12 00:06:24 gram Exp $
  *
  * The information used comes from:
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
@@ -45,7 +45,6 @@
 # include <netinet/in.h>
 #endif
 
-#include <pcap.h>
 
 #include "ethereal.h"
 #include "packet.h"

@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.11 1998/10/14 05:18:30 gram Exp $
+ * $Id: packet-ipx.c,v 1.12 1998/11/12 00:06:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -29,16 +29,11 @@
 #endif
 
 #include <gtk/gtk.h>
-#include <pcap.h>
 
 #include <stdio.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
 #endif
 
 #include "ethereal.h"
@@ -94,6 +89,7 @@ static struct port_info	ports[] = {
 	{ 0x0551, NULL,				"NWLink SMB Name Query" },
 	{ 0x0553, dissect_nwlink_dg,"NWLink SMB Datagram" },
 	{ 0x055d, NULL,				"Attachmate Gateway" },
+	{ 0x4001, NULL,				"IPX Message" },
 	{ 0x0000, NULL,				NULL }
 };
 

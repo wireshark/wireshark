@@ -17,6 +17,9 @@
 
 #undef NEED_SNPRINTF_H
 
+/* Define this to use the wiretap library */
+#undef WITH_WIRETAP
+
 /* Define if you have the <fcntl.h> header file.  */
 #undef HAVE_FCNTL_H
 

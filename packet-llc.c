@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-llc.c,v 1.8 1998/10/10 03:32:12 gerald Exp $
+ * $Id: packet-llc.c,v 1.9 1998/11/12 00:06:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -32,7 +32,6 @@
 # include <sys/types.h>
 #endif
 
-#include <pcap.h>
 
 #include <gtk/gtk.h>
 

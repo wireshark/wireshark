@@ -1,0 +1,16 @@
+# $Id: configure.in,v 1.1 1998/11/12 00:06:45 gram Exp $
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(wtap.c)
+AM_INIT_AUTOMAKE(libwtap.a, 0.0.0)
+AM_CONFIG_HEADER(config.h)
+
+#AC_PROG_RANLIB
+
+# Pcap checks (copied from ethereal)
+AC_CHECK_HEADER(pcap.h,, AC_MSG_ERROR(Header file pcap.h not found.))
+
+dnl Checks for header files
+AC_HEADER_STDC
+AC_CHECK_HEADERS(unistd.h)
+
+AC_OUTPUT(Makefile)

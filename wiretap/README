@@ -1,0 +1,30 @@
+Wiretap is a library that is being developed as a future replacement for
+libpcap, the current standard Unix library for packet capturing. Libpcap is
+great in that it is very platform independent and has a wonderful BPF
+optimizing engine. But it has some shortcomings as well. These shortcomings
+came to a head during the development of Ethereal (http://ethereal.zing.org),
+a packet analyzer. As such, I began developing wiretap so that:
+
+1. The library can easily be amended with new packet filtering objects.
+Libpcap is very TCP/IP-oriented. I want to filter on IPX objects, SNA objects,
+etc. I also want any decent programmer to be able to add new filters to the
+library.
+
+2. The library can read file formats from many packet-capturing utilities.
+Libpcap only reads Libpcap files.
+
+3. The library can capture on more than one network interface at a time, and
+save this trace in one file.
+
+4. Network names can be resolved immediately after a trace and saved in the
+trace file. That way, I can ship a trace of my firewall-protected network to a
+colleague, and he'll see the proper hostnames for the IP addresses in the
+packet capture, even though he doesn't have access to the DNS server behind my
+LAN's firewall.
+
+5. I want to look into the possibility of compressing packet data when saved
+to a file, like Sniffer.
+
+
+Currently, only #2 is available. Wiretap doesn't even do any filtering yet. It
+can only be used to read packet capture files.

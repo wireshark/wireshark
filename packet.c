@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.9 1998/10/28 01:16:48 guy Exp $
+ * $Id: packet.c,v 1.10 1998/11/12 00:06:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -295,6 +295,28 @@ dissect_packet(const u_char *pd, guint32 ts_secs, guint32 ts_usecs,
 	    fd->cap_len);
 	}
 
+#ifdef WITH_WIRETAP
+	switch (cf.lnk_t) {
+		case WTAP_ENCAP_ETHERNET :
+			dissect_eth(pd, fd, tree);
+			break;
+		case WTAP_ENCAP_FDDI :
+			dissect_fddi(pd, fd, tree);
+			break;
+		case WTAP_ENCAP_TR :
+			dissect_tr(pd, fd, tree);
+			break;
+		case WTAP_ENCAP_NONE :
+			dissect_null(pd, fd, tree);
+			break;
+		case WTAP_ENCAP_PPP :
+			dissect_ppp(pd, fd, tree);
+			break;
+		case WTAP_ENCAP_RAW_IP :
+			dissect_raw(pd, fd, tree);
+			break;
+	}
+#else
 	switch (cf.lnk_t) {
 		case DLT_EN10MB :
 			dissect_eth(pd, fd, tree);
@@ -315,4 +337,5 @@ dissect_packet(const u_char *pd, guint32 ts_secs, guint32 ts_usecs,
 			dissect_raw(pd, fd, tree);
 			break;
 	}
+#endif
 }

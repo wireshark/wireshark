@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.10 1998/10/13 07:03:32 guy Exp $
+ * $Id: file.c,v 1.11 1998/11/12 00:06:20 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,7 +28,10 @@
 #endif
 
 #include <gtk/gtk.h>
+
+#ifdef WITH_WIRETAP
 #include <pcap.h>
+#endif
 
 #include <stdio.h>
 #include <unistd.h>
@@ -67,7 +70,9 @@ static guint32 lastsec, lastusec;
 
 int
 open_cap_file(char *fname, capture_file *cf) {
+#ifndef WITH_WIRETAP
   guint32     magic[2];
+#endif
   char        err_str[PCAP_ERRBUF_SIZE];
   struct stat cf_stat;
 
@@ -88,19 +93,24 @@ open_cap_file(char *fname, capture_file *cf) {
 
   fseek(cf->fh, 0L, SEEK_END);
   cf->f_len = ftell(cf->fh);
+#ifndef WITH_WIRETAP
   fseek(cf->fh, 0L, SEEK_SET);
   fread(magic, sizeof(guint32), 2, cf->fh);
   fseek(cf->fh, 0L, SEEK_SET);
+#endif
   fclose(cf->fh);
   cf->fh = NULL;
-
   /* set the file name beacuse we need it to set the follow stream filter */
   cf->filename = g_strdup( fname );
 
   /* Next, find out what type of file we're dealing with */
-  
+#ifdef WITH_WIRETAP 
+  cf->cd_t  = WTAP_FILE_UNKNOWN;
+  cf->lnk_t = WTAP_ENCAP_NONE;
+#else
   cf->cd_t  = CD_UNKNOWN;
   cf->lnk_t = DLT_NULL;
+#endif
   cf->swap  = 0;
   cf->count = 0;
   cf->drops = 0;
@@ -115,16 +125,23 @@ open_cap_file(char *fname, capture_file *cf) {
   }
   ssec = 0, susec = 0;
   lastsec = 0, lastusec = 0;
-  
+ 
+#ifndef WITH_WIRETAP
   if (magic[0] == PCAP_MAGIC || magic[0] == SWAP32(PCAP_MAGIC)) {
 
     /* Pcap/Tcpdump file */
     cf->pfh = pcap_open_offline(fname, err_str);
     if (cf->pfh == NULL) {
+#else
+	cf->wth = wtap_open_offline(fname, WTAP_FILE_UNKNOWN);
+	if (cf->wth == NULL) {
+#endif
+
       simple_dialog(ESD_TYPE_WARN, NULL, "Could not open file.");
       return 1;
     }
 
+#ifndef WITH_WIRETAP
     if (cf->dfilter) {
       if (pcap_compile(cf->pfh, &cf->fcode, cf->dfilter, 1, 0) < 0) {
         simple_dialog(ESD_TYPE_WARN, NULL, "Unable to parse filter string "
@@ -172,6 +189,13 @@ open_cap_file(char *fname, capture_file *cf) {
     simple_dialog(ESD_TYPE_WARN, NULL, "Can't determine file type.");
     return 1;
   }
+#else
+  cf->fh = wtap_file(cf->wth);
+  cf->cd_t = wtap_file_type(cf->wth);
+  cf->snap = wtap_snapshot_length(cf->wth);
+  cf->lnk_t = wtap_encapsulation(cf->wth);
+#endif
+
   return 0;
 }
 
@@ -182,10 +206,17 @@ close_cap_file(capture_file *cf, GtkWidget *w, guint context) {
     fclose(cf->fh);
     cf->fh = NULL;
   }
+#ifdef WITH_WIRETAP
+  if (cf->wth) {
+	  wtap_close(cf->wth);
+	  cf->wth = NULL;
+	}
+#else
   if (cf->pfh) {
     pcap_close(cf->pfh);
     cf->pfh = NULL;
   }
+#endif
   gtk_text_freeze(GTK_TEXT(byte_view));
   gtk_text_set_point(GTK_TEXT(byte_view), 0);
   gtk_text_forward_delete(GTK_TEXT(byte_view),
@@ -222,11 +253,21 @@ load_cap_file(char *fname, capture_file *cf) {
   timeout = gtk_timeout_add(250, file_progress_cb, (gpointer) &cf);
   
   err = open_cap_file(fname, cf);
+#ifdef WITH_WIRETAP
+  if ((err == 0) && (cf->cd_t != WTAP_FILE_UNKNOWN)) {
+#else
   if ((err == 0) && (cf->cd_t != CD_UNKNOWN)) {
+#endif
     gtk_clist_freeze(GTK_CLIST(packet_list));
+#ifdef WITH_WIRETAP
+	wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);
+	wtap_close(cf->wth);
+	cf->wth = NULL;
+#else
     pcap_loop(cf->pfh, 0, pcap_dispatch_cb, (u_char *) cf);
     pcap_close(cf->pfh);
     cf->pfh = NULL;
+#endif
     cf->plist = g_list_first(cf->plist);
     cf->fh = fopen(fname, "r");
     gtk_clist_thaw(GTK_CLIST(packet_list));
@@ -261,7 +302,11 @@ load_cap_file(char *fname, capture_file *cf) {
 }
 
 void
+#ifdef WITH_WIRETAP
+wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr,
+#else
 pcap_dispatch_cb(u_char *user, const struct pcap_pkthdr *phdr,
+#endif
   const u_char *buf) {
   frame_data   *fdata;
   /* To do: make sure this is big enough. */

@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.5 1998/10/10 03:32:11 gerald Exp $
+ * $Id: packet-eth.c,v 1.6 1998/11/12 00:06:26 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,7 +35,6 @@
 
 #include <stdio.h>
 
-#include <pcap.h>
 
 #include "ethereal.h"
 #include "packet.h"

@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.6 1998/10/13 03:38:16 gram Exp $
+ * $Id: packet-tr.c,v 1.7 1998/11/12 00:06:38 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -40,7 +40,6 @@
 # include <netinet/in.h>
 #endif
 
-#include <pcap.h>
 
 #include "ethereal.h"
 #include "packet.h"
