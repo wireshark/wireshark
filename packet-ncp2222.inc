@@ -11,7 +11,7 @@
  * Portions Copyright (c) Gilbert Ramirez 2000-2002
  * Portions Copyright (c) Novell, Inc. 2000-2003
  *
- * $Id: packet-ncp2222.inc,v 1.61 2003/09/23 18:22:19 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.62 2003/09/23 22:04:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4572,6 +4572,21 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 			int i, len;
 			field_info *finfo;
                         int info_type;
+                        
+                        if (!request_value)
+                        {
+        		        conversation = find_conversation(&pinfo->src, &pinfo->dst,
+        			    PT_NCP, nw_connection, nw_connection, 0);
+        		        if (conversation != NULL) {
+        			        /* find the record telling us the request made that caused
+        			        this reply */
+        			        request_value = ncp_hash_lookup(conversation, sequence);
+                                }
+                                if (!conversation || !request_value)
+                                {
+                                        return;
+                                }
+                        }
                         
 			parray = proto_get_finfo_ptr_array(ncp_tree,
 				*ncp_rec->req_info_str->hf_ptr);
