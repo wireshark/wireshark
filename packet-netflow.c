@@ -45,7 +45,7 @@
  ** http://www.cisco.com/univercd/cc/td/doc/cisintwk/intsolns/netflsol/nfwhite.htm
  **
  ** $Yahoo: //depot/fumerola/packet-netflow/packet-netflow.c#14 $
- ** $Id: packet-netflow.c,v 1.10 2003/03/07 00:43:30 guy Exp $
+ ** $Id: packet-netflow.c,v 1.11 2004/03/09 20:08:26 guy Exp $
  */
 
 #ifdef HAVE_CONFIG_H
@@ -122,7 +122,6 @@ static const value_string v8_agg[] = {
 };
 
 /* Version 9 template cache structures */
-#define V9TEMPLATE_MAX_ENTRIES		64
 #define V9TEMPLATE_CACHE_MAX_ENTRIES	100
 
 struct v9_template_entry {
@@ -136,7 +135,7 @@ struct v9_template {
 	guint32	length;
 	guint32 source_id;
 	guint32	source_addr;
-	struct v9_template_entry entries[V9TEMPLATE_MAX_ENTRIES];
+	struct v9_template_entry *entries;
 };
 
 static struct v9_template v9_template_cache[V9TEMPLATE_CACHE_MAX_ENTRIES];
@@ -1160,6 +1159,7 @@ dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, int offset)
 	template.count = count;
 	template.source_addr = 0;	/* XXX */
 	template.source_id = 0;		/* XXX */
+	template.entries = g_malloc(count * sizeof(struct v9_template_entry));
 	tvb_memcpy(tvb, (guint8 *)template.entries, offset,
 	    count * sizeof(struct v9_template_entry));
 	v9_template_add(&template);
@@ -1366,6 +1366,22 @@ getprefix(const guint32 * address, int prefix)
 	gprefix = *address & g_htonl((0xffffffff << (32 - prefix)));
 
 	return (ip_to_str((const guint8 *)&gprefix));
+}
+
+
+static void
+netflow_reinit(void)
+{
+	int i;
+
+	/*
+	 * Clear out the template cache.
+	 * Free the table of fields for each entry, and then zero out
+	 * the cache.
+	 */
+	for (i = 0; i < V9TEMPLATE_CACHE_MAX_ENTRIES; i++)
+		g_free(v9_template_cache[i].entries);
+	memset(v9_template_cache, 0, sizeof v9_template_cache);
 }
 
 void
@@ -1709,7 +1725,7 @@ proto_register_netflow(void)
 	    "NetFlow UDP Port", "Set the port for NetFlow messages",
 	    10, &global_netflow_udp_port);
 
-	register_dissector("cflow", dissect_netflow, proto_netflow);
+	register_init_routine(&netflow_reinit);
 }
 
 
