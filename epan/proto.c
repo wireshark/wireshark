@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.51.2.3 2002/03/06 22:38:43 gram Exp $
+ * $Id: proto.c,v 1.51.2.4 2002/03/08 04:32:32 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -551,6 +551,15 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 		case FT_BYTES:
 			proto_tree_set_bytes_tvb(new_fi, tvb, start, length);
+			break;
+
+		case FT_UINT_BYTES:
+			n = get_uint_value(tvb, start, length, little_endian);
+			proto_tree_set_bytes_tvb(new_fi, tvb, start + length, n);
+
+			/* Instead of calling proto_item_set_len(), since we don't yet
+			 * have a proto_item, we set the field_info's length ourselves. */
+			new_fi->length = n + length;
 			break;
 
 		case FT_BOOLEAN:
@@ -2106,11 +2115,12 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_BYTES:
+		case FT_UINT_BYTES:
 			bytes = fvalue_get(fi->value);
 			if (bytes) {
 				snprintf(label_str, ITEM_LABEL_LENGTH,
 					"%s: %s", hfinfo->name, 
-					 bytes_to_str(bytes, fi->length));
+					 bytes_to_str(bytes, fvalue_length(fi->value)));
 			}
 			else {
 				snprintf(label_str, ITEM_LABEL_LENGTH,
@@ -3026,7 +3036,10 @@ proto_can_match_selected(field_info *finfo)
 		case FT_ABSOLUTE_TIME:
 		case FT_RELATIVE_TIME:
 		case FT_STRING:
+		case FT_STRINGZ:
+		case FT_UINT_STRING:
 		case FT_BYTES:
+		case FT_UINT_BYTES:
 			/*
 			 * These all have values, so we can match.
 			 */
@@ -3151,11 +3164,6 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 					hfinfo->abbrev, value_str);
 			break;
 
-#if 0
-		case FT_TEXT_ONLY:
-			; /* nothing */
-			break;
-#endif
 
 		case FT_STRING:
 			value_str = fvalue_get(finfo->value);
@@ -3166,12 +3174,15 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 			break;
 
 		case FT_BYTES:
-			dfilter_len = finfo->length*3 - 1;
+		case FT_UINT_BYTES:
+			dfilter_len = fvalue_length(finfo->value)*3 - 1;
 			dfilter_len += abbrev_len + 7;
 			buf = g_malloc0(dfilter_len);
 			snprintf(buf, dfilter_len, "%s == %s",
 				 hfinfo->abbrev,
-				 bytes_to_str_punct(fvalue_get(finfo->value), finfo->length,':'));
+				 /* XXX - bytes_to_str_punct() will truncate long strings with '...' */
+				 bytes_to_str_punct(fvalue_get(finfo->value),
+					 fvalue_length(finfo->value),':'));
 			break;       
 
 		default:

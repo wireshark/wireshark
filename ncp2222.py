@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.14.2.23 2002/03/07 18:24:55 gram Exp $
+$Id: ncp2222.py,v 1.14.2.24 2002/03/08 04:32:26 gram Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -245,6 +245,9 @@ class PTVC(NamedList):
 			# cannot be variable-length.
 			if type(ptvc_rec.Length()) == type(()):
 				if isinstance(ptvc_rec.Field(), nstring):
+					expected_offset = -1
+					pass
+				elif isinstance(ptvc_rec.Field(), nbytes):
 					expected_offset = -1
 					pass
 				elif isinstance(ptvc_rec.Field(), struct):
@@ -876,9 +879,7 @@ class nstring:
 
 class nstring8(Type, nstring):
 	"""A string of up to (2^8)-1 characters. The first byte
-	gives the string length. Thus, the total length of
-	this data structure is from 1 to 2^8 bytes, including
-	the first byte."""
+	gives the string length."""
 
 	type	= "nstring8"
 	ftype	= "FT_UINT_STRING"
@@ -886,10 +887,8 @@ class nstring8(Type, nstring):
 		Type.__init__(self, abbrev, descr, 1)
 
 class nstring16(Type, nstring):
-	"""A string of up to (2^16)-1 characters. The first byte
-	gives the string length. Thus, the total length of
-	this data structure is from 1 to 2^16 bytes, including
-	the first byte."""
+	"""A string of up to (2^16)-2 characters. The first 2 bytes
+	gives the string length."""
 
 	type	= "nstring16"
 	ftype	= "FT_UINT_STRING"
@@ -897,10 +896,8 @@ class nstring16(Type, nstring):
 		Type.__init__(self, abbrev, descr, 2, endianness)
 
 class nstring32(Type, nstring):
-	"""A string of up to (2^32)-1 characters. The first byte
-	gives the string length. Thus, the total length of
-	this data structure is from 1 to 2^32 bytes, including
-	the first byte."""
+	"""A string of up to (2^32)-4 characters. The first 4 bytes
+	gives the string length."""
 
 	type	= "nstring32"
 	ftype	= "FT_UINT_STRING"
@@ -983,6 +980,35 @@ class bytes(Type):
 	def __init__(self, abbrev, descr, bytes):
 		Type.__init__(self, abbrev, descr, bytes, NA)
 
+class nbytes:
+	pass
+
+class nbytes8(Type, nbytes):
+	"""A series of up to (2^8)-1 bytes. The first byte
+	gives the byte-string length."""
+
+	type	= "nbytes8"
+	ftype	= "FT_UINT_BYTES"
+	def __init__(self, abbrev, descr, endianness = LE):
+		Type.__init__(self, abbrev, descr, 1, endianness)
+
+class nbytes16(Type, nbytes):
+	"""A series of up to (2^16)-2 bytes. The first 2 bytes
+	gives the byte-string length."""
+
+	type	= "nbytes16"
+	ftype	= "FT_UINT_BYTES"
+	def __init__(self, abbrev, descr, endianness = LE):
+		Type.__init__(self, abbrev, descr, 2, endianness)
+
+class nbytes32(Type, nbytes):
+	"""A series of up to (2^32)-4 bytes. The first 4 bytes
+	gives the byte-string length."""
+
+	type	= "nbytes32"
+	ftype	= "FT_UINT_BYTES"
+	def __init__(self, abbrev, descr, endianness = LE):
+		Type.__init__(self, abbrev, descr, 4, endianness)
 
 class bitfield(Type):
 	type	= "bitfield"
@@ -2827,8 +2853,7 @@ NDSStatus			= uint32("nds_status", "NDS Status")
 NetBIOSBroadcastWasPropogated	= uint32("netbios_broadcast_was_propogated", "NetBIOS Broadcast Was Propogated")
 NetIDNumber                     = uint32("net_id_number", "Net ID Number")
 NetIDNumber.Display("BASE_HEX")
-NetAddress                      = nstring32("address", "Address")
-NetAddress.Display("BASE_HEX")
+NetAddress                      = nbytes32("address", "Address")
 NetStatus                       = uint16("net_status", "Network Status")
 NetWareAccessHandle		= bytes("netware_access_handle", "NetWare Access Handle", 6)
 NetworkAddress			= uint32("network_address", "Network Address")

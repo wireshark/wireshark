@@ -1,7 +1,7 @@
 /* ftypes.h
  * Definitions for field types
  *
- * $Id: ftypes.h,v 1.9 2002/02/15 09:01:21 gram Exp $
+ * $Id: ftypes.h,v 1.9.2.1 2002/03/08 04:32:35 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,6 +53,7 @@ enum ftenum {
 	/*FT_UCS2_LE, */    /* Unicode, 2 byte, Little Endian     */
 	FT_ETHER,
 	FT_BYTES,
+	FT_UINT_BYTES,
 	FT_IPv4,
 	FT_IPv6,
 	FT_IPXNET,
