@@ -801,6 +801,7 @@ Motonori Shindo <mshindo[AT]mshindo.net> {
 	Fix up the generation of PDB files, clean them up on a "nmake -f
 	    makefile.nmake clean", and put all the PDB files into the
 	    Windows binary distribution
+	Delete installed data files on a Windows uninstallation
 }
 
 Terje Krogdahl <tekr[AT]nextra.com> {

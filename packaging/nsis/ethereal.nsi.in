@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi.in,v 1.9 2001/12/12 01:29:07 guy Exp $
+; $Id: ethereal.nsi.in,v 1.10 2001/12/12 07:52:23 guy Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -155,6 +155,12 @@ DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Unins
 DeleteRegKey HKEY_LOCAL_MACHINE SOFTWARE\Ethereal
 
 Delete "$INSTDIR\README*"
+Delete "$INSTDIR\manuf"
+Delete "$INSTDIR\dictionary.dtd"
+Delete "$INSTDIR\dictionary.xml"
+Delete "$INSTDIR\mobileipv4.xml"
+Delete "$INSTDIR\nasreq.xml"
+Delete "$INSTDIR\sunping.xml"
 Delete "$INSTDIR\*.exe"
 Delete "$INSTDIR\*.pdb"
 Delete "$INSTDIR\*.html"
