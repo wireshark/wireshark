@@ -9,7 +9,7 @@
     <para>
 	Well, if you want to develop some things into Ethereal, you might already 
 	know what Ethereal is doing. If not, please have a look at the 
-	<ulink url="&LatestVersionWebsite;">Ethereal User's Guide</ulink>, 
+	<ulink url="&EtherealUsersGuidePage;">Ethereal User's Guide</ulink>, 
 	which will explain what Ethereal is doing and a lot more general 
 	information about it.
     </para>
@@ -28,6 +28,31 @@
 	
   </section>
   
+  <section id="ChIntroDevelopment">
+    <title>Ethereal development</title>
+    <para>
+	The Ethereal development is done by the Ethereal developer community, a 
+	loosely coupled group of persons interested in network analyzing. The 
+	communication between the developers is usually done trough the developer 
+	mailing list, which can be joined by anyone interested in the development 
+	process. At the time writing of this document, more than 500 persons are 
+	subscribed to this mailing list!
+    </para>
+    <para>
+	Ethereal is implemented in plain ANSI C. As it's developed in a platform 
+	independant way and uses a platform independant GUI library (GTK+), it's 
+	available on a wide variety of platforms.
+    </para>
+    <para>
+	Beside the usual tools for developing a program in C (compiler, make, ...), 
+	the build process uses some additional helper tools (Perl, Python, Sed, 
+	...), which are needed for the build process and in the case Ethereal 
+	should be installed from the released source packages. If Ethereal is 
+	installed from a binary package, none of these helper tools are needed on 
+	the target system.
+	</para>
+  </section>	
+	
   <section id="ChIntroPlatforms">
     <title>Platforms Ethereal runs on</title>
     <para>
@@ -85,9 +110,76 @@
 	<listitem><para>Windows Me / 98 / 95</para></listitem>
 	<listitem><para>Windows Server 2003 / XP / 2000 / NT 4.0</para></listitem>
 	</itemizedlist>
+	Thanks to the Win32 API, development on all windows platforms will be 
+	done in a very similar way. However some differences between the platforms 
+	are existing (especially between the NT and 95 based platforms), the 
+	differences will be notified where appropriate. All Windows platforms will 
+	be referred as Win32, Win or Windows might be used with the same meaning.
     </para>
 	</section>
 	
+  </section>
+  
+  <section id="ChIntroReleases">
+    <title>Releases and distributions</title>
+    <para>
+	The officially released files can be found at: <ulink 
+	url="&EtherealDownloadPage;"/>. A new Ethereal version is released, after 
+	significant changes compared to the last release were completed or a 
+	serious security issue was encountered. The typical release schedule is
+	about every 4-8 weeks (although this may vary).
+    </para>
+    <para>
+	There are two kinds of distributions: binary and source, both have their 
+	advantages and disadvantages. As it's still very common for unix programs 
+	to give the end user a source tarball and let the user compile it on 
+	their target machine, this is very uncommon for win32 end users.
+    </para>
+
+	<section id="ChIntroReleaseBinary">
+    <title>Binary distributions</title>
+    <para>
+	Binary distributions are usually easy to install (as simply starting
+	the appropriate file is usually the only thing to do). They are available 
+	for the following systems:
+	<itemizedlist>
+	<listitem>
+    <para>
+	Win32 (.exe file)
+    </para>
+	</listitem>
+	<listitem>
+    <para>
+	Debian (.deb file)
+    </para>
+	</listitem>
+	<listitem>
+    <para>
+	RedHat (.rpm file)
+    </para>
+	</listitem>
+	</itemizedlist>
+	However, if you want to start developing with Ethereal, the binary
+	distributions won't be much helpful, as you need the source files, of
+	course.
+    </para>
+	</section>
+
+	<section id="ChIntroReleaseSource">
+	<title>Source code distributions</title>
+    <para>
+	You should use the released sources if you want to build Ethereal from
+	source on your platform for productive use. However, if you want to 
+	develop changes to the Ethereal sources, it might be better to use the 
+	latest SVN sources, the reasons for this will be explained later in this 
+	document.
+    </para>
+    <para>
+	Before building Ethereal from a source distribution, make sure you have
+	all the tools and libraries required to build. The next chapters will
+	describe the required tools and libraries in detail.
+    </para>
+	</section>
   </section>
   
   <section id="ChIntroDownload">
@@ -102,44 +194,7 @@
 	A new Ethereal version will typically become available every 4-8 weeks.
     </para>
   </section>
-    
-  <section id="ChIntroHistory">
-    <title>A brief history of Ethereal</title>
-    <para>
-      In late 1997, Gerald Combs needed a tool for tracking down 
-      networking problems and wanted to learn more about networking, so 
-      he started writing Ethereal as a way to solve both problems.
-    </para>
-    <para>
-      Ethereal was initially released, after several pauses in development, 
-      in July 1998 as version 0.2.0.  Within days, patches, bug reports, 
-      and words of encouragement started arriving, so Ethereal was on its 
-      way to success.
-    </para>
-    <para>
-      Not long after that Gilbert Ramirez saw its potential and contributed 
-      a low-level dissector to it.
-    </para>
-    <para>
-      In October, 1998, Guy Harris of Network Appliance was looking for 
-	  something better than tcpview, so he started applying patches and 
-	  contributing dissectors to Ethereal.
-    </para>
-    <para>
-      In late 1998, Richard Sharpe, who was giving TCP/IP courses, saw its 
-      potential on such courses, and started looking at it to see if it 
-      supported the protocols he needed. While it didn't at that point, 
-      new protocols could be easily added.  So he started contributing 
-      dissectors and contributing patches.
-    </para>
-    <para>
-      The list of people who have contributed to Ethereal has become very long 
-	  since then, and almost all of them started with a protocol that they 
-	  needed that Ethereal did not already handle. So they copied an existing 
-	  dissector and contributed the code back to the team.
-    </para>
-  </section>
-  
+      
   <section id="ChIntroMaintenance">
     <title>
       Development and maintenance of <application>Ethereal</application>
@@ -160,7 +215,7 @@
     <para>
       Ethereal is an open source software project, and is released under 
       the <ulink url="&GPLWebsite;">GNU General Public Licence</ulink> (GPL). 
-	  All source code is freely available under the GPL.  You are welcome to 
+	  All source code is freely available under the GPL. You are welcome to 
       modify Ethereal to suit your own needs, and it would be appreciated 
       if you contribute your improvements back to the Ethereal team.
     </para>
@@ -382,6 +437,39 @@ $
     </para>
   </section>
   </section>
-  
+
+  <section><title>Other sources of information</title>
+    <para>
+	There are various other sources of information for Ethereal developers:
+	<itemizedlist>
+	<listitem>
+	<para>
+    have a look at the Ethereal source code
+	</para>
+	</listitem>
+	<listitem>
+	<para>
+    there are various documentation files inside the source code, see the README.xxx files
+	</para>
+	</listitem>
+	<listitem>
+	<para>
+    tool documentation of the various tools used (e.g. manpages of sed, gcc, ...)
+	</para>
+	</listitem>
+	<listitem>
+	<para>
+    the developer mailing list <ulink url="&EtherealDevMailList;"/>
+	</para>
+	</listitem>
+	<listitem>
+	<para>
+    ...
+	</para>
+	</listitem>
+	</itemizedlist>
+    </para>
+  </section>
+
 </chapter>
 <!-- End of EUG Chapter 1 -->
