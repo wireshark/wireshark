@@ -1,3 +1,9 @@
+January 19, 1999
+	Changed number of arguments of wtap_open_offline().
+
+January 14, 1999
+	Guy added support for reading MicroSoft Network Monitor files.
+
 January 7, 1999
 	Made all filetypes provide a per-packet encapsulation type, and
 	removed wtap_encapsulation(), effectively getting rid of a per-file

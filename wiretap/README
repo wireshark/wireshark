@@ -1,4 +1,4 @@
-$Id: README,v 1.6 1999/01/02 06:50:30 gram Exp $
+$Id: README,v 1.7 1999/01/21 05:07:44 gram Exp $
 
 Wiretap is a library that is being developed as a future replacement for
 libpcap, the current standard Unix library for packet capturing. Libpcap is
@@ -59,6 +59,11 @@ LANalyzer
 ---------
 The LANalyzer format is available from http://www.novell.com. Search their
 knowledge base for "Trace File Format". 
+
+Network Monitor
+---------------
+MicroSoft's Network Monitor file format is supported, at least under ethernet.
+I've promised to send Guy a token-ring netmon file. soon....
 
 "snoop"
 -------
