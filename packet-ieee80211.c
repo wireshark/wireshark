@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.34 2001/06/22 06:03:50 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.35 2001/06/22 07:46:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,7 +73,6 @@
 /*                          Miscellaneous Constants                          */
 /* ************************************************************************* */
 #define SHORT_STR 128
-#define MGT_FRAME_LEN 24
 
 /* ************************************************************************* */
 /*  Define some very useful macros that are used to analyze frame types etc. */
@@ -88,8 +87,7 @@
 #define COOK_SEQUENCE_NUMBER(x) (((x) & 0xFFF0) >> 4)
 #define COOK_FLAGS(x)           (((x) & 0xFF00) >> 8)
 #define COOK_DS_STATUS(x)       ((x) & 0x3)
-#define COOK_WEP_IV(x)        ((x) & 0xFFFFFF)
-#define COOK_WEP_KEY(x)       (((x) & 0xC0000000) >> 30)
+#define COOK_WEP_KEY(x)       (((x) & 0xC0) >> 6)
 #define COL_SHOW_INFO(fd,info) if (check_col(fd,COL_INFO)) \
 				col_add_str(fd,COL_INFO,info);
 #define COL_SHOW_INFO_CONST(fd,info) if (check_col(fd,COL_INFO)) \
@@ -283,6 +281,8 @@ static int hf_seq_number = -1;
 static int hf_fcs = -1;
 
 
+
+static int proto_wlan_mgt = -1;
 /* ************************************************************************* */
 /*                      Fixed fields found in mgt frames                     */
 /* ************************************************************************* */
@@ -320,7 +320,6 @@ static int tag_interpretation = -1;
 
 static int hf_fixed_parameters = -1;	/* Protocol payload for management frames */
 static int hf_tagged_parameters = -1;	/* Fixed payload item */
-static int hf_wep_parameters = -1;
 static int hf_wep_iv = -1;
 static int hf_wep_key = -1;
 static int hf_wep_crc = -1;
@@ -332,6 +331,8 @@ static gint ett_80211 = -1;
 static gint ett_proto_flags = -1;
 static gint ett_cap_tree = -1;
 static gint ett_fc_tree = -1;
+
+static gint ett_80211_mgt = -1;
 static gint ett_fixed_parameters = -1;
 static gint ett_tagged_parameters = -1;
 static gint ett_wep_parameters = -1;
@@ -454,15 +455,13 @@ get_wep_parameter_tree (proto_tree * tree, tvbuff_t *tvb, int start, int size)
   proto_tree *wep_tree;
   int crc_offset = size - 4;
 
-  wep_fields = proto_tree_add_string_format(tree, hf_wep_parameters, tvb,
-					    0, 4, 0, "WEP parameters");
+  wep_fields = proto_tree_add_text(tree, tvb, start, 4, "WEP parameters");
 
   wep_tree = proto_item_add_subtree (wep_fields, ett_wep_parameters);
-  proto_tree_add_uint (wep_tree, hf_wep_iv, tvb, start, 3,
-		       COOK_WEP_IV (tvb_get_letohl (tvb, start)));
+  proto_tree_add_item (wep_tree, hf_wep_iv, tvb, start, 3, TRUE);
 
   proto_tree_add_uint (wep_tree, hf_wep_key, tvb, start + 3, 1,
-		       COOK_WEP_KEY (tvb_get_letohl (tvb, start)));
+		       COOK_WEP_KEY (tvb_get_guint8 (tvb, start + 3)));
 
   if (tvb_bytes_exist(tvb, start + crc_offset, 4))
     proto_tree_add_uint (wep_tree, hf_wep_crc, tvb, start + crc_offset, 4,
@@ -766,6 +765,216 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
   return tag_len + 2;
 }
 
+/* ************************************************************************* */
+/*                     Dissect 802.11 management frame                       */
+/* ************************************************************************* */
+static void
+dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
+	proto_tree * tree)
+{
+  proto_item *ti = NULL;
+  proto_tree *mgt_tree;
+  proto_tree *fixed_tree;
+  proto_tree *tagged_tree;
+  guint32 next_idx;
+  guint32 next_len;
+  int tagged_parameter_tree_len;
+
+  if (tree)
+    {
+      ti = proto_tree_add_item (tree, proto_wlan_mgt, tvb, 0, tvb_length(tvb), FALSE);
+      mgt_tree = proto_item_add_subtree (ti, ett_80211_mgt);
+
+      switch (COMPOSE_FRAME_TYPE(fcf))
+	{
+
+	case MGT_ASSOC_REQ:
+	  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 4);
+	  add_fixed_field (fixed_tree, tvb, 0, FIELD_CAP_INFO);
+	  add_fixed_field (fixed_tree, tvb, 2, FIELD_LISTEN_IVAL);
+
+	  next_idx = 4;	/* Size of fixed fields */
+	  tagged_parameter_tree_len =
+	      tvb_reported_length_remaining(tvb, next_idx + 4);
+	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, next_idx,
+						   tagged_parameter_tree_len);
+
+	  while (tagged_parameter_tree_len > 0) {
+	    if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
+	      break;
+	    next_idx +=next_len;
+	    tagged_parameter_tree_len -= next_len;
+	  }
+	  break;
+
+
+	case MGT_ASSOC_RESP:
+	  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 6);
+	  add_fixed_field (fixed_tree, tvb, 0, FIELD_CAP_INFO);
+	  add_fixed_field (fixed_tree, tvb, 2, FIELD_STATUS_CODE);
+	  add_fixed_field (fixed_tree, tvb, 4, FIELD_ASSOC_ID);
+
+	  next_idx = 6;	/* Size of fixed fields */
+
+	  tagged_parameter_tree_len =
+	      tvb_reported_length_remaining(tvb, next_idx + 4);
+	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, next_idx,
+						   tagged_parameter_tree_len);
+
+	  while (tagged_parameter_tree_len > 0) {
+	    if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
+	      break;
+	    next_idx +=next_len;
+	    tagged_parameter_tree_len -= next_len;
+	  }
+	  break;
+
+
+	case MGT_REASSOC_REQ:
+	  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 10);
+	  add_fixed_field (fixed_tree, tvb, 0, FIELD_CAP_INFO);
+	  add_fixed_field (fixed_tree, tvb, 2, FIELD_LISTEN_IVAL);
+	  add_fixed_field (fixed_tree, tvb, 4, FIELD_CURRENT_AP_ADDR);
+
+	  next_idx = 10;	/* Size of fixed fields */
+	  tagged_parameter_tree_len =
+	      tvb_reported_length_remaining(tvb, next_idx + 4);
+	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, next_idx,
+						   tagged_parameter_tree_len);
+
+	  while (tagged_parameter_tree_len > 0) {
+	    if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
+	      break;
+	    next_idx +=next_len;
+	    tagged_parameter_tree_len -= next_len;
+	  }
+	  break;
+
+	case MGT_REASSOC_RESP:
+	  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 10);
+	  add_fixed_field (fixed_tree, tvb, 0, FIELD_CAP_INFO);
+	  add_fixed_field (fixed_tree, tvb, 2, FIELD_STATUS_CODE);
+	  add_fixed_field (fixed_tree, tvb, 4, FIELD_ASSOC_ID);
+
+	  next_idx = 6;	/* Size of fixed fields */
+	  tagged_parameter_tree_len =
+	      tvb_reported_length_remaining(tvb, next_idx + 4);
+	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, next_idx,
+						   tagged_parameter_tree_len);
+
+	  while (tagged_parameter_tree_len > 0) {
+	    if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
+	      break;
+	    next_idx +=next_len;
+	    tagged_parameter_tree_len -= next_len;
+	  }
+	  break;
+
+
+	case MGT_PROBE_REQ:
+	  next_idx = 0;
+	  tagged_parameter_tree_len =
+	      tvb_reported_length_remaining(tvb, next_idx + 4);
+	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, next_idx,
+						   tagged_parameter_tree_len);
+
+	  while (tagged_parameter_tree_len > 0) {
+	    if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
+	      break;
+	    next_idx +=next_len;
+	    tagged_parameter_tree_len -= next_len;
+	  }
+	  break;
+
+
+	case MGT_PROBE_RESP:
+	  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 12);
+	  add_fixed_field (fixed_tree, tvb, 0, FIELD_TIMESTAMP);
+	  add_fixed_field (fixed_tree, tvb, 8, FIELD_BEACON_INTERVAL);
+	  add_fixed_field (fixed_tree, tvb, 10, FIELD_CAP_INFO);
+
+	  next_idx = 12;	/* Size of fixed fields */
+	  tagged_parameter_tree_len =
+	      tvb_reported_length_remaining(tvb, next_idx + 4);
+	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, next_idx,
+						   tagged_parameter_tree_len);
+
+	  while (tagged_parameter_tree_len > 0) {
+	    if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
+	      break;
+	    next_idx +=next_len;
+	    tagged_parameter_tree_len -= next_len;
+	  }
+	  break;
+
+
+	case MGT_BEACON:		/* Dissect protocol payload fields  */
+	  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 12);
+
+	  add_fixed_field (fixed_tree, tvb, 0, FIELD_TIMESTAMP);
+	  add_fixed_field (fixed_tree, tvb, 8, FIELD_BEACON_INTERVAL);
+	  add_fixed_field (fixed_tree, tvb, 10, FIELD_CAP_INFO);
+
+	  next_idx = 12;	/* Size of fixed fields */
+	  tagged_parameter_tree_len =
+	      tvb_reported_length_remaining(tvb, next_idx + 4);
+	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, next_idx,
+						   tagged_parameter_tree_len);
+
+	  while (tagged_parameter_tree_len > 0) {
+	    if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
+	      break;
+	    next_idx +=next_len;
+	    tagged_parameter_tree_len -= next_len;
+	  }
+	  break;
+
+
+	case MGT_ATIM:
+	  break;
+
+
+	case MGT_DISASS:
+	  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 2);
+	  add_fixed_field (fixed_tree, tvb, 0, FIELD_REASON_CODE);
+	  break;
+
+
+	case MGT_AUTHENTICATION:
+	  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 6);
+	  add_fixed_field (fixed_tree, tvb, 0, FIELD_AUTH_ALG);
+	  add_fixed_field (fixed_tree, tvb, 2, FIELD_AUTH_TRANS_SEQ);
+	  add_fixed_field (fixed_tree, tvb, 4, FIELD_STATUS_CODE);
+
+	  next_idx = 6;	/* Size of fixed fields */
+
+	  tagged_parameter_tree_len =
+		  tvb_reported_length_remaining(tvb, next_idx + 4);
+	  if (tagged_parameter_tree_len != 0)
+	    {
+	      tagged_tree = get_tagged_parameter_tree (mgt_tree,
+						       tvb,
+						       next_idx,
+						       tagged_parameter_tree_len);
+
+	      while (tagged_parameter_tree_len > 0) {
+		if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
+		  break;
+		next_idx +=next_len;
+		tagged_parameter_tree_len -= next_len;
+	      }
+	    }
+	  break;
+
+
+	case MGT_DEAUTHENTICATION:
+	  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 2);
+	  add_fixed_field (fixed_tree, tvb, 0, FIELD_REASON_CODE);
+	  break;
+	}
+    }
+}
+
 static void
 set_src_addr_cols(packet_info *pinfo, const guint8 *addr, char *type)
 {
@@ -799,24 +1008,18 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   proto_item *ti = NULL;
   proto_item *flag_item;
   proto_item *fc_item;
-  static proto_tree *hdr_tree;
-  static proto_tree *flag_tree;
-  static proto_tree *fixed_tree;
-  static proto_tree *tagged_tree;
-  static proto_tree *fc_tree;
-  guint16 cap_len, hdr_len;
+  proto_tree *hdr_tree = NULL;
+  proto_tree *flag_tree;
+  proto_tree *fc_tree;
+  guint16 hdr_len;
   tvbuff_t *next_tvb;
-  guint32 next_idx;
   guint32 addr_type;
-  guint32 next_len;
-  int tagged_parameter_tree_len;
 
   if (check_col (pinfo->fd, COL_PROTOCOL))
     col_set_str (pinfo->fd, COL_PROTOCOL, "IEEE 802.11");
   if (check_col (pinfo->fd, COL_INFO))
     col_clear (pinfo->fd, COL_INFO);
 
-  cap_len = tvb_length(tvb);
   fcf = tvb_get_letohs (tvb, 0);
   hdr_len = find_header_length (fcf);
   frame_type_subtype = COMPOSE_FRAME_TYPE(fcf);
@@ -888,16 +1091,27 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			       tvb_get_letohs (tvb, 2));
     }
 
-  /* Perform tasks which are common to a certain frame type */
-  switch (COOK_FRAME_TYPE (fcf))
+  /*
+   * Decode the part of the frame header that isn't the same for all
+   * frame types.
+   */
+  switch (frame_type_subtype)
     {
 
-    case MGT_FRAME:		/* All management frames share a common header */
+    case MGT_ASSOC_REQ:
+    case MGT_ASSOC_RESP:
+    case MGT_REASSOC_REQ:
+    case MGT_REASSOC_RESP:
+    case MGT_PROBE_REQ:
+    case MGT_PROBE_RESP:
+    case MGT_BEACON:
+    case MGT_ATIM:
+    case MGT_DISASS:
+    case MGT_AUTHENTICATION:
+    case MGT_DEAUTHENTICATION:
       /*
-       * Set the top-level item to cover the entire frame.
+       * All management frame types have the same header.
        */
-      if (ti != NULL)
-        proto_item_set_len(ti, tvb_length(tvb));
       src = tvb_get_ptr (tvb, 10, 6);
       dst = tvb_get_ptr (tvb, 4, 6);
 
@@ -922,18 +1136,97 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	  proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
 			       COOK_SEQUENCE_NUMBER (tvb_get_letohs
 						     (tvb, 22)));
-	  cap_len = cap_len - MGT_FRAME_LEN - 4;
 	}
       break;
 
 
+    case CTRL_PS_POLL:
+      src = tvb_get_ptr (tvb, 10, 6);
+      dst = tvb_get_ptr (tvb, 4, 6);
 
-    case CONTROL_FRAME:
+      set_src_addr_cols(pinfo, src, "BSSID");
+      set_dst_addr_cols(pinfo, dst, "BSSID");
+
+      if (tree)
+	{
+	  proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 4, 6, dst);
+
+	  proto_tree_add_ether (hdr_tree, hf_addr_ta, tvb, 10, 6, src);
+	}
       break;
 
 
+    case CTRL_RTS:
+      src = tvb_get_ptr (tvb, 10, 6);
+      dst = tvb_get_ptr (tvb, 4, 6);
 
-    case DATA_FRAME:
+      set_src_addr_cols(pinfo, src, "TA");
+      set_dst_addr_cols(pinfo, dst, "RA");
+
+      if (tree)
+	{
+	  proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
+
+	  proto_tree_add_ether (hdr_tree, hf_addr_ta, tvb, 10, 6, src);
+	}
+      break;
+
+
+    case CTRL_CTS:
+      dst = tvb_get_ptr (tvb, 4, 6);
+
+      set_dst_addr_cols(pinfo, dst, "RA");
+
+      if (tree)
+	  proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
+      break;
+
+
+    case CTRL_ACKNOWLEDGEMENT:
+      dst = tvb_get_ptr (tvb, 4, 6);
+
+      set_dst_addr_cols(pinfo, dst, "RA");
+
+      if (tree)
+	proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
+      break;
+
+
+    case CTRL_CFP_END:
+      src = tvb_get_ptr (tvb, 10, 6);
+      dst = tvb_get_ptr (tvb, 4, 6);
+
+      set_src_addr_cols(pinfo, src, "BSSID");
+      set_dst_addr_cols(pinfo, dst, "RA");
+
+      if (tree)
+	{
+	  proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
+	  proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 10, 6, src);
+	}
+      break;
+
+
+    case CTRL_CFP_ENDACK:
+      src = tvb_get_ptr (tvb, 10, 6);
+      dst = tvb_get_ptr (tvb, 4, 6);
+
+      set_src_addr_cols(pinfo, src, "BSSID");
+      set_dst_addr_cols(pinfo, dst, "RA");
+
+      if (tree)
+	{
+	  proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
+
+	  proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 10, 6, src);
+	}
+      break;
+
+
+    case DATA:
+    case DATA_CF_ACK:
+    case DATA_CF_POLL:
+    case DATA_CF_ACK_POLL:
       addr_type = COOK_ADDR_SELECTOR (fcf);
 
       /* In order to show src/dst address we must always do the following */
@@ -1039,368 +1332,73 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       break;
     }
 
-  switch (frame_type_subtype)
+  /*
+   * XXX - allow the key to be specified, and, if it is, decrypt
+   * the payload and dissect it?
+   */
+  if (IS_WEP(COOK_FLAGS(fcf)))
+    {
+      int pkt_len = tvb_reported_length (tvb);
+      int cap_len = tvb_length (tvb);
+
+      if (tree)
+        {
+	  get_wep_parameter_tree (tree, tvb, hdr_len, pkt_len);
+	  pkt_len -= hdr_len + 4;
+	  cap_len -= hdr_len + 4;
+
+	  /*
+	   * OK, pkt_len and cap_len have had the length of the 802.11
+	   * header and WEP parameters subtracted.
+	   *
+	   * If there's anything left:
+	   *
+	   *	if cap_len is greater than or equal to pkt_len (i.e., we
+	   *	captured the entire packet), subtract the length of the
+	   *	WEP CRC	from cap_len;
+	   *
+	   *	if cap_len is from 1 to 3 bytes less than pkt_len (i.e.,
+	   *	we captured some but not all of the WEP CRC), subtract
+	   *	the length of the part of the WEP CRC we captured from
+	   *	crc_len;
+	   *
+	   *	otherwise, (i.e., we captured none of the WEP CRC),
+	   *	leave cap_len alone;
+	   *
+	   * and subtract the length of the WEP CRC from pkt_len.
+	   */
+	  if (cap_len >= pkt_len)
+	    cap_len -= 4;
+	  else if ((pkt_len - cap_len) >= 1 && (pkt_len - cap_len) <= 3)
+	    cap_len -= 4 - (pkt_len - cap_len);
+	  pkt_len -= 4;
+	  if (cap_len > 0 && pkt_len > 0)
+	    dissect_data (tvb, hdr_len + 4, pinfo, tree);
+	}
+	return;
+    }
+
+  /*
+   * Now dissect the body of a non-WEP-encrypted frame.
+   */
+  next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
+  switch (COOK_FRAME_TYPE (fcf))
     {
 
-    case MGT_ASSOC_REQ:
-      if (tree)
-	{
-	  fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, 4);
-	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_HDR_LEN,
-			   FIELD_CAP_INFO);
-	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_HDR_LEN + 2,
-			   FIELD_LISTEN_IVAL);
-
-	  next_idx = MGT_FRAME_HDR_LEN + 4;	/* Size of fixed fields */
-	  tagged_parameter_tree_len =
-	      tvb_reported_length_remaining(tvb, next_idx + 4);
-	  tagged_tree = get_tagged_parameter_tree (hdr_tree, tvb, next_idx,
-						   tagged_parameter_tree_len);
-
-	  while (tagged_parameter_tree_len > 0) {
-	    if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
-	      break;
-	    next_idx +=next_len;
-	    tagged_parameter_tree_len -= next_len;
-	  }
-	}
+    case MGT_FRAME:
+      dissect_ieee80211_mgt (fcf, next_tvb, pinfo, tree);
       break;
 
 
-
-    case MGT_ASSOC_RESP:
-      if (tree)
-	{
-	  fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, 6);
-	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN, FIELD_CAP_INFO);
-	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN + 2,
-			   FIELD_STATUS_CODE);
-	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN + 4,
-			   FIELD_ASSOC_ID);
-
-	  next_idx = MGT_FRAME_LEN + 6;	/* Size of fixed fields */
-
-	  tagged_parameter_tree_len =
-	      tvb_reported_length_remaining(tvb, next_idx + 4);
-	  tagged_tree = get_tagged_parameter_tree (hdr_tree, tvb, next_idx,
-						   tagged_parameter_tree_len);
-
-	  while (tagged_parameter_tree_len > 0) {
-	    if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
-	      break;
-	    next_idx +=next_len;
-	    tagged_parameter_tree_len -= next_len;
-	  }
-	}
-      break;
-
-
-    case MGT_REASSOC_REQ:
-      if (tree)
-	{
-	  fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, 10);
-	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN, FIELD_CAP_INFO);
-	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN + 2,
-			   FIELD_LISTEN_IVAL);
-	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN + 4,
-			   FIELD_CURRENT_AP_ADDR);
-
-	  next_idx = MGT_FRAME_LEN + 10;	/* Size of fixed fields */
-	  tagged_parameter_tree_len =
-	      tvb_reported_length_remaining(tvb, next_idx + 4);
-	  tagged_tree = get_tagged_parameter_tree (hdr_tree, tvb, next_idx,
-						   tagged_parameter_tree_len);
-
-	  while (tagged_parameter_tree_len > 0) {
-	    if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
-	      break;
-	    next_idx +=next_len;
-	    tagged_parameter_tree_len -= next_len;
-	  }
-	}
-      break;
-
-    case MGT_REASSOC_RESP:
-      if (tree)
-	{
-	  fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, 10);
-	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN, FIELD_CAP_INFO);
-	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN + 2,
-			   FIELD_STATUS_CODE);
-	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN + 4,
-			   FIELD_ASSOC_ID);
-
-	  next_idx = MGT_FRAME_LEN + 6;	/* Size of fixed fields */
-	  tagged_parameter_tree_len =
-	      tvb_reported_length_remaining(tvb, next_idx + 4);
-	  tagged_tree = get_tagged_parameter_tree (hdr_tree, tvb, next_idx,
-						   tagged_parameter_tree_len);
-
-	  while (tagged_parameter_tree_len > 0) {
-	    if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
-	      break;
-	    next_idx +=next_len;
-	    tagged_parameter_tree_len -= next_len;
-	  }
-	}
-      break;
-
-
-    case MGT_PROBE_REQ:
-      if (tree)
-	{
-	  next_idx = MGT_FRAME_LEN;
-	  tagged_parameter_tree_len =
-	      tvb_reported_length_remaining(tvb, next_idx + 4);
-	  tagged_tree = get_tagged_parameter_tree (hdr_tree, tvb, next_idx,
-						   tagged_parameter_tree_len);
-
-	  while (tagged_parameter_tree_len > 0) {
-	    if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
-	      break;
-	    next_idx +=next_len;
-	    tagged_parameter_tree_len -= next_len;
-	  }
-	}
-      break;
-
-
-    case MGT_PROBE_RESP:
-      if (tree)
-	{
-	  fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, 12);
-	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN, FIELD_TIMESTAMP);
-	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN + 8,
-			   FIELD_BEACON_INTERVAL);
-	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN + 10,
-			   FIELD_CAP_INFO);
-
-	  next_idx = MGT_FRAME_LEN + 12;	/* Size of fixed fields */
-	  tagged_parameter_tree_len =
-	      tvb_reported_length_remaining(tvb, next_idx + 4);
-	  tagged_tree = get_tagged_parameter_tree (hdr_tree, tvb, next_idx,
-						   tagged_parameter_tree_len);
-
-	  while (tagged_parameter_tree_len > 0) {
-	    if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
-	      break;
-	    next_idx +=next_len;
-	    tagged_parameter_tree_len -= next_len;
-	  }
-	}
-      break;
-
-
-    case MGT_BEACON:		/* Dissect protocol payload fields  */
-      if (tree)
-	{
-	  fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, 12);
-
-	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN, FIELD_TIMESTAMP);
-
-	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN + 8,
-			   FIELD_BEACON_INTERVAL);
-	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN + 10,
-			   FIELD_CAP_INFO);
-
-	  next_idx = MGT_FRAME_LEN + 12;	/* Size of fixed fields */
-	  tagged_parameter_tree_len =
-	      tvb_reported_length_remaining(tvb, next_idx + 4);
-	  tagged_tree = get_tagged_parameter_tree (hdr_tree, tvb, next_idx,
-						   tagged_parameter_tree_len);
-
-	  while (tagged_parameter_tree_len > 0) {
-	    if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
-	      break;
-	    next_idx +=next_len;
-	    tagged_parameter_tree_len -= next_len;
-	  }
-	}
-      break;
-
-
-    case MGT_ATIM:
-      if (tree)
-	{
-	}
-      break;
-
-    case MGT_DISASS:
-      if (tree)
-	{
-	  fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, cap_len);
-	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN, FIELD_REASON_CODE);
-	}
-      break;
-
-    case MGT_AUTHENTICATION:
-      if (IS_WEP(COOK_FLAGS(fcf)))
-	{
-	  int pkt_len = tvb_reported_length (tvb);
-	  int cap_len = tvb_length (tvb);
-
-	  if (tree)
-	    get_wep_parameter_tree (tree, tvb, MGT_FRAME_LEN, pkt_len);
-	  pkt_len = MAX (pkt_len - 8 - MGT_FRAME_LEN, 0);
-	  cap_len = MIN (pkt_len, MAX (cap_len - 8 - MGT_FRAME_LEN, 0));
-	  next_tvb = tvb_new_subset (tvb, MGT_FRAME_LEN + 4, cap_len, pkt_len);
-	  dissect_data (next_tvb, 0, pinfo, tree);
-	}
-      else
-	{
-	  if (tree)
-	    {
-	      fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, 6);
-	      add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN, FIELD_AUTH_ALG);
-	      add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN + 2,
-			       FIELD_AUTH_TRANS_SEQ);
-	      add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN + 4,
-			       FIELD_STATUS_CODE);
-
-	      next_idx = MGT_FRAME_LEN + 6;	/* Size of fixed fields */
-
-	      tagged_parameter_tree_len =
-		  tvb_reported_length_remaining(tvb, next_idx + 4);
-	      if (tagged_parameter_tree_len != 0)
-		{
-		  tagged_tree = get_tagged_parameter_tree (hdr_tree,
-							   tvb,
-							   next_idx,
-							   tagged_parameter_tree_len);
-
-		  while (tagged_parameter_tree_len > 0) {
-		    if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
-		      break;
-		    next_idx +=next_len;
-		    tagged_parameter_tree_len -= next_len;
-		  }
-		}
-	    }
-	}
-      break;
-
-
-    case MGT_DEAUTHENTICATION:
-      if (tree)
-	{
-	  fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, 2);
-	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN, FIELD_REASON_CODE);
-	}
-      break;
-
-
-    case CTRL_PS_POLL:
-      src = tvb_get_ptr (tvb, 10, 6);
-      dst = tvb_get_ptr (tvb, 4, 6);
-
-      set_src_addr_cols(pinfo, src, "BSSID");
-      set_dst_addr_cols(pinfo, dst, "BSSID");
-
-      if (tree)
-	{
-	  proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 4, 6, dst);
-
-	  proto_tree_add_ether (hdr_tree, hf_addr_ta, tvb, 10, 6, src);
-	}
-      break;
-
-
-    case CTRL_RTS:
-      src = tvb_get_ptr (tvb, 10, 6);
-      dst = tvb_get_ptr (tvb, 4, 6);
-
-      set_src_addr_cols(pinfo, src, "TA");
-      set_dst_addr_cols(pinfo, dst, "RA");
-
-      if (tree)
-	{
-	  proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
-
-	  proto_tree_add_ether (hdr_tree, hf_addr_ta, tvb, 10, 6, src);
-	}
-      break;
-
-
-    case CTRL_CTS:
-      dst = tvb_get_ptr (tvb, 4, 6);
-
-      set_dst_addr_cols(pinfo, dst, "RA");
-
-      if (tree)
-	  proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
-      break;
-
-
-    case CTRL_ACKNOWLEDGEMENT:
-      dst = tvb_get_ptr (tvb, 4, 6);
-
-      set_dst_addr_cols(pinfo, dst, "RA");
-
-      if (tree)
-	proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
-      break;
-
-
-    case CTRL_CFP_END:
-      src = tvb_get_ptr (tvb, 10, 6);
-      dst = tvb_get_ptr (tvb, 4, 6);
-
-      set_src_addr_cols(pinfo, src, "BSSID");
-      set_dst_addr_cols(pinfo, dst, "RA");
-
-      if (tree)
-	{
-	  proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
-	  proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 10, 6, src);
-	}
-      break;
-
-
-    case CTRL_CFP_ENDACK:
-      src = tvb_get_ptr (tvb, 10, 6);
-      dst = tvb_get_ptr (tvb, 4, 6);
-
-      set_src_addr_cols(pinfo, src, "BSSID");
-      set_dst_addr_cols(pinfo, dst, "RA");
-
-      if (tree)
-	{
-	  proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
-
-	  proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 10, 6, src);
-	}
-      break;
-
-
-    case DATA:
-    case DATA_CF_ACK:
-    case DATA_CF_POLL:
-    case DATA_CF_ACK_POLL:
-      next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
-
-      if (IS_WEP(COOK_FLAGS(fcf)))
-	{
-	  int pkt_len = tvb_reported_length (next_tvb);
-	  int cap_len = tvb_length (next_tvb);
-
-	  if (tree)
-	    get_wep_parameter_tree (tree, next_tvb, 0, pkt_len);
-	  pkt_len = MAX (pkt_len - 8, 0);
-	  cap_len = MIN (pkt_len, MAX (cap_len - 8, 0));
-	  next_tvb = tvb_new_subset (tvb, hdr_len + 4, cap_len, pkt_len);
-	  dissect_data (next_tvb, 0, pinfo, tree);
-	}
-      else
-	call_dissector (llc_handle, next_tvb, pinfo, tree);
+    case DATA_FRAME:
+      call_dissector (llc_handle, next_tvb, pinfo, tree);
       break;
     }
 }
 
-
 void
 proto_register_wlan (void)
 {
-
   static const value_string frame_type[] = {
     {MGT_FRAME,     "Management frame"},
     {CONTROL_FRAME, "Control frame"},
@@ -1555,8 +1553,6 @@ proto_register_wlan (void)
     {0x00, NULL}
   };
 
-
-
   static hf_register_info hf[] = {
     {&hf_fc_field,
      {"Frame Control Field", "wlan.fc", FT_UINT16, BASE_HEX, NULL, 0,
@@ -1658,127 +1654,125 @@ proto_register_wlan (void)
      {"Frame Check Sequence (not verified)", "wlan.fcs", FT_UINT32, BASE_HEX,
       NULL, 0, "", HFILL }},
 
-    {&ff_timestamp,
-     {"Timestamp", "wlan.fixed.timestamp", FT_STRING, BASE_NONE,
-      NULL, 0, "", HFILL }},
-
-    {&ff_auth_alg,
-     {"Authentication Algorithm", "wlan.fixed.auth.alg",
-      FT_UINT16, BASE_DEC, VALS (&auth_alg), 0, "", HFILL }},
-
-    {&ff_beacon_interval,
-     {"Beacon Interval", "wlan.fixed.beacon", FT_DOUBLE, BASE_DEC, NULL, 0,
-      "", HFILL }},
-
-    {&hf_fixed_parameters,
-     {"Fixed parameters", "wlan.fixed.all", FT_UINT16, BASE_DEC, NULL, 0,
-      "", HFILL }},
-
-    {&hf_tagged_parameters,
-     {"Tagged parameters", "wlan.tagged.all", FT_UINT16, BASE_DEC, NULL, 0,
-      "", HFILL }},
-
-    {&hf_wep_parameters,
-     {"WEP parameters", "wlan.wep.all", FT_STRING, BASE_NONE, NULL, 0,
-      "", HFILL }},
-
     {&hf_wep_iv,
-     {"Initialization Vector", "wlan.wep.iv", FT_UINT32, BASE_HEX, NULL, 0,
+     {"Initialization Vector", "wlan.wep.iv", FT_UINT24, BASE_HEX, NULL, 0,
       "Initialization Vector", HFILL }},
 
     {&hf_wep_key,
-     {"Key", "wlan.wep.key", FT_UINT32, BASE_DEC, NULL, 0,
+     {"Key", "wlan.wep.key", FT_UINT8, BASE_DEC, NULL, 0,
       "Key", HFILL }},
 
     {&hf_wep_crc,
      {"WEP CRC (not verified)", "wlan.wep.crc", FT_UINT32, BASE_HEX, NULL, 0,
       "WEP CRC", HFILL }},
+  };
+
+  static hf_register_info ff[] = {
+    {&ff_timestamp,
+     {"Timestamp", "wlan_mgt.fixed.timestamp", FT_STRING, BASE_NONE,
+      NULL, 0, "", HFILL }},
+
+    {&ff_auth_alg,
+     {"Authentication Algorithm", "wlan_mgt.fixed.auth.alg",
+      FT_UINT16, BASE_DEC, VALS (&auth_alg), 0, "", HFILL }},
+
+    {&ff_beacon_interval,
+     {"Beacon Interval", "wlan_mgt.fixed.beacon", FT_DOUBLE, BASE_DEC, NULL, 0,
+      "", HFILL }},
+
+    {&hf_fixed_parameters,
+     {"Fixed parameters", "wlan_mgt.fixed.all", FT_UINT16, BASE_DEC, NULL, 0,
+      "", HFILL }},
+
+    {&hf_tagged_parameters,
+     {"Tagged parameters", "wlan_mgt.tagged.all", FT_UINT16, BASE_DEC, NULL, 0,
+      "", HFILL }},
 
     {&ff_capture,
-     {"Capabilities", "wlan.fixed.capabilities", FT_UINT16, BASE_HEX, NULL, 0,
+     {"Capabilities", "wlan_mgt.fixed.capabilities", FT_UINT16, BASE_HEX, NULL, 0,
       "Capability information", HFILL }},
 
     {&ff_cf_sta_poll,
-     {"CFP participation capabilities", "wlan.fixed.capabilities.cfpoll.sta",
+     {"CFP participation capabilities", "wlan_mgt.fixed.capabilities.cfpoll.sta",
       FT_UINT16, BASE_HEX, VALS (&sta_cf_pollable), 0,
       "CF-Poll capabilities for a STA", HFILL }},
 
     {&ff_cf_ap_poll,
-     {"CFP participation capabilities", "wlan.fixed.capabilities.cfpoll.ap",
+     {"CFP participation capabilities", "wlan_mgt.fixed.capabilities.cfpoll.ap",
       FT_UINT16, BASE_HEX, VALS (&ap_cf_pollable), 0,
       "CF-Poll capabilities for an AP", HFILL }},
 
     {&ff_cf_ess,
-     {"ESS capabilities", "wlan.fixed.capabilities.ess",
+     {"ESS capabilities", "wlan_mgt.fixed.capabilities.ess",
       FT_BOOLEAN, 8, TFS (&cf_ess_flags), 0x0001, "ESS capabilities", HFILL }},
 
 
     {&ff_cf_ibss,
-     {"IBSS status", "wlan.fixed.capabilities.ibss",
+     {"IBSS status", "wlan_mgt.fixed.capabilities.ibss",
       FT_BOOLEAN, 8, TFS (&cf_ibss_flags), 0x0002, "IBSS participation", HFILL }},
 
     {&ff_cf_privacy,
-     {"Privacy", "wlan.fixed.capabilities.privacy",
+     {"Privacy", "wlan_mgt.fixed.capabilities.privacy",
       FT_BOOLEAN, 8, TFS (&cf_privacy_flags), 0x0010, "WEP support", HFILL }},
 
     {&ff_cf_preamble,
-     {"Short Preamble", "wlan.fixed.capabilities.preamble",
+     {"Short Preamble", "wlan_mgt.fixed.capabilities.preamble",
       FT_BOOLEAN, 8, TFS (&cf_preamble_flags), 0x0020, "Short Preamble", HFILL }},
 
     {&ff_cf_pbcc,
-     {"PBCC", "wlan.fixed.capabilities.pbcc",
+     {"PBCC", "wlan_mgt.fixed.capabilities.pbcc",
       FT_BOOLEAN, 8, TFS (&cf_pbcc_flags), 0x0040, "PBCC Modulation", HFILL }},
 
     {&ff_cf_agility,
-     {"Channel Agility", "wlan.fixed.capabilities.agility",
+     {"Channel Agility", "wlan_mgt.fixed.capabilities.agility",
       FT_BOOLEAN, 8, TFS (&cf_agility_flags), 0x0080, "Channel Agility", HFILL }},
 
     {&ff_auth_seq,
-     {"Authentication SEQ", "wlan.fixed.auth_seq",
+     {"Authentication SEQ", "wlan_mgt.fixed.auth_seq",
       FT_UINT16, BASE_HEX, NULL, 0, "Authentication sequence number", HFILL }},
 
     {&ff_assoc_id,
-     {"Association ID", "wlan.fixed.aid",
+     {"Association ID", "wlan_mgt.fixed.aid",
       FT_UINT16, BASE_HEX, NULL, 0, "Association ID", HFILL }},
 
     {&ff_listen_ival,
-     {"Listen Interval", "wlan.fixed.listen_ival",
+     {"Listen Interval", "wlan_mgt.fixed.listen_ival",
       FT_UINT16, BASE_HEX, NULL, 0, "Listen Interval", HFILL }},
 
     {&ff_current_ap,
-     {"Current AP", "wlan.fixed.current_ap",
+     {"Current AP", "wlan_mgt.fixed.current_ap",
       FT_ETHER, BASE_NONE, NULL, 0, "MAC address of current AP", HFILL }},
 
     {&ff_reason,
-     {"Reason code", "wlan.fixed.reason_code",
+     {"Reason code", "wlan_mgt.fixed.reason_code",
       FT_UINT16, BASE_HEX, VALS (&reason_codes), 0,
       "Reason for unsolicited notification", HFILL }},
 
     {&ff_status_code,
-     {"Status code", "wlan.fixed.status_code",
+     {"Status code", "wlan_mgt.fixed.status_code",
       FT_UINT16, BASE_HEX, VALS (&status_codes), 0,
       "Status of requested event", HFILL }},
 
     {&tag_number,
-     {"Tag", "wlan.tag.number",
+     {"Tag", "wlan_mgt.tag.number",
       FT_UINT16, BASE_DEC, NULL, 0,
       "Element ID", HFILL }},
 
     {&tag_length,
-     {"Tag length", "wlan.tag.length",
+     {"Tag length", "wlan_mgt.tag.length",
       FT_UINT16, BASE_DEC, NULL, 0, "Length of tag", HFILL }},
 
     {&tag_interpretation,
-     {"Tag interpretation", "wlan.tag.interpretation",
+     {"Tag interpretation", "wlan_mgt.tag.interpretation",
       FT_STRING, BASE_NONE, NULL, 0, "Interpretation of tag", HFILL }}
-
 
   };
 
-
-  static gint *tree_array[] = { &ett_80211,
+  static gint *tree_array[] = {
+    &ett_80211,
     &ett_fc_tree,
     &ett_proto_flags,
+    &ett_80211_mgt,
     &ett_fixed_parameters,
     &ett_tagged_parameters,
     &ett_wep_parameters,
@@ -1788,6 +1782,9 @@ proto_register_wlan (void)
   proto_wlan = proto_register_protocol ("IEEE 802.11 wireless LAN",
 					"IEEE 802.11", "wlan");
   proto_register_field_array (proto_wlan, hf, array_length (hf));
+  proto_wlan_mgt = proto_register_protocol ("IEEE 802.11 wireless LAN management frame",
+					"802.11 MGT", "wlan_mgt");
+  proto_register_field_array (proto_wlan_mgt, ff, array_length (ff));
   proto_register_subtree_array (tree_array, array_length (tree_array));
 }
 
