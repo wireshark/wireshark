@@ -166,7 +166,7 @@ dissect_t38_NULL(tvbuff_t *tvb _U_, int offset, packet_info *pinfo _U_, proto_tr
 	return offset;
 }
 
-static per_choice_t t30_indicator_choice[] = {
+static const per_choice_t t30_indicator_choice[] = {
 	{ 0, "no-signal", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
 	{ 1, "cng", ASN1_EXTENSION_ROOT,
@@ -257,7 +257,7 @@ dissect_t38_t30_indicator(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 	return offset;
 }
 
-static per_choice_t data_choice[] = {
+static const per_choice_t data_choice[] = {
 	{ 0, "v21", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
 	{ 1, "v27-2400", ASN1_EXTENSION_ROOT,
@@ -324,7 +324,7 @@ dissect_t38_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	return offset;
 }
 
-static per_choice_t Type_of_msg_choice[] = {
+static const per_choice_t Type_of_msg_choice[] = {
 	{ 0, "t30-indicator", ASN1_NO_EXTENSIONS,
 		dissect_t38_t30_indicator},
 	{ 1, "data", ASN1_NO_EXTENSIONS,
@@ -347,7 +347,7 @@ dissect_t38_Type_of_msg(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 	return offset;
 }
 
-static per_choice_t Data_Field_field_type_PreCorrigendum_choice[] = {
+static const per_choice_t Data_Field_field_type_PreCorrigendum_choice[] = {
 	{ 0, "hdlc-data", ASN1_NO_EXTENSIONS,
 		dissect_t38_NULL},
 	{ 1, "hdlc-sig-end", ASN1_NO_EXTENSIONS,
@@ -368,7 +368,7 @@ static per_choice_t Data_Field_field_type_PreCorrigendum_choice[] = {
 };
 
 
-static per_choice_t Data_Field_field_type_choice[] = {
+static const per_choice_t Data_Field_field_type_choice[] = {
 	{ 0, "hdlc-data", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
 	{ 1, "hdlc-sig-end", ASN1_EXTENSION_ROOT,
@@ -458,7 +458,7 @@ dissect_t38_Data_Field_field_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static per_sequence_t Data_Field_item_sequence[] = {
+static const per_sequence_t Data_Field_item_sequence[] = {
 	{ "field-type", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_Data_Field_field_type },
 	{ "field-data", ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
@@ -484,7 +484,7 @@ dissect_t38_Data_Field(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	return offset;
 }
 
-static per_sequence_t IFPPacket_sequence[] = {
+static const per_sequence_t IFPPacket_sequence[] = {
 	{ "type-of-msg", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_Type_of_msg },
 	{ "data-field", ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
@@ -580,7 +580,7 @@ dissect_t38_fec_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	return offset;
 }
 
-static per_sequence_t fec_info_sequence[] = {
+static const per_sequence_t fec_info_sequence[] = {
 	{ "fec-npackets", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_fec_npackets },
 	{ "fec-data", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
@@ -597,7 +597,7 @@ dissect_t38_fec_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	return offset;
 }
 
-static per_choice_t error_recovery_choice[] = {
+static const per_choice_t error_recovery_choice[] = {
 	{ 0, "secondary-ifp-packets", ASN1_NO_EXTENSIONS,
 		dissect_t38_secondary_ifp_packets},
 	{ 1, "fec-info", ASN1_NO_EXTENSIONS,
@@ -625,7 +625,7 @@ dissect_t38_error_recovery(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 	return offset;
 }
 
-static per_sequence_t UDPTLPacket_sequence[] = {
+static const per_sequence_t UDPTLPacket_sequence[] = {
 	{ "seq-number", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
 		dissect_t38_seq_number },
 	{ "primary-ifp-packet", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
