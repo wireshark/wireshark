@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.67 2003/12/19 01:36:01 guy Exp $
+dnl $Id: acinclude.m4,v 1.68 2004/02/26 09:39:43 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -324,8 +324,28 @@ and did you also install that package?]]))
 	  [
 	    PCAP_LIBS=-lpcap
 	    AC_DEFINE(HAVE_LIBPCAP, 1, [Define to use libpcap library])
-	  ], [AC_MSG_ERROR(Library libpcap not found.)],
-	  $SOCKET_LIBS $NSL_LIBS)
+	  ], [
+	    AC_MSG_CHECKING([for pcap_open_live in -lpcap -lcfg -lodm])
+	    ac_save_LIBS="$LIBS"
+	    LIBS="-lpcap -lcfg -lodm"
+	    AC_TRY_LINK(
+		[
+#	include <pcap.h>
+		],
+		[
+	pcap_open_live(NULL, 0, 0, 0, NULL);
+		],
+		[
+		AC_MSG_RESULT([yes])
+		PCAP_LIBS="-lpcap -lcfg -lodm"
+		AC_DEFINE(HAVE_LIBPCAP, 1, [Define to use libpcap library])
+		],
+		[
+		AC_MSG_RESULT([no])
+		AC_MSG_ERROR([Library libpcap not found.])
+		])
+	    LIBS=$ac_save_LIBS
+	  ], $SOCKET_LIBS $NSL_LIBS)
 	AC_SUBST(PCAP_LIBS)
 
 	#
