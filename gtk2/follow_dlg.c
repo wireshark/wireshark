@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.2 2002/09/05 18:48:51 jmayer Exp $
+ * $Id: follow_dlg.c,v 1.3 2002/09/07 14:56:57 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,6 +27,7 @@
 
 #include <gtk/gtk.h>
 
+#include <stdio.h>
 #include <string.h>
 
 #ifdef HAVE_IO_H
