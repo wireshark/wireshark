@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.177 2004/06/04 20:15:30 ulfl Exp $
+ * $Id: packet-dcerpc.c,v 1.178 2004/06/05 11:44:14 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1808,6 +1808,9 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     tvbuff_t *volatile stub_tvb;
     volatile guint auth_pad_len;
     volatile int auth_pad_offset;
+#ifdef WIN32
+    char UUID_NAME[MAX_PATH];
+#endif
 
     key.uuid = info->call_data->uuid;
     key.ver = info->call_data->ver;
@@ -1823,6 +1826,15 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_boolean_hidden(dcerpc_tree, hf_dcerpc_unknown_if_id,
 					  tvb, offset, 0, TRUE);
 	if (check_col (pinfo->cinfo, COL_INFO)) {
+#ifdef WIN32
+		if(ResolveWin32UUID(info->call_data->uuid, UUID_NAME, MAX_PATH))
+			col_append_fstr (pinfo->cinfo, COL_INFO, " [%s] UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x rpcver: %u",
+				UUID_NAME, info->call_data->uuid.Data1, info->call_data->uuid.Data2, info->call_data->uuid.Data3, info->call_data->uuid.Data4[0],
+				info->call_data->uuid.Data4[1], info->call_data->uuid.Data4[2], info->call_data->uuid.Data4[3],
+				info->call_data->uuid.Data4[4], info->call_data->uuid.Data4[5], info->call_data->uuid.Data4[6],
+				info->call_data->uuid.Data4[7], info->call_data->ver);
+else
+#endif
 		col_append_fstr (pinfo->cinfo, COL_INFO, " UNKUUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x rpcver: %u",
 			info->call_data->uuid.Data1, info->call_data->uuid.Data2, info->call_data->uuid.Data3, info->call_data->uuid.Data4[0],
 			info->call_data->uuid.Data4[1], info->call_data->uuid.Data4[2], info->call_data->uuid.Data4[3],
