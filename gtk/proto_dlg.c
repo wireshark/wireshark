@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.7 2001/01/22 09:33:19 guy Exp $
+ * $Id: proto_dlg.c,v 1.8 2001/03/01 21:34:09 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -56,6 +56,10 @@ static void show_proto_selection(GtkWidget *main, GtkWidget *container);
 static gboolean set_proto_selection(GtkWidget *);
 static gboolean revert_proto_selection(void);
 
+static void toggle_all_cb(GtkWidget *button, gpointer parent_w);
+static void enable_all_cb(GtkWidget *button, gpointer parent_w);
+static void disable_all_cb(GtkWidget *button, gpointer parent_w);
+
 static GtkWidget *proto_w = NULL;
 
 /* list of protocols */
@@ -72,7 +76,7 @@ void proto_cb(GtkWidget *w, gpointer data)
 {
 
   GtkWidget *main_vb, *bbox, *proto_nb, *apply_bt, *cancel_bt, *ok_bt, 
-    *label, *scrolled_w, *selection_vb;
+    *label, *scrolled_w, *selection_vb, *button;
   
   if (proto_w != NULL) {
     reactivate_window(proto_w);
@@ -126,6 +130,35 @@ void proto_cb(GtkWidget *w, gpointer data)
   gtk_widget_show(label);
   gtk_box_pack_start(GTK_BOX(selection_vb), label, FALSE, FALSE, 0);
 
+
+  bbox = gtk_hbutton_box_new();
+  gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_END);
+  gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
+  gtk_box_pack_start(GTK_BOX(selection_vb), bbox, FALSE, FALSE, 0);
+  gtk_widget_show(bbox);
+
+  /* Toggle All */
+  button = gtk_button_new_with_label("Toggle All");
+  gtk_signal_connect(GTK_OBJECT(button), "clicked",
+		  GTK_SIGNAL_FUNC(toggle_all_cb), GTK_OBJECT(proto_w));
+  gtk_box_pack_start(GTK_BOX(bbox), button, TRUE, TRUE, 0);
+  gtk_widget_show(button);
+
+  /* Enable All */
+  button = gtk_button_new_with_label("Enable All");
+  gtk_signal_connect(GTK_OBJECT(button), "clicked",
+		  GTK_SIGNAL_FUNC(enable_all_cb), GTK_OBJECT(proto_w));
+  gtk_box_pack_start(GTK_BOX(bbox), button, TRUE, TRUE, 0);
+  gtk_widget_show(button);
+
+  /* Disable All */
+  button = gtk_button_new_with_label("Disable All");
+  gtk_signal_connect(GTK_OBJECT(button), "clicked",
+		  GTK_SIGNAL_FUNC(disable_all_cb), GTK_OBJECT(proto_w));
+  gtk_box_pack_start(GTK_BOX(bbox), button, TRUE, TRUE, 0);
+  gtk_widget_show(button);
+
+
   /* XXX add other protocol-related panels here ... */
 
   gtk_widget_show(proto_nb);
@@ -166,6 +199,57 @@ void proto_cb(GtkWidget *w, gpointer data)
   gtk_widget_show(proto_w);
 
 } /* proto_cb */
+
+
+/* Toggle All */
+static void
+toggle_all_cb(GtkWidget *button, gpointer parent_w)
+{
+
+  GSList *entry;
+
+  for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
+    GtkWidget *button;
+    protocol_data_t *p = entry->data;
+
+    button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
+					       p->abbrev);
+    /* gtk_toggle_button_toggled() didn't work for me... */
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
+		    !gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)));
+  }
+}
+
+/* Enable/Disable All Helper */
+static void
+set_active_all(GtkWidget *button, gpointer parent_w, gboolean new_state)
+{
+
+  GSList *entry;
+
+  for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
+    GtkWidget *button;
+    protocol_data_t *p = entry->data;
+
+    button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
+					       p->abbrev);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), new_state);
+  }
+}
+
+/* Enable All */
+static void
+enable_all_cb(GtkWidget *button, gpointer parent_w)
+{
+	set_active_all(button, parent_w, TRUE);
+}
+
+/* Disable All */
+static void
+disable_all_cb(GtkWidget *button, gpointer parent_w)
+{
+	set_active_all(button, parent_w, FALSE);
+}
 
 static void proto_destroy_cb(GtkWidget *w, gpointer data)
 {
