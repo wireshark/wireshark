@@ -1907,6 +1907,7 @@ Jesper Peterson         <jesper [AT] endace.com> {
 Giles Scott             <gscott [AT] arubanetworks.com> {
 	Nortel/SynOptics Network Management Protocol support
 	Alteon/Nortel Transparent Proxy Control Protocol support
+	Ethernet MAC Control Frame support
 }
 
 Vincent Jardin          <vincent.jardin [AT] 6wind.com> {
