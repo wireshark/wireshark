@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.4 1999/10/12 06:20:03 gram Exp $
+ * $Id: packet-bpdu.c,v 1.5 1999/10/16 09:31:47 deniel Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -43,10 +43,6 @@
 #include "packet.h"
 #include "resolv.h"
 #include "util.h"
-
-/*  #ifndef __PACKET_IP_H__ */
-/*  #include "packet-ip.h" */
-/*  #endif */
 
 /* Offsets of fields within a BPDU */
 
@@ -158,10 +154,8 @@ void dissect_bpdu(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	    hello_time = pntohs(bpdu + BPDU_HELLO_TIME) / 256.0;
 	    forward_delay = pntohs(bpdu + BPDU_FORWARD_DELAY) / 256.0;
 
-	    proto_tree_add_item_format(bpdu_tree, hf_bpdu_flags, 
-				       offset + BPDU_FLAGS, 1, 
-				       flags,
-				       "Flags: 0x%02x", flags);
+	    proto_tree_add_item(bpdu_tree, hf_bpdu_flags, 
+				offset + BPDU_FLAGS, 1, flags);
 	    if (flags & 0x80)
 		  proto_tree_add_text(bpdu_tree, offset + BPDU_FLAGS, 1, "   1... ....  Topology Change Acknowledgment");
 	    if (flags & 0x01)
@@ -186,11 +180,9 @@ void dissect_bpdu(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	    proto_tree_add_item_hidden(bpdu_tree, hf_bpdu_bridge_mac,
 				       offset + BPDU_BRIDGE_IDENTIFIER + 2, 6,
 				       bpdu + BPDU_BRIDGE_IDENTIFIER + 2);
-	    proto_tree_add_item_format(bpdu_tree, hf_bpdu_port_id,
-				       offset + BPDU_PORT_IDENTIFIER, 2, 
-				       port_identifier,
-				       "Port identifier: 0x%04x", 
-				       port_identifier);
+	    proto_tree_add_item(bpdu_tree, hf_bpdu_port_id,
+				offset + BPDU_PORT_IDENTIFIER, 2, 
+				port_identifier);
 	    proto_tree_add_item(bpdu_tree, hf_bpdu_msg_age,
 				offset + BPDU_MESSAGE_AGE, 2, 
 				message_age);
@@ -212,40 +204,52 @@ proto_register_bpdu(void)
 
   static hf_register_info hf[] = {
     { &hf_bpdu_proto_id,
-      { "Protocol Identifier",	"stp.protocol",		FT_UINT16,  BASE_HEX, NULL, 0x0,
+      { "Protocol Identifier",		"stp.protocol",
+	FT_UINT16,	BASE_HEX,	NULL,	0x0,
       	"" }},
     { &hf_bpdu_version_id,
-      { "Protocol Version Identifier", "stp.version",	FT_UINT8,   BASE_DEC, NULL, 0x0,
+      { "Protocol Version Identifier",	"stp.version",
+	FT_UINT8,	BASE_DEC,	NULL,	0x0,
       	"" }},
     { &hf_bpdu_type,
-      { "BPDU type",		"stp.type",		FT_UINT8,   BASE_HEX, NULL, 0x0,
+      { "BPDU type",			"stp.type",
+	FT_UINT8,	BASE_HEX,	NULL,	0x0,
       	"" }},
     { &hf_bpdu_flags,
-      { "BPDU flags",		"stp.flags",		FT_UINT8,   BASE_HEX, NULL, 0x0,
+      { "BPDU flags",			"stp.flags",
+	FT_UINT8,	BASE_HEX,	NULL,	0x0,
       	"" }},
     { &hf_bpdu_root_mac,
-      { "Root Identifier",	"stp.root.hw",		FT_ETHER,   BASE_NONE, NULL, 0x0,
+      { "Root Identifier",		"stp.root.hw",
+	FT_ETHER,	BASE_NONE,	NULL,	0x0,
       	"" }},
     { &hf_bpdu_root_cost,
-      { "Root Path Cost",	"stp.root.cost",	FT_UINT32,  BASE_DEC, NULL, 0x0,
+      { "Root Path Cost",		"stp.root.cost",
+	FT_UINT32,	BASE_DEC,	NULL,	0x0,
       	"" }},
     { &hf_bpdu_bridge_mac,
-      { "Bridge Identifier",    "stp.bridge.hw",	FT_ETHER,   BASE_NONE, NULL, 0x0,
+      { "Bridge Identifier",		"stp.bridge.hw",
+	FT_ETHER,	BASE_NONE,	NULL,	0x0,
       	""}},
     { &hf_bpdu_port_id,
-      { "Port identifier",      "stp.port",		FT_UINT16,  BASE_HEX, NULL, 0x0,
+      { "Port identifier",		"stp.port",
+	FT_UINT16,	BASE_HEX,	NULL,	0x0,
       	""}},
     { &hf_bpdu_msg_age,
-      { "Message Age",		"stp.msg_age",		FT_DOUBLE,  BASE_NONE, NULL, 0x0,
+      { "Message Age",			"stp.msg_age",
+	FT_DOUBLE,	BASE_NONE,	NULL,	0x0,
       	"" }},
     { &hf_bpdu_max_age,
-      { "Max Age",		"stp.max_age",		FT_DOUBLE,  BASE_NONE, NULL, 0x0,
+      { "Max Age",			"stp.max_age",
+	FT_DOUBLE,	BASE_NONE,	NULL,	0x0,
       	"" }},
     { &hf_bpdu_hello_time,
-      { "Hello Time",		"stp.hello",		FT_DOUBLE,  BASE_NONE, NULL, 0x0,
+      { "Hello Time",			"stp.hello",
+	FT_DOUBLE,	BASE_NONE,	NULL,	0x0,
       	"" }},
     { &hf_bpdu_forward_delay,
-      { "Forward Delay",       	"stp.forward",		FT_DOUBLE,  BASE_NONE, NULL, 0x0,
+      { "Forward Delay",		"stp.forward",
+	FT_DOUBLE,	BASE_NONE,	NULL,	0x0,
       	"" }},
   };
 
