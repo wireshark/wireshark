@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.3 2001/12/09 01:20:14 guy Exp $
+ * $Id: tcp_graph.c,v 1.4 2001/12/10 20:34:52 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,6 +47,7 @@
 #include "prefs_dlg.h"		/* prefs */
 #include "gtkglobals.h"		/* set_scrollbar_placement_srollw() and
 				 * remember_scrolled_window() */
+#include "simple_dialog.h"
 #include "tcp_graph.h"
 
 /* from <net/ethernet.h> */
@@ -577,7 +578,8 @@ void tcp_graph_cb (GtkWidget *w, gpointer data, guint graph_type)
 		/* currently selected packet is neither TCP over IP over Ethernet II/PPP
 		 * nor TCP over IP alone - should display some
 		 * kind of warning dialog */
-		printf ("packet selected is not a TCP segment\n");
+        simple_dialog(ESD_TYPE_WARN, NULL,
+                "Selected packet is not a TCP segment");
 		return;
 	}
 
