@@ -1,7 +1,7 @@
 /* rpc_progs.h
  * rpc_progs   2002 Ronnie Sahlberg
  *
- * $Id: rpc_progs.h,v 1.1 2002/09/07 10:02:32 sahlberg Exp $
+ * $Id: rpc_progs.h,v 1.2 2002/11/06 10:53:36 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,7 +25,6 @@
 #ifndef __RPC_PROGS_H__
 #define __RPC_PROGS_H__
 
-void gtk_rpcprogs_init(void);
 void gtk_rpcprogs_cb(GtkWidget *w, gpointer d);
 
 #endif

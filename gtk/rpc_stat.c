@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.4 2002/10/23 23:17:11 guy Exp $
+ * $Id: rpc_stat.c,v 1.5 2002/11/06 10:53:36 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,7 @@
 #include "epan/packet_info.h"
 #include "simple_dialog.h"
 #include "tap.h"
+#include "../register.h"
 #include "rpc_stat.h"
 #include "packet-rpc.h"
 #include "../globals.h"
@@ -268,8 +269,8 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 /* When called, this function will create a new instance of gtk2-rpcstat.
  */
-void
-gtk_rpcstat_init(guint32 program, guint32 version, char *filter)
+static void
+gtk_rpcstat_init(char *optarg)
 {
 	rpcstat_t *rs;
 	guint32 i;
@@ -279,6 +280,20 @@ gtk_rpcstat_init(guint32 program, guint32 version, char *filter)
 	GtkWidget *stat_label;
 	GtkWidget *filter_label;
 	GtkWidget *tmp;
+	int program, version, pos;
+	char *filter=NULL;
+
+	pos=0;
+	if(sscanf(optarg,"rpc,rtt,%d,%d,%n",&program,&version,&pos)==2){
+		if(pos){
+			filter=optarg+pos;
+		} else {
+			filter=NULL;
+		}
+	} else {
+		fprintf(stderr, "ethereal: invalid \"-z rpc,rtt,<program>,<version>[,<filter>]\" argument\n");
+		exit(1);
+	}
 
 	rpc_program=program;
 	rpc_version=version;
@@ -412,12 +427,16 @@ static void
 rpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 {
 	char *filter;
+	char str[256];
 
 	filter=(char *)gtk_entry_get_text(GTK_ENTRY(filter_entry));
 	if(filter[0]==0){
-		filter=NULL;
+		sprintf(str, "rpc,rtt,%d,%d", rpc_program, rpc_version);
+		filter="";
+	} else {
+		sprintf(str, "rpc,rtt,%d,%d,%s", rpc_program, rpc_version, filter);
 	}
-	gtk_rpcstat_init(rpc_program, rpc_version, filter);
+	gtk_rpcstat_init(str);
 }
 
 
@@ -583,3 +602,8 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 }
 
 
+void
+register_tap_listener_gtkrpcstat(void)
+{
+	register_ethereal_tap("rpc,rtt,", gtk_rpcstat_init, NULL, NULL);
+}

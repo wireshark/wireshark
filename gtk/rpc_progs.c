@@ -1,7 +1,7 @@
 /* rpc_progs.c
  * rpc_progs   2002 Ronnie Sahlberg
  *
- * $Id: rpc_progs.c,v 1.3 2002/10/23 23:17:11 guy Exp $
+ * $Id: rpc_progs.c,v 1.4 2002/11/06 10:53:36 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,7 @@
 #include <gtk/gtk.h>
 #include "epan/packet_info.h"
 #include "tap.h"
+#include "../register.h"
 #include "rpc_progs.h"
 #include "packet-rpc.h"
 #include "../globals.h"
@@ -301,8 +302,8 @@ win_destroy_cb(void *dummy _U_, gpointer data _U_)
 
 /* When called, this function will start rpcprogs
  */
-void
-gtk_rpcprogs_init(void)
+static void
+gtk_rpcprogs_init(char *optarg _U_)
 {
 	char title_string[60];
 	GtkWidget *vbox;
@@ -375,3 +376,14 @@ gtk_rpcprogs_init(void)
 	redissect_packets(&cfile);
 }
 
+void
+gtk_rpcprogs_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+	gtk_rpcprogs_init("");
+}
+
+void
+register_tap_listener_gtkrpcprogs(void)
+{
+	register_ethereal_tap("rpc,programs", gtk_rpcprogs_init, NULL, NULL);
+}

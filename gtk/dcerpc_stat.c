@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.1 2002/10/25 01:08:46 guy Exp $
+ * $Id: dcerpc_stat.c,v 1.2 2002/11/06 10:53:36 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,7 @@
 #include "epan/packet_info.h"
 #include "simple_dialog.h"
 #include "tap.h"
+#include "../register.h"
 #include "packet-dcerpc.h"
 #include "dcerpc_stat.h"
 #include "../globals.h"
@@ -243,8 +244,8 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 /* When called, this function will create a new instance of gtk-dcerpcstat.
  */
-void
-gtk_dcerpcstat_init(e_uuid_t *uuid, int major, int minor, char *filter)
+static void
+gtk_dcerpcstat_init(char *optarg)
 {
 	rpcstat_t *rs;
 	guint32 i, max_procs;
@@ -255,16 +256,44 @@ gtk_dcerpcstat_init(e_uuid_t *uuid, int major, int minor, char *filter)
 	GtkWidget *filter_label;
 	GtkWidget *tmp;
 	dcerpc_sub_dissector *procs;
+	e_uuid_t uuid;
+	int d1,d2,d3,d40,d41,d42,d43,d44,d45,d46,d47;
+	int major, minor;
+	int pos=0;
+        char *filter=NULL;
 
-	rs=g_malloc(sizeof(rpcstat_t));
-	rs->prog=dcerpc_get_proto_name(uuid, (minor<<8)|(major&0xff) );
-	if(!rs->prog){
-		g_free(rs);
-		fprintf(stderr,"tethereal: dcerpcstat_init() Protocol with uuid:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x v%d.%d not supported\n",uuid->Data1,uuid->Data2,uuid->Data3,uuid->Data4[0],uuid->Data4[1],uuid->Data4[2],uuid->Data4[3],uuid->Data4[4],uuid->Data4[5],uuid->Data4[6],uuid->Data4[7],major,minor);
+	if(sscanf(optarg,"dcerpc,rtt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d%n", &d1,&d2,&d3,&d40,&d41,&d42,&d43,&d44,&d45,&d46,&d47,&major,&minor,&pos)==13){
+		uuid.Data1=d1;
+		uuid.Data2=d2;
+		uuid.Data3=d3;
+		uuid.Data4[0]=d40;
+		uuid.Data4[1]=d41;
+		uuid.Data4[2]=d42;
+		uuid.Data4[3]=d43;
+		uuid.Data4[4]=d44;
+		uuid.Data4[5]=d45;
+		uuid.Data4[6]=d46;
+		uuid.Data4[7]=d47;
+		if(pos){
+			filter=optarg+pos;
+		} else {
+			filter=NULL;
+		}
+	} else {
+		fprintf(stderr, "tethereal: invalid \"-z dcerpc,rtt,<uuid>,<major version>.<minor version>[,<filter>]\" argument\n");
 		exit(1);
 	}
-	procs=dcerpc_get_proto_sub_dissector(uuid, (minor<<8)|(major&0xff) );
-	rs->uuid=*uuid;
+
+
+	rs=g_malloc(sizeof(rpcstat_t));
+	rs->prog=dcerpc_get_proto_name(&uuid, (minor<<8)|(major&0xff) );
+	if(!rs->prog){
+		g_free(rs);
+		fprintf(stderr,"tethereal: dcerpcstat_init() Protocol with uuid:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x v%d.%d not supported\n",uuid.Data1,uuid.Data2,uuid.Data3,uuid.Data4[0],uuid.Data4[1],uuid.Data4[2],uuid.Data4[3],uuid.Data4[4],uuid.Data4[5],uuid.Data4[6],uuid.Data4[7],major,minor);
+		exit(1);
+	}
+	procs=dcerpc_get_proto_sub_dissector(&uuid, (minor<<8)|(major&0xff) );
+	rs->uuid=uuid;
 	rs->ver=(minor<<8)|(major&0xff);
 
 	rs->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -404,12 +433,17 @@ static void
 dcerpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 {
 	char *filter;
+	char str[256];
 
 	filter=(char *)gtk_entry_get_text(GTK_ENTRY(filter_entry));
 	if(filter[0]==0){
-		filter=NULL;
+		sprintf(str, "dcerpc,rtt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d",dcerpc_uuid_program->Data1,dcerpc_uuid_program->Data2,dcerpc_uuid_program->Data3,dcerpc_uuid_program->Data4[0],dcerpc_uuid_program->Data4[1],dcerpc_uuid_program->Data4[2],dcerpc_uuid_program->Data4[3],dcerpc_uuid_program->Data4[4],dcerpc_uuid_program->Data4[5],dcerpc_uuid_program->Data4[6],dcerpc_uuid_program->Data4[7],dcerpc_version&0xff,dcerpc_version>>8);
+
+	} else {
+		sprintf(str, "dcerpc,rtt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d,%s",dcerpc_uuid_program->Data1,dcerpc_uuid_program->Data2,dcerpc_uuid_program->Data3,dcerpc_uuid_program->Data4[0],dcerpc_uuid_program->Data4[1],dcerpc_uuid_program->Data4[2],dcerpc_uuid_program->Data4[3],dcerpc_uuid_program->Data4[4],dcerpc_uuid_program->Data4[5],dcerpc_uuid_program->Data4[6],dcerpc_uuid_program->Data4[7],dcerpc_version&0xff,dcerpc_version>>8, filter);
 	}
-	gtk_dcerpcstat_init(dcerpc_uuid_program, dcerpc_version&0xff, dcerpc_version>>8, filter);
+
+	gtk_dcerpcstat_init(str);
 }
 
 
@@ -574,3 +608,8 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_widget_show_all(dlg);
 }
 
+void
+register_tap_listener_gtkdcerpcstat(void)
+{
+	register_ethereal_tap("dcerpc,rtt,", gtk_dcerpcstat_init, NULL, NULL);
+}

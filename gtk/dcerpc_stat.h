@@ -1,7 +1,7 @@
 /* dcerpc_stat.h
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.h,v 1.1 2002/10/25 01:08:46 guy Exp $
+ * $Id: dcerpc_stat.h,v 1.2 2002/11/06 10:53:36 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,7 +25,6 @@
 #ifndef __DCERPCSTAT_H__
 #define __DCERPCSTAT_H__
 
-void gtk_dcerpcstat_init(e_uuid_t *uuid, int major, int minor, char *filter);
 void gtk_dcerpcstat_cb(GtkWidget *w, gpointer d);
 
 #endif

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for the GTK interface routines for Ethereal
 #
-# $Id: Makefile.am,v 1.44 2002/11/03 17:38:32 oabad Exp $
+# $Id: Makefile.am,v 1.45 2002/11/06 10:53:36 sahlberg Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -27,6 +27,19 @@ CLEANFILES = \
 	libui.a		\
 	*~
 
+ETHEREAL_TAP_SRC = \
+	dcerpc_stat.c	\
+	dcerpc_stat.h	\
+	rpc_stat.c	\
+	rpc_stat.h	\
+	rpc_progs.c	\
+	rpc_progs.h	
+
+ethereal-tap-register.c: $(ETHEREAL_TAP_SRC)
+	@echo Making tethereal-tap-register.c
+	../make-tapreg-dotc ethereal-tap-register.c . $(ETHEREAL_TAP_SRC)
+	
+
 if USE_GTK2
 libui_a_SOURCES = \
 	capture_dlg.c	\
@@ -41,8 +54,6 @@ libui_a_SOURCES = \
 	color_utils.h	\
 	column_prefs.c	\
 	column_prefs.h	\
-	dcerpc_stat.c	\
-	dcerpc_stat.h	\
  	decode_as_dlg.c	\
  	decode_as_dlg.h	\
 	dfilter_expr_dlg.c \
@@ -51,6 +62,7 @@ libui_a_SOURCES = \
 	display_opts.h	\
 	dlg_utils.c	\
 	dlg_utils.h	\
+	ethereal-tap-register.c \
 	file_dlg.c	\
 	file_dlg.h	\
 	filter_prefs.c	\
@@ -89,10 +101,6 @@ libui_a_SOURCES = \
 	proto_draw.h	\
 	proto_hier_stats_dlg.h	\
 	proto_hier_stats_dlg.c	\
-	rpc_stat.c	\
-	rpc_stat.h	\
-	rpc_progs.c	\
-	rpc_progs.h	\
 	simple_dialog.c	\
 	stream_prefs.c	\
 	stream_prefs.h	\
@@ -101,7 +109,8 @@ libui_a_SOURCES = \
 	tcp_graph.c     \
 	tcp_graph.h     \
 	ui_util.c       \
-	ui_util.h
+	ui_util.h	\
+	$(ETHEREAL_TAP_SRC)
 else
 libui_a_SOURCES = \
 	capture_dlg.c	\
@@ -116,8 +125,6 @@ libui_a_SOURCES = \
 	color_utils.h	\
 	column_prefs.c	\
 	column_prefs.h	\
-	dcerpc_stat.c	\
-	dcerpc_stat.h	\
  	decode_as_dlg.c	\
  	decode_as_dlg.h	\
 	dfilter_expr_dlg.c \
@@ -126,6 +133,7 @@ libui_a_SOURCES = \
 	display_opts.h	\
 	dlg_utils.c	\
 	dlg_utils.h	\
+	ethereal-tap-register.c \
 	file_dlg.c	\
 	file_dlg.h	\
 	filter_prefs.c	\
@@ -166,10 +174,6 @@ libui_a_SOURCES = \
 	proto_draw.h	\
 	proto_hier_stats_dlg.h	\
 	proto_hier_stats_dlg.c	\
-	rpc_stat.c	\
-	rpc_stat.h	\
-	rpc_progs.c	\
-	rpc_progs.h	\
 	simple_dialog.c	\
 	stream_prefs.c	\
 	stream_prefs.h	\
@@ -178,7 +182,8 @@ libui_a_SOURCES = \
 	tcp_graph.c     \
 	tcp_graph.h     \
 	ui_util.c       \
-	ui_util.h
+	ui_util.h	\
+	$(ETHEREAL_TAP_SRC)
 endif
 
 EXTRA_DIST = \
