@@ -1447,6 +1447,7 @@ B<http://www.ethereal.com>.
   Martin Gignac            <lmcgign[AT]mobilitylab.net>
   John Wells               <wells[AT]ieee.org>
   Loic Tortay              <tortay[AT]cc.in2p3.fr>
+  Steve Housley            <Steve_Housley[AT]eur.3com.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

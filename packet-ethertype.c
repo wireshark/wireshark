@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.28 2002/04/24 06:03:33 guy Exp $
+ * $Id: packet-ethertype.c,v 1.29 2002/06/13 07:18:47 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -77,6 +77,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_DEC_SCA,		"DEC LAVC/SCA"			},
     {ETHERTYPE_ETHBRIDGE,	"Transparent Ethernet bridging" },
     {ETHERTYPE_CGMP,		"Cisco Group Management Protocol" },
+    {ETHERTYPE_SLOW_PROTOCOLS,	"Slow Protocols"		},
 
     /*
      * NDISWAN on Windows translates Ethernet frames from higher-level

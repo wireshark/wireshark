@@ -1,12 +1,11 @@
 /* etypes.h
  * Defines ethernet packet types, similar to tcpdump's ethertype.h
  *
- * $Id: etypes.h,v 1.24 2002/03/23 22:02:20 guy Exp $
+ * $Id: etypes.h,v 1.25 2002/06/13 07:18:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -150,6 +149,10 @@
 
 #ifndef ETHERTYPE_IPv6
 #define ETHERTYPE_IPv6		0x86dd
+#endif
+
+#ifndef ETHERTYPE_SLOW_PROTOCOLS
+#define ETHERTYPE_SLOW_PROTOCOLS		0x8809
 #endif
 
 #ifndef ETHERTYPE_PPP
