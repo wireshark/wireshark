@@ -1000,6 +1000,10 @@ Jirka Novak <j.novak[AT]netsystem.cz> {
 	Support for hex dump mode in "Follow TCP Stream" window showing
 	    hex and ASCII data
 }
+
+Ricardo Barroetaveña <rbarroetavena[AT]veufort.com> {
+	Enhanced LDP support
+}
 	
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.

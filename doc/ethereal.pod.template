@@ -1354,6 +1354,7 @@ B<http://www.ethereal.com>.
   Dinesh Dutt              <ddutt[AT]cisco.com>
   Nagarjuna Venna          <nvenna[AT]Brixnet.com>
   Jirka Novak              <j.novak[AT]netsystem.cz>
+  Ricardo Barroetaveña     <rbarroetavena[AT]veufort.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
