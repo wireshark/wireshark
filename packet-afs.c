@@ -6,7 +6,7 @@
  * Portions based on information retrieved from the RX definitions
  *   in Arla, the free AFS client at http://www.stacken.kth.se/project/arla/
  *
- * $Id: packet-afs.c,v 1.4 1999/10/28 15:08:41 nneul Exp $
+ * $Id: packet-afs.c,v 1.5 1999/10/28 20:46:42 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -313,7 +313,7 @@ static const value_string afs_errors[] = {
 	{ 363537, "Size Exceeded"},
 	{ 363538, "Bad Entry"},
 	{ 363539, "Bad Volume ID Bump"},
-	{ 363540, "VL_IDALREADHASED"},
+	{ 363540, "Already has edit"},
 	{ 363541, "Entry Locked"},
 	{ 363542, "Bad Volume Operation"},
 	{ 363543, "Bad Rel Lock Type"},
@@ -323,11 +323,90 @@ static const value_string afs_errors[] = {
 	{ 363547, "Out of Memory"},
 
 	/* KAUTH Errors */
-	{ 180488, "No Authentication"},
+	{ 180480, "Database Inconsistent"},
+	{ 180481, "Exists"},
+	{ 180482, "IO"},
+	{ 180483, "Create Failed"},
+	{ 180484, "noent"},
+	{ 180485, "Empty"},
+	{ 180486, "Bad Name"},
+	{ 180487, "Bad Index"},
+	{ 180488, "No auth"},
+	{ 180489, "Answer too long"},
 	{ 180490, "Bad Request"},
+	{ 180491, "Old Interface"},
+	{ 180492, "Bad Argument"},
+	{ 180493, "Bad Command"},
+	{ 180494, "No keys"},
+	{ 180495, "Read PW"},
+	{ 180496, "Bad key"},
+	{ 180497, "Ubik Init"},
+	{ 180498, "Ubik Call"},
+	{ 180499, "Bad Protocol"},
+	{ 180500, "No cells"},
+	{ 180501, "No cell"},
+	{ 180502, "Too many ubiks"},
+	{ 180503, "Too many keys"},
+	{ 180504, "Bad ticket"},
+	{ 180505, "Unknown Key"},
+	{ 180506, "Key Cache Invalid"},
+	{ 180507, "Bad Server"},
+	{ 180508, "Bad User"},
+	{ 180509, "Bad CPW"},
+	{ 180510, "Bad Create"},
+	{ 180511, "No ticket"},
+	{ 180512, "Assoc user"},
+	{ 180513, "Not special"},
+	{ 180514, "Clock skew too great"},
+	{ 180515, "No recursion"},
+	{ 180516, "RX failed"},
+	{ 180517, "Null password"},
+	{ 180518, "Internal error"},
+	{ 180519, "Password expired"},
+	{ 180520, "Reused"},
+	{ 180521, "Too soon"},
+	{ 180522, "Locked"},
 
-	/* someone please add more of these errors to decode the errcode responses */
+	/* PT Errors */
+	{ 267264, "Exists"},
+	{ 267265, "ID Exists"},
+	{ 267266, "No IDs"},
+	{ 267267, "DB Failed"},
+	{ 267268, "No such entry"},
+	{ 267269, "Permission denied"},
+	{ 267270, "Not group"},
+	{ 267271, "Not user"},
+	{ 267272, "Bad name"},
+	{ 267273, "Bad argument"},
+	{ 267274, "No more"},
+	{ 267275, "Bad DB"},
+	{ 267276, "Group empty"},
+	{ 267277, "Inconsistent"},
+	{ 267278, "DB Address"},
+	{ 267279, "Too many"},
+	{ 267280, "No memory"},
 
+	/* Volume server errors */
+	{ 1492325120, "Release error"},
+	{ 1492325121, "No op"},
+	{ 1492325122, "Read dump error"},
+	{ 1492325123, "Dump error"},
+	{ 1492325124, "Attach error"},
+	{ 1492325125, "Illegal partition"},
+	{ 1492325126, "Detach error"},
+	{ 1492325127, "Bad access"},
+	{ 1492325128, "VLDB error"},
+	{ 1492325129, "Bad Name"},
+	{ 1492325130, "Volume moved"},
+	{ 1492325131, "Bad operation"},
+	{ 1492325132, "Bad release"},
+	{ 1492325133, "Volume busy"},
+	{ 1492325134, "No memory"},
+	{ 1492325135, "No volume"},
+	{ 1492325136, "Multiple RW volumes"},
+	{ 1492325137, "Failed operation"},
+	
+	/* add more of these errors to decode the errcode responses */
 	{ 0, NULL },
 };
 
