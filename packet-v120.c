@@ -2,7 +2,7 @@
  * Routines for v120 frame disassembly
  * Bert Driehuis <driehuis@playbeing.org>
  *
- * $Id: packet-v120.c,v 1.1 1999/12/12 22:39:29 gram Exp $
+ * $Id: packet-v120.c,v 1.2 1999/12/12 23:08:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -91,11 +91,11 @@ dissect_v120(const u_char *pd, frame_data *fd, proto_tree *tree)
     else
 	is_response = FALSE;
 
+    if (fd->pkt_len <= 5)
+	v120len = fd->pkt_len;
+    else
+	v120len = 5;
     if (tree) {
-	if (fd->pkt_len <= 5)
-		v120len = fd->pkt_len;
-	else
-		v120len = 5;
 	ti = proto_tree_add_item_format(tree, proto_v120, 0, v120len, NULL,
 					    "V.120");
 	v120_tree = proto_item_add_subtree(ti, ett_v120);
