@@ -93,19 +93,21 @@ static value_string diameter_login_service_vals[]={
 };
 
 static value_string diameter_vendor_specific_vendors[]= {
-	{0, "None"},
-	{5, "ACC"},
-	{9, "Cisco"},
-	{11, "Hewlett Packard"},
-	{42, "Sun Microsystems"},
-	{166, "Shiva"},
-	{307, "Livingston"},
-	{429, "3Com"},
-	{529, "Ascend"},
-	{1584, "Bay Networks"},
-	{2636, "Juniper Networks"},
-	{5925, "ipUnplugged"},
-	{10415, "3GPP"},
+	{0,			"None"},
+	{5,			"ACC"},
+	{9,			"Cisco"},
+	{11,		"Hewlett Packard"},
+	{42,		"Sun Microsystems"},
+	{166,		"Shiva"},
+	{193,		"Ericsson Business Communications"},
+	{307,		"Livingston"},
+	{429,		"3Com"},
+	{529,		"Ascend"},
+	{1584,		"Bay Networks"},
+	{2636,		"Juniper Networks"},
+	{5535,		"3rd Generation Partnership Project 2 (3GPP2)"},
+	{5925,		"ipUnplugged"},
+	{10415,		"3GPP"},
 	{0,NULL}
 };
 

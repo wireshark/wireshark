@@ -47,8 +47,8 @@
 
 #include "packet-q931.h"
 #include "packet-gtp.h"
-#include <epan/prefs.h>
-#include <epan/crypt-md5.h>
+#include "prefs.h"
+#include "crypt-md5.h"
 
 static int proto_radius = -1;
 static int hf_radius_length = -1;
@@ -244,6 +244,7 @@ static const value_string radius_vals[] =
 #define VENDOR_CISCO			9
 #define VENDOR_MERIT			61
 #define VENDOR_SHIVA			166
+#define VENDOR_ERICSSON_BUSINESS_COMUNICATIONS	193
 #define VENDOR_CISCO_VPN5000		255
 #define VENDOR_LIVINGSTON		307
 #define VENDOR_MICROSOFT		311
@@ -262,6 +263,7 @@ static const value_string radius_vals[] =
 #define VENDOR_SIEMENS			4329
 #define VENDOR_UNISPHERE		4874
 #define VENDOR_CISCO_BBSM		5263
+#define VENDOR_ID_THE3GPP2						5535
 #define VENDOR_ISSANNI			5948
 #define VENDOR_QUINTUM			6618
 #define VENDOR_INTERLINK		6728
@@ -275,6 +277,7 @@ static const value_string radius_vendor_specific_vendors[] =
   {VENDOR_CISCO,		"Cisco"},
   {VENDOR_MERIT,		"Merit"},
   {VENDOR_SHIVA,		"Shiva"},
+  {VENDOR_ERICSSON_BUSINESS_COMUNICATIONS,	"Ericsson Business Communications"},
   {VENDOR_CISCO_VPN5000,	"Cisco VPN 5000"},
   {VENDOR_MICROSOFT,		"Microsoft"},
   {VENDOR_LIVINGSTON,		"Livingston"},
@@ -293,6 +296,7 @@ static const value_string radius_vendor_specific_vendors[] =
   {VENDOR_SIEMENS,		"SIEMENS"},
   {VENDOR_UNISPHERE,		"Unisphere Networks"},
   {VENDOR_CISCO_BBSM,		"Cisco BBSM"},
+  {VENDOR_ID_THE3GPP2,						"3rd Generation Partnership Project 2 (3GPP2)"},
   {VENDOR_ISSANNI,		"Issanni Communications"},
   {VENDOR_QUINTUM,		"Quintum"},
   {VENDOR_INTERLINK,	"Interlink"},
