@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.208 2003/07/23 05:01:15 guy Exp $
+ * $Id: capture.c,v 1.209 2003/09/15 22:48:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -340,7 +340,7 @@ do_capture(const char *save_file)
     g_free(capfile_name);
     return;
   }
-  close_cap_file(&cfile);
+  cf_close(&cfile);
   g_assert(cfile.save_file == NULL);
   cfile.save_file = capfile_name;
   /* cfile.save_file is "g_free"ed below, which is equivalent to
@@ -561,7 +561,7 @@ do_capture(const char *save_file)
     }
     if (c == SP_CAPSTART) {
       /* Success.  Open the capture file, and set up to read it. */
-      err = start_tail_cap_file(cfile.save_file, is_tempfile, &cfile);
+      err = cf_start_tail(cfile.save_file, is_tempfile, &cfile);
       if (err == 0) {
 	/* We were able to open and set up to read the capture file;
 	   arrange that our callback be called whenever it's possible
@@ -639,7 +639,7 @@ do_capture(const char *save_file)
     }
     if (capture_succeeded) {
       /* Capture succeeded; read in the capture file. */
-      if ((err = open_cap_file(cfile.save_file, is_tempfile, &cfile)) == 0) {
+      if ((err = cf_open(cfile.save_file, is_tempfile, &cfile)) == 0) {
         /* Set the read filter to NULL. */
         cfile.rfcode = NULL;
 
@@ -650,18 +650,17 @@ do_capture(const char *save_file)
 
            At some point, we will add support in Wiretap to return
 	   packet-drop statistics for capture file formats that store it,
-	   and will make "read_cap_file()" get those statistics from
-	   Wiretap.  We clear the statistics (marking them as "not known")
-	   in "open_cap_file()", and "read_cap_file()" will only fetch
-	   them and mark them as known if Wiretap supplies them, so if
-	   we get the statistics now, after calling "open_cap_file()" but
-	   before calling "read_cap_file()", the values we store will
-	   be used by "read_cap_file()".
+	   and will make "cf_read()" get those statistics from Wiretap.
+	   We clear the statistics (marking them as "not known") in
+	   "cf_open()", and "cf_read()" will only fetch them and mark
+	   them as known if Wiretap supplies them, so if we get the
+	   statistics now, after calling "cf_open()" but before calling
+	   "cf_read()", the values we store will be used by "cf_read()".
 
            If a future libpcap capture file format stores the statistics,
            we'll put them into the capture file that we write, and will
-	   thus not have to set them here - "read_cap_file()" will get
-	   them from the file and use them. */
+	   thus not have to set them here - "cf_read()" will get them from
+	   the file and use them. */
         if (stats_known) {
           cfile.drops_known = TRUE;
 
@@ -675,7 +674,7 @@ do_capture(const char *save_file)
              supplies, allowing us to display only the ones it does. */
           cfile.drops = stats.ps_drop;
         }
-        switch (read_cap_file(&cfile, &err)) {
+        switch (cf_read(&cfile, &err)) {
 
         case READ_SUCCESS:
         case READ_ERROR:
@@ -771,7 +770,7 @@ cap_file_input_cb(gpointer data, gint source _U_,
 
     /* Read what remains of the capture file, and finish the capture.
        XXX - do something if this fails? */
-    switch (finish_tail_cap_file(cf, &err)) {
+    switch (cf_finish_tail(cf, &err)) {
 
     case READ_SUCCESS:
     case READ_ERROR:
@@ -853,7 +852,7 @@ cap_file_input_cb(gpointer data, gint source _U_,
   /* Read from the capture file the number of records the child told us
      it added.
      XXX - do something if this fails? */
-  switch (continue_tail_cap_file(cf, to_read, &err)) {
+  switch (cf_continue_tail(cf, to_read, &err)) {
 
   case READ_SUCCESS:
   case READ_ERROR:

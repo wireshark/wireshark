@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.312 2003/09/15 22:16:07 guy Exp $
+ * $Id: file.c,v 1.313 2003/09/15 22:48:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -145,7 +145,7 @@ typedef struct {
 
 
 int
-open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
+cf_open(char *fname, gboolean is_tempfile, capture_file *cf)
 {
   wtap       *wth;
   int         err;
@@ -166,7 +166,7 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
 
   /* The open succeeded.  Close whatever capture file we had open,
      and fill in the information for this file. */
-  close_cap_file(cf);
+  cf_close(cf);
 
   /* Initialize all data structures used for dissection. */
   init_dissection();
@@ -224,7 +224,7 @@ fail:
 
 /* Reset everything to a pristine state */
 void
-close_cap_file(capture_file *cf)
+cf_close(capture_file *cf)
 {
   /* Die if we're in the middle of reading a file. */
   g_assert(cf->state != FILE_READ_IN_PROGRESS);
@@ -321,7 +321,7 @@ set_display_filename(capture_file *cf)
 }
 
 read_status_t
-read_cap_file(capture_file *cf, int *err)
+cf_read(capture_file *cf, int *err)
 {
   gchar      *name_ptr, *load_msg, *load_fmt = "%s";
   size_t      msg_len;
@@ -413,7 +413,7 @@ read_cap_file(capture_file *cf, int *err)
       destroy_progress_dlg(progbar);
       cf->state = FILE_READ_ABORTED;	/* so that we're allowed to close it */
       packet_list_thaw();		/* undo our freeze */
-      close_cap_file(cf);
+      cf_close(cf);
       return (READ_ABORTED);
     }
     read_packet(cf, data_offset);
@@ -500,12 +500,12 @@ read_cap_file(capture_file *cf, int *err)
 
 #ifdef HAVE_LIBPCAP
 int
-start_tail_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
+cf_start_tail(char *fname, gboolean is_tempfile, capture_file *cf)
 {
   int     err;
   int     i;
 
-  err = open_cap_file(fname, is_tempfile, cf);
+  err = cf_open(fname, is_tempfile, cf);
   if (err == 0) {
     /* Disable menu items that make no sense if you're currently running
        a capture. */
@@ -531,7 +531,7 @@ start_tail_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
 }
 
 read_status_t
-continue_tail_cap_file(capture_file *cf, int to_read, int *err)
+cf_continue_tail(capture_file *cf, int to_read, int *err)
 {
   long data_offset = 0;
 
@@ -561,7 +561,7 @@ continue_tail_cap_file(capture_file *cf, int to_read, int *err)
     /* Well, the user decided to exit Ethereal.  Return READ_ABORTED
        so that our caller can kill off the capture child process;
        this will cause an EOF on the pipe from the child, so
-       "finish_tail_cap_file()" will be called, and it will clean up
+       "cf_finish_tail()" will be called, and it will clean up
        and exit. */
     return READ_ABORTED;
   } else if (*err != 0) {
@@ -573,7 +573,7 @@ continue_tail_cap_file(capture_file *cf, int to_read, int *err)
 }
 
 read_status_t
-finish_tail_cap_file(capture_file *cf, int *err)
+cf_finish_tail(capture_file *cf, int *err)
 {
   long data_offset;
 
@@ -595,7 +595,7 @@ finish_tail_cap_file(capture_file *cf, int *err)
        it's probably exited), so we can just close the capture
        file; we return READ_ABORTED so our caller can do whatever
        is appropriate when that happens. */
-    close_cap_file(cf);
+    cf_close(cf);
     return READ_ABORTED;
   }
 
@@ -2159,7 +2159,7 @@ thaw_plist(capture_file *cf)
  * up a message box for the failure.
  */
 gboolean
-save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
+cf_save(char *fname, capture_file *cf, gboolean save_filtered,
 		gboolean save_marked, guint save_format)
 {
   gchar        *from_filename;
@@ -2321,10 +2321,10 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
        time if the file is large. */
     cf->user_saved = TRUE;
 
-    if ((err = open_cap_file(fname, FALSE, cf)) == 0) {
+    if ((err = cf_open(fname, FALSE, cf)) == 0) {
       /* XXX - report errors if this fails?
          What should we return if it fails or is aborted? */
-      switch (read_cap_file(cf, &err)) {
+      switch (cf_read(cf, &err)) {
 
       case READ_SUCCESS:
       case READ_ERROR:
@@ -2336,7 +2336,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
       case READ_ABORTED:
 	/* The user bailed out of re-reading the capture file; the
 	   capture file has been closed - just return (without
-	   changing any menu settings; "close_cap_file()" set them
+	   changing any menu settings; "cf_close()" set them
 	   correctly for the "no capture file open" state). */
 	break;
       }
@@ -2558,65 +2558,64 @@ file_close_error_message(int err)
 static gboolean
 copy_binary_file(char *from_filename, char *to_filename)
 {
-	int           from_fd, to_fd, nread, nwritten, err;
-	guint8        pd[65536]; /* XXX - Hmm, 64K here, 64K in save_cap_file(),
-				    perhaps we should make just one 64K buffer. */
+  int           from_fd, to_fd, nread, nwritten, err;
+  guint8        pd[65536];
 
-      /* Copy the raw bytes of the file. */
-      from_fd = open(from_filename, O_RDONLY | O_BINARY);
-      if (from_fd < 0) {
-      	err = errno;
-	simple_dialog(ESD_TYPE_CRIT, NULL,
-			file_open_error_message(err, TRUE, 0), from_filename);
-	goto done;
-      }
+  /* Copy the raw bytes of the file. */
+  from_fd = open(from_filename, O_RDONLY | O_BINARY);
+  if (from_fd < 0) {
+    err = errno;
+    simple_dialog(ESD_TYPE_CRIT, NULL,
+		  file_open_error_message(err, TRUE, 0), from_filename);
+    goto done;
+  }
 
-      /* Use open() instead of creat() so that we can pass the O_BINARY
-         flag, which is relevant on Win32; it appears that "creat()"
-	 may open the file in text mode, not binary mode, but we want
-	 to copy the raw bytes of the file, so we need the output file
-	 to be open in binary mode. */
-      to_fd = open(to_filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
-      if (to_fd < 0) {
-      	err = errno;
-	simple_dialog(ESD_TYPE_CRIT, NULL,
-			file_open_error_message(err, TRUE, 0), to_filename);
-	close(from_fd);
-	goto done;
-      }
+  /* Use open() instead of creat() so that we can pass the O_BINARY
+     flag, which is relevant on Win32; it appears that "creat()"
+     may open the file in text mode, not binary mode, but we want
+     to copy the raw bytes of the file, so we need the output file
+     to be open in binary mode. */
+  to_fd = open(to_filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
+  if (to_fd < 0) {
+    err = errno;
+    simple_dialog(ESD_TYPE_CRIT, NULL,
+		  file_open_error_message(err, TRUE, 0), to_filename);
+    close(from_fd);
+    goto done;
+  }
 
-      while ((nread = read(from_fd, pd, sizeof pd)) > 0) {
-	nwritten = write(to_fd, pd, nread);
-	if (nwritten < nread) {
-	  if (nwritten < 0)
-	    err = errno;
-	  else
-	    err = WTAP_ERR_SHORT_WRITE;
-	  simple_dialog(ESD_TYPE_CRIT, NULL,
-				file_write_error_message(err), to_filename);
-	  close(from_fd);
-	  close(to_fd);
-	  goto done;
-	}
-      }
-      if (nread < 0) {
-      	err = errno;
-	simple_dialog(ESD_TYPE_CRIT, NULL,
-			file_read_error_message(err), from_filename);
-	close(from_fd);
-	close(to_fd);
-	goto done;
-      }
+  while ((nread = read(from_fd, pd, sizeof pd)) > 0) {
+    nwritten = write(to_fd, pd, nread);
+    if (nwritten < nread) {
+      if (nwritten < 0)
+	err = errno;
+      else
+	err = WTAP_ERR_SHORT_WRITE;
+      simple_dialog(ESD_TYPE_CRIT, NULL,
+		    file_write_error_message(err), to_filename);
       close(from_fd);
-      if (close(to_fd) < 0) {
-      	err = errno;
-	simple_dialog(ESD_TYPE_CRIT, NULL,
-		file_close_error_message(err), to_filename);
-	goto done;
-      }
+      close(to_fd);
+      goto done;
+    }
+  }
+  if (nread < 0) {
+    err = errno;
+    simple_dialog(ESD_TYPE_CRIT, NULL,
+		  file_read_error_message(err), from_filename);
+    close(from_fd);
+    close(to_fd);
+    goto done;
+  }
+  close(from_fd);
+  if (close(to_fd) < 0) {
+    err = errno;
+    simple_dialog(ESD_TYPE_CRIT, NULL,
+		  file_close_error_message(err), to_filename);
+    goto done;
+  }
 
-      return TRUE;
+  return TRUE;
 
-   done:
-      return FALSE;
+done:
+  return FALSE;
 }

@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.106 2003/09/15 22:16:08 guy Exp $
+ * $Id: file.h,v 1.107 2003/09/15 22:48:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,22 +33,22 @@
 
 #include "cfile.h"
 
-/* Return values from "read_cap_file()", "continue_tail_cap_file()",
-   and "finish_tail_cap_file()". */
+/* Return values from "cf_read()", "cf_continue_tail()", and
+   "cf_finish_tail()". */
 typedef enum {
 	READ_SUCCESS,	/* read succeeded */
 	READ_ERROR,	/* read got an error */
 	READ_ABORTED	/* read aborted by user */
 } read_status_t;
 
-int  open_cap_file(char *, gboolean, capture_file *);
-void close_cap_file(capture_file *);
-read_status_t read_cap_file(capture_file *, int *);
-int  start_tail_cap_file(char *, gboolean, capture_file *);
-read_status_t continue_tail_cap_file(capture_file *, int, int *);
-read_status_t finish_tail_cap_file(capture_file *, int *);
+int  cf_open(char *, gboolean, capture_file *);
+void cf_close(capture_file *);
+read_status_t cf_read(capture_file *, int *);
+int  cf_start_tail(char *, gboolean, capture_file *);
+read_status_t cf_continue_tail(capture_file *, int, int *);
+read_status_t cf_finish_tail(capture_file *, int *);
 /* size_t read_frame_header(capture_file *); */
-gboolean save_cap_file(char *, capture_file *, gboolean, gboolean, guint);
+gboolean cf_save(char *, capture_file *, gboolean, gboolean, guint);
 gchar *cf_get_display_name(capture_file *);
 
 int filter_packets(capture_file *cf, gchar *dfilter);

@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.58 2003/08/18 21:27:10 sahlberg Exp $
+ * $Id: file_dlg.c,v 1.59 2003/09/15 22:48:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -227,7 +227,7 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   }
 
   /* Try to open the capture file. */
-  if ((err = open_cap_file(cf_name, FALSE, &cfile)) != 0) {
+  if ((err = cf_open(cf_name, FALSE, &cfile)) != 0) {
     /* We couldn't open it; don't dismiss the open dialog box,
        just leave it around so that the user can, after they
        dismiss the alert box popped up for the open error,
@@ -238,7 +238,7 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
     return;
   }
 
-  /* Attach the new read filter to "cf" ("open_cap_file()" succeeded, so
+  /* Attach the new read filter to "cf" ("cf_open()" succeeded, so
      it closed the previous capture file, and thus destroyed any
      previous read filter attached to "cf"). */
   cfile.rfcode = rfcode;
@@ -256,7 +256,7 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   gtk_widget_hide(GTK_WIDGET (fs));
   gtk_widget_destroy(GTK_WIDGET (fs));
 
-  switch (read_cap_file(&cfile, &err)) {
+  switch (cf_read(&cfile, &err)) {
 
   case READ_SUCCESS:
   case READ_ERROR:
@@ -294,7 +294,7 @@ file_open_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 /* Close a file */
 void
 file_close_cmd_cb(GtkWidget *widget _U_, gpointer data _U_) {
-  close_cap_file(&cfile);
+  cf_close(&cfile);
 }
 
 void
@@ -591,7 +591,7 @@ file_save_as_ok_cb(GtkWidget *w _U_, GtkFileSelection *fs) {
   /* Write out the packets (all, or only the ones that are currently
      displayed or marked) to the file with the specified name. */
 
-  if (! save_cap_file(cf_name, &cfile, filtered, marked, filetype)) {
+  if (! cf_save(cf_name, &cfile, filtered, marked, filetype)) {
     /* The write failed; don't dismiss the open dialog box,
        just leave it around so that the user can, after they
        dismiss the alert box popped up for the error, try again. */
@@ -628,21 +628,21 @@ file_reload_cmd_cb(GtkWidget *w, gpointer data _U_) {
     g_free(cfile.dfilter);
   cfile.dfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te)));
 
-  /* If the file could be opened, "open_cap_file()" calls "close_cap_file()"
+  /* If the file could be opened, "cf_open()" calls "cf_close()"
      to get rid of state for the old capture file before filling in state
-     for the new capture file.  "close_cap_file()" will remove the file if
+     for the new capture file.  "cf_close()" will remove the file if
      it's a temporary file; we don't want that to happen (for one thing,
      it'd prevent subsequent reopens from working).  Remember whether it's
      a temporary file, mark it as not being a temporary file, and then
      reopen it as the type of file it was.
 
-     Also, "close_cap_file()" will free "cfile.filename", so we must make
+     Also, "cf_close()" will free "cfile.filename", so we must make
      a copy of it first. */
   filename = g_strdup(cfile.filename);
   is_tempfile = cfile.is_tempfile;
   cfile.is_tempfile = FALSE;
-  if (open_cap_file(filename, is_tempfile, &cfile) == 0) {
-    switch (read_cap_file(&cfile, &err)) {
+  if (cf_open(filename, is_tempfile, &cfile) == 0) {
+    switch (cf_read(&cfile, &err)) {
 
     case READ_SUCCESS:
     case READ_ERROR:
@@ -664,11 +664,11 @@ file_reload_cmd_cb(GtkWidget *w, gpointer data _U_) {
        Instead, the file was left open, so we should restore "cfile.is_tempfile"
        ourselves.
 
-       XXX - change the menu?  Presumably "open_cap_file()" will do that;
+       XXX - change the menu?  Presumably "cf_open()" will do that;
        make sure it does! */
     cfile.is_tempfile = is_tempfile;
   }
-  /* "open_cap_file()" made a copy of the file name we handed it, so
+  /* "cf_open()" made a copy of the file name we handed it, so
      we should free up our copy. */
   g_free(filename);
 }

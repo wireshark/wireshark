@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.196 2003/09/10 22:23:58 guy Exp $
+ * $Id: tethereal.c,v 1.197 2003/09/15 22:48:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1344,7 +1344,7 @@ main(int argc, char *argv[])
   }
   cfile.rfcode = rfcode;
   if (cf_name) {
-    err = open_cap_file(cf_name, FALSE, &cfile);
+    err = cf_open(cf_name, FALSE, &cfile);
     if (err != 0) {
       epan_cleanup();
       exit(2);
@@ -2664,7 +2664,7 @@ file_open_error_message(int err, gboolean for_writing, int file_type)
 }
 
 int
-open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
+cf_open(char *fname, gboolean is_tempfile, capture_file *cf)
 {
   wtap       *wth;
   int         err;

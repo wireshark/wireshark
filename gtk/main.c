@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.312 2003/09/15 20:45:19 guy Exp $
+ * $Id: main.c,v 1.313 2003/09/15 22:48:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1193,7 +1193,7 @@ do_quit(void)
 		/* Close any capture file we have open; on some OSes, you
 		   can't unlink a temporary capture file if you have it
 		   open.
-		   "close_cap_file()" will unlink it after closing it if
+		   "cf_close()" will unlink it after closing it if
 		   it's a temporary file.
 
 		   We do this here, rather than after the main loop returns,
@@ -1201,7 +1201,7 @@ do_quit(void)
 		   been destroyed (if this is called due to a "destroy"
 		   even on the main window rather than due to the user
 		   selecting a menu item), and there may be a crash
-		   or other problem when "close_cap_file()" tries to
+		   or other problem when "cf_close()" tries to
 		   clean up stuff in the main window.
 
 		   XXX - is there a better place to put this?
@@ -1210,7 +1210,7 @@ do_quit(void)
 		   which we'd call here, and another routine that
 		   calls that routine and also cleans up the UI, which
 		   we'd call elsewhere? */
-		close_cap_file(&cfile);
+		cf_close(&cfile);
 
 		/* Exit by leaving the main loop, so that any quit functions
 		   we registered get called. */
@@ -2276,12 +2276,12 @@ main(int argc, char *argv[])
         }
       }
       if (!rfilter_parse_failed) {
-        if ((err = open_cap_file(cf_name, FALSE, &cfile)) == 0) {
-          /* "open_cap_file()" succeeded, so it closed the previous
+        if ((err = cf_open(cf_name, FALSE, &cfile)) == 0) {
+          /* "cf_open()" succeeded, so it closed the previous
 	     capture file, and thus destroyed any previous read filter
 	     attached to "cf". */
           cfile.rfcode = rfcode;
-          switch (read_cap_file(&cfile, &err)) {
+          switch (cf_read(&cfile, &err)) {
 
           case READ_SUCCESS:
           case READ_ERROR:
