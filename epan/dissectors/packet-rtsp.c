@@ -366,7 +366,7 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 	while (*tmp && isspace(*tmp))
 		tmp++;
 	if (strncasecmp(tmp, rtsp_rtp, strlen(rtsp_rtp)) != 0) {
-		g_warning("Frame %u: rtsp: unknown transport", pinfo->fd->num);
+		g_warning("Frame %u: rtsp: unknown transport %s", pinfo->fd->num, tmp);
 		return;
 	}
 
