@@ -134,6 +134,8 @@ CLEANFILES =		\
 	../ethereal-filter.html \
 	../ethereal.1	\
 	../ethereal.html	\
+	../capinfo.1	\
+	../capinfo.html	\
 	../editcap.1	\
 	../editcap.html	\
 	../mergecap.1	\
