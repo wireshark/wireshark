@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.103 2003/11/16 23:17:24 guy Exp $
+ * $Id: proto.c,v 1.104 2003/11/20 05:20:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1278,9 +1278,7 @@ proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length
 	}
 
 	/* This memory is freed in proto_tree_free_node() */
-	string = g_malloc(length + 1);
-	tvb_memcpy(tvb, string, start, length);
-	string[length] = '\0';
+	string = tvb_get_string(tvb, start, length);
 	proto_tree_set_string(fi, string, TRUE);
 }
 
