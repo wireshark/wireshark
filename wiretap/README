@@ -1,4 +1,4 @@
-$Id: README,v 1.11 1999/03/01 18:57:02 gram Exp $
+$Id: README,v 1.12 1999/03/01 20:35:33 guy Exp $
 
 Wiretap is a library that is being developed as a future replacement for
 libpcap, the current standard Unix library for packet capturing. Libpcap is
@@ -32,7 +32,7 @@ SunOS has NIT and Solaris has DLPI, which both use the CMU/Stanford
 packet-filter psuedomachine. RMON has another type of packet-filter syntax
 which we could support.
 
-Wiretap is very good at reading may file formats, as per #2
+Wiretap is very good at reading many file formats, as per #2
 above. Display filters are now appearing in wiretap, but they are
 still basic. Development is continuing on the BPF compiler, so display
 filters will continue to be enhanced. Wiretap can't capture packets yet,
@@ -106,10 +106,10 @@ if possible).
 Sniffer Basic (NetXRay)/Windows Sniffer Pro
 -------------------------------------------
 Network Associates' Sniffer Basic (formerly NetXRay from Cinco Networks)
-file format is now partially supported; only Ethernet captures can be
-read, and the packet time stamp isn't correctly computed.  Network
-Associates' Windows Sniffer Pro appears to use a variant of that format;
-it's supported to the same extent.
+file format is now partially supported; only Ethernet and Token Ring
+captures can be read, and the packet time stamp isn't correctly
+computed.  Network Associates' Windows Sniffer Pro appears to use a
+variant of that format; it's supported to the same extent.
 
 Gilbert Ramirez <gram@verdict.uthscsa.edu>
 Guy Harris <guy@netapp.com>
