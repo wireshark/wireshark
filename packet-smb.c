@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.33 1999/10/26 21:30:11 sharpe Exp $
+ * $Id: packet-smb.c,v 1.34 1999/10/27 19:30:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -39,6 +39,7 @@
 # include <netinet/in.h>
 #endif
 
+#include <time.h>
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
