@@ -1,7 +1,7 @@
 /* print.h
  * Definitions for printing packet analysis trees.
  *
- * $Id: print.h,v 1.22 2001/06/08 08:50:49 guy Exp $
+ * $Id: print.h,v 1.23 2001/07/17 05:32:43 hagbard Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -43,6 +43,11 @@ typedef struct {
 				   FALSE if we should print only if not dissected. */
   gboolean	expand_all;	/* TRUE if we should expand all levels;
 				   FALSE if we should expand as displayed. */
+  gboolean      suppress_unmarked; /* TRUE if we should suppress unmarked 
+				     frames FALSE if we should allow 
+				     both marked and unmarked frames to be 
+				     printed.
+				  */
 } print_args_t;
 
 /* Functions in print.h */

@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.23 2001/06/08 08:50:51 guy Exp $
+ * $Id: print_dlg.c,v 1.24 2001/07/17 05:32:44 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,6 +67,7 @@ static gint	print_format = PR_FMT_TEXT;
 #define PRINT_HEX_CB_KEY          "printer_hex_check_button"
 #define PRINT_EXPAND_ALL_RB_KEY   "printer_expand_all_radio_button"
 #define PRINT_AS_DISPLAYED_RB_KEY "printer_as_displayed_radio_button"
+#define PRINT_SUPPRESS_UNMARKED_CB_KEY "printer_suppress_unmarked_check_button"
 
 #define E_FS_CALLER_PTR_KEY       "fs_caller_ptr"
 #define E_FILE_SEL_DIALOG_PTR_KEY "file_sel_dialog_ptr"
@@ -93,7 +94,7 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   GtkWidget     *file_bt_hb, *file_bt, *file_te;
   GSList        *dest_grp;
   GtkWidget     *options_hb;
-  GtkWidget     *print_type_vb, *summary_rb, *detail_rb, *hex_cb;
+  GtkWidget     *print_type_vb, *summary_rb, *detail_rb, *hex_cb,*marked_cb;
   GSList        *summary_grp;
   GtkWidget     *expand_vb, *expand_all_rb, *as_displayed_rb;
   GSList        *expand_grp;
@@ -251,6 +252,13 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   gtk_container_add(GTK_CONTAINER(print_type_vb), hex_cb);
   gtk_widget_show(hex_cb);
 
+  /* "Suppress Unmarked" check button. */
+  marked_cb = dlg_check_button_new_with_label_with_mnemonic("Suppress _unmarked frames",
+				accel_group);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(marked_cb), FALSE);
+  gtk_container_add(GTK_CONTAINER(print_type_vb), marked_cb);
+  gtk_widget_show(marked_cb);
+
   /* Vertical box into which to put the "Expand all levels"/"Print as displayed"
      radio buttons. */
   expand_vb = gtk_vbox_new(FALSE, 5);
@@ -293,6 +301,7 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_SUMMARY_RB_KEY, summary_rb);
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_HEX_CB_KEY, hex_cb);
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_EXPAND_ALL_RB_KEY, expand_all_rb);
+  gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_SUPPRESS_UNMARKED_CB_KEY, marked_cb);
   gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
     GTK_SIGNAL_FUNC(print_ok_cb), GTK_OBJECT(print_w));
   GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
@@ -490,6 +499,10 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
                                               PRINT_EXPAND_ALL_RB_KEY);
   print_args.expand_all = GTK_TOGGLE_BUTTON (button)->active;
 
+  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(ok_bt),
+                                              PRINT_SUPPRESS_UNMARKED_CB_KEY);
+  print_args.suppress_unmarked = GTK_TOGGLE_BUTTON (button)->active;
+
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 
   /* Now print the packets */
@@ -575,6 +588,7 @@ file_print_packet_cmd_cb(GtkWidget *widget, gpointer data) {
   print_args.print_summary = FALSE;
   print_args.print_hex = FALSE;
   print_args.expand_all = TRUE;
+  print_args.suppress_unmarked = FALSE;
   proto_tree_print(TRUE, &print_args, (GNode*) cfile.protocol_tree,
 		cfile.current_frame, fh);
   print_finale(fh, prefs.pr_format);
