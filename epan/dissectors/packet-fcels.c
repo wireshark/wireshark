@@ -193,8 +193,8 @@ static dissector_handle_t data_handle, fcsp_handle;
 static gint
 fcels_equal(gconstpointer v, gconstpointer w)
 {
-  fcels_conv_key_t *v1 = (fcels_conv_key_t *)v;
-  fcels_conv_key_t *v2 = (fcels_conv_key_t *)w;
+  const fcels_conv_key_t *v1 = v;
+  const fcels_conv_key_t *v2 = w;
 
   return (v1->conv_idx == v2->conv_idx);
 }
@@ -202,7 +202,7 @@ fcels_equal(gconstpointer v, gconstpointer w)
 static guint
 fcels_hash (gconstpointer v)
 {
-	fcels_conv_key_t *key = (fcels_conv_key_t *)v;
+	const fcels_conv_key_t *key = v;
 	guint val;
 
 	val = key->conv_idx;

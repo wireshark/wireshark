@@ -108,8 +108,8 @@ static dissector_handle_t data_handle;
 static gint
 fcfzs_equal(gconstpointer v, gconstpointer w)
 {
-  fcfzs_conv_key_t *v1 = (fcfzs_conv_key_t *)v;
-  fcfzs_conv_key_t *v2 = (fcfzs_conv_key_t *)w;
+  const fcfzs_conv_key_t *v1 = v;
+  const fcfzs_conv_key_t *v2 = w;
 
   return (v1->conv_idx == v2->conv_idx);
 }
@@ -117,7 +117,7 @@ fcfzs_equal(gconstpointer v, gconstpointer w)
 static guint
 fcfzs_hash (gconstpointer v)
 {
-	fcfzs_conv_key_t *key = (fcfzs_conv_key_t *)v;
+	const fcfzs_conv_key_t *key = v;
 	guint val;
 
 	val = key->conv_idx;

@@ -481,8 +481,8 @@ typedef struct
 /* Equal keys */
 gint sip_equal(gconstpointer v, gconstpointer v2)
 {
-	const sip_hash_key* val1 = (sip_hash_key*)v;
-	const sip_hash_key* val2 = (sip_hash_key*)v2;
+	const sip_hash_key* val1 = v;
+	const sip_hash_key* val2 = v2;
 
 	/* Call id must match */
 	if (strcmp(val1->call_id, val2->call_id) != 0)
@@ -502,7 +502,7 @@ gint sip_equal(gconstpointer v, gconstpointer v2)
 guint sip_hash_func(gconstpointer v)
 {
 	gint n;
-	sip_hash_key *key = (sip_hash_key*)v;
+	const sip_hash_key *key = v;
 	guint value = strlen(key->call_id);
 	gint chars_to_use = value / 4;
 

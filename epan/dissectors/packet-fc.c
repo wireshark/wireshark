@@ -166,8 +166,8 @@ static guint32 fc_exchange_init_count = 200;
 static gint
 fcseq_equal(gconstpointer v, gconstpointer w)
 {
-  fcseq_conv_key_t *v1 = (fcseq_conv_key_t *)v;
-  fcseq_conv_key_t *v2 = (fcseq_conv_key_t *)w;
+  const fcseq_conv_key_t *v1 = v;
+  const fcseq_conv_key_t *v2 = w;
 
   return (v1->conv_idx == v2->conv_idx);
 }
@@ -175,7 +175,7 @@ fcseq_equal(gconstpointer v, gconstpointer w)
 static guint
 fcseq_hash (gconstpointer v)
 {
-    fcseq_conv_key_t *key = (fcseq_conv_key_t *)v;
+    const fcseq_conv_key_t *key = v;
     guint val;
     
     val = key->conv_idx;

@@ -108,8 +108,8 @@ guint32 fcp_init_count = 25;
 static gint
 fcp_equal(gconstpointer v, gconstpointer w)
 {
-  fcp_conv_key_t *v1 = (fcp_conv_key_t *)v;
-  fcp_conv_key_t *v2 = (fcp_conv_key_t *)w;
+  const fcp_conv_key_t *v1 = v;
+  const fcp_conv_key_t *v2 = w;
 
   return (v1->conv_idx == v2->conv_idx);
 }
@@ -117,7 +117,7 @@ fcp_equal(gconstpointer v, gconstpointer w)
 static guint
 fcp_hash (gconstpointer v)
 {
-	fcp_conv_key_t *key = (fcp_conv_key_t *)v;
+	const fcp_conv_key_t *key = v;
 	guint val;
 
 	val = key->conv_idx;
