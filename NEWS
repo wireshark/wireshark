@@ -1,4 +1,4 @@
-$Id: NEWS,v 1.145 2004/05/13 09:04:14 ulfl Exp $
+$Id: NEWS,v 1.146 2004/05/13 20:02:24 gerald Exp $
 
 == May ??, 2004
 
@@ -27,11 +27,14 @@ New and updated features
 
   Compressed and chunked transfer-coded HTTP bodies are now decoded.
 
+  A new generic media dissector more cleanly handles HTTP and WSP
+  Content-Type information.
+
 
 New protocol support
 
-  ANSI IS-801, BEA Tuxedo, DCERPC EFS, DICOM, GPRS LLC, GPRS SNDCP,  IEEE
-  1588/PTP, PVSTP, RTPS
+  ANSI IS-801, BEA Tuxedo, DCERPC EFS, DICOM, GPRS LLC, GPRS SNDCP,
+  IEEE 1588/PTP, PVSTP, RTPS, WBXML OPAQUE
 
 
 Updated protocol support
@@ -81,7 +84,7 @@ SMB,
 SPNEGO,
 TCP,
 Time,
-WBXML,
+WBXML (EMN, SI, WV-CSP),
 WCCP,
 WSP,
 X11,
