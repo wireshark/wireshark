@@ -347,7 +347,7 @@ static const value_string CriteriaItem_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice CriteriaItem_choice[] = {
+static const ber_choice_t CriteriaItem_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_equality },
   {   1, BER_CLASS_CON, 1, 0, dissect_substrings },
   {   2, BER_CLASS_CON, 2, 0, dissect_greaterOrEqual },
@@ -367,7 +367,7 @@ static int dissect_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
   return dissect_x509sat_CriteriaItem(FALSE, tvb, offset, pinfo, tree, hf_x509sat_type);
 }
 
-static const ber_sequence SET_OF_Criteria_set_of[1] = {
+static const ber_sequence_t SET_OF_Criteria_set_of[1] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_and_item },
 };
 
@@ -394,7 +394,7 @@ const value_string Criteria_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice Criteria_choice[] = {
+static const ber_choice_t Criteria_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_type },
   {   1, BER_CLASS_CON, 1, 0, dissect_and },
   {   2, BER_CLASS_CON, 2, 0, dissect_or },
@@ -450,7 +450,7 @@ static int dissect_subset(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
   return dissect_x509sat_T_subset(FALSE, tvb, offset, pinfo, tree, hf_x509sat_subset);
 }
 
-static const ber_sequence EnhancedGuide_sequence[] = {
+static const ber_sequence_t EnhancedGuide_sequence[] = {
   { BER_CLASS_CON, 0, 0, dissect_objectClass },
   { BER_CLASS_CON, 1, BER_FLAGS_NOTCHKTAG, dissect_criteria },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_subset },
@@ -465,7 +465,7 @@ dissect_x509sat_EnhancedGuide(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
   return offset;
 }
 
-static const ber_sequence PostalAddress_sequence_of[1] = {
+static const ber_sequence_t PostalAddress_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_PostalAddress_item },
 };
 
@@ -509,7 +509,7 @@ static int dissect_answerback(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_x509sat_PrintableString(FALSE, tvb, offset, pinfo, tree, hf_x509sat_answerback);
 }
 
-static const ber_sequence TelexNumber_sequence[] = {
+static const ber_sequence_t TelexNumber_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_telexNumber },
   { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_countryCode },
   { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_answerback },
@@ -524,7 +524,7 @@ dissect_x509sat_TelexNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
   return offset;
 }
 
-static const ber_sequence FacsimileTelephoneNumber_sequence[] = {
+static const ber_sequence_t FacsimileTelephoneNumber_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_telephoneNumber },
   { 0, 0, 0, NULL }
 };
@@ -593,7 +593,7 @@ static int dissect_PreferredDeliveryMethod_item(packet_info *pinfo, proto_tree *
   return dissect_x509sat_PreferredDeliveryMethod_item(FALSE, tvb, offset, pinfo, tree, hf_x509sat_PreferredDeliveryMethod_item);
 }
 
-static const ber_sequence PreferredDeliveryMethod_sequence_of[1] = {
+static const ber_sequence_t PreferredDeliveryMethod_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_PreferredDeliveryMethod_item },
 };
 
@@ -638,7 +638,7 @@ static int dissect_final1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
   return dissect_x509sat_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_x509sat_final1);
 }
 
-static const ber_sequence SET_OF_OCTET_STRING_set_of[1] = {
+static const ber_sequence_t SET_OF_OCTET_STRING_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_nAddresses_item },
 };
 
@@ -653,7 +653,7 @@ static int dissect_nAddresses(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_x509sat_SET_OF_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_x509sat_nAddresses);
 }
 
-static const ber_sequence PresentationAddress_sequence[] = {
+static const ber_sequence_t PresentationAddress_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_pSelector },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_sSelector },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_tSelector },
@@ -669,7 +669,7 @@ dissect_x509sat_PresentationAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, in
   return offset;
 }
 
-static const ber_sequence SET_OF_OBJECT_IDENTIFIER_set_of[1] = {
+static const ber_sequence_t SET_OF_OBJECT_IDENTIFIER_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_profiles_item },
 };
 
@@ -684,7 +684,7 @@ static int dissect_profiles(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_x509sat_SET_OF_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_x509sat_profiles);
 }
 
-static const ber_sequence ProtocolInformation_sequence[] = {
+static const ber_sequence_t ProtocolInformation_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_nAddress },
   { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_profiles },
   { 0, 0, 0, NULL }
@@ -698,7 +698,7 @@ dissect_x509sat_ProtocolInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, in
   return offset;
 }
 
-static const ber_sequence NameAndOptionalUID_sequence[] = {
+static const ber_sequence_t NameAndOptionalUID_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_dn },
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_uid },
   { 0, 0, 0, NULL }
@@ -712,7 +712,7 @@ dissect_x509sat_NameAndOptionalUID(gboolean implicit_tag _U_, tvbuff_t *tvb, int
   return offset;
 }
 
-static const ber_sequence SEQUNCE_OF_AttributeValueAssertion_sequence_of[1] = {
+static const ber_sequence_t SEQUNCE_OF_AttributeValueAssertion_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_attributeList_item },
 };
 
@@ -727,7 +727,7 @@ static int dissect_attributeList(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_x509sat_SEQUNCE_OF_AttributeValueAssertion(FALSE, tvb, offset, pinfo, tree, hf_x509sat_attributeList);
 }
 
-static const ber_sequence MultipleMatchingLocalities_sequence[] = {
+static const ber_sequence_t MultipleMatchingLocalities_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_matchingRuleUsed },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_attributeList },
   { 0, 0, 0, NULL }
@@ -750,7 +750,7 @@ static const value_string SubstringAssertion_item_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice SubstringAssertion_item_choice[] = {
+static const ber_choice_t SubstringAssertion_item_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_initial },
   {   1, BER_CLASS_CON, 1, 0, dissect_any },
   {   2, BER_CLASS_CON, 2, 0, dissect_final },
@@ -769,7 +769,7 @@ static int dissect_SubstringAssertion_item(packet_info *pinfo, proto_tree *tree,
   return dissect_x509sat_SubstringAssertion_item(FALSE, tvb, offset, pinfo, tree, hf_x509sat_SubstringAssertion_item);
 }
 
-static const ber_sequence SubstringAssertion_sequence_of[1] = {
+static const ber_sequence_t SubstringAssertion_sequence_of[1] = {
   { -1/*choice*/ , -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_SubstringAssertion_item },
 };
 
@@ -781,7 +781,7 @@ dissect_x509sat_SubstringAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb, int
   return offset;
 }
 
-static const ber_sequence CaseIgnoreListMatch_sequence_of[1] = {
+static const ber_sequence_t CaseIgnoreListMatch_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_CaseIgnoreListMatch_item },
 };
 
@@ -801,7 +801,7 @@ static const value_string OctetSubstringAssertion_item_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice OctetSubstringAssertion_item_choice[] = {
+static const ber_choice_t OctetSubstringAssertion_item_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_initial1 },
   {   1, BER_CLASS_CON, 1, 0, dissect_any1 },
   {   2, BER_CLASS_CON, 2, 0, dissect_final1 },
@@ -819,7 +819,7 @@ static int dissect_OctetSubstringAssertion_item(packet_info *pinfo, proto_tree *
   return dissect_x509sat_OctetSubstringAssertion_item(FALSE, tvb, offset, pinfo, tree, hf_x509sat_OctetSubstringAssertion_item);
 }
 
-static const ber_sequence OctetSubstringAssertion_sequence_of[1] = {
+static const ber_sequence_t OctetSubstringAssertion_sequence_of[1] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_OctetSubstringAssertion_item },
 };
 
@@ -831,7 +831,7 @@ dissect_x509sat_OctetSubstringAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb
   return offset;
 }
 
-static const ber_sequence ZonalSelect_sequence_of[1] = {
+static const ber_sequence_t ZonalSelect_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_ZonalSelect_item },
 };
 
@@ -886,7 +886,7 @@ static int dissect_at(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
   return dissect_x509sat_GeneralizedTime(FALSE, tvb, offset, pinfo, tree, hf_x509sat_at);
 }
 
-static const ber_sequence T_absolute_sequence[] = {
+static const ber_sequence_t T_absolute_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_startTime },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_endTime },
   { 0, 0, 0, NULL }
@@ -933,7 +933,7 @@ static int dissect_second1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
   return dissect_x509sat_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_x509sat_second1);
 }
 
-static const ber_sequence DayTime_sequence[] = {
+static const ber_sequence_t DayTime_sequence[] = {
   { BER_CLASS_CON, 0, 0, dissect_hour },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_minute },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_second1 },
@@ -954,7 +954,7 @@ static int dissect_endDayTime(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_x509sat_DayTime(FALSE, tvb, offset, pinfo, tree, hf_x509sat_endDayTime);
 }
 
-static const ber_sequence DayTimeBand_sequence[] = {
+static const ber_sequence_t DayTimeBand_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_startDayTime },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_endDayTime },
   { 0, 0, 0, NULL }
@@ -971,7 +971,7 @@ static int dissect_timesOfDay_item(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_x509sat_DayTimeBand(FALSE, tvb, offset, pinfo, tree, hf_x509sat_timesOfDay_item);
 }
 
-static const ber_sequence SET_OF_DayTimeBand_set_of[1] = {
+static const ber_sequence_t SET_OF_DayTimeBand_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_timesOfDay_item },
 };
 
@@ -986,7 +986,7 @@ static int dissect_timesOfDay(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_x509sat_SET_OF_DayTimeBand(FALSE, tvb, offset, pinfo, tree, hf_x509sat_timesOfDay);
 }
 
-static const ber_sequence SET_OF_INTEGER_set_of[1] = {
+static const ber_sequence_t SET_OF_INTEGER_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_intDay_item },
 };
 
@@ -1086,7 +1086,7 @@ const value_string NamedDay_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice NamedDay_choice[] = {
+static const ber_choice_t NamedDay_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_intNamedDays },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_bitNamedDays },
   { 0, 0, 0, 0, NULL }
@@ -1125,7 +1125,7 @@ const value_string XDayOf_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice XDayOf_choice[] = {
+static const ber_choice_t XDayOf_choice[] = {
   {   1, BER_CLASS_CON, 1, 0, dissect_first },
   {   2, BER_CLASS_CON, 2, 0, dissect_second },
   {   3, BER_CLASS_CON, 3, 0, dissect_third },
@@ -1153,7 +1153,7 @@ static const value_string T_days_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice T_days_choice[] = {
+static const ber_choice_t T_days_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_intDay },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_bitDay },
   {   2, BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_dayOf },
@@ -1220,7 +1220,7 @@ static const value_string T_weeks_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice T_weeks_choice[] = {
+static const ber_choice_t T_weeks_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_allWeeks },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_intWeek },
   {   2, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_bitWeek },
@@ -1274,7 +1274,7 @@ static const value_string T_months_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice T_months_choice[] = {
+static const ber_choice_t T_months_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_allMonths },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_intMonth },
   {   2, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_bitMonth },
@@ -1292,7 +1292,7 @@ static int dissect_months(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
   return dissect_x509sat_T_months(FALSE, tvb, offset, pinfo, tree, hf_x509sat_months);
 }
 
-static const ber_sequence Period_sequence[] = {
+static const ber_sequence_t Period_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_timesOfDay },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_days },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_weeks },
@@ -1312,7 +1312,7 @@ static int dissect_periodic_item(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_x509sat_Period(FALSE, tvb, offset, pinfo, tree, hf_x509sat_periodic_item);
 }
 
-static const ber_sequence SET_OF_Period_set_of[1] = {
+static const ber_sequence_t SET_OF_Period_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_periodic_item },
 };
 
@@ -1334,7 +1334,7 @@ static const value_string T_time_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice T_time_choice[] = {
+static const ber_choice_t T_time_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_absolute },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_periodic },
   { 0, 0, 0, 0, NULL }
@@ -1377,7 +1377,7 @@ static int dissect_timeZone(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_x509sat_TimeZone(FALSE, tvb, offset, pinfo, tree, hf_x509sat_timeZone);
 }
 
-static const ber_sequence TimeSpecification_sequence[] = {
+static const ber_sequence_t TimeSpecification_sequence[] = {
   { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_time },
   { BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_notThisTime },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_timeZone },
@@ -1392,7 +1392,7 @@ dissect_x509sat_TimeSpecification(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
   return offset;
 }
 
-static const ber_sequence T_between_sequence[] = {
+static const ber_sequence_t T_between_sequence[] = {
   { BER_CLASS_CON, 0, 0, dissect_startTime },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_endTime },
   { BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_entirely },
@@ -1418,7 +1418,7 @@ const value_string TimeAssertion_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice TimeAssertion_choice[] = {
+static const ber_choice_t TimeAssertion_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_now },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_at },
   {   2, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_between },
@@ -1440,7 +1440,7 @@ const value_string LocaleContextSyntax_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice LocaleContextSyntax_choice[] = {
+static const ber_choice_t LocaleContextSyntax_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_localeID1 },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_localeID2 },
   { 0, 0, 0, 0, NULL }

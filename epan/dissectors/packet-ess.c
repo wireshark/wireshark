@@ -197,7 +197,7 @@ static int dissect_allOrFirstTier_impl(packet_info *pinfo, proto_tree *tree, tvb
   return dissect_ess_AllOrFirstTier(TRUE, tvb, offset, pinfo, tree, hf_ess_allOrFirstTier);
 }
 
-static const ber_sequence SEQUNCE_OF_GeneralNames_sequence_of[1] = {
+static const ber_sequence_t SEQUNCE_OF_GeneralNames_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_receiptsTo_item },
 };
 
@@ -228,7 +228,7 @@ static const value_string ReceiptsFrom_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice ReceiptsFrom_choice[] = {
+static const ber_choice_t ReceiptsFrom_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_allOrFirstTier_impl },
   {   1, BER_CLASS_CON, 1, 0, dissect_receiptList_impl },
   { 0, 0, 0, 0, NULL }
@@ -245,7 +245,7 @@ static int dissect_receiptsFrom(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_ess_ReceiptsFrom(FALSE, tvb, offset, pinfo, tree, hf_ess_receiptsFrom);
 }
 
-static const ber_sequence ReceiptRequest_sequence[] = {
+static const ber_sequence_t ReceiptRequest_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_signedContentIdentifier },
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_receiptsFrom },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_receiptsTo },
@@ -289,7 +289,7 @@ static int dissect_originatorSignatureValue(packet_info *pinfo, proto_tree *tree
   return dissect_ess_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_ess_originatorSignatureValue);
 }
 
-static const ber_sequence Receipt_sequence[] = {
+static const ber_sequence_t Receipt_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_version },
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_contentType },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_signedContentIdentifier },
@@ -321,7 +321,7 @@ static int dissect_utf8String(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_ess_UTF8String(FALSE, tvb, offset, pinfo, tree, hf_ess_utf8String);
 }
 
-static const ber_sequence ContentHints_sequence[] = {
+static const ber_sequence_t ContentHints_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_UTF8String, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_contentDescription },
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_contentType },
   { 0, 0, 0, NULL }
@@ -344,7 +344,7 @@ dissect_ess_MsgSigDigest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
   return offset;
 }
 
-static const ber_sequence ContentReference_sequence[] = {
+static const ber_sequence_t ContentReference_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_contentType },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_signedContentIdentifier },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_originatorSignatureValue },
@@ -407,7 +407,7 @@ static const value_string ESSPrivacyMark_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice ESSPrivacyMark_choice[] = {
+static const ber_choice_t ESSPrivacyMark_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_pString },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_UTF8String, BER_FLAGS_NOOWNTAG, dissect_utf8String },
   { 0, 0, 0, 0, NULL }
@@ -447,7 +447,7 @@ static int dissect_value_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_ess_T_value(TRUE, tvb, offset, pinfo, tree, hf_ess_value);
 }
 
-static const ber_sequence SecurityCategory_sequence[] = {
+static const ber_sequence_t SecurityCategory_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_type_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_value_impl },
   { 0, 0, 0, NULL }
@@ -464,7 +464,7 @@ static int dissect_SecurityCategories_item(packet_info *pinfo, proto_tree *tree,
   return dissect_ess_SecurityCategory(FALSE, tvb, offset, pinfo, tree, hf_ess_SecurityCategories_item);
 }
 
-static const ber_sequence SecurityCategories_set_of[1] = {
+static const ber_sequence_t SecurityCategories_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_SecurityCategories_item },
 };
 
@@ -483,7 +483,7 @@ static const value_string EntityIdentifier_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice EntityIdentifier_choice[] = {
+static const ber_choice_t EntityIdentifier_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_issuerAndSerialNumber },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_subjectKeyIdentifier },
   { 0, 0, 0, 0, NULL }
@@ -533,7 +533,7 @@ static const value_string MLReceiptPolicy_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice MLReceiptPolicy_choice[] = {
+static const ber_choice_t MLReceiptPolicy_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_none_impl },
   {   1, BER_CLASS_CON, 1, 0, dissect_insteadOf_impl },
   {   2, BER_CLASS_CON, 2, 0, dissect_inAdditionTo_impl },
@@ -551,7 +551,7 @@ static int dissect_mlReceiptPolicy(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_ess_MLReceiptPolicy(FALSE, tvb, offset, pinfo, tree, hf_ess_mlReceiptPolicy);
 }
 
-static const ber_sequence MLData_sequence[] = {
+static const ber_sequence_t MLData_sequence[] = {
   { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_mailListIdentifier },
   { BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_expansionTime },
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_mlReceiptPolicy },
@@ -569,7 +569,7 @@ static int dissect_MLExpansionHistory_item(packet_info *pinfo, proto_tree *tree,
   return dissect_ess_MLData(FALSE, tvb, offset, pinfo, tree, hf_ess_MLExpansionHistory_item);
 }
 
-static const ber_sequence MLExpansionHistory_sequence_of[1] = {
+static const ber_sequence_t MLExpansionHistory_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_MLExpansionHistory_item },
 };
 
@@ -593,7 +593,7 @@ static int dissect_certHash(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_ess_Hash(FALSE, tvb, offset, pinfo, tree, hf_ess_certHash);
 }
 
-static const ber_sequence IssuerSerial_sequence[] = {
+static const ber_sequence_t IssuerSerial_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_issuer },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_serialNumber },
   { 0, 0, 0, NULL }
@@ -610,7 +610,7 @@ static int dissect_issuerSerial(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_ess_IssuerSerial(FALSE, tvb, offset, pinfo, tree, hf_ess_issuerSerial);
 }
 
-static const ber_sequence ESSCertID_sequence[] = {
+static const ber_sequence_t ESSCertID_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_certHash },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_issuerSerial },
   { 0, 0, 0, NULL }
@@ -627,7 +627,7 @@ static int dissect_certs_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_ess_ESSCertID(FALSE, tvb, offset, pinfo, tree, hf_ess_certs_item);
 }
 
-static const ber_sequence SEQUNCE_OF_ESSCertID_sequence_of[1] = {
+static const ber_sequence_t SEQUNCE_OF_ESSCertID_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_certs_item },
 };
 
@@ -642,7 +642,7 @@ static int dissect_certs(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
   return dissect_ess_SEQUNCE_OF_ESSCertID(FALSE, tvb, offset, pinfo, tree, hf_ess_certs);
 }
 
-static const ber_sequence SEQUNCE_OF_PolicyInformation_sequence_of[1] = {
+static const ber_sequence_t SEQUNCE_OF_PolicyInformation_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_policies_item },
 };
 
@@ -657,7 +657,7 @@ static int dissect_policies(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_ess_SEQUNCE_OF_PolicyInformation(FALSE, tvb, offset, pinfo, tree, hf_ess_policies);
 }
 
-static const ber_sequence SigningCertificate_sequence[] = {
+static const ber_sequence_t SigningCertificate_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_certs },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_policies },
   { 0, 0, 0, NULL }

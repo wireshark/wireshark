@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* ./packet-gsm_map.c                                                         */
-/* ../../tools/asn2eth.py -X -b -k -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn */
+/* ../../tools/asn2eth.py -X -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn */
 
 /* Input file: packet-gsm_map-template.c */
 
@@ -767,7 +767,7 @@ static int dissect_diagnosticInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t
   return dissect_gsm_map_OCTET_STRING_SIZE_1_200(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_diagnosticInfo);
 }
 
-static const ber_sequence PrivateExtension_sequence[] = {
+static const ber_sequence_t PrivateExtension_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
@@ -782,7 +782,7 @@ static int dissect_PrivateExtensionList_item(packet_info *pinfo, proto_tree *tre
   return dissect_gsm_map_PrivateExtension(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_PrivateExtensionList_item);
 }
 
-static const ber_sequence PrivateExtensionList_sequence_of[1] = {
+static const ber_sequence_t PrivateExtensionList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_PrivateExtensionList_item },
 };
 
@@ -797,7 +797,7 @@ static int dissect_privateExtensionList_impl(packet_info *pinfo, proto_tree *tre
   return dissect_gsm_map_PrivateExtensionList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_privateExtensionList);
 }
 
-static const ber_sequence PcsExtensions_sequence[] = {
+static const ber_sequence_t PcsExtensions_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
@@ -812,7 +812,7 @@ static int dissect_pcsExtensions_impl(packet_info *pinfo, proto_tree *tree, tvbu
   return dissect_gsm_map_PcsExtensions(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_pcsExtensions);
 }
 
-static const ber_sequence ExtensionContainer_sequence[] = {
+static const ber_sequence_t ExtensionContainer_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_privateExtensionList_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pcsExtensions_impl },
   { 0, 0, 0, NULL }
@@ -832,7 +832,7 @@ static int dissect_extensionContainer_impl(packet_info *pinfo, proto_tree *tree,
   return dissect_gsm_map_ExtensionContainer(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_extensionContainer);
 }
 
-static const ber_sequence Bss_APDU_sequence[] = {
+static const ber_sequence_t Bss_APDU_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_protocolId },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_signalInfo },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -1092,7 +1092,7 @@ static int dissect_gprsConnectionSuspended(packet_info *pinfo, proto_tree *tree,
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_gprsConnectionSuspended);
 }
 
-static const ber_sequence Vlr_Capability_sequence[] = {
+static const ber_sequence_t Vlr_Capability_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_supportedCamelPhases_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_solsaSupportIndicator_impl },
@@ -1173,7 +1173,7 @@ static int dissect_vlr_number_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_gsm_map_Vlr_Number(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_vlr_number);
 }
 
-static const ber_sequence UpdateLocationArg_sequence[] = {
+static const ber_sequence_t UpdateLocationArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_imsi },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_msc_Number_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_vlr_Number },
@@ -1203,7 +1203,7 @@ static int dissect_hlr_Number(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_gsm_map_Hlr_Number(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_hlr_Number);
 }
 
-static const ber_sequence UpdateLocationRes_sequence[] = {
+static const ber_sequence_t UpdateLocationRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_hlr_Number },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -1253,7 +1253,7 @@ static int dissect_cancellationType(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_gsm_map_CancellationType(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_cancellationType);
 }
 
-static const ber_sequence T_imsi_WithLMSI_sequence[] = {
+static const ber_sequence_t T_imsi_WithLMSI_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_imsi },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_lmsi },
   { 0, 0, 0, NULL }
@@ -1277,7 +1277,7 @@ static const value_string T_identity_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice T_identity_choice[] = {
+static const ber_choice_t T_identity_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_imsi },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_imsi_WithLMSI },
   { 0, 0, 0, 0, NULL }
@@ -1294,7 +1294,7 @@ static int dissect_identity(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_gsm_map_T_identity(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_identity);
 }
 
-static const ber_sequence CancelLocationArg_sequence[] = {
+static const ber_sequence_t CancelLocationArg_sequence[] = {
   { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_identity },
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_cancellationType },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -1309,7 +1309,7 @@ dissect_gsm_map_CancelLocationArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
   return offset;
 }
 
-static const ber_sequence CancelLocationRes_sequence[] = {
+static const ber_sequence_t CancelLocationRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -1337,7 +1337,7 @@ static int dissect_sgsn_Number_impl(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_gsm_map_Sgsn_Number(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_sgsn_Number);
 }
 
-static const ber_sequence PurgeMS_Arg_sequence[] = {
+static const ber_sequence_t PurgeMS_Arg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_imsi },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_vlr_Number_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgsn_Number_impl },
@@ -1353,7 +1353,7 @@ dissect_gsm_map_PurgeMS_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
   return offset;
 }
 
-static const ber_sequence PurgeMS_Res_sequence[] = {
+static const ber_sequence_t PurgeMS_Res_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_freezeTMSI_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_freezeP_TMSI_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -1422,7 +1422,7 @@ static int dissect_groupKey_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_gsm_map_OCTET_STRING_SIZE_8(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_groupKey);
 }
 
-static const ber_sequence T_authenticationSetList_item_sequence[] = {
+static const ber_sequence_t T_authenticationSetList_item_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_rand },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_sres },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_kc },
@@ -1440,7 +1440,7 @@ static int dissect_authenticationSetList_item(packet_info *pinfo, proto_tree *tr
   return dissect_gsm_map_T_authenticationSetList_item(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_authenticationSetList_item);
 }
 
-static const ber_sequence T_authenticationSetList_sequence_of[1] = {
+static const ber_sequence_t T_authenticationSetList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_authenticationSetList_item },
 };
 
@@ -1455,7 +1455,7 @@ static int dissect_authenticationSetList(packet_info *pinfo, proto_tree *tree, t
   return dissect_gsm_map_T_authenticationSetList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_authenticationSetList);
 }
 
-static const ber_sequence SendIdentificationRes_sequence[] = {
+static const ber_sequence_t SendIdentificationRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_imsi },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_authenticationSetList },
   { 0, 0, 0, NULL }
@@ -1481,7 +1481,7 @@ static int dissect_targetCellId(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_gsm_map_OCTET_STRING_SIZE_5_7(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_targetCellId);
 }
 
-static const ber_sequence PrepareHO_Arg_sequence[] = {
+static const ber_sequence_t PrepareHO_Arg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_targetCellId },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ho_NumberNotRequired },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_bss_APDU },
@@ -1508,7 +1508,7 @@ static int dissect_handoverNumber(packet_info *pinfo, proto_tree *tree, tvbuff_t
   return dissect_gsm_map_T_handoverNumber(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_handoverNumber);
 }
 
-static const ber_sequence PrepareHO_Res_sequence[] = {
+static const ber_sequence_t PrepareHO_Res_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_handoverNumber },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_bss_APDU },
   { 0, 0, 0, NULL }
@@ -1534,7 +1534,7 @@ static int dissect_targetMSC_Number(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_gsm_map_T_targetMSC_Number(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_targetMSC_Number);
 }
 
-static const ber_sequence PrepareSubsequentHO_Arg_sequence[] = {
+static const ber_sequence_t PrepareSubsequentHO_Arg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_targetCellId },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_targetMSC_Number },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_bss_APDU },
@@ -1579,7 +1579,7 @@ static int dissect_auts(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
   return dissect_gsm_map_OCTET_STRING_SIZE_14(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_auts);
 }
 
-static const ber_sequence T_re_synchronisationInfo_sequence[] = {
+static const ber_sequence_t T_re_synchronisationInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_rand },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_auts },
   { 0, 0, 0, NULL }
@@ -1644,7 +1644,7 @@ static int dissect_lsaIdentityList_item(packet_info *pinfo, proto_tree *tree, tv
   return dissect_gsm_map_OCTET_STRING_SIZE_3(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_lsaIdentityList_item);
 }
 
-static const ber_sequence SendAuthenticationInfoArg_sequence[] = {
+static const ber_sequence_t SendAuthenticationInfoArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_numberOfRequestedVectors },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_segmentationProhibited },
@@ -1664,7 +1664,7 @@ dissect_gsm_map_SendAuthenticationInfoArg(gboolean implicit_tag _U_, tvbuff_t *t
   return offset;
 }
 
-static const ber_sequence SendAuthenticationInfoRes_item_sequence[] = {
+static const ber_sequence_t SendAuthenticationInfoRes_item_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_rand },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_sres },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_kc },
@@ -1682,7 +1682,7 @@ static int dissect_SendAuthenticationInfoRes_item(packet_info *pinfo, proto_tree
   return dissect_gsm_map_SendAuthenticationInfoRes_item(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_SendAuthenticationInfoRes_item);
 }
 
-static const ber_sequence SendAuthenticationInfoRes_sequence_of[1] = {
+static const ber_sequence_t SendAuthenticationInfoRes_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_SendAuthenticationInfoRes_item },
 };
 
@@ -1776,7 +1776,7 @@ static const value_string BasicService_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice BasicService_choice[] = {
+static const ber_choice_t BasicService_choice[] = {
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_bearerService_impl },
   {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_teleservice_impl },
   { 0, 0, 0, 0, NULL }
@@ -1799,7 +1799,7 @@ static int dissect_basicServiceGroup(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_gsm_map_BasicService(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_basicServiceGroup);
 }
 
-static const ber_sequence BasicServiceGroupList_sequence_of[1] = {
+static const ber_sequence_t BasicServiceGroupList_sequence_of[1] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_BasicServiceGroupList_item },
 };
 
@@ -1983,7 +1983,7 @@ static int dissect_defaultCallHandling_impl(packet_info *pinfo, proto_tree *tree
   return dissect_gsm_map_DefaultCallHandling(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_defaultCallHandling);
 }
 
-static const ber_sequence BcsmCamelTDPData_sequence[] = {
+static const ber_sequence_t BcsmCamelTDPData_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_bcsmTriggerDetectionPoint },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_serviceKey },
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsmSCFAddress_impl },
@@ -2003,7 +2003,7 @@ static int dissect_BcsmCamelTDPDataList_item(packet_info *pinfo, proto_tree *tre
   return dissect_gsm_map_BcsmCamelTDPData(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_BcsmCamelTDPDataList_item);
 }
 
-static const ber_sequence BcsmCamelTDPDataList_sequence_of[1] = {
+static const ber_sequence_t BcsmCamelTDPDataList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_BcsmCamelTDPDataList_item },
 };
 
@@ -2033,7 +2033,7 @@ static int dissect_camelCapabilityHandling_impl(packet_info *pinfo, proto_tree *
   return dissect_gsm_map_INTEGER_1_16(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_camelCapabilityHandling);
 }
 
-static const ber_sequence O_CSI_sequence[] = {
+static const ber_sequence_t O_CSI_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_o_BcsmCamelTDPDataList },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camelCapabilityHandling_impl },
@@ -2132,7 +2132,7 @@ static int dissect_bearerServiceList_item(packet_info *pinfo, proto_tree *tree, 
   return dissect_gsm_map_OCTET_STRING_SIZE_1_5(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_bearerServiceList_item);
 }
 
-static const ber_sequence SEQUNCE_SIZE_1_50_OF_OCTET_STRING_SIZE_1_5_sequence_of[1] = {
+static const ber_sequence_t SEQUNCE_SIZE_1_50_OF_OCTET_STRING_SIZE_1_5_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_bearerServiceList_item },
 };
 
@@ -2147,7 +2147,7 @@ static int dissect_bearerServiceList_impl(packet_info *pinfo, proto_tree *tree, 
   return dissect_gsm_map_SEQUNCE_SIZE_1_50_OF_OCTET_STRING_SIZE_1_5(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_bearerServiceList);
 }
 
-static const ber_sequence SEQUNCE_SIZE_1_20_OF_Teleservice_sequence_of[1] = {
+static const ber_sequence_t SEQUNCE_SIZE_1_20_OF_Teleservice_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_teleserviceList_item },
 };
 
@@ -2240,7 +2240,7 @@ static int dissect_noReplyConditionTime_impl(packet_info *pinfo, proto_tree *tre
   return dissect_gsm_map_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_noReplyConditionTime);
 }
 
-static const ber_sequence ForwardingFeatureList_sequence[] = {
+static const ber_sequence_t ForwardingFeatureList_sequence[] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_basicService },
   { BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_ss_Status_impl },
   { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_forwardedToNumber_impl },
@@ -2262,7 +2262,7 @@ static int dissect_forwardingFeatureList_item(packet_info *pinfo, proto_tree *tr
   return dissect_gsm_map_ForwardingFeatureList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_forwardingFeatureList_item);
 }
 
-static const ber_sequence SEQUNCE_SIZE_1_32_OF_ForwardingFeatureList_sequence_of[1] = {
+static const ber_sequence_t SEQUNCE_SIZE_1_32_OF_ForwardingFeatureList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_forwardingFeatureList_item },
 };
 
@@ -2277,7 +2277,7 @@ static int dissect_forwardingFeatureList(packet_info *pinfo, proto_tree *tree, t
   return dissect_gsm_map_SEQUNCE_SIZE_1_32_OF_ForwardingFeatureList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_forwardingFeatureList);
 }
 
-static const ber_sequence ForwardingInfo_sequence[] = {
+static const ber_sequence_t ForwardingInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ss_Code },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_forwardingFeatureList },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -2295,7 +2295,7 @@ static int dissect_forwardingInfo_impl(packet_info *pinfo, proto_tree *tree, tvb
   return dissect_gsm_map_ForwardingInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_forwardingInfo);
 }
 
-static const ber_sequence T_callBarringFeatureList_item_sequence[] = {
+static const ber_sequence_t T_callBarringFeatureList_item_sequence[] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_basicService },
   { BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_ss_Status_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -2313,7 +2313,7 @@ static int dissect_callBarringFeatureList_item(packet_info *pinfo, proto_tree *t
   return dissect_gsm_map_T_callBarringFeatureList_item(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_callBarringFeatureList_item);
 }
 
-static const ber_sequence T_callBarringFeatureList_sequence_of[1] = {
+static const ber_sequence_t T_callBarringFeatureList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_callBarringFeatureList_item },
 };
 
@@ -2328,7 +2328,7 @@ static int dissect_callBarringFeatureList(packet_info *pinfo, proto_tree *tree, 
   return dissect_gsm_map_T_callBarringFeatureList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_callBarringFeatureList);
 }
 
-static const ber_sequence CallBarringInfo_sequence[] = {
+static const ber_sequence_t CallBarringInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ss_Code },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_callBarringFeatureList },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -2367,7 +2367,7 @@ static int dissect_ageOfLocationEstimate_impl(packet_info *pinfo, proto_tree *tr
   return dissect_gsm_map_INTEGER_0_32767(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ageOfLocationEstimate);
 }
 
-static const ber_sequence T_cug_SubscriptionList_item_sequence[] = {
+static const ber_sequence_t T_cug_SubscriptionList_item_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_cug_Index },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_cug_Interlock },
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_intraCUG_Options },
@@ -2387,7 +2387,7 @@ static int dissect_cug_SubscriptionList_item(packet_info *pinfo, proto_tree *tre
   return dissect_gsm_map_T_cug_SubscriptionList_item(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_cug_SubscriptionList_item);
 }
 
-static const ber_sequence T_cug_SubscriptionList_sequence_of[1] = {
+static const ber_sequence_t T_cug_SubscriptionList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_cug_SubscriptionList_item },
 };
 
@@ -2402,7 +2402,7 @@ static int dissect_cug_SubscriptionList(packet_info *pinfo, proto_tree *tree, tv
   return dissect_gsm_map_T_cug_SubscriptionList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_cug_SubscriptionList);
 }
 
-static const ber_sequence T_cug_FeatureList_item_sequence[] = {
+static const ber_sequence_t T_cug_FeatureList_item_sequence[] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_basicService },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_preferentialCUG_Indicator },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_interCUG_Restrictions },
@@ -2421,7 +2421,7 @@ static int dissect_cug_FeatureList_item(packet_info *pinfo, proto_tree *tree, tv
   return dissect_gsm_map_T_cug_FeatureList_item(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_cug_FeatureList_item);
 }
 
-static const ber_sequence T_cug_FeatureList_sequence_of[1] = {
+static const ber_sequence_t T_cug_FeatureList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_cug_FeatureList_item },
 };
 
@@ -2436,7 +2436,7 @@ static int dissect_cug_FeatureList(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_gsm_map_T_cug_FeatureList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_cug_FeatureList);
 }
 
-static const ber_sequence T_cug_Info_sequence[] = {
+static const ber_sequence_t T_cug_Info_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_cug_SubscriptionList },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_cug_FeatureList },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -2480,7 +2480,7 @@ static const value_string Ss_SubscriptionOption_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice Ss_SubscriptionOption_choice[] = {
+static const ber_choice_t Ss_SubscriptionOption_choice[] = {
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_cliRestrictionOption_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_overrideCategory_impl },
   { 0, 0, 0, 0, NULL }
@@ -2497,7 +2497,7 @@ static int dissect_ss_SubscriptionOption(packet_info *pinfo, proto_tree *tree, t
   return dissect_gsm_map_Ss_SubscriptionOption(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ss_SubscriptionOption);
 }
 
-static const ber_sequence T_ss_Data2_sequence[] = {
+static const ber_sequence_t T_ss_Data2_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ss_Code },
   { BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_ss_Status_impl },
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ss_SubscriptionOption },
@@ -2544,7 +2544,7 @@ static int dissect_priority_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_gsm_map_INTEGER_0_15(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_priority);
 }
 
-static const ber_sequence T_emlpp_Info_sequence[] = {
+static const ber_sequence_t T_emlpp_Info_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_maximumentitledPriority },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_defaultPriority },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -2572,7 +2572,7 @@ static const value_string T_provisionedSS_item_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice T_provisionedSS_item_choice[] = {
+static const ber_choice_t T_provisionedSS_item_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_forwardingInfo_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_callBarringInfo_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_cug_Info_impl },
@@ -2592,7 +2592,7 @@ static int dissect_provisionedSS_item(packet_info *pinfo, proto_tree *tree, tvbu
   return dissect_gsm_map_T_provisionedSS_item(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_provisionedSS_item);
 }
 
-static const ber_sequence T_provisionedSS_sequence_of[1] = {
+static const ber_sequence_t T_provisionedSS_sequence_of[1] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_provisionedSS_item },
 };
 
@@ -2607,7 +2607,7 @@ static int dissect_provisionedSS_impl(packet_info *pinfo, proto_tree *tree, tvbu
   return dissect_gsm_map_T_provisionedSS(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_provisionedSS);
 }
 
-static const ber_sequence T_odb_Data_sequence[] = {
+static const ber_sequence_t T_odb_Data_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_odb_GeneralData },
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_odb_HPLMN_Data },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -2643,7 +2643,7 @@ static int dissect_regionalSubscriptionIdentifier_impl(packet_info *pinfo, proto
   return dissect_gsm_map_OCTET_STRING_SIZE_2(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_regionalSubscriptionIdentifier);
 }
 
-static const ber_sequence SEQUNCE_SIZE_1_10_OF_OCTET_STRING_SIZE_2_sequence_of[1] = {
+static const ber_sequence_t SEQUNCE_SIZE_1_10_OF_OCTET_STRING_SIZE_2_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_regionalSubscriptionData_item },
 };
 
@@ -2658,7 +2658,7 @@ static int dissect_regionalSubscriptionData_impl(packet_info *pinfo, proto_tree 
   return dissect_gsm_map_SEQUNCE_SIZE_1_10_OF_OCTET_STRING_SIZE_2(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_regionalSubscriptionData);
 }
 
-static const ber_sequence T_vbsSubscriptionData_item_sequence[] = {
+static const ber_sequence_t T_vbsSubscriptionData_item_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_groupid },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_broadcastInitEntitlement },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -2676,7 +2676,7 @@ static int dissect_vbsSubscriptionData_item(packet_info *pinfo, proto_tree *tree
   return dissect_gsm_map_T_vbsSubscriptionData_item(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_vbsSubscriptionData_item);
 }
 
-static const ber_sequence T_vbsSubscriptionData_sequence_of[1] = {
+static const ber_sequence_t T_vbsSubscriptionData_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_vbsSubscriptionData_item },
 };
 
@@ -2691,7 +2691,7 @@ static int dissect_vbsSubscriptionData_impl(packet_info *pinfo, proto_tree *tree
   return dissect_gsm_map_T_vbsSubscriptionData(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_vbsSubscriptionData);
 }
 
-static const ber_sequence T_vgcsSubscriptionData_item_sequence[] = {
+static const ber_sequence_t T_vgcsSubscriptionData_item_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_groupId },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -2708,7 +2708,7 @@ static int dissect_vgcsSubscriptionData_item(packet_info *pinfo, proto_tree *tre
   return dissect_gsm_map_T_vgcsSubscriptionData_item(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_vgcsSubscriptionData_item);
 }
 
-static const ber_sequence T_vgcsSubscriptionData_sequence_of[1] = {
+static const ber_sequence_t T_vgcsSubscriptionData_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_vgcsSubscriptionData_item },
 };
 
@@ -2723,7 +2723,7 @@ static int dissect_vgcsSubscriptionData_impl(packet_info *pinfo, proto_tree *tre
   return dissect_gsm_map_T_vgcsSubscriptionData(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_vgcsSubscriptionData);
 }
 
-static const ber_sequence SEQUNCE_SIZE_1_10_OF_OCTET_STRING_SIZE_1_sequence_of[1] = {
+static const ber_sequence_t SEQUNCE_SIZE_1_10_OF_OCTET_STRING_SIZE_1_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ss_EventList_item },
 };
 
@@ -2738,7 +2738,7 @@ static int dissect_ss_EventList(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_gsm_map_SEQUNCE_SIZE_1_10_OF_OCTET_STRING_SIZE_1(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ss_EventList);
 }
 
-static const ber_sequence T_ss_CamelData_sequence[] = {
+static const ber_sequence_t T_ss_CamelData_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ss_EventList },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_gsmSCF_Address },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -2756,7 +2756,7 @@ static int dissect_ss_CamelData(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_gsm_map_T_ss_CamelData(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ss_CamelData);
 }
 
-static const ber_sequence T_ss_CSI_sequence[] = {
+static const ber_sequence_t T_ss_CSI_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ss_CamelData },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -2803,7 +2803,7 @@ static int dissect_destinationNumberList_item(packet_info *pinfo, proto_tree *tr
   return dissect_gsm_map_T_destinationNumberList_item(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_destinationNumberList_item);
 }
 
-static const ber_sequence T_destinationNumberList_sequence_of[1] = {
+static const ber_sequence_t T_destinationNumberList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_destinationNumberList_item },
 };
 
@@ -2830,7 +2830,7 @@ static int dissect_destinationNumberLengthList_item(packet_info *pinfo, proto_tr
   return dissect_gsm_map_INTEGER_1_15(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_destinationNumberLengthList_item);
 }
 
-static const ber_sequence SEQUNCE_SIZE_1_3_OF_INTEGER_1_15_sequence_of[1] = {
+static const ber_sequence_t SEQUNCE_SIZE_1_3_OF_INTEGER_1_15_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_destinationNumberLengthList_item },
 };
 
@@ -2845,7 +2845,7 @@ static int dissect_destinationNumberLengthList_impl(packet_info *pinfo, proto_tr
   return dissect_gsm_map_SEQUNCE_SIZE_1_3_OF_INTEGER_1_15(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_destinationNumberLengthList);
 }
 
-static const ber_sequence DestinationNumberCriteria_sequence[] = {
+static const ber_sequence_t DestinationNumberCriteria_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_matchType_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationNumberList_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationNumberLengthList_impl },
@@ -2881,7 +2881,7 @@ static int dissect_callTypeCriteria_impl(packet_info *pinfo, proto_tree *tree, t
   return dissect_gsm_map_CallTypeCriteria(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_callTypeCriteria);
 }
 
-static const ber_sequence O_BcsmCamelTDP_CriteriaList_item_sequence[] = {
+static const ber_sequence_t O_BcsmCamelTDP_CriteriaList_item_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_o_BcsmTriggerDetectionPoint },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationNumberCriteria_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_basicServiceCriteria_impl },
@@ -2900,7 +2900,7 @@ static int dissect_O_BcsmCamelTDP_CriteriaList_item(packet_info *pinfo, proto_tr
   return dissect_gsm_map_O_BcsmCamelTDP_CriteriaList_item(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_O_BcsmCamelTDP_CriteriaList_item);
 }
 
-static const ber_sequence O_BcsmCamelTDP_CriteriaList_sequence_of[1] = {
+static const ber_sequence_t O_BcsmCamelTDP_CriteriaList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_O_BcsmCamelTDP_CriteriaList_item },
 };
 
@@ -2915,7 +2915,7 @@ static int dissect_o_BcsmCamelTDP_CriteriaList_impl(packet_info *pinfo, proto_tr
   return dissect_gsm_map_O_BcsmCamelTDP_CriteriaList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_o_BcsmCamelTDP_CriteriaList);
 }
 
-static const ber_sequence T_vlrCamelSubscriptionInfo_sequence[] = {
+static const ber_sequence_t T_vlrCamelSubscriptionInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_o_CSI_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ss_CSI_impl },
@@ -2935,7 +2935,7 @@ static int dissect_vlrCamelSubscriptionInfo_impl(packet_info *pinfo, proto_tree 
   return dissect_gsm_map_T_vlrCamelSubscriptionInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_vlrCamelSubscriptionInfo);
 }
 
-static const ber_sequence Naea_PreferredCI_sequence[] = {
+static const ber_sequence_t Naea_PreferredCI_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_naea_PreferredCIC_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -2991,7 +2991,7 @@ static int dissect_apn_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_gsm_map_OCTET_STRING_SIZE_2_63(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_apn);
 }
 
-static const ber_sequence T_gprsDataList_item_sequence[] = {
+static const ber_sequence_t T_gprsDataList_item_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pdp_ContextId },
   { BER_CLASS_CON, 16, BER_FLAGS_IMPLTAG, dissect_pdp_Type_impl },
   { BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pdp_Address_impl },
@@ -3013,7 +3013,7 @@ static int dissect_gprsDataList_item(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_gsm_map_T_gprsDataList_item(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_gprsDataList_item);
 }
 
-static const ber_sequence T_gprsDataList_sequence_of[1] = {
+static const ber_sequence_t T_gprsDataList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_gprsDataList_item },
 };
 
@@ -3028,7 +3028,7 @@ static int dissect_gprsDataList_impl(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_gsm_map_T_gprsDataList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_gprsDataList);
 }
 
-static const ber_sequence T_gprsSubscriptionData_sequence[] = {
+static const ber_sequence_t T_gprsSubscriptionData_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_completeDataListIncluded },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gprsDataList_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -3083,7 +3083,7 @@ static int dissect_lsaOnlyAccessIndicator_impl(packet_info *pinfo, proto_tree *t
   return dissect_gsm_map_T_lsaOnlyAccessIndicator(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lsaOnlyAccessIndicator);
 }
 
-static const ber_sequence T_lsaDataList_item_sequence[] = {
+static const ber_sequence_t T_lsaDataList_item_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_lsaIdentity_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lsaAttributes_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lsaActiveModeIndicator_impl },
@@ -3102,7 +3102,7 @@ static int dissect_lsaDataList_item(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_gsm_map_T_lsaDataList_item(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_lsaDataList_item);
 }
 
-static const ber_sequence T_lsaDataList_sequence_of[1] = {
+static const ber_sequence_t T_lsaDataList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_lsaDataList_item },
 };
 
@@ -3117,7 +3117,7 @@ static int dissect_lsaDataList_impl(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_gsm_map_T_lsaDataList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lsaDataList);
 }
 
-static const ber_sequence T_lsaInformation_sequence[] = {
+static const ber_sequence_t T_lsaInformation_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_completeDataListIncluded },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lsaOnlyAccessIndicator_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lsaDataList_impl },
@@ -3148,7 +3148,7 @@ static int dissect_gmlc_List_item(packet_info *pinfo, proto_tree *tree, tvbuff_t
   return dissect_gsm_map_T_gmlc_List_item(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_gmlc_List_item);
 }
 
-static const ber_sequence T_gmlc_List_sequence_of[1] = {
+static const ber_sequence_t T_gmlc_List_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_gmlc_List_item },
 };
 
@@ -3218,7 +3218,7 @@ static int dissect_locationEstimate_impl(packet_info *pinfo, proto_tree *tree, t
   return dissect_gsm_map_OCTET_STRING_SIZE_1_20(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_locationEstimate);
 }
 
-static const ber_sequence T_clientIdentity_sequence[] = {
+static const ber_sequence_t T_clientIdentity_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_externalAddress_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -3253,7 +3253,7 @@ static int dissect_gmlc_Restriction_impl(packet_info *pinfo, proto_tree *tree, t
   return dissect_gsm_map_T_gmlc_Restriction(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_gmlc_Restriction);
 }
 
-static const ber_sequence T_externalClientList_item_sequence[] = {
+static const ber_sequence_t T_externalClientList_item_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_clientIdentity },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gmlc_Restriction_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_notificationToMSUser_impl },
@@ -3272,7 +3272,7 @@ static int dissect_externalClientList_item(packet_info *pinfo, proto_tree *tree,
   return dissect_gsm_map_T_externalClientList_item(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_externalClientList_item);
 }
 
-static const ber_sequence T_externalClientList_sequence_of[1] = {
+static const ber_sequence_t T_externalClientList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_externalClientList_item },
 };
 
@@ -3308,7 +3308,7 @@ static int dissect_plmnClientList_item(packet_info *pinfo, proto_tree *tree, tvb
   return dissect_gsm_map_T_plmnClientList_item(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_plmnClientList_item);
 }
 
-static const ber_sequence T_plmnClientList_sequence_of[1] = {
+static const ber_sequence_t T_plmnClientList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_plmnClientList_item },
 };
 
@@ -3323,7 +3323,7 @@ static int dissect_plmnClientList_impl(packet_info *pinfo, proto_tree *tree, tvb
   return dissect_gsm_map_T_plmnClientList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_plmnClientList);
 }
 
-static const ber_sequence T_lcs_PrivacyExceptionList_item_sequence[] = {
+static const ber_sequence_t T_lcs_PrivacyExceptionList_item_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ss_Code },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ss_Status },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_notificationToMSUser_impl },
@@ -3344,7 +3344,7 @@ static int dissect_lcs_PrivacyExceptionList_item(packet_info *pinfo, proto_tree 
   return dissect_gsm_map_T_lcs_PrivacyExceptionList_item(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_lcs_PrivacyExceptionList_item);
 }
 
-static const ber_sequence T_lcs_PrivacyExceptionList_sequence_of[1] = {
+static const ber_sequence_t T_lcs_PrivacyExceptionList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_lcs_PrivacyExceptionList_item },
 };
 
@@ -3359,7 +3359,7 @@ static int dissect_lcs_PrivacyExceptionList_impl(packet_info *pinfo, proto_tree 
   return dissect_gsm_map_T_lcs_PrivacyExceptionList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcs_PrivacyExceptionList);
 }
 
-static const ber_sequence T_molr_List_item_sequence[] = {
+static const ber_sequence_t T_molr_List_item_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ss_Code },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ss_Status },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -3377,7 +3377,7 @@ static int dissect_molr_List_item(packet_info *pinfo, proto_tree *tree, tvbuff_t
   return dissect_gsm_map_T_molr_List_item(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_molr_List_item);
 }
 
-static const ber_sequence T_molr_List_sequence_of[1] = {
+static const ber_sequence_t T_molr_List_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_molr_List_item },
 };
 
@@ -3392,7 +3392,7 @@ static int dissect_molr_List_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
   return dissect_gsm_map_T_molr_List(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_molr_List);
 }
 
-static const ber_sequence T_lcsInformation_sequence[] = {
+static const ber_sequence_t T_lcsInformation_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gmlc_List_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lcs_PrivacyExceptionList_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_molr_List_impl },
@@ -3410,7 +3410,7 @@ static int dissect_lcsInformation_impl(packet_info *pinfo, proto_tree *tree, tvb
   return dissect_gsm_map_T_lcsInformation(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcsInformation);
 }
 
-static const ber_sequence InsertSubscriberDataArg_sequence[] = {
+static const ber_sequence_t InsertSubscriberDataArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_msisdn_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_category_impl },
@@ -3443,7 +3443,7 @@ dissect_gsm_map_InsertSubscriberDataArg(gboolean implicit_tag _U_, tvbuff_t *tvb
   return offset;
 }
 
-static const ber_sequence SEQUNCE_SIZE_1_30_OF_OCTET_STRING_SIZE_1_sequence_of[1] = {
+static const ber_sequence_t SEQUNCE_SIZE_1_30_OF_OCTET_STRING_SIZE_1_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ss_List_item },
 };
 
@@ -3478,7 +3478,7 @@ static int dissect_regionalSubscriptionResponse_impl(packet_info *pinfo, proto_t
   return dissect_gsm_map_RegionalSubscriptionResponse(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_regionalSubscriptionResponse);
 }
 
-static const ber_sequence InsertSubscriberDataRes_sequence[] = {
+static const ber_sequence_t InsertSubscriberDataRes_sequence[] = {
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_teleserviceList_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_bearerServiceList_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ss_List_impl },
@@ -3497,7 +3497,7 @@ dissect_gsm_map_InsertSubscriberDataRes(gboolean implicit_tag _U_, tvbuff_t *tvb
   return offset;
 }
 
-static const ber_sequence SEQUNCE_SIZE_1_50_OF_INTEGER_1_50_sequence_of[1] = {
+static const ber_sequence_t SEQUNCE_SIZE_1_50_OF_INTEGER_1_50_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_contextIdList_item },
 };
 
@@ -3519,7 +3519,7 @@ static const value_string T_gprsSubscriptionDataWithdraw_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice T_gprsSubscriptionDataWithdraw_choice[] = {
+static const ber_choice_t T_gprsSubscriptionDataWithdraw_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_allGPRSData },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_contextIdList },
   { 0, 0, 0, 0, NULL }
@@ -3536,7 +3536,7 @@ static int dissect_gprsSubscriptionDataWithdraw(packet_info *pinfo, proto_tree *
   return dissect_gsm_map_T_gprsSubscriptionDataWithdraw(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_gprsSubscriptionDataWithdraw);
 }
 
-static const ber_sequence SEQUNCE_SIZE_1_20_OF_OCTET_STRING_SIZE_3_sequence_of[1] = {
+static const ber_sequence_t SEQUNCE_SIZE_1_20_OF_OCTET_STRING_SIZE_3_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_lsaIdentityList_item },
 };
 
@@ -3558,7 +3558,7 @@ static const value_string T_lsaInformationWithdraw_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice T_lsaInformationWithdraw_choice[] = {
+static const ber_choice_t T_lsaInformationWithdraw_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_allLSAData },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_lsaIdentityList },
   { 0, 0, 0, 0, NULL }
@@ -3575,7 +3575,7 @@ static int dissect_lsaInformationWithdraw(packet_info *pinfo, proto_tree *tree, 
   return dissect_gsm_map_T_lsaInformationWithdraw(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_lsaInformationWithdraw);
 }
 
-static const ber_sequence DeleteSubscriberDataArg_sequence[] = {
+static const ber_sequence_t DeleteSubscriberDataArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_basicServiceList_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ss_List_impl },
@@ -3600,7 +3600,7 @@ dissect_gsm_map_DeleteSubscriberDataArg(gboolean implicit_tag _U_, tvbuff_t *tvb
   return offset;
 }
 
-static const ber_sequence DeleteSubscriberDataRes_sequence[] = {
+static const ber_sequence_t DeleteSubscriberDataRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_regionalSubscriptionResponse_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -3626,7 +3626,7 @@ static int dissect_hlr_List_item(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_gsm_map_OCTET_STRING_SIZE_3_8(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_hlr_List_item);
 }
 
-static const ber_sequence SEQUNCE_SIZE_1_50_OF_OCTET_STRING_SIZE_3_8_sequence_of[1] = {
+static const ber_sequence_t SEQUNCE_SIZE_1_50_OF_OCTET_STRING_SIZE_3_8_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_hlr_List_item },
 };
 
@@ -3641,7 +3641,7 @@ static int dissect_hlr_List(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_gsm_map_SEQUNCE_SIZE_1_50_OF_OCTET_STRING_SIZE_3_8(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_hlr_List);
 }
 
-static const ber_sequence ResetArg_sequence[] = {
+static const ber_sequence_t ResetArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_hlr_Number },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_hlr_List },
   { 0, 0, 0, NULL }
@@ -3655,7 +3655,7 @@ dissect_gsm_map_ResetArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
   return offset;
 }
 
-static const ber_sequence RestoreDataArg_sequence[] = {
+static const ber_sequence_t RestoreDataArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_imsi },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_lmsi },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -3671,7 +3671,7 @@ dissect_gsm_map_RestoreDataArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
   return offset;
 }
 
-static const ber_sequence RestoreDataRes_sequence[] = {
+static const ber_sequence_t RestoreDataRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_hlr_Number },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_msNotReachable },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -3722,7 +3722,7 @@ static int dissect_mobileNotReachableReason_impl(packet_info *pinfo, proto_tree 
   return dissect_gsm_map_INTEGER_0_255(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_mobileNotReachableReason);
 }
 
-static const ber_sequence ActivateTraceModeArg_sequence[] = {
+static const ber_sequence_t ActivateTraceModeArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_traceReference_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_traceType_impl },
@@ -3739,7 +3739,7 @@ dissect_gsm_map_ActivateTraceModeArg(gboolean implicit_tag _U_, tvbuff_t *tvb, i
   return offset;
 }
 
-static const ber_sequence ActivateTraceModeRes_sequence[] = {
+static const ber_sequence_t ActivateTraceModeRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
 };
@@ -3752,7 +3752,7 @@ dissect_gsm_map_ActivateTraceModeRes(gboolean implicit_tag _U_, tvbuff_t *tvb, i
   return offset;
 }
 
-static const ber_sequence DeactivateTraceModeArg_sequence[] = {
+static const ber_sequence_t DeactivateTraceModeArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_traceReference_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -3767,7 +3767,7 @@ dissect_gsm_map_DeactivateTraceModeArg(gboolean implicit_tag _U_, tvbuff_t *tvb,
   return offset;
 }
 
-static const ber_sequence DeactivateTraceModeRes_sequence[] = {
+static const ber_sequence_t DeactivateTraceModeRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
 };
@@ -3780,7 +3780,7 @@ dissect_gsm_map_DeactivateTraceModeRes(gboolean implicit_tag _U_, tvbuff_t *tvb,
   return offset;
 }
 
-static const ber_sequence Cug_CheckInfo_sequence[] = {
+static const ber_sequence_t Cug_CheckInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_cug_Interlock },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_cug_OutgoingAccess },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -3877,7 +3877,7 @@ static int dissect_forwardingReason_impl(packet_info *pinfo, proto_tree *tree, t
   return dissect_gsm_map_T_forwardingReason(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_forwardingReason);
 }
 
-static const ber_sequence T_camelInfo_sequence[] = {
+static const ber_sequence_t T_camelInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_supportedCamelPhases },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_suppress_T_CSI },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -3912,7 +3912,7 @@ static int dissect_ext_ProtocolId(packet_info *pinfo, proto_tree *tree, tvbuff_t
   return dissect_gsm_map_T_ext_ProtocolId(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ext_ProtocolId);
 }
 
-static const ber_sequence AdditionalSignalInfo_sequence[] = {
+static const ber_sequence_t AdditionalSignalInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_ext_ProtocolId },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_signalInfo },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -3930,7 +3930,7 @@ static int dissect_additionalSignalInfo_impl(packet_info *pinfo, proto_tree *tre
   return dissect_gsm_map_AdditionalSignalInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_additionalSignalInfo);
 }
 
-static const ber_sequence SendRoutingInfoArg_sequence[] = {
+static const ber_sequence_t SendRoutingInfoArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_msisdn_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cug_CheckInfo_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_numberOfForwarding_impl },
@@ -3972,7 +3972,7 @@ static int dissect_roamingNumber(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_gsm_map_RoamingNumber(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_roamingNumber);
 }
 
-static const ber_sequence ForwardingData_sequence[] = {
+static const ber_sequence_t ForwardingData_sequence[] = {
   { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_forwardedToNumber_impl },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_forwardedToSubaddress_impl },
   { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_forwardingOptions_impl },
@@ -4001,7 +4001,7 @@ static const value_string T_routingInfo_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice T_routingInfo_choice[] = {
+static const ber_choice_t T_routingInfo_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_roamingNumber },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_forwardingData },
   { 0, 0, 0, 0, NULL }
@@ -4018,7 +4018,7 @@ static int dissect_routingInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   return dissect_gsm_map_T_routingInfo(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_routingInfo);
 }
 
-static const ber_sequence T_t_CSI_sequence[] = {
+static const ber_sequence_t T_t_CSI_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_t_BcsmCamelTDPDataList },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camelCapabilityHandling_impl },
@@ -4036,7 +4036,7 @@ static int dissect_t_CSI_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_gsm_map_T_t_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_t_CSI);
 }
 
-static const ber_sequence T_gmscCamelSubscriptionInfo_sequence[] = {
+static const ber_sequence_t T_gmscCamelSubscriptionInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_t_CSI_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_o_CSI_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -4055,7 +4055,7 @@ static int dissect_gmscCamelSubscriptionInfo_impl(packet_info *pinfo, proto_tree
   return dissect_gsm_map_T_gmscCamelSubscriptionInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_gmscCamelSubscriptionInfo);
 }
 
-static const ber_sequence T_camelRoutingInfo_sequence[] = {
+static const ber_sequence_t T_camelRoutingInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_forwardingData },
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gmscCamelSubscriptionInfo_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -4080,7 +4080,7 @@ static const value_string T_extendedRoutingInfo_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice T_extendedRoutingInfo_choice[] = {
+static const ber_choice_t T_extendedRoutingInfo_choice[] = {
   {   0, BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_routingInfo },
   {   1, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_camelRoutingInfo_impl },
   { 0, 0, 0, 0, NULL }
@@ -4140,7 +4140,7 @@ static const value_string T_cellIdOrLAI_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice T_cellIdOrLAI_choice[] = {
+static const ber_choice_t T_cellIdOrLAI_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_cellIdFixedLength_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_laiFixedLength_impl },
   { 0, 0, 0, 0, NULL }
@@ -4157,7 +4157,7 @@ static int dissect_cellIdOrLAI(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   return dissect_gsm_map_T_cellIdOrLAI(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_cellIdOrLAI);
 }
 
-static const ber_sequence LocationInformation_sequence[] = {
+static const ber_sequence_t LocationInformation_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ageOfLocationInformation },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_geographicalInformation_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_vlr_number_impl },
@@ -4186,7 +4186,7 @@ static const value_string SubscriberState_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice SubscriberState_choice[] = {
+static const ber_choice_t SubscriberState_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_assumedIdle_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_camelBusy_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_notProvidedFromVLR_impl },
@@ -4204,7 +4204,7 @@ static int dissect_subscriberState(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_gsm_map_SubscriberState(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_subscriberState);
 }
 
-static const ber_sequence SubscriberInfo_sequence[] = {
+static const ber_sequence_t SubscriberInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationInformation_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_subscriberState },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -4237,7 +4237,7 @@ static int dissect_vmsc_Address_impl(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_gsm_map_T_vmsc_Address(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_vmsc_Address);
 }
 
-static const ber_sequence T_ccbs_Indicators_sequence[] = {
+static const ber_sequence_t T_ccbs_Indicators_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ccbs_Possible_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_keepCCBS_CallIndicator_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -4274,7 +4274,7 @@ static int dissect_numberPortabilityStatus_impl(packet_info *pinfo, proto_tree *
   return dissect_gsm_map_T_numberPortabilityStatus(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_numberPortabilityStatus);
 }
 
-static const ber_sequence SendRoutingInfoRes_sequence[] = {
+static const ber_sequence_t SendRoutingInfoRes_sequence[] = {
   { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { -1/*choice*/ , -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_extendedRoutingInfo },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cug_CheckInfo_impl },
@@ -4317,7 +4317,7 @@ dissect_gsm_map_NetDetNotReachable(gboolean implicit_tag _U_, tvbuff_t *tvb, int
   return offset;
 }
 
-static const ber_sequence ProvideRoamingNumberArg_sequence[] = {
+static const ber_sequence_t ProvideRoamingNumberArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_msc_Number_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_msisdn_impl },
@@ -4345,7 +4345,7 @@ dissect_gsm_map_ProvideRoamingNumberArg(gboolean implicit_tag _U_, tvbuff_t *tvb
   return offset;
 }
 
-static const ber_sequence ProvideRoamingNumberRes_sequence[] = {
+static const ber_sequence_t ProvideRoamingNumberRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_roamingNumber },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -4371,7 +4371,7 @@ static int dissect_uui_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_gsm_map_OCTET_STRING_SIZE_1_131(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_uui);
 }
 
-static const ber_sequence T_uu_Data_sequence[] = {
+static const ber_sequence_t T_uu_Data_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_uuIndicator_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_uui_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_uusCFInteraction_impl },
@@ -4390,7 +4390,7 @@ static int dissect_uu_Data_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_gsm_map_T_uu_Data(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_uu_Data);
 }
 
-static const ber_sequence ResumeCallHandlingArg_sequence[] = {
+static const ber_sequence_t ResumeCallHandlingArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callReferenceNumber_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_basicServiceGroup },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_forwardingData_impl },
@@ -4413,7 +4413,7 @@ dissect_gsm_map_ResumeCallHandlingArg(gboolean implicit_tag _U_, tvbuff_t *tvb, 
   return offset;
 }
 
-static const ber_sequence ResumeCallHandlingRes_sequence[] = {
+static const ber_sequence_t ResumeCallHandlingRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -4438,7 +4438,7 @@ static int dissect_b_Subscriber_Address_impl(packet_info *pinfo, proto_tree *tre
   return dissect_gsm_map_T_b_Subscriber_Address(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_b_Subscriber_Address);
 }
 
-static const ber_sequence ProvideSIWFSNumberArg_sequence[] = {
+static const ber_sequence_t ProvideSIWFSNumberArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_BearerCapability_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_BearerCapability_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_call_Direction_impl },
@@ -4470,7 +4470,7 @@ static int dissect_sIWFSNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_gsm_map_T_sIWFSNumber(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_sIWFSNumber);
 }
 
-static const ber_sequence ProvideSIWFSNumberRes_sequence[] = {
+static const ber_sequence_t ProvideSIWFSNumberRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sIWFSNumber_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -4484,7 +4484,7 @@ dissect_gsm_map_ProvideSIWFSNumberRes(gboolean implicit_tag _U_, tvbuff_t *tvb, 
   return offset;
 }
 
-static const ber_sequence SIWFSSignallingModifyArg_sequence[] = {
+static const ber_sequence_t SIWFSSignallingModifyArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_channelType_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_chosenChannel_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -4499,7 +4499,7 @@ dissect_gsm_map_SIWFSSignallingModifyArg(gboolean implicit_tag _U_, tvbuff_t *tv
   return offset;
 }
 
-static const ber_sequence SIWFSSignallingModifyRes_sequence[] = {
+static const ber_sequence_t SIWFSSignallingModifyRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_chosenChannel_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -4531,7 +4531,7 @@ static int dissect_ccbs_Monitoring_impl(packet_info *pinfo, proto_tree *tree, tv
   return dissect_gsm_map_Ccbs_Monitoring(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ccbs_Monitoring);
 }
 
-static const ber_sequence SetReportingStateArg_sequence[] = {
+static const ber_sequence_t SetReportingStateArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lmsi_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ccbs_Monitoring_impl },
@@ -4566,7 +4566,7 @@ static int dissect_ccbs_SubscriberStatus_impl(packet_info *pinfo, proto_tree *tr
   return dissect_gsm_map_Ccbs_SubscriberStatus(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ccbs_SubscriberStatus);
 }
 
-static const ber_sequence SetReportingStateRes_sequence[] = {
+static const ber_sequence_t SetReportingStateRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ccbs_SubscriberStatus_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -4617,7 +4617,7 @@ static int dissect_callOutcome_impl(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_gsm_map_CallOutcome(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_callOutcome);
 }
 
-static const ber_sequence T_eventReportData_sequence[] = {
+static const ber_sequence_t T_eventReportData_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ccbs_SubscriberStatus_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -4634,7 +4634,7 @@ static int dissect_eventReportData_impl(packet_info *pinfo, proto_tree *tree, tv
   return dissect_gsm_map_T_eventReportData(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_eventReportData);
 }
 
-static const ber_sequence T_callReportdata_sequence[] = {
+static const ber_sequence_t T_callReportdata_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_monitoringMode_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callOutcome_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -4652,7 +4652,7 @@ static int dissect_callReportdata_impl(packet_info *pinfo, proto_tree *tree, tvb
   return dissect_gsm_map_T_callReportdata(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_callReportdata);
 }
 
-static const ber_sequence StatusReportArg_sequence[] = {
+static const ber_sequence_t StatusReportArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_eventReportData_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callReportdata_impl },
@@ -4668,7 +4668,7 @@ dissect_gsm_map_StatusReportArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
   return offset;
 }
 
-static const ber_sequence StatusReportRes_sequence[] = {
+static const ber_sequence_t StatusReportRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
 };
@@ -4727,7 +4727,7 @@ static int dissect_b_subscriberSubaddress_impl(packet_info *pinfo, proto_tree *t
   return dissect_gsm_map_OCTET_STRING_SIZE_1_21(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_b_subscriberSubaddress);
 }
 
-static const ber_sequence Ccbs_Feature_sequence[] = {
+static const ber_sequence_t Ccbs_Feature_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ccbs_Index_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_b_subscriberNumber_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_b_subscriberSubaddress_impl },
@@ -4758,7 +4758,7 @@ static int dissect_translatedB_Number_impl(packet_info *pinfo, proto_tree *tree,
   return dissect_gsm_map_TranslatedB_Number(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_translatedB_Number);
 }
 
-static const ber_sequence RemoteUserFreeArg_sequence[] = {
+static const ber_sequence_t RemoteUserFreeArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_callInfo_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ccbs_Feature_impl },
@@ -4777,7 +4777,7 @@ dissect_gsm_map_RemoteUserFreeArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
   return offset;
 }
 
-static const ber_sequence RemoteUserFreeRes_sequence[] = {
+static const ber_sequence_t RemoteUserFreeRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ruf_Outcome_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -4791,7 +4791,7 @@ dissect_gsm_map_RemoteUserFreeRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
   return offset;
 }
 
-static const ber_sequence Ss_Data_sequence[] = {
+static const ber_sequence_t Ss_Data_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ss_Code },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ss_Status_impl },
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ss_SubscriptionOption },
@@ -4811,7 +4811,7 @@ static int dissect_ss_Data_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_gsm_map_Ss_Data(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ss_Data);
 }
 
-static const ber_sequence RegisterSS_Arg_sequence[] = {
+static const ber_sequence_t RegisterSS_Arg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ss_Code },
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_basicService },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_forwardedToNumber_impl },
@@ -4837,7 +4837,7 @@ static const value_string Ss_Info_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice Ss_Info_choice[] = {
+static const ber_choice_t Ss_Info_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_forwardingInfo_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_callBarringInfo_impl },
   {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_ss_Data_impl },
@@ -4852,7 +4852,7 @@ dissect_gsm_map_Ss_Info(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
   return offset;
 }
 
-static const ber_sequence Ss_ForBS_sequence[] = {
+static const ber_sequence_t Ss_ForBS_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ss_Code },
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_basicService },
   { 0, 0, 0, NULL }
@@ -4866,7 +4866,7 @@ dissect_gsm_map_Ss_ForBS(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
   return offset;
 }
 
-static const ber_sequence SEQUNCE_SIZE_1_13_OF_ForwardingFeatureList_sequence_of[1] = {
+static const ber_sequence_t SEQUNCE_SIZE_1_13_OF_ForwardingFeatureList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_forwardingFeatureList_item },
 };
 
@@ -4881,7 +4881,7 @@ static int dissect_forwardingFeatureList1_impl(packet_info *pinfo, proto_tree *t
   return dissect_gsm_map_SEQUNCE_SIZE_1_13_OF_ForwardingFeatureList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_forwardingFeatureList1);
 }
 
-static const ber_sequence T_ccbs_FeatureList_item_sequence[] = {
+static const ber_sequence_t T_ccbs_FeatureList_item_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ccbs_Index_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_b_subscriberNumber_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_b_subscriberSubaddress_impl },
@@ -4900,7 +4900,7 @@ static int dissect_ccbs_FeatureList_item(packet_info *pinfo, proto_tree *tree, t
   return dissect_gsm_map_T_ccbs_FeatureList_item(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ccbs_FeatureList_item);
 }
 
-static const ber_sequence T_ccbs_FeatureList_sequence_of[1] = {
+static const ber_sequence_t T_ccbs_FeatureList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ccbs_FeatureList_item },
 };
 
@@ -4915,7 +4915,7 @@ static int dissect_ccbs_FeatureList_impl(packet_info *pinfo, proto_tree *tree, t
   return dissect_gsm_map_T_ccbs_FeatureList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ccbs_FeatureList);
 }
 
-static const ber_sequence T_genericServiceInfo_sequence[] = {
+static const ber_sequence_t T_genericServiceInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ss_Status },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cliRestrictionOption_impl },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_maximumEntitledPriority_impl },
@@ -4944,7 +4944,7 @@ static const value_string InterrogateSS_Res_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice InterrogateSS_Res_choice[] = {
+static const ber_choice_t InterrogateSS_Res_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ss_Status_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_basicServiceGroupList_impl },
   {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_forwardingFeatureList1_impl },
@@ -4972,7 +4972,7 @@ static int dissect_ussd_String(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   return dissect_gsm_map_OCTET_STRING_SIZE_1_160(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ussd_String);
 }
 
-static const ber_sequence Ussd_Arg_sequence[] = {
+static const ber_sequence_t Ussd_Arg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ussd_DataCodingScheme },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ussd_String },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_alertingPattern },
@@ -4988,7 +4988,7 @@ dissect_gsm_map_Ussd_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
   return offset;
 }
 
-static const ber_sequence Ussd_Res_sequence[] = {
+static const ber_sequence_t Ussd_Res_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ussd_DataCodingScheme },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ussd_String },
   { 0, 0, 0, NULL }
@@ -5056,7 +5056,7 @@ static int dissect_serviceIndicator_impl(packet_info *pinfo, proto_tree *tree, t
   return dissect_gsm_map_ServiceIndicator(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_serviceIndicator);
 }
 
-static const ber_sequence T_ccbs_Data_sequence[] = {
+static const ber_sequence_t T_ccbs_Data_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ccbs_Feature_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_translatedB_Number_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serviceIndicator_impl },
@@ -5076,7 +5076,7 @@ static int dissect_ccbs_Data_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
   return dissect_gsm_map_T_ccbs_Data(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ccbs_Data);
 }
 
-static const ber_sequence RegisterCC_EntryArg_sequence[] = {
+static const ber_sequence_t RegisterCC_EntryArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ss_Code_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ccbs_Data_impl },
   { 0, 0, 0, NULL }
@@ -5090,7 +5090,7 @@ dissect_gsm_map_RegisterCC_EntryArg(gboolean implicit_tag _U_, tvbuff_t *tvb, in
   return offset;
 }
 
-static const ber_sequence RegisterCC_EntryRes_sequence[] = {
+static const ber_sequence_t RegisterCC_EntryRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ccbs_Feature_impl },
   { 0, 0, 0, NULL }
 };
@@ -5103,7 +5103,7 @@ dissect_gsm_map_RegisterCC_EntryRes(gboolean implicit_tag _U_, tvbuff_t *tvb, in
   return offset;
 }
 
-static const ber_sequence EraseCC_EntryArg_sequence[] = {
+static const ber_sequence_t EraseCC_EntryArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ss_Code_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ccbs_Index_impl },
   { 0, 0, 0, NULL }
@@ -5117,7 +5117,7 @@ dissect_gsm_map_EraseCC_EntryArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
   return offset;
 }
 
-static const ber_sequence EraseCC_EntryRes_sequence[] = {
+static const ber_sequence_t EraseCC_EntryRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ss_Code_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ss_Status_impl },
   { 0, 0, 0, NULL }
@@ -5166,7 +5166,7 @@ static int dissect_sm_RP_SMEA_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_gsm_map_OCTET_STRING_SIZE_1_12(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_sm_RP_SMEA);
 }
 
-static const ber_sequence RoutingInfoForSMArg_sequence[] = {
+static const ber_sequence_t RoutingInfoForSMArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_msisdn_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_sm_RP_PRI_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_serviceCentreAddress_impl },
@@ -5204,7 +5204,7 @@ static const value_string T_additional_Number_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice T_additional_Number_choice[] = {
+static const ber_choice_t T_additional_Number_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_msc_Number_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_sgsn_Number_impl },
   { 0, 0, 0, 0, NULL }
@@ -5221,7 +5221,7 @@ static int dissect_additional_Number(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_gsm_map_T_additional_Number(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_additional_Number);
 }
 
-static const ber_sequence T_locationInfoWithLMSI_sequence[] = {
+static const ber_sequence_t T_locationInfoWithLMSI_sequence[] = {
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_networkNode_Number_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_lmsi },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -5241,7 +5241,7 @@ static int dissect_locationInfoWithLMSI_impl(packet_info *pinfo, proto_tree *tre
   return dissect_gsm_map_T_locationInfoWithLMSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_locationInfoWithLMSI);
 }
 
-static const ber_sequence RoutingInfoForSMRes_sequence[] = {
+static const ber_sequence_t RoutingInfoForSMRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_imsi },
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_locationInfoWithLMSI_impl },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -5265,7 +5265,7 @@ static const value_string Sm_RP_DA_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice Sm_RP_DA_choice[] = {
+static const ber_choice_t Sm_RP_DA_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lmsi_impl },
   {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_serviceCentreAddressDA_impl },
@@ -5292,7 +5292,7 @@ static const value_string Sm_RP_OA_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice Sm_RP_OA_choice[] = {
+static const ber_choice_t Sm_RP_OA_choice[] = {
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_msisdn_impl },
   {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_serviceCentreAddressOA_impl },
   {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_noSM_RP_OA_impl },
@@ -5310,7 +5310,7 @@ static int dissect_sm_RP_OA(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_gsm_map_Sm_RP_OA(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_sm_RP_OA);
 }
 
-static const ber_sequence Mo_forwardSM_Arg_sequence[] = {
+static const ber_sequence_t Mo_forwardSM_Arg_sequence[] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_sm_RP_DA },
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_sm_RP_OA },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_sm_RP_UI },
@@ -5327,7 +5327,7 @@ dissect_gsm_map_Mo_forwardSM_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
   return offset;
 }
 
-static const ber_sequence Mo_forwardSM_Res_sequence[] = {
+static const ber_sequence_t Mo_forwardSM_Res_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_sm_RP_UI },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -5341,7 +5341,7 @@ dissect_gsm_map_Mo_forwardSM_Res(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
   return offset;
 }
 
-static const ber_sequence Mt_forwardSM_Arg_sequence[] = {
+static const ber_sequence_t Mt_forwardSM_Arg_sequence[] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_sm_RP_DA },
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_sm_RP_OA },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_sm_RP_UI },
@@ -5358,7 +5358,7 @@ dissect_gsm_map_Mt_forwardSM_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
   return offset;
 }
 
-static const ber_sequence Mt_forwardSM_Res_sequence[] = {
+static const ber_sequence_t Mt_forwardSM_Res_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_sm_RP_UI },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -5405,7 +5405,7 @@ static int dissect_additionalSM_DeliveryOutcome_impl(packet_info *pinfo, proto_t
   return dissect_gsm_map_Sm_DeliveryOutcome(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_additionalSM_DeliveryOutcome);
 }
 
-static const ber_sequence ReportSM_DeliveryStatusArg_sequence[] = {
+static const ber_sequence_t ReportSM_DeliveryStatusArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_msisdn },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_serviceCentreAddress },
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_sm_DeliveryOutcome },
@@ -5426,7 +5426,7 @@ dissect_gsm_map_ReportSM_DeliveryStatusArg(gboolean implicit_tag _U_, tvbuff_t *
   return offset;
 }
 
-static const ber_sequence ReportSM_DeliveryStatusRes_sequence[] = {
+static const ber_sequence_t ReportSM_DeliveryStatusRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_storedMSISDN },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -5460,7 +5460,7 @@ static int dissect_mw_Status(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
   return dissect_gsm_map_T_mw_Status(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_mw_Status);
 }
 
-static const ber_sequence InformServiceCentreArg_sequence[] = {
+static const ber_sequence_t InformServiceCentreArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_storedMSISDN },
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_mw_Status },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -5475,7 +5475,7 @@ dissect_gsm_map_InformServiceCentreArg(gboolean implicit_tag _U_, tvbuff_t *tvb,
   return offset;
 }
 
-static const ber_sequence AlertServiceCentreArg_sequence[] = {
+static const ber_sequence_t AlertServiceCentreArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_msisdn },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_serviceCentreAddress },
   { 0, 0, 0, NULL }
@@ -5507,7 +5507,7 @@ static int dissect_alertReason(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   return dissect_gsm_map_T_alertReason(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_alertReason);
 }
 
-static const ber_sequence ReadyForSM_Arg_sequence[] = {
+static const ber_sequence_t ReadyForSM_Arg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_alertReason },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_alertReasonIndicator },
@@ -5523,7 +5523,7 @@ dissect_gsm_map_ReadyForSM_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
   return offset;
 }
 
-static const ber_sequence ReadyForSM_Res_sequence[] = {
+static const ber_sequence_t ReadyForSM_Res_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -5536,7 +5536,7 @@ dissect_gsm_map_ReadyForSM_Res(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
   return offset;
 }
 
-static const ber_sequence RequestedInfo_sequence[] = {
+static const ber_sequence_t RequestedInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationInformationFlag_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_subscriberStateFlag_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -5554,7 +5554,7 @@ static int dissect_requestedInfo_impl(packet_info *pinfo, proto_tree *tree, tvbu
   return dissect_gsm_map_RequestedInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_requestedInfo);
 }
 
-static const ber_sequence ProvideSubscriberInfoArg_sequence[] = {
+static const ber_sequence_t ProvideSubscriberInfoArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lmsi_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_requestedInfo_impl },
@@ -5570,7 +5570,7 @@ dissect_gsm_map_ProvideSubscriberInfoArg(gboolean implicit_tag _U_, tvbuff_t *tv
   return offset;
 }
 
-static const ber_sequence ProvideSubscriberInfoRes_sequence[] = {
+static const ber_sequence_t ProvideSubscriberInfoRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_subscriberInfo },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -5591,7 +5591,7 @@ static const value_string T_subscriberIdentity_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice T_subscriberIdentity_choice[] = {
+static const ber_choice_t T_subscriberIdentity_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_msisdn_impl },
   { 0, 0, 0, 0, NULL }
@@ -5608,7 +5608,7 @@ static int dissect_subscriberIdentity(packet_info *pinfo, proto_tree *tree, tvbu
   return dissect_gsm_map_T_subscriberIdentity(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_subscriberIdentity);
 }
 
-static const ber_sequence AnyTimeInterrogationArg_sequence[] = {
+static const ber_sequence_t AnyTimeInterrogationArg_sequence[] = {
   { BER_CLASS_CON, 0, 0, dissect_subscriberIdentity },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_requestedInfo_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_gsmSCF_Address_impl },
@@ -5624,7 +5624,7 @@ dissect_gsm_map_AnyTimeInterrogationArg(gboolean implicit_tag _U_, tvbuff_t *tvb
   return offset;
 }
 
-static const ber_sequence AnyTimeInterrogationRes_sequence[] = {
+static const ber_sequence_t AnyTimeInterrogationRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_subscriberInfo },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -5638,7 +5638,7 @@ dissect_gsm_map_AnyTimeInterrogationRes(gboolean implicit_tag _U_, tvbuff_t *tvb
   return offset;
 }
 
-static const ber_sequence SEQUNCE_SIZE_1_2_OF_OCTET_STRING_SIZE_1_20_sequence_of[1] = {
+static const ber_sequence_t SEQUNCE_SIZE_1_2_OF_OCTET_STRING_SIZE_1_20_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ss_EventSpecification_item },
 };
 
@@ -5653,7 +5653,7 @@ static int dissect_ss_EventSpecification_impl(packet_info *pinfo, proto_tree *tr
   return dissect_gsm_map_SEQUNCE_SIZE_1_2_OF_OCTET_STRING_SIZE_1_20(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ss_EventSpecification);
 }
 
-static const ber_sequence Ss_InvocationNotificationArg_sequence[] = {
+static const ber_sequence_t Ss_InvocationNotificationArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_msisdn_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ss_Event_impl },
@@ -5670,7 +5670,7 @@ dissect_gsm_map_Ss_InvocationNotificationArg(gboolean implicit_tag _U_, tvbuff_t
   return offset;
 }
 
-static const ber_sequence Ss_InvocationNotificationRes_sequence[] = {
+static const ber_sequence_t Ss_InvocationNotificationRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -5695,7 +5695,7 @@ static int dissect_codec_Info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_gsm_map_OCTET_STRING_SIZE_5_10(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_codec_Info);
 }
 
-static const ber_sequence PrepareGroupCallArg_sequence[] = {
+static const ber_sequence_t PrepareGroupCallArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_teleservice },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_asciCallReference },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_codec_Info },
@@ -5728,7 +5728,7 @@ static int dissect_groupCallNumber(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_gsm_map_T_groupCallNumber(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_groupCallNumber);
 }
 
-static const ber_sequence PrepareGroupCallRes_sequence[] = {
+static const ber_sequence_t PrepareGroupCallRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_groupCallNumber },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -5742,7 +5742,7 @@ dissect_gsm_map_PrepareGroupCallRes(gboolean implicit_tag _U_, tvbuff_t *tvb, in
   return offset;
 }
 
-static const ber_sequence SendGroupCallEndSignalArg_sequence[] = {
+static const ber_sequence_t SendGroupCallEndSignalArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_imsi },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -5756,7 +5756,7 @@ dissect_gsm_map_SendGroupCallEndSignalArg(gboolean implicit_tag _U_, tvbuff_t *t
   return offset;
 }
 
-static const ber_sequence SendGroupCallEndSignalRes_sequence[] = {
+static const ber_sequence_t SendGroupCallEndSignalRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -5769,7 +5769,7 @@ dissect_gsm_map_SendGroupCallEndSignalRes(gboolean implicit_tag _U_, tvbuff_t *t
   return offset;
 }
 
-static const ber_sequence ProcessGroupCallSignallingArg_sequence[] = {
+static const ber_sequence_t ProcessGroupCallSignallingArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_uplinkRequest_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_uplinkReleaseIndication_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_releaseGroupCall_impl },
@@ -5785,7 +5785,7 @@ dissect_gsm_map_ProcessGroupCallSignallingArg(gboolean implicit_tag _U_, tvbuff_
   return offset;
 }
 
-static const ber_sequence ForwardGroupCallSignallingArg_sequence[] = {
+static const ber_sequence_t ForwardGroupCallSignallingArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_imsi },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_uplinkRequestAck_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_uplinkReleaseIndication_impl },
@@ -5819,7 +5819,7 @@ static int dissect_sgsn_Address_impl(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_gsm_map_OCTET_STRING_SIZE_5_17(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_sgsn_Address);
 }
 
-static const ber_sequence T_sgsn_Capability_sequence[] = {
+static const ber_sequence_t T_sgsn_Capability_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_solsaSupportIndicator },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -5836,7 +5836,7 @@ static int dissect_sgsn_Capability_impl(packet_info *pinfo, proto_tree *tree, tv
   return dissect_gsm_map_T_sgsn_Capability(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_sgsn_Capability);
 }
 
-static const ber_sequence UpdateGprsLocationArg_sequence[] = {
+static const ber_sequence_t UpdateGprsLocationArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_imsi },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_sgsn_Number },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_sgsn_Address },
@@ -5853,7 +5853,7 @@ dissect_gsm_map_UpdateGprsLocationArg(gboolean implicit_tag _U_, tvbuff_t *tvb, 
   return offset;
 }
 
-static const ber_sequence UpdateGprsLocationRes_sequence[] = {
+static const ber_sequence_t UpdateGprsLocationRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_hlr_Number },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -5891,7 +5891,7 @@ static int dissect_ggsn_Number_impl(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_gsm_map_Ggsn_Number(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ggsn_Number);
 }
 
-static const ber_sequence SendRoutingInfoForGprsArg_sequence[] = {
+static const ber_sequence_t SendRoutingInfoForGprsArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ggsn_Address_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ggsn_Number_impl },
@@ -5907,7 +5907,7 @@ dissect_gsm_map_SendRoutingInfoForGprsArg(gboolean implicit_tag _U_, tvbuff_t *t
   return offset;
 }
 
-static const ber_sequence SendRoutingInfoForGprsRes_sequence[] = {
+static const ber_sequence_t SendRoutingInfoForGprsRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sgsn_Address_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ggsn_Address_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileNotReachableReason_impl },
@@ -5923,7 +5923,7 @@ dissect_gsm_map_SendRoutingInfoForGprsRes(gboolean implicit_tag _U_, tvbuff_t *t
   return offset;
 }
 
-static const ber_sequence FailureReportArg_sequence[] = {
+static const ber_sequence_t FailureReportArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ggsn_Number_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ggsn_Address_impl },
@@ -5939,7 +5939,7 @@ dissect_gsm_map_FailureReportArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
   return offset;
 }
 
-static const ber_sequence FailureReportRes_sequence[] = {
+static const ber_sequence_t FailureReportRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ggsn_Address_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -5953,7 +5953,7 @@ dissect_gsm_map_FailureReportRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
   return offset;
 }
 
-static const ber_sequence NoteMsPresentForGprsArg_sequence[] = {
+static const ber_sequence_t NoteMsPresentForGprsArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_sgsn_Address_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ggsn_Address_impl },
@@ -5969,7 +5969,7 @@ dissect_gsm_map_NoteMsPresentForGprsArg(gboolean implicit_tag _U_, tvbuff_t *tvb
   return offset;
 }
 
-static const ber_sequence NoteMsPresentForGprsRes_sequence[] = {
+static const ber_sequence_t NoteMsPresentForGprsRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
 };
@@ -6002,7 +6002,7 @@ static int dissect_lcsClientType_impl(packet_info *pinfo, proto_tree *tree, tvbu
   return dissect_gsm_map_LcsClientType(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcsClientType);
 }
 
-static const ber_sequence LcsClientExternalID_sequence[] = {
+static const ber_sequence_t LcsClientExternalID_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_externalAddress_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -6040,7 +6040,7 @@ static int dissect_lcsClientInternalID_impl(packet_info *pinfo, proto_tree *tree
   return dissect_gsm_map_LcsClientInternalID(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcsClientInternalID);
 }
 
-static const ber_sequence LcsClientName_sequence[] = {
+static const ber_sequence_t LcsClientName_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dataCodingScheme_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_nameString_impl },
   { 0, 0, 0, NULL }
@@ -6057,7 +6057,7 @@ static int dissect_lcsClientName_impl(packet_info *pinfo, proto_tree *tree, tvbu
   return dissect_gsm_map_LcsClientName(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcsClientName);
 }
 
-static const ber_sequence Lcs_ClientID_sequence[] = {
+static const ber_sequence_t Lcs_ClientID_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_lcsClientType_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lcsClientExternalID_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lcsClientDialedByMS_impl },
@@ -6099,7 +6099,7 @@ static int dissect_lcs_Event(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
   return dissect_gsm_map_Lcs_Event(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_lcs_Event);
 }
 
-static const ber_sequence LcsLocationInfo_sequence[] = {
+static const ber_sequence_t LcsLocationInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_msc_Number },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lmsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -6139,7 +6139,7 @@ static int dissect_locationEstimateType_impl(packet_info *pinfo, proto_tree *tre
   return dissect_gsm_map_T_locationEstimateType(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_locationEstimateType);
 }
 
-static const ber_sequence T_locationType_sequence[] = {
+static const ber_sequence_t T_locationType_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_locationEstimateType_impl },
   { 0, 0, 0, NULL }
 };
@@ -6185,7 +6185,7 @@ static int dissect_responseTimeCategory(packet_info *pinfo, proto_tree *tree, tv
   return dissect_gsm_map_T_responseTimeCategory(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_responseTimeCategory);
 }
 
-static const ber_sequence T_responseTime_sequence[] = {
+static const ber_sequence_t T_responseTime_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_responseTimeCategory },
   { 0, 0, 0, NULL }
 };
@@ -6201,7 +6201,7 @@ static int dissect_responseTime_impl(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_gsm_map_T_responseTime(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_responseTime);
 }
 
-static const ber_sequence T_lcs_QoS_sequence[] = {
+static const ber_sequence_t T_lcs_QoS_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_horizontal_accuracy_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_verticalCoordinateRequest_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_vertical_accuracy_impl },
@@ -6221,7 +6221,7 @@ static int dissect_lcs_QoS_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_gsm_map_T_lcs_QoS(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcs_QoS);
 }
 
-static const ber_sequence ProvideSubscriberLocation_Arg_sequence[] = {
+static const ber_sequence_t ProvideSubscriberLocation_Arg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_locationType },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_mlc_Number },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lcs_ClientID_impl },
@@ -6244,7 +6244,7 @@ dissect_gsm_map_ProvideSubscriberLocation_Arg(gboolean implicit_tag _U_, tvbuff_
   return offset;
 }
 
-static const ber_sequence ProvideSubscriberLocation_Res_sequence[] = {
+static const ber_sequence_t ProvideSubscriberLocation_Res_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_locationEstimate },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ageOfLocationEstimate_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -6266,7 +6266,7 @@ static const value_string TargetMS_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice TargetMS_choice[] = {
+static const ber_choice_t TargetMS_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_msisdn_impl },
   { 0, 0, 0, 0, NULL }
@@ -6295,7 +6295,7 @@ static int dissect_mlcNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
   return dissect_gsm_map_T_mlcNumber(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_mlcNumber);
 }
 
-static const ber_sequence RoutingInfoForLCS_Arg_sequence[] = {
+static const ber_sequence_t RoutingInfoForLCS_Arg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mlcNumber_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_NOTCHKTAG, dissect_targetMS },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -6310,7 +6310,7 @@ dissect_gsm_map_RoutingInfoForLCS_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb, 
   return offset;
 }
 
-static const ber_sequence RoutingInfoForLCS_Res_sequence[] = {
+static const ber_sequence_t RoutingInfoForLCS_Res_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_NOTCHKTAG, dissect_targetMS },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lcsLocationInfo_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -6349,7 +6349,7 @@ static int dissect_na_ESRK_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_gsm_map_T_na_ESRK(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_na_ESRK);
 }
 
-static const ber_sequence SubscriberLocationReport_Arg_sequence[] = {
+static const ber_sequence_t SubscriberLocationReport_Arg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_lcs_Event },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_lcs_ClientID },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_lcsLocationInfo },
@@ -6372,7 +6372,7 @@ dissect_gsm_map_SubscriberLocationReport_Arg(gboolean implicit_tag _U_, tvbuff_t
   return offset;
 }
 
-static const ber_sequence SubscriberLocationReport_Res_sequence[] = {
+static const ber_sequence_t SubscriberLocationReport_Res_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -6409,7 +6409,7 @@ static int dissect_networkResource(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_gsm_map_NetworkResource(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_networkResource);
 }
 
-static const ber_sequence T_extensibleSystemFailureParam_sequence[] = {
+static const ber_sequence_t T_extensibleSystemFailureParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_networkResource },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -6433,7 +6433,7 @@ static const value_string SystemFailureParam_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice SystemFailureParam_choice[] = {
+static const ber_choice_t SystemFailureParam_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_networkResource },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_extensibleSystemFailureParam },
   { 0, 0, 0, 0, NULL }
@@ -6447,7 +6447,7 @@ dissect_gsm_map_SystemFailureParam(gboolean implicit_tag _U_, tvbuff_t *tvb, int
   return offset;
 }
 
-static const ber_sequence DataMissingParam_sequence[] = {
+static const ber_sequence_t DataMissingParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -6460,7 +6460,7 @@ dissect_gsm_map_DataMissingParam(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
   return offset;
 }
 
-static const ber_sequence UnexpectedDataParam_sequence[] = {
+static const ber_sequence_t UnexpectedDataParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -6473,7 +6473,7 @@ dissect_gsm_map_UnexpectedDataParam(gboolean implicit_tag _U_, tvbuff_t *tvb, in
   return offset;
 }
 
-static const ber_sequence FacilityNotSupParam_sequence[] = {
+static const ber_sequence_t FacilityNotSupParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -6486,7 +6486,7 @@ dissect_gsm_map_FacilityNotSupParam(gboolean implicit_tag _U_, tvbuff_t *tvb, in
   return offset;
 }
 
-static const ber_sequence IncompatibleTerminalParam_sequence[] = {
+static const ber_sequence_t IncompatibleTerminalParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -6499,7 +6499,7 @@ dissect_gsm_map_IncompatibleTerminalParam(gboolean implicit_tag _U_, tvbuff_t *t
   return offset;
 }
 
-static const ber_sequence ResourceLimitationParam_sequence[] = {
+static const ber_sequence_t ResourceLimitationParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -6530,7 +6530,7 @@ static int dissect_unknownSubscriberDiagnostic(packet_info *pinfo, proto_tree *t
   return dissect_gsm_map_T_unknownSubscriberDiagnostic(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_unknownSubscriberDiagnostic);
 }
 
-static const ber_sequence UnknownSubscriberParam_sequence[] = {
+static const ber_sequence_t UnknownSubscriberParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_unknownSubscriberDiagnostic },
   { 0, 0, 0, NULL }
@@ -6544,7 +6544,7 @@ dissect_gsm_map_UnknownSubscriberParam(gboolean implicit_tag _U_, tvbuff_t *tvb,
   return offset;
 }
 
-static const ber_sequence NumberChangedParam_sequence[] = {
+static const ber_sequence_t NumberChangedParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -6557,7 +6557,7 @@ dissect_gsm_map_NumberChangedParam(gboolean implicit_tag _U_, tvbuff_t *tvb, int
   return offset;
 }
 
-static const ber_sequence UnidentifiedSubParam_sequence[] = {
+static const ber_sequence_t UnidentifiedSubParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -6588,7 +6588,7 @@ static int dissect_roamingNotAllowedCause(packet_info *pinfo, proto_tree *tree, 
   return dissect_gsm_map_T_roamingNotAllowedCause(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_roamingNotAllowedCause);
 }
 
-static const ber_sequence RoamingNotAllowedParam_sequence[] = {
+static const ber_sequence_t RoamingNotAllowedParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_roamingNotAllowedCause },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -6602,7 +6602,7 @@ dissect_gsm_map_RoamingNotAllowedParam(gboolean implicit_tag _U_, tvbuff_t *tvb,
   return offset;
 }
 
-static const ber_sequence IllegalSubscriberParam_sequence[] = {
+static const ber_sequence_t IllegalSubscriberParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -6615,7 +6615,7 @@ dissect_gsm_map_IllegalSubscriberParam(gboolean implicit_tag _U_, tvbuff_t *tvb,
   return offset;
 }
 
-static const ber_sequence IllegalEquipmentParam_sequence[] = {
+static const ber_sequence_t IllegalEquipmentParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -6628,7 +6628,7 @@ dissect_gsm_map_IllegalEquipmentParam(gboolean implicit_tag _U_, tvbuff_t *tvb, 
   return offset;
 }
 
-static const ber_sequence BearerServNotProvParam_sequence[] = {
+static const ber_sequence_t BearerServNotProvParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -6641,7 +6641,7 @@ dissect_gsm_map_BearerServNotProvParam(gboolean implicit_tag _U_, tvbuff_t *tvb,
   return offset;
 }
 
-static const ber_sequence TeleservNotProvParam_sequence[] = {
+static const ber_sequence_t TeleservNotProvParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -6654,7 +6654,7 @@ dissect_gsm_map_TeleservNotProvParam(gboolean implicit_tag _U_, tvbuff_t *tvb, i
   return offset;
 }
 
-static const ber_sequence TracingBufferFullParam_sequence[] = {
+static const ber_sequence_t TracingBufferFullParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -6667,7 +6667,7 @@ dissect_gsm_map_TracingBufferFullParam(gboolean implicit_tag _U_, tvbuff_t *tvb,
   return offset;
 }
 
-static const ber_sequence NoRoamingNbParam_sequence[] = {
+static const ber_sequence_t NoRoamingNbParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -6699,7 +6699,7 @@ static int dissect_absentSubscriberReason_impl(packet_info *pinfo, proto_tree *t
   return dissect_gsm_map_T_absentSubscriberReason(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_absentSubscriberReason);
 }
 
-static const ber_sequence AbsentSubscriberParam_sequence[] = {
+static const ber_sequence_t AbsentSubscriberParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_absentSubscriberReason_impl },
   { 0, 0, 0, NULL }
@@ -6713,7 +6713,7 @@ dissect_gsm_map_AbsentSubscriberParam(gboolean implicit_tag _U_, tvbuff_t *tvb, 
   return offset;
 }
 
-static const ber_sequence BusySubscriberParam_sequence[] = {
+static const ber_sequence_t BusySubscriberParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ccbs_Possible_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ccbs_Busy_impl },
@@ -6728,7 +6728,7 @@ dissect_gsm_map_BusySubscriberParam(gboolean implicit_tag _U_, tvbuff_t *tvb, in
   return offset;
 }
 
-static const ber_sequence NoSubscriberReplyParam_sequence[] = {
+static const ber_sequence_t NoSubscriberReplyParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -6759,7 +6759,7 @@ static int dissect_callBarringCause(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_gsm_map_CallBarringCause(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_callBarringCause);
 }
 
-static const ber_sequence T_extensibleCallBarredParam_sequence[] = {
+static const ber_sequence_t T_extensibleCallBarredParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_callBarringCause },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_unauthorisedMessageOriginator_impl },
@@ -6784,7 +6784,7 @@ static const value_string CallBarredParam_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice CallBarredParam_choice[] = {
+static const ber_choice_t CallBarredParam_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_callBarringCause },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_extensibleCallBarredParam },
   { 0, 0, 0, 0, NULL }
@@ -6798,7 +6798,7 @@ dissect_gsm_map_CallBarredParam(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
   return offset;
 }
 
-static const ber_sequence ForwardingFailedParam_sequence[] = {
+static const ber_sequence_t ForwardingFailedParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -6811,7 +6811,7 @@ dissect_gsm_map_ForwardingFailedParam(gboolean implicit_tag _U_, tvbuff_t *tvb, 
   return offset;
 }
 
-static const ber_sequence Or_NotAllowedParam_sequence[] = {
+static const ber_sequence_t Or_NotAllowedParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -6824,7 +6824,7 @@ dissect_gsm_map_Or_NotAllowedParam(gboolean implicit_tag _U_, tvbuff_t *tvb, int
   return offset;
 }
 
-static const ber_sequence ForwardingViolationParam_sequence[] = {
+static const ber_sequence_t ForwardingViolationParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -6857,7 +6857,7 @@ static int dissect_cug_RejectCause(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_gsm_map_T_cug_RejectCause(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_cug_RejectCause);
 }
 
-static const ber_sequence Cug_RejectParam_sequence[] = {
+static const ber_sequence_t Cug_RejectParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_cug_RejectCause },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -6871,7 +6871,7 @@ dissect_gsm_map_Cug_RejectParam(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
   return offset;
 }
 
-static const ber_sequence Ati_NotAllowedParam_sequence[] = {
+static const ber_sequence_t Ati_NotAllowedParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -6884,7 +6884,7 @@ dissect_gsm_map_Ati_NotAllowedParam(gboolean implicit_tag _U_, tvbuff_t *tvb, in
   return offset;
 }
 
-static const ber_sequence NoGroupCallNbParam_sequence[] = {
+static const ber_sequence_t NoGroupCallNbParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -6897,7 +6897,7 @@ dissect_gsm_map_NoGroupCallNbParam(gboolean implicit_tag _U_, tvbuff_t *tvb, int
   return offset;
 }
 
-static const ber_sequence Ss_IncompatibilityCause_sequence[] = {
+static const ber_sequence_t Ss_IncompatibilityCause_sequence[] = {
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ss_Code_impl },
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_basicService },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ss_Status_impl },
@@ -6928,7 +6928,7 @@ dissect_gsm_map_Pw_RegistrationFailureCause(gboolean implicit_tag _U_, tvbuff_t 
   return offset;
 }
 
-static const ber_sequence ShortTermDenialParam_sequence[] = {
+static const ber_sequence_t ShortTermDenialParam_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
@@ -6940,7 +6940,7 @@ dissect_gsm_map_ShortTermDenialParam(gboolean implicit_tag _U_, tvbuff_t *tvb, i
   return offset;
 }
 
-static const ber_sequence LongTermDenialParam_sequence[] = {
+static const ber_sequence_t LongTermDenialParam_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
@@ -6952,7 +6952,7 @@ dissect_gsm_map_LongTermDenialParam(gboolean implicit_tag _U_, tvbuff_t *tvb, in
   return offset;
 }
 
-static const ber_sequence SubBusyForMT_SMS_Param_sequence[] = {
+static const ber_sequence_t SubBusyForMT_SMS_Param_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_gprsConnectionSuspended },
   { 0, 0, 0, NULL }
@@ -6989,7 +6989,7 @@ static int dissect_sm_EnumeratedDeliveryFailureCause(packet_info *pinfo, proto_t
   return dissect_gsm_map_T_sm_EnumeratedDeliveryFailureCause(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_sm_EnumeratedDeliveryFailureCause);
 }
 
-static const ber_sequence Sm_DeliveryFailureCause_sequence[] = {
+static const ber_sequence_t Sm_DeliveryFailureCause_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_sm_EnumeratedDeliveryFailureCause },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_diagnosticInfo },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -7004,7 +7004,7 @@ dissect_gsm_map_Sm_DeliveryFailureCause(gboolean implicit_tag _U_, tvbuff_t *tvb
   return offset;
 }
 
-static const ber_sequence MessageWaitListFullParam_sequence[] = {
+static const ber_sequence_t MessageWaitListFullParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -7017,7 +7017,7 @@ dissect_gsm_map_MessageWaitListFullParam(gboolean implicit_tag _U_, tvbuff_t *tv
   return offset;
 }
 
-static const ber_sequence AbsentSubscriberSM_Param_sequence[] = {
+static const ber_sequence_t AbsentSubscriberSM_Param_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_absentSubscriberDiagnosticSM },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_additionalAbsentSubscriberDiagnosticSM_impl },
@@ -7032,7 +7032,7 @@ dissect_gsm_map_AbsentSubscriberSM_Param(gboolean implicit_tag _U_, tvbuff_t *tv
   return offset;
 }
 
-static const ber_sequence UnauthorizedRequestingNetwork_Param_sequence[] = {
+static const ber_sequence_t UnauthorizedRequestingNetwork_Param_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -7066,7 +7066,7 @@ static int dissect_unauthorizedLCSClient_Diagnostic_impl(packet_info *pinfo, pro
   return dissect_gsm_map_T_unauthorizedLCSClient_Diagnostic(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_unauthorizedLCSClient_Diagnostic);
 }
 
-static const ber_sequence UnauthorizedLCSClient_Param_sequence[] = {
+static const ber_sequence_t UnauthorizedLCSClient_Param_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_unauthorizedLCSClient_Diagnostic_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -7105,7 +7105,7 @@ static int dissect_positionMethodFailure_Diagnostic_impl(packet_info *pinfo, pro
   return dissect_gsm_map_T_positionMethodFailure_Diagnostic(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_positionMethodFailure_Diagnostic);
 }
 
-static const ber_sequence PositionMethodFailure_Param_sequence[] = {
+static const ber_sequence_t PositionMethodFailure_Param_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_positionMethodFailure_Diagnostic_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -7119,7 +7119,7 @@ dissect_gsm_map_PositionMethodFailure_Param(gboolean implicit_tag _U_, tvbuff_t 
   return offset;
 }
 
-static const ber_sequence UnknownOrUnreachableLCSClient_Param_sequence[] = {
+static const ber_sequence_t UnknownOrUnreachableLCSClient_Param_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -7622,7 +7622,7 @@ static int dissect_absent(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 }
 
 
-static const ber_choice InvokeId_choice[] = {
+static const ber_choice_t InvokeId_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_invokeid },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_absent },
   { 0, 0, 0, 0, NULL }
@@ -7639,7 +7639,7 @@ static int dissect_invokeId(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_gsm_map_InvokeId(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_invokeId);
 }
 
-static const ber_sequence InvokePDU_sequence[] = {
+static const ber_sequence_t InvokePDU_sequence[] = {
   { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_invokeId },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_invokeCmd },
   { BER_CLASS_UNI, -1/*depends on Cmd*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_invokeData },
@@ -7657,7 +7657,7 @@ static int dissect_invoke_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   return dissect_gsm_map_InvokePDU(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_invoke);
 }
 
-static const ber_sequence ReturnResult_result_sequence[] = {
+static const ber_sequence_t ReturnResult_result_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_invokeCmd },
   { BER_CLASS_UNI, -1/*depends on Cmd*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_returnResultData },
   { 0, 0, 0, NULL }
@@ -7670,7 +7670,7 @@ dissect_returnResult_result(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return offset;
 }
 
-static const ber_sequence ReturnResultPDU_sequence[] = {
+static const ber_sequence_t ReturnResultPDU_sequence[] = {
   { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_invokeId },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_returnResult_result },
   { 0, 0, 0, NULL }
@@ -7695,7 +7695,7 @@ static const value_string GSMMAPPDU_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice GSMMAPPDU_choice[] = {
+static const ber_choice_t GSMMAPPDU_choice[] = {
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_invoke_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_returnResult_impl },
 #ifdef REMOVED

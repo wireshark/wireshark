@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* ./packet-ocsp.c                                                            */
-/* ../../tools/asn2eth.py -X -b -k -e -p ocsp -c ocsp.cnf -s packet-ocsp-template OCSP.asn */
+/* ../../tools/asn2eth.py -X -b -e -p ocsp -c ocsp.cnf -s packet-ocsp-template OCSP.asn */
 
 /* Input file: packet-ocsp-template.c */
 
@@ -219,7 +219,7 @@ static int dissect_issuerKeyHash(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_ocsp_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_ocsp_issuerKeyHash);
 }
 
-static const ber_sequence CertID_sequence[] = {
+static const ber_sequence_t CertID_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_hashAlgorithm },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_issuerNameHash },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_issuerKeyHash },
@@ -241,7 +241,7 @@ static int dissect_certID(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
   return dissect_ocsp_CertID(FALSE, tvb, offset, pinfo, tree, hf_ocsp_certID);
 }
 
-static const ber_sequence Request_sequence[] = {
+static const ber_sequence_t Request_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_reqCert },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_singleRequestExtensions },
   { 0, 0, 0, NULL }
@@ -258,7 +258,7 @@ static int dissect_requestList_item(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_ocsp_Request(FALSE, tvb, offset, pinfo, tree, hf_ocsp_requestList_item);
 }
 
-static const ber_sequence SEQUNCE_OF_Request_sequence_of[1] = {
+static const ber_sequence_t SEQUNCE_OF_Request_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_requestList_item },
 };
 
@@ -273,7 +273,7 @@ static int dissect_requestList(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   return dissect_ocsp_SEQUNCE_OF_Request(FALSE, tvb, offset, pinfo, tree, hf_ocsp_requestList);
 }
 
-static const ber_sequence TBSRequest_sequence[] = {
+static const ber_sequence_t TBSRequest_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_version },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_requestorName },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_requestList },
@@ -305,7 +305,7 @@ static int dissect_signature(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
   return dissect_ocsp_BIT_STRING(FALSE, tvb, offset, pinfo, tree, hf_ocsp_signature);
 }
 
-static const ber_sequence SEQUNCE_OF_Certificate_sequence_of[1] = {
+static const ber_sequence_t SEQUNCE_OF_Certificate_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_certs_item },
 };
 
@@ -320,7 +320,7 @@ static int dissect_certs(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
   return dissect_ocsp_SEQUNCE_OF_Certificate(FALSE, tvb, offset, pinfo, tree, hf_ocsp_certs);
 }
 
-static const ber_sequence Signature_sequence[] = {
+static const ber_sequence_t Signature_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_signatureAlgorithm },
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_signature },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_certs },
@@ -338,7 +338,7 @@ static int dissect_optionalSignature(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_ocsp_Signature(FALSE, tvb, offset, pinfo, tree, hf_ocsp_optionalSignature);
 }
 
-static const ber_sequence OCSPRequest_sequence[] = {
+static const ber_sequence_t OCSPRequest_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_tbsRequest },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_optionalSignature },
   { 0, 0, 0, NULL }
@@ -406,7 +406,7 @@ static int dissect_response(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_ocsp_T_response(FALSE, tvb, offset, pinfo, tree, hf_ocsp_response);
 }
 
-static const ber_sequence ResponseBytes_sequence[] = {
+static const ber_sequence_t ResponseBytes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_responseType },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_response },
   { 0, 0, 0, NULL }
@@ -423,7 +423,7 @@ static int dissect_responseBytes(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_ocsp_ResponseBytes(FALSE, tvb, offset, pinfo, tree, hf_ocsp_responseBytes);
 }
 
-static const ber_sequence OCSPResponse_sequence[] = {
+static const ber_sequence_t OCSPResponse_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_responseStatus },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_responseBytes },
   { 0, 0, 0, NULL }
@@ -456,7 +456,7 @@ static const value_string ResponderID_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice ResponderID_choice[] = {
+static const ber_choice_t ResponderID_choice[] = {
   {   1, BER_CLASS_CON, 1, 0, dissect_byName },
   {   2, BER_CLASS_CON, 2, 0, dissect_byKey },
   { 0, 0, 0, 0, NULL }
@@ -510,7 +510,7 @@ static int dissect_good_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
   return dissect_ocsp_NULL(TRUE, tvb, offset, pinfo, tree, hf_ocsp_good);
 }
 
-static const ber_sequence RevokedInfo_sequence[] = {
+static const ber_sequence_t RevokedInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_revocationTime },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_revocationReason },
   { 0, 0, 0, NULL }
@@ -549,7 +549,7 @@ static const value_string CertStatus_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice CertStatus_choice[] = {
+static const ber_choice_t CertStatus_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_good_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_revoked_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_unknown_impl },
@@ -567,7 +567,7 @@ static int dissect_certStatus(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_ocsp_CertStatus(FALSE, tvb, offset, pinfo, tree, hf_ocsp_certStatus);
 }
 
-static const ber_sequence SingleResponse_sequence[] = {
+static const ber_sequence_t SingleResponse_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_certID },
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_certStatus },
   { BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_thisUpdate },
@@ -587,7 +587,7 @@ static int dissect_responses_item(packet_info *pinfo, proto_tree *tree, tvbuff_t
   return dissect_ocsp_SingleResponse(FALSE, tvb, offset, pinfo, tree, hf_ocsp_responses_item);
 }
 
-static const ber_sequence SEQUNCE_OF_SingleResponse_sequence_of[1] = {
+static const ber_sequence_t SEQUNCE_OF_SingleResponse_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_responses_item },
 };
 
@@ -602,7 +602,7 @@ static int dissect_responses(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
   return dissect_ocsp_SEQUNCE_OF_SingleResponse(FALSE, tvb, offset, pinfo, tree, hf_ocsp_responses);
 }
 
-static const ber_sequence ResponseData_sequence[] = {
+static const ber_sequence_t ResponseData_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_version },
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_responderID },
   { BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_producedAt },
@@ -622,7 +622,7 @@ static int dissect_tbsResponseData(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_ocsp_ResponseData(FALSE, tvb, offset, pinfo, tree, hf_ocsp_tbsResponseData);
 }
 
-static const ber_sequence BasicOCSPResponse_sequence[] = {
+static const ber_sequence_t BasicOCSPResponse_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_tbsResponseData },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_signatureAlgorithm },
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_signature },
@@ -658,7 +658,7 @@ static int dissect_AcceptableResponses_item(packet_info *pinfo, proto_tree *tree
   return dissect_ocsp_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_ocsp_AcceptableResponses_item);
 }
 
-static const ber_sequence AcceptableResponses_sequence_of[1] = {
+static const ber_sequence_t AcceptableResponses_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_AcceptableResponses_item },
 };
 
@@ -670,7 +670,7 @@ dissect_ocsp_AcceptableResponses(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
   return offset;
 }
 
-static const ber_sequence ServiceLocator_sequence[] = {
+static const ber_sequence_t ServiceLocator_sequence[] = {
   { BER_CLASS_ANY, -1, BER_FLAGS_NOOWNTAG, dissect_issuer },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_locator },
   { 0, 0, 0, NULL }
@@ -709,7 +709,7 @@ static int dissect_crlNum(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
   return dissect_ocsp_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_ocsp_crlNum);
 }
 
-static const ber_sequence CrlID_sequence[] = {
+static const ber_sequence_t CrlID_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_crlUrl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_crlNum },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_crlTime },

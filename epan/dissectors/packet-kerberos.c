@@ -1332,7 +1332,7 @@ static int dissect_krb5_SAFE(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 static int dissect_krb5_PRIV(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_ERROR(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 
-static const ber_choice kerberos_applications_choice[] = {
+static const ber_choice_t kerberos_applications_choice[] = {
 	{ KRB5_MSG_AUTHENTICATOR, 	BER_CLASS_APP,	KRB5_MSG_AUTHENTICATOR,	0, dissect_krb5_Authenticator },
 	{ KRB5_MSG_ENC_TICKET_PART, BER_CLASS_APP,	KRB5_MSG_ENC_TICKET_PART, 0, dissect_krb5_EncTicketPart },
 	{ KRB5_MSG_AS_REQ,	BER_CLASS_APP,	KRB5_MSG_AS_REQ,	0,	dissect_krb5_KDC_REQ },
@@ -1548,7 +1548,7 @@ dissect_krb5_etype(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 	}
 	return offset;
 }
-static ber_sequence etype_sequence_of[1] = {
+static ber_sequence_t etype_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_krb5_etype },
 };
 static int
@@ -1665,7 +1665,7 @@ static int dissect_krb5_address(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 	offset+=len;
 	return offset;
 }
-static ber_sequence HostAddress_sequence[] = {
+static ber_sequence_t HostAddress_sequence[] = {
 	{ BER_CLASS_CON, 0, 0, dissect_krb5_addr_type },
 	{ BER_CLASS_CON, 1, 0, dissect_krb5_address },
 	{ 0, 0, 0, NULL }
@@ -1694,7 +1694,7 @@ dissect_krb5_s_address(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
  *  }
  *
  */
-static ber_sequence HostAddresses_sequence_of[1] = {
+static ber_sequence_t HostAddresses_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_krb5_HostAddress },
 };
 static int
@@ -1771,7 +1771,7 @@ dissect_krb5_name_string(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
 
 	return offset;
 }
-static ber_sequence name_stringe_sequence_of[1] = {
+static ber_sequence_t name_stringe_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_GeneralString, BER_FLAGS_NOOWNTAG, dissect_krb5_name_string },
 };
 static int
@@ -1782,7 +1782,7 @@ dissect_krb5_name_strings(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 
 	return offset;
 }
-static ber_sequence PrincipalName_sequence[] = {
+static ber_sequence_t PrincipalName_sequence[] = {
 	{ BER_CLASS_CON, 0, 0, dissect_krb5_name_type },
 	{ BER_CLASS_CON, 1, 0, dissect_krb5_name_strings },
 	{ 0, 0, 0, NULL }
@@ -1829,7 +1829,7 @@ dissect_krb5_PA_PAC_REQUEST_flag(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 }
 
 
-static ber_sequence PA_PAC_REQUEST_sequence[] = {
+static ber_sequence_t PA_PAC_REQUEST_sequence[] = {
 	{ BER_CLASS_CON, 0, 0, dissect_krb5_PA_PAC_REQUEST_flag },
 	{ 0, 0, 0, NULL }
 };
@@ -1888,7 +1888,7 @@ dissect_krb5_patimestamp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
 	offset=dissect_ber_GeneralizedTime(FALSE, pinfo, tree, tvb, offset, hf_krb_patimestamp);
 	return offset;
 }
-static const ber_sequence PA_ENC_TS_ENC_sequence[] = {
+static const ber_sequence_t PA_ENC_TS_ENC_sequence[] = {
 	{ BER_CLASS_CON, 0, 0, dissect_krb5_patimestamp },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_krb5_pausec },
 	{ 0, 0, 0, NULL }
@@ -1939,7 +1939,7 @@ dissect_krb5_encrypted_PA_ENC_TIMESTAMP(packet_info *pinfo, proto_tree *tree, tv
 #endif
 	return offset;
 }
-static ber_sequence PA_ENC_TIMESTAMP_sequence[] = {
+static ber_sequence_t PA_ENC_TIMESTAMP_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_PA_ENC_TIMESTAMP_etype },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
@@ -1965,7 +1965,7 @@ dissect_krb5_etype_info_salt(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 	return offset;
 }
 
-static ber_sequence PA_ENCTYPE_INFO_ENTRY_sequence[] = {
+static ber_sequence_t PA_ENCTYPE_INFO_ENTRY_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_etype },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
@@ -1980,7 +1980,7 @@ dissect_krb5_PA_ENCTYPE_INFO_ENTRY(packet_info *pinfo, proto_tree *tree, tvbuff_
 	return offset;
 }
 
-static ber_sequence PA_ENCTYPE_INFO_sequence_of[1] = {
+static ber_sequence_t PA_ENCTYPE_INFO_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_krb5_PA_ENCTYPE_INFO_ENTRY },
 };
 static int
@@ -2051,7 +2051,7 @@ dissect_krb5_PA_DATA_value(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t
 /*qqq*/
 }
 
-static ber_sequence PA_DATA_sequence[] = {
+static ber_sequence_t PA_DATA_sequence[] = {
 	{ BER_CLASS_CON, 1, 0, dissect_krb5_PA_DATA_type },
 	{ BER_CLASS_CON, 2, 0, dissect_krb5_PA_DATA_value },
 	{ 0, 0, 0, NULL }
@@ -2071,7 +2071,7 @@ dissect_krb5_PA_DATA(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int of
  * padata[3]             SEQUENCE OF PA-DATA OPTIONAL,
  *
  */
-static ber_sequence PA_DATA_sequence_of[1] = {
+static ber_sequence_t PA_DATA_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_krb5_PA_DATA },
 };
 static int
@@ -2197,7 +2197,7 @@ dissect_krb5_keyvalue(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
  *     keytype  [0] int32
  *     keyvalue [1] octet string
  */
-static ber_sequence EncryptionKey_sequence[] = {
+static ber_sequence_t EncryptionKey_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_keytype },
 	{ BER_CLASS_CON, 1, 0,
@@ -2449,7 +2449,7 @@ dissect_krb5_IF_RELEVANT_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 	}
 	return offset;
 }
-static ber_sequence IF_RELEVANT_item_sequence[] = {
+static ber_sequence_t IF_RELEVANT_item_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_IF_RELEVANT_type },
 	{ BER_CLASS_CON, 1, 0,
@@ -2464,7 +2464,7 @@ dissect_krb5_IF_RELEVANT_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 	return offset;
 }
 
-static ber_sequence IF_RELEVANT_sequence_of[1] = {
+static ber_sequence_t IF_RELEVANT_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_krb5_IF_RELEVANT_item },
 };
 
@@ -2505,7 +2505,7 @@ dissect_krb5_advalue(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int of
  *     ad-type  [0] int32
  *     ad-data  [1] octet string
  */
-static ber_sequence AuthorizationData_item_sequence[] = {
+static ber_sequence_t AuthorizationData_item_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_adtype },
 	{ BER_CLASS_CON, 1, 0,
@@ -2520,7 +2520,7 @@ dissect_krb5_AuthorizationData_item(packet_info *pinfo, proto_tree *tree, tvbuff
 	return offset;
 }
 
-static ber_sequence AuthorizationData_sequence_of[1] = {
+static ber_sequence_t AuthorizationData_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_krb5_AuthorizationData_item },
 };
 static int
@@ -2558,7 +2558,7 @@ dissect_krb5_transited_contents(packet_info *pinfo, proto_tree *tree, tvbuff_t *
  *     tr-type  [0] int32
  *     contents [1] octet string
  */
-static ber_sequence TransitedEncoding_sequence[] = {
+static ber_sequence_t TransitedEncoding_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_transited_type },
 	{ BER_CLASS_CON, 1, 0,
@@ -2614,7 +2614,7 @@ dissect_krb5_renew_till(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
  *      authorization-data      [10] AuthorizationData OPTIONAL
  * }
  */
-static ber_sequence EncTicketPart_sequence[] = {
+static ber_sequence_t EncTicketPart_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_TicketFlags },
 	{ BER_CLASS_CON, 1, 0,
@@ -2660,7 +2660,7 @@ dissect_krb5_EncTicketPart(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
  *     seq-number               [3] uint32 OPTIONAL
  * }
  */
-static ber_sequence EncAPRepPart_sequence[] = {
+static ber_sequence_t EncAPRepPart_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_ctime },
 	{ BER_CLASS_CON, 1, 0,
@@ -2708,7 +2708,7 @@ dissect_krb5_lr_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
 	return offset;
 }
 
-static ber_sequence LastReq_sequence[] = {
+static ber_sequence_t LastReq_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_lr_type },
 	{ BER_CLASS_CON, 1, 0,
@@ -2722,7 +2722,7 @@ dissect_krb5_LastReq(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int of
 
 	return offset;
 }
-static ber_sequence LastReq_sequence_of[1] = {
+static ber_sequence_t LastReq_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_krb5_LastReq },
 };
 static int
@@ -2740,7 +2740,7 @@ dissect_krb5_key_expiration(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 	return offset;
 }
 
-static ber_sequence EncKDCRepPart_sequence[] = {
+static ber_sequence_t EncKDCRepPart_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_key },
 	{ BER_CLASS_CON, 1, 0,
@@ -2803,7 +2803,7 @@ dissect_krb5_checksum_checksum(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
  * Checksum ::=        SEQUENCE {
  * }
  */
-static ber_sequence Checksum_sequence[] = {
+static ber_sequence_t Checksum_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_checksum_type },
 	{ BER_CLASS_CON, 1, 0,
@@ -2831,7 +2831,7 @@ dissect_krb5_Checksum(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
  *     authorization-data       [8] AuthorizationData OPTIONAL
  * }
  */
-static ber_sequence Authenticator_sequence[] = {
+static ber_sequence_t Authenticator_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_authenticator_vno },
 	{ BER_CLASS_CON, 1, 0,
@@ -2875,7 +2875,7 @@ dissect_krb5_encrypted_PRIV(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 	offset=dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_krb_encrypted_PRIV, NULL);
 	return offset;
 }
-static ber_sequence ENC_PRIV_sequence[] = {
+static ber_sequence_t ENC_PRIV_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_etype },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
@@ -2890,7 +2890,7 @@ dissect_krb5_ENC_PRIV(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
 	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, ENC_PRIV_sequence, hf_krb_ENC_PRIV, ett_krb_PRIV_enc);
 	return offset;
 }
-static ber_sequence PRIV_BODY_sequence[] = {
+static ber_sequence_t PRIV_BODY_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_pvno },
 	{ BER_CLASS_CON, 1, 0,
@@ -2931,7 +2931,7 @@ dissect_krb5_SAFE_BODY_usec(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 	return offset;
 }
 
-static ber_sequence SAFE_BODY_sequence[] = {
+static ber_sequence_t SAFE_BODY_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_SAFE_BODY_user_data },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
@@ -2958,7 +2958,7 @@ dissect_krb5_SAFE_BODY(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 
 
 
-static ber_sequence SAFE_sequence[] = {
+static ber_sequence_t SAFE_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_pvno },
 	{ BER_CLASS_CON, 1, 0,
@@ -3000,7 +3000,7 @@ dissect_krb5_SAFE(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offse
  * }
  *
  */
-static ber_sequence KDC_REQ_BODY_sequence[] = {
+static ber_sequence_t KDC_REQ_BODY_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_KDCOptions },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
@@ -3067,7 +3067,7 @@ dissect_krb5_KDC_REQ_BODY(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
  *          req-body[4]           KDC-REQ-BODY
  * }
  */
-static ber_sequence KDC_REQ_sequence[] = {
+static ber_sequence_t KDC_REQ_sequence[] = {
 	{ BER_CLASS_CON, 1, 0,
 		dissect_krb5_pvno },
 	{ BER_CLASS_CON, 2, 0,
@@ -3145,7 +3145,7 @@ dissect_krb5_encrypted_authenticator_data(packet_info *pinfo, proto_tree *tree, 
 #endif
 	return offset;
 }
-static ber_sequence encrypted_authenticator_sequence[] = {
+static ber_sequence_t encrypted_authenticator_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_authenticator_etype },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
@@ -3214,7 +3214,7 @@ dissect_krb5_encrypted_Ticket_data(packet_info *pinfo, proto_tree *tree, tvbuff_
 #endif
 	return offset;
 }
-static ber_sequence encrypted_Ticket_sequence[] = {
+static ber_sequence_t encrypted_Ticket_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_Ticket_etype },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
@@ -3231,7 +3231,7 @@ dissect_krb5_Ticket_encrypted(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 	return offset;
 }
 
-static ber_sequence Application_1_sequence[] = {
+static ber_sequence_t Application_1_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_tkt_vno },
 	{ BER_CLASS_CON, 1, 0,
@@ -3252,7 +3252,7 @@ dissect_krb5_Application_1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 
 
 
-static const ber_choice Ticket_choice[] = {
+static const ber_choice_t Ticket_choice[] = {
 	{ 1, BER_CLASS_APP, 1,  0,
 		dissect_krb5_Application_1 },
 	{ 0, 0, 0, 0, NULL }
@@ -3277,7 +3277,7 @@ dissect_krb5_Ticket(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
  *                  authenticator[4]              EncryptedData
  *  }
  */
-static ber_sequence AP_REQ_sequence[] = {
+static ber_sequence_t AP_REQ_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_pvno },
 	{ BER_CLASS_CON, 1, 0,
@@ -3349,7 +3349,7 @@ dissect_krb5_encrypted_AP_REP_data(packet_info *pinfo, proto_tree *tree, tvbuff_
 #endif
 	return offset;
 }
-static ber_sequence encrypted_AP_REP_sequence[] = {
+static ber_sequence_t encrypted_AP_REP_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_AP_REP_etype },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
@@ -3373,7 +3373,7 @@ dissect_krb5_encrypted_AP_REP(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
  *             enc-part[2]               EncryptedData
  *  }
  */
-static ber_sequence AP_REP_sequence[] = {
+static ber_sequence_t AP_REP_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_pvno },
 	{ BER_CLASS_CON, 1, 0,
@@ -3462,7 +3462,7 @@ dissect_krb5_encrypted_KDC_REP_data(packet_info *pinfo, proto_tree *tree, tvbuff
 #endif
 	return offset;
 }
-static ber_sequence encrypted_KDC_REP_sequence[] = {
+static ber_sequence_t encrypted_KDC_REP_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_KDC_REP_etype },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
@@ -3490,7 +3490,7 @@ dissect_krb5_encrypted_KDC_REP(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
  *                enc-part[6]                EncryptedData
  *  }
  */
-static ber_sequence KDC_REP_sequence[] = {
+static ber_sequence_t KDC_REP_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_pvno },
 	{ BER_CLASS_CON, 1, 0,
@@ -3577,7 +3577,7 @@ dissect_krb5_e_checksum(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
  *            authentication method and optionally containing data for
  *            the method:
  */
-static ber_sequence ERROR_sequence[] = {
+static ber_sequence_t ERROR_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_pvno },
 	{ BER_CLASS_CON, 1, 0,

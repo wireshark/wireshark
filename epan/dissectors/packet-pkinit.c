@@ -146,7 +146,7 @@ static const value_string TrustedCA_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice TrustedCA_choice[] = {
+static const ber_choice_t TrustedCA_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_caName },
   {   2, BER_CLASS_CON, 2, 0, dissect_issuerAndSerial },
   { 0, 0, 0, 0, NULL }
@@ -163,7 +163,7 @@ static int dissect_trustedCertifiers_item(packet_info *pinfo, proto_tree *tree, 
   return dissect_pkinit_TrustedCA(FALSE, tvb, offset, pinfo, tree, hf_pkinit_trustedCertifiers_item);
 }
 
-static const ber_sequence SEQUNCE_OF_TrustedCA_sequence_of[1] = {
+static const ber_sequence_t SEQUNCE_OF_TrustedCA_sequence_of[1] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_trustedCertifiers_item },
 };
 
@@ -178,7 +178,7 @@ static int dissect_trustedCertifiers(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_pkinit_SEQUNCE_OF_TrustedCA(FALSE, tvb, offset, pinfo, tree, hf_pkinit_trustedCertifiers);
 }
 
-static const ber_sequence PaPkAsReq_sequence[] = {
+static const ber_sequence_t PaPkAsReq_sequence[] = {
   { BER_CLASS_CON, 0, 0, dissect_signedAuthPack },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_trustedCertifiers },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_kdcCert },
@@ -220,7 +220,7 @@ static int dissect_paNonce(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
   return dissect_pkinit_INTEGER_0_4294967295(FALSE, tvb, offset, pinfo, tree, hf_pkinit_paNonce);
 }
 
-static const ber_sequence PKAuthenticator_sequence[] = {
+static const ber_sequence_t PKAuthenticator_sequence[] = {
   { BER_CLASS_CON, 0, 0, dissect_cusec },
   { BER_CLASS_CON, 1, 0, dissect_ctime },
   { BER_CLASS_CON, 2, 0, dissect_paNonce },
@@ -239,7 +239,7 @@ static int dissect_pkAuthenticator(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_pkinit_PKAuthenticator(FALSE, tvb, offset, pinfo, tree, hf_pkinit_pkAuthenticator);
 }
 
-static const ber_sequence SEQUNCE_OF_AlgorithmIdentifier_sequence_of[1] = {
+static const ber_sequence_t SEQUNCE_OF_AlgorithmIdentifier_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_supportedCMSTypes_item },
 };
 
@@ -254,7 +254,7 @@ static int dissect_supportedCMSTypes(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_pkinit_SEQUNCE_OF_AlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_pkinit_supportedCMSTypes);
 }
 
-static const ber_sequence AuthPack_sequence[] = {
+static const ber_sequence_t AuthPack_sequence[] = {
   { BER_CLASS_CON, 0, 0, dissect_pkAuthenticator },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_clientPublicValue },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_supportedCMSTypes },
@@ -276,7 +276,7 @@ static const value_string PaPkAsRep_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice PaPkAsRep_choice[] = {
+static const ber_choice_t PaPkAsRep_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_dhSignedData },
   {   1, BER_CLASS_CON, 1, 0, dissect_encKeyPack },
   { 0, 0, 0, 0, NULL }
@@ -303,7 +303,7 @@ static int dissect_subjectPublicKey(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_pkinit_BIT_STRING(FALSE, tvb, offset, pinfo, tree, hf_pkinit_subjectPublicKey);
 }
 
-static const ber_sequence KDCDHKeyInfo_sequence[] = {
+static const ber_sequence_t KDCDHKeyInfo_sequence[] = {
   { BER_CLASS_CON, 0, 0, dissect_subjectPublicKey },
   { BER_CLASS_CON, 1, 0, dissect_dhNonce },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_dhKeyExpiration },

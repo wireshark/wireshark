@@ -212,7 +212,7 @@ static const value_string T_address_value_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice T_address_value_choice[] = {
+static const ber_choice_t T_address_value_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_octet_format },
   { 0, 0, 0, 0, NULL }
 };
@@ -228,7 +228,7 @@ static int dissect_address_value(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_smrse_T_address_value(FALSE, tvb, offset, pinfo, tree, hf_smrse_address_value);
 }
 
-static const ber_sequence SMS_Address_sequence[] = {
+static const ber_sequence_t SMS_Address_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_address_type },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_numbering_plan },
   { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_address_value },
@@ -280,7 +280,7 @@ static int dissect_password(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_smrse_Password(FALSE, tvb, offset, pinfo, tree, hf_smrse_password);
 }
 
-static const ber_sequence SMR_Bind_sequence[] = {
+static const ber_sequence_t SMR_Bind_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_sc_address },
   { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_password },
   { 0, 0, 0, NULL }
@@ -306,7 +306,7 @@ static int dissect_moimsi_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   return dissect_smrse_IMSI_Address(TRUE, tvb, offset, pinfo, tree, hf_smrse_moimsi);
 }
 
-static const ber_sequence SMR_Bind_Confirm_sequence[] = {
+static const ber_sequence_t SMR_Bind_Confirm_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
@@ -340,7 +340,7 @@ static int dissect_connect_fail_reason(packet_info *pinfo, proto_tree *tree, tvb
   return dissect_smrse_Connect_fail(FALSE, tvb, offset, pinfo, tree, hf_smrse_connect_fail_reason);
 }
 
-static const ber_sequence SMR_Bind_Failure_sequence[] = {
+static const ber_sequence_t SMR_Bind_Failure_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_connect_fail_reason },
   { 0, 0, 0, NULL }
 };
@@ -353,7 +353,7 @@ dissect_smrse_SMR_Bind_Failure(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
   return offset;
 }
 
-static const ber_sequence SMR_Unbind_sequence[] = {
+static const ber_sequence_t SMR_Unbind_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
@@ -430,7 +430,7 @@ static int dissect_mt_tariffClass_impl(packet_info *pinfo, proto_tree *tree, tvb
   return dissect_smrse_SM_TC(TRUE, tvb, offset, pinfo, tree, hf_smrse_mt_tariffClass);
 }
 
-static const ber_sequence RPDataMT_sequence[] = {
+static const ber_sequence_t RPDataMT_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_NOOWNTAG, dissect_mt_priority_request },
   { BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_NOOWNTAG, dissect_mt_mms },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_mt_message_reference },
@@ -450,7 +450,7 @@ dissect_smrse_RPDataMT(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
   return offset;
 }
 
-static const ber_sequence RPDataMO_sequence[] = {
+static const ber_sequence_t RPDataMO_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_mo_message_reference },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_mo_originating_address },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_mo_user_data },
@@ -467,7 +467,7 @@ dissect_smrse_RPDataMO(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
   return offset;
 }
 
-static const ber_sequence RPAck_sequence[] = {
+static const ber_sequence_t RPAck_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_message_reference },
   { 0, 0, 0, NULL }
 };
@@ -515,7 +515,7 @@ static int dissect_error_reason(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_smrse_Error_reason(FALSE, tvb, offset, pinfo, tree, hf_smrse_error_reason);
 }
 
-static const ber_sequence RPError_sequence[] = {
+static const ber_sequence_t RPError_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_error_reason },
   { BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_NOOWNTAG, dissect_msg_waiting_set },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_message_reference },
@@ -532,7 +532,7 @@ dissect_smrse_RPError(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pack
   return offset;
 }
 
-static const ber_sequence RPAlertSC_sequence[] = {
+static const ber_sequence_t RPAlertSC_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ms_address },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_message_reference },
   { 0, 0, 0, NULL }

@@ -13,6 +13,7 @@ InformationFramework x509if
 #.EXPORTS
 ContentInfo
 ContentType
+Countersignature
 DigestAlgorithmIdentifiers
 EncapsulatedContentInfo
 IssuerAndSerialNumber

@@ -118,7 +118,7 @@ static int dissect_coefficient(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   return dissect_pkcs1_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_coefficient);
 }
 
-static const ber_sequence RSAPublicKey_sequence[] = {
+static const ber_sequence_t RSAPublicKey_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_modulus },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_publicExponent },
   { 0, 0, 0, NULL }
@@ -144,7 +144,7 @@ static int dissect_version(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
   return dissect_pkcs1_Version(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_version);
 }
 
-static const ber_sequence RSAPrivateKey_sequence[] = {
+static const ber_sequence_t RSAPrivateKey_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_version },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_modulus },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_publicExponent },
@@ -188,7 +188,7 @@ static int dissect_digest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
   return dissect_pkcs1_Digest(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_digest);
 }
 
-static const ber_sequence DigestInfo_sequence[] = {
+static const ber_sequence_t DigestInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_digestAlgorithm },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_digest },
   { 0, 0, 0, NULL }

@@ -182,7 +182,7 @@ dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *t
 	offset=dissect_ber_identifier(pinfo, NULL, tvb, offset, &class, &pc, &tag);
 	offset=dissect_ber_length(pinfo, NULL, tvb, offset, &len, &ind);
 
-	if(len>tvb_length_remaining(tvb, offset)){
+	if(len>(guint32)tvb_length_remaining(tvb, offset)){
 		/* hmm   maybe something bad happened or the frame is short,
 		   since these are not vital outputs just return instead of 
 		   throwing en exception.
@@ -241,7 +241,7 @@ dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *t
 	}
 
 	/* were there more data to eat? */
-	if(offset<tvb_length(tvb)){
+	if(offset<(int)tvb_length(tvb)){
 		offset=dissect_unknown_ber(pinfo, tvb, offset, tree);
 	}
 
@@ -276,16 +276,16 @@ call_ber_oid_callback(char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 
-static int dissect_ber_sq_of(gboolean implicit_tag, guint32 type, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence *seq, gint hf_id, gint ett_id);
+static int dissect_ber_sq_of(gboolean implicit_tag, gint32 type, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id);
 
 /* 8.1 General rules for encoding */
 
 /*  8.1.2 Identifier octets */
-int get_ber_identifier(tvbuff_t *tvb, int offset, guint8 *class, gboolean *pc, guint32 *tag) {
+int get_ber_identifier(tvbuff_t *tvb, int offset, gint8 *class, gboolean *pc, gint32 *tag) {
 	guint8 id, t;
-	guint8 tmp_class;
+	gint8 tmp_class;
 	gboolean tmp_pc;
-	guint32 tmp_tag;
+	gint32 tmp_tag;
 
 	id = tvb_get_guint8(tvb, offset);
 	offset += 1;
@@ -316,12 +316,12 @@ int get_ber_identifier(tvbuff_t *tvb, int offset, guint8 *class, gboolean *pc, g
 	return offset;
 }
 
-int dissect_ber_identifier(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, guint8 *class, gboolean *pc, guint32 *tag) 
+int dissect_ber_identifier(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, gint8 *class, gboolean *pc, gint32 *tag) 
 {
 	int old_offset = offset;
-	guint8 tmp_class;
+	gint8 tmp_class;
 	gboolean tmp_pc;
-	guint32 tmp_tag;
+	gint32 tmp_tag;
 
 	offset = get_ber_identifier(tvb, offset, &tmp_class, &tmp_pc, &tmp_tag);
 	
@@ -472,7 +472,7 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 			ber_last_created_item = it;
 		}
 		if (out_tvb) {
-			if(len<=tvb_length_remaining(tvb, offset)){
+			if(len<=(guint32)tvb_length_remaining(tvb, offset)){
 				*out_tvb = tvb_new_subset(tvb, offset, len, len);
 			} else {
 				*out_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));
@@ -628,10 +628,10 @@ dissect_ber_boolean(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 
 /* this function dissects a BER sequence 
  */
-int dissect_ber_sequence(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence *seq, gint hf_id, gint ett_id) {
-	guint8 class;
+int dissect_ber_sequence(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id) {
+	gint8 class;
 	gboolean pc, ind, ind_field;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
 	proto_tree *tree = parent_tree;
 	proto_item *item = NULL;
@@ -691,9 +691,9 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n",name);
 
 	/* loop over all entries until we reach the end of the sequence */
 	while (offset < end_offset){
-		guint8 class;
+		gint8 class;
 		gboolean pc;
-		guint32 tag;
+		gint32 tag;
 		guint32 len;
 		int hoffset, eoffset, count;
 
@@ -839,13 +839,13 @@ printf("SEQUENCE dissect_ber_sequence(%s) subdissector ate %d bytes\n",name,coun
  * in case it was a CHOICE { } OPTIONAL
  */
 int
-dissect_ber_choice(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_choice *choice, gint hf_id, gint ett_id)
+dissect_ber_choice(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_choice_t *choice, gint hf_id, gint ett_id)
 {
-	guint8 class;
+	gint8 class;
 	gboolean pc, ind;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
-	const ber_choice *ch;
+	const ber_choice_t *ch;
 	proto_tree *tree=parent_tree;
 	proto_item *item=NULL;
 	int end_offset, start_offset, count;
@@ -1010,9 +1010,9 @@ printf("CHOICE dissect_ber_choice(%s) subdissector ate %d bytes\n",name,count);
 int
 dissect_ber_GeneralString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, char *name_string, int name_len)
 {
-	guint8 class;
+	gint8 class;
 	gboolean pc;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
 	int end_offset;
 	char str_arr[256];
@@ -1053,10 +1053,10 @@ dissect_ber_GeneralString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 }
 #endif
 int
-dissect_ber_restricted_string(gboolean implicit_tag, guint32 type, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **out_tvb) {
-	guint8 class;
+dissect_ber_restricted_string(gboolean implicit_tag, gint32 type, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **out_tvb) {
+	gint8 class;
 	gboolean pc;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
 	int eoffset;
 	int hoffset = offset;
@@ -1118,9 +1118,9 @@ dissect_ber_GeneralString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 
 /* 8.19 Encoding of an object identifier value */
 int dissect_ber_object_identifier(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, char *value_string) {
-	guint8 class;
+	gint8 class;
 	gboolean pc;
-	guint32 tag;
+	gint32 tag;
 	guint32 i, len;
 	int eoffset;
 	guint8 byte;
@@ -1209,10 +1209,10 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
 	return eoffset;
 }
 
-static int dissect_ber_sq_of(gboolean implicit_tag, guint32 type, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence *seq, gint hf_id, gint ett_id) {
-	guint8 class;
+static int dissect_ber_sq_of(gboolean implicit_tag, gint32 type, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id) {
+	gint8 class;
 	gboolean pc, ind, ind_field;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
 	proto_tree *tree = parent_tree;
 	proto_item *item = NULL;
@@ -1300,9 +1300,9 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 
 	/* loop over all entries until we reach the end of the sequence */
 	while (offset < end_offset){
-		guint8 class;
+		gint8 class;
 		gboolean pc;
-		guint32 tag;
+		gint32 tag;
 		guint32 len;
 		int eoffset;
 		int hoffset, count;
@@ -1370,11 +1370,11 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 	return end_offset;
 }
 
-int dissect_ber_sequence_of(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence *seq, gint hf_id, gint ett_id) {
+int dissect_ber_sequence_of(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id) {
 	return dissect_ber_sq_of(implicit_tag, BER_UNI_TAG_SEQUENCE, pinfo, parent_tree, tvb, offset, seq, hf_id, ett_id);
 }
 
-int dissect_ber_set_of(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence *seq, gint hf_id, gint ett_id) {
+int dissect_ber_set_of(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id) {
 	return dissect_ber_sq_of(implicit_tag, BER_UNI_TAG_SET, pinfo, parent_tree, tvb, offset, seq, hf_id, ett_id);
 }
 
@@ -1383,9 +1383,9 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, packet_info *pinfo, proto_tre
 {
 	char str[32];
 	const guint8 *tmpstr;
-	guint8 class;
+	gint8 class;
 	gboolean pc;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
 	int end_offset;
 
@@ -1424,9 +1424,9 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, packet_info *pinfo, proto_tre
 /* 8.6 Encoding of a bitstring value */
 int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const asn_namedbit *named_bits, gint hf_id, gint ett_id, tvbuff_t **out_tvb) 
 {
-	guint8 class;
+	gint8 class;
 	gboolean pc, ind;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
 	guint8 pad=0, b0, b1, val;
 	int end_offset;
@@ -1476,7 +1476,7 @@ int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree 
 			}
 		}
 		if (out_tvb) {
-			if(len<=tvb_length_remaining(tvb, offset)){
+			if(len<=(guint32)tvb_length_remaining(tvb, offset)){
 				*out_tvb = tvb_new_subset(tvb, offset, len, len);
 			} else {
 				*out_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));

@@ -151,7 +151,7 @@ static int dissect_hashedMessage(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_pkixtsp_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_pkixtsp_hashedMessage);
 }
 
-static const ber_sequence MessageImprint_sequence[] = {
+static const ber_sequence_t MessageImprint_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_hashAlgorithm },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_hashedMessage },
   { 0, 0, 0, NULL }
@@ -215,7 +215,7 @@ static int dissect_ordering(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_pkixtsp_BOOLEAN(FALSE, tvb, offset, pinfo, tree, hf_pkixtsp_ordering);
 }
 
-static const ber_sequence TimeStampReq_sequence[] = {
+static const ber_sequence_t TimeStampReq_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_version },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_messageImprint },
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_reqPolicy },
@@ -279,7 +279,7 @@ static int dissect_failInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_pkixtsp_PKIFailureInfo(FALSE, tvb, offset, pinfo, tree, hf_pkixtsp_failInfo);
 }
 
-static const ber_sequence PKIStatusInfo_sequence[] = {
+static const ber_sequence_t PKIStatusInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pki_status },
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_failInfo },
   { 0, 0, 0, NULL }
@@ -307,7 +307,7 @@ static int dissect_timeStampToken(packet_info *pinfo, proto_tree *tree, tvbuff_t
   return dissect_pkixtsp_TimeStampToken(FALSE, tvb, offset, pinfo, tree, hf_pkixtsp_timeStampToken);
 }
 
-static const ber_sequence TimeStampResp_sequence[] = {
+static const ber_sequence_t TimeStampResp_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_status },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_timeStampToken },
   { 0, 0, 0, NULL }
@@ -364,7 +364,7 @@ static int dissect_micros_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   return dissect_pkixtsp_INTEGER_1_999(TRUE, tvb, offset, pinfo, tree, hf_pkixtsp_micros);
 }
 
-static const ber_sequence Accuracy_sequence[] = {
+static const ber_sequence_t Accuracy_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_seconds },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_millis_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_micros_impl },
@@ -382,7 +382,7 @@ static int dissect_accuracy(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_pkixtsp_Accuracy(FALSE, tvb, offset, pinfo, tree, hf_pkixtsp_accuracy);
 }
 
-static const ber_sequence TSTInfo_sequence[] = {
+static const ber_sequence_t TSTInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_tst_version },
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_policy },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_messageImprint },

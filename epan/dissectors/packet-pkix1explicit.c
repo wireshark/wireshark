@@ -186,7 +186,7 @@ static int dissect_extnValue(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
   return dissect_pkix1explicit_T_extnValue(FALSE, tvb, offset, pinfo, tree, hf_pkix1explicit_extnValue);
 }
 
-static const ber_sequence Extension_sequence[] = {
+static const ber_sequence_t Extension_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_extnId },
   { BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_critical },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_extnValue },
@@ -204,7 +204,7 @@ static int dissect_Extensions_item(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_pkix1explicit_Extension(FALSE, tvb, offset, pinfo, tree, hf_pkix1explicit_Extensions_item);
 }
 
-static const ber_sequence Extensions_sequence_of[1] = {
+static const ber_sequence_t Extensions_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Extensions_item },
 };
 
@@ -253,7 +253,7 @@ static int dissect_seed(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
   return dissect_pkix1explicit_BIT_STRING(FALSE, tvb, offset, pinfo, tree, hf_pkix1explicit_seed);
 }
 
-static const ber_sequence ValidationParms_sequence[] = {
+static const ber_sequence_t ValidationParms_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_seed },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pgenCounter },
   { 0, 0, 0, NULL }
@@ -270,7 +270,7 @@ static int dissect_validationParms(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_pkix1explicit_ValidationParms(FALSE, tvb, offset, pinfo, tree, hf_pkix1explicit_validationParms);
 }
 
-static const ber_sequence DomainParameters_sequence[] = {
+static const ber_sequence_t DomainParameters_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_p },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_g },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_q },
@@ -315,7 +315,7 @@ static int dissect_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
   return dissect_pkix1explicit_T_value(FALSE, tvb, offset, pinfo, tree, hf_pkix1explicit_value);
 }
 
-static const ber_sequence AttributeTypeAndValue_sequence[] = {
+static const ber_sequence_t AttributeTypeAndValue_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_type },
   { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_value },
   { 0, 0, 0, NULL }
@@ -332,7 +332,7 @@ static int dissect_RelativeDistinguishedName_item(packet_info *pinfo, proto_tree
   return dissect_pkix1explicit_AttributeTypeAndValue(FALSE, tvb, offset, pinfo, tree, hf_pkix1explicit_RelativeDistinguishedName_item);
 }
 
-static const ber_sequence RelativeDistinguishedName_set_of[1] = {
+static const ber_sequence_t RelativeDistinguishedName_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_RelativeDistinguishedName_item },
 };
 
@@ -347,7 +347,7 @@ static int dissect_RDNSequence_item(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_pkix1explicit_RelativeDistinguishedName(FALSE, tvb, offset, pinfo, tree, hf_pkix1explicit_RDNSequence_item);
 }
 
-static const ber_sequence RDNSequence_sequence_of[1] = {
+static const ber_sequence_t RDNSequence_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_RDNSequence_item },
 };
 
@@ -403,7 +403,7 @@ static int dissect_value1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
   return dissect_pkix1explicit_TeletexString(FALSE, tvb, offset, pinfo, tree, hf_pkix1explicit_value1);
 }
 
-static const ber_sequence TeletexDomainDefinedAttribute_sequence[] = {
+static const ber_sequence_t TeletexDomainDefinedAttribute_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_type1 },
   { BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_value1 },
   { 0, 0, 0, NULL }

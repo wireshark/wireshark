@@ -281,7 +281,7 @@ static int dissect_parameters(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_x509af_T_parameters(FALSE, tvb, offset, pinfo, tree, hf_x509af_parameters);
 }
 
-static const ber_sequence AlgorithmIdentifier_sequence[] = {
+static const ber_sequence_t AlgorithmIdentifier_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_algorithmId },
   { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_parameters },
   { 0, 0, 0, NULL }
@@ -344,7 +344,7 @@ const value_string Time_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice Time_choice[] = {
+static const ber_choice_t Time_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_NOOWNTAG, dissect_utcTime },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_generalizedTime },
   { 0, 0, 0, 0, NULL }
@@ -373,7 +373,7 @@ static int dissect_revocationDate(packet_info *pinfo, proto_tree *tree, tvbuff_t
   return dissect_x509af_Time(FALSE, tvb, offset, pinfo, tree, hf_x509af_revocationDate);
 }
 
-static const ber_sequence Validity_sequence[] = {
+static const ber_sequence_t Validity_sequence[] = {
   { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_notBefore },
   { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_notAfter },
   { 0, 0, 0, NULL }
@@ -406,7 +406,7 @@ static int dissect_subjectPublicKey(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_x509af_BIT_STRING(FALSE, tvb, offset, pinfo, tree, hf_x509af_subjectPublicKey);
 }
 
-static const ber_sequence SubjectPublicKeyInfo_sequence[] = {
+static const ber_sequence_t SubjectPublicKeyInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_algorithm },
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_subjectPublicKey },
   { 0, 0, 0, NULL }
@@ -466,7 +466,7 @@ static int dissect_extnValue(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
   return dissect_x509af_T_extnValue(FALSE, tvb, offset, pinfo, tree, hf_x509af_extnValue);
 }
 
-static const ber_sequence Extension_sequence[] = {
+static const ber_sequence_t Extension_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_extnId },
   { BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_critical },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_extnValue },
@@ -484,7 +484,7 @@ static int dissect_Extensions_item(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_x509af_Extension(FALSE, tvb, offset, pinfo, tree, hf_x509af_Extensions_item);
 }
 
-static const ber_sequence Extensions_sequence_of[1] = {
+static const ber_sequence_t Extensions_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Extensions_item },
 };
 
@@ -505,7 +505,7 @@ static int dissect_crlExtensions(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_x509af_Extensions(FALSE, tvb, offset, pinfo, tree, hf_x509af_crlExtensions);
 }
 
-static const ber_sequence T_signedCertificate_sequence[] = {
+static const ber_sequence_t T_signedCertificate_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_version },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_serialNumber },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_signature },
@@ -530,7 +530,7 @@ static int dissect_signedCertificate(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_x509af_T_signedCertificate(FALSE, tvb, offset, pinfo, tree, hf_x509af_signedCertificate);
 }
 
-static const ber_sequence Certificate_sequence[] = {
+static const ber_sequence_t Certificate_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_signedCertificate },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_algorithmIdentifier },
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_encrypted },
@@ -560,7 +560,7 @@ static int dissect_certificate(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   return dissect_x509af_Certificate(FALSE, tvb, offset, pinfo, tree, hf_x509af_certificate);
 }
 
-static const ber_sequence CrossCertificates_set_of[1] = {
+static const ber_sequence_t CrossCertificates_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_CrossCertificates_item },
 };
 
@@ -575,7 +575,7 @@ static int dissect_ForwardCertificationPath_item(packet_info *pinfo, proto_tree 
   return dissect_x509af_CrossCertificates(FALSE, tvb, offset, pinfo, tree, hf_x509af_ForwardCertificationPath_item);
 }
 
-static const ber_sequence ForwardCertificationPath_sequence_of[1] = {
+static const ber_sequence_t ForwardCertificationPath_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_ForwardCertificationPath_item },
 };
 
@@ -590,7 +590,7 @@ static int dissect_certificationPath(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_x509af_ForwardCertificationPath(FALSE, tvb, offset, pinfo, tree, hf_x509af_certificationPath);
 }
 
-static const ber_sequence Certificates_sequence[] = {
+static const ber_sequence_t Certificates_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_userCertificate },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_certificationPath },
   { 0, 0, 0, NULL }
@@ -604,7 +604,7 @@ dissect_x509af_Certificates(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
   return offset;
 }
 
-static const ber_sequence CertificatePair_sequence[] = {
+static const ber_sequence_t CertificatePair_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_issuedByThisCA },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_issuedToThisCA },
   { 0, 0, 0, NULL }
@@ -621,7 +621,7 @@ static int dissect_theCACertificates_item(packet_info *pinfo, proto_tree *tree, 
   return dissect_x509af_CertificatePair(FALSE, tvb, offset, pinfo, tree, hf_x509af_theCACertificates_item);
 }
 
-static const ber_sequence SEQUNCE_OF_CertificatePair_sequence_of[1] = {
+static const ber_sequence_t SEQUNCE_OF_CertificatePair_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_theCACertificates_item },
 };
 
@@ -636,7 +636,7 @@ static int dissect_theCACertificates(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_x509af_SEQUNCE_OF_CertificatePair(FALSE, tvb, offset, pinfo, tree, hf_x509af_theCACertificates);
 }
 
-static const ber_sequence CertificationPath_sequence[] = {
+static const ber_sequence_t CertificationPath_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_userCertificate },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_theCACertificates },
   { 0, 0, 0, NULL }
@@ -650,7 +650,7 @@ dissect_x509af_CertificationPath(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
   return offset;
 }
 
-static const ber_sequence T_revokedCertificates_item_sequence[] = {
+static const ber_sequence_t T_revokedCertificates_item_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_revokedUserCertificate },
   { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_revocationDate },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_crlEntryExtensions },
@@ -668,7 +668,7 @@ static int dissect_revokedCertificates_item(packet_info *pinfo, proto_tree *tree
   return dissect_x509af_T_revokedCertificates_item(FALSE, tvb, offset, pinfo, tree, hf_x509af_revokedCertificates_item);
 }
 
-static const ber_sequence T_revokedCertificates_sequence_of[1] = {
+static const ber_sequence_t T_revokedCertificates_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_revokedCertificates_item },
 };
 
@@ -683,7 +683,7 @@ static int dissect_revokedCertificates(packet_info *pinfo, proto_tree *tree, tvb
   return dissect_x509af_T_revokedCertificates(FALSE, tvb, offset, pinfo, tree, hf_x509af_revokedCertificates);
 }
 
-static const ber_sequence T_signedCertificateList_sequence[] = {
+static const ber_sequence_t T_signedCertificateList_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_version },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_signature },
   { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_issuer },
@@ -705,7 +705,7 @@ static int dissect_signedCertificateList(packet_info *pinfo, proto_tree *tree, t
   return dissect_x509af_T_signedCertificateList(FALSE, tvb, offset, pinfo, tree, hf_x509af_signedCertificateList);
 }
 
-static const ber_sequence CertificateList_sequence[] = {
+static const ber_sequence_t CertificateList_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_signedCertificateList },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_algorithmIdentifier },
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_encrypted },
@@ -720,7 +720,7 @@ dissect_x509af_CertificateList(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
   return offset;
 }
 
-static const ber_sequence IssuerSerial_sequence[] = {
+static const ber_sequence_t IssuerSerial_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_issuerName },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_serial },
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_issuerUID },
@@ -745,7 +745,7 @@ static const value_string InfoSubject_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice InfoSubject_choice[] = {
+static const ber_choice_t InfoSubject_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_baseCertificateID },
   {   1, BER_CLASS_CON, 1, 0, dissect_infoSubjectName },
   { 0, 0, 0, 0, NULL }
@@ -762,7 +762,7 @@ static int dissect_info_subject(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_x509af_InfoSubject(FALSE, tvb, offset, pinfo, tree, hf_x509af_info_subject);
 }
 
-static const ber_sequence AttCertValidityPeriod_sequence[] = {
+static const ber_sequence_t AttCertValidityPeriod_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_notBeforeTime },
   { BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_notAfterTime },
   { 0, 0, 0, NULL }
@@ -779,7 +779,7 @@ static int dissect_attCertValidityPeriod(packet_info *pinfo, proto_tree *tree, t
   return dissect_x509af_AttCertValidityPeriod(FALSE, tvb, offset, pinfo, tree, hf_x509af_attCertValidityPeriod);
 }
 
-static const ber_sequence SEQUNCE_OF_Attribute_sequence_of[1] = {
+static const ber_sequence_t SEQUNCE_OF_Attribute_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_attributes_item },
 };
 
@@ -794,7 +794,7 @@ static int dissect_attributes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_x509af_SEQUNCE_OF_Attribute(FALSE, tvb, offset, pinfo, tree, hf_x509af_attributes);
 }
 
-static const ber_sequence AttributeCertificateInfo_sequence[] = {
+static const ber_sequence_t AttributeCertificateInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_version },
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_info_subject },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_issuerName },
@@ -818,7 +818,7 @@ static int dissect_signedAttributeCertificateInfo(packet_info *pinfo, proto_tree
   return dissect_x509af_AttributeCertificateInfo(FALSE, tvb, offset, pinfo, tree, hf_x509af_signedAttributeCertificateInfo);
 }
 
-static const ber_sequence AttributeCertificate_sequence[] = {
+static const ber_sequence_t AttributeCertificate_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_signedAttributeCertificateInfo },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_algorithmIdentifier },
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_encrypted },
@@ -836,7 +836,7 @@ static int dissect_attributeCertificate(packet_info *pinfo, proto_tree *tree, tv
   return dissect_x509af_AttributeCertificate(FALSE, tvb, offset, pinfo, tree, hf_x509af_attributeCertificate);
 }
 
-static const ber_sequence ACPathData_sequence[] = {
+static const ber_sequence_t ACPathData_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_certificate },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_attributeCertificate },
   { 0, 0, 0, NULL }
@@ -853,7 +853,7 @@ static int dissect_acPath_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   return dissect_x509af_ACPathData(FALSE, tvb, offset, pinfo, tree, hf_x509af_acPath_item);
 }
 
-static const ber_sequence SEQUNCE_OF_ACPathData_sequence_of[1] = {
+static const ber_sequence_t SEQUNCE_OF_ACPathData_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_acPath_item },
 };
 
@@ -868,7 +868,7 @@ static int dissect_acPath(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
   return dissect_x509af_SEQUNCE_OF_ACPathData(FALSE, tvb, offset, pinfo, tree, hf_x509af_acPath);
 }
 
-static const ber_sequence AttributeCertificationPath_sequence[] = {
+static const ber_sequence_t AttributeCertificationPath_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_attributeCertificate },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_acPath },
   { 0, 0, 0, NULL }
@@ -889,7 +889,7 @@ static const value_string AssertionSubject_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice AssertionSubject_choice[] = {
+static const ber_choice_t AssertionSubject_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_baseCertificateID },
   {   1, BER_CLASS_CON, 1, 0, dissect_assertionSubjectName },
   { 0, 0, 0, 0, NULL }
@@ -906,7 +906,7 @@ static int dissect_assertion_subject(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_x509af_AssertionSubject(FALSE, tvb, offset, pinfo, tree, hf_x509af_assertion_subject);
 }
 
-static const ber_sequence SET_OF_AttributeType_set_of[1] = {
+static const ber_sequence_t SET_OF_AttributeType_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_attType_item },
 };
 
@@ -921,7 +921,7 @@ static int dissect_attType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
   return dissect_x509af_SET_OF_AttributeType(FALSE, tvb, offset, pinfo, tree, hf_x509af_attType);
 }
 
-static const ber_sequence AttributeCertificateAssertion_sequence[] = {
+static const ber_sequence_t AttributeCertificateAssertion_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_assertion_subject },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_assertionIssuer },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_attCertValidity },

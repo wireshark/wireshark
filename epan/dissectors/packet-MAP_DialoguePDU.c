@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* ./packet-MAP_DialoguePDU.c                                                 */
-/* ../../tools/asn2eth.py -X -b -k -e -p MAP_DialoguePDU -c MAP_DialoguePDU.cnf -s packet-MAP-DialoguePDU-template MAP_DialoguePDU.asn */
+/* ../../tools/asn2eth.py -X -b -e -p MAP_DialoguePDU -c MAP_DialoguePDU.cnf -s packet-MAP-DialoguePDU-template MAP_DialoguePDU.asn */
 
 /* Input file: packet-MAP-DialoguePDU-template.c */
 
@@ -122,7 +122,7 @@ static int dissect_originationReference_impl(packet_info *pinfo, proto_tree *tre
   return dissect_MAP_DialoguePDU_OriginationReference(TRUE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_originationReference);
 }
 
-static const ber_sequence T_map_open_sequence[] = {
+static const ber_sequence_t T_map_open_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationReference_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_originationReference_impl },
   { 0, 0, 0, NULL }
@@ -139,7 +139,7 @@ static int dissect_map_open_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_MAP_DialoguePDU_T_map_open(TRUE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_map_open);
 }
 
-static const ber_sequence T_map_accept_sequence[] = {
+static const ber_sequence_t T_map_accept_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
@@ -154,7 +154,7 @@ static int dissect_map_accept_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_MAP_DialoguePDU_T_map_accept(TRUE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_map_accept);
 }
 
-static const ber_sequence T_map_close_sequence[] = {
+static const ber_sequence_t T_map_close_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
@@ -188,7 +188,7 @@ static int dissect_reason(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
   return dissect_MAP_DialoguePDU_Reason(FALSE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_reason);
 }
 
-static const ber_sequence T_map_refuse_sequence[] = {
+static const ber_sequence_t T_map_refuse_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_reason },
   { 0, 0, 0, NULL }
 };
@@ -271,7 +271,7 @@ static const value_string MAP_UserAbortChoice_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice MAP_UserAbortChoice_choice[] = {
+static const ber_choice_t MAP_UserAbortChoice_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_userSpecificReason_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_userResourceLimitation_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_resourceUnavailable_impl },
@@ -290,7 +290,7 @@ static int dissect_map_UserAbortChoice(packet_info *pinfo, proto_tree *tree, tvb
   return dissect_MAP_DialoguePDU_MAP_UserAbortChoice(FALSE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_map_UserAbortChoice);
 }
 
-static const ber_sequence T_map_userAbort_sequence[] = {
+static const ber_sequence_t T_map_userAbort_sequence[] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_map_UserAbortChoice },
   { 0, 0, 0, NULL }
 };
@@ -324,7 +324,7 @@ static int dissect_map_ProviderAbortReason(packet_info *pinfo, proto_tree *tree,
   return dissect_MAP_DialoguePDU_MAP_ProviderAbortReason(FALSE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_map_ProviderAbortReason);
 }
 
-static const ber_sequence T_map_providerAbort_sequence[] = {
+static const ber_sequence_t T_map_providerAbort_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_map_ProviderAbortReason },
   { 0, 0, 0, NULL }
 };
@@ -351,7 +351,7 @@ static const value_string MAP_DialoguePDU_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice MAP_DialoguePDU_choice[] = {
+static const ber_choice_t MAP_DialoguePDU_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_map_open_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_map_accept_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_map_close_impl },
@@ -369,7 +369,7 @@ dissect_MAP_DialoguePDU_MAP_DialoguePDU(gboolean implicit_tag _U_, tvbuff_t *tvb
   return offset;
 }
 
-static const ber_sequence MAP_OpenInfo_sequence[] = {
+static const ber_sequence_t MAP_OpenInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationReference_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_originationReference_impl },
   { 0, 0, 0, NULL }
@@ -383,7 +383,7 @@ dissect_MAP_DialoguePDU_MAP_OpenInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, i
   return offset;
 }
 
-static const ber_sequence MAP_AcceptInfo_sequence[] = {
+static const ber_sequence_t MAP_AcceptInfo_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
@@ -395,7 +395,7 @@ dissect_MAP_DialoguePDU_MAP_AcceptInfo(gboolean implicit_tag _U_, tvbuff_t *tvb,
   return offset;
 }
 
-static const ber_sequence MAP_CloseInfo_sequence[] = {
+static const ber_sequence_t MAP_CloseInfo_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
@@ -407,7 +407,7 @@ dissect_MAP_DialoguePDU_MAP_CloseInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, 
   return offset;
 }
 
-static const ber_sequence MAP_RefuseInfo_sequence[] = {
+static const ber_sequence_t MAP_RefuseInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_reason },
   { 0, 0, 0, NULL }
 };
@@ -420,7 +420,7 @@ dissect_MAP_DialoguePDU_MAP_RefuseInfo(gboolean implicit_tag _U_, tvbuff_t *tvb,
   return offset;
 }
 
-static const ber_sequence MAP_UserAbortInfo_sequence[] = {
+static const ber_sequence_t MAP_UserAbortInfo_sequence[] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_map_UserAbortChoice },
   { 0, 0, 0, NULL }
 };
@@ -468,7 +468,7 @@ dissect_MAP_DialoguePDU_ProcedureCancellationReason(gboolean implicit_tag _U_, t
   return offset;
 }
 
-static const ber_sequence MAP_ProviderAbortInfo_sequence[] = {
+static const ber_sequence_t MAP_ProviderAbortInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_map_ProviderAbortReason },
   { 0, 0, 0, NULL }
 };

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* ./packet-pkixproxy.c                                                       */
-/* ../../tools/asn2eth.py -X -b -k -e -p pkixproxy -c pkixproxy.cnf -s packet-pkixproxy-template PKIXProxy.asn */
+/* ../../tools/asn2eth.py -X -b -e -p pkixproxy -c pkixproxy.cnf -s packet-pkixproxy-template PKIXProxy.asn */
 
 /* Input file: packet-pkixproxy-template.c */
 
@@ -113,7 +113,7 @@ static int dissect_policy(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
   return dissect_pkixproxy_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_pkixproxy_policy);
 }
 
-static const ber_sequence ProxyPolicy_sequence[] = {
+static const ber_sequence_t ProxyPolicy_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_policyLanguage },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_policy },
   { 0, 0, 0, NULL }
@@ -130,7 +130,7 @@ static int dissect_proxyPolicy(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   return dissect_pkixproxy_ProxyPolicy(FALSE, tvb, offset, pinfo, tree, hf_pkixproxy_proxyPolicy);
 }
 
-static const ber_sequence ProxyCertInfoExtension_sequence[] = {
+static const ber_sequence_t ProxyCertInfoExtension_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pCPathLenConstraint },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_proxyPolicy },
   { 0, 0, 0, NULL }

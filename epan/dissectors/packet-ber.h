@@ -74,8 +74,8 @@ typedef int (*ber_callback)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 /* this function dissects the identifier octer of the BER TLV.
  * We only handle TAGs (and LENGTHs) that fit inside 32 bit integers.
  */
-extern int get_ber_identifier(tvbuff_t *tvb, int offset, guint8 *class, gboolean *pc, guint32 *tag);
-extern int dissect_ber_identifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint8 *class, gboolean *pc, guint32 *tag);
+extern int get_ber_identifier(tvbuff_t *tvb, int offset, gint8 *class, gboolean *pc, gint32 *tag);
+extern int dissect_ber_identifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint8 *class, gboolean *pc, gint32 *tag);
 
 /* this function dissects the identifier octer of the BER TLV.
  * We only handle (TAGs and) LENGTHs that fit inside 32 bit integers.
@@ -96,35 +96,35 @@ extern int dissect_ber_boolean(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 #define BER_FLAGS_IMPLTAG	0x00000002
 #define BER_FLAGS_NOOWNTAG	0x00000004
 #define BER_FLAGS_NOTCHKTAG	0x00000008
-typedef struct _ber_sequence {
-	guint8	class;
-	guint32	tag;
+typedef struct _ber_sequence_t {
+	gint8	class;
+	gint32	tag;
 	guint32	flags;
 	ber_callback	func;
-} ber_sequence;
+} ber_sequence_t;
 
 /* this function dissects a BER sequence 
  */
-extern int dissect_ber_sequence(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence *seq, gint hf_id, gint ett_id);
+extern int dissect_ber_sequence(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id);
 
 
-typedef struct _ber_choice {
+typedef struct _ber_choice_t {
 	guint32	value;
-	guint8	class;
-	guint32	tag;
+	gint8	class;
+	gint32	tag;
 	guint32	flags;
 	ber_callback	func;
-} ber_choice;
+} ber_choice_t;
 
 
 /* this function dissects a BER choice 
  */
-extern int dissect_ber_choice(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_choice *ch, gint hf_id, gint ett_id);
+extern int dissect_ber_choice(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_choice_t *ch, gint hf_id, gint ett_id);
 
 
 /* this function dissects a BER strings
  */
-extern int dissect_ber_restricted_string(gboolean implicit_tag, guint32 type, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **out_tvb);
+extern int dissect_ber_restricted_string(gboolean implicit_tag, gint32 type, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **out_tvb);
 extern int dissect_ber_GeneralString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, char *name_string, guint name_len);
 
 
@@ -134,9 +134,9 @@ extern int dissect_ber_object_identifier(gboolean implicit_tag, packet_info *pin
 
 /* this function dissects a BER sequence of
  */
-extern int dissect_ber_sequence_of(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence *seq, gint hf_id, gint ett_id);
+extern int dissect_ber_sequence_of(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id);
 
-extern int dissect_ber_set_of(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence *seq, gint hf_id, gint ett_id);
+extern int dissect_ber_set_of(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id);
 
 
 extern int dissect_ber_GeneralizedTime(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id);

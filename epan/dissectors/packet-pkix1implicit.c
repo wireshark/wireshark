@@ -122,7 +122,7 @@ dissect_pkix1implicit_Dummy(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
   return offset;
 }
 
-static const ber_sequence EDIPartyName_sequence[] = {
+static const ber_sequence_t EDIPartyName_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nameAssigner_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_partyName_impl },
   { 0, 0, 0, NULL }
@@ -148,7 +148,7 @@ static int dissect_accessMethod(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_pkix1implicit_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_accessMethod);
 }
 
-static const ber_sequence AccessDescription_sequence[] = {
+static const ber_sequence_t AccessDescription_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_accessMethod },
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_accessLocation },
   { 0, 0, 0, NULL }
@@ -165,7 +165,7 @@ static int dissect_AuthorityInfoAccessSyntax_item(packet_info *pinfo, proto_tree
   return dissect_pkix1implicit_AccessDescription(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_AuthorityInfoAccessSyntax_item);
 }
 
-static const ber_sequence AuthorityInfoAccessSyntax_sequence_of[1] = {
+static const ber_sequence_t AuthorityInfoAccessSyntax_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_AuthorityInfoAccessSyntax_item },
 };
 
@@ -224,7 +224,7 @@ static const value_string DisplayText_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice DisplayText_choice[] = {
+static const ber_choice_t DisplayText_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_VisibleString, BER_FLAGS_NOOWNTAG, dissect_visibleString },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_BMPString, BER_FLAGS_NOOWNTAG, dissect_bmpString },
   {   2, BER_CLASS_UNI, BER_UNI_TAG_UTF8String, BER_FLAGS_NOOWNTAG, dissect_utf8String },
@@ -257,7 +257,7 @@ static int dissect_noticeNumbers_item(packet_info *pinfo, proto_tree *tree, tvbu
   return dissect_pkix1implicit_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_noticeNumbers_item);
 }
 
-static const ber_sequence SEQUNCE_OF_INTEGER_sequence_of[1] = {
+static const ber_sequence_t SEQUNCE_OF_INTEGER_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_noticeNumbers_item },
 };
 
@@ -272,7 +272,7 @@ static int dissect_noticeNumbers(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_pkix1implicit_SEQUNCE_OF_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_noticeNumbers);
 }
 
-static const ber_sequence NoticeReference_sequence[] = {
+static const ber_sequence_t NoticeReference_sequence[] = {
   { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_organization },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_noticeNumbers },
   { 0, 0, 0, NULL }
@@ -289,7 +289,7 @@ static int dissect_noticeRef(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
   return dissect_pkix1implicit_NoticeReference(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_noticeRef);
 }
 
-static const ber_sequence UserNotice_sequence[] = {
+static const ber_sequence_t UserNotice_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_noticeRef },
   { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_explicitText },
   { 0, 0, 0, NULL }

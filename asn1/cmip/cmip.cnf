@@ -12,6 +12,7 @@ InformationFramework x509if
 CMIPAbortInfo
 CMIPUserInfo
 ROS
+InvokeIDType
 
 #.NO_EMIT
 

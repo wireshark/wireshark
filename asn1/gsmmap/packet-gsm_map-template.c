@@ -558,7 +558,7 @@ static int dissect_absent(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 }
 
 
-static const ber_choice InvokeId_choice[] = {
+static const ber_choice_t InvokeId_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_invokeid },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_absent },
   { 0, 0, 0, 0, NULL }
@@ -575,7 +575,7 @@ static int dissect_invokeId(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_gsm_map_InvokeId(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_invokeId);
 }
 
-static const ber_sequence InvokePDU_sequence[] = {
+static const ber_sequence_t InvokePDU_sequence[] = {
   { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_invokeId },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_invokeCmd },
   { BER_CLASS_UNI, -1/*depends on Cmd*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_invokeData },
@@ -593,7 +593,7 @@ static int dissect_invoke_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   return dissect_gsm_map_InvokePDU(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_invoke);
 }
 
-static const ber_sequence ReturnResult_result_sequence[] = {
+static const ber_sequence_t ReturnResult_result_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_invokeCmd },
   { BER_CLASS_UNI, -1/*depends on Cmd*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_returnResultData },
   { 0, 0, 0, NULL }
@@ -606,7 +606,7 @@ dissect_returnResult_result(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return offset;
 }
 
-static const ber_sequence ReturnResultPDU_sequence[] = {
+static const ber_sequence_t ReturnResultPDU_sequence[] = {
   { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_invokeId },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_returnResult_result },
   { 0, 0, 0, NULL }
@@ -631,7 +631,7 @@ static const value_string GSMMAPPDU_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice GSMMAPPDU_choice[] = {
+static const ber_choice_t GSMMAPPDU_choice[] = {
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_invoke_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_returnResult_impl },
 #ifdef REMOVED

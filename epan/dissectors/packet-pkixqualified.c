@@ -174,7 +174,7 @@ static const value_string TypeOfBiometricData_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice TypeOfBiometricData_choice[] = {
+static const ber_choice_t TypeOfBiometricData_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_predefinedBiometricType },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_biometricDataOid },
   { 0, 0, 0, 0, NULL }
@@ -216,7 +216,7 @@ static int dissect_sourceDataUri(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_pkixqualified_IA5String(FALSE, tvb, offset, pinfo, tree, hf_pkixqualified_sourceDataUri);
 }
 
-static const ber_sequence BiometricData_sequence[] = {
+static const ber_sequence_t BiometricData_sequence[] = {
   { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_typeOfBiometricData },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_hashAlgorithm },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_biometricDataHash },
@@ -235,7 +235,7 @@ static int dissect_BiometricSyntax_item(packet_info *pinfo, proto_tree *tree, tv
   return dissect_pkixqualified_BiometricData(FALSE, tvb, offset, pinfo, tree, hf_pkixqualified_BiometricSyntax_item);
 }
 
-static const ber_sequence BiometricSyntax_sequence_of[1] = {
+static const ber_sequence_t BiometricSyntax_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_BiometricSyntax_item },
 };
 
@@ -273,7 +273,7 @@ static int dissect_statementInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_pkixqualified_T_statementInfo(FALSE, tvb, offset, pinfo, tree, hf_pkixqualified_statementInfo);
 }
 
-static const ber_sequence QCStatement_sequence[] = {
+static const ber_sequence_t QCStatement_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_statementId },
   { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_statementInfo },
   { 0, 0, 0, NULL }
@@ -290,7 +290,7 @@ static int dissect_QCStatements_item(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_pkixqualified_QCStatement(FALSE, tvb, offset, pinfo, tree, hf_pkixqualified_QCStatements_item);
 }
 
-static const ber_sequence QCStatements_sequence_of[1] = {
+static const ber_sequence_t QCStatements_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_QCStatements_item },
 };
 
@@ -302,7 +302,7 @@ dissect_pkixqualified_QCStatements(gboolean implicit_tag _U_, tvbuff_t *tvb, int
   return offset;
 }
 
-static const ber_sequence NameRegistrationAuthorities_sequence_of[1] = {
+static const ber_sequence_t NameRegistrationAuthorities_sequence_of[1] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_NameRegistrationAuthorities_item },
 };
 
@@ -317,7 +317,7 @@ static int dissect_nameRegistrationAuthorities(packet_info *pinfo, proto_tree *t
   return dissect_pkixqualified_NameRegistrationAuthorities(FALSE, tvb, offset, pinfo, tree, hf_pkixqualified_nameRegistrationAuthorities);
 }
 
-static const ber_sequence SemanticsInformation_sequence[] = {
+static const ber_sequence_t SemanticsInformation_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_semanticsIdentifier },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_nameRegistrationAuthorities },
   { 0, 0, 0, NULL }

@@ -1956,7 +1956,7 @@ class SequenceOfType (SqType):
     ef = ectx.field[f]['ethname']
     out = ''
     if (ectx.Ber()):
-      out = "static const ber_sequence %s_sequence_of[1] = {\n" % (tname)
+      out = "static const ber_sequence_t %s_sequence_of[1] = {\n" % (tname)
       out += self.out_item(f, self.val, False, '', ectx)
       out += "};\n"
     out += ectx.eth_type_fn_hdr(tname)
@@ -2025,7 +2025,7 @@ class SetOfType (SqType):
     ef = ectx.field[f]['ethname']
     out = ''
     if (ectx.Ber()):
-      out = "static const ber_sequence %s_set_of[1] = {\n" % (tname)
+      out = "static const ber_sequence_t %s_set_of[1] = {\n" % (tname)
       out += self.out_item(f, self.val, False, '', ectx)
       out += "};\n"
     out += ectx.eth_type_fn_hdr(tname)
@@ -2146,10 +2146,7 @@ class SequenceType (SqType):
 
   def eth_type_fn(self, proto, tname, ectx):
     fname = ectx.eth_type[tname]['ref'][0]
-    if (ectx.OBer()):
-      out = "static const %s_sequence %s_sequence[] = {\n" % (ectx.encp(), tname)
-    else:
-      out = "static const %s_sequence_t %s_sequence[] = {\n" % (ectx.encp(), tname)
+    out = "static const %s_sequence_t %s_sequence[] = {\n" % (ectx.encp(), tname)
     if hasattr(self, 'ext_list'):
       ext = 'ASN1_EXTENSION_ROOT'
     else:
@@ -2385,10 +2382,7 @@ class ChoiceType (Type):
         for e in (lst):
           if (e.GetTag(ectx)[0] != t):
             tagval = False
-      if (ectx.OBer()):
-        out += "static const %s_choice %s_choice[] = {\n" % (ectx.encp(), tname)
-      else:
-        out += "static const %s_choice_t %s_choice[] = {\n" % (ectx.encp(), tname)
+      out += "static const %s_choice_t %s_choice[] = {\n" % (ectx.encp(), tname)
       cnt = 0
       if hasattr(self, 'ext_list'):
         ext = 'ASN1_EXTENSION_ROOT'
