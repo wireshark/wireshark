@@ -12,7 +12,7 @@
  * version: 2004/04/15 9:40:45
  * dedication to Kj :]
  *
- * $Id: packet-rtps.c,v 1.6 2004/04/18 20:08:59 guy Exp $
+ * $Id: packet-rtps.c,v 1.7 2004/04/19 08:19:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -110,26 +110,48 @@
 
 
 /*  initialize the protocol and registered fields  */
-static int proto_rtps                  = -1;
-static int hf_rtps_submessage_flags    = -1;
-static int hf_rtps_issue_data          = -1;
+static int proto_rtps                    = -1;
+static int hf_rtps_submessage_id         = -1;
+static int hf_rtps_submessage_flags      = -1;
+static int hf_rtps_octets_to_next_header = -1;
+static int hf_rtps_issue_data            = -1;
 
 /*  Initialize the subtree pointers */
-static gint ett_rtps                   = -1;
-static gint ett_rtps_submessage        = -1;
-static gint ett_rtps_bitmap            = -1;
+static gint ett_rtps                     = -1;
+static gint ett_rtps_submessage          = -1;
+static gint ett_rtps_bitmap              = -1;
 
 /*  Functions declarations */
-static void dissect_PAD(tvbuff_t *tvb,gint offset,proto_tree *tree);
-static void dissect_VAR(tvbuff_t *tvb,gint offset,proto_tree *tree);
-static void dissect_ISSUE(tvbuff_t *tvb,gint offset,proto_tree *tree);
-static void dissect_ACK(tvbuff_t *tvb,gint offset,proto_tree *tree);
-static void dissect_HEARTBEAT(tvbuff_t *tvb,gint offset,proto_tree *tree);
-static void dissect_GAP(tvbuff_t *tvb,gint offset,proto_tree *tree);
-static void dissect_INFO_TS(tvbuff_t *tvb,gint offset,proto_tree *tree);
-static void dissect_INFO_SRC(tvbuff_t *tvb,gint offset,proto_tree *tree);
-static void dissect_INFO_REPLY(tvbuff_t *tvb,gint offset,proto_tree *tree);
-static void dissect_INFO_DST(tvbuff_t *tvb,gint offset,proto_tree *tree);
+static void dissect_PAD(tvbuff_t *tvb,gint offset,guint8 flags,
+                        int next_submsg_offset,
+                        proto_tree *rtps_submessage_tree);
+static void dissect_VAR(tvbuff_t *tvb,gint offset,guint8 flags,
+                        gboolean little_endian,int next_submsg_offset,
+                        proto_tree *rtps_submessage_tree);
+static void dissect_ISSUE(tvbuff_t *tvb,gint offset,guint8 flags,
+                        gboolean little_endian,int next_submsg_offset,
+                        proto_tree *rtps_submessage_tree);
+static void dissect_ACK(tvbuff_t *tvb,gint offset,guint8 flags,
+                        gboolean little_endian,int next_submsg_offset,
+                        proto_tree *rtps_submessage_tree);
+static void dissect_HEARTBEAT(tvbuff_t *tvb,gint offset,guint8 flags,
+                        gboolean little_endian,int next_submsg_offset,
+                        proto_tree *rtps_submessage_tree);
+static void dissect_GAP(tvbuff_t *tvb,gint offset,guint8 flags,
+                        gboolean little_endian,int next_submsg_offset,
+                        proto_tree *rtps_submessage_tree);
+static void dissect_INFO_TS(tvbuff_t *tvb,gint offset,guint8 flags,
+                        gboolean little_endian,int next_submsg_offset,
+                        proto_tree *rtps_submessage_tree);
+static void dissect_INFO_SRC(tvbuff_t *tvb,gint offset,guint8 flags,
+                        gboolean little_endian,int next_submsg_offset,
+                        proto_tree *rtps_submessage_tree);
+static void dissect_INFO_REPLY(tvbuff_t *tvb,gint offset,guint8 flags,
+                        gboolean little_endian,int next_submsg_offset,
+                        proto_tree *rtps_submessage_tree);
+static void dissect_INFO_DST(tvbuff_t *tvb,gint offset,guint8 flags,
+                        int next_submsg_offset,
+                        proto_tree *rtps_submessage_tree);
 
 static guint16  get_guint16(tvbuff_t *tvb, gint offset, gboolean little_endian);
 static guint32  get_guint32(tvbuff_t *tvb, gint offset, gboolean little_endian);
@@ -154,7 +176,20 @@ static char *get_parameter(gint offset, tvbuff_t *tvb, gboolean little_endian, c
 static gint  seq_nr_to_string( gint offset, gboolean little_endian, tvbuff_t *tvb,
                              SequenceNumber *p_seqNumber);
 
-
+static const value_string submessage_id_vals[] = {
+  { PAD, "PAD" },
+  { VAR, "VAR" },
+  { ISSUE, "ISSUE" },
+  { ACK, "ACK" },
+  { HEARTBEAT, "HEARTBEAT" },
+  { GAP, "GAP" },
+  { INFO_TS, "INFO_TS" },
+  { INFO_SRC, "INFO_SRC" },
+  { INFO_REPLY, "INFO_REPLY" },
+  { INFO_DST, "INFO_DST" },
+  { APP_QUIT, "APP_QUIT" },
+  { 0, NULL }
+};
 
 /* *********************************************************************** */
 
@@ -171,10 +206,12 @@ dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item       *ti;
   proto_tree       *rtps_tree=NULL;
   gint             offset = 0;
-  gint             message_len = 0;
-  gint             appKind = 0;
-  guint8           submessageId = 0;
-  int              next_submsg = 0;
+  gint             appKind;
+  proto_tree       *rtps_submessage_tree;
+  guint8           submessageId;
+  guint8           flags;
+  gboolean         little_endian;
+  int              next_submsg;
   int              count_msg_type[11];
   char             buff[200], buff_tmp[30];/* buffers */
 
@@ -231,79 +268,112 @@ dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /*  offset behind RTPS's Header */
   offset=16;
 
-  message_len = tvb_reported_length(tvb);
-
-  do {
+  while (tvb_reported_length_remaining(tvb, offset) > 0) {
     submessageId = tvb_get_guint8(tvb, offset);
+    if (submessageId & 0x80) {
+      ti = proto_tree_add_text(tree, tvb, offset, -1, "Submessage: %s",
+                               val_to_str(submessageId, submessage_id_vals,
+                                          "Vendor-specific (0x%02X)"));
+    } else {
+      ti = proto_tree_add_text(tree, tvb, offset, -1, "Submessage: %s",
+                               val_to_str(submessageId, submessage_id_vals,
+                                          "Unknown (0x%02X)"));
+    }
+    rtps_submessage_tree = proto_item_add_subtree(ti, ett_rtps_submessage);
+    if (submessageId & 0x80) {
+      proto_tree_add_uint_format(rtps_submessage_tree, hf_rtps_submessage_id,
+                                 tvb, offset, 1, submessageId,
+                                 "Submessage Id: Vendor-specific (0x%02x)",
+                                 submessageId);
+    } else {
+      proto_tree_add_uint(rtps_submessage_tree, hf_rtps_submessage_id,
+                          tvb, offset, 1, submessageId);
+    }
 
-    /* read value in littlendian format */
-    /* XXX - is this in the byte order specified by the E bit? */
-    next_submsg  = tvb_get_letohs(tvb, offset+2);
+    flags = tvb_get_guint8(tvb, offset + 1);
+    /*  E flag |XXXX|HAPE| => masks with 000000001b = 1  */
+    if ((flags & FLAG_E) != 0)      little_endian = TRUE;
+      else                          little_endian = FALSE;
+
+    next_submsg  = get_guint16(tvb, offset + 2, little_endian);
+    proto_item_set_end(ti, tvb, offset + 2 + next_submsg);
 
     switch (submessageId)
     {
       case PAD:
         if (tree)
-          dissect_PAD(tvb, offset, rtps_tree);
+          dissect_PAD(tvb, offset + 1, flags, next_submsg,
+                      rtps_submessage_tree);
         count_msg_type[0]++;
         break;
       case VAR:
         if (tree)
-          dissect_VAR(tvb, offset, rtps_tree);
+          dissect_VAR(tvb, offset + 1, flags, little_endian, next_submsg,
+                      rtps_submessage_tree);
         count_msg_type[1]++;
         break;
       case ISSUE:
         if (tree)
-          dissect_ISSUE(tvb, offset, rtps_tree);
+          dissect_ISSUE(tvb, offset + 1, flags, little_endian, next_submsg,
+                        rtps_submessage_tree);
         count_msg_type[2]++;
         break;
       case ACK:
         if (tree)
-          dissect_ACK(tvb, offset, rtps_tree);
+          dissect_ACK(tvb, offset + 1, flags, little_endian, next_submsg,
+                      rtps_submessage_tree);
         count_msg_type[3]++;
         break;
       case HEARTBEAT:
         if (tree)
-          dissect_HEARTBEAT(tvb,offset, rtps_tree);
+          dissect_HEARTBEAT(tvb, offset + 1, flags, little_endian, next_submsg,
+                            rtps_submessage_tree);
         count_msg_type[4]++;
         break;
       case GAP:
         if (tree)
-          dissect_GAP(tvb, offset, rtps_tree);
+          dissect_GAP(tvb, offset + 1, flags, little_endian, next_submsg,
+                      rtps_submessage_tree);
         count_msg_type[5]++;
         break;
       case INFO_TS:
         if (tree)
-          dissect_INFO_TS(tvb, offset, rtps_tree);
+          dissect_INFO_TS(tvb, offset + 1, flags, little_endian, next_submsg,
+                          rtps_submessage_tree);
         count_msg_type[6]++;
         break;
       case INFO_SRC:
         if (tree)
-          dissect_INFO_SRC(tvb, offset, rtps_tree);
+          dissect_INFO_SRC(tvb, offset + 1, flags, little_endian, next_submsg,
+                           rtps_submessage_tree);
         count_msg_type[7]++;
         break;
       case INFO_REPLY:
         if (tree)
-          dissect_INFO_REPLY(tvb, offset, rtps_tree);
+          dissect_INFO_REPLY(tvb, offset + 1, flags, little_endian, next_submsg,
+                             rtps_submessage_tree);
         count_msg_type[8]++;
         break;
       case INFO_DST:
         if (tree)
-          dissect_INFO_DST(tvb, offset, rtps_tree);
+          dissect_INFO_DST(tvb, offset + 1, flags, next_submsg,
+                           rtps_submessage_tree);
         count_msg_type[9]++;
         break;
       default:
-        if (tree)
-          proto_tree_add_text(rtps_tree, tvb, offset, 1,
-                            "Submessage Id: Vendor-specific (0x%02x)",
-                            submessageId);
+        if (tree) {
+          proto_tree_add_uint(rtps_submessage_tree, hf_rtps_submessage_flags,
+                              tvb, offset + 1, 1, flags);
+          proto_tree_add_uint(rtps_submessage_tree, hf_rtps_octets_to_next_header,
+                              tvb, offset + 2, 2, next_submsg);
+        }
         break;
      }
 
      /* next submessage's offset */
      offset += next_submsg+4;
 
-  } while (offset<message_len);
+  }
 
   /* --- and Info column on summary display ---*/
 
@@ -741,37 +811,17 @@ get_bitmap(tvbuff_t *tvb, gint *p_offset, gboolean little_endian,
  * *********************************************************************** */
 
 static void
-dissect_PAD(tvbuff_t *tvb, gint offset,  proto_tree *tree)
+dissect_PAD(tvbuff_t *tvb, gint offset, guint8 flags,
+            int next_submsg_offset, proto_tree *rtps_submessage_tree)
 {
-  proto_item             *ti;
-  proto_tree             *rtps_submessage_tree;
-  gint                    flags = 0;
-  gboolean                little_endian;
-
-  ti = proto_tree_add_text(tree, tvb, offset, 1,"Submessage Id: PAD");
-  rtps_submessage_tree = proto_item_add_subtree(ti, ett_rtps_submessage);
+  proto_tree_add_uint(rtps_submessage_tree, hf_rtps_submessage_flags,
+                      tvb, offset, 1, flags);
   offset += 1;
 
-  /* -- if you want to see 'flags' in window - just uncomment -- */
-  /*
-  proto_tree_add_item(rtps_submessage_tree, hf_rtps_submessage_flags,
-                      tvb, offset, 1, FALSE);
-  */
-
-  flags = tvb_get_guint8(tvb, offset);
-
-  /*  E flag |XXXX|HAPE| => masks with 000000001b = 1  */
-  if ((flags & FLAG_E) != 0)      little_endian = TRUE;
-    else                          little_endian = FALSE;
-
-  offset += 1;
-
-  /* --if you want to see'Octets to Next Header'in window - uncomment -- */
-  /*
-  proto_tree_add_item(rtps_submessage_tree,hf_rtps_octets_to_next_header,
-                      tvb, offset+2, 2, TRUE);
-  */
-
+  proto_tree_add_uint(rtps_submessage_tree, hf_rtps_octets_to_next_header,
+                      tvb, offset, 2, next_submsg_offset);
+  offset +=2;
+  next_submsg_offset += offset;
 }
 
 /* *********************************************************************** */
@@ -784,49 +834,22 @@ dissect_PAD(tvbuff_t *tvb, gint offset,  proto_tree *tree)
  * *********************************************************************** */
 
 static void
-dissect_VAR(tvbuff_t *tvb, gint offset,  proto_tree *tree)
+dissect_VAR(tvbuff_t *tvb, gint offset, guint8 flags, gboolean little_endian,
+            int next_submsg_offset, proto_tree *rtps_submessage_tree)
 {
-   proto_item        *ti;
-   proto_tree        *rtps_submessage_tree;
-   gint               flags = 0;
-   gboolean           little_endian;
-   gint               next_submsg_offset = 0;
    char               buff[200];
    SequenceNumber     writerSeqNumber;
    guint16            parameter;       /* sekvence parameter */
    guint16            param_length;    /* length of sekvence parameter */
 
-   ti =  proto_tree_add_text(tree, tvb, offset, 1, "Submessage Id: VAR ");
-   rtps_submessage_tree = proto_item_add_subtree(ti, ett_rtps_submessage);
-   offset += 1;
-
-
-   flags = tvb_get_guint8(tvb, offset);
-  /* -- if you want to see flags in window - just uncomment -- */
-  /*
-   proto_tree_add_item(rtps_submessage_tree, hf_rtps_submessage_flags,
-                       tvb, offset, 1, FALSE);
-  */
-
+   proto_tree_add_uint(rtps_submessage_tree, hf_rtps_submessage_flags,
+                       tvb, offset, 1, flags);
    offset +=1;
 
-  /* E flag |XXXX|HAPE| => masks with 000000001b = 1 */
-   if ((flags & FLAG_E) != 0)   little_endian = TRUE;
-     else                       little_endian = FALSE;
-
-
-   next_submsg_offset = offset + 2 + get_guint16(tvb, offset, little_endian);
-  /* actual offset + long of the octetsToNextHeader =
-   *  =  2 Bytes + octetsToNextHeader */
-
-
-  /* -- if you want to see Offset to Next Header - just uncomment -- */
-  /*
-   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 2,
-                       "Octets_to_next_header + offset (NEW): 0x%X",
-                        next_submsg_offset);
-  */
-  offset +=2;
+   proto_tree_add_uint(rtps_submessage_tree, hf_rtps_octets_to_next_header,
+                       tvb, offset, 2, next_submsg_offset);
+   offset +=2;
+   next_submsg_offset += offset;
 
   /*  readerObjectId*/
    proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
@@ -1115,44 +1138,21 @@ get_parameter(gint offset, tvbuff_t *tvb, gboolean little_endian, char buff[],
  * *********************************************************************** */
  /* hotovo 12.01.04 - JEN OTESTOVAT :] */
 static void
-dissect_ISSUE(tvbuff_t *tvb, gint offset,  proto_tree *tree)
+dissect_ISSUE(tvbuff_t *tvb, gint offset, guint8 flags,
+              gboolean little_endian, int next_submsg_offset,
+              proto_tree *rtps_submessage_tree)
 {
-  proto_item               *ti;
-  proto_tree               *rtps_submessage_tree;
-  gint                      flags = 0;
-  gboolean                  little_endian;
-  gint                      next_submsg_offset = 0;
   char                      buff[40];
   SequenceNumber            sequenceNumber;      /*  type struct  */
 
-  ti = proto_tree_add_text(tree, tvb, offset,1,"Submessage Id: ISSUE");
-  rtps_submessage_tree = proto_item_add_subtree(ti, ett_rtps_submessage);
+  proto_tree_add_uint(rtps_submessage_tree, hf_rtps_submessage_flags,
+                      tvb, offset, 1, flags);
   offset +=1;
 
-  flags = tvb_get_guint8(tvb, offset);
-
-  /* -- if you want to see flags in window - just uncomment -- */
-  /*
-  proto_tree_add_item(rtps_submessage_tree, hf_rtps_submessage_flags,
-                      tvb, offset, 1, FALSE);
-  */
-  offset +=1;
-
-  /* E flag |XXXX|HAPE| => masks with 000000001b = 1 */
-  if ((flags & FLAG_E) != 0)        little_endian = TRUE;
-    else                            little_endian = FALSE;
-
-  next_submsg_offset = offset + 2 + get_guint16(tvb, offset, little_endian);
-  /* next_submsg_offset = actual offset + long of the octetsToNextHeader
-   *                      + octetsToNextHeader                       */
-
-  /* -- if you want to see Offset to Next Header - just uncomment -- */
-  /*
-  proto_tree_add_text(rtps_submessage_tree, tvb, offset, 2,
-                      "Octets_to_next_header + offset (NEW): 0x%X",
-                      next_submsg_offset);
-  */
+  proto_tree_add_uint(rtps_submessage_tree, hf_rtps_octets_to_next_header,
+                      tvb, offset, 2, next_submsg_offset);
   offset +=2;
+  next_submsg_offset += offset;
 
   /*  Reader Object ID  */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
@@ -1207,42 +1207,20 @@ dissect_ISSUE(tvbuff_t *tvb, gint offset,  proto_tree *tree)
  * *********************************************************************** */
  /* hotovo 12.01.04 - JEN OTESTOVAT :] */
 static void
-dissect_ACK(tvbuff_t *tvb, gint offset,  proto_tree *tree)
+dissect_ACK(tvbuff_t *tvb, gint offset, guint8 flags,
+            gboolean little_endian, int next_submsg_offset,
+            proto_tree *rtps_submessage_tree)
 {
-  proto_item             *ti;
-  proto_tree             *rtps_submessage_tree;
-  gint                    flags = 0;
-  gboolean                little_endian;
-  gint                    next_submsg_offset = 0;
   char                    buff[40];
 
-  ti = proto_tree_add_text(tree, tvb, offset, 1,"Submessage Id: ACK");
-  rtps_submessage_tree = proto_item_add_subtree(ti, ett_rtps_submessage);
+  proto_tree_add_uint(rtps_submessage_tree, hf_rtps_submessage_flags,
+                      tvb, offset, 1, flags);
   offset +=1;
 
-  flags = tvb_get_guint8(tvb, offset);
-  /* -- if you want to see flags in window - just uncomment -- */
-  /*
-  proto_tree_add_item(rtps_submessage_tree, hf_rtps_submessage_flags,
-                      tvb, offset, 1, FALSE);
-  */
-  offset +=1;
-
-  /* E flag |XXXX|HAPE| => masks with 000000001b = 1 */
-  if ((flags & FLAG_E) != 0)      little_endian = TRUE;
-   else                           little_endian = FALSE;
-
-  next_submsg_offset = offset + 2 + get_guint16(tvb, offset, little_endian);
-  /* next_submsg_offset = actual offset + long of the octetsToNextHeader
-   *                      + octetsToNextHeader                       */
-
-  /* -- if you want to see Offset to Next Header - just uncomment -- */
-  /*
-  proto_tree_add_text(rtps_submessage_tree, tvb, offset, 2,
-                      "Octets_to_next_header + offset (NEW): 0x%X",
-                      next_submsg_offset);
-  */
+  proto_tree_add_uint(rtps_submessage_tree, hf_rtps_octets_to_next_header,
+                      tvb, offset, 2, next_submsg_offset);
   offset +=2;
+  next_submsg_offset += offset;
 
   /*  Reader Object ID  */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
@@ -1270,36 +1248,22 @@ dissect_ACK(tvbuff_t *tvb, gint offset,  proto_tree *tree)
  * *********************************************************************** */
  /* hotovo 12.01.04 - JEN OTESTOVAT :] */
 static void
-dissect_HEARTBEAT(tvbuff_t *tvb, gint offset, proto_tree *tree)
+dissect_HEARTBEAT(tvbuff_t *tvb, gint offset, guint8 flags,
+                  gboolean little_endian, int next_submsg_offset,
+                  proto_tree *rtps_submessage_tree)
 {
-  proto_item         *ti;
-  proto_tree         *rtps_submessage_tree;
-  guint8              flags = 0;
-  gboolean            little_endian;
   char                buff[40];
   SequenceNumber     sequenceNumber;      /* type struct  */
 
-  ti = proto_tree_add_text(tree, tvb, offset,1,"Submessage Id: HEARTBEAT");
-  rtps_submessage_tree = proto_item_add_subtree(ti, ett_rtps_submessage);
+  proto_tree_add_uint(rtps_submessage_tree, hf_rtps_submessage_flags,
+                      tvb, offset, 1, flags);
   offset +=1;
 
-  /* -- if you want to see Submessage's Flags - just uncomment */
-  /* proto_tree_add_item(rtps_submessage_tree, hf_rtps_submessage_flags,
-                         tvb, offset, 1, FALSE); */
-  flags = tvb_get_guint8(tvb, offset);
-  offset +=1;
-
-  /*  E flag |XXXX|HAPE| => masks with 000000001b = 1  */
-  if ((flags & FLAG_E) != 0)      little_endian = TRUE;
-   else                           little_endian = FALSE;
-
-  /* -- if you want to see Offset to Next Header - just uncomment -- */
-  /*
-  proto_tree_add_text(rtps_submessage_tree, tvb, offset, 1,
-                      "Octets_to_next_header: 0x%X",
-                      get_guint16(tvb, offset, little_endian));
-  */
+  proto_tree_add_uint(rtps_submessage_tree, hf_rtps_octets_to_next_header,
+                      tvb, offset, 2, next_submsg_offset);
   offset +=2;
+  next_submsg_offset += offset;
+
   /* Reader Object ID */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                       "Reader Object ID:   %s ",
@@ -1338,43 +1302,21 @@ dissect_HEARTBEAT(tvbuff_t *tvb, gint offset, proto_tree *tree)
  * *********************************************************************** */
  /* hotovo 12.01.04 - JEN OTESTOVAT :] */
 static void
-dissect_GAP(tvbuff_t *tvb, gint offset, proto_tree *tree)
+dissect_GAP(tvbuff_t *tvb, gint offset, guint8 flags,
+            gboolean little_endian, int next_submsg_offset,
+            proto_tree *rtps_submessage_tree)
 {
-  proto_item             *ti;
-  proto_tree             *rtps_submessage_tree;
-  gint                    flags = 0;
-  gboolean                little_endian;
-  gint                    next_submsg_offset = 0;
   char                    buff[40];
   SequenceNumber          sequenceNumber;      /* type struct  */
 
-  ti = proto_tree_add_text(tree, tvb, offset, 1,"Submessage Id: GAP");
-  rtps_submessage_tree = proto_item_add_subtree(ti, ett_rtps_submessage);
+  proto_tree_add_uint(rtps_submessage_tree, hf_rtps_submessage_flags,
+                      tvb, offset, 1, flags);
   offset +=1;
 
-  flags = tvb_get_guint8(tvb, offset);
-  /* -- if you want to see flags in window - just uncomment -- */
-  /*
-  proto_tree_add_item(rtps_submessage_tree, hf_rtps_submessage_flags,
-                      tvb, offset, 1, FALSE);
-  */
-  offset +=1;
-
-  /* E flag |XXXX|HAPE| => masks with 000000001b = 1 */
-  if ((flags & FLAG_E) != 0)      little_endian = TRUE;
-    else                          little_endian = FALSE;
-
-  next_submsg_offset = offset + 2 + get_guint16(tvb, offset, little_endian);
-  /* next_submsg_offset = actual offset + long of the octetsToNextHeader
-   *                      + octetsToNextHeader                       */
-
-  /* -- if you want to see Offset to Next Header - just uncomment -- */
-  /*
-  proto_tree_add_text(rtps_submessage_tree, tvb, offset, 2,
-                      "Octets_to_next_header + offset (NEW): 0x%X",
-                      next_submsg_offset);
-  */
+  proto_tree_add_uint(rtps_submessage_tree, hf_rtps_octets_to_next_header,
+                      tvb, offset, 2, next_submsg_offset);
   offset +=2;
+  next_submsg_offset += offset;
 
   /*  Reader Object ID  */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
@@ -1410,36 +1352,20 @@ dissect_GAP(tvbuff_t *tvb, gint offset, proto_tree *tree)
  /* hotovo 12.01.04 - JEN OTESTOVAT :] */
 
 static void
-dissect_INFO_TS(tvbuff_t *tvb, gint offset, proto_tree *tree)
+dissect_INFO_TS(tvbuff_t *tvb, gint offset, guint8 flags,
+                gboolean little_endian, int next_submsg_offset,
+                proto_tree *rtps_submessage_tree)
 {
-  proto_item              *ti;
-  proto_tree              *rtps_submessage_tree;
-  gint                     flags = 0;
-  gboolean                 little_endian;
   char                     buff[10];
 
-  ti = proto_tree_add_text(tree, tvb, offset,1,"Submessage Id: INFO_TS");
-  rtps_submessage_tree = proto_item_add_subtree(ti, ett_rtps_submessage);
+  proto_tree_add_uint(rtps_submessage_tree, hf_rtps_submessage_flags,
+                      tvb, offset, 1, flags);
   offset +=1;
 
-  flags = tvb_get_guint8(tvb, offset);
-  /*  Flags -- if you want to see - just uncomment -- */  /*
-  proto_tree_add_item(rtps_submessage_tree, hf_rtps_submessage_flags,
-                      tvb, offset, 1, FALSE);
-  */
-  offset +=1;
-
-  /*  E flag |XXXX|HAPE| => masks with 000000001b = 1 */
-  if ((flags & FLAG_E) != 0)      little_endian = TRUE;
-   else                           little_endian = FALSE;
-
-  /*  Offset to Next Header -- if you want to see - just uncomment */
-  /*
-  proto_tree_add_text(rtps_submessage_tree, tvb, offset, 2,
-                      "Octets_to_next_header + offset (NEW): 0x%X",
-                      next_submsg_offset);
-  */
+  proto_tree_add_uint(rtps_submessage_tree, hf_rtps_octets_to_next_header,
+                      tvb, offset, 2, next_submsg_offset);
   offset +=2;
+  next_submsg_offset += offset;
 
   /*   npTimestamp - valid if flag I = 1         *
    *   |XXXX|XXIE| => masks with 00000010b = 2   */
@@ -1463,39 +1389,20 @@ dissect_INFO_TS(tvbuff_t *tvb, gint offset, proto_tree *tree)
  * *********************************************************************** */
 /* hotovo 12.01.04 JEN OTESTOVAT :] */
 static void
-dissect_INFO_SRC(tvbuff_t *tvb, gint offset,  proto_tree *tree)
+dissect_INFO_SRC(tvbuff_t *tvb, gint offset, guint8 flags,
+                 gboolean little_endian, int next_submsg_offset,
+                 proto_tree *rtps_submessage_tree)
 {
-  proto_item             *ti;
-  proto_tree             *rtps_submessage_tree;
-  gint                    flags = 0;
-  gboolean                little_endian;
   char                    buff[200];
 
-
-  ti = proto_tree_add_text(tree,tvb,offset,1,"Submessage Id: INFO_SRC");
-  rtps_submessage_tree = proto_item_add_subtree(ti, ett_rtps_submessage);
+  proto_tree_add_uint(rtps_submessage_tree, hf_rtps_submessage_flags,
+                      tvb, offset, 1, flags);
   offset +=1;
 
-  flags = tvb_get_guint8(tvb, offset);
-
-  /*  Flags -- if you want to see - just uncomment -- */
-  /*
-  proto_tree_add_item(rtps_submessage_tree, hf_rtps_submessage_flags,
-                      tvb, offset, 1, FALSE);
-  */
-  offset +=1;
-
-  /*  E flag |XXXX|HAPE| => masks with 000000001b = 1 */
-  if ((flags & FLAG_E) != 0)      little_endian = TRUE;
-   else                           little_endian = FALSE;
-
-  /*  Offset to Next Header -- if you want to see - just uncomment */
-  /*
-  proto_tree_add_text(rtps_submessage_tree, tvb, offset, 2,
-                      "Octets_to_next_header + offset (NEW): 0x%X",
-                      next_submsg_offset);
-  */
+  proto_tree_add_uint(rtps_submessage_tree, hf_rtps_octets_to_next_header,
+                      tvb, offset, 2, next_submsg_offset);
   offset +=2;
+  next_submsg_offset += offset;
 
   /*  IPAddress */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
@@ -1539,38 +1446,20 @@ dissect_INFO_SRC(tvbuff_t *tvb, gint offset,  proto_tree *tree)
  * *********************************************************************** */
  /* hotovo 11.01.04 :] */
 static void
-dissect_INFO_REPLY(tvbuff_t *tvb, gint offset, proto_tree *tree)
+dissect_INFO_REPLY(tvbuff_t *tvb, gint offset, guint8 flags,
+                   gboolean little_endian, int next_submsg_offset,
+                   proto_tree *rtps_submessage_tree)
 {
-  proto_item             *ti;
-  proto_tree             *rtps_submessage_tree;
-  gint                    flags = 0;
-  gboolean                little_endian;
   char                    buff_ip[10], buff_port[10];
 
-  ti = proto_tree_add_text(tree,tvb,offset,1,"Submessage Id: INFO_REPLY");
-  rtps_submessage_tree = proto_item_add_subtree(ti, ett_rtps_submessage);
+  proto_tree_add_uint(rtps_submessage_tree, hf_rtps_submessage_flags,
+                      tvb, offset, 1, flags);
   offset +=1;
 
-  flags = tvb_get_guint8(tvb, offset);
-
-  /*  Flags -- if you want to see - just uncomment -- */
-  /*
-  proto_tree_add_item(rtps_submessage_tree, hf_rtps_submessage_flags,
-                      tvb, offset, 1, FALSE);
-  */
-  offset +=1;
-
-  /*  E flag |XXXX|HAPE| => masks with 000000001b = 1 */
-  if ((flags & FLAG_E) != 0)    little_endian = TRUE;
-   else                         little_endian = FALSE;
-
-  /*  Offset to Next Header -- if you want to see - just uncomment */
-  /*
-  proto_tree_add_text(rtps_submessage_tree, tvb, offset, 2,
-                      "Octets_to_next_header + offset (NEW): 0x%X",
-                      next_submsg_offset);
-  */
+  proto_tree_add_uint(rtps_submessage_tree, hf_rtps_octets_to_next_header,
+                      tvb, offset, 2, next_submsg_offset);
   offset +=2;
+  next_submsg_offset += offset;
 
   /* Unicat Reply IPAddress */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
@@ -1617,37 +1506,20 @@ dissect_INFO_REPLY(tvbuff_t *tvb, gint offset, proto_tree *tree)
  * *********************************************************************** */
  /* HOTOVO 12.01.04 - JEN OTESOVAT :]*/
 static void
-dissect_INFO_DST(tvbuff_t *tvb,gint offset,proto_tree *tree)
+dissect_INFO_DST(tvbuff_t *tvb, gint offset, guint8 flags,
+                 int next_submsg_offset,
+                 proto_tree *rtps_submessage_tree)
 {
-  proto_item             *ti;
-  proto_tree             *rtps_submessage_tree;
-  gint                    flags = 0;
-  gboolean                little_endian;
   char                    buff[200];
 
-  ti = proto_tree_add_text(tree, tvb, offset,1,"Submessage Id: INFO_DST");
-  rtps_submessage_tree = proto_item_add_subtree(ti, ett_rtps_submessage);
-  offset+=1;
-
-  flags = tvb_get_guint8(tvb, offset);
-  /*  Flags -- if you want to see - just uncomment -- */
-  /*
-   proto_tree_add_item(rtps_submessage_tree, hf_rtps_submessage_flags, 
-                       tvb, offset, 1, FALSE);
-   */
+  proto_tree_add_uint(rtps_submessage_tree, hf_rtps_submessage_flags,
+                      tvb, offset, 1, flags);
   offset +=1;
 
-  /*  E flag |XXXX|HAPE| => masks with 000000001b = 1 */
-  if ((flags & FLAG_E) != 0)      little_endian = TRUE;
-   else                           little_endian = FALSE;
-
-  /*  Offset to Next Header -- if you want to see - just uncomment */
-  /*
-   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 2,
-                       "Octets_to_next_header + offset (NEW): 0x%X",
-                       next_submsg_offset);
-   */
+  proto_tree_add_uint(rtps_submessage_tree, hf_rtps_octets_to_next_header,
+                      tvb, offset, 2, next_submsg_offset);
   offset +=2;
+  next_submsg_offset += offset;
 
   /*  Host Id */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
@@ -1673,11 +1545,21 @@ void proto_register_rtps(void)
 {
   static hf_register_info hf[] = {
 
-    { &hf_rtps_submessage_flags,
-      { "Submessage flags", "rtps.submessage_flags",
-         FT_BYTES, BASE_HEX, NULL, 0x0,
+    { &hf_rtps_submessage_id,
+      { "Submessage Id", "rtps.submessage_id",
+         FT_UINT8, BASE_HEX, VALS(submessage_id_vals), 0x0,
         "Submessage flags", HFILL }},
 
+
+    { &hf_rtps_submessage_flags,
+      { "Submessage flags", "rtps.submessage_flags",
+         FT_UINT8, BASE_HEX, NULL, 0x0,
+        "Submessage flags", HFILL }},
+
+    { &hf_rtps_octets_to_next_header,
+      { "Octets to next header", "rtps.octets_to_next_header",
+         FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Octets to next header", HFILL }},
 
     { &hf_rtps_issue_data,
       { "User Data", "rtps.issue_data",
