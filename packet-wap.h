@@ -2,10 +2,10 @@
  *
  * Declarations for WAP packet disassembly
  *
- * $Id: packet-wap.h,v 1.5 2001/10/19 21:34:28 guy Exp $
+ * $Id: packet-wap.h,v 1.6 2001/12/03 02:10:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * WAP dissector based on original work by Ben Fowler
@@ -84,14 +84,6 @@ guint tvb_get_guintvar (tvbuff_t *, guint , guint *);
 
 /* Character set encoding */
 extern const value_string vals_character_sets[];
-
-/*
- * WTP-over-UDP dissector; the WSP dissector may need to associate it with
- * a conversation if it sees a redirect.
- *
- * XXX - this is ugly; there needs to be a better way of doing this.
- */
-extern void dissect_wtp_fromudp(tvbuff_t *, packet_info *, proto_tree *);
 
 /*
  * Misc TODO:

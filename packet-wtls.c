@@ -2,11 +2,11 @@
  *
  * Routines to dissect WTLS component of WAP traffic.
  * 
- * $Id: packet-wtls.c,v 1.13 2001/09/28 18:59:30 guy Exp $
+ * $Id: packet-wtls.c,v 1.14 2001/12/03 02:10:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
- * Copyright 1998 Didier Jorand
+ * Copyright 1998 Gerald Combs
  *
  * WAP dissector based on original work by Ben Fowler
  * Updated by Neil Hunter <neil.hunter@energis-squared.com>

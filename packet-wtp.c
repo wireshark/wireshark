@@ -2,11 +2,11 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  * 
- * $Id: packet-wtp.c,v 1.20 2001/10/07 08:37:28 guy Exp $
+ * $Id: packet-wtp.c,v 1.21 2001/12/03 02:10:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
- * Copyright 1998 Didier Jorand
+ * By Gerald Combs <gerald@ethereal.com>
+ * Copyright 1998 Gerald Combs
  *
  * WAP dissector based on original work by Ben Fowler
  * Updated by Neil Hunter <neil.hunter@energis-squared.com>
@@ -481,7 +481,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * Called directly from UDP.
  * Put "WTP+WSP" into the "Protocol" column.
  */
-void
+static void
 dissect_wtp_fromudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	if (check_col(pinfo->fd, COL_PROTOCOL))
@@ -719,6 +719,7 @@ proto_register_wtp(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("wtp", dissect_wtp_fromwap, proto_wtp);
+	register_dissector("wtp-udp", dissect_wtp_fromudp, proto_wtp);
 };
 
 void

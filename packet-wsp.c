@@ -2,11 +2,11 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.45 2001/11/27 07:13:27 guy Exp $
+ * $Id: packet-wsp.c,v 1.46 2001/12/03 02:10:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
- * Copyright 1998 Didier Jorand
+ * Copyright 1998 Gerald Combs
  *
  * WAP dissector based on original work by Ben Fowler
  * Updated by Neil Hunter <neil.hunter@energis-squared.com>
@@ -171,7 +171,7 @@ static gint ett_redirect_afl				= ETT_EMPTY;
 /* Handle for WSP-over-UDP dissector */
 static dissector_handle_t wsp_fromudp_handle;
 
-/* Handle for WSP-over-WTP-over-UDP dissector */
+/* Handle for WTP-over-UDP dissector */
 static dissector_handle_t wtp_fromudp_handle;
 
 /* Handle for WMLC dissector */
@@ -4061,17 +4061,20 @@ proto_register_wsp(void)
 
 	wsp_fromudp_handle = create_dissector_handle(dissect_wsp_fromudp,
 	    proto_wsp);
-	wtp_fromudp_handle = create_dissector_handle(dissect_wtp_fromudp,
-	    proto_wsp);
 };
 
 void
 proto_reg_handoff_wsp(void)
 {
 	/*
-	 * Get a handle for the WMLC dissector
+	 * Get a handle for the WMLC dissector.
 	 */
 	wmlc_handle = find_dissector("wmlc");	/* Coming soon :) */
+
+	/*
+	 * And get a handle for the WTP-over-UDP dissector.
+	 */
+	wtp_fromudp_handle = find_dissector("wtp-udp");
 
 	/* Only connection-less WSP has no previous handler */
 	dissector_add("udp.port", UDP_PORT_WSP, dissect_wsp_fromudp, proto_wsp);

@@ -2,11 +2,11 @@
  *
  * Utility routines for WAP dissectors
  *
- * $Id: packet-wap.c,v 1.3 2001/06/12 06:31:14 guy Exp $
+ * $Id: packet-wap.c,v 1.4 2001/12/03 02:10:31 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
- * Copyright 1998 Didier Jorand
+ * Copyright 1998 Gerald Combs
  *
  * WAP dissector based on original work by Ben Fowler
  * Updated by Neil Hunter <neil.hunter@energis-squared.com>
