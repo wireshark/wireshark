@@ -1,7 +1,7 @@
 /* column_prefs.c
  * Dialog box for column preferences
  *
- * $Id: column_prefs.c,v 1.5 2000/11/17 21:00:39 gram Exp $
+ * $Id: column_prefs.c,v 1.6 2001/07/22 21:50:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -203,6 +203,7 @@ column_sel_list_cb(GtkWidget *l, gpointer data) {
       cfmt   = (fmt_data *) clp->data;
       title   = cfmt->title;
       cur_fmt = get_column_format_from_str(cfmt->fmt);
+      g_assert(cur_fmt != -1);	/* It should always be valid */
       gtk_option_menu_set_history(GTK_OPTION_MENU(fmt_m), cur_fmt);
       sensitivity = TRUE;
       if (clp != g_list_first(prefs.col_list))

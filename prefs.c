@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.54 2001/07/22 21:27:54 guy Exp $
+ * $Id: prefs.c,v 1.55 2001/07/22 21:50:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -956,7 +956,7 @@ string_to_name_resolve(char *string, guint32 *name_resolve)
 static int
 set_pref(gchar *pref_name, gchar *value)
 {
-  GList    *col_l;
+  GList    *col_l, *col_l_elt;
   gint      llen;
   fmt_data *cfmt;
   unsigned long int cval;
@@ -999,17 +999,40 @@ set_pref(gchar *pref_name, gchar *value)
       clear_string_list(col_l);
       return PREFS_SET_SYNTAX_ERR;
     }
+    /* Check to make sure all column formats are valid.  */
+    col_l_elt = g_list_first(col_l);
+    while(col_l_elt) {
+      /* Make sure the title isn't empty.  */
+      if (strcmp(col_l_elt->data, "") == 0) {
+      	/* It is.  */
+        clear_string_list(col_l);
+        return PREFS_SET_SYNTAX_ERR;
+      }
+
+      /* Go past the title.  */
+      col_l_elt = col_l_elt->next;
+
+      /* Check the format.  */
+      if (get_column_format_from_str(col_l_elt->data) == -1) {
+        /* It's not a valid column format.  */
+        clear_string_list(col_l);
+        return PREFS_SET_SYNTAX_ERR;
+      }
+
+      /* Go past the format.  */
+      col_l_elt = col_l_elt->next;
+    }
     free_col_info(&prefs);
     prefs.col_list = NULL;
     llen             = g_list_length(col_l);
     prefs.num_cols   = llen / 2;
-    col_l = g_list_first(col_l);
-    while(col_l) {
+    col_l_elt = g_list_first(col_l);
+    while(col_l_elt) {
       cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
-      cfmt->title    = g_strdup(col_l->data);
-      col_l          = col_l->next;
-      cfmt->fmt      = g_strdup(col_l->data);
-      col_l          = col_l->next;
+      cfmt->title    = g_strdup(col_l_elt->data);
+      col_l_elt      = col_l_elt->next;
+      cfmt->fmt      = g_strdup(col_l_elt->data);
+      col_l_elt      = col_l_elt->next;
       prefs.col_list = g_list_append(prefs.col_list, cfmt);
     }
     clear_string_list(col_l);

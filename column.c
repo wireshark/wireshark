@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.32 2001/07/22 21:28:46 guy Exp $
+ * $Id: column.c,v 1.33 2001/07/22 21:50:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -376,7 +376,7 @@ get_column_format_from_str(gchar *str) {
     }
     cptr++;
   }
-  return COL_NUMBER;
+  return -1;	/* illegal */
 }
 
 gchar *
