@@ -3,7 +3,7 @@
  * Copyright 2003, Tim Potter <tpot@samba.org>
  * Copyright 2003, Ronnie Sahlberg,  added function dissectors
  *
- * $Id: packet-dcerpc-svcctl.c,v 1.5 2003/04/27 06:05:43 sahlberg Exp $
+ * $Id: packet-dcerpc-svcctl.c,v 1.6 2003/04/27 17:46:15 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -456,11 +456,11 @@ static dcerpc_sub_dissector dcerpc_svcctl_dissectors[] = {
 };
 
 static const value_string svcctl_opnum_vals[] = {
-	{ SVC_CLOSE_SERVICE_HANDLE, "CloseService_handle" },
-	{ SVC_STOP_SERVICE, "Stop" },
-	{ SVC_DELETE, "Delete" },
+	{ SVC_CLOSE_SERVICE_HANDLE, "CloseServiceHandle" },
+	{ SVC_STOP_SERVICE, "StopService" },
+	{ SVC_DELETE, "DeleteService" },
 	{ SVC_LOCK_SERVICE_DATABASE, "LockServiceDatabase" },
-	{ SVC_GET_SVC_SEC, "Get security" },
+	{ SVC_GET_SVC_SEC, "QueryServiceObjectSecurity" },
 	{ SVC_UNLOCK_SERVICE_DATABASE, "UnockServiceDatabase" },
 	{ SVC_CHANGE_SVC_CONFIG, "Change config" },
 	{ SVC_ENUM_SVCS_STATUS, "Enum status" },
