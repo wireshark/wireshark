@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.252 2001/12/10 00:25:25 guy Exp $
+ * $Id: file.c,v 1.253 2001/12/10 03:25:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1212,7 +1212,8 @@ print_packets(capture_file *cf, print_args_t *print_args)
         if (print_separator)
           print_line(cf->print_fh, print_args->format, "\n");
 
-        /* Create the logical protocol tree. */
+        /* Create the logical protocol tree; we don't need the columns
+           here. */
         edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, TRUE,
           NULL);
 
@@ -1545,6 +1546,7 @@ select_packet(capture_file *cf, int row)
     epan_dissect_free(cf->edt);
     cf->edt = NULL;
   }
+  /* We don't need the columns here. */
   cf->edt = epan_dissect_new(&cf->pseudo_header, cf->pd, cf->current_frame,
     TRUE, NULL);
   proto_tree_is_visible = FALSE;
