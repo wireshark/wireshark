@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.69 2003/12/29 21:04:47 ulfl Exp $
+ * $Id: file_dlg.c,v 1.70 2003/12/30 01:19:02 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -652,10 +652,11 @@ range_entry(GtkWidget *entry)
 void
 file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-  GtkWidget     *ok_bt, *main_vb, *ft_hb, *ft_lb, *range_fr, *range_vb, *range_tb;
+  GtkWidget     *ok_bt, *main_vb, *ft_hb, *ft_lb, *range_fr, *range_vb, *range_tb, *sep;
   GtkTooltips   *tooltips;
   gchar         label_text[100];
-	
+  gint          selected_num;
+
 #if GTK_MAJOR_VERSION < 2
   GtkAccelGroup *accel_group;
 #endif
@@ -708,7 +709,7 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_widget_show(main_vb);	
 		
   /*** Save Range frame ***/
-  range_fr = gtk_frame_new("Save Range");
+  range_fr = gtk_frame_new("Packet Range");
   gtk_box_pack_start(GTK_BOX(main_vb), range_fr, FALSE, FALSE, 0);
   gtk_widget_show(range_fr);
   range_vb = gtk_vbox_new(FALSE,6);
@@ -742,7 +743,8 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_widget_show(select_all);
 	
   /* Save currently selected */
-  g_snprintf(label_text, sizeof(label_text), "_Selected packet #%u only", cfile.current_frame->num);
+  selected_num = (cfile.current_frame) ? cfile.current_frame->num : 0;
+  g_snprintf(label_text, sizeof(label_text), "_Selected packet #%u only", selected_num);
 #if GTK_MAJOR_VERSION < 2
   select_curr = dlg_radio_button_new_with_label_with_mnemonic(gtk_radio_button_group (GTK_RADIO_BUTTON (select_all)),
 	   label_text,accel_group);
@@ -754,6 +756,7 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_tooltips_set_tip (tooltips,select_curr,("Save the currently selected packet only"), NULL);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(select_curr),  FALSE);
   SIGNAL_CONNECT(select_curr, "toggled", toggle_select_curr, NULL);
+  gtk_widget_set_sensitive(select_curr, selected_num);
   gtk_widget_show(select_curr);
 	
   /* Save marked packets */
@@ -818,6 +821,10 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_widget_set_sensitive(range_specs, FALSE);
   gtk_widget_show(range_specs);
 
+  sep = gtk_hseparator_new();
+  gtk_container_add(GTK_CONTAINER(range_vb), sep);
+  gtk_widget_show(sep);
+
   /*
    * XXX - should this be sensitive only if the current display filter
    * has rejected some packets, so that not all packets are currently
@@ -828,13 +835,15 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
    * I guess, argue that the user may want to "save all the displayed
    * packets" even if there aren't any, i.e. save an empty file.
    */
+  g_snprintf(label_text, sizeof(label_text), "... but _displayed packets only");
 #if GTK_MAJOR_VERSION < 2
-  filter_cb = dlg_check_button_new_with_label_with_mnemonic("Apply _display filter",accel_group);
+  filter_cb = dlg_check_button_new_with_label_with_mnemonic(label_text,accel_group);
 #else
-  filter_cb = gtk_check_button_new_with_mnemonic("Apply _display filter");
+  filter_cb = gtk_check_button_new_with_mnemonic(label_text);
 #endif		
   gtk_container_add(GTK_CONTAINER(range_vb), filter_cb);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
+  gtk_tooltips_set_tip (tooltips,filter_cb,("Save the packets from the above chosen range, but only the displayed ones"), NULL);
   SIGNAL_CONNECT(filter_cb, "toggled", toggle_filtered_cb, NULL);
   gtk_widget_set_sensitive(filter_cb, can_save_with_wiretap(filetype));
   gtk_widget_show(filter_cb);	
