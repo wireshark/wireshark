@@ -1,3 +1,357 @@
+Overview of changes in Ethereal 0.9.0:
+
+* packet-l2tp.c - Vendor-specific attribute fixes. (Motonori)
+* Fix timestamp processing in packet-ucp.c, other UCP fixes. (Steffen
+    Weinreich)
+* README.developer updates. (Guy)
+* Dump file creation fixes and updates in wiretap/file.c. (Guy)
+* packet-ssl.c - Add FIPS Cipher Suite ID support. (Scott Renfro)
+* prefs.c - Quake3-related changes. (Guy)
+* Enable coseventcomm plugin on Win32. (Frank Singleton, Guy)
+* SMB rewrite:
+    Fix bug in dissect_transact_data in packet-smb-pipe.c. (Guy)
+    Properly handle the andX command in a LockingAndX message. (Guy)
+    Fix text termination in get_pointer_value(), fix offsets in 
+      add_pointer_param(), fix null values in item lists, properly
+      handle shortened response data. (Guy)
+    Tvbuffification changes. (Ronnie)
+    Flags and Flags2 field cleanup. (Guy)
+    Check for a zero word count in LogoffandX requests and replies. (Guy)
+    Date conversion fixes. (Guy)
+    AndX-related tvbuffification updates. (Ronnie)
+    Various code cleanup and timeout display enhancements. (Guy)
+    Put andX commands at the same level as the first command. (Guy)
+    Byte parameter dissection and bitfield fixes. (Guy)
+    Properly use dissect_open_print_file_smb(). (Guy)
+    NT Transact dissection. (Ronnie)
+    File data, Write Raw, Write Multiplexed, Open and X, and
+      NT Create and X fixes and additions. (Guy)
+    Print create flags properly, fixes for
+      get_unicode_or_ascii_string_tvb(). (Guy)
+    Tvbuffification of SMB print commands. (Ronnie)
+    NT Create and X support. (Ronnie)
+    Display NT create options in hex. (Guy)
+    Change "DFS" references to "Dfs". (Guy)
+    Show error status in Info column. (Tim Potter)
+    Dissect NT create option bits. (Guy)
+    Tvbuffify Transaction2. (Ronnie)
+    Add DCE RPC over SMB support, plus several MS DCE RPC services.
+      (Tim)
+    Include the sync I/O alert and nonalert bits. (Guy)
+    Tvbuffifiy Transaction. (Ronnie)
+    Add support for Write And X. (Guy)
+    Stream size, information, and name fixes. (Guy)
+    Clean up request/response matching. (Ronnie)
+    Update LANMAN dissector w.r.t "Response to", add support for
+      unknown SMBs. (Guy)
+    Request/reply hash table cleanup. (Guy)
+    Update Write AndX according to the MS docs, connectionless mode
+      testing fixes. (Guy)
+    NT Transaction, Transaction2, Transaction reply fixes,
+      dissect_pipe_smb() and dissect_mailslot_smb() display fixes,
+      more hash table fixes. (Guy)
+    "smb_saved_info_t" structure updates, mailslot reply length
+      checking fixes. (Guy)
+    NT Create And X display updates, other display updates. (Tim)
+    Add open/create FID to Info colum. (Guy)
+    DCE RPC-over-SMB conversation matching enhancements. (Tim)
+    dissect_mailslot_smb(), dissect_pipe_smb(), MSRPC, LANMAN, other
+      SMB updates. (Guy)
+    SMB dissector registration updates. (Guy)
+    MSRPC-over-SMB tree rearrangements. (Guy)
+    Put pipe function codes in Info data. (Guy)
+    Better pipe request/response tracking. (Guy)
+    Fully dissect named pipe protocol, set naming according to SNIA
+      CIFS spec.  (Guy)
+    Better transaction continuation handling. (Ronnie)
+    Update proto_tree_add* routines to allow for zero/null tvbuffs,
+      put this to use in SMB Pipe dissector. (Guy)
+    Transaction Secondary and Transaction2 Secondary. (Ronnie)
+    General cleanup, update names of SMB commands to match the
+      SNIA CIFS spec. (Guy)
+    Reassembly fixes and updates, NT Cancel updates. (Ronnie)
+    Pipe subtree cleanups. (Guy)
+    Reassemble transactions if transaction continuations are seen.
+      (Ronnie)
+    Handle null si->sip values in smb_trans_defragment(). (Guy)
+    Mailslot fragmented transaction fixes. (Ronnie)
+    Rename "msrpc" heuristic dissector table to "smb_transact". (Guy)
+    Tvbuff length checking fixes. (Guy)
+    Request/reply tracking fixes. (Guy)
+    Track FID values between requesta and responses for ReadAndX and
+      WriteAndX. (Ronnie)
+    Desegmentation and fragment reassembly updates. (Ronnie)
+    Add "file already exists" DOS error handler. (Tim)
+    DCERPC over SMB reassembly. (Ronnie)
+    Request/response tracking fixes. (Guy)
+    Memory management fixes. (Guy)
+    Add context handle dissection support to DCERPC dissectors,
+      enhance MS Security Account Manager dissector. (Todd Sabin)
+    Export NT_errors[] to MS Security Account Manager dissector. (Guy)
+    More NT error codes. (Todd)
+    NT security descriptor support. (Ronnie)
+    Even newer, more enhanced reassembly. (Ronnie)
+    NT ACL structure dissection. (Ronnie)
+    More MSRPC to DCERPC conversion. (Tim)
+    Dissect DCERPC LSA RPC stub data. (Tim)
+    Dissect security descriptor flags. (Ronnie)
+    ACL list display cleanup. (Guy)
+    Fragmented NT Transaction response reassembly. (Ronnie)
+* packet-wsp.c updates and fixes. (Georg von Zezschwitz)
+* Update README.win32 to include local WinPcap mirror. (Gerald)
+* Add VMS TCPIPtrace wiretap module. (Marc Milgram)
+* IDL compiler backend fixes and updates: (Frank Singleton)
+    Check for recursive unions or structs.
+    Handle "short" as a union discriminant type.
+    Handle case where union discriminant may be a typedef.
+    Change integer template to long template.
+    Initial code for \n and \t as  union case labels.
+    Modify the way unions and structs are referenced.
+    Fix calling sequence of col_add_str() and col_set_str().
+* L2TP Disconnect Cause Information AVP support. (Motonori)
+* Add DBS Etherwatch wiretap module. (Marc Milgram)
+* iSCSI dissector updates:
+    Match dissector to the -08 draft. (Mark Burton)
+    Fix FT_UINTn references. (Guy)
+    Handle header and data digests, desegmentation, multiple PDUs per
+      packet, better recognition heuristics, cruft removal. (Mark)
+    Fix iscsi_desegment and iscsi_port type declarations. (Guy)
+    Change the short name from "ISCSI" to "iSCSI" (Guy)
+* packet-wap.h - Fix Push-traffic port number. (Tom Uijldert)
+* packet-mmse.c - Fix date decoding, field name, cosmetic fixes. (Tom)
+* Various IPX fixes. (Guy)
+* Properly dissect non-SCCP data payload. (Guy)
+* Add sort indicators to the main window column headers. (Gerald)
+* Sort preference modules alphabetically. (Guy)
+* Enhanced icons. (Gordon McKinney, Gerald)
+* Many configuration directory-related fixes and updates: (Guy)
+    Use the proper directory separator for each platform.
+    On Windows, place config files in "Application Data\Ethereal" in the
+      user's home directory
+    On Windows, place "ethers" and "ipxnets" in the Ethereal application
+      directory.
+    Other miscellaneous fixes.
+* WSP Cache-Control headers updates and fixes. (Georg)
+* packet-isakmp.c fixes:
+    Handle UDP-encapsulated IPSec NAT Keepalive packets. (Yaniv Kaul)
+    Loop over all SA sub-payloads, check for a payload type of "None",
+      check payload data length, show raw bytes of SPI.  (Guy)
+    Enhance protocol ID dissection in dissect_transform(), other dissectors.
+      (Guy)
+    IPCOMP transformation and ID_IPV4_ADDR_SUBNET support.
+      (Andreas Stockmeier)
+* Replace get_home_dir() with get_persconffile_dir(). (Guy)
+* RADIUS tunnel updates. (Pavel Novotny)
+* packet-iua.c - Field name fixes. (Guy)
+* Use a case-insensitive sort for the protocol list. (Guy)
+* Properly handle ACK-only GRE packets. (Guy)
+* Show SCTP parameter types in hex, make enumerated types filterable. (Guy)
+* Handle pcap_open_live() succeeding, but with a warning. (Guy)
+* Get rid of signed/unsigned comparison warnings in wiretap. (Gilbert)
+* Fix iptrace Ethernet interface type. (Gilbert)
+* Gnutella updates and fixes: (Gilbert)
+    Check packet size.
+    Handle zero-length sub-headers.
+    Fix improper use of proto_tree_add_item().
+* Check length while calculating telnet suboptions. (Gilbert)
+* Fix signed/unsigned comparisons in tvbuffs and other places. (Gilbert)
+* packet-wsp.c - Handle 1.3 and 1.4 Content-Type values. (Tom)
+* Properly handle a zero checksum in packet-ospf.c. (Guy)
+* Fix config.h dependency checking on code that uses "ftypes" and "dfilter"
+    (Guy)
+* Add strptime() support on Win32 systems. (Mike Frisch, Guy)
+* Fix snprintf()-related signed/unsigned warning. (Guy)
+* PPP updates:
+    CCP and compressed datagram support. (Motonori)
+    CBCP support. (Motonori)
+    Add BACP and BAP support. (Motonori)
+    Van Jacobson decompression support. (Irfan Khan)
+    VJ enhancements and fixes. (Guy)
+    Add more filterable fields. (Guy)
+* Handle NFSv4 protocol changes. (Mike Frisch)
+* Compiler-independent support for FT_UINT64. (Ronnie Sahlberg)
+* Convert SOCKS dissector to tvbuffs. (Ronnie Sahlberg)
+* 64-bit-related BOOTP fixes. (Guy)
+* Other 64-bit-related fixes. (Guy)
+* Update packet-pim.c to match draft-ietf-pim-sm-v2-new-03.
+    (Shinsuke Suzuki)
+* Fix GTP IPv4 address byte ordering. (Guy)
+* Fix SOCKS IPv4 address ordering, comments, user name, other fixes. (Guy)
+* DVMRP and GTP code cleanup. (Guy)
+* TCP desegmentation fix. (Ronnie Sahlberg)
+* Remove non-tvbuff code. (Guy)
+* Add local WinPcap mirror to capture error dialog. (Guy)
+* "extern" function fixes. (Guy)
+* Mobile IP enhancements and fixes. (David Frascone)
+* Update packet-bootp.c to handle RFC 3118 DHCP authentication,
+    other related enhancements. (Guy)
+* Add plugins/plugin_api_defs.h for external function declrations.
+    (Guy)
+* Support Mobile IP ICMP Router Advertisements. (David)
+* Display unknown extension types in decimal, not hex. (Guy)
+* Add an option to show the File Offset of a frame. (Gilbert)
+* Fix some declarations to match the signatures of "tvb_find_guint8()" and
+    "tvb_pbrk_guint8()". (Guy)
+* Load Diameter dissector dictionary as an XML file. (David)
+* Check for "iconv.h" on UNIX systems. (Guy)
+* Add 64-bit signed integer support, use in Diameter dissector. (Guy)
+* Add DLT_CISCO_IOS to wiretap. (Gilbert)
+* TFTP enhancements and updates. (Richard, Guy)
+* Fix a tvbuff leak. (Sirop Erable, Guy)
+* Rename "private" member of the "packet_info" structure to
+    "private_data". (Guy)
+* Properly free "gph_hfinfo" in epan/proto.c. (Guy)
+* Include arrow pixmaps in distribution. (Andrew C. Feren)
+* Diameter AVP enhancements. (
+Guy)
+* Suport desegmentation of Diameter-over-TCP. (David)
+* Add Cooperative Route Filtering Capability support to BGP dissector,
+    fix Route Refresh Messaging bug. (Motonori)
+* Become very displeased if a dissector tries to register more than one
+    preference with the same name. (Guy)
+* Diameter Info column cleanups. (Guy)
+* Add support for obsoleted preferences. (Guy)
+* Plugin table and API updates. (Tomas Kukosa, Guy)
+* decode_as_dlg.c - Include protocols for TCP conversation dissectors in
+    the list of protocols that can be used to decode stuff. (Guy)
+* SUA dissector, which replaces the SUA Light dissector. (Michael Tuexen)
+* Add non-heuristic UCP dissector. (Tom)
+* AIX libpcap file heuristic updates. (Guy)
+* Add PCNFSD dissector (Uwe Girlich)
+* Add EAPOL (802.1x) and PPP/EAPOL support. (Pekka Nikander)
+* Nokia libpcap file fixes. (Guy)
+* Add IPv4/IPv6 payload support to MPLS. (Hamish Moffatt)
+* Allow periods in preference module names. (Gilbert)
+* File dialog string fixes. (Andreas)
+* Fix math error in packet-clnp.c. (Guy)
+* More AIX DLT_ value fixes. (Guy)
+* IPSEC AH header and interface list fixes. (Kazushi Sugyo)
+* Call request and reply subdissectors in DCE RPC. (Tim)
+* SMTP dissector cleanup. (Guy)
+* Update Gilbert's email address. (Gilbert)
+* Update XAUTH-NEXT-PIN and XAUTH-ANSWER. (Yaniv Kaul)
+* packet-radius.c - Better handling of bogus AVPs. (Guy)
+* Get rid of remaining non-tvbuff compatibility code. (Guy)
+* Add SNA-over-X.25 support, QLLC dissector. (Gilbert)
+* Add support for heuristic HTTP subdissectors. (Guy)
+* Improved byte view selection behavior. (Guy)
+* Improved byte view notebook behavior. (Guy)
+* Enhanced capture length reporting and checking. (Guy)
+* General code cleanup (remove unused variables, etc). (Guy)
+* Update behavior w.r.t. dissectors changing the packet_info
+    struct. (Guy)
+* Remove the global "pi" variable, and update code accordingly. (Guy)
+* text2pcap:
+    Enhanced parsing, getopt() fixes. (Guy)
+    Support for time stamping of packets. (Gordon McKinney)
+    Handle colons after the offset field. (Gordon)
+* ethereal, tethereal - Treat extra command line argument as a capture
+    file to be read. (Guy)
+* packet-ipx.c - Add additional SAP values. (Guy)
+* Switched dissectors from dissect_data() to call_dissector(). (Guy, Ed)
+* Switched dissectors from CHECK_DISPLAY_AS_DATA to CHECK_DISPLAY_AS_X
+    (Ed)
+* Fix a bug in WCCP capability info dissection. (Raghu Angadi)
+* Handle multiple LDP PDUs per TCP segment, other fixes. (Guy)
+* Enhance conversation dissector calling, other dissector calls. (Guy)
+* DCE RPC enhancements. (Todd Sabin, Guy)
+* Fix DCE RPC PDU padding. (Guy)
+* Add missing terminators to some value_string arrays. (Guy)
+* OSPFv3 checksum fix. (Taisuke Sasaki)
+* Support for 802.11+Prism II monitor-mode link-layer headers
+    (Tim Newsham)
+* Support OSI CLNP over GRE. (Guy, Mrmcsnoots@aol.com)
+* Support LocalTalk LAP, Prism updates. (Guy)
+* Various NLPID-releated fixes and enhancements. (Guy)
+* Color filter dialog updates and enhancements. (John McDermott)
+* X.264, ISO 8602 updates. (Guy)
+* dissect_wtp_fromudp() enhancements. (Guy)
+* dissector_add(), dissector_delete(), and dissector_change() updates.
+    (Guy)
+* X.25 dissector table updates. (Guy)
+* Dissector table updates. (Guy)
+* Add SMPP support. (Tom)
+* Update M2PA to support draft 3. (Michael)
+* TCP/UDP checking fixes. (Guy)
+* Add ISO 8473 dissector handle to X.25. (Guy)
+* Preference code fixes. (Thomas Wittwer)
+* Support for stopping captures for a specific file size or timeout.
+    (Thomas Wittwer, Matthias Nyffenegger)
+* Large capture file size support. (Guy)
+* Support for ring buffer capture files. (Thomas, Matthias)
+* Ring buffer updates. (Guy)
+* Update Ascend/Lucent trace file parser. (Motonori)
+* Support for Visual Networks Visual UpTime capture files. (Tom Nisbet)
+* MS Netmon fix. (Guy)
+* WildPackets Etherpeek fix. (Guy)
+* Add a heuristic dissector for protocols running atop X.25.
+    (Guy)
+* Capture file support documentation updates. (Guy)
+* Fix the handling of the metric and referenced LS type fields in OSPFv3
+    packets. (Taisuke)
+* "Save only marked frames", other UI tweaks. (Guy)
+* Protocol tree internals cleanup. (Guy)
+* Remove /dev/null hack from Ascend/Lucent scanner. (Motonori)
+* Handle null dissector handles in decode_as_dlg.c. (Guy)
+* Display WTAP_ENCAP_ values in decimal. (Guy)
+* Dfilter enhancements. (Guy)
+* Add multipart content support to WSP/MMSE. (Tom)
+* MacOS X compiler tweaks. (Guy)
+* Update config.guess and config.sub. (Guy)
+* Changed BXXP dissector to BEEP. (Darren New)
+* Add descriptive name to dissectors. (Guy)
+* TCP graphs(!) (Pavel Mores)
+* Tweak and otherwise work around libtool file copy behavior. (Guy)
+* Add newer 3D icons. Set window icon to the new logo. (Gerald)
+* "msrpc" to "dcerpc" name changes. (Tim Potter)
+* Disable printing to a printer (but not a file) in Win32. (Guy)
+* Make IP over PPP work w/graphing code. (Gordon McKinney)
+* capture_dlg.c - Check for invalid maximum packet count values. (Guy)
+* frame_data and packet_info data rearrangement. (Guy)
+* Don't unnecessarily fill coluumns in tethereal. (Guy)
+* Other column-related cleanups. (Guy)
+* Remove old-style dissector references from the developer docs. (Guy)
+* Enhance TCP graph error reporting. (Guy)
+* Ethernet, IP, and TCP header bitfield and alignment fixes. (Guy)
+* TCP graph enhancments. (Guy, Motonori)
+* Add MTP2 dissector, update MTP3 dissector. (Michael)
+* SOCKS response code display and filter field fixes. (Mark S. Allen, Guy)
+* Makefile.nmake and .pdb file fixes. (Motonori)
+* Work around non-standard UCD/Net-SNMP API changes made by various
+    Linux distros. (Gerald)
+* Windows uninstall updates. (Motonori)
+* Add Diameter dictionary to the RPM package. (Guy)
+* Fix PPP dump trace file memory leak, other PPP dump fixes. (Gilbert)
+* Plug a dfilter memory leak. (Gilbert)
+* Fix window/icon title code. (Guy)
+* SDP field updates, handle all SDP subfields. (Ed)
+* Add KDE Styleguide-compliant icons. (Gerald)
+* Support for LOCATION_FORWARD, LOCATION_FORWARD_PERM and
+    NEEDS_ADDRESSING_MODE replies in GIOP. (Bernd Becker)
+* Image documentation and updates. (Gerald, Guy)
+* Add a KDE .desktop file. (Guy)
+* More protocol tree updates. (Guy)
+* M2TP support. (Heinz Prantner)
+* Fix goto problems in the DCERPC LSA dissector. (Motonori)
+* PPP dump reader fixes. (Irfan Khan)
+* GIOP protocol string fixes. (Guy)
+* DCERPC subdissector fixes. (Guy)
+* Get rid of calls to "proto_is_protocol_enabled()" in heuristic
+    dissectors. (Guy)
+* Support per-protocol-tree data, modify dfilter to use this. Other 
+    protocol tree and dissector enhancements. (Gilbert)
+* Print code cleanup. (Gilbert)
+* GIOP info column fixes. (Bernd)
+* Remove .pdb files from Windows package. (Motonori)
+* Add text2pcap and mergecap to Windows package. (Guy)
+* Various SCTP updates. (Michael)
+* Set PPP direction in Ascend/Lucent module. (Guy)
+* ISIS hello, LSP, CSNP, PSNP code rework. (Guy)
+* Work around Windows' annoying decision to map 0.0.0.0 to the local host
+    name in "gethostbyaddr()". (Guy)
+* Capture file size test fixes in tethereal, command line argument
+    parsing fixes. (Guy)
+
 Overview of changes in Ethereal 0.8.20:
 
 * packet-x25.c - Dissect more diagnostic codes. (Olivier)
