@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.72 2002/08/21 21:25:23 tpot Exp $
+ * $Id: packet-dcerpc.c,v 1.73 2002/08/22 20:04:54 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -389,7 +389,7 @@ static gint ett_dcerpc_pointer_data = -1;
 static gint ett_dcerpc_fragments = -1;
 static gint ett_dcerpc_fragment = -1;
 
-static dissector_handle_t ntlmssp_handle=NULL;
+static dissector_handle_t ntlmssp_handle, gssapi_handle;
 
 fragment_items dcerpc_frag_items = {
 	&ett_dcerpc_fragments,
@@ -1340,22 +1340,40 @@ dissect_dcerpc_cn_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
         offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                         hf_dcerpc_auth_ctx_id, NULL);
 
-	/* Dissect the authentication data as NTLMSSP Parameters if the
-	   auth_type is DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP and this is a
-	   BIND request, BIND response, or AUTH3.
-	   Otherwise just show it as "Auth Data".
-	   XXX - dissect it for other authentication types?
-	*/
-	if ((auth_type == DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP) &&
-	    ((hdr->ptype == PDU_BIND) || (hdr->ptype == PDU_BIND_ACK) ||
-	     (hdr->ptype == PDU_AUTH3))) {
-	    tvbuff_t *ntlmssp_tvb;
-	    ntlmssp_tvb = tvb_new_subset(tvb, offset, hdr->auth_len,
-					 hdr->auth_len);
-	    call_dissector(ntlmssp_handle, ntlmssp_tvb, pinfo, dcerpc_tree);
-	} else {
-            proto_tree_add_text (dcerpc_tree, tvb, offset, hdr->auth_len,
-                                 "Auth Data");
+	/* Dissect the authentication data */
+
+	switch(auth_type) {
+
+		/* NTLMSSP */
+
+	case DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP: {
+		tvbuff_t *ntlmssp_tvb;
+
+		ntlmssp_tvb = tvb_new_subset(tvb, offset, hdr->auth_len,
+					     hdr->auth_len);
+
+		call_dissector(ntlmssp_handle, ntlmssp_tvb, pinfo, 
+			       dcerpc_tree);
+
+		break;
+	}
+
+		/* Snego (rfc2478) */
+
+	case DCE_C_RPC_AUTHN_PROTOCOL_SNEGO: {
+		tvbuff_t *gssapi_tvb;
+
+		gssapi_tvb = tvb_new_subset(tvb, offset, hdr->auth_len,
+					    hdr->auth_len);
+
+		call_dissector(gssapi_handle, gssapi_tvb, pinfo, dcerpc_tree);
+
+		break;
+	}
+
+	default:
+		proto_tree_add_text (dcerpc_tree, tvb, offset, hdr->auth_len,
+				     "Auth Data");
 	}
 
         /* figure out where the auth padding starts */
@@ -3509,4 +3527,5 @@ proto_reg_handoff_dcerpc (void)
     heur_dissector_add ("udp", dissect_dcerpc_dg, proto_dcerpc);
     heur_dissector_add ("smb_transact", dissect_dcerpc_cn_bs, proto_dcerpc);
     ntlmssp_handle = find_dissector("ntlmssp");
+    gssapi_handle = find_dissector("gssapi");
 }

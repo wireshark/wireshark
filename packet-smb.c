@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.281 2002/08/22 06:47:08 sharpe Exp $
+ * $Id: packet-smb.c,v 1.282 2002/08/22 20:04:55 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -668,7 +668,9 @@ static gint ett_smb_ace = -1;
 static gint ett_smb_ace_flags = -1;
 static gint ett_smb_sec_desc_type = -1;
 static gint ett_smb_quotaflags = -1;
+static gint ett_smb_gssapi = -1;
 
+static dissector_handle_t gssapi_handle = NULL;
 
 fragment_items smb_frag_items = {
 	&ett_smb_segment,
@@ -2313,6 +2315,8 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 			COUNT_BYTES(dn_len);
 
 		} else {
+			proto_item *blob_item;
+
 			/* guid */
 			/* XXX - show it in the standard Microsoft format
 			   for GUIDs? */
@@ -2321,13 +2325,25 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 				tvb, offset, 16, TRUE);
 			COUNT_BYTES(16);
 
+			blob_item = proto_tree_add_item(
+				tree, hf_smb_security_blob,
+				tvb, offset, bc, TRUE);
+
 			/* security blob */
-			/* XXX - is this ASN.1-encoded?  Is it a Kerberos
-			   data structure, at least in NT 5.0-and-later
-			   server replies? */
 			if(bc){
-				proto_tree_add_item(tree, hf_smb_security_blob,
-					tvb, offset, bc, TRUE);
+				tvbuff_t *gssapi_tvb;
+				proto_tree *gssapi_tree;
+
+				gssapi_tree = proto_item_add_subtree(
+					blob_item, ett_smb_gssapi);
+
+				gssapi_tvb = tvb_new_subset(
+					tvb, offset, bc, bc);
+
+				call_dissector(
+					gssapi_handle, gssapi_tvb, pinfo, 
+					gssapi_tree);
+
 				COUNT_BYTES(bc);
 			}
 		}
@@ -5677,14 +5693,28 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	BYTE_COUNT;
 
 	if (wc==12) {
+		proto_item *blob_item;
+
 		/* security blob */
-		/* XXX - is this ASN.1-encoded?  Is it a Kerberos
-		   data structure, at least in NT 5.0-and-later
-		   server replies? */
+
+		blob_item = proto_tree_add_item(tree, hf_smb_security_blob,
+						tvb, offset, sbloblen, TRUE);
+
 		if(sbloblen){
-			CHECK_BYTE_COUNT(sbloblen);
-			proto_tree_add_item(tree, hf_smb_security_blob,
-				tvb, offset, sbloblen, TRUE);
+			tvbuff_t *gssapi_tvb;
+			proto_tree *gssapi_tree;
+			
+                        CHECK_BYTE_COUNT(sbloblen);
+			
+ 			gssapi_tree = proto_item_add_subtree(
+				blob_item, ett_smb_gssapi);
+
+			gssapi_tvb = tvb_new_subset(
+				tvb, offset, sbloblen, sbloblen);
+
+			call_dissector(
+				gssapi_handle, gssapi_tvb, pinfo, gssapi_tree);
+			
 			COUNT_BYTES(sbloblen);
 		}
 
@@ -5867,15 +5897,29 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	BYTE_COUNT;
 
 	if(wc==4) {
+		proto_item *blob_item;
+
 		/* security blob */
-		/* XXX - is this ASN.1-encoded?  Is it a Kerberos
-		   data structure, at least in NT 5.0-and-later
-		   server replies? */
+
+		blob_item = proto_tree_add_item(tree, hf_smb_security_blob,
+						tvb, offset, sbloblen, TRUE);
+
 		if(sbloblen){
-			CHECK_BYTE_COUNT(sbloblen);
-			proto_tree_add_item(tree, hf_smb_security_blob,
-				tvb, offset, sbloblen, TRUE);
-			COUNT_BYTES(sbloblen);
+			tvbuff_t *gssapi_tvb;
+			proto_tree *gssapi_tree;
+
+                        CHECK_BYTE_COUNT(sbloblen);
+			
+ 			gssapi_tree = proto_item_add_subtree(
+				blob_item, ett_smb_gssapi);
+
+			gssapi_tvb = tvb_new_subset(
+				tvb, offset, sbloblen, sbloblen);
+			
+			call_dissector(
+				gssapi_handle, gssapi_tvb, pinfo, gssapi_tree);
+			
+                        COUNT_BYTES(sbloblen);
 		}
 	}
 
@@ -17758,6 +17802,7 @@ proto_register_smb(void)
 		&ett_smb_ace_flags,
 		&ett_smb_sec_desc_type,
 		&ett_smb_quotaflags,
+		&ett_smb_gssapi,
 		&ett_smb_mac_support_flags,
 	};
 	module_t *smb_module;
@@ -17784,4 +17829,5 @@ void
 proto_reg_handoff_smb(void)
 {
 	heur_dissector_add("netbios", dissect_smb, proto_smb);
+	gssapi_handle = find_dissector("gssapi");
 }
