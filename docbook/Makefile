@@ -9,7 +9,7 @@
 
 DOCBOOKXSL="/usr/share/docbook-xsl"
 # On SUSE 9.1 uncomment the following line:
-#DOCBOOKXSL="/usr/share/xml/docbook/stylesheet/nwalsh/1.64.1"
+DOCBOOKXSL="/usr/share/xml/docbook/stylesheet/nwalsh/1.65.1"
 
 # formatting objects processor
 # (comment this out, if you don't want pdf or don't have fop installed)
@@ -18,7 +18,7 @@ FOP="fop-0.20.5/fop.bat"
 # for unix like environments (if you have problems with fop, try to use an absolute path here)
 #FOP="/usr/share/fop-0.20.5/fop.sh"
 # One SUSE 9.1 uncomment the following line (make sure you have at least fop-0.20.5-71.2)
-#FOP="/usr/bin/fop"
+FOP="/usr/bin/fop"
 
 # html help compiler (Win32 only)
 # (comment this out, if you don't want chm or don't have hhc installed)
@@ -43,6 +43,7 @@ clean:
 	rm -f *.fo
 	rm -f *.pdf
 	rm -f *.chm
+	rm -f Makefile.auto
 	rm -rf eug_html
 	rm -rf eug_html_chunked
 	rm -rf eug_chm
