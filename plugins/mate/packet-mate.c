@@ -105,7 +105,6 @@ void mate_gog_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog, mate_gop* gop
 		if (gop != gog_gops) {
 			if (gog->cfg->gop_as_subtree) {
 				mate_gop_tree(gog_gops_tree, tvb, gog_gops);
-				gog_gop_item = NULL;
 			} else {
 				gog_gop_item = proto_tree_add_uint(gog_gops_tree,gog_gops->cfg->hfid,tvb,0,0,gog_gops->id);
 				
@@ -116,11 +115,7 @@ void mate_gog_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog, mate_gop* gop
 				
 			}
 		} else {
-			 gog_gop_item = proto_tree_add_uint_format(gog_gops_tree,gop->cfg->hfid,tvb,0,0,gop->id,"%s of current frame: %d",gop->cfg->name,gop->id);
-		}
-		
-		if (gog_gop_item) {
-
+			 proto_tree_add_uint_format(gog_gops_tree,gop->cfg->hfid,tvb,0,0,gop->id,"%s of current frame: %d",gop->cfg->name,gop->id);
 		}
 	}
 }
