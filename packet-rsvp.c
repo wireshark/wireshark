@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.89 2004/05/19 17:45:04 ashokn Exp $
+ * $Id: packet-rsvp.c,v 1.90 2004/06/19 00:07:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2574,7 +2574,7 @@ dissect_rsvp_integrity (proto_tree *ti, tvbuff_t *tvb,
     sequence_number <<= 32;
     sequence_number = tvb_get_ntohl(tvb, offset2+12);
     proto_tree_add_text(rsvp_object_tree, tvb, offset2+8, 8,
-			"Sequence Number: %llu", sequence_number);
+			"Sequence Number: %" PRIu64, sequence_number);
     proto_tree_add_text(rsvp_object_tree, tvb, offset2+16, obj_length - 20,
 			"Hash: %s", tvb_bytes_to_str(tvb, offset2+16, obj_length - 20));
 }

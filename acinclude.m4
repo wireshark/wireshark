@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.76 2004/05/18 11:11:37 jmayer Exp $
+dnl $Id: acinclude.m4,v 1.77 2004/06/19 00:07:22 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -90,6 +90,48 @@ ac_cv_ethereal_struct_sa_len=yes, ac_cv_ethereal_struct_sa_len=no)])
 if test $ac_cv_ethereal_struct_sa_len = yes; then
   AC_DEFINE(HAVE_SA_LEN, 1, [Define if sa_len field exists in struct sockaddr])
 fi
+])
+
+
+dnl
+dnl Check whether a given format can be used to print 64-bit integers
+dnl
+AC_DEFUN(AC_ETHEREAL_CHECK_64BIT_FORMAT,
+[
+  AC_MSG_CHECKING([whether %$1x can be used to format 64-bit integers])
+  AC_RUN_IFELSE(
+    [
+      AC_LANG_SOURCE(
+	[[
+#	  ifdef HAVE_INTTYPES_H
+	  #include <inttypes.h>
+#	  endif
+	  #include <stdio.h>
+	  #include <sys/types.h>
+
+	  main()
+	  {
+	    u_int64_t t = 1;
+	    char strbuf[16+1];
+	    sprintf(strbuf, "%016$1x", t << 32);
+	    if (strcmp(strbuf, "0000000100000000") == 0)
+	      exit(0);
+	    else
+	      exit(1);
+	  }
+	]])
+    ],
+    [
+      AC_DEFINE(PRId64, "$1d", [Format for printing 64-bit signed decimal numbers])
+      AC_DEFINE(PRIo64, "$1o", [Format for printing 64-bit unsigned octal numbers])
+      AC_DEFINE(PRIx64, "$1x", [Format for printing 64-bit unsigned hexadecimal numbers])
+      AC_DEFINE(PRIu64, "$1u", [Format for printing 64-bit unsigned decimal numbers])
+      AC_MSG_RESULT(yes)
+    ],
+    [
+      AC_MSG_RESULT(no)
+      $2
+    ])
 ])
 
 #

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.73 2004/06/08 05:42:57 ulfl Exp $
+ * $Id: packet.h,v 1.74 2004/06/19 00:07:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,6 +24,14 @@
 
 #ifndef __PACKET_H__
 #define __PACKET_H__
+
+/*
+ * If <inttypes.h> defines formats to be used to print 64-bit integers,
+ * include it.
+ */
+#ifdef INTTYPES_H_DEFINES_FORMATS
+#include <inttypes.h>
+#endif
 
 #include "wiretap/wtap.h"
 #include "proto.h"

@@ -1,4 +1,4 @@
-/* $Id: config.h.win32,v 1.45 2004/05/09 10:03:36 guy Exp $ */
+/* $Id: config.h.win32,v 1.46 2004/06/19 00:07:22 guy Exp $ */
 /* config.h.win32 Generated manually. :-) */
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
@@ -117,6 +117,45 @@
 
 /* Define if you have the <unistd.h> header file.  */
 /* #define HAVE_UNISTD_H 1 */
+
+/* Define if <inttypes.h> defines PRI[doxu]64 macros */
+/* #define INTTYPES_H_DEFINES_FORMATS */
+
+/* Format for printing 64-bit signed decimal numbers */
+#ifndef PRId64
+#ifdef _MSC_EXTENSIONS
+#define PRId64  "i64d"
+#else /* _MSC_EXTENSIONS */
+#define PRId64  "lld"
+#endif /* _MSC_EXTENSIONS */
+#endif /* PRId64 */
+
+/* Format for printing 64-bit unsigned octal numbers */
+#ifndef PRIo64
+#ifdef _MSC_EXTENSIONS
+#define PRIo64  "i64o"
+#else /* _MSC_EXTENSIONS */
+#define PRIo64  "llo"
+#endif /* _MSC_EXTENSIONS */   
+#endif /* PRIo64 */   
+
+/* Format for printing 64-bit unsigned decimal numbers */
+#ifndef PRIu64
+#ifdef _MSC_EXTENSIONS
+#define PRIu64  "i64u"
+#else /* _MSC_EXTENSIONS */
+#define PRIu64  "llu"  
+#endif /* _MSC_EXTENSIONS */
+#endif /* PRIu64 */
+
+/* Format for printing 64-bit unsigned hexadecimal numbers */
+#ifndef PRIx64  
+#ifdef _MSC_EXTENSIONS
+#define PRIx64  "i64x"
+#else /* _MSC_EXTENSIONS */
+#define PRIx64  "llx"
+#endif /* _MSC_EXTENSIONS */
+#endif /* PRIx64 */   
 
 /* Define if you have the z library (-lz).  */
 @HAVE_LIBZ@

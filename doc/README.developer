@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.95 2004/05/24 02:25:20 guy Exp $
+$Id: README.developer,v 1.96 2004/06/19 00:07:23 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -38,14 +38,6 @@ functions declared in header files; if it doesn't work, don't declare
 the function in a header file, even if this requires that you not make
 it inline on any platform.
 
-Don't use "long long"; use "gint64" or "guint64", and only do so if
-G_HAVE_GINT64 is defined.  Make sure your code works even if
-G_HAVE_GINT64 isn't defined, even if that means treating 64-bit integral
-data types as opaque arrays of bytes on platforms where it's not
-defined.  Also, don't assume you can use "%lld", "%llu", "%llx", or
-"%llo" to print 64-bit integral data types - not all platforms support
-"%ll" for printing them.
-
 Don't use "uchar", "u_char", "ushort", "u_short", "uint", "u_int",
 "ulong", or "u_long"; they aren't defined on all platforms.  If you want
 an 8-bit unsigned quantity, use "guint8"; if you want an 8-bit character
@@ -60,6 +52,19 @@ Don't use "long" to mean "signed 32-bit integer", and don't use
 "unsigned long" to mean "unsigned 32-bit integer"; "long"s are 64 bits
 long on many platforms.  Use "gint32" for signed 32-bit integers and use
 "guint32" for unsigned 32-bit integers.
+
+Don't use "long" to mean "signed 64-bit integer" and don't use "unsigned
+long" to mean "unsigned 64-bit integer"; "long"s are 32 bits long on
+other many platforms.  Also don't use "long long" or "unsigned long
+long", as not all platforms support them; use "gint64" or "guint64",
+which will be defined as the appropriate types for 64-bit signed and
+unsigned integers.  Also, don't assume you can use "%lld", "%llu",
+"%llx", or "%llo" to print 64-bit integral data types - not all
+platforms support "%ll" for printing them.  Instead, use PRId64, PRIu64,
+PRIx64, and PRIo64, for example
+
+    proto_tree_add_text(tree, tvb, offset, 8,
+			"Sequence Number: %" PRIu64, sequence_number);
 
 Don't use a label without a statement following it.  For example,
 something such as
@@ -363,12 +368,12 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.95 2004/05/24 02:25:20 guy Exp $"
+The "$Id: README.developer,v 1.96 2004/06/19 00:07:23 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
 
-When creating a new file, it is fine to just write "$Id: README.developer,v 1.95 2004/05/24 02:25:20 guy Exp $" as RCS will
+When creating a new file, it is fine to just write "$Id: README.developer,v 1.96 2004/06/19 00:07:23 guy Exp $" as RCS will
 automatically fill in the identifier at the time the file will be added to the
 CVS repository (checked in).
 
@@ -377,7 +382,7 @@ CVS repository (checked in).
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.95 2004/05/24 02:25:20 guy Exp $
+ * $Id: README.developer,v 1.96 2004/06/19 00:07:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

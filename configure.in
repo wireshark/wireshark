@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.266 2004/06/17 14:37:43 jmayer Exp $
+# $Id: configure.in,v 1.267 2004/06/19 00:07:22 guy Exp $
 #
 AC_INIT(etypes.h)
 
@@ -228,6 +228,64 @@ if test "$HAVE_GNU_SED" = no ; then
 		:
 		;;
 	esac
+fi
+
+#
+# We can't just check for <inttypes.h> - some systems have one that
+# doesn't define all the PRI[doxu]64 macros.
+#
+AC_CHECK_HEADERS(inttypes.h,
+  [
+    #
+    # OK, we have inttypes.h, but does it define those macros?
+    #
+    AC_MSG_CHECKING([[whether inttypes.h defines the PRI[doxu]64 macros]])
+    AC_COMPILE_IFELSE(
+      [
+	AC_LANG_SOURCE(
+	  [[
+	    #include <inttypes.h>
+	    #include <stdio.h>
+	    #include <sys/types.h>
+
+	    main()
+	    {
+	      printf("%" PRId64 "\n", (u_int64_t)1);
+	      printf("%" PRIo64 "\n", (u_int64_t)1);
+	      printf("%" PRIx64 "\n", (u_int64_t)1);
+	      printf("%" PRIu64 "\n", (u_int64_t)1);
+	    }
+	  ]])
+      ],
+      [
+	AC_MSG_RESULT(yes)
+	ac_ethereal_inttypes_h_defines_formats=yes
+      ],
+      [
+	AC_MSG_RESULT(no)
+	ac_ethereal_inttypes_h_defines_formats=no
+      ])
+  ],
+  [
+    #
+    # We don't have inttypes.h, so it obviously can't define those
+    # macros.
+    #
+    ac_ethereal_inttypes_h_defines_formats=no
+  ])
+if test "$ac_ethereal_inttypes_h_defines_formats" = yes; then
+  AC_DEFINE(INTTYPES_H_DEFINES_FORMATS,,[Define if <inttypes.h> defines PRI[doxu]64 macros])
+else
+  AC_ETHEREAL_CHECK_64BIT_FORMAT(ll,
+    [
+      AC_ETHEREAL_CHECK_64BIT_FORMAT(L,
+	[
+	  AC_ETHEREAL_CHECK_64BIT_FORMAT(q,
+	    [
+	      AC_MSG_ERROR([neither %llx nor %Lx nor %qx worked on a 64-bit integer])
+	    ])
+	])
+    ])
 fi
 
 # Enable/disable tethereal
