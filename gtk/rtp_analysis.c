@@ -3161,7 +3161,7 @@ void create_rtp_dialog(user_data_t* user_data)
 	
 
 	window = window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: RTP Stream Analysis");
-	gtk_window_set_default_size(GTK_WINDOW(window), 560, 400);
+	gtk_window_set_default_size(GTK_WINDOW(window), 700, 400);
 
 	/* Container for each row of widgets */
 	main_vb = gtk_vbox_new(FALSE, 2);
