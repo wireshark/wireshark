@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.50 1999/12/05 08:22:22 sharpe Exp $
+ * $Id: packet-smb.c,v 1.51 1999/12/07 06:36:12 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -8945,112 +8945,124 @@ int dissect_transact_next(u_char *pd, char *Name, int dirn, proto_tree *tree)
   int           bc;
 
   while (1) {
-    switch (in_params) {
+    if (dirn == 1) {       /* Request stuff */
+      switch (in_params) {
 
-    case 0:   /* We are in the params area ... */
+      case 0:   /* We are in the params area ... */
 
-      switch (params[p_offset++]) {
+	switch (params[p_offset++]) {
 
-      case 'r':
+	case 'r':
 
-	break;   /* Do nothing about the above */
+	  break;   /* Do nothing about the above, because it is not there */
 
-      case 'W':  /* Word Parameter */
+	case 'W':  /* Word Parameter */
 
-	/* Insert a word param */
+	  /* Insert a word param */
 
-	WParam = GSHORT(pd, pd_p_current);
+	  WParam = GSHORT(pd, pd_p_current);
 
-	proto_tree_add_text(tree, pd_p_current, 2, "Word Param: %u", WParam);
+	  proto_tree_add_text(tree, pd_p_current, 2, "Word Param: %u", WParam);
 
-	pd_p_current += 2;
+	  pd_p_current += 2;
 
-	break;
+	  break;
 
-      case 'D':  /* Double Word parameter */
+	case 'D':  /* Double Word parameter */
 
-	LParam = GWORD(pd, pd_p_current);
+	  LParam = GWORD(pd, pd_p_current);
 
-	proto_tree_add_text(tree, pd_p_current, 4, "DWord Param: %u", LParam);
+	  proto_tree_add_text(tree, pd_p_current, 4, "DWord Param: %u", LParam);
 
-	pd_p_current += 2;
+	  pd_p_current += 2;
+	  
+	  break;
 
+	case 'b':  /* A byte or series of bytes */
 
-	break;
+	  bc = get_byte_count(pd + pd_p_current);  /* This is not clean */
 
-      case 'b':  /* A byte or series of bytes */
+	  /*Bytes = g_malloc(bc + 1); / * Is this needed ? */
 
-	bc = get_byte_count(pd + pd_p_current);  /* This is not clean */
+	  proto_tree_add_text(tree, pd_p_current, bc, "B%u: %s", format_text(pd + pd_p_current, (bc) ? bc : 1));
 
-	/*Bytes = g_malloc(bc + 1); / * Is this needed ? */
+	  pd_p_current += (bc) ? bc : 1;
 
-	proto_tree_add_text(tree, pd_p_current, bc, "B%u: %s", format_text(pd + pd_p_current, (bc) ? bc : 1));
+	  break;
 
-	pd_p_current += (bc) ? bc : 1;
+	case 'O': /* A null pointer */
 
-	break;
+	  proto_tree_add_text(tree, pd_p_current, 0, "Null Pointer");
 
-      case 'O': /* A null pointer */
+	  break;
 
-	proto_tree_add_text(tree, pd_p_current, 0, "Null Pointer");
+	case 'z': /* An AsciiZ string */
 
-	break;
+	  AsciiZ = pd + pd_p_current;
 
-      case 'z': /* An AsciiZ string */
+	  proto_tree_add_text(tree, pd_p_current, strlen(AsciiZ) + 1, "AsciiZ: %s", AsciiZ);
 
-	AsciiZ = pd + pd_p_current;
+	  pd_p_current += strlen(AsciiZ) + 1;
 
-	proto_tree_add_text(tree, pd_p_current, strlen(AsciiZ) + 1, "AsciiZ: %s", AsciiZ);
+	  break;
 
-	pd_p_current += strlen(AsciiZ) + 1;
+	case 'F': /* One or more pad bytes */
 
-	break;
+	  bc = get_byte_count(pd);
 
-      case 'F': /* One or more pad bytes */
+	  proto_tree_add_text(tree, pd_p_current, bc, "Pad%u: %s", format_text(pd + pd_p_current, bc));
 
-	bc = get_byte_count(pd);
+	  pd_p_current += bc;
 
-	proto_tree_add_text(tree, pd_p_current, bc, "Pad%u: %s", format_text(pd + pd_p_current, bc));
+	  break;
 
-	pd_p_current += bc;
+	case 'L': /* Receive buffer len: Short */
 
-	break;
+	  WParam = GSHORT(pd, pd_p_current);
 
-      case 'L': /* Receive buffer len: Short */
+	  proto_tree_add_text(tree, pd_p_current, 2, "Word: %u", WParam);
 
-	WParam = GSHORT(pd, pd_p_current);
+	  pd_p_current += 2;
 
-	proto_tree_add_text(tree, pd_p_current, 2, "Word: %u", WParam);
+	  break;
 
-	pd_p_current += 2;
+	case 's': /* Send buf ... */
 
-	break;
+	  need_data = 1;
 
-      case 's': /* Send buf ... */
+	  LParam = GWORD(pd, pd_p_current);
 
-	need_data = 1;
+	  proto_tree_add_text(tree, pd_p_current, 4, "Buffer Ptr: %u", LParam);
 
-	break;
+	  pd_p_current += 4;
 
-      case 'T':
+	  break;
 
-	break;
+	case 'T':
+
+	  WParam = GSHORT(pd, pd_p_current);
+
+	  proto_tree_add_text(tree, pd_p_current, 2, "Buffer Len: %u", WParam);
+
+	  pd_p_current += 2;
+
+	  break;
 	
-      default:
+	default:
+
+	  break;
+
+	}
+
+	break;
+
+      case 1:   /* We are in the data area ... */
+
 
 	break;
 
       }
-
-      break;
-
-    case 1:   /* We are in the data area ... */
-
-
-      break;
-
     }
-
   }
   return 0;
 
@@ -9956,6 +9968,13 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
       return 1;
       break;
+
+    default:   /* Just try to handle what is there ... */
+
+      dissect_transact_engine_init(pd, ParameterDescriptor, ReturnDescriptor, ParameterOffset, ParameterCount, DataOffset, DataCount);
+
+
+      break;
     
     }
   }
@@ -10056,13 +10075,14 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
 	if (tree) {
 	  
-	  proto_tree_add_text(share, loc_offset, strlen(Share) + 1, "Share Name: %s", Share);
+	  proto_tree_add_text(share, loc_offset, 13, "Share Name: %s", Share);
 
 	}
 
 	loc_offset += 13;
 
-	loc_offset += 1;  /* Skip the pad ... */
+	while (loc_offset % 4)
+	  loc_offset += 1;  /* Align to a word boundary ... */
 
 	Flags = GSHORT(pd, loc_offset);
 
@@ -10074,7 +10094,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
 	loc_offset += 2;
 
-	Comment = pd + SMB_offset + DataOffset + GWORD(pd, loc_offset);
+	Comment = pd + SMB_offset + DataOffset + (GWORD(pd, loc_offset) & 0xFFFF) - Convert;
 
 	if (tree) {
 
@@ -10185,7 +10205,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
 	if (tree) {
 	  
-	  proto_tree_add_text(server, loc_offset, strlen(Server) + 1, "Server Name: %s", Server);
+	  proto_tree_add_text(server, loc_offset, 16, "Server Name: %s", Server);
 
 	}
 
@@ -10225,7 +10245,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
 	  loc_offset += 4;
 
-	  Comment = pd + SMB_offset + DataOffset + GWORD(pd, loc_offset);
+	  Comment = pd + SMB_offset + DataOffset + (GWORD(pd, loc_offset) & 0xFFFF) - Convert;
 
 	  if (tree) {
 
