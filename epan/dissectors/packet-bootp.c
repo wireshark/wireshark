@@ -159,8 +159,7 @@ enum field_type {
 	string,
 	bytes,
 	opaque,
-	toggle,
-	yes_no,
+	boolean,
 	val_u_byte,
 	val_u_short,
 	val_u_short_list,
@@ -174,6 +173,7 @@ enum field_type {
 struct opt_info {
 	char	*text;
 	enum field_type ftype;
+	const void *data;
 };
 
 static const true_false_string flag_set_broadcast = {
@@ -267,6 +267,16 @@ get_dhcp_type(guint8 byte)
 #define FILE_NAME_LEN			128
 #define VENDOR_INFO_OFFSET		236
 
+static const true_false_string toggle_tfs = {
+	"Enabled",
+	"Disabled"
+};
+
+static const true_false_string yes_no_tfs = {
+	"Yes",
+	"No"
+};
+
 /* Returns the number of bytes consumed by this option. */
 static int
 bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
@@ -277,6 +287,8 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	enum field_type		ftype;
 	guchar			code = tvb_get_guint8(tvb, voff);
 	int			optlen;
+	const struct true_false_string *tfs;
+	const value_string	*vs;
 	guchar			byte;
 	int			i, consumed;
 	int			optoff, optleft, optend;
@@ -329,217 +341,217 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	    { 0,                  NULL                                           } };
 
 	static struct opt_info opt[] = {
-		/*   0 */ { "Padding",					none },
-		/*   1 */ { "Subnet Mask",				ipv4 },
-		/*   2 */ { "Time Offset",				time_in_secs },
-		/*   3 */ { "Router",					ipv4_list },
-		/*   4 */ { "Time Server",				ipv4_list },
-		/*   5 */ { "Name Server",				ipv4_list },
-		/*   6 */ { "Domain Name Server",			ipv4_list },
-		/*   7 */ { "Log Server",				ipv4_list },
-		/*   8 */ { "Cookie Server",				ipv4_list },
-		/*   9 */ { "LPR Server",				ipv4_list },
-		/*  10 */ { "Impress Server",				ipv4_list },
-		/*  11 */ { "Resource Location Server",			ipv4_list },
-		/*  12 */ { "Host Name",				string },
-		/*  13 */ { "Boot File Size",				val_u_short },
-		/*  14 */ { "Merit Dump File",				string },
-		/*  15 */ { "Domain Name",				string },
-		/*  16 */ { "Swap Server",				ipv4 },
-		/*  17 */ { "Root Path",				string },
-		/*  18 */ { "Extensions Path",				string },
-		/*  19 */ { "IP Forwarding",				toggle },
-		/*  20 */ { "Non-Local Source Routing",			toggle },
-		/*  21 */ { "Policy Filter",				special },
-		/*  22 */ { "Maximum Datagram Reassembly Size",		val_u_short },
-		/*  23 */ { "Default IP Time-to-Live",			val_u_byte },
-		/*  24 */ { "Path MTU Aging Timeout",			time_in_secs },
-		/*  25 */ { "Path MTU Plateau Table",			val_u_short_list },
-		/*  26 */ { "Interface MTU",				val_u_short },
-		/*  27 */ { "All Subnets are Local",			yes_no },
-		/*  28 */ { "Broadcast Address",			ipv4 },
-		/*  29 */ { "Perform Mask Discovery",			toggle },
-		/*  30 */ { "Mask Supplier",				yes_no },
-		/*  31 */ { "Perform Router Discover",			toggle },
-		/*  32 */ { "Router Solicitation Address",		ipv4 },
-		/*  33 */ { "Static Route",				special },
-		/*  34 */ { "Trailer Encapsulation",			toggle },
-		/*  35 */ { "ARP Cache Timeout",			time_in_secs },
-		/*  36 */ { "Ethernet Encapsulation",			toggle },
-		/*  37 */ { "TCP Default TTL", 				val_u_byte },
-		/*  38 */ { "TCP Keepalive Interval",			time_in_secs },
-		/*  39 */ { "TCP Keepalive Garbage",			toggle },
-		/*  40 */ { "Network Information Service Domain",	string },
-		/*  41 */ { "Network Information Service Servers",	ipv4_list },
-		/*  42 */ { "Network Time Protocol Servers",		ipv4_list },
-		/*  43 */ { "Vendor-Specific Information",		special },
-		/*  44 */ { "NetBIOS over TCP/IP Name Server",		ipv4_list },
-		/*  45 */ { "NetBIOS over TCP/IP Datagram Distribution Name Server", ipv4_list },
-		/*  46 */ { "NetBIOS over TCP/IP Node Type",		special },
-		/*  47 */ { "NetBIOS over TCP/IP Scope",		string },
-		/*  48 */ { "X Window System Font Server",		ipv4_list },
-		/*  49 */ { "X Window System Display Manager",		ipv4_list },
-		/*  50 */ { "Requested IP Address",			ipv4 },
-		/*  51 */ { "IP Address Lease Time",			time_in_secs },
-		/*  52 */ { "Option Overload",				special },
-		/*  53 */ { "DHCP Message Type",			special },
-		/*  54 */ { "Server Identifier",			ipv4 },
-		/*  55 */ { "Parameter Request List",			special },
-		/*  56 */ { "Message",					string },
-		/*  57 */ { "Maximum DHCP Message Size",		val_u_short },
-		/*  58 */ { "Renewal Time Value",			time_in_secs },
-		/*  59 */ { "Rebinding Time Value",			time_in_secs },
-		/*  60 */ { "Vendor class identifier",			special },
-		/*  61 */ { "Client identifier",			special },
-		/*  62 */ { "Novell/Netware IP domain",			string },
-		/*  63 */ { "Novell Options",				special },
-		/*  64 */ { "Network Information Service+ Domain",	string },
-		/*  65 */ { "Network Information Service+ Servers",	ipv4_list },
-		/*  66 */ { "TFTP Server Name",				string },
-		/*  67 */ { "Bootfile name",				string },
-		/*  68 */ { "Mobile IP Home Agent",			ipv4_list },
-		/*  69 */ { "SMTP Server",				ipv4_list },
-		/*  70 */ { "POP3 Server",				ipv4_list },
-		/*  71 */ { "NNTP Server",				ipv4_list },
-		/*  72 */ { "Default WWW Server",			ipv4_list },
-		/*  73 */ { "Default Finger Server",			ipv4_list },
-		/*  74 */ { "Default IRC Server",			ipv4_list },
-		/*  75 */ { "StreetTalk Server",			ipv4_list },
-		/*  76 */ { "StreetTalk Directory Assistance Server",	ipv4_list },
-		/*  77 */ { "User Class Information",			opaque },
-		/*  78 */ { "Directory Agent Information",		special },
-		/*  79 */ { "Service Location Agent Scope",		special },
-		/*  80 */ { "Naming Authority",				opaque },
-		/*  81 */ { "Client Fully Qualified Domain Name",	special },
-		/*  82 */ { "Agent Information Option",                 special },
-		/*  83 */ { "Unassigned",				opaque },
-		/*  84 */ { "Unassigned",				opaque },
-		/*  85 */ { "Novell Directory Services Servers",	special },
-		/*  86 */ { "Novell Directory Services Tree Name",	string },
-		/*  87 */ { "Novell Directory Services Context",	string },
-		/*  88 */ { "IEEE 1003.1 POSIX Timezone",		opaque },
-		/*  89 */ { "Fully Qualified Domain Name",		opaque },
-		/*  90 */ { "Authentication",				special },
-		/*  91 */ { "Vines TCP/IP Server Option",		opaque },
-		/*  92 */ { "Server Selection Option",			opaque },
-		/*  93 */ { "Client System Architecture",		opaque },
-		/*  94 */ { "Client Network Device Interface",		opaque },
-		/*  95 */ { "Lightweight Directory Access Protocol",	opaque },
-		/*  96 */ { "IPv6 Transitions",				opaque },
-		/*  97 */ { "UUID/GUID-based Client Identifier",	opaque },
-		/*  98 */ { "Open Group's User Authentication",		opaque },
-		/*  99 */ { "Unassigned",				opaque },
-		/* 100 */ { "Printer Name",				opaque },
-		/* 101 */ { "MDHCP multicast address",			opaque },
-		/* 102 */ { "Removed/unassigned",			opaque },
-		/* 103 */ { "Removed/unassigned",			opaque },
-		/* 104 */ { "Removed/unassigned",			opaque },
-		/* 105 */ { "Removed/unassigned",			opaque },
-		/* 106 */ { "Removed/unassigned",			opaque },
-		/* 107 */ { "Removed/unassigned",			opaque },
-		/* 108 */ { "Swap Path Option",				opaque },
-		/* 109 */ { "Unassigned",				opaque },
-		/* 110 */ { "IPX Compability",				opaque },
-		/* 111 */ { "Unassigned",				opaque },
-		/* 112 */ { "NetInfo Parent Server Address",		ipv4_list },
-		/* 113 */ { "NetInfo Parent Server Tag",		string },
-		/* 114 */ { "URL",					opaque },
-		/* 115 */ { "DHCP Failover Protocol",			opaque },
-		/* 116 */ { "DHCP Auto-Configuration",			opaque },
-		/* 117 */ { "Name Service Search",		       	opaque },
-		/* 118 */ { "Subnet Selection Option",		       	opaque },
-		/* 119 */ { "Domain Search",				opaque },
-		/* 120 */ { "SIP Servers",				opaque },
-		/* 121 */ { "Classless Static Route",		       	opaque },
-		/* 122 */ { "CableLabs Client Configuration",		opaque },
-		/* 123 */ { "Unassigned",				opaque },
-		/* 124 */ { "Unassigned",				opaque },
-		/* 125 */ { "Unassigned",				opaque },
-		/* 126 */ { "Extension",				opaque },
-		/* 127 */ { "Extension",				opaque },
-		/* 128 */ { "Private",					opaque },
-		/* 129 */ { "Private",					opaque },
-		/* 130 */ { "Private",					opaque },
-		/* 131 */ { "Private",					opaque },
-		/* 132 */ { "Private",					opaque },
-		/* 133 */ { "Private",					opaque },
-		/* 134 */ { "Private",					opaque },
-		/* 135 */ { "Private",					opaque },
-		/* 136 */ { "Private",					opaque },
-		/* 137 */ { "Private",					opaque },
-		/* 138 */ { "Private",					opaque },
-		/* 139 */ { "Private",					opaque },
-		/* 140 */ { "Private",					opaque },
-		/* 141 */ { "Private",					opaque },
-		/* 142 */ { "Private",					opaque },
-		/* 143 */ { "Private",					opaque },
-		/* 144 */ { "Private",					opaque },
-		/* 145 */ { "Private",					opaque },
-		/* 146 */ { "Private",					opaque },
-		/* 147 */ { "Private",					opaque },
-		/* 148 */ { "Private",					opaque },
-		/* 149 */ { "Private",					opaque },
-		/* 150 */ { "Private",					opaque },
-		/* 151 */ { "Private",					opaque },
-		/* 152 */ { "Private",					opaque },
-		/* 153 */ { "Private",					opaque },
-		/* 154 */ { "Private",					opaque },
-		/* 155 */ { "Private",					opaque },
-		/* 156 */ { "Private",					opaque },
-		/* 157 */ { "Private",					opaque },
-		/* 158 */ { "Private",					opaque },
-		/* 159 */ { "Private",					opaque },
-		/* 160 */ { "Private",					opaque },
-		/* 161 */ { "Private",					opaque },
-		/* 162 */ { "Private",					opaque },
-		/* 163 */ { "Private",					opaque },
-		/* 164 */ { "Private",					opaque },
-		/* 165 */ { "Private",					opaque },
-		/* 166 */ { "Private",					opaque },
-		/* 167 */ { "Private",					opaque },
-		/* 168 */ { "Private",					opaque },
-		/* 169 */ { "Private",					opaque },
-		/* 170 */ { "Private",					opaque },
-		/* 171 */ { "Private",					opaque },
-		/* 172 */ { "Private",					opaque },
-		/* 173 */ { "Private",					opaque },
-		/* 174 */ { "Private",					opaque },
-		/* 175 */ { "Private",					opaque },
-		/* 176 */ { "Private",					opaque },
-		/* 177 */ { "Private",					opaque },
-		/* 178 */ { "Private",					opaque },
-		/* 179 */ { "Private",					opaque },
-		/* 180 */ { "Private",					opaque },
-		/* 181 */ { "Private",					opaque },
-		/* 182 */ { "Private",					opaque },
-		/* 183 */ { "Private",					opaque },
-		/* 184 */ { "Private",					opaque },
-		/* 185 */ { "Private",					opaque },
-		/* 186 */ { "Private",					opaque },
-		/* 187 */ { "Private",					opaque },
-		/* 188 */ { "Private",					opaque },
-		/* 189 */ { "Private",					opaque },
-		/* 190 */ { "Private",					opaque },
-		/* 191 */ { "Private",					opaque },
-		/* 192 */ { "Private",					opaque },
-		/* 193 */ { "Private",					opaque },
-		/* 194 */ { "Private",					opaque },
-		/* 195 */ { "Private",					opaque },
-		/* 196 */ { "Private",					opaque },
-		/* 197 */ { "Private",					opaque },
-		/* 198 */ { "Private",					opaque },
-		/* 199 */ { "Private",					opaque },
-		/* 200 */ { "Private",					opaque },
-		/* 201 */ { "Private",					opaque },
-		/* 202 */ { "Private",					opaque },
-		/* 203 */ { "Private",					opaque },
-		/* 204 */ { "Private",					opaque },
-		/* 205 */ { "Private",					opaque },
-		/* 206 */ { "Private",					opaque },
-		/* 207 */ { "Private",					opaque },
-		/* 208 */ { "Private",					opaque },
-		/* 209 */ { "Private",					opaque },
-		/* 210 */ { "Authentication",				special }
+		/*   0 */ { "Padding",					none, NULL },
+		/*   1 */ { "Subnet Mask",				ipv4, NULL },
+		/*   2 */ { "Time Offset",				time_in_secs, NULL },
+		/*   3 */ { "Router",					ipv4_list, NULL },
+		/*   4 */ { "Time Server",				ipv4_list, NULL },
+		/*   5 */ { "Name Server",				ipv4_list, NULL },
+		/*   6 */ { "Domain Name Server",			ipv4_list, NULL },
+		/*   7 */ { "Log Server",				ipv4_list, NULL },
+		/*   8 */ { "Cookie Server",				ipv4_list, NULL },
+		/*   9 */ { "LPR Server",				ipv4_list, NULL },
+		/*  10 */ { "Impress Server",				ipv4_list, NULL },
+		/*  11 */ { "Resource Location Server",			ipv4_list, NULL },
+		/*  12 */ { "Host Name",				string, NULL },
+		/*  13 */ { "Boot File Size",				val_u_short, NULL },
+		/*  14 */ { "Merit Dump File",				string, NULL },
+		/*  15 */ { "Domain Name",				string, NULL },
+		/*  16 */ { "Swap Server",				ipv4, NULL },
+		/*  17 */ { "Root Path",				string, NULL },
+		/*  18 */ { "Extensions Path",				string, NULL },
+		/*  19 */ { "IP Forwarding",				boolean, TFS(&toggle_tfs) },
+		/*  20 */ { "Non-Local Source Routing",			boolean, TFS(&toggle_tfs) },
+		/*  21 */ { "Policy Filter",				special, NULL },
+		/*  22 */ { "Maximum Datagram Reassembly Size",		val_u_short, NULL },
+		/*  23 */ { "Default IP Time-to-Live",			val_u_byte, NULL },
+		/*  24 */ { "Path MTU Aging Timeout",			time_in_secs, NULL },
+		/*  25 */ { "Path MTU Plateau Table",			val_u_short_list, NULL },
+		/*  26 */ { "Interface MTU",				val_u_short, NULL },
+		/*  27 */ { "All Subnets are Local",			boolean, TFS(&yes_no_tfs) },
+		/*  28 */ { "Broadcast Address",			ipv4, NULL },
+		/*  29 */ { "Perform Mask Discovery",			boolean, TFS(&toggle_tfs) },
+		/*  30 */ { "Mask Supplier",				boolean, TFS(&yes_no_tfs) },
+		/*  31 */ { "Perform Router Discover",			boolean, TFS(&toggle_tfs) },
+		/*  32 */ { "Router Solicitation Address",		ipv4, NULL },
+		/*  33 */ { "Static Route",				special, NULL },
+		/*  34 */ { "Trailer Encapsulation",			boolean, TFS(&toggle_tfs) },
+		/*  35 */ { "ARP Cache Timeout",			time_in_secs, NULL },
+		/*  36 */ { "Ethernet Encapsulation",			boolean, TFS(&toggle_tfs) },
+		/*  37 */ { "TCP Default TTL", 				val_u_byte, NULL },
+		/*  38 */ { "TCP Keepalive Interval",			time_in_secs, NULL },
+		/*  39 */ { "TCP Keepalive Garbage",			boolean, TFS(&toggle_tfs) },
+		/*  40 */ { "Network Information Service Domain",	string, NULL },
+		/*  41 */ { "Network Information Service Servers",	ipv4_list, NULL },
+		/*  42 */ { "Network Time Protocol Servers",		ipv4_list, NULL },
+		/*  43 */ { "Vendor-Specific Information",		special, NULL },
+		/*  44 */ { "NetBIOS over TCP/IP Name Server",		ipv4_list, NULL },
+		/*  45 */ { "NetBIOS over TCP/IP Datagram Distribution Name Server", ipv4_list, NULL },
+		/*  46 */ { "NetBIOS over TCP/IP Node Type",		val_u_byte, VALS(nbnt_vals) },
+		/*  47 */ { "NetBIOS over TCP/IP Scope",		string, NULL },
+		/*  48 */ { "X Window System Font Server",		ipv4_list, NULL },
+		/*  49 */ { "X Window System Display Manager",		ipv4_list, NULL },
+		/*  50 */ { "Requested IP Address",			ipv4, NULL },
+		/*  51 */ { "IP Address Lease Time",			time_in_secs, NULL },
+		/*  52 */ { "Option Overload",				special, NULL },
+		/*  53 */ { "DHCP Message Type",			special, NULL },
+		/*  54 */ { "Server Identifier",			ipv4, NULL },
+		/*  55 */ { "Parameter Request List",			special, NULL },
+		/*  56 */ { "Message",					string, NULL },
+		/*  57 */ { "Maximum DHCP Message Size",		val_u_short, NULL },
+		/*  58 */ { "Renewal Time Value",			time_in_secs, NULL },
+		/*  59 */ { "Rebinding Time Value",			time_in_secs, NULL },
+		/*  60 */ { "Vendor class identifier",			special, NULL },
+		/*  61 */ { "Client identifier",			special, NULL },
+		/*  62 */ { "Novell/Netware IP domain",			string, NULL },
+		/*  63 */ { "Novell Options",				special, NULL },
+		/*  64 */ { "Network Information Service+ Domain",	string, NULL },
+		/*  65 */ { "Network Information Service+ Servers",	ipv4_list, NULL },
+		/*  66 */ { "TFTP Server Name",				string, NULL },
+		/*  67 */ { "Bootfile name",				string, NULL },
+		/*  68 */ { "Mobile IP Home Agent",			ipv4_list, NULL },
+		/*  69 */ { "SMTP Server",				ipv4_list, NULL },
+		/*  70 */ { "POP3 Server",				ipv4_list, NULL },
+		/*  71 */ { "NNTP Server",				ipv4_list, NULL },
+		/*  72 */ { "Default WWW Server",			ipv4_list, NULL },
+		/*  73 */ { "Default Finger Server",			ipv4_list, NULL },
+		/*  74 */ { "Default IRC Server",			ipv4_list, NULL },
+		/*  75 */ { "StreetTalk Server",			ipv4_list, NULL },
+		/*  76 */ { "StreetTalk Directory Assistance Server",	ipv4_list, NULL },
+		/*  77 */ { "User Class Information",			opaque, NULL },
+		/*  78 */ { "Directory Agent Information",		special, NULL },
+		/*  79 */ { "Service Location Agent Scope",		special, NULL },
+		/*  80 */ { "Naming Authority",				opaque, NULL },
+		/*  81 */ { "Client Fully Qualified Domain Name",	special, NULL },
+		/*  82 */ { "Agent Information Option",                 special, NULL },
+		/*  83 */ { "Unassigned",				opaque, NULL },
+		/*  84 */ { "Unassigned",				opaque, NULL },
+		/*  85 */ { "Novell Directory Services Servers",	special, NULL },
+		/*  86 */ { "Novell Directory Services Tree Name",	string, NULL },
+		/*  87 */ { "Novell Directory Services Context",	string, NULL },
+		/*  88 */ { "IEEE 1003.1 POSIX Timezone",		opaque, NULL },
+		/*  89 */ { "Fully Qualified Domain Name",		opaque, NULL },
+		/*  90 */ { "Authentication",				special, NULL },
+		/*  91 */ { "Vines TCP/IP Server Option",		opaque, NULL },
+		/*  92 */ { "Server Selection Option",			opaque, NULL },
+		/*  93 */ { "Client System Architecture",		opaque, NULL },
+		/*  94 */ { "Client Network Device Interface",		opaque, NULL },
+		/*  95 */ { "Lightweight Directory Access Protocol",	opaque, NULL },
+		/*  96 */ { "IPv6 Transitions",				opaque, NULL },
+		/*  97 */ { "UUID/GUID-based Client Identifier",	opaque, NULL },
+		/*  98 */ { "Open Group's User Authentication",		opaque, NULL },
+		/*  99 */ { "Unassigned",				opaque, NULL },
+		/* 100 */ { "Printer Name",				opaque, NULL },
+		/* 101 */ { "MDHCP multicast address",			opaque, NULL },
+		/* 102 */ { "Removed/unassigned",			opaque, NULL },
+		/* 103 */ { "Removed/unassigned",			opaque, NULL },
+		/* 104 */ { "Removed/unassigned",			opaque, NULL },
+		/* 105 */ { "Removed/unassigned",			opaque, NULL },
+		/* 106 */ { "Removed/unassigned",			opaque, NULL },
+		/* 107 */ { "Removed/unassigned",			opaque, NULL },
+		/* 108 */ { "Swap Path Option",				opaque, NULL },
+		/* 109 */ { "Unassigned",				opaque, NULL },
+		/* 110 */ { "IPX Compability",				opaque, NULL },
+		/* 111 */ { "Unassigned",				opaque, NULL },
+		/* 112 */ { "NetInfo Parent Server Address",		ipv4_list, NULL },
+		/* 113 */ { "NetInfo Parent Server Tag",		string, NULL },
+		/* 114 */ { "URL",					opaque, NULL },
+		/* 115 */ { "DHCP Failover Protocol",			opaque, NULL },
+		/* 116 */ { "DHCP Auto-Configuration",			opaque, NULL },
+		/* 117 */ { "Name Service Search",		       	opaque, NULL },
+		/* 118 */ { "Subnet Selection Option",		       	opaque, NULL },
+		/* 119 */ { "Domain Search",				opaque, NULL },
+		/* 120 */ { "SIP Servers",				opaque, NULL },
+		/* 121 */ { "Classless Static Route",		       	opaque, NULL },
+		/* 122 */ { "CableLabs Client Configuration",		opaque, NULL },
+		/* 123 */ { "Unassigned",				opaque, NULL },
+		/* 124 */ { "Unassigned",				opaque, NULL },
+		/* 125 */ { "Unassigned",				opaque, NULL },
+		/* 126 */ { "Extension",				opaque, NULL },
+		/* 127 */ { "Extension",				opaque, NULL },
+		/* 128 */ { "Private",					opaque, NULL },
+		/* 129 */ { "Private",					opaque, NULL },
+		/* 130 */ { "Private",					opaque, NULL },
+		/* 131 */ { "Private",					opaque, NULL },
+		/* 132 */ { "Private",					opaque, NULL },
+		/* 133 */ { "Private",					opaque, NULL },
+		/* 134 */ { "Private",					opaque, NULL },
+		/* 135 */ { "Private",					opaque, NULL },
+		/* 136 */ { "Private",					opaque, NULL },
+		/* 137 */ { "Private",					opaque, NULL },
+		/* 138 */ { "Private",					opaque, NULL },
+		/* 139 */ { "Private",					opaque, NULL },
+		/* 140 */ { "Private",					opaque, NULL },
+		/* 141 */ { "Private",					opaque, NULL },
+		/* 142 */ { "Private",					opaque, NULL },
+		/* 143 */ { "Private",					opaque, NULL },
+		/* 144 */ { "Private",					opaque, NULL },
+		/* 145 */ { "Private",					opaque, NULL },
+		/* 146 */ { "Private",					opaque, NULL },
+		/* 147 */ { "Private",					opaque, NULL },
+		/* 148 */ { "Private",					opaque, NULL },
+		/* 149 */ { "Private",					opaque, NULL },
+		/* 150 */ { "Private",					opaque, NULL },
+		/* 151 */ { "Private",					opaque, NULL },
+		/* 152 */ { "Private",					opaque, NULL },
+		/* 153 */ { "Private",					opaque, NULL },
+		/* 154 */ { "Private",					opaque, NULL },
+		/* 155 */ { "Private",					opaque, NULL },
+		/* 156 */ { "Private",					opaque, NULL },
+		/* 157 */ { "Private",					opaque, NULL },
+		/* 158 */ { "Private",					opaque, NULL },
+		/* 159 */ { "Private",					opaque, NULL },
+		/* 160 */ { "Private",					opaque, NULL },
+		/* 161 */ { "Private",					opaque, NULL },
+		/* 162 */ { "Private",					opaque, NULL },
+		/* 163 */ { "Private",					opaque, NULL },
+		/* 164 */ { "Private",					opaque, NULL },
+		/* 165 */ { "Private",					opaque, NULL },
+		/* 166 */ { "Private",					opaque, NULL },
+		/* 167 */ { "Private",					opaque, NULL },
+		/* 168 */ { "Private",					opaque, NULL },
+		/* 169 */ { "Private",					opaque, NULL },
+		/* 170 */ { "Private",					opaque, NULL },
+		/* 171 */ { "Private",					opaque, NULL },
+		/* 172 */ { "Private",					opaque, NULL },
+		/* 173 */ { "Private",					opaque, NULL },
+		/* 174 */ { "Private",					opaque, NULL },
+		/* 175 */ { "Private",					opaque, NULL },
+		/* 176 */ { "Private",					opaque, NULL },
+		/* 177 */ { "Private",					opaque, NULL },
+		/* 178 */ { "Private",					opaque, NULL },
+		/* 179 */ { "Private",					opaque, NULL },
+		/* 180 */ { "Private",					opaque, NULL },
+		/* 181 */ { "Private",					opaque, NULL },
+		/* 182 */ { "Private",					opaque, NULL },
+		/* 183 */ { "Private",					opaque, NULL },
+		/* 184 */ { "Private",					opaque, NULL },
+		/* 185 */ { "Private",					opaque, NULL },
+		/* 186 */ { "Private",					opaque, NULL },
+		/* 187 */ { "Private",					opaque, NULL },
+		/* 188 */ { "Private",					opaque, NULL },
+		/* 189 */ { "Private",					opaque, NULL },
+		/* 190 */ { "Private",					opaque, NULL },
+		/* 191 */ { "Private",					opaque, NULL },
+		/* 192 */ { "Private",					opaque, NULL },
+		/* 193 */ { "Private",					opaque, NULL },
+		/* 194 */ { "Private",					opaque, NULL },
+		/* 195 */ { "Private",					opaque, NULL },
+		/* 196 */ { "Private",					opaque, NULL },
+		/* 197 */ { "Private",					opaque, NULL },
+		/* 198 */ { "Private",					opaque, NULL },
+		/* 199 */ { "Private",					opaque, NULL },
+		/* 200 */ { "Private",					opaque, NULL },
+		/* 201 */ { "Private",					opaque, NULL },
+		/* 202 */ { "Private",					opaque, NULL },
+		/* 203 */ { "Private",					opaque, NULL },
+		/* 204 */ { "Private",					opaque, NULL },
+		/* 205 */ { "Private",					opaque, NULL },
+		/* 206 */ { "Private",					opaque, NULL },
+		/* 207 */ { "Private",					opaque, NULL },
+		/* 208 */ { "Private",					opaque, NULL },
+		/* 209 */ { "Private",					opaque, NULL },
+		/* 210 */ { "Authentication",				special, NULL }
 	};
 
 	/* Options whose length isn't "optlen + 2". */
@@ -737,19 +749,6 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		}
 		break;
 
-	case 46:	/* NetBIOS-over-TCP/IP Node Type */
-		if (optlen != 1) {
-			proto_tree_add_text(bp_tree, tvb, voff, consumed,
-				"Option %d: length isn't 1", code);
-			break;
-		}
-		byte = tvb_get_guint8(tvb, optoff);
-		proto_tree_add_text(bp_tree, tvb, voff, consumed,
-				"Option %d: %s = %s", code, text,
-				val_to_str(byte, nbnt_vals,
-				    "Unknown (0x%02x)"));
-		break;
-
 	case 52:	/* Option Overload */
 		if (optlen < 1) {
 			proto_tree_add_text(bp_tree, tvb, voff, consumed,
@@ -800,6 +799,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 				    val_to_str(protocol, authen_protocol_vals, "Unknown"),
 				    protocol); */
 		break;
+
 	case 53:	/* DHCP Message Type */
 		if (optlen != 1) {
 			proto_tree_add_text(bp_tree, tvb, voff, consumed,
@@ -1149,32 +1149,34 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		text = opt[code].text;
 		ftype = opt[code].ftype;
 
-		switch (ftype) {
-
-		case special:
+		if (ftype == special)
 			return consumed;
+		if (ftype == opaque) {
+			if (skip_opaque) /* Currently used by PacketCable CCC */
+				return consumed;
+		}
+
+		vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
+		    "Option %d: %s", code, text);
+		switch (ftype) {
 
 		case ipv4:
 			if (optlen != 4) {
-				proto_tree_add_text(bp_tree, tvb, voff, consumed,
-					"Option %d: length isn't 4", code);
+				proto_item_append_string(vti,
+				    " - length isn't 4");
 				break;
 			}
-			proto_tree_add_text(bp_tree, tvb, voff, consumed,
-				"Option %d: %s = %s", code, text,
+			proto_item_append_text(vti, " = %s",
 				ip_to_str(tvb_get_ptr(tvb, optoff, 4)));
 			break;
 
 		case ipv4_list:
 			if (optlen == 4) {
 				/* one IP address */
-				proto_tree_add_text(bp_tree, tvb, voff, consumed,
-					"Option %d: %s = %s", code, text,
+				proto_item_append_text(vti, " = %s",
 					ip_to_str(tvb_get_ptr(tvb, optoff, 4)));
 			} else {
 				/* > 1 IP addresses. Let's make a sub-tree */
-				vti = proto_tree_add_text(bp_tree, tvb, voff,
-					consumed, "Option %d: %s", code, text);
 				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 				for (i = optoff, optleft = optlen; optleft > 0;
 				    i += 4, optleft -= 4) {
@@ -1193,87 +1195,63 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			/* Fix for non null-terminated string supplied by
 			 * John Lines <John.Lines[AT]aeat.co.uk>
 			 */
-			proto_tree_add_text(bp_tree, tvb, voff, consumed,
-					"Option %d: %s = \"%s\"", code, text,
+			proto_item_append_text(vti, " = \"%s\"",
 					tvb_format_stringzpad(tvb, optoff, consumed-2));
 			break;
 
 		case opaque:
-			if (! skip_opaque) { /* Currently used by PacketCable CCC */
-				proto_tree_add_text(bp_tree, tvb, voff, consumed,
-						"Option %d: %s (%d bytes)",
-						code, text, optlen);
-			}
+			proto_item_append_text(vti, " (%d bytes)", optlen);
 			break;
 
-		case toggle:
+		case boolean:
 			if (optlen != 1) {
-				proto_tree_add_text(bp_tree, tvb, voff, consumed,
-					"Option %d: length isn't 1", code);
+				proto_item_append_text(vti,
+				    " - length isn't 1");
 				break;
 			}
+			tfs = (const struct true_false_string *) opt[code].data;
 			i = tvb_get_guint8(tvb, optoff);
 			if (i != 0 && i != 1) {
-				proto_tree_add_text(bp_tree, tvb, voff, consumed,
-						"Option %d: %s = Invalid Value %d", code, text,
-						i);
+				proto_item_append_text(vti,
+				    " = Invalid Value %d", i);
 			} else {
-				proto_tree_add_text(bp_tree, tvb, voff, consumed,
-						"Option %d: %s = %s", code, text,
-						i == 0 ? "Disabled" : "Enabled");
-			}
-			break;
-
-		case yes_no:
-			if (optlen != 1) {
-				proto_tree_add_text(bp_tree, tvb, voff, consumed,
-					"Option %d: length isn't 1", code);
-				break;
-			}
-			i = tvb_get_guint8(tvb, optoff);
-			if (i != 0 && i != 1) {
-				proto_tree_add_text(bp_tree, tvb, voff, consumed,
-						"Option %d: %s = Invalid Value %d", code, text,
-						i);
-			} else {
-				proto_tree_add_text(bp_tree, tvb, voff, consumed,
-						"Option %d: %s = %s", code, text,
-						i == 0 ? "No" : "Yes");
+				proto_item_append_text(vti, " = %s",
+				    i == 0 ? tfs->false_string : tfs->true_string);
 			}
 			break;
 
 		case val_u_byte:
 			if (optlen != 1) {
-				proto_tree_add_text(bp_tree, tvb, voff, consumed,
-					"Option %d: length isn't 1", code);
+				proto_item_append_text(vti,
+				    " - length isn't 1");
 				break;
 			}
-			proto_tree_add_text(bp_tree, tvb, voff, consumed,
-					"Option %d: %s = %d", code, text,
-					tvb_get_guint8(tvb, optoff));
+			vs = (const value_string *) opt[code].data;
+			byte = tvb_get_guint8(tvb, optoff);
+			if (vs != NULL) {
+				proto_item_append_text(vti, " = %s",
+				    val_to_str(byte, vs, "Unknown (%u)"));
+			} else
+				proto_item_append_text(vti, " = %u", byte);
 			break;
 
 		case val_u_short:
 			if (optlen != 2) {
-				proto_tree_add_text(bp_tree, tvb, voff, consumed,
-					"Option %d: length isn't 2", code);
+				proto_item_append_text(vti,
+				    " - length isn't 2");
 				break;
 			}
-			proto_tree_add_text(bp_tree, tvb, voff, consumed,
-					"Option %d: %s = %d", code, text,
-					tvb_get_ntohs(tvb, optoff));
+			proto_item_append_text(vti, " = %u",
+			    tvb_get_ntohs(tvb, optoff));
 			break;
 
 		case val_u_short_list:
 			if (optlen == 2) {
 				/* one gushort */
-				proto_tree_add_text(bp_tree, tvb, voff, consumed,
-						"Option %d: %s = %d", code, text,
-						tvb_get_ntohs(tvb, optoff));
+				proto_item_append_text(vti, " = %u",
+				    tvb_get_ntohs(tvb, optoff));
 			} else {
 				/* > 1 gushort */
-				vti = proto_tree_add_text(bp_tree, tvb, voff,
-					consumed, "Option %d: %s", code, text);
 				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 				for (i = optoff, optleft = optlen; optleft > 0;
 				    i += 2, optleft -= 2) {
@@ -1282,7 +1260,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 						    "Option length isn't a multiple of 2");
 						break;
 					}
-					proto_tree_add_text(v_tree, tvb, i, 4, "Value: %d",
+					proto_tree_add_text(v_tree, tvb, i, 4, "Value: %u",
 						tvb_get_ntohs(tvb, i));
 				}
 			}
@@ -1290,32 +1268,30 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 
 		case val_u_long:
 			if (optlen != 4) {
-				proto_tree_add_text(bp_tree, tvb, voff, consumed,
-					"Option %d: length isn't 4", code);
+				proto_item_append_text(vti,
+				    " - length isn't 4");
 				break;
 			}
-			proto_tree_add_text(bp_tree, tvb, voff, consumed,
-					"Option %d: %s = %d", code, text,
-					tvb_get_ntohl(tvb, optoff));
+			proto_item_append_text(vti, " = %u",
+			    tvb_get_ntohl(tvb, optoff));
 			break;
 
 		case time_in_secs:
 			if (optlen != 4) {
-				proto_tree_add_text(bp_tree, tvb, voff, consumed,
-					"Option %d: length isn't 4", code);
+				proto_item_append_text(vti,
+				    " - length isn't 4");
 				break;
 			}
 			time_secs = tvb_get_ntohl(tvb, optoff);
-			proto_tree_add_text(bp_tree, tvb, voff, consumed,
-				"Option %d: %s = %s", code, text,
-				((time_secs == 0xffffffff) ?
-				    "infinity" :
-				    time_secs_to_str(time_secs)));
+			proto_item_append_text(vti, " = %s",
+			    ((time_secs == 0xffffffff) ?
+			      "infinity" :
+			      time_secs_to_str(time_secs)));
 			break;
 
 		default:
-			proto_tree_add_text(bp_tree, tvb, voff, consumed,
-					"Option %d: %s (%d bytes)", code, text, optlen);
+			proto_item_append_text(vti, " (%d bytes)", optlen);
+			break;
 		}
 	} else {
 		proto_tree_add_text(bp_tree, tvb, voff, consumed,
@@ -1384,27 +1360,27 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 	proto_item *vti;
 
 	static struct opt_info o43pxeclient_opt[]= {
-		/* 0 */ {"nop", special},	/* dummy */
-		/* 1 */ {"PXE mtftp IP", ipv4_list},
-		/* 2 */ {"PXE mtftp client port", val_u_le_short},
-		/* 3 */ {"PXE mtftp server port",val_u_le_short},
-		/* 4 */ {"PXE mtftp timeout", val_u_byte},
-		/* 5 */ {"PXE mtftp delay", val_u_byte},
-		/* 6 */ {"PXE discovery control", val_u_byte},
+		/* 0 */ {"nop", special, NULL},	/* dummy */
+		/* 1 */ {"PXE mtftp IP", ipv4_list, NULL},
+		/* 2 */ {"PXE mtftp client port", val_u_le_short, NULL},
+		/* 3 */ {"PXE mtftp server port",val_u_le_short, NULL},
+		/* 4 */ {"PXE mtftp timeout", val_u_byte, NULL},
+		/* 5 */ {"PXE mtftp delay", val_u_byte, NULL},
+		/* 6 */ {"PXE discovery control", val_u_byte, NULL},
 			/*
 			 * Correct: b0 (lsb): disable broadcast discovery
 			 *	b1: disable multicast discovery
 			 *	b2: only use/accept servers in boot servers
 			 *	b3: download bootfile without prompt/menu/disc
 			 */
-		/* 7 */ {"PXE multicast address", ipv4_list},
-		/* 8 */ {"PXE boot servers", special},
-		/* 9 */ {"PXE boot menu", special},
-		/* 10 */ {"PXE menu prompt", special},
-		/* 11 */ {"PXE multicast address alloc", special},
-		/* 12 */ {"PXE credential types", special},
-		/* 71 {"PXE boot item", special} */
-		/* 255 {"PXE end options", special} */
+		/* 7 */ {"PXE multicast address", ipv4_list, NULL},
+		/* 8 */ {"PXE boot servers", special, NULL},
+		/* 9 */ {"PXE boot menu", special, NULL},
+		/* 10 */ {"PXE menu prompt", special, NULL},
+		/* 11 */ {"PXE multicast address alloc", special, NULL},
+		/* 12 */ {"PXE credential types", special, NULL},
+		/* 71 {"PXE boot item", special, NULL}, */
+		/* 255 {"PXE end options", special, NULL} */
 	};
 
 	subopt = tvb_get_guint8(tvb, suboptoff);
@@ -1531,47 +1507,47 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 	guint8 subopt_len;
 
 	static struct opt_info o43cablelabs_opt[]= {
-		/* 0 */ {"nop", special},	/* dummy */
-		/* 1 */ {"Suboption Request List", string},
-		/* 2 */ {"Device Type", string},
-		/* 3 */ {"eSAFE Types", string},
-		/* 4 */ {"Serial Number", string},
-		/* 5 */ {"Hardware Version", string},
-		/* 6 */ {"Software Version", string},
-		/* 7 */ {"Boot ROM version", string},
-		/* 8 */ {"Organizationally Unique Identifier", special},
-		/* 9 */ {"Model Number", string},
-		/* 10 */ {"Vendor Name", string},
+		/* 0 */ {"nop", special, NULL},	/* dummy */
+		/* 1 */ {"Suboption Request List", string, NULL},
+		/* 2 */ {"Device Type", string, NULL},
+		/* 3 */ {"eSAFE Types", string, NULL},
+		/* 4 */ {"Serial Number", string, NULL},
+		/* 5 */ {"Hardware Version", string, NULL},
+		/* 6 */ {"Software Version", string, NULL},
+		/* 7 */ {"Boot ROM version", string, NULL},
+		/* 8 */ {"Organizationally Unique Identifier", special, NULL},
+		/* 9 */ {"Model Number", string, NULL},
+		/* 10 */ {"Vendor Name", string, NULL},
 		/* *** 11-30: CableHome *** */
-		/* 11 */ {"Address Realm", special},
-		/* 12 */ {"CM/PS System Description", string},
-		/* 13 */ {"CM/PS Firmware Revision", string},
-		/* 14 */ {"Firewall Policy File Version", string},
-		/* 15 */ {"Unassigned (CableHome)", special},
-		/* 16 */ {"Unassigned (CableHome)", special},
-		/* 17 */ {"Unassigned (CableHome)", special},
-		/* 18 */ {"Unassigned (CableHome)", special},
-		/* 19 */ {"Unassigned (CableHome)", special},
-		/* 20 */ {"Unassigned (CableHome)", special},
-		/* 21 */ {"Unassigned (CableHome)", special},
-		/* 22 */ {"Unassigned (CableHome)", special},
-		/* 23 */ {"Unassigned (CableHome)", special},
-		/* 24 */ {"Unassigned (CableHome)", special},
-		/* 25 */ {"Unassigned (CableHome)", special},
-		/* 26 */ {"Unassigned (CableHome)", special},
-		/* 27 */ {"Unassigned (CableHome)", special},
-		/* 28 */ {"Unassigned (CableHome)", special},
-		/* 29 */ {"Unassigned (CableHome)", special},
-		/* 30 */ {"Unassigned (CableHome)", special},
+		/* 11 */ {"Address Realm", special, NULL},
+		/* 12 */ {"CM/PS System Description", string, NULL},
+		/* 13 */ {"CM/PS Firmware Revision", string, NULL},
+		/* 14 */ {"Firewall Policy File Version", string, NULL},
+		/* 15 */ {"Unassigned (CableHome)", special, NULL},
+		/* 16 */ {"Unassigned (CableHome)", special, NULL},
+		/* 17 */ {"Unassigned (CableHome)", special, NULL},
+		/* 18 */ {"Unassigned (CableHome)", special, NULL},
+		/* 19 */ {"Unassigned (CableHome)", special, NULL},
+		/* 20 */ {"Unassigned (CableHome)", special, NULL},
+		/* 21 */ {"Unassigned (CableHome)", special, NULL},
+		/* 22 */ {"Unassigned (CableHome)", special, NULL},
+		/* 23 */ {"Unassigned (CableHome)", special, NULL},
+		/* 24 */ {"Unassigned (CableHome)", special, NULL},
+		/* 25 */ {"Unassigned (CableHome)", special, NULL},
+		/* 26 */ {"Unassigned (CableHome)", special, NULL},
+		/* 27 */ {"Unassigned (CableHome)", special, NULL},
+		/* 28 */ {"Unassigned (CableHome)", special, NULL},
+		/* 29 */ {"Unassigned (CableHome)", special, NULL},
+		/* 30 */ {"Unassigned (CableHome)", special, NULL},
 		/* *** 31-50: PacketCable *** */
-		/* 31 */ {"MTA MAC Address", special},
-		/* 32 */ {"Correlation ID", string},
-		/* 33-50 {"Unassigned (PacketCable)", special}, */
+		/* 31 */ {"MTA MAC Address", special, NULL},
+		/* 32 */ {"Correlation ID", string, NULL},
+		/* 33-50 {"Unassigned (PacketCable)", special, NULL}, */
 		/* *** 51-127: CableLabs *** */
-		/* 51-127 {"Unassigned (CableLabs)", special}, */
+		/* 51-127 {"Unassigned (CableLabs)", special, NULL}, */
 		/* *** 128-254: Vendors *** */
-		/* 128-254 {"Unassigned (Vendors)", special}, */
-		/* 255 {"end options", special} */
+		/* 128-254 {"Unassigned (Vendors)", special, NULL}, */
+		/* 255 {"end options", special, NULL} */
 	};
 
 	static const value_string cablehome_subopt11_vals[] = {
@@ -1686,23 +1662,24 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 	guint8 subopt;
 	guint8 subopt_len;
 	int suboptleft;
+	const struct true_false_string *tfs;
 	int i;
 	proto_tree *o63_v_tree;
 	proto_item *vti;
 
 	static struct opt_info o63_opt[]= {
-		/* 0 */ {"",none},
-		/* 1 */ {"NWIP does not exist on subnet",presence},
-		/* 2 */ {"NWIP exist in options area",presence},
-		/* 3 */ {"NWIP exists in sname/file",presence},
-		/* 4 */ {"NWIP exists, but too big",presence},
-		/* 5 */ {"Broadcast for nearest Netware server",yes_no},
-		/* 6 */ {"Preferred DSS server",ipv4_list},
-		/* 7 */ {"Nearest NWIP server",ipv4_list},
-		/* 8 */ {"Autoretries",val_u_byte},
-		/* 9 */ {"Autoretry delay, secs",val_u_byte},
-		/* 10*/ {"Support NetWare/IP v1.1",yes_no},
-		/* 11*/ {"Primary DSS",ipv4}
+		/* 0 */ {"",none,NULL},
+		/* 1 */ {"NWIP does not exist on subnet",presence,NULL},
+		/* 2 */ {"NWIP exist in options area",presence,NULL},
+		/* 3 */ {"NWIP exists in sname/file",presence,NULL},
+		/* 4 */ {"NWIP exists,but too big",presence,NULL},
+		/* 5 */ {"Broadcast for nearest Netware server",boolean,TFS(&yes_no_tfs)},
+		/* 6 */ {"Preferred DSS server",ipv4_list,NULL},
+		/* 7 */ {"Nearest NWIP server",ipv4_list,NULL},
+		/* 8 */ {"Autoretries",val_u_byte,NULL},
+		/* 9 */ {"Autoretry delay,secs",val_u_byte,NULL},
+		/* 10*/ {"Support NetWare/IP v1.1",boolean,TFS(&yes_no_tfs)},
+		/* 11*/ {"Primary DSS",ipv4,NULL}
 	};
 
 	subopt = tvb_get_guint8(tvb, optoff);
@@ -1781,7 +1758,7 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 			}
 			break;
 
-		case yes_no:
+		case boolean:
 			if (subopt_len != 1) {
 				proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 					"Suboption %d: length isn't 1", subopt);
@@ -1794,6 +1771,7 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 				    subopt);
 			 	return (optend);
 			}
+			tfs = (const struct true_false_string *) o63_opt[subopt].data;
 			i = tvb_get_guint8(tvb, suboptoff);
 			if (i != 0 && i != 1) {
 				proto_tree_add_text(v_tree, tvb, optoff, 3,
@@ -1803,7 +1781,7 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 				proto_tree_add_text(v_tree, tvb, optoff, 3,
 				    "Subption %d: %s = %s", subopt,
 				    o63_opt[subopt].text,
-				    i == 0 ? "No" : "Yes");
+				    i == 0 ? tfs->false_string : tfs->true_string);
 			}
 			suboptoff += 3;
 			break;
