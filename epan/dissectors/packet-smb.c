@@ -8112,6 +8112,7 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	    padcnt = po-offset;
 	    if (padcnt > bc)
 	      padcnt = bc;
+	    tvb_ensure_bytes_exist(tvb, offset, padcnt);
 	    proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, TRUE);
 	    COUNT_BYTES(padcnt);
 	  }
