@@ -3,7 +3,7 @@
  *
  * See RFC 1777 (LDAP v2), RFC 2251 (LDAP v3), and RFC 2222 (SASL).
  *
- * $Id: packet-ldap.c,v 1.73 2004/01/19 22:58:59 guy Exp $
+ * $Id: packet-ldap.c,v 1.74 2004/04/20 08:33:15 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -130,6 +130,16 @@ static int hf_ldap_message_abandon_msgid = -1;
 
 static int hf_mscldap_netlogon_type = -1;
 static int hf_mscldap_netlogon_flags = -1;
+static int hf_mscldap_netlogon_flags_pdc = -1;
+static int hf_mscldap_netlogon_flags_gc = -1;
+static int hf_mscldap_netlogon_flags_ldap = -1;
+static int hf_mscldap_netlogon_flags_ds = -1;
+static int hf_mscldap_netlogon_flags_kdc = -1;
+static int hf_mscldap_netlogon_flags_timeserv = -1;
+static int hf_mscldap_netlogon_flags_closest = -1;
+static int hf_mscldap_netlogon_flags_writable = -1;
+static int hf_mscldap_netlogon_flags_good_timeserv = -1;
+static int hf_mscldap_netlogon_flags_ndnc = -1;
 static int hf_mscldap_domain_guid = -1;
 static int hf_mscldap_forest = -1;
 static int hf_mscldap_domain = -1;
@@ -147,6 +157,7 @@ static gint ett_ldap = -1;
 static gint ett_ldap_gssapi_token = -1;
 static gint ett_ldap_referrals = -1;
 static gint ett_ldap_attribute = -1;
+static gint ett_mscldap_netlogon_flags = -1;
 
 static int ldap_tap = -1;
 
@@ -1360,6 +1371,89 @@ static int dissect_mscldap_string(tvbuff_t *tvb, int offset, char *str, int maxl
   return offset;
 }
 
+
+/* These flag bits were found to be defined in the samba sources.
+ * I hope they are correct (but have serious doubts about the CLOSEST
+ * bit being used or being meaningful).
+ */
+static const true_false_string tfs_ads_pdc = {
+	"This is a PDC",
+	"This is NOT a pdc"
+};
+static const true_false_string tfs_ads_gc = {
+	"This is a GLOBAL CATALOGUE of forest",
+	"This is NOT a global catalog of forest"
+};
+static const true_false_string tfs_ads_ldap = {
+	"This is an LDAP server",
+	"This is NOT an ldap server"
+};
+static const true_false_string tfs_ads_ds = {
+	"This dc supports DS",
+	"This dc does NOT support ds"
+};
+static const true_false_string tfs_ads_kdc = {
+	"This is a KDC (kerberos)",
+	"This is NOT a kdc (kerberos)"
+};
+static const true_false_string tfs_ads_timeserv = {
+	"This dc is running TIME SERVICES (ntp)",
+	"This dc is NOT running time services (ntp)"
+};
+static const true_false_string tfs_ads_closest = {
+	"This is the CLOSEST dc (unreliable?)",
+	"This is NOT the closest dc"
+};
+static const true_false_string tfs_ads_writable = {
+	"This dc is WRITABLE",
+	"This dc is NOT writable"
+};
+static const true_false_string tfs_ads_good_timeserv = {
+	"This dc has a GOOD TIME SERVICE (i.e. hardware clock)",
+	"This dc does NOT have a good time service (i.e. no hardware clock)"
+};
+static const true_false_string tfs_ads_ndnc = {
+	"Domain is NON-DOMAIN NC serviced by ldap server",
+	"Domain is NOT non-domain nc serviced by ldap server"
+};
+static int dissect_mscldap_netlogon_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
+{
+  guint32 flags;
+  proto_item *item;
+  proto_tree *tree=NULL;
+
+  flags=tvb_get_letohl(tvb, offset);
+  item=proto_tree_add_item(parent_tree, hf_mscldap_netlogon_flags, tvb, offset, 4, TRUE);
+  if(parent_tree){
+    tree = proto_item_add_subtree(item, ett_mscldap_netlogon_flags);
+  }
+
+  proto_tree_add_boolean(tree, hf_mscldap_netlogon_flags_ndnc,
+    tvb, offset, 4, flags);
+  proto_tree_add_boolean(tree, hf_mscldap_netlogon_flags_good_timeserv,
+    tvb, offset, 4, flags);
+  proto_tree_add_boolean(tree, hf_mscldap_netlogon_flags_writable,
+    tvb, offset, 4, flags);
+  proto_tree_add_boolean(tree, hf_mscldap_netlogon_flags_closest,
+    tvb, offset, 4, flags);
+  proto_tree_add_boolean(tree, hf_mscldap_netlogon_flags_timeserv,
+    tvb, offset, 4, flags);
+  proto_tree_add_boolean(tree, hf_mscldap_netlogon_flags_kdc,
+    tvb, offset, 4, flags);
+  proto_tree_add_boolean(tree, hf_mscldap_netlogon_flags_ds,
+    tvb, offset, 4, flags);
+  proto_tree_add_boolean(tree, hf_mscldap_netlogon_flags_ldap,
+    tvb, offset, 4, flags);
+  proto_tree_add_boolean(tree, hf_mscldap_netlogon_flags_gc,
+    tvb, offset, 4, flags);
+  proto_tree_add_boolean(tree, hf_mscldap_netlogon_flags_pdc,
+    tvb, offset, 4, flags);
+
+  offset += 4;
+
+  return offset;
+}
+
 static void dissect_mscldap_response_netlogon(proto_tree *tree, tvbuff_t *tvb)
 {
   int old_offset, offset=0;
@@ -1373,9 +1467,7 @@ static void dissect_mscldap_response_netlogon(proto_tree *tree, tvbuff_t *tvb)
   offset += 4;
 
   /* Flags */
-  /*XXX someone that knows what these flags are should add that knowledge here*/
-  proto_tree_add_item(tree, hf_mscldap_netlogon_flags, tvb, offset, 4, TRUE);
-  offset += 4;
+  offset = dissect_mscldap_netlogon_flags(tree, tvb, offset);
 
   /* Domain GUID */
   proto_tree_add_item(tree, hf_mscldap_domain_guid, tvb, offset, 16, TRUE);
@@ -2780,7 +2872,7 @@ proto_register_ldap(void)
     { &hf_mscldap_netlogon_flags,
       { "Flags", "mscldap.netlogon.flags",
         FT_UINT32, BASE_HEX, NULL, 0x0,
-        "Flags <please tell ethereal developers what these flags are>", HFILL }},
+        "Netlogon flags describing the DC properties", HFILL }},
 
     { &hf_mscldap_domain_guid,
       { "Domain GUID", "mscldap.domain.guid",
@@ -2827,13 +2919,54 @@ proto_register_ldap(void)
         FT_STRING, BASE_NONE, NULL, 0x0,
         "Client Site name", HFILL }},
 
+    { &hf_mscldap_netlogon_flags_pdc,
+      { "PDC", "mscldap.netlogon.flags.pdc", FT_BOOLEAN, 32,
+        TFS(&tfs_ads_pdc), 0x00000001, "Is this DC a PDC or not?", HFILL }},
+
+    { &hf_mscldap_netlogon_flags_gc,
+      { "GC", "mscldap.netlogon.flags.gc", FT_BOOLEAN, 32,
+        TFS(&tfs_ads_gc), 0x00000004, "Does this dc service as a GLOBAL CATALOGUE?", HFILL }},
+
+    { &hf_mscldap_netlogon_flags_ldap,
+      { "LDAP", "mscldap.netlogon.flags.ldap", FT_BOOLEAN, 32,
+        TFS(&tfs_ads_ldap), 0x00000008, "Does this DC act as an LDAP server?", HFILL }},
+
+    { &hf_mscldap_netlogon_flags_ds,
+      { "DS", "mscldap.netlogon.flags.ds", FT_BOOLEAN, 32,
+        TFS(&tfs_ads_ds), 0x00000010, "Does this dc provide DS services?", HFILL }},
+
+    { &hf_mscldap_netlogon_flags_kdc,
+      { "KDC", "mscldap.netlogon.flags.kdc", FT_BOOLEAN, 32,
+        TFS(&tfs_ads_kdc), 0x00000020, "Does this dc act as a KDC?", HFILL }},
+
+    { &hf_mscldap_netlogon_flags_timeserv,
+      { "Time Serv", "mscldap.netlogon.flags.timeserv", FT_BOOLEAN, 32,
+        TFS(&tfs_ads_timeserv), 0x00000040, "Does this dc provide time services (ntp) ?", HFILL }},
+
+    { &hf_mscldap_netlogon_flags_closest,
+      { "Closest", "mscldap.netlogon.flags.closest", FT_BOOLEAN, 32,
+        TFS(&tfs_ads_closest), 0x00000080, "Is this the closest dc? (is this used at all?)", HFILL }},
+
+    { &hf_mscldap_netlogon_flags_writable,
+      { "Writable", "mscldap.netlogon.flags.writable", FT_BOOLEAN, 32,
+        TFS(&tfs_ads_writable), 0x00000100, "Is this dc writable? (i.e. can it update the AD?)", HFILL }},
+
+    { &hf_mscldap_netlogon_flags_good_timeserv,
+      { "Good Time Serv", "mscldap.netlogon.flags.good_timeserv", FT_BOOLEAN, 32,
+        TFS(&tfs_ads_good_timeserv), 0x00000200, "Is this a Good Time Server? (i.e. does it have a hardware clock)", HFILL }},
+
+    { &hf_mscldap_netlogon_flags_ndnc,
+      { "NDNC", "mscldap.netlogon.flags.ndnc", FT_BOOLEAN, 32,
+        TFS(&tfs_ads_ndnc), 0x00000400, "Is this an NDNC dc?", HFILL }},
+
   };
 
   static gint *ett[] = {
     &ett_ldap,
     &ett_ldap_gssapi_token,
     &ett_ldap_referrals,
-    &ett_ldap_attribute
+    &ett_ldap_attribute,
+    &ett_mscldap_netlogon_flags
   };
   module_t *ldap_module;
 
