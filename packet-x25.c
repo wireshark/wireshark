@@ -2,7 +2,7 @@
  * Routines for X.25 packet disassembly
  * Olivier Abad <oabad@noos.fr>
  *
- * $Id: packet-x25.c,v 1.73 2003/01/06 23:34:33 guy Exp $
+ * $Id: packet-x25.c,v 1.74 2003/01/08 08:43:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,6 +47,11 @@ typedef enum {
 	X25_UNKNOWN		/* direction unknown */
 } x25_dir_t;
 
+/*
+ * 0 for data packets, 1 for non-data packets.
+ */
+#define	X25_NONDATA_BIT			0x01
+
 #define	X25_CALL_REQUEST		0x0B
 #define	X25_CALL_ACCEPTED		0x0F
 #define	X25_CLEAR_REQUEST		0x13
@@ -64,6 +69,9 @@ typedef enum {
 #define	X25_RNR				0x05
 #define	X25_REJ				0x09
 #define	X25_DATA			0x00
+
+#define PACKET_IS_DATA(type)		(!(type & X25_NONDATA_BIT))
+#define PACKET_TYPE_FC(type)		(type & 0x1F)
 
 #define X25_FAC_CLASS_MASK		0xC0
 
@@ -100,6 +108,8 @@ static int hf_x25_dbit = -1;
 static int hf_x25_mod = -1;
 static int hf_x25_lcn = -1;
 static int hf_x25_type = -1;
+static int hf_x25_type_fc_mod8 = -1;
+static int hf_x25_type_data = -1;
 static int hf_x25_p_r_mod8 = -1;
 static int hf_x25_p_r_mod128 = -1;
 static int hf_x25_mbit_mod8 = -1;
@@ -155,8 +165,13 @@ static const value_string vals_x25_type[] = {
 	{ X25_RR, "RR" },
 	{ X25_RNR, "RNR" },
 	{ X25_REJ, "REJ" },
-	{ X25_DATA, "DATA" },
+	{ X25_DATA, "Data" },
 	{ 0,   NULL}
+};
+
+static struct true_false_string m_bit_tfs = {
+	"More data follows",
+	"End of data"
 };
 
 static dissector_handle_t ip_handle;
@@ -1359,9 +1374,10 @@ get_x25_pkt_len(tvbuff_t *tvb)
 	return MIN(tvb_reported_length(tvb),length);
     }
 
-    if ((byte2 & 0x01) == X25_DATA) return MIN(tvb_reported_length(tvb),3);
+    if (PACKET_IS_DATA(byte2))
+	return MIN(tvb_reported_length(tvb),3);
 
-    switch (byte2 & 0x1F)
+    switch (PACKET_TYPE_FC(byte2))
     {
     case X25_RR:
 	return MIN(tvb_reported_length(tvb),3);
@@ -1434,7 +1450,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     pkt_type = tvb_get_guint8(tvb, 2);
-    if ((pkt_type & 0x01) == X25_DATA) {
+    if (PACKET_IS_DATA(pkt_type)) {
 	if (bytes0_1 & 0x8000)
 	    q_bit_set = TRUE;
     }
@@ -1445,7 +1461,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         ti = proto_tree_add_item(x25_tree, hf_x25_gfi, tvb, 0, 2, FALSE);
         gfi_tree = proto_item_add_subtree(ti, ett_x25_gfi);
 
-        if ((pkt_type & 0x01) == X25_DATA) {
+        if (PACKET_IS_DATA(pkt_type)) {
             proto_tree_add_boolean(gfi_tree, hf_x25_qbit, tvb, 0, 2,
                 bytes0_1);
         }
@@ -1458,7 +1474,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         if (pkt_type == X25_CALL_REQUEST || pkt_type == X25_CALL_ACCEPTED ||
-            (pkt_type & 0x01) == X25_DATA) {
+            PACKET_IS_DATA(pkt_type)) {
             proto_tree_add_boolean(gfi_tree, hf_x25_dbit, tvb, 0, 2,
                 bytes0_1);
         }
@@ -1490,7 +1506,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    proto_tree_add_uint(x25_tree, hf_x25_lcn, tvb,
 		    0, 2, bytes0_1);
 	    proto_tree_add_uint_format(x25_tree, hf_x25_type, tvb, 2, 1,
-		    X25_CALL_REQUEST, "%s", long_name);
+		    X25_CALL_REQUEST, "Packet Type: %s", long_name);
 	}
 	localoffset = 3;
 	if (localoffset < x25_pkt_len) { /* calling/called addresses */
@@ -1739,7 +1755,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (x25_tree) {
 	    proto_tree_add_uint(x25_tree, hf_x25_lcn, tvb, 0, 2, bytes0_1);
 	    proto_tree_add_uint_format(x25_tree, hf_x25_type, tvb, 2, 1,
-	    	    X25_CALL_ACCEPTED, "%s", long_name);
+	    	    X25_CALL_ACCEPTED, "Packet Type: %s", long_name);
 	}
 	localoffset = 3;
         if (localoffset < x25_pkt_len) { /* calling/called addresses */
@@ -1786,7 +1802,8 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (x25_tree) {
 	    proto_tree_add_uint(x25_tree, hf_x25_lcn, tvb, 0, 2, bytes0_1);
 	    proto_tree_add_uint_format(x25_tree, hf_x25_type, tvb,
-	    	    localoffset+2, 1, X25_CLEAR_REQUEST, "%s", long_name);
+	    	    localoffset+2, 1, X25_CLEAR_REQUEST, "Packet Type: %s",
+	    	    long_name);
 	    proto_tree_add_text(x25_tree, tvb, 3, 1,
 		    "Cause : %s", clear_code(tvb_get_guint8(tvb, 3)));
 	    proto_tree_add_text(x25_tree, tvb, 4, 1,
@@ -1874,7 +1891,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (x25_tree) {
 	    proto_tree_add_uint(x25_tree, hf_x25_lcn, tvb, 0, 2, bytes0_1);
 	    proto_tree_add_uint_format(x25_tree, hf_x25_type, tvb, 2, 1,
-		    X25_RESET_REQUEST, "%s", long_name);
+		    X25_RESET_REQUEST, "Packet Type: %s", long_name);
 	    proto_tree_add_text(x25_tree, tvb, 3, 1,
 		    "Cause : %s", reset_code(tvb_get_guint8(tvb, 3)));
 	    proto_tree_add_text(x25_tree, tvb, 4, 1,
@@ -1918,7 +1935,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	if (x25_tree) {
 	    proto_tree_add_uint_format(x25_tree, hf_x25_type, tvb, 2, 1,
-		    X25_RESTART_REQUEST, "%s", long_name);
+		    X25_RESTART_REQUEST, "Packet Type: %s", long_name);
 	    proto_tree_add_text(x25_tree, tvb, 3, 1,
 		    "Cause : %s", restart_code(tvb_get_guint8(tvb, 3)));
 	    proto_tree_add_text(x25_tree, tvb, 4, 1,
@@ -1985,7 +2002,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	break;
     default :
 	localoffset = 2;
-	if ((pkt_type & 0x01) == X25_DATA)
+	if (PACKET_IS_DATA(pkt_type))
 	{
 	    if(check_col(pinfo->cinfo, COL_INFO)) {
 		if (modulo == 8)
@@ -2004,8 +2021,6 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    if (x25_tree) {
 		proto_tree_add_uint(x25_tree, hf_x25_lcn, tvb, localoffset-2,
 			2, bytes0_1);
-		proto_tree_add_uint_hidden(x25_tree, hf_x25_type, tvb,
-			localoffset, 1, X25_DATA);
 		if (modulo == 8) {
 		    proto_tree_add_uint(x25_tree, hf_x25_p_r_mod8, tvb,
 			    localoffset, 1, pkt_type);
@@ -2013,12 +2028,13 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			    localoffset, 1, pkt_type);
 		    proto_tree_add_uint(x25_tree, hf_x25_p_s_mod8, tvb,
 			    localoffset, 1, pkt_type);
-		    proto_tree_add_text(x25_tree, tvb, localoffset, 1,
-			    decode_boolean_bitfield(pkt_type, 0x01, 1*8,
-				NULL, "DATA"));
+		    proto_tree_add_uint(x25_tree, hf_x25_type_data, tvb,
+			    localoffset, 1, pkt_type);
 		}
 		else {
 		    proto_tree_add_uint(x25_tree, hf_x25_p_r_mod128, tvb,
+			    localoffset, 1, pkt_type);
+		    proto_tree_add_uint(x25_tree, hf_x25_type_data, tvb,
 			    localoffset, 1, pkt_type);
 		    proto_tree_add_uint(x25_tree, hf_x25_p_s_mod128, tvb,
 			    localoffset+1, 1,
@@ -2031,7 +2047,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    localoffset += (modulo == 8) ? 1 : 2;
 	    break;
 	}
-	switch (pkt_type & 0x1F)
+	switch (PACKET_TYPE_FC(pkt_type))
 	{
 	case X25_RR:
 	    if(check_col(pinfo->cinfo, COL_INFO)) {
@@ -2048,7 +2064,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (modulo == 8) {
 		    proto_tree_add_uint(x25_tree, hf_x25_p_r_mod8, tvb,
 			    localoffset, 1, pkt_type);
-		    proto_tree_add_uint(x25_tree, hf_x25_type, tvb,
+		    proto_tree_add_uint(x25_tree, hf_x25_type_fc_mod8, tvb,
 			    localoffset, 1, X25_RR);
 		}
 		else {
@@ -2075,7 +2091,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (modulo == 8) {
 		    proto_tree_add_uint(x25_tree, hf_x25_p_r_mod8, tvb,
 			    localoffset, 1, pkt_type);
-		    proto_tree_add_uint(x25_tree, hf_x25_type, tvb,
+		    proto_tree_add_uint(x25_tree, hf_x25_type_fc_mod8, tvb,
 			    localoffset, 1, X25_RNR);
 		}
 		else {
@@ -2102,7 +2118,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (modulo == 8) {
 		    proto_tree_add_uint(x25_tree, hf_x25_p_r_mod8, tvb,
 			    localoffset, 1, pkt_type);
-		    proto_tree_add_uint(x25_tree, hf_x25_type, tvb,
+		    proto_tree_add_uint(x25_tree, hf_x25_type_fc_mod8, tvb,
 			    localoffset, 1, X25_REJ);
 		}
 		else {
@@ -2219,6 +2235,12 @@ proto_register_x25(void)
 	{ &hf_x25_type,
 	  { "Packet Type", "x.25.type", FT_UINT8, BASE_HEX, VALS(vals_x25_type), 0x0,
 	  	"Packet Type", HFILL }},
+	{ &hf_x25_type_fc_mod8,
+	  { "Packet Type", "x.25.type", FT_UINT8, BASE_HEX, VALS(vals_x25_type), 0x1F,
+	  	"Packet Type", HFILL }},
+	{ &hf_x25_type_data,
+	  { "Packet Type", "x.25.type", FT_UINT8, BASE_HEX, VALS(vals_x25_type), 0x01,
+	  	"Packet Type", HFILL }},
 	{ &hf_x25_p_r_mod8,
 	  { "P(R)", "x.25.p_r", FT_UINT8, BASE_DEC, NULL, 0xE0,
 	  	"Packet Receive Sequence Number", HFILL }},
@@ -2226,10 +2248,10 @@ proto_register_x25(void)
 	  { "P(R)", "x.25.p_r", FT_UINT8, BASE_DEC, NULL, 0xFE,
 	  	"Packet Receive Sequence Number", HFILL }},
 	{ &hf_x25_mbit_mod8,
-	  { "M Bit", "x.25.m", FT_BOOLEAN, 8, NULL, 0x10,
+	  { "M Bit", "x.25.m", FT_BOOLEAN, 8, TFS(&m_bit_tfs), 0x10,
 	  	"More Bit", HFILL }},
 	{ &hf_x25_mbit_mod128,
-	  { "M Bit", "x.25.m", FT_BOOLEAN, 8, NULL, 0x01,
+	  { "M Bit", "x.25.m", FT_BOOLEAN, 8, TFS(&m_bit_tfs), 0x01,
 	  	"More Bit", HFILL }},
 	{ &hf_x25_p_s_mod8,
 	  { "P(S)", "x.25.p_s", FT_UINT8, BASE_DEC, NULL, 0x0E,
