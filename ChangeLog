@@ -1,4 +1,35 @@
 ------------------------------------------------------------------------
+r12359 | gerald | 2004-10-20 14:07:50 -0500 (Wed, 20 Oct 2004) | 2 lines
+Changed paths:
+   M /releases/ethereal-0.10.7/Makefile.am
+   M /releases/ethereal-0.10.7/Makefile.nmake
+   M /releases/ethereal-0.10.7/NEWS
+   D /releases/ethereal-0.10.7/capinfo.c
+   A /releases/ethereal-0.10.7/capinfos.c (from /trunk/capinfos.c:12358)
+   M /releases/ethereal-0.10.7/configure.in
+   M /releases/ethereal-0.10.7/doc/Makefile.am
+   M /releases/ethereal-0.10.7/doc/Makefile.nmake
+   D /releases/ethereal-0.10.7/doc/capinfo.pod
+   A /releases/ethereal-0.10.7/doc/capinfos.pod (from /trunk/doc/capinfos.pod:12358)
+   M /releases/ethereal-0.10.7/docbook/eug_src/EUG_app_tools.xml
+   M /releases/ethereal-0.10.7/docbook/eug_src/EUG_chapter_build_install.xml
+   M /releases/ethereal-0.10.7/image/Makefile.nmake
+   D /releases/ethereal-0.10.7/image/capinfo.rc.in
+   A /releases/ethereal-0.10.7/image/capinfos.rc.in (from /trunk/image/capinfos.rc.in:12358)
+   M /releases/ethereal-0.10.7/packaging/nsis/Makefile.nmake
+   M /releases/ethereal-0.10.7/packaging/nsis/ethereal.nsi
+
+Pull in rev 12358: Rename "capinfo" to "capinfos".
+
+------------------------------------------------------------------------
+r12357 | gerald | 2004-10-20 11:48:58 -0500 (Wed, 20 Oct 2004) | 2 lines
+Changed paths:
+   M /releases/ethereal-0.10.7/ChangeLog
+   M /releases/ethereal-0.10.7/NEWS
+
+Update NEWS and ChangeLog for 0.10.7.
+
+------------------------------------------------------------------------
 r12356 | gerald | 2004-10-20 10:30:19 -0500 (Wed, 20 Oct 2004) | 27 lines
 Changed paths:
    M /releases/ethereal-0.10.7
