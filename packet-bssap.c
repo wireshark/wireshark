@@ -7,7 +7,7 @@
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
- * $Id: packet-bssap.c,v 1.8 2003/12/17 23:35:28 ulfl Exp $
+ * $Id: packet-bssap.c,v 1.9 2003/12/17 23:54:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -227,7 +227,7 @@ dissect_bssap_length_param(tvbuff_t *tvb, proto_tree *tree, guint16 length)
  */
 static guint16
 dissect_bssap_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bssap_tree,
-		       proto_tree *tree, guint8 parameter_type, guint8 offset,
+		       proto_tree *tree, guint8 parameter_type, gint offset,
 		       guint16 parameter_length)
 {
     tvbuff_t *parameter_tvb;
@@ -271,7 +271,7 @@ dissect_bssap_var_parameter(tvbuff_t *tvb, packet_info *pinfo,
     offset += length_length;
 
     dissect_bssap_parameter(tvb, pinfo, bssap_tree, tree, parameter_type,
-	(guint8) offset, parameter_length);
+	offset, parameter_length);
 
     return(parameter_length + length_length);
 }
@@ -280,7 +280,7 @@ static void
 dissect_bssap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bssap_tree,
 		     proto_tree *tree)
 {
-    guint8	offset = 0;
+    gint	offset = 0;
 
     /*
      * Extract the PDU type
