@@ -142,13 +142,31 @@ open_if(gchar *name, if_dlg_data_t *if_dlg_data)
 {
   gchar       open_err_str[PCAP_ERRBUF_SIZE];
 
+  /*
+   * XXX - on systems with BPF, the number of BPF devices limits the
+   * number of devices on which you can capture simultaneously.
+   *
+   * This means that
+   *
+   *	1) this might fail if you run out of BPF devices
+   *
+   * and
+   *
+   *	2) opening every interface could leave too few BPF devices
+   *	   for *other* programs.
+   *
+   * It also means the system could end up getting a lot of traffic
+   * that it has to pass through the networking stack and capture
+   * mechanism, so opening all the devices and presenting packet
+   * counts might not always be a good idea.
+   */
   if_dlg_data->pch = pcap_open_live(name,
-		       WTAP_MAX_PACKET_SIZE,
+		       MIN_PACKET_SIZE,
 		       capture_opts.promisc_mode, CAP_READ_TIMEOUT,
 		       open_err_str);
 
   if (if_dlg_data->pch != NULL) {
-      update_if(if_dlg_data);
+    update_if(if_dlg_data);
   } else {
     printf("open_if: %s\n", open_err_str);
     gtk_label_set_text(GTK_LABEL(if_dlg_data->curr_lb), "error");
@@ -168,30 +186,36 @@ update_if(if_dlg_data_t *if_dlg_data)
   /* pcap_stats() stats values differ on libpcap and winpcap!
    * libpcap: returns the number of packets since pcap_open_live
    * winpcap: returns the number of packets since the last pcap_stats call
+   * XXX - if that's true, that's a bug, and should be fixed; "pcap_stats()"
+   * is supposed to work the same way on all platforms, including Windows.
+   * Note that the WinPcap 3.0 documentation says "The values represent
+   * packet statistics from the start of the run to the time of the call."
+   * (Note also that some versions of libpcap, on some versions of UN*X,
+   * have the same bug.)
    */
   if (if_dlg_data->pch) {
     if(pcap_stats(if_dlg_data->pch, &stats) >= 0) {
 #if WIN32
-    diff = stats.ps_recv - if_dlg_data->last_packets;
-    if_dlg_data->last_packets = stats.ps_recv;
+      diff = stats.ps_recv - if_dlg_data->last_packets;
+      if_dlg_data->last_packets = stats.ps_recv;
 #else
-    diff = stats.ps_recv;
-    if_dlg_data->last_packets = stats.ps_recv + if_dlg_data->last_packets;
+      diff = stats.ps_recv;
+      if_dlg_data->last_packets = stats.ps_recv + if_dlg_data->last_packets;
 #endif    
 
-    str = g_strdup_printf("%u", if_dlg_data->last_packets);
-    gtk_label_set_text(GTK_LABEL(if_dlg_data->curr_lb), str);
-    g_free(str);
-    str = g_strdup_printf("%u", diff);
-    gtk_label_set_text(GTK_LABEL(if_dlg_data->last_lb), str);
-    g_free(str);
+      str = g_strdup_printf("%u", if_dlg_data->last_packets);
+      gtk_label_set_text(GTK_LABEL(if_dlg_data->curr_lb), str);
+      g_free(str);
+      str = g_strdup_printf("%u", diff);
+      gtk_label_set_text(GTK_LABEL(if_dlg_data->last_lb), str);
+      g_free(str);
 
-    gtk_widget_set_sensitive(if_dlg_data->curr_lb, diff);
-    gtk_widget_set_sensitive(if_dlg_data->last_lb, diff);
-  } else {
-    gtk_label_set_text(GTK_LABEL(if_dlg_data->curr_lb), "error");
-    gtk_label_set_text(GTK_LABEL(if_dlg_data->last_lb), "error");
-  }
+      gtk_widget_set_sensitive(if_dlg_data->curr_lb, diff);
+      gtk_widget_set_sensitive(if_dlg_data->last_lb, diff);
+    } else {
+      gtk_label_set_text(GTK_LABEL(if_dlg_data->curr_lb), "error");
+      gtk_label_set_text(GTK_LABEL(if_dlg_data->last_lb), "error");
+    }
   }
 }
 
