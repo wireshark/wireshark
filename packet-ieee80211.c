@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.26 2001/06/20 06:22:33 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.27 2001/06/20 22:26:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -798,7 +798,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   if (tree)
     {
       ti = proto_tree_add_protocol_format (tree, proto_wlan, tvb, 0, hdr_len,
-					   "IEEE 802.11 Header");
+					   "IEEE 802.11");
       hdr_tree = proto_item_add_subtree (ti, ett_80211);
 
       fc_item = proto_tree_add_uint_format (hdr_tree, hf_fc_field, tvb, 0, 2,
@@ -1017,7 +1017,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       COL_SHOW_INFO_CONST (pinfo->fd, "Association Request");
       if (tree)
 	{
-	  fixed_tree = get_fixed_parameter_tree (tree, tvb, MGT_FRAME_LEN, 4);
+	  fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, 4);
 	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_HDR_LEN,
 			   FIELD_CAP_INFO);
 	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_HDR_LEN + 2,
@@ -1026,7 +1026,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	  next_idx = MGT_FRAME_HDR_LEN + 4;	/* Size of fixed fields */
 	  tagged_parameter_tree_len =
 	      tvb_reported_length_remaining(tvb, next_idx + 4);
-	  tagged_tree = get_tagged_parameter_tree (tree, tvb, next_idx,
+	  tagged_tree = get_tagged_parameter_tree (hdr_tree, tvb, next_idx,
 						   tagged_parameter_tree_len);
 
 	  while (tagged_parameter_tree_len > 0) {
@@ -1045,7 +1045,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
       if (tree)
 	{
-	  fixed_tree = get_fixed_parameter_tree (tree, tvb, MGT_FRAME_LEN, 6);
+	  fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, 6);
 	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN, FIELD_CAP_INFO);
 	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN + 2,
 			   FIELD_STATUS_CODE);
@@ -1056,7 +1056,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 	  tagged_parameter_tree_len =
 	      tvb_reported_length_remaining(tvb, next_idx + 4);
-	  tagged_tree = get_tagged_parameter_tree (tree, tvb, next_idx,
+	  tagged_tree = get_tagged_parameter_tree (hdr_tree, tvb, next_idx,
 						   tagged_parameter_tree_len);
 
 	  while (tagged_parameter_tree_len > 0) {
@@ -1073,7 +1073,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       COL_SHOW_INFO_CONST (pinfo->fd, "Reassociation Request");
       if (tree)
 	{
-	  fixed_tree = get_fixed_parameter_tree (tree, tvb, MGT_FRAME_LEN, 10);
+	  fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, 10);
 	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN, FIELD_CAP_INFO);
 	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN + 2,
 			   FIELD_LISTEN_IVAL);
@@ -1083,7 +1083,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	  next_idx = MGT_FRAME_LEN + 10;	/* Size of fixed fields */
 	  tagged_parameter_tree_len =
 	      tvb_reported_length_remaining(tvb, next_idx + 4);
-	  tagged_tree = get_tagged_parameter_tree (tree, tvb, next_idx,
+	  tagged_tree = get_tagged_parameter_tree (hdr_tree, tvb, next_idx,
 						   tagged_parameter_tree_len);
 
 	  while (tagged_parameter_tree_len > 0) {
@@ -1099,7 +1099,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       COL_SHOW_INFO_CONST (pinfo->fd, "Reassociation Response");
       if (tree)
 	{
-	  fixed_tree = get_fixed_parameter_tree (tree, tvb, MGT_FRAME_LEN, 10);
+	  fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, 10);
 	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN, FIELD_CAP_INFO);
 	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN + 2,
 			   FIELD_STATUS_CODE);
@@ -1109,7 +1109,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	  next_idx = MGT_FRAME_LEN + 6;	/* Size of fixed fields */
 	  tagged_parameter_tree_len =
 	      tvb_reported_length_remaining(tvb, next_idx + 4);
-	  tagged_tree = get_tagged_parameter_tree (tree, tvb, next_idx,
+	  tagged_tree = get_tagged_parameter_tree (hdr_tree, tvb, next_idx,
 						   tagged_parameter_tree_len);
 
 	  while (tagged_parameter_tree_len > 0) {
@@ -1129,7 +1129,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	  next_idx = MGT_FRAME_LEN;
 	  tagged_parameter_tree_len =
 	      tvb_reported_length_remaining(tvb, next_idx + 4);
-	  tagged_tree = get_tagged_parameter_tree (tree, tvb, next_idx,
+	  tagged_tree = get_tagged_parameter_tree (hdr_tree, tvb, next_idx,
 						   tagged_parameter_tree_len);
 
 	  while (tagged_parameter_tree_len > 0) {
@@ -1146,7 +1146,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       COL_SHOW_INFO_CONST (pinfo->fd, "Probe Response");
       if (tree)
 	{
-	  fixed_tree = get_fixed_parameter_tree (tree, tvb, MGT_FRAME_LEN, 12);
+	  fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, 12);
 	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN, FIELD_TIMESTAMP);
 	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN + 8,
 			   FIELD_BEACON_INTERVAL);
@@ -1156,7 +1156,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	  next_idx = MGT_FRAME_LEN + 12;	/* Size of fixed fields */
 	  tagged_parameter_tree_len =
 	      tvb_reported_length_remaining(tvb, next_idx + 4);
-	  tagged_tree = get_tagged_parameter_tree (tree, tvb, next_idx,
+	  tagged_tree = get_tagged_parameter_tree (hdr_tree, tvb, next_idx,
 						   tagged_parameter_tree_len);
 
 	  while (tagged_parameter_tree_len > 0) {
@@ -1174,7 +1174,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
       if (tree)
 	{
-	  fixed_tree = get_fixed_parameter_tree (tree, tvb, MGT_FRAME_LEN, 12);
+	  fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, 12);
 
 	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN, FIELD_TIMESTAMP);
 
@@ -1186,7 +1186,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	  next_idx = MGT_FRAME_LEN + 12;	/* Size of fixed fields */
 	  tagged_parameter_tree_len =
 	      tvb_reported_length_remaining(tvb, next_idx + 4);
-	  tagged_tree = get_tagged_parameter_tree (tree, tvb, next_idx,
+	  tagged_tree = get_tagged_parameter_tree (hdr_tree, tvb, next_idx,
 						   tagged_parameter_tree_len);
 
 	  while (tagged_parameter_tree_len > 0) {
@@ -1211,7 +1211,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       COL_SHOW_INFO_CONST (pinfo->fd, "Dissassociate");
       if (tree)
 	{
-	  fixed_tree = get_fixed_parameter_tree (tree, tvb, MGT_FRAME_LEN, cap_len);
+	  fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, cap_len);
 	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN, FIELD_REASON_CODE);
 	}
       break;
@@ -1234,7 +1234,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	{
 	  if (tree)
 	    {
-	      fixed_tree = get_fixed_parameter_tree (tree, tvb, MGT_FRAME_LEN, 6);
+	      fixed_tree = get_fixed_parameter_tree (hdr_tree, tvb, MGT_FRAME_LEN, 6);
 	      add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN, FIELD_AUTH_ALG);
 	      add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN + 2,
 			       FIELD_AUTH_TRANS_SEQ);
@@ -1247,7 +1247,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		  tvb_reported_length_remaining(tvb, next_idx + 4);
 	      if (tagged_parameter_tree_len != 0)
 		{
-		  tagged_tree = get_tagged_parameter_tree (tree,
+		  tagged_tree = get_tagged_parameter_tree (hdr_tree,
 							   tvb,
 							   next_idx,
 							   tagged_parameter_tree_len);
