@@ -1226,6 +1226,7 @@ Jouni Malinen <jkmaline[AT]cc.hut.fi> {
 	Show fragmented 802.11 frames as fragments
 	EAP bug fix for NAK packets.
 	802.11g element support
+	802.11i enhancements
 }
 
 Paul E. Erkkila <pee[AT]erkkila.org> {

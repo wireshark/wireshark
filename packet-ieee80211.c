@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.106 2004/02/25 09:31:06 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.107 2004/03/23 19:25:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,9 @@
  * 09/12/2003 - Added dissection of country information tag
  *
  * Ritchie<at>tipsybottle.com
+ *
+ * 03/22/2004 - Added dissection of RSN IE
+ * Jouni Malinen <jkmaline@cc.hut.fi>
  */
 
 #ifdef HAVE_CONFIG_H
@@ -232,10 +235,12 @@ static char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 #define TAG_CHALLENGE_TEXT       0x10
 #define TAG_ERP_INFO             0x2A
 #define TAG_ERP_INFO_OLD         0x2F	/* IEEE Std 802.11g/D4.0 */
+#define TAG_RSN_IE               0x30
 #define TAG_EXT_SUPP_RATES       0x32
 #define TAG_VENDOR_SPECIFIC_IE	 0xDD
 
 #define WPA_OUI	"\x00\x50\xF2"
+#define RSN_OUI "\x00\x0F\xAC"
 
 /* ************************************************************************* */
 /*                         Frame types, and their names                      */
@@ -387,6 +392,13 @@ static int hf_wep_iv = -1;
 static int hf_wep_key = -1;
 static int hf_wep_icv = -1;
 
+
+static int rsn_cap = -1;
+static int rsn_cap_preauth = -1;
+static int rsn_cap_no_pairwise = -1;
+static int rsn_cap_ptksa_replay_counter = -1;
+static int rsn_cap_gtksa_replay_counter = -1;
+
 /* ************************************************************************* */
 /*                               Protocol trees                              */
 /* ************************************************************************* */
@@ -401,6 +413,8 @@ static gint ett_80211_mgt = -1;
 static gint ett_fixed_parameters = -1;
 static gint ett_tagged_parameters = -1;
 static gint ett_wep_parameters = -1;
+
+static gint ett_rsn_cap_tree = -1;
 
 static const fragment_items frag_items = {
 	&ett_fragment,
@@ -786,6 +800,121 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
         		tvb, offset, tag_len, "Not interpreted");
 }
 
+static void 
+dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
+	       guint32 tag_len, const guint8 *tag_val)
+{
+  guint32 tag_val_off = 0;
+  guint16 rsn_capab;
+  char out_buff[SHORT_STR];
+  int i, count;
+  proto_item *cap_item;
+  proto_tree *cap_tree;
+
+  if (tag_val_off + 2 > tag_len) {
+    proto_tree_add_string(tree, tag_interpretation, tvb, offset, tag_len,
+			  "Not interpreted");
+    return;
+  }
+
+  snprintf(out_buff, SHORT_STR, "RSN IE, version %u",
+	   pletohs(&tag_val[tag_val_off]));
+  proto_tree_add_string(tree, tag_interpretation, tvb, offset, 2, out_buff);
+
+  offset += 2;
+  tag_val_off += 2;
+
+  if (tag_val_off + 4 > tag_len)
+    goto done;
+
+  /* multicast cipher suite */
+  if (!memcmp(&tag_val[tag_val_off], RSN_OUI, 3)) {
+    snprintf(out_buff, SHORT_STR, "Multicast cipher suite: %s", 
+	     wpa_cipher_idx2str(tag_val[tag_val_off + 3]));
+    proto_tree_add_string(tree, tag_interpretation, tvb, offset, 4, out_buff);
+    offset += 4;
+    tag_val_off += 4;
+  }
+
+  if (tag_val_off + 2 > tag_len)
+    goto done;
+
+  /* unicast cipher suites */
+  count = pletohs(tag_val + tag_val_off);
+  snprintf(out_buff, SHORT_STR, "# of unicast cipher suites: %u", count);
+  proto_tree_add_string(tree, tag_interpretation, tvb, offset, 2, out_buff);
+  offset += 2;
+  tag_val_off += 2;
+  i = 1;
+  while (tag_val_off + 4 <= tag_len && i <= count) {
+    if (memcmp(&tag_val[tag_val_off], RSN_OUI, 3) != 0)
+      goto done;
+    snprintf(out_buff, SHORT_STR, "Unicast cipher suite %u: %s",
+	     i, wpa_cipher_idx2str(tag_val[tag_val_off + 3]));
+    proto_tree_add_string(tree, tag_interpretation, tvb, offset, 4, out_buff);
+    offset += 4;
+    tag_val_off += 4;
+    i++;
+  }
+
+  if (i <= count || tag_val_off + 2 > tag_len)
+    goto done;
+
+  /* authenticated key management suites */
+  count = pletohs(tag_val + tag_val_off);
+  snprintf(out_buff, SHORT_STR, "# of auth key management suites: %u", count);
+  proto_tree_add_string(tree, tag_interpretation, tvb, offset, 2, out_buff);
+  offset += 2;
+  tag_val_off += 2;
+  i = 1;
+  while (tag_val_off + 4 <= tag_len && i <= count) {
+    if (memcmp(&tag_val[tag_val_off], RSN_OUI, 3) != 0)
+      goto done;
+    snprintf(out_buff, SHORT_STR, "auth key management suite %u: %s", 
+	     i, wpa_keymgmt_idx2str(tag_val[tag_val_off + 3]));
+    proto_tree_add_string(tree, tag_interpretation, tvb, offset, 4, out_buff);
+    offset += 4;
+    tag_val_off += 4;
+    i++;
+  }
+
+  if (i <= count || tag_val_off + 2 > tag_len)
+    goto done;
+
+  rsn_capab = pletohs(&tag_val[tag_val_off]);
+  snprintf(out_buff, SHORT_STR, "RSN Capabilities 0x%04x", rsn_capab);
+  cap_item = proto_tree_add_uint_format(tree, rsn_cap, tvb,
+					offset, 2, rsn_capab,
+					"RSN Capabilities: 0x%04X", rsn_capab);
+  cap_tree = proto_item_add_subtree(cap_item, ett_rsn_cap_tree);
+  proto_tree_add_boolean(cap_tree, rsn_cap_preauth, tvb, offset, 2,
+			 rsn_capab);
+  proto_tree_add_boolean(cap_tree, rsn_cap_no_pairwise, tvb, offset, 2,
+			 rsn_capab);
+  proto_tree_add_uint(cap_tree, rsn_cap_ptksa_replay_counter, tvb, offset, 2,
+		      rsn_capab);
+  proto_tree_add_uint(cap_tree, rsn_cap_gtksa_replay_counter, tvb, offset, 2,
+		      rsn_capab);
+  offset += 2;
+  tag_val_off += 2;
+
+  if (tag_val_off + 2 > tag_len)
+    goto done;
+
+  count = pletohs(tag_val + tag_val_off);
+  snprintf(out_buff, SHORT_STR, "# of PMKIDs: %u", count);
+  proto_tree_add_string(tree, tag_interpretation, tvb, offset, 2, out_buff);
+  offset += 2;
+  tag_val_off += 2;
+
+  /* TODO: PMKID List (16 * n octets) */
+
+ done:
+  if (tag_val_off < tag_len)
+    proto_tree_add_string(tree, tag_interpretation, tvb, offset,
+			  tag_len - tag_val_off, "Not interpreted");
+}
+
 /* ************************************************************************* */
 /*           Dissect and add tagged (optional) fields to proto tree          */
 /* ************************************************************************* */
@@ -803,6 +932,7 @@ static const value_string tag_num_vals[] = {
 	{ TAG_CHALLENGE_TEXT,       "Challenge text" },
 	{ TAG_ERP_INFO,             "ERP Information" },
 	{ TAG_ERP_INFO_OLD,         "ERP Information" },
+	{ TAG_RSN_IE,               "RSN Information" },
 	{ TAG_EXT_SUPP_RATES,       "Extended Supported Rates" },
 	{ TAG_VENDOR_SPECIFIC_IE,   "Vendor Specific" },
 	{ 0,                        NULL }
@@ -1007,6 +1137,10 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
     case TAG_VENDOR_SPECIFIC_IE:
       dissect_vendor_specific_ie(tree, tvb, offset + 2, tag_len,
 				 tag_data_ptr);
+      break;
+
+    case TAG_RSN_IE:
+      dissect_rsn_ie(tree, tvb, offset + 2, tag_len, tag_data_ptr);
       break;
 
 
@@ -2210,6 +2344,19 @@ proto_register_ieee80211 (void)
     {0x08, "Disassociated because sending STA is leaving (has left) BSS"},
     {0x09, "Station requesting (re)association is not authenticated with "
      "responding station"},
+    {0x0D, "Invalid Information Element"},
+    {0x0E, "Michael MIC failure"},
+    {0x0F, "4-Way Handshake timeout"},
+    {0x10, "Group key update timeout"},
+    {0x11, "Information element in 4-Way Handshake different from "
+     "(Re)Association Request/Probe Response/Beacon"},
+    {0x12, "Group Cipher is not valid"},
+    {0x13, "Pairwise Cipher is not valid"},
+    {0x14, "AKMP is not valid"},
+    {0x15, "Unsupported RSN IE version"},
+    {0x16, "Invalid RSN IE Capabilities"},
+    {0x17, "IEEE 802.1X Authentication failed"},
+    {0x18, "Cipher suite is rejected per security policy"},
     {0x00, NULL}
   };
 
@@ -2245,6 +2392,13 @@ proto_register_ieee80211 (void)
      "short slot operation"},
     {0x1A, "Association denied due to requesting station not supporting "
      "DSSS-OFDM operation"},
+    {0x28, "Invalid Information Element"},
+    {0x29, "Group Cipher is not valid"},
+    {0x2A, "Pairwise Cipher is not valid"},
+    {0x2B, "AKMP is not valid"},
+    {0x2C, "Unsupported RSN IE version"},
+    {0x2D, "Invalid RSN IE Capabilities"},
+    {0x2E, "Cipher suite is rejected per security policy"},
     {0x00, NULL}
   };
 
@@ -2414,6 +2568,26 @@ proto_register_ieee80211 (void)
       "WEP ICV", HFILL }},
   };
 
+  static const true_false_string rsn_preauth_flags = {
+    "Transmitter supports pre-authentication",
+    "Transmitter does not support pre-authentication"
+  };
+
+  static const true_false_string rsn_no_pairwise_flags = {
+    "Transmitter cannot support WEP default key 0 simultaneously with "
+    "Pairwise key",
+    "Transmitter can support WEP default key 0 simultaneously with "
+    "Pairwise key"
+  };
+
+  static const value_string rsn_cap_replay_counter[] = {
+    {0x00, "1 replay counter per PTKSA/GTKSA/STAKeySA"},
+    {0x01, "2 replay counters per PTKSA/GTKSA/STAKeySA"},
+    {0x02, "4 replay counters per PTKSA/GTKSA/STAKeySA"},
+    {0x03, "16 replay counters per PTKSA/GTKSA/STAKeySA"},
+    {0, NULL}
+  };
+
   static hf_register_info ff[] = {
     {&ff_timestamp,
      {"Timestamp", "wlan_mgt.fixed.timestamp", FT_STRING, BASE_NONE,
@@ -2520,8 +2694,33 @@ proto_register_ieee80211 (void)
 
     {&tag_interpretation,
      {"Tag interpretation", "wlan_mgt.tag.interpretation",
-      FT_STRING, BASE_NONE, NULL, 0, "Interpretation of tag", HFILL }}
+      FT_STRING, BASE_NONE, NULL, 0, "Interpretation of tag", HFILL }},
 
+    {&rsn_cap,
+     {"RSN Capabilities", "wlan_mgt.rsn.capabilities", FT_UINT16, BASE_HEX,
+      NULL, 0, "RSN Capability information", HFILL }},
+
+    {&rsn_cap_preauth,
+     {"RSN Pre-Auth capabilities", "wlan_mgt.rsn.capabilities.preauth",
+      FT_BOOLEAN, 16, TFS (&rsn_preauth_flags), 0x0001,
+      "RSN Pre-Auth capabilities", HFILL }},
+
+    {&rsn_cap_no_pairwise,
+     {"RSN No Pairwise capabilities", "wlan_mgt.rsn.capabilities.no_pairwise",
+      FT_BOOLEAN, 16, TFS (&rsn_no_pairwise_flags), 0x0002,
+      "RSN No Pairwise capabilities", HFILL }},
+
+    {&rsn_cap_ptksa_replay_counter,
+     {"RSN PTKSA Replay Counter capabilities",
+      "wlan_mgt.rsn.capabilities.ptksa_replay_counter",
+      FT_UINT16, BASE_HEX, VALS (&rsn_cap_replay_counter), 0x000C,
+      "RSN PTKSA Replay Counter capabilities", HFILL }},
+
+    {&rsn_cap_gtksa_replay_counter,
+     {"RSN GTKSA Replay Counter capabilities",
+      "wlan_mgt.rsn.capabilities.gtksa_replay_counter",
+      FT_UINT16, BASE_HEX, VALS (&rsn_cap_replay_counter), 0x0030,
+      "RSN GTKSA Replay Counter capabilities", HFILL }},
   };
 
   static gint *tree_array[] = {
@@ -2535,6 +2734,7 @@ proto_register_ieee80211 (void)
     &ett_tagged_parameters,
     &ett_wep_parameters,
     &ett_cap_tree,
+    &ett_rsn_cap_tree,
   };
   module_t *wlan_module;
 
