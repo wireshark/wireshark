@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.27 2002/05/17 09:53:20 sahlberg Exp $
+ * $Id: nettl.c,v 1.28 2002/05/22 10:53:17 sahlberg Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -101,12 +101,7 @@ types of link specific headers.
 
 For now:
 The first header seems to be
-	0-27	unknown
-	28-31	length1
-	32-35	length2
-	36-39	secs
-	40-43	100 x nsecs 
-	44-63 	unknown
+	a normal nettlrec_ns_ls_ip_hdr
 
 The header for 100baseT seems to be
 	0-3	unknown
@@ -117,9 +112,6 @@ The header for 100baseT seems to be
 	16-19	100 x nsec
 	20-23	unknown
 */
-struct nettlrec_ns_ls_drv_hdr {
-    guint8	xxa[64];
-};
 struct nettlrec_ns_ls_drv_eth_hdr {
     guint8	xxa[4];
     guint8	length[2];
@@ -260,7 +252,6 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     int bytes_read;
     struct nettlrec_sx25l2_hdr lapb_hdr;
     struct nettlrec_ns_ls_ip_hdr ip_hdr;
-    struct nettlrec_ns_ls_drv_hdr drv_hdr;
     struct nettlrec_ns_ls_drv_eth_hdr drv_eth_hdr;
     guint16 length;
     int offset = 0;
@@ -285,8 +276,18 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	case NETTL_SUBSYS_BASE100 :
 	case NETTL_SUBSYS_GSC100BT :
 	case NETTL_SUBSYS_NS_LS_IP :
-	    if (encap[3] == NETTL_SUBSYS_NS_LS_IP) {
+	case NETTL_SUBSYS_NS_LS_LOOPBACK :
+	case NETTL_SUBSYS_NS_LS_TCP :
+	case NETTL_SUBSYS_NS_LS_UDP :
+	case 0xb9:	/* XXX unknown encapsulation name */
+	case NETTL_SUBSYS_NS_LS_ICMP :
+	    if( (encap[3] == NETTL_SUBSYS_NS_LS_IP) 
+	    ||  (encap[3] == NETTL_SUBSYS_NS_LS_LOOPBACK) 
+	    ||  (encap[3] == NETTL_SUBSYS_NS_LS_UDP) 
+	    ||  (encap[3] == NETTL_SUBSYS_NS_LS_TCP) ){
 		phdr->pkt_encap = WTAP_ENCAP_RAW_IP; 
+	    } else if (encap[3] == NETTL_SUBSYS_NS_LS_ICMP) {
+		phdr->pkt_encap = WTAP_ENCAP_UNKNOWN; 
 	    } else {
 		wth->file_encap = WTAP_ENCAP_ETHERNET;
 		phdr->pkt_encap = WTAP_ENCAP_ETHERNET; 
@@ -327,12 +328,18 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    phdr->len = length;
 	    phdr->caplen = length;
 
+	    
 	    phdr->ts.tv_sec = pntohl(&ip_hdr.sec);
-	    phdr->ts.tv_usec = pntohl(&ip_hdr.usec);
+	    /* this filed is in units of 0.1 us for HPUX 11 */
+	    if (wth->capture.nettl->is_hpux_11) {
+		    phdr->ts.tv_usec = pntohl(&ip_hdr.usec)/10;
+	    } else {
+		    phdr->ts.tv_usec = pntohl(&ip_hdr.usec);
+	    }
 	    break;
 	case NETTL_SUBSYS_NS_LS_DRIVER :
-	    bytes_read = file_read(&drv_hdr, 1, sizeof drv_hdr, fh);
-	    if (bytes_read != sizeof drv_hdr) {
+	    bytes_read = file_read(&ip_hdr, 1, sizeof ip_hdr, fh);
+	    if (bytes_read != sizeof ip_hdr) {
 		*err = file_error(fh);
 		if (*err != 0)
 		    return -1;
@@ -342,7 +349,24 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		}
 		return 0;
 	    }
-	    offset += sizeof drv_hdr;
+	    offset += sizeof ip_hdr;
+
+	    /* The packet header in HP-UX 11 nettl traces is 4 octets longer than
+	     * HP-UX 9 and 10 */
+	    if (wth->capture.nettl->is_hpux_11) {
+		bytes_read = file_read(dummy, 1, 4, fh);
+		if (bytes_read != 4) {
+		    *err = file_error(fh);
+		    if (*err != 0)
+			return -1;
+		    if (bytes_read != 0) {
+			*err = WTAP_ERR_SHORT_READ;
+			return -1;
+		    }
+		    return 0;
+		}
+		offset += 4;
+	    }
 
 	    /* XXX we dont know how to identify this as ehternet frames, so
 	       we assumes everything is. We will crash and burn for anything else */
@@ -361,14 +385,19 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    }
 	    offset += sizeof drv_eth_hdr;
 
-	    length = pntohl(&drv_eth_hdr.length);
+	    length = pntohl(&ip_hdr.length);
 	    if (length <= 0) return 0;
 	    phdr->len = length;
 	    phdr->caplen = length;
 
-	    phdr->ts.tv_sec = pntohl(&drv_eth_hdr.sec);
-	    phdr->ts.tv_usec = pntohl(&drv_eth_hdr.cnsec)/10;
-
+	    
+	    phdr->ts.tv_sec = pntohl(&ip_hdr.sec);
+	    /* this filed is in units of 0.1 us for HPUX 11 */
+	    if (wth->capture.nettl->is_hpux_11) {
+		    phdr->ts.tv_usec = pntohl(&ip_hdr.usec)/10;
+	    } else {
+		    phdr->ts.tv_usec = pntohl(&ip_hdr.usec);
+	    }
 	    break;
 	case NETTL_SUBSYS_SX25L2 :
 	    phdr->pkt_encap = WTAP_ENCAP_LAPB;
