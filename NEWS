@@ -18,22 +18,84 @@ Ethereal 0.10.6 has been released.
 
 New and updated features
 
-  X.509 support has been greatly expanded.
+  X.509 support has been added.
 
   Crash bugs have been fixed in the RTP and NCP dissectors.
 
+  PostScript(r) output has been improved.
+  
+  A bug that prevented mergecap from creating a new output file has been
+  fixed.
+  
+  Conversation and endpoint performance has been enhanced.  General packet
+  display performance has been enhanced.
+  
+  The conversation and host list tools have been renamed to be less
+  confusing.
+  
+  You can now copy conversation and host list data as CSV data.
+  
+  RTP analysis can now dynamically determine the proper clock rate.
 
+[ last rev: 11623 ]
 
 New protocol support
+
+AX/4000,
+CMS,
+DCERPC (EVENTLOG, FRSAPI, FRSRPC),
+MANOLITO,
+PKCS#1,
+X.509AF,
+X.509CE,
+X.509IF,
+X.509SAT,
 
 
 
 Updated protocol support
 
+802.11,
+AIM,
+ASAP,
+ASN.1,
+ASN.1 BER,
+COPS,
+DCM,
+ENRP,
+Fibre Channel,
+GIOP,
+GTP,
+GSSAPI,
+HTTP,
+ICAP,
+iSNS,
+Kerberos,
+MPLS,
+NCP,
+NTLMSSP,
+OPSI,
+OSPF,
+PRES,
+RADIUS,
+Rlogin,
+RSVP,
+RTPS,
+RTSP,
+SCTP,
+Sigcomp,
+Skinny,
+SMB,
+SMB BROWSER,
+SNMP,
+SSL,
+TDS,
+Telnet,
 
 
 New and updated capture file support
 
+LANalyzer
 
 
 
