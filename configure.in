@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.137 2001/07/27 07:10:09 guy Exp $
+# $Id: configure.in,v 1.138 2001/08/30 19:25:37 oabad Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -314,6 +314,21 @@ else
 fi
 AC_SUBST(text2pcap_bin)
 AC_SUBST(text2pcap_man)
+
+# Enable/disable idl2eth
+
+AC_ARG_ENABLE(idl2eth,
+[  --enable-idl2eth      build idl2eth.  [default=yes]],,enable_idl2eth=yes)
+
+if test "x$enable_idl2eth" = "xyes" ; then
+	idl2eth_bin="idl2eth"
+	idl2eth_man="idl2eth.1"
+else
+	idl2eth_bin=""
+	idl2eth_man=""
+fi
+AC_SUBST(idl2eth_bin)
+AC_SUBST(idl2eth_man)
 
 
 # Enable/disable dftest
@@ -681,6 +696,7 @@ echo "                   Build tethereal : $enable_tethereal"
 echo "                     Build editcap : $enable_editcap"
 echo "                    Build mergecap : $enable_mergecap"
 echo "                   Build text2pcap : $enable_text2pcap"
+echo "                     Build idl2eth : $enable_idl2eth"
 echo "                     Build randpkt : $enable_randpkt"
 echo "                      Build dftest : $enable_dftest"
 echo ""

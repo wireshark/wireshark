@@ -86,9 +86,6 @@ Some of the more important things to do are:
 =over 4
 
 =item *
-Implement Code generation for Corba IDL B<unions>.
-
-=item *
 Improve Explicit dissection code.
 
 =item *
