@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.61 2002/02/24 06:45:14 guy Exp $
+ * $Id: packet.c,v 1.62 2002/02/25 21:02:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -210,6 +210,11 @@ add_new_data_source(frame_data *fd, tvbuff_t *tvb, char *name)
 	}
 	src = g_mem_chunk_alloc(data_source_chunk);
 	src->tvb = tvb;
+	/*
+	 * XXX - if we require this argument to be a string constant,
+	 * we don't need to allocate a buffer for a copy and make a
+	 * copy, and wouldn't need to free the buffer, either.
+	 */
 	src->name = g_strdup(name);
 	fd->data_src = g_slist_append(fd->data_src, src);
 }
