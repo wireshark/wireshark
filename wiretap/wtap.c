@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.61 2002/02/07 20:41:28 guy Exp $
+ * $Id: wtap.c,v 1.62 2002/03/05 05:58:41 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -18,8 +18,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
+
 #include <string.h>
 #include <errno.h>
 
@@ -312,7 +312,9 @@ wtap_loop(wtap *wth, int count, wtap_handler callback, u_char* user, int *err)
 
 int
 wtap_seek_read(wtap *wth, long seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len)
+	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+	int *err)
 {
-	return wth->subtype_seek_read(wth, seek_off, pseudo_header, pd, len);
+	return wth->subtype_seek_read(wth, seek_off, pseudo_header, pd, len,
+		err);
 }

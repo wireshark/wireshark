@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.36 2001/11/13 23:55:43 gram Exp $
+ * $Id: iptrace.c,v 1.37 2002/03/05 05:58:40 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -33,11 +33,13 @@
 
 static gboolean iptrace_read_1_0(wtap *wth, int *err, long *data_offset);
 static int iptrace_seek_read_1_0(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size);
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size,
+    int *err);
 
 static gboolean iptrace_read_2_0(wtap *wth, int *err, long *data_offset);
 static int iptrace_seek_read_2_0(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size);
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size,
+    int *err);
 
 static int iptrace_read_rec_header(FILE_T fh, guint8 *header, int header_len,
     int *err);
@@ -162,19 +164,26 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, long *data_offset)
 }
 
 static int iptrace_seek_read_1_0(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size)
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size,
+    int *err)
 {
 	int			ret;
-	int			err;	/* XXX - return this */
 	guint8			header[30];
 
-	file_seek(wth->random_fh, seek_off, SEEK_SET);
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
+		*err = file_error(wth->random_fh);
+		return -1;
+	}
 
 	/* Read the descriptor data */
-	ret = iptrace_read_rec_header(wth->random_fh, header, 30, &err);
+	ret = iptrace_read_rec_header(wth->random_fh, header, 30, err);
 	if (ret <= 0) {
 		/* Read error or EOF */
-		return ret;
+		if (ret == 0) {
+			/* EOF means "short read" in random-access mode */
+			*err = WTAP_ERR_SHORT_READ;
+		}
+		return -1;
 	}
 
 	if ( wtap_encap_ift(header[28]) == WTAP_ENCAP_ATM_SNIFFER ) {
@@ -182,7 +191,7 @@ static int iptrace_seek_read_1_0(wtap *wth, long seek_off,
 	}
 
 	/* Read the packet data */
-	return iptrace_read_rec_data(wth->random_fh, pd, packet_size, &err);
+	return iptrace_read_rec_data(wth->random_fh, pd, packet_size, err);
 }
 
 /***********************************************************
@@ -274,19 +283,26 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, long *data_offset)
 }
 
 static int iptrace_seek_read_2_0(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size)
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size,
+    int *err)
 {
 	int			ret;
-	int			err;	/* XXX - return this */
 	guint8			header[40];
 
-	file_seek(wth->random_fh, seek_off, SEEK_SET);
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
+		*err = file_error(wth->random_fh);
+		return -1;
+	}
 
 	/* Read the descriptor data */
-	ret = iptrace_read_rec_header(wth->random_fh, header, 40, &err);
+	ret = iptrace_read_rec_header(wth->random_fh, header, 40, err);
 	if (ret <= 0) {
 		/* Read error or EOF */
-		return ret;
+		if (ret == 0) {
+			/* EOF means "short read" in random-access mode */
+			*err = WTAP_ERR_SHORT_READ;
+		}
+		return -1;
 	}
 
 	if ( wtap_encap_ift(header[28]) == WTAP_ENCAP_ATM_SNIFFER ) {
@@ -294,7 +310,7 @@ static int iptrace_seek_read_2_0(wtap *wth, long seek_off,
 	}
 
 	/* Read the packet data */
-	return iptrace_read_rec_data(wth->random_fh, pd, packet_size, &err);
+	return iptrace_read_rec_data(wth->random_fh, pd, packet_size, err);
 }
 
 static int

@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.74 2002/03/04 00:25:35 guy Exp $
+ * $Id: ngsniffer.c,v 1.75 2002/03/05 05:58:40 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -286,7 +286,8 @@ static double Usec[] = { 15.0, 0.838096, 15.0, 0.5, 2.0, 1.0, 0.1 };
 static int skip_header_records(wtap *wth, int *err, gint16 version);
 static gboolean ngsniffer_read(wtap *wth, int *err, long *data_offset);
 static int ngsniffer_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size);
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size,
+    int *err);
 static int ngsniffer_read_rec_header(wtap *wth, gboolean is_random,
     guint16 *typep, guint16 *lengthp, int *err);
 static int ngsniffer_read_frame2(wtap *wth, gboolean is_random,
@@ -872,28 +873,33 @@ found:
 }
 
 static int ngsniffer_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size)
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size,
+    int *err)
 {
 	int	ret;
-	int	err;	/* XXX - return this */
 	guint16	type, length;
 	struct frame2_rec frame2;
 	struct frame4_rec frame4;
 	struct frame6_rec frame6;
 
-	ng_file_seek_rand(wth, seek_off, SEEK_SET, &err);
+	if (ng_file_seek_rand(wth, seek_off, SEEK_SET, err) == -1)
+		return -1;
 
-	ret = ngsniffer_read_rec_header(wth, TRUE, &type, &length, &err);
+	ret = ngsniffer_read_rec_header(wth, TRUE, &type, &length, err);
 	if (ret <= 0) {
 		/* Read error or EOF */
-		return ret;
+		if (ret == 0) {
+			/* EOF means "short read" in random-access mode */
+			*err = WTAP_ERR_SHORT_READ;
+		}
+		return -1;
 	}
 
 	switch (type) {
 
 	case REC_FRAME2:
 		/* Read the f_frame2_struct */
-		ret = ngsniffer_read_frame2(wth, TRUE, &frame2, &err);
+		ret = ngsniffer_read_frame2(wth, TRUE, &frame2, err);
 		if (ret < 0) {
 			/* Read error */
 			return ret;
@@ -906,7 +912,7 @@ static int ngsniffer_seek_read(wtap *wth, long seek_off,
 
 	case REC_FRAME4:
 		/* Read the f_frame4_struct */
-		ret = ngsniffer_read_frame4(wth, TRUE, &frame4, &err);
+		ret = ngsniffer_read_frame4(wth, TRUE, &frame4, err);
 
 		length -= sizeof frame4;	/* we already read that much */
 
@@ -915,7 +921,7 @@ static int ngsniffer_seek_read(wtap *wth, long seek_off,
 
 	case REC_FRAME6:
 		/* Read the f_frame6_struct */
-		ret = ngsniffer_read_frame6(wth, TRUE, &frame6, &err);
+		ret = ngsniffer_read_frame6(wth, TRUE, &frame6, err);
 
 		length -= sizeof frame6;	/* we already read that much */
 
@@ -939,7 +945,7 @@ static int ngsniffer_seek_read(wtap *wth, long seek_off,
 	/*
 	 * Got the pseudo-header (if any), now get the data.
 	 */
-	return ngsniffer_read_rec_data(wth, TRUE, pd, packet_size, &err);
+	return ngsniffer_read_rec_data(wth, TRUE, pd, packet_size, err);
 }
 
 static int ngsniffer_read_rec_header(wtap *wth, gboolean is_random,

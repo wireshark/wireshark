@@ -1,6 +1,6 @@
 /* radcom.c
  *
- * $Id: radcom.c,v 1.33 2002/03/04 00:25:35 guy Exp $
+ * $Id: radcom.c,v 1.34 2002/03/05 05:58:40 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -69,7 +69,8 @@ struct radcomrec_hdr {
 
 static gboolean radcom_read(wtap *wth, int *err, long *data_offset);
 static int radcom_seek_read(wtap *wth, long seek_off,
-	union wtap_pseudo_header *pseudo_header, u_char *pd, int length);
+	union wtap_pseudo_header *pseudo_header, u_char *pd, int length,
+	int *err);
 static int radcom_read_rec_header(FILE_T fh, struct radcomrec_hdr *hdr,
 	int *err);
 static int radcom_read_rec_data(FILE_T fh, u_char *pd, int length, int *err);
@@ -309,19 +310,25 @@ static gboolean radcom_read(wtap *wth, int *err, long *data_offset)
 
 static int
 radcom_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int length)
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err)
 {
 	int	ret;
-	int	err;		/* XXX - return this */
 	struct radcomrec_hdr hdr;
 
-	file_seek(wth->random_fh, seek_off, SEEK_SET);
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
+		*err = file_error(wth->random_fh);
+		return -1;
+	}
 
 	/* Read record header. */
-	ret = radcom_read_rec_header(wth->random_fh, &hdr, &err);
+	ret = radcom_read_rec_header(wth->random_fh, &hdr, err);
 	if (ret <= 0) {
 		/* Read error or EOF */
-		return ret;
+		if (ret == 0) {
+			/* EOF means "short read" in random-access mode */
+			*err = WTAP_ERR_SHORT_READ;
+		}
+		return -1;
 	}
 
 	pseudo_header->x25.flags = (hdr.dce & 0x1) ? 0x00 : 0x80;
@@ -329,7 +336,7 @@ radcom_seek_read(wtap *wth, long seek_off,
 	/*
 	 * Read the packet data.
 	 */
-	return radcom_read_rec_data(wth->random_fh, pd, length, &err);
+	return radcom_read_rec_data(wth->random_fh, pd, length, err);
 }
 
 static int

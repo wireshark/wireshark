@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.14 2002/01/30 23:08:27 guy Exp $
+ * $Id: tcp_graph.c,v 1.15 2002/03/05 05:58:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1737,10 +1737,12 @@ static void graph_destroy (struct graph *g)
 static void graph_segment_list_get (struct graph *g)
 {
 	frame_data *ptr;
-	char pd[4096];
+	union wtap_pseudo_header pseudo_header;
+	char pd[WTAP_MAX_PACKET_SIZE];
 	struct segment *segment=NULL, *last=NULL;
 	struct segment current;
 	int condition;
+	int err;
 
 	debug(DBS_FENTRY) puts ("graph_segment_list_get()");
 	get_headers (cfile.current_frame, cfile.pd, &current);
@@ -1750,8 +1752,9 @@ static void graph_segment_list_get (struct graph *g)
 		condition = COMPARE_ANY_DIR;
 
 	for (ptr=cfile.plist; ptr; ptr=ptr->next) {
-		wtap_seek_read (cfile.wth, ptr->file_off, &cfile.pseudo_header,
-							pd, 4096);
+		/* XXX - do something with "err" */
+		wtap_seek_read (cfile.wth, ptr->file_off, &pseudo_header,
+							pd, ptr->cap_len, &err);
 		if (!segment)
 			segment = (struct segment * )malloc (sizeof (struct segment));
 			if (!segment)

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.264 2002/02/27 08:57:14 guy Exp $
+ * $Id: file.c,v 1.265 2002/03/05 05:58:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -898,6 +898,7 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter,
   guint32 progbar_quantum;
   guint32 progbar_nextstep;
   unsigned int count;
+  int err;
   frame_data *selected_frame;
   int selected_row;
   int row;
@@ -1000,8 +1001,9 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter,
       free_data_sources(fdata);	/* release data source list */
     }
 
+    /* XXX - do something with "err" */
     wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
-    	cf->pd, fdata->cap_len);
+    	cf->pd, fdata->cap_len, &err);
 
     row = add_packet_to_packet_list(fdata, cf, &cf->pseudo_header, cf->pd,
 					refilter);
@@ -1058,6 +1060,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
   guint32     progbar_quantum;
   guint32     progbar_nextstep;
   guint32     count;
+  int         err;
   gint       *col_widths = NULL;
   gint        data_width;
   gboolean    print_separator;
@@ -1172,8 +1175,9 @@ print_packets(capture_file *cf, print_args_t *print_args)
      */
     if (((print_args->suppress_unmarked && fdata->flags.marked ) ||
         !(print_args->suppress_unmarked)) && fdata->flags.passed_dfilter) {
+      /* XXX - do something with "err" */
       wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
-      			cf->pd, fdata->cap_len);
+      			cf->pd, fdata->cap_len, &err);
       if (print_args->print_summary) {
         /* Fill in the column information, but don't bother creating
            the logical protocol tree. */
@@ -1374,6 +1378,7 @@ find_packet(capture_file *cf, dfilter_t *sfcode)
   guint32 progbar_quantum;
   guint32 progbar_nextstep;
   unsigned int count;
+  int err;
   gboolean frame_matched;
   int row;
   epan_dissect_t	*edt;
@@ -1438,8 +1443,9 @@ find_packet(capture_file *cf, dfilter_t *sfcode)
       /* Is this packet in the display? */
       if (fdata->flags.passed_dfilter) {
         /* Yes.  Does it match the search filter? */
+        /* XXX - do something with "err" */
         wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
-        		cf->pd, fdata->cap_len);
+        		cf->pd, fdata->cap_len, &err);
         edt = epan_dissect_new(TRUE, FALSE);
         epan_dissect_prime_dfilter(edt, sfcode);
         epan_dissect_run(edt, &cf->pseudo_header, cf->pd, fdata, NULL);
@@ -1503,6 +1509,7 @@ void
 select_packet(capture_file *cf, int row)
 {
   frame_data *fdata;
+  int err;
 
   /* Get the frame data struct pointer for this frame */
   fdata = (frame_data *) gtk_clist_get_row_data(GTK_CLIST(packet_list), row);
@@ -1542,8 +1549,9 @@ select_packet(capture_file *cf, int row)
   cf->current_frame = fdata;
 
   /* Get the data in that frame. */
+  /* XXX - do something with "err" */
   wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
-  			cf->pd, fdata->cap_len);
+  			cf->pd, fdata->cap_len, &err);
 
   /* Create the logical protocol tree. */
   if (cf->edt != NULL) {
@@ -1783,8 +1791,13 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered, gboolean sa
         hdr.caplen = fdata->cap_len;
         hdr.len = fdata->pkt_len;
         hdr.pkt_encap = fdata->lnk_t;
-	wtap_seek_read(cf->wth, fdata->file_off, &pseudo_header,
-		pd, fdata->cap_len);
+	if (wtap_seek_read(cf->wth, fdata->file_off, &pseudo_header,
+		pd, fdata->cap_len, &err) == -1) {
+	    simple_dialog(ESD_TYPE_CRIT, NULL,
+				file_read_error_message(err), cf->filename);
+	    wtap_dump_close(pdh, &err);
+	    goto done;
+	}
 
         if (!wtap_dump(pdh, &hdr, &pseudo_header, pd, &err)) {
 	    simple_dialog(ESD_TYPE_CRIT, NULL,

@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.20 2002/01/18 01:08:36 guy Exp $
+ * $Id: wtap-int.h,v 1.21 2002/03/05 05:58:41 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -18,7 +18,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
 
 #ifndef __WTAP_INT_H__
@@ -122,7 +121,7 @@ typedef struct {
 
 typedef int (*subtype_read_func)(struct wtap*, int*, long*);
 typedef int (*subtype_seek_read_func)(struct wtap*, long, union wtap_pseudo_header*,
-					guint8*, int);
+					guint8*, int, int *);
 struct wtap {
 	FILE_T			fh;
         int                     fd;           /* File descriptor for cap file */

@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.49 2002/03/04 00:25:35 guy Exp $
+ * $Id: netmon.c,v 1.50 2002/03/05 05:58:40 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -108,7 +108,7 @@ struct netmon_atm_hdr {
 
 static gboolean netmon_read(wtap *wth, int *err, long *data_offset);
 static int netmon_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int length);
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err);
 static int netmon_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err);
 static int netmon_read_rec_data(FILE_T fh, u_char *pd, int length, int *err);
@@ -447,16 +447,18 @@ static gboolean netmon_read(wtap *wth, int *err, long *data_offset)
 
 static int
 netmon_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int length)
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err)
 {
 	int	ret;
-	int	err;		/* XXX - return this */
 
-	file_seek(wth->random_fh, seek_off, SEEK_SET);
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
+		*err = file_error(wth->random_fh);
+		return -1;
+	}
 
 	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER) {
 		ret = netmon_read_atm_pseudoheader(wth->random_fh, pseudo_header,
-		    &err);
+		    err);
 		if (ret < 0) {
 			/* Read error */
 			return ret;
@@ -466,7 +468,7 @@ netmon_seek_read(wtap *wth, long seek_off,
 	/*
 	 * Read the packet data.
 	 */
-	return netmon_read_rec_data(wth->random_fh, pd, length, &err);
+	return netmon_read_rec_data(wth->random_fh, pd, length, err);
 }
 
 static int

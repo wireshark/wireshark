@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.23 2002/03/04 00:25:35 guy Exp $
+ * $Id: nettl.c,v 1.24 2002/03/05 05:58:40 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -68,7 +68,8 @@ struct nettlrec_ns_ls_ip_hdr {
 
 static gboolean nettl_read(wtap *wth, int *err, long *data_offset);
 static int nettl_seek_read(wtap *wth, long seek_off,
-		union wtap_pseudo_header *pseudo_header, u_char *pd, int length);
+		union wtap_pseudo_header *pseudo_header, u_char *pd,
+		int length, int *err);
 static int nettl_read_rec_header(wtap *wth, FILE_T fh,
 		struct wtap_pkthdr *phdr, union wtap_pseudo_header *pseudo_header,
 		int *err);
@@ -157,26 +158,33 @@ static gboolean nettl_read(wtap *wth, int *err, long *data_offset)
 
 static int
 nettl_seek_read(wtap *wth, long seek_off,
-		union wtap_pseudo_header *pseudo_header, u_char *pd, int length)
+		union wtap_pseudo_header *pseudo_header, u_char *pd,
+		int length, int *err)
 {
     int ret;
-    int err;		/* XXX - return this */
     struct wtap_pkthdr phdr;
 
-    file_seek(wth->random_fh, seek_off, SEEK_SET);
+    if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
+	*err = file_error(wth->random_fh);
+	return -1;
+    }
 
     /* Read record header. */
     ret = nettl_read_rec_header(wth, wth->random_fh, &phdr, pseudo_header,
-        &err);
+        err);
     if (ret <= 0) {
 	/* Read error or EOF */
-	return ret;
+	if (ret == 0) {
+	    /* EOF means "short read" in random-access mode */
+	    *err = WTAP_ERR_SHORT_READ;
+	}
+	return -1;
     }
 
     /*
      * Read the packet data.
      */
-    return nettl_read_rec_data(wth->random_fh, pd, length, &err);
+    return nettl_read_rec_data(wth->random_fh, pd, length, err);
 }
 
 static int

@@ -1,6 +1,6 @@
 /* pppdump.c
  *
- * $Id: pppdump.c,v 1.15 2002/03/04 00:25:35 guy Exp $
+ * $Id: pppdump.c,v 1.16 2002/03/05 05:58:40 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  * 
@@ -95,7 +95,7 @@ typedef enum {
 
 static gboolean pppdump_read(wtap *wth, int *err, long *data_offset);
 static int pppdump_seek_read(wtap *wth, long seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len);
+	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err);
 
 typedef struct {
 	long		offset;
@@ -513,6 +513,7 @@ collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
 
 	}
 
+	*err = file_error(fh);
 	return FALSE;
 }
 
@@ -524,9 +525,9 @@ pppdump_seek_read (wtap *wth,
 		 long seek_off,
 		 union wtap_pseudo_header *pseudo_header,
 		 guint8 *pd,
-		 int len)
+		 int len,
+		 int *err)
 {
-	int		err = 0;
 	int		num_bytes;
 	direction_enum	direction;
 	gboolean	retval;
@@ -539,16 +540,20 @@ pppdump_seek_read (wtap *wth,
 
 	pid = g_ptr_array_index(state->pids, seek_off);
 	if (!pid) {
+		*err = WTAP_ERR_BAD_RECORD;	/* XXX - better error? */
 		return -1;
 	}
 
-	file_seek(wth->random_fh, pid->offset, SEEK_SET);
+	if (file_seek(wth->random_fh, pid->offset, SEEK_SET) == -1) {
+		*err = file_error(wth->random_fh);
+		return -1;
+	}
 
 	init_state(state->seek_state);
 
 	for (i = 0 ; i <= pid->num_saved_states; i++) {
 	  again:
-		retval = collate(state->seek_state, wth->random_fh, &err, pd, &num_bytes,
+		retval = collate(state->seek_state, wth->random_fh, err, pd, &num_bytes,
 				&direction, NULL);
 
 		if (!retval) {
@@ -561,6 +566,7 @@ pppdump_seek_read (wtap *wth,
 	}
 
 	if (len != num_bytes) {
+		*err = WTAP_ERR_BAD_RECORD;	/* XXX - better error? */
 		return -1;
 	}
 

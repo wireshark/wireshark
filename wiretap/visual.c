@@ -2,7 +2,7 @@
  * File read and write routines for Visual Networks cap files.
  * Copyright (c) 2001, Tom Nisbet  tnisbet@visualnetworks.com
  *
- * $Id: visual.c,v 1.3 2002/03/04 00:25:35 guy Exp $
+ * $Id: visual.c,v 1.4 2002/03/05 05:58:41 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -115,7 +115,8 @@ struct visual_write_info
 static gboolean visual_read(wtap *wth, int *err, long *data_offset);
 static void visual_close(wtap *wth);
 static int visual_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size);
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size,
+    int *err);
 static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
 static gboolean visual_dump_close(wtap_dumper *wdh, int *err);
@@ -328,7 +329,7 @@ static void visual_close(wtap *wth)
    This gets the packet data and rebuilds the pseudo header so that
    the direction flag works. */
 static int visual_seek_read (wtap *wth, long seek_off, 
-    union wtap_pseudo_header *pseudo_header, guint8 *pd, int len)
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err)
 {
     struct visual_pkt_hdr vpkt_hdr;
     int phdr_size = sizeof(vpkt_hdr);
@@ -336,19 +337,30 @@ static int visual_seek_read (wtap *wth, long seek_off,
     int bytes_read;
 
     /* Seek to the packet header */
-    file_seek(wth->random_fh, seek_off - sizeof(struct visual_pkt_hdr), SEEK_SET);
+    if (file_seek(wth->random_fh, seek_off - sizeof(struct visual_pkt_hdr),
+                  SEEK_SET) == -1) {
+        *err = file_error(wth->random_fh);
+        return -1;
+    }
 
     /* Read the packet header to get the status flags. */
     errno = WTAP_ERR_CANT_READ;
     bytes_read = file_read(&vpkt_hdr, 1, phdr_size, wth->random_fh);
-    if (bytes_read != phdr_size) 
+    if (bytes_read != phdr_size) {
+    	*err = file_error(wth->random_fh);
+    	if (*err == 0)
+    	    *err = WTAP_ERR_SHORT_READ;
         return -1;
+    }
 
     /* Read the packet data. */
     errno = WTAP_ERR_CANT_READ;
     bytes_read = file_read(pd, sizeof(guint8), len, wth->random_fh);
-    if (bytes_read != len) 
+    if (bytes_read != len) {
+    	if (*err == 0)
+    	    *err = WTAP_ERR_SHORT_READ;
         return -1;
+    }
 
     /* Set status flags.  The only status currently supported for all
        encapsulations is direction.  This either goes in the p2p or the

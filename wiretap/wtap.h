@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.105 2002/02/07 20:41:28 guy Exp $
+ * $Id: wtap.h,v 1.106 2002/03/05 05:58:41 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -342,9 +342,9 @@ const char *wtap_strerror(int err);
 void wtap_sequential_close(wtap *wth);
 void wtap_close(wtap *wth);
 int wtap_seek_read (wtap *wth, long seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len);
+	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err);
 int wtap_def_seek_read (wtap *wth, long seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len);
+	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err);
 
 gboolean wtap_dump_can_open(int filetype);
 gboolean wtap_dump_can_write_encap(int filetype, int encap);

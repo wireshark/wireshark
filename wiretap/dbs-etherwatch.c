@@ -1,6 +1,6 @@
 /* dbs-etherwatch.c
  *
- * $Id: dbs-etherwatch.c,v 1.5 2002/03/04 00:25:35 guy Exp $
+ * $Id: dbs-etherwatch.c,v 1.6 2002/03/05 05:58:40 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <mmilgram@arrayinc.com>
@@ -77,11 +77,10 @@ static const char dbs_etherwatch_rec_magic[]  =
 
 static gboolean dbs_etherwatch_read(wtap *wth, int *err, long *data_offset);
 static int dbs_etherwatch_seek_read(wtap *wth, long seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len);
+	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err);
 static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf, long byte_offset);
 static int parse_dbs_etherwatch_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err);
 static int parse_dbs_etherwatch_rec_hdr(wtap *wth, FILE_T fh, int *err);
-
 
 /* Seeks to the beginning of the next packet, and returns the
    byte offset.  Returns -1 on failure, and sets "*err" to the error. */
@@ -205,13 +204,16 @@ static gboolean dbs_etherwatch_read(wtap *wth, int *err, long *data_offset)
 
 	/* Parse the header */
 	pkt_len = parse_dbs_etherwatch_rec_hdr(wth, wth->fh, err);
+	if (pkt_len == -1)
+		return FALSE;
 
 	/* Make sure we have enough room for the packet */
 	buffer_assure_space(wth->frame_buffer, DBS_ETHERWATCH_MAX_PACKET_LEN);
 	buf = buffer_start_ptr(wth->frame_buffer);
 
 	/* Convert the ASCII hex dump to binary data */
-	parse_dbs_etherwatch_hex_dump(wth->fh, pkt_len, buf, err);
+	if (parse_dbs_etherwatch_hex_dump(wth->fh, pkt_len, buf, err) == -1)
+		return FALSE;
 
 	wth->data_offset = offset;
 	*data_offset = offset;
@@ -222,20 +224,25 @@ static gboolean dbs_etherwatch_read(wtap *wth, int *err, long *data_offset)
 static int
 dbs_etherwatch_seek_read (wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header _U_,
-	guint8 *pd, int len)
+	guint8 *pd, int len, int *err)
 {
 	int	pkt_len;
-	int	err;
 
-	file_seek(wth->random_fh, seek_off - 1, SEEK_SET);
-
-	pkt_len = parse_dbs_etherwatch_rec_hdr(NULL, wth->random_fh, &err);
-
-	if (pkt_len != len) {
+	if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET) == -1) {
+		*err = file_error(wth->random_fh);
 		return -1;
 	}
 
-	parse_dbs_etherwatch_hex_dump(wth->random_fh, pkt_len, pd, &err);
+	pkt_len = parse_dbs_etherwatch_rec_hdr(NULL, wth->random_fh, err);
+
+	if (pkt_len != len) {
+		if (pkt_len != -1)
+			*err = WTAP_ERR_BAD_RECORD;
+		return -1;
+	}
+
+	if (parse_dbs_etherwatch_hex_dump(wth->random_fh, pkt_len, pd, err) == -1)
+		return -1;
 
 	return 0;
 }

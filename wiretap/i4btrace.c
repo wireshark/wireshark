@@ -1,6 +1,6 @@
 /* i4btrace.c
  *
- * $Id: i4btrace.c,v 1.17 2002/03/04 00:25:35 guy Exp $
+ * $Id: i4btrace.c,v 1.18 2002/03/05 05:58:40 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1999 by Bert Driehuis <driehuis@playbeing.org>
@@ -34,7 +34,7 @@
 
 static gboolean i4btrace_read(wtap *wth, int *err, long *data_offset);
 static int i4btrace_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int length);
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err);
 static int i4b_read_rec_header(FILE_T fh, i4b_trace_hdr_t *hdr, int *err);
 static void i4b_byte_swap_header(wtap *wth, i4b_trace_hdr_t *hdr);
 static int i4b_read_rec_data(FILE_T fh, u_char *pd, int length, int *err);
@@ -225,19 +225,25 @@ static gboolean i4btrace_read(wtap *wth, int *err, long *data_offset)
 
 static int
 i4btrace_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, u_char *pd, int length)
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err)
 {
 	int	ret;
-	int	err;		/* XXX - return this */
 	i4b_trace_hdr_t hdr;
 
-	file_seek(wth->random_fh, seek_off, SEEK_SET);
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
+		*err = file_error(wth->random_fh);
+		return -1;
+	}
 
 	/* Read record header. */
-	ret = i4b_read_rec_header(wth->random_fh, &hdr, &err);
+	ret = i4b_read_rec_header(wth->random_fh, &hdr, err);
 	if (ret <= 0) {
 		/* Read error or EOF */
-		return ret;
+		if (ret == 0) {
+			/* EOF means "short read" in random-access mode */
+			*err = WTAP_ERR_SHORT_READ;
+		}
+		return -1;
 	}
 	i4b_byte_swap_header(wth, &hdr);
 
@@ -246,7 +252,7 @@ i4btrace_seek_read(wtap *wth, long seek_off,
 	/*
 	 * Read the packet data.
 	 */
-	return i4b_read_rec_data(wth->random_fh, pd, length, &err);
+	return i4b_read_rec_data(wth->random_fh, pd, length, err);
 }
 
 static int

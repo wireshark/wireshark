@@ -1,6 +1,6 @@
 /* toshiba.c
  *
- * $Id: toshiba.c,v 1.21 2002/03/04 00:25:35 guy Exp $
+ * $Id: toshiba.c,v 1.22 2002/03/05 05:58:41 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -111,7 +111,7 @@ static const char toshiba_rec_magic[]  = { '[', 'N', 'o', '.' };
 
 static gboolean toshiba_read(wtap *wth, int *err, long *data_offset);
 static int toshiba_seek_read(wtap *wth, long seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len);
+	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err);
 static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf, guint byte_offset);
 static int parse_toshiba_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err);
 static int parse_toshiba_rec_hdr(wtap *wth, FILE_T fh,
@@ -239,15 +239,17 @@ static gboolean toshiba_read(wtap *wth, int *err, long *data_offset)
 		return FALSE;
 
 	/* Parse the header */
-	pkt_len = parse_toshiba_rec_hdr(wth, wth->fh,
-	    &wth->pseudo_header, err);
+	pkt_len = parse_toshiba_rec_hdr(wth, wth->fh, &wth->pseudo_header, err);
+	if (pkt_len == -1)
+		return FALSE;
 
 	/* Make sure we have enough room for the packet */
 	buffer_assure_space(wth->frame_buffer, TOSHIBA_MAX_PACKET_LEN);
 	buf = buffer_start_ptr(wth->frame_buffer);
 
 	/* Convert the ASCII hex dump to binary data */
-	parse_toshiba_hex_dump(wth->fh, pkt_len, buf, err);
+	if (parse_toshiba_hex_dump(wth->fh, pkt_len, buf, err) == -1)
+		return FALSE;
 
 	wth->data_offset = offset;
 	*data_offset = offset;
@@ -257,21 +259,26 @@ static gboolean toshiba_read(wtap *wth, int *err, long *data_offset)
 /* Used to read packets in random-access fashion */
 static int
 toshiba_seek_read (wtap *wth, long seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len)
+	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err)
 {
 	int	pkt_len;
-	int	err;
 
-	file_seek(wth->random_fh, seek_off - 1, SEEK_SET);
-
-	pkt_len = parse_toshiba_rec_hdr(NULL, wth->random_fh, pseudo_header,
-	    &err);
-
-	if (pkt_len != len) {
+	if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET) == -1) {
+		*err = file_error(wth->random_fh);
 		return -1;
 	}
 
-	parse_toshiba_hex_dump(wth->random_fh, pkt_len, pd, &err);
+	pkt_len = parse_toshiba_rec_hdr(NULL, wth->random_fh, pseudo_header,
+	    err);
+
+	if (pkt_len != len) {
+		if (pkt_len != -1)
+			*err = WTAP_ERR_BAD_RECORD;
+		return -1;
+	}
+
+	if (parse_toshiba_hex_dump(wth->random_fh, pkt_len, pd, err) == -1)
+		return -1;
 
 	return 0;
 }
