@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.365 2001/09/10 22:06:33 guy Exp $
+# $Id: Makefile.am,v 1.366 2001/09/15 23:01:12 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -60,11 +60,13 @@ ACLOCAL_AMFLAGS = `./aclocal-flags`
 # automake will arrange that the Makefile define it as the union of all
 # the "man{section}_MANS" variables.
 #
-bin_PROGRAMS = @ethereal_bin@ @editcap_bin@ @mergecap_bin@ @tethereal_bin@ @dftest_bin@ @randpkt_bin@ @text2pcap_bin@ @idl2eth_bin@
+bin_PROGRAMS = @ethereal_bin@ @editcap_bin@ @mergecap_bin@ @tethereal_bin@ @dftest_bin@ @randpkt_bin@ @text2pcap_bin@
+bin_SCRIPTS = @idl2eth_bin@
 man1_MANS = @ethereal_man@ @editcap_man@ @mergecap_man@ @tethereal_man@ @text2pcap_man@ @idl2eth_man@
 man_MANS = 
 
 EXTRA_PROGRAMS = ethereal ethereal_static tethereal tethereal_static editcap mergecap dftest text2pcap
+EXTRA_SCRIPTS = idl2eth
 
 sysconf_DATA = manuf
 
@@ -632,6 +634,17 @@ x11-declarations.h x11-register-info.h: x11-fields process-x11-fields.pl
 	$(PERL) $(srcdir)/process-x11-fields.pl <$(srcdir)/x11-fields
 
 #
+# Build shell scripts by doing variable substitution.
+# Taken from autoconf 2.13.
+#
+editsh = sed -e 's,@''SHELL''@,$(SHELL),g'
+
+SUFFIXES = .sh
+.sh:
+	rm -f $@ $@.tmp
+	$(editsh) $< > $@.tmp && chmod +x $@.tmp && mv $@.tmp $@
+
+#
 # Build "register.c", which contains a function "register_all_protocols()"
 # that calls the register routines for all protocols.
 #
@@ -703,6 +716,9 @@ dftest_LDADD = \
 
 dftest_LDFLAGS = -export-dynamic
 
+CLEANFILES =	\
+	idl2eth
+
 DISTCLEANFILES =	\
 	register.c	\
 	register-static.c \
@@ -738,6 +754,7 @@ EXTRA_DIST = \
 	doc/dfilter2pod.pl	\
 	doc/editcap.pod		\
 	doc/ethereal.pod.template \
+	doc/idl2eth.pod		\
 	doc/mergecap.pod	\
 	doc/randpkt.txt		\
 	doc/tethereal.pod.template \
@@ -751,7 +768,7 @@ EXTRA_DIST = \
 	text2pcap-scanner.l     \
 	getopt.c		\
 	getopt.h		\
-	idl2eth			\
+	idl2eth.sh		\
 	ieee-float.h		\
 	image/Makefile.nmake	\
 	image/editcap.rc.in	\
