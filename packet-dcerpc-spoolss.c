@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.23 2002/04/30 23:48:15 guy Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.24 2002/05/01 05:28:56 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -244,6 +244,7 @@ static int SpoolssClosePrinter_q(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	const guint8 *policy_hnd;
+	char *pol_name;
 
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -251,6 +252,12 @@ static int SpoolssClosePrinter_q(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
+
+	dcerpc_smb_fetch_pol(policy_hnd, &pol_name, 0, 0);
+
+	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+				pol_name);
 
 	dcerpc_smb_store_pol(policy_hnd, NULL, 0, pinfo->fd->num);
 
@@ -1669,6 +1676,34 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }	
 
 /*
+ * SEC_DESC_BUF
+ */
+
+static gint ett_SEC_DESC_BUF = -1;
+
+static int prs_SEC_DESC_BUF(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			    proto_tree *tree, GList **dp_list, void **Data)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	guint32 len;
+
+	item = proto_tree_add_text(tree, tvb, offset, 0, "SEC_DESC_BUF");
+
+	subtree = proto_item_add_subtree(item, ett_SEC_DESC_BUF);
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, &len, "Max length");
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Undocumented");
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Length");
+	
+	dissect_nt_sec_desc(tvb, pinfo, offset, subtree, len);
+
+	offset += len;
+
+	return offset;
+}
+
+/*
  * SPOOL_PRINTER_INFO_LEVEL
  */
 
@@ -1689,11 +1724,41 @@ static int prs_SPOOL_PRINTER_INFO_LEVEL(tvbuff_t *tvb, int offset,
 
 	offset = prs_uint32(tvb, offset, pinfo, subtree, &level, "Level");
 
-	/* ptr */
-
 	switch(level) {
+	case 3: {
+		guint32 ptr;
+
+		offset = prs_ptr(tvb, offset, pinfo, subtree, &ptr,
+				 "Devicemode container");
+
+		if (ptr)
+			defer_ptr(dp_list, prs_DEVMODE_CTR, subtree);
+
+		offset = prs_ptr(tvb, offset, pinfo, subtree, &ptr,
+				 "Security descriptor");
+
+		if (ptr)
+			defer_ptr(dp_list, prs_SEC_DESC_BUF, subtree);
+	
+		break;
+	}
+	case 2: {
+		guint32 ptr;
+
+		offset = prs_ptr(tvb, offset, pinfo, subtree, &ptr, "Info");
+
+		if (ptr)
+			defer_ptr(dp_list, prs_PRINTER_INFO_2, subtree);
+
+		break;
+	}
+	default:
+		proto_tree_add_text(subtree, tvb, offset, 0,
+				    "[Unknown info level %d]", level);
+		break;		
 	}
 
+done:
 	return offset;
 }
 
@@ -1724,14 +1789,9 @@ static int SpoolssSetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
-	/* printer_info_level */
-
 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
 					  prs_SPOOL_PRINTER_INFO_LEVEL,
 					  NULL, NULL);
-
-	/* devmode_ctr */
-
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Command");
 
@@ -3016,6 +3076,7 @@ proto_register_dcerpc_spoolss(void)
 		&ett_FORM_1,
 		&ett_JOB_INFO_1,
 		&ett_JOB_INFO_2,
+		&ett_SEC_DESC_BUF,
         };
 
         proto_dcerpc_spoolss = proto_register_protocol(
