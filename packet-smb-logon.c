@@ -2,7 +2,7 @@
  * Routines for SMB net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.28 2002/08/28 21:00:31 jmayer Exp $
+ * $Id: packet-smb-logon.c,v 1.29 2003/01/31 04:11:25 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -489,7 +489,8 @@ dissect_announce_change(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 			offset = ((offset + 3)/4)*4;
 
 			/* Domain SID */
-			offset = dissect_nt_sid(tvb, offset, tree, "Domain");
+			offset = dissect_nt_sid(
+				tvb, offset, tree, "Domain", NULL);
 		}
 
 		/* NT version */
@@ -542,7 +543,7 @@ dissect_smb_sam_logon_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 		offset = ((offset + 3)/4)*4;
 
 		/* Domain SID */
-		offset = dissect_nt_sid(tvb, offset, tree, "Domain");
+		offset = dissect_nt_sid(tvb, offset, tree, "Domain", NULL);
 	}
 
 	/* NT version */

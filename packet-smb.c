@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.303 2003/01/22 00:40:30 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.304 2003/01/31 04:11:25 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7000,8 +7000,12 @@ free_g_string(void *arg)
 	g_string_free(arg, TRUE);
 }
 
+/* Dissect a NT SID.  Label it with 'name' and return a string version of
+   the SID in the 'sid_str' parameter which must be freed by the caller. */
+
 int
-dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, char *name)
+dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, char *name,
+	       char **sid_str)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -7073,13 +7077,17 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, char *name)
 	    proto_tree_add_text(tree, tvb, offset, 4, "RID: %u", rid);
 	    proto_item_append_text(item, ": S-1-%u-%s-%u", auth, gstr->str, rid);
 	    offset+=4;
+	    if (sid_str)
+		    *sid_str = g_strdup_printf(
+			    "S-1-%u-%s-%u", auth, gstr->str, rid);
 	  }
 	  else {
 	    proto_item_append_text(item, ": S-1-%u-%s", auth, gstr->str);
+	    if (sid_str)
+		    *sid_str = g_strdup_printf("S-1-%u-%s", auth, gstr->str);
 	  }
 
 	  CLEANUP_CALL_AND_POP;
-
 	}
 
 	proto_item_set_len(item, offset-old_offset);
@@ -7211,7 +7219,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 	offset = dissect_nt_access_mask(tvb, tree, offset);
 
 	/* SID */
-	offset = dissect_nt_sid(tvb, offset, tree, "ACE");
+	offset = dissect_nt_sid(tvb, offset, tree, "ACE", NULL);
 
 	proto_item_set_len(item, offset-old_offset);
 
@@ -7416,14 +7424,16 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, proto_tree *parent_tree, int len)
 	  /*owner SID*/
 	  if(owner_sid_offset){
 	    if (len == -1)
-	      offset = dissect_nt_sid(tvb, offset, tree, "Owner");
+	      offset = dissect_nt_sid(tvb, offset, tree, "Owner", NULL);
 	    else
-	      dissect_nt_sid(tvb, old_offset+owner_sid_offset, tree, "Owner");
+	      dissect_nt_sid(
+		      tvb, old_offset+owner_sid_offset, tree, "Owner", NULL);
 	  }
 
 	  /*group SID*/
 	  if(group_sid_offset){
-	    dissect_nt_sid(tvb, old_offset+group_sid_offset, tree, "Group");
+	    dissect_nt_sid(
+		    tvb, old_offset+group_sid_offset, tree, "Group", NULL);
 	  }
 
 	  /* sacl */
@@ -7483,7 +7493,7 @@ dissect_nt_user_quota(tvbuff_t *tvb, proto_tree *tree, int offset, guint16 *bcp)
 
 		/* SID of the user */
 		old_sid_offset=offset;
-		offset = dissect_nt_sid(tvb, offset, tree, "Quota");
+		offset = dissect_nt_sid(tvb, offset, tree, "Quota", NULL);
 		*bcp -= (offset-old_sid_offset);
 
 		if(qsize){
@@ -7554,7 +7564,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 		proto_tree_add_text(tree, tvb, offset, 4, "Length of SID: %d", tvb_get_letohl(tvb, offset));
 		offset +=4;
 
-		offset = dissect_nt_sid(tvb, offset, tree, "Quota");
+		offset = dissect_nt_sid(tvb, offset, tree, "Quota", NULL);
 		break;
 	case NT_TRANS_SET_USER_QUOTA:
 		offset = dissect_nt_user_quota(tvb, tree, offset, &bcp);
