@@ -1,6 +1,6 @@
 /* packet-tcp.h
  *
- * $Id: packet-tcp.h,v 1.15 2003/04/23 10:20:29 sahlberg Exp $
+ * $Id: packet-tcp.h,v 1.16 2003/05/21 06:28:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 struct tcpheader {
 	guint32 th_seq;
 	guint32 th_ack;
+	gboolean th_have_seglen;	/* TRUE if th_seglen is valid */
 	guint32 th_seglen;
 	guint16 th_win;
 	guint16 th_sport;

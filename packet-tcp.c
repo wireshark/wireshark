@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.195 2003/05/21 05:57:24 guy Exp $
+ * $Id: packet-tcp.c,v 1.196 2003/05/21 06:28:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2157,32 +2157,44 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * length is bigger than the actual data available in the frame; the
    * dissectors should trust that length, and then throw a
    * ReportedBoundsError exception when they go past the end of the frame.)
+   *
+   * We also can't determine the segment length if the reported length
+   * of the TCP packet is less than the TCP header length.
    */
   reported_len = tvb_reported_length(tvb);
 
   if (!pinfo->fragmented && !pinfo->in_error_pkt) {
-    /* Compute the length of data in this segment. */
-    tcph->th_seglen = reported_len - tcph->th_hlen;
+    if (reported_len < tcph->th_hlen) {
+      proto_tree_add_text(tcp_tree, tvb, offset, 0,
+        "Short segment. Segment/fragment does not contain a full TCP header"
+        " (might be NMAP or someone else deliberately sending unusual packets)");
+      tcph->th_have_seglen = FALSE;
+    } else {
+      /* Compute the length of data in this segment. */
+      tcph->th_seglen = reported_len - tcph->th_hlen;
+      tcph->th_have_seglen = TRUE;
 
-    if (tree) { /* Add the seglen as an invisible field */
+      if (tree) { /* Add the seglen as an invisible field */
 
-      proto_tree_add_uint_hidden(ti, hf_tcp_len, tvb, offset, 4, tcph->th_seglen);
+        proto_tree_add_uint_hidden(ti, hf_tcp_len, tvb, offset, 4, tcph->th_seglen);
 
+      }
+
+      /* handle TCP seq# analysis parse all new segments we see */
+      if(tcp_analyze_seq){
+          if(!(pinfo->fd->flags.visited)){
+              tcp_analyze_sequence_number(pinfo, tcph->th_seq, tcph->th_ack, tcph->th_seglen, tcph->th_flags, tcph->th_win);
+          }
+          if(tcp_relative_seq){
+              tcp_get_relative_seq_ack(pinfo->fd->num, &(tcph->th_seq), &(tcph->th_ack));
+          }
+      }
+
+      /* Compute the sequence number of next octet after this segment. */
+      nxtseq = tcph->th_seq + tcph->th_seglen;
     }
-
-    /* handle TCP seq# analysis parse all new segments we see */
-    if(tcp_analyze_seq){
-        if(!(pinfo->fd->flags.visited)){
-            tcp_analyze_sequence_number(pinfo, tcph->th_seq, tcph->th_ack, tcph->th_seglen, tcph->th_flags, tcph->th_win);
-        }
-        if(tcp_relative_seq){
-            tcp_get_relative_seq_ack(pinfo->fd->num, &(tcph->th_seq), &(tcph->th_ack));
-        }
-    }
-
-    /* Compute the sequence number of next octet after this segment. */
-    nxtseq = tcph->th_seq + tcph->th_seglen;
-  }
+  } else
+    tcph->th_have_seglen = FALSE;
 
   if (check_col(pinfo->cinfo, COL_INFO) || tree) {
     for (i = 0; i < 8; i++) {
@@ -2230,11 +2242,11 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
     if (tcp_summary_in_tree) {
       proto_item_append_text(ti, ", Ack: %u", tcph->th_ack);
-      if (!pinfo->fragmented && !pinfo->in_error_pkt)
+      if (tcph->th_have_seglen)
         proto_item_append_text(ti, ", Len: %u", tcph->th_seglen);
     }
     proto_item_set_len(ti, tcph->th_hlen);
-    if (!pinfo->fragmented && !pinfo->in_error_pkt) {
+    if (tcph->th_have_seglen) {
       if (nxtseq != tcph->th_seq) {
         proto_tree_add_uint(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq);
       }
@@ -2368,7 +2380,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   } else
     tcpinfo.urgent = FALSE;
 
-  if (!pinfo->fragmented && !pinfo->in_error_pkt) {
+  if (tcph->th_have_seglen) {
     if (check_col(pinfo->cinfo, COL_INFO))
       col_append_fstr(pinfo->cinfo, COL_INFO, " Len=%u", tcph->th_seglen);
   }
@@ -2392,7 +2404,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      (it could be an ACK-only packet) */
   length_remaining = tvb_length_remaining(tvb, offset);
 
-  if (!pinfo->fragmented && !pinfo->in_error_pkt) {
+  if (tcph->th_have_seglen) {
     if( data_out_file ) {
       reassemble_tcp( tcph->th_seq,		/* sequence number */
           tcph->th_seglen,			/* data length */
