@@ -2,7 +2,7 @@
  * Routines for opening etherpeek files
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
- * $Id: etherpeek.c,v 1.1 2001/02/22 22:03:31 guy Exp $
+ * $Id: etherpeek.c,v 1.2 2001/03/09 06:34:59 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -31,7 +31,7 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
-#include "snoop.h"
+#include "etherpeek.h"
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
 #endif
