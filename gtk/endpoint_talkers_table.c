@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.14 2003/09/04 23:37:45 sahlberg Exp $
+ * $Id: endpoint_talkers_table.c,v 1.15 2003/09/05 01:11:12 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -978,30 +978,26 @@ add_ett_table_data(endpoints_table *et, address *src, address *dst, guint32 src_
 	gboolean new_talker;
 	int res;
 
-	res=CMP_ADDRESS(src, dst);
-
-	if(res<0){
+	if(src_port>dst_port){
 		addr1=src;
 		addr2=dst;
 		port1=src_port;
 		port2=dst_port;
-	} else if(res>0) {
+	} else if(src_port<dst_port){
 		addr2=src;
 		addr1=dst;
 		port2=src_port;
 		port1=dst_port;
+	} else if(CMP_ADDRESS(src, dst)<0){
+		addr1=src;
+		addr2=dst;
+		port1=src_port;
+		port2=dst_port;
 	} else {
-		if(src_port>dst_port){
-			addr1=src;
-			addr2=dst;
-			port1=src_port;
-			port2=dst_port;
-		} else {
-			addr2=src;
-			addr1=dst;
-			port2=src_port;
-			port1=dst_port;
-		}
+		addr2=src;
+		addr1=dst;
+		port2=src_port;
+		port1=dst_port;
 	}
 
 
