@@ -102,7 +102,8 @@ read_disabled_protos_list(char **gpath_return, int *gopen_errno_return,
       *gopen_errno_return = errno;
       *gread_errno_return = 0;
       *gpath_return = gff_path;
-    }
+    } else
+      g_free(gff_path);
   }
 
   /* Construct the pathname of the user's disabled protocols file. */
@@ -130,7 +131,8 @@ read_disabled_protos_list(char **gpath_return, int *gopen_errno_return,
       *open_errno_return = errno;
       *read_errno_return = 0;
       *path_return = ff_path;
-    }
+    } else
+      g_free(ff_path);
   }
 }
 

@@ -1649,6 +1649,7 @@ host_name_lookup_init(void) {
   if (!read_hosts_file(hostspath) && errno != ENOENT) {
     report_open_failure(hostspath, errno, FALSE);
   }
+  g_free(hostspath);
 
 #ifdef HAVE_GNU_ADNS
   /* XXX - Any flags we should be using? */

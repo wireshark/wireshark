@@ -1079,6 +1079,7 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
       /*
        * It doesn't exist by the new name; try the old name.
        */
+      g_free(gpf_path);
       gpf_path = get_datafile_path(OLD_GPF_NAME);
       pf = fopen(gpf_path, "r");
     }
@@ -1156,7 +1157,8 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
       *pf_errno_return = errno;
       *pf_read_errno_return = 0;
       *pf_path_return = pf_path;
-    }
+    } else
+      g_free(pf_path);
   }
 
   return &prefs;
