@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.147 2004/01/25 21:55:11 guy Exp $
+ * $Id: menu.c,v 1.148 2004/01/26 18:35:56 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -190,8 +190,8 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/View/Show/Filter Toolbar", NULL, filter_toolbar_show_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/Show/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/View/Show/Packet List", NULL, packet_list_show_cb, 0, "<CheckItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Show/Packet Dissection", NULL, tree_view_show_cb, 0, "<CheckItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Show/Packet Data", NULL, byte_view_show_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Show/Packet Details", NULL, tree_view_show_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Show/Packet Bytes", NULL, byte_view_show_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/Show/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/View/Show/Status Bar", NULL, statusbar_show_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/_Time Display Format", NULL, NULL, 0, "<Branch>", NULL),
@@ -1062,10 +1062,10 @@ menu_recent_read_finished(void) {
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Packet List");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.packet_list_show);
 
-    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Packet Dissection");
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Packet Details");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.tree_view_show);
 
-    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Packet Data");
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Packet Bytes");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.byte_view_show);
 
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Status Bar");
