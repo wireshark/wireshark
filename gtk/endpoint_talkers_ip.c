@@ -1,7 +1,7 @@
 /* endpoint_talkers_ip.c
  * endpoint_talkers_ip   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_ip.c,v 1.2 2003/08/24 01:37:34 guy Exp $
+ * $Id: endpoint_talkers_ip.c,v 1.3 2003/08/24 02:50:32 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,18 +71,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 static char *
 ipv4_address_to_str(address *addr)
 {
-	static int i=0;
-	static char *strp, str[4][16];
-
-	i++;
-	if(i>=4){
-		i=0;
-	}
-	strp=str[i];
-
-	ip_to_str_buf(addr->data, strp);
-
-	return strp;
+	return address_to_str(addr);
 }
 
 static void

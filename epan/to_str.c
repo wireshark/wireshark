@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.31 2003/08/24 01:06:21 guy Exp $
+ * $Id: to_str.c,v 1.32 2003/08/24 02:50:31 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -127,6 +127,9 @@ ether_to_str(const guint8 *ad)
 	return bytestring_to_str(ad, 6, ':');
 }
 
+/* XXX FIXME   
+remove this one later when every call has been converted to address_to_str() 
+*/
 gchar *
 ip_to_str(const guint8 *ad) {
   static gchar  str[4][16];
@@ -178,6 +181,10 @@ ip_to_str_buf(const guint8 *ad, gchar *buf)
   *p = '\0';
 }
 
+
+/* XXX FIXME   
+remove this one later when every call has been converted to address_to_str() 
+*/
 gchar *
 ip6_to_str(const struct e_in6_addr *ad) {
 #ifndef INET6_ADDRSTRLEN
@@ -713,4 +720,35 @@ decode_numeric_bitfield(guint32 val, guint32 mask, int width,
   p = decode_bitfield_value(buf, val, mask, width);
   sprintf(p, fmt, (val & mask) >> shift);
   return buf;
+}
+
+
+/* convert an address struct into a printable string */
+gchar*	
+address_to_str(address *addr)
+{
+#ifndef INET6_ADDRSTRLEN
+#define INET6_ADDRSTRLEN 46
+#endif
+  static int i=0;
+  static gchar *strp, str[16][INET6_ADDRSTRLEN];/* IPv6 is the largest one */
+
+  i++;
+  if(i>=16){
+    i=0;
+  }
+  strp=str[i];
+
+  switch(addr->type){
+  case AT_IPv4:
+    ip_to_str_buf(addr->data, strp);	
+    return strp;
+  case AT_IPv6:
+    inet_ntop(AF_INET6, addr->data, strp, INET6_ADDRSTRLEN);
+    return strp;
+  }
+
+  /* unknown type of address */
+  g_assert_not_reached();
+  return NULL;
 }
