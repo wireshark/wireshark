@@ -2747,7 +2747,7 @@ class RestrictedCharacterStringType (CharacterStringType):
         body = ectx.eth_fn_call('dissect_per_restricted_character_string', ret='offset',
                                 par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
                                      (minv, maxv, alphabet, alphabet_length),
-                                     ('NULL','NULL')))
+                                     ('NULL','0')))
       else:
         body = '#error Can not decode %s' % (tname)
     elif (ectx.NPer()):

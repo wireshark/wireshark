@@ -2654,7 +2654,7 @@ static int
 dissect_h225_TBCD_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index,
                                                    -1, -1, "0123456789#*abc", strlen("0123456789#*abc"),
-                                                   NULL, NULL);
+                                                   NULL, 0);
 
   return offset;
 }
