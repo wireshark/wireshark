@@ -82,6 +82,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_DEC_DIAG,	"DEC Diagnostics"		},
     {ETHERTYPE_DEC_CUST,	"DEC Customer use"		},
     {ETHERTYPE_DEC_SCA,		"DEC LAVC/SCA"			},
+    {ETHERTYPE_DEC_LAST,	"DEC LAST"			},
     {ETHERTYPE_ETHBRIDGE,	"Transparent Ethernet bridging" },
     {ETHERTYPE_CGMP,		"Cisco Group Management Protocol" },
     {ETHERTYPE_MAC_CONTROL,	"MAC Control"			},

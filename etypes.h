@@ -140,6 +140,10 @@
 #define ETHERTYPE_DEC_LB	0x8038
 #endif
 
+#ifndef ETHERTYPE_DEC_LAST
+#define ETHERTYPE_DEC_LAST	0x8041	/* DEC Local Area Systems Transport */
+#endif
+
 #ifndef ETHERTYPE_ATALK
 #define ETHERTYPE_ATALK		0x809b
 #endif
