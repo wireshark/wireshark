@@ -10,6 +10,7 @@ PCAP_DIR=T:\w32-ix86\ethereal\WPdpack
 LOCAL_CFLAGS=-Zi
 LOCAL_LDFLAGS=/DEBUG
 
-LEX=t:\w32-ix86\cygnus\cygwin-b20\H-i586-cygwin32\bin\flex
-YACC=t:\w32-ix86\cygnus\cygwin-b20\H-i586-cygwin32\bin\bison
+PATH=t:\w32-ix86\cygnus\cygwin-b20\H-i586-cygwin32\bin;$(PATH)
+LEX=flex
+YACC=bison
 YACC_OPTS=-S t:\w32-ix86\cygnus\cygwin-b20\share\bison.simple 

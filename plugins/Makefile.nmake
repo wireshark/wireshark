@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.4 2000/04/12 21:51:39 gram Exp $
+# $Id: Makefile.nmake,v 1.5 2000/04/29 07:34:48 guy Exp $
 #
 
 include ..\config.nmake
@@ -21,6 +21,7 @@ gryphon::
 	cd ..
 
 clean:
+	rm plugin_api.obj
 	cd gryphon
 	nmake -f Makefile.nmake clean
 	cd ..
