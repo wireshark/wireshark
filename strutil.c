@@ -1,7 +1,7 @@
 /* strutil.c
  * String utility routines
  *
- * $Id: strutil.c,v 1.1 2000/09/11 16:16:13 gram Exp $
+ * $Id: strutil.c,v 1.2 2000/09/11 20:05:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,6 +31,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <glib.h>
+#include "strutil.h"
 
 
 /*

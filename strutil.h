@@ -1,7 +1,7 @@
 /* util.h
  * Utility definitions
  *
- * $Id: strutil.h,v 1.1 2000/09/11 16:16:13 gram Exp $
+ * $Id: strutil.h,v 1.2 2000/09/11 20:05:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,6 +25,11 @@
 
 #ifndef __STRUTIL_H__
 #define __STRUTIL_H__
+
+/* ... thus, config.h needs to be #included */
+#ifdef HAVE_WINSOCK_H
+# include <winsock.h>	/* for u_char */
+#endif
 
 const u_char *find_line_end(const u_char *data, const u_char *dataend,
     const u_char **eol);
