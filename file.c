@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.220 2000/09/12 03:27:00 guy Exp $
+ * $Id: file.c,v 1.221 2000/09/12 03:28:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -976,7 +976,7 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter,
       /* Since all state for the frame was destroyed, mark the frame
        * as not visited, free the GSList referring to the state
        * data (the per-frame data itself was freed by
-       * "init_all_protocols()"), and null out the GSlist pointer. */
+       * "init_all_protocols()"), and null out the GSList pointer. */
       fdata->flags.visited = 0;
       if (fdata->pfd) {
 	g_slist_free(fdata->pfd);
