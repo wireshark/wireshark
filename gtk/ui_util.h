@@ -1,7 +1,7 @@
 /* ui_util.h
  * Definitions for UI utility routines
  *
- * $Id: ui_util.h,v 1.8 2004/05/02 08:54:32 ulfl Exp $
+ * $Id: ui_util.h,v 1.9 2004/05/20 18:18:12 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,6 +53,14 @@ GtkWidget *ctree_new_with_titles(gint columns, gint tree_column,
 #else
 GtkWidget *tree_view_new(GtkTreeModel *model);
 #endif
+
+/* create a simple list widget */
+extern GtkWidget *simple_list_new(gint cols, gchar **titles);
+/* append a row to the simple list */
+/* use it like: simple_list_append(list, 0, "first", 1, "second", -1) */
+extern void simple_list_append(GtkWidget *list, ...);
+
+
 
 /* Set the styles of all Trees based upon user preferences. */
 void set_tree_styles_all(void);

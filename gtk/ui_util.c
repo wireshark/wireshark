@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.20 2004/05/02 08:54:32 ulfl Exp $
+ * $Id: ui_util.c,v 1.21 2004/05/20 18:18:12 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -482,3 +482,88 @@ set_tree_styles_all(void)
 {
   g_list_foreach(trees, set_tree_styles_cb, NULL);
 }
+
+
+
+
+#if GTK_MAJOR_VERSION < 2
+/* convert variable argument list of values to array of strings (GTK2 -> GTK1) */
+void
+simple_list_convert(GtkWidget *list, gchar **ent, va_list ap)
+{
+    int i;
+    char *s;
+
+    while( (i = va_arg(ap, int)) != -1 ) {
+        s = va_arg(ap, char *);
+        ent[i] = s;
+    }
+}
+#endif
+
+
+/* append a row to the simple list */
+/* use it like: simple_list_append(list, 0, "first", 1, "second", -1) */
+void
+simple_list_append(GtkWidget *list, ...)
+{
+    va_list ap;
+
+#if GTK_MAJOR_VERSION < 2
+    gchar      *ent[10];               /* new entry added in clist */
+#else
+    GtkTreeIter iter;
+    GtkListStore *store;
+#endif
+
+    va_start(ap, list);
+#if GTK_MAJOR_VERSION < 2
+    simple_list_convert(list, ent, ap);
+    gtk_clist_append(GTK_CLIST(list), ent);
+#else
+    store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(list)));
+    gtk_list_store_append(store, &iter);
+    gtk_list_store_set_valist(store, &iter, ap);
+#endif
+    va_end(ap);
+}
+
+/* create a simple list widget */
+GtkWidget *
+simple_list_new(gint cols, gchar **titles) {
+    GtkWidget *plugins_list;
+#if GTK_MAJOR_VERSION >= 2
+    int i;
+    GtkListStore *store;
+    GtkCellRenderer *renderer;
+    GtkTreeViewColumn *column;
+#endif
+
+
+#if GTK_MAJOR_VERSION < 2
+    plugins_list = gtk_clist_new_with_titles(cols, titles);
+    gtk_clist_set_selection_mode(GTK_CLIST(plugins_list), GTK_SELECTION_SINGLE);
+    gtk_clist_column_titles_passive(GTK_CLIST(plugins_list));
+    gtk_clist_column_titles_show(GTK_CLIST(plugins_list));
+    gtk_clist_set_column_auto_resize(GTK_CLIST(plugins_list), 0, TRUE);
+    gtk_clist_set_column_auto_resize(GTK_CLIST(plugins_list), 1, TRUE);
+#else
+    g_assert(cols <= 10);
+    store = gtk_list_store_new(cols,
+        G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
+        G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+    plugins_list = tree_view_new(GTK_TREE_MODEL(store));
+    g_object_unref(G_OBJECT(store));
+
+    for(i=0; i<cols; i++) {
+        renderer = gtk_cell_renderer_text_new();
+        column = gtk_tree_view_column_new_with_attributes(titles[i], renderer,
+                                                          "text", i, NULL);
+        gtk_tree_view_column_set_sort_column_id(column, i);
+        gtk_tree_view_append_column(GTK_TREE_VIEW(plugins_list), column);
+    }
+#endif
+
+    return plugins_list;
+}
+
