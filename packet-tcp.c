@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.155 2002/08/22 19:40:03 guy Exp $
+ * $Id: packet-tcp.c,v 1.156 2002/08/22 19:47:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1387,7 +1387,7 @@ dissect_tcpopt_wscale(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
   ws = tvb_get_guint8(tvb, offset + 2);
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
-			"%s: %u bytes", optp->name, ws);
+			"%s: %u (multiply by %u)", optp->name, ws, 1 << ws);
   tcp_info_append_uint(pinfo, "WS", ws);
 }
 
