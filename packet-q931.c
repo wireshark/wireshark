@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.27 2001/03/28 08:06:06 guy Exp $
+ * $Id: packet-q931.c,v 1.28 2001/03/30 07:57:38 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -516,43 +516,35 @@ static const value_string q931_uil3_vals[] = {
 	{ 0,			NULL }
 };
 
-/*
- * XXX - should this (or, rather, a routine to return a string containing
- * the stuff we put after "Protocol discriminator:") be in "packet-osi.c"?
- *
- * I.e., is the convention that 16-63 and 80-254 are for network-layer
- * or layer-3 protocols, and 64-79 are for national use, specific to
- * Q.931 (and maybe Q.2931), or is it a more general ISO standard?
- */
 static void 
 dissect_q931_protocol_discriminator(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	unsigned int discriminator = tvb_get_guint8(tvb, offset);
-	char *nlpid_string;
 
-	nlpid_string = match_strval(discriminator, nlpid_vals);
-	if (nlpid_string != NULL) {
+	if (discriminator == NLPID_Q_931) {
 		proto_tree_add_uint_format(tree, hf_q931_discriminator,
 			 tvb, offset, 1, discriminator,
-			 "Protocol discriminator: %s", nlpid_string);
+			 "Protocol discriminator: Q.931");
+	} else if (discriminator == NLPID_Q_2931) {
+		proto_tree_add_uint_format(tree, hf_q931_discriminator,
+			 tvb, offset, 1, discriminator,
+			 "Protocol discriminator: Q.2931");
+	} else if ((discriminator >= 16 && discriminator < 63)
+	    || ((discriminator >= 80) && (discriminator < 254))) {
+		proto_tree_add_uint_format(tree, hf_q931_discriminator,
+		    tvb, offset, 1, discriminator,
+		    "Protocol discriminator: Network layer or layer 3 protocol (0x%02X)",
+		    discriminator);
+	} else if (discriminator >= 64 && discriminator <= 79) {
+		proto_tree_add_uint_format(tree, hf_q931_discriminator,
+		    tvb, offset, 1, discriminator,
+		    "Protocol discriminator: National use (0x%02X)",
+		    discriminator);
 	} else {
-		if ((discriminator >= 16 && discriminator < 63)
-		    || ((discriminator >= 80) && (discriminator < 254))) {
-			proto_tree_add_uint_format(tree, hf_q931_discriminator,
-			    tvb, offset, 1, discriminator,
-			    "Protocol discriminator: Network layer or layer 3 protocol (0x%02X)",
-			    discriminator);
-		} else if (discriminator >= 64 && discriminator <= 79) {
-			proto_tree_add_uint_format(tree, hf_q931_discriminator,
-			    tvb, offset, 1, discriminator,
-			    "Protocol discriminator: National use (0x%02X)",
-			    discriminator);
-		} else {
-			proto_tree_add_uint_format(tree, hf_q931_discriminator,
-			    tvb, offset, 1, discriminator,
-			    "Protocol discriminator: Reserved (0x%02X)",
-			    discriminator);
-		}
+		proto_tree_add_uint_format(tree, hf_q931_discriminator,
+		    tvb, offset, 1, discriminator,
+		    "Protocol discriminator: Reserved (0x%02X)",
+		    discriminator);
 	}
 }
 
@@ -2187,7 +2179,7 @@ q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * If it's not H.323 related Q.931 no heuristic action needed
  		 * Dangerous, there might be other uses for this code.....
 		 */
-		if ( ( started_heuristic ) && (protocol_discriminator != 8 ) ) 
+		if (started_heuristic && protocol_discriminator != NLPID_Q_931) 
 			return FALSE;
 
 		/*
@@ -2240,7 +2232,7 @@ q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    tvb_length(tvb), FALSE);
 		q931_tree = proto_item_add_subtree(ti, ett_q931);
 
-		dissect_q931_protocol_discriminator( tvb, offset, q931_tree );
+		dissect_q931_protocol_discriminator(tvb, offset, q931_tree);
 	}
 	offset += 1;
 	call_ref_len = tvb_get_guint8(tvb, offset) & 0xF;	/* XXX - do as a bit field? */
