@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.705 2004/02/01 04:34:53 gerald Exp $
+# $Id: Makefile.am,v 1.706 2004/02/01 10:07:20 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -217,309 +217,6 @@ plugin_libs =
 plugin_ldadd =
 endif		# HAVE_PLUGINS
 
-noinst_HEADERS = \
-	packet-acse.h  \
-	packet-afp.h   \
-	packet-afs-defs.h \
-	packet-afs-macros.h \
-	packet-afs-register-info.h \
-	packet-afs.h   \
-	packet-ansi_a.h \
-	packet-ansi_map.h \
-	packet-arcnet.h \
-	packet-arp.h   \
-	packet-atalk.h \
-	packet-atm.h   \
-	packet-bgp.h   \
-	packet-bootparams.h \
-	packet-bssap.h \
-	packet-chdlc.h \
-	packet-clearcase.h  \
-	packet-clip.h  \
-	packet-data.h \
-	packet-dccp.h \
-	packet-dcerpc-atsvc.h \
-	packet-dcerpc-browser.h \
-	packet-dcerpc-dce122.h \
-	packet-dcerpc-dcom.h \
-	packet-dcerpc-dfs.h \
-	packet-dcerpc-dnsserver.h \
-	packet-dcerpc-drsuapi.h \
-	packet-dcerpc-initshutdown.h \
-	packet-dcerpc-lsa.h \
-	packet-dcerpc-mapi.h \
-	packet-dcerpc-netlogon.h \
-	packet-dcerpc-nt.h \
-	packet-dcerpc-reg.h \
-	packet-dcerpc-samr.h \
-	packet-dcerpc-spoolss.h \
-	packet-dcerpc-srvsvc.h \
-	packet-dcerpc-svcctl.h \
-	packet-dcerpc-tapi.h \
-	packet-dcerpc-wkssvc.h \
-	packet-dcerpc.h \
-	packet-ddtp.h  \
-	packet-diameter-defs.h \
-	packet-diffserv-mpls-common.h \
-	packet-dns.h   \
-	packet-dvmrp.h \
-	packet-edonkey.h \
-	packet-esis.h  \
-	packet-eth.h   \
-	packet-fc.h \
-	packet-fcbls.h \
-	packet-fcct.h \
-	packet-fcdns.h \
-	packet-fcels.h \
-	packet-fcfcs.h \
-	packet-fcfzs.h \
-	packet-fclctl.h \
-	packet-fcp.h \
-	packet-fcsb3.h \
-	packet-fcsp.h \
-	packet-fcswils.h \
-	packet-fddi.h  \
-	packet-frame.h  \
-	packet-giop.h  \
-	packet-gnutella.h \
-	packet-gsm_a.h  \
-	packet-gssapi.h \
-	packet-gtp.h    \
-	packet-h225.h    \
-	packet-h245.h    \
-	packet-hclnfsd.h  \
-	packet-hpext.h	\
-	packet-http.h  \
-	packet-iax2.h  \
-	packet-ieee80211.h \
-	packet-ieee8023.h \
-	packet-igap.h  \
-	packet-igmp.h  \
-	packet-ip.h    \
-	packet-ipfc.h  \
-	packet-ipsec.h \
-	packet-ipv6.h  \
-	packet-ipx.h   \
-	packet-isis-clv.h \
-	packet-isis-hello.h \
-	packet-isis-lsp.h \
-	packet-isis-snp.h \
-	packet-isis.h  \
-	packet-isl.h   \
-	packet-isup.h   \
-	packet-kerberos.h \
-	packet-klm.h   \
-	packet-ldap.h  \
-	packet-llc.h   \
-	packet-mip6.h  \
-	packet-mount.h \
-	packet-mrdisc.h \
-	packet-msnip.h \
-	packet-mtp3.h  \
-	packet-ncp-int.h \
-	packet-ndps.h    \
-	packet-netbios.h \
-	packet-nfs.h   \
-	packet-nisplus.h \
-	packet-nlm.h   \
-	packet-ntp.h  \
-	packet-null.h  \
-	packet-osi-options.h \
-	packet-osi.h   \
-	packet-pcnfsd.h \
-	packet-per.h   \
-	packet-pflog.h \
-	packet-pim.h   \
-	packet-portmap.h   \
-	packet-ppp.h   \
-	packet-pres.h  \
-	packet-prism.h \
-	packet-q931.h  \
-	packet-radiotap.h \
-	packet-raw.h   \
-	packet-ripng.h \
-	packet-rmi.h   \
-	packet-rpc.h   \
-	packet-rquota.h \
-	packet-rsvp.h  \
-	packet-rtcp.h  \
-	packet-rtp.h   \
-	packet-rtp-events.h \
-	packet-rwall.h  \
-	packet-rx.h  \
-	packet-scsi.h  \
-	packet-ses.h   \
-	packet-sll.h   \
-	packet-smb-browse.h \
-	packet-smb-common.h \
-	packet-smb-mailslot.h \
-	packet-smb-pipe.h \
-	packet-smb-sidsnooping.h \
-	packet-sna.h   \
-	packet-snmp.h	\
-	packet-spray.h \
-	packet-stat-notify.h \
-	packet-stat.h   \
-	packet-tacacs.h \
-	packet-tcap.h  \
-	packet-tcp.h   \
-	packet-tns.h \
-	packet-tpkt.h  \
-	packet-tr.h    \
-	packet-udp.h   \
-	packet-vines.h \
-	packet-vlan.h \
-	packet-wap.h \
-	packet-wccp.h \
-	packet-wlancap.h \
-	packet-wsp.h \
-	packet-wtls.h \
-	packet-wtp.h \
-	packet-x11-keysym.h	\
-	packet-x11-keysymdef.h	\
-	packet-ypbind.h \
-	packet-yppasswd.h \
-	packet-ypserv.h \
-	packet-ypxfr.h
-
-DISSECTOR_SUPPORT_SRC = \
-	adler32.c      \
-	adler32.h      \
-	afn.c          \
-	afn.h          \
-	aftypes.h      \
-	arcnet_pids.h  \
-	asn1.c         \
-	asn1.h         \
-	bridged_pids.h \
-	chdlctypes.h   \
-	column.c       \
-	column.h       \
-	crc32.c        \
-	crc32.h        \
-	crypt-des.c    \
-	crypt-des.h    \
-	crypt-md4.c    \
-	crypt-md4.h    \
-	crypt-md5.c    \
-	crypt-md5.h    \
-	crypt-rc4.c    \
-	crypt-rc4.h    \
-	etypes.h       \
-	follow.c       \
-	follow.h       \
-	format-oid.h   \
-	g711.c		\
-	g711.h		\
-	greproto.h     \
-	h225-persistentdata.c \
-	h225-persistentdata.h \
-	in_cksum.c     \
-	in_cksum.h     \
-	ip_opts.h      \
-	ipproto.c      \
-	ipproto.h      \
-	lapd_sapi.h    \
-	llcsaps.h      \
-	nlpid.h        \
-	oui.h          \
-	packet-dcerpc-nt.c \
-	ppptypes.h     \
-	prefs-int.h    \
-	prefs.c        \
-	prefs.h        \
-	ptvcursor.c	\
-	ptvcursor.h	\
-	reassemble.c   \
-	reassemble.h   \
-	req_resp_hdrs.c \
-	req_resp_hdrs.h \
-	rpc_defrag.h   \
-	rtp_pt.h       \
-	sctpppids.h    \
-	smb.h          \
-	t35.c		\
-	t35.h		\
-	tap.c		\
-	tap.h		\
-	util.c         \
-	util.h         \
-	x264_prt_id.h  \
-	xdlc.c         \
-	xdlc.h         \
-	xmlstub.c      \
-	xmlstub.h
-
-BUILT_SOURCES = \
-	cvsversion.h	\
-	x11-declarations.h \
-	x11-register-info.h
-
-ETHEREAL_COMMON_SRC = \
-	$(DISSECTOR_SUPPORT_SRC) \
-	$(BUILT_SOURCES) \
-	capture_stop_conditions.c   \
-	capture_stop_conditions.h   \
-	cfile.c         \
-	cfile.h         \
-	color.h        \
-	conditions.c   \
-	conditions.h   \
-	disabled_protos.c      \
-	disabled_protos.h      \
-	file.h         \
-	pcap-util.c    \
-	pcap-util.h    \
-	pcap-util-int.h \
-	pcap-util-unix.c \
-	print.c        \
-	print.h        \
-	ps.c           \
-	ps.h           \
-	range.c		\
-	range.h		\
-	register.h     \
-	ringbuffer.c   \
-	ringbuffer.h   \
-	timestats.c	\
-	timestats.h	\
-	version_info.c	\
-	version_info.h
-
-ethereal_SOURCES = \
-	$(DISSECTOR_SRC) \
-	$(ETHEREAL_COMMON_SRC) \
-	register.c     \
-	capture.c      \
-	capture.h      \
-	file.c         \
-	filters.c      \
-	filters.h      \
-	globals.h      \
-	menu.h         \
-	progress_dlg.h \
-	proto_hier_stats.h	\
-	proto_hier_stats.c	\
-	simple_dialog.h \
-	statusbar.h    \
-	summary.c      \
-	summary.h      \
-	tap_dfilter_dlg.h \
-	ui_util.h
-
-EXTRA_ethereal_SOURCES = \
-	snprintf.c	\
-	snprintf.h	\
-	snprintf-imp.h	\
-	strerror.c	\
-	strerror.h	\
-	strcasecmp.c	\
-	strncasecmp.c	\
-	mkstemp.c	\
-	mkstemp.h	\
-	strptime.c	\
-	strptime.h
-
 # Optional objects that I know how to build. These will be
 # linked into the ethereal executable.
 # They will also be linked into the tethereal executable; if this
@@ -568,33 +265,6 @@ ethereal_LDADD = \
 	@PCRE_LIBS@ \
 	@PCAP_LIBS@ @GTK_LIBS@ @ADNS_LIBS@
 
-TETHEREAL_TAP_SRC = \
-	tap-ansi_astat.c	\
-	tap-bootpstat.c		\
-	tap-dcerpcstat.c	\
-	tap-gsm_astat.c		\
-	tap-h225counter.c	\
-	tap-h225rassrt.c	\
-	tap-httpstat.c		\
-	tap-iostat.c		\
-	tap-iousers.c		\
-	tap-mgcpstat.c		\
-	tap-protocolinfo.c	\
-	tap-protohierstat.c	\
-	tap-rpcstat.c		\
-	tap-rpcprogs.c		\
-	tap-smbsids.c		\
-	tap-smbstat.c		\
-	tap-wspstat.c
-
-tethereal_SOURCES = \
-	$(DISSECTOR_SRC) \
-	$(ETHEREAL_COMMON_SRC) \
-	$(TETHEREAL_TAP_SRC) \
-	tethereal-tap-register.c \
-	register.c     \
-	tethereal.c
-
 # Additional libs that I know how to build. These will be
 # linked into the tethereal executable.
 tethereal_additional_libs =		\
@@ -629,17 +299,13 @@ endif
 # text2pcap.
 text2pcap_optional_objects = @STRERROR_O@ @STRPTIME_O@
 
-text2pcap_SOURCES = text2pcap.c text2pcap-scanner.l
 text2pcap_DEPENDENCIES = text2pcap.h
 
 # This automake variable adds to the link-line for the executable
 text2pcap_LDADD = $(text2pcap_optional_objects) \
 	@GLIB_LIBS@ -lm
 
-mergecap_SOURCES = mergecap.c cvsversion.h
 mergecap_DEPENDENCIES = wiretap/libwiretap.a
-
-editcap_SOURCES = editcap.c
 
 # This is the automake dependency variable for the executable
 editcap_DEPENDENCIES = wiretap/libwiretap.a
@@ -739,13 +405,6 @@ randpkt.o: randpkt.c
 randpkt: randpkt.o wiretap/libwiretap.a
 	$(LINK) -o randpkt randpkt.o wiretap/libwiretap.a `glib-config --libs` -lz
 
-
-dftest_SOURCES = \
-	$(DISSECTOR_SRC) \
-	$(DISSECTOR_SUPPORT_SRC) \
-	$(BUILT_SOURCES) \
-	register.c     \
-	dftest.c
 
 dftest_additional_libs =		\
 	wiretap/libwiretap.a		\
