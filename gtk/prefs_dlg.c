@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.85 2004/05/27 18:12:58 guy Exp $
+ * $Id: prefs_dlg.c,v 1.86 2004/05/27 21:42:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -346,7 +346,12 @@ module_prefs_show(module_t *module, gpointer user_data)
 /* add a page to the tree */
 prefs_tree_iter
 prefs_tree_page_add(const gchar *title, gint page_nr, 
-                    gpointer store, prefs_tree_iter *parent_iter, gboolean has_child)
+                    gpointer store, prefs_tree_iter *parent_iter,
+                    gboolean has_child
+#if GTK_MAJOR_VERSION >= 2
+                    _U_
+#endif
+                    )
 {
 #if GTK_MAJOR_VERSION < 2
   const gchar       *label_ptr = title;
