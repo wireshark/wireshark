@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.75 2002/10/15 05:21:05 guy Exp $
+ * $Id: proto.c,v 1.76 2002/10/15 05:29:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1997,7 +1997,7 @@ proto_match_short_name(gconstpointer p_arg, gconstpointer name_arg)
 	const protocol_t *p = p_arg;
 	const char *name = name_arg;
 
-	return g_strcasecmp(p->short_name, name_arg);
+	return g_strcasecmp(p->short_name, name);
 }
 
 static gint
@@ -2006,7 +2006,7 @@ proto_match_name(gconstpointer p_arg, gconstpointer name_arg)
 	const protocol_t *p = p_arg;
 	const char *name = name_arg;
 
-	return g_strcasecmp(p->name, name_arg);
+	return g_strcasecmp(p->name, name);
 }
 
 static gint
@@ -2015,7 +2015,7 @@ proto_match_filter_name(gconstpointer p_arg, gconstpointer name_arg)
 	const protocol_t *p = p_arg;
 	const char *name = name_arg;
 
-	return g_strcasecmp(p->filter_name, name_arg);
+	return g_strcasecmp(p->filter_name, name);
 }
 
 static gint
