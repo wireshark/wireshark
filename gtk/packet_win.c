@@ -3,13 +3,11 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.1 2000/02/29 06:24:40 guy Exp $
+ * $Id: packet_win.c,v 1.2 2000/03/01 06:50:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
- *
- * Copied from main.c
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -95,7 +93,7 @@ static void new_tree_view_unselect_row_cb( GtkCTree *ctree, GList *node,
 	gint column, gpointer user_data);
 
 static void create_new_window( char *Title, gint tv_size, gint bv_size);
-static void destroy_new_window(gpointer data);
+static void destroy_new_window(GtkObject *object, gpointer user_data);
 
 static void set_scrollbar_placement_packet_win(struct PacketWinData *DataPtr,
     int pos);
@@ -187,12 +185,11 @@ create_new_window ( char *Title, gint tv_size, gint bv_size){
   gtk_signal_connect(GTK_OBJECT(tree_view), "tree-select-row",
 		GTK_SIGNAL_FUNC(new_tree_view_select_row_cb), DataPtr);
 
-  /* This handler needs a destroy function */
-  /* to remove the stored packet data	 */
-  gtk_signal_connect_full(GTK_OBJECT(tree_view), "tree-unselect-row",
-    		GTK_SIGNAL_FUNC(new_tree_view_unselect_row_cb), NULL, DataPtr,
-    		&destroy_new_window, FALSE, FALSE);
-    
+  gtk_signal_connect(GTK_OBJECT(tree_view), "tree-unselect-row",
+    		GTK_SIGNAL_FUNC(new_tree_view_unselect_row_cb), DataPtr);
+
+  gtk_signal_connect(GTK_OBJECT(main_w), "destroy",
+			GTK_SIGNAL_FUNC(destroy_new_window), DataPtr);
 
   /* draw the protocol tree & print hex data */
   proto_tree_draw(DataPtr->protocol_tree, tree_view);
@@ -203,9 +200,9 @@ create_new_window ( char *Title, gint tv_size, gint bv_size){
 }
 
 static void
-destroy_new_window(gpointer data)
+destroy_new_window(GtkObject *object, gpointer user_data)
 {
-  struct PacketWinData *DataPtr = data;
+  struct PacketWinData *DataPtr = user_data;
 
   detail_windows = g_list_remove(detail_windows, DataPtr);
   proto_tree_free(DataPtr->protocol_tree);
