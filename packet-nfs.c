@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2002, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
- * $Id: packet-nfs.c,v 1.80 2002/08/28 21:00:23 jmayer Exp $
+ * $Id: packet-nfs.c,v 1.81 2002/10/14 17:08:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6308,6 +6308,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		case NFS4_OP_SETCLIENTID_CONFIRM:
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_clientid4, offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_verifier4, offset);
 			break;
 
 		case NFS4_OP_VERIFY:
@@ -6532,8 +6533,12 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		case NFS4_OP_SETCLIENTID:
 			if (status == NFS4_OK)
+			{
 				offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_clientid4,
 					offset);
+				offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_verifier4,
+					offset);
+			}
 			else
 			if (status == NFS4ERR_CLID_INUSE)
 				offset = dissect_nfs_clientaddr4(tvb, offset, newftree);
@@ -7379,7 +7384,7 @@ proto_register_nfs(void)
 			NULL, 0, "nfs.cb_location", HFILL }},
 
 		{ &hf_nfs_cb_program, {
-			"cb_program", "nfs.cb_program", FT_UINT32, BASE_DEC,
+			"cb_program", "nfs.cb_program", FT_UINT32, BASE_HEX,
 			NULL, 0, "nfs.cb_program", HFILL }},
 
 		{ &hf_nfs_recall4, {
