@@ -465,10 +465,9 @@ decode_show_clear_cb (GtkWidget *clear_bt _U_, gpointer parent_w)
 
 
 /*
- * This routine is called when the user clicks the "Close" button in
+ * This routine is called when the user clicks the X at the top right end in
  * the "Decode As:Show..." dialog window.  This routine simply calls the
- * cancel routine as if the user had clicked the cancel button instead
- * of the close button.
+ * ok routine as if the user had clicked the ok button.
  *
  * @param GtkWidget * A pointer to the dialog box.
  *
@@ -918,16 +917,16 @@ decode_apply_cb (GtkWidget *apply_bt _U_, gpointer parent_w)
 }
 
 /*
- * This routine is called when the user clicks the "Cancel" button in
+ * This routine is called when the user clicks the "Close" button in
  * the "Decode As..." dialog window.  This routine then destroys the
  * dialog box and performs other housekeeping functions.
  *
- * @param cancel_bt A pointer to the "Cancel" button.
+ * @param close_bt A pointer to the "Close" button.
  *
  * @param parent_w A pointer to the dialog window.
  */
 static void
-decode_cancel_cb (GtkWidget *cancel_bt _U_, gpointer parent_w)
+decode_close_cb (GtkWidget *close_bt _U_, gpointer parent_w)
 {
     GtkWidget *notebook_pg = NULL;
     void *binding = NULL;
@@ -949,7 +948,7 @@ decode_cancel_cb (GtkWidget *cancel_bt _U_, gpointer parent_w)
 /*
  * This routine is called when the user clicks the "Close" button in
  * the "Decode As..." dialog window.  This routine simply calls the
- * cancel routine as if the user had clicked the cancel button instead
+ * close routine as if the user had clicked the close button instead
  * of the close button.
  *
  * @param decode_w A pointer to the dialog box.
@@ -959,7 +958,7 @@ decode_cancel_cb (GtkWidget *cancel_bt _U_, gpointer parent_w)
 static gboolean
 decode_delete_cb (GtkWidget *decode_w, gpointer dummy _U_)
 {
-    decode_cancel_cb(NULL, decode_w);
+    decode_close_cb(NULL, decode_w);
     return FALSE;
 }
 
@@ -1645,7 +1644,7 @@ decode_add_notebook (GtkWidget *format_hb)
 void
 decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
 {
-    GtkWidget	*main_vb, *format_hb, *bbox, *ok_bt, *cancel_bt, *button;
+    GtkWidget	*main_vb, *format_hb, *bbox, *ok_bt, *close_bt, *button;
     GtkWidget   *button_vb, *apply_bt;
 
     if (decode_w != NULL) {
@@ -1681,7 +1680,7 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
     }
 
     /* Button row */
-    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, NULL);
+    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CLOSE, NULL);
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
     gtk_widget_show(bbox);
 
@@ -1691,9 +1690,9 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
     apply_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_APPLY);
     SIGNAL_CONNECT(apply_bt, "clicked", decode_apply_cb, decode_w);
 
-    cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
-    window_set_cancel_button(decode_w, cancel_bt, NULL);
-    SIGNAL_CONNECT(cancel_bt, "clicked", decode_cancel_cb, decode_w);
+    close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+    window_set_cancel_button(decode_w, close_bt, NULL);
+    SIGNAL_CONNECT(close_bt, "clicked", decode_close_cb, decode_w);
 
     gtk_widget_grab_default(ok_bt);
 
