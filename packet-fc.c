@@ -2,7 +2,7 @@
  * Routines for Fibre Channel Decoding (FC Header, Link Ctl & Basic Link Svc) 
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fc.c,v 1.8 2003/06/23 13:09:12 sahlberg Exp $
+ * $Id: packet-fc.c,v 1.9 2003/06/24 15:37:29 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,6 +25,7 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
+
 #endif
 
 #include <stdio.h>
@@ -73,6 +74,9 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_fc = -1;
+static int hf_fc_time = -1;
+static int hf_fc_exchange_first_frame = -1;
+static int hf_fc_exchange_last_frame = -1;
 static int hf_fc_rctl = -1;
 static int hf_fc_did = -1;
 static int hf_fc_csctl = -1;
@@ -100,8 +104,6 @@ static int hf_fc_oxid = -1;
 static int hf_fc_rxid = -1;
 static int hf_fc_param = -1;
 static int hf_fc_ftype = -1;    /* Derived field, non-existent in FC hdr */
-static int hf_fc_exchg_orig = -1;
-static int hf_fc_exchg_resp = -1;
 static int hf_fc_reassembled = -1;
 
 /* Network_Header fields */
@@ -128,10 +130,134 @@ static gint ett_fcbls = -1;
 static dissector_table_t fcftype_dissector_table;
 static dissector_handle_t data_handle;
 
+
+#define FC_FCTL_EXCHANGE_RESPONDER	0x800000
+#define FC_FCTL_SEQ_RECIPIENT		0x400000
+#define FC_FCTL_EXCHANGE_FIRST		0x200000
+#define FC_FCTL_EXCHANGE_LAST		0x100000
+#define FC_FCTL_SEQ_LAST		0x080000
+#define FC_FCTL_PRIORITY		0x020000
+#define FC_FCTL_TRANSFER_SEQ_INITIATIVE	0x010000
+#define FC_FCTL_LAST_DATA_FRAME_MASK	0x00c000
+#define FC_FCTL_ACK_0_1_MASK		0x003000
+#define FC_FCTL_REXMITTED_SEQ		0x000200
+#define FC_FCTL_ABTS_MASK		0x000030
+#define FC_FCTL_REL_OFFSET		0x000008
+
+
 /* Reassembly stuff */
 static gboolean fc_reassemble = TRUE;
 static guint32  fc_max_frame_size = 1024;
 static GHashTable *fc_fragment_table = NULL;
+
+
+/* structure and functions to keep track of first/last exchange
+   frames and time deltas 
+*/
+typedef struct _fc_exchange_data {
+    guint32 s_id;
+    guint32 d_id;
+    guint16 oxid;
+    guint32 first_exchange_frame;
+    guint32 last_exchange_frame;
+    nstime_t fc_time;
+} fc_exchange_data;
+static GHashTable *fc_exchange_unmatched = NULL;
+static GHashTable *fc_exchange_matched = NULL;
+static GMemChunk *fc_exchange_vals = NULL;
+static guint32 fc_exchange_init_count = 200;
+
+static guint
+fc_exchange_hash_unmatched(gconstpointer v)
+{
+    const fc_exchange_data *fced=(const fc_exchange_data *)v;
+
+    return fced->oxid;
+}
+static gint
+fc_exchange_equal_unmatched(gconstpointer v1, gconstpointer v2)
+{
+    const fc_exchange_data *fced1=(const fc_exchange_data *)v1;
+    const fc_exchange_data *fced2=(const fc_exchange_data *)v2;
+
+    /* oxid must match */
+    if(fced1->oxid!=fced2->oxid){
+        return 0;
+    }
+    /* compare s_id, d_id and treat the fc address
+       s_id==00.00.00 as a wildcard matching anything */
+    if( (fced1->s_id!=0) && (fced1->s_id!=fced2->s_id) ){
+        return 0;
+    }
+    if(fced1->d_id!=fced2->d_id){
+        return 0;
+    }
+
+    return 1;
+}
+
+static guint
+fc_exchange_hash_matched(gconstpointer v)
+{
+    const fc_exchange_data *fced=(const fc_exchange_data *)v;
+
+    return fced->oxid;
+}
+static gint
+fc_exchange_equal_matched(gconstpointer v1, gconstpointer v2)
+{
+    const fc_exchange_data *fced1=(const fc_exchange_data *)v1;
+    const fc_exchange_data *fced2=(const fc_exchange_data *)v2;
+    guint32 fef1, fef2, lef1, lef2;
+
+    /* oxid must match */
+    if(fced1->oxid!=fced2->oxid){
+        return 0;
+    }
+    fef1=fced1->first_exchange_frame;
+    fef2=fced2->first_exchange_frame;
+    lef1=fced1->last_exchange_frame;
+    lef2=fced2->last_exchange_frame;
+    if(!fef1)fef1=fef2;
+    if(!fef2)fef2=fef1;
+    if(!lef1)lef1=lef2;
+    if(!lef2)lef2=lef1;
+
+    if(fef1!=fef2){
+        return 0;
+    }
+    if(lef1!=lef2){
+        return 0;
+    }
+
+    return 1;
+}
+
+static void
+fc_exchange_init_protocol(void)
+{
+    if(fc_exchange_vals){
+        g_mem_chunk_destroy(fc_exchange_vals);
+        fc_exchange_vals=NULL;
+    }
+    if(fc_exchange_unmatched){
+        g_hash_table_destroy(fc_exchange_unmatched);
+        fc_exchange_unmatched=NULL;
+    }
+    if(fc_exchange_matched){
+        g_hash_table_destroy(fc_exchange_matched);
+        fc_exchange_matched=NULL;
+    }
+
+    fc_exchange_unmatched=g_hash_table_new(fc_exchange_hash_unmatched, fc_exchange_equal_unmatched);
+    fc_exchange_matched=g_hash_table_new(fc_exchange_hash_matched, fc_exchange_equal_matched);
+    fc_exchange_vals=g_mem_chunk_new("fc_exchange_vals", sizeof(fc_exchange_data), fc_exchange_init_count*sizeof(fc_exchange_data), G_ALLOC_AND_FREE);
+}
+
+
+
+
+
 
 const value_string fc_fc4_val[] = {
     {FC_TYPE_ELS     , "Ext Link Svc"},
@@ -185,6 +311,18 @@ static const value_string fc_iu_val[] = {
     {FC_IU_CMD_STATUS      , "Command Status"},
     {0, NULL},
 };
+
+typedef struct _fc_hdr {
+    guint32 s_id;
+    guint32 d_id;
+    guint32 fctl;
+    guint8 type;
+    guint16 seqcnt;
+    guint16 oxid;
+    guint16 rxid;
+    guint8 r_ctl;
+    guint8 cs_ctl;
+} fc_hdr;
 
 static void fc_defragment_init(void)
 {
@@ -448,19 +586,6 @@ fc_get_ftype (guint8 r_ctl, guint8 type)
     }
 }
 
-#define FC_FCTL_EXCHANGE_RESPONDER	0x800000
-#define FC_FCTL_SEQ_RECIPIENT		0x400000
-#define FC_FCTL_EXCHANGE_FIRST		0x200000
-#define FC_FCTL_EXCHANGE_LAST		0x100000
-#define FC_FCTL_SEQ_LAST		0x080000
-#define FC_FCTL_PRIORITY		0x020000
-#define FC_FCTL_TRANSFER_SEQ_INITIATIVE	0x010000
-#define FC_FCTL_LAST_DATA_FRAME_MASK	0x00c000
-#define FC_FCTL_ACK_0_1_MASK		0x003000
-#define FC_FCTL_REXMITTED_SEQ		0x000200
-#define FC_FCTL_ABTS_MASK		0x000030
-#define FC_FCTL_REL_OFFSET		0x000008
-
 static const value_string abts_ack_vals[] = {
 	{0x000000,	"ABTS - Cont"},
 	{0x000010,	"ABTS - Abort"},
@@ -531,15 +656,12 @@ static const true_false_string tfs_fc_fctl_rel_offset = {
 
 /* code to dissect the  F_CTL bitmask */
 static void
-dissect_fc_fctl(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, gboolean is_ack)
+dissect_fc_fctl(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, gboolean is_ack, guint32 fctl)
 {
-	guint32 fctl;
 	proto_item *item;
 	proto_tree *tree;
 	gchar str[256];
 
-	fctl=tvb_get_ntoh24(tvb,offset);
-	
         item=proto_tree_add_uint(parent_tree, hf_fc_fctl, tvb, offset, 3, fctl);
 	tree=proto_item_add_subtree(item, ett_fctl);
 
@@ -583,7 +705,7 @@ static void
 dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
    /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item *ti;
+    proto_item *ti=NULL;
     proto_tree *fc_tree = NULL;
     tvbuff_t *next_tvb;
     int offset = 0, next_offset;
@@ -592,51 +714,56 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     fragment_data *fcfrag_head;
     guint32 frag_id;
     guint32 frag_size;
-    guint8 r_ctl, type, df_ctl;
+    guint8 df_ctl;
     
     guint32 param;
-    guint16 seqcnt;
     guint8 ftype;
     gboolean is_ack;
 
-    guint32 s_id;
-    guint32 d_id;
+    fc_hdr fchdr;
+    fc_exchange_data *fc_ex=NULL;
 
     /* Make entries in Protocol column and Info column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC");
 
-    r_ctl = tvb_get_guint8 (tvb, offset);
+    fchdr.r_ctl = tvb_get_guint8 (tvb, offset);
 
     /* If the R_CTL is the EISL field, skip the first 8 bytes to retrieve the
      * real FC header. EISL is Cisco-proprietary and is not decoded.
      */
-    if (r_ctl == FC_RCTL_EISL) {
+    if (fchdr.r_ctl == FC_RCTL_EISL) {
         offset += 8;
-        r_ctl = tvb_get_guint8 (tvb, offset);
+        fchdr.r_ctl = tvb_get_guint8 (tvb, offset);
     }
     
-    type  = tvb_get_guint8 (tvb, offset+8);
-    seqcnt = tvb_get_ntohs (tvb, offset+14);
+    fchdr.d_id=tvb_get_letoh24(tvb, offset+1);
+    fchdr.s_id=tvb_get_letoh24(tvb, offset+5);
+    fchdr.cs_ctl = tvb_get_guint8 (tvb, offset+4);
+    fchdr.type  = tvb_get_guint8 (tvb, offset+8);
+    fchdr.fctl=tvb_get_ntoh24(tvb,offset+9);
+    fchdr.seqcnt = tvb_get_ntohs (tvb, offset+14);
+    fchdr.oxid=tvb_get_ntohs(tvb,offset+16);
+    fchdr.rxid=tvb_get_ntohs(tvb,offset+18);
     param = tvb_get_ntohl (tvb, offset+20);
 
-    SET_ADDRESS (&pinfo->dst, AT_FC, 3, tvb_get_ptr (tvb, offset+1, 3));
-    SET_ADDRESS (&pinfo->src, AT_FC, 3, tvb_get_ptr (tvb, offset+5, 3));
-    pinfo->oxid = tvb_get_ntohs (tvb, offset+16);
-    pinfo->rxid = tvb_get_ntohs (tvb, offset+18);
+    SET_ADDRESS (&pinfo->dst, AT_FC, 3, tvb_get_ptr(tvb,offset+1,3));
+    SET_ADDRESS (&pinfo->src, AT_FC, 3, tvb_get_ptr(tvb,offset+5,3));
+    pinfo->oxid = fchdr.oxid;
+    pinfo->rxid = fchdr.rxid;
     pinfo->ptype = PT_EXCHG;
-    pinfo->r_ctl = r_ctl;
+    pinfo->r_ctl = fchdr.r_ctl;
 
-    is_ack = ((r_ctl == 0xC0) || (r_ctl == 0xC1));
+    is_ack = ((fchdr.r_ctl == 0xC0) || (fchdr.r_ctl == 0xC1));
 
-    ftype = fc_get_ftype (r_ctl, type);
+    ftype = fc_get_ftype (fchdr.r_ctl, fchdr.type);
     
     if (check_col (pinfo->cinfo, COL_INFO)) {
         col_add_str (pinfo->cinfo, COL_INFO, match_strval (ftype, fc_ftype_vals));
 
         if (ftype == FC_FTYPE_LINKCTL)
             col_append_fstr (pinfo->cinfo, COL_INFO, ", %s",
-                             match_strval ((r_ctl & 0x0F),
+                             match_strval ((fchdr.r_ctl & 0x0F),
                                            fc_lctl_proto_val));
     }
     
@@ -646,103 +773,159 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_protocol_format (tree, proto_fc, tvb, offset,
                                              FC_HEADER_SIZE, "Fibre Channel");
         fc_tree = proto_item_add_subtree (ti, ett_fc);
+    }
 
-        if (ftype == FC_FTYPE_LINKCTL) {
-            /* the lower 4 bits of R_CTL indicate the type of link ctl frame */
-            proto_tree_add_uint_format (fc_tree, hf_fc_rctl, tvb, offset,
-                                        FC_RCTL_SIZE, r_ctl,
-                                        "R_CTL: 0x%x(%s)",
-                                        r_ctl,
-                                        val_to_str ((r_ctl & 0x0F),
-                                                    fc_lctl_proto_val, "0x%x")); 
-        }
-        else if (ftype == FC_FTYPE_BLS) {
-            /* the lower 4 bits of R_CTL indicate the type of BLS frame */
-            proto_tree_add_uint_format (fc_tree, hf_fc_rctl, tvb, offset,
-                                        FC_RCTL_SIZE, r_ctl,
-                                        "R_CTL: 0x%x(%s)",
-                                        r_ctl,
-                                        val_to_str ((r_ctl & 0x0F),
-                                                    fc_bls_proto_val, "0x%x")); 
-        }
-        else {
-            proto_tree_add_item (fc_tree, hf_fc_rctl, tvb, offset, 1, FALSE);
-        }
-        
-        proto_tree_add_uint_hidden (fc_tree, hf_fc_ftype, tvb, offset, 1,
-                                    ftype); 
-
-	d_id=tvb_get_letoh24(tvb, offset+1);
-        proto_tree_add_string (fc_tree, hf_fc_did, tvb, offset+1, 3,
-				fc32_to_str (d_id));
-        proto_tree_add_string_hidden (fc_tree, hf_fc_id, tvb, offset+1, 3,
-				fc32_to_str (d_id));
-
-        proto_tree_add_item (fc_tree, hf_fc_csctl, tvb, offset+4, 1, FALSE);
-
-	s_id=tvb_get_letoh24(tvb, offset+5);
-        proto_tree_add_string (fc_tree, hf_fc_sid, tvb, offset+5, 3,
-                               fc32_to_str (s_id));
-        proto_tree_add_string_hidden (fc_tree, hf_fc_id, tvb, offset+5, 3,
-                               fc32_to_str (s_id));
-        
-        if (ftype == FC_FTYPE_LINKCTL) {
-            if (((r_ctl & 0x0F) == FC_LCTL_FBSYB) ||
-                ((r_ctl & 0x0F) == FC_LCTL_FBSYL)) {
-                /* for F_BSY frames, the upper 4 bits of the type field specify the
-                 * reason for the BSY.
-                 */
-                proto_tree_add_uint_format (fc_tree, hf_fc_type, tvb,
-                                            offset+8, FC_TYPE_SIZE,
-                                            type, "Type: 0x%x(%s)", type, 
-                                            fclctl_get_typestr (r_ctl & 0x0F,
-                                                                type));
+    /* match first exchange with last exchange */
+    if(fchdr.fctl&FC_FCTL_EXCHANGE_FIRST){
+        if(!pinfo->fd->flags.visited){
+            fc_exchange_data fced, *old_fced;
+            /* first check if we already have seen this exchange and it
+               is still open/unmatched. 
+            */
+            fced.oxid=fchdr.oxid;
+            fced.s_id=fchdr.s_id;
+            fced.d_id=fchdr.d_id;
+            old_fced=g_hash_table_lookup(fc_exchange_unmatched, &fced);
+            if(old_fced){
+                g_hash_table_remove(fc_exchange_unmatched, old_fced);
             }
-            else {
-                proto_tree_add_item (fc_tree, hf_fc_type, tvb, offset+8, 1, FALSE);
+            old_fced=g_mem_chunk_alloc(fc_exchange_vals);
+            old_fced->oxid=fchdr.oxid;
+            old_fced->s_id=fchdr.s_id;
+            old_fced->d_id=fchdr.d_id;
+old_fced->first_exchange_frame=pinfo->fd->num;
+            old_fced->fc_time.nsecs = pinfo->fd->abs_usecs*1000;
+            old_fced->fc_time.secs = pinfo->fd->abs_secs;
+            g_hash_table_insert(fc_exchange_unmatched, old_fced, old_fced);
+        } else {
+            fc_exchange_data fced, *old_fced;
+            fced.oxid=fchdr.oxid;
+            fced.first_exchange_frame=pinfo->fd->num;
+            fced.last_exchange_frame=0;
+            old_fced=g_hash_table_lookup(fc_exchange_matched, &fced);
+            if(old_fced){
+                fc_ex=old_fced;
             }
         }
-        else {
+    }
+    if(fchdr.fctl&FC_FCTL_EXCHANGE_LAST){
+        if(!pinfo->fd->flags.visited){
+            fc_exchange_data fced, *old_fced;
+
+            fced.oxid=fchdr.oxid;
+            fced.s_id=fchdr.d_id;
+            fced.d_id=fchdr.s_id;
+            old_fced=g_hash_table_lookup(fc_exchange_unmatched, &fced);
+            if(old_fced){
+                g_hash_table_remove(fc_exchange_unmatched, old_fced);
+                old_fced->last_exchange_frame=pinfo->fd->num;
+                g_hash_table_insert(fc_exchange_matched, old_fced, old_fced);
+            }
+        } else {
+            fc_exchange_data fced, *old_fced;
+            fced.oxid=fchdr.oxid;
+            fced.first_exchange_frame=0;
+            fced.last_exchange_frame=pinfo->fd->num;
+            old_fced=g_hash_table_lookup(fc_exchange_matched, &fced);
+            if(old_fced){
+                fc_ex=old_fced;
+            }
+        }
+    }
+    if(fc_ex){
+        if(fchdr.fctl&FC_FCTL_EXCHANGE_FIRST){
+            proto_tree_add_uint(fc_tree, hf_fc_exchange_last_frame, tvb, 0, 0, fc_ex->last_exchange_frame);
+        }
+        if(fchdr.fctl&FC_FCTL_EXCHANGE_LAST){
+            nstime_t delta_time;
+            proto_tree_add_uint(fc_tree, hf_fc_exchange_first_frame, tvb, 0, 0, fc_ex->first_exchange_frame);
+            delta_time.secs = pinfo->fd->abs_secs - fc_ex->fc_time.secs;
+            delta_time.nsecs = pinfo->fd->abs_usecs*1000 - fc_ex->fc_time.nsecs;
+            if (delta_time.nsecs<0){
+                delta_time.nsecs+=1000000000;
+                delta_time.secs--;
+            }
+            proto_tree_add_time(ti, hf_fc_time, tvb, 0, 0, &delta_time);
+        }
+    }
+
+    if (ftype == FC_FTYPE_LINKCTL) {
+        /* the lower 4 bits of R_CTL indicate the type of link ctl frame */
+        proto_tree_add_uint_format (fc_tree, hf_fc_rctl, tvb, offset,
+                                    FC_RCTL_SIZE, fchdr.r_ctl,
+                                    "R_CTL: 0x%x(%s)",
+                                    fchdr.r_ctl,
+                                    val_to_str ((fchdr.r_ctl & 0x0F),
+                                                fc_lctl_proto_val, "0x%x")); 
+    } else if (ftype == FC_FTYPE_BLS) {
+        /* the lower 4 bits of R_CTL indicate the type of BLS frame */
+        proto_tree_add_uint_format (fc_tree, hf_fc_rctl, tvb, offset,
+                                    FC_RCTL_SIZE, fchdr.r_ctl,
+                                    "R_CTL: 0x%x(%s)",
+                                    fchdr.r_ctl,
+                                    val_to_str ((fchdr.r_ctl & 0x0F),
+                                                fc_bls_proto_val, "0x%x")); 
+    } else {
+        proto_tree_add_item (fc_tree, hf_fc_rctl, tvb, offset, 1, FALSE);
+    }
+        
+    proto_tree_add_uint_hidden (fc_tree, hf_fc_ftype, tvb, offset, 1,
+                           ftype); 
+
+    proto_tree_add_string (fc_tree, hf_fc_did, tvb, offset+1, 3,
+                           fc32_to_str (fchdr.d_id));
+    proto_tree_add_string_hidden (fc_tree, hf_fc_id, tvb, offset+1, 3,
+                           fc32_to_str (fchdr.d_id));
+
+    proto_tree_add_uint (fc_tree, hf_fc_csctl, tvb, offset+4, 1, fchdr.cs_ctl);
+
+    proto_tree_add_string (fc_tree, hf_fc_sid, tvb, offset+5, 3,
+                           fc32_to_str (fchdr.s_id));
+    proto_tree_add_string_hidden (fc_tree, hf_fc_id, tvb, offset+5, 3,
+                           fc32_to_str (fchdr.s_id));
+        
+    if (ftype == FC_FTYPE_LINKCTL) {
+        if (((fchdr.r_ctl & 0x0F) == FC_LCTL_FBSYB) ||
+            ((fchdr.r_ctl & 0x0F) == FC_LCTL_FBSYL)) {
+            /* for F_BSY frames, the upper 4 bits of the type field specify the
+             * reason for the BSY.
+             */
+            proto_tree_add_uint_format (fc_tree, hf_fc_type, tvb,
+                                        offset+8, FC_TYPE_SIZE,
+                                        fchdr.type,"Type: 0x%x(%s)", fchdr.type, 
+                                        fclctl_get_typestr (fchdr.r_ctl & 0x0F,
+                                                            fchdr.type));
+        } else {
             proto_tree_add_item (fc_tree, hf_fc_type, tvb, offset+8, 1, FALSE);
         }
-
-	dissect_fc_fctl(pinfo, fc_tree, tvb, offset+9, is_ack);
-
-
-        /* Bit 23 if set => this frame is from the exchange originator */
-        if (tvb_get_guint8 (tvb, offset+9) & 0x80) {
-            proto_tree_add_boolean (fc_tree, hf_fc_exchg_orig, tvb,
-                                           offset+9, 1, 0);
-            proto_tree_add_boolean (fc_tree, hf_fc_exchg_resp, tvb,
-                                           offset+9, 1, 1);
-        }
-        else {
-            proto_tree_add_boolean (fc_tree, hf_fc_exchg_orig, tvb,
-                                           offset+9, 1, 1);
-            proto_tree_add_boolean (fc_tree, hf_fc_exchg_resp, tvb,
-                                           offset+9, 1, 0);
-        }
-        
-        proto_tree_add_item (fc_tree, hf_fc_seqid, tvb, offset+12, 1, FALSE);
+    } else {
+        proto_tree_add_item (fc_tree, hf_fc_type, tvb, offset+8, 1, FALSE);
     }
+
+
+    dissect_fc_fctl(pinfo, fc_tree, tvb, offset+9, is_ack, fchdr.fctl);
+
+
+    proto_tree_add_item (fc_tree, hf_fc_seqid, tvb, offset+12, 1, FALSE);
+
     df_ctl = tvb_get_guint8(tvb, offset+13);
     if (tree) {
         proto_tree_add_uint (fc_tree, hf_fc_dfctl, tvb, offset+13, 1, df_ctl);
-        proto_tree_add_item (fc_tree, hf_fc_seqcnt, tvb, offset+14, 2, FALSE);
-        proto_tree_add_item (fc_tree, hf_fc_oxid, tvb, offset+16, 2, FALSE);
-        proto_tree_add_item (fc_tree, hf_fc_rxid, tvb, offset+18, 2, FALSE);
+        proto_tree_add_uint (fc_tree, hf_fc_seqcnt, tvb, offset+14, 2, fchdr.seqcnt);
+        proto_tree_add_uint (fc_tree, hf_fc_oxid, tvb, offset+16, 2, fchdr.oxid);
+        proto_tree_add_uint (fc_tree, hf_fc_rxid, tvb, offset+18, 2, fchdr.rxid);
 
         if (ftype == FC_FTYPE_LINKCTL) {
-            if (((r_ctl & 0x0F) == FC_LCTL_FRJT) ||
-                ((r_ctl & 0x0F) == FC_LCTL_PRJT) ||
-                ((r_ctl & 0x0F) == FC_LCTL_PBSY)) {
+            if (((fchdr.r_ctl & 0x0F) == FC_LCTL_FRJT) ||
+                ((fchdr.r_ctl & 0x0F) == FC_LCTL_PRJT) ||
+                ((fchdr.r_ctl & 0x0F) == FC_LCTL_PBSY)) {
                 /* In all these cases of Link Ctl frame, the parameter field
                  * encodes the detailed error message
                  */
                 proto_tree_add_uint_format (fc_tree, hf_fc_param, tvb,
                                             offset+20, 4, param,
                                             "Parameter: 0x%x(%s)", param,
-                                            fclctl_get_paramstr ((r_ctl & 0x0F),
+                                            fclctl_get_paramstr ((fchdr.r_ctl & 0x0F),
                                                                  param));
             }
             else {
@@ -750,7 +933,7 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         }
         else if (ftype == FC_FTYPE_BLS) {
-            if ((r_ctl & 0x0F) == FC_BLS_ABTS) {
+            if ((fchdr.r_ctl & 0x0F) == FC_BLS_ABTS) {
                 proto_tree_add_uint_format (fc_tree, hf_fc_param, tvb,
                                             offset+20, 4, param, 
                                             "Parameter: 0x%x(%s)", param,
@@ -791,9 +974,9 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * problem
          */
         is_lastframe_inseq = TRUE;
-    }
-    else {
-        is_lastframe_inseq = tvb_get_guint8 (tvb, offset+9) & 0x08;
+    } else {
+        is_lastframe_inseq = fchdr.fctl & FC_FCTL_SEQ_LAST;
+	/* XXX is this right?   offset 20, shouldnt it be offset 9? */
         is_exchg_resp = ((tvb_get_guint8 (tvb, offset+20) & 0x80) == 0x80);
     }
 
@@ -819,7 +1002,7 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * present, if we're configured to reassemble.
      */
     if ((ftype != FC_FTYPE_LINKCTL) && (ftype != FC_FTYPE_BLS) &&
-        (!is_lastframe_inseq || seqcnt) && fc_reassemble &&
+        (!is_lastframe_inseq || fchdr.seqcnt) && fc_reassemble &&
         tvb_bytes_exist(tvb, FC_HEADER_SIZE, frag_size)) {
         /* Add this to the list of fragments */
         frag_id = (pinfo->oxid << 16) | is_exchg_resp;
@@ -827,7 +1010,7 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* We assume that all frames are of the same max size */
         fcfrag_head = fragment_add (tvb, FC_HEADER_SIZE, pinfo, frag_id,
                                     fc_fragment_table,
-                                    seqcnt * fc_max_frame_size,
+                                    fchdr.seqcnt * fc_max_frame_size,
                                     frag_size,
                                     !is_lastframe_inseq);
         
@@ -870,10 +1053,10 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
     else if (ftype == FC_FTYPE_BLS) {
-        if ((r_ctl & 0x0F) == FC_BLS_BAACC) {
+        if ((fchdr.r_ctl & 0x0F) == FC_BLS_BAACC) {
             dissect_fc_ba_acc (next_tvb, pinfo, tree);
         }
-        else if ((r_ctl & 0x0F) == FC_BLS_BARJT) {
+        else if ((fchdr.r_ctl & 0x0F) == FC_BLS_BARJT) {
             dissect_fc_ba_rjt (next_tvb, pinfo, tree);
         }
     }
@@ -933,12 +1116,6 @@ proto_register_fc(void)
           {"Parameter", "fc.parameter", FT_UINT32, BASE_HEX, NULL, 0x0, "Parameter",
            HFILL}},
 
-        { &hf_fc_exchg_orig,
-          {"Exchange Originator", "fc.xchg_orig", FT_BOOLEAN, BASE_HEX, NULL,
-           0x0, "", HFILL}},
-        { &hf_fc_exchg_resp,
-          {"Exchange Responder", "fc.xchg_resp", FT_BOOLEAN, BASE_HEX, NULL,
-           0x0, "", HFILL}},
         { &hf_fc_reassembled,
           {"Reassembled Frame", "fc.reassembled", FT_BOOLEAN, BASE_HEX, NULL,
            0x0, "", HFILL}},
@@ -1014,6 +1191,15 @@ proto_register_fc(void)
         { &hf_fc_fctl_abts_not_ack,
           {"AnA", "fc.fctl.abts_not_ack", FT_UINT24, BASE_HEX, VALS(abts_not_ack_vals),
            FC_FCTL_ABTS_MASK, "ABTS not ACK vals", HFILL}},
+        { &hf_fc_exchange_first_frame,
+          { "Exchange First In", "fc.exchange_first_frame", FT_FRAMENUM, BASE_NONE, NULL,
+           0, "The first frame of this exchange is in this frame", HFILL }},
+        { &hf_fc_exchange_last_frame,
+          { "Exchange Last In", "fc.exchange_last_frame", FT_FRAMENUM, BASE_NONE, NULL,
+           0, "The last frame of this exchange is in this frame", HFILL }},
+        { &hf_fc_time,
+          { "Time from Exchange First", "fc.time", FT_RELATIVE_TIME, BASE_NONE, NULL,
+           0, "Time since the first frame of the Exchange", HFILL }},
     };
 
     /* Setup protocol subtree array */
@@ -1052,6 +1238,7 @@ proto_register_fc(void)
                                     &fc_max_frame_size);
     
     register_init_routine(fc_defragment_init);
+    register_init_routine (fc_exchange_init_protocol);
 }
 
 
