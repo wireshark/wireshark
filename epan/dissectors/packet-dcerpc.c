@@ -3373,12 +3373,16 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		call_key.smb_fid=dcerpc_get_transport_salt(pinfo, transport_type);
 
 		if((call_value=g_hash_table_lookup(dcerpc_cn_calls, &call_key))){
-			new_matched_key = g_mem_chunk_alloc(dcerpc_matched_key_chunk);
-			*new_matched_key = matched_key;
-			g_hash_table_insert (dcerpc_matched, new_matched_key, call_value);
-			value = call_value;
-			if(call_value->rep_frame==0){
-				call_value->rep_frame=pinfo->fd->num;
+			/* extra sanity check,  only match them if the reply
+			   came after the request */
+			if(call_value->req_frame<pinfo->fd->num){
+				new_matched_key = g_mem_chunk_alloc(dcerpc_matched_key_chunk);
+				*new_matched_key = matched_key;
+				g_hash_table_insert (dcerpc_matched, new_matched_key, call_value);
+				value = call_value;
+				if(call_value->rep_frame==0){
+					call_value->rep_frame=pinfo->fd->num;
+				}
 			}
 		}
 	}
