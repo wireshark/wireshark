@@ -6,7 +6,7 @@
  *
  * (C) Olivier Biot, 2004.
  *
- * $Id: packet-text-media.c,v 1.7 2004/03/09 02:12:56 obiot Exp $
+ * $Id: packet-text-media.c,v 1.8 2004/05/04 07:24:33 guy Exp $
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
@@ -140,8 +140,12 @@ proto_reg_handoff_text_lines(void)
 	dissector_add_string("media_type", "text/plain", text_lines_handle);
 	/* W3C line-based textual media */
 	dissector_add_string("media_type", "text/html", text_lines_handle);
+	dissector_add_string("media_type", "text/xml", text_lines_handle);
+	dissector_add_string("media_type", "text/xml-external-parsed-entity", text_lines_handle);
 	dissector_add_string("media_type", "text/css", text_lines_handle);
 	dissector_add_string("media_type", "application/xml", text_lines_handle);
+	dissector_add_string("media_type", "application/xml-external-parsed-entity", text_lines_handle);
+	dissector_add_string("media_type", "application/xml-dtd", text_lines_handle);
 	dissector_add_string("media_type", "application/x-javascript", text_lines_handle);
 	dissector_add_string("media_type", "application/x-www-form-urlencoded", text_lines_handle);
 	dissector_add_string("media_type", "application/x-ns-proxy-autoconfig", text_lines_handle);
