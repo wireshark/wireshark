@@ -105,6 +105,7 @@ static int hf_x509ce_subjectDomainPolicy = -1;    /* CertPolicyId */
 static int hf_x509ce_GeneralNames_item = -1;      /* GeneralName */
 static int hf_x509ce_rfc822Name = -1;             /* IA5String */
 static int hf_x509ce_dNSName = -1;                /* IA5String */
+static int hf_x509ce_directoryName = -1;          /* Name */
 static int hf_x509ce_uniformResourceIdentifier = -1;  /* IA5String */
 static int hf_x509ce_iPAddress = -1;              /* OCTET_STRING */
 static int hf_x509ce_registeredID = -1;           /* OBJECT_IDENTIFIER */
@@ -243,6 +244,9 @@ static gint ett_x509ce_IssuingDistPointSyntax = -1;
 static int dissect_authorityCertSerialNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509af_CertificateSerialNumber(TRUE, tvb, offset, pinfo, tree, hf_x509ce_authorityCertSerialNumber);
 }
+static int dissect_directoryName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_Name(TRUE, tvb, offset, pinfo, tree, hf_x509ce_directoryName);
+}
 static int dissect_AttributesSyntax_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509if_Attribute(FALSE, tvb, offset, pinfo, tree, hf_x509ce_AttributesSyntax_item);
 }
@@ -309,6 +313,7 @@ static int dissect_registeredID_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 static const value_string GeneralName_vals[] = {
   {   1, "rfc822Name" },
   {   2, "dNSName" },
+  {   4, "directoryName" },
   {   6, "uniformResourceIdentifier" },
   {   7, "iPAddress" },
   {   8, "registeredID" },
@@ -318,6 +323,7 @@ static const value_string GeneralName_vals[] = {
 static ber_choice GeneralName_choice[] = {
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_rfc822Name_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_dNSName_impl },
+  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_directoryName_impl },
   {   6, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_uniformResourceIdentifier_impl },
   {   7, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_iPAddress_impl },
   {   8, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_registeredID_impl },
@@ -1499,6 +1505,10 @@ void proto_register_x509ce(void) {
       { "dNSName", "x509ce.dNSName",
         FT_STRING, BASE_NONE, NULL, 0,
         "GeneralName/dNSName", HFILL }},
+    { &hf_x509ce_directoryName,
+      { "directoryName", "x509ce.directoryName",
+        FT_UINT32, BASE_DEC, VALS(Name_vals), 0,
+        "GeneralName/directoryName", HFILL }},
     { &hf_x509ce_uniformResourceIdentifier,
       { "uniformResourceIdentifier", "x509ce.uniformResourceIdentifier",
         FT_STRING, BASE_NONE, NULL, 0,

@@ -149,7 +149,7 @@ GeneralName ::= CHOICE {
   rfc822Name                 [1]  IMPLICIT IA5String,
   dNSName                    [2]  IMPLICIT IA5String,
 --  x400Address                [3]  IMPLICIT ORAddress,
---  directoryName              [4]  IMPLICIT Name,
+  directoryName              [4]  IMPLICIT Name,
 --  ediPartyName               [5]  IMPLICIT EDIPartyName,
   uniformResourceIdentifier  [6]  IMPLICIT IA5String,
   iPAddress                  [7]  IMPLICIT OCTET STRING,
