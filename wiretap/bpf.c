@@ -10,6 +10,7 @@
 #include <glib.h>
 #endif
 
+#include <sys/types.h>
 #include <netinet/in.h>
 
 #include "wtap.h"
