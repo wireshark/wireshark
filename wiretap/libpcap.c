@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.100 2003/10/24 23:55:34 guy Exp $
+ * $Id: libpcap.c,v 1.101 2003/12/03 22:40:39 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -260,6 +260,9 @@ static const struct {
 	 *
 	 * 138 is reserved for Apple IP-over-IEEE 1394.
 	 */
+
+	{ 140,		WTAP_ENCAP_MTP2 },
+	{ 141,		WTAP_ENCAP_MTP3 },
 
 	/*
 	 * To repeat:

@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.84 2003/10/25 07:17:28 guy Exp $
+ * $Id: wtap.c,v 1.85 2003/12/03 22:40:39 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -65,7 +65,7 @@ static const struct encap_type_info {
 	/* WTAP_ENCAP_ETHERNET */
 	{ "Ethernet", "ether" },
 
-	/* WTAP_ENCAP_TR */
+	/* WTAP_ENCAP_TOKEN_RING */
 	{ "Token Ring", "tr" },
 
 	/* WTAP_ENCAP_SLIP */
@@ -146,7 +146,7 @@ static const struct encap_type_info {
 	/* WTAP_ENCAP_PRISM_HEADER */
 	{ "IEEE 802.11 plus Prism II monitor mode header", "prism" },
 
-	/* WTAP_ENCAP_PFLOG  */
+	/* WTAP_ENCAP_OLD_PFLOG  */
 	{ "OpenBSD PF Firewall logs, pre-3.4", "pflog-old" },
 
 	/* WTAP_ENCAP_HHDLC */
@@ -178,6 +178,15 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_CHDLC_WITH_PHDR */
 	{ "Cisco HDLC with Directional Info", "chdlc-with-direction" },
+
+	/* WTAP_ENCAP_BLUETOOTH_H4 */
+	{ "Bluetooth H4", "bluetooth-h4" },
+
+	/* WTAP_ENCAP_MTP2 */
+	{ "SS7 MTP2", "mtp2" },
+
+	/* WTAP_ENCAP_MTP3 */
+	{ "SS7 MTP3", "mtp3" },
 };
 
 /* Name that should be somewhat descriptive. */
