@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.32 2002/10/11 19:36:12 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.33 2002/10/11 21:52:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -8205,7 +8205,7 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
 	ptvcursor_t		*ptvc = NULL;
 	proto_tree		*temp_tree = NULL;
         gint                    length_remaining = 0;
-	char			flags_str[1+3+1+3+1+3+1+3+1+1];
+	char			flags_str[256];
         char *                  sep = NULL;
 	proto_tree		*flags_tree;
         guint32                 nds_flags;
@@ -8263,8 +8263,7 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
        		 * display filters can't possibly work. If we already have
        		 * a proto_tree, then wonderful. If we don't, we need to build
        		 * one. */
-       		if (ncp_rec) 
-                {
+       		if (ncp_rec && ncp_tree != NULL) {
          		proto_item *ti;
                                
          		temp_tree = proto_tree_create_root();
@@ -8305,12 +8304,12 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
 					subfunc, "SubFunction: %d (0x%02x)",
 					subfunc, subfunc);
                                         
-				proto_tree_add_item(ncp_tree, hf_nds_version, tvb, 8, 4,
-					FALSE);
-                               
         		        length_remaining = tvb_length_remaining(tvb, 8);
-                                if (length_remaining > 6)
+                                if (length_remaining > 8)
                                 {
+					proto_tree_add_item(ncp_tree, hf_nds_version, tvb, 8, 4,
+						FALSE);
+                               
                                         nds_flags = tvb_get_letohl(tvb, 12);
                         		strcpy(flags_str, " ");
                         		sep = "(";
