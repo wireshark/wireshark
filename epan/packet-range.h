@@ -32,6 +32,8 @@
 
 #include <epan/frame_data.h>
 
+#include <epan/range.h>
+
 extern guint32  curr_selected_frame;
 
 typedef enum {
@@ -42,23 +44,13 @@ typedef enum {
     range_process_user_range
 } packet_range_e;
 
-/* Range parser variables */
-#define MaxRange  30
-
-typedef struct range_admin_tag {
-    guint32 low;
-    guint32 high;
-} range_admin_t;
-
-
 typedef struct packet_range_tag {
     /* values coming from the UI */
     packet_range_e  process;            /* which range to process */
     gboolean        process_filtered;   /* captured or filtered packets */
 
     /* user specified range(s) */
-    guint           nranges;        /* number of entries in ranges (0 based) */
-    range_admin_t   ranges[MaxRange];
+    range_t         user_range;
 
     /* calculated values */
     guint32  selected_packet;       /* the currently selected packet */
@@ -101,6 +93,5 @@ extern range_process_e packet_range_process_packet(packet_range_t *range, frame_
 
 /* convert user given string to the internal user specified range representation */
 extern void packet_range_convert_str(packet_range_t *range, const gchar *es);
-
 
 #endif /* __PACKET_RANGE_H__ */

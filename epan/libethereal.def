@@ -414,6 +414,8 @@ proto_tree_children_foreach
 proto_tree_get_parent
 p_add_proto_data
 p_get_proto_data
+range_convert_str
+range_init
 RasMessage_vals                 DATA
 read_prefs
 read_prefs_file
@@ -505,8 +507,6 @@ UnregRequestReason_vals         DATA
 vals_pdu_type                   DATA
 vals_status                     DATA
 val_to_str
+value_is_in_range
 write_prefs
 xml_escape
-
-
-

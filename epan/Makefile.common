@@ -41,6 +41,7 @@ LIBETHEREAL_SRC = 		\
 	packet-range.c		\
 	plugins.c		\
 	proto.c			\
+	range.c			\
 	sna-utils.c		\
 	strutil.c		\
 	timestamp.c		\
@@ -75,6 +76,7 @@ LIBETHEREAL_INCLUDES = 		\
 	pint.h			\
 	plugins.h		\
 	proto.h			\
+	range.h			\
 	report_err.h		\
 	slab.h			\
 	sna-utils.h		\
