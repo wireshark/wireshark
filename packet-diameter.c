@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.34 2001/11/21 02:01:06 guy Exp $
+ * $Id: packet-diameter.c,v 1.35 2001/11/27 07:41:39 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -1369,7 +1369,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 				" resFl=0x%x",
 				flags, AVP_FLAGS_RESERVED);
 	  /* For now, don't set bad packet, since I'm accidentally setting a wrong bit */
-	  // BadPacket = TRUE;
+	  /* BadPacket = TRUE; */
 	}
 		
 	/*

@@ -3,7 +3,7 @@
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2001, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
  *
- * $Id: packet-nfs.c,v 1.59 2001/10/29 21:13:07 guy Exp $
+ * $Id: packet-nfs.c,v 1.60 2001/11/27 07:41:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4992,7 +4992,7 @@ dissect_nfs_dirlist4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	while (nextentry)
 	{
-		// offset = dissect_nfs_cookie4(tvb, offset, pinfo, newftree);
+		/* offset = dissect_nfs_cookie4(tvb, offset, pinfo, newftree); */
 		offset = dissect_rpc_uint64(tvb, pinfo, newftree, hf_nfs_cookie4, offset);
 		offset = dissect_nfs_component4(tvb, offset, pinfo, newftree, "name");
 		offset = dissect_nfs_fattr4(tvb, offset, pinfo, newftree, "attrs");

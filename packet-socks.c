@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.29 2001/11/27 07:13:26 guy Exp $
+ * $Id: packet-socks.c,v 1.30 2001/11/27 07:41:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -977,7 +977,7 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		if ( hash_info->command == TRACERT_COMMAND)
 			col_append_str(pinfo->fd, COL_INFO, ", Traceroute Req");
 		
-//XX		if ( hash_info->port != -1)
+/*XXX		if ( hash_info->port != -1) */
 		if ( hash_info->port != 0)
 			col_append_fstr(pinfo->fd, COL_INFO, ", Remote Port: %d",
 				hash_info->port);
