@@ -4,7 +4,7 @@
  *
  * TODO: Pay attention to Content-Type: It might not always be SDP.
  *       hf_ display filters for headers of SIP extension RFCs: 
- *		Done for RCF 3265, RFC 3262
+ *		Done for RFC 3265, RFC 3262
  *		Use hash table for list of headers
  *       Add sip msg body dissection based on Content-Type for:
  *                SDP, MIME, and other types
@@ -17,7 +17,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.36 2003/05/29 18:29:36 guy Exp $
+ * $Id: packet-sip.c,v 1.37 2003/06/09 01:50:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,6 +47,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include <glib.h>
 #include <epan/packet.h>
@@ -241,12 +242,26 @@ static gint hf_header_array[] = {
                 -1  /* "WWW-Authenticate" */
 };
 
+/*
+ * Type of line.  It's either a SIP Request-Line, a SIP Status-Line, or
+ * another type of line.
+ */
+typedef enum {
+	REQUEST_LINE,
+	STATUS_LINE,
+	OTHER_LINE
+} line_type_t;
 
-static gboolean sip_is_request(tvbuff_t *tvb, gint eol);
-static gboolean sip_is_known_request(tvbuff_t *tvb, guint32 offset);
-static gint sip_get_msg_offset(tvbuff_t *tvb, guint32 offset);
-static gint sip_is_known_sip_header(tvbuff_t *tvb, guint32 offset, guint8* header_len);
-void dfilter_sip_message_line(gboolean is_request, tvbuff_t *tvb, proto_tree *tree);
+static gboolean dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *tree, gboolean is_heur);
+static line_type_t sip_parse_line(tvbuff_t *tvb, gint eol, guint *token_1_len);
+static gboolean sip_is_known_request(tvbuff_t *tvb, int meth_offset,
+    guint meth_len);
+static gint sip_get_msg_offset(tvbuff_t *tvb, int offset);
+static gint sip_is_known_sip_header(tvbuff_t *tvb, int offset,
+    guint header_len);
+void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len);
+void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree);
 
 static dissector_handle_t sdp_handle;
 static dissector_handle_t data_handle;
@@ -255,41 +270,93 @@ static dissector_handle_t data_handle;
 #define SIP2_HDR_LEN (strlen (SIP2_HDR))
 
 /* Code to actually dissect the packets */
-static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-        guint32 offset;
+	dissect_sip_common(tvb, pinfo, tree, FALSE);
+}
+
+static gboolean
+dissect_sip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	return dissect_sip_common(tvb, pinfo, tree, TRUE);
+}
+
+static gboolean
+dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    gboolean is_heur)
+{
+        int offset;
         gint eol, next_offset, msg_offset;
+	line_type_t line_type;
         tvbuff_t *next_tvb;
-        gboolean is_request, is_known_request;
-        char *req_descr;
+        gboolean is_known_request;
+        char *descr;
+        guint token_1_len;
 
         /*
-         * Note that "tvb_strneql()" doesn't throw exceptions, so
-         * "sip_is_request()" won't throw an exception.
-         *
          * Note that "tvb_find_line_end()" will return a value that
          * is not longer than what's in the buffer, so the
-         * "tvb_get_ptr()" call s below won't throw exceptions.
+         * "tvb_get_ptr()" calls below won't throw exceptions.
+         *
+         * Note that "tvb_strneql()" doesn't throw exceptions, so
+         * "sip_parse_line()" won't throw an exception.
          */
         offset = 0;
         eol = tvb_find_line_end(tvb, 0, -1, &next_offset, FALSE);
-        /* XXX - Check for a valid status message as well. */
-        is_request = sip_is_request(tvb, eol);
-        is_known_request = sip_is_known_request(tvb, 0);
-        /* XXX - Is this case-sensitive?  RFC 2543 didn't explicitly say. */
-        if (tvb_strneql(tvb, 0, SIP2_HDR, SIP2_HDR_LEN) != 0 && ! is_request)
-                goto bad;
+        line_type = sip_parse_line(tvb, eol, &token_1_len);
+        if (line_type == OTHER_LINE) {
+        	/*
+        	 * This is neither a SIP request nor response.
+        	 */
+                if (is_heur) {
+                        /*
+                         * This is a heuristic dissector, which means we get
+                         * all the UDP and TCP traffic not sent to a known
+                         * dissector and not claimed by a heuristic dissector
+                         * called before us!
+                         *
+                         * Therefore, we reject this as not being for us.
+                         */
+                	return FALSE;
+                } else {
+                	/*
+                	 * Just dissect it as data.
+                	 */
+                	goto bad;
+                }
+        }
 
         if (check_col(pinfo->cinfo, COL_PROTOCOL))
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIP");
 
-        req_descr = is_known_request ? "Request" : "Unknown request";
-        if (check_col(pinfo->cinfo, COL_INFO))
-                col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
-                             is_request ? req_descr : "Status",
-                             is_request ?
-                             tvb_format_text(tvb, 0, eol - SIP2_HDR_LEN - 1) :
+        switch (line_type) {
+
+        case REQUEST_LINE:
+                is_known_request = sip_is_known_request(tvb, 0, token_1_len);
+                descr = is_known_request ? "Request" : "Unknown request";
+                if (check_col(pinfo->cinfo, COL_INFO)) {
+                        col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
+                             descr,
+                             tvb_format_text(tvb, 0, eol - SIP2_HDR_LEN - 1));
+                }
+		break;
+
+        case STATUS_LINE:
+                descr = "Status";
+                if (check_col(pinfo->cinfo, COL_INFO)) {
+                        col_add_fstr(pinfo->cinfo, COL_INFO, "Status: %s",
                              tvb_format_text(tvb, SIP2_HDR_LEN + 1, eol - SIP2_HDR_LEN - 1));
+                }
+		break;
+
+	case OTHER_LINE:
+	default: /* Squelch compiler complaints */
+	        descr = "Continuation";
+                if (check_col(pinfo->cinfo, COL_INFO))
+                        col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
+                break;
+        }
         msg_offset = sip_get_msg_offset(tvb, offset);
         if (msg_offset < 0) {
                 /*
@@ -307,10 +374,22 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 sip_tree = proto_item_add_subtree(ti, ett_sip);
 
                 proto_tree_add_text(sip_tree, tvb, 0, next_offset, "%s line: %s",
-                                    is_request ? req_descr : "Status",
+                                    descr,
                                     tvb_format_text(tvb, 0, eol));
 
-		dfilter_sip_message_line(is_request , tvb, sip_tree);
+		switch (line_type) {
+
+                case REQUEST_LINE:
+                        dfilter_sip_request_line(tvb, sip_tree, token_1_len);
+                        break;
+
+                case STATUS_LINE:
+                        dfilter_sip_status_line(tvb, sip_tree);
+                        break;
+
+		case OTHER_LINE:
+		        break;
+                }
 
                 offset = next_offset;
                 th = proto_tree_add_item(sip_tree, hf_msg_hdr, tvb, offset, msg_offset - offset, FALSE);
@@ -318,38 +397,65 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 /* - 2 since we have a CRLF separating the message-body */
                 while (msg_offset - 2 > (int) offset) {
+                	gint line_end_offset;
+                	gint colon_offset;
+			gint header_len;
                         gint hf_index;
-			guint8 header_len;
+                        gint value_offset;
+                        guchar c;
+		        size_t value_len;
+			char *value;
 
                         eol = tvb_find_line_end(tvb, offset, -1, &next_offset,
                             FALSE);
-			hf_index = sip_is_known_sip_header(tvb, offset, &header_len);
-			
-			if (hf_index == -1) {
+                        line_end_offset = offset + eol;
+			colon_offset = tvb_find_guint8(tvb, offset, -1, ':');
+			if (colon_offset == -1) {
+				/*
+				 * Malformed header - no colon after the
+				 * name.
+				 */
 				proto_tree_add_text(hdr_tree, tvb, offset,
 				    next_offset - offset, "%s",
 				    tvb_format_text(tvb, offset, eol));
-			} else {					    
-				/*
-				 * XXX - shouldn't use "tvb_format_text()"
-				 * here; we should add the string *as is*
-				 * to the protocol tree.
-				 */
-				if (tvb_find_guint8(tvb,
-				    offset + header_len + 1, 1, ' ') == -1) {
-					proto_tree_add_string(hdr_tree,
+			} else {
+				header_len = colon_offset - offset;
+				hf_index = sip_is_known_sip_header(tvb,
+				    offset, header_len);
+			
+				if (hf_index == -1) {
+					proto_tree_add_text(hdr_tree, tvb,
+					    offset, next_offset - offset, "%s",
+					    tvb_format_text(tvb, offset, eol));
+				} else {
+					/*
+					 * Skip whitespace after the colon.
+					 */
+					value_offset = colon_offset + 1;
+					while (value_offset < line_end_offset
+					    && ((c = tvb_get_guint8(tvb,
+						    value_offset)) == ' '
+					      || c == '\t'))
+						value_offset++;
+					/*
+					 * Fetch the value.
+					 */
+					value_len = line_end_offset - value_offset;
+					value = g_malloc(value_len + 1);
+					tvb_memcpy(tvb, value, value_offset,
+					    value_len);
+					value[value_len] = '\0';
+
+					/*
+					 * Add it to the protocol tree,
+					 * but display the line as is.
+					 */
+					proto_tree_add_string_format(hdr_tree,
 					    hf_header_array[hf_index], tvb,
 					    offset, next_offset - offset,
-					    tvb_format_text(tvb,
-					      offset + header_len + 1,
-					      eol - header_len - 1));
-				} else { /* eat leading whitespace */
-					proto_tree_add_string(hdr_tree,
-					    hf_header_array[hf_index], tvb,
-					    offset, next_offset - offset,
-					    tvb_format_text(tvb,
-					      offset + header_len + 2,
-					      eol - header_len - 2));
+					    value, "%s",
+					    tvb_format_text(tvb, offset, eol));
+					g_free(value);
 				}
 			} 
 					    
@@ -363,115 +469,51 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 call_dissector(sdp_handle, next_tvb, pinfo, tree);
         }
 
-        return;
+        return TRUE;
 
   bad:
         next_tvb = tvb_new_subset(tvb, offset, -1, -1);
         call_dissector(data_handle,next_tvb, pinfo, tree);
 
-        return;
+        return TRUE;
 }
 
-/* Display filter for SIP-message line */
-void dfilter_sip_message_line(gboolean is_request, tvbuff_t *tvb, proto_tree *tree)
+/* Display filter for SIP Request-Line */
+void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len)
 {
 	char	*string;
-        gint	code_len;
 
-	if (is_request) {
-	    code_len = tvb_find_guint8(tvb, 0, -1, ' ');
-	}
-	else	{
-	    code_len = tvb_find_guint8(tvb, SIP2_HDR_LEN + 1, -1, ' ');
-	}
-
-	string = g_malloc(code_len + 1);
-	
-	CLEANUP_PUSH(g_free, string);
-
-	if (is_request) {
-	    tvb_memcpy(tvb, (guint8 *)string, 0, code_len);
-	    string[code_len] = '\0';
-	    proto_tree_add_string(tree, hf_Method, tvb, 0, 
-		    code_len, string);
-	}
-	else	{
-	    tvb_memcpy(tvb, (guint8 *)string, SIP2_HDR_LEN + 1, code_len - SIP2_HDR_LEN);
-	    string[code_len - SIP2_HDR_LEN - 1] = '\0';
-	    proto_tree_add_string(tree, hf_Status_Code, 
-		    tvb, SIP2_HDR_LEN + 1, code_len - SIP2_HDR_LEN - 1, string);
-	}
-		
-	CLEANUP_CALL_AND_POP;
+        /*
+         * We know we have the entire method; otherwise, "sip_parse_line()"
+         * would have returned OTHER_LINE.
+         */
+	string = g_malloc(meth_len + 1);
+        tvb_memcpy(tvb, (guint8 *)string, 0, meth_len);
+        string[meth_len] = '\0';
+        proto_tree_add_string(tree, hf_Method, tvb, 0, meth_len, string);
 }
 
-static gboolean
-dissect_sip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+/* Display filter for SIP Status-Line */
+void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree)
 {
-        gint eol, next_offset;
+	char string[3+1];
 
         /*
-         * This is a heuristic dissector, which means we get all the
-         * UDP and TCP traffic not sent to a known dissector and not
-         * claimed by a heuristic dissector called before us!
-         * So we first check if the frame is really meant for us.
+         * We know we have the entire status code; otherwise,
+         * "sip_parse_line()" would have returned OTHER_LINE.
+         * We also know that we have a version string followed by a
+         * space at the beginning of the line, for the same reason.
          */
-
-        /*
-         * Check for a response.
-         * First, make sure we have enough data to do the check.
-         */
-        if (!tvb_bytes_exist(tvb, 0, SIP2_HDR_LEN)) {
-                /*
-                 * We don't.
-                 */
-                return FALSE;
-        }
-
-        /*
-         * Now see if we have a response header; they begin with
-         * "SIP/2.0".
-         */
-        if (tvb_strneql(tvb, 0, SIP2_HDR, SIP2_HDR_LEN) != 0)  {
-                /*
-                 * We don't, so this isn't a response; check for a request.
-                 * They *end* with "SIP/2.0".
-                 */
-                eol = tvb_find_line_end(tvb, 0, -1, &next_offset, FALSE);
-                if (eol <= (gint)SIP2_HDR_LEN) {
-                        /*
-                         * The line isn't long enough to end with "SIP/2.0".
-                         */
-                        return FALSE;
-                }
-                if (!tvb_bytes_exist(tvb, eol - SIP2_HDR_LEN, SIP2_HDR_LEN)) {
-                        /*
-                         * We don't have enough of the data in the line
-                         * to check.
-                         */
-                        return FALSE;
-                }
-
-                if (tvb_strneql(tvb, eol - SIP2_HDR_LEN, SIP2_HDR, SIP2_HDR_LEN - 1) != 0) {
-                        /*
-                         * Not a request, either.
-                         */
-                        return FALSE;
-                }
-        }
-
-        /*
-         * The message seems to be a valid SIP message!
-         */
-        dissect_sip(tvb, pinfo, tree);
-
-        return TRUE;
+        tvb_memcpy(tvb, (guint8 *)string, SIP2_HDR_LEN + 1, 3);
+        string[3] = '\0';
+        proto_tree_add_string(tree, hf_Status_Code, tvb, SIP2_HDR_LEN + 1,
+            3, string);
 }
 
 /* Returns the offset to the start of the optional message-body, or
  * -1 if not found.
  */
-static gint sip_get_msg_offset(tvbuff_t *tvb, guint32 offset)
+static gint sip_get_msg_offset(tvbuff_t *tvb, int offset)
 {
         gint eol;
 
@@ -490,48 +532,125 @@ static gint sip_get_msg_offset(tvbuff_t *tvb, guint32 offset)
 /* From section 4.1 of RFC 2543:
  *
  * Request-Line  =  Method SP Request-URI SP SIP-Version CRLF
+ *
+ * From section 5.1 of RFC 2543:
+ *
+ * Status-Line  =  SIP-version SP Status-Code SP Reason-Phrase CRLF
  */
-
-static gboolean sip_is_request(tvbuff_t *tvb, gint eol)
+static line_type_t
+sip_parse_line(tvbuff_t *tvb, gint eol, guint *token_1_lenp)
 {
-        gint meth_len, req_len, req_colon_pos;
-        guint8 req_start, ver_start, ver_len;
+	gint space_offset;
+	guint token_1_len;
+	gint token_2_start;
+	guint token_2_len;
+	gint token_3_start;
+	guint token_3_len;
+	gint colon_pos;
 
-        meth_len = tvb_find_guint8(tvb, 0, -1, ' ');
-        req_start = meth_len + 1;
-        req_len = tvb_find_guint8(tvb, req_start, -1, ' ') - meth_len - 1;
-        req_colon_pos = tvb_find_guint8(tvb, req_start + 1, -1, ':');
-        ver_start = meth_len + req_len + 2;
-        ver_len = eol - req_len - meth_len - 2; /*CRLF, plus two spaces */
+	space_offset = tvb_find_guint8(tvb, 0, -1, ' ');
+	if (space_offset <= 0) {
+		/*
+		 * Either there's no space in the line (which means
+		 * the line is empty or doesn't have a token followed
+		 * by a space; neither is valid for a request or status), or
+		 * the first character in the line is a space (meaning
+		 * the method is empty, which isn't valid for a request,
+		 * or the SIP version is empty, which isn't valid for a
+		 * status).
+		 */
+		return OTHER_LINE;
+	}
+	token_1_len = space_offset;
+	token_2_start = space_offset + 1;
+	space_offset = tvb_find_guint8(tvb, token_2_start, -1, ' ');
+	if (space_offset == -1) {
+		/*
+		 * There's no space after the second token, so we don't
+		 * have a third token.
+		 */
+		return OTHER_LINE;
+	}
+	token_2_len = space_offset - token_2_start;
+	token_3_start = space_offset + 1;
+	token_3_len = eol - token_3_start;
+	
+	*token_1_lenp = token_1_len;
 
-        /* Do we have:
-         *   A method of at least one character?
-         *   A URI consisting of at least three characters?
-         *   A version string length matching that of SIP2_HDR?
-         */
-        if (meth_len <= 0 || req_len <= 3 || ver_len != SIP2_HDR_LEN)
-                return FALSE;
-
-        /* Does our method have a colon character? */
-        if (req_colon_pos < 0 || req_colon_pos > ver_start)
-                return FALSE;
-        /* XXX - Check for a proper URI prefix? */
-
-        /* Do we have a proper version string? */
-        if (tvb_strneql(tvb, ver_start, SIP2_HDR, SIP2_HDR_LEN))
-                return TRUE;
-
-        return TRUE;
+	/*
+	 * Is the first token a version string?
+	 */
+	if (token_1_len == SIP2_HDR_LEN &&
+	    tvb_strneql(tvb, 0, SIP2_HDR, SIP2_HDR_LEN) == 0) {
+		/*
+		 * Yes, so this is either a Status-Line or something
+		 * else other than a Request-Line.  To be a Status-Line,
+		 * the second token must be a 3-digit number.
+		 */
+		if (token_2_len != 3) {
+			/*
+			 * We don't have 3-character status code.
+			 */
+			return OTHER_LINE;
+		}
+		if (!isdigit(tvb_get_guint8(tvb, token_2_start)) ||
+		    !isdigit(tvb_get_guint8(tvb, token_2_start + 1)) ||
+		    !isdigit(tvb_get_guint8(tvb, token_2_start + 2))) {
+			/*
+			 * 3 characters yes, 3 digits no.
+			 */
+			return OTHER_LINE;
+		}
+		return STATUS_LINE;
+	} else {
+		/*
+		 * No, so this is either a Request-Line or something
+		 * other than a Status-Line.  To be a Request-Line, the
+		 * second token must be a URI and the third token must
+		 * be a version string.
+		 */
+		if (token_2_len < 3) {
+			/*
+			 * We don't have a URI consisting of at least 3
+			 * characters.
+			 */
+			return OTHER_LINE;
+		}
+		colon_pos = tvb_find_guint8(tvb, token_2_start + 1, -1, ':');
+		if (colon_pos == -1) {
+			/*
+			 * There is no colon after the method, so the URI
+			 * doesn't have a colon in it, so it's not valid.
+			 */
+			return OTHER_LINE;
+		}
+		if (colon_pos >= token_3_start) {
+			/*
+			 * The colon is in the version string, not the URI.
+			 */
+			return OTHER_LINE;
+		}
+		/* XXX - Check for a proper URI prefix? */
+		if (token_3_len != SIP2_HDR_LEN ||
+		    tvb_strneql(tvb, token_3_start, SIP2_HDR, SIP2_HDR_LEN) == -1) {
+			/*
+			 * The version string isn't an SIP version 2.0 version
+			 * string.
+			 */
+			return OTHER_LINE;
+		}
+		return REQUEST_LINE;
+	}
 }
 
-static gboolean sip_is_known_request(tvbuff_t *tvb, guint32 offset)
+static gboolean sip_is_known_request(tvbuff_t *tvb, int meth_offset,
+    guint meth_len)
 {
-        guint8 i, meth_len;
-
-        meth_len = tvb_find_guint8(tvb, 0, -1, ' ');
+        guint i;
 
         for (i = 1; i < array_length(sip_methods); i++) {
-                if ((meth_len == strlen(sip_methods[i])) && tvb_strneql(tvb, offset, sip_methods[i], strlen(sip_methods[i])) == 0)
+                if (meth_len == strlen(sip_methods[i]) &&
+                    tvb_strneql(tvb, meth_offset, sip_methods[i], meth_len) == 0)
                         return TRUE;
         }
 
@@ -539,14 +658,13 @@ static gboolean sip_is_known_request(tvbuff_t *tvb, guint32 offset)
 }
 
 /* Returns index of method in sip_headers */
-static gint sip_is_known_sip_header(tvbuff_t *tvb, guint32 offset, guint8* header_len)
+static gint sip_is_known_sip_header(tvbuff_t *tvb, int offset, guint header_len)
 {
-        guint8 i;
-
-        *header_len = tvb_find_guint8(tvb, offset, -1, ':') - offset;
+        guint i;
 
         for (i = 1; i < array_length(sip_headers); i++) {
-                if ((*header_len == strlen(sip_headers[i])) && tvb_strneql(tvb, offset, sip_headers[i], strlen(sip_headers[i])) == 0)
+                if (header_len == strlen(sip_headers[i]) &&
+                    tvb_strneql(tvb, offset, sip_headers[i], header_len) == 0)
                         return i;
         }
 
