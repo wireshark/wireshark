@@ -1,7 +1,7 @@
 /* packet-osi.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-osi.c,v 1.15 2000/01/13 05:41:24 guy Exp $
+ * $Id: packet-osi.c,v 1.16 2000/01/13 06:07:53 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  *
  * Ethereal - Network traffic analyzer
@@ -1469,9 +1469,7 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
   if (tree) {
     ti = proto_tree_add_item(tree, proto_clnp, offset, clnp.cnf_hdr_len, NULL);
     clnp_tree = proto_item_add_subtree(ti, ett_clnp);
-    proto_tree_add_item_format(clnp_tree, hf_clnp_id, offset, 1, 
-			       clnp.cnf_proto_id,
-			       "Protocol identifier: 0x%02x", 
+    proto_tree_add_item(clnp_tree, hf_clnp_id, offset, 1, 
 			       clnp.cnf_proto_id);
     proto_tree_add_item(clnp_tree, hf_clnp_length, offset +  1, 1, 
 			clnp.cnf_hdr_len); 
@@ -1643,7 +1641,7 @@ void proto_register_clnp(void)
 {
   static hf_register_info hf[] = {
     { &hf_clnp_id,
-      { "Protocol identifier",	"clnp.id",	FT_UINT8, BASE_DEC, NULL, 0x0,
+      { "Protocol identifier",	"clnp.id",	FT_UINT8, BASE_HEX, VALS(nlpid_vals), 0x0,
       	"" }},
 
     { &hf_clnp_length,

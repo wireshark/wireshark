@@ -1,7 +1,7 @@
 /* packet-isis.h
  * Defines and such for core isis protcol decode.
  *
- * $Id: packet-isis.h,v 1.1 1999/12/15 04:34:19 guy Exp $
+ * $Id: packet-isis.h,v 1.2 2000/01/13 06:07:52 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -28,12 +28,6 @@
 
 #ifndef _PACKET_ISIS_H
 #define _PACKET_ISIS_H
-
-/* 
- * the IntraDomain Routing Protocol Descriminator is an achitectueral constant
- * set to 0x83 for all packets.
- */
-#define ISIS_IRPD	0x83
 
 /*
  * The version we support is 1

@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly, core
  * bits.
  *
- * $Id: packet-isis.c,v 1.1 1999/12/15 04:34:19 guy Exp $
+ * $Id: packet-isis.c,v 1.2 2000/01/13 06:07:52 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -39,6 +39,7 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
+#include "nlpid.h"
 #include "packet-isis.h"
 #include "packet-isis-lsp.h"
 #include "packet-isis-hello.h"
@@ -57,10 +58,6 @@ static int hf_isis_eco = -1;
 static int hf_isis_user_eco = -1;
 
 static gint ett_isis = -1;
-
-static const value_string irpd_vals[] = {
-	{ ISIS_IRPD, "correct(0x83)" },
-	{ 0,		NULL} };
 
 static const value_string isis_vals[] = {
 	{ ISIS_TYPE_L1_HELLO,	"L1 HELLO"},
@@ -202,9 +199,7 @@ dissect_isis(const u_char *pd, int offset, frame_data *fd,
 		ti = proto_tree_add_item(tree, proto_isis, offset, 
 			fd->cap_len - offset, NULL );
 		isis_tree = proto_item_add_subtree(ti, ett_isis);
-		proto_tree_add_item_format(isis_tree, hf_isis_irpd, offset, 1,
-			ihdr->isis_irpd, 
-			"Intradomain Routing Protocol Discrimintator: 0x%02x",
+		proto_tree_add_item(isis_tree, hf_isis_irpd, offset, 1,
 			ihdr->isis_irpd );
 		proto_tree_add_item(isis_tree, hf_isis_header_length,
 			offset + 1, 1, ihdr->isis_header_length );
@@ -309,7 +304,7 @@ proto_register_isis(void) {
 	static hf_register_info hf[] = {
 		{ &hf_isis_irpd,
 		{ "Intradomain Routing Protocol Discriminator",	"isis.irpd",	
-		  FT_UINT8, BASE_DEC, VALS(irpd_vals), 0xff, "" }},
+		  FT_UINT8, BASE_HEX, VALS(nlpid_vals), 0x0, "" }},
 
 		{ &hf_isis_header_length,
 		{ "HDR Length",		"isis.hdr_len",	FT_UINT8, BASE_DEC, 
