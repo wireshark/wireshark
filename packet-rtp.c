@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-rtp.c,v 1.42 2003/11/09 22:55:34 guy Exp $
+ * $Id: packet-rtp.c,v 1.43 2003/11/20 23:34:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -349,7 +349,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	timestamp = tvb_get_ntohl( tvb, offset + 4 );
 	sync_src = tvb_get_ntohl( tvb, offset + 8 );
 
-	/* fill in the rtp_info structure */ 
+	/* fill in the rtp_info structure */
 	rtp_info.info_padding_set = padding_set;
 	rtp_info.info_padding_count = 0;
 	rtp_info.info_marker_set = marker_set;
@@ -358,6 +358,16 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	rtp_info.info_timestamp = timestamp;
 	rtp_info.info_sync_src = sync_src;
 	rtp_info.info_data_len = tvb_reported_length_remaining( tvb, offset );
+
+	/*
+	* Save the pointer to raw rtp data (header + payload incl. padding)
+	* That should be safe because the "epan_dissect_t" constructed for the packet
+	*  has not yet been freed when the taps are called.
+	* (destroying the "epan_dissect_t" will end up freeing all the tvbuffs
+	*  and hence invalidating pointers to their data).
+	* See "add_packet_to_packet_list()" for details.
+	*/
+	rtp_info.info_data = tvb_get_ptr(tvb, 0, -1);
 
 	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
 		col_set_str( pinfo->cinfo, COL_PROTOCOL, "RTP" );
@@ -534,7 +544,8 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		rtp_info.info_payload_offset = offset;
 		rtp_info.info_payload_len = tvb_length_remaining(tvb, offset);
 	}
-	tap_queue_packet(rtp_tap, pinfo, &rtp_info);
+	if (!pinfo->in_error_pkt)
+		tap_queue_packet(rtp_tap, pinfo, &rtp_info);
 }
 
 void

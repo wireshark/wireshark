@@ -1,7 +1,7 @@
 /* rtp_stream.h
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream.h,v 1.1 2003/09/24 07:48:11 guy Exp $
+ * $Id: rtp_stream.h,v 1.2 2003/11/20 23:34:31 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -41,7 +41,7 @@ typedef struct st_rtp_sample_header {
 /* type for storing rtp frame information */
 typedef struct st_rtp_sample {
 	rtp_sample_header_t header;  /* date and size */
-	char *frame;                 /* data bytes */
+	const guint8 *frame;                 /* data bytes */
 } rtp_sample_t;
 
 typedef rtp_sample_t* rtp_sample_p;
@@ -116,6 +116,11 @@ void remove_tap_listener_rtp_stream(void);
 * The user should not modify the data pointed to.
 */
 const rtpstream_tapinfo_t* rtpstream_get_info();
+
+/*
+* Cleans up memory of rtp streams tap.
+*/
+void rtpstream_reset(rtpstream_tapinfo_t *tapinfo _U_);
 
 /*
 * Scans all packets for RTP streams and updates the RTP streams list.

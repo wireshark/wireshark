@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.61 2003/11/19 00:01:38 ulfl Exp $
+# $Id: Makefile.nmake,v 1.62 2003/11/20 23:34:31 guy Exp $
 
 include ..\config.nmake
 
@@ -40,7 +40,6 @@ ETHEREAL_TAP_SRC = \
 	rpc_progs.c	\
 	smb_stat.c	\
 	rtp_analysis.c  \
-	rtp_stream.c    \
 	rtp_stream_dlg.c \
 	wsp_stat.c
 
@@ -92,6 +91,7 @@ OBJECTS = \
 	proto_dlg.obj \
 	proto_draw.obj \
 	proto_hier_stats_dlg.obj	\
+	rtp_stream.obj    \
 	service_response_time_table.obj	\
 	simple_dialog.obj \
 	stream_prefs.obj \

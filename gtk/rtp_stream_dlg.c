@@ -1,7 +1,7 @@
 /* rtp_stream_dlg.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream_dlg.c,v 1.4 2003/10/06 08:58:00 guy Exp $
+ * $Id: rtp_stream_dlg.c,v 1.5 2003/11/20 23:34:31 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -175,11 +175,17 @@ static void
 rtpstream_on_destroy                      (GtkObject       *object _U_,
                                         gpointer         user_data _U_)
 {
+	/* Remove the stream tap listener */
+	remove_tap_listener_rtp_stream();
+
 	/* Is there a save voice window open? */
 	if (rtpstream_save_dlg != NULL)
 		gtk_widget_destroy(rtpstream_save_dlg);
 
-	/* Note that we no longer have a "RTP Analyse" dialog box. */
+	/* Clean up memory used by stream tap */
+	rtpstream_reset((rtpstream_tapinfo_t*) rtpstream_get_info());
+
+	/* Note that we no longer have a "RTP Streams" dialog box. */
 	rtp_stream_dlg = NULL;
 }
 
@@ -375,6 +381,7 @@ rtpstream_on_analyse                   (GtkButton       *button _U_,
 		port_dst_rev,
 		ssrc_rev
 		);
+
 }
 
 
@@ -759,8 +766,16 @@ void rtpstream_dlg_show(GList *list)
 /* entry point when called via the GTK menu */
 void rtpstream_launch(GtkWidget *w _U_, gpointer data _U_)
 {
-	/* Show the dialog box */
+	/* Register the tap listener */
+	register_tap_listener_rtp_stream();
+
+	/* Scan for RTP streams (redissect all packets) */
+	rtpstream_scan();
+
+	/* Show the dialog box with the list of streams */
 	rtpstream_dlg_show(rtpstream_get_info()->strinfo_list);
+
+	/* Tap listener will be removed and cleaned up in rtpstream_on_destroy */
 }
 
 /****************************************************************************/

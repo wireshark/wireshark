@@ -1,7 +1,7 @@
 /* rtp_stream.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream.c,v 1.2 2003/09/25 19:35:14 guy Exp $
+ * $Id: rtp_stream.c,v 1.3 2003/11/20 23:34:31 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -167,7 +167,7 @@ static void rtp_write_header(rtp_stream_info_t *strinfo, FILE *file)
 /* utility function for writing a sample to file in rtpdump -F dump format (.rtp)*/
 static void rtp_write_sample(rtp_sample_t* sample, FILE* file)
 {
-	guint16 length;    /* length of packet, including this header (may 
+	guint16 length;    /* length of packet, including this header (may
 	                     be smaller than plen if not whole packet recorded) */
 	guint16 plen;      /* actual header+payload length for RTP, 0 for RTCP */
 	guint32 offset;    /* milliseconds since the start of recording */
@@ -192,12 +192,6 @@ int rtpstream_packet(rtpstream_tapinfo_t *tapinfo _U_, packet_info *pinfo, epan_
 	GList* list;
 
 	rtp_sample_t sample;
-
-	/* we ignore packets that are not displayed */
-/*
-	if (pinfo->fd->flags.passed_dfilter == 0)
-		return 0;
-*/
 
 	/* gather infos on the stream this packet is part of */
 	g_memmove(&(tmp_strinfo.src_addr), pinfo->src.data, 4);
@@ -239,6 +233,8 @@ int rtpstream_packet(rtpstream_tapinfo_t *tapinfo _U_, packet_info *pinfo, epan_
 
 		/* increment the packets counter of all streams */
 		++(tapinfo->npackets);
+		
+		return 1;  /* refresh output */
 	}
 	else if (tapinfo->mode == TAP_SAVE) {
 		if (rtp_stream_info_cmp(&tmp_strinfo, tapinfo->filter_stream_fwd)==0) {
@@ -366,16 +362,13 @@ remove_tap_listener_rtp_stream(void)
 void
 register_tap_listener_rtp_stream(void)
 {
-	gchar filter_text[256];
 	GString *error_string;
 
 	if (!the_tapinfo_struct.is_registered) {
 		register_ethereal_tap("rtp", rtpstream_init_tap);
 
-		sprintf(filter_text, "rtp && ip && !icmp");
-
 		error_string = register_tap_listener("rtp", &the_tapinfo_struct,
-			filter_text,
+			NULL,
 			(void*)rtpstream_reset, (void*)rtpstream_packet, (void*)rtpstream_draw);
 
 		if (error_string != NULL) {
