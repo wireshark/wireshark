@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.63 2004/03/21 23:10:31 guy Exp $
+ * $Id: packet-diameter.c,v 1.64 2004/03/21 23:19:36 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -80,10 +80,10 @@ typedef enum {
   DIAMETER_IP_FILTER_RULE,     /* OctetString */
   DIAMETER_QOS_FILTER_RULE,    /* OctetString */
   DIAMETER_MIP_REG_REQ,        /* OctetString */
-  DIAMETER_VENDOR_ID,           /* Integer32  */
+  DIAMETER_VENDOR_ID,          /* Integer32  */
   DIAMETER_APPLICATION_ID,
-  DIAMETER_URI,					/* OctetString */
-  DIAMETER_SESSION_ID			/* OctetString */
+  DIAMETER_URI,                /* OctetString */
+  DIAMETER_SESSION_ID          /* OctetString */
 
 } diameterDataType;
 
@@ -108,8 +108,8 @@ static value_string TypeValues[]={
   {  DIAMETER_MIP_REG_REQ,     "MIPRegistrationRequest"},
   {  DIAMETER_VENDOR_ID,       "VendorId"},
   {  DIAMETER_APPLICATION_ID,  "AppId"},
-  {  DIAMETER_URI,				"DiameterURI"},
-  {  DIAMETER_SESSION_ID,		"Session-Id"},
+  {  DIAMETER_URI,             "DiameterURI"},
+  {  DIAMETER_SESSION_ID,      "Session-Id"},
 	
   {0, (char *)NULL}
 };
@@ -1668,6 +1668,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 					      "Error!  Bad Enumerated Length");
 		}
 		break;
+
 	  case DIAMETER_VENDOR_ID:
 		if (avpDataLength == 4) {
 		  guint32 data;
@@ -1685,6 +1686,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 					      "Error!  Bad Vendor ID Length");
 		}
 		break;
+
 	  case DIAMETER_APPLICATION_ID:
 		if (avpDataLength == 4) {
 		  guint32 data;
@@ -1702,20 +1704,14 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 					      "Error!  Bad Application ID Length");
 		}
 		break;
+
 	  case DIAMETER_MIP_REG_REQ:
 		safe_dissect_mip(tvb, pinfo, avpi_tree, offset, avpDataLength);
 		break;
 
 	  case DIAMETER_SESSION_ID:
-		  {
-			  const guint8 *data;
-			  data = tvb_get_ptr(tvb, offset, avpDataLength);
-			  proto_tree_add_string_format(avpi_tree, hf_diameter_avp_session_id,
-				  tvb, offset, avpDataLength, data,
-				  "Session ID: %*.*s",
-				  (int)avpDataLength,
-				  (int)avpDataLength, data);
-		  }
+		proto_tree_add_item(avpi_tree, hf_diameter_avp_session_id,
+				    tvb, offset, avpDataLength, FALSE);
 		break;
 
 	  default:
