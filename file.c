@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.385 2004/06/29 20:51:26 ulfl Exp $
+ * $Id: file.c,v 1.386 2004/06/30 06:58:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -87,6 +87,11 @@
 #include "tap.h"
 #include "tap_dfilter_dlg.h"
 #include "packet-data.h"
+
+/* Win32 needs the O_BINARY flag for open() */
+#ifndef O_BINARY
+#define O_BINARY	0
+#endif
 
 #ifdef HAVE_LIBPCAP
 gboolean auto_scroll_live;

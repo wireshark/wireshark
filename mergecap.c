@@ -1,6 +1,6 @@
 /* Combine two dump files, either by appending or by merging by timestamp
  *
- * $Id: mergecap.c,v 1.22 2004/06/29 20:59:23 ulfl Exp $
+ * $Id: mergecap.c,v 1.23 2004/06/30 06:58:57 guy Exp $
  *
  * Written by Scott Renfro <scott@renfro.org> based on
  * editcap by Richard Sharpe and Guy Harris
@@ -41,6 +41,10 @@
 #include <fcntl.h>
 #endif
 
+/* Win32 needs the O_BINARY flag for open() */
+#ifndef O_BINARY
+#define O_BINARY 	0
+#endif
 
 /*
  * Show the usage

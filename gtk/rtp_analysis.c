@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.46 2004/06/29 20:46:28 ulfl Exp $
+ * $Id: rtp_analysis.c,v 1.47 2004/06/30 06:58:58 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -81,6 +81,11 @@
 
 #ifdef HAVE_IO_H
 #include <io.h> /* open/close on win32 */
+#endif
+
+/* Win32 needs the O_BINARY flag for open() */
+#ifndef O_BINARY
+#define O_BINARY 0
 #endif
 
 /****************************************************************************/

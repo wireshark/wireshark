@@ -1,7 +1,7 @@
 /* ringbuffer.c
  * Routines for packet capture windows
  *
- * $Id: ringbuffer.c,v 1.11 2004/06/29 20:51:26 ulfl Exp $
+ * $Id: ringbuffer.c,v 1.12 2004/06/30 06:58:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,6 +75,11 @@
 
 #include "wiretap/wtap.h"
 #include "ringbuffer.h"
+
+/* Win32 needs the O_BINARY flag for open() */
+#ifndef O_BINARY
+#define O_BINARY	0
+#endif
 
 /* Ringbuffer file structure */
 typedef struct _rb_file {

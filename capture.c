@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.253 2004/06/29 20:51:26 ulfl Exp $
+ * $Id: capture.c,v 1.254 2004/06/30 06:58:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -219,6 +219,10 @@ typedef struct _loop_data {
 #endif
 } loop_data;
 
+/* Win32 needs the O_BINARY flag for open() */
+#ifndef O_BINARY
+#define O_BINARY	0
+#endif
 
 static gboolean sync_pipe_do_capture(gboolean is_tempfile);
 static gboolean sync_pipe_input_cb(gint source, gpointer user_data);
