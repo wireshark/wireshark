@@ -243,3 +243,4 @@
 #define get_tempfile_path (*p_get_tempfile_path)
 #define register_heur_dissector_list (*p_register_heur_dissector_list)
 #define dissector_try_heuristic (*p_dissector_try_heuristic)
+#define asn1_id_decode1 (*p_asn1_id_decode1)

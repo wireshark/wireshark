@@ -1,7 +1,7 @@
 /* plugin_api_list.c
  * Used to generate various included files for plugin API
  *
- * $Id: plugin_api_list.c,v 1.13 2003/11/02 23:12:34 gerald Exp $
+ * $Id: plugin_api_list.c,v 1.14 2003/11/11 06:10:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -385,3 +385,5 @@ void register_heur_dissector_list(const char *name,
     heur_dissector_list_t *list);
 gboolean dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+int asn1_id_decode1(ASN1_SCK *asn1, guint *tag);

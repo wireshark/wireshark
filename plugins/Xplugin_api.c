@@ -243,3 +243,4 @@ p_get_datafile_path = pat->p_get_datafile_path;
 p_get_tempfile_path = pat->p_get_tempfile_path;
 p_register_heur_dissector_list = pat->p_register_heur_dissector_list;
 p_dissector_try_heuristic = pat->p_dissector_try_heuristic;
+p_asn1_id_decode1 = pat->p_asn1_id_decode1;

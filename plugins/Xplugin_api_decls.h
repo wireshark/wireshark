@@ -243,3 +243,4 @@ addr_get_datafile_path p_get_datafile_path;
 addr_get_tempfile_path p_get_tempfile_path;
 addr_register_heur_dissector_list p_register_heur_dissector_list;
 addr_dissector_try_heuristic p_dissector_try_heuristic;
+addr_asn1_id_decode1 p_asn1_id_decode1;
