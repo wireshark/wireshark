@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.16 2003/01/15 05:58:50 guy Exp $
+ * $Id: io_stat.c,v 1.17 2003/03/05 15:54:31 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1055,7 +1055,7 @@ create_draw_area(io_stat_t *io, GtkWidget *box)
 	io->scrollbar_adjustment=(GtkAdjustment *)gtk_adjustment_new(0,0,0,0,0,0);
 	io->scrollbar=gtk_hscrollbar_new(io->scrollbar_adjustment);
 	gtk_widget_show(io->scrollbar);
-	gtk_box_pack_start(GTK_BOX(box), io->scrollbar, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(box), io->scrollbar, FALSE, FALSE, 0);
 	SIGNAL_CONNECT(io->scrollbar_adjustment, "value_changed", scrollbar_changed, io);
 }
 
@@ -1624,7 +1624,7 @@ init_io_stat_window(io_stat_t *io)
 	create_draw_area(io, vbox);
 
 	hbox=gtk_hbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(vbox), hbox);
+	gtk_box_pack_end(GTK_CONTAINER(vbox), hbox, FALSE, FALSE, 5);
 	gtk_box_set_child_packing(GTK_BOX(vbox), hbox, FALSE, FALSE, 0, GTK_PACK_START);
 	gtk_widget_show(hbox);
 
