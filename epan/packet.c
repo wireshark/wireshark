@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.52 2001/12/08 06:41:47 guy Exp $
+ * $Id: packet.c,v 1.53 2001/12/08 21:00:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -152,24 +152,24 @@ init_all_protocols(void)
 /* Creates the top-most tvbuff and calls dissect_frame() */
 void
 dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
-		const u_char *pd, frame_data *fd)
+	       const u_char *pd, frame_data *fd)
 {
-    edt->pi.dl_src.type = AT_NONE;
-    edt->pi.dl_dst.type = AT_NONE;
-    edt->pi.net_src.type = AT_NONE;
-    edt->pi.net_dst.type = AT_NONE;
-    edt->pi.src.type = AT_NONE;
-    edt->pi.dst.type = AT_NONE;
-    edt->pi.ethertype  = 0;
-    edt->pi.ipproto  = 0;
-    edt->pi.ipxptype = 0;
-    edt->pi.in_error_pkt = FALSE;
-    edt->pi.ptype = PT_NONE;
-    edt->pi.srcport  = 0;
-    edt->pi.destport = 0;
-    edt->pi.current_proto = "<Missing Protocol Name>";
-    edt->pi.p2p_dir = P2P_DIR_UNKNOWN;
-    edt->pi.private_data = NULL;
+	edt->pi.dl_src.type = AT_NONE;
+	edt->pi.dl_dst.type = AT_NONE;
+	edt->pi.net_src.type = AT_NONE;
+	edt->pi.net_dst.type = AT_NONE;
+	edt->pi.src.type = AT_NONE;
+	edt->pi.dst.type = AT_NONE;
+	edt->pi.ethertype  = 0;
+	edt->pi.ipproto  = 0;
+	edt->pi.ipxptype = 0;
+	edt->pi.in_error_pkt = FALSE;
+	edt->pi.ptype = PT_NONE;
+	edt->pi.srcport  = 0;
+	edt->pi.destport = 0;
+	edt->pi.current_proto = "<Missing Protocol Name>";
+	edt->pi.p2p_dir = P2P_DIR_UNKNOWN;
+	edt->pi.private_data = NULL;
 
 	edt->pi.fd = fd;
 	edt->pi.pseudo_header = pseudo_header;
@@ -178,7 +178,7 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 
 	TRY {
 		edt->tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len, "Frame");
-	/* Add this tvbuffer into the data_src list */
+		/* Add this tvbuffer into the data_src list */
                 fd->data_src = g_slist_append( fd->data_src, edt->tvb);
 	}
 	CATCH(BoundsError) {

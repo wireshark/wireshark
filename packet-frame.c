@@ -2,12 +2,11 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.13 2001/12/08 06:41:41 guy Exp $
+ * $Id: packet-frame.c,v 1.14 2001/12/08 21:03:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2000 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -124,11 +123,12 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				  0, 0, pinfo->p2p_dir);
 	  }
 
-      if (show_file_off) {
-        proto_tree_add_int_format(fh_tree, hf_frame_file_off, tvb,
-            0, 0, pinfo->fd->file_off, "File Offset: %ld (0x%lx)",
-            pinfo->fd->file_off, pinfo->fd->file_off);
-      }
+	  if (show_file_off) {
+		  proto_tree_add_int_format(fh_tree, hf_frame_file_off, tvb,
+				  0, 0, pinfo->fd->file_off,
+				  "File Offset: %ld (0x%lx)",
+				  pinfo->fd->file_off, pinfo->fd->file_off);
+	  }
 	}
 
 
@@ -200,7 +200,7 @@ proto_register_frame(void)
 	static gint *ett[] = {
 		&ett_frame,
 	};
-    module_t *frame_module; 
+	module_t *frame_module; 
 
 	wtap_encap_dissector_table = register_dissector_table("wtap_encap",
 	    "Wiretap encapsulation type", FT_UINT32, BASE_DEC);
@@ -223,13 +223,14 @@ proto_register_frame(void)
 	proto_set_cant_disable(proto_short);
 	proto_set_cant_disable(proto_malformed);
 
-    /* Our preferences */
-    frame_module = prefs_register_protocol(proto_frame, NULL);
-    prefs_register_bool_preference(frame_module, "show_file_off",
-        "Show File Offset", "Show File Offset", &show_file_off);
+	/* Our preferences */
+	frame_module = prefs_register_protocol(proto_frame, NULL);
+	prefs_register_bool_preference(frame_module, "show_file_off",
+	    "Show File Offset", "Show File Offset", &show_file_off);
 }
 
 void
-proto_reg_handoff_frame(void){
-  data_handle = find_dissector("data");
+proto_reg_handoff_frame(void)
+{
+	data_handle = find_dissector("data");
 }
