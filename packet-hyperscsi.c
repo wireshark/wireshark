@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for dissassembly of the Hyper SCSI protocol.
  *
- * $Id: packet-hyperscsi.c,v 1.3 2002/11/17 03:24:37 sharpe Exp $
+ * $Id: packet-hyperscsi.c,v 1.4 2002/12/03 01:09:00 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -92,7 +92,8 @@ dissect_hyperscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16    hs_tagno;
   guint16    hs_fragno;
   gint       offset = 0;
-  proto_tree *hs_tree, *hs_hdr_tree, *hs_pdu_tree;
+  proto_tree *hs_hdr_tree, *hs_pdu_tree;
+  proto_tree *hs_tree = NULL;
   proto_item *ti;
   guint8     hs_cmd, hs_ver;
   char       *opcode_str;
