@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.32 1999/10/15 04:22:46 itojun Exp $
+ * $Id: dfilter-grammar.y,v 1.33 1999/10/15 20:46:02 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -92,7 +92,6 @@ static GNode* dfilter_mknode_bytes_variable(gint id, gint offset, guint length);
 
 static guint32 string_to_value(char *s);
 static int ether_str_to_guint8_array(const char *s, guint8 *mac);
-static int ipv6_str_to_guint8_array(const char *s, guint8 *ipv6);
 static guint dfilter_get_bytes_variable_offset(GNode *gnode);
 static guint dfilter_get_bytes_value_length(GNode* gnode);
 static void dfilter_set_bytes_variable_length(GNode *gnode, guint length);
@@ -585,7 +584,7 @@ dfilter_mknode_ipv6_variable(gint id)
 
 	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = variable;
-	node->elem_size = 128;
+	node->elem_size = 16;
 	node->fill_array_func = fill_array_ipv6_variable;
 	node->check_relation_func = check_relation_ipv6; 
 	node->value.variable = id;
@@ -764,12 +763,12 @@ dfilter_mknode_ipv6_value(char *host)
 
 	node = g_mem_chunk_alloc(global_df->node_memchunk);
 	node->ntype = ipv6;
-	node->elem_size = 128;
+	node->elem_size = 16;
 	node->fill_array_func = fill_array_ipv6_value;
 	node->check_relation_func = check_relation_ipv6;
 
 	/* XXX should use get_host_ipaddr6 */
-	if (!get_host_ipaddr6(host, &node->value.ipv6[0])) {
+	if (!get_host_ipaddr6(host, (struct e_in6_addr*)&node->value.ipv6[0])) {
 		/* Rather than free the mem_chunk allocation, let it
 		 * stay. It will be cleaned up when "dfilter_compile()"
 		 * calls "dfilter_destroy()". */
@@ -877,43 +876,6 @@ ether_str_to_guint8_array(const char *s, guint8 *mac)
 		return 0;	/* failed to read 6 hex pairs */
 	else
 		return 1;	/* read exactly 6 hex pairs */
-}
-
-/* converts a string representing an IPV6 address
- * to a guint8 array.
- *
- * Returns 0 on failure, 1 on success.
- */
-static int
-ipv6_str_to_guint8_array(const char *s, guint8 *ipv6)
-{
-
-  /* XXX should be deleted as soon as get_host_ipaddr6 
-     is implemented in resolv.c */
-
-	char	ipv6_str[48];
-	char	*p, *str;
-	int	i = 0;
-
-	if (strlen(s) > 47) {
-		return 0;
-	}
-	strcpy(ipv6_str, s); /* local copy of string */
-	str = ipv6_str;
-	while ((p = strtok(str, "-:."))) {
-		/* catch short strings with too many hex bytes */
-		if (i > 15) {
-			return 0;
-		}
-		ipv6[i] = (guint8) strtoul(p, NULL, 16);
-		i++;
-		/* subsequent calls to strtok() require NULL as arg 1 */
-		str = NULL;
-	}
-	if (i != 16)
-		return 0;	/* failed to read 16 hex pairs */
-	else
-		return 1;	/* read exactly 16 hex pairs */
 }
 
 
