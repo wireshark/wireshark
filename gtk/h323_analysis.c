@@ -431,6 +431,7 @@ void create_h225_dialog(user_data_t* user_data)
         GtkWidget *label;
         GtkWidget *scrolled_window;
         GtkWidget *box4, *goto_bt, *close_bt, *refresh_bt;
+        GtkTooltips *tooltips = gtk_tooltips_new();
 
         gchar label_forward[150];
 
@@ -505,16 +506,19 @@ void create_h225_dialog(user_data_t* user_data)
         gtk_container_add(GTK_CONTAINER(box4), refresh_bt);
         gtk_widget_show(refresh_bt);
         SIGNAL_CONNECT(refresh_bt, "clicked", on_refresh_bt_clicked, user_data);
+        gtk_tooltips_set_tip (tooltips, refresh_bt, "Refresh data", NULL);
 
 	goto_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_JUMP_TO);
         gtk_container_add(GTK_CONTAINER(box4), goto_bt);
         gtk_widget_show(goto_bt);
         SIGNAL_CONNECT(goto_bt, "clicked", on_goto_bt_clicked, user_data);
+        gtk_tooltips_set_tip (tooltips, goto_bt, "Jump to the selected packet", NULL);
 
         close_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
         gtk_container_add(GTK_CONTAINER(box4), close_bt);
 	GTK_WIDGET_SET_FLAGS(close_bt, GTK_CAN_DEFAULT);
         gtk_widget_show(close_bt);
+        gtk_tooltips_set_tip (tooltips, close_bt, "Close this dialog", NULL);
 	window_set_cancel_button(window, close_bt, window_cancel_button_cb);
 
 	SIGNAL_CONNECT(window, "delete_event", window_delete_event_cb, NULL);
