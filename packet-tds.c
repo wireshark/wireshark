@@ -3,7 +3,7 @@
  * Copyright 2000-2002, Brian Bruns <camber@ais.org>
  * Copyright 2002, Steve Langasek <vorlon@netexpress.net>
  *
- * $Id: packet-tds.c,v 1.16 2003/08/27 23:28:37 guy Exp $
+ * $Id: packet-tds.c,v 1.17 2003/08/28 02:12:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1000,17 +1000,9 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    len, status == STATUS_NOT_LAST_BUFFER);
 		if (fd_head != NULL) {
 			if (fd_head->next != NULL) {
-				next_tvb = tvb_new_real_data(fd_head->data,
-				    fd_head->len, fd_head->len);
-				tvb_set_child_real_data_tvbuff(tvb, next_tvb);
-				add_new_data_source(pinfo, next_tvb,
-				    "Reassembled TDS");
-				/* Show all fragments. */
-				if (tree) {
-					show_fragment_seq_tree(fd_head,
-					    &tds_frag_items, tds_tree, pinfo,
-					    next_tvb);
-				}
+				next_tvb = process_reassembled_data(tvb,
+				    pinfo, "Reassembled TDS", fd_head,
+				    &tds_frag_items, NULL, tds_tree);
 			} else {
 				next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 			}
