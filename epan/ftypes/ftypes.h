@@ -1,7 +1,7 @@
 /* ftypes.h
  * Definitions for field types
  *
- * $Id: ftypes.h,v 1.34 2004/07/04 00:28:11 guy Exp $
+ * $Id: ftypes.h,v 1.35 2004/07/04 02:29:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -230,6 +230,9 @@ fvalue_new(ftenum_t ftype);
 void
 fvalue_init(fvalue_t *fv, ftenum_t ftype);
 
+
+/* Define type needed for the fvalue_t free list. */
+SLAB_ITEM_TYPE_DEFINE(fvalue_t)
 
 /* Free all memory used by an fvalue_t. With MSVC and a 
  * libethereal.dll, we need a special declaration.

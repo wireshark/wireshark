@@ -1,7 +1,7 @@
 /* slab.h
  * Definitions for very simple slab handling
  *
- * $Id: slab.h,v 1.3 2004/07/04 00:28:11 guy Exp $
+ * $Id: slab.h,v 1.4 2004/07/04 02:29:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,50 +27,49 @@
 
 #define NITEMS_PER_SLAB	100
 
-typedef struct _freed_item {
-	struct _freed_item *next;
-} freed_item_t;
+/*
+ * Generate declaration of a union type containing the specified type of
+ * slab-allocated item, and a pointer to an object of that type, for use
+ * in the macros below.
+ */
+#define SLAB_ITEM_TYPE_DEFINE(type)			\
+	union type ## slab_item {			\
+		type slab_item;				\
+		union type ## slab_item *next_free;	\
+	};
 
 /*
  * Generate definition of the free list pointer.
  */
 #define SLAB_FREE_LIST_DEFINE(type)		\
-	type *type ## _free_list = NULL;
+	union type ## slab_item *type ## _free_list = NULL;
 
 /*
  * Generate an external declaration of the free list pointer.
  */
 #define SLAB_FREE_LIST_DECLARE(type)		\
-	type *type ## _free_list;
+	union type ## slab_item *type ## _free_list;
 
 /* we never free any memory we have allocated, when it is returned to us
    we just store it in the free list until (hopefully) it gets used again
 */
 #define SLAB_ALLOC(item, type)					\
-	if(!type ## _free_list){						\
+	if(!type ## _free_list){				\
 		int i;						\
-		char *tmp;					\
-		tmp=(char *)g_malloc(NITEMS_PER_SLAB*		\
-		    ((sizeof(*item) > sizeof(freed_item_t)) ?	\
-			sizeof(*item) : sizeof(freed_item_t)));	\
+		union type ## slab_item *tmp;			\
+		tmp=g_malloc(NITEMS_PER_SLAB*sizeof(*tmp));	\
 		for(i=0;i<NITEMS_PER_SLAB;i++){			\
-			item=(void *)tmp;			\
-			((freed_item_t *)((void *)item))->next=	\
-			    (freed_item_t *)((void *)type ## _free_list);\
-			type ## _free_list=item;			\
-			tmp+=					\
-			    ((sizeof(*item) > sizeof(freed_item_t)) ?\
-				sizeof(*item) : sizeof(freed_item_t));\
+			tmp[i].next_free = type ## _free_list;	\
+			type ## _free_list = &tmp[i];		\
 		}						\
 	}							\
-	item=type ## _free_list;					\
-	type ## _free_list=(void *)(((freed_item_t *)((void *)item))->next);
+	item = &(type ## _free_list->slab_item);		\
+	type ## _free_list = type ## _free_list->next_free;
 
-#define SLAB_FREE(item, type)					\
-{								\
-	((freed_item_t *)((void *)item))->next=			\
-	    (freed_item_t *)((void *)type ## _free_list);	\
-	type ## _free_list=item;					\
+#define SLAB_FREE(item, type)						\
+{									\
+	((union type ## slab_item *)item)->next_free = type ## _free_list;	\
+	type ## _free_list = (union type ## slab_item *)item;		\
 }
 
 #endif /* slab.h */

@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.133 2004/07/04 00:28:11 guy Exp $
+ * $Id: proto.c,v 1.134 2004/07/04 02:29:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -153,6 +153,7 @@ static GMemChunk *gmc_hfinfo = NULL;
 
 /* Contains information about a field when a dissector calls
  * proto_tree_add_item.  */
+SLAB_ITEM_TYPE_DEFINE(field_info)
 static SLAB_FREE_LIST_DEFINE(field_info)
 static field_info *field_info_tmp=NULL;
 #define FIELD_INFO_NEW(fi)					\
@@ -163,6 +164,7 @@ static field_info *field_info_tmp=NULL;
 
 
 /* Contains the space for proto_nodes. */
+SLAB_ITEM_TYPE_DEFINE(proto_node)
 static SLAB_FREE_LIST_DEFINE(proto_node)
 #define PROTO_NODE_NEW(node)				\
 	SLAB_ALLOC(node, proto_node)			\
@@ -176,6 +178,7 @@ static SLAB_FREE_LIST_DEFINE(proto_node)
 
 
 /* String space for protocol and field items for the GUI */
+SLAB_ITEM_TYPE_DEFINE(item_label_t)
 static SLAB_FREE_LIST_DEFINE(item_label_t)
 #define ITEM_LABEL_NEW(il)				\
 	SLAB_ALLOC(il, item_label_t)
