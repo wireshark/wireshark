@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.23 1999/06/01 22:24:05 guy Exp $
+ * $Id: capture.c,v 1.24 1999/06/05 01:44:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -347,8 +347,7 @@ capture_prep_ok_cb(GtkWidget *w, gpointer data) {
   if (filter_text && filter_text[0]) {
 	  cf.cfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te))); 
   }
-  cf.count =
-    atoi( g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(count_cb)->entry))));
+  cf.count = atoi(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(count_cb)->entry)));
   cf.snap = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(snap_sb));
   if (cf.snap < 1)
     cf.snap = MAX_PACKET_SIZE;
