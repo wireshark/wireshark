@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.278 2002/06/22 01:24:23 guy Exp $
+ * $Id: file.c,v 1.279 2002/06/22 01:52:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1122,7 +1122,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
 
       /* Make sure there's room in the line buffer for the column; if not,
          double its length. */
-      line_len += column_len + 1;	/* "+1" for space or \n */
+      line_len += column_len + 1;	/* "+1" for space */
       if (line_len > line_buf_len) {
         line_buf_len *= 2;
         line_buf = g_realloc(line_buf, line_buf_len + 1);
@@ -1134,9 +1134,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
       else
         sprintf(cp, "%-*s", col_widths[i], cf->cinfo.col_title[i]);
       cp += column_len;
-      if (i == cf->cinfo.num_cols - 1)
-        *cp++ = '\n';
-      else
+      if (i != cf->cinfo.num_cols - 1)
         *cp++ = ' ';
     }
     *cp = '\0';
@@ -1210,7 +1208,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
 
           /* Make sure there's room in the line buffer for the column; if not,
              double its length. */
-          line_len += column_len + 1;	/* "+1" for space or \n */
+          line_len += column_len + 1;	/* "+1" for space */
           if (line_len > line_buf_len) {
             line_buf_len *= 2;
             line_buf = g_realloc(line_buf, line_buf_len + 1);
@@ -1222,9 +1220,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
           else
             sprintf(cp, "%-*s", col_widths[i], cf->cinfo.col_data[i]);
           cp += column_len;
-          if (i == cf->cinfo.num_cols - 1)
-            *cp++ = '\n';
-          else
+          if (i != cf->cinfo.num_cols - 1)
             *cp++ = ' ';
         }
         *cp = '\0';
