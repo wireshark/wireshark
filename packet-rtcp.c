@@ -234,12 +234,16 @@ static void rtcp_init( void )
 gboolean
 dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
+	conversation_t* pconv;
+
+	if (!proto_is_protocol_enabled(proto_rtcp))
+		return FALSE;	/* RTCP has been disabled */
+
 	/* This is a heuristic dissector, which means we get all the UDP
 	 * traffic not sent to a known dissector and not claimed by
 	 * a heuristic dissector called before us!
 	 * So we first check if the frame is really meant for us.
 	 */
-	conversation_t* pconv;
 	if ( ( pconv = find_conversation( &pi.src, &fake_addr, pi.ptype,
 	    pi.srcport, 0, 0 ) ) == NULL ) {
 		/*
@@ -623,6 +627,8 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	unsigned int packet_type = 0;
 	unsigned int offset      = 0;
 	guint16 packet_length    = 0;
+
+	CHECK_DISPLAY_AS_DATA(proto_rtcp, tvb, pinfo, tree);
 
 	pinfo->current_proto = "RTCP";
 

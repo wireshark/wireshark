@@ -3,7 +3,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.2 2000/11/04 07:35:17 guy Exp $
+ * $Id: packet-wsp.c,v 1.3 2000/11/05 09:30:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -368,14 +368,6 @@ tvb_get_guintvar (tvbuff_t *tvb, guint offset, guint *octetCount)
 	return (value);
 }
 
-void
-dissect_wsp_no_tvbuff(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
-{
-	packet_info	*pinfo = &pi;
-	tvbuff_t	*tvb = tvb_create_from_top(offset);
-	dissect_wsp (tvb, pinfo, tree);
-}
-
 /* Code to actually dissect the packets */
 void
 dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -406,12 +398,14 @@ dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /*	proto_tree *wsp_header_fixed; */
 	proto_tree *wsp_capabilities;
 	
+	CHECK_DISPLAY_AS_DATA(proto_wsp, tvb, pinfo, tree);
+
 /* This field shows up as the "Info" column in the display; you should make
    it, if possible, summarize what's in the packet, so that a user looking
    at the list of packets can tell what type of packet it is.
    "col_add_fstr()" can be used instead of "col_add_str()"; it takes
    "printf()"-like arguments. */
-
+    
 	/* Display protocol type depending on the port */
 	if (check_col(fdata, COL_PROTOCOL)) 
 	{
@@ -425,7 +419,7 @@ dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 		}
 	}
-    
+
 	/* Connection-less mode has a TID first */
 	if ((pinfo->match_port == UDP_PORT_WSP) || (pinfo->match_port == UDP_PORT_WTLS_WSP))
 	{
@@ -1491,9 +1485,8 @@ void
 proto_reg_handoff_wsp(void)
 {
 	/* Only connection-less WSP has no previous handler */
-//	dissector_add("udp.port", UDP_PORT_WSP, dissect_wsp_no_tvbuff);
 	dissector_add("udp.port", UDP_PORT_WSP, dissect_wsp);
-	/* dissector_add("udp.port", UDP_PORT_WTP_WSP, dissect_wsp_no_tvbuff); */
-	/* dissector_add("udp.port", UDP_PORT_WTLS_WSP, dissect_wsp_no_tvbuff); */
-	/* dissector_add("udp.port", UDP_PORT_WTLS_WTP_WSP, dissect_wsp_no_tvbuff); */
+	/* dissector_add("udp.port", UDP_PORT_WTP_WSP, dissect_wsp); */
+	/* dissector_add("udp.port", UDP_PORT_WTLS_WSP, dissect_wsp); */
+	/* dissector_add("udp.port", UDP_PORT_WTLS_WTP_WSP, dissect_wsp); */
 }

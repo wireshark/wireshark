@@ -205,15 +205,21 @@ static void rtp_init( void )
 gboolean
 dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
-	/* This is a heuristic dissector, which means we get all the tcp traffic 
-	 * not send to a known dissector!
+	conversation_t* pconv;
+
+	if (!proto_is_protocol_enabled(proto_rtp))
+		return FALSE;	/* RTP has been disabled */
+
+	/* This is a heuristic dissector, which means we get all the TCP
+	 * traffic not sent to a known dissector and not claimed by
+	 * a heuristic dissector called before us!
 	 * So we first check if the frame is really meant for us.
 	 */
-	conversation_t* pconv;
 	if ( ( pconv = find_conversation( &pi.src, &fake_addr, pi.ptype,
 	    pi.srcport, 0, 0 ) ) == NULL ) {
 		/*
-		 * The source ip:port combination was not what we were looking for, check the destination
+		 * The source ip:port combination was not what we were
+		 * looking for, check the destination
 		 */
 		if ( ( pconv = find_conversation( &pi.dst, &fake_addr,
 		    pi.ptype, pi.destport, 0, 0 ) ) == NULL ) {
@@ -278,6 +284,8 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	guint32     timestamp;
 	guint32     sync_src;
 	guint32     csrc_item;
+
+	CHECK_DISPLAY_AS_DATA(proto_rtp, tvb, pinfo, tree);
 
 	pinfo->current_proto = "RTP";
 

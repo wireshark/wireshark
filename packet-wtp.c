@@ -3,7 +3,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  * 
- * $Id: packet-wtp.c,v 1.2 2000/11/04 07:38:19 guy Exp $
+ * $Id: packet-wtp.c,v 1.3 2000/11/05 09:30:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -166,18 +166,9 @@ static gint ett_header 							= ETT_EMPTY;
 static char transaction_class(unsigned char octet);
 static char pdu_type(unsigned char octet);
 static char retransmission_indicator(unsigned char octet);
-void dissect_wtp(tvbuff_t *, packet_info *, proto_tree *);
-
-void
-dissect_wtp_no_tvbuff(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
-{
-	packet_info	*pinfo = &pi;
-	tvbuff_t	*tvb = tvb_create_from_top(offset);
-	dissect_wtp (tvb, pinfo, tree);
-}
 
 /* Code to actually dissect the packets */
-void
+static void
 dissect_wtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	frame_data *fdata = pinfo->fd;
@@ -209,6 +200,8 @@ dissect_wtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int numMissing = 0;		/* Number of missing packets in a negative ack */
 	int i;
 	tvbuff_t *wsp_tvb = NULL;
+
+	CHECK_DISPLAY_AS_DATA(proto_wtp, tvb, pinfo, tree);
 
 /* Make entries in Protocol column and Info column of summary display */
 
