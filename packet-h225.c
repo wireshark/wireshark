@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (h323@ramdyne.nl)
  *
- * $Id: packet-h225.c,v 1.34 2004/03/22 20:16:55 guy Exp $
+ * $Id: packet-h225.c,v 1.35 2004/04/08 23:52:12 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -532,6 +532,13 @@ static int hf_h225_ras_req_frame = -1;
 static int hf_h225_ras_rsp_frame = -1;
 static int hf_h225_ras_dup = -1;
 static int hf_h225_ras_deltatime = -1;
+static int hf_h235_ClearToken = -1;
+static int hf_h235_tokenOID = -1;
+static int hf_h235_timeStamp = -1;
+static int hf_h235_password = -1;
+static int hf_h235_NonStandardParameter = -1;
+static int hf_h235_nonStandardIdentifier = -1;
+static int hf_h235_nsp_data = -1;
 /*aaa*/
 
 static gint ett_h225 = -1;
@@ -799,6 +806,8 @@ static gint ett_h225_H221NonStandard = -1;
 static gint ett_h225_NonStandardIdentifier = -1;
 static gint ett_h225_NonStandardParameter = -1;
 static gint ett_h225_aliasAddress_sequence = -1;
+static gint ett_h235_ClearToken = -1;
+static gint ett_h235_NonStandardParameter = -1;
 /*bbb*/
 
 /* Subdissector tables */
@@ -2992,10 +3001,137 @@ dissect_h225_CallLinkage(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 
 
+
+static int
+dissect_h235_tokenOID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset=dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_h235_tokenOID, NULL);
+	return offset;
+}
+static int
+dissect_h235_timeStamp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset=dissect_per_constrained_integer(tvb, offset, pinfo,
+		tree, hf_h235_timeStamp, 0, 4294967295UL,
+		NULL, NULL, FALSE);
+	return offset;
+}
+static int
+dissect_h235_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset=dissect_per_BMPString(tvb, offset, pinfo, tree, hf_h235_password, 1, 128);
+	return offset;
+}
+static int
+dissect_h235_DHSet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+NOT_DECODED_YET("DHSet");
+	return offset;
+}
+static int
+dissect_h235_ChallengeString(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+NOT_DECODED_YET("ChallengeString");
+	return offset;
+}
+static int
+dissect_h235_RandomVal(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+NOT_DECODED_YET("RandomVal");
+	return offset;
+}
+static int
+dissect_h235_TypedCertificate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+NOT_DECODED_YET("TypedCertificate");
+	return offset;
+}
+static int
+dissect_h235_Identifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+NOT_DECODED_YET("Identifier");
+	return offset;
+}
+static int
+dissect_h235_nonStandardIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset = dissect_per_object_identifier(tvb, offset, pinfo, tree,
+				hf_h235_nonStandardIdentifier,
+				NULL);
+
+	return offset;
+}
+static int
+dissect_h235_nsp_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset = dissect_per_octet_string(tvb, offset, pinfo, tree,
+				hf_h235_nsp_data, -1, -1,
+				NULL, NULL);
+
+	return offset;
+}
+
+static per_sequence_t H235NonStandardParameter_sequence[] = {
+	{ "nonStandardIdentifier", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h235_nonStandardIdentifier },
+	{ "data", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
+		dissect_h235_nsp_data },
+	{ NULL, 0, 0, NULL }
+};
+static int
+dissect_h235_nonStandardParameter(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_h235_NonStandardParameter,
+			ett_h235_NonStandardParameter, H235NonStandardParameter_sequence);
+
+	return offset;
+}
+static int
+dissect_h235_ECKASDH(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+NOT_DECODED_YET("ECKASDH");
+	return offset;
+}
+static int
+dissect_h235_H235Key(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+NOT_DECODED_YET("H235Key");
+	return offset;
+}
+static per_sequence_t H235ClearToken_sequence[] = {
+	{ "tokenOID", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+		dissect_h235_tokenOID },
+	{ "TimeStamp", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
+		dissect_h235_timeStamp },
+	{ "password", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
+		dissect_h235_password },
+	{ "dhkey", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
+		dissect_h235_DHSet },
+	{ "challenge", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
+		dissect_h235_ChallengeString },
+	{ "random", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
+		dissect_h235_RandomVal },
+	{ "certificate", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
+		dissect_h235_TypedCertificate },
+	{ "generalID", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
+		dissect_h235_Identifier },
+	{ "nonStandard", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
+		dissect_h235_nonStandardParameter },
+	{ "eckasdhkey", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+		dissect_h235_ECKASDH },
+	{ "sendersID", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+		dissect_h235_Identifier },
+	{ "h235Key", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+		dissect_h235_H235Key },
+	{ NULL, 0, 0, NULL }
+};
 static int
 dissect_h225_ClearToken(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
 {
-NOT_DECODED_YET("ClearToken");
+	offset = dissect_per_sequence(tvb, offset, pinfo, tree,
+				hf_h235_ClearToken,
+				ett_h235_ClearToken, H235ClearToken_sequence);
+
 	return offset;
 }
 
@@ -10002,7 +10138,33 @@ proto_register_h225(void)
   	{ &hf_h225_ras_deltatime,
       		{ "RAS Service Response Time", "h225.ras.timedelta", FT_RELATIVE_TIME, BASE_NONE,
       		NULL, 0, "Timedelta between RAS-Request and RAS-Response", HFILL }},
+	{ &hf_h235_ClearToken,
+		{ "ClearToken", "h235.ClearToken", FT_NONE, BASE_NONE,
+		NULL, 0, "ClearToken SEQUENCE", HFILL }},
 
+	{ &hf_h235_tokenOID,
+		{ "tokenOID", "h235.tokenOID", FT_STRING, BASE_NONE,
+		NULL, 0, "OID of this ClearToken object", HFILL }},
+
+	{ &hf_h235_timeStamp,
+		{ "timeStamp", "h235.timeStamp", FT_STRING, BASE_NONE,
+		NULL, 0, "Timestamp of this object", HFILL }},
+
+	{ &hf_h235_password,
+		{ "password", "h235.password", FT_STRING, BASE_HEX,
+		NULL, 0, "Token password", HFILL }},
+
+	{ &hf_h235_NonStandardParameter,
+		{ "nonStandard", "h235.nonStandardParameter", FT_NONE, BASE_NONE,
+		NULL, 0, "H235 NonStandardParameter SEQUENCE", HFILL }},
+
+	{ &hf_h235_nonStandardIdentifier,
+		{ "nonStandardIdentifier", "h235.nonStandardIdentifier", FT_STRING, BASE_NONE,
+		NULL, 0, "H235 nonStandardIdentifier", HFILL }},
+
+	{ &hf_h235_nsp_data,
+		{ "data", "h235.nsp_data", FT_BYTES, BASE_HEX,
+		NULL, 0, "OCTET STRING", HFILL }},
 /*ddd*/
 	};
 
@@ -10273,6 +10435,8 @@ proto_register_h225(void)
 		&ett_h225_NonStandardIdentifier,
 		&ett_h225_NonStandardParameter,
 		&ett_h225_aliasAddress_sequence,
+		&ett_h235_ClearToken,
+		&ett_h235_NonStandardParameter,
 /*eee*/
 	};
 	module_t *h225_module;
