@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.38 2002/04/14 23:04:04 guy Exp $
+ * $Id: packet-socks.c,v 1.39 2002/06/07 11:27:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -263,11 +263,10 @@ static int display_string(tvbuff_t *tvb, int offset,
 	proto_tree      *name_tree;
 	proto_item      *ti;
 
-
 	char temp[ 256];
 	int length = tvb_get_guint8(tvb, offset);
 
-	strncpy( temp, tvb_get_ptr(tvb, offset+1, -1), length);
+	tvb_memcpy(tvb, (guint8 *)temp, offset+1, length);
 	temp[ length ] = 0;
   
    	ti = proto_tree_add_text(tree, tvb, offset, length + 1,
@@ -276,7 +275,7 @@ static int display_string(tvbuff_t *tvb, int offset,
 
 	name_tree = proto_item_add_subtree(ti, ett_socks_name);
 
-	proto_tree_add_text( name_tree, tvb, offset, 1, "Length: %d", length);
+	proto_tree_add_text( name_tree, tvb, offset, 1, "Length: %u", length);
 
 	++offset;
 
@@ -510,7 +509,7 @@ display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if ( tvb_offset_exists(tvb, offset)) {
 						/* display user name 	*/
 			proto_tree_add_string( tree, hf_user_name, tvb, offset, 
-				strlen( tvb_get_ptr(tvb, offset, -1)) + 1,
+				tvb_strsize(tvb, offset),
 				tvb_get_ptr(tvb, offset, -1));
 		}
 
@@ -543,7 +542,7 @@ display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* Should perhaps do TCP reassembly as well */
 		if ( tvb_offset_exists(tvb, offset)) {
 			proto_tree_add_text( tree, tvb, offset,
-				strlen( tvb_get_ptr(tvb, offset, -1)),
+				tvb_strsize(tvb, offset),
 				"User Name: %s", tvb_get_ptr(tvb, offset, -1));
 		}
 	}
@@ -697,7 +696,7 @@ state_machine_v4( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 			hash_info->state = V4UserNameWait;
 		
 			
-		hash_info->connect_offset += strlen( tvb_get_ptr(tvb, offset, -1)) + 1;
+		hash_info->connect_offset += tvb_strsize(tvb, offset) + 1;
 		
 		if ( !hash_info->dst_addr){ 		/* if no dest address */
 							/* if more data */
