@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-llc.c,v 1.106 2003/01/25 00:06:12 guy Exp $
+ * $Id: packet-llc.c,v 1.107 2003/02/13 00:47:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,6 +65,7 @@ static gint ett_llc_ctrl = -1;
 
 static dissector_table_t subdissector_table;
 static dissector_table_t cisco_subdissector_table;
+static dissector_table_t xid_subdissector_table;
 
 static dissector_handle_t bpdu_handle;
 static dissector_handle_t eth_handle;
@@ -322,16 +323,35 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			);
 		}
 
-		next_tvb = tvb_new_subset(tvb, llc_header_len, -1, -1);
-		if (XDLC_IS_INFORMATION(control)) {
-			/* non-SNAP */
-			/* do lookup with the subdissector table */
-			if (!dissector_try_port(subdissector_table, dsap,
-			    next_tvb, pinfo, tree)) {
-				call_dissector(data_handle,next_tvb, pinfo, tree);
+		if (tvb_length_remaining(tvb, llc_header_len) > 0) {
+			next_tvb = tvb_new_subset(tvb, llc_header_len, -1, -1);
+			if (XDLC_IS_INFORMATION(control)) {
+				/*
+				 * Non-SNAP I or UI frame.
+				 * Try the regular LLC subdissector table
+				 * with the DSAP.
+				 */
+				if (!dissector_try_port(subdissector_table,
+				    dsap, next_tvb, pinfo, tree)) {
+					call_dissector(data_handle, next_tvb,
+					    pinfo, tree);
+				}
+			} else if ((control & (XDLC_U_MODIFIER_MASK|XDLC_U))
+			    == (XDLC_XID|XDLC_U)) {
+				/*
+				 * Non-SNAP XID frame.
+				 * Try the XID LLC subdissector table
+				 * with the DSAP.
+				 */
+				if (!dissector_try_port(xid_subdissector_table,
+				    dsap, next_tvb, pinfo, tree)) {
+					call_dissector(data_handle, next_tvb,
+					    pinfo, tree);
+				}
+			} else {
+				call_dissector(data_handle, next_tvb, pinfo,
+				    tree);
 			}
-		} else {
-			call_dissector(data_handle,next_tvb, pinfo, tree);
 		}
 	}
 }
@@ -533,6 +553,8 @@ proto_register_llc(void)
 	  "LLC SAP", FT_UINT8, BASE_HEX);
 	cisco_subdissector_table = register_dissector_table("llc.cisco_pid",
 	  "Cisco OUI PID", FT_UINT16, BASE_HEX);
+	xid_subdissector_table = register_dissector_table("llc.xid_dsap",
+	  "LLC XID SAP", FT_UINT8, BASE_HEX);
 
 	register_dissector("llc", dissect_llc, proto_llc);
 }

@@ -347,6 +347,11 @@ Jochen Friedrich <jochen+ethereal[AT]scram.de> {
 	SNA HPR-over-PPP and SNA-over-LLC-over-PPP (RFC 2043)
 	HPR/UDP (RFC 2353, Enterprise Extender)
 	RPL support.
+	Fixed handling of NLP header in SNA
+	XID handoff table for LLC, and XID dissection for SNA format 3
+	HPR optional segments in SNA
+	Most important control vectors in SNA
+	Route setup messages in SNA
 }
 
 Paul Welchinski <paul.welchinski[AT]telusplanet.net> {
