@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.33 2002/04/24 21:19:38 guy Exp $
+ * $Id: tvbuff.c,v 1.34 2002/04/24 21:53:05 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -1055,7 +1055,7 @@ ieee_float_is_zero(guint32 w)
 	return ((w & ~IEEE_SP_SIGN_MASK) == 0);
 }
 
-static float
+static gfloat
 get_ieee_float(guint32 w)
 {
 	long sign;
@@ -1116,7 +1116,7 @@ ieee_double_is_zero(guint64 w)
 	return ((w & ~IEEE_SP_SIGN_MASK) == 0);
 }
 
-static double
+static gdouble
 get_ieee_double(guint64 w)
 {
 	gint64 sign;
@@ -1162,14 +1162,14 @@ get_ieee_double(guint64 w)
  * precision numbers that won't fit in some platform's native
  * "float" format?
  */
-float
+gfloat
 tvb_get_ntohieee_float(tvbuff_t *tvb, int offset)
 {
 #if defined(vax)
 	return get_ieee_float(tvb_get_ntohl(tvb, offset));
 #else
 	union {
-		float f;
+		gfloat f;
 		guint32 w;
 	} ieee_fp_union;
 
@@ -1182,18 +1182,17 @@ tvb_get_ntohieee_float(tvbuff_t *tvb, int offset)
  * Fetches an IEEE double-precision floating-point number, in
  * big-endian form, and returns a "double".
  */
-double
+gdouble
 tvb_get_ntohieee_double(tvbuff_t *tvb, int offset)
 {
 #if defined(vax)
 	union {
-		double d;
 		guint32 w[2];
 		guint64 dw;
 	} ieee_fp_union;
 #else
 	union {
-		double d;
+		gdouble d;
 		guint32 w[2];
 	} ieee_fp_union;
 #endif
@@ -1206,7 +1205,7 @@ tvb_get_ntohieee_double(tvbuff_t *tvb, int offset)
 	ieee_fp_union.w[1] = tvb_get_ntohl(tvb, offset);
 #endif
 #if defined(vax)
-	return get_ieee_double(dw);
+	return get_ieee_double(ieee_fp_union.dw);
 #else
 	return ieee_fp_union.d;
 #endif
@@ -1247,14 +1246,14 @@ tvb_get_letohl(tvbuff_t *tvb, gint offset)
  * precision numbers that won't fit in some platform's native
  * "float" format?
  */
-float
+gfloat
 tvb_get_letohieee_float(tvbuff_t *tvb, int offset)
 {
 #if defined(vax)
 	return get_ieee_float(tvb_get_letohl(tvb, offset));
 #else
 	union {
-		float f;
+		gfloat f;
 		guint32 w;
 	} ieee_fp_union;
 
@@ -1267,18 +1266,17 @@ tvb_get_letohieee_float(tvbuff_t *tvb, int offset)
  * Fetches an IEEE double-precision floating-point number, in
  * little-endian form, and returns a "double".
  */
-double
+gdouble
 tvb_get_letohieee_double(tvbuff_t *tvb, int offset)
 {
 #if defined(vax)
 	union {
-		double d;
 		guint32 w[2];
 		guint64 dw;
 	} ieee_fp_union;
 #else
 	union {
-		double d;
+		gdouble d;
 		guint32 w[2];
 	} ieee_fp_union;
 #endif
@@ -1291,7 +1289,7 @@ tvb_get_letohieee_double(tvbuff_t *tvb, int offset)
 	ieee_fp_union.w[1] = tvb_get_letohl(tvb, offset+4);
 #endif
 #if defined(vax)
-	return get_ieee_double(dw);
+	return get_ieee_double(ieee_fp_union.dw);
 #else
 	return ieee_fp_union.d;
 #endif
