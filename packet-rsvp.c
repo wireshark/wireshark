@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.57 2002/03/02 07:22:20 guy Exp $
+ * $Id: packet-rsvp.c,v 1.58 2002/03/29 00:41:54 ashokn Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -181,13 +181,19 @@ enum rsvp_classes {
     RSVP_CLASS_MESSAGE_ID_ACK,
     RSVP_CLASS_MESSAGE_ID_LIST,
 
-    RSVP_CLASS_UPSTREAM_LABEL,         /* Number is TBA */
-    RSVP_CLASS_LABEL_SET,              /* Number is TBA */
+    RSVP_CLASS_RECOVERY_LABEL = 34,
+    RSVP_CLASS_UPSTREAM_LABEL,
+    RSVP_CLASS_LABEL_SET,
+    RSVP_CLASS_PROTECTION,
 
-    RSVP_CLASS_SUGGESTED_LABEL = 140,  /* Number is TBA */
+    RSVP_CLASS_SUGGESTED_LABEL = 129,
+    RSVP_CLASS_ACCEPTABLE_LABEL_SET,
+    RSVP_CLASS_RESTART_CAP,
+
+    RSVP_CLASS_NOTIFY_REQUEST = 195,
+    RSVP_CLASS_ADMIN_STATUS,
 
     RSVP_CLASS_SESSION_ATTRIBUTE = 207,
-    RSVP_CLASS_ADMIN_STATUS = 210,     /* Number is TBA */
     RSVP_CLASS_DCLASS = 225,
     RSVP_CLASS_LSP_TUNNEL_IF_ID = 227,
 };
@@ -217,12 +223,17 @@ static value_string rsvp_class_vals[] = {
     {RSVP_CLASS_MESSAGE_ID_ACK, "MESSAGE-ID ACK/NACK object"},
     {RSVP_CLASS_MESSAGE_ID_LIST, "MESSAGE-ID LIST object"},
     {RSVP_CLASS_HELLO, "HELLO object"},
+    {RSVP_CLASS_RECOVERY_LABEL, "RECOVERY-LABEL object"},
     {RSVP_CLASS_UPSTREAM_LABEL, "UPSTREAM-LABEL object"},
     {RSVP_CLASS_LABEL_SET, "LABEL-SET object"},
+    {RSVP_CLASS_PROTECTION, "PROTECTION object"},
     {RSVP_CLASS_SUGGESTED_LABEL, "SUGGESTED-LABEL object"},
+    {RSVP_CLASS_ACCEPTABLE_LABEL_SET, "ACCEPTABLE-LABEL-SET object"},
+    {RSVP_CLASS_RESTART_CAP, "RESTART-CAPABILITY object"},
     {RSVP_CLASS_DCLASS, "DCLASS object"},
     {RSVP_CLASS_LSP_TUNNEL_IF_ID, "LSP-TUNNEL INTERFACE-ID object"},
-    {RSVP_CLASS_ADMIN_STATUS, "ADNUM-STATUS object"},
+    {RSVP_CLASS_NOTIFY_REQUEST, "NOTIFY-REQUEST object"},
+    {RSVP_CLASS_ADMIN_STATUS, "ADMIN-STATUS object"},
     {0, NULL}
 };
 
@@ -497,13 +508,19 @@ enum rsvp_filter_keys {
     RSVPF_MESSAGE_ID,
     RSVPF_MESSAGE_ID_ACK,
     RSVPF_MESSAGE_ID_LIST,
+    RSVPF_RECOVERY_LABEL,
     RSVPF_UPSTREAM_LABEL,
     RSVPF_LABEL_SET,
+    RSVPF_PROTECTION,
 
     RSVPF_SUGGESTED_LABEL,
+    RSVPF_ACCEPTABLE_LABEL_SET,
+    RSVPF_RESTART_CAP,
+
     RSVPF_SESSION_ATTRIBUTE,
     RSVPF_DCLASS,
     RSVPF_LSP_TUNNEL_IF_ID,
+    RSVPF_NOTIFY_REQUEST,
     RSVPF_ADMIN_STATUS,
     RSVPF_UNKNOWN_OBJ, 
 
@@ -639,6 +656,10 @@ static hf_register_info rsvpf_info[] = {
      { "LABEL", "rsvp.label", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
 
+    {&rsvp_filter[RSVPF_RECOVERY_LABEL], 
+     { "RECOVERY LABEL", "rsvp.recovery_label", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
     {&rsvp_filter[RSVPF_UPSTREAM_LABEL], 
      { "UPSTREAM LABEL", "rsvp.upstream_label", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
@@ -649,6 +670,18 @@ static hf_register_info rsvpf_info[] = {
 
     {&rsvp_filter[RSVPF_LABEL_SET], 
      { "RESTRICTED LABEL SET", "rsvp.label_set", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&rsvp_filter[RSVPF_ACCEPTABLE_LABEL_SET], 
+     { "ACCEPTABLE LABEL SET", "rsvp.acceptable_label_set", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&rsvp_filter[RSVPF_PROTECTION], 
+     { "PROTECTION", "rsvp.protection", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&rsvp_filter[RSVPF_RESTART_CAP], 
+     { "RESTART CAPABILITY", "rsvp.restart", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
 
     {&rsvp_filter[RSVPF_LABEL_REQUEST], 
@@ -692,7 +725,11 @@ static hf_register_info rsvpf_info[] = {
      	"", HFILL }},
 
     {&rsvp_filter[RSVPF_ADMIN_STATUS], 
-     { "ADMIN STATUS", "rsvp.admin-status", FT_NONE, BASE_NONE, NULL, 0x0,
+     { "ADMIN STATUS", "rsvp.admin_status", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&rsvp_filter[RSVPF_NOTIFY_REQUEST], 
+     { "NOTIFY REQUEST", "rsvp.notify_request", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
 
     {&rsvp_filter[RSVPF_UNKNOWN_OBJ], 
@@ -752,8 +789,6 @@ static inline int rsvp_class_to_filter_num(int classnum)
     case RSVP_CLASS_POLICY :
     case RSVP_CLASS_CONFIRM :
     case RSVP_CLASS_LABEL :
-    case RSVP_CLASS_UPSTREAM_LABEL :
-    case RSVP_CLASS_LABEL_SET :
     case RSVP_CLASS_LABEL_REQUEST :
     case RSVP_CLASS_HELLO :
     case RSVP_CLASS_EXPLICIT_ROUTE :
@@ -764,10 +799,21 @@ static inline int rsvp_class_to_filter_num(int classnum)
 	return classnum + RSVPF_OBJECT;
 	break;
 
+    case RSVP_CLASS_RECOVERY_LABEL :
+    case RSVP_CLASS_UPSTREAM_LABEL :
+    case RSVP_CLASS_LABEL_SET :
+    case RSVP_CLASS_PROTECTION :
+	return RSVPF_RECOVERY_LABEL + (classnum - RSVP_CLASS_RECOVERY_LABEL);
+
     case RSVP_CLASS_SUGGESTED_LABEL :
-	return RSVPF_SUGGESTED_LABEL;
+    case RSVP_CLASS_ACCEPTABLE_LABEL_SET :
+    case RSVP_CLASS_RESTART_CAP :
+	return RSVPF_SUGGESTED_LABEL + (classnum - RSVP_CLASS_SUGGESTED_LABEL);
+
+    case RSVP_CLASS_NOTIFY_REQUEST :
     case RSVP_CLASS_ADMIN_STATUS :
-	return RSVPF_ADMIN_STATUS;
+	return RSVPF_NOTIFY_REQUEST + (classnum - RSVP_CLASS_NOTIFY_REQUEST);
+
     case RSVP_CLASS_SESSION_ATTRIBUTE :
 	return RSVPF_SESSION_ATTRIBUTE;
     case RSVP_CLASS_DCLASS :
