@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-string.c,v 1.13 2003/08/27 15:23:07 gram Exp $
+ * $Id: ftype-string.c,v 1.14 2003/10/29 23:48:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,10 @@ static void
 string_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 {
 	g_assert(value != NULL);
+
+	/* Free up the old value, if we have one */
+	string_fvalue_free(fv);
+
 	if (already_copied) {
 		fv->value.string = value;
 	}
@@ -113,6 +117,9 @@ value_get(fvalue_t *fv)
 static gboolean
 val_from_string(fvalue_t *fv, char *s, LogFunc logfunc _U_)
 {
+	/* Free up the old value, if we have one */
+	string_fvalue_free(fv);
+
 	fv->value.string = g_strdup(s);
 	return TRUE;
 }
@@ -121,6 +128,10 @@ static gboolean
 val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	fvalue_t *fv_bytes;
+
+	/* Free up the old value, if we have one */
+	string_fvalue_free(fv);
+
 	/* Does this look like a byte-string? */
 	fv_bytes = fvalue_from_unparsed(FT_BYTES, s, TRUE, NULL);
 	if (fv_bytes) {

@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-bytes.c,v 1.17 2003/08/27 15:23:05 gram Exp $
+ * $Id: ftype-bytes.c,v 1.18 2003/10/29 23:48:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,6 +55,10 @@ static void
 bytes_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 {
 	g_assert(already_copied);
+
+	/* Free up the old value, if we have one */
+	bytes_fvalue_free(fv);
+
 	fv->value.bytes = value;
 }
 
@@ -92,6 +96,9 @@ bytes_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 static void
 common_fvalue_set(fvalue_t *fv, guint8* data, guint len)
 {
+	/* Free up the old value, if we have one */
+	bytes_fvalue_free(fv);
+
 	fv->value.bytes = g_byte_array_new();
 	g_byte_array_append(fv->value.bytes, data, len);
 }
@@ -220,8 +227,10 @@ bytes_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, Log
 		return FALSE;
 	}
 
-	fv->value.bytes = bytes;
+	/* Free up the old value, if we have one */
+	bytes_fvalue_free(fv);
 
+	fv->value.bytes = bytes;
 
 	return TRUE;
 }

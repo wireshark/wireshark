@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-tvbuff.c,v 1.11 2003/08/27 21:11:39 guy Exp $
+ * $Id: ftype-tvbuff.c,v 1.12 2003/10/29 23:48:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,7 +40,7 @@ value_new(fvalue_t *fv)
 static void
 value_free(fvalue_t *fv)
 {
-	if (fv->tvb_is_private) {
+	if (fv->value.tvb && fv->tvb_is_private) {
 		tvb_free_chain(fv->value.tvb);
 	}
 }
@@ -50,6 +50,10 @@ static void
 value_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 {
 	g_assert(already_copied);
+
+	/* Free up the old value, if we have one */
+	value_free(fv);
+
 	fv->value.tvb = value;
 }
 
@@ -65,6 +69,9 @@ val_from_string(fvalue_t *fv, char *s, LogFunc logfunc _U_)
 {
 	tvbuff_t *new_tvb;
 	guint8 *private_data;
+
+	/* Free up the old value, if we have one */
+	value_free(fv);
 
 	/* Make a tvbuff from the string. We can drop the
 	 * terminating NUL. */
@@ -87,6 +94,9 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 	fvalue_t *fv_bytes;
 	tvbuff_t *new_tvb;
 	guint8 *private_data;
+
+	/* Free up the old value, if we have one */
+	value_free(fv);
 
 	/* Does this look like a byte string? */
 	fv_bytes = fvalue_from_unparsed(FT_BYTES, s, TRUE, NULL);

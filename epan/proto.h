@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.41 2003/08/25 00:15:02 guy Exp $
+ * $Id: proto.h,v 1.42 2003/10/29 23:48:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -375,6 +375,9 @@ extern proto_item *
 proto_tree_add_string_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const char* value, const char *format, ...);
 #endif
+
+extern void
+proto_item_append_string(proto_item *pi, const char *str);
 
 /* Add a FT_BOOLEAN to a proto_tree */
 extern proto_item *

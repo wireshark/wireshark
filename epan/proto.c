@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.100 2003/10/06 20:46:52 guy Exp $
+ * $Id: proto.c,v 1.101 2003/10/29 23:48:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1234,6 +1234,31 @@ proto_tree_add_string_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint 
 	va_end(ap);
 
 	return pi;
+}
+
+/* Appends string data to a FT_STRING or FT_STRINGZ, allowing progressive
+ * field info update instead of only updating the representation as does
+ * proto_item_append_text()
+ */
+void
+proto_item_append_string(proto_item *pi, const char *str)
+{
+	field_info *fi;
+	header_field_info *hfinfo;
+	gchar *old_str, *new_str;
+
+	if (!pi)
+		return;
+	if (!*str)
+		return;
+
+	fi = PITEM_FINFO(pi);
+	hfinfo = fi->hfinfo;
+	g_assert(hfinfo->type == FT_STRING || hfinfo->type == FT_STRINGZ);
+	old_str = fvalue_get(fi->value);
+	new_str = g_malloc(strlen(old_str) + strlen(str) + 1);
+	sprintf(new_str, "%s%s", old_str, str);
+	fvalue_set(fi->value, new_str, TRUE);
 }
 
 /* Set the FT_STRING value */
