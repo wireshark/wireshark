@@ -1064,6 +1064,7 @@ B<http://www.ethereal.com>.
   Greg Kilfoyle            <gregk@redback.com>
   James E. Flemer          <jflemer@acm.jhu.edu>
   Peter Lei                <peterlei@cisco.com>
+  Thomas Gimpel            <thomas.gimpel@ferrari.de>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

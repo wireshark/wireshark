@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.23 2001/02/11 23:19:00 guy Exp $
+ * $Id: packet-q931.c,v 1.24 2001/03/08 19:15:31 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -78,7 +78,7 @@ static gint ett_q931_ie = -1;
 #define	Q931_CONNECT_ACK	0x0F
 #define	Q931_PROGRESS		0x03
 #define	Q931_SETUP		0x05
-#define	Q931_SETUP_ACK		0x0B
+#define	Q931_SETUP_ACK		0x0D
 #define	Q931_HOLD		0x24
 #define	Q931_HOLD_ACK		0x28
 #define	Q931_HOLD_REJECT	0x30
@@ -1095,14 +1095,15 @@ static const value_string q931_call_state_vals[] = {
 	{ 0x04, "Call delivered" },
 	{ 0x06, "Call present" },
 	{ 0x07, "Call received" },
-	{ 0x09, "Connect request" },
-	{ 0x0A, "Incoming call proceeding" },
-	{ 0x0B, "Active" },
-	{ 0x0C, "Disconnect request" },
-	{ 0x0F, "Disconnect indication" },
-	{ 0x11, "Suspend request" },
-	{ 0x13, "Resume request" },
-	{ 0x16, "Release request" },
+	{ 0x08, "Connect request" },
+	{ 0x09, "Incoming call proceeding" },
+	{ 0x0A, "Active" },
+	{ 0x0B, "Disconnect request" },
+	{ 0x0C, "Disconnect indication" },
+	{ 0x0F, "Suspend request" },
+	{ 0x12, "Resume request" },
+	{ 0x13, "Release request" },
+	{ 0x16, "Call abort"},
 	{ 0x19, "Overlap receiving" },
 	{ 0x3D, "Restart request" },
 	{ 0x3E, "Restart" },
