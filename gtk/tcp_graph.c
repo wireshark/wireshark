@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.41 2004/01/05 18:11:28 ulfl Exp $
+ * $Id: tcp_graph.c,v 1.42 2004/01/10 12:43:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1191,7 +1191,7 @@ static void callback_zoom_step (GtkWidget *spin, gpointer data)
 	double old_this;
 
 	direction = (int)OBJECT_GET_DATA(spin, "direction");
-	value = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (spin));
+	value = (float) gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (spin));
 
 	if (direction) {
 		zoom_this = &g->zoom.step_y;
@@ -1392,7 +1392,7 @@ static void callback_mag_zoom (GtkWidget *spin, gpointer data)
 		return;
 	}
 	direction = (int)OBJECT_GET_DATA(spin, "direction");
-	value = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (spin));
+	value = (float) gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (spin));
 
 	if (direction) {
 		zoom_this = &g->magnify.zoom.y;
