@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.52 2003/01/08 23:07:44 guy Exp $
+ * $Id: packet-atm.c,v 1.53 2003/01/09 01:55:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1139,19 +1139,19 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   switch (pinfo->pseudo_header->atm.channel) {
 
   case 0:
-    /* Traffic from DCE to DTE. */
-    if (check_col(pinfo->cinfo, COL_RES_DL_DST))
-      col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DTE");
-    if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
-      col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DCE");
-    break;
-
-  case 1:
     /* Traffic from DTE to DCE. */
     if (check_col(pinfo->cinfo, COL_RES_DL_DST))
       col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DCE");
     if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
       col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DTE");
+    break;
+
+  case 1:
+    /* Traffic from DCE to DTE. */
+    if (check_col(pinfo->cinfo, COL_RES_DL_DST))
+      col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DTE");
+    if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
+      col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DCE");
     break;
   }
 
@@ -1174,13 +1174,13 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     switch (pinfo->pseudo_header->atm.channel) {
 
     case 0:
-      /* Traffic from DCE to DTE. */
-      proto_tree_add_text(atm_tree, tvb, 0, 0, "Channel: DCE->DTE");
+      /* Traffic from DTE to DCE. */
+      proto_tree_add_text(atm_tree, tvb, 0, 0, "Channel: DTE->DCE");
       break;
 
     case 1:
-      /* Traffic from DTE to DCE. */
-      proto_tree_add_text(atm_tree, tvb, 0, 0, "Channel: DTE->DCE");
+      /* Traffic from DCE to DTE. */
+      proto_tree_add_text(atm_tree, tvb, 0, 0, "Channel: DCE->DTE");
       break;
 
     default:

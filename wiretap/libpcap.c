@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.88 2003/01/08 05:03:54 guy Exp $
+ * $Id: libpcap.c,v 1.89 2003/01/09 01:55:12 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1158,7 +1158,7 @@ libpcap_get_atm_pseudoheader(const struct sunatm_hdr *atm_phdr,
 
 	pseudo_header->atm.vpi = vpi;
 	pseudo_header->atm.vci = vci;
-	pseudo_header->atm.channel = (atm_phdr->flags & 0x80) ? 1 : 0;
+	pseudo_header->atm.channel = (atm_phdr->flags & 0x80) ? 0 : 1;
 
 	/* We don't have this information */
 	pseudo_header->atm.cells = 0;
@@ -1476,7 +1476,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		 * Write the ATM header.
 		 */
 		atm_hdr.flags =
-		    (pseudo_header->atm.channel != 0) ? 0x80 : 0x00;
+		    (pseudo_header->atm.channel == 0) ? 0x80 : 0x00;
 		switch (pseudo_header->atm.aal) {
 
 		case AAL_SIGNALLING:

@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.72 2003/01/07 07:16:24 guy Exp $
+ * $Id: netxray.c,v 1.73 2003/01/09 01:55:12 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -648,7 +648,7 @@ netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
 			pseudo_header->atm.vpi = hdr->hdr_2_x.xxx[11];
 			pseudo_header->atm.vci = pletohs(&hdr->hdr_2_x.xxx[12]);
 			pseudo_header->atm.channel =
-			    (hdr->hdr_2_x.xxx[15] & 0x10)? 0 : 1;
+			    (hdr->hdr_2_x.xxx[15] & 0x10)? 1 : 0;
 			pseudo_header->atm.cells = 0;
 
 			switch (hdr->hdr_2_x.xxx[0] & 0xF0) {

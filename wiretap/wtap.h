@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.130 2003/01/08 05:03:54 guy Exp $
+ * $Id: wtap.h,v 1.131 2003/01/09 01:55:13 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -274,7 +274,7 @@ struct atm_phdr {
 	guint8	subtype;	/* traffic subtype */
 	guint16	vpi;		/* virtual path identifier */
 	guint16	vci;		/* virtual circuit identifier */
-	guint16	channel;	/* link: 0 for DCE, 1 for DTE */
+	guint16	channel;	/* link: 0 for DTE->DCE, 1 for DCE->DTE */
 	guint16	cells;		/* number of cells */
 	guint16	aal5t_u2u;	/* user-to-user indicator */
 	guint16	aal5t_len;	/* length of the packet */
