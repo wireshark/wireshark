@@ -2,7 +2,7 @@
  * Routines for Q.933 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q933.c,v 1.1 2003/09/03 05:39:21 guy Exp $
+ * $Id: packet-q933.c,v 1.2 2003/09/03 18:27:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -232,12 +232,6 @@ static const value_string *q933_info_element_vals[] = {
   q933_info_element_vals7,
 };
 
-static const value_string q933_congestion_level_vals[] = {
-	{ 0x0, "Receiver ready" },
-	{ 0xF, "Receiver not ready" },
-	{ 0,   NULL }
-};
-
 static const value_string q933_repeat_indication_vals[] = {
 	{ 0x2, "Prioritized list" },
 	{ 0,   NULL }
@@ -294,19 +288,6 @@ static const value_string q933_transfer_mode_vals[] = {
 	{ 0,    NULL }
 };
 
-#define	Q933_IT_RATE_MULTIRATE	0x18
-
-static const value_string q933_information_transfer_rate_vals[] = {
-	{ 0x00,				"Packet mode" },
-	{ 0x10,				"64 kbit/s" },
-	{ 0x11,				"2 x 64 kbit/s" },
-	{ 0x13,				"384 kbit/s" },
-	{ 0x15,				"1536 kbit/s" },
-	{ 0x17,				"1920 kbit/s" },
-	{ Q933_IT_RATE_MULTIRATE,	"Multirate (64 kbit/s base rate)" },
-	{ 0,				NULL }
-};
-
 static const value_string q933_uil1_vals[] = {
 	{ 0x01, "V.110/I.460/X.30 rate adaption" },
 	{ 0x02, "Recommendation G.711 u-law" },
@@ -351,13 +332,6 @@ static const value_string q933_l1_user_rate_vals[] = {
 	{ 0,    NULL }
 };
 
-static const value_string q933_l1_intermediate_rate_vals[] = {
-	{ 0x20, "8 kbit/s" },
-	{ 0x40, "16 kbit/s" },
-	{ 0x60, "32 kbit/s" },
-	{ 0,    NULL }
-};
-
 static const value_string q933_l1_stop_bits_vals[] = {
 	{ 0x20, "1" },
 	{ 0x40, "1.5" },
@@ -378,23 +352,6 @@ static const value_string q933_l1_parity_vals[] = {
 	{ 0x03, "None" },
 	{ 0x04, "Forced to 0" },
 	{ 0x05, "Forced to 1" },
-	{ 0,    NULL }
-};
-
-static const value_string q933_l1_modem_type_vals[] = {
-	{ 0x11, "V.21" },
-	{ 0x12, "V.22" },
-	{ 0x13, "V.22 bis" },
-	{ 0x14, "V.23" },
-	{ 0x15, "V.26" },
-	{ 0x16, "V.26 bis" },
-	{ 0x17, "V.26 ter" },
-	{ 0x18, "V.27" },
-	{ 0x19, "V.27 bis" },
-	{ 0x1A, "V.27 ter" },
-	{ 0x1B, "V.29" },
-	{ 0x1C, "V.32" },
-	{ 0x1E, "V.34" },
 	{ 0,    NULL }
 };
 
