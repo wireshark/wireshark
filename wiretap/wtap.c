@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.45 2000/06/27 07:13:42 guy Exp $
+ * $Id: wtap.c,v 1.46 2000/08/19 18:31:23 deniel Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -164,7 +164,7 @@ static const char *wtap_errlist[] = {
 
 const char *wtap_strerror(int err)
 {
-	static char errbuf[6+11+1];	/* "Error %d" */
+	static char errbuf[128];
 	int wtap_errlist_index;
 
 	if (err < 0) {
