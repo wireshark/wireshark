@@ -952,15 +952,15 @@ id-at OBJECT IDENTIFIER ::= {joint-iso-itu-t ds(5) 4}
 -- id-at-aliasedEntryName				OBJECT IDENTIFIER	::=	{id-at 1}
 -- id-at-encryptedAliasedEntryName OBJECT IDENTIFIER ::=
 --  {id-at 1 2}
--- 
--- id-at-knowledgeInformation OBJECT IDENTIFIER ::= {id-at 2}
--- 
--- id-at-commonName OBJECT IDENTIFIER ::= {id-at 3}
--- 
+
+id-at-knowledgeInformation OBJECT IDENTIFIER ::= {id-at 2}
+
+id-at-commonName OBJECT IDENTIFIER ::= {id-at 3}
+
 -- id-at-encryptedCommonName OBJECT IDENTIFIER ::= {id-at 3 2}
--- 
--- id-at-surname OBJECT IDENTIFIER ::= {id-at 4}
--- 
+
+id-at-surname OBJECT IDENTIFIER ::= {id-at 4}
+
 -- id-at-encryptedSurname OBJECT IDENTIFIER ::= {id-at 4 2}
 -- 
 -- id-at-serialNumber OBJECT IDENTIFIER ::= {id-at 5}
@@ -970,63 +970,63 @@ id-at OBJECT IDENTIFIER ::= {joint-iso-itu-t ds(5) 4}
 id-at-countryName OBJECT IDENTIFIER ::= {id-at 6}
 
 -- id-at-encryptedCountryName OBJECT IDENTIFIER ::= {id-at 6 2}
--- 
--- id-at-localityName OBJECT IDENTIFIER ::= {id-at 7}
--- 
+
+id-at-localityName OBJECT IDENTIFIER ::= {id-at 7}
+
 -- id-at-encryptedLocalityName OBJECT IDENTIFIER ::= {id-at 7 2}
--- 
--- id-at-collectiveLocalityName OBJECT IDENTIFIER ::= {id-at 7 1}
--- 
+
+id-at-collectiveLocalityName OBJECT IDENTIFIER ::= {id-at 7 1}
+
 -- id-at-encryptedCollectiveLocalityName OBJECT IDENTIFIER ::= {id-at 7 1 2}
--- 
--- id-at-stateOrProvinceName OBJECT IDENTIFIER ::= {id-at 8}
--- 
+
+id-at-stateOrProvinceName OBJECT IDENTIFIER ::= {id-at 8}
+
 -- id-at-encryptedStateOrProvinceName OBJECT IDENTIFIER ::= {id-at 8 2}
--- 
--- id-at-collectiveStateOrProvinceName OBJECT IDENTIFIER ::= {id-at 8 1}
--- 
+
+id-at-collectiveStateOrProvinceName OBJECT IDENTIFIER ::= {id-at 8 1}
+
 -- id-at-encryptedCollectiveStateOrProvinceName OBJECT IDENTIFIER ::=
 --   {id-at 8 1 2}
--- 
--- id-at-streetAddress OBJECT IDENTIFIER ::= {id-at 9}
--- 
+
+id-at-streetAddress OBJECT IDENTIFIER ::= {id-at 9}
+
 -- id-at-encryptedStreetAddress OBJECT IDENTIFIER ::= {id-at 9 2}
--- 
--- id-at-collectiveStreetAddress OBJECT IDENTIFIER ::= {id-at 9 1}
--- 
+
+id-at-collectiveStreetAddress OBJECT IDENTIFIER ::= {id-at 9 1}
+
 -- id-at-encryptedCollectiveStreetAddress OBJECT IDENTIFIER ::= {id-at 9 1 2}
 
 id-at-organizationName OBJECT IDENTIFIER ::= {id-at 10}
 
 -- id-at-encryptedOrganizationName OBJECT IDENTIFIER ::= {id-at 10 2}
--- 
--- id-at-collectiveOrganizationName OBJECT IDENTIFIER ::= {id-at 10 1}
--- 
+
+id-at-collectiveOrganizationName OBJECT IDENTIFIER ::= {id-at 10 1}
+
 -- id-at-encryptedCollectiveOrganizationName OBJECT IDENTIFIER ::= {id-at 10 1 2}
--- 
--- id-at-organizationalUnitName OBJECT IDENTIFIER ::= {id-at 11}
--- 
+
+id-at-organizationalUnitName OBJECT IDENTIFIER ::= {id-at 11}
+
 -- id-at-encryptedOrganizationalUnitName OBJECT IDENTIFIER ::= {id-at 11 2}
--- 
--- id-at-collectiveOrganizationalUnitName OBJECT IDENTIFIER ::= {id-at 11 1}
--- 
+
+id-at-collectiveOrganizationalUnitName OBJECT IDENTIFIER ::= {id-at 11 1}
+
 -- id-at-encryptedCollectiveOrganizationalUnitName OBJECT IDENTIFIER ::=
 --   {id-at 11 1 2}
--- 
--- id-at-title OBJECT IDENTIFIER ::= {id-at 12}
--- 
+
+id-at-title OBJECT IDENTIFIER ::= {id-at 12}
+
 -- id-at-encryptedTitle OBJECT IDENTIFIER ::= {id-at 12 2}
--- 
--- id-at-description OBJECT IDENTIFIER ::= {id-at 13}
--- 
+
+id-at-description OBJECT IDENTIFIER ::= {id-at 13}
+
 -- id-at-encryptedDescription OBJECT IDENTIFIER ::= {id-at 13 2}
 -- 
 -- id-at-searchGuide OBJECT IDENTIFIER ::= {id-at 14}
 -- 
 -- id-at-encryptedSearchGuide OBJECT IDENTIFIER ::= {id-at 14 2}
--- 
--- id-at-businessCategory OBJECT IDENTIFIER ::= {id-at 15}
--- 
+
+id-at-businessCategory OBJECT IDENTIFIER ::= {id-at 15}
+
 -- id-at-encryptedBusinessCategory OBJECT IDENTIFIER ::= {id-at 15 2}
 -- 
 -- id-at-postalAddress OBJECT IDENTIFIER ::= {id-at 16}
@@ -1036,29 +1036,29 @@ id-at-organizationName OBJECT IDENTIFIER ::= {id-at 10}
 -- id-at-collectivePostalAddress OBJECT IDENTIFIER ::= {id-at 16 1}
 -- 
 -- id-at-encryptedCollectivePostalAddress OBJECT IDENTIFIER ::= {id-at 16 1 2}
--- 
--- id-at-postalCode OBJECT IDENTIFIER ::= {id-at 17}
--- 
+
+id-at-postalCode OBJECT IDENTIFIER ::= {id-at 17}
+
 -- id-at-encryptedPostalCode OBJECT IDENTIFIER ::= {id-at 17 2}
--- 
--- id-at-collectivePostalCode OBJECT IDENTIFIER ::= {id-at 17 1}
--- 
+
+id-at-collectivePostalCode OBJECT IDENTIFIER ::= {id-at 17 1}
+
 -- id-at-encryptedCollectivePostalCode OBJECT IDENTIFIER ::= {id-at 17 1 2}
--- 
--- id-at-postOfficeBox OBJECT IDENTIFIER ::= {id-at 18}
--- 
+
+id-at-postOfficeBox OBJECT IDENTIFIER ::= {id-at 18}
+
 -- id-at-encryptedPostOfficeBox OBJECT IDENTIFIER ::= {id-at 18 2}
--- 
--- id-at-collectivePostOfficeBox OBJECT IDENTIFIER ::= {id-at 18 1}
--- 
+
+id-at-collectivePostOfficeBox OBJECT IDENTIFIER ::= {id-at 18 1}
+
 -- id-at-encryptedCollectivePostOfficeBox OBJECT IDENTIFIER ::= {id-at 18 1 2}
--- 
--- id-at-physicalDeliveryOfficeName OBJECT IDENTIFIER ::= {id-at 19}
--- 
+
+id-at-physicalDeliveryOfficeName OBJECT IDENTIFIER ::= {id-at 19}
+
 -- id-at-encryptedPhysicalDeliveryOfficeName OBJECT IDENTIFIER ::= {id-at 19 2}
--- 
--- id-at-collectivePhysicalDeliveryOfficeName OBJECT IDENTIFIER ::= {id-at 19 1}
--- 
+
+id-at-collectivePhysicalDeliveryOfficeName OBJECT IDENTIFIER ::= {id-at 19 1}
+
 -- id-at-encryptedCollectivePhysicalDeliveryOfficeName OBJECT IDENTIFIER ::=
 --   {id-at 19 1 2}
 -- 
@@ -1165,19 +1165,19 @@ id-at-organizationName OBJECT IDENTIFIER ::= {id-at 10}
 -- id-at-crossCertificatePair				OBJECT IDENTIFIER	::=	{id-at 40}
 -- id-at-encryptedCrossCertificatePair OBJECT IDENTIFIER ::=
 --   {id-at 40 2}
--- 
--- id-at-name OBJECT IDENTIFIER ::= {id-at 41}
--- 
--- id-at-givenName OBJECT IDENTIFIER ::= {id-at 42}
--- 
+
+id-at-name OBJECT IDENTIFIER ::= {id-at 41}
+
+id-at-givenName OBJECT IDENTIFIER ::= {id-at 42}
+
 -- id-at-encryptedGivenName OBJECT IDENTIFIER ::= {id-at 42 2}
--- 
--- id-at-initials OBJECT IDENTIFIER ::= {id-at 43}
--- 
+
+id-at-initials OBJECT IDENTIFIER ::= {id-at 43}
+
 -- id-at-encryptedInitials OBJECT IDENTIFIER ::= {id-at 43 2}
--- 
--- id-at-generationQualifier OBJECT IDENTIFIER ::= {id-at 44}
--- 
+
+id-at-generationQualifier OBJECT IDENTIFIER ::= {id-at 44}
+
 -- id-at-encryptedGenerationQualifier OBJECT IDENTIFIER ::= {id-at 44 2}
 -- 
 -- id-at-uniqueIdentifier OBJECT IDENTIFIER ::= {id-at 45}
@@ -1203,9 +1203,9 @@ id-at-organizationName OBJECT IDENTIFIER ::= {id-at 10}
 -- id-at-uniqueMember OBJECT IDENTIFIER ::= {id-at 50}
 -- 
 -- id-at-encryptedUniqueMember OBJECT IDENTIFIER ::= {id-at 50 2}
--- 
--- id-at-houseIdentifier OBJECT IDENTIFIER ::= {id-at 51}
--- 
+
+id-at-houseIdentifier OBJECT IDENTIFIER ::= {id-at 51}
+
 -- id-at-encryptedHouseIdentifier OBJECT IDENTIFIER ::= {id-at 51 2}
 -- 
 -- id-at-supportedAlgorithms				OBJECT IDENTIFIER	::=	{id-at 52}
@@ -1215,9 +1215,9 @@ id-at-organizationName OBJECT IDENTIFIER ::= {id-at 10}
 -- id-at-deltaRevocationList				OBJECT IDENTIFIER	::=	{id-at 53}
 -- id-at-encryptedDeltaRevocationList OBJECT IDENTIFIER ::=
 --   {id-at 53 2}
--- 
--- id-at-dmdName OBJECT IDENTIFIER ::= {id-at 54}
--- 
+
+id-at-dmdName OBJECT IDENTIFIER ::= {id-at 54}
+
 -- id-at-encryptedDmdName OBJECT IDENTIFIER ::= {id-at 54 2}
 -- 
 -- id-at-clearance   						OBJECT IDENTIFIER	::=	{id-at 55}
@@ -1245,8 +1245,7 @@ id-at-organizationName OBJECT IDENTIFIER ::= {id-at 10}
 --   {id-at 60 2}
 -- 
 -- id-at-family-information			        OBJECT IDENTIFIER		{id-at 64}
--- id-at-pseudonym OBJECT IDENTIFIER ::=
---   {id-at 65}
+id-at-pseudonym OBJECT IDENTIFIER ::= {id-at 65}
 -- 
 -- id-at-communicationsService OBJECT IDENTIFIER ::= {id-at 66}
 -- 
