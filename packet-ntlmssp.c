@@ -2,7 +2,7 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.23 2002/09/23 22:55:32 tpot Exp $
+ * $Id: packet-ntlmssp.c,v 1.24 2002/09/24 00:14:46 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -618,6 +618,12 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			 tvb, offset, 4, TRUE);
     ntlmssp_message_type = tvb_get_letohl (tvb, offset);
     offset += 4; 
+
+    if (check_col(pinfo->cinfo, COL_INFO))
+	    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+			    val_to_str(ntlmssp_message_type, 
+				       ntlmssp_message_types,
+				       "Unknown message type"));
 
     /* Call the appropriate dissector based on the Message Type */
     switch (ntlmssp_message_type) {
