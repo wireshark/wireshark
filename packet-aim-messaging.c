@@ -4,7 +4,7 @@
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  * Copyright 2004, Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-aim-messaging.c,v 1.9 2004/06/03 04:19:38 guy Exp $
+ * $Id: packet-aim-messaging.c,v 1.10 2004/06/04 03:58:25 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -143,8 +143,6 @@ static int dissect_aim_messaging(tvbuff_t *tvb, packet_info *pinfo,
 {
   guint8 buddyname_length = 0;
   char buddyname[MAX_BUDDYNAME_LENGTH + 1];
-  gint msg_length;
-  guchar msg[1000];
   int offset = 0;
   struct aiminfo *aiminfo = pinfo->private_data;
   proto_item *ti = NULL;
