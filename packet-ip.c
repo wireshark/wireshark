@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.114 2000/12/14 21:44:01 guy Exp $
+ * $Id: packet-ip.c,v 1.115 2000/12/29 04:16:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -797,6 +797,11 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   pinfo->current_proto = "IP";
 
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_set_str(pinfo->fd, COL_PROTOCOL, "IP");
+  if (check_col(pinfo->fd, COL_INFO))
+    col_clear(pinfo->fd, COL_INFO);
+
   /* Avoids alignment problems on many architectures. */
   tvb_memcpy(tvb, (guint8 *)&iph, offset, sizeof(e_ip));
   iph.ip_len = ntohs(iph.ip_len);
@@ -922,8 +927,6 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   nxt = iph.ip_p;
   if (iph.ip_off & IP_OFFSET) {
     /* fragmented */
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-      col_set_str(pinfo->fd, COL_PROTOCOL, "IP");
     if (check_col(pinfo->fd, COL_INFO))
       col_add_fstr(pinfo->fd, COL_INFO, "Fragmented IP protocol (proto=%s 0x%02x, off=%u)",
 	ipprotostr(iph.ip_p), iph.ip_p, (iph.ip_off & IP_OFFSET) * 8);
@@ -950,8 +953,6 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   next_tvb = tvb_new_subset(tvb, offset, -1, -1);
   if (!dissector_try_port(ip_dissector_table, nxt, next_tvb, pinfo, tree)) {
     /* Unknown protocol */
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-      col_set_str(pinfo->fd, COL_PROTOCOL, "IP");
     if (check_col(pinfo->fd, COL_INFO))
       col_add_fstr(pinfo->fd, COL_INFO, "%s (0x%02x)", ipprotostr(iph.ip_p), iph.ip_p);
     dissect_data(next_tvb, 0, pinfo, tree);
@@ -1011,6 +1012,11 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   CHECK_DISPLAY_AS_DATA(proto_icmp, tvb, pinfo, tree);
 
   pinfo->current_proto = "ICMP";
+
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_set_str(pinfo->fd, COL_PROTOCOL, "ICMP");
+  if (check_col(pinfo->fd, COL_INFO))
+    col_clear(pinfo->fd, COL_INFO);
 
   /* To do: check for runts, errs, etc. */
   icmp_type = tvb_get_guint8(tvb, 0);
@@ -1087,8 +1093,6 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       strcpy(type_str, "Unknown ICMP (obsolete or malformed?)");
   }
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "ICMP");
   if (check_col(pinfo->fd, COL_INFO))
     col_add_str(pinfo->fd, COL_INFO, type_str);
 
@@ -1236,8 +1240,11 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   CHECK_DISPLAY_AS_DATA(proto_igmp, tvb, pinfo, tree);
 
   pinfo->current_proto = "IGMP";
+
   if (check_col(pinfo->fd, COL_PROTOCOL))
     col_set_str(pinfo->fd, COL_PROTOCOL, "IGMP");
+  if (check_col(pinfo->fd, COL_INFO))
+    col_clear(pinfo->fd, COL_INFO);
 
   /* Avoids alignment problems on many architectures. */
   memcpy(&ih, tvb_get_ptr(tvb, 0, sizeof(e_igmp)), sizeof(e_igmp));

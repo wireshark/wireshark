@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.38 2000/11/30 10:42:50 guy Exp $
+ * $Id: packet-arp.c,v 1.39 2000/12/29 04:16:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -650,6 +650,17 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   CHECK_DISPLAY_AS_DATA(proto_arp, tvb, pinfo, tree);
 
   pinfo->current_proto = "ARP";
+
+  /* Call it ARP, for now, so that if we throw an exception before
+     we decide whether it's ARP or RARP or IARP or ATMARP, it shows
+     up in the packet list as ARP.
+
+     Clear the Info column so that, if we throw an exception, it
+     shows up as a short or malformed ARP frame. */
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+      col_set_str(pinfo->fd, COL_PROTOCOL, "ARP");
+  if (check_col(pinfo->fd, COL_INFO))
+      col_clear(pinfo->fd, COL_INFO);
 
   ar_hrd = tvb_get_ntohs(tvb, AR_HRD);
   if (ar_hrd == ARPHRD_ATM2225) {
