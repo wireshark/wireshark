@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.15 2003/01/28 22:18:06 guy Exp $
+# $Id: Makefile.nmake,v 1.16 2003/04/18 04:46:38 guy Exp $
 #
 # NSIS is a free packager/installer/uninstaller program for Win32.
 # It was originally written for the Winamp package, but various
@@ -33,7 +33,7 @@ PLUGINS=../../plugins/docsis/docsis.dll \
 DELIVERABLES=$(EXE) $(DLL) $(DOC) $(GPL) $(PLUGINS) 
 
 ethereal-setup-$(VERSION).exe : ethereal.nsi $(DELIVERABLES)
-	$(MAKENSIS) /DVERSION=$(VERSION) /DWTAP_VERSION=$(WTAP_VERSION) /DCOMMON_FILES_GNU=$(COMMON_FILES_GNU) ethereal.nsi
+	$(MAKENSIS) /DVERSION=$(VERSION) /DWTAP_VERSION=$(WTAP_VERSION) /DCOMMON_FILES_GNU=$(COMMON_FILES_GNU) /DNET_SNMP_DIR=$(NET_SNMP_DIR) ethereal.nsi
 
 clean:
 	rm -f ethereal-setup-$(VERSION).exe

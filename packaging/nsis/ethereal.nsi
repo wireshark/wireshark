@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.10 2003/04/09 18:58:37 gerald Exp $
+; $Id: ethereal.nsi,v 1.11 2003/04/18 04:46:38 guy Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -152,9 +152,7 @@ SectionEnd
 Section "SNMP MIBs"
 ;-------------------------------------------
 SetOutPath $INSTDIR\snmp\mibs
-; NOTE: You'll have to specify the path to the Net-SNMP mibs directory
-;       on your system here.
-File "..\..\..\libs\net-snmp-5.0.6\mibs\*.txt"
+File "${NET_SNMP_DIR}\mibs\*.txt"
 SectionEnd
 
 ; SectionDivider
