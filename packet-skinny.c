@@ -11,7 +11,7 @@
  * This file is based on packet-aim.c, which is
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-skinny.c,v 1.16 2002/03/21 11:18:44 guy Exp $
+ * $Id: packet-skinny.c,v 1.17 2002/03/27 20:29:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -459,11 +459,11 @@ static const value_string softKeyLabel[] = {
  */
 static const value_string stationLampModes[] = {
   {0   , "Undefined"},
-  {0x1 , "LampOff"},
-  {0x2 , "LampOn"},
-  {0x3 , "LampWink"},
-  {0x4 , "LampFlash"},
-  {0x5 , "LampBlink"},
+  {0x1 , "Off"},
+  {0x2 , "On"},
+  {0x3 , "Wink"},
+  {0x4 , "Flash"},
+  {0x5 , "Blink"},
   {0   , NULL}
 }; 
 
@@ -491,9 +491,9 @@ static const value_string skinny_stationCallStates[] = {
 
 /* Defined Call Type */
 static const value_string skinny_callTypes[] = { 
-  {1   , "TsInBoundCall"},
-  {2   , "TsOutBoundCall"}, 
-  {3   , "TsForwardCall"}, 
+  {1   , "InBoundCall"},
+  {2   , "OutBoundCall"}, 
+  {3   , "ForwardCall"}, 
   {0   , NULL}
 }; 
 
@@ -502,95 +502,95 @@ static const value_string skinny_callTypes[] = {
  * for tone definitions see SR-TSV-002275, "BOC Notes on the LEC Networks -- 1994" 
  */
 static const value_string skinny_deviceTones[] = {
-  {0    , "DtSilence"},
-  {1    , "DtDtmf1"},
-  {2    , "DtDtmf2"},
-  {3    , "DtDtmf3"},
-  {4    , "DtDtmf4"},
-  {5    , "DtDtmf5"},
-  {6    , "DtDtmf6"},
-  {7    , "DtDtmf7"},
-  {8    , "DtDtmf8"},
-  {9    , "DtDtmf9"},
-  {0xa  , "DtDtmf0"},
-  {0xe  , "DtDtmfStar"},
-  {0xf  , "DtDtmfPound"},
-  {0x10 , "DtDtmfA"},
-  {0x11 , "DtDtmfB"},
-  {0x12 , "DtDtmfC"},
-  {0x13 , "DtDtmfD"},
-  {0x21 , "DtInsideDialTone"},
-  {0x22 , "DtOutsideDialTone"},
-  {0x23 , "DtLineBusyTone"},
-  {0x24 , "DtAlertingTone"},
-  {0x25 , "DtReorderTone"},
-  {0x26 , "DtRecorderWarningTone"},
-  {0x27 , "DtRecorderDetectedTone"},
-  {0x28 , "DtRevertingTone"},
-  {0x29 , "DtReceiverOffHookTone"},
-  {0x2a , "DtPartialDialTone"},
-  {0x2b , "DtNoSuchNumberTone"},
-  {0x2c , "DtBusyVerificationTone"},
-  {0x2d , "DtCallWaitingTone"},
-  {0x2e , "DtConfirmationTone"},
-  {0x2f , "DtCampOnIndicationTone"},
-  {0x30 , "DtRecallDialTone"},
-  {0x31 , "DtZipZip"},
-  {0x32 , "DtZip"},
-  {0x33 , "DtBeepBonk"},
-  {0x34 , "DtMusicTone"},
-  {0x35 , "DtHoldTone"},
-  {0x36 , "DtTestTone"},
-  {0x40 , "Dt_AddCallWaiting"},
-  {0x41 , "Dt_PriorityCallWait"},
-  {0x42 , "Dt_RecallDial"},
-  {0x43 , "Dt_BargIn"},
-  {0x44 , "Dt_DistinctAlert"},
-  {0x45 , "Dt_PriorityAlert"},
-  {0x46 , "Dt_ReminderRing"},
-  {0x50 , "Dt_MF1"},
-  {0x51 , "Dt_MF2"},
-  {0x52 , "Dt_MF3"},
-  {0x53 , "Dt_MF4"},
-  {0x54 , "Dt_MF5"},
-  {0x55 , "Dt_MF6"},
-  {0x56 , "Dt_MF7"},
-  {0x57 , "Dt_MF8"},
-  {0x58 , "Dt_MF9"},
-  {0x59 , "Dt_MF0"},
-  {0x5a , "Dt_MFKP1"},
-  {0x5b , "Dt_MFST"},
-  {0x5c , "Dt_MFKP2"},
-  {0x5d , "Dt_MFSTP"},
-  {0x5e , "Dt_MFST3P"},
-  {0x5f , "Dt_MILLIWATT"},
-  {0x60 , "Dt_MILLIWATTTEST"},
-  {0x61 , "Dt_HIGHTONE"},
-  {0x62 , "Dt_FLASHOVERRIDE"},
-  {0x63 , "Dt_FLASH"},
-  {0x64 , "Dt_PRIORITY"},
-  {0x65 , "Dt_IMMEDIATE"},
-  {0x66 , "Dt_PREAMPWARN"},
-  {0x67 , "Dt_2105HZ"},
-  {0x68 , "Dt_2600HZ"},
-  {0x69 , "Dt_440HZ"},
-  {0x6a , "Dt_300HZ"},
-  {0x7f , "Dt_NoTone"},
+  {0    , "Silence"},
+  {1    , "Dtmf1"},
+  {2    , "Dtmf2"},
+  {3    , "Dtmf3"},
+  {4    , "Dtmf4"},
+  {5    , "Dtmf5"},
+  {6    , "Dtmf6"},
+  {7    , "Dtmf7"},
+  {8    , "Dtmf8"},
+  {9    , "Dtmf9"},
+  {0xa  , "Dtmf0"},
+  {0xe  , "DtmfStar"},
+  {0xf  , "DtmfPound"},
+  {0x10 , "DtmfA"},
+  {0x11 , "DtmfB"},
+  {0x12 , "DtmfC"},
+  {0x13 , "DtmfD"},
+  {0x21 , "InsideDialTone"},
+  {0x22 , "OutsideDialTone"},
+  {0x23 , "LineBusyTone"},
+  {0x24 , "AlertingTone"},
+  {0x25 , "ReorderTone"},
+  {0x26 , "RecorderWarningTone"},
+  {0x27 , "RecorderDetectedTone"},
+  {0x28 , "RevertingTone"},
+  {0x29 , "ReceiverOffHookTone"},
+  {0x2a , "PartialDialTone"},
+  {0x2b , "NoSuchNumberTone"},
+  {0x2c , "BusyVerificationTone"},
+  {0x2d , "CallWaitingTone"},
+  {0x2e , "ConfirmationTone"},
+  {0x2f , "CampOnIndicationTone"},
+  {0x30 , "RecallDialTone"},
+  {0x31 , "ZipZip"},
+  {0x32 , "Zip"},
+  {0x33 , "BeepBonk"},
+  {0x34 , "MusicTone"},
+  {0x35 , "HoldTone"},
+  {0x36 , "TestTone"},
+  {0x40 , "AddCallWaiting"},
+  {0x41 , "PriorityCallWait"},
+  {0x42 , "RecallDial"},
+  {0x43 , "BargIn"},
+  {0x44 , "DistinctAlert"},
+  {0x45 , "PriorityAlert"},
+  {0x46 , "ReminderRing"},
+  {0x50 , "MF1"},
+  {0x51 , "MF2"},
+  {0x52 , "MF3"},
+  {0x53 , "MF4"},
+  {0x54 , "MF5"},
+  {0x55 , "MF6"},
+  {0x56 , "MF7"},
+  {0x57 , "MF8"},
+  {0x58 , "MF9"},
+  {0x59 , "MF0"},
+  {0x5a , "MFKP1"},
+  {0x5b , "MFST"},
+  {0x5c , "MFKP2"},
+  {0x5d , "MFSTP"},
+  {0x5e , "MFST3P"},
+  {0x5f , "MILLIWATT"},
+  {0x60 , "MILLIWATTTEST"},
+  {0x61 , "HIGHTONE"},
+  {0x62 , "FLASHOVERRIDE"},
+  {0x63 , "FLASH"},
+  {0x64 , "PRIORITY"},
+  {0x65 , "IMMEDIATE"},
+  {0x66 , "PREAMPWARN"},
+  {0x67 , "2105HZ"},
+  {0x68 , "2600HZ"},
+  {0x69 , "440HZ"},
+  {0x6a , "300HZ"},
+  {0x7f , "NoTone"},
   {0   , NULL}
 };
 
 /* define ring types */
 static const value_string skinny_ringTypes[] = {
-  {0x1  , "StationRingOff"},
-  {0x2  , "StationInsideRing"},
-  {0x3  , "StationOutsideRing"},
-  {0x4  , "StationFeatureRing"},
+  {0x1  , "RingOff"},
+  {0x2  , "InsideRing"},
+  {0x3  , "OutsideRing"},
+  {0x4  , "FeatureRing"},
   {0   , NULL}
 };
 
 static const value_string skinny_speakerModes[] = {
-  {1   , "StationSpeakerOn"},
-  {2   , "StationSpeakerOff"},
+  {1   , "SpeakerOn"},
+  {2   , "SpeakerOff"},
   {0   , NULL}
 };
 
@@ -620,16 +620,16 @@ static const value_string skinny_echoCancelTypes[] = {
 }; 
 
 static const value_string skinny_deviceUnregisterStatusTypes[] = {
-  {0   , "UnregisterOk"},
-  {1   , "UnregisterError"},
-  {2   , "UnregisterNAK"}, /* Unregister request is rejected for reaso n such as existence of a call */
+  {0   , "Ok"},
+  {1   , "Error"},
+  {2   , "NAK"}, /* Unregister request is rejected for reaso n such as existence of a call */
   {0   , NULL}
 };
 
 /* define hook flash detection mode */
 static const value_string skinny_hookFlashDetectModes[] = {
-  {1   , "StationHookFlashOn"},
-  {2   , "StationHookFlashOff"},
+  {1   , "HookFlashOn"},
+  {2   , "HookFlashOff"},
   {0   , NULL}
 }; 
 
@@ -639,8 +639,8 @@ static const value_string skinny_hookFlashDetectModes[] = {
  * Mic Off - The microphone is turned off or, if it's not on, the command is ignored. 
  */
 static const value_string skinny_microphoneModes[] = {
-  {1   , "StationMicOn"},
-  {2   , "StationMicOff"}, 
+  {1   , "MicOn"},
+  {2   , "MicOff"}, 
   {0   , NULL}
 };
 
@@ -679,6 +679,7 @@ static const value_string skinny_mediaEnunciationTypes[] = {
 #define StationMaxSoftKeyIndex 16            /* max number of soft key indices in a station soft key set */
 #define StationMaxDisplayPromptStatusSize 32 /* max status text size in the display status message */
 #define StationMaxDisplayNotifySize 32       /* max prompt text size in the display prompt message */
+#define StationMaxAlarmMessageSize 80        /* max size for an alarm message */
 
 static void dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
@@ -931,6 +932,9 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case 0x100 :    /* keepAliveAck */
       break;
 
+    case 0x115 :  /* clearNotifyDisplay */
+      break;
+
     case 0x117 :  /* deactivateCallPlane */
       break;
 
@@ -1002,7 +1006,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     case 0x20 :   /* stationAlarmMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_alarmSeverity, tvb, offset+12, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+16, 80, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+16, StationMaxAlarmMessageSize, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_alarmParam1, tvb, offset+96, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_alarmParam2, tvb, offset+100, 4, TRUE);
       break;
@@ -1405,10 +1409,6 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+16, StationMaxDisplayNotifySize , TRUE);
       break;
       
-    case 0x115 : /* clearNotify */
-      proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+12, 4, TRUE);
-      break;
-
     case 0x116 : /* activateCallPlane */
       proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+12, 4, TRUE);
       break;
