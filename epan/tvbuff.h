@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.36 2003/12/03 09:50:40 sahlberg Exp $
+ * $Id: tvbuff.h,v 1.37 2004/01/23 09:40:38 jmayer Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -380,7 +380,7 @@ extern char *tvb_fake_unicode(tvbuff_t *tvb, int offset, int len,
 /*
  * Format the data in the tvb from offset for size ...
  */
-extern guint8 * tvb_format_text(tvbuff_t *tvb, gint offset, gint size);
+extern gchar * tvb_format_text(tvbuff_t *tvb, gint offset, gint size);
 
 /*
  * Given a tvbuff, an offset, and a length, allocate a buffer big enough

@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.86 2003/11/11 20:11:05 guy Exp $
+ * $Id: packet-rsvp.c,v 1.87 2004/01/23 09:40:37 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2899,7 +2899,7 @@ dissect_rsvp_session_attribute (proto_tree *ti, tvbuff_t *tvb,
 			    flags &0x04 ? "SE Style, " : "",
 			    flags &0x08 ? "Bandwidth Protection, " : "",
 			    flags &0x10 ? "Node Protection, " : "",
-			    name_len ? (char*)tvb_format_text(tvb, offset2+4, name_len) : "");
+			    name_len ? tvb_format_text(tvb, offset2+4, name_len) : "");
 	break;
 
     default:

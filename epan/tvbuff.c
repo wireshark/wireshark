@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.56 2003/12/24 23:28:17 guy Exp $
+ * $Id: tvbuff.c,v 1.57 2004/01/23 09:40:38 jmayer Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -1629,7 +1629,7 @@ tvb_fake_unicode(tvbuff_t *tvb, int offset, int len, gboolean little_endian)
  * Format the data in the tvb from offset for length ...
  */
 
-guint8 *
+gchar *
 tvb_format_text(tvbuff_t *tvb, gint offset, gint size)
 {
   guint8 *ptr;
