@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.27 1999/09/17 04:20:22 gram Exp $
+ * $Id: packet-tr.c,v 1.28 1999/09/22 05:40:12 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -465,12 +465,9 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 			/* if we have more than 2 bytes of RIF, then we have
 				ring/bridge pairs */
-			if (trn_rif_bytes > 18) {
-				proto_tree_add_text(tr_tree, offset + 14, 1,
-						"Illegal number of RIF bytes: %d", trn_rif_bytes);
-			} else if (trn_rif_bytes > 2) {
+			if ((trn_rif_bytes > 2) && BYTES_ARE_IN_FRAME(offset + 14, trn_rif_bytes)) {
 				add_ring_bridge_pairs(trn_rif_bytes,
-					pd + offset, offset, tr_tree);
+					pd, offset, tr_tree);
 			}
 		}
 
@@ -494,19 +491,21 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	}
 	offset += 14 + actual_rif_bytes + fixoffset;
 
-	/* The package is either MAC or LLC */
-	switch (frame_type) {
-		/* MAC */
-		case 0:
-			dissect_trmac(pd, offset, fd, tree);
-			break;
-		case 1:
-			dissect_llc(pd, offset, fd, tree);
-			break;
-		default:
-			/* non-MAC, non-LLC, i.e., "Reserved" */
-			dissect_data(pd, offset, fd, tree);
-			break;
+	if (IS_DATA_IN_FRAME(offset)) {
+		/* The package is either MAC or LLC */
+		switch (frame_type) {
+			/* MAC */
+			case 0:
+				dissect_trmac(pd, offset, fd, tree);
+				break;
+			case 1:
+				dissect_llc(pd, offset, fd, tree);
+				break;
+			default:
+				/* non-MAC, non-LLC, i.e., "Reserved" */
+				dissect_data(pd, offset, fd, tree);
+				break;
+		}
 	}
 }
 
@@ -516,10 +515,19 @@ static void
 add_ring_bridge_pairs(int rcf_len, const u_char *pd, int offset, proto_tree *tree)
 {
 	int 	j, size;
-	int 	segment, brdgnmb;
-	char	buffer[50];
+	int 	segment, brdgnmb, unprocessed_rif;
 	int	buff_offset=0;
 
+#define RIF_BYTES_TO_PROCESS 30
+
+	char	buffer[3 + (RIF_BYTES_TO_PROCESS / 2) * 6 + 1];
+
+	/* Only process so many  bytes of RIF, as per TR spec, and not overflow
+	 * static buffer above */
+	unprocessed_rif = rcf_len - RIF_BYTES_TO_PROCESS;
+	rcf_len = MIN(rcf_len, RIF_BYTES_TO_PROCESS);
+
+	/* Ignore the 2 RCF bytes, since they don't make up the ring/bride pairs */
 	rcf_len -= 2;
 
 	for(j = 1; j < rcf_len - 1; j += 2) {
@@ -537,6 +545,11 @@ add_ring_bridge_pairs(int rcf_len, const u_char *pd, int offset, proto_tree *tre
 		buff_offset += size;	
 	}
 	proto_tree_add_item(tree, hf_tr_rif, offset+16, rcf_len, buffer);
+
+	if (unprocessed_rif > 0) {
+		proto_tree_add_text(tree, offset+14+RIF_BYTES_TO_PROCESS, unprocessed_rif,
+				"Extra RIF bytes beyond spec: %d", unprocessed_rif);
+	}
 }
 
 void
