@@ -1,3 +1,25 @@
+Overview of changes in Ethereal 0.8.7:
+* Small memleak in "Find Frame" plugged (Guy)
+* Correct behavior for stopping frame search (Guy)
+* RPM spec file fix (Patrick Higgins <phiggins@transzap.com>)
+* Disable "Update list of packets in real time" and
+	"Automatic scrolling in live capture" for Win32 (Gilbert)
+* Avoid using zero-length arrays in packet-rsvp.c (Guy)
+* Add wtap_read() func to wtap.c (Richard, Guy)
+* Update to SMB Browse (Richard)
+* Rlogin dissector (Jeff Foster)
+* Re-arrange dissector_add() calls and make some dissectors static
+	for dissectors under TCP and UDP (Guy)
+* Remove unused value_string in packet-llc.c (Guy)
+* Add DOCSIS BPDU (Johannes Hennecke <Johannes.Hennecke@elsa.de>)
+* Separate variables for "File|Open" and "File|Save [As]" (Guy)
+* BGP confederations support (Greg Hankins)
+* Correct display of FT_BOOLEANs inside bitfields (Gilbert)
+* Catch loops in DNS names. Avoids zlip DNS DoS exploit (Guy)
+* Compile tethereal and editcap for Win32 (Gilbert)
+* Support CIFS-over-TCP w/o NBSS (Mark Muhlestein)
+* .cvsignore updates (Ben Fowler)
+
 Overview of changes in Ethereal 0.8.6:
 * L2TP spelling fix (Florian)
 * RADIUS update (Florian)
