@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.57 2004/01/26 18:51:04 ulfl Exp $
+ * $Id: filter_prefs.c,v 1.58 2004/01/31 02:25:45 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -844,7 +844,7 @@ filter_dlg_save_cb(GtkWidget *save_bt _U_, gpointer data)
 			filter_type = NULL;
 			break;
 		}
-		simple_dialog(ESD_TYPE_CRIT, NULL,
+		simple_dialog(ESD_TYPE_ERROR, NULL,
 		    "Could not save to your %s filter file\n\"%s\": %s.",
 		    filter_type, f_path, strerror(f_save_errno));
 		g_free(f_path);

@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.60 2004/01/24 01:02:54 guy Exp $
+ * $Id: gui_prefs.c,v 1.61 2004/01/31 02:25:45 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -336,7 +336,7 @@ font_fetch(void)
 		/* No font was selected; let the user know, but don't
 		   tear down the font selection dialog, so they can
 		   try again. */
-		simple_dialog(ESD_TYPE_CRIT | ESD_TYPE_MODAL, NULL,
+		simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, NULL,
 		   "You have not selected a font.");
 		return FALSE;
 	}
@@ -354,7 +354,7 @@ font_fetch(void)
 		/* Oops, that font didn't work.
 		   Tell the user, but don't tear down the font selection
 		   dialog, so that they can try again. */
-		simple_dialog(ESD_TYPE_CRIT | ESD_TYPE_MODAL, NULL,
+		simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, NULL,
 		   "The font you selected cannot be loaded.");
 
 		g_free(font_name);
@@ -374,7 +374,7 @@ font_fetch(void)
 		/* Oops, that font didn't work.
 		   Tell the user, but don't tear down the font selection
 		   dialog, so that they can try again. */
-		simple_dialog(ESD_TYPE_CRIT | ESD_TYPE_MODAL, NULL,
+		simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, NULL,
 		   "The font you selected doesn't have a boldface version.");
 
 		g_free(font_name);
@@ -474,7 +474,7 @@ gui_prefs_apply(GtkWidget *w _U_)
 		case FA_FONT_NOT_AVAILABLE:
 			/* We assume this means that the specified size
 			   isn't available. */
-			simple_dialog(ESD_TYPE_CRIT, NULL,
+			simple_dialog(ESD_TYPE_ERROR, NULL,
 			    "That font font isn't available at the specified zoom level;\n"
 			    "turning zooming off.");
 			recent.gui_zoom_level = 0;

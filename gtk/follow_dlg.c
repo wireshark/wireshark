@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.40 2004/01/26 22:34:55 guy Exp $
+ * $Id: follow_dlg.c,v 1.41 2004/01/31 02:25:45 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -164,7 +164,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 
 	/* we got tcp so we can follow */
 	if (cfile.edt->pi.ipproto != 6) {
-		simple_dialog(ESD_TYPE_CRIT, NULL,
+		simple_dialog(ESD_TYPE_ERROR, NULL,
 			      "Error following stream.  Please make\n"
 			      "sure you have a TCP packet selected.");
 		return;
@@ -756,7 +756,7 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
 	to_file = TRUE;
 	break;
     default:			/* "Can't happen" */
-	simple_dialog(ESD_TYPE_CRIT, NULL,
+	simple_dialog(ESD_TYPE_ERROR, NULL,
 		      "Couldn't figure out where to send the print "
 		      "job. Check your preferences.");
 	return;
@@ -765,10 +765,10 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
     fh = open_print_dest(to_file, print_dest);
     if (fh == NULL) {
 	if (to_file) {
-	    simple_dialog(ESD_TYPE_CRIT, NULL,
+	    simple_dialog(ESD_TYPE_ERROR, NULL,
 			  file_open_error_message(errno, TRUE), prefs.pr_file);
 	} else {
-	    simple_dialog(ESD_TYPE_CRIT, NULL,
+	    simple_dialog(ESD_TYPE_ERROR, NULL,
 			  "Couldn't run print command %s.", prefs.pr_cmd);
 	}
 	return;
@@ -796,10 +796,10 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
 	goto print_error;
     if (!close_print_dest(to_file, fh)) {
 	if (to_file) {
-	    simple_dialog(ESD_TYPE_CRIT, NULL,
+	    simple_dialog(ESD_TYPE_ERROR, NULL,
 			  file_write_error_message(errno), prefs.pr_file);
 	} else {
-	    simple_dialog(ESD_TYPE_CRIT, NULL,
+	    simple_dialog(ESD_TYPE_ERROR, NULL,
 			  "Error closing print destination.");
 	}
     }
@@ -807,10 +807,10 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
 
 print_error:
     if (to_file) {
-	simple_dialog(ESD_TYPE_CRIT, NULL,
+	simple_dialog(ESD_TYPE_ERROR, NULL,
 		      file_write_error_message(errno), prefs.pr_file);
     } else {
-	simple_dialog(ESD_TYPE_CRIT, NULL,
+	simple_dialog(ESD_TYPE_ERROR, NULL,
 		      "Error writing to print command: %s", strerror(errno));
     }
     /* XXX - cancel printing? */

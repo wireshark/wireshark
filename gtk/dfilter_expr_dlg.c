@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.47 2004/01/26 21:02:36 obiot Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.48 2004/01/31 02:25:44 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -778,7 +778,7 @@ dfilter_report_bad_value(char *format, ...)
 	vsnprintf(error_msg_buf, sizeof error_msg_buf, format, args);
 	va_end(args);
 
-	simple_dialog(ESD_TYPE_CRIT | ESD_TYPE_MODAL, NULL,
+	simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, NULL,
 	    "%s", error_msg_buf);
 }
 
@@ -900,11 +900,11 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
         can_compare = TRUE;	/* not a comparison */
     if (!can_compare) {
         if (range_str == NULL) {
-            simple_dialog(ESD_TYPE_CRIT | ESD_TYPE_MODAL, NULL,
+            simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, NULL,
                           "That field cannot be tested with \"%s\".",
                           item_str);
         } else {
-            simple_dialog(ESD_TYPE_CRIT | ESD_TYPE_MODAL, NULL,
+            simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, NULL,
                           "Ranges of that field cannot be tested with \"%s\".",
                           item_str);
         }
@@ -924,7 +924,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
              * This field takes a value, but they didn't supply
              * one.
              */
-            simple_dialog(ESD_TYPE_CRIT | ESD_TYPE_MODAL, NULL,
+            simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL, NULL,
                           "That field must be compared with a value, "
                           "but you didn't specify a value with which to "
                           "compare it.");

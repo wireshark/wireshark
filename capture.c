@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.229 2004/01/31 01:32:51 guy Exp $
+ * $Id: capture.c,v 1.230 2004/01/31 02:25:43 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -315,14 +315,14 @@ do_capture(const char *save_file)
   }
   if (cfile.save_file_fd == -1) {
     if (is_tempfile) {
-      simple_dialog(ESD_TYPE_CRIT, NULL,
+      simple_dialog(ESD_TYPE_ERROR, NULL,
 	"The temporary file to which the capture would be saved (\"%s\")"
 	"could not be opened: %s.", capfile_name, strerror(errno));
     } else {
       if (capture_opts.ringbuffer_on) {
         ringbuf_error_cleanup();
       }
-      simple_dialog(ESD_TYPE_CRIT, NULL,
+      simple_dialog(ESD_TYPE_ERROR, NULL,
 	file_open_error_message(errno, TRUE), capfile_name);
     }
     g_free(capfile_name);
@@ -413,7 +413,7 @@ do_capture(const char *save_file)
       unlink(cfile.save_file);
       g_free(cfile.save_file);
       cfile.save_file = NULL;
-      simple_dialog(ESD_TYPE_CRIT, NULL, "Couldn't create sync pipe: %s",
+      simple_dialog(ESD_TYPE_ERROR, NULL, "Couldn't create sync pipe: %s",
                         strerror(error));
       return FALSE;
     }
@@ -449,7 +449,7 @@ do_capture(const char *save_file)
       unlink(cfile.save_file);
       g_free(cfile.save_file);
       cfile.save_file = NULL;
-      simple_dialog(ESD_TYPE_CRIT, NULL, "Couldn't create sync pipe: %s",
+      simple_dialog(ESD_TYPE_ERROR, NULL, "Couldn't create sync pipe: %s",
 			strerror(error));
       return FALSE;
     }
@@ -513,7 +513,7 @@ do_capture(const char *save_file)
       unlink(cfile.save_file);
       g_free(cfile.save_file);
       cfile.save_file = NULL;
-      simple_dialog(ESD_TYPE_CRIT, NULL, "Couldn't create child process: %s",
+      simple_dialog(ESD_TYPE_ERROR, NULL, "Couldn't create child process: %s",
 			strerror(error));
       return FALSE;
     }
@@ -577,7 +577,7 @@ do_capture(const char *save_file)
 		  "Capture child process failed: EOF reading its error message.");
 	    wait_for_child(FALSE);
 	  } else
-	    simple_dialog(ESD_TYPE_CRIT, NULL, msg);
+	    simple_dialog(ESD_TYPE_ERROR, NULL, msg);
 	  g_free(msg);
 	}
 
@@ -797,7 +797,7 @@ cap_pipe_input_cb(gint source, gpointer user_data)
         msglen -= chars_to_copy;
       }
       *r = '\0';
-      simple_dialog(ESD_TYPE_CRIT, NULL, msg);
+      simple_dialog(ESD_TYPE_ERROR, NULL, msg);
       g_free(msg);
       break;
     default :
@@ -2023,7 +2023,7 @@ popup_errmsg(const char *errmsg)
     send_errmsg_to_parent(errmsg);
   } else {
     /* Display the dialog box ourselves; there's no parent. */
-    simple_dialog(ESD_TYPE_CRIT, NULL, "%s", errmsg);
+    simple_dialog(ESD_TYPE_ERROR, NULL, "%s", errmsg);
   }
 }
 

@@ -1,7 +1,7 @@
 /* proto_hier_stats.c
  * Routines for calculating statistics based on protocol.
  *
- * $Id: proto_hier_stats.c,v 1.23 2004/01/25 21:55:10 guy Exp $
+ * $Id: proto_hier_stats.c,v 1.24 2004/01/31 02:25:43 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -133,7 +133,7 @@ process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 	/* Load the frame from the capture file */
 	if (!wtap_seek_read(cfile.wth, frame->file_off, &phdr, pd,
 	    frame->cap_len, &err, &err_info)) {
-		simple_dialog(ESD_TYPE_CRIT, NULL,
+		simple_dialog(ESD_TYPE_ERROR, NULL,
 		    cf_read_error_message(err, err_info), cfile.filename);
 		return FALSE;	/* failure */
 	}

@@ -1,7 +1,7 @@
 /* goto_dlg.c
  * Routines for "go to packet" window
  *
- * $Id: goto_dlg.c,v 1.23 2004/01/21 21:19:33 ulfl Exp $
+ * $Id: goto_dlg.c,v 1.24 2004/01/31 02:25:45 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,7 +122,7 @@ goto_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
        XXX - what about negative numbers (which "strtoul()" allows)?
        Can we hack up signal handlers for the widget to make it
        reject attempts to type in characters other than digits? */
-    simple_dialog(ESD_TYPE_CRIT, NULL,
+    simple_dialog(ESD_TYPE_ERROR, NULL,
 		"The packet number you entered isn't a valid number.");
     return;
   }

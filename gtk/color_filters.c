@@ -1,7 +1,7 @@
 /* color_filters.c
  * Routines for color filters
  *
- * $Id: color_filters.c,v 1.5 2004/01/09 20:20:42 obiot Exp $
+ * $Id: color_filters.c,v 1.6 2004/01/31 02:25:44 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -180,14 +180,14 @@ read_filters_file(FILE *f, gpointer arg)
 			/* we got a filter */
 
 			if (!dfilter_compile(filter_exp, &temp_dfilter)) {
-				simple_dialog(ESD_TYPE_CRIT, NULL,
+				simple_dialog(ESD_TYPE_ERROR, NULL,
 		"Could not compile color filter %s from saved filters.\n%s",
 				    name, dfilter_error_msg);
 				continue;
 			}
 			if (!get_color(&fg_color)) {
 				/* oops */
-				simple_dialog(ESD_TYPE_CRIT, NULL,
+				simple_dialog(ESD_TYPE_ERROR, NULL,
 				    "Could not allocate foreground color "
 				    "specified in input file for %s.", name);
 				dfilter_free(temp_dfilter);
@@ -195,7 +195,7 @@ read_filters_file(FILE *f, gpointer arg)
 			}
 			if (!get_color(&bg_color)) {
 				/* oops */
-				simple_dialog(ESD_TYPE_CRIT, NULL,
+				simple_dialog(ESD_TYPE_ERROR, NULL,
 				    "Could not allocate background color "
 				    "specified in input file for %s.", name);
 				dfilter_free(temp_dfilter);
@@ -238,7 +238,7 @@ read_filters(void)
 	path = get_persconffile_path("colorfilters", FALSE);
 	if ((f = fopen(path, "r")) == NULL) {
 		if (errno != ENOENT) {
-			simple_dialog(ESD_TYPE_CRIT, NULL,
+			simple_dialog(ESD_TYPE_ERROR, NULL,
 			    "Could not open filter file\n\"%s\": %s.", path,
 			    strerror(errno));
 		}
@@ -265,7 +265,7 @@ read_global_filters(void)
 	path = get_datafile_path("colorfilters");
 	if ((f = fopen(path, "r")) == NULL) {
 		if (errno != ENOENT) {
-			simple_dialog(ESD_TYPE_CRIT, NULL,
+			simple_dialog(ESD_TYPE_ERROR, NULL,
 			    "Could not open global filter file\n\"%s\": %s.", path,
 			    strerror(errno));
 		}
@@ -289,7 +289,7 @@ read_other_filters(gchar *path, gpointer arg)
 	gboolean ret;
 
 	if ((f = fopen(path, "r")) == NULL) {
-		simple_dialog(ESD_TYPE_CRIT, NULL,
+		simple_dialog(ESD_TYPE_ERROR, NULL,
 		    "Could not open\n%s\nfor reading: %s.",
 		    path, strerror(errno));
 		return FALSE;
@@ -361,7 +361,7 @@ write_filters(void)
 
 	path = get_persconffile_path("colorfilters", TRUE);
 	if ((f = fopen(path, "w+")) == NULL) {
-		simple_dialog(ESD_TYPE_CRIT, NULL,
+		simple_dialog(ESD_TYPE_ERROR, NULL,
 		    "Could not open\n%s\nfor writing: %s.",
 		    path, strerror(errno));
 		return FALSE;
@@ -407,7 +407,7 @@ write_other_filters(gchar *path, gboolean only_marked)
 	FILE *f;
 
 	if ((f = fopen(path, "w+")) == NULL) {
-		simple_dialog(ESD_TYPE_CRIT, NULL,
+		simple_dialog(ESD_TYPE_ERROR, NULL,
 		    "Could not open\n%s\nfor writing: %s.",
 		    path, strerror(errno));
 		return FALSE;

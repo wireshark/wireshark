@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.36 2004/01/25 13:47:08 ulfl Exp $
+ * $Id: color_dlg.c,v 1.37 2004/01/31 02:25:44 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1084,7 +1084,7 @@ static void
 color_save_cb(GtkButton *button _U_, gpointer user_data _U_)
 {
   if (!write_filters())
-	simple_dialog(ESD_TYPE_CRIT, NULL, "Could not open filter file: %s",
+	simple_dialog(ESD_TYPE_ERROR, NULL, "Could not open filter file: %s",
 	    strerror(errno));
 
 }
@@ -1103,7 +1103,7 @@ color_clear_cb(GtkWidget *widget, gpointer user_data _U_)
     }
 
     if (!revert_filters())
-        simple_dialog(ESD_TYPE_CRIT, NULL, "Could not delete filter file: %s",
+        simple_dialog(ESD_TYPE_ERROR, NULL, "Could not delete filter file: %s",
             strerror(errno));
 
     /* colorize list */
@@ -1462,7 +1462,7 @@ edit_color_filter_ok_cb                (GtkButton       *button,
     filter_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(filt_text_entry)));
 
     if(strchr(filter_name,'@') || strchr(filter_text,'@')){
-        simple_dialog(ESD_TYPE_CRIT, NULL, "Filter names and strings must not"
+        simple_dialog(ESD_TYPE_ERROR, NULL, "Filter names and strings must not"
                       " use the '@' character. Filter unchanged.");
         g_free(filter_name);
         g_free(filter_text);
@@ -1470,7 +1470,7 @@ edit_color_filter_ok_cb                (GtkButton       *button,
     }
 
     if(!dfilter_compile(filter_text, &compiled_filter)) {
-        simple_dialog(ESD_TYPE_CRIT, NULL, "Filter \"%s\" did not compile correctly.\n"
+        simple_dialog(ESD_TYPE_ERROR, NULL, "Filter \"%s\" did not compile correctly.\n"
                       " Please try again. Filter unchanged.\n%s\n", filter_name,
                       dfilter_error_msg);
     } else {
@@ -1662,7 +1662,7 @@ color_sel_ok_cb                        (GtkButton       *button _U_,
 #endif
 
   if ( ! get_color(&new_color) ){
-	simple_dialog(ESD_TYPE_CRIT, NULL, "Could not allocate color.  Try again.");
+	simple_dialog(ESD_TYPE_ERROR, NULL, "Could not allocate color.  Try again.");
   } else {
 	/* Find the "Edit color filter" dialog box with which this is
 	   associated. */

@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.28 2004/01/27 18:05:32 obiot Exp $
+ * $Id: rtp_analysis.c,v 1.29 2004/01/31 02:25:46 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -966,7 +966,7 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 	if (GTK_TOGGLE_BUTTON(forw)->active || GTK_TOGGLE_BUTTON(both)->active) {
 		fp = fopen(g_dest, "w");
 		if (fp == NULL) {
-			simple_dialog(ESD_TYPE_CRIT, NULL,
+			simple_dialog(ESD_TYPE_ERROR, NULL,
 			    file_open_error_message(errno, TRUE), g_dest);
 			return;
 		}
@@ -974,7 +974,7 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 		if (GTK_TOGGLE_BUTTON(both)->active) {
 			fprintf(fp, "Forward\n");
 			if (ferror(fp)) {
-				simple_dialog(ESD_TYPE_CRIT, NULL,
+				simple_dialog(ESD_TYPE_ERROR, NULL,
 				    file_write_error_message(errno), g_dest);
 				fclose(fp);
 				return;
@@ -990,7 +990,7 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 		}
 		fprintf(fp,"\n");
 		if (ferror(fp)) {
-			simple_dialog(ESD_TYPE_CRIT, NULL,
+			simple_dialog(ESD_TYPE_ERROR, NULL,
 			    file_write_error_message(errno), g_dest);
 			fclose(fp);
 			return;
@@ -1006,7 +1006,7 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 			}
 			fprintf(fp,"\n");
 			if (ferror(fp)) {
-				simple_dialog(ESD_TYPE_CRIT, NULL,
+				simple_dialog(ESD_TYPE_ERROR, NULL,
 				    file_write_error_message(errno), g_dest);
 				fclose(fp);
 				return;
@@ -1014,7 +1014,7 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 		}
 		
 		if (fclose(fp) == EOF) {
-			simple_dialog(ESD_TYPE_CRIT, NULL,
+			simple_dialog(ESD_TYPE_ERROR, NULL,
 			    file_write_error_message(errno), g_dest);
 			return;
 		}
@@ -1025,14 +1025,14 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 		if (GTK_TOGGLE_BUTTON(both)->active) {
 			fp = fopen(g_dest, "a");
 			if (fp == NULL) {
-				simple_dialog(ESD_TYPE_CRIT, NULL,
+				simple_dialog(ESD_TYPE_ERROR, NULL,
 				    file_open_error_message(errno, TRUE),
 				    g_dest);
 				return;
 			}
 			fprintf(fp, "\nReverse\n");
 			if (ferror(fp)) {
-				simple_dialog(ESD_TYPE_CRIT, NULL,
+				simple_dialog(ESD_TYPE_ERROR, NULL,
 				    file_write_error_message(errno), g_dest);
 				fclose(fp);
 				return;
@@ -1040,7 +1040,7 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 		} else {
 			fp = fopen(g_dest, "w");
 			if (fp == NULL) {
-				simple_dialog(ESD_TYPE_CRIT, NULL,
+				simple_dialog(ESD_TYPE_ERROR, NULL,
 				    file_open_error_message(errno, TRUE),
 				    g_dest);
 				return;
@@ -1055,7 +1055,7 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 		}
 		fprintf(fp,"\n");
 		if (ferror(fp)) {
-			simple_dialog(ESD_TYPE_CRIT, NULL,
+			simple_dialog(ESD_TYPE_ERROR, NULL,
 			    file_write_error_message(errno), g_dest);
 			fclose(fp);
 			return;
@@ -1071,14 +1071,14 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 			}
 			fprintf(fp,"\n");
 			if (ferror(fp)) {
-				simple_dialog(ESD_TYPE_CRIT, NULL,
+				simple_dialog(ESD_TYPE_ERROR, NULL,
 				    file_write_error_message(errno), g_dest);
 				fclose(fp);
 				return;
 			}
 		}
 		if (fclose(fp) == EOF) {
-			simple_dialog(ESD_TYPE_CRIT, NULL,
+			simple_dialog(ESD_TYPE_ERROR, NULL,
 			    file_write_error_message(errno), g_dest);
 			return;
 		}

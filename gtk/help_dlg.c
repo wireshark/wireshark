@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.43 2004/01/25 21:27:16 ulfl Exp $
+ * $Id: help_dlg.c,v 1.44 2004/01/31 02:25:45 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -139,7 +139,7 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
   help_toc_file_path = get_datafile_path(HELP_DIR G_DIR_SEPARATOR_S "toc");
   help_toc_file = fopen(help_toc_file_path, "r");
   if (help_toc_file == NULL) {
-    simple_dialog(ESD_TYPE_CRIT, ESD_BTN_OK, "Could not open file \"%s\": %s",
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not open file \"%s\": %s",
                   help_toc_file_path, strerror(errno));
     g_free(help_toc_file_path);
     return;

@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.98 2004/01/29 23:11:37 ulfl Exp $
+ * $Id: capture_dlg.c,v 1.99 2004/01/31 02:25:43 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -302,7 +302,7 @@ capture_prep(void)
 #ifdef _WIN32
   /* Is WPcap loaded? */
   if (!has_wpcap) {
-	  simple_dialog(ESD_TYPE_CRIT, NULL,
+	  simple_dialog(ESD_TYPE_ERROR, NULL,
 		  "Unable to load WinPcap (wpcap.dll); Ethereal will not be able\n"
 		  "to capture packets.\n\n"
 		  "In order to capture packets, WinPcap must be installed; see\n"
@@ -956,7 +956,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   if_text = g_strstrip(entry_text);
   if_name = get_if_name(if_text);
   if (*if_name == '\0') {
-    simple_dialog(ESD_TYPE_CRIT, NULL,
+    simple_dialog(ESD_TYPE_ERROR, NULL,
       "You didn't specify an interface on which to capture packets.");
     g_free(entry_text);
     return;
@@ -1048,11 +1048,11 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
 	!(capture_opts.sync_mode);
   if (capture_opts.ringbuffer_on) {
     if (save_file == NULL) {
-      simple_dialog(ESD_TYPE_CRIT, NULL,
+      simple_dialog(ESD_TYPE_ERROR, NULL,
         "You must specify a save file if you want to use the ring buffer.");
       return;
     } else if (!capture_opts.has_autostop_filesize) {
-      simple_dialog(ESD_TYPE_CRIT, NULL,
+      simple_dialog(ESD_TYPE_ERROR, NULL,
         "You must specify a file size at which to rotate the capture files\n"
         "if you want to use the ring buffer.");
       g_free(save_file);
