@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.59 1999/07/23 08:29:21 guy Exp $
+ * $Id: ethereal.c,v 1.60 1999/07/23 21:09:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -564,12 +564,15 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
 {
   GtkWidget     *print_w;
   GtkWidget     *main_vb, *main_tb, *button;
+#if 0
   GtkWidget     *format_hb, *format_lb;
+  GSList        *format_grp;
+#endif
   GtkWidget     *dest_rb;
   GtkWidget     *dest_hb, *dest_lb;
   GtkWidget     *cmd_lb, *cmd_te;
   GtkWidget     *file_bt_hb, *file_bt, *file_te;
-  GSList        *format_grp, *dest_grp;
+  GSList        *dest_grp;
   GtkWidget     *bbox, *ok_bt, *cancel_bt;
 
   /* XXX - don't pop up one if there's already one open; instead,
@@ -590,6 +593,12 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
   gtk_widget_show(main_tb);
 
+  /* XXX - printing multiple frames in PostScript looks as if it's
+     tricky - you have to deal with page boundaries, I think -
+     and I'll have to spend some time learning enough about
+     PostScript to figure it out, so, for now, we only print
+     multiple frames as text. */
+#if 0
   /* Output format */
   format_lb = gtk_label_new("Format:");
   gtk_misc_set_alignment(GTK_MISC(format_lb), 1.0, 0.5);
@@ -612,6 +621,7 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), TRUE);
   gtk_box_pack_start(GTK_BOX(format_hb), button, FALSE, FALSE, 10);
   gtk_widget_show(button);
+#endif
 
   /* Output destination */
   dest_lb = gtk_label_new("Print to:");
@@ -667,8 +677,6 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
 
   file_te = gtk_entry_new();
   gtk_object_set_data(GTK_OBJECT(dest_rb), PRINT_FILE_TE_KEY, file_te);
-  if (prefs.pr_file)
-    gtk_entry_set_text(GTK_ENTRY(file_te), prefs.pr_file);
   gtk_table_attach_defaults(GTK_TABLE(main_tb), file_te, 1, 2, 3, 4);
   gtk_widget_set_sensitive(file_te, print_to_file);
   gtk_widget_show(file_te);
@@ -858,7 +866,9 @@ file_print_packet_cmd_cb(GtkWidget *widget, gpointer data) {
       "No packet is selected, so there's no packet to print.");
     return;
   }
-  proto_tree_print((GNode*) protocol_tree, cf.pd, fd, fh);
+  print_preamble(fh);
+  proto_tree_print(-1, (GNode*) protocol_tree, cf.pd, fd, fh);
+  print_finale(fh);
   close_print_dest(prefs.pr_dest == PR_DEST_FILE, fh);
 }
 

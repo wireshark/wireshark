@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.41 1999/07/23 08:29:20 guy Exp $
+ * $Id: file.c,v 1.42 1999/07/23 21:09:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -555,9 +555,7 @@ print_packets_cb(gpointer data, gpointer user_data)
   dissect_packet(cf->pd, fd, protocol_tree);
 
   /* Print the packet */
-  fprintf(cf->print_fh, "Frame %d:\n\n", cf->count);
-  proto_tree_print((GNode *)protocol_tree, cf->pd, fd, cf->print_fh);
-  fprintf(cf->print_fh, "\n");
+  proto_tree_print(cf->count, (GNode *)protocol_tree, cf->pd, fd, cf->print_fh);
 
   proto_tree_free(protocol_tree);
 }
@@ -569,11 +567,24 @@ print_packets(capture_file *cf, int to_file, const char *dest)
   if (cf->print_fh == NULL)
     return FALSE;	/* attempt to open destination failed */
 
+  /* XXX - printing multiple frames in PostScript looks as if it's
+     tricky - you have to deal with page boundaries, I think -
+     and I'll have to spend some time learning enough about
+     PostScript to figure it out, so, for now, we only print
+     multiple frames as text. */
+#if 0
+  print_preamble(cf->print_fh);
+#endif
+
   /*
    * Iterate through the list of packets, printing each of them.
    */
   cf->count = 0;
   g_list_foreach(cf->plist, print_packets_cb, cf);
+
+#if 0
+  print_finale(cf->print_fh);
+#endif
 
   close_print_dest(to_file, cf->print_fh);
   cf->print_fh = NULL;

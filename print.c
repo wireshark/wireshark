@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.15 1999/07/23 08:30:57 guy Exp $
+ * $Id: print.c,v 1.16 1999/07/23 21:09:23 guy Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -283,8 +283,20 @@ void close_print_dest(int to_file, FILE *fh)
 		pclose(fh);
 }
 
-void proto_tree_print(GNode *protocol_tree, const u_char *pd, frame_data *fd,
-    FILE *fh)
+void print_preamble(FILE *fh)
+{
+	if (prefs.pr_format == PR_FMT_PS)
+		print_ps_preamble(fh);
+}
+
+void print_finale(FILE *fh)
+{
+	if (prefs.pr_format == PR_FMT_PS)
+		print_ps_finale(fh);
+}
+
+void proto_tree_print(int frame_num, GNode *protocol_tree,
+    const u_char *pd, frame_data *fd, FILE *fh)
 {
 	print_data data;
 
@@ -292,14 +304,28 @@ void proto_tree_print(GNode *protocol_tree, const u_char *pd, frame_data *fd,
 	data.level = 0;
 	data.fh = fh;
 	data.pd = pd;
-	if (prefs.pr_format == PR_FMT_TEXT) {
+
+	/* XXX - printing multiple frames in PostScript looks as if it's
+	   tricky - you have to deal with page boundaries, I think -
+	   and I'll have to spend some time learning enough about
+	   PostScript to figure it out, so, for now, we only print
+	   multiple frames as text. */
+	if (prefs.pr_format == PR_FMT_TEXT || frame_num != -1) {
+		if (frame_num != -1)
+			fprintf(fh, "Frame %d:\n\n", frame_num);
 		g_node_children_foreach((GNode*) protocol_tree, G_TRAVERSE_ALL,
 			proto_tree_print_node_text, &data);
+		if (frame_num != -1)
+			fprintf(fh, "\n");
 	} else {
-		print_ps_preamble(fh);
+		if (frame_num != -1) {
+			fprintf(fh, "0 (Frame %d:) putline\n", frame_num);
+			fprintf(fh, "0 () putline\n");
+		}
 		g_node_children_foreach((GNode*) protocol_tree, G_TRAVERSE_ALL,
 			proto_tree_print_node_ps, &data);
-		print_ps_finale(fh);
+		if (frame_num != -1)
+			fprintf(fh, "0 () putline\n");
 	}
 }
 
