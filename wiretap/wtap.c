@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.5 1999/01/08 17:24:01 gram Exp $
+ * $Id: wtap.c,v 1.6 1999/02/12 16:26:09 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -58,8 +58,8 @@ void wtap_close(wtap *wth)
 			g_free(wth->capture.ngsniffer);
 			break;
 
-		default:
-			/* nothing */
+		/* default:
+			 nothing */
 	}
 
 	fclose(wth->fh);
