@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.280 2003/01/08 01:59:42 guy Exp $
+ * $Id: main.c,v 1.281 2003/02/17 07:50:49 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1028,6 +1028,8 @@ set_plist_font(PangoFontDescription *font)
 
 	gtk_widget_set_style(packet_list, style);
 #else
+        PangoLayout *layout;
+
         gtk_widget_modify_font(packet_list, font);
 #endif
 
@@ -1038,9 +1040,11 @@ set_plist_font(PangoFontDescription *font)
 		cfile.cinfo.col_width[i] = gdk_string_width(font,
 			get_column_longest_string(get_column_format(i)));
 #else
-		cfile.cinfo.col_width[i] =
-                    gdk_string_width(gdk_font_from_description(font),
-			get_column_longest_string(get_column_format(i)));
+                layout = gtk_widget_create_pango_layout(packet_list,
+		    get_column_longest_string(get_column_format(i)));
+                pango_layout_get_pixel_size(layout, &cfile.cinfo.col_width[i],
+                                            NULL);
+                g_object_unref(G_OBJECT(layout));
 #endif
 	}
 }

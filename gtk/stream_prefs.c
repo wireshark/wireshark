@@ -1,7 +1,7 @@
 /* stream_prefs.c
  * Dialog boxes for preferences for the stream window
  *
- * $Id: stream_prefs.c,v 1.15 2002/11/11 15:39:06 oabad Exp $
+ * $Id: stream_prefs.c,v 1.16 2003/02/17 07:50:49 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -69,6 +69,7 @@ stream_prefs_show()
 #else
   GtkTextBuffer *buf;
   GtkTextIter    iter;
+  PangoLayout   *layout;
 #endif
 
   color_t_to_gdkcolor(&tcolors[CFG_IDX], &prefs.st_client_fg);
@@ -128,10 +129,9 @@ stream_prefs_show()
                   SAMPLE_SERVER_TEXT, -1);
 #else
   sample = gtk_text_view_new();
-  height = 2 * (gtk_style_get_font(sample->style)->ascent +
-                gtk_style_get_font(sample->style)->descent);
-  width = gdk_string_width(gtk_style_get_font(sample->style),
-                           "Sample server text");
+  layout = gtk_widget_create_pango_layout(sample, "Sample server text");
+  pango_layout_get_pixel_size(layout, &width, &height);
+  g_object_unref(G_OBJECT(layout));
   WIDGET_SET_SIZE(sample, width, height);
   gtk_text_view_set_editable(GTK_TEXT_VIEW(sample), FALSE);
   buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(sample));
