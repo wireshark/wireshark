@@ -345,6 +345,7 @@ Paul Ionescu <paul@acorp.ro> {
 	IP Prefix field support in CDP
 	Frame Relay support
 	Frame-Relay-over-GRE support
+	IPX SAP over IPX EIGRP support
 }
 
 Mark Burton <markb@ordern.com> {

@@ -2,7 +2,7 @@
  * Routines for EIGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-eigrp.c,v 1.15 2001/04/23 17:51:33 guy Exp $
+ * $Id: packet-eigrp.c,v 1.16 2001/05/03 22:50:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,6 +54,7 @@
 #define EIGRP_ACK	0x40  /* This value is for my own need to make a difference between Hello and Ack */
 
 #define TLV_PAR		0x0001
+#define TLV_AUTH	0x0002
 #define TLV_SEQ		0x0003
 #define TLV_SV		0x0004
 #define TLV_NMS		0x0005
@@ -76,6 +77,9 @@ static gint hf_eigrp_tlv = -1;
 static gint ett_eigrp = -1;
 static gint ett_tlv = -1;
 
+static dissector_handle_t ipxsap_handle;
+
+
 static const value_string eigrp_opcode_vals[] = {
 	{ EIGRP_HELLO,		"Hello/Ack" },
 	{ EIGRP_UPDATE,		"Update" },
@@ -90,6 +94,7 @@ static const value_string eigrp_opcode_vals[] = {
 
 static const value_string eigrp_tlv_vals[] = {
 	{ TLV_PAR,     "EIGRP Parameters"},
+	{ TLV_AUTH,    "Authentication data"},
 	{ TLV_SEQ ,    "Sequence"},
 	{ TLV_SV,      "Software Version"},
 	{ TLV_NMS   ,  "Next multicast sequence"},
@@ -139,7 +144,6 @@ dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   proto_tree *eigrp_tree,*tlv_tree;
   proto_item *ti;
-  tvbuff_t   *next_tvb; 
     
   guint opcode,opcode_tmp;
   guint16 tlv,size, offset = EIGRP_HEADER_LENGTH;
@@ -176,10 +180,21 @@ dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
      proto_tree_add_text (eigrp_tree, tvb, 12,4,"Acknowledge  = %u",tvb_get_ntohl(tvb,12)) ;
      proto_tree_add_uint (eigrp_tree, hf_eigrp_as, tvb, 16,4,tvb_get_ntohl(tvb,16)) ; 
 
+     if (opcode==EIGRP_SAP)
+     	{
+	call_dissector(ipxsap_handle, tvb_new_subset(tvb, EIGRP_HEADER_LENGTH, -1, -1), pinfo, eigrp_tree);
+	return;
+	}
+
      while ( tvb_length_remaining(tvb,offset)>0 ) {
 
 	     tlv = tvb_get_ntohs(tvb,offset);
 	     size =  tvb_get_ntohs(tvb,offset+2);
+	     if ( size == 0 ) 
+		{
+		proto_tree_add_text(eigrp_tree,tvb,offset,tvb_length_remaining(tvb,offset),"Unknown data (maybe authentication)");
+		return;
+		}
 
 	     ti = proto_tree_add_text (eigrp_tree, tvb, offset,size,
 	         "%s",val_to_str(tlv, eigrp_tlv_vals, "Unknown (0x%04x)"));
@@ -188,45 +203,47 @@ dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	     proto_tree_add_uint_format (tlv_tree,hf_eigrp_tlv, tvb,offset,2,tlv,"Type = 0x%04x (%s)",tlv,val_to_str(tlv,eigrp_tlv_vals, "Unknown")) ;
 	     proto_tree_add_text (tlv_tree,tvb,offset+2,2,"Size = %u bytes",size) ;
 
-	     next_tvb = tvb_new_subset(tvb, offset+4, size-4, -1);
                      
 	     switch (tlv){
 	     	case TLV_PAR:
-	     		dissect_eigrp_par(next_tvb, tlv_tree, ti);
+	     		dissect_eigrp_par(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
 	     		break;
 	     	case TLV_SEQ:
-	     		dissect_eigrp_seq(next_tvb, tlv_tree, ti);
+	     		dissect_eigrp_seq(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
 	     		break;
 	     	case TLV_SV:
-	     		dissect_eigrp_sv(next_tvb, tlv_tree, ti);
+	     		dissect_eigrp_sv(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
      			break;
 	     	case TLV_NMS:
-     			dissect_eigrp_nms(next_tvb, tlv_tree, ti);
+     			dissect_eigrp_nms(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
      			break;
 
 	     	case TLV_IP_INT:
-     			dissect_eigrp_ip_int(next_tvb, tlv_tree, ti);
+     			dissect_eigrp_ip_int(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
      			break;                   
 	     	case TLV_IP_EXT:
-     			dissect_eigrp_ip_ext(next_tvb, tlv_tree, ti);
+     			dissect_eigrp_ip_ext(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
      			break;                   
 
 	     	case TLV_IPX_INT:
-     			dissect_eigrp_ipx_int(next_tvb, tlv_tree, ti);
+     			dissect_eigrp_ipx_int(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
      			break;                   
 	     	case TLV_IPX_EXT:
-     			dissect_eigrp_ipx_ext(next_tvb, tlv_tree, ti);
+     			dissect_eigrp_ipx_ext(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
      			break;                   
 	
 	     	case TLV_AT_CBL:
-     			dissect_eigrp_at_cbl(next_tvb, tlv_tree, ti);
+     			dissect_eigrp_at_cbl(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
      			break;                   
 	     	case TLV_AT_INT:
-     			dissect_eigrp_at_int(next_tvb, tlv_tree, ti);
+     			dissect_eigrp_at_int(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
      			break;                   
 	     	case TLV_AT_EXT:
-     			dissect_eigrp_at_ext(next_tvb, tlv_tree, ti);
+     			dissect_eigrp_at_ext(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
      			break;                   
+		case TLV_AUTH:
+			proto_tree_add_text(tlv_tree,tvb,offset+4,size-4,"Authentication data");
+			break;
 	     	};
 
 	     offset+=size;
@@ -459,6 +476,7 @@ proto_register_eigrp(void)
 void
 proto_reg_handoff_eigrp(void)
 {
+    ipxsap_handle = find_dissector("ipxsap");
     dissector_add("ip.proto", IP_PROTO_EIGRP, dissect_eigrp, proto_eigrp);
     dissector_add("ddp.type", DDP_EIGRP, dissect_eigrp, proto_eigrp);
     dissector_add("ipx.socket", IPX_SOCKET_EIGRP, dissect_eigrp, proto_eigrp);

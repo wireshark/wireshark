@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.84 2001/04/19 23:02:44 guy Exp $
+ * $Id: packet-ipx.c,v 1.85 2001/05/03 22:50:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -804,6 +804,8 @@ proto_register_ipx(void)
 
 	proto_sap = proto_register_protocol("Service Advertisement Protocol",
 	    "IPX SAP", "ipxsap");
+	register_dissector("ipxsap", dissect_ipxsap, proto_sap);
+
 	proto_register_field_array(proto_sap, hf_sap, array_length(hf_sap));
 
 	proto_register_subtree_array(ett, array_length(ett));
