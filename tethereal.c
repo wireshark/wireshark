@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.151 2002/08/02 23:36:07 jmayer Exp $
+ * $Id: tethereal.c,v 1.152 2002/08/20 20:49:29 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -108,6 +108,7 @@ static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
 static GString *comp_info_str;
 static gboolean quiet;
+static gboolean decode;
 static gboolean verbose;
 static gboolean print_hex;
 static gboolean line_buffered;
@@ -192,7 +193,7 @@ print_usage(gboolean print_ver)
 	comp_info_str->str);
   }
 #ifdef HAVE_LIBPCAP
-  fprintf(stderr, "\nt%s [ -DvVhqlp ] [ -a <capture autostop condition> ] ...\n",
+  fprintf(stderr, "\nt%s [ -DvVhqSlp ] [ -a <capture autostop condition> ] ...\n",
 	  PACKAGE);
   fprintf(stderr, "\t[ -b <number of ring buffer files> ] [ -c <count> ]\n");
   fprintf(stderr, "\t[ -f <capture filter> ] [ -F <output file type> ]\n");
@@ -452,7 +453,7 @@ main(int argc, char *argv[])
 #endif
     
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "a:b:c:Df:F:hi:lnN:o:pqr:R:s:t:vw:Vx")) != -1) {
+  while ((opt = getopt(argc, argv, "a:b:c:Df:F:hi:lnN:o:pqr:R:s:St:vw:Vx")) != -1) {
     switch (opt) {
       case 'a':        /* autostop criteria */
 #ifdef HAVE_LIBPCAP
@@ -609,6 +610,9 @@ main(int argc, char *argv[])
         capture_option_specified = TRUE;
         arg_error = TRUE;
 #endif
+        break;
+      case 'S':        /* show packets in real time */
+        decode = TRUE;
         break;
       case 't':        /* Time stamp type */
         if (strcmp(optarg, "r") == 0)
@@ -1264,10 +1268,15 @@ capture_pcap_cb(guchar *user, const struct pcap_pkthdr *phdr,
     wtap_dispatch_cb_write((guchar *)&args, &whdr, 0, &pseudo_header, pd);
     /* Report packet capture count if not quiet */
     if (!quiet) {
-      if (ld->packet_count != 0) {
-        fprintf(stderr, "\r%u ", ld->packet_count);
-        /* stderr could be line buffered */
-        fflush(stderr);
+      if (!decode) {
+         if (ld->packet_count != 0) {
+           fprintf(stderr, "\r%u ", ld->packet_count);
+           /* stderr could be line buffered */
+           fflush(stderr);
+         }
+      } else {
+           wtap_dispatch_cb_print((guchar *)&args, &whdr, 0,
+                                  &pseudo_header, pd);
       }
     }
   } else {

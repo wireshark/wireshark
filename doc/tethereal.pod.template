@@ -23,6 +23,7 @@ S<[ B<-q> ]>
 S<[ B<-r> infile ]>
 S<[ B<-R> display filter expression ]>
 S<[ B<-s> snaplen ]>
+S<[ B<-S> ]>
 S<[ B<-t> time stamp format ]>
 S<[ B<-v> ]>
 S<[ B<-V> ]>
@@ -266,6 +267,10 @@ matching the filter are discarded rather than being printed or written.
 Set the default snapshot length to use when capturing live data. 
 No more than I<snaplen> bytes of each network packet will be read into
 memory, or saved to disk.
+
+=item -S
+
+Decode and display packets even while writing to file.
 
 =item -t
 
