@@ -1,3 +1,10 @@
+dnl Macros that test for specific features.
+dnl This file is part of the Autoconf packaging for Ethereal.
+dnl Copyright (C) 1998-2000 by Gerald Combs.
+dnl
+dnl $Id: acinclude.m4,v 1.6 2000/08/25 06:25:20 guy Exp $
+dnl
+
 # Configure paths for GLIB
 # Owen Taylor     97-11-3
 
@@ -193,6 +200,33 @@ main ()
   AC_SUBST(GLIB_CFLAGS)
   AC_SUBST(GLIB_LIBS)
   rm -f conf.glibtest
+])
+
+#
+# AC_WIRETAP_PCAP_CHECK
+#
+AC_DEFUN(AC_WIRETAP_PCAP_CHECK,
+[
+	# Evidently, some systems have pcap.h, etc. in */include/pcap
+	AC_MSG_CHECKING(for extraneous pcap header directories)
+	found_pcap_dir=""
+	for pcap_dir in /usr/include/pcap /usr/local/include/pcap $prefix/include
+	do
+	  if test -d $pcap_dir ; then
+	    CFLAGS="$CFLAGS -I$pcap_dir"
+	    CPPFLAGS="$CPPFLAGS -I$pcap_dir"
+	    found_pcap_dir=" $found_pcap_dir -I$pcap_dir"
+	  fi
+	done
+
+	if test "$found_pcap_dir" != "" ; then
+	  AC_MSG_RESULT(found --$found_pcap_dir added to CFLAGS)
+	else
+	  AC_MSG_RESULT(not found)
+	fi
+
+	# Pcap header check
+	AC_CHECK_HEADER(pcap.h)
 ])
 
 #

@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.37 2000/07/30 16:54:11 oabad Exp $
+ * $Id: libpcap.c,v 1.38 2000/08/25 06:25:21 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -45,74 +45,201 @@ static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
 
 /*
- * XXX - this is a bit of a mess.  OpenBSD, and perhaps NetBSD, and
- * BSD/OS have different DLT_ codes from FreeBSD (and from the LBL
- * BPF code), and, at least in some cases, from each other.
- * For now, we simply treat those type values with different
- * meanings on different platforms, except for DLT_RAW, as "unknown";
- * this means you won't be able to capture from a network using those
- * types in Ethereal (and that capturing from the loopback interface
- * won't necessarily work right on OpenBSD, either, as it uses
- * DLT_LOOP, which is the same as DLT_RAW on other platforms).
+ * Either LBL NRG wasn't an adequate central registry (e.g., because of
+ * the slow rate of releases from them), or nobody bothered using them
+ * as a central registry, as many different groups have patched libpcap
+ * (and BPF, on the BSDs) to add new encapsulation types, and have ended
+ * up using the same DLT_ values for different encapsulation types.
  *
- * Does anybody know what BSD/OS uses as DLT_ types for SLIP and
- * PPP?  The LBL code, and the OpenBSD code, appear to disagree....
+ * For those numerical encapsulation type values that everybody uses for
+ * the same encapsulation type (which inclues those that some platforms
+ * specify different DLT_ names for but don't appear to use), we map
+ * those values to the appropriate Wiretap values.
  *
- * Nothing in FreeBSD appears to use DLT_RAW, so it's not clear what
- * link-layer header or fake header appears for DLT_RAW.  If it's
- * completely unused, or if it behaves the same way OpenBSD DLT_LOOP
- * behaves, i.e. it puts an address family in *network* byte order
- * (as opposed to the *host* byte order that DLT_NULL uses on FreeBSD),
- * then we should just make it WTAP_ENCAP_NULL, which we treat in
- * such a fashion as to cause it to work with DLT_LOOP headers.
+ * For those numerical encapsulation type values that different libpcap
+ * variants use for different encapsulation types, we check what
+ * <pcap.h> defined to determine how to interpret them, so that we
+ * interpret them the way the libpcap with which we're building
+ * Ethereal/Wiretap interprets them (which, if it doesn't support
+ * them at all, means we don't support them either - any capture files
+ * using them are foreign, and we don't hazard a guess as to which
+ * platform they came from; we could, I guess, choose the most likely
+ * platform).
  */
-static const int pcap_encap[] = {
-	WTAP_ENCAP_NULL,	/* null encapsulation */
-	WTAP_ENCAP_ETHERNET,
-	WTAP_ENCAP_UNKNOWN,	/* 3Mb experimental Ethernet */
-	WTAP_ENCAP_UNKNOWN,	/* Amateur Radio AX.25 */
-	WTAP_ENCAP_UNKNOWN,	/* Proteon ProNET Token Ring */
-	WTAP_ENCAP_UNKNOWN,	/* Chaos */
-	WTAP_ENCAP_TR,		/* IEEE 802 Networks - assume token ring */
-	WTAP_ENCAP_ARCNET,
-	WTAP_ENCAP_SLIP,
-	WTAP_ENCAP_PPP,
-#ifdef BIT_SWAPPED_MAC_ADDRS
-	WTAP_ENCAP_FDDI_BITSWAPPED,
-#else
-	WTAP_ENCAP_FDDI,
+
+#ifdef HAVE_PCAP_H
+#include <pcap.h>
 #endif
-	WTAP_ENCAP_ATM_RFC1483,	/* or, on BSD/OS, Frame Relay */
-	WTAP_ENCAP_RAW_IP,	/* or, on OpenBSD, DLT_LOOP, and on BSD/OS,
-				   Cisco HDLC */
-	WTAP_ENCAP_UNKNOWN,	/* In LBL BPF and FreeBSD, BSD/OS SLIP;
-				   on OpenBSD, DLT_ENC; on BSD/OS,
-				   DLT_ATM_RFC1483 */
-	WTAP_ENCAP_UNKNOWN,	/* In LBL BPF and FreeBSD, BSD/OS PPP;
-				   on OpenBSD and BSD/OS, DLT_RAW */
-	WTAP_ENCAP_UNKNOWN,	/* In OpenBSD and BSD/OS, BSD/OS SLIP,
-				   but the BSD/OS header says "internal
-				   to libpcap", whatever that means;
-				   in Linux with the ISDN4Linux patches
-				   applied to libpcap, DLT_I4L_RAWIP,
-				   which looks just like DLT_RAW but
-				   is given a different DLT_ code for
-				   no obvious good reason */
-	WTAP_ENCAP_UNKNOWN,	/* In OpenBSD and BSD/OS, BSD/OS PPP,
-				   but the BSD/OS header says "internal
-				   to libpcap", whatever that means;
-				   in Linux with the ISDN4Linux patches
-				   applied to libpcap, DLT_I4L_IP,
-				   which provides only a 2-octet
-				   Ethernet type as a link-layer header,
-				   with a type of 0xFFFF meaning
-				   ETH_P_802_3, a "Dummy type for 802.3
-				   frames" */
-	WTAP_ENCAP_UNKNOWN,
-	WTAP_ENCAP_UNKNOWN,
-	WTAP_ENCAP_LINUX_ATM_CLIP
+
+static const struct {
+	int	dlt_value;
+	int	wtap_encap_value;
+} pcap_to_wtap_map[] = {
+	/*
+	 * These are the values that are almost certainly the same
+	 * in all libpcaps (I've yet to find one where the values
+	 * in question are used for some purpose other than the
+	 * one below, but...), and that Wiretap and Ethereal
+	 * currently support.
+	 */
+	{ 0,		WTAP_ENCAP_NULL },	/* null encapsulation */
+	{ 1,		WTAP_ENCAP_ETHERNET },
+	{ 6,		WTAP_ENCAP_TR },	/* IEEE 802 Networks - assume token ring */
+	{ 7,		WTAP_ENCAP_ARCNET },
+	{ 8,		WTAP_ENCAP_SLIP },
+	{ 9,		WTAP_ENCAP_PPP },
+#ifdef BIT_SWAPPED_MAC_ADDRS
+	{ 10,		WTAP_ENCAP_FDDI_BITSWAPPED },
+#else
+	{ 10,		WTAP_ENCAP_FDDI },
+#endif
+
+	/*
+	 * 11 is DLT_ATM_RFC1483 on most platforms; the only libpcaps I've
+	 * seen that define anything other than DLT_ATM_RFC1483 as 11 are
+	 * the BSD/OS one, which defines DLT_FR as 11, and libpcap 0.5,
+	 * which define it as 100, mapping the kernel's value to 100, in
+	 * an attempt to hide the different values used on different
+	 * platforms.
+	 *
+	 * If this is a platform where DLT_FR is defined as 11, we
+	 * don't handle 11 at all; otherwise, we handle it as
+	 * DLT_ATM_RFC1483 (this means we'd misinterpret Frame Relay
+	 * captures from BSD/OS if running on platforms other than BSD/OS,
+	 * but
+	 *
+	 *	1) we don't yet support DLT_FR
+	 *
+	 * and
+	 *
+	 *	2) nothing short of a heuristic would let us interpret
+	 *	   them correctly).
+	 */
+#if defined(DLT_FR) && (DLT_FR == 11)
+	/* Put entry for Frame Relay here */
+#else
+	{ 11,		WTAP_ENCAP_ATM_RFC1483 },
+#endif
+
+	/*
+	 * 12 is DLT_RAW on most platforms, but it's DLT_C_HDLC on
+	 * BSD/OS, and DLT_LOOP on OpenBSD.
+	 *
+	 * We don't yet handle DLT_C_HDLC, but we can handle DLT_LOOP
+	 * (it's just like DLT_NULL, only with the AF_ value in network
+	 * rather than host byte order - Ethereal figures out the
+	 * byte order from the data, so we don't care what byte order
+	 * it's in), so if DLT_LOOP is defined as 12, interpret 12
+	 * as WTAP_ENCAP_NULL, otherwise, unless DLT_C_HDLC is defined
+	 * as 12, interpret it as WTAP_ENCAP_RAW_IP.
+	 */
+#if defined(DLT_LOOP) && (DLT_LOOP == 12)
+	{ 12,		WTAP_ENCAP_NULL },
+#elif defined(DLT_C_HDLC) && (DLT_C_HDLC == 12)
+	/* Put entry for Cisco HDLC here */
+#else
+	{ 12,		WTAP_ENCAP_RAW_IP },
+#endif
+
+	/*
+	 * 13 is DLT_SLIP_BSDOS on FreeBSD and NetBSD, but those OSes
+	 * don't actually generate it.  I infer that BSD/OS translates
+	 * DLT_SLIP from the kernel BPF code to DLT_SLIP_BSDOS in
+	 * libpcap, as the BSD/OS link-layer header is different;
+	 * however, in BSD/OS, DLT_SLIP_BSDOS is 15.
+	 *
+	 * From this, I infer that there's no point in handling 13
+	 * as DLT_SLIP_BSDOS.
+	 *
+	 * 13 is DLT_ATM_RFC1483 on BSD/OS.
+	 *
+	 * 13 is DLT_ENC in OpenBSD, which is, I suspect, some kind
+	 * of decrypted IPSEC traffic.
+	 */
+#if defined(DLT_ATM_RFC1483) && (DLT_ATM_RFC1483 == 13)
+	{ 13,		WTAP_ENCAP_ATM_RFC1483 },
+#elif defined(DLT_ENC) && (DLT_ENC == 13)
+	/* Put entry for DLT_ENC here */
+#endif
+
+	/*
+	 * 14 is DLT_PPP_BSDOS on FreeBSD and NetBSD, but those OSes
+	 * don't actually generate it.  I infer that BSD/OS translates
+	 * DLT_PPP from the kernel BPF code to DLT_PPP_BSDOS in
+	 * libpcap, as the BSD/OS link-layer header is different;
+	 * however, in BSD/OS, DLT_PPP_BSDOS is 16.
+	 *
+	 * From this, I infer that there's no point in handling 14
+	 * as DLT_PPP_BSDOS.
+	 *
+	 * 14 is DLT_RAW on BSD/OS and OpenBSD.
+	 */
+	{ 14,		WTAP_ENCAP_RAW_IP },
+
+	/*
+	 * 15 is:
+	 *
+	 *	DLT_SLIP_BSDOS on BSD/OS;
+	 *
+	 *	DLT_HIPPI on NetBSD;
+	 *
+	 *	DLT_LANE8023 with Alexey Kuznetzov's patches for
+	 *	Linux libpcap;
+	 *
+	 *	DLT_I4L_RAWIP with the ISDN4Linux patches for libpcap
+	 *	(and on SuSE 6.3);
+	 *
+	 * but we don't currently handle any of those.
+	 */
+
+	/*
+	 * 16 is:
+	 *
+	 *	DLT_PPP_BSDOS on BSD/OS;
+	 *
+	 *	DLT_HDLC on NetBSD;
+	 *
+	 *	DLT_CIP with Alexey Kuznetzov's patches for
+	 *	Linux libpcap - this is WTAP_ENCAP_LINUX_ATM_CLIP;
+	 *
+	 *	DLT_I4L_IP with the ISDN4Linux patches for libpcap
+	 *	(and on SuSE 6.3).
+	 */
+#if defined(DLT_CIP) && (DLT_CIP == 16)
+	{ 16,		WTAP_ENCAP_LINUX_ATM_CLIP },
+#endif
+
+	/*
+	 * 17 is DLT_LANE8023 in SuSE 6.3 libpcap; we don't currently
+	 * handle it.
+	 */
+
+	/*
+	 * 18 is DLT_CIP in SuSE 6.3 libpcap; if it's the same as the
+	 * DLT_CIP of 16 that the Alexey Kuznetzov patches for
+	 * libpcap/tcpdump define, it's WTAP_ENCAP_LINUX_ATM_CLIP.
+	 * I've not found any libpcap that uses it for any other purpose -
+	 * hopefully nobody will do so in the future.
+	 */
+	{ 18,		WTAP_ENCAP_LINUX_ATM_CLIP },
+
+	/*
+	 * 19 is DLT_ATM_CLIP in the libpcap/tcpdump patches in the
+	 * recent versions I've seen of the Linux ATM distribution;
+	 * I've not yet found any libpcap that uses it for any other
+	 * purpose - hopefully nobody will do so in the future.
+	 */
+	{ 19,		WTAP_ENCAP_LINUX_ATM_CLIP },
+
+	/*
+	 * These are the values that libpcap 0.5 uses, in an attempt
+	 * to work around the confusion decried above, and that Wiretap
+	 * and Ethereal currently support.
+	 */
+	{ 100,		WTAP_ENCAP_ATM_RFC1483 },
+	{ 101,		WTAP_ENCAP_RAW_IP }
 };
-#define NUM_PCAP_ENCAPS (sizeof pcap_encap / sizeof pcap_encap[0])
+#define NUM_PCAP_ENCAPS (sizeof pcap_to_wtap_map / sizeof pcap_to_wtap_map[0])
 
 int libpcap_open(wtap *wth, int *err)
 {
@@ -121,6 +248,7 @@ int libpcap_open(wtap *wth, int *err)
 	struct pcap_hdr hdr;
 	gboolean byte_swapped;
 	gboolean modified;
+	int file_encap;
 	struct pcaprec_modified_hdr first_rec_hdr;
 	struct pcaprec_modified_hdr second_rec_hdr;
 	int hdr_len;
@@ -200,8 +328,8 @@ int libpcap_open(wtap *wth, int *err)
 		*err = WTAP_ERR_UNSUPPORTED;
 		return -1;
 	}
-	if (hdr.network >= NUM_PCAP_ENCAPS
-	    || pcap_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
+	file_encap = wtap_pcap_encap_to_wtap_encap(hdr.network);
+	if (file_encap == WTAP_ENCAP_UNKNOWN) {
 		g_message("pcap: network type %u unknown or unsupported",
 		    hdr.network);
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
@@ -217,7 +345,7 @@ int libpcap_open(wtap *wth, int *err)
 	wth->subtype_read = libpcap_read;
 	wth->subtype_seek_read = wtap_def_seek_read;
 	wth->subtype_close = libpcap_close;
-	wth->file_encap = pcap_encap[hdr.network];
+	wth->file_encap = file_encap;
 	wth->snapshot_length = hdr.snaplen;
 
 	/*
@@ -442,28 +570,34 @@ libpcap_close(wtap *wth)
 
 int wtap_pcap_encap_to_wtap_encap(int encap)
 {
-	if (encap < 0 || encap >= NUM_PCAP_ENCAPS)
-		return WTAP_ENCAP_UNKNOWN;
-	return pcap_encap[encap];
+	int i;
+
+	for (i = 0; i < NUM_PCAP_ENCAPS; i++) {
+		if (pcap_to_wtap_map[i].dlt_value == encap)
+			return pcap_to_wtap_map[i].wtap_encap_value;
+	}
+	return WTAP_ENCAP_UNKNOWN;
 }
 
-static const int wtap_encap[] = {
-	-1,		/* WTAP_ENCAP_UNKNOWN -> unsupported */
-	1,		/* WTAP_ENCAP_ETHERNET -> DLT_EN10MB */
-	6,		/* WTAP_ENCAP_TR -> DLT_IEEE802 */
-	8,		/* WTAP_ENCAP_SLIP -> DLT_SLIP */
-	9,		/* WTAP_ENCAP_PPP -> DLT_PPP */
-	10,		/* WTAP_ENCAP_FDDI -> DLT_FDDI */
-	10,		/* WTAP_ENCAP_FDDI_BITSWAPPED -> DLT_FDDI */
-	12,		/* WTAP_ENCAP_RAW_IP -> DLT_RAW */
-	7,		/* WTAP_ENCAP_ARCNET -> DLT_ARCNET */
-	11,		/* WTAP_ENCAP_ATM_RFC1483 -> DLT_ATM_RFC1483 */
-	19,		/* WTAP_ENCAP_LINUX_ATM_CLIP */
-	-1,		/* WTAP_ENCAP_LAPB -> unsupported*/
-	-1,		/* WTAP_ENCAP_ATM_SNIFFER -> unsupported */
-	0		/* WTAP_ENCAP_NULL -> DLT_NULL */
-};
-#define NUM_WTAP_ENCAPS (sizeof wtap_encap / sizeof wtap_encap[0])
+static int wtap_wtap_encap_to_pcap_encap(int encap)
+{
+	int i;
+
+	/*
+	 * Special-case WTAP_ENCAP_FDDI and WTAP_ENCAP_FDDI_BITSWAPPED;
+	 * both of them get mapped to DLT_FDDI (even though that may
+	 * mean that the bit order in the FDDI MAC addresses is wrong;
+	 * so it goes - libpcap format doesn't record the byte order,
+	 * so that's not fixable).
+	 */
+	if (encap == WTAP_ENCAP_FDDI || encap == WTAP_ENCAP_FDDI_BITSWAPPED)
+		return 10;	/* that's DLT_FDDI */
+	for (i = 0; i < NUM_PCAP_ENCAPS; i++) {
+		if (pcap_to_wtap_map[i].wtap_encap_value == encap)
+			return pcap_to_wtap_map[i].dlt_value;
+	}
+	return -1;
+}
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */
@@ -473,7 +607,7 @@ int libpcap_dump_can_write_encap(int filetype, int encap)
 	if (encap == WTAP_ENCAP_PER_PACKET)
 		return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
 
-	if (encap < 0 || encap >= NUM_WTAP_ENCAPS || wtap_encap[encap] == -1)
+	if (wtap_wtap_encap_to_pcap_encap(encap) == -1)
 		return WTAP_ERR_UNSUPPORTED_ENCAP;
 
 	return 0;
@@ -526,7 +660,7 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
 	file_hdr.thiszone = 0;	/* XXX - current offset? */
 	file_hdr.sigfigs = 0;	/* unknown, but also apparently unused */
 	file_hdr.snaplen = wdh->snaplen;
-	file_hdr.network = wtap_encap[wdh->encap];
+	file_hdr.network = wtap_wtap_encap_to_pcap_encap(wdh->encap);
 	nwritten = fwrite(&file_hdr, 1, sizeof file_hdr, wdh->fh);
 	if (nwritten != sizeof file_hdr) {
 		if (nwritten < 0)

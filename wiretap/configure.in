@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.22 2000/08/11 13:32:35 deniel Exp $
+# $Id: configure.in,v 1.23 2000/08/25 06:25:21 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -52,6 +52,12 @@ AC_CANONICAL_HOST
 
 # We must know our byte order
 AC_C_BIGENDIAN
+
+#
+# Look for libpcap, so we can include <pcap.h> in libpcap.c if it's
+# found.
+#
+AC_WIRETAP_PCAP_CHECK
 
 dnl zlib check
 AC_ARG_ENABLE(zlib,
