@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.26 2002/10/10 03:58:47 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.27 2002/10/10 21:08:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4251,6 +4251,13 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 		}
 	}
 
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+                if (ncp_rec && ncp_rec->func==0x68 &&
+		    (ncp_rec->subfunc==0x02 || ncp_rec->subfunc==0x01)) {
+        		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDS");
+                }
+	}
+
 	/* A completion code of 0 always means OK. Non-zero means failure,
 	 * but each non-zero value has a different meaning. And the same value
 	 * can have different meanings, depending on the ncp.func (and ncp.subfunc)
@@ -4272,7 +4279,8 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 	else {
 		error_string = "Not OK";
 	}
-        if (ncp_rec && ncp_rec->func==0x68 && ncp_rec->subfunc==0x02)
+        if (type == NCP_SERVICE_REPLY && ncp_rec && ncp_rec->func==0x68 &&
+            ncp_rec->subfunc==0x02)
         {
                 nds_offset = 8;
                 nds_reply_buffer = tvb_get_letohl(tvb, nds_offset);        
@@ -4303,24 +4311,16 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
         }
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-                if (ncp_rec && ncp_rec->func==0x68 && ncp_rec->subfunc==0x02) {
-        		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDS");
-                }
-                if (ncp_rec && ncp_rec->func==0x68 && ncp_rec->subfunc==0x01) {
-        		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDS");
-                }
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 		    type == NCP_SERVICE_REPLY ? "R" : "ACK",
 		    nds_error_string ? nds_error_string : error_string);
 	}
 
 	if (ncp_tree) {
-
 		if (request_value) {
 			proto_tree_add_uint(ncp_tree, hf_ncp_req_frame_num, tvb, 0, 0,
 				request_value->req_frame_num);
 		}
-
 
 		/* Put the func (and maybe subfunc) from the request packet
 		 * in the proto tree, but hidden. That way filters on ncp.func
@@ -4342,6 +4342,13 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 			completion_code, completion_code, error_string);
 
 		proto_tree_add_item(ncp_tree, hf_ncp_connection_status, tvb, 7, 1, FALSE);
+
+		/*
+		 * Unless this is a reply, that's all there is to parse.
+		 */
+		if (type != NCP_SERVICE_REPLY)
+			return;
+
                 /* Decode NDS Reply packets */
                 if (ncp_rec) {
                         if (ncp_rec->func == 0x68 && ncp_rec->subfunc == 0x01) {
@@ -5545,11 +5552,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                 }                
                         }
                 }                        
-		/*
-		 * Unless this is a reply, that's all there is to parse.
-		 */
-		if (type != NCP_SERVICE_REPLY)
-			return;
 
 		length = tvb_length(tvb);
 		if (!ncp_rec && length > 8) {
