@@ -1,7 +1,7 @@
 /* pcap-util.c
  * Utility routines for packet capture
  *
- * $Id: pcap-util.c,v 1.13 2003/06/13 02:37:42 guy Exp $
+ * $Id: pcap-util.c,v 1.14 2003/07/06 00:07:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -381,10 +381,8 @@ get_interface_list(int *err, char *err_str)
 	return il;
 
 fail:
-	if (il != NULL) {
-		g_list_foreach(il, free_if_cb, NULL);
-		g_list_free(il);
-	}
+	if (il != NULL)
+		free_interface_list(il);
 	g_free(ifc.ifc_buf);
 	close(sock);
 	*err = CANT_GET_INTERFACE_LIST;
@@ -519,10 +517,8 @@ free_if_cb(gpointer data, gpointer user_data _U_)
 void
 free_interface_list(GList *if_list)
 {
-	while (if_list != NULL) {
-		g_free(if_list->data);
-		if_list = g_list_remove_link(if_list, if_list);
-	}
+	g_list_foreach(if_list, free_if_cb, NULL);
+	g_list_free(if_list);
 }
 
 #endif /* HAVE_LIBPCAP */
