@@ -2,7 +2,7 @@
  * Routines for ssl dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
- * $Id: packet-ssl.c,v 1.18 2002/02/25 23:28:32 guy Exp $
+ * $Id: packet-ssl.c,v 1.19 2002/03/28 09:15:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -605,8 +605,8 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ssl_tree = proto_item_add_subtree(ti, ett_ssl);
     }
 
-    /* iterate through the records in this frame */
-    while (offset < tvb_length(tvb)-1)
+    /* iterate through the records in this tvbuff */
+    while (tvb_reported_length_remaining(tvb, offset) != 0)
     {
         /* on second and subsequent records per frame
          * add a delimiter on info column
@@ -748,6 +748,28 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *ssl_record_tree = NULL;
     guint32 available_bytes     = 0;
 
+    available_bytes = tvb_length_remaining(tvb, offset);
+
+    /*
+     * Can we do reassembly?
+     */
+    if (ssl_desegment && pinfo->can_desegment) {
+        /*
+         * Yes - is the record header split across segment boundaries?
+         */
+        if (available_bytes < 5) {
+            /*
+             * Yes.  Tell the TCP dissector where the data for this
+             * message starts in the data it handed us, and how many
+             * more bytes we need, and return.
+             */
+            pinfo->desegment_offset = offset;
+            pinfo->desegment_len = 5 - available_bytes;
+            *need_desegmentation = TRUE;
+            return offset;
+        }
+    }
+
     /*
      * Get the record layer fields of interest
      */
@@ -758,17 +780,23 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     if (ssl_is_valid_content_type(content_type)) {
 
         /*
-         *   Desegmentation test
+         * Can we do reassembly?
          */
-        available_bytes = tvb_length_remaining(tvb, offset + 5);
-        if (ssl_desegment
-            && pinfo->can_desegment
-            && available_bytes < record_length) {
-
-            pinfo->desegment_offset = offset;
-            pinfo->desegment_len    = record_length - available_bytes;
-            *need_desegmentation = TRUE;
-            return offset;
+        if (ssl_desegment && pinfo->can_desegment) {
+            /*
+             * Yes - is the record split across segment boundaries?
+             */
+            if (available_bytes < record_length + 5) {
+                /*
+                 * Yes.  Tell the TCP dissector where the data for this
+                 * message starts in the data it handed us, and how many
+                 * more bytes we need, and return.
+                 */
+                pinfo->desegment_offset = offset;
+                pinfo->desegment_len = (record_length + 5) - available_bytes;
+                *need_desegmentation = TRUE;
+                return offset;
+            }
         }
       
     } else {
@@ -1546,8 +1574,8 @@ dissect_ssl3_hnd_finished(tvbuff_t *tvb, packet_info *pinfo,
 
 /* record layer dissector */
 static int
-dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree
-                    *tree, guint32 offset, guint *conv_version,
+dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                    guint32 offset, guint *conv_version,
                     gboolean *need_desegmentation)
 {
     guint32 initial_offset       = offset;
@@ -1563,21 +1591,34 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_tree *ti;
     proto_tree *ssl_record_tree = NULL;
 
-    /* if we get here, but don't have a version set for the
-     * conversation, then set a version for just this frame
-     * (e.g., on a client hello)
-     */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSLv2");
-    }
-
     /* pull first byte; if high bit is set, then record
      * length is three bytes due to padding; otherwise
      * record length is two bytes
      */
     byte = tvb_get_guint8(tvb, offset++);
     record_length_length = (byte & 0x80) ? 2 : 3;
+
+    /*
+     * Can we do reassembly?
+     */
+    available_bytes = tvb_length_remaining(tvb, offset);
+
+    if (ssl_desegment && pinfo->can_desegment) {
+        /*
+         * Yes - is the record header split across segment boundaries?
+         */
+        if (available_bytes < record_length_length) {
+            /*
+             * Yes.  Tell the TCP dissector where the data for this
+             * message starts in the data it handed us, and how many
+             * more bytes we need, and return.
+             */
+            pinfo->desegment_offset = offset;
+            pinfo->desegment_len = record_length_length - available_bytes;
+            *need_desegmentation = TRUE;
+            return offset;
+        }
+    }
 
     /* parse out the record length */
     switch(record_length_length) {
@@ -1596,17 +1637,32 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     }
 
     /*
-     *   Desegmentation test
+     * Can we do reassembly?
      */
-    available_bytes = tvb_length_remaining(tvb, offset);
-    if (ssl_desegment
-        && pinfo->can_desegment
-        && available_bytes < record_length) {
+    if (ssl_desegment && pinfo->can_desegment) {
+        /*
+         * Yes - is the record split across segment boundaries?
+         */
+        if (available_bytes < record_length) {
+            /*
+             * Yes.  Tell the TCP dissector where the data for this
+             * message starts in the data it handed us, and how many
+             * more bytes we need, and return.
+             */
+            pinfo->desegment_offset = offset;
+            pinfo->desegment_len = record_length - available_bytes;
+            *need_desegmentation = TRUE;
+            return offset;
+        }
+    }
 
-        pinfo->desegment_offset = offset;
-        pinfo->desegment_len    = record_length - available_bytes;
-        *need_desegmentation = TRUE;
-        return offset;
+    /* if we get here, but don't have a version set for the
+     * conversation, then set a version for just this frame
+     * (e.g., on a client hello)
+     */
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    {
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSLv2");
     }
 
     /* add the record layer subtree header */
