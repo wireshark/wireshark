@@ -6,7 +6,7 @@
  * Copyright 2003, Ragi BEJJANI - 6WIND - <ragi.bejjani@6wind.com>
  * Copyright 2003, Vincent JARDIN - 6WIND - <vincent.jardin@6wind.com>
  *
- * $Id: packet-teredo.c,v 1.1 2003/08/29 02:27:28 gerald Exp $
+ * $Id: packet-teredo.c,v 1.2 2003/09/10 19:23:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,7 +73,7 @@ typedef struct {
 static gboolean teredo_summary_in_tree = TRUE;
 
 static dissector_table_t teredo_dissector_table;
-//static heur_dissector_list_t heur_subdissector_list;
+/*static heur_dissector_list_t heur_subdissector_list;*/
 static dissector_handle_t data_handle;
 
 /* Determine if there is a sub-dissector and call it.  This has been */
@@ -249,7 +249,7 @@ proto_register_teredo(void)
 
 /* subdissector code */
 	teredo_dissector_table = register_dissector_table("teredo","TEREDO ", FT_UINT16, BASE_DEC);
-//	register_heur_dissector_list("teredo.heur", &heur_subdissector_list); 
+/*	register_heur_dissector_list("teredo.heur", &heur_subdissector_list); */
 
 }
 
