@@ -1,7 +1,7 @@
 /* rtp_stream.h
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream.h,v 1.2 2003/11/20 23:34:31 guy Exp $
+ * $Id: rtp_stream.h,v 1.3 2004/01/18 16:08:21 jmayer Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -115,7 +115,7 @@ void remove_tap_listener_rtp_stream(void);
 * Retrieves a constant reference to the unique info structure of the rtp_streams tap listener.
 * The user should not modify the data pointed to.
 */
-const rtpstream_tapinfo_t* rtpstream_get_info();
+const rtpstream_tapinfo_t* rtpstream_get_info(void);
 
 /*
 * Cleans up memory of rtp streams tap.
@@ -126,7 +126,7 @@ void rtpstream_reset(rtpstream_tapinfo_t *tapinfo _U_);
 * Scans all packets for RTP streams and updates the RTP streams list.
 * (redissects all packets)
 */
-void rtpstream_scan();
+void rtpstream_scan(void);
 
 /*
 * Saves an RTP stream as raw data stream with timestamp information for later RTP playback.

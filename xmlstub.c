@@ -3,7 +3,7 @@
  * exists so that the library can be loaded on systems that
  * have it.
  *
- * $Id: xmlstub.c,v 1.2 2002/08/28 21:00:41 jmayer Exp $
+ * $Id: xmlstub.c,v 1.3 2004/01/18 16:19:15 jmayer Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -42,7 +42,7 @@
  * not have libxml2 installed.
  */
 int
-loadLibXML()
+loadLibXML(void)
 {
 	GModule *handle;
 	gpointer symbol;

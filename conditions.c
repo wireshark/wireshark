@@ -1,7 +1,7 @@
 /* conditions.c
  * Implementation for condition handler.
  *
- * $Id: conditions.c,v 1.5 2002/12/03 02:07:07 guy Exp $
+ * $Id: conditions.c,v 1.6 2004/01/18 16:20:09 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,7 +47,7 @@ typedef struct _cnd_class{
 } _cnd_class;
 
 /* helper function prototypes */
-static void _cnd_init();
+static void _cnd_init(void);
 static void _cnd_find_hash_key_for_class_id(gpointer, gpointer, gpointer);
 
 condition* cnd_new(const char* class_id, ...){
@@ -183,7 +183,7 @@ void cnd_unregister_class(const char* class_id){
 /*
  * Initialize hash table.
  */
-static void _cnd_init(){
+static void _cnd_init(void){
   if(classes != NULL) return;
   /* create hash table, we use strings as keys */
   classes = g_hash_table_new(g_str_hash, g_str_equal);

@@ -1,6 +1,6 @@
 /* Combine two dump files, either by appending or by merging by timestamp
  *
- * $Id: mergecap.c,v 1.14 2004/01/18 02:12:59 jmayer Exp $
+ * $Id: mergecap.c,v 1.15 2004/01/18 16:21:12 jmayer Exp $
  *
  * Written by Scott Renfro <scott@renfro.org> based on
  * editcap by Richard Sharpe and Guy Harris
@@ -350,7 +350,7 @@ open_in_files(int argc, char *argv[], in_file_t *in_files[])
  * Show the usage
  */
 static void
-usage()
+usage(void)
 {
   int i;
   const char *string;

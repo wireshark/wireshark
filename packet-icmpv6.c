@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.74 2003/12/19 23:20:53 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.75 2004/01/18 16:15:25 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -434,11 +434,7 @@ again:
  */
 
 static const char *
-bitrange0(v, s, buf, buflen)
-	guint32 v;
-	int s;
-	char *buf;
-	int buflen;
+bitrange0(guint32 v, int s, char *buf, int buflen)
 {
 	guint32 v0;
 	char *p, *ep;

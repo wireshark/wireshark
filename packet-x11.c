@@ -3,7 +3,7 @@
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  * Copyright 2003, Michael Shuldman
  *
- * $Id: packet-x11.c,v 1.52 2004/01/06 19:56:56 guy Exp $
+ * $Id: packet-x11.c,v 1.53 2004/01/18 16:18:30 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1393,10 +1393,7 @@ static gint compareGuint32(gconstpointer a, gconstpointer b)
 }
 
 static void
-XConvertCase(sym, lower, upper)
-    register int sym;
-    int *lower;
-    int *upper;
+XConvertCase(register int sym, int *lower, int *upper)
 {
     *lower = sym;
     *upper = sym;

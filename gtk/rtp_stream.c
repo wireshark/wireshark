@@ -1,7 +1,7 @@
 /* rtp_stream.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream.c,v 1.5 2004/01/13 22:49:15 guy Exp $
+ * $Id: rtp_stream.c,v 1.6 2004/01/18 16:08:21 jmayer Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -259,7 +259,7 @@ int rtpstream_packet(rtpstream_tapinfo_t *tapinfo _U_, packet_info *pinfo, epan_
 
 /****************************************************************************/
 /* scan for RTP streams */
-void rtpstream_scan()
+void rtpstream_scan(void)
 {
 	gboolean was_registered = the_tapinfo_struct.is_registered;
 	if (!the_tapinfo_struct.is_registered)
@@ -322,7 +322,7 @@ void rtpstream_mark(rtp_stream_info_t* stream_fwd, rtp_stream_info_t* stream_rev
 
 
 /****************************************************************************/
-const rtpstream_tapinfo_t* rtpstream_get_info()
+const rtpstream_tapinfo_t* rtpstream_get_info(void)
 {
 	return &the_tapinfo_struct;
 }

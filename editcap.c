@@ -1,7 +1,7 @@
 /* Edit capture files.  We can delete records, adjust timestamps, or
  * simply convert from one format to another format.
  *
- * $Id: editcap.c,v 1.26 2002/08/28 21:00:06 jmayer Exp $
+ * $Id: editcap.c,v 1.27 2004/01/18 16:21:12 jmayer Exp $
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.
@@ -268,7 +268,7 @@ set_time_adjustment(char *optarg)
   time_adj.tv.tv_usec = val;
 }
 
-static void usage()
+static void usage(void)
 {
   int i;
   const char *string;

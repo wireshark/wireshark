@@ -1111,7 +1111,7 @@ XML_EXTERN int XmlStubInitialized;
  * is not installed on the current system.  (Or it's not in
  * the LD path)
  */
-int loadLibXML();
+int loadLibXML(void);
 
 
 
