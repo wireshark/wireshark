@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.419 2004/05/14 16:23:38 ulfl Exp $
+# $Id: Makefile.nmake,v 1.420 2004/05/21 17:25:32 ulfl Exp $
 
 include config.nmake
 include <win32.mak>
@@ -221,6 +221,13 @@ cvsversion.h:
 	$(PERL) make-version.pl
 
 #
+# Build the short version of the authors file for the about dialog
+#
+AUTHORS-SHORT: AUTHORS make-authors-short.pl
+	$(PERL) make-authors-short.pl < AUTHORS > AUTHORS-SHORT
+
+
+#
 # The header files listed here are built from x11-fields using Perl;
 # we declare a dependency here so that they get built.
 #
@@ -276,7 +283,7 @@ clean: gtk2_distclean
 		$(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS) dissectors.lib\
 		editcap.obj mergecap.obj text2pcap.obj getopt.obj\
 		text2pcap-scanner.obj text2pcap-scanner.c rdps.obj \
-		rdps.pdb config.h ps.c \
+		rdps.pdb config.h ps.c AUTHORS-SHORT \
 		rdps.exe rdps.ilk dftest.obj dftest.exe randpkt.obj randpkt.ext \
 		$(RESOURCES)
 	cd wiretap
@@ -339,13 +346,13 @@ wiretap::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
-gtk:: help config.h cvsversion.h
+gtk:: help config.h cvsversion.h AUTHORS-SHORT
 	cd gtk
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake GTK_CFLAGS="$(GTK1_CFLAGS)" GTK_LIBS="$(GTK1_LIBS)" libui.lib
 	cd ..
 
 # copy all required files to gtk2.tmp (but only when newer than existing) and compile in that dir
-gtk2:: help config.h cvsversion.h
+gtk2:: help config.h cvsversion.h AUTHORS-SHORT
 	if not exist gtk2.tmp mkdir gtk2.tmp
 	cd gtk
 	cp --update --preserve Makefile.* *.c *.h ..\gtk2.tmp
