@@ -1,7 +1,7 @@
 # 
 # /etc/manuf - Ethernet vendor codes, and well-known MAC addresses
 #
-# $Id: manuf,v 1.25 2003/01/26 19:35:23 deniel Exp $
+# $Id: manuf,v 1.26 2003/03/02 20:46:42 jmayer Exp $
 #
 # Laurent Deniel <laurent.deniel@free.fr>
 #
@@ -2642,7 +2642,8 @@
 
 00:05:69	Vmware                 # VMWARE, Inc.
 
-00:05:6A	Private
+00:05:6A	HeuftSyste             # Heuft Systemtechnik GmbH
+
 00:05:6B	CPTechnolo             # C.P. Technology Co., Ltd.
 
 00:05:6C	HungChang              # Hung Chang Co., Ltd.
@@ -4115,7 +4116,8 @@
 00:08:93	Private
 00:08:94	Innovision             # InnoVISION Multimedia Ltd.
 
-00:08:95	Private
+00:08:95	DircTechno             # DIRC Technologie GmbH & Co.KG
+
 00:08:96	Printronix             # Printronix, Inc.
 
 00:08:97	QuakeTechn             # Quake Technologies
@@ -4332,10 +4334,12 @@
 
 00:09:0C	MayekawaMf             # Mayekawa Mfg. Co. Ltd.
 
-00:09:0D	Private
+00:09:0D	LeaderElec             # LEADER ELECTRONICS CORP.
+
 00:09:0E	HelixTechn             # Helix Technology Inc.
 
-00:09:0F	Private
+00:09:0F	Fortinet               # Fortinet Inc.
+
 00:09:10	SimpleAcce             # Simple Access Inc.
 
 00:09:11	Cisco
@@ -4454,7 +4458,8 @@
 
 00:09:4E	BartechInt             # BARTECH SYSTEMS INTERNATIONAL, INC
 
-00:09:4F	Private
+00:09:4F	Elmegt                 # elmegt GmbH & Co. KG
+
 00:09:50	Independen             # Independent Storage Corporation
 
 00:09:51	Private
@@ -4859,8 +4864,7 @@
 00:0A:26	Private
 00:0A:27	AppleCompu             # Apple Computer, Inc.
 
-00:0A:28	MotorolaPe             # Motorola Personal Communications Sector
-
+00:0A:28	Motorola
 00:0A:29	PanDacomNe             # Pan Dacom Networking AG
 
 00:0A:2A	Qsi                    # QSI Systems Inc.
@@ -5855,8 +5859,7 @@
 
 00:0C:33	CompucaseE             # Compucase Enterprise Co. Ltd.
 
-00:0C:34	Linkwatch              # LinkWatch a/s
-
+00:0C:34	Private
 00:0C:35	KavoDental             # KaVo Dental GmbH & Co. KG
 
 00:0C:36	SharpTakay             # SHARP TAKAYA ELECTRONICS INDUSTRY CO.,LTD.
@@ -5905,6 +5908,167 @@
 00:0C:4C	ArcorAg&Co             # Arcor AG&Co.
 
 00:0C:4D	AcraContro             # ACRA CONTROL
+
+00:0C:4E	WinbestTec             # Winbest Technology CO,LT
+
+00:0C:4F	UdtechJapa             # UDTech Japan Corporation
+
+00:0C:50	SeagateTec             # Seagate Technology
+
+00:0C:51	Scientific             # Scientific Technologies Inc.
+
+00:0C:52	Roll                   # Roll Systems Inc.
+
+00:0C:53	Private
+00:0C:54	PedestalNe             # Pedestal Networks, Inc
+
+00:0C:55	MicrolinkC             # Microlink Communications Inc.
+
+00:0C:56	MegatelCom             # Megatel Computer (1986) Corp.
+
+00:0C:57	MackieEngi             # MACKIE Engineering Services Belgium BVBA
+
+00:0C:58	M&S                    # M&S Systems
+
+00:0C:59	IndymeElec             # Indyme Electronics, Inc.
+
+00:0C:5A	IbsmmIndus             # IBSmm Industrieelektronik Multimedia
+
+00:0C:5B	HanwangTec             # HANWANG TECHNOLOGY CO.,LTD
+
+00:0C:5C	GtnBV                  # GTN Systems B.V.
+
+00:0C:5D	ChicTechno             # CHIC TECHNOLOGY (CHINA) CORP.
+
+00:0C:5E	Private
+00:0C:5F	Avtec                  # Avtec, Inc.
+
+00:0C:60	Acm                    # ACM Systems
+
+00:0C:61	AcTechDbaA             # AC Tech corporation DBA Advanced Digital
+
+00:0C:62	AbbAutomat             # ABB Automation Technology Products AB, Control
+
+00:0C:63	ZenithElec             # Zenith Electronics Corporation
+
+00:0C:64	X2MsaGroup             # X2 MSA Group
+
+00:0C:65	SuninTelec             # Sunin Telecom
+
+00:0C:66	ProntoNetw             # Pronto Networks Inc
+
+00:0C:67	OyoElectri             # OYO ELECTRIC CO.,LTD
+
+00:0C:68	OasisSemic             # Oasis Semiconductor, Inc.
+
+00:0C:69	NationalRa             # National Radio Astronomy Observatory
+
+00:0C:6A	Mbari
+00:0C:6B	KurzIndust             # Kurz Industrie-Elektronik GmbH
+
+00:0C:6C	ElGatoSoft             # El Gato Software LLC
+
+00:0C:6D	BocEdwards             # BOC Edwards
+
+00:0C:6E	AsustekCom             # ASUSTEK COMPUTER INC.
+
+00:0C:6F	AmtekSyste             # Amtek system co.,LTD.
+
+00:0C:70	Acc                    # ACC GmbH
+
+00:0C:71	Wybron                 # Wybron, Inc
+
+00:0C:72	TempearlIn             # Tempearl Industrial Co., Ltd.
+
+00:0C:73	TelsonElec             # TELSON ELECTRONICS CO., LTD
+
+00:0C:74	Rivertec               # RIVERTEC CORPORATION
+
+00:0C:75	OrientalIn             # Oriental integrated electronics. LTD
+
+00:0C:76	Micro-Star             # MICRO-STAR INTERNATIONAL CO., LTD.
+
+00:0C:77	LifeRacing             # Life Racing Ltd
+
+00:0C:78	In-TechEle             # In-Tech Electronics Limited
+
+00:0C:79	ExtelCommu             # Extel Communications P/L
+
+00:0C:7A	DatariusTe             # DaTARIUS Technologies GmbH
+
+00:0C:7B	AlphaProje             # ALPHA PROJECT Co.,Ltd.
+
+00:0C:7C	InternetIn             # Internet Information Image Inc.
+
+00:0C:7D	TeikokuEle             # TEIKOKU ELECTRIC MFG. CO., LTD
+
+00:0C:7E	Tellium                # Tellium Incorporated
+
+00:0C:7F	Synertroni             # synertronixx GmbH
+
+00:0C:80	Opelcomm               # Opelcomm Inc.
+
+00:0C:81	NulecIndus             # Nulec Industries Pty Ltd
+
+00:0C:82	NetworkTec             # NETWORK TECHNOLOGIES INC
+
+00:0C:83	LogicalSol             # Logical Solutions
+
+00:0C:84	Eazix                  # Eazix, Inc.
+
+00:0C:85	Cisco                  # Cisco Systems
+
+00:0C:86	Cisco                  # Cisco Systems
+
+00:0C:87	Ati
+00:0C:88	ApacheMicr             # Apache Micro Peripherals, Inc.
+
+00:0C:89	AcElectric             # AC Electric Vehicles, Ltd.
+
+00:0C:8A	Bose                   # Bose Corporation
+
+00:0C:8B	ConnectTec             # Connect Tech Inc
+
+00:0C:8C	Kodicom                # KODICOM CO.,LTD.
+
+00:0C:8D	MatrixVisi             # MATRIX VISION GmbH
+
+00:0C:8E	MentorEngi             # Mentor Engineering Inc
+
+00:0C:8F	NergalSRL              # Nergal s.r.l.
+
+00:0C:90	Octasic                # Octasic Inc.
+
+00:0C:91	RiverheadN             # Riverhead Networks Inc.
+
+00:0C:92	Wolfvision             # WolfVision Gmbh
+
+00:0C:93	Xeline                 # Xeline Co., Ltd.
+
+00:0C:94	UnitedElec             # United Electronic Industries, Inc.
+
+00:0C:95	Primenet
+00:0C:96	Oqo                    # OQO, Inc.
+
+00:0C:97	NvAdbTtvTe             # NV ADB TTV Technologies SA
+
+00:0C:98	LetekCommu             # LETEK Communications Inc.
+
+00:0C:99	HitelLink              # HITEL LINK Co.,Ltd
+
+00:0C:9A	HitechElec             # Hitech Electronics Corp.
+
+00:0C:9B	EeSolution             # EE Solutions, Inc
+
+00:0C:9C	ChonghoInf             # Chongho information & communications
+
+00:0C:9D	AirwalkCom             # AirWalk Communications, Inc.
+
+00:0C:9E	Memorylink             # MemoryLink Corp.
+
+00:0C:9F	Nke                    # NKE Corporation
+
+00:0C:A0	StorcaseTe             # StorCase Technology, Inc.
 
 00:10:00	CableTelev             # CABLE TELEVISION LABORATIES, INC.
 
@@ -6184,7 +6348,7 @@
 
 00:10:93	CmsCompute             # CMS COMPUTERS, LTD.
 
-00:10:94	Adtech                 # ADTECH, INC.
+00:10:94	Performanc             # Performance Analysis Broadband, Spirent plc
 
 00:10:95	ThomsonMul             # Thomson Multimedia, Inc.
 
@@ -6549,7 +6713,7 @@
 
 00:20:50	KoreaCompu             # KOREA COMPUTER INC.
 
-00:20:51	PhoenixDat             # PHOENIX DATA COMMUNUNICATIONS
+00:20:51	Verilink               # Verilink Corporation
 
 00:20:52	Ragula                 # RAGULA SYSTEMS
 
@@ -7190,7 +7354,7 @@
 
 00:30:A0	TycoSubmar             # TYCO SUBMARINE SYSTEMS, LTD.
 
-00:30:A1	OptiTech               # OPTI TECH CO., LTD.
+00:30:A1	Webgate                # WEBGATE Inc.
 
 00:30:A2	LightnerEn             # Lightner Engineering
 
@@ -8780,7 +8944,7 @@
 
 00:60:F2	Lasergraph             # LASERGRAPHICS, INC.
 
-00:60:F3	Netcom                 # NETCOM SYSTEMS, INC.
+00:60:F3	Performanc             # Performance Analysis Broadband, Spirent plc
 
 00:60:F4	AdvancedCo             # ADVANCED COMPUTER SOLUTIONS, Inc.
 
@@ -9954,7 +10118,7 @@
 00:A0:53	CompactDev             # COMPACT DEVICES, INC.
 
 00:A0:54	Private
-00:A0:55	Linktech               # LINKTECH, INC.
+00:A0:55	DataDevice             # Data Device Corporation
 
 00:A0:56	Micropross
 00:A0:57	ELSA
@@ -9992,8 +10156,9 @@
 
 00:A0:68	Bhp                    # BHP LIMITED
 
-00:A0:69	Truetime
-00:A0:6A	Verilink               # VERILINK CORP.
+00:A0:69	Symmetrico             # Symmetricom, Inc.
+
+00:A0:6A	Verilink               # Verilink Corporation
 
 00:A0:6B	DmsDorschM             # DMS DORSCH MIKROSYSTEM GMBH
 
@@ -11605,7 +11770,7 @@
 
 00:E0:74	TiernanCom             # TIERNAN COMMUNICATIONS, INC.
 
-00:E0:75	AtlasCompu             # ATLAS COMPUTER EQUIPMENT, INC.
+00:E0:75	Verilink               # Verilink Corporation
 
 00:E0:76	Developmen             # DEVELOPMENT CONCEPTS, INC.
 
@@ -12220,7 +12385,7 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 #
 # Well-known addresses.
 #
-# $Id: manuf,v 1.25 2003/01/26 19:35:23 deniel Exp $
+# $Id: manuf,v 1.26 2003/03/02 20:46:42 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
