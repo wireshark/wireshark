@@ -630,10 +630,6 @@ Christian Lacunza <celacunza@gmx.net> {
 	    list of packets in real time" captures
 }
 
-Michael Rozhavsky <mike@tochna.technion.ac.il> {
-	Additional OSPF LSA types and opaque-options flag
-}
-
 Scott Renfro <scott@renfro.org> {
 	LDAP checks for invalid packets
 }
