@@ -154,26 +154,27 @@ about_ethereal_page_new(void)
 
   about_ethereal(top_level, main_vb, title);
 
-  msg_label = gtk_label_new("Version " VERSION
-#ifdef SVNVERSION
-	   " (" SVNVERSION ")"
-#endif
-	   " (C) 1998-2004 Gerald Combs <gerald@ethereal.com>\n\n");
-  gtk_container_add(GTK_CONTAINER(main_vb), msg_label);
-  
   /* Construct the message string */
   message = g_strdup_printf(
+       "Version " VERSION
+#ifdef SVNVERSION
+       " (" SVNVERSION ")"
+#endif
+       " (C) 1998-2004 Gerald Combs <gerald@ethereal.com>\n\n"
        "%s\n\n"
        "%s\n\n"
 
        "Ethereal is Open Source Software released under the GNU General Public License.\n\n"
 
-	   "Check the man page and http://www.ethereal.com for more information.",
-	    comp_info_str->str, runtime_info_str->str);
+       "Check the man page and http://www.ethereal.com for more information.",
+       comp_info_str->str, runtime_info_str->str);
 
   msg_label = gtk_label_new(message);
   g_free(message);
   gtk_label_set_justify(GTK_LABEL(msg_label), GTK_JUSTIFY_FILL);
+#if GTK_MAJOR_VERSION >= 2
+  gtk_label_set_selectable(GTK_LABEL(msg_label), TRUE);
+#endif
   gtk_container_add(GTK_CONTAINER(main_vb), msg_label);
 
   return main_vb;
