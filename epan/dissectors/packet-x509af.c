@@ -45,6 +45,7 @@
 #include "packet-x509af.h"
 #include "packet-x509ce.h"
 #include "packet-x509if.h"
+#include "packet-x509sat.h"
 
 #define PNAME  "X.509 Authentication Framework"
 #define PSNAME "X509AF"
