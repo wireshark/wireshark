@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.91 2000/01/16 02:48:12 guy Exp $
+ * $Id: main.c,v 1.92 2000/01/18 08:38:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1539,6 +1539,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 			        get_column_longest_string(get_column_format(i)));
   }
   gtk_widget_set_usize(packet_list, -1, pl_size);
+  gtk_signal_connect_object(GTK_OBJECT(packet_list), "button_press_event",
+    GTK_SIGNAL_FUNC(popup_menu_handler), gtk_object_get_data(GTK_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY));
   gtk_widget_show(packet_list);
   
   /* Tree view */
@@ -1562,6 +1564,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     GTK_SIGNAL_FUNC(tree_view_select_row_cb), NULL);
   gtk_signal_connect(GTK_OBJECT(tree_view), "tree-unselect-row",
     GTK_SIGNAL_FUNC(tree_view_unselect_row_cb), NULL);
+  gtk_signal_connect_object(GTK_OBJECT(tree_view), "button_press_event",
+    GTK_SIGNAL_FUNC(popup_menu_handler), gtk_object_get_data(GTK_OBJECT(popup_menu_object), PM_TREE_VIEW_KEY));
   gtk_widget_show(tree_view);
 
   item_style = gtk_style_new();

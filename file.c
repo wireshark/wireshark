@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.153 2000/01/15 00:22:30 gram Exp $
+ * $Id: file.c,v 1.154 2000/01/18 08:37:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -310,8 +310,6 @@ read_cap_file(capture_file *cf)
   cf->filed = open(cf->filename, O_RDONLY);
   cf->fh = filed_open(cf->filed, "r");
   cf->current_frame = cf->first_displayed;
-  /* Make the first row the selected row. */
-  gtk_clist_select_row(GTK_CLIST(packet_list), 0, -1);
   thaw_clist(cf);
 
   gtk_progress_set_activity_mode(GTK_PROGRESS(prog_bar), FALSE);
@@ -327,6 +325,9 @@ read_cap_file(capture_file *cf)
 
   /* Enable menu items that make sense if you have some captured packets. */
   set_menus_for_captured_packets(TRUE);
+
+  /* Make the first row the selected row. */
+  gtk_signal_emit_by_name(GTK_OBJECT(packet_list), "select_row", 0);
 
   if (!success) {
     /* Put up a message box noting that the read failed somewhere along

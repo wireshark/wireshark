@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.17 2000/01/17 17:12:42 oabad Exp $
+ * $Id: menu.c,v 1.18 2000/01/18 08:38:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,6 +28,7 @@
 #endif
 
 #include <gtk/gtk.h>
+#include <glib.h>
 
 #include <string.h>
 #include <stdio.h>
@@ -50,6 +51,7 @@
 #include "print.h"
 #include "follow.h"
 #include "colors.h"
+#include "keys.h"
 #include "plugins.h"
 
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
@@ -80,6 +82,7 @@ static void set_menu_sensitivity (gchar *, gint);
                "<LastBranch>"     -> create a right justified branch 
     */
 
+/* main menu */
 static GtkItemFactoryEntry menu_items[] =
 {
   {"/_File", NULL, NULL, 0, "<Branch>" },
@@ -128,8 +131,35 @@ static GtkItemFactoryEntry menu_items[] =
 /* calculate the number of menu_items */
 static int nmenu_items = sizeof(menu_items) / sizeof(menu_items[0]);
 
+/* packet list popup */
+static GtkItemFactoryEntry packet_list_menu_items[] =
+{
+	{"/Match Selected", NULL, GTK_MENU_FUNC(match_selected_cb), 0, NULL},
+	{"/Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
+	{"/Filters...", NULL, GTK_MENU_FUNC(filter_dialog_cb), 0, NULL},
+	{"/<separator>", NULL, NULL, 0, "<Separator>"},
+	{"/Colorize Display...", NULL, GTK_MENU_FUNC(color_display_cb), 0, NULL},
+	{"/Print...", NULL, GTK_MENU_FUNC(file_print_cmd_cb), 0, NULL},
+  	{"/Print Packet", NULL, GTK_MENU_FUNC(file_print_packet_cmd_cb), 0, NULL},
+};
+
+static GtkItemFactoryEntry tree_view_menu_items[] =
+{
+	{"/Match Selected", NULL, GTK_MENU_FUNC(match_selected_cb), 0, NULL},
+	{"/Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
+	{"/Filters...", NULL, GTK_MENU_FUNC(filter_dialog_cb), 0, NULL},
+	{"/<separator>", NULL, NULL, 0, "<Separator>"},
+	{"/Collapse All", NULL, GTK_MENU_FUNC(collapse_all_cb), 0, NULL},
+	{"/Expand All", NULL, GTK_MENU_FUNC(expand_all_cb), 0, NULL}
+};
+
+
 static int initialize = TRUE;
 static GtkItemFactory *factory = NULL;
+static GtkItemFactory *packet_list_menu_factory = NULL;
+static GtkItemFactory *tree_view_menu_factory = NULL;
+
+static GSList *popup_menu_list = NULL;
 
 static GtkAccelGroup *grp;
 
@@ -138,8 +168,10 @@ get_main_menu(GtkWidget ** menubar, GtkAccelGroup ** table) {
 
   grp = gtk_accel_group_new();
 
-  if (initialize)
+  if (initialize) {
+    popup_menu_object = gtk_widget_new(GTK_TYPE_WIDGET, NULL);
     menus_init();
+  }
 
   if (menubar)
     *menubar = factory->widget;
@@ -154,6 +186,18 @@ menus_init(void) {
   if (initialize) {
     initialize = FALSE;
 
+    /* popup */
+
+    packet_list_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
+    gtk_item_factory_create_items_ac(packet_list_menu_factory, sizeof(packet_list_menu_items)/sizeof(packet_list_menu_items[0]), packet_list_menu_items, NULL, 2);
+    gtk_object_set_data(GTK_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY, packet_list_menu_factory->widget);
+    popup_menu_list = g_slist_append((GSList *)popup_menu_list, packet_list_menu_factory);
+
+    tree_view_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
+    gtk_item_factory_create_items_ac(tree_view_menu_factory, sizeof(tree_view_menu_items)/sizeof(tree_view_menu_items[0]), tree_view_menu_items, NULL, 2);
+    gtk_object_set_data(GTK_OBJECT(popup_menu_object), PM_TREE_VIEW_KEY, tree_view_menu_factory->widget);
+    popup_menu_list = g_slist_append((GSList *)popup_menu_list, tree_view_menu_factory);
+    
     factory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", grp);
     gtk_item_factory_create_items_ac(factory, nmenu_items, menu_items, NULL,2);
     set_menus_for_unsaved_capture_file(FALSE);
@@ -167,20 +211,68 @@ menus_init(void) {
   }
 }
 
+void
+set_menu_sensitivity_meat(GtkItemFactory *ifactory, gchar *path, gint val) {
+	GtkWidget *menu = NULL;
+	
+	if((menu = gtk_item_factory_get_widget(ifactory, path)) != NULL) {
+		gtk_widget_set_sensitive(menu,val);
+	}
+}
+
 static void
 set_menu_sensitivity (gchar *path, gint val) {
-  GtkWidget *menu;
+  GSList *menu_list = popup_menu_list;
+  gchar *shortpath = rindex(path, '/');
 
-  if ((menu = gtk_item_factory_get_widget(factory, path)) != NULL)
-    gtk_widget_set_sensitive(menu, val);
+  set_menu_sensitivity_meat(factory, path, val);
+
+  while (menu_list != NULL) {
+  	set_menu_sensitivity_meat(menu_list->data, shortpath, val);
+	menu_list = g_slist_next(menu_list);
+  }
+  
+}
+
+void
+set_menu_object_data_meat(GtkItemFactory *ifactory, gchar *path, gchar *key, gpointer data)
+{
+	GtkWidget *menu = NULL;
+	
+	if ((menu = gtk_item_factory_get_widget(ifactory, path)) != NULL)
+		gtk_object_set_data(GTK_OBJECT(menu), key, data);
 }
 
 void
 set_menu_object_data (gchar *path, gchar *key, gpointer data) {
-  GtkWidget *menu;
+  GSList *menu_list = popup_menu_list;
+  gchar *shortpath = rindex(path, '/');
   
-  if ((menu = gtk_item_factory_get_widget(factory, path)) != NULL)
-    gtk_object_set_data(GTK_OBJECT(menu), key, data);
+  set_menu_object_data_meat(factory, path, key, data);
+  while (menu_list != NULL) {
+  	set_menu_object_data_meat(menu_list->data, shortpath, key, data);
+	menu_list = g_slist_next(menu_list);
+  }
+}
+
+void
+popup_menu_handler(GtkWidget *widget, GdkEvent *event)
+{
+	GtkWidget *menu = NULL;
+	GdkEventButton *event_button = NULL;
+
+	if(widget == NULL || event == NULL) {
+		return;
+	}
+	
+	menu = widget;
+	if(event->type == GDK_BUTTON_PRESS) {
+		event_button = (GdkEventButton *) event;
+		
+		if(event_button->button == 3) {
+			gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL, event_button->button, event_button->time);
+		}
+	}
 }
 
 /* Enable or disable menu items based on whether you have a capture file

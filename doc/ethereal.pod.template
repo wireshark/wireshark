@@ -316,11 +316,13 @@ through and select.  The packet number, packet timestamp, source and
 destination addresses, protocol, and description are printed for each
 packet.  An effort is made to display information as high up the protocol
 stack as possible, e.g. IP addresses are displayed for IP packets, but the
-MAC layer address is displayed for unknown packet types.
+MAC layer address is displayed for unknown packet types.  The right
+mouse button can be used to pop up a menu of operations.
 
 The middle pane contains a I<protocol tree> for the currently-selected
-packet.  The tree displays each field and its value in each protocol header
-in the stack.
+packet.  The tree displays each field and its value in each protocol
+header in the stack.  The right mouse button can be used to pop up a
+menu of operations.
 
 The lowest pane contains a hex dump of the actual packet data. 
 Selecting a field in the I<protocol tree> highlights the corresponding
