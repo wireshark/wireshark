@@ -1,5 +1,7 @@
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
 
+/* $Id: config.h.in,v 1.2 1998/09/16 03:21:53 gerald Exp $ */
+
 /* Define if your processor stores words with the most significant
    byte first (like Motorola and SPARC, unlike Intel and VAX).  */
 #undef WORDS_BIGENDIAN

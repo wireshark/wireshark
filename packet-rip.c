@@ -2,6 +2,8 @@
  * Routines for RIPv1 and RIPv2 packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
+ * $Id: packet-rip.c,v 1.2 1998/09/16 03:22:10 gerald Exp $
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs

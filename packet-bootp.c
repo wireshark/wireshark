@@ -2,6 +2,8 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
+ * $Id: packet-bootp.c,v 1.2 1998/09/16 03:22:01 gerald Exp $
+ *
  * The information used comes from:
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
  * RFC 1542: Clarifications and Extensions for the Bootstrap Protocol

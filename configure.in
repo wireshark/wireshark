@@ -1,3 +1,4 @@
+# $Id: configure.in,v 1.2 1998/09/16 03:21:53 gerald Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 

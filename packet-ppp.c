@@ -1,6 +1,8 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
+ * $Id: packet-ppp.c,v 1.2 1998/09/16 03:22:09 gerald Exp $
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  *

@@ -1,6 +1,8 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
+ * $Id: packet-dns.c,v 1.2 1998/09/16 03:22:03 gerald Exp $
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs

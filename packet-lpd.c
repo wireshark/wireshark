@@ -2,6 +2,8 @@
  * Routines for LPR and LPRng packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
+ * $Id: packet-lpd.c,v 1.2 1998/09/16 03:22:07 gerald Exp $
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
  * Copyright 1998 Gerald Combs

@@ -2,6 +2,8 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
+ * $Id: packet-ospf.c,v 1.2 1998/09/16 03:22:08 gerald Exp $
+ *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
  * OSPF Extensions which introduce new Packet types

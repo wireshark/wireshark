@@ -1,6 +1,8 @@
 /* util.h
  * Utility definitions
  *
+ * $Id: util.h,v 1.2 1998/09/16 03:22:19 gerald Exp $
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs

@@ -1,6 +1,8 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
+ * $Id: packet.h,v 1.2 1998/09/16 03:22:14 gerald Exp $
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs

@@ -1,6 +1,8 @@
 /* file.c
  * File I/O routines
  *
+ * $Id: file.c,v 1.2 1998/09/16 03:21:57 gerald Exp $
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
