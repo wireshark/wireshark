@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.23 2002/03/03 21:42:54 guy Exp $
+ * $Id: resolv.c,v 1.24 2002/08/02 21:29:40 jmayer Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -40,10 +40,6 @@
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #ifdef HAVE_NETINET_IN_H
@@ -234,7 +230,7 @@ static guchar *serv_name_lookup(guint port, port_type proto)
   tp->next = NULL;
 
   if (!(g_resolv_flags & RESOLV_TRANSPORT) || 
-      (servp = getservbyport(htons(port), serv_proto)) == NULL) {
+      (servp = getservbyport(g_htons(port), serv_proto)) == NULL) {
     /* unknown port */
     sprintf(tp->name, "%d", port);
   } else {
@@ -1407,7 +1403,7 @@ gboolean get_host_ipaddr(const char *host, guint32 *addrp)
 			return FALSE;
 	}
 
-	*addrp = ntohl(ipaddr.s_addr);
+	*addrp = g_ntohl(ipaddr.s_addr);
 	return TRUE;
 }
 

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.74 2002/07/17 00:42:51 guy Exp $
+ * $Id: packet.c,v 1.75 2002/08/02 21:29:39 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,18 +26,6 @@
 # include "config.h"
 #endif
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>
-#endif
-
 #include <glib.h>
 
 #include <stdio.h>
@@ -50,14 +38,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
 
 #ifdef NEED_INET_V6DEFS_H
 # include "inet_v6defs.h"
@@ -263,7 +243,7 @@ final_registration_all_protocols(void)
 /* Creates the top-most tvbuff and calls dissect_frame() */
 void
 dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
-	       const u_char *pd, frame_data *fd, column_info *cinfo)
+	       const guchar *pd, frame_data *fd, column_info *cinfo)
 {
 	int i;
 

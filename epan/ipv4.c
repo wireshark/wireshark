@@ -5,7 +5,7 @@
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: ipv4.c,v 1.2 2001/11/13 23:55:37 gram Exp $
+ * $Id: ipv4.c,v 1.3 2002/08/02 21:29:39 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,14 +33,6 @@
 
 #include <glib.h>
 #include <stdio.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
 
 #include "ipv4.h"
 #include "packet.h" /* for ip_to_str */
@@ -72,7 +64,7 @@ ipv4_addr_set_host_order_addr(ipv4_addr *ipv4, guint32 new_addr)
 void
 ipv4_addr_set_net_order_addr(ipv4_addr *ipv4, guint32 new_addr)
 {
-	ipv4->addr = ntohl(new_addr);
+	ipv4->addr = g_ntohl(new_addr);
 }
 
 void
@@ -85,7 +77,7 @@ ipv4_addr_set_netmask_bits(ipv4_addr *ipv4, guint new_nmask_bits)
 guint32
 ipv4_get_net_order_addr(ipv4_addr *ipv4)
 {
-	return htonl(ipv4->addr);
+	return g_htonl(ipv4->addr);
 }
 
 guint32
@@ -97,7 +89,7 @@ ipv4_get_host_order_addr(ipv4_addr *ipv4)
 gchar*
 ipv4_addr_str(ipv4_addr *ipv4)
 {
-	guint32	ipv4_host_order = htonl(ipv4->addr);
+	guint32	ipv4_host_order = g_htonl(ipv4->addr);
 	return ip_to_str((gchar*)&ipv4_host_order);
 }
 

@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.70 2002/06/19 19:21:15 guy Exp $
+ * $Id: proto.c,v 1.71 2002/08/02 21:29:39 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,10 +24,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <stdio.h>

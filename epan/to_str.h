@@ -1,7 +1,7 @@
 /* to_str.h
  * Definitions for utilities to convert various other types to strings.
  *
- * $Id: to_str.h,v 1.6 2002/05/05 00:16:34 guy Exp $
+ * $Id: to_str.h,v 1.7 2002/08/02 21:29:40 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,14 +26,6 @@
 #define __TO_STR_H__
 
 #include <glib.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
 
 #include "nstime.h"
 

@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.56 2002/07/16 22:50:48 guy Exp $
+ * $Id: plugins.c,v 1.57 2002/08/02 21:29:39 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,10 +50,6 @@
 
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
 #endif
 
 #ifdef HAVE_UNISTD_H

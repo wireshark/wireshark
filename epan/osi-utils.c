@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly
  * Main entrance point and common functions
  *
- * $Id: osi-utils.c,v 1.6 2002/07/17 00:42:51 guy Exp $
+ * $Id: osi-utils.c,v 1.7 2002/08/02 21:29:39 jmayer Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -29,10 +29,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <stdio.h>

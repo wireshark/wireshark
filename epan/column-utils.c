@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.16 2002/06/29 21:27:39 guy Exp $
+ * $Id: column-utils.c,v 1.17 2002/08/02 21:29:39 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,10 +28,6 @@
 
 #include <string.h>
 #include <time.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"

@@ -1,7 +1,7 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.18 2002/05/09 12:10:06 sahlberg Exp $
+ * $Id: conversation.c,v 1.19 2002/08/02 21:29:39 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,14 +27,6 @@
 #endif
 
 #include <stdio.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
 
 #include <string.h>
 #include <glib.h>

@@ -1,7 +1,7 @@
 /* ftypes.h
  * Definitions for field types
  *
- * $Id: ftypes.h,v 1.11 2002/06/23 10:32:35 guy Exp $
+ * $Id: ftypes.h,v 1.12 2002/08/02 21:29:45 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -112,10 +112,6 @@ ftype_can_le(enum ftenum ftype);
 /* ---------------- FVALUE ----------------- */
 
 #include <epan/ipv4.h>
-
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>
-#endif
 
 #include <epan/tvbuff.h>
 #include <epan/nstime.h>

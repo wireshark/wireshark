@@ -1,7 +1,7 @@
 /* frame_data.c
  * Routines for packet disassembly
  *
- * $Id: frame_data.c,v 1.1 2001/04/01 04:11:50 hagbard Exp $
+ * $Id: frame_data.c,v 1.2 2002/08/02 21:29:39 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,10 +25,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include "frame_data.h"

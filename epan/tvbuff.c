@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.38 2002/07/17 06:55:24 guy Exp $
+ * $Id: tvbuff.c,v 1.39 2002/08/02 21:29:40 jmayer Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -1893,7 +1893,7 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
 {
 	gint cur_offset, char_offset;
 	gboolean is_quoted;
-	u_char c;
+	guchar c;
 	gint eob_offset;
 	int linelen;
 

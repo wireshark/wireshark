@@ -1,7 +1,7 @@
 /* filesystem.c
  * Filesystem utility routines
  *
- * $Id: filesystem.c,v 1.18 2002/06/23 21:33:09 guy Exp $
+ * $Id: filesystem.c,v 1.19 2002/08/02 21:29:39 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,10 +35,6 @@
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
 #endif
 
 #ifdef HAVE_SYS_STAT_H

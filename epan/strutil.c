@@ -1,7 +1,7 @@
 /* strutil.c
  * String utility routines
  *
- * $Id: strutil.c,v 1.7 2000/12/22 12:05:36 gram Exp $
+ * $Id: strutil.c,v 1.8 2002/08/02 21:29:40 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,10 +40,10 @@
  * buffer.
  * Return a pointer to the EOL character(s) in "*eol".
  */
-const u_char *
-find_line_end(const u_char *data, const u_char *dataend, const u_char **eol)
+const guchar *
+find_line_end(const guchar *data, const guchar *dataend, const guchar **eol)
 {
-  const u_char *lineend;
+  const guchar *lineend;
 
   lineend = memchr(data, '\n', dataend - data);
   if (lineend == NULL) {
@@ -105,10 +105,10 @@ find_line_end(const u_char *data, const u_char *dataend, const u_char **eol)
  * Return 0 if there is no next token.
  */
 int
-get_token_len(const u_char *linep, const u_char *lineend,
-	      const u_char **next_token)
+get_token_len(const guchar *linep, const guchar *lineend,
+	      const guchar **next_token)
 {
-  const u_char *tokenp;
+  const guchar *tokenp;
   int token_len;
 
   tokenp = linep;
@@ -139,13 +139,13 @@ get_token_len(const u_char *linep, const u_char *lineend,
  * characters as C-style escapes, and return a pointer to it.
  */
 gchar *
-format_text(const u_char *string, int len)
+format_text(const guchar *string, int len)
 {
   static gchar *fmtbuf;
   static int fmtbuf_len;
   int column;
-  const u_char *stringend = string + len;
-  u_char c;
+  const guchar *stringend = string + len;
+  guchar c;
   int i;
 
   /*

@@ -2,7 +2,7 @@
  * Definitions for extracting and translating integers safely and portably
  * via pointers.
  *
- * $Id: pint.h,v 1.4 2001/10/29 21:56:48 guy Exp $
+ * $Id: pint.h,v 1.5 2002/08/02 21:29:39 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,7 +29,7 @@
 
 #include <glib.h>
 
-/* Pointer versions of ntohs and ntohl.  Given a pointer to a member of a
+/* Pointer versions of g_ntohs and g_ntohl.  Given a pointer to a member of a
  * byte array, returns the value of the two or four bytes at the pointer.
  * The pletoh[sl] versions return the little-endian representation.
  */

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.57 2002/06/04 07:03:54 guy Exp $
+ * $Id: packet.h,v 1.58 2002/08/02 21:29:39 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -278,11 +278,11 @@ extern void free_data_sources(packet_info *pinfo);
  * Dissectors should never modify the packet data.
  */
 extern void dissect_packet(epan_dissect_t *edt,
-    union wtap_pseudo_header *pseudo_header, const u_char *pd,
+    union wtap_pseudo_header *pseudo_header, const guchar *pd,
     frame_data *fd, column_info *cinfo);
 
 /* These functions are in packet-ethertype.c */
-extern void capture_ethertype(guint16 etype, const u_char *pd, int offset,
+extern void capture_ethertype(guint16 etype, const guchar *pd, int offset,
 		int len, packet_counts *ld);
 extern void ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_ethertype,
 		packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,

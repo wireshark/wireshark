@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.14 2002/06/23 10:32:32 guy Exp $
+ * $Id: to_str.c,v 1.15 2002/08/02 21:29:40 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,20 +29,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_WINSOCK2_H
-# include <winsock2.h>   /* for "u_char" */
-#endif
-
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
 #endif
 
 #ifdef HAVE_ARPA_INET_H
@@ -169,7 +157,7 @@ ip6_to_str(struct e_in6_addr *ad) {
 #endif
   static gchar buf[INET6_ADDRSTRLEN];
 
-  inet_ntop(AF_INET6, (u_char*)ad, (gchar*)buf, sizeof(buf));
+  inet_ntop(AF_INET6, (guchar*)ad, (gchar*)buf, sizeof(buf));
   return buf;
 }
 
