@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.81 2003/01/22 19:39:25 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.82 2003/02/18 21:29:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -222,7 +222,7 @@ static char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 #define TAG_TIM            0x05
 #define TAG_IBSS_PARAMETER 0x06
 #define TAG_CHALLENGE_TEXT 0x10
-#define TAG_ERP_INFO       0x2F
+#define TAG_ERP_INFO       0x2A
 #define TAG_EXT_SUPP_RATES 0x32
 
 /* ************************************************************************* */
