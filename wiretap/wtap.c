@@ -129,8 +129,8 @@ static const struct encap_type_info {
 	/* WTAP_ENCAP_IEEE_802_11_WITH_RADIO */
 	{ "IEEE 802.11 Wireless LAN with radio information", "ieee-802-11-radio" },
 
-	/* WTAP_ENCAP_IEEE_802_11_WLAN_BSD */
-	{ "IEEE 802.11 plus BSD WLAN header", "ieee-802-11-bsd" },
+	/* WTAP_ENCAP_IEEE_802_11_WLAN_RADIOTAP */
+	{ "IEEE 802.11 plus radiotap WLAN header", "ieee-802-11-radiotap" },
 
 	/* WTAP_ENCAP_IEEE_802_11_WLAN_AVS */
 	{ "IEEE 802.11 plus AVS WLAN header", "ieee-802-11-avs" },

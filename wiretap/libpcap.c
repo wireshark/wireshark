@@ -289,7 +289,7 @@ static const struct {
 	{ 121,		WTAP_ENCAP_HHDLC },	/* HiPath HDLC */
 	{ 122,		WTAP_ENCAP_IP_OVER_FC },   /* RFC 2625 IP-over-FC */
 	{ 123,		WTAP_ENCAP_ATM_PDUS },  /* SunATM */
-	{ 127,		WTAP_ENCAP_IEEE_802_11_WLAN_BSD },  /* 802.11 plus BSD WLAN header */
+	{ 127,		WTAP_ENCAP_IEEE_802_11_WLAN_RADIOTAP },  /* 802.11 plus radiotap WLAN header */
 	{ 128,		WTAP_ENCAP_TZSP },	/* Tazmen Sniffer Protocol */
 	{ 129,		WTAP_ENCAP_ARCNET_LINUX },
 
@@ -1152,7 +1152,7 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 
 	case WTAP_ENCAP_IEEE_802_11:
 	case WTAP_ENCAP_PRISM_HEADER:
-	case WTAP_ENCAP_IEEE_802_11_WLAN_BSD:
+	case WTAP_ENCAP_IEEE_802_11_WLAN_RADIOTAP:
 	case WTAP_ENCAP_IEEE_802_11_WLAN_AVS:
 		/*
 		 * We don't know whether there's an FCS in this frame or not.
@@ -1266,7 +1266,7 @@ libpcap_seek_read(wtap *wth, long seek_off,
 
 	case WTAP_ENCAP_IEEE_802_11:
 	case WTAP_ENCAP_PRISM_HEADER:
-	case WTAP_ENCAP_IEEE_802_11_WLAN_BSD:
+	case WTAP_ENCAP_IEEE_802_11_WLAN_RADIOTAP:
 	case WTAP_ENCAP_IEEE_802_11_WLAN_AVS:
 		/*
 		 * We don't know whether there's an FCS in this frame or not.
