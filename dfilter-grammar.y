@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.22 1999/10/11 06:39:04 guy Exp $
+ * $Id: dfilter-grammar.y,v 1.23 1999/10/11 07:06:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -548,7 +548,10 @@ dfilter_mknode_ipv4_value(char *host)
 		/* "Scientist, you've failed." */
 		dfilter_fail("\"%s\" isn't a valid host name or IP address.",
 		    host);
-		node->value.numeric = INADDR_NONE;
+
+		/* Stuff a value in here; it doesn't matter what it is,
+		   as we'll throw the tree away anyway. */
+		node->value.numeric = 0;
 	}
 	node->value.numeric = htonl(node->value.numeric);
 	gnode = g_node_new(node);
