@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.5 2000/03/31 10:22:24 guy Exp $
+ * $Id: packet-ldap.c,v 1.6 2000/04/03 07:48:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -725,15 +725,15 @@ dissect_ldap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     message_start = a.pointer - a.begin;
     if (read_sequence(&a, &messageLength))
     {
-      if (tree)
-        proto_tree_add_text(tree, offset, 1, "Invalid LDAP packet");
+      if (ldap_tree)
+        proto_tree_add_text(ldap_tree, offset, 1, "Invalid LDAP packet");
       break;
     }
 
     if (messageLength > (a.end - a.pointer))
     {
-      if (tree)
-        proto_tree_add_text(tree, message_start, END_OF_FRAME, "Short message! (expected: %u, actual: %u)",
+      if (ldap_tree)
+        proto_tree_add_text(ldap_tree, message_start, END_OF_FRAME, "Short message! (expected: %u, actual: %u)",
 			    messageLength, a.end - a.pointer);
       break;
     }
@@ -758,9 +758,11 @@ dissect_ldap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
         col_add_fstr(fd, COL_INFO, "MsgId=%u MsgType=%s",
 		     messageId, typestr);
       first_time = 0;
+      if (!tree)
+	return;
     }
 
-    if (tree) 
+    if (ldap_tree) 
     {
       proto_tree_add_item_hidden(ldap_tree, hf_ldap_message_id, message_id_start, message_id_length, messageId);
       proto_tree_add_item_hidden(ldap_tree, hf_ldap_message_type,
@@ -813,12 +815,6 @@ dissect_ldap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
         dissect_ldap_result(&a, msg_tree);
         break;
       }
-    }
-    else
-    {
-      /* Only parse the first request in the sequence if we're not building
-         a protocol tree. */
-      break;
     }
   }
 }
