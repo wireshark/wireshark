@@ -52,7 +52,7 @@ Laurent Deniel       <deniel@worldnet.fr> {
 
 Don Lafontaine       <lafont02@cn.ca> {
     Banyan Vines support
-    IGRP/EIGRP support
+    IGRP support
 }
 
 Guy Harris           <guy@alum.mit.edu> {
@@ -328,7 +328,7 @@ Yaniv Kaul <ykaul@netvision.net.il> {
 
 Paul Ionescu <ipaul@romsys.ro> {
 	IPX over GRE support
-	EIGRP over Appletalk and EIGRP over IPX support
+	EIGRP support
 	Cisco IGRP support
 }
 
