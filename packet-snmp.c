@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.102 2002/11/11 17:34:22 guy Exp $
+ * $Id: packet-snmp.c,v 1.103 2003/01/28 22:53:22 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -69,12 +69,15 @@
 # include <ucd-snmp/default_store.h>
 # include <ucd-snmp/read_config.h>
 # include <ucd-snmp/tools.h>
-# define netsnmp_ds_set_boolean ds_set_boolean
-# define netsnmp_ds_set_int ds_set_int
+#endif /* HAVE_NET_SNMP */
+
+#ifndef NETSNMP_DS_LIBRARY_ID
 # define NETSNMP_DS_LIBRARY_ID DS_LIBRARY_ID
 # define NETSNMP_DS_LIB_NO_TOKEN_WARNINGS DS_LIB_NO_TOKEN_WARNINGS
 # define NETSNMP_DS_LIB_PRINT_SUFFIX_ONLY DS_LIB_PRINT_SUFFIX_ONLY
-#endif /* HAVE_NET_SNMP */
+# define netsnmp_ds_set_boolean ds_set_boolean
+# define netsnmp_ds_set_int ds_set_int
+#endif
 
 #ifdef WIN32
 # include <epan/filesystem.h>
@@ -237,26 +240,63 @@ static const value_string smux_sout[] = {
 };
 
 /* Error status values */
+#ifndef SNMP_ERR_NOERROR
 #define SNMP_ERR_NOERROR		0
+#endif
+#ifndef SNMP_ERR_TOOBIG
 #define SNMP_ERR_TOOBIG			1
+#endif
+#ifndef SNMP_ERR_NOSUCHNAME
 #define SNMP_ERR_NOSUCHNAME		2
+#endif
+#ifndef SNMP_ERR_BADVALUE
 #define SNMP_ERR_BADVALUE		3
+#endif
+#ifndef SNMP_ERR_READONLY
 #define SNMP_ERR_READONLY		4
-#define SNMP_ERR_GENERROR		5
-
+#endif
+#ifndef SNMP_ERR_GENERR
+#define SNMP_ERR_GENERR			5
+#endif
+#ifndef SNMP_ERR_NOACCESS
 #define SNMP_ERR_NOACCESS		6
+#endif
+#ifndef SNMP_ERR_WRONGTYPE
 #define SNMP_ERR_WRONGTYPE		7
+#endif
+#ifndef SNMP_ERR_WRONGLENGTH
 #define SNMP_ERR_WRONGLENGTH		8
+#endif
+#ifndef SNMP_ERR_WRONGENCODING
 #define SNMP_ERR_WRONGENCODING		9
+#endif
+#ifndef SNMP_ERR_WRONGVALUE
 #define SNMP_ERR_WRONGVALUE		10
+#endif
+#ifndef SNMP_ERR_NOCREATION
 #define SNMP_ERR_NOCREATION		11
+#endif
+#ifndef SNMP_ERR_INCONSISTENTVALUE
 #define SNMP_ERR_INCONSISTENTVALUE	12
+#endif
+#ifndef SNMP_ERR_RESOURCEUNAVAILABLE
 #define SNMP_ERR_RESOURCEUNAVAILABLE	13
+#endif
+#ifndef SNMP_ERR_COMMITFAILED
 #define SNMP_ERR_COMMITFAILED		14
+#endif
+#ifndef SNMP_ERR_UNDOFAILED
 #define SNMP_ERR_UNDOFAILED		15
+#endif
+#ifndef SNMP_ERR_AUTHORIZATIONERROR
 #define SNMP_ERR_AUTHORIZATIONERROR	16
+#endif
+#ifndef SNMP_ERR_NOTWRITABLE
 #define SNMP_ERR_NOTWRITABLE		17
+#endif
+#ifndef SNMP_ERR_INCONSISTENTNAME
 #define SNMP_ERR_INCONSISTENTNAME	18
+#endif
 
 static const value_string error_statuses[] = {
 	{ SNMP_ERR_NOERROR,		"NO ERROR" },
@@ -264,7 +304,7 @@ static const value_string error_statuses[] = {
 	{ SNMP_ERR_NOSUCHNAME,		"NO SUCH NAME" },
 	{ SNMP_ERR_BADVALUE,		"BAD VALUE" },
 	{ SNMP_ERR_READONLY,		"READ ONLY" },
-	{ SNMP_ERR_GENERROR,		"GENERIC ERROR" },
+	{ SNMP_ERR_GENERR,		"GENERIC ERROR" },
 	{ SNMP_ERR_NOACCESS,		"NO ACCESS" },
 	{ SNMP_ERR_WRONGTYPE,		"WRONG TYPE" },
 	{ SNMP_ERR_WRONGLENGTH,		"WRONG LENGTH" },
@@ -283,13 +323,27 @@ static const value_string error_statuses[] = {
 
 /* General SNMP V1 Traps */
 
+#ifndef SNMP_TRAP_COLDSTART
 #define SNMP_TRAP_COLDSTART		0
+#endif
+#ifndef SNMP_TRAP_WARMSTART
 #define SNMP_TRAP_WARMSTART		1
+#endif
+#ifndef SNMP_TRAP_LINKDOWN
 #define SNMP_TRAP_LINKDOWN		2
+#endif
+#ifndef SNMP_TRAP_LINKUP
 #define SNMP_TRAP_LINKUP		3
+#endif
+#ifndef SNMP_TRAP_AUTHFAIL
 #define SNMP_TRAP_AUTHFAIL		4
+#endif
+#ifndef SNMP_TRAP_EGPNEIGHBORLOSS
 #define SNMP_TRAP_EGPNEIGHBORLOSS	5
+#endif
+#ifndef SNMP_TRAP_ENTERPRISESPECIFIC
 #define SNMP_TRAP_ENTERPRISESPECIFIC	6
+#endif
 
 static const value_string trap_types[] = {
 	{ SNMP_TRAP_COLDSTART,		"COLD START" },
