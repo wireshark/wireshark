@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.2 1999/11/06 06:42:41 guy Exp $
+ * $Id: find_dlg.c,v 1.3 1999/11/06 06:54:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -173,9 +173,13 @@ find_frame_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 
   cf.sbackward = GTK_TOGGLE_BUTTON (backward_rb)->active;
 
-  gtk_widget_destroy(GTK_WIDGET(parent_w));
+  if (!find_packet(&cf, sfcode)) {
+    /* We didn't find the packet. */
+    simple_dialog(ESD_TYPE_WARN, NULL, "No packet matched that filter.");
+    return;
+  }
 
-  find_packet(&cf, sfcode);
+  gtk_widget_destroy(GTK_WIDGET(parent_w));
 }
 
 static void

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.117 1999/11/06 06:26:55 guy Exp $
+ * $Id: file.c,v 1.118 1999/11/06 06:54:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1388,7 +1388,7 @@ clear_tree_and_hex_views(void)
   gtk_tree_clear_items(GTK_TREE(tree_view), 0, -1);
 }
 
-void
+gboolean
 find_packet(capture_file *cf, dfilter *sfcode)
 {
   frame_data *start_fd;
@@ -1485,7 +1485,9 @@ find_packet(capture_file *cf, dfilter *sfcode)
     if (!gtk_clist_row_is_visible(GTK_CLIST(packet_list), new_fd->row))
       gtk_clist_moveto(GTK_CLIST(packet_list), new_fd->row, -1, 0.0, 0.0);
     gtk_clist_select_row(GTK_CLIST(packet_list), new_fd->row, -1);
-  }
+    return TRUE;	/* success */
+  } else
+    return FALSE;	/* failure */
 }
 
 /* Select the packet on a given row. */
