@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.50 2002/06/22 00:21:38 guy Exp $
+ * $Id: print.c,v 1.51 2002/06/22 01:24:23 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -47,12 +47,10 @@
 
 static void proto_tree_print_node_text(GNode *node, gpointer data);
 static void proto_tree_print_node_ps(GNode *node, gpointer data);
+static void print_hex_data_buffer(FILE *fh, register const u_char *cp,
+    register u_int length, char_enc encoding, gint format);
 static void ps_clean_string(unsigned char *out, const unsigned char *in,
 			int outbuf_size);
-static void print_hex_data_text(FILE *fh, register const u_char *cp,
-		register u_int length, char_enc encoding);
-static void print_hex_data_ps(FILE *fh, register const u_char *cp,
-		register u_int length, char_enc encoding);
 
 typedef struct {
 	int		level;
@@ -195,7 +193,8 @@ void proto_tree_print_node_text(GNode *node, gpointer data)
 		 * Find the data for this field.
 		 */
 		pd = get_field_data(pdata->src_list, fi);
-		print_hex_data_text(pdata->fh, pd, fi->length, pdata->encoding);
+		print_hex_data_buffer(pdata->fh, pd, fi->length,
+		    pdata->encoding, PR_FMT_TEXT);
 	}
 
 	/* If we're printing all levels, or if this node is one with a
@@ -238,22 +237,17 @@ void print_hex_data(FILE *fh, gint format, epan_dissect_t *edt)
 		tvb = src->tvb;
 		if (multiple_sources) {
 			name = src->name;
-			print_line(fh, format, "\n");
-			line = g_malloc(strlen(name) + 3);	/* <name>:\n\0 */
+			print_line(fh, format, "");
+			line = g_malloc(strlen(name) + 2);	/* <name>:\0 */
 			strcpy(line, name);
-			strcat(line, ":\n");
+			strcat(line, ":");
 			print_line(fh, format, line);
 			g_free(line);
 		}
 		length = tvb_length(tvb);
 		cp = tvb_get_ptr(tvb, 0, length);
-		if (format == PR_FMT_PS) {
-			print_hex_data_ps(fh, cp, length,
-			    edt->pi.fd->flags.encoding);
-		} else {
-			print_hex_data_text(fh, cp, length,
-			    edt->pi.fd->flags.encoding);
-		}
+		print_hex_data_buffer(fh, cp, length,
+		    edt->pi.fd->flags.encoding, format);
 	}
 }
 
@@ -263,11 +257,9 @@ void print_hex_data(FILE *fh, gint format, epan_dissect_t *edt)
  *
  * It was modified for Ethereal by Gilbert Ramirez and others.
  */
-static
-void print_hex_data_common(FILE *fh, register const u_char *cp,
-		register u_int length, char_enc encoding,
-		void (*print_hex_data_start)(FILE *),
-		void (*print_hex_data_line)(FILE *, u_char *))
+static void
+print_hex_data_buffer(FILE *fh, register const u_char *cp,
+    register u_int length, char_enc encoding, gint format)
 {
 	register unsigned int ad, i, j, k;
 	u_char c;
@@ -276,16 +268,24 @@ void print_hex_data_common(FILE *fh, register const u_char *cp,
 		'0', '1', '2', '3', '4', '5', '6', '7',
 		'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
-	if (print_hex_data_start != NULL)
-		(*print_hex_data_start)(fh);
-	(*print_hex_data_line)(fh, "");
+	if (format == PR_FMT_PS)
+		print_ps_hex(fh);
+	print_line(fh, format, "");
 	ad = 0;
+	i = 0;
 	j = 0;
 	k = 0;
-	sprintf(line, "%04x  ", ad);
-	memset(line+6, ' ', sizeof line-6);
-	line[sizeof (line)-1] = '\0';
-	for (i=0; i<length; i++) {
+	while (i < length) {
+		if ((i & 15) == 0) {
+			/*
+			 * Start of a new line.
+			 */
+			j = 0;
+			k = 0;
+			sprintf(line, "%04x  ", ad);
+			memset(line+6, ' ', sizeof line-6);
+			line[sizeof (line)-1] = '\0';
+		}
 		c = *cp++;
 		line[6+j++] = binhex[c>>4];
 		line[6+j++] = binhex[c&0xf];
@@ -294,33 +294,18 @@ void print_hex_data_common(FILE *fh, register const u_char *cp,
 			c = EBCDIC_to_ASCII1(c);
 		}
 		line[6+50+k++] = c >= ' ' && c < 0x7f ? c : '.';
-		if ((i & 15) == 15) {
-			(*print_hex_data_line)(fh, line);
+		i++;
+		if ((i & 15) == 0 || i == length) {
+			/*
+			 * We'll be starting a new line, or
+			 * we're finished printing this buffer;
+			 * dump out the line we've constructed,
+			 * and advance the offset.
+			 */
+			print_line(fh, format, line);
 			ad += 16;
-			j = 0;
-			k = 0;
-			sprintf(line, "%04x  ", ad);
-			memset(line+6, ' ', sizeof line-6);
-			line[sizeof (line)-1] = '\0';
 		}
 	}
-
-	if (line[0] != ' ')
-		(*print_hex_data_line)(fh, line);
-}
-
-static void
-print_hex_data_line_text(FILE *fh, u_char *line)
-{
-	fprintf(fh, "%s\n", line);
-}
-
-static
-void print_hex_data_text(FILE *fh, register const u_char *cp,
-		register u_int length, char_enc encoding)
-{
-	print_hex_data_common(fh, cp, length, encoding, NULL,
-	    print_hex_data_line_text);
 }
 
 #define MAX_LINE_LENGTH 256
@@ -359,7 +344,8 @@ void proto_tree_print_node_ps(GNode *node, gpointer data)
 		 * Find the data for this field.
 		 */
 		pd = get_field_data(pdata->src_list, fi);
-		print_hex_data_ps(pdata->fh, pd, fi->length, pdata->encoding);
+		print_hex_data_buffer(pdata->fh, pd, fi->length,
+		    pdata->encoding, PR_FMT_PS);
 	}
 
 	/* Recurse into the subtree, if it exists */
@@ -399,23 +385,6 @@ void ps_clean_string(unsigned char *out, const unsigned char *in,
 	}
 }
 
-static void
-print_hex_data_line_ps(FILE *fh, u_char *line)
-{
-	u_char psline[MAX_LINE_LENGTH];
-
-	ps_clean_string(psline, line, MAX_LINE_LENGTH);
-	fprintf(fh, "(%s) hexdump\n", psline);
-}
-
-static
-void print_hex_data_ps(FILE *fh, register const u_char *cp,
-		register u_int length, char_enc encoding)
-{
-	print_hex_data_common(fh, cp, length, encoding,
-	    print_ps_hex, print_hex_data_line_ps);
-}
-
 void print_line(FILE *fh, gint format, char *line)
 {
 	char		psbuffer[MAX_LINE_LENGTH]; /* static sized buffer! */
@@ -423,6 +392,8 @@ void print_line(FILE *fh, gint format, char *line)
 	if (format == PR_FMT_PS) {
 		ps_clean_string(psbuffer, line, MAX_LINE_LENGTH);
 		fprintf(fh, "(%s) hexdump\n", psbuffer);
-	} else
+	} else {
 		fputs(line, fh);
+		putc('\n', fh);
+	}
 }

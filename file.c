@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.277 2002/06/07 07:47:56 guy Exp $
+ * $Id: file.c,v 1.278 2002/06/22 01:24:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1231,7 +1231,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
         print_line(cf->print_fh, print_args->format, line_buf);
       } else {
         if (print_separator)
-          print_line(cf->print_fh, print_args->format, "\n");
+          print_line(cf->print_fh, print_args->format, "");
 
         /* Create the logical protocol tree, complete with the display
            representation of the items; we don't need the columns here,
