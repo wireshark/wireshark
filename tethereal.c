@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.204 2003/11/01 02:30:15 guy Exp $
+ * $Id: tethereal.c,v 1.205 2003/11/27 22:04:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -243,13 +243,13 @@ print_usage(gboolean print_ver)
   fprintf(stderr, "\t[ -f <capture filter> ] [ -F <output file type> ] [ -i <interface> ]\n");
   fprintf(stderr, "\t[ -N <resolving> ] [ -o <preference setting> ] ... [ -r <infile> ]\n");
   fprintf(stderr, "\t[ -R <read filter> ] [ -s <snaplen> ] [ -t <time stamp format> ]\n");
-  fprintf(stderr, "\t[ -w <savefile> ] [ -y <link type> ] [ -Z <statistics string> ]\n");
+  fprintf(stderr, "\t[ -w <savefile> ] [ -y <link type> ] [ -z <statistics string> ]\n");
 #else
   fprintf(stderr, "\nt%s [ -vh ] [ -lnVx ]\n", PACKAGE);
   fprintf(stderr, "\t[ -d %s ] ...\n", decode_as_arg_template);
   fprintf(stderr, "\t[ -F <output file type> ] [ -N <resolving> ]\n");
   fprintf(stderr, "\t[ -o <preference setting> ] ... [ -r <infile> ] [ -R <read filter> ]\n");
-  fprintf(stderr, "\t[ -t <time stamp format> ] [ -w <savefile> ] [ -Z <statistics string> ]\n");
+  fprintf(stderr, "\t[ -t <time stamp format> ] [ -w <savefile> ] [ -z <statistics string> ]\n");
 #endif
   fprintf(stderr, "Valid file type arguments to the \"-F\" flag:\n");
   for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
