@@ -1,7 +1,7 @@
 /* progress_dlg.c
  * Routines for progress-bar (modal) dialog
  *
- * $Id: progress_dlg.c,v 1.17 2002/11/11 15:39:06 oabad Exp $
+ * $Id: progress_dlg.c,v 1.18 2003/12/23 00:16:46 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -132,27 +132,27 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title,
 	title_lb = gtk_label_new(item_title);
 	gtk_box_pack_start(GTK_BOX(dynamic_vb), title_lb, FALSE, TRUE, 3);
 	gtk_misc_set_alignment(GTK_MISC(title_lb), 0.0, 0.0);
-	gtk_misc_set_padding(GTK_MISC(title_lb), 0.0, 0.0);
+	gtk_misc_set_padding(GTK_MISC(title_lb), 0, 0);
 
 	/* same for "Status" */
 	status_lb = gtk_label_new("");
 	gtk_box_pack_start(GTK_BOX(dynamic_vb), status_lb, FALSE, TRUE, 3);
 	gtk_misc_set_alignment(GTK_MISC(status_lb), 0.0, 0.0);
-	gtk_misc_set_padding(GTK_MISC(status_lb), 0.0, 0.0);
+	gtk_misc_set_padding(GTK_MISC(status_lb), 0, 0);
 	dlg->status_lb = (GtkLabel *) status_lb;
 
 	/* same for "Elapsed Time" */
 	elapsed_lb = gtk_label_new("00:00");
 	gtk_box_pack_start(GTK_BOX(dynamic_vb), elapsed_lb, FALSE, TRUE, 3);
 	gtk_misc_set_alignment(GTK_MISC(elapsed_lb), 0.0, 0.0);
-	gtk_misc_set_padding(GTK_MISC(elapsed_lb), 0.0, 0.0);
+	gtk_misc_set_padding(GTK_MISC(elapsed_lb), 0, 0);
 	dlg->elapsed_lb = (GtkLabel *) elapsed_lb;
 
 	/* same for "Time Left" */
 	time_left_lb = gtk_label_new("--:--");
 	gtk_box_pack_start(GTK_BOX(dynamic_vb), time_left_lb, FALSE, TRUE, 3);
 	gtk_misc_set_alignment(GTK_MISC(time_left_lb), 0.0, 0.0);
-	gtk_misc_set_padding(GTK_MISC(time_left_lb), 0.0, 0.0);
+	gtk_misc_set_padding(GTK_MISC(time_left_lb), 0, 0);
 	dlg->time_left_lb = (GtkLabel *) time_left_lb;
 
 	/*
@@ -336,8 +336,8 @@ update_progress_dlg(progdlg_t *dlg, gfloat percentage, gchar *status)
 
 	delta_time = (time_now.tv_sec - dlg->start_time.tv_sec) * 1e6 +
 		time_now.tv_usec - dlg->start_time.tv_usec;
-	ul_percentage = percentage * 100;
-	ul_elapsed = delta_time / 1000 / 1000;
+	ul_percentage = (gulong) (percentage * 100);
+	ul_elapsed = (gulong) (delta_time / 1000 / 1000);
 
 	/* update labels */
 	g_snprintf(tmp, sizeof(tmp), "%lu%% of %s", ul_percentage, dlg->title);
@@ -355,7 +355,7 @@ update_progress_dlg(progdlg_t *dlg, gfloat percentage, gchar *status)
 	/* show "Time Left" only,
 	 * if at least 5% and 3 seconds running (to get a useful estimation) */
 	if (ul_percentage >= 5 && delta_time >= 3 * 1e6) {
-		ul_left = (delta_time / percentage - delta_time) / 1000 / 1000;
+		ul_left = (gulong) ((delta_time / percentage - delta_time) / 1000 / 1000);
 
 		g_snprintf(tmp, sizeof(tmp), "%02lu:%02lu", ul_left / 60,
                            ul_left % 60);

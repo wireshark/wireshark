@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.46 2003/11/19 00:10:25 ulfl Exp $
+ * $Id: gui_prefs.c,v 1.47 2003/12/23 00:16:45 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -644,9 +644,9 @@ typedef struct {
 
 static color_info_t color_info[MAX_HANDLED_COL] = {
 #define MFG_IDX			0
-  { {0.0, 0.0, 0.0, 0.0},      	"Marked frame foreground" },
+  { {0, 0, 0, 0},      	"Marked frame foreground" },
 #define MBG_IDX			1
-  { {0.0, 0.0, 0.0, 0.0},	"Marked frame background" }
+  { {0, 0, 0, 0},	    "Marked frame background" }
 };
 
 #define SAMPLE_MARKED_TEXT	"Sample marked frame text\n"

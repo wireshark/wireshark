@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.39 2003/12/17 22:11:43 ulfl Exp $
+ * $Id: tcp_graph.c,v 1.40 2003/12/23 00:16:46 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1115,12 +1115,12 @@ static GtkWidget *control_panel_create_zoom_group (struct graph *g)
 
 	zoom_separator2 = gtk_hseparator_new ();
 
-	zoom_h_adj = (GtkAdjustment * )gtk_adjustment_new (1.2, 1.0, 5, 0.1, 1, 0);
+	zoom_h_adj = (GtkAdjustment * )gtk_adjustment_new ((gfloat)1.2, 1.0, 5, (gfloat)0.1, 1, 0);
 	zoom_h_step = gtk_spin_button_new (zoom_h_adj, 0, 1);
 	gtk_spin_button_set_numeric (GTK_SPIN_BUTTON (zoom_h_step), TRUE);
 	zoom_h_step_label = gtk_label_new ("Horizontal step:");
 
-	zoom_v_adj = (GtkAdjustment * )gtk_adjustment_new (1.2, 1.0, 5, 0.1, 1, 0);
+	zoom_v_adj = (GtkAdjustment * )gtk_adjustment_new ((gfloat)1.2, 1.0, 5, (gfloat)0.1, 1, 0);
 	zoom_v_step = gtk_spin_button_new (zoom_v_adj, 0, 1);
 	gtk_spin_button_set_numeric (GTK_SPIN_BUTTON (zoom_v_step), TRUE);
 	zoom_v_step_label = gtk_label_new ("Vertical step:");
@@ -1296,11 +1296,11 @@ static GtkWidget *control_panel_create_magnify_group (struct graph *g)
 				GTK_FILL|GTK_EXPAND, GTK_FILL|GTK_EXPAND, 5, 0);
 
 	mag_h_zoom_label = gtk_label_new ("Horizontal:");
-	mag_h_zoom_adj = (GtkAdjustment *)gtk_adjustment_new(10.0,1.0,25.0,0.1,1,0);
+	mag_h_zoom_adj = (GtkAdjustment *)gtk_adjustment_new(10.0, 1.0, 25.0, (gfloat)0.1, 1, 0);
 	mag_h_zoom = gtk_spin_button_new (mag_h_zoom_adj, 0, 1);
 
 	mag_v_zoom_label = gtk_label_new ("Vertical:");
-	mag_v_zoom_adj = (GtkAdjustment *)gtk_adjustment_new(10.0,1.0,25.0,0.1,1,0);
+	mag_v_zoom_adj = (GtkAdjustment *)gtk_adjustment_new(10.0, 1.0, 25.0, (gfloat)0.1, 1, 0);
 	mag_v_zoom = gtk_spin_button_new (mag_v_zoom_adj, 0, 1);
 
 	mag_zoom_same = gtk_check_button_new_with_label ("Keep them the same");
@@ -2145,9 +2145,9 @@ static void draw_element_arc (struct graph *g, struct element *e)
 	int x1, x2, y1, y2;
 
 	x1 = (int )rint (e->p.arc.dim.x + g->geom.x - g->wp.x);
-	x2 = e->p.arc.dim.width;
+	x2 = (int )e->p.arc.dim.width;
 	y1 = (int )rint (g->geom.height-1 - e->p.arc.dim.y + g->geom.y - g->wp.y);
-	y2 = e->p.arc.dim.height;
+	y2 = (int )e->p.arc.dim.height;
 	if (x1<-x2 || x1>=g->wp.width || y1<-y2 || y1>=g->wp.height)
 		return;
 	debug(DBS_GRAPH_DRAWING) printf ("arc: (%d,%d)->(%d,%d)\n", x1, y1, x2, y2);
@@ -2230,13 +2230,13 @@ static void v_axis_pixmap_draw (struct axis *axis)
 
 	/* major ticks */
 	major_tick = axis->major * g->zoom.y;
-	imin = (g->geom.height - offset + corr - g->wp.height) / major_tick + 1;
-	imax = (g->geom.height - offset + corr) / major_tick;
+	imin = (int) ((g->geom.height - offset + corr - g->wp.height) / major_tick + 1);
+	imax = (int) ((g->geom.height - offset + corr) / major_tick);
 	for (i=imin; i <= imax; i++) {
 		gint w, h;
 		char desc[32];
-		int y = g->geom.height-1 - (int )rint (i * major_tick) -
-						offset + corr + axis->s.y;
+		int y = (int) (g->geom.height-1 - (int )rint (i * major_tick) -
+						offset + corr + axis->s.y);
 
 		debug(DBS_AXES_DRAWING) printf("%f @ %d\n",
                                                i*axis->major + fl, y);
@@ -2261,11 +2261,11 @@ static void v_axis_pixmap_draw (struct axis *axis)
 	/* minor ticks */
 	if (axis->minor) {
 		double minor_tick = axis->minor * g->zoom.y;
- 		imin = (g->geom.height - offset + corr - g->wp.height)/minor_tick + 1;
-		imax = (g->geom.height - offset + corr) / minor_tick;
+ 		imin = (int) ((g->geom.height - offset + corr - g->wp.height)/minor_tick + 1);
+		imax = (int) ((g->geom.height - offset + corr) / minor_tick);
 		for (i=imin; i <= imax; i++) {
-			int y = g->geom.height-1 - (int )rint (i*minor_tick) -
-							offset + corr + axis->s.y;
+			int y = (int) (g->geom.height-1 - (int )rint (i*minor_tick) -
+							offset + corr + axis->s.y);
 
 			debug (DBS_AXES_DRAWING) printf ("%f @ %d\n", i*axis->minor+fl, y);
 			if (y > 0 && y < axis->p.height)
@@ -2336,12 +2336,12 @@ static void h_axis_pixmap_draw (struct axis *axis)
 
 	/* major ticks */
 	major_tick = axis->major*g->zoom.x;
-	imin = (offset + corr) / major_tick + 1;
-	imax = (offset + corr + axis->s.width) / major_tick;
+	imin = (int) ((offset + corr) / major_tick + 1);
+	imax = (int) ((offset + corr + axis->s.width) / major_tick);
 	for (i=imin; i <= imax; i++) {
 		char desc[32];
 		int w, h;
-		int x = (int )rint (i * major_tick) - offset - corr;
+		int x = (int ) (rint (i * major_tick) - offset - corr);
 
 		/* printf ("%f @ %d\n", i*axis->major + fl, x); */
 		if (x < 0 || x > axis->s.width)
@@ -2364,10 +2364,10 @@ static void h_axis_pixmap_draw (struct axis *axis)
 	if (axis->minor > 0) {
 		/* minor ticks */
 		minor_tick = axis->minor*g->zoom.x;
-		imin = (offset + corr) / minor_tick + 1;
-		imax = (offset + corr + g->wp.width) / minor_tick;
+		imin = (int) ((offset + corr) / minor_tick + 1);
+		imax = (int) ((offset + corr + g->wp.width) / minor_tick);
 		for (i=imin; i <= imax; i++) {
-			int x = (int )rint (i * minor_tick) - offset - corr;
+			int x = (int) (rint (i * minor_tick) - offset - corr);
 			if (x > 0 && x < axis->s.width)
 				gdk_draw_line (axis->pixmap[not_disp], g->fg_gc, x, 0, x, 8);
 		}
@@ -2859,10 +2859,10 @@ static gint configure_event (GtkWidget *widget, GdkEventConfigure *event)
 	/* g->zoom.initial.x = g->zoom.x; */
 	/* g->zoom.initial.y = g->zoom.y; */
 
-	g->geom.x = g->wp.x - (double )g->geom.width/cur_g_width *
-							(g->wp.x - g->geom.x);
-	g->geom.y = g->wp.y - (double )g->geom.height/cur_g_height *
-							(g->wp.y - g->geom.y);
+	g->geom.x = (int) (g->wp.x - (double )g->geom.width/cur_g_width *
+							(g->wp.x - g->geom.x));
+	g->geom.y = (int) (g->wp.y - (double )g->geom.height/cur_g_height *
+							(g->wp.y - g->geom.y));
 #if 0
 	printf ("configure: graph: (%d,%d), (%d,%d); viewport: (%d,%d), (%d,%d); "
 				"zooms: (%f,%f)\n", g->geom.x, g->geom.y, g->geom.width,
@@ -3029,8 +3029,8 @@ static gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event)
 	if (event->is_hint)
 		gdk_window_get_pointer (event->window, &x, &y, &state);
 	else {
-		x = event->x;
-		y = event->y;
+		x = (int) event->x;
+		y = (int) event->y;
 		state = event->state;
 	}
 
@@ -3340,7 +3340,7 @@ static void tseq_stevens_make_elmtlist (struct graph *g)
 	struct segment *tmp;
 	struct element *elements, *e;
 	double x0 = g->bounds.x0, y0 = g->bounds.y0;
-	guint32 seq_base = y0;
+	guint32 seq_base = (guint32) y0;
 	guint32 seq_cur;
 
 	debug(DBS_FENTRY) puts ("tseq_stevens_make_elmtlist()");
@@ -3500,7 +3500,7 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 
 	x0 = g->bounds.x0;
 	y0 = g->bounds.y0;
-	seq_base = y0;
+	seq_base = (guint32) y0;
 	/* initialize "previous" values */
 	for (tmp=g->segments; tmp; tmp=tmp->next)
 		if (!compare_headers (g->current, tmp, COMPARE_CURR_DIR))
@@ -3889,7 +3889,7 @@ static void rtt_make_elmtlist (struct graph *g)
 	struct segment *tmp;
 	struct unack *unack = NULL, *u;
 	struct element *elements, *e;
-	guint32 seq_base = g->bounds.x0;
+	guint32 seq_base = (guint32) g->bounds.x0;
 
 	debug(DBS_FENTRY) puts ("rtt_make_elmtlist()");
 

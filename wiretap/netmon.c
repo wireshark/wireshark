@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.66 2003/11/06 22:45:28 guy Exp $
+ * $Id: netmon.c,v 1.67 2003/12/23 00:15:02 ulfl Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -691,8 +691,8 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		 */
 		t = (phdr->ts.tv_sec - netmon->first_record_time.tv_sec)*1000000.0
 		  + (phdr->ts.tv_usec - netmon->first_record_time.tv_usec);
-		time_high = t/4294967296.0;
-		time_low = t - (time_high*4294967296.0);
+		time_high = (guint32) (t/4294967296.0);
+		time_low  = (guint32) (t - (time_high*4294967296.0));
 		rec_2_x_hdr.ts_delta_lo = htolel(time_low);
 		rec_2_x_hdr.ts_delta_hi = htolel(time_high);
 		rec_2_x_hdr.orig_len = htolel(phdr->len + atm_hdrsize);

@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.51 2003/12/17 22:13:07 guy Exp $
+ * $Id: io_stat.c,v 1.52 2003/12/23 00:16:46 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -892,13 +892,13 @@ gtk_iostat_draw(void *g)
 
 
 	/* update the scrollbar */
-	io->scrollbar_adjustment->upper=io->max_interval;
-	io->scrollbar_adjustment->step_increment=(last_interval-first_interval)/10;
-	io->scrollbar_adjustment->page_increment=(last_interval-first_interval);
+	io->scrollbar_adjustment->upper=(gfloat) io->max_interval;
+	io->scrollbar_adjustment->step_increment=(gfloat) ((last_interval-first_interval)/10);
+	io->scrollbar_adjustment->page_increment=(gfloat) (last_interval-first_interval);
 	if((last_interval-first_interval)*100 < io->max_interval){
-		io->scrollbar_adjustment->page_size=io->max_interval/100;
+		io->scrollbar_adjustment->page_size=(gfloat) (io->max_interval/100);
 	} else {
-		io->scrollbar_adjustment->page_size=(last_interval-first_interval);
+		io->scrollbar_adjustment->page_size=(gfloat) (last_interval-first_interval);
 	}
 	io->scrollbar_adjustment->value=last_interval-io->scrollbar_adjustment->page_size;
 	gtk_adjustment_changed(io->scrollbar_adjustment);
@@ -1081,7 +1081,7 @@ scrollbar_changed(GtkWidget *widget _U_, gpointer data)
 	io_stat_t *io=(io_stat_t *)data;
 	guint32 mi;
 
-	mi=io->scrollbar_adjustment->value+io->scrollbar_adjustment->page_size;
+	mi=(guint32) (io->scrollbar_adjustment->value+io->scrollbar_adjustment->page_size);
 	if(io->last_interval==mi){
 		return TRUE;
 	}

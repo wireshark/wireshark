@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.90 2003/12/21 12:17:58 ulfl Exp $
+ * $Id: capture_dlg.c,v 1.91 2003/12/23 00:16:45 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -382,7 +382,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(snap_hb), snap_cb, FALSE, FALSE, 0);
   gtk_widget_show(snap_cb);
 
-  snap_adj = (GtkAdjustment *) gtk_adjustment_new((float) capture_opts.snaplen,
+  snap_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat) capture_opts.snaplen,
     MIN_PACKET_SIZE, WTAP_MAX_PACKET_SIZE, 1.0, 10.0, 0.0);
   snap_sb = gtk_spin_button_new (snap_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (snap_sb), TRUE);
@@ -477,7 +477,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(ringbuffer_hb), ringbuffer_nbf_lb, FALSE, FALSE, 6);
   gtk_widget_show(ringbuffer_nbf_lb);
 
-  ringbuffer_nbf_adj = (GtkAdjustment *) gtk_adjustment_new((float) capture_opts.ringbuffer_num_files,
+  ringbuffer_nbf_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat) capture_opts.ringbuffer_num_files,
     RINGBUFFER_MIN_NUM_FILES, RINGBUFFER_MAX_NUM_FILES, 1.0, 10.0, 0.0);
   ringbuffer_nbf_sb = gtk_spin_button_new (ringbuffer_nbf_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (ringbuffer_nbf_sb), TRUE);
@@ -499,8 +499,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 		     FALSE, FALSE, 0);
   gtk_widget_show(ring_duration_cb);
 
-  ring_duration_adj = (GtkAdjustment *)gtk_adjustment_new(capture_opts.ringbuffer_duration,
-    1, INT_MAX, 1.0, 10.0, 0.0);
+  ring_duration_adj = (GtkAdjustment *)gtk_adjustment_new((gfloat)capture_opts.ringbuffer_duration,
+    1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   ring_duration_sb = gtk_spin_button_new (ring_duration_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (ring_duration_sb), TRUE);
   WIDGET_SET_SIZE(ring_duration_sb, 80, -1);
@@ -570,8 +570,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(count_hb), count_cb, FALSE, FALSE, 0);
   gtk_widget_show(count_cb);
 
-  count_adj = (GtkAdjustment *) gtk_adjustment_new(capture_opts.autostop_count,
-    1, INT_MAX, 1.0, 10.0, 0.0);
+  count_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_count,
+    1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   count_sb = gtk_spin_button_new (count_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (count_sb), TRUE);
   WIDGET_SET_SIZE(count_sb, 80, -1);
@@ -595,8 +595,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(filesize_hb), filesize_cb, FALSE, FALSE, 0);
   gtk_widget_show(filesize_cb);
 
-  filesize_adj = (GtkAdjustment *) gtk_adjustment_new(capture_opts.autostop_filesize,
-    1, INT_MAX, 1.0, 10.0, 0.0);
+  filesize_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_filesize,
+    1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   filesize_sb = gtk_spin_button_new (filesize_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (filesize_sb), TRUE);
   WIDGET_SET_SIZE(filesize_sb, 80, -1);
@@ -620,8 +620,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(duration_hb), duration_cb, FALSE, FALSE, 0);
   gtk_widget_show(duration_cb);
 
-  duration_adj = (GtkAdjustment *) gtk_adjustment_new(capture_opts.autostop_duration,
-    1, INT_MAX, 1.0, 10.0, 0.0);
+  duration_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_duration,
+    1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   duration_sb = gtk_spin_button_new (duration_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (duration_sb), TRUE);
   WIDGET_SET_SIZE(duration_sb, 80, -1);
