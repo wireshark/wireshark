@@ -2239,7 +2239,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint i;
     gboolean saw_ctx_item = FALSE;
     guint16 ctx_id;
-    guint16 num_trans_items;
+    guint8 num_trans_items;
     guint j;
     e_uuid_t if_id;
     e_uuid_t trans_id;
@@ -2289,8 +2289,11 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	      ctx_tree = proto_item_add_subtree(ctx_item, ett_dcerpc_cn_ctx);
       }
 
-      offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, ctx_tree, hdr->drep,
-                                      hf_dcerpc_cn_num_trans_items, &num_trans_items);
+      offset = dissect_dcerpc_uint8 (tvb, offset, pinfo, ctx_tree, hdr->drep,
+                                     hf_dcerpc_cn_num_trans_items, &num_trans_items);
+
+      /* padding */
+      offset += 1;
 
       /* XXX - use "dissect_ndr_uuid_t()"? */
       dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &if_id);
@@ -4618,7 +4621,7 @@ proto_register_dcerpc (void)
         { &hf_dcerpc_cn_ctx_id,
           { "Context ID", "dcerpc.cn_ctx_id", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_cn_num_trans_items,
-          { "Num Trans Items", "dcerpc.cn_num_trans_items", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+          { "Num Trans Items", "dcerpc.cn_num_trans_items", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_cn_bind_if_id,
           { "Interface UUID", "dcerpc.cn_bind_to_uuid", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_cn_bind_if_ver,
