@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.41 2003/09/29 06:41:46 oabad Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.42 2003/10/29 23:15:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -804,6 +804,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
     GtkTreeModel *model;
     GtkTreeIter   iter;
 #endif
+    gboolean      quote_it;
 
     /*
      * Get the variable to be tested.
@@ -834,6 +835,13 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
      */
     if (GTK_WIDGET_VISIBLE(range_entry)) {
         range_str = g_strdup(gtk_entry_get_text(GTK_ENTRY(range_entry)));
+        /*
+         * XXX - strip this even for strings?
+         * Doing so for strings mean you can't match a string that has
+         * leading or trailing whitespace, but you can't see trailing
+         * whitespace in a text field, so it's not clear that it's
+         * a good idea to allow that.
+         */
         stripped_range_str = g_strstrip(range_str);
         if (strcmp(stripped_range_str, "") == 0) {
             /*
@@ -980,35 +988,45 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
     }
     if (value_str != NULL) {
         gtk_editable_insert_text(GTK_EDITABLE(filter_te), " ", 1, &pos);
+        /*
+         * XXX - we should do this by generating an appropriate display
+         * filter value string for this field; that requires us to have
+         * a "generate display filter string" method for every FT_ type.
+         */
         switch (hfinfo->type) {
 
         case FT_STRING:
         case FT_STRINGZ:
         case FT_UINT_STRING:
+        case FT_ABSOLUTE_TIME:
+            /*
+             * Always put quotes around the string.
+             */
+            quote_it = TRUE;
+            break;
+
+        default:
+            /*
+             * If the string contains white space, put quotes around it.
+             */
+            quote_it = (strpbrk(stripped_value_str, " \t") != NULL);
+            break;
+        }
+        if (quote_it) {
             /*
              * Put quotes around the string.
              */
             gtk_editable_insert_text(GTK_EDITABLE(filter_te), "\"",
                                      1, &pos);
-
-        default:
-            break;
         }
         gtk_editable_insert_text(GTK_EDITABLE(filter_te),
                                  stripped_value_str, strlen(stripped_value_str), &pos);
-        switch (hfinfo->type) {
-
-        case FT_STRING:
-        case FT_STRINGZ:
-        case FT_UINT_STRING:
+        if (quote_it) {
             /*
              * Put quotes around the string.
              */
             gtk_editable_insert_text(GTK_EDITABLE(filter_te), "\"",
                                      1, &pos);
-
-        default:
-            break;
         }
         g_free(value_str);
     }
