@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.79 2000/08/24 02:55:36 gram Exp $
+ * $Id: proto.c,v 1.80 2000/08/30 02:50:02 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -239,6 +239,8 @@ proto_tree_free_node(GNode *node, gpointer data)
 			g_mem_chunk_free(gmc_item_labels, fi->representation);
 		if (fi->hfinfo->type == FT_STRING)
 			g_free(fi->value.string);
+		else if (fi->hfinfo->type == FT_STRINGZ)
+			g_free(fi->value.string);
 		else if (fi->hfinfo->type == FT_UINT_STRING)
 			g_free(fi->value.string);
 		else if (fi->hfinfo->type == FT_BYTES) 
@@ -409,6 +411,8 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	field_info	*new_fi;
 	proto_item	*pi;
 	guint32		value, n;
+	char		*string;
+	int		found_length;
 
 	new_fi = alloc_field_info(hfindex, tvb, start, length);
 
@@ -478,6 +482,24 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			proto_tree_set_string_tvb(new_fi, tvb, start, length);
 			break;
 
+		case FT_STRINGZ:
+			/* This g_strdup'ed memory is freed in proto_tree_free_node() */
+			string = g_malloc(length);
+
+			CLEANUP_PUSH(g_free, string);
+
+			found_length = tvb_get_nstringz(tvb, start, length, string);
+			if (found_length < 1) {
+				found_length = tvb_get_nstringz0(tvb, start, length, string);
+			}
+
+			CLEANUP_POP;
+
+			proto_tree_set_string(new_fi, string);
+			new_fi->length = found_length + 1;
+
+			break;
+
 		case FT_UINT_STRING:
 			/* This g_strdup'ed memory is freed in proto_tree_free_node() */
 			n = get_uint_value(tvb, start, length, little_endian);
@@ -487,11 +509,13 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			 * have a proto_item, we set the field_info's length ourselves. */
 			new_fi->length = n + 1;
 			break;
-
 		default:
-			g_error("new_fi->hfinfo->type %d not handled\n", new_fi->hfinfo->type);
-			g_assert_not_reached();
-			break;
+                        g_error("new_fi->hfinfo->type %d (%s) not handled\n",
+					new_fi->hfinfo->type,
+					proto_registrar_ftype_name(new_fi->hfinfo->type));
+                        g_assert_not_reached();
+                        break;
+
 	}
 	CLEANUP_POP;
 
@@ -1635,31 +1659,31 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_DOUBLE:
 			snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: %g", fi->hfinfo->name,
+				"%s: %g", hfinfo->name,
 				fi->value.floating);
 			break;
 
 		case FT_ABSOLUTE_TIME:
 			snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: %s", fi->hfinfo->name,
+				"%s: %s", hfinfo->name,
 				abs_time_to_str(&fi->value.time));
 			break;
 
 		case FT_RELATIVE_TIME:
 			snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: %s seconds", fi->hfinfo->name,
+				"%s: %s seconds", hfinfo->name,
 				rel_time_to_str(&fi->value.time));
 			break;
 
 		case FT_IPXNET:
 			snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: 0x%08X (%s)", fi->hfinfo->name,
+				"%s: 0x%08X (%s)", hfinfo->name,
 				fi->value.numeric, get_ipxnet_name(fi->value.numeric));
 			break;
 
 		case FT_ETHER:
 			snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: %s (%s)", fi->hfinfo->name,
+				"%s: %s (%s)", hfinfo->name,
 				ether_to_str(fi->value.ether),
 				get_ether_name(fi->value.ether));
 			break;
@@ -1667,27 +1691,31 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_IPv4:
 			n_addr = ipv4_get_net_order_addr(&fi->value.ipv4);
 			snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: %s (%s)", fi->hfinfo->name,
+				"%s: %s (%s)", hfinfo->name,
 				get_hostname(n_addr),
 				ip_to_str((guint8*)&n_addr));
 			break;
 
 		case FT_IPv6:
 			snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: %s (%s)", fi->hfinfo->name,
+				"%s: %s (%s)", hfinfo->name,
 				get_hostname6((struct e_in6_addr *)fi->value.ipv6),
 				ip6_to_str((struct e_in6_addr*)fi->value.ipv6));
 			break;
 	
 		case FT_STRING:
+		case FT_STRINGZ:
 		case FT_UINT_STRING:
 			snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: %s", fi->hfinfo->name, fi->value.string);
+				"%s: %s", hfinfo->name, fi->value.string);
 			break;
 
 		default:
-			g_error("hfinfo->type %d not handled\n", fi->hfinfo->type);
-			break;
+                        g_error("hfinfo->type %d (%s) not handled\n",
+					hfinfo->type,
+					proto_registrar_ftype_name(hfinfo->type));
+                        g_assert_not_reached();
+                        break;
 	}
 }
 
@@ -2129,6 +2157,7 @@ proto_registrar_get_length(int n)
 		case FT_BYTES:
 		case FT_BOOLEAN:
 		case FT_STRING:
+		case FT_STRINGZ:
 		case FT_UINT_STRING:
 		case FT_DOUBLE:
 		case FT_ABSOLUTE_TIME:
@@ -2361,76 +2390,91 @@ proto_registrar_dump(void)
 			parent_hfinfo = proto_registrar_get_nth(hfinfo->parent);
 			g_assert(parent_hfinfo);
 
-			switch(hfinfo->type) {
-			case FT_NONE:
-				enum_name = "FT_NONE";
-				break;
-			case FT_BOOLEAN:
-				enum_name = "FT_BOOLEAN";
-				break;
-			case FT_UINT8:
-				enum_name = "FT_UINT8";
-				break;
-			case FT_UINT16:
-				enum_name = "FT_UINT16";
-				break;
-			case FT_UINT24:
-				enum_name = "FT_UINT24";
-				break;
-			case FT_UINT32:
-				enum_name = "FT_UINT32";
-				break;
-			case FT_INT8:
-				enum_name = "FT_INT8";
-				break;
-			case FT_INT16:
-				enum_name = "FT_INT16";
-				break;
-			case FT_INT24:
-				enum_name = "FT_INT24";
-				break;
-			case FT_INT32:
-				enum_name = "FT_INT32";
-				break;
-			case FT_DOUBLE:
-				enum_name = "FT_DOUBLE";
-				break;
-			case FT_ABSOLUTE_TIME:
-				enum_name = "FT_ABSOLUTE_TIME";
-				break;
-			case FT_RELATIVE_TIME:
-				enum_name = "FT_RELATIVE_TIME";
-				break;
-			case FT_UINT_STRING:
-				enum_name = "FT_UINT_STRING";
-				break;
-			case FT_STRING:
-				enum_name = "FT_STRING";
-				break;
-			case FT_ETHER:
-				enum_name = "FT_ETHER";
-				break;
-			case FT_BYTES:
-				enum_name = "FT_BYTES";
-				break;
-			case FT_IPv4:
-				enum_name = "FT_IPv4";
-				break;
-			case FT_IPv6:
-				enum_name = "FT_IPv6";
-				break;
-			case FT_IPXNET:
-				enum_name = "FT_IPXNET";
-				break;
-			case FT_TEXT_ONLY:
-				enum_name = "FT_TEXT_ONLY";
-				break;
-			default:
-				g_assert_not_reached();
-				enum_name = NULL;
-			}
+			enum_name = proto_registrar_ftype_name(hfinfo->type);
 			printf("F\t%s\t%s\t%s\t%s\n", hfinfo->name, hfinfo->abbrev,
 				enum_name,parent_hfinfo->abbrev);
 		}
 	}
+}
+
+
+/* Returns a string representing the field type */
+const char*
+proto_registrar_ftype_name(enum ftenum ftype)
+{
+	const char	*enum_name = NULL;
+
+	switch(ftype) {
+		case FT_NONE:
+			enum_name = "FT_NONE";
+			break;
+		case FT_BOOLEAN:
+			enum_name = "FT_BOOLEAN";
+			break;
+		case FT_UINT8:
+			enum_name = "FT_UINT8";
+			break;
+		case FT_UINT16:
+			enum_name = "FT_UINT16";
+			break;
+		case FT_UINT24:
+			enum_name = "FT_UINT24";
+			break;
+		case FT_UINT32:
+			enum_name = "FT_UINT32";
+			break;
+		case FT_INT8:
+			enum_name = "FT_INT8";
+			break;
+		case FT_INT16:
+			enum_name = "FT_INT16";
+			break;
+		case FT_INT24:
+			enum_name = "FT_INT24";
+			break;
+		case FT_INT32:
+			enum_name = "FT_INT32";
+			break;
+		case FT_DOUBLE:
+			enum_name = "FT_DOUBLE";
+			break;
+		case FT_ABSOLUTE_TIME:
+			enum_name = "FT_ABSOLUTE_TIME";
+			break;
+		case FT_RELATIVE_TIME:
+			enum_name = "FT_RELATIVE_TIME";
+			break;
+		case FT_UINT_STRING:
+			enum_name = "FT_UINT_STRING";
+			break;
+		case FT_STRING:
+			enum_name = "FT_STRING";
+			break;
+		case FT_STRINGZ:
+			enum_name = "FT_STRINGZ";
+			break;
+		case FT_ETHER:
+			enum_name = "FT_ETHER";
+			break;
+		case FT_BYTES:
+			enum_name = "FT_BYTES";
+			break;
+		case FT_IPv4:
+			enum_name = "FT_IPv4";
+			break;
+		case FT_IPv6:
+			enum_name = "FT_IPv6";
+			break;
+		case FT_IPXNET:
+			enum_name = "FT_IPXNET";
+			break;
+		case FT_TEXT_ONLY:
+			enum_name = "FT_TEXT_ONLY";
+			break;
+		case NUM_FIELD_TYPES:
+			g_assert_not_reached();
+			break;
+	}
+	g_assert(enum_name);
+	return enum_name;
 }

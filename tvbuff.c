@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.7 2000/08/11 13:34:31 deniel Exp $
+ * $Id: tvbuff.c,v 1.8 2000/08/30 02:50:04 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -33,69 +33,11 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include "tvbuff.h"
-
 #include <string.h>
 
-/* Pointer versions of ntohs and ntohl.  Given a pointer to a member of a
- * byte array, returns the value of the two or four bytes at the pointer.
- * The pletoh[sl] versions return the little-endian representation.
- *
- * We also provide "pntoh24()" and "pletoh24()", to extract 24-bit
- * quantities.
- *
- * If G_HAVE_GINT64 is defined, so we can use "gint64" and "guint64" to
- * refer to 64-bit integral quantities, we also provide pntohll and
- * phtolell, which extract 64-bit integral quantities.
- */
+#include "pint.h"
+#include "tvbuff.h"
 
-#define pntohs(p)   ((guint16)                       \
-                     ((guint16)*((guint8 *)p+0)<<8|  \
-                      (guint16)*((guint8 *)p+1)<<0))
-
-#define pntoh24(p)  ((guint32)*((guint8 *)p+0)<<16|  \
-                     (guint32)*((guint8 *)p+1)<<8|  \
-                     (guint32)*((guint8 *)p+2)<<0)
-
-#define pntohl(p)   ((guint32)*((guint8 *)p+0)<<24|  \
-                     (guint32)*((guint8 *)p+1)<<16|  \
-                     (guint32)*((guint8 *)p+2)<<8|   \
-                     (guint32)*((guint8 *)p+3)<<0)
-
-#ifdef G_HAVE_GINT64
-#define pntohll(p)  ((guint64)*((guint8 *)p+0)<<56|  \
-                     (guint64)*((guint8 *)p+1)<<48|  \
-                     (guint64)*((guint8 *)p+2)<<40|  \
-                     (guint64)*((guint8 *)p+3)<<32|  \
-                     (guint64)*((guint8 *)p+4)<<24|  \
-                     (guint64)*((guint8 *)p+5)<<16|  \
-                     (guint64)*((guint8 *)p+6)<<8|   \
-                     (guint64)*((guint8 *)p+7)<<0)
-#endif
-
-#define pletohs(p)  ((guint16)                       \
-                     ((guint16)*((guint8 *)p+1)<<8|  \
-                      (guint16)*((guint8 *)p+0)<<0))
-
-#define pletoh24(p) ((guint32)*((guint8 *)p+2)<<16|  \
-                     (guint32)*((guint8 *)p+1)<<8|  \
-                     (guint32)*((guint8 *)p+0)<<0)
-
-#define pletohl(p)  ((guint32)*((guint8 *)p+3)<<24|  \
-                     (guint32)*((guint8 *)p+2)<<16|  \
-                     (guint32)*((guint8 *)p+1)<<8|   \
-                     (guint32)*((guint8 *)p+0)<<0)
-
-#ifdef G_HAVE_GINT64
-#define pletohll(p) ((guint64)*((guint8 *)p+7)<<56|  \
-                     (guint64)*((guint8 *)p+6)<<48|  \
-                     (guint64)*((guint8 *)p+5)<<40|  \
-                     (guint64)*((guint8 *)p+4)<<32|  \
-                     (guint64)*((guint8 *)p+3)<<24|  \
-                     (guint64)*((guint8 *)p+2)<<16|  \
-                     (guint64)*((guint8 *)p+1)<<8|   \
-                     (guint64)*((guint8 *)p+0)<<0)
-#endif
 
 typedef struct {
 	/* The backing tvbuff_t */
@@ -772,6 +714,22 @@ ensure_contiguous(tvbuff_t *tvb, gint offset, gint length)
 	return NULL;
 }
 
+static const guint8*
+guint8_find(const guint8* haystack, size_t haystacklen, guint8 needle)
+{
+	const guint8	*b;
+	int		i;
+
+	for (b = haystack, i = 0; i < haystacklen; i++, b++) {
+		if (*b == needle) {
+			return b;
+		}
+	}
+
+	return NULL;
+}
+
+
 
 /************** ACCESSORS **************/
 
@@ -838,6 +796,7 @@ tvb_memcpy(tvbuff_t *tvb, guint8* target, gint offset, gint length)
 {
 	guint	abs_offset, abs_length;
 
+	g_assert(length >= -1);
 	check_offset_length(tvb, offset, length, &abs_offset, &abs_length);
 
 	if (tvb->real_data) {
@@ -966,3 +925,138 @@ tvb_get_letohll(tvbuff_t *tvb, gint offset)
 	return pletohll(ptr);
 }
 #endif
+
+
+/* Find first occurence of needle in tvbuff, starting at offset. Searches
+ * at most maxlength number of bytes. Returns the offset of the found needle,
+ * or -1 if not found. Will not throw an exception, even if maxlength exceeds
+ * boundary of tvbuff; in that case, -1 will be returned if the boundary is
+ * reached before finding needle. */
+gint
+tvb_find_guint8(tvbuff_t *tvb, gint offset, guint maxlength, guint8 needle)
+{
+	guint		abs_offset, junk_length;
+	const guint8	*result;
+	guint		limit;
+
+	check_offset_length(tvb, offset, 0, &abs_offset, &junk_length);
+
+	/* Only search to end of tvbuff, w/o throwing exception. */
+	if (tvb_length_remaining(tvb, abs_offset) < maxlength) {
+		limit = maxlength - (tvb_length(tvb) - abs_offset);
+	}
+	else {
+		limit = maxlength;
+	}
+
+	/* If we have real data, perform our search now. */
+	if (tvb->real_data) {
+		result = guint8_find(tvb->real_data + abs_offset, limit, needle);
+		if (result == NULL) {
+			return -1;
+		}
+		else {
+			return result - tvb->real_data;
+		}
+	}
+
+	switch(tvb->type) {
+		case TVBUFF_REAL_DATA:
+			g_assert_not_reached();
+
+		case TVBUFF_SUBSET:
+			return tvb_find_guint8(tvb->tvbuffs.subset.tvb,
+					abs_offset - tvb->tvbuffs.subset.offset,
+					limit, needle);
+
+		case TVBUFF_COMPOSITE:
+			g_assert_not_reached();
+			/* XXX - return composite_find_guint8(tvb, offset, limit, needle); */
+	}
+
+	g_assert_not_reached();
+	return -1;
+}
+
+/* Find length of string by looking for end of string ('\0'), up to
+ * 'max_length' characters'. Returns -1 if 'max_length' reached
+ * before finding EOS. */
+gint tvb_strnlen(tvbuff_t *tvb, gint offset, guint maxlength)
+{
+	gint	result_offset;
+	guint	abs_offset, junk_length;
+
+	check_offset_length(tvb, offset, 0, &abs_offset, &junk_length);
+
+	result_offset = tvb_find_guint8(tvb, abs_offset, maxlength, 0);
+
+	if (result_offset == -1) {
+		return -1;
+	}
+	else {
+		return result_offset;
+	}
+}
+
+
+/* Looks for a stringz (NUL-terminated string) in tvbuff and copies
+ * no more than maxlength number of bytes, including terminating NUL, to buffer.
+ * Returns length of string (not including terminating NUL), or -1 if the string was
+ * truncated in the buffer due to not having reached the terminating NUL.
+ * In this way, it acts like snprintf().
+ */
+gint
+tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer)
+{
+	gint	stringlen, NUL_offset;
+	guint	abs_offset, junk_length;
+	gint	limit;
+
+	check_offset_length(tvb, offset, 0, &abs_offset, &junk_length);
+
+	if (maxlength == 0) {
+		buffer[0] = 0;
+		return 0;
+	}
+
+	/* Only copy to end of tvbuff, w/o throwing exception. */
+	if (tvb_length_remaining(tvb, abs_offset) < maxlength) {
+		limit = maxlength - (tvb_length(tvb) - abs_offset);
+	}
+	else {
+		limit = maxlength;
+	}
+
+	NUL_offset = tvb_strnlen(tvb, abs_offset, limit);
+
+	/* If NUL wasn't found, copy the data and return -1 */
+	if (NUL_offset == -1) {
+		tvb_memcpy(tvb, buffer, abs_offset, limit);
+		return -1;
+	}
+
+	/* Copy the string to buffer */
+	stringlen = NUL_offset - abs_offset;
+	tvb_memcpy(tvb, buffer, abs_offset, stringlen + 1);
+	return stringlen;
+}
+
+/* Like tvb_get_nstringz(), but never returns -1. The string is guaranteed to
+ * have a terminating NUL. If the string was truncated when copied into buffer,
+ * a NUL is placed at the end of buffer to terminate it.
+ */
+gint
+tvb_get_nstringz0(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer)
+{
+	gint	len;
+
+	len = tvb_get_nstringz(tvb, offset, maxlength, buffer);
+
+	if (len == -1) {
+		buffer[maxlength] = 0;
+		return maxlength - 1;
+	}
+	else {
+		return len;
+	}
+}

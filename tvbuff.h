@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.8 2000/08/17 17:16:02 gram Exp $
+ * $Id: tvbuff.h,v 1.9 2000/08/30 02:50:05 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -243,10 +243,31 @@ guint8* tvb_memdup(tvbuff_t*, gint offset, gint length);
  * tvbuff_free_cb_t() is called, if any. */
 guint8* tvb_get_ptr(tvbuff_t*, gint offset, gint length);
 
+/* Find first occurence of needle in tvbuff, starting at offset. Searches
+ * at most maxlength number of bytes. Returns the offset of the found needle,
+ * or -1 if not found. Will not throw an exception, even if maxlength exceeds
+ * boundary of tvbuff; in that case, -1 will be returned if the boundary is
+ * reached before finding needle. */
+gint tvb_find_guint8(tvbuff_t*, gint offset, guint maxlength, guint8 needle);
+
 /* Find length of string by looking for end of string ('\0'), up to
  * 'max_length' characters'. Returns -1 if 'max_length' reached
  * before finding EOS. */
-/*gint tvb_strnlen(tvbuff_t*, gint offset, gint max_length);*/
+gint tvb_strnlen(tvbuff_t*, gint offset, guint maxlength);
+
+/* Looks for a stringz (NUL-terminated string) in tvbuff and copies
+ * no more than maxlength number of bytes, including terminating NUL, to buffer.
+ * Returns length of string (not including terminating NUL), or -1 if the string was
+ * truncated in the buffer due to not having reached the terminating NUL.
+ * In this way, it acts like snprintf().
+ */
+gint tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer);
+
+/* Like tvb_get_nstringz(), but never returns -1. The string is guaranteed to
+ * have a terminating NUL. If the string was truncated when copied into buffer,
+ * a NUL is placed at the end of buffer to terminate it.
+ */
+gint tvb_get_nstringz0(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer);
 
 /************** END OF ACCESSORS ****************/
 

@@ -2,7 +2,7 @@
  *
  * tvbtest : tvbtest.o tvbuff.o except.o
  *
- * $Id: tvbtest.c,v 1.2 2000/06/22 06:36:45 guy Exp $
+ * $Id: tvbtest.c,v 1.3 2000/08/30 02:50:04 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  * 
@@ -27,24 +27,7 @@
 #include <string.h>
 
 #include "tvbuff.h"
-
-#define pntohs(p)  ((guint16)                       \
-                    ((guint16)*((guint8 *)p+0)<<8|  \
-                     (guint16)*((guint8 *)p+1)<<0))
-
-#define pntohl(p)  ((guint32)*((guint8 *)p+0)<<24|  \
-                    (guint32)*((guint8 *)p+1)<<16|  \
-                    (guint32)*((guint8 *)p+2)<<8|   \
-                    (guint32)*((guint8 *)p+3)<<0)
-
-#define pletohs(p) ((guint16)                       \
-                    ((guint16)*((guint8 *)p+1)<<8|  \
-                     (guint16)*((guint8 *)p+0)<<0))
-
-#define pletohl(p) ((guint32)*((guint8 *)p+3)<<24|  \
-                    (guint32)*((guint8 *)p+2)<<16|  \
-                    (guint32)*((guint8 *)p+1)<<8|   \
-                    (guint32)*((guint8 *)p+0)<<0)
+#include "pint.h"
 
 /* Tests a tvbuff against the expected pattern/length.
  * Returns TRUE if all tests succeeed, FALSE if any test fails */
@@ -52,16 +35,17 @@ gboolean
 test(tvbuff_t *tvb, gchar* name,
 		guint8* expected_data, guint expected_length)
 {
-	guint		length;
-	guint8		*ptr;
-	gboolean	ex_thrown;
-	guint32		val32, expected32;
-	int		incr, i;
+	guint			length;
+	guint8			*ptr;
+	volatile gboolean	ex_thrown;
+	volatile guint32	val32;
+	guint32			expected32;
+	int			incr, i;
 
 	length = tvb_length(tvb);
 
 	if (length != expected_length) {
-		printf("Failed TVB=%s Length of tvb=%u while expected length=%u\n",
+		printf("01: Failed TVB=%s Length of tvb=%u while expected length=%u\n",
 				name, length, expected_length);
 		return FALSE;
 	}
@@ -74,10 +58,13 @@ test(tvbuff_t *tvb, gchar* name,
 	CATCH(BoundsError) {
 		ex_thrown = TRUE;
 	}
+	CATCH(ReportedBoundsError) {
+		printf("02: Caught wrong exception: ReportedBoundsError\n");
+	}
 	ENDTRY;
 
 	if (!ex_thrown) {
-		printf("Failed TVB=%s No BoundsError when retrieving %u bytes\n",
+		printf("02: Failed TVB=%s No BoundsError when retrieving %u bytes\n",
 				name, length + 1);
 		return FALSE;
 	}
@@ -88,13 +75,16 @@ test(tvbuff_t *tvb, gchar* name,
 	TRY {
 		ptr = tvb_get_ptr(tvb, 0, length + 2);
 	}
+	CATCH(BoundsError) {
+		printf("03: Caught wrong exception: BoundsError\n");
+	}
 	CATCH(ReportedBoundsError) {
 		ex_thrown = TRUE;
 	}
 	ENDTRY;
 
 	if (!ex_thrown) {
-		printf("Failed TVB=%s No ReportedBoundsError when retrieving %u bytes\n",
+		printf("03: Failed TVB=%s No ReportedBoundsError when retrieving %u bytes\n",
 				name, length + 2);
 		return FALSE;
 	}
@@ -107,10 +97,13 @@ test(tvbuff_t *tvb, gchar* name,
 	CATCH(BoundsError) {
 		ex_thrown = TRUE;
 	}
+	CATCH(ReportedBoundsError) {
+		printf("04: Caught wrong exception: ReportedBoundsError\n");
+	}
 	ENDTRY;
 
 	if (!ex_thrown) {
-		printf("Failed TVB=%s No BoundsError when retrieving 2 bytes from"
+		printf("04: Failed TVB=%s No BoundsError when retrieving 2 bytes from"
 				" offset -1\n", name);
 		return FALSE;
 	}
@@ -123,10 +116,13 @@ test(tvbuff_t *tvb, gchar* name,
 	CATCH(BoundsError) {
 		ex_thrown = TRUE;
 	}
+	CATCH(ReportedBoundsError) {
+		printf("05: Caught wrong exception: ReportedBoundsError\n");
+	}
 	ENDTRY;
 
 	if (ex_thrown) {
-		printf("Failed TVB=%s BoundsError when retrieving 1 bytes from"
+		printf("05: Failed TVB=%s BoundsError when retrieving 1 bytes from"
 				" offset 0\n", name);
 		return FALSE;
 	}
@@ -139,10 +135,13 @@ test(tvbuff_t *tvb, gchar* name,
 	CATCH(BoundsError) {
 		ex_thrown = TRUE;
 	}
+	CATCH(ReportedBoundsError) {
+		printf("06: Caught wrong exception: ReportedBoundsError\n");
+	}
 	ENDTRY;
 
 	if (ex_thrown) {
-		printf("Failed TVB=%s BoundsError when retrieving 1 bytes from"
+		printf("06: Failed TVB=%s BoundsError when retrieving 1 bytes from"
 				" offset -1\n", name);
 		return FALSE;
 	}
@@ -154,20 +153,20 @@ test(tvbuff_t *tvb, gchar* name,
 		TRY {
 			val32 = tvb_get_ntohl(tvb, 0);
 		}
-		CATCH(BoundsError) {
+		CATCH_ALL {
 			ex_thrown = TRUE;
 		}
 		ENDTRY;
 
 		if (ex_thrown) {
-			printf("Failed TVB=%s BoundsError when retrieving "
+			printf("07: Failed TVB=%s Exception when retrieving "
 					"guint32 from offset 0\n", name);
 			return FALSE;
 		}
 
 		expected32 = pntohl(expected_data);
 		if (val32 != expected32) {
-			printf("Failed TVB=%s  guint32 @ 0 %u != expected %u\n",
+			printf("08: Failed TVB=%s  guint32 @ 0 %u != expected %u\n",
 					name, val32, expected32);
 			return FALSE;
 		}
@@ -179,20 +178,20 @@ test(tvbuff_t *tvb, gchar* name,
 		TRY {
 			val32 = tvb_get_ntohl(tvb, -4);
 		}
-		CATCH(BoundsError) {
+		CATCH_ALL {
 			ex_thrown = TRUE;
 		}
 		ENDTRY;
 
 		if (ex_thrown) {
-			printf("Failed TVB=%s BoundsError when retrieving "
+			printf("09: Failed TVB=%s Exception when retrieving "
 					"guint32 from offset 0\n", name);
 			return FALSE;
 		}
 
 		expected32 = pntohl(&expected_data[length-4]);
 		if (val32 != expected32) {
-			printf("Failed TVB=%s guint32 @ -4 %u != expected %u\n",
+			printf("10: Failed TVB=%s guint32 @ -4 %u != expected %u\n",
 					name, val32, expected32);
 			return FALSE;
 		}
@@ -204,7 +203,7 @@ test(tvbuff_t *tvb, gchar* name,
 		for (i = 0; i < length - incr; i += incr) {
 			ptr = tvb_memdup(tvb, i, incr);
 			if (memcmp(ptr, &expected_data[i], incr) != 0) {
-				printf("Failed TVB=%s Offset=%d Length=%d "
+				printf("11: Failed TVB=%s Offset=%d Length=%d "
 						"Bad memdup\n",
 						name, i, incr);
 				g_free(ptr);
@@ -217,7 +216,7 @@ test(tvbuff_t *tvb, gchar* name,
 	/* One big memdup */
 	ptr = tvb_memdup(tvb, 0, -1);
 	if (memcmp(ptr, expected_data, length) != 0) {
-		printf("Failed TVB=%s Offset=0 Length=-1 "
+		printf("12: Failed TVB=%s Offset=0 Length=-1 "
 				"Bad memdup\n", name);
 		g_free(ptr);
 		return FALSE;

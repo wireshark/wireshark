@@ -4,7 +4,7 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quake.c,v 1.5 2000/08/21 18:36:34 guy Exp $
+ * $Id: packet-quake.c,v 1.6 2000/08/30 02:50:01 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -154,33 +154,6 @@ static const value_string names_colors[] = {
 static void dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 
-static gint
-tvb_get_stringz(tvbuff_t *tvb, gint offset, gint maxlength, guint8* buffer)
-{
-	int i;
-	char* zeropos = NULL;
-	gint stringlen = 0;
-
-	if (maxlength == 0) {
-		buffer[0] = 0;
-		return 0;
-	}
-
-	tvb_memcpy(tvb, buffer, offset, maxlength);
-	for (i=0 ; i<maxlength ; i++) {
-		if (buffer[i] == 0) {
-			stringlen = i;
-			zeropos = buffer+i;
-			break;
-		}
-	}
-	if (zeropos == NULL) {
-		buffer[maxlength-1] = 0;
-		return maxlength-1;
-	}
-	return stringlen;
-}
-
 
 static void
 dissect_quake_CCREQ_CONNECT
@@ -192,7 +165,7 @@ dissect_quake_CCREQ_CONNECT
 	gint len;
 
 	maxbufsize = MIN(sizeof(game), tvb_length(tvb));
-	len = tvb_get_stringz(tvb, 0, maxbufsize, game);
+	len = tvb_get_nstringz0(tvb, 0, maxbufsize, game);
 	version = tvb_get_guint8(tvb, len + 1);
 
 	if (tree) {
@@ -214,7 +187,7 @@ dissect_quake_CCREQ_SERVER_INFO
 	gint len;
 
 	maxbufsize = MIN(sizeof(game), tvb_length(tvb));
-	len = tvb_get_stringz(tvb, 0, maxbufsize, game);
+	len = tvb_get_nstringz0(tvb, 0, maxbufsize, game);
 	version = tvb_get_guint8(tvb, len + 1);
 
 	if (tree) {
@@ -249,7 +222,7 @@ dissect_quake_CCREQ_RULE_INFO
 	gint len;
 
 	maxbufsize = MIN(sizeof(rule), tvb_length(tvb));
-	len = tvb_get_stringz(tvb, 0, maxbufsize, rule);
+	len = tvb_get_nstringz0(tvb, 0, maxbufsize, rule);
 	if (tree) {
 		proto_tree_add_string(tree, hf_quake_CCREQ_RULE_INFO_lastrule,
 			tvb, 0, len + 1, rule);
@@ -285,7 +258,7 @@ dissect_quake_CCREP_REJECT
 	gint len;
 
 	maxbufsize = MIN(sizeof(reason), tvb_length(tvb));
-	len = tvb_get_stringz(tvb, 0, maxbufsize, reason);
+	len = tvb_get_nstringz0(tvb, 0, maxbufsize, reason);
 
 	if (tree) {
 		proto_tree_add_string(tree, hf_quake_CCREP_REJECT_reason,
@@ -312,7 +285,7 @@ dissect_quake_CCREP_SERVER_INFO
 	offset = 0;
 
 	maxbufsize = MIN(sizeof(address), tvb_length_remaining(tvb, offset));
-	len = tvb_get_stringz(tvb, offset, maxbufsize, address);
+	len = tvb_get_nstringz0(tvb, offset, maxbufsize, address);
 	if (tree) {
 		proto_tree_add_string(tree, hf_quake_CCREP_SERVER_INFO_address,
 			tvb, offset, len + 1, address);
@@ -320,7 +293,7 @@ dissect_quake_CCREP_SERVER_INFO
 	offset += len + 1;
 
 	maxbufsize = MIN(sizeof(server), tvb_length_remaining(tvb, offset));
-	len = tvb_get_stringz(tvb, offset, maxbufsize, server);
+	len = tvb_get_nstringz0(tvb, offset, maxbufsize, server);
 	if (tree) {
 		proto_tree_add_string(tree, hf_quake_CCREP_SERVER_INFO_server,
 			tvb, offset, len + 1, server);
@@ -328,7 +301,7 @@ dissect_quake_CCREP_SERVER_INFO
 	offset += len + 1;
 	
 	maxbufsize = MIN(sizeof(map), tvb_length_remaining(tvb, offset));
-	len = tvb_get_stringz(tvb, offset, maxbufsize, map);
+	len = tvb_get_nstringz0(tvb, offset, maxbufsize, map);
 	if (tree) {
 		proto_tree_add_string(tree, hf_quake_CCREP_SERVER_INFO_map,
 			tvb, offset, len + 1, map);
@@ -376,7 +349,7 @@ dissect_quake_CCREP_PLAYER_INFO
 	offset += 1;
 	
 	maxbufsize = MIN(sizeof(name), tvb_length_remaining(tvb, offset));
-	len = tvb_get_stringz(tvb, offset, maxbufsize, name);
+	len = tvb_get_nstringz0(tvb, offset, maxbufsize, name);
 	if (tree) {
 		proto_tree_add_string(tree, hf_quake_CCREP_PLAYER_INFO_name,
 			tvb, offset, len + 1, name);
@@ -413,7 +386,7 @@ dissect_quake_CCREP_PLAYER_INFO
 	offset += 3*4;
 
 	maxbufsize = MIN(sizeof(address), tvb_length_remaining(tvb, offset));
-	len = tvb_get_stringz(tvb, offset, maxbufsize, address);
+	len = tvb_get_nstringz0(tvb, offset, maxbufsize, address);
 	if (tree) {
 		proto_tree_add_string(tree, hf_quake_CCREP_PLAYER_INFO_address,
 			tvb, offset, len + 1, address);
@@ -437,7 +410,7 @@ dissect_quake_CCREP_RULE_INFO
 	offset = 0;
 
 	maxbufsize = MIN(sizeof(rule), tvb_length_remaining(tvb, offset));
-	len = tvb_get_stringz(tvb, offset, maxbufsize, rule);
+	len = tvb_get_nstringz0(tvb, offset, maxbufsize, rule);
 	if (tree) {
 		proto_tree_add_string(tree, hf_quake_CCREP_RULE_INFO_rule,
 			tvb, offset, len + 1, rule);
@@ -445,7 +418,7 @@ dissect_quake_CCREP_RULE_INFO
 	offset += len + 1;
 
 	maxbufsize = MIN(sizeof(value), tvb_length_remaining(tvb, offset));
-	len = tvb_get_stringz(tvb, offset, maxbufsize, value);
+	len = tvb_get_nstringz0(tvb, offset, maxbufsize, value);
 	if (tree) {
 		proto_tree_add_string(tree, hf_quake_CCREP_RULE_INFO_value,
 			tvb, offset, len + 1, value);

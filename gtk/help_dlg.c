@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.6 2000/08/22 06:38:32 gram Exp $
+ * $Id: help_dlg.c,v 1.7 2000/08/30 02:50:18 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -48,6 +48,7 @@
 #include "main.h"
 #include "util.h"
 #include "ui_util.h"
+#include "proto.h"
 
 typedef enum {
   OVERVIEW_HELP,
@@ -365,75 +366,7 @@ static void set_help_text(GtkWidget *w, help_type_t type)
 	nb_lines += 2;
       } else {
 
-	/* XXX should convert this ? */
-	switch(hfinfo->type) {
-	case FT_NONE:
-	  type_name = "FT_NONE";
-	  break;
-	case FT_BOOLEAN:
-	  type_name = "FT_BOOLEAN";
-	  break;
-	case FT_UINT8:
-	  type_name = "FT_UINT8";
-	  break;
-	case FT_UINT16:
-	  type_name = "FT_UINT16";
-	  break;
-	case FT_UINT24:
-	  type_name = "FT_UINT24";
-	  break;
-	case FT_UINT32:
-	  type_name = "FT_UINT32";
-	  break;
-	case FT_INT8:
-	  type_name = "FT_INT8";
-	  break;
-	case FT_INT16:
-	  type_name = "FT_INT16";
-	  break;
-	case FT_INT24:
-	  type_name = "FT_INT24";
-	  break;
-	case FT_INT32:
-	  type_name = "FT_INT32";
-	  break;
-	case FT_DOUBLE:
-	  type_name = "FT_DOUBLE";
-	  break;
-	case FT_ABSOLUTE_TIME:
-	  type_name = "FT_ABSOLUTE_TIME";
-	  break;
-	case FT_RELATIVE_TIME:
-	  type_name = "FT_RELATIVE_TIME";
-	  break;
-	case FT_UINT_STRING:
-	  type_name = "FT_UINT_STRING";
-	  break;
-	case FT_STRING:
-	  type_name = "FT_STRING";
-	  break;
-	case FT_ETHER:
-	  type_name = "FT_ETHER";
-	  break;
-	case FT_BYTES:
-	  type_name = "FT_BYTES";
-	  break;
-	case FT_IPv4:
-	  type_name = "FT_IPv4";
-	  break;
-	case FT_IPv6:
-	  type_name = "FT_IPv6";
-	  break;
-	case FT_IPXNET:
-	  type_name = "FT_IPXNET";
-	  break;
-	case FT_TEXT_ONLY:
-	  type_name = "FT_TEXT_ONLY";
-	  break;
-	default:
-	  g_assert_not_reached();
-	  type_name = NULL;
-	}
+	type_name = proto_registrar_ftype_name(hfinfo->type);
 	snprintf(buffer, BUFF_LEN, "%s%s%s%s(%s)\n",
 		 hfinfo->abbrev, 
 		 &blanks[B_LEN - (maxlen - strlen(hfinfo->abbrev)) - 2],

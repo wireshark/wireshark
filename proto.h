@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.41 2000/08/22 06:38:20 gram Exp $
+ * $Id: proto.h,v 1.42 2000/08/30 02:50:03 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -89,7 +89,8 @@ enum ftenum {
 	FT_ABSOLUTE_TIME,
 	FT_RELATIVE_TIME,
 	FT_STRING,
-	FT_UINT_STRING,
+	FT_STRINGZ,	/* for use with proto_tree_add_item() */
+	FT_UINT_STRING,	/* for use with proto_tree_add_item() */
 	FT_ETHER,
 	FT_BYTES,
 	FT_IPv4,
@@ -545,5 +546,8 @@ extern int           num_tree_types;
 #ifndef g_ptr_array_len
 #define g_ptr_array_len(a)      ((a)->len)
 #endif
+
+/* Returns a string representing the field type */
+const char* proto_registrar_ftype_name(enum ftenum ftype);
 
 #endif /* proto.h */

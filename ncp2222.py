@@ -9,7 +9,7 @@ part of the 0x2222 "family")
 Data comes from "Programmer's Guide to the NetWare Core Protocol"
 by Steve Conner and Dianne Conner.
 
-$Id: ncp2222.py,v 1.4 2000/08/22 06:38:17 gram Exp $
+$Id: ncp2222.py,v 1.5 2000/08/30 02:50:00 gram Exp $
 
 Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
 
@@ -137,7 +137,7 @@ class PTVC(NamedList):
 			ptvc_rec = PTVCRecord(record)
 	
 			# We can't make a PTVC list from a variable-length
-			# packet. XXX - unless it's FT_NSTRING
+			# packet. XXX - unless it's FT_UINT_STRING
 #			if type(ptvc_rec.Length()) == type(()):
 #				if ptvc_rec.Field() == nstring8:
 #					pass
@@ -496,11 +496,21 @@ class nstring8(Type):
 	def __init__(self, abbrev, descr):
 		Type.__init__(self, abbrev, descr, 1)
 
+class fw_string(Type):
+	"""A fixed-width string of n bytes."""
+
+	type	= "fw_string"
+	ftype	= "FT_STRING"
+
+	def __init__(self, abbrev, descr, bytes):
+		Type.__init__(self, abbrev, descr, bytes)
+
+
 class stringz(Type):
-	"NUL-terminated string."
+	"NUL-terminated string, with a maximum length"
 
 	type	= "stringz"
-	ftype	= "FT_STRING"
+	ftype	= "FT_STRINGZ"
 	def __init__(self, abbrev, descr):
 		Type.__init__(self, abbrev, descr, -1)
 
@@ -611,7 +621,7 @@ ObjectID	= uint32("object_id", "Object ID")
 ObjectID.Display('BASE_HEX')
 
 ObjectName	= nstring8("object_name", "Object Name")
-ObjectNameZ	= stringz("object_nameZ", "Object Name")
+ObjectName1	= fw_string("object_name1", "Object Name", 48)
 
 ObjectSecurity	= val_string8("object_security", "Object Security", [
 	[ 0x00, "Anyone can read or modify the object" ],
@@ -1057,7 +1067,7 @@ pkt.Request((13,60), [
 pkt.Reply(62, [
 	[ 8, 4, ObjectID ],
 	[ 12, 2, ObjectType ],
-	[ 14, 48, ObjectName ], # XXX
+	[ 14, 48, ObjectName1 ],
 ])
 pkt.CompletionCodes([0x0000, 0x9600, 0xef01, 0xf000, 0xfc02,
 	0xfe01, 0xff00])
@@ -1072,7 +1082,7 @@ pkt.Request((17,64), [
 pkt.Reply(65, [
 	[ 8, 4, ObjectID ],
 	[ 12, 2, ObjectType ],
-	[ 14, 48, ObjectNameZ ], # XXX
+	[ 14, 48, ObjectName1 ],
 	[ 62, 1, ObjectFlags ],
 	[ 63, 1, ObjectSecurity ],
 	[ 64, 1, ObjectHasProperties ],
