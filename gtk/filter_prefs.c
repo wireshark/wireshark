@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.63 2004/05/26 03:49:22 ulfl Exp $
+ * $Id: filter_prefs.c,v 1.64 2004/05/27 17:08:50 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -886,10 +886,6 @@ filter_dlg_destroy_cb(GtkWidget *win, gpointer data)
 
 	/* Remove this from the list of filter dialog windows. */
 	forget_filter_dialog(win, list);
-
-	/* Now nuke this window. */
-	gtk_grab_remove(GTK_WIDGET(win));
-	window_destroy(GTK_WIDGET(win));
 }
 
 #if GTK_MAJOR_VERSION < 2
