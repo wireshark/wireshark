@@ -2,7 +2,7 @@
  * Routines for Reliable UDP Protocol.
  * Copyright 2004, Duncan Sargeant <dunc-ethereal@rcpt.to>
  *
- * $Id: packet-rudp.c,v 1.6 2004/04/25 11:14:01 jmayer Exp $
+ * $Id: packet-rudp.c,v 1.7 2004/04/25 11:20:43 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -126,7 +126,7 @@ dissect_rudp(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 }
 
 void
-proto_reg_rudp(void)
+proto_register_rudp(void)
 {
 
 	static hf_register_info hf[] = {
