@@ -3,7 +3,7 @@
  *
  * See RFC 1777 (LDAP v2), RFC 2251 (LDAP v3), and RFC 2222 (SASL).
  *
- * $Id: packet-ldap.c,v 1.53 2003/04/21 07:58:16 guy Exp $
+ * $Id: packet-ldap.c,v 1.54 2003/04/25 21:19:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1951,6 +1951,8 @@ ldap_reinit(void)
 
   if (ldap_auth_info_chunk != NULL)
     g_mem_chunk_destroy(ldap_auth_info_chunk);
+
+  auth_info_items = NULL;
 
   ldap_auth_info_chunk = g_mem_chunk_new("ldap_auth_info_chunk",
 		sizeof(ldap_auth_info_t),
