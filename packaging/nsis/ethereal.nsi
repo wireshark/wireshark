@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.9 2003/01/28 22:18:06 guy Exp $
+; $Id: ethereal.nsi,v 1.10 2003/04/09 18:58:37 gerald Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -12,11 +12,14 @@ Name "Ethereal"
 ; The file to write
 OutFile "ethereal-setup-${VERSION}.exe"
 
-; Icon of installer
+; Icon of installer and uninstaller
 Icon "..\..\image\ethereal.ico"
+UninstallIcon "..\..\image\ethereal.ico"
 
 ; Uninstall stuff
 UninstallText "This will uninstall Ethereal. Hit 'Next' to continue."
+
+XPStyle on
 
 ; ============================================================================
 ; License page configuration
@@ -30,8 +33,9 @@ LicenseData "GPL.txt"
 ComponentText "The following components are available for installation."
 
 ; Component check boxes
-EnabledBitmap "..\..\image\nsis-checked.bmp"
-DisabledBitmap "..\..\image\nsis-unchecked.bmp"
+; Commented out for NSIS v 2.0
+; EnabledBitmap "..\..\image\nsis-checked.bmp"
+; DisabledBitmap "..\..\image\nsis-unchecked.bmp"
 
 ; ============================================================================
 ; Directory selection page configuration
@@ -153,7 +157,7 @@ SetOutPath $INSTDIR\snmp\mibs
 File "..\..\..\libs\net-snmp-5.0.6\mibs\*.txt"
 SectionEnd
 
-SectionDivider
+; SectionDivider
 ;-------------------------------------------
 
 Section "Start Menu Shortcuts"
@@ -177,6 +181,7 @@ SectionEnd
 
 Section "Uninstall"
 ;-------------------------------------------
+
 DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal"
 DeleteRegKey HKEY_LOCAL_MACHINE SOFTWARE\Ethereal
 
