@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.59 2002/01/10 11:21:21 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.60 2002/01/11 09:12:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -322,7 +322,7 @@ again:
     case ND_OPT_ADVINTERVAL:
 	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + offsetof(struct nd_opt_adv_int, nd_opt_adv_int_advint), 4,
-	    "Advertisement Interval: %d",
+	    "Advertisement Interval: %u",
 	    tvb_get_ntohl(tvb, offset + offsetof(struct nd_opt_adv_int, nd_opt_adv_int_advint)));
 	break;
     case ND_OPT_HOMEAGENT_INFO:
@@ -334,10 +334,10 @@ again:
 	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + offsetof(struct nd_opt_ha_info, nd_opt_ha_info_ha_pref),
 	    2, "Home Agent Preference: %d",
-	    pntohs(&pi->nd_opt_ha_info_ha_pref));
+	    (gint16)pntohs(&pi->nd_opt_ha_info_ha_pref));
 	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + offsetof(struct nd_opt_ha_info, nd_opt_ha_info_ha_life),
-	    2, "Home Agent Lifetime: %d",
+	    2, "Home Agent Lifetime: %u",
 	    pntohs(&pi->nd_opt_ha_info_ha_life));
 	break;
       }
