@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-pipe.c,v 1.12 2000/11/22 21:19:37 sharpe Exp $
+ * $Id: packet-smb-pipe.c,v 1.13 2001/01/01 01:44:46 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1068,7 +1068,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       /* Make sure we don't go past the end of the capture buffer */
 
-      for (i = 1; (i <= EntCount) && ((pi.captured_len - loc_offset) > 16); i++) {
+      for (i = 1; (i <= EntCount) && ((pi.captured_len - loc_offset) >= 16); i++) {
 	const gchar *Server = pd + loc_offset;
 	gint8       ServerMajor;
 	guint       ServerMinor;
