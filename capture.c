@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.40 1999/08/03 20:51:31 gram Exp $
+ * $Id: capture.c,v 1.41 1999/08/05 11:12:14 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -369,18 +369,18 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
 	 close(1);
 	 dup(sync_pipe[1]);
 	 close(sync_pipe[0]);
-	 execl(ethereal_path,"ethereal","-k","-Q","-i",cf.iface,"-w",cf.save_file,
-	       "-c", scount, "-s", ssnap, "-S", 
-	       "-m", medium_font, "-b", bold_font,
-	       (cf.cfilter == NULL)? 0 : "-f", (cf.cfilter == NULL)? 0 : cf.cfilter, 
-	       0);	
+	 execlp(ethereal_path,"ethereal","-k","-Q","-i",cf.iface,"-w",cf.save_file,
+		"-c", scount, "-s", ssnap, "-S", 
+		"-m", medium_font, "-b", bold_font,
+		(cf.cfilter == NULL)? 0 : "-f", (cf.cfilter == NULL)? 0 : cf.cfilter, 
+		0);	
        }
        else {
-	 execl(ethereal_path,"ethereal","-k","-Q","-i",cf.iface,"-w",cf.save_file,
-	       "-c", scount, "-s", ssnap,
-	       "-m", medium_font, "-b", bold_font,
-	       (cf.cfilter == NULL)? 0 : "-f", (cf.cfilter == NULL)? 0 : cf.cfilter,
-	       0);
+	 execlp(ethereal_path,"ethereal","-k","-Q","-i",cf.iface,"-w",cf.save_file,
+		"-c", scount, "-s", ssnap,
+		"-m", medium_font, "-b", bold_font,
+		(cf.cfilter == NULL)? 0 : "-f", (cf.cfilter == NULL)? 0 : cf.cfilter,
+		0);
        }
     }
     else {
