@@ -1,6 +1,6 @@
 /* packet-pflog.h
  *
- * $Id: packet-pflog.h,v 1.4 2002/07/15 20:55:51 guy Exp $
+ * $Id: packet-pflog.h,v 1.5 2003/05/15 07:14:45 guy Exp $
  *
  * Copyright 2001 Mike Frantzen
  * All rights reserved.
@@ -33,6 +33,24 @@
 /* The header in OpenBSD pflog files. */
 
 struct pfloghdr {
+	guchar	length;
+	guchar	af;
+	guchar	action;
+	guchar	reason;
+	char	ifname[16];
+	char	ruleset[16];
+	guint32	rulenr;
+	guint32	subrulenr;
+	guchar	dir;
+	guchar	pad[3];
+};
+
+#define PFLOG_HDRLEN		sizeof(struct pfloghdr)
+/* minus pad, also used as a signature */
+#define PFLOG_REAL_HDRLEN	offsetof(struct pfloghdr, pad);
+#define MIN_PFLOG_HDRLEN	45
+
+struct old_pfloghdr {
   guint32       af;
   char          ifname[16];
   gint16        rnr;
@@ -40,7 +58,7 @@ struct pfloghdr {
   guint16       action;
   guint16       dir;
 };
-#define PFLOG_HDRLEN    sizeof(struct pfloghdr)
+#define OLD_PFLOG_HDRLEN	sizeof(struct old_pfloghdr)
 
 /* Actions */
 #define PF_PASS  0
@@ -48,8 +66,12 @@ struct pfloghdr {
 #define PF_SCRUB 2
 
 /* Directions */
-#define PF_IN  0
-#define PF_OUT 1
+#define PF_OLD_IN  0
+#define PF_OLD_OUT 1
+
+#define PF_INOUT 0
+#define PF_IN    1
+#define PF_OUT   2
 
 # define BSD_PF_INET    2
 # define BSD_PF_INET6   24

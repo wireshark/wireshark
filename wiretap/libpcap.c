@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.95 2003/03/25 06:04:54 guy Exp $
+ * $Id: libpcap.c,v 1.96 2003/05/15 07:14:45 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -385,7 +385,7 @@ static const struct {
 	 * defined with the value 17.
 	 */
 #if !defined(DLT_LANE8023) || (DLT_LANE8023 != 17)
-	{ 17,		WTAP_ENCAP_PFLOG },
+	{ 17,		WTAP_ENCAP_OLD_PFLOG },
 #endif
 
 	/*
