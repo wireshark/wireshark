@@ -9,10 +9,31 @@
 #define XCEPT_GROUP_ETHEREAL 1
 
 /* Ethereal's exceptions */
-#define BoundsError		1	/* Index is out of range */
-#define ReportedBoundsError	2	/* Index is beyond reported length (not cap_len) */
-#define TypeError		3	/* During dfilter parsing */
-#define DissectorError		4	/* A bug was detected in a dissector */
+
+/**
+    Index is out of range.
+    An attempt was made to read past the end of a buffer.
+**/
+#define BoundsError		1	
+
+/**
+    Index is beyond reported length (not cap_len) 
+    An attempt was made to read past the logical end of a buffer. This
+    differs from a BoundsError in that the parent protocol established a
+    limit past which this dissector should not process in the buffer and that
+    limit was execeeded.
+**/
+#define ReportedBoundsError	2
+
+/**
+    During dfilter parsing 
+**/
+#define TypeError		3
+
+/**
+    A bug was detected in a dissector 
+**/
+#define DissectorError		4	
 
 /* Usage:
  *

@@ -90,6 +90,10 @@ typedef struct true_false_string {
 	char	*false_string;
 } true_false_string;
 
+/**
+* A default set of true/false strings that dissectors can use for 
+* FT_BOOLEAN header fields.
+**/
 extern const true_false_string flags_set_truth;
 
 extern void packet_init(void);

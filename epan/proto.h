@@ -889,7 +889,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str);
 
 
 /** Register a new protocol.
- @param name the name of the new protocol
+ @param name the full name of the new protocol
  @param short_name abbreviated name of the new protocol
  @param filter_name protocol name used for a display filter string 
  @return the new protocol handle */
