@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.144 2001/11/11 02:27:06 guy Exp $
+ * $Id: packet-smb.c,v 1.145 2001/11/12 08:46:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -298,9 +298,15 @@ static int hf_smb_total_param_count = -1;
 static int hf_smb_total_data_count = -1;
 static int hf_smb_max_param_count = -1;
 static int hf_smb_max_data_count = -1;
+static int hf_smb_param_disp16 = -1;
+static int hf_smb_param_count16 = -1;
+static int hf_smb_param_offset16 = -1;
 static int hf_smb_param_disp32 = -1;
 static int hf_smb_param_count32 = -1;
 static int hf_smb_param_offset32 = -1;
+static int hf_smb_data_disp16 = -1;
+static int hf_smb_data_count16 = -1;
+static int hf_smb_data_offset16 = -1;
 static int hf_smb_data_disp32 = -1;
 static int hf_smb_data_count32 = -1;
 static int hf_smb_data_offset32 = -1;
@@ -359,6 +365,8 @@ static int hf_smb_nt_create_bits_dir = -1;
 static int hf_smb_nt_create_options_directory_file = -1;
 static int hf_smb_nt_create_options_write_through = -1;
 static int hf_smb_nt_create_options_sequential_only = -1;
+static int hf_smb_nt_create_options_sync_io_alert = -1;
+static int hf_smb_nt_create_options_sync_io_nonalert = -1;
 static int hf_smb_nt_create_options_non_directory_file = -1;
 static int hf_smb_nt_create_options_no_ea_knowledge = -1;
 static int hf_smb_nt_create_options_eight_dot_three_only = -1;
@@ -417,6 +425,84 @@ static int hf_smb_print_spool_file_size = -1;
 static int hf_smb_print_spool_file_name = -1;
 static int hf_smb_start_index = -1;
 static int hf_smb_cancel_to = -1;
+static int hf_smb_trans2_subcmd = -1;
+static int hf_smb_trans_name = -1;
+static int hf_smb_transaction_flags_dtid = -1;
+static int hf_smb_transaction_flags_owt = -1;
+static int hf_smb_search_count = -1;
+static int hf_smb_search_pattern = -1;
+static int hf_smb_ff2_backup = -1;
+static int hf_smb_ff2_continue = -1;
+static int hf_smb_ff2_resume = -1;
+static int hf_smb_ff2_close_eos = -1;
+static int hf_smb_ff2_close = -1;
+static int hf_smb_ff2_information_level = -1;
+static int hf_smb_qpi_loi = -1;
+static int hf_smb_storage_type = -1;
+static int hf_smb_resume = -1;
+static int hf_smb_max_referral_level = -1;
+static int hf_smb_qfsi_information_level = -1;
+static int hf_smb_ea_size = -1;
+static int hf_smb_list_length = -1;
+static int hf_smb_number_of_links = -1;
+static int hf_smb_delete_pending = -1;
+static int hf_smb_index_number = -1;
+static int hf_smb_current_offset = -1;
+static int hf_smb_t2_alignment = -1;
+static int hf_smb_t2_stream_name_length = -1;
+static int hf_smb_t2_stream_size = -1;
+static int hf_smb_t2_compressed_file_size = -1;
+static int hf_smb_t2_compressed_format = -1;
+static int hf_smb_t2_compressed_unit_shift = -1;
+static int hf_smb_t2_compressed_chunk_shift = -1;
+static int hf_smb_t2_compressed_cluster_shift = -1;
+static int hf_smb_dfs_path_consumed = -1;
+static int hf_smb_dfs_num_referrals = -1;
+static int hf_smb_get_dfs_server_hold_storage = -1;
+static int hf_smb_get_dfs_fielding = -1;
+static int hf_smb_dfs_referral_version = -1;
+static int hf_smb_dfs_referral_size = -1;
+static int hf_smb_dfs_referral_server_type = -1;
+static int hf_smb_dfs_referral_flags_strip = -1;
+static int hf_smb_dfs_referral_node_offset = -1;
+static int hf_smb_dfs_referral_node = -1;
+static int hf_smb_dfs_referral_proximity = -1;
+static int hf_smb_dfs_referral_ttl = -1;
+static int hf_smb_dfs_referral_path_offset = -1;
+static int hf_smb_dfs_referral_path = -1;
+static int hf_smb_dfs_referral_alt_path_offset = -1;
+static int hf_smb_dfs_referral_alt_path = -1;
+static int hf_smb_end_of_search = -1;
+static int hf_smb_last_name_offset = -1;
+static int hf_smb_file_index = -1;
+static int hf_smb_short_file_name = -1;
+static int hf_smb_short_file_name_len = -1;
+static int hf_smb_fs_id = -1;
+static int hf_smb_sector_unit = -1;
+static int hf_smb_fs_units = -1;
+static int hf_smb_fs_sector = -1;
+static int hf_smb_avail_units = -1;
+static int hf_smb_volume_serial_num = -1;
+static int hf_smb_volume_label_len = -1;
+static int hf_smb_volume_label = -1;
+static int hf_smb_free_alloc_units64 = -1;
+static int hf_smb_max_name_len = -1;
+static int hf_smb_fs_name_len = -1;
+static int hf_smb_fs_name = -1;
+static int hf_smb_device_char_removable = -1;
+static int hf_smb_device_char_read_only = -1;
+static int hf_smb_device_char_floppy = -1;
+static int hf_smb_device_char_write_once = -1;
+static int hf_smb_device_char_remote = -1;
+static int hf_smb_device_char_mounted = -1;
+static int hf_smb_device_char_virtual = -1;
+static int hf_smb_fs_attr_css = -1;
+static int hf_smb_fs_attr_cpn = -1;
+static int hf_smb_fs_attr_pacls = -1;
+static int hf_smb_fs_attr_fc = -1;
+static int hf_smb_fs_attr_vq = -1;
+static int hf_smb_fs_attr_dim = -1;
+static int hf_smb_fs_attr_vic = -1;
 
 static gint ett_smb = -1;
 static gint ett_smb_hdr = -1;
@@ -466,14 +552,28 @@ static gint ett_smb_nt_notify_completion_filter = -1;
 static gint ett_smb_nt_ioctl_flags = -1;
 static gint ett_smb_security_information_mask = -1;
 static gint ett_smb_print_queue_entry = -1;
+static gint ett_smb_transaction_flags = -1;
+static gint ett_smb_transaction_params = -1;
+static gint ett_smb_find_first2_flags = -1;
+static gint ett_smb_transaction_data = -1;
+static gint ett_smb_dfs_referrals = -1;
+static gint ett_smb_dfs_referral = -1;
+static gint ett_smb_dfs_referral_flags = -1;
+static gint ett_smb_get_dfs_flags = -1;
+static gint ett_smb_ff2_data = -1;
+static gint ett_smb_device_characteristics = -1;
+static gint ett_smb_fs_attributes = -1;
 
 
 static char *decode_smb_name(unsigned char);
 static int dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree, guint8 cmd);
 static const gchar *get_unicode_or_ascii_string_tvb(tvbuff_t *tvb,
     int *offsetp, packet_info *pinfo, int *len, gboolean nopad,
-    gboolean exactlen, guint16 *bc);
+    gboolean exactlen, guint16 *bcp);
 
+/*
+ * Macros for use in the main dissector routines for an SMB.
+ */
 
 #define WORD_COUNT	\
 	/* Word Count */				\
@@ -506,6 +606,50 @@ static const gchar *get_unicode_or_ascii_string_tvb(tvbuff_t *tvb,
 	}						\
 	endofcommand:
 
+/*
+ * Macros for use in routines called by them.
+ */
+#define CHECK_BYTE_COUNT_SUBR(len)	\
+	if (*bcp < len) {		\
+		*trunc = TRUE;		\
+		return offset;		\
+	}
+
+#define CHECK_STRING_SUBR(fn)	\
+	if (fn == NULL) {	\
+		*trunc = TRUE;	\
+		return offset;	\
+	}
+
+#define COUNT_BYTES_SUBR(len)	\
+	offset += len;		\
+	*bcp -= len;
+
+/*
+ * Macros for use when dissecting transaction parameters and data
+ */
+#define CHECK_BYTE_COUNT_TRANS(len)	\
+	if (bc < len) return offset;
+
+#define CHECK_STRING_TRANS(fn)	\
+	if (fn == NULL) return offset;
+
+#define COUNT_BYTES_TRANS(len)	\
+	offset += len;		\
+	bc -= len;
+
+/*
+ * Macros for use in subrroutines dissecting transaction parameters or data
+ */
+#define CHECK_BYTE_COUNT_TRANS_SUBR(len)	\
+	if (*bcp < len) return offset;
+
+#define CHECK_STRING_TRANS_SUBR(fn)	\
+	if (fn == NULL) return offset;
+
+#define COUNT_BYTES_TRANS_SUBR(len)	\
+	offset += len;			\
+	*bcp -= len;
 
 /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
    These variables and functions are used to match
@@ -515,6 +659,19 @@ static GMemChunk *smb_info_chunk = NULL;
 static int smb_info_init_count = 200;
 static GHashTable *smb_info_table = NULL;
 
+/*
+ * XXX - MID/PID/UID/TID/command/source/destination are *NOT* unique;
+ * I have at least one capture with multiple Transaction2 SMB exchanges
+ * in a row, all with the *same* MID, PID, UID, and TID, and all between
+ * the *same* machines on the *same* connection.  The MID is merely
+ * intended to distinguish between replies to multiple *in-flight*
+ * requests; once the reply comes back, an SMB client can reused the
+ * MID of the request, and, apparently, some clients *do*.
+ *
+ * To make this work correctly, you have to include the frame number
+ * of the matching packet in the hash key, just as is done for the
+ * transaction hash table.
+ */
 static gint
 smb_info_equal(gconstpointer k1, gconstpointer k2)
 {
@@ -569,25 +726,407 @@ free_all_smb_info(gpointer key_arg, gpointer value, gpointer user_data)
 	return TRUE;
 }
 
-void
-smb_info_init(void)
-{
-	if(smb_info_table){
-		g_hash_table_foreach_remove(smb_info_table,
-			free_all_smb_info, NULL);
-	} else {
-		smb_info_table = g_hash_table_new(smb_info_hash,
-			smb_info_equal);
-	}
+int smb_packet_init_count = 200;
 
-	if(smb_info_chunk){
-		g_mem_chunk_destroy(smb_info_chunk);
-	}
-	smb_info_chunk = g_mem_chunk_new("smb_info_chunk",
-		sizeof(smb_info_t),
-		smb_info_init_count*sizeof(smb_info_t),
-		G_ALLOC_ONLY);
+/*
+ * This is a hash table matching transaction requests and replies.
+ *
+ * Unfortunately, the MID is not a transaction ID in, say, the ONC RPC
+ * sense; instead, it's a "multiplex ID" used when there's more than one
+ * request *currently* in flight, to distinguish replies.
+ *
+ * This means that the MID and PID don't uniquely identify a request in
+ * a conversation.
+ *
+ * Therefore, we have to use some other value to distinguish between
+ * requests with the same MID and PID.
+ *
+ * On the first pass through the capture, when we first see a request,
+ * we hash it by conversation, MID, and PID.
+ *
+ * When we first see a reply to it, we add it to a new hash table,
+ * hashing it by conversation, MID, PID, and frame number of the reply.
+ *
+ * This works as long as
+ *
+ *	1) a client doesn't screw up and have multiple requests outstanding
+ *	   with the same MID and PID
+ *
+ * and
+ *
+ *	2) we don't have, within the same frame, replies to multiple
+ *	   requests with the same MID and PID.
+ *
+ * 2) should happen only if the server screws up and puts the wrong MID or
+ * PID into a reply (in which case not only can we not handle this, the
+ * client can't handle it either) or if the client has screwed up as per
+ * 1) and the server's dutifully replied to both of the requests with the
+ * same MID and PID (in which case, again, neither we nor the client can
+ * handle this).
+ *
+ * We don't have to correctly dissect screwups; we just have to keep from
+ * dumping core on them.
+ *
+ * XXX - in addition, we need to keep a hash table of replies, so that we
+ * can associate continuations with the reply to which they're a continuation.
+ */
+struct smb_request_key {
+  guint32 conversation;
+  guint16 mid;
+  guint16 pid;
+  guint32 frame_num;
+};
+
+static GHashTable *smb_request_hash = NULL;
+static GMemChunk *smb_request_keys = NULL;
+static GMemChunk *smb_request_vals = NULL;
+
+/*
+ * This is a hash table matching continued transation replies and their
+ * continuations.
+ *
+ * It works similarly to the request/reply hash table.
+ */
+static GHashTable *smb_continuation_hash = NULL;
+
+static GMemChunk *smb_continuation_vals = NULL;
+
+/* Hash Functions */
+static gint
+smb_equal(gconstpointer v, gconstpointer w)
+{
+  struct smb_request_key *v1 = (struct smb_request_key *)v;
+  struct smb_request_key *v2 = (struct smb_request_key *)w;
+
+#if defined(DEBUG_SMB_HASH)
+  printf("Comparing %08X:%u:%u:%u\n      and %08X:%u:%u:%u\n",
+	 v1 -> conversation, v1 -> mid, v1 -> pid, v1 -> frame_num,
+	 v2 -> conversation, v2 -> mid, v2 -> pid, v2 -> frame_num);
+#endif
+
+  if (v1 -> conversation == v2 -> conversation &&
+      v1 -> mid          == v2 -> mid &&
+      v1 -> pid          == v2 -> pid &&
+      v1 -> frame_num    == v2 -> frame_num) {
+
+    return 1;
+
+  }
+
+  return 0;
 }
+
+static guint
+smb_hash (gconstpointer v)
+{
+  struct smb_request_key *key = (struct smb_request_key *)v;
+  guint val;
+
+  val = (key -> conversation) + (key -> mid) + (key -> pid) +
+	(key -> frame_num);
+
+#if defined(DEBUG_SMB_HASH)
+  printf("SMB Hash calculated as %u\n", val);
+#endif
+
+  return val;
+
+}
+
+/*
+ * Free up any state information we've saved, and re-initialize the
+ * tables of state information.
+ */
+
+/*
+ * For a hash table entry, free the address data to which the key refers
+ * and the fragment data to which the value refers.
+ * (The actual key and value structures get freed by "reassemble_init()".)
+ */
+static gboolean
+free_request_val_data(gpointer key, gpointer value, gpointer user_data)
+{
+  struct smb_request_val *request_val = value;
+
+  if (request_val->last_transact_command != NULL)
+    g_free(request_val->last_transact_command);
+  if (request_val->last_param_descrip != NULL)
+    g_free(request_val->last_param_descrip);
+  if (request_val->last_data_descrip != NULL)
+    g_free(request_val->last_data_descrip);
+  if (request_val->last_aux_data_descrip != NULL)
+    g_free(request_val->last_aux_data_descrip);
+  return TRUE;
+}
+
+static struct smb_request_val *
+do_transaction_hashing(conversation_t *conversation, struct smb_info si,
+		       frame_data *fd)
+{
+  struct smb_request_key request_key, *new_request_key;
+  struct smb_request_val *request_val = NULL;
+  gpointer               new_request_key_ret, request_val_ret;
+
+  if (si.request) {
+    /*
+     * This is a request.
+     *
+     * If this is the first time the frame has been seen, check for
+     * an entry for the request in the hash table.  If it's not found,
+     * insert an entry for it.
+     *
+     * If it's the first time it's been seen, then we can't have seen
+     * the reply yet, so the reply frame number should be 0, for
+     * "unknown".
+     */
+    if (!fd->flags.visited) {
+      request_key.conversation = conversation->index;
+      request_key.mid          = si.mid;
+      request_key.pid          = si.pid;
+      request_key.frame_num    = 0;
+
+      request_val = (struct smb_request_val *) g_hash_table_lookup(smb_request_hash, &request_key);
+
+      if (request_val == NULL) {
+	/*
+	 * Not found.
+	 */
+	new_request_key = g_mem_chunk_alloc(smb_request_keys);
+	new_request_key -> conversation = conversation->index;
+	new_request_key -> mid          = si.mid;
+	new_request_key -> pid          = si.pid;
+	new_request_key -> frame_num    = 0;
+
+	request_val = g_mem_chunk_alloc(smb_request_vals);
+	request_val -> frame = fd->num;
+	request_val -> last_transact2_command = -1;		/* unknown */
+	request_val -> last_transact_command = NULL;
+	request_val -> last_param_descrip = NULL;
+	request_val -> last_data_descrip = NULL;
+	request_val -> last_aux_data_descrip = NULL;
+
+	g_hash_table_insert(smb_request_hash, new_request_key, request_val);
+      } else {
+	/*
+	 * This means that we've seen another request in this conversation
+	 * with the same request and reply, and without an intervening
+	 * reply to that first request, and thus won't be using this
+	 * "request_val" structure for that request (as we'd use it only
+	 * for the reply).
+	 *
+	 * Clean out the structure, and set it to refer to this frame.
+	 */
+	request_val -> frame = fd->num;
+	request_val -> last_transact2_command = -1;		/* unknown */
+	if (request_val -> last_transact_command)
+	  g_free(request_val -> last_transact_command);
+	request_val -> last_transact_command = NULL;
+	if (request_val -> last_param_descrip)
+	  g_free(request_val -> last_param_descrip);
+	request_val -> last_param_descrip = NULL;
+	if (request_val -> last_data_descrip)
+	  g_free(request_val -> last_data_descrip);
+	request_val -> last_data_descrip = NULL;
+	if (request_val -> last_aux_data_descrip)
+	  g_free(request_val -> last_aux_data_descrip);
+	request_val -> last_aux_data_descrip = NULL;
+      }
+    }
+  } else {
+    /*
+     * This is a reply.
+     */
+    if (!fd->flags.visited) {
+      /*
+       * This is the first time the frame has been seen; check for
+       * an entry for a matching request, with an unknown reply frame
+       * number, in the hash table.
+       *
+       * If we find it, re-hash it with this frame's number as the
+       * reply frame number.
+       */
+      request_key.conversation = conversation->index;
+      request_key.mid          = si.mid;
+      request_key.pid          = si.pid;
+      request_key.frame_num    = 0;
+
+      /*
+       * Look it up - and, if we find it, get pointers to the key and
+       * value structures for it.
+       */
+      if (g_hash_table_lookup_extended(smb_request_hash, &request_key,
+				       &new_request_key_ret,
+				       &request_val_ret)) {
+	new_request_key = new_request_key_ret;
+	request_val = request_val_ret;
+
+	/*
+	 * We found it.
+	 * Remove the old entry.
+	 */
+	g_hash_table_remove(smb_request_hash, &request_key);
+
+	/*
+	 * Now update the key, and put it back into the hash table with
+	 * the new key.
+	 */
+	new_request_key->frame_num = fd->num;
+	g_hash_table_insert(smb_request_hash, new_request_key, request_val);
+      }
+    } else {
+      /*
+       * This is not the first time the frame has been seen; check for
+       * an entry for a matching request, with this frame's frame
+       * number as the reply frame number, in the hash table.
+       */
+      request_key.conversation = conversation->index;
+      request_key.mid          = si.mid;
+      request_key.pid          = si.pid;
+      request_key.frame_num    = fd->num;
+
+      request_val = (struct smb_request_val *) g_hash_table_lookup(smb_request_hash, &request_key);
+    }
+  }
+
+  return request_val;
+}
+
+static struct smb_continuation_val *
+do_continuation_hashing(conversation_t *conversation, struct smb_info si,
+		       frame_data *fd, guint16 TotalDataCount,
+		       guint16 DataCount, const char **TransactName)
+{
+  struct smb_request_key request_key, *new_request_key;
+  struct smb_continuation_val *continuation_val, *new_continuation_val;
+  gpointer               new_request_key_ret, continuation_val_ret;
+
+  continuation_val = NULL;
+  if (si.ddisp != 0) {
+    /*
+     * This reply isn't the first in the series; there should be a
+     * reply of which it is a continuation.
+     */
+    if (!fd->flags.visited) {
+      /*
+       * This is the first time the frame has been seen; check for
+       * an entry for a matching continued message, with an unknown
+       * continuation frame number, in the hash table.
+       *
+       * If we find it, re-hash it with this frame's number as the
+       * continuation frame number.
+       */
+      request_key.conversation = conversation->index;
+      request_key.mid          = si.mid;
+      request_key.pid          = si.pid;
+      request_key.frame_num    = 0;
+
+      /*
+       * Look it up - and, if we find it, get pointers to the key and
+       * value structures for it.
+       */
+      if (g_hash_table_lookup_extended(smb_continuation_hash, &request_key,
+				       &new_request_key_ret,
+				       &continuation_val_ret)) {
+	new_request_key = new_request_key_ret;
+	continuation_val = continuation_val_ret;
+
+	/*
+	 * We found it.
+	 * Remove the old entry.
+	 */
+	g_hash_table_remove(smb_continuation_hash, &request_key);
+
+	/*
+	 * Now update the key, and put it back into the hash table with
+	 * the new key.
+	 */
+	new_request_key->frame_num = fd->num;
+	g_hash_table_insert(smb_continuation_hash, new_request_key,
+			    continuation_val);
+      }
+    } else {
+      /*
+       * This is not the first time the frame has been seen; check for
+       * an entry for a matching request, with this frame's frame
+       * number as the continuation frame number, in the hash table.
+       */
+      request_key.conversation = conversation->index;
+      request_key.mid          = si.mid;
+      request_key.pid          = si.pid;
+      request_key.frame_num    = fd->num;
+
+      continuation_val = (struct smb_continuation_val *)
+		g_hash_table_lookup(smb_continuation_hash, &request_key);
+    }
+  }
+
+  /*
+   * If we found the entry for the message of which this is a continuation,
+   * and our caller cares, get the transaction name for that message, as
+   * it's the transaction name for this message as well.
+   */
+  if (continuation_val != NULL && TransactName != NULL)
+    *TransactName = continuation_val -> transact_name;
+
+  if (TotalDataCount > DataCount + si.ddisp) {
+    /*
+     * This reply isn't the last in the series; there should be a
+     * continuation for it later in the capture.
+     *
+     * If this is the first time the frame has been seen, check for
+     * an entry for the reply in the hash table.  If it's not found,
+     * insert an entry for it.
+     *
+     * If it's the first time it's been seen, then we can't have seen
+     * the continuation yet, so the continuation frame number should
+     * be 0, for "unknown".
+     */
+    if (!fd->flags.visited) {
+      request_key.conversation = conversation->index;
+      request_key.mid          = si.mid;
+      request_key.pid          = si.pid;
+      request_key.frame_num    = 0;
+
+      new_continuation_val = (struct smb_continuation_val *)
+		g_hash_table_lookup(smb_continuation_hash, &request_key);
+
+      if (new_continuation_val == NULL) {
+	/*
+	 * Not found.
+	 */
+	new_request_key = g_mem_chunk_alloc(smb_request_keys);
+	new_request_key -> conversation = conversation->index;
+	new_request_key -> mid          = si.mid;
+	new_request_key -> pid          = si.pid;
+	new_request_key -> frame_num    = 0;
+
+	new_continuation_val = g_mem_chunk_alloc(smb_continuation_vals);
+	new_continuation_val -> frame = fd->num;
+	if (TransactName != NULL)
+	  new_continuation_val -> transact_name = *TransactName;
+	else
+	  new_continuation_val -> transact_name = NULL;
+
+	g_hash_table_insert(smb_continuation_hash, new_request_key,
+			    new_continuation_val);
+      } else {
+	/*
+	 * This presumably means we never saw the continuation of
+	 * the message we found, and this is a reply to a different
+	 * request; as we never saw the continuation of that message,
+	 * we won't be using this "request_val" structure for that
+	 * message (as we'd use it only for the continuation).
+	 *
+	 * Clean out the structure, and set it to refer to this frame.
+	 */
+	new_continuation_val -> frame = fd->num;
+      }
+    }
+  }
+
+  return continuation_val;
+}
+
 /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
    End of request/response matching functions
    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
@@ -1061,7 +1600,7 @@ static const true_false_string tfs_file_attribute_system = {
 	"This is NOT a system file"
 };
 static const true_false_string tfs_file_attribute_volume = {
-	"This is a volume ID",
+	"This is a VOLUME ID",
 	"This is NOT a volume ID"
 };
 static const true_false_string tfs_file_attribute_directory = {
@@ -1247,6 +1786,31 @@ dissect_dir_info_file_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	return offset;
 }
+
+static const true_false_string tfs_search_attribute_read_only = {
+	"Include READ ONLY files in search results",
+	"Do NOT include read only files in search results",
+};
+static const true_false_string tfs_search_attribute_hidden = {
+	"Include HIDDEN files in search results",
+	"Do NOT include hidden files in search results"
+};
+static const true_false_string tfs_search_attribute_system = {
+	"Include SYSTEM files in search results",
+	"Do NOT include system files in search results"
+};
+static const true_false_string tfs_search_attribute_volume = {
+	"Include VOLUME IDs in search results",
+	"Do NOT include volume IDs in search results"
+};
+static const true_false_string tfs_search_attribute_directory = {
+	"Include DIRECTORIES in search results",
+	"Do NOT include directories in search results"
+};
+static const true_false_string tfs_search_attribute_archive = {
+	"Include ARCHIVE files in search results",
+	"Do NOT include archive files in search results"
+};
 
 static int
 dissect_search_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
@@ -3461,7 +4025,7 @@ dissect_sid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, pro
 
 static int
 dissect_search_resume_key(tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *parent_tree, int offset, guint16 *bc, gboolean *trunc)
+    proto_tree *parent_tree, int offset, guint16 *bcp, gboolean *trunc)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3476,47 +4040,31 @@ dissect_search_resume_key(tvbuff_t *tvb, packet_info *pinfo,
 	}
 
 	/* reserved byte */
-	if (*bc < 1) {
-		*trunc = TRUE;
-		return offset;
-	}
+	CHECK_BYTE_COUNT_SUBR(1);
 	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
-	offset += 1;
-	*bc -= 1;
+	COUNT_BYTES_SUBR(1);
 
 	/* file name */
 	fn_len = 11;
 	fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len,
-		TRUE, TRUE, bc);
-	if (fn == NULL) {
-		*trunc = TRUE;
-		return offset;
-	}
+		TRUE, TRUE, bcp);
+	CHECK_STRING_SUBR(fn);
 	/* ensure that it's null-terminated */
 	strncpy(fname, fn, 11);
 	fname[11] = '\0';
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, 11,
 		fname);
-	offset += fn_len;
-	*bc -= fn_len;
+	COUNT_BYTES_SUBR(fn_len);
 
 	/* server cookie */
-	if (*bc < 5) {
-		*trunc = TRUE;
-		return offset;
-	}
+	CHECK_BYTE_COUNT_SUBR(5);
 	proto_tree_add_item(tree, hf_smb_resume_server_cookie, tvb, offset, 5, TRUE);
-	offset += 5;
-	*bc -= 5;
+	COUNT_BYTES_SUBR(5);
 
 	/* client cookie */
-	if (*bc < 4) {
-		*trunc = TRUE;
-		return offset;
-	}
+	CHECK_BYTE_COUNT_SUBR(4);
 	proto_tree_add_item(tree, hf_smb_resume_client_cookie, tvb, offset, 4, TRUE);
-	offset += 4;
-	*bc -= 4;
+	COUNT_BYTES_SUBR(4);
 
 	*trunc = FALSE;
 	return offset;
@@ -3524,7 +4072,7 @@ dissect_search_resume_key(tvbuff_t *tvb, packet_info *pinfo,
 
 static int
 dissect_search_dir_info(tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *parent_tree, int offset, guint16 *bc, gboolean *trunc)
+    proto_tree *parent_tree, int offset, guint16 *bcp, gboolean *trunc)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3539,53 +4087,39 @@ dissect_search_dir_info(tvbuff_t *tvb, packet_info *pinfo,
 	}
 
 	/* resume key */
-	offset = dissect_search_resume_key(tvb, pinfo, tree, offset, bc, trunc);
+	offset = dissect_search_resume_key(tvb, pinfo, tree, offset, bcp, trunc);
 	if (*trunc)
 		return offset;
 
 	/* File Attributes */
-	if (*bc < 1) {
-		*trunc = TRUE;
-		return offset;
-	}
+	CHECK_BYTE_COUNT_SUBR(1);
 	offset = dissect_dir_info_file_attributes(tvb, pinfo, tree, offset);
-	*bc -= 1;
+	*bcp -= 1;
 
 	/* last write time */
-	if (*bc < 4) {
-		*trunc = TRUE;
-		return offset;
-	}
+	CHECK_BYTE_COUNT_SUBR(4);
 	offset = dissect_smb_datetime(tvb, pinfo, tree, offset,
 		hf_smb_last_write_time,
 		hf_smb_last_write_dos_date, hf_smb_last_write_dos_time,
 		TRUE);
-	*bc -= 4;
+	*bcp -= 4;
 
 	/* File Size */
-	if (*bc < 4) {
-		*trunc = TRUE;
-		return offset;
-	}
+	CHECK_BYTE_COUNT_SUBR(4);
 	proto_tree_add_item(tree, hf_smb_file_size, tvb, offset, 4, TRUE);
-	offset += 4;
-	*bc -= 4;
+	COUNT_BYTES_SUBR(4);
 
 	/* file name */
 	fn_len = 13;
 	fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len,
-		TRUE, TRUE, bc);
-	if (fn == NULL) {
-		*trunc = TRUE;
-		return offset;
-	}
+		TRUE, TRUE, bcp);
+	CHECK_STRING_SUBR(fn);
 	/* ensure that it's null-terminated */
 	strncpy(fname, fn, 13);
 	fname[13] = '\0';
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fname);
-	offset += fn_len;
-	*bc -= fn_len;
+	COUNT_BYTES_SUBR(fn_len);
 
 	*trunc = FALSE;
 	return offset;
@@ -5249,12 +5783,12 @@ static const true_false_string tfs_nt_access_mask_system_security = {
 	"System security is NOT set"
 };
 static const true_false_string tfs_nt_access_mask_synchronize = {
-	"SYNCHRONIZE access",
-	"Do NOT synchronize access"
+	"Can wait on handle to SYNCHRONIZE on completion of I/O",
+	"Can NOT wait on handle to synchronize on completion of I/O"
 };
 static const true_false_string tfs_nt_access_mask_write_owner = {
-	"OWNER may WRITE to the file",
-	"Owner can NOT write to the file"
+	"Can WRITE OWNER (take ownership)",
+	"Can NOT write owner (take ownership)"
 };
 static const true_false_string tfs_nt_access_mask_write_dac = {
 	"OWNER may WRITE the DAC",
@@ -5552,6 +6086,12 @@ dissect_nt_create_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
  * says that "the FILE_NO_INTERMEDIATE_BUFFERING option is not exported
  * via the SMB protocol.  The NT redirector should convert this option
  * to FILE_WRITE_THROUGH."
+ *
+ * The "Sync I/O Alert" and "Sync I/O Nonalert" are given the bit
+ * values one would infer from their position in the list of flags for
+ * "ZwOpenFile()".  Most of the others probably have those values
+ * as well, although "8.3 only" would collide with FILE_OPEN_FOR_RECOVERY,
+ * which might go over the wire (for the benefit of backup/restore software).
  */
 static const true_false_string tfs_nt_create_options_directory = {
 	"File being created/opened must be a directory",
@@ -5564,6 +6104,14 @@ static const true_false_string tfs_nt_create_options_write_through = {
 static const true_false_string tfs_nt_create_options_sequential_only = {
 	"The file will only be accessed sequentially",
 	"The file might not only be accessed sequentially"
+};
+static const true_false_string tfs_nt_create_options_sync_io_alert = {
+	"All operations SYNCHRONOUS, waits subject to termination from alert",
+	"Operations NOT necessarily synchronous"
+};
+static const true_false_string tfs_nt_create_options_sync_io_nonalert = {
+	"All operations SYNCHRONOUS, waits not subject to alert",
+	"Operations NOT necessarily synchronous"
 };
 static const true_false_string tfs_nt_create_options_non_directory = {
 	"File being created/opened must not be a directory",
@@ -6658,7 +7206,7 @@ dissect_get_print_queue_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 static int
 dissect_print_queue_element(tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *parent_tree, int offset, guint16 *bc, gboolean *trunc)
+    proto_tree *parent_tree, int offset, guint16 *bcp, gboolean *trunc)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -6672,62 +7220,39 @@ dissect_print_queue_element(tvbuff_t *tvb, packet_info *pinfo,
 	}
 
 	/* queued time */
-	if (*bc < 4) {
-		*trunc = TRUE;
-		return offset;
-	}
+	CHECK_BYTE_COUNT_SUBR(4);
 	offset = dissect_smb_datetime(tvb, pinfo, tree, offset,
 		hf_smb_print_queue_date,
 		hf_smb_print_queue_dos_date, hf_smb_print_queue_dos_time, FALSE);
-	*bc -= 4;
+	*bcp -= 4;
 
 	/* status */
-	if (*bc < 1) {
-		*trunc = TRUE;
-		return offset;
-	}
+	CHECK_BYTE_COUNT_SUBR(1);
 	proto_tree_add_item(tree, hf_smb_print_status, tvb, offset, 1, TRUE);
-	offset += 1;
-	*bc -= 1;
+	COUNT_BYTES_SUBR(1);
 
 	/* spool file number */
-	if (*bc < 2) {
-		*trunc = TRUE;
-		return offset;
-	}
+	CHECK_BYTE_COUNT_SUBR(2);
 	proto_tree_add_item(tree, hf_smb_print_spool_file_number, tvb, offset, 2, TRUE);
-	offset += 2;
-	*bc -= 2;
+	COUNT_BYTES_SUBR(2);
 
 	/* spool file size */
-	if (*bc < 4) {
-		*trunc = TRUE;
-		return offset;
-	}
+	CHECK_BYTE_COUNT_SUBR(4);
 	proto_tree_add_item(tree, hf_smb_print_spool_file_size, tvb, offset, 4, TRUE);
-	offset += 4;
-	*bc -= 4;
+	COUNT_BYTES_SUBR(4);
 
 	/* reserved byte */
-	if (*bc < 1) {
-		*trunc = TRUE;
-		return offset;
-	}
+	CHECK_BYTE_COUNT_SUBR(1);
 	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
-	offset += 1;
-	*bc -= 1;
+	COUNT_BYTES_SUBR(1);
 
 	/* file name */
 	fn_len = 16;
-	fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, TRUE, TRUE, bc);
-	if (fn == NULL) {
-		*trunc = TRUE;
-		return offset;
-	}
+	fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, TRUE, TRUE, bcp);
+	CHECK_STRING_SUBR(fn);
 	proto_tree_add_string(tree, hf_smb_print_spool_file_name, tvb, offset, 16,
 		fn);
-	offset += fn_len;
-	*bc -= fn_len;
+	COUNT_BYTES_SUBR(fn_len);
 
 	*trunc = FALSE;
 	return offset;
@@ -6991,7 +7516,3207 @@ dissect_nt_cancel_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	return offset;
 }
 
+/* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+   BEGIN Transaction/Transaction2 Primary and secondary requests
+   XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
 
+
+static const value_string trans2_cmd_vals[] = {
+	{ 0x00,		"OPEN2" },
+	{ 0x01,		"FIND_FIRST2" },
+	{ 0x02,		"FIND_NEXT2" },
+	{ 0x03,		"QUERY_FS_INFORMATION" },
+	{ 0x05,		"QUERY_PATH_INFORMATION" },
+	{ 0x06,		"SET_PATH_INFORMATION" },
+	{ 0x07,		"QUERY_FILE_INFORMATION" },
+	{ 0x08,		"SET_FILE_INFORMATION" },
+	{ 0x09,		"FSCTL" },
+	{ 0x0A,		"IOCTL2" },
+	{ 0x0B,		"FIND_NOTIFY_FIRST" },
+	{ 0x0C,		"FIND_NOTIFY_NEXT" },
+	{ 0x0D,		"CREATE_DIRECTORY" },
+	{ 0x0E,		"SESSION_SETUP" },
+	{ 0x10,		"GET_DFS_REFERRAL" },
+	{ 0x11,		"REPORT_DFS_INCONSISTENCY" },
+	{ 0,    NULL }
+};
+
+static const true_false_string tfs_tf_dtid = {
+	"Also DISCONNECT TID",
+	"Do NOT disconnect TID"
+};
+static const true_false_string tfs_tf_owt = {
+	"One Way Transaction (NO RESPONSE)",
+	"Two way transaction"
+};
+
+static const true_false_string tfs_ff2_backup = {
+	"Find WITH backup intent",
+	"No backup intent"
+};
+static const true_false_string tfs_ff2_continue = {
+	"CONTINUE search from previous position",
+	"New search, do NOT continue from previous position"
+};
+static const true_false_string tfs_ff2_resume = {
+	"Return RESUME keys",
+	"Do NOT return resume keys"
+};
+static const true_false_string tfs_ff2_close_eos = {
+	"CLOSE search if END OF SEARCH is reached",
+	"Do NOT close search if end of search reached"
+};
+static const true_false_string tfs_ff2_close = {
+	"CLOSE search after this request",
+	"Do NOT close search after this request"
+};
+
+/* used by
+   TRANS2_FIND_FIRST2
+*/
+static const value_string ff2_il_vals[] = {
+	{ 1,		"Info Standard  (4.3.4.1)"},
+	{ 2,		"Info Query EA Size  (4.3.4.2)"},
+	{ 3,		"Info Query EAs From List  (4.3.4.2)"},
+	{ 0x0101,	"Find File Directory Info  (4.3.4.4)"},
+	{ 0x0102,	"Find File Full Directory Info  (4.3.4.5)"},
+	{ 0x0103,	"Find File Names Info  (4.3.4.7)"},
+	{ 0x0104,	"Find File Both Directory Info  (4.3.4.6)"},
+	{ 0x0202,	"Find File UNIX  (4.3.4.8)"},
+	{0, NULL}
+};
+
+/* values used by :
+	TRANS2_QUERY_PATH_INFORMATION
+	TRANS2_SET_PATH_INFORMATION
+*/
+static const value_string qpi_loi_vals[] = {
+	{ 1,		"Info Standard  (4.2.14.1)"},
+	{ 2,		"Info Query EA Size  (4.2.14.1)"},
+	{ 3,		"Info Query EAs From List  (4.2.14.2)"},
+	{ 4,		"Info Query All EAs  (4.2.14.2)"},
+	{ 6,		"Info Is Name Valid  (4.2.14.3)"},
+	{ 0x0101,	"Query File Basic Info  (4.2.14.4)"},
+	{ 0x0102,	"Query File Standard Info  (4.2.14.5)"},
+	{ 0x0103,	"Query File EA Info  (4.2.14.6)"},
+	{ 0x0104,	"Query File Name Info  (4.2.14.7)"},
+	{ 0x0107,	"Query File All Info  (4.2.14.8)"},
+	{ 0x0108,	"Query File Alt File Info  (4.2.14.7)"},
+	{ 0x0109,	"Query File Stream Info  (4.2.14.10)"},
+	{ 0x010b,	"Query File Compression Info  (4.2.14.11)"},
+	{ 0x0200,	"Set File Unix Basic"},
+	{ 0x0201,	"Set File Unix Link"},
+	{ 0x0202,	"Set File Unix HardLink"},
+	{0, NULL}
+};
+
+static const value_string qfsi_vals[] = {
+	{ 1,		"Info Allocation"},
+	{ 2,		"Info Volume"},
+	{ 0x0102,	"Query FS Volume Info"},
+	{ 0x0103,	"Query FS Size Info"},
+	{ 0x0104,	"Query FS Device Info"},
+	{ 0x0105,	"Query FS Attribute Info"},
+	{0, NULL}
+};
+
+static const value_string delete_pending_vals[] = {
+	{0,	"Normal, no pending delete"},
+	{1,	"This object has DELETE PENDING"},
+	{0, NULL}
+};
+
+static const value_string alignment_vals[] = {
+	{0,	"Byte alignment"},
+	{1,	"Word (16bit) alignment"},
+	{3,	"Long (32bit) alignment"},
+	{7,	"8 byte boundary alignment"},
+	{0x0f,	"16 byte boundary alignment"},
+	{0x1f,	"32 byte boundary alignment"},
+	{0x3f,	"64 byte boundary alignment"},
+	{0x7f,	"128 byte boundary alignment"},
+	{0xff,	"256 byte boundary alignment"},
+	{0x1ff,	"512 byte boundary alignment"},
+	{0, NULL}
+};
+
+
+static const true_false_string tfs_get_dfs_server_hold_storage = {
+	"Referral SERVER HOLDS STORAGE for the file",
+	"Referral server does NOT hold storage for the file"
+};
+static const true_false_string tfs_get_dfs_fielding = {
+	"The server in referral is FIELDING CAPABLE",
+	"The server in referrals is NOT fielding capable"
+};
+
+static const true_false_string tfs_dfs_referral_flags_strip = {
+	"STRIP off pathconsumed characters before submitting",
+	"Do NOT strip off any characters"
+};
+
+static const value_string dfs_referral_server_type_vals[] = {
+	{0,	"Don't know"},
+	{1,	"SMB Server"},
+	{2,	"Netware Server"},
+	{3,	"Domain Server"},
+	{0, NULL}
+};
+
+
+static const true_false_string tfs_device_char_removable = {
+	"This is a REMOVABLE device",
+	"This is NOT a removable device"
+};
+static const true_false_string tfs_device_char_read_only = {
+	"This is a READ-ONLY device",
+	"This is NOT a read-only device"
+};
+static const true_false_string tfs_device_char_floppy = {
+	"This is a FLOPPY DISK device",
+	"This is NOT a floppy disk device"
+};
+static const true_false_string tfs_device_char_write_once = {
+	"This is a WRITE-ONCE device",
+	"This is NOT a write-once device"
+};
+static const true_false_string tfs_device_char_remote = {
+	"This is a REMOTE device",
+	"This is NOT a remote device"
+};
+static const true_false_string tfs_device_char_mounted = {
+	"This device is MOUNTED",
+	"This device is NOT mounted"
+};
+static const true_false_string tfs_device_char_virtual = {
+	"This is a VIRTUAL device",
+	"This is NOT a virtual device"
+};
+
+
+static const true_false_string tfs_fs_attr_css = {
+	"This FS supports CASE SENSITIVE SEARCHes",
+	"This FS does NOT support case sensitive searches"
+};
+static const true_false_string tfs_fs_attr_cpn = {
+	"This FS supports CASE PRESERVED NAMES",
+	"This FS does NOT support case preserved names"
+};
+static const true_false_string tfs_fs_attr_pacls = {
+	"This FS supports PERSISTENT ACLs",
+	"This FS does NOT support persistent acls"
+};
+static const true_false_string tfs_fs_attr_fc = {
+	"This FS supports COMPRESSED FILES",
+	"This FS does NOT support compressed files"
+};
+static const true_false_string tfs_fs_attr_vq = {
+	"This FS supports VOLUME QUOTAS",
+	"This FS does NOT support volume quotas"
+};
+static const true_false_string tfs_fs_attr_dim = {
+	"This FS is on a MOUNTED DEVICE",
+	"This FS is NOT on a mounted device"
+};
+static const true_false_string tfs_fs_attr_vic = {
+	"This FS is on a COMPRESSED VOLUME",
+	"This FS is NOT on a compressed volume"
+};
+
+
+
+static int
+dissect_ff2_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+{
+	guint16 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	mask = tvb_get_letohs(tvb, offset);
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
+			"Flags: 0x%04x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_find_first2_flags);
+	}
+
+	proto_tree_add_boolean(tree, hf_smb_ff2_backup,
+		tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree, hf_smb_ff2_continue,
+		tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree, hf_smb_ff2_resume,
+		tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree, hf_smb_ff2_close_eos,
+		tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree, hf_smb_ff2_close,
+		tvb, offset, 2, mask);
+
+	offset += 2;
+
+	return offset;
+}
+
+static int
+dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *parent_tree, int offset, guint16 bc)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	smb_info_t *si;
+	struct smb_request_val *request_val;
+	int fn_len;
+	const char *fn;
+	int old_offset = offset;
+
+	si = (smb_info_t *)pinfo->private_data;
+	request_val = si->request_val;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, bc,
+				"%s Parameters",
+				val_to_str(si->subcmd, trans2_cmd_vals, 
+					   "Unknown (0x%02x)"));
+		tree = proto_item_add_subtree(item, ett_smb_transaction_params);
+	}
+
+	switch(si->subcmd){
+	case 0x00:	/*TRANS2_OPEN2*/
+		/* open flags */
+		CHECK_BYTE_COUNT_TRANS(2);
+		offset = dissect_open_flags(tvb, pinfo, tree, offset, 0x000f);
+		bc -= 2;
+
+		/* desired access */
+		CHECK_BYTE_COUNT_TRANS(2);
+		offset = dissect_access(tvb, pinfo, tree, offset, "Desired");
+		bc -= 2;
+
+		/* 2 reserved bytes */
+		CHECK_BYTE_COUNT_TRANS(2);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+		COUNT_BYTES_TRANS(2);
+
+		/* File Attributes */
+		CHECK_BYTE_COUNT_TRANS(2);
+		offset = dissect_file_attributes(tvb, pinfo, tree, offset);
+		bc -= 2;
+
+		/* create time */
+		CHECK_BYTE_COUNT_TRANS(4);
+		offset = dissect_smb_datetime(tvb, pinfo, tree, offset,
+			hf_smb_create_time,
+			hf_smb_create_dos_date, hf_smb_create_dos_time,
+			TRUE);
+		bc -= 4;
+
+		/* open function */
+		CHECK_BYTE_COUNT_TRANS(2);
+		offset = dissect_open_function(tvb, pinfo, tree, offset);
+		bc -= 2;
+
+		/* allocation size */
+		CHECK_BYTE_COUNT_TRANS(4);
+		proto_tree_add_item(tree, hf_smb_alloc_size, tvb, offset, 4, TRUE);
+		COUNT_BYTES_TRANS(4);
+
+		/* 10 reserved bytes */
+		CHECK_BYTE_COUNT_TRANS(10);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 10, TRUE);
+		COUNT_BYTES_TRANS(10);
+
+		/* file name */
+		fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, FALSE, FALSE, &bc);
+		CHECK_STRING_TRANS(fn);
+		proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
+			fn);
+		COUNT_BYTES_TRANS(fn_len);
+
+		if (check_col(pinfo->fd, COL_INFO)) {
+			col_append_fstr(pinfo->fd, COL_INFO, ", Path: %s",
+			fn);
+		}
+
+		/* XXX dont know how to decode FEAList */
+		break;
+	case 0x01:	/*TRANS2_FIND_FIRST2*/
+		/* Search Attributes */
+		CHECK_BYTE_COUNT_TRANS(2);
+		offset = dissect_search_attributes(tvb, pinfo, tree, offset);
+		bc -= 2;
+
+		/* search count */
+		CHECK_BYTE_COUNT_TRANS(2);
+		proto_tree_add_item(tree, hf_smb_search_count, tvb, offset, 2, TRUE);
+		COUNT_BYTES_TRANS(2);
+
+		/* Find First2 flags */
+		CHECK_BYTE_COUNT_TRANS(2);
+		offset = dissect_ff2_flags(tvb, pinfo, tree, offset);
+		bc -= 2;
+
+		/* Find First2 information level */
+		CHECK_BYTE_COUNT_TRANS(2);
+		si->info_level = tvb_get_letohs(tvb, offset);
+		if (!pinfo->fd->flags.visited)
+			request_val->last_level = si->info_level;
+		proto_tree_add_uint(tree, hf_smb_ff2_information_level, tvb, offset, 2, si->info_level);
+		COUNT_BYTES_TRANS(2);
+
+		/* storage type */
+		CHECK_BYTE_COUNT_TRANS(4);
+		proto_tree_add_item(tree, hf_smb_storage_type, tvb, offset, 4, TRUE);
+		COUNT_BYTES_TRANS(4);
+
+		/* search pattern */
+		fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, FALSE, FALSE, &bc);
+		CHECK_STRING_TRANS(fn);
+		proto_tree_add_string(tree, hf_smb_search_pattern, tvb, offset, fn_len,
+			fn);
+		COUNT_BYTES_TRANS(fn_len);
+
+		if (check_col(pinfo->fd, COL_INFO)) {
+			col_append_fstr(pinfo->fd, COL_INFO, ", Pattern: %s",
+			fn);
+		}
+
+		/* XXX dont know how to decode FEAList */
+
+		break;
+	case 0x02:	/*TRANS2_FIND_NEXT2*/
+		/* sid */
+		CHECK_BYTE_COUNT_TRANS(2);
+		proto_tree_add_item(tree, hf_smb_sid, tvb, offset, 2, TRUE);
+		COUNT_BYTES_TRANS(2);
+
+		/* search count */
+		CHECK_BYTE_COUNT_TRANS(2);
+		proto_tree_add_item(tree, hf_smb_search_count, tvb, offset, 2, TRUE);
+		COUNT_BYTES_TRANS(2);
+
+		/* Find First2 information level */
+		CHECK_BYTE_COUNT_TRANS(2);
+		si->info_level = tvb_get_letohs(tvb, offset);
+		if (!pinfo->fd->flags.visited)
+			request_val->last_level = si->info_level;
+		proto_tree_add_uint(tree, hf_smb_ff2_information_level, tvb, offset, 2, si->info_level);
+		COUNT_BYTES_TRANS(2);
+
+		/* resume key */
+		CHECK_BYTE_COUNT_TRANS(4);
+		proto_tree_add_item(tree, hf_smb_resume, tvb, offset, 4, TRUE);
+		COUNT_BYTES_TRANS(4);
+
+		/* Find First2 flags */
+		CHECK_BYTE_COUNT_TRANS(2);
+		offset = dissect_ff2_flags(tvb, pinfo, tree, offset);
+		bc -= 2;
+
+		/* file name */
+		fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, FALSE, FALSE, &bc);
+		CHECK_STRING_TRANS(fn);
+		proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
+			fn);
+		COUNT_BYTES_TRANS(fn_len);
+
+		if (check_col(pinfo->fd, COL_INFO)) {
+			col_append_fstr(pinfo->fd, COL_INFO, ", Continue: %s",
+			fn);
+		}
+
+		break;
+	case 0x03:	/*TRANS2_QUERY_FS_INFORMATION*/
+		/* level of interest */
+		CHECK_BYTE_COUNT_TRANS(2);
+		si->info_level = tvb_get_letohs(tvb, offset);
+		if (!pinfo->fd->flags.visited)
+			request_val->last_level = si->info_level;
+		proto_tree_add_uint(tree, hf_smb_qfsi_information_level, tvb, offset, 2, si->info_level);
+		COUNT_BYTES_TRANS(2);
+
+		break;
+	case 0x05:	/*TRANS2_QUERY_PATH_INFORMATION*/
+		/* level of interest */
+		CHECK_BYTE_COUNT_TRANS(2);
+		si->info_level = tvb_get_letohs(tvb, offset);
+		if (!pinfo->fd->flags.visited)
+			request_val->last_level = si->info_level;
+		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, si->info_level);
+		COUNT_BYTES_TRANS(2);
+		
+		/* 4 reserved bytes */
+		CHECK_BYTE_COUNT_TRANS(4);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, TRUE);
+		COUNT_BYTES_TRANS(4);
+
+		/* file name */
+		fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, FALSE, FALSE, &bc);
+		CHECK_STRING_TRANS(fn);
+		proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
+			fn);
+		COUNT_BYTES_TRANS(fn_len);
+
+		if (check_col(pinfo->fd, COL_INFO)) {
+			col_append_fstr(pinfo->fd, COL_INFO, ", Path: %s",
+			fn);
+		}
+
+		break;
+	case 0x06:	/*TRANS2_SET_PATH_INFORMATION*/
+		/* level of interest */
+		CHECK_BYTE_COUNT_TRANS(2);
+		si->info_level = tvb_get_letohs(tvb, offset);
+		if (!pinfo->fd->flags.visited)
+			request_val->last_level = si->info_level;
+		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, si->info_level);
+		COUNT_BYTES_TRANS(2);
+		
+		/* 4 reserved bytes */
+		CHECK_BYTE_COUNT_TRANS(4);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, TRUE);
+		COUNT_BYTES_TRANS(4);
+
+		/* file name */
+		fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, FALSE, FALSE, &bc);
+		CHECK_STRING_TRANS(fn);
+		proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
+			fn);
+		COUNT_BYTES_TRANS(fn_len);
+
+		if (check_col(pinfo->fd, COL_INFO)) {
+			col_append_fstr(pinfo->fd, COL_INFO, ", Path: %s",
+			fn);
+		}
+
+		break;
+	case 0x07:	/*TRANS2_QUERY_FILE_INFORMATION*/
+		/* fid */
+		CHECK_BYTE_COUNT_TRANS(2);
+		proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+		COUNT_BYTES_TRANS(2);
+
+		/* level of interest */
+		CHECK_BYTE_COUNT_TRANS(2);
+		si->info_level = tvb_get_letohs(tvb, offset);
+		if (!pinfo->fd->flags.visited)
+			request_val->last_level = si->info_level;
+		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, si->info_level);
+		COUNT_BYTES_TRANS(2);
+		
+		break;
+	case 0x08:	/*TRANS2_SET_FILE_INFORMATION*/
+		/* fid */
+		CHECK_BYTE_COUNT_TRANS(2);
+		proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+		COUNT_BYTES_TRANS(2);
+
+		/* level of interest */
+		CHECK_BYTE_COUNT_TRANS(2);
+		si->info_level = tvb_get_letohs(tvb, offset);
+		if (!pinfo->fd->flags.visited)
+			request_val->last_level = si->info_level;
+		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, si->info_level);
+		COUNT_BYTES_TRANS(2);
+		
+		/* 2 reserved bytes */
+		CHECK_BYTE_COUNT_TRANS(2);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+		COUNT_BYTES_TRANS(2);
+
+		break;
+	case 0x09:	/*TRANS2_FSCTL*/
+	case 0x0a:	/*TRANS2_IOCTL2*/
+		/* these calls have no parameter block in the request */
+		break;
+	case 0x0b:	/*TRANS2_FIND_NOTIFY_FIRST*/
+	case 0x0c:	/*TRANS2_FIND_NOTIFY_NEXT*/
+		/* XXX unknown structure*/
+		break;
+	case 0x0d:	/*TRANS2_CREATE_DIRECTORY*/
+		/* 4 reserved bytes */
+		CHECK_BYTE_COUNT_TRANS(4);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, TRUE);
+		COUNT_BYTES_TRANS(4);
+
+		/* dir name */
+		fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len,
+			FALSE, FALSE, &bc);
+		CHECK_STRING_TRANS(fn);
+		proto_tree_add_string(tree, hf_smb_dir_name, tvb, offset, fn_len,
+			fn);
+		COUNT_BYTES_TRANS(fn_len);
+
+		if (check_col(pinfo->fd, COL_INFO)) {
+			col_append_fstr(pinfo->fd, COL_INFO, ", Dir: %s",
+			fn);
+		}
+
+		/* XXX optional FEAList, unknown what FEAList looks like*/
+		break;
+	case 0x0e:	/*TRANS2_SESSION_SETUP*/
+		/* XXX unknown structure*/
+		break;
+	case 0x10:	/*TRANS2_GET_DFS_REFERRAL*/
+		/* referral level */
+		CHECK_BYTE_COUNT_TRANS(2);
+		proto_tree_add_item(tree, hf_smb_max_referral_level, tvb, offset, 2, TRUE);
+		COUNT_BYTES_TRANS(2);
+		
+		/* file name */
+		fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, FALSE, FALSE, &bc);
+		CHECK_STRING_TRANS(fn);
+		proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
+			fn);
+		COUNT_BYTES_TRANS(fn_len);
+
+		if (check_col(pinfo->fd, COL_INFO)) {
+			col_append_fstr(pinfo->fd, COL_INFO, ", File: %s",
+			fn);
+		}
+
+		break;
+	case 0x11:	/*TRANS2_REPORT_DFS_INCONSISTENCY*/
+		/* file name */
+		fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, FALSE, FALSE, &bc);
+		CHECK_STRING_TRANS(fn);
+		proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
+			fn);
+		COUNT_BYTES_TRANS(fn_len);
+
+		if (check_col(pinfo->fd, COL_INFO)) {
+			col_append_fstr(pinfo->fd, COL_INFO, ", File: %s",
+			fn);
+		}
+
+		break;
+	}
+
+	/* ooops there were data we didnt know how to process */
+	if((offset-old_offset) < bc){
+		proto_tree_add_bytes(tree, hf_smb_unknown, tvb, offset, bc - (offset-old_offset), tvb_get_ptr(tvb, offset, 1));
+		offset += bc - (offset-old_offset);
+	}
+
+	return offset;
+}
+
+/*
+ * XXX - just use "dissect_connect_flags()" here?
+ */
+static guint16
+dissect_transaction_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+{
+	guint16 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	mask = tvb_get_letohs(tvb, offset);
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
+			"Flags: 0x%04x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_transaction_flags);
+	}
+
+	proto_tree_add_boolean(tree, hf_smb_transaction_flags_owt,
+		tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree, hf_smb_transaction_flags_dtid,
+		tvb, offset, 2, mask);
+
+	return mask;
+}
+ 
+
+static int
+dissect_get_dfs_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+{
+	guint16 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	mask = tvb_get_letohs(tvb, offset);
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
+			"Flags: 0x%04x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_get_dfs_flags);
+	}
+
+	proto_tree_add_boolean(tree, hf_smb_get_dfs_server_hold_storage,
+		tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree, hf_smb_get_dfs_fielding,
+		tvb, offset, 2, mask);
+
+	offset += 2;
+	return offset;
+}
+
+static int
+dissect_dfs_referral_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+{
+	guint16 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	mask = tvb_get_letohs(tvb, offset);
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
+			"Flags: 0x%04x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_dfs_referral_flags);
+	}
+
+	proto_tree_add_boolean(tree, hf_smb_dfs_referral_flags_strip,
+		tvb, offset, 2, mask);
+
+	offset += 2;
+
+	return offset;
+}
+
+
+/* dfs inconsistency data  (4.4.2)
+*/
+static int
+dissect_dfs_inconsistency_data(tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *tree, int offset, guint16 *bcp)
+{
+	int fn_len;
+	const char *fn;
+
+	/*XXX shouldn this data hold version and size? unclear from doc*/
+	/* referral version */
+	CHECK_BYTE_COUNT_TRANS_SUBR(2);
+	proto_tree_add_item(tree, hf_smb_dfs_referral_version, tvb, offset, 2, TRUE);
+	COUNT_BYTES_TRANS_SUBR(2);
+
+	/* referral size */
+	CHECK_BYTE_COUNT_TRANS_SUBR(2);
+	proto_tree_add_item(tree, hf_smb_dfs_referral_size, tvb, offset, 2, TRUE);
+	COUNT_BYTES_TRANS_SUBR(2);
+
+	/* referral server type */
+	CHECK_BYTE_COUNT_TRANS_SUBR(2);
+	proto_tree_add_item(tree, hf_smb_dfs_referral_server_type, tvb, offset, 2, TRUE);
+	COUNT_BYTES_TRANS_SUBR(2);
+
+	/* referral flags */
+	CHECK_BYTE_COUNT_TRANS_SUBR(2);
+	offset = dissect_dfs_referral_flags(tvb, pinfo, tree, offset);
+	*bcp -= 2;
+
+	/* node name */
+	fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, FALSE, FALSE, bcp);
+	CHECK_STRING_TRANS_SUBR(fn);
+	proto_tree_add_string(tree, hf_smb_dfs_referral_node, tvb, offset, fn_len,
+		fn);
+	COUNT_BYTES_TRANS_SUBR(fn_len);
+
+	return offset;
+}
+
+/* get dfs referral data  (4.4.1)
+*/
+static int
+dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *tree, int offset, guint16 *bcp)
+{
+	guint16 numref;
+	guint16 refsize;
+	guint16 pathoffset;
+	guint16 altpathoffset;
+	guint16 nodeoffset;
+	int fn_len;
+	int stroffset;
+	int offsetoffset;
+	guint16 save_bc;
+	const char *fn;
+	int unklen;
+	int ucstring_end;
+	int ucstring_len;
+
+	/* path consumed */
+	CHECK_BYTE_COUNT_TRANS_SUBR(2);
+	proto_tree_add_item(tree, hf_smb_dfs_path_consumed, tvb, offset, 2, TRUE);
+	COUNT_BYTES_TRANS_SUBR(2);
+
+	/* num referrals */
+	CHECK_BYTE_COUNT_TRANS_SUBR(2);
+	numref = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_dfs_num_referrals, tvb, offset, 2, numref);
+	COUNT_BYTES_TRANS_SUBR(2);
+
+	/* get dfs flags */
+	CHECK_BYTE_COUNT_TRANS_SUBR(2);
+	offset = dissect_get_dfs_flags(tvb, pinfo, tree, offset);
+	*bcp -= 2;
+
+	/* XXX - in at least one capture there appears to be 2 bytes
+	   of stuff after the Dfs flags, perhaps so that the header
+	   in front of the referral list is a multiple of 4 bytes long. */
+	CHECK_BYTE_COUNT_TRANS_SUBR(2);
+	proto_tree_add_item(tree, hf_smb_padding, tvb, offset, 2, TRUE);
+	COUNT_BYTES_TRANS_SUBR(2);
+
+	/* if there are any referrals */
+	if(numref){
+		proto_item *ref_item = NULL;
+		proto_tree *ref_tree = NULL;
+		int old_offset=offset;
+
+		if(tree){
+			ref_item = proto_tree_add_text(tree,
+				tvb, offset, *bcp, "Referrals");
+			ref_tree = proto_item_add_subtree(ref_item,
+				ett_smb_dfs_referrals);
+		}
+		ucstring_end = -1;
+
+		while(numref--){
+			proto_item *ri = NULL;
+			proto_tree *rt = NULL;
+			int old_offset=offset;
+			guint16 version;
+
+			if(tree){
+				ri = proto_tree_add_text(ref_tree,
+					tvb, offset, *bcp, "Referral");
+				rt = proto_item_add_subtree(ri,
+					ett_smb_dfs_referral);
+			}
+		
+			/* referral version */
+			CHECK_BYTE_COUNT_TRANS_SUBR(2);
+			version = tvb_get_letohs(tvb, offset);
+			proto_tree_add_uint(rt, hf_smb_dfs_referral_version,
+				tvb, offset, 2, version);
+			COUNT_BYTES_TRANS_SUBR(2);
+
+			/* referral size */
+			CHECK_BYTE_COUNT_TRANS_SUBR(2);
+			refsize = tvb_get_letohs(tvb, offset);
+			proto_tree_add_uint(rt, hf_smb_dfs_referral_size, tvb, offset, 2, refsize);
+			COUNT_BYTES_TRANS_SUBR(2);
+
+			/* referral server type */
+			CHECK_BYTE_COUNT_TRANS_SUBR(2);
+			proto_tree_add_item(rt, hf_smb_dfs_referral_server_type, tvb, offset, 2, TRUE);
+			COUNT_BYTES_TRANS_SUBR(2);
+
+			/* referral flags */
+			CHECK_BYTE_COUNT_TRANS_SUBR(2);
+			offset = dissect_dfs_referral_flags(tvb, pinfo, rt, offset);
+			*bcp -= 2;
+
+			switch(version){
+
+			case 1:
+				/* node name */
+				fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, FALSE, FALSE, bcp);
+				CHECK_STRING_TRANS_SUBR(fn);
+				proto_tree_add_string(rt, hf_smb_dfs_referral_node, tvb, offset, fn_len,
+					fn);
+				COUNT_BYTES_TRANS_SUBR(fn_len);
+				break;
+
+			case 2:
+			case 3:	/* XXX - like version 2, but not identical;
+				   seen in a capture, but the format isn't
+				   documented */
+				/* proximity */
+				CHECK_BYTE_COUNT_TRANS_SUBR(2);
+				proto_tree_add_item(rt, hf_smb_dfs_referral_proximity, tvb, offset, 2, TRUE);
+				COUNT_BYTES_TRANS_SUBR(2);
+
+				/* ttl */
+				CHECK_BYTE_COUNT_TRANS_SUBR(2);
+				proto_tree_add_item(rt, hf_smb_dfs_referral_ttl, tvb, offset, 2, TRUE);
+				COUNT_BYTES_TRANS_SUBR(2);
+
+				/* path offset */
+				CHECK_BYTE_COUNT_TRANS_SUBR(2);
+				pathoffset = tvb_get_letohs(tvb, offset);
+				proto_tree_add_uint(rt, hf_smb_dfs_referral_path_offset, tvb, offset, 2, pathoffset);
+				COUNT_BYTES_TRANS_SUBR(2);
+
+				/* alt path offset */
+				CHECK_BYTE_COUNT_TRANS_SUBR(2);
+				altpathoffset = tvb_get_letohs(tvb, offset);
+				proto_tree_add_uint(rt, hf_smb_dfs_referral_alt_path_offset, tvb, offset, 2, altpathoffset);
+				COUNT_BYTES_TRANS_SUBR(2);
+
+				/* node offset */
+				CHECK_BYTE_COUNT_TRANS_SUBR(2);
+				nodeoffset = tvb_get_letohs(tvb, offset);
+				proto_tree_add_uint(rt, hf_smb_dfs_referral_node_offset, tvb, offset, 2, nodeoffset);
+				COUNT_BYTES_TRANS_SUBR(2);
+
+				/* path */
+				if (pathoffset != 0) {
+					stroffset = old_offset + pathoffset;
+					offsetoffset = stroffset - offset;
+					if (offsetoffset > 0 &&
+					    *bcp > offsetoffset) {
+						save_bc = *bcp;
+						*bcp -= offsetoffset;
+						fn = get_unicode_or_ascii_string_tvb(tvb, &stroffset, pinfo, &fn_len, FALSE, FALSE, bcp);
+						CHECK_STRING_TRANS_SUBR(fn);
+						proto_tree_add_string(rt, hf_smb_dfs_referral_path, tvb, stroffset, fn_len,
+							fn);
+						stroffset += fn_len;
+						if (ucstring_end < stroffset)
+							ucstring_end = stroffset;
+						*bcp = save_bc;
+					}
+				}
+			
+				/* alt path */
+				if (altpathoffset != 0) {
+					stroffset = old_offset + altpathoffset;
+					offsetoffset = stroffset - offset;
+					if (offsetoffset > 0 &&
+					    *bcp > offsetoffset) {
+						save_bc = *bcp;
+						*bcp -= offsetoffset;
+						fn = get_unicode_or_ascii_string_tvb(tvb, &stroffset, pinfo, &fn_len, FALSE, FALSE, bcp);
+						CHECK_STRING_TRANS_SUBR(fn);
+						proto_tree_add_string(rt, hf_smb_dfs_referral_alt_path, tvb, stroffset, fn_len,
+							fn);
+						stroffset += fn_len;
+						if (ucstring_end < stroffset)
+							ucstring_end = stroffset;
+						*bcp = save_bc;
+					}
+				}
+			
+				/* node */
+				if (nodeoffset != 0) {
+					stroffset = old_offset + nodeoffset;
+					offsetoffset = stroffset - offset;
+					if (offsetoffset > 0 &&
+					    *bcp > offsetoffset) {
+						save_bc = *bcp;
+						*bcp -= offsetoffset;
+						fn = get_unicode_or_ascii_string_tvb(tvb, &stroffset, pinfo, &fn_len, FALSE, FALSE, bcp);
+						CHECK_STRING_TRANS_SUBR(fn);
+						proto_tree_add_string(rt, hf_smb_dfs_referral_node, tvb, stroffset, fn_len,
+							fn);
+						stroffset += fn_len;
+						if (ucstring_end < stroffset)
+							ucstring_end = stroffset;
+						*bcp = save_bc;
+					}
+				}
+				break;
+			}
+
+			/*
+			 * Show anything beyond the length of the referral
+			 * as unknown data.
+			 */
+			unklen = (old_offset + refsize) - offset;
+			if (unklen < 0) {
+				/*
+				 * XXX - the length is bogus.
+				 */
+				unklen = 0;
+			}
+			if (unklen != 0) {
+				CHECK_BYTE_COUNT_TRANS_SUBR(unklen);
+				proto_tree_add_item(rt, hf_smb_unknown, tvb,
+				    offset, unklen, TRUE);
+				COUNT_BYTES_TRANS_SUBR(unklen);
+			}
+
+			proto_item_set_len(ri, offset-old_offset);
+		}
+
+		/*
+		 * Treat the offset past the end of the last Unicode
+		 * string after the referrals (if any) as the last
+		 * offset.
+		 */
+		if (ucstring_end > offset) {
+			ucstring_len = ucstring_end - offset;
+			if (*bcp < ucstring_len)
+				ucstring_len = *bcp;
+			offset += ucstring_len;
+			*bcp -= ucstring_len;
+		}
+		proto_item_set_len(ref_item, offset-old_offset);
+	}
+
+	return offset;
+}
+
+
+/* this dissects the SMB_INFO_STANDARD and SMB_INFO_QUERY_EA_SIZE
+   as described in 4.2.14.1
+*/
+static int
+dissect_4_2_14_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+	/* create time */
+	CHECK_BYTE_COUNT_SUBR(4);
+	offset = dissect_smb_datetime(tvb, pinfo, tree, offset,
+		hf_smb_create_time, hf_smb_create_dos_date, hf_smb_create_dos_time,
+		FALSE);
+	*bcp -= 4;
+
+	/* access time */
+	CHECK_BYTE_COUNT_SUBR(4);
+	offset = dissect_smb_datetime(tvb, pinfo, tree, offset,
+		hf_smb_access_time, hf_smb_access_dos_date, hf_smb_access_dos_time,
+		FALSE);
+	*bcp -= 4;
+
+	/* last write time */
+	CHECK_BYTE_COUNT_SUBR(4);
+	offset = dissect_smb_datetime(tvb, pinfo, tree, offset,
+		hf_smb_last_write_time, hf_smb_last_write_dos_date, hf_smb_last_write_dos_time,
+		FALSE);
+	*bcp -= 4;
+
+	/* data size */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_data_size, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	/* allocation size */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_alloc_size, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	/* File Attributes */
+	CHECK_BYTE_COUNT_SUBR(2);
+	offset = dissect_file_attributes(tvb, pinfo, tree, offset);
+	*bcp -= 2;
+
+	/* ea size */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_ea_size, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	*trunc = FALSE;
+	return offset;
+}
+
+/* this dissects the SMB_INFO_QUERY_EAS_FROM_LIST and SMB_INFO_QUERY_ALL_EAS
+   as described in 4.2.14.2
+*/
+static int
+dissect_4_2_14_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+	/* list length */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_list_length, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	*trunc = FALSE;
+	return offset;
+}
+
+/* this dissects the SMB_INFO_IS_NAME_VALID
+   as described in 4.2.14.3
+*/
+static int
+dissect_4_2_14_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+	int fn_len;
+	const char *fn;
+
+	/* file name */
+	fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, FALSE, FALSE, bcp);
+	CHECK_STRING_SUBR(fn);
+	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
+		fn);
+	COUNT_BYTES_SUBR(fn_len);
+
+	*trunc = FALSE;
+	return offset;
+}
+
+/* this dissects the SMB_QUERY_FILE_BASIC_INFO
+   as described in 4.2.14.4
+*/
+static int
+dissect_4_2_14_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+	/* create time */
+	CHECK_BYTE_COUNT_SUBR(8);
+	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+		"Create", hf_smb_create_time);
+	*bcp -= 8;
+	
+	/* access time */
+	CHECK_BYTE_COUNT_SUBR(8);
+	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+		"Access Time", hf_smb_access_time);
+	*bcp -= 8;
+	
+	/* last write time */
+	CHECK_BYTE_COUNT_SUBR(8);
+	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+		"Write Time", hf_smb_last_write_time);
+	*bcp -= 8;
+	
+	/* last change time */
+	CHECK_BYTE_COUNT_SUBR(8);
+	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+		"Change Time", hf_smb_change_time);
+	*bcp -= 8;
+	
+	/* File Attributes */
+	CHECK_BYTE_COUNT_SUBR(2);
+	offset = dissect_file_attributes(tvb, pinfo, tree, offset);
+	*bcp -= 2;
+
+	*trunc = FALSE;
+	return offset;
+}
+
+/* this dissects the SMB_QUERY_FILE_STANDARD_INFO
+   as described in 4.2.14.5
+*/
+static int
+dissect_4_2_14_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+	/* allocation size */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* end of file */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* number of links */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_number_of_links, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	/* delete pending */
+	CHECK_BYTE_COUNT_SUBR(2);
+	proto_tree_add_item(tree, hf_smb_delete_pending, tvb, offset, 2, TRUE);
+	COUNT_BYTES_SUBR(2);
+
+	/* is directory */
+	CHECK_BYTE_COUNT_SUBR(1);
+	proto_tree_add_item(tree, hf_smb_is_directory, tvb, offset, 1, TRUE);
+	COUNT_BYTES_SUBR(1);
+
+	*trunc = FALSE;
+	return offset;
+}
+
+/* this dissects the SMB_QUERY_FILE_EA_INFO
+   as described in 4.2.14.6
+*/
+static int
+dissect_4_2_14_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+	/* ea size */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_ea_size, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	*trunc = FALSE;
+	return offset;
+}
+
+/* this dissects the SMB_QUERY_FILE_NAME_INFO
+   as described in 4.2.14.7
+   this is the same as SMB_QUERY_FILE_ALT_NAME_INFO
+   as described in 4.2.14.9
+*/
+static int
+dissect_4_2_14_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+	int fn_len;
+	const char *fn;
+
+	/* file name len */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_file_name_len, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	/* file name */
+	fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, FALSE, FALSE, bcp);
+	CHECK_STRING_SUBR(fn);
+	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
+		fn);
+	COUNT_BYTES_SUBR(fn_len);
+
+	*trunc = FALSE;
+	return offset;
+}
+
+/* this dissects the SMB_QUERY_FILE_ALL_INFO
+   as described in 4.2.14.8
+*/
+static int
+dissect_4_2_14_8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+
+	offset = dissect_4_2_14_4(tvb, pinfo, tree, offset, bcp, trunc);
+	if (trunc)
+		return offset;
+	offset = dissect_4_2_14_5(tvb, pinfo, tree, offset, bcp, trunc);
+	if (trunc)
+		return offset;
+
+	/* index number */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_index_number, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	offset = dissect_4_2_14_6(tvb, pinfo, tree, offset, bcp, trunc);
+	if (trunc)
+		return offset;
+
+	/* access flags */
+	CHECK_BYTE_COUNT_SUBR(4);
+	offset = dissect_nt_access_mask(tvb, pinfo, tree, offset);
+	COUNT_BYTES_SUBR(4);
+
+	/* index number */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_index_number, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* current offset */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_current_offset, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* mode */
+	CHECK_BYTE_COUNT_SUBR(4);
+	offset = dissect_nt_create_options(tvb, pinfo, tree, offset);
+	*bcp -= 4;
+
+	/* alignment */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_t2_alignment, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+	
+	offset = dissect_4_2_14_6(tvb, pinfo, tree, offset, bcp, trunc);
+
+	return offset;
+}
+
+/* this dissects the SMB_QUERY_FILE_STREAM_INFO
+   as described in 4.2.14.10
+*/
+static int
+dissect_4_2_14_10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+	int fn_len;
+	const char *fn;
+
+	/* next entry offset */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_next_entry_offset, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+	
+	/* stream name len */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_t2_stream_name_length, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+	
+	/* stream size */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_t2_stream_name_length, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* allocation size */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* file name */
+	fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, FALSE, FALSE, bcp);
+	CHECK_STRING_SUBR(fn);
+	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
+		fn);
+	COUNT_BYTES_SUBR(fn_len);
+
+	*trunc = FALSE;
+	return offset;
+}
+
+/* this dissects the SMB_QUERY_FILE_COMPRESSION_INFO
+   as described in 4.2.14.11
+*/
+static int
+dissect_4_2_14_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+	/* compressed file size */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_t2_compressed_file_size, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* compression format */
+	CHECK_BYTE_COUNT_SUBR(2);
+	proto_tree_add_item(tree, hf_smb_t2_compressed_format, tvb, offset, 2, TRUE);
+	COUNT_BYTES_SUBR(2);
+	
+	/* compression unit shift */
+	CHECK_BYTE_COUNT_SUBR(1);
+	proto_tree_add_item(tree, hf_smb_t2_compressed_unit_shift,tvb, offset, 1, TRUE);
+	COUNT_BYTES_SUBR(1);
+	
+	/* compression chunk shift */
+	CHECK_BYTE_COUNT_SUBR(1);
+	proto_tree_add_item(tree, hf_smb_t2_compressed_chunk_shift, tvb, offset, 1, TRUE);
+	COUNT_BYTES_SUBR(1);
+	
+	/* compression cluster shift */
+	CHECK_BYTE_COUNT_SUBR(1);
+	proto_tree_add_item(tree, hf_smb_t2_compressed_cluster_shift, tvb, offset, 1, TRUE);
+	COUNT_BYTES_SUBR(1);
+	
+	/* 3 reserved bytes */
+	CHECK_BYTE_COUNT_SUBR(3);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 3, TRUE);
+	COUNT_BYTES_SUBR(3);
+
+	*trunc = FALSE;
+	return offset;
+}
+
+
+
+/*dissect the data block for TRANS2_QUERY_PATH_INFORMATION*/
+static int
+dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
+    int offset, guint16 *bcp)
+{
+	smb_info_t *si;
+	gboolean trunc;
+
+	if(!*bcp){
+		return offset;
+	}
+	
+	si = (smb_info_t *)pinfo->private_data;
+	switch(si->info_level){
+	case 1:		/*Info Standard*/
+	case 2:		/*Info Query EA Size*/
+		offset = dissect_4_2_14_1(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
+	case 3:		/*Info Query EAs From List*/
+	case 4:		/*Info Query All EAs*/
+		offset = dissect_4_2_14_2(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
+	case 6:		/*Info Is Name Valid*/
+		offset = dissect_4_2_14_3(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
+	case 0x0101:	/*Query File Basic Info*/
+		offset = dissect_4_2_14_4(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
+	case 0x0102:	/*Query File Standard Info*/
+		offset = dissect_4_2_14_5(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
+	case 0x0103:	/*Query File EA Info*/
+		offset = dissect_4_2_14_6(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
+	case 0x0104:	/*Query File Name Info*/
+		offset = dissect_4_2_14_7(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
+	case 0x0107:	/*Query File All Info*/
+		offset = dissect_4_2_14_8(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
+	case 0x0108:	/*Query File Alt File Info*/
+		offset = dissect_4_2_14_7(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
+	case 0x0109:	/*Query File Stream Info*/
+		offset = dissect_4_2_14_10(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
+	case 0x010b:	/*Query File Compression Info*/
+		offset = dissect_4_2_14_11(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
+	case 0x0200:	/*Set File Unix Basic*/
+		/* XXX add this from the SNIA doc */
+		break;
+	case 0x0201:	/*Set File Unix Link*/
+		/* XXX add this from the SNIA doc */
+		break;
+	case 0x0202:	/*Set File Unix HardLink*/
+		/* XXX add this from the SNIA doc */
+		break;
+	}
+	
+	return offset;
+}
+
+
+static int
+dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *parent_tree, int offset, guint16 dc)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	smb_info_t *si;
+	int fn_len;
+	const char *fn;
+	int old_offset = offset;
+
+	si = (smb_info_t *)pinfo->private_data;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, dc,
+				"%s Data",
+				val_to_str(si->subcmd, trans2_cmd_vals, 
+						"Unknown (0x%02x)"));
+		tree = proto_item_add_subtree(item, ett_smb_transaction_data);
+	}
+
+	switch(si->subcmd){
+	case 0x00:	/*TRANS2_OPEN2*/
+		/* XXX FAEList here?*/
+		break;
+	case 0x01:	/*TRANS2_FIND_FIRST2*/
+		/* XXX FAEList here?*/
+		break;
+	case 0x02:	/*TRANS2_FIND_NEXT2*/
+		/* no data field in this request */
+		break;
+	case 0x03:	/*TRANS2_QUERY_FS_INFORMATION*/
+		/* no data field in this request */
+		break;
+	case 0x05:	/*TRANS2_QUERY_PATH_INFORMATION*/
+		/* no data field in this request */
+		break;
+	case 0x06:	/*TRANS2_SET_PATH_INFORMATION*/
+		offset = dissect_qpi_loi_vals(tvb, pinfo, tree, offset, &dc);
+		break;
+	case 0x07:	/*TRANS2_QUERY_FILE_INFORMATION*/
+		/* no data field in this request */
+		break;
+	case 0x08:	/*TRANS2_SET_FILE_INFORMATION*/
+		offset = dissect_qpi_loi_vals(tvb, pinfo, tree, offset, &dc);
+		break;
+	case 0x09:	/*TRANS2_FSCTL*/
+		/*XXX dont know how to decode this yet */
+		break;
+	case 0x0a:	/*TRANS2_IOCTL2*/
+		/*XXX dont know how to decode this yet */
+		break;
+	case 0x0b:	/*TRANS2_FIND_NOTIFY_FIRST*/
+		/*XXX dont know how to decode this yet */
+		break;
+	case 0x0c:	/*TRANS2_FIND_NOTIFY_NEXT*/
+		/*XXX dont know how to decode this yet */
+		break;
+	case 0x0d:	/*TRANS2_CREATE_DIRECTORY*/
+		/* no data block for this one */
+		break;
+	case 0x0e:	/*TRANS2_SESSION_SETUP*/
+		/*XXX dont know how to decode this yet */
+		break;
+	case 0x10:	/*TRANS2_GET_DFS_REFERRAL*/
+		/* no data field in this request */
+		break;
+	case 0x11:	/*TRANS2_REPORT_DFS_INCONSISTENCY*/
+		offset = dissect_dfs_inconsistency_data(tvb, pinfo, tree, offset, &dc);
+		break;
+	}
+
+	/* ooops there were data we didnt know how to process */
+	if(dc != 0){
+		proto_tree_add_item(tree, hf_smb_unknown, tvb, offset, dc, TRUE);
+		offset += dc;
+	}
+
+	return offset;
+}
+
+
+static int
+dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
+{
+	conversation_t *conversation;
+	struct smb_request_val *request_val;
+	guint8 wc, sc=0;
+	int so=0;
+	guint16 od=0, tf, po=0, pc=0, dc=0, pd, dd=0;
+	guint32 to;
+	int an_len;
+	const char *an = NULL;
+	smb_info_t *si;
+	guint16 bc;
+	int padcnt;
+
+	si = (smb_info_t *)pinfo->private_data;
+
+	/*
+	 * Find out what conversation this packet is part of.
+	 */
+	conversation = find_conversation(&pinfo->src, &pinfo->dst,
+	    pinfo->ptype,  pinfo->srcport, pinfo->destport, 0);
+
+	if (conversation == NULL) {
+		/*
+		 * There isn't one yet; create it.
+		 */
+		conversation = conversation_new(&pinfo->src, &pinfo->dst,
+		    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	}
+
+	si->conversation = conversation;  /* Save this */
+
+	request_val = do_transaction_hashing(conversation, *si, pinfo->fd);
+
+	si->request_val = request_val;  /* Save this for later */
+
+	WORD_COUNT;
+
+	if(wc==8){
+	/*secondary client request*/
+		/* total param count, only a 16bit integer here*/
+		proto_tree_add_uint(tree, hf_smb_total_param_count, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		offset += 2;
+	
+		/* total data count , only 16bit integer here*/
+		proto_tree_add_uint(tree, hf_smb_total_data_count, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		offset += 2;
+
+		/* param count */
+		pc = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_param_count16, tvb, offset, 2, pc);
+		offset += 2;
+
+		/* param offset */
+		po = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_param_offset16, tvb, offset, 2, po);
+		offset += 2;
+
+		/* param disp */
+		pd = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_param_disp16, tvb, offset, 2, pd);
+		offset += 2;
+	
+		/* data count */
+		dc = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_data_count16, tvb, offset, 2, dc);
+		offset += 2;
+
+		/* data offset */
+		od = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_data_offset16, tvb, offset, 2, od);
+		offset += 2;
+	
+		/* data disp */
+		dd = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_data_disp16, tvb, offset, 2, dd);
+		offset += 2;
+
+		if(si->cmd==0x32){
+			/* fid */
+			proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+			offset += 2;
+		}
+	} else {
+	/* it is not a secondary request */
+		/* total param count , only a 16 bit integer here*/
+		proto_tree_add_uint(tree, hf_smb_total_param_count, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		offset += 2;
+
+		/* total data count , only 16bit integer here*/
+		proto_tree_add_uint(tree, hf_smb_total_data_count, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		offset += 2;
+
+		/* max param count , only 16bit integer here*/
+		proto_tree_add_uint(tree, hf_smb_max_param_count, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		offset += 2;
+
+		/* max data count , only 16bit integer here*/
+		proto_tree_add_uint(tree, hf_smb_max_data_count, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		offset += 2;
+
+		/* max setup count , only 16bit integer here*/
+		proto_tree_add_uint(tree, hf_smb_max_setup_count, tvb, offset, 1, tvb_get_guint8(tvb, offset));
+		offset += 1;
+
+		/* reserved byte */
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+		offset += 1;
+
+		/* transaction flags */
+		tf = dissect_transaction_flags(tvb, pinfo, tree, offset);
+		offset += 2;
+
+		/* timeout */
+		to = tvb_get_letohl(tvb, offset);
+		proto_tree_add_uint_format(tree, hf_smb_timeout, tvb, offset, 4, to, "Timeout: %s", time_msecs_to_str(to));
+		offset += 4;
+
+		/* 2 reserved bytes */
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+		offset += 2;
+
+		/* param count */
+		pc = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_param_count16, tvb, offset, 2, pc);
+		offset += 2;
+	
+		/* param offset */
+		po = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_param_offset16, tvb, offset, 2, po);
+		offset += 2;
+
+		/* data count */
+		dc = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_data_count16, tvb, offset, 2, dc);
+		offset += 2;
+
+		/* data offset */
+		od = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_data_offset16, tvb, offset, 2, od);
+		offset += 2;
+
+		/* data displacement is zero here */
+		dd = 0;
+
+		/* setup count */
+		sc = tvb_get_guint8(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_setup_count, tvb, offset, 1, sc);
+		offset += 1;
+
+		/* reserved byte */
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+		offset += 1;
+		
+		/* this is where the setup bytes start */	
+		so = offset;
+
+		/* if there were any setup bytes, decode them */
+		if(sc){
+			switch(si->cmd){
+
+			case 0x32:
+				/* TRANSACTION2 only has one setup word and
+				   that is the subcommand code. */
+				si->subcmd = tvb_get_letohs(tvb, offset);
+				proto_tree_add_uint(tree, hf_smb_trans2_subcmd,
+				    tvb, offset, 2, si->subcmd);
+
+				if (check_col(pinfo->fd, COL_INFO)) {
+					col_append_fstr(pinfo->fd, COL_INFO, " %s",
+ 					    val_to_str(si->subcmd, trans2_cmd_vals, 
+						"Unknown (0x%02x)"));
+				}
+				if (!pinfo->fd->flags.visited)
+					request_val->last_transact2_command = si->subcmd;
+				break;
+
+			case 0x25:
+				/*XXX decode the TRANSACTION setup words */
+			}
+
+			offset += sc*2;
+		}
+
+	}
+
+	BYTE_COUNT;
+	
+	if(wc!=8){
+		/* name is NULL if transaction2 */
+		if(si->cmd!=0x32){
+			/* Transaction Name */	
+			an = get_unicode_or_ascii_string_tvb(tvb, &offset,
+				pinfo, &an_len, FALSE, FALSE, &bc);
+			if (an == NULL)
+				goto endofcommand;
+			proto_tree_add_string(tree, hf_smb_trans_name, tvb,
+				offset, an_len, an);
+			COUNT_BYTES(an_len);
+		}
+	}
+
+	/* parameters */
+	if(po>offset){
+		/* We have some initial padding bytes.
+		*/
+		padcnt = po-offset;
+		if (padcnt > bc)
+			padcnt = bc;
+		proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, TRUE);
+		COUNT_BYTES(padcnt);
+	}
+	if(pc){
+		CHECK_BYTE_COUNT(pc);
+		switch(si->cmd) {
+
+		case 0x32:
+			/* TRANSACTION2 parameters*/
+			offset = dissect_transaction2_request_parameters(tvb,
+			    pinfo, tree, offset, pc);
+			bc -= pc;
+			break;
+
+		case 0x25:
+			/*XXXX process TRANSACTION parameters*/
+			offset += pc;
+			bc -= pc;
+			break;
+		}
+	}
+
+	/* data */
+	if(od>offset){
+		/* We have some initial padding bytes.
+		*/
+		padcnt = od-offset;
+		if (padcnt > bc)
+			padcnt = bc;
+		proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, TRUE);
+		COUNT_BYTES(padcnt);
+	}
+	if(dc){
+		CHECK_BYTE_COUNT(dc);
+		switch(si->cmd){
+
+		case 0x32:
+			/* TRANSACTION2 data*/
+			offset = dissect_transaction2_request_data(tvb, pinfo,
+			    tree, offset, dc);
+			bc -= dc;
+			break;
+
+		case 0x25:
+			/*XXXX process TRANSACTIOIN data*/
+			offset += dc;
+			bc -= pc;
+			break;
+		}
+	}
+
+#ifdef NOT_YET_TVBUFFIFIED
+	/*XXX*/
+	/*TRANSACTION request parameters */
+	if(si->cmd==0x25){
+		/*XXX replace this block with a function and use that one 
+		     for both requests/responses*/
+		if(dd==0){
+			tvbuff_t *p_tvb, *d_tvb, *s_tvb;
+
+			if(pc>0){
+				if(pc>tvb_length_remaining(tvb, po)){
+    					p_tvb = tvb_new_subset(tvb, po, tvb_length_remaining(tvb, po), pc);
+				} else {
+    					p_tvb = tvb_new_subset(tvb, po, pc, pc);
+				}
+			} else {
+				p_tvb = NULL;
+			}
+			if(dc>0){
+				if(dc>tvb_length_remaining(tvb, od)){
+    					d_tvb = tvb_new_subset(tvb, od, tvb_length_remaining(tvb, od), dc);
+				} else {
+    					d_tvb = tvb_new_subset(tvb, od, dc, dc);
+				}
+			} else {
+				d_tvb = NULL;
+			}
+			if(sc){
+    				s_tvb = tvb_new_subset(tvb, so, tvb_length_remaining(tvb, so), tvb_length_remaining(tvb, so));
+			} else {
+				s_tvb = NULL;
+			}
+
+			if(!strncmp("\\PIPE\\LANMAN", an, 12)){
+				si->subcmd=TRANSACTION_PIPE_LANMAN;
+       				dissect_pipe_smb(p_tvb, d_tvb, pinfo, top_tree);
+			}
+			if(!strncmp("\\MAILSLOT\\", an, 10)){
+				si->subcmd=TRANSACTION_MAILSLOT;
+       				dissect_mailslot_smb(s_tvb, d_tvb, an+10, pinfo, top_tree);
+			}
+		} else {
+			if(check_col(pinfo->fd, COL_INFO)){
+				col_append_str(pinfo->fd, COL_INFO,
+					"[transact continuation] ");
+			}
+		}
+	}
+#endif
+
+	END_OF_SMB
+
+	return offset;
+}
+
+/*qqq*/
+
+ 
+
+static int
+dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+	int fn_len;
+	const char *fn;
+	int old_offset = offset;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	smb_info_t *si;
+
+	si = (smb_info_t *)pinfo->private_data;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
+		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
+		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
+	}
+
+	/* create time */
+	CHECK_BYTE_COUNT_SUBR(4);
+	offset = dissect_smb_datetime(tvb, pinfo, tree, offset,
+		hf_smb_create_time,
+		hf_smb_create_dos_date, hf_smb_create_dos_time, FALSE);
+	*bcp -= 4;
+
+	/* access time */
+	CHECK_BYTE_COUNT_SUBR(4);
+	offset = dissect_smb_datetime(tvb, pinfo, tree, offset,
+		hf_smb_access_time,
+		hf_smb_access_dos_date, hf_smb_access_dos_time, FALSE);
+	*bcp -= 4;
+
+	/* last write time */
+	CHECK_BYTE_COUNT_SUBR(4);
+	offset = dissect_smb_datetime(tvb, pinfo, tree, offset,
+		hf_smb_last_write_time,
+		hf_smb_last_write_dos_date, hf_smb_last_write_dos_time, FALSE);
+	*bcp -= 4;
+
+	/* data size */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_data_size, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	/* allocation size */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_alloc_size, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	/* File Attributes */
+	CHECK_BYTE_COUNT_SUBR(2);
+	offset = dissect_file_attributes(tvb, pinfo, tree, offset);
+	*bcp -= 2;
+
+	/* file name len */
+	CHECK_BYTE_COUNT_SUBR(1);
+	fn_len = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_file_name_len, tvb, offset, 1, fn_len);
+	COUNT_BYTES_SUBR(1);
+
+	/* file name */
+	fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, FALSE, TRUE, bcp);
+	CHECK_STRING_SUBR(fn);
+	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
+		fn);
+	COUNT_BYTES_SUBR(fn_len);
+
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_append_fstr(pinfo->fd, COL_INFO, " %s",
+		fn);
+	}
+ 
+	proto_item_append_text(item, " File: %s", fn);
+	proto_item_set_len(item, offset-old_offset);
+
+	*trunc = FALSE;
+	return offset;
+}
+
+static int
+dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+	int fn_len;
+	const char *fn;
+	int old_offset = offset;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	smb_info_t *si;
+
+	si = (smb_info_t *)pinfo->private_data;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
+		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
+		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
+	}
+ 
+	/* create time */
+	CHECK_BYTE_COUNT_SUBR(4);
+	offset = dissect_smb_datetime(tvb, pinfo, tree, offset,
+		hf_smb_create_time,
+		hf_smb_create_dos_date, hf_smb_create_dos_time, FALSE);
+	*bcp -= 4;
+
+	/* access time */
+	CHECK_BYTE_COUNT_SUBR(4);
+	offset = dissect_smb_datetime(tvb, pinfo, tree, offset,
+		hf_smb_access_time,
+		hf_smb_access_dos_date, hf_smb_access_dos_time, FALSE);
+	*bcp -= 4;
+
+	/* last write time */
+	CHECK_BYTE_COUNT_SUBR(4);
+	offset = dissect_smb_datetime(tvb, pinfo, tree, offset,
+		hf_smb_last_write_time,
+		hf_smb_last_write_dos_date, hf_smb_last_write_dos_time, FALSE);
+	*bcp -= 4;
+
+	/* data size */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_data_size, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	/* allocation size */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_alloc_size, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	/* File Attributes */
+	CHECK_BYTE_COUNT_SUBR(2);
+	offset = dissect_file_attributes(tvb, pinfo, tree, offset);
+	*bcp -= 2;
+
+	/* ea size */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_ea_size, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	/* file name len */
+	CHECK_BYTE_COUNT_SUBR(1);
+	fn_len = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_file_name_len, tvb, offset, 1, fn_len);
+	COUNT_BYTES_SUBR(1);
+
+	/* file name */
+	fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, FALSE, TRUE, bcp);
+	CHECK_STRING_SUBR(fn);
+	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
+		fn);
+	COUNT_BYTES_SUBR(fn_len);
+
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_append_fstr(pinfo->fd, COL_INFO, " %s",
+		fn);
+	}
+
+	proto_item_append_text(item, " File: %s", fn);
+	proto_item_set_len(item, offset-old_offset);
+
+	*trunc = FALSE;
+	return offset;
+}
+
+static int
+dissect_4_3_4_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+	int fn_len;
+	const char *fn;
+	int old_offset = offset;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	smb_info_t *si;
+	guint32 neo;
+	int padcnt;
+
+	si = (smb_info_t *)pinfo->private_data;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
+		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
+		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
+	}
+
+	/* next entry offset */
+	CHECK_BYTE_COUNT_SUBR(4);
+	neo = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_next_entry_offset, tvb, offset, 4, neo);
+	COUNT_BYTES_SUBR(4);
+	
+	/* file index */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_file_index, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	/* create time */
+	CHECK_BYTE_COUNT_SUBR(8);
+	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+		"Create Time", hf_smb_create_time);
+	*bcp -= 8;
+	
+	/* access time */
+	CHECK_BYTE_COUNT_SUBR(8);
+	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+		"Access Time", hf_smb_access_time);
+	*bcp -= 8;
+	
+	/* last write time */
+	CHECK_BYTE_COUNT_SUBR(8);
+	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+		"Write Time", hf_smb_last_write_time);
+	*bcp -= 8;
+	
+	/* last change time */
+	CHECK_BYTE_COUNT_SUBR(8);
+	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+		"Change Time", hf_smb_change_time);
+	*bcp -= 8;
+	
+	/* end of file */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* allocation size */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* Extended File Attributes */
+	CHECK_BYTE_COUNT_SUBR(4);
+	offset = dissect_file_ext_attr(tvb, pinfo, tree, offset);
+	*bcp -= 4;
+
+	/* file name len */
+	CHECK_BYTE_COUNT_SUBR(4);
+	fn_len = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_file_name_len, tvb, offset, 4, fn_len);
+	COUNT_BYTES_SUBR(4);
+
+	/* file name */
+	fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, FALSE, TRUE, bcp);
+	CHECK_STRING_SUBR(fn);
+	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
+		fn);
+	COUNT_BYTES_SUBR(fn_len);
+
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_append_fstr(pinfo->fd, COL_INFO, " %s",
+		fn);
+	}
+
+	/* skip to next structure */
+	if(neo){
+		padcnt = (old_offset + neo) - offset;
+		if (padcnt < 0) {
+			/*
+			 * XXX - this is bogus; flag it?
+			 */
+			padcnt = 0;
+		}
+		if (padcnt != 0) {
+			CHECK_BYTE_COUNT_SUBR(padcnt);
+			COUNT_BYTES_SUBR(padcnt);
+		}
+	}
+
+	proto_item_append_text(item, " File: %s", fn);
+	proto_item_set_len(item, offset-old_offset);
+
+	*trunc = FALSE;
+	return offset;
+}
+
+static int
+dissect_4_3_4_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+	int fn_len;
+	const char *fn;
+	int old_offset = offset;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	smb_info_t *si;
+	guint32 neo;
+	int padcnt;
+
+	si = (smb_info_t *)pinfo->private_data;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
+		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
+		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
+	}
+
+	/* next entry offset */
+	CHECK_BYTE_COUNT_SUBR(4);
+	neo = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_next_entry_offset, tvb, offset, 4, neo);
+	COUNT_BYTES_SUBR(4);
+	
+	/* file index */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_file_index, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	/* create time */
+	CHECK_BYTE_COUNT_SUBR(8);
+	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+		"Create Time", hf_smb_create_time);
+	*bcp -= 8;
+	
+	/* access time */
+	CHECK_BYTE_COUNT_SUBR(8);
+	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+		"Access Time", hf_smb_access_time);
+	*bcp -= 8;
+	
+	/* last write time */
+	CHECK_BYTE_COUNT_SUBR(8);
+	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+		"Write Time", hf_smb_last_write_time);
+	*bcp -= 8;
+	
+	/* last change time */
+	CHECK_BYTE_COUNT_SUBR(8);
+	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+		"Change Time", hf_smb_change_time);
+	*bcp -= 8;
+	
+	/* end of file */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* allocation size */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* Extended File Attributes */
+	CHECK_BYTE_COUNT_SUBR(4);
+	offset = dissect_file_ext_attr(tvb, pinfo, tree, offset);
+	*bcp -= 4;
+
+	/* file name len */
+	CHECK_BYTE_COUNT_SUBR(4);
+	fn_len = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_file_name_len, tvb, offset, 4, fn_len);
+	COUNT_BYTES_SUBR(4);
+
+	/* ea size */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_ea_size, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	/* file name */
+	fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, FALSE, TRUE, bcp);
+	CHECK_STRING_SUBR(fn);
+	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
+		fn);
+	COUNT_BYTES_SUBR(fn_len);
+
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_append_fstr(pinfo->fd, COL_INFO, " %s",
+		fn);
+	}
+
+	/* skip to next structure */
+	if(neo){
+		padcnt = (old_offset + neo) - offset;
+		if (padcnt < 0) {
+			/*
+			 * XXX - this is bogus; flag it?
+			 */
+			padcnt = 0;
+		}
+		if (padcnt != 0) {
+			CHECK_BYTE_COUNT_SUBR(padcnt);
+			COUNT_BYTES_SUBR(padcnt);
+		}
+	}
+
+	proto_item_append_text(item, " File: %s", fn);
+	proto_item_set_len(item, offset-old_offset);
+
+	*trunc = FALSE;
+	return offset;
+}
+
+static int
+dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+	int fn_len, sfn_len;
+	const char *fn, *sfn;
+	int old_offset = offset;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	smb_info_t *si;
+	guint32 neo;
+	int padcnt;
+
+	si = (smb_info_t *)pinfo->private_data;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
+		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
+		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
+	}
+
+	/* next entry offset */
+	CHECK_BYTE_COUNT_SUBR(4);
+	neo = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_next_entry_offset, tvb, offset, 4, neo);
+	COUNT_BYTES_SUBR(4);
+	
+	/* file index */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_file_index, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	/* create time */
+	CHECK_BYTE_COUNT_SUBR(8);
+	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+		"Create Time", hf_smb_create_time);
+	*bcp -= 8;
+	
+	/* access time */
+	CHECK_BYTE_COUNT_SUBR(8);
+	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+		"Access Time", hf_smb_access_time);
+	*bcp -= 8;
+	
+	/* last write time */
+	CHECK_BYTE_COUNT_SUBR(8);
+	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+		"Write Time", hf_smb_last_write_time);
+	*bcp -= 8;
+	
+	/* last change time */
+	CHECK_BYTE_COUNT_SUBR(8);
+	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+		"Change Time", hf_smb_change_time);
+	*bcp -= 8;
+	
+	/* end of file */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* allocation size */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* Extended File Attributes */
+	CHECK_BYTE_COUNT_SUBR(4);
+	offset = dissect_file_ext_attr(tvb, pinfo, tree, offset);
+	*bcp -= 4;
+
+	/* file name len */
+	CHECK_BYTE_COUNT_SUBR(4);
+	fn_len = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_file_name_len, tvb, offset, 4, fn_len);
+	COUNT_BYTES_SUBR(4);
+
+	/* ea size */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_ea_size, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	/* short file name len */
+	CHECK_BYTE_COUNT_SUBR(1);
+	sfn_len = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_short_file_name_len, tvb, offset, 1, sfn_len);
+	COUNT_BYTES_SUBR(1);
+
+	/* reserved byte */
+	CHECK_BYTE_COUNT_SUBR(1);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	COUNT_BYTES_SUBR(1);
+ 
+	/* short file name */
+	sfn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &sfn_len, FALSE, TRUE, bcp);
+	CHECK_STRING_SUBR(sfn);
+	proto_tree_add_string(tree, hf_smb_short_file_name, tvb, offset, 24,
+		sfn);
+	COUNT_BYTES_SUBR(24);
+
+	/* file name */
+	fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, FALSE, TRUE, bcp);
+	CHECK_STRING_SUBR(fn);
+	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
+		fn);
+	COUNT_BYTES_SUBR(fn_len);
+
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_append_fstr(pinfo->fd, COL_INFO, " %s",
+		fn);
+	}
+
+	/* skip to next structure */
+	if(neo){
+		padcnt = (old_offset + neo) - offset;
+		if (padcnt < 0) {
+			/*
+			 * XXX - this is bogus; flag it?
+			 */
+			padcnt = 0;
+		}
+		if (padcnt != 0) {
+			CHECK_BYTE_COUNT_SUBR(padcnt);
+			COUNT_BYTES_SUBR(padcnt);
+		}
+	}
+
+	proto_item_append_text(item, " File: %s", fn);
+	proto_item_set_len(item, offset-old_offset);
+
+	*trunc = FALSE;
+	return offset;
+}
+
+static int
+dissect_4_3_4_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+	int fn_len, sfn_len;
+	const char *fn, *sfn;
+	int old_offset = offset;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	smb_info_t *si;
+	guint32 neo;
+	int padcnt;
+
+	si = (smb_info_t *)pinfo->private_data;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
+		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
+		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
+	}
+ 
+	/* next entry offset */
+	CHECK_BYTE_COUNT_SUBR(4);
+	neo = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_next_entry_offset, tvb, offset, 4, neo);
+	COUNT_BYTES_SUBR(4);
+	
+	/* file index */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_file_index, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	/* file name len */
+	CHECK_BYTE_COUNT_SUBR(4);
+	fn_len = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_file_name_len, tvb, offset, 4, fn_len);
+	COUNT_BYTES_SUBR(4);
+
+	/* file name */
+	fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, FALSE, TRUE, bcp);
+	CHECK_STRING_SUBR(fn);
+	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
+		fn);
+	COUNT_BYTES_SUBR(fn_len);
+
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_append_fstr(pinfo->fd, COL_INFO, " %s",
+		fn);
+	}
+
+	/* skip to next structure */
+	if(neo){
+		padcnt = (old_offset + neo) - offset;
+		if (padcnt < 0) {
+			/*
+			 * XXX - this is bogus; flag it?
+			 */
+			padcnt = 0;
+		}
+		if (padcnt != 0) {
+			CHECK_BYTE_COUNT_SUBR(padcnt);
+			COUNT_BYTES_SUBR(padcnt);
+		}
+	}
+
+	proto_item_append_text(item, " File: %s", fn);
+	proto_item_set_len(item, offset-old_offset);
+
+	*trunc = FALSE;
+	return offset;
+}
+ 
+static int
+dissect_4_3_4_8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+/*XXX im lazy. i havnt implemented this */
+	offset += *bcp;
+	*bcp = 0;
+	*trunc = FALSE;
+	return offset;
+}
+
+/*dissect the data block for TRANS2_FIND_FIRST2*/
+static int
+dissect_ff2_response_data(tvbuff_t * tvb, packet_info * pinfo,
+    proto_tree * tree, int offset, guint16 *bcp, gboolean *trunc)
+{
+	smb_info_t *si;
+
+	if(!*bcp){
+		return offset;
+	}
+	
+	si = (smb_info_t *)pinfo->private_data;
+	switch(si->info_level){
+	case 1:		/*Info Standard*/
+		offset = dissect_4_3_4_1(tvb, pinfo, tree, offset, bcp,
+		    trunc);
+		break;
+	case 2:		/*Info Query EA Size*/
+		offset = dissect_4_3_4_2(tvb, pinfo, tree, offset, bcp,
+		    trunc);
+		break;
+	case 3:		/*Info Query EAs From List same as 
+				InfoQueryEASize*/
+		offset = dissect_4_3_4_2(tvb, pinfo, tree, offset, bcp,
+		    trunc);
+		break;
+	case 0x0101:	/*Find File Directory Info*/
+		offset = dissect_4_3_4_4(tvb, pinfo, tree, offset, bcp,
+		    trunc);
+		break;
+	case 0x0102:	/*Find File Full Directory Info*/
+		offset = dissect_4_3_4_5(tvb, pinfo, tree, offset, bcp,
+		    trunc);
+		break;
+	case 0x0103:	/*Find File Names Info*/
+		offset = dissect_4_3_4_7(tvb, pinfo, tree, offset, bcp,
+		    trunc);
+		break;
+	case 0x0104:	/*Find File Both Directory Info*/
+		offset = dissect_4_3_4_6(tvb, pinfo, tree, offset, bcp,
+		    trunc);
+		break;
+	case 0x0202:	/*Find File UNIX*/
+		offset = dissect_4_3_4_8(tvb, pinfo, tree, offset, bcp,
+		    trunc);
+		break;
+	default:	/* unknown info level */
+		*trunc = FALSE;
+		break;
+	}
+	return offset;
+}
+
+
+static int
+dissect_fs_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+{
+	guint32 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	mask = tvb_get_letohl(tvb, offset);
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
+			"FS Attributes: 0x%08x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_fs_attributes);
+	}
+
+	proto_tree_add_boolean(tree, hf_smb_fs_attr_css,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_fs_attr_cpn,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_fs_attr_pacls,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_fs_attr_fc,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_fs_attr_vq,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_fs_attr_dim,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_fs_attr_vic,
+		tvb, offset, 4, mask);
+
+	offset += 4;
+	return offset;
+}
+ 
+
+static int
+dissect_device_characteristics(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+{
+	guint32 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	mask = tvb_get_letohl(tvb, offset);
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
+			"Device Characteristics: 0x%08x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_device_characteristics);
+	}
+
+	proto_tree_add_boolean(tree, hf_smb_device_char_removable,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_device_char_read_only,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_device_char_floppy,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_device_char_write_once,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_device_char_remote,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_device_char_mounted,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_device_char_virtual,
+		tvb, offset, 4, mask);
+
+	offset += 4;
+	return offset;
+}
+
+
+/*dissect the data block for TRANS2_QUERY_FS_INFORMATION*/
+static int
+dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
+    int offset, guint16 *bcp)
+{
+	smb_info_t *si;
+	int fn_len, vll, fnl;
+	const char *fn;
+
+	if(!*bcp){
+		return offset;
+	}
+	
+	si = (smb_info_t *)pinfo->private_data;
+	switch(si->info_level){
+	case 1:		/* SMB_INFO_ALLOCATION */
+		/* filesystem id */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		proto_tree_add_item(tree, hf_smb_fs_id, tvb, offset, 4, TRUE);
+		COUNT_BYTES_TRANS_SUBR(4);
+
+		/* sectors per unit */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		proto_tree_add_item(tree, hf_smb_sector_unit, tvb, offset, 4, TRUE);
+		COUNT_BYTES_TRANS_SUBR(4);
+
+		/* units */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		proto_tree_add_item(tree, hf_smb_fs_units, tvb, offset, 4, TRUE);
+		COUNT_BYTES_TRANS_SUBR(4);
+
+		/* avail units */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		proto_tree_add_item(tree, hf_smb_avail_units, tvb, offset, 4, TRUE);
+		COUNT_BYTES_TRANS_SUBR(4);
+
+		/* bytes per sector, only 16bit integer here */
+		CHECK_BYTE_COUNT_TRANS_SUBR(2);
+		proto_tree_add_uint(tree, hf_smb_fs_sector, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		COUNT_BYTES_TRANS_SUBR(2);
+
+		break;
+	case 2:		/* SMB_INFO_VOLUME */
+		/* volume serial number */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		proto_tree_add_item(tree, hf_smb_volume_serial_num, tvb, offset, 4, TRUE);
+		COUNT_BYTES_TRANS_SUBR(4);
+
+		/* volume label length, only one byte here */
+		CHECK_BYTE_COUNT_TRANS_SUBR(1);
+		proto_tree_add_uint(tree, hf_smb_volume_label_len, tvb, offset, 1, tvb_get_guint8(tvb, offset));
+		COUNT_BYTES_TRANS_SUBR(1);
+
+		/* label */
+		fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, FALSE, FALSE, bcp);
+		CHECK_STRING_TRANS_SUBR(fn);
+		proto_tree_add_string(tree, hf_smb_volume_label, tvb, offset, fn_len,
+			fn);
+		COUNT_BYTES_TRANS_SUBR(fn_len);
+
+		break;
+	case 0x0102:	/* SMB_QUERY_FS_VOLUME_INFO */
+		/* create time */
+		CHECK_BYTE_COUNT_TRANS_SUBR(8);
+		offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+			"Create Time", hf_smb_create_time);
+		*bcp -= 8;
+	
+		/* volume serial number */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		proto_tree_add_item(tree, hf_smb_volume_serial_num, tvb, offset, 4, TRUE);
+		COUNT_BYTES_TRANS_SUBR(4);
+
+		/* volume label length */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		vll = tvb_get_letohl(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_volume_label_len, tvb, offset, 4, vll);
+		COUNT_BYTES_TRANS_SUBR(4);
+
+		/* 2 reserved bytes */
+		CHECK_BYTE_COUNT_TRANS_SUBR(2);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+		COUNT_BYTES_TRANS_SUBR(2);
+
+		/* label */
+		fn_len = vll;
+		fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, FALSE, TRUE, bcp);
+		CHECK_STRING_TRANS_SUBR(fn);
+		proto_tree_add_string(tree, hf_smb_volume_label, tvb, offset, fn_len,
+			fn);
+		COUNT_BYTES_TRANS_SUBR(fn_len);
+
+		break;
+	case 0x0103:	/* SMB_QUERY_FS_SIZE_INFO */
+		/* allocation size */
+		CHECK_BYTE_COUNT_TRANS_SUBR(8);
+		proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+		COUNT_BYTES_TRANS_SUBR(8);
+
+		/* free allocation units */
+		CHECK_BYTE_COUNT_TRANS_SUBR(8);
+		proto_tree_add_item(tree, hf_smb_free_alloc_units64, tvb, offset, 8, TRUE);
+		COUNT_BYTES_TRANS_SUBR(8);
+
+		/* sectors per unit */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		proto_tree_add_item(tree, hf_smb_sector_unit, tvb, offset, 4, TRUE);
+		COUNT_BYTES_TRANS_SUBR(4);
+
+		/* bytes per sector */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		proto_tree_add_item(tree, hf_smb_fs_sector, tvb, offset, 4, TRUE);
+		COUNT_BYTES_TRANS_SUBR(4);
+
+		break;
+	case 0x0104:	/* SMB_QUERY_FS_DEVICE_INFO */
+		/* device type */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		proto_tree_add_item(tree, hf_smb_device_type, tvb, offset, 4, TRUE);
+		COUNT_BYTES_TRANS_SUBR(4);
+ 
+		/* device characteristics */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		offset = dissect_device_characteristics(tvb, pinfo, tree, offset);
+		*bcp -= 4;
+	
+		break;
+	case 0x0105:	/* SMB_QUERY_FS_ATTRIBUTE_INFO */
+		/* FS attributes */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		offset = dissect_fs_attributes(tvb, pinfo, tree, offset);
+		*bcp -= 4;
+	
+		/* max name len */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		proto_tree_add_item(tree, hf_smb_max_name_len, tvb, offset, 4, TRUE);
+		COUNT_BYTES_TRANS_SUBR(4);
+
+		/* fs name length */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		fnl = tvb_get_letohl(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_fs_name_len, tvb, offset, 4, fnl);
+		COUNT_BYTES_TRANS_SUBR(4);
+
+		/* label */
+		fn_len = fnl;
+		fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, FALSE, TRUE, bcp);
+		CHECK_STRING_TRANS_SUBR(fn);
+		proto_tree_add_string(tree, hf_smb_fs_name, tvb, offset, fn_len,
+			fn);
+		COUNT_BYTES_TRANS_SUBR(fn_len);
+
+		break;
+	}
+ 
+	return offset;
+}
+ 
+static int
+dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *parent_tree, int offset, guint16 dc)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	smb_info_t *si;
+	int fn_len;
+	const char *fn;
+	int count;
+	gboolean trunc;
+
+	si = (smb_info_t *)pinfo->private_data;
+
+	if(parent_tree){
+		if (si->subcmd != -1) {
+			item = proto_tree_add_text(parent_tree, tvb, offset, dc,
+				"%s Data",
+				val_to_str(si->subcmd, trans2_cmd_vals, 
+					"Unknown (0x%02x)"));
+			tree = proto_item_add_subtree(item, ett_smb_transaction_data);
+		} else {
+			item = proto_tree_add_text(parent_tree, tvb, offset, dc,
+				"Unknown Transaction2 Data");
+		}
+	}
+
+	switch(si->subcmd){
+	case 0x00:	/*TRANS2_OPEN2*/
+		/* XXX not implemented yet. See SNIA doc */
+		break;
+	case 0x01:	/*TRANS2_FIND_FIRST2*/
+		/* returned data */
+		count = si->info_count;
+
+		if (count && check_col(pinfo->fd, COL_INFO)) {
+			col_append_fstr(pinfo->fd, COL_INFO,
+			", Files:");
+		}
+
+		while(count--){
+			offset = dissect_ff2_response_data(tvb, pinfo, tree,
+				offset, &dc, &trunc);
+			if (trunc)
+				break;
+		}
+		break;
+	case 0x02:	/*TRANS2_FIND_NEXT2*/
+		/* returned data */
+		count = si->info_count;
+
+		if (count && check_col(pinfo->fd, COL_INFO)) {
+			col_append_fstr(pinfo->fd, COL_INFO,
+			", Files:");
+		}
+
+		while(count--){
+			offset = dissect_ff2_response_data(tvb, pinfo, tree,
+				offset, &dc, &trunc);
+			if (trunc)
+				break;
+		}
+		break;
+	case 0x03:	/*TRANS2_QUERY_FS_INFORMATION*/
+		offset = dissect_qfsi_vals(tvb, pinfo, tree, offset, &dc);
+		break;
+	case 0x05:	/*TRANS2_QUERY_PATH_INFORMATION*/
+		offset = dissect_qpi_loi_vals(tvb, pinfo, tree, offset, &dc);
+		break;
+	case 0x06:	/*TRANS2_SET_PATH_INFORMATION*/
+		/* no data in this response */
+		break;
+	case 0x07:	/*TRANS2_QUERY_FILE_INFORMATION*/
+		/* identical to QUERY_PATH_INFO */
+		offset = dissect_qpi_loi_vals(tvb, pinfo, tree, offset, &dc);
+		break;
+	case 0x08:	/*TRANS2_SET_FILE_INFORMATION*/
+		/* no data in this response */
+		break;
+	case 0x09:	/*TRANS2_FSCTL*/
+		/* XXX dont know how to dissect this one (yet)*/
+		break;
+	case 0x0a:	/*TRANS2_IOCTL2*/
+		/* XXX dont know how to dissect this one (yet)*/
+		break;
+	case 0x0b:	/*TRANS2_FIND_NOTIFY_FIRST*/
+		/* XXX dont know how to dissect this one (yet)*/
+		break;
+	case 0x0c:	/*TRANS2_FIND_NOTIFY_NEXT*/
+		/* XXX dont know how to dissect this one (yet)*/
+		break;
+	case 0x0d:	/*TRANS2_CREATE_DIRECTORY*/
+		/* no data in this response */
+		break;
+	case 0x0e:	/*TRANS2_SESSION_SETUP*/
+		/* XXX dont know how to dissect this one (yet)*/
+		break;
+	case 0x10:	/*TRANS2_GET_DFS_REFERRAL*/
+		offset = dissect_get_dfs_referral_data(tvb, pinfo, tree, offset, &dc);
+		break;
+	case 0x11:	/*TRANS2_REPORT_DFS_INCONSISTENCY*/
+		/* the SNIA spec appears to say the response has no data */
+		break;
+	case -1:
+		/*
+		 * We don't know what the matching request was; don't
+		 * bother putting anything else into the tree for the data.
+		 */
+		offset += dc;
+		dc = 0;
+		break;
+	}
+
+	/* ooops there were data we didnt know how to process */
+	if(dc != 0){
+		proto_tree_add_item(tree, hf_smb_unknown, tvb, offset, dc, TRUE);
+		offset += dc;
+	}
+
+	return offset;
+}
+
+
+static int
+dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, int pc, int od)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	smb_info_t *si;
+	int fn_len, lno;
+	const char *fn;
+	int old_offset = offset;
+
+	si = (smb_info_t *)pinfo->private_data;
+
+	if(parent_tree){
+		if (si->subcmd != -1) {
+			item = proto_tree_add_text(parent_tree, tvb, offset, pc,
+				"%s Parameters",
+				val_to_str(si->subcmd, trans2_cmd_vals, 
+						"Unknown (0x%02x)"));
+			tree = proto_item_add_subtree(item, ett_smb_transaction_params);
+		} else {
+			item = proto_tree_add_text(parent_tree, tvb, offset, pc,
+				"Unknown Transaction2 Parameters");
+		}
+	}
+
+	switch(si->subcmd){
+	case 0x00:	/*TRANS2_OPEN2*/
+		/* fid */
+		proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+		offset += 2;
+
+		/* File Attributes */
+		offset = dissect_file_attributes(tvb, pinfo, tree, offset);
+
+		/* create time */
+		offset = dissect_smb_datetime(tvb, pinfo, tree, offset,
+			hf_smb_create_time, 
+			hf_smb_create_dos_date, hf_smb_create_dos_time, TRUE);
+
+		/* data size */
+		proto_tree_add_item(tree, hf_smb_data_size, tvb, offset, 4, TRUE);
+		offset += 4;
+
+		/* granted access */
+		offset = dissect_access(tvb, pinfo, tree, offset, "Granted");
+
+		/* File Type */
+		proto_tree_add_item(tree, hf_smb_file_type, tvb, offset, 2, TRUE);
+		offset += 2;
+
+		/* IPC State */
+		offset = dissect_ipc_state(tvb, pinfo, tree, offset);
+
+		/* open_action */
+		offset = dissect_open_action(tvb, pinfo, tree, offset);
+
+		/* 4 reserved bytes */
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, TRUE);
+		offset += 4;
+
+		/* ea error offset, only a 16 bit integer here */
+		proto_tree_add_uint(tree, hf_smb_ea_error_offset, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		offset += 2;
+
+		/* ea length */
+		proto_tree_add_item(tree, hf_smb_ea_length, tvb, offset, 4, TRUE);
+		offset += 4;
+
+		break;
+	case 0x01:	/*TRANS2_FIND_FIRST2*/
+		/* Find First2 information level */
+		proto_tree_add_uint(tree, hf_smb_ff2_information_level, tvb, 0, 0, si->info_level);
+
+		/* sid */
+		proto_tree_add_item(tree, hf_smb_sid, tvb, offset, 2, TRUE);
+		offset += 2;
+
+		/* search count */
+		si->info_count = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_search_count, tvb, offset, 2, si->info_count);
+		offset += 2;
+
+		/* end of search */
+		proto_tree_add_item(tree, hf_smb_end_of_search, tvb, offset, 2, TRUE);
+		offset += 2;
+
+		/* ea error offset, only a 16 bit integer here */
+		proto_tree_add_uint(tree, hf_smb_ea_error_offset, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		offset += 2;
+
+		/* last name offset */
+		lno = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_last_name_offset, tvb, offset, 2, lno);
+		offset += 2;
+
+		break;
+	case 0x02:	/*TRANS2_FIND_NEXT2*/
+		/* search count */
+		si->info_count = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_search_count, tvb, offset, 2, si->info_count);
+		offset += 2;
+
+		/* end of search */
+		proto_tree_add_item(tree, hf_smb_end_of_search, tvb, offset, 2, TRUE);
+		offset += 2;
+
+		/* ea error offset , only a 16 bit integer here*/
+		proto_tree_add_uint(tree, hf_smb_ea_error_offset, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		offset += 2;
+
+		/* last name offset */
+		lno = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_last_name_offset, tvb, offset, 2, lno);
+		offset += 2;
+
+		break;
+	case 0x03:	/*TRANS2_QUERY_FS_INFORMATION*/
+		/* no parameter block here */
+		break;
+	case 0x05:	/*TRANS2_QUERY_PATH_INFORMATION*/
+		/* no parameter block here */
+		break;
+	case 0x06:	/*TRANS2_SET_PATH_INFORMATION*/
+		/* no parameter block here */
+		break;
+	case 0x07:	/*TRANS2_QUERY_FILE_INFORMATION*/
+		/* no parameter block here */
+		break;
+	case 0x08:	/*TRANS2_SET_FILE_INFORMATION*/
+		/* no parameter block here */
+		break;
+	case 0x09:	/*TRANS2_FSCTL*/
+		/* XXX dont know how to dissect this one (yet)*/
+		break;
+	case 0x0a:	/*TRANS2_IOCTL2*/
+		/* XXX dont know how to dissect this one (yet)*/
+		break;
+	case 0x0b:	/*TRANS2_FIND_NOTIFY_FIRST*/
+		/* XXX dont know how to dissect this one (yet)*/
+		break;
+	case 0x0c:	/*TRANS2_FIND_NOTIFY_NEXT*/
+		/* XXX dont know how to dissect this one (yet)*/
+		break;
+	case 0x0d:	/*TRANS2_CREATE_DIRECTORY*/
+		/* ea error offset, only a 16 bit integer here */
+		proto_tree_add_uint(tree, hf_smb_ea_error_offset, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		offset += 2;
+
+		break;
+	case 0x0e:	/*TRANS2_SESSION_SETUP*/
+		/* XXX dont know how to dissect this one (yet)*/
+		break;
+	case 0x10:	/*TRANS2_GET_DFS_REFERRAL*/
+		/* XXX dont know how to dissect this one (yet) see SNIA doc*/
+		break;
+	case 0x11:	/*TRANS2_REPORT_DFS_INCONSISTENCY*/
+		/* XXX dont know how to dissect this one (yet) see SNIA doc*/
+		break;
+	case -1:
+		/*
+		 * We don't know what the matching request was; don't
+		 * bother putting anything else into the tree for the data.
+		 */
+		offset += pc;
+		break;
+	}
+
+	/* ooops there were data we didnt know how to process */
+	if((offset-old_offset)<pc){
+		proto_tree_add_item(tree, hf_smb_unknown, tvb, offset, pc-(offset-old_offset), TRUE);
+		offset += pc-(offset-old_offset);
+	}
+
+	return offset;
+}
+
+
+static int
+dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
+{
+	conversation_t *conversation;
+	struct smb_request_val *request_val;
+	guint8 sc=0, wc;
+	guint16 od=0, tf, po=0, pc=0, pd, dc=0, dd=0;
+	int so=0;
+	guint32 to;
+	smb_info_t *si;
+	guint16 bc;
+	int padcnt;
+
+	si = (smb_info_t *)pinfo->private_data;
+
+	/*
+	 * Find out what conversation this packet is part of.
+	 */
+	conversation = find_conversation(&pinfo->src, &pinfo->dst,
+	    pinfo->ptype,  pinfo->srcport, pinfo->destport, 0);
+
+	if (conversation == NULL) {
+		/*
+		 * There isn't one yet; create it.
+		 */
+		conversation = conversation_new(&pinfo->src, &pinfo->dst,
+		    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	}
+
+	si->conversation = conversation;  /* Save this */
+
+	request_val = do_transaction_hashing(conversation, *si, pinfo->fd);
+
+	si->request_val = request_val;  /* Save this for later */
+
+	if(request_val != NULL){
+		switch(si->cmd){
+
+		case 0x32:
+			/* transaction2 */
+			si->subcmd = request_val->last_transact2_command;
+			if (si->subcmd != -1) {
+				proto_tree_add_uint(tree, hf_smb_trans2_subcmd, tvb, 0, 0, si->subcmd);
+				if (check_col(pinfo->fd, COL_INFO)) {
+					col_append_fstr(pinfo->fd, COL_INFO, " %s",
+						val_to_str(si->subcmd,
+							trans2_cmd_vals, 
+							"<unknown (0x%02x)> "));
+				}
+			} else {
+				/*
+				 * We didn't manage to extract the subcommand
+				 * from the matching request (perhaps because
+				 * the frame was short), so we don't know what
+				 * type of transaction this is.
+				 */
+				proto_tree_add_text(tree, tvb, 0, 0,
+					"Subcommand: <UNKNOWN> since transaction code wasn't found in request packet");
+				if (check_col(pinfo->fd, COL_INFO)) {
+					col_append_fstr(pinfo->fd, COL_INFO, "<unknown> ");
+				}
+			}
+			break;
+		}
+		si->info_level = request_val->last_level;
+	} else {
+		/* we have not seen the request yet so we don't know what 
+		   subcommand it was */
+		proto_tree_add_text(tree, tvb, 0, 0,
+			"Subcommand: <UNKNOWN> since request packet was not captured");
+		if (check_col(pinfo->fd, COL_INFO)) {
+			col_append_fstr(pinfo->fd, COL_INFO, "<unknown> ");
+		}
+		si->subcmd = -1;
+		si->info_level = -1;
+	}
+
+	WORD_COUNT;
+
+	/* total param count, only a 16bit integer here */
+	proto_tree_add_uint(tree, hf_smb_total_param_count, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+	offset += 2;
+
+	/* total data count, only a 16 bit integer here */
+	proto_tree_add_uint(tree, hf_smb_total_data_count, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+	offset += 2;
+
+	/* 2 reserved bytes */
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* param count */
+	pc = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_param_count16, tvb, offset, 2, pc);
+	offset += 2;
+
+	/* param offset */
+	po = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_param_offset16, tvb, offset, 2, po);
+	offset += 2;
+
+	/* param disp */
+	pd = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_param_disp16, tvb, offset, 2, pd);
+	offset += 2;
+
+	/* data count */
+	dc = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_data_count16, tvb, offset, 2, dc);
+	offset += 2;
+
+	/* data offset */
+	od = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_data_offset16, tvb, offset, 2, od);
+	offset += 2;
+
+	/* data disp */
+	dd = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_data_disp16, tvb, offset, 2, dd);
+	offset += 2;
+
+	/* setup count */
+	sc = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_setup_count, tvb, offset, 1, sc);
+	offset += 1;
+
+	/* reserved byte */
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	offset += 1;
+
+	/* save setup offset */	
+	so=offset;
+
+	/* if there were any setup bytes, decode them */
+	if(sc){
+		/* XXXX dissect setup words */
+		offset += sc*2;
+	}
+
+	BYTE_COUNT;
+	
+	/* parameters */
+	if(po>offset){
+		/* We have some initial padding bytes.
+		*/
+		padcnt = po-offset;
+		if (padcnt > bc)
+			padcnt = bc;
+		proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, TRUE);
+		COUNT_BYTES(padcnt);
+	}
+	if(pc){
+		CHECK_BYTE_COUNT(pc);
+		switch(si->cmd){
+
+		case 0x32:
+			/* TRANSACTION2 parameters*/
+			offset = dissect_transaction2_response_parameters(tvb, pinfo, tree, offset, pc, od);
+			bc -= pc;
+			break;
+
+		case 0x25:
+			/*XXXX process TRANSACTION parameters*/
+			offset += pc;
+			bc -= pc;
+			break;
+		}
+	}
+
+	/* data */
+	if(od>offset){
+		/* We have some initial padding bytes.
+		*/
+		padcnt = od-offset;
+		if (padcnt > bc)
+			padcnt = bc;
+		proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, TRUE);
+		COUNT_BYTES(padcnt);
+	}
+	if(dc){
+		CHECK_BYTE_COUNT(dc);
+		switch(si->cmd){
+
+		case 0x32:
+			/* TRANSACTION2 data*/
+			offset = dissect_transaction2_response_data(tvb, pinfo, tree, offset, dc);
+			bc -= dc;
+			break;
+
+		case 0x25:
+			/*XXXX process TRANSACTIOIN data*/
+			offset += dc;
+			bc -= pc;
+			break;
+		}
+	}
+
+#ifdef NOT_TVBUFFIFIED_YET
+	/* TRANSACTION response parameters */
+	if(si->cmd==0x25){
+		/* only call subdissector for the first packet */
+		if(dd==0){
+			tvbuff_t *p_tvb, *d_tvb, *s_tvb;
+
+			if(pc>0){
+				if(pc>tvb_length_remaining(tvb, po)){
+    					p_tvb = tvb_new_subset(tvb, po, tvb_length_remaining(tvb, po), pc);
+				} else {
+    					p_tvb = tvb_new_subset(tvb, po, pc, pc);
+				}
+			} else {
+				p_tvb = NULL;
+			}
+			if(dc>0){
+				if(dc>tvb_length_remaining(tvb, od)){
+    					d_tvb = tvb_new_subset(tvb, od, tvb_length_remaining(tvb, od), dc);
+				} else {
+    					d_tvb = tvb_new_subset(tvb, od, dc, dc);
+				}
+			} else {
+				d_tvb = NULL;
+			}
+			if(sc){
+    				s_tvb = tvb_new_subset(tvb, so, tvb_length_remaining(tvb, so), tvb_length_remaining(tvb, so));
+			} else {
+				s_tvb = NULL;
+			}
+
+			
+			if(si->subcmd==TRANSACTION_PIPE_LANMAN){
+       				dissect_pipe_smb(p_tvb, d_tvb, pinfo, top_tree);
+			}
+			if(si->subcmd==TRANSACTION_MAILSLOT){
+       				dissect_mailslot_smb(s_tvb, d_tvb, NULL, pinfo, top_tree);
+			}
+		} else {
+			if(check_col(pinfo->fd, COL_INFO)){
+				col_append_str(pinfo->fd, COL_INFO,
+					"[transact continuation] ");
+			}
+		}
+	}
+#endif
+
+	END_OF_SMB
+
+	return offset;
+}
+
+
+/* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+   END Transaction/Transaction2 Primary and secondary requests
+   XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
 
 
 typedef struct _smb_function {
@@ -7053,7 +10778,7 @@ smb_function smb_dissector[256] = {
 
   /* 0x30 */  {NULL, NULL},
   /* 0x31 */  {NULL, NULL},
-  /* 0x32 */  {NULL, NULL},
+  /* 0x32 Transaction2*/		{dissect_transaction_request, dissect_transaction_response},
   /* 0x33 */  {NULL, NULL},
   /* 0x34 Find Close2*/  {dissect_sid, dissect_empty},
   /* 0x35 */  {NULL, NULL},
@@ -7593,445 +11318,55 @@ static char *decode_smb_name(unsigned char cmd)
  * Struct passed to each SMB decode routine of info it may need
  */
 
-
-int smb_packet_init_count = 200;
-
-/*
- * This is a hash table matching transaction requests and replies.
- *
- * Unfortunately, the MID is not a transaction ID in, say, the ONC RPC
- * sense; instead, it's a "multiplex ID" used when there's more than one
- * request *currently* in flight, to distinguish replies.
- *
- * This means that the MID and PID don't uniquely identify a request in
- * a conversation.
- *
- * Therefore, we have to use some other value to distinguish between
- * requests with the same MID and PID.
- *
- * On the first pass through the capture, when we first see a request,
- * we hash it by conversation, MID, and PID.
- *
- * When we first see a reply to it, we add it to a new hash table,
- * hashing it by conversation, MID, PID, and frame number of the reply.
- *
- * This works as long as
- *
- *	1) a client doesn't screw up and have multiple requests outstanding
- *	   with the same MID and PID
- *
- * and
- *
- *	2) we don't have, within the same frame, replies to multiple
- *	   requests with the same MID and PID.
- *
- * 2) should happen only if the server screws up and puts the wrong MID or
- * PID into a reply (in which case not only can we not handle this, the
- * client can't handle it either) or if the client has screwed up as per
- * 1) and the server's dutifully replied to both of the requests with the
- * same MID and PID (in which case, again, neither we nor the client can
- * handle this).
- *
- * We don't have to correctly dissect screwups; we just have to keep from
- * dumping core on them.
- *
- * XXX - in addition, we need to keep a hash table of replies, so that we
- * can associate continuations with the reply to which they're a continuation.
- */
-struct smb_request_key {
-  guint32 conversation;
-  guint16 mid;
-  guint16 pid;
-  guint32 frame_num;
-};
-
-static GHashTable *smb_request_hash = NULL;
-static GMemChunk *smb_request_keys = NULL;
-static GMemChunk *smb_request_vals = NULL;
-
-/*
- * This is a hash table matching continued transation replies and their
- * continuations.
- *
- * It works similarly to the request/reply hash table.
- */
-static GHashTable *smb_continuation_hash = NULL;
-
-static GMemChunk *smb_continuation_vals = NULL;
-
-/* Hash Functions */
-static gint
-smb_equal(gconstpointer v, gconstpointer w)
-{
-  struct smb_request_key *v1 = (struct smb_request_key *)v;
-  struct smb_request_key *v2 = (struct smb_request_key *)w;
-
-#if defined(DEBUG_SMB_HASH)
-  printf("Comparing %08X:%u:%u:%u\n      and %08X:%u:%u:%u\n",
-	 v1 -> conversation, v1 -> mid, v1 -> pid, v1 -> frame_num,
-	 v2 -> conversation, v2 -> mid, v2 -> pid, v2 -> frame_num);
-#endif
-
-  if (v1 -> conversation == v2 -> conversation &&
-      v1 -> mid          == v2 -> mid &&
-      v1 -> pid          == v2 -> pid &&
-      v1 -> frame_num    == v2 -> frame_num) {
-
-    return 1;
-
-  }
-
-  return 0;
-}
-
-static guint
-smb_hash (gconstpointer v)
-{
-  struct smb_request_key *key = (struct smb_request_key *)v;
-  guint val;
-
-  val = (key -> conversation) + (key -> mid) + (key -> pid) +
-	(key -> frame_num);
-
-#if defined(DEBUG_SMB_HASH)
-  printf("SMB Hash calculated as %u\n", val);
-#endif
-
-  return val;
-
-}
-
-/*
- * Free up any state information we've saved, and re-initialize the
- * tables of state information.
- */
-
-/*
- * For a hash table entry, free the address data to which the key refers
- * and the fragment data to which the value refers.
- * (The actual key and value structures get freed by "reassemble_init()".)
- */
-static gboolean
-free_request_val_data(gpointer key, gpointer value, gpointer user_data)
-{
-  struct smb_request_val *request_val = value;
-
-  if (request_val->last_transact_command != NULL)
-    g_free(request_val->last_transact_command);
-  if (request_val->last_param_descrip != NULL)
-    g_free(request_val->last_param_descrip);
-  if (request_val->last_data_descrip != NULL)
-    g_free(request_val->last_data_descrip);
-  if (request_val->last_aux_data_descrip != NULL)
-    g_free(request_val->last_aux_data_descrip);
-  return TRUE;
-}
-
-static struct smb_request_val *
-do_transaction_hashing(conversation_t *conversation, struct smb_info si,
-		       frame_data *fd)
-{
-  struct smb_request_key request_key, *new_request_key;
-  struct smb_request_val *request_val = NULL;
-  gpointer               new_request_key_ret, request_val_ret;
-
-  if (si.request) {
-    /*
-     * This is a request.
-     *
-     * If this is the first time the frame has been seen, check for
-     * an entry for the request in the hash table.  If it's not found,
-     * insert an entry for it.
-     *
-     * If it's the first time it's been seen, then we can't have seen
-     * the reply yet, so the reply frame number should be 0, for
-     * "unknown".
-     */
-    if (!fd->flags.visited) {
-      request_key.conversation = conversation->index;
-      request_key.mid          = si.mid;
-      request_key.pid          = si.pid;
-      request_key.frame_num    = 0;
-
-      request_val = (struct smb_request_val *) g_hash_table_lookup(smb_request_hash, &request_key);
-
-      if (request_val == NULL) {
-	/*
-	 * Not found.
-	 */
-	new_request_key = g_mem_chunk_alloc(smb_request_keys);
-	new_request_key -> conversation = conversation->index;
-	new_request_key -> mid          = si.mid;
-	new_request_key -> pid          = si.pid;
-	new_request_key -> frame_num    = 0;
-
-	request_val = g_mem_chunk_alloc(smb_request_vals);
-	request_val -> frame = fd->num;
-	request_val -> last_transact2_command = -1;		/* unknown */
-	request_val -> last_transact_command = NULL;
-	request_val -> last_param_descrip = NULL;
-	request_val -> last_data_descrip = NULL;
-	request_val -> last_aux_data_descrip = NULL;
-
-	g_hash_table_insert(smb_request_hash, new_request_key, request_val);
-      } else {
-	/*
-	 * This means that we've seen another request in this conversation
-	 * with the same request and reply, and without an intervening
-	 * reply to that first request, and thus won't be using this
-	 * "request_val" structure for that request (as we'd use it only
-	 * for the reply).
-	 *
-	 * Clean out the structure, and set it to refer to this frame.
-	 */
-	request_val -> frame = fd->num;
-	request_val -> last_transact2_command = -1;		/* unknown */
-	if (request_val -> last_transact_command)
-	  g_free(request_val -> last_transact_command);
-	request_val -> last_transact_command = NULL;
-	if (request_val -> last_param_descrip)
-	  g_free(request_val -> last_param_descrip);
-	request_val -> last_param_descrip = NULL;
-	if (request_val -> last_data_descrip)
-	  g_free(request_val -> last_data_descrip);
-	request_val -> last_data_descrip = NULL;
-	if (request_val -> last_aux_data_descrip)
-	  g_free(request_val -> last_aux_data_descrip);
-	request_val -> last_aux_data_descrip = NULL;
-      }
-    }
-  } else {
-    /*
-     * This is a reply.
-     */
-    if (!fd->flags.visited) {
-      /*
-       * This is the first time the frame has been seen; check for
-       * an entry for a matching request, with an unknown reply frame
-       * number, in the hash table.
-       *
-       * If we find it, re-hash it with this frame's number as the
-       * reply frame number.
-       */
-      request_key.conversation = conversation->index;
-      request_key.mid          = si.mid;
-      request_key.pid          = si.pid;
-      request_key.frame_num    = 0;
-
-      /*
-       * Look it up - and, if we find it, get pointers to the key and
-       * value structures for it.
-       */
-      if (g_hash_table_lookup_extended(smb_request_hash, &request_key,
-				       &new_request_key_ret,
-				       &request_val_ret)) {
-	new_request_key = new_request_key_ret;
-	request_val = request_val_ret;
-
-	/*
-	 * We found it.
-	 * Remove the old entry.
-	 */
-	g_hash_table_remove(smb_request_hash, &request_key);
-
-	/*
-	 * Now update the key, and put it back into the hash table with
-	 * the new key.
-	 */
-	new_request_key->frame_num = fd->num;
-	g_hash_table_insert(smb_request_hash, new_request_key, request_val);
-      }
-    } else {
-      /*
-       * This is not the first time the frame has been seen; check for
-       * an entry for a matching request, with this frame's frame
-       * number as the reply frame number, in the hash table.
-       */
-      request_key.conversation = conversation->index;
-      request_key.mid          = si.mid;
-      request_key.pid          = si.pid;
-      request_key.frame_num    = fd->num;
-
-      request_val = (struct smb_request_val *) g_hash_table_lookup(smb_request_hash, &request_key);
-    }
-  }
-
-  return request_val;
-}
-
-static struct smb_continuation_val *
-do_continuation_hashing(conversation_t *conversation, struct smb_info si,
-		       frame_data *fd, guint16 TotalDataCount,
-		       guint16 DataCount, const char **TransactName)
-{
-  struct smb_request_key request_key, *new_request_key;
-  struct smb_continuation_val *continuation_val, *new_continuation_val;
-  gpointer               new_request_key_ret, continuation_val_ret;
-
-  continuation_val = NULL;
-  if (si.ddisp != 0) {
-    /*
-     * This reply isn't the first in the series; there should be a
-     * reply of which it is a continuation.
-     */
-    if (!fd->flags.visited) {
-      /*
-       * This is the first time the frame has been seen; check for
-       * an entry for a matching continued message, with an unknown
-       * continuation frame number, in the hash table.
-       *
-       * If we find it, re-hash it with this frame's number as the
-       * continuation frame number.
-       */
-      request_key.conversation = conversation->index;
-      request_key.mid          = si.mid;
-      request_key.pid          = si.pid;
-      request_key.frame_num    = 0;
-
-      /*
-       * Look it up - and, if we find it, get pointers to the key and
-       * value structures for it.
-       */
-      if (g_hash_table_lookup_extended(smb_continuation_hash, &request_key,
-				       &new_request_key_ret,
-				       &continuation_val_ret)) {
-	new_request_key = new_request_key_ret;
-	continuation_val = continuation_val_ret;
-
-	/*
-	 * We found it.
-	 * Remove the old entry.
-	 */
-	g_hash_table_remove(smb_continuation_hash, &request_key);
-
-	/*
-	 * Now update the key, and put it back into the hash table with
-	 * the new key.
-	 */
-	new_request_key->frame_num = fd->num;
-	g_hash_table_insert(smb_continuation_hash, new_request_key,
-			    continuation_val);
-      }
-    } else {
-      /*
-       * This is not the first time the frame has been seen; check for
-       * an entry for a matching request, with this frame's frame
-       * number as the continuation frame number, in the hash table.
-       */
-      request_key.conversation = conversation->index;
-      request_key.mid          = si.mid;
-      request_key.pid          = si.pid;
-      request_key.frame_num    = fd->num;
-
-      continuation_val = (struct smb_continuation_val *)
-		g_hash_table_lookup(smb_continuation_hash, &request_key);
-    }
-  }
-
-  /*
-   * If we found the entry for the message of which this is a continuation,
-   * and our caller cares, get the transaction name for that message, as
-   * it's the transaction name for this message as well.
-   */
-  if (continuation_val != NULL && TransactName != NULL)
-    *TransactName = continuation_val -> transact_name;
-
-  if (TotalDataCount > DataCount + si.ddisp) {
-    /*
-     * This reply isn't the last in the series; there should be a
-     * continuation for it later in the capture.
-     *
-     * If this is the first time the frame has been seen, check for
-     * an entry for the reply in the hash table.  If it's not found,
-     * insert an entry for it.
-     *
-     * If it's the first time it's been seen, then we can't have seen
-     * the continuation yet, so the continuation frame number should
-     * be 0, for "unknown".
-     */
-    if (!fd->flags.visited) {
-      request_key.conversation = conversation->index;
-      request_key.mid          = si.mid;
-      request_key.pid          = si.pid;
-      request_key.frame_num    = 0;
-
-      new_continuation_val = (struct smb_continuation_val *)
-		g_hash_table_lookup(smb_continuation_hash, &request_key);
-
-      if (new_continuation_val == NULL) {
-	/*
-	 * Not found.
-	 */
-	new_request_key = g_mem_chunk_alloc(smb_request_keys);
-	new_request_key -> conversation = conversation->index;
-	new_request_key -> mid          = si.mid;
-	new_request_key -> pid          = si.pid;
-	new_request_key -> frame_num    = 0;
-
-	new_continuation_val = g_mem_chunk_alloc(smb_continuation_vals);
-	new_continuation_val -> frame = fd->num;
-	if (TransactName != NULL)
-	  new_continuation_val -> transact_name = *TransactName;
-	else
-	  new_continuation_val -> transact_name = NULL;
-
-	g_hash_table_insert(smb_continuation_hash, new_request_key,
-			    new_continuation_val);
-      } else {
-	/*
-	 * This presumably means we never saw the continuation of
-	 * the message we found, and this is a reply to a different
-	 * request; as we never saw the continuation of that message,
-	 * we won't be using this "request_val" structure for that
-	 * message (as we'd use it only for the continuation).
-	 *
-	 * Clean out the structure, and set it to refer to this frame.
-	 */
-	new_continuation_val -> frame = fd->num;
-      }
-    }
-  }
-
-  return continuation_val;
-}
-
 static void
 smb_init_protocol(void)
 {
-#if defined(DEBUG_SMB_HASH)
-  printf("Initializing SMB hashtable area\n");
-#endif
+	if (smb_info_table) {
+		g_hash_table_foreach_remove(smb_info_table,
+		    free_all_smb_info, NULL);
+		g_hash_table_destroy(smb_info_table);
+	}
+	if (smb_request_hash) {
+		/*
+		 * Remove all entries from the hash table and free all
+		 * strings attached to the keys and values.  (The keys
+		 * and values themselves are freed with
+		 * "g_mem_chunk_destroy()" calls below.)
+		 */
+		g_hash_table_foreach_remove(smb_request_hash,
+		    free_request_val_data, NULL);
+		g_hash_table_destroy(smb_request_hash);
+	}
+	if (smb_continuation_hash)
+		g_hash_table_destroy(smb_continuation_hash);
+	if (smb_request_keys)
+		g_mem_chunk_destroy(smb_request_keys);
+	if (smb_request_vals)
+		g_mem_chunk_destroy(smb_request_vals);
+	if (smb_continuation_vals)
+		g_mem_chunk_destroy(smb_continuation_vals);
+	if (smb_info_chunk)
+		g_mem_chunk_destroy(smb_info_chunk);
 
-  if (smb_request_hash) {
-    /*
-     * Remove all entries from the hash table and free all strings
-     * attached to the keys and values.  (The keys and values
-     * themselves are freed with "g_mem_chunk_destroy()" calls
-     * below.)
-     */
-    g_hash_table_foreach_remove(smb_request_hash, free_request_val_data, NULL);
-    g_hash_table_destroy(smb_request_hash);
-  }
-  if (smb_continuation_hash)
-    g_hash_table_destroy(smb_continuation_hash);
-  if (smb_request_keys)
-    g_mem_chunk_destroy(smb_request_keys);
-  if (smb_request_vals)
-    g_mem_chunk_destroy(smb_request_vals);
-  if (smb_continuation_vals)
-    g_mem_chunk_destroy(smb_continuation_vals);
-
-  smb_request_hash = g_hash_table_new(smb_hash, smb_equal);
-  smb_continuation_hash = g_hash_table_new(smb_hash, smb_equal);
-  smb_request_keys = g_mem_chunk_new("smb_request_keys",
-				     sizeof(struct smb_request_key),
-				     smb_packet_init_count * sizeof(struct smb_request_key), G_ALLOC_AND_FREE);
-  smb_request_vals = g_mem_chunk_new("smb_request_vals",
-				     sizeof(struct smb_request_val),
-				     smb_packet_init_count * sizeof(struct smb_request_val), G_ALLOC_AND_FREE);
-  smb_continuation_vals = g_mem_chunk_new("smb_continuation_vals",
-				     sizeof(struct smb_continuation_val),
-				     smb_packet_init_count * sizeof(struct smb_continuation_val), G_ALLOC_AND_FREE);
+	smb_info_table = g_hash_table_new(smb_info_hash, smb_info_equal);
+	smb_request_hash = g_hash_table_new(smb_hash, smb_equal);
+	smb_continuation_hash = g_hash_table_new(smb_hash, smb_equal);
+	smb_request_keys = g_mem_chunk_new("smb_request_keys",
+	    sizeof(struct smb_request_key),
+	    smb_packet_init_count * sizeof(struct smb_request_key),
+	    G_ALLOC_AND_FREE);
+	smb_request_vals = g_mem_chunk_new("smb_request_vals",
+	    sizeof(struct smb_request_val),
+	    smb_packet_init_count * sizeof(struct smb_request_val),
+	    G_ALLOC_AND_FREE);
+	smb_continuation_vals = g_mem_chunk_new("smb_continuation_vals",
+	    sizeof(struct smb_continuation_val),
+	    smb_packet_init_count * sizeof(struct smb_continuation_val),
+	    G_ALLOC_AND_FREE);
+	smb_info_chunk = g_mem_chunk_new("smb_info_chunk",
+	    sizeof(smb_info_t),
+	    smb_info_init_count * sizeof(smb_info_t),
+	    G_ALLOC_ONLY);
 }
 
 static void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, proto_tree *, struct smb_info si, int, int);
@@ -8209,14 +11544,17 @@ get_unicode_or_ascii_string(const u_char *pd, int *offsetp, int SMB_offset,
 static const gchar *
 get_unicode_or_ascii_string_tvb(tvbuff_t *tvb, int *offsetp,
     packet_info *pinfo, int *len, gboolean nopad, gboolean exactlen,
-    guint16 *bc)
+    guint16 *bcp)
 {
+  static gchar  str[3][MAX_UNICODE_STR_LEN+3+1];
+  static gchar *cur;
   int offset = *offsetp;
   const gchar *string;
   int string_len;
   smb_info_t *si;
+  int copylen;
 
-  if (*bc == 0) {
+  if (*bcp == 0) {
     /* Not enough data in buffer */
     return NULL;
   }
@@ -8230,22 +11568,39 @@ get_unicode_or_ascii_string_tvb(tvbuff_t *tvb, int *offsetp,
        * the beginning of the frame will give the wrong answer.
        */
       (*offsetp)++;   /* Looks like a pad byte there sometimes */
-      (*bc)--;
-      if (*bc == 0) {
+      (*bcp)--;
+      if (*bcp == 0) {
         /* Not enough data in buffer */
         return NULL;
       }
     }
     if(exactlen){
       string_len = *len;
-      string = unicode_to_str_tvb(tvb, *offsetp, &string_len, exactlen, *bc);
+      string = unicode_to_str_tvb(tvb, *offsetp, &string_len, exactlen, *bcp);
     } else {
-      string = unicode_to_str_tvb(tvb, *offsetp, &string_len, exactlen, *bc);
+      string = unicode_to_str_tvb(tvb, *offsetp, &string_len, exactlen, *bcp);
     }
   } else {
     if(exactlen){
-      string = tvb_get_ptr(tvb, *offsetp, *len);
+      /*
+       * The string we return must be null-terminated.
+       */
+      if (cur == &str[0][0]) {
+        cur = &str[1][0];
+      } else if (cur == &str[1][0]) {  
+        cur = &str[2][0];
+      } else {  
+        cur = &str[0][0];
+      }
+      copylen = *len;
+      if (copylen > MAX_UNICODE_STR_LEN)
+        copylen = MAX_UNICODE_STR_LEN;
+      tvb_memcpy(tvb, (guint8 *)cur, *offsetp, copylen);
+      cur[copylen] = '\0';
+      if (copylen > MAX_UNICODE_STR_LEN)
+        strcat(cur, "...");
       string_len = *len;
+      string = cur;
     } else {
       string_len = tvb_strsize(tvb, *offsetp);
       string = tvb_get_ptr(tvb, *offsetp, string_len);
@@ -8262,738 +11617,6 @@ get_unicode_or_ascii_string_tvb(tvbuff_t *tvb, int *offsetp,
 
 
 
-
-static const value_string trans2_cmd_vals[] = {
-  { 0x00, "TRANS2_OPEN" },
-  { 0x01, "TRANS2_FIND_FIRST2" },
-  { 0x02, "TRANS2_FIND_NEXT2" },
-  { 0x03, "TRANS2_QUERY_FS_INFORMATION" },
-  { 0x05, "TRANS2_QUERY_PATH_INFORMATION" },
-  { 0x06, "TRANS2_SET_PATH_INFORMATION" },
-  { 0x07, "TRANS2_QUERY_FILE_INFORMATION" },
-  { 0x08, "TRANS2_SET_FILE_INFORMATION" },
-  { 0x09, "TRANS2_FSCTL" },
-  { 0x0A, "TRANS2_IOCTL2" },
-  { 0x0B, "TRANS2_FIND_NOTIFY_FIRST" },
-  { 0x0C, "TRANS2_FIND_NOTIFY_NEXT" },
-  { 0x0D, "TRANS2_CREATE_DIRECTORY" },
-  { 0x0E, "TRANS2_SESSION_SETUP" },
-  { 0x10, "TRANS2_GET_DFS_REFERRAL" },
-  { 0x11, "TRANS2_REPORT_DFS_INCONSISTENCY" },
-  { 0,    NULL }
-};
-
-void
-dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
-
-{
-  proto_tree    *Flags_tree;
-  proto_item    *ti;
-  guint8        WordCount;
-  guint8        SetupCount;
-  guint8        Reserved3;
-  guint8        Reserved1;
-  guint8        MaxSetupCount;
-  guint8        Data;
-  guint32       Timeout;
-  guint16       TotalParameterCount;
-  guint16       TotalDataCount;
-  guint16       Setup;
-  guint16       Reserved2;
-  guint16       ParameterOffset;
-  guint16       ParameterDisplacement;
-  guint16       ParameterCount;
-  guint16       MaxParameterCount;
-  guint16       MaxDataCount;
-  guint16       Flags;
-  guint16       DataOffset;
-  guint16       DataDisplacement;
-  guint16       DataCount;
-  guint16       ByteCount;
-  conversation_t *conversation;
-  struct smb_request_val *request_val;
-  struct smb_continuation_val *continuation_val;
-
-  /*
-   * Find out what conversation this packet is part of.
-   * XXX - this should really be done by the transport-layer protocol,
-   * although for connectionless transports, we may not want to do that
-   * unless we know some higher-level protocol will want it - or we
-   * may want to do it, so you can say e.g. "show only the packets in
-   * this UDP 'connection'".
-   *
-   * Note that we don't have to worry about the direction this packet
-   * was going - the conversation code handles that for us, treating
-   * packets from A:X to B:Y as being part of the same conversation as
-   * packets from B:Y to A:X.
-   */
-  conversation = find_conversation(&pi.src, &pi.dst, pi.ptype,
-				pi.srcport, pi.destport, 0);
-  if (conversation == NULL) {
-    /* It's not part of any conversation - create a new one. */
-    conversation = conversation_new(&pi.src, &pi.dst, pi.ptype,
-				pi.srcport, pi.destport, 0);
-  }
-
-  si.conversation = conversation;  /* Save this for later */
-
-  request_val = do_transaction_hashing(conversation, si, fd);
-
-  si.request_val = request_val;  /* Save this for later */
-
-  if (si.request) {
-    /* Request(s) dissect code */
-  
-    /* Build display for: Word Count (WCT) */
-
-    WordCount = GBYTE(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Word Count (WCT): %u", WordCount);
-
-    }
-
-    offset += 1; /* Skip Word Count (WCT) */
-
-    /* Build display for: Total Parameter Count */
-
-    TotalParameterCount = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Total Parameter Count: %u", TotalParameterCount);
-
-    }
-
-    offset += 2; /* Skip Total Parameter Count */
-
-    /* Build display for: Total Data Count */
-
-    TotalDataCount = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Total Data Count: %u", TotalDataCount);
-
-    }
-
-    offset += 2; /* Skip Total Data Count */
-
-    /* Build display for: Max Parameter Count */
-
-    MaxParameterCount = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Max Parameter Count: %u", MaxParameterCount);
-
-    }
-
-    offset += 2; /* Skip Max Parameter Count */
-
-    /* Build display for: Max Data Count */
-
-    MaxDataCount = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Max Data Count: %u", MaxDataCount);
-
-    }
-
-    offset += 2; /* Skip Max Data Count */
-
-    /* Build display for: Max Setup Count */
-
-    MaxSetupCount = GBYTE(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Max Setup Count: %u", MaxSetupCount);
-
-    }
-
-    offset += 1; /* Skip Max Setup Count */
-
-    /* Build display for: Reserved1 */
-
-    Reserved1 = GBYTE(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Reserved1: %u", Reserved1);
-
-    }
-
-    offset += 1; /* Skip Reserved1 */
-
-    /* Build display for: Flags */
-
-    Flags = GSHORT(pd, offset);
-
-    if (tree) {
-
-      ti = proto_tree_add_text(tree, NullTVB, offset, 2, "Flags: 0x%02x", Flags);
-      Flags_tree = proto_item_add_subtree(ti, ett_smb_flags);
-      proto_tree_add_text(Flags_tree, NullTVB, offset, 2, "%s",
-                          decode_boolean_bitfield(Flags, 0x01, 16, "Also disconnect TID", "Dont disconnect TID"));
-      proto_tree_add_text(Flags_tree, NullTVB, offset, 2, "%s",
-                          decode_boolean_bitfield(Flags, 0x02, 16, "One way transaction", "Two way transaction"));
-    
-    }
-
-    offset += 2; /* Skip Flags */
-
-    /* Build display for: Timeout */
-
-    Timeout = GWORD(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 4, "Timeout: %u", Timeout);
-
-    }
-
-    offset += 4; /* Skip Timeout */
-
-    /* Build display for: Reserved2 */
-
-    Reserved2 = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Reserved2: %u", Reserved2);
-
-    }
-
-    offset += 2; /* Skip Reserved2 */
-
-    /* Build display for: Parameter Count */
-
-    if (!BYTES_ARE_IN_FRAME(offset, 2))
-      return;
-
-    ParameterCount = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Parameter Count: %u", ParameterCount);
-
-    }
-
-    offset += 2; /* Skip Parameter Count */
-
-    /* Build display for: Parameter Offset */
-
-    if (!BYTES_ARE_IN_FRAME(offset, 2))
-      return;
-
-    ParameterOffset = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Parameter Offset: %u", ParameterOffset);
-
-    }
-
-    offset += 2; /* Skip Parameter Offset */
-
-    /* Build display for: Data Count */
-
-    if (!BYTES_ARE_IN_FRAME(offset, 2))
-      return;
-
-    DataCount = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Data Count: %u", DataCount);
-
-    }
-
-    offset += 2; /* Skip Data Count */
-
-    /* Build display for: Data Offset */
-
-    if (!BYTES_ARE_IN_FRAME(offset, 2))
-      return;
-
-    DataOffset = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Data Offset: %u", DataOffset);
-
-    }
-
-    offset += 2; /* Skip Data Offset */
-
-    /* Build display for: Setup Count */
-
-    if (!BYTES_ARE_IN_FRAME(offset, 2))
-      return;
-
-    SetupCount = GBYTE(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Setup Count: %u", SetupCount);
-
-    }
-
-    offset += 1; /* Skip Setup Count */
-
-    /* Build display for: Reserved3 */
-
-    Reserved3 = GBYTE(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Reserved3: %u", Reserved3);
-
-    }
-
-    offset += 1; /* Skip Reserved3 */
-
-    /* Build display for: Setup */
-
-    if (SetupCount != 0) {
-
-      int i;
-
-      if (!BYTES_ARE_IN_FRAME(offset, 2))
-	return;
-
-      /*
-       * First Setup word is transaction code.
-       */
-      Setup = GSHORT(pd, offset);
-
-      if (!fd->flags.visited) {
-	/*
-	 * This is the first time this frame has been seen; remember
-	 * the transaction code.
-	 */
-	g_assert(request_val -> last_transact2_command == -1);
-        request_val -> last_transact2_command = Setup;  /* Save for later */
-      }
-
-      if (check_col(fd, COL_INFO)) {
-
-	col_add_fstr(fd, COL_INFO, "%s Request",
-		     val_to_str(Setup, trans2_cmd_vals, "Unknown (0x%02X)"));
-
-      }
-
-      if (tree) {
-
-	proto_tree_add_text(tree, NullTVB, offset, 2, "Setup1: %s",
-			  val_to_str(Setup, trans2_cmd_vals, "Unknown (0x%02X)"));
-
-      }
-
-      offset += 2; /* Skip Setup word */
-
-      for (i = 2; i <= SetupCount; i++) {
-
-	if (!BYTES_ARE_IN_FRAME(offset, 2))
-	  return;
-
-	Setup = GSHORT(pd, offset);
-
-	if (tree) {
-
-	  proto_tree_add_text(tree, NullTVB, offset, 2, "Setup%i: %u", i, Setup);
-
-	}
-
-	offset += 2; /* Skip Setup word */
-
-      }
-
-    }
-
-    /* Build display for: Byte Count (BCC) */
-
-    if (!BYTES_ARE_IN_FRAME(offset, 2))
-      return;
-
-    ByteCount = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Byte Count (BCC): %u", ByteCount);
-
-    }
-
-    offset += 2; /* Skip Byte Count (BCC) */
-
-    if (offset < (SMB_offset + ParameterOffset)) {
-
-      int pad1Count = SMB_offset + ParameterOffset - offset;
-
-      /* Build display for: Pad1 */
-
-      if (tree) {
-
-	proto_tree_add_text(tree, NullTVB, offset, pad1Count, "Pad1: %s",
-			    bytes_to_str(pd + offset, pad1Count));
-      }
-
-      offset += pad1Count; /* Skip Pad1 */
-
-    }
-
-    if (ParameterCount > 0) {
-
-      /* Build display for: Parameters */
-
-      if (tree) {
-
-	proto_tree_add_text(tree, NullTVB, SMB_offset + ParameterOffset,
-			    ParameterCount, "Parameters: %s",
-			    bytes_to_str(pd + SMB_offset + ParameterOffset,
-					 ParameterCount));
-
-      }
-
-      offset += ParameterCount; /* Skip Parameters */
-
-    }
-
-    if (DataCount > 0 && offset < (SMB_offset + DataOffset)) {
-
-      int pad2Count = SMB_offset + DataOffset - offset;
-	
-      /* Build display for: Pad2 */
-
-      if (tree) {
-
-	proto_tree_add_text(tree, NullTVB, offset, pad2Count, "Pad2: %s",
-			    bytes_to_str(pd + offset, pad2Count));
-
-      }
-
-      offset += pad2Count; /* Skip Pad2 */
-
-    }
-
-    if (DataCount > 0) {
-
-      /* Build display for: Data */
-
-      Data = GBYTE(pd, offset);
-
-      if (tree) {
-
-	proto_tree_add_text(tree, NullTVB, SMB_offset + DataOffset,
-			    DataCount, "Data: %s",
-			    bytes_to_str(pd + offset, DataCount));
-
-      }
-
-      offset += DataCount; /* Skip Data */
-
-    }
-  } else {
-    /* Response(s) dissect code */
-
-    /* Pick up the last transact2 command and put it in the right places */
-
-    if (check_col(fd, COL_INFO)) {
-
-      if (request_val == NULL)
-	col_set_str(fd, COL_INFO, "Response to unknown SMBtrans2");
-      else if (request_val -> last_transact2_command == -1)
-	col_set_str(fd, COL_INFO, "Response to SMBtrans2 of unknown type");
-      else
-	col_add_fstr(fd, COL_INFO, "%s Response",
-		     val_to_str(request_val -> last_transact2_command,
-				trans2_cmd_vals, "Unknown (0x%02X)"));
-
-    }
-
-    /* Build display for: Word Count (WCT) */
-
-    WordCount = GBYTE(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Word Count (WCT): %u", WordCount);
-
-    }
-
-    offset += 1; /* Skip Word Count (WCT) */
-
-    if (WordCount == 0) {
-
-      /* Interim response. */
-
-      if (check_col(fd, COL_INFO)) {
-
-	if (request_val == NULL)
-	  col_set_str(fd, COL_INFO, "Interim response to unknown SMBtrans2");
-	else if (request_val -> last_transact2_command == -1)
-	  col_set_str(fd, COL_INFO, "Interim response to SMBtrans2 of unknown type");
-	else
-	  col_add_fstr(fd, COL_INFO, "%s interim response",
-		       val_to_str(request_val -> last_transact2_command,
-				  trans2_cmd_vals, "Unknown (0x%02X)"));
-
-      }
-
-      /* Build display for: Byte Count (BCC) */
-
-      ByteCount = GSHORT(pd, offset);
-
-      if (tree) {
-
-	proto_tree_add_text(tree, NullTVB, offset, 2, "Byte Count (BCC): %u", ByteCount);
-
-      }
-
-      offset += 2; /* Skip Byte Count (BCC) */
-
-      return;
-
-    }
-
-    /* Build display for: Total Parameter Count */
-
-    TotalParameterCount = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Total Parameter Count: %u", TotalParameterCount);
-
-    }
-
-    offset += 2; /* Skip Total Parameter Count */
-
-    /* Build display for: Total Data Count */
-
-    TotalDataCount = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Total Data Count: %u", TotalDataCount);
-
-    }
-
-    offset += 2; /* Skip Total Data Count */
-
-    /* Build display for: Reserved2 */
-
-    Reserved2 = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Reserved2: %u", Reserved2);
-
-    }
-
-    offset += 2; /* Skip Reserved2 */
-
-    /* Build display for: Parameter Count */
-
-    ParameterCount = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Parameter Count: %u", ParameterCount);
-
-    }
-
-    offset += 2; /* Skip Parameter Count */
-
-    /* Build display for: Parameter Offset */
-
-    ParameterOffset = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Parameter Offset: %u", ParameterOffset);
-
-    }
-
-    offset += 2; /* Skip Parameter Offset */
-
-    /* Build display for: Parameter Displacement */
-
-    ParameterDisplacement = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Parameter Displacement: %u", ParameterDisplacement);
-
-    }
-
-    offset += 2; /* Skip Parameter Displacement */
-
-    /* Build display for: Data Count */
-
-    DataCount = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Data Count: %u", DataCount);
-
-    }
-
-    offset += 2; /* Skip Data Count */
-
-    /* Build display for: Data Offset */
-
-    DataOffset = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Data Offset: %u", DataOffset);
-
-    }
-
-    offset += 2; /* Skip Data Offset */
-
-    /* Build display for: Data Displacement */
-
-    if (!BYTES_ARE_IN_FRAME(offset, 2))
-      return;
-
-    DataDisplacement = GSHORT(pd, offset);
-    si.ddisp = DataDisplacement;
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Data Displacement: %u", DataDisplacement);
-
-    }
-
-    offset += 2; /* Skip Data Displacement */
-
-    /* Build display for: Setup Count */
-
-    SetupCount = GBYTE(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Setup Count: %u", SetupCount);
-
-    }
-
-    offset += 1; /* Skip Setup Count */
-
-    /* Build display for: Reserved3 */
-
-    Reserved3 = GBYTE(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Reserved3: %u", Reserved3);
-
-    }
-
-    offset += 1; /* Skip Reserved3 */
-
-    if (SetupCount != 0) {
-
-      int i;
-
-      for (i = 1; i <= SetupCount; i++) {
-	
-	Setup = GSHORT(pd, offset);
-
-	if (tree) {
-
-	  proto_tree_add_text(tree, NullTVB, offset, 2, "Setup%i: %u", i, Setup);
-
-	}
-
-	offset += 2; /* Skip Setup */
-
-      }
-    }
-
-    /* Build display for: Byte Count (BCC) */
-
-    ByteCount = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Byte Count (BCC): %u", ByteCount);
-
-    }
-
-    offset += 2; /* Skip Byte Count (BCC) */
-
-    if (offset < (SMB_offset + ParameterOffset)) {
-
-      int pad1Count = SMB_offset + ParameterOffset - offset;
-
-      /* Build display for: Pad1 */
-
-      if (tree) {
-
-	proto_tree_add_text(tree, NullTVB, offset, pad1Count, "Pad1: %s",
-			    bytes_to_str(pd + offset, pad1Count));
-      }
-
-      offset += pad1Count; /* Skip Pad1 */
-
-    }
-
-    /* Build display for: Parameters */
-
-    if (ParameterCount > 0) {
-
-      if (tree) {
-
-	proto_tree_add_text(tree, NullTVB, offset, ParameterCount,
-			    "Parameters: %s",
-			    bytes_to_str(pd + offset, ParameterCount));
-
-      }
-
-      offset += ParameterCount; /* Skip Parameters */
-
-    }
-
-    if (DataCount > 0 && offset < (SMB_offset + DataOffset)) {
-
-      int pad2Count = SMB_offset + DataOffset - offset;
-	
-      /* Build display for: Pad2 */
-
-      if (tree) {
-
-	proto_tree_add_text(tree, NullTVB, offset, pad2Count, "Pad2: %s",
-			    bytes_to_str(pd + offset, pad2Count));
-
-      }
-
-      offset += pad2Count; /* Skip Pad2 */
-
-    }
-
-    /* Build display for: Data */
-
-    if (DataCount > 0) {
-
-      if (tree) {
-
-	proto_tree_add_text(tree, NullTVB, offset, DataCount,
-			    "Data: %s",
-			    bytes_to_str(pd + offset, DataCount));
-
-      }
-
-      offset += DataCount; /* Skip Data */
-
-    }
-
-  }
-
-}
 
 
 static void 
@@ -9871,7 +12494,7 @@ static void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, pro
 
   dissect_unknown_smb,      /* unknown SMB 0x30 */
   dissect_unknown_smb,      /* unknown SMB 0x31 */
-  dissect_transact2_smb,    /* SMBtrans2 transaction */
+  dissect_unknown_smb,
   dissect_unknown_smb,      /* unknown SMB 0x33 */
   dissect_unknown_smb,
   dissect_unknown_smb,      /* unknown SMB 0x35 */
@@ -11181,7 +13804,6 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree_add_text(htree, tvb, offset, 4, "Server Component: SMB");
 	offset += 4;  /* Skip the marker */
 
-
 	/* store smb_info structure so we can retreive it from the reply */
 	if(sip->request){
 		sip->src = &pinfo->src;
@@ -11881,27 +14503,27 @@ proto_register_smb(void)
 
 	{ &hf_smb_search_attribute_read_only,
 		{ "Read Only", "smb.search.attribute.read_only", FT_BOOLEAN, 16,
-		TFS(&tfs_file_attribute_read_only), FILE_ATTRIBUTE_READ_ONLY, "READ ONLY search attribute", HFILL }},
+		TFS(&tfs_search_attribute_read_only), FILE_ATTRIBUTE_READ_ONLY, "READ ONLY search attribute", HFILL }},
 
 	{ &hf_smb_search_attribute_hidden,
 		{ "Hidden", "smb.search.attribute.hidden", FT_BOOLEAN, 16,
-		TFS(&tfs_file_attribute_hidden), FILE_ATTRIBUTE_HIDDEN, "HIDDEN search attribute", HFILL }},
+		TFS(&tfs_search_attribute_hidden), FILE_ATTRIBUTE_HIDDEN, "HIDDEN search attribute", HFILL }},
 
 	{ &hf_smb_search_attribute_system,
 		{ "System", "smb.search.attribute.system", FT_BOOLEAN, 16,
-		TFS(&tfs_file_attribute_system), FILE_ATTRIBUTE_SYSTEM, "SYSTEM search attribute", HFILL }},
+		TFS(&tfs_search_attribute_system), FILE_ATTRIBUTE_SYSTEM, "SYSTEM search attribute", HFILL }},
 
 	{ &hf_smb_search_attribute_volume,
 		{ "Volume ID", "smb.search.attribute.volume", FT_BOOLEAN, 16,
-		TFS(&tfs_file_attribute_volume), FILE_ATTRIBUTE_VOLUME, "VOLUME ID search attribute", HFILL }},
+		TFS(&tfs_search_attribute_volume), FILE_ATTRIBUTE_VOLUME, "VOLUME ID search attribute", HFILL }},
 
 	{ &hf_smb_search_attribute_directory,
 		{ "Directory", "smb.search.attribute.directory", FT_BOOLEAN, 16,
-		TFS(&tfs_file_attribute_directory), FILE_ATTRIBUTE_DIRECTORY, "DIRECTORY search attribute", HFILL }},
+		TFS(&tfs_search_attribute_directory), FILE_ATTRIBUTE_DIRECTORY, "DIRECTORY search attribute", HFILL }},
 
 	{ &hf_smb_search_attribute_archive,
 		{ "Archive", "smb.search.attribute.archive", FT_BOOLEAN, 16,
-		TFS(&tfs_file_attribute_archive), FILE_ATTRIBUTE_ARCHIVE, "ARCHIVE search attribute", HFILL }},
+		TFS(&tfs_search_attribute_archive), FILE_ATTRIBUTE_ARCHIVE, "ARCHIVE search attribute", HFILL }},
 
 	{ &hf_smb_access_mode,
 		{ "Access Mode", "smb.access.mode", FT_UINT16, BASE_DEC,
@@ -12224,7 +14846,7 @@ proto_register_smb(void)
 		NULL, 0, "Maximum number of setup words to return", HFILL }},
 
 	{ &hf_smb_total_param_count,
-		{ "Total Param Count", "smb.tpc", FT_UINT32, BASE_DEC,
+		{ "Total Parameter Count", "smb.tpc", FT_UINT32, BASE_DEC,
 		NULL, 0, "Total number of parameter bytes", HFILL }},
 
 	{ &hf_smb_total_data_count,
@@ -12232,31 +14854,55 @@ proto_register_smb(void)
 		NULL, 0, "Total number of data bytes", HFILL }},
 
 	{ &hf_smb_max_param_count,
-		{ "Max Param Count", "smb.mpc", FT_UINT32, BASE_DEC,
+		{ "Max Parameter Count", "smb.mpc", FT_UINT32, BASE_DEC,
 		NULL, 0, "Maximum number of parameter bytes to return", HFILL }},
 
 	{ &hf_smb_max_data_count,
 		{ "Max Data Count", "smb.mdc", FT_UINT32, BASE_DEC,
 		NULL, 0, "Maximum number of data bytes to return", HFILL }},
 
+	{ &hf_smb_param_disp16,
+		{ "Parameter Displacement", "smb.pd", FT_UINT16, BASE_DEC,
+		NULL, 0, "Displacement of these parameter bytes", HFILL }},
+
+	{ &hf_smb_param_count16,
+		{ "Parameter Count", "smb.pc", FT_UINT16, BASE_DEC,
+		NULL, 0, "Number of parameter bytes in this buffer", HFILL }},
+
+	{ &hf_smb_param_offset16,
+		{ "Parameter Offset", "smb.po", FT_UINT16, BASE_DEC,
+		NULL, 0, "Offset (from header start) to parameters", HFILL }},
+
 	{ &hf_smb_param_disp32,
-		{ "Param Disp", "smb.pd", FT_UINT32, BASE_DEC,
+		{ "Parameter Displacement", "smb.pd", FT_UINT32, BASE_DEC,
 		NULL, 0, "Displacement of these parameter bytes", HFILL }},
 
 	{ &hf_smb_param_count32,
-		{ "Param Count", "smb.pc", FT_UINT32, BASE_DEC,
+		{ "Parameter Count", "smb.pc", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of parameter bytes in this buffer", HFILL }},
 
 	{ &hf_smb_param_offset32,
-		{ "Param Offset", "smb.po", FT_UINT32, BASE_DEC,
+		{ "Parameter Offset", "smb.po", FT_UINT32, BASE_DEC,
 		NULL, 0, "Offset (from header start) to parameters", HFILL }},
+
+	{ &hf_smb_data_count16,
+		{ "Data Count", "smb.dc", FT_UINT16, BASE_DEC,
+		NULL, 0, "Number of data bytes in this buffer", HFILL }},
+
+	{ &hf_smb_data_disp16,
+		{ "Data Displacement", "smb.data_disp", FT_UINT16, BASE_DEC,
+		NULL, 0, "Data Displacement", HFILL }},
+
+	{ &hf_smb_data_offset16,
+		{ "Data Offset", "smb.data_offset", FT_UINT16, BASE_DEC,
+		NULL, 0, "Data Offset", HFILL }},
 
 	{ &hf_smb_data_count32,
 		{ "Data Count", "smb.dc", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of data bytes in this buffer", HFILL }},
 
 	{ &hf_smb_data_disp32,
-		{ "Data Disp", "smb.data_disp", FT_UINT32, BASE_DEC,
+		{ "Data Displacement", "smb.data_disp", FT_UINT32, BASE_DEC,
 		NULL, 0, "Data Displacement", HFILL }},
 
 	{ &hf_smb_data_offset32,
@@ -12496,6 +15142,14 @@ proto_register_smb(void)
 		{ "Sequential Only", "smb.nt.create_options.sequential_only", FT_BOOLEAN, 32,
 		TFS(&tfs_nt_create_options_sequential_only), 0x00000004, "Will accees to thsis file only be sequential?", HFILL }},
 
+	{ &hf_smb_nt_create_options_sync_io_alert,
+		{ "Sync I/O Alert", "smb.nt.create_options.sync_io_alert", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_options_sync_io_alert), 0x00000010, "All operations are performed synchronous", HFILL}},
+
+	{ &hf_smb_nt_create_options_sync_io_nonalert,
+		{ "Sync I/O Nonalert", "smb.nt.create_options.sync_io_nonalert", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_options_sync_io_nonalert), 0x00000020, "All operations are synchronous and may block", HFILL}},
+
 	{ &hf_smb_nt_create_options_non_directory_file,
 		{ "Non-Directory", "smb.nt.create_options.non_directory", FT_BOOLEAN, 32,
 		TFS(&tfs_nt_create_options_non_directory), 0x00000040, "Should file being opened/created be a non-directory?", HFILL }},
@@ -12728,6 +15382,317 @@ proto_register_smb(void)
 		{ "Cancel to", "smb.cancel_to", FT_UINT32, BASE_DEC,
 		NULL, 0, "This packet is a cancellation of the packet in this frame", HFILL }},
 
+	{ &hf_smb_trans2_subcmd,
+		{ "Subcommand", "smb.trans2.cmd", FT_UINT16, BASE_HEX,
+		VALS(trans2_cmd_vals), 0, "Subcommand for TRANSACTION2", HFILL }},
+
+	{ &hf_smb_trans_name,
+		{ "Transaction Name", "smb.trans_name", FT_STRING, BASE_NONE,
+		NULL, 0, "Name of transaction", HFILL }},
+
+	{ &hf_smb_transaction_flags_dtid,
+		{ "Disconnect TID", "smb.transaction.flags.dtid", FT_BOOLEAN, 16,
+		TFS(&tfs_tf_dtid), 0x0001, "Disconnect TID?", HFILL }},
+
+	{ &hf_smb_transaction_flags_owt,
+		{ "One Way Transaction", "smb.transaction.flags.owt", FT_BOOLEAN, 16,
+		TFS(&tfs_tf_owt), 0x0002, "One Way Transaction (no response)?", HFILL }},
+
+	{ &hf_smb_search_count,
+		{ "Search Count", "smb.search_count", FT_UINT16, BASE_DEC,
+		NULL, 0, "Maximum number of search entries to return", HFILL }},
+
+	{ &hf_smb_search_pattern,
+		{ "Search Pattern", "smb.search_pattern", FT_STRING, BASE_NONE,
+		NULL, 0, "Search Pattern", HFILL }},
+
+	{ &hf_smb_ff2_backup,
+		{ "Backup Intent", "smb.find_first2.flags.backup", FT_BOOLEAN, 16,
+		TFS(&tfs_ff2_backup), 0x0010, "Find with backup intent", HFILL }},
+
+	{ &hf_smb_ff2_continue,
+		{ "Continue", "smb.find_first2.flags.continue", FT_BOOLEAN, 16,
+		TFS(&tfs_ff2_continue), 0x0008, "Continue search from previous ending place", HFILL }},
+
+	{ &hf_smb_ff2_resume,
+		{ "Resume", "smb.find_first2.flags.resume", FT_BOOLEAN, 16,
+		TFS(&tfs_ff2_resume), 0x0004, "Return resume keys for each entry found", HFILL }},
+
+	{ &hf_smb_ff2_close_eos,
+		{ "Close on EOS", "smb.find_first2.flags.eos", FT_BOOLEAN, 16,
+		TFS(&tfs_ff2_close_eos), 0x0002, "Close search if end of search reached", HFILL }},
+
+	{ &hf_smb_ff2_close,
+		{ "Close", "smb.find_first2.flags.close", FT_BOOLEAN, 16,
+		TFS(&tfs_ff2_close), 0x0001, "Close search after this request", HFILL }},
+
+	{ &hf_smb_ff2_information_level,
+		{ "Level of Interest", "smb.ff2_loi", FT_UINT16, BASE_DEC,
+		VALS(ff2_il_vals), 0, "Level of interest for FIND_FIRST2 command", HFILL }},
+
+	{ &hf_smb_qpi_loi,
+		{ "Level of Interest", "smb.loi", FT_UINT16, BASE_DEC,
+		VALS(qpi_loi_vals), 0, "Level of interest for TRANSACTION[2] commands", HFILL }},
+
+	{ &hf_smb_storage_type,
+		{ "Storage Type", "smb.storage_type", FT_UINT32, BASE_DEC,
+		NULL, 0, "Type of storage", HFILL }},
+
+	{ &hf_smb_resume,
+		{ "Resume Key", "smb.resume", FT_UINT32, BASE_DEC,
+		NULL, 0, "Resume Key", HFILL }},
+
+	{ &hf_smb_max_referral_level,
+		{ "Max Referral Level", "smb.max_referral_level", FT_UINT16, BASE_DEC,
+		NULL, 0, "Latest referral version number understood", HFILL }},
+
+	{ &hf_smb_qfsi_information_level,
+		{ "Level of Interest", "smb.qfi_loi", FT_UINT16, BASE_DEC,
+		VALS(qfsi_vals), 0, "Level of interest for QUERY_FS_INFORMATION2 command", HFILL }},
+
+	{ &hf_smb_ea_size,
+		{ "EA Size", "smb.ea_size", FT_UINT32, BASE_DEC,
+		NULL, 0, "Size of file's EA information", HFILL }},
+
+	{ &hf_smb_list_length,
+		{ "ListLength", "smb.list_len", FT_UINT32, BASE_DEC,
+		NULL, 0, "Length of the remaining data", HFILL }},
+
+	{ &hf_smb_number_of_links,
+		{ "Link Count", "smb.link_count", FT_UINT32, BASE_DEC,
+		NULL, 0, "Number of hard links to the file", HFILL }},
+
+	{ &hf_smb_delete_pending,
+		{ "Delete Pending", "smb.delete_pending", FT_UINT16, BASE_DEC,
+		VALS(delete_pending_vals), 0, "Is this object about to be deleted?", HFILL }},
+
+	{ &hf_smb_index_number,
+		{ "Index Number", "smb.index_number", FT_UINT64, BASE_DEC,
+		NULL, 0, "File system unique identifier", HFILL }},
+
+	{ &hf_smb_current_offset,
+		{ "Current Offset", "smb.offset", FT_UINT64, BASE_DEC,
+		NULL, 0, "Current offset in the file", HFILL }},
+
+	{ &hf_smb_t2_alignment,
+		{ "Alignment", "smb.alignment", FT_UINT32, BASE_DEC,
+		VALS(alignment_vals), 0, "What alignment do we require for buffers", HFILL }},
+
+	{ &hf_smb_t2_stream_name_length,
+		{ "Stream Name Length", "smb.stream_name_len", FT_UINT32, BASE_DEC,
+		NULL, 0, "Length of stream name", HFILL }},
+
+	{ &hf_smb_t2_stream_size,
+		{ "Stream Size", "smb.stream_size", FT_UINT64, BASE_DEC,
+		NULL, 0, "Size of the stream in number of bytes", HFILL }},
+
+	{ &hf_smb_t2_compressed_file_size,
+		{ "Compressed Size", "smb.compressed.file_size", FT_UINT64, BASE_DEC,
+		NULL, 0, "Size of the compressed file", HFILL }},
+
+	{ &hf_smb_t2_compressed_format,
+		{ "Compression Format", "smb.compressed.format", FT_UINT16, BASE_DEC,
+		NULL, 0, "Compression algorithm used", HFILL }},
+
+	{ &hf_smb_t2_compressed_unit_shift,
+		{ "Unit Shift", "smb.compressed.unit_shift", FT_UINT8, BASE_DEC,
+		NULL, 0, "Size of the stream in number of bytes", HFILL }},
+
+	{ &hf_smb_t2_compressed_chunk_shift,
+		{ "Chunk Shift", "smb.compressed.chunk_shift", FT_UINT8, BASE_DEC,
+		NULL, 0, "Allocated size of the stream in number of bytes", HFILL }},
+
+	{ &hf_smb_t2_compressed_cluster_shift,
+		{ "Cluster Shift", "smb.compressed.cluster_shift", FT_UINT8, BASE_DEC,
+		NULL, 0, "Allocated size of the stream in number of bytes", HFILL }},
+
+	{ &hf_smb_dfs_path_consumed,
+		{ "Path Consumed", "smb.dfs.path_consumed", FT_UINT16, BASE_DEC,
+		NULL, 0, "Number of RequestFilename bytes client", HFILL }},
+
+	{ &hf_smb_dfs_num_referrals,
+		{ "Num Referrals", "smb.dfs.num_referrals", FT_UINT16, BASE_DEC,
+		NULL, 0, "Number of referrals in this pdu", HFILL }},
+
+	{ &hf_smb_get_dfs_server_hold_storage,
+		{ "Hold Storage", "smb.dfs.flags.server_hold_storage", FT_BOOLEAN, 16,
+		TFS(&tfs_get_dfs_server_hold_storage), 0x02, "The servers in referrals should hold storage for the file", HFILL }},
+
+	{ &hf_smb_get_dfs_fielding,
+		{ "Fielding", "smb.dfs.flags.fielding", FT_BOOLEAN, 16,
+		TFS(&tfs_get_dfs_fielding), 0x01, "The servers in referrals are capable of fielding", HFILL }},
+
+	{ &hf_smb_dfs_referral_version,
+		{ "Version", "smb.dfs.referral.version", FT_UINT16, BASE_DEC,
+		NULL, 0, "Version of referral element", HFILL }},
+
+	{ &hf_smb_dfs_referral_size,
+		{ "Size", "smb.dfs.referral.size", FT_UINT16, BASE_DEC,
+		NULL, 0, "Size of referral element", HFILL }},
+
+	{ &hf_smb_dfs_referral_server_type,
+		{ "Server Type", "smb.dfs.referral.server.type", FT_UINT16, BASE_DEC,
+		VALS(dfs_referral_server_type_vals), 0, "Type of referral server", HFILL }},
+
+	{ &hf_smb_dfs_referral_flags_strip,
+		{ "Strip", "smb.dfs.referral.flags.strip", FT_BOOLEAN, 16,
+		TFS(&tfs_dfs_referral_flags_strip), 0x01, "Should we strip off pathconsumed characters before submitting?", HFILL }},
+
+	{ &hf_smb_dfs_referral_node_offset,
+		{ "Node Offset", "smb.dfs.referral.node_offset", FT_UINT16, BASE_DEC,
+		NULL, 0, "Offset of name of entity to visit next", HFILL }},
+
+	{ &hf_smb_dfs_referral_node,
+		{ "Node", "smb.dfs.referral.node", FT_STRING, BASE_NONE,
+		NULL, 0, "Name of entity to visit next", HFILL }},
+
+	{ &hf_smb_dfs_referral_proximity,
+		{ "Proximity", "smb.dfs.referral.proximity", FT_UINT16, BASE_DEC,
+		NULL, 0, "Hint describing proximity of this server to the client", HFILL }},
+
+	{ &hf_smb_dfs_referral_ttl,
+		{ "TTL", "smb.dfs.referral.ttl", FT_UINT16, BASE_DEC,
+		NULL, 0, "Number of seconds the client can cache this referral", HFILL }},
+
+	{ &hf_smb_dfs_referral_path_offset,
+		{ "Path Offset", "smb.dfs.referral.path_offset", FT_UINT16, BASE_DEC,
+		NULL, 0, "Offset of Dfs Path that matched pathconsumed", HFILL }},
+
+	{ &hf_smb_dfs_referral_path,
+		{ "Path", "smb.dfs.referral.path", FT_STRING, BASE_NONE,
+		NULL, 0, "Dfs Path that matched pathconsumed", HFILL }},
+
+	{ &hf_smb_dfs_referral_alt_path_offset,
+		{ "Alt Path Offset", "smb.dfs.referral.alt_path_offset", FT_UINT16, BASE_DEC,
+		NULL, 0, "Offset of alternative(8.3) Path that matched pathconsumed", HFILL }},
+
+	{ &hf_smb_dfs_referral_alt_path,
+		{ "Alt Path", "smb.dfs.referral.alt_path", FT_STRING, BASE_NONE,
+		NULL, 0, "Alternative(8.3) Path that matched pathconsumed", HFILL }},
+
+	{ &hf_smb_end_of_search,
+		{ "End Of Search", "smb.end_of_search", FT_UINT16, BASE_DEC,
+		NULL, 0, "Was last entry returned?", HFILL }},
+
+	{ &hf_smb_last_name_offset,
+		{ "Last Name Offset", "smb.last_name_offset", FT_UINT16, BASE_DEC,
+		NULL, 0, "If non-0 this is the offset into the datablock for the file name of the last entry", HFILL }},
+
+	{ &hf_smb_file_index,
+		{ "File Index", "smb.file_index", FT_UINT32, BASE_DEC,
+		NULL, 0, "File index", HFILL }},
+
+	{ &hf_smb_short_file_name,
+		{ "Short File Name", "smb.short_file", FT_STRING, BASE_NONE,
+		NULL, 0, "Short (8.3) File Name", HFILL }},
+
+	{ &hf_smb_short_file_name_len,
+		{ "Short File Name Len", "smb.short_file_name_len", FT_UINT32, BASE_DEC,
+		NULL, 0, "Length of Short (8.3) File Name", HFILL }},
+
+	{ &hf_smb_fs_id,
+		{ "FS Id", "smb.fs.id", FT_UINT32, BASE_DEC,
+		NULL, 0, "File System ID (NT Server always returns 0)", HFILL }},
+
+	{ &hf_smb_sector_unit,
+		{ "Sectors/Unit", "smb.fs.sector_per_unit", FT_UINT32, BASE_DEC,
+		NULL, 0, "Sectors per allocation unit", HFILL }},
+
+	{ &hf_smb_fs_units,
+		{ "Total Units", "smb.fs.units", FT_UINT32, BASE_DEC,
+		NULL, 0, "Total number of units on this filesystem", HFILL }},
+
+	{ &hf_smb_fs_sector,
+		{ "Bytes per Sector", "smb.fs.bytes_per_sector", FT_UINT32, BASE_DEC,
+		NULL, 0, "Bytes per sector", HFILL }},
+
+	{ &hf_smb_avail_units,
+		{ "Available Units", "smb.avail.units", FT_UINT32, BASE_DEC,
+		NULL, 0, "Total number of available units on this filesystem", HFILL }},
+
+	{ &hf_smb_volume_serial_num,
+		{ "Volume Serial Number", "smb.volume.serial", FT_UINT32, BASE_HEX,
+		NULL, 0, "Volume serial number", HFILL }},
+
+	{ &hf_smb_volume_label_len,
+		{ "Label Length", "smb.volume.label.len", FT_UINT32, BASE_DEC,
+		NULL, 0, "Length of volume label", HFILL }},
+
+	{ &hf_smb_volume_label,
+		{ "Label", "smb.volume.label", FT_STRING, BASE_DEC,
+		NULL, 0, "Volume label", HFILL }},
+
+	{ &hf_smb_free_alloc_units64,
+		{ "Free Units", "smb.free_alloc_units", FT_UINT64, BASE_DEC,
+		NULL, 0, "Number of free allocation units", HFILL }},
+
+	{ &hf_smb_max_name_len,
+		{ "Max name length", "smb.fs.max_name_len", FT_UINT32, BASE_DEC,
+		NULL, 0, "Maximum length of each file name component in number of bytes", HFILL }},
+
+	{ &hf_smb_fs_name_len,
+		{ "Label Length", "smb.fs.name.len", FT_UINT32, BASE_DEC,
+		NULL, 0, "Length of filesystem name in bytes", HFILL }},
+
+	{ &hf_smb_fs_name,
+		{ "FS Name", "smb.fs.name", FT_STRING, BASE_DEC,
+		NULL, 0, "Name of filesystem", HFILL }},
+
+	{ &hf_smb_device_char_removable,
+		{ "Removable", "smb.device.removable", FT_BOOLEAN, 32,
+		TFS(&tfs_device_char_removable), 0x00000001, "Is this a removable device", HFILL }},
+
+	{ &hf_smb_device_char_read_only,
+		{ "Read Only", "smb.device.read_only", FT_BOOLEAN, 32,
+		TFS(&tfs_device_char_read_only), 0x00000002, "Is this a read-only device", HFILL }},
+
+	{ &hf_smb_device_char_floppy,
+		{ "Floppy", "smb.device.floppy", FT_BOOLEAN, 32,
+		TFS(&tfs_device_char_floppy), 0x00000004, "Is this a floppy disk", HFILL }},
+
+	{ &hf_smb_device_char_write_once,
+		{ "Write Once", "smb.device.write_once", FT_BOOLEAN, 32,
+		TFS(&tfs_device_char_write_once), 0x00000008, "Is this a write-once device", HFILL }},
+
+	{ &hf_smb_device_char_remote,
+		{ "Remote", "smb.device.remote", FT_BOOLEAN, 32,
+		TFS(&tfs_device_char_remote), 0x00000010, "Is this a remote device", HFILL }},
+
+	{ &hf_smb_device_char_mounted,
+		{ "Mounted", "smb.device.mounted", FT_BOOLEAN, 32,
+		TFS(&tfs_device_char_mounted), 0x00000020, "Is this a mounted device", HFILL }},
+
+	{ &hf_smb_device_char_virtual,
+		{ "Virtual", "smb.device.virtual", FT_BOOLEAN, 32,
+		TFS(&tfs_device_char_virtual), 0x00000040, "Is this a virtual device", HFILL }},
+
+	{ &hf_smb_fs_attr_css,
+		{ "Case Sensitive Search", "smb.fs.attr.css", FT_BOOLEAN, 32,
+		TFS(&tfs_fs_attr_css), 0x00000001, "Does this FS support Case Sensitive Search?", HFILL }},
+
+	{ &hf_smb_fs_attr_cpn,
+		{ "Case Preserving", "smb.fs.attr.cpn", FT_BOOLEAN, 32,
+		TFS(&tfs_fs_attr_cpn), 0x00000002, "Will this FS Preserve Name Case?", HFILL }},
+
+	{ &hf_smb_fs_attr_pacls,
+		{ "Persistent ACLs", "smb.fs.attr.pacls", FT_BOOLEAN, 32,
+		TFS(&tfs_fs_attr_pacls), 0x00000004, "Does this FS support Persistent ACLs?", HFILL }},
+
+	{ &hf_smb_fs_attr_fc,
+		{ "Compression", "smb.fs.attr.fc", FT_BOOLEAN, 32,
+		TFS(&tfs_fs_attr_fc), 0x00000008, "Does this FS support File Compression?", HFILL }},
+
+	{ &hf_smb_fs_attr_vq,
+		{ "Volume Quotas", "smb.fs.attr.vq", FT_BOOLEAN, 32,
+		TFS(&tfs_fs_attr_vq), 0x00000010, "Does this FS support Volume Quotas?", HFILL }},
+
+	{ &hf_smb_fs_attr_dim,
+		{ "Mounted", "smb.fs.attr.dim", FT_BOOLEAN, 32,
+		TFS(&tfs_fs_attr_dim), 0x00000020, "Is this FS a Mounted Device?", HFILL }},
+
+	{ &hf_smb_fs_attr_vic,
+		{ "Compressed", "smb.fs.attr.vic", FT_BOOLEAN, 32,
+		TFS(&tfs_fs_attr_vic), 0x00008000, "Is this FS Compressed?", HFILL }},
 
 
 	};
@@ -12780,6 +15745,17 @@ proto_register_smb(void)
 		&ett_smb_nt_ioctl_flags,
 		&ett_smb_security_information_mask,
 		&ett_smb_print_queue_entry,
+		&ett_smb_transaction_flags,
+		&ett_smb_transaction_params,
+		&ett_smb_find_first2_flags,
+		&ett_smb_transaction_data,
+		&ett_smb_dfs_referrals,
+		&ett_smb_dfs_referral,
+		&ett_smb_dfs_referral_flags,
+		&ett_smb_get_dfs_flags,
+		&ett_smb_ff2_data,
+		&ett_smb_device_characteristics,
+		&ett_smb_fs_attributes,
 	};
 
 	proto_smb = proto_register_protocol("SMB (Server Message Block Protocol)",
@@ -12788,7 +15764,6 @@ proto_register_smb(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_smb, hf, array_length(hf));
 	register_init_routine(&smb_init_protocol);
-	register_init_routine(&smb_info_init);
 
 	register_proto_smb_browse();
 	register_proto_smb_logon();
