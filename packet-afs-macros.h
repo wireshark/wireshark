@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-macros.h,v 1.12 2001/09/14 07:10:05 guy Exp $
+ * $Id: packet-afs-macros.h,v 1.13 2002/01/18 21:30:05 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -215,7 +215,7 @@
 			"VolSync"); \
 		save = tree; \
 		tree = proto_item_add_subtree(ti, ett_afs_volsync); \
-		OUT_UINT(hf_afs_fs_volsync_spare1); \
+		OUT_DATE(hf_afs_fs_volsync_spare1); \
 		OUT_UINT(hf_afs_fs_volsync_spare2); \
 		OUT_UINT(hf_afs_fs_volsync_spare3); \
 		OUT_UINT(hf_afs_fs_volsync_spare4); \
@@ -272,9 +272,9 @@
 /* Output a AFSBulkStats */
 #define OUT_FS_AFSBulkStats() \
 	{ \
-		unsigned int j,i; \
-		j = tvb_get_guint8(tvb,offset); \
-		offset += 1; \
+		guint32 j,i; \
+		j = tvb_get_ntohl(tvb,offset); \
+		offset += 4; \
 		for (i=0; i<j; i++) { \
 			OUT_FS_AFSFetchStatus("Status"); \
 		} \

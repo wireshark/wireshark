@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-register-info.h,v 1.8 2001/06/18 02:17:44 guy Exp $
+ * $Id: packet-afs-register-info.h,v 1.9 2002/01/18 21:30:05 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -218,8 +218,8 @@
 	FT_UINT32, BASE_DEC, 0, 0, "Length", HFILL }},
 
 
-{ &hf_afs_fs_volsync_spare1, { "Spare 1", "afs.fs.volsync.spare1", 
-	FT_UINT32, BASE_DEC, 0, 0, "Spare 1", HFILL }},
+{ &hf_afs_fs_volsync_spare1, { "Volume Creation Timestamp", "afs.fs.volsync.spare1", 
+	FT_ABSOLUTE_TIME, BASE_DEC, 0, 0, "Volume Creation Timestamp", HFILL }},
 { &hf_afs_fs_volsync_spare2, { "Spare 2", "afs.fs.volsync.spare2", 
 	FT_UINT32, BASE_DEC, 0, 0, "Spare 2", HFILL }},
 { &hf_afs_fs_volsync_spare3, { "Spare 3", "afs.fs.volsync.spare3", 

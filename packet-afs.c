@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs.c,v 1.36 2001/12/10 00:25:26 guy Exp $
+ * $Id: packet-afs.c,v 1.37 2002/01/18 21:30:05 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -373,8 +373,14 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* until we do cache, can't handle replies */
 			ti = NULL;
 			if ( !reply && node != 0 ) {
-				ti = proto_tree_add_uint(afs_tree,
-					node, tvb, offset, 4, opcode);
+				if ( rxinfo->seq == 1 )
+				{
+					ti = proto_tree_add_uint(afs_tree,
+						node, tvb, offset, 4, opcode);
+				} else {
+					ti = proto_tree_add_uint(afs_tree,
+						node, tvb, offset, 0, opcode);
+				}
 			} else if ( reply && node != 0 ) {
 				/* the opcode isn't in this packet */
 				ti = proto_tree_add_uint(afs_tree,
@@ -571,6 +577,7 @@ dissect_fs_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int off
 				break;
 			case 155: /* bulk status */
 				OUT_FS_AFSBulkStats();
+				SKIP(4); 
 				OUT_FS_AFSCBs();
 				OUT_FS_AFSVolSync();
 				break;
@@ -602,7 +609,11 @@ dissect_fs_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int off
 static void
 dissect_fs_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int offset, int opcode)
 {
-	offset += 4;  /* skip the opcode */
+	/* skip the opcode if this is the first packet in the stream */
+	if ( rxinfo->seq == 1 )
+	{
+		offset += 4;  /* skip the opcode */
+	}
 
 	switch ( opcode )
 	{
@@ -618,11 +629,15 @@ dissect_fs_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 			OUT_FS_AFSFid("Target");
 			break;
 		case 133: /* Store Data */
-			OUT_FS_AFSFid("Destination");
-			OUT_FS_AFSStoreStatus("Status");
-			OUT_UINT(hf_afs_fs_offset);
-			OUT_UINT(hf_afs_fs_length);
-			OUT_UINT(hf_afs_fs_flength);
+			if ( rxinfo->seq == 1 )
+			{
+				OUT_FS_AFSFid("Destination");
+				OUT_FS_AFSStoreStatus("Status");
+				OUT_UINT(hf_afs_fs_offset);
+				OUT_UINT(hf_afs_fs_length);
+				OUT_UINT(hf_afs_fs_flength);
+			}
+			OUT_BYTES_ALL(hf_afs_fs_data);
 			break;
 		case 134: /* Store ACL */
 			OUT_FS_AFSFid("Target");
