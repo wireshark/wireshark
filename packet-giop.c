@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-giop.c,v 1.6 1999/09/17 05:56:53 guy Exp $
+ * $Id: packet-giop.c,v 1.7 1999/10/09 13:31:30 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,6 +41,8 @@
 #include "packet.h"
 
 static int proto_giop = -1;
+static int hf_giop_message_type = -1;
+static int hf_giop_message_size = -1;
 
 /*
  * GIOP / IIOP types definition - OMG CORBA 2.x / GIOP 1.[01]
@@ -286,19 +288,24 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	break;
     } /* minor_version */
 
-    proto_tree_add_text(clnp_tree, offset +  7, 1, 
-		     "Message type: %s",
-		     (header.message_type == Request) ? "Request" :
-		     (header.message_type == Reply) ? "Reply" :
-		     (header.message_type == CancelRequest) ? "CancelRequest" :
-		     (header.message_type == LocateRequest) ? "LocateRequest" :
-		     (header.message_type == LocateReply) ? "LocateReply" :
-		     (header.message_type == CloseConnection) ? "CloseConnection" :
-		     (header.message_type == MessageError) ? "MessageError" :
-		     (header.message_type == Fragment) ? "Fragment" : "?");
+    proto_tree_add_item_format(clnp_tree, 
+			       hf_giop_message_type,
+			       offset +  7, 1, 
+			       header.message_type,
+			       "Message type: %s",
+			       (header.message_type == Request) ? "Request" :
+			       (header.message_type == Reply) ? "Reply" :
+			       (header.message_type == CancelRequest) ? "CancelRequest" :
+			       (header.message_type == LocateRequest) ? "LocateRequest" :
+			       (header.message_type == LocateReply) ? "LocateReply" :
+			       (header.message_type == CloseConnection) ? "CloseConnection" :
+			       (header.message_type == MessageError) ? "MessageError" :
+			       (header.message_type == Fragment) ? "Fragment" : "?");
 
-    proto_tree_add_text(clnp_tree, offset +  8, 4, 
-		     "Message size: %d", message_size);
+    proto_tree_add_item(clnp_tree, 
+			hf_giop_message_size,
+			offset +  8, 4, 
+			message_size);
 
   } /* tree */
 
@@ -697,14 +704,16 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 
 } /* dissect_giop */
 
-void
+void 
 proto_register_giop(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "giop.abbreviation", TYPE, VALS_POINTER }},
-        };*/
+  static hf_register_info hf[] = {
+    { &hf_giop_message_type,
+      { "Message type",		"giop.type",	FT_UINT8,	NULL }},
+    { &hf_giop_message_size,
+      { "Message size",		"giop.len",	FT_UINT32,	NULL }}
+  };
 
-        proto_giop = proto_register_protocol("General Inter-ORB Protocol", "giop");
- /*       proto_register_field_array(proto_giop, hf, array_length(hf));*/
+  proto_giop = proto_register_protocol("General Inter-ORB Protocol", "giop");
+  proto_register_field_array(proto_giop, hf, array_length(hf));
 }
