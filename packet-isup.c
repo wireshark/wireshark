@@ -9,7 +9,7 @@
  * Modified 2004-01-10 by Anders Broman to add abillity to dissect
  * Content type application/ISUP RFC 3204 used in SIP-T
  *
- * $Id: packet-isup.c,v 1.51 2004/02/29 08:47:10 guy Exp $
+ * $Id: packet-isup.c,v 1.52 2004/03/05 10:29:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,6 +48,7 @@
 #include <prefs.h>
 #include "packet-q931.h"
 #include "packet-isup.h"
+#include "packet-e164.h"
 
 #define MTP3_ISUP_SERVICE_INDICATOR     5
 #define MTP3_BICC_SERVICE_INDICATOR     13
@@ -1474,11 +1475,14 @@ dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree *
   gint i=0;
   gint length;
   char called_number[MAXLENGTH]="";
+  e164_info_t e164_info;
+  gint number_plan;
 
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
   proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, indicators1);
   proto_tree_add_uint(parameter_tree, hf_isup_called_party_nature_of_address_indicator, parameter_tvb, 0, 1, indicators1);
   indicators2 = tvb_get_guint8(parameter_tvb, 1);
+  number_plan = (indicators2 & 0x70)>> 4;
   proto_tree_add_boolean(parameter_tree, hf_isup_inn_indicator, parameter_tvb, 1, 1, indicators2);
   proto_tree_add_uint(parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, 1, 1, indicators2);
   offset = 2;
@@ -1504,7 +1508,14 @@ dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree *
       called_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
   }
   called_number[i++] = '\0';
-
+    if ( number_plan == 1 ) {
+	  e164_info.e164_number_type = CALLED_PARTY_NUMBER;
+	  e164_info.nature_of_address = indicators1 & 0x7f;
+	  e164_info.E164_number_str = called_number;
+	  e164_info.E164_number_length = i - 1;
+	  dissect_e164_number(parameter_tvb, address_digits_tree, 2,
+								  (offset - 2), e164_info);
+  }
   proto_item_set_text(address_digits_item, "Called Party Number: %s", called_number);
   proto_item_set_text(parameter_item, "Called Party Number: %s", called_number);
 
@@ -3192,11 +3203,14 @@ dissect_isup_calling_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree 
   gint i=0;
   gint length;
   char calling_number[MAXLENGTH]="";
+  e164_info_t e164_info;
+  gint number_plan;
 
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
   proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, indicators1);
   proto_tree_add_uint(parameter_tree, hf_isup_calling_party_nature_of_address_indicator, parameter_tvb, 0, 1, indicators1);
   indicators2 = tvb_get_guint8(parameter_tvb, 1);
+  number_plan = (indicators2 & 0x70)>> 4;
   proto_tree_add_boolean(parameter_tree, hf_isup_ni_indicator, parameter_tvb, 1, 1, indicators2);
   proto_tree_add_uint(parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, 1, 1, indicators2);
   proto_tree_add_uint(parameter_tree, hf_isup_address_presentation_restricted_indicator, parameter_tvb, 1, 1, indicators2);
@@ -3227,6 +3241,14 @@ dissect_isup_calling_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree 
   }
   calling_number[i++] = '\0';
 
+  if ( number_plan == 1 ) {
+	  e164_info.e164_number_type = CALLING_PARTY_NUMBER;
+	  e164_info.nature_of_address = indicators1 & 0x7f;
+	  e164_info.E164_number_str = calling_number;
+	  e164_info.E164_number_length = i - 1;
+	  dissect_e164_number(parameter_tvb, address_digits_tree, 2,
+								  (offset - 2), e164_info);
+  }
   proto_item_set_text(address_digits_item, "Calling Party Number: %s", calling_number);
   proto_item_set_text(parameter_item, "Calling Party Number: %s", calling_number);
 

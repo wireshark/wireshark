@@ -1662,8 +1662,9 @@ Anders Broman <anders.broman [AT] ericsson.com> {
 	Additional SCTP payload protocol identifiers
 	Assorted ISUP enhancements
 	MEGACO updates and fixes
-	T35 country code support for H245
+	T.35 country code support for H.245
 	Multipart media dissector
+	E.164 number dissector
 }
 
 Christian Falckenberg <christian.falckenberg [AT] nortelnetworks.com> {
