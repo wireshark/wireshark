@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.31 2003/04/17 10:31:35 sahlberg Exp $
+ * $Id: reassemble.c,v 1.32 2003/04/19 09:42:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -434,7 +434,7 @@ fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 	fragment_data *fd_i;
 	guint32 max, dfpos;
 	unsigned char *old_data;
-	gboolean already_added=FALSE;
+	gboolean already_added=pinfo->fd->flags.visited;
 
 	/* create key to search hash with */
 	key.src = pinfo->src;
@@ -443,20 +443,32 @@ fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 
 	fd_head = g_hash_table_lookup(fragment_table, &key);
 
-	/* Just check if we have seen this fragment before, i.e.
-	   if we have already added it to reassembly.
-	   We can not trust the flags.visited field since we sometimes
-	   might call a subdissector multiple times.
-	   As an additional check just make sure we have not already added 
-	   this frame to the reassembly list
-	*/
-	for(fd_item=fd_head;fd_item;fd_item=fd_item->next){
-		if(pinfo->fd->num==fd_item->frame){
-			already_added=TRUE;
+	/*
+	 * "already_added" is true if "pinfo->fd->flags.visited" is true;
+	 * if "pinfo->fd->flags.visited", this isn't the first pass, so
+	 * we've already done all the reassembly and added all the
+	 * fragments.
+	 *
+	 * If it's not true, just check if we have seen this fragment before,
+	 * i.e., if we have already added it to reassembly.
+	 * That can be true even if "pinfo->fd->flags.visited" is false
+	 * since we sometimes might call a subdissector multiple times.
+	 * As an additional check, just make sure we have not already added 
+	 * this frame to the reassembly list, if there is a reassembly list;
+	 * note that the first item in the reassembly list is not a
+	 * fragment, it's a data structure for the reassembled packet.
+	 * We don't check it because its "frame" member isn't initialized
+	 * to anything, and because it doesn't count in any case.
+	 */
+	if (!already_added && fd_head != NULL) {
+		for(fd_item=fd_head->next;fd_item;fd_item=fd_item->next){
+			if(pinfo->fd->num==fd_item->frame){
+				already_added=TRUE;
+			}
 		}
 	}
-	/* have we already seen this frame ?*/
-	if (pinfo->fd->flags.visited || already_added) {
+	/* have we already added this frame ?*/
+	if (already_added) {
 		if (fd_head != NULL && fd_head->flags & FD_DEFRAGMENTED) {
 			return fd_head;
 		} else {
