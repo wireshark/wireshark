@@ -2,7 +2,7 @@
  * Routines for opening EtherPeek (and TokenPeek?) files
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
- * $Id: etherpeek.c,v 1.22 2002/08/28 20:30:44 jmayer Exp $
+ * $Id: etherpeek.c,v 1.23 2003/06/25 17:35:16 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -362,12 +362,6 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, long *data_offset)
 		sliceLength = length;
 	}
 
-	/* test for corrupt data */
-	if (sliceLength > WTAP_MAX_PACKET_SIZE) {
-		*err = WTAP_ERR_BAD_RECORD;
-		return FALSE;
-	}
-
 	*data_offset = wth->data_offset;
 
 	/* fill in packet header length values before slicelength may be
@@ -510,12 +504,6 @@ static gboolean etherpeek_read_v56(wtap *wth, int *err, long *data_offset)
 	/* force sliceLength to be the actual length of the packet */
 	if (0 == sliceLength) {
 		sliceLength = length;
-	}
-
-	/* test for corrupt data */
-	if (sliceLength > WTAP_MAX_PACKET_SIZE) {
-		*err = WTAP_ERR_BAD_RECORD;
-		return FALSE;
 	}
 
 	*data_offset = wth->data_offset;

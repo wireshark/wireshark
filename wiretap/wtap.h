@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.137 2003/05/15 07:14:46 guy Exp $
+ * $Id: wtap.h,v 1.138 2003/06/25 17:35:17 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -175,6 +175,7 @@
 
 /*
  * Maximum packet size we'll support.
+ * It must be at least 65535.
  */
 #define	WTAP_MAX_PACKET_SIZE			65535
 
