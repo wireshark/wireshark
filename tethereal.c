@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.13 2000/01/24 04:44:36 guy Exp $
+ * $Id: tethereal.c,v 1.14 2000/01/24 04:53:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -144,9 +144,10 @@ print_usage(void)
   fprintf(stderr, "This is GNU t%s %s, compiled with %s\n", PACKAGE,
 	  VERSION, comp_info_str);
 
-  fprintf(stderr, "t%s [ -vVh ] [ -c count ] [ -D ] [ -f <filter expression> ] [ -F <capture type> ]\n", PACKAGE);
-  fprintf(stderr, "\t[ -i iface ] [ -n ] [ -r infile ] [ -R <filter expression> ]\n");
-  fprintf(stderr, "\t[ -s snaplen ] [ -t <time stamp format> ] [ -w savefile ] [ -x ]\n");
+  fprintf(stderr, "t%s [ -vVh ] [ -c count ] [ -D ] [ -f <filter expression> ]\n", PACKAGE);
+  fprintf(stderr, "\t[ -F <capture type> ] [ -i iface ] [ -n ] [ -r infile ]\n");
+  fprintf(stderr, "\t[ -R <filter expression> ] [ -s snaplen ] [ -t <time stamp format> ]\n");
+  fprintf(stderr, "\t[ -w savefile ] [ -x ]\n");
   fprintf(stderr, "Valid file type arguments to the \"-F\" flag:\n");
   for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
     if (wtap_dump_can_open(i))
