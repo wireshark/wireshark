@@ -1,6 +1,6 @@
 /* packet-rpc.h
  *
- * $Id: packet-rpc.h,v 1.18 2000/08/24 06:19:53 guy Exp $
+ * $Id: packet-rpc.h,v 1.19 2000/08/24 22:58:56 guy Exp $
  *
  * (c) 1999 Uwe Girlich
  *
@@ -40,7 +40,7 @@
 #define AUTH_UNIX 1
 #define AUTH_SHORT 2
 #define AUTH_DES 3
-#define AUTH_GSS 6
+#define RPCSEC_GSS 6
 
 #define MSG_ACCEPTED 0
 #define MSG_DENIED 1
@@ -59,17 +59,17 @@
 #define AUTH_BADVERF 3
 #define AUTH_REJECTEDVERF 4
 #define AUTH_TOOWEAK 5
-#define AUTH_GSSCREDPROB 13
-#define AUTH_GSSCTXPROB 14
+#define RPCSEC_GSSCREDPROB 13
+#define RPCSEC_GSSCTXPROB 14
 
-#define AUTH_GSS_DATA 0
-#define AUTH_GSS_INIT 1
-#define AUTH_GSS_CONTINUE_INIT 2
-#define AUTH_GSS_DESTROY 3
+#define RPCSEC_GSS_DATA 0
+#define RPCSEC_GSS_INIT 1
+#define RPCSEC_GSS_CONTINUE_INIT 2
+#define RPCSEC_GSS_DESTROY 3
 
-#define AUTH_GSS_SVC_NONE 1
-#define AUTH_GSS_SVC_INTEGRITY 2
-#define AUTH_GSS_SVC_PRIVACY 3
+#define RPCSEC_GSS_SVC_NONE 1
+#define RPCSEC_GSS_SVC_INTEGRITY 2
+#define RPCSEC_GSS_SVC_PRIVACY 3
 
 typedef int (dissect_function_t)(const u_char* pd, int offset, frame_data* fd, proto_tree* tree);
 

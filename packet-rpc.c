@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.39 2000/08/24 08:55:30 guy Exp $
+ * $Id: packet-rpc.c,v 1.40 2000/08/24 22:58:55 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -64,22 +64,22 @@ const value_string rpc_auth_flavor[] = {
 	{ AUTH_UNIX, "AUTH_UNIX" },
 	{ AUTH_SHORT, "AUTH_SHORT" },
 	{ AUTH_DES, "AUTH_DES" },
-	{ AUTH_GSS, "AUTH_GSS" },
+	{ RPCSEC_GSS, "RPCSEC_GSS" },
 	{ 0, NULL }
 };
 
 static const value_string rpc_authgss_proc[] = {
-	{ AUTH_GSS_DATA, "AUTH_GSS_DATA" },
-	{ AUTH_GSS_INIT, "AUTH_GSS_INIT" },
-	{ AUTH_GSS_CONTINUE_INIT, "AUTH_GSS_CONTINUE_INIT" },
-	{ AUTH_GSS_DESTROY, "AUTH_GSS_DESTROY" },
+	{ RPCSEC_GSS_DATA, "RPCSEC_GSS_DATA" },
+	{ RPCSEC_GSS_INIT, "RPCSEC_GSS_INIT" },
+	{ RPCSEC_GSS_CONTINUE_INIT, "RPCSEC_GSS_CONTINUE_INIT" },
+	{ RPCSEC_GSS_DESTROY, "RPCSEC_GSS_DESTROY" },
 	{ 0, NULL }
 };
 
 static const value_string rpc_authgss_svc[] = {
-	{ AUTH_GSS_SVC_NONE, "AUTH_GSS_SVC_NONE" },
-	{ AUTH_GSS_SVC_INTEGRITY, "AUTH_GSS_SVC_INTEGRITY" },
-	{ AUTH_GSS_SVC_PRIVACY, "AUTH_GSS_SVC_PRIVACY" },
+	{ RPCSEC_GSS_SVC_NONE, "rpcsec_gss_svc_none" },
+	{ RPCSEC_GSS_SVC_INTEGRITY, "rpcsec_gss_svc_integrity" },
+	{ RPCSEC_GSS_SVC_PRIVACY, "rpcsec_gss_svc_privacy" },
 	{ 0, NULL }
 };
 
@@ -104,8 +104,8 @@ static const value_string rpc_auth_state[] = {
 	{ AUTH_BADVERF, "bad verifier (seal broken)" },
 	{ AUTH_REJECTEDVERF, "verifier expired or replayed" },
 	{ AUTH_TOOWEAK, "rejected for security reasons" },
-	{ AUTH_GSSCREDPROB, "GSS credential problem" },
-	{ AUTH_GSSCTXPROB, "GSS context problem" },
+	{ RPCSEC_GSSCREDPROB, "GSS credential problem" },
+	{ RPCSEC_GSSCTXPROB, "GSS context problem" },
 	{ 0, NULL }
 };
 
@@ -864,7 +864,7 @@ dissect_rpc_cred( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 
 		break;
 		*/
-		case AUTH_GSS:
+		case RPCSEC_GSS:
 			dissect_rpc_authgss_cred(pd, offset+8, fd, ctree);
 			break;
 		default:
@@ -907,7 +907,7 @@ dissect_rpc_verf( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 					    offset+4, 4, length);
 			dissect_rpc_authunix_cred(pd, offset+8, fd, vtree);
 			break;
-		case AUTH_GSS:
+		case RPCSEC_GSS:
 			dissect_rpc_data(pd, offset+4, fd, vtree,
 					 hf_rpc_authgss_checksum);
 			break;
@@ -1214,7 +1214,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		/* Check for RPCSEC_GSS */
 		if (proc == 0 && BYTES_ARE_IN_FRAME(offset+16,28)) {
 			flavor = EXTRACT_UINT(pd, offset+16);
-			if (flavor == AUTH_GSS) {
+			if (flavor == RPCSEC_GSS) {
 				gss_proc = EXTRACT_UINT(pd, offset+28);
 				gss_svc = EXTRACT_UINT(pd, offset+34);
 			}
@@ -1510,10 +1510,10 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 
 	/* RPCSEC_GSS processing. */
-	if (flavor == AUTH_GSS) {
+	if (flavor == RPCSEC_GSS) {
 		switch (gss_proc) {
-		case AUTH_GSS_INIT:
-		case AUTH_GSS_CONTINUE_INIT:
+		case RPCSEC_GSS_INIT:
+		case RPCSEC_GSS_CONTINUE_INIT:
 			if (msg_type == RPC_CALL) {
 				offset = dissect_rpc_authgss_initarg(pd, offset, fd, ptree);
 			}
@@ -1521,18 +1521,18 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				offset = dissect_rpc_authgss_initres(pd, offset, fd, ptree);
 			}
 			break;
-		case AUTH_GSS_DATA:
-			if (gss_svc == AUTH_GSS_SVC_NONE) {
+		case RPCSEC_GSS_DATA:
+			if (gss_svc == RPCSEC_GSS_SVC_NONE) {
 				if (dissect_function != NULL && 
 					proto_is_protocol_enabled(proto))
 					offset = dissect_function(pd, offset, fd, ptree);
 			}
-			else if (gss_svc == AUTH_GSS_SVC_INTEGRITY) {
+			else if (gss_svc == RPCSEC_GSS_SVC_INTEGRITY) {
 				offset = dissect_rpc_authgss_integ_data(pd, offset, fd, ptree, 
 				(proto_is_protocol_enabled(proto) ? 
 				dissect_function : NULL));
 			}
-			else if (gss_svc == AUTH_GSS_SVC_PRIVACY) {
+			else if (gss_svc == RPCSEC_GSS_SVC_PRIVACY) {
 				offset = dissect_rpc_authgss_priv_data(pd, offset, fd, ptree);
 			}
 			break;
