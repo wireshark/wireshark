@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  * 
- * $Id: packet-wtp.c,v 1.18 2001/09/10 21:54:08 guy Exp $
+ * $Id: packet-wtp.c,v 1.19 2001/09/11 14:36:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -204,7 +204,8 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* continuation flag */
 	unsigned char  	fCon;
 	unsigned char  	fRID;
-	int 		cbHeader   	= 0;
+	guint 		cbHeader   	= 0;
+	guint 		vHeader   	= 0;
 	int 		abortType  	= 0;
 
 /* Set up structures we will need to add the protocol subtree and manage it */
@@ -265,6 +266,20 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if( fRID ) {
 		strcat( szInfo, " R" );
 	};
+	if( fCon ) {
+		unsigned char	tCon;
+		unsigned char	tByte;
+
+		do {
+			tByte = tvb_get_guint8(tvb, offCur + cbHeader + vHeader);
+			tCon = tByte & 0x80;
+			if (tByte & 0x04)
+				vHeader = vHeader + tvb_get_guint8(tvb,
+					offCur + cbHeader + vHeader + 1) + 2;
+			else
+				vHeader = vHeader + (tByte & 0x03) + 1;
+		} while (tCon);
+	}
 
 #ifdef DEBUG
 	fprintf( stderr, "dissect_wtp: cbHeader = %d\n", cbHeader );  
@@ -285,7 +300,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #ifdef DEBUG
 		fprintf( stderr, "dissect_wtp: cbHeader = %d\n", cbHeader );  
 #endif
-		ti = proto_tree_add_item(tree, proto_wtp, tvb, offCur, cbHeader, bo_little_endian);
+		ti = proto_tree_add_item(tree, proto_wtp, tvb, offCur, cbHeader + vHeader, bo_little_endian);
 #ifdef DEBUG
 		fprintf( stderr, "dissect_wtp: (7) Returned from proto_tree_add_item\n" );  
 #endif
@@ -403,8 +418,8 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						wtp_tree, 			/* tree */
 						hf_wtp_header_variable_part, 	/* id */
 						tvb, 
-						offCur + 4, 			/* start */
-						4,				/* length */
+						offCur + cbHeader,		/* start */
+						vHeader,			/* length */
 						"What should go here!",		/* value */
 						"Header (Variable part) %02X %02X %02X %02X"  ,			/* format */
 						0, 1, 2, 3
@@ -421,10 +436,10 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Any remaining data ought to be WSP data,
 	 * so hand off to the WSP dissector */
-	if (tvb_reported_length (tvb) > cbHeader)
+	if (tvb_reported_length (tvb) > cbHeader + vHeader)
 	{
-		wsp_tvb = tvb_new_subset(tvb, cbHeader, -1,
-			tvb_reported_length (tvb)-cbHeader);
+		wsp_tvb = tvb_new_subset(tvb, cbHeader + vHeader, -1,
+			tvb_reported_length (tvb)-cbHeader-vHeader);
 		call_dissector(wsp_handle, wsp_tvb, pinfo, tree);
 	}
 

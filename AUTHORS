@@ -787,6 +787,10 @@ Nicolas Balkota <balkota[AT]mac.com> {
 	GTPv1 support and GTPv0 improvements
 }
 
+Tom Uijldert <Tom.Uijldert[AT]cmg.nl> {
+	WTP fixes
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
