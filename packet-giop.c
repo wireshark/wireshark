@@ -4,7 +4,7 @@
  * Laurent Deniel <deniel@worldnet.fr>
  * Craig Rodrigues <rodrigc@mediaone.net>
  *
- * $Id: packet-giop.c,v 1.20 2000/11/08 22:18:04 guy Exp $
+ * $Id: packet-giop.c,v 1.21 2000/11/09 09:15:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1076,6 +1076,13 @@ dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
   /*define END_OF_GIOP_MESSAGE (offset - first_offset - GIOP_HEADER_SIZE) */
+
+  if (tvb_length_remaining(tvb, 0) < GIOP_HEADER_SIZE)
+    {
+      /* Not enough data captured to hold the GIOP header; don't try
+         to interpret it as GIOP. */
+      return FALSE;
+    }
 
   giop_header_tvb = tvb_new_subset (tvb, 0, GIOP_HEADER_SIZE, -1);
   payload_tvb = tvb_new_subset (tvb, GIOP_HEADER_SIZE, -1, -1);
