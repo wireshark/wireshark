@@ -6,7 +6,7 @@
  * Extended by Jan Kiszka <jan.kiszka@web.de>
  * Copyright 2003 Jan Kiszka
  *
- * $Id: packet-irda.c,v 1.2 2003/12/18 20:34:43 guy Exp $
+ * $Id: packet-irda.c,v 1.3 2003/12/21 03:48:27 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -450,7 +450,7 @@ static const value_string iap_attr_type_vals[] = {
 
 static ias_attr_dissector_t device_attr_dissector[] = {
 /* Device attribute dissectors */
-//    { "IrLMPSupport", xxx },  not implemented yet...
+/*    { "IrLMPSupport", xxx },  not implemented yet... */
     { NULL, NULL }
 };
 
@@ -1053,8 +1053,8 @@ static void dissect_appl_proto(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
 
     if (lmp_conv)
     {
-//g_message("%x:%d->%x:%d = %p\n", src, pinfo->srcport, pinfo->circuit_id, pinfo->destport, lmp_conv);
-//g_message("->%d: %d %d %p\n", pinfo->fd->num, lmp_conv->iap_result_frame, lmp_conv->ttp, lmp_conv->proto_dissector);
+/*g_message("%x:%d->%x:%d = %p\n", src, pinfo->srcport, pinfo->circuit_id, pinfo->destport, lmp_conv); */
+/*g_message("->%d: %d %d %p\n", pinfo->fd->num, lmp_conv->iap_result_frame, lmp_conv->ttp, lmp_conv->proto_dissector); */
         if ((lmp_conv->ttp) && (pdu_type != DISCONNECT_PDU))
         {
             offset += dissect_ttp(tvb, pinfo, root, (pdu_type == DATA_PDU));
@@ -1256,7 +1256,7 @@ void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissec
     lmp_conversation_t* lmp_conv = NULL;
 
     
-//g_message("%d: add_lmp_conversation(%p, %d, %d, %p) = ", pinfo->fd->num, pinfo, dlsap, ttp, proto_dissector);
+/*g_message("%d: add_lmp_conversation(%p, %d, %d, %p) = ", pinfo->fd->num, pinfo, dlsap, ttp, proto_dissector); */
     srcaddr.type  = AT_NONE;
     srcaddr.len   = 1;
     srcaddr.data  = (char*)&pinfo->circuit_id;
@@ -1297,7 +1297,7 @@ void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissec
     lmp_conv->ttp              = ttp;
     lmp_conv->proto_dissector  = proto_dissector;
 
-//g_message("%p\n", lmp_conv);
+/*g_message("%p\n", lmp_conv); */
 }
 
 
