@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-defs.h,v 1.8 2002/01/18 21:46:51 nneul Exp $
+ * $Id: packet-afs-defs.h,v 1.9 2002/02/03 15:57:22 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -67,6 +67,7 @@ static const value_string fs_req[] = {
 	{ 161,		"dfs-lookup" },
 	{ 162,		"dfs-flushcps" },
 	{ 163,		"dfs-symlink" },
+	{ 220,		"residency" },
 	{ 0,		NULL },
 };
 
@@ -244,6 +245,8 @@ static const value_string bos_req[] = {
 	{ 112,		"get-log" },
 	{ 113,		"wait-all" },
 	{ 114,		"get-instance-strings" },
+	{ 115, 		"get-restricted" },
+	{ 116, 		"set restricted" },
 	{ 0,		NULL },
 };
 
