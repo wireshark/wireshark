@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.147 2002/01/30 08:01:15 guy Exp $
+# $Id: configure.in,v 1.148 2002/01/30 10:05:07 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -155,9 +155,10 @@ AC_SUBST(DATAFILE_DIR)
 # If we're running Solaris, and LD_LIBRARY_PATH is defined, add it as a
 # link directory.
 #
-# Also, make sure that "sed" does *NOT* refer to "/usr/bin/sed", as
-# "/usr/bin/sed" is inadequate to handle, in libtool, a list of
-# object files as large as the list in Ethereal.
+# Also, make sure that "sed" does *NOT* refer to "/usr/bin/sed" or
+# "/usr/ucb/sed", as, on Solaris, both of them are inadequate to
+# handle, in libtool, a list of object files as large as the list
+# in Ethereal.
 #
 case "$host_os" in
   solaris*)
@@ -168,13 +169,17 @@ case "$host_os" in
     else
       AC_MSG_RESULT(no -- this may be a problem in a few seconds)
     fi
-    AC_MSG_CHECKING(whether /usr/bin/sed will be used)
-    if test `which sed` = /usr/bin/sed ; then
-      AC_MSG_RESULT(yes)
-      AC_MSG_ERROR(change your path to search /usr/xpg4/bin before /usr/bin)
-    else
+    AC_MSG_CHECKING(whether one of /usr/bin/sed or /usr/ucb/sed will be used)
+    case `which sed` in
+      /usr/bin/sed|/usr/ucb/sed)
+        AC_MSG_RESULT(yes)
+        AC_MSG_ERROR([change your path to search /usr/xpg4/bin before /usr/bin (and /usr/ucb)])
+      ;;
+
+    *)
       AC_MSG_RESULT(no)
-    fi
+      ;;
+    esac
   ;;
 esac
 
