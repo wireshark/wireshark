@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.19 2002/01/21 07:37:41 guy Exp $
+ * $Id: colors.c,v 1.20 2002/05/27 22:00:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,7 +51,7 @@
 
 extern capture_file cf;
 
-static gboolean read_filters(colfilter *filter);
+static gboolean read_filters(void);
 
 GSList *filter_list;
 
@@ -62,15 +62,10 @@ GdkColor	WHITE = { 0, 65535, 65535, 65535 };
 GdkColor	BLACK = { 0, 0, 0, 0 };
 
 /* Initialize the filter structures (reading from file) */
-colfilter *
-colfilter_new(void)
+void
+colfilter_init(void)
 {
-	colfilter *filter;
 	gboolean got_white, got_black;
-
-	/* Create the filter header */
-	filter = (colfilter *)g_malloc(sizeof(colfilter));
-	filter->num_of_filters = 0;
 
 	sys_cmap = gdk_colormap_get_system();
 
@@ -92,14 +87,12 @@ colfilter_new(void)
 			    "Could not allocate color black.");
 	}
 
-	read_filters(filter);
-	return filter;
+	read_filters();
 }
 
 /* Create a new filter */
 color_filter_t *
-new_color_filter(colfilter *filters,    /* The filter list (unused) */
-                 gchar *name,           /* The name of the filter to create */
+new_color_filter(gchar *name,           /* The name of the filter to create */
                  gchar *filter_string)  /* The string representing the filter */
 {
 	color_filter_t *colorf;
@@ -150,7 +143,7 @@ filter_list_prime_edt(epan_dissect_t *edt)
 
 /* read filters from the file */
 static gboolean
-read_filters(colfilter *filter)
+read_filters(void)
 {
 	/* TODO: Lots more syntax checking on the file */
 	/* I hate these fixed length names! TODO: make more dynamic */
@@ -166,12 +159,6 @@ read_filters(colfilter *filter)
 	dfilter_t *temp_dfilter;
 
 	/* decide what file to open (from dfilter code) */
-
-	/* should only be called by colors_init */
-	if (filter == NULL)
-		return FALSE;
-	/* we have a clist */
-
 	path = get_persconffile_path("colorfilters", FALSE);
 	if ((f = fopen(path, "r")) == NULL) {
 		if (errno != ENOENT) {
@@ -223,9 +210,8 @@ read_filters(colfilter *filter)
 				continue;
 			}
 
-			colorf = new_color_filter(filter, name, filter_exp);
+			colorf = new_color_filter(name, filter_exp);
 			colorf->c_colorfilter = temp_dfilter;
-			filter->num_of_filters++;
 			fg_color.red = fg_r;
 			fg_color.green = fg_g;
 			fg_color.blue = fg_b;
@@ -259,7 +245,7 @@ write_filter(gpointer filter_arg, gpointer file_arg)
 
 /* save filters in filter file */
 gboolean
-write_filters(colfilter *filter)
+write_filters(void)
 {
 	gchar *pf_dir_path;
 	const gchar *path;

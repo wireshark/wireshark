@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.250 2002/05/22 23:22:56 guy Exp $
+ * $Id: main.c,v 1.251 2002/05/27 22:00:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1876,7 +1876,7 @@ main(int argc, char *argv[])
     create_main_window(pl_size, tv_size, bv_size, prefs);
     set_menus_for_capture_file(FALSE);
 
-    cfile.colors = colfilter_new();
+    colfilter_init();
 
     /* If we were given the name of a capture file, read it in now;
        we defer it until now, so that, if we can't open it, and pop

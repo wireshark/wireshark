@@ -1,7 +1,7 @@
 /* colors.h
  * Definitions for color structures and routines
  *
- * $Id: colors.h,v 1.6 2002/01/21 07:37:41 guy Exp $
+ * $Id: colors.h,v 1.7 2002/05/27 22:00:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,17 +52,11 @@ typedef struct _color_filter {
 /* List of all color filters. */
 extern GSList *filter_list;
 
-typedef struct _colfilter  {
-	gint      num_of_filters;  /* first num_of_filters rows filled */
-	gint	  row_selected;	   /* row in color_filters that is selected */
-} colfilter;
+void colfilter_init(void);
 
-colfilter *colfilter_new(void);
+gboolean write_filters(void);
 
-gboolean write_filters(colfilter *filter);
-
-color_filter_t *new_color_filter(colfilter *filters, gchar *name,
-				 gchar *filter_string);
+color_filter_t *new_color_filter(gchar *name, gchar *filter_string);
 void delete_color_filter(color_filter_t *colorf);
 
 gboolean get_color (GdkColor *new_color);
