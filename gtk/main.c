@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.199 2001/05/31 08:36:46 guy Exp $
+ * $Id: main.c,v 1.200 2001/06/05 07:38:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -126,6 +126,7 @@
 #include "print.h"
 #include "resolv.h"
 #include "util.h"
+#include "statusbar.h"
 #include "simple_dialog.h"
 #include "proto_draw.h"
 #include "dfilter/dfilter.h"
@@ -146,11 +147,11 @@
 packet_info  pi;
 capture_file cfile;
 GtkWidget   *top_level, *packet_list, *tree_view, *byte_nb_ptr,
-            *info_bar, *tv_scrollw, *pkt_scrollw;
-static GtkWidget	*bv_scrollw;
+            *tv_scrollw, *pkt_scrollw;
+static GtkWidget	*info_bar, *bv_scrollw;
 GdkFont     *m_r_font, *m_b_font;
 guint		m_font_height, m_font_width;
-guint        main_ctx, file_ctx, help_ctx;
+static guint    main_ctx, file_ctx, help_ctx;
 static GString *comp_info_str;
 gchar       *ethereal_path = NULL;
 gchar       *last_open_dir = NULL;
@@ -210,14 +211,6 @@ match_selected_cb(GtkWidget *w, gpointer data)
     GtkWidget		*filter_te;
 
     filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
-
-    if (!finfo_selected) {
-	simple_dialog(ESD_TYPE_CRIT, NULL,
-		      "Error determining selected bytes.  Please make\n"
-		      "sure you have selected a field within the tree\n"
-		      "view to be matched.");
-	return;
-    }
 
     buf = proto_alloc_dfilter_string(finfo_selected, cfile.pd);
 
@@ -463,7 +456,6 @@ tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user
 	g_assert(byte_data);
 
 	finfo_selected = finfo;
-
 	set_menus_for_selected_tree_row(TRUE);
 
 	if (finfo->hfinfo) {
@@ -474,13 +466,14 @@ tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user
 	  } else {
 	    length = strlen(finfo->hfinfo->name);
 	  }
+	  statusbar_pop_field_msg();	/* get rid of current help msg */
           if (length) {
 	    length += strlen(finfo->hfinfo->abbrev) + 10;
 	    help_str = g_malloc(sizeof(gchar) * length);
 	    sprintf(help_str, "%s (%s)", 
 	       (has_blurb) ? finfo->hfinfo->blurb : finfo->hfinfo->name,
 	       finfo->hfinfo->abbrev);
-	    gtk_statusbar_push(GTK_STATUSBAR(info_bar), help_ctx, help_str);
+	    statusbar_push_field_msg(help_str);
 	    g_free(help_str);
           } else {
             /*
@@ -488,6 +481,9 @@ tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user
 	     * the pseudo-field for "proto_tree_add_text()" is such
 	     * a field, and we don't want "Text (text)" showing up
 	     * on the status line if you've selected such a field.
+	     *
+	     * XXX - there are zero-length fields for which we *do*
+	     * want to show the field name.
 	     *
 	     * XXX - perhaps the name and abbrev field should be null
 	     * pointers rather than null strings for that pseudo-field,
@@ -499,7 +495,7 @@ tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user
 	     * with no pseudo-field being used, but that might also
 	     * require special checks for -1 to be added.
 	     */
-	    gtk_statusbar_push(GTK_STATUSBAR(info_bar), help_ctx, "");
+	    statusbar_push_field_msg("");
           }
 	}
 
@@ -513,16 +509,16 @@ tree_view_unselect_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer us
 	GtkWidget	*byte_view;
 	guint8	*data;
 	gint	len;	
-	field_info* fi;
 
-	fi = (field_info*)user_data;
-
+	/*
+	 * Which byte view is displaying the current protocol tree
+	 * row's data?
+	 */
 	len = get_byte_view_and_data( byte_nb_ptr, &byte_view, &data);
+	if ( len < 0)
+		return;	/* none */
 
-	if ( len < 0) return;
-	gtk_statusbar_pop(GTK_STATUSBAR(info_bar), help_ctx);
-	finfo_selected = NULL;
-	set_menus_for_selected_tree_row(FALSE);
+	unselect_field();
 	packet_hex_print(GTK_TEXT(byte_view), data, cfile.current_frame,
 		NULL, len);
 }
@@ -663,6 +659,46 @@ set_plist_font(GdkFont *font)
 	}
 }
 
+/*
+ * Push a message referring to file access onto the statusbar.
+ */
+void
+statusbar_push_file_msg(gchar *msg)
+{
+	gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, msg);
+}
+
+/*
+ * Pop a message referring to file access off the statusbar.
+ */
+void
+statusbar_pop_file_msg(void)
+{
+	gtk_statusbar_pop(GTK_STATUSBAR(info_bar), file_ctx);
+}
+
+/*
+ * XXX - do we need multiple statusbar contexts?
+ */
+
+/*
+ * Push a message referring to the currently-selected field onto the statusbar.
+ */
+void
+statusbar_push_field_msg(gchar *msg)
+{
+	gtk_statusbar_push(GTK_STATUSBAR(info_bar), help_ctx, msg);
+}
+
+/*
+ * Pop a message referring to the currently-selected field off the statusbar.
+ */
+void
+statusbar_pop_field_msg(void)
+{
+	gtk_statusbar_pop(GTK_STATUSBAR(info_bar), help_ctx);
+}
+
 static gboolean
 main_window_delete_event_cb(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
@@ -716,7 +752,7 @@ file_quit_cmd_cb (GtkWidget *widget, gpointer data)
 		   which we'd call here, and another routine that
 		   calls that routine and also cleans up the UI, which
 		   we'd call elsewhere? */
-		close_cap_file(&cfile, info_bar);
+		close_cap_file(&cfile);
 
 		/* Exit by leaving the main loop, so that any quit functions
 		   we registered get called. */

@@ -2,12 +2,11 @@
  * Definitions for menu routines with toolkit-independent APIs but
  * toolkit-dependent implementations.
  *
- * $Id: menu.h,v 1.8 2000/08/15 20:42:09 deniel Exp $
+ * $Id: menu.h,v 1.9 2001/06/05 07:38:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -52,7 +51,8 @@ void set_menus_for_captured_packets(gboolean);
 /* Enable or disable menu items based on whether a packet is selected. */
 void set_menus_for_selected_packet(gboolean);
 
-/* Enable or disable menu items based on whether a tree row is selected. */
+/* Enable or disable menu items based on whether a tree row is selected
+   and and on whether a "Match Selected" can be done. */
 void set_menus_for_selected_tree_row(gboolean);
 
 #ifdef __cplusplus

@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.150 2001/06/02 06:26:52 guy Exp $
+ * $Id: capture.c,v 1.151 2001/06/05 07:38:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -299,7 +299,7 @@ do_capture(char *capfile_name)
     }
     return;
   }
-  close_cap_file(&cfile, info_bar);
+  close_cap_file(&cfile);
   g_assert(cfile.save_file == NULL);
   cfile.save_file = capfile_name;
 

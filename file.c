@@ -1,12 +1,11 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.237 2001/05/27 21:33:16 guy Exp $
+ * $Id: file.c,v 1.238 2001/06/05 07:38:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -83,6 +82,7 @@
 #include "simple_dialog.h"
 #include "progress_dlg.h"
 #include "ui_util.h"
+#include "statusbar.h"
 #include "prefs.h"
 #include "gtk/proto_draw.h"
 #include "gtk/packet_win.h"
@@ -91,8 +91,7 @@
 #include "globals.h"
 #include "gtk/colors.h"
 
-extern GtkWidget *packet_list, *info_bar, *byte_nb_ptr, *tree_view;
-extern guint      file_ctx;
+extern GtkWidget *packet_list, *byte_nb_ptr, *tree_view;
 
 static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
@@ -142,7 +141,7 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
 
   /* The open succeeded.  Close whatever capture file we had open,
      and fill in the information for this file. */
-  close_cap_file(cf, info_bar);
+  close_cap_file(cf);
 
   /* Initialize the table of conversations. */
   epan_conversation_init();
@@ -196,7 +195,7 @@ fail:
 
 /* Reset everything to a pristine state */
 void
-close_cap_file(capture_file *cf, void *w)
+close_cap_file(capture_file *cf)
 {
   /* Die if we're in the middle of reading a file. */
   g_assert(cf->state != FILE_READ_IN_PROGRESS);
@@ -242,7 +241,7 @@ close_cap_file(capture_file *cf, void *w)
   /* Clear any file-related status bar messages.
      XXX - should be "clear *ALL* file-related status bar messages;
      will there ever be more than one on the stack? */
-  gtk_statusbar_pop(GTK_STATUSBAR(w), file_ctx);
+  statusbar_pop_file_msg();
 
   /* Restore the standard title bar message. */
   set_main_window_name("The Ethereal Network Analyzer");
@@ -291,7 +290,7 @@ set_display_filename(capture_file *cf)
     done_msg = g_malloc(msg_len);
     snprintf(done_msg, msg_len, done_fmt_nodrops, name_ptr);
   }
-  gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, done_msg);
+  statusbar_push_file_msg(done_msg);
   g_free(done_msg);
 
   msg_len = strlen(name_ptr) + strlen(win_name_fmt) + 1;
@@ -320,7 +319,7 @@ read_cap_file(capture_file *cf, int *err)
   msg_len = strlen(name_ptr) + strlen(load_fmt) + 2;
   load_msg = g_malloc(msg_len);
   snprintf(load_msg, msg_len, load_fmt, name_ptr);
-  gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, load_msg);
+  statusbar_push_file_msg(load_msg);
 
   /* Update the progress bar when it gets to this value. */
   cf->progbar_nextstep = 0;
@@ -358,7 +357,7 @@ read_cap_file(capture_file *cf, int *err)
       destroy_progress_dlg(progbar);
       cf->state = FILE_READ_ABORTED;	/* so that we're allowed to close it */
       gtk_clist_thaw(GTK_CLIST(packet_list));	/* undo our freeze */
-      close_cap_file(cf, info_bar);
+      close_cap_file(cf);
       return (READ_ABORTED);
     }
     read_packet(cf, data_offset);
@@ -382,7 +381,7 @@ read_cap_file(capture_file *cf, int *err)
   cf->current_frame = cf->first_displayed;
   thaw_clist(cf);
 
-  gtk_statusbar_pop(GTK_STATUSBAR(info_bar), file_ctx);
+  statusbar_pop_file_msg();
   set_display_filename(cf);
 
   /* Enable menu items that make sense if you have a capture file you've
@@ -464,8 +463,7 @@ start_tail_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
       }
     }
 
-    gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, 
-		       " <live capture in progress>");
+    statusbar_push_file_msg(" <live capture in progress>");
   }
   return err;
 }
@@ -534,7 +532,7 @@ finish_tail_cap_file(capture_file *cf, int *err)
        it's probably exited), so we can just close the capture
        file; we return READ_ABORTED so our caller can do whatever
        is appropriate when that happens. */
-    close_cap_file(cf, info_bar);
+    close_cap_file(cf);
     return READ_ABORTED;
   }
 
@@ -559,7 +557,7 @@ finish_tail_cap_file(capture_file *cf, int *err)
   cf->lnk_t = wtap_file_encap(cf->wth);
 
   /* Pop the "<live capture in progress>" message off the status bar. */
-  gtk_statusbar_pop(GTK_STATUSBAR(info_bar), file_ctx);
+  statusbar_pop_file_msg();
 
   set_display_filename(cf);
 
@@ -1368,34 +1366,6 @@ change_time_formats(capture_file *cf)
   thaw_clist(cf);
 }
 
-static void
-clear_tree_and_hex_views(void)
-{
-  /* Clear the hex dump. */
-
-  GtkWidget *byte_view;
-  int i;
-
-/* Get the current tab scroll window, then get the text widget  */
-/* from the E_BYTE_VIEW_TEXT_INFO_KEY data field 		*/
-
-  i = gtk_notebook_get_current_page( GTK_NOTEBOOK(byte_nb_ptr));
-
-  if ( i >= 0){
-    byte_view = gtk_notebook_get_nth_page( GTK_NOTEBOOK(byte_nb_ptr), i);
-    byte_view = gtk_object_get_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_TEXT_INFO_KEY);
-
-    gtk_text_freeze(GTK_TEXT(byte_view));
-    gtk_text_set_point(GTK_TEXT(byte_view), 0);
-    gtk_text_forward_delete(GTK_TEXT(byte_view),
-      gtk_text_get_length(GTK_TEXT(byte_view)));
-    gtk_text_thaw(GTK_TEXT(byte_view));
-  }
-  /* Remove all nodes in ctree. This is how it's done in testgtk.c in GTK+ */
-  gtk_clist_clear ( GTK_CLIST(tree_view) );
-
-}
-
 gboolean
 find_packet(capture_file *cf, dfilter_t *sfcode)
 {
@@ -1624,13 +1594,14 @@ unselect_packet(capture_file *cf)
     cf->edt = NULL;
   }
 
-  finfo_selected = NULL;
-
   /* Clear out the display of that packet. */
   clear_tree_and_hex_views();
 
   /* No packet is selected. */
   set_menus_for_selected_packet(FALSE);
+
+  /* No protocol tree means no selected field. */
+  unselect_field();
 }
 
 /* Set the selected row and the focus row of the packet list to the specified
@@ -1652,6 +1623,15 @@ set_selected_row(int row)
   GTK_CLIST(packet_list)->focus_row = row;
 
   gtk_clist_select_row(GTK_CLIST(packet_list), row, -1);
+}
+
+/* Unset the selected protocol tree field, if any. */
+void
+unselect_field(void)
+{
+  statusbar_pop_field_msg();
+  finfo_selected = NULL;
+  set_menus_for_selected_tree_row(FALSE);
 }
 
 static void
@@ -1711,7 +1691,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered, gboolean sa
   msg_len = strlen(name_ptr) + strlen(save_fmt) + 2;
   save_msg = g_malloc(msg_len);
   snprintf(save_msg, msg_len, save_fmt, name_ptr);
-  gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, save_msg);
+  statusbar_push_file_msg(save_msg);
   g_free(save_msg);
 
   if (!save_filtered && !save_marked && save_format == cf->cd_t) {
@@ -1823,7 +1803,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered, gboolean sa
 done:
 
   /* Pop the "Saving:" message off the status bar. */
-  gtk_statusbar_pop(GTK_STATUSBAR(info_bar), file_ctx);
+  statusbar_pop_file_msg();
   if (err == 0) {
     if (!save_filtered && !save_marked) {
       /* We saved the entire capture, not just some packets from it.

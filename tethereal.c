@@ -1,9 +1,9 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.83 2001/05/31 08:36:41 guy Exp $
+ * $Id: tethereal.c,v 1.84 2001/06/05 07:38:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Text-mode variant, by Gilbert Ramirez <gram@xiexie.org>.
@@ -137,7 +137,6 @@ static void wtap_dispatch_cb_print(u_char *, const struct wtap_pkthdr *, int,
 packet_info  pi;
 capture_file cfile;
 FILE        *data_out_file = NULL;
-guint        main_ctx, file_ctx;
 ts_type timestamp_type = RELATIVE;
 #ifdef HAVE_LIBPCAP
 static int promisc_mode = TRUE;

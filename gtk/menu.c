@@ -1,12 +1,11 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.52 2001/04/15 03:37:16 guy Exp $
+ * $Id: menu.c,v 1.53 2001/06/05 07:38:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -378,7 +377,6 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
   set_menu_sensitivity("/File/Print...", have_captured_packets);
   set_menu_sensitivity("/Edit/Find Frame...", have_captured_packets);
   set_menu_sensitivity("/Edit/Go To Frame...", have_captured_packets);
-  set_menu_sensitivity("/Display/Match Selected", have_captured_packets);
   set_menu_sensitivity("/Display/Colorize Display...", have_captured_packets);
   set_menu_sensitivity("/Tools/Summary", have_captured_packets);
   set_menu_sensitivity("/Tools/Protocol Hierarchy Statistics", have_captured_packets);
@@ -403,11 +401,13 @@ set_menus_for_selected_packet(gboolean have_selected_packet)
       have_selected_packet && !prefs.name_resolve);  
 }
 
-/* Enable or disable menu items based on whether a tree row is selected. */
+/* Enable or disable menu items based on whether a tree row is selected
+   and and on whether a "Match Selected" can be done. */
 void
 set_menus_for_selected_tree_row(gboolean have_selected_tree)
 {
   gboolean properties = FALSE;
+
   if (finfo_selected) {
 	header_field_info *hfinfo = finfo_selected->hfinfo;
 	if (hfinfo->parent == -1) {
@@ -415,6 +415,10 @@ set_menus_for_selected_tree_row(gboolean have_selected_tree)
 	} else {
 	  properties = prefs_is_registered_protocol(proto_registrar_get_abbrev(hfinfo->parent));
 	}
-  }
+	set_menu_sensitivity("/Display/Match Selected",
+	  proto_can_match_selected(finfo_selected));
+  } else
+	set_menu_sensitivity("/Display/Match Selected", FALSE);
+
   set_menu_sensitivity("/Protocol Properties...", have_selected_tree && properties);
 }

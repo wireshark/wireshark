@@ -1,12 +1,11 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.28 2001/05/31 07:15:23 guy Exp $
+ * $Id: proto.c,v 1.29 2001/06/05 07:38:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -2830,6 +2829,54 @@ hfinfo_numeric_format(header_field_info *hfinfo)
 			;
 	}
 	return format;
+}
+
+/*
+ * Returns TRUE if we can do a "match selected" on the field, FALSE
+ * otherwise.
+ */
+gboolean
+proto_can_match_selected(field_info *finfo)
+{
+	header_field_info	*hfinfo;
+
+	hfinfo = finfo->hfinfo;
+	g_assert(hfinfo);
+
+	switch(hfinfo->type) {
+
+		case FT_BOOLEAN:
+		case FT_UINT8:
+		case FT_UINT16:
+		case FT_UINT24:
+		case FT_UINT32:
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT24:
+		case FT_INT32:
+		case FT_IPv4:
+		case FT_IPXNET:
+		case FT_IPv6:
+		case FT_DOUBLE:
+		case FT_ETHER:
+		case FT_ABSOLUTE_TIME:
+		case FT_RELATIVE_TIME:
+		case FT_STRING:
+		case FT_BYTES:
+			/*
+			 * These all have values, so we can match.
+			 */
+			return TRUE;
+
+		default:
+			/*
+			 * This doesn't have a value, so we'd match
+			 * on the raw bytes at this address;
+			 * however, if the length is 0, there's nothing
+			 * to match, so we can't match.
+			 */
+			return (finfo->length != 0);
+	}
 }
 
 char*

@@ -1,7 +1,7 @@
-/* globals.h
- * Global defines, etc.
+/* statusbar.h
+ * Definitions for status bar UI routines
  *
- * $Id: globals.h,v 1.26 2001/06/05 07:38:33 guy Exp $
+ * $Id: statusbar.h,v 1.1 2001/06/05 07:39:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,20 +22,35 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __GLOBALS_H__
-#define __GLOBALS_H__
+#ifndef __STATUSBAR_H__
+#define __STATUSBAR_H__
 
-#include <stdio.h>
-#include "file.h"
-#include "timestamp.h"
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
-#define MIN_PACKET_SIZE 68	/* minimum amount of packet data we can read */
+/*
+ * Push a message referring to file access onto the statusbar.
+ */
+void statusbar_push_file_msg(gchar *msg);
 
-extern capture_file cfile;
-extern gchar       *ethereal_path;
-extern gchar       *last_open_dir;
-extern field_info  *finfo_selected;
+/*
+ * Pop a message referring to file access off the statusbar.
+ */
+void statusbar_pop_file_msg(void);
 
-extern ts_type timestamp_type;
+/*
+ * Push a message referring to the currently-selected field onto the statusbar.
+ */
+void statusbar_push_field_msg(gchar *msg);
 
-#endif
+/*
+ * Pop a message referring to the currently-selected field off the statusbar.
+ */
+void statusbar_pop_field_msg(void);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __STATUSBAR_H__ */

@@ -1,10 +1,10 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.34 2001/05/27 07:50:28 guy Exp $
+ * $Id: proto_draw.c,v 1.35 2001/06/05 07:38:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Jeff Foster,    2001/03/12,  added support for displaying named
@@ -936,4 +936,35 @@ proto_tree_draw_node(GNode *node, gpointer data)
 		g_node_children_foreach(node, G_TRAVERSE_ALL,
 			proto_tree_draw_node, &info);
 	}
+}
+
+/*
+ * Clear the hex dump and protocol tree panes.
+ */
+void
+clear_tree_and_hex_views(void)
+{
+  /* Clear the hex dump. */
+
+  GtkWidget *byte_view;
+  int i;
+
+/* Get the current tab scroll window, then get the text widget  */
+/* from the E_BYTE_VIEW_TEXT_INFO_KEY data field 		*/
+
+  i = gtk_notebook_get_current_page( GTK_NOTEBOOK(byte_nb_ptr));
+
+  if ( i >= 0){
+    byte_view = gtk_notebook_get_nth_page( GTK_NOTEBOOK(byte_nb_ptr), i);
+    byte_view = gtk_object_get_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_TEXT_INFO_KEY);
+
+    gtk_text_freeze(GTK_TEXT(byte_view));
+    gtk_text_set_point(GTK_TEXT(byte_view), 0);
+    gtk_text_forward_delete(GTK_TEXT(byte_view),
+      gtk_text_get_length(GTK_TEXT(byte_view)));
+    gtk_text_thaw(GTK_TEXT(byte_view));
+  }
+  /* Remove all nodes in ctree. This is how it's done in testgtk.c in GTK+ */
+  gtk_clist_clear ( GTK_CLIST(tree_view) );
+
 }

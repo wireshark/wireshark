@@ -1,12 +1,11 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.11 2001/04/02 00:38:34 hagbard Exp $
+ * $Id: proto.h,v 1.12 2001/06/05 07:38:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -558,6 +557,13 @@ extern int           num_tree_types;
 
 int
 hfinfo_bitwidth(header_field_info *hfinfo);
+
+/*
+ * Returns TRUE if we can do a "match selected" on the field, FALSE
+ * otherwise.
+ */
+gboolean
+proto_can_match_selected(field_info *finfo);
 
 char*
 proto_alloc_dfilter_string(field_info *finfo, guint8 *pd);

@@ -1,12 +1,11 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.39 2001/05/31 08:36:46 guy Exp $
+ * $Id: file_dlg.c,v 1.40 2001/06/05 07:38:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -282,7 +281,7 @@ file_open_destroy_cb(GtkWidget *win, gpointer user_data)
 /* Close a file */
 void
 file_close_cmd_cb(GtkWidget *widget, gpointer data) {
-  close_cap_file(&cfile, info_bar);
+  close_cap_file(&cfile);
 }
 
 void

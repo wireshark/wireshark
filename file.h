@@ -1,12 +1,11 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.82 2001/04/18 05:45:57 guy Exp $
+ * $Id: file.h,v 1.83 2001/06/05 07:38:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -111,7 +110,7 @@ typedef enum {
 } read_status_t;
 
 int  open_cap_file(char *, gboolean, capture_file *);
-void close_cap_file(capture_file *, void *);
+void close_cap_file(capture_file *);
 read_status_t read_cap_file(capture_file *, int *);
 int  start_tail_cap_file(char *, gboolean, capture_file *);
 read_status_t continue_tail_cap_file(capture_file *, int, int *);
@@ -135,6 +134,8 @@ goto_result_t goto_frame(capture_file *cf, guint fnumber);
 
 void select_packet(capture_file *, int);
 void unselect_packet(capture_file *);
+
+void unselect_field(void);
 
 /* Moves or copies a file. Returns 0 on failure, 1 on success */
 int file_mv(char *from, char *to);

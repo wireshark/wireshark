@@ -1,12 +1,11 @@
-/* gtkpacket.h
+/* proto_draw.h
  * Definitions for GTK+ packet display structures and routines
  *
- * $Id: proto_draw.h,v 1.11 2001/03/23 14:44:04 jfoster Exp $
+ * $Id: proto_draw.h,v 1.12 2001/06/05 07:38:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -63,5 +62,7 @@ void set_ptree_sel_browse_all(gboolean);
 void set_ptree_line_style_all(gint style);
 void set_ptree_expander_style_all(gint style);
 void set_ptree_font_all(GdkFont *font);
+
+void clear_tree_and_hex_views(void);
 
 #endif
