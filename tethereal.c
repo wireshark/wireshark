@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.32 2000/07/03 08:35:42 guy Exp $
+ * $Id: tethereal.c,v 1.33 2000/07/05 02:06:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,6 +31,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <locale.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -186,6 +187,9 @@ main(int argc, char *argv[])
     proto_registrar_dump();
     exit(0);
   }
+
+  /* Set the C-language locale to the native environment. */
+  setlocale(LC_ALL, "");
 
   prefs = read_prefs(&pf_path);
   if (pf_path != NULL) {
