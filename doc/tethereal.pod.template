@@ -480,9 +480,9 @@ I<filter> is a filter string that controls for which packets the field value
 will be presented on COL_INFO line. I<field> will only be presented on the
 COL_INFO line for the packets which match I<filter>.
 
-NOTE: In order for I<tethereal> to be able to extract the I<field> value from
-the packet, I<field> MUST be part of the I<filter> string. If not, I<tethereal>
-will not be able to extract its value.
+NOTE: In order for B<Tethereal> to be able to extract the I<field> value
+from the packet, I<field> MUST be part of the I<filter> string.  If not,
+B<Tethereal> will not be able to extract its value.
 
 For a simple example to add the "nfs.fh.hash" field to COL_INFO for all
 packets containing the "nfs.fh.hash" field, use
@@ -541,17 +541,17 @@ SMB packets echanged by the host at IP address 1.2.3.4 .
 
 B<-z> smb,sids
 
-When this feature is used tethereal will print a report with all the discovered
-SID and account name mappings.
-Only those SIDs where the account name is known will be presented in the
-table.
+When this feature is used B<Tethereal> will print a report with all the
+discovered SID and account name mappings.  Only those SIDs where the
+account name is known will be presented in the table.
 
-For this feature to work you will need to either to enable "Edit/Preferences/Protocols/SMB/Snoop SID to name mappings" in the preferences or
-you can override the preferences by specifying -o "smb.sid_name_snooping:TRUE"
-on the tethereal command line.
+For this feature to work you will need to either to enable
+"Edit/Preferences/Protocols/SMB/Snoop SID to name mappings" in the
+preferences or you can override the preferences by specifying
+B<-o "smb.sid_name_snooping:TRUE"> on the B<Tethereal> command line.
 
-The current methods used by tethereal to find the SID->name mapping is 
-relatively restricted but is hoped to be expanded in the future.
+The current methods used by B<Tethereal> to find the SID->name mapping
+is relatively restricted but is hoped to be expanded in the future.
 
 B<-z> mgcp,rtd[I<,filter>]
 
