@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.97 1999/09/23 05:55:56 guy Exp $
+ * $Id: file.c,v 1.98 1999/09/24 05:22:28 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -718,10 +718,8 @@ filter_packets(capture_file *cf)
        */
       g_assert(cf->unfiltered_count > 0);
 
-/*      gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar),
-        (gfloat) cf->count / cf->unfiltered_count); */
-      gtk_progress_set_value(GTK_PROGRESS(prog_bar), 
-			     (gfloat) cf->count / cf->unfiltered_count);
+	gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar),
+		(gfloat) cf->count / cf->unfiltered_count);
 
       progbar_nextstep += progbar_quantum;
       while (gtk_events_pending())
@@ -735,8 +733,7 @@ filter_packets(capture_file *cf)
     add_packet_to_packet_list(fd, cf, cf->pd);
   }
  
-  /* gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar), 0);*/
-  gtk_progress_set_value(GTK_PROGRESS(prog_bar), 0);
+  gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar), 0);
 
   if (cf->selected_row != -1) {
     /* We had a selected packet and it passed the filter. */
