@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.51 2002/08/18 07:18:55 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.52 2002/08/18 07:24:42 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5054,9 +5054,8 @@ netlogon_dissect_netserverauthenticate3_rqst(tvbuff_t *tvb, int offset,
 		netlogon_dissect_CREDENTIAL, NDR_POINTER_REF,
 		"CREDENTIAL: authenticator", -1, 0);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_pointer_long, NDR_POINTER_REF,
-		"ULONG: negotiate_flags", hf_netlogon_unknown_long, 0);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_neg_flags, NULL);
 
 	return offset;
 }
@@ -5070,9 +5069,8 @@ netlogon_dissect_netserverauthenticate3_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_CREDENTIAL, NDR_POINTER_REF,
 		"CREDENTIAL pointer: unknown_NETLOGON_CREDENTIAL", -1, 0);
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_pointer_long, NDR_POINTER_REF,
-		"ULONG: negotiate_flags", hf_netlogon_unknown_long, 0);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_neg_flags, NULL);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		netlogon_dissect_pointer_long, NDR_POINTER_REF,
