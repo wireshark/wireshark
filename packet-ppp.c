@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.68 2001/06/18 02:17:50 guy Exp $
+ * $Id: packet-ppp.c,v 1.69 2001/08/05 10:09:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,7 +122,9 @@ static const value_string ppp_vals[] = {
 	{PPP_LCP,	"Link Control Protocol" },
 	{PPP_PAP,	"Password Authentication Protocol"  },
 	{PPP_LQR,	"Link Quality Report protocol" },
+	{PPP_SPAP,	"Shiva Password Authentication Protocol" },
 	{PPP_CHAP,	"Cryptographic Handshake Auth. Protocol" },
+	{PPP_EAP,	"Extensible Authentication Protocol" },
 	{PPP_CBCP,	"Callback Control Protocol" },
 	{0,             NULL            }
 };
@@ -829,6 +831,8 @@ static const value_string callback_op_vals[] = {
 	{2, "Message is location identifier" },
 	{3, "Message is E.164" },
 	{4, "Message is distinguished name" },
+	{5, "unassinged"},
+	{6, "Location is determined during CBCP negotiation" },
 	{0, NULL }
 };
 

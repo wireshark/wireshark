@@ -1,7 +1,7 @@
 /* ppptypes.h
  * Defines PPP packet types.
  *
- * $Id: ppptypes.h,v 1.8 2001/04/16 10:04:30 guy Exp $
+ * $Id: ppptypes.h,v 1.9 2001/08/05 10:09:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,7 +53,9 @@
 #define PPP_LCP		0xc021	/* Link Control Protocol */
 #define PPP_PAP		0xc023	/* Password Authentication Protocol */
 #define PPP_LQR		0xc025	/* Link Quality Report protocol */
+#define PPP_SPAP	0xc027	/* Shiva Password Authentication Protocol */
 #define PPP_CHAP	0xc223	/* Cryptographic Handshake Auth. Protocol */
+#define PPP_EAP		0xc227	/* Extensible Authentication Protocol */
 #define PPP_CBCP	0xc029	/* Callback Control Protocol */
 
 #endif /* ppptypes.h */
