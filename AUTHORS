@@ -154,6 +154,7 @@ Nathan Neulinger <nneul@umr.edu> {
 	Andrew File System protocol support
 	802.1q VLAN support
 	Misc. RPC program dissectors
+	TNS/Oracle dissector
 }
 
 Tomislav Vujec <tvujec@carnet.hr> {
