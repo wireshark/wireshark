@@ -4,7 +4,7 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quakeworld.c,v 1.1 2001/06/21 15:15:02 girlich Exp $
+ * $Id: packet-quakeworld.c,v 1.2 2001/07/21 15:34:44 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,7 @@
 #endif
 
 #include <glib.h>
+#include <string.h>
 #include "packet.h"
 #include "prefs.h"
 
@@ -47,6 +48,16 @@ static int hf_quakeworld_connectionless = -1;
 static int hf_quakeworld_game = -1;
 static int hf_quakeworld_connectionless_marker = -1;
 static int hf_quakeworld_connectionless_text = -1;
+static int hf_quakeworld_connectionless_command = -1;
+static int hf_quakeworld_connectionless_connect_version = -1;
+static int hf_quakeworld_connectionless_connect_qport = -1;
+static int hf_quakeworld_connectionless_connect_challenge = -1;
+static int hf_quakeworld_connectionless_connect_infostring = -1;
+static int hf_quakeworld_connectionless_connect_infostring_key_value = -1;
+static int hf_quakeworld_connectionless_connect_infostring_key = -1;
+static int hf_quakeworld_connectionless_connect_infostring_value = -1;
+static int hf_quakeworld_connectionless_rcon_password = -1;
+static int hf_quakeworld_connectionless_rcon_command = -1;
 static int hf_quakeworld_game_seq1 = -1;
 static int hf_quakeworld_game_rel1 = -1;
 static int hf_quakeworld_game_seq2 = -1;
@@ -55,6 +66,9 @@ static int hf_quakeworld_game_qport = -1;
 
 static gint ett_quakeworld = -1;
 static gint ett_quakeworld_connectionless = -1;
+static gint ett_quakeworld_connectionless_text = -1;
+static gint ett_quakeworld_connectionless_connect_infostring = -1;
+static gint ett_quakeworld_connectionless_connect_infostring_key_value = -1;
 static gint ett_quakeworld_game = -1;
 static gint ett_quakeworld_game_seq1 = -1;
 static gint ett_quakeworld_game_seq2 = -1;
@@ -62,9 +76,204 @@ static gint ett_quakeworld_game_clc = -1;
 static gint ett_quakeworld_game_svc = -1;
 
 
+
+/*
+   helper functions, they may ave to go somewhere else
+   they are mostly copied without change from
+	quakeworldsource/client/cmd.c
+	quakeworldsource/client/common.c
+*/
+
+static	char		com_token[1024];
+static	int		com_token_start;
+static	int		com_token_length;
+
+char *
+COM_Parse (char *data)
+{
+	int	c;
+	int	len;
+
+	len = 0;
+	com_token[0] = 0;
+	com_token_start = 0;
+	com_token_length = 0;
+
+	if (data == NULL)
+		return NULL;
+
+	/* skip whitespace */
+skipwhite:
+	while ( (c = *data) <= ' ') {
+		if (c == 0)
+			return NULL;	/* end of file; */
+		data++;
+		com_token_start++;
+	}
+
+	/* skip // comments */
+	if (c=='/' && data[1] == '/') {
+		while (*data && *data != '\n')
+			data++;
+			com_token_start++;
+		goto skipwhite;
+	}
+
+	/* handle quoted strings specially */
+	if (c == '\"') {
+		data++;
+		com_token_start++;
+		while (1) {
+			c = *data++;
+			if (c=='\"' || c==0) {
+				com_token[len] = 0;
+				return data;
+			}
+			com_token[len] = c;
+			len++;
+			com_token_length++;
+		}
+	}
+
+	/* parse a regular word */
+	do {
+		com_token[len] = c;
+		data++;
+		len++;
+		com_token_length++;
+		c = *data;
+	} while (c>32);
+
+	com_token[len] = 0;
+	return data;
+}
+
+
+#define			MAX_ARGS 80
+static	int		cmd_argc = 0;
+static	char		*cmd_argv[MAX_ARGS];
+static	char		*cmd_null_string = "";
+static	int		cmd_argv_start[MAX_ARGS];
+static	int		cmd_argv_length[MAX_ARGS];
+
+
+
+int
+Cmd_Argc(void)
+{
+	return cmd_argc;
+}
+
+
+char*
+Cmd_Argv(int arg)
+{
+	if ( arg >= cmd_argc )
+		return cmd_null_string;
+	return cmd_argv[arg];
+}
+
+
+int
+Cmd_Argv_start(int arg)
+{
+	if ( arg >= cmd_argc )
+		return 0;
+	return cmd_argv_start[arg];
+}
+
+
+int
+Cmd_Argv_length(int arg)
+{
+	if ( arg >= cmd_argc )
+		return 0;
+	return cmd_argv_length[arg];
+}
+
+
+void
+Cmd_TokenizeString(char* text)
+{
+	int i;
+	int start;
+	int length;
+	
+
+	/* clear the args from the last string */
+	for (i=0 ; i<cmd_argc ; i++)
+		g_free(cmd_argv[i]);
+
+	cmd_argc = 0;
+
+	start = 0;
+	while (TRUE) {
+
+		/* skip whitespace up to a \n */
+		while (*text && *text <= ' ' && *text != '\n') {
+			text++;
+			start++;
+		}
+
+		length = 0;
+
+		if (*text == '\n') {
+			/* a newline seperates commands in the buffer */
+			text++;
+			break;
+		}
+
+		if (!*text)
+			return;
+			
+		text = COM_Parse (text);
+		if (!text)
+			return;
+
+		if (cmd_argc < MAX_ARGS) {
+			cmd_argv[cmd_argc] = g_strdup(com_token);
+			cmd_argv_start[cmd_argc] = start + com_token_start;
+			cmd_argv_length[cmd_argc] = com_token_length;
+			cmd_argc++;
+		}
+
+		start += com_token_start + com_token_length;
+	}
+}
+
+
+
+static const value_string names_direction[] = {
+#define DIR_C2S 0
+	{ DIR_C2S, "Client to Server" },
+#define DIR_S2C 1
+	{ DIR_S2C, "Server to Client" },
+	{ 0, NULL }
+};
+
+
 /* I took this name and value directly out of the QW source. */
 #define PORT_MASTER 27500
 static unsigned int gbl_quakeworldServerPort=PORT_MASTER;
+
+
+/* out of band message id bytes (taken out of quakeworldsource/client/protocol.h */
+ 
+/* M = master, S = server, C = client, A = any */
+/* the second character will allways be \n if the message isn't a single */
+/* byte long (?? not true anymore?) */
+ 
+#define S2C_CHALLENGE		'c'
+#define S2C_CONNECTION		'j'
+#define A2A_PING		'k'	/* respond with an A2A_ACK */
+#define A2A_ACK			'l'	/* general acknowledgement without info */
+#define A2A_NACK		'm'	/* [+ comment] general failure */
+#define A2A_ECHO		'e'	/* for echoing */
+#define A2C_PRINT		'n'	/* print a message on client */
+ 
+#define S2M_HEARTBEAT		'a'	/* + serverinfo + userlist + fraglist */
+#define A2C_CLIENT_COMMAND	'B'	/* + command line */
+#define S2M_SHUTDOWN		'C'
 
 
 static void
@@ -73,12 +282,16 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 {
 	proto_tree	*cl_tree = NULL;
 	proto_item	*cl_item = NULL;
+	proto_item	*text_item = NULL;
+	proto_tree	*text_tree = NULL;
 	guint8		text[2048];
 	int		maxbufsize = 0;
 	int		len;
 	int		offset;
-
 	guint32 marker;
+	int command_len;
+	char command[2048];
+	int command_finished = FALSE;
 
 	marker = tvb_get_ntohl(tvb, 0);
 	if (tree) {
@@ -99,14 +312,227 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 
         maxbufsize = MIN((gint)sizeof(text), tvb_length_remaining(tvb, offset));
         len = tvb_get_nstringz0(tvb, offset, maxbufsize, text);
-        if (tree) {
-                proto_tree_add_string(cl_tree, hf_quakeworld_connectionless_text,
-                        tvb, offset, len + 1, text);
-        }
-        offset += len + 1;
+	/* actually, we should look for a eol char and stop already there */
 
-	/* we should analyse the result 'text' a bit further */
-	/* for this we need the direction parameter */
+        if (tree) {
+                text_item = proto_tree_add_string(cl_tree, hf_quakeworld_connectionless_text,
+                        tvb, offset, len + 1, text);
+		if (text_item) {
+			text_tree = proto_item_add_subtree(
+				text_item, ett_quakeworld_connectionless_text);
+		}
+        }
+
+	if (direction == DIR_C2S) {
+		/* client to sever commands */
+		char *c;
+
+		Cmd_TokenizeString(text);
+		c = Cmd_Argv(0);
+		
+		/* client to sever commands */
+		if (strcmp(c,"ping") == 0) {
+			strcpy(command, "Ping");
+			command_len = 4;
+		} else if (strcmp(c,"status") == 0) {
+			strcpy(command, "Status");
+			command_len = 6;
+		} else if (strcmp(c,"log") == 0) {
+			strcpy(command, "Status");
+			command_len = 3;
+		} else if (strcmp(c,"connect") == 0) {
+			int version;
+			int qport;
+			int challenge;
+			char *infostring;
+			proto_item *info_item = NULL;
+			proto_tree *info_tree = NULL;
+			strcpy(command, "Connect");
+			command_len = Cmd_Argv_length(0);
+			if (text_tree) {
+				proto_tree_add_string(text_tree, hf_quakeworld_connectionless_command,
+					tvb, offset, command_len, command);
+					command_finished=TRUE;
+			}
+			version = atoi(Cmd_Argv(1));
+			qport = atoi(Cmd_Argv(2));
+			challenge = atoi(Cmd_Argv(3));
+			infostring = Cmd_Argv(4);
+			if (text_tree) {
+				char * newpos;
+				int end_of_info;
+				proto_tree_add_uint(text_tree,
+					hf_quakeworld_connectionless_connect_version,
+					tvb,
+					offset + Cmd_Argv_start(1),
+					Cmd_Argv_length(1), version);
+				proto_tree_add_uint(text_tree,
+					hf_quakeworld_connectionless_connect_qport,
+					tvb,
+					offset + Cmd_Argv_start(2),
+					Cmd_Argv_length(2), qport);
+				proto_tree_add_int(text_tree,
+					hf_quakeworld_connectionless_connect_challenge,
+					tvb,
+					offset + Cmd_Argv_start(3),
+					Cmd_Argv_length(3), challenge);
+				info_item = proto_tree_add_string(text_tree,
+					hf_quakeworld_connectionless_connect_infostring,
+					tvb,
+					offset + Cmd_Argv_start(4),
+					Cmd_Argv_length(4), infostring);
+				if (info_item)
+					info_tree = proto_item_add_subtree(
+						info_item, ett_quakeworld_connectionless_connect_infostring);
+				/* to look at all the key/value pairs, we destroy infostring */
+				newpos = infostring;
+				end_of_info = FALSE;
+				while(!end_of_info) {
+					char* keypos;
+					char* valuepos;
+					int keylength;
+					char* keyvaluesep;
+					int valuelength;
+					char* valueend;
+
+					keypos = newpos;
+					if (*keypos == 0) break;
+					if (*keypos == '\\') keypos++;
+
+					for (keylength = 0
+						;
+						*(keypos + keylength) != '\\' && 
+						*(keypos + keylength) != 0
+						;
+						keylength++) ;
+					keyvaluesep = keypos + keylength;
+					if (*keyvaluesep == 0) break;
+					valuepos = keyvaluesep+1;
+					for (valuelength = 0
+						;
+						*(valuepos + valuelength) != '\\' && 
+						*(valuepos + valuelength) != 0
+						;
+						valuelength++) ;
+					valueend = valuepos + valuelength;
+					if (*valueend == 0) {
+						end_of_info = TRUE;
+					}
+					*(keyvaluesep) = '=';
+					*(valueend) = 0;
+					
+					if (info_tree) {
+						proto_item* sub_item = NULL;
+						proto_tree* sub_tree = NULL;
+
+						sub_item = proto_tree_add_string(info_tree,
+							hf_quakeworld_connectionless_connect_infostring_key_value,
+							tvb,
+							offset + Cmd_Argv_start(4) + (keypos-infostring),
+							keylength + 1 + valuelength, keypos);
+						if (sub_item) 
+							sub_tree =
+								proto_item_add_subtree(
+								sub_item,
+								ett_quakeworld_connectionless_connect_infostring_key_value);
+						*(keyvaluesep) = 0;
+						if (sub_tree) {
+							proto_tree_add_string(sub_tree,
+								hf_quakeworld_connectionless_connect_infostring_key,
+								tvb,
+								offset + Cmd_Argv_start(4) + (keypos-infostring),
+								keylength, keypos);
+							proto_tree_add_string(sub_tree,
+								hf_quakeworld_connectionless_connect_infostring_value,
+								tvb,
+								offset + Cmd_Argv_start(4) + (valuepos-infostring),
+								valuelength, valuepos);
+						}
+					}
+					newpos = valueend + 1;
+				}
+			}
+		} else if (strcmp(c,"getchallenge") == 0) {
+			strcpy(command, "Get Challenge");
+			command_len = Cmd_Argv_length(0);
+		} else if (strcmp(c,"rcon") == 0) {
+			char* password;
+			int i;
+			char remaining[1024];
+			strcpy(command, "Remote Command");
+			command_len = Cmd_Argv_length(0);
+			if (text_tree) {
+				proto_tree_add_string(text_tree, hf_quakeworld_connectionless_command,
+					tvb, offset, command_len, command);
+					command_finished=TRUE;
+			}
+			password = Cmd_Argv(1);
+			if (text_tree) {
+				proto_tree_add_string(text_tree,
+					hf_quakeworld_connectionless_rcon_password,
+					tvb,
+					offset + Cmd_Argv_start(1),
+					Cmd_Argv_length(1), password);
+			}
+			for (i=2; i<Cmd_Argc() ; i++) {
+				remaining[0] = 0;
+				strcat (remaining, Cmd_Argv(i) );
+				strcat (remaining, " ");
+			}
+			if (text_tree) {
+				proto_tree_add_string(text_tree,
+					hf_quakeworld_connectionless_rcon_command,
+					tvb, offset + Cmd_Argv_start(2),
+					Cmd_Argv_start(Cmd_Argc()-1) + Cmd_Argv_length(Cmd_Argc()-1) -
+					Cmd_Argv_start(2),
+					remaining);
+			}
+		} else if (c[0]==A2A_PING && ( c[1]==0 || c[1]=='\n')) {
+			strcpy(command, "Ping");
+			command_len = 1;
+		} else if (c[0]==A2A_ACK && ( c[1]==0 || c[1]=='\n')) {
+			strcpy(command, "Ack");
+			command_len = 1;
+		} else {
+			strcpy(command, "Unknown");
+			command_len = len;
+		}
+	}
+	else {
+		/* server to client commands */
+		if (text[0] == S2C_CONNECTION) {
+			strcpy(command, "Connected");
+			command_len = 1;
+		} else if (text[0] == A2C_CLIENT_COMMAND) {
+			strcpy(command, "Client Command");
+			command_len = 1;
+			/* stringz (command), stringz (localid) */
+		} else if (text[0] == A2C_PRINT) {
+			strcpy(command, "Print");
+			command_len = 1;
+			/* string */
+		} else if (text[0] == A2A_PING) {
+			strcpy(command, "Ping");
+			command_len = 1;
+		} else if (text[0] == S2C_CHALLENGE) {
+			strcpy(command, "Challenge");
+			command_len = 1;
+			/* string, atoi */
+		} else {
+			strcpy(command, "Unknown");
+			command_len = len;
+		}
+	}
+		
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_append_fstr(pinfo->fd, COL_INFO, " %s", command);
+	}
+		
+	if (text_tree && !command_finished) {
+		proto_tree_add_string(text_tree, hf_quakeworld_connectionless_command,
+			tvb, offset, command_len, command);
+	}
+        offset += len + 1;
 }
 
 
@@ -138,15 +564,6 @@ static const value_string names_reliable[] = {
         { 0, "Non Reliable" },
         { 1, "Reliable" },
         { 0, NULL }
-};
-
-
-static const value_string names_direction[] = {
-#define DIR_C2S 0
-	{ DIR_C2S, "Client to Server" },
-#define DIR_S2C 1
-	{ DIR_S2C, "Server to Client" },
-	{ 0, NULL }
 };
 
 
@@ -376,6 +793,46 @@ proto_register_quakeworld(void)
 			{ "Text", "quakeworld.connectionless.text",
 			FT_STRING, BASE_DEC, NULL, 0x0,
 			"Text", HFILL }},
+		{ &hf_quakeworld_connectionless_command,
+			{ "Command", "quakeworld.connectionless.command",
+			FT_STRING, BASE_DEC, NULL, 0x0,
+			"Command", HFILL }},
+		{ &hf_quakeworld_connectionless_connect_version,
+			{ "Version", "quakeworld.connectionless.connect.version",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			"Protocol Version", HFILL }},
+		{ &hf_quakeworld_connectionless_connect_qport,
+			{ "QPort", "quakeworld.connectionless.connect.qport",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			"QPort of the client", HFILL }},
+		{ &hf_quakeworld_connectionless_connect_challenge,
+			{ "Challenge", "quakeworld.connectionless.connect.challenge",
+			FT_INT32, BASE_DEC, NULL, 0x0,
+			"Challenge from the server", HFILL }},
+		{ &hf_quakeworld_connectionless_connect_infostring,
+			{ "Infostring", "quakeworld.connectionless.connect.infostring",
+			FT_STRING, BASE_DEC, NULL, 0x0,
+			"Infostring with additional variables", HFILL }},
+		{ &hf_quakeworld_connectionless_connect_infostring_key_value,
+			{ "Key/Value", "quakeworld.connectionless.connect.infostring.key_value",
+			FT_STRING, BASE_DEC, NULL, 0x0,
+			"Key and Value", HFILL }},
+		{ &hf_quakeworld_connectionless_connect_infostring_key,
+			{ "Key", "quakeworld.connectionless.connect.infostring.key",
+			FT_STRING, BASE_DEC, NULL, 0x0,
+			"Infostring Key", HFILL }},
+		{ &hf_quakeworld_connectionless_connect_infostring_value,
+			{ "Value", "quakeworld.connectionless.connect.infostring.value",
+			FT_STRING, BASE_DEC, NULL, 0x0,
+			"Infostring Value", HFILL }},
+		{ &hf_quakeworld_connectionless_rcon_password,
+			{ "Password", "quakeworld.connectionless.rcon.password",
+			FT_STRING, BASE_DEC, NULL, 0x0,
+			"Rcon Password", HFILL }},
+		{ &hf_quakeworld_connectionless_rcon_command,
+			{ "Command", "quakeworld.connectionless.rcon.command",
+			FT_STRING, BASE_DEC, NULL, 0x0,
+			"Command", HFILL }},
 		{ &hf_quakeworld_game_seq1,
 			{ "Sequence Number", "quakeworld.game.seq1",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -400,6 +857,9 @@ proto_register_quakeworld(void)
 	static gint *ett[] = {
 		&ett_quakeworld,
 		&ett_quakeworld_connectionless,
+		&ett_quakeworld_connectionless_text,
+		&ett_quakeworld_connectionless_connect_infostring,
+		&ett_quakeworld_connectionless_connect_infostring_key_value,
 		&ett_quakeworld_game,
 		&ett_quakeworld_game_seq1,
 		&ett_quakeworld_game_seq2,
