@@ -37,36 +37,36 @@
 /** Capture options coming from user interface */
 typedef struct capture_options_tag {
     /* general */
-    void *cf;               /**< handle to cfile (note: untyped handle) */
-    gchar       *cfilter;   /**< Capture filter string */
-    gchar       *iface;     /**< the network interface to capture from */
+    void     *cf;           /**< handle to cfile (note: untyped handle) */
+    gchar    *cfilter;      /**< Capture filter string */
+    gchar    *iface;        /**< the network interface to capture from */
 
 #ifdef _WIN32
-    int buffer_size;        /**< the capture buffer size (MB) */
+    int      buffer_size;   /**< the capture buffer size (MB) */
 #endif
-	gboolean has_snaplen;		/**< TRUE if maximum capture packet
-					   length is specified */
-	int snaplen;			/**< Maximum captured packet length */
-	gboolean promisc_mode;  /**< Capture in promiscuous mode */
-	int linktype;			/**< Data link type to use, or -1 for
-					   "use default" */
-	gboolean capture_child;	/**< True if this is the child for "-S" */
+    gboolean has_snaplen;   /**< TRUE if maximum capture packet length
+                                 is specified */
+    int      snaplen;       /**< Maximum captured packet length */
+    gboolean promisc_mode;  /**< Capture in promiscuous mode */
+    int      linktype;      /**< Data link type to use, or -1 for
+                                 "use default" */
+    gboolean capture_child; /**< True if this is the child for "-S" */
     gchar    *save_file;    /**< the capture file name */
     int      save_file_fd;  /**< File descriptor for saved file */
 
     /* GUI related */
-	gboolean sync_mode;			/**< Fork a child to do the capture,
-					   and sync between them */
+    gboolean sync_mode;     /**< Fork a child to do the capture,
+                                 and sync between them */
     gboolean show_info;     /**< show the info dialog */
     gboolean quit_after_cap;    /** Makes a "capture only mode". Implies -k */
 
     /* multiple files (and ringbuffer) */
     gboolean multi_files_on;    /**< TRUE if ring buffer in use */
 
-	gboolean has_file_duration;	/**< TRUE if ring duration specified */
-	gint32 file_duration;     /* Switch file after n seconds */
-	gboolean has_ring_num_files;/**< TRUE if ring num_files specified */
-	guint32 ring_num_files;	        /**< Number of multiple buffer files */
+    gboolean has_file_duration;	/**< TRUE if ring duration specified */
+    gint32 file_duration;       /* Switch file after n seconds */
+    gboolean has_ring_num_files;/**< TRUE if ring num_files specified */
+    guint32 ring_num_files;     /**< Number of multiple buffer files */
 
     /* autostop conditions */
     gboolean has_autostop_files;/**< TRUE if maximum number of capture files
@@ -75,13 +75,13 @@ typedef struct capture_options_tag {
 
     gboolean has_autostop_packets;	/**< TRUE if maximum packet count is
 					   specified */
-	int autostop_packets;		/**< Maximum packet count */
-	gboolean has_autostop_filesize;	/**< TRUE if maximum capture file size
-					   is specified */
-	gint32 autostop_filesize;	/**< Maximum capture file size */
-	gboolean has_autostop_duration;	/**< TRUE if maximum capture duration
-					   is specified */
-	gint32 autostop_duration;	/**< Maximum capture duration */
+    int autostop_packets;               /**< Maximum packet count */
+    gboolean has_autostop_filesize;     /**< TRUE if maximum capture file size
+                                             is specified */
+    gint32 autostop_filesize;           /**< Maximum capture file size */
+    gboolean has_autostop_duration;     /**< TRUE if maximum capture duration
+                                             is specified */
+    gint32 autostop_duration;           /**< Maximum capture duration */
 
     /* internally used (don't touch from outside) */
     int fork_child;	            /**< If not -1, in parent, process ID of child */
