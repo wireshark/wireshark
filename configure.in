@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.210 2003/07/08 13:09:37 jmayer Exp $
+# $Id: configure.in,v 1.211 2003/07/19 10:59:49 oabad Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -229,7 +229,7 @@ AC_ARG_ENABLE(gtk2,
 AM_CONDITIONAL(USE_GTK2, test x$enable_gtk2 = xyes)
 
 AC_ARG_ENABLE(threads,
-[  --enable-threads        use threads in ethereal.  [default=yes]],enable_threads=$enableval,enable_threads=yes)
+[  --enable-threads        use threads in ethereal.  [default=no]],enable_threads=$enableval,enable_threads=no)
 AM_CONDITIONAL(USE_THREADS, test x$enable_threads = xyes)
 
 # GTK checks
