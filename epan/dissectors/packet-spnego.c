@@ -226,7 +226,7 @@ static const value_string spnego_krb5_seal_alg_vals[] = {
 static int
 dissect_spnego_krb5_getmic_base(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int
-dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 token_id);
 
 static void
 dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -383,7 +383,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  break;
 
 	case KRB_TOKEN_WRAP:
-          offset = dissect_spnego_krb5_wrap_base(tvb, offset, pinfo, subtree);
+          offset = dissect_spnego_krb5_wrap_base(tvb, offset, pinfo, subtree, token_id);
 	  break;
 
 	case KRB_TOKEN_DELETE_SEC_CONTEXT:
@@ -403,7 +403,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * XXX - This is for GSSAPI Wrap tokens ...
  */
 static int
-dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 _U_ token_id)
 {
 	guint16 sgn_alg;
 
@@ -463,6 +463,9 @@ dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	 * the data we're wrapped around starts.  Also, set the length
 	 * of our top-level item to that offset, so it doesn't cover
 	 * the data we're wrapped around.
+	 * 
+	 * Note that for DCERPC the GSSAPI blobs comes after the data it wraps,
+	 * not before.
 	 */
 	return offset;
 }
@@ -544,6 +547,7 @@ dissect_spnego_krb5_wrap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	proto_item *item;
 	proto_tree *subtree;
 	int offset = 0;
+	guint16 token_id;
 
 	item = proto_tree_add_item(tree, hf_spnego_krb5, tvb, 0, -1, FALSE);
 
@@ -557,12 +561,13 @@ dissect_spnego_krb5_wrap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
 	/* First, the token ID ... */
 
+	token_id = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(subtree, hf_spnego_krb5_tok_id, tvb, offset, 2,
 			    TRUE);
 
 	offset += 2;
 
-        offset = dissect_spnego_krb5_wrap_base(tvb, offset, pinfo, subtree);
+        offset = dissect_spnego_krb5_wrap_base(tvb, offset, pinfo, subtree, token_id);
 
         /*
 	 * Return the offset past the checksum, so that we know where
