@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.1 2003/08/23 09:09:35 sahlberg Exp $
+ * $Id: endpoint_talkers_table.c,v 1.2 2003/08/24 01:39:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,8 +64,8 @@ reset_ett_table_data(endpoints_table *et)
 
 	/* delete all endpoints */
 	for(i=0;i<et->num_endpoints;i++){
-		g_free(et->endpoints[i].src_address.data);
-		g_free(et->endpoints[i].dst_address.data);
+		g_free((gpointer)et->endpoints[i].src_address.data);
+		g_free((gpointer)et->endpoints[i].dst_address.data);
 	}
 	g_free(et->endpoints);
 	et->endpoints=NULL;
@@ -337,19 +337,19 @@ add_ett_table_data(endpoints_table *et, address *src, address *dst, guint32 src_
 		entries[2]=et->address_to_str(&talker->dst_address);
 		entries[3]=(et->port_to_str)?et->port_to_str(talker->dst_port):"";
 
-		sprintf(frames,"%d", talker->tx_frames+talker->rx_frames);
+		sprintf(frames,"%u", talker->tx_frames+talker->rx_frames);
 		entries[4]=frames;
-		sprintf(bytes,"%d", talker->tx_bytes+talker->rx_bytes);
+		sprintf(bytes,"%u", talker->tx_bytes+talker->rx_bytes);
 		entries[5]=bytes;
 
-		sprintf(txframes,"%d", talker->tx_frames);
+		sprintf(txframes,"%u", talker->tx_frames);
 		entries[6]=txframes;
-		sprintf(txbytes,"%d", talker->tx_bytes);
+		sprintf(txbytes,"%u", talker->tx_bytes);
 		entries[7]=txbytes;
 
-		sprintf(rxframes,"%d", talker->rx_frames);
+		sprintf(rxframes,"%u", talker->rx_frames);
 		entries[8]=rxframes;
-		sprintf(rxbytes,"%d", talker->rx_bytes);
+		sprintf(rxbytes,"%u", talker->rx_bytes);
 		entries[9]=rxbytes;
 
 		gtk_clist_insert(et->table, talker_idx, entries);
@@ -370,25 +370,23 @@ draw_ett_table_data(endpoints_table *et)
 
 		j=gtk_clist_find_row_from_data(et->table, (gpointer)i);
 
-		sprintf(str, "%d", et->endpoints[i].tx_frames+et->endpoints[i].rx_frames);
+		sprintf(str, "%u", et->endpoints[i].tx_frames+et->endpoints[i].rx_frames);
 		gtk_clist_set_text(et->table, j, 4, str);		
-		sprintf(str, "%d", et->endpoints[i].tx_bytes+et->endpoints[i].rx_bytes);
+		sprintf(str, "%u", et->endpoints[i].tx_bytes+et->endpoints[i].rx_bytes);
 		gtk_clist_set_text(et->table, j, 5, str);		
 
 
-		sprintf(str, "%d", et->endpoints[i].tx_frames);
+		sprintf(str, "%u", et->endpoints[i].tx_frames);
 		gtk_clist_set_text(et->table, j, 6, str);	
-		sprintf(str, "%d", et->endpoints[i].tx_bytes);
+		sprintf(str, "%u", et->endpoints[i].tx_bytes);
 		gtk_clist_set_text(et->table, j, 7, str);		
 
 
-		sprintf(str, "%d", et->endpoints[i].rx_frames);
+		sprintf(str, "%u", et->endpoints[i].rx_frames);
 		gtk_clist_set_text(et->table, j, 8, str);		
-		sprintf(str, "%d", et->endpoints[i].rx_bytes);
+		sprintf(str, "%u", et->endpoints[i].rx_bytes);
 		gtk_clist_set_text(et->table, j, 9, str);		
 
 	}
 	gtk_clist_sort(et->table);
 }
-
-
