@@ -45,6 +45,13 @@ ETH_HF
 
 ETH_ETT
 
+static int
+drsuapi_dissect_a_string(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+    offset=dissect_ndr_vstring(tvb, offset, pinfo, tree, drep, 1, hf_index, FALSE, NULL);
+    return offset;
+}
+
 ETH_CODE
 
 void

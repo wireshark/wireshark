@@ -116,14 +116,16 @@ interface drsuapi
 
 	/*****************/
 	/* Function 0x02 */
-#	typedef [gensize,flag(NDR_PAHEX)] struct {
-#		[value(ndr_size_drsuapi_DsReplicaSyncRequest1Info(r, ndr->flags)-4)] uint32 __ndr_size;
-#		uint32 unknown1;
-#		GUID guid1;
-#		uint8 byte_array[28];
-#		[flag(STR_SIZE4|STR_CHARLEN|STR_CONFORMANT)] string nc_dn;
-#	} drsuapi_DsReplicaSyncRequest1Info;
-#
+	typedef struct {
+		uint32 unknown1;
+		uint32 unknown2;
+		GUID guid1;
+		/* this looks like a SID followed by a uint32 which is zero */
+		uint8 byte_array[28];
+		uint32 str_len;
+		[size_is(str_len)] uint16 nc_dn[];
+	} drsuapi_DsReplicaSyncRequest1Info;
+
 	typedef bitmap {
 		DRSUAPI_DS_REPLICA_SYNC_ASYNCHRONOUS_OPERATION	= 0x00000001,
 		DRSUAPI_DS_REPLICA_SYNC_WRITEABLE		= 0x00000002,
@@ -151,21 +153,21 @@ interface drsuapi
 		DRSUAPI_DS_REPLICA_SYNC_PREEMPTED		= 0x00800000
 	} drsuapi_DsReplicaSyncOptions;
 
-#	typedef struct {
-#		drsuapi_DsReplicaSyncRequest1Info *info;
-#		GUID guid1;
-#		astring *string1;
-#		drsuapi_DsReplicaSyncOptions options;
-#	} drsuapi_DsReplicaSyncRequest1;
-#
-#	typedef [switch_type(int32)] union {
-#		[case(1)] drsuapi_DsReplicaSyncRequest1 req1;
-#	} drsuapi_DsReplicaSyncRequest;
+	typedef struct {
+		[ref] drsuapi_DsReplicaSyncRequest1Info *info;
+		GUID guid1;
+		a_string *string1;
+		drsuapi_DsReplicaSyncOptions options;
+	} drsuapi_DsReplicaSyncRequest1;
+
+	typedef [switch_type(int32)] union {
+		[case(1)] drsuapi_DsReplicaSyncRequest1 req1;
+	} drsuapi_DsReplicaSyncRequest;
 
 	WERROR drsuapi_DsReplicaSync(
-#		[in,ref] policy_handle *bind_handle,
-#		[in] int32 level,
-#		[in,switch_is(level)] drsuapi_DsReplicaSyncRequest req
+		[in,ref] policy_handle *bind_handle,
+		[in] int32 level,
+		[in,switch_is(level),ref] drsuapi_DsReplicaSyncRequest *req
 		);
 
 	/*****************/
