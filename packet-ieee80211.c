@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.48 2002/01/24 09:20:48 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.49 2002/01/28 01:13:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -377,8 +377,9 @@ find_header_length (guint16 fcf)
 /* ************************************************************************* */
 /*          This is the capture function used to update packet counts        */
 /* ************************************************************************* */
-void
-capture_ieee80211 (const u_char * pd, int offset, int len, packet_counts * ld)
+static void
+capture_ieee80211_common (const u_char * pd, int offset, int len,
+			  packet_counts * ld, gboolean fixed_length_header)
 {
   guint16 fcf, hdr_length;
 
@@ -402,7 +403,10 @@ capture_ieee80211 (const u_char * pd, int offset, int len, packet_counts * ld)
     case DATA_CF_ACK:		/* Data with ACK */
     case DATA_CF_POLL:
     case DATA_CF_ACK_POLL:
-      hdr_length = find_header_length (fcf);
+      if (fixed_length_header)
+        hdr_length = DATA_LONG_HDR_LEN;
+      else
+        hdr_length = find_header_length (fcf);
       /* I guess some bridges take Netware Ethernet_802_3 frames,
          which are 802.3 frames (with a length field rather than
          a type field, but with no 802.2 header in the payload),
@@ -432,6 +436,24 @@ capture_ieee80211 (const u_char * pd, int offset, int len, packet_counts * ld)
     }
 }
 
+/*
+ * Handle 802.11 with a variable-length link-layer header.
+ */
+void
+capture_ieee80211 (const u_char * pd, int offset, int len, packet_counts * ld)
+{
+  capture_ieee80211_common (pd, offset, len, ld, FALSE);
+}
+
+/*
+ * Handle 802.11 with a fixed-length link-layer header (padded to the
+ * maximum length).
+ */
+void
+capture_ieee80211_fixed (const u_char * pd, int offset, int len, packet_counts * ld)
+{
+  capture_ieee80211_common (pd, offset, len, ld, TRUE);
+}
 
 
 /* ************************************************************************* */
@@ -1035,7 +1057,8 @@ set_dst_addr_cols(packet_info *pinfo, const guint8 *addr, char *type)
 /*                          Dissect 802.11 frame                             */
 /* ************************************************************************* */
 static void
-dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
+			  proto_tree * tree, gboolean fixed_length_header)
 {
   guint16 fcf, flags, frame_type_subtype;
   const guint8 *src = NULL, *dst = NULL;
@@ -1056,7 +1079,10 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     col_clear (pinfo->cinfo, COL_INFO);
 
   fcf = tvb_get_letohs (tvb, 0);
-  hdr_len = find_header_length (fcf);
+  if (fixed_length_header)
+    hdr_len = DATA_LONG_HDR_LEN;
+  else
+    hdr_len = find_header_length (fcf);
   frame_type_subtype = COMPOSE_FRAME_TYPE(fcf);
 
   if (check_col (pinfo->cinfo, COL_INFO))
@@ -1496,6 +1522,25 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     }
 }
 
+/*
+ * Dissect 802.11 with a variable-length link-layer header.
+ */
+static void
+dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+{
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE);
+}
+
+/*
+ * Dissect 802.11 with a fixed-length link-layer header (padded to the
+ * maximum length).
+ */
+static void
+dissect_ieee80211_fixed (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+{
+  dissect_ieee80211_common (tvb, pinfo, tree, TRUE);
+}
+
 void
 proto_register_wlan (void)
 {
@@ -1892,6 +1937,7 @@ proto_register_wlan (void)
   proto_register_subtree_array (tree_array, array_length (tree_array));
 
   register_dissector("wlan", dissect_ieee80211, proto_wlan);
+  register_dissector("wlan_fixed", dissect_ieee80211_fixed, proto_wlan);
 }
 
 void
