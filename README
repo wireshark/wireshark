@@ -1,4 +1,4 @@
-$Id: README,v 1.61 2003/09/03 07:11:31 sharpe Exp $
+$Id: README,v 1.62 2003/10/31 08:15:14 guy Exp $
 
 General Information
 ------- -----------
@@ -109,6 +109,9 @@ DBS Etherwatch for VMS
 Traffic captures from Visual Networks' Visual UpTime
 CoSine L2 debug output
 Output from Accellent's 5Views LAN agents
+Endace Measurement Systems' ERF format
+Linux Bluez Bluetooth stack "hcidump -w" traces
+Network Instruments Observer version 9
 
 In addition, it can read gzipped versions of any of these files
 automatically, if you have the zlib library available when compiling
