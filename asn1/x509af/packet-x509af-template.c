@@ -168,13 +168,7 @@ void proto_register_x509af(void) {
 
 /*--- proto_reg_handoff_x509af -------------------------------------------*/
 void proto_reg_handoff_x509af(void) {
-	register_ber_oid_dissector("2.5.4.36", dissect_Certificate_PDU, proto_x509af, "id-at-userCertificate");
-	register_ber_oid_dissector("2.5.4.37", dissect_Certificate_PDU, proto_x509af, "id-at-cAcertificate");
-	register_ber_oid_dissector("2.5.4.38", dissect_CertificateList_PDU, proto_x509af, "id-at-authorityRevocationList");
-	register_ber_oid_dissector("2.5.4.39", dissect_CertificateList_PDU, proto_x509af, "id-at-certificateRevocationList");
-	register_ber_oid_dissector("2.5.4.40", dissect_CertificatePair_PDU, proto_x509af, "id-at-crossCertificatePair");
-	register_ber_oid_dissector("2.5.4.58", dissect_AttributeCertificate_PDU, proto_x509af, "id-at-attributeCertificate");
-	register_ber_oid_dissector("2.5.4.59", dissect_CertificateList_PDU, proto_x509af, "id-at-attributeCertificateRevocationList");
+#include "packet-x509af-dis-tab.c"
 
 	/*XXX these should really go to a better place but since that
 	  I have not that ITU standard, ill put it here for the time
