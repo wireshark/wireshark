@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.64 2004/04/15 19:56:15 ulfl Exp $
+ * $Id: print_dlg.c,v 1.65 2004/04/16 05:30:39 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,10 +86,11 @@ static gchar * print_cmd;
 #define PRINT_DEST_CB_KEY         "printer_destination_check_button"
 
 #define PRINT_DETAILS_CB_KEY      "printer_details_check_button"
-#define PRINT_HEX_CB_KEY          "printer_hex_check_button"
+#define PRINT_NONE_RB_KEY         "printer_none_radio_button"
 #define PRINT_COLLAPSE_ALL_RB_KEY "printer_collapse_all_radio_button"
 #define PRINT_AS_DISPLAYED_RB_KEY "printer_as_displayed_radio_button"
 #define PRINT_EXPAND_ALL_RB_KEY   "printer_expand_all_radio_button"
+#define PRINT_HEX_CB_KEY          "printer_hex_check_button"
 
 /* XXX - can we make these not be static? */
 static packet_range_t range;
@@ -616,7 +617,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   details_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Packet d_etails:", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(details_cb), TRUE);
   SIGNAL_CONNECT(details_cb, "clicked", print_cmd_toggle_detail, NULL);
-  gtk_tooltips_set_tip (tooltips, details_cb, ("Print packet details, or packet summary only"), NULL);
+  gtk_tooltips_set_tip (tooltips, details_cb, ("Print packet details, or a packet summary line only"), NULL);
   gtk_container_add(GTK_CONTAINER(format_vb), details_cb);
   gtk_widget_show(details_cb);
 
@@ -665,6 +666,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_widget_show(hex_cb);
 
 
+  OBJECT_SET_DATA(details_cb, PRINT_NONE_RB_KEY, none_rb);
   OBJECT_SET_DATA(details_cb, PRINT_COLLAPSE_ALL_RB_KEY, collapse_all_rb);
   OBJECT_SET_DATA(details_cb, PRINT_AS_DISPLAYED_RB_KEY, as_displayed_rb);
   OBJECT_SET_DATA(details_cb, PRINT_EXPAND_ALL_RB_KEY, expand_all_rb);
@@ -752,9 +754,11 @@ print_cmd_toggle_dest(GtkWidget *widget, gpointer data _U_)
 static void
 print_cmd_toggle_detail(GtkWidget *widget, gpointer data _U_)
 {
-  GtkWidget     *collapse_all_rb, *expand_all_rb, *as_displayed_rb, *hex_cb;
+  GtkWidget     *none_rb, *collapse_all_rb, *expand_all_rb, *as_displayed_rb, *hex_cb;
   gboolean      print_detail;
 
+
+  none_rb = GTK_WIDGET(OBJECT_GET_DATA(widget, PRINT_NONE_RB_KEY));
   collapse_all_rb = GTK_WIDGET(OBJECT_GET_DATA(widget, PRINT_COLLAPSE_ALL_RB_KEY));
   as_displayed_rb = GTK_WIDGET(OBJECT_GET_DATA(widget,
                                                PRINT_AS_DISPLAYED_RB_KEY));
@@ -769,6 +773,7 @@ print_cmd_toggle_detail(GtkWidget *widget, gpointer data _U_)
     print_detail = FALSE;
   }
 
+  gtk_widget_set_sensitive(none_rb, print_detail);
   gtk_widget_set_sensitive(collapse_all_rb, print_detail);
   gtk_widget_set_sensitive(as_displayed_rb, print_detail);
   gtk_widget_set_sensitive(expand_all_rb, print_detail);
