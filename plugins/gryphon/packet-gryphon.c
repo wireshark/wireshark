@@ -1,7 +1,7 @@
 /* packet-gryphon.c
  * Routines for Gryphon protocol packet disassembly
  *
- * $Id: packet-gryphon.c,v 1.11 2000/08/18 13:47:59 deniel Exp $
+ * $Id: packet-gryphon.c,v 1.12 2000/11/01 00:16:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
@@ -91,8 +91,8 @@ DLLEXPORT void
 dissector(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 
-    proto_tree	    *gryphon_tree, *header_tree, *body_tree;
-    proto_item	    *ti, *header_item, *body_item;
+    proto_tree	    *gryphon_tree, *header_tree, *body_tree, *localTree;
+    proto_item	    *ti, *header_item, *body_item, *localItem;
     const u_char    *data, *dataend, *msgend;
     int		    src, msglen, msgpad, dest, frmtyp, i, end_of_frame;
     static const u_char *frame_type[] = {"",
@@ -114,7 +114,7 @@ dissector(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    {SD_FLIGHT,   	"Flight Recorder"},
 	    {SD_RESP,     	"Message Responder"},
 	    {-1,		"- unknown -"},
-	    };			               
+	    };		               
 
     data = &pd[offset];
     if (fd) {
@@ -136,7 +136,11 @@ dissector(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	/*
 	 * Indicate what kind of message this is.
 	 */
-    	col_add_str (fd, COL_INFO, frame_type[data[6]]);
+	frmtyp = data[6] & ~RESPONSE_FLAGS;
+	if (frmtyp >= SIZEOF (frame_type))
+    	    col_add_str (fd, COL_INFO, "- Invalid -");
+	else
+    	    col_add_str (fd, COL_INFO, frame_type[frmtyp]);
     }
     if (tree) {
     	if (fd) {
@@ -149,7 +153,13 @@ dissector(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     	while (data < dataend) {
 	    src = data[0];
 	    dest = data[2];
-	    frmtyp = data[6];
+	    frmtyp = data[6] & ~RESPONSE_FLAGS;
+	    if (frmtyp >= SIZEOF (frame_type)) {
+	    	i = dataend - data;
+		proto_tree_add_text(gryphon_tree, NullTVB, offset, i, "Data");
+		BUMP (offset, data, i);
+		continue;
+	    }
 	    msglen = pntohs ((unsigned short *)&data[4]);
 
     	    header_item = proto_tree_add_text(gryphon_tree, NullTVB, offset,
@@ -182,6 +192,24 @@ dissector(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    	    "Data length: %d bytes", msglen);
 	    proto_tree_add_text(header_tree, NullTVB, offset+6, 1,
 	    	    "Frame type: %s", frame_type[frmtyp]);
+	    if (!fd) {
+	    	localItem = proto_tree_add_text(header_tree, NullTVB, offset+6, 1, "Flags");
+		localTree = proto_item_add_subtree (localItem, ett_gryphon_flags);
+		if (data[6] & DONT_WAIT_FOR_RESP) {
+		    proto_tree_add_text(localTree, NullTVB, offset+6, 1,
+		    	    "1... .... = Don't wait for response");
+		} else {
+		    proto_tree_add_text(localTree, NullTVB, offset+6, 1,
+		    	    "0... .... = Wait for response");
+		}
+		if (data[6] & WAIT_FOR_PREV_RESP) {
+		    proto_tree_add_text(localTree, NullTVB, offset+6, 1,
+		    	    ".1.. .... = Wait for previous responses");
+		} else {
+		    proto_tree_add_text(localTree, NullTVB, offset+6, 1,
+		    	    ".0.. .... = Don't wait for previous responses");
+		}
+	    }
 	    proto_tree_add_text(header_tree, NullTVB, offset+7, 1, "reserved");
 
     	    proto_tree_add_uint_hidden(header_tree, hf_gryph_type, NullTVB, offset+6, 1, frmtyp);
@@ -224,7 +252,6 @@ dissector(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		proto_tree_add_text(gryphon_tree, NullTVB, offset, i, "padding");
 		BUMP (offset, data, i);
 	    }
-/*	    data = dataend;*/
 	}
 
    }
@@ -258,8 +285,10 @@ static const val_str_dsp cmds[] = {
 	{CMD_CARD_SET_FILTER_MODE, "Set filter mode", filtmode, NULL},
 	{CMD_CARD_GET_FILTER_MODE, "Get filter mode", NULL, filtmode},
 	{CMD_CARD_GET_EVNAMES,	"Get event names", NULL, resp_events},
-	{CMD_CARD_GET_SPEEDS,	"Get defined speeds", NULL, NULL},
+	{CMD_CARD_GET_SPEEDS,	"Get defined speeds", NULL, resp_getspeeds},
 	{CMD_SERVER_REG, 	"Register with server", cmd_register, resp_register},
+    	{CMD_SERVER_SET_SORT,	"Set the sorting behavior", cmd_sort, NULL},
+    	{CMD_SERVER_SET_OPT,  	"Set the type of optimization", cmd_optimize, NULL},
 	{CMD_BLM_SET_MODE,	"Set Bus Load Monitoring mode", blm_mode, NULL},
 	{CMD_BLM_GET_MODE,	"Get Bus Load Monitoring mode", NULL, blm_mode},
 	{CMD_BLM_GET_DATA,	"Get Bus Load data", NULL, resp_blm_data},
@@ -279,9 +308,11 @@ static const val_str_dsp cmds[] = {
 	{CMD_PGM_STOP,   	"Stop an uploaded program", resp_start, NULL},
 	{CMD_PGM_STATUS, 	"Get status of an uploaded program", cmd_delete, resp_status},
 	{CMD_PGM_OPTIONS, 	"Set program upload options", cmd_options, resp_status},
+    	{CMD_PGM_FILES,     	"Get a list of files & directories", cmd_files, resp_files},
 	{CMD_SCHED_TX,   	"Schedule transmission of messages", cmd_sched, resp_sched},
 	{CMD_SCHED_KILL_TX,	"Stop and destroy a message transmission", NULL, NULL},
 	{CMD_SCHED_STOP_TX,	"Kill a message transmission (deprecated)", NULL, NULL},
+	{CMD_USDT_IOCTL,    	"Register/Unregister with USDT server", cmd_usdt, NULL},
 	{-1,	    	    	"- unknown -", NULL, NULL},
         };
 
@@ -311,6 +342,8 @@ static const value_string filter_data_types[] = {
 	{FILTER_DATA_TYPE_HEADER,   	"data message header"},
 	{FILTER_DATA_TYPE_DATA,     	"data message data"},
 	{FILTER_DATA_TYPE_EXTRA_DATA,	"data message extra data"},
+	{FILTER_EVENT_TYPE_HEADER,  	"event message header"},
+	{FILTER_EVENT_TYPE_DATA,    	"event message"},
 	{-1,	    	    	    	"- unknown -"},
 	};
 
@@ -441,7 +474,7 @@ static const value_string ioctls[] = {
 void
 decode_command (int dst, const u_char **data, const u_char *dataend, int *offset, int msglen, proto_tree *pt)
 {
-    int     	    cmd, i;
+    int     	    cmd, i, padding;
     proto_tree	    *ft;
     proto_item	    *ti;
 
@@ -467,8 +500,10 @@ decode_command (int dst, const u_char **data, const u_char *dataend, int *offset
     proto_tree_add_text (pt, NullTVB, *offset, 4, "Command: %s", cmds[i].strptr);
     BUMP (*offset, *data, 4);
 
-    if (cmds[i].cmd_fnct && dataend - *data) {
-	ti = proto_tree_add_text(pt, NullTVB, *offset, dataend - *data, "Data: (%d bytes)", dataend - *data);
+/*  if (cmds[i].cmd_fnct && dataend - *data) { */
+    if (cmds[i].cmd_fnct && msglen > 4) {
+    	padding = 3 - (msglen + 3) % 4;
+ 	ti = proto_tree_add_text(pt, NullTVB, *offset, msglen-4, "Data: (%d bytes)", msglen-4);
 	ft = proto_item_add_subtree(ti, ett_gryphon_command_data);
 	(*(cmds[i].cmd_fnct)) (dst, data, dataend, offset, msglen, ft);
     }
@@ -512,7 +547,7 @@ decode_response (int src, const u_char **data, const u_char *dataend, int *offse
     BUMP (*offset, *data, 4);
 
     if (cmds[i].rsp_fnct) {
-    ti = proto_tree_add_text(pt, NullTVB, *offset, dataend - *data, "Data: (%d bytes)", dataend - *data);
+    ti = proto_tree_add_text(pt, NullTVB, *offset, msglen-8, "Data: (%d bytes)", msglen-8);
     ft = proto_item_add_subtree(ti, ett_gryphon_response_data);
 	(*(cmds[i].rsp_fnct)) (src, data, dataend, offset, msglen, ft);
     }
@@ -714,8 +749,10 @@ cmd_ioctl (int src, const u_char **data, const u_char *dataend, int *offset, int
     	i = SIZEOF(ioctls) - 1;
     proto_tree_add_text(pt, NullTVB, *offset, 4, "IOCTL: %s", ioctls[i].strptr);
     BUMP (*offset, *data, 4);
-    proto_tree_add_text(pt, NullTVB, *offset, dataend - *data, "Data");
-    BUMP (*offset, *data, dataend - *data);
+    if (msglen > 8) {
+      proto_tree_add_text(pt, NullTVB, *offset, msglen-8, "Data");
+      BUMP (*offset, *data, msglen-8);
+    }
 }
 
 void
@@ -875,6 +912,49 @@ resp_register (int src, const u_char **data, const u_char *dataend, int *offset,
     BUMP (*offset, *data, 4);
 }
 
+
+void
+resp_getspeeds (int src, const u_char **data, const u_char *dataend, int *offset, int msglen, proto_tree *pt) {
+    int number = (*data)[9];
+    int size = (*data)[8];
+    int index;
+    
+    proto_tree_add_text(pt, NullTVB, *offset, 4, "Set Speed IOCTL");
+    proto_tree_add_text(pt, NullTVB, *offset+4, 4, "Get Speed IOCTL");
+    proto_tree_add_text(pt, NullTVB, *offset+8, 1, "Speed data size is %d bytes", size);
+    proto_tree_add_text(pt, NullTVB, *offset+9, 1, "There are %d preset speeds", number);
+    BUMP (*offset, *data, 10);
+    for (index = 0; index < number; index++) {
+    	proto_tree_add_text(pt, NullTVB, *offset, size, "Data for preset %d", index+1);
+	BUMP (*offset, *data, size);
+    }
+}
+
+
+
+void
+cmd_sort (int src, const u_char **data, const u_char *dataend, int *offset, int msglen, proto_tree *pt)
+{
+    char    	*which;
+    
+    which = (*data)[0] ? "Sort into blocks of up to 16 messages" :
+    	    "Do not sort messages";
+    proto_tree_add_text(pt, NullTVB, *offset, 1, "Set sorting: %s", which);
+    BUMP (*offset, *data, 1);
+}
+
+void
+
+cmd_optimize (int src, const u_char **data, const u_char *dataend, int *offset, int msglen, proto_tree *pt)
+{
+    char    	*which;
+    
+    which = (*data)[0] ? "Optimize for latency (Nagle algorithm disabled)" :
+    	    "Optimize for throughput (Nagle algorithm enabled)";
+    proto_tree_add_text(pt, NullTVB, *offset, 1, "Set optimization: %s", which);
+    BUMP (*offset, *data, 1);
+}
+
 void
 resp_config (int src, const u_char **data, const u_char *dataend, int *offset, int msglen, proto_tree *pt) {
     proto_item	*ti;
@@ -892,7 +972,7 @@ resp_config (int src, const u_char **data, const u_char *dataend, int *offset, i
 	{GJ1850 * 256 + GDLC,	    	"J1850, GM DLC subtype"},
 	{GJ1850 * 256 + GCHRYSLER,  	"J1850, Chrysler subtype"},
 	{GJ1850 * 256 + GDEHC12,    	"J1850, DE HC12 KWP/BDLC subtype"},
-	{GKWP2000,  	    	    	"Keyword protocol 2000"},
+	{GKWP2000 * 256 + GDEHC12KWP,  	"Keyword protocol 2000"},
 	{GHONDA * 256 + GDGHC08,    	"Honda UART, DG HC08 subtype"},
 	{GFORDUBP * 256 + GDGUBP08, 	"Ford UBP, DG HC08 subtype"},
 	{-1,	    	    	    	"- unknown -"},
@@ -1424,6 +1504,64 @@ cmd_options (int src, const u_char **data, const u_char *dataend, int *offset, i
 	    proto_tree_add_text(tree, NullTVB, *offset+option_length+2, padding, "padding");
     	BUMP (*offset, *data, size + padding);
     }
+}
+
+void
+cmd_files (int src, const u_char **data, const u_char *dataend, int *offset, int msglen, proto_tree *pt) {
+    u_char  *which, dir[256];
+    int     len;
+    
+    if ((*data)[0] == 0)
+    	which = "First group of names";
+    else
+    	which = "Subsequent group of names";
+    
+    msglen -= 4;
+    len = msglen > 255 ? 255: msglen;
+    memset (dir, 0, 256);
+    strncpy (dir, (*data)+1, len);
+    proto_tree_add_text(pt, NullTVB, *offset, 1, "%s", which);
+    proto_tree_add_text(pt, NullTVB, *offset+1, msglen-1, "Directory: %s", dir);
+    BUMP (*offset, *data, msglen);
+}
+
+void
+resp_files (int src, const u_char **data, const u_char *dataend, int *offset, int msglen, proto_tree *pt) {
+    u_char  	*flag;
+    
+    msglen -= 8;
+    flag = (*data)[0] ? "Yes": "No";
+    proto_tree_add_text(pt, NullTVB, *offset, 1, "More filenames to return: %s", flag);
+    proto_tree_add_text(pt, NullTVB, *offset+1, msglen-1, "File and directory names");
+    BUMP (*offset, *data, msglen);
+}
+
+void
+cmd_usdt (int src, const u_char **data, const u_char *dataend, int *offset, int msglen, proto_tree *pt)
+{
+    u_char  *desc;
+    
+    if ((*data)[0])
+    	desc = "Register with gusdt";
+    else
+    	desc = "Unregister with gusdt";
+    proto_tree_add_text(pt, NullTVB, *offset, 1, "%s", desc);
+    
+    if ((*data)[1])
+    	desc = "Echo long transmit messages back to the client";
+    else
+    	desc = "Do not echo long transmit messages back to the client";
+    proto_tree_add_text(pt, NullTVB, (*offset)+1, 1, "%s", desc);
+    
+    if ((*data)[2] == 2)
+    	desc = "Assemble long received messages but do not send them to the client";
+    else if ((*data)[2])
+    	desc = "Assemble long received messages and send them to the client";
+    else
+    	desc = "Do not assemble long received messages on behalf of the client";
+    proto_tree_add_text(pt, NullTVB, (*offset)+2, 1, "%s", desc);
+    
+    BUMP (*offset, *data, 4);
 }
 
 void

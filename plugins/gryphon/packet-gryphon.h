@@ -1,7 +1,7 @@
 /* packet-gryphon.c
  * Definitions for Gryphon packet disassembly structures and routines
  *
- * $Id: packet-gryphon.h,v 1.1 1999/12/15 06:53:36 gram Exp $
+ * $Id: packet-gryphon.h,v 1.2 2000/11/01 00:16:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
@@ -26,6 +26,7 @@
  */
 
 #define MSG_HDR_SZ  	    8
+#define CMD_HDR_SZ  	    4
 
 /* source/destinations: */
 
@@ -92,6 +93,8 @@
 /* SD_SERVER command types: */
 
 #define CMD_SERVER_REG 		(SD_SERVER * 256 + 0x50)	/* register connection */
+#define CMD_SERVER_SET_SORT 	(SD_SERVER * 256 + 0x51)	/* set sorting behavior */
+#define CMD_SERVER_SET_OPT  	(SD_SERVER * 256 + 0x52)    	/* set type of optimization */
 
 /* SD_CLIENT command types: */
 
@@ -128,12 +131,18 @@
 #define CMD_PGM_STOP	    	(SD_PGM * 256 + 0x95)	/* Stop an uploaded program */
 #define CMD_PGM_STATUS	    	(SD_PGM * 256 + 0x96)	/* Get the status of an uploaded program */
 #define CMD_PGM_OPTIONS	    	(SD_PGM * 256 + 0x97)	/* Set the upload options */
+#define CMD_PGM_FILES	    	(SD_PGM * 256 + 0x98)	/* Get a list of files & directories */
 
 /* Scheduler (SD_SCHED) target commands: */
 
 #define CMD_SCHED_TX		(SD_SCHED * 256 + 0x70)	/* schedule transmission list */
 #define CMD_SCHED_KILL_TX	(SD_SCHED * 256 + 0x71)	/* stop and destroy job */
 #define CMD_SCHED_STOP_TX	(SD_SCHED * 256 + 0x71)	/* deprecated */
+
+/* USDT (SD_USDT) target commands: */
+
+#define	CMD_USDT_IOCTL		(SD_USDT * 256 + 0x47)	/* Register/Unregister with USDT */
+
 
 /* response frame (FT_RESP) response field definitions: */
 
@@ -171,6 +180,8 @@
 #define FILTER_DATA_TYPE_HEADER     	0x01
 #define FILTER_DATA_TYPE_DATA	    	0x02
 #define FILTER_DATA_TYPE_EXTRA_DATA 	0x03
+#define FILTER_EVENT_TYPE_HEADER 	0x04
+#define FILTER_EVENT_TYPE_DATA 	    	0x05
 
 /* filter flags */
 
@@ -207,6 +218,14 @@
 #define DELETE_FILTER       	0
 #define ACTIVATE_FILTER     	1
 #define DEACTIVATE_FILTER   	2
+
+/* Flags to modify how FT_CMD (command) messages are handled	    	*/
+/* These values are ORed with FT_CMD and stored in the Frame Header's	*/
+/* Frame Type field for each response. 	    	    	    	    	*/
+#define DONT_WAIT_FOR_RESP  	0x80
+#define WAIT_FOR_PREV_RESP  	0x40
+#define RESPONSE_FLAGS  	(DONT_WAIT_FOR_RESP | WAIT_FOR_PREV_RESP)
+
 
 /* Program loader options */
 #define PGM_CONV    	    1 	    /* Type of data conversion to perform   */
@@ -329,6 +348,7 @@
 #define GDEHC12		0x04		/* DE HC12 KWP/BDLC SUBTYPE */
 
 #define GKWP2000	0x04	/* Keyword protocol 2000 TYPE */
+#define GDEHC12KWP	0x01		/* DE HC12 KWP/BDLC card SUBTYPE */
 
 #define GHONDA		0x05	/* Honda UART TYPE */
 #define GDGHC08		0x01		/* DG HC08 SUBTYPE */
@@ -373,6 +393,9 @@ void filtmode (int, const u_char**, const u_char*, int*, int, proto_tree*);
 void resp_events (int, const u_char**, const u_char*, int*, int, proto_tree*);
 void cmd_register (int, const u_char**, const u_char*, int*, int, proto_tree*);
 void resp_register (int, const u_char**, const u_char*, int*, int, proto_tree*);
+void resp_getspeeds (int, const u_char**, const u_char*, int*, int, proto_tree*);
+void cmd_sort (int, const u_char**, const u_char*, int*, int, proto_tree*);
+void cmd_optimize (int, const u_char**, const u_char*, int*, int, proto_tree*);
 void resp_config (int, const u_char**, const u_char*, int*, int, proto_tree*);
 void cmd_sched (int, const u_char**, const u_char*, int*, int, proto_tree*);
 void resp_blm_data (int, const u_char**, const u_char*, int*, int, proto_tree*);
@@ -392,7 +415,10 @@ void cmd_start (int, const u_char**, const u_char*, int*, int, proto_tree*);
 void resp_start (int, const u_char**, const u_char*, int*, int, proto_tree*);
 void resp_status (int, const u_char**, const u_char*, int*, int, proto_tree*);
 void cmd_options (int, const u_char**, const u_char*, int*, int, proto_tree*);
+void cmd_files (int, const u_char**, const u_char*, int*, int, proto_tree*);
+void resp_files (int, const u_char**, const u_char*, int*, int, proto_tree*);
 void eventnum (int, const u_char**, const u_char*, int*, int, proto_tree*);
 void speed (int, const u_char**, const u_char*, int*, int, proto_tree*);
 void filter_block (int, const u_char**, const u_char*, int*, int, proto_tree*);
 void blm_mode (int, const u_char**, const u_char*, int*, int, proto_tree*);
+void cmd_usdt (int, const u_char**, const u_char*, int*, int, proto_tree*);
