@@ -2,7 +2,7 @@
  * Routines for iSCSI dissection
  * Copyright 2001, Eurologic and Mark Burton <markb@ordern.com>
  *
- * $Id: packet-iscsi.c,v 1.43 2003/01/28 23:56:39 guy Exp $
+ * $Id: packet-iscsi.c,v 1.44 2003/06/15 00:16:06 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1567,6 +1567,15 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		     opcode == ISCSI_OPCODE_SNACK_REQUEST ||
 		     opcode == ISCSI_OPCODE_REJECT)) {
 		badPdu = TRUE;
+	    } else if(opcode==ISCSI_OPCODE_NOP_OUT) {
+		/* TransferTag for NOP-Out should either be -1 or
+		   the tag value we want for a response. 
+		   Assume 0 means we are just inside a big all zero
+		   datablock.
+		*/
+		if(tvb_get_ntohl(tvb, offset+20)==0){
+		    badPdu = TRUE;
+		}
 	    }
 	}
 
@@ -1629,6 +1638,21 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		    pinfo->desegment_offset = offset;
 		    pinfo->desegment_len = pduLen - available_bytes;
 		    return TRUE;
+		}
+	    }
+
+	    /* This is to help TCP keep track of PDU boundaries
+	       and allows it to find PDUs that are not aligned to 
+	       the start of a TCP segments.
+	       Since it also allows TCP to know what is in the middle
+	       of a large PDU, it reduces the probability of a segment
+	       in the middle of a large PDU transfer being misdissected as
+	       a PDU.
+	    */
+	    if(!pinfo->fd->flags.visited){
+		if(pduLen>tvb_reported_length_remaining(tvb, offset)){
+		    pinfo->want_pdu_tracking=2;
+		    pinfo->bytes_until_next_pdu=pduLen-tvb_reported_length_remaining(tvb, offset);
 		}
 	    }
 
