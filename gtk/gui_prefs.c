@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.12 2000/08/23 07:38:56 guy Exp $
+ * $Id: gui_prefs.c,v 1.13 2000/08/23 10:38:43 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -446,10 +446,10 @@ color_browse_cb(GtkWidget *w, gpointer data)
   gdouble    scolor[4]; 
   GtkWidget *caller = gtk_widget_get_toplevel(w);
  
-  /* Has a font dialog box already been opened for that top-level
+  /* Has a color dialog box already been opened for that top-level
      widget? */
   color_w = gtk_object_get_data(GTK_OBJECT(caller),
-				       COLOR_DIALOG_PTR_KEY);
+				COLOR_DIALOG_PTR_KEY);
 
   if (color_w != NULL) {
     /* Yes.  Just re-activate that dialog box. */
