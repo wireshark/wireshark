@@ -367,7 +367,7 @@ struct access_mask_info lsa_access_mask_info = {
 };
 
 int
-lsa_dissect_LSA_SECURITY_DESCRIPTOR_data(tvbuff_t *tvb, int offset,
+lsa_dissect_sec_desc_buf_data(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
                              guint8 *drep)
 {
@@ -409,7 +409,7 @@ lsa_dissect_LSA_SECURITY_DESCRIPTOR(tvbuff_t *tvb, int offset,
 				    hf_lsa_sd_size, NULL);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			lsa_dissect_LSA_SECURITY_DESCRIPTOR_data, NDR_POINTER_UNIQUE,
+			lsa_dissect_sec_desc_buf_data, NDR_POINTER_UNIQUE,
 			"LSA SECURITY DESCRIPTOR data:", -1);
 
 	proto_item_set_len(item, offset-old_offset);

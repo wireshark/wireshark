@@ -2418,7 +2418,7 @@ srvsvc_dissect_SHARE_INFO_502(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
                                      hf_srvsvc_reserved, NULL);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			lsa_dissect_LSA_SECURITY_DESCRIPTOR_data, NDR_POINTER_UNIQUE,
+			lsa_dissect_sec_desc_buf_data, NDR_POINTER_UNIQUE,
 			"LSA SECURITY DESCRIPTOR data:", -1);
 
 	return offset;
@@ -2657,7 +2657,7 @@ static int
 srvsvc_dissect_SHARE_INFO_1501(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			lsa_dissect_LSA_SECURITY_DESCRIPTOR_data, NDR_POINTER_UNIQUE,
+			lsa_dissect_sec_desc_buf_data, NDR_POINTER_UNIQUE,
 			"LSA SECURITY DESCRIPTOR data:", -1);
 
 	return offset;
@@ -6602,7 +6602,7 @@ srvsvc_dissect_netrgetfilesecurity_reply(tvbuff_t *tvb, int offset,
 				     guint8 *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			lsa_dissect_LSA_SECURITY_DESCRIPTOR_data, NDR_POINTER_REF,
+			lsa_dissect_sec_desc_buf_data, NDR_POINTER_REF,
 			"LSA SECURITY DESCRIPTOR data:", -1);
 
 	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
@@ -6639,7 +6639,7 @@ srvsvc_dissect_netrsetfilesecurity_rqst(tvbuff_t *tvb, int offset,
 			hf_srvsvc_info_level, 0);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			lsa_dissect_LSA_SECURITY_DESCRIPTOR_data, NDR_POINTER_REF,
+			lsa_dissect_sec_desc_buf_data, NDR_POINTER_REF,
 			"LSA SECURITY DESCRIPTOR data:", -1);
 
 	return offset;
