@@ -1,6 +1,6 @@
 /* ascend.c
  *
- * $Id: ascend.c,v 1.7 1999/09/23 04:56:52 guy Exp $
+ * $Id: ascend.c,v 1.8 1999/10/08 07:45:31 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -26,6 +26,7 @@
 #include "wtap.h"
 #include "buffer.h"
 #include "ascend.h"
+#include "ascend-int.h"
 #include "file.h"
 
 #include <sys/stat.h>
