@@ -1,4 +1,4 @@
-$Id: README,v 1.63 2003/12/18 03:41:00 guy Exp $
+$Id: README,v 1.64 2004/01/07 12:10:36 ulfl Exp $
 
 General Information
 ------- -----------
@@ -36,7 +36,7 @@ Ethereal is known to compile and run on the following systems:
   - Tru64 UNIX (formerly Digital UNIX) (3.2, 4.0)
   - Irix (6.5)
   - AIX (4.3.2, with a bit of work)
-  - Win32 (NT, 98)
+  - Win32 (98, NT, 2000, XP)
 
 It should run on other Unix-ish systems without too much trouble.
 
