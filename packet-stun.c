@@ -2,7 +2,7 @@
  * Routines for Simple Traversal of UDP Through NAT dissection
  * Copyright 2003, Shiang-Ming Huang <smhuang@pcs.csie.nctu.edu.tw>
  *
- * $Id: packet-stun.c,v 1.2 2003/08/18 01:40:16 gerald Exp $
+ * $Id: packet-stun.c,v 1.3 2003/09/05 04:39:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -134,7 +134,7 @@ static const value_string attributes_family[] = {
 	{0x00, NULL}
 };
 
-static void
+static int
 dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
@@ -142,15 +142,41 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ta;
 	proto_tree *stun_tree;
 	proto_tree *att_tree;
-
-	
-	guint16 message_type;
-
-	
 	guint16 att_type;
 	guint16 att_length;
 	guint16 offset;
 
+	/*
+	 * First check if the frame is really meant for us.
+	 */
+
+	/* First, make sure we have enough data to do the check. */
+	if (!tvb_bytes_exist(tvb, 0, STUN_HDR_LEN))
+		return 0;
+	
+	att_type = tvb_get_ntohs(tvb, 0);
+	
+	/* check if message type is correct */
+	if( 	(att_type != BINDING_REQUEST) &&
+		(att_type != BINDING_RESPONSE) &&
+		(att_type != BINDING_ERROR_RESPONSE) &&
+	    	(att_type != SHARED_SECRET_REQUEST) &&
+	    	(att_type != SHARED_SECRET_RESPONSE) &&
+	    	(att_type != SHARED_SECRET_ERROR_RESPONSE)
+	  )
+		return 0;
+	
+	
+	att_length = tvb_get_ntohs(tvb, 2);
+	
+	/* check if payload enough */
+	if (!tvb_bytes_exist(tvb, 0, STUN_HDR_LEN+att_length))
+		return 0;
+
+	if(tvb_bytes_exist(tvb, 0, STUN_HDR_LEN+att_length+1))
+		return 0;
+
+	/* The message seems to be a valid STUN message! */
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "STUN");
@@ -158,16 +184,13 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);
 		
-		message_type = tvb_get_ntohs(tvb, 0);
-
-		    
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Message : %s",
-				(message_type==BINDING_REQUEST)?"Binding Request":
-				(message_type==BINDING_RESPONSE)?"Binding Response":
-				(message_type==BINDING_ERROR_RESPONSE)?"Binding Error Response":
-				(message_type==SHARED_SECRET_REQUEST)?"Shared Secret Request":
-				(message_type==SHARED_SECRET_RESPONSE)?"Shared Secret Response":
-				(message_type==SHARED_SECRET_ERROR_RESPONSE)?"Shared Secret Error Response":"UNKNOWN"
+				(att_type==BINDING_REQUEST)?"Binding Request":
+				(att_type==BINDING_RESPONSE)?"Binding Response":
+				(att_type==BINDING_ERROR_RESPONSE)?"Binding Error Response":
+				(att_type==SHARED_SECRET_REQUEST)?"Shared Secret Request":
+				(att_type==SHARED_SECRET_RESPONSE)?"Shared Secret Response":
+				(att_type==SHARED_SECRET_ERROR_RESPONSE)?"Shared Secret Error Response":"UNKNOWN"
 			);
 			    
 	}
@@ -264,58 +287,23 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					break;
 					
 				default:
-					return;
+					return tvb_length(tvb);
 				
 			}
 			
 		}
 	}
+	return tvb_length(tvb);
 }
 
 
 static gboolean
 dissect_stun_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-        guint16 type, length;
-
-        /*
-         * This is a heuristic dissector, which means we get all the
-         * UDP and TCP traffic not sent to a known dissector and not
-         * claimed by a heuristic dissector called before us!
-         * So we first check if the frame is really meant for us.
-         */
-
-        /* First, make sure we have enough data to do the check. */
-        if (!tvb_bytes_exist(tvb, 0, STUN_HDR_LEN))
-                return FALSE;
-        
-	type = tvb_get_ntohs(tvb, 0);
-	
-	/* check if message type is correct */
-        if( 	(type != BINDING_REQUEST) &&
-        	(type != BINDING_RESPONSE) &&
-        	(type != BINDING_ERROR_RESPONSE) &&
-            	(type != SHARED_SECRET_REQUEST) &&
-            	(type != SHARED_SECRET_RESPONSE) &&
-            	(type != SHARED_SECRET_ERROR_RESPONSE)
-          )
-        	return FALSE;
-        
-        
-        length = tvb_get_ntohs(tvb, 2);
-        
-        /* check if payload enough */
-        if (!tvb_bytes_exist(tvb, 0, STUN_HDR_LEN+length))
-        	return FALSE;
-
-	if(tvb_bytes_exist(tvb, 0, STUN_HDR_LEN+length+1))
+	if (dissect_stun(tvb, pinfo, tree) == 0)
 		return FALSE;
 
-        
-        /* The message seems to be a valid STUN message! */
-        dissect_stun(tvb, pinfo, tree);
-
-        return TRUE;
+	return TRUE;
 }
 
 
@@ -323,8 +311,7 @@ dissect_stun_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_stun(void)
-{                 
-
+{
 	static hf_register_info hf[] = {
 		{ &hf_stun_type,
 			{ "Message Type",	"stun.type", 	FT_UINT16, 
@@ -414,10 +401,10 @@ proto_reg_handoff_stun(void)
 {
 	dissector_handle_t stun_handle;
 
-	stun_handle = create_dissector_handle(dissect_stun, proto_stun);
+	stun_handle = new_create_dissector_handle(dissect_stun, proto_stun);
 	dissector_add("tcp.port", TCP_PORT_STUN, stun_handle);
 	dissector_add("udp.port", UDP_PORT_STUN, stun_handle);
 
-        heur_dissector_add( "udp", dissect_stun_heur, proto_stun );
-        heur_dissector_add( "tcp", dissect_stun_heur, proto_stun );
+	heur_dissector_add("udp", dissect_stun_heur, proto_stun);
+	heur_dissector_add("tcp", dissect_stun_heur, proto_stun);
 }
