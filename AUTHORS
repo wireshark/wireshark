@@ -1790,6 +1790,10 @@ Tony Lindstrom <tony.lindstrom [AT] ericsson.com> {
 	    draft-ietf-dhc-dhcpv6-opt-timeconfig-02
 }
 
+Niklas Ogren <niklas.ogren [AT] 71.se> {
+	H.263 support for RTP
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
