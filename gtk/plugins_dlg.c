@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.20 2000/11/15 09:37:53 guy Exp $
+ * $Id: plugins_dlg.c,v 1.21 2000/11/18 09:59:04 grahamb Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -248,7 +248,7 @@ plugins_enable_cb(GtkWidget *button, gpointer clist)
     /* already enabled */
     if (strcmp(selected_enabled, "Yes") == 0) return;
 
-    errmsg = init_plugin(selected_name, selected_version);
+    errmsg = enable_plugin(selected_name, selected_version);
     if (errmsg != NULL)
     {
 	simple_dialog(ESD_TYPE_CRIT, NULL, errmsg);
