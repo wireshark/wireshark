@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.1 1999/05/09 04:20:59 sharpe Exp $
+ * $Id: smb.h,v 1.2 1999/05/11 07:22:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -216,6 +216,7 @@
 #define SMBE_invdevice 7           /* Invalid device */
 #define SMBE_qfull 49              /* Print queue full */
 #define SMBE_qtoobig 50            /* Queued item too big */
+#define SMBE_qeof 51               /* EOF in print queue dump */
 #define SMBE_invpfid 52            /* Invalid print file in smb_fid */
 #define SMBE_smbcmd 64             /* Unrecognised command */
 #define SMBE_srverror 65           /* smb server internal error */
@@ -254,6 +255,8 @@
 #define SMBE_write 29 
 #define SMBE_read 30 
 #define SMBE_general 31 
+#define SMBE_badshare 32 
+#define SMBE_lock 33 
 #define SMBE_wrongdisk 34
 #define SMBE_FCBunavail 35
 #define SMBE_sharebufexc 36

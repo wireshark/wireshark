@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.8 1999/05/11 01:18:30 guy Exp $
+ * $Id: packet-smb.c,v 1.9 1999/05/11 07:22:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -53,8 +53,8 @@ char *decode_smb_name(unsigned char);
 void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, int, int);
 
 char *SMB_names[256] = {
-  "unknown-0x00",
-  "unknown-0x01",
+  "SMBcreatedirectory",
+  "SMBdeletedirectory",
   "SMBopen",
   "SMBcreate",
   "SMBclose",
@@ -102,11 +102,11 @@ char *SMB_names[256] = {
   "SMBreadX",
   "SMBwriteX",
   "unknown-0x30",
-  "unknown-0x31",
-  "unknown-0x32",
-  "unknown-0x33",
-  "unknown-0x34",
-  "unknown-0x35",
+  "SMBcloseandtreedisc",
+  "SMBtrans2",
+  "SMBtrans2secondary",
+  "SMBfindclose2",
+  "SMBfindnotifyclose",
   "unknown-0x36",
   "unknown-0x37",
   "unknown-0x38",
@@ -169,7 +169,7 @@ char *SMB_names[256] = {
   "SMBtdis",
   "SMBnegprot",
   "SMBsesssetupX",
-  "unknown-0x74",
+  "SMBlogoffX",
   "SMBtconX",
   "unknown-0x76",
   "unknown-0x77",
@@ -213,11 +213,11 @@ char *SMB_names[256] = {
   "unknown-0x9D",
   "unknown-0x9E",
   "unknown-0x9F",
-  "unknown-0xA0",
-  "unknown-0xA1",
-  "unknown-0xA2",
+  "SMBnttransact",
+  "SMBnttransactsecondary",
+  "SMBntcreateX",
   "unknown-0xA3",
-  "unknown-0xA4",
+  "SMBntcancel",
   "unknown-0xA5",
   "unknown-0xA6",
   "unknown-0xA7",
@@ -269,9 +269,9 @@ char *SMB_names[256] = {
   "SMBsendstrt",
   "SMBsendend",
   "SMBsendtxt",
-  "unknown-0xD8",
-  "unknown-0xD9",
-  "unknown-0xDA",
+  "SMBreadbulk",
+  "SMBwritebulk",
+  "SMBwritebulkdata",
   "unknown-0xDB",
   "unknown-0xDC",
   "unknown-0xDD",
@@ -1379,6 +1379,7 @@ static const value_string SRV_errors[] = {
   {SMBE_unknownsmb, "Unknown SMB, from NT 3.5 response"},
   {SMBE_qfull, "Print queue full"},
   {SMBE_qtoobig, "Queued item too big"},
+  {SMBE_qeof, "EOF on print queue dump"},
   {SMBE_invpfid, "Invalid print file in smb_fid"},
   {SMBE_smbcmd, "Unrecognised command"},
   {SMBE_srverror, "SMB server internal error"},
@@ -1419,6 +1420,8 @@ static const value_string HRD_errors[] = {
   {SMBE_write, "Write error???"},
   {SMBE_read, "Read error???"},
   {SMBE_general, "General error???"},
+  {SMBE_badshare, "A open conflicts with an existing open"},
+  {SMBE_lock, "Lock/unlock error"},
   {SMBE_wrongdisk,  "Wrong disk???"},
   {SMBE_FCBunavail, "FCB unavailable???"},
   {SMBE_sharebufexc, "Share buffer excluded???"},
@@ -1448,7 +1451,7 @@ char *decode_smb_error(guint8 errcls, guint8 errcode)
 
   case SMB_ERRHRD:
 
-    return(val_to_str(errcode, HRD_errors, "Unknown HRD error(%x)"));
+    return(val_to_str(errcode, HRD_errors, "Unknown HRD error (%x)"));
     break;
 
   default:
