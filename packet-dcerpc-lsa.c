@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.92 2004/01/19 20:10:33 jmayer Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.93 2004/03/30 07:39:04 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -462,7 +462,7 @@ lsa_dissect_ACCESS_MASK(tvbuff_t *tvb, int offset,
 {
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_lsa_access_mask,
-		&lsa_access_mask_info);
+		&lsa_access_mask_info, NULL);
 
 	return offset;
 }

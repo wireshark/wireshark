@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.107 2004/01/19 20:10:35 jmayer Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.108 2004/03/30 07:39:04 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2508,19 +2508,19 @@ static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 			offset = dissect_nt_access_mask(
 				tvb, offset, pinfo, tree, drep, 
 				hf_access_required,
-				&spoolss_printer_access_mask_info);
+				&spoolss_printer_access_mask_info, NULL);
 		else
 			offset = dissect_nt_access_mask(
 				tvb, offset, pinfo, tree, drep, 
 				hf_access_required,
-				&spoolss_printserver_access_mask_info);
+				&spoolss_printserver_access_mask_info, NULL);
 	} else {
 
 		/* We can't decide what type of object being opened */
 
 		offset = dissect_nt_access_mask(
 			tvb, offset, pinfo, tree, drep, hf_access_required,
-			NULL);
+			NULL, NULL);
 	}
 
 	offset = dissect_USER_LEVEL_CTR(tvb, offset, pinfo, tree, drep);

@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.104 2004/03/23 18:44:51 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.105 2004/03/30 07:39:04 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1199,7 +1199,7 @@ samr_dissect_connect2_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access,
-		&samr_connect_access_mask_info);
+		&samr_connect_access_mask_info, NULL);
 
 	return offset;
 }
@@ -1220,7 +1220,7 @@ samr_dissect_connect4_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access,
-		&samr_connect_access_mask_info);
+		&samr_connect_access_mask_info, NULL);
 
 	return offset;
 }
@@ -1427,7 +1427,7 @@ samr_dissect_open_domain_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access,
-		&samr_domain_access_mask_info);
+		&samr_domain_access_mask_info, NULL);
 
         offset = dissect_ndr_pointer_cb(
 		tvb, offset, pinfo, tree, drep, dissect_ndr_nt_SID_no_hf, 
@@ -1557,7 +1557,7 @@ samr_dissect_create_alias_in_domain_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access,
-		&samr_alias_access_mask_info);
+		&samr_alias_access_mask_info, NULL);
 
 	return offset;
 }
@@ -2106,7 +2106,7 @@ samr_dissect_create_user2_in_domain_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access,
-		&samr_user_access_mask_info);
+		&samr_user_access_mask_info, NULL);
 
 	return offset;
 }
@@ -2126,7 +2126,7 @@ samr_dissect_create_user2_in_domain_reply(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access_granted,
-		&samr_user_access_mask_info);
+		&samr_user_access_mask_info, NULL);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_rid, NULL);
@@ -4631,7 +4631,7 @@ samr_dissect_open_group_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access,
-		&samr_group_access_mask_info);
+		&samr_group_access_mask_info, NULL);
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_rid, &rid);
@@ -4694,7 +4694,7 @@ samr_dissect_open_alias_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access,
-		&samr_alias_access_mask_info);
+		&samr_alias_access_mask_info, NULL);
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_rid, &rid);
@@ -4786,7 +4786,7 @@ samr_dissect_create_group_in_domain_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access,
-		&samr_group_access_mask_info);
+		&samr_group_access_mask_info, NULL);
 
 	return offset;
 }

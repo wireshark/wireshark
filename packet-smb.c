@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.388 2004/03/20 06:06:39 guy Exp $
+ * $Id: packet-smb.c,v 1.389 2004/03/30 07:39:05 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7502,7 +7502,7 @@ static void map_standard_access(guint32 *access_mask,
 int
 dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		       proto_tree *tree, guint8 *drep, int hfindex,
-		       struct access_mask_info *ami)
+		       struct access_mask_info *ami, guint32 *perms)
 {
 	proto_item *item;
 	proto_tree *subtree, *generic_tree, *standard_tree, *specific_tree;
@@ -7526,6 +7526,10 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		 */
 		access = tvb_get_letohl(tvb, offset);
 		offset += 4;
+	}
+
+	if (perms) {
+	  *perms = access;
 	}
 
 	item = proto_tree_add_uint(tree, hfindex, tvb, offset - 4, 4, access);
@@ -7721,6 +7725,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	char *sid_str = NULL;
 	guint8 type;
 	guint8 flags;
+	guint32 perms = 0;
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
@@ -7743,15 +7748,17 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* access mask */
 	offset = dissect_nt_access_mask(
-		tvb, offset, pinfo, tree, drep, hf_smb_access_mask, ami);
+		tvb, offset, pinfo, tree, drep, 
+		hf_smb_access_mask, ami, &perms);
 
 	/* SID */
 	offset = dissect_nt_sid(tvb, offset, tree, "ACE", &sid_str, -1);
 
 	if (item)
 		proto_item_append_text(
-			item, "%s, flags 0x%02x, %s", sid_str, flags,
-			val_to_str(type, ace_type_vals, "Unknown ACE type (0x%02x)"));
+			item, "%s, flags 0x%02x, %s, mask 0x%08x", sid_str, flags,
+			val_to_str(type, ace_type_vals, "Unknown ACE type (0x%02x)"),
+			perms);
 
 	g_free(sid_str);
 
