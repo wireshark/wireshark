@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.52 2000/09/21 04:41:33 gram Exp $
+ * $Id: ngsniffer.c,v 1.53 2000/10/17 18:07:52 gerald Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -79,6 +79,7 @@ static const char ngsniffer_magic[] = {
 #define REC_VERS	1	/* Version record (f_vers) */
 #define REC_FRAME2	4	/* Frame data (f_frame2) */
 #define	REC_FRAME4	8	/* Frame data (f_frame4) */
+#define REC_FRAME6	12	/* Frame data (f_frame6) (see below) */
 #define REC_EOF		3	/* End-of-file record (no data follows) */
 /*
  * and now for some unknown header types
@@ -88,6 +89,12 @@ static const char ngsniffer_magic[] = {
 #define REC_V2DESC	8	/* In version 2 sniffer traces contains
 				 * infos about this capturing session.
 				 * Collides with REC_FRAME4 */
+#define REC_HEADER3	13	/* Retransmission counts? */
+#define REC_HEADER4	14	/* ? */
+#define REC_HEADER5	15	/* ? */
+#define REC_HEADER6	16	/* More broadcast/retransmission counts? */
+#define REC_HEADER7	17	/* ? */
+
 
 /*
  * Sniffer version record format.
@@ -245,6 +252,24 @@ struct frame4_rec {
 	ATMSaveInfo atm_info;	/* ATM-specific stuff */
 };
 
+/*
+ * XXX - I have a version 5.50 file with a bunch of token ring
+ * records listed as type "12".  The record format below was
+ * derived from frame4_rec and a bit of experimentation.
+ * - Gerald
+ */
+struct frame6_rec {
+	guint16	time_low;	/* low part of time stamp */
+	guint16	time_med;	/* middle part of time stamp */
+	gint8	time_high;	/* high part of time stamp */
+	gint8	time_day;	/* time in days since start of capture */
+	gint16	size;		/* number of bytes of data */
+	gint8	fs;		/* frame error status bits */
+	gint8	flags;		/* buffer flags */
+	gint16	true_size;	/* size of original frame, in bytes */
+	guint8	chemical_x[22];	/* ? */
+};
+
 /* values for V.timeunit */
 #define NUM_NGSNIFF_TIMEUNITS 7
 static double Usec[] = { 15.0, 0.838096, 15.0, 0.5, 2.0, 1.0, 0.1 };
@@ -263,6 +288,10 @@ static int ngsniffer_read_frame4(wtap *wth, gboolean is_random,
     struct frame4_rec *frame4, int *err);
 static void set_pseudo_header_frame4(union wtap_pseudo_header *pseudo_header,
     struct frame4_rec *frame4);
+static int ngsniffer_read_frame6(wtap *wth, gboolean is_random,
+    struct frame6_rec *frame6, int *err);
+static void set_pseudo_header_frame6(union wtap_pseudo_header *pseudo_header,
+    struct frame6_rec *frame6);
 static int ngsniffer_read_rec_data(wtap *wth, gboolean is_random, u_char *pd,
     int length, int *err);
 static void ngsniffer_sequential_close(wtap *wth);
@@ -539,6 +568,7 @@ static gboolean ngsniffer_read(wtap *wth, int *err, int *data_offset)
 	guint16	type, length;
 	struct frame2_rec frame2;
 	struct frame4_rec frame4;
+	struct frame6_rec frame6;
 	double	t;
 	guint16	time_low, time_med, time_high, true_size, size;
 	u_char	*pd;
@@ -622,6 +652,35 @@ static gboolean ngsniffer_read(wtap *wth, int *err, int *data_offset)
 			set_pseudo_header_frame4(&wth->pseudo_header, &frame4);
 			goto found;
 
+		case REC_FRAME6:
+			/* XXX - Is this test valid? */
+			if (wth->capture.ngsniffer->is_atm) {
+				g_message("ngsniffer: REC_FRAME6 record in an ATM Sniffer file");
+				*err = WTAP_ERR_BAD_RECORD;
+				return FALSE;
+			}
+
+			/* Read the f_frame6_struct */
+			ret = ngsniffer_read_frame6(wth, FALSE, &frame6, err);
+			wth->data_offset += sizeof frame6;
+			time_low = pletohs(&frame6.time_low);
+			time_med = pletohs(&frame6.time_med);
+			time_high = frame6.time_high;
+			size = pletohs(&frame6.size);
+			true_size = pletohs(&frame6.true_size);
+
+			length -= sizeof frame6;	/* we already read that much */
+
+			/*
+			 * XXX - use the "time_day" field?  Is that for captures
+			 * that take a *really* long time?
+			 */
+			t = (double)time_low+(double)(time_med)*65536.0 +
+			    (double)time_high*4294967296.0;
+
+			set_pseudo_header_frame6(&wth->pseudo_header, &frame6);
+			goto found;
+
 		case REC_EOF:
 			/*
 			 * End of file.  Return an EOF indication.
@@ -695,6 +754,7 @@ static int ngsniffer_seek_read(wtap *wth, int seek_off,
 	guint16	type, length;
 	struct frame2_rec frame2;
 	struct frame4_rec frame4;
+	struct frame6_rec frame6;
 
 	ng_file_seek_rand(wth, seek_off, SEEK_SET);
 
@@ -726,6 +786,15 @@ static int ngsniffer_seek_read(wtap *wth, int seek_off,
 		length -= sizeof frame4;	/* we already read that much */
 
 		set_pseudo_header_frame4(pseudo_header, &frame4);
+		break;
+
+	case REC_FRAME6:
+		/* Read the f_frame6_struct */
+		ret = ngsniffer_read_frame6(wth, TRUE, &frame6, &err);
+
+		length -= sizeof frame6;	/* we already read that much */
+
+		set_pseudo_header_frame6(pseudo_header, &frame6);
 		break;
 
 	default:
@@ -845,6 +914,28 @@ static void set_pseudo_header_frame4(union wtap_pseudo_header *pseudo_header,
 	pseudo_header->ngsniffer_atm.aal5t_u2u = pletohs(&frame4->atm_info.Trailer.aal5t_u2u);
 	pseudo_header->ngsniffer_atm.aal5t_len = pletohs(&frame4->atm_info.Trailer.aal5t_len);
 	pseudo_header->ngsniffer_atm.aal5t_chksum = pletohl(&frame4->atm_info.Trailer.aal5t_chksum);
+}
+
+static int ngsniffer_read_frame6(wtap *wth, gboolean is_random,
+    struct frame6_rec *frame6, int *err)
+{
+	int bytes_read;
+
+	/* Read the f_frame6_struct */
+	bytes_read = ng_file_read(frame6, 1, sizeof *frame6, wth, is_random,
+	    err);
+	if (bytes_read != sizeof *frame6) {
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return -1;
+	}
+	return 0;
+}
+
+static void set_pseudo_header_frame6(union wtap_pseudo_header *pseudo_header,
+    struct frame6_rec *frame6)
+{
+	/* XXX - Once the frame format is divined, something will most likely go here */
 }
 
 static int ngsniffer_read_rec_data(wtap *wth, gboolean is_random, u_char *pd,
