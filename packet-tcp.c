@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.211 2003/10/28 08:50:39 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.212 2003/11/06 08:51:21 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,9 @@
 #include <epan/strutil.h>
 #include "reassemble.h"
 #include "tap.h"
+
+/* yucc a global variable  XXX fix this if we expect TCP-oversomething-overTCP */
+static proto_tree *tcp_tree = NULL;
 
 static int tcp_tap = -1;
 
@@ -1472,7 +1475,7 @@ static void
 desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		guint32 seq, guint32 nxtseq,
 		guint32 sport, guint32 dport,
-		proto_tree *tree, proto_tree *tcp_tree)
+		proto_tree *tree)
 {
 	struct tcpinfo *tcpinfo = pinfo->private_data;
 	fragment_data *ipfd_head=NULL;
@@ -2239,8 +2242,8 @@ static const ip_tcp_opt tcpopts[] = {
 
 static gboolean try_heuristic_first = FALSE;
 
-void
-decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static void
+decode_tcp_ports_exception(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, int src_port, int dst_port, guint32 nxtseq)
 {
   tvbuff_t *next_tvb;
@@ -2310,10 +2313,37 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 end_decode_tcp_ports:
   /* if !visited, check want_pdu_tracking and store it in table */
   /* XXX fix nxtseq so that it always has valid content and skip the ==0 check */
+  /* XXX we will need this one down in the exception handling as well soon */
   if((!pinfo->fd->flags.visited) && nxtseq && tcp_analyze_seq && pinfo->want_pdu_tracking){
     pdu_store_sequencenumber_of_next_pdu(pinfo, nxtseq+pinfo->bytes_until_next_pdu);
   }
 
+}
+
+void
+decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	proto_tree *tree, int src_port, int dst_port, guint32 nxtseq)
+{
+	TRY {
+		decode_tcp_ports_exception(tvb, offset, pinfo, tree, src_port, dst_port, nxtseq);
+	}
+	CATCH_ALL {
+		/* We got an exception. At this point the dissection is
+		 * completely aborted and execution will be transfered back
+		 * to (probably) the frame dissector.
+		 * Here we have to place whatever we want the dissector
+		 * to do before aborting the tcp dissection.
+		 */
+		/* 
+		 * Handle TCP seq# analysis, print any extra SEQ/ACK data 
+		 * for this segment
+		 */
+		if(tcp_analyze_seq){
+			tcp_print_sequence_number_analysis(pinfo, tvb, tcp_tree);
+		}
+		RETHROW;
+	}
+	ENDTRY;
 }
 
 
@@ -2323,7 +2353,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8  th_off_x2; /* combines th_off and th_x2 */
   guint16 th_sum;
   guint16 th_urp;
-  proto_tree *tcp_tree = NULL, *field_tree = NULL;
+  proto_tree *field_tree = NULL;
   proto_item *ti = NULL, *tf;
   int        offset = 0;
   gchar      flags[64] = "<None>";
@@ -2343,6 +2373,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   static struct tcpheader tcphstruct[4], *tcph;
   static int tcph_count=0;
 
+  tcp_tree = NULL;
   tcph_count++;
   if(tcph_count>=4){
      tcph_count=0;
@@ -2700,7 +2731,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* Can we desegment this segment? */
       if (pinfo->can_desegment) {
         /* Yes. */
-        desegment_tcp(tvb, pinfo, offset, tcph->th_seq, nxtseq, tcph->th_sport, tcph->th_dport, tree, tcp_tree);
+        desegment_tcp(tvb, pinfo, offset, tcph->th_seq, nxtseq, tcph->th_sport, tcph->th_dport, tree);
       } else {
         /* No - just call the subdissector.
            Mark this as fragmented, so if somebody throws an exception,
@@ -2712,6 +2743,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
     }
   }
+
 
   /* handle TCP seq# analysis, print any extra SEQ/ACK data for this segment*/
   if(tcp_analyze_seq){
