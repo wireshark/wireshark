@@ -2,6 +2,7 @@ Makefile.in
 Makefile
 dfilter2pod
 ethereal-filter.pod
+ethereal-tmp.pod
 *.1
 *.4
 *.html
