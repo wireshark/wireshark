@@ -1,4 +1,4 @@
-$Id: README.plugins,v 1.12 2004/04/25 21:10:20 obiot Exp $
+$Id: README.plugins,v 1.13 2004/07/03 21:50:05 tuexen Exp $
 
 Plugins
 
@@ -157,6 +157,7 @@ xxx.dll xxx.exp xxx.lib : $(OBJECTS) ..\plugin_api.obj
 clean:
 	rm -f $(OBJECTS) xxx.dll xxx.exp xxx.lib $(PDB_FILE)
 
+distclean: clean
 
 4.3 plugins/xxx/moduleinfo.h
 	
@@ -217,29 +218,36 @@ clean:
 	cd ..
 
 
+distclean: clean
+	cd gryphon
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../mgcp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean	
+	cd ..
+	cd xxx
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ..
+
+
 4.6 Changes to the top level Makefile.am
 
 Unfortunately there are quite some several places in the top level
 Makefile.am that need to be altered for adding a plugin.
 
-Add your plugin to the plugin_src, plugin_static_ldadd, plugin_libs,
-and plugin_ldadd:
-
-plugin_src = \
-	plugins/mgcp/packet-mgcp.c	\
-	plugins/gryphon/packet-gryphon.c \
-	plugins/xxx/packet-xxx.c
-
-plugin_static_ldadd = \
-        plugins/mgcp/packet-mgcp-static.o               \
-        plugins/gryphon/packet-gryphon-static.o         \
-        plugins/xxx/packet-xxx-static.o          
+Add your plugin to the plugin_libs and plugin_ldadd (two times):
 
 plugin_libs = \
         plugins/gryphon/gryphon.la \
         plugins/mgcp/mgcp.la    \
-	plugins/xxx/xxx.la
+        plugins/xxx/xxx.la
 
+if ENABLE_STATIC
+plugin_ldadd = \
+        plugins/gryphon/gryphon.o \
+        plugins/mgcp/mgcp.o \
+        plugins/xxx/xxx.o 
+
+else          # ENABLE_STATIC
 plugin_ldadd = \
         "-dlopen" self  \
         "-dlopen" plugins/gryphon/gryphon.la \
