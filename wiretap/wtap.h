@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.119 2002/07/31 19:27:57 guy Exp $
+ * $Id: wtap.h,v 1.120 2002/07/31 22:41:34 jmayer Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -25,6 +25,10 @@
 
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
+#endif
+
+#ifdef HAVE_WINSOCK2_H
+# include <winsock2.h>
 #endif
 
 #include <glib.h>
