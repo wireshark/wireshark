@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.76 2001/12/04 08:26:00 guy Exp $
+ * $Id: file.c,v 1.77 2001/12/04 22:28:19 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -18,8 +18,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -66,6 +66,7 @@
 #include "etherpeek.h"
 #include "vms.h"
 #include "dbs-etherwatch.h"
+#include "visual.h"
 
 /* The open_file_* routines should return:
  *
@@ -102,13 +103,15 @@ static int (*open_routines[])(wtap *, int *) = {
 	netxray_open,
 	radcom_open,
 	nettl_open,
+	visual_open,
 	pppdump_open,
-	etherpeek_open,
 
-	/* Files whose magic headers are in text *somewhere* in the
-	 * file (usually because the trace is just a saved copy of
-	 * the telnet session). 
+	/* Files that don't have magic bytes at a fixed location,
+	 * but that instead require a heuristic of some sort to
+	 * identify them.  This includes the ASCII trace files that
+	 * would be saved copies of a Telnet session to some box.
 	 */
+	etherpeek_open,
 	ascend_open,
 	toshiba_open,
 	i4btrace_open,
@@ -385,6 +388,10 @@ static const struct file_type_info {
 	/* WTAP_FILE_DBS_ETHERWATCH */
 	{ "DBS Etherwatch (VMS)", NULL,
 	  NULL, NULL},
+
+	/* WTAP_FILE_VISUAL_NETWORKS */
+	{ "Visual Networks traffic capture", "visual",
+	  visual_dump_can_write_encap, visual_dump_open },
 };
 
 /* Name that should be somewhat descriptive. */

@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.22 2001/10/19 20:18:48 guy Exp $
+# $Id: Makefile.nmake,v 1.23 2001/12/04 22:28:19 guy Exp $
 #
 
 include ..\config.nmake
@@ -33,6 +33,7 @@ OBJECTS=ascend-grammar.obj \
 	pppdump.obj \
 	snoop.obj \
 	toshiba.obj \
+	visual.obj \
 	vms.obj \
 	wtap.obj
 
