@@ -34,6 +34,14 @@
 #define SCTP_INIT_CHUNK_ID               1
 #define SCTP_INIT_ACK_CHUNK_ID           2
 #define SCTP_SACK_CHUNK_ID               3
+#define SCTP_HEARTBEAT_CHUNK_ID          4
+#define SCTP_HEARTBEAT_ACK_CHUNK_ID      5
+#define SCTP_ABORT_CHUNK_ID              6
+#define SCTP_SHUTDOWN_CHUNK_ID           7
+#define SCTP_SHUTDOWN_ACK_CHUNK_ID       8
+#define SCTP_ERROR_CHUNK_ID              9
+#define SCTP_COOKIE_ECHO_CHUNK_ID       10
+#define SCTP_COOKIE_ACK_CHUNK_ID        11
 
 #define CHUNK_TYPE_LENGTH             1
 #define CHUNK_FLAGS_LENGTH            1
@@ -72,38 +80,39 @@
                                        DATA_CHUNK_STREAM_ID_LENGTH + \
                                        DATA_CHUNK_STREAM_SEQ_NUMBER_LENGTH + \
                                        DATA_CHUNK_PAYLOAD_PROTOCOL_ID_LENGTH)
-
+#define MAX_ADDRESS_LEN                47
+#define NUM_CHUNKS                     13
 
 
 typedef struct _tsn {
-	guint32	frame_number;
-	guint32      secs;    /* Absolute seconds */
-  	guint32      usecs;
-	address	src;
-	address	dst;
-	GList		*tsns;
+	guint32 frame_number;
+	guint32 secs;    /* Absolute seconds */
+	guint32 usecs;
+	address src;
+	address dst;
+	GList   *tsns;
 } tsn_t;
 
 typedef struct _sctp_tmp_info {
-	address	src;
-	address	dst;
+	address src;
+	address dst;
 	guint16 port1;
 	guint16 port2;
 	guint32 verification_tag1;
 	guint32 verification_tag2;
 	guint32 n_tvbs;
-}sctp_tmp_info_t;
+} sctp_tmp_info_t;
 
 typedef struct _sctp_min_max {
-	guint32	tmp_min_secs;
-	guint32 	tmp_min_usecs;
-	guint32 	tmp_max_secs;
-	guint32	tmp_max_usecs;
-	guint32	tmp_min_tsn1;
-	guint32	tmp_min_tsn2;
-	guint32	tmp_max_tsn1;
-	guint32	tmp_max_tsn2;
-	gint 	tmp_secs;
+	guint32 tmp_min_secs;
+	guint32 tmp_min_usecs;
+	guint32 tmp_max_secs;
+	guint32 tmp_max_usecs;
+	guint32 tmp_min_tsn1;
+	guint32 tmp_min_tsn2;
+	guint32 tmp_max_tsn1;
+	guint32 tmp_max_tsn2;
+	gint    tmp_secs;
 } sctp_min_max_t;
 
 struct tsn_sort{
@@ -114,99 +123,108 @@ struct tsn_sort{
 	guint32 length;
 };
 
+typedef struct _sctp_addr_chunk {
+	guint32  direction;
+	address* addr;
+	guint32  addr_count[13];
+} sctp_addr_chunk;
 
 typedef struct _sctp_assoc_info {
-	address	src;
-	address	dst;
-	guint16 port1;
-	guint16 port2;
-	guint32 verification_tag1;
-	guint32 verification_tag2;
-	guint32 n_tvbs;
-	GList   *addr1;
-	GList   *addr2;
-	guint16 instream1;
-	guint16 outstream1;
-	guint16 instream2;
-	guint16 outstream2;
-	guint32 n_adler32_calculated;
-	guint32 n_adler32_correct;
-	guint32 n_crc32c_calculated;
-	guint32 n_crc32c_correct;
-	char checksum_type[8];
-	guint32 n_checksum_errors;
-	guint32 n_bundling_errors;
-	guint32 n_padding_errors;
-	guint32 n_length_errors;
-	guint32 n_value_errors;
-	guint32 n_data_chunks;
-	guint32 n_data_bytes;
-	guint32 n_packets;
-	guint32 n_data_chunks_ep1;
-	guint32 n_data_bytes_ep1;
-	guint32 n_data_chunks_ep2;
-	guint32 n_data_bytes_ep2;
-	guint32 n_sack_chunks_ep1;
-	guint32 n_sack_chunks_ep2;
-	guint32 n_array_tsn1;
-	guint32 n_array_tsn2;
-	guint32 max_window1;
-	guint32 max_window2;
-	gboolean init;
-	gboolean initack;
-	guint8 initack_dir;
-	guint8 direction;
-	guint32	min_secs;
-	guint32 	min_usecs;
-	guint32 	max_secs;
-	guint32	max_usecs;
-	guint32	min_tsn1;
-	guint32	min_tsn2;
-	guint32	max_tsn1;
-	guint32	max_tsn2;
-	guint32 max_bytes1;
-	guint32 max_bytes2;
-	GSList *min_max;
-	GList *frame_numbers;
-	GList *tsn1;
-	GArray *sort_tsn1;
-	GArray *sort_sack1;
-	GList *sack1;
-	GList *tsn2;
-	GArray *sort_tsn2;
-	GArray *sort_sack2;
-	GList *sack2;
-	gboolean check_address;
-	GList*	error_info_list;
+	address   src;
+	address   dst;
+	guint16   port1;
+	guint16   port2;
+	guint32   verification_tag1;
+	guint32   verification_tag2;
+	guint32   n_tvbs;
+	GList     *addr1;
+	GList     *addr2;
+	guint16   instream1;
+	guint16   outstream1;
+	guint16   instream2;
+	guint16   outstream2;
+	guint32   n_adler32_calculated;
+	guint32   n_adler32_correct;
+	guint32   n_crc32c_calculated;
+	guint32   n_crc32c_correct;
+	guint8    checksum_type[8];
+	guint32   n_checksum_errors;
+	guint32   n_bundling_errors;
+	guint32   n_padding_errors;
+	guint32   n_length_errors;
+	guint32   n_value_errors;
+	guint32   n_data_chunks;
+	guint32   n_data_bytes;
+	guint32   n_packets;
+	guint32   n_data_chunks_ep1;
+	guint32   n_data_bytes_ep1;
+	guint32   n_data_chunks_ep2;
+	guint32   n_data_bytes_ep2;
+	guint32   n_sack_chunks_ep1;
+	guint32   n_sack_chunks_ep2;
+	guint32   n_array_tsn1;
+	guint32   n_array_tsn2;
+	guint32   max_window1;
+	guint32   max_window2;
+	gboolean  init;
+	gboolean  initack;
+	guint8    initack_dir;
+	guint8    direction;
+	guint32   min_secs;
+	guint32   min_usecs;
+	guint32   max_secs;
+	guint32   max_usecs;
+	guint32   min_tsn1;
+	guint32   min_tsn2;
+	guint32   max_tsn1;
+	guint32   max_tsn2;
+	guint32   max_bytes1;
+	guint32   max_bytes2;
+	GSList    *min_max;
+	GList     *frame_numbers;
+	GList     *tsn1;
+	GPtrArray *sort_tsn1;
+	GPtrArray *sort_sack1;
+	GList     *sack1;
+	GList     *tsn2;
+	GPtrArray *sort_tsn2;
+	GPtrArray *sort_sack2;
+	GList     *sack2;
+	gboolean  check_address;
+	GList*    error_info_list;
+	guint32   chunk_count[NUM_CHUNKS];
+	guint32   ep1_chunk_count[NUM_CHUNKS];
+	guint32   ep2_chunk_count[NUM_CHUNKS];
+	GList*    addr_chunk_count;
 } sctp_assoc_info_t;
 
 typedef struct _sctp_error_info {
-	guint32	frame_number;
-	char 	chunk_info[200];
-	char	*info_text;
-}	sctp_error_info_t;
+	guint32 frame_number;
+	gchar   chunk_info[200];
+	gchar  *info_text;
+} sctp_error_info_t;
 
 
 typedef struct _sctp_allassocs_info {
-	guint32 sum_tvbs;
-	GList*  assoc_info_list;
+	guint32  sum_tvbs;
+	GList*   assoc_info_list;
 	gboolean is_registered;
-	GList*	children;
+	GList*   children;
 } sctp_allassocs_info_t;
 
 
 
 struct notes {
-	GtkWidget *checktype;
-	GtkWidget *checksum;
-	GtkWidget *bundling;
-	GtkWidget *padding;
-	GtkWidget *length;
-	GtkWidget *value;
-	GtkWidget *chunks_ep1;
-	GtkWidget *bytes_ep1;
-	GtkWidget *chunks_ep2;
-	GtkWidget *bytes_ep2;
+	GtkWidget   *checktype;
+	GtkWidget   *checksum;
+	GtkWidget   *bundling;
+	GtkWidget   *padding;
+	GtkWidget   *length;
+	GtkWidget   *value;
+	GtkWidget   *chunks_ep1;
+	GtkWidget   *bytes_ep1;
+	GtkWidget   *chunks_ep2;
+	GtkWidget   *bytes_ep2;
 	struct page *page2;
 	struct page *page3;
 };
@@ -224,57 +242,56 @@ struct page {
 };
 
 struct sctp_analyse {
-	sctp_assoc_info_t* assoc;
-	GtkWidget* window;
-	struct notes *analyse_nb;
-	GList *children;
-	guint16 num_children;
+	sctp_assoc_info_t *assoc;
+	GtkWidget*        window;
+	struct notes      *analyse_nb;
+	GList             *children;
+	guint16           num_children;
 };
 
-
 typedef struct _sctp_graph_t {
-	gboolean needs_redraw;
-	gfloat x_interval;
-	gfloat y_interval;
+	gboolean  needs_redraw;
+	gfloat    x_interval;
+	gfloat    y_interval;
 	GtkWidget *window;
 	GtkWidget *draw_area;
 	GdkPixmap *pixmap;
-	int pixmap_width;
-	int pixmap_height;
-	int graph_type;
-	gdouble x_old;
-	gdouble y_old;
-	gdouble x_new;
-	gdouble y_new;
-	guint16 offset;
-	guint16 length;
-	gboolean tmp;
-	gboolean rectangle;
-	guint32 x1_tmp_sec;
-	guint32 x2_tmp_sec;
-	guint32 x1_tmp_usec;
-	guint32 x2_tmp_usec;
-	guint32 tmp_width;
-	guint32 axis_width;
-	guint32 y1_tmp;
-	guint32 y2_tmp;
-	guint32 tmp_min_tsn1;
-	guint32 tmp_max_tsn1;
-	guint32 tmp_min_tsn2;
-	guint32 tmp_max_tsn2;
-	guint32 min_x;
-	guint32 max_x;
-	guint32 min_y;
-	guint32 max_y;
+	gint      pixmap_width;
+	gint      pixmap_height;
+	gint      graph_type;
+	gdouble   x_old;
+	gdouble   y_old;
+	gdouble   x_new;
+	gdouble   y_new;
+	guint16   offset;
+	guint16   length;
+	gboolean  tmp;
+	gboolean  rectangle;
+	guint32   x1_tmp_sec;
+	guint32   x2_tmp_sec;
+	guint32   x1_tmp_usec;
+	guint32   x2_tmp_usec;
+	guint32   tmp_width;
+	guint32   axis_width;
+	guint32   y1_tmp;
+	guint32   y2_tmp;
+	guint32   tmp_min_tsn1;
+	guint32   tmp_max_tsn1;
+	guint32   tmp_min_tsn2;
+	guint32   tmp_max_tsn2;
+	guint32   min_x;
+	guint32   max_x;
+	guint32   min_y;
+	guint32   max_y;
 } sctp_graph_t;
 
 
 
 struct sctp_udata {
-	sctp_assoc_info_t * assoc;
-	sctp_graph_t *io;
-	struct sctp_analyse* parent;
-	guint16 dir;
+	sctp_assoc_info_t   *assoc;
+	sctp_graph_t        *io;
+	struct sctp_analyse *parent;
+	guint16             dir;
 };
 
 
@@ -298,7 +315,15 @@ void sctp_error_dlg_show(sctp_assoc_info_t* assoc);
 
 void sctp_stat_dlg_update(void);
 
+void sctp_chunk_stat_dlg_update(struct sctp_udata* udata, unsigned int direction);
+
+void sctp_chunk_dlg_show(struct sctp_analyse* userdata);
+
+void sctp_chunk_stat_dlg_show(unsigned int direction, struct sctp_analyse* userdata);
+
 GtkWidget *get_stat_dlg(void);
+
+GtkWidget *get_chunk_stat_dlg(void);
 
 void update_analyse_dlg(struct sctp_analyse* u_data);
 

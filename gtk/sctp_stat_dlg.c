@@ -52,10 +52,10 @@ static sctp_assoc_info_t* selected_stream = NULL;  /* current selection */
 extern GtkWidget *main_display_filter_widget;
 static sctp_allassocs_info_t *sctp_assocs=NULL;
 static guint16 n_children=0;
-static GtkWidget *bt_afilter = NULL;
+static GtkWidget *bt_afilter = NULL, *bt_unselect=NULL, *bt_analyse=NULL, *bt_filter=NULL;
 
-#define NUM_COLS 7
-#define FRAME_LIMIT	8
+#define NUM_COLS    7
+#define FRAME_LIMIT 8
 
 typedef struct column_arrows {
 	GtkWidget *table;
@@ -67,9 +67,9 @@ typedef struct column_arrows {
 static void
 dlg_destroy(void)
 {
-guint32 i, j;
-GList *list;
-struct sctp_analyse *child_data;
+	guint32 i, j;
+	GList *list;
+	struct sctp_analyse *child_data;
 
 	j=n_children;
 	for (i=0; i<j; i++)
@@ -77,12 +77,12 @@ struct sctp_analyse *child_data;
 		list=g_list_last(sctp_assocs->children);
 		child_data=(struct sctp_analyse *)list->data;
 		gtk_grab_remove(GTK_WIDGET(child_data->window));
-    	gtk_widget_destroy(GTK_WIDGET(child_data->window));
+		gtk_widget_destroy(GTK_WIDGET(child_data->window));
 		list=g_list_previous(list);
 	}
 	g_list_free(sctp_assocs->children);
 	sctp_assocs->children = NULL;
-	sctp_stat_dlg=NULL;
+	sctp_stat_dlg = NULL;
 }
 
 void
@@ -138,15 +138,19 @@ sctp_stat_on_unselect(GtkButton *button _U_, gpointer user_data _U_)
 		g_free(filter_string);
 		filter_string = NULL;
 	}
-	
+
 	selected_stream = NULL;
 	gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), "");
 	gtk_clist_unselect_all(GTK_CLIST(clist));
+	gtk_widget_set_sensitive(bt_unselect,FALSE);
+	gtk_widget_set_sensitive(bt_filter,FALSE);
+	gtk_widget_set_sensitive(bt_analyse,FALSE);
+	gtk_widget_set_sensitive(bt_afilter,FALSE);
 }
 
 void sctp_stat_dlg_update(void)
 {
-GList *list;
+	GList *list;
 
 	list=(sctp_stat_get_info()->assoc_info_list);
 	if (sctp_stat_dlg != NULL)
@@ -168,13 +172,13 @@ GList *list;
 
 static void
 sctp_stat_on_select_row(GtkCList *clist, gint row, gint column _U_,
-						GdkEventButton *event _U_, gpointer user_data _U_)
+                        GdkEventButton *event _U_, gpointer user_data _U_)
 {
-gchar *text[1];
-guint16 port1, port2;
-guint32 checksum, data_chunks, data_bytes, packets;
-GList *list;
-sctp_assoc_info_t* assoc;
+	gchar *text[1];
+	guint16 port1, port2;
+	guint32 checksum, data_chunks, data_bytes, packets;
+	GList *list;
+	sctp_assoc_info_t* assoc;
 
 	selected_stream = gtk_clist_get_row_data(GTK_CLIST(clist), row);
 
@@ -206,12 +210,16 @@ sctp_assoc_info_t* assoc;
 		}
 		list=g_list_next(list);
 	}
+	gtk_widget_set_sensitive(bt_unselect,TRUE);
+	gtk_widget_set_sensitive(bt_analyse,TRUE);
+	gtk_widget_set_sensitive(bt_filter,TRUE);
 }
 
 static void
 sctp_stat_on_apply_filter (GtkButton *button _U_, gpointer user_data _U_)
 {
-	if (filter_string != NULL) {
+	if (filter_string != NULL)
+	{
 		main_filter_packets(&cfile, filter_string, FALSE);
 	}
 }
@@ -219,13 +227,13 @@ sctp_stat_on_apply_filter (GtkButton *button _U_, gpointer user_data _U_)
 static void
 sctp_stat_on_filter (GtkButton *button _U_, gpointer user_data _U_)
 {
-gchar *f_string = NULL;
-guint32 framenumber=0;
-GList *list, *srclist, *dstlist;
-gchar *str=NULL;
-GString *gstring=NULL;
-struct sockaddr_in *infosrc=NULL;
-struct sockaddr_in *infodst=NULL;
+	gchar *f_string = NULL;
+	guint32 framenumber=0;
+	GList *list, *srclist, *dstlist;
+	gchar *str=NULL;
+	GString *gstring=NULL;
+	struct sockaddr_in *infosrc=NULL;
+	struct sockaddr_in *infodst=NULL;
 
 	if (selected_stream==NULL) {
 		gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), "");
@@ -236,13 +244,12 @@ struct sockaddr_in *infodst=NULL;
 	{
 		if (selected_stream->check_address==FALSE)
 		{
-			f_string = g_strdup_printf(
-				"((sctp.srcport==%u && sctp.dstport==%u && ((sctp.verification_tag==0x%x && sctp.verification_tag!=0x0) || "
-		                                            "(sctp.verification_tag==0x0 && sctp.initiate_tag==0x%x) || "
-		                                            "(sctp.verification_tag==0x%x && (sctp.abort_t_bit==1 || sctp.shutdown_complete_t_bit==1)))) ||"
-				" (sctp.srcport==%u && sctp.dstport==%u && ((sctp.verification_tag==0x%x && sctp.verification_tag!=0x0) || "
-		                                            "(sctp.verification_tag==0x0 && sctp.initiate_tag==0x%x) ||"
-		                                            "(sctp.verification_tag==0x%x && (sctp.abort_t_bit==1 || sctp.shutdown_complete_t_bit==1)))))",
+			f_string = g_strdup_printf("((sctp.srcport==%u && sctp.dstport==%u && ((sctp.verification_tag==0x%x && sctp.verification_tag!=0x0) || "
+		                                   "(sctp.verification_tag==0x0 && sctp.initiate_tag==0x%x) || "
+		                                   "(sctp.verification_tag==0x%x && (sctp.abort_t_bit==1 || sctp.shutdown_complete_t_bit==1)))) ||"
+		                                   "(sctp.srcport==%u && sctp.dstport==%u && ((sctp.verification_tag==0x%x && sctp.verification_tag!=0x0) || "
+		                                   "(sctp.verification_tag==0x0 && sctp.initiate_tag==0x%x) ||"
+		                                   "(sctp.verification_tag==0x%x && (sctp.abort_t_bit==1 || sctp.shutdown_complete_t_bit==1)))))",
 			selected_stream->port1,
 			selected_stream->port2,
 			selected_stream->verification_tag1,
@@ -339,21 +346,26 @@ struct sockaddr_in *infodst=NULL;
 	} else {
 		g_assert_not_reached();
 	}
+	gtk_widget_set_sensitive(bt_afilter,TRUE);
 }
 
 
 static void
-sctp_stat_on_close (GtkButton *button _U_, gpointer         user_data _U_)
+sctp_stat_on_close (GtkButton *button _U_, gpointer user_data _U_)
 {
 	gtk_grab_remove(sctp_stat_dlg);
 	gtk_widget_destroy(sctp_stat_dlg);
 }
 
 static void
-sctp_stat_on_analyse (GtkButton *button _U_, gpointer         user_data _U_)
+sctp_stat_on_analyse (GtkButton *button _U_, gpointer user_data _U_)
 {
+	if (selected_stream==NULL)
+		return;
+
 	if (selected_stream)
 		assoc_analyse(selected_stream);
+	gtk_widget_set_sensitive(bt_analyse,FALSE);
 }
 
 static gint
@@ -420,22 +432,19 @@ clist_click_column_cb(GtkCList *list, gint column, gpointer data)
 static void
 gtk_sctpstat_dlg(void)
 {
-GtkWidget *sctp_stat_dlg_w;
-GtkWidget *vbox1;
-GtkWidget *scrolledwindow1;
-GtkWidget *hbuttonbox2;
-GtkWidget *bt_unselect;
-GtkWidget *bt_filter;
-GtkWidget *bt_close;
-GtkWidget *bt_analyse;
+	GtkWidget *sctp_stat_dlg_w;
+	GtkWidget *vbox1;
+	GtkWidget *scrolledwindow1;
+	GtkWidget *hbuttonbox2;
+	GtkWidget *bt_close;
 
-gchar *titles[NUM_COLS] =  {"Port 1","Port 2", "No of Packets", "Checksum", "No of Errors", "Data Chunks", "Data Bytes"};
-column_arrows *col_arrows;
-GdkBitmap *ascend_bm, *descend_bm;
-GdkPixmap *ascend_pm, *descend_pm;
-GtkStyle *win_style;
-GtkWidget *column_lb;
-int i;
+	gchar *titles[NUM_COLS] =  {"Port 1","Port 2", "No of Packets", "Checksum", "No of Errors", "Data Chunks", "Data Bytes"};
+	column_arrows *col_arrows;
+	GdkBitmap *ascend_bm, *descend_bm;
+	GdkPixmap *ascend_pm, *descend_pm;
+	GtkStyle *win_style;
+	GtkWidget *column_lb;
+	gint i;
 
 	sctp_stat_dlg_w = window_new (GTK_WINDOW_TOPLEVEL, "Ethereal: SCTP Associations");
 	gtk_window_set_position (GTK_WINDOW (sctp_stat_dlg_w), GTK_WIN_POS_CENTER);
@@ -484,13 +493,13 @@ int i;
 	win_style = gtk_widget_get_style(scrolledwindow1);
 
 	ascend_pm = gdk_pixmap_create_from_xpm_d(scrolledwindow1->window,
-			&ascend_bm,
-			&win_style->bg[GTK_STATE_NORMAL],
-			(gchar **)clist_ascend_xpm);
+	                                         &ascend_bm,
+	                                         &win_style->bg[GTK_STATE_NORMAL],
+	                                         (gchar **)clist_ascend_xpm);
 	descend_pm = gdk_pixmap_create_from_xpm_d(scrolledwindow1->window,
-			&descend_bm,
-			&win_style->bg[GTK_STATE_NORMAL],
-			(gchar **)clist_descend_xpm);
+	                                          &descend_bm,
+	                                          &win_style->bg[GTK_STATE_NORMAL],
+	                                          (gchar **)clist_descend_xpm);
 	for (i=0; i<NUM_COLS; i++)
 	{
 		col_arrows[i].table = gtk_table_new(2, 2, FALSE);
@@ -525,20 +534,24 @@ int i;
 	bt_unselect = gtk_button_new_with_label ("Unselect");
 	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_unselect);
 	gtk_widget_show (bt_unselect);
+	gtk_widget_set_sensitive(bt_unselect,FALSE);
 
 	bt_filter = gtk_button_new_with_label ("Set filter");
 	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_filter);
 	gtk_widget_show (bt_filter);
+	gtk_widget_set_sensitive(bt_filter,FALSE);
 
 	bt_afilter = gtk_button_new_with_label ("Apply filter");
 	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_afilter);
 	gtk_widget_show (bt_afilter);
+	gtk_widget_set_sensitive(bt_afilter,FALSE);
 
 	bt_analyse = gtk_button_new_with_label ("Analyse");
 	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_analyse);
 	gtk_widget_show (bt_analyse);
+	gtk_widget_set_sensitive(bt_analyse,FALSE);
 
-    bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
+	bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_close);
 	gtk_widget_show (bt_close);
 
@@ -555,8 +568,7 @@ int i;
 
 }
 
-
-void sctp_stat_dlg_show(void)
+void sctp_stat_dlg_show()
 {
 	if (sctp_stat_dlg != NULL)
 	{

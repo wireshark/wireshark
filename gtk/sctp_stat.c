@@ -31,7 +31,7 @@
 #include "simple_dialog.h"      /* Both is used for error handling */
 #include "globals.h"
 #include "epan/packet_info.h"   /* Needed for packet_info */
-#include <epan/tap.h>                /* Needed for register_tap_listener */
+#include <epan/tap.h>           /* Needed for register_tap_listener */
 #include "tap_menu.h"
 #include "dlg_utils.h"
 #include "compat_macros.h"
@@ -40,7 +40,6 @@
 #include "sctp_stat.h"
 #include <math.h>
 #include "epan/address.h"
-
 
 #define SCTP_HEARTBEAT_CHUNK_ID          4
 #define SCTP_HEARTBEAT_ACK_CHUNK_ID      5
@@ -59,8 +58,7 @@
 #define SCTP_ASCONF_CHUNK_ID          0XC1
 #define SCTP_IETF_EXT                  255
 
-#define SCTP_ABORT_CHUNK_T_BIT	0x01
-
+#define SCTP_ABORT_CHUNK_T_BIT        0x01
 
 #define PARAMETER_TYPE_LENGTH            2
 #define PARAMETER_LENGTH_LENGTH          2
@@ -83,7 +81,7 @@
 #define SACK_CHUNK_ADV_REC_WINDOW_CREDIT_LENGTH 4
 #define SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET (SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET + \
                                                  SACK_CHUNK_CUMULATIVE_TSN_ACK_LENGTH)
-						 
+
 #define INIT_CHUNK_INITIAL_TSN_LENGTH                4
 #define INIT_CHUNK_FIXED_PARAMTERS_LENGTH            (INIT_CHUNK_INITIATE_TAG_LENGTH + \
                                                       INIT_CHUNK_ADV_REC_WINDOW_CREDIT_LENGTH + \
@@ -95,8 +93,6 @@
                                        CHUNK_LENGTH_LENGTH)
 #define INIT_CHUNK_VARIABLE_LENGTH_PARAMETER_OFFSET  (INIT_CHUNK_INITIAL_TSN_OFFSET + \
                                                       INIT_CHUNK_INITIAL_TSN_LENGTH ) 
-						      	      
-
 
 static const value_string chunk_type_values[] = {
   { SCTP_DATA_CHUNK_ID,              "DATA" },
@@ -122,37 +118,23 @@ static const value_string chunk_type_values[] = {
   { 0,                               NULL } };
 
 
-#define FORWARD_STREAM						0
-#define BACKWARD_STREAM						1
-#define FORWARD_ADD_FORWARD_VTAG				2
-#define BACKWARD_ADD_FORWARD_VTAG				3
-#define BACKWARD_ADD_BACKWARD_VTAG			4
-#define ADDRESS_FORWARD_STREAM				5
-#define ADDRESS_BACKWARD_STREAM				6
-#define ADDRESS_FORWARD_ADD_FORWARD_VTAG		7
-#define ADDRESS_BACKWARD_ADD_FORWARD_VTAG		8
-#define ADDRESS_BACKWARD_ADD_BACKWARD_VTAG	9
-#define ASSOC_NOT_FOUND						10
+#define FORWARD_STREAM                     0
+#define BACKWARD_STREAM                    1
+#define FORWARD_ADD_FORWARD_VTAG           2
+#define BACKWARD_ADD_FORWARD_VTAG          3
+#define BACKWARD_ADD_BACKWARD_VTAG         4
+#define ADDRESS_FORWARD_STREAM             5
+#define ADDRESS_BACKWARD_STREAM            6
+#define ADDRESS_FORWARD_ADD_FORWARD_VTAG   7
+#define ADDRESS_BACKWARD_ADD_FORWARD_VTAG  8
+#define ADDRESS_BACKWARD_ADD_BACKWARD_VTAG 9
+#define ASSOC_NOT_FOUND                    10
 
-struct v4addr {
-	address_type 	type;
-	int		len;
-	guint32		addr;
-};
-
-struct v6addr {
-	address_type 	type;
-	int		len;
-	guint8		addr[16];
-};  
-  
-static sctp_allassocs_info_t sctp_tapinfo_struct =	{0, NULL, FALSE, NULL};
-
+static sctp_allassocs_info_t sctp_tapinfo_struct = {0, NULL, FALSE, NULL};
 
 static
 void free_first(gpointer data, gpointer user_data _U_)
 {
-	fflush(stdout);
 	g_free(data);
 }
 
@@ -161,7 +143,7 @@ void tsn_free(gpointer data, gpointer user_data _U_)
 	tsn_t *tsn;
 
 	tsn = (tsn_t *) data;
-	if (tsn->tsns!=NULL)
+	if (tsn->tsns != NULL)
 	{
 		g_list_foreach(tsn->tsns, free_first, NULL);
 		g_list_free(tsn->tsns);
@@ -179,78 +161,78 @@ reset(void *arg)
 	list = g_list_first(tapdata->assoc_info_list);
 	while (list)
 	{
-		info = (sctp_assoc_info_t *)  (list->data);
+		info = (sctp_assoc_info_t *) (list->data);
 
-		if (info->addr1!=NULL)
+		if (info->addr1 != NULL)
 		{
 			g_list_foreach(info->addr1, free_first, NULL);
 			g_list_free(info->addr1);
 			info->addr1 = NULL;
 		}
 
-		if (info->addr2!=NULL)
+		if (info->addr2 != NULL)
 		{
 			g_list_foreach(info->addr2,free_first, NULL);
 			g_list_free(info->addr2);
 			info->addr2 = NULL;
 		}
 
-		if (info->error_info_list!=NULL)
+		if (info->error_info_list != NULL)
 		{
 			g_list_foreach(info->error_info_list, free_first, NULL);
 			g_list_free(info->error_info_list);
 			info->error_info_list = NULL;
 		}
 
-		if (info->frame_numbers!=NULL)
+		if (info->frame_numbers != NULL)
 		{
 			g_list_free(info->frame_numbers);
 			info->frame_numbers = NULL;
 		}
 
-		if (info->tsn1!=NULL)
+		if (info->tsn1 != NULL)
 		{
-			g_list_foreach(info->tsn1,tsn_free, NULL);
+			g_list_foreach(info->tsn1, tsn_free, NULL);
 			g_list_free(info->tsn1);
 			info->tsn1 = NULL;
 		}
 
-		if (info->tsn2!=NULL)
+		if (info->tsn2 != NULL)
 		{
-			g_list_foreach(info->tsn2,tsn_free, NULL);
+			g_list_foreach(info->tsn2, tsn_free, NULL);
 			g_list_free(info->tsn2);
 			info->tsn2 = NULL;
 		}
 
-		if (info->sack1!=NULL)
+		if (info->sack1 != NULL)
 		{
-			g_list_foreach(info->sack1,tsn_free, NULL);
+			g_list_foreach(info->sack1, tsn_free, NULL);
 			g_list_free(info->sack1);
 			info->sack1 = NULL;
 		}
 
-		if (info->sack2!=NULL)
+		if (info->sack2 != NULL)
 		{
-			g_list_foreach(info->sack2,tsn_free, NULL);
+			g_list_foreach(info->sack2, tsn_free, NULL);
 			g_list_free(info->sack2);
 			info->sack2 = NULL;
 		}
 
-		if (info->sort_tsn1!=NULL)
-			g_array_free(info->sort_tsn1, TRUE);
+		if (info->sort_tsn1 != NULL)
+			g_ptr_array_free(info->sort_tsn1, TRUE);
 
-		if (info->sort_tsn2!=NULL)
-			g_array_free(info->sort_tsn2, TRUE);
+		if (info->sort_tsn2 != NULL)
+			g_ptr_array_free(info->sort_tsn2, TRUE);
 
-		if (info->sort_sack1!=NULL)
-			g_array_free(info->sort_sack1, TRUE);
+		if (info->sort_sack1 != NULL)
+			g_ptr_array_free(info->sort_sack1, TRUE);
 
-		if (info->sort_sack2!=NULL)
-			g_array_free(info->sort_sack2, TRUE);
+		if (info->sort_sack2 != NULL)
+			g_ptr_array_free(info->sort_sack2, TRUE);
 
-		if (info->min_max!=NULL)
+		if (info->min_max != NULL)
 		{
-			g_slist_foreach(info->min_max,free_first, NULL);
+			g_slist_foreach(info->min_max, free_first, NULL);
 			info->min_max = NULL;
 		}
 
@@ -258,14 +240,14 @@ reset(void *arg)
 		list = g_list_next(list);
 	}
 	g_list_free(tapdata->assoc_info_list);
-	tapdata->sum_tvbs=0;
-	tapdata->assoc_info_list=NULL;
+	tapdata->sum_tvbs = 0;
+	tapdata->assoc_info_list = NULL;
 }
 
 
-static sctp_assoc_info_t * calc_checksum(struct _sctp_info * check_data, sctp_assoc_info_t * data)
+static sctp_assoc_info_t *calc_checksum(struct _sctp_info *check_data, sctp_assoc_info_t *data)
 {
-	guint8 ok=0;
+	gboolean ok = FALSE;
 
 	if (check_data->adler32_calculated)
 	{
@@ -279,33 +261,33 @@ static sctp_assoc_info_t * calc_checksum(struct _sctp_info * check_data, sctp_as
 		if (check_data->crc32c_correct)
 			data->n_crc32c_correct++;
 	}
-	if (data->n_adler32_calculated>0)
+	if (data->n_adler32_calculated > 0)
 	{
-		if ((float)(data->n_adler32_correct*1.0/data->n_adler32_calculated)>0.5)
+		if ((float)(data->n_adler32_correct*1.0/data->n_adler32_calculated) > 0.5)
 		{
 			strcpy(data->checksum_type,"ADLER32");
 			data->n_checksum_errors=(data->n_adler32_calculated-data->n_adler32_correct);
-			ok=1;
+			ok = TRUE;
 		}
 	}
 
 	if (data->n_crc32c_calculated>0)
 	{
-		if ((float)(data->n_crc32c_correct*1.0/data->n_crc32c_calculated)>0.5)
+		if ((float)(data->n_crc32c_correct*1.0/data->n_crc32c_calculated) > 0.5)
 		{
 			strcpy(data->checksum_type,"CRC32C");
 			data->n_checksum_errors=data->n_crc32c_calculated-data->n_crc32c_correct;
-			ok=1;
+			ok = TRUE;
 		}
 	}
 
-	if (ok==0)
+	if (!ok)
 	{
 		strcpy(data->checksum_type,"UNKNOWN");
 		data->n_checksum_errors=0;
 	}
 
-	return data;
+	return(data);
 
 }
 
@@ -316,45 +298,48 @@ gint sctp_assoc_vtag_cmp(gconstpointer aa, gconstpointer bb)
 	const struct _sctp_assoc_info* a = aa;
 	const struct _sctp_assoc_info* b = bb;
 
-	if (a==b)
-		return 0;
+	if (a == b)
+		return(0);
 
-	if (a==NULL || b==NULL)
-		return 1;
+	if (a == NULL || b == NULL)
+		return(1);
 
 	/* assoc known*/
-	if ((a->port1 == b->port1)
-		&& (a->port2 == b->port2)
-		&& (a->verification_tag1 == b->verification_tag1)
-		&& ((a->verification_tag1!=0 || b->verification_tag2 !=0)))
-		return FORWARD_STREAM;
+	if ((a->port1 == b->port1) &&
+	    (a->port2 == b->port2) &&
+	    (a->verification_tag1 == b->verification_tag1) &&
+	    ((a->verification_tag1 != 0 || 
+	     (b->verification_tag2 != 0))))
+		return(FORWARD_STREAM);
 
-	if ((a->port1 == b->port2)
-		&& (a->port2 == b->port1)
-		&& (a->verification_tag1 == b->verification_tag2))
-		return BACKWARD_STREAM;
+	if ((a->port1 == b->port2) &&
+	    (a->port2 == b->port1) &&
+	    (a->verification_tag1 == b->verification_tag2))
+		return(BACKWARD_STREAM);
 
 	/*forward stream verifivation tag can be added*/
-	if ((a->port1 == b->port1)
-		&& (a->port2 == b->port2)
-		&& (a->verification_tag1 !=0)
-		&& (b->verification_tag1 == 0)
-		&& (b->verification_tag2 !=0))
-		return FORWARD_ADD_FORWARD_VTAG;
-	if ((a->port1 == b->port2)
-		&& (a->port2 == b->port1)
-		&& (a->verification_tag1 ==b->verification_tag2)
-		&& (b->verification_tag1 == 0))
-		return BACKWARD_ADD_FORWARD_VTAG;
+	if ((a->port1 == b->port1) &&
+	    (a->port2 == b->port2) &&
+	    (a->verification_tag1 != 0) &&
+	    (b->verification_tag1 == 0) &&
+	    (b->verification_tag2 !=0))
+		return (FORWARD_ADD_FORWARD_VTAG);
+		
+	if ((a->port1 == b->port2) &&
+	    (a->port2 == b->port1) &&
+	    (a->verification_tag1 == b->verification_tag2) &&
+	    (b->verification_tag1 == 0))
+		return (BACKWARD_ADD_FORWARD_VTAG);
+		
 	/*backward stream verification tag can be added */
-	if ((a->port1 == b->port2)
-		&& (a->port2 == b->port1)
-		&& (a->verification_tag1 !=0)
-		&& (b->verification_tag1 != 0)
-		&& (b->verification_tag2 == 0))
-		return BACKWARD_ADD_BACKWARD_VTAG;
+	if ((a->port1 == b->port2) &&
+	    (a->port2 == b->port1) &&
+	    (a->verification_tag1 !=0) &&
+	    (b->verification_tag1 != 0) &&
+	    (b->verification_tag2 == 0))
+		return(BACKWARD_ADD_BACKWARD_VTAG);
 
-	return ASSOC_NOT_FOUND;
+	return(ASSOC_NOT_FOUND);
 }
 
 
@@ -363,50 +348,49 @@ gint sctp_assoc_address_cmp(gconstpointer aa, gconstpointer bb)
 	GList *srclist, *dstlist;
 	const struct _sctp_tmp_info* a = aa;
 	const struct _sctp_assoc_info* b = bb;
-	address *store=NULL;
 	address *srcstore=NULL;
 	address *dststore=NULL;
-	struct v4addr *src=NULL;
-	struct v6addr *src6=NULL;
-	struct v4addr *infosrc=NULL;
-	struct v4addr *infodst=NULL;
-	struct v6addr *infosrc6=NULL;
-	struct v4addr *dst=NULL;
-	struct v6addr *dst6=NULL;
-	struct v6addr *infodst6=NULL;
+	address *src=NULL;
+	address *dst=NULL;
 	gboolean src_v4=FALSE;
 	gboolean src_v6=FALSE;
 	gboolean dst_v4=FALSE;
 	gboolean dst_v6=FALSE;
+	guint8* addr;
 
-	store = g_malloc(sizeof(address));
-	g_memmove(store, &(a->src),sizeof(address));
-	if (store->type==AT_IPv4)
+	src = g_malloc(sizeof(address));
+	if (a->src.type == AT_IPv4)
 	{
-		src = g_malloc(sizeof(struct v4addr));
-		g_memmove(src, &(a->src),sizeof(struct v4addr));
-		src_v4=TRUE;
+		src->type = AT_IPv4;
+		src->len  = 4;
+		src_v4    = TRUE;
 	}
-	else if (store->type==AT_IPv6)
+	else if (a->src.type==AT_IPv6)
 	{
-		src6 = g_malloc(sizeof(struct v6addr));
-		g_memmove(src6, &(a->src),sizeof(struct v6addr));
-		src_v6=TRUE;
+		src->type = AT_IPv6;
+		src->len  = 16;
+		src_v6    = TRUE;
 	}
+	addr = g_malloc(src->len);
+	memcpy(addr, a->src.data, src->len);
+	src->data = addr;
 
-	g_memmove(store, &(a->dst),sizeof(address));
-	if (store->type==AT_IPv4)
+	dst = g_malloc(sizeof(address));
+	if (a->dst.type == AT_IPv4)
 	{
-		dst = g_malloc(sizeof(struct v4addr));
-		g_memmove(dst, &(a->dst),sizeof(struct v4addr));
-		dst_v4=TRUE;
+		dst->type = AT_IPv4;
+		dst->len  = 4;
+		dst_v4    = TRUE;
 	}
-	else if (store->type==AT_IPv6)
+	else if (a->dst.type==AT_IPv6)
 	{
-		dst6 = g_malloc(sizeof(struct v6addr));
-		g_memmove(dst6, &(a->dst),sizeof(struct v6addr));
-		dst_v6=TRUE;
+		dst->type = AT_IPv6;
+		dst->len  = 16;
+		dst_v6    = TRUE;
 	}
+	addr = g_malloc(dst->len);
+	memcpy(addr, a->dst.data, dst->len);
+	dst->data = addr;
 
 	srclist = g_list_first(b->addr1);
 	while (srclist)
@@ -414,30 +398,15 @@ gint sctp_assoc_address_cmp(gconstpointer aa, gconstpointer bb)
 		srcstore = (address *) (srclist->data);
 		if (srcstore->type==AT_IPv4 && src_v4==TRUE)
 		{
-			infosrc=(struct v4addr *) (srclist->data);
-			if (src->addr==infosrc->addr && a->port1 == b->port1)
+			if (*src->data==*srcstore->data && a->port1 == b->port1)
 			{
 				dstlist = g_list_first(b->addr2);
 				while (dstlist)
 				{
 						dststore = (address *) (dstlist->data);
-						if (dststore->type==AT_IPv4 && dst_v4==TRUE)
+						if ((dststore->type==AT_IPv4 && dst_v4==TRUE) ||(dststore->type==AT_IPv6 && dst_v6==TRUE) )
 						{
-							infodst=(struct v4addr *) (dstlist->data);
-							if (dst->addr==infodst->addr && a->port2 == b->port2)
-							{
-								if ((a->verification_tag1 !=0)&& (b->verification_tag1 == 0)&& (b->verification_tag2 !=0))
-									return ADDRESS_FORWARD_ADD_FORWARD_VTAG;
-								else
-									return ADDRESS_FORWARD_STREAM;
-							}
-							else
-								dstlist=g_list_next(dstlist);
-						}
-						else if (dststore->type==AT_IPv6 && dst_v6==TRUE)
-						{
-							infodst6=(struct v6addr *) (dstlist->data);
-							if (dst6->addr==infodst6->addr && a->port2 == b->port2)
+							if (*dst->data==*dststore->data && a->port2 == b->port2)
 							{
 								if ((a->verification_tag1 !=0)&& (b->verification_tag1 == 0)&& (b->verification_tag2 !=0))
 									return ADDRESS_FORWARD_ADD_FORWARD_VTAG;
@@ -457,30 +426,15 @@ gint sctp_assoc_address_cmp(gconstpointer aa, gconstpointer bb)
 		}
 		else if (srcstore->type==AT_IPv6 && src_v6==TRUE)
 		{
-			infosrc6=(struct v6addr *) (srclist->data);
-			if (src6->addr==infosrc6->addr && a->port1 == b->port1)
+			if (*src->data == *srcstore->data  && a->port1 == b->port1)
 			{
 				dstlist = g_list_first(b->addr2);
 				while (dstlist)
 				{
 					dststore = (address *) (dstlist->data);
-					if (dststore->type==AT_IPv4 && dst_v4==TRUE)
+					if ((dststore->type==AT_IPv4 && dst_v4==TRUE) || (dststore->type==AT_IPv6 && dst_v6==TRUE))
 					{
-						infodst=(struct v4addr *) (dstlist->data);
-						if (dst->addr==infodst->addr && a->port2 == b->port2)
-						{
-							if ((a->verification_tag1 !=0)&& (b->verification_tag1 == 0)&& (b->verification_tag2 !=0))
-								return ADDRESS_FORWARD_ADD_FORWARD_VTAG;
-							else
-								return ADDRESS_FORWARD_STREAM;
-						}
-						else
-							dstlist=g_list_next(dstlist);
-					}
-					else if (dststore->type==AT_IPv6 && dst_v6==TRUE)
-					{
-						infodst6=(struct v6addr *) (dstlist->data);
-						if (dst6->addr==infodst6->addr && a->port2 == b->port2)
+						if (*dst->data==*dststore->data && a->port2 == b->port2)
 						{
 							if ((a->verification_tag1 !=0)&& (b->verification_tag1 == 0)&& (b->verification_tag2 !=0))
 								return ADDRESS_FORWARD_ADD_FORWARD_VTAG;
@@ -504,73 +458,57 @@ gint sctp_assoc_address_cmp(gconstpointer aa, gconstpointer bb)
 
 	g_free(src);
 	g_free(dst);
-	g_free(src6);
-	g_free(dst6);
-	g_free(store);
 
-	store = g_malloc(sizeof(address));
-	g_memmove(store, &(a->dst),sizeof(address));
-	if (store->type==AT_IPv4)
+	src = g_malloc(sizeof(address));
+	if (a->dst.type == AT_IPv4)
 	{
-		src = g_malloc(sizeof(struct v4addr));
-		g_memmove(src, &(a->dst),sizeof(struct v4addr));
-		src_v4=TRUE;
+		src->type = AT_IPv4;
+		src->len  = 4;
+		src_v4    = TRUE;
 	}
-	else if (store->type==AT_IPv6)
+	else if (a->dst.type==AT_IPv6)
 	{
-		src6 = g_malloc(sizeof(struct v6addr));
-		g_memmove(src6, &(a->dst),sizeof(struct v6addr));
-		src_v6=TRUE;
+		src->type = AT_IPv6;
+		src->len  = 16;
+		src_v6    = TRUE;
 	}
-
-	g_memmove(store, &(a->src),sizeof(address));
-	if (store->type==AT_IPv4)
+	addr = g_malloc(src->len);
+	memcpy(addr, a->dst.data, src->len);
+	src->data = addr;
+	
+	dst = g_malloc(sizeof(address));
+	if (a->src.type == AT_IPv4)
 	{
-		dst = g_malloc(sizeof(struct v4addr));
-		g_memmove(dst, &(a->src),sizeof(struct v4addr));
-		dst_v4=TRUE;
+		dst->type = AT_IPv4;
+		dst->len  = 4;
+		dst_v4    = TRUE;
 	}
-	else if (store->type==AT_IPv6)
+	else if (a->src.type==AT_IPv6)
 	{
-		dst6 = g_malloc(sizeof(struct v6addr));
-		g_memmove(dst6, &(a->src),sizeof(struct v6addr));
-		dst_v6=TRUE;
+		dst->type = AT_IPv6;
+		dst->len  = 16;
+		dst_v6    = TRUE;
 	}
-
+	addr = g_malloc(dst->len);
+	memcpy(addr, a->src.data, dst->len);
+	dst->data = addr;
+	
 	srclist = g_list_first(b->addr1);
 	while (srclist)
 	{
 		srcstore = (address *) (srclist->data);
 		if (srcstore->type==AT_IPv4 && src_v4==TRUE)
 		{
-			infosrc=(struct v4addr *) (srclist->data);
-			if (src->addr==infosrc->addr && a->port2 == b->port1)
+			if (*src->data==*srcstore->data && a->port2 == b->port1)
 			{
 				dstlist = g_list_first(b->addr2);
 				while (dstlist)
 				{
 						dststore = (address *) (dstlist->data);
-						if (dststore->type==AT_IPv4 && src_v4==TRUE)
+						if ((dststore->type==AT_IPv4 && src_v4==TRUE) || (dststore->type==AT_IPv6 && src_v6==TRUE))
 						{
-							infodst=(struct v4addr *) (dstlist->data);
-							if (dst->addr==infodst->addr && a->port1 == b->port2)
+							if (*dst->data==*dststore->data && a->port1 == b->port2)
 							{
-								if ((a->verification_tag1 ==b->verification_tag2)&& (b->verification_tag1 == 0))
-									return ADDRESS_BACKWARD_ADD_FORWARD_VTAG;
-								else if ((a->verification_tag1 !=0)	&& (b->verification_tag1 != 0)&& (b->verification_tag2 == 0))
-									return ADDRESS_BACKWARD_ADD_BACKWARD_VTAG;
-								else
-									return ADDRESS_BACKWARD_STREAM;
-							}
-							else
-								dstlist=g_list_next(dstlist);
-						}
-						else if (dststore->type==AT_IPv6 && src_v6==TRUE)
-						{
-							infodst6=(struct v6addr *) (dstlist->data);
-							if (dst6->addr==infodst6->addr && a->port1 == b->port2)
-							{
-
 								if ((a->verification_tag1 ==b->verification_tag2)&& (b->verification_tag1 == 0))
 									return ADDRESS_BACKWARD_ADD_FORWARD_VTAG;
 								else if ((a->verification_tag1 !=0)	&& (b->verification_tag1 != 0)&& (b->verification_tag2 == 0))
@@ -591,32 +529,15 @@ gint sctp_assoc_address_cmp(gconstpointer aa, gconstpointer bb)
 		}
 		else if (srcstore->type==AT_IPv6 && src_v6==TRUE)
 		{
-			infosrc6=(struct v6addr *) (srclist->data);
-			if (src6->addr==infosrc6->addr && a->port2 == b->port1)
+			if (*src->data == *srcstore->data && a->port2 == b->port1)
 			{
 				dstlist = g_list_first(b->addr2);
 				while (dstlist)
 				{
 					dststore = (address *) (dstlist->data);
-					if (dststore->type==AT_IPv4 && src_v4==TRUE)
+					if ((dststore->type==AT_IPv4 && src_v4==TRUE) || (dststore->type==AT_IPv6 && src_v6==TRUE))
 					{
-						infodst=(struct v4addr *) (dstlist->data);
-						if (dst->addr==infodst->addr && a->port1 == b->port2)
-						{
-								if ((a->verification_tag1 ==b->verification_tag2)&& (b->verification_tag1 == 0))
-									return ADDRESS_BACKWARD_ADD_FORWARD_VTAG;
-								else if ((a->verification_tag1 !=0)	&& (b->verification_tag1 != 0)&& (b->verification_tag2 == 0))
-									return ADDRESS_BACKWARD_ADD_BACKWARD_VTAG;
-								else
-									return ADDRESS_BACKWARD_STREAM;
-						}
-						else
-							dstlist=g_list_next(dstlist);
-					}
-					else if (dststore->type==AT_IPv6 && src_v6==TRUE)
-					{
-						infodst6=(struct v6addr *) (dstlist->data);
-						if (dst6->addr==infodst6->addr && a->port1 == b->port2)
+						if (*dst->data==*dststore->data && a->port1 == b->port2)
 						{
 								if ((a->verification_tag1 ==b->verification_tag2)&& (b->verification_tag1 == 0))
 									return ADDRESS_BACKWARD_ADD_FORWARD_VTAG;
@@ -643,9 +564,6 @@ gint sctp_assoc_address_cmp(gconstpointer aa, gconstpointer bb)
 
 	g_free(src);
 	g_free(dst);
-	g_free(src6);
-	g_free(dst6);
-	g_free(store);
 	return ASSOC_NOT_FOUND;
 }
 
@@ -696,7 +614,7 @@ sctp_assoc_info_t * find_assoc(sctp_tmp_info_t * needle)
 				info->verification_tag2=needle->verification_tag1;
 				info->direction = 2;
 				return info;
-			case ADDRESS_FORWARD_STREAM:
+			case ADDRESS_FORWARD_STREAM:	
 				info = (sctp_assoc_info_t*)(list->data);
 				info->direction = 1;
 				info->check_address=TRUE;
@@ -732,29 +650,67 @@ sctp_assoc_info_t * find_assoc(sctp_tmp_info_t * needle)
 	return NULL;
 }
 
+sctp_assoc_info_t * add_chunk_count(address * vadd, sctp_assoc_info_t * info, unsigned int direction, unsigned int type)
+{
+	GList *list;
+	address *v=NULL;
+	sctp_addr_chunk *ch=NULL;
+	guint8 * dat;
+	int i;
+
+		list = g_list_first(info->addr_chunk_count);
+		
+	while (list)
+	{
+		ch = (sctp_addr_chunk *)(list->data);
+		if (ch->direction == direction)
+		{
+			v = (address *) (ch->addr);
+			if (*(vadd->data)==*(v->data))
+			{
+				ch->addr_count[type]++;
+				return info;
+			}
+			else
+			{
+				list = g_list_next(list);
+			}
+		}
+		else
+			list = g_list_next(list);
+	}
+	ch = g_malloc(sizeof(sctp_addr_chunk));
+	ch->direction = direction;
+	ch->addr = g_malloc(sizeof(address)); 
+	ch->addr->type = vadd->type;
+	ch->addr->len = vadd->len;
+	dat = g_malloc(vadd->len);
+	memcpy(dat, vadd->data, vadd->len);
+	ch->addr->data = dat;
+	for (i=0; i<13; i++)
+		ch->addr_count[i]=0;
+	ch->addr_count[type]++;
+	info->addr_chunk_count = g_list_append(info->addr_chunk_count, ch);
+	
+	return info;
+}
+
 sctp_assoc_info_t * add_address(address * vadd, sctp_assoc_info_t *info, guint8 direction)
 {
 	GList *list;
-	struct v4addr *v4=NULL, *v4add=NULL;
-	struct v6addr	*v6=NULL, *v6add=NULL;
 	address *v=NULL;
-
+	
 	if (direction == 1)
 		list = g_list_first(info->addr1);
 	else
 		list = g_list_first(info->addr2);
-
+		
 	while (list)
 	{
 		v = (address *) (list->data);
-		
 		if (v->type == AT_IPv4 && vadd->type == AT_IPv4)
 		{
-		
-		v4 = (struct v4addr *)(list->data);
-		
-			v4add = (struct v4addr *) vadd;
-			if (v4add->addr!=v4->addr)
+			if (*vadd->data!=*v->data)
 			{
 				list = g_list_next(list);
 			}
@@ -766,44 +722,40 @@ sctp_assoc_info_t * add_address(address * vadd, sctp_assoc_info_t *info, guint8 
 		}
 		else if (v->type == AT_IPv6 && vadd->type == AT_IPv6)
 		{
-			v6 = (struct v6addr *)(list->data);
-			v6add = (struct v6addr *) vadd;
-			if (v6add->addr!=v6->addr)
+			if (strcmp(ip6_to_str((const struct e_in6_addr *)(vadd->data)), ip6_to_str((const struct e_in6_addr *)v->data)))
 			{
 				list = g_list_next(list);
 			}
 			else
 			{
-				g_free(vadd);				
+				g_free(vadd);
 				return info;
 			}
 		}
 		else
-		{			
+		{
 			list= g_list_next(list);
-			}
+		}
 	}
 
 	if (direction == 1)
 		info->addr1 = g_list_append(info->addr1, vadd);
 	else if (direction==2)
 		info->addr2 = g_list_append(info->addr2, vadd);
-
+	
 	return info;
 }
 
 static int
-packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const void *data _U_)
+packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const void *data)
 {
 	struct _sctp_info *sctp_info;
-	guint32 chunk_number=0, ip, tsnumber;
+	guint32 chunk_number=0, tsnumber;
 	sctp_tmp_info_t tmp_info;
 	sctp_assoc_info_t *info = NULL;
 	sctp_error_info_t *error = NULL;
 	char str[200];
 	guint16	type, length;
-	struct v4addr v4n;
-	struct v6addr v6n;
 	address *store=NULL;
 	tsn_t	*tsn=NULL;
 	tsn_t	*sack=NULL;
@@ -811,7 +763,9 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 	gboolean sackchunk=FALSE;
 	gboolean datachunk=FALSE;
 	guint32 max;
-	struct tsn_sort tsn_s;
+	struct tsn_sort *tsn_s;
+	guint8* addr=NULL;
+	int i;
 
 	sctp_allassocs_info_t *assoc_info=NULL;
 	assoc_info = &sctp_tapinfo_struct;
@@ -823,34 +777,35 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 
 	if (type == AT_IPv4)
 	{
-		v4n.type = AT_IPv4;
-		v4n.len = 4;
-		g_memmove(&(v4n.addr), pinfo->src.data, 4);
-		g_memmove(&(tmp_info.src), &v4n, sizeof(struct v4addr));
+		tmp_info.src.type = AT_IPv4;
+		tmp_info.src.len= 4;
 	}
 	else if (type == AT_IPv6)
 	{
-		v6n.type=AT_IPv6;
-		v6n.len = 16;
-		g_memmove(&(v6n.addr), pinfo->src.data, 16);
-		g_memmove(&(tmp_info.src), &v6n, sizeof(struct v6addr));
+		tmp_info.src.type=AT_IPv6;
+		tmp_info.src.len=16;
 	}
+	
+	addr=malloc(tmp_info.src.len);
+	memcpy(addr, pinfo->src.data, tmp_info.src.len);
+	tmp_info.src.data= addr;
+
 	type = pinfo->dst.type;
 
 	if (type == AT_IPv4)
 	{
-		v4n.type=AT_IPv4;
-		v4n.len = 4;
-		g_memmove(&(v4n.addr), pinfo->dst.data, 4);
-		g_memmove(&(tmp_info.dst), &v4n, sizeof(struct v4addr));
+		tmp_info.dst.type=AT_IPv4;
+		tmp_info.dst.len = 4;
 	}
 	else if (type == AT_IPv6)
 	{
-		v6n.type=AT_IPv6;
-		v6n.len = 16;
-		g_memmove(&(v6n.addr), pinfo->dst.data, 16);
-		g_memmove(&(tmp_info.dst), &v6n, sizeof(struct v6addr));
+		tmp_info.dst.type=AT_IPv6;
+		tmp_info.dst.len=16;
 	}
+	
+	addr=malloc(tmp_info.dst.len);
+	memcpy(addr, pinfo->dst.data, tmp_info.dst.len);
+	tmp_info.dst.data= addr;
 
 	tmp_info.port1 = pinfo->srcport;
 	tmp_info.port2 = pinfo->destport;
@@ -858,20 +813,31 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 	tmp_info.verification_tag2=0;
 	tmp_info.n_tvbs=0;
 
-
 	info=find_assoc(&tmp_info);
 	if (!info)
 	{
 		tmp_info.n_tvbs = sctp_info->number_of_tvbs;
 		sctp_tapinfo_struct.sum_tvbs+=sctp_info->number_of_tvbs;
 
-
 		if (sctp_info->number_of_tvbs>0)
 		{
 			info = g_malloc(sizeof(sctp_assoc_info_t));
 			memset(info, 0, sizeof(sctp_assoc_info_t));
-			g_memmove(info, &tmp_info, sizeof(sctp_tmp_info_t));
-
+			info->src.type = tmp_info.src.type;
+			info->src.len=tmp_info.src.len;
+			addr=malloc(tmp_info.dst.len);
+			memcpy(addr,(tmp_info.src.data), tmp_info.src.len);
+			info->src.data = addr;
+			info->dst.type = tmp_info.dst.type;
+			info->dst.len = tmp_info.dst.len;
+			addr=malloc(tmp_info.dst.len);
+			memcpy(addr, (tmp_info.dst.data), tmp_info.dst.len);
+			info->dst.data = addr;
+			info->port1=tmp_info.port1;
+			info->port2=tmp_info.port2;
+			info->verification_tag1=tmp_info.verification_tag1;
+			info->verification_tag2=tmp_info.verification_tag2;
+			info->n_tvbs=tmp_info.n_tvbs;
 			info->init=FALSE;
 			info->initack=FALSE;
 			info->direction=0;
@@ -901,24 +867,45 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 			info->max_window1=0;
 			info->max_window2=0;
 			info->min_max=NULL;
-			info->sort_tsn1=g_array_new(FALSE, FALSE, sizeof(struct tsn_sort));
-			info->sort_tsn2=g_array_new(FALSE, FALSE, sizeof(struct tsn_sort));
-			info->sort_sack1=g_array_new(FALSE, FALSE, sizeof(struct tsn_sort));
-			info->sort_sack2=g_array_new(FALSE, FALSE, sizeof(struct tsn_sort));
-
+			info->sort_tsn1=g_ptr_array_new();
+			info->sort_tsn2=g_ptr_array_new();
+			info->sort_sack1=g_ptr_array_new();
+			info->sort_sack2=g_ptr_array_new();
+			for (i=0; i < NUM_CHUNKS; i++)
+			{
+				info->chunk_count[i]=0;
+				info->ep1_chunk_count[i]=0;
+				info->ep2_chunk_count[i]=0;
+			}
+			info->addr_chunk_count=NULL;
+			
 			if (((tvb_get_guint8(sctp_info->tvb[0],0))==SCTP_INIT_CHUNK_ID) ||
-				((tvb_get_guint8(sctp_info->tvb[0],0))==SCTP_INIT_ACK_CHUNK_ID) ||
-				((tvb_get_guint8(sctp_info->tvb[0],0))==SCTP_DATA_CHUNK_ID) ||
-				((tvb_get_guint8(sctp_info->tvb[0],0))==SCTP_SACK_CHUNK_ID))
+			    ((tvb_get_guint8(sctp_info->tvb[0],0))==SCTP_INIT_ACK_CHUNK_ID) ||
+			    ((tvb_get_guint8(sctp_info->tvb[0],0))==SCTP_DATA_CHUNK_ID) ||
+			    ((tvb_get_guint8(sctp_info->tvb[0],0))==SCTP_SACK_CHUNK_ID))
 			{
 				tsn = g_malloc(sizeof(tsn_t));
 				sack = g_malloc(sizeof(tsn_t));
 				tsn->tsns = NULL;
 				sack->tsns = NULL;
-				tsn->src = tmp_info.src;
-				tsn->dst = tmp_info.dst;
-				tsn->secs = (guint32)pinfo->fd->rel_secs;
-				tsn->usecs = (guint32)pinfo->fd->rel_usecs;
+				sack->src.type=tsn->src.type = tmp_info.src.type;
+				sack->src.len=tsn->src.len = tmp_info.src.len;
+				addr = malloc(tmp_info.src.len);
+				memcpy(addr, tmp_info.src.data, tmp_info.src.len);
+				tsn->src.data = addr;
+				addr = malloc(tmp_info.src.len);
+				memcpy(addr, tmp_info.src.data, tmp_info.src.len);
+				sack->src.data = addr;
+				sack->dst.type=tsn->dst.type = tmp_info.dst.type;
+				sack->dst.len=tsn->dst.len = tmp_info.dst.len;
+				addr = malloc(tmp_info.dst.len);
+				memcpy(addr, tmp_info.dst.data, tmp_info.dst.len);
+				tsn->dst.data = addr;
+				addr = malloc(tmp_info.dst.len);
+				memcpy(addr, tmp_info.dst.data, tmp_info.dst.len);
+				sack->dst.data = addr;
+				sack->secs=tsn->secs = (guint32)pinfo->fd->rel_secs;
+				sack->usecs=tsn->usecs = (guint32)pinfo->fd->rel_usecs;
 				if (((tvb_get_guint8(sctp_info->tvb[0],0))==SCTP_DATA_CHUNK_ID) ||
 					((tvb_get_guint8(sctp_info->tvb[0],0))==SCTP_SACK_CHUNK_ID))
 				{
@@ -939,9 +926,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 						info->max_usecs=tsn->usecs;
 				}
 
-				tsn->frame_number = pinfo->fd->num;
-				g_memmove(sack, tsn, sizeof(tsn_t));
-
+				sack->frame_number=tsn->frame_number = pinfo->fd->num;
 			}
 			if ((tvb_get_guint8(sctp_info->tvb[0],0)==SCTP_INIT_CHUNK_ID) || (tvb_get_guint8(sctp_info->tvb[0],0)==SCTP_INIT_ACK_CHUNK_ID))
 			{
@@ -953,51 +938,64 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 				{
 				type = tvb_get_ntohs(sctp_info->tvb[chunk_number],0);
 					if (type == IPV4ADDRESS_PARAMETER_ID)
-					{			
-						v4n.type=AT_IPv4;
-						v4n.len = 4;				
-						ip=tvb_get_ntohl(sctp_info->tvb[chunk_number],IPV4_ADDRESS_OFFSET);
-						ip=htonl(ip);
-						v4n.addr=ip;
-						store = g_malloc(24);
-						g_memmove(store,&v4n, sizeof(struct v4addr));
+					{
+						store = g_malloc(sizeof (address));
+						store->type = AT_IPv4;;
+						store->len  = 4;
+						store->data = malloc(4);
+						tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(store->data),IPV4_ADDRESS_OFFSET, 4);
 						info = add_address(store, info, 1);
 					}
 					else if (type == IPV6ADDRESS_PARAMETER_ID)
 					{
-						v6n.type=AT_IPv6;
-						v6n.len = 0;				
-						tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)&(v6n.addr),IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH);
-						store = g_malloc(24);
-						g_memmove(store, &v6n, sizeof(struct v6addr));
+						store = g_malloc(sizeof (address));
+						store->type = AT_IPv6;;
+						store->len  = 16;
+						store->data = malloc(16);
+						tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(store->data),IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH);	
 						info = add_address(store, info, 1);
-					}						
+					}
 				}
 				
 				if (tvb_get_guint8(sctp_info->tvb[0],0)==SCTP_INIT_CHUNK_ID)
 				{
-					info->init=TRUE;
+					info->init = TRUE;
 				}
 				else
 				{
-					info->initack_dir=1;
-					info->initack=TRUE;
+					info->initack_dir = 1;
+					info->initack     = TRUE;
 				}
+				info->chunk_count[tvb_get_guint8(sctp_info->tvb[0],0)]++;
+				info->ep1_chunk_count[tvb_get_guint8(sctp_info->tvb[0],0)]++;
+				info=add_chunk_count(&tmp_info.src, info, 1, tvb_get_guint8(sctp_info->tvb[0],0));
 			}
 			else
 			{
 				if (((tvb_get_guint8(sctp_info->tvb[0],0))!=SCTP_INIT_CHUNK_ID) &&
-				((tvb_get_guint8(sctp_info->tvb[0],0))!=SCTP_INIT_ACK_CHUNK_ID) &&
-				((tvb_get_guint8(sctp_info->tvb[0],0))!=SCTP_DATA_CHUNK_ID) &&
-				((tvb_get_guint8(sctp_info->tvb[0],0))!=SCTP_SACK_CHUNK_ID))
+				    ((tvb_get_guint8(sctp_info->tvb[0],0))!=SCTP_INIT_ACK_CHUNK_ID) &&
+				    ((tvb_get_guint8(sctp_info->tvb[0],0))!=SCTP_DATA_CHUNK_ID) &&
+				    ((tvb_get_guint8(sctp_info->tvb[0],0))!=SCTP_SACK_CHUNK_ID))
 				{
-					tsn = g_malloc(sizeof(tsn_t));
+					tsn  = g_malloc(sizeof(tsn_t));
 					sack = g_malloc(sizeof(tsn_t));
-					tsn->tsns = NULL;
+					tsn->tsns  = NULL;
 					sack->tsns = NULL;
 				}
 				for (chunk_number = 0; chunk_number < sctp_info->number_of_tvbs; chunk_number++)
 				{
+					if ((tvb_get_guint8(sctp_info->tvb[chunk_number],0))<12)
+					{
+						info->chunk_count[tvb_get_guint8(sctp_info->tvb[0],0)]++;
+						info->ep1_chunk_count[tvb_get_guint8(sctp_info->tvb[0],0)]++;
+						info=add_chunk_count(&tmp_info.src, info, 1, tvb_get_guint8(sctp_info->tvb[0],0));
+					}
+					else
+					{
+						info->chunk_count[12]++;
+						info->ep1_chunk_count[12]++;
+						info=add_chunk_count(&tmp_info.src, info, 1, 12);
+					}
 					if (tvb_get_guint8(sctp_info->tvb[chunk_number],0)==SCTP_DATA_CHUNK_ID)
 					{
 						length=tvb_get_ntohs(sctp_info->tvb[chunk_number], CHUNK_LENGTH_OFFSET)-DATA_CHUNK_HEADER_LENGTH;
@@ -1014,17 +1012,17 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 							info->n_data_bytes_ep1+=length;
 							info->max_tsn1=tsnumber;
 						}
-
 						t_s_n = g_malloc(16);
 						tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(t_s_n),0, 16);
 						tsn->tsns = g_list_append(tsn->tsns, t_s_n);
 						datachunk = TRUE;
-						tsn_s.tsnumber=tsnumber;
-						tsn_s.secs=tsn->secs;
-						tsn_s.usecs=tsn->usecs;
-						tsn_s.offset=0;
-						tsn_s.length=length-DATA_CHUNK_HEADER_LENGTH;
-						info->sort_tsn1=g_array_append_val(info->sort_tsn1, tsn_s);
+						tsn_s = g_malloc(sizeof(struct tsn_sort));
+						tsn_s->tsnumber=tsnumber;
+						tsn_s->secs=tsn->secs;
+						tsn_s->usecs=tsn->usecs;
+						tsn_s->offset=0;
+						tsn_s->length=length-DATA_CHUNK_HEADER_LENGTH;
+						g_ptr_array_add(info->sort_tsn1, tsn_s);
 						info->n_array_tsn1++;
 					}
 					if (tvb_get_guint8(sctp_info->tvb[chunk_number],0)==SCTP_SACK_CHUNK_ID)
@@ -1040,26 +1038,34 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 						tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(t_s_n),0, length);
 						sack->tsns = g_list_append(sack->tsns, t_s_n);
 						sackchunk=TRUE;
-						tsn_s.tsnumber=tsnumber;
-						tsn_s.secs=tsn->secs;
-						tsn_s.usecs=tsn->usecs;
-						tsn_s.offset=0;
-						tsn_s.length= tvb_get_ntohl(sctp_info->tvb[chunk_number], SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET);
-						if (tsn_s.length>info->max_window1)
-							info->max_window1=tsn_s.length;
-						info->sort_sack2=g_array_append_val(info->sort_sack2, tsn_s);
-						info->n_sack_chunks_ep2++;						
+						tsn_s = g_malloc(sizeof(struct tsn_sort));
+						tsn_s->tsnumber=tsnumber;
+						tsn_s->secs=tsn->secs;
+						tsn_s->usecs=tsn->usecs;
+						tsn_s->offset=0;
+						tsn_s->length= tvb_get_ntohl(sctp_info->tvb[chunk_number], SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET);
+						if (tsn_s->length>info->max_window1)
+							info->max_window1=tsn_s->length;
+						g_ptr_array_add(info->sort_sack2, tsn_s);
+						info->n_sack_chunks_ep2++;
 					}
-
 				}
 			}
 			if (info->verification_tag1!=0 || info->verification_tag2!=0)
 			{
 				store = g_malloc(sizeof (address));
-				g_memmove(store,&(tmp_info.src),sizeof(address));
+				store->type = tmp_info.src.type;
+				store->len = tmp_info.src.len;
+				addr=malloc(tmp_info.src.len);
+				memcpy(addr,(tmp_info.src.data),tmp_info.src.len);
+				store->data = addr;
 				info = add_address(store, info, 1);
 				store = g_malloc(sizeof (address));
-				g_memmove(store,&(tmp_info.dst),sizeof(address));	
+				store->type = tmp_info.dst.type;
+				store->len = tmp_info.dst.len;
+				addr = malloc(tmp_info.dst.len);
+				memcpy(addr,(tmp_info.dst.data),tmp_info.dst.len);
+				store->data = addr;
 				info = add_address(store, info, 2);
 				info->frame_numbers=g_list_prepend(info->frame_numbers,&(pinfo->fd->num));
 				if (datachunk==TRUE)
@@ -1086,19 +1092,34 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 	}
 	else
 	{
-		if (((tvb_get_guint8(sctp_info->tvb[0],0))==SCTP_INIT_ACK_CHUNK_ID) ||
-			((tvb_get_guint8(sctp_info->tvb[0],0))==SCTP_DATA_CHUNK_ID) ||
-			((tvb_get_guint8(sctp_info->tvb[0],0))==SCTP_SACK_CHUNK_ID))
+		if (((tvb_get_guint8(sctp_info->tvb[0],0))==SCTP_INIT_CHUNK_ID) ||
+		    ((tvb_get_guint8(sctp_info->tvb[0],0))==SCTP_INIT_ACK_CHUNK_ID) ||
+		    ((tvb_get_guint8(sctp_info->tvb[0],0))==SCTP_DATA_CHUNK_ID) ||
+		    ((tvb_get_guint8(sctp_info->tvb[0],0))==SCTP_SACK_CHUNK_ID))
 		{
 
 			tsn = g_malloc(sizeof(tsn_t));
 			sack = g_malloc(sizeof(tsn_t));
 			tsn->tsns = NULL;
 			sack->tsns = NULL;
-			tsn->src = tmp_info.src;
-			tsn->dst = tmp_info.dst;
-			tsn->secs = (guint32)pinfo->fd->rel_secs;
-			tsn->usecs = (guint32)pinfo->fd->rel_usecs;
+			sack->src.type=tsn->src.type = tmp_info.src.type;
+			sack->src.len=tsn->src.len = tmp_info.src.len;
+			addr = malloc(tmp_info.src.len);
+			memcpy(addr, tmp_info.src.data, tmp_info.src.len);
+			tsn->src.data = addr;
+			addr = malloc(tmp_info.src.len);
+			memcpy(addr, tmp_info.src.data, tmp_info.src.len);
+			sack->src.data = addr;
+			sack->dst.type=tsn->dst.type = tmp_info.dst.type;
+			sack->dst.len=tsn->dst.len = tmp_info.dst.len;
+			addr = malloc(tmp_info.dst.len);
+			memcpy(addr, tmp_info.dst.data, tmp_info.dst.len);
+			tsn->dst.data = addr;			
+			addr = malloc(tmp_info.dst.len);
+			memcpy(addr, tmp_info.dst.data, tmp_info.dst.len);
+			sack->dst.data = addr;
+			sack->secs=tsn->secs = (guint32)pinfo->fd->rel_secs;
+			sack->usecs=tsn->usecs = (guint32)pinfo->fd->rel_usecs;
 			if (((tvb_get_guint8(sctp_info->tvb[0],0))==SCTP_DATA_CHUNK_ID) ||
 			((tvb_get_guint8(sctp_info->tvb[0],0))==SCTP_SACK_CHUNK_ID))
 			{
@@ -1118,31 +1139,37 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 					else if (tsn->secs==info->max_secs && tsn->usecs > info->max_usecs)
 						info->max_usecs=tsn->usecs;
 			}
-			tsn->frame_number = pinfo->fd->num;
-			g_memmove(sack, tsn, sizeof(tsn_t));
+			sack->frame_number=tsn->frame_number = pinfo->fd->num;
 		}
 		info->frame_numbers=g_list_prepend(info->frame_numbers,&(pinfo->fd->num));
 
+		store = g_malloc(sizeof (address));
+		store->type = tmp_info.src.type;
+		store->len = tmp_info.src.len;
+		addr = malloc(tmp_info.src.len);
+		memcpy(addr,(tmp_info.src.data),tmp_info.src.len);
+		store->data = addr;
+			
 		if (info->direction==1)
-		{
-			store = g_malloc(sizeof (address));
-			g_memmove(store,&(tmp_info.src),sizeof(address));
 			info = add_address(store, info, 1);
-			store = g_malloc(sizeof (address));
-			g_memmove(store,&(tmp_info.dst),sizeof(address));
-			info = add_address(store, info, 2);
-		}
 		else if (info->direction==2)
-		{
-			store = g_malloc(sizeof (address));
-			g_memmove(store,&(tmp_info.src),sizeof(address));
 			info = add_address(store, info, 2);
-			store = g_malloc(sizeof (address));
-			g_memmove(store,&(tmp_info.dst),sizeof(address));
+			
+		store = g_malloc(sizeof (address));
+		store->type = tmp_info.dst.type;
+		store->len = tmp_info.dst.len;
+		addr = malloc(tmp_info.dst.len);
+		memcpy(addr,(tmp_info.dst.data),tmp_info.dst.len);
+		store->data = addr;
+		
+		if (info->direction==1)
+			info = add_address(store, info, 2);
+		else if (info->direction==2)
 			info = add_address(store, info, 1);
-		}
-		if ((tvb_get_guint8(sctp_info->tvb[0],0))==SCTP_INIT_ACK_CHUNK_ID)
-		{	
+
+		if (((tvb_get_guint8(sctp_info->tvb[0],0))==SCTP_INIT_ACK_CHUNK_ID) ||
+		    ((tvb_get_guint8(sctp_info->tvb[0],0))==SCTP_INIT_CHUNK_ID))
+		{
 			tsnumber = tvb_get_ntohl((sctp_info->tvb)[chunk_number], INIT_CHUNK_INITIAL_TSN_OFFSET);
 
 			if (info->direction==2)
@@ -1153,7 +1180,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 					info->max_tsn2 = tsnumber;
 				info->instream2=tvb_get_ntohs(sctp_info->tvb[0],INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET);
 				info->outstream2=tvb_get_ntohs(sctp_info->tvb[0],INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET);
-				info->initack_dir=2;
+				//info->initack_dir=2;
 				info->tsn2 = g_list_prepend(info->tsn2, tsn);
 			}
 			else if (info->direction==1)
@@ -1164,41 +1191,53 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 					info->max_tsn1 = tsnumber;
 				info->instream1=tvb_get_ntohs(sctp_info->tvb[0],INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET);
 				info->outstream1=tvb_get_ntohs(sctp_info->tvb[0],INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET);
-				info->initack_dir=1;
+				//info->initack_dir=1;
 				info->tsn1 = g_list_prepend(info->tsn1, tsn);
 			}
+			info->chunk_count[tvb_get_guint8(sctp_info->tvb[0],0)]++;
+			if (info->direction==1)
+				info->ep1_chunk_count[tvb_get_guint8(sctp_info->tvb[0],0)]++;
+			else
+				info->ep2_chunk_count[tvb_get_guint8(sctp_info->tvb[0],0)]++;
+			info=add_chunk_count(&tmp_info.src, info, info->direction, tvb_get_guint8(sctp_info->tvb[0],0));
 			for (chunk_number = 1; chunk_number < sctp_info->number_of_tvbs; chunk_number++)
-			{			
+			{
 				type = tvb_get_ntohs(sctp_info->tvb[chunk_number],0);
 					if (type == IPV4ADDRESS_PARAMETER_ID)
-					{						
-										
-						v4n.type=AT_IPv4;
-						v4n.len = 4;				
-						ip=tvb_get_ntohl(sctp_info->tvb[chunk_number],IPV4_ADDRESS_OFFSET);
-						ip=htonl(ip);
-						v4n.addr=ip;
-						store = g_malloc(24);
-						g_memmove(store,&v4n, sizeof(struct v4addr));
+					{
+						store = g_malloc(sizeof (address));
+						store->type = AT_IPv4;;
+						store->len = 4;
+						store->data = malloc(4);
+						tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(store->data),IPV4_ADDRESS_OFFSET, 4);
 						info = add_address(store, info, info->direction);
 					}
 					else if (type == IPV6ADDRESS_PARAMETER_ID)
 					{
-						v6n.type=AT_IPv6;
-						v6n.len = 0;				
-						tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)&(v6n.addr),IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH);
-						store = g_malloc(24);
-						g_memmove(store, &v6n, sizeof(struct v6addr));
+						store = g_malloc(sizeof (address));
+						store->type = AT_IPv6;;
+						store->len = 16;
+						store->data = malloc(16);
+						tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(store->data),IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH);
 						info = add_address(store, info, info->direction);
-					}					
-					}	
-			info->initack=TRUE;
+					}
+					}
+			if ((tvb_get_guint8(sctp_info->tvb[0],0))==SCTP_INIT_ACK_CHUNK_ID)
+			{
+				info->initack = TRUE;
+				info->initack_dir = info->direction;
+			}
+			else
+			if ((tvb_get_guint8(sctp_info->tvb[0],0))==SCTP_INIT_CHUNK_ID)
+			{
+				info->init = TRUE;
+			}
 		}
 		else
 		{
 			if (((tvb_get_guint8(sctp_info->tvb[0],0))!=SCTP_INIT_ACK_CHUNK_ID) &&
-			((tvb_get_guint8(sctp_info->tvb[0],0))!=SCTP_DATA_CHUNK_ID) &&
-			((tvb_get_guint8(sctp_info->tvb[0],0))!=SCTP_SACK_CHUNK_ID))
+			    ((tvb_get_guint8(sctp_info->tvb[0],0))!=SCTP_DATA_CHUNK_ID) &&
+			    ((tvb_get_guint8(sctp_info->tvb[0],0))!=SCTP_SACK_CHUNK_ID))
 			{
 				sack = g_malloc(sizeof(tsn_t));
 				sack->tsns = NULL;
@@ -1207,7 +1246,25 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 			}
 		for (chunk_number = 0; chunk_number < sctp_info->number_of_tvbs; chunk_number++)
 		{
-			if ((tvb_get_guint8(sctp_info->tvb[chunk_number],0))==SCTP_DATA_CHUNK_ID)
+			if ((tvb_get_guint8(sctp_info->tvb[chunk_number],0))<12)
+			{
+				info->chunk_count[tvb_get_guint8(sctp_info->tvb[0],0)]++;
+				if (info->direction==1)
+					info->ep1_chunk_count[tvb_get_guint8(sctp_info->tvb[0],0)]++;
+				else
+					info->ep2_chunk_count[tvb_get_guint8(sctp_info->tvb[0],0)]++;
+				info=add_chunk_count(&tmp_info.src, info,info->direction, tvb_get_guint8(sctp_info->tvb[0],0));
+			}
+			else
+			{
+				info->chunk_count[12]++;
+				if (info->direction==1)
+					info->ep1_chunk_count[12]++;
+				else
+					info->ep2_chunk_count[12]++;
+				info=add_chunk_count(&tmp_info.src, info, info->direction,12);
+			}
+			if ((tvb_get_guint8(sctp_info->tvb[chunk_number],0)) == SCTP_DATA_CHUNK_ID)
 			{
 				tsnumber = tvb_get_ntohl((sctp_info->tvb)[chunk_number], DATA_CHUNK_TSN_OFFSET);
 				t_s_n = g_malloc(16);
@@ -1217,11 +1274,12 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 				length=tvb_get_ntohs(sctp_info->tvb[chunk_number], CHUNK_LENGTH_OFFSET)-DATA_CHUNK_HEADER_LENGTH;
 				info->n_data_chunks++;
 				info->n_data_bytes+=length;
-				tsn_s.tsnumber=tsnumber;
-				tsn_s.secs=tsn->secs;
-				tsn_s.usecs=tsn->usecs;
-				tsn_s.offset=0;
-				tsn_s.length=length;
+				tsn_s = g_malloc(sizeof(struct tsn_sort));
+				tsn_s->tsnumber=tsnumber;
+				tsn_s->secs=tsn->secs;
+				tsn_s->usecs=tsn->usecs;
+				tsn_s->offset=0;
+				tsn_s->length=length;
 
 				if (info->direction == 1)
 				{
@@ -1245,7 +1303,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 					if (info->initack==FALSE)
 						info->instream2=tvb_get_ntohs((sctp_info->tvb)[chunk_number], DATA_CHUNK_STREAM_ID_OFFSET)+1;
 
-					info->sort_tsn1=g_array_append_val(info->sort_tsn1, tsn_s);
+					g_ptr_array_add(info->sort_tsn1, tsn_s);
 					info->n_array_tsn1++;
 				}
 				else if (info->direction == 2)
@@ -1272,7 +1330,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 					if (info->initack==FALSE)
 						info->outstream2=tvb_get_ntohs((sctp_info->tvb)[chunk_number], DATA_CHUNK_STREAM_ID_OFFSET)+1;
 
-					info->sort_tsn2=g_array_append_val(info->sort_tsn2, tsn_s);
+					g_ptr_array_add(info->sort_tsn2, tsn_s);
 					info->n_array_tsn2++;
 				}
 			}
@@ -1284,11 +1342,12 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 				tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(t_s_n),0, length);
 				sack->tsns = g_list_append(sack->tsns, t_s_n);
 				sackchunk=TRUE;
-				tsn_s.tsnumber=tsnumber;
-				tsn_s.secs=tsn->secs;
-				tsn_s.usecs=tsn->usecs;
-				tsn_s.offset=0;
-				tsn_s.length= tvb_get_ntohl(sctp_info->tvb[chunk_number], SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET);
+				tsn_s=g_malloc(sizeof(struct tsn_sort));
+				tsn_s->tsnumber=tsnumber;
+				tsn_s->secs=tsn->secs;
+				tsn_s->usecs=tsn->usecs;
+				tsn_s->offset=0;
+				tsn_s->length= tvb_get_ntohl(sctp_info->tvb[chunk_number], SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET);
 
 
 				if (info->direction == 2)
@@ -1297,9 +1356,9 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 						info->min_tsn1 = tsnumber;
 					if(tsnumber>info->max_tsn1)
 						info->max_tsn1 = tsnumber;
-					if (tsn_s.length>info->max_window1)
-							info->max_window1=tsn_s.length;
-					info->sort_sack1=g_array_append_val(info->sort_sack1, tsn_s);
+					if (tsn_s->length>info->max_window1)
+							info->max_window1=tsn_s->length;
+					g_ptr_array_add(info->sort_sack1, tsn_s);
 					info->n_sack_chunks_ep1++;
 				}
 				else if (info->direction == 1)
@@ -1309,14 +1368,12 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 						info->min_tsn2 = tsnumber;
 					if(tsnumber>info->max_tsn2)
 						info->max_tsn2 = tsnumber;
-					if (tsn_s.length>info->max_window2)
-							info->max_window2=tsn_s.length;
-					info->sort_sack2=g_array_append_val(info->sort_sack2, tsn_s);
+					if (tsn_s->length>info->max_window2)
+							info->max_window2=tsn_s->length;
+					g_ptr_array_add(info->sort_sack2, tsn_s);
 					info->n_sack_chunks_ep2++;
 				}
-
 			}
-
 		}
 
 		}
@@ -1334,14 +1391,11 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 				else if(info->direction == 2)
 					info->sack1 = g_list_prepend(info->sack1, sack);
 		}
-
 		info->n_tvbs+=sctp_info->number_of_tvbs;
 		sctp_tapinfo_struct.sum_tvbs+=sctp_info->number_of_tvbs;
 		info = calc_checksum(sctp_info, info);
 		info->n_packets++;
-
 	}
-
 	return(1);
 }
 
