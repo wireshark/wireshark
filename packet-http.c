@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.39 2001/09/04 01:01:46 guy Exp $
+ * $Id: packet-http.c,v 1.40 2001/11/18 02:28:15 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -80,6 +80,7 @@ typedef enum {
 static int is_http_request_or_reply(const u_char *data, int linelen, http_type_t *type);
 
 static dissector_table_t subdissector_table;
+static heur_dissector_list_t heur_subdissector_list;
 
 static void
 dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -271,6 +272,14 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 */
 			if (ti != NULL)
 				proto_item_set_len(ti, offset);
+		} else if(dissector_try_heuristic(heur_subdissector_list,
+						  next_tvb,pinfo,tree)){
+			/*
+			 * Yes.  Fix up the top-level item so that it
+			 * doesn't include the stuff for that protocol.
+			 */
+			if (ti != NULL)
+				proto_item_set_len(ti, offset);
 		} else
 			dissect_data(tvb, offset, pinfo, http_tree);
 	}
@@ -405,6 +414,15 @@ proto_register_http(void)
 	 * HTTP on a specific non-HTTP port.
 	 */
 	subdissector_table = register_dissector_table("http.port");
+
+	/* 
+	 * Heuristic dissectors SHOULD register themselves in 
+	 * this table using the standard heur_dissector_add() 
+	 * function.
+	 */
+
+	register_heur_dissector_list("http",&heur_subdissector_list);
+	
 }
 
 /*
