@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.95 2002/08/04 08:44:27 guy Exp $
+ * $Id: packet-ppp.c,v 1.96 2002/08/18 15:30:38 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -128,6 +128,14 @@ static int hf_mp_sequence_num = -1;
 static int ett_mp = -1;
 static int ett_mp_flags = -1;
 
+static int proto_mplscp = -1;
+static gint ett_mplscp = -1;
+static gint ett_mplscp_options = -1;
+
+static int proto_cdpcp = -1;
+static gint ett_cdpcp = -1;
+static gint ett_cdpcp_options = -1;
+
 static int proto_pap			= -1;		/* PAP vars */
 static gint ett_pap			= -1;
 static gint ett_pap_data		= -1;
@@ -164,36 +172,129 @@ static guint pppmux_def_prot_id = 0;
 /* PPP definitions */
 
 static const value_string ppp_vals[] = {
+	{PPP_PADDING,	"Padding Protocol" },
+	{PPP_ROHC_SCID,	"ROHC small-CID" },
+	{PPP_ROHC_LCID,	"ROHC large-CID" },
 	{PPP_IP,        "IP"             },
 	{PPP_OSI,       "OSI"            },
+	{PPP_DEC4,	"DECnet Phase IV" },
 	{PPP_AT,        "Appletalk"      },
 	{PPP_IPX,       "Netware IPX/SPX"},
 	{PPP_VJC_COMP,	"VJ compressed TCP"},
 	{PPP_VJC_UNCOMP,"VJ uncompressed TCP"},
 	{PPP_BPDU,      "Bridging PDU"},
+	{PPP_ST,	"Stream Protocol (ST-II)" },
 	{PPP_VINES,     "Vines"          },
-        {PPP_MP,	"Multilink"},
+	{PPP_AT_EDDP,	"AppleTalk EDDP" },
+	{PPP_AT_SB,	"AppleTalk SmartBuffered" },
+	{PPP_MP,	"Multilink"},
+	{PPP_NB,	"NETBIOS Framing" },
+	{PPP_CISCO,	"Cisco Systems" },
+	{PPP_ASCOM,	"Ascom Timeplex" },
+	{PPP_LBLB,	"Fujitsu Link Backup and Load Balancing" },
+	{PPP_RL,	"DCA Remote Lan" },
+	{PPP_SDTP,	"Serial Data Transport Protocol" },
+	{PPP_LLC,	"SNA over LLC" },
+	{PPP_SNA,	"SNA" },
+	{PPP_IPV6HC,	"IPv6 Header Compression " },
+	{PPP_KNX,	"KNX Bridging Data" },
+	{PPP_ENCRYPT,	"Encryption" },
+	{PPP_ILE,	"Individual Link Encryption" },
 	{PPP_IPV6,      "IPv6"           },
         {PPP_MUX,       "PPP Multiplexing"},
+	{PPP_RTP_FH,	"RTP IPHC Full Header" },
+	{PPP_RTP_CTCP,	"RTP IPHC Compressed TCP" },
+	{PPP_RTP_CNTCP,	"RTP IPHC Compressed Non TCP" },
+	{PPP_RTP_CUDP8,	"RTP IPHC Compressed UDP 8" },
+	{PPP_RTP_CRTP8,	"RTP IPHC Compressed RTP 8" },
+	{PPP_STAMPEDE,	"Stampede Bridging" },
+	{PPP_MPPLUS,	"MP+ Protocol" },
+	{PPP_NTCITS_IPI,"NTCITS IPI" },
+	{PPP_ML_SLCOMP,	"single link compression in multilink" },
 	{PPP_COMP,	"compressed packet" },
+	{PPP_STP_HELLO,	"802.1d Hello Packet" },
+	{PPP_IBM_SR,	"IBM Source Routing BPDU" },
 	{PPP_DEC_LB,	"DEC LANBridge100 Spanning Tree"},
+	{PPP_CDP,       "Cisco Discovery Protocol" },
+	{PPP_NETCS,	"Netcs Twin Routing" },
+	{PPP_STP,       "Scheduled Transfer Protocol" },
+	{PPP_EDP,       "Extreme Discovery Protocol" },
+	{PPP_OSCP,	"Optical Supervisory Channel Protocol" },
+	{PPP_OSCP2,	"Optical Supervisory Channel Protocol" },
+	{PPP_LUXCOM,	"Luxcom" },
+	{PPP_SIGMA,	"Sigma Network Systems" },
+	{PPP_ACSP,	"Apple Client Server Protocol" },
 	{PPP_MPLS_UNI,  "MPLS Unicast"},
 	{PPP_MPLS_MULTI, "MPLS Multicast"},
+	{PPP_P12844,	"IEEE p1284.4 standard - data packets" },
+	{PPP_ETSI,	"ETSI TETRA Networks Procotol Type 1" },
+	{PPP_MFTP,	"Multichannel Flow Treatment Protocol" },
+	{PPP_RTP_CTCPND,"RTP IPHC Compressed TCP No Delta" },
+	{PPP_RTP_CS,	"RTP IPHC Context State" },
+	{PPP_RTP_CUDP16,"RTP IPHC Compressed UDP 16" },
+	{PPP_RTP_CRDP16,"RTP IPHC Compressed RTP 16" },
+	{PPP_CCCP,	"Cray Communications Control Protocol" },
+	{PPP_CDPD_MNRP,	"CDPD Mobile Network Registration Protocol" },
+	{PPP_EXPANDAP,	"Expand accelarator protocol" },
+	{PPP_ODSICP,	"ODSICP NCP" },
+	{PPP_DOCSIS,	"DOCSIS DLL" },
+	{PPP_LZS,	"Stacker LZS" },
+	{PPP_REFTEK,	"RefTek Protocol" },
+	{PPP_FC,	"Fibre Channel" },
+	{PPP_EMIT,	"EMIT Protocols" },
 	{PPP_IPCP,	"IP Control Protocol" },
 	{PPP_OSICP,     "OSI Control Protocol" },
+	{PPP_XNSIDPCP,	"Xerox NS IDP Control Protocol" },
+	{PPP_DECNETCP,	"DECnet Phase IV Control Protocol" },
 	{PPP_ATCP,	"AppleTalk Control Protocol" },
 	{PPP_IPXCP,	"IPX Control Protocol" },
+	{PPP_BRIDGENCP,	"Bridging NCP" },
+	{PPP_SPCP,	"Stream Protocol Control Protocol" },
+	{PPP_BVCP,	"Banyan Vines Control Protocol" },
+	{PPP_MLCP,	"Multi-Link Control Protocol" },
+	{PPP_NBCP,	"NETBIOS Framing Control Protocol" },
+	{PPP_CISCOCP,	"Cisco Systems Control Protocol" },
+	{PPP_ASCOMCP,	"Ascom Timeplex" },
+	{PPP_LBLBCP,	"Fujitsu LBLB Control Protocol" },
+	{PPP_RLNCP,	"DCA Remote Lan Network Control Protocol" },
+	{PPP_SDCP,	"Serial Data Control Protocol" },
+	{PPP_LLCCP,	"SNA over LLC Control Protocol" },
+	{PPP_SNACP,	"SNA Control Protocol" },
+	{PPP_KNXCP,	"KNX Bridging Control Protocol" },
+	{PPP_ECP,	"Encryption Control Protocol" },
+	{PPP_ILECP,	"Individual Encryption Control Protocol" },
+	{PPP_IPV6CP,	"IPv6 Control Protocol" },
 	{PPP_MUXCP,     "PPPMux Control Protocol"},
+	{PPP_STAMPEDECP,"Stampede Bridging Control Protocol" },
+	{PPP_MPPCP,	"MP+ Contorol Protocol" },
+	{PPP_IPICP,	"NTCITS IPI Control Protocol" },
+	{PPP_SLCC,	"single link compression in multilink control" },
 	{PPP_CCP,	"Compression Control Protocol" },
+	{PPP_CDPCP,	"CDP Control Protocol" },
+	{PPP_NETCSCP,	"Netcs Twin Routing" },
+	{PPP_STPCP,	"STP - Control Protocol" },
+	{PPP_EDPCP,	"EDP Control Protocol" },
+	{PPP_ACSPC,	"Apple Client Server Protocol Control" },
+	{PPP_MPLSCP,	"MPLS Control Protocol" },
+	{PPP_P12844CP,	"IEEE p1284.4 standard - Protocol Control" },
+	{PPP_ETSICP,	"ETSI TETRA TNP1 Control Protocol" },
+	{PPP_MFTPCP,	"Multichannel Flow Treatment Protocol" },
 	{PPP_LCP,	"Link Control Protocol" },
 	{PPP_PAP,	"Password Authentication Protocol"  },
 	{PPP_LQR,	"Link Quality Report protocol" },
 	{PPP_SPAP,	"Shiva Password Authentication Protocol" },
-	{PPP_CHAP,	"Cryptographic Handshake Auth. Protocol" },
-	{PPP_EAP,	"Extensible Authentication Protocol" },
 	{PPP_CBCP,	"Callback Control Protocol" },
 	{PPP_BACP,	"Bandwidth Allocation Control Protocol" },
 	{PPP_BAP,	"Bandwitdh Allocation Protocol" },
+	{PPP_CONTCP,	"Container Control Protocol" },
+	{PPP_CHAP,	"Cryptographic Handshake Auth. Protocol" },
+	{PPP_RSAAP,	"RSA Authentication Protocol" },
+	{PPP_EAP,	"Extensible Authentication Protocol" },
+	{PPP_SIEP,	"Mitsubishi Security Information Exchange Protocol"},
+	{PPP_SBAP,	"Stampede Bridging Authorization Protocol" },
+	{PPP_PRPAP,	"Proprietary Authentication Protocol" },
+	{PPP_PRPAP2,	"Proprietary Authentication Protocol" },
+	{PPP_PRPNIAP,	"Proprietary Node ID Authentication Protocol" },
 	{0,             NULL            }
 };
 
@@ -2515,6 +2616,19 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   } /* if tree */  
 }
 
+static void
+dissect_mplscp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_cp(tvb, proto_mplscp, ett_mplscp, cp_vals, ett_mplscp_options,
+	     NULL, 0, pinfo, tree);
+}
+
+static void
+dissect_cdpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_cp(tvb, proto_cdpcp, ett_cdpcp, cp_vals, ett_cdpcp_options,
+	     NULL, 0, pinfo, tree);
+}
 
 #define MP_FRAG_MASK     0xC0
 #define MP_FRAG(bits)    ((bits) & MP_FRAG_MASK)
@@ -3447,3 +3561,57 @@ proto_reg_handoff_pppmux(void)
    */ 
   dissector_add("ethertype", PPP_MUX, pppmux_handle); 
 } 
+
+void
+proto_register_mplscp(void)
+{
+  static gint *ett[] = {
+    &ett_mplscp,
+  };
+
+  proto_mplscp = proto_register_protocol("PPP MPLS Control Protocol",
+					 "PPP MPLSCP", "mplscp");
+  proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_mplscp(void)
+{
+  dissector_handle_t mplscp_handle;
+
+  mplscp_handle = create_dissector_handle(dissect_mplscp, proto_mplscp);
+  dissector_add("ppp.protocol", PPP_MPLSCP, mplscp_handle);
+
+  /*
+   * See above comment about NDISWAN for an explanation of why we're
+   * registering with the "ethertype" dissector table.
+   */
+  dissector_add("ethertype", PPP_MPLSCP, mplscp_handle);
+}
+
+void
+proto_register_cdpcp(void)
+{
+  static gint *ett[] = {
+    &ett_cdpcp,
+  };
+
+  proto_cdpcp = proto_register_protocol("PPP CDP Control Protocol",
+					 "PPP CDPCP", "cdpcp");
+  proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_cdpcp(void)
+{
+  dissector_handle_t cdpcp_handle;
+
+  cdpcp_handle = create_dissector_handle(dissect_cdpcp, proto_cdpcp);
+  dissector_add("ppp.protocol", PPP_CDPCP, cdpcp_handle);
+
+  /*
+   * See above comment about NDISWAN for an explanation of why we're
+   * registering with the "ethertype" dissector table.
+   */
+  dissector_add("ethertype", PPP_CDPCP, cdpcp_handle);
+}

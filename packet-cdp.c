@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.47 2002/08/02 23:35:47 jmayer Exp $
+ * $Id: packet-cdp.c,v 1.48 2002/08/18 15:30:38 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -582,4 +582,5 @@ proto_reg_handoff_cdp(void)
     cdp_handle = create_dissector_handle(dissect_cdp, proto_cdp);
     dissector_add("llc.cisco_pid", 0x2000, cdp_handle);
     dissector_add("chdlctype", 0x2000, cdp_handle);
+    dissector_add("ppp.protocol", 0x0207, cdp_handle);
 }
