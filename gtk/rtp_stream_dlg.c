@@ -1,7 +1,7 @@
 /* rtp_stream_dlg.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream_dlg.c,v 1.18 2004/03/13 12:09:27 ulfl Exp $
+ * $Id: rtp_stream_dlg.c,v 1.19 2004/03/14 14:04:39 deniel Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -355,9 +355,9 @@ static void
 rtpstream_on_filter                    (GtkButton       *button _U_,
                                         gpointer         user_data _U_)
 {
-	gchar *filter_string;
-	gchar *filter_string_fwd;
-	gchar *filter_string_rev;
+	gchar *filter_string = NULL;
+	gchar *filter_string_fwd = NULL;
+	gchar *filter_string_rev = NULL;
 
 	if (selected_stream_fwd==NULL && selected_stream_rev==NULL)
 		return;
@@ -378,7 +378,6 @@ rtpstream_on_filter                    (GtkButton       *button _U_,
 	{
 		filter_string_rev = g_strdup_printf(
 			"(ip.src==%s && udp.srcport==%u && ip.dst==%s && udp.dstport==%u && rtp.ssrc==%u)",
-            filter_string_fwd,
 			ip_to_str((const guint8*)&(selected_stream_rev->src_addr)),
 			selected_stream_rev->src_port,
 			ip_to_str((const guint8*)&(selected_stream_rev->dest_addr)),
