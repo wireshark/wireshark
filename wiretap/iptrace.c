@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.44 2002/08/28 20:30:44 jmayer Exp $
+ * $Id: iptrace.c,v 1.45 2002/11/01 20:43:11 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -87,7 +87,24 @@ int iptrace_open(wtap *wth, int *err)
  * iptrace 1.0                                             *
  ***********************************************************/
 
-/* iptrace 1.0, discovered through inspection */
+/*
+ * iptrace 1.0, discovered through inspection
+ *
+ * Packet record contains:
+ *
+ *	an initial header, with a length field and a time stamp, in
+ *	seconds since the Epoch;
+ *
+ *	data, with the specified length.
+ *
+ * The data contains:
+ *
+ *	a bunch of information about the packet;
+ *
+ *	padding, at least for FDDI;
+ *
+ *	the raw packet data.
+ */
 typedef struct {
 /* 0-3 */	guint32		pkt_length;	/* packet length + 0x16 */
 /* 4-7 */	guint32		tv_sec;		/* time stamp, seconds since the Epoch */
@@ -98,26 +115,59 @@ typedef struct {
 /* 29 */	guint8		tx_flag;	/* 0=receive, 1=transmit */
 } iptrace_1_0_phdr;
 
+#define IPTRACE_1_0_PHDR_SIZE	30	/* initial header plus packet data */
+#define IPTRACE_1_0_PDATA_SIZE	22	/* packet data */
+
 /* Read the next packet */
 static gboolean iptrace_read_1_0(wtap *wth, int *err, long *data_offset)
 {
 	int			ret;
 	guint32			packet_size;
-	guint8			header[30];
+	guint8			header[IPTRACE_1_0_PHDR_SIZE];
 	guint8			*data_ptr;
 	iptrace_1_0_phdr	pkt_hdr;
+	char			fddi_padding[3];
 
 	/* Read the descriptor data */
 	*data_offset = wth->data_offset;
-	ret = iptrace_read_rec_header(wth->fh, header, 30, err);
+	ret = iptrace_read_rec_header(wth->fh, header, IPTRACE_1_0_PHDR_SIZE,
+	    err);
 	if (ret <= 0) {
 		/* Read error or EOF */
 		return FALSE;
 	}
-	wth->data_offset += 30;
+	wth->data_offset += IPTRACE_1_0_PHDR_SIZE;
+
+	/*
+	 * Byte 28 of the frame header appears to be a BSD-style IFT_xxx
+	 * value giving the type of the interface.  Check out the
+	 * <net/if_types.h> header file.
+	 */
+	pkt_hdr.if_type = header[28];
+	wth->phdr.pkt_encap = wtap_encap_ift(pkt_hdr.if_type);
 
 	/* Read the packet data */
-	packet_size = pntohl(&header[0]) - 0x16;
+	packet_size = pntohl(&header[0]) - IPTRACE_1_0_PDATA_SIZE;
+
+	/*
+	 * AIX appears to put 3 bytes of padding in front of FDDI
+	 * frames; strip that crap off.
+	 */
+	if (wth->phdr.pkt_encap == WTAP_ENCAP_FDDI_BITSWAPPED) {
+		/*
+		 * The packet size is really a record size and includes
+		 * the padding.
+		 */
+		packet_size -= 3;
+		wth->data_offset += 3;
+
+		/*
+		 * Read the padding.
+		 */
+		if (!iptrace_read_rec_data(wth->fh, fddi_padding, 3, err))
+			return FALSE;	/* Read error */
+	}
+
 	buffer_assure_space( wth->frame_buffer, packet_size );
 	data_ptr = buffer_start_ptr( wth->frame_buffer );
 	if (!iptrace_read_rec_data(wth->fh, data_ptr, packet_size, err))
@@ -128,14 +178,6 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, long *data_offset)
 	wth->phdr.caplen = packet_size;
 	wth->phdr.ts.tv_sec = pntohl(&header[4]);
 	wth->phdr.ts.tv_usec = 0;
-
-	/*
-	 * Byte 28 of the frame header appears to be a BSD-style IFT_xxx
-	 * value giving the type of the interface.  Check out the
-	 * <net/if_types.h> header file.
-	 */
-	pkt_hdr.if_type = header[28];
-	wth->phdr.pkt_encap = wtap_encap_ift(pkt_hdr.if_type);
 
 	if (wth->phdr.pkt_encap == WTAP_ENCAP_UNKNOWN) {
 		g_message("iptrace: interface type IFT=0x%02x unknown or unsupported",
@@ -170,13 +212,16 @@ static gboolean iptrace_seek_read_1_0(wtap *wth, long seek_off,
     int *err)
 {
 	int			ret;
-	guint8			header[30];
+	guint8			header[IPTRACE_1_0_PHDR_SIZE];
+	int			pkt_encap;
+	char			fddi_padding[3];
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
 	/* Read the descriptor data */
-	ret = iptrace_read_rec_header(wth->random_fh, header, 30, err);
+	ret = iptrace_read_rec_header(wth->random_fh, header,
+	    IPTRACE_1_0_PHDR_SIZE, err);
 	if (ret <= 0) {
 		/* Read error or EOF */
 		if (ret == 0) {
@@ -186,12 +231,29 @@ static gboolean iptrace_seek_read_1_0(wtap *wth, long seek_off,
 		return FALSE;
 	}
 
+	/*
+	 * Get the interface type.
+	 */
+	pkt_encap = wtap_encap_ift(header[28]);
+
+	/*
+	 * AIX appears to put 3 bytes of padding in front of FDDI
+	 * frames; strip that crap off.
+	 */
+	if (pkt_encap == WTAP_ENCAP_FDDI_BITSWAPPED) {
+		/*
+		 * Read the padding.
+		 */
+		if (!iptrace_read_rec_data(wth->random_fh, fddi_padding, 3, err))
+			return FALSE;	/* Read error */
+	}
+
 	/* Get the packet data */
 	if (!iptrace_read_rec_data(wth->random_fh, pd, packet_size, err))
 		return FALSE;
 
 	/* Get the ATM pseudo-header, if this is ATM traffic. */
-	if (wtap_encap_ift(header[28]) == WTAP_ENCAP_ATM_SNIFFER)
+	if (pkt_encap == WTAP_ENCAP_ATM_SNIFFER)
 		get_atm_pseudo_header(pd, packet_size, pseudo_header, header);
 
 	return TRUE;
@@ -201,7 +263,24 @@ static gboolean iptrace_seek_read_1_0(wtap *wth, long seek_off,
  * iptrace 2.0                                             *
  ***********************************************************/
 
-/* iptrace 2.0, discovered through inspection */
+/*
+ * iptrace 2.0, discovered through inspection
+ *
+ * Packet record contains:
+ *
+ *	an initial header, with a length field and a time stamp, in
+ *	seconds since the Epoch;
+ *
+ *	data, with the specified length.
+ *
+ * The data contains:
+ *
+ *	a bunch of information about the packet;
+ *
+ *	padding, at least for FDDI;
+ *
+ *	the raw packet data.
+ */
 typedef struct {
 /* 0-3 */	guint32		pkt_length;	/* packet length + 32 */
 /* 4-7 */	guint32		tv_sec0;	/* time stamp, seconds since the Epoch */
@@ -215,26 +294,59 @@ typedef struct {
 /* 36-39 */	guint32		tv_nsec;	/* nanoseconds since that second */
 } iptrace_2_0_phdr;
 
+#define IPTRACE_2_0_PHDR_SIZE	40	/* initial header plus packet data */
+#define IPTRACE_2_0_PDATA_SIZE	32	/* packet data */
+
 /* Read the next packet */
 static gboolean iptrace_read_2_0(wtap *wth, int *err, long *data_offset)
 {
 	int			ret;
 	guint32			packet_size;
-	guint8			header[40];
+	guint8			header[IPTRACE_2_0_PHDR_SIZE];
 	guint8			*data_ptr;
 	iptrace_2_0_phdr	pkt_hdr;
+	char			fddi_padding[3];
 
 	/* Read the descriptor data */
 	*data_offset = wth->data_offset;
-	ret = iptrace_read_rec_header(wth->fh, header, 40, err);
+	ret = iptrace_read_rec_header(wth->fh, header, IPTRACE_2_0_PHDR_SIZE,
+	    err);
 	if (ret <= 0) {
 		/* Read error or EOF */
 		return FALSE;
 	}
-	wth->data_offset += 40;
+	wth->data_offset += IPTRACE_2_0_PHDR_SIZE;
+
+	/*
+	 * Byte 28 of the frame header appears to be a BSD-style IFT_xxx
+	 * value giving the type of the interface.  Check out the
+	 * <net/if_types.h> header file.
+	 */
+	pkt_hdr.if_type = header[28];
+	wth->phdr.pkt_encap = wtap_encap_ift(pkt_hdr.if_type);
 
 	/* Read the packet data */
-	packet_size = pntohl(&header[0]) - 32;
+	packet_size = pntohl(&header[0]) - IPTRACE_2_0_PDATA_SIZE;
+
+	/*
+	 * AIX appears to put 3 bytes of padding in front of FDDI
+	 * frames; strip that crap off.
+	 */
+	if (wth->phdr.pkt_encap == WTAP_ENCAP_FDDI_BITSWAPPED) {
+		/*
+		 * The packet size is really a record size and includes
+		 * the padding.
+		 */
+		packet_size -= 3;
+		wth->data_offset += 3;
+
+		/*
+		 * Read the padding.
+		 */
+		if (!iptrace_read_rec_data(wth->fh, fddi_padding, 3, err))
+			return FALSE;	/* Read error */
+	}
+
 	buffer_assure_space( wth->frame_buffer, packet_size );
 	data_ptr = buffer_start_ptr( wth->frame_buffer );
 	if (!iptrace_read_rec_data(wth->fh, data_ptr, packet_size, err))
@@ -249,14 +361,6 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, long *data_offset)
 	wth->phdr.caplen = packet_size;
 	wth->phdr.ts.tv_sec = pntohl(&header[32]);
 	wth->phdr.ts.tv_usec = pntohl(&header[36]) / 1000;
-
-	/*
-	 * Byte 28 of the frame header appears to be a BSD-style IFT_xxx
-	 * value giving the type of the interface.  Check out the
-	 * <net/if_types.h> header file.
-	 */
-	pkt_hdr.if_type = header[28];
-	wth->phdr.pkt_encap = wtap_encap_ift(pkt_hdr.if_type);
 
 	if (wth->phdr.pkt_encap == WTAP_ENCAP_UNKNOWN) {
 		g_message("iptrace: interface type IFT=0x%02x unknown or unsupported",
@@ -291,13 +395,16 @@ static gboolean iptrace_seek_read_2_0(wtap *wth, long seek_off,
     int *err)
 {
 	int			ret;
-	guint8			header[40];
+	guint8			header[IPTRACE_2_0_PHDR_SIZE];
+	int			pkt_encap;
+	char			fddi_padding[3];
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
 	/* Read the descriptor data */
-	ret = iptrace_read_rec_header(wth->random_fh, header, 40, err);
+	ret = iptrace_read_rec_header(wth->random_fh, header,
+	    IPTRACE_2_0_PHDR_SIZE, err);
 	if (ret <= 0) {
 		/* Read error or EOF */
 		if (ret == 0) {
@@ -307,12 +414,29 @@ static gboolean iptrace_seek_read_2_0(wtap *wth, long seek_off,
 		return FALSE;
 	}
 
+	/*
+	 * Get the interface type.
+	 */
+	pkt_encap = wtap_encap_ift(header[28]);
+
+	/*
+	 * AIX appears to put 3 bytes of padding in front of FDDI
+	 * frames; strip that crap off.
+	 */
+	if (pkt_encap == WTAP_ENCAP_FDDI_BITSWAPPED) {
+		/*
+		 * Read the padding.
+		 */
+		if (!iptrace_read_rec_data(wth->random_fh, fddi_padding, 3, err))
+			return FALSE;	/* Read error */
+	}
+
 	/* Get the packet data */
 	if (!iptrace_read_rec_data(wth->random_fh, pd, packet_size, err))
 		return FALSE;
 
 	/* Get the ATM pseudo-header, if this is ATM traffic. */
-	if (wtap_encap_ift(header[28]) == WTAP_ENCAP_ATM_SNIFFER)
+	if (pkt_encap == WTAP_ENCAP_ATM_SNIFFER)
 		get_atm_pseudo_header(pd, packet_size, pseudo_header, header);
 
 	return TRUE;
