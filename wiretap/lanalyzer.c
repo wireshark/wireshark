@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.4 1998/11/23 15:48:38 gram Exp $
+ * $Id: lanalyzer.c,v 1.5 1998/12/13 05:08:03 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -21,6 +21,7 @@
  *
  */
 #include <stdlib.h>
+#include <time.h>
 #include "wtap.h"
 #include "lanalyzer.h"
 
@@ -33,6 +34,7 @@ int lanalyzer_open(wtap *wth)
 	guint16 board_type, mxslc;
 	guint16 type, length;
 	guint8 cr_day, cr_month, cr_year;
+	struct tm tm;
 
 	fseek(wth->fh, 0, SEEK_SET);
 	bytes_read = fread(record_type, 1, 2, wth->fh);
@@ -83,7 +85,25 @@ int lanalyzer_open(wtap *wth)
 				cr_day = summary[0];
 				cr_month = summary[1];
 				cr_year = pletohs(&summary[2]);
+				/*g_message("Day %d Month %d Year %d (%04X)", cr_day, cr_month,
+						cr_year, cr_year);*/
 
+				/* Get capture start time. I learned how to do
+				 * this from Guy's code in ngsniffer.c
+				 */
+				/* this strange year offset is not in the
+				 * lanalyzer file format documentation, but it
+				 * works. */
+				tm.tm_year = cr_year - (1900 - 1792);
+				tm.tm_mon = cr_month - 1;
+				tm.tm_mday = cr_day;
+				tm.tm_hour = 0;
+				tm.tm_min = 0;
+				tm.tm_sec = 0;
+				tm.tm_isdst = -1;
+				wth->capture.lanalyzer->start = mktime(&tm);
+				g_message("Day %d Month %d Year %d", tm.tm_mday,
+						tm.tm_mon, tm.tm_year);
 				mxslc = pletohs(&summary[30]);
 				wth->snapshot_length = mxslc;
 
@@ -126,7 +146,7 @@ int lanalyzer_read(wtap *wth)
 	gchar descriptor[32];
 	int	data_offset;
 	guint16 time_low, time_med, time_high, true_size;
-	double t, x;
+	double t;
 
 	/* If this is the very first packet, then the fh cursor will already
 	 * be at the start of the packet data instead of at the start of the Trace
@@ -183,10 +203,10 @@ int lanalyzer_read(wtap *wth)
 	time_med = pletohs(&descriptor[10]);
 	time_high = pletohs(&descriptor[12]);
 
-	x = 4.0 * (double)(1<<30);
 	t = (double)time_low+(double)(time_med)*65536.0 +
-		(double)time_high*x;
+		(double)time_high*4294967296.0;
 	t = t/1000000.0 * 0.5; /* t = # of secs */
+	t += wth->capture.lanalyzer->start;
 
 	wth->phdr.ts.tv_sec = (long)t;
 	wth->phdr.ts.tv_usec = (unsigned long)((t-(double)(wth->phdr.ts.tv_sec))

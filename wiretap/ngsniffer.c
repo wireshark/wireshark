@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.7 1998/11/23 04:40:22 gram Exp $
+ * $Id: ngsniffer.c,v 1.8 1998/12/13 05:08:04 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -57,6 +57,7 @@
  */
 
 #include <stdlib.h>
+#include <time.h>
 #include "wtap.h"
 #include "ngsniffer.h"
 
@@ -92,6 +93,9 @@ int ngsniffer_open(wtap *wth)
 	guint8	network;
 	gchar	version[18]; /* to hold the entire version record */
 	guint8	timeunit;
+	guint16	start_date;
+	guint16	start_time;
+	struct tm tm;
 
 	/* Read in the string that should be at the start of a Sniffer file */
 	fseek(wth->fh, 0, SEEK_SET);
@@ -162,6 +166,38 @@ int ngsniffer_open(wtap *wth)
 				else {
 					wth->capture.ngsniffer->timeunit = Usec[timeunit];
 				}
+
+				/* Get capture start time */
+				start_time = pletohs(&version[4]);
+				start_date = pletohs(&version[6]);
+				tm.tm_year = ((start_date&0xfe00)>>9) + 1980 - 1900;
+				tm.tm_mon = ((start_date&0x1e0)>>5) - 1;
+				tm.tm_mday = (start_date&0x1f);
+				/* The time does not appear to act as an
+				 * offset; only the date
+				tm.tm_hour = (start_time&0xfc00)>>11;
+				tm.tm_min = (start_time&0x7e0)>>5;
+				tm.tm_sec = (start_time&0x1f)<<1;*/
+				tm.tm_hour = 0;
+				tm.tm_min = 0;
+				tm.tm_sec = 0;
+				tm.tm_isdst = -1;
+				wth->capture.ngsniffer->start = mktime(&tm);
+				/*
+				 * XXX - what if "secs" is -1?  Unlikely,
+				 * but if the capture was done in a time
+				 * zone that switches between standard and
+				 * summer time sometime other than when we
+				 * do, and thus the time was one that doesn't
+				 * exist here because a switch from standard
+				 * to summer time zips over it, it could
+				 * happen.
+				 *
+				 * On the other hand, if the capture was done
+				 * in a different time zone, this won't work
+				 * right anyway; unfortunately, the time zone
+				 * isn't stored in the capture file.
+				 */
 				break;
 
 			case REC_FRAME2:
@@ -186,7 +222,7 @@ int ngsniffer_read(wtap *wth)
 	char record_length[4]; /* only 1st 2 bytes are length */
 	guint16 type, length;
 	char frame2[14];
-	double t, x;
+	double t;
 	guint16 time_low, time_med, time_high, true_size, size;
 	int	data_offset;
 
@@ -246,10 +282,10 @@ int ngsniffer_read(wtap *wth)
 		return -1;
 	}
 
-	x = 4.0 * (double)(1<<30);
 	t = (double)time_low+(double)(time_med)*65536.0 +
-		(double)time_high*x;
+		(double)time_high*4294967296.0;
 	t = t/1000000.0 * wth->capture.ngsniffer->timeunit; /* t = # of secs */
+	t += wth->capture.ngsniffer->start;
 
 	wth->phdr.ts.tv_sec = (long)t;
 	wth->phdr.ts.tv_usec = (unsigned long)((t-(double)(wth->phdr.ts.tv_sec))

@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.6 1998/11/23 04:40:21 gram Exp $
+ * $Id: wtap.h,v 1.7 1998/12/13 05:08:05 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -49,11 +49,13 @@
 typedef struct {
 	guint16	pkt_len;
 	double	timeunit;
+	time_t	start;
 } ngsniffer_t;
 
 typedef struct {
 	guint16	pkt_len;
 	guint32	totpktt;
+	time_t	start;
 } lanalyzer_t;
 
 typedef struct {
@@ -127,20 +129,3 @@ void wtap_close(wtap *wth);
                     (guint32)*((guint8 *)p+0)<<0)
 
 
-#ifdef 0
-#define DLT_NULL	0	/* no link-layer encapsulation */
-#define DLT_EN10MB	1	/* Ethernet (10Mb) */
-#define DLT_EN3MB	2	/* Experimental Ethernet (3Mb) */
-#define DLT_AX25	3	/* Amateur Radio AX.25 */
-#define DLT_PRONET	4	/* Proteon ProNET Token Ring */
-#define DLT_CHAOS	5	/* Chaos */
-#define DLT_IEEE802	6	/* IEEE 802 Networks */
-#define DLT_ARCNET	7	/* ARCNET */
-#define DLT_SLIP	8	/* Serial Line IP */
-#define DLT_PPP		9	/* Point-to-point Protocol */
-#define DLT_FDDI	10	/* FDDI */
-#define DLT_ATM_RFC1483	11	/* LLC/SNAP encapsulated atm */
-#define DLT_RAW		12	/* raw IP */
-#define DLT_SLIP_BSDOS	13	/* BSD/OS Serial Line IP */
-#define DLT_PPP_BSDOS	14	/* BSD/OS Point-to-point Protocol */
-#endif
