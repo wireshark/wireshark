@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *   decode srvsvc calls where Samba knows them ...
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.16 2002/06/15 10:24:24 sahlberg Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.17 2002/06/16 01:52:25 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -763,7 +763,7 @@ static dcerpc_sub_dissector dcerpc_srvsvc_dissectors[] = {
 	{SRV_NETRPGETFILESECURITY,	"NetrpGetFileSecurity", NULL, NULL},
 	{SRV_NETRPSETFILESECURITY,	"NetrpSetFileSecurity", NULL, NULL},
 	{SRV_NETRSERVERTRANSPORTADDEX,	"NetrServerTransportAddEx", NULL, NULL},
-	{SRV_NETRSERVERSETSERVICEBITS,	"NetrServerSetServiceBits", NULL, NULL},
+	{SRV_NETRSERVERSETSERVICEBITS2,	"NetrServerSetServiceBits2", NULL, NULL},
 	{0, NULL, NULL, NULL}
 };
 

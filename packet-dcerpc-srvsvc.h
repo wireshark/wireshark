@@ -7,7 +7,7 @@
  *  Rewrote entire file with a complete and correct list of all
  *  function names.  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-srvsvc.h,v 1.4 2002/06/15 10:24:25 sahlberg Exp $
+ * $Id: packet-dcerpc-srvsvc.h,v 1.5 2002/06/16 01:52:26 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,6 +73,6 @@
 #define SRV_NETRPGETFILESECURITY	0x27
 #define SRV_NETRPSETFILESECURITY	0x28
 #define SRV_NETRSERVERTRANSPORTADDEX	0x29
-#define SRV_NETRSERVERSETSERVICEBITS	0x2a
+#define SRV_NETRSERVERSETSERVICEBITS2	0x2a
 
 #endif
