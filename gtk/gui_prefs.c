@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.42 2003/10/16 21:19:12 guy Exp $
+ * $Id: gui_prefs.c,v 1.43 2003/10/20 06:06:26 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -275,12 +275,14 @@ gui_prefs_show(void)
 	gtk_table_attach_defaults( GTK_TABLE(main_tb), color_bt, 2, 3, 1, 2 );
         
         /* Directory to default File Open dialog to */
-        fileopen_dir_te = create_preference_entry(main_tb, 9, "Directory:", NULL,
-            prefs.gui_fileopen_dir);
+        fileopen_dir_te = create_preference_entry(main_tb, 9, "Directory:",
+                                                  NULL, prefs.gui_fileopen_dir);
         OBJECT_SET_DATA(main_vb, GUI_FILEOPEN_DIR_KEY, fileopen_dir_te);
-        SIGNAL_CONNECT(fileopen_dir_te, "focus-out-event", fileopen_dir_changed_cb, main_vb);
+        SIGNAL_CONNECT(fileopen_dir_te, "focus-out-event",
+                       fileopen_dir_changed_cb, main_vb);
 
-        /* Allow user to select where they want the File Open dialog to open to by default */
+        /* Allow user to select where they want the File Open dialog to open to
+         * by default */
         fileopen_rb = create_preference_radio_buttons(main_tb, 8, "File Open dialog behavior:", 
             NULL, gui_fileopen_vals, prefs.gui_fileopen_style);
         SIGNAL_CONNECT(fileopen_rb, "clicked", fileopen_selected_cb, main_vb);
@@ -658,10 +660,11 @@ fileopen_dir_changed_cb(GtkWidget *fileopen_entry _U_, GdkEvent *event _U_, gpoi
     
     fileopen_dir_te = (GtkWidget *)OBJECT_GET_DATA(parent_w, GUI_FILEOPEN_DIR_KEY);
     fileopen_dir_te_length = strlen(gtk_entry_get_text (GTK_ENTRY(fileopen_entry)));
+    if (fileopen_dir_te_length == 0) return FALSE;
     lastchar = gtk_editable_get_chars(GTK_EDITABLE(fileopen_entry), fileopen_dir_te_length-1, -1);
     if (strcmp(lastchar, G_DIR_SEPARATOR_S) != 0)
         gtk_entry_append_text(GTK_ENTRY(fileopen_entry), G_DIR_SEPARATOR_S);
-    return(TRUE);
+    return(FALSE);
 }
 
 static void
