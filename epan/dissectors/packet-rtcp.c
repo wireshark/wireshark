@@ -10,6 +10,8 @@
  *
  * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
+ * Copyright 2005, Nagarjuna Venna <nvenna@brixnet.com>
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
@@ -37,6 +39,8 @@
  * RTCP traffic is handled by an uneven UDP portnumber. This can be any
  * port number, but there is a registered port available, port 5005
  * See Annex B of ITU-T Recommendation H.225.0, section B.7
+ *
+ * RTCP XR is specified in RFC 3611.
  *
  * See also http://www.iana.org/assignments/rtp-parameters
  */
@@ -102,7 +106,7 @@ static const value_string rtcp_packet_type_vals[] =
 	{ RTCP_APP,  "Application specific" },
 	{ RTCP_FIR,  "Full Intra-frame Request (H.261)" },
 	{ RTCP_NACK, "Negative Acknowledgement (H.261)" },
-	{ RTCP_XR,   "Extended report"},
+	{ RTCP_XR,   "Extended report (RFC 3611)"},
 	{ 0,         NULL },
 };
 
@@ -132,6 +136,54 @@ static const value_string rtcp_sdes_type_vals[] =
 	{ RTCP_SDES_H323_CADDR,"H323-CADDR (H.323 callable address)"},
 	{ 0,               NULL },
 };
+
+/* RTCP XR Blocks (Section 4, RTC 3611) */
+#define RTCP_XR_LOSS_RLE    1
+#define RTCP_XR_DUP_RLE     2
+#define RTCP_XR_PKT_RXTIMES 3
+#define RTCP_XR_REF_TIME    4
+#define RTCP_XR_DLRR        5
+#define RTCP_XR_STATS_SUMRY 6
+#define RTCP_XR_VOIP_METRCS 7
+
+static const value_string rtcp_xr_type_vals[] = 
+{
+	{ RTCP_XR_LOSS_RLE,     "Loss Run Length Encoding Report Block" },
+	{ RTCP_XR_DUP_RLE,      "Duplicate Run Length Encoding Report Block" },
+	{ RTCP_XR_PKT_RXTIMES,  "Packet Receipt Times Report Block" },
+	{ RTCP_XR_REF_TIME,     "Receiver Reference Time Report Block" },
+	{ RTCP_XR_DLRR,         "DLRR Report Block" },
+	{ RTCP_XR_STATS_SUMRY,  "Statistics Summary Report Block" },
+	{ RTCP_XR_VOIP_METRCS,  "VoIP Metrics Report Block" },
+};
+
+/* XR VoIP Metrics Block - PLC Algorithms */
+static const value_string rtcp_xr_plc_algo_vals[] = 
+{
+	{ 0, "Unspecified" },
+	{ 1, "Disabled" },
+	{ 2, "Enhanced" },
+	{ 3, "Standard" },
+};
+
+/* XR VoIP Metrics Block - JB Adaptive */
+static const value_string rtcp_xr_jb_adaptive_vals[] = 
+{
+	{ 0, "Unknown" },
+	{ 1, "Reserved" },
+	{ 2, "Non-Adaptive" },
+	{ 3, "Adaptive" },
+};
+
+/* XR Stats Summary Block - IP TTL or Hop Limit */
+static const value_string rtcp_xr_ip_ttl_vals[] = 
+{
+	{ 0, "No TTL Values" },
+	{ 1, "IPv4" },
+	{ 2, "IPv6" },
+	{ 3, "Undefined" },
+};
+
 /* RTCP Application PoC1 Value strings */
 static const value_string rtcp_app_poc1_floor_cnt_type_vals[] =
 {
@@ -176,6 +228,7 @@ static int hf_rtcp_sender_oct_cnt    = -1;
 static int hf_rtcp_ssrc_source       = -1;
 static int hf_rtcp_ssrc_fraction     = -1;
 static int hf_rtcp_ssrc_cum_nr       = -1;
+static int hf_rtcp_ssrc_discarded    = -1;
 /* First the 32 bit number, then the split
  * up 16 bit values */
 /* These two are added to a subtree */
@@ -207,6 +260,48 @@ static int hf_rtcp_app_poc1_item_len		= -1;
 static int hf_rtcp_app_poc1_reason1_phrase	= -1;
 static int hf_rtcp_app_poc1_reason_code2	= -1;
 static int hf_rtcp_app_poc1_additionalinfo	= -1;
+static int hf_rtcp_xr_block_type     = -1;
+static int hf_rtcp_xr_block_specific = -1;
+static int hf_rtcp_xr_block_length   = -1;
+static int hf_rtcp_xr_thinning       = -1;
+static int hf_rtcp_xr_voip_metrics_burst_density = -1;
+static int hf_rtcp_xr_voip_metrics_gap_density = -1;
+static int hf_rtcp_xr_voip_metrics_burst_duration = -1;
+static int hf_rtcp_xr_voip_metrics_gap_duration = -1;
+static int hf_rtcp_xr_voip_metrics_rtdelay = -1;
+static int hf_rtcp_xr_voip_metrics_esdelay = -1;
+static int hf_rtcp_xr_voip_metrics_siglevel = -1;
+static int hf_rtcp_xr_voip_metrics_noiselevel = -1;
+static int hf_rtcp_xr_voip_metrics_rerl = -1;
+static int hf_rtcp_xr_voip_metrics_gmin = -1;
+static int hf_rtcp_xr_voip_metrics_rfactor = -1;
+static int hf_rtcp_xr_voip_metrics_extrfactor = -1;
+static int hf_rtcp_xr_voip_metrics_moslq = -1;
+static int hf_rtcp_xr_voip_metrics_moscq = -1;
+static int hf_rtcp_xr_voip_metrics_plc = -1;
+static int hf_rtcp_xr_voip_metrics_jbadaptive = -1;
+static int hf_rtcp_xr_voip_metrics_jbrate = -1;
+static int hf_rtcp_xr_voip_metrics_jbnominal = -1;
+static int hf_rtcp_xr_voip_metrics_jbmax = -1;
+static int hf_rtcp_xr_voip_metrics_jbabsmax = -1;
+static int hf_rtcp_xr_stats_loss_flag = -1;
+static int hf_rtcp_xr_stats_dup_flag = -1;
+static int hf_rtcp_xr_stats_jitter_flag = -1;
+static int hf_rtcp_xr_stats_ttl = -1;
+static int hf_rtcp_xr_beginseq = -1;
+static int hf_rtcp_xr_endseq = -1;
+static int hf_rtcp_xr_stats_lost = -1;
+static int hf_rtcp_xr_stats_dups = -1;
+static int hf_rtcp_xr_stats_minjitter = -1;
+static int hf_rtcp_xr_stats_maxjitter = -1;
+static int hf_rtcp_xr_stats_meanjitter = -1;
+static int hf_rtcp_xr_stats_devjitter = -1;
+static int hf_rtcp_xr_stats_minttl = -1;
+static int hf_rtcp_xr_stats_maxttl = -1;
+static int hf_rtcp_xr_stats_meanttl = -1;
+static int hf_rtcp_xr_stats_devttl = -1;
+static int hf_rtcp_xr_lrr = -1;
+static int hf_rtcp_xr_dlrr = -1;
 
 /* RTCP setup fields */
 static int hf_rtcp_setup        = -1;
@@ -230,6 +325,10 @@ static gint ett_sdes_item		= -1;
 static gint ett_PoC1			= -1;
 static gint ett_rtcp_setup		= -1;
 static gint ett_rtcp_roundtrip_delay	= -1;
+static gint ett_xr_block                = -1;
+static gint ett_xr_block_contents       = -1;
+static gint ett_xr_ssrc                 = -1;
+static gint  ett_xr_loss_chunk = -1;
 
 /* Main dissection function */
 static void dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo,
@@ -715,6 +814,394 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 	}
 }
 
+static void parse_xr_type_specific_field(tvbuff_t *tvb, gint offset, guint block_type, proto_tree *tree)
+{
+    guint8 flags = tvb_get_guint8(tvb, offset);
+
+    switch (block_type) {
+    case RTCP_XR_LOSS_RLE:
+    case RTCP_XR_DUP_RLE:
+    case RTCP_XR_PKT_RXTIMES:
+        proto_tree_add_uint(tree, hf_rtcp_xr_thinning, tvb, offset, 1, flags);
+        break;
+        
+    case RTCP_XR_STATS_SUMRY:
+        proto_tree_add_boolean(tree, hf_rtcp_xr_stats_loss_flag, tvb, offset, 1, flags);
+        proto_tree_add_boolean(tree, hf_rtcp_xr_stats_dup_flag, tvb, offset, 1, flags);
+        proto_tree_add_boolean(tree, hf_rtcp_xr_stats_jitter_flag, tvb, offset, 1, flags);
+        proto_tree_add_uint(tree, hf_rtcp_xr_stats_ttl, tvb, offset, 1, flags);
+        break;
+
+    default:
+        proto_tree_add_uint(tree, hf_rtcp_xr_block_specific, tvb, offset, 1, flags);
+        break;
+    }
+}
+
+static gboolean validate_xr_block_length(tvbuff_t *tvb, int offset, guint block_type, guint block_len, proto_tree *tree)
+{
+    proto_tree_add_uint(tree, hf_rtcp_xr_block_length, tvb, offset, 2, block_len);
+    switch (block_type) {
+    case RTCP_XR_REF_TIME:
+        if (block_len != 2)
+            proto_tree_add_text(tree, tvb, offset, 2, "Invalid block length, should be 2");
+        return FALSE;
+
+    case RTCP_XR_STATS_SUMRY:
+        if (block_len != 9)
+            proto_tree_add_text(tree, tvb, offset, 2, "Invalid block length, should be 9");
+        return FALSE;
+
+    case RTCP_XR_VOIP_METRCS:
+        if (block_len != 8)
+            proto_tree_add_text(tree, tvb, offset, 2, "Invalid block length, should be 8");
+        return FALSE;
+
+    default:
+        break;
+    }
+    return TRUE;
+}
+
+static int
+dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *tree, gint packet_len)
+{
+    guint block_num = 1;
+    
+    /* Packet length should at least be 4 */
+    if (packet_len < 4) {
+        proto_tree_add_text(tree, tvb, offset, packet_len, "Missing Sender SSRC");
+        return offset + packet_len;
+    }
+	
+    /* SSRC */
+    proto_tree_add_item( tree, hf_rtcp_ssrc_sender, tvb, offset, 4, FALSE );
+    offset += 4;
+    packet_len -= 4;
+    
+    for(;packet_len > 0; block_num++) {
+        guint block_type = tvb_get_guint8(tvb, offset), block_length = 0;
+        gint content_length = 0;
+        gboolean valid = TRUE;
+        
+        /* Create a subtree for this block, dont know the length yet*/
+        proto_item *block = proto_tree_add_text(tree, tvb, offset, -1, "Block %u", block_num);
+        proto_tree *xr_block_tree = proto_item_add_subtree(block, ett_xr_block);
+        proto_item *contents = NULL;
+        proto_item *content_tree = NULL;
+
+        proto_tree_add_item(xr_block_tree, hf_rtcp_xr_block_type, tvb, offset, 1, FALSE);
+        
+        if (packet_len >= 2) {
+            parse_xr_type_specific_field(tvb, offset + 1, block_type, xr_block_tree);
+            if (packet_len >= 4) {
+                block_length = tvb_get_ntohs(tvb, offset + 2);
+                valid = validate_xr_block_length(tvb, offset + 2, block_type, block_length, xr_block_tree);
+            }
+        } else {
+            proto_tree_add_text(xr_block_tree, tvb, offset + 1, packet_len, "Missing Required Block Headers");
+            return offset + packet_len;
+        }
+		
+        content_length = block_length * 4;
+        proto_item_set_len(block, content_length + 4);
+        
+        if (content_length > packet_len) {
+            proto_tree_add_text(xr_block_tree, tvb, offset + 2, 2, "Block length is greater than packet length");
+        }
+		
+        offset += 4;
+        packet_len -= 4;
+
+        contents = proto_tree_add_text(xr_block_tree, tvb, offset, content_length, "Contents");
+        content_tree = proto_item_add_subtree(contents, ett_xr_block_contents);
+            
+        switch (block_type) {
+        case RTCP_XR_VOIP_METRCS: {
+            guint fraction_rate, value;
+            
+            /* Identifier */
+            proto_tree_add_item(content_tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE);
+            offset += 4;
+            
+            /* Loss Rate */
+            fraction_rate = tvb_get_guint8(tvb, offset);
+            proto_tree_add_uint_format(content_tree, hf_rtcp_ssrc_fraction, tvb, offset, 1, 
+                                       fraction_rate, "Fraction lost: %u / 256", fraction_rate);
+            offset++;
+            
+            /* Discard Rate */
+            fraction_rate = tvb_get_guint8(tvb, offset);
+            proto_tree_add_uint_format(content_tree, hf_rtcp_ssrc_discarded, tvb, offset, 1, 
+                                       fraction_rate, "Fraction Discarded: %u / 256", fraction_rate);
+            offset++;
+            
+            /* Burst Density */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_burst_density, tvb, offset, 1, FALSE);
+            offset++;
+            
+            /* Gap Density */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_gap_density, tvb, offset, 1, FALSE);
+            offset++;
+            
+            /* Burst Duration */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_burst_duration, tvb, offset, 2, FALSE);
+            offset += 2;
+            
+            /* Gap Duration */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_gap_duration, tvb, offset, 2, FALSE);
+            offset += 2;
+            
+            /* Round Trip Delay */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_rtdelay, tvb, offset, 2, FALSE);
+            offset += 2;
+            
+            /* End System Delay */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_esdelay, tvb, offset, 2, FALSE);
+            offset += 2;
+            
+            /* Signal Level */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_siglevel, tvb, offset, 1, FALSE);
+            offset++;
+            
+            /* Noise Level */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_noiselevel, tvb, offset, 1, FALSE);
+            offset++;
+            
+            /* RERL */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_rerl, tvb, offset, 1, FALSE);
+            offset++;
+            
+            /* GMin */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_gmin, tvb, offset, 1, FALSE);
+            offset++;
+            
+            /* R factor */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_rfactor, tvb, offset, 1, FALSE);
+            offset++;
+            
+            /* external R Factor */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_extrfactor, tvb, offset, 1, FALSE);
+            offset++;
+            
+            /* MOS LQ */
+            proto_tree_add_float(content_tree, hf_rtcp_xr_voip_metrics_moslq, tvb, offset, 1, 
+                                 (gfloat)tvb_get_guint8(tvb, offset) / 10);
+            offset++;
+            
+            /* MOS CQ */
+            proto_tree_add_float(content_tree, hf_rtcp_xr_voip_metrics_moscq, tvb, offset, 1, 
+                                 (gfloat)tvb_get_guint8(tvb, offset) / 10);
+            offset++;
+            
+            /* PLC, JB Adaptive, JB Rate */
+            value = tvb_get_guint8(tvb, offset);
+            proto_tree_add_uint(content_tree, hf_rtcp_xr_voip_metrics_plc, tvb, offset, 1, value);
+            proto_tree_add_uint(content_tree, hf_rtcp_xr_voip_metrics_jbadaptive, tvb, offset, 1, value);
+            proto_tree_add_uint(content_tree, hf_rtcp_xr_voip_metrics_jbrate, tvb, offset, 1, value);
+            offset += 2; /* skip over reseved bit */
+            
+            /* JB Nominal */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_jbnominal, tvb, offset, 2, FALSE);
+            offset += 2;
+            
+            /* JB Max */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_jbmax, tvb, offset, 2, FALSE);
+            offset += 2;
+            
+            /* JB Abs max */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_jbabsmax, tvb, offset, 2, FALSE);
+            offset += 2;
+
+            break;
+        }
+            
+        case RTCP_XR_STATS_SUMRY: {
+            /* Identifier */
+            proto_tree_add_item(content_tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE);
+            offset += 4;
+
+            /* Begin Seq */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_beginseq, tvb, offset, 2, FALSE);
+            offset += 2;
+
+            /* End Seq */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_endseq, tvb, offset, 2, FALSE);
+            offset += 2;
+
+            /* Lost Pkts */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_lost, tvb, offset, 4, FALSE);
+            offset += 4;
+
+            /* Dup Pkts */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_dups, tvb, offset, 4, FALSE);
+            offset += 4;
+
+            /* Min Jitter */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_minjitter, tvb, offset, 4, FALSE);
+            offset += 4;
+
+            /* Max Jitter */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_maxjitter, tvb, offset, 4, FALSE);
+            offset += 4;
+
+            /* Mean Jitter */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_meanjitter, tvb, offset, 4, FALSE);
+            offset += 4;
+
+            /* Dev Jitter */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_devjitter, tvb, offset, 4, FALSE);
+            offset += 4;
+
+            /* Min TTL */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_minttl, tvb, offset, 1, FALSE);
+            offset ++;
+
+            /* Max TTL */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_maxttl, tvb, offset, 1, FALSE);
+            offset ++;
+
+            /* Mean TTL */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_meanttl, tvb, offset, 1, FALSE);
+            offset ++;
+
+            /* Dev TTL */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_devttl, tvb, offset, 1, FALSE);
+            offset ++;
+
+            break;
+        }
+
+        case RTCP_XR_REF_TIME: {
+            guint32 ts_msw, ts_lsw;
+
+            ts_msw = tvb_get_ntohl(tvb, offset);
+            proto_tree_add_text(content_tree, tvb, offset, 4, "Timestamp, MSW: %u", ts_msw);
+            offset += 4;
+            ts_lsw = tvb_get_ntohl(tvb, offset);
+            proto_tree_add_text(content_tree, tvb, offset, 4, "Timestamp, LSW: %u", ts_lsw);
+            offset += 4;
+            
+            break;
+        }
+
+        case RTCP_XR_DLRR: {
+            /* Each report block is 12 bytes */
+            gint sources = content_length / 12;
+            gint counter = 0;
+            for(counter = 0; counter < sources; counter++) {
+				/* Create a new subtree for a length of 12 bytes */
+				proto_tree *ti = proto_tree_add_text(content_tree, tvb, offset, 12, "Source %u", counter + 1);
+				proto_tree *ssrc_tree = proto_item_add_subtree(ti, ett_xr_ssrc);
+				
+				/* SSRC_n source identifier, 32 bits */
+				proto_tree_add_item(ssrc_tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE);
+				offset += 4;
+				
+				/* Last RR timestamp */
+				proto_tree_add_item(ssrc_tree, hf_rtcp_xr_lrr, tvb, offset, 4, FALSE);
+				offset += 4;
+				
+				/* Delay since last RR timestamp */
+				proto_tree_add_item(ssrc_tree, hf_rtcp_xr_dlrr, tvb, offset, 4, FALSE);
+				offset += 4;
+            }
+			
+            if (content_length % 12 != 0)
+                offset += content_length % 12;
+            break;
+        }
+
+        case RTCP_XR_PKT_RXTIMES: {
+            /* 8 bytes of fixed header */
+            gint count = 0, skip = 8;
+            guint16 begin = 0;
+
+            /* Identifier */
+            proto_tree_add_item(content_tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE);
+            offset += 4;
+
+            /* Begin Seq */
+            begin = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(content_tree, hf_rtcp_xr_beginseq, tvb, offset, 2, begin);
+            offset += 2;
+
+            /* End Seq */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_endseq, tvb, offset, 2, FALSE);
+            offset += 2;
+
+            for(count = 0; skip < content_length; skip += 4, count++) { 
+                proto_tree_add_text(content_tree, tvb, offset, 4, "Seq: %u, Timestamp: %u", 
+                                    (begin + count) % 65536, FALSE);
+                offset += 4;
+            }
+            break;
+       }
+
+        case RTCP_XR_LOSS_RLE:
+        case RTCP_XR_DUP_RLE: {
+            /* 8 bytes of fixed header */
+            gint count = 0, skip = 8;
+            guint16 begin = 0;
+			proto_item *chunks_item;
+			proto_tree *chunks_tree;
+			
+            /* Identifier */
+            proto_tree_add_item(content_tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE);
+            offset += 4;
+
+            /* Begin Seq */
+            begin = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(content_tree, hf_rtcp_xr_beginseq, tvb, offset, 2, begin);
+            offset += 2;
+
+            /* End Seq */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_endseq, tvb, offset, 2, FALSE);
+            offset += 2;
+
+			/* report Chunks */
+			chunks_item = proto_tree_add_text(content_tree, tvb, offset, content_length,"Report Chunks");
+			chunks_tree = proto_item_add_subtree(chunks_item, ett_xr_loss_chunk);
+
+			for(count = 1; skip < content_length; skip += 2, count++) {
+				guint value = tvb_get_ntohs(tvb, offset);
+				
+				if (value == 0) {
+					proto_tree_add_text(chunks_tree, tvb, offset, 2,
+										"Chunk: %u -- Null Terminator ",
+										count);
+				} else if (( value & 0x8000 )) {
+					gchar* run_type = (value & 0x4000) ? "1s" : "0s";
+					value &= 0x7FFF;
+					proto_tree_add_text(chunks_tree, tvb, offset, 2,
+										"Chunk: %u -- Lenght Run %s, lenght: %u",
+										count, run_type, value);
+				} else {
+					gchar* bits;
+					bits = decode_boolean_bitfield(value, 0x00007FFF, 16,"0","1");
+					
+					*(bits+20) = '\0';
+					
+					proto_tree_add_text(chunks_tree, tvb, offset, 2,
+										"Chunk: %u -- Bit Vector,  bits: %s",
+										count, bits );
+				}
+                offset += 2;
+            }
+			
+            break;
+        }
+
+        default:
+            /* skip over the unknown block */
+            offset += content_length;
+            break;
+        }
+        packet_len -= content_length;
+    }
+    return offset;
+}
+
 static int
 dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree,
     unsigned int count )
@@ -736,7 +1223,7 @@ dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 		ssrc_tree = proto_item_add_subtree( ti, ett_ssrc );
 
 		/* SSRC_n source identifier, 32 bits */
-		proto_tree_add_uint( ssrc_tree, hf_rtcp_ssrc_source, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+		proto_tree_add_item( ssrc_tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE );
 		offset += 4;
 
 		ti = proto_tree_add_text(ssrc_tree, tvb, offset, 20, "SSRC contents" );
@@ -762,17 +1249,17 @@ dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 		    tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
 		high_sec_tree = proto_item_add_subtree( ti, ett_ssrc_ext_high );
 		/* Sequence number cycles */
-		proto_tree_add_uint( high_sec_tree, hf_rtcp_ssrc_high_cycles,
-		    tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
+		proto_tree_add_item( high_sec_tree, hf_rtcp_ssrc_high_cycles,
+		    tvb, offset, 2, FALSE );
 		offset += 2;
 		/* highest sequence number received */
-		proto_tree_add_uint( high_sec_tree, hf_rtcp_ssrc_high_seq,
-		    tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
+		proto_tree_add_item( high_sec_tree, hf_rtcp_ssrc_high_seq,
+		    tvb, offset, 2, FALSE );
 		offset += 2;
 
 		/* Interarrival jitter */
-		proto_tree_add_uint( ssrc_tree, hf_rtcp_ssrc_jitter, tvb,
-		    offset, 4, tvb_get_ntohl( tvb, offset ) );
+		proto_tree_add_item( ssrc_tree, hf_rtcp_ssrc_jitter, tvb,
+		    offset, 4, FALSE );
 		offset += 4;
 
 		/* Last SR timestamp */
@@ -1232,7 +1719,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
         /*
          * Check if it's a valid type
          */
-        if ( ( packet_type < 192 ) || ( packet_type >  204 ) )
+        if ( ( packet_type < 192 ) || ( packet_type >  207 ) )
             break;
 
         /*
@@ -1318,6 +1805,17 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                 offset = dissect_rtcp_app( tvb, pinfo, offset,
                     rtcp_tree, padding_set,
                     packet_length - 4, rtcp_subtype );
+                break;
+            case RTCP_XR:
+                /* Reserved, 5 bits, Ignore */
+                offset++;
+                /* Packet type, 8 bits */
+                proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
+                offset++;
+                /* Packet length in 32 bit words MINUS one, 16 bits */
+                proto_tree_add_uint( rtcp_tree, hf_rtcp_length, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
+                offset += 2;
+                offset = dissect_rtcp_xr( tvb, pinfo, offset, rtcp_tree, packet_length - 4 );
                 break;
             case RTCP_FIR:
                 offset = dissect_rtcp_fir( tvb, offset, rtcp_tree );
@@ -1928,9 +2426,524 @@ proto_register_rtcp(void)
 				0x0,
 				"Calculated roundtrip delay in ms", HFILL
 			}
-		}
-
-	};
+		},
+		{
+			&hf_rtcp_xr_block_type,
+			{
+				"Type",
+				"rtcp.xr.bt",
+				FT_UINT8,
+				BASE_DEC,
+				VALS(rtcp_xr_type_vals),
+				0x0,
+				"Block Type", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_block_specific,
+			{
+				"Type Specific",
+				"rtcp.xr.bs",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"Reserved", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_block_length,
+			{
+				"Length",
+				"rtcp.xr.bl",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"Block Length", HFILL
+			}
+		},
+		{
+			&hf_rtcp_ssrc_discarded,
+			{
+				"Fraction discarded",
+				"rtcp.ssrc.discarded",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"Discard Rate", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_voip_metrics_burst_density,
+			{
+				"Burst Density",
+				"rtcp.xr.voipmetrics.burstdensity",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_voip_metrics_gap_density,
+			{
+				"Gap Density",
+				"rtcp.xr.voipmetrics.gapdensity",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_voip_metrics_burst_duration,
+			{
+				"Burst Duration(ms)",
+				"rtcp.xr.voipmetrics.burstduration",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_voip_metrics_gap_duration,
+			{
+				"Gap Duration(ms)",
+				"rtcp.xr.voipmetrics.gapduration",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_voip_metrics_rtdelay,
+			{
+				"Round Trip Delay(ms)",
+				"rtcp.xr.voipmetrics.rtdelay",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_voip_metrics_esdelay,
+			{
+				"End System Delay(ms)",
+				"rtcp.xr.voipmetrics.esdelay",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_voip_metrics_siglevel,
+			{
+				"Signal Level",
+				"rtcp.xr.voipmetrics.signallevel",
+				FT_INT8,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"Signal level of 127 indicates this parameter is unavailable", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_voip_metrics_noiselevel,
+			{
+				"Noise Level",
+				"rtcp.xr.voipmetrics.noiselevel",
+				FT_INT8,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"Noise level of 127 indicates this parameter is unavailable", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_voip_metrics_rerl,
+			{
+				"Residual Echo Return Loss",
+				"rtcp.xr.voipmetrics.rerl",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_voip_metrics_gmin,
+			{
+				"Gmin",
+				"rtcp.xr.voipmetrics.gmin",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_voip_metrics_rfactor,
+			{
+				"R Factor",
+				"rtcp.xr.voipmetrics.rfactor",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"R Factor is in the range of 0 to 100; 127 indicates this parameter is unavailable", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_voip_metrics_extrfactor,
+			{
+				"External R Factor",
+				"rtcp.xr.voipmetrics.extrfactor",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"R Factor is in the range of 0 to 100; 127 indicates this parameter is unavailable", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_voip_metrics_moslq,
+			{
+				"MOS - Listening Quality",
+				"rtcp.xr.voipmetrics.moslq",
+				FT_FLOAT,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"MOS is in the range of 1 to 5; 127 indicates this parameter is unavailable", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_voip_metrics_moscq,
+			{
+				"MOS - Conversational Quality",
+				"rtcp.xr.voipmetrics.moscq",
+				FT_FLOAT,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"MOS is in the range of 1 to 5; 127 indicates this parameter is unavailable", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_voip_metrics_plc,
+			{
+				"Packet Loss Conealment Algorithm",
+				"rtcp.xr.voipmetrics.plc",
+				FT_UINT8,
+				BASE_DEC,
+				VALS(rtcp_xr_plc_algo_vals),
+				0xC0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_voip_metrics_jbadaptive,
+			{
+				"Adaptive Jitter Buffer Algorithm",
+				"rtcp.xr.voipmetrics.jba",
+				FT_UINT8,
+				BASE_DEC,
+				VALS(rtcp_xr_jb_adaptive_vals),
+				0x30,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_voip_metrics_jbrate,
+			{
+				"Jitter Buffer Rate",
+				"rtcp.xr.voipmetrics.jbrate",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
+				0x0F,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_voip_metrics_jbnominal,
+			{
+				"Nominal Jitter Buffer Size",
+				"rtcp.xr.voipmetrics.jbnominal",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_voip_metrics_jbmax,
+			{
+				"Maximum Jitter Buffer Size",
+				"rtcp.xr.voipmetrics.jbmax",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_voip_metrics_jbabsmax,
+			{
+				"Absolute Maximum Jitter Buffer Size",
+				"rtcp.xr.voipmetrics.jbabsmax",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_thinning,
+			{
+				"Thinning factor",
+				"rtcp.xr.tf",
+				FT_UINT8,
+				BASE_DEC,
+                                NULL,
+				0x0F,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_stats_loss_flag,
+			{
+				"Loss Report Flag",
+				"rtcp.xr.stats.lrflag",
+				FT_BOOLEAN,
+				8,
+				NULL,
+				0x80,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_stats_dup_flag,
+			{
+				"Duplicates Report Flag",
+				"rtcp.xr.stats.dupflag",
+				FT_BOOLEAN,
+				8,
+				NULL,
+				0x40,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_stats_jitter_flag,
+			{
+				"Jitter Report Flag",
+				"rtcp.xr.stats.jitterflag",
+				FT_BOOLEAN,
+				8,
+				NULL,
+				0x20,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_stats_ttl,
+			{
+				"TTL or Hop Limit Flag",
+				"rtcp.xr.stats.ttl",
+				FT_UINT8,
+				BASE_DEC,
+				VALS(rtcp_xr_ip_ttl_vals),
+				0x18,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_endseq,
+			{
+				"End Sequence Number",
+				"rtcp.xr.endseq",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_beginseq,
+			{
+				"Begin Sequence Number",
+				"rtcp.xr.beginseq",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_stats_lost,
+			{
+				"Lost Packets",
+				"rtcp.xr.stats.lost",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_stats_dups,
+			{
+				"Duplicate Packets",
+				"rtcp.xr.stats.dups",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_stats_minjitter,
+			{
+				"Minimum Jitter",
+				"rtcp.xr.stats.minjitter",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_stats_maxjitter,
+			{
+				"Maximum Jitter",
+				"rtcp.xr.stats.maxjitter",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_stats_meanjitter,
+			{
+				"Mean Jitter",
+				"rtcp.xr.stats.meanjitter",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_stats_devjitter,
+			{
+				"Standard Deviation of Jitter",
+				"rtcp.xr.stats.devjitter",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_stats_minttl,
+			{
+				"Minimum TTL or Hop Limit",
+				"rtcp.xr.stats.minttl",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_stats_maxttl,
+			{
+				"Maximum TTL or Hop Limit",
+				"rtcp.xr.stats.maxttl",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_stats_meanttl,
+			{
+				"Mean TTL or Hop Limit",
+				"rtcp.xr.stats.meanttl",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_stats_devttl,
+			{
+				"Standard Deviation of TTL",
+				"rtcp.xr.stats.devttl",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_lrr,
+			{
+				"Last RR timestamp",
+				"rtcp.xr.lrr",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_dlrr,
+			{
+				"Delay since last RR timestamp",
+				"rtcp.xr.dlrr",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+};
 
 	static gint *ett[] =
 	{
@@ -1942,7 +2955,11 @@ proto_register_rtcp(void)
 		&ett_sdes_item,
 		&ett_PoC1,
 		&ett_rtcp_setup,
-		&ett_rtcp_roundtrip_delay
+		&ett_rtcp_roundtrip_delay,
+		&ett_xr_block,
+		&ett_xr_block_contents,
+ 		&ett_xr_ssrc,
+		&ett_xr_loss_chunk
 	};
 
 	module_t *rtcp_module;
