@@ -2,7 +2,7 @@
  * Routines for Message Transfer Part Level 3 dissection
  * Copyright 2001, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-mtp3.c,v 1.2 2001/05/25 16:19:31 guy Exp $
+ * $Id: packet-mtp3.c,v 1.3 2001/05/31 08:51:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -255,7 +255,7 @@ proto_register_mtp3(void)
   
   /* Register the protocol name and description */
   proto_mtp3 = proto_register_protocol("Message Transfer Part Level 3",
-				       "MTP Level 3", "MTP3");
+				       "MTP3", "mtp3");
   
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_mtp3, hf, array_length(hf));
