@@ -886,7 +886,7 @@ else
 fi
 
 if test "x$have_net_snmp" = "xyes" || test "x$have_ucd_snmp" = "xyes"; then
-	AC_DEFINE(HAVE_SOME_SNMP, 1, [Define to if some SNMP support is to be used])
+	AC_DEFINE(HAVE_SOME_SNMP, 1, [Define to 1 if some SNMP support is to be used])
 fi
 
 AC_SUBST(SNMP_LIBS)
