@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.51 2002/02/22 07:16:35 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.52 2002/03/09 22:41:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -586,11 +586,11 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       break;
 
     case FIELD_AUTH_ALG:
-      proto_tree_add_uint (tree, ff_auth_alg, tvb, offset, 2, TRUE);
+      proto_tree_add_item (tree, ff_auth_alg, tvb, offset, 2, TRUE);
       break;
 
     case FIELD_AUTH_TRANS_SEQ:
-      proto_tree_add_uint (tree, ff_auth_seq, tvb, offset, 2, TRUE);
+      proto_tree_add_item (tree, ff_auth_seq, tvb, offset, 2, TRUE);
       break;
 
     case FIELD_CURRENT_AP_ADDR:

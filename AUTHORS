@@ -1083,6 +1083,10 @@ Alex Ruzin <alexr[AT]nbase.co.il> {
 	Support for IEEE 802.1w RST BPDUs
 }
 
+Jouni Malinen <jkmaline[AT]cc.hut.fi> {
+	802.11 authentication frame dissection bug fix
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
