@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.46 2001/12/06 03:09:28 guy Exp $
+ * $Id: file_dlg.c,v 1.47 2002/01/13 20:35:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,7 +42,6 @@
 
 #include "globals.h"
 #include "gtkglobals.h"
-#include "prefs.h"
 #include "resolv.h"
 #include "keys.h"
 #include "filter_prefs.h"
@@ -136,7 +135,7 @@ file_open_cmd_cb(GtkWidget *w, gpointer data)
   m_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
 		  "Enable _MAC name resolution", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(m_resolv_cb),
-	prefs.name_resolve & PREFS_RESOLV_MAC);
+	g_resolv_flags & RESOLV_MAC);
   gtk_box_pack_start(GTK_BOX(main_vb), m_resolv_cb, FALSE, FALSE, 0);
   gtk_widget_show(m_resolv_cb);
   gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
@@ -145,7 +144,7 @@ file_open_cmd_cb(GtkWidget *w, gpointer data)
   n_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
 		  "Enable _network name resolution", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(n_resolv_cb),
-	prefs.name_resolve & PREFS_RESOLV_NETWORK);
+	g_resolv_flags & RESOLV_NETWORK);
   gtk_box_pack_start(GTK_BOX(main_vb), n_resolv_cb, FALSE, FALSE, 0);
   gtk_widget_show(n_resolv_cb);
   gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
@@ -154,7 +153,7 @@ file_open_cmd_cb(GtkWidget *w, gpointer data)
   t_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
 		  "Enable _transport name resolution", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(t_resolv_cb),
-	prefs.name_resolve & PREFS_RESOLV_TRANSPORT);
+	g_resolv_flags & RESOLV_TRANSPORT);
   gtk_box_pack_start(GTK_BOX(main_vb), t_resolv_cb, FALSE, FALSE, 0);
   gtk_widget_show(t_resolv_cb);
   gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
@@ -224,13 +223,13 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   cfile.rfcode = rfcode;
 
   /* Set the global resolving variable */
-  prefs.name_resolve = 0;
+  g_resolv_flags = 0;
   m_resolv_cb = gtk_object_get_data(GTK_OBJECT(w), E_FILE_M_RESOLVE_KEY);
-  prefs.name_resolve |= GTK_TOGGLE_BUTTON (m_resolv_cb)->active ? PREFS_RESOLV_MAC : PREFS_RESOLV_NONE;
+  g_resolv_flags |= GTK_TOGGLE_BUTTON (m_resolv_cb)->active ? RESOLV_MAC : RESOLV_NONE;
   n_resolv_cb = gtk_object_get_data(GTK_OBJECT(w), E_FILE_N_RESOLVE_KEY);
-  prefs.name_resolve |= GTK_TOGGLE_BUTTON (n_resolv_cb)->active ? PREFS_RESOLV_NETWORK : PREFS_RESOLV_NONE;
+  g_resolv_flags |= GTK_TOGGLE_BUTTON (n_resolv_cb)->active ? RESOLV_NETWORK : RESOLV_NONE;
   t_resolv_cb = gtk_object_get_data(GTK_OBJECT(w), E_FILE_T_RESOLVE_KEY);
-  prefs.name_resolve |= GTK_TOGGLE_BUTTON (t_resolv_cb)->active ? PREFS_RESOLV_TRANSPORT : PREFS_RESOLV_NONE;
+  g_resolv_flags |= GTK_TOGGLE_BUTTON (t_resolv_cb)->active ? RESOLV_TRANSPORT : RESOLV_NONE;
 
   /* We've crossed the Rubicon; get rid of the file selection box. */
   gtk_widget_hide(GTK_WIDGET (fs));

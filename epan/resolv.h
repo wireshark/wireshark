@@ -1,14 +1,13 @@
 /* resolv.h
  * Definitions for network object lookup
  *
- * $Id: resolv.h,v 1.7 2001/08/21 06:39:17 guy Exp $
+ * $Id: resolv.h,v 1.8 2002/01/13 20:35:10 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -32,6 +31,20 @@
 #define MAXNAMELEN  	64	/* max name length (hostname and port name) */
 #endif
 
+/*
+ * Flag controlling what names to resolve.
+ */
+extern guint32 g_resolv_flags;
+
+/* 32 types are sufficient (as are 640k of RAM) */
+/* FIXME: Maybe MANUF/m, IP/i, IP6/6, IPX/x, UDP+TCP/t etc would be
+   more useful/consistent */
+#define RESOLV_NONE		0x0
+#define RESOLV_MAC		0x1
+#define RESOLV_NETWORK		0x2
+#define RESOLV_TRANSPORT	0x4
+#define RESOLV_ALL		0xFFFFFFFF
+
 /* global variables */
 
 extern gchar *g_ethers_path;
@@ -40,6 +53,9 @@ extern gchar *g_pethers_path;
 extern gchar *g_pipxnets_path;
 
 /* Functions in resolv.c */
+
+/* Set the flags controlling what names to resolve */
+extern void resolv_set_flags(guint32 flags);
 
 /* get_tcp_port returns the UDP port name or "%u" if not found */
 extern guchar *get_udp_port(guint port);

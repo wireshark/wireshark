@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.19 2001/12/20 19:19:41 guy Exp $
+ * $Id: resolv.c,v 1.20 2002/01/13 20:35:10 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -80,8 +80,6 @@
 #include "ipv6-utils.h"
 #include "resolv.h"
 #include "filesystem.h"
-
-#include "prefs.h"
 
 #define ENAME_ETHERS 		"ethers"
 #define ENAME_IPXNETS 		"ipxnets"
@@ -164,6 +162,11 @@ static int 		eth_resolution_initialized = 0;
 static int 		ipxnet_resolution_initialized = 0;
 
 /*
+ * Flag controlling what names to resolve.
+ */
+guint32 g_resolv_flags;
+
+/*
  *  Global variables (can be changed in GUI sections)
  *  XXX - they could be changed in GUI code, but there's currently no
  *  GUI code to change them.
@@ -230,7 +233,7 @@ static guchar *serv_name_lookup(guint port, port_type proto)
   tp->addr = port;
   tp->next = NULL;
 
-  if (!(prefs.name_resolve & PREFS_RESOLV_TRANSPORT) || 
+  if (!(g_resolv_flags & RESOLV_TRANSPORT) || 
       (servp = getservbyport(htons(port), serv_proto)) == NULL) {
     /* unknown port */
     sprintf(tp->name, "%d", port);
@@ -295,7 +298,7 @@ static guchar *host_name_lookup(guint addr, gboolean *found)
    * botch, we don't try to translate an all-zero IP address to a host
    * name.
    */
-  if (addr != 0 && (prefs.name_resolve & PREFS_RESOLV_NETWORK)) {
+  if (addr != 0 && (g_resolv_flags & RESOLV_NETWORK)) {
 #ifdef AVOID_DNS_TIMEOUT
     
     /* Quick hack to avoid DNS/YP timeout */
@@ -335,7 +338,7 @@ static guchar *host_name_lookup6(struct e_in6_addr *addr, gboolean *found)
 #ifdef INET6
   struct hostent *hostp;
 
-  if (prefs.name_resolve & PREFS_RESOLV_NETWORK) {
+  if (g_resolv_flags & RESOLV_NETWORK) {
 #ifdef AVOID_DNS_TIMEOUT
     
     /* Quick hack to avoid DNS/YP timeout */
@@ -1070,7 +1073,7 @@ extern guchar *get_hostname(guint addr)
 {
   gboolean found;
 
-  if (!(prefs.name_resolve & PREFS_RESOLV_NETWORK))
+  if (!(g_resolv_flags & RESOLV_NETWORK))
     return ip_to_str((guint8 *)&addr);
 
   return host_name_lookup(addr, &found);
@@ -1081,7 +1084,7 @@ extern const guchar *get_hostname6(struct e_in6_addr *addr)
   gboolean found;
 
 #ifdef INET6
-  if (!(prefs.name_resolve & PREFS_RESOLV_NETWORK))
+  if (!(g_resolv_flags & RESOLV_NETWORK))
     return ip6_to_str(addr);
   if (IN6_IS_ADDR_LINKLOCAL(addr) || IN6_IS_ADDR_MULTICAST(addr))
     return ip6_to_str(addr);
@@ -1134,7 +1137,7 @@ extern guchar *get_udp_port(guint port)
   static gchar  str[3][MAXNAMELEN];
   static gchar *cur;
 
-  if (!(prefs.name_resolve & PREFS_RESOLV_TRANSPORT)) {
+  if (!(g_resolv_flags & RESOLV_TRANSPORT)) {
     if (cur == &str[0][0]) {
       cur = &str[1][0];
     } else if (cur == &str[1][0]) {  
@@ -1155,7 +1158,7 @@ extern guchar *get_tcp_port(guint port)
   static gchar  str[3][MAXNAMELEN];
   static gchar *cur;
 
-  if (!(prefs.name_resolve & PREFS_RESOLV_TRANSPORT)) {
+  if (!(g_resolv_flags & RESOLV_TRANSPORT)) {
     if (cur == &str[0][0]) {
       cur = &str[1][0];
     } else if (cur == &str[1][0]) {  
@@ -1176,7 +1179,7 @@ extern guchar *get_sctp_port(guint port)
   static gchar  str[3][MAXNAMELEN];
   static gchar *cur;
 
-  if (!(prefs.name_resolve & PREFS_RESOLV_TRANSPORT)) {
+  if (!(g_resolv_flags & RESOLV_TRANSPORT)) {
     if (cur == &str[0][0]) {
       cur = &str[1][0];
     } else if (cur == &str[1][0]) {  
@@ -1194,7 +1197,7 @@ extern guchar *get_sctp_port(guint port)
 
 extern guchar *get_ether_name(const guint8 *addr)
 {
-  if (!(prefs.name_resolve & PREFS_RESOLV_MAC))
+  if (!(g_resolv_flags & RESOLV_MAC))
     return ether_to_str((guint8 *)addr);
 
   if (!eth_resolution_initialized) {
@@ -1217,7 +1220,7 @@ guchar *get_ether_name_if_known(const guint8 *addr)
 
   /* Initialize ether structs if we're the first
    * ether-related function called */
-  if (!(prefs.name_resolve & PREFS_RESOLV_MAC))
+  if (!(g_resolv_flags & RESOLV_MAC))
     return NULL;
   
   if (!eth_resolution_initialized) {
@@ -1268,7 +1271,7 @@ guchar *get_ether_name_if_known(const guint8 *addr)
 extern guint8 *get_ether_addr(const guchar *name)
 {
 
-  /* force resolution (do not check prefs.name_resolve) */
+  /* force resolution (do not check g_resolv_flags) */
 
   if (!eth_resolution_initialized) {
     initialize_ethers();
@@ -1300,7 +1303,7 @@ extern void add_ether_byip(guint ip, const guint8 *eth)
 extern const guchar *get_ipxnet_name(const guint32 addr)
 {
 
-  if (!(prefs.name_resolve & PREFS_RESOLV_NETWORK)) {
+  if (!(g_resolv_flags & RESOLV_NETWORK)) {
 	  return ipxnet_to_str_punct(addr, '\0');
   }
 
@@ -1318,7 +1321,7 @@ extern guint32 get_ipxnet_addr(const guchar *name, gboolean *known)
   guint32 addr;
   gboolean success;
 
-  /* force resolution (do not check prefs.name_resolve) */
+  /* force resolution (do not check g_resolv_flags) */
 
   if (!ipxnet_resolution_initialized) {
     initialize_ipxnets();
@@ -1338,12 +1341,12 @@ extern const guchar *get_manuf_name(const guint8 *addr)
   static gchar *cur;
   hashmanuf_t  *manufp;
 
-  if ((prefs.name_resolve & PREFS_RESOLV_MAC) && !eth_resolution_initialized) {
+  if ((g_resolv_flags & RESOLV_MAC) && !eth_resolution_initialized) {
     initialize_ethers();
     eth_resolution_initialized = 1;
   }
 
-  if (!(prefs.name_resolve & PREFS_RESOLV_MAC) || ((manufp = manuf_name_lookup(addr)) == NULL)) {
+  if (!(g_resolv_flags & RESOLV_MAC) || ((manufp = manuf_name_lookup(addr)) == NULL)) {
     if (cur == &str[0][0]) {
       cur = &str[1][0];
     } else if (cur == &str[1][0]) {  

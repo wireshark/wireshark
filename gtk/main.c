@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.228 2002/01/11 08:21:02 guy Exp $
+ * $Id: main.c,v 1.229 2002/01/13 20:35:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -854,11 +854,11 @@ void expand_all_cb(GtkWidget *widget, gpointer data) {
 
 void resolve_name_cb(GtkWidget *widget, gpointer data) {
   if (cfile.edt->tree) {
-    gint tmp = prefs.name_resolve;
-    prefs.name_resolve = PREFS_RESOLV_ALL;
+    guint32 tmp = g_resolv_flags;
+    g_resolv_flags = RESOLV_ALL;
     gtk_clist_clear ( GTK_CLIST(tree_view) );
     proto_tree_draw(cfile.edt->tree, tree_view);
-    prefs.name_resolve = tmp;
+    g_resolv_flags = tmp;
   }
 }
 
@@ -1309,6 +1309,9 @@ main(int argc, char *argv[])
   auto_scroll_live = prefs->capture_auto_scroll;
 #endif
 
+  /* Set the name resolution code's flags from the preferences. */
+  g_resolv_flags = prefs->name_resolve;
+
   /* Read the capture filter file. */
   read_filter_list(CFILTER_LIST, &cf_path, &cf_open_errno);
 
@@ -1481,12 +1484,12 @@ main(int argc, char *argv[])
         prefs->gui_font_name = g_strdup(optarg);
         break;
       case 'n':        /* No name resolution */
-        prefs->name_resolve = PREFS_RESOLV_NONE;
+        g_resolv_flags = RESOLV_NONE;
         break;
       case 'N':        /* Select what types of addresses/port #s to resolve */
-        if (prefs->name_resolve == PREFS_RESOLV_ALL)
-          prefs->name_resolve = PREFS_RESOLV_NONE;
-        badopt = string_to_name_resolve(optarg, &prefs->name_resolve);
+        if (g_resolv_flags == RESOLV_ALL)
+          g_resolv_flags = RESOLV_NONE;
+        badopt = string_to_name_resolve(optarg, &g_resolv_flags);
         if (badopt != '\0') {
           fprintf(stderr, "ethereal: -N specifies unknown resolving option '%c'; valid options are 'm', 'n', and 't'\n",
 			badopt);

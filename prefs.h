@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.36 2002/01/10 07:43:37 guy Exp $
+ * $Id: prefs.h,v 1.37 2002/01/13 20:35:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,15 +34,6 @@
 
 #define DEF_WIDTH 750
 #define DEF_HEIGHT 550
-
-/* 32 types are sufficient (as are 640k of RAM) */
-/* FIXME: Maybe MANUF/m, IP/i, IP6/6, IPX/x, UDP+TCP/t etc would be
-   more useful/consistent */
-#define PREFS_RESOLV_NONE	0x0
-#define PREFS_RESOLV_MAC	0x1
-#define PREFS_RESOLV_NETWORK	0x2
-#define PREFS_RESOLV_TRANSPORT	0x4
-#define PREFS_RESOLV_ALL	0xFFFFFFFF
 
 /*
  * Convert a string listing name resolution types to a bitmask of

@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.37 2002/01/11 07:40:31 guy Exp $
+ * $Id: prefs_dlg.c,v 1.38 2002/01/13 20:35:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,6 +58,7 @@
 #include "stream_prefs.h"
 #include "gui_prefs.h"
 #include "capture_prefs.h"
+#include "nameres_prefs.h"
 #include "ui_util.h"
 #include "dlg_utils.h"
 #include "simple_dialog.h"
@@ -77,6 +78,7 @@ static void	prefs_tree_select_cb(GtkCTree *, GtkCTreeNode *, gint, gpointer);
 #define E_STREAM_PAGE_KEY  "tcp_stream_options_page"
 #define E_GUI_PAGE_KEY	   "gui_options_page"
 #define E_CAPTURE_PAGE_KEY "capture_options_page"
+#define E_NAMERES_PAGE_KEY "nameres_options_page"
 
 #define FIRST_PROTO_PREFS_PAGE	4
 
@@ -114,11 +116,7 @@ pref_show(pref_t *pref, gpointer user_data)
   GtkWidget *main_tb = user_data;
   const char *title;
   char *label_string;
-  GtkWidget *label, *menu, *menu_item, *widget, *button;
-  GSList *rb_group;
   char uint_str[10+1];
-  const enum_val_t *enum_valp;
-  int menu_index, index;
 
   /* Give this preference a label which is its title, followed by a colon,
      and left-align it. */
@@ -126,18 +124,10 @@ pref_show(pref_t *pref, gpointer user_data)
   label_string = g_malloc(strlen(title) + 2);
   strcpy(label_string, title);
   strcat(label_string, ":");
-  label = gtk_label_new(label_string);
-  g_free(label_string);
-  gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
-
-  /* Attach it to the table. */
-  gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, pref->ordinal,
-				pref->ordinal+1);
 
   /* Save the current value of the preference, so that we can revert it if
      the user does "Apply" and then "Cancel", and create the control for
      editing the preference. */
-  widget = NULL;	/* squelch GCC complaints */
   switch (pref->type) {
 
   case PREF_UINT:
@@ -147,7 +137,6 @@ pref_show(pref_t *pref, gpointer user_data)
        Even more annoyingly, even if there were, GLib doesn't define
        G_MAXUINT - but I think ANSI C may define UINT_MAX, so we could
        use that. */
-    widget = gtk_entry_new();
     switch (pref->info.base) {
 
     case 10:
@@ -162,74 +151,47 @@ pref_show(pref_t *pref, gpointer user_data)
       sprintf(uint_str, "%x", pref->saved_val.uint);
       break;
     }
-    gtk_entry_set_text(GTK_ENTRY(widget), uint_str);
-    pref->control = widget;
+    pref->control = create_preference_entry(main_tb, pref->ordinal,
+					    label_string, uint_str);
     break;
 
   case PREF_BOOL:
-    pref->saved_val.bool = *pref->varp.bool;
-    widget = gtk_check_button_new();
-    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(widget), pref->saved_val.bool);
-    pref->control = widget;
+    pref->control = create_preference_check_button(main_tb, pref->ordinal,
+					       label_string,
+					       pref->saved_val.bool);
     break;
 
   case PREF_ENUM:
     pref->saved_val.enumval = *pref->varp.enump;
     if (pref->info.enum_info.radio_buttons) {
       /* Show it as radio buttons. */
-      widget = gtk_hbox_new(FALSE, 0);
-      rb_group = NULL;
-      for (enum_valp = pref->info.enum_info.enumvals, index = 0;
-		enum_valp->name != NULL; enum_valp++, index++) {
-	button = gtk_radio_button_new_with_label(rb_group, enum_valp->name);
-	if (rb_group == NULL)
-	  rb_group = gtk_radio_button_group(GTK_RADIO_BUTTON(button));
-	gtk_box_pack_start(GTK_BOX(widget), button, FALSE, FALSE, 10);
-	if (enum_valp->value == pref->saved_val.enumval)
-	  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), TRUE);
-	pref->control = button;
-      }
+      pref->control = create_preference_radio_buttons(main_tb, pref->ordinal,
+						  label_string,
+						  pref->info.enum_info.enumvals,
+						  pref->saved_val.enumval);
     } else {
       /* Show it as an option menu. */
-      menu = gtk_menu_new();
-      menu_index = -1;
-      for (enum_valp = pref->info.enum_info.enumvals, index = 0;
-		enum_valp->name != NULL; enum_valp++, index++) {
-	menu_item = gtk_menu_item_new_with_label(enum_valp->name);
-	gtk_menu_append(GTK_MENU(menu), menu_item);
-	if (enum_valp->value == pref->saved_val.enumval)
-	  menu_index = index;
-	gtk_widget_show(menu_item);
-      }
-
-      /* Create the option menu from the option */
-      widget = gtk_option_menu_new();
-      gtk_option_menu_set_menu(GTK_OPTION_MENU(widget), menu);
-
-      /* Set its current value to the variable's current value */
-      if (menu_index != -1)
-        gtk_option_menu_set_history(GTK_OPTION_MENU(widget), menu_index);
-      pref->control = widget;
+      pref->control = create_preference_option_menu(main_tb, pref->ordinal,
+					 label_string,
+					 pref->info.enum_info.enumvals,
+					 pref->saved_val.enumval);
     }
     break;
 
   case PREF_STRING:
-    widget = gtk_entry_new();
     if (pref->saved_val.string != NULL)
       g_free(pref->saved_val.string);
     pref->saved_val.string = g_strdup(*pref->varp.string);
-    gtk_entry_set_text(GTK_ENTRY(widget), pref->saved_val.string);
-    pref->control = widget;
+    pref->control = create_preference_entry(main_tb, pref->ordinal,
+					    label_string,
+					    pref->saved_val.string);
     break;
 
   case PREF_OBSOLETE:
     g_assert_not_reached();
-    widget = NULL;
     break;
   }
-
-  gtk_table_attach_defaults(GTK_TABLE(main_tb), widget, 1, 2, pref->ordinal,
-				pref->ordinal+1);
+  g_free(label_string);
 }
 
 #define MAX_TREE_NODE_NAME_LEN 64
@@ -276,6 +238,7 @@ prefs_cb(GtkWidget *w, gpointer dummy) {
   GtkWidget        *main_vb, *top_hb, *bbox, *prefs_nb, *ct_sb, *frame,
                    *ok_bt, *apply_bt, *save_bt, *cancel_bt;
   GtkWidget        *print_pg, *column_pg, *stream_pg, *gui_pg, *capture_pg;
+  GtkWidget        *nameres_pg;
   gchar            label_str[MAX_TREE_NODE_NAME_LEN], *label_ptr = label_str;
   GtkCTreeNode     *ct_node;
   struct ct_struct cts;
@@ -403,6 +366,20 @@ prefs_cb(GtkWidget *w, gpointer dummy) {
   cts.page++;
 #endif
 
+  /* Name resolution prefs */
+  frame = gtk_frame_new("Name resolution");
+  gtk_widget_show(GTK_WIDGET(frame));
+  nameres_pg = nameres_prefs_show();
+  gtk_container_add(GTK_CONTAINER(frame), nameres_pg);
+  gtk_object_set_data(GTK_OBJECT(prefs_w), E_NAMERES_PAGE_KEY, nameres_pg);
+  gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
+  strcpy(label_str, "Name resolution");
+  ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.ctree), NULL, NULL, 
+  		&label_ptr, 5, NULL, NULL, NULL, NULL, TRUE, TRUE);
+  gtk_ctree_node_set_row_data(GTK_CTREE(cts.ctree), ct_node,
+  		GINT_TO_POINTER(cts.page));
+  cts.page++;
+
   /* Registered prefs */
   cts.notebook = prefs_nb;
   strcpy(label_str, "Protocols");
@@ -460,6 +437,185 @@ prefs_cb(GtkWidget *w, gpointer dummy) {
 }
 
 static void
+set_option_label(GtkWidget *main_tb, int table_position,
+    const gchar *label_text)
+{
+	GtkWidget *label;
+
+	label = gtk_label_new(label_text);
+	gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1,
+	    table_position, table_position + 1);
+	gtk_widget_show(label);
+}
+
+GtkWidget *
+create_preference_check_button(GtkWidget *main_tb, int table_position,
+    const gchar *label_text, gboolean active)
+{
+	GtkWidget *check_box;
+
+	set_option_label(main_tb, table_position, label_text);
+
+	check_box = gtk_check_button_new();
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_box), active);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), check_box, 1, 2,
+	    table_position, table_position + 1);
+
+	return check_box;
+}
+
+GtkWidget *
+create_preference_radio_buttons(GtkWidget *main_tb, int table_position,
+    const gchar *label_text, const enum_val_t *enumvals, gint current_val)
+{
+	GtkWidget *radio_button_hbox, *button = NULL;
+	GSList *rb_group;
+	int index;
+	const enum_val_t *enum_valp;
+
+	set_option_label(main_tb, table_position, label_text);
+
+	radio_button_hbox = gtk_hbox_new(FALSE, 0);
+	rb_group = NULL;
+	for (enum_valp = enumvals, index = 0; enum_valp->name != NULL;
+	    enum_valp++, index++) {
+		button = gtk_radio_button_new_with_label(rb_group,
+		    enum_valp->name);
+		gtk_widget_show(button);
+		if (rb_group == NULL)
+			rb_group = gtk_radio_button_group(GTK_RADIO_BUTTON(button));
+		gtk_box_pack_start(GTK_BOX(radio_button_hbox), button, FALSE,
+		    FALSE, 10);
+		if (enum_valp->value == current_val) {
+			gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
+			    TRUE);
+		}
+	}
+	gtk_widget_show(radio_button_hbox);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), radio_button_hbox, 1, 2,
+	    table_position, table_position+1);
+
+	/*
+	 * It doesn't matter which of the buttons we return - we fetch
+	 * the value by looking at the entire radio button group to
+	 * which it belongs, and we can get that from any button.
+	 */
+	return button;
+}
+
+static gint
+label_to_enum_val(GtkWidget *label, const enum_val_t *enumvals)
+{
+	char *label_string;
+	gint enumval;
+
+	/* Get the label's text, and translate it to a value. */
+	gtk_label_get(GTK_LABEL(label), &label_string);
+	enumval = find_val_for_string(label_string, enumvals, 1);
+
+	return enumval;
+}
+
+gint
+fetch_preference_radio_buttons_val(GtkWidget *button,
+    const enum_val_t *enumvals)
+{
+	GSList *rb_group;
+	GSList *rb_entry;
+
+	/*
+	 * Go through the list of of radio buttons in the button's group,
+	 * and find the first one that's active.
+	 */
+	rb_group = gtk_radio_button_group(GTK_RADIO_BUTTON(button));
+	button = NULL;
+	for (rb_entry = rb_group; rb_entry != NULL;
+	    rb_entry = g_slist_next(rb_entry)) {
+		button = rb_entry->data;
+		if (GTK_TOGGLE_BUTTON(button)->active)
+			break;
+	}
+
+	/* OK, now return the value corresponding to that button's label. */
+	return label_to_enum_val(GTK_BIN(button)->child, enumvals);
+}
+
+GtkWidget *
+create_preference_option_menu(GtkWidget *main_tb, int table_position,
+    const gchar *label_text, const enum_val_t *enumvals, gint current_val)
+{
+	GtkWidget *label, *menu_box, *menu, *menu_item, *option_menu;
+	int menu_index, index;
+	const enum_val_t *enum_valp;
+
+	set_option_label(main_tb, table_position, label_text);
+
+	/* Create a menu from the enumvals */
+	menu = gtk_menu_new();
+	menu_index = -1;
+	for (enum_valp = enumvals, index = 0; enum_valp->name != NULL;
+	    enum_valp++, index++) {
+		menu_item = gtk_menu_item_new_with_label(enum_valp->name);
+		gtk_menu_append(GTK_MENU(menu), menu_item);
+		if (enum_valp->value == current_val)
+			menu_index = index;
+		gtk_widget_show(menu_item);
+	}
+
+	/* Create the option menu from the menu */
+	option_menu = gtk_option_menu_new();
+	gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
+
+	/* Set its current value to the variable's current value */
+	if (menu_index != -1)
+		gtk_option_menu_set_history(GTK_OPTION_MENU(option_menu),
+		    menu_index);
+
+	/*
+	 * Put the option menu in an hbox, so that it's only as wide
+	 * as the widest entry, rather than being as wide as the table
+	 * space.
+	 */
+	menu_box = gtk_hbox_new(FALSE, 0);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), menu_box,
+	    1, 2, table_position, table_position + 1);
+	gtk_box_pack_start(GTK_BOX(menu_box), option_menu, FALSE, FALSE, 0);
+	return option_menu;
+}
+
+gint
+fetch_preference_option_menu_val(GtkWidget *optmenu, const enum_val_t *enumvals)
+{
+	/*
+	 * OK, now return the value corresponding to the label for the
+	 * currently active entry in the option menu.
+	 *
+	 * Yes, this is how you get the label for that entry.  See FAQ
+	 * 6.8 in the GTK+ FAQ.
+	 */
+	return label_to_enum_val(GTK_BIN(optmenu)->child, enumvals);
+}
+
+GtkWidget *
+create_preference_entry(GtkWidget *main_tb, int table_position,
+    const gchar *label_text, char *value)
+{
+	GtkWidget *entry;
+
+	set_option_label(main_tb, table_position, label_text);
+
+	entry = gtk_entry_new();
+	if (value != NULL)
+		gtk_entry_set_text(GTK_ENTRY(entry), value);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), entry, 1, 2,
+	    table_position, table_position + 1);
+	gtk_widget_show(entry);
+
+	return entry;
+}
+
+static void
 pref_fetch(pref_t *pref, gpointer user_data)
 {
   GtkWidget *label;
@@ -500,28 +656,13 @@ pref_fetch(pref_t *pref, gpointer user_data)
 
   case PREF_ENUM:
     if (pref->info.enum_info.radio_buttons) {
-      /* Go through the list of of radio buttons in the group, and find
-         the first one that's active. */
-      button = NULL;
-      for (rb_entry = gtk_radio_button_group(GTK_RADIO_BUTTON(pref->control));
-		rb_entry != NULL;
-		rb_entry = g_slist_next(rb_entry)) {
-	button = rb_entry->data;
-	if (GTK_TOGGLE_BUTTON(button)->active)
-	  break;
-      }
-      /* OK, now find that button's label. */
-      label = GTK_BIN(button)->child;
+      enumval = fetch_preference_radio_buttons_val(pref->control,
+          pref->info.enum_info.enumvals);
     } else {
-      /* Get the label for the currently active entry in the option menu.
-         Yes, this is how you do it.  See FAQ 6.8 in the GTK+ FAQ. */
-      label = GTK_BIN(pref->control)->child;
+      enumval = fetch_preference_option_menu_val(pref->control,
+          pref->info.enum_info.enumvals);
     }
 
-    /* Get the label, and translate it to a value. */
-    gtk_label_get(GTK_LABEL(label), &label_string);
-    enumval = find_val_for_string(label_string,
-					pref->info.enum_info.enumvals, 1);
     if (*pref->varp.enump != enumval) {
       *pref_changed_p = TRUE;
       *pref->varp.enump = enumval;
@@ -609,6 +750,7 @@ prefs_main_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   stream_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
   capture_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_CAPTURE_PAGE_KEY));
+  nameres_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_NAMERES_PAGE_KEY));
   prefs_module_foreach(module_prefs_fetch, &must_redissect);
 
   /* Now apply those preferences. */
@@ -617,6 +759,7 @@ prefs_main_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   stream_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
   capture_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_CAPTURE_PAGE_KEY));
+  nameres_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_NAMERES_PAGE_KEY));
   prefs_apply_all();
 
   /* Now destroy the "Preferences" dialog. */
@@ -641,6 +784,7 @@ prefs_main_apply_cb(GtkWidget *apply_bt, gpointer parent_w)
   stream_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
   capture_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_CAPTURE_PAGE_KEY));
+  nameres_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_NAMERES_PAGE_KEY));
   prefs_module_foreach(module_prefs_fetch, &must_redissect);
 
   /* Now apply those preferences. */
@@ -649,6 +793,7 @@ prefs_main_apply_cb(GtkWidget *apply_bt, gpointer parent_w)
   stream_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
   capture_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_CAPTURE_PAGE_KEY));
+  nameres_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_NAMERES_PAGE_KEY));
   prefs_apply_all();
 
   if (must_redissect) {
@@ -673,6 +818,7 @@ prefs_main_save_cb(GtkWidget *save_bt, gpointer parent_w)
   stream_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
   capture_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_CAPTURE_PAGE_KEY));
+  nameres_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_NAMERES_PAGE_KEY));
   prefs_module_foreach(module_prefs_fetch, &must_redissect);
 
   /* Create the directory that holds personal configuration files, if
@@ -711,6 +857,7 @@ prefs_main_save_cb(GtkWidget *save_bt, gpointer parent_w)
   stream_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
   capture_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_CAPTURE_PAGE_KEY));
+  nameres_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_NAMERES_PAGE_KEY));
   prefs_apply_all();
 
   if (must_redissect) {
@@ -802,7 +949,7 @@ prefs_main_cancel_cb(GtkWidget *cancel_bt, gpointer parent_w)
   column_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
   stream_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
-  capture_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_CAPTURE_PAGE_KEY));
+  nameres_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_NAMERES_PAGE_KEY));
   prefs_apply_all();
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
@@ -833,6 +980,7 @@ prefs_main_destroy_cb(GtkWidget *win, gpointer user_data)
   stream_prefs_destroy(gtk_object_get_data(GTK_OBJECT(prefs_w), E_STREAM_PAGE_KEY));
   gui_prefs_destroy(gtk_object_get_data(GTK_OBJECT(prefs_w), E_GUI_PAGE_KEY));
   capture_prefs_destroy(gtk_object_get_data(GTK_OBJECT(prefs_w), E_CAPTURE_PAGE_KEY));
+  nameres_prefs_destroy(gtk_object_get_data(GTK_OBJECT(prefs_w), E_NAMERES_PAGE_KEY));
 
   /* Free up the saved preferences (both for "prefs" and for registered
      preferences). */
@@ -909,4 +1057,3 @@ prefs_tree_select_cb(GtkCTree *ct, GtkCTreeNode *node, gint col, gpointer dummy)
   if (page >= 0) 
     gtk_notebook_set_page(GTK_NOTEBOOK(notebook), page);
 }
-

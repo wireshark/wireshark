@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.76 2002/01/10 07:43:37 guy Exp $
+ * $Id: prefs.c,v 1.77 2002/01/13 20:35:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,6 +42,7 @@
 #include <glib.h>
 
 #include <filesystem.h>
+#include <resolv.h>
 #include "globals.h"
 #include "packet.h"
 #include "file.h"
@@ -805,7 +806,7 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
     prefs.capture_prom_mode   = TRUE;
     prefs.capture_real_time   = FALSE;
     prefs.capture_auto_scroll = FALSE;
-    prefs.name_resolve        = PREFS_RESOLV_ALL;
+    prefs.name_resolve        = RESOLV_ALL;
   }
 
   /* Construct the pathname of the global preferences file. */
@@ -1092,9 +1093,9 @@ typedef struct {
 } name_resolve_opt_t;
 
 static name_resolve_opt_t name_resolve_opt[] = {
-  { 'm', PREFS_RESOLV_MAC },
-  { 'n', PREFS_RESOLV_NETWORK },
-  { 't', PREFS_RESOLV_TRANSPORT },
+  { 'm', RESOLV_MAC },
+  { 'n', RESOLV_NETWORK },
+  { 't', RESOLV_TRANSPORT },
 };
 
 #define N_NAME_RESOLVE_OPT	(sizeof name_resolve_opt / sizeof name_resolve_opt[0])
@@ -1107,7 +1108,7 @@ name_resolve_to_string(guint32 name_resolve)
   unsigned int i;
   gboolean all_opts_set = TRUE;
 
-  if (name_resolve == PREFS_RESOLV_NONE)
+  if (name_resolve == RESOLV_NONE)
     return "FALSE";
   p = &string[0];
   for (i = 0; i < N_NAME_RESOLVE_OPT; i++) {
@@ -1340,16 +1341,16 @@ set_pref(gchar *pref_name, gchar *value)
 	     strcmp(pref_name, PRS_CAP_NAME_RESOLVE) == 0) {
     /*
      * "TRUE" and "FALSE", for backwards compatibility, are synonyms for
-     * PREFS_RESOLV_ALL and PREFS_RESOLV_NONE.
+     * RESOLV_ALL and RESOLV_NONE.
      *
      * Otherwise, we treat it as a list of name types we want to resolve.
      */
     if (strcasecmp(value, "true") == 0)
-      prefs.name_resolve = PREFS_RESOLV_ALL;
+      prefs.name_resolve = RESOLV_ALL;
     else if (strcasecmp(value, "false") == 0)
-      prefs.name_resolve = PREFS_RESOLV_NONE;
+      prefs.name_resolve = RESOLV_NONE;
     else {
-      prefs.name_resolve = PREFS_RESOLV_NONE;	/* start out with none set */
+      prefs.name_resolve = RESOLV_NONE;	/* start out with none set */
       if (string_to_name_resolve(value, &prefs.name_resolve) != '\0')
         return PREFS_SET_SYNTAX_ERR;
     }

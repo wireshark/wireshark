@@ -1,7 +1,7 @@
 /* ipproto.c
  * Routines for converting IPv4 protocol/v6 nxthdr field into string
  *
- * $Id: ipproto.c,v 1.15 2001/11/13 23:55:29 gram Exp $
+ * $Id: ipproto.c,v 1.16 2002/01/13 20:35:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,7 +42,7 @@
 
 #include "ipproto.h"
 #include "packet.h"
-#include "prefs.h"
+#include "resolv.h"
 #include "packet-ip.h"
 
 static const value_string ipproto_val[] = {
@@ -102,7 +102,11 @@ const char *ipprotostr(int proto) {
 	goto ok;
 
 #ifdef HAVE_GETPROTOBYNUMBER
-    if (prefs.name_resolve) {
+    /*
+     * XXX - have another flag for resolving network-layer
+     * protocol names?
+     */
+    if (g_resolv_flags != 0) {
 	pe = getprotobynumber(proto);
 	if (pe) {
 	    s = pe->p_name;

@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.31 2002/01/12 11:09:09 guy Exp $
+ * $Id: gui_prefs.c,v 1.32 2002/01/13 20:35:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,19 +37,13 @@
 #include "follow_dlg.h"
 #include "help_dlg.h"
 #include "prefs.h"
-#include "prefs-int.h"
+#include "prefs_dlg.h"
 #include "ui_util.h"
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 #include "proto_draw.h"
 #include "main.h"
 
-static void create_option_menu(GtkWidget *main_vb, const gchar *key,
-    GtkWidget *main_tb, int table_position,
-    const gchar *label_text, const enum_val_t *enumvals, gint current_val);
-static void create_option_check_button(GtkWidget *main_vb, const gchar *key,
-    GtkWidget *main_tb, int table_position, const gchar *label_text,
-    gboolean active);
 static void font_browse_cb(GtkWidget *w, gpointer data);
 static void font_browse_ok_cb(GtkWidget *w, GtkFontSelectionDialog *fs);
 static void font_browse_destroy(GtkWidget *win, gpointer data);
@@ -134,7 +128,10 @@ GtkWidget*
 gui_prefs_show(void)
 {
 	GtkWidget	*main_tb, *main_vb, *hbox, *font_bt, *color_bt;
-	GtkWidget	*geom_cb;
+	GtkWidget	*scrollbar_om, *plist_browse_om;
+	GtkWidget	*ptree_browse_om, *line_style_om;
+	GtkWidget	*expander_style_om, *highlight_style_om;
+	GtkWidget	*save_position_cb, *save_size_cb;
 
 	/* The colors or font haven't been changed yet. */
 	colors_changed = FALSE;
@@ -157,42 +154,58 @@ gui_prefs_show(void)
 	gtk_table_set_col_spacing( GTK_TABLE(main_tb), 1, 50 );
 
 	/* Scrollbar placement */
-	create_option_menu(main_vb, SCROLLBAR_PLACEMENT_KEY, main_tb, 0,
+	scrollbar_om = create_preference_option_menu(main_tb, 0,
 	    "Vertical scrollbar placement:", scrollbar_placement_vals,
 	    prefs.gui_scrollbar_on_right);
+	gtk_object_set_data(GTK_OBJECT(main_vb), SCROLLBAR_PLACEMENT_KEY,
+	    scrollbar_om);
 
 	/* Packet list selection browseable */
-	create_option_menu(main_vb, PLIST_SEL_BROWSE_KEY, main_tb, 1,
+	plist_browse_om = create_preference_option_menu(main_tb, 1,
 	    "Packet list mouse behavior:", selection_mode_vals,
 	    prefs.gui_plist_sel_browse);
+	gtk_object_set_data(GTK_OBJECT(main_vb), PLIST_SEL_BROWSE_KEY,
+	    plist_browse_om);
 
 	/* Proto tree selection browseable */
-	create_option_menu(main_vb, PTREE_SEL_BROWSE_KEY, main_tb, 2,
+	ptree_browse_om = create_preference_option_menu(main_tb, 2,
 	    "Protocol tree mouse behavior:", selection_mode_vals,
 	    prefs.gui_ptree_sel_browse);
+	gtk_object_set_data(GTK_OBJECT(main_vb), PTREE_SEL_BROWSE_KEY,
+	    ptree_browse_om);
 
 	/* Tree line style */
-	create_option_menu(main_vb, PTREE_LINE_STYLE_KEY, main_tb, 3,
+	line_style_om = create_preference_option_menu(main_tb, 3,
 	    "Tree line style:", line_style_vals,
 	    prefs.gui_ptree_line_style);
+	gtk_object_set_data(GTK_OBJECT(main_vb), PTREE_LINE_STYLE_KEY,
+	    line_style_om);
 
 	/* Tree expander style */
-	create_option_menu(main_vb, PTREE_EXPANDER_STYLE_KEY, main_tb, 4,
+	expander_style_om = create_preference_option_menu(main_tb, 4,
 	    "Tree expander style:", expander_style_vals,
 	    prefs.gui_ptree_expander_style);
+	gtk_object_set_data(GTK_OBJECT(main_vb), PTREE_EXPANDER_STYLE_KEY,
+	    expander_style_om);
 
 	/* Hex Dump highlight style */
-	create_option_menu(main_vb, HEX_DUMP_HIGHLIGHT_STYLE_KEY, main_tb, 5,
+	highlight_style_om = create_preference_option_menu(main_tb, 5,
 	    "Hex display highlight style:", highlight_style_vals,
 	    prefs.gui_hex_dump_highlight_style);
+	gtk_object_set_data(GTK_OBJECT(main_vb), HEX_DUMP_HIGHLIGHT_STYLE_KEY,
+	    highlight_style_om);
 	
 	/* Geometry prefs */
-	create_option_check_button(main_vb, GEOMETRY_POSITION_KEY, main_tb,
+	save_position_cb = create_preference_check_button(main_tb,
 	    6, "Save window position:", prefs.gui_geometry_save_position);
+	gtk_object_set_data(GTK_OBJECT(main_vb), GEOMETRY_POSITION_KEY,
+	    save_position_cb);
 	    
-	create_option_check_button(main_vb, GEOMETRY_SIZE_KEY, main_tb,
+	save_size_cb = create_preference_check_button(main_tb,
 	    7, "Save window size:", prefs.gui_geometry_save_size);
-	    
+	gtk_object_set_data(GTK_OBJECT(main_vb), GEOMETRY_SIZE_KEY,
+	    save_size_cb);
+
 	/* "Font..." button - click to open a font selection dialog box. */
 	font_bt = gtk_button_new_with_label("Font...");
 	gtk_signal_connect(GTK_OBJECT(font_bt), "clicked",
@@ -209,68 +222,6 @@ gui_prefs_show(void)
 	gtk_widget_show_all(main_vb);
 
 	return(main_vb);
-}
-
-static void
-create_option_menu(GtkWidget *main_vb, const gchar *key,
-    GtkWidget *main_tb, int table_position,
-    const gchar *label_text, const enum_val_t *enumvals, gint current_val)
-{
-	GtkWidget *label, *menu_box, *menu, *menu_item, *option_menu;
-	int menu_index, index;
-	const enum_val_t *enum_valp;
-
-	label = gtk_label_new(label_text);
-	gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1,
-	    table_position, table_position + 1);
-	menu_box = gtk_hbox_new(FALSE, 0);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), menu_box,
-	    1, 2, table_position, table_position + 1);
-
-	/* Create a menu from the enumvals */
-	menu = gtk_menu_new();
-	menu_index = -1;
-	for (enum_valp = enumvals, index = 0;
-	    enum_valp->name != NULL; enum_valp++, index++) {
-		menu_item = gtk_menu_item_new_with_label(enum_valp->name);
-		gtk_menu_append(GTK_MENU(menu), menu_item);
-		if (enum_valp->value == current_val)
-			menu_index = index;
-		gtk_widget_show(menu_item);
-	}
-
-	/* Create the option menu from the menu */
-	option_menu = gtk_option_menu_new();
-	gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
-
-	/* Set its current value to the variable's current value */
-	if (menu_index != -1)
-		gtk_option_menu_set_history(GTK_OPTION_MENU(option_menu),
-		    menu_index);
-
-	gtk_box_pack_start(GTK_BOX(menu_box), option_menu, FALSE, FALSE, 0);
-	gtk_object_set_data(GTK_OBJECT(main_vb), key, option_menu);
-}
-
-static void
-create_option_check_button(GtkWidget *main_vb, const gchar *key,
-    GtkWidget *main_tb, int table_position, const gchar *label_text,
-    gboolean active)
-{
-	GtkWidget *label, *check_box;
-
-	label = gtk_label_new(label_text);
-	gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1,
-	    table_position, table_position + 1);
-
-	check_box = gtk_check_button_new();
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_box), active);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), check_box, 1, 2,
-	    table_position, table_position + 1);
-
-	gtk_object_set_data(GTK_OBJECT(main_vb), key, check_box);
 }
 
 /* Create a font dialog for browsing. */
@@ -432,16 +383,7 @@ font_browse_destroy(GtkWidget *win, gpointer data)
 static gint
 fetch_enum_value(gpointer control, const enum_val_t *enumvals)
 {
-	GtkWidget *label;
-	char *label_string;
-
-	/* Get the label for the currently active entry in the option menu.
-	   Yes, this is how you do it.  See FAQ 6.8 in the GTK+ FAQ. */
-	label = GTK_BIN(control)->child;
-
-	/* Get the label string, and translate it to a value. */
-	gtk_label_get(GTK_LABEL(label), &label_string);
-	return find_val_for_string(label_string, enumvals, 1);
+	return fetch_preference_option_menu_val(GTK_WIDGET(control), enumvals);
 }
 
 void
@@ -479,7 +421,7 @@ gui_prefs_fetch(GtkWidget *w)
 	}
 
 	if (colors_changed)
-	    fetch_colors();
+		fetch_colors();
 }
 
 void

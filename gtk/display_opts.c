@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.23 2002/01/10 11:05:50 guy Exp $
+ * $Id: display_opts.c,v 1.24 2002/01/13 20:35:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -21,7 +21,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -59,7 +58,6 @@
 #include "display_opts.h"
 #include "ui_util.h"
 #include "dlg_utils.h"
-#include "prefs.h"
 
 extern capture_file  cfile;
 
@@ -184,7 +182,7 @@ display_opt_cb(GtkWidget *w, gpointer d) {
   button = dlg_check_button_new_with_label_with_mnemonic(
   		"Enable _MAC name resolution", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
-		prefs.name_resolve & PREFS_RESOLV_MAC);
+		g_resolv_flags & RESOLV_MAC);
   gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_M_NAME_RESOLUTION_KEY,
 		      button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
@@ -193,7 +191,7 @@ display_opt_cb(GtkWidget *w, gpointer d) {
   button = dlg_check_button_new_with_label_with_mnemonic(
   		"Enable _network name resolution", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
-		prefs.name_resolve & PREFS_RESOLV_NETWORK);
+		g_resolv_flags & RESOLV_NETWORK);
   gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_N_NAME_RESOLUTION_KEY,
 		      button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
@@ -202,7 +200,7 @@ display_opt_cb(GtkWidget *w, gpointer d) {
   button = dlg_check_button_new_with_label_with_mnemonic(
   		"Enable _transport name resolution", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
-		prefs.name_resolve & PREFS_RESOLV_TRANSPORT);
+		g_resolv_flags & RESOLV_TRANSPORT);
   gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_T_NAME_RESOLUTION_KEY,
 		      button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
@@ -292,16 +290,16 @@ get_display_options(GtkWidget *parent_w)
   auto_scroll_live = (GTK_TOGGLE_BUTTON (button)->active);
 #endif
 
-  prefs.name_resolve = PREFS_RESOLV_NONE;
+  g_resolv_flags = RESOLV_NONE;
   button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
 					     E_DISPLAY_M_NAME_RESOLUTION_KEY);
-  prefs.name_resolve |= (GTK_TOGGLE_BUTTON (button)->active ? PREFS_RESOLV_MAC : PREFS_RESOLV_NONE);
+  g_resolv_flags |= (GTK_TOGGLE_BUTTON (button)->active ? RESOLV_MAC : RESOLV_NONE);
   button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
 					     E_DISPLAY_N_NAME_RESOLUTION_KEY);
-  prefs.name_resolve |= (GTK_TOGGLE_BUTTON (button)->active ? PREFS_RESOLV_NETWORK : PREFS_RESOLV_NONE);
+  g_resolv_flags |= (GTK_TOGGLE_BUTTON (button)->active ? RESOLV_NETWORK : RESOLV_NONE);
   button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
 					     E_DISPLAY_T_NAME_RESOLUTION_KEY);
-  prefs.name_resolve |= (GTK_TOGGLE_BUTTON (button)->active ? PREFS_RESOLV_TRANSPORT : PREFS_RESOLV_NONE);
+  g_resolv_flags |= (GTK_TOGGLE_BUTTON (button)->active ? RESOLV_TRANSPORT : RESOLV_NONE);
 
 }
 

@@ -1,7 +1,7 @@
 /* print_prefs.c
  * Dialog boxes for preferences for printing
  *
- * $Id: print_prefs.c,v 1.9 2002/01/11 07:40:31 guy Exp $
+ * $Id: print_prefs.c,v 1.10 2002/01/13 20:35:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,6 +34,7 @@
 #include "keys.h"
 #include "print.h"
 #include "prefs.h"
+#include "prefs_dlg.h"
 #include "util.h"
 #include "ui_util.h"
 #include "dlg_utils.h"
@@ -42,20 +43,29 @@ static void printer_opts_file_cb(GtkWidget *w, gpointer te);
 static void printer_opts_fs_ok_cb(GtkWidget *w, gpointer data);
 static void printer_opts_fs_cancel_cb(GtkWidget *w, gpointer data);
 static void printer_opts_fs_destroy_cb(GtkWidget *win, gpointer data);
-static void printer_opts_toggle_format(GtkWidget *widget, gpointer data);
-static void printer_opts_toggle_dest(GtkWidget *widget, gpointer data);
 
 #define E_FS_CALLER_PTR_KEY       "fs_caller_ptr"
 #define E_FILE_SEL_DIALOG_PTR_KEY "file_sel_dialog_ptr"
+#define E_PRINT_FORMAT_KEY        "print_format"
+#define E_PRINT_DESTINATION_KEY   "print_destination"
+
+static const enum_val_t print_format_vals[] = {
+	{ "Plain Text", PR_FMT_TEXT },
+	{ "Postscript", PR_FMT_PS },
+	{ NULL,         0 }
+};
+
+static const enum_val_t print_dest_vals[] = {
+	{ "Command", PR_DEST_CMD },
+	{ "File",    PR_DEST_FILE },
+	{ NULL,      0 }
+};
 
 GtkWidget * printer_prefs_show(void)
 {
 	GtkWidget	*main_vb, *main_tb, *button;
-	GtkWidget	*format_hb, *format_lb;
-	GtkWidget	*dest_hb, *dest_lb;
-	GtkWidget	*cmd_lb, *cmd_te;
+	GtkWidget	*cmd_te;
 	GtkWidget	*file_bt_hb, *file_bt, *file_te;
-	GSList		*format_grp, *dest_grp;
 
 	/* Enclosing containers for each row of widgets */
 	main_vb = gtk_vbox_new(FALSE, 5);
@@ -68,70 +78,19 @@ GtkWidget * printer_prefs_show(void)
 	gtk_widget_show(main_tb);
 
 	/* Output format */
-	format_lb = gtk_label_new("Format:");
-	gtk_misc_set_alignment(GTK_MISC(format_lb), 1.0, 0.5);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), format_lb, 0, 1, 0, 1);
-	gtk_widget_show(format_lb);
-
-	format_hb = gtk_hbox_new(FALSE, 0);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), format_hb, 1, 2, 0, 1);
-	gtk_widget_show(format_hb);
-
-	button = gtk_radio_button_new_with_label(NULL, "Plain Text");
-	if (prefs.pr_format == PR_FMT_TEXT) {
-		gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), TRUE);
-	}
-	format_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(button));
-	gtk_box_pack_start(GTK_BOX(format_hb), button, FALSE, FALSE, 10);
-	gtk_widget_show(button);
-
-	button = gtk_radio_button_new_with_label(format_grp, "PostScript");
-	if (prefs.pr_format == PR_FMT_PS) {
-		gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), TRUE);
-	}
-	gtk_signal_connect(GTK_OBJECT(button), "toggled",
-			GTK_SIGNAL_FUNC(printer_opts_toggle_format), NULL);
-	gtk_box_pack_start(GTK_BOX(format_hb), button, FALSE, FALSE, 10);
-	gtk_widget_show(button);
+	button = create_preference_radio_buttons(main_tb, 0, "Format:",
+	   print_format_vals, prefs.pr_format);
+	gtk_object_set_data(GTK_OBJECT(main_vb), E_PRINT_FORMAT_KEY, button);
 
 	/* Output destination */
-	dest_lb = gtk_label_new("Print to:");
-	gtk_misc_set_alignment(GTK_MISC(dest_lb), 1.0, 0.5);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), dest_lb, 0, 1, 1, 2);
-	gtk_widget_show(dest_lb);
-
-	dest_hb = gtk_hbox_new(FALSE, 0);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), dest_hb, 1, 2, 1, 2);
-	gtk_widget_show(dest_hb);
-
-	button = gtk_radio_button_new_with_label(NULL, "Command");
-	if (prefs.pr_dest == PR_DEST_CMD) {
-		gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), TRUE);
-	}
-	dest_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(button));
-	gtk_box_pack_start(GTK_BOX(dest_hb), button, FALSE, FALSE, 10);
-	gtk_widget_show(button);
-
-	button = gtk_radio_button_new_with_label(dest_grp, "File");
-	if (prefs.pr_dest == PR_DEST_FILE) {
-		gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), TRUE);
-	}
-	gtk_signal_connect(GTK_OBJECT(button), "toggled",
-			GTK_SIGNAL_FUNC(printer_opts_toggle_dest), NULL);
-	gtk_box_pack_start(GTK_BOX(dest_hb), button, FALSE, FALSE, 10);
-	gtk_widget_show(button);
+	button = create_preference_radio_buttons(main_tb, 1, "Print to:",
+	   print_dest_vals, prefs.pr_dest);
+	gtk_object_set_data(GTK_OBJECT(main_vb), E_PRINT_DESTINATION_KEY,
+	   button);
 
 	/* Command text entry */
-	cmd_lb = gtk_label_new("Command:");
-	gtk_misc_set_alignment(GTK_MISC(cmd_lb), 1.0, 0.5);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), cmd_lb, 0, 1, 2, 3);
-	gtk_widget_show(cmd_lb);
-
-	cmd_te = gtk_entry_new();
+	cmd_te = create_preference_entry(main_tb, 2, "Command:", prefs.pr_cmd);
 	gtk_object_set_data(GTK_OBJECT(main_vb), PRINT_CMD_TE_KEY, cmd_te);
-	if (prefs.pr_cmd) gtk_entry_set_text(GTK_ENTRY(cmd_te), prefs.pr_cmd);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), cmd_te, 1, 2, 2, 3);
-	gtk_widget_show(cmd_te);
 
 	/* File button and text entry */
 	file_bt_hb = gtk_hbox_new(FALSE, 0);
@@ -236,19 +195,25 @@ printer_opts_fs_destroy_cb(GtkWidget *win, gpointer data)
 void
 printer_prefs_fetch(GtkWidget *w)
 {
-	if (prefs.pr_cmd)
-		g_free(prefs.pr_cmd);
-	prefs.pr_cmd =  
-		g_strdup(gtk_entry_get_text(
-		    GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(w),
-		      PRINT_CMD_TE_KEY))));
+  prefs.pr_format = fetch_preference_radio_buttons_val(
+	gtk_object_get_data(GTK_OBJECT(w), E_PRINT_FORMAT_KEY),
+	print_format_vals);
 
-	if (prefs.pr_file)
-		g_free(prefs.pr_file);
-	prefs.pr_file =  
-		g_strdup(gtk_entry_get_text(
-		    GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(w),
-		      PRINT_FILE_TE_KEY))));
+  prefs.pr_dest = fetch_preference_radio_buttons_val(
+	gtk_object_get_data(GTK_OBJECT(w), E_PRINT_DESTINATION_KEY),
+	print_dest_vals);
+
+  if (prefs.pr_cmd)
+    g_free(prefs.pr_cmd);
+  prefs.pr_cmd = g_strdup(gtk_entry_get_text(
+			  GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(w),
+			  PRINT_CMD_TE_KEY))));
+
+  if (prefs.pr_file)
+    g_free(prefs.pr_file);
+  prefs.pr_file = g_strdup(gtk_entry_get_text(
+			   GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(w),
+			   PRINT_FILE_TE_KEY))));
 }
 
 void
@@ -270,28 +235,4 @@ printer_prefs_destroy(GtkWidget *w)
     /* Yes.  Destroy it. */
     gtk_widget_destroy(fs);
   }
-}
-
-static void
-printer_opts_toggle_format(GtkWidget *widget, gpointer data)
-{
-	if (GTK_TOGGLE_BUTTON (widget)->active) {
-		prefs.pr_format = PR_FMT_PS;
-		/* toggle file/cmd */
-	}
-	else {
-		prefs.pr_format = PR_FMT_TEXT;
-		/* toggle file/cmd */
-	}
-}
-
-static void
-printer_opts_toggle_dest(GtkWidget *widget, gpointer data)
-{
-	if (GTK_TOGGLE_BUTTON (widget)->active) {
-		prefs.pr_dest = PR_DEST_FILE;
-	}
-	else {
-		prefs.pr_dest = PR_DEST_CMD;
-	}
 }

@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.55 2002/01/11 08:55:02 guy Exp $
+ * $Id: capture_dlg.c,v 1.56 2002/01/13 20:35:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -386,21 +386,21 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   m_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
 		"Enable _MAC name resolution", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(m_resolv_cb),
-		prefs.name_resolve & PREFS_RESOLV_MAC);
+		g_resolv_flags & RESOLV_MAC);
   gtk_container_add(GTK_CONTAINER(main_vb), m_resolv_cb);
   gtk_widget_show(m_resolv_cb);
 
   n_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
 		"Enable _network name resolution", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(n_resolv_cb),
-		prefs.name_resolve & PREFS_RESOLV_NETWORK);
+		g_resolv_flags & RESOLV_NETWORK);
   gtk_container_add(GTK_CONTAINER(main_vb), n_resolv_cb);
   gtk_widget_show(n_resolv_cb);
 
   t_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
 		"Enable _transport name resolution", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(t_resolv_cb),
-		prefs.name_resolve & PREFS_RESOLV_TRANSPORT);
+		g_resolv_flags & RESOLV_TRANSPORT);
   gtk_container_add(GTK_CONTAINER(main_vb), t_resolv_cb);
   gtk_widget_show(t_resolv_cb);
   
@@ -688,10 +688,10 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
 
   auto_scroll_live = GTK_TOGGLE_BUTTON (auto_scroll_cb)->active;
 
-  prefs.name_resolve = PREFS_RESOLV_NONE;
-  prefs.name_resolve |= (GTK_TOGGLE_BUTTON (m_resolv_cb)->active ? PREFS_RESOLV_MAC : PREFS_RESOLV_NONE);
-  prefs.name_resolve |= (GTK_TOGGLE_BUTTON (n_resolv_cb)->active ? PREFS_RESOLV_NETWORK : PREFS_RESOLV_NONE);
-  prefs.name_resolve |= (GTK_TOGGLE_BUTTON (t_resolv_cb)->active ? PREFS_RESOLV_TRANSPORT : PREFS_RESOLV_NONE);
+  g_resolv_flags = RESOLV_NONE;
+  g_resolv_flags |= (GTK_TOGGLE_BUTTON (m_resolv_cb)->active ? RESOLV_MAC : RESOLV_NONE);
+  g_resolv_flags |= (GTK_TOGGLE_BUTTON (n_resolv_cb)->active ? RESOLV_NETWORK : RESOLV_NONE);
+  g_resolv_flags |= (GTK_TOGGLE_BUTTON (t_resolv_cb)->active ? RESOLV_TRANSPORT : RESOLV_NONE);
 
   cfile.ringbuffer_on = GTK_TOGGLE_BUTTON (ringbuffer_on_tb)->active && !(sync_mode);
   if (cfile.ringbuffer_on == TRUE) {

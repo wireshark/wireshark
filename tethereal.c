@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.116 2002/01/11 11:04:03 guy Exp $
+ * $Id: tethereal.c,v 1.117 2002/01/13 20:35:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -325,6 +325,9 @@ main(int argc, char *argv[])
         strerror(pf_open_errno));
   }
 
+  /* Set the name resolution code's flags from the preferences. */
+  g_resolv_flags = prefs->name_resolve;
+
 #ifdef WIN32
   /* Load Wpcap, if possible */
   load_wpcap();
@@ -511,12 +514,12 @@ main(int argc, char *argv[])
 	line_buffered = TRUE;
 	break;
       case 'n':        /* No name resolution */
-        prefs->name_resolve = PREFS_RESOLV_NONE;
+        g_resolv_flags = RESOLV_NONE;
         break;
       case 'N':        /* Select what types of addresses/port #s to resolve */
-        if (prefs->name_resolve == PREFS_RESOLV_ALL)
-          prefs->name_resolve = PREFS_RESOLV_NONE;
-        badopt = string_to_name_resolve(optarg, &prefs->name_resolve);
+        if (g_resolv_flags == RESOLV_ALL)
+          g_resolv_flags = RESOLV_NONE;
+        badopt = string_to_name_resolve(optarg, &g_resolv_flags);
         if (badopt != '\0') {
           fprintf(stderr, "tethereal: -N specifies unknown resolving option '%c'; valid options are 'm', 'n', and 't'\n",
 			badopt);

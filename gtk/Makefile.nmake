@@ -37,6 +37,7 @@ OBJECTS=capture_dlg.obj \
 	help_dlg.obj \
 	main.obj 	\
 	menu.obj 	\
+	nameres_prefs.obj \
 	packet_win.obj	\
 	plugins_dlg.obj	\
 	prefs_dlg.obj \

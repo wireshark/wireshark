@@ -1,7 +1,7 @@
-/* prefs_dlg.h
- * Definitions for preference handling routines
+/* nameres_prefs.h
+ * Definitions for name resolution preferences window
  *
- * $Id: prefs_dlg.h,v 1.7 2002/01/13 20:35:12 guy Exp $
+ * $Id: nameres_prefs.h,v 1.1 2002/01/13 20:35:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,20 +22,12 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __PREFS_DLG_H__
-#define __PREFS_DLG_H__
+#ifndef __NAMERES_PREFS_H__
+#define __NAMERES_PREFS_H__
 
-void       prefs_cb(GtkWidget *, gpointer);
-void       properties_cb(GtkWidget *, gpointer);
-
-GtkWidget *create_preference_check_button(GtkWidget *, int, const gchar *,
-    gboolean);
-GtkWidget *create_preference_radio_buttons(GtkWidget *, int, const gchar *,
-    const enum_val_t *, gint);
-gint fetch_preference_radio_buttons_val(GtkWidget *, const enum_val_t *);
-GtkWidget *create_preference_option_menu(GtkWidget *, int, const gchar *,
-    const enum_val_t *, gint);
-gint fetch_preference_option_menu_val(GtkWidget *, const enum_val_t *);
-GtkWidget *create_preference_entry(GtkWidget *, int, const gchar *, char *);
+GtkWidget *nameres_prefs_show(void);
+void nameres_prefs_fetch(GtkWidget *w);
+void nameres_prefs_apply(GtkWidget *w);
+void nameres_prefs_destroy(GtkWidget *w);
 
 #endif

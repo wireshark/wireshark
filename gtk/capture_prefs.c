@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.6 2002/01/12 11:02:47 guy Exp $
+ * $Id: capture_prefs.c,v 1.7 2002/01/13 20:35:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,16 +38,12 @@
 #include "capture_prefs.h"
 #include "gtkglobals.h"
 #include "prefs.h"
-#include "prefs-int.h"
+#include "prefs_dlg.h"
 #include "ui_util.h"
 #include "pcap-util.h"
 #include "main.h"
 
 #ifdef HAVE_LIBPCAP
-
-static void create_option_check_button(GtkWidget *main_vb, const gchar *key,
-    GtkWidget *main_tb, int table_position, const gchar *label_text,
-    gboolean active);
 
 #define DEVICE_KEY		"device"
 #define PROM_MODE_KEY		"prom_mode"
@@ -59,7 +55,7 @@ GtkWidget*
 capture_prefs_show(void)
 {
 	GtkWidget	*main_tb, *main_vb;
-	GtkWidget	*if_cb, *if_lb;
+	GtkWidget	*if_cb, *if_lb, *promisc_cb, *sync_cb, *auto_scroll_cb;
 	GList		*if_list;
 	int		err;
 	char		err_str[PCAP_ERRBUF_SIZE];
@@ -98,41 +94,26 @@ capture_prefs_show(void)
 	free_interface_list(if_list);
 
 	/* Promiscuous mode */
-	create_option_check_button(main_vb, PROM_MODE_KEY, main_tb, 1,
+	promisc_cb = create_preference_check_button(main_tb, 1,
 	    "Capture packets in promiscuous mode:", prefs.capture_prom_mode);
+	gtk_object_set_data(GTK_OBJECT(main_vb), PROM_MODE_KEY, promisc_cb);
 
 	/* Real-time capture */
-	create_option_check_button(main_vb, CAPTURE_REAL_TIME_KEY, main_tb, 2,
+	sync_cb = create_preference_check_button(main_tb, 2,
 	    "Update list of packets in real time:", prefs.capture_real_time);
+	gtk_object_set_data(GTK_OBJECT(main_vb), CAPTURE_REAL_TIME_KEY,
+	    sync_cb);
 
 	/* Auto-scroll real-time capture */
-	create_option_check_button(main_vb, AUTO_SCROLL_KEY, main_tb, 3,
+	auto_scroll_cb = create_preference_check_button(main_tb, 3,
 	    "Automatic scrolling in live capture:", prefs.capture_auto_scroll);
+	gtk_object_set_data(GTK_OBJECT(main_vb), AUTO_SCROLL_KEY,
+	    auto_scroll_cb);
 
 	/* Show 'em what we got */
 	gtk_widget_show_all(main_vb);
 
 	return(main_vb);
-}
-
-static void
-create_option_check_button(GtkWidget *main_vb, const gchar *key,
-    GtkWidget *main_tb, int table_position, const gchar *label_text,
-    gboolean active)
-{
-	GtkWidget *label, *check_box;
-
-	label = gtk_label_new(label_text);
-	gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1,
-	    table_position, table_position + 1);
-
-	check_box = gtk_check_button_new();
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_box), active);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), check_box, 1, 2,
-	    table_position, table_position + 1);
-
-	gtk_object_set_data(GTK_OBJECT(main_vb), key, check_box);
 }
 
 void
