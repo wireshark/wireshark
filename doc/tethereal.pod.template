@@ -358,10 +358,11 @@ all filters and presented with one column of statistics for each filter.
 This option can be used multiple times on the command line. 
 
 
-Example:   -z io,stat,1,ip.addr==1.2.3.4   to generate 1 second statistics for
-all traffic to/from host 1.2.3.4
+Example: B<-z io,stat,1,ip.addr==1.2.3.4> to generate 1 second
+statistics for all traffic to/from host 1.2.3.4.
 
-Example:   -z "io,stat,0.001,smb&&ip.addr==1.2.3.4"   to generate 1ms statistics for all SMB frames to/from host 1.2.3.4.
+Example: B<-z "io,stat,0.001,smb&&ip.addr==1.2.3.4"> to generate 1ms
+statistics for all SMB frames to/from host 1.2.3.4.
 
 The examples above all use the standard syntax for generating statistics
 which only calculates the number of frames and bytes in each interval.
@@ -373,32 +374,40 @@ MAX() and AVG() using a slightly filter syntax:
 One important thing to note here is that the field that the calculation is 
 based on MUST also be part of the filter string or else the calculation will
 fail.
-So:  -z io,stat,0.010,AVG(smb.time)  does not work. Use -z io,stat,0.010,AVG(smb.time)smb.time  instead.
-Also be aware that a field can exist multiple times inside the same packet
-and will then be counted multiple times in those packets.
+
+So: B<-z io,stat,0.010,AVG(smb.time)> does not work.  Use B<-z
+io,stat,0.010,AVG(smb.time)smb.time> instead.  Also be aware that a field
+can exist multiple times inside the same packet and will then be counted
+multiple times in those packets. 
 
 
-COUNT(<field>) can be used on any type which has a display filter name. It will
-count how many times this particular field is encountered in the filtered packet list. 
+COUNT(<field>) can be used on any type which has a display filter name. 
+It will count how many times this particular field is encountered in the
+filtered packet list.
 
-Example: -z io,stat,0.010,COUNT(smb.sid)smb.sid
+Example: B<-z io,stat,0.010,COUNT(smb.sid)smb.sid>
 This will count the total number of SIDs seen in each 10ms interval.
 
 SUM(<field>) can only be used on named fields of integer type.
 This will sum together every occurence of this fields value for each interval.
 
-Example: -z io,stat,0.010,SUM(frame.pkt_len)frame.pkt_len
-This will report the total number of bytes seen in all the frames within an interval. 
+Example: B<-z io,stat,0.010,SUM(frame.pkt_len)frame.pkt_len>
+This will report the total number of bytes seen in all the frames within
+an interval.
 
-MIN/MAX/AVG(<field>) can only be used on named fields that are either integers or relative time fields.
-This will calculate maximum/minimum or average seen in each interval.
-If the field is a relative time field the output will be presented in seconds 
-and three digits after the decimal point. The resolution for time calculations is 1ms and anything smaller will be truncated.
+MIN/MAX/AVG(<field>) can only be used on named fields that are either
+integers or relative time fields.  This will calculate maximum/minimum
+or average seen in each interval.  If the field is a relative time field
+the output will be presented in seconds and three digits after the
+decimal point.  The resolution for time calculations is 1ms and anything
+smaller will be truncated.
 
-Example:  -z "io,stat,0.010,smb.time&&ip.addr==1.1.1.1,MIN(smb.time)smb.time&&ip.addr==1.1.1.1,MAX(smb.time)smb.time&&ip.addr==1.1.1.1,MAX(smb.time)smb.time&&ip.addr==1.1.1.1"
+Example:  B<-z "io,stat,0.010,smb.time&&ip.addr==1.1.1.1,MIN(smb.time)smb.time&&ip.addr==1.1.1.1,MAX(smb.time)smb.time&&ip.addr==1.1.1.1,MAX(smb.time)smb.time&&ip.addr==1.1.1.1">
 
-This will calculate statistics for all smb response times we see to/from host 1.1.1.1 in 10ms intervals.
-The output will be displayed in 4 columns;  number of frames/bytes,  minimum response time, maximum response time and average response time.
+This will calculate statistics for all smb response times we see to/from
+host 1.1.1.1 in 10ms intervals.  The output will be displayed in 4
+columns; number of frames/bytes, minimum response time, maximum response
+time and average response time.
 
 
 
