@@ -550,6 +550,9 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 	/* we ignore packets that are not displayed */
 	if (pinfo->fd->flags.passed_dfilter == 0)
 		return 0;
+	/* also ignore RTP Version != 2 */
+	else if (rtpinfo->info_version !=2)
+		return 0;
 	/* is it the forward direction?  */
 	else if (user_data->ssrc_fwd == rtpinfo->info_sync_src)  {
 #ifdef USE_CONVERSATION_GRAPH
@@ -3533,6 +3536,7 @@ void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 	guint32 ip_dst_rev;
 	guint16 port_dst_rev;
 	guint32 ssrc_rev = 0;
+	unsigned int version_fwd;
 
 	gchar filter_text[256];
 	dfilter_t *sfcode;
@@ -3593,6 +3597,13 @@ void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 	g_memmove(&ip_dst_rev, edt->pi.src.data, 4);
 	port_src_rev = edt->pi.destport;
 	port_dst_rev = edt->pi.srcport;
+
+        /* check if it is RTP Version 2 */
+        if (!get_int_value_from_proto_tree(edt->tree, "rtp", "rtp.version", &version_fwd) || version_fwd != 2) {
+                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    "RTP Version != 2 is not supported!");
+                return;
+        }
 	
 	/* now we need the SSRC value of the current frame */
 	if (!get_int_value_from_proto_tree(edt->tree, "rtp", "rtp.ssrc", &ssrc_fwd)) {

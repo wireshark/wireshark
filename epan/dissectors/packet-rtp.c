@@ -351,6 +351,8 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	octet1 = tvb_get_guint8( tvb, offset );
 	version = RTP_VERSION( octet1 );
 
+	/* fill in the rtp_info structure */
+	rtp_info.info_version = version;
 	if (version != 2) {
 		/*
 		 * Unknown or unsupported version.
