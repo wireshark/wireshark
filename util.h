@@ -1,7 +1,7 @@
 /* util.h
  * Utility definitions
  *
- * $Id: util.h,v 1.29 2003/05/23 05:25:19 tpot Exp $
+ * $Id: util.h,v 1.30 2003/11/18 04:16:28 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,6 +58,9 @@ guint8 EBCDIC_to_ASCII1(guint8 c);
 void compute_timestamp_diff(gint *, gint *, guint32, guint32, guint32, guint32);
 /* In-place decoding of a base64 string. */
 size_t base64_decode(char *s);
+
+/* Create a capture filter for the connection */
+char *get_conn_cfilter(void);
 
 #ifdef __cplusplus
 }

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.329 2003/11/02 19:31:20 gerald Exp $
+ * $Id: main.c,v 1.330 2003/11/18 04:16:28 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2227,6 +2227,7 @@ main(int argc, char *argv[])
     free_pcap_linktype_list(lt_list);
     exit(0);
   }
+
 #endif
 
   /* Notify all registered modules that have had any of their preferences
@@ -2546,6 +2547,12 @@ main(int argc, char *argv[])
   set_menus_for_capture_in_progress(FALSE);
 #endif
 
+  if (!start_capture && (cfile.cfilter == NULL || strlen(cfile.cfilter) == 0)) {
+    if (cfile.cfilter) {
+      g_free(cfile.cfilter);
+    }
+    cfile.cfilter = g_strdup(get_conn_cfilter());
+  }
   gtk_main();
 
   /* If the last opened directory, or our geometry, has changed, save

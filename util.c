@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.71 2003/11/02 23:12:32 gerald Exp $
+ * $Id: util.c,v 1.72 2003/11/18 04:16:28 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -663,3 +663,52 @@ size_t base64_decode(char *s)
 
 	return n;
 }
+
+/* Try to figure out if we're remotely connected, e.g. via ssh or
+   Terminal Server, and create a capture filter that matches aspects of the
+   connection.  We match the following environment variables:
+   
+   SSH_CONNECTION (ssh): <remote IP> <remote port> <local IP> <local port>
+   SSH_CLIENT (ssh): <remote IP> <remote port> <local port>
+   REMOTEHOST (tcsh, others?): <remote name>
+   DISPLAY (x11): [remote name]:<display num>
+   CLIENTNAME (terminal server): <remote name>
+ */
+
+gchar *get_conn_cfilter(void) {
+	static GString *filter_str = NULL;
+	gchar *env, **tokens;
+	
+	if (filter_str == NULL) {
+		filter_str = g_string_new("");
+	}
+	if ((env = getenv("SSH_CONNECTION")) != NULL) {
+		tokens = g_strsplit(env, " ", 4);
+		if (tokens[3]) {
+			g_string_sprintf(filter_str, "not (tcp port %s and ip host %s "
+				"and tcp port %s and ip host %s)", tokens[1], tokens[0],
+				tokens[3], tokens[2]);
+			return filter_str->str;
+		}
+	} else if ((env = getenv("SSH_CLIENT")) != NULL) {
+		tokens = g_strsplit(env, " ", 3);
+		g_string_sprintf(filter_str, "not (tcp port %s and ip host %s "
+			"and tcp port %s)", tokens[1], tokens[0], tokens[2]);
+		return filter_str->str;
+	} else if ((env = getenv("REMOTEHOST")) != NULL) {
+		g_string_sprintf(filter_str, "not ip host %s", env);
+		return filter_str->str;
+	} else if ((env = getenv("DISPLAY")) != NULL) {
+		tokens = g_strsplit(env, ":", 2);
+		if (tokens[0] && tokens[0][0] != 0) {
+			g_string_sprintf(filter_str, "not ip host %s", 
+				tokens[0]);
+			return filter_str->str;
+		}
+	} else if ((env = getenv("CLIENTNAME")) != NULL) {
+		g_string_sprintf(filter_str, "not ip host %s", env);
+		return filter_str->str;
+	}
+	return "";
+}		
+
