@@ -10,7 +10,7 @@
  * - support for reassembly
  * - code cleanup
  *
- * $Id: packet-sctp.c,v 1.32 2002/03/02 07:29:10 guy Exp $
+ * $Id: packet-sctp.c,v 1.33 2002/03/03 22:42:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -733,7 +733,7 @@ dissect_state_cookie_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
 static void
 dissect_unrecognized_parameters_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 length, padding_length, parameter_value_length;
+  guint16 length, padding_length, parameter_value_length, unrecognized_parameter_type;
   tvbuff_t *unrecognized_parameters_tvb;
 
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
@@ -743,9 +743,11 @@ dissect_unrecognized_parameters_parameter(tvbuff_t *parameter_tvb, packet_info *
 
   unrecognized_parameters_tvb = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, 
 					       parameter_value_length, parameter_value_length);
+  unrecognized_parameter_type = tvb_get_ntohs(unrecognized_parameters_tvb, PARAMETER_TYPE_OFFSET);
   dissect_tlv_parameter_list(unrecognized_parameters_tvb, pinfo, parameter_tree);
    
-  proto_item_set_text(parameter_item, "Unrecognized parameter of type");
+  proto_item_set_text(parameter_item, "Unrecognized parameter of type %s (0x%x)",
+                      val_to_str(unrecognized_parameter_type, sctp_parameter_identifier_values, "unknown"), unrecognized_parameter_type);
 }
 
 static void
