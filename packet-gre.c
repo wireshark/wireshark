@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.29 2000/11/19 08:53:57 guy Exp $
+ * $Id: packet-gre.c,v 1.30 2000/11/29 06:17:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,12 +39,14 @@
 #include "packet.h"
 #include "packet-ip.h"
 #include "packet-ipx.h"
+#include "packet-wccp.h"
 
 static int proto_gre = -1;
 static int hf_gre_proto = -1;
 
 static gint ett_gre = -1;
 static gint ett_gre_flags = -1;
+static gint ett_gre_wccp2_redirect_header = -1;
 
 /* bit positions for flags in header */
 #define GH_B_C		0x8000
@@ -64,6 +66,8 @@ static gint ett_gre_flags = -1;
 #define GRE_IPX		0x8137
 
 static void add_flags_and_ver(proto_tree *, guint16, int, int);
+static void dissect_gre_wccp2_redirect_header(const u_char *, int, frame_data *,
+				proto_tree *);
 
 static const value_string typevals[] = {
 	{ GRE_PPP,  "PPP" },
@@ -217,7 +221,7 @@ dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
         break;
       case GRE_WCCP:
         if (is_wccp2) {
-          proto_tree_add_text(gre_tree, NullTVB, offset, sizeof(guint32), "WCCPv2 Data");
+          dissect_gre_wccp2_redirect_header(pd, offset, fd, gre_tree);
           offset += 4;
         }
         old_call_dissector(ip_handle, pd, offset, fd, tree);
@@ -281,6 +285,34 @@ add_flags_and_ver(proto_tree *tree, guint16 flags_and_ver, int offset, int is_pp
 		      decode_numeric_bitfield(flags_and_ver, GH_B_VER, nbits,
 					      "Version: %u"));
  }
+
+static void
+dissect_gre_wccp2_redirect_header(const u_char *pd, int offset, frame_data *fd,
+				proto_tree *tree)
+{
+  proto_item *	ti;
+  proto_tree *	rh_tree;
+  guint8	rh_flags;
+  
+  ti = proto_tree_add_text(tree, NullTVB, offset, 4, "Redirect header");
+  rh_tree = proto_item_add_subtree(ti, ett_gre_wccp2_redirect_header);
+
+  rh_flags = pd[offset];
+  proto_tree_add_text(rh_tree, NullTVB, offset, 1, "%s",
+		      decode_boolean_bitfield(rh_flags, 0x80, 8,
+				      "Dynamic service", "Well-known service"));
+  proto_tree_add_text(rh_tree, NullTVB, offset, 1, "%s",
+		      decode_boolean_bitfield(rh_flags, 0x40, 8,
+			      "Alternative bucket used", "Alternative bucket not used"));
+
+  proto_tree_add_text(rh_tree, NullTVB, offset + 1, 1, "Service ID: %s",
+      val_to_str(pd[offset + 1], service_id_vals, "Unknown (0x%02X)"));
+  if (rh_flags & 0x40)
+    proto_tree_add_text(rh_tree, NullTVB, offset + 2, 1, "Alternative bucket index: %u",
+			pd[offset + 2]);
+  proto_tree_add_text(rh_tree, NullTVB, offset + 3, 1, "Primary bucket index: %u",
+			pd[offset + 3]);
+}
  
 void
 proto_register_gre(void)
@@ -294,6 +326,7 @@ proto_register_gre(void)
 	static gint *ett[] = {
 		&ett_gre,
 		&ett_gre_flags,
+		&ett_gre_wccp2_redirect_header,
 	};
 
         proto_gre = proto_register_protocol("Generic Routing Encapsulation", "gre");
