@@ -10,7 +10,7 @@
  *   2000 Access Network Interfaces
  *			3GPP2 A.S0001-1		TIA/EIA-2001
  *
- * $Id: packet-ansi_a.c,v 1.6 2003/11/09 22:32:44 guy Exp $
+ * $Id: packet-ansi_a.c,v 1.7 2003/11/10 20:15:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -8382,9 +8382,18 @@ proto_register_ansi_a(void)
 #define	MAX_NUM_DTAP_MSG	ANSI_A_MAX(NUM_IOS401_DTAP_MSG, 0)
 #define	MAX_NUM_BSMAP_MSG	ANSI_A_MAX(NUM_IOS401_BSMAP_MSG, 0)
 #define	NUM_INDIVIDUAL_ELEMS	9
-    static gint *ett[NUM_INDIVIDUAL_ELEMS+MAX_NUM_DTAP_MSG+MAX_NUM_BSMAP_MSG+NUM_ELEM_1+NUM_MS_INFO_REC];
+    gint **ett;
+    gint ett_len = (NUM_INDIVIDUAL_ELEMS+MAX_NUM_DTAP_MSG+MAX_NUM_BSMAP_MSG+NUM_ELEM_1+NUM_MS_INFO_REC) * sizeof (gint *);
 
-    memset((void *) ett, -1, sizeof(ett));
+    /*
+     * XXX - at least one version of the HP C compiler apparently doesn't
+     * recognize constant expressions using the "?" operator as being
+     * constant expressions, so you can't use the expression that
+     * initializes "ett_let" as an array size.  Therefore, we dynamically
+     * allocate the array instead.
+     */
+    ett = g_malloc (ett_len);
+    memset((void *) ett, -1, ett_len);
 
     ett[0] = &ett_bsmap;
     ett[1] = &ett_dtap;
@@ -8450,6 +8459,8 @@ proto_register_ansi_a(void)
 	&a_global_variant,
 	a_variant_options,
 	FALSE);
+
+    g_free(ett);
 }
 
 
