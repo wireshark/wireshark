@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.152 2003/11/06 09:13:26 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.153 2003/11/12 09:00:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1937,9 +1937,9 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
         } else {
             /* No subdissector - show it as stub data. */
             if(decrypted_tvb){
-               show_stub_data (decrypted_tvb, 0, tree, auth_info, FALSE);
+               show_stub_data (decrypted_tvb, 0, sub_tree, auth_info, FALSE);
             } else {
-               show_stub_data (tvb, 0, tree, auth_info, TRUE);
+               show_stub_data (tvb, 0, sub_tree, auth_info, TRUE);
             }
         }
     } else
