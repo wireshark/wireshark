@@ -1,7 +1,7 @@
 /* gtkpacket.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.2 1999/09/11 12:38:18 deniel Exp $
+ * $Id: proto_draw.c,v 1.3 1999/09/12 20:23:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,8 +51,6 @@
 
 extern GtkWidget    *byte_view;
 extern GdkFont      *m_r_font, *m_b_font;
-
-static gint	     tree_type[NUM_TREE_TYPES];
 
 static void
 proto_tree_draw_node(GNode *node, gpointer data);
@@ -124,7 +122,7 @@ packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen) {
 void expand_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view) {
   int i;
   for(i=0; i < NUM_TREE_TYPES; i++) {
-    tree_type[i] = 1;
+    tree_is_expanded[i] = TRUE;
   }
   gtk_tree_clear_items(GTK_TREE(tree_view), 0, -1);
   proto_tree_draw(protocol_tree, tree_view);
@@ -133,7 +131,7 @@ void expand_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view) {
 void collapse_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view) {
   int i;
   for(i=0; i < NUM_TREE_TYPES; i++) {
-    tree_type[i] = 0;
+    tree_is_expanded[i] = FALSE;
   }
   gtk_tree_clear_items(GTK_TREE(tree_view), 0, -1);
   proto_tree_draw(protocol_tree, tree_view);
@@ -141,14 +139,14 @@ void collapse_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view) {
 
 static void
 expand_tree(GtkWidget *w, gpointer data) {
-  gint *val = (gint *) data;
-  *val = 1;
+  gboolean *val = (gint *) data;
+  *val = TRUE;
 }
 
 static void
 collapse_tree(GtkWidget *w, gpointer data) {
-  gint *val = (gint *) data;
-  *val = 0;
+  gboolean *val = (gint *) data;
+  *val = FALSE;
 }
 
 static void
@@ -195,12 +193,12 @@ proto_tree_draw_node(GNode *node, gpointer data)
 	if (g_node_n_children(node) > 0) {
 		subtree = gtk_tree_new();
 		gtk_tree_item_set_subtree(GTK_TREE_ITEM(ti), GTK_WIDGET(subtree));
-		if (tree_type[fi->tree_type])
+		if (tree_is_expanded[fi->tree_type])
 			gtk_tree_item_expand(GTK_TREE_ITEM(ti));
 		gtk_signal_connect(GTK_OBJECT(ti), "expand", (GtkSignalFunc) expand_tree,
-			(gpointer) &tree_type[fi->tree_type]);
+			(gpointer) &tree_is_expanded[fi->tree_type]);
 		gtk_signal_connect(GTK_OBJECT(ti), "collapse", (GtkSignalFunc) collapse_tree,
-			(gpointer) &tree_type[fi->tree_type]);
+			(gpointer) &tree_is_expanded[fi->tree_type]);
 
 		g_node_children_foreach(node, G_TRAVERSE_ALL,
 			proto_tree_draw_node, subtree);

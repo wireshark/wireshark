@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.43 1999/09/12 06:11:35 guy Exp $
+ * $Id: file.h,v 1.44 1999/09/12 20:23:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -105,6 +105,8 @@ typedef struct {
 				   if not, command string */
   gboolean	print_summary;	/* TRUE if we should just print summary;
 				   FALSE if we should print protocol tree. */
+  gboolean	expand_all;	/* TRUE if we should expand all levels;
+				   FALSE if we should expand as displayed. */
 } print_args_t;
 
 int print_packets(capture_file *cf, print_args_t *print_args);

@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.19 1999/09/12 06:11:37 guy Exp $
+ * $Id: print.c,v 1.20 1999/09/12 20:23:33 guy Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -56,6 +56,7 @@ typedef struct {
 	int		level;
 	FILE		*fh;
 	const guint8	*pd;
+	gboolean	print_all_levels;
 } print_data;
 
 FILE *open_print_dest(int to_file, const char *dest)
@@ -92,8 +93,8 @@ void print_finale(FILE *fh)
 		print_ps_finale(fh);
 }
 
-void proto_tree_print(gboolean print_one, GNode *protocol_tree,
-    const u_char *pd, frame_data *fd, FILE *fh)
+void proto_tree_print(gboolean print_one_packet, gboolean print_all_levels,
+    GNode *protocol_tree, const u_char *pd, frame_data *fd, FILE *fh)
 {
 	print_data data;
 
@@ -101,13 +102,14 @@ void proto_tree_print(gboolean print_one, GNode *protocol_tree,
 	data.level = 0;
 	data.fh = fh;
 	data.pd = pd;
+	data.print_all_levels = print_all_levels;
 
 	/* XXX - printing multiple frames in PostScript looks as if it's
 	   tricky - you have to deal with page boundaries, I think -
 	   and I'll have to spend some time learning enough about
 	   PostScript to figure it out, so, for now, we only print
 	   multiple frames as text. */
-	if (prefs.pr_format == PR_FMT_TEXT || !print_one) {
+	if (prefs.pr_format == PR_FMT_TEXT || !print_one_packet) {
 		g_node_children_foreach((GNode*) protocol_tree, G_TRAVERSE_ALL,
 			proto_tree_print_node_text, &data);
 	} else {
@@ -123,11 +125,12 @@ void proto_tree_print_node_text(GNode *node, gpointer data)
 	field_info	*fi = (field_info*) (node->data);
 	print_data	*pdata = (print_data*) data;
 	int		i;
-	int		 num_spaces;
+	int		num_spaces;
 	char		space[41];
 	gchar		label_str[ITEM_LABEL_LENGTH];
 	gchar		*label_ptr;
 
+	/* Don't print invisible entries. */
 	if (!fi->visible)
 		return;
 
@@ -158,12 +161,15 @@ void proto_tree_print_node_text(GNode *node, gpointer data)
 	if (fi->hfinfo->id == proto_data)
 		dumpit(pdata->fh, &pdata->pd[fi->start], fi->length);
 
-	/* Recurse into the subtree, if it exists */
-	if (g_node_n_children(node) > 0) {
-		pdata->level++;
-		g_node_children_foreach(node, G_TRAVERSE_ALL,
-			proto_tree_print_node_text, pdata);
-		pdata->level--;
+	/* If we're printing all levels, or if this level is expanded,
+	   recurse into the subtree, if it exists. */
+	if (pdata->print_all_levels || tree_is_expanded[fi->tree_type]) {
+		if (g_node_n_children(node) > 0) {
+			pdata->level++;
+			g_node_children_foreach(node, G_TRAVERSE_ALL,
+				proto_tree_print_node_text, pdata);
+			pdata->level--;
+		}
 	}
 }
 

@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.4 1999/09/12 06:11:51 guy Exp $
+ * $Id: print_dlg.c,v 1.5 1999/09/12 20:23:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -77,8 +77,11 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   GtkWidget     *cmd_lb, *cmd_te;
   GtkWidget     *file_bt_hb, *file_bt, *file_te;
   GSList        *dest_grp;
-  GtkWidget     *summary_rb, *detail_rb;
+  GtkWidget     *options_hb;
+  GtkWidget     *summary_vb, *summary_rb, *detail_rb;
   GSList        *summary_grp;
+  GtkWidget     *expand_vb, *expand_all_rb, *as_displayed_rb;
+  GSList        *expand_grp;
   GtkWidget     *bbox, *ok_bt, *cancel_bt;
 
   /* XXX - don't pop up one if there's already one open; instead,
@@ -190,16 +193,48 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   gtk_signal_connect(GTK_OBJECT(file_bt), "clicked",
 		GTK_SIGNAL_FUNC(print_file_cb), GTK_OBJECT(file_te));
 
+  /* Horizontal box into which to put two vertical boxes of option
+     buttons. */
+  options_hb = gtk_hbox_new(FALSE, 0);
+  gtk_container_border_width(GTK_CONTAINER(options_hb), 5);
+  gtk_container_add(GTK_CONTAINER(main_vb), options_hb);
+  gtk_widget_show(options_hb);
+
+  /* Vertical box into which to put the "Print summary"/"Print detail"
+     radio buttons. */
+  summary_vb = gtk_vbox_new(FALSE, 5);
+  gtk_container_border_width(GTK_CONTAINER(summary_vb), 5);
+  gtk_container_add(GTK_CONTAINER(options_hb), summary_vb);
+  gtk_widget_show(summary_vb);
+
   /* "Print summary"/"Print detail" radio buttons */
   summary_rb = gtk_radio_button_new_with_label(NULL, "Print summary");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(summary_rb), FALSE);
   summary_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(summary_rb));
-  gtk_container_add(GTK_CONTAINER(main_vb), summary_rb);
+  gtk_container_add(GTK_CONTAINER(summary_vb), summary_rb);
   gtk_widget_show(summary_rb);
   detail_rb = gtk_radio_button_new_with_label(summary_grp, "Print detail");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(detail_rb), TRUE);
-  gtk_container_add(GTK_CONTAINER(main_vb), detail_rb);
+  gtk_container_add(GTK_CONTAINER(summary_vb), detail_rb);
   gtk_widget_show(detail_rb);
+
+  /* Vertical box into which to put the "Expand all levels"/"Print as displayed"
+     radio buttons. */
+  expand_vb = gtk_vbox_new(FALSE, 5);
+  gtk_container_border_width(GTK_CONTAINER(expand_vb), 5);
+  gtk_container_add(GTK_CONTAINER(options_hb), expand_vb);
+  gtk_widget_show(expand_vb);
+
+  /* "Expand all levels"/"Print as displayed" radio buttons */
+  expand_all_rb = gtk_radio_button_new_with_label(NULL, "Expand all levels");
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(expand_all_rb), TRUE);
+  expand_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(expand_all_rb));
+  gtk_container_add(GTK_CONTAINER(expand_vb), expand_all_rb);
+  gtk_widget_show(expand_all_rb);
+  as_displayed_rb = gtk_radio_button_new_with_label(expand_grp, "Print as displayed");
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(as_displayed_rb), FALSE);
+  gtk_container_add(GTK_CONTAINER(expand_vb), as_displayed_rb);
+  gtk_widget_show(as_displayed_rb);
 
   /* Button row: OK and Cancel buttons */
   bbox = gtk_hbutton_box_new();
@@ -213,6 +248,7 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_CMD_TE_KEY, cmd_te);
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_FILE_TE_KEY, file_te);
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_SUMMARY_RB_KEY, summary_rb);
+  gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_EXPAND_ALL_RB_KEY, expand_all_rb);
   gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
     GTK_SIGNAL_FUNC(print_ok_cb), GTK_OBJECT(print_w));
   GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
@@ -316,6 +352,10 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
                                               PRINT_SUMMARY_RB_KEY);
   print_args.print_summary = GTK_TOGGLE_BUTTON (button)->active;
 
+  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(ok_bt),
+                                              PRINT_EXPAND_ALL_RB_KEY);
+  print_args.expand_all = GTK_TOGGLE_BUTTON (button)->active;
+
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 #if 0
   display_opt_window_active = FALSE;
@@ -381,7 +421,7 @@ file_print_packet_cmd_cb(GtkWidget *widget, gpointer data) {
   }
 
   print_preamble(fh);
-  proto_tree_print(TRUE, (GNode*) cf.protocol_tree, cf.pd, cf.fd, fh);
+  proto_tree_print(TRUE, TRUE, (GNode*) cf.protocol_tree, cf.pd, cf.fd, fh);
   print_finale(fh);
   close_print_dest(prefs.pr_dest == PR_DEST_FILE, fh);
 }

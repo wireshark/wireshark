@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.97 1999/09/12 06:11:36 guy Exp $
+ * $Id: packet.h,v 1.98 1999/09/12 20:23:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -331,6 +331,8 @@ enum {
 	NUM_TREE_TYPES	/* last item number plus one */
 };
 
+/* TRUE if subtrees of an item of the specified type are to be expanded. */
+extern gboolean	     tree_is_expanded[NUM_TREE_TYPES];
 
 /* Utility routines used by packet*.c */
 gchar*     ether_to_str(const guint8 *);

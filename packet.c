@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.42 1999/09/12 06:11:36 guy Exp $
+ * $Id: packet.c,v 1.43 1999/09/12 20:23:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -59,6 +59,8 @@
 #include "file.h"
 
 extern capture_file  cf;
+
+gboolean	tree_is_expanded[NUM_TREE_TYPES];
 
 int proto_frame = -1;
 int hf_frame_arrival_time = -1;
