@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.18 1999/10/11 17:04:33 deniel Exp $
+ * $Id: dfilter-scanner.l,v 1.19 1999/10/12 04:21:10 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -132,6 +132,25 @@ le|\<\=		{ dfilter_lval.operand = TOK_LE; return TOK_LE; }
 	return T_VAL_BYTE_RANGE;
 }
 
+\[{whitespace}*-?[0-9]+{whitespace}*\] { /* range [ x  ] */
+
+	char	*byterange_string = g_strdup(yytext);
+	char	*s = byterange_string + 1; /* I don't want the first '[' */
+	char	*p;
+
+	/* Get the offset from the string */
+	if ((p = strtok(s, "]"))) {
+		dfilter_lval.byte_range.offset = strtol(p, NULL, 10);
+	}
+	else {
+		g_free(byterange_string);
+		return 0;
+	}
+
+	dfilter_lval.byte_range.length = 0;
+	g_free(byterange_string);
+	return T_VAL_BYTE_RANGE;
+}
 
 {hex}({hexsep}{hex})+ {			/* byte string, any length */
 	dfilter_lval.string = g_strdup(yytext);

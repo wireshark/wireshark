@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.33 1999/10/11 17:02:06 deniel Exp $
+ * $Id: proto.c,v 1.34 1999/10/12 04:21:12 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -723,6 +723,59 @@ proto_registrar_is_protocol(int n)
 		return (hfinfo->parent == -1 ? TRUE : FALSE);
 	else
 		return FALSE;
+}
+
+/* Returns length of field.
+ * 0 means undeterminable at time of registration
+ * -1 means the field is not registered. */
+gint
+proto_registrar_get_length(int n)
+{
+	struct header_field_info *hfinfo;
+
+	hfinfo = find_hfinfo_record(n);
+	if (!hfinfo)
+		return -1;
+
+	switch (hfinfo->type) {
+		case FT_TEXT_ONLY: /* not filterable */
+		case NUM_FIELD_TYPES: /* satisfy picky compilers */
+			return -1;
+
+		case FT_NONE:
+		case FT_BYTES:
+		case FT_BOOLEAN:
+		case FT_STRING:
+		case FT_DOUBLE:
+		case FT_ABSOLUTE_TIME:
+		case FT_RELATIVE_TIME:
+			return 0;
+
+		case FT_UINT8:
+		case FT_VALS_UINT8:
+			return 1;
+
+		case FT_UINT16:
+		case FT_VALS_UINT16:
+			return 2;
+
+		case FT_VALS_UINT24:
+			return 3;
+
+		case FT_UINT32:
+		case FT_VALS_UINT32:
+		case FT_IPXNET:
+		case FT_IPv4:
+			return 4;
+
+		case FT_ETHER:
+			return 6;
+
+		case FT_IPv6:
+			return 128;
+	}
+	g_assert_not_reached();
+	return -1;
 }
 
 /* Looks for a protocol or a field in a proto_tree. Returns TRUE if

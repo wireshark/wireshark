@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.15 1999/10/11 17:02:08 deniel Exp $
+ * $Id: proto.h,v 1.16 1999/10/12 04:21:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -182,6 +182,11 @@ int proto_registrar_get_parent(int n);
 
 /* Is item #n a protocol? */
 gboolean proto_registrar_is_protocol(int n);
+
+/* Get length of registered field according to field type.
+ * 0 means undeterminable at registration time.
+ * -1 means unknown field */
+gint proto_registrar_get_length(int n);
 
 /* Checks for existence any protocol or field within a tree.
  * TRUE = found, FALSE = not found */

@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.25 1999/10/11 19:39:29 guy Exp $
+ * $Id: dfilter-grammar.y,v 1.26 1999/10/12 04:21:09 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -93,6 +93,13 @@ static GNode* dfilter_mknode_bytes_variable(gint id, gint offset, guint length);
 static guint32 string_to_value(char *s);
 static int ether_str_to_guint8_array(const char *s, guint8 *mac);
 static int ipv6_str_to_guint8_array(const char *s, guint8 *ipv6);
+static guint dfilter_get_bytes_variable_offset(GNode *gnode);
+static guint dfilter_get_bytes_value_length(GNode* gnode);
+static void dfilter_set_bytes_variable_length(GNode *gnode, guint length);
+static guint dfilter_get_bytes_variable_length(GNode *gnode);
+static gint dfilter_get_bytes_variable_field_registered_length(GNode *gnode);
+static char* dfilter_get_variable_abbrev(GNode *gnode);
+static int check_bytes_variable_sanity(GNode *gnode);
 
 /* This is the dfilter we're currently processing. It's how
  * dfilter_compile communicates with us.
@@ -223,10 +230,56 @@ relation:	numeric_variable numeric_relation numeric_value
 
 	|	bytes_variable bytes_relation bytes_value
 		{
+			int a_len, b_len;
+
+			a_len = dfilter_get_bytes_variable_length($1);
+			b_len = dfilter_get_bytes_value_length($3);
+
+			if (a_len == 0) {
+				dfilter_set_bytes_variable_length($1, b_len);
+				a_len = b_len;
+			}
+
+			if (!check_bytes_variable_sanity($1)) {
+				YYERROR;
+			}
+
+			if (a_len != b_len) {
+				dfilter_fail("Field \"%s\" has %u byte%s being compared, but %u byte%s "
+					"were supplied.",
+					dfilter_get_variable_abbrev($1),
+					a_len, plurality(a_len, "", "s"),
+					b_len, plurality(b_len, "", "s"));
+				YYERROR;
+			}
+
 			$$ = dfilter_mknode_join($1, relation, $2, $3);
 		}
 	|	bytes_variable bytes_relation bytes_variable
 		{
+			int a_len, b_len;
+
+			a_len = dfilter_get_bytes_variable_length($1);
+			b_len = dfilter_get_bytes_variable_length($3);
+
+			if (!check_bytes_variable_sanity($1)) {
+				YYERROR;
+			}
+
+			if (!check_bytes_variable_sanity($3)) {
+				YYERROR;
+			}
+
+			if (a_len != b_len) {
+				dfilter_fail("Fields \"%s\" and \"%s\" are being compared with "
+					"disparate lengths of %u byte%s and %u byte%s.",
+					dfilter_get_variable_abbrev($1),
+					dfilter_get_variable_abbrev($3),
+					a_len, plurality(a_len, "", "s"),
+					b_len, plurality(b_len, "", "s"));
+				YYERROR;
+			}
+
 			$$ = dfilter_mknode_join($1, relation, $2, $3);
 		}
 
@@ -304,8 +357,27 @@ bytes_value:	T_VAL_BYTE_STRING
 		$$ = dfilter_mknode_bytes_value(barray);
 		g_free($1);
 	}
-	;
 
+	|	T_VAL_NUMBER_STRING
+	{
+		guint32		val32 = string_to_value($1);
+		guint8		val8;
+		GByteArray	*barray;
+
+		if (val32 > 0xff) {
+			dfilter_fail("The value \"%s\" cannot be stored in a single-byte byte-string. "
+				"Use the multi-byte \"xx:yy\" representation.", $1);
+			YYERROR;
+		}
+		val8 = (guint8) val32;
+		barray = g_byte_array_new();
+		global_df->list_of_byte_arrays = g_slist_append(global_df->list_of_byte_arrays, barray);
+		g_byte_array_append(barray, &val8, 1);
+
+		$$ = dfilter_mknode_bytes_value(barray);
+		g_free($1);
+	}
+	;
 
 numeric_variable:	T_FT_UINT8	{ $$ = dfilter_mknode_numeric_variable($1.id); }
 	|		T_FT_UINT16	{ $$ = dfilter_mknode_numeric_variable($1.id); }
@@ -532,6 +604,62 @@ dfilter_mknode_bytes_variable(gint id, gint offset, guint length)
 	return gnode;
 }
 
+/* Gets length of variable represented by node from proto_register */
+static gint
+dfilter_get_bytes_variable_field_registered_length(GNode *gnode)
+{
+	dfilter_node	*node = gnode->data;
+
+	/* Is this really a bytes_variable? */
+	g_assert(node->fill_array_func = fill_array_bytes_variable);
+
+	return proto_registrar_get_length(node->value.variable);
+}
+
+/* Sets the length of a bytes_variable node */
+static void
+dfilter_set_bytes_variable_length(GNode *gnode, guint length)
+{
+	dfilter_node	*node = gnode->data;
+
+	/* Is this really a bytes_variable? */
+	g_assert(node->fill_array_func = fill_array_bytes_variable);
+
+	node->length = length;
+}
+
+/* Gets the length of a bytes_variable node */
+static guint
+dfilter_get_bytes_variable_length(GNode *gnode)
+{
+	dfilter_node	*node = gnode->data;
+
+	/* Is this really a bytes_variable? */
+	g_assert(node->fill_array_func = fill_array_bytes_variable);
+
+	return node->length;
+}
+
+/* Gets the offset of a bytes_variable node */
+static guint
+dfilter_get_bytes_variable_offset(GNode *gnode)
+{
+	dfilter_node	*node = gnode->data;
+
+	/* Is this really a bytes_variable? */
+	g_assert(node->fill_array_func = fill_array_bytes_variable);
+
+	return node->offset;
+}
+
+static char*
+dfilter_get_variable_abbrev(GNode *gnode)
+{
+	dfilter_node	*node = gnode->data;
+
+	return proto_registrar_get_abbrev(node->value.variable);
+}
+
 static GNode*
 dfilter_mknode_numeric_value(guint32 val)
 {
@@ -664,6 +792,17 @@ dfilter_mknode_bytes_value(GByteArray *barray)
 	return gnode;
 }
 
+/* Given a node representing a bytes_value, returns
+ * the length of the byte array */
+static guint
+dfilter_get_bytes_value_length(GNode* gnode)
+{
+	dfilter_node	*node = gnode->data;
+
+	g_assert(node->ntype == bytes);
+	return node->length;
+}
+
 static guint32
 string_to_value(char *s)
 {
@@ -764,3 +903,26 @@ ipv6_str_to_guint8_array(const char *s, guint8 *ipv6)
 		return 1;	/* read exactly 16 hex pairs */
 }
 
+
+static int
+check_bytes_variable_sanity(GNode *gnode)
+{
+	int a_off, a_len, reg_len, t_off;
+
+	a_off = dfilter_get_bytes_variable_offset(gnode);
+	a_len = dfilter_get_bytes_variable_length(gnode);
+	reg_len = dfilter_get_bytes_variable_field_registered_length(gnode);
+
+	if (reg_len > 0) {
+		t_off = a_off >= 0 ? a_off : reg_len + a_off;
+		if (t_off + a_len > reg_len) {
+			dfilter_fail("The \"%s\" field is only %u byte%s wide, but "
+				"%u byte%s were supplied.",
+				dfilter_get_variable_abbrev(gnode),
+				reg_len, plurality(reg_len, "", "s"),
+				a_len, plurality(a_len, "", "s"));
+			return 0;
+		}
+	}
+	return 1;
+}
