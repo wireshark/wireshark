@@ -36,7 +36,12 @@
  *   implement extended_user
  *   implement extended_url
  *   implement non-generic counters sampling
- *   implement the draft version 5 spec
+ *   implement the samples from the draft version 5 spec; see
+ *      http://www.sflow.org/SFLOW-DATAGRAM5.txt (see epan/sminmpec.h
+ *      for tables of SMI Network Management Private Enterprise Codes;
+ *      use sminmpec_values, adding new values to epan/sminmpect.h and
+ *      and sminmpec_values in epan/sminmpec.c if necessary - don't create
+ *      your own table)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -267,6 +272,7 @@ static int hf_sflow_version = -1;
 /*static int hf_sflow_agent_address_type = -1; */
 static int hf_sflow_agent_address_v4 = -1;
 static int hf_sflow_agent_address_v6 = -1;
+static int hf_sflow_sub_agent_id = -1;
 static int hf_sflow_seqnum = -1;
 static int hf_sflow_sysuptime = -1;
 static int hf_sflow_numsamples = -1;
@@ -274,6 +280,7 @@ static int hf_sflow_header_protocol = -1;
 static int hf_sflow_sampletype = -1;
 static int hf_sflow_header = -1;
 static int hf_sflow_packet_information_type = -1;
+static int hf_sflow_extended_information_type = -1;
 static int hf_sflow_vlan_in = -1;   /* incoming 802.1q VLAN ID */
 static int hf_sflow_vlan_out = -1;   /* outgoing 802.1q VLAN ID */
 static int hf_sflow_pri_in = -1;   /* incominging 802.1p priority */
@@ -496,7 +503,7 @@ dissect_sflow_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
 						  proto_tree *tree, gint offset, proto_item *parent)
 {
 	struct sflow_flow_sample_header 	flow_header;
-	proto_tree 	*sflow_sample_tree;
+	proto_tree 	*extended_data_tree;
 	proto_item *ti;
 	guint32 	packet_type, extended_data, ext_type, i;
 
@@ -536,6 +543,8 @@ dissect_sflow_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* what kind of flow sample is it? */
 	packet_type = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_sflow_packet_information_type, tvb, offset,
+	    4, packet_type);
 	offset += 4;
 	switch (packet_type) {
 	case SFLOW_PACKET_DATA_TYPE_HEADER:
@@ -557,20 +566,23 @@ dissect_sflow_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
 		/* create a subtree.  Might want to move this to
 		 * the end, so more info can be correct.
 		 */
-		ti = proto_tree_add_text(tree, tvb, offset, 4, "%s",
+		ti = proto_tree_add_text(tree, tvb, offset, -1, "%s",
 								 val_to_str(ext_type, 
 											sflow_extended_data_types,
 											"Unknown extended information"));
+		extended_data_tree = proto_item_add_subtree(ti, ett_sflow_extended_data);
+		proto_tree_add_uint(extended_data_tree,
+		    hf_sflow_extended_information_type, tvb, offset, 4,
+		    ext_type);
 		offset += 4;
-		sflow_sample_tree = proto_item_add_subtree(ti, ett_sflow_sample);
 
 		switch (ext_type) {
 		case SFLOW_EXTENDED_SWITCH:
-			offset += dissect_sflow_extended_switch(tvb, sflow_sample_tree,
+			offset += dissect_sflow_extended_switch(tvb, extended_data_tree,
 													offset);
 			break;
 		case SFLOW_EXTENDED_ROUTER:
-			offset += dissect_sflow_extended_router(tvb, sflow_sample_tree,
+			offset += dissect_sflow_extended_router(tvb, extended_data_tree,
 													offset);
 			break;
 		case SFLOW_EXTENDED_GATEWAY:
@@ -581,7 +593,8 @@ dissect_sflow_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
 			break;
 		default:
 			break;
-		}	
+		}
+		proto_item_set_end(ti, tvb, offset);
 	}
 	return offset;
 	
@@ -719,7 +732,7 @@ dissect_sflow_samples(tvbuff_t *tvb, packet_info *pinfo,
 	/* decide what kind of sample it is. */
 	sample_type = tvb_get_ntohl(tvb,offset);
 
-	ti = proto_tree_add_text(tree, tvb, offset, 4, "%s",
+	ti = proto_tree_add_text(tree, tvb, offset, -1, "%s",
 							 val_to_str(sample_type, sflow_sampletype,
 										"Unknown sample type"));
 	sflow_sample_tree = proto_item_add_subtree(ti, ett_sflow_sample);
@@ -730,16 +743,17 @@ dissect_sflow_samples(tvbuff_t *tvb, packet_info *pinfo,
 
 	switch (sample_type) {
 	case FLOWSAMPLE:
-		return dissect_sflow_flow_sample(tvb, pinfo, sflow_sample_tree,
+		offset = dissect_sflow_flow_sample(tvb, pinfo, sflow_sample_tree,
 										 offset, ti);
 		break;
 	case COUNTERSSAMPLE:
-		return dissect_sflow_counters_sample(tvb, sflow_sample_tree,
+		offset = dissect_sflow_counters_sample(tvb, sflow_sample_tree,
 											 offset, ti);
 		break;
 	default:
 		break;
-	};
+	}
+	proto_item_set_end(ti, tvb, offset);
 	return offset;
 }
 
@@ -751,7 +765,7 @@ dissect_sflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
 	proto_tree *sflow_tree;
-	guint32		version, seqnum;
+	guint32		version, sub_agent_id, seqnum;
 	guint32		agent_address_type;
 	union {
 		guint8	v4[4];
@@ -763,7 +777,7 @@ dissect_sflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Make entries in Protocol column and Info column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "sflow");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "sFlow");
     
 
 	/* create display subtree for the protocol */
@@ -773,7 +787,7 @@ dissect_sflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		
 	version = tvb_get_ntohl(tvb, offset);
 	if (check_col(pinfo->cinfo, COL_INFO)) 
-		col_add_fstr(pinfo->cinfo, COL_INFO, "sFlow V%u",
+		col_add_fstr(pinfo->cinfo, COL_INFO, "V%u",
 					 version);
 	proto_tree_add_item(sflow_tree,
 						hf_sflow_version, tvb, offset, 4, FALSE);
@@ -807,19 +821,30 @@ dissect_sflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 	};
 
+	if (version == 5) {
+		sub_agent_id = tvb_get_ntohl(tvb, offset);
+		if (check_col(pinfo->cinfo, COL_INFO)) 
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", sub-agent ID %u",
+							sub_agent_id);
+		proto_tree_add_uint(sflow_tree, hf_sflow_sub_agent_id, tvb,
+						offset, 4, sub_agent_id);
+		offset += 4;
+	}
 	seqnum = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_item(sflow_tree, hf_sflow_seqnum, tvb,
-						offset, 4, FALSE);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", seq %u", seqnum);
+	proto_tree_add_uint(sflow_tree, hf_sflow_seqnum, tvb,
+						offset, 4, seqnum);
 	offset += 4;
 	proto_tree_add_item(sflow_tree, hf_sflow_sysuptime, tvb,
 						offset, 4, FALSE);
 	offset += 4;
 	numsamples = tvb_get_ntohl(tvb,offset);
-	if (check_col(pinfo->cinfo, COL_INFO)) 
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", seq %u, %u samples",
-						seqnum, numsamples);
-	proto_tree_add_item(sflow_tree, hf_sflow_numsamples, tvb,
-						offset, 4, FALSE);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %u samples",
+						numsamples);
+	proto_tree_add_uint(sflow_tree, hf_sflow_numsamples, tvb,
+						offset, 4, numsamples);
 	offset += 4;
 
 	/* Ok, we're now at the end of the sflow datagram header;
@@ -827,10 +852,15 @@ dissect_sflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * the expected number of samples, and pass them to the appropriate
 	 * dissectors.
 	 */
-	for (i=0; i < numsamples; i++) {
-		offset = dissect_sflow_samples(tvb, pinfo, sflow_tree, offset);
+	if (version == 5) {
+		proto_tree_add_text(sflow_tree, tvb, offset, -1,
+		    "sFlow V5 samples (please write and contribute code to dissect them!)");
+	} else {
+		for (i=0; i < numsamples; i++) {
+			offset = dissect_sflow_samples(tvb, pinfo, sflow_tree,
+			    offset);
+		}
 	}
-
 }
 
 
@@ -860,6 +890,11 @@ proto_register_sflow(void)
 			{ "agent address", "sflow.agent.v6",
 			FT_IPv6, BASE_NONE, NULL, 0x0,          
 			"sFlow Agent IPv6 address", HFILL }
+		},
+		{ &hf_sflow_sub_agent_id,
+			{ "Sub-agent ID", "sflow.sub_agent_id",
+			FT_UINT32, BASE_DEC, NULL, 0x0,          
+			"sFlow sub-agent ID", HFILL }
 		},
 		{ &hf_sflow_seqnum,
 			{ "Sequence number", "sflow.sequence_number",
@@ -895,6 +930,11 @@ proto_register_sflow(void)
 			{ "Sample type", "sflow.packet_information_type",
 			FT_UINT32, BASE_DEC, VALS(sflow_packet_information_type), 0x0,
 			"Type of sampled information", HFILL }
+		},
+		{ &hf_sflow_extended_information_type,
+			{ "Extended information type", "sflow.extended_information_type",
+			FT_UINT32, BASE_DEC, VALS(sflow_extended_data_types), 0x0,
+			"Type of extended information", HFILL }
 		},
 		{ &hf_sflow_vlan_in,
 			{ "Incoming 802.1q VLAN", "sflow.vlan.in",
