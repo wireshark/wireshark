@@ -27,7 +27,7 @@ typedef enum {
   CHINESE_ITU_STANDARD = 3
 } Standard_Type;
 
-extern Standard_Type mtp3_standard;
+extern gint mtp3_standard;
 
 typedef enum {
   MTP3_NET_ADDR_FMT_DEC		= 1,
