@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.52 2003/12/04 10:59:34 guy Exp $
+ * $Id: proto.h,v 1.53 2003/12/04 19:53:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -131,6 +131,7 @@ typedef struct _proto_node {
 	struct _proto_node *first_child;
 	struct _proto_node *last_child;
 	struct _proto_node *next;
+	struct _proto_node *parent;
 	field_info  *finfo;
 	tree_data_t *tree_data;
 } proto_node;

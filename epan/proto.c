@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.124 2003/12/04 10:59:34 guy Exp $
+ * $Id: proto.c,v 1.125 2003/12/04 19:53:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1851,6 +1851,7 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 	    (tfi->tree_type >= 0 && tfi->tree_type < num_tree_types));
 
 	PROTO_NODE_NEW(pnode);
+	pnode->parent = tnode;
 	pnode->finfo = fi;
 	pnode->tree_data = PTREE_DATA(tree);
 
@@ -2110,6 +2111,7 @@ proto_tree_create_root(void)
 
 	/* Initialize the proto_node */
 	PROTO_NODE_NEW(pnode);
+	pnode->parent = NULL;
 	pnode->finfo = NULL;
 	pnode->tree_data = g_new(tree_data_t, 1);
 
