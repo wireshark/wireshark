@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.54 2002/11/10 11:00:29 oabad Exp $
+ * $Id: file_dlg.c,v 1.55 2003/01/15 05:20:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -114,6 +114,7 @@ file_open_cmd_cb(GtkWidget *w, gpointer data _U_)
 
   filter_bt = gtk_button_new_with_label("Filter:");
   SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
+  SIGNAL_CONNECT(filter_bt, "destroy", filter_button_destroy_cb, NULL);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
 
@@ -273,19 +274,8 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 }
 
 static void
-file_open_destroy_cb(GtkWidget *win, gpointer user_data _U_)
+file_open_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 {
-  GtkWidget *file_open_filter_w;
-
-  /* Is there a filter edit/selection dialog associated with this
-     Open Capture File dialog? */
-  file_open_filter_w = OBJECT_GET_DATA(win, E_FILT_DIALOG_PTR_KEY);
-
-  if (file_open_filter_w != NULL) {
-    /* Yes.  Destroy it. */
-    gtk_widget_destroy(file_open_filter_w);
-  }
-
   /* Note that we no longer have a "Open Capture File" dialog box. */
   file_open_w = NULL;
 }

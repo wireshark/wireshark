@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.14 2003/01/11 11:10:33 sahlberg Exp $
+ * $Id: io_stat.c,v 1.15 2003/01/15 05:20:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1491,34 +1491,13 @@ create_advanced_box(io_stat_graph_t *gio, GtkWidget *box)
 }
 
 
-gint delete_filter_event(GtkWidget *widget _U_, io_stat_graph_t *gio)
-{
-	int i;
-
-	for(i=0;i<MAX_GRAPHS;i++){
-		if (GTK_WIDGET_STATE (gio->io->graphs[i].filter_bt) 
-		== GTK_STATE_INSENSITIVE) {
-			gtk_widget_set_sensitive (gio->io->graphs[i].filter_bt,1);
-		}
-	}
-   	return(FALSE);
-}
-
-
 static void
 filter_button_clicked(GtkWidget *w, gpointer uio)
 {
 	int i;
 	io_stat_graph_t *gio=(io_stat_graph_t *)uio;
 
-	for(i=0;i<MAX_GRAPHS;i++){
-		if( gio->io->graphs[i].filter_bt != w ){
-			gtk_widget_set_sensitive(gio->io->graphs[i].filter_bt,0);
-		}
-	}
 	gio->filter_main_win=display_filter_construct_cb(w, gio->args);
-	SIGNAL_CONNECT(gio->filter_main_win, "delete_event", delete_filter_event, gio);
-	SIGNAL_CONNECT(gio->filter_main_win, "destroy", delete_filter_event, gio);
 	return;
 }
 
@@ -1596,6 +1575,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gio->args->title=strdup(str);	
 
 	SIGNAL_CONNECT(gio->filter_bt, "clicked", filter_button_clicked, gio);
+	SIGNAL_CONNECT(gio->filter_bt, "destroy", filter_button_destroy_cb, NULL);
 
 	gtk_box_pack_start(GTK_BOX(hbox), gio->filter_bt, FALSE, TRUE, 0);
 	gtk_widget_show(gio->filter_bt);

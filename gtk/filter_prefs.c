@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.41 2003/01/11 11:10:33 sahlberg Exp $
+ * $Id: filter_prefs.c,v 1.42 2003/01/15 05:20:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,6 +43,8 @@
 #include "dfilter_expr_dlg.h"
 #include "compat_macros.h"
 
+#define E_FILT_DIALOG_PTR_KEY       "filter_dialog_ptr"
+#define E_FILT_BUTTON_PTR_KEY       "filter_button_ptr"
 #define E_FILT_PARENT_FILTER_TE_KEY "filter_parent_filter_te"
 #define E_FILT_CONSTRUCT_ARGS_KEY   "filter_construct_args"
 #define E_FILT_LIST_ITEM_MODEL_KEY  "filter_list_item_model"
@@ -62,7 +64,7 @@ typedef struct _filter_cb_data {
   GtkWidget *win;
 } filter_cb_data;
 
-static GtkWidget *filter_dialog_new(GtkWidget *caller, GtkWidget *filter_te,
+static GtkWidget *filter_dialog_new(GtkWidget *button, GtkWidget *filter_te,
                                     filter_list_type_t list,
                                     construct_args_t *construct_args);
 static void filter_dlg_dclick(GtkWidget *dummy, gpointer main_w_arg,
@@ -106,7 +108,6 @@ static void filter_filter_te_destroy_cb(GtkWidget *, gpointer);
 void
 capture_filter_construct_cb(GtkWidget *w, gpointer user_data _U_)
 {
-	GtkWidget *caller = gtk_widget_get_toplevel(w);
 	GtkWidget *filter_browse_w;
 	GtkWidget *parent_filter_te;
 	/* No Apply button, and "OK" just sets our text widget, it doesn't
@@ -117,9 +118,8 @@ capture_filter_construct_cb(GtkWidget *w, gpointer user_data _U_)
 		FALSE
 	};
 
-	/* Has a filter dialog box already been opened for that top-level
-	   widget? */
-	filter_browse_w = OBJECT_GET_DATA(caller, E_FILT_DIALOG_PTR_KEY);
+	/* Has a filter dialog box already been opened for that button? */
+	filter_browse_w = OBJECT_GET_DATA(w, E_FILT_DIALOG_PTR_KEY);
 
 	if (filter_browse_w != NULL) {
 		/* Yes.  Just re-activate that dialog box. */
@@ -131,15 +131,15 @@ capture_filter_construct_cb(GtkWidget *w, gpointer user_data _U_)
 	parent_filter_te = OBJECT_GET_DATA(w, E_FILT_TE_PTR_KEY);
 
 	/* Now create a new dialog, without an "Add Expression..." button. */
-	filter_browse_w = filter_dialog_new(caller, parent_filter_te,
+	filter_browse_w = filter_dialog_new(w, parent_filter_te,
 	    CFILTER_LIST, &args);
 
-	/* Set the E_FILT_CALLER_PTR_KEY for the new dialog to point to
-	   our caller. */
-	OBJECT_SET_DATA(filter_browse_w, E_FILT_CALLER_PTR_KEY, caller);
+	/* Set the E_FILT_BUTTON_PTR_KEY for the new dialog to point to
+	   the button. */
+	OBJECT_SET_DATA(filter_browse_w, E_FILT_BUTTON_PTR_KEY, w);
 
-	/* Set the E_FILT_DIALOG_PTR_KEY for the caller to point to us */
-	OBJECT_SET_DATA(caller, E_FILT_DIALOG_PTR_KEY, filter_browse_w);
+	/* Set the E_FILT_DIALOG_PTR_KEY for the button to point to us */
+	OBJECT_SET_DATA(w, E_FILT_DIALOG_PTR_KEY, filter_browse_w);
 }
 #endif
 
@@ -159,13 +159,11 @@ GtkWidget *
 display_filter_construct_cb(GtkWidget *w, gpointer construct_args_ptr)
 {
 	construct_args_t *construct_args = construct_args_ptr;
-	GtkWidget *caller = gtk_widget_get_toplevel(w);
 	GtkWidget *filter_browse_w;
 	GtkWidget *parent_filter_te;
 
-	/* Has a filter dialog box already been opened for that top-level
-	   widget? */
-	filter_browse_w = OBJECT_GET_DATA(caller, E_FILT_DIALOG_PTR_KEY);
+	/* Has a filter dialog box already been opened for the button? */
+	filter_browse_w = OBJECT_GET_DATA(w, E_FILT_DIALOG_PTR_KEY);
 
 	if (filter_browse_w != NULL) {
 		/* Yes.  Just re-activate that dialog box. */
@@ -178,17 +176,34 @@ display_filter_construct_cb(GtkWidget *w, gpointer construct_args_ptr)
 
 	/* Now create a new dialog, possibly with an "Apply" button, and
 	   definitely with an "Add Expression..." button. */
-	filter_browse_w = filter_dialog_new(caller, parent_filter_te,
+	filter_browse_w = filter_dialog_new(w, parent_filter_te,
 	    DFILTER_LIST, construct_args);
 
-	/* Set the E_FILT_CALLER_PTR_KEY for the new dialog to point to
-	   our caller. */
-	OBJECT_SET_DATA(filter_browse_w, E_FILT_CALLER_PTR_KEY, caller);
+	/* Set the E_FILT_BUTTON_PTR_KEY for the new dialog to point to
+	   the button. */
+	OBJECT_SET_DATA(filter_browse_w, E_FILT_BUTTON_PTR_KEY, w);
 
-	/* Set the E_FILT_DIALOG_PTR_KEY for the caller to point to us */
-	OBJECT_SET_DATA(caller, E_FILT_DIALOG_PTR_KEY, filter_browse_w);
+	/* Set the E_FILT_DIALOG_PTR_KEY for the button to point to us */
+	OBJECT_SET_DATA(w, E_FILT_DIALOG_PTR_KEY, filter_browse_w);
 
 	return filter_browse_w;
+}
+
+/* Should be called when a button that creates filters is destroyed; it
+   destroys any filter created by that button. */
+void
+filter_button_destroy_cb(GtkWidget *button, gpointer user_data _U_)
+{
+	GtkWidget *filter_w;
+
+	/* Is there a filter edit/selection dialog associated with this
+	   button? */
+	filter_w = OBJECT_GET_DATA(button, E_FILT_DIALOG_PTR_KEY);
+
+	if (filter_w != NULL) {
+		/* Yes.  Destroy it. */
+		gtk_widget_destroy(filter_w);
+	}
 }
 
 #ifdef HAVE_LIBPCAP
@@ -218,7 +233,7 @@ cfilter_dialog_cb(GtkWidget *w _U_)
 	/*
 	 * No.  Create one; we didn't pop this up as a result of pressing
 	 * a button next to some text entry field, so don't associate it
-	 * with a text entry field.
+	 * with a text entry field or button.
 	 */
 	global_cfilter_w = filter_dialog_new(NULL, NULL, CFILTER_LIST, &args);
 }
@@ -250,7 +265,7 @@ dfilter_dialog_cb(GtkWidget *w _U_)
 	/*
 	 * No.  Create one; we didn't pop this up as a result of pressing
 	 * a button next to some text entry field, so don't associate it
-	 * with a text entry field.
+	 * with a text entry field or button.
 	 */
 	global_dfilter_w = filter_dialog_new(NULL, NULL, DFILTER_LIST, &args);
 }
@@ -310,7 +325,7 @@ get_filter_dialog_list(filter_list_type_t list)
 }
 
 static GtkWidget *
-filter_dialog_new(GtkWidget *caller _U_, GtkWidget *parent_filter_te,
+filter_dialog_new(GtkWidget *button _U_, GtkWidget *parent_filter_te,
                   filter_list_type_t list, construct_args_t *construct_args)
 {
     GtkWidget  *main_w,           /* main window */
@@ -382,8 +397,8 @@ filter_dialog_new(GtkWidget *caller _U_, GtkWidget *parent_filter_te,
     main_w = dlg_window_new(construct_args->title);
     OBJECT_SET_DATA(main_w, E_FILT_CONSTRUCT_ARGS_KEY, construct_args);
 
-    /* Call a handler when we're destroyed, so we can inform
-       our caller, if any, that we've been destroyed. */
+    /* Call a handler when we're destroyed, so we can detach ourselves
+       from the button. */
     SIGNAL_CONNECT(main_w, "destroy", filter_dlg_destroy, filter_list_p);
 
     main_vb = gtk_vbox_new(FALSE, 5);
@@ -863,16 +878,16 @@ static void
 filter_dlg_destroy(GtkWidget *win, gpointer data)
 {
 	filter_list_type_t list = *(filter_list_type_t *)data;
-	GtkWidget *caller;
+	GtkWidget *button;
 
-	/* Get the widget that requested that we be popped up, if any.
+	/* Get the button that requested that we be popped up, if any.
 	   (It should arrange to destroy us if it's destroyed, so
 	   that we don't get a pointer to a non-existent window here.) */
-	caller = OBJECT_GET_DATA(win, E_FILT_CALLER_PTR_KEY);
+	button = OBJECT_GET_DATA(win, E_FILT_BUTTON_PTR_KEY);
 
-	if (caller != NULL) {
+	if (button != NULL) {
 		/* Tell it we no longer exist. */
-		OBJECT_SET_DATA(caller, E_FILT_DIALOG_PTR_KEY, NULL);
+		OBJECT_SET_DATA(button, E_FILT_DIALOG_PTR_KEY, NULL);
 	} else {
 		/* This is an editing dialog popped up from, for example,
 		   a menu item; note that we no longer have one. */

@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.76 2002/11/09 20:00:35 oabad Exp $
+ * $Id: capture_dlg.c,v 1.77 2003/01/15 05:20:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -284,6 +284,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
   filter_bt = gtk_button_new_with_label("Filter:");
   SIGNAL_CONNECT(filter_bt, "clicked", capture_filter_construct_cb, NULL);
+  SIGNAL_CONNECT(filter_bt, "destroy", filter_button_destroy_cb, NULL);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_bt, FALSE, FALSE, 3);
   gtk_widget_show(filter_bt);
 
@@ -883,20 +884,10 @@ capture_prep_close_cb(GtkWidget *close_bt _U_, gpointer parent_w)
 static void
 capture_prep_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 {
-  GtkWidget *capture_prep_filter_w;
   GtkWidget *fs;
 
-  /* Is there a filter edit/selection dialog associated with this
-     Capture Options dialog? */
-  capture_prep_filter_w = OBJECT_GET_DATA(win, E_FILT_DIALOG_PTR_KEY);
-
-  if (capture_prep_filter_w != NULL) {
-    /* Yes.  Destroy it. */
-    gtk_widget_destroy(capture_prep_filter_w);
-  }
-
   /* Is there a file selection dialog associated with this
-     Print File dialog? */
+     Capture Options dialog? */
   fs = OBJECT_GET_DATA(win, E_FILE_SEL_DIALOG_PTR_KEY);
 
   if (fs != NULL) {

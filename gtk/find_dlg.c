@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.26 2002/11/11 15:39:05 oabad Exp $
+ * $Id: find_dlg.c,v 1.27 2003/01/15 05:20:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -108,6 +108,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
   filter_bt = gtk_button_new_with_label("Filter:");
   SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
+  SIGNAL_CONNECT(filter_bt, "destroy", filter_button_destroy_cb, NULL);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
 
@@ -248,19 +249,8 @@ find_frame_close_cb(GtkWidget *close_bt _U_, gpointer parent_w)
 }
 
 static void
-find_frame_destroy_cb(GtkWidget *win, gpointer user_data _U_)
+find_frame_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 {
-  GtkWidget *find_frame_filter_w;
-
-  /* Is there a filter edit/selection dialog associated with this
-     Find Frame dialog? */
-  find_frame_filter_w = OBJECT_GET_DATA(win, E_FILT_DIALOG_PTR_KEY);
-
-  if (find_frame_filter_w != NULL) {
-    /* Yes.  Destroy it. */
-    gtk_widget_destroy(find_frame_filter_w);
-  }
-
   /* Note that we no longer have a "Find Frame" dialog box. */
   find_frame_w = NULL;
 }
