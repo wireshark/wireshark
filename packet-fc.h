@@ -2,7 +2,7 @@
  * Basic Fibre Channel Header definitions
  * Copyright 2002 Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-fc.h,v 1.2 2002/12/10 02:49:31 guy Exp $
+ * $Id: packet-fc.h,v 1.3 2003/06/25 10:21:44 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -99,5 +99,45 @@ extern const value_string fc_fc4_val[];
 #define FC_IU_DATA_DESCRIPTOR   0x5
 #define FC_IU_UNSOLICITED_CMD   0x6
 #define FC_IU_CMD_STATUS        0x7
+
+/* FC_CTL bits */
+#define FC_FCTL_EXCHANGE_RESPONDER	0x800000
+#define FC_FCTL_SEQ_RECIPIENT		0x400000
+#define FC_FCTL_EXCHANGE_FIRST		0x200000
+#define FC_FCTL_EXCHANGE_LAST		0x100000
+#define FC_FCTL_SEQ_LAST		0x080000
+#define FC_FCTL_PRIORITY		0x020000
+#define FC_FCTL_TRANSFER_SEQ_INITIATIVE	0x010000
+#define FC_FCTL_LAST_DATA_FRAME_MASK	0x00c000
+#define FC_FCTL_ACK_0_1_MASK		0x003000
+#define FC_FCTL_REXMITTED_SEQ		0x000200
+#define FC_FCTL_ABTS_MASK		0x000030
+#define FC_FCTL_REL_OFFSET		0x000008
+
+/* structure and functions to keep track of first/last exchange
+   frames and time deltas 
+*/
+typedef struct _fc_exchange_data {
+    guint32 s_id;
+    guint32 d_id;
+    guint16 oxid;
+    guint32 first_exchange_frame;
+    guint32 last_exchange_frame;
+    nstime_t fc_time;
+} fc_exchange_data;
+
+/* FC header structure */
+typedef struct _fc_hdr {
+    guint32 s_id;
+    guint32 d_id;
+    guint32 fctl;
+    guint8 type;
+    guint16 seqcnt;
+    guint16 oxid;
+    guint16 rxid;
+    guint8 r_ctl;
+    guint8 cs_ctl;
+    fc_exchange_data *fced;
+} fc_hdr;
 
 #endif /* __PACKET_FC_H_ */

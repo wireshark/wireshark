@@ -1,8 +1,10 @@
 /* packet-fc.c
  * Routines for Fibre Channel Decoding (FC Header, Link Ctl & Basic Link Svc) 
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
+ *   Copyright 2003  Ronnie Sahlberg, exchange first/last matching and 
+ *                                    tap listener and misc updates
  *
- * $Id: packet-fc.c,v 1.9 2003/06/24 15:37:29 sahlberg Exp $
+ * $Id: packet-fc.c,v 1.10 2003/06/25 10:21:44 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,6 +55,7 @@
 #include "packet-fc.h"
 #include "packet-fclctl.h"
 #include "packet-fcbls.h"
+#include "tap.h"
 
 #define FC_HEADER_SIZE         24
 #define FC_RCTL_EISL           0x50
@@ -130,20 +133,7 @@ static gint ett_fcbls = -1;
 static dissector_table_t fcftype_dissector_table;
 static dissector_handle_t data_handle;
 
-
-#define FC_FCTL_EXCHANGE_RESPONDER	0x800000
-#define FC_FCTL_SEQ_RECIPIENT		0x400000
-#define FC_FCTL_EXCHANGE_FIRST		0x200000
-#define FC_FCTL_EXCHANGE_LAST		0x100000
-#define FC_FCTL_SEQ_LAST		0x080000
-#define FC_FCTL_PRIORITY		0x020000
-#define FC_FCTL_TRANSFER_SEQ_INITIATIVE	0x010000
-#define FC_FCTL_LAST_DATA_FRAME_MASK	0x00c000
-#define FC_FCTL_ACK_0_1_MASK		0x003000
-#define FC_FCTL_REXMITTED_SEQ		0x000200
-#define FC_FCTL_ABTS_MASK		0x000030
-#define FC_FCTL_REL_OFFSET		0x000008
-
+static int fc_tap = -1;
 
 /* Reassembly stuff */
 static gboolean fc_reassemble = TRUE;
@@ -151,17 +141,6 @@ static guint32  fc_max_frame_size = 1024;
 static GHashTable *fc_fragment_table = NULL;
 
 
-/* structure and functions to keep track of first/last exchange
-   frames and time deltas 
-*/
-typedef struct _fc_exchange_data {
-    guint32 s_id;
-    guint32 d_id;
-    guint16 oxid;
-    guint32 first_exchange_frame;
-    guint32 last_exchange_frame;
-    nstime_t fc_time;
-} fc_exchange_data;
 static GHashTable *fc_exchange_unmatched = NULL;
 static GHashTable *fc_exchange_matched = NULL;
 static GMemChunk *fc_exchange_vals = NULL;
@@ -312,17 +291,6 @@ static const value_string fc_iu_val[] = {
     {0, NULL},
 };
 
-typedef struct _fc_hdr {
-    guint32 s_id;
-    guint32 d_id;
-    guint32 fctl;
-    guint8 type;
-    guint16 seqcnt;
-    guint16 oxid;
-    guint16 rxid;
-    guint8 r_ctl;
-    guint8 cs_ctl;
-} fc_hdr;
 
 static void fc_defragment_init(void)
 {
@@ -723,6 +691,8 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     fc_hdr fchdr;
     fc_exchange_data *fc_ex=NULL;
 
+    fchdr.fced=NULL;
+
     /* Make entries in Protocol column and Info column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC");
@@ -848,6 +818,7 @@ old_fced->first_exchange_frame=pinfo->fd->num;
             proto_tree_add_time(ti, hf_fc_time, tvb, 0, 0, &delta_time);
         }
     }
+    fchdr.fced=fc_ex;
 
     if (ftype == FC_FTYPE_LINKCTL) {
         /* the lower 4 bits of R_CTL indicate the type of link ctl frame */
@@ -909,45 +880,40 @@ old_fced->first_exchange_frame=pinfo->fd->num;
     proto_tree_add_item (fc_tree, hf_fc_seqid, tvb, offset+12, 1, FALSE);
 
     df_ctl = tvb_get_guint8(tvb, offset+13);
-    if (tree) {
-        proto_tree_add_uint (fc_tree, hf_fc_dfctl, tvb, offset+13, 1, df_ctl);
-        proto_tree_add_uint (fc_tree, hf_fc_seqcnt, tvb, offset+14, 2, fchdr.seqcnt);
-        proto_tree_add_uint (fc_tree, hf_fc_oxid, tvb, offset+16, 2, fchdr.oxid);
-        proto_tree_add_uint (fc_tree, hf_fc_rxid, tvb, offset+18, 2, fchdr.rxid);
 
-        if (ftype == FC_FTYPE_LINKCTL) {
-            if (((fchdr.r_ctl & 0x0F) == FC_LCTL_FRJT) ||
-                ((fchdr.r_ctl & 0x0F) == FC_LCTL_PRJT) ||
-                ((fchdr.r_ctl & 0x0F) == FC_LCTL_PBSY)) {
-                /* In all these cases of Link Ctl frame, the parameter field
-                 * encodes the detailed error message
-                 */
-                proto_tree_add_uint_format (fc_tree, hf_fc_param, tvb,
-                                            offset+20, 4, param,
-                                            "Parameter: 0x%x(%s)", param,
-                                            fclctl_get_paramstr ((fchdr.r_ctl & 0x0F),
-                                                                 param));
-            }
-            else {
-                proto_tree_add_item (fc_tree, hf_fc_param, tvb, offset+20, 4, FALSE);
-            }
-        }
-        else if (ftype == FC_FTYPE_BLS) {
-            if ((fchdr.r_ctl & 0x0F) == FC_BLS_ABTS) {
-                proto_tree_add_uint_format (fc_tree, hf_fc_param, tvb,
-                                            offset+20, 4, param, 
-                                            "Parameter: 0x%x(%s)", param,
-                                            ((param & 0x0F) == 1 ? "Abort Sequence" :
-                                             "Abort Exchange"));
-            }
-            else {
-                proto_tree_add_item (fc_tree, hf_fc_param, tvb, offset+20,
-                                     4, FALSE);
-            }
-        }
-        else {
+    proto_tree_add_uint (fc_tree, hf_fc_dfctl, tvb, offset+13, 1, df_ctl);
+    proto_tree_add_uint (fc_tree, hf_fc_seqcnt, tvb, offset+14, 2, fchdr.seqcnt);
+    proto_tree_add_uint (fc_tree, hf_fc_oxid, tvb, offset+16, 2, fchdr.oxid);
+    proto_tree_add_uint (fc_tree, hf_fc_rxid, tvb, offset+18, 2, fchdr.rxid);
+
+    if (ftype == FC_FTYPE_LINKCTL) {
+        if (((fchdr.r_ctl & 0x0F) == FC_LCTL_FRJT) ||
+            ((fchdr.r_ctl & 0x0F) == FC_LCTL_PRJT) ||
+            ((fchdr.r_ctl & 0x0F) == FC_LCTL_PBSY)) {
+            /* In all these cases of Link Ctl frame, the parameter field
+             * encodes the detailed error message
+             */
+            proto_tree_add_uint_format (fc_tree, hf_fc_param, tvb,
+                                        offset+20, 4, param,
+                                        "Parameter: 0x%x(%s)", param,
+                                        fclctl_get_paramstr ((fchdr.r_ctl & 0x0F),
+                                                             param));
+        } else {
             proto_tree_add_item (fc_tree, hf_fc_param, tvb, offset+20, 4, FALSE);
         }
+    } else if (ftype == FC_FTYPE_BLS) {
+        if ((fchdr.r_ctl & 0x0F) == FC_BLS_ABTS) {
+            proto_tree_add_uint_format (fc_tree, hf_fc_param, tvb,
+                                        offset+20, 4, param, 
+                                        "Parameter: 0x%x(%s)", param,
+                                        ((param & 0x0F) == 1 ? "Abort Sequence" :
+                                         "Abort Exchange"));
+        } else {
+            proto_tree_add_item (fc_tree, hf_fc_param, tvb, offset+20,
+                                 4, FALSE);
+        }
+    } else {
+        proto_tree_add_item (fc_tree, hf_fc_param, tvb, offset+20, 4, FALSE);
     }
 
     /* Skip the Frame_Header */
@@ -985,8 +951,7 @@ old_fced->first_exchange_frame=pinfo->fd->num;
     /* If there is an MDS header, we need to subtract the MDS trailer size */
     if ((pinfo->ethertype == ETHERTYPE_UNK) || (pinfo->ethertype == ETHERTYPE_FCFT)) {
         frag_size -= MDSHDR_TRAILER_SIZE;
-    }
-    else if (pinfo->ethertype == ETHERTYPE_BRDWALK) {
+    } else if (pinfo->ethertype == ETHERTYPE_BRDWALK) {
         frag_size -= 8;         /* 4 byte of FC CRC +
                                    4 bytes of error+EOF = 8 bytes  */
     }
@@ -1027,8 +992,7 @@ old_fced->first_exchange_frame=pinfo->fd->num;
                 proto_tree_add_boolean_hidden (fc_tree, hf_fc_reassembled,
                                                tvb, offset+9, 1, 1);
             }
-        }
-        else {
+        } else {
             if (tree) {
                 proto_tree_add_boolean_hidden (fc_tree, hf_fc_reassembled,
                                                tvb, offset+9, 1, 0);
@@ -1037,8 +1001,7 @@ old_fced->first_exchange_frame=pinfo->fd->num;
             call_dissector (data_handle, next_tvb, pinfo, tree);
             return;
         }
-    }
-    else {
+    } else {
         if (tree) {
             proto_tree_add_boolean_hidden (fc_tree, hf_fc_reassembled,
                                            tvb, offset+9, 1, 0);
@@ -1051,15 +1014,15 @@ old_fced->first_exchange_frame=pinfo->fd->num;
                                  pinfo, tree)) {
             call_dissector (data_handle, next_tvb, pinfo, tree);
         }
-    }
-    else if (ftype == FC_FTYPE_BLS) {
+    } else if (ftype == FC_FTYPE_BLS) {
         if ((fchdr.r_ctl & 0x0F) == FC_BLS_BAACC) {
             dissect_fc_ba_acc (next_tvb, pinfo, tree);
-        }
-        else if ((fchdr.r_ctl & 0x0F) == FC_BLS_BARJT) {
+        } else if ((fchdr.r_ctl & 0x0F) == FC_BLS_BARJT) {
             dissect_fc_ba_rjt (next_tvb, pinfo, tree);
         }
     }
+
+    tap_queue_packet(fc_tap, pinfo, &fchdr);
 }
 
 
@@ -1214,6 +1177,7 @@ proto_register_fc(void)
     /* Register the protocol name and description */
     proto_fc = proto_register_protocol ("Fibre Channel", "FC", "fc");
     register_dissector ("fc", dissect_fc, proto_fc);
+    fc_tap = register_tap("fc");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_fc, hf, array_length(hf));
