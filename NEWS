@@ -1,7 +1,7 @@
 Overview of changes in Ethereal 0.7.2:
 * Another memory leak fix (Jochen)
 * Allow compilation from different directory (Laurent)
-* -R flag for display filter on command line (Jochen)
+* -R flag for on command line, applied when reading a capture file (Jochen)
 * Updated docs (Guy)
 * Handles ICMP Unreachable|Frag Required (John)
 * NetBEUI support (Jeff, Guy)
