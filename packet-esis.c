@@ -2,7 +2,7 @@
  * Routines for ISO/OSI End System to Intermediate System
  * Routing Exchange Protocol ISO 9542.
  *
- * $Id: packet-esis.c,v 1.27 2002/08/28 21:00:13 jmayer Exp $
+ * $Id: packet-esis.c,v 1.28 2003/02/25 19:07:07 guy Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
@@ -441,5 +441,6 @@ proto_reg_handoff_esis(void)
   dissector_handle_t esis_handle;
 
   esis_handle = create_dissector_handle(dissect_esis, proto_esis);
+  register_dissector("esis", dissect_esis, proto_esis);
   dissector_add("osinl", NLPID_ISO9542_ESIS, esis_handle);
 }
