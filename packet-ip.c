@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.48 1999/09/23 19:05:28 guy Exp $
+ * $Id: packet-ip.c,v 1.49 1999/10/02 15:55:28 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1158,16 +1158,22 @@ dissect_igmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   if (tree) {
     ti = proto_tree_add_item(tree, proto_igmp, offset, 8, NULL);
     igmp_tree = proto_item_add_subtree(ti, ETT_IGMP);
-    proto_tree_add_text(igmp_tree, offset,     1, "Version: %d",
-      hi_nibble(ih.igmp_v_t));
-    proto_tree_add_text(igmp_tree, offset    , 1, "Type: %d (%s)",
-      lo_nibble(ih.igmp_v_t), type_str);
-    proto_tree_add_text(igmp_tree, offset + 1, 1, "Unused: 0x%02x",
-      ih.igmp_unused);
-    proto_tree_add_text(igmp_tree, offset + 2, 2, "Checksum: 0x%04x",
-      cksum);
-    proto_tree_add_text(igmp_tree, offset + 4, 4, "Group address: %s",
-      ip_to_str((guint8 *) &ih.igmp_gaddr));
+    proto_tree_add_item(igmp_tree, hf_igmp_version, offset,     1, 
+			hi_nibble(ih.igmp_v_t));
+    proto_tree_add_item_format(igmp_tree, hf_igmp_type,  offset    , 1, 
+			       lo_nibble(ih.igmp_v_t),
+			       "Type: %d (%s)",
+			       lo_nibble(ih.igmp_v_t), type_str);
+    proto_tree_add_item_format(igmp_tree, hf_igmp_unused, offset + 1, 1,
+			       ih.igmp_unused,
+			       "Unused: 0x%02x",
+			       ih.igmp_unused);
+    proto_tree_add_item_format(igmp_tree, hf_igmp_checksum, offset + 2, 2, 
+			       cksum,
+			       "Checksum: 0x%04x",
+			       cksum);
+    proto_tree_add_item(igmp_tree, hf_igmp_group, offset + 4, 4, 
+			ih.igmp_gaddr);
   }
 }
 
