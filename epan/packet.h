@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.37 2001/10/31 07:47:26 guy Exp $
+ * $Id: packet.h,v 1.38 2001/11/20 20:57:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,21 +42,13 @@
 /* Useful when you have an array whose size you can tell at compile-time */
 #define array_length(x)	(sizeof x / sizeof x[0])
 
-/* Useful when highlighting regions inside a dissect_*() function. With this
- * macro, you can highlight from an arbitrary offset to the end of the
- * packet (which may come before the end of the frame).
- * See the SMB dissector for an example.
- * XXX - this goes when the SMB dissector is fully tvbuffified.
- */
-#define END_OF_FRAME	(pi.captured_len - offset)
-
 /* Check whether the "len" bytes of data starting at "offset" is
- * entirely inside the captured data for this packet. */
+ * entirely inside the captured data for this packet.
+ * XXX - change it to take the captured length as an argument, and
+ * change the capture routines to take the captured length as an
+ * argument. */
 #define	BYTES_ARE_IN_FRAME(offset, len)	((offset) + (len) <= pi.captured_len)
 
-/* Check whether there's any data at all starting at "offset". */
-#define	IS_DATA_IN_FRAME(offset)	((offset) < pi.captured_len)
-		
 /* To pass one of two strings, singular or plural */
 #define plurality(d,s,p) ((d) == 1 ? (s) : (p))
 
