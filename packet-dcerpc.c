@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.42 2002/03/21 09:35:52 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.43 2002/03/22 09:44:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -202,6 +202,7 @@ static int hf_dcerpc_dg_if_ver = -1;
 static int hf_dcerpc_array_max_count = -1;
 static int hf_dcerpc_array_offset = -1;
 static int hf_dcerpc_array_actual_count = -1;
+static int hf_dcerpc_op = -1;
 static int hf_dcerpc_referent_id = -1;
 
 static gint ett_dcerpc = -1;
@@ -934,16 +935,6 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
         return -1;
     }
 
-    if (tree) {
-        proto_item *sub_item;
-        sub_item = proto_tree_add_item (tree, sub_proto->proto, tvb, offset, 
-                                        -1, FALSE);
-
-        if (sub_item) {
-            sub_tree = proto_item_add_subtree (sub_item, sub_proto->ett);
-        }
-        
-    }
     for (proc = sub_proto->procs; proc->name; proc++) {
         if (proc->num == opnum) {
             name = proc->name;
@@ -954,13 +945,45 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     if (!name)
         name = "Unknown?!";
 
+    if (check_col (pinfo->cinfo, COL_PROTOCOL)) {
+        col_set_str (pinfo->cinfo, COL_PROTOCOL, sub_proto->name);
+    }
+
     if (check_col (pinfo->cinfo, COL_INFO)) {
         col_add_fstr (pinfo->cinfo, COL_INFO, "%s %s(...)",
                       is_rqst ? "rqst" : "rply", name);
     }
 
-    if (check_col (pinfo->cinfo, COL_PROTOCOL)) {
-        col_set_str (pinfo->cinfo, COL_PROTOCOL, sub_proto->name);
+    if (tree) {
+        proto_item *sub_item;
+        sub_item = proto_tree_add_item (tree, sub_proto->proto, tvb, offset, 
+                                        -1, FALSE);
+
+        if (sub_item) {
+            sub_tree = proto_item_add_subtree (sub_item, sub_proto->ett);
+        }
+        
+        /*
+         * Put the operation number into the tree along with
+         * the operation's name.
+         *
+         * XXX - the subdissectors should all have their own fields
+         * for the opnum, so that you can filter on a particular
+         * protocol and opnum value; the opnum value isn't, by itself,
+         * very interesting, as its interpretation depends on the
+         * subprotocol.
+         *
+         * That would also allow the field to have a value_string
+         * table, giving names for operations, and letting you filter
+         * by name.
+         *
+         * ONC RPC should do the same thing with the version and
+         * procedure fields it puts into the subprotocol's tree.
+         */
+        proto_tree_add_uint_format (sub_tree, hf_dcerpc_op, tvb,
+                                    0, 0, opnum,
+                                    "Operation: %s (%u)",
+                                    name, opnum);
     }
 
     /* 
@@ -1764,6 +1787,34 @@ dissect_dcerpc_cn_bs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return ret;
 }
 
+static void
+dissect_dcerpc_dg_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tree,
+                        e_dce_dg_common_hdr_t *hdr, int *auth_level_p)
+{
+    int offset;
+
+    /*
+     * Initially set "*auth_level_p" to -1 to indicate that we haven't
+     * yet seen any authentication level information.
+     */
+    if (auth_level_p != NULL)
+        *auth_level_p = -1;
+
+    /*
+     * The authentication information is at the *end* of the PDU; in
+     * request and response PDUs, the request and response stub data
+     * come before it.
+     *
+     * If the full packet is here, and there's data past the end of the
+     * packet body, then dissect the auth info.
+     */
+    if (tvb_length (tvb) >= hdr->frag_len) {
+        offset = hdr->frag_len;
+        
+        proto_tree_add_text (dcerpc_tree, tvb, offset, -1, "Auth data");
+    }
+}
+
 /*
  * DCERPC dissector for connectionless calls
  */
@@ -1950,6 +2001,13 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_dg_serial_lo, tvb, offset, 1, hdr.serial_lo);
         offset++;
+
+        /*
+         * XXX - for Kerberos, we can get a protection level; if it's
+         * DCE_C_AUTHN_LEVEL_PKT_PRIVACY, we can't dissect the
+         * stub data.
+         */
+        dissect_dcerpc_dg_auth (tvb, pinfo, dcerpc_tree, &hdr, NULL);
     }
     /* 
      * keeping track of the conversation shouldn't really be necessary
@@ -2316,6 +2374,8 @@ proto_register_dcerpc (void)
         { &hf_dcerpc_array_actual_count,
           { "Actual Count", "dcerpc.array.actual_count", FT_UINT32, BASE_DEC, NULL, 0x0, "Actual Count: Actual number of elements in the array", HFILL }},
 
+        { &hf_dcerpc_op,
+          { "Operation", "dcerpc.op", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     };
     static gint *ett[] = {
