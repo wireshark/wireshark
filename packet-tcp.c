@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.111 2001/10/01 08:29:35 guy Exp $
+ * $Id: packet-tcp.c,v 1.112 2001/10/30 22:22:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -156,6 +156,8 @@ static gboolean tcp_desegment = FALSE;
 static GHashTable *tcp_segment_table = NULL;
 static GMemChunk *tcp_segment_key_chunk = NULL;
 static int tcp_segment_init_count = 200;
+static GMemChunk *tcp_segment_address_chunk = NULL;
+static int tcp_segment_address_init_count = 500;
 
 typedef struct _tcp_segment_key {
 	/* for ouwn bookkeeping inside packet-tcp.c */
@@ -176,14 +178,11 @@ free_all_segments(gpointer key_arg, gpointer value, gpointer user_data)
 	if((key->src)&&(key->src->data)){
 		g_free((gpointer)key->src->data);
 		key->src->data=NULL;
-		g_free((gpointer)key->src);
-		key->src=NULL;
 	}
+
 	if((key->dst)&&(key->dst->data)){
 		g_free((gpointer)key->dst->data);
 		key->dst->data=NULL;
-		g_free((gpointer)key->dst);
-		key->dst=NULL;
 	}
 
 	return TRUE;
@@ -234,6 +233,14 @@ tcp_desegment_init(void)
 	tcp_segment_key_chunk = g_mem_chunk_new("tcp_segment_key_chunk",
 		sizeof(tcp_segment_key),
 		tcp_segment_init_count*sizeof(tcp_segment_key),
+		G_ALLOC_ONLY);
+
+	if(tcp_segment_address_chunk){
+		g_mem_chunk_destroy(tcp_segment_address_chunk);
+	}
+	tcp_segment_address_chunk = g_mem_chunk_new("tcp_segment_address_chunk",
+		sizeof(address),
+		tcp_segment_address_init_count*sizeof(address),
 		G_ALLOC_ONLY);
 }
 
@@ -491,9 +498,9 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		   We must remember this segment
 		*/
 		tsk = g_mem_chunk_alloc(tcp_segment_key_chunk);
-		tsk->src = g_malloc(sizeof(address));
+		tsk->src = g_mem_chunk_alloc(tcp_segment_address_chunk);
 		COPY_ADDRESS(tsk->src, &pinfo->src);
-		tsk->dst = g_malloc(sizeof(address));
+		tsk->dst = g_mem_chunk_alloc(tcp_segment_address_chunk);
 		COPY_ADDRESS(tsk->dst, &pinfo->dst);
 		tsk->seq = deseg_seq;
 		tsk->start_seq = tsk->seq;
