@@ -624,11 +624,13 @@ dissect_dnp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       add_new_data_source(pinfo, al_tvb, "DNP 3.0 Application Layer message");
     }
   }
-  else if (tree)
+  else {
+    /* CRC error - throw away the data. */
+    g_free(tmp);
+    if (tree)
       proto_tree_add_text(dnp3_tree, tvb, 11, -1,
-              "Application tvb allocation failed %d chunks", i);
-
-  if (!al_tvb && tmp) g_free(tmp);
+              "CRC failed, %d chunks", i);
+  }
 
   if (al_tvb)
     dissect_dnp3_al(al_tvb, pinfo, dnp3_tree);
