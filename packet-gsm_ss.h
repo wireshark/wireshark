@@ -1,6 +1,6 @@
 /* packet-gsm_ss.h
  *
- * $Id: packet-gsm_ss.h,v 1.2 2004/03/27 11:32:29 guy Exp $
+ * $Id: packet-gsm_ss.h,v 1.3 2004/04/21 05:53:56 guy Exp $
  *
  * Copyright 2004, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.
@@ -24,10 +24,17 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-extern gint gsm_ss_ett_sequence;
-extern gint gsm_ss_ett_param;
+typedef enum
+{
+    GSM_SS_ETT_SEQUENCE,
+    GSM_SS_ETT_PARAM
+}
+gsm_ss_ett_e;
+#define	NUM_GSM_SS_ETT	sizeof(gsm_ss_ett_e)
+extern gint gsm_ss_ett[];
 
 extern const value_string gsm_ss_opr_code_strings[];
+extern const value_string gsm_ss_err_code_strings[];
 
 extern void param_AddressString(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field);
 extern void gsm_ss_dissect(ASN1_SCK *asn1, proto_tree *tree, guint exp_len, guint opr_code, guint comp_type_tag);

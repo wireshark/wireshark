@@ -38,7 +38,7 @@
  *   Formats and coding
  *   (3GPP TS 24.080 version 4.3.0 Release 4)
  *
- * $Id: packet-gsm_a.c,v 1.12 2004/03/19 07:54:57 guy Exp $
+ * $Id: packet-gsm_a.c,v 1.13 2004/04/21 05:53:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6201,15 +6201,55 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 	    saved_offset = asn1->offset;
 	    asn1_id_decode1(asn1, &tag);
 
-	    GSM_A_TC_START_SUBTREE(subtree, saved_offset, tag, "Error Code",
-		ett_tc_err_code, &def_len[1], &temp_len, temp_subtree);
-
-	    if (temp_len > 0)
+	    switch (tag)
 	    {
-		proto_tree_add_text(temp_subtree, asn1->tvb,
-		    asn1->offset, temp_len, "Error Code");
+	    case 0x02:
+		GSM_A_TC_START_SUBTREE(subtree, saved_offset, tag, "Local Error Code",
+		    ett_tc_err_code, &def_len[1], &temp_len, temp_subtree);
 
-		asn1->offset += temp_len;
+		if (temp_len > 0)
+		{
+		    saved_offset = asn1->offset;
+		    asn1_int32_value_decode(asn1, temp_len, &int_val);
+
+		    str = match_strval(int_val, gsm_ss_err_code_strings);
+
+		    proto_tree_add_text(temp_subtree, asn1->tvb,
+			saved_offset, temp_len, "Error Code: %s (%d)",
+			(str == NULL) ? "Unknown Error Code" : str,
+			int_val);
+		}
+		break;
+
+	    case 0x06:
+		GSM_A_TC_START_SUBTREE(subtree, saved_offset, tag, "Global Error Code",
+		    ett_tc_err_code, &def_len[1], &temp_len, temp_subtree);
+
+		if (temp_len > 0)
+		{
+		    saved_offset = asn1->offset;
+		    asn1_int32_value_decode(asn1, temp_len, &int_val);
+
+		    proto_tree_add_text(temp_subtree, asn1->tvb,
+			saved_offset, temp_len, "Error Code: %d",
+			int_val);
+		}
+		break;
+
+	    default:
+		GSM_A_TC_START_SUBTREE(subtree, saved_offset, tag, "Unknown Error Code",
+		    ett_tc_err_code, &def_len[1], &temp_len, temp_subtree);
+
+		if (temp_len > 0)
+		{
+		    saved_offset = asn1->offset;
+		    asn1_int32_value_decode(asn1, temp_len, &int_val);
+
+		    proto_tree_add_text(temp_subtree, asn1->tvb,
+			saved_offset, temp_len, "Error Code: %d",
+			int_val);
+		}
+		break;
 	    }
 
 	    if (!def_len[1])
@@ -11183,14 +11223,13 @@ proto_register_gsm_a(void)
     };
 
     /* Setup protocol subtree array */
-#define	NUM_INDIVIDUAL_ELEMS	33
+#define	NUM_INDIVIDUAL_ELEMS	31
     static gint *ett[NUM_INDIVIDUAL_ELEMS + NUM_GSM_BSSMAP_MSG +
 			NUM_GSM_DTAP_MSG_MM + NUM_GSM_DTAP_MSG_RR + NUM_GSM_DTAP_MSG_CC +
 			NUM_GSM_DTAP_MSG_GMM + NUM_GSM_DTAP_MSG_SMS +
 			NUM_GSM_DTAP_MSG_SM + NUM_GSM_DTAP_MSG_SS + NUM_GSM_RP_MSG +
-			NUM_GSM_BSSMAP_ELEM + NUM_GSM_DTAP_ELEM];
-
-    memset((void *) ett, -1, sizeof(ett));
+			NUM_GSM_BSSMAP_ELEM + NUM_GSM_DTAP_ELEM +
+			NUM_GSM_SS_ETT];
 
     ett[0] = &ett_bssmap_msg;
     ett[1] = &ett_dtap_msg;
@@ -11224,64 +11263,79 @@ proto_register_gsm_a(void)
     ett[28] = &ett_tc_err_code;
     ett[29] = &ett_tc_prob_code;
     ett[30] = &ett_tc_sequence;
-    ett[31] = &gsm_ss_ett_sequence;
-    ett[32] = &gsm_ss_ett_param;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
     for (i=0; i < NUM_GSM_BSSMAP_MSG; i++, last_offset++)
     {
+	ett_gsm_bssmap_msg[i] = -1;
 	ett[last_offset] = &ett_gsm_bssmap_msg[i];
     }
 
     for (i=0; i < NUM_GSM_DTAP_MSG_MM; i++, last_offset++)
     {
+	ett_gsm_dtap_msg_mm[i] = -1;
 	ett[last_offset] = &ett_gsm_dtap_msg_mm[i];
     }
 
     for (i=0; i < NUM_GSM_DTAP_MSG_RR; i++, last_offset++)
     {
+	ett_gsm_dtap_msg_rr[i] = -1;
 	ett[last_offset] = &ett_gsm_dtap_msg_rr[i];
     }
 
     for (i=0; i < NUM_GSM_DTAP_MSG_CC; i++, last_offset++)
     {
+	ett_gsm_dtap_msg_cc[i] = -1;
 	ett[last_offset] = &ett_gsm_dtap_msg_cc[i];
     }
 
     for (i=0; i < NUM_GSM_DTAP_MSG_GMM; i++, last_offset++)
     {
+	ett_gsm_dtap_msg_gmm[i] = -1;
 	ett[last_offset] = &ett_gsm_dtap_msg_gmm[i];
     }
 
     for (i=0; i < NUM_GSM_DTAP_MSG_SMS; i++, last_offset++)
     {
+	ett_gsm_dtap_msg_sms[i] = -1;
 	ett[last_offset] = &ett_gsm_dtap_msg_sms[i];
     }
 
     for (i=0; i < NUM_GSM_DTAP_MSG_SM; i++, last_offset++)
     {
+	ett_gsm_dtap_msg_sm[i] = -1;
 	ett[last_offset] = &ett_gsm_dtap_msg_sm[i];
     }
 
     for (i=0; i < NUM_GSM_DTAP_MSG_SS; i++, last_offset++)
     {
+	ett_gsm_dtap_msg_ss[i] = -1;
 	ett[last_offset] = &ett_gsm_dtap_msg_ss[i];
     }
 
     for (i=0; i < NUM_GSM_RP_MSG; i++, last_offset++)
     {
+	ett_gsm_rp_msg[i] = -1;
 	ett[last_offset] = &ett_gsm_rp_msg[i];
     }
 
     for (i=0; i < NUM_GSM_BSSMAP_ELEM; i++, last_offset++)
     {
+	ett_gsm_bssmap_elem[i] = -1;
 	ett[last_offset] = &ett_gsm_bssmap_elem[i];
     }
 
     for (i=0; i < NUM_GSM_DTAP_ELEM; i++, last_offset++)
     {
+	ett_gsm_dtap_elem[i] = -1;
 	ett[last_offset] = &ett_gsm_dtap_elem[i];
+    }
+
+    for (i=0; i < NUM_GSM_SS_ETT; i++, last_offset++)
+    {
+	gsm_ss_ett[i] = -1;
+	ett[last_offset] = &gsm_ss_ett[i];
     }
 
     /* Register the protocol name and description */

@@ -1,6 +1,6 @@
 /* packet-gsm_map.h
  *
- * $Id: packet-gsm_map.h,v 1.1 2004/02/11 04:27:44 guy Exp $
+ * $Id: packet-gsm_map.h,v 1.2 2004/04/21 05:53:56 guy Exp $
  *
  * Copyright 2004, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.
@@ -24,8 +24,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+
+#define	GSM_MAP_MAX_NUM_OPR_CODES	256
+
 typedef struct _gsm_map_tap_rec_t {
+    gboolean		invoke;
     guint8		opr_code_idx;
+    guint16		size;
 } gsm_map_tap_rec_t;
 
 

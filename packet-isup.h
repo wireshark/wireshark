@@ -1,6 +1,6 @@
 /* packet-isup.h
  *
- * $Id: packet-isup.h,v 1.1 2003/12/12 19:55:27 guy Exp $
+ * $Id: packet-isup.h,v 1.2 2004/04/21 05:53:56 guy Exp $
  *
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.
@@ -23,6 +23,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+
+#define	ISUP_MAX_NUM_MESSAGE_TYPES	256
 
 typedef struct _isup_tap_rec_t {
     guint8		message_type;

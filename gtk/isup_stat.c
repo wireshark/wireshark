@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: isup_stat.c,v 1.21 2004/04/12 08:53:02 ulfl Exp $
+ * $Id: isup_stat.c,v 1.22 2004/04/21 05:53:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,10 +67,8 @@ typedef struct _isup_stat_dlg_t {
     char		*entries[4];
 } isup_stat_dlg_t;
 
-#define N_MESSAGE_TYPES	256
-
 typedef struct _isup_stat_t {
-    int			message_type[N_MESSAGE_TYPES];
+    int			message_type[ISUP_MAX_NUM_MESSAGE_TYPES];
 } isup_stat_t;
 
 
@@ -102,7 +100,7 @@ isup_stat_packet(
     pinfo = pinfo;
 
 #if 0	/* always false because message_type is 8 bit value */
-    if (data_p->message_type >= N_MESSAGE_TYPES)
+    if (data_p->message_type >= ISUP_MAX_NUM_MESSAGE_TYPES)
     {
 	/*
 	 * unknown message type !!!

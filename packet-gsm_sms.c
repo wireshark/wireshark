@@ -11,7 +11,7 @@
  *   Technical realization of Short Message Service (SMS)
  *   (3GPP TS 23.040 version 5.4.0 Release 5)
  *
- * $Id: packet-gsm_sms.c,v 1.11 2004/03/27 11:32:29 guy Exp $
+ * $Id: packet-gsm_sms.c,v 1.12 2004/04/21 05:53:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2574,8 +2574,6 @@ proto_register_gsm_sms(void)
 #define	NUM_INDIVIDUAL_PARMS	12
     static gint *ett[NUM_INDIVIDUAL_PARMS+NUM_MSGS+NUM_UDH_IEIS];
 
-    memset((void *) ett, -1, sizeof(ett));
-
     ett[0] = &ett_gsm_sms;
     ett[1] = &ett_pid;
     ett[2] = &ett_pi;
@@ -2593,11 +2591,13 @@ proto_register_gsm_sms(void)
 
     for (i=0; i < NUM_MSGS; i++, last_offset++)
     {
+	ett_msgs[i] = -1;
 	ett[last_offset] = &ett_msgs[i];
     }
 
     for (i=0; i < NUM_UDH_IEIS; i++, last_offset++)
     {
+	ett_udh_ieis[i] = -1;
 	ett[last_offset] = &ett_udh_ieis[i];
     }
 

@@ -1853,6 +1853,7 @@ Michael Lum <mlum [AT] telostech.com> {
 	Tap for ANSI MAP message statistics
 	Tap for ISUP message statistics
 	Tap for GSM MAP message statistics
+	Tap for MTP3 MSU statistics and summary
 }
 
 Shiang-Ming Huang <smhuang [AT] pcs.csie.nctu.edu.tw> {

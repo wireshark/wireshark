@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.43 2004/03/23 01:02:40 guy Exp $
+ * $Id: to_str.c,v 1.44 2004/04/21 05:53:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,6 +58,7 @@
 #endif
 
 #include "to_str.h"
+#include "value_string.h"
 #include "resolv.h"
 #include "pint.h"
 #include "atalk-utils.h"

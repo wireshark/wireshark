@@ -1,6 +1,6 @@
 /* packet-mtp3.h
  *
- * $Id: packet-mtp3.h,v 1.4 2003/12/08 21:36:53 guy Exp $
+ * $Id: packet-mtp3.h,v 1.5 2004/04/21 05:53:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,6 +43,13 @@ typedef struct _mtp3_addr_pc_t {
   guint8		ni;
 } mtp3_addr_pc_t;
 
+typedef struct _mtp3_tap_rec_t {
+  mtp3_addr_pc_t	addr_opc;
+  mtp3_addr_pc_t	addr_dpc;
+  guint8		si_code;
+  guint16		size;
+} mtp3_tap_rec_t;
+
 #define ITU_PC_LENGTH     2
 #define ITU_PC_MASK       0x3FFF
 
@@ -58,3 +65,14 @@ typedef struct _mtp3_addr_pc_t {
 #define ANSI_PC_STRING_LENGTH 16
 
 extern void mtp3_addr_to_str_buf(const guint8 *data, gchar *buf);
+
+/*
+ * the following allows TAP code access to the different SIs
+ * without having to duplicate it
+ */
+extern const value_string mtp3_service_indicator_code_short_vals[];
+
+/*
+ * I only want to gather stats for non-spare SI codes
+ */
+#define	MTP3_NUM_SI_CODE	9

@@ -1,6 +1,6 @@
 /* packet-ansi_map.h
  *
- * $Id: packet-ansi_map.h,v 1.1 2003/12/12 19:55:27 guy Exp $
+ * $Id: packet-ansi_map.h,v 1.2 2004/04/21 05:53:55 guy Exp $
  *
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.
@@ -24,8 +24,11 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#define	ANSI_MAP_MAX_NUM_MESSAGE_TYPES	256
+
 typedef struct _ansi_map_tap_rec_t {
     guint8		message_type;
+    guint16		size;
 } ansi_map_tap_rec_t;
 
 

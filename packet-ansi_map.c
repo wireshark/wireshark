@@ -79,7 +79,7 @@
  *   UIM
  *			3GPP2 N.S0003
  *
- * $Id: packet-ansi_map.c,v 1.14 2004/03/27 11:32:28 guy Exp $
+ * $Id: packet-ansi_map.c,v 1.15 2004/04/21 05:53:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6302,7 +6302,8 @@ param_digits(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	{
 	    proto_tree_add_text(tree, asn1->tvb,
 		asn1->offset, value,
-		"IA5 Digits");
+		"IA5 Digits: %s",
+		tvb_format_text(asn1->tvb, asn1->offset, value));
 
 	    asn1->offset += value;
 	}
@@ -12403,9 +12404,8 @@ dissect_ansi_map_component(ASN1_SCK *asn1, proto_tree *tree, guint *len_p)
 }
 
 static void
-dissect_ansi_opr_code(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree)
+dissect_ansi_opr_code(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree, gint32 *opr_code_p)
 {
-    static ansi_map_tap_rec_t tap_rec;
     guint saved_offset = 0;
     guint len;
     guint tag;
@@ -12416,6 +12416,8 @@ dissect_ansi_opr_code(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree)
     proto_tree *subtree;
     gboolean def_len;
 
+
+    *opr_code_p = -1;
 
 #define TCAP_NAT_OPR_CODE_TAG 0xd0
     if (check_ansi_map_tag(asn1, TCAP_NAT_OPR_CODE_TAG))
@@ -12429,7 +12431,8 @@ dissect_ansi_opr_code(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree)
     }
     else
     {
-	/* XXX */
+	proto_tree_add_text(tree, asn1->tvb,
+	    asn1->offset, -1, "Unexpected tag, not National or Private TCAP Operation Code");
 	return;
     }
 
@@ -12472,9 +12475,7 @@ dissect_ansi_opr_code(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree)
 
 	if (NULL == str) return;
 
-	tap_rec.message_type = val;
-
-	tap_queue_packet(ansi_map_tap, pinfo, &tap_rec);
+	*opr_code_p = val;
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
@@ -12943,7 +12944,7 @@ dissect_ansi_map_rr(ASN1_SCK *asn1, proto_tree *tree)
 }
 
 static void
-dissect_ansi_map_invoke(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree)
+dissect_ansi_map_invoke(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree, gint *opr_code_p)
 {
     guint len;
     proto_tree *subtree;
@@ -12968,7 +12969,7 @@ dissect_ansi_map_invoke(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree)
 
     ansi_map_is_invoke = TRUE;
 
-    dissect_ansi_opr_code(asn1, pinfo, tree);
+    dissect_ansi_opr_code(asn1, pinfo, tree, opr_code_p);
 
     dissect_ansi_params(asn1, tree);
 }
@@ -12976,6 +12977,7 @@ dissect_ansi_map_invoke(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_ansi_map_message(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *ansi_map_tree)
 {
+    static ansi_map_tap_rec_t tap_rec;
     guint	saved_offset;
     guint	tag;
     guint	len;
@@ -12984,6 +12986,7 @@ dissect_ansi_map_message(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *ansi_ma
     proto_tree *subtree, *tag_subtree;
     gboolean def_len;
     static int	i = 0;
+    gint opr_code;
 
 
     saved_offset = asn1->offset;
@@ -13018,10 +13021,12 @@ dissect_ansi_map_message(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *ansi_ma
 
     tag_subtree = proto_item_add_subtree(tag_item, ett_components);
 
+    opr_code = -1;
+
     switch (tag)
     {
     case ANSI_TC_INVOKE_L:
-	dissect_ansi_map_invoke(asn1, pinfo, tag_subtree);
+	dissect_ansi_map_invoke(asn1, pinfo, tag_subtree, &opr_code);
 	break;
 
     case ANSI_TC_RRL:
@@ -13037,7 +13042,7 @@ dissect_ansi_map_message(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *ansi_ma
 	break;
 
     case ANSI_TC_INVOKE_N:
-	dissect_ansi_map_invoke(asn1, pinfo, tag_subtree);
+	dissect_ansi_map_invoke(asn1, pinfo, tag_subtree, &opr_code);
 	break;
 
     case ANSI_TC_RRN:
@@ -13045,10 +13050,19 @@ dissect_ansi_map_message(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *ansi_ma
 	break;
 
     default:
+	/* XXX */
 	break;
     }
 
     proto_item_set_len(item, asn1->offset - saved_offset);
+
+    if (opr_code != -1)
+    {
+	tap_rec.message_type = opr_code;
+	tap_rec.size = asn1->offset - saved_offset;
+
+	tap_queue_packet(ansi_map_tap, pinfo, &tap_rec);
+    }
 }
 
 static void

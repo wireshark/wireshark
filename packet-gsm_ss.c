@@ -19,7 +19,7 @@
  * Michael Lum <mlum [AT] telostech.com>,
  * Created (2004).
  *
- * $Id: packet-gsm_ss.c,v 1.2 2004/03/27 11:32:29 guy Exp $
+ * $Id: packet-gsm_ss.c,v 1.3 2004/04/21 05:53:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,6 +63,73 @@
 #include "packet-gsm_ss.h"
 
 
+const value_string gsm_ss_err_code_strings[] = {
+    { 1,	"Unknown Subscriber" },
+    { 3,	"Unknown MSC" },
+    { 5,	"Unidentified Subscriber" },
+    { 6,	"Absent Subscriber SM" },
+    { 7,	"Unknown Equipment" },
+    { 8,	"Roaming Not Allowed" },
+    { 9,	"Illegal Subscriber" },
+    { 10,	"Bearer Service Not Provisioned" },
+    { 11,	"Teleservice Not Provisioned" },
+    { 12,	"Illegal Equipment" },
+    { 13,	"Call Barred" },
+    { 14,	"Forwarding Violation" },
+    { 15,	"CUG Reject" },
+    { 16,	"Illegal SS Operation" },
+    { 17,	"SS Error Status" },
+    { 18,	"SS Not Available" },
+    { 19,	"SS Subscription Violation" },
+    { 20,	"SS Incompatibility" },
+    { 21,	"Facility Not Supported" },
+    { 25,	"No Handover Number Available" },
+    { 26,	"Subsequent Handover Failure" },
+    { 27,	"Absent Subscriber" },
+    { 28,	"Incompatible Terminal" },
+    { 29,	"Short Term Denial" },
+    { 30,	"Long Term Denial" },
+    { 31,	"Subscriber Busy For MT SMS" },
+    { 32,	"SM Delivery Failure" },
+    { 33,	"Message Waiting List Full" },
+    { 34,	"System Failure" },
+    { 35,	"Data Missing" },
+    { 36,	"Unexpected Data Value" },
+    { 37,	"PW Registration Failure" },
+    { 38,	"Negative PW Check" },
+    { 39,	"No Roaming Number Available" },
+    { 40,	"Tracing Buffer Full" },
+    { 42,	"Target Cell Outside Group Call Area" },
+    { 43,	"Number Of PW Attempts Violation" },
+    { 44,	"Number Changed" },
+    { 45,	"Busy Subscriber" },
+    { 46,	"No Subscriber Reply" },
+    { 47,	"Forwarding Failed" },
+    { 48,	"OR Not Allowed" },
+    { 49,	"ATI Not Allowed" },
+    { 50,	"No Group Call Number Available" },
+    { 51,	"Resource Limitation" },
+    { 52,	"Unauthorized Requesting Network" },
+    { 53,	"Unauthorized LCS Client" },
+    { 54,	"Position Method Failure" },
+    { 58,	"Unknown Or Unreachable LCS Client" },
+    { 59,	"MM Event Not Supported" },
+    { 60,	"ATSI Not Allowed" },
+    { 61,	"ATM Not Allowed" },
+    { 62,	"Information Not Available" },
+    { 71,	"Unknown Alphabet" },
+    { 72,	"USSD Busy" },
+    { 120,	"Nbr Sb Exceeded" },
+    { 121,	"Rejected By User" },
+    { 122,	"Rejected By Network" },
+    { 123,	"Deflection To Served Subscriber" },
+    { 124,	"Special Service Code" },
+    { 125,	"Invalid Deflected To Number" },
+    { 126,	"Max Number Of MPTY Participants Exceeded" },
+    { 127,	"Resources Not Available" },
+    { 0, NULL }
+};
+
 const value_string gsm_ss_opr_code_strings[] = {
     { 10,	"Register SS" },
     { 11,	"Erase SS" },
@@ -78,6 +145,8 @@ const value_string gsm_ss_opr_code_strings[] = {
     { 60,	"Unstructured SS Request" },
     { 61,	"Unstructured SS Notify" },
     { 77,	"Erase CC Entry" },
+    { 117,	"Call Deflection" },
+    { 118,	"User User Service" },
     { 119,	"Access Register CC Entry" },
     { 120,	"Forward CUG Info" },
     { 121,	"Split MPTY" },
@@ -86,6 +155,9 @@ const value_string gsm_ss_opr_code_strings[] = {
     { 124,	"Build MPTY" },
     { 125,	"Forward Charge Advice" },
     { 126,	"Explicit CT" },
+    { 116,	"LCS Location Notification" },
+    { 115,	"LCS MOLR" },
+
     { 0, NULL }
 };
 
@@ -94,8 +166,7 @@ const value_string gsm_ss_opr_code_strings[] = {
 static int hf_null = -1;
 #define	HF_NULL		&hf_null
 
-gint gsm_ss_ett_sequence = -1;
-gint gsm_ss_ett_param = -1;
+gint gsm_ss_ett[NUM_GSM_SS_ETT];	/* initialization is left to users */
 
 static gboolean gsm_ss_seven_bit = FALSE;
 static gboolean gsm_ss_eight_bit = FALSE;
@@ -747,7 +818,7 @@ param_ussdDCS(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
 	    "Data Coding Scheme (%d)",
 	    value);
 
-    subtree = proto_item_add_subtree(item, gsm_ss_ett_param);
+    subtree = proto_item_add_subtree(item, gsm_ss_ett[GSM_SS_ETT_PARAM]);
 
     if ((value & 0xf0) == 0x00)
     {
@@ -1005,6 +1076,111 @@ param_ia5String(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
     asn1->offset += len;
 }
 
+static void
+param_password(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
+{
+    guint		saved_offset;
+
+    hf_field = hf_field;
+
+    saved_offset = asn1->offset;
+
+    proto_tree_add_text(tree, asn1->tvb, saved_offset, len, "%s",
+	tvb_format_text(asn1->tvb, saved_offset, len));
+
+    asn1->offset += len;
+}
+
+static void
+param_guidanceInfo(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
+{
+    guint		saved_offset;
+    gint32		value;
+    gchar		*str = NULL;
+
+    hf_field = hf_field;
+
+    saved_offset = asn1->offset;
+    asn1_int32_value_decode(asn1, 1, &value);
+
+    switch (value)
+    {
+    case 0: str = "enterPW"; break;
+    case 1: str = "enterNewPW"; break;
+    case 2: str = "enterNewPW-Again"; break;
+    default:
+	str = "Unknown";
+	break;
+    }
+
+    proto_tree_add_text(tree, asn1->tvb, saved_offset, len, str);
+}
+
+static void
+param_forwardingOpt(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
+{
+    guint		saved_offset;
+    gint32		value;
+    char		bigbuf[1024];
+    gchar		*str = NULL;
+
+    hf_field = hf_field;
+
+    saved_offset = asn1->offset;
+    asn1_int32_value_decode(asn1, 1, &value);
+
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    proto_tree_add_text(tree, asn1->tvb,
+	saved_offset, 1,
+	"%s :  %snotification to forwarding party",
+	bigbuf,
+	(value & 0x80) ? "" : "no ");
+
+    other_decode_bitfield_value(bigbuf, value, 0x40, 8);
+    proto_tree_add_text(tree, asn1->tvb,
+	saved_offset, 1,
+	"%s :  %sredirecting presentation",
+	bigbuf,
+	(value & 0x40) ? "" : "no ");
+
+    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    proto_tree_add_text(tree, asn1->tvb,
+	saved_offset, 1,
+	"%s :  %snotification to calling party",
+	bigbuf,
+	(value & 0x20) ? "" : "no ");
+
+    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    proto_tree_add_text(tree, asn1->tvb,
+	saved_offset, 1,
+	"%s :  unused",
+	bigbuf);
+
+    switch ((value & 0x0c) >> 2)
+    {
+    case 0x00: str = "MS not reachable"; break;
+    case 0x01: str = "MS busy"; break;
+    case 0x02: str = "No reply"; break;
+    case 0x03: str = "Unconditional (in SRI result) or Deflection"; break;
+    }
+
+    other_decode_bitfield_value(bigbuf, value, 0x0c, 8);
+    proto_tree_add_text(tree, asn1->tvb,
+	saved_offset, 1,
+	"%s :  forwarding reason, %s (%u)",
+	bigbuf,
+	str,
+	(value & 0x0c) >> 2);
+
+    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    proto_tree_add_text(tree, asn1->tvb,
+	saved_offset, 1,
+	"%s :  unused",
+	bigbuf);
+
+    asn1->offset += len;
+}
+
 
 typedef enum
 {
@@ -1017,6 +1193,9 @@ typedef enum
     GSM_SS_P_USSD_DCS,			/* USSD Data Coding Scheme */
     GSM_SS_P_USSD_STRING,		/* USSD String */
     GSM_SS_P_IA5_STRING,		/* IA5 String */
+    GSM_SS_P_PASSWORD,			/* Password */
+    GSM_SS_P_GUIDANCE_INFO,		/* Guidance Info */
+    GSM_SS_P_FORWARDING_OPT,		/* Forwarding Options */
     GSM_SS_P_NONE			/* NONE */
 }
 param_idx_t;
@@ -1033,6 +1212,9 @@ static void (*param_1_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf
     param_ussdDCS,			/* USSD Data Coding Scheme */
     param_ussdString,			/* USSD String */
     param_ia5String,			/* IA5 String */
+    param_password,			/* Password */
+    param_guidanceInfo,			/* Guidance Info */
+    param_forwardingOpt,		/* Forwarding Options */
     NULL				/* NONE */
 };
 
@@ -1046,6 +1228,9 @@ static int *param_1_hf[] = {
     HF_NULL,				/* USSD Data Coding Scheme */
     HF_NULL,				/* USSD String */
     HF_NULL,				/* IA5 String */
+    HF_NULL,				/* Password */
+    HF_NULL,				/* Guidance Info */
+    HF_NULL,				/* Forwarding Options */
     NULL				/* NONE */
 };
 
@@ -1093,7 +1278,7 @@ static int *param_1_hf[] = {
  \
 	if (Ga1 == GSM_SS_P_NONE) \
 	{ \
-	    _ett_param_idx = gsm_ss_ett_param; \
+	    _ett_param_idx = gsm_ss_ett[GSM_SS_ETT_PARAM]; \
 	    _param_fcn = NULL; \
 	    _param_hf = HF_NULL; \
 	} \
@@ -1148,7 +1333,7 @@ param_forwardingFeature(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
     asn1_id_decode1(asn1, &tag);
 
     GSM_SS_START_SUBTREE(tree, saved_offset, tag, "Forwarding Feature",
-	gsm_ss_ett_sequence,
+	gsm_ss_ett[GSM_SS_ETT_SEQUENCE],
 	&def_len, &len, subtree);
 
     if (tcap_check_tag(asn1, 0x82))
@@ -1196,7 +1381,7 @@ param_forwardingFeature(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 	saved_offset = asn1->offset;
 	asn1_id_decode1(asn1, &tag);
 
-	GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_NONE, "Forwarding Options");
+	GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_FORWARDING_OPT, "Forwarding Options");
     }
 
     if (tcap_check_tag(asn1, 0x87))
@@ -1237,7 +1422,7 @@ param_forwardingFeatureList(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
     asn1_id_decode1(asn1, &tag);
 
     GSM_SS_START_SUBTREE(tree, saved_offset, tag, "Forwarding Feature List",
-	gsm_ss_ett_sequence,
+	gsm_ss_ett[GSM_SS_ETT_SEQUENCE],
 	&def_len, &len, subtree);
 
     start_offset = asn1->offset;
@@ -1265,6 +1450,107 @@ param_forwardingFeatureList(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 }
 
 static void
+param_callBarringFeature(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+    guint		saved_offset;
+    guint		tag, len;
+    gboolean		def_len;
+    proto_tree		*subtree;
+
+    exp_len = exp_len;
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+
+    GSM_SS_START_SUBTREE(tree, saved_offset, tag, "Call Barring Feature",
+	gsm_ss_ett[GSM_SS_ETT_SEQUENCE],
+	&def_len, &len, subtree);
+
+    if (tcap_check_tag(asn1, 0x82))
+    {
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_BEARERSERVICE, "Bearerservice");
+    }
+
+    if (tcap_check_tag(asn1, 0x83))
+    {
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_TELESERVICE, "Teleservice");
+    }
+
+    if (tcap_check_tag(asn1, 0x84))
+    {
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_SS_STATUS, "SS-Status");
+    }
+
+    if (!def_len)
+    {
+	saved_offset = asn1->offset;
+	asn1_eoc_decode(asn1, -1);
+
+	proto_tree_add_text(subtree, asn1->tvb,
+	    saved_offset, asn1->offset - saved_offset, "End of Contents");
+    }
+}
+
+static void
+param_callBarringFeatureList(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+    guint		saved_offset, start_offset;
+    guint		tag, len;
+    gboolean		def_len;
+    proto_tree		*subtree;
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+
+    GSM_SS_START_SUBTREE(tree, saved_offset, tag, "Call Barring Feature List",
+	gsm_ss_ett[GSM_SS_ETT_SEQUENCE],
+	&def_len, &len, subtree);
+
+    start_offset = asn1->offset;
+
+    while ((tvb_length_remaining(asn1->tvb, asn1->offset) > 0) &&
+	(!tcap_check_tag(asn1, 0)))
+    {
+	if ((exp_len != 0) &&
+	    ((asn1->offset - saved_offset) >= exp_len))
+	{
+	    break;
+	}
+
+	param_callBarringFeature(asn1, subtree, len - (asn1->offset - start_offset));
+    }
+
+    if (!def_len)
+    {
+	saved_offset = asn1->offset;
+	asn1_eoc_decode(asn1, -1);
+
+	proto_tree_add_text(subtree, asn1->tvb,
+	    saved_offset, asn1->offset - saved_offset, "End of Contents");
+    }
+}
+
+static void
+param_ssData(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+    guint		saved_offset;
+
+    saved_offset = asn1->offset;
+
+    /* XXX */
+    op_generic_ss(asn1, tree, exp_len);
+}
+
+static void
 param_ssInfo(ASN1_SCK *asn1, proto_tree *tree)
 {
     guint		saved_offset, start_offset;
@@ -1279,7 +1565,7 @@ param_ssInfo(ASN1_SCK *asn1, proto_tree *tree)
     {
     case 0xa0:	/* forwardingInfo */
 	GSM_SS_START_SUBTREE(tree, saved_offset, tag, "Forwarding Info",
-	    gsm_ss_ett_sequence,
+	    gsm_ss_ett[GSM_SS_ETT_SEQUENCE],
 	    &def_len, &len, subtree);
 
 	start_offset = asn1->offset;
@@ -1306,13 +1592,20 @@ param_ssInfo(ASN1_SCK *asn1, proto_tree *tree)
 
     case 0xa1:	/* callBarringInfo */
 	GSM_SS_START_SUBTREE(tree, saved_offset, tag, "Call Barring Info",
-	    gsm_ss_ett_sequence,
+	    gsm_ss_ett[GSM_SS_ETT_SEQUENCE],
 	    &def_len, &len, subtree);
 
 	start_offset = asn1->offset;
 
-	/* XXX */
-	op_generic_ss(asn1, subtree, len - (asn1->offset - start_offset));
+	if (tcap_check_tag(asn1, 0x04))
+	{
+	    saved_offset = asn1->offset;
+	    asn1_id_decode1(asn1, &tag);
+
+	    GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_SS_CODE, "SS-Code");
+	}
+
+	param_callBarringFeatureList(asn1, subtree, len - (asn1->offset - start_offset));
 
 	if (!def_len)
 	{
@@ -1326,13 +1619,12 @@ param_ssInfo(ASN1_SCK *asn1, proto_tree *tree)
 
     case 0xa3:	/* ss-Data */
 	GSM_SS_START_SUBTREE(tree, saved_offset, tag, "ss-Data",
-	    gsm_ss_ett_sequence,
+	    gsm_ss_ett[GSM_SS_ETT_SEQUENCE],
 	    &def_len, &len, subtree);
 
 	start_offset = asn1->offset;
 
-	/* XXX */
-	op_generic_ss(asn1, subtree, len - (asn1->offset - start_offset));
+	param_ssData(asn1, subtree, len - (asn1->offset - start_offset));
 
 	if (!def_len)
 	{
@@ -1345,7 +1637,20 @@ param_ssInfo(ASN1_SCK *asn1, proto_tree *tree)
 	break;
 
     default:
-	/* XXX */
+	GSM_SS_START_SUBTREE(tree, saved_offset, tag, "Unexpected TAG",
+	    gsm_ss_ett[GSM_SS_ETT_SEQUENCE],
+	    &def_len, &len, subtree);
+
+	op_generic_ss(asn1, subtree, len);
+
+	if (!def_len)
+	{
+	    saved_offset = asn1->offset;
+	    asn1_eoc_decode(asn1, -1);
+
+	    proto_tree_add_text(subtree, asn1->tvb,
+		saved_offset, asn1->offset - saved_offset, "End of Contents");
+	}
 	break;
     }
 }
@@ -1362,7 +1667,7 @@ param_ssForBS(ASN1_SCK *asn1, proto_tree *tree)
     asn1_id_decode1(asn1, &tag);
 
     GSM_SS_START_SUBTREE(tree, saved_offset, tag, "Sequence",
-	gsm_ss_ett_sequence,
+	gsm_ss_ett[GSM_SS_ETT_SEQUENCE],
 	&def_len, &len, subtree);
 
     start_offset = asn1->offset;
@@ -1425,7 +1730,51 @@ param_ussdArg(ASN1_SCK *asn1, proto_tree *tree)
     asn1_id_decode1(asn1, &tag);
 
     GSM_SS_START_SUBTREE(tree, saved_offset, tag, "Sequence",
-	gsm_ss_ett_sequence,
+	gsm_ss_ett[GSM_SS_ETT_SEQUENCE],
+	&def_len, &len, subtree);
+
+    start_offset = asn1->offset;
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+
+    GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_USSD_DCS, "USSD Data Coding Scheme");
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+
+    GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_USSD_STRING, "USSD String");
+
+    rem_len = len - (asn1->offset - start_offset);
+
+    if (rem_len > 0)
+    {
+	op_generic_ss(asn1, subtree, rem_len);
+    }
+
+    if (!def_len)
+    {
+	saved_offset = asn1->offset;
+	asn1_eoc_decode(asn1, -1);
+
+	proto_tree_add_text(subtree, asn1->tvb,
+	    saved_offset, asn1->offset - saved_offset, "End of Contents");
+    }
+}
+
+static void
+param_ussdRes(ASN1_SCK *asn1, proto_tree *tree)
+{
+    guint		saved_offset, start_offset;
+    guint		tag, len, rem_len;
+    gboolean		def_len = FALSE;
+    proto_tree		*subtree;
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+
+    GSM_SS_START_SUBTREE(tree, saved_offset, tag, "Sequence",
+	gsm_ss_ett[GSM_SS_ETT_SEQUENCE],
 	&def_len, &len, subtree);
 
     start_offset = asn1->offset;
@@ -1486,7 +1835,7 @@ op_generic_ss(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 	if (TCAP_CONSTRUCTOR(tag))
 	{
 	    GSM_SS_START_SUBTREE(tree, saved_offset, tag, "Sequence",
-		gsm_ss_ett_sequence,
+		gsm_ss_ett[GSM_SS_ETT_SEQUENCE],
 		&def_len, &len, subtree);
 
 	    op_generic_ss(asn1, subtree, len);
@@ -1530,7 +1879,7 @@ op_generic_ss(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 	    proto_tree_add_text(tree, asn1->tvb,
 		saved_offset, (asn1->offset - saved_offset) + len, "Parameter");
 
-	subtree = proto_item_add_subtree(item, gsm_ss_ett_param);
+	subtree = proto_item_add_subtree(item, gsm_ss_ett[GSM_SS_ETT_PARAM]);
 
 	proto_tree_add_text(subtree, asn1->tvb,
 	    saved_offset, len_offset - saved_offset,
@@ -1564,16 +1913,8 @@ op_register_ss(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
 
-    if (TCAP_CONSTRUCTOR(tag) == FALSE)
-    {
-	/*
-	 * Hmmm, unexpected
-	 */
-	return;
-    }
-
     GSM_SS_START_SUBTREE(tree, saved_offset, tag, "Sequence",
-	gsm_ss_ett_sequence,
+	gsm_ss_ett[GSM_SS_ETT_SEQUENCE],
 	&def_len, &len, subtree);
 
     start_offset = asn1->offset;
@@ -1629,6 +1970,22 @@ op_register_ss(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 	asn1_id_decode1(asn1, &tag);
 
 	GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_NONE, "Default Priority");
+    }
+
+    if (tcap_check_tag(asn1, 0x88))
+    {
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_NONE, "Number Users");
+    }
+
+    if (tcap_check_tag(asn1, 0x89))
+    {
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_NONE, "Long FTN supported");
     }
 
     rem_len = len - (asn1->offset - start_offset);
@@ -1777,26 +2134,122 @@ op_interrogate_ss_rr(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
     {
     case 0x80:	/* SS-Status */
 	GSM_SS_PARAM_DISPLAY(tree, saved_offset, tag, GSM_SS_P_SS_STATUS, "SS-Status");
-	return;
+	break;
 
     case 0x82:	/* BasicServiceGroupList */
-	/* FALLTHRU */
+	/* XXX */
+	asn1->offset = saved_offset;
+	op_generic_ss(asn1, tree, exp_len);
+	break;
+
     case 0x83:	/* ForwardingFeatureList */
-	/* FALLTHRU */
+	asn1->offset = saved_offset;
+	param_forwardingFeatureList(asn1, tree, exp_len);
+	break;
 
     case 0x84:	/* GenericServiceInfo */
-	/*
-	 * XXX
-	 * needs implementing, let "generic" parameter dissector handle it for now
-	 */
+	/* XXX */
+	asn1->offset = saved_offset;
+	op_generic_ss(asn1, tree, exp_len);
 	break;
 
     default:
-	/* do nothing - unexpected tag */
+	asn1->offset = saved_offset;
+	op_generic_ss(asn1, tree, exp_len);
 	return;
     }
+}
 
-    op_generic_ss(asn1, tree, 0);
+static void
+op_reg_password(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+    guint	saved_offset;
+    guint	tag, rem_len;
+
+    exp_len = exp_len;
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+
+    GSM_SS_PARAM_DISPLAY(tree, saved_offset, tag, GSM_SS_P_SS_CODE, "SS-Code");
+
+    rem_len = exp_len - (asn1->offset - saved_offset);
+
+    if (rem_len > 0)
+    {
+	op_generic_ss(asn1, tree, rem_len);
+    }
+}
+
+static void
+op_reg_password_rr(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+    guint	saved_offset;
+    guint	tag, rem_len;
+
+    exp_len = exp_len;
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+
+    GSM_SS_PARAM_DISPLAY(tree, saved_offset, tag, GSM_SS_P_PASSWORD, "New Password");
+
+    rem_len = exp_len - (asn1->offset - saved_offset);
+
+    if (rem_len > 0)
+    {
+	op_generic_ss(asn1, tree, rem_len);
+    }
+}
+
+static void
+op_get_password(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+    guint	saved_offset;
+    guint	tag, rem_len;
+
+    exp_len = exp_len;
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+
+    GSM_SS_PARAM_DISPLAY(tree, saved_offset, tag, GSM_SS_P_GUIDANCE_INFO, "Guidance Info");
+
+    rem_len = exp_len - (asn1->offset - saved_offset);
+
+    if (rem_len > 0)
+    {
+	op_generic_ss(asn1, tree, rem_len);
+    }
+}
+
+static void
+op_get_password_rr(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+    guint	saved_offset;
+    guint	tag, rem_len;
+
+    exp_len = exp_len;
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+
+    GSM_SS_PARAM_DISPLAY(tree, saved_offset, tag, GSM_SS_P_PASSWORD, "Current Password");
+
+    rem_len = exp_len - (asn1->offset - saved_offset);
+
+    if (rem_len > 0)
+    {
+	op_generic_ss(asn1, tree, rem_len);
+    }
 }
 
 static void
@@ -1870,6 +2323,20 @@ op_proc_uss_req(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 }
 
 static void
+op_proc_uss_req_rr(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+    guint	saved_offset;
+
+    exp_len = exp_len;
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
+
+    saved_offset = asn1->offset;
+
+    param_ussdRes(asn1, tree);
+}
+
+static void
 op_uss_req(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 {
     guint	saved_offset;
@@ -1881,6 +2348,20 @@ op_uss_req(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
     saved_offset = asn1->offset;
 
     param_ussdArg(asn1, tree);
+}
+
+static void
+op_uss_req_rr(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+    guint	saved_offset;
+
+    exp_len = exp_len;
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
+
+    saved_offset = asn1->offset;
+
+    param_ussdRes(asn1, tree);
 }
 
 static void
@@ -1905,49 +2386,57 @@ static void (*op_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint exp_len) = {
     op_deactivate_ss,	/* DeactivateSS */
     op_interrogate_ss,	/* InterrogateSS */
     NULL,	/* NotifySS */
-    NULL,	/* RegisterPassword */
-    NULL,	/* GetPassword */
+    op_reg_password,	/* RegisterPassword */
+    op_get_password,	/* GetPassword */
     op_proc_uss_data,	/* ProcessUnstructuredSS-Data */
     NULL,	/* ForwardCheckSS-Indication */
     op_proc_uss_req,	/* ProcessUnstructuredSS-Request */
-    op_uss_req,	/* UnstructuredSS-Request */
+    op_uss_req,		/* UnstructuredSS-Request */
     op_uss_notify,	/* UnstructuredSS-Notify */
     NULL,	/* EraseCC-Entry */
+    NULL,	/* LCS-LocationNotification */
+    NULL,	/* LCS-MOLR */
     NULL,	/* AccessRegisterCCEntry */
     NULL,	/* ForwardCUG-Info */
-    NULL,	/* SplitMPTY */
-    NULL,	/* RetrieveMPTY */
-    NULL,	/* HoldMPTY */
-    NULL,	/* BuildMPTY */
+    NULL /* NO ARGS */,	/* SplitMPTY */
+    NULL /* NO ARGS */,	/* RetrieveMPTY */
+    NULL /* NO ARGS */,	/* HoldMPTY */
+    NULL /* NO ARGS */,	/* BuildMPTY */
     NULL,	/* ForwardChargeAdvice */
     NULL,	/* ExplicitCT */
+    NULL,	/* LCS-LocationNotification */
+    NULL,	/* LCS-MOLR */
 
     NULL	/* NONE */
 };
 
 static void (*op_fcn_rr[])(ASN1_SCK *asn1, proto_tree *tree, guint exp_len) = {
-    op_register_ss_rr,	/* RegisterSS */
-    op_erase_ss_rr,	/* EraseSS */
-    op_activate_ss_rr,	/* ActivateSS */
+    op_register_ss_rr,		/* RegisterSS */
+    op_erase_ss_rr,		/* EraseSS */
+    op_activate_ss_rr,		/* ActivateSS */
     op_deactivate_ss_rr,	/* DeactivateSS */
     op_interrogate_ss_rr,	/* InterrogateSS */
     NULL,	/* NotifySS */
-    NULL,	/* RegisterPassword */
-    NULL,	/* GetPassword */
+    op_reg_password_rr,		/* RegisterPassword */
+    op_get_password_rr,		/* GetPassword */
     op_proc_uss_data_rr,	/* ProcessUnstructuredSS-Data */
     NULL,	/* ForwardCheckSS-Indication */
-    NULL,	/* ProcessUnstructuredSS-Request */
-    NULL,	/* UnstructuredSS-Request */
-    NULL,	/* UnstructuredSS-Notify */
+    op_proc_uss_req_rr,		/* ProcessUnstructuredSS-Request */
+    op_uss_req_rr,		/* UnstructuredSS-Request */
+    NULL /* NO ARGS */,		/* UnstructuredSS-Notify */
     NULL,	/* EraseCC-Entry */
+    NULL,	/* LCS Location Notification */
+    NULL,	/* LCS MOLR */
     NULL,	/* AccessRegisterCCEntry */
     NULL,	/* ForwardCUG-Info */
     NULL,	/* SplitMPTY */
     NULL,	/* RetrieveMPTY */
     NULL,	/* HoldMPTY */
     NULL,	/* BuildMPTY */
-    NULL,	/* ForwardChargeAdvice */
+    NULL /* NO ARGS */,		/* ForwardChargeAdvice */
     NULL,	/* ExplicitCT */
+    NULL,	/* LCS-LocationNotification */
+    NULL,	/* LCS-MOLR */
 
     NULL	/* NONE */
 };
@@ -1978,8 +2467,8 @@ gsm_ss_dissect(ASN1_SCK *asn1, proto_tree *tree, guint exp_len,
 	    break;
 
 	case TCAP_COMP_RE:
-	    /* XXX */
-	    break;
+	    dissect_fcn = NULL;
+	    return;
 
 	default:
 	    /*

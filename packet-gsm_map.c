@@ -7,7 +7,7 @@
  * Changed to run on new version of TCAP, many changes for
  * EOC matching, and parameter separation.  (2003)
  *
- * $Id: packet-gsm_map.c,v 1.10 2004/03/27 11:32:28 guy Exp $
+ * $Id: packet-gsm_map.c,v 1.11 2004/04/21 05:53:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -313,6 +313,7 @@ static gint ett_param = -1;
 static gint ett_params = -1;
 static gint ett_problem = -1;
 static gint ett_opr_code = -1;
+static gint ett_err_code = -1;
 
 typedef struct dgt_set_t
 {
@@ -1431,12 +1432,23 @@ op_send_rti_rr(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 
     start_offset = asn1->offset;
 
-    if (tcap_check_tag(asn1, 0x89))
+    /*
+     * spec says [9] but 'real data' show '04' not '89' !
+     */
+    if (tcap_check_tag(asn1, 0x04))
     {
 	saved_offset = asn1->offset;
 	asn1_id_decode1(asn1, &tag);
 
 	GSM_MAP_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_MAP_P_IMSI, "IMSI");
+    }
+
+    if (tcap_check_tag(asn1, 0x04))
+    {
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_MAP_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_MAP_P_ROAMING_NUM, "Roaming Number");
     }
 
     dissect_map_params(asn1, subtree, len - (asn1->offset - start_offset));
@@ -2512,19 +2524,6 @@ dissect_map_opr_code(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree, gint 
     proto_item			*item;
     proto_tree			*subtree;
     gboolean			def_len;
-    static gsm_map_tap_rec_t	tap_rec[4];
-    static gsm_map_tap_rec_t	*tap_p;
-    static int			tap_current=0;
-
-    /*
-     * set tap record pointer
-     */
-    tap_current++;
-    if (tap_current == 4)
-    {
-	tap_current = 0;
-    }
-    tap_p = &tap_rec[tap_current];
 
     if (tcap_check_tag(asn1, MAP_OPR_CODE_TAG))
     {
@@ -2562,10 +2561,6 @@ dissect_map_opr_code(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree, gint 
 	}
 
 	*opr_code_p = val;
-
-	tap_p->opr_code_idx = *op_idx_p;
-
-	tap_queue_packet(gsm_map_tap, pinfo, tap_p);
     }
 
     return(MAP_OK);
@@ -2601,14 +2596,16 @@ dissect_map_eoc(ASN1_SCK *asn1, proto_tree *tree)
 static void
 dissect_map_invoke(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree	*subtree;
-    guint	orig_offset, saved_offset;
-    guint	len;
-    guint	tag;
-    proto_item	*item;
-    gint	op_idx;
-    gboolean	def_len;
-    int		ret;
+    proto_tree			*subtree;
+    guint			orig_offset, saved_offset;
+    guint			len;
+    guint			tag;
+    proto_item			*item;
+    gint			op_idx;
+    gboolean			def_len;
+    int				ret;
+    int				opr_code_sts;
+    static gsm_map_tap_rec_t	tap_rec;
 
     orig_offset = asn1->offset;
     saved_offset = asn1->offset;
@@ -2632,7 +2629,9 @@ dissect_map_invoke(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree)
 
     dissect_map_lnkId(asn1, subtree);
 
-    if (dissect_map_opr_code(asn1, pinfo, subtree, &op_idx, &g_opr_code) == MAP_OK)
+    opr_code_sts = dissect_map_opr_code(asn1, pinfo, subtree, &op_idx, &g_opr_code);
+
+    if (opr_code_sts == MAP_OK)
     {
 	if (def_len)
 	{
@@ -2662,19 +2661,30 @@ dissect_map_invoke(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree)
     }
 
     proto_item_set_len(item, asn1->offset - orig_offset);
+
+    if (opr_code_sts == MAP_OK)
+    {
+	tap_rec.invoke = TRUE;
+	tap_rec.opr_code_idx = op_idx;
+	tap_rec.size = asn1->offset - orig_offset;
+
+	tap_queue_packet(gsm_map_tap, pinfo, &tap_rec);
+    }
 }
 
 
 static void
 dissect_map_rr(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree, gchar *str)
 {
-    guint	tag, len, comp_len;
-    gint	op_idx;
-    guint	orig_offset, saved_offset;
-    proto_item	*item;
-    proto_tree	*seq_subtree, *subtree;
-    gboolean	def_len;
-    gboolean	comp_def_len;
+    guint			tag, len, comp_len;
+    gint			op_idx;
+    guint			orig_offset, saved_offset;
+    proto_item			*item;
+    proto_tree			*seq_subtree, *subtree;
+    gboolean			def_len;
+    gboolean			comp_def_len;
+    int				opr_code_sts;
+    static gsm_map_tap_rec_t	tap_rec;
 
     tag = -1;
     orig_offset = asn1->offset;
@@ -2709,6 +2719,8 @@ dissect_map_rr(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree, gchar *str)
     tag = -1;
     asn1_id_decode1(asn1, &tag);
 
+    opr_code_sts = MAP_FAIL;
+
     if (TCAP_CONSTRUCTOR(tag))
     {
 	GSM_MAP_START_SUBTREE(subtree, saved_offset, tag, "Sequence",
@@ -2717,7 +2729,9 @@ dissect_map_rr(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree, gchar *str)
 
 	saved_offset = asn1->offset;
 
-	if (dissect_map_opr_code(asn1, pinfo, seq_subtree, &op_idx, &g_opr_code) == MAP_OK)
+	opr_code_sts = dissect_map_opr_code(asn1, pinfo, seq_subtree, &op_idx, &g_opr_code);
+
+	if (opr_code_sts == MAP_OK)
 	{
 	    len -= asn1->offset - saved_offset;
 
@@ -2746,6 +2760,15 @@ dissect_map_rr(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree, gchar *str)
     }
 
     proto_item_set_len(item, asn1->offset - orig_offset);
+
+    if (opr_code_sts == MAP_OK)
+    {
+	tap_rec.invoke = FALSE;
+	tap_rec.opr_code_idx = op_idx;
+	tap_rec.size = asn1->offset - orig_offset;
+
+	tap_queue_packet(gsm_map_tap, pinfo, &tap_rec);
+    }
 }
 
 
@@ -2754,9 +2777,11 @@ dissect_map_re(ASN1_SCK *asn1, proto_tree *tree)
 {
     guint	tag, len, comp_len;
     guint	orig_offset, saved_offset;
-    proto_item	*item, *null_item;
-    proto_tree	*subtree;
+    proto_item	*item;
+    proto_tree	*subtree, *temp_subtree;
     gboolean	comp_def_len, def_len;
+    gchar	*str;
+    gint32	int_val;
 
     tag = -1;
     orig_offset = asn1->offset;
@@ -2782,37 +2807,65 @@ dissect_map_re(ASN1_SCK *asn1, proto_tree *tree)
 
     dissect_map_invokeId(asn1, subtree);
 
-#define MAP_LOCAL_ERR_CODE_TAG 0x2
-#define MAP_GBL_ERR_CODE_TAG 0x6
-    if (tcap_check_tag(asn1, MAP_LOCAL_ERR_CODE_TAG))
-    {
-	tag = -1;
-	dissect_map_tag(asn1, subtree, &tag, "Local Error Code Tag", &null_item);
-    }
-    else if (tcap_check_tag(asn1, MAP_GBL_ERR_CODE_TAG))
-    {
-	tag = -1;
-	dissect_map_tag(asn1, subtree, &tag, "Global Error Code Tag", &null_item);
-    }
-    else
-    {
-	proto_tree_add_text(subtree, asn1->tvb, asn1->offset, comp_len,
-	    "Unknown Error Code");
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
 
-	asn1->offset += comp_len;
+#define MAP_LOCAL_ERR_CODE_TAG	0x2
+#define MAP_GBL_ERR_CODE_TAG	0x6
 
-	if (!comp_def_len)
+    switch (tag)
+    {
+    case MAP_LOCAL_ERR_CODE_TAG:
+	GSM_MAP_START_SUBTREE(subtree, saved_offset, tag, "Local Error Code",
+	    ett_err_code,
+	    &def_len, &len, temp_subtree);
+
+	if (len > 0)
 	{
-	    dissect_map_eoc(asn1, subtree);
+	    saved_offset = asn1->offset;
+	    asn1_int32_value_decode(asn1, len, &int_val);
+
+	    str = match_strval(int_val, gsm_ss_err_code_strings);
+
+	    proto_tree_add_text(temp_subtree, asn1->tvb,
+		saved_offset, len, "Error Code: %s (%d)",
+		(str == NULL) ? "Unknown Error Code" : str,
+		int_val);
 	}
+	break;
 
-	proto_item_set_len(item, asn1->offset - orig_offset);
+    case MAP_GBL_ERR_CODE_TAG:
+	GSM_MAP_START_SUBTREE(subtree, saved_offset, tag, "Global Error Code",
+	    ett_err_code,
+	    &def_len, &len, temp_subtree);
 
-	return(MAP_OK);
+	if (len > 0)
+	{
+	    saved_offset = asn1->offset;
+	    asn1_int32_value_decode(asn1, len, &int_val);
+
+	    proto_tree_add_text(temp_subtree, asn1->tvb,
+		saved_offset, len, "Error Code: %d",
+		int_val);
+	}
+	break;
+
+    default:
+	GSM_MAP_START_SUBTREE(subtree, saved_offset, tag, "Unknown Error Code",
+	    ett_err_code,
+	    &def_len, &len, temp_subtree);
+
+	if (len > 0)
+	{
+	    saved_offset = asn1->offset;
+	    asn1_int32_value_decode(asn1, len, &int_val);
+
+	    proto_tree_add_text(temp_subtree, asn1->tvb,
+		saved_offset, len, "Error Code: %d",
+		int_val);
+	}
+	break;
     }
-
-    dissect_map_len(asn1, subtree, &def_len, &len);
-    dissect_map_integer(asn1, subtree, len, "Error Code:");
 
     dissect_map_params(asn1, subtree, comp_len - (asn1->offset - saved_offset));
 
@@ -3033,7 +3086,7 @@ proto_register_map(void)
     };
 
     /* Setup protocol subtree array */
-#define	NUM_INDIVIDUAL_PARAMS	8
+#define	NUM_INDIVIDUAL_PARAMS	9
     static gint *ett[NUM_INDIVIDUAL_PARAMS+(GSM_MAP_NUM_OP*2)+NUM_PARAM_1];
 
     memset((void *) ett, 0, sizeof(ett));
@@ -3046,6 +3099,7 @@ proto_register_map(void)
     ett[5] = &ett_param;
     ett[6] = &ett_params;
     ett[7] = &ett_problem;
+    ett[8] = &ett_err_code;
 
     last_offset = NUM_INDIVIDUAL_PARAMS;
 

@@ -9,7 +9,7 @@
  * Copyright 2001, Michael Tuexen <tuexen [AT] fh-muenster.de>
  * Updated for ANSI and Chinese ITU support by Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-mtp3.c,v 1.26 2004/02/29 08:30:10 guy Exp $
+ * $Id: packet-mtp3.c,v 1.27 2004/04/21 05:53:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,7 @@
 # include "config.h"
 #endif
 
+#include <string.h>
 #include <glib.h>
 
 #ifdef NEED_SNPRINTF_H
@@ -43,10 +44,14 @@
 #endif
 
 #include <epan/packet.h>
+#include "tap.h"
 #include "prefs.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_mtp3  = -1;
+
+static int mtp3_tap = -1;
+
 static module_t *mtp3_module;
 
 static int hf_mtp3_service_indicator = -1;
@@ -124,7 +129,7 @@ static mtp3_addr_pc_t mtp3_addr_dpc, mtp3_addr_opc;
 #define ANSI_8BIT_SLS_MASK             0xFF
 #define CHINESE_ITU_SLS_MASK           0xF
 
-static const value_string service_indicator_code_vals[] = {
+static const value_string mtp3_service_indicator_code_vals[] = {
 	{ 0x0,	"Signalling Network Management Message (SNM)" },
 	{ 0x1,	"Maintenance Regular Message (MTN)" },
 	{ 0x2,	"Maintenance Special Message (MTNS)" },
@@ -141,6 +146,19 @@ static const value_string service_indicator_code_vals[] = {
 	{ 0xd,	"Spare" },
 	{ 0xe,	"Spare" },
 	{ 0xf,	"Spare" },
+	{ 0,	NULL }
+};
+
+const value_string mtp3_service_indicator_code_short_vals[] = {
+	{ 0x0,	"SNM" },
+	{ 0x1,	"MTN" },
+	{ 0x2,	"MTNS" },
+	{ 0x3,	"SCCP" },
+	{ 0x4,	"TUP" },
+	{ 0x5,	"ISUP" },
+	{ 0x6,	"DUP (CC)" },
+	{ 0x7,	"DUP (FAC/CANC)" },
+	{ 0x8,	"MTP Test" },
 	{ 0,	NULL }
 };
 
@@ -455,6 +473,7 @@ dissect_mtp3_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+  mtp3_tap_rec_t	tap_rec;
 
   /* Set up structures needed to add the protocol subtree and manage it */
   proto_item *mtp3_item = NULL;
@@ -491,10 +510,21 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   }
 
+  memset(&mtp3_addr_opc, 0, sizeof(mtp3_addr_opc));
+  memset(&mtp3_addr_dpc, 0, sizeof(mtp3_addr_dpc));
+
   /* Dissect the packet (even if !tree so can call sub-dissectors and update
    * the source and destination address columns) */
   dissect_mtp3_sio(tvb, pinfo, mtp3_tree);
   dissect_mtp3_routing_label(tvb, pinfo, mtp3_tree);
+
+  tap_rec.addr_opc = mtp3_addr_opc;
+  tap_rec.addr_dpc = mtp3_addr_dpc;
+  tap_rec.si_code = (tvb_get_guint8(tvb, SIO_OFFSET) & SERVICE_INDICATOR_MASK);
+  tap_rec.size = tvb_length(tvb);
+
+  tap_queue_packet(mtp3_tap, pinfo, &tap_rec);
+
   dissect_mtp3_payload(tvb, pinfo, tree);
 }
 
@@ -506,7 +536,7 @@ proto_register_mtp3(void)
   static hf_register_info hf[] = {
     { &hf_mtp3_service_indicator,
       { "Service indicator", "mtp3.service_indicator",
-        FT_UINT8, BASE_HEX, VALS(service_indicator_code_vals), SERVICE_INDICATOR_MASK,
+        FT_UINT8, BASE_HEX, VALS(mtp3_service_indicator_code_vals), SERVICE_INDICATOR_MASK,
 	      "", HFILL }},
     { &hf_mtp3_network_indicator,
       { "Network indicator", "mtp3.network_indicator",
@@ -631,6 +661,8 @@ proto_register_mtp3(void)
   mtp3_sio_dissector_table = register_dissector_table("mtp3.service_indicator",
 						      "MTP3 Service indicator",
 						      FT_UINT8, BASE_HEX);
+
+  mtp3_tap = register_tap("mtp3");
 
   mtp3_module = prefs_register_protocol(proto_mtp3, NULL);
 

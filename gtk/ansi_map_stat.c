@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: ansi_map_stat.c,v 1.20 2004/04/12 08:53:01 ulfl Exp $
+ * $Id: ansi_map_stat.c,v 1.21 2004/04/21 05:53:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,17 +60,32 @@ typedef struct column_arrows {
     GtkWidget		*descend_pm;
 } column_arrows;
 
+typedef struct _my_columns_t {
+    guint32		value;
+    gchar		*strptr;
+    GtkJustification	just;
+} my_columns_t;
+
+#define	ANSI_MAP_INIT_TABLE_NUM_COLUMNS		5
+
+static my_columns_t columns[ANSI_MAP_INIT_TABLE_NUM_COLUMNS] = {
+    { 60,	"Op Code",		GTK_JUSTIFY_LEFT },
+    { 290,	"Operation Name",	GTK_JUSTIFY_LEFT },
+    { 50,	"Count",		GTK_JUSTIFY_RIGHT },
+    { 100,	"Total Bytes",		GTK_JUSTIFY_RIGHT },
+    { 50,	"Average Bytes",	GTK_JUSTIFY_RIGHT }
+};
+
 typedef struct _ansi_map_stat_dlg_t {
     GtkWidget		*win;
     GtkWidget		*scrolled_win;
     GtkWidget		*table;
-    char		*entries[3];
+    char		*entries[ANSI_MAP_INIT_TABLE_NUM_COLUMNS];
 } ansi_map_stat_dlg_t;
 
-#define N_MESSAGE_TYPES	256
-
 typedef struct _ansi_map_stat_t {
-    int			message_type[N_MESSAGE_TYPES];
+    int			message_type[ANSI_MAP_MAX_NUM_MESSAGE_TYPES];
+    double		size[ANSI_MAP_MAX_NUM_MESSAGE_TYPES];
 } ansi_map_stat_t;
 
 static ansi_map_stat_dlg_t	dlg;
@@ -101,7 +116,7 @@ ansi_map_stat_packet(
     pinfo = pinfo;
 
 #if 0	/* always false because message_type is 8 bit value */
-    if (data_p->message_type >= N_MESSAGE_TYPES)
+    if (data_p->message_type >= ANSI_MAP_MAX_NUM_MESSAGE_TYPES)
     {
 	/*
 	 * unknown PDU type !!!
@@ -111,6 +126,7 @@ ansi_map_stat_packet(
 #endif
 
     stat.message_type[data_p->message_type]++;
+    stat.size[data_p->message_type] += data_p->size;
 
     return(1);
 }
@@ -139,6 +155,14 @@ ansi_map_stat_draw(
 	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 2, strp);
 	    g_free(strp);
 
+	    strp = g_strdup_printf("%.0f", stat.size[ansi_map_opr_code_strings[i].value]);
+	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 3, strp);
+	    g_free(strp);
+
+	    strp = g_strdup_printf("%.2f", stat.size[ansi_map_opr_code_strings[i].value]/stat.message_type[ansi_map_opr_code_strings[i].value]);
+	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 4, strp);
+	    g_free(strp);
+
 	    i++;
 	}
 
@@ -159,7 +183,7 @@ ansi_map_stat_gtk_click_column_cb(
 
     gtk_clist_freeze(clist);
 
-    for (i=0; i < 3; i++)
+    for (i=0; i < ANSI_MAP_INIT_TABLE_NUM_COLUMNS; i++)
     {
 	gtk_widget_hide(col_arrows[i].ascend_pm);
 	gtk_widget_hide(col_arrows[i].descend_pm);
@@ -182,7 +206,6 @@ ansi_map_stat_gtk_click_column_cb(
     {
 	/*
 	 * Columns 0-1 sorted in descending order by default
-	 * Columns 2 sorted in ascending order by default
 	 */
 	if (column <= 1)
 	{
@@ -220,16 +243,15 @@ ansi_map_stat_gtk_sort_column(
 
     switch (clist->sort_column)
     {
-    case 0:
-	/* FALLTHRU */
+    case 1:
+	/* text columns */
+	return(strcmp(text1, text2));
 
-    case 2:
+    default:
+	/* number columns */
 	i1 = strtol(text1, NULL, 0);
 	i2 = strtol(text2, NULL, 0);
 	return(i1 - i2);
-
-    case 1:
-	return(strcmp(text1, text2));
     }
 
     g_assert_not_reached();
@@ -264,8 +286,6 @@ ansi_map_stat_gtk_win_create(
     ansi_map_stat_dlg_t	*dlg_p,
     char		*title)
 {
-#define	INIT_TABLE_NUM_COLUMNS	3
-    char		*default_titles[] = { "Op Code", "Operation Name", "Count" };
     int			i;
     column_arrows	*col_arrows;
     GdkBitmap		*ascend_bm, *descend_bm;
@@ -288,13 +308,13 @@ ansi_map_stat_gtk_win_create(
     dlg_p->scrolled_win = scrolled_window_new(NULL, NULL);
     gtk_box_pack_start(GTK_BOX(vbox), dlg_p->scrolled_win, TRUE, TRUE, 0);
 
-	/* We must display dialog widget before calling gdk_pixmap_create_from_xpm_d() */
+    /* We must display dialog widget before calling gdk_pixmap_create_from_xpm_d() */
     gtk_widget_show_all(dlg_p->win);
 
-    dlg_p->table = gtk_clist_new(INIT_TABLE_NUM_COLUMNS);
+    dlg_p->table = gtk_clist_new(ANSI_MAP_INIT_TABLE_NUM_COLUMNS);
 
     col_arrows =
-	(column_arrows *) g_malloc(sizeof(column_arrows) * INIT_TABLE_NUM_COLUMNS);
+	(column_arrows *) g_malloc(sizeof(column_arrows) * ANSI_MAP_INIT_TABLE_NUM_COLUMNS);
 
     win_style =
 	gtk_widget_get_style(dlg_p->scrolled_win);
@@ -311,13 +331,13 @@ ansi_map_stat_gtk_win_create(
 	    &win_style->bg[GTK_STATE_NORMAL],
 	    (gchar **)clist_descend_xpm);
 
-    for (i = 0; i < INIT_TABLE_NUM_COLUMNS; i++)
+    for (i = 0; i < ANSI_MAP_INIT_TABLE_NUM_COLUMNS; i++)
     {
 	col_arrows[i].table = gtk_table_new(2, 2, FALSE);
 
 	gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
 
-	column_lb = gtk_label_new(default_titles[i]);
+	column_lb = gtk_label_new(columns[i].strptr);
 
 	gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb,
 	    0, 1, 0, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
@@ -342,6 +362,8 @@ ansi_map_stat_gtk_win_create(
 	    gtk_widget_show(col_arrows[i].ascend_pm);
 	}
 
+        gtk_clist_set_column_justification(GTK_CLIST(dlg_p->table), i, columns[i].just);
+
 	gtk_clist_set_column_widget(GTK_CLIST(dlg_p->table), i, col_arrows[i].table);
 	gtk_widget_show(col_arrows[i].table);
     }
@@ -351,9 +373,10 @@ ansi_map_stat_gtk_win_create(
     gtk_clist_set_sort_column(GTK_CLIST(dlg_p->table), 0);
     gtk_clist_set_sort_type(GTK_CLIST(dlg_p->table), GTK_SORT_ASCENDING);
 
-    gtk_clist_set_column_width(GTK_CLIST(dlg_p->table), 0, 60);
-    gtk_clist_set_column_width(GTK_CLIST(dlg_p->table), 1, 290);
-    gtk_clist_set_column_width(GTK_CLIST(dlg_p->table), 2, 50);
+    for (i = 0; i < ANSI_MAP_INIT_TABLE_NUM_COLUMNS; i++)
+    {
+	gtk_clist_set_column_width(GTK_CLIST(dlg_p->table), i, columns[i].value);
+    }
 
     gtk_clist_set_shadow_type(GTK_CLIST(dlg_p->table), GTK_SHADOW_IN);
     gtk_clist_column_titles_show(GTK_CLIST(dlg_p->table));
@@ -361,7 +384,7 @@ ansi_map_stat_gtk_win_create(
 
     SIGNAL_CONNECT(dlg_p->table, "click-column", ansi_map_stat_gtk_click_column_cb, col_arrows);
 
-	/* Button row. */
+    /* Button row. */
     bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
 	gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
@@ -369,10 +392,10 @@ ansi_map_stat_gtk_win_create(
     gtk_widget_grab_default(bt_close);
     SIGNAL_CONNECT(bt_close, "clicked", ansi_map_stat_gtk_dlg_close_cb, dlg_p);
 
-	/* Catch the "key_press_event" signal in the window, so that we can 
-	   catch the ESC key being pressed and act as if the "Close" button had
-	   been selected. */
-	dlg_set_cancel(dlg_p->win, bt_close);
+    /* Catch the "key_press_event" signal in the window, so that we can 
+       catch the ESC key being pressed and act as if the "Close" button had
+       been selected. */
+    dlg_set_cancel(dlg_p->win, bt_close);
 
     gtk_widget_show_all(dlg_p->win);
 }
@@ -420,6 +443,10 @@ ansi_map_stat_gtk_cb(
 	dlg.entries[1] = g_strdup(ansi_map_opr_code_strings[i].strptr);
 
 	dlg.entries[2] = g_strdup("0");
+
+	dlg.entries[3] = g_strdup("0");
+
+	dlg.entries[4] = g_strdup("0");
 
 	gtk_clist_insert(GTK_CLIST(dlg.table), i, dlg.entries);
 	gtk_clist_set_row_data(GTK_CLIST(dlg.table), i, (gpointer) i);
