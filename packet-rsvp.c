@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.76 2002/10/23 20:50:22 ashokn Exp $
+ * $Id: packet-rsvp.c,v 1.77 2002/10/24 03:04:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2483,8 +2483,8 @@ dissect_rsvp_label_request (proto_tree *ti, tvbuff_t *tvb,
     }
 
     case 3: {
-	unsigned short l3pid = tvb_get_ntohs(tvb, offset2+2);
-	unsigned long min_dlci, max_dlci, dlci_len, dlci_len_code;
+	guint16 l3pid = tvb_get_ntohs(tvb, offset2+2);
+	guint32 min_dlci, max_dlci, dlci_len, dlci_len_code;
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			    "C-type: 2 (Label Request with ATM label Range)");
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2,
