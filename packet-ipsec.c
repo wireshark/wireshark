@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.7 1999/10/15 05:30:40 itojun Exp $
+ * $Id: packet-ipsec.c,v 1.8 1999/10/15 05:46:18 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,6 +48,7 @@ static int proto_esp = -1;
 static int hf_esp_spi = -1;
 static int hf_esp_sequence = -1;
 static int proto_ipcomp = -1;
+static int hf_ipcomp_flags = -1;
 static int hf_ipcomp_cpi = -1;
 
 struct newah {
@@ -217,9 +218,9 @@ dissect_ipcomp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    offset + offsetof(struct ipcomp, comp_nxt), 1,
 	    "Next Header: %s (0x%02x)",
 	    ipprotostr(ipcomp.comp_nxt), ipcomp.comp_nxt);
-	proto_tree_add_text(ipcomp_tree,
+	proto_tree_add_item(ipcomp_tree, hf_ipcomp_flags,
 	    offset + offsetof(struct ipcomp, comp_flags), 1,
-	    "Flags: 0x%02x", ipcomp.comp_flags);
+	    ipcomp.comp_flags);
 	p = val_to_str(ntohs(ipcomp.comp_cpi), cpi2val, "");
 	if (p[0] == '\0') {
 	    proto_tree_add_item(ipcomp_tree, hf_ipcomp_cpi, 
@@ -259,6 +260,9 @@ proto_register_ipsec(void)
   };
 
   static hf_register_info hf_ipcomp[] = {
+    { &hf_ipcomp_flags,
+      { "Flags",	"ipcomp.flags",	FT_UINT8,	BASE_HEX, NULL, 0x0,
+      	"" }},
     { &hf_ipcomp_cpi,
       { "CPI",		"ipcomp.cpi",	FT_UINT16,	BASE_HEX, NULL, 0x0,
       	"" }},
