@@ -19,5 +19,5 @@ clean:
 	rm -f parsetab.py $(DISSECTOR_FILES)
 
 copy_files: generate_dissector
-	cp -f -p $(DISSECTOR_FILES) ../../epan/dissectors
-	
+	xcopy packet-h225.c ../../epan/dissectors /d /y
+	xcopy packet-h225.h ../../epan/dissectors /d /y
