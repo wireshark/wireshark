@@ -1,9 +1,9 @@
 /* packet-time.c
- * Routines for time packet dissection
+ * Routines for Time Protocol (RFC 868) packet dissection
  *
  * Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-time.c,v 1.19 2002/08/28 21:00:36 jmayer Exp $
+ * $Id: packet-time.c,v 1.20 2004/05/12 19:23:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,10 +61,11 @@ dissect_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_text(time_tree, tvb, 0, 0,
 			pinfo->srcport==UDP_PORT_TIME? "Type: Response":"Type: Request");
     if (pinfo->srcport == UDP_PORT_TIME) {
+      /* seconds since 1900-01-01 00:00:00 GMT, *not* 1970 */
       guint32 delta_seconds = tvb_get_ntohl(tvb, 0);
-      proto_tree_add_text(time_tree, tvb, 0, 4,
-			  "%u seconds since midnight 1 January 1900 GMT",
-			  delta_seconds);
+      proto_tree_add_uint_format(time_tree, hf_time_time, tvb, 0, 4,
+				 delta_seconds, "%s",
+				 abs_time_secs_to_str(delta_seconds-(guint32)(70*365+18)*24*3600));
     }
   }
 }
