@@ -1075,6 +1075,7 @@ Bernd Becker <bb[AT]bernd-becker.de> {
 	Reset the Protocol column to GIOP if no heuristic dissectors
 	    succeed
 	Enhancements to TNS dissector, including desegmentation
+	GIOP fixes
 }
 
 Heinz Prantner <Heinz.Prantner[AT]radisys.com> {

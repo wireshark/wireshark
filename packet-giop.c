@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.66 2003/02/13 01:23:35 guy Exp $
+ * $Id: packet-giop.c,v 1.67 2003/02/13 23:18:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4185,13 +4185,13 @@ proto_register_giop (void)
 
     { &hf_giop_iop_vscid,
      { "VSCID", "giop.iiop.vscid",
-       FT_UINT32, BASE_HEX, NULL, 0xfffff000, "", HFILL }
+       FT_UINT32, BASE_HEX, NULL, 0xffffff00, "", HFILL }
     }
     ,
 
     { &hf_giop_iop_scid,
      { "SCID", "giop.iiop.scid",
-       FT_UINT32, BASE_HEX, NULL, 0x00000fff, "", HFILL }
+       FT_UINT32, BASE_HEX, NULL, 0x000000ff, "", HFILL }
     }
     ,
 
@@ -4718,7 +4718,7 @@ void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *ptree, int *offset,
 
   proto_tree *tree = NULL;	/* ServiceContext tree */
   proto_tree *sub_tree1 = NULL;
-  proto_item *tf, *tf_st1;
+  proto_item *tf = NULL, *tf_st1;
 
   guint32 context_id;
 
@@ -4729,17 +4729,20 @@ void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *ptree, int *offset,
   gboolean encapsulation_is_be;
   guint32 encapsulation_boundary;
   int temp_offset;
+  int start_offset = *offset;
 
   /* create a subtree */
 
   if (ptree) {
-    tf = proto_tree_add_text (ptree, tvb, *offset, -1, "ServiceContextList");
+    /* set length to 0 now and correct with proto_item_set_len() later */
+    tf = proto_tree_add_text (ptree, tvb, *offset, 0, "ServiceContextList");
+
     tree = proto_item_add_subtree (tf, ett_giop_scl);
   }
 
   /* Get sequence length (number of elements) */
-
   seqlen = get_CDR_ulong(tvb,offset,stream_is_be,boundary);
+
   if (tree) {
     proto_tree_add_uint(tree,hf_giop_sequence_length,tvb,
 			*offset-sizeof(seqlen),4,seqlen);
@@ -4747,15 +4750,19 @@ void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *ptree, int *offset,
 
   /* return if zero length sequence */
 
-  if(seqlen == 0)
+  if (seqlen == 0) {
+    if (tf)
+      proto_item_set_len(tf, *offset - start_offset);
+
     return;
+  }
 
   /* Loop for all ServiceContext's */
 
   for (i=0; i<seqlen; i++) {
 
     context_id = get_CDR_ulong(tvb,offset,stream_is_be,boundary);
-    vscid = context_id & 0xffffff00; /* vendor info, top 24 bits */
+    vscid = (context_id & 0xffffff00) >> 8; /* vendor info, top 24 bits */
     scid = context_id  & 0x000000ff; /* standard service info, lower 8 bits */
     service_context_name = match_strval(scid, service_context_ids);
 
@@ -4773,21 +4780,22 @@ void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *ptree, int *offset,
     if( vscid != 0 || scid > max_service_context_id ) {
         decode_UnknownServiceContext(tvb, tree, offset, stream_is_be, boundary,
 	                             vscid, scid); 
-        return;
+        continue;
     }
 
-    if (tree) {
-      tf_st1 = proto_tree_add_text (tree, tvb, *offset, -1, service_context_name);
-      sub_tree1 = proto_item_add_subtree (tf_st1, ett_giop_scl_st1);
-    }
-
+    temp_offset = *offset;
     /* get sequence length, new endianness and boundary for encapsulation */
     seqlen_cd = get_CDR_encap_info(tvb, sub_tree1, offset,
 			       stream_is_be, boundary,
 			       &encapsulation_is_be , &encapsulation_boundary);
 
+    if (tree) {
+      tf_st1 = proto_tree_add_text (tree, tvb, temp_offset, sizeof(seqlen_cd) + seqlen_cd , service_context_name);
+      sub_tree1 = proto_item_add_subtree (tf_st1, ett_giop_scl_st1);
+    }
+
     if (seqlen_cd == 0)
-        return;
+        continue;
 
     /* See CORBA 3.0.2 standard, section Section 15.3.3 "Encapsulation",
      * for how CDR types can be marshalled into a sequence<octet>.
@@ -4809,7 +4817,10 @@ void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *ptree, int *offset,
 	break;
     }
 
-  } /* seqlen  */
+  } /* for seqlen  */
+
+  if (tf)
+    proto_item_set_len(tf, *offset - start_offset);
 
 }
 
