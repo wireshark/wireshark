@@ -1633,9 +1633,13 @@ main(int argc, char *argv[])
   /* we register the plugin taps before the other taps because
 	  stats_tree taps plugins will be registered as tap listeners
 	  by stats_tree_stat.c and need to registered before that */
-  register_all_plugin_tap_listeners();
-  register_all_tap_listeners();
 
+#ifdef HAVE_PLUGINS
+  register_all_plugin_tap_listeners();
+#endif
+
+  register_all_tap_listeners();
+  
   splash_update(splash_win, "Loading module preferences ...");
 
   /* Now register the preferences for any non-dissector modules.
