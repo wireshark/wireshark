@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.3 2003/06/14 20:45:26 guy Exp $
+# $Id: Makefile.nmake,v 1.4 2003/10/10 21:31:51 guy Exp $
 #
 
 include ..\..\config.nmake
@@ -17,3 +17,5 @@ megaco.dll megaco.exp megaco.lib : packet-megaco.obj ..\plugin_api.obj
 
 clean:
 	rm -f $(OBJECTS) megaco.dll megaco.exp megaco.lib $(PDB_FILE)
+
+distclean: clean

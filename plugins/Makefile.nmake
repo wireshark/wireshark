@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.24 2003/08/19 02:16:26 guy Exp $
+# $Id: Makefile.nmake,v 1.25 2003/10/10 21:31:49 guy Exp $
 #
 
 include ..\config.nmake
@@ -90,3 +90,25 @@ clean:
 	cd ../rtnet
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
+
+distclean: clean
+	cd artnet
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../docsis
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../giop
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../gryphon
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../lwres
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../megaco
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../mgcp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../pcli
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../rtnet
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ..
+

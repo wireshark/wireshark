@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.29 2003/06/15 23:04:47 guy Exp $
+# $Id: Makefile.nmake,v 1.30 2003/10/10 21:31:47 guy Exp $
 
 include ..\config.nmake
 
@@ -59,12 +59,18 @@ config.h	: config.h.win32 ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ -e "s;@HAVE_GNU_ADNS@;$(ADNS_CONFIG);" < config.h.win32 > $@
 
 clean:
-	rm -f $(OBJECTS) ethereal.lib config.h $(PDB_FILE)
+	rm -f $(OBJECTS) ethereal.lib $(PDB_FILE)
 	cd ftypes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../dfilter
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 
+distclean: clean
+	rm -f config.h
+	cd ftypes
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../dfilter
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 
 ftypes:: config.h
 	cd ftypes

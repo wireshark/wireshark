@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.346 2003/10/10 21:16:23 guy Exp $
+# $Id: Makefile.nmake,v 1.347 2003/10/10 21:31:46 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -668,8 +668,8 @@ clean:
 	rm -f $(ethereal_OBJECTS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS) \
 		$(EXECUTABLES) $(PDB_FILE) \
 		editcap.obj mergecap.obj text2pcap.obj \
-		text2pcap-scanner.obj text2pcap-scanner.c register.c \
-		rdps.obj rdps.pdb config.h ps.c \
+		text2pcap-scanner.obj text2pcap-scanner.c rdps.obj \
+		rdps.pdb config.h ps.c \
 		rdps.exe rdps.ilk dftest.obj dftest.exe randpkt.obj randpkt.ext \
 		$(RESOURCES)
 	cd wiretap
@@ -693,7 +693,25 @@ clean:
 # Call distclean only, if you would like to remove ALL generated files.
 # Be sure to have python and perl installed to regenerate them.
 distclean: clean
-	rm -f x11-declarations.h x11-register-info.h packet-ncp2222.c
+	rm -f x11-declarations.h x11-register-info.h packet-ncp2222.c \
+		register.c tethereal-tap-register.c 
+	cd wiretap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../gtk
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../epan
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../plugins
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../tools
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../image
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../doc
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../packaging/nsis
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../..
 
 tools::
 	cd tools

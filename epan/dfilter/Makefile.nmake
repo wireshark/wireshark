@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.9 2003/06/14 20:35:56 guy Exp $
+# $Id: Makefile.nmake,v 1.10 2003/10/10 21:31:47 guy Exp $
 
 include ..\..\config.nmake
 
@@ -45,8 +45,10 @@ $(OBJECTS): ..\config.h
 	cd dfilter
 
 clean:
-	rm -f $(OBJECTS) scanner.c grammar.c grammar.h grammar.out \
-	dfilter.lib $(PDB_FILE)
+	rm -f $(OBJECTS) dfilter.lib $(PDB_FILE)
+
+distclean: clean
+	rm -f scanner.c grammar.c grammar.h grammar.out
 
 scanner.c : scanner.l
 	$(LEX) -Pdf_ -oscanner.c scanner.l
@@ -61,5 +63,3 @@ $(LEMON)\lemon.exe:
 	cd ../../tools/lemon
 	$(MAKE) -f makefile.nmake
 	cd ../../epan/dfilter
-
-

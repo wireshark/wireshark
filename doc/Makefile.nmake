@@ -1,7 +1,7 @@
 # Makefile.nmake
 # Nmake file for Ethereal documentation
 #
-# $Id: Makefile.nmake,v 1.10 2003/10/02 22:28:04 gerald Exp $
+# $Id: Makefile.nmake,v 1.11 2003/10/10 21:31:46 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -130,3 +130,5 @@ clean:
 	rm -f mergecap.html mergecap.1
 	rm -f text2pcap.html text2pcap.1
 	rm -f pod2htm*
+
+distclean: clean

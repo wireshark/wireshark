@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.2 2003/08/05 17:09:54 guy Exp $
+# $Id: Makefile.nmake,v 1.3 2003/10/10 21:31:50 guy Exp $
 #
 
 include ..\..\config.nmake
@@ -17,3 +17,5 @@ lwres.dll lwres.exp lwres.lib : packet-lwres.obj ..\plugin_api.obj
 
 clean:
 	rm -f $(OBJECTS) lwres.dll lwres.exp lwres.lib $(PDB_FILE)
+
+distclean: clean

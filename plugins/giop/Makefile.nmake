@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.8 2003/06/14 20:45:25 guy Exp $
+# $Id: Makefile.nmake,v 1.9 2003/10/10 21:31:50 guy Exp $
 #
 
 include ..\..\config.nmake
@@ -23,4 +23,6 @@ coseventcomm.dll coseventcomm.exp coseventcomm.lib : packet-coseventcomm.obj ..\
 
 clean:
 	rm -f $(OBJECTS) cosnaming.dll cosnaming.exp cosnaming.lib \
-	coseventcomm.dll coseventcomm.exp coseventcomm.lib $(PDB_FILE)
+		coseventcomm.dll coseventcomm.exp coseventcomm.lib $(PDB_FILE)
+
+distclean: clean

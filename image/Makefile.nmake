@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.5 2003/03/26 20:17:42 guy Exp $
+# $Id: Makefile.nmake,v 1.6 2003/10/10 21:31:48 guy Exp $
 #
 
 include ..\config.nmake
@@ -34,3 +34,5 @@ text2pcap.rc  : text2pcap.rc.in ..\config.nmake
 
 clean :
 	rm -f $(ALL_RC)
+
+distclean: clean

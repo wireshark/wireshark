@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.8 2002/02/27 09:42:51 guy Exp $
+# $Id: Makefile.nmake,v 1.9 2003/10/10 21:31:53 guy Exp $
 
 include ..\..\config.nmake
 
@@ -14,3 +14,5 @@ all : lemon.exe
 
 clean:
 	rm -f lemon.obj lemon.exe lemon.ilk $(PDB_FILE) lemon.pdb
+
+distclean: clean

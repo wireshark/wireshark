@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.34 2003/08/26 07:10:38 guy Exp $
+# $Id: Makefile.nmake,v 1.35 2003/10/10 21:31:53 guy Exp $
 #
 
 include ..\config.nmake
@@ -74,8 +74,11 @@ config.h	: config.h.win32
 	sed -e s/@VERSION@/$(WTAP_VERSION)/ < config.h.win32 > $@
 
 clean :
-	rm -f $(OBJECTS) ascend-grammar.c ascend-grammar.h ascend-scanner.c \
+	rm -f $(OBJECTS) \
 		wiretap-$(WTAP_VERSION).lib \
 		wiretap-$(WTAP_VERSION).exp \
 		wiretap-$(WTAP_VERSION).dll \
-		config.h $(PDB_FILE)
+		$(PDB_FILE)
+
+distclean: clean
+	rm -f config.h ascend-grammar.c ascend-grammar.h ascend-scanner.c
