@@ -1623,6 +1623,7 @@ Jean-Baptiste Marchand  <Jean-Baptiste.Marchand [AT] hsc.fr> {
 	EncryptedFileSystem (EFS) support.
 	MS Eventlog support
 	WKSSVC enhancements
+	File Replication Services (frsrpc and frsapi) support
 }
 
 Andreas Trauer          <andreas.trauer [AT] siemens.com> {

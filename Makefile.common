@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.51 2004/07/09 23:17:02 guy Exp $
+# $Id: Makefile.common,v 1.52 2004/07/10 07:16:54 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -57,6 +57,8 @@ DISSECTOR_INCLUDES =	\
 	packet-dcerpc-dnsserver.h	\
 	packet-dcerpc-drsuapi.h	\
 	packet-dcerpc-efs.h	\
+	packet-dcerpc-frsapi.h	\
+	packet-dcerpc-frsrpc.h	\
 	packet-dcerpc-initshutdown.h	\
 	packet-dcerpc-lsa.h	\
 	packet-dcerpc-mapi.h	\
