@@ -1,6 +1,6 @@
 /* pppdump.c
  *
- * $Id: pppdump.c,v 1.19 2002/06/07 07:27:35 guy Exp $
+ * $Id: pppdump.c,v 1.20 2002/07/14 10:59:38 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  * 
@@ -330,8 +330,29 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd, int *er
 				return -1;
 				break;
 
-			case '~':
+			case 0x7e:
+				/*
+				 * Flag Sequence for RFC 1662 HDLC-like
+				 * framing.
+				 *
+				 * As this is a raw trace of octets going
+				 * over the wire, and that might include
+				 * the login sequence, there is no
+				 * guarantee that *only* PPP traffic
+				 * appears in this file, so there is no
+				 * guarantee that the first 0x7e we see is
+				 * a start flag sequence, and therefore we
+				 * cannot safely ignore all characters up
+				 * to the first 0x7e, and therefore we
+				 * might end up with some bogus PPP
+				 * packets.
+				 */
 				if (pkt->cnt > 0) {
+					/*
+					 * We've seen stuff before this,
+					 * so this is the end of a frame.
+					 * Make a frame out of that stuff.
+					 */
 					pkt->esc = FALSE;
 
 					num_written = pkt->cnt;
@@ -359,19 +380,41 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd, int *er
 				}
 				break;
 
-			case '}':
+			case 0x7d:
+				/*
+				 * Control Escape octet for octet-stuffed
+				 * RFC 1662 HDLC-like framing.
+				 */
 				if (!pkt->esc) {
+					/*
+					 * Control Escape not preceded by
+					 * Control Escape; discard it
+					 * but XOR the next octet with
+					 * 0x20.
+					 */
 					pkt->esc = TRUE;
 					break;
 				}
-				/* else fall through */
+				/*
+				 * Control Escape preceded by Control Escape;
+				 * treat it as an ordinary character,
+				 * by falling through.
+				 */
 
 			default:
 				if (pkt->esc) {
+					/*
+					 * This character was preceded by
+					 * Control Escape, so XOR it with
+					 * 0x20, as per RFC 1662's octet-
+					 * stuffed framing, and clear
+					 * the flag saying that the
+					 * character should be escaped.
+					 */
 					c ^= 0x20;
 					pkt->esc = FALSE;
 				}
-		
+
 				pkt->buf[pkt->cnt++] = c;
 				if (pkt->cnt > PPPD_BUF_SIZE) {
 					*err = WTAP_ERR_UNC_OVERFLOW;
