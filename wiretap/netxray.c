@@ -865,8 +865,16 @@ netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
 			 * It appears, in one 802.11 capture, that
 			 * we have 4 bytes of junk at the ends of
 			 * frames in which hdr->hdr_2_x.xxx[2] and
-			 * hdr->hdr_2_x.xxx[3] are 0xff; we assume
-			 * for now that it works like Ethernet.
+			 * hdr->hdr_2_x.xxx[3] are 0xff; I haven't
+			 * seen any frames where it's an FCS, but,
+			 * for now, we still check the fcs_valid
+			 * flag - I also haven't seen any capture
+			 * where we'd set it based on the realtick
+			 * value.
+			 *
+			 * It also appears that if the low-order bit of
+			 * hdr->hdr_2_x.xxx[8] is set, the packet has a
+			 * bad FCS.
 			 */
 			if (hdr->hdr_2_x.xxx[2] == 0xff &&
 			    hdr->hdr_2_x.xxx[3] == 0xff) {
