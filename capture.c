@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.110 2000/06/27 07:13:12 guy Exp $
+ * $Id: capture.c,v 1.111 2000/07/05 02:52:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -854,6 +854,7 @@ capture(void)
 
   cap_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(cap_w), "Ethereal: Capture / Playback");
+  gtk_window_set_modal(GTK_WINDOW(cap_w), TRUE);
 
   /* Container for capture display widgets */
   main_vb = gtk_vbox_new(FALSE, 1);
@@ -920,7 +921,6 @@ capture(void)
   gtk_widget_show(stop_bt);
 
   gtk_widget_show(cap_w);
-  gtk_grab_add(cap_w);
 
   upd_time = time(NULL);
 #ifdef linux
