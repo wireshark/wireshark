@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.h,v 1.33 2002/12/02 21:20:26 guy Exp $
+ * $Id: packet-dcerpc-nt.h,v 1.34 2003/01/11 04:42:16 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,22 +30,6 @@
  * ett_ value for Unicode strings.
  */
 extern gint ett_nt_unicode_string;
-
-/* Routines for parsing simple types */
-
-int prs_align(int offset, int n);
-
-int prs_uint8s(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	       proto_tree *tree, int count, int *data_offset, char *name);
-
-int prs_uint16(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	       proto_tree *tree, guint16 *data, char *name);
-
-int prs_uint16s(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		proto_tree *tree, int count, int *data_offset, char *name);
-
-int prs_uint32(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	       proto_tree *tree, guint32 *data, char *name);
 
 /* Parse some common RPC structures */
 

@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.50 2002/12/02 21:20:26 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.51 2003/01/11 04:42:16 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,95 +38,6 @@
  * This file contains helper routines that are used by the DCERPC over SMB
  * dissectors for ethereal.
  */
-
-/* Align offset to a n-byte boundary */
-
-int prs_align(int offset, int n)
-{
-	if (offset % n)
-		offset += n - (offset % n);
-
-	return offset;
-}
-
-/* Parse a number of uint8's */
-
-int prs_uint8s(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-	       proto_tree *tree, int count, int *data_offset, char *name)
-{
-	/* No alignment required */
-
-	if (name && tree)
-		proto_tree_add_text(tree, tvb, offset, count, "%s", name);
-
-	if (data_offset)
-		*data_offset = offset;
-
-	offset += count;
-
-	return offset;
-}
-
-/* Parse a 16-bit integer */
-
-int prs_uint16(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-	       proto_tree *tree, guint16 *data, char *name)
-{
-	guint16 i;
-
-	offset = prs_align(offset, 2);
-
-	i = tvb_get_letohs(tvb, offset);
-	offset += 2;
-
-	if (name && tree)
-		proto_tree_add_text(tree, tvb, offset - 2, 2,
-				    "%s: %u", name, i);
-	if (data)
-		*data = i;
-
-	return offset;
-}
-
-/* Parse a number of uint16's */
-
-int prs_uint16s(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-		proto_tree *tree, int count, int *data_offset, char *name)
-{
-	offset = prs_align(offset, 2);
-
-	if (name && tree)
-		proto_tree_add_text(tree, tvb, offset, count * 2,
-				    "%s", name);
-	if (data_offset)
-		*data_offset = offset;
-
-	offset += count * 2;
-
-	return offset;
-}
-
-/* Parse a 32-bit integer */
-
-int prs_uint32(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-	       proto_tree *tree, guint32 *data, char *name)
-{
-	guint32 i;
-
-	offset = prs_align(offset, 4);
-
-	i = tvb_get_letohl(tvb, offset);
-	offset += 4;
-
-	if (name && tree)
-		proto_tree_add_text(tree, tvb, offset - 4, 4,
-				    "%s: %u", name, i);
-
-	if (data)
-		*data = i;
-
-	return offset;
-}
 
 /* Convert a string from little-endian unicode to ascii.  At the moment we
    fake it by taking every odd byte.  )-:  The caller must free the
@@ -176,6 +87,7 @@ char *fake_unicode(tvbuff_t *tvb, int offset, int len)
 
    these variables can be found in packet-dcerpc-samr.c
 */
+extern int hf_nt_str;
 extern int hf_nt_str_len;
 extern int hf_nt_str_off;
 extern int hf_nt_str_max_len;
@@ -205,10 +117,9 @@ dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
 			char *drep)
 {
 	guint32 len, off, max_len;
-	int data16_offset;
-	char *text;
 	int old_offset;
 	dcerpc_info *di;
+	char *text;
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
@@ -224,12 +135,11 @@ dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
 			hf_nt_str_len, &len);
 
 	old_offset=offset;
-	offset = prs_uint16s(tvb, offset, pinfo, tree, len, &data16_offset,
-			NULL);
-	text = fake_unicode(tvb, data16_offset, len);
 
-	proto_tree_add_string(tree, di->hf_index, tvb, old_offset,
-		offset-old_offset, text);
+	offset = dissect_ndr_uint16s(
+		tvb, offset, pinfo, tree, drep, hf_nt_str, len);
+
+	text = fake_unicode(tvb, offset - len * 2, len);
 
 	/* need to test di->levels before doing the proto_item_append_text()
 	   since netlogon has these objects as top level objects in its representation
@@ -319,7 +229,6 @@ dissect_ndr_nt_STRING_string (tvbuff_t *tvb, int offset,
                              char *drep)
 {
 	guint32 len, off, max_len;
-	int text_offset;
 	const guint8 *text;
 	int old_offset;
 	header_field_info *hfi;
@@ -343,9 +252,10 @@ dissect_ndr_nt_STRING_string (tvbuff_t *tvb, int offset,
 
 	switch(hfi->type){
 	case FT_STRING:
-		offset = prs_uint8s(tvb, offset, pinfo, tree, len,
-			&text_offset, NULL);
-		text = tvb_get_ptr(tvb, text_offset, len);
+		offset = dissect_ndr_uint8s(
+			tvb, offset, pinfo, tree, drep,
+			hf_nt_str, len, NULL);
+		text = tvb_get_ptr(tvb, offset - len * 2, len);
 		proto_tree_add_string_format(tree, di->hf_index,
 			tvb, old_offset, offset-old_offset,
 			text, "%s: %s", hfi->name, text);
