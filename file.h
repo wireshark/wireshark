@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.27 1999/08/10 04:13:37 guy Exp $
+ * $Id: file.h,v 1.28 1999/08/10 07:12:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,27 +47,28 @@
 typedef struct bpf_program bpf_prog;
 
 typedef struct _capture_file {
-  FILE       *fh;        /* Capture file */
-  gchar      *filename;  /* filename */
-  long        f_len;     /* File length */
-  guint16     cd_t;      /* Capture data type */
+  FILE        *fh;        /* Capture file */
+  gchar       *filename;  /* filename */
+  long         f_len;     /* File length */
+  guint16      cd_t;      /* Capture data type */
   const gchar *cd_t_desc;/* Description of that data type */
-  guint32     vers;      /* Version.  For tcpdump minor is appended to major */
-  guint32     count;     /* Packet count */
-  gfloat      unfiltered_count; /* used for dfilter progress bar */
-  guint32     drops;     /* Dropped packets */
-  guint32     esec;      /* Elapsed seconds */
-  guint32     eusec;     /* Elapsed microseconds */
-  guint32     snap;      /* Captured packet length */
-  gchar      *iface;     /* Interface */
-  gchar      *save_file; /* File that user saved capture to */
-  gint        user_saved;/* Was capture file saved by user yet? */
-  wtap       *wth;       /* Wiretap session */
-  gchar      *dfilter;   /* Display filter string */
-  GNode      *dfcode;    /* Compiled display filter program */ 
+  guint32      vers;      /* Version.  For tcpdump minor is appended to major */
+  guint32      count;     /* Packet count */
+  gfloat       unfiltered_count; /* used for dfilter progress bar */
+  guint32      drops;     /* Dropped packets */
+  guint32      esec;      /* Elapsed seconds */
+  guint32      eusec;     /* Elapsed microseconds */
+  guint32      snap;      /* Captured packet length */
+  gchar       *iface;     /* Interface */
+  gchar       *save_file; /* File that user saved capture to */
+  gint         user_saved;/* Was capture file saved by user yet? */
+  wtap        *wth;       /* Wiretap session */
+  gchar       *rfilter;   /* Read filter string */
+  gchar       *dfilter;   /* Display filter string */
+  GNode       *dfcode;    /* Compiled display filter program */ 
 #ifdef HAVE_LIBPCAP
-  gchar      *cfilter;   /* Capture filter string */
-  bpf_prog    fcode;     /* Compiled capture filter program */
+  gchar       *cfilter;   /* Capture filter string */
+  bpf_prog     fcode;     /* Compiled capture filter program */
 #endif
   /* XXX - I'm cheating for now. I'll hardcode 65536 here until I re-arrange
    * more header files so that ethereal.h is split up into two files, a
@@ -75,15 +76,15 @@ typedef struct _capture_file {
    * moved to different header files) --gilbert
    */
   /*guint8      pd[MAX_PACKET_SIZE];*/  /* Packet data */
-  guint8      pd[65536];  /* Packet data */
-  frame_data *plist;     /* Packet list */
-  frame_data *plist_end; /* Last packet in list */
+  guint8       pd[65536];  /* Packet data */
+  frame_data  *plist;     /* Packet list */
+  frame_data  *plist_end; /* Last packet in list */
   column_info  cinfo;    /* Column formatting information */
-  int        selected_packet;   /* Index in packet list of currently selected packet, if any */
-  int        selected_row;   /* Row in packet display of currently selected packet, if any */
-  frame_data *fd;        /* Frame data for currently selected packet */
-  proto_tree *protocol_tree; /* Protocol tree for currently selected packet */
-  FILE       *print_fh;  /* File we're printing to */
+  int         selected_packet;   /* Index in packet list of currently selected packet, if any */
+  int         selected_row;   /* Row in packet display of currently selected packet, if any */
+  frame_data  *fd;        /* Frame data for currently selected packet */
+  proto_tree  *protocol_tree; /* Protocol tree for currently selected packet */
+  FILE        *print_fh;  /* File we're printing to */
 } capture_file;
 
 
@@ -101,7 +102,7 @@ typedef struct _capture_file {
 
 int  open_cap_file(char *, capture_file *);
 void close_cap_file(capture_file *, void *, guint);
-int  load_cap_file(char *, capture_file *);
+int  load_cap_file(char *, char *, capture_file *);
 int  tail_cap_file(char *, capture_file *);
 /* size_t read_frame_header(capture_file *); */
 

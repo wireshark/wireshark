@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.78 1999/08/10 04:13:37 guy Exp $
+ * $Id: ethereal.c,v 1.79 1999/08/10 07:12:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -119,7 +119,6 @@ gchar        comp_info_str[256];
 gchar       *ethereal_path = NULL;
 gchar       *medium_font = MONO_MEDIUM_FONT;
 gchar       *bold_font = MONO_BOLD_FONT;
-gchar       *rfilter = NULL;
 
 ts_type timestamp_type = RELATIVE;
 
@@ -137,6 +136,7 @@ int quit_after_cap; /* Makes a "capture only mode". Implies -k */
 static gint tree_selected_start=-1, tree_selected_len=-1; 
 
 #define E_DFILTER_TE_KEY "display_filter_te"
+#define E_RFILTER_TE_KEY "read_filter_te"
 
 /* About Ethereal window */
 void
@@ -178,23 +178,25 @@ about_ethereal( GtkWidget *w, gpointer data ) {
 void
 file_sel_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   gchar     *cf_name;
+  GtkWidget *filter_te;
+  gchar     *rfilter;
   int        err;
 
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (fs)));
+  filter_te = gtk_object_get_data(GTK_OBJECT(w), E_RFILTER_TE_KEY);
+  rfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te)));
   gtk_widget_hide(GTK_WIDGET (fs));
   gtk_widget_destroy(GTK_WIDGET (fs));
 
   /* this depends upon load_cap_file removing the filename from
    * cf_name, leaving only the path to the directory. */
-  if ((err = load_cap_file(cf_name, &cf)) == 0)
+  if ((err = load_cap_file(cf_name, rfilter, &cf)) == 0)
     chdir(cf_name);
-  else {
-    simple_dialog(ESD_TYPE_WARN, NULL, file_open_error_message(err, FALSE),
-		cf_name);
-  }
   g_free(cf_name);
-  set_menu_sensitivity("/File/Save", FALSE);
-  set_menu_sensitivity("/File/Save As...", TRUE);
+  if (err == 0) {
+    set_menu_sensitivity("/File/Save", FALSE);
+    set_menu_sensitivity("/File/Save As...", TRUE);
+  }
 }
 
 /* Update the progress bar */
@@ -385,6 +387,8 @@ match_selected_cb(GtkWidget *w, gpointer data)
 /* Open a file */
 void
 file_open_cmd_cb(GtkWidget *w, gpointer data) {
+  GtkWidget *filter_hbox, *filter_bt, *filter_te;
+
   file_sel = gtk_file_selection_new ("Ethereal: Open Capture File");
   
   /* Connect the ok_button to file_ok_sel_cb function and pass along the
@@ -394,8 +398,30 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
 
   /* Gilbert --- I added this if statement. Is this right? */
   if (w)
+    gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_sel)->ok_button),
+      E_DFILTER_TE_KEY, gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY));
+
+  filter_hbox = gtk_hbox_new(FALSE, 1);
+  gtk_container_border_width(GTK_CONTAINER(filter_hbox), 0);
+  gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(file_sel)->action_area),
+    filter_hbox, FALSE, FALSE, 0);
+  gtk_widget_show(filter_hbox);
+
+  filter_bt = gtk_button_new_with_label("Filter:");
+  gtk_signal_connect(GTK_OBJECT(filter_bt), "clicked",
+    GTK_SIGNAL_FUNC(prefs_cb), (gpointer) E_PR_PG_FILTER);
+  gtk_box_pack_start(GTK_BOX(filter_hbox), filter_bt, FALSE, TRUE, 0);
+  gtk_widget_show(filter_bt);
+  
+  filter_te = gtk_entry_new();
+  gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
+  gtk_box_pack_start(GTK_BOX(filter_hbox), filter_te, TRUE, TRUE, 3);
+  if (cf.rfilter != NULL)
+    gtk_entry_set_text(GTK_ENTRY(filter_te), cf.rfilter);
+  gtk_widget_show(filter_te);
+
   gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_sel)->ok_button),
-    E_DFILTER_TE_KEY, gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY));
+    E_RFILTER_TE_KEY, filter_te);
 
   /* Connect the cancel_button to destroy the widget */
   gtk_signal_connect_object(GTK_OBJECT (GTK_FILE_SELECTION
@@ -471,14 +497,11 @@ file_save_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 	g_free(cf.save_file);
 	cf.save_file = g_strdup(cf_name);
 	cf.user_saved = 1;
-	err = load_cap_file(cf_name, &cf);
-	if (err != 0) {
-		simple_dialog(ESD_TYPE_WARN, NULL,
-		    file_open_error_message(err, FALSE), cf_name);
+	err = load_cap_file(cf_name, g_strdup(cf.rfilter), &cf);
+	if (err == 0) {
+		set_menu_sensitivity("/File/Save", FALSE);
+		set_menu_sensitivity("/File/Save As...", TRUE);
 	}
-
-	set_menu_sensitivity("/File/Save", FALSE);
-	set_menu_sensitivity("/File/Save As...", TRUE);
 }
 
 static void
@@ -495,32 +518,25 @@ file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 	g_free(cf.save_file);
 	cf.save_file = g_strdup(cf_name);
 	cf.user_saved = 1;
-	err = load_cap_file(cf_name, &cf);
-	if (err != 0) {
-		simple_dialog(ESD_TYPE_WARN, NULL,
-		    file_open_error_message(err, FALSE), cf_name);
+	err = load_cap_file(cf_name, g_strdup(cf.rfilter), &cf);
+	if (err == 0) {
+		set_menu_sensitivity("/File/Save", FALSE);
+		set_menu_sensitivity("/File/Save As...", TRUE);
 	}
-
-	set_menu_sensitivity("/File/Save", FALSE);
-	set_menu_sensitivity("/File/Save As...", TRUE);
 }
 
-/* Reload a file using the current display filter */
+/* Reload a file using the current read and display filters */
 void
 file_reload_cmd_cb(GtkWidget *w, gpointer data) {
   /*GtkWidget *filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);*/
   GtkWidget *filter_te;
-  int err;
 
   filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
 
   if (cf.dfilter) g_free(cf.dfilter);
   cf.dfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te)));
-  err = load_cap_file(cf.filename, &cf);
-  if (err != 0) {
-    simple_dialog(ESD_TYPE_WARN, NULL, file_open_error_message(err, FALSE),
-		cf.filename);
-  }
+  load_cap_file(cf.filename, g_strdup(cf.rfilter), &cf);
+  /* XXX - change the menu if it fails? */
 }
 
 /* Run the current display filter on the current packet set, and
@@ -973,10 +989,10 @@ main(int argc, char *argv[])
                       *bv_table, *bv_hscroll, *bv_vscroll, *stat_hbox, 
                       *tv_scrollw, *filter_bt, *filter_te;
   GtkStyle            *pl_style;
-  GtkAccelGroup *accel;
-  GtkWidget	*packet_sw;
+  GtkAccelGroup       *accel;
+  GtkWidget	      *packet_sw;
   gint                 pl_size = 280, tv_size = 95, bv_size = 75;
-  gchar               *rc_file, *cf_name = NULL;
+  gchar               *rc_file, *cf_name = NULL, *rfilter = NULL;
   e_prefs             *prefs;
   gchar              **col_title;
 
@@ -1350,13 +1366,10 @@ main(int argc, char *argv[])
      alert box, so, if we get one of those, it's more likely to come
      up on top of us. */
   if (cf_name) {
-    err = load_cap_file(cf_name, &cf);
-    if (err != 0) {
-      simple_dialog(ESD_TYPE_WARN, NULL, file_open_error_message(err, FALSE),
-		cf_name);
-    }
+    err = load_cap_file(cf_name, rfilter, &cf);
     cf_name[0] = '\0';
-    set_menu_sensitivity("/File/Save As...", TRUE);
+    if (err == 0)
+      set_menu_sensitivity("/File/Save As...", TRUE);
   }
 
   /* If we failed to open the preferences file, pop up an alert box;

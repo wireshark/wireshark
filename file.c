@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.60 1999/08/10 06:54:12 guy Exp $
+ * $Id: file.c,v 1.61 1999/08/10 07:12:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -82,7 +82,6 @@ extern GtkWidget *packet_list, *prog_bar, *info_bar, *byte_view, *tree_view;
 extern guint      file_ctx;
 extern int	  sync_mode;
 extern int        sync_pipe[];
-extern gchar     *rfilter;
 
 guint cap_input_id;
 
@@ -187,7 +186,7 @@ close_cap_file(capture_file *cf, void *w, guint context) {
 }
 
 int
-load_cap_file(char *fname, capture_file *cf) {
+load_cap_file(char *fname, char *rfilter, capture_file *cf) {
   gchar  *name_ptr, *load_msg, *load_fmt = " Loading: %s...";
   gchar  *done_fmt = " File: %s  Drops: %d";
   gchar  *err_fmt  = " Error: Could not load '%s'";
@@ -204,62 +203,75 @@ load_cap_file(char *fname, capture_file *cf) {
     name_ptr = fname;
   else
     name_ptr++;
+
+  rfcode = NULL;
+  if (rfilter)
+    if (dfilter_compile(rfilter, &rfcode) != 0) {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+        "Unable to parse filter string \"%s\".", rfilter);
+      goto fail;
+  }
+
+  err = open_cap_file(fname, cf);
+  if (err != 0) {
+    simple_dialog(ESD_TYPE_WARN, NULL,
+			file_open_error_message(err, FALSE), fname);
+    goto fail;
+  }
+
   load_msg = g_malloc(strlen(name_ptr) + strlen(load_fmt) + 2);
   sprintf(load_msg, load_fmt, name_ptr);
   gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, load_msg);
   
   timeout = gtk_timeout_add(250, file_progress_cb, (gpointer) cf);
 
-  rfcode = NULL;
-  if (rfilter)
-    if (dfilter_compile(rfilter, &rfcode) != 0) {
-      simple_dialog(ESD_TYPE_WARN, NULL,
-      "Unable to parse filter string \"%s\".", rfilter);
-  }
-
-  err = open_cap_file(fname, cf);
-  if ((err == 0) && (cf->cd_t != WTAP_FILE_UNKNOWN)) {
-    freeze_clist(cf);
-    wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);
-    wtap_close(cf->wth);
-    cf->wth = NULL;
-    cf->fh = fopen(fname, "r");
-    thaw_clist(cf);
-  }
+  freeze_clist(cf);
+  wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);
+  wtap_close(cf->wth);
+  cf->wth = NULL;
+  cf->fh = fopen(fname, "r");
+  thaw_clist(cf);
   
   gtk_timeout_remove(timeout);
   gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar), 0);
 
   gtk_statusbar_pop(GTK_STATUSBAR(info_bar), file_ctx);
 
-  if (err == 0) {
-    msg_len = strlen(name_ptr) + strlen(done_fmt) + 64;
-    load_msg = g_realloc(load_msg, msg_len);
+  msg_len = strlen(name_ptr) + strlen(done_fmt) + 64;
+  load_msg = g_realloc(load_msg, msg_len);
 
-    if (cf->user_saved || !cf->save_file)
-	    snprintf(load_msg, msg_len, done_fmt, name_ptr, cf->drops);
-    else
-	    snprintf(load_msg, msg_len, done_fmt, "<none>", cf->drops);
+  if (cf->user_saved || !cf->save_file)
+    snprintf(load_msg, msg_len, done_fmt, name_ptr, cf->drops);
+  else
+    snprintf(load_msg, msg_len, done_fmt, "<none>", cf->drops);
 
-    gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, load_msg);
-    g_free(load_msg);
+  gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, load_msg);
+  g_free(load_msg);
 
-/*    name_ptr[-1] = '\0';  Why is this here? It causes problems with capture files */
+/*  name_ptr[-1] = '\0';  Why is this here? It causes problems with capture files */
 
-    /* Enable menu items that make sense if you have a capture. */
-    set_menu_sensitivity("/File/Close", TRUE);
-    set_menu_sensitivity("/File/Reload", TRUE);
-    set_menu_sensitivity("/File/Print...", TRUE);
-    set_menu_sensitivity("/Display/Options...", TRUE);
-    set_menu_sensitivity("/Tools/Summary", TRUE);
-  } else {
-    msg_len = strlen(name_ptr) + strlen(err_fmt) + 2;
-    load_msg = g_realloc(load_msg, msg_len);
-    snprintf(load_msg, msg_len, err_fmt, name_ptr);
-    gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, load_msg);
-    g_free(load_msg);
-  }
-  return err;
+  /* Remember the new read filter string. */
+  if (cf->rfilter != NULL)
+    g_free(cf->rfilter);
+  cf->rfilter = rfilter;
+
+  /* Enable menu items that make sense if you have a capture. */
+  set_menu_sensitivity("/File/Close", TRUE);
+  set_menu_sensitivity("/File/Reload", TRUE);
+  set_menu_sensitivity("/File/Print...", TRUE);
+  set_menu_sensitivity("/Display/Options...", TRUE);
+  set_menu_sensitivity("/Tools/Summary", TRUE);
+  return 0;
+
+fail:
+  msg_len = strlen(name_ptr) + strlen(err_fmt) + 2;
+  load_msg = g_malloc(msg_len);
+  snprintf(load_msg, msg_len, err_fmt, name_ptr);
+  gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, load_msg);
+  g_free(load_msg);
+  if (rfilter != NULL)
+    g_free(rfilter);	/* assumed to be "g_strdup()"ed, if not null */
+  return -1;
 }
 
 #ifdef HAVE_LIBPCAP

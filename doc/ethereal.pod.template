@@ -121,7 +121,7 @@ Reads packet data from I<file>.
 =item -R
 
 Causes the specified filter (which uses the syntax of display filters,
-rather than that of capture filters) to be applied, when a packet file
+rather than that of capture filters) to be applied, when a capture file
 is read, to all packets read from the capture file; packets not matching
 the filter are discarded.
 
@@ -169,7 +169,10 @@ Sets the default capture file name.
 
 =item File:Open, File:Close, File:Reload
 
-Open, close, or reload a capture file.
+Open, close, or reload a capture file.  The I<File:Open> dialog box
+allows a filter to be specified; when the capture file is read, the
+filter is applied to all packets read from the file, and packets not
+matching the filter are discarded.
 
 =item File:Print
 
