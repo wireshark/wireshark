@@ -56,7 +56,7 @@
 #include "packet-per.h"
 #include "packet-h225.h"
 #include <epan/t35.h>
-#include "h225-persistentdata.h"
+#include <epan/h225-persistentdata.h>
 #include "packet-ber.h"
 #include "packet-h235.h"
 #include "packet-h245.h"

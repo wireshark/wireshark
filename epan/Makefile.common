@@ -46,6 +46,7 @@ LIBETHEREAL_SRC = 		\
 	except.c		\
 	filesystem.c		\
 	frame_data.c		\
+	h225-persistentdata.c	\
 	in_cksum.c		\
 	ipproto.c		\
 	ipv4.c			\
@@ -99,6 +100,7 @@ LIBETHEREAL_INCLUDES = 		\
 	filesystem.h		\
 	frame_data.h		\
 	gdebug.h		\
+	h225-persistentdata.h	\
 	in_cksum.h		\
 	ipproto.h		\
 	ipv4.h			\
@@ -134,7 +136,6 @@ LIBETHEREAL_INCLUDES = 		\
 DISSECTOR_SUPPORT_SRC =	\
 	../asn1.c	\
 	../follow.c	\
-	../h225-persistentdata.c	\
 	../ptvcursor.c	\
 	../reassemble.c	\
 	../xmlstub.c

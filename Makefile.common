@@ -35,7 +35,6 @@ DISSECTOR_SUPPORT_INCLUDES =	\
 	follow.h	\
 	format-oid.h	\
 	greproto.h	\
-	h225-persistentdata.h	\
 	iax2_codec_type.h	\
 	ip_opts.h	\
 	isprint.h	\
