@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.18 1999/11/20 05:35:15 gram Exp $
+ * $Id: resolv.c,v 1.19 1999/11/20 06:05:56 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -583,7 +583,6 @@ static void initialize_ethers(void)
 
   while ((eth = get_ethent(0))) {
     add_manuf_name(eth->addr, eth->name);
-    printf("Add manuf? %02x:%02x:%02x... %s\n", eth->addr[0], eth->addr[1], eth->addr[2], eth->name);
   }
 
   end_ethent();
