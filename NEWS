@@ -9,7 +9,7 @@ Overview of changes in Ethereal 0.8.10:
 * Remove dead tos_str symbol (itojun)
 * More manufacturer ether codes (Gaetan Soltesz <gaetan@cisco.com>)
 * Support for capturing on Linux ATM interfaces (Mark Clayton)
-* NG Sniffer file reading fixes (Joerg)
+* NG Sniffer file reading fixes (Joerg, Guy)
 * Make 'tethereal -h' look similar to 'ethereal -h' (Joerg)
 * Support for "Update list of packets in real time" on Win32 (Graham)
 * Win32 makefile dependency fix (Graham)
@@ -21,7 +21,15 @@ Overview of changes in Ethereal 0.8.10:
 * tvbtest enhancements (Guy)
 * Treat TCP follow temp file as binary, for Win32 (Guy)
 * Read NetXRay 2.002 files (Joerg, Guy)
-
+* Fix octet string buffer overflow in packet-snmp.c (Guy)
+* asn1.c/packet-snmp.c code cleanup (Guy)
+* Variable name ("cf"/"cfile") cleanup (Ben Fowler)
+* GUI-code enhancements (Guy)
+* Wiretap enhancements (Guy)
+* Support for OSI CLTP (Guy)
+* ISAKMP padding fix (Guy)
+* GUI progress bar change (Guy)
+* Debian build-file fix (Olivier)
 
 Overview of changes in Ethereal 0.8.9:
 * Timestamps in RTP summary column (Jason Lango)
