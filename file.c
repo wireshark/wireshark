@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.155 2000/01/24 19:32:13 guy Exp $
+ * $Id: file.c,v 1.156 2000/01/25 00:17:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -245,7 +245,7 @@ set_display_filename(capture_file *cf)
   if (!cf->is_tempfile) {
     /* Get the last component of the file name, and put that in the
        status bar. */
-    if ((name_ptr = (gchar *) strrchr(cf->filename, '/')) == NULL)
+    if ((name_ptr = (gchar *) strrchr(cf->filename, PATH_SEPARATOR)) == NULL)
       name_ptr = cf->filename;
     else
       name_ptr++;
@@ -279,7 +279,7 @@ read_cap_file(capture_file *cf)
   char    errmsg_errno[1024+1];
   gchar   err_str[2048+1];
 
-  if ((name_ptr = (gchar *) strrchr(cf->filename, '/')) == NULL)
+  if ((name_ptr = (gchar *) strrchr(cf->filename, PATH_SEPARATOR)) == NULL)
     name_ptr = cf->filename;
   else
     name_ptr++;
@@ -1320,7 +1320,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
   struct wtap_pkthdr hdr;
   guint8        pd[65536];
 
-  if ((name_ptr = (gchar *) strrchr(fname, '/')) == NULL)
+  if ((name_ptr = (gchar *) strrchr(fname, PATH_SEPARATOR)) == NULL)
     name_ptr = fname;
   else
     name_ptr++;
