@@ -339,7 +339,6 @@ static void register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p 
 	s = g_strdup_printf("%s,tree",st->abbr);
 	
 	register_ethereal_tap(s, init_gtk_tree);
-	g_free(s);
 	
 	st->pr = g_malloc(sizeof(tree_pres));
 	st->pr->text = NULL;
@@ -354,7 +353,7 @@ static void register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p 
 	
 	st->pr->stat_dlg = g_malloc(sizeof(tap_dfilter_dlg));
 	
-	st->pr->stat_dlg->win_title = g_strdup_printf("%s Packet Counter",st->name);
+	st->pr->stat_dlg->win_title = g_strdup_printf("%s Stats Tree",st->name);
 	st->pr->stat_dlg->init_string = g_strdup_printf("%s,tree",st->abbr);
 	st->pr->stat_dlg->tap_init_cb = init_gtk_tree;
 	st->pr->stat_dlg->index = -1;
@@ -365,7 +364,8 @@ static void register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p 
 
 void
 register_tap_listener_stats_tree_stat(void)
-{	
+{
+	
 	stats_tree_presentation(register_gtk_stats_tree_tap,
 							setup_gtk_node_pr, NULL,
 							NULL,
