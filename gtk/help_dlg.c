@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.53 2004/05/23 17:37:36 ulfl Exp $
+ * $Id: help_dlg.c,v 1.54 2004/05/30 11:54:37 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -173,7 +173,7 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
     return;
   }
 
-  help_w = window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: Help");
+  help_w = window_new_with_geom(GTK_WINDOW_TOPLEVEL, "Ethereal: Help", "help");
   gtk_window_set_default_size(GTK_WINDOW(help_w), DEF_WIDTH, DEF_HEIGHT);
   gtk_container_border_width(GTK_CONTAINER(help_w), 2);
 

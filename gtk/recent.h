@@ -2,7 +2,7 @@
  * Definitions for recent "preference" handling routines
  * Copyright 2004, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: recent.h,v 1.8 2004/05/07 08:12:33 ulfl Exp $
+ * $Id: recent.h,v 1.9 2004/05/30 11:54:37 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,5 +61,6 @@ extern int write_recent(char **rf_path_return);
 
 extern void read_recent(char **rf_path_return, int *rf_errno_return);
 
+extern void write_recent_geom(gpointer key, gpointer value, gpointer rf);
 
 #endif /* recent.h */

@@ -2,7 +2,7 @@
  * Recent "preference" handling routines
  * Copyright 2004, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: recent.c,v 1.14 2004/04/27 19:16:11 ulfl Exp $
+ * $Id: recent.c,v 1.15 2004/05/30 11:54:37 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,7 @@
 #include "main.h"
 #include "prefs.h"
 #include "prefs-int.h"
+#include "ui_util.h"
 
 
 #define RECENT_KEY_MAIN_TOOLBAR_SHOW        "gui.toolbar_main_show"
@@ -57,9 +58,10 @@
 #define RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE "gui.geometry_main_lower_pane"
 #define RECENT_GUI_GEOMETRY_STATUS_PANE     "gui.geometry_status_pane"
 #define RECENT_GUI_FILEOPEN_REMEMBERED_DIR  "gui.fileopen_remembered_dir"
-
+#define RECENT_GUI_GEOMETRY "gui.geom."
 
 #define RECENT_FILE_NAME "recent"
+
 
 /* #include "../menu.h" */
 extern void add_menu_recent_capture_file(gchar *file);
@@ -193,6 +195,8 @@ write_recent(char **rf_path_return)
     fprintf(rf, RECENT_GUI_FILEOPEN_REMEMBERED_DIR ": %s\n", last_open_dir);
   }
 
+  window_geom_recent_write_all(rf);
+
   fclose(rf);
 
   /* XXX - catch I/O errors (e.g. "ran out of disk space") and return
@@ -200,6 +204,28 @@ write_recent(char **rf_path_return)
      rename that file on top of the old one only if there are not I/O
      errors. */
   return 0;
+}
+
+
+/* write the geometry values of a window to recent file */
+void 
+write_recent_geom(gpointer key, gpointer value, gpointer rf)
+{
+    window_geometry_t *geom = value;
+
+    fprintf(rf, "\n# Geometry and maximized state (GTK2 only) of %s window.\n", geom->key);
+    fprintf(rf, "# Decimal integers.\n");
+    fprintf(rf, RECENT_GUI_GEOMETRY "%s.x: %d\n", geom->key, geom->x);
+    fprintf(rf, RECENT_GUI_GEOMETRY "%s.y: %d\n", geom->key, geom->y);
+    fprintf(rf, RECENT_GUI_GEOMETRY "%s.width: %d\n", geom->key,
+  	      geom->width);
+    fprintf(rf, RECENT_GUI_GEOMETRY "%s.height: %d\n", geom->key,
+  	      geom->height);
+
+    fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
+    fprintf(rf, RECENT_GUI_GEOMETRY "%s.maximized: %s\n", geom->key,
+	      geom->maximized == TRUE ? "TRUE" : "FALSE");
+
 }
 
 
@@ -286,6 +312,15 @@ read_set_recent_pair(gchar *key, gchar *value)
 
   } else if (strcmp(key, RECENT_GUI_FILEOPEN_REMEMBERED_DIR) == 0) {
     set_last_open_dir(value);
+  } else if (strncmp(key, RECENT_GUI_GEOMETRY, sizeof(RECENT_GUI_GEOMETRY)-1) == 0) {
+    /* now have something like "gui.geom.main.x", split it into win and sub_key */
+    char *win = &key[sizeof(RECENT_GUI_GEOMETRY)-1];
+    char *sub_key = strchr(win, '.');
+    if(sub_key) {
+      *sub_key = '\0';
+      sub_key++;
+      window_geom_recent_read_pair(win, sub_key, value);
+    }
   }
 
   return PREFS_SET_OK;

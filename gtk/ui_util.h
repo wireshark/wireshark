@@ -1,7 +1,7 @@
 /* ui_util.h
  * Definitions for UI utility routines
  *
- * $Id: ui_util.h,v 1.10 2004/05/23 17:37:36 ulfl Exp $
+ * $Id: ui_util.h,v 1.11 2004/05/30 11:54:37 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,6 +24,7 @@
 
 #ifndef __GTKGUIUI_UTIL_H__
 #define __GTKGUIUI_UTIL_H__
+
 
 /* Some words about windows / dialogs.
  * 
@@ -69,6 +70,10 @@
  * title title to show, will also set the window class for saving size etc. */
 extern GtkWidget *window_new(GtkWindowType type, const gchar *title);
 
+/* Same as window_new(), but will keep it's geometry values (size, position, ...).
+ * Be sure to use window_present() and window_destroy() appropriately! */
+extern GtkWidget *window_new_with_geom(GtkWindowType type, const gchar *title, const gchar *geom_name);
+
 /* Present the created window. This will put the window on top and 
  * (if available) set previously saved position and size. */
 extern void window_present(GtkWidget *win);
@@ -79,7 +84,7 @@ typedef void (*window_cancel_button_fct) (GtkWidget *w, gpointer data);
 extern void window_set_cancel_button(GtkWidget *win, GtkWidget *bt, window_cancel_button_fct cb);
 
 /* Remember current window position and size and then destroy the window,
- * call this instead of gtk_widget_destroy(); */
+ * it's important to call this instead of gtk_widget_destroy(); */
 extern void window_destroy(GtkWidget *win);
 
 /* default callback handler for cancel button "clicked" signal, 
@@ -101,7 +106,7 @@ typedef struct window_geometry_s {
     gint        width;
     gint        height;
 
-    gboolean    set_maximized;
+    gboolean    set_maximized;/* this is valid in GTK2 only */
     gboolean    maximized;    /* this is valid in GTK2 only */
 } window_geometry_t;
 
@@ -110,8 +115,11 @@ extern void window_get_geometry(GtkWidget *win, window_geometry_t *geom);
 /* set the geometry of a window from window_new() */
 extern void window_set_geometry(GtkWidget *win, window_geometry_t *geom);
 
-/* load the geometry values for a window from previously saved values */
-extern gboolean window_load_geom(GtkWidget *win, window_geometry_t *geom);
+/* write all geometry values of all windows to the recent file */
+extern void window_geom_recent_write_all(gpointer rf);
+
+/* read in a single geometry key value pair from the recent file */
+extern void window_geom_recent_read_pair(const char *name, const char *key, const char *value);
 
 /* Given a pointer to a GtkWidget for a top-level window, raise it and
    de-iconify it.  This routine is used if the user has done something to

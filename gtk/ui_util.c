@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.26 2004/05/26 03:49:24 ulfl Exp $
+ * $Id: ui_util.c,v 1.27 2004/05/30 11:54:37 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,13 +45,22 @@
 #include "epan/epan.h"
 #include "../ui_util.h"
 #include "compat_macros.h"
+#include "recent.h"
+
 
 #include "image/eicon3d16.xpm"
 
 /* XXX - remove this later again, when dlg_xx function cleanup done */
 #include "dlg_utils.h"
 
-#define WIN_REG_KEY "win_reg_key"
+
+#define WINDOW_GEOM_KEY "window_geom"
+
+
+/* load the geometry values for a window from previously saved values */
+static gboolean window_geom_load(const gchar *name, window_geometry_t *geom);
+
+
 
 /* Set our window icon.  The GDK documentation doesn't provide any
    actual documentation for gdk_window_set_icon(), so we'll steal
@@ -128,11 +137,6 @@ window_new(GtkWindowType type, const gchar *title)
     gtk_window_set_title(GTK_WINDOW(win), title);
   SIGNAL_CONNECT(win, "realize", window_icon_realize_cb, NULL);
 
-  /* register this window title (it might change later!) */
-  if(title && strlen(title)) {
-    OBJECT_SET_DATA(win, WIN_REG_KEY, g_strdup(title));
-  }
-
   /* XXX - which one is the correct default policy? or use a preference for this? */
   /* GTK_WIN_POS_NONE, GTK_WIN_POS_CENTER or GTK_WIN_POS_MOUSE */
 
@@ -141,18 +145,47 @@ window_new(GtkWindowType type, const gchar *title)
 
 #if GTK_MAJOR_VERSION < 2
   /* allow window to be shrinked by user, as gtk_widget_set_usize() will set minimum size and */
-  /* the user never couldn't shrink the window again */
+  /* the user never could shrink the window again */
   gtk_window_set_policy(GTK_WINDOW(win), TRUE, TRUE, FALSE);
 #endif
 
   return win;
 }
 
+
+/* Same as window_new(), but will keep it's geometry values (size, position, ...).
+ * Be sure to use window_present() and window_destroy() appropriately! */
+GtkWidget *
+window_new_with_geom(GtkWindowType type, const gchar *title, const gchar *geom_name)
+{
+  window_geometry_t geom;
+  GtkWidget *win = window_new(type, title);
+
+  OBJECT_SET_DATA(win, WINDOW_GEOM_KEY, geom_name);
+
+  /* do we have a previously saved size and position of this window? */
+  if(geom_name) {
+    /* It's a good idea to set the position and size of the window already here,
+     * as it's still invisible and won't "flicker the screen" while initially resizing. */
+    if(window_geom_load(geom_name, &geom)) {
+      /* XXX - use prefs to select which values to set? */
+      geom.set_pos        = TRUE;
+      geom.set_size       = TRUE;
+      geom.set_maximized  = FALSE;  /* don't maximize until window is shown */
+      window_set_geometry(win, &geom);
+    }
+  }
+
+  return win;
+}
+
+
 /* Present the created window on the screen. */
 void
 window_present(GtkWidget *win)
 {
   window_geometry_t geom;
+  const gchar *name;
 
 #if GTK_MAJOR_VERSION >= 2
   /* present this window */
@@ -160,12 +193,15 @@ window_present(GtkWidget *win)
 #endif
 
   /* do we have a previously saved size and position of this window? */
-  if(window_load_geom(win, &geom)) {
-    /* XXX - use prefs to select which values to set? */
-    geom.set_pos        = TRUE;
-    geom.set_size       = TRUE;
-    geom.set_maximized  = TRUE;
-    window_set_geometry(win, &geom);
+  name = OBJECT_GET_DATA(win, WINDOW_GEOM_KEY);
+  if(name) {
+    if(window_geom_load(name, &geom)) {
+      /* XXX - use prefs to select which values to set? */
+      geom.set_pos        = TRUE;
+      geom.set_size       = TRUE;
+      geom.set_maximized  = TRUE;
+      window_set_geometry(win, &geom);
+    }
   }
 }
 
@@ -319,82 +355,141 @@ window_set_geometry(GtkWidget *widget, window_geometry_t *geom)
 #endif
 }
 
-/* the hashtable for all known window classes,
- * the initial window title is the key, and the geometry is the value */
-GHashTable *window_class_hash = NULL;
+
+/* the geometry hashtable for all known window classes,
+ * the window name is the key, and the geometry struct is the value */
+GHashTable *window_geom_hash = NULL;
 
 
-/* save the window and it's current geometry into the hashtable */
+/* save the window and it's current geometry into the geometry hashtable */
 static void
-window_save_geom(GtkWidget *win, window_geometry_t *geom)
+window_geom_save(const gchar *name, window_geometry_t *geom)
 {
-    gchar *reg;
     gchar *key;
     window_geometry_t *work;
 
-    reg = OBJECT_GET_DATA(win, WIN_REG_KEY);
-    if(reg) {
-        /* init hashtable, if not already done */
-        if(!window_class_hash) {
-            window_class_hash = g_hash_table_new (g_str_hash, g_str_equal);
-        }
-        /* if we have an old one, remove and free it first */
-        work = g_hash_table_lookup(window_class_hash, reg);
-        if(work) {
-            g_hash_table_remove(window_class_hash, reg);
-            g_free(work->key);
-            g_free(work);
-        }
-
-        /* malloc and insert the new one */
-        work = g_malloc(sizeof(*geom));
-        *work = *geom;
-        key = g_strdup(reg);
-        work->key = key;
-        g_hash_table_insert(window_class_hash, key, work);
+    /* init hashtable, if not already done */
+    if(!window_geom_hash) {
+        window_geom_hash = g_hash_table_new (g_str_hash, g_str_equal);
     }
+    /* if we have an old one, remove and free it first */
+    work = g_hash_table_lookup(window_geom_hash, name);
+    if(work) {
+        g_hash_table_remove(window_geom_hash, name);
+        g_free(work->key);
+        g_free(work);
+    }
+
+    /* malloc and insert the new one */
+    work = g_malloc(sizeof(*geom));
+    *work = *geom;
+    key = g_strdup(name);
+    work->key = key;
+    g_hash_table_insert(window_geom_hash, key, work);
 }
 
 
-/* load the desired geometry for this window from the hashtable */
-gboolean
-window_load_geom(GtkWidget *win, window_geometry_t *geom)
+/* load the desired geometry for this window from the geometry hashtable */
+static gboolean
+window_geom_load(const gchar *name, window_geometry_t *geom)
 {
-    gchar *reg;
     window_geometry_t *p;
 
-    reg = OBJECT_GET_DATA(win, WIN_REG_KEY);
-    if(reg) {
-        /* init hashtable, if not already done */
-        if(!window_class_hash) {
-            window_class_hash = g_hash_table_new (g_str_hash, g_str_equal);
-        }
-
-        p = g_hash_table_lookup(window_class_hash, reg);
-        if(p) {
-            *geom = *p;
-            return TRUE;
-        }
+    /* init hashtable, if not already done */
+    if(!window_geom_hash) {
+        window_geom_hash = g_hash_table_new (g_str_hash, g_str_equal);
     }
-    return FALSE;
+
+    p = g_hash_table_lookup(window_geom_hash, name);
+    if(p) {
+        *geom = *p;
+        return TRUE;
+    } else {
+        return FALSE;
+    }
 }
+
+
+/* read in a single key value pair from the recent file into the geometry hashtable */
+void
+window_geom_recent_read_pair(const char *name, const char *key, const char *value)
+{
+    window_geometry_t geom;
+
+
+    /* find window geometry maybe already in hashtable */
+    if(!window_geom_load(name, &geom)) {
+        /* not in table, init geom with "basic" values */
+        geom.key        = g_strdup(name);
+        geom.set_pos    = FALSE;
+        geom.x          = -1;
+        geom.y          = -1;
+        geom.set_size   = FALSE;
+        geom.width      = -1;
+        geom.height     = -1;
+
+        geom.set_maximized = FALSE;/* this is valid in GTK2 only */
+        geom.maximized  = FALSE;   /* this is valid in GTK2 only */
+    }
+    
+    if (strcmp(key, "x") == 0) {
+        geom.x = strtol(value, NULL, 10);
+        geom.set_pos = TRUE;
+    } else if (strcmp(key, "y") == 0) {
+        geom.y = strtol(value, NULL, 10);
+        geom.set_pos = TRUE;
+    } else if (strcmp(key, "width") == 0) {
+        geom.width = strtol(value, NULL, 10);
+        geom.set_size = TRUE;
+    } else if (strcmp(key, "height") == 0) {
+        geom.height = strtol(value, NULL, 10);
+        geom.set_size = TRUE;
+    } else if (strcmp(key, "maximized") == 0) {
+        if (strcasecmp(value, "true") == 0) {
+            geom.maximized = TRUE;
+        }
+        else {
+            geom.maximized = FALSE;
+        }
+        geom.set_maximized = TRUE;
+    } else {
+        g_assert_not_reached();
+    }
+
+    /* save / replace geometry in hashtable */
+    window_geom_save(name, &geom);
+}
+
+
+/* write all geometry values of all windows from the hashtable to the recent file */
+void
+window_geom_recent_write_all(gpointer rf)
+{
+    /* init hashtable, if not already done */
+    if(!window_geom_hash) {
+        window_geom_hash = g_hash_table_new (g_str_hash, g_str_equal);
+    }
+
+    g_hash_table_foreach(window_geom_hash, write_recent_geom, rf);
+}
+
 
 void
 window_destroy(GtkWidget *win)
 {
   window_geometry_t geom;
-  gchar * title;
+  const gchar *name;
 
   /* this must be done *before* destroy is running, as the window geometry */
   /* cannot be retrieved at destroy time (so don't use event "destroy" for this) */
   window_get_geometry(win, &geom);
-  window_save_geom(win, &geom);
 
-  title = OBJECT_GET_DATA(win, WIN_REG_KEY);
+  name = OBJECT_GET_DATA(win, WINDOW_GEOM_KEY);
+  if(name) {
+    window_geom_save(name, &geom);
+  }
 
   gtk_widget_destroy(win);
-
-  g_free(title);
 }
 
 
