@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.120 2003/05/10 02:29:44 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.121 2003/05/14 22:09:52 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -398,6 +398,11 @@ static int hf_dcerpc_fragment_multiple_tails = -1;
 static int hf_dcerpc_fragment_too_long_fragment = -1;
 static int hf_dcerpc_fragment_error = -1;
 static int hf_dcerpc_reassembled_in = -1;
+static int hf_dcerpc_sec_chan = -1;
+static int hf_dcerpc_sec_chan_sig = -1;
+static int hf_dcerpc_sec_chan_unk = -1;
+static int hf_dcerpc_sec_chan_seq = -1;
+static int hf_dcerpc_sec_chan_nonce = -1;
 
 static gint ett_dcerpc = -1;
 static gint ett_dcerpc_cn_flags = -1;
@@ -409,6 +414,7 @@ static gint ett_dcerpc_string = -1;
 static gint ett_dcerpc_fragments = -1;
 static gint ett_dcerpc_fragment = -1;
 static gint ett_decrpc_krb5_auth_verf = -1;
+static gint ett_sec_chan = -1;
 
 static dissector_handle_t ntlmssp_handle, ntlmssp_verf_handle,
   ntlmssp_enc_payload_handle;
@@ -1774,6 +1780,31 @@ dissect_dcerpc_verifier (tvbuff_t *tvb, packet_info *pinfo,
             break;
             }
     
+        case DCE_C_RPC_AUTHN_PROTOCOL_SEC_CHAN: {
+          proto_item *vf = NULL;
+          proto_tree *volatile sec_chan_tree = NULL;
+          /*
+           * Create a new tree, and split into 4 components ...
+           */
+          vf = proto_tree_add_item(dcerpc_tree, hf_dcerpc_sec_chan, tvb, 
+              auth_offset, -1, FALSE);
+          sec_chan_tree = proto_item_add_subtree(vf, ett_sec_chan);
+
+          proto_tree_add_item(sec_chan_tree, hf_dcerpc_sec_chan_sig, tvb, 
+              auth_offset, 8, FALSE);
+
+          proto_tree_add_item(sec_chan_tree, hf_dcerpc_sec_chan_unk, tvb, 
+              auth_offset + 8, 8, FALSE);
+
+          proto_tree_add_item(sec_chan_tree, hf_dcerpc_sec_chan_seq, tvb, 
+              auth_offset + 16, 8, FALSE);
+
+          proto_tree_add_item(sec_chan_tree, hf_dcerpc_sec_chan_nonce, tvb, 
+              auth_offset + 24, 8, FALSE);
+
+          break;
+        }
+
         default:
             proto_tree_add_text (dcerpc_tree, tvb, auth_offset, hdr->auth_len,
                                  "Auth Verifier");
@@ -1856,6 +1887,15 @@ dissect_dcerpc_cn_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 
 		call_dissector(gssapi_handle, gssapi_tvb, pinfo, dcerpc_tree);
 
+		break;
+	    }
+
+	    case DCE_C_RPC_AUTHN_PROTOCOL_SEC_CHAN: {
+
+		/* TODO: Fill me in when we know what goes here */
+
+		proto_tree_add_text (dcerpc_tree, tvb, offset, hdr->auth_len,
+				     "Secure Channel Auth Credentials");
 		break;
 	    }
 
@@ -4136,7 +4176,22 @@ proto_register_dcerpc (void)
 	{ &hf_dcerpc_time, 
 	  { "Time from request", "dcerpc.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0, "Time between Request and Reply for DCE-RPC calls", HFILL }},
 	{ &hf_dcerpc_reassembled_in,
-	  { "This PDU is reassembled in", "dcerpc.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "The DCE/RPC PDU is completely reassembled in this frame", HFILL }}
+	  { "This PDU is reassembled in", "dcerpc.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "The DCE/RPC PDU is completely reassembled in this frame", HFILL }},
+        { &hf_dcerpc_sec_chan,
+          { "Verifier", "verifier", FT_NONE, BASE_NONE, NULL, 0x0, "Verifier",
+          HFILL }},
+        { &hf_dcerpc_sec_chan_sig,
+          { "Signature", "dcerpc.sec_chan.sig", FT_BYTES, BASE_HEX, NULL, 
+          0x0, "Signature", HFILL }}, 
+        { &hf_dcerpc_sec_chan_unk,
+          { "Unknown", "dcerpc.sec_chan.unk", FT_BYTES, BASE_HEX, NULL, 
+          0x0, "Unknown", HFILL }}, 
+        { &hf_dcerpc_sec_chan_seq,
+          { "Sequence No", "dcerpc.sec_chan.seq", FT_BYTES, BASE_HEX, NULL, 
+          0x0, "Sequence No", HFILL }}, 
+        { &hf_dcerpc_sec_chan_nonce,
+          { "Nonce", "dcerpc.sec_chan.nonce", FT_BYTES, BASE_HEX, NULL, 
+          0x0, "Nonce", HFILL }}, 
 
    };
     static gint *ett[] = {
@@ -4150,6 +4205,7 @@ proto_register_dcerpc (void)
         &ett_dcerpc_fragments,
         &ett_dcerpc_fragment,
         &ett_decrpc_krb5_auth_verf,
+        &ett_sec_chan,
     };
     module_t *dcerpc_module;
 
