@@ -514,7 +514,7 @@ This GDB was configured as "i686-pc-cygwin".]]>
 	</para>
 	</section>
 
-	<section id="ChToolsGDB">
+	<section id="ChToolsDDD">
 	<title>Unix: GNU DDD</title>
 	<para>
 	The GNU Data Display Debugger is a good GUI frontend for gdb (and a lot of 
