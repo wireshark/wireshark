@@ -1,4 +1,4 @@
-$Id: README,v 1.41 2000/08/22 06:50:04 gram Exp $
+$Id: README,v 1.42 2000/08/24 23:33:09 guy Exp $
 
 General Information
 ------- -----------
@@ -214,17 +214,23 @@ a trace file along with your bug description. Please don't send a trace file
 greater than 1 MB when compressed. If the trace file contains sensitive
 information (e.g., passwords), then please do not send it.
 
-If Ethereal died on you with a 'segmentation violation', you can help the
-developers a lot if you have a debugger installed. A stack trace can be
-obtained by using your debugger ('gdb' in this example), the ethereal binary,
-and the resulting core file. Here's an example of how to use the gdb
-command 'backtrace' to do so.
+If Ethereal died on you with a 'segmentation violation', 'bus error',
+'abort', or other error that produces a UNIX core dump file, you can
+help the developers a lot if you have a debugger installed.  A stack
+trace can be obtained by using your debugger ('gdb' in this example),
+the ethereal binary, and the resulting core file.  Here's an example of
+how to use the gdb command 'backtrace' to do so.
 
 $ gdb ethereal core
 (gdb) backtrace
 ..... prints the stack trace
 (gdb) quit
 $
+
+The core dump file may be named "ethereal.core" rather than "core" on
+some platforms (e.g., BSD systems).  If you got a core dump with
+Tethereal rather than Ethereal, use "tethereal" as the first argument to
+the debugger; the core dump may be named "tethereal.core".
 
 Disclaimer
 ----------
