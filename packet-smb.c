@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.137 2001/11/08 08:21:12 guy Exp $
+ * $Id: packet-smb.c,v 1.138 2001/11/08 10:34:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -222,6 +222,7 @@ static int hf_smb_offset = -1;
 static int hf_smb_remaining = -1;
 static int hf_smb_padding = -1;
 static int hf_smb_file_data = -1;
+static int hf_smb_total_data_len = -1;
 static int hf_smb_data_len = -1;
 static int hf_smb_seek_mode = -1;
 static int hf_smb_data_size = -1;
@@ -258,7 +259,11 @@ static int hf_smb_number_of_unlocks = -1;
 static int hf_smb_lock_long_offset = -1;
 static int hf_smb_lock_long_length = -1;
 static int hf_smb_file_type = -1;
-static int hf_smb_device_state = -1;
+static int hf_smb_ipc_state_nonblocking = -1;
+static int hf_smb_ipc_state_endpoint = -1;
+static int hf_smb_ipc_state_pipe_type = -1;
+static int hf_smb_ipc_state_read_mode = -1;
+static int hf_smb_ipc_state_icount = -1;
 static int hf_smb_server_fid = -1;
 static int hf_smb_open_flags_add_info = -1;
 static int hf_smb_open_flags_ex_oplock = -1;
@@ -404,6 +409,7 @@ static gint ett_smb_unlock = -1;
 static gint ett_smb_locks = -1;
 static gint ett_smb_lock = -1;
 static gint ett_smb_open_flags = -1;
+static gint ett_smb_ipc_state = -1;
 static gint ett_smb_open_action = -1;
 static gint ett_smb_setup_action = -1;
 static gint ett_smb_connect_flags = -1;
@@ -2542,6 +2548,30 @@ dissect_read_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 }
 
 static int
+dissect_file_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 bc, guint16 datalen)
+{
+	int tvblen;
+
+	if(bc>datalen){
+		/* We have some initial padding bytes. */
+		/* XXX - use the data offset here instead? */
+		proto_tree_add_item(tree, hf_smb_padding, tvb, offset, bc-datalen,
+			TRUE);
+		offset += bc-datalen;
+		bc = datalen;
+	}
+	tvblen = tvb_length_remaining(tvb, offset);
+	if(bc>tvblen){
+		proto_tree_add_bytes_format(tree, hf_smb_file_data, tvb, offset, tvblen, tvb_get_ptr(tvb, offset, tvblen),"File Data: Incomplete. Only %d of %u bytes", tvblen, bc);
+		offset += tvblen;
+	} else {
+		proto_tree_add_item(tree, hf_smb_file_data, tvb, offset, bc, TRUE);
+		offset += bc;
+	}
+	return offset;
+}
+
+static int
 dissect_read_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint16 cnt=0, bc;
@@ -2572,14 +2602,7 @@ dissect_read_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	if (bc != 0) {
 		/* file data */
-		int len = tvb_length_remaining(tvb, offset);
-		if(bc>len){
-			proto_tree_add_bytes_format(tree, hf_smb_file_data, tvb, offset, len, tvb_get_ptr(tvb, offset, len),"File Data: Incomplete. Only %u of %u bytes", len, bc);
-			offset += len;
-		} else {
-			proto_tree_add_item(tree, hf_smb_file_data, tvb, offset, bc, TRUE);
-			offset += bc;
-		}
+		offset = dissect_file_data(tvb, pinfo, tree, offset, bc, bc);
 		bc = 0;
 	}
 
@@ -2662,14 +2685,7 @@ dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	if (bc != 0) {
 		/* file data */
-		int len = tvb_length_remaining(tvb, offset);
-		if(bc>len){
-			proto_tree_add_bytes_format(tree, hf_smb_file_data, tvb, offset, len, tvb_get_ptr(tvb, offset, len),"File Data: Incomplete. Only %d of %d bytes", len, bc);
-			offset += len;
-		} else {
-			proto_tree_add_item(tree, hf_smb_file_data, tvb, offset, bc, TRUE);
-			offset += bc;
-		}
+		offset = dissect_file_data(tvb, pinfo, tree, offset, bc, bc);
 		bc = 0;
 	}
 
@@ -2928,7 +2944,6 @@ dissect_query_information2_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	return offset;
 }
- 
 
 static int
 dissect_write_and_close_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
@@ -2936,7 +2951,6 @@ dissect_write_and_close_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	guint8 wc;
 	guint16 cnt=0;
 	guint16 bc;
-	int len;
 
 	WORD_COUNT;
 
@@ -2969,17 +2983,7 @@ dissect_write_and_close_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	proto_tree_add_item(tree, hf_smb_padding, tvb, offset, 1, TRUE);
 	COUNT_BYTES(1);
 	
-	/*XXX Do we have to do something like in dissect_read_file_response()?
-	      Must check some captures. */
-	/* file data */
-	len = tvb_length_remaining(tvb, offset);
-	if(cnt>len){
-		proto_tree_add_bytes_format(tree, hf_smb_file_data, tvb, offset, len, tvb_get_ptr(tvb, offset, len),"File Data: Incomplete. Only %d of %d bytes", len, cnt);
-		offset += len;
-	} else {
-		proto_tree_add_item(tree, hf_smb_file_data, tvb, offset, cnt, TRUE);
-		offset += cnt;
-	}
+	offset = dissect_file_data(tvb, pinfo, tree, offset, cnt, cnt);
 	bc = 0;	/* XXX */
 
 	END_OF_SMB
@@ -3166,22 +3170,7 @@ dissect_read_mpx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	BYTE_COUNT;
 
 	/* file data */
-	if(bc>datalen){
-		/* We have some initial padding bytes. */
-		/* XXX - use the data offset here instead? */
-		proto_tree_add_item(tree, hf_smb_padding, tvb, offset, bc-datalen,
-			TRUE);
-		offset += bc-datalen;
-		bc = datalen;
-	}
-	tvblen = tvb_length_remaining(tvb, offset);
-	if(bc>tvblen){
-		proto_tree_add_bytes_format(tree, hf_smb_file_data, tvb, offset, tvblen, tvb_get_ptr(tvb, offset, tvblen),"File Data: Incomplete. Only %d of %d bytes", tvblen, bc);
-		offset += tvblen;
-	} else {
-		proto_tree_add_item(tree, hf_smb_file_data, tvb, offset, bc, TRUE);
-		offset += bc;
-	}
+	offset = dissect_file_data(tvb, pinfo, tree, offset, bc, datalen);
 	bc = 0;
 
 	END_OF_SMB
@@ -3248,8 +3237,8 @@ dissect_write_raw_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
 	offset += 2;
 
-	/* count */
-	proto_tree_add_item(tree, hf_smb_count, tvb, offset, 2, TRUE);
+	/* total data length */
+	proto_tree_add_item(tree, hf_smb_total_data_len, tvb, offset, 2, TRUE);
 	offset += 2;
 
 	/* 2 reserved bytes */
@@ -3284,22 +3273,8 @@ dissect_write_raw_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	BYTE_COUNT;
 
 	/* file data */
-	if(bc>datalen){
-		/* We have some initial padding bytes. */
-		/* XXX - use the data offset here instead? */
-		proto_tree_add_item(tree, hf_smb_padding, tvb, offset, bc-datalen,
-			TRUE);
-		offset += bc-datalen;
-		bc = datalen;
-	}
-	tvblen = tvb_length_remaining(tvb, offset);
-	if(bc>tvblen){
-		proto_tree_add_bytes_format(tree, hf_smb_file_data, tvb, offset, tvblen, tvb_get_ptr(tvb, offset, tvblen),"File Data: Incomplete. Only %d of %d bytes", tvblen, bc);
-		offset += tvblen;
-	} else {
-		proto_tree_add_item(tree, hf_smb_file_data, tvb, offset, bc, TRUE);
-		offset += bc;
-	}
+	/* XXX - use the data offset to determine where the data starts? */
+	offset = dissect_file_data(tvb, pinfo, tree, offset, bc, datalen);
 	bc = 0;
 
 	END_OF_SMB
@@ -3325,25 +3300,6 @@ dissect_write_raw_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	return offset;
 }
- 
-static int
-dissect_write_mpx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
-{
-	guint8 wc;
-	guint16 bc;
-
-	WORD_COUNT;
-
-	/* response mask */
-	proto_tree_add_item(tree, hf_smb_response_mask, tvb, offset, 4, TRUE);
-	offset += 4;
-	
-	BYTE_COUNT;
-
-	END_OF_SMB
-
-	return offset;
-}
 
 static int
 dissect_write_mpx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
@@ -3359,8 +3315,8 @@ dissect_write_mpx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
 	offset += 2;
 
-	/* count */
-	proto_tree_add_item(tree, hf_smb_count, tvb, offset, 2, TRUE);
+	/* total data length */
+	proto_tree_add_item(tree, hf_smb_total_data_len, tvb, offset, 2, TRUE);
 	offset += 2;
 
 	/* 2 reserved bytes */
@@ -3395,23 +3351,28 @@ dissect_write_mpx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	BYTE_COUNT;
 
 	/* file data */
-	if(bc>datalen){
-		/* We have some initial padding bytes. */
-		/* XXX - use the data offset here instead? */
-		proto_tree_add_item(tree, hf_smb_padding, tvb, offset, bc-datalen,
-			TRUE);
-		offset += bc-datalen;
-		bc = datalen;
-	}
-	tvblen = tvb_length_remaining(tvb, offset);
-	if(bc>tvblen){
-		proto_tree_add_bytes_format(tree, hf_smb_file_data, tvb, offset, tvblen, tvb_get_ptr(tvb, offset, tvblen),"File Data: Incomplete. Only %d of %d bytes", tvblen, bc);
-		offset += tvblen;
-	} else {
-		proto_tree_add_item(tree, hf_smb_file_data, tvb, offset, bc, TRUE);
-		offset += bc;
-	}
+	/* XXX - use the data offset to determine where the data starts? */
+	offset = dissect_file_data(tvb, pinfo, tree, offset, bc, datalen);
 	bc = 0;
+
+	END_OF_SMB
+
+	return offset;
+}
+ 
+static int
+dissect_write_mpx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
+{
+	guint8 wc;
+	guint16 bc;
+
+	WORD_COUNT;
+
+	/* response mask */
+	proto_tree_add_item(tree, hf_smb_response_mask, tvb, offset, 4, TRUE);
+	offset += 4;
+	
+	BYTE_COUNT;
 
 	END_OF_SMB
 
@@ -4105,6 +4066,57 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	return offset;
 }
 
+static const true_false_string tfs_ipc_state_nonblocking = {
+	"Reads/writes return immediately if no data available",
+	"Reads/writes block if no data available"
+};
+static const value_string ipc_state_endpoint_vals[] = {
+	{ 0,		"Consumer end of pipe"},
+	{ 1,		"Server end of pipe"},
+	{0,	NULL}
+};
+static const value_string ipc_state_pipe_type_vals[] = {
+	{ 0,		"Byte stream pipe"},
+	{ 1,		"Message pipe"},
+	{0,	NULL}
+};
+static const value_string ipc_state_read_mode_vals[] = {
+	{ 0,		"Read pipe as a byte stream"},
+	{ 1,		"Read messages from pipe"},
+	{0,	NULL}
+};
+
+static int
+dissect_ipc_state(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+{
+	guint16 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	mask = tvb_get_letohs(tvb, offset);
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
+			"IPC State: 0x%04x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_ipc_state);
+	}
+
+	proto_tree_add_boolean(tree, hf_smb_ipc_state_nonblocking,
+		tvb, offset, 2, mask);
+	proto_tree_add_uint(tree, hf_smb_ipc_state_endpoint,
+		tvb, offset, 2, mask);
+	proto_tree_add_uint(tree, hf_smb_ipc_state_pipe_type,
+		tvb, offset, 2, mask);
+	proto_tree_add_uint(tree, hf_smb_ipc_state_read_mode,
+		tvb, offset, 2, mask);
+	proto_tree_add_uint(tree, hf_smb_ipc_state_icount,
+		tvb, offset, 2, mask);
+
+	offset += 2;
+
+	return offset;
+}
+
 static int
 dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
@@ -4152,14 +4164,8 @@ dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_item(tree, hf_smb_file_type, tvb, offset, 2, TRUE);
 	offset += 2;
 
-	/* Device State */
-	/*
-	 * XXX - dissect this according to the stuff on page 67 of
-	 *
-	 *	ftp://ftp.microsoft.com/developr/drg/CIFS/dosextp.txt
-	 */
-	proto_tree_add_item(tree, hf_smb_device_state, tvb, offset, 2, TRUE);
-	offset += 2;
+	/* IPC State */
+	offset = dissect_ipc_state(tvb, pinfo, tree, offset);
 
 	/* open_action */
 	offset = dissect_open_action(tvb, pinfo, tree, offset);
@@ -4224,7 +4230,7 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	proto_tree_add_item(tree, hf_smb_min_count, tvb, offset, 2, TRUE);
 	offset += 2;
 
-	/* 4 reserved bytes */
+	/* XXX - max count high */
 	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, TRUE);
 	offset += 4;
 
@@ -4252,7 +4258,7 @@ static int
 dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8	wc, cmd=0xff;
-	guint16 andxoffset=0, bc, cnt=0;
+	guint16 andxoffset=0, bc, datalen=0;
 	int len;
 
 	WORD_COUNT;
@@ -4288,8 +4294,8 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 2;
 
 	/* data len */
-	cnt = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_smb_data_len, tvb, offset, 2, cnt);
+	datalen = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_data_len, tvb, offset, 2, datalen);
 	offset += 2;
 
 	/* data offset */
@@ -4303,21 +4309,7 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	BYTE_COUNT;
 
 	/* file data */
-	if(bc>cnt){
-		/* We have some initial padding bytes. */
-		/* XXX - use the data offset here instead? */
-	        proto_tree_add_item(tree, hf_smb_padding, tvb, offset, bc-cnt, TRUE);
-		offset += bc-cnt;
-		bc = cnt;
-	}
-	len = tvb_length_remaining(tvb, offset);
-	if(bc>len){
-		proto_tree_add_bytes_format(tree, hf_smb_file_data, tvb, offset, len, tvb_get_ptr(tvb, offset, len),"File Data: Incomplete. Only %d of %d bytes", len, bc);
-		offset += len;
-	} else {
-		proto_tree_add_item(tree, hf_smb_file_data, tvb, offset, bc, TRUE);
-		offset += bc;
-	}
+	offset = dissect_file_data(tvb, pinfo, tree, offset, bc, datalen);
 	bc = 0;
 
 	END_OF_SMB
@@ -5757,7 +5749,7 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	guint8 wc, sc;
 	guint32 pc=0, po=0, pd, dc=0, od=0, dd;
 	smb_info_t *si;
-	static nt_trans_data ntd;
+	nt_trans_data ntd;
 	guint16 bc;
 	int padcnt;
 
@@ -6062,10 +6054,8 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo, int offset, p
 		proto_tree_add_item(tree, hf_smb_file_type, tvb, offset, 2, TRUE);
 		offset += 2;
 
-		/* device type */
-		/* XXX is this a 16 or 32 bit integer? need to check the spec*/
-		proto_tree_add_item(tree, hf_smb_device_type, tvb, offset, 4, TRUE);
-		offset += 4;
+		/* device state */
+		offset = dissect_ipc_state(tvb, pinfo, tree, offset);
 
 		/* is directory */
 		proto_tree_add_item(tree, hf_smb_is_directory, tvb, offset, 1, TRUE);
@@ -11643,6 +11633,10 @@ proto_register_smb(void)
 		{ "File Data", "smb.file.data", FT_BYTES, BASE_HEX,
 		NULL, 0, "Data read/written to the file", HFILL }},
 
+	{ &hf_smb_total_data_len,
+		{ "Total Data Length", "smb.total_data_len", FT_UINT16, BASE_DEC,
+		NULL, 0, "Total length of data", HFILL }},
+
 	{ &hf_smb_data_len,
 		{ "Data Length", "smb.data_len", FT_UINT16, BASE_DEC,
 		NULL, 0, "Length of data", HFILL }},
@@ -11795,9 +11789,25 @@ proto_register_smb(void)
 		{ "File Type", "smb.file_type", FT_UINT16, BASE_DEC,
 		VALS(filetype_vals), 0, "Type of file", HFILL }},
 
-	{ &hf_smb_device_state,
-		{ "Device State", "smb.device_state", FT_UINT16, BASE_HEX,
-		NULL, 0, "Device State", HFILL }},
+	{ &hf_smb_ipc_state_nonblocking,
+		{ "Nonblocking", "smb.ipc_state.nonblocking", FT_BOOLEAN, 16,
+		TFS(&tfs_ipc_state_nonblocking), 0x8000, "Is I/O to this pipe nonblocking?", HFILL }},
+
+	{ &hf_smb_ipc_state_endpoint,
+		{ "Endpoint", "smb.ipc_state.endpoint", FT_UINT16, BASE_DEC,
+		VALS(ipc_state_endpoint_vals), 0x4000, "Which end of the pipe this is", HFILL }},
+
+	{ &hf_smb_ipc_state_pipe_type,
+		{ "Pipe Type", "smb.ipc_state.pipe_type", FT_UINT16, BASE_DEC,
+		VALS(ipc_state_pipe_type_vals), 0x0c00, "What type of pipe this is", HFILL }},
+
+	{ &hf_smb_ipc_state_read_mode,
+		{ "Read Mode", "smb.ipc_state.read_mode", FT_UINT16, BASE_DEC,
+		VALS(ipc_state_read_mode_vals), 0x0300, "How this pipe should be read", HFILL }},
+
+	{ &hf_smb_ipc_state_icount,
+		{ "Icount", "smb.ipc_state.icount", FT_UINT16, BASE_DEC,
+		NULL, 0x00FF, "Count to control pipe instancing", HFILL }},
 
 	{ &hf_smb_server_fid,
 		{ "Server FID", "smb.server_fid", FT_UINT32, BASE_HEX,
@@ -12291,6 +12301,7 @@ proto_register_smb(void)
 		&ett_smb_locks,
 		&ett_smb_lock,
 		&ett_smb_open_flags,
+		&ett_smb_ipc_state,
 		&ett_smb_open_action,
 		&ett_smb_setup_action,
 		&ett_smb_connect_flags,
