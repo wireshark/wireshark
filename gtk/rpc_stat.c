@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.12 2003/06/22 04:00:21 gerald Exp $
+ * $Id: rpc_stat.c,v 1.13 2003/08/19 10:09:20 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,6 +43,7 @@
 #include "compat_macros.h"
 #include "service_response_time_table.h"
 
+extern GtkWidget   *main_display_filter_widget;
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _rpcstat_t {
@@ -351,6 +352,7 @@ static void
 gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	int i;
+	char *filter;
 
 	/* if the window is already open, bring it to front */
 	if(dlg){
@@ -424,6 +426,10 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	filter_entry=gtk_entry_new_with_max_length(250);
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_entry, FALSE, FALSE, 0);
+	filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
+	if(filter){
+		gtk_entry_set_text(GTK_ENTRY(filter_entry), filter);
+	}
 	gtk_widget_show(filter_entry);
 
 	gtk_box_pack_start(GTK_BOX(dlg_box), filter_box, TRUE, TRUE, 0);

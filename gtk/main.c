@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.304 2003/08/07 00:41:28 guy Exp $
+ * $Id: main.c,v 1.305 2003/08/19 10:09:20 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -129,6 +129,7 @@ typedef struct column_arrows {
 } column_arrows;
 
 capture_file cfile;
+GtkWidget   *main_display_filter_widget=NULL;
 GtkWidget   *top_level, *packet_list, *tree_view, *byte_nb_ptr,
             *tv_scrollw, *pkt_scrollw;
 static GtkWidget	*info_bar;
@@ -2728,6 +2729,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_combo_set_case_sensitive(GTK_COMBO(filter_cm), TRUE);
     OBJECT_SET_DATA(filter_cm, E_DFILTER_FL_KEY, filter_list);
     filter_te = GTK_COMBO(filter_cm)->entry;
+    main_display_filter_widget=filter_te;
     OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);
     OBJECT_SET_DATA(filter_te, E_DFILTER_CM_KEY, filter_cm);
     gtk_box_pack_start(GTK_BOX(stat_hbox), filter_cm, TRUE, TRUE, 3);

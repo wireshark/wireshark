@@ -1,7 +1,7 @@
 /* fc_stat.c
  * fc_stat   2003 Ronnie Sahlberg
  *
- * $Id: fc_stat.c,v 1.1 2003/06/25 11:15:34 sahlberg Exp $
+ * $Id: fc_stat.c,v 1.2 2003/08/19 10:09:20 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,6 +46,8 @@
 #include "../file.h"
 #include "../globals.h"
 #include "service_response_time_table.h"
+
+extern GtkWidget   *main_display_filter_widget;
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _fcstat_t {
@@ -205,6 +207,8 @@ fcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 static void
 gtk_fcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 {
+	char *filter;
+
 	/* if the window is already open, bring it to front */
 	if(dlg){
 		gdk_window_raise(dlg->window);
@@ -229,6 +233,10 @@ gtk_fcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	filter_entry=gtk_entry_new_with_max_length(250);
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_entry, FALSE, FALSE, 0);
+	filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
+	if(filter){
+		gtk_entry_set_text(GTK_ENTRY(filter_entry), filter);
+	}
 	gtk_widget_show(filter_entry);
 
 	gtk_box_pack_start(GTK_BOX(dlg_box), filter_box, TRUE, TRUE, 0);
