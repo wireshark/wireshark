@@ -8,11 +8,6 @@
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
- * is a dissector file; if you just copied this from README.developer,
- * don't bother with the "Copied from" - you don't even need to put
- * in a "Copied from" if you copied an existing dissector, especially
- * if the bulk of the code in the new dissector is your code)
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -184,37 +179,6 @@ static value_string iapp_auth_type_vals[] = {
   {0, NULL}};
 
 
-static gchar textbuffer[2000];
-
-static gchar*
-iaconvertbufftostr(gchar *dest, tvbuff_t *tvb, int offset, int length)
-{
-/*converts the raw buffer into printable text */
-	guint32 i;
-	guint32 totlen=0;
-	const guint8 *pd = tvb_get_ptr(tvb, offset, length);
-
-        dest[0]='"';
-        dest[1]=0;
-        totlen=1;
-        for (i=0; i < (guint32)length; i++)
-        {
-                if( isalnum((int)pd[i])||ispunct((int)pd[i])
-                                ||((int)pd[i]==' '))            {
-                        dest[totlen]=(gchar)pd[i];
-                        totlen++;
-                }
-                else
-                {
-                        sprintf(&(dest[totlen]), "\\%03o", pd[i]);
-                        totlen=totlen+strlen(&(dest[totlen]));
-                }
-        }
-        dest[totlen]='"';
-        dest[totlen+1]=0;
-        return dest;
-}
-
 /* dissect a capability bit field */
 
 static void dissect_caps(proto_item *pitem, tvbuff_t *tvb, int offset)
@@ -244,23 +208,22 @@ static void dissect_caps(proto_item *pitem, tvbuff_t *tvb, int offset)
 	}
 }
 
-static gchar*
-authval_to_str(int type, int len, tvbuff_t *tvb, int offset)
+static void
+append_authval_str(proto_item *ti, int type, int len, tvbuff_t *tvb, int offset)
 {
-	gchar *run;
 	int z, val;
 
-	run = textbuffer;
-	run += sprintf(run, "Value: ");
+	proto_item_append_text(ti, " Value: ");
 
 	switch (type)
 	{
 		case IAPP_AUTH_STATUS:
-			strcpy(textbuffer, tvb_get_guint8(tvb, offset + 3) ? "Authenticated" : "Not authenticated");
+			proto_item_append_text(ti, "%s", tvb_get_guint8(tvb, offset + 3) ? "Authenticated" : "Not authenticated");
 			break;
 		case IAPP_AUTH_USERNAME:
 		case IAPP_AUTH_PROVNAME:
-			iaconvertbufftostr(run, tvb, offset + 3, len);
+			proto_item_append_text(ti, "\"%s\"",
+				tvb_format_text(tvb, offset + 3, len));
 			break;
 		case IAPP_AUTH_RXPKTS:
 		case IAPP_AUTH_TXPKTS:
@@ -270,28 +233,24 @@ authval_to_str(int type, int len, tvbuff_t *tvb, int offset)
 		case IAPP_AUTH_TXGWORDS:
 		case IAPP_AUTH_VOLLIMIT:
 			val = tvb_get_ntohl(tvb, offset + 3);
-			run += sprintf(run, "%d", val);
+			proto_item_append_text(ti, "%d", val);
 			break;
 		case IAPP_AUTH_LOGINTIME:
 		case IAPP_AUTH_TIMELIMIT:
 		case IAPP_AUTH_ACCCYCLE:
 			val = tvb_get_ntohl(tvb, offset + 3);
-                        run += sprintf(run, "%d seconds", val);
+			proto_item_append_text(ti, "%d seconds", val);
 			break;
 		case IAPP_AUTH_IPADDR:
-			run += sprintf(run, "%d.%d.%d.%d",
-				tvb_get_guint8(tvb, offset + 3),
-				tvb_get_guint8(tvb, offset + 4),
-				tvb_get_guint8(tvb, offset + 5),
-				tvb_get_guint8(tvb, offset + 6));
+			proto_item_append_text(ti, "%s",
+				ip_to_str(tvb_get_ptr(tvb, offset + 3, 4)));
 			break;
 		case IAPP_AUTH_TRAILER:
 			for (z = 0; z < len; z++)
-			run += sprintf(run, " %02x", tvb_get_guint8(tvb, offset + 3 + z));
+				proto_item_append_text(ti, "%s%02x", z ? " " : "",
+					tvb_get_guint8(tvb, offset + 3 + z));
 			break;
 	}
-
-	return textbuffer;
 }
 
 /* dissect authentication info */
@@ -299,8 +258,8 @@ authval_to_str(int type, int len, tvbuff_t *tvb, int offset)
 static void dissect_authinfo(proto_item *pitem, tvbuff_t *tvb, int offset, int sumlen)
 {
 	proto_tree *authtree;
+	proto_item *ti;
         e_pduhdr pduhdr;
-	gchar *authstrval, *valstr;
 	int len;
 
 	authtree = proto_item_add_subtree(pitem, ett_iapp_auth);
@@ -310,11 +269,12 @@ static void dissect_authinfo(proto_item *pitem, tvbuff_t *tvb, int offset, int s
 		tvb_memcpy(tvb, (guint8 *)&pduhdr, offset, sizeof(e_pduhdr));
 		len = (((int)pduhdr.pdu_len_h) << 8) + pduhdr.pdu_len_l;
 
-		authstrval = val_to_str(pduhdr.pdu_type, iapp_auth_type_vals,
-			"Unknown PDU Type");
-		valstr = authval_to_str(pduhdr.pdu_type, len, tvb, offset);
-		proto_tree_add_text(authtree, tvb, offset, len + 3, "%s(%d) %s",
-			authstrval, pduhdr.pdu_type, valstr);
+		ti = proto_tree_add_text(authtree, tvb, offset, len + 3,
+			"%s(%d)",
+			val_to_str(pduhdr.pdu_type, iapp_auth_type_vals,
+				"Unknown PDU Type"),
+			pduhdr.pdu_type);
+		append_authval_str(ti, pduhdr.pdu_type, len, tvb, offset);
 
 		sumlen -= (len + 3);
 		offset += (len + 3);
@@ -323,37 +283,35 @@ static void dissect_authinfo(proto_item *pitem, tvbuff_t *tvb, int offset, int s
 
 /* get displayable values of PDU contents */
 
-static int is_fhss = 0;
-
-static gchar*
-pduval_to_str(int type, int len, tvbuff_t *tvb, int offset)
+static gboolean
+append_pduval_str(proto_item *ti, int type, int len, tvbuff_t *tvb, int offset,
+	gboolean is_fhss)
 {
-	gchar *run;
 	const guint8 *mac;
 	int z, val;
 	gchar *strval;
 
-	run = textbuffer;
-	run += sprintf(run, "Value: ");
+	proto_item_append_text(ti, " Value: ");
 
 	switch (type)
 	{
 		case IAPP_PDU_SSID:
-			iaconvertbufftostr(run, tvb, offset + 3, len);
+			proto_item_append_text(ti, "\"%s\"",
+				tvb_format_text(tvb, offset + 3, len));
 			break;
 		case IAPP_PDU_BSSID:
 		case IAPP_PDU_OLDBSSID:
 		case IAPP_PDU_MSADDR:
 			mac = tvb_get_ptr(tvb, offset + 3, len);
 			for (z = 0; z < len; z++)
-				run += sprintf(run, "%s%02x", z ? ":" : "", mac[z]);
+				proto_item_append_text(ti, "%s%02x", z ? ":" : "", mac[z]);
 			break;
 		case IAPP_PDU_CAPABILITY:
 		{
 			int mask, first = 1;
 
 			val = tvb_get_guint8(tvb, offset + 3);
-			run += sprintf(run, "%02x (", val);
+			proto_item_append_text(ti, "%02x (", val);
 			for (mask = 0x80; mask; mask >>= 1)
 				if (val & mask)
 				{
@@ -361,54 +319,53 @@ pduval_to_str(int type, int len, tvbuff_t *tvb, int offset)
 					if (strval)
 					{
 						if (!first)
-							run += sprintf(run, " ");
-						run += sprintf(run, strval);
+							proto_item_append_text(ti, " ");
+						proto_item_append_text(ti, strval);
 					}
 				}
-			run += sprintf(run, ")");
+			proto_item_append_text(ti, ")");
 			break;
 		}
 		case IAPP_PDU_ANNOUNCEINT:
 			val = tvb_get_ntohs(tvb, offset + 3);
-			run += sprintf(run, "%d seconds", val);
+			proto_item_append_text(ti, "%d seconds", val);
 			break;
 		case IAPP_PDU_HOTIMEOUT:
 		case IAPP_PDU_BEACONINT:
 			val = tvb_get_ntohs(tvb, offset + 3);
-			run += sprintf(run, "%d Kus", val);
+			proto_item_append_text(ti, "%d Kus", val);
 			break;
 		case IAPP_PDU_MESSAGEID:
 			val = tvb_get_ntohs(tvb, offset + 3);
-			run += sprintf(run, "%d", val);
+			proto_item_append_text(ti, "%d", val);
 			break;
 		case IAPP_PDU_PHYTYPE:
 			val = tvb_get_guint8(tvb, offset + 3);
 			strval = val_to_str(val, iapp_phy_vals, "Unknown");
-			run += sprintf(run, strval);
+			proto_item_append_text(ti, "%s", strval);
                         is_fhss = (val == IAPP_PHY_FHSS);
 			break;
 		case IAPP_PDU_REGDOMAIN:
 			val = tvb_get_guint8(tvb, offset + 3);
 			strval = val_to_str(val, iapp_dom_vals, "Unknown");
-			run += sprintf(run, strval);
+			proto_item_append_text(ti, "%s", strval);
 			break;
 		case IAPP_PDU_CHANNEL:
 			val = tvb_get_guint8(tvb, offset + 3);
 			if (is_fhss)
-				run += sprintf(run, "Pattern set %d, sequence %d",
+				proto_item_append_text(ti, "Pattern set %d, sequence %d",
 						((val >> 6) & 3) + 1, (val & 31) + 1);
 			else
-				run += sprintf(run, "%d", val);
+				proto_item_append_text(ti, "%d", val);
 			break;
 		case IAPP_PDU_OUIIDENT:
 			for (val = z = 0; z < 3; z++)
 				val = (val << 8) | tvb_get_guint8(tvb, offset + 3 + z);
 			strval = val_to_str(val, oui_vals, "Unknown");
-			run += sprintf(run, strval);
+			proto_item_append_text(ti, "%s", strval);
 			break;
 	}
-
-	return textbuffer;
+	return is_fhss;
 }
 
 /* code to dissect a list of PDUs */
@@ -418,8 +375,8 @@ dissect_pdus(tvbuff_t *tvb, int offset, proto_tree *pdutree, int pdulen)
 {
 	e_pduhdr pduhdr;
 	int len;
-	gchar *pdustrval, *valstr;
 	proto_item *ti;
+	gboolean is_fhss;
 
 	if (!pdulen)
 	{
@@ -427,16 +384,19 @@ dissect_pdus(tvbuff_t *tvb, int offset, proto_tree *pdutree, int pdulen)
 		return;
 	}
 
+	is_fhss = FALSE;
 	while (pdulen > 0)
 	{
 		tvb_memcpy(tvb, (guint8 *)&pduhdr, offset, sizeof(e_pduhdr));
 		len = (((int)pduhdr.pdu_len_h) << 8) + pduhdr.pdu_len_l;
 
-		pdustrval = val_to_str(pduhdr.pdu_type, iapp_pdu_type_vals,
-			"Unknown PDU Type");
-		valstr = pduval_to_str(pduhdr.pdu_type, len, tvb, offset);
-		ti = proto_tree_add_text(pdutree, tvb, offset, len + 3, "%s(%d) %s",
-			pdustrval, pduhdr.pdu_type, valstr);
+		ti = proto_tree_add_text(pdutree, tvb, offset, len + 3,
+			"%s(%d)",
+			val_to_str(pduhdr.pdu_type, iapp_pdu_type_vals,
+				"Unknown PDU Type"),
+			pduhdr.pdu_type);
+		is_fhss = append_pduval_str(ti, pduhdr.pdu_type, len, tvb,
+			offset, is_fhss);
 
 		if (pduhdr.pdu_type == IAPP_PDU_CAPABILITY)
 			dissect_caps(ti, tvb, offset);
