@@ -1,7 +1,8 @@
-GLIB_DIR=T:\w32-ix86\glib
-LOCAL_CFLAGS=
 
-#################3
+include ..\config.nmake
+
+############### no need to modify below this line #########
+
 CFLAGS=/DHAVE_CONFIG_H /I$(GLIB_DIR) $(LOCAL_CFLAGS)
 
 OBJECTS=ascend-grammar.obj \
@@ -23,9 +24,16 @@ OBJECTS=ascend-grammar.obj \
 	toshiba.obj \
 	wtap.obj
 
-
 libwtap.lib	: config.h $(OBJECTS)
-	lib /out:libwtap.lib $(OBJECTS)	
+	lib /out:libwtap.lib $(OBJECTS)
+
+ascend-grammar.c ascend-grammar.h : ascend-grammar.y
+	$(YACC) $(YACC_OPTS) -d -p ascend ascend-grammar.y -o ascend-grammar.c
+
+ascend-scanner.obj : ascend-scanner.c ascend-grammar.h
+
+ascend-scanner.c : ascend-scanner.l
+	$(LEX) -Pascend -t ascend-scanner.l > ascend-scanner.c 
 
 
 config.h	: config.h.win32

@@ -1,13 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: nmake -f makefile.nmake
 
-GTK_VERSION=1.3
-GLIB_VERSION=1.3
-
-GLIB_DIR=T:\w32-ix86\glib
-GTK_DIR=T:\w32-ix86\gtk+
-
-LOCAL_CFLAGS=
+include config.nmake
 
 ############### no need to modify below this line #########
 
@@ -166,12 +160,13 @@ EXTRA_ethereal_OBJECTS = \
 
 LIBS= wiretap\libwtap.lib gtk\libui.lib wsock32.lib \
 	$(GTK_DIR)\gtk\gtk-$(GTK_VERSION).lib \
-	$(GTK_DIR)\gdk\gdk-$(GTK_VERSION).lib \
+	$(GTK_DIR)\gdk\win32\gdk-$(GTK_VERSION).lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
 	$(GLIB_DIR)\gmodule-$(GLIB_VERSION).lib
 
+all: ethereal.exe plugins\plugins_api.obj
 
-ethereal.exe	: config.h $(ethereal_OBJECTS) $(EXTRA_ethereal_OBJECTS)
+ethereal.exe	: config.h $(ethereal_OBJECTS) $(EXTRA_ethereal_OBJECTS) wiretap\libwtap.lib gtk\libui.lib
 	$(LINK) @<<
 		$(LDFLAGS) $(LIBS) $(ethereal_OBJECTS) $(EXTRA_ethereal_OBJECTS)
 <<
@@ -181,4 +176,30 @@ config.h	: config.h.win32
 
 ps.c	: rdps.exe print.ps
 	rdps print.ps ps.c
+
+dfilter-scanner.obj : dfilter-scanner.c dfilter-grammar.h
+
+dfilter-scanner.c : dfilter-scanner.l
+	$(LEX) -Pdfilter_ -t dfilter-scanner.l > dfilter-scanner.c 
+
+dfilter-grammar.c dfilter-grammer.h : dfilter-grammar.y
+	$(YACC) $(YACC_OPTS) -d -p dfilter_ dfilter-grammar.y -o dfilter-grammar.c
+
+clean:
+	rm -f $(ethereal_OBJECTS) $(EXTRA_ethereal_OBJECTS) ethereal.exe
+
+wiretap\libwtap.lib::
+	cd wiretap
+	nmake -f Makefile.nmake
+	cd ..
+
+gtk\libui.lib::
+	cd gtk
+	nmake -f Makefile.nmake
+	cd ..
+
+plugins\plugins_api.obj::
+	cd plugins
+	nmake -f Makefile.nmake
+	cd ..
 

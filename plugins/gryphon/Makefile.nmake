@@ -1,0 +1,12 @@
+include ..\..\config.nmake
+
+############### no need to modify below this line #########
+
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../wiretap \
+	/I$(GLIB_DIR) /I$(GTK_DIR) /I$(GLIB_DIR)/gmodule \
+	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 $(LOCAL_CFLAGS)
+
+OBJECTS=packet-gryphon.obj 
+
+gryphon.dll gryphon.exp gryphon.lib : packet-gryphon.obj
+	link -dll /out:gryphon.dll packet-gryphon.obj ../plugin_api.obj

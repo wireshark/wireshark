@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.4 2000/01/25 02:11:30 guy Exp $
+$Id: README.win32,v 1.5 2000/02/09 00:41:02 gram Exp $
 
 Ethereal can be compiled on Win32 platforms. Some libraries are
 needed, however.
@@ -40,22 +40,26 @@ Ethereal yet.
 
 Zlib (or 'libz') is available for Win32 from
 http://www.winimage.com/zLibDll/
+but also has not been made to work successfully with Ethereal.
 
 Instructions for MS Visual C
 ----------------------------
-Modify the top lines of Makefile.nmake, wiretap/Makefile.nmake, and
-gtk/Makefile.nmake to point to your glib and gtk directories.
+Modify the config.nmake file in the top directory of the Ethereal
+source tree to work for your local configuration. You should not
+have to modify any other Makefile.
 
 Be sure that your command-line environment is set up to compile
 and linke with MSVC. When installing MSVC, you can have your
 system's environment set up to always allow compiling from the
 command line, or you can invoke the vcvars32.bat script.
 
-In the wiretap directory, type "nmake -f makefile.nmake"
-In the gtk directory, type "nmake -f makefile.nmake"
-Then in the ethereal directory, type "nmake -f makefile.nmake"
+In the ethereal directory, type "nmake -f makefile.nmake". It will
+recurse into the subdirectories as appropriate.
 
-You must set your HOME environment variable for ethereal to work.
+To do a full build, you will need bison, flex, and bash. However,
+you can first build on Unix to create the source files that these
+tools make, then run the build on Windows. That will avoid the need
+for these tools on your Windows computer.
 
 Make sure the glib and gtk DLL's are in your path when you run
 ethereal. This includes gtk-*.dll, glib-*.dll, gmodule-*.dll, gdk-*.dll,

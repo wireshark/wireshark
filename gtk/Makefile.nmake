@@ -1,9 +1,7 @@
-GLIB_DIR=T:\w32-ix86\glib
-GTK_DIR=T:\w32-ix86\gtk+
+include ..\config.nmake
 
-LOCAL_CFLAGS=
+############### no need to modify below this line #########
 
-#################3
 CFLAGS=/DHAVE_CONFIG_H /I.. /I../wiretap \
 	/I$(GLIB_DIR) /I$(GTK_DIR) /I$(GLIB_DIR)/gmodule \
 	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 $(LOCAL_CFLAGS)
