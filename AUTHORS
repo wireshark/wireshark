@@ -427,7 +427,7 @@ Dug Song <dugsong[AT]monkey.org> {
 	RPCSEC_GSS credential/verifier dissection for ONC RPC
 }
 
-Michael Tuexen <Michael.Tuexen[AT]icn.siemens.de> {
+Michael Tuexen <Michael.Tuexen [AT] siemens.com> {
 	SCTP support
 	M3UA support
 	ISDN Q.921-User Adaptation Layer (IUA) support
