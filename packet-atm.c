@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.33 2001/04/15 07:30:02 guy Exp $
+ * $Id: packet-atm.c,v 1.34 2001/05/27 04:50:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,7 +38,6 @@
 #include "resolv.h"
 
 #include "packet-snmp.h"
-#include "packet-sscop.h"
 
 static int proto_atm = -1;
 static int hf_atm_vpi = -1;
@@ -57,6 +56,7 @@ static gint ett_ilmi = -1;
 static dissector_handle_t eth_handle;
 static dissector_handle_t tr_handle;
 static dissector_handle_t llc_handle;
+static dissector_handle_t sscop_handle;
 
 /*
  * See
@@ -716,7 +716,7 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   switch (aal_type) {
 
   case ATT_AAL_SIGNALLING:
-    dissect_sscop(tvb, pinfo, tree);
+    call_dissector(sscop_handle, tvb, pinfo, tree);
     break;
 
   case ATT_AAL5:
@@ -789,11 +789,13 @@ void
 proto_reg_handoff_atm(void)
 {
 	/*
-	 * Get handles for the Ethernet, Token Ring, and LLC dissectors.
+	 * Get handles for the Ethernet, Token Ring, LLC, and SSCOP
+	 * dissectors.
 	 */
 	eth_handle = find_dissector("eth");
 	tr_handle = find_dissector("tr");
 	llc_handle = find_dissector("llc");
+	sscop_handle = find_dissector("sscop");
 
 	dissector_add("wtap_encap", WTAP_ENCAP_ATM_SNIFFER, dissect_atm,
 	    proto_atm);

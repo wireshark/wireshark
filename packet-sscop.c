@@ -2,7 +2,7 @@
  * Routines for SSCOP (Q.2110, Q.SAAL) frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sscop.c,v 1.13 2001/01/03 06:55:33 guy Exp $
+ * $Id: packet-sscop.c,v 1.14 2001/05/27 04:50:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -132,7 +132,7 @@ static const value_string sscop_type_vals[] = {
 #define	SSCOP_SS_N_MR	(reported_length - 8)	/* lower 3 bytes thereof */
 #define	SSCOP_SS_N_R	(reported_length - 4)	/* lower 3 bytes thereof */
 
-void
+static void
 dissect_sscop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint reported_length;
@@ -143,10 +143,6 @@ dissect_sscop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int pdu_len;
   int pad_len;
   tvbuff_t *next_tvb;
-
-  CHECK_DISPLAY_AS_DATA(proto_sscop, tvb, pinfo, tree);
-
-  pinfo->current_proto = "SSCOP";
 
   reported_length = tvb_reported_length(tvb);	/* frame length */
   sscop_pdu_type = tvb_get_guint8(tvb, SSCOP_PDU_TYPE);
@@ -324,4 +320,5 @@ proto_register_sscop(void)
 	};
 	proto_sscop = proto_register_protocol("SSCOP", "SSCOP", "sscop");
 	proto_register_subtree_array(ett, array_length(ett));
+	register_dissector("sscop", dissect_sscop, proto_sscop);
 }

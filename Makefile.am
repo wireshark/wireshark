@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.324 2001/05/25 16:17:22 guy Exp $
+# $Id: Makefile.am,v 1.325 2001/05/27 04:50:51 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -322,7 +322,6 @@ noinst_HEADERS = \
 	packet-sna.h   \
 	packet-snmp.h	\
 	packet-spray.h \
-	packet-sscop.h \
 	packet-stat.h   \
 	packet-stat-notify.h \
 	packet-tcp.h   \
