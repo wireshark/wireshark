@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.66 2000/03/23 00:38:10 guy Exp $
+ * $Id: packet.c,v 1.67 2000/03/26 06:57:40 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1152,6 +1152,52 @@ dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
  			dissect_v120(pd, fd, tree);
  			break;
 	}
+}
+
+gint p_compare(gconstpointer a, gconstpointer b)
+{
+
+  if (((frame_proto_data *)a) -> proto > ((frame_proto_data *)b) -> proto)
+    return 1;
+  else if (((frame_proto_data *)a) -> proto == ((frame_proto_data *)b) -> proto)
+    return 0;
+  else
+    return -1;
+
+}
+
+void
+p_add_proto_data(frame_data *fd, int proto, void *proto_data)
+{
+  frame_proto_data *p1 = malloc(sizeof(frame_proto_data)); /* FIXME */
+ 
+  g_assert(p1 != NULL);
+
+  p1 -> proto = proto;
+  p1 -> proto_data = proto_data;
+
+  /* Allocate a frame_proto_data struct and then add it to the GSLIST */
+
+
+  fd -> pfd = g_slist_insert_sorted(fd -> pfd,
+				    (gpointer *)p1,
+				    p_compare);
+
+}
+
+void *
+p_get_proto_data(frame_data *fd, int proto)
+{
+
+  return(NULL);
+
+}
+
+void
+p_rem_proto_data(frame_data *fd, int proto)
+{
+
+
 }
 
 void

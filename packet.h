@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.174 2000/03/08 06:47:51 guy Exp $
+ * $Id: packet.h,v 1.175 2000/03/26 06:57:41 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -114,6 +114,11 @@ typedef enum {
 	CHAR_EBCDIC	/* EBCDIC */
 } char_enc;
 
+typedef struct _frame_proto_data {
+  int proto;
+  void *proto_data;
+} frame_proto_data;
+
 /* XXX - some of this stuff is used only while a packet is being dissected;
    should we keep around a separate data structure for that, to save
    memory?
@@ -123,6 +128,7 @@ typedef enum {
 typedef struct _frame_data {
   struct _frame_data *next; /* Next element in list */
   struct _frame_data *prev; /* Previous element in list */
+  GSList *pfd;              /* Per frame proto data */
   guint32      num;       /* Frame number */
   guint32      pkt_len;   /* Packet length */
   guint32      cap_len;   /* Amount actually captured */
@@ -253,6 +259,9 @@ void       col_add_str(frame_data *, gint, const gchar *);
 void       col_append_str(frame_data *, gint, gchar *);
 void       col_set_cls_time(frame_data *, int);
 void       fill_in_columns(frame_data *);
+
+void       p_add_proto_data(frame_data *, int, void *);
+void       *p_get_proto_data(frame_data *, int);
 
 void blank_packetinfo(void);
 
