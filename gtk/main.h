@@ -1,7 +1,7 @@
 /* main.h
  * Global defines, etc.
  *
- * $Id: main.h,v 1.26 2002/01/11 08:21:02 guy Exp $
+ * $Id: main.h,v 1.27 2002/08/24 01:17:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,30 +61,30 @@ typedef struct _selection_info {
 extern GtkStyle *item_style;
 
 void about_ethereal( GtkWidget *, gpointer);
-void match_selected_cb_replace( GtkWidget *, gpointer);
-void match_selected_cb_and( GtkWidget *, gpointer);
-void match_selected_cb_or( GtkWidget *, gpointer);
-void match_selected_cb_not( GtkWidget *, gpointer);
-void match_selected_cb_and_not( GtkWidget *, gpointer);
-void match_selected_cb_or_not( GtkWidget *, gpointer);
-void prepare_selected_cb_replace( GtkWidget *, gpointer);
-void prepare_selected_cb_and( GtkWidget *, gpointer);
-void prepare_selected_cb_or( GtkWidget *, gpointer);
-void prepare_selected_cb_not( GtkWidget *, gpointer);
-void prepare_selected_cb_and_not( GtkWidget *, gpointer);
-void prepare_selected_cb_or_not( GtkWidget *, gpointer);
-void match_selected_cb_replace2( GtkWidget *, gpointer);
-void match_selected_cb_and2( GtkWidget *, gpointer);
-void match_selected_cb_or2( GtkWidget *, gpointer);
-void match_selected_cb_not2( GtkWidget *, gpointer);
-void match_selected_cb_and_not2( GtkWidget *, gpointer);
-void match_selected_cb_or_not2( GtkWidget *, gpointer);
-void prepare_selected_cb_replace2( GtkWidget *, gpointer);
-void prepare_selected_cb_and2( GtkWidget *, gpointer);
-void prepare_selected_cb_or2( GtkWidget *, gpointer);
-void prepare_selected_cb_not2( GtkWidget *, gpointer);
-void prepare_selected_cb_and_not2( GtkWidget *, gpointer);
-void prepare_selected_cb_or_not2( GtkWidget *, gpointer);
+void match_selected_cb_replace_ptree( GtkWidget *, gpointer);
+void match_selected_cb_and_ptree( GtkWidget *, gpointer);
+void match_selected_cb_or_ptree( GtkWidget *, gpointer);
+void match_selected_cb_not_ptree( GtkWidget *, gpointer);
+void match_selected_cb_and_ptree_not( GtkWidget *, gpointer);
+void match_selected_cb_or_ptree_not( GtkWidget *, gpointer);
+void prepare_selected_cb_replace_ptree( GtkWidget *, gpointer);
+void prepare_selected_cb_and_ptree( GtkWidget *, gpointer);
+void prepare_selected_cb_or_ptree( GtkWidget *, gpointer);
+void prepare_selected_cb_not_ptree( GtkWidget *, gpointer);
+void prepare_selected_cb_and_ptree_not( GtkWidget *, gpointer);
+void prepare_selected_cb_or_ptree_not( GtkWidget *, gpointer);
+void match_selected_cb_replace_plist( GtkWidget *, gpointer);
+void match_selected_cb_and_plist( GtkWidget *, gpointer);
+void match_selected_cb_or_plist( GtkWidget *, gpointer);
+void match_selected_cb_not_plist( GtkWidget *, gpointer);
+void match_selected_cb_and_plist_not( GtkWidget *, gpointer);
+void match_selected_cb_or_plist_not( GtkWidget *, gpointer);
+void prepare_selected_cb_replace_plist( GtkWidget *, gpointer);
+void prepare_selected_cb_and_plist( GtkWidget *, gpointer);
+void prepare_selected_cb_or_plist( GtkWidget *, gpointer);
+void prepare_selected_cb_not_plist( GtkWidget *, gpointer);
+void prepare_selected_cb_and_plist_not( GtkWidget *, gpointer);
+void prepare_selected_cb_or_plist_not( GtkWidget *, gpointer);
 void file_quit_cmd_cb(GtkWidget *, gpointer);
 void file_print_cmd_cb(GtkWidget *, gpointer);
 void file_print_packet_cmd_cb(GtkWidget *, gpointer);

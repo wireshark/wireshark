@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.257 2002/08/02 22:34:53 jmayer Exp $
+ * $Id: main.c,v 1.258 2002/08/24 01:17:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -284,7 +284,7 @@ match_selected_cb_do(gpointer data, int action, gchar *text)
 }
 
 void
-match_selected_cb_replace(GtkWidget *w, gpointer data)
+match_selected_cb_replace_ptree(GtkWidget *w, gpointer data)
 {
     if (finfo_selected)
 	match_selected_cb_do((data ? data : w),
@@ -293,7 +293,7 @@ match_selected_cb_replace(GtkWidget *w, gpointer data)
 }
 
 void
-match_selected_cb_and(GtkWidget *w, gpointer data)
+match_selected_cb_and_ptree(GtkWidget *w, gpointer data)
 {
     if (finfo_selected)
 	match_selected_cb_do((data ? data : w),
@@ -302,7 +302,7 @@ match_selected_cb_and(GtkWidget *w, gpointer data)
 }
 
 void
-match_selected_cb_or(GtkWidget *w, gpointer data)
+match_selected_cb_or_ptree(GtkWidget *w, gpointer data)
 {
     if (finfo_selected)
 	match_selected_cb_do((data ? data : w),
@@ -311,7 +311,7 @@ match_selected_cb_or(GtkWidget *w, gpointer data)
 }
 
 void
-match_selected_cb_not(GtkWidget *w, gpointer data)
+match_selected_cb_not_ptree(GtkWidget *w, gpointer data)
 {
     if (finfo_selected)
 	match_selected_cb_do((data ? data : w),
@@ -320,7 +320,7 @@ match_selected_cb_not(GtkWidget *w, gpointer data)
 }
 
 void
-match_selected_cb_and_not(GtkWidget *w, gpointer data)
+match_selected_cb_and_ptree_not(GtkWidget *w, gpointer data)
 {
     if (finfo_selected)
 	match_selected_cb_do((data ? data : w),
@@ -329,7 +329,7 @@ match_selected_cb_and_not(GtkWidget *w, gpointer data)
 }
 
 void
-match_selected_cb_or_not(GtkWidget *w, gpointer data)
+match_selected_cb_or_ptree_not(GtkWidget *w, gpointer data)
 {
     if (finfo_selected)
 	match_selected_cb_do((data ? data : w),
@@ -338,7 +338,7 @@ match_selected_cb_or_not(GtkWidget *w, gpointer data)
 }
 
 void
-prepare_selected_cb_replace(GtkWidget *w, gpointer data)
+prepare_selected_cb_replace_ptree(GtkWidget *w, gpointer data)
 {
     if (finfo_selected)
 	match_selected_cb_do((data ? data : w),
@@ -347,7 +347,7 @@ prepare_selected_cb_replace(GtkWidget *w, gpointer data)
 }
 
 void
-prepare_selected_cb_and(GtkWidget *w, gpointer data)
+prepare_selected_cb_and_ptree(GtkWidget *w, gpointer data)
 {
     if (finfo_selected)
 	match_selected_cb_do((data ? data : w),
@@ -356,7 +356,7 @@ prepare_selected_cb_and(GtkWidget *w, gpointer data)
 }
 
 void
-prepare_selected_cb_or(GtkWidget *w, gpointer data)
+prepare_selected_cb_or_ptree(GtkWidget *w, gpointer data)
 {
     if (finfo_selected)
 	match_selected_cb_do((data ? data : w),
@@ -365,7 +365,7 @@ prepare_selected_cb_or(GtkWidget *w, gpointer data)
 }
 
 void
-prepare_selected_cb_not(GtkWidget *w, gpointer data)
+prepare_selected_cb_not_ptree(GtkWidget *w, gpointer data)
 {
     if (finfo_selected)
 	match_selected_cb_do((data ? data : w),
@@ -374,7 +374,7 @@ prepare_selected_cb_not(GtkWidget *w, gpointer data)
 }
 
 void
-prepare_selected_cb_and_not(GtkWidget *w, gpointer data)
+prepare_selected_cb_and_ptree_not(GtkWidget *w, gpointer data)
 {
     if (finfo_selected)
 	match_selected_cb_do((data ? data : w),
@@ -383,7 +383,7 @@ prepare_selected_cb_and_not(GtkWidget *w, gpointer data)
 }
 
 void
-prepare_selected_cb_or_not(GtkWidget *w, gpointer data)
+prepare_selected_cb_or_ptree_not(GtkWidget *w, gpointer data)
 {
     if (finfo_selected)
 	match_selected_cb_do((data ? data : w),
@@ -428,7 +428,7 @@ get_text_from_packet_list(gpointer data)
 }
 
 void
-match_selected_cb_replace2(GtkWidget *w _U_, gpointer data)
+match_selected_cb_replace_plist(GtkWidget *w _U_, gpointer data)
 {
     match_selected_cb_do(data,
         MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW,
@@ -436,7 +436,7 @@ match_selected_cb_replace2(GtkWidget *w _U_, gpointer data)
 }
 
 void
-match_selected_cb_and2(GtkWidget *w _U_, gpointer data)
+match_selected_cb_and_plist(GtkWidget *w _U_, gpointer data)
 {
     match_selected_cb_do(data,
         MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW,
@@ -444,7 +444,7 @@ match_selected_cb_and2(GtkWidget *w _U_, gpointer data)
 }
 
 void
-match_selected_cb_or2(GtkWidget *w _U_, gpointer data)
+match_selected_cb_or_plist(GtkWidget *w _U_, gpointer data)
 {
     match_selected_cb_do(data,
         MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW,
@@ -452,7 +452,7 @@ match_selected_cb_or2(GtkWidget *w _U_, gpointer data)
 }
 
 void
-match_selected_cb_not2(GtkWidget *w _U_, gpointer data)
+match_selected_cb_not_plist(GtkWidget *w _U_, gpointer data)
 {
     match_selected_cb_do(data,
         MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW,
@@ -460,7 +460,7 @@ match_selected_cb_not2(GtkWidget *w _U_, gpointer data)
 }
 
 void
-match_selected_cb_and_not2(GtkWidget *w _U_, gpointer data)
+match_selected_cb_and_plist_not(GtkWidget *w _U_, gpointer data)
 {
     match_selected_cb_do(data,
         MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW,
@@ -468,7 +468,7 @@ match_selected_cb_and_not2(GtkWidget *w _U_, gpointer data)
 }
 
 void
-match_selected_cb_or_not2(GtkWidget *w _U_, gpointer data)
+match_selected_cb_or_plist_not(GtkWidget *w _U_, gpointer data)
 {
     match_selected_cb_do(data,
         MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW,
@@ -476,7 +476,7 @@ match_selected_cb_or_not2(GtkWidget *w _U_, gpointer data)
 }
 
 void
-prepare_selected_cb_replace2(GtkWidget *w _U_, gpointer data)
+prepare_selected_cb_replace_plist(GtkWidget *w _U_, gpointer data)
 {
     match_selected_cb_do(data,
         MATCH_SELECTED_REPLACE,
@@ -484,7 +484,7 @@ prepare_selected_cb_replace2(GtkWidget *w _U_, gpointer data)
 }
 
 void
-prepare_selected_cb_and2(GtkWidget *w _U_, gpointer data)
+prepare_selected_cb_and_plist(GtkWidget *w _U_, gpointer data)
 {
     match_selected_cb_do(data,
         MATCH_SELECTED_AND,
@@ -492,7 +492,7 @@ prepare_selected_cb_and2(GtkWidget *w _U_, gpointer data)
 }
 
 void
-prepare_selected_cb_or2(GtkWidget *w _U_, gpointer data)
+prepare_selected_cb_or_plist(GtkWidget *w _U_, gpointer data)
 {
     match_selected_cb_do(data,
         MATCH_SELECTED_OR,
@@ -500,7 +500,7 @@ prepare_selected_cb_or2(GtkWidget *w _U_, gpointer data)
 }
 
 void
-prepare_selected_cb_not2(GtkWidget *w _U_, gpointer data)
+prepare_selected_cb_not_plist(GtkWidget *w _U_, gpointer data)
 {
     match_selected_cb_do(data,
         MATCH_SELECTED_NOT,
@@ -508,7 +508,7 @@ prepare_selected_cb_not2(GtkWidget *w _U_, gpointer data)
 }
 
 void
-prepare_selected_cb_and_not2(GtkWidget *w _U_, gpointer data)
+prepare_selected_cb_and_plist_not(GtkWidget *w _U_, gpointer data)
 {
     match_selected_cb_do(data,
         MATCH_SELECTED_AND_NOT,
@@ -516,7 +516,7 @@ prepare_selected_cb_and_not2(GtkWidget *w _U_, gpointer data)
 }
 
 void
-prepare_selected_cb_or_not2(GtkWidget *w _U_, gpointer data)
+prepare_selected_cb_or_plist_not(GtkWidget *w _U_, gpointer data)
 {
     match_selected_cb_do(data,
         MATCH_SELECTED_OR_NOT,
