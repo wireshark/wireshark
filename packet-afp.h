@@ -1,7 +1,7 @@
 /* packet-afp.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-afp.h,v 1.4 2002/05/03 21:25:43 guy Exp $
+ * $Id: packet-afp.h,v 1.5 2002/10/17 22:38:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,7 +89,9 @@ extern const value_string afp_server_addr_type_vals[];
 #define AFPSRVRINFO_SRVNOTIFY    (1<<6)  /* supports server notifications */
 #define AFPSRVRINFO_SRVRECONNECT (1<<7)  /* supports reconnect */
 #define AFPSRVRINFO_SRVDIRECTORY (1<<8)  /* supports directory services */
+#define AFPSRVRINFO_SRVUTF8      (1<<9)  /* supports UTF8 names AFP 3.1 */
 #define AFPSRVRINFO_FASTBOZO     (1<<15) /* fast copying */
+
 
 #define AFPSTATUS_MACHOFF     0
 #define AFPSTATUS_VERSOFF     2

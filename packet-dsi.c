@@ -2,7 +2,7 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.24 2002/08/28 21:00:12 jmayer Exp $
+ * $Id: packet-dsi.c,v 1.25 2002/10/17 22:38:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,6 +122,7 @@ static int hf_dsi_server_flag_tcpip	= -1;
 static int hf_dsi_server_flag_notify	= -1;
 static int hf_dsi_server_flag_reconnect	= -1;
 static int hf_dsi_server_flag_directory	= -1;
+static int hf_dsi_server_flag_utf8_name = -1;
 static int hf_dsi_server_flag_fast_copy = -1;
 static int hf_dsi_server_signature	= -1;
 
@@ -142,6 +143,7 @@ const value_string afp_server_addr_type_vals[] = {
   {2,	"IP+port address" },
   {3,	"DDP address" },
   {4,	"DNS name" },
+  {5,	"IP+port ssh tunnel" },
   {0,			NULL } };
 
 /* end status stuff */
@@ -289,13 +291,14 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	proto_tree_add_item(sub_tree, hf_dsi_server_flag_notify        , tvb, ofs, 2, FALSE);
 	proto_tree_add_item(sub_tree, hf_dsi_server_flag_reconnect     , tvb, ofs, 2, FALSE);
 	proto_tree_add_item(sub_tree, hf_dsi_server_flag_directory     , tvb, ofs, 2, FALSE);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_utf8_name     , tvb, ofs, 2, FALSE);
 	proto_tree_add_item(sub_tree, hf_dsi_server_flag_fast_copy     , tvb, ofs, 2, FALSE);
 
 	proto_tree_add_item(tree, hf_dsi_server_name, tvb, offset +AFPSTATUS_PRELEN, 1, FALSE);
 
 	flag = tvb_get_ntohs(tvb, ofs);
 	if ((flag & AFPSRVRINFO_SRVSIGNATURE)) {
-		ofs = offset +AFPSTATUS_PRELEN +tvb_get_guint8(tvb, offset +AFPSTATUS_PRELEN);
+		ofs = offset +AFPSTATUS_PRELEN +tvb_get_guint8(tvb, offset +AFPSTATUS_PRELEN) +1;
 		if ((ofs & 1))
 			ofs++;
 
@@ -678,6 +681,10 @@ proto_register_dsi(void)
       { "Support directory services",      "dsi.server_flag.directory",
 		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVDIRECTORY,
       	"Server support directory services", HFILL }},
+    { &hf_dsi_server_flag_utf8_name,
+      { "Support UTF8 server name",      "dsi.server_flag.utf8_name",
+		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVUTF8,
+      	"Server support UTF8 server name", HFILL }},
     { &hf_dsi_server_flag_fast_copy,
       { "Support fast copy",      "dsi.server_flag.fast_copy",
 		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_FASTBOZO,

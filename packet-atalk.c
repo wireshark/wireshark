@@ -2,7 +2,7 @@
  * Routines for AppleTalk packet disassembly: LLAP, DDP, NBP, ATP, ASP,
  * RTMP.
  *
- * $Id: packet-atalk.c,v 1.81 2002/08/28 21:00:07 jmayer Exp $
+ * $Id: packet-atalk.c,v 1.82 2002/10/17 22:38:19 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -234,8 +234,11 @@ static int hf_asp_server_flag_tcpip	= -1;
 static int hf_asp_server_flag_notify	= -1;
 static int hf_asp_server_flag_reconnect	= -1;
 static int hf_asp_server_flag_directory	= -1;
+static int hf_asp_server_flag_utf8_name = -1;
 static int hf_asp_server_flag_fast_copy = -1;
 static int hf_asp_server_signature	= -1;
+static int hf_asp_server_utf8_name_len  = -1;
+static int hf_asp_server_utf8_name      = -1;
 
 static int hf_asp_server_addr_len	= -1;
 static int hf_asp_server_addr_type	= -1;
@@ -902,9 +905,11 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 	guint16 ofs;
 	guint16 flag;
+	guint16 machine_ofs;
 	guint16 sign_ofs = 0;
 	guint16 adr_ofs = 0;
 	guint16 dir_ofs = 0;
+	guint16 utf_ofs = 0;
 	guint8	nbe;
 	guint8  len;
 	guint8  i;
@@ -915,8 +920,10 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	ti = proto_tree_add_text(tree, tvb, offset, -1, "Get Status");
 	tree = proto_item_add_subtree(ti, ett_asp_status);
 
-	ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_MACHOFF);
-	proto_tree_add_text(tree, tvb, offset +AFPSTATUS_MACHOFF, 2, "Machine offset: %u", ofs);
+	machine_ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_MACHOFF);
+	proto_tree_add_text(tree, tvb, offset +AFPSTATUS_MACHOFF, 2, "Machine offset: %u", machine_ofs);
+	if (machine_ofs)
+		machine_ofs += offset;
 
 	ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_VERSOFF);
 	proto_tree_add_text(tree, tvb, offset +AFPSTATUS_VERSOFF, 2, "Version offset: %u", ofs);
@@ -939,38 +946,45 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	proto_tree_add_item(sub_tree, hf_asp_server_flag_notify        , tvb, ofs, 2, FALSE);
 	proto_tree_add_item(sub_tree, hf_asp_server_flag_reconnect     , tvb, ofs, 2, FALSE);
 	proto_tree_add_item(sub_tree, hf_asp_server_flag_directory     , tvb, ofs, 2, FALSE);
+	proto_tree_add_item(sub_tree, hf_asp_server_flag_utf8_name     , tvb, ofs, 2, FALSE);
 	proto_tree_add_item(sub_tree, hf_asp_server_flag_fast_copy     , tvb, ofs, 2, FALSE);
 
 	proto_tree_add_item(tree, hf_asp_server_name, tvb, offset +AFPSTATUS_PRELEN, 1, FALSE);
 
 	flag = tvb_get_ntohs(tvb, ofs);
 	if ((flag & AFPSRVRINFO_SRVSIGNATURE)) {
-		ofs = offset +AFPSTATUS_PRELEN +tvb_get_guint8(tvb, offset +AFPSTATUS_PRELEN);
+		ofs = offset +AFPSTATUS_PRELEN +tvb_get_guint8(tvb, offset +AFPSTATUS_PRELEN) +1;
 		if ((ofs & 1))
 			ofs++;
 
 		sign_ofs = tvb_get_ntohs(tvb, ofs);
 		proto_tree_add_text(tree, tvb, ofs, 2, "Signature offset: %u", sign_ofs);
 		sign_ofs += offset;
+		ofs += 2;
 
-		if ((flag & AFPSRVRINFO_TCPIP)) {
-			ofs += 2;
+		if ((flag & AFPSRVRINFO_TCPIP) && ofs < machine_ofs ) {
 			adr_ofs =  tvb_get_ntohs(tvb, ofs);
 			proto_tree_add_text(tree, tvb, ofs, 2, "Network address offset: %u", adr_ofs);
 			adr_ofs += offset;
+			ofs += 2;
 		}
 
-		if ((flag & AFPSRVRINFO_SRVDIRECTORY)) {
-			ofs += 2;
+		if ((flag & AFPSRVRINFO_SRVDIRECTORY) && ofs < machine_ofs) {
 			dir_ofs =  tvb_get_ntohs(tvb, ofs);
 			proto_tree_add_text(tree, tvb, ofs, 2, "Directory services offset: %u", dir_ofs);
 			dir_ofs += offset;
+			ofs += 2;
+		}
+
+		if ((flag & AFPSRVRINFO_SRVUTF8) && ofs < machine_ofs) {
+			utf_ofs =  tvb_get_ntohs(tvb, ofs);
+			proto_tree_add_text(tree, tvb, ofs, 2, "UTF-8 Server name offset: %u", utf_ofs);
+			utf_ofs += offset;
 		}
 	}
 
-	ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_MACHOFF);
-	if (ofs)
-		proto_tree_add_item(tree, hf_asp_server_type, tvb, ofs, 1, FALSE);
+	if (machine_ofs)
+		proto_tree_add_item(tree, hf_asp_server_type, tvb, machine_ofs, 1, FALSE);
 
 	ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_VERSOFF);
 	if (ofs) {
@@ -1041,6 +1055,11 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ddp %u.%u:%u",
 					net, node, port);
 				break;
+			case 5: /* IP + port ssh tunnel */
+				ip = tvb_get_ptr(tvb, ofs+2, 4);
+				port = tvb_get_ntohs(tvb, ofs+6);
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip (ssh tunnel) %s:%u",ip_to_str(ip),port);
+				break;
 			case 4: /* DNS */
 				if (len > 2) {
 					tmp = g_malloc( len -1);
@@ -1078,7 +1097,15 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 			ofs += len;
 		}
 	}
-
+	if (utf_ofs) {
+		ofs = utf_ofs;
+		len  = tvb_get_ntohs(tvb, ofs);
+		proto_tree_add_item(tree, hf_asp_server_utf8_name_len, tvb, ofs, 2, FALSE);
+		ofs += 2;		
+		proto_tree_add_item(tree, hf_asp_server_utf8_name, tvb, ofs, len, FALSE);
+		ofs += len;
+	}
+	/* FIXME: offset is not updated */
 	return offset;
 }
 
@@ -2057,6 +2084,10 @@ proto_register_atalk(void)
       { "Support directory services",      "asp.server_flag.directory",
 		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVDIRECTORY,
       	"Server support directory services", HFILL }},
+    { &hf_asp_server_flag_utf8_name,
+      { "Support UTF8 server name",      "asp.server_flag.utf8_name",
+		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVUTF8,
+      	"Server support UTF8 server name", HFILL }},
     { &hf_asp_server_flag_fast_copy,
       { "Support fast copy",      "asp.server_flag.fast_copy",
 		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_FASTBOZO,
@@ -2077,6 +2108,15 @@ proto_register_atalk(void)
 	FT_BYTES, BASE_HEX, NULL, 0x0,
       	"Address value", HFILL }},
 
+    { &hf_asp_server_utf8_name_len,
+      { "Server name length",         "asp.server_utf8_name_len",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+      	"UTF8 server name length", HFILL }},
+
+    { &hf_asp_server_utf8_name,
+      { "Server name (UTF8)",         "asp.server_utf8_name",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+      	"Server name (UTF8)", HFILL }},
   };
 
   static hf_register_info hf_zip[] = {
