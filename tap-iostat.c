@@ -1,7 +1,7 @@
 /* tap-iostat.c
  * iostat   2002 Ronnie Sahlberg
  *
- * $Id: tap-iostat.c,v 1.7 2003/04/24 12:25:31 sahlberg Exp $
+ * $Id: tap-iostat.c,v 1.8 2003/04/29 08:47:20 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -264,7 +264,7 @@ iostat_draw(io_stat_item_t *mit)
 	printf("\n");
 	printf("===================================================================\n");
 	printf("IO Statistics\n");
-	printf("Interval: %d secs\n", iot->interval);
+	printf("Interval: %d.%03d secs\n", iot->interval/1000, iot->interval%1000);
 	for(i=0;i<iot->num_items;i++){
 		printf("Column #%d: %s\n",i,iot->filters[i]?iot->filters[i]:"");
 	}
@@ -594,7 +594,7 @@ iostat_init(char *optarg)
 
 
 	/* make interval be number of ms */
-	interval=interval_float*1000;	
+	interval=(gint32)(interval_float*1000.0+0.9);	
 	if(interval<1){
 		fprintf(stderr, "tethereal:iostat_init()  interval must be >=0.001 seconds\n");
 		exit(10);
