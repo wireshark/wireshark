@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.41 2003/10/14 10:01:00 sahlberg Exp $
+ * $Id: io_stat.c,v 1.42 2003/10/14 10:34:58 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,10 +70,12 @@ static guint32 pixels_per_tick[MAX_PIXELS_PER_TICK] = {1, 2, 5, 10};
 #define DEFAULT_PLOT_STYLE	0
 #define PLOT_STYLE_LINE		0
 #define PLOT_STYLE_IMPULSE	1
-#define MAX_PLOT_STYLES		2
+#define PLOT_STYLE_FILLED_BAR	2
+#define MAX_PLOT_STYLES		3
 static char *plot_style_name[MAX_PLOT_STYLES] = {
 	"Line",
 	"Impulse",
+	"FBar",
 };
 
 
@@ -830,6 +832,17 @@ gtk_iostat_draw(void *g)
 					gdk_draw_line(io->pixmap, io->graphs[i].gc, 
 						x_pos, draw_height-1+top_y_border,
 						x_pos, y_pos);
+				}
+				break;
+			case PLOT_STYLE_FILLED_BAR:
+				if(val){
+				        gdk_draw_rectangle(io->pixmap,
+                        			io->graphs[i].gc, TRUE,
+						x_pos-io->pixels_per_tick/2,
+						draw_height-1-(val*draw_height)/max_y+top_y_border,
+						io->pixels_per_tick,
+						(val*draw_height)/max_y);
+						
 				}
 				break;
 			}
