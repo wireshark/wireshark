@@ -3,7 +3,7 @@
  * 
  * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id: README.developer 11475 2004-07-23 01:37:35Z guy $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1300,22 +1300,22 @@ proto_register_etheric(void)
 		{ &hf_etheric_protocol_version,
 			{ "Protocol version",           "etheric.protocol_version",
 			FT_UINT8, BASE_HEX, VALS(&protocol_version_vals), 0x0,          
-			"Etheric protocol version" }
+			"Etheric protocol version", HFILL }
 		},
 		{ &hf_etheric_message_length,
 			{ "Message length",           "etheric.message.length",
 			FT_UINT8, BASE_DEC, NULL, 0x0,          
-			"Etheric Message length" }
+			"Etheric Message length", HFILL }
 		},
 		{ &hf_etheric_cic,
 			{ "CIC",           "etheric.cic",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Etheric CIC" }
+			"Etheric CIC", HFILL }
 		},
 		{ &hf_etheric_message_type,
 			{ "Message type",           "etheric.message.type",
 			FT_UINT8, BASE_HEX, VALS(&isup_message_type_value), 0x0,          
-			"Etheric message types" }
+			"Etheric message types", HFILL }
 		},
 		{ &hf_etheric_parameter_type,
 			{ "Parameter Type",  "etheric.parameter_type",
