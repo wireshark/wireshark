@@ -6,7 +6,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.c,v 1.19 2002/07/15 20:57:13 guy Exp $
+ * $Id: text2pcap.c,v 1.20 2002/07/21 20:27:30 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -191,7 +191,7 @@ static FILE *output_file = NULL;
 /* Offset base to parse */
 static unsigned long offset_base = 16;
 
-static FILE *yyin;
+extern FILE *yyin;
 
 /* ----- State machine -----------------------------------------------------------*/
 
@@ -930,35 +930,39 @@ help (char *progname)
 {
     fprintf(stderr, 
             "\n"
-            "Usage: %s [-d] [-q] [-o h|o] [-l typenum] [-e l3pid] [-i proto] \n"
-            "          [-u srcp,destp] [-s srcp,destp,tag] [-S srcp,destp,tag] [-t timefmt] <input-filename> <output-filename>\n"
+            "Usage: %s [-h] [-d] [-q] [-o h|o] [-l typenum] [-e l3pid] [-i proto] \n"
+            "          [-u srcp,destp] [-s srcp,destp,tag] [-S srcp,destp,tag] [-t timefmt]\n"
+            "          <input-filename> <output-filename>\n"
             "\n"
             "where <input-filename> specifies input filename (use - for standard input)\n"
             "      <output-filename> specifies output filename (use - for standard output)\n"
             "\n"
             "[options] are one or more of the following \n"
             "\n"
-            " -w filename     : Write capfile to <filename>. Default is standard output\n"
             " -h              : Display this help message \n"
             " -d              : Generate detailed debug of parser states \n"
             " -o hex|oct      : Parse offsets as (h)ex or (o)ctal. Default is hex\n"
             " -l typenum      : Specify link-layer type number. Default is 1 (Ethernet). \n"
             "                   See net/bpf.h for list of numbers.\n"
             " -q              : Generate no output at all (automatically turns off -d)\n"
-            " -e l3pid        : Prepend dummy Ethernet II header with specified L3PID (in HEX)\n"
+            " -e l3pid        : Prepend dummy Ethernet II header with specified L3PID (in\n"
+            "                   HEX)\n"
             "                   Example: -e 0x800\n"
-            " -i proto        : Prepend dummy IP header with specified IP protocol (in DECIMAL). \n"
-            "                   Automatically prepends Ethernet header as well. Example: -i 46\n"
-            " -u srcp,destp   : Prepend dummy UDP header with specified dest and source ports (in DECIMAL).\n"
+            " -i proto        : Prepend dummy IP header with specified IP protocol (in\n"
+            "                   DECIMAL). \n"
+            "                   Automatically prepends Ethernet header as well.\n"
+            "                   Example: -i 46\n"
+            " -u srcp,destp   : Prepend dummy UDP header with specified dest and source ports\n"
+            "                   (in DECIMAL).\n"
             "                   Automatically prepends Ethernet and IP headers as well\n"
             "                   Example: -u 30,40\n"
-            " -s srcp,dstp,tag: Prepend dummy SCTP header with specified dest/source ports and\n"
-            "                   verification tag (in DECIMAL).\n"
+            " -s srcp,dstp,tag: Prepend dummy SCTP header with specified dest/source ports\n"
+            "                   and verification tag (in DECIMAL).\n"
             "                   Automatically prepends Ethernet and IP headers as well\n"
             "                   Example: -s 30,40,34\n"
-            " -S srcp,dstp,ppi: Prepend dummy SCTP header with specified dest/source ports and\n"
-            "                   verification tag 0. It also prepends a dummy SCTP DATA chunk header\n"
-            "                   with payload protocol identifier ppi.\n"
+            " -S srcp,dstp,ppi: Prepend dummy SCTP header with specified dest/source ports\n"
+            "                   and verification tag 0. It also prepends a dummy SCTP DATA\n"
+            "                   chunk header with payload protocol identifier ppi.\n"
             "                   Example: -S 30,40,34\n"                               
             " -t timefmt      : Treats the text before the packet as a date/time code; the\n"
             "                   specified argument is a format string of the sort supported\n"
@@ -984,7 +988,7 @@ parse_options (int argc, char *argv[])
     char *p;
 
     /* Scan CLI parameters */
-    while ((c = getopt(argc, argv, "dqr:w:e:i:l:o:u:s:S:t:")) != -1) {
+    while ((c = getopt(argc, argv, "dhqe:i:l:o:u:s:S:t:")) != -1) {
         switch(c) {
         case '?': help(argv[0]); break;
         case 'h': help(argv[0]); break;
