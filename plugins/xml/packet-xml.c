@@ -259,9 +259,21 @@ proto_reg_handoff_xml(void)
 	xml_handle = find_dissector("xml");
 
 	dissector_add_string("media_type", "text/xml", xml_handle);
-	dissector_add_string("media_type", "application/smil", xml_handle);
-	dissector_add_string("media_type", "text/xml", xml_handle);
 	dissector_add_string("media_type", "application/xml", xml_handle);
 	dissector_add_string("media_type", "application/soap+xml", xml_handle);
-	
+	dissector_add_string("media_type", "application/xml-dtd", xml_handle);
+	/* WAP and OMA XML media */
+	dissector_add_string("media_type", "text/vnd.wap.wml", xml_handle);
+	dissector_add_string("media_type", "text/vnd.wap.si", xml_handle);
+	dissector_add_string("media_type", "text/vnd.wap.sl", xml_handle);
+	dissector_add_string("media_type", "text/vnd.wap.co", xml_handle);
+	dissector_add_string("media_type", "text/vnd.wap.emn", xml_handle);
+	dissector_add_string("media_type", "application/vnd.wv.csp+xml", xml_handle);
+	/* Other */
+	dissector_add_string("media_type", "application/smil", xml_handle);
+	dissector_add_string("media_type", "application/cpim-pidf+xml", xml_handle);
+	dissector_add_string("media_type", "application/rdf+xml", xml_handle);
+	dissector_add_string("media_type", "application/xslt+xml", xml_handle);
+	dissector_add_string("media_type", "application/mathml+xml", xml_handle);
+	dissector_add_string("media_type", "image/svg+xml", xml_handle);
 }
