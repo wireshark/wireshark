@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.86 2003/02/10 02:11:36 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.87 2003/02/10 06:21:57 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -132,11 +132,6 @@ static const value_string spoolss_opnum_vals[] = {
 	{ 0, NULL }
 };
 
-static int hf_unistr2_maxlen = -1;
-static int hf_unistr2_offset = -1;
-static int hf_unistr2_len = -1;
-static int hf_unistr2_buffer = -1;
-
 static int hf_spoolss_hnd = -1;
 static int hf_spoolss_rc = -1;
 static int hf_spoolss_offered = -1;
@@ -218,44 +213,6 @@ static int hf_spoolss_defaultdatatype = -1;
 static int hf_spoolss_driverinfo_cversion = -1;
 static int hf_spoolss_dependentfiles = -1;
 static int hf_spoolss_printer_status = -1;
-
-/* rffpcnex */
-
-static int hf_spoolss_rffpcnex_flags = -1;
-static int hf_spoolss_rffpcnex_options = -1;
-static int hf_spoolss_printerlocal = -1;
-static int hf_spoolss_notify_options_version = -1;
-static int hf_spoolss_notify_options_flags = -1;
-static int hf_spoolss_notify_options_flags_refresh = -1;
-static int hf_spoolss_notify_options_count = -1;
-static int hf_spoolss_notify_option_type = -1;
-static int hf_spoolss_notify_option_reserved1 = -1;
-static int hf_spoolss_notify_option_reserved2 = -1;
-static int hf_spoolss_notify_option_reserved3 = -1;
-static int hf_spoolss_notify_option_count = -1;
-static int hf_spoolss_notify_option_data_count = -1;
-static int hf_spoolss_notify_info_count = -1;
-static int hf_spoolss_notify_info_version = -1;
-static int hf_spoolss_notify_info_flags = -1;
-static int hf_spoolss_notify_info_data_type = -1;
-static int hf_spoolss_notify_info_data_count = -1;
-static int hf_spoolss_notify_info_data_id = -1;
-static int hf_spoolss_notify_info_data_value1 = -1;
-static int hf_spoolss_notify_info_data_value2 = -1;
-static int hf_spoolss_notify_info_data_bufsize = -1;
-static int hf_spoolss_notify_info_data_buffer = -1;
-static int hf_spoolss_notify_info_data_buffer_len = -1;
-static int hf_spoolss_notify_info_data_buffer_data = -1;
-
-static int hf_spoolss_notify_field = -1;
-
-static int hf_spoolss_rrpcn_changelow = -1;
-static int hf_spoolss_rrpcn_changehigh = -1;
-static int hf_spoolss_rrpcn_unk0 = -1;
-static int hf_spoolss_rrpcn_unk1 = -1;
-
-static int hf_spoolss_replyopenprinter_unk0 = -1;
-static int hf_spoolss_replyopenprinter_unk1 = -1;
 
 static const value_string printer_status_vals[] =
 {
@@ -596,7 +553,9 @@ static int hf_job_id = -1;
 static int hf_job_priority = -1;
 static int hf_job_position = -1;
 static int hf_job_totalpages = -1;
+static int hf_job_totalbytes = -1;
 static int hf_job_pagesprinted = -1;
+static int hf_job_bytesprinted = -1;
 static int hf_job_size = -1;
 
 static int hf_job_status = -1;
@@ -627,6 +586,43 @@ static int hf_form_horiz_len = -1;
 static int hf_form_vert_len = -1;
 
 static int hf_enumforms_num = -1;
+
+/* Print notify */
+
+static int hf_notify_options_version = -1;
+static int hf_notify_options_flags = -1;
+static int hf_notify_options_flags_refresh = -1;
+static int hf_notify_options_count = -1;
+static int hf_notify_option_type = -1;
+static int hf_notify_option_reserved1 = -1;
+static int hf_notify_option_reserved2 = -1;
+static int hf_notify_option_reserved3 = -1;
+static int hf_notify_option_count = -1;
+static int hf_notify_option_data_count = -1;
+static int hf_notify_info_count = -1;
+static int hf_notify_info_version = -1;
+static int hf_notify_info_flags = -1;
+static int hf_notify_info_data_type = -1;
+static int hf_notify_info_data_count = -1;
+static int hf_notify_info_data_id = -1;
+static int hf_notify_info_data_value1 = -1;
+static int hf_notify_info_data_value2 = -1;
+static int hf_notify_info_data_bufsize = -1;
+static int hf_notify_info_data_buffer = -1;
+static int hf_notify_info_data_buffer_len = -1;
+static int hf_notify_info_data_buffer_data = -1;
+
+static int hf_notify_field = -1;
+
+static int hf_printerlocal = -1;
+
+static int hf_rrpcn_changelow = -1;
+static int hf_rrpcn_changehigh = -1;
+static int hf_rrpcn_unk0 = -1;
+static int hf_rrpcn_unk1 = -1;
+
+static int hf_replyopenprinter_unk0 = -1;
+static int hf_replyopenprinter_unk1 = -1;
 
 /****************************************************************************/
 
@@ -831,65 +827,6 @@ static int SpoolssClosePrinter_r(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-/* Dissect a UNISTR2 structure */
-
-static gint ett_UNISTR2 = -1;
-
-int
-dissect_unistr2(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-		proto_tree *tree, char *drep, int hfindex, char **pdata)
-{
-	proto_item *item;
-	proto_tree *subtree;
-	guint32 maxlen, ofs, len;
-	char *data;
-
-	offset = dissect_ndr_uint32(
-		tvb, offset, pinfo, NULL, drep, hf_unistr2_maxlen, &maxlen);
-	
-	offset = dissect_ndr_uint32(
-		tvb, offset, pinfo, NULL, drep, hf_unistr2_offset, &ofs);
-
-	offset = dissect_ndr_uint32(
-		tvb, offset, pinfo, NULL, drep, hf_unistr2_len, &len);
-
-	data = fake_unicode(tvb, offset, len);
-
-	/* TODO: This currently displays only the first character of the
-	   string as the field type should be FT_STRING.  I think we need a
-	   FT_UNICODE field type. */
-
-	item = proto_tree_add_item(
-		tree, hfindex, tvb, offset, len * 2, drep[0] & 0x10);
-			    
-	subtree = proto_item_add_subtree(item, ett_UNISTR2);
-
-	proto_tree_add_item(
-		subtree, hf_unistr2_maxlen, tvb, offset - 12, 4, 
-		drep[0] & 0x10);
-
-	proto_tree_add_item(
-		subtree, hf_unistr2_offset, tvb, offset - 8, 4, 
-		drep[0] & 0x10);
-
-	proto_tree_add_item(
-		subtree, hf_unistr2_len, tvb, offset - 4, 4, 
-		drep[0] & 0x10);
-			    
-	proto_tree_add_item(
-		subtree, hf_unistr2_buffer, tvb, offset, len * 2,
-		drep[0] & 0x10);
-
-	offset += len * 2;
-
-	if (pdata)
-		*pdata = data;
-	else
-		g_free(data);
-
-	return offset;
-}
-
 /* Dissect some printer data.  The get/set/enum printerdata routines all
    store value/data in a uint8 array.  We could use the ndr routines for
    this but that would result in one item for each byte in the printer
@@ -994,9 +931,9 @@ static int SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
 
 	value_name = dcv->private_data;
 
-	offset = dissect_unistr2(
-		tvb, offset, pinfo, tree, drep, hf_printerdata_value,
-		value_name ? NULL : &value_name);
+ 	offset = dissect_ndr_cvstring(
+ 		tvb, offset, pinfo, tree, drep, sizeof(guint16),
+ 		hf_printerdata_value, TRUE, value_name ? NULL : &value_name);
 
 	dcv->private_data = value_name;
 
@@ -1068,9 +1005,9 @@ static int SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
 		FALSE, FALSE);
 
-	offset = dissect_unistr2(
-		tvb, offset, pinfo, tree, drep, hf_printerdata_key,
-		&key_name);
+	offset = dissect_ndr_cvstring(
+		tvb, offset, pinfo, tree, drep, sizeof(guint16),
+		hf_printerdata_key, TRUE, &key_name);
 
 	/*
 	 * Register a cleanup function in case on of our tvbuff accesses
@@ -1078,9 +1015,9 @@ static int SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 	 */
 	CLEANUP_PUSH(g_free, key_name);
 
-	offset = dissect_unistr2(
-		tvb, offset, pinfo, tree, drep, hf_printerdata_value,
-		&value_name);
+	offset = dissect_ndr_cvstring(
+		tvb, offset, pinfo, tree, drep, sizeof(guint16),
+		hf_printerdata_value, TRUE, &value_name);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s/%s",
@@ -1170,9 +1107,9 @@ static int SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
 		FALSE, FALSE);
 
-	offset = dissect_unistr2(
-		tvb, offset, pinfo, tree, drep, hf_printerdata_value,
-		&value_name);
+	offset = dissect_ndr_cvstring(
+		tvb, offset, pinfo, tree, drep, sizeof(guint16),
+		hf_printerdata_value, TRUE, &value_name);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", value_name);
@@ -1230,15 +1167,15 @@ static int SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
 		FALSE, FALSE);
 
-	offset = dissect_unistr2(
-		tvb, offset, pinfo, tree, drep, hf_printerdata_key,
-		&key_name);
+	offset = dissect_ndr_cvstring(
+		tvb, offset, pinfo, tree, drep, sizeof(guint16),
+		hf_printerdata_key, TRUE, &key_name);
 
 	CLEANUP_PUSH(g_free, key_name);
 
-	offset = dissect_unistr2(
-		tvb, offset, pinfo, tree, drep, hf_printerdata_value,
-		&value_name);
+	offset = dissect_ndr_cvstring(
+		tvb, offset, pinfo, tree, drep, sizeof(guint16),
+		hf_printerdata_value, TRUE, &value_name);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s/%s",
@@ -2577,9 +2514,9 @@ static int dissect_PRINTER_DATATYPE(tvbuff_t *tvb, int offset,
 	if (di->conformant_run)
 		return offset;
 
-	offset = dissect_unistr2(
-		tvb, offset, pinfo, tree, drep,
-		hf_spoolss_datatype, NULL);
+	offset = dissect_ndr_cvstring(
+		tvb, offset, pinfo, tree, drep, sizeof(guint16),
+		hf_spoolss_datatype, TRUE, NULL);
 
 	return offset;
 }
@@ -2738,10 +2675,15 @@ static int SpoolssOpenPrinterEx_r(tvbuff_t *tvb, int offset,
 		/* Associate the returned printer handle with a name */
 
 		if (dcv->private_data) {
+			char *pol_name;
 
-			dcerpc_smb_store_pol_name(
-				&policy_hnd, dcv->private_data);
+			pol_name = g_strdup_printf(
+				"OpenPrinterEx, %s", 
+				(char *)dcv->private_data);
 
+			dcerpc_smb_store_pol_name(&policy_hnd, pol_name);
+
+			g_free(pol_name);
 			g_free(dcv->private_data);
 			dcv->private_data = NULL;
 		}
@@ -2831,7 +2773,7 @@ dissect_notify_field(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, NULL, drep,
-		hf_spoolss_notify_field, &field);
+		hf_notify_field, &field);
 
 	switch(type) {
 	case PRINTER_NOTIFY_TYPE:
@@ -2861,15 +2803,18 @@ dissect_NOTIFY_OPTION_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			   proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 count, i;
-	guint16 type = 0xffff;	/* XXX: currently broken */
+	guint16 type;
 
 	if (di->conformant_run)
 		return offset;
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep,
-		hf_spoolss_notify_option_data_count, &count);
+		hf_notify_option_data_count, &count);
+
+	type = GPOINTER_TO_INT(dcv->private_data);
 
 	for (i = 0; i < count; i++)
 		offset = dissect_notify_field(
@@ -2891,36 +2836,41 @@ static int
 dissect_NOTIFY_OPTION(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		      proto_tree *tree, char *drep)
 {
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	proto_item *item;
 	proto_tree *subtree;
 	guint16 type;
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, "NOTIFY_OPTION");
+	item = proto_tree_add_text(tree, tvb, offset, 0, "Notify Option");
 
 	subtree = proto_item_add_subtree(item, ett_NOTIFY_OPTION);
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, subtree, drep,
-				    hf_spoolss_notify_option_type, &type);
+				    hf_notify_option_type, &type);
 
-	proto_item_append_text(item, ": %s",
-			       val_to_str(type, printer_notify_types, "Unknown (%d)"));
+	proto_item_append_text(
+		item, ": %s", val_to_str(type, printer_notify_types, 
+					 "Unknown (%d)"));
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, subtree, drep,
-				    hf_spoolss_notify_option_reserved1, NULL);
+				    hf_notify_option_reserved1, NULL);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
-				    hf_spoolss_notify_option_reserved2, NULL);
+				    hf_notify_option_reserved2, NULL);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
-				    hf_spoolss_notify_option_reserved3, NULL);
+				    hf_notify_option_reserved3, NULL);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
-				    hf_spoolss_notify_option_count, NULL);
+				    hf_notify_option_count, NULL);
+
+	dcv->private_data = GINT_TO_POINTER((int)type);
 
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, subtree, drep,
 		dissect_NOTIFY_OPTION_DATA, NDR_POINTER_UNIQUE,
-		"NOTIFY_OPTION_DATA", -1);
+		"Notify Option Data", -1);
 
 	return offset;
 }
@@ -2954,7 +2904,7 @@ dissect_notify_options_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 flags;
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
-				    hf_spoolss_notify_options_flags,
+				    hf_notify_options_flags,
 				    &flags);
 
 	item = proto_tree_add_text(tree, tvb, offset - 4, 4,
@@ -2963,7 +2913,7 @@ dissect_notify_options_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	subtree = proto_item_add_subtree(item, ett_notify_options_flags);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_notify_options_flags_refresh,
+		subtree, hf_notify_options_flags_refresh,
 		tvb, offset, 4, flags);
 
 	return offset;
@@ -2980,17 +2930,17 @@ dissect_NOTIFY_OPTIONS_ARRAY_CTR(tvbuff_t *tvb, int offset,
 		return offset;
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_notify_options_version, NULL);
+				    hf_notify_options_version, NULL);
 
 	offset = dissect_notify_options_flags(tvb, offset, pinfo, tree, drep);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_notify_options_count, NULL);
+				    hf_notify_options_count, NULL);
 
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
 		dissect_NOTIFY_OPTIONS_ARRAY, NDR_POINTER_UNIQUE,
-		"NOTIFY_OPTIONS", -1);
+		"Notify Options Array", -1);
 
 	return offset;
 }
@@ -3001,10 +2951,13 @@ dissect_NOTIFY_OPTIONS_ARRAY_CTR(tvbuff_t *tvb, int offset,
 
 static gint ett_rffpcnex_flags = -1;
 
-static int hf_spoolss_rffpcnex_flags_add_printer = -1;
-static int hf_spoolss_rffpcnex_flags_set_printer = -1;
-static int hf_spoolss_rffpcnex_flags_delete_printer = -1;
-static int hf_spoolss_rffpcnex_flags_failed_printer_connection = -1;
+static int hf_rffpcnex_flags = -1;
+static int hf_rffpcnex_options = -1;
+
+static int hf_rffpcnex_flags_add_printer = -1;
+static int hf_rffpcnex_flags_set_printer = -1;
+static int hf_rffpcnex_flags_delete_printer = -1;
+static int hf_rffpcnex_flags_failed_printer_connection = -1;
 
 static const true_false_string tfs_rffpcnex_flags_add_printer = {
 	"Notify on add printer",
@@ -3026,10 +2979,10 @@ static const true_false_string tfs_rffpcnex_flags_failed_connection_printer = {
 	"Don't notify on failed printer connection"
 };
 
-static int hf_spoolss_rffpcnex_flags_add_job = -1;
-static int hf_spoolss_rffpcnex_flags_set_job = -1;
-static int hf_spoolss_rffpcnex_flags_delete_job = -1;
-static int hf_spoolss_rffpcnex_flags_write_job = -1;
+static int hf_rffpcnex_flags_add_job = -1;
+static int hf_rffpcnex_flags_set_job = -1;
+static int hf_rffpcnex_flags_delete_job = -1;
+static int hf_rffpcnex_flags_write_job = -1;
 
 static const true_false_string tfs_rffpcnex_flags_add_job = {
 	"Notify on add job",
@@ -3051,9 +3004,9 @@ static const true_false_string tfs_rffpcnex_flags_write_job = {
 	"Don't notify on write job"
 };
 
-static int hf_spoolss_rffpcnex_flags_add_form = -1;
-static int hf_spoolss_rffpcnex_flags_set_form = -1;
-static int hf_spoolss_rffpcnex_flags_delete_form = -1;
+static int hf_rffpcnex_flags_add_form = -1;
+static int hf_rffpcnex_flags_set_form = -1;
+static int hf_rffpcnex_flags_delete_form = -1;
 
 static const true_false_string tfs_rffpcnex_flags_add_form = {
 	"Notify on add form",
@@ -3070,9 +3023,9 @@ static const true_false_string tfs_rffpcnex_flags_delete_form = {
 	"Don't notify on delete form"
 };
 
-static int hf_spoolss_rffpcnex_flags_add_port = -1;
-static int hf_spoolss_rffpcnex_flags_configure_port = -1;
-static int hf_spoolss_rffpcnex_flags_delete_port = -1;
+static int hf_rffpcnex_flags_add_port = -1;
+static int hf_rffpcnex_flags_configure_port = -1;
+static int hf_rffpcnex_flags_delete_port = -1;
 
 static const true_false_string tfs_rffpcnex_flags_add_port = {
 	"Notify on add port",
@@ -3089,8 +3042,8 @@ static const true_false_string tfs_rffpcnex_flags_delete_port = {
 	"Don't notify on delete port"
 };
 
-static int hf_spoolss_rffpcnex_flags_add_print_processor = -1;
-static int hf_spoolss_rffpcnex_flags_delete_print_processor = -1;
+static int hf_rffpcnex_flags_add_print_processor = -1;
+static int hf_rffpcnex_flags_delete_print_processor = -1;
 
 static const true_false_string tfs_rffpcnex_flags_add_print_processor = {
 	"Notify on add driver",
@@ -3102,9 +3055,9 @@ static const true_false_string tfs_rffpcnex_flags_delete_print_processor = {
 	"Don't notify on add driver"
 };
 
-static int hf_spoolss_rffpcnex_flags_add_driver = -1;
-static int hf_spoolss_rffpcnex_flags_set_driver = -1;
-static int hf_spoolss_rffpcnex_flags_delete_driver = -1;
+static int hf_rffpcnex_flags_add_driver = -1;
+static int hf_rffpcnex_flags_set_driver = -1;
+static int hf_rffpcnex_flags_delete_driver = -1;
 
 static const true_false_string tfs_rffpcnex_flags_add_driver = {
 	"Notify on add driver",
@@ -3121,7 +3074,7 @@ static const true_false_string tfs_rffpcnex_flags_delete_driver = {
 	"Don't notify on delete driver"
 };
 
-static int hf_spoolss_rffpcnex_flags_timeout = -1;
+static int hf_rffpcnex_flags_timeout = -1;
 
 static const true_false_string tfs_rffpcnex_flags_timeout = {
 	"Notify on timeout",
@@ -3142,7 +3095,7 @@ static int SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 				       hf_spoolss_hnd, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
-				    hf_spoolss_rffpcnex_flags, &flags);
+				    hf_rffpcnex_flags, &flags);
 
 	flags_item = proto_tree_add_text(tree, tvb, offset - 4, 4,
 					 "Flags: 0x%08x", flags);
@@ -3150,85 +3103,85 @@ static int SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 	flags_subtree = proto_item_add_subtree(flags_item, ett_rffpcnex_flags);
 
 	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_timeout, tvb,
+		flags_subtree, hf_rffpcnex_flags_timeout, tvb,
 		offset - 4, 4, flags);
 
 	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_delete_driver, tvb,
+		flags_subtree, hf_rffpcnex_flags_delete_driver, tvb,
 		offset - 4, 4, flags);
 
 	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_set_driver, tvb,
+		flags_subtree, hf_rffpcnex_flags_set_driver, tvb,
 		offset - 4, 4, flags);
 
 	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_add_driver, tvb,
+		flags_subtree, hf_rffpcnex_flags_add_driver, tvb,
 		offset - 4, 4, flags);
 
 	proto_tree_add_boolean(
 		flags_subtree,
-		hf_spoolss_rffpcnex_flags_delete_print_processor, tvb,
+		hf_rffpcnex_flags_delete_print_processor, tvb,
 		offset - 4, 4, flags);
 
 	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_add_print_processor,
+		flags_subtree, hf_rffpcnex_flags_add_print_processor,
 		tvb, offset - 4, 4, flags);
 
 	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_delete_port, tvb,
+		flags_subtree, hf_rffpcnex_flags_delete_port, tvb,
 		offset - 4, 4, flags);
 
 	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_configure_port, tvb,
+		flags_subtree, hf_rffpcnex_flags_configure_port, tvb,
 		offset - 4, 4, flags);
 
 	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_add_port, tvb,
+		flags_subtree, hf_rffpcnex_flags_add_port, tvb,
 		offset - 4, 4, flags);
 
 	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_delete_form, tvb,
+		flags_subtree, hf_rffpcnex_flags_delete_form, tvb,
 		offset - 4, 4, flags);
 
 	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_set_form, tvb,
+		flags_subtree, hf_rffpcnex_flags_set_form, tvb,
 		offset - 4, 4, flags);
 
 	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_add_form, tvb,
+		flags_subtree, hf_rffpcnex_flags_add_form, tvb,
 		offset - 4, 4, flags);
 
 	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_write_job, tvb,
+		flags_subtree, hf_rffpcnex_flags_write_job, tvb,
 		offset - 4, 4, flags);
 
 	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_delete_job, tvb,
+		flags_subtree, hf_rffpcnex_flags_delete_job, tvb,
 		offset - 4, 4, flags);
 
 	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_set_job, tvb,
+		flags_subtree, hf_rffpcnex_flags_set_job, tvb,
 		offset - 4, 4, flags);
 
 	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_add_job, tvb,
+		flags_subtree, hf_rffpcnex_flags_add_job, tvb,
 		offset - 4, 4, flags);
 
 	proto_tree_add_boolean(
 		flags_subtree,
-		hf_spoolss_rffpcnex_flags_failed_printer_connection, tvb,
+		hf_rffpcnex_flags_failed_printer_connection, tvb,
 		offset - 4, 4, flags);
 
 	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_delete_printer, tvb,
+		flags_subtree, hf_rffpcnex_flags_delete_printer, tvb,
 		offset - 4, 4, flags);
 
 	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_set_printer, tvb,
+		flags_subtree, hf_rffpcnex_flags_set_printer, tvb,
 		offset - 4, 4, flags);
 
 	proto_tree_add_boolean(
-		flags_subtree, hf_spoolss_rffpcnex_flags_add_printer, tvb,
+		flags_subtree, hf_rffpcnex_flags_add_printer, tvb,
 		offset - 4, 4, flags);
 
 	if (flags & SPOOLSS_PRINTER_CHANGE_PRINTER)
@@ -3247,19 +3200,19 @@ static int SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 		proto_item_append_text(flags_item, ", change printer driver");
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_rffpcnex_options, NULL);
+				    hf_rffpcnex_options, NULL);
 
 	offset = dissect_ndr_str_pointer_item(
 		tvb, offset, pinfo, tree, drep, NDR_POINTER_UNIQUE,
 		"Server", hf_spoolss_servername, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_printerlocal, NULL);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep, hf_printerlocal, NULL);
 
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
 		dissect_NOTIFY_OPTIONS_ARRAY_CTR, NDR_POINTER_UNIQUE,
-		"NOTIFY_OPTIONS_CTR", -1);
+		"Notify Options Container", -1);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -3291,25 +3244,36 @@ static int SpoolssReplyOpenPrinter_q(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 printerlocal;
+	char *name = NULL;
 
 	/* Parse packet */
 
-	offset = dissect_unistr2(
-		tvb, offset, pinfo, tree, drep, hf_spoolss_servername, NULL);
+	offset = dissect_ndr_cvstring(
+		tvb, offset, pinfo, tree, drep, sizeof(guint16),
+		hf_spoolss_servername, TRUE, &name);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_printerlocal, &printerlocal);
+	if (check_col(pinfo->cinfo, COL_INFO) && name)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", name);
 
-	dcv->private_data = (void *)printerlocal;
+	if (!dcv->private_data && name)
+		dcv->private_data = name;
+	else
+		g_free(name);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep, hf_printerlocal, 
+		&printerlocal);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_printerdata_type, NULL);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_replyopenprinter_unk0, NULL);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep, hf_replyopenprinter_unk0, 
+		NULL);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_replyopenprinter_unk1, NULL);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep, hf_replyopenprinter_unk1, 
+		NULL);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -3320,15 +3284,26 @@ static int SpoolssReplyOpenPrinter_r(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep _U_)
 {
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	e_ctx_hnd policy_hnd;
+	char *pol_name;
 
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_spoolss_hnd, &policy_hnd,
 				       TRUE, FALSE);
+	
+	if (dcv->private_data)
+		pol_name = g_strdup_printf(
+			"ReplyOpenPrinter, %s", (char *)dcv->private_data);
+	else
+		pol_name = g_strdup("ReplyOpenPrinter handle");
 
-	dcerpc_smb_store_pol_name(&policy_hnd, "ReplyOpenPrinter handle");
+	dcerpc_smb_store_pol_name(&policy_hnd, pol_name);
+
+	g_free(pol_name);
 
 	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 				  hf_spoolss_rc, NULL);
@@ -3375,6 +3350,8 @@ static int SpoolssGetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
+static gint ett_PRINTER_INFO = -1;
+
 static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				proto_tree *tree, char *drep _U_)
 {
@@ -3404,9 +3381,8 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				buffer.tree, buffer.tvb, 0, -1,
 				"PRINTER_INFO_%d", level);
 			
-			/* XXX: is the ett value correct here? */
-			
-			subtree = proto_item_add_subtree(item, ett_UNISTR2);
+			subtree = proto_item_add_subtree(
+				item, ett_PRINTER_INFO);
 			break;
 		}
 
@@ -5257,9 +5233,9 @@ static int SpoolssDeletePrinterData_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
 		FALSE, FALSE);
 
-	offset = dissect_unistr2(
-		tvb, offset, pinfo, tree, drep, hf_printerdata_value,
-		&value_name);
+	offset = dissect_ndr_cvstring(
+		tvb, offset, pinfo, tree, drep, sizeof(guint16),
+		hf_printerdata_value, TRUE, &value_name);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", value_name);
@@ -5584,23 +5560,178 @@ static int
 dissect_notify_info_data_buffer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				proto_tree *tree, char *drep)
 {
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 len = (guint32)di->private_data;
+	guint32 len;
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep,
-		hf_spoolss_notify_info_data_buffer_len, NULL);
+		hf_notify_info_data_buffer_len, &len);
 
 	offset = dissect_ndr_uint16s(
 		tvb, offset, pinfo, tree, drep,
-		hf_spoolss_notify_info_data_buffer_data, len);
+		hf_notify_info_data_buffer_data, len);
 
 	return offset;
 }
 
+static void cb_notify_str_postprocess(packet_info *pinfo _U_, 
+				      proto_tree *tree _U_,
+				      proto_item *item, tvbuff_t *tvb, 
+				      int start_offset, int end_offset,
+				      void *callback_args)
+{
+	gint levels, hf_index = GPOINTER_TO_INT(callback_args);
+	guint32 len;
+	char *s;
+
+	/* Align start_offset on 4-byte boundary. */
+
+	if (start_offset % 4)
+		start_offset += 4 - (start_offset % 4);
+
+	/* Get string length */
+
+	len = tvb_get_letohl(tvb, start_offset);
+
+	s = fake_unicode(
+		tvb, start_offset + 4, (end_offset - start_offset - 4) / 2);
+
+	/* Append string to upper-level proto_items */
+
+	levels = 2;
+
+	if (levels > 0 && item) {
+		proto_item_append_text(item, ": %s", s);
+		item = item->parent;
+		levels--;
+		if (levels > 0) {
+			proto_item_append_text(item, ": %s", s);
+			item = item->parent;
+			levels--;
+			while (levels > 0) {
+				proto_item_append_text(item, " %s", s);
+				item = item->parent;
+				levels--;
+			}
+		}
+	}
+
+	/* Add hidden field so filter brings up any notify data */
+
+	if (hf_index != -1)
+		proto_tree_add_string_hidden(
+			tree, hf_index, tvb, start_offset, len, s);
+
+	g_free(s);
+}
+
+/* Return the hf_index for a printer notify field.  This is used to
+   add a hidden string to the display so that filtering will bring
+   up relevant notify data. */
+
+static int
+printer_notify_hf_index(int field)
+{
+	int result = -1;
+
+	switch(field) {
+	case PRINTER_NOTIFY_SERVER_NAME:
+		result = hf_spoolss_servername;
+		break;
+	case PRINTER_NOTIFY_PRINTER_NAME:
+		result = hf_spoolss_printername;
+		break;
+	case PRINTER_NOTIFY_SHARE_NAME:
+		result = hf_spoolss_sharename;
+		break;
+	case PRINTER_NOTIFY_PORT_NAME:
+		result = hf_spoolss_portname;
+		break;
+	case PRINTER_NOTIFY_DRIVER_NAME:
+		result = hf_spoolss_drivername;
+		break;
+	case PRINTER_NOTIFY_COMMENT:
+		result = hf_spoolss_printercomment;
+		break;
+	case PRINTER_NOTIFY_LOCATION:
+		result = hf_spoolss_printerlocation;
+		break;
+	case PRINTER_NOTIFY_SEPFILE:
+		result = hf_spoolss_sepfile;
+		break;
+	case PRINTER_NOTIFY_PRINT_PROCESSOR:
+		result = hf_spoolss_printprocessor;
+		break;
+	case PRINTER_NOTIFY_PARAMETERS:
+		result = hf_spoolss_parameters;
+		break;
+	case PRINTER_NOTIFY_DATATYPE:
+		result = hf_spoolss_parameters;
+		break;
+	}
+
+	return result;
+}
+
+static int
+job_notify_hf_index(int field)
+{
+	int result = -1;
+
+	switch(field) {
+	case JOB_NOTIFY_PRINTER_NAME:
+		result = hf_spoolss_printername;
+		break;
+	case JOB_NOTIFY_MACHINE_NAME:
+		result = hf_spoolss_machinename;
+		break;
+	case JOB_NOTIFY_PORT_NAME:
+		result = hf_spoolss_portname;
+		break;
+	case JOB_NOTIFY_USER_NAME:
+		result = hf_spoolss_username;
+		break;
+	case JOB_NOTIFY_NOTIFY_NAME:
+		result = hf_spoolss_notifyname;
+		break;
+	case JOB_NOTIFY_DATATYPE:
+		result = hf_spoolss_datatype;
+		break;
+	case JOB_NOTIFY_PRINT_PROCESSOR:
+		result = hf_spoolss_printprocessor;
+		break;
+	case JOB_NOTIFY_DRIVER_NAME:
+		result = hf_spoolss_drivername;
+		break;
+	case JOB_NOTIFY_DOCUMENT:
+		result = hf_spoolss_documentname;
+		break;
+	case JOB_NOTIFY_PRIORITY:
+		result = hf_job_priority;
+		break;
+	case JOB_NOTIFY_POSITION:
+		result = hf_job_position;
+		break;
+	case JOB_NOTIFY_TOTAL_PAGES:
+		result = hf_job_totalpages;
+		break;
+	case JOB_NOTIFY_PAGES_PRINTED:
+		result = hf_job_pagesprinted;
+		break;
+	case JOB_NOTIFY_TOTAL_BYTES:
+		result = hf_job_totalbytes;
+		break;
+	case JOB_NOTIFY_BYTES_PRINTED:
+		result = hf_job_bytesprinted;
+		break;
+	}
+
+	return result;
+}
+
 static int
 dissect_NOTIFY_INFO_DATA_printer(tvbuff_t *tvb, int offset, packet_info *pinfo,
-				 proto_tree *tree, char *drep, guint16 field)
+				 proto_tree *tree, proto_item *item,
+				 char *drep, guint16 field)
 {
 	guint32 value1;
 
@@ -5622,13 +5753,15 @@ dissect_NOTIFY_INFO_DATA_printer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		offset = dissect_ndr_uint32(
 			tvb, offset, pinfo, tree, drep,
-			hf_spoolss_notify_info_data_bufsize, &value1);
+			hf_notify_info_data_bufsize, &value1);
 
-		offset = dissect_ndr_pointer(
+		offset = dissect_ndr_pointer_cb(
 			tvb, offset, pinfo, tree, drep,
 			dissect_notify_info_data_buffer,
 			NDR_POINTER_UNIQUE, "String",
-			hf_spoolss_notify_info_data_buffer);
+			hf_notify_info_data_buffer,
+			cb_notify_str_postprocess, 
+			GINT_TO_POINTER(printer_notify_hf_index(field)));
 
 		break;
 
@@ -5641,23 +5774,29 @@ dissect_NOTIFY_INFO_DATA_printer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		offset = dissect_ndr_uint32(
 			tvb, offset, pinfo, NULL, drep,
-			hf_spoolss_notify_info_data_value2, NULL);
+			hf_notify_info_data_value2, NULL);
 
 		break;
 
-	case PRINTER_NOTIFY_STATUS:
+	case PRINTER_NOTIFY_STATUS: {
+		guint32 status;
 
 		/* Value 1 is the printer status */
 
  		offset = dissect_ndr_uint32(
 			tvb, offset, pinfo, tree, drep,
-			hf_spoolss_printer_status, NULL);
+			hf_spoolss_printer_status, &status);
 
 		offset = dissect_ndr_uint32(
 			tvb, offset, pinfo, NULL, drep,
-			hf_spoolss_notify_info_data_value2, NULL);
+			hf_notify_info_data_value2, NULL);
+
+		proto_item_append_text(
+			item, ": %s", 
+			val_to_str(status, printer_status_vals, "Unknown"));
 
 		break;
+	}
 
 		/* Unknown notify data */
 
@@ -5666,24 +5805,24 @@ dissect_NOTIFY_INFO_DATA_printer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		offset = dissect_ndr_uint32(
 			tvb, offset, pinfo, tree, drep,
-			hf_spoolss_notify_info_data_bufsize, &value1);
+			hf_notify_info_data_bufsize, &value1);
 
 		offset = dissect_ndr_pointer(
 			tvb, offset, pinfo, tree, drep,
 			dissect_notify_info_data_buffer,
 			NDR_POINTER_UNIQUE, "Buffer",
-			hf_spoolss_notify_info_data_buffer);
+			hf_notify_info_data_buffer);
 
 		break;
 
 	default:
 		offset = dissect_ndr_uint32(
 			tvb, offset, pinfo, tree, drep,
-			hf_spoolss_notify_info_data_value1, NULL);
+			hf_notify_info_data_value1, NULL);
 
 		offset = dissect_ndr_uint32(
 			tvb, offset, pinfo, tree, drep,
-			hf_spoolss_notify_info_data_value2, NULL);
+			hf_notify_info_data_value2, NULL);
 
 		break;
 	}
@@ -5692,7 +5831,8 @@ dissect_NOTIFY_INFO_DATA_printer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 dissect_NOTIFY_INFO_DATA_job(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			     proto_tree *tree, char *drep, guint16 field)
+			     proto_tree *tree, proto_item *item, char *drep, 
+			     guint16 field)
 {
 	guint32 value1;
 
@@ -5714,24 +5854,25 @@ dissect_NOTIFY_INFO_DATA_job(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		offset = dissect_ndr_uint32(
 			tvb, offset, pinfo, tree, drep,
-			hf_spoolss_notify_info_data_bufsize, &value1);
+			hf_notify_info_data_bufsize, &value1);
 
-		offset = dissect_ndr_pointer(
+		offset = dissect_ndr_pointer_cb(
 			tvb, offset, pinfo, tree, drep,
 			dissect_notify_info_data_buffer,
 			NDR_POINTER_UNIQUE, "String",
-			hf_spoolss_notify_info_data_buffer);
+			hf_notify_info_data_buffer,
+			cb_notify_str_postprocess, 
+			GINT_TO_POINTER(job_notify_hf_index(field)));
 
 		break;
 
 	case JOB_NOTIFY_STATUS:
-
 		offset = dissect_job_status(
 			tvb, offset, pinfo, tree, drep);
 
 		offset = dissect_ndr_uint32(
 			tvb, offset, pinfo, NULL, drep,
-			hf_spoolss_notify_info_data_value2, NULL);
+			hf_notify_info_data_value2, NULL);
 
 		break;
 
@@ -5741,14 +5882,39 @@ dissect_NOTIFY_INFO_DATA_job(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		offset = dissect_ndr_uint32(
 			tvb, offset, pinfo, tree, drep,
-			hf_spoolss_notify_info_data_buffer_len, NULL);
+			hf_notify_info_data_buffer_len, NULL);
 
 		offset = dissect_ndr_pointer(
 			tvb, offset, pinfo, tree, drep,
 			dissect_SYSTEM_TIME, NDR_POINTER_UNIQUE,
-			"SYSTEM_TIME", -1);
+			"Time submitted", -1);
 
 		break;
+
+	case JOB_NOTIFY_PRIORITY:
+	case JOB_NOTIFY_POSITION:
+	case JOB_NOTIFY_TOTAL_PAGES:
+	case JOB_NOTIFY_PAGES_PRINTED:
+	case JOB_NOTIFY_TOTAL_BYTES:
+	case JOB_NOTIFY_BYTES_PRINTED: {
+		guint32 value;
+
+		offset = dissect_ndr_uint32(
+			tvb, offset, pinfo, tree, drep,
+			hf_notify_info_data_value1, &value);
+
+		offset = dissect_ndr_uint32(
+			tvb, offset, pinfo, tree, drep,
+			hf_notify_info_data_value2, NULL);
+
+		proto_item_append_text(item, ": %d", value);
+
+		proto_tree_add_uint_hidden(
+			tree, job_notify_hf_index(field), tvb,
+			offset, 4, value);
+
+		break;
+	}
 
 		/* Unknown notify data */
 
@@ -5756,24 +5922,24 @@ dissect_NOTIFY_INFO_DATA_job(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		offset = dissect_ndr_uint32(
 			tvb, offset, pinfo, tree, drep,
-			hf_spoolss_notify_info_data_bufsize, &value1);
+			hf_notify_info_data_bufsize, &value1);
 
 		offset = dissect_ndr_pointer(
 			tvb, offset, pinfo, tree, drep,
 			dissect_notify_info_data_buffer,
 			NDR_POINTER_UNIQUE, "Buffer",
-			hf_spoolss_notify_info_data_buffer);
+			hf_notify_info_data_buffer);
 
 		break;
 
 	default:
 		offset = dissect_ndr_uint32(
 			tvb, offset, pinfo, tree, drep,
-			hf_spoolss_notify_info_data_value1, NULL);
+			hf_notify_info_data_value1, NULL);
 
 		offset = dissect_ndr_uint32(
 			tvb, offset, pinfo, tree, drep,
-			hf_spoolss_notify_info_data_value2, NULL);
+			hf_notify_info_data_value2, NULL);
 	}
 	return offset;
 }
@@ -5790,13 +5956,13 @@ dissect_NOTIFY_INFO_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint16 type, field;
 	char *field_string;
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, "NOTIFY_INFO_DATA");
+	item = proto_tree_add_text(tree, tvb, offset, 0, "%s", "");
 
 	subtree = proto_item_add_subtree(item, ett_NOTIFY_INFO_DATA);
 
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, subtree, drep,
-		hf_spoolss_notify_info_data_type, &type);
+		hf_notify_info_data_type, &type);
 
 	offset = dissect_notify_field(
 		tvb, offset, pinfo, subtree, drep, type, &field);
@@ -5816,34 +5982,32 @@ dissect_NOTIFY_INFO_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	proto_item_append_text(
-		item, ": %s, %s",
+		item, "%s, %s",
 		val_to_str(type, printer_notify_types, "Unknown (%d)"),
 		field_string);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep,
-		hf_spoolss_notify_info_data_count, &count);
+		hf_notify_info_data_count, &count);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep,
-		hf_spoolss_notify_info_data_id, NULL);
+		hf_notify_info_data_id, NULL);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep,
-		hf_spoolss_notify_info_data_count, NULL);
+		hf_notify_info_data_count, NULL);
 
 	/* The value here depends on (type, field) */
 
 	switch (type) {
 	case PRINTER_NOTIFY_TYPE:
 		offset = dissect_NOTIFY_INFO_DATA_printer(
-			tvb, offset, pinfo, subtree, drep,
-			field);
+			tvb, offset, pinfo, subtree, item, drep, field);
 		break;
 	case JOB_NOTIFY_TYPE:
 		offset = dissect_NOTIFY_INFO_DATA_job(
-			tvb, offset, pinfo, subtree, drep,
-			field);
+			tvb, offset, pinfo, subtree, item, drep, field);
 		break;
 	default:
 		proto_tree_add_text(
@@ -5860,13 +6024,13 @@ dissect_NOTIFY_INFO(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_notify_info_version, NULL);
+				    hf_notify_info_version, NULL);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_notify_info_flags, NULL);
+				    hf_notify_info_flags, NULL);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_notify_info_count, NULL);
+				    hf_notify_info_count, NULL);
 
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
 				     dissect_NOTIFY_INFO_DATA);
@@ -5888,13 +6052,12 @@ static int SpoolssRFNPCNEX_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		FALSE, FALSE);
 
 	offset = dissect_ndr_uint32(
-		tvb, offset, pinfo, tree, drep,
-		hf_spoolss_rrpcn_changelow, NULL);
+		tvb, offset, pinfo, tree, drep, hf_rrpcn_changelow, NULL);
 
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
 		dissect_NOTIFY_OPTIONS_ARRAY_CTR, NDR_POINTER_UNIQUE,
-		"NOTIFY_OPTIONS_ARRAY_CTR", -1);
+		"Notify Options Array Container", -1);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -5909,7 +6072,7 @@ static int SpoolssRFNPCNEX_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
 		dissect_NOTIFY_INFO, NDR_POINTER_UNIQUE,
-		"NOTIFY_INFO", -1);
+		"Notify Info", -1);
 
 	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 				  hf_spoolss_rc, NULL);
@@ -5932,22 +6095,22 @@ static int SpoolssRRPCN_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
 		FALSE, FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_rrpcn_changelow, NULL);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep, hf_rrpcn_changelow, NULL);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_rrpcn_changehigh, NULL);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep, hf_rrpcn_changehigh, NULL);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_rrpcn_unk0, NULL);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep, hf_rrpcn_unk0, NULL);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_rrpcn_unk1, NULL);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep, hf_rrpcn_unk1, NULL);
 
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
 		dissect_NOTIFY_INFO, NDR_POINTER_UNIQUE,
-		"NOTIFY_INFO", -1);
+		"Notify Info", -1);
 
 	/* Notify info */
 
@@ -5961,8 +6124,8 @@ static int SpoolssRRPCN_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	/* Parse packet */
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_rrpcn_unk0, NULL);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep, hf_rrpcn_unk0, NULL);
 
 	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 				  hf_spoolss_rc, NULL);
@@ -6129,9 +6292,9 @@ static int SpoolssEnumPrinterKey_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
 		FALSE, FALSE);
 
-	offset = dissect_unistr2(
-		tvb, offset, pinfo, tree, drep, hf_printerdata_key,
-		&key_name);
+	offset = dissect_ndr_cvstring(
+		tvb, offset, pinfo, tree, drep, sizeof(guint16),
+		hf_printerdata_key, TRUE, &key_name);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		char *kn = key_name;
@@ -6186,9 +6349,9 @@ static int SpoolssEnumPrinterDataEx_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
 		FALSE, FALSE);
 
-	offset = dissect_unistr2(
-		tvb, offset, pinfo, tree, drep, hf_printerdata_key,
-		&key_name);
+	offset = dissect_ndr_cvstring(
+		tvb, offset, pinfo, tree, drep, sizeof(guint16),
+		hf_printerdata_key, TRUE, &key_name);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", key_name);
@@ -6827,214 +6990,6 @@ proto_register_dcerpc_spoolss(void)
 		  { "Dependent files", "spoolss.dependentfiles", FT_STRING, BASE_NONE,
 		    NULL, 0, "Dependent files", HFILL }},
 
-		/* rffpcnex */
-
-		{ &hf_spoolss_rffpcnex_options,
-		  { "Options", "spoolss.rffpcnex.options", FT_UINT32, BASE_DEC,
-		    NULL, 0, "RFFPCNEX options", HFILL }},
-
-		{ &hf_spoolss_printerlocal,
-		  { "Printer local", "spoolss.printer_local", FT_UINT32, BASE_DEC,
-		    NULL, 0, "Printer local", HFILL }},
-
-		{ &hf_spoolss_rffpcnex_flags,
-		  { "RFFPCNEX flags", "spoolss.rffpcnex.flags", FT_UINT32, BASE_DEC,
-		    NULL, 0, "RFFPCNEX flags", HFILL }},
-
-		{ &hf_spoolss_rffpcnex_flags_add_printer,
-		  { "Add printer", "spoolss.rffpcnex.flags.add_printer",
-		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_add_printer),
-		    SPOOLSS_PRINTER_CHANGE_ADD_PRINTER, "Add printer", HFILL }},
-
-		{ &hf_spoolss_rffpcnex_flags_set_printer,
-		  { "Set printer", "spoolss.rffpcnex.flags.set_printer",
-		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_set_printer),
-		    SPOOLSS_PRINTER_CHANGE_SET_PRINTER, "Set printer", HFILL }},
-
-		{ &hf_spoolss_rffpcnex_flags_delete_printer,
-		  { "Delete printer", "spoolss.rffpcnex.flags.delete_printer",
-		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_delete_printer),
-		    SPOOLSS_PRINTER_CHANGE_DELETE_PRINTER, "Delete printer", HFILL }},
-
-		{ &hf_spoolss_rffpcnex_flags_add_job,
-		  { "Add job", "spoolss.rffpcnex.flags.add_job",
-		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_add_job),
-		    SPOOLSS_PRINTER_CHANGE_ADD_JOB, "Add job", HFILL }},
-
-		{ &hf_spoolss_rffpcnex_flags_set_job,
-		  { "Set job", "spoolss.rffpcnex.flags.set_job",
-		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_set_job),
-		    SPOOLSS_PRINTER_CHANGE_SET_JOB, "Set job", HFILL }},
-
-		{ &hf_spoolss_rffpcnex_flags_delete_job,
-		  { "Delete job", "spoolss.rffpcnex.flags.delete_job",
-		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_delete_job),
-		    SPOOLSS_PRINTER_CHANGE_DELETE_JOB, "Delete job", HFILL }},
-
-		{ &hf_spoolss_rffpcnex_flags_write_job,
-		  { "Write job", "spoolss.rffpcnex.flags.write_job",
-		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_write_job),
-		    SPOOLSS_PRINTER_CHANGE_WRITE_JOB, "Write job", HFILL }},
-
-		{ &hf_spoolss_rffpcnex_flags_add_form,
-		  { "Add form", "spoolss.rffpcnex.flags.add_form",
-		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_add_form),
-		    SPOOLSS_PRINTER_CHANGE_ADD_FORM, "Add form", HFILL }},
-
-		{ &hf_spoolss_rffpcnex_flags_set_form,
-		  { "Set form", "spoolss.rffpcnex.flags.set_form",
-		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_set_form),
-		    SPOOLSS_PRINTER_CHANGE_SET_FORM, "Set form", HFILL }},
-
-		{ &hf_spoolss_rffpcnex_flags_delete_form,
-		  { "Delete form", "spoolss.rffpcnex.flags.delete_form",
-		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_delete_form),
-		    SPOOLSS_PRINTER_CHANGE_DELETE_FORM, "Delete form", HFILL }},
-
-		{ &hf_spoolss_rffpcnex_flags_add_port,
-		  { "Add port", "spoolss.rffpcnex.flags.add_port",
-		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_add_port),
-		    SPOOLSS_PRINTER_CHANGE_ADD_PORT, "Add port", HFILL }},
-
-		{ &hf_spoolss_rffpcnex_flags_configure_port,
-		  { "Configure port", "spoolss.rffpcnex.flags.configure_port",
-		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_configure_port),
-		    SPOOLSS_PRINTER_CHANGE_CONFIGURE_PORT, "Configure port", HFILL }},
-
-		{ &hf_spoolss_rffpcnex_flags_delete_port,
-		  { "Delete port", "spoolss.rffpcnex.flags.delete_port",
-		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_delete_port),
-		    SPOOLSS_PRINTER_CHANGE_DELETE_PORT, "Delete port", HFILL }},
-
-
-		{ &hf_spoolss_rffpcnex_flags_add_print_processor,
-		  { "Add processor", "spoolss.rffpcnex.flags.add_processor",
-		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_add_print_processor),
-		    SPOOLSS_PRINTER_CHANGE_ADD_PRINT_PROCESSOR, "Add processor", HFILL }},
-
-		{ &hf_spoolss_rffpcnex_flags_delete_print_processor,
-		  { "Delete processor", "spoolss.rffpcnex.flags.delete_processor",
-		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_delete_print_processor),
-		    SPOOLSS_PRINTER_CHANGE_DELETE_PRINT_PROCESSOR, "Delete processor", HFILL }},
-
-		{ &hf_spoolss_rffpcnex_flags_add_driver,
-		  { "Add driver", "spoolss.rffpcnex.flags.add_driver",
-		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_add_driver),
-		    SPOOLSS_PRINTER_CHANGE_ADD_PRINTER_DRIVER, "Add driver", HFILL }},
-
-		{ &hf_spoolss_rffpcnex_flags_set_driver,
-		  { "Set driver", "spoolss.rffpcnex.flags.set_driver",
-		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_set_driver),
-		    SPOOLSS_PRINTER_CHANGE_SET_PRINTER_DRIVER, "Set driver", HFILL }},
-
-		{ &hf_spoolss_rffpcnex_flags_delete_driver,
-		  { "Delete driver", "spoolss.rffpcnex.flags.delete_driver",
-		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_delete_driver),
-		    SPOOLSS_PRINTER_CHANGE_DELETE_PRINTER_DRIVER, "Delete driver", HFILL }},
-
-		{ &hf_spoolss_rffpcnex_flags_timeout,
-		  { "Timeout", "spoolss.rffpcnex.flags.timeout",
-		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_timeout),
-		    SPOOLSS_PRINTER_CHANGE_TIMEOUT, "Timeout", HFILL }},
-
-		{ &hf_spoolss_rffpcnex_flags_failed_printer_connection,
-		  { "Failed printer connection", "spoolss.rffpcnex.flags.failed_connection_printer",
-		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_failed_connection_printer),
-		    SPOOLSS_PRINTER_CHANGE_FAILED_CONNECTION_PRINTER, "Failed printer connection", HFILL }},
-
-		{ &hf_spoolss_notify_options_version,
-		  { "Version", "spoolss.notify_options.version", FT_UINT32, BASE_DEC,
-		    NULL, 0, "Version", HFILL }},
-
-		{ &hf_spoolss_notify_options_flags,
-		  { "Flags", "spoolss.notify_options.flags", FT_UINT32, BASE_DEC,
-		    NULL, 0, "Flags", HFILL }},
-
-		{ &hf_spoolss_notify_options_count,
-		  { "Count", "spoolss.notify_options.count", FT_UINT32, BASE_DEC,
-		    NULL, 0, "Count", HFILL }},
-
-		{ &hf_spoolss_notify_option_type,
-		  { "Type", "spoolss.notify_option.type", FT_UINT16, BASE_DEC,
-		    VALS(printer_notify_types), 0, "Type", HFILL }},
-		{ &hf_spoolss_notify_option_reserved1,
-		  { "Reserved1", "spoolss.notify_option.reserved1", FT_UINT16, BASE_DEC,
-		    NULL, 0, "Reserved1", HFILL }},
-		{ &hf_spoolss_notify_option_reserved2,
-		  { "Reserved2", "spoolss.notify_option.reserved2", FT_UINT32, BASE_DEC,
-		    NULL, 0, "Reserved2", HFILL }},
-		{ &hf_spoolss_notify_option_reserved3,
-		  { "Reserved3", "spoolss.notify_option.reserved3", FT_UINT32, BASE_DEC,
-		    NULL, 0, "Reserved3", HFILL }},
-		{ &hf_spoolss_notify_option_count,
-		  { "Count", "spoolss.notify_option.count", FT_UINT32, BASE_DEC,
-		    NULL, 0, "Count", HFILL }},
-		{ &hf_spoolss_notify_option_data_count,
-		  { "Count", "spoolss.notify_option_data.count", FT_UINT32, BASE_DEC,
-		    NULL, 0, "Count", HFILL }},
-		{ &hf_spoolss_notify_options_flags_refresh,
-		  { "Refresh", "spoolss.notify_options.flags", FT_BOOLEAN, 32,
-		    TFS(&tfs_notify_options_flags_refresh), PRINTER_NOTIFY_OPTIONS_REFRESH,
-		    "Refresh", HFILL }},
-		{ &hf_spoolss_notify_info_count,
-		  { "Count", "spoolss.notify_info.count", FT_UINT32, BASE_DEC,
-		    NULL, 0, "Count", HFILL }},
-		{ &hf_spoolss_notify_info_version,
-		  { "Version", "spoolss.notify_info.version", FT_UINT32, BASE_DEC,
-		    NULL, 0, "Version", HFILL }},
-		{ &hf_spoolss_notify_info_flags,
-		  { "Flags", "spoolss.notify_info.flags", FT_UINT32, BASE_HEX,
-		    NULL, 0, "Flags", HFILL }},
-		{ &hf_spoolss_notify_info_data_type,
-		  { "Type", "spoolss.notify_info_data.type", FT_UINT16, BASE_DEC,
-		    VALS(printer_notify_types), 0, "Type", HFILL }},
-		{ &hf_spoolss_notify_field,
-		  { "Field", "spoolss.notify_field", FT_UINT16, BASE_DEC,
-		    NULL, 0, "Field", HFILL }},
-		{ &hf_spoolss_notify_info_data_count,
-		  { "Count", "spoolss.notify_info_data.count", FT_UINT32, BASE_DEC,
-		    NULL, 0, "Count", HFILL }},
-		{ &hf_spoolss_notify_info_data_id,
-		  { "Job Id", "spoolss.notify_info_data.jobid", FT_UINT32, BASE_DEC,
-		    NULL, 0, "Job Id", HFILL }},
-		{ &hf_spoolss_notify_info_data_value1,
-		  { "Value1", "spoolss.notify_info_data.value1", FT_UINT32, BASE_HEX,
-		    NULL, 0, "Value1", HFILL }},
-		{ &hf_spoolss_notify_info_data_value2,
-		  { "Value2", "spoolss.notify_info_data.value2", FT_UINT32, BASE_HEX,
-		    NULL, 0, "Value2", HFILL }},
-		{ &hf_spoolss_notify_info_data_bufsize,
-		  { "Buffer size", "spoolss.notify_info_data.bufsize", FT_UINT32, BASE_DEC,
-		    NULL, 0, "Buffer size", HFILL }},
-		{ &hf_spoolss_notify_info_data_buffer,
-		  { "Buffer", "spoolss.notify_info_data.buffer", FT_UINT32, BASE_HEX,
-		    NULL, 0, "Buffer", HFILL }},
-		{ &hf_spoolss_notify_info_data_buffer_len,
-		  { "Buffer length", "spoolss.notify_info_data.buffer.len", FT_UINT32, BASE_HEX,
-		    NULL, 0, "Buffer length", HFILL }},
-		{ &hf_spoolss_notify_info_data_buffer_data,
-		  { "Buffer data", "spoolss.notify_info_data.buffer.data", FT_BYTES, BASE_HEX,
-		    NULL, 0, "Buffer data", HFILL }},
-
-		{ &hf_spoolss_rrpcn_changelow,
-		  { "Change low", "spoolss.rrpcn.changelow", FT_UINT32, BASE_DEC,
-		    NULL, 0, "Change low", HFILL }},
-		{ &hf_spoolss_rrpcn_changehigh,
-		  { "Change high", "spoolss.rrpcn.changehigh", FT_UINT32, BASE_DEC,
-		    NULL, 0, "Change high", HFILL }},
-		{ &hf_spoolss_rrpcn_unk0,
-		  { "Unknown 0", "spoolss.rrpcn.unk0", FT_UINT32, BASE_DEC,
-		    NULL, 0, "Unknown 0", HFILL }},
-		{ &hf_spoolss_rrpcn_unk1,
-		  { "Unknown 1", "spoolss.rrpcn.unk1", FT_UINT32, BASE_DEC,
-		    NULL, 0, "Unknown 1", HFILL }},
-		{ &hf_spoolss_replyopenprinter_unk0,
-		  { "Unknown 0", "spoolss.replyopenprinter.unk0", FT_UINT32, BASE_DEC,
-		    NULL, 0, "Unknown 0", HFILL }},
-		{ &hf_spoolss_replyopenprinter_unk1,
-		  { "Unknown 1", "spoolss.replyopenprinter.unk1", FT_UINT32, BASE_DEC,
-		    NULL, 0, "Unknown 1", HFILL }},
-
 		{ &hf_spoolss_printer_status,
 		  { "Status", "spoolss.printer_status", FT_UINT32, BASE_DEC,
 		   VALS(printer_status_vals), 0, "Status", HFILL }},
@@ -7390,24 +7345,6 @@ proto_register_dcerpc_spoolss(void)
                 { &hf_spoolss_userlevel_processor,
                   { "Processor", "spoolss.userlevel.processor",
                     FT_UINT32, BASE_DEC, NULL, 0, "Processor", HFILL }},
-
-		/* UNISTR2 */
-
-		{ &hf_unistr2_maxlen,
-		  { "Max len", "unistr2.maxlen",
-		    FT_UINT32, BASE_DEC, NULL, 0, "Max len", HFILL }},
-
-		{ &hf_unistr2_offset,
-		  { "Offset", "unistr2.offset",
-		    FT_UINT16, BASE_DEC, NULL, 0, "Offset", HFILL }},
-
-		{ &hf_unistr2_len,
-		  { "Len", "unistr2.len",
-		    FT_UINT16, BASE_DEC, NULL, 0, "Len", HFILL }},
-
-		{ &hf_unistr2_buffer,
-		  { "Buffer", "unistr2.buffer",
-		    FT_BYTES, BASE_HEX, NULL, 0, "Buffer", HFILL }},
 
 		/* Setprinterdataex */
 
@@ -7928,6 +7865,15 @@ proto_register_dcerpc_spoolss(void)
 		  { "Job total pages", "spoolss.job.totalpages", FT_UINT32, 
 		    BASE_DEC, NULL, 0x0, "Job total pages", HFILL }},
 
+		{ &hf_job_totalbytes,
+		  { "Job total bytes", "spoolss.job.totalbytes", FT_UINT32, 
+		    BASE_DEC, NULL, 0x0, "Job total bytes", HFILL }},
+
+		{ &hf_job_bytesprinted,
+		  { "Job bytes printed", "spoolss.job.bytesprinted", 
+		    FT_UINT32, BASE_DEC, NULL, 0x0, "Job bytes printed", 
+		    HFILL }},
+
 		{ &hf_job_pagesprinted,
 		  { "Job pages printed", "spoolss.job.pagesprinted", 
 		    FT_UINT32, BASE_DEC, NULL, 0x0, "Job pages printed", 
@@ -7986,6 +7932,259 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_enumforms_num,
 		  { "Num", "spoolss.enumforms.num", FT_UINT32,
 		    BASE_DEC, NULL, 0, "Num", HFILL }},
+
+		/* Print notify */
+
+		{ &hf_notify_options_version,
+		  { "Version", "spoolss.notify_options.version", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Version", HFILL }},
+
+		{ &hf_notify_options_flags,
+		  { "Flags", "spoolss.notify_options.flags", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Flags", HFILL }},
+
+		{ &hf_notify_options_count,
+		  { "Count", "spoolss.notify_options.count", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Count", HFILL }},
+
+		{ &hf_notify_option_type,
+		  { "Type", "spoolss.notify_option.type", FT_UINT16, BASE_DEC,
+		    VALS(printer_notify_types), 0, "Type", HFILL }},
+
+		{ &hf_notify_option_reserved1,
+		  { "Reserved1", "spoolss.notify_option.reserved1", FT_UINT16, 
+		    BASE_DEC, NULL, 0, "Reserved1", HFILL }},
+
+		{ &hf_notify_option_reserved2,
+		  { "Reserved2", "spoolss.notify_option.reserved2", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Reserved2", HFILL }},
+
+		{ &hf_notify_option_reserved3,
+		  { "Reserved3", "spoolss.notify_option.reserved3", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Reserved3", HFILL }},
+
+		{ &hf_notify_option_count,
+		  { "Count", "spoolss.notify_option.count", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Count", HFILL }},
+
+		{ &hf_notify_option_data_count,
+		  { "Count", "spoolss.notify_option_data.count", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Count", HFILL }},
+
+		{ &hf_notify_options_flags_refresh,
+		  { "Refresh", "spoolss.notify_options.flags", FT_BOOLEAN, 32,
+		    TFS(&tfs_notify_options_flags_refresh), 
+		    PRINTER_NOTIFY_OPTIONS_REFRESH, "Refresh", HFILL }},
+
+		{ &hf_notify_info_count,
+		  { "Count", "spoolss.notify_info.count", FT_UINT32, BASE_DEC,
+		    NULL, 0, "Count", HFILL }},
+
+		{ &hf_notify_info_version,
+		  { "Version", "spoolss.notify_info.version", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Version", HFILL }},
+
+		{ &hf_notify_info_flags,
+		  { "Flags", "spoolss.notify_info.flags", FT_UINT32, BASE_HEX,
+		    NULL, 0, "Flags", HFILL }},
+
+		{ &hf_notify_info_data_type,
+		  { "Type", "spoolss.notify_info_data.type", FT_UINT16, 
+		    BASE_DEC, VALS(printer_notify_types), 0, "Type", HFILL }},
+
+		{ &hf_notify_field,
+		  { "Field", "spoolss.notify_field", FT_UINT16, BASE_DEC,
+		    NULL, 0, "Field", HFILL }},
+
+		{ &hf_notify_info_data_count,
+		  { "Count", "spoolss.notify_info_data.count", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Count", HFILL }},
+
+		{ &hf_notify_info_data_id,
+		  { "Job Id", "spoolss.notify_info_data.jobid", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Job Id", HFILL }},
+
+		{ &hf_notify_info_data_value1,
+		  { "Value1", "spoolss.notify_info_data.value1", FT_UINT32, 
+		    BASE_HEX, NULL, 0, "Value1", HFILL }},
+
+		{ &hf_notify_info_data_value2,
+		  { "Value2", "spoolss.notify_info_data.value2", FT_UINT32, 
+		    BASE_HEX, NULL, 0, "Value2", HFILL }},
+
+		{ &hf_notify_info_data_bufsize,
+		  { "Buffer size", "spoolss.notify_info_data.bufsize", 
+		    FT_UINT32, BASE_DEC, NULL, 0, "Buffer size", HFILL }},
+
+		{ &hf_notify_info_data_buffer,
+		  { "Buffer", "spoolss.notify_info_data.buffer", FT_UINT32, 
+		    BASE_HEX, NULL, 0, "Buffer", HFILL }},
+
+		{ &hf_notify_info_data_buffer_len,
+		  { "Buffer length", "spoolss.notify_info_data.buffer.len", 
+		    FT_UINT32, BASE_HEX, NULL, 0, "Buffer length", HFILL }},
+
+		{ &hf_notify_info_data_buffer_data,
+		  { "Buffer data", "spoolss.notify_info_data.buffer.data", 
+		    FT_BYTES, BASE_HEX, NULL, 0, "Buffer data", HFILL }},
+
+		/* RffpCNex RPC */
+
+		{ &hf_rffpcnex_options,
+		  { "Options", "spoolss.rffpcnex.options", FT_UINT32, BASE_DEC,
+		    NULL, 0, "RFFPCNEX options", HFILL }},
+
+		{ &hf_printerlocal, /* XXX: move me */
+		  { "Printer local", "spoolss.printer_local", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Printer local", HFILL }},
+
+		{ &hf_rffpcnex_flags,
+		  { "RFFPCNEX flags", "spoolss.rffpcnex.flags", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "RFFPCNEX flags", HFILL }},
+
+		{ &hf_rffpcnex_flags_add_printer,
+		  { "Add printer", "spoolss.rffpcnex.flags.add_printer",
+		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_add_printer),
+		    SPOOLSS_PRINTER_CHANGE_ADD_PRINTER, "Add printer", 
+		    HFILL }},
+
+		{ &hf_rffpcnex_flags_set_printer,
+		  { "Set printer", "spoolss.rffpcnex.flags.set_printer",
+		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_set_printer),
+		    SPOOLSS_PRINTER_CHANGE_SET_PRINTER, "Set printer", 
+		    HFILL }},
+
+		{ &hf_rffpcnex_flags_delete_printer,
+		  { "Delete printer", "spoolss.rffpcnex.flags.delete_printer",
+		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_delete_printer),
+		    SPOOLSS_PRINTER_CHANGE_DELETE_PRINTER, "Delete printer", 
+		    HFILL }},
+
+		{ &hf_rffpcnex_flags_add_job,
+		  { "Add job", "spoolss.rffpcnex.flags.add_job",
+		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_add_job),
+		    SPOOLSS_PRINTER_CHANGE_ADD_JOB, "Add job", HFILL }},
+
+		{ &hf_rffpcnex_flags_set_job,
+		  { "Set job", "spoolss.rffpcnex.flags.set_job",
+		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_set_job),
+		    SPOOLSS_PRINTER_CHANGE_SET_JOB, "Set job", HFILL }},
+
+		{ &hf_rffpcnex_flags_delete_job,
+		  { "Delete job", "spoolss.rffpcnex.flags.delete_job",
+		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_delete_job),
+		    SPOOLSS_PRINTER_CHANGE_DELETE_JOB, "Delete job", HFILL }},
+
+		{ &hf_rffpcnex_flags_write_job,
+		  { "Write job", "spoolss.rffpcnex.flags.write_job",
+		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_write_job),
+		    SPOOLSS_PRINTER_CHANGE_WRITE_JOB, "Write job", HFILL }},
+
+		{ &hf_rffpcnex_flags_add_form,
+		  { "Add form", "spoolss.rffpcnex.flags.add_form",
+		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_add_form),
+		    SPOOLSS_PRINTER_CHANGE_ADD_FORM, "Add form", HFILL }},
+
+		{ &hf_rffpcnex_flags_set_form,
+		  { "Set form", "spoolss.rffpcnex.flags.set_form",
+		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_set_form),
+		    SPOOLSS_PRINTER_CHANGE_SET_FORM, "Set form", HFILL }},
+
+		{ &hf_rffpcnex_flags_delete_form,
+		  { "Delete form", "spoolss.rffpcnex.flags.delete_form",
+		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_delete_form),
+		    SPOOLSS_PRINTER_CHANGE_DELETE_FORM, "Delete form", 
+		    HFILL }},
+
+		{ &hf_rffpcnex_flags_add_port,
+		  { "Add port", "spoolss.rffpcnex.flags.add_port",
+		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_add_port),
+		    SPOOLSS_PRINTER_CHANGE_ADD_PORT, "Add port", HFILL }},
+
+		{ &hf_rffpcnex_flags_configure_port,
+		  { "Configure port", "spoolss.rffpcnex.flags.configure_port",
+		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_configure_port),
+		    SPOOLSS_PRINTER_CHANGE_CONFIGURE_PORT, "Configure port", 
+		    HFILL }},
+
+		{ &hf_rffpcnex_flags_delete_port,
+		  { "Delete port", "spoolss.rffpcnex.flags.delete_port",
+		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_delete_port),
+		    SPOOLSS_PRINTER_CHANGE_DELETE_PORT, "Delete port", 
+		    HFILL }},
+
+		{ &hf_rffpcnex_flags_add_print_processor,
+		  { "Add processor", "spoolss.rffpcnex.flags.add_processor",
+		    FT_BOOLEAN, 32, 
+		    TFS(&tfs_rffpcnex_flags_add_print_processor),
+		    SPOOLSS_PRINTER_CHANGE_ADD_PRINT_PROCESSOR, 
+		    "Add processor", HFILL }},
+
+		{ &hf_rffpcnex_flags_delete_print_processor,
+		  { "Delete processor", 
+		    "spoolss.rffpcnex.flags.delete_processor", FT_BOOLEAN, 32, 
+		    TFS(&tfs_rffpcnex_flags_delete_print_processor),
+		    SPOOLSS_PRINTER_CHANGE_DELETE_PRINT_PROCESSOR, 
+		    "Delete processor", HFILL }},
+
+		{ &hf_rffpcnex_flags_add_driver,
+		  { "Add driver", "spoolss.rffpcnex.flags.add_driver",
+		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_add_driver),
+		    SPOOLSS_PRINTER_CHANGE_ADD_PRINTER_DRIVER, "Add driver", 
+		    HFILL }},
+
+		{ &hf_rffpcnex_flags_set_driver,
+		  { "Set driver", "spoolss.rffpcnex.flags.set_driver",
+		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_set_driver),
+		    SPOOLSS_PRINTER_CHANGE_SET_PRINTER_DRIVER, "Set driver", 
+		    HFILL }},
+
+		{ &hf_rffpcnex_flags_delete_driver,
+		  { "Delete driver", "spoolss.rffpcnex.flags.delete_driver",
+		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_delete_driver),
+		    SPOOLSS_PRINTER_CHANGE_DELETE_PRINTER_DRIVER, 
+		    "Delete driver", HFILL }},
+
+		{ &hf_rffpcnex_flags_timeout,
+		  { "Timeout", "spoolss.rffpcnex.flags.timeout",
+		    FT_BOOLEAN, 32, TFS(&tfs_rffpcnex_flags_timeout),
+		    SPOOLSS_PRINTER_CHANGE_TIMEOUT, "Timeout", HFILL }},
+
+		{ &hf_rffpcnex_flags_failed_printer_connection,
+		  { "Failed printer connection", 
+		    "spoolss.rffpcnex.flags.failed_connection_printer",
+		    FT_BOOLEAN, 32, 
+		    TFS(&tfs_rffpcnex_flags_failed_connection_printer),
+		    SPOOLSS_PRINTER_CHANGE_FAILED_CONNECTION_PRINTER, 
+		    "Failed printer connection", HFILL }},
+
+		/* RRPCN RPC */
+
+		{ &hf_rrpcn_changelow,
+		  { "Change low", "spoolss.rrpcn.changelow", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Change low", HFILL }},
+
+		{ &hf_rrpcn_changehigh,
+		  { "Change high", "spoolss.rrpcn.changehigh", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Change high", HFILL }},
+
+		{ &hf_rrpcn_unk0,
+		  { "Unknown 0", "spoolss.rrpcn.unk0", FT_UINT32, BASE_DEC,
+		    NULL, 0, "Unknown 0", HFILL }},
+
+		{ &hf_rrpcn_unk1,
+		  { "Unknown 1", "spoolss.rrpcn.unk1", FT_UINT32, BASE_DEC,
+		    NULL, 0, "Unknown 1", HFILL }},
+
+		/* ReplyOpenPrinter RPC */
+
+		{ &hf_replyopenprinter_unk0,
+		  { "Unknown 0", "spoolss.replyopenprinter.unk0", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Unknown 0", HFILL }},
+
+		{ &hf_replyopenprinter_unk1,
+		  { "Unknown 1", "spoolss.replyopenprinter.unk1", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Unknown 1", HFILL }},
 	};
 
         static gint *ett[] = {
@@ -7997,7 +8196,7 @@ proto_register_dcerpc_spoolss(void)
 		&ett_USER_LEVEL_CTR,
 		&ett_USER_LEVEL_1,
 		&ett_BUFFER,
-		&ett_UNISTR2,
+		&ett_PRINTER_INFO,
 		&ett_SPOOL_PRINTER_INFO_LEVEL,
 		&ett_PRINTER_INFO_0,
 		&ett_PRINTER_INFO_1,
