@@ -3,7 +3,7 @@
  * 
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-mpls.c,v 1.1 2000/03/09 18:31:50 ashokn Exp $
+ * $Id: packet-mpls.c,v 1.2 2000/03/13 16:36:31 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -92,19 +92,19 @@ static hf_register_info mplsf_info[] = {
       "" }},
 
     {&mpls_filter[MPLSF_LABEL], 
-     {"MPLS Label", "mpls.label", FT_UINT32, BASE_NONE, NULL, 0x0, 
+     {"MPLS Label", "mpls.label", FT_UINT32, BASE_DEC, VALS(special_labels), 0x0, 
       "" }},
 
     {&mpls_filter[MPLSF_EXP], 
-     {"MPLS Experimental Bits", "mpls.exp", FT_UINT8, BASE_NONE, NULL, 0x0, 
+     {"MPLS Experimental Bits", "mpls.exp", FT_UINT8, BASE_DEC, NULL, 0x0, 
       "" }},
 
     {&mpls_filter[MPLSF_BOTTOM_OF_STACK], 
-     {"MPLS Bottom Of Label Stack", "mpls.bottom", FT_UINT8, BASE_NONE, NULL, 0x0, 
+     {"MPLS Bottom Of Label Stack", "mpls.bottom", FT_UINT8, BASE_DEC, NULL, 0x0, 
       "" }},
 
     {&mpls_filter[MPLSF_TTL], 
-     {"MPLS TTL", "mpls.ttl", FT_UINT8, BASE_NONE, NULL, 0x0, 
+     {"MPLS TTL", "mpls.ttl", FT_UINT8, BASE_DEC, NULL, 0x0, 
       "" }},
 };
 
@@ -157,15 +157,14 @@ dissect_mpls(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    mpls_tree = proto_item_add_subtree(ti, ett_mpls);
 
 	    if (label <= MAX_RESERVED)
-		proto_tree_add_text(mpls_tree, offset, 3, 
-				    "Label: %d (%s)", 
+		proto_tree_add_uint_format(mpls_tree, mpls_filter[MPLSF_LABEL],
+				    offset, 3, label, "Label: %d (%s)", 
 				    label, val_to_str(label, special_labels, 
 						      "Reserved - Unknown"));
 	    else
-		proto_tree_add_text(mpls_tree, offset, 3, 
-				    "Label: %d",  label);
-	    proto_tree_add_item_hidden(mpls_tree, mpls_filter[MPLSF_LABEL], 
-				       offset,3, label);
+		proto_tree_add_item(mpls_tree, mpls_filter[MPLSF_LABEL],
+				    offset, 3, label);
+
 	    proto_tree_add_item(mpls_tree,mpls_filter[MPLSF_EXP], 
 				offset+2,1, exp);
 	    proto_tree_add_item(mpls_tree,mpls_filter[MPLSF_BOTTOM_OF_STACK], 
