@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2003 by Matthijs Melchior <matthijs.melchior@xs4all.nl>
  *
- * $Id: packet-asn1.c,v 1.2 2003/10/28 20:53:37 guy Exp $
+ * $Id: packet-asn1.c,v 1.3 2003/10/28 21:04:16 guy Exp $
  *
  * A plugin for:
  *
@@ -4673,16 +4673,11 @@ proto_register_asn1(void) {
 				 "Desegment ASN.1 messages that span TCP segments",
 				 &asn1_desegment);
 
-#ifdef WIN32
-  /* 'get_datafile_dir()' not yet available for plugins */
-  asn1_filename = g_strdup("C:\\ethereal\\asn1\\default.tt");
-#else
   {
 	  int n = strlen(get_datafile_dir()) + sizeof(ASN1FILE) + 2;
 	  asn1_filename = g_malloc(n);
 	  snprintf(asn1_filename, n, "%s" G_DIR_SEPARATOR_S "%s", get_datafile_dir(), ASN1FILE);
   }
-#endif
   asn1_filename = default_asn1_filename;
 
   prefs_register_string_preference(asn1_module, "file",
