@@ -1,7 +1,7 @@
 /* packet-ip.h
  * Definitions for IP packet disassembly structures and routines
  *
- * $Id: packet-ip.h,v 1.26 2003/01/22 01:16:33 sahlberg Exp $
+ * $Id: packet-ip.h,v 1.27 2003/04/29 17:24:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,9 +63,6 @@ typedef struct ip_tcp_opt {
 /* Routine to dissect IP or TCP options. */
 void       dissect_ip_tcp_options(tvbuff_t *, int, guint,
     const ip_tcp_opt *, int, int, packet_info *, proto_tree *);
-
-/* Dissector table for "ip.proto"; used by IPv6 as well as IPv4 */
-extern dissector_table_t ip_dissector_table;
 
 /* Export the DSCP value-string table for other protocols */
 extern const value_string dscp_vals[];

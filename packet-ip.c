@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.190 2003/04/20 11:36:13 guy Exp $
+ * $Id: packet-ip.c,v 1.191 2003/04/29 17:24:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -124,8 +124,7 @@ static const fragment_items ip_frag_items = {
 	"fragments"
 };
 
-/* Used by IPv6 as well, so not static */
-dissector_table_t ip_dissector_table;
+static dissector_table_t ip_dissector_table;
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t data_handle;

@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly
  *
- * $Id: packet-ipsec.c,v 1.42 2002/08/28 21:00:17 jmayer Exp $
+ * $Id: packet-ipsec.c,v 1.43 2003/04/29 17:24:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,7 +32,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-ipsec.h"
-#include "packet-ip.h"
 #include <epan/resolv.h>
 #include "ipproto.h"
 #include "prefs.h"
@@ -55,6 +54,8 @@ static gint ett_esp = -1;
 static gint ett_ipcomp = -1;
 
 static dissector_handle_t data_handle;
+
+static dissector_table_t ip_dissector_table;
 
 struct newah {
 	guint8	ah_nxt;		/* Next Header */
@@ -353,4 +354,6 @@ proto_reg_handoff_ipsec(void)
   dissector_add("ip.proto", IP_PROTO_ESP, esp_handle);
   ipcomp_handle = create_dissector_handle(dissect_ipcomp, proto_ipcomp);
   dissector_add("ip.proto", IP_PROTO_IPCOMP, ipcomp_handle);
+
+  ip_dissector_table = find_dissector_table("ip.proto");
 }

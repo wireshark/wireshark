@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.97 2003/04/20 11:36:14 guy Exp $
+ * $Id: packet-ipv6.c,v 1.98 2003/04/29 17:24:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,7 +32,6 @@
 #include <stdio.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include "packet-ip.h"
 #include "packet-ipsec.h"
 #include "packet-ipv6.h"
 #include <epan/resolv.h>
@@ -96,6 +95,8 @@ static const fragment_items ipv6_frag_items = {
 };
 
 static dissector_handle_t data_handle;
+
+static dissector_table_t ip_dissector_table;
 
 /* Reassemble fragmented datagrams */
 static gboolean ipv6_reassemble = FALSE;
@@ -864,4 +865,6 @@ proto_reg_handoff_ipv6(void)
   dissector_add("fr.ietf", NLPID_IP6, ipv6_handle);
   dissector_add("x.25.spi", NLPID_IP6, ipv6_handle);
   dissector_add("arcnet.protocol_id", ARCNET_PROTO_IPv6, ipv6_handle);
+
+  ip_dissector_table = find_dissector_table("ip.proto");
 }
