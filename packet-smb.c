@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.307 2003/02/10 02:38:24 guy Exp $
+ * $Id: packet-smb.c,v 1.308 2003/02/11 04:33:24 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7141,7 +7141,8 @@ static const true_false_string tfs_ace_flags_failed_access = {
 	}
 
 static int
-dissect_nt_v2_ace_flags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
+dissect_nt_v2_ace_flags(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
+			guint8 *data)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -7149,6 +7150,11 @@ dissect_nt_v2_ace_flags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 	char *sep = " ";
 
 	mask = tvb_get_guint8(tvb, offset);
+
+	if (data)
+		*data = mask;
+
+
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, 1,
 					   "NT ACE Flags: 0x%02x", mask);
@@ -7417,6 +7423,8 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree = NULL;
 	int old_offset = offset;
 	guint16 size;
+	char *sid_str;
+	guint8 flags;
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
@@ -7425,14 +7433,11 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	/* type */
-	if(item){
-	  proto_item_append_text(item, val_to_str(tvb_get_guint8(tvb, offset), ace_type_vals, "Unknown ACE type (%u)"));
-	}
 	proto_tree_add_item(tree, hf_smb_ace_type, tvb, offset, 1, TRUE);
 	offset += 1;
 
 	/* flags */
-	offset = dissect_nt_v2_ace_flags(tvb, offset, tree);
+	offset = dissect_nt_v2_ace_flags(tvb, offset, tree, &flags);
 
 	/* size */
 	size = tvb_get_letohs(tvb, offset);
@@ -7445,7 +7450,15 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		specific_rights_fn);
 
 	/* SID */
-	offset = dissect_nt_sid(tvb, offset, tree, "ACE", NULL);
+	offset = dissect_nt_sid(tvb, offset, tree, "ACE", &sid_str);
+
+	if (item)
+		proto_item_append_text(
+			item, "%s, flags 0x%02x, %s", sid_str, flags,
+			val_to_str(tvb_get_guint8(tvb, offset), ace_type_vals, 
+				   "Unknown ACE type"));
+
+	g_free(sid_str);
 
 	proto_item_set_len(item, offset-old_offset);
 
