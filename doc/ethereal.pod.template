@@ -995,6 +995,7 @@ B<http://www.ethereal.com>.
   Jack Keane               <jkeane@OpenReach.com>
   Brian Wellington         <bwelling@xbill.org>
   Santeri Paavolainen      <santtu@ssh.com>
+  Ulrich Kiermayr          <uk@ap.univie.ac.at>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
