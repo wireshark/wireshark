@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.8 1998/10/13 02:10:52 gerald Exp $
+# $Id: configure.in,v 1.9 1998/10/28 21:52:48 gerald Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
@@ -39,9 +39,26 @@ AM_PATH_GTK(1.0.0, CFLAGS="$CFLAGS $GTK_CFLAGS" LIBS="$LIBS $GTK_LIBS",
                    AC_MSG_ERROR(GTK+ distribution not found.))
 
 # Pcap checks
-AC_CHECK_HEADER(pcap.h,, AC_MSG_ERROR(Header file pcap.h not found.))
 AC_CHECK_HEADER(net/bpf.h,, AC_MSG_ERROR(Header file net/bpf.h not found.))
+AC_CHECK_HEADER(pcap.h,, AC_MSG_ERROR(Header file pcap.h not found.))
 AC_CHECK_LIB(pcap, pcap_open_offline,, AC_MSG_ERROR(Library libpcap not found.))
+
+# Evidently, some systems have pcap.h, etc. in */include/pcap
+AC_MSG_CHECKING(for extraneous pcap header directories)
+found_pcap_dir=""
+for pcap_dir in /usr/include/pcap /usr/local/include/pcap
+do
+  if test -d $pcap_dir ; then
+    LIBS="$LIBS -L$pcap_dir"
+    found_pcap_dir=" $found_pcap_dir -L$pcap_dir"
+  fi
+done
+
+if test "$found_pcap_dir" != "" ; then
+  AC_MSG_RESULT(found --$found_pcap_dir added to LIBS)
+else
+  AC_MSG_RESULT(not found)
+fi
 
 dnl Checks for header files.
 AC_HEADER_STDC
