@@ -1,7 +1,7 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.24 2004/01/09 00:57:48 guy Exp $
+ * $Id: conversation.c,v 1.25 2004/07/06 19:01:31 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -464,7 +464,7 @@ conversation_new(address *addr1, address *addr2, port_type ptype,
 	new_index++;
 
 	if (options & NO_ADDR2) {
-		if (options & NO_PORT2) {
+		if (options & (NO_PORT2|NO_PORT2_FORCE)) {
 			g_hash_table_insert(conversation_hashtable_no_addr2_or_port2,
 			    new_key, conversation);
 		} else {
@@ -472,7 +472,7 @@ conversation_new(address *addr1, address *addr2, port_type ptype,
 			    new_key, conversation);
 		}
 	} else {
-		if (options & NO_PORT2) {
+		if (options & (NO_PORT2|NO_PORT2_FORCE)) {
 			g_hash_table_insert(conversation_hashtable_no_port2,
 			    new_key, conversation);
 		} else {
@@ -493,7 +493,7 @@ conversation_set_port2(conversation_t *conv, guint32 port)
 	/*
 	 * If the port 2 value is not wildcarded, don't set it.
 	 */
-	if (!(conv->options & NO_PORT2))
+        if ((!(conv->options & NO_PORT2)) || (conv->options & NO_PORT2_FORCE))
 		return;
 
 	if (conv->options & NO_ADDR2) {

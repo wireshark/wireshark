@@ -7,7 +7,7 @@
  * Copyright 2003, Elipsan, Gareth Bushell <gbushell@elipsan.com>
  * (c) 2004 Ronnie Sahlberg   updates
  *
- * $Id: packet-isns.c,v 1.8 2004/05/27 08:33:22 sahlberg Exp $
+ * $Id: packet-isns.c,v 1.9 2004/07/06 19:01:31 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,6 +51,7 @@
 #endif
 
 #include <epan/packet.h>
+#include <epan/conversation.h>
 #include "packet-tcp.h"
 #include "prefs.h"
 
@@ -61,13 +62,22 @@
 #define ISNS_TCP_PORT 3205
 #define ISNS_UDP_PORT 3205
 
+#define ISNS_OTHER_PORT 0
+#define ISNS_ESI_PORT 1
+#define ISNS_SCN_PORT 2
+
+
+dissector_handle_t isns_tcp_handle;
+dissector_handle_t isns_udp_handle;
+
 static gint ett_isns_flags = -1;
 static gint ett_isns_payload = -1;
 static gint ett_isns_attribute = -1;
 static gint ett_isns_port = -1;
 static gint ett_isns_isnt = -1;
 
-static guint AddAttribute(tvbuff_t *tvb, proto_tree *tree, guint offset, guint16 function_id);
+static guint AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree,
+                          guint offset, guint16 function_id);
 
 /* Initialize the protocol and registered fields */
 static int proto_isns = -1;
@@ -740,14 +750,13 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    while( offset < packet_len )
 	    {
-		offset = AddAttribute(tvb, tt, offset, function_id);
+		offset = AddAttribute(pinfo, tvb, tt, offset, function_id);
 	    }
 	}
     }
 
     return;
 }
-
 
 static guint
 get_isns_pdu_len(tvbuff_t *tvb, int offset)
@@ -861,22 +870,45 @@ dissect_isns_attr_integer(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, 
 }
 
 static guint
-dissect_isns_attr_port(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int hf_index, guint32 tag, guint32 len)
+dissect_isns_attr_port(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int hf_index, guint32 tag, guint32 len,
+                       guint16 port_type, packet_info *pinfo)
 {
 	proto_item *tree=NULL;
 	proto_item *item=NULL;
 	guint16 port = tvb_get_ntohs(tvb, offset + 10);
-	guint16 port_type = tvb_get_ntohs(tvb, offset + 8)&0x01;
+	guint16 isudp = tvb_get_ntohs(tvb, offset + 8)&0x01;
+        conversation_t *conversation;
 
 	if(parent_tree){
-		item = proto_tree_add_uint(parent_tree, hf_index, tvb, offset+8, 4, port);
-		tree = proto_item_add_subtree(item, ett_isns_port);
+            item = proto_tree_add_uint(parent_tree, hf_index, tvb, offset+8, 4, port);
+            tree = proto_item_add_subtree(item, ett_isns_port);
 	}
 
-	proto_tree_add_boolean(tree, hf_isns_port_type, tvb, offset+8, 2, port_type);
+	proto_tree_add_boolean(tree, hf_isns_port_type, tvb, offset+8, 2, isudp);
 
 	proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
 	proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
+
+        if ((port_type == ISNS_ESI_PORT) || (port_type == ISNS_SCN_PORT)) {
+            if (isudp) {
+                conversation = find_conversation (&pinfo->src, &pinfo->dst, PT_UDP,
+                                                  port, 0, NO_PORT_B);
+                if (conversation == NULL) {
+                    conversation = conversation_new (&pinfo->src, &pinfo->dst,
+                                                     PT_UDP, port, 0, NO_PORT2_FORCE);
+                    conversation_set_dissector (conversation, isns_udp_handle);
+                }
+            }
+            else {
+                conversation = find_conversation (&pinfo->src, &pinfo->dst, PT_TCP,
+                                                  port, 0, NO_PORT_B);
+                if (conversation == NULL) {
+                    conversation = conversation_new (&pinfo->src, &pinfo->dst,
+                                                     PT_TCP, port, 0, NO_PORT2_FORCE);
+                    conversation_set_dissector (conversation, isns_tcp_handle);
+                }
+            }
+        }
 
 	return offset+8+len;
 }
@@ -1018,7 +1050,8 @@ dissect_isns_attr_scn_bitmap(tvbuff_t *tvb, guint offset, proto_tree *parent_tre
 
 
 static guint
-AddAttribute(tvbuff_t *tvb, proto_tree *tree, guint offset, guint16 function_id)
+AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
+             guint16 function_id)
 {
     guint32 tag,len;
 
@@ -1028,6 +1061,14 @@ AddAttribute(tvbuff_t *tvb, proto_tree *tree, guint offset, guint16 function_id)
 
     /* Now the Length */
     len = tvb_get_ntohl(tvb, offset + 4);
+
+    if (!len) {
+        if (tree) {
+            proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
+            proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
+        }
+        return (offset+8);
+    }
     
     switch( tag )
     {
@@ -1068,7 +1109,7 @@ AddAttribute(tvbuff_t *tvb, proto_tree *tree, guint offset, guint16 function_id)
 	offset = dissect_isns_attr_ip_address(tvb, offset, tree, hf_isns_portal_ip_addr, tag, len);
 	break;
     case ISNS_ATTR_TAG_PORTAL_PORT:
-	offset = dissect_isns_attr_port(tvb, offset, tree, hf_isns_portal_port, tag, len);
+	offset = dissect_isns_attr_port(tvb, offset, tree, hf_isns_portal_port, tag, len, ISNS_OTHER_PORT, pinfo);
 	break;
     case ISNS_ATTR_TAG_PORTAL_SYMBOLIC_NAME:
 	offset = dissect_isns_attr_string(tvb, offset, tree, hf_isns_portal_symbolic_name, tag, len);
@@ -1077,7 +1118,7 @@ AddAttribute(tvbuff_t *tvb, proto_tree *tree, guint offset, guint16 function_id)
 	offset = dissect_isns_attr_integer(tvb, offset, tree, hf_isns_esi_interval, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_ESI_PORT:
-	offset = dissect_isns_attr_port(tvb, offset, tree, hf_isns_esi_port, tag, len);
+	offset = dissect_isns_attr_port(tvb, offset, tree, hf_isns_esi_port, tag, len, ISNS_ESI_PORT, pinfo);
 	break;
     case ISNS_ATTR_TAG_PORTAL_GROUP:
 	offset = dissect_isns_attr_not_decoded_yet(tvb, offset, tree, hf_isns_not_decoded_yet, tag, len);
@@ -1086,7 +1127,7 @@ AddAttribute(tvbuff_t *tvb, proto_tree *tree, guint offset, guint16 function_id)
 	offset = dissect_isns_attr_integer(tvb, offset, tree, hf_isns_portal_index, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_SCN_PORT:
-	offset = dissect_isns_attr_port(tvb, offset, tree, hf_isns_scn_port, tag, len);
+	offset = dissect_isns_attr_port(tvb, offset, tree, hf_isns_scn_port, tag, len, ISNS_SCN_PORT, pinfo);
 	break;
     case ISNS_ATTR_TAG_PORTAL_NEXT_INDEX:
 	offset = dissect_isns_attr_integer(tvb, offset, tree, hf_isns_portal_next_index, tag, len, function_id);
@@ -1107,7 +1148,7 @@ AddAttribute(tvbuff_t *tvb, proto_tree *tree, guint offset, guint16 function_id)
 	offset = dissect_isns_attr_string(tvb, offset, tree, hf_isns_iscsi_name, tag, len);
 	break;
     case ISNS_ATTR_TAG_ISCSI_NODE_TYPE:
-	offset = dissect_isns_attr_iscsi_node_type(tvb, offset, tree, hf_isns_iscsi_node_type, tag, len);
+        offset = dissect_isns_attr_iscsi_node_type(tvb, offset, tree, hf_isns_iscsi_node_type, tag, len);
 	break;
     case ISNS_ATTR_TAG_ISCSI_ALIAS:
 	offset = dissect_isns_attr_string(tvb, offset, tree, hf_isns_iscsi_alias, tag, len);
@@ -1134,7 +1175,7 @@ AddAttribute(tvbuff_t *tvb, proto_tree *tree, guint offset, guint16 function_id)
 	offset = dissect_isns_attr_ip_address(tvb, offset, tree, hf_isns_pg_portal_ip_addr, tag, len);
 	break;
     case ISNS_ATTR_TAG_PG_PORTAL_PORT:
-	offset = dissect_isns_attr_port(tvb, offset, tree, hf_isns_pg_portal_port, tag, len);
+	offset = dissect_isns_attr_port(tvb, offset, tree, hf_isns_pg_portal_port, tag, len, ISNS_OTHER_PORT, pinfo);
 	break;
     case ISNS_ATTR_TAG_PORTAL_GROUP_TAG:
 	offset = dissect_isns_attr_integer(tvb, offset, tree, hf_isns_portal_group_tag, tag, len, function_id);
@@ -1284,7 +1325,8 @@ AddAttribute(tvbuff_t *tvb, proto_tree *tree, guint offset, guint16 function_id)
 	offset = dissect_isns_attr_ip_address(tvb, offset, tree, hf_isns_dd_member_portal_ip_addr, tag, len);
 	break;
     case ISNS_ATTR_TAG_DD_MEMBER_PORTAL_PORT:
-	offset = dissect_isns_attr_port(tvb, offset, tree, hf_isns_dd_member_portal_port, tag, len);
+	offset = dissect_isns_attr_port(tvb, offset, tree, hf_isns_dd_member_portal_port,
+                                        tag, len, ISNS_OTHER_PORT, pinfo);
 	break;
     case ISNS_ATTR_TAG_DD_FEATURES:
 	offset = dissect_isns_attr_not_decoded_yet(tvb, offset, tree, hf_isns_not_decoded_yet, tag, len);
@@ -1872,10 +1914,9 @@ void proto_register_isns(void)
 void
 proto_reg_handoff_isns(void)
 {
-    dissector_handle_t isns_tcp_handle;
-    dissector_handle_t isns_udp_handle;
     isns_tcp_handle = create_dissector_handle(dissect_isns_tcp,proto_isns);
     isns_udp_handle = create_dissector_handle(dissect_isns_udp,proto_isns);
+
     dissector_add("tcp.port",ISNS_TCP_PORT,isns_tcp_handle);
     dissector_add("udp.port",ISNS_UDP_PORT,isns_udp_handle);
 }

@@ -1,7 +1,7 @@
 /* conversation.h
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.h,v 1.10 2002/08/28 20:40:44 jmayer Exp $
+ * $Id: conversation.h,v 1.11 2004/07/06 19:01:32 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,6 +31,7 @@
  */
 #define NO_ADDR2 0x01
 #define NO_PORT2 0x02
+#define NO_PORT2_FORCE 0x04
 
 /*
  * Flags to pass to "find_conversation()" to indicate that the address B
@@ -38,6 +39,7 @@
  */
 #define NO_ADDR_B 0x01
 #define NO_PORT_B 0x02
+#define NO_PORT_B_FORCE 0x04
 
 #include "packet.h"		/* for conversation dissector type */
 
