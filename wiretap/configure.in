@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.45 2003/01/30 10:20:44 jmayer Exp $
+# $Id: configure.in,v 1.46 2003/07/23 18:00:15 gerald Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -116,7 +116,7 @@ fi
 
 dnl Look in /usr/local for header files and libraries ?
 AC_ARG_ENABLE(usr-local,
-[  --enable-usr-local      look for headers and libs in /usr/local tree.  [default=yes]],enable_usr_local=$enableval,enable_usr_local=yes)
+[  --enable-usr-local      look for headers and libs in /usr/local tree.  [default=no]],enable_usr_local=$enableval,enable_usr_local=no)
 
 AC_MSG_CHECKING(whether to use /usr/local for headers and libraries)
 if test "x$enable_usr_local" = "xyes" ; then
