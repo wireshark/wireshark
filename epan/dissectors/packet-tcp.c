@@ -379,10 +379,9 @@ prune_next_pdu_list(struct tcp_next_pdu **tnp, guint32 seq)
 		
 
 static void
-print_pdu_tracking_data(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tcp_tree, struct tcp_next_pdu *tnp, guint32 frame)
+print_pdu_tracking_data(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tcp_tree, struct tcp_next_pdu *tnp)
 {
 	proto_item *item;
- 	nstime_t ns;
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
 		col_prepend_fstr(pinfo->cinfo, COL_INFO, "[Continuation to #%u] ", tnp->first_frame);
@@ -432,7 +431,7 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
 				tnp->last_frame_time.nsecs=pinfo->fd->abs_usecs*1000;
 				g_hash_table_insert(tcp_pdu_skipping_table, 
 					(void *)pinfo->fd->num, (void *)tnp);
-				print_pdu_tracking_data(pinfo, tvb, tcp_tree, tnp, pinfo->fd->num);
+				print_pdu_tracking_data(pinfo, tvb, tcp_tree, tnp);
 
 				return -1;
 			}			
@@ -469,7 +468,7 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
 		/* check if this is a segment in the middle of a pdu */
 		tnp=(struct tcp_next_pdu *)g_hash_table_lookup(tcp_pdu_skipping_table, (void *)pinfo->fd->num);
 		if(tnp){
-			print_pdu_tracking_data(pinfo, tvb, tcp_tree, tnp, pinfo->fd->num);
+			print_pdu_tracking_data(pinfo, tvb, tcp_tree, tnp);
 			return -1;
 		}
 
@@ -1287,7 +1286,7 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 				flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_duplicate_ack, tvb, 0, 0, "This is a TCP duplicate ack");
 				PROTO_ITEM_SET_GENERATED(flags_item);
 				if(check_col(pinfo->cinfo, COL_INFO)){
-					col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Dup ACK %d#%d] ", ta->dupack_frame, ta->dupack_num);
+					col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Dup ACK %u#%u] ", ta->dupack_frame, ta->dupack_num);
 				}
 			}
 			flags_item=proto_tree_add_uint(tree, hf_tcp_analysis_duplicate_ack_num,
@@ -2793,7 +2792,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_boolean(field_tree, hf_tcp_flags_syn, tvb, offset + 13, 1, tcph->th_flags);
     proto_tree_add_boolean(field_tree, hf_tcp_flags_fin, tvb, offset + 13, 1, tcph->th_flags);
     if(tcp_relative_seq && (tcph->th_win!=real_window)){
-      proto_tree_add_uint_format(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, tcph->th_win, "Window size: %d  (scaled)", tcph->th_win);
+      proto_tree_add_uint_format(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, tcph->th_win, "Window size: %u (scaled)", tcph->th_win);
     } else {
       proto_tree_add_uint(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, tcph->th_win);
     }
