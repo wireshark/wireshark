@@ -12,7 +12,7 @@
  * Routines for NDMP dissection
  * 2001 Ronnie Sahlberg (see AUTHORS for email)
  *
- * $Id: packet-ndmp.c,v 1.4 2002/01/05 20:05:53 guy Exp $
+ * $Id: packet-ndmp.c,v 1.5 2002/01/05 20:08:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2279,8 +2279,7 @@ dissect_ndmp_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
 	offset += 4;
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s  ",
 			val_to_str(nh->msg, msg_vals, "Unknown Message (0x%02x)"),
 			val_to_str(nh->type, msg_type_vals, "Unknown Type (0x%02x)")
 			);
@@ -2291,25 +2290,12 @@ dissect_ndmp_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
 
 
 static int
-dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, struct ndmp_header *nh)
+dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, struct ndmp_header *nh)
 {
 	int i;
-	int old_offset=offset;
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
 	proto_item *cmd_item=NULL;
 	proto_tree *cmd_tree=NULL;
 	guint32 size;
-
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_add_str(pinfo->cinfo, COL_PROTOCOL, "NDMP");
-	if (check_col(pinfo->cinfo, COL_INFO)) 
-		col_clear(pinfo->cinfo, COL_INFO);
-
-	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_ndmp, tvb, offset, 0, FALSE);
-		tree = proto_item_add_subtree(item, ett_ndmp);
-	}
 
 	/* the size of the current PDU */
 	size = tvb_get_ntohl(tvb, offset);	
@@ -2329,7 +2315,6 @@ dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *pare
 		/* we do not know this message */
 		proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Unknown type of NDMP message: 0x%02x", nh->msg);
 		offset+=tvb_length_remaining(tvb, offset);
-		proto_item_set_len(item, offset-old_offset);
 		return offset;
 	}
 
@@ -2349,16 +2334,29 @@ dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *pare
 		}
 	}
 
-	proto_item_set_len(item, offset-old_offset);
 	return offset;
 }
 
 static void
-dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	int offset = 0;
 	guint32 size, available_bytes;
 	struct ndmp_header nh;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+
+
+	if(parent_tree){
+		item = proto_tree_add_item(parent_tree, proto_ndmp, tvb, offset, 0, FALSE);
+		tree = proto_item_add_subtree(item, ett_ndmp);
+	}
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+		col_add_str(pinfo->cinfo, COL_PROTOCOL, "NDMP");
+	if (check_col(pinfo->cinfo, COL_INFO)) 
+		col_clear(pinfo->cinfo, COL_INFO);
+
 
 	/* loop through the packet, dissecting multiple NDMP pdus*/
 	do {
@@ -2366,7 +2364,7 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* size of this NDMP PDU */
 		size = (tvb_get_ntohl(tvb, offset)&NDMP_FRAGLEN) + 4;	
-		if(size<24){
+		if(size<28){
 			/* too short to be NDMP */
 			return;
 		}
@@ -2406,9 +2404,15 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			return;
 		}
 
-		offset = dissect_ndmp_cmd(tvb, offset, pinfo, tree, &nh);
+		/* We can not trust what dissect_ndmp_cmd() tells us since
+		   there are implementations which pads some additional data
+		   after the PDU. We MUST use size.
+		*/
+		dissect_ndmp_cmd(tvb, offset, pinfo, tree, &nh);
+		offset += size;
 	} while(offset<(int)tvb_reported_length(tvb));
 
+	proto_item_set_len(item, offset);
 }
 
 
@@ -3004,15 +3008,15 @@ proto_register_ndmp(void)
 		TFS(&tfs_ndmp_state_invalid_etr), 0x00000002, "Whether EstimatedTimeLeft is valid or not", HFILL, }},
 
 	{ &hf_ndmp_bu_operation, {
-		"", "ndmp.bu.operation", FT_UINT32, BASE_DEC,
+		"Operation", "ndmp.bu.operation", FT_UINT32, BASE_DEC,
 		VALS(bu_operation_vals), 0, "BU Operation", HFILL, }},
 
 	{ &hf_ndmp_data_state, {
-		"", "ndmp.data.state", FT_UINT32, BASE_DEC,
+		"State", "ndmp.data.state", FT_UINT32, BASE_DEC,
 		VALS(data_state_vals), 0, "Data state", HFILL, }},
 
 	{ &hf_ndmp_data_halted, {
-		"", "ndmp.data.halted", FT_UINT32, BASE_DEC,
+		"Halted Reason", "ndmp.data.halted", FT_UINT32, BASE_DEC,
 		VALS(data_halted_vals), 0, "Data halted reason", HFILL, }},
 
 	{ &hf_ndmp_data_bytes_processed, {
