@@ -2,7 +2,7 @@
  * Routines for Wellfleet Compression frame disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-wcp.c,v 1.24 2002/06/04 07:03:47 guy Exp $
+ * $Id: packet-wcp.c,v 1.25 2002/06/06 22:42:27 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -497,6 +497,14 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 	buf_start = buf_ptr->buffer;
 	buf_end = buf_start + MAX_WIN_BUF_LEN;
 	tmp = buf_ptr->buf_cur;
+
+	if (cnt - offset > MAX_WCP_BUF_LEN) {
+		if (tree)
+			proto_tree_add_text( tree, src_tvb, offset, -1,
+				"Compressed data exceeds maximum buffer length (%d > %d)",
+				cnt - offset, MAX_WCP_BUF_LEN);
+		return NULL;
+	}
 
 	src = tvb_memcpy(src_tvb, src_buf, offset, cnt - offset);
 	dst = buf_ptr->buf_cur;
