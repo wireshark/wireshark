@@ -1647,6 +1647,7 @@ dissect_tcap_dlg_application_context_name(ASN1_SCK *asn1, proto_tree *tcap_tree,
     guint name_len, len, len2;
     guint tag;
     subid_t *oid;
+	char oid_str[64]; /*64 chars should be long enough? */
     int ret;
     gboolean def_len;
 
@@ -1663,7 +1664,7 @@ dissect_tcap_dlg_application_context_name(ASN1_SCK *asn1, proto_tree *tcap_tree,
 	 * TODO Probbably more can be removed here but I'm uncertain about the lengths 
     proto_tree_add_bytes(tcap_tree, hf_tcap_app_con_name, asn1->tvb, saved_offset, len2, tvb_get_ptr(asn1->tvb, saved_offset, len2));
 	*/
-	asn1->offset = dissect_ber_object_identifier(FALSE, pinfo, tcap_tree, asn1->tvb, saved_offset, hf_tcap_oid, NULL);
+	asn1->offset = dissect_ber_object_identifier(FALSE, pinfo, tcap_tree, asn1->tvb, saved_offset, hf_tcap_oid, oid_str);
     if (ret == ASN1_ERR_NOERROR) g_free(oid);
 
     if (!def_len)
@@ -1671,6 +1672,7 @@ dissect_tcap_dlg_application_context_name(ASN1_SCK *asn1, proto_tree *tcap_tree,
 	/* for Application Context Name Tag */
 	dissect_tcap_eoc(asn1, tcap_tree);
     }
+	pinfo->private_data = g_strdup(oid_str);
 
     return TC_DS_OK;
 }
@@ -2772,6 +2774,7 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
 	dissect_ansi_tcap_message(tvb, pinfo, tcap_tree);
     }
+	g_free(pinfo->private_data);	
 }
 
 
