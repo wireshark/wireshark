@@ -5,13 +5,13 @@
  * SHIRASAKI Yasuhiro <yasuhiro@gnome.gr.jp>
  * Tony Lindstrom <tony.lindstrom@ericsson.com>
  *
- * $Id: packet-dhcpv6.c,v 1.9 2003/10/17 21:26:56 guy Exp $
+ * $Id: packet-dhcpv6.c,v 1.10 2004/01/29 03:46:36 guy Exp $
  *
  * The information used comes from:
  * RFC3315.txt
  * RFC3319.txt
- * draft-ietf-dhc-dhcpv6-opt-prefix-delegation-05.txt
- * draft-ietf-dhc-dhcpv6-opt-dnsconfig-04.txt
+ * RFC3633.txt
+ * RFC3646.txt
  * draft-ietf-dhc-dhcpv6-opt-nisconfig-02.txt
  * draft-ietf-dhc-dhcpv6-opt-timeconfig-02.txt
  * Note that protocol constants are still subject to change, based on IANA
@@ -69,7 +69,7 @@ static guint ett_dhcpv6_option = -1;
 #define	RECONFIGURE		10
 #define	INFORMATION_REQUEST	11
 #define	RELAY_FORW		12
-#define	RELAY_REPL		13
+#define	RELAY_REPLY		13
 
 #define	OPTION_CLIENTID		1
 #define	OPTION_SERVERID		2
@@ -95,12 +95,12 @@ static guint ett_dhcpv6_option = -1;
 #define	OPTION_SIP_SERVER_A	22
 #define	OPTION_DNS_SERVERS	23
 #define	OPTION_DOMAIN_LIST      24
+#define	OPTION_IA_PD		25
+#define	OPTION_IAPREFIX		26
 
 /*
- * The followings are also unassigned numbers.
+ * The followings are unassigned numbers.
  */
-#define	OPTION_IA_PD		33
-#define	OPTION_IAPREFIX		34
 #define OPTION_NIS_SERVERS	35
 #define OPTION_NISP_SERVERS	36
 #define OPTION_NIS_DOMAIN_NAME  37
@@ -126,7 +126,7 @@ static const value_string msgtype_vals[] = {
 	{ RECONFIGURE,	"Reconfigure" },
 	{ INFORMATION_REQUEST,	"Information-request" },
 	{ RELAY_FORW,	"Relay-forw" },
-	{ RELAY_REPL,	"Relay-repl" },
+	{ RELAY_REPLY,	"Relay-reply" },
 	{ 0, NULL }
 };
 
@@ -679,7 +679,7 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		bp_tree = proto_item_add_subtree(ti, ett_dhcpv6);
         }
 
-        while (msgtype == RELAY_FORW || msgtype == RELAY_REPL) {
+        while (msgtype == RELAY_FORW || msgtype == RELAY_REPLY) {
            
            if (check_col(pinfo->cinfo, COL_INFO)) {
               col_set_str(pinfo->cinfo, COL_INFO,
