@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.60 2002/11/10 20:17:52 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.61 2002/12/03 00:37:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,12 +31,15 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <string.h>
+#include "prefs.h"
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-samr.h"
 #include "packet-dcerpc-lsa.h"
 #include "smb.h"	/* for "NT_errors[]" */
 #include "packet-smb-common.h"
+#include "crypt-md4.h"
+#include "crypt-rc4.h"
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
@@ -83,6 +86,10 @@ static int hf_samr_crypt_hash = -1;
 static int hf_samr_lm_change = -1;
 static int hf_samr_lm_passchange_block = -1;
 static int hf_samr_nt_passchange_block = -1;
+static int hf_samr_nt_passchange_block_decrypted = -1;
+static int hf_samr_nt_passchange_block_newpass = -1;
+static int hf_samr_nt_passchange_block_newpass_len = -1;
+static int hf_samr_nt_passchange_block_pseudorandom = -1;
 static int hf_samr_lm_verifier = -1;
 static int hf_samr_nt_verifier = -1;
 static int hf_samr_attrib = -1;
@@ -202,6 +209,9 @@ static e_uuid_t uuid_dcerpc_samr = {
 };
 
 static guint16 ver_dcerpc_samr = 1;
+
+/* Configuration variables */
+static char *nt_password = NULL;
 
 /* Dissect connect specific access rights */
 
@@ -1637,16 +1647,93 @@ samr_dissect_CRYPT_HASH(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+#define NT_BLOCK_SIZE 516
+
+static int
+samr_dissect_decrypted_NT_PASSCHANGE_BLOCK(tvbuff_t *tvb, int offset,
+				 packet_info *pinfo _U_, proto_tree *tree,
+				 char *drep _U_)
+{
+  guint32 new_password_len = 0;
+  guint32 pseudorandom_len = 0;
+  const char *printable_password;
+  guint16 bc;
+  int result_length;
+
+  /* The length of the new password is represented in the last four 
+     octets of the decrypted buffer.  Since the password length cannot
+     exceed 512, we can check the contents of those bytes to determine 
+     if decryption was successful.  If the decrypted contents of those 
+     four bytes is less than 512, then there is a 99% chance that
+     we decrypted the buffer successfully.  Of course, this isn't good
+     enough for a security application, (NT uses the "verifier" field 
+     to come to the same conclusion), but it should be good enough for
+     our dissector. */
+  
+  new_password_len = tvb_get_letohl(tvb, 512);  
+
+  if (new_password_len <= 512)
+    {
+      /* Decryption successful */
+      proto_tree_add_text (tree, tvb, offset, -1,
+			   "Decryption of NT Password Encrypted block successful");
+
+      /* Whatever is before the password is pseudorandom data.  We calculate 
+	 the length by examining the password length (at the end), and working
+	 backward */    
+      pseudorandom_len = NT_BLOCK_SIZE - new_password_len - 4;
+
+      /* Pseudorandom data padding up to password */
+      proto_tree_add_item(tree, hf_samr_nt_passchange_block_pseudorandom, 
+			  tvb, offset, pseudorandom_len, FALSE);
+      offset += pseudorandom_len;
+
+      /* The new password itself */
+      bc = new_password_len;
+      printable_password = get_unicode_or_ascii_string(tvb, &offset,
+						       TRUE,
+						       &result_length,
+						       FALSE, TRUE, &bc);
+      proto_tree_add_string(tree, hf_samr_nt_passchange_block_newpass,
+			    tvb, offset, result_length, 
+			    printable_password);
+      offset += new_password_len;
+
+      /* Length of password */
+      proto_tree_add_item(tree, hf_samr_nt_passchange_block_newpass_len,
+			  tvb, offset, 4, FALSE);
+    }
+  else
+    {
+      /* Decryption failure.  Just show the encrypted block */
+      proto_tree_add_text (tree, tvb, offset, -1,
+			   "Decryption of NT Passchange block failed");
+      
+      proto_tree_add_item(tree, hf_samr_nt_passchange_block_decrypted, tvb,
+			  offset, NT_BLOCK_SIZE, FALSE);
+    }
+
+  return NT_BLOCK_SIZE;
+}
+
 static int
 samr_dissect_NT_PASSCHANGE_BLOCK(tvbuff_t *tvb, int offset,
 				 packet_info *pinfo _U_, proto_tree *tree,
 				 char *drep _U_)
 {
 	dcerpc_info *di;
-
-	/* Right now, this just dumps the output.  In the long term, we can use
-	   the algorithm discussed in lkcl -"DCE/RPC over SMB" page 257 to
-	   actually decrypt the block */
+	unsigned char password_unicode[256];
+	unsigned char password_md4_hash[16];
+	guint8 *block;
+	tvbuff_t *decr_tvb = NULL; /* Used to store decrypted buffer */
+	int password_len_unicode = 0;
+	guint32 i;
+	
+	memset(password_unicode, 0, sizeof(password_unicode));
+	
+	/* This implements the the algorithm discussed in lkcl -"DCE/RPC 
+	   over SMB" page 257.  Note that this code does not properly support
+	   Unicode. */
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
@@ -1654,9 +1741,47 @@ samr_dissect_NT_PASSCHANGE_BLOCK(tvbuff_t *tvb, int offset,
 		return offset;
 	}
 
-	proto_tree_add_item(tree, hf_samr_nt_passchange_block, tvb, offset,
-			    516, FALSE);
-	offset += 516;
+	if ((block = g_malloc(NT_BLOCK_SIZE)) == NULL)
+	  {
+	    /* Could not allocate memory, just skip the field entirely */
+	    offset += NT_BLOCK_SIZE;
+	    return offset;
+	  }
+
+	/* Convert the password provided in the Ethereal GUI to Unicode 
+	   (UCS-2).  Since the input is always ASCII, we can just fake it
+	   and pad every other byte with a NULL.  If we ever support UTF-8
+	   in the GUI, we would have to perform a real UTF-8 to UCS-2
+	   conversion */
+	for (i = 0; i < strlen(nt_password); i++)
+	  {
+	    password_unicode[i*2] = nt_password[i];		
+	    password_unicode[i*2+1] = 0;		
+	    password_len_unicode += 2;
+	  }
+	
+	/* Run MD4 against the resulting Unicode password.  This will be
+	   used to perform RC4 decryption on the password change block */
+	crypt_md4(password_md4_hash, password_unicode, password_len_unicode);
+
+	/* Copy the block into a temporary buffer so we can decrypt it */
+	memset(block, 0, NT_BLOCK_SIZE);
+	tvb_memcpy(tvb, block, offset, NT_BLOCK_SIZE);
+	
+	/* RC4 decrypt the block with the old NT password hash */
+	crypt_rc4(block, password_md4_hash, NT_BLOCK_SIZE);
+
+	/* Show the decrypted buffer in a new window */
+	decr_tvb = tvb_new_real_data(block, NT_BLOCK_SIZE, NT_BLOCK_SIZE);
+	tvb_set_free_cb(decr_tvb, g_free);
+	tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
+	add_new_data_source(pinfo, decr_tvb, "Decrypted NT Password Block");
+
+	/* Dissect the decrypted block */
+	offset += samr_dissect_decrypted_NT_PASSCHANGE_BLOCK(decr_tvb, 0,
+							     pinfo, tree,
+							     drep);
+	
 	return offset;
 }
 
@@ -4965,12 +5090,31 @@ proto_register_dcerpc_samr(void)
 		NULL, 0, "NT Password Verifier", HFILL }},
 
 	{ &hf_samr_lm_passchange_block, {
-		"Encrypted Block", "samr.lm_passchange_block", FT_BYTES, BASE_HEX,
-		NULL, 0, "Lan Manager Password Change Block", HFILL }},
+		"Encrypted Block", "samr.lm_passchange_block", FT_BYTES, 
+		BASE_HEX, NULL, 0, "Lan Manager Password Change Block",
+		HFILL }},
 
 	{ &hf_samr_nt_passchange_block, {
-		"Encrypted Block", "samr.nt_passchange_block", FT_BYTES, BASE_HEX,
-		NULL, 0, "NT Password Change Block", HFILL }},
+		"Encrypted Block", "samr.nt_passchange_block", FT_BYTES, 
+		BASE_HEX, NULL, 0, "NT Password Change Block", HFILL }},
+
+	{ &hf_samr_nt_passchange_block_decrypted, {
+		"Decrypted Block", "samr.nt_passchange_block_decrypted",
+		FT_BYTES, BASE_HEX, NULL, 0, 
+		"NT Password Change Decrypted Block", HFILL }},
+
+	{ &hf_samr_nt_passchange_block_newpass, {
+		"New NT Password", "samr.nt_passchange_block_new_ntpassword", 
+		FT_STRING, BASE_NONE, NULL, 0, "New NT Password", HFILL }},
+
+	{ &hf_samr_nt_passchange_block_newpass_len, {
+		"New NT Unicode Password length", 
+		"samr.nt_passchange_block_new_ntpassword_len", FT_UINT32, 
+		BASE_DEC, NULL, 0, "New NT Password Unicode Length", HFILL }},
+
+	{ &hf_samr_nt_passchange_block_pseudorandom, {
+		"Pseudorandom data", "samr.nt_passchange_block_pseudorandom",
+		FT_BYTES, BASE_HEX, NULL, 0, "Pseudorandom data", HFILL }},
 
 	{ &hf_samr_lm_change, {
 		"LM Change", "samr.lm_change", FT_UINT8, BASE_HEX,
@@ -5356,12 +5500,20 @@ proto_register_dcerpc_samr(void)
                 &ett_samr_sid_and_attributes,
                 &ett_nt_acct_ctrl
         };
+	module_t *dcerpc_samr_module;
 
         proto_dcerpc_samr = proto_register_protocol(
                 "Microsoft Security Account Manager", "SAMR", "samr");
 
         proto_register_field_array (proto_dcerpc_samr, hf, array_length (hf));
         proto_register_subtree_array(ett, array_length(ett));
+
+	dcerpc_samr_module = prefs_register_protocol(proto_dcerpc_samr, NULL);
+	
+	prefs_register_string_preference(dcerpc_samr_module, "nt_password",
+					 "NT Password",
+					 "NT Password (used to verify password changes)",
+					 &nt_password);
 }
 
 void

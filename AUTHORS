@@ -1228,6 +1228,9 @@ Devin Heitmueller <dheitmueller[AT]netilla.com> {
 	    being present in the packet
 	Dissection of NTLMSSP authentication for DCERPC
 	Show proper field names for SAMR UnicodeChangePassword2
+	Add MD4 and RC4 crypto support
+	Decrypt the NT password encryption block in
+	    UnicodeChangePassword2
 }
 
 Chenjiang Hu <chu[AT]chiaro.com> {
