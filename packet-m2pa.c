@@ -7,7 +7,7 @@
  * Copyright 2001, 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>,
  * updated by Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-m2pa.c,v 1.18 2003/04/22 13:47:37 tuexen Exp $
+ * $Id: packet-m2pa.c,v 1.19 2003/05/01 21:38:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -141,7 +141,7 @@ dissect_v2_header(tvbuff_t *header_tvb, packet_info *pinfo, proto_tree *m2pa_tre
 {
   guint message_type;
   
-  message_type  = tvb_get_guint8(header_tvb, V2_TYPE_OFFSET);
+  message_type  = tvb_get_ntohs(header_tvb, V2_TYPE_OFFSET);
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, v2_message_type_values, "reserved"));
@@ -159,7 +159,7 @@ dissect_v6_header(tvbuff_t *header_tvb, packet_info *pinfo, proto_tree *m2pa_tre
 {
   guint message_type;
   
-  message_type  = tvb_get_guint8(header_tvb, V6_TYPE_OFFSET);
+  message_type  = tvb_get_ntohs(header_tvb, V6_TYPE_OFFSET);
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, v6_message_type_values, "Unknown"));
