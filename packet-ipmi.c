@@ -3,7 +3,7 @@
  *
  * Duncan Laurie <duncan@sun.com>
  *
- * $Id: packet-ipmi.c,v 1.4 2003/12/13 01:08:32 guy Exp $
+ * $Id: packet-ipmi.c,v 1.5 2004/04/07 06:18:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -483,7 +483,7 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(field_tree,
 				    response ? hf_ipmi_msg_rqlun : hf_ipmi_msg_rslun,
 				    tvb, offset, 1, TRUE);
-		lun = tvb_get_guint8(tvb, offset);
+		lun = tvb_get_guint8(tvb, offset) & 3;
 		proto_item_append_text(tf, ", LUN 0x%02x", lun);
 		offset += 1;
 	}
@@ -514,7 +514,7 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(field_tree,
 				    response ? hf_ipmi_msg_rslun : hf_ipmi_msg_rqlun,
 				    tvb, offset, 1, TRUE);
-		lun = tvb_get_guint8(tvb, offset);
+		lun = tvb_get_guint8(tvb, offset) & 3;
 		proto_item_append_text(tf, ", LUN 0x%02x", lun);
 		offset += 1;
 	}
