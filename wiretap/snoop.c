@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.44 2002/03/05 08:39:29 guy Exp $
+ * $Id: snoop.c,v 1.45 2002/04/30 06:04:33 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -453,16 +453,42 @@ snoop_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	pseudo_header->ngsniffer_atm.aal5t_chksum = 0;
 
 	/*
-	 * Assume it's AAL5; we know nothing more about it.
-	 *
-	 * For what it's worth, in one "atmsnoop" capture,
-	 * the lower 7 bits of the first byte of the header
-	 * were 0x05 for ILMI traffic, 0x06 for Signalling
-	 * AAL traffic, and 0x02 for at least some RFC 1483-style
-	 * LLC multiplexed traffic.
+	 * The lower 4 bits of the first byte of the header indicate
+	 * the type of traffic, as per the "atmioctl.h" header in
+	 * SunATM.
 	 */
-	pseudo_header->ngsniffer_atm.AppTrafType = ATT_AAL5|ATT_HL_UNKNOWN;
-	pseudo_header->ngsniffer_atm.AppHLType = AHLT_UNKNOWN;
+	switch (atm_phdr[0] & 0x0F) {
+
+	case 0x01:	/* LANE */
+		pseudo_header->ngsniffer_atm.AppTrafType = ATT_AAL5|ATT_HL_LANE;
+		pseudo_header->ngsniffer_atm.AppHLType = AHLT_UNKNOWN;
+		break;
+
+	case 0x02:	/* RFC 1483 LLC multiplexed traffic */
+		pseudo_header->ngsniffer_atm.AppTrafType = ATT_AAL5|ATT_HL_LLCMX;
+		pseudo_header->ngsniffer_atm.AppHLType = AHLT_UNKNOWN;
+		break;
+
+	case 0x05:	/* ILMI */
+		pseudo_header->ngsniffer_atm.AppTrafType = ATT_AAL5|ATT_HL_ILMI;
+		pseudo_header->ngsniffer_atm.AppHLType = AHLT_UNKNOWN;
+		break;
+
+	case 0x06:	/* Q.2931 */
+		pseudo_header->ngsniffer_atm.AppTrafType = ATT_AAL_SIGNALLING|ATT_HL_UNKNOWN;
+		pseudo_header->ngsniffer_atm.AppHLType = AHLT_UNKNOWN;
+		break;
+
+	case 0x03:	/* MARS (RFC 2022) */
+	case 0x04:	/* IFMP (Ipsilon Flow Management Protocol; see RFC 1954) */
+	default:
+		/*
+		 * Assume it's AAL5; we know nothing more about it.
+		 */
+		pseudo_header->ngsniffer_atm.AppTrafType = ATT_AAL5|ATT_HL_UNKNOWN;
+		pseudo_header->ngsniffer_atm.AppHLType = AHLT_UNKNOWN;
+		break;
+	}
 
 	return TRUE;
 }
