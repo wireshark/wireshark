@@ -1,7 +1,7 @@
 /* packet-pppoe.c
  * Routines for PPP Over Ethernet (PPPoE) packet disassembly (RFC2516)
  *
- * $Id: packet-pppoe.c,v 1.24 2002/08/28 21:00:25 jmayer Exp $
+ * $Id: packet-pppoe.c,v 1.25 2002/10/21 18:17:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -227,6 +227,7 @@ dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	guint8	pppoe_code;
 	guint16	pppoe_session_id;
 	guint16	pppoe_length;
+	gint length, reported_length;
 
 	proto_tree  *pppoe_tree;
 	proto_item  *ti;
@@ -255,7 +256,7 @@ dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_pppoes, tvb,0,
-			pppoe_length+6, FALSE);
+			6, FALSE);
 		pppoe_tree = proto_item_add_subtree(ti, ett_pppoed);
 		proto_tree_add_text(pppoe_tree, tvb,0,1,
 			"Version: %u", pppoe_ver);
@@ -273,7 +274,17 @@ dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	 * dissect_ppp(pd,offset+6,pinfo->fd,tree);
 	 * Im gonna try fudging it.
 	 */
-	next_tvb = tvb_new_subset(tvb,6,-1,-1);
+	length = tvb_length_remaining(tvb, 6);
+	reported_length = tvb_reported_length_remaining(tvb, 6);
+	g_assert(length >= 0);
+	g_assert(reported_length >= 0);
+	if (length > reported_length)
+		length = reported_length;
+	if ((guint)length > pppoe_length)
+		length = pppoe_length;
+	if ((guint)reported_length > pppoe_length)
+		reported_length = pppoe_length;
+	next_tvb = tvb_new_subset(tvb,6,length,reported_length);
 	call_dissector(ppp_handle,next_tvb,pinfo,tree);
 }
 void
