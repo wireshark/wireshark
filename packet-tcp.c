@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.224 2004/03/19 06:14:03 guy Exp $
+ * $Id: packet-tcp.c,v 1.225 2004/03/27 11:53:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1036,8 +1036,11 @@ ack_finished:
 			/* ok we have found a potential duplicate ack */
 				struct tcp_acked *ta;
 				ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
-				/* keepalives are not dupacks */
-				if( (!(ta->flags&TCP_A_KEEP_ALIVE)) ){
+				/* keepalives are not dupacks and 
+				 * netiher are RST/FIN segments
+				 */
+				if( (!(ta->flags&TCP_A_KEEP_ALIVE))
+				  &&(!(flags&(TH_RST|TH_FIN))) ){
 					ta->flags|=TCP_A_DUPLICATE_ACK;
 					ta->dupack_num=num2_acks-1;
 					ta->dupack_frame=ack2_frame;
@@ -1076,8 +1079,12 @@ ack_finished:
 		}
 	}
 
-	/* check for zero window */
-	if(!window){
+	/* check for zero window
+	 * dont check for RST/FIN segments since the window field is 
+	 * meaningless for those
+	 */
+	if( (!window)
+	  &&(!(flags&(TH_RST|TH_FIN))) ){
 		struct tcp_acked *ta;
 		ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
 		ta->flags|=TCP_A_ZERO_WINDOW;
