@@ -2,7 +2,7 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.26 2002/10/25 03:40:13 guy Exp $
+ * $Id: packet-ntlmssp.c,v 1.27 2002/11/07 08:01:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -163,18 +163,22 @@ static gint ett_ntlmssp_string = -1;
 static gint ett_ntlmssp_blob = -1;
 static gint ett_ntlmssp_address_list = -1;
 
+static GMemChunk *flag_info_chunk;
+static int flag_info_chunk_count = 100;
+
 /* dissect a string - header area contains:
      two byte len
      two byte maxlen
      four byte offset of string in data area
   The function returns the offset at the end of the string header,
   but the 'end' parameter returns the offset of the end of the string itself
+  The 'start' parameter returns the offset of the beginning of the string
 */
 static int
 dissect_ntlmssp_string (tvbuff_t *tvb, int offset,
 			proto_tree *ntlmssp_tree, 
 			gboolean unicode_strings,
-			int string_hf, int *end)
+			int string_hf, int *start, int *end)
 {
   proto_tree *tree = NULL;
   proto_item *tf = NULL;
@@ -185,8 +189,9 @@ dissect_ntlmssp_string (tvbuff_t *tvb, int offset,
   int result_length;
   guint16 bc;
 
+  *start = (string_offset > offset+8 ? string_offset : offset+8);
   if (0 == string_length) {
-    *end = (string_offset > offset+8 ? string_offset : offset+8);
+    *end = *start;
     if (ntlmssp_tree)
 	    proto_tree_add_string(ntlmssp_tree, string_hf, tvb,
 				  offset, 8, "NULL");
@@ -217,7 +222,7 @@ dissect_ntlmssp_string (tvbuff_t *tvb, int offset,
   return offset;
 }
 
-/* dissect a generic blowb - header area contains:
+/* dissect a generic blob - header area contains:
      two byte len
      two byte maxlen
      four byte offset of blob in data area
@@ -231,12 +236,15 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, int offset,
 {
   proto_item *tf = NULL;
   proto_tree *tree = NULL;
-  gint16 blob_length = tvb_get_letohs(tvb, offset);
-  gint16 blob_maxlen = tvb_get_letohs(tvb, offset+2);
-  gint32 blob_offset = tvb_get_letohl(tvb, offset+4);
+  guint16 blob_length = tvb_get_letohs(tvb, offset);
+  guint16 blob_maxlen = tvb_get_letohs(tvb, offset+2);
+  guint32 blob_offset = tvb_get_letohl(tvb, offset+4);
 
   if (0 == blob_length) {
-    *end = (blob_offset > offset+8 ? blob_offset : offset+8);
+    *end = (blob_offset > ((guint)offset)+8 ? blob_offset : ((guint)offset)+8);
+    if (ntlmssp_tree)
+	    proto_tree_add_text(ntlmssp_tree, tvb, offset, 8, "%s: Empty",
+				proto_registrar_get_name(blob_hf));
     return offset+8;
   }
 
@@ -376,24 +384,48 @@ dissect_ntlmssp_negotiate_flags (tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset,
+dissect_ntlmssp_negotiate (tvbuff_t *tvb, packet_info *pinfo, int offset,
 			   proto_tree *ntlmssp_tree)
 {
   guint32 negotiate_flags;
+  int start;
   int workstation_end;
   int domain_end;
+  conversation_t *conversation;
+  guint32 *flag_info;
 
   /* NTLMSSP Negotiate Flags */
   negotiate_flags = tvb_get_letohl (tvb, offset);
   offset = dissect_ntlmssp_negotiate_flags (tvb, offset, ntlmssp_tree,
 					    negotiate_flags);
 
+  /*
+   * Store the flags with the conversation, as they're needed in order
+   * to dissect subsequent messages.
+   */
+  conversation = find_conversation(&pinfo->src, &pinfo->dst,
+				   pinfo->ptype, pinfo->srcport,
+				   pinfo->destport, 0);
+  if (!conversation) { /* Create one */
+    conversation = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype, 
+				    pinfo->srcport, pinfo->destport, 0);
+  }
+
+  if (!conversation_get_proto_data(conversation, proto_ntlmssp)) {
+    flag_info = g_mem_chunk_alloc(flag_info_chunk);
+    *flag_info = negotiate_flags;
+
+    conversation_add_proto_data(conversation, proto_ntlmssp, flag_info);
+  }
+
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, FALSE, 
 				  hf_ntlmssp_negotiate_domain,
-				  &workstation_end);
+				  &start, &workstation_end);
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, FALSE, 
 				  hf_ntlmssp_negotiate_workstation,
-				  &domain_end);
+				  &start, &domain_end);
+
+  /* XXX - two blobs after this one, sometimes? */
 
   return MAX(workstation_end, domain_end);
 }
@@ -404,17 +436,20 @@ dissect_ntlmssp_address_list (tvbuff_t *tvb, int offset,
 			      proto_tree *ntlmssp_tree, 
 			      int *end)
 {
-  gint16 list_length = tvb_get_letohs(tvb, offset);
-  gint16 list_maxlen = tvb_get_letohs(tvb, offset+2);
-  gint32 list_offset = tvb_get_letohl(tvb, offset+4);
-  gint16 item_type, item_length;
+  guint16 list_length = tvb_get_letohs(tvb, offset);
+  guint16 list_maxlen = tvb_get_letohs(tvb, offset+2);
+  guint32 list_offset = tvb_get_letohl(tvb, offset+4);
+  guint16 item_type, item_length;
   int item_offset;
   proto_item *tf = NULL;
   proto_tree *tree = NULL;
 
   /* the address list is just a blob */
   if (0 == list_length) {
-    *end = (list_offset > offset+8 ? list_offset : offset+8);
+    *end = (list_offset > ((guint)offset)+8 ? list_offset : ((guint)offset)+8);
+    if (ntlmssp_tree)
+	    proto_tree_add_text(ntlmssp_tree, tvb, offset, 8,
+				"Address List: Empty");
     return offset+8;
   }
 
@@ -486,8 +521,8 @@ static int
 dissect_ntlmssp_challenge (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree)
 {
   guint32 negotiate_flags;
-  int item_end;
-  int data_end = 0;
+  int item_start, item_end;
+  int data_start, data_end;
   gboolean unicode_strings = FALSE;
 
   /* need to find unicode flag */
@@ -498,7 +533,8 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree)
   /* Domain name */
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, unicode_strings, 
 			 hf_ntlmssp_challenge_domain,
-			 &item_end);
+			 &item_start, &item_end);
+  data_start = item_start;
   data_end = item_end;
 
   /* NTLMSSP Negotiate Flags */
@@ -512,27 +548,70 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree)
   offset += 8;
 
   /* Reserved (function not completely known) */
+  /* XXX - SSP key? */
   proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_reserved,
 		       tvb, offset, 8, FALSE);
   offset += 8;
 
-  offset = dissect_ntlmssp_address_list(tvb, offset, ntlmssp_tree, &item_end);
-  data_end = MAX(data_end, item_end);
+  /*
+   * The presence or absence of this field is not obviously correlated
+   * with any flags in the previous NEGOTIATE message or in this
+   * message (other than the "Workstation Supplied" and "Domain
+   * Supplied" flags in the NEGOTIATE message, at least in the capture
+   * I've seen - but those also correlate with the presence of workstation
+   * and domain name fields, so it doesn't seem to make sense that they
+   * actually *indicate* whether the subsequent CHALLENGE has an
+   * address list).
+   */
+  if (offset < data_start) {
+    offset = dissect_ntlmssp_address_list(tvb, offset, ntlmssp_tree, &item_end);
+    data_end = MAX(data_end, item_end);
+  }
 
   return MAX(offset, data_end);
 }
 
 static int
-dissect_ntlmssp_auth (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree)
+dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
+		      proto_tree *ntlmssp_tree)
 {
-  int item_end;
+  int item_start, item_end;
   int data_end = 0;
   guint32 negotiate_flags;
   gboolean unicode_strings = FALSE;
+  guint32 *flag_info;
+  conversation_t *conversation;
+  gboolean no_sess_key = FALSE;
 
-  negotiate_flags = tvb_get_letohl (tvb, offset+48);
-  if (negotiate_flags & NTLMSSP_NEGOTIATE_UNICODE)
-    unicode_strings = TRUE;
+  /*
+   * Get flag info from the original negotiate message, if any.
+   */
+  flag_info = p_get_proto_data(pinfo->fd, proto_ntlmssp);
+  if (flag_info == NULL) {
+    /*
+     * There isn't any.  Is there any from this conversation?  If so,
+     * it means this is the first time we've dissected this frame, so
+     * we should give it flag info.
+     */
+    conversation = find_conversation(&pinfo->src, &pinfo->dst,
+				     pinfo->ptype, pinfo->srcport,
+				     pinfo->destport, 0);
+    if (conversation != NULL) {
+      flag_info = conversation_get_proto_data(conversation, proto_ntlmssp);
+      if (flag_info != NULL) {
+      	/*
+      	 * We have flag info; attach it to the frame.
+      	 */
+      	p_add_proto_data(pinfo->fd, proto_ntlmssp, flag_info);
+      }
+    }
+  }
+  if (flag_info != NULL) {
+    if (*flag_info & NTLMSSP_NEGOTIATE_UNICODE)
+      unicode_strings = TRUE;
+    if (!(*flag_info & NTLMSSP_NEGOTIATE_KEY_EXCH))
+      no_sess_key = TRUE;
+  }
 
   /* Lan Manager response */
   offset = dissect_ntlmssp_blob(tvb, offset, ntlmssp_tree,
@@ -550,38 +629,47 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree)
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, 
 				  unicode_strings, 
 				  hf_ntlmssp_auth_domain,
-				  &item_end);
+				  &item_start, &item_end);
   data_end = MAX(data_end, item_end);
 
   /* user name */
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, 
 				  unicode_strings, 
 				  hf_ntlmssp_auth_username,
-				  &item_end);
+				  &item_start, &item_end);
   data_end = MAX(data_end, item_end);
 
   /* hostname */
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, 
 				  unicode_strings, 
 				  hf_ntlmssp_auth_hostname,
+				  &item_start, &item_end);
+  data_end = MAX(data_end, item_end);
+
+  /*
+   * Sometimes the session key and flags are missing.
+   *
+   * It appears to be missing if the Negotiate Key Exchange flag
+   * isn't set in the initial NEGOTIATE message.
+   */
+  if (!no_sess_key) {
+    /* Session Key */
+    offset = dissect_ntlmssp_blob(tvb, offset, ntlmssp_tree,
+				  hf_ntlmssp_auth_sesskey,
 				  &item_end);
-  data_end = MAX(data_end, item_end);
+    data_end = MAX(data_end, item_end);
 
-  /* Session Key */
-  offset = dissect_ntlmssp_blob(tvb, offset, ntlmssp_tree,
-				hf_ntlmssp_auth_sesskey,
-				&item_end);
-  data_end = MAX(data_end, item_end);
-
-  /* NTLMSSP Negotiate Flags */
-  offset = dissect_ntlmssp_negotiate_flags (tvb, offset, ntlmssp_tree,
-					    negotiate_flags);
+    /* NTLMSSP Negotiate Flags */
+    negotiate_flags = tvb_get_letohl (tvb, offset);
+    offset = dissect_ntlmssp_negotiate_flags (tvb, offset, ntlmssp_tree,
+					      negotiate_flags);
+  }
 
   return MAX(offset, data_end);
 }
 
 static void
-dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint32 ntlmssp_message_type;
   volatile int offset = 0;
@@ -632,7 +720,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     switch (ntlmssp_message_type) {
 
     case NTLMSSP_NEGOTIATE:
-      offset = dissect_ntlmssp_negotiate (tvb, offset, ntlmssp_tree);
+      offset = dissect_ntlmssp_negotiate (tvb, pinfo, offset, ntlmssp_tree);
       break;
 
     case NTLMSSP_CHALLENGE:
@@ -640,7 +728,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
       break;
 
     case NTLMSSP_AUTH:
-      offset = dissect_ntlmssp_auth (tvb, offset, ntlmssp_tree);
+      offset = dissect_ntlmssp_auth (tvb, pinfo, offset, ntlmssp_tree);
       break;
 
     default:
@@ -654,6 +742,16 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
   } CATCH(ReportedBoundsError) {
     show_reported_bounds_error(tvb, pinfo, tree);
   } ENDTRY;
+}
+
+static void
+ntlmssp_init_protocol(void)
+{
+  if (flag_info_chunk)
+    g_mem_chunk_destroy(flag_info_chunk);
+  flag_info_chunk = g_mem_chunk_new("flag_info", sizeof(guint32 *),
+				    flag_info_chunk_count * sizeof(guint32 *),
+				    G_ALLOC_ONLY);
 }
 
 void
@@ -818,6 +916,7 @@ proto_register_ntlmssp(void)
 					   );
   proto_register_field_array (proto_ntlmssp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
+  register_init_routine(&ntlmssp_init_protocol);
 
   register_dissector("ntlmssp", dissect_ntlmssp, proto_ntlmssp);
 }
