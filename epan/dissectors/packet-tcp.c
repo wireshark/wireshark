@@ -95,6 +95,7 @@ static int hf_tcp_analysis_fast_retransmission = -1;
 static int hf_tcp_analysis_out_of_order = -1;
 static int hf_tcp_analysis_lost_packet = -1;
 static int hf_tcp_analysis_ack_lost_packet = -1;
+static int hf_tcp_analysis_window_update = -1;
 static int hf_tcp_analysis_keep_alive = -1;
 static int hf_tcp_analysis_keep_alive_ack = -1;
 static int hf_tcp_analysis_duplicate_ack = -1;
@@ -210,6 +211,7 @@ static int tcp_acked_count = 5000;	/* one for almost every other segment in the 
 #define TCP_A_KEEP_ALIVE_ACK		0x0100
 #define TCP_A_OUT_OF_ORDER		0x0200
 #define TCP_A_FAST_RETRANSMISSION	0x0400
+#define TCP_A_WINDOW_UPDATE		0x0800
 struct tcp_acked {
 	guint32 frame_acked;
 	nstime_t ts;
@@ -248,8 +250,8 @@ struct tcp_analysis {
 	guint32 base_seq1;
 	struct tcp_unacked *ual2;	/* UnAcked List 2*/
 	guint32 base_seq2;
-	gint16 win_scale1;
-	gint16 win_scale2;
+	gint16 win_scale1, win_scale2;
+	gint32 win1, win2;
 	guint32 ack1, ack2;
 	guint32 ack1_frame, ack2_frame;
 	nstime_t ack1_time, ack2_time;
@@ -297,6 +299,7 @@ get_tcp_conversation_data(packet_info *pinfo)
 		tcpd=g_mem_chunk_alloc(tcp_analysis_chunk);
 		tcpd->ual1=NULL;
 		tcpd->base_seq1=0;
+		tcpd->win1=-1;
 		tcpd->win_scale1=-1;
 		tcpd->ack1=0;
 		tcpd->ack1_frame=0;
@@ -305,6 +308,7 @@ get_tcp_conversation_data(packet_info *pinfo)
 		tcpd->num1_acks=0;
 		tcpd->ual2=NULL;
 		tcpd->base_seq2=0;
+		tcpd->win2=-1;
 		tcpd->win_scale2=-1;
 		tcpd->ack2=0;
 		tcpd->ack2_frame=0;
@@ -615,6 +619,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 	guint32 ack1_frame, ack2_frame;
 	nstime_t *ack1_time, *ack2_time;
 	guint32 num1_acks, num2_acks;
+	gint32 win;
 	gint16  win_scale;
 	struct tcp_next_pdu **tnp=NULL;
 
@@ -642,6 +647,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		base_seq=(tcp_relative_seq && (ual1==NULL))?seq:tcpd->base_seq1;
 		base_ack=(tcp_relative_seq && (ual2==NULL))?ack:tcpd->base_seq2;
 		win_scale=tcpd->win_scale1;
+		win=tcpd->win1;
 	} else {
 		ual1=tcpd->ual2;
 		ual2=tcpd->ual1;
@@ -657,6 +663,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		base_seq=(tcp_relative_seq && (ual1==NULL))?seq:tcpd->base_seq2;
 		base_ack=(tcp_relative_seq && (ual2==NULL))?ack:tcpd->base_seq1;
 		win_scale=tcpd->win_scale2;
+		win=tcpd->win2;
 	}
 
 	if(!seglen){
@@ -1096,9 +1103,17 @@ ack_finished:
 				 */
 				if( (!(ta->flags&TCP_A_KEEP_ALIVE))
 				  &&(!(flags&(TH_RST|TH_FIN))) ){
-					ta->flags|=TCP_A_DUPLICATE_ACK;
-					ta->dupack_num=num2_acks-1;
-					ta->dupack_frame=ack2_frame;
+					/* well then   
+					 * this could then either be a dupack
+					 * or maybe just a window update.
+					 */
+					if(win==window){
+						ta->flags|=TCP_A_DUPLICATE_ACK;
+						ta->dupack_num=num2_acks-1;
+						ta->dupack_frame=ack2_frame;
+					} else {
+						ta->flags|=TCP_A_WINDOW_UPDATE;
+					}
 				}
 			}
 		}		
@@ -1167,6 +1182,7 @@ ack_finished:
 		tcpd->num2_acks=num2_acks;
 		tcpd->base_seq1=base_seq;
 		tcpd->base_seq2=base_ack;
+		tcpd->win1=window;
 	} else {
 		tcpd->ual1=ual2;
 		tcpd->ual2=ual1;
@@ -1178,6 +1194,7 @@ ack_finished:
 		tcpd->num2_acks=num1_acks;
 		tcpd->base_seq2=base_seq;
 		tcpd->base_seq1=base_ack;
+		tcpd->win2=window;
 	}
 
 
@@ -1265,6 +1282,13 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 			PROTO_ITEM_SET_GENERATED(flags_item);
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP ACKed lost segment] ");
+			}
+		}
+		if( ta->flags&TCP_A_WINDOW_UPDATE ){
+			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_window_update, tvb, 0, 0, "This is a tcp window update");
+			PROTO_ITEM_SET_GENERATED(flags_item);
+			if(check_col(pinfo->cinfo, COL_INFO)){
+				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Window Update] ");
 			}
 		}
 		if( ta->flags&TCP_A_KEEP_ALIVE ){
@@ -3111,6 +3135,10 @@ proto_register_tcp(void)
 		{ &hf_tcp_analysis_ack_lost_packet,
 		{ "ACKed Lost Packet",		"tcp.analysis.ack_lost_segment", FT_NONE, BASE_NONE, NULL, 0x0,
 			"This frame ACKs a lost segment", HFILL }},
+
+		{ &hf_tcp_analysis_window_update,
+		{ "Window update",		"tcp.analysis.window_update", FT_NONE, BASE_NONE, NULL, 0x0,
+			"This frame is a tcp window update", HFILL }},
 
 		{ &hf_tcp_analysis_keep_alive,
 		{ "Keep Alive",		"tcp.analysis.keep_alive", FT_NONE, BASE_NONE, NULL, 0x0,
