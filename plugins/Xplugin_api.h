@@ -301,3 +301,6 @@
 #define tvb_get_ntohieee_double (*p_tvb_get_ntohieee_double)
 #define tvb_get_letohieee_float (*p_tvb_get_letohieee_float)
 #define tvb_get_letohieee_double (*p_tvb_get_letohieee_double)
+#define proto_tree_add_debug_text (*p_proto_tree_add_debug_text)
+#define rtp_add_address (*p_rtp_add_address)
+#define rtcp_add_address (*p_rtcp_add_address)

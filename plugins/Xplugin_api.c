@@ -301,3 +301,6 @@ p_tvb_get_ntohieee_float = pat->p_tvb_get_ntohieee_float;
 p_tvb_get_ntohieee_double = pat->p_tvb_get_ntohieee_double;
 p_tvb_get_letohieee_float = pat->p_tvb_get_letohieee_float;
 p_tvb_get_letohieee_double = pat->p_tvb_get_letohieee_double;
+p_proto_tree_add_debug_text = pat->p_proto_tree_add_debug_text;
+p_rtp_add_address = pat->p_rtp_add_address;
+p_rtcp_add_address = pat->p_rtcp_add_address;

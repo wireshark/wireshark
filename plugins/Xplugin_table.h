@@ -301,3 +301,6 @@ typedef gfloat (*addr_tvb_get_ntohieee_float) (tvbuff_t *, gint);
 typedef gdouble (*addr_tvb_get_ntohieee_double) (tvbuff_t *, gint);
 typedef gfloat (*addr_tvb_get_letohieee_float) (tvbuff_t *, gint);
 typedef gdouble (*addr_tvb_get_letohieee_double) (tvbuff_t *, gint);
+typedef proto_item *(*addr_proto_tree_add_debug_text) (proto_tree *, const char *, ...);
+typedef void (*addr_rtp_add_address) (packet_info *, address *, int, int, gchar *, guint32);
+typedef void (*addr_rtcp_add_address) (packet_info *, address *, int, int, gchar *, guint32);
