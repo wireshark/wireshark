@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly, core
  * bits.
  *
- * $Id: packet-isis.c,v 1.27 2001/12/10 00:25:29 guy Exp $
+ * $Id: packet-isis.c,v 1.28 2001/12/20 07:33:21 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -314,6 +314,15 @@ proto_register_isis(void) {
     proto_isis = proto_register_protocol(PROTO_STRING_ISIS, "ISIS", "isis");
     proto_register_field_array(proto_isis, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    /*
+     * Call registration routines for other source files in the ISIS
+     * dissector.
+     */
+    isis_register_hello(proto_isis);
+    isis_register_lsp(proto_isis);
+    isis_register_csnp(proto_isis);
+    isis_register_psnp(proto_isis);
 }
 
 void

@@ -1,7 +1,7 @@
 /* packet-isis-lsp.h
  * Defines and such for LSP and their CLV decodes
  *
- * $Id: packet-isis-lsp.h,v 1.10 2001/08/22 18:00:40 guy Exp $
+ * $Id: packet-isis-lsp.h,v 1.11 2001/12/20 07:33:21 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -21,8 +21,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- *
  */
 
 #ifndef _PACKET_ISIS_LSP_H
@@ -115,5 +113,6 @@ extern void isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo,
 	int hello_type, int header_length, int id_length);
 extern void isis_lsp_decode_lsp_id(tvbuff_t *tvb, packet_info *pinfo, 
 	proto_tree *tree, int offset, char *tstr, int id_length);
+extern void isis_register_lsp(int proto_isis);
 
 #endif /* _PACKET_ISIS_LSP_H */

@@ -1,7 +1,7 @@
 /* packet-isis-hello.h
  * Declares for hello handling inside isis.
  *
- * $Id: packet-isis-hello.h,v 1.5 2001/07/02 00:19:34 guy Exp $
+ * $Id: packet-isis-hello.h,v 1.6 2001/12/20 07:33:21 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -21,8 +21,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- *
  */
 
 #ifndef _PACKET_ISIS_HELLO_H
@@ -100,4 +98,6 @@
 extern void isis_dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int offset,
 	int hello_type, int header_length,int id_length);
+extern void isis_register_hello(int proto_isis);
+
 #endif /* _PACKET_ISIS_HELLO_H */

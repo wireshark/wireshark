@@ -1,13 +1,12 @@
 /* packet-isis-snp.h
  * Defines and such for CSNP, PSNP, and their payloads
  *
- * $Id: packet-isis-snp.h,v 1.3 2001/07/02 00:19:34 guy Exp $
+ * $Id: packet-isis-snp.h,v 1.4 2001/12/20 07:33:21 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,8 +21,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- *
  */
 
 #ifndef _PACKET_ISIS_SNP_H
@@ -69,8 +66,10 @@
 extern void isis_dissect_isis_csnp(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int offset,
 	int type, int header_length, int id_length);
+extern void isis_register_csnp(int proto_isis);
 extern void isis_dissect_isis_psnp(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int offset,
 	int type, int header_length, int id_length);
+extern void isis_register_psnp(int proto_isis);
 
 #endif /* _PACKET_ISIS_CSNP_H */

@@ -1,13 +1,12 @@
 /* packet-isis-snp.c
  * Routines for decoding isis complete & partial SNP and their payload
  *
- * $Id: packet-isis-snp.c,v 1.11 2001/11/26 04:52:50 hagbard Exp $
+ * $Id: packet-isis-snp.c,v 1.12 2001/12/20 07:33:21 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,8 +21,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -45,7 +42,6 @@
 #include "packet-isis-snp.h"
 
 /* csnp packets */
-static int proto_isis_csnp = -1;
 static int hf_isis_csnp_pdu_length = -1;
 static gint ett_isis_csnp = -1;
 static gint ett_isis_csnp_lsp_entries = -1;
@@ -53,14 +49,11 @@ static gint ett_isis_csnp_authentication = -1;
 static gint ett_isis_csnp_clv_unknown = -1;
 
 /* psnp packets */
-static int proto_isis_psnp = -1;
 static int hf_isis_psnp_pdu_length = -1;
 static gint ett_isis_psnp = -1;
 static gint ett_isis_psnp_lsp_entries = -1;
 static gint ett_isis_psnp_authentication = -1;
 static gint ett_isis_psnp_clv_unknown = -1;
-
-static dissector_handle_t data_handle;
 
 static void dissect_l1_snp_authentication_clv(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int offset,
@@ -254,14 +247,9 @@ isis_dissect_isis_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint16		pdu_length;
 	int 		len;
 
-	if (!proto_is_protocol_enabled(proto_isis_csnp)) {
-		call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
-		return;
-	}
-
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_isis_csnp, tvb,
-			offset, tvb_length_remaining(tvb, offset), FALSE);
+		ti = proto_tree_add_text(tree, tvb, offset,
+		    tvb_length_remaining(tvb, offset), PROTO_STRING_CSNP);
 		csnp_tree = proto_item_add_subtree(ti, ett_isis_csnp);
 	}
 
@@ -335,14 +323,9 @@ isis_dissect_isis_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint16		pdu_length;
 	int 		len;
 
-	if (!proto_is_protocol_enabled(proto_isis_psnp)) {
-		call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
-		return;
-	}
-
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_isis_psnp, tvb,
-			offset, tvb_length_remaining(tvb, offset), FALSE);
+		ti = proto_tree_add_text(tree, tvb, offset,
+		    tvb_length_remaining(tvb, offset), PROTO_STRING_PSNP);
 		psnp_tree = proto_item_add_subtree(ti, ett_isis_psnp);
 	}
 
@@ -434,19 +417,22 @@ dissect_l2_snp_authentication_clv(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 /*
- * Name: proto_register_isis_csnp()
+ * Name: isis_register_csnp()
  *
  * Description: 
  *	Register our protocol sub-sets with protocol manager.
- *	NOTE: this procedure is autolinked by the makefile process that
- *		builds register.c
  *
+ * Input: 
+ *	int : protocol index for the ISIS protocol
+ *
+ * Output:
+ *	void
  */
 void 
-proto_register_isis_csnp(void) {
+isis_register_csnp(int proto_isis) {
 	static hf_register_info hf[] = {
 		{ &hf_isis_csnp_pdu_length,
-		{ "PDU length",		"isis_csnp.pdu_length", FT_UINT16, 
+		{ "PDU length",		"isis.csnp.pdu_length", FT_UINT16, 
 		  BASE_DEC, NULL, 0x0, "", HFILL }},
 	};
 	static gint *ett[] = {
@@ -456,26 +442,28 @@ proto_register_isis_csnp(void) {
 		&ett_isis_csnp_clv_unknown,
 	};
 
-	proto_isis_csnp = proto_register_protocol(PROTO_STRING_CSNP,
-	    "ISIS CSNP", "isis_csnp");
-	proto_register_field_array(proto_isis_csnp, hf, array_length(hf));
+	proto_register_field_array(proto_isis, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
 
 /*
- * Name: proto_register_isis_psnp()
+ * Name: isis_register_psnp()
  *
  * Description: 
  *	Register our protocol sub-sets with protocol manager.
- *	NOTE: this procedure is autolinked by the makefile process that
- *		builds register.c
+ *
+ * Input: 
+ *	int : protocol index for the ISIS protocol
+ *
+ * Output:
+ *	void
  */
 void 
-proto_register_isis_psnp(void) {
+isis_register_psnp(int proto_isis) {
 	static hf_register_info hf[] = {
 		{ &hf_isis_psnp_pdu_length,
-		{ "PDU length",		"isis_psnp.pdu_length", FT_UINT16, 
+		{ "PDU length",		"isis.psnp.pdu_length", FT_UINT16, 
 		  BASE_DEC, NULL, 0x0, "", HFILL }},
 	};
 	static gint *ett[] = {
@@ -485,13 +473,6 @@ proto_register_isis_psnp(void) {
 		&ett_isis_psnp_clv_unknown,
 	};
 
-	proto_isis_psnp = proto_register_protocol(PROTO_STRING_PSNP,
-	    "ISIS PSNP", "isis_psnp");
-	proto_register_field_array(proto_isis_psnp, hf, array_length(hf));
+	proto_register_field_array(proto_isis, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-}
-
-void
-proto_reg_handoff_isis_psnp(void){
-  data_handle = find_dissector("data");
 }

@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.21 2001/11/26 04:52:50 hagbard Exp $
+ * $Id: packet-isis-lsp.c,v 1.22 2001/12/20 07:33:21 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -21,8 +21,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -51,7 +49,6 @@
 #include "resolv.h"
 
 /* lsp packets */
-static int proto_isis_lsp = -1;
 static int hf_isis_lsp_pdu_length = -1;
 static int hf_isis_lsp_remaining_life = -1;
 static int hf_isis_lsp_sequence_number = -1;
@@ -85,8 +82,6 @@ static gint ett_isis_lsp_clv_ipv6_reachability = -1; /* CLV 236 */
 static gint ett_isis_lsp_clv_mt = -1;
 static gint ett_isis_lsp_clv_mt_is = -1;
 static gint ett_isis_lsp_part_of_clv_mt_is = -1;
-
-static dissector_handle_t data_handle;
 
 static const char *isis_lsp_attached_bits[] = {
 	"error", "expense", "delay", "default" };
@@ -1614,14 +1609,9 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	char		sbuf[128];
 	int		inx, q, some, value, len;
 
-	if (!proto_is_protocol_enabled(proto_isis_lsp)) {
-		call_dissector(data_handle,tvb_new_subset(tvb, offset, -1, tvb_reported_length_remaining(tvb,offset)),pinfo, tree);
-		return;
-	}
-
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_isis_lsp, tvb,
-			offset, tvb_length_remaining(tvb, offset), FALSE);
+		ti = proto_tree_add_text(tree, tvb, offset,
+		    tvb_length_remaining(tvb, offset), PROTO_STRING_LSP);
 		lsp_tree = proto_item_add_subtree(ti, ett_isis_lsp);
 	}
 
@@ -1712,42 +1702,46 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 }
 /*
- * Name: proto_register_isis_lsp()
+ * Name: isis_register_lsp()
  *
  * Description: 
  *	Register our protocol sub-sets with protocol manager.
- *	NOTE: this procedure is autolinked by the makefile process that
- *		builds register.c
+ *
+ * Input: 
+ *	int : protocol index for the ISIS protocol
+ *
+ * Output:
+ *	void
  */
 void 
-proto_register_isis_lsp(void) {
+isis_register_lsp(int proto_isis) {
 	static hf_register_info hf[] = {
 		{ &hf_isis_lsp_pdu_length,
-		{ "PDU length",		"isis_lsp.pdu_length", FT_UINT16, 
+		{ "PDU length",		"isis.lsp.pdu_length", FT_UINT16, 
 		  BASE_DEC, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_lsp_remaining_life,
-		{ "Remaining lifetime",	"isis_lsp.remaining_life", FT_UINT16, 
+		{ "Remaining lifetime",	"isis.lsp.remaining_life", FT_UINT16, 
 		  BASE_DEC, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_lsp_sequence_number,
-		{ "Sequence number",           "isis_lsp.sequence_number", 
+		{ "Sequence number",           "isis.lsp.sequence_number", 
 		  FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_lsp_checksum,
-		{ "Checksum",		"isis_lsp.checksum",FT_UINT16, 
+		{ "Checksum",		"isis.lsp.checksum",FT_UINT16, 
 		  BASE_HEX, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_lsp_clv_ipv4_int_addr,
-		{ "IPv4 interface address", "isis_lsp.clv_ipv4_int_addr", FT_IPv4,
+		{ "IPv4 interface address", "isis.lsp.clv_ipv4_int_addr", FT_IPv4,
 		   BASE_NONE, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_lsp_clv_ipv6_int_addr,
-		{ "IPv6 interface address", "isis_lsp.clv_ipv6_int_addr", FT_IPv6,
+		{ "IPv6 interface address", "isis.lsp.clv_ipv6_int_addr", FT_IPv6,
 		   BASE_NONE, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_lsp_clv_te_router_id,
-		{ "Traffic Engineering Router ID", "isis_lsp.clv_te_router_id", FT_IPv4,
+		{ "Traffic Engineering Router ID", "isis.lsp.clv_te_router_id", FT_IPv4,
 		   BASE_NONE, NULL, 0x0, "", HFILL }},
 	};
 	static gint *ett[] = {
@@ -1777,13 +1771,6 @@ proto_register_isis_lsp(void) {
 		&ett_isis_lsp_part_of_clv_mt_is,
 	};
 
-	proto_isis_lsp = proto_register_protocol(PROTO_STRING_LSP,
-	    "ISIS LSP", "isis_lsp");
-	proto_register_field_array(proto_isis_lsp, hf, array_length(hf));
+	proto_register_field_array(proto_isis, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-}
-
-void
-proto_reg_handoff_isis_lsp(void){
-  data_handle = find_dissector("data");
 }

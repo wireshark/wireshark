@@ -1,7 +1,7 @@
 /* packet-isis-hello.c
  * Routines for decoding isis hello packets and their CLVs
  *
- * $Id: packet-isis-hello.c,v 1.22 2001/11/26 04:52:50 hagbard Exp $
+ * $Id: packet-isis-hello.c,v 1.23 2001/12/20 07:33:21 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -21,8 +21,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -43,7 +41,6 @@
 #include "packet-isis-hello.h"
 
 /* hello packets */
-static int proto_isis_hello                  = -1;
 static int hf_isis_hello_circuit_reserved    = -1;
 static int hf_isis_hello_source_id           = -1;
 static int hf_isis_hello_holding_timer       = -1;
@@ -67,8 +64,6 @@ static gint ett_isis_hello_clv_ipv4_int_addr = -1;
 static gint ett_isis_hello_clv_ipv6_int_addr = -1;
 static gint ett_isis_hello_clv_ptp_adj       = -1;
 static gint ett_isis_hello_clv_mt            = -1;
-
-static dissector_handle_t data_handle;
 
 static const value_string isis_hello_circuit_type_vals[] = {
 	{ ISIS_HELLO_TYPE_RESERVED,	"Reserved 0 (discard PDU)"},
@@ -280,7 +275,7 @@ static const isis_clv_handle_t clv_ptp_hello_opts[] = {
 	},
 	{
 		ISIS_CLV_PTP_ADJ,
-		"point-to-point Adjacency State",
+		"Point-to-point Adjacency State",
 		&ett_isis_hello_clv_ptp_adj,
 		dissect_hello_ptp_adj_clv
 	},
@@ -618,14 +613,9 @@ isis_dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint16		pdu_length;
 	const guint8	*lan_id;
 
-	if (!proto_is_protocol_enabled(proto_isis_hello)) {
-		call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
-		return;
-	}
-
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_isis_hello, tvb,
-			offset, tvb_length_remaining(tvb, offset), FALSE);
+		ti = proto_tree_add_text(tree, tvb, offset,
+		    tvb_length_remaining(tvb, offset), "ISIS HELLO");
 		hello_tree = proto_item_add_subtree(ti, ett_isis_hello);
 		octet = tvb_get_guint8(tvb, offset);
 		proto_tree_add_uint_format(hello_tree,
@@ -718,60 +708,58 @@ isis_dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 /*
- * Name: proto_register_isis_hello()
+ * Name: isis_register_hello()
  *
  * Description:
  *	Register our protocol sub-sets with protocol manager.
- *	NOTE: this procedure is autolinked by the makefile process that
- *		builds register.c
  *
  * Input: 
- *	void
+ *	int : protocol index for the ISIS protocol
  *
  * Output:
  *	void
  */
 void
-proto_register_isis_hello(void) {
+isis_register_hello(int proto_isis) {
 	static hf_register_info hf[] = {
 		{ &hf_isis_hello_circuit_reserved,
-		{ "Circuit type              ", "isis_hello.circuite_type",
+		{ "Circuit type              ", "isis.hello.circuit_type",
 			FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_hello_source_id,
-		{ "SystemID{ Sender of PDU } ", "isis_hello.source_id",
+		{ "SystemID{ Sender of PDU } ", "isis.hello.source_id",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_hello_holding_timer,
-		{ "Holding timer             ", "isis_hello.holding_timer", 
+		{ "Holding timer             ", "isis.hello.holding_timer", 
 			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_hello_pdu_length,
-		{ "PDU length                ", "isis_hello.pdu_length",
+		{ "PDU length                ", "isis.hello.pdu_length",
 			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_hello_priority_reserved,
-		 { "Priority                 ", "isis_hello.priority",
+		 { "Priority                 ", "isis.hello.priority",
 			FT_UINT8, BASE_DEC, NULL, ISIS_HELLO_P_RESERVED_MASK, "", HFILL }},
 
 		{ &hf_isis_hello_lan_id,
-		{ "SystemID{ Designated IS } ", "isis_hello.lan_id",
+		{ "SystemID{ Designated IS } ", "isis.hello.lan_id",
 			FT_BYTES, BASE_DEC, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_hello_local_circuit_id,
-		{ "Local circuit ID          ", "isis_hello.local_circuit_id",
+		{ "Local circuit ID          ", "isis.hello.local_circuit_id",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_hello_clv_ipv4_int_addr,
-		{ "IPv4 interface address    ", "isis_hello.clv_ipv4_int_addr",
+		{ "IPv4 interface address    ", "isis.hello.clv_ipv4_int_addr",
 			FT_IPv4, BASE_NONE, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_hello_clv_ipv6_int_addr,
-		{ "IPv6 interface address    ", "isis_hello.clv_ipv6_int_addr",
+		{ "IPv6 interface address    ", "isis.hello.clv_ipv6_int_addr",
 			FT_IPv6, BASE_NONE, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_hello_clv_ptp_adj,
-		{ "point-to-point Adjacency  ", "isis_hello.clv_ptp_adj",
+		{ "Point-to-point Adjacency  ", "isis.hello.clv_ptp_adj",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
 
 	};
@@ -789,13 +777,6 @@ proto_register_isis_hello(void) {
 		&ett_isis_hello_clv_mt
 	};
 
-	proto_isis_hello = proto_register_protocol("ISIS HELLO",
-	    "ISIS HELLO", "isis_hello");
-	proto_register_field_array(proto_isis_hello, hf, array_length(hf));
+	proto_register_field_array(proto_isis, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-}
-
-void
-proto_reg_handoff_isis_hello(void){
-  data_handle = find_dissector("data");
 }
