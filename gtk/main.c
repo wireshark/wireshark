@@ -1592,7 +1592,7 @@ main(int argc, char *argv[])
   /* Let GTK get its args */
   gtk_init (&argc, &argv);
 
-#if GTK_MAJOR_VERSION < 2
+#if GTK_MAJOR_VERSION < 2 && GTK_MINOR_VERSION < 3
   /* initialize our GTK eth_clist_type */
   init_eth_clist_type();
 #endif
