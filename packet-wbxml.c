@@ -2,7 +2,7 @@
  * Routines for wbxml dissection
  * Copyright 2003, Olivier Biot <olivier.biot (ad) siemens.com>
  *
- * $Id: packet-wbxml.c,v 1.12 2003/10/09 18:54:06 guy Exp $
+ * $Id: packet-wbxml.c,v 1.13 2003/11/19 22:55:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2163,6 +2163,9 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				off++;
 				*parsed_length = off - offset;
 				/* Reset code page: not needed as return from recursion */
+#ifdef DEBUG
+				printf("WBXML - STAG: level = %u, Return: len = %u\n", *level, *parsed_length);
+#endif
 				return;
 				break;
 			case 0x02: /* ENTITY */
@@ -2218,7 +2221,19 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 						*level, Indent (*level));
 				parse_wbxml_attribute_list_defined (tree, tvb, off, str_tbl,
 						*level, &len, map);
+				/* Check that there is still room in packet */
 				off += len;
+				if (off >= tvb_len) {
+					proto_tree_add_text (tree, tvb, off, 1,
+						"      |  Attr |          "
+						"|                                 "
+						"| [Short frame]");
+#ifdef DEBUG
+					printf("WBXML - STAG: level = %u, Return: len = %u (short frame)\n",
+							*level, *parsed_length);
+#endif
+					return;
+				}
 				proto_tree_add_text (tree, tvb, off-1, 1,
 						"  %3d | Tag   |          "
 						"| END (PI)                        "
@@ -2304,6 +2319,9 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 					/* Stop processing as it is impossible to parse now */
 					off = tvb_len;
 					*parsed_length = off - offset;
+#ifdef DEBUG
+					printf("WBXML - STAG: level = %u, Return: len = %u\n", *level, *parsed_length);
+#endif
 					return;
 				}
 				break;
@@ -2346,7 +2364,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				 */
 				if (parsing_tag_content) { /* Recurse */
 #ifdef DEBUG
-					printf ("WBXML: Tag in Tag - RECURSE! (off = %d)\n",off);
+					printf ("WBXML - STAG: Tag in Tag - RECURSE! (off = %d)\n", off);
 #endif
 					/* Do not process the attribute list:
 					 * recursion will take care of it */
@@ -2397,7 +2415,19 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 						}
 						parse_wbxml_attribute_list_defined (tree, tvb,
 								off, str_tbl, *level, &len, map);
+						/* Check that there is still room in packet */
 						off += len;
+						if (off >= tvb_len) {
+							proto_tree_add_text (tree, tvb, off, 1,
+								"      |  Attr |          "
+								"|                                 "
+								"| [Short frame]");
+#ifdef DEBUG
+							printf("WBXML - STAG: level = %u, Return: len = %u (short frame)\n",
+									*level, *parsed_length);
+#endif
+							return;
+						}
 						proto_tree_add_text (tree, tvb, off-1, 1,
 								"  %3d | Tag   |          "
 								"| END (attribute list)            "
@@ -2477,7 +2507,19 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 						off++;
 						parse_wbxml_attribute_list_defined (tree, tvb,
 								off, str_tbl, *level, &len, map);
+						/* Check that there is still room in packet */
 						off += len;
+						if (off >= tvb_len) {
+							proto_tree_add_text (tree, tvb, off, 1,
+								"      |  Attr |          "
+								"|                                 "
+								"| [Short frame]");
+#ifdef DEBUG
+							printf("WBXML - STAG: level = %u, Return: len = %u (short frame)\n",
+									*level, *parsed_length);
+#endif
+							return;
+						}
 						proto_tree_add_text (tree, tvb, off-1, 1,
 								"  %3d | Tag   |          "
 								"| END (Known Tag)                 "
@@ -2492,7 +2534,19 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 						off += 1 + tag_len;
 						parse_wbxml_attribute_list_defined (tree, tvb,
 								off, str_tbl, *level, &len, map);
+						/* Check that there is still room in packet */
 						off += len;
+						if (off >= tvb_len) {
+							proto_tree_add_text (tree, tvb, off, 1,
+								"      |  Attr |          "
+								"|                                 "
+								"| [Short frame]");
+#ifdef DEBUG
+							printf("WBXML - STAG: level = %u, Return: len = %u (short frame)\n",
+									*level, *parsed_length);
+#endif
+							return;
+						}
 						proto_tree_add_text (tree, tvb, off-1, 1,
 								"  %3d | Tag   |          "
 								"| END (Literal Tag)               "
@@ -2535,6 +2589,10 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			}
 		} /* if (tag & 0x3F) >= 5 */
 	} /* while */
+#ifdef DEBUG
+	*parsed_length = off - offset;
+	printf("WBXML - STAG: level = %u, Return: len = %u (end of function body)\n", *level, *parsed_length);
+#endif
 }
 
 
@@ -2612,6 +2670,9 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				off++;
 				*parsed_length = off - offset;
 				/* Reset code page: not needed as return from recursion */
+#ifdef DEBUG
+				printf("WBXML - STAG: level = %u, Return: len = %u\n", *level, *parsed_length);
+#endif
 				return;
 				break;
 			case 0x02: /* ENTITY */
@@ -2665,7 +2726,19 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 						*level, Indent (*level));
 				parse_wbxml_attribute_list (tree, tvb, off, str_tbl,
 						*level, &len);
+				/* Check that there is still room in packet */
 				off += len;
+				if (off >= tvb_len) {
+					proto_tree_add_text (tree, tvb, off, 1,
+						"      |  Attr |          "
+						"|                                 "
+						"| [Short frame]");
+#ifdef DEBUG
+					printf("WBXML - STAG: level = %u, Return: len = %u (short frame)\n",
+							*level, *parsed_length);
+#endif
+					return;
+				}
 				proto_tree_add_text (tree, tvb, off-1, 1,
 						"  %3d | Tag   |          "
 						"| END (PI)                        "
@@ -2748,6 +2821,9 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 					/* Stop processing as it is impossible to parse now */
 					off = tvb_len;
 					*parsed_length = off - offset;
+#ifdef DEBUG
+					printf("WBXML - STAG: level = %u, Return: len = %u\n", *level, *parsed_length);
+#endif
 					return;
 				}
 				break;
@@ -2791,7 +2867,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				 */
 				if (parsing_tag_content) { /* Recurse */
 #ifdef DEBUG
-					printf ("WBXML: Tag in Tag - RECURSE! (off = %d)\n",off);
+					printf("WBXML - STAG: Tag in Tag - RECURSE! (off = %d)\n", off);
 #endif
 					/* Do not process the attribute list:
 					 * recursion will take care of it */
@@ -2844,7 +2920,19 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 						}
 						parse_wbxml_attribute_list (tree, tvb,
 								off, str_tbl, *level, &len);
+						/* Check that there is still room in packet */
 						off += len;
+						if (off >= tvb_len) {
+							proto_tree_add_text (tree, tvb, off, 1,
+								"      |  Attr |          "
+								"|                                 "
+								"| [Short frame]");
+#ifdef DEBUG
+							printf("WBXML - STAG: level = %u, Return: len = %u (short frame)\n",
+									*level, *parsed_length);
+#endif
+							return;
+						}
 						proto_tree_add_text (tree, tvb, off-1, 1,
 								"  %3d | Tag   |          "
 								"| END (attribute list)            "
@@ -2924,7 +3012,19 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 						off++;
 						parse_wbxml_attribute_list (tree, tvb,
 								off, str_tbl, *level, &len);
+						/* Check that there is still room in packet */
 						off += len;
+						if (off >= tvb_len) {
+							proto_tree_add_text (tree, tvb, off, 1,
+								"      |  Attr |          "
+								"|                                 "
+								"| [Short frame]");
+#ifdef DEBUG
+							printf("WBXML - STAG: level = %u, Return: len = %u (short frame)\n",
+									*level, *parsed_length);
+#endif
+							return;
+						}
 						proto_tree_add_text (tree, tvb, off-1, 1,
 								"  %3d | Tag   |          "
 								"| END (Known Tag)                 "
@@ -2939,7 +3039,19 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 						off += 1 + tag_len;
 						parse_wbxml_attribute_list (tree, tvb,
 								off, str_tbl, *level, &len);
+						/* Check that there is still room in packet */
 						off += len;
+						if (off >= tvb_len) {
+							proto_tree_add_text (tree, tvb, off, 1,
+								"      |  Attr |          "
+								"|                                 "
+								"| [Short frame]");
+#ifdef DEBUG
+							printf("WBXML - STAG: level = %u, Return: len = %u (short frame)\n",
+									*level, *parsed_length);
+#endif
+							return;
+						}
 						proto_tree_add_text (tree, tvb, off-1, 1,
 								"  %3d | Tag   |          "
 								"| END (Literal Tag)               "
@@ -2982,6 +3094,10 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			}
 		} /* if (tag & 0x3F) >= 5 */
 	} /* while */
+#ifdef DEBUG
+	*parsed_length = off - offset;
+	printf("WBXML - STAG: level = %u, Return: len = %u (end of function body)\n", *level, *parsed_length);
+#endif
 }
 
 
@@ -3052,6 +3168,9 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 				 */
 				off++;
 				*parsed_length = off - offset;
+#ifdef DEBUG
+				printf("WBXML - ATTR: level = %u, Return: len = %u\n", level, *parsed_length);
+#endif
 				return;
 			case 0x02: /* ENTITY */
 				ent = tvb_get_guintvar (tvb, off+1, &len);
@@ -3191,6 +3310,9 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 					/* Stop processing as it is impossible to parse now */
 					off = tvb_len;
 					*parsed_length = off - offset;
+#ifdef DEBUG
+					printf("WBXML - ATTR: level = %u, Return: len = %u\n", level, *parsed_length);
+#endif
 					return;
 				}
 				break;
@@ -3246,6 +3368,10 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 			}
 		}
 	} /* End WHILE */
+#ifdef DEBUG
+	*parsed_length = off - offset;
+	printf("WBXML - ATTR: level = %u, Return: len = %u (end of function body)\n", level, *parsed_length);
+#endif
 }
 
 
@@ -3301,6 +3427,9 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 				 */
 				off++;
 				*parsed_length = off - offset;
+#ifdef DEBUG
+				printf("WBXML - ATTR: level = %u, Return: len = %u\n", level, *parsed_length);
+#endif
 				return;
 			case 0x02: /* ENTITY */
 				ent = tvb_get_guintvar (tvb, off+1, &len);
@@ -3434,6 +3563,9 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 					/* Stop processing as it is impossible to parse now */
 					off = tvb_len;
 					*parsed_length = off - offset;
+#ifdef DEBUG
+					printf("WBXML - ATTR: level = %u, Return: len = %u\n", level, *parsed_length);
+#endif
 					return;
 				}
 				break;
@@ -3489,6 +3621,10 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 			}
 		}
 	} /* End WHILE */
+#ifdef DEBUG
+	*parsed_length = off - offset;
+	printf("WBXML - ATTR: level = %u, Return: len = %u (end of function body)\n", level, *parsed_length);
+#endif
 }
 
 
