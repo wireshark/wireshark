@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.9 2001/09/28 22:43:56 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.10 2001/09/30 13:48:20 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,6 +62,23 @@ static const value_string pckt_vals[] = {
     { 19, "Orphaned"},
 };
 
+static const value_string drep_byteorder_vals[] = {
+    { 0, "Big-endian" },
+    { 1, "Little-endian" }
+};
+
+static const value_string drep_character_vals[] = {
+    { 0, "ASCII" },
+    { 1, "EBCDIC" }
+};
+
+static const value_string drep_fp_vals[] = {
+    { 0, "IEEE" },
+    { 1, "VAX" },
+    { 2, "Cray" },
+    { 3, "IBM" }
+};
+
 static const true_false_string flags_set_truth = {
   "Set",
   "Not set"
@@ -82,6 +99,10 @@ static int hf_dcerpc_cn_flags_mpx = -1;
 static int hf_dcerpc_cn_flags_dne = -1;
 static int hf_dcerpc_cn_flags_maybe = -1;
 static int hf_dcerpc_cn_flags_object = -1;
+static int hf_dcerpc_cn_drep = -1;
+static int hf_dcerpc_cn_drep_byteorder = -1;
+static int hf_dcerpc_cn_drep_character = -1;
+static int hf_dcerpc_cn_drep_fp = -1;
 static int hf_dcerpc_cn_frag_len = -1;
 static int hf_dcerpc_cn_auth_len = -1;
 static int hf_dcerpc_cn_call_id = -1;
@@ -142,6 +163,7 @@ static int hf_dcerpc_dg_if_ver = -1;
 
 static gint ett_dcerpc = -1;
 static gint ett_dcerpc_cn_flags = -1;
+static gint ett_dcerpc_cn_drep = -1;
 static gint ett_dcerpc_dg_flags1 = -1;
 static gint ett_dcerpc_dg_flags2 = -1;
 
@@ -795,6 +817,7 @@ dissect_dcerpc_cn (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *tf = NULL;
     proto_tree *dcerpc_tree = NULL;
     proto_tree *cn_flags_tree = NULL;
+    proto_tree *cn_drep_tree = NULL;
     e_dce_cn_common_hdr_t hdr;
     int offset = 0;
 
@@ -860,7 +883,13 @@ dissect_dcerpc_cn (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         offset++;
 
-        proto_tree_add_text (dcerpc_tree, tvb, offset, sizeof (hdr.drep), "Data Rep");
+        tf = proto_tree_add_bytes (dcerpc_tree, hf_dcerpc_cn_drep, tvb, offset, 4, hdr.drep);
+        cn_drep_tree = proto_item_add_subtree(tf, ett_dcerpc_cn_drep);
+        if (cn_drep_tree) {
+            proto_tree_add_uint(cn_drep_tree, hf_dcerpc_cn_drep_byteorder, tvb, offset, 1, hdr.drep[0] >> 4);
+            proto_tree_add_uint(cn_drep_tree, hf_dcerpc_cn_drep_character, tvb, offset, 1, hdr.drep[0] & 0x0f);
+            proto_tree_add_uint(cn_drep_tree, hf_dcerpc_cn_drep_fp, tvb, offset, 1, hdr.drep[1]);
+        }
         offset += sizeof (hdr.drep);
 
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_cn_frag_len, tvb, offset, 2, hdr.frag_len);
@@ -1191,6 +1220,14 @@ proto_register_dcerpc (void)
           { "Maybe", "dcerpc.cn_flags.maybe", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x40, "", HFILL }},
         { &hf_dcerpc_cn_flags_object,
           { "Object", "dcerpc.cn_flags.object", FT_BOOLEAN, 8, TFS (&flags_set_truth), 0x80, "", HFILL }},
+        { &hf_dcerpc_cn_drep,
+          { "Data Representation", "dcerpc.cn_drep", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
+        { &hf_dcerpc_cn_drep_byteorder,
+          { "Byte order", "dcerpc.cn_drep.byteorder", FT_UINT8, BASE_DEC, VALS (drep_byteorder_vals), 0x0, "", HFILL }},
+        { &hf_dcerpc_cn_drep_character,
+          { "Character", "dcerpc.cn_drep.character", FT_UINT8, BASE_DEC, VALS (drep_character_vals), 0x0, "", HFILL }},
+        { &hf_dcerpc_cn_drep_fp,
+          { "Floating-point", "dcerpc.cn_drep.fp", FT_UINT8, BASE_DEC, VALS (drep_fp_vals), 0x0, "", HFILL }},
         { &hf_dcerpc_cn_frag_len,
           { "Frag Length", "dcerpc.cn_frag_len", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_cn_auth_len,
@@ -1311,6 +1348,7 @@ proto_register_dcerpc (void)
     static gint *ett[] = {
         &ett_dcerpc,
         &ett_dcerpc_cn_flags,
+        &ett_dcerpc_cn_drep,
         &ett_dcerpc_dg_flags1,
         &ett_dcerpc_dg_flags2,
     };
