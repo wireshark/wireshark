@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.24 2002/10/17 20:51:35 guy Exp $
+ * $Id: reassemble.c,v 1.25 2002/10/17 21:14:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -814,6 +814,8 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 	      dfpos += fd_i->len;
 	    } else {
 	      /* duplicate/retransmission/overlap */
+	      fd_i->flags    |= FD_OVERLAP;
+	      fd_head->flags |= FD_OVERLAP;
 	      if( (last_fd->len!=fd_i->datalen)
 		  || memcmp(last_fd->data, fd_i->data, last_fd->len) ){
 			fd->flags      |= FD_OVERLAPCONFLICT;
@@ -1198,16 +1200,16 @@ show_fragment_tree(fragment_data *fd_head, fragment_items *fit,
     proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 {
 	fragment_data *fd;
-	proto_tree *ft=NULL;
-	proto_item *fi=NULL;
+	proto_tree *ft;
+	proto_item *fi;
 
 	/* It's not fragmented. */
 	pinfo->fragmented = FALSE;
 
 	fi = proto_tree_add_item(tree, *(fit->hf_fragments),
-		tvb, 0, -1, FALSE);
+	    tvb, 0, -1, FALSE);
 	ft = proto_item_add_subtree(fi, *(fit->ett_fragments));
-	for (fd=fd_head->next; fd; fd=fd->next)
+	for (fd = fd_head->next; fd != NULL; fd = fd->next)
 		show_fragment(fd, fd->offset, fit, ft, tvb);
 
 	return show_fragment_errs_in_col(fd_head, fit, pinfo);
@@ -1223,21 +1225,27 @@ gboolean
 show_fragment_seq_tree(fragment_data *fd_head, fragment_items *fit,
     proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 {
-	guint32 offset;
-	fragment_data *fd;
-	proto_tree *ft=NULL;
-	proto_item *fi=NULL;
+	guint32 offset, next_offset;
+	fragment_data *fd, *last_fd;
+	proto_tree *ft;
+	proto_item *fi;
 
 	/* It's not fragmented. */
 	pinfo->fragmented = FALSE;
 
 	fi = proto_tree_add_item(tree, *(fit->hf_fragments),
-		tvb, 0, -1, FALSE);
+	    tvb, 0, -1, FALSE);
 	ft = proto_item_add_subtree(fi, *(fit->ett_fragments));
 	offset = 0;
-	for (fd=fd_head->next; fd; fd=fd->next){
+	next_offset = 0;
+	last_fd = NULL;
+	for (fd = fd_head->next; fd != NULL; fd = fd->next){
+		if (last_fd == NULL || last_fd->offset != fd->offset) {
+			offset = next_offset;
+			next_offset += fd->len;
+		}
+		last_fd = fd;
 		show_fragment(fd, offset, fit, ft, tvb);
-		offset += fd->len;
 	}
 
 	return show_fragment_errs_in_col(fd_head, fit, pinfo);
