@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.35 2004/01/21 21:19:32 ulfl Exp $
+ * $Id: color_dlg.c,v 1.36 2004/01/25 13:47:08 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -258,7 +258,7 @@ colorize_dialog_new (char *filter)
   WIDGET_SET_SIZE(color_new, 50, 20);
 #endif
   gtk_box_pack_start (GTK_BOX (edit_vbox), color_new, FALSE, FALSE, 5);
-  gtk_tooltips_set_tip (tooltips, color_new, ("Create a new filter after the selected filter"), NULL);
+  gtk_tooltips_set_tip (tooltips, color_new, ("Create a new filter at the end of the list"), NULL);
 
   color_props = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_EDIT);
   gtk_widget_ref (color_props);
@@ -268,7 +268,7 @@ colorize_dialog_new (char *filter)
   WIDGET_SET_SIZE(color_props, 50, 20);
 #endif
   gtk_box_pack_start (GTK_BOX (edit_vbox), color_props, FALSE, FALSE, 5);
-  gtk_tooltips_set_tip (tooltips, color_props, ("Edit the selected filter properties"), NULL);
+  gtk_tooltips_set_tip (tooltips, color_props, ("Edit the properties of the selected filter"), NULL);
   gtk_widget_set_sensitive (color_props, FALSE);
 
   color_delete = BUTTON_NEW_FROM_STOCK(GTK_STOCK_DELETE);
@@ -303,7 +303,7 @@ colorize_dialog_new (char *filter)
   WIDGET_SET_SIZE(color_export, 50, 20);
 #endif
   gtk_widget_show(color_export);
-  gtk_tooltips_set_tip(tooltips, color_export, ("Save all/marked filters to specified file"), NULL);
+  gtk_tooltips_set_tip(tooltips, color_export, ("Save all/marked filters to a file"), NULL);
 
   color_import = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_IMPORT);
   gtk_widget_ref(color_import);
@@ -312,7 +312,7 @@ colorize_dialog_new (char *filter)
   WIDGET_SET_SIZE(color_import, 50, 20);
 #endif
   gtk_widget_show(color_import);
-  gtk_tooltips_set_tip(tooltips, color_import, ("Include filters from specified file"), NULL);
+  gtk_tooltips_set_tip(tooltips, color_import, ("Load filters from a file"), NULL);
 
   color_clear = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLEAR);
   gtk_widget_ref(color_clear);
@@ -322,7 +322,7 @@ colorize_dialog_new (char *filter)
   WIDGET_SET_SIZE(color_clear, 50, 20);
 #endif
   gtk_widget_show(color_clear);
-  gtk_tooltips_set_tip(tooltips, color_clear, ("Clear all filters in user specific file and revert to system-wide default filter set"), NULL);
+  gtk_tooltips_set_tip(tooltips, color_clear, ("Clear all filters in the user's colorfilters file and revert to system-wide default filter set"), NULL);
 
 
   /* filter list frame */
@@ -446,13 +446,17 @@ colorize_dialog_new (char *filter)
 
   color_ok = OBJECT_GET_DATA(button_ok_hbox, GTK_STOCK_OK);
   gtk_widget_grab_default(color_ok);
+  gtk_tooltips_set_tip (tooltips, color_ok, ("Apply the color filters to the display and close this dialog"), NULL);
 
   color_apply = OBJECT_GET_DATA(button_ok_hbox, GTK_STOCK_APPLY);
+  gtk_tooltips_set_tip (tooltips, color_apply, ("Apply the color filters to the display but keep this dialog open"), NULL);
 
   color_save = OBJECT_GET_DATA(button_ok_hbox, GTK_STOCK_SAVE);
+  gtk_tooltips_set_tip (tooltips, color_save, ("Save the color filters permanently and keep this dialog open"), NULL);
 
 /*  color_cancel = OBJECT_GET_DATA(button_ok_hbox, GTK_STOCK_CANCEL);*/
   color_cancel = OBJECT_GET_DATA(button_ok_hbox, GTK_STOCK_CLOSE);
+  gtk_tooltips_set_tip (tooltips, color_cancel, ("Close this dialog but don't apply the color filter changes to the display"), NULL);
 
   /* signals and such */
   SIGNAL_CONNECT(color_win, "destroy", color_destroy_cb, NULL);

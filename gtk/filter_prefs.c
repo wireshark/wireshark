@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.52 2004/01/25 12:25:57 ulfl Exp $
+ * $Id: filter_prefs.c,v 1.53 2004/01/25 13:47:09 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -315,6 +315,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
                *filter_fr,
                *edit_fr,
                *props_fr;
+    GtkTooltips *tooltips;
     GList      *fl_entry;
     filter_def *filt;
     static filter_list_type_t cfilter_list_type = CFILTER_LIST;
@@ -357,6 +358,8 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
         filter_list_type_p = NULL;
         break;
     }
+
+    tooltips = gtk_tooltips_new ();
 
     main_w = dlg_window_new(construct_args->title);
     OBJECT_SET_DATA(main_w, E_FILT_CONSTRUCT_ARGS_KEY, construct_args);
@@ -401,6 +404,8 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 #endif
     gtk_widget_show(new_bt);
     gtk_box_pack_start (GTK_BOX (list_bb), new_bt, FALSE, FALSE, 0);
+    gtk_tooltips_set_tip (tooltips, new_bt, 
+        "Create a new filter at the end of the list (with the current properties)", NULL);
 
     del_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_DELETE);
     gtk_widget_set_sensitive(del_bt, FALSE);
@@ -411,6 +416,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 #endif
     gtk_widget_show(del_bt);
     gtk_box_pack_start (GTK_BOX (list_bb), del_bt, FALSE, FALSE, 0);
+    gtk_tooltips_set_tip (tooltips, del_bt, ("Delete the selected filter"), NULL);
 
     filter_fr = gtk_frame_new("Filter");
     gtk_box_pack_start(GTK_BOX(top_hb), filter_fr, TRUE, TRUE, 0);
@@ -551,6 +557,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
         SIGNAL_CONNECT(add_expression_bt, "clicked", filter_add_expr_bt_cb, main_w);
         gtk_box_pack_start(GTK_BOX(bottom_hb), add_expression_bt, FALSE, FALSE, 0);
         gtk_widget_show(add_expression_bt);
+        gtk_tooltips_set_tip (tooltips, add_expression_bt, ("Add an expression to the filter string"), NULL);
     }
 
 
@@ -579,6 +586,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
         ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
         SIGNAL_CONNECT(ok_bt, "clicked", filter_dlg_ok_cb, NULL);
         gtk_widget_grab_default(ok_bt);
+        gtk_tooltips_set_tip (tooltips, ok_bt, ("Apply the filters and close this dialog"), NULL);
 
         /* Catch the "activate" signal on the filter name and filter
            expression text entries, so that if the user types Return
@@ -592,13 +600,16 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     if (construct_args->wants_apply_button) {
         apply_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_APPLY);
         SIGNAL_CONNECT(apply_bt, "clicked", filter_dlg_apply_cb, NULL);
+        gtk_tooltips_set_tip (tooltips, apply_bt, ("Apply the filters and keep this dialog open"), NULL);
     }
 
     save_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_SAVE);
     SIGNAL_CONNECT(save_bt, "clicked", filter_dlg_save_cb, filter_list_type_p);
+    gtk_tooltips_set_tip (tooltips, save_bt, ("Save the filters permanently and keep this dialog open"), NULL);
 
     close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
     SIGNAL_CONNECT(close_bt, "clicked", filter_dlg_close_cb, main_w);
+    gtk_tooltips_set_tip (tooltips, close_bt, ("Close this dialog but don't apply the filter changes"), NULL);
     if (parent_filter_te == NULL)
         gtk_widget_grab_default(close_bt);
 
