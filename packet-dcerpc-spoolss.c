@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.18 2002/04/22 01:07:19 guy Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.19 2002/04/22 09:43:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -223,11 +223,11 @@ static void display_pol(proto_tree *tree, tvbuff_t *tvb, int offset,
 
 	if (pol_open_frame)
 		proto_tree_add_text(subtree, tvb, offset, 0,
-				    "Opened in frame %d", pol_open_frame);
+				    "Opened in frame %u", pol_open_frame);
 
 	if (pol_close_frame)
 		proto_tree_add_text(subtree, tvb, offset, 0,
-				    "Closed in frame %d", pol_close_frame);
+				    "Closed in frame %u", pol_close_frame);
 
 	proto_tree_add_text(subtree, tvb, offset, 20, "Policy Handle: %s",
 			    tvb_bytes_to_str(tvb, offset, 20));
@@ -250,9 +250,9 @@ static int SpoolssClosePrinter_q(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "ClosePrinter request");
 
-	if (dcv->rep_frame != -1)
+	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", dcv->rep_frame);
+				    "Response in frame %u", dcv->rep_frame);
 	/* Parse packet */
 
 	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
@@ -279,9 +279,9 @@ static int SpoolssClosePrinter_r(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "ClosePrinter response");
 
-	if (dcv->req_frame != -1)
+	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Request in frame %d", dcv->req_frame);
+				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -366,9 +366,9 @@ static int SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "GetPrinterData request");
 
-	if (dcv->rep_frame != -1)
+	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", dcv->rep_frame);
+				    "Response in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -406,9 +406,9 @@ static int SpoolssGetPrinterData_r(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "GetPrinterData response");
 
-	if (dcv->req_frame != -1)
+	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Request in frame %d", dcv->req_frame);
+				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -448,9 +448,9 @@ static int SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "GetPrinterDataEx request");
 
-	if (dcv->rep_frame != -1)
+	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", dcv->rep_frame);
+				    "Response in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -507,9 +507,9 @@ static int SpoolssGetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "GetPrinterDataEx response");
 
-	if (dcv->req_frame != -1)
+	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Request in frame %d", dcv->req_frame);
+				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -550,9 +550,9 @@ static int SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "SetPrinterData request");
 
-	if (dcv->rep_frame != -1)
+	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", dcv->rep_frame);
+				    "Response in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -599,9 +599,9 @@ static int SpoolssSetPrinterData_r(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "SetPrinterData response");
 
-	if (dcv->req_frame != -1)
+	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Request in frame %d", dcv->req_frame);
+				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -632,9 +632,9 @@ static int SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "SetPrinterDataEx request");
 
-	if (dcv->rep_frame != -1)
+	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", dcv->rep_frame);
+				    "Response in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -687,9 +687,9 @@ static int SpoolssSetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "SetPrinterDataEx response");
 
-	if (dcv->req_frame != -1)
+	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Request in frame %d", dcv->req_frame);
+				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -1200,9 +1200,9 @@ static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "OpenPrinterEx request");
 
-	if (dcv->rep_frame != -1)
+	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", dcv->rep_frame);
+				    "Response in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -1253,9 +1253,9 @@ static int SpoolssOpenPrinterEx_r(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "OpenPrinterEx response");
 
-	if (dcv->req_frame != -1)
+	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Request in frame %d", dcv->req_frame);
+				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -1430,9 +1430,9 @@ static int SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "RFFPCNEX request");
 
-	if (dcv->rep_frame != -1)
+	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", dcv->rep_frame);
+				    "Response in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -1485,9 +1485,9 @@ static int SpoolssRFFPCNEX_r(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "RFFPCNEX response");
 
-	if (dcv->req_frame != -1)
+	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Request in frame %d", dcv->req_frame);
+				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -1515,9 +1515,9 @@ static int SpoolssReplyOpenPrinter_q(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "ReplyOpenPrinter request");
 
-	if (dcv->rep_frame != -1)
+	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", dcv->rep_frame);
+				    "Response in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -1554,9 +1554,9 @@ static int SpoolssReplyOpenPrinter_r(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "ReplyOpenPrinter response");
 
-	if (dcv->req_frame != -1)
+	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Request in frame %d", dcv->req_frame);
+				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -1668,9 +1668,9 @@ static int SpoolssGetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "GetPrinter request");
 
-	if (dcv->rep_frame != -1)
+	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", dcv->rep_frame);
+				    "Response in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -1710,9 +1710,9 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "GetPrinter response");
 
-	if (dcv->req_frame != -1)
+	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Request in frame %d", dcv->req_frame);
+				    "Request in frame %u", dcv->req_frame);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
@@ -1813,9 +1813,9 @@ static int SpoolssSetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "SetPrinter request");
 
-	if (dcv->rep_frame != -1)
+	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", dcv->rep_frame);
+				    "Response in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -1856,9 +1856,9 @@ static int SpoolssSetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "SetPrinter response");
 
-	if (dcv->req_frame != -1)
+	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Request in frame %d", dcv->req_frame);
+				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -1940,9 +1940,9 @@ static int SpoolssEnumForms_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "EnumForms request");
 
-	if (dcv->rep_frame != -1)
+	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", dcv->rep_frame);
+				    "Response in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -1982,9 +1982,9 @@ static int SpoolssEnumForms_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "EnumForms response");
 
-	if (dcv->req_frame != -1)
+	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Request in frame %d", dcv->req_frame);
+				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -2051,9 +2051,9 @@ static int SpoolssDeletePrinter_q(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "DeletePrinter request");
 	
-	if (dcv->rep_frame != -1)
+	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", dcv->rep_frame);
+				    "Response in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2079,9 +2079,9 @@ static int SpoolssDeletePrinter_r(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "DeletePrinter response");
 
-	if (dcv->req_frame != -1)
+	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Request in frame %d", dcv->req_frame);
+				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -2113,9 +2113,9 @@ static int SpoolssAddPrinterEx_q(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "AddPrinterEx request");
 	
-	if (dcv->rep_frame != -1)
+	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", dcv->rep_frame);
+				    "Response in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 	
@@ -2163,9 +2163,9 @@ static int SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "AddPrinterEx response");
 
-	if (dcv->req_frame != -1)
+	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Request in frame %d", dcv->req_frame);
+				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -2216,9 +2216,9 @@ static int SpoolssEnumPrinterData_q(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "EnumPrinterData request");
 
-	if (dcv->rep_frame != -1)
+	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", dcv->rep_frame);
+				    "Response in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2252,9 +2252,9 @@ static int SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "EnumPrinterData response");
 
-	if (dcv->req_frame != -1)
+	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Request in frame %d", dcv->req_frame);
+				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -2311,9 +2311,9 @@ static int SpoolssEnumPrinters_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "EnumPrinters request");
 
-	if (dcv->rep_frame != -1)
+	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", dcv->rep_frame);
+				    "Response in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2351,9 +2351,9 @@ static int SpoolssEnumPrinters_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "EnumPrinters response");
 
-	if (dcv->req_frame != -1)
+	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Request in frame %d", dcv->req_frame);
+				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -2387,9 +2387,9 @@ static int SpoolssAddPrinterDriver_q(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "AddPrinterDriver request");
 
-	if (dcv->rep_frame != -1)
+	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", dcv->rep_frame);
+				    "Response in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2410,9 +2410,9 @@ static int SpoolssAddPrinterDriver_r(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "AddPrinterDriver response");
 
-	if (dcv->req_frame != -1)
+	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Request in frame %d", dcv->req_frame);
+				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -2521,9 +2521,9 @@ static int SpoolssAddForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "AddForm request");
 
-	if (dcv->rep_frame != -1)
+	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", dcv->rep_frame);
+				    "Response in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2559,9 +2559,9 @@ static int SpoolssAddForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "AddForm response");
 
-	if (dcv->req_frame != -1)
+	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Request in frame %d", dcv->req_frame);
+				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -2589,9 +2589,9 @@ static int SpoolssDeleteForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "DeleteForm request");
 
-	if (dcv->rep_frame != -1)
+	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", dcv->rep_frame);
+				    "Response in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2624,9 +2624,9 @@ static int SpoolssDeleteForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "DeleteForm response");
 
-	if (dcv->req_frame != -1)
+	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Request in frame %d", dcv->req_frame);
+				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -2655,9 +2655,9 @@ static int SpoolssSetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "SetForm request");
 
-	if (dcv->rep_frame != -1)
+	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", dcv->rep_frame);
+				    "Response in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2699,9 +2699,9 @@ static int SpoolssSetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "SetForm response");
 
-	if (dcv->req_frame != -1)
+	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Request in frame %d", dcv->req_frame);
+				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -2730,9 +2730,9 @@ static int SpoolssGetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "GetForm request");
 
-	if (dcv->rep_frame != -1)
+	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", dcv->rep_frame);
+				    "Response in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2779,9 +2779,9 @@ static int SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "GetForm response");
 
-	if (dcv->req_frame != -1)
+	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Request in frame %d", dcv->req_frame);
+				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
 
@@ -2840,9 +2840,9 @@ static int SpoolssGeneric_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree_add_text(tree, tvb, offset, 0, 
 			    "[Unimplemented dissector: SPOOLSS]");
 
-	if (dcv->req_frame != -1)
+	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Request in frame %d", dcv->req_frame);
+				    "Request in frame %u", dcv->req_frame);
 
 	prs_werror(tvb, len - 4, pinfo, tree, NULL);
 
@@ -2870,9 +2870,9 @@ static int SpoolssFoo_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "Foo request");
 
-	if (dcv->rep_frame != -1)
+	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Response in frame %d", dcv->rep_frame);
+				    "Response in frame %u", dcv->rep_frame);
 
 	/* Parse packet */
 
@@ -2892,9 +2892,9 @@ static int SpoolssFoo_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "Foo response");
 
-	if (dcv->req_frame != -1)
+	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
-				    "Request in frame %d", dcv->req_frame);
+				    "Request in frame %u", dcv->req_frame);
 
 	/* Parse packet */
 

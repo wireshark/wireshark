@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.h,v 1.21 2002/04/18 00:29:17 guy Exp $
+ * $Id: packet-dcerpc-nt.h,v 1.22 2002/04/22 09:43:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -137,10 +137,10 @@ dissect_ndr_nt_SID_AND_ATTRIBUTES(tvbuff_t *tvb, int offset,
 
 gboolean 
 dcerpc_smb_fetch_pol(const guint8 *policy_hnd, char **name, 
-		     int *open_frame, int *close_frame);
+		     guint32 *open_frame, guint32 *close_frame);
 void 
-dcerpc_smb_store_pol(const guint8 *policy_hnd, char *name, int open_frame,
-		     int close_frame);
+dcerpc_smb_store_pol(const guint8 *policy_hnd, char *name,
+		     guint32 open_frame, guint32 close_frame);
 
 /* Check for unparsed data at the end of a frame */
 

@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.43 2002/03/22 09:44:58 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.44 2002/04/22 09:43:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -659,7 +659,7 @@ add_pointer_to_list(packet_info *pinfo, proto_tree *tree,
 			/* if we havent seen the request bail out since we cant
 			   know whether this is the first non-NULL instance 
 			   or not */
-			if(value->req_frame==-1){
+			if(value->req_frame==0){
 				/* XXX THROW EXCEPTION */
 			}
 
@@ -1431,7 +1431,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 			call_value->ver = bind_value->ver;
 			call_value->opnum = opnum;
 			call_value->req_frame=pinfo->fd->num;
-			call_value->rep_frame=-1;
+			call_value->rep_frame=0;
 			call_value->max_ptr=0;
 			call_value->private_data = NULL;
 			g_hash_table_insert (dcerpc_calls, call_key, call_value);
@@ -1459,7 +1459,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 	    di.request = TRUE;
 	    di.call_data = value;
 
-	    if(value->rep_frame!=-1){
+	    if(value->rep_frame!=0){
 		proto_tree_add_uint(dcerpc_tree, hf_dcerpc_response_in, 
 				    tvb, 0, 0, value->rep_frame);
 	    }
@@ -1527,7 +1527,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 
 		if((call_value=g_hash_table_lookup(dcerpc_calls, &call_key))){
 			g_hash_table_insert (dcerpc_matched, (void *)pinfo->fd->num, call_value);
-			if(call_value->rep_frame==-1){
+			if(call_value->rep_frame==0){
 				call_value->rep_frame=pinfo->fd->num;
 			}
 
@@ -1555,7 +1555,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 	    di.call_data = value;
 
 	    proto_tree_add_uint (dcerpc_tree, hf_dcerpc_opnum, tvb, 0, 0, value->opnum);
-	    if(value->req_frame!=-1){
+	    if(value->req_frame!=0){
 		proto_tree_add_uint(dcerpc_tree, hf_dcerpc_request_in, 
 				    tvb, 0, 0, value->req_frame);
 	    }
@@ -2052,7 +2052,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		call_value->ver = hdr.if_ver;
 		call_value->opnum = hdr.opnum;
 		call_value->req_frame=pinfo->fd->num;
-		call_value->rep_frame=-1;
+		call_value->rep_frame=0;
 		call_value->max_ptr=0;
 		call_value->private_data = NULL;
 		g_hash_table_insert (dcerpc_calls, call_key, call_value);
@@ -2066,7 +2066,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             v.ver = hdr.if_ver;
             v.opnum = hdr.opnum;
             v.req_frame = pinfo->fd->num;
-            v.rep_frame = -1;
+            v.rep_frame = 0;
             v.max_ptr = 0;
             v.private_data=NULL;
             value = &v;
@@ -2105,7 +2105,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if((call_value=g_hash_table_lookup(dcerpc_calls, &call_key))){
 			g_hash_table_insert (dcerpc_matched, (void *)pinfo->fd->num, call_value);
-			if(call_value->rep_frame==-1){
+			if(call_value->rep_frame==0){
 				call_value->rep_frame=pinfo->fd->num;
 			}
 		}
@@ -2116,7 +2116,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             v.uuid = hdr.if_id;
             v.ver = hdr.if_ver;
             v.opnum = hdr.opnum;
-            v.req_frame=-1;
+            v.req_frame=0;
             v.rep_frame=pinfo->fd->num;
             v.private_data=NULL;
             value = &v;

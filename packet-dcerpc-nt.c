@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.27 2002/04/18 00:29:17 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.28 2002/04/22 09:43:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -664,8 +664,8 @@ typedef struct {
 } pol_hash_key;
 
 typedef struct {
-	int open_frame, close_frame; /* Frame numbers for open/close */
-	char *name;		     /* Name of policy handle */
+	guint32 open_frame, close_frame; /* Frame numbers for open/close */
+	char *name;			 /* Name of policy handle */
 } pol_hash_value;
 
 #define POL_HASH_INIT_COUNT 100
@@ -709,8 +709,8 @@ static gint pol_hash_compare(gconstpointer k1, gconstpointer k2)
 
 /* Store a policy handle */
 
-void dcerpc_smb_store_pol(const guint8 *policy_hnd, char *name, int open_frame,
-			  int close_frame)
+void dcerpc_smb_store_pol(const guint8 *policy_hnd, char *name,
+			  guint32 open_frame, guint32 close_frame)
 {
 	pol_hash_key *key;
 	pol_hash_value *value;
@@ -774,7 +774,7 @@ void dcerpc_smb_store_pol(const guint8 *policy_hnd, char *name, int open_frame,
 /* Retrieve a policy handle */
 
 gboolean dcerpc_smb_fetch_pol(const guint8 *policy_hnd, char **name, 
-			      int *open_frame, int *close_frame)
+			      guint32 *open_frame, guint32 *close_frame)
 {
 	pol_hash_key key;
 	pol_hash_value *value;
@@ -944,7 +944,7 @@ dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	proto_item *item;
 	proto_tree *subtree;
 	e_ctx_hnd hnd;
-	int open_frame = 0, close_frame = 0;
+	guint32 open_frame = 0, close_frame = 0;
 	char *name;
 
 	/* Add to proto tree */
@@ -963,11 +963,11 @@ dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 		if (open_frame)
 			proto_tree_add_text(subtree, tvb, offset, 0,
-					    "Opened in frame %d", open_frame);
+					    "Opened in frame %u", open_frame);
 
 		if (close_frame)
 			proto_tree_add_text(subtree, tvb, offset, 0,
-					    "Closed in frame %d", close_frame);
+					    "Closed in frame %u", close_frame);
 	}
 
 	/* Store request/reply information */

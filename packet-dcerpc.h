@@ -1,7 +1,7 @@
 /* packet-dcerpc.h
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.h,v 1.12 2002/02/12 07:35:21 guy Exp $
+ * $Id: packet-dcerpc.h,v 1.13 2002/04/22 09:43:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -187,8 +187,8 @@ typedef struct _dcerpc_call_value {
     e_uuid_t uuid;
     guint16 ver;
     guint16 opnum;
-    gint32 req_frame;
-    gint32 rep_frame;
+    guint32 req_frame;
+    guint32 rep_frame;
     guint32 max_ptr;
     void *private_data;
 } dcerpc_call_value;
