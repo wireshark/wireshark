@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.12 1999/09/15 06:13:21 gram Exp $
+ * $Id: proto.h,v 1.13 1999/09/18 15:44:40 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -108,6 +108,7 @@ typedef struct field_info {
 		struct timeval	time; /* the whole struct, not a pointer */
 		gdouble		floating;
 		gchar		*string;
+		guint8		*bytes;
 		guint8		ether[6];
 	}				value;
 } field_info;

@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.28 1999/09/17 05:56:58 guy Exp $
+ * $Id: proto.c,v 1.29 1999/09/18 15:44:40 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -292,6 +292,8 @@ proto_tree_free_node(GNode *node, gpointer data)
 			g_mem_chunk_free(gmc_item_labels, fi->representation);
 		if (fi->hfinfo->type == FT_STRING)
 			g_free(fi->value.string);
+		else if (fi->hfinfo->type == FT_BYTES) 
+			g_free(fi->value.bytes);
 		g_mem_chunk_free(gmc_field_info, fi);
 	}
 	return FALSE; /* FALSE = do not end traversal of GNode tree */
@@ -401,6 +403,13 @@ NOTES
 
 		case FT_BOOLEAN:
 			fi->value.numeric = va_arg(ap, unsigned int) ? TRUE : FALSE;
+			break;
+
+		case FT_BYTES:
+			/* This g_malloc'ed memory is freed in
+			   proto_tree_free_node() */
+			fi->value.bytes = (guint8 *)g_malloc(length);
+			memcpy(fi->value.bytes, va_arg(ap, guint8*), length);
 			break;
 
 		case FT_UINT8:
@@ -554,6 +563,12 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s", fi->hfinfo->name,
 				fi->value.numeric == TRUE ? "True" : "False");
+			break;
+
+		case FT_BYTES:
+			snprintf(label_str, ITEM_LABEL_LENGTH,
+				"%s: %s", fi->hfinfo->name, 
+				 bytes_to_str(fi->value.bytes, fi->length));
 			break;
 
 		case FT_UINT8:
