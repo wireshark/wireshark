@@ -120,6 +120,9 @@ Richard Sharpe <sharpe[AT]ns.aus.com> {
 	TFTP, FTP, POP, Telnet support
 	Infrastructure changes for the benefit of TFTP
 	SMB support
+	LDP
+	GSS-API and SPNEGO work
+	MS RPC WKSSVC dissector
 }
 
 John McDermott <jjm[AT]jkintl.com> {
@@ -1702,6 +1705,10 @@ Can Erkin Acar <canacar [AT] eee.metu.edu.tr> {
 
 Martin Warnes <martin.warnes [AT] ntlworld.com> {
 	Support for VMS UCX$TRACE output in wiretap
+}
+
+J Bruce Fields <bfields [AT] fieldses.org> {
+	Some work on packet_rpc.c to support RPCSEC_GSS
 }
 
 And assorted fixes and enhancements by the people listed above and by:

@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2002, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
- * $Id: packet-nfs.c,v 1.87 2003/04/22 18:48:34 guy Exp $
+ * $Id: packet-nfs.c,v 1.88 2003/05/22 05:49:23 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6033,7 +6033,8 @@ dissect_nfs_open_delegation4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_nfs_rpcsec_gss_info(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_sec_oid4);
+	offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL,
+            hf_nfs_sec_oid4, FALSE, 0, FALSE, NULL, NULL);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_qop4, offset);
 	offset = dissect_rpc_uint32(tvb, tree,
 		hf_nfs_secinfo_rpcsec_gss_info_service, offset);
