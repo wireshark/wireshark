@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal documentation
 #
-# $Id: Makefile.am,v 1.24 2004/06/23 08:39:07 guy Exp $
+# $Id: Makefile.am,v 1.25 2004/06/27 00:21:57 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -24,14 +24,14 @@
 # We include dependencies on ../config.h in order to
 # capture when $(VERSION) changes.
 
-ethereal-tmp.pod: ethereal.pod ../AUTHORS-SHORT
-	cat ethereal.pod ../AUTHORS-SHORT > ethereal-tmp.pod
+ethereal-tmp.pod: $(srcdir)/ethereal.pod $(top_srcdir)/AUTHORS-SHORT
+	cat $(srcdir)/ethereal.pod $(top_srcdir)/AUTHORS-SHORT > ethereal-tmp.pod
 
 ../ethereal.1: ethereal-tmp.pod ../config.h
 	$(POD2MAN)                     \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
-	$(srcdir)/ethereal-tmp.pod > ../ethereal.1
+	ethereal-tmp.pod > ../ethereal.1
 
 ../ethereal.html: ethereal-tmp.pod ../config.h
 	$(POD2HTML)                    \
@@ -131,3 +131,6 @@ CLEANFILES =		\
 	../text2pcap.html	\
 	../idl2eth.1	\
 	../idl2eth.html
+
+DISTCLEANFILES =	\
+	*~

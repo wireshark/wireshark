@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.49 2004/06/25 07:19:46 sahlberg Exp $
+# $Id: Makefile.common,v 1.50 2004/06/27 00:21:56 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -229,6 +229,7 @@ DISSECTOR_SUPPORT_INCLUDES =	\
 	format-oid.h	\
 	greproto.h	\
 	h225-persistentdata.h	\
+	iax2_codec_type.h	\
 	in_cksum.h	\
 	ip_opts.h	\
 	ipproto.h	\
