@@ -4,12 +4,14 @@
  *   (The "D-Channel"-Protocol for Cisco Systems' IP-Phones)
  * Copyright 2001, Joerg Mayer (email: see AUTHORS file)
  *
- * Further decode work by pee@erkkila.org 
+ * Paul E. Erkkila (pee@erkkila.org) - fleshed out the decode 
+ * skeleton to report values for most message/message fields. 
+ * Much help from Guy Harris on figuring out the ethereal api.
  *
  * This file is based on packet-aim.c, which is
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-skinny.c,v 1.12 2002/03/19 11:26:23 guy Exp $
+ * $Id: packet-skinny.c,v 1.13 2002/03/20 21:01:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -178,42 +180,42 @@ static const value_string  message_id[] = {
  * Device type to text conversion table
  */
 static const value_string  deviceTypes[] = {
-  {1  , "DeviceStation30SPplus"},
-  {2  , "DeviceStation12SPplus"},
-  {3  , "DeviceStation12SP"},
-  {4  , "DeviceStation12"},
-  {5  , "DeviceStation30VIP"},
-  {6  , "DeviceStationTelecaster"},
-  {7  , "DeviceStationTelecasterMgr"},
-  {8  , "DeviceStationTelecasterBus"},
-  {20 , "DeviceVirtual30SPplus"},
-  {21 , "DeviceStationPhoneApplication"},
-  {30 , "DeviceAnalogAccess"},
-  {40 , "DeviceDigitalAccessPRI"},
-  {41 , "DeviceDigitalAccessT1"},
-  {42 , "DeviceDigitalAccessTitan2"},
-  {47 , "DeviceAnalogAccessElvis"},
-  {49 , "DeviceDigitalAccessLennon"},
-  {50 , "DeviceConferenceBridge"},
-  {51 , "DeviceConferenceBridgeYoko"},
-  {60 , "DeviceH225"},
-  {61 , "DeviceH323Phone"},
-  {62 , "DeviceH323Trunk"},
-  {70 , "DeviceMusicOnHold"},
-  {71 , "DevicePilot"},
-  {72 , "DeviceTapiPort"},
-  {73 , "DeviceTapiRoutePoint"},
-  {80 , "DeviceVoiceInBox"},
-  {81 , "DeviceVoiceInboxAdmin"},
-  {82 , "DeviceLineAnnunciator"},
-  {90 , "DeviceRouteList"},
-  {100, "DeviceLoadSimulator"},
-  {110, "DeviceMediaTerminationPoint"},
-  {111, "DeviceMediaTerminationPointYoko"},
-  {120, "DeviceMGCPStation"},
-  {121, "DeviceMGCPTrunk"},
-  {122, "DeviceRASProxy"},
-  {255, "DeviceNotDefined"},
+  {1  , "30SPplus"},
+  {2  , "12SPplus"},
+  {3  , "12SP"},
+  {4  , "12"},
+  {5  , "30VIP"},
+  {6  , "Telecaster"},
+  {7  , "TelecasterMgr"},
+  {8  , "TelecasterBus"},
+  {20 , "Virtual30SPplus"},
+  {21 , "PhoneApplication"},
+  {30 , "AnalogAccess"},
+  {40 , "DigitalAccessPRI"},
+  {41 , "DigitalAccessT1"},
+  {42 , "DigitalAccessTitan2"},
+  {47 , "AnalogAccessElvis"},
+  {49 , "DigitalAccessLennon"},
+  {50 , "ConferenceBridge"},
+  {51 , "ConferenceBridgeYoko"},
+  {60 , "H225"},
+  {61 , "H323Phone"},
+  {62 , "H323Trunk"},
+  {70 , "MusicOnHold"},
+  {71 , "Pilot"},
+  {72 , "TapiPort"},
+  {73 , "TapiRoutePoint"},
+  {80 , "VoiceInBox"},
+  {81 , "VoiceInboxAdmin"},
+  {82 , "LineAnnunciator"},
+  {90 , "RouteList"},
+  {100, "LoadSimulator"},
+  {110, "MediaTerminationPoint"},
+  {111, "MediaTerminationPointYoko"},
+  {120, "MGCPStation"},
+  {121, "MGCPTrunk"},
+  {122, "RASProxy"},
+  {255, "NotDefined"},
   { 0    , NULL}
 };
 
@@ -241,32 +243,32 @@ static const value_string keypadButtons[] = {
 };
 
 static const value_string deviceStimuli[] = {
-  {1    , "SsLastNumberRedial"},
-  {2    , "SsSpeedDial"},
-  {3    , "SsHold"},
-  {4    , "SsTransfer"},
-  {5    , "SsForwardAll"},
-  {6    , "SsForwardBusy"},
-  {7    , "SsForwardNoAnswer"},
-  {8    , "SsDisplay"},
-  {9    , "SsLine"},
-  {0xa  , "SsT120Chat"},
-  {0xb  , "SsT120Whiteboard"},
-  {0xc  , "SsT120ApplicationSharing"},
-  {0xd  , "SsT120FileTransfer"},
-  {0xe  , "SsVideo"},
-  {0xf  , "SsVoiceMail"},
-  {0x11 , "SsAutoAnswer"},
-  {0x21 , "SsGenericAppB1"},
-  {0x22 , "SsGenericAppB2"},
-  {0x23 , "SsGenericAppB3"},
-  {0x24 , "SsGenericAppB4"},
-  {0x25 , "SsGenericAppB5"},
-  {0x7b , "SsMeetMeConference"},
-  {0x7d , "SsConference=0x7d"},
-  {0x7e , "SsCallPark=0x7e"},
-  {0x7f , "SsCallPickup"},
-  {0x80 , "SsGroupCallPickup=80"},
+  {1    , "LastNumberRedial"},
+  {2    , "SpeedDial"},
+  {3    , "Hold"},
+  {4    , "Transfer"},
+  {5    , "ForwardAll"},
+  {6    , "ForwardBusy"},
+  {7    , "ForwardNoAnswer"},
+  {8    , "Display"},
+  {9    , "Line"},
+  {0xa  , "T120Chat"},
+  {0xb  , "T120Whiteboard"},
+  {0xc  , "T120ApplicationSharing"},
+  {0xd  , "T120FileTransfer"},
+  {0xe  , "Video"},
+  {0xf  , "VoiceMail"},
+  {0x11 , "AutoAnswer"},
+  {0x21 , "GenericAppB1"},
+  {0x22 , "GenericAppB2"},
+  {0x23 , "GenericAppB3"},
+  {0x24 , "GenericAppB4"},
+  {0x25 , "GenericAppB5"},
+  {0x7b , "MeetMeConference"},
+  {0x7d , "Conference=0x7d"},
+  {0x7e , "CallPark=0x7e"},
+  {0x7f , "CallPickup"},
+  {0x80 , "GroupCallPickup=80"},
   {0,NULL}
 };
 
@@ -275,49 +277,49 @@ static const value_string deviceStimuli[] = {
 #define DeviceMaxCapabilities 18 /* max capabilities allowed in Cap response message */
 
 static const value_string mediaPayloads[] = {
-  {1   , "Media_Payload_NonStandard"},
-  {2   , "Media_Payload_G711Alaw64k"},
-  {3   , "Media_Payload_G711Alaw56k"},
-  {4   , "Media_Payload_G711Ulaw64k"},
-  {5   , "Media_Payload_G711Ulaw56k"},
-  {6   , "Media_Payload_G722_64k"},
-  {7   , "Media_Payload_G722_56k"},
-  {8   , "Media_Payload_G722_48k"},
-  {9   , "Media_Payload_G7231"},
-  {10  , "Media_Payload_G728"},
-  {11  , "Media_Payload_G729"},
-  {12  , "Media_Payload_G729AnnexA"},
-  {13  , "Media_Payload_Is11172AudioCap"},
-  {14  , "Media_Payload_Is13818AudioCap"},
-  {15  , "Media_Payload_G729AnnexB"},
-  {16  , "Media_Payload_G729AnnexAwAnnexB"},
-  {32  , "Media_Payload_Data64"},
-  {33  , "Media_Payload_Data56"},
-  {80  , "Media_Payload_GSM"},
-  {81  , "Media_Payload_ActiveVoice"},
-  {82  , "Media_Payload_G726_32K"},
-  {83  , "Media_Payload_G726_24K"},
-  {84  , "Media_Payload_G726_16K"},
-  {85  , "Media_Payload_G729_B"},
-  {86  , "Media_Payload_G729_B_LOW_COMPLEXITY"},
+  {1   , "NonStandard"},
+  {2   , "G711Alaw64k"},
+  {3   , "G711Alaw56k"},
+  {4   , "G711Ulaw64k"},
+  {5   , "G711Ulaw56k"},
+  {6   , "G722_64k"},
+  {7   , "G722_56k"},
+  {8   , "G722_48k"},
+  {9   , "G7231"},
+  {10  , "G728"},
+  {11  , "G729"},
+  {12  , "G729AnnexA"},
+  {13  , "Is11172AudioCap"},
+  {14  , "Is13818AudioCap"},
+  {15  , "G729AnnexB"},
+  {16  , "G729AnnexAwAnnexB"},
+  {32  , "Data64"},
+  {33  , "Data56"},
+  {80  , "GSM"},
+  {81  , "ActiveVoice"},
+  {82  , "G726_32K"},
+  {83  , "G726_24K"},
+  {84  , "G726_16K"},
+  {85  , "G729_B"},
+  {86  , "G729_B_LOW_COMPLEXITY"},
   {0  , NULL}
 };
 
 static const value_string alarmSeverities[] = {
-  {0   , "severityCritical"},
-  {7   , "severityMajor"},
-  {8   , "severityMinor"},
-  {1   , "severityWarning"},
-  {10  , "severityMarginal"},
-  {4   , "severityUnknown"},
-  {2   , "severityInformational"},
-  {20  , "severityTraceInfo"},
+  {0   , "Critical"},
+  {1   , "Warning"},
+  {2   , "Informational"},
+  {4   , "Unknown"},
+  {7   , "Major"},
+  {8   , "Minor"},
+  {10  , "Marginal"},
+  {20  , "TraceInfo"},
   {0  , NULL}
 };
 
 static const value_string multicastMediaReceptionStatus[] = {
-  {0  , "mmrOk"},
-  {1  , "mmrError"},
+  {0  , "Ok"},
+  {1  , "Error"},
   {0  , NULL}
 };
 
@@ -336,70 +338,70 @@ static const value_string statsProcessingTypes[] = {
 
 #define SkMaxSoftKeyCount 18 /* this value should be the same as the max soft key value */
 static const value_string softKeyEvents[] = {
-  {1   , "SkRedial"},
-  {2   , "SkNewCall"},
-  {3   , "SkHold"},
-  {4   , "SkTrnsfer"},
-  {5   , "SkCFwdAll"},
-  {6   , "SkCFwdBusy"},
-  {7   , "SkCFwdNoAnswer"},
-  {8   , "SkBackSpace"},
-  {9   , "SkEndCall"},
-  {10  , "SkResume"},
-  {11  , "SkAnswer"},
-  {12  , "SkInfo"},
-  {13  , "SkConfrn"},
-  {14  , "SkPark"},
-  {15  , "SkJoin"},
-  {16  , "SkMeetMeConfrn"},
-  {17  , "SkCallPickUp"},
-  {18  , "SkGrpCallPickUp"},
+  {1   , "Redial"},
+  {2   , "NewCall"},
+  {3   , "Hold"},
+  {4   , "Trnsfer"},
+  {5   , "CFwdAll"},
+  {6   , "CFwdBusy"},
+  {7   , "CFwdNoAnswer"},
+  {8   , "BackSpace"},
+  {9   , "EndCall"},
+  {10  , "Resume"},
+  {11  , "Answer"},
+  {12  , "Info"},
+  {13  , "Confrn"},
+  {14  , "Park"},
+  {15  , "Join"},
+  {16  , "MeetMeConfrn"},
+  {17  , "CallPickUp"},
+  {18  , "GrpCallPickUp"},
   {0   , NULL}
 };
 
 /* Define info index for each softkey event for Telecaster station. */
 static const value_string softKeyIndexes[] = {
-  {301  , "SkRedialInfoIndex"},
-  {302  , "SkNewCallInfoIndex"},
-  {303  , "SkHoldInfoIndex"},
-  {304  , "SkTrnsferInfoIndex"},
-  {305  , "SkCFwdAllInfoIndex"},
-  {306  , "SkCFwdBusyInfoIndex"},     /* not used yet */
-  {307  , "SkCFwdNoAnswerInfoIndex"}, /* not used yet */
-  {308  , "SkBackSpaceInfoIndex"},
-  {309  , "SkEndCallInfoIndex"},
-  {310  , "SkResumeInfoIndex"},
-  {311  , "SkAnswerInfoIndex"},
-  {312  , "SkInfoInfoIndex"},
-  {313  , "SkConfrnInfoIndex"},
-  {314  , "SkParkInfoIndex"},
-  {315  , "SkJoinInfoIndex"},
-  {316  , "SkMeetMeConfrnInfoIndex"},
-  {317  , "SkCallPickUpInfoIndex"},
-  {318  , "SkGrpCallPickUpInfoIndex"},
+  {301  , "RedialInfoIndex"},
+  {302  , "NewCallInfoIndex"},
+  {303  , "HoldInfoIndex"},
+  {304  , "TrnsferInfoIndex"},
+  {305  , "CFwdAllInfoIndex"},
+  {306  , "CFwdBusyInfoIndex"},     /* not used yet */
+  {307  , "CFwdNoAnswerInfoIndex"}, /* not used yet */
+  {308  , "BackSpaceInfoIndex"},
+  {309  , "EndCallInfoIndex"},
+  {310  , "ResumeInfoIndex"},
+  {311  , "AnswerInfoIndex"},
+  {312  , "InfoInfoIndex"},
+  {313  , "ConfrnInfoIndex"},
+  {314  , "ParkInfoIndex"},
+  {315  , "JoinInfoIndex"},
+  {316  , "MeetMeConfrnInfoIndex"},
+  {317  , "CallPickUpInfoIndex"},
+  {318  , "GrpCallPickUpInfoIndex"},
   {0   , NULL}
 };
 
 
 static const value_string buttonDefinitions[] = {
-  {1    , "BtLastNumberRedial"},
-  {2    , "BtSpeedDial"},
-  {3    , "BtHold"},
-  {4    , "BtTransfer"},
-  {5    , "BtForwardAll"},
-  {6    , "BtForwardBusy"},
-  {7    , "BtForwardNoAnswer"},
-  {8    , "BtDisplay"},
-  {9    , "BtLine"},
-  {0xa  , "BtT120Chat"},
-  {0xb  , "BtT120Whiteboard"},
-  {0xc  , "BtT120ApplicationSharing"},
-  {0xd  , "BtT120FileTransfer"},
-  {0xe  , "BtVideo"},
-  {0x10 , "BtAnswerRelease"},
-  {0xf0 , "BtKeypad"},
-  {0xfd , "BtAEC"},
-  {0xff , "BtUndefined"},
+  {1    , "LastNumberRedial"},
+  {2    , "SpeedDial"},
+  {3    , "Hold"},
+  {4    , "Transfer"},
+  {5    , "ForwardAll"},
+  {6    , "ForwardBusy"},
+  {7    , "ForwardNoAnswer"},
+  {8    , "Display"},
+  {9    , "Line"},
+  {0xa  , "T120Chat"},
+  {0xb  , "T120Whiteboard"},
+  {0xc  , "T120ApplicationSharing"},
+  {0xd  , "T120FileTransfer"},
+  {0xe  , "Video"},
+  {0x10 , "AnswerRelease"},
+  {0xf0 , "Keypad"},
+  {0xfd , "AEC"},
+  {0xff , "Undefined"},
   {0   , NULL}
 };
 
@@ -461,97 +463,197 @@ static const value_string stationLampModes[] = {
   {0   , NULL}
 }; 
 
+/* Defined the Call States to be sent to the Telecaste station. 
+ * These are NOT the call states used in CM internally. Instead, 
+ * they are the call states sent from CM and understood by the Telecaster station 
+ */
+static const value_string skinny_stationCallStates[] = {
+  {1   , "OffHook"},
+  {2   , "OnHook"},
+  {3   , "RingOut"},
+  {4   , "RingIn"}, 
+  {5   , "Connected"}, 
+  {6   , "Busy"}, 
+  {7   , "Congestion"}, 
+  {8   , "Hold"}, 
+  {9   , "CallWaiting"}, 
+  {10  , "CallTransfer"}, 
+  {11  , "CallPark"}, 
+  {12  , "Proceed"}, 
+  {13  , "CallRemoteMultiline"}, 
+  {14  , "InvalidNumber"}, 
+  {0   , NULL}
+};
 
-# define NUM_MEDIA_PAYLOADTYPES 19 
-static char *Media_PayloadList[] = { 
-  "Undefined", 
-  "Media_Payload_NonStandard", 
-  "Media_Payload_G711Alaw64k", 
-  "Media_Payload_G711Alaw56k", 
-  "Media_Payload_G711Ulaw64k", 
-  "Media_Payload_G711Ulaw56k", 
-  "Media_Payload_G722_64k", 
-  "Media_Payload_G722_56k", 
-  "Media_Payload_G722_48k", 
-  "Media_Payload_G7231", 
-  "Media_Payload_G728", 
-  "Media_Payload_G729", 
-  "Media_Payload_G729AnnexA", 
-  "Media_Payload_Is11172AudioCap", 
-  "Media_Payload_Is13818AudioCap", 
-  "Media_Payload_G729AnnexB", 
-  "Media_Payload_G729AnnexAwAnnexB", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Media_Payload_Data64", 
-  "Media_Payload_Data56", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Undefined", 
-  "Media_Payload_GSM", 
-  "Media_Payload_ActiveVoice", 
-  "Media_Payload_G726_32K", 
-  "Media_Payload_G726_24K", 
-  "Media_Payload_G726_16K", 
-  "Media_Payload_G729_B", 
-  "Media_Payload_G729_B_LOW_COMPLEXITY", 
-  "Undefined", 
-  "Undefined" 
+/* Defined Call Type */
+static const value_string skinny_callTypes[] = { 
+  {1   , "TsInBoundCall"},
+  {2   , "TsOutBoundCall"}, 
+  {3   , "TsForwardCall"}, 
+  {0   , NULL}
+}; 
+
+/* 
+ * define station-playable tones; 
+ * for tone definitions see SR-TSV-002275, "BOC Notes on the LEC Networks -- 1994" 
+ */
+static const value_string skinny_deviceTones[] = {
+  {0    , "DtSilence"},
+  {1    , "DtDtmf1"},
+  {2    , "DtDtmf2"},
+  {3    , "DtDtmf3"},
+  {4    , "DtDtmf4"},
+  {5    , "DtDtmf5"},
+  {6    , "DtDtmf6"},
+  {7    , "DtDtmf7"},
+  {8    , "DtDtmf8"},
+  {9    , "DtDtmf9"},
+  {0xa  , "DtDtmf0"},
+  {0xe  , "DtDtmfStar"},
+  {0xf  , "DtDtmfPound"},
+  {0x10 , "DtDtmfA"},
+  {0x11 , "DtDtmfB"},
+  {0x12 , "DtDtmfC"},
+  {0x13 , "DtDtmfD"},
+  {0x21 , "DtInsideDialTone"},
+  {0x22 , "DtOutsideDialTone"},
+  {0x23 , "DtLineBusyTone"},
+  {0x24 , "DtAlertingTone"},
+  {0x25 , "DtReorderTone"},
+  {0x26 , "DtRecorderWarningTone"},
+  {0x27 , "DtRecorderDetectedTone"},
+  {0x28 , "DtRevertingTone"},
+  {0x29 , "DtReceiverOffHookTone"},
+  {0x2a , "DtPartialDialTone"},
+  {0x2b , "DtNoSuchNumberTone"},
+  {0x2c , "DtBusyVerificationTone"},
+  {0x2d , "DtCallWaitingTone"},
+  {0x2e , "DtConfirmationTone"},
+  {0x2f , "DtCampOnIndicationTone"},
+  {0x30 , "DtRecallDialTone"},
+  {0x31 , "DtZipZip"},
+  {0x32 , "DtZip"},
+  {0x33 , "DtBeepBonk"},
+  {0x34 , "DtMusicTone"},
+  {0x35 , "DtHoldTone"},
+  {0x36 , "DtTestTone"},
+  {0x40 , "Dt_AddCallWaiting"},
+  {0x41 , "Dt_PriorityCallWait"},
+  {0x42 , "Dt_RecallDial"},
+  {0x43 , "Dt_BargIn"},
+  {0x44 , "Dt_DistinctAlert"},
+  {0x45 , "Dt_PriorityAlert"},
+  {0x46 , "Dt_ReminderRing"},
+  {0x50 , "Dt_MF1"},
+  {0x51 , "Dt_MF2"},
+  {0x52 , "Dt_MF3"},
+  {0x53 , "Dt_MF4"},
+  {0x54 , "Dt_MF5"},
+  {0x55 , "Dt_MF6"},
+  {0x56 , "Dt_MF7"},
+  {0x57 , "Dt_MF8"},
+  {0x58 , "Dt_MF9"},
+  {0x59 , "Dt_MF0"},
+  {0x5a , "Dt_MFKP1"},
+  {0x5b , "Dt_MFST"},
+  {0x5c , "Dt_MFKP2"},
+  {0x5d , "Dt_MFSTP"},
+  {0x5e , "Dt_MFST3P"},
+  {0x5f , "Dt_MILLIWATT"},
+  {0x60 , "Dt_MILLIWATTTEST"},
+  {0x61 , "Dt_HIGHTONE"},
+  {0x62 , "Dt_FLASHOVERRIDE"},
+  {0x63 , "Dt_FLASH"},
+  {0x64 , "Dt_PRIORITY"},
+  {0x65 , "Dt_IMMEDIATE"},
+  {0x66 , "Dt_PREAMPWARN"},
+  {0x67 , "Dt_2105HZ"},
+  {0x68 , "Dt_2600HZ"},
+  {0x69 , "Dt_440HZ"},
+  {0x6a , "Dt_300HZ"},
+  {0x7f , "Dt_NoTone"},
+  {0   , NULL}
+};
+
+/* define ring types */
+static const value_string skinny_ringTypes[] = {
+  {0x1  , "StationRingOff"},
+  {0x2  , "StationInsideRing"},
+  {0x3  , "StationOutsideRing"},
+  {0x4  , "StationFeatureRing"},
+  {0   , NULL}
+};
+
+static const value_string skinny_speakerModes[] = {
+  {1   , "StationSpeakerOn"},
+  {2   , "StationSpeakerOff"},
+  {0   , NULL}
+};
+
+static const value_string skinny_silenceSuppressionModes[] = {
+  {0   , "Media_SilenceSuppression_Off"},
+  {1   , "Media_SilenceSuppression_On"},
+  {0   , NULL}
+}; 
+
+static const value_string skinny_g723BitRates[] = {
+  {1   , "Media_G723BRate_5_3"},
+  {2   , "Media_G723BRate_6_4"},
+  {0   , NULL}
+};
+
+/* define device reset types  */
+static const value_string skinny_deviceResetTypes[] = {
+  {1   , "DEVICE_RESET"},
+  {2   , "DEVICE_RESTART"},
+  {0   , NULL}
+}; 
+
+static const value_string skinny_echoCancelTypes[] = {
+  {0    , "Media_EchoCancellation_Off"},
+  {1    , "Media_EchoCancellation_On"},
+  {0    , NULL}
+}; 
+
+static const value_string skinny_deviceUnregisterStatusTypes[] = {
+  {0   , "UnregisterOk"},
+  {1   , "UnregisterError"},
+  {2   , "UnregisterNAK"}, /* Unregister request is rejected for reaso n such as existence of a call */
+  {0   , NULL}
+};
+
+/* define hook flash detection mode */
+static const value_string skinny_hookFlashDetectModes[] = {
+  {1   , "StationHookFlashOn"},
+  {2   , "StationHookFlashOff"},
+  {0   , NULL}
+}; 
+
+/* define station microphone modes; 
+ * Mic On - The speakerphone's microphone is turned on ONLY if the phone is in the "Speaker On (Off Hook)" 
+ * state (see above). 
+ * Mic Off - The microphone is turned off or, if it's not on, the command is ignored. 
+ */
+static const value_string skinny_microphoneModes[] = {
+  {1   , "StationMicOn"},
+  {2   , "StationMicOff"}, 
+  {0   , NULL}
+};
+
+/* define the session request types */
+static const value_string skinny_sessionTypes[] = {
+  {1   , "Chat"},
+  {2   , "Whiteboard"},
+  {4   , "ApplicationSharing"},
+  {8   , "FileTransfer"},
+  {10  , "Video"},
+  {0   , NULL}
+};
+
+static const value_string skinny_mediaEnunciationTypes[] = {
+  {1  , "None"},
+  {2  , "CallPark"},
+  {0  , NULL}
 }; 
 
 #define StationMaxDirnumSize 24         /* max size of calling or called party dirnum  */
@@ -667,17 +769,50 @@ static int hf_skinny_dateMinute = -1;
 static int hf_skinny_dateSeconds = -1;
 static int hf_skinny_dateMilliseconds = -1;
 static int hf_skinny_timeStamp = -1;
-
-
-static int hf_skinny_extension   = -1;
+static int hf_skinny_callState = -1;
+static int hf_skinny_deviceTone = -1;
+static int hf_skinny_callingPartyName = -1;
+static int hf_skinny_callingParty = -1;
+static int hf_skinny_calledPartyName = -1;
+static int hf_skinny_callType = -1;
+static int hf_skinny_originalCalledPartyName = -1;
+static int hf_skinny_originalCalledParty = -1;
+static int hf_skinny_ringType = -1;
+static int hf_skinny_speakerMode = -1;
+static int hf_skinny_remoteIpAddr = -1;
+static int hf_skinny_remotePortNumber = -1;
+static int hf_skinny_millisecondPacketSize = -1;
+static int hf_skinny_precedenceValue = -1;
+static int hf_skinny_silenceSuppression = -1;
+static int hf_skinny_g723BitRate = -1;
+static int hf_skinny_conferenceID = -1;
+static int hf_skinny_deviceResetType = -1;
+static int hf_skinny_echoCancelType = -1;
+static int hf_skinny_deviceUnregisterStatus = -1;
+static int hf_skinny_hookFlashDetectMode = -1;
+static int hf_skinny_detectInterval = -1;
+static int hf_skinny_microphoneMode = -1;
 static int hf_skinny_unknown = -1;
-static int hf_skinny_ipDest = -1;
-static int hf_skinny_ipSrc = -1;
-static int hf_skinny_destPort = -1;
-static int hf_skinny_srcPort = -1;
-static int hf_skinny_softKeyNumber = -1;
-static int hf_skinny_line = -1;
-static int hf_skinny_dialedDigit = -1;
+static int hf_skinny_activeForward = -1;
+static int hf_skinny_forwardAllActive = -1;
+static int hf_skinny_forwardBusyActive = -1;
+static int hf_skinny_forwardNoAnswerActive = -1;
+static int hf_skinny_forwardNumber = -1;
+static int hf_skinny_serverName = -1;
+static int hf_skinny_numberLines = -1;
+static int hf_skinny_numberSpeedDials = -1;
+static int hf_skinny_userName = -1;
+static int hf_skinny_sessionType = -1;
+static int hf_skinny_version = -1;
+static int hf_skinny_mediaEnunciationType = -1;
+static int hf_skinny_serverIdentifier = -1;
+static int hf_skinny_serverListenPort = -1;
+static int hf_skinny_serverIpAddress = -1;
+static int hf_skinny_multicastIpAddress = -1;
+static int hf_skinny_multicastPort = -1;
+static int hf_skinny_tokenRejWaitTime = -1;
+
+
 
 /* Initialize the subtree pointers */
 static gint ett_skinny          = -1;
@@ -700,21 +835,8 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   gchar   *messageid_str;
   /*  guint32 data_size; */
 
-  guint32 unknown1 = 0;
-  guint32 unknown2 = 0;
-  guint32 unknown3 = 0;
-  guint32 unknown4 = 0;
-  guint32 unknown5 = 0;
-  guint32 unknown6 = 0;
-  guint32 unknown7 = 0;
-  guint32 unknown8 = 0;
-  guint32 unknown9 = 0;
-  guint32 unknown10 = 0;
+  guint32 unknownLong = 0;
 
-  int extensionLength = 10;
-  int displayLength   = 100;
-  char extension[extensionLength];
-  char displayMessage[displayLength];
   guint i = 0;
   int j = 0;
 
@@ -796,12 +918,21 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     case 0x83 :   /* stopTone */
       break;
 
+    case 0x9a :   /* clearDisplay */
+      break;
+
     case 0x9b :   /* capabilitiesReqMessage */
       break;
 
     case 0x100 :    /* keepAliveAck */
       break;
-	
+
+    case 0x117 :  /* deactivateCallPlane */
+      break;
+
+    case 0x11a :  /* registerTokenAck */
+      break;
+
     /*
      ** cases that need decode
      **
@@ -811,7 +942,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       proto_tree_add_item(skinny_tree, hf_skinny_deviceName, tvb, offset+12, StationMaxDeviceNameSize, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_stationUserId, tvb, offset+28, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_stationInstance, tvb, offset+32, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_ipSrc, tvb, offset+36, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+36, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_deviceType, tvb, offset+40, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_maxStreams, tvb, offset+44, 4, TRUE);
       break;
@@ -857,9 +988,12 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       proto_tree_add_uint(skinny_tree, hf_skinny_capCount, tvb, offset+12, 4, capCount);
       for (i = 0; i < capCount; i++) {
 	proto_tree_add_item(skinny_tree, hf_skinny_payloadCapability, tvb, offset+(i*16)+16, 4, TRUE);
-	proto_tree_add_item(skinny_tree, hf_skinny_maxFramesPerPacket, tvb, offset+(i*16)+20, 4, TRUE);
+	proto_tree_add_item(skinny_tree, hf_skinny_maxFramesPerPacket, tvb, offset+(i*16)+20, 2, TRUE);
 	/* FIXME -- decode the union under here as required, is always 0 on my equipment */
       }
+      break;
+
+    case 0x11 : /* mediaPortList */
       break;
 
     case 0x20 :   /* stationAlarmMessage */
@@ -893,11 +1027,24 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       proto_tree_add_item(skinny_tree, hf_skinny_jitter, tvb, offset+64, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_latency, tvb, offset+68, 4, TRUE);
       break;
-      
+
+    case 0x24 : /* offHookWithCgpn */
+      proto_tree_add_item(skinny_tree, hf_skinny_calledParty, tvb, offset+12,StationMaxDirnumSize, TRUE); 
+      break;
+
     case 0x26 :  /* softKeyEventMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_softKeyEvent, tvb, offset+12, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+20, 4, TRUE);
+      break;
+
+    case 0x29 : /* registerTokenREq */
+      proto_tree_add_item(skinny_tree, hf_skinny_deviceName, tvb, offset+12, 4, TRUE);
+      i = offset+12+StationMaxDeviceNameSize;
+      proto_tree_add_item(skinny_tree, hf_skinny_stationUserId, tvb, i, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_stationInstance, tvb, i+4, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, i+8, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_deviceType, tvb, i+12, 4, TRUE);
       break;
 
       /*
@@ -906,13 +1053,9 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
        *
        */
     case 0x2b :  /* unknownClientMessage1 */
-      unknown1 = tvb_get_letohl(tvb, offset+12);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
       break;
 
     case 0x2d :  /* unknownClientMessage2 */
-      unknown1 = tvb_get_letohl(tvb, offset+12);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
       break;
 
       /* 
@@ -927,13 +1070,11 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       break;
 
     case 0x82 :  /* startTone */
-      unknown1 = tvb_get_letohl(tvb, offset+12);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      proto_tree_add_item(skinny_tree, hf_skinny_deviceTone, tvb, offset+12, 4, TRUE);
       break;
 
     case 0x85 : /* setRingerMessage */
-      unknown1 = tvb_get_letohl(tvb, offset+12);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      proto_tree_add_item(skinny_tree, hf_skinny_ringType, tvb, offset+12, 4, TRUE);
       break;
 	
     case 0x86 : /* setLampMessage */
@@ -942,37 +1083,82 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       proto_tree_add_item(skinny_tree, hf_skinny_lampMode, tvb, offset+20, 4, TRUE);
       break;
 
-    case 0x88 : /* setSpeakerModeMessage */
-      unknown1 = tvb_get_letohl(tvb, offset+12);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+    case 0x87 : /* stationHookFlashDetectMode */
+      proto_tree_add_item(skinny_tree, hf_skinny_hookFlashDetectMode, tvb, offset+12, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_detectInterval, tvb, offset+16, 4, TRUE);
       break;
-	
-    case 0x8a :
-      unknown1  = tvb_get_letohl(tvb, offset+12);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-      unknown2  = tvb_get_letohl(tvb, offset+16);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, unknown2);
-      proto_tree_add_item(skinny_tree, hf_skinny_ipDest,   tvb, offset+20, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_destPort,tvb, offset+24, 4, TRUE);
-      unknown5  = tvb_get_letohl(tvb, offset+28);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+28, 4, unknown5);
-      unknown6  = tvb_get_letohl(tvb, offset+32);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+32, 4, unknown6);
-      unknown7  = tvb_get_letohl(tvb, offset+36);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+36, 4, unknown7);
-      unknown8  = tvb_get_letohl(tvb, offset+40);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+40, 4, unknown8);
-      unknown9  = tvb_get_letohl(tvb, offset+44);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+44, 4, unknown9);
-      unknown10 = tvb_get_letohl(tvb, offset+48);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+48, 4, unknown10);
+
+    case 0x88 : /* setSpeakerMode */
+      
+      proto_tree_add_item(skinny_tree, hf_skinny_speakerMode, tvb, offset+12, 4, TRUE);
+      break;
+
+    case 0x89 : /* setMicroMode */
+      proto_tree_add_item(skinny_tree, hf_skinny_microphoneMode, tvb, offset+12, 4, TRUE);
+      break;
+
+    case 0x8a : /* startMediaTransmistion */     
+      proto_tree_add_item(skinny_tree, hf_skinny_conferenceID,          tvb, offset+12, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID,       tvb, offset+16, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_remoteIpAddr,          tvb, offset+20, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_remotePortNumber,      tvb, offset+24, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_millisecondPacketSize, tvb, offset+28, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_payloadCapability,     tvb, offset+32, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_precedenceValue,       tvb, offset+36, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_silenceSuppression,    tvb, offset+40, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_maxFramesPerPacket,    tvb, offset+44, 2, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_g723BitRate,           tvb, offset+48, 4, TRUE);
       break;
 
     case 0x8b :  /* stopMediaTransmission */
-      unknown1 = tvb_get_letohl(tvb, offset+12);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-      unknown2 = tvb_get_letohl(tvb, offset+16);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, unknown2);
+     
+      proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, TRUE);      
+      proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, TRUE);
+      break;
+
+    case 0x8c : /* startMediaReception */
+      break;
+
+    case 0x8d : /* stopMediaReception */
+      break;
+
+    case 0x8e : /* reservered */
+      break;
+
+    case 0x8f : /* callInfo */
+      i = offset+12;
+      proto_tree_add_item(skinny_tree, hf_skinny_callingPartyName, tvb, i, StationMaxNameSize, TRUE);
+      i += StationMaxNameSize;
+      proto_tree_add_item(skinny_tree, hf_skinny_callingParty, tvb, i, StationMaxDirnumSize, TRUE);
+      i += StationMaxDirnumSize;
+      proto_tree_add_item(skinny_tree, hf_skinny_calledPartyName, tvb, i, StationMaxNameSize, TRUE);
+      i += StationMaxNameSize;
+      proto_tree_add_item(skinny_tree, hf_skinny_calledParty, tvb, i, StationMaxDirnumSize, TRUE);
+      i += StationMaxDirnumSize;
+      proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, i, 4, TRUE);
+      i += 4;
+      proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, i, 4, TRUE);
+      i += 4;
+      proto_tree_add_item(skinny_tree, hf_skinny_callType, tvb, i, 4, TRUE);
+      i += 4;
+      proto_tree_add_item(skinny_tree, hf_skinny_originalCalledPartyName, tvb, i, StationMaxNameSize, TRUE);
+      i += StationMaxNameSize;
+      proto_tree_add_item(skinny_tree, hf_skinny_originalCalledParty, tvb, i, StationMaxDirnumSize, TRUE);
+      break;
+
+    case 0x90 : /* forwardStat */
+      proto_tree_add_item(skinny_tree, hf_skinny_activeForward, tvb, offset+12, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_lineNumber, tvb, offset+16, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_forwardAllActive, tvb, offset+20, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_forwardNumber, tvb, offset+24, StationMaxDirnumSize, TRUE);
+      i = offset+24+StationMaxDirnumSize;
+      proto_tree_add_item(skinny_tree, hf_skinny_forwardBusyActive, tvb, i, 4, TRUE);
+      i += 4;
+      proto_tree_add_item(skinny_tree, hf_skinny_forwardNumber, tvb, i, StationMaxDirnumSize, TRUE);
+      i += StationMaxDirnumSize;
+      proto_tree_add_item(skinny_tree, hf_skinny_forwardNoAnswerActive, tvb, i, 4, TRUE);
+      i += 4;
+      proto_tree_add_item(skinny_tree, hf_skinny_forwardNumber, tvb, i, StationMaxDirnumSize, TRUE);
       break;
 
     case 0x91 : /* speedDialStatMessage */
@@ -987,6 +1173,21 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       proto_tree_add_item(skinny_tree, hf_skinny_lineFullyQualifiedDisplayName, tvb, offset+16+StationMaxDirnumSize, StationMaxNameSize, TRUE);
       break;
 
+    case 0x93 : /* configStat */
+      proto_tree_add_item(skinny_tree, hf_skinny_deviceName, tvb, offset+12, 4, TRUE);
+      i = offset+12+StationMaxDeviceNameSize;
+      proto_tree_add_item(skinny_tree, hf_skinny_stationUserId, tvb, i, 4, TRUE);
+      i += 4;
+      proto_tree_add_item(skinny_tree, hf_skinny_stationInstance, tvb, i, 4, TRUE);
+      i += 4;
+      proto_tree_add_item(skinny_tree, hf_skinny_userName, tvb, i, StationMaxNameSize, TRUE);
+      i += StationMaxNameSize;
+      proto_tree_add_item(skinny_tree, hf_skinny_serverName, tvb, i, StationMaxNameSize, TRUE);
+      i += StationMaxNameSize;
+      proto_tree_add_item(skinny_tree, hf_skinny_numberLines, tvb, i, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_numberSpeedDials, tvb, i+4, 4, TRUE);
+      break;
+
     case 0x94 : /* stationDefineTimeDate */
       proto_tree_add_item(skinny_tree, hf_skinny_dateYear,   tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_dateMonth,  tvb, offset+16, 4, TRUE);
@@ -998,7 +1199,17 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       proto_tree_add_item(skinny_tree, hf_skinny_dateMilliseconds,tvb, offset+40, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_timeStamp, tvb, offset+44, 4, TRUE);
       break;
-      
+
+    case 0x95 : /* startSessionTransmission */
+      proto_tree_add_item(skinny_tree, hf_skinny_remoteIpAddr,  tvb, offset+12, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_sessionType, tvb, offset+16, 4, TRUE);
+      break;
+
+    case 0x96 : /* stopSessionTransmission */
+      proto_tree_add_item(skinny_tree, hf_skinny_remoteIpAddr,  tvb, offset+12, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_sessionType, tvb, offset+16, 4, TRUE);
+      break;
+
     case 0x97 :  /* buttonTemplateMessage  */
       /*
        * FIXME
@@ -1015,49 +1226,101 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       }
       break;
 
+    case 0x98 : /* version */
+      proto_tree_add_item(skinny_tree, hf_skinny_version, tvb, offset+12, StationMaxVersionSize, TRUE);
+      break;
+
     case 0x99 :  /* displayTextMessage */
-      memset(displayMessage, '\0', displayLength);
-      tvb_memcpy(tvb, displayMessage, offset+12, 32);
-      proto_tree_add_string(skinny_tree, hf_skinny_displayMessage, tvb, offset+12, strlen(displayMessage), displayMessage);        
-      unknown1  = tvb_get_letohl(tvb, offset+44);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+44, 4, unknown1);
+      proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+12, StationMaxDisplayTextSize, TRUE);	     
+      break;
+
+    case 0x9c : /* enunciatorCommand */
+      proto_tree_add_item(skinny_tree, hf_skinny_mediaEnunciationType, tvb, offset+12, 4, TRUE);
+      for (i = 0; i < StationMaxDirnumSize; i++) {
+	proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+16+(i*4), 4, TRUE);
+      }
+      i = offset+16+StationMaxDirnumSize;
+      proto_tree_add_item(skinny_tree, hf_skinny_mediaEnunciationType, tvb, i, 4, TRUE);
       break;
 
     case 0x9d : /* stationRegisterReject */
+      proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+12, StationMaxDisplayTextSize, TRUE);
       break;
       
+    case 0x9e : /* serverRes */
+      for (i = 0; i < StationMaxServers; i++) {
+	proto_tree_add_item(skinny_tree, hf_skinny_serverIdentifier, tvb, offset+12+(i*StationMaxServers), StationMaxServers, TRUE);
+      }
+      j = offset+12+(i*StationMaxServers);
+      for (i = 0; i < StationMaxServers; i++) {
+	proto_tree_add_item(skinny_tree, hf_skinny_serverListenPort, tvb, j+(i*4), 4,  TRUE);
+      }
+      j = j+(i*4);
+      for (i = 0; i < StationMaxServers; i++) {
+	proto_tree_add_item(skinny_tree, hf_skinny_serverIpAddress, tvb, j+(i*4), 4, TRUE);
+      }
+      break;
+
     case 0x9f :   /* reset */
-      unknown1  = tvb_get_letohl(tvb, offset+12);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      proto_tree_add_item(skinny_tree, hf_skinny_deviceResetType, tvb, offset+12, 4, TRUE);
+      break;
+
+    case 0x101 : /* startMulticastMediaReception*/
+      proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_multicastIpAddress, tvb, offset+20, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_multicastPort, tvb, offset+24, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_millisecondPacketSize, tvb, offset+28, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_payloadCapability, tvb, offset+32, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_echoCancelType, tvb, offset+36, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_g723BitRate, tvb, offset+40, 4, TRUE);
+      break;
+
+    case 0x102 : /* startMulticateMediaTermination*/
+      proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_multicastIpAddress, tvb, offset+20, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_multicastPort, tvb, offset+24, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_millisecondPacketSize, tvb, offset+28, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_payloadCapability, tvb, offset+32, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_precedenceValue, tvb, offset+36, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_silenceSuppression, tvb, offset+40, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_maxFramesPerPacket, tvb, offset+44, 2, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_g723BitRate, tvb, offset+48, 4, TRUE);
+      break;
+
+    case 0x103 : /* stopMulticastMediaReception*/
+      proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, TRUE);
+      break;
+
+    case 0x104 : /* stopMulticastMediaTermination*/
+      proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, TRUE);
       break;
 
     case 0x105 : /* open receive channel */
-      unknown1 = tvb_get_letohl(tvb, offset+12);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-      unknown2 = tvb_get_letohl(tvb, offset+16);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, unknown2);
-      unknown3 = tvb_get_letohl(tvb, offset+20);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+20, 4, unknown3);
-      unknown4 = tvb_get_letohl(tvb, offset+24);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+24, 4, unknown4);
-      unknown5 = tvb_get_letohl(tvb, offset+28);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+28, 4, unknown5);
-      unknown6 = tvb_get_letohl(tvb, offset+32);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+32, 4, unknown6);
+      proto_tree_add_item(skinny_tree, hf_skinny_conferenceID,            tvb, offset+12, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID,         tvb, offset+16, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_millisecondPacketSize,   tvb, offset+20, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_payloadCapability,       tvb, offset+24, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_echoCancelType,          tvb, offset+28, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_g723BitRate,             tvb, offset+32, 4, TRUE);
       break;
 
     case 0x106 :  /* closeReceiveChannel */
-      unknown1 = tvb_get_letohl(tvb, offset+12);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-      unknown2 = tvb_get_letohl(tvb, offset+16);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, unknown2);
+      proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+12, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+16, 4, TRUE);
       break;
 
-    case 0x107 :      
-      memset(extension, '\0', extensionLength);
-      tvb_get_nstringz0(tvb, offset+12, extensionLength, extension);
-      proto_tree_add_string(skinny_tree, hf_skinny_extension, tvb, offset+12, strlen(extension), extension);
-      proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+36, 4, TRUE);
+    case 0x107 :  /* connectionStatisticsReq */
+
+      i = 12;
+      proto_tree_add_item(skinny_tree, hf_skinny_directoryNumber, tvb, i, StationMaxDirnumSize, TRUE);
+      i = 12 + StationMaxDirnumSize;
+      proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, i, 4, TRUE);
+      i = i+4;
+      proto_tree_add_item(skinny_tree, hf_skinny_statsProcessingType, tvb, i, 4, TRUE);
       break;
 
     case 0x108 :   /* softkeyTemplateResMessage */
@@ -1115,11 +1378,9 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       proto_tree_add_boolean(skm_tree, hf_skinny_softKey15, tvb, offset + 24, 1, validKeyMask);
       break;
       
-    case 0x111 :
-      unknown1 = tvb_get_letohl(tvb, offset+12);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-      unknown2 = tvb_get_letohl(tvb, offset+16);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, unknown2);
+    case 0x111 : /* callState */
+      proto_tree_add_item(skinny_tree, hf_skinny_callState, tvb, offset+12, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+16, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+20, 4, TRUE);
       break;
       
@@ -1130,42 +1391,45 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+52, 4, TRUE);
       break;
       
-    case 0x113:
+    case 0x113: /* clearPrompt */
+      proto_tree_add_item(skinny_tree, hf_skinny_lineInstance  , tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+16, 4, TRUE);
       break;
       
-    case 0x114 :
-      unknown1 = tvb_get_letohl(tvb, offset+12);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-      memset(displayMessage,'\0',displayLength);
-      tvb_memcpy(tvb, displayMessage, offset+16, 16);
-      proto_tree_add_string(skinny_tree, hf_skinny_displayMessage, tvb, offset+16, strlen(displayMessage), displayMessage);
-      unknown2 = tvb_get_letohl(tvb, offset+32);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+32, 4, unknown2);
-      unknown3 = tvb_get_letohl(tvb, offset+36);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+36, 4, unknown3);
-      unknown4 = tvb_get_letohl(tvb, offset+40);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+40, 4, unknown4);
-      unknown5 = tvb_get_letohl(tvb, offset+44);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+44, 4, unknown5);
+    case 0x114 : /* displayNotify */
+      proto_tree_add_item(skinny_tree, hf_skinny_messageTimeOutValue, tvb, offset+12, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+16, StationMaxDisplayNotifySize , TRUE);
       break;
       
-    case 0x116 :
-      unknown1 = tvb_get_letohl(tvb, offset+12);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+    case 0x115 : /* clearNotify */
+      proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+12, 4, TRUE);
+      break;
+
+    case 0x116 : /* activateCallPlane */
+      proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+12, 4, TRUE);
       break;
 
     case 0x118 :    /* unregisterAckMessage */
-      unknown1 = tvb_get_letohl(tvb, offset+12);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      proto_tree_add_item(skinny_tree, hf_skinny_deviceUnregisterStatus, tvb, offset+12, 4, TRUE);
       break;
 
-    case 0x11D :
-      unknown1       = tvb_get_letohl(tvb, offset+36);
-      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+36, 4, unknown1);
+    case 0x119 : /* backSpaceReq */
+      proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+12, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+16, 4, TRUE);
+      break;
+
+    case 0x11B : /* registerTokenReject */
+      proto_tree_add_item(skinny_tree, hf_skinny_tokenRejWaitTime, tvb, offset+12, 4, TRUE);
+      break;
+
+    case 0x11D : /* new message */
+      unknownLong       = tvb_get_letohl(tvb, offset+36);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+36, 4, unknownLong);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+40, 4, TRUE);
       break;
       
+
+
     default:
       break;
     }
@@ -1435,7 +1699,7 @@ proto_register_skinny(void)
 
     { &hf_skinny_maxFramesPerPacket,
       { "MaxFramesPerPacket", "skinny.maxFramesPerPacket",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
+	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"Max frames per packet",
 	HFILL }
     },
@@ -1936,83 +2200,293 @@ proto_register_skinny(void)
 	"Time stamp for the call reference",
 	HFILL }
     },
+    { &hf_skinny_callState,
+      { "CallState", "skinny.callState", 
+	FT_UINT32, BASE_DEC, VALS(skinny_stationCallStates), 0x0,
+	"The D channel call state of the call", 
+	HFILL }
+    },
 
+    { &hf_skinny_deviceTone,
+      { "Tone", "skinny.deviceTone", 
+	FT_UINT32, BASE_HEX, VALS(skinny_deviceTones), 0x0,
+	"Which tone to play", 
+	HFILL }
+    },
 
-
-
-
-
-
-    /* */
-
-
-    { &hf_skinny_extension,
-      { "Extension", "skinny.extension",
+    { &hf_skinny_callingPartyName,
+      { "Calling Party Name", "skinny.callingPartyName",
 	FT_STRING, BASE_NONE, NULL, 0x0,
-	"The extension this packets is for.",
+	"The passed name of the calling party.",
 	HFILL }
     },
 
-
-
-
-    { &hf_skinny_unknown,
-      { "Unknown Long", "skinny.unknown",
-	FT_UINT32, BASE_HEX, NULL, 0x0,
-	"An as yet undecoded long value",
+    { &hf_skinny_callingParty,
+      { "Calling Party", "skinny.callingPartyName",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	"The passed number of the calling party.",
 	HFILL }
     },
-   
-    { &hf_skinny_ipSrc,
-      { "IP Source", "skinny.ipSrc",
+
+    { &hf_skinny_calledPartyName,
+      { "Called Party Name", "skinny.calledPartyName",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	"The name of the party we are calling.",
+	HFILL }
+    },
+
+    { &hf_skinny_callType,
+      { "Call Type", "skinny.callType", 
+	FT_UINT32, BASE_DEC, VALS(skinny_callTypes), 0x0,
+	"What type of call, in/out/etc", 
+	HFILL }
+    },
+
+    { &hf_skinny_originalCalledPartyName,
+      { "Original Called Party Name", "skinny.originalCalledPartyName",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	"name of the original person who placed the call.",
+	HFILL }
+    },
+
+    { &hf_skinny_originalCalledParty,
+      { "Original Called Party", "skinny.originalCalledParty",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	"The number of the original calling party.",
+	HFILL }
+    },
+
+    { &hf_skinny_ringType,
+      { "Ring Type", "skinny.ringType", 
+	FT_UINT32, BASE_HEX, VALS(skinny_ringTypes), 0x0,
+	"What type of ring to play", 
+	HFILL }
+    },
+
+    { &hf_skinny_speakerMode,
+      { "Speaker", "skinny.speakerMode", 
+	FT_UINT32, BASE_HEX, VALS(skinny_speakerModes), 0x0,
+	"This message sets the speaker mode on/off", 
+	HFILL }
+    },
+
+    { &hf_skinny_remoteIpAddr,
+      { "Remote Ip Address", "skinny.remoteIpAddr",
 	FT_IPv4, BASE_NONE, NULL, 0x0,
-	"Ip source address",
+	"The remote end ip address for this stream",
 	HFILL }
     },
 
-    { &hf_skinny_ipDest,
-      { "IP Destination", "skinny.ipDest",
+    { &hf_skinny_remotePortNumber,
+      { "Remote Port", "skinny.remotePortNumber",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"The remote port number listening for this stream",
+	HFILL }
+    },
+
+    { &hf_skinny_millisecondPacketSize,
+      { "MS/Packet", "skinny.millisecondPacketSize",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"The number of milliseconds of conversation in each packet",
+	HFILL }
+    },
+
+    { &hf_skinny_precedenceValue,
+      { "Precedence", "skinny.precedenceValue",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"Precedence value",
+	HFILL }
+    },
+
+    { &hf_skinny_silenceSuppression,
+      { "Silence Suppression", "skinny.silenceSuppression", 
+	FT_UINT32, BASE_HEX, VALS(skinny_silenceSuppressionModes), 0x0,
+	"Mode for silence suppression", 
+	HFILL }
+    },
+
+    { &hf_skinny_g723BitRate,
+      { "G723 BitRate", "skinny.g723BitRate", 
+	FT_UINT32, BASE_DEC, VALS(skinny_g723BitRates), 0x0,
+	"The G723 bit rate for this stream/JUNK if not g723 stream", 
+	HFILL }
+    },
+
+    { &hf_skinny_conferenceID,
+      { "Conference ID", "skinny.conferenceID",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"The conference ID",
+	HFILL }
+    },
+
+    { &hf_skinny_deviceResetType,
+      { "Reset Type", "skinny.deviceResetType", 
+	FT_UINT32, BASE_DEC, VALS(skinny_deviceResetTypes), 0x0,
+	"How the devices it to be reset (reset/restart)", 
+	HFILL }
+    },
+
+    { &hf_skinny_echoCancelType,
+      { "Echo Cancel Type", "skinny.echoCancelType", 
+	FT_UINT32, BASE_DEC, VALS(skinny_echoCancelTypes), 0x0,
+	"Is echo cancelling enabled or not", 
+	HFILL }
+    },
+
+    { &hf_skinny_deviceUnregisterStatus,
+      { "Echo Cancel Type", "skinny.deviceUnregisterStatus", 
+	FT_UINT32, BASE_DEC, VALS(skinny_deviceUnregisterStatusTypes), 0x0,
+	"The status of the device unregister request (*CAN* be refused)", 
+	HFILL }
+    },
+
+    { &hf_skinny_hookFlashDetectMode,
+      { "Hook Flash Mode", "skinny.hookFlashDetectMode", 
+	FT_UINT32, BASE_DEC, VALS(skinny_hookFlashDetectModes), 0x0,
+	"Which method to use to detect that a hook flash has occured", 
+	HFILL }
+    },
+
+    { &hf_skinny_detectInterval,
+      { "HF Detect Interval", "skinny.detectInterval",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"The number of milliseconds that determines a hook flash has occured",
+	HFILL }
+    },
+
+    { &hf_skinny_microphoneMode,
+      { "Microphone Mode", "skinny.microphoneMode", 
+	FT_UINT32, BASE_DEC, VALS(skinny_microphoneModes), 0x0,
+	"Turns on and off the microphone on the set", 
+	HFILL }
+    },
+
+    { &hf_skinny_activeForward,
+      { "Active Forward", "skinny.activeForward",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"This is non zero to indicate that a forward is active on the line",
+	HFILL }
+    },
+
+    { &hf_skinny_forwardAllActive,
+      { "Forward All", "skinny.forwardAllActive",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"Forward all calls",
+	HFILL }
+    },
+
+    { &hf_skinny_forwardBusyActive,
+      { "Forward Busy", "skinny.forwardBusyActive",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"Forward calls when busy",
+	HFILL }
+    },
+
+    { &hf_skinny_forwardNoAnswerActive,
+      { "Forward NoAns", "skinny.forwardNoAnswerActive",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"Forward only when no answer",
+	HFILL }
+    },
+
+    { &hf_skinny_forwardNumber,
+      { "Forward Number", "skinny.forwardNumber",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	"The number to forward calls to.",
+	HFILL }
+    },
+
+    { &hf_skinny_userName,
+      { "Username", "skinny.userName",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	"Username for this device.",
+	HFILL }
+    },
+
+    { &hf_skinny_serverName,
+      { "Server Name", "skinny.serverName",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	"The server name for this device.",
+	HFILL }
+    },
+
+    { &hf_skinny_numberLines,
+      { "Number of Lines", "skinny.numberLines",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"How many lines this device has",
+	HFILL }
+    },
+
+    { &hf_skinny_numberSpeedDials,
+      { "Number of SpeedDials", "skinny.numberSpeedDials",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"The number of speed dials this device has",
+	HFILL }
+    },
+
+    { &hf_skinny_sessionType,
+      { "Session Type", "skinny.sessionType", 
+	FT_UINT32, BASE_DEC, VALS(skinny_sessionTypes), 0x0,
+	"The type of this session.", 
+	HFILL }
+    },
+
+    { &hf_skinny_version,
+      { "Version", "skinny.version",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	"Version.",
+	HFILL }
+    },
+
+    { &hf_skinny_mediaEnunciationType,
+      { "Enunciation Type", "skinny.mediaEnunciationType", 
+	FT_UINT32, BASE_DEC, VALS(skinny_mediaEnunciationTypes), 0x0,
+	"No clue.", 
+	HFILL }
+    },
+
+    { &hf_skinny_serverIdentifier,
+      { "Server Identifier", "skinny.serverIdentifier",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	"Server Identifier.",
+	HFILL }
+    },
+
+    { &hf_skinny_serverListenPort,
+      { "Server Port", "skinny.serverListenPort", 
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"The port the server listens on.", 
+	HFILL }
+    },
+
+    { &hf_skinny_serverIpAddress,
+      { "Server Ip Address", "skinny.serverIpAddress",
 	FT_IPv4, BASE_NONE, NULL, 0x0,
-	"IP destination address",
+	"The IP address for this server",
 	HFILL }
     },
 
-
-
-    { &hf_skinny_destPort,
-      { "Destination Port", "skinny.destPort",
+    { &hf_skinny_multicastPort,
+      { "Multicast Port", "skinny.multicastPort", 
 	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"Destination Port",
+	"The multicast port the to listens on.", 
 	HFILL }
     },
 
-    { &hf_skinny_srcPort,
-      { "Source Port", "skinny.srcPort",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"Source Port",
+    { &hf_skinny_multicastIpAddress,
+      { "Multicast Ip Address", "skinny.multicastIpAddress",
+	FT_IPv4, BASE_NONE, NULL, 0x0,
+	"The multicast address for this conference",
 	HFILL }
     },
 
-    { &hf_skinny_softKeyNumber,
-      { "SoftKey", "skinny.softKeyNumber",
+    { &hf_skinny_tokenRejWaitTime,
+      { "Retry Wait Time", "skinny.tokenRejWaitTime", 
 	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"SoftKey",
+	"The time to wait before retrying this token request.", 
 	HFILL }
     },
 
-    { &hf_skinny_dialedDigit,
-      { "Dialed Digit", "skinny.dialedDigit",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"Dialed Digit",
-	HFILL }
-    },
-
-    { &hf_skinny_line,
-      { "Line", "skinny.line",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"Line",
-	HFILL }
-    },
 
   };
   
@@ -2048,3 +2522,105 @@ proto_reg_handoff_skinny(void)
   skinny_handle = create_dissector_handle(dissect_skinny, proto_skinny);
   dissector_add("tcp.port", TCP_PORT_SKINNY, skinny_handle);
 }
+
+/*
+ * FIXME:
+ *
+ * This is the status of this decode.
+ * Items marked as N/A in the decode field have no params to test
+ * implemented for N/A means they exist in the switch statement
+ * S = stubbed
+ *
+ *  id     message                     implemented  decode tested (via capture)
+ *  ---------------------------------------------------------------------------
+ *  0x0    keepAlive                       Y        N/A 
+ *  0x1    register                        Y        Y
+ *  0x2    ipPort                          Y        Y
+ *  0x3    keypadButton                    Y        Y
+ *  0x4    enblocCall                      Y        N
+ *  0x5    stimulus                        Y        N
+ *  0x6    offHook                         Y        N/A
+ *  0x7    onHook                          Y        N/A
+ *  0x8    hookFlash                       Y        N/A
+ *  0x9    forwardStatReq                  Y        N
+ *  0xa    speedDialStatReq                Y        Y
+ *  0xb    lineStatReq                     Y        Y
+ *  0xc    configStatReq                   Y        N/A
+ *  0xd    timeDateReq                     Y        N/A
+ *  0xe    buttonTemplateReq               Y        N/A
+ *  0xf    versionReq                      Y        N/A
+ *  0x10   capabilitiesRes                 Y        Y -- would like more decodes
+ *  0x11   mediaPortList                   S        N -- no info 
+ *  0x12   serverReq                       Y        N/A
+ *  0x20   alarmMessage                    Y        Y
+ *  0x21   multicastMediaReceptionAck      Y        N
+ *  0x22   openReceiveChannelAck           Y        Y
+ *  0x23   connectionStatisticsRes         Y        Y
+ *  0x24   offHookWithCgpn                 Y        N
+ *  0x25   softKeySetReq                   Y        N/A
+ *  0x26   softKeyEvent                    Y        Y
+ *  0x27   unregister                      Y        N/A
+ *  0x28   softKeytemplateReq              Y        N/A
+ *  0x29   registerTokenReq                Y        N
+ *******************************
+ *  0x2b   unknownClientMessage1           S        N
+ *  0x2d   unknownClientMessage2           S        N
+ *******************************
+ *  0x81   registerAck                     Y        Y
+ *  0x82   startTone                       Y        Y
+ *  0x83   stopTone                        Y        N/A
+ *  0x85   setRinger                       Y        Y
+ *  0x86   setLamp                         Y        Y
+ *  0x87   setHkFDetect                    Y        N
+ *  0x88   setSpeakerMode                  Y        Y
+ *  0x89   setMicroMode                    Y        N
+ *  0x8A   startMediaTransmission          Y        Y
+ *  0x8B   stopMediaTransmission           Y        Y
+ *  0x8C   startMediaReception             S        N
+ *  0x8D   stopMediaReception              S        N
+ *  0x8E   *reserved*                      S        *
+ *  0x8F   callInfo                        Y        Y
+ *  0x90   forwardStat                     Y        N
+ *  0x91   speedDialStat                   Y        Y
+ *  0x92   lineStat                        Y        Y
+ *  0x93   configStat                      Y        N
+ *  0x94   defineTimeDate                  Y        Y
+ *  0x95   startSessionTransmission        Y        N
+ *  0x96   stopSessionTransmission         Y        N
+ *  0x97   buttonTemplate                  Y        Y -- ugly =)
+ *  0x98   version                         Y        N
+ *  0x99   displayText                     Y        Y
+ *  0x9A   clearDisplay                    Y        N/A
+ *  0x9B   capabilitiesReq                 Y        N/A
+ *  0x9C   enunciatorCommand               Y        N (inner loop unknown)
+ *  0x9D   registerReject                  Y        N
+ *  0x9E   serverRes                       Y        N
+ *  0x9F   reset                           Y        Y
+ *  0x100  keepAliveAck                    Y        N/A
+ *  0x101  startMulticastMediaReception    Y        N
+ *  0x102  startMulticastMediaTransmission Y        N
+ *  0x103  stopMulticastMediaReception     Y        N
+ *  0x104  stopMulticastMediaTransmission  Y        N
+ *  0x105  openreceiveChannel              Y        Y
+ *  0x106  closeReceiveChannel             Y        Y
+ *  0x107  connectionStatisticsReq         Y        Y
+ *  0x108  softKeyTemplateRes              Y        Y
+ *  0x109  softKeySetRes                   Y        Y
+ *  0x110  selectSoftKeys                  Y        Y
+ *  0x111  callState                       Y        Y
+ *  0x112  displayPromptStatus             Y        Y
+ *  0x113  clearPromptStatus               Y        Y
+ *  0x114  displayNotify                   Y        Y
+ *  0x115  clearNotify                     Y        Y
+ *  0x116  activateCallPlane               Y        Y
+ *  0x117  deactivateCallPlane             Y        N/A
+ *  0x118  unregisterAck                   Y        Y
+ *  0x119  backSpaceReq                    Y        Y
+ *  0x11A  registerTokenAck                Y        N
+ *  0x11B  registerTokenReject             Y        N
+ *******************************
+ *  0x11D  unknownForwardMessage           NC       N
+ *******************************
+ *
+ *
+ */
