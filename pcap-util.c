@@ -1,7 +1,7 @@
 /* pcap-util.c
  * Utility routines for packet capture
  *
- * $Id: pcap-util.c,v 1.16 2003/09/10 05:35:23 guy Exp $
+ * $Id: pcap-util.c,v 1.17 2003/09/10 06:47:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -503,7 +503,7 @@ get_interface_list(int *err, char *err_str) {
 			ascii_name[j] = '\0';
 			i++;
 			il = g_list_append(il,
-			    if_info_new(ascii_name, ascii_description));
+			    if_info_new(ascii_name, ascii_desc));
 		  }
 	  }
 	  else {
