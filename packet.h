@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.125 1999/11/05 07:16:22 guy Exp $
+ * $Id: packet.h,v 1.126 1999/11/06 01:28:50 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -277,6 +277,12 @@ enum {
 	ETT_BOOTP_OPTION,
 	ETT_IPv6,
 	ETT_BGP,
+	ETT_BGP_OPEN,
+	ETT_BGP_UPDATE,
+	ETT_BGP_NOTIFICATION,
+	ETT_BGP_ATTRS,
+	ETT_BGP_ATTR,
+	ETT_BGP_NLRI,
 	ETT_CLNP,
 	ETT_COTP,
 	ETT_VINES_FRP,

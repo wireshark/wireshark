@@ -1,7 +1,7 @@
 /* packet-bgp.c
  * Definitions for BGP packet disassembly structures and routine
  *
- * $Id: packet-bgp.h,v 1.2 1999/11/02 00:11:58 itojun Exp $
+ * $Id: packet-bgp.h,v 1.3 1999/11/06 01:28:50 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -75,15 +75,21 @@ struct bgp_attr {
     guint8 bgpa_type;
 };
 
-#define BGPTYPE_ORIGIN		1
-#define BGPTYPE_AS_PATH		2
-#define BGPTYPE_NEXT_HOP	3
-#define BGPTYPE_MULTI_EXIT_DISC	4
-#define BGPTYPE_LOCAL_PREF	5
-#define BGPTYPE_ATOMIC_AGGREGATE	6
-#define BGPTYPE_AGGREGATOR	7
-#define BGPTYPE_MP_REACH_NLRI	14	/* RFC2283 */
-#define BGPTYPE_MP_UNREACH_NLRI	15	/* RFC2283 */
+#define BGPTYPE_ORIGIN            1   /* RFC1771          */
+#define BGPTYPE_AS_PATH           2   /* RFC1771          */
+#define BGPTYPE_NEXT_HOP          3   /* RFC1771          */
+#define BGPTYPE_MULTI_EXIT_DISC   4   /* RFC1771          */
+#define BGPTYPE_LOCAL_PREF        5   /* RFC1771          */
+#define BGPTYPE_ATOMIC_AGGREGATE  6   /* RFC1771          */
+#define BGPTYPE_AGGREGATOR        7   /* RFC1771          */
+#define BGPTYPE_COMMUNITIES       8   /* RFC1997          */
+#define BGPTYPE_ORIGINATOR_ID     9   /* RFC1998          */
+#define BGPTYPE_CLUSTER_LIST     10   /* RFC1998          */
+#define BGPTYPE_DPA              11   /* work in progress */
+#define BGPTYPE_ADVERTISERS      12   /* RFC1863          */
+#define BGPTYPE_RCID_PATH        13   /* RFC1863          */
+#define BGPTYPE_MP_REACH_NLRI    14   /* RFC2283          */
+#define BGPTYPE_MP_UNREACH_NLRI  15   /* RFC2283          */
 
 /* RFC1700 address family numbers */
 #define AFNUM_INET	1

@@ -76,6 +76,8 @@ Didier Jorand <Didier.Jorand@alcatel.fr> {
 }
 
 Jun-ichiro itojun Hagino <itojun@itojun.org> {
+	http://www.itojun.org/
+
 	IPv6 support
 	RIPng support
 	IPsec support
@@ -164,6 +166,12 @@ Uwe Girlich <Uwe.Girlich@philosys.de> {
 
 Warren Young <tangent@mail.com> {
 	"Print" button support in "Tools:Follow TCP Stream" window
+}
+
+Greg Hankins <gregh@cc.gatech.edu> {
+	http://www.cc.gatech.edu/staff/h/Greg.Hankins/
+
+	updates to BGP (Border Gateway Protocol) support
 }
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to

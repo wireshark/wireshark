@@ -1,8 +1,19 @@
 /* packet-bgp.c
- * Routines for BGP packet dissection
+ * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.7 1999/11/02 00:11:58 itojun Exp $
+ * $Id: packet-bgp.c,v 1.8 1999/11/06 01:28:49 itojun Exp $
+ * 
+ * Supports:
+ * RFC1771 A Border Gateway Protocol 4 (BGP-4)
+ * RFC2283 Multiprotocol Extensions for BGP-4
+ *
+ * TODO:
+ * RFC1863 A BGP/IDRP Route Server alternative to a full mesh routing 
+ * RFC1965 Autonomous System Confederations for BGP 
+ * RFC1997 BGP Communities Attribute
+ * RFC1998 An Application of the BGP Community Attribute in Multi-home Routing 
+ * Destination Preference Attribute for BGP (work in progress)
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -203,12 +214,16 @@ decode_prefix6(const u_char *pd, char *buf, int buflen)
     return 1 + (plen + 7) / 8;
 }
 
+/*
+ * Dissect a BGP OPEN message.
+ */
 static void
 dissect_bgp_open(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
-    struct bgp_open bgpo;
-    int hlen;
+    struct bgp_open bgpo;          /* BGP OPEN message   */
+    int hlen;                      /* message length     */
 
+    /* snarf OPEN message */
     memcpy(&bgpo, &pd[offset], sizeof(bgpo));
     hlen = ntohs(bgpo.bgpo_len);
 
@@ -220,17 +235,19 @@ dissect_bgp_open(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	"My AS: %u", ntohs(bgpo.bgpo_myas));
     proto_tree_add_text(tree,
 	offset + offsetof(struct bgp_open, bgpo_holdtime), 2,
-	"Holdtime: %u", ntohs(bgpo.bgpo_holdtime));
+	"Hold Time: %u", ntohs(bgpo.bgpo_holdtime));
     proto_tree_add_text(tree,
 	offset + offsetof(struct bgp_open, bgpo_id), 4,
-	"ID: %s", ip_to_str((guint8 *)&bgpo.bgpo_id));
+	"BGP Identifier: %s", ip_to_str((guint8 *)&bgpo.bgpo_id));
     proto_tree_add_text(tree,
 	offset + offsetof(struct bgp_open, bgpo_optlen), 1,
-	"Option length: %u", bgpo.bgpo_optlen);
+	"Optional Parameters Length: %u %s", bgpo.bgpo_optlen,
+        (bgpo.bgpo_optlen == 1) ? "byte" : "bytes");
+
     if (hlen > sizeof(struct bgp_open)) {
 	proto_tree_add_text(tree,
 	    offset + sizeof(struct bgp_open), hlen - sizeof(struct bgp_open),
-	    "Option data%s");
+	    "Optional Parameters");
     }
 }
 
@@ -654,9 +671,9 @@ static void
 dissect_bgp_notification(const u_char *pd, int offset, frame_data *fd,
     proto_tree *tree)
 {
-    struct bgp_notification bgpn;
-    int hlen;
-    char *p;
+    struct bgp_notification bgpn;   /* BGP NOTIFICATION message */
+    int hlen;                       /* message length           */
+    char *p;                        /* string pointer           */
 
     /* snarf message */
     memcpy(&bgpn, &pd[offset], sizeof(bgpn));
@@ -695,19 +712,19 @@ dissect_bgp_notification(const u_char *pd, int offset, frame_data *fd,
 void
 dissect_bgp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
-    proto_item *ti;
-    proto_tree *bgp_tree;
-    proto_tree *bgp1_tree;
-    const u_char *p;
-    int l, i;
-    int found;
-    static u_char marker[] = {
+    proto_item *ti;              /* tree item                        */
+    proto_tree *bgp_tree;        /* BGP packet tree                  */
+    proto_tree *bgp1_tree;       /* BGP message tree                 */
+    const u_char *p;             /* packet offset pointer            */
+    int l, i;                    /* tmp                              */
+    int found;                   /* number of BGP messages in packet */
+    static u_char marker[] = {   /* BGP message marker               */
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
     };
-    struct bgp bgp;
-    int hlen;
-    char *typ;
+    struct bgp bgp;               /* BGP header                      */
+    int hlen;                     /* BGP header length               */
+    char *typ;                    /* BGP message type                */
 
     if (check_col(fd, COL_PROTOCOL))
 	col_add_str(fd, COL_PROTOCOL, "BGP");
@@ -778,7 +795,24 @@ dissect_bgp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		ti = proto_tree_add_text(bgp_tree, offset + i, hlen,
 			    "%s", typ);
 	    }
-	    bgp1_tree = proto_item_add_subtree(ti, ETT_BGP);
+	    /* add a different tree for each message type */
+	    switch (bgp.bgp_type) {
+	    case BGP_OPEN:
+	        bgp1_tree = proto_item_add_subtree(ti, ETT_BGP_OPEN);
+		break;
+	    case BGP_UPDATE:
+	        bgp1_tree = proto_item_add_subtree(ti, ETT_BGP_UPDATE);
+		break;
+	    case BGP_NOTIFICATION:
+	        bgp1_tree = proto_item_add_subtree(ti, ETT_BGP_NOTIFICATION);
+		break;
+	    case BGP_KEEPALIVE:
+	        bgp1_tree = proto_item_add_subtree(ti, ETT_BGP);
+		break;
+	    default:
+	        bgp1_tree = proto_item_add_subtree(ti, ETT_BGP);
+		break;
+	    }
 
 	    proto_tree_add_text(bgp1_tree, offset + i, BGP_MARKER_SIZE,
 		"Marker", NULL);
