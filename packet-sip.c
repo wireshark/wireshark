@@ -18,7 +18,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.55 2004/01/18 23:21:20 obiot Exp $
+ * $Id: packet-sip.c,v 1.56 2004/01/19 23:08:02 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -708,7 +708,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #else
 					media_type_str_lower_case = g_ascii_strdown(media_type_str, -1);
 #endif
-					g_free(media_type_str);
+					/* Please do NOT g_free(media_type_str) here */
 					break;
 
 				case POS_CONTACT :
