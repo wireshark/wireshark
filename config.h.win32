@@ -60,7 +60,7 @@
 #define PACKAGE "ethereal"
 
 /* Version number of package */
-#define VERSION "0.8.5"
+#define VERSION "0.8.6"
 
 #ifndef WIN32
 #define WIN32			1

@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.87 2000/04/05 11:45:49 gram Exp $
+# $Id: configure.in,v 1.88 2000/04/07 03:18:08 gram Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -13,7 +13,7 @@ AC_INIT(etypes.h)
 
 AC_PREREQ(2.13)
 
-AM_INIT_AUTOMAKE(ethereal, 0.8.5)
+AM_INIT_AUTOMAKE(ethereal, 0.8.6)
 
 AM_CONDITIONAL(SETUID_INSTALL, test x$enable_setuid_install = xyes)
 

@@ -1,3 +1,11 @@
+Overview of changes in Ethereal 0.8.6:
+* L2TP spelling fix (Florian)
+* RADIUS update (Florian)
+* LDAP build fix (Guy)
+* Fix for not being able to capture more than once in a session (Guy)
+* Developers' doc update (Guy)
+* Build fixes (Guy)
+
 Overview of changes in Ethereal 0.8.5:
 * Fix for reading Toshiba ISDN router trace files (Gilbert)
 * Fix proto_* calls in various dissectors (Guy, Gilbert)
