@@ -36,6 +36,7 @@
 #include <epan/atalk-utils.h>
 #include <epan/prefs.h>
 #include "packet-ip.h"
+#include "packet-ipv6.h"
 #include "packet-ipx.h"
 #include "packet-osi.h"
 #include "packet-ppp.h"
@@ -328,6 +329,12 @@ capture_null( const guchar *pd, int len, packet_counts *ld )
 
       case BSD_AF_INET:
         capture_ip(pd, 4, len, ld);
+        break;
+
+      case BSD_AF_INET6_BSD:
+      case BSD_AF_INET6_FREEBSD:
+      case BSD_AF_INET6_DARWIN:
+        capture_ipv6(pd, 4, len, ld);
         break;
 
       default:
