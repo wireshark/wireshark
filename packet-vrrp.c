@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-vrrp.c,v 1.27 2003/06/12 06:58:38 guy Exp $
+ * $Id: packet-vrrp.c,v 1.28 2004/05/16 18:42:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,8 +65,8 @@ static const value_string vrrp_type_vals[] = {
 #define VRRP_AUTH_TYPE_IP_AUTH_HDR 2
 static const value_string vrrp_auth_vals[] = {
         {VRRP_AUTH_TYPE_NONE,        "No Authentication"},
-        {VRRP_AUTH_TYPE_SIMPLE_TEXT, "Simple Text Authentication"},
-        {VRRP_AUTH_TYPE_IP_AUTH_HDR, "IP Authentication Header"},
+        {VRRP_AUTH_TYPE_SIMPLE_TEXT, "Simple Text Authentication [RFC 2338] / Reserved [RFC 3768]"},
+        {VRRP_AUTH_TYPE_IP_AUTH_HDR, "IP Authentication Header [RFC 2338] / Reserved [RFC 3768]"},
 	{0,                          NULL}
 };
 
