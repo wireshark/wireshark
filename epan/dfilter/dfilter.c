@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter.c,v 1.14 2002/12/02 23:28:16 guy Exp $
+ * $Id: dfilter.c,v 1.15 2004/02/11 22:52:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -203,6 +203,17 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 	while (1) {
 		df_lval = stnode_new(STTYPE_UNINITIALIZED, NULL);
 		token = df_lex();
+
+		/* Check for scanner failure */
+		if (token == SCAN_FAILED) {
+			/* Free the stnode_t that we just generated, since
+			 * we're going to give up on parsing. */
+			stnode_free(df_lval);
+			df_lval = NULL;
+
+			/* Give up. */
+			goto FAILURE;
+		}
 
 		/* Check for end-of-input */
 		if (token == 0) {

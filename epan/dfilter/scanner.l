@@ -1,6 +1,6 @@
 %{
 /*
- * $Id: scanner.l,v 1.14 2004/01/07 05:24:04 gram Exp $
+ * $Id: scanner.l,v 1.15 2004/02/11 22:52:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,8 +47,6 @@ static int set_lval_int(int token, char *s);
 static int simple(int token);
 static gboolean str_to_guint32(char *s, guint32* pint);
 GString* quoted_string = NULL;
-
-#define SCAN_FAILED	0
 
 %}
 
@@ -128,7 +126,7 @@ GString* quoted_string = NULL;
 	/* The example of how to scan for strings was taken from
 	the flex 2.5.4 manual, from the section "Start Conditions".
 	See:
-	http://www.gnu.org/manual/flex-2.5.4/html_node/flex_11.html */
+	http://www.gnu.org/software/flex/manual/html_node/flex_11.html */
 
 	BEGIN(DQUOTE);
 	/* A previous filter that failed to compile due to
@@ -142,6 +140,17 @@ GString* quoted_string = NULL;
 		about to set it in the next line. */
 	}
 	quoted_string = g_string_new("");
+}
+
+<DQUOTE><<EOF>>				{
+	/* unterminated string */
+	/* The example of how to handle unclosed strings was taken from
+	the flex 2.5.4 manual, from the section "End-of-file rules".
+	See:
+	http://www.gnu.org/software/flex/manual/html_node/flex_13.html */
+
+	dfilter_fail("The final quote was missing from a quoted string.");
+	return SCAN_FAILED;
 }
 
 <DQUOTE>\"				{

@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter-int.h,v 1.7 2002/08/28 20:40:55 jmayer Exp $
+ * $Id: dfilter-int.h,v 1.8 2004/02/11 22:52:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,8 +34,8 @@ struct _dfilter_t {
 	int		num_registers;
 	GList		**registers;
 	gboolean	*attempted_load;
-    int         *interesting_fields;
-    int         num_interesting_fields;
+	int		*interesting_fields;
+	int		num_interesting_fields;
 };
 
 typedef struct {
@@ -57,9 +57,11 @@ void Dfilter(void*, int, stnode_t*, dfwork_t*);
 /* Scanner's lval */
 extern stnode_t *df_lval;
 
+/* Return value for error in scanner. */
+#define SCAN_FAILED	-1	/* not 0, as that means end-of-input */
+
 /* Set dfilter_error_msg_buf and dfilter_error_msg */
 void
 dfilter_fail(char *format, ...);
-
 
 #endif
