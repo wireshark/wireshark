@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.42 2004/02/03 01:06:21 ulfl Exp $
+; $Id: ethereal.nsi,v 1.43 2004/02/03 20:03:39 ulfl Exp $
 
  
 !ifdef MAKENSIS_MODERN_UI
@@ -275,7 +275,7 @@ CreateDirectory "$SMPROGRAMS\Ethereal"
 Delete "$SMPROGRAMS\Ethereal\Ethereal Web Site.lnk"
 WriteINIStr "$SMPROGRAMS\Ethereal\Ethereal Web Site.url" \
           "InternetShortcut" "URL" "http://www.ethereal.com/"
-CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal.lnk" "$INSTDIR\ethereal.exe"
+CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal.lnk" "$INSTDIR\${DEST}.exe"
 CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Manual.lnk" "$INSTDIR\ethereal.html"
 CreateShortCut "$SMPROGRAMS\Ethereal\Display Filters Manual.lnk" "$INSTDIR\ethereal-filter.html"
 CreateShortCut "$SMPROGRAMS\Ethereal\Uninstall.lnk" "$INSTDIR\uninstall.exe"
@@ -285,19 +285,31 @@ SectionEnd
 
 Section "Desktop Icon" SecDesktopIcon
 ;-------------------------------------------
-CreateShortCut "$DESKTOP\Ethereal.lnk" "$INSTDIR\Ethereal.exe"
+CreateShortCut "$DESKTOP\Ethereal.lnk" "$INSTDIR\${DEST}.exe"
 SectionEnd
 
 Section "Uninstall"
 ;-------------------------------------------
 
-DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal"
-DeleteRegKey HKEY_LOCAL_MACHINE SOFTWARE\Ethereal
-
 ;
 ; UnInstall for every user
 ;
 SetShellVarContext all
+
+Delete "$INSTDIR\tethereal.exe"
+IfErrors 0 NoTetherealErrorMsg
+	MessageBox MB_OK "Note: Tethereal could not be removed! Probably in use!" IDOK 0 ;skipped if tethereal.exe removed
+	Abort "Note: tethereal.exe could not be removed! Probably in use! Abort unistall!"
+NoTetherealErrorMsg:
+
+Delete "$INSTDIR\${DEST}.exe"
+IfErrors 0 NoEtherealErrorMsg
+	MessageBox MB_OK "Note: Ethereal could not be removed! Probably in use!" IDOK 0 ;skipped if ethereal.exe removed
+	Abort "Note: ${DEST}.exe could not be removed! Probably in use! Abort uninstall!"
+NoEtherealErrorMsg:
+
+DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal"
+DeleteRegKey HKEY_LOCAL_MACHINE SOFTWARE\Ethereal
 
 !ifdef GTK2
 Delete "$INSTDIR\etc\gtk-2.0\*.*"
@@ -337,6 +349,14 @@ RMDir "$INSTDIR\diameter"
 RMDir "$INSTDIR\snmp\mibs"
 RMDir "$INSTDIR\snmp"
 RMDir "$INSTDIR"
+
+IfFileExists "$INSTDIR" 0 NoFinalErrorMsg
+    MessageBox MB_OK "Note: $INSTDIR could not be removed!" IDOK 0 ; skipped if file doesn't exist
+NoFinalErrorMsg: 
+
+IfFileExists "$INSTDIR" 0 NoFinalErrorMsg
+    MessageBox MB_OK "Note: $INSTDIR could not be removed!" IDOK 0 ; skipped if file doesn't exist
+NoFinalErrorMsg: 
 
 SectionEnd
 
