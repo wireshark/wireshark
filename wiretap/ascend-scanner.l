@@ -1,7 +1,7 @@
 %{
 /* ascend-scanner.l
  *
- * $Id: ascend-scanner.l,v 1.16 2000/05/19 23:06:46 gram Exp $
+ * $Id: ascend-scanner.l,v 1.17 2000/11/12 04:57:39 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -166,7 +166,7 @@ WDD_TYPE    "type "[^\n\r\t ]+
 
 <INITIAL,sc_gen_byte>{WDD_DATE} {
   BEGIN(sc_wdd_date_d);
-  return KEYWORD;
+  return WDD_DATE;
 }
 
 <sc_wdd_date_d>{D}{2} {
@@ -224,9 +224,9 @@ WDD_TYPE    "type "[^\n\r\t ]+
   return STRING;
 }
 
-<sc_wdd_chunk>{WDD_CHUNK} {
+<INITIAL,sc_wdd_chunk,sc_gen_byte>{WDD_CHUNK} {
   BEGIN(sc_wdd_chunknum);
-  return KEYWORD;
+  return WDD_CHUNK;
 }
 
 <sc_wdd_chunknum>{H}+ {

@@ -1,6 +1,6 @@
 /* ascend.c
  *
- * $Id: ascend.c,v 1.19 2000/11/11 03:15:07 guy Exp $
+ * $Id: ascend.c,v 1.20 2000/11/12 04:57:39 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -142,9 +142,9 @@ static int ascend_seek(wtap *wth, int max_seek)
     }
     if (byte == ascend_w2magic[w2_level]) {
       w2_level++;
-      if (w2_level >= ASCEND_W2_SIZE && date_off) {
-        file_seek(wth->fh, date_off - 1, SEEK_SET);
-        return date_off;
+      if (w2_level >= ASCEND_W2_SIZE) {
+        file_seek(wth->fh, -(ASCEND_W2_SIZE), SEEK_CUR);
+        return file_tell(wth->fh) + 1;
       }
     } else {
       w2_level = 0;
