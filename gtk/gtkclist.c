@@ -2,7 +2,7 @@
  * Copyright (C) 1995-1997 Peter Mattis, Spencer Kimball, Josh MacDonald,
  * Copyright (C) 1997-1998 Jay Painter <jpaint@serv.net><jpaint@gimp.org>
  *
- * $Id: gtkclist.c,v 1.13 2002/09/09 20:32:30 jmayer Exp $
+ * $Id: gtkclist.c,v 1.14 2003/06/28 21:46:08 sahlberg Exp $
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -25,6 +25,11 @@
  * file for a list of people on the GTK+ Team.  See the ChangeLog
  * files for a list of changes.  These files are distributed with
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
+ */
+
+/* TODO:
+ * get rid of autoresize of the columns completely and just use some
+ * sane default widths instead 
  */
 
 #include "config.h"
@@ -146,6 +151,9 @@ LIST_WIDTH (GtkCList * clist)
     GTK_CLIST_CLASS_FW (clist)->refresh ((GtkCList*) (clist)); \
 } G_STMT_END
 
+
+/* maximum size in pxels that columns will be autosized to */
+#define MAX_COLUMN_AUTOSIZE_WIDTH 600
 
 /* Signals */
 enum {
@@ -1665,7 +1673,8 @@ gtk_clist_set_column_auto_resize (GtkCList *clist,
 	{
 	  gint width;
 
-	  width = gtk_clist_optimal_column_width (clist, column);
+	  /* cap the auto-rezised width to something reasonable */
+	  width = MIN(gtk_clist_optimal_column_width (clist, column), MAX_COLUMN_AUTOSIZE_WIDTH);
 	  gtk_clist_set_column_width (clist, column, width);
 	}
     }
