@@ -1786,16 +1786,24 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 		  struct tm *ltp;
 
 		  data.secs = tvb_get_ntohl(tvb, offset);
-		  data.secs -= NTP_TIME_DIFF;
-		  data.nsecs = 0;
+		  /* TODO Change this to use the routine ntp_fmt_ts from packet NTP instead ??? Note uses 64 bits */
+			if ( data.secs >= NTP_TIME_DIFF){
+				data.secs -= NTP_TIME_DIFF;
+				data.nsecs = 0;
 
-		  ltp = localtime(&data.secs);
-		  strftime(buffer, 64,
-			   "%a, %d %b %Y %H:%M:%S %z", ltp);
+				ltp = localtime(&data.secs);
+				strftime(buffer, 64,
+				"%a, %d %b %Y %H:%M:%S %z", ltp);
 
-		  proto_tree_add_time_format(avpi_tree, hf_diameter_avp_data_time,
-					     tvb, offset, avpDataLength, &data,
-					     "Time: %s", buffer);
+				proto_tree_add_time_format(avpi_tree, hf_diameter_avp_data_time,
+						tvb, offset, avpDataLength, &data,
+						"Time: %s", buffer);
+			}else{
+				proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+						tvb, offset, avpDataLength,
+						tvb_get_ptr(tvb, offset, avpDataLength),
+						"Error!  Time before 00:00:00 UTC, January 1, 1970");
+			}
 		} else {
 		  proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
 					      tvb, offset, avpDataLength,
