@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.28 2002/09/05 03:49:03 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.29 2002/09/06 05:41:17 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,6 +67,7 @@ static int hf_spnego_mechlistmic = -1;
 static int hf_spnego_responsetoken = -1;
 static int hf_spnego_reqflags = -1;
 static int hf_spnego_krb5 = -1;
+static int hf_spnego_krb5_tok_id = -1;
 
 static gint ett_spnego = -1;
 static gint ett_spnego_negtokeninit = -1;
@@ -109,6 +110,17 @@ dissect_parse_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * wrapped blob with an OID, Boolean, and a Ticket, that is also ASN.1 wrapped
  * by the looks of it.
  */ 
+
+#define KRB_TOKEN_AP_REQ 0x0001
+#define KRB_TOKEN_AP_REP 0x0002
+#define KRB_TOKEN_AP_ERR 0x0003
+
+static const value_string spnego_krb5_tok_id_vals[] = {
+  { KRB_TOKEN_AP_REQ, "KRB5_AP_REQ"},
+  { KRB_TOKEN_AP_REP, "KRB5_AP_REP"},
+  { KRB_TOKEN_AP_ERR, "KRB5_ERROR"},
+  { 0, NULL}
+};
 
 static void
 dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
@@ -185,35 +197,15 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	  
 	offset += nbytes;
 
-	/* Next, the 0 length boolean ... */
+	/* Next, the token ID ... */
 
-	ret = asn1_header_decode(&hnd, &cls, &con, &tag, &def, &len1);
+	proto_tree_add_item(subtree, hf_spnego_krb5_tok_id, tvb, offset, 2,
+			    TRUE);
 
-	if (ret != ASN1_ERR_NOERROR) {
-		dissect_parse_error(tvb, offset, pinfo, subtree,
-				    "SPNEGO KRB5 Header", ret);
-		goto done;
-	}
 
-	if (!(cls == ASN1_UNI && con == ASN1_PRI && tag == ASN1_BOL)) {
-		proto_tree_add_text(
-			subtree, tvb, offset, 0,
-			"Unknown header (cls=%d, con=%d, tag=%d)",
-			cls, con, tag);
-		goto done;
-	}
+	hnd.offset += 2;
 
-	if (len1 != 0) { /* Bail, it is an error */
-
-		proto_tree_add_text(
-			subtree, tvb, offset, 0,
-			"Non-zero length boolean encountered (len=%d)",
-			len1);
-		goto done;
-		
-	}
-
-	offset = hnd.offset;
+	offset += 2;
 
 	offset = dissect_Ticket(&hnd, pinfo, subtree, offset);
 
@@ -1020,6 +1012,9 @@ proto_register_spnego(void)
 		{ &hf_spnego_krb5,
 		  { "krb5_blob", "spnego.krb5.blob", FT_BYTES,
 		    BASE_HEX, NULL, 0, "krb5_blob", HFILL }},
+		{ &hf_spnego_krb5_tok_id,
+		  { "krb5_tok_id", "spnego.krb5.tok_id", FT_UINT16, BASE_HEX,
+		    VALS(spnego_krb5_tok_id_vals), 0, "KRB5 Token Ids", HFILL}},
 	};
 
 	static gint *ett[] = {
