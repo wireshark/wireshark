@@ -4,7 +4,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.60 2002/05/14 09:24:27 guy Exp $
+ * $Id: packet-radius.c,v 1.61 2002/05/14 10:40:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2306,13 +2306,9 @@ static gchar *rdconvertinttostr(gchar *dest, int print_type, guint32 val)
 	    break;
 	}
     }
-    if (vs != NULL)
-	sprintf(dest, "%s(%u)", rd_match_strval(val, vs), val);
-    else
-	sprintf(dest, "%u", val);
+    sprintf(dest, "%s(%u)", (vs ? rd_match_strval(val, vs) : "Undefined"), val);
 
     return dest;
-
 }
 
 static gchar *rd_value_to_str_2(gchar *dest, e_avphdr *avph, tvbuff_t *tvb,
@@ -2412,15 +2408,9 @@ static gchar *rd_value_to_str_2(gchar *dest, e_avphdr *avph, tvbuff_t *tvb,
 		    vsabuffer[vsa_index].str = cont;
 		    vsabuffer[vsa_index].offset = offset+vsa_len;
 		    vsabuffer[vsa_index].length = vsa_avph->avp_length;
-		    if (vsa_rvt != NULL) {
-			sprintf(cont, "t:%s(%u) l:%u, ",
-			    rd_match_strval_attrib(vsa_avph->avp_type,
-						   vsa_rvt->attrib),
+		    sprintf(cont, "t:%s(%u) l:%u, ",
+			    (vsa_rvt ? rd_match_strval_attrib(vsa_avph->avp_type, vsa_rvt->attrib) : "Unknown Type"),
 			    vsa_avph->avp_type, vsa_avph->avp_length);
-		    } else {
-			sprintf(cont, "t:%u l:%u, ",
-			    vsa_avph->avp_type, vsa_avph->avp_length);
-		    }
 		    cont = &cont[strlen(cont)];
 		    rd_value_to_str_2(cont, vsa_avph, tvb, offset+vsa_len,
 				      (vsa_rvt ? vsa_rvt->attrib : NULL));
