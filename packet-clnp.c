@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.45 2002/01/17 06:29:16 guy Exp $
+ * $Id: packet-clnp.c,v 1.46 2002/01/20 01:04:18 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -1814,29 +1814,18 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   offset = cnf_hdr_len;
 
-  /* For now, dissect the payload of segments other than the initial
-     segment as data, rather than handing them off to the transport
-     protocol, just as we do with fragments other than the first
-     fragment in a fragmented IP datagram; in the future, we will
-     probably reassemble fragments for IP, and may reassemble segments
-     for CLNP. */
-  /* If clnp_reassemble is on and this is a segment, then just add the segment
-   * to the hashtable.
+  /* If clnp_reassemble is on, and this is a segment, we have all the
+   * data in the segment, and the checksum is valid, then just add the
+   * segment to the hashtable.
    */
   save_fragmented = pinfo->fragmented;
   if (clnp_reassemble && (cnf_type & CNF_SEG_OK) &&
-	((cnf_type & CNF_MORE_SEGS) || segment_offset != 0)) {
-    /* We're reassembling, and this is part of a segmented datagram.
-       Add the segment to the hash table if the checksum is ok
-       and the frame isn't truncated. */
-    if (cksum_status != CKSUM_NOT_OK &&
-	(tvb_reported_length(tvb) <= tvb_length(tvb))) {
-      fd_head = fragment_add(tvb, offset, pinfo, du_id, clnp_segment_table,
-			     segment_offset, segment_length - cnf_hdr_len,
-			     cnf_type & CNF_MORE_SEGS);
-    } else {
-      fd_head=NULL;
-    }
+	((cnf_type & CNF_MORE_SEGS) || segment_offset != 0) &&
+	(tvb_reported_length(tvb) <= tvb_length(tvb)) &&
+	cksum_status != CKSUM_NOT_OK) {
+    fd_head = fragment_add(tvb, offset, pinfo, du_id, clnp_segment_table,
+			   segment_offset, segment_length - cnf_hdr_len,
+			   cnf_type & CNF_MORE_SEGS);
 
     if (fd_head != NULL) {
       fragment_data *fd;

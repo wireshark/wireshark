@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.73 2002/01/17 06:29:16 guy Exp $
+ * $Id: packet-ipv6.c,v 1.74 2002/01/20 01:04:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -807,22 +807,16 @@ again:
   proto_tree_add_uint_hidden(ipv6_tree, hf_ipv6_final, tvb, poffset, 1, nxt);
 #endif
 
-  /* If ipv6_reassemble is on and this is a fragment, then just add the fragment
-   * to the hashtable.
+  /* If ipv6_reassemble is on, this is a fragment, and we have all the data
+   * in the fragment, then just add the fragment to the hashtable.
    */
   save_fragmented = pinfo->fragmented;
-  if (ipv6_reassemble && frag) {
-    /* We're reassembling, and this is part of a fragmented datagram.
-       Add the fragment to the hash table if the frame isn't truncated. */
-    if (tvb_reported_length(tvb) <= tvb_length(tvb)) {
-      ipfd_head = fragment_add(tvb, offset, pinfo, ident,
-			       ipv6_fragment_table,
-			       offlg & IP6F_OFF_MASK,
-			       plen,
-			       offlg & IP6F_MORE_FRAG);
-    } else {
-      ipfd_head = NULL;
-    }
+  if (ipv6_reassemble && frag && tvb_reported_length(tvb) <= tvb_length(tvb)) {
+    ipfd_head = fragment_add(tvb, offset, pinfo, ident,
+			     ipv6_fragment_table,
+			     offlg & IP6F_OFF_MASK,
+			     plen,
+			     offlg & IP6F_MORE_FRAG);
 
     if (ipfd_head != NULL) {
       fragment_data *ipfd;

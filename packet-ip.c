@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.156 2002/01/17 06:29:16 guy Exp $
+ * $Id: packet-ip.c,v 1.157 2002/01/20 01:04:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -966,23 +966,18 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   offset += hlen;
   nxt = iph.ip_p;	/* XXX - what if this isn't the same for all fragments? */
 
-  /* If ip_defragment is on and this is a fragment, then just add the fragment
-   * to the hashtable.
+  /* If ip_defragment is on, this is a fragment, we have all the data
+   * in the fragment, and the header checksum is valid, then just add
+   * the fragment to the hashtable.
    */
   save_fragmented = pinfo->fragmented;
-  if (ip_defragment && (iph.ip_off & (IP_MF|IP_OFFSET))) {
-    /* We're reassembling, and this is part of a fragmented datagram.
-       Add the fragment to the hash table if the checksum is ok
-       and the frame isn't truncated. */
-    if ((ipsum==0) && (tvb_reported_length(tvb) <= tvb_length(tvb))) {
-      ipfd_head = fragment_add(tvb, offset, pinfo, iph.ip_id,
-			       ip_fragment_table,
-			       (iph.ip_off & IP_OFFSET)*8,
-			       pinfo->iplen - (pinfo->iphdrlen*4),
-			       iph.ip_off & IP_MF);
-    } else {
-      ipfd_head=NULL;
-    }
+  if (ip_defragment && (iph.ip_off & (IP_MF|IP_OFFSET)) &&
+	tvb_reported_length(tvb) <= tvb_length(tvb) && ipsum == 0) {
+    ipfd_head = fragment_add(tvb, offset, pinfo, iph.ip_id,
+			     ip_fragment_table,
+			     (iph.ip_off & IP_OFFSET)*8,
+			     pinfo->iplen - (pinfo->iphdrlen*4),
+			     iph.ip_off & IP_MF);
 
     if (ipfd_head != NULL) {
       fragment_data *ipfd;
