@@ -1,4 +1,6 @@
 <!-- EUG Appendix Files -->
+<!-- $Id$ -->
+
 <appendix id="AppFiles">
   <title>Configuration Files and Folders</title>
     <para>
@@ -215,21 +217,22 @@ udp
 	  <listitem>
 	    <para>
 	      When Ethereal is trying to translate Ethernet hardware 
-	      addresses to names, it consults the files listed above in the 
-	      order listed.  If an address is not found in /etc/ethers, 
-	      Etherereal looks in $HOME/.ethereal/etheres
+	      addresses to names, it consults the files listed in 
+		  <xref linkend="AppFilesTabFolders"/>.
+	      If an address is not found in /etc/ethers, 
+	      Ethereal looks in $HOME/.ethereal/ethers
 	    </para>
 	    <para>
 	      Each line in these files consists of one hardware address and 
 	      name separated by whitespace. The digits of hardware 
-	      addressses are spearated by colons (:), dashes (-) or 
+	      addressses are separated by colons (:), dashes (-) or 
 	      periods(.). The following are some examples:
 	      <programlisting>
 ff-ff-ff-ff-ff-ff    Broadcast
 c0-00-ff-ff-ff-ff    TR_broadcast
 00.2b.08.93.4b.a1    Freds_machine
 	      </programlisting>
- 		The settings from this file are read in at program start and never be 
+ 		The settings from this file are read in at program start and never 
 		written by Ethereal.
 	    </para>
 	  </listitem>
@@ -238,13 +241,13 @@ c0-00-ff-ff-ff-ff    TR_broadcast
 	  <term><command>manuf</command></term>
 	  <listitem>
 	    <para>
-	      Ethereal uses the file listed above to translate the first 
-	      three bytes of an Ethernet address into a manufacturers 
-	      name.  This file has the same format as the ethers file, 
-	      except addresses are three bytes long.
+	      Ethereal uses the files listed in <xref linkend="AppFilesTabFolders"/>
+		  to translate the first three bytes of an Ethernet address into a 
+		  manufacturers name.  This file has the same format as the ethers 
+		  file, except addresses are three bytes long.
 	    </para>
 		<para>
- 		The settings from this file are read in at program start and never be 
+ 		The settings from this file are read in at program start and never 
 		written by Ethereal.
 		</para>
 	  </listitem>
@@ -253,8 +256,8 @@ c0-00-ff-ff-ff-ff    TR_broadcast
 	  <term><command>ipxnets</command></term>
 	  <listitem>
 	    <para>
-	      Ethereal uses the above file to translate IPX network numbers 
-	      into names.
+	      Ethereal uses the files listed in <xref linkend="AppFilesTabFolders"/>
+		  to translate IPX network numbers into names.
 	    </para>
 	    <para>
 	      An example is:
@@ -266,7 +269,7 @@ c0-a8-1c-00      CEO
 	      </programlisting>
 	    </para>
 		<para>
- 		The settings from this file are read in at program start and never be 
+ 		The settings from this file are read in at program start and never 
 		written by Ethereal.
 		</para>
 	  </listitem>
@@ -275,7 +278,8 @@ c0-a8-1c-00      CEO
 	  <term><command>plugins</command></term>
 	  <listitem>
 	    <para>
-	      Ethereal searches for plugins in the directories listed above. 
+	      Ethereal searches for plugins in the directories listed in
+		  <xref linkend="AppFilesTabFolders"/>. 
 	      They are searched in the order listed.
 	    </para>
 	  </listitem>

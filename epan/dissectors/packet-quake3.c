@@ -45,7 +45,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "prefs.h"
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 
 static int proto_quake3 = -1;
 

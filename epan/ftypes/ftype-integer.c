@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include "ftypes-int.h"
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 
 /*
  * GLib 1.2[.x] doesn't define G_MAXUINT32; if it's not defined, we define

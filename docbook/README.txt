@@ -1,3 +1,5 @@
+$Id$
+
 This directory contains the source files needed to build the:
 
 Ethereal User's guide (almost ready to release, has to be reviewed) 

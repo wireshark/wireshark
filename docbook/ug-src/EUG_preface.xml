@@ -1,3 +1,5 @@
+<!-- $Id$ -->
+
 <preface id="Preface">
   <title>Preface</title>
   <section id="PreForeword">
@@ -78,6 +80,16 @@
 	  generating a backtrace.
 	</para>
       </listitem>
+      <listitem>
+	<para>
+	  Martin Regner, for his various suggestions and corrections.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Graeme Hewson, for a lot of grammatical corrections.
+	</para>
+      </listitem>
     </itemizedlist>
   </para>
   <para>
@@ -144,23 +156,8 @@
     <title>Where to get the latest copy of this document?</title>
     <para>
       The latest copy of this documentation can always be found at: 
-     <!-- <ulink url="&LatestVersionWebsite;">&LatestVersionWebsite;</ulink>; 
-      and at: --> 
-      <ulink url="&EtherealWebSite;">
-	&EtherealWebSite;/docs/user-guide/
-      </ulink>.
+      <ulink url="&EtherealUsersGuidePage;"/>.
     </para>
-   <!-- <para>
-      In addition, you can find a PDF version of the guide at: 
-      <ulink url="&LatestVersionPDFWebsiteA4;">
-	&LatestVersionPDFWebsiteA4;
-      </ulink> 
-      in A4 and 
-      <ulink url="&LatestVersionPDFWebsiteUSLetter;">
-	&LatestVersionPDFWebsiteUSLetter
-      </ulink> 
-      in US Letter.
-    </para> -->    
   </section>
 
   <section id="PreFeedback">

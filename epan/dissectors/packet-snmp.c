@@ -124,6 +124,9 @@ static int proto_snmp = -1;
 static gchar *mib_modules = DEF_MIB_MODULES;
 static gboolean display_oid = TRUE;
 
+/* Subdissector tables */
+static dissector_table_t variable_oid_dissector_table;
+
 static gint ett_snmp = -1;
 static gint ett_parameters = -1;
 static gint ett_parameters_qos = -1;
@@ -768,7 +771,7 @@ snmp_variable_decode(proto_tree *snmp_tree,
 	_U_
 #endif
     ,
-    ASN1_SCK *asn1, int offset, guint *lengthp)
+    ASN1_SCK *asn1, int offset, guint *lengthp, tvbuff_t **out_tvb)
 {
 	int start;
 	guint length;
@@ -885,6 +888,9 @@ snmp_variable_decode(proto_tree *snmp_tree,
 		if (ret != ASN1_ERR_NOERROR)
 			return ret;
 		length = asn1->offset - start;
+		if (out_tvb) {
+			*out_tvb = tvb_new_subset(asn1->tvb, start, length, vb_length);
+		}
 		if (snmp_tree) {
 #ifdef HAVE_SOME_SNMP
 			variable.val.string = vb_octet_string;
@@ -1008,7 +1014,7 @@ snmp_variable_decode(proto_tree *snmp_tree,
 
 static void
 dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree, ASN1_SCK asn1, guint pdu_type, int start)
+    proto_tree *tree, proto_tree *root_tree, ASN1_SCK asn1, guint pdu_type, int start)
 {
 	gboolean def;
 	guint length;
@@ -1038,6 +1044,9 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint timestamp_length;
 
 	gchar *oid_string;
+	gchar *decoded_oid;
+	gchar *non_decoded_oid;
+
 
 	guint variable_bindings_length;
 
@@ -1045,6 +1054,7 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint variable_length;
 	subid_t *variable_oid;
 	guint variable_oid_length;
+	tvbuff_t *next_tvb;
 
 	int ret;
 	guint cls, con, tag;
@@ -1340,8 +1350,18 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		CLEANUP_PUSH(g_free, variable_oid);
 
 		/* Parse the variable's value */
+		next_tvb = NULL;
 		ret = snmp_variable_decode(tree, variable_oid,
-		    variable_oid_length, &asn1, offset, &length);
+		    variable_oid_length, &asn1, offset, &length, &next_tvb);
+		if (next_tvb) {
+			new_format_oid(variable_oid, variable_oid_length,
+			    &non_decoded_oid, &decoded_oid);
+			dissector_try_string(variable_oid_dissector_table,
+			    non_decoded_oid, next_tvb, pinfo, root_tree);
+			if (decoded_oid)
+				g_free(decoded_oid);
+			g_free(non_decoded_oid);
+		}
 
 		/*
 		 * We're done with variable_oid, so we can call the cleanup
@@ -2000,7 +2020,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    "PDU type", ASN1_ERR_WRONG_TYPE);
 		return message_length;
 	}
-	dissect_common_pdu(tvb, offset, pinfo, snmp_tree, asn1, pdu_type, start);
+	dissect_common_pdu(tvb, offset, pinfo, snmp_tree, tree, asn1, pdu_type, start);
 	return message_length;
 }
 
@@ -2268,7 +2288,7 @@ dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    "PDU type", ASN1_ERR_WRONG_TYPE);
 		return;
 	}
-	dissect_common_pdu(tvb, offset, pinfo, smux_tree, asn1, pdu_type, start);
+	dissect_common_pdu(tvb, offset, pinfo, smux_tree, tree, asn1, pdu_type, start);
 }
 
 static void
@@ -2557,6 +2577,10 @@ proto_register_smux(void)
 	    "SMUX", "smux");
 	proto_register_field_array(proto_smux, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	variable_oid_dissector_table =
+	    register_dissector_table("snmp.variable_oid",
+	      "SNMP Variable OID", FT_STRING, BASE_NONE);
 }
 
 void

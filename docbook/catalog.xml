@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <!-- Ethereal User's Guide and Developer's Guide catalog
+     $Id$
 
+See the Readme.txt file for instructions.
 
-Intall this copy into the root directory of the book. Please note that if you shift any files in the directory structure you MUST adjust this catalog.
-
+Please note that if you shift any files in the directory structure you MUST adjust this catalog.
 
 -->
 <!DOCTYPE catalog
@@ -24,6 +25,7 @@ Intall this copy into the root directory of the book. Please note that if you sh
     <rewriteURI
         uriStartString="http://docbook.sourceforge.net/release/xsl/current/"
         rewritePrefix="/usr/share/docbook-xsl/" />
+        <!-- rewritePrefix="/usr/share/xml/docbook/stylesheet/nwalsh/1.64.1/" /> -->
 
     <!-- Resolve DTD PUBLIC identifiers -->
     <nextCatalog  catalog="docbook42/catalog.xml" />

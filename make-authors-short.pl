@@ -16,12 +16,13 @@ while (<>) {
 		print "$1\n";
 	} elsif (/}/) {
 		$subinfo = 0;
-		if (($nextline = <>) !~ /^[\s\r]*$/) {
+		if (($nextline = <>) !~ /^[\s]*$/) {
 			print $nextline;
 		}
 	} elsif ($subinfo == 1) {
 		next;
 	} else {
+		s/^$/ /;	# Make it a verbatim paragraph
 		print;
 	}
 }

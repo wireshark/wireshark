@@ -50,7 +50,7 @@
 #include "../menu.h"
 #include "column.h"
 #include "print.h"
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 #include "packet_win.h"
 #include "simple_dialog.h"
 #include "proto_draw.h"

@@ -31,7 +31,7 @@
 #include "etypes.h"
 #include "prefs.h"
 #include "chdlctypes.h"
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 #include "packet-chdlc.h"
 #include "packet-ppp.h"
 #include "packet-ip.h"

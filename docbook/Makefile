@@ -2,18 +2,26 @@
 # Make the "Ethereal User's Guide" in several formats.
 # See the Readme.txt file for instructions.
 #
+# $Id$
+#
 
 # if you need to change this, don't forget to change it in catalog.xml too
+
+# On suse 9.1, uncomment the following line:
+#DOCBOOKXSL="/usr/share/xml/docbook/stylesheet/nwalsh/1.64.1"
+
 DOCBOOKXSL="/usr/share/docbook-xsl"
 
 # formatting objects processor
 # (comment this out, if you don't want pdf or don't have fop installed)
+# for win32 (cygwin) environments
 FOP="fop-0.20.5/fop.bat"
-#FOP="fop-0.20.5/fop.sh"
+# for unix like environments (if you have problems with fop, try to use an absolute path here)
+#FOP="/usr/share/fop-0.20.5/fop.sh"
 
 # html help compiler (Win32 only)
 # (comment this out, if you don't want chm or don't have hhc installed)
-HHC="/cygdrive/c/Program Files/HTML Help Workshop/hhc.exe"
+#HHC="/cygdrive/c/Program Files/HTML Help Workshop/hhc.exe"
 
 ############### YOU SHOULDN'T HAVE TO EDIT ANYTHING BELOW THIS LINE! ################
 
@@ -24,7 +32,9 @@ XSLTPROC="xsltproc"
 XMLLINT="xmllint"
 
 # as eug_chm will stop with an error, make sure it's the last in this dependency list
-all: eug_validate eug_pdf_a4 eug_html eug_html_chunked eug_chm 
+all: eug edg 
+
+eug: eug_validate eug_pdf_a4 eug_html eug_html_chunked eug_chm 
 
 clean:
 	rm -f *.html
@@ -33,6 +43,10 @@ clean:
 	rm -f *.fo
 	rm -f *.pdf
 	rm -f *.chm
+	rm -rf eug_html
+	rm -rf eug_html_chunked
+	rm -rf toc.hhc htmlhelp.hhp eug_chm
+
 
 images:
 	cp $(DOCBOOKXSL)/images/note.png ./graphics
@@ -97,3 +111,23 @@ ifdef HHC
 	rm -r htmlhelp.hhp
 	rm -r toc.hhc
 endif
+
+
+edg: edg_validate edg_html_chunked 
+#eug_pdf_a4 eug_html eug_chm 
+
+# validate the content
+edg_validate:
+	@ echo --- VALIDATING XML ---
+	$(XMLLINT) --valid --noout developer-guide.xml
+
+# create html chunked page files
+edg_html_chunked: images
+	@ echo --- HTML CHUNKED ---
+	mkdir -p edg_html_chunked
+	mkdir -p edg_html_chunked/graphics
+	mkdir -p edg_html_chunked/graphics/toolbar
+	cp ./graphics/*.* edg_html_chunked/graphics
+	cp ./graphics/toolbar/*.* edg_html_chunked/graphics/toolbar
+	$(XSLTPROC) --stringparam base.dir edg_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet $(DOCBOOKXSL)/html/chunk.xsl developer-guide.xml
+

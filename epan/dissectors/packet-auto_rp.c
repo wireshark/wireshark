@@ -32,7 +32,7 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 
 static gint proto_auto_rp = -1;
 static gint ett_auto_rp = -1;

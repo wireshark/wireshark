@@ -1,4 +1,6 @@
 <!-- EUG Chapter Three -->
+<!-- $Id$ -->
+
 <chapter id="ChapterUsing">
   <title>User Interface</title>
   <section id="ChUseIntroductionSection"><title>Introduction</title>
@@ -153,7 +155,7 @@
 	    <para>
 	      This menu contains tems to open and merge capture files, 
 		  save / print / export capture files in whole or in part, 
-		  and to quit from Ethereal, see <xref linkend="ChUseFileMenuSection"/>.
+		  and to quit from Ethereal. See <xref linkend="ChUseFileMenuSection"/>.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -162,8 +164,8 @@
 	    <para>
 	      This menu contains items to find a packet, time reference or mark one 
 		  or more packets, set your preferences, 
-	      (cut, copy, and paste are not presently implemented),
-		  see <xref linkend="ChUseEditMenuSection"/>.
+	      (cut, copy, and paste are not presently implemented).
+		  See <xref linkend="ChUseEditMenuSection"/>.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -171,22 +173,22 @@
 	  <listitem>
 	    <para>This menu controls the display of the captured data, 
 		including the colorization of packets, zooming the font, 
-		show a packet in a separate window, expand and collapse trees in packet details, ...,
-		see <xref linkend="ChUseViewMenuSection"/>.
+		show a packet in a separate window, expand and collapse trees in packet details, ....
+		See <xref linkend="ChUseViewMenuSection"/>.
 		</para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry><term><command>Go</command></term>
 	  <listitem>
-	    <para>This menu contains items to go to a specific packet,
-		see <xref linkend="ChUseGoMenuSection"/>.
+	    <para>This menu contains items to go to a specific packet.
+		See <xref linkend="ChUseGoMenuSection"/>.
 		</para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry><term><command>Capture</command></term>
 	  <listitem>
-	    <para>This menu allows you to start and stop captures and to edit capture filters,
-		see <xref linkend="ChUseCaptureMenuSection"/>.
+	    <para>This menu allows you to start and stop captures and to edit capture filters.
+		See <xref linkend="ChUseCaptureMenuSection"/>.
 		</para>
 	  </listitem>
 	</varlistentry>
@@ -195,8 +197,8 @@
 	    <para>
 		  This menu contains items to manipulate display filters, enable or 
 		  disable the dissection of protocols, configure user specified decodes
-		  and follow a TCP stream,
-		  see <xref linkend="ChUseAnalyzeMenuSection"/>.
+		  and follow a TCP stream.
+		  See <xref linkend="ChUseAnalyzeMenuSection"/>.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -205,8 +207,8 @@
 	    <para>
 	      This menu contains menu-items to display various statistic windows,
 		  including a summary of the packets that have been captured, 
-		  display protocol hierarchy statistics and much more,
-		  see <xref linkend="ChUseStatisticsMenuSection"/>.
+		  display protocol hierarchy statistics and much more.
+		  See <xref linkend="ChUseStatisticsMenuSection"/>.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -215,8 +217,8 @@
 	    <para>
 	      This menu contains items to help the user, like access to some basic 
 		  help, a list of the supported protocols, manual pages, online access
-		  to some of the webpages, and the usual about dialog,
-		  see <xref linkend="ChUseHelpMenuSection"/>.
+		  to some of the webpages, and the usual about dialog.
+		  See <xref linkend="ChUseHelpMenuSection"/>.
 	    </para>
 	  </listitem>
 	  </varlistentry>
@@ -1637,9 +1639,9 @@
     </para>
     <para>	
 	For example, let's look at a packet containing TCP inside IP inside
-	an Ethernet packet. The Ethernet dissector will write its data (like the 
-	Ethernet addresses), the IP dissector will overwrite this by its own 
-	(like the IP addresses), the TCP dissector will overwrite the IP 
+	an Ethernet packet. The Ethernet dissector will write its data (such as 
+	the Ethernet addresses), the IP dissector will overwrite this by its own 
+	(such as the IP addresses), the TCP dissector will overwrite the IP 
 	information, and so on.
     </para>
     <para>

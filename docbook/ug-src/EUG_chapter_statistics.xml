@@ -1,4 +1,6 @@
 <!-- EUG Chapter Statistics -->
+<!-- $Id$ -->
+
 <chapter id="ChStatistics">
   <title>Statistics</title>
   <section id="ChStatIntroduction">
@@ -172,7 +174,7 @@
 	<tip><title>Tip!</title>
 	<para>
 	If you are looking for a feature other network tools call a <command>
-	hostlist</command>, here is the right place to look at. The list of 
+	hostlist</command>, here is the right place to look. The list of 
 	Ethernet or IP endpoints is usually what you're looking for.
 	</para>
 	</tip>
@@ -234,7 +236,7 @@
 	</itemizedlist>	
 	<note><title>Broadcast / multicast endpoints</title>
 	<para>
-	Broadcast / multicast traffic will be separately accounted as additional
+	Broadcast / multicast traffic will be shown separately as additional
 	endpoints. Of course, as these endpoints are virtual endpoints, the real 
 	traffic will be received by all (multicast: some) of the listed unicast 
 	endpoints.
@@ -244,16 +246,17 @@
   <section id="ChStatEndpointsWindow">
     <title>The "Endpoints" window</title>
 	<para>
-	This window will show statistics about the endpoints captured. 
+	This window shows statistics about the endpoints captured. 
 	</para>
 	<figure><title>The "Endpoints" window</title>
 	  <graphic entityref="EtherealStatsEndpoints" format="PNG"/>
 	</figure>
 	<para>
 	For each supported protocol, a tab is shown in this window.
-	The tab labels will show the number of endpoints captured (e.g. the 
-	tab label "Ethernet: 5" tells you that 5 ethernet endpoints are captured). 
-	If no endpoints of a specific protocol was captured, the tab label will be 
+	The tab labels shows the number of endpoints captured (e.g. the 
+	tab label "Ethernet: 5" tells you that five ethernet endpoints have been 
+	captured). If no endpoints of a specific protocol were captured, the tab 
+	label will be 
 	grayed out (although the related page can still be selected).
 	</para>
 	<para>
@@ -264,8 +267,8 @@
 	and if it is active for the specific protocol layer (MAC layer for the 
 	selected Ethernet endpoints page). As you might have noticed, the first 
 	row has a name 
-	resolution of the first three bytes "Netgear", the second row's address were
-	completely resolved to an IP address (using ARP) and the third is resolved 
+	resolution of the first three bytes "Netgear", the second row's address was
+	resolved to an IP address (using ARP) and the third was resolved 
 	to a broadcast (unresolved this would still be: ff:ff:ff:ff:ff:ff), the last two 
 	Ethernet addresses remain unresolved.
 	</para>
@@ -280,7 +283,7 @@
     <title>The protocol specific "Endpoint List" windows</title>
 	<para>
 	Before the combined window described above was available, each of its 
-	pages were shown as separate windows. Even as the combined window is 
+	pages were shown as separate windows. Even though the combined window is 
 	much more convenient to use, these separate windows are still 
 	available. The main reason is, they might process faster for 
 	very large capture files. However, as the functionality is exactly the 
@@ -316,7 +319,7 @@
 	<title>The protocol specific "Conversation List" windows</title>
     <para>
 	Before the combined window described above was available, each of its 
-	pages were shown as separate windows. Even as the combined window is 
+	pages were shown as separate windows. Even though the combined window is 
 	much more convenient to use, these separate windows are still 
 	available. The main reason is, they might process faster for 
 	very large capture files. However, as the functionality is exactly the 

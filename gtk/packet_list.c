@@ -322,7 +322,6 @@ static void mark_all_frames(gboolean set) {
   frame_data *fdata;
   
   /* XXX: we might need a progressbar here */
-  cfile.marked_count = 0;	
   for (fdata = cfile.plist; fdata != NULL; fdata = fdata->next) {
     set_frame_mark(set,
 		   fdata,

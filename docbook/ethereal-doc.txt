@@ -1,3 +1,5 @@
+$Id$
+
 ETHEREAL USER'S GUIDE OUTLINE
 
 Chapter 1.0 Introduction

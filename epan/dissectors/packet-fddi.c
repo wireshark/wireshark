@@ -38,7 +38,7 @@
 #include "packet-llc.h"
 #include "tap.h"
 
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 
 static int proto_fddi = -1;
 static int hf_fddi_fc = -1;

@@ -1,4 +1,6 @@
 <!-- EUG Chapter Work -->
+<!-- $Id$ -->
+
 <chapter id="ChapterWork">
   <title>Working with captured packets</title>
 
@@ -45,7 +47,7 @@
       "Packet Details" or "Packet Bytes" pane by clicking your right mouse button.
     </para>
 	  <para>
-	  The following table will give an overwiev, which functions are available 
+	  The following table gives an overview of which functions are available 
 	  in the panes, where to find the corresponding function in the menu, and 
 	  a short description of each item.
 	  </para>
@@ -506,7 +508,7 @@
     <para>
       Ethereal has two filtering languages: One used when capturing 
       packets, and one used when displaying packets.  In this section we 
-      explore that second type of filters: Display filters.  The first one 
+      explore that second type of filter: Display filters.  The first one 
       has already been dealt with in <xref linkend="ChCapCaptureFilterSection"/>.
     </para>
     <para>
@@ -524,7 +526,7 @@
       To select packets based on protocol type, simply type the protocol you 
       are interested in in the <command>Filter:</command> field in the filter 
 	  toolbar of the Ethereal window and press enter to initiate 
-      the filter. <xref linkend="ChWorkTCPFilter"/> shown an example of what 
+      the filter. <xref linkend="ChWorkTCPFilter"/> shows an example of what 
 	happens when you type <command>tcp</command> in the filter field.
     </para>
     <note>
@@ -546,13 +548,13 @@
       <title>Note!</title>
       <para>
 	  When using a display filter, all packets remain in the capture file.
-	  The display filter will only change the display of the capture file, but
+	  The display filter only changes the display of the capture file and
 	  not its content!	  
       </para>
     </note>
     <para>
-      You can filter on any protocol that Ethereal understands.  However, 
-      you can also filter on any field that a dissector adds to the tree 
+      You can filter on any protocol that Ethereal understands.  
+      You can also filter on any field that a dissector adds to the tree 
       view, but only if the dissector has added an abbreviation for the 
       field. A list of such fields is available in the Ethereal in the 
       <command>Add Expression...</command> dialog box.  You can find more 
@@ -815,7 +817,7 @@ ip.len le 0x436
 		<entry></entry>
 		<entry><para>
 		    <command>Substring Operator</command></para><para>
-		    Ethereal will allow you to select subsequences of a 
+		    Ethereal allows you to select subsequences of a 
 		    sequence in rather elaborate ways.  After a label you 
 		    can place a pair of brackes [] containing a comma 
 		    separated list of range specifiers. </para><para>
@@ -845,7 +847,7 @@ eth.src[1-2] == 00:83
 		    to n:1.</para><para>
 		    <programlisting>eth.src[0:3,1-2,:4,4:,2] == 
 00:00:83:00:83:00:00:83:00:20:20:83</programlisting></para><para>
-		    Ethereal will allow you to string together single ranges 
+		    Ethereal allows you to string together single ranges 
 		    in a comma separated list to form compound ranges as 
 		    shown above.
 		  </para></entry>
@@ -886,7 +888,8 @@ eth.src[1-2] == 00:83
       </section>
   </section>
   
-  <section id="ChWorkFilterAddExpressionSection"><title>The "Filter Expression" dialog box</title>
+  <section id="ChWorkFilterAddExpressionSection">
+  <title>The "Filter Expression" dialog box</title>
     <para>
       When you are accustomed to Ethereal's filtering system and know what 
       labels you wish to use in your filters it can be very quick to 
@@ -897,8 +900,8 @@ eth.src[1-2] == 00:83
     </para>
     <tip><title>Tip!</title>
 	<para>
-      The "Filter Expression" dialog box is an excellent way to learn to write 
-      Ethereal display filter strings.
+      The "Filter Expression" dialog box is an excellent way to learn how to 
+	  write Ethereal display filter strings.
 	</para>
     </tip>
     <figure id="ChWorkFilterAddExpression1">
@@ -914,7 +917,7 @@ eth.src[1-2] == 00:83
       <varlistentry><term><command>Field Name</command></term>
 	<listitem>
 	  <para>
-	    Select a protocols field from the protocol field tree.  
+	    Select a protocol field from the protocol field tree.  
 	    Every protocol with filterable fields is listed at the 
 	    top level.  By clicking on the "+" next to a protocol name 
 	    you can get a list of the field names available for filtering 
@@ -928,7 +931,7 @@ eth.src[1-2] == 00:83
 	    Select a relation from the list of available relation.  
 	    The <command>is present</command> is a unary relation which 
 	    is true if the selected field is present in a packet.  All 
-	    other listed relations are binary relations require additional 
+	    other listed relations are binary relations which require additional 
 	    data (e.g. a <command>Value</command> to match) to complete.
 	  </para>
 	</listitem>
@@ -937,7 +940,7 @@ eth.src[1-2] == 00:83
     <para> 
       When you select a field from the field name list and select a 
       binary relation (such as the equality relation ==) you will be 
-      given the opportunity to enter a value, and possible some range 
+      given the opportunity to enter a value, and possibly some range 
       information. 
     </para>
     <variablelist>
@@ -1011,7 +1014,7 @@ eth.src[1-2] == 00:83
 	</note>
 	<warning><title>Warning!</title>
 	<para>
-	You must use <command>Save</command> to save your filters permanent. 
+	You must use <command>Save</command> to save your filters permanently. 
 	<command>Ok</command> or <command>Apply</command> will not save the filters,
 	so they will be lost when you close Ethereal.
 	</para>
@@ -1226,8 +1229,8 @@ eth.src[1-2] == 00:83
 	</para>
     <note><title>Note!</title>
     <para>
-	As these protocol fields are now work like links (just as in your 
-	Web browser), it's easier to simply double-click on the field to jump
+	As these protocol fields now work like links (just as in your 
+	Web browser), it's easier simply to double-click on the field to jump
 	to the corresponding field.
     </para>
     </note>
@@ -1246,14 +1249,14 @@ eth.src[1-2] == 00:83
     
   <section id="ChWorkMarkPacketSection"><title>Marking packets</title>
     <para>
-	The user can mark packets in the "Packet List" pane. A marked packet will 
-	be shown with black background color, regardless of the coloring rules set.
+	You can mark packets in the "Packet List" pane. A marked packet will 
+	be shown with black background, regardless of the coloring rules set.
 	Marking a packet can be useful to find it later while analyzing in a large 
 	capture file.
     </para>
     <warning><title>Warning!</title>
     <para>
-	The packet marks are not stored in the capture file or somewhere else, 
+	The packet marks are not stored in the capture file or anywhere else, 
 	so all packet marks will be lost if you close the capture file.
     </para>
     </warning>
@@ -1318,7 +1321,8 @@ eth.src[1-2] == 00:83
 	<para>
 	XXX - how is the GMT / localtime thing handled.
 	</para>
-  <section id="ChWorkTimeReferencePacketSection"><title>Packet time referencing</title>
+  <section id="ChWorkTimeReferencePacketSection">
+  <title>Packet time referencing</title>
     <para>
 	The user can set time references to packets. A time reference is the 
 	starting point for all subsequent packet time calculations. It will be 
@@ -1328,15 +1332,15 @@ eth.src[1-2] == 00:83
     </para>
     <warning><title>Warning!</title>
     <para>
-	The time references will not be saved permanently and get lost, when you close the 
-	capture file.
+	The time references will not be saved permanently and will be lost when 
+	you close the capture file.
 	</para>
     </warning>
     <note><title>Note!</title>
     <para>
 	Time referencing will only be useful, if the time display format is set to 
 	"Seconds Since Beginning of Capture". If one of the other time display 
-	formats are used, time referencing will take no effect (and will make no 
+	formats are used, time referencing will have no effect (and will make no 
 	sense either).
 	</para>
     </note>

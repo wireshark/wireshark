@@ -30,7 +30,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 #include "packet-arp.h"
 #include "etypes.h"
 #include "arcnet_pids.h"

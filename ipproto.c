@@ -34,7 +34,7 @@
 
 #include "ipproto.h"
 #include <epan/packet.h>
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 #include <epan/dissectors/packet-ip.h>
 
 #ifdef NEED_SNPRINTF_H
@@ -178,6 +178,7 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_FC,      "Fibre Channel" },
     { IP_PROTO_RSVPE2EI,"RSVP E2EI" },
     { IP_PROTO_MIPV6,	"Mobile IPv6" },
+    { IP_PROTO_AX4000,	"AX/4000 Testframe" },
     { IP_PROTO_NCS_HEARTBEAT,"Novell NCS Heartbeat" },
     { 0,		NULL },
 };

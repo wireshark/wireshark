@@ -210,7 +210,7 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 	opttype = tvb_get_ntohs(tvb, off);
 	optlen = tvb_get_ntohs(tvb, off + 2);
 
-	/* truncated case */
+	/* all option data must be present */
 	if (eoff - off < 4 + optlen) {
 		*at_end = TRUE;
 		return 0;
@@ -308,8 +308,12 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 
           temp_optlen = 12;
 	  while ((optlen - temp_optlen) > 0) {
-	    gboolean at_end_ = FALSE;
-	    temp_optlen += dhcpv6_option(tvb, subtree, off+temp_optlen, off + optlen, &at_end_);
+	    temp_optlen += dhcpv6_option(tvb, subtree, off+temp_optlen,
+					 off + optlen, at_end);
+	    if (*at_end) {
+	      /* Bad option - just skip to the end */
+	      temp_optlen = optlen;
+	    }
 	  }
 	  break;
 	case OPTION_IA_TA:
@@ -323,8 +327,12 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 			      tvb_get_ntohl(tvb, off));
           temp_optlen = 4;
 	  while ((optlen - temp_optlen) > 0) {
-	    gboolean at_end_;
-	    temp_optlen += dhcpv6_option(tvb, subtree, off+temp_optlen, off + optlen, &at_end_);
+	    temp_optlen += dhcpv6_option(tvb, subtree, off+temp_optlen,
+					 off + optlen, at_end);
+	    if (*at_end) {
+	      /* Bad option - just skip to the end */
+	      temp_optlen = optlen;
+	    }
 	  }
 	  break;
 	case OPTION_IAADDR:
@@ -361,8 +369,12 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
            
            temp_optlen = 24;
            while ((optlen - temp_optlen) > 0) {
-              gboolean at_end_;
-              temp_optlen += dhcpv6_option(tvb, subtree, off+temp_optlen, off + optlen, &at_end_);
+              temp_optlen += dhcpv6_option(tvb, subtree, off+temp_optlen,
+                                           off + optlen, at_end);
+              if (*at_end) {
+                /* Bad option - just skip to the end */
+                temp_optlen = optlen;
+              }
            }
         }
         break;
@@ -404,8 +416,11 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 				optlen, "RELAY-MSG: malformed option");
 	    break;
 	  } else {
-	    gboolean at_end_;
-	    dhcpv6_option(tvb, subtree, off, off + optlen, &at_end_);
+	    /* XXX - shouldn't we be dissecting a full DHCP message
+	       here? */
+	    dhcpv6_option(tvb, subtree, off, off + optlen, at_end);
+	    if (*at_end)
+	      return 0;
           } 
 	  break;
 	case OPTION_AUTH:
@@ -635,8 +650,12 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
                 
                 temp_optlen = 25;
                 while ((optlen - temp_optlen) > 0) {
-                   gboolean at_end_;
-                   temp_optlen += dhcpv6_option(tvb, subtree, off+temp_optlen, off + optlen, &at_end_);
+                   temp_optlen += dhcpv6_option(tvb, subtree, off+temp_optlen,
+                                                off + optlen, at_end);
+                   if (*at_end) {
+                     /* Bad option - just skip to the end */
+                     temp_optlen = optlen;
+                   }
                 }
 	    }
 	    break;
@@ -702,6 +721,8 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
            while (!relay_msg_option && off < eoff) {
               length = dhcpv6_option(tvb, bp_tree, off, eoff, &at_end);
+              if (at_end)
+                return;
 
               if (tvb_get_ntohs(tvb, off) == OPTION_RELAY_MSG) {
                  relay_msg_option = TRUE;

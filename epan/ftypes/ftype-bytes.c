@@ -27,7 +27,7 @@
 #include <ftypes-int.h>
 #include <string.h>
 #include <ctype.h>
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 #include <epan/strutil.h>
 #include <epan/int-64bit.h>
 

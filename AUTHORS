@@ -449,7 +449,7 @@ Dug Song                <dugsong[AT]monkey.org> {
 	RPCSEC_GSS credential/verifier dissection for ONC RPC
 }
 
-Michael Tüxen          <tuexen [AT] fh-muenster.de> {
+Michael Tüxen           <tuexen [AT] fh-muenster.de> {
 	SCTP support
 	M3UA support
 	ISDN Q.921-User Adaptation Layer (IUA) support
@@ -462,7 +462,7 @@ Michael Tüxen          <tuexen [AT] fh-muenster.de> {
 	SCCP-atop-M3UA support
 	M2UA support
 	ASAP support
-        ENRP support
+	ENRP support
 	Fix SCTP port number for M2PA
 }
 
@@ -1907,6 +1907,7 @@ Jesper Peterson         <jesper [AT] endace.com> {
 Giles Scott             <gscott [AT] arubanetworks.com> {
 	Nortel/SynOptics Network Management Protocol support
 	Alteon/Nortel Transparent Proxy Control Protocol support
+	Ethernet MAC Control Frame support
 }
 
 Vincent Jardin          <vincent.jardin [AT] 6wind.com> {
@@ -2109,6 +2110,7 @@ Josh Bailey             <joshbailey [AT] lucent.com> {
 
 Jelmer Vernooij         <jelmer [AT] samba.org> {
 	AIM enhancements
+	DCOM IRemUnknown and IRemUnknown2 support
 }
 
 Duncan Sargeant         <dunc-ethereal-dev [AT] rcpt.to> {
@@ -2180,6 +2182,19 @@ Chris Maynard		<Christopher.Maynard [AT] GTECH.COM> {
 	Add Doxygen comments to the CRC-16 and CRC-32 headers
 }
 
+SEKINE Hideki		<sekineh [AT] gf7.so-net.ne.jp> {
+	Routines for AX/4000 Test Block dissection
+}
+
+Jeff Connelly		<shellreef+mp2p [AT] gmail.com> {
+	MANOLITO support
+}
+
+M. Ortega y Strupp	<moys [AT] loplof.de> {
+	ISC DHCP Server 3.0 failover protocol dissection
+}
+
+
 And assorted fixes and enhancements by the people listed above and by:
 
 
@@ -2244,6 +2259,7 @@ Martin van der Werff	<martin [AT] vanderwerff.org>
 Marco van den Bovenkamp	<marco [AT] linuxgoeroe.dhs.org>
 Ming Zhang		<mingz [AT] ele.uri.edu>
 Kelly Byrd		<kbyrd-ethereal [AT] memcpy.com>
+Neil Piercy		<Neil.Piercy [AT] ipaccess.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.

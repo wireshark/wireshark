@@ -179,6 +179,7 @@
 #define IP_PROTO_FC             133             /* Fibre Channel */
 #define IP_PROTO_RSVPE2EI       134             /* RSVP E2E Ignore - RFC3175 */
 #define IP_PROTO_MIPV6          135             /* Mobile IPv6  */
+#define IP_PROTO_AX4000		173		/* AX/4000 Testblock - non IANA */
 #define IP_PROTO_NCS_HEARTBEAT  224             /* Novell NCS Heartbeat - http://support.novell.com/cgi-bin/search/searchtid.cgi?/10071158.htm */
 
 extern const char *ipprotostr(int proto);

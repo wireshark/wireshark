@@ -20,7 +20,7 @@
 #include "packet.h"
 #include "column-utils.h"
 #include "../tap.h"
-#include "resolv.h"
+#include "addr_resolv.h"
 
 static void (*report_failure_func)(const char *, va_list);
 static void (*report_open_failure_func)(const char *, int, gboolean);

@@ -59,7 +59,7 @@
 #include <epan/bitswap.h>
 #include <epan/proto.h>
 #include <epan/packet.h>
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 #include <epan/strutil.h>
 #include "prefs.h"
 #include "reassemble.h"

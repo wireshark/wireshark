@@ -98,10 +98,10 @@ range_update_dynamics(gpointer data) {
   gtk_label_set_text(GTK_LABEL(OBJECT_GET_DATA(data, RANGE_SELECT_CURR_D_KEY)), label_text);
   gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_CURR_D_KEY), selected_num && filtered_active);
 
-  gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_KEY), cfile.marked_count);
+  gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_KEY), cfile.marked_count > 0);
   g_snprintf(label_text, sizeof(label_text), "%u", cfile.marked_count);
   gtk_label_set_text(GTK_LABEL(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_C_KEY)), label_text);
-  gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_C_KEY), cfile.marked_count && !filtered_active);
+  gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_C_KEY), cfile.marked_count > 0 && !filtered_active);
   g_snprintf(label_text, sizeof(label_text), "%u", range->displayed_marked_cnt);
   gtk_label_set_text(GTK_LABEL(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_D_KEY)), label_text);
   gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_D_KEY), range->displayed_marked_cnt && filtered_active);

@@ -1,5 +1,6 @@
 /* packet-mpls.c
  * Routines for MPLS data packet disassembly
+ * RFC 3032
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
@@ -277,8 +278,11 @@ proto_reg_handoff_mpls(void)
 
 	mpls_handle = create_dissector_handle(dissect_mpls, proto_mpls);
 	dissector_add("ethertype", ETHERTYPE_MPLS, mpls_handle);
+	dissector_add("ethertype", ETHERTYPE_MPLS_MULTI, mpls_handle);
 	dissector_add("ppp.protocol", PPP_MPLS_UNI, mpls_handle);
+	dissector_add("ppp.protocol", PPP_MPLS_MULTI, mpls_handle);
 	dissector_add("chdlctype", ETHERTYPE_MPLS, mpls_handle);
 	dissector_add("chdlctype", ETHERTYPE_MPLS_MULTI, mpls_handle);
 	dissector_add("gre.proto", ETHERTYPE_MPLS, mpls_handle);
+	dissector_add("gre.proto", ETHERTYPE_MPLS_MULTI, mpls_handle);
 }

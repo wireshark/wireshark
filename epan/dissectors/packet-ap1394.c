@@ -28,7 +28,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 #include <epan/strutil.h>
 
 #include "packet-ap1394.h"

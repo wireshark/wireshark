@@ -35,7 +35,7 @@
 #endif
 
 #include <epan/packet.h>
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 #include "ipproto.h"
 #include "ip_opts.h"
 #include "prefs.h"

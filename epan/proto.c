@@ -38,7 +38,7 @@
 
 #include "packet.h"
 #include "strutil.h"
-#include "resolv.h"
+#include "addr_resolv.h"
 #include "plugins.h"
 #include "ipv6-utils.h"
 #include "proto.h"
@@ -634,6 +634,8 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	field_info	*new_fi;
 	proto_item	*pi;
 	guint32		value, n;
+	float		floatval;
+	double		doubleval;
 	char		*string;
 	GHashTable	*hash;
 	GPtrArray	*ptrs;
@@ -739,6 +741,24 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		case FT_ETHER:
 			g_assert(length == 6);
 			proto_tree_set_ether_tvb(new_fi, tvb, start);
+			break;
+
+		case FT_FLOAT:
+			g_assert(length == 4);
+			if (little_endian)
+				floatval = tvb_get_letohieee_float(tvb, start);
+			else
+				floatval = tvb_get_ntohieee_float(tvb, start);
+			proto_tree_set_float(new_fi, floatval);
+			break;
+
+		case FT_DOUBLE:
+			g_assert(length == 8);
+			if (little_endian)
+				doubleval = tvb_get_letohieee_double(tvb, start);
+			else
+				doubleval = tvb_get_ntohieee_double(tvb, start);
+			proto_tree_set_double(new_fi, doubleval);
 			break;
 
 		case FT_STRING:

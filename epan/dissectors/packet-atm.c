@@ -30,7 +30,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "oui.h"
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 
 #include "packet-atm.h"
 #include "packet-snmp.h"

@@ -23,7 +23,66 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+LIBETHEREAL_SRC = 		\
+	addr_and_mask.c		\
+	addr_resolv.c		\
+	atalk-utils.c		\
+	bitswap.c		\
+	circuit.c		\
+	column-utils.c		\
+	conversation.c		\
+	epan.c			\
+	except.c		\
+	filesystem.c		\
+	frame_data.c		\
+	int-64bit.c		\
+	ipv4.c			\
+	osi-utils.c		\
+	packet.c		\
+	plugins.c		\
+	proto.c			\
+	sna-utils.c		\
+	strutil.c		\
+	timestamp.c		\
+	to_str.c		\
+	tvbuff.c		\
+	value_string.c
 
+LIBETHEREAL_INCLUDES = 		\
+	addr_and_mask.h		\
+	addr_resolv.h		\
+	address.h		\
+	atalk-utils.h		\
+	bitswap.h		\
+	circuit.h		\
+	column_info.h		\
+	conversation.h		\
+	column-utils.h		\
+	epan.h			\
+	epan_dissect.h		\
+	except.h		\
+	exceptions.h		\
+	filesystem.h		\
+	frame_data.h		\
+	gdebug.h		\
+	int-64bit.h		\
+	ipv4.h			\
+	ipv6-utils.h		\
+	nstime.h		\
+	osi-utils.h		\
+	packet.h		\
+	packet_info.h		\
+	pint.h			\
+	plugins.h		\
+	proto.h			\
+	report_err.h		\
+	slab.h			\
+	sna-utils.h		\
+	strutil.h		\
+	timestamp.h    		\
+	to_str.h		\
+	tvbuff.h		\
+	value_string.h
 
 # dissector helpers (needed from the dissectors, but not a dissector itself)
 DISSECTOR_SUPPORT_SRC =	\

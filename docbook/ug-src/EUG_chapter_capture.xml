@@ -1,9 +1,11 @@
 <!-- EUG Chapter Capture -->
+<!-- $Id$ -->
+
 <chapter id="ChapterCapture">
   <title>Capturing Live Network Data</title>
   <section id="ChCapCapturingSection"><title>Start Capturing</title>
     <para>
-      There are two methods you can use to start capture packets with 
+      There are two methods you can use to start capturing packets with 
 	  Ethereal:
       <orderedlist>
 	<listitem>
@@ -39,8 +41,8 @@ ethereal -i eth0 -k
       </figure>
 	<tip><title>Tip!</title>
 	<para>
-	If you are unsure which options to choose in this dialog box, just try to 
-	keep the defaults as this should work well in many cases.
+	If you are unsure which options to choose in this dialog box, just try 
+	keeping the defaults as this should work well in many cases.
 	</para>
 	</tip>
 	<para>
@@ -53,7 +55,7 @@ ethereal -i eth0 -k
 	      <para>
 		This field specifies the interface you want to capture on. 
 		You can only capture on one interface, and you can only 
-		capture on interfaces that the Ethereal has found on the 
+		capture on interfaces that Ethereal has found on the 
 		system. It is a drop-down list, so simply click on the 
 		button on the right hand side and select the interface you 
 		want. It defaults to the first non-loopback interface that 
@@ -71,7 +73,7 @@ ethereal -i eth0 -k
 	  <varlistentry><term><command>Link-layer header type</command></term>
 	    <listitem>
 	      <para>
-		  Unless you are in the rare case that you will need this, just keep 
+		  Unless you are in the rare situation that you need this, just keep 
 		  the default. For a detailed description, see 
 		  <xref linkend="ChCapLinkLayerHeader"/>
 	      </para>
@@ -82,8 +84,8 @@ ethereal -i eth0 -k
 	      <para>
 		  Enter the buffer size to be used while capturing. This is the size 
 		  of the kernel buffer which will keep the captured packets, until 
-		  they are written to disk. If you encounter packet drops, try to 
-		  increase this value.
+		  they are written to disk. If you encounter packet drops, try 
+		  increasing this value.
 	      </para>
 	      <note>
 		  <title>Note</title>
@@ -98,7 +100,7 @@ ethereal -i eth0 -k
 	    <listitem>
 	      <para>
 		This checkbox allows you to specify that Ethereal 
-		should set the interface in promiscuous mode when capturing. 
+		should put the interface in promiscuous mode when capturing. 
 		If you do not specify this, Ethereal will only capture the 
 		packets going to or from your computer (not 
 		all packets on your LAN segment).
@@ -206,7 +208,7 @@ ethereal -i eth0 -k
 	  <varlistentry><term><command>Next file every n megabyte(s)</command></term>
 	    <listitem>
 	      <para>
-			Multiple files only: Switch to the next file, after the given 
+			Multiple files only: Switch to the next file after the given 
 			number of byte(s)/kilobyte(s)/megabyte(s)/gigabyte(s) have been
 			captured. 
 	      </para>
@@ -215,7 +217,7 @@ ethereal -i eth0 -k
 	  <varlistentry><term><command>Next file every n minute(s)</command></term>
 	    <listitem>
 	      <para>
-			Multiple files only: Switch to the next file, after the given 
+			Multiple files only: Switch to the next file after the given 
 			number of second(s)/minutes(s)/hours(s)/days(s) have elapsed.
 	      </para>
 	    </listitem>
@@ -231,7 +233,7 @@ ethereal -i eth0 -k
 	  <varlistentry><term><command>Stop capture after n file(s)</command></term>
 	    <listitem>
 	      <para>
-			Multiple files only: Stop capturing after switched to the next 
+			Multiple files only: Stop capturing after switching to the next 
 			file the given number of times.
 	      </para>
 	    </listitem>
@@ -243,7 +245,7 @@ ethereal -i eth0 -k
 	  <varlistentry><term><command>... after n packet(s)</command></term>
 	    <listitem>
 	      <para>
-			Stop capturing, after the given number of packets have been
+			Stop capturing after the given number of packets have been
 			captured.
 	      </para>
 	    </listitem>
@@ -251,7 +253,7 @@ ethereal -i eth0 -k
 	  <varlistentry><term><command>... after n megabytes(s)</command></term>
 	    <listitem>
 	      <para>
-			Stop capturing, after the given number of 
+			Stop capturing after the given number of 
 			byte(s)/kilobyte(s)/megabyte(s)/gigabyte(s) have been captured.
 			This option is greyed out, if "Use multiple files" is selected.
 	      </para>
@@ -260,7 +262,7 @@ ethereal -i eth0 -k
 	  <varlistentry><term><command>... after n minute(s)</command></term>
 	    <listitem>
 	      <para>
-			Stop capturing, after the given number of 
+			Stop capturing after the given number of 
 			second(s)/minutes(s)/hours(s)/days(s) have elapsed.
 	      </para>
 	    </listitem>
@@ -302,8 +304,8 @@ ethereal -i eth0 -k
 		in, so you are always looking at the last packet.  If you 
 		do not specify this, Ethereal simply adds new packets onto 
 		the end of the list, but does not scroll the packet list 
-		pane. Greyed out, if "Update list of packets in real time"
-		is disabled.
+		pane. This option is greyed out if 
+		"Update list of packets in real time" is disabled.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -387,7 +389,7 @@ ethereal -i eth0 -k
 	<para>
 	Working with large files (several 100 MB's) can be quite slow. If you plan 
 	to do a long term capture or capturing from a high traffic network, think 
-	about using one of the "Multiple files" option. This  will spread the 
+	about using one of the "Multiple files" options. This  will spread the 
 	captured packets over several smaller files which can be much more 
 	pleasant to work with.
 	</para>
@@ -399,7 +401,7 @@ ethereal -i eth0 -k
 	report context related problems (like a stream error) and keeps information
 	about context related protocols (e.g. where data is exchanged at the 
 	establishing phase and only referred to in later packets). 
-	As it keeps these information only for the loaded file, using one of 
+	As it keeps this information only for the loaded file, using one of 
 	the multiple file modes may cut these contexts, If the establishing phase 
 	is saved in one file and the things you would like to see is in another, 
 	you might not see some of the valuable context related information.
@@ -510,7 +512,7 @@ ethereal -i eth0 -k
   <section id="ChCapLinkLayerHeader"><title>Link-layer header type</title>
 	<para>
 	In the usual case, you won't have to choose this link-layer header type. 
-	The following paragraphs will describe the exceptional cases, where
+	The following paragraphs describe the exceptional cases, where
 	selecting this type is possible, so you will have a guide what to do:
 	</para>
     <para>
@@ -530,7 +532,7 @@ ethereal -i eth0 -k
 	</para>
 	<para>
     If you are capturing on an Endace DAG card connected to an ATM network, 
-	this might offer a choide of "RFC 1483 IP-over-ATM" or "Sun raw ATM".  
+	this might offer a choice of "RFC 1483 IP-over-ATM" or "Sun raw ATM".  
 	If the only traffic being captured is RFC 1483 LLC-encapsulated IP, or if 
 	the capture needs to be read by an application that doesn't support SunATM 
 	headers, select "RFC 1483 IP-over-ATM", otherwise select "Sun raw ATM".
@@ -558,7 +560,7 @@ ethereal -i eth0 -k
     <para>
       A capture filter takes the form of a series of primitive expressions 
       connected by conjuctions (<command>and/or</command>) and optionally 
-      preceeded by <command>not</command>:
+      preceded by <command>not</command>:
       <programlisting>
 [not] <command>primitive</command> [and|or [not] <command>primitive</command> ...]
       </programlisting>
@@ -598,7 +600,7 @@ tcp port 23 and not host 10.0.0.5
 	  <listitem>
 	    <para>
 	      This primitive allows you to filter on a host IP 
-	      address or name. You can optionally preceed the 
+	      address or name. You can optionally precede the 
 	      primitive with the keyword <command>src|dst</command> 
 	      to specify that you are only interested in source or 
 	      destination addresses. If these are not present, 
@@ -614,7 +616,7 @@ tcp port 23 and not host 10.0.0.5
 	  <listitem>
 	    <para>
 	      This primitive allows you to filter on Ethernet host 
-	      addresses. You can optionally includethe  keyword 
+	      addresses. You can optionally include the keyword 
 	      <command>src|dst</command> between the keywords 
 	      <command>ether</command> and <command>host</command> 
 	      to specify that you are only interested in source 
@@ -645,7 +647,7 @@ tcp port 23 and not host 10.0.0.5
 	  <listitem>
 	    <para>
 	      This primitive allows you to filter on network numbers. 
-	      You can optionally preceed this primitive with the 
+	      You can optionally precede this primitive with the 
 	      keyword <command>src|dst</command> to specify that you 
 	      are only interested in a source or destination network. 
 	      If neither of these are present, packets will be 
@@ -663,7 +665,7 @@ tcp port 23 and not host 10.0.0.5
 	  <listitem>
 	    <para>
 	      This primitive allows you to filter on TCP and UDP port 
-	      numbers. You can optionally preceed this primitive with 
+	      numbers. You can optionally precede this primitive with 
 	      the keywords <command>src|dst</command> and 
 	      <command>tcp|udp</command> which allow you to specify 
 	      that you are only interested in source or destination 
@@ -768,8 +770,12 @@ tcp port 23 and not host 10.0.0.5
 	  </note>
 	</listitem>
 	<listitem>
+	  <para>Pressing the accelerator keys: <command>Ctrl+E</command>. 
+	  </para>
+	</listitem>
+	<listitem>
 	  <para>The capture will be automatically stopped, if one of the 
-	  <command>Stop Conditions</command> exceeded, e.g. the maximum amount 
+	  <command>Stop Conditions</command> is exceeded, e.g. the maximum amount 
 	  of data was captured.
 	  </para>
 	</listitem>

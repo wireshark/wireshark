@@ -223,7 +223,6 @@ static gint ett_PoC1			= -1;
 static gint ett_rtcp_setup		= -1;
 
 static address fake_addr;
-static int heur_init = FALSE;
 
 static gboolean dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree );
@@ -233,6 +232,9 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Preferences bool to control whether or not setup info should be shown */
 static gboolean global_rtcp_show_setup_info = TRUE;
+
+/* Try heuristic RTCP decode */
+static gboolean global_rtcp_heur = FALSE;
 
 /* Memory chunk for storing conversation and per-packet info */
 static GMemChunk *rtcp_conversations = NULL;
@@ -262,54 +264,45 @@ void rtcp_add_address( packet_info *pinfo,
 	src_addr.data = ip_addr;
 
 	/*
-	 * The first time the function is called let the udp dissector
-	 * know that we're interested in traffic
-	 * TODO???
-	 *
-	if ( ! heur_init ) {
-		heur_dissector_add( "udp", dissect_rtcp_heur, proto_rtcp );
-		heur_init = TRUE;
-	}
-	*/
-
-	/*
 	 * Check if the ip address and port combination is not
-	 * already registered
+	 * already registered as a conversation.
 	 */
 	p_conv = find_conversation( &src_addr, &src_addr, PT_UDP, port, other_port,
 	                            NO_ADDR_B | (!other_port ? NO_PORT_B : 0));
 
 	/*
-	 * If not, add
+	 * If not, create a new conversation.
 	 */
 	if ( ! p_conv ) {
-		/* Create conversation data */
-		p_conv_data = g_mem_chunk_alloc(rtcp_conversations);
-
-		/* Check length first time we look at method string */
-		strncpy(p_conv_data->method, setup_method,
-		        (strlen(setup_method)+1 <= MAX_RTCP_SETUP_METHOD_SIZE) ?
-		            strlen(setup_method)+1 :
-		            MAX_RTCP_SETUP_METHOD_SIZE);
-		p_conv_data->method[MAX_RTCP_SETUP_METHOD_SIZE] = '\0';
-		p_conv_data->frame_number = setup_frame_number;
-
-		/* Create conversation with this data */
 		p_conv = conversation_new( &src_addr, &src_addr, PT_UDP,
 		                           (guint32)port, (guint32)other_port,
 		                           NO_ADDR2 | (!other_port ? NO_PORT2 : 0));
-		conversation_add_proto_data(p_conv, proto_rtcp, p_conv_data);
+	}
 
-		/* Set dissector */
-		conversation_set_dissector(p_conv, rtcp_handle);
+	/* Set dissector */
+	conversation_set_dissector(p_conv, rtcp_handle);
+
+	/*
+	 * Check if the conversation has data associated with it.
+	 */
+	p_conv_data = conversation_get_proto_data(p_conv, proto_rtcp);
+
+	/*
+	 * If not, add a new data item.
+	 */
+	if ( ! p_conv_data ) {
+		/* Create conversation data */
+		p_conv_data = g_mem_chunk_alloc(rtcp_conversations);
+
+		conversation_add_proto_data(p_conv, proto_rtcp, p_conv_data);
 	}
-	else
-	{
-		/* Update existing conversation data */
-		p_conv_data = conversation_get_proto_data(p_conv, proto_rtcp);
-		strcpy(p_conv_data->method, setup_method);
-		p_conv_data->frame_number = setup_frame_number;
-	}
+
+	/*
+	 * Update the conversation data.
+	 */
+	strncpy(p_conv_data->method, setup_method, MAX_RTCP_SETUP_METHOD_SIZE);
+	p_conv_data->method[MAX_RTCP_SETUP_METHOD_SIZE] = '\0';
+	p_conv_data->frame_number = setup_frame_number;
 }
 
 static void rtcp_init( void )
@@ -342,39 +335,53 @@ static void rtcp_init( void )
 static gboolean
 dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
-	conversation_t* pconv;
+ 	unsigned int offset = 0;
+	unsigned int first_byte;
+	unsigned int packet_type;
 
 	/* This is a heuristic dissector, which means we get all the UDP
 	 * traffic not sent to a known dissector and not claimed by
 	 * a heuristic dissector called before us!
-	 * So we first check if the frame is really meant for us.
 	 */
-	if ( ( pconv = find_conversation( &pinfo->src, &fake_addr, pinfo->ptype,
-	    pinfo->srcport, 0, 0 ) ) == NULL ) {
-		/*
-		 * The source ip:port combination was not what we were
-		 * looking for, check the destination
-		 */
-		if ( ( pconv = find_conversation( &pinfo->dst, &fake_addr,
-		    pinfo->ptype, pinfo->destport, 0, 0 ) ) == NULL ) {
-			return FALSE;
-		}
+
+	if (!global_rtcp_heur)
+	{
+		return FALSE;
 	}
 
-
-	/*
-	 * An RTCP conversation always has a data item for RTCP.
-	 * (Its existence is sufficient to indicate that this is an RTCP
-	 * conversation.)
-	 */
-	if (conversation_get_proto_data(pconv, proto_rtcp) == NULL)
+	/* Was it sent between 2 odd-numbered ports? */
+	if (!(pinfo->srcport % 2) || !(pinfo->destport % 2))
+	{
 		return FALSE;
+	}
 
-	/*
-	 * The message is a valid RTCP message!
-	 */
-	dissect_rtcp( tvb, pinfo, tree );
+	/* Look at first byte */
+	first_byte = tvb_get_guint8(tvb, offset);
 
+	/* Are version bits set to 2? */
+	if (((first_byte & 0xC0) >> 6) != 2)
+	{
+		return FALSE;
+	}
+
+	/* Look at packet type */
+	packet_type = tvb_get_guint8(tvb, offset + 1);
+
+	/* First packet within compound packet is supposed to be a sender
+	   or receiver report */
+	if (!((packet_type == RTCP_SR)  || (packet_type == RTCP_RR)))
+	{
+		return FALSE;
+	}
+
+	/* Overall length must be a multiple of 4 bytes */
+	if (tvb_length(tvb) % 4)
+	{
+		return FALSE;
+	}
+
+	/* OK, dissect as RTCP */
+	dissect_rtcp(tvb, pinfo, tree);
 	return TRUE;
 }
 
@@ -846,11 +853,14 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			struct _rtcp_conversation_info *p_conv_packet_data;
 			p_conv_data = conversation_get_proto_data(p_conv, proto_rtcp);
 
-			/* Save this conversation info into packet info */
-			p_conv_packet_data = g_mem_chunk_alloc(rtcp_conversations);
-			strcpy(p_conv_packet_data->method, p_conv_data->method);
-			p_conv_packet_data->frame_number = p_conv_data->frame_number;
-			p_add_proto_data(pinfo->fd, proto_rtcp, p_conv_packet_data);
+			if (p_conv_data)
+			{
+				/* Save this conversation info into packet info */
+				p_conv_packet_data = g_mem_chunk_alloc(rtcp_conversations);
+				strcpy(p_conv_packet_data->method, p_conv_data->method);
+				p_conv_packet_data->frame_number = p_conv_data->frame_number;
+				p_add_proto_data(pinfo->fd, proto_rtcp, p_conv_packet_data);
+			}
 		}
 	}
 
@@ -1640,6 +1650,12 @@ proto_register_rtcp(void)
 		"this RTCP stream to be created",
 		&global_rtcp_show_setup_info);
 
+	prefs_register_bool_preference(rtcp_module, "heuristic_rtcp",
+		"Try to decode RTCP outside of conversations ",
+                "If call control SIP/H.323/RTSP/.. messages are missing in the trace, "
+                "RTCP isn't decoded without this",
+		&global_rtcp_heur);
+
 	register_init_routine( &rtcp_init );
 }
 
@@ -1652,4 +1668,6 @@ proto_reg_handoff_rtcp(void)
 	 */
 	rtcp_handle = find_dissector("rtcp");
 	dissector_add_handle("udp.port", rtcp_handle);
+
+	heur_dissector_add( "udp", dissect_rtcp_heur, proto_rtcp);
 }

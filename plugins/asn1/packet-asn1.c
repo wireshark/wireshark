@@ -78,7 +78,7 @@
 #include <time.h>
 #include <string.h>
 #include <epan/packet.h>
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 #include "prefs.h"
 #include <epan/strutil.h>
 #include <epan/filesystem.h>
@@ -5025,12 +5025,14 @@ proto_register_asn1(void) {
 				 "ASN.1 debug mode",
 				 "Extra output useful for debuging",
 				 &asn1_debug);
-/*
+#if 0
   prefs_register_bool_preference(asn1_module, "message_win",
 				 "Show ASN.1 tree",
 				 "show full message description",
 				 &asn1_message_win);
-*/
+#else
+  prefs_register_obsolete_preference(asn1_module, "message_win");
+#endif
   prefs_register_bool_preference(asn1_module, "verbose_log",
 				 "Write very verbose log",
 				 "log to file $TMP/" ASN1LOGFILE,

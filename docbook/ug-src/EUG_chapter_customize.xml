@@ -1,4 +1,6 @@
 <!-- EUG Chapter Customizing -->
+<!-- $Id$ -->
+
 <chapter id="ChapterCustomize">
   <title>Customizing Ethereal</title>
   
@@ -444,7 +446,7 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
 	</para>
     </note>
     <para>
-	  If this is the first time you use Coloring Rules, click on the New 
+	  If this is the first time you have used Coloring Rules, click on the New 
 	  button which will bring up the Edit color filter dialog box as shown in 
       <xref linkend="ChCustEditColorDialog"/>.
     </para>
@@ -553,17 +555,17 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
       <orderedlist>
 	<listitem>
 	  <para>
-	    <command>Enable All</command> Enables all protocols in the list.
+	    <command>Enable All</command> Enable all protocols in the list.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    <command>Disable All</command> Disables all protocols in the list.
+	    <command>Disable All</command> Disable all protocols in the list.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    <command>Invert</command> Toggles the state of all protocols in the 
+	    <command>Invert</command> Toggle the state of all protocols in the 
 		list.
 	  </para>
 	</listitem>
@@ -604,12 +606,12 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
       <title>The "Decode As" dialog box</title>
       <graphic scale="100" entityref="EtherealDecodeAs" format="PNG"/>
     </figure>
-	The content of this dialog box depends on the selected packet while it 
+	The content of this dialog box depends on the selected packet when it 
 	was opened.
 	<warning><title>Warning!</title>
 		<para>
 		The user specified decodes can not be saved. If you quit Ethereal, 
-		these settings will be gone.
+		these settings will be lost.
 		</para>
 	</warning>
       <orderedlist>
@@ -717,7 +719,7 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
 		</listitem>
 		<listitem>
 		  <para>
-	  		The <command>Cancel</command> button will revert all preferences 
+	  		The <command>Cancel</command> button will restore all preferences 
 			settings to the last saved state.
 		  </para>
 		</listitem>
@@ -754,7 +756,7 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
 		<note><title>Note!</title>
 		<para>
 		Unlike all other preference changes, you will have to save the 
-		preferences and restart Ethereal in order to take column changes to 
+		preferences and restart Ethereal in order for column changes to 
 		take effect! 
 		</para>
 		</note>

@@ -58,7 +58,7 @@ static int hf_l2tp_tie_breaker = -1;
 #include <ctype.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 
 #define UDP_PORT_L2TP   1701
 

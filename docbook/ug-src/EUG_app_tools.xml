@@ -1,4 +1,7 @@
 <!-- EUG Appendix Tools -->
+
+<!-- $Id$ -->
+
 <appendix id="AppTools">
   <title>Related command line tools</title>
   
@@ -6,7 +9,7 @@
     <title>Introduction</title>
     <para>
 	Beside the Ethereal GUI application, there are some command line tools, 
-	which can be helpful for some more specialized things to do. These tools 
+	which can be helpful for doing some more specialized things. These tools 
 	will be described in this chapter.
 	</para>
   </section>
@@ -49,10 +52,9 @@ tcpdump -i &lt;interface> -s 1500 -w &lt;some-file>
     <title>tethereal: Terminal-based Ethereal</title>
     <para>
       <application>Tethereal</application> is a terminal oriented version 
-      of ethereal designed for capturing and displaying packets when you 
-      do not have a graphical environment available. It is command line 
-	  oriented only and will not show an SAA like user interface. It supports 
-	  the same option set that <command>ethereal</command> does. For more 
+      of ethereal designed for capturing and displaying packets when an 
+	  interactive user interface isn't necessary or available. It supports 
+	  the same options as <command>ethereal</command>. For more 
       information on <command>tethereal</command>, see the manual pages 
       (<command>man tethereal</command>).
     </para>
@@ -64,7 +66,7 @@ tcpdump -i &lt;interface> -s 1500 -w &lt;some-file>
       Included with Ethereal is a small utility called 
       <command>editcap</command>, which is a command-line utility for 
       working with capture files.  Its main function is to remove 
-      packets from capture file, but it can also be used to convert 
+      packets from capture files, but it can also be used to convert 
       capture files from one format to another, as well as print 
       information about capture files.
     </para>
@@ -711,7 +713,7 @@ where &lt;input-filename&gt; specifies input filename (use - for standard input)
 	"C" code, that should compile okay as an ethereal dissector.
       </para>
       <para>
-	<command>idl2eth</command>basically parses the data struct given to 
+	<command>idl2eth</command> basically parses the data struct given to 
 	it by the omniidl compiler, and using the GIOP API available in 
 	packet-giop.[ch], generates  get_CDR_xxx calls to decode the 
 	CORBA traffic on the wire.
@@ -744,7 +746,7 @@ where &lt;input-filename&gt; specifies input filename (use - for standard input)
     <section>
       <title>Why do this?</title>
       <para>
-	It is important to understand how CORBA traffic looks
+	It is important to understand what CORBA traffic looks
 	like over GIOP/IIOP, and to help build a tool that can assist
 	in troubleshooting CORBA interworking. This was especially the
 	case after seeing a lot of discussions about how particular
@@ -752,7 +754,7 @@ where &lt;input-filename&gt; specifies input filename (use - for standard input)
       </para>
       <para>
 	I have also had comments/feedback that this tool would be good for say
-	a CORBA class when teaching students how CORBA traffic looks like
+	a CORBA class when teaching students what CORBA traffic looks like
 	"on the wire".
       </para>
       <para>
@@ -772,21 +774,19 @@ where &lt;input-filename&gt; specifies input filename (use - for standard input)
 	<listitem>
 	  <para>
 	    Python must be installed.  See 
-	    <ulink url="http://python.org/">http://python.org/</ulink> 
+	    <ulink url="http://python.org/"/>
 	  </para>
 	</listitem>
 	<listitem>
 	  <para> 
-	    omniidl from the the omniORB package must be available.
-	    <ulink url="http://www.uk.research.att.com/omniORB/omniORB.html">
-	      http://www.uk.research.att.com/omniORB/omniORB.html
-	    </ulink>
+	    omniidl from the the omniORB package must be available. See
+	    <ulink url="http://omniorb.sourceforge.net/"/>
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
 	    Of course you need ethereal installed to compile the
-	    code an tweak it if required. idl2eth is part of the 
+	    code and tweak it if required. idl2eth is part of the 
 	    standard Ethereal distribution
 	  </para>
 	</listitem>

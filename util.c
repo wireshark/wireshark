@@ -56,7 +56,7 @@ typedef int mode_t;	/* for win32 */
 #endif /* __MINGW32__ */
 #endif /* HAVE_IO_H */
 
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 
 /*
  * This has to come after the include of <pcap.h>, as the include of

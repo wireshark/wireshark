@@ -49,7 +49,7 @@
 #include "packet-ipv6.h"
 #include "packet-dns.h"
 #include "in_cksum.h"
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 #include "ipproto.h"
 
 #ifndef offsetof

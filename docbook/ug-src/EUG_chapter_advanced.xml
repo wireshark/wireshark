@@ -1,4 +1,7 @@
 <!-- EUG Chapter Advanced -->
+
+<!-- $Id: -->
+
 <chapter id="ChapterAdvanced">
   <title>Advanced Features</title>
   
@@ -11,16 +14,16 @@
   <section id="ChAdvFollowTCPSection"><title>Following TCP streams</title>
     <para>
       There will be occasions when you would like to see the data from a TCP 
-      session in the order that the application layer would see it. Perhaps 
+      session in the order that the application layer sees it. Perhaps 
       you are looking for passwords in a Telnet stream, or you are 
       trying to make sense of a data stream.  If so, Ethereal's ability to 
       follow a TCP stream will be useful to you. 
     </para>
     <para>
-      Simply select a TCP packet on the stream/connection you are interested 
+      Simply select a TCP packet in the stream/connection you are interested 
       in and then select the Follow TCP Stream menu item from the Ethereal 
       Tools menu.  Ethereal will pop up a separate window with all the data 
-      from the TCP stream layed out in order, as shown in 
+      from the TCP stream laid out in order, as shown in 
       <xref linkend="ChAdvFollowStream"/>.
     </para>
 	<section><title>The "Follow TCP stream" dialog box </title>
@@ -64,7 +67,7 @@
       </orderedlist>
     </para>
     <para>
-      You can then select to view the data in one of four formats:
+      You can then choose to view the data in one of four formats:
       <orderedlist>
 	<listitem>
 	  <para>
@@ -97,7 +100,7 @@
       <title>Note!</title>
       <para>
 	It is worthwhile noting that Follow TCP Stream installs a filter 
-	to select all the packets on the TCP stream you have selected.
+	to select all the packets in the TCP stream you have selected.
       </para>
     </note>
   </section>
@@ -211,9 +214,9 @@
   <section id="ChAdvNameResolutionSection"><title>Name Resolution</title>
     <para>
 	Name resolution tries to resolve some of the address values to human 
-	readable names. This conversion might fail, e.g. if the specific name is 
-	just unknown. Some of the resolvings are done with data from your local 
-	machine, while others asking network services like DNS.
+	readable names. This conversion might fail. For example, the name might be 
+	unknown. Some of the lookups are done with data from your local 
+	machine, while others asking network services such as DNS.
     </para>
     <para>
 	XXX - add ipxnets name resolution explanation.
@@ -268,9 +271,9 @@
 	</section>
 	<section><title>ADNS</title>
 	<para>
-	As noted, DNS resolvings can significantly slow down Ethereal and make it 
+	As noted, DNS lookups can significantly slow down Ethereal and make it 
 	appear frozen, which can be very annoying. To solve this, Ethereal can use
-	the ADNS library, which handles DNS calls asynchronous.
+	the ADNS library, which handles DNS calls asynchronously.
 	</para>
 	</section>
   </section>

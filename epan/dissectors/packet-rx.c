@@ -37,7 +37,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-rx.h"
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 
 #define UDP_PORT_RX_LOW		7000
 #define UDP_PORT_RX_HIGH	7009

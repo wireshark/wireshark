@@ -28,7 +28,7 @@
 
 #include <ftypes-int.h>
 #include <epan/ipv4.h>
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 
 
 static void

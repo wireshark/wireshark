@@ -132,6 +132,7 @@ typedef struct _e_prefs {
   guint    gui_recent_files_count_max;
   gchar	   *gui_fileopen_dir;
   gboolean gui_ask_unsaved;
+  gboolean gui_find_wrap;
   gchar   *gui_webbrowser;
   layout_type_e gui_layout_type;
   layout_pane_content_e gui_layout_content_1;

@@ -77,7 +77,7 @@
 #include <epan/plugins.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/strutil.h>
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 
 /* general (not GTK specific) */
 #include "svnversion.h"

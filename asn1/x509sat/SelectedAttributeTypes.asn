@@ -39,8 +39,7 @@ IMPORTS
 -- Directory string type 
 -- XXX DirectoryString is handimplemented inside the template
 -- DirectoryString ::= CHOICE {
---   XXX not implemented yet
---   teletexString    TeletexString(SIZE (1..maxSize)),
+--  teletexString    TeletexString(SIZE (1..maxSize)),
 --  printableString  PrintableString(SIZE (1..maxSize)),
 --  universalString  UniversalString(SIZE (1..maxSize)),
 --  bmpString        BMPString(SIZE (1..maxSize)),

@@ -37,7 +37,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/resolv.h> /* this is for get_hostname and get_udp_port */
+#include <epan/addr_resolv.h> /* this is for get_hostname and get_udp_port */
 
 #define UDP_PORT_TPCP   3121 
 

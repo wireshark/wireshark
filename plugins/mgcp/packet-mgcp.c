@@ -49,7 +49,7 @@
 #include <time.h>
 #include <string.h>
 #include <epan/packet.h>
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 #include "prefs.h"
 #include <epan/strutil.h>
 #include <epan/conversation.h>

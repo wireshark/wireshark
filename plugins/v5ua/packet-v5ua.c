@@ -48,7 +48,7 @@ G_MODULE_EXPORT const gchar version[] = VERSION;
 
 #include <ctype.h>
 #include <epan/packet.h>
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 #include <epan/strutil.h>
 #include "sctpppids.h"      /* include V5UA payload protocol ID */
 

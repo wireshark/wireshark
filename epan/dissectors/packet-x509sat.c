@@ -130,6 +130,8 @@ static gint ett_x509sat_TelexNumber = -1;
 /* packet-x509sat-fn.c                                                        */
 /* ../../tools/asn2eth.py -X -b -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn */
 
+/*--- Fields for imported types ---*/
+
 static int dissect_equality(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509if_AttributeType(FALSE, tvb, offset, pinfo, tree, hf_x509sat_equality);
 }
@@ -145,6 +147,7 @@ static int dissect_lessOrEqual(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 static int dissect_approximateMatch(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509if_AttributeType(FALSE, tvb, offset, pinfo, tree, hf_x509sat_approximateMatch);
 }
+
 
 int
 dissect_x509sat_UniqueIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
@@ -246,6 +249,11 @@ dissect_x509sat_TelexNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 static int DirectoryString_hf_index;
 
 static int
+dissect_teletextString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ber_restricted_string(FALSE, BER_UNI_TAG_TeletextString, 
+              pinfo, tree, tvb, offset, DirectoryString_hf_index, NULL);
+}
+static int
 dissect_printableString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_ber_restricted_string(FALSE, BER_UNI_TAG_PrintableString, 
               pinfo, tree, tvb, offset, DirectoryString_hf_index, NULL);
@@ -267,19 +275,20 @@ dissect_uTF8String(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 }
 
 static const value_string DirectoryString_vals[] = {
-  {   0, "printableString" },
-  {   1, "universalString" },
-  {   2, "bmpString" },
-  {   3, "uTF8String" },
+  {   0, "teletextString" },
+  {   1, "printableString" },
+  {   2, "universalString" },
+  {   3, "bmpString" },
+  {   4, "uTF8String" },
   { 0, NULL }
 };
 
 static ber_choice DirectoryString_choice[] = {
-/*XXX needs to add TeletexString */
-  {   0, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_printableString },
-  {   1, BER_CLASS_UNI, BER_UNI_TAG_UniversalString, BER_FLAGS_NOOWNTAG, dissect_universalString },
-  {   2, BER_CLASS_UNI, BER_UNI_TAG_BMPString, BER_FLAGS_NOOWNTAG, dissect_bmpString },
-  {   3, BER_CLASS_UNI, BER_UNI_TAG_UTF8String, BER_FLAGS_NOOWNTAG, dissect_uTF8String },
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_TeletextString, BER_FLAGS_NOOWNTAG, dissect_teletextString },
+  {   1, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_printableString },
+  {   2, BER_CLASS_UNI, BER_UNI_TAG_UniversalString, BER_FLAGS_NOOWNTAG, dissect_universalString },
+  {   3, BER_CLASS_UNI, BER_UNI_TAG_BMPString, BER_FLAGS_NOOWNTAG, dissect_bmpString },
+  {   4, BER_CLASS_UNI, BER_UNI_TAG_UTF8String, BER_FLAGS_NOOWNTAG, dissect_uTF8String },
   { 0, 0, 0, 0, NULL }
 };
 

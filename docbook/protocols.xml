@@ -1,3 +1,5 @@
+<!-- $Id$ -->
+
 <itemizedlist id="EtherealListOfProtos">
    <listitem><para>802.1q Virtual LAN</para></listitem>
    <listitem><para>802.1x Authentication</para></listitem>

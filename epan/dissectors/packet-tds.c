@@ -175,6 +175,7 @@
 #define TDS_LOGOUT_CHN_PKT  13
 #define TDS_QUERY5_PKT      15  /* or "Normal tokenized request or response */
 #define TDS_LOGIN7_PKT      16	/* or "Urgent tokenized request or response */
+#define TDS_NTLMAUTH_PKT    17
 #define TDS_XXX7_PKT        18	/* seen in one capture */
 
 #define is_valid_tds_type(x) ((x) >= TDS_QUERY_PKT && (x) <= TDS_XXX7_PKT)
@@ -336,6 +337,8 @@ static const value_string packet_type_names[] = {
 	{TDS_CANCEL_PKT, "Cancel Packet"},
 	{TDS_QUERY5_PKT, "TDS5 Query Packet"},
 	{TDS_LOGIN7_PKT, "TDS7/8 Login Packet"},
+	{TDS_XXX7_PKT, "TDS7/8 0x12 Packet"},
+	{TDS_NTLMAUTH_PKT, "NTLM Authentication Packet"},
 	{0, NULL},
 };
 
@@ -411,7 +414,7 @@ static const value_string login_field_names[] = {
         {5, "Unknown1"},
         {6, "Library Name"},
         {7, "Locale"},
-        {8, "Unknown2"},
+        {8, "Database Name"},
         {0, NULL},
 };
 
@@ -596,6 +599,9 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 
+	/*
+	 * XXX - what about the client MAC address, etc.?
+	 */
 	length_remaining = tvb_reported_length_remaining(tvb, offset2 + len);
 	if (length_remaining > 0) {
 		dissect_tds_ntlmssp(tvb, pinfo, login_tree, offset2 + len,
@@ -802,8 +808,8 @@ netlib_check_login_pkt(tvbuff_t *tvb, guint offset, packet_info *pinfo, guint8 t
 			return FALSE;
 		}
 	/* check if it is MS SQL default port */
-	} else if (pinfo->srcport != 1433 &&
-		pinfo->destport != 1433) {
+	} else if ((pinfo->srcport != 1433 &&
+		pinfo->destport != 1433) && (pinfo->srcport != 2433 && pinfo->destport != 2433)) {
 		/* otherwise, we can not ensure this is netlib */
 		/* beyond a reasonable doubt.                  */
           		return FALSE;
@@ -887,57 +893,10 @@ dissect_tds_env_chg(tvbuff_t *tvb, guint offset, guint token_sz,
 }
 
 static void
-dissect_tds_msg_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_tree *tree)
-{
-	guint16 msg_len;
-	guint8 srvr_len;
-	char *msg;
-	gboolean is_unicode = FALSE;
-
-	proto_tree_add_text(tree, tvb, offset, 4, "SQL Message Number: %d", tvb_get_letohl(tvb, offset));
-	offset += 4;
-	proto_tree_add_text(tree, tvb, offset, 1, "State: %u", tvb_get_guint8(tvb, offset));
-	offset +=1;
-	proto_tree_add_text(tree, tvb, offset, 1, "Level: %u", tvb_get_guint8(tvb, offset));
-	offset +=1;
-	
-	msg_len = tvb_get_letohs(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset, 2, "Message length: %u characters", msg_len);
-	offset +=2;
-	
-	srvr_len = tvb_get_guint8(tvb, offset + msg_len);
-	
-	if(msg_len + srvr_len + 9U + 3U != token_sz) /* 9 is the length of message number (4), state (1), level (1), msg_len (2), srvr_len (1) fields */
-		is_unicode = TRUE;
-
-	if(is_unicode) {
-		msg = tvb_fake_unicode(tvb, offset, msg_len, TRUE);
-		msg_len *= 2;
-	} else {
-		msg = tvb_get_string(tvb, offset, msg_len);
-	}
-	proto_tree_add_string(tree, hf_tds7_message, tvb, offset, msg_len, msg);
-	g_free(msg);
-	offset += msg_len;
-
-	proto_tree_add_text(tree, tvb, offset, 1, "Server name length: %u characters", srvr_len);
-	offset +=1;
-	
-	if (is_unicode) {
-		msg = tvb_fake_unicode(tvb, offset, srvr_len, TRUE);
-		srvr_len *=2;
-	} else {
-		msg = tvb_get_string(tvb, offset, srvr_len);
-	}
-	proto_tree_add_text(tree, tvb, offset, srvr_len, "Server name: %s", msg);
-	g_free(msg);
-}
-
-static void
 dissect_tds_err_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_tree *tree)
 {
 	guint16 msg_len;
-	guint8 srvr_len;
+	guint8 srvr_len, proc_len;
 	char *msg;
 	gboolean is_unicode = FALSE;
 
@@ -945,16 +904,14 @@ dissect_tds_err_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_tree *t
 	offset += 4;
 	proto_tree_add_text(tree, tvb, offset, 1, "State: %u", tvb_get_guint8(tvb, offset));
 	offset +=1;
-	proto_tree_add_text(tree, tvb, offset, 1, "Level: %u", tvb_get_guint8(tvb, offset));
+	proto_tree_add_text(tree, tvb, offset, 1, "Severity Level: %u", tvb_get_guint8(tvb, offset));
 	offset +=1;
 
 	msg_len = tvb_get_letohs(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset, 1, "Error length: %u characters", msg_len);
+	proto_tree_add_text(tree, tvb, offset, 1, "Error message length: %u characters", msg_len);
 	offset +=2;
 
-	srvr_len = tvb_get_guint8(tvb, offset + msg_len);
-	
-	if(msg_len + srvr_len + 9U + 3U != token_sz) /* 9 is the length of message number (4), state (1), level (1), msg_len (2), srvr_len (1) fields */
+	if(tvb_get_guint8(tvb, offset+1) == 0) /* FIXME: It's probably unicode, if the 2nd byte of the message is zero. It's not a good detection method, but it works */
 		is_unicode = TRUE;
 
 	if(is_unicode) {
@@ -966,18 +923,40 @@ dissect_tds_err_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_tree *t
 	proto_tree_add_text(tree, tvb, offset, msg_len, "Error: %s", format_text(msg, strlen(msg)));
 	g_free(msg);
 	offset += msg_len;
-
+	
+	srvr_len = tvb_get_guint8(tvb, offset);
+	
 	proto_tree_add_text(tree, tvb, offset, 1, "Server name length: %u characters", srvr_len);
 	offset +=1;
-	
-	if (is_unicode) {
-		msg = tvb_fake_unicode(tvb, offset, srvr_len, TRUE);
-		srvr_len *=2;
-	} else {
-		msg = tvb_get_string(tvb, offset, srvr_len);
+	if(srvr_len) {
+		if (is_unicode) {
+			msg = tvb_fake_unicode(tvb, offset, srvr_len, TRUE);
+			srvr_len *=2;
+		} else {
+			msg = tvb_get_string(tvb, offset, srvr_len);
+		}
+		proto_tree_add_text(tree, tvb, offset, srvr_len, "Server name: %s", msg);
+		offset += srvr_len;
+		g_free(msg);
 	}
-	proto_tree_add_text(tree, tvb, offset, srvr_len, "Server name: %s", msg);
-	g_free(msg);
+
+	proc_len = tvb_get_guint8(tvb, offset);
+	
+	proto_tree_add_text(tree, tvb, offset, 1, "Process name length: %u characters", proc_len);
+	offset +=1;
+	if(proc_len) {
+		if (is_unicode) {
+			msg = tvb_fake_unicode(tvb, offset, proc_len, TRUE);
+			proc_len *=2;
+		} else {
+			msg = tvb_get_string(tvb, offset, proc_len);
+		}
+		proto_tree_add_text(tree, tvb, offset, proc_len, "Process name: %s", msg);
+		offset += proc_len;
+		g_free(msg);
+	}
+
+	proto_tree_add_text(tree, tvb, offset, 2, "line number: %d", tvb_get_letohs(tvb, offset));
 }
 
 static void
@@ -1097,9 +1076,9 @@ dissect_tds7_results_token(tvbuff_t *tvb, guint offset, proto_tree *tree)
 static void
 dissect_tds_done_token(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-	proto_tree_add_text(tree, tvb, offset, 2, "bit flag");
+	proto_tree_add_text(tree, tvb, offset, 2, "Status flags");
 	offset += 2;
-	proto_tree_add_text(tree, tvb, offset, 2, "unknown");
+	proto_tree_add_text(tree, tvb, offset, 2, "Operation");
 	offset += 2;
 	proto_tree_add_text(tree, tvb, offset, 4, "row count: %u", tvb_get_letohl(tvb, offset));
 	offset += 2;
@@ -1199,10 +1178,8 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			dissect_tds_ntlmssp(tvb, pinfo, token_tree, pos + 3,
 			    token_sz - 3);
 			break;
-		case TDS_MSG_TOKEN:
-			dissect_tds_msg_token(tvb, pos + 3, token_sz - 3, token_tree);
-			break;
 		case TDS_ERR_TOKEN:
+		case TDS_MSG_TOKEN:
 			dissect_tds_err_token(tvb, pos + 3, token_sz - 3, token_tree);
 			break;
 		case TDS_DONE_TOKEN:
@@ -1329,6 +1306,9 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		case TDS_QUERY_PKT:
 			dissect_tds_query_packet(next_tvb, pinfo, tds_tree);
+			break;
+		case TDS_NTLMAUTH_PKT:
+			dissect_tds_ntlmssp(next_tvb, pinfo, tds_tree, offset - 8, -1);
 			break;
 		default:
 			proto_tree_add_text(tds_tree, next_tvb, 0, -1,

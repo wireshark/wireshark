@@ -419,9 +419,57 @@ and did you also install that package?]]))
 	else
 		AC_MSG_RESULT(no)
 	fi
-	AC_CHECK_FUNCS(pcap_findalldevs pcap_lib_version pcap_open_dead)
-	AC_CHECK_FUNCS(pcap_datalink_val_to_name pcap_datalink_name_to_val)
-	AC_CHECK_FUNCS(pcap_list_datalinks pcap_set_datalink)
+	AC_CHECK_FUNCS(pcap_open_dead)
+	#
+	# Later versions of Mac OS X 10.3[.x] ship a pcap.h that
+	# doesn't define pcap_if_t but ship an 0.8[.x] libpcap,
+	# so the library has "pcap_findalldevs()", but pcap.h
+	# doesn't define "pcap_if_t" so you can't actually *use*
+	# "pcap_findalldevs()".
+	#
+	# That even appears to be true of systems shipped with
+	# 10.3.4, so it doesn't appear only to be a case of
+	# Software Update not updating header files.
+	#
+	# (You can work around this by installing the 0.8 header
+	# files.)
+	#
+	AC_CACHE_CHECK([whether pcap_findalldevs is present and usable],
+	  [ac_cv_func_pcap_findalldevs],
+	  [
+	    AC_LINK_IFELSE(
+	      [
+		AC_LANG_SOURCE(
+		  [[
+		    #include <pcap.h>
+		    main()
+		    {
+		      pcap_if_t *devpointer;
+		      char errbuf[1];
+
+		      pcap_findalldevs(&devpointer, errbuf);
+		    }
+		  ]])
+	      ],
+	      [
+		ac_cv_func_pcap_findalldevs=yes
+	      ],
+	      [
+		ac_cv_func_pcap_findalldevs=no
+	      ])
+	  ])
+	#
+	# Don't check for other new routines that showed up after
+	# "pcap_findalldevs()" if we don't have a usable
+	# "pcap_findalldevs()", so we don't end up using them if the
+	# "pcap.h" is crufty and old and doesn't declare them.
+	#
+	if test $ac_cv_func_pcap_findalldevs = "yes" ; then
+	  AC_DEFINE(HAVE_PCAP_FINDALLDEVS, 1,
+	   [Define to 1 if you have the `pcap_findalldevs' function and a pcap.h that declares pcap_if_t.])
+	  AC_CHECK_FUNCS(pcap_datalink_val_to_name pcap_datalink_name_to_val)
+	  AC_CHECK_FUNCS(pcap_list_datalinks pcap_set_datalink pcap_lib_version)
+	fi
 	LIBS="$ac_save_LIBS"
 ])
 

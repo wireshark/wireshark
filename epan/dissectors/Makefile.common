@@ -76,6 +76,7 @@ DISSECTOR_SRC =	\
 	packet-atalk.c	\
 	packet-atm.c	\
 	packet-auto_rp.c	\
+	packet-ax4000.c	\
 	packet-bacapp.c	\
 	packet-bacnet.c	\
 	packet-beep.c	\
@@ -133,6 +134,8 @@ DISSECTOR_SRC =	\
 	packet-dcerpc-ftserver.c	\
 	packet-dcerpc-icl_rpc.c	\
 	packet-dcerpc-initshutdown.c	\
+	packet-dcerpc-iremunkn.c	\
+	packet-dcerpc-iremunkn2.c	\
 	packet-dcerpc-krb5rpc.c	\
 	packet-dcerpc-llb.c	\
 	packet-dcerpc-lsa-ds.c	\
@@ -173,6 +176,7 @@ DISSECTOR_SRC =	\
 	packet-dcerpc-spoolss.c	\
 	packet-dcerpc-srvsvc.c	\
 	packet-dcerpc-svcctl.c	\
+	packet-dcerpc-sysact.c	\
 	packet-dcerpc-tapi.c	\
 	packet-dcerpc-tkn4int.c	\
 	packet-dcerpc-trksvr.c	\
@@ -184,6 +188,7 @@ DISSECTOR_SRC =	\
 	packet-dcm.c		\
 	packet-ddtp.c	\
 	packet-dec-bpdu.c	\
+	packet-dhcp-failover.c	\
 	packet-dhcpv6.c	\
 	packet-diameter.c	\
 	packet-diffserv-mpls-common.c	\
@@ -313,6 +318,8 @@ DISSECTOR_SRC =	\
 	packet-m2tp.c	\
 	packet-m2ua.c	\
 	packet-m3ua.c	\
+	packet-maccontrol.c	\
+	packet-manolito.c	\
 	packet-mbtcp.c	\
 	packet-mdshdr.c	\
 	packet-media.c	\
@@ -351,6 +358,7 @@ DISSECTOR_SRC =	\
 	packet-nlm.c	\
 	packet-nlsp.c	\
 	packet-nntp.c	\
+	packet-ns_cert_exts.c	\
 	packet-nt-oui.c	\
 	packet-nt-sonmp.c	\
 	packet-nt-tpcp.c	\

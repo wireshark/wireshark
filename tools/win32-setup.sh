@@ -46,12 +46,16 @@ case "$1" in
 	PACKAGE_PATH=$4
 	PACKAGE=`basename "$PACKAGE_PATH"`
 	echo "****** $PACKAGE ******"
-	if [ -z "$http_proxy" ] ; then
-		echo "No HTTP proxy specified (http_proxy is empty)."
+	if [ -z "$http_proxy" -a -z "$HTTP_PROXY" ] ; then
+		echo "No HTTP proxy specified (http_proxy and HTTP_PROXY are empty)."
 		use_proxy="-Y off"
 	else
-		echo "HTTP proxy ($http_proxy) has been specified and will be used."
 		use_proxy="-Y on"
+		if [ -z "$http_proxy" ] ; then
+			echo "HTTP proxy ($HTTP_PROXY) has been specified and will be used."
+		else
+			echo "HTTP proxy ($http_proxy) has been specified and will be used."
+		fi
 	fi
 	echo "Downloading $4 into $DEST_PATH, installing into $3"
 	if [ ! -d "$DEST_PATH/$DEST_SUBDIR" ] ; then

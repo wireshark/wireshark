@@ -1,4 +1,6 @@
 <!-- EUG Chapter Introduction -->
+<!-- $Id$ -->
+
 <chapter id="ChapterIntroduction">
   <title>Introduction</title>
   <!-- Introduction -->
@@ -504,7 +506,7 @@
 	    You can obtain this traceback information with the following commands:
 	    <programlisting>
 <![CDATA[
-$ gdb `whereis ethereal | cut -f2 -d: | cut -f' ' -d2` core >& bt.txt
+$ gdb `whereis ethereal | cut -f2 -d: | cut -d' ' -f2` core >& bt.txt
 backtrace
 ^D
 $
@@ -519,7 +521,7 @@ $
 	    <note>
 	      <para>
 		backtrace is a <command>gdb</command> command. You should 
-		enter it verbatim after the first line shown above, it will not be 
+		enter it verbatim after the first line shown above, but it will not be 
 		echoed. The ^D 
 		(Control-D, that is, press the Control key and the D key 
 		together) will cause <command>gdb</command> to exit. This will 

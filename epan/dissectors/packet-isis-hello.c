@@ -35,7 +35,7 @@
 #include "packet-isis.h"
 #include "packet-isis-clv.h"
 #include "packet-isis-hello.h"
-#include "epan/resolv.h"
+#include "epan/addr_resolv.h"
 
 /* hello packets */
 static int hf_isis_hello_circuit_reserved = -1;

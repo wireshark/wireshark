@@ -35,7 +35,7 @@
 #include "packet-ipsec.h"
 #include "packet-ipv6.h"
 #include "ip_opts.h"
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 #include "prefs.h"
 #include "reassemble.h"
 #include "ipproto.h"

@@ -582,7 +582,7 @@ dissect_ntlmssp_negotiate_flags (tvbuff_t *tvb, int offset,
 }
 
 /* Dissect a NTLM response. This is documented at
-   http://ubiqx.org/cifs/SMB.html#8, para 2.8.5.3 */
+   http://ubiqx.org/cifs/SMB.html#SMB.8, para 2.8.5.3 */
 
 /* Name types */
 
@@ -718,8 +718,19 @@ dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
 
 		if (name_type == 0) /* End of list */
 			break;
-	};
+	}
 
+	/*
+	 * XXX - Windows puts 4 bytes of additional stuff here.
+	 * Samba's smbclient doesn't.
+	 * Both of them appear to be able to connect to W2K SMB
+	 * servers.
+	 * Should we display the rest of the response as an
+	 * "extra data" item?
+	 *
+	 * XXX - we should also check whether we go past the length
+	 * of the response.
+	 */
 	return offset;
 }
 

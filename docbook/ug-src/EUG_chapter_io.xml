@@ -1,4 +1,6 @@
 <!-- EUG Chapter IO -->
+<!-- $Id$ -->
+
 <chapter id="ChapterIO">
   <title>File Input / Output and Printing</title>
 
@@ -8,12 +10,12 @@
 	<itemizedlist>
 	<listitem>
 	  <para>
-	    Open/Import capture files from various capture file formats
+	    Open/Import capture files in various capture file formats
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    Save/Export capture files into various capture file formats
+	    Save/Export capture files in various capture file formats
 	  </para>
 	</listitem>
 	<listitem>
@@ -43,7 +45,7 @@
     <para>
 	You can also use <command>drag-and-drop </command> to open a file, by 
 	simply dropping the desired file from your file manager onto Ethereal's 
-	main window. However, drag-and-drop is not available/won't work on all 
+	main window. However, drag-and-drop is not available/won't work in all 
 	desktop environments.
     </para>
     </note>
@@ -72,7 +74,7 @@
 	      <para>
 		  Ethereal uses the open dialog box from the version of the GTK+ 
 		  toolkit that it's using. This dialog was completely redesigned in 
-		  the GTK version 2.4. Depending on the installed GTK version, 
+		  GTK version 2.4. Depending on the installed GTK version, 
 		  your dialog box might look different. However, as the 
 		  functionality remains almost the same, much of this description 
 		  will work with your version of Ethereal.
@@ -115,7 +117,7 @@
 	      Specify a display filter with the Filter button and filter 
 	      field. This filter will be used when opening the new file.
 		  Clicking on the Filter button causes Ethereal to pop up 
-	      the Filters dialog box (while is discussed further in 
+	      the Filters dialog box (which is discussed further in 
 	      <xref linkend="ChWorkDisplayFilterSection"/>).
 	    </para>
 	  </listitem>
@@ -144,7 +146,7 @@
 	You can change the display filter and name resolution settings later while 
 	viewing the packets. However, for very large capture files it can take a 
 	significant amount of time changing these settings, so it might be 
-	a good idea to set them already here.
+	a good idea to set them in advance here.
       </para>
     </section>
 
@@ -535,11 +537,11 @@
 	  	<command>Name:</command> the filename to export the packet data to.
 		</para></listitem>
 		<listitem><para>
-	  	The <command>Save in folder:</command> let's you select the folder to 
-		save to (from some predefined folders).
+	  	The <command>Save in folder:</command> field lets you select the 
+		folder to save to (from some predefined folders).
 		</para></listitem>
 		<listitem><para>
-	  	<command>Browse for other folders</command> will provide a flexible 
+	  	<command>Browse for other folders</command> provides a flexible 
 		way to choose a folder.
 		</para></listitem>
 	</itemizedlist>	
@@ -568,20 +570,20 @@
 	      <itemizedlist>
 		<listitem>
 		  <para>
-		    <command>Plain Text</command> specifies, that 
+		    <command>Plain Text</command> specifies that 
 		    the packet print should be in plain text.
 		  </para>
 		</listitem>
 		<listitem>
 		  <para>
-		    <command>PostScipt</command> specifies, that 
+		    <command>PostScipt</command> specifies that 
 		    the packet print process should use PostScript to 
 		    generate a better print output on PostScript aware printers.
 		  </para>
 		</listitem>
 		<listitem>
 		  <para>
-		    <command>Output to file:</command> specifies, that printing 
+		    <command>Output to file:</command> specifies that printing 
 		    be done to a file, which name is entered in the field or selected 
 			using the browse button.
 		  </para>
@@ -594,7 +596,7 @@
 		</listitem>
 		<listitem>
 		  <para>
-		    <command>Print command</command> specifies, that a 
+		    <command>Print command</command> specifies that a 
 		    command be used for printing. 
 		  </para>
 		<note><title>Note!</title>
