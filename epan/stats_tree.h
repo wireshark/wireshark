@@ -97,11 +97,6 @@ extern int tick_range(stats_tree* st,
 						 int parent_id,
 						 int value_in_range);
 
-extern int tick_range_with_parent_name(stats_tree* st,
-						 const gchar* name,
-						 const gchar* parent_name,
-						 int value_in_range);
-
 /* */
 extern int create_pivot_node(stats_tree* st,
 							 const gchar* name,

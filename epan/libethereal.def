@@ -502,7 +502,6 @@ test_for_directory
 test_for_fifo
 tick_pivot
 tick_range
-tick_range_with_parent_name
 time_msecs_to_str
 time_secs_to_str
 trans2_cmd_vals                 DATA
