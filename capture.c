@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.184 2002/07/15 23:25:59 guy Exp $
+ * $Id: capture.c,v 1.185 2002/07/16 05:43:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -576,12 +576,9 @@ do_capture(char *capfile_name)
 				       NULL);
 #endif
       } else {
-	/* We weren't able to open the capture file; complain, and
-	   close the sync pipe. */
-	simple_dialog(ESD_TYPE_CRIT, NULL,
-			file_open_error_message(err, FALSE), cfile.save_file);
+	/* We weren't able to open the capture file; user has been
+	   alerted. Close the sync pipe. */
 
-	/* Close the sync pipe. */
 	close(sync_pipe[READ]);
 
 	/* Don't unlink the save file - leave it around, for debugging
