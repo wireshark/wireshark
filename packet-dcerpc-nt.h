@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.h,v 1.25 2002/06/05 04:17:47 tpot Exp $
+ * $Id: packet-dcerpc-nt.h,v 1.26 2002/06/16 13:47:39 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,7 +80,15 @@ guint32 prs_pop_ptr(GList **ptr_list, char *name);
 
 
 
-#define ALIGN_TO_4_BYTES	{if(offset&0x03)offset=(offset&0xfffffffc)+4;}
+#define ALIGN_TO_4_BYTES \
+	{ dcerpc_info *xzdi; \
+	  xzdi=pinfo->private_data; \
+	  if(!xzdi->conformant_run) { \
+		if(offset&0x03) { \
+			offset=(offset&0xfffffffc)+4; \
+		} \
+	  } \
+	}
 
 int
 dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset, 
