@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.98 2003/01/30 22:38:47 guy Exp $
+ * $Id: file.c,v 1.99 2003/05/27 10:42:22 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -80,18 +80,13 @@
  * If the routine handles this type of file, it should set the "file_type"
  * field in the "struct wtap" to the type of the file.
  *
- * XXX - I need to drag my damn ANSI C spec in to figure out how to
- * declare a "const" array of pointers to functions; putting "const"
- * right after "static" isn't the right answer, at least according
- * to GCC, which whines if I do that.
- *
  * Put the trace files that are merely saved telnet-sessions last, since it's
  * possible that you could have captured someone a router telnet-session
  * using another tool. So, a libpcap trace of an toshiba "snoop" session
  * should be discovered as a libpcap file, not a toshiba file.
  */
 
-static int (*open_routines[])(wtap *, int *) = {
+static int (*const open_routines[])(wtap *, int *) = {
 	/* Files that have magic bytes in fixed locations. These
 	 * are easy to identify.
 	 */
