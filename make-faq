@@ -1,0 +1,26 @@
+#!/bin/sh -x
+#
+# $Id: make-faq,v 1.1 2002/08/20 00:01:52 jmayer Exp $
+#
+# Make-faq - Creates a plain text version of the Ethereal FAQ
+#	from http://www.ethereal.com/faq
+
+FAQ=FAQ
+
+rm -f $FAQ
+cat >$FAQ <<EOF
+
+   The Ethereal FAQ
+
+   Note: This is just an ASCII snapshot of the faq and may not be up to
+         date. Please go to http://www.ethereal.com/faq for the up to
+         date version. The version of the snapshot can be found at the
+         end of this document.
+
+   INDEX
+
+EOF
+
+lynx -dump -nolist "http://www.ethereal.com/faq" | sed -e '1,/INDEX/d' >>FAQ
+
+exit 0
