@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-macros.h,v 1.17 2002/02/08 22:36:21 nneul Exp $
+ * $Id: packet-afs-macros.h,v 1.18 2002/02/10 02:22:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -185,17 +185,17 @@
 			sizeof(guint32), mask); \
 		save = tree; \
 		tree = proto_item_add_subtree(ti, ett_afs_status_mask); \
-		proto_tree_add_uint(tree, hf_afs_fs_status_mask_setmodtime, \
+		proto_tree_add_boolean(tree, hf_afs_fs_status_mask_setmodtime, \
 			tvb,offset,sizeof(guint32), mask); \
-		proto_tree_add_uint(tree, hf_afs_fs_status_mask_setowner, \
+		proto_tree_add_boolean(tree, hf_afs_fs_status_mask_setowner, \
 			tvb,offset,sizeof(guint32), mask); \
-		proto_tree_add_uint(tree, hf_afs_fs_status_mask_setgroup, \
+		proto_tree_add_boolean(tree, hf_afs_fs_status_mask_setgroup, \
 			tvb,offset,sizeof(guint32), mask); \
-		proto_tree_add_uint(tree, hf_afs_fs_status_mask_setmode, \
+		proto_tree_add_boolean(tree, hf_afs_fs_status_mask_setmode, \
 			tvb,offset,sizeof(guint32), mask); \
-		proto_tree_add_uint(tree, hf_afs_fs_status_mask_setsegsize, \
+		proto_tree_add_boolean(tree, hf_afs_fs_status_mask_setsegsize, \
 			tvb,offset,sizeof(guint32), mask); \
-		proto_tree_add_uint(tree, hf_afs_fs_status_mask_fsync, \
+		proto_tree_add_boolean(tree, hf_afs_fs_status_mask_fsync, \
 			tvb,offset,sizeof(guint32), mask); \
 		offset += 4; \
 		tree = save; \
@@ -210,13 +210,13 @@
 			sizeof(guint32), flags); \
 		save = tree; \
 		tree = proto_item_add_subtree(ti, ett_afs_vldb_flags); \
-		proto_tree_add_uint(tree, hf_afs_vldb_flags_rwexists, \
+		proto_tree_add_boolean(tree, hf_afs_vldb_flags_rwexists, \
 			tvb,offset,sizeof(guint32), flags); \
-		proto_tree_add_uint(tree, hf_afs_vldb_flags_roexists, \
+		proto_tree_add_boolean(tree, hf_afs_vldb_flags_roexists, \
 			tvb,offset,sizeof(guint32), flags); \
-		proto_tree_add_uint(tree, hf_afs_vldb_flags_bkexists, \
+		proto_tree_add_boolean(tree, hf_afs_vldb_flags_bkexists, \
 			tvb,offset,sizeof(guint32), flags); \
-		proto_tree_add_uint(tree, hf_afs_vldb_flags_dfsfileset, \
+		proto_tree_add_boolean(tree, hf_afs_vldb_flags_dfsfileset, \
 			tvb,offset,sizeof(guint32), flags); \
 		offset += 4; \
 		tree = save; \
@@ -360,13 +360,13 @@
 		proto_tree_add_string(tree,hf_afs_fs_acl_entity, tvb,offset,strlen(who), who);\
 		tmpoffset = offset + strlen(who) + 1; \
 		acllen = bytes - strlen(who) - 1; \
-		proto_tree_add_uint(tree,hf_afs_fs_acl_r, tvb,tmpoffset,acllen,acl);\
-		proto_tree_add_uint(tree,hf_afs_fs_acl_l, tvb,tmpoffset,acllen,acl);\
-		proto_tree_add_uint(tree,hf_afs_fs_acl_i, tvb,tmpoffset,acllen,acl);\
-		proto_tree_add_uint(tree,hf_afs_fs_acl_d, tvb,tmpoffset,acllen,acl);\
-		proto_tree_add_uint(tree,hf_afs_fs_acl_w, tvb,tmpoffset,acllen,acl);\
-		proto_tree_add_uint(tree,hf_afs_fs_acl_k, tvb,tmpoffset,acllen,acl);\
-		proto_tree_add_uint(tree,hf_afs_fs_acl_a, tvb,tmpoffset,acllen,acl);\
+		proto_tree_add_boolean(tree,hf_afs_fs_acl_r, tvb,tmpoffset,acllen,acl);\
+		proto_tree_add_boolean(tree,hf_afs_fs_acl_l, tvb,tmpoffset,acllen,acl);\
+		proto_tree_add_boolean(tree,hf_afs_fs_acl_i, tvb,tmpoffset,acllen,acl);\
+		proto_tree_add_boolean(tree,hf_afs_fs_acl_d, tvb,tmpoffset,acllen,acl);\
+		proto_tree_add_boolean(tree,hf_afs_fs_acl_w, tvb,tmpoffset,acllen,acl);\
+		proto_tree_add_boolean(tree,hf_afs_fs_acl_k, tvb,tmpoffset,acllen,acl);\
+		proto_tree_add_boolean(tree,hf_afs_fs_acl_a, tvb,tmpoffset,acllen,acl);\
 		tree = save; \
 	}
 

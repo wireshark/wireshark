@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-register-info.h,v 1.12 2002/02/08 22:36:21 nneul Exp $
+ * $Id: packet-afs-register-info.h,v 1.13 2002/02/10 02:22:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -163,17 +163,17 @@
 { &hf_afs_fs_status_mask, { "Mask", "afs.fs.status.mask", 
 	FT_UINT32, BASE_HEX, 0, 0, "Mask", HFILL }},
 { &hf_afs_fs_status_mask_setmodtime, { "Set Modification Time", "afs.fs.status.mask.setmodtime", 
-	FT_UINT32, BASE_BIN, 0, 1, "Set Modification Time", HFILL }},
+	FT_BOOLEAN, 32, 0, 0x00000001, "Set Modification Time", HFILL }},
 { &hf_afs_fs_status_mask_setowner, { "Set Owner", "afs.fs.status.mask.setowner", 
-	FT_UINT32, BASE_BIN, 0, 2, "Set Owner", HFILL }},
+	FT_BOOLEAN, 32, 0, 0x00000002, "Set Owner", HFILL }},
 { &hf_afs_fs_status_mask_setgroup, { "Set Group", "afs.fs.status.mask.setgroup", 
-	FT_UINT32, BASE_BIN, 0, 4, "Set Group", HFILL }},
+	FT_BOOLEAN, 32, 0, 0x00000004, "Set Group", HFILL }},
 { &hf_afs_fs_status_mask_setmode, { "Set Mode", "afs.fs.status.mask.setmode", 
-	FT_UINT32, BASE_BIN, 0, 8, "Set Mode", HFILL }},
+	FT_BOOLEAN, 32, 0, 0x00000008, "Set Mode", HFILL }},
 { &hf_afs_fs_status_mask_setsegsize, { "Set Segment Size", "afs.fs.status.mask.setsegsize", 
-	FT_UINT32, BASE_BIN, 0, 16, "Set Segment Size", HFILL }},
+	FT_BOOLEAN, 32, 0, 0x00000010, "Set Segment Size", HFILL }},
 { &hf_afs_fs_status_mask_fsync, { "FSync", "afs.fs.status.mask.fsync", 
-	FT_UINT32, BASE_BIN, 0, 1024, "FSync", HFILL }},
+	FT_BOOLEAN, 32, 0, 0x00000400, "FSync", HFILL }},
 
 { &hf_afs_fs_status_clientmodtime, { "Client Modification Time", "afs.fs.status.clientmodtime", 
 	FT_ABSOLUTE_TIME, BASE_DEC, 0, 0, "Client Modification Time", HFILL }},
@@ -247,21 +247,21 @@
 	FT_STRING, BASE_HEX, 0, 0, "ACL Entity (User/Group)", HFILL }},
 { &hf_afs_fs_acl_r, {
 	"_R_ead", "afs.fs.acl.r", 
-	FT_UINT8, BASE_BIN, 0, PRSFS_READ, "Read", HFILL }},
+	FT_BOOLEAN, 8, 0, PRSFS_READ, "Read", HFILL }},
 { &hf_afs_fs_acl_l, {
 	"_L_ookup", "afs.fs.acl.l", 
-	FT_UINT8, BASE_BIN, 0, PRSFS_LOOKUP, "Lookup", HFILL }},
+	FT_BOOLEAN, 8, 0, PRSFS_LOOKUP, "Lookup", HFILL }},
 { &hf_afs_fs_acl_i, {
 	"_I_nsert", "afs.fs.acl.i", 
-	FT_UINT8, BASE_BIN, 0, PRSFS_INSERT, "Insert", HFILL }},
+	FT_BOOLEAN, 8, 0, PRSFS_INSERT, "Insert", HFILL }},
 { &hf_afs_fs_acl_d, { "_D_elete", "afs.fs.acl.d", 
-	FT_UINT8, BASE_BIN, 0, PRSFS_DELETE, "Delete", HFILL }},
+	FT_BOOLEAN, 8, 0, PRSFS_DELETE, "Delete", HFILL }},
 { &hf_afs_fs_acl_w, { "_W_rite", "afs.fs.acl.w", 
-	FT_UINT8, BASE_BIN, 0, PRSFS_WRITE, "Write", HFILL }},
+	FT_BOOLEAN, 8, 0, PRSFS_WRITE, "Write", HFILL }},
 { &hf_afs_fs_acl_k, { "_L_ock", "afs.fs.acl.k", 
-	FT_UINT8, BASE_BIN, 0, PRSFS_LOCK, "Lock", HFILL }},
+	FT_BOOLEAN, 8, 0, PRSFS_LOCK, "Lock", HFILL }},
 { &hf_afs_fs_acl_a, { "_A_dminister", "afs.fs.acl.a", 
-	FT_UINT8, BASE_BIN, 0, PRSFS_ADMINISTER, "Administer", HFILL }},
+	FT_BOOLEAN, 8, 0, PRSFS_ADMINISTER, "Administer", HFILL }},
 
 { &hf_afs_fs_callback_version, { "Version", "afs.fs.callback.version", 
 	FT_UINT32, BASE_DEC, 0, 0, "Version", HFILL }},
@@ -399,16 +399,16 @@
 { &hf_afs_vldb_serverip, { "Server IP", "afs.vldb.serverip", 
 	FT_IPv4, BASE_HEX, 0, 0, "Server IP", HFILL }},
 { &hf_afs_vldb_flags, { "Flags", "afs.vldb.flags", 
-	FT_UINT32, BASE_DEC, 0, 0, "Flags", HFILL }},
+	FT_UINT32, BASE_HEX, 0, 0, "Flags", HFILL }},
 	
 { &hf_afs_vldb_flags_rwexists, { "Read/Write Exists", "afs.vldb.flags.rwexists", 
-	FT_UINT32, BASE_BIN, 0, 0x1000, "Read/Write Exists", HFILL }},
+	FT_BOOLEAN, 32, 0, 0x1000, "Read/Write Exists", HFILL }},
 { &hf_afs_vldb_flags_roexists, { "Read-Only Exists", "afs.vldb.flags.roexists", 
-	FT_UINT32, BASE_BIN, 0, 0x2000, "Read-Only Exists", HFILL }},
+	FT_BOOLEAN, 32, 0, 0x2000, "Read-Only Exists", HFILL }},
 { &hf_afs_vldb_flags_bkexists, { "Backup Exists", "afs.vldb.flags.bkexists", 
-	FT_UINT32, BASE_BIN, 0, 0x4000, "Backup Exists", HFILL }},
+	FT_BOOLEAN, 32, 0, 0x4000, "Backup Exists", HFILL }},
 { &hf_afs_vldb_flags_dfsfileset, { "DFS Fileset", "afs.vldb.flags.dfsfileset", 
-	FT_UINT32, BASE_BIN, 0, 0x8000, "DFS Fileset", HFILL }},
+	FT_BOOLEAN, 32, 0, 0x8000, "DFS Fileset", HFILL }},
 	
 { &hf_afs_vldb_spare1, { "Spare 1", "afs.vldb.spare1", 
 	FT_UINT32, BASE_DEC, 0, 0, "Spare 1", HFILL }},
