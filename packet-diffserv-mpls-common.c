@@ -2,7 +2,7 @@
  * Routines for the common part of Diffserv MPLS signaling protocols
  * Author: Endoh Akira (endoh@netmarks.co.jp)
  *
- * $Id: packet-diffserv-mpls-common.c,v 1.1 2003/10/10 21:16:24 guy Exp $
+ * $Id: packet-diffserv-mpls-common.c,v 1.2 2003/10/13 20:53:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,6 +48,17 @@
 #define ett_map        *etts[0]
 #define ett_map_phbid  *etts[1]
 
+const value_string phbid_bit14_vals[] = {
+    {0, "Single PHB"},
+    {1, "Set of PHBs"},
+    {0, NULL}
+};
+
+const value_string phbid_bit15_vals[] = {
+    {0, "PHBs defined by standards action"},
+    {1, "PHBs not defined by standards action"},
+    {0, NULL}
+};
 
 void
 dissect_diffserv_mpls_common(tvbuff_t *tvb, proto_tree *tree, int type, 
