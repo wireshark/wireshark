@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.28 2002/04/05 10:08:24 guy Exp $
+ * $Id: packet-cops.c,v 1.29 2002/04/28 00:43:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,6 +56,8 @@ static gboolean cops_desegment = TRUE;
  */
 
 static guint cops_tcp_port = 0;
+
+static gchar *last_decoded_prid=NULL;
 
 #define COPS_OBJECT_HDR_SIZE 4
 
@@ -961,7 +963,35 @@ static int dissect_cops_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *t
         return 0;
 }
 
-static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset, proto_tree *tree, guint epdlen)
+
+/*convert hex to binary string (1010....)*/
+gchar* xtobstr(guint8 *hex, guint len) {
+
+  guint i=0,j=0,k=0, bit=0;
+  gchar *binstr=NULL;
+  guint8 mask = 0x80;
+     
+  binstr = g_malloc(8*sizeof(gchar)*len);
+     
+  for (i=0; i < len; i++) {
+    for ( j=0; j<8; j++ ) {   /* for each bit     */
+      bit = (mask & hex[i]) ? 1 : 0;  /* bit is 1 or 0    */
+      sprintf(&binstr[k++],"%d",bit); /*put it in string */
+      mask >>= 1;    /* shift mask right */
+    }
+    mask = 0x80;
+  }
+  return binstr;
+}
+
+/*
+ * XXX - we should perhaps support reading PIBs, as we support reading
+ * MIBs, and use the PIBs we read to understand how to display COPS data
+ * just as we use the MIBs we read to understand how to display SNMP
+ * data.
+ */
+static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
+    proto_tree *tree, guint epdlen, gboolean inepd)
 {
         ASN1_SCK asn1; 
 	int start;
@@ -975,11 +1005,6 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset, proto_tree *t
 	int ret;
 	guint cls, con, tag;
 
-#ifdef OLD
-	subid_t *variable_oid;
-	guint variable_oid_length;
-#endif
-
 	gint32 vb_integer_value;
 	guint32 vb_uinteger_value;
 
@@ -990,179 +1015,202 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset, proto_tree *t
 
 	gchar *vb_display_string;
 
-	unsigned int i;
+	unsigned int i=0;
 	gchar *buf;
 	int len;
 
-	while (epdlen > 0){ /*while there is stuff to be decoded*/
+	while (epdlen > 0) { /*while there is stuff to be decoded*/
+		asn1_open(&asn1, tvb, offset);
 
-	asn1_open(&asn1, tvb, offset);
+		/* parse the type of the object */
 
+		start = asn1.offset;
 
-	/* parse the type of the object */
-
-	start = asn1.offset;
-
-	ret = asn1_header_decode (&asn1, &cls, &con, &tag, &def, &vb_length);
-	if (ret != ASN1_ERR_NOERROR)
-	  return 0;
-	if (!def)
-	  return ASN1_ERR_LENGTH_NOT_DEFINITE;
-
-	/* Convert the class, constructed flag, and tag to a type. */
-	vb_type_name = cops_tag_cls2syntax(tag, cls, &vb_type);
-	if (vb_type_name == NULL) {
-		/*
-		 * Unsupported type.
-		 * Dissect the value as an opaque string of octets.
-		 */
-		vb_type_name = "unsupported type";
-		vb_type = COPS_OPAQUE;
-	}
-
-	/* parse the value */
-
-	switch (vb_type) {
-
-	case  COPS_INTEGER : 
-		ret = asn1_int32_value_decode(&asn1, vb_length,
-		    &vb_integer_value);
+		ret = asn1_header_decode (&asn1, &cls, &con, &tag, &def,
+		    &vb_length);
 		if (ret != ASN1_ERR_NOERROR)
-			return ret;
-		length = asn1.offset - start;
-		if (tree) {
-			proto_tree_add_text(tree, asn1.tvb, offset, length,
-			    "Value: %s: %d (%#x)", vb_type_name,
-			    vb_integer_value, vb_integer_value);
-		}
-		break;
+			return 0;
+		if (!def)
+			return ASN1_ERR_LENGTH_NOT_DEFINITE;
 
-
-	case COPS_UNSIGNED32:
-	case COPS_TIMETICKS:
-		ret = asn1_uint32_value_decode(&asn1, vb_length,
-		    &vb_uinteger_value);
-		if (ret != ASN1_ERR_NOERROR)
-			return ret;
-		length = asn1.offset - start;
-		if (tree) {
-			proto_tree_add_text(tree, asn1.tvb, offset, length,
-			    "Value: %s: %u (%#x)", vb_type_name,
-			    vb_uinteger_value, vb_uinteger_value);
-		}
-		break;
-
-	case COPS_OCTETSTR:
-	case COPS_IPADDR:
-	case COPS_OPAQUE:
-	case COPS_UNSIGNED64:
-	case COPS_INTEGER64:
-		ret = asn1_string_value_decode (&asn1, vb_length,
-		    &vb_octet_string);
-		if (ret != ASN1_ERR_NOERROR)
-			return ret;
-		length = asn1.offset - start;
-		if (tree) {
+		/* Convert the class, constructed flag, and tag to a type. */
+		vb_type_name = cops_tag_cls2syntax(tag, cls, &vb_type);
+		if (vb_type_name == NULL) {
 			/*
-			 * If some characters are not printable, display
-			 * the string as bytes.
+			 * Unsupported type.
+			 * Dissect the value as an opaque string of octets.
 			 */
-			for (i = 0; i < vb_length; i++) {
-				if (!(isprint(vb_octet_string[i])
-				    || isspace(vb_octet_string[i])))
-					break;
+			vb_type_name = "unsupported type";
+			vb_type = COPS_OPAQUE;
+		}
+
+		/* parse the value */
+
+		switch (vb_type) {
+
+		case COPS_INTEGER:
+			ret = asn1_int32_value_decode(&asn1, vb_length,
+			    &vb_integer_value);
+			if (ret != ASN1_ERR_NOERROR)
+				return ret;
+			length = asn1.offset - start;
+			if (tree) {
+				proto_tree_add_text(tree, asn1.tvb, offset, length,
+				    "Value: %s: %d (%#x)", vb_type_name,
+				    vb_integer_value, vb_integer_value);
 			}
-			if (i < vb_length) {
-				/*
-				 * We stopped, due to a non-printable
-				 * character, before we got to the end
-				 * of the string.
-				 */
-				vb_display_string = g_malloc(4*vb_length);
-				buf = &vb_display_string[0];
-				len = sprintf(buf, "%03u", vb_octet_string[0]);
-				buf += len;
-				for (i = 1; i < vb_length; i++) {
-					len = sprintf(buf, ".%03u",
-					    vb_octet_string[i]);
-					buf += len;
+			break;
+
+		case COPS_UNSIGNED32:
+		case COPS_TIMETICKS:
+			ret = asn1_uint32_value_decode(&asn1, vb_length,
+			    &vb_uinteger_value);
+			if (ret != ASN1_ERR_NOERROR)
+				return ret;
+			length = asn1.offset - start;
+			if (tree) {
+				proto_tree_add_text(tree, asn1.tvb, offset, length,
+				    "Value: %s: %u (%#x)", vb_type_name,
+				    vb_uinteger_value, vb_uinteger_value);
+			}
+			break;
+
+		case COPS_OCTETSTR:
+		case COPS_IPADDR:
+		case COPS_OPAQUE:
+		case COPS_UNSIGNED64:
+		case COPS_INTEGER64:
+			ret = asn1_string_value_decode (&asn1, vb_length,
+			    &vb_octet_string);
+			if (ret != ASN1_ERR_NOERROR)
+				return ret;
+			length = asn1.offset - start;
+			if (tree) {
+				/* if this EPD belongs to ipFilter or
+				   frwkPrcSupport Entries print it correctly) */
+				if ((strncmp(last_decoded_prid,"1.3.6.1.2.2.2.3.2.1",19)==0) || (strncmp(last_decoded_prid,"1.3.6.1.2.2.2.1.1.1",19)==0)) {
+					if(strncmp(last_decoded_prid,"1.3.6.1.2.2.2.3.2.1",19)==0) {
+						i=0;/* EPD belongs to
+						       IpFilters, print as
+						       bytes (IPv6 not printed
+						       ok - yet)*/   
+					} else {
+						/* EPD belongs to
+						   frwkPrcSupportEntry,
+						   convert hex byte(s) to
+						   binary string*/ 
+						vb_display_string =
+						    xtobstr(vb_octet_string,
+						      vb_length);
+			  
+						proto_tree_add_text(tree, asn1.tvb,
+						    offset, length,
+						    "Value: %s: %s", vb_type_name,
+						    vb_display_string);
+		      
+						g_free(vb_octet_string);
+						g_free(vb_display_string);
+		      
+						break;
+					}
+				} else {
+					/* EPD doesn't belong to ipFilter or
+					   frwkPrcSupport Entries;
+					   check for unprintable characters*/
+
+					for (i = 0; i < vb_length; i++) {
+						if (!(isprint(vb_octet_string[i])
+						    ||isspace(vb_octet_string[i])))
+							break;
+					}
 				}
+
+				/*
+				 * If some characters are not printable,
+				 * display the string as bytes.
+				 */	
+				if (i < vb_length) {
+					/*
+					 * We stopped, due to a non-printable
+					 * character, before we got to the end
+					 * of the string.
+					 */
+					vb_display_string =
+					    g_malloc(4*vb_length);
+					buf = &vb_display_string[0];
+					len = sprintf(buf, "%03u",
+					    vb_octet_string[0]);
+					buf += len;
+					for (i = 1; i < vb_length; i++) {
+						len = sprintf(buf, ".%03u",
+						    vb_octet_string[i]);
+						buf += len;
+					}
+					proto_tree_add_text(tree,
+					    asn1.tvb, offset, length,
+					    "Value: %s: %s", vb_type_name,
+					    vb_display_string);
+					g_free(vb_display_string);
+				} else {
+					proto_tree_add_text(tree,
+					    asn1.tvb, offset, length,
+					    "Value: %s: %.*s", vb_type_name,
+					    (int)vb_length,
+					    SAFE_STRING(vb_octet_string));
+				}
+			}
+			g_free(vb_octet_string);
+			break;
+
+		case COPS_NULL:
+			ret = asn1_null_decode (&asn1, vb_length);
+			if (ret != ASN1_ERR_NOERROR)
+				return ret;
+			length = asn1.offset - start;
+			if (tree) {
+				proto_tree_add_text(tree, asn1.tvb, offset, length,
+				    "Value: %s", vb_type_name);
+			}
+			break;
+
+		case COPS_OBJECTID:
+			ret = asn1_oid_value_decode (&asn1, vb_length, &vb_oid,
+			    &vb_oid_length);
+			if (ret != ASN1_ERR_NOERROR)
+				return ret;
+			length = asn1.offset - start;
+
+			if (tree) {
+				vb_display_string = format_oid(vb_oid,
+				    vb_oid_length);
 				proto_tree_add_text(tree, asn1.tvb, offset, length,
 				    "Value: %s: %s", vb_type_name,
 				    vb_display_string);
-				g_free(vb_display_string);
-			} else {
-				proto_tree_add_text(tree, asn1.tvb, offset, length,
-				    "Value: %s: %.*s", vb_type_name,
-				    (int)vb_length,
-				    SAFE_STRING(vb_octet_string));
+		
+				if (inepd) {
+					/* we're decoding EPD */
+					g_free(vb_display_string);
+				} else {
+					/* we're decoding PRID, so let's store
+					   the OID of the PRID so that later
+					   when we're decoding this PRID's EPD
+					   we can finetune the output. */
+					if (last_decoded_prid)
+						g_free(last_decoded_prid);
+					last_decoded_prid = vb_display_string;
+				}
 			}
+			g_free(vb_oid);
+			break;
+
+		default:
+			g_assert_not_reached();
+			return ASN1_ERR_WRONG_TYPE;
 		}
-		g_free(vb_octet_string);
-		break;
-
-	case COPS_NULL:
-		ret = asn1_null_decode (&asn1, vb_length);
-		if (ret != ASN1_ERR_NOERROR)
-			return ret;
-		length = asn1.offset - start;
-		if (tree) {
-			proto_tree_add_text(tree, asn1.tvb, offset, length,
-			    "Value: %s", vb_type_name);
-		}
-		break;
-
-	case COPS_OBJECTID:
-		ret = asn1_oid_value_decode (&asn1, vb_length, &vb_oid,
-		    &vb_oid_length);
-		if (ret != ASN1_ERR_NOERROR)
-			return ret;
-		length = asn1.offset - start;
-
-		if (tree) {
-			vb_display_string = format_oid(vb_oid, vb_oid_length);
-			proto_tree_add_text(tree, asn1.tvb, offset, length,
-			    "Value: %s: %s", vb_type_name, vb_display_string);
-			g_free(vb_display_string);
-		}
-
-#ifdef OLD
-
-		if (tree) {
-#ifdef HAVE_SPRINT_VALUE
-			if (!unsafe) {
-
-		   
-				variable.val.objid = vb_oid;
-				vb_display_string = format_var(&variable,
-				    variable_oid, variable_oid_length, vb_type,
-				    vb_length);
-				proto_tree_add_text(tree, asn1.tvb, offset,
-				    length,
-				    "Value: %s", vb_display_string);
-				break;	/* we added formatted version to the tree */
-			}
-#endif /* HAVE_SPRINT_VALUE */
-
-			vb_display_string = format_oid(vb_oid, vb_oid_length);
-			proto_tree_add_text(tree, asn1.tvb, offset, length,
-			    "Value: %s: %s", vb_type_name, vb_display_string);
-			g_free(vb_display_string);
-		}
-#endif
-
-
-		g_free(vb_oid);
-		break;
-
-	default:
-		g_assert_not_reached();
-		return ASN1_ERR_WRONG_TYPE;
-	}
   
-	asn1_close(&asn1,&offset);
+		asn1_close(&asn1,&offset);
  
-	epdlen -= length;
+		epdlen -= length;
 	}
 	return 0;
 }
@@ -1182,7 +1230,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree
                 ti=proto_tree_add_text(tree, tvb, offset, len, "Contents:");
                 asn1_object_tree = proto_item_add_subtree(ti, ett_cops_asn1);
 
-		decode_cops_pr_asn1_data(tvb, offset, asn1_object_tree, len);
+		decode_cops_pr_asn1_data(tvb, offset, asn1_object_tree, len, FALSE);
 
                 break;
 	case COPS_OBJ_PPRID: 
@@ -1192,7 +1240,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree
                 ti = proto_tree_add_text(tree, tvb, offset, len, "Contents:");
                 asn1_object_tree = proto_item_add_subtree(ti, ett_cops_asn1);
 
-		decode_cops_pr_asn1_data(tvb, offset, asn1_object_tree, len);
+		decode_cops_pr_asn1_data(tvb, offset, asn1_object_tree, len, FALSE);
 
                 break;
 	case COPS_OBJ_EPD:
@@ -1202,7 +1250,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree
                 ti = proto_tree_add_text(tree, tvb, offset, len, "Contents:");
                 asn1_object_tree = proto_item_add_subtree(ti, ett_cops_asn1);
 
-		decode_cops_pr_asn1_data(tvb, offset, asn1_object_tree, len);
+		decode_cops_pr_asn1_data(tvb, offset, asn1_object_tree, len, TRUE);
 			
                 break;
         case COPS_OBJ_GPERR:
@@ -1252,7 +1300,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree
                 ti = proto_tree_add_text(tree, tvb, offset, len, "Contents:");
                 asn1_object_tree = proto_item_add_subtree(ti, ett_cops_asn1);
 
-		decode_cops_pr_asn1_data(tvb, offset, asn1_object_tree, len);
+		decode_cops_pr_asn1_data(tvb, offset, asn1_object_tree, len, FALSE);
 
 		break;
         default:
@@ -1267,7 +1315,6 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree
 /* Register the protocol with Ethereal */
 void proto_register_cops(void)
 {                 
-
         /* Setup list of header fields */
         static hf_register_info hf[] = {
                 { &hf_cops_ver_flags,
@@ -1520,13 +1567,11 @@ proto_reg_handoff_cops(void)
         static int cops_prefs_initialized = FALSE;
 	static dissector_handle_t cops_handle;
 
-	if(!cops_prefs_initialized){
-	  cops_handle = create_dissector_handle(dissect_cops, proto_cops);
-	  cops_prefs_initialized = TRUE;
-	}
-	else {
-	  dissector_delete("tcp.port",cops_tcp_port,cops_handle);
-	}
+	if (!cops_prefs_initialized) {
+		cops_handle = create_dissector_handle(dissect_cops, proto_cops);
+		cops_prefs_initialized = TRUE;
+	} else
+		dissector_delete("tcp.port",cops_tcp_port,cops_handle);
 	
 	/* Set our port numbers for future use */
 	cops_tcp_port = global_cops_tcp_port;
