@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.94 2003/10/23 04:57:46 guy Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.95 2003/11/02 03:55:32 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6189,22 +6189,27 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
           vf = proto_tree_add_item(tree, hf_netlogon_secchan_verf, tvb,
               offset, -1, FALSE);
           subtree = proto_item_add_subtree(vf, ett_secchan_verf);
-                                                                                
+
           proto_tree_add_item(subtree, hf_netlogon_secchan_verf_sig, tvb,
               offset, 8, FALSE);
 	  offset += 8;
-                                                                                
+
           proto_tree_add_item(subtree, hf_netlogon_secchan_verf_unk, tvb,
               offset, 8, FALSE);
 	  offset += 8;
-                                                                                
+
           proto_tree_add_item(subtree, hf_netlogon_secchan_verf_seq, tvb,
               offset, 8, FALSE);
 	  offset += 8;
-                                                                                
-          proto_tree_add_item(subtree, hf_netlogon_secchan_verf_nonce, tvb,
-              offset, 8, FALSE);
-	  offset += 8;
+
+	  /* In some cases the nonce isn't present although it isn't clear
+	     why this is so. */
+
+	  if (tvb_bytes_exist(tvb, offset, 8)) {
+		  proto_tree_add_item(subtree, hf_netlogon_secchan_verf_nonce,
+				      tvb, offset, 8, FALSE);
+		  offset += 8;
+	  }
 
 	  return offset;
 }
