@@ -1,6 +1,6 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.18 2001/07/03 04:56:45 guy Exp $
+ * $Id: packet-rtcp.c,v 1.19 2001/08/18 09:27:06 guy Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -442,8 +442,8 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
 		 * Not every message is ended with "null" bytes, so check for
 		 * end of frame instead.
 		 */
-		while ( ( tvb_get_guint8( tvb, offset ) != RTCP_SDES_END )
-		    && ( tvb_bytes_exist( tvb, offset, 2) ) ) {
+		while ( ( tvb_reported_length_remaining( tvb, offset ) > 0 )
+		    && ( tvb_get_guint8( tvb, offset ) != RTCP_SDES_END ) ) {
 			/* ID, 8 bits */
 			sdes_type = tvb_get_guint8( tvb, offset );
 			proto_tree_add_item( sdes_item_tree, hf_rtcp_ssrc_type, tvb, offset, 1, FALSE );
