@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.42 2004/01/21 21:19:33 ulfl Exp $
+ * $Id: help_dlg.c,v 1.43 2004/01/25 21:27:16 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -43,6 +43,9 @@
 
 #define HELP_DIR	"help"
 
+
+#define NOTEBOOK_KEY    "notebook_key"
+
 static void help_close_cb(GtkWidget *w, gpointer data);
 static void help_destroy_cb(GtkWidget *w, gpointer data);
 static void insert_text(GtkWidget *w, const char *buffer, int nchars);
@@ -61,6 +64,7 @@ static GtkWidget *help_w = NULL;
  * (for text format changes).
  */
 typedef struct {
+  char *topic;
   char *pathname;
   GtkWidget *txt;
 } help_page_t;
@@ -70,7 +74,7 @@ static GSList *help_text_pages = NULL;
 /*
  * Helper function to show a simple help text page.
  */
-static GtkWidget * help_page(const char *filename)
+static GtkWidget * help_page(const char *topic, const char *filename)
 {
   GtkWidget *page_vb, *txt_scrollw, *txt;
   char *relative_path, *absolute_path;
@@ -105,9 +109,10 @@ static GtkWidget * help_page(const char *filename)
   gtk_widget_show(page_vb);
 
   page = g_malloc(sizeof (help_page_t));
+  page->topic = g_strdup(topic);
   page->pathname = absolute_path;
   page->txt = txt;
-  help_text_pages = g_slist_prepend(help_text_pages, page);
+  help_text_pages = g_slist_append(help_text_pages, page);
 
   return page_vb;
 }
@@ -155,6 +160,7 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
   /* help topics container */
   help_nb = gtk_notebook_new();
   gtk_container_add(GTK_CONTAINER(main_vb), help_nb);
+  OBJECT_SET_DATA(help_w, NOTEBOOK_KEY, help_nb);
 
   /* help topics */
   while (fgets(line, sizeof line, help_toc_file) != NULL) {
@@ -173,7 +179,7 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
        * "line" refers to the topic now, and "filename" refers to the
        * file name.
        */
-      topic_vb = help_page(filename);
+      topic_vb = help_page(line, filename);
       label = gtk_label_new(line);
       gtk_notebook_append_page(GTK_NOTEBOOK(help_nb), topic_vb, label);
     }
@@ -209,6 +215,41 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
 
 
 /*
+ * Open the help dialog and show a specific help page.
+ */
+
+void help_topic_cb(GtkWidget *w _U_, gpointer data _U_) {
+    gchar       *topic = data;
+    gchar       *page_topic;
+    GtkWidget   *help_nb;
+    GSList      *help_page_ent;
+    gint        page_num = 0;
+    help_page_t *page;
+
+    /* show help dialog, if not already opened */
+    help_cb(NULL, NULL);
+
+    help_nb = OBJECT_GET_DATA(help_w, NOTEBOOK_KEY);
+
+    /* find page to display */
+    for (help_page_ent = help_text_pages; help_page_ent != NULL;
+         help_page_ent = g_slist_next(help_page_ent))
+    {
+        page = (help_page_t *)help_page_ent->data;
+        page_topic = page->topic;
+        if (strcmp (page_topic, topic) == 0) {
+            /* topic page found, switch to notebook page */
+            gtk_notebook_set_page(GTK_NOTEBOOK(help_nb), page_num);
+            return;
+        }
+        page_num++;
+    }
+
+    /* topic page not found, default (first page) will be shown */
+}
+
+
+/*
  * Close help dialog.
  */
 static void help_close_cb(GtkWidget *w _U_, gpointer data)
@@ -229,6 +270,7 @@ static void help_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
   for (help_page_ent = help_text_pages; help_page_ent != NULL;
        help_page_ent = g_slist_next(help_page_ent)) {
     page = (help_page_t *)help_page_ent->data;
+    g_free(page->topic);
     g_free(page->pathname);
     g_free(page);
   }

@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.54 2004/01/25 15:10:35 ulfl Exp $
+ * $Id: filter_prefs.c,v 1.55 2004/01/25 21:27:15 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,6 +43,7 @@
 #include "dfilter_expr_dlg.h"
 #include "compat_macros.h"
 #include "gtkglobals.h"
+#include "help_dlg.h"
 
 #define E_FILT_DIALOG_PTR_KEY       "filter_dialog_ptr"
 #define E_FILT_BUTTON_PTR_KEY       "filter_button_ptr"
@@ -294,7 +295,8 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
                *ok_bt,            /* "OK" button */
                *apply_bt,         /* "Apply" button */
                *save_bt,          /* "Save" button */
-               *close_bt;         /* "Cancel" button */
+               *close_bt,         /* "Cancel" button */
+               *help_bt;          /* "Help" button */
     GtkWidget  *filter_vb,        /* filter settings box */
                *props_vb;
     GtkWidget  *top_hb,
@@ -562,15 +564,15 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     /* button row */
     if (parent_filter_te != NULL) {
         if (construct_args->wants_apply_button) {
-            bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CLOSE, NULL);
+            bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
         } else {
-            bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_SAVE, GTK_STOCK_CLOSE, NULL);
+            bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_SAVE, GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
         }
     } else {
         if (construct_args->wants_apply_button) {
-            bbox = dlg_button_row_new(GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CLOSE, NULL);
+            bbox = dlg_button_row_new(GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
         } else {
-            bbox = dlg_button_row_new(GTK_STOCK_SAVE, GTK_STOCK_CLOSE, NULL);
+            bbox = dlg_button_row_new(GTK_STOCK_SAVE, GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
         }
     }
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
@@ -610,6 +612,14 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_tooltips_set_tip (tooltips, close_bt, ("Close this dialog but don't apply the filter changes"), NULL);
     if (parent_filter_te == NULL)
         gtk_widget_grab_default(close_bt);
+
+    help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+    if (list == CFILTER_LIST) {
+        SIGNAL_CONNECT(help_bt, "clicked", help_topic_cb, "Capture Filters");
+    } else {
+        SIGNAL_CONNECT(help_bt, "clicked", help_topic_cb, "Display Filters");
+    }
+    gtk_tooltips_set_tip (tooltips, help_bt, ("Show topic specific help"), NULL);
 
     /*
      * Catch the "key_press_event" signal in the window, so that we can

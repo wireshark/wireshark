@@ -1,6 +1,6 @@
 /* help_dlg.h
  *
- * $Id: help_dlg.h,v 1.5 2003/01/26 19:35:31 deniel Exp $
+ * $Id: help_dlg.h,v 1.6 2004/01/25 21:27:16 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -28,6 +28,7 @@
 #define __HELP_DLG_H__
 
 void help_cb(GtkWidget *, gpointer);
+void help_topic_cb(GtkWidget *w _U_, gpointer data _U_);
 
 /* Redraw all the text widgets, to use a new font. */
 void help_redraw(void);

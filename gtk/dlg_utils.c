@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.17 2004/01/22 20:33:21 guy Exp $
+ * $Id: dlg_utils.c,v 1.18 2004/01/25 21:27:15 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,14 +47,14 @@ dlg_key_press (GtkWidget *widget, GdkEventKey *event, gpointer cancel_button);
 
 /* create a button for the button row (helper for dlg_button_row_new) */
 static GtkWidget *
-dlg_button_new(GtkWidget *button_hbox, gchar *stock_id)
+dlg_button_new(GtkWidget *hbox, GtkWidget *button_hbox, gchar *stock_id)
 {
     GtkWidget *button;
 
     button = BUTTON_NEW_FROM_STOCK(stock_id);
     GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
-    OBJECT_SET_DATA(button_hbox, stock_id, button);
-    gtk_box_pack_start(GTK_BOX(button_hbox), button, FALSE, FALSE, 0);
+    OBJECT_SET_DATA(hbox, stock_id, button);
+    gtk_box_pack_end(GTK_BOX(button_hbox), button, FALSE, FALSE, 0);
     gtk_widget_show(button);
     return button;
 }
@@ -74,9 +74,12 @@ GtkWidget *
 dlg_button_row_new(gchar *stock_id_first, ...)
 {
     gint        buttons = 0;
-    GtkWidget   *button_hbox;
     va_list     stock_id_list;
     gchar       *stock_id = stock_id_first;
+    GtkWidget   *hbox;
+    GtkWidget   *button_hbox;
+    GtkWidget   *help_hbox;
+    GtkWidget   *button;
 
     gchar *ok           = NULL;
     gchar *apply        = NULL;
@@ -132,18 +135,38 @@ dlg_button_row_new(gchar *stock_id_first, ...)
     /* we should have at least one button */
     g_assert(buttons);
 
+
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_widget_show(hbox);
+
     button_hbox = gtk_hbutton_box_new();
+    gtk_box_pack_end(GTK_BOX(hbox), button_hbox, TRUE, TRUE, 0);
+    gtk_widget_show(button_hbox);
+
+    help_hbox = gtk_hbutton_box_new();
+    gtk_box_pack_end(GTK_BOX(hbox), help_hbox, FALSE, FALSE, 0);
+    gtk_widget_show(help_hbox);
 
     if (buttons == 1) {
         /* if only one button, simply put it in the middle (default) */
-        dlg_button_new(button_hbox, stock_id_first);
-        return button_hbox;
-    } else {
-        /* if more than one button, sort buttons from left to right */
-        /* (the whole button cluster will then be right aligned) */
-        gtk_button_box_set_layout (GTK_BUTTON_BOX(button_hbox), GTK_BUTTONBOX_END);
-        gtk_button_box_set_spacing(GTK_BUTTON_BOX(button_hbox), 5);
+        dlg_button_new(hbox, button_hbox, stock_id_first);
+        return hbox;
     }
+
+    /* do we have a help button? -> special handling for it */
+    if (help) {
+        button = BUTTON_NEW_FROM_STOCK(help);
+        GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
+        OBJECT_SET_DATA(hbox, help, button);
+        gtk_box_pack_start(GTK_BOX(help_hbox), button, FALSE, FALSE, 0);
+        gtk_widget_show(button);
+        buttons--;
+    }
+
+    /* if more than one button, sort buttons from left to right */
+    /* (the whole button cluster will then be right aligned) */
+    gtk_button_box_set_layout (GTK_BUTTON_BOX(button_hbox), GTK_BUTTONBOX_END);
+    gtk_button_box_set_spacing(GTK_BUTTON_BOX(button_hbox), 5);
 
 #if /*!WIN32 ||*/ GTK_MAJOR_VERSION >= 2
     /* beware: sequence of buttons are important! */
@@ -151,106 +174,100 @@ dlg_button_row_new(gchar *stock_id_first, ...)
     /* XXX: this can be implemented more elegant of course, but it works as it should */
     if (buttons == 2) {
         if (ok && cancel) {
-            dlg_button_new(button_hbox, cancel);
-            dlg_button_new(button_hbox, ok);
-            return button_hbox;
+            dlg_button_new(hbox, button_hbox, cancel);
+            dlg_button_new(hbox, button_hbox, ok);
+            return hbox;
         }
         if (print && cancel) {
-            dlg_button_new(button_hbox, cancel);
-            dlg_button_new(button_hbox, print);
-            return button_hbox;
+            dlg_button_new(hbox, button_hbox, cancel);
+            dlg_button_new(hbox, button_hbox, print);
+            return hbox;
         }
         if (find && cancel) {
-            dlg_button_new(button_hbox, cancel);
-            dlg_button_new(button_hbox, find);
-            return button_hbox;
+            dlg_button_new(hbox, button_hbox, cancel);
+            dlg_button_new(hbox, button_hbox, find);
+            return hbox;
         }
         if (jump && cancel) {
-            dlg_button_new(button_hbox, cancel);
-            dlg_button_new(button_hbox, jump);
-            return button_hbox;
+            dlg_button_new(hbox, button_hbox, cancel);
+            dlg_button_new(hbox, button_hbox, jump);
+            return hbox;
         }
         if (save && cancel) {
-            dlg_button_new(button_hbox, cancel);
-            dlg_button_new(button_hbox, save);
-            return button_hbox;
+            dlg_button_new(hbox, button_hbox, cancel);
+            dlg_button_new(hbox, button_hbox, save);
+            return hbox;
         }
         if (ok && clear) {
-            dlg_button_new(button_hbox, clear);
-            dlg_button_new(button_hbox, ok);
-            return button_hbox;
+            dlg_button_new(hbox, button_hbox, clear);
+            dlg_button_new(hbox, button_hbox, ok);
+            return hbox;
         }
         if (save && close) {
-            dlg_button_new(button_hbox, close);
-            dlg_button_new(button_hbox, save);
-            return button_hbox;
-        }
-        if (help && close) {
-            dlg_button_new(button_hbox, help);
-            dlg_button_new(button_hbox, close);
-            return button_hbox;
+            dlg_button_new(hbox, button_hbox, close);
+            dlg_button_new(hbox, button_hbox, save);
+            return hbox;
         }
         if (create_stat && cancel) {
-            dlg_button_new(button_hbox, cancel);
-            dlg_button_new(button_hbox, create_stat);
-            return button_hbox;
+            dlg_button_new(hbox, button_hbox, cancel);
+            dlg_button_new(hbox, button_hbox, create_stat);
+            return hbox;
         }
     }
     if (buttons == 3) {
         if (ok && save && close) {
-            dlg_button_new(button_hbox, save);
-            dlg_button_new(button_hbox, close);
-            dlg_button_new(button_hbox, ok);
-            return button_hbox;
+            dlg_button_new(hbox, button_hbox, save);
+            dlg_button_new(hbox, button_hbox, close);
+            dlg_button_new(hbox, button_hbox, ok);
+            return hbox;
         }
         if (ok && apply && cancel) {
-            dlg_button_new(button_hbox, apply);
-            dlg_button_new(button_hbox, cancel);
-            dlg_button_new(button_hbox, ok);
-            return button_hbox;
+            dlg_button_new(hbox, button_hbox, apply);
+            dlg_button_new(hbox, button_hbox, cancel);
+            dlg_button_new(hbox, button_hbox, ok);
+            return hbox;
         }
         if (apply && save && close) {
-            dlg_button_new(button_hbox, save);
-            dlg_button_new(button_hbox, close);
-            dlg_button_new(button_hbox, apply);
-            return button_hbox;
+            dlg_button_new(hbox, button_hbox, save);
+            dlg_button_new(hbox, button_hbox, close);
+            dlg_button_new(hbox, button_hbox, apply);
+            return hbox;
         }
     }
     if (buttons == 4) {
         if (ok && apply && save && cancel) {
-            dlg_button_new(button_hbox, save);
-            dlg_button_new(button_hbox, apply);
-            dlg_button_new(button_hbox, cancel);
-            dlg_button_new(button_hbox, ok);
-            return button_hbox;
+            dlg_button_new(hbox, button_hbox, save);
+            dlg_button_new(hbox, button_hbox, apply);
+            dlg_button_new(hbox, button_hbox, cancel);
+            dlg_button_new(hbox, button_hbox, ok);
+            return hbox;
         }
         if (ok && apply && save && close) {
-            dlg_button_new(button_hbox, save);
-            dlg_button_new(button_hbox, apply);
-            dlg_button_new(button_hbox, close);
-            dlg_button_new(button_hbox, ok);
-            return button_hbox;
+            dlg_button_new(hbox, button_hbox, save);
+            dlg_button_new(hbox, button_hbox, apply);
+            dlg_button_new(hbox, button_hbox, close);
+            dlg_button_new(hbox, button_hbox, ok);
+            return hbox;
         }
     }
 #endif
 
     /* beware: sequence of buttons is important! */
-    if (help    != NULL) dlg_button_new(button_hbox, help);
-    if (ok      != NULL) dlg_button_new(button_hbox, ok);
-    if (jump    != NULL) dlg_button_new(button_hbox, jump);
-    if (find    != NULL) dlg_button_new(button_hbox, find);
-    if (print   != NULL) dlg_button_new(button_hbox, print);
-    if (create_stat != NULL) dlg_button_new(button_hbox, create_stat);
-    if (apply   != NULL) dlg_button_new(button_hbox, apply);
-    if (save    != NULL) dlg_button_new(button_hbox, save);
-    if (stop    != NULL) dlg_button_new(button_hbox, stop);
-    if (close   != NULL) dlg_button_new(button_hbox, close);
-    if (clear   != NULL) dlg_button_new(button_hbox, clear);
-    if (cancel  != NULL) dlg_button_new(button_hbox, cancel);
+    if (ok      != NULL) dlg_button_new(hbox, button_hbox, ok);
+    if (jump    != NULL) dlg_button_new(hbox, button_hbox, jump);
+    if (find    != NULL) dlg_button_new(hbox, button_hbox, find);
+    if (print   != NULL) dlg_button_new(hbox, button_hbox, print);
+    if (create_stat != NULL) dlg_button_new(hbox, button_hbox, create_stat);
+    if (apply   != NULL) dlg_button_new(hbox, button_hbox, apply);
+    if (save    != NULL) dlg_button_new(hbox, button_hbox, save);
+    if (stop    != NULL) dlg_button_new(hbox, button_hbox, stop);
+    if (close   != NULL) dlg_button_new(hbox, button_hbox, close);
+    if (clear   != NULL) dlg_button_new(hbox, button_hbox, clear);
+    if (cancel  != NULL) dlg_button_new(hbox, button_hbox, cancel);
 
     /* GTK2: we don't know that button combination, add it to the above list! */
     /* g_assert_not_reached(); */
-    return button_hbox;
+    return hbox;
 }
 
 
