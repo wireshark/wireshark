@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.18 1999/08/20 23:11:05 guy Exp $
+ * $Id: ngsniffer.c,v 1.19 1999/08/22 02:29:39 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -87,7 +87,7 @@ struct vers_rec {
 	gint16	time;		/* DOS-format time */
 	gint16	date;		/* DOS-format date */
 	gint8	type;		/* what type of records follow */
-	gint8	network;	/* network type */
+	guint8	network;	/* network type */
 	gint8	format;		/* format version (we only support version 1!) */
 	guint8	timeunit;	/* timestamp units */
 	gint8	cmprs_vers;	/* compression version */
@@ -238,22 +238,6 @@ struct frame4_rec {
 #define NUM_NGSNIFF_TIMEUNITS 7
 static double Usec[] = { 15.0, 0.838096, 15.0, 0.5, 2.0, 0.0, 0.1 };
 
-#define NGSNIFF_ENCAP_ATM 10
-#define NUM_NGSNIFF_ENCAPS 11
-static int sniffer_encap[] = {
-		WTAP_ENCAP_TR,
-		WTAP_ENCAP_ETHERNET,
-		WTAP_ENCAP_ARCNET,
-		WTAP_ENCAP_NONE,	/* StarLAN */
-		WTAP_ENCAP_NONE,	/* PC Network broadband */
-		WTAP_ENCAP_NONE,	/* LocalTalk */
-		WTAP_ENCAP_NONE,	/* Znet */
-		WTAP_ENCAP_LAPB,	/* Internetwork analyzer */
-		WTAP_ENCAP_NONE,	/* type 8 not defined in Sniffer */
-		WTAP_ENCAP_FDDI,
-		WTAP_ENCAP_ATM_SNIFFER	/* ATM */
-};
-
 static int ngsniffer_read(wtap *wth, int *err);
 
 int ngsniffer_open(wtap *wth, int *err)
@@ -267,6 +251,20 @@ int ngsniffer_open(wtap *wth, int *err)
 	struct vers_rec version;
 	guint16	start_date;
 	guint16	start_time;
+	static const int sniffer_encap[] = {
+		WTAP_ENCAP_TR,
+		WTAP_ENCAP_ETHERNET,
+		WTAP_ENCAP_ARCNET,
+		WTAP_ENCAP_UNKNOWN,	/* StarLAN */
+		WTAP_ENCAP_UNKNOWN,	/* PC Network broadband */
+		WTAP_ENCAP_UNKNOWN,	/* LocalTalk */
+		WTAP_ENCAP_UNKNOWN,	/* Znet */
+		WTAP_ENCAP_LAPB,	/* Internetwork analyzer */
+		WTAP_ENCAP_UNKNOWN,	/* type 8 not defined in Sniffer */
+		WTAP_ENCAP_FDDI,
+		WTAP_ENCAP_ATM_SNIFFER	/* ATM */
+	};
+	#define NUM_NGSNIFF_ENCAPS (sizeof sniffer_encap / sizeof sniffer_encap[0])
 	struct tm tm;
 
 	/* Read in the string that should be at the start of a Sniffer file */
@@ -329,15 +327,17 @@ int ngsniffer_open(wtap *wth, int *err)
 	}
 
 	/* Check the data link type */
-	if (version.network >= NUM_NGSNIFF_ENCAPS) {
-		g_message("ngsniffer: network type %d unknown", version.network);
+	if (version.network >= NUM_NGSNIFF_ENCAPS
+	    || sniffer_encap[version.network] == WTAP_ENCAP_UNKNOWN) {
+		g_message("ngsniffer: network type %u unknown or unsupported",
+		    version.network);
 		*err = WTAP_ERR_UNSUPPORTED;
 		return -1;
 	}
 
 	/* Check the time unit */
 	if (version.timeunit >= NUM_NGSNIFF_TIMEUNITS) {
-		g_message("ngsniffer: Unknown timeunit %d", version.timeunit);
+		g_message("ngsniffer: Unknown timeunit %u", version.timeunit);
 		*err = WTAP_ERR_UNSUPPORTED;
 		return -1;
 	}
@@ -390,13 +390,13 @@ int ngsniffer_open(wtap *wth, int *err)
 static int ngsniffer_read(wtap *wth, int *err)
 {
 	int	bytes_read;
-	char record_type[2];
-	char record_length[4]; /* only 1st 2 bytes are length */
-	guint16 type, length;
+	char	record_type[2];
+	char	record_length[4]; /* only 1st 2 bytes are length */
+	guint16	type, length;
 	struct frame2_rec frame2;
 	struct frame4_rec frame4;
-	double t;
-	guint16 time_low, time_med, time_high, true_size, size;
+	double	t;
+	guint16	time_low, time_med, time_high, true_size, size;
 	int	data_offset;
 
 	for (;;) {

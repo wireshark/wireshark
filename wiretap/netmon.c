@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.10 1999/08/19 05:31:36 guy Exp $
+ * $Id: netmon.c,v 1.11 1999/08/22 02:29:40 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -99,18 +99,18 @@ int netmon_open(wtap *wth, int *err)
 	struct netmon_hdr hdr;
 	int file_type;
 	static const int netmon_encap[] = {
-		WTAP_ENCAP_NONE,
+		WTAP_ENCAP_UNKNOWN,
 		WTAP_ENCAP_ETHERNET,
 		WTAP_ENCAP_TR,
 		WTAP_ENCAP_FDDI,
-		WTAP_ENCAP_NONE,	/* WAN */
-		WTAP_ENCAP_NONE,	/* LocalTalk */
-		WTAP_ENCAP_NONE,	/* "DIX" - should not occur */
-		WTAP_ENCAP_NONE,	/* ARCNET raw */
-		WTAP_ENCAP_NONE,	/* ARCNET 878.2 */
-		WTAP_ENCAP_NONE,	/* ATM */
-		WTAP_ENCAP_NONE,	/* Wireless WAN */
-		WTAP_ENCAP_NONE		/* IrDA */
+		WTAP_ENCAP_UNKNOWN,	/* WAN */
+		WTAP_ENCAP_UNKNOWN,	/* LocalTalk */
+		WTAP_ENCAP_UNKNOWN,	/* "DIX" - should not occur */
+		WTAP_ENCAP_UNKNOWN,	/* ARCNET raw */
+		WTAP_ENCAP_UNKNOWN,	/* ARCNET 878.2 */
+		WTAP_ENCAP_UNKNOWN,	/* ATM */
+		WTAP_ENCAP_UNKNOWN,	/* Wireless WAN */
+		WTAP_ENCAP_UNKNOWN	/* IrDA */
 	};
 	#define NUM_NETMON_ENCAPS (sizeof netmon_encap / sizeof netmon_encap[0])
 	struct tm tm;
@@ -155,14 +155,16 @@ int netmon_open(wtap *wth, int *err)
 		break;
 
 	default:
-		g_message("netmon: major version %d unsupported", hdr.ver_major);
+		g_message("netmon: major version %u unsupported", hdr.ver_major);
 		*err = WTAP_ERR_UNSUPPORTED;
 		return -1;
 	}
 
 	hdr.network = pletohs(&hdr.network);
-	if (hdr.network >= NUM_NETMON_ENCAPS) {
-		g_message("netmon: network type %d unknown", hdr.network);
+	if (hdr.network >= NUM_NETMON_ENCAPS
+	    || netmon_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
+		g_message("netmon: network type %u unknown or unsupported",
+		    hdr.network);
 		*err = WTAP_ERR_UNSUPPORTED;
 		return -1;
 	}
@@ -219,7 +221,7 @@ int netmon_open(wtap *wth, int *err)
 /* Read the next packet */
 static int netmon_read(wtap *wth, int *err)
 {
-	int	packet_size = 0;
+	guint32	packet_size = 0;
 	int	bytes_read;
 	union {
 		struct netmonrec_1_x_hdr hdr_1_x;
@@ -273,6 +275,16 @@ static int netmon_read(wtap *wth, int *err)
 	case 2:
 		packet_size = pletohl(&hdr.hdr_2_x.incl_len);
 		break;
+	}
+	if (packet_size > WTAP_MAX_PACKET_SIZE) {
+		/*
+		 * Probably a corrupt capture file; don't blow up trying
+		 * to allocate space for an immensely-large packet.
+		 */
+		g_message("netmon: File has %u-byte packet, bigger than maximum of %u",
+		    packet_size, WTAP_MAX_PACKET_SIZE);
+		*err = WTAP_ERR_BAD_RECORD;
+		return -1;
 	}
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	errno = WTAP_ERR_CANT_READ;

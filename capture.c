@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.59 1999/08/22 01:02:42 guy Exp $
+ * $Id: capture.c,v 1.60 1999/08/22 02:29:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -835,21 +835,12 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
     case WTAP_ENCAP_PPP:
       capture_ppp(pd, phdr->caplen, &ld->counts);
       break;
-#if 0
-#ifdef DLT_ENC
-    case DLT_ENC :	/* XXX - OpenBSD "IPSEC enc type (af header, spi,
-    			   flags)" */
-#endif
-#ifdef DLT_LOOP
-    case DLT_LOOP :	/* XXX - prepended 4-byte AF_xxxx value in OpenBSD,
-    			   network byte order */
-#endif
-#endif
-			/* XXX - FreeBSD may append 4-byte ATM pseudo-header
-			   to DLT_ATM_RFC1483, with LLC header following */
     case WTAP_ENCAP_RAW_IP:
       capture_raw(pd, phdr->caplen, &ld->counts);
       break;
+    /* XXX - FreeBSD may append 4-byte ATM pseudo-header to DLT_ATM_RFC1483,
+       with LLC header following; we should implement it at some
+       point. */
   }
 }
 

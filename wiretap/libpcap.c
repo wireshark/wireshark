@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.11 1999/08/22 00:47:56 guy Exp $
+ * $Id: libpcap.c,v 1.12 1999/08/22 02:29:37 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -78,21 +78,23 @@ static int libpcap_dump_close(wtap_dumper *wdh, int *err);
 /*
  * XXX - this is a bit of a mess.  OpenBSD, and perhaps NetBSD, have
  * different DLT_ codes from FreeBSD (and from the LBL BPF code).
- * For now, we simply treat all except DLT_RAW as "unknown"; this
- * means you won't be able to capture from a network using those
+ * For now, we simply treat those type values with different
+ * meanings on different platforms, except for DLT_RAW, as "unknown";
+ * this means you won't be able to capture from a network using those
  * types in Ethereal (and that capturing from the loopback interface
- * won't necessarily work right on OpenBSD, either).
+ * won't necessarily work right on OpenBSD, either, as it uses
+ * DLT_LOOP, which is the same as DLT_RAW on other platforms).
  *
  * Does anybody know what BSD/OS uses as DLT_ types for SLIP and
  * PPP?  The LBL code, and the OpenBSD code, appear to disagree....
  *
  * Nothing in FreeBSD appears to use DLT_RAW, so it's not clear what
- * link-layer header or fake header appears.  If it's completely
- * unused, or if it behaves the same way OpenBSD DLT_LOOP behaves,
- * i.e. it puts an address family in *network* byte order (as opposed
- * to the *host* byte order that DLT_NULL uses on FreeBSD), then
- * we should just make it WTAP_ENCAP_LOOP and process that as an
- * OpenBSD DLT_LOOP.
+ * link-layer header or fake header appears for DLT_RAW.  If it's
+ * completely unused, or if it behaves the same way OpenBSD DLT_LOOP
+ * behaves, i.e. it puts an address family in *network* byte order
+ * (as opposed to the *host* byte order that DLT_NULL uses on FreeBSD),
+ * then we should just make it WTAP_ENCAP_NULL, which we treat in
+ * such a fashion as to cause it to work with DLT_LOOP headers.
  */
 static const int pcap_encap[] = {
 	WTAP_ENCAP_NULL,	/* null encapsulation */
@@ -166,14 +168,15 @@ int libpcap_open(wtap *wth, int *err)
 	}
 	if (hdr.version_major < 2) {
 		/* We only support version 2.0 and later. */
-		g_message("pcap: major version %d unsupported",
+		g_message("pcap: major version %u unsupported",
 		    hdr.version_major);
 		*err = WTAP_ERR_UNSUPPORTED;
 		return -1;
 	}
 	if (hdr.network >= NUM_PCAP_ENCAPS
 	    || pcap_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
-		g_message("pcap: network type %d unknown or unsupported", hdr.network);
+		g_message("pcap: network type %u unknown or unsupported",
+		    hdr.network);
 		*err = WTAP_ERR_UNSUPPORTED;
 		return -1;
 	}
@@ -289,16 +292,17 @@ int libpcap_dump_open(wtap_dumper *wdh, int *err)
 	static const guint32 pcap_magic = PCAP_MAGIC;
 	struct pcap_hdr file_hdr;
 	static const int wtap_encap[] = {
-		0,		/* WTAP_ENCAP_NONE */
-		1,		/* WTAP_ENCAP_ETHERNET */
-		6,		/* WTAP_ENCAP_TR */
-		8,		/* WTAP_ENCAP_SLIP */
-		9,		/* WTAP_ENCAP_PPP */
-		10,		/* WTAP_ENCAP_FDDI */
-		12,		/* WTAP_ENCAP_RAW_IP */
-		7,		/* WTAP_ENCAP_ARCNET */
-		11,		/* WTAP_ENCAP_ATM_RFC1483 */
-		19		/* WTAP_ENCAP_LINUX_ATM_CLIP */
+		0,		/* WTAP_ENCAP_UNKNOWN -> DLT_NULL */
+		1,		/* WTAP_ENCAP_ETHERNET -> DLT_EN10MB */
+		6,		/* WTAP_ENCAP_TR -> DLT_IEEE802 */
+		8,		/* WTAP_ENCAP_SLIP -> DLT_SLIP */
+		9,		/* WTAP_ENCAP_PPP -> DLT_PPP */
+		10,		/* WTAP_ENCAP_FDDI -> DLT_FDDI */
+		12,		/* WTAP_ENCAP_RAW_IP -> DLT_RAW */
+		7,		/* WTAP_ENCAP_ARCNET -> DLT_ARCNET */
+		11,		/* WTAP_ENCAP_ATM_RFC1483 -> DLT_ATM_RFC1483 */
+		19,		/* WTAP_ENCAP_LINUX_ATM_CLIP */
+		0		/* WTAP_ENCAP_NULL -> DLT_NULL */
 	};
 	int nwritten;
 

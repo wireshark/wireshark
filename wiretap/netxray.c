@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.10 1999/08/19 05:31:35 guy Exp $
+ * $Id: netxray.c,v 1.11 1999/08/22 02:29:39 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -102,14 +102,14 @@ int netxray_open(wtap *wth, int *err)
 		WTAP_ENCAP_ETHERNET,
 		WTAP_ENCAP_TR,
 		WTAP_ENCAP_FDDI,
-		WTAP_ENCAP_NONE,	/* WAN */
-		WTAP_ENCAP_NONE,	/* LocalTalk */
-		WTAP_ENCAP_NONE,	/* "DIX" - should not occur */
-		WTAP_ENCAP_NONE,	/* ARCNET raw */
-		WTAP_ENCAP_NONE,	/* ARCNET 878.2 */
-		WTAP_ENCAP_NONE,	/* ATM */
-		WTAP_ENCAP_NONE,	/* Wireless WAN */
-		WTAP_ENCAP_NONE		/* IrDA */
+		WTAP_ENCAP_UNKNOWN,	/* WAN */
+		WTAP_ENCAP_UNKNOWN,	/* LocalTalk */
+		WTAP_ENCAP_UNKNOWN,	/* "DIX" - should not occur */
+		WTAP_ENCAP_UNKNOWN,	/* ARCNET raw */
+		WTAP_ENCAP_UNKNOWN,	/* ARCNET 878.2 */
+		WTAP_ENCAP_UNKNOWN,	/* ATM */
+		WTAP_ENCAP_UNKNOWN,	/* Wireless WAN */
+		WTAP_ENCAP_UNKNOWN	/* IrDA */
 	};
 	#define NUM_NETXRAY_ENCAPS (sizeof netxray_encap / sizeof netxray_encap[0])
 
@@ -167,8 +167,10 @@ int netxray_open(wtap *wth, int *err)
 	}
 
 	hdr.network = pletohs(&hdr.network);
-	if (hdr.network >= NUM_NETXRAY_ENCAPS) {
-		g_message("netxray: network type %d unknown", hdr.network);
+	if (hdr.network >= NUM_NETXRAY_ENCAPS
+	    || netxray_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
+		g_message("netxray: network type %u unknown or unsupported",
+		    hdr.network);
 		*err = WTAP_ERR_UNSUPPORTED;
 		return -1;
 	}
@@ -204,7 +206,7 @@ int netxray_open(wtap *wth, int *err)
 /* Read the next packet */
 static int netxray_read(wtap *wth, int *err)
 {
-	int	packet_size;
+	guint32	packet_size;
 	int	bytes_read;
 	union {
 		struct netxrayrec_1_x_hdr hdr_1_x;

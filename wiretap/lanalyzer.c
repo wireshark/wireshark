@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.12 1999/08/20 04:49:18 gram Exp $
+ * $Id: lanalyzer.c,v 1.13 1999/08/22 02:29:40 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -163,7 +163,11 @@ int lanalyzer_open(wtap *wth, int *err)
 						wth->file_encap = WTAP_ENCAP_TR;
 						break;
 					default:
-						wth->file_encap = WTAP_ENCAP_NONE;
+						g_message("lanalyzer: board type %u unknown",
+						    board_type);
+						g_free(wth->capture.lanalyzer);
+						*err = WTAP_ERR_UNSUPPORTED;
+						return -1;
 				}
 				break;
 
@@ -229,6 +233,8 @@ static int lanalyzer_read(wtap *wth, int *err)
 	 * the middle of reading packets.  If any other record type exists
 	 * after a Trace Packet Data Record, mark it as an error. */
 	if (record_type != REC_TRACE_PACKET_DATA) {
+		g_message("lanalyzer: record type %u seen after trace summary record",
+		    record_type);
 		*err = WTAP_ERR_BAD_RECORD;
 		return -1;
 	}

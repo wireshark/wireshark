@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.30 1999/08/22 00:47:55 guy Exp $
+ * $Id: wtap.h,v 1.31 1999/08/22 02:29:38 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -27,6 +27,14 @@
 /* Encapsulation types. Choose names that truly reflect
  * what is contained in the packet trace file.
  *
+ * WTAP_ENCAP_PER_PACKET is a value passed to "wtap_dump_open()" or
+ * "wtap_dump_fdopen()" to indicate that there is no single encapsulation
+ * type for all packets in the file; this may cause those routines to
+ * fail if the capture file format being written can't support that.
+ *
+ * WTAP_ENCAP_UNKNOWN is returned by "wtap_pcap_encap_to_wtap_encap()"
+ * if it's handed an unknown encapsulation.
+ *
  * WTAP_ENCAP_LINUX_ATM_CLIP is the encapsulation you get with the
  * ATM on Linux code from <http://lrcwww.epfl.ch/linux-atm/>;
  * that code adds a DLT_ATM_CLIP DLT_ code of 19, and that
@@ -34,22 +42,24 @@
  * presumably used on some BSD systems, which we turn into
  * WTAP_ENCAP_ATM_RFC1483.
  *
- * WTAP_ENCAP_PER_PACKET is a value passed to "wtap_dump_open()" or
- * "wtap_dump_fdopen()" to indicate that there is no single encapsulation
- * type for all packets in the file; this may cause those routines to
- * fail if the capture file format being written can't support that.
+ * WTAP_ENCAP_NULL corresponds to DLT_NULL from "libpcap".  This
+ * corresponds to
  *
- * WTAP_ENCAP_NULL is the DLT_NULL some BSD systems use; at least with
- * many drivers on FreeBSD (and the loopback driver in 4.4-Lite, so
- * hopefully most BSD drivers, at least, model their DLT_NULL after it),
- * it puts a 4-byte field containing the AF_ address family value,
- * in *host* byte order, at the beginning of the packet.
+ *	1) PPP-over-HDLC encapsulation, at least with some versions
+ *	   of ISDN4BSD (but not the current ones, it appears, unless
+ *	   I've missed something);
  *
- * WTAP_ENCAP_UNKNOWN is returned by "wtap_pcap_encap_to_wtap_encap()"
- * if it's handed an unknown encapsulation. */
-#define WTAP_ENCAP_UNKNOWN			-2
+ *	2) a 4-byte header containing the AF_ address family, in
+ *	   the byte order of the machine that saved the capture,
+ *	   for the packet, as used on many BSD systems for the
+ *	   loopback device and some other devices;
+ *
+ *	3) a 4-byte header containing 2 octets of 0 and an Ethernet
+ *	   type in the byte order from an Ethernet header, that being
+ *	   what "libpcap" on Linux turns the Ethernet header for
+ *	   loopback interfaces into. */
 #define WTAP_ENCAP_PER_PACKET			-1
-#define WTAP_ENCAP_NONE				0
+#define WTAP_ENCAP_UNKNOWN			0
 #define WTAP_ENCAP_ETHERNET			1
 #define WTAP_ENCAP_TR				2
 #define WTAP_ENCAP_SLIP				3
@@ -218,16 +228,6 @@ struct wtap_pkthdr {
 	guint32 len;
 	int pkt_encap;
 	union pseudo_header pseudo_header;
-};
-
-/*
- * Header that OpenBSD (and possibly other BSDs) DLT_ENC prepends to
- * a packet.
- */
-struct dlt_enc_hdr {
-	guint32	af;
-	guint32	spi;
-	guint32 flags;
 };
 
 typedef void (*wtap_handler)(u_char*, const struct wtap_pkthdr*,

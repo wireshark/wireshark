@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.7 1999/08/20 04:07:09 gram Exp $
+ * $Id: iptrace.c,v 1.8 1999/08/22 02:29:40 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -125,7 +125,10 @@ static int iptrace_read(wtap *wth, int *err)
 		wth->phdr.pkt_encap = WTAP_ENCAP_RAW_IP;
 	}
 	else {
-		wth->phdr.pkt_encap = WTAP_ENCAP_NONE;
+		g_message("iptrace: interface type %c%c unknown or unsupported",
+		    if_name1, if_name2);
+		*err = WTAP_ERR_BAD_RECORD;
+		return -1;
 	}
 	return data_offset;
 }

@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.6 1999/08/19 05:31:35 guy Exp $
+ * $Id: snoop.c,v 1.7 1999/08/22 02:29:38 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -62,16 +62,16 @@ int snoop_open(wtap *wth, int *err)
 	char magic[sizeof snoop_magic];
 	struct snoop_hdr hdr;
 	static const int snoop_encap[] = {
-		WTAP_ENCAP_NONE,	/* IEEE 802.3 */
-		WTAP_ENCAP_NONE,	/* IEEE 802.4 Token Bus */
+		WTAP_ENCAP_UNKNOWN,	/* IEEE 802.3 */
+		WTAP_ENCAP_UNKNOWN,	/* IEEE 802.4 Token Bus */
 		WTAP_ENCAP_TR,
-		WTAP_ENCAP_NONE,	/* IEEE 802.6 Metro Net */
+		WTAP_ENCAP_UNKNOWN,	/* IEEE 802.6 Metro Net */
 		WTAP_ENCAP_ETHERNET,
-		WTAP_ENCAP_NONE,	/* HDLC */
-		WTAP_ENCAP_NONE,	/* Character Synchronous */
-		WTAP_ENCAP_NONE,	/* IBM Channel-to-Channel */
+		WTAP_ENCAP_UNKNOWN,	/* HDLC */
+		WTAP_ENCAP_UNKNOWN,	/* Character Synchronous */
+		WTAP_ENCAP_UNKNOWN,	/* IBM Channel-to-Channel */
 		WTAP_ENCAP_FDDI,
-		WTAP_ENCAP_NONE		/* Other */
+		WTAP_ENCAP_UNKNOWN	/* Other */
 	};
 	#define NUM_SNOOP_ENCAPS (sizeof snoop_encap / sizeof snoop_encap[0])
 
@@ -105,13 +105,15 @@ int snoop_open(wtap *wth, int *err)
 	hdr.version = ntohl(hdr.version);
 	if (hdr.version != 2) {
 		/* We only support version 2. */
-		g_message("snoop: version %d unsupported", hdr.version);
+		g_message("snoop: version %u unsupported", hdr.version);
 		*err = WTAP_ERR_UNSUPPORTED;
 		return -1;
 	}
 	hdr.network = ntohl(hdr.network);
-	if (hdr.network >= NUM_SNOOP_ENCAPS) {
-		g_message("snoop: network type %d unknown", hdr.network);
+	if (hdr.network >= NUM_SNOOP_ENCAPS
+	    || snoop_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
+		g_message("snoop: network type %u unknown or unsupported",
+		    hdr.network);
 		*err = WTAP_ERR_UNSUPPORTED;
 		return -1;
 	}
@@ -127,7 +129,7 @@ int snoop_open(wtap *wth, int *err)
 /* Read the next packet */
 static int snoop_read(wtap *wth, int *err)
 {
-	int	packet_size;
+	guint32	packet_size;
 	int	bytes_read;
 	struct snooprec_hdr hdr;
 	int	data_offset;
@@ -148,6 +150,16 @@ static int snoop_read(wtap *wth, int *err)
 	}
 
 	packet_size = ntohl(hdr.incl_len);
+	if (packet_size > WTAP_MAX_PACKET_SIZE) {
+		/*
+		 * Probably a corrupt capture file; don't blow up trying
+		 * to allocate space for an immensely-large packet.
+		 */
+		g_message("snoop: File has %u-byte packet, bigger than maximum of %u",
+		    packet_size, WTAP_MAX_PACKET_SIZE);
+		*err = WTAP_ERR_BAD_RECORD;
+		return -1;
+	}
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	data_offset = ftell(wth->fh);
 	errno = WTAP_ERR_CANT_READ;
