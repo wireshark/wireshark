@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.90 2002/11/09 08:07:19 guy Exp $
+ * $Id: ngsniffer.c,v 1.91 2002/11/10 20:52:56 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -280,12 +280,19 @@ struct frame6_rec {
  * one I have does) - at least some other captures with smaller version
  * numbers appear to put 0 there, so *maybe* that's where the network
  * (sub)type is hidden.
+ *
+ * The semantics of these network types is inferred from the Sniffer
+ * documentation, as they correspond to types described in the UI.
  */
 #define NET_SDLC	0
-#define NET_HDLC	1	/* is this X.25? */
+#define NET_HDLC	1	/* Used for X.25, among other things */
 #define NET_FRAME_RELAY	2
-#define NET_ROUTER	3	/* what's this? Is this ISDN? */
-#define NET_PPP		4
+#define NET_ROUTER	3	/* various point-to-point protocols
+				   for use between bridges and routers,
+				   including PPP as well as various
+				   proprietary protocols; also used for
+				   ISDN */
+#define NET_PPP		4	/* "Asynchronous", which includes SLIP too */
 #define NET_SMDS	5
 
 /* values for V.timeunit */
@@ -698,9 +705,15 @@ process_rec_header2_v4(wtap *wth, unsigned char *buffer, guint16 length,
 	}
 
 	/*
-	 * The X.25 captures I've seen have a type of NET_HDLC;
-	 * however, I've seen both PPP and ISDN captures with a
-	 * type of NET_ROUTER.
+	 * The X.25 captures I've seen have a type of NET_HDLC, and the
+	 * Sniffer documentation seems to imply that it's used for
+	 * X.25, although it could be used for other purposes as well.
+	 *
+	 * NET_ROUTER is used for all sorts of point-to-point protocols,
+	 * including ISDN.  It appears, from the documentation, that the
+	 * Sniffer attempts to infer the particular protocol by looking
+	 * at the traffic; it's not clear whether it stores in the file
+	 * an indication of the protocol it inferred was being used.
 	 *
 	 * For now, we interpret NET_HDLC as X.25 (LAPB) and NET_ROUTER
 	 * as "per-packet encapsulation".  We remember that we saw
