@@ -31,6 +31,7 @@
 #include "etypes.h"
 #include <epan/prefs.h>
 #include "chdlctypes.h"
+#include "nlpid.h"
 #include <epan/addr_resolv.h>
 #include "packet-chdlc.h"
 #include "packet-ppp.h"
@@ -127,16 +128,21 @@ chdlctype(guint16 chdlctype, tvbuff_t *tvb, int offset_after_chdlctype,
 	  int chdlctype_id)
 {
   tvbuff_t   *next_tvb;
+  int padbyte = 0;
 
   if (tree) {
     proto_tree_add_uint(fh_tree, chdlctype_id, tvb,
 			offset_after_chdlctype - 2, 2, chdlctype);
   }
 
-  if (chdlctype == CHDLCTYPE_OSI) {
+  padbyte = tvb_get_guint8(tvb, offset_after_chdlctype);
+  if (chdlctype == CHDLCTYPE_OSI &&
+    !( padbyte == NLPID_ISO8473_CLNP || /* older Juniper SW does not send a padbyte */
+       padbyte == NLPID_ISO9542_ESIS ||
+       padbyte == NLPID_ISO10589_ISIS)) {      
     /* There is a Padding Byte for CLNS protocols over Cisco HDLC */
     proto_tree_add_text(fh_tree, tvb, offset_after_chdlctype, 1, "CLNS Padding: 0x%02x",
-        tvb_get_guint8(tvb, offset_after_chdlctype));
+        padbyte);
     next_tvb = tvb_new_subset(tvb, offset_after_chdlctype + 1, -1, -1);
   } else {
     next_tvb = tvb_new_subset(tvb, offset_after_chdlctype, -1, -1);
