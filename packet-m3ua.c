@@ -8,7 +8,7 @@
  *
  * Copyright 2000, 2001, 2002, 2003, 2004 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-m3ua.c,v 1.38 2004/03/23 15:39:17 tuexen Exp $
+ * $Id: packet-m3ua.c,v 1.39 2004/03/25 23:25:20 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1452,9 +1452,9 @@ dissect_v6_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
     proto_tree_add_item(parameter_tree, hf_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, NETWORK_BYTE_ORDER);
 }
 
-#define V7_NETWORK_APPEARANCE_PARAMETER_TAG            0x01
-#define V7_PROTOCOL_DATA_1_PARAMETER_TAG               0x80
-#define V7_PROTOCOL_DATA_2_PARAMETER_TAG               0x81
+#define V7_NETWORK_APPEARANCE_PARAMETER_TAG            0x80
+#define V7_PROTOCOL_DATA_1_PARAMETER_TAG               0x81
+#define V7_PROTOCOL_DATA_2_PARAMETER_TAG               0x82
 #define V7_INFO_PARAMETER_TAG                          0x04
 #define V7_AFFECTED_DESTINATIONS_PARAMETER_TAG         0x83
 #define V7_ROUTING_CONTEXT_PARAMETER_TAG               0x06
