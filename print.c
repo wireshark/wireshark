@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.7 1998/10/22 19:10:17 gram Exp $
+ * $Id: print.c,v 1.8 1998/10/28 21:38:11 gerald Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -39,6 +39,7 @@
 
 #include "ethereal.h"
 #include "packet.h"
+#include "prefs.h"
 #include "print.h"
 #include "ps.h"
 
@@ -52,200 +53,188 @@ static void dumpit_ps (FILE *fh, register const u_char *cp, register u_int lengt
 static void ps_clean_string(unsigned char *out, const unsigned char *in,
 			int outbuf_size);
 
+extern e_prefs prefs;
+
 /* #include "ps.c" */
 
-pr_opts printer_opts;
-
 /* Key for gtk_object_set_data */
-const gchar *print_prefs_key = "printer_prefs_data";
+#define PRINT_CMD_TE_KEY  "printer_command_entry"
+#define PRINT_FILE_TE_KEY "printer_file_entry"
+
 GtkWidget * printer_prefs_show()
 {
-	GtkWidget	*main_vb, *button;
+	GtkWidget	*main_vb, *main_tb, *button;
 	GtkWidget	*format_hb, *format_lb;
 	GtkWidget	*dest_hb, *dest_lb;
-	GtkWidget	*cmd_hb, *cmd_lb, *cmd_te;
-	GtkWidget	*file_hb, *file_bt, *file_te;
+	GtkWidget	*cmd_lb, *cmd_te;
+	GtkWidget	*file_bt_hb, *file_bt, *file_te;
 	GSList		*format_grp, *dest_grp;
-	pr_opts		*temp_pr_opts = g_malloc(sizeof(pr_opts));
 
-	/* Make a working copy of the printer data */
-	memcpy(temp_pr_opts, &printer_opts, sizeof(pr_opts));
-/*	temp_pr_opts->cmd = g_strdup(printer_opts->cmd);
-	temp_pr_opts->file = g_strdup(printer_opts->file);*/
+	/* Enclosing containers for each row of widgets */
+  main_vb = gtk_vbox_new(FALSE, 5);
+  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
 
-	/* Container for each row of widgets */
-	main_vb = gtk_vbox_new(FALSE, 3);
-	gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
-	gtk_widget_show(main_vb);
-        gtk_object_set_data(GTK_OBJECT(main_vb), print_prefs_key,
-          temp_pr_opts);
+	main_tb = gtk_table_new(4, 2, FALSE);
+	gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
+  gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
+  gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
+  gtk_widget_show(main_tb);
 
 	/* Output format */
-	format_hb = gtk_hbox_new(FALSE, 1);
-	gtk_container_add(GTK_CONTAINER(main_vb), format_hb);
-	gtk_widget_show(format_hb);
-
 	format_lb = gtk_label_new("Format:");
-	gtk_box_pack_start(GTK_BOX(format_hb), format_lb, FALSE, FALSE, 3);
+  gtk_misc_set_alignment(GTK_MISC(format_lb), 1.0, 0.5);
+  gtk_table_attach_defaults(GTK_TABLE(main_tb), format_lb, 0, 1, 0, 1);
 	gtk_widget_show(format_lb);
 
+	format_hb = gtk_hbox_new(FALSE, 0);
+  gtk_table_attach_defaults(GTK_TABLE(main_tb), format_hb, 1, 2, 0, 1);
+	gtk_widget_show(format_hb);
+
 	button = gtk_radio_button_new_with_label(NULL, "Plain Text");
-	if (printer_opts.output_format == 0) {
+	if (prefs.pr_format == PR_FMT_TEXT) {
 		gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), TRUE);
 	}
 	format_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(button));
-	gtk_box_pack_start(GTK_BOX(format_hb), button, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(format_hb), button, FALSE, FALSE, 10);
 	gtk_widget_show(button);
 
 	button = gtk_radio_button_new_with_label(format_grp, "PostScript");
-	if (printer_opts.output_format == 1) {
+	if (prefs.pr_format == PR_FMT_PS) {
 		gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), TRUE);
 	}
 	gtk_signal_connect(GTK_OBJECT(button), "toggled",
-			GTK_SIGNAL_FUNC(printer_opts_toggle_format),
-			(gpointer)temp_pr_opts);
-	gtk_box_pack_start(GTK_BOX(format_hb), button, TRUE, TRUE, 0);
+			GTK_SIGNAL_FUNC(printer_opts_toggle_format), NULL);
+	gtk_box_pack_start(GTK_BOX(format_hb), button, FALSE, FALSE, 10);
 	gtk_widget_show(button);
 
 	/* Output destination */
-	dest_hb = gtk_hbox_new(FALSE, 1);
-	gtk_container_add(GTK_CONTAINER(main_vb), dest_hb);
-	gtk_widget_show(dest_hb);
-
 	dest_lb = gtk_label_new("Print to:");
-	gtk_box_pack_start(GTK_BOX(dest_hb), dest_lb, FALSE, FALSE, 3);
+  gtk_misc_set_alignment(GTK_MISC(dest_lb), 1.0, 0.5);
+  gtk_table_attach_defaults(GTK_TABLE(main_tb), dest_lb, 0, 1, 1, 2);
 	gtk_widget_show(dest_lb);
 
+	dest_hb = gtk_hbox_new(FALSE, 0);
+  gtk_table_attach_defaults(GTK_TABLE(main_tb), dest_hb, 1, 2, 1, 2);
+	gtk_widget_show(dest_hb);
+
 	button = gtk_radio_button_new_with_label(NULL, "Command");
-	if (printer_opts.output_dest == 0) {
+	if (prefs.pr_dest == PR_DEST_CMD) {
 		gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), TRUE);
 	}
 	dest_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(button));
-	gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), TRUE);
-	gtk_box_pack_start(GTK_BOX(dest_hb), button, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(dest_hb), button, FALSE, FALSE, 10);
 	gtk_widget_show(button);
 
 	button = gtk_radio_button_new_with_label(dest_grp, "File");
-	if (printer_opts.output_dest == 1) {
+	if (prefs.pr_dest == PR_DEST_FILE) {
 		gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), TRUE);
 	}
 	gtk_signal_connect(GTK_OBJECT(button), "toggled",
-			GTK_SIGNAL_FUNC(printer_opts_toggle_dest),
-			(gpointer)temp_pr_opts);
-	gtk_box_pack_start(GTK_BOX(dest_hb), button, TRUE, TRUE, 0);
+			GTK_SIGNAL_FUNC(printer_opts_toggle_dest), NULL);
+	gtk_box_pack_start(GTK_BOX(dest_hb), button, FALSE, FALSE, 10);
 	gtk_widget_show(button);
 
 	/* Command text entry */
-	cmd_hb = gtk_hbox_new(FALSE, 1);
-	gtk_container_add(GTK_CONTAINER(main_vb), cmd_hb);
-	gtk_widget_show(cmd_hb);
-
 	cmd_lb = gtk_label_new("Command:");
-	gtk_box_pack_start(GTK_BOX(cmd_hb), cmd_lb, FALSE, FALSE, 3);
+  gtk_misc_set_alignment(GTK_MISC(cmd_lb), 1.0, 0.5);
+  gtk_table_attach_defaults(GTK_TABLE(main_tb), cmd_lb, 0, 1, 2, 3);
 	gtk_widget_show(cmd_lb);
 
 	cmd_te = gtk_entry_new();
-	temp_pr_opts->cmd_te = cmd_te;
-	gtk_entry_set_text(GTK_ENTRY(cmd_te), printer_opts.cmd);
-	gtk_box_pack_start(GTK_BOX(cmd_hb), cmd_te, TRUE, TRUE, 3);
+	gtk_object_set_data(GTK_OBJECT(main_vb), PRINT_CMD_TE_KEY, cmd_te);
+	if (prefs.pr_cmd) gtk_entry_set_text(GTK_ENTRY(cmd_te), prefs.pr_cmd);
+  gtk_table_attach_defaults(GTK_TABLE(main_tb), cmd_te, 1, 2, 2, 3);
 	gtk_widget_show(cmd_te);
 
 	/* File button and text entry */
-	file_hb = gtk_hbox_new(FALSE, 1);
-	gtk_container_add(GTK_CONTAINER(main_vb), file_hb);
-	gtk_widget_show(file_hb);
+	file_bt_hb = gtk_hbox_new(FALSE, 0);
+  gtk_table_attach_defaults(GTK_TABLE(main_tb), file_bt_hb, 0, 1, 3, 4);
+	gtk_widget_show(file_bt_hb);
 
 	file_bt = gtk_button_new_with_label("File:");
-	gtk_box_pack_start(GTK_BOX(file_hb), file_bt, FALSE, FALSE, 3);
+	gtk_box_pack_end(GTK_BOX(file_bt_hb), file_bt, FALSE, FALSE, 0);
 	gtk_widget_show(file_bt);
 
 	file_te = gtk_entry_new();
-	temp_pr_opts->file_te = file_te;
-	gtk_entry_set_text(GTK_ENTRY(file_te), printer_opts.file);
-	gtk_box_pack_start(GTK_BOX(file_hb), file_te, TRUE, TRUE, 3);
+	gtk_object_set_data(GTK_OBJECT(main_vb), PRINT_FILE_TE_KEY, file_te);
+	if (prefs.pr_file) gtk_entry_set_text(GTK_ENTRY(file_te), prefs.pr_file);
+  gtk_table_attach_defaults(GTK_TABLE(main_tb), file_te, 1, 2, 3, 4);
 	gtk_widget_show(file_te);
 
 	gtk_signal_connect_object(GTK_OBJECT(file_bt), "clicked",
 			GTK_SIGNAL_FUNC(printer_opts_file_cb), GTK_OBJECT(file_te));
 
- 
+	gtk_widget_show(main_vb);
 	return(main_vb);
 }
 
 
 static void
 printer_opts_file_cb(GtkWidget *w, gpointer te) {
-  GtkWidget *fs, **w_list;
+  GtkWidget *fs;
 
-  w_list = g_malloc(2 * sizeof(GtkWidget *));
-  
   fs = gtk_file_selection_new ("Ethereal: Print to a File");
-  w_list[0] = fs;
-  w_list[1] = (GtkWidget *) te;
+	gtk_object_set_data(GTK_OBJECT(fs), PRINT_FILE_TE_KEY, te);
 
   gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION(fs)->ok_button),
-    "clicked", (GtkSignalFunc) printer_opts_fs_ok_cb, w_list);
+    "clicked", (GtkSignalFunc) printer_opts_fs_ok_cb, fs);
 
   /* Connect the cancel_button to destroy the widget */
   gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION(fs)->cancel_button),
-    "clicked", (GtkSignalFunc) printer_opts_fs_cancel_cb, w_list);
+    "clicked", (GtkSignalFunc) printer_opts_fs_cancel_cb, fs);
 
   gtk_widget_show(fs);
 }
 
 static void
 printer_opts_fs_ok_cb(GtkWidget *w, gpointer data) {
-	GtkWidget **w_list = (GtkWidget **) data;
 	  
-	gtk_entry_set_text(GTK_ENTRY(w_list[1]),
-		gtk_file_selection_get_filename (GTK_FILE_SELECTION(w_list[0])));
+	gtk_entry_set_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(data),
+  	PRINT_FILE_TE_KEY)),
+		gtk_file_selection_get_filename (GTK_FILE_SELECTION(data)));
 	printer_opts_fs_cancel_cb(w, data);
 }
 
 static void
 printer_opts_fs_cancel_cb(GtkWidget *w, gpointer data) {
-	GtkWidget **w_list = (GtkWidget **) data;
 	  
-	gtk_widget_destroy(w_list[0]);
-	g_free(data);
+	gtk_widget_destroy(GTK_WIDGET(data));
 } 
 
 void
 printer_prefs_ok(GtkWidget *w)
 {
-	pr_opts *data = gtk_object_get_data(GTK_OBJECT(w), print_prefs_key);
-        
-	printer_opts.output_format = ((pr_opts*)data)->output_format;
-	printer_opts.output_dest = ((pr_opts*)data)->output_dest;
+	if(prefs.pr_cmd) g_free(prefs.pr_cmd);
+	prefs.pr_cmd =  
+		g_strdup(gtk_entry_get_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(w),
+    PRINT_CMD_TE_KEY))));
 
-	free(printer_opts.cmd);
-	printer_opts.cmd =
-		g_strdup(gtk_entry_get_text(GTK_ENTRY(((pr_opts*)data)->cmd_te)));
+	if(prefs.pr_file) g_free(prefs.pr_file);
+	prefs.pr_file =  
+		g_strdup(gtk_entry_get_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(w),
+    PRINT_FILE_TE_KEY))));
+}
 
-	free(printer_opts.file);
-	printer_opts.file =
-		g_strdup(gtk_entry_get_text(GTK_ENTRY(((pr_opts*)data)->file_te)));
-
-	g_free(data);
+void
+printer_prefs_save(GtkWidget *w)
+{
+	printer_prefs_ok(w);
 }
 
 void
 printer_prefs_cancel(GtkWidget *w)
 {
-	pr_opts *data = gtk_object_get_data(GTK_OBJECT(w), print_prefs_key);
-        
-	g_free(data);
 }
 
 static void
 printer_opts_toggle_format(GtkWidget *widget, gpointer data)
 {
 		if (GTK_TOGGLE_BUTTON (widget)->active) {
-			((pr_opts*)data)->output_format = 1;
+			prefs.pr_format = PR_FMT_PS;
 			/* toggle file/cmd */
 		}
 		else {
-			((pr_opts*)data)->output_format = 0;
+			prefs.pr_format = PR_FMT_TEXT;
 			/* toggle file/cmd */
 		}
 }
@@ -254,10 +243,10 @@ static void
 printer_opts_toggle_dest(GtkWidget *widget, gpointer data)
 {
 		if (GTK_TOGGLE_BUTTON (widget)->active) {
-			((pr_opts*)data)->output_dest = 1;
+			prefs.pr_dest = PR_DEST_FILE;
 		}
 		else {
-			((pr_opts*)data)->output_dest = 0;
+			prefs.pr_dest = PR_DEST_CMD;
 		}
 }
 
@@ -268,13 +257,13 @@ void print_tree(const u_char *pd, frame_data *fd, GtkTree *tree)
 	char	*out;
 
 	/* Open the file or command for output */
-	if (printer_opts.output_dest == 0) {
-		out = printer_opts.cmd;
-		fh = popen(printer_opts.cmd, "w");
+	if (prefs.pr_dest == PR_DEST_CMD) {
+		out = prefs.pr_cmd;
+		fh = popen(prefs.pr_cmd, "w");
 	}
 	else {
-		out = printer_opts.file;
-		fh = fopen(printer_opts.file, "w");
+		out = prefs.pr_file;
+		fh = fopen(prefs.pr_file, "w");
 	}
 
 	if (!fh) {
@@ -283,7 +272,7 @@ void print_tree(const u_char *pd, frame_data *fd, GtkTree *tree)
 	}
 
 	/* Create the output */
-	if (printer_opts.output_format == 0) {
+	if (prefs.pr_format == PR_FMT_TEXT) {
 		print_tree_text(fh, pd, fd, tree);
 	}
 	else {
@@ -293,7 +282,7 @@ void print_tree(const u_char *pd, frame_data *fd, GtkTree *tree)
 	}
 
 	/* Close the file or command */
-	if (printer_opts.output_dest == 0) {
+	if (prefs.pr_dest == PR_DEST_CMD) {
 		pclose(fh);
 	}
 	else {

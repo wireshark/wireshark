@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.7 1998/10/13 07:03:31 guy Exp $
+ * $Id: capture.c,v 1.8 1998/10/28 21:38:06 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -281,7 +281,7 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
   cancel_bt = gtk_button_new_with_label ("Cancel");
   gtk_signal_connect_object(GTK_OBJECT(cancel_bt), "clicked",
     GTK_SIGNAL_FUNC(capture_prep_close_cb), GTK_OBJECT(cap_open_w));
-  GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
+  GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
   gtk_widget_show(cancel_bt);
 

@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.8 1998/10/16 01:18:29 gerald Exp $
+ * $Id: menu.c,v 1.9 1998/10/28 21:38:08 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,9 +38,9 @@
 #include "ethereal.h"
 #include "capture.h"
 #include "packet.h"
+#include "prefs.h"
 #include "print.h"
 #include "follow.h"
-#include "prefs.h"
 
 /* Much of this was take from the GTK+ tuturial at http://www.gtk.org */
 

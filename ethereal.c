@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.8 1998/10/16 06:44:32 guy Exp $
+ * $Id: ethereal.c,v 1.9 1998/10/28 21:38:07 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,11 +60,11 @@
 #include "file.h"
 #include "menu.h"
 #include "etypes.h"
+#include "prefs.h"
 #include "print.h"
 #include "resolv.h"
 #include "follow.h"
 #include "util.h"
-#include "prefs.h"
 
 FILE        *data_out_file = NULL;
 packet_info  pi;
@@ -75,8 +75,6 @@ GdkFont     *m_r_font, *m_b_font;
 guint        main_ctx, file_ctx;
 frame_data  *fd;
 gint         start_capture = 0;
-
-extern pr_opts printer_opts;
 
 ts_type timestamp_type = RELATIVE;
 
@@ -387,6 +385,8 @@ main(int argc, char *argv[])
   cf.save_file = NULL;
   cf.snap      = 68;
   cf.count     = 0;
+
+  read_prefs();
     
   /* Let GTK get its args */
   gtk_init (&argc, &argv);
@@ -464,13 +464,6 @@ main(int argc, char *argv[])
   rc_file = (gchar *) g_malloc(strlen(getenv("HOME")) + strlen(RC_FILE) + 4);
   sprintf(rc_file, "%s/%s", getenv("HOME"), RC_FILE);
   gtk_rc_parse(rc_file);
-
-  /* initialize printer options. temporary! we should only initialize
-   * if the options are not set in some ethereal initialization file */
-  printer_opts.output_format = 0;
-  printer_opts.output_dest = 0;
-  printer_opts.file = g_strdup("ethereal.out");
-  printer_opts.cmd = g_strdup("lpr");
 
   if ((m_r_font = gdk_font_load(medium_font)) == NULL) {
     fprintf(stderr, "Error font %s not found (use -m option)\n", medium_font);
