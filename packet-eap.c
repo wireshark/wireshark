@@ -2,7 +2,7 @@
  * Routines for EAP Extensible Authentication Protocol dissection
  * RFC 2284
  *
- * $Id: packet-eap.c,v 1.19 2002/03/19 20:55:40 guy Exp $
+ * $Id: packet-eap.c,v 1.20 2002/03/22 11:41:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -121,6 +121,29 @@ static const value_string eap_type_vals[] = {
 
 };
 
+/*
+ * Attach to all frames containing LEAP messages an indication of
+ * the state of the LEAP negotiation, so we can properly dissect
+ * the LEAP message after the first pass through the packets.
+ */
+static GMemChunk *leap_state_chunk = NULL;
+
+typedef struct {
+	int	state;
+} leap_state_t;
+
+static void
+eap_init_protocol(void)
+{
+  if (leap_state_chunk != NULL)
+    g_mem_chunk_destroy(leap_state_chunk);
+
+  leap_state_chunk = g_mem_chunk_new("leap_state_chunk",
+				     sizeof (leap_state_t),
+				     100 * sizeof (leap_state_t),
+				     G_ALLOC_ONLY);
+}
+
 static int
 dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 gboolean fragmented)
@@ -132,6 +155,7 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   gint        len;
   proto_tree *ti;
   proto_tree *eap_tree = NULL;
+  leap_state_t *leap_state_info;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAP");
@@ -184,151 +208,194 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 		      val_to_str(eap_type, eap_type_vals,
 				 "Unknown type (0x%02X)"));
-    if (tree) {
+    if (tree)
       proto_tree_add_uint(eap_tree, hf_eap_type, tvb, 4, 1, eap_type);
 
-      if (len > 5) {
-	int     offset = 5;
-	gint    size   = len - offset;
+    if (len > 5) {
+      int     offset = 5;
+      gint    size   = len - offset;
 
-	switch (eap_type) {
+      switch (eap_type) {
 
-	case EAP_TYPE_ID:
+      case EAP_TYPE_ID:
+	if (tree) {
 	  proto_tree_add_text(eap_tree, tvb, offset, size, 
 			      "Identity (%d byte%s): %s",
 			      size, plurality(size, "", "s"),
 			      tvb_format_text(tvb, offset, size));
-	  leap_state = 0;
-	  break;
+	}
+	leap_state = 0;
+	break;
 
-	case EAP_TYPE_NOTIFY:
+      case EAP_TYPE_NOTIFY:
+	if (tree) {
 	  proto_tree_add_text(eap_tree, tvb, offset, size, 
 			      "Notification (%d byte%s): %s",
 			      size, plurality(size, "", "s"),
 			      tvb_format_text(tvb, offset, size));
-	  break;
+	}
+	break;
 
-	case EAP_TYPE_NAK:
+      case EAP_TYPE_NAK:
+	if (tree) {
 	  proto_tree_add_uint(eap_tree, hf_eap_type_nak, tvb,
 			      offset, size, eap_type);
-	  break;
+	}
+	break;
 
-	case EAP_TYPE_TLS:
-	  {
-	  guint8 flags = tvb_get_guint8(tvb, offset);
+      case EAP_TYPE_TLS:
+	{
+	guint8 flags = tvb_get_guint8(tvb, offset);
 
+	if (tree) {
 	  proto_tree_add_text(eap_tree, tvb, offset, 1, "Flags(%i): %s%s%s",
 			      flags,
 			      flags & 128 ? "Length " : "",
 			      flags &  64 ? "More " : "",
 			      flags &  32 ? "Start " : "");
-	  size--;
-	  offset++;
+	}
+	size--;
+	offset++;
 
-	  if (flags >> 7) {
-	    guint32 length = tvb_get_ntohl(tvb, offset);
+	if (flags >> 7) {
+	  guint32 length = tvb_get_ntohl(tvb, offset);
+	  if (tree) {
 	    proto_tree_add_text(eap_tree, tvb, offset, 4, "Length: %i",
 				length);
-	    size   -= 4;
-	    offset += 4;
 	  }
+	  size   -= 4;
+	  offset += 4;
+	}
 
-	  if (size>0) {
-	    tvbuff_t *next_tvb;
-	    gint tvb_len; 
+	if (size>0) {
+	  tvbuff_t *next_tvb;
+	  gint tvb_len; 
 
-	    tvb_len = tvb_length_remaining(tvb, offset);
-	    if (size < tvb_len)
-		tvb_len = size;
-	    next_tvb = tvb_new_subset(tvb, offset, tvb_len, size);
-	    call_dissector(ssl_handle, next_tvb, pinfo, eap_tree);
-	  }
-	  }
-	  break;
+	  tvb_len = tvb_length_remaining(tvb, offset);
+	  if (size < tvb_len)
+	    tvb_len = size;
+	  next_tvb = tvb_new_subset(tvb, offset, tvb_len, size);
+	  call_dissector(ssl_handle, next_tvb, pinfo, eap_tree);
+	}
+	}
+	break;
 
-	  /*
-	    Cisco's LEAP
-	    http://www.missl.cs.umd.edu/wireless/ethereal/leap.txt
-	  */
+	/*
+	  Cisco's LEAP
+	  http://www.missl.cs.umd.edu/wireless/ethereal/leap.txt
+	*/
 
-	case EAP_TYPE_LEAP:
-	  {
-	    guint8  field,count,namesize;
+      case EAP_TYPE_LEAP:
+	{
+	  guint8  field,count,namesize;
 
-	    /* Version (byte) */
+	  /* Version (byte) */
+	  if (tree) {
 	    field = tvb_get_guint8(tvb, offset);
 	    proto_tree_add_text(eap_tree, tvb, offset, 1, 
 				"Version: %i",field);
-	    size--;
-	    offset++;
+	  }
+	  size--;
+	  offset++;
 
-	    /* Unused  (byte) */
+	  /* Unused  (byte) */
+	  if (tree) {
 	    field = tvb_get_guint8(tvb, offset);
 	    proto_tree_add_text(eap_tree, tvb, offset, 1, 
 				"Reserved: %i",field);
-	    size--;
-	    offset++;
+	  }
+	  size--;
+	  offset++;
 
-	    /* Count   (byte) */
-	    count = tvb_get_guint8(tvb, offset);
+	  /* Count   (byte) */
+	  count = tvb_get_guint8(tvb, offset);
+	  if (tree) {
 	    proto_tree_add_text(eap_tree, tvb, offset, 1, 
 				"Count: %i",count);
-	    size--;
-	    offset++;
+	  }
+	  size--;
+	  offset++;
 
-	    /* Data    (byte*Count)
-	       This part is state-dependent. */
-	    if (leap_state==0) {
+	  /* Data    (byte*Count)
+	     This part is state-dependent.
+
+	     See if we've already remembered the state. */
+	  leap_state_info = p_get_proto_data(pinfo->fd, proto_eap);
+	  if (leap_state_info != NULL) {
+	    /* We have - use the remembered state. */
+	    leap_state = leap_state_info->state;
+	  } else {
+	    /* We haven't - remember the state for subsequent accesses. */
+	    leap_state_info = g_mem_chunk_alloc(leap_state_chunk);
+	    leap_state_info->state = leap_state;
+	    p_add_proto_data(pinfo->fd, proto_eap, leap_state_info);
+	  }
+
+	  if (leap_state==0) {
+	    if (tree) {
 	      proto_tree_add_text(eap_tree, tvb, offset, count, 
 			       "Peer Challenge [R8] (%d byte%s) Value:'%s'",
 				  count, plurality(count, "", "s"),
 				  tvb_bytes_to_str(tvb, offset, count));
-	      leap_state++;
-	    } else if (leap_state==1) {
+	    }
+	    leap_state++;
+	  } else if (leap_state==1) {
+	    if (tree) {
 	      proto_tree_add_text(eap_tree, tvb, offset, count, 
 				  "Peer Response MSCHAP [24] (%d byte%s) NtChallengeResponse(%s)",
 				  count, plurality(count, "", "s"),
 				  tvb_bytes_to_str(tvb, offset, count));
-	      leap_state++;
-	    } else if (leap_state==2) {
+	    }
+	    leap_state++;
+	  } else if (leap_state==2) {
+	    if (tree) {
 	      proto_tree_add_text(eap_tree, tvb, offset, count, 
 			       "AP Challenge [R8] (%d byte%s) Value:'%s'",
 				  count, plurality(count, "", "s"),
 				  tvb_bytes_to_str(tvb, offset, count));
-	      leap_state++;
-	    } else if (leap_state==3) {
+	    }
+	    leap_state++;
+	  } else if (leap_state==3) {
+	    if (tree) {
 	      proto_tree_add_text(eap_tree, tvb, offset, count, 
 				  "AP Response [24] (%d byte%s) NtChallengeResponse(%s)",
 				  count, plurality(count, "", "s"),
 				  tvb_bytes_to_str(tvb, offset, count));
-	      leap_state++;
-	    } else 
+	    }
+	    leap_state++;
+	  } else {
+	    if (tree) {
 	      proto_tree_add_text(eap_tree, tvb, offset, count, 
 				"Data (%d byte%s): %s",
 				count, plurality(count, "", "s"),
 				tvb_bytes_to_str(tvb, offset, count));
+	    }
+	  }
 
-	    size   -= count;
-	    offset += count;
+	  size   -= count;
+	  offset += count;
 
-	    /* Name    (Length-(8+Count)) */
-	    namesize = eap_len - (8+count);
+	  /* Name    (Length-(8+Count)) */
+	  namesize = eap_len - (8+count);
+	  if (tree) {
 	    proto_tree_add_text(eap_tree, tvb, offset, namesize, 
 				"Name (%d byte%s): %s",
 				namesize, plurality(count, "", "s"),
 				tvb_format_text(tvb, offset, namesize));
-	    size   -= namesize;
-	    offset += namesize;
 	  }
-	  break;
+	  size   -= namesize;
+	  offset += namesize;
+	}
+	break;
 
-	default:
+      default:
+        if (tree) {
 	  proto_tree_add_text(eap_tree, tvb, offset, size, 
 			      "Type-Data (%d byte%s) Value: %s",
 			      size, plurality(size, "", "s"),
 			      tvb_bytes_to_str(tvb, offset, size));
-	  break;
 	}
+	break;
       }
     }
   }
@@ -376,6 +443,7 @@ proto_register_eap(void)
 				      "EAP", "eap");
   proto_register_field_array(proto_eap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  register_init_routine(&eap_init_protocol);
 
   new_register_dissector("eap", dissect_eap, proto_eap);
   new_register_dissector("eap_fragment", dissect_eap_fragment, proto_eap);

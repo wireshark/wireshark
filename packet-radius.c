@@ -4,7 +4,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.50 2002/03/22 02:38:52 guy Exp $
+ * $Id: packet-radius.c,v 1.51 2002/03/22 11:41:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -967,8 +967,9 @@ void dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
 
   if (avplength==0)
   {
-        proto_tree_add_text(tree, tvb,offset,0,"No Attribute Value Pairs Found");
-        return;
+    if (tree)
+      proto_tree_add_text(tree, tvb,offset,0,"No Attribute Value Pairs Found");
+    return;
   }
 
   /*
@@ -988,23 +989,28 @@ void dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
        * This AVP is bogus - the length includes the type and length
        * fields, so it must be >= 2.
        */
-      proto_tree_add_text(tree, tvb, offset, avph.avp_length,
-	"t:%s(%u) l:%u (length not >= 2)",
-	 avptpstrval,avph.avp_type,avph.avp_length);
+      if (tree) {
+        proto_tree_add_text(tree, tvb, offset, avph.avp_length,
+			    "t:%s(%u) l:%u (length not >= 2)",
+			    avptpstrval, avph.avp_type, avph.avp_length);
+      }
       break;
     }
 
     if (avph.avp_type == RD_TP_EAP_MESSAGE) {
       proto_item *ti;
-      proto_tree *eap_tree;
+      proto_tree *eap_tree = NULL;
       gint tvb_len;
       tvbuff_t *next_tvb;
       int data_len;
       int result;
 
-      ti = proto_tree_add_text(tree, tvb,offset,avph.avp_length,"t:%s(%u) l:%u",
-			       avptpstrval,avph.avp_type,avph.avp_length);
-      eap_tree = proto_item_add_subtree(ti, ett_radius_eap);
+      if (tree) {
+        ti = proto_tree_add_text(tree, tvb, offset, avph.avp_length,
+				 "t:%s(%u) l:%u",
+			 	 avptpstrval, avph.avp_type, avph.avp_length);
+        eap_tree = proto_item_add_subtree(ti, ett_radius_eap);
+      }
       tvb_len = tvb_length_remaining(tvb, offset+2);
       data_len = avph.avp_length-2;
       if (data_len < tvb_len)
@@ -1014,13 +1020,6 @@ void dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
       /*
        * Set the columns non-writable, so that the packet list
        * shows this as an RADIUS packet, not as an EAP packet.
-       *
-       * XXX - we'll call the EAP dissector only if we're building
-       * a protocol tree.  The EAP dissector currently saves no state,
-       * and won't be modifying the columns, so that's OK right now,
-       * but it might call the SSL dissector - if that maintains state
-       * needed for dissection, we'll have to arrange that AVPs be
-       * dissected even if we're not building a protocol tree.
        */
       col_set_writable(pinfo->cinfo, FALSE);
 
@@ -1039,7 +1038,8 @@ void dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
       /* Are we in the process of reassembling? */
       if (reassembled_data != NULL) {
         /* Yes - show this as an EAP fragment. */
-        proto_tree_add_text(eap_tree, next_tvb, 0, -1, "EAP fragment");
+        if (tree)
+          proto_tree_add_text(eap_tree, next_tvb, 0, -1, "EAP fragment");
 
         /*
          * Do we have all of the data in this fragment?
@@ -1109,10 +1109,13 @@ void dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
         }
       }
     } else {
-      valstr = rd_value_to_str(&avph, tvb, offset);
-      proto_tree_add_text(tree, tvb,offset,avph.avp_length,
-			  "t:%s(%u) l:%u, %s",
-			  avptpstrval,avph.avp_type,avph.avp_length,valstr);
+      if (tree) {
+        valstr = rd_value_to_str(&avph, tvb, offset);
+        proto_tree_add_text(tree, tvb, offset, avph.avp_length,
+			    "t:%s(%u) l:%u, %s",
+			    avptpstrval, avph.avp_type, avph.avp_length,
+			    valstr);
+      }
     }
 
     offset = offset+avph.avp_length;
@@ -1128,7 +1131,7 @@ void dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
 
 static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree *radius_tree,*avptree;
+  proto_tree *radius_tree = NULL, *avptree = NULL;
   proto_item *ti,*avptf;
   int rhlength;
   int rhcode;
@@ -1176,24 +1179,23 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_text(radius_tree, tvb, 4,
 			AUTHENTICATOR_LENGTH,
                          "Authenticator");
+  }
    
-	hdrlength=RD_HDR_LENGTH+AUTHENTICATOR_LENGTH;
-        avplength= rhlength -hdrlength;
+  hdrlength=RD_HDR_LENGTH+AUTHENTICATOR_LENGTH;
+  avplength= rhlength -hdrlength;
 
-        if (avplength > 0) {
-                /* list the attribute value pairs */
+  if (avplength > 0) {
+    /* list the attribute value pairs */
 
-                avptf = proto_tree_add_text(radius_tree,
-                                tvb,hdrlength,avplength,
-                                "Attribute value pairs");
-                avptree = proto_item_add_subtree(avptf, ett_radius_avp);
+    if (tree)
+    {
+      avptf = proto_tree_add_text(radius_tree,
+                                  tvb,hdrlength,avplength,
+                                  "Attribute value pairs");
+      avptree = proto_item_add_subtree(avptf, ett_radius_avp);
+    }
 
-                if (avptree !=NULL)
-                {
-                        dissect_attribute_value_pairs(tvb, hdrlength,
-                                avptree,avplength,pinfo);
-                }
-        }
+    dissect_attribute_value_pairs(tvb, hdrlength, avptree, avplength, pinfo);
   }
 }
 /* registration with the filtering engine */
