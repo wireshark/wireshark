@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.100 2003/08/28 04:19:28 guy Exp $
+ * $Id: packet-ipv6.c,v 1.101 2004/01/21 08:39:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -282,6 +282,7 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
     tvb_memcpy(tvb, (guint8 *)&frag, offset, sizeof(frag));
     len = sizeof(frag);
     frag.ip6f_offlg = g_ntohs(frag.ip6f_offlg);
+    frag.ip6f_ident = g_ntohl(frag.ip6f_ident);
     *offlg = frag.ip6f_offlg;
     *ident = frag.ip6f_ident;
     if (check_col(pinfo->cinfo, COL_INFO)) {
