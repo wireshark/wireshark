@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster<jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.6 2001/02/01 20:21:21 gram Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.7 2001/02/01 22:01:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -170,6 +170,7 @@ field_select_row_cb(GtkWidget *tree, GList *node, gint column,
 	switch (hfinfo->type) {
 
 	case FT_NONE:
+	case FT_PROTOCOL:
 		/*
 		 * You can only test for the field's presence;
 		 * hide the relation stuff.
