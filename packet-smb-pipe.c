@@ -9,7 +9,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.26 2001/08/06 00:59:14 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.27 2001/08/06 08:49:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -669,7 +669,7 @@ netusergetinfo_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* max storage */
 	max_storage = tvb_get_letohl(tvb, offset);
-	if (nlogons == 0xffffffff)
+	if (max_storage == 0xffffffff)
 		proto_tree_add_uint_format(tree, hf_max_storage, tvb, offset, 4,
 		    max_storage, "Max Storage: No limit");
 	else
@@ -726,7 +726,7 @@ netremotetod_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 4;
 
 	/* msecs since arbitrary point in the past */
-	timeval.tv_usec = tvb_get_letohl(tvb, offset);
+	proto_tree_add_item(tree, hf_msecs, tvb, offset, 4, TRUE);
 	offset += 4;
 
 	/* hour */
