@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.13 2000/09/14 10:02:59 gram Exp $
+$Id: README.win32,v 1.14 2000/09/29 06:30:31 guy Exp $
 
 Running Ethereal, Tethereal, and Editcap on Win32
 =================================================
@@ -17,10 +17,11 @@ or
 
 (the mirror nearer to you may be faster).
 
-Make sure the glib and gtk DLL's are in your path when you run
-Ethereal. This includes gtk-*.dll, glib-*.dll, gmodule-*.dll, gdk-*.dll,
-and gnu-intl.dll. As of the 20000805 GTK+/GLIB distribution, gthread-*.dll
-is no longer needed.
+Make sure the glib and gtk DLL's are in your path - i.e., that your path
+includes the directory (folder) or directories (folders) in which those
+DLLs are found - when you run Ethereal.  This includes gtk-*.dll,
+glib-*.dll, gmodule-*.dll, gdk-*.dll, and gnu-intl.dll.  As of the
+20000805 GTK+/GLIB distribution, gthread-*.dll is no longer needed.
 
 The Win32 Binary distribution, available from
 
