@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.9 2001/03/23 14:44:02 jfoster Exp $
+ * $Id: proto.h,v 1.10 2001/04/01 22:50:08 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -492,6 +492,9 @@ gboolean proto_can_disable_protocol(int proto_id);
  * number of the protocol in question, and keep state in "*cookie". */
 int proto_get_first_protocol(void **cookie);
 int proto_get_next_protocol(void **cookie);
+
+/* Given a protocol's filter_name, return it's proto_id */
+int proto_get_id_by_filter_name(gchar* filter_name);
 
 /* Given a protocol's item number, return its name. */
 char *proto_get_protocol_name(int n);

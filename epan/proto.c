@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.17 2001/04/01 07:06:24 hagbard Exp $
+ * $Id: proto.c,v 1.18 2001/04/01 22:50:08 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1654,6 +1654,25 @@ find_protocol_by_id(int proto_id)
 	if (list_entry == NULL)
 		return NULL;
 	return list_entry->data;
+}
+
+static gint compare_filter_name(gconstpointer proto_arg, 
+				gconstpointer filter_name)
+{
+  const protocol_t *protocol = proto_arg;
+  const gchar* f_name = filter_name;
+  return (strcmp(protocol->filter_name, f_name));
+}
+
+int proto_get_id_by_filter_name(gchar* filter_name)
+{
+  GList *list_entry;
+  protocol_t *protocol;
+  list_entry = g_list_find_custom(protocols,filter_name,compare_filter_name); 
+  if(list_entry == NULL)
+    return -1;
+  protocol = list_entry->data;
+  return(protocol->proto_id);
 }
 
 char *
