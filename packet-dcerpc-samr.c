@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.77 2003/02/14 06:19:54 tpot Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.78 2003/02/19 22:09:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4216,11 +4216,11 @@ samr_dissect_close_hnd_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep, hf_samr_hnd, &policy_hnd, 
 		FALSE, TRUE);
 
-	if (dcerpc_smb_fetch_pol(&policy_hnd, &name, NULL, NULL)) {
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(
-				pinfo->cinfo, COL_INFO, ", %s", name);
-	}
+	dcerpc_smb_fetch_pol(&policy_hnd, &name, NULL, NULL);
+
+	if (name != NULL && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(
+			pinfo->cinfo, COL_INFO, ", %s", name);
 
 	return offset;
 }
