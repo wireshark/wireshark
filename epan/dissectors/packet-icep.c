@@ -609,7 +609,7 @@ static void dissect_ice_params(proto_tree *tree, tvbuff_t *tvb,
 	/* check if I got all encapsulated data */
 	tvb_data_remained = tvb_reported_length_remaining(tvb, offset);
 	
-	if ( tvb_data_remained < ( size - ICEP_MIN_PARAMS_SIZE ) ) {
+	if ( ((gint32) tvb_data_remained) < ( size - ICEP_MIN_PARAMS_SIZE ) ) {
 		
 		if (tree)
 			proto_tree_add_text(tree, tvb, offset, -1,
