@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.5 2004/01/27 00:20:37 obiot Exp $
+# $Id: Makefile.common,v 1.6 2004/01/27 01:35:25 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -199,6 +199,7 @@ DISSECTOR_SRC =	\
 	packet-http.c	\
 	packet-hyperscsi.c	\
 	packet-iapp.c	\
+	packet-iax2.c	\
 	packet-ib.c	\
 	packet-icap.c	\
 	packet-icmpv6.c	\
