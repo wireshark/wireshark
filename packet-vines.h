@@ -1,14 +1,14 @@
 /* packet-vines.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-vines.h,v 1.8 2001/04/01 06:32:09 hagbard Exp $
+ * $Id: packet-vines.h,v 1.9 2001/04/17 00:46:03 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
- * Joerg Mayer <jmayer@telemation.de>
+ * Joerg Mayer <jmayer@loplof.de>
  *
  * 
  * This program is free software; you can redistribute it and/or

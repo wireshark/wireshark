@@ -1,12 +1,11 @@
 /* packet-afs.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-afs.h,v 1.4 2001/04/02 19:10:06 nneul Exp $
+ * $Id: packet-afs.h,v 1.5 2001/04/17 00:46:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
- * Joerg Mayer <jmayer@telemation.de>
  *
  *
  * This program is free software; you can redistribute it and/or

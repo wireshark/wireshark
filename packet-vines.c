@@ -1,14 +1,14 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.27 2001/04/15 09:18:45 guy Exp $
+ * $Id: packet-vines.c,v 1.28 2001/04/17 00:46:03 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
- * Joerg Mayer <jmayer@telemation.de>
+ * Joerg Mayer <jmayer@loplof.de>
  *
  * 
  * This program is free software; you can redistribute it and/or

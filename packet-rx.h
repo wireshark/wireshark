@@ -1,12 +1,11 @@
 /* packet-rx.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-rx.h,v 1.3 2000/04/14 06:42:52 guy Exp $
+ * $Id: packet-rx.h,v 1.4 2001/04/17 00:46:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
- * Joerg Mayer <jmayer@telemation.de>
  *
  *
  * This program is free software; you can redistribute it and/or

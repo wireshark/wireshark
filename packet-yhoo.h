@@ -1,12 +1,11 @@
 /* packet-yhoo.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-yhoo.h,v 1.6 2000/05/05 09:32:07 guy Exp $
+ * $Id: packet-yhoo.h,v 1.7 2001/04/17 00:46:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
- * Joerg Mayer <jmayer@telemation.de>
  *
  * 
  * This program is free software; you can redistribute it and/or
