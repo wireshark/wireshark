@@ -21,7 +21,7 @@
  *
  *      http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-referrals-03.txt
  *
- * $Id: packet-kerberos.c,v 1.58 2004/05/11 07:30:33 guy Exp $
+ * $Id: packet-kerberos.c,v 1.59 2004/05/14 01:58:31 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -114,6 +114,7 @@ static gint hf_krb_crealm = -1;
 static gint hf_krb_sname = -1;
 static gint hf_krb_cname = -1;
 static gint hf_krb_name_string = -1;
+static gint hf_krb_srv_location = -1;
 static gint hf_krb_e_text = -1;
 static gint hf_krb_name_type = -1;
 static gint hf_krb_lr_type = -1;
@@ -490,7 +491,12 @@ printf("woohoo decrypted keytype:%d in frame:%d\n", keytype, pinfo->fd->num);
 #define KRB5_TD_APP_DEFINED_ERROR      106
 #define KRB5_TD_REQ_NONCE              107
 #define KRB5_TD_REQ_SEQ                108
-#define KRB5_PA_PAC_REQUEST            128
+/* preauthentication types >127 (i.e. negative ones) are app specific.
+   hopefully there will be no collissions here or we will have to
+   come up with something better
+*/
+#define KRB5_PA_PAC_REQUEST            128	/* MS extension */
+#define KRB5_PA_PROV_SRV_LOCATION      255	/* packetcable stuff */
 
 /* Principal name-type */
 #define KRB5_NT_UNKNOWN        0
@@ -711,6 +717,7 @@ static const value_string krb5_preauthentication_types[] = {
     { KRB5_TD_REQ_NONCE            , "TD-REQ-NONCE" },
     { KRB5_TD_REQ_SEQ              , "TD-REQ-SEQ" },
     { KRB5_PA_PAC_REQUEST          , "PA-PAC-REQUEST" },
+    { KRB5_PA_PROV_SRV_LOCATION    , "PA-PROV-SRV-LOCATION" },
     { 0                            , NULL },
 };
 
@@ -1306,6 +1313,14 @@ dissect_krb5_PA_PAC_REQUEST(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 }
 
 
+static int
+dissect_krb5_PA_PROV_SRV_LOCATION(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_GeneralString(pinfo, tree, tvb, offset, hf_krb_srv_location, NULL, 0);
+
+	return offset;
+}
+
 
 
 static int
@@ -1456,6 +1471,7 @@ static int
 dissect_krb5_PA_DATA_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 	offset=dissect_ber_integer(pinfo, tree, tvb, offset, hf_krb_PA_DATA_type, &krb_PA_DATA_type);
+	krb_PA_DATA_type&=0xff; /*this is really just one single byte */
 
 	if(tree){
 		proto_item_append_text(tree, " %s", 
@@ -1480,6 +1496,9 @@ dissect_krb5_PA_DATA_value(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t
  		break;
 	case KRB5_PA_PAC_REQUEST:
 		offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_PAC_REQUEST);
+ 		break;
+	case KRB5_PA_PROV_SRV_LOCATION:
+		offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_PROV_SRV_LOCATION);
  		break;
 	case KRB5_PA_ENC_TIMESTAMP:
 		offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_ENC_TIMESTAMP);
@@ -3192,6 +3211,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_name_string, {
 	    "Name", "kerberos.name_string", FT_STRING, BASE_NONE,
 	    NULL, 0, "String component that is part of a PrincipalName", HFILL }},
+	{ &hf_krb_srv_location, {
+	    "SRV Location", "kerberos.srv_location", FT_STRING, BASE_NONE,
+	    NULL, 0, "PacketCable SRV Location", HFILL }},
 	{ &hf_krb_e_text, {
 	    "e-text", "kerberos.e_text", FT_STRING, BASE_NONE,
 	    NULL, 0, "Additional (human readable) error description", HFILL }},
