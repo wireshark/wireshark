@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.19 2001/03/26 15:27:55 nneul Exp $
+ * $Id: packet-rx.c,v 1.20 2001/05/27 01:48:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -75,8 +75,25 @@ static const value_string rx_flags[] = {
 	{ 0,                    NULL }
 };
 
-static int proto_rx = -1;
+static const value_string rx_reason[] = {
+	{ RX_ACK_REQUESTED,		"Ack Requested"		},
+	{ RX_ACK_DUPLICATE,		"Duplicate Packet"	},
+	{ RX_ACK_OUT_OF_SEQUENCE,	"Out Of Sequence"	},
+	{ RX_ACK_EXEEDS_WINDOW,		"Exceeds Window" 	},	
+	{ RX_ACK_NOSPACE,		"No Space"		},
+	{ RX_ACK_PING,			"Ping"			},
+	{ RX_ACK_PING_RESPONSE,		"Ping Response"		},
+	{ RX_ACK_DELAY,			"Delay"			},
+	{ 0,				NULL			}
+};
 
+static const value_string rx_ack_type[] = {
+	{ RX_ACK_TYPE_NACK,	"NACK"	},
+	{ RX_ACK_TYPE_ACK,	"ACK"	},
+	{ 0,			NULL	}
+};
+
+static int proto_rx = -1;
 static int hf_rx_epoch = -1;
 static int hf_rx_cid = -1;
 static int hf_rx_seq = -1;
@@ -93,99 +110,418 @@ static int hf_rx_userstatus = -1;
 static int hf_rx_securityindex = -1;
 static int hf_rx_spare = -1;
 static int hf_rx_serviceid = -1;
+static int hf_rx_bufferspace = -1;
+static int hf_rx_maxskew = -1;
+static int hf_rx_first_packet = -1;
+static int hf_rx_prev_packet = -1;
+static int hf_rx_reason = -1;
+static int hf_rx_numacks = -1;
+static int hf_rx_ack_type = -1;
+static int hf_rx_ack = -1;
+static int hf_rx_challenge = -1;
+static int hf_rx_version = -1;
+static int hf_rx_nonce = -1;
+static int hf_rx_inc_nonce = -1;
+static int hf_rx_min_level = -1;
+static int hf_rx_level = -1;
+static int hf_rx_response = -1;
+static int hf_rx_encrypted = -1;
+static int hf_rx_kvno = -1;
+static int hf_rx_ticket_len = -1;
+static int hf_rx_ticket = -1;
 
 static gint ett_rx = -1;
 static gint ett_rx_flags = -1;
+static gint ett_rx_ack = -1;
+static gint ett_rx_challenge = -1;
+static gint ett_rx_response = -1;
+static gint ett_rx_encrypted = -1;
 
-static void
-dissect_rx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+static int
+dissect_rx_response_encrypted(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
 {
-	proto_tree      *rx_tree, *rx_tree_flags, *rx_flags, *ti;
-	struct rx_header *rxh;
-	int reply;
+	proto_tree *tree;
+	proto_item *item;
+	int old_offset=offset;
+	int i;
+	guint32 callnumber;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_rx, pd, offset, fd, tree);
+	item = proto_tree_add_item(parent_tree, hf_rx_encrypted, tvb, offset, 0, FALSE);
+	tree = proto_item_add_subtree(item, ett_rx_encrypted);
 
-	rxh = (struct rx_header *) &pd[offset];
-
-	/* get at least a full packet structure */
-	if ( !BYTES_ARE_IN_FRAME(offset, sizeof(struct rx_header)) )
-		return;
-
-	if (check_col(fd, COL_PROTOCOL))
-		col_set_str(fd, COL_PROTOCOL, "RX");
-
-
-	if (tree) {
-		ti = proto_tree_add_protocol_format(tree, proto_rx, NullTVB, offset,
-			sizeof(struct rx_header), "RX Protocol");
-		rx_tree = proto_item_add_subtree(ti, ett_rx);
-
-		{
-			struct timeval tv;
-			tv.tv_sec = pntohl(&rxh->epoch);
-			tv.tv_usec = 0;
+	/* epoch : 4 bytes */
+	{
+		struct timeval tv;
+		tv.tv_sec = tvb_get_ntohl(tvb, offset);
+		tv.tv_usec = 0;
 		
-			proto_tree_add_time(rx_tree,hf_rx_epoch, NullTVB,
-				offset,sizeof(guint32),&tv);
-		}
-
-		proto_tree_add_uint(rx_tree, hf_rx_cid, NullTVB,
-			offset+4, 4, pntohl(&rxh->cid));
-		proto_tree_add_uint(rx_tree, hf_rx_callnumber, NullTVB,
-			offset+8, 4, pntohl(&rxh->callNumber));
-		proto_tree_add_uint(rx_tree, hf_rx_seq, NullTVB,
-			offset+12, 4, pntohl(&rxh->seq));
-		proto_tree_add_uint(rx_tree, hf_rx_serial, NullTVB,
-			offset+16, 4, pntohl(&rxh->serial));
-
-		proto_tree_add_uint(rx_tree, hf_rx_type, NullTVB,
-			offset+20, 1, rxh->type);
-
-		rx_flags = proto_tree_add_uint(rx_tree, hf_rx_flags, NullTVB,
-			offset+21, 1, rxh->flags);
-		rx_tree_flags = proto_item_add_subtree(rx_flags, ett_rx_flags);
-		proto_tree_add_uint(rx_tree_flags, hf_rx_flags_free_packet, NullTVB,
-			offset+21, 1, rxh->flags);
-		proto_tree_add_uint(rx_tree_flags, hf_rx_flags_more_packets, NullTVB,
-			offset+21, 1, rxh->flags);
-		proto_tree_add_uint(rx_tree_flags, hf_rx_flags_last_packet, NullTVB,
-			offset+21, 1, rxh->flags);
-		proto_tree_add_uint(rx_tree_flags, hf_rx_flags_request_ack, NullTVB,
-			offset+21, 1, rxh->flags);
-		proto_tree_add_uint(rx_tree_flags, hf_rx_flags_clientinit, NullTVB,
-			offset+21, 1, rxh->flags);
-
-		proto_tree_add_uint(rx_tree, hf_rx_userstatus, NullTVB,
-			offset+22, 1, rxh->userStatus);
-		proto_tree_add_uint(rx_tree, hf_rx_securityindex, NullTVB,
-			offset+23, 1, rxh->securityIndex);
-		proto_tree_add_uint(rx_tree, hf_rx_spare, NullTVB,
-			offset+24, 2, pntohs(&rxh->spare));
-		proto_tree_add_uint(rx_tree, hf_rx_serviceid, NullTVB,
-			offset+26, 2, pntohs(&rxh->serviceId));
+		proto_tree_add_time(tree, hf_rx_epoch, tvb,
+			offset, 4, &tv);
+		offset += 4;
 	}
 
-	if (check_col(fd, COL_INFO))
-		col_add_fstr(fd, COL_INFO,
-			"Type: %s  "
+	/* cid : 4 bytes */
+	proto_tree_add_uint(tree, hf_rx_cid, tvb,
+		offset, 4, tvb_get_ntohl(tvb, offset));
+	offset += 4;
+
+	/*FIXME dont know how to handle this checksum, skipping it */
+	offset += 4;
+
+	/* sequrityindex : 1 byte */
+	proto_tree_add_uint(tree, hf_rx_securityindex, tvb,
+		offset, 1, tvb_get_guint8(tvb, offset));
+	offset += 4;
+
+	for (i=0; i<RX_MAXCALLS; i++) {
+		/* callnumber : 4 bytes */
+		callnumber = tvb_get_ntohl(tvb, offset);
+		proto_tree_add_uint(tree, hf_rx_callnumber, tvb,
+			offset, 4, callnumber);
+		offset += 4;
+	}
+
+	/* inc nonce : 4 bytes */
+	proto_tree_add_uint(tree, hf_rx_inc_nonce, tvb,
+		offset, 4, tvb_get_ntohl(tvb, offset));
+	offset += 4;
+
+	/* level : 4 bytes */
+	proto_tree_add_uint(tree, hf_rx_level, tvb,
+		offset, 4, tvb_get_ntohl(tvb, offset));
+	offset += 4;
+	
+	proto_item_set_len(item, offset-old_offset);	
+	return offset;
+}
+	
+
+static int
+dissect_rx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, guint32 seq, guint32 callnumber)
+{
+	proto_tree *tree;
+	proto_item *item;
+	guint32 version, tl;
+	int old_offset=offset;
+
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_add_fstr(pinfo->fd, COL_INFO,
+			"RESPONSE  "
 			"Seq: %lu  "
 			"Call: %lu  "
 			"Source Port: %s  "
 			"Destination Port: %s  ",
-			val_to_str(rxh->type, rx_types, "%d"),
-			(unsigned long)pntohl(&rxh->seq),
-			(unsigned long)pntohl(&rxh->callNumber),
-			get_udp_port(pi.srcport),
-			get_udp_port(pi.destport)
+			(unsigned long)seq,
+			(unsigned long)callnumber,
+			get_udp_port(pinfo->srcport),
+			get_udp_port(pinfo->destport)
 		);
-
-	reply = (rxh->flags & RX_CLIENT_INITIATED) == 0;
-	if ( (rxh->type == RX_PACKET_TYPE_ABORT && reply) ||
-		rxh->type == RX_PACKET_TYPE_DATA )
-	{
-		dissect_afs(pd,offset,fd,tree);
 	}
+
+	item = proto_tree_add_item(parent_tree, hf_rx_response, tvb, offset, 0, FALSE);
+	tree = proto_item_add_subtree(item, ett_rx_response);
+
+	version = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_rx_version, tvb,
+		offset, 4, version);
+	offset += 4;
+
+	if (version==2) {
+		/* skip unused */
+		offset += 4;
+
+		/* encrypted : struct */
+		offset = dissect_rx_response_encrypted(tvb, pinfo, tree, offset);
+
+		/* kvno */
+		proto_tree_add_uint(tree, hf_rx_kvno, tvb,
+			offset, 4, tvb_get_ntohl(tvb, offset));
+		offset += 4;
+		
+		/* ticket_len */
+		tl = tvb_get_ntohl(tvb, offset);
+		proto_tree_add_uint(tree, hf_rx_ticket_len, tvb,
+			offset, 4, tl);
+		offset += 4;
+	
+		proto_tree_add_item(tree, hf_rx_ticket, tvb, offset, tl, FALSE);
+		offset += tl;	
+	}
+
+	proto_item_set_len(item, offset-old_offset);	
+	return offset;
+}
+
+static int
+dissect_rx_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, guint32 seq, guint32 callnumber)
+{
+	proto_tree *tree;
+	proto_item *item;
+	guint32 version;
+	int old_offset=offset;
+
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_add_fstr(pinfo->fd, COL_INFO,
+			"CHALLENGE  "
+			"Seq: %lu  "
+			"Call: %lu  "
+			"Source Port: %s  "
+			"Destination Port: %s  ",
+			(unsigned long)seq,
+			(unsigned long)callnumber,
+			get_udp_port(pinfo->srcport),
+			get_udp_port(pinfo->destport)
+		);
+	}
+
+	item = proto_tree_add_item(parent_tree, hf_rx_challenge, tvb, offset, 0, FALSE);
+	tree = proto_item_add_subtree(item, ett_rx_challenge);
+
+	version = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_rx_version, tvb,
+		offset, 4, version);
+	offset += 4;
+
+	if (version==2) {
+		proto_tree_add_uint(tree, hf_rx_nonce, tvb,
+			offset, 4, tvb_get_ntohl(tvb, offset));
+		offset += 4;
+
+		proto_tree_add_uint(tree, hf_rx_min_level, tvb,
+			offset, 4, tvb_get_ntohl(tvb, offset));
+		offset += 4;
+	}
+
+	proto_item_set_len(item, offset-old_offset);	
+	return offset;
+}
+
+static int
+dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, guint32 seq, guint32 callnumber)
+{
+	proto_tree *tree;
+	proto_item *item;
+	guint8 num;
+	int old_offset = offset;
+
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_add_fstr(pinfo->fd, COL_INFO,
+			"ACK  "
+			"Seq: %lu  "
+			"Call: %lu  "
+			"Source Port: %s  "
+			"Destination Port: %s  ",
+			(unsigned long)seq,
+			(unsigned long)callnumber,
+			get_udp_port(pinfo->srcport),
+			get_udp_port(pinfo->destport)
+		);
+	}
+
+	item = proto_tree_add_item(parent_tree, hf_rx_ack, tvb, offset, 0, FALSE);
+	tree = proto_item_add_subtree(item, ett_rx_ack);
+
+
+	/* bufferspace: 2 bytes*/
+	proto_tree_add_uint(tree, hf_rx_bufferspace, tvb,
+		offset, 2, tvb_get_ntohs(tvb, offset));
+	offset += 2;
+	
+	/* maxskew: 2 bytes*/
+	proto_tree_add_uint(tree, hf_rx_maxskew, tvb,
+		offset, 2, tvb_get_ntohs(tvb, offset));
+	offset += 2;
+	
+	/* first packet: 4 bytes*/
+	proto_tree_add_uint(tree, hf_rx_first_packet, tvb,
+		offset, 4, tvb_get_ntohl(tvb, offset));
+	offset += 4;
+	
+	/* prev packet: 4 bytes*/
+	proto_tree_add_uint(tree, hf_rx_prev_packet, tvb,
+		offset, 4, tvb_get_ntohl(tvb, offset));
+	offset += 4;
+
+	/* serial : 4 bytes */	
+	proto_tree_add_uint(tree, hf_rx_serial, tvb,
+		offset, 4, tvb_get_ntohl(tvb, offset) );
+	offset += 4;
+
+	/* reason : 1 byte */
+	proto_tree_add_uint(tree, hf_rx_reason, tvb,
+		offset, 1, tvb_get_guint8(tvb, offset) );
+	offset += 1;
+
+	/* nACKs */
+	num = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(tree, hf_rx_numacks, tvb,
+		offset, 1, tvb_get_guint8(tvb, offset) );
+	offset += 1;
+
+	while(num--){
+		proto_tree_add_uint(tree, hf_rx_ack_type, tvb,
+			offset, 1, tvb_get_guint8(tvb, offset) );
+		offset += 1;
+	}
+	
+	proto_item_set_len(item, offset-old_offset);	
+	return offset;
+}
+
+
+static int
+dissect_rx_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+{
+	proto_tree *tree;
+	proto_item *item;
+	guint8 flags;
+
+	flags = tvb_get_guint8(tvb, offset);
+	pinfo->ps.rx.flags = flags;
+
+	item = proto_tree_add_uint(parent_tree, hf_rx_flags, tvb,
+		offset, 1, flags);
+	tree = proto_item_add_subtree(item, ett_rx_flags);
+
+	proto_tree_add_uint(tree, hf_rx_flags_free_packet, tvb,
+		offset, 1, flags);
+	proto_tree_add_uint(tree, hf_rx_flags_more_packets, tvb,
+		offset, 1, flags);
+	proto_tree_add_uint(tree, hf_rx_flags_last_packet, tvb,
+		offset, 1, flags);
+	proto_tree_add_uint(tree, hf_rx_flags_request_ack, tvb,
+		offset, 1, flags);
+	proto_tree_add_uint(tree, hf_rx_flags_clientinit, tvb,
+		offset, 1, flags);
+
+	offset += 1;
+	return offset;
+}
+
+static void
+dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+{
+	proto_tree *tree;
+	proto_item *item;
+	int offset = 0;
+	guint8 type;
+	guint32 seq, callnumber;
+	guint16 serviceid;
+
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "RX");
+	if (check_col(pinfo->fd, COL_INFO))
+		col_clear(pinfo->fd, COL_INFO);
+
+	item = proto_tree_add_protocol_format(parent_tree, proto_rx, tvb, 
+		offset,	28, "RX Protocol");
+	tree = proto_item_add_subtree(item, ett_rx);
+
+	/* epoch : 4 bytes */
+	{
+		struct timeval tv;
+		tv.tv_sec = tvb_get_ntohl(tvb, offset);
+		tv.tv_usec = 0;
+		
+		proto_tree_add_time(tree, hf_rx_epoch, tvb,
+			offset, 4, &tv);
+		offset += 4;
+	}
+
+	/* cid : 4 bytes */
+	proto_tree_add_uint(tree, hf_rx_cid, tvb,
+		offset, 4, tvb_get_ntohl(tvb, offset));
+	offset += 4;
+
+	/* callnumber : 4 bytes */
+	callnumber = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_rx_callnumber, tvb,
+		offset, 4, callnumber);
+	offset += 4;
+	pinfo->ps.rx.callnumber = callnumber;
+
+	/* seq : 4 bytes */
+	seq = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_rx_seq, tvb,
+		offset, 4, seq);
+	offset += 4;
+	pinfo->ps.rx.seq = seq;
+
+	/* serial : 4 bytes */
+	proto_tree_add_uint(tree, hf_rx_serial, tvb,
+		offset, 4, tvb_get_ntohl(tvb, offset));
+	offset += 4;
+
+	/* type : 1 byte */
+	type = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(tree, hf_rx_type, tvb,
+		offset, 1, type);
+	offset += 1;
+	pinfo->ps.rx.type = type;
+
+	/* flags : 1 byte */
+	offset = dissect_rx_flags(tvb, pinfo, tree, offset);
+
+	/* userstatus : 1 byte */
+	proto_tree_add_uint(tree, hf_rx_userstatus, tvb,
+		offset, 1, tvb_get_guint8(tvb, offset));
+	offset += 1;
+
+	/* sequrityindex : 1 byte */
+	proto_tree_add_uint(tree, hf_rx_securityindex, tvb,
+		offset, 1, tvb_get_guint8(tvb, offset));
+	offset += 1;
+
+	/* spare */
+	proto_tree_add_uint(tree, hf_rx_spare, tvb,
+		offset, 2, tvb_get_ntohs(tvb, offset));
+	offset += 2;
+
+	/* service id : 2 bytes */
+	serviceid = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_rx_serviceid, tvb,
+		offset, 2, serviceid);
+	offset += 2;
+	pinfo->ps.rx.serviceid = serviceid;
+
+	switch (type) {
+	case RX_PACKET_TYPE_ACK:
+		/*dissect_rx_acks(tvb, pinfo, parent_tree, offset, 
+			cant create it in a parallell tree, then ett seasrch
+			wont work */
+		dissect_rx_acks(tvb, pinfo, tree, offset, 
+			seq, callnumber);
+		break;
+	case RX_PACKET_TYPE_ACKALL:
+		/* does not contain any payload */
+		if (check_col(pinfo->fd, COL_INFO)) {
+			col_add_fstr(pinfo->fd, COL_INFO,
+				"ACKALL  "
+				"Seq: %lu  "
+				"Call: %lu  "
+				"Source Port: %s  "
+				"Destination Port: %s  ",
+				(unsigned long)seq,
+				(unsigned long)callnumber,
+				get_udp_port(pinfo->srcport),
+				get_udp_port(pinfo->destport)
+			);
+		}
+		break;
+	case RX_PACKET_TYPE_CHALLENGE:
+		dissect_rx_challenge(tvb, pinfo, tree, offset, seq, callnumber);
+		break;
+	case RX_PACKET_TYPE_RESPONSE:
+		dissect_rx_response(tvb, pinfo, tree, offset, seq, callnumber);
+		break;
+	case RX_PACKET_TYPE_DATA: {
+		tvbuff_t *next_tvb;
+		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		dissect_afs(next_tvb, pinfo, parent_tree);
+		};
+		break;
+	}
+
 }
 
 void
@@ -195,55 +531,151 @@ proto_register_rx(void)
 		{ &hf_rx_epoch, {
 			"Epoch", "rx.epoch", FT_ABSOLUTE_TIME, BASE_DEC,
 			NULL, 0, "Epoch" }},
+
 		{ &hf_rx_cid, {
 			"CID", "rx.cid", FT_UINT32, BASE_DEC,
 			NULL, 0, "CID" }},
+
 		{ &hf_rx_callnumber, {
 			"Call Number", "rx.callnumber", FT_UINT32, BASE_DEC,
 			NULL, 0, "Call Number" }},
+
 		{ &hf_rx_seq, {
 			"Sequence Number", "rx.seq", FT_UINT32, BASE_DEC,
 			NULL, 0, "Sequence Number" }},
+
 		{ &hf_rx_serial, {
 			"Serial", "rx.serial", FT_UINT32, BASE_DEC,
 			NULL, 0, "Serial" }},
+
 		{ &hf_rx_type, {
 			"Type", "rx.type", FT_UINT8, BASE_DEC,
 			VALS(rx_types), 0, "Type" }},
+
 		{ &hf_rx_flags, {
 			"Flags", "rx.flags", FT_UINT8, BASE_HEX,
 			NULL, 0, "Flags" }},
+
 		{ &hf_rx_flags_clientinit, {
 			"Client Initiated", "rx.flags.client_init", FT_UINT8, BASE_BIN,
 			NULL, RX_CLIENT_INITIATED, "Client Initiated" }},
+
 		{ &hf_rx_flags_request_ack, {
 			"Request Ack", "rx.flags.request_ack", FT_UINT8, BASE_BIN,
 			NULL, RX_REQUEST_ACK, "Request Ack" }},
+
 		{ &hf_rx_flags_last_packet, {
 			"Last Packet", "rx.flags.last_packet", FT_UINT8, BASE_BIN,
 			NULL, RX_LAST_PACKET, "Last Packet" }},
+
 		{ &hf_rx_flags_more_packets, {
 			"More Packets", "rx.flags.more_packets", FT_UINT8, BASE_BIN,
 			NULL, RX_MORE_PACKETS, "More Packets" }},
+
 		{ &hf_rx_flags_free_packet, {
 			"Free Packet", "rx.flags.free_packet", FT_UINT8, BASE_BIN,
 			NULL, RX_FREE_PACKET, "Free Packet" }},
+
 		{ &hf_rx_userstatus, {
 			"User Status", "rx.userstatus", FT_UINT32, BASE_DEC,
 			NULL, 0, "User Status" }},
+
 		{ &hf_rx_securityindex, {
 			"Security Index", "rx.securityindex", FT_UINT32, BASE_DEC,
 			NULL, 0, "Security Index" }},
+
 		{ &hf_rx_spare, {
 			"Spare/Checksum", "rx.spare", FT_UINT16, BASE_DEC,
 			NULL, 0, "Spare/Checksum" }},
+
 		{ &hf_rx_serviceid, {
 			"Service ID", "rx.serviceid", FT_UINT16, BASE_DEC,
 			NULL, 0, "Service ID" }},
+
+		{ &hf_rx_bufferspace, {
+			"Bufferspace", "rx.bufferspace", FT_UINT16, BASE_DEC,
+			NULL, 0, "Number Of Packets Available" }},
+
+		{ &hf_rx_maxskew, {
+			"Max Skew", "rx.maxskew", FT_UINT16, BASE_DEC,
+			NULL, 0, "Max Skew" }},
+
+		{ &hf_rx_first_packet, {
+			"First Packet", "rx.first", FT_UINT32, BASE_DEC,
+			NULL, 0, "First Packet" }},
+
+		{ &hf_rx_prev_packet, {
+			"Prev Packet", "rx.prev", FT_UINT32, BASE_DEC,
+			NULL, 0, "Previous Packet" }},
+
+		{ &hf_rx_reason, {
+			"Reason", "rx.reason", FT_UINT8, BASE_DEC,
+			VALS(rx_reason), 0, "Reason For This ACK" }},
+
+		{ &hf_rx_numacks, {
+			"Num ACKs", "rx.num_acks", FT_UINT8, BASE_DEC,
+			NULL, 0, "Number Of ACKs" }},
+
+		{ &hf_rx_ack_type, {
+			"ACK Type", "rx.ack_type", FT_UINT8, BASE_DEC,
+			VALS(rx_ack_type), 0, "Type Of ACKs" }},
+
+		{ &hf_rx_ack, {
+			"ACK Packet", "rx.ack", FT_NONE, BASE_NONE,
+			NULL, 0, "ACK Packet" }},
+
+		{ &hf_rx_challenge, {
+			"CHALLENGE Packet", "rx.challenge", FT_NONE, BASE_NONE,
+			NULL, 0, "CHALLENGE Packet" }},
+
+		{ &hf_rx_version, {
+			"Version", "rx.version", FT_UINT32, BASE_DEC,
+			NULL, 0, "Version Of Challenge/Response" }},
+
+		{ &hf_rx_nonce, {
+			"Nonce", "rx.nonce", FT_UINT32, BASE_HEX,
+			NULL, 0, "Nonce" }},
+
+		{ &hf_rx_inc_nonce, {
+			"Inc Nonce", "rx.inc_nonce", FT_UINT32, BASE_HEX,
+			NULL, 0, "Incremented Nonce" }},
+
+		{ &hf_rx_min_level, {
+			"Min Level", "rx.min_level", FT_UINT32, BASE_DEC,
+			NULL, 0, "Min Level" }},
+
+		{ &hf_rx_level, {
+			"Level", "rx.level", FT_UINT32, BASE_DEC,
+			NULL, 0, "Level" }},
+
+		{ &hf_rx_response, {
+			"RESPONSE Packet", "rx.response", FT_NONE, BASE_NONE,
+			NULL, 0, "RESPONSE Packet" }},
+
+		{ &hf_rx_encrypted, {
+			"Encrypted", "rx.encrypted", FT_NONE, BASE_NONE,
+			NULL, 0, "Encrypted part of response packet" }},
+
+		{ &hf_rx_kvno, {
+			"kvno", "rx.kvno", FT_UINT32, BASE_DEC,
+			NULL, 0, "kvno" }},
+
+		{ &hf_rx_ticket_len, {
+			"Ticket len", "rx.ticket_len", FT_UINT32, BASE_DEC,
+			NULL, 0, "Ticket Length" }},
+
+		{ &hf_rx_ticket, {
+			"ticket", "rx.ticket", FT_BYTES, BASE_HEX,
+			NULL, 0, "Ticket" }},
+
 	};
 	static gint *ett[] = {
 		&ett_rx,
 		&ett_rx_flags,
+		&ett_rx_ack,
+		&ett_rx_challenge,
+		&ett_rx_response,
+		&ett_rx_encrypted,
 	};
 
 	proto_rx = proto_register_protocol("RX Protocol", "RX", "rx");
@@ -259,7 +691,7 @@ proto_reg_handoff_rx(void)
 	/* Ports in the range UDP_PORT_RX_LOW to UDP_PORT_RX_HIGH
 	   are all used for various AFS services. */
 	for (port = UDP_PORT_RX_LOW; port <= UDP_PORT_RX_HIGH; port++)
-		old_dissector_add("udp.port", port, dissect_rx, proto_rx);
-	old_dissector_add("udp.port", UDP_PORT_RX_AFS_BACKUPS, dissect_rx,
+		dissector_add("udp.port", port, dissect_rx, proto_rx);
+	dissector_add("udp.port", UDP_PORT_RX_AFS_BACKUPS, dissect_rx,
 	    proto_rx);
 }

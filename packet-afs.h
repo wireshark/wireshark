@@ -1,7 +1,7 @@
 /* packet-afs.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-afs.h,v 1.5 2001/04/17 00:46:03 guy Exp $
+ * $Id: packet-afs.h,v 1.6 2001/05/27 01:48:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,7 +26,7 @@
 #ifndef PACKET_AFS_H
 #define PACKET_AFS_H
 
-void dissect_afs(const u_char *, int, frame_data *, proto_tree *);
+void dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 #define AFS_PORT_FS	7000
 #define AFS_PORT_CB	7001

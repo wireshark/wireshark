@@ -1,7 +1,7 @@
 /* packet-rx.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-rx.h,v 1.4 2001/04/17 00:46:03 guy Exp $
+ * $Id: packet-rx.h,v 1.5 2001/05/27 01:48:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -56,7 +56,7 @@ struct rx_header {
 };					/* serviceId is first, it's really */
 					/* encoded _after_ the spare field */
 					/* I wasted a day figuring that out! */
-
+#define RX_MAXACKS 255
 struct rx_ack_header {
      guint16 bufferspace;       /* # of packet buffers available */
      guint16 maxskew;
@@ -64,7 +64,8 @@ struct rx_ack_header {
      guint32 prevpacket;
      guint32 serial;             /* Packet that prompted this one */
      u_char reason;             /* rx_ack_reason */
-	/* some other stuff I think */
+     u_char nAcks;		/* number of acks*/
+     u_char acks[RX_MAXACKS];
 };
 
 #define RX_ACK_TYPE_NACK 0
@@ -78,6 +79,32 @@ struct rx_ack_header {
 #define RX_ACK_PING 6
 #define RX_ACK_PING_RESPONSE 7
 #define RX_ACK_DELAY 8
+
+struct rxkad_challenge {
+	guint32 version;
+	guint32 nonce;
+	guint32 min_level;
+	guint32 unused;
+};
+
+#define RX_MAXCALLS	4
+struct rxkad_response {
+	guint32	version;
+	guint32	unused;
+	struct {
+		guint32	epoch;
+		guint32	cid;
+		guint32	cksum;
+		guint32	security_index;
+		guint32	call_numbers[RX_MAXCALLS];
+		guint32	inc_nonce;
+		guint32	level;
+	} encrypted;
+	guint32	kvno;
+	guint32	ticket_len;
+	u_char	the_ticket[0];
+};
+
 
 #endif
 

@@ -516,6 +516,7 @@ Ronnie Sahlberg <rsahlber@bigpond.net.au> {
 	XDR array support
 	NIS+ support
 	Rewritten IGMP dissector
+	Tvbuffified and bug-fixed RX and AFS dissectors
 }
 
 Borosa Tomislav <tomislav.borosa@SIEMENS.HR> {

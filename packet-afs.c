@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs.c,v 1.29 2001/04/02 19:10:06 nneul Exp $
+ * $Id: packet-afs.c,v 1.30 2001/05/27 01:48:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -56,6 +56,8 @@
 #include "packet-afs-defs.h"
 #include "packet-afs-macros.h"
 
+#define GETSTR tvb_get_ptr(tvb,offset,tvb_length_remaining(tvb,offset))
+
 #define VALID_OPCODE(opcode) ((opcode >= OPCODE_LOW && opcode <= OPCODE_HIGH) || \
 		(opcode >= VOTE_LOW && opcode <= VOTE_HIGH) || \
 		(opcode >= DISK_LOW && opcode <= DISK_HIGH))
@@ -80,43 +82,44 @@ GMemChunk *afs_request_vals = NULL;
 /*
  * Dissector prototypes
  */
-static void dissect_fs_request(const u_char *pd,
-	int offset, frame_data *fd, proto_tree *tree, int opcode);
-static void dissect_fs_reply(const u_char *pd,
-	int offset, frame_data *fd, proto_tree *tree, int opcode);
-static void dissect_cb_request(const u_char *pd,
-	int offset, frame_data *fd, proto_tree *tree, int opcode);
-static void dissect_cb_reply(const u_char *pd,
-	int offset, frame_data *fd, proto_tree *tree, int opcode);
-static void dissect_bos_request(const u_char *pd,
-	int offset, frame_data *fd, proto_tree *tree, int opcode);
-static void dissect_bos_reply(const u_char *pd,
-	int offset, frame_data *fd, proto_tree *tree, int opcode);
-static void dissect_vol_request(const u_char *pd,
-	int offset, frame_data *fd, proto_tree *tree, int opcode);
-static void dissect_vol_reply(const u_char *pd,
-	int offset, frame_data *fd, proto_tree *tree, int opcode);
-static void dissect_ubik_request(const u_char *pd,
-	int offset, frame_data *fd, proto_tree *tree, int opcode);
-static void dissect_ubik_reply(const u_char *pd,
-	int offset, frame_data *fd, proto_tree *tree, int opcode);
-static void dissect_kauth_request(const u_char *pd,
-	int offset, frame_data *fd, proto_tree *tree, int opcode);
-static void dissect_kauth_reply(const u_char *pd,
-	int offset, frame_data *fd, proto_tree *tree, int opcode);
-static void dissect_prot_request(const u_char *pd,
-	int offset, frame_data *fd, proto_tree *tree, int opcode);
-static void dissect_prot_reply(const u_char *pd,
-	int offset, frame_data *fd, proto_tree *tree, int opcode);
-static void dissect_vldb_request(const u_char *pd,
-	int offset, frame_data *fd, proto_tree *tree, int opcode);
-static void dissect_vldb_reply(const u_char *pd,
-	int offset, frame_data *fd, proto_tree *tree, int opcode);
-static void dissect_backup_request(const u_char *pd,
-	int offset, frame_data *fd, proto_tree *tree, int opcode);
-static void dissect_backup_reply(const u_char *pd,
-	int offset, frame_data *fd, proto_tree *tree, int opcode);
-
+static int dissect_acl(tvbuff_t *tvb, packet_info *pinfo, 
+	proto_tree *tree, int offset);
+static void dissect_fs_reply(tvbuff_t *tvb, packet_info *pinfo, 
+	proto_tree *tree, int offset, int opcode);
+static void dissect_fs_request(tvbuff_t *tvb, packet_info *pinfo, 
+	proto_tree *tree, int offset, int opcode);
+static void dissect_bos_reply(tvbuff_t *tvb, packet_info *pinfo, 
+	proto_tree *tree, int offset, int opcode);
+static void dissect_bos_request(tvbuff_t *tvb, packet_info *pinfo, 
+	proto_tree *tree, int offset, int opcode);
+static void dissect_vol_reply(tvbuff_t *tvb, packet_info *pinfo, 
+	proto_tree *tree, int offset, int opcode);
+static void dissect_vol_request(tvbuff_t *tvb, packet_info *pinfo, 
+	proto_tree *tree, int offset, int opcode);
+static void dissect_kauth_reply(tvbuff_t *tvb, packet_info *pinfo, 
+	proto_tree *tree, int offset, int opcode);
+static void dissect_kauth_request(tvbuff_t *tvb, packet_info *pinfo, 
+	proto_tree *tree, int offset, int opcode);
+static void dissect_cb_reply(tvbuff_t *tvb, packet_info *pinfo, 
+	proto_tree *tree, int offset, int opcode);
+static void dissect_cb_request(tvbuff_t *tvb, packet_info *pinfo, 
+	proto_tree *tree, int offset, int opcode);
+static void dissect_prot_reply(tvbuff_t *tvb, packet_info *pinfo, 
+	proto_tree *tree, int offset, int opcode);
+static void dissect_prot_request(tvbuff_t *tvb, packet_info *pinfo, 
+	proto_tree *tree, int offset, int opcode);
+static void dissect_vldb_reply(tvbuff_t *tvb, packet_info *pinfo, 
+	proto_tree *tree, int offset, int opcode);
+static void dissect_vldb_request(tvbuff_t *tvb, packet_info *pinfo, 
+	proto_tree *tree, int offset, int opcode);
+static void dissect_ubik_reply(tvbuff_t *tvb, packet_info *pinfo, 
+	proto_tree *tree, int offset, int opcode);
+static void dissect_ubik_request(tvbuff_t *tvb, packet_info *pinfo, 
+	proto_tree *tree, int offset, int opcode);
+static void dissect_backup_reply(tvbuff_t *tvb, packet_info *pinfo, 
+	proto_tree *tree, int offset, int opcode);
+static void dissect_backup_request(tvbuff_t *tvb, packet_info *pinfo, 
+	proto_tree *tree, int offset, int opcode);
 
 /*
  * Hash Functions
@@ -179,36 +182,28 @@ afs_init_protocol(void)
  */
 
 void
-dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree      *afs_tree, *afs_op_tree, *ti;
-	struct rx_header *rxh;
-	struct afs_header *afsh;
-	int port, node, typenode, opcode;
-	value_string const *vals;
 	int reply = 0;
-	int doffset = 0;
 	conversation_t *conversation;
 	struct afs_request_key request_key, *new_request_key;
 	struct afs_request_val *request_val;
-	void (*dissector)(const u_char *pd, int offset,
-		frame_data *fd, proto_tree *tree, int opcode);
+	proto_tree      *afs_tree, *afs_op_tree, *ti;
+	int port, node, typenode, opcode;
+	value_string const *vals;
+	int offset = 0;
+	void (*dissector)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int opcode);
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_afs, pd, offset, fd, tree);
 
-	/* get at least a full packet structure */
-	if ( !BYTES_ARE_IN_FRAME(offset, sizeof(struct rx_header)) )
-		return;
+	if (check_col(pinfo->fd, COL_PROTOCOL)) {
+		col_set_str(pinfo->fd, COL_PROTOCOL, "AFS (RX)");
+	}
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_clear(pinfo->fd, COL_INFO);
+	}
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_set_str(fd, COL_PROTOCOL, "AFS (RX)");
-
-	rxh = (struct rx_header *) &pd[offset];
-	doffset = offset + sizeof(struct rx_header);
-	afsh = (struct afs_header *) &pd[doffset];
-
-	reply = (rxh->flags & RX_CLIENT_INITIATED) == 0;
-	port = ((reply == 0) ? pi.destport : pi.srcport );
+	reply = (pinfo->ps.rx.flags & RX_CLIENT_INITIATED) == 0;
+	port = ((reply == 0) ? pinfo->destport : pinfo->srcport );
 
 	/*
 	 * Find out what conversation this packet is part of.
@@ -223,37 +218,35 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	 * packets from A:X to B:Y as being part of the same conversation as
 	 * packets from B:Y to A:X.
 	 */
-	conversation = find_conversation(&pi.src, &pi.dst, pi.ptype,
-	    pi.srcport, pi.destport, 0);
+	conversation = find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype,
+	    pinfo->srcport, pinfo->destport, 0);
 	if (conversation == NULL) {
 		/* It's not part of any conversation - create a new one. */
-		conversation = conversation_new(&pi.src, &pi.dst, pi.ptype,
-		    pi.srcport, pi.destport, NULL, 0);
+		conversation = conversation_new(&pinfo->src, &pinfo->dst, 
+			pinfo->ptype, pinfo->srcport, pinfo->destport, NULL, 0);
 	}
 
 	request_key.conversation = conversation->index;	
-	request_key.service = pntohs(&rxh->serviceId);
-	request_key.callnumber = pntohl(&rxh->callNumber);
+	request_key.service = pinfo->ps.rx.serviceid;
+	request_key.callnumber = pinfo->ps.rx.callnumber;
 
 	request_val = (struct afs_request_val *) g_hash_table_lookup(
 		afs_request_hash, &request_key);
 
 	/* only allocate a new hash element when it's a request */
 	opcode = 0;
-	if ( !request_val && !reply)
-	{
+	if ( !request_val && !reply) {
 		new_request_key = g_mem_chunk_alloc(afs_request_keys);
 		*new_request_key = request_key;
 
 		request_val = g_mem_chunk_alloc(afs_request_vals);
-		request_val -> opcode = pntohl(&afsh->opcode);
+		request_val -> opcode = tvb_get_ntohl(tvb, offset);
 
 		g_hash_table_insert(afs_request_hash, new_request_key,
 			request_val);
 	}
 
-	if ( request_val )
-	{
+	if ( request_val ) {
 		opcode = request_val->opcode;
 	}
 
@@ -261,8 +254,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	typenode = 0;
 	vals = NULL;
 	dissector = NULL;
-	switch (port)
-	{
+	switch (port) {
 		case AFS_PORT_FS:
 			typenode = hf_afs_fs;
 			node = hf_afs_fs_opcode;
@@ -329,105 +321,79 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			dissector = reply ? dissect_backup_reply : dissect_backup_request;
 			break;
 	}
+
 	if ( (opcode >= VOTE_LOW && opcode <= VOTE_HIGH) ||
-		(opcode >= DISK_LOW && opcode <= DISK_HIGH) )
-	{
+		(opcode >= DISK_LOW && opcode <= DISK_HIGH) ) {
 		typenode = hf_afs_ubik;
 		node = hf_afs_ubik_opcode;
 		vals = ubik_req;
 		dissector = reply ? dissect_ubik_reply : dissect_ubik_request;
 	}
 
-	if ( VALID_OPCODE(opcode) )
-	{
-		if ( vals )
-		{
-			if (check_col(fd, COL_INFO))
-				col_add_fstr(fd, COL_INFO, "%s%s %s: %s (%d)",
+
+	if ( VALID_OPCODE(opcode) ) {
+		if ( vals ) {
+			if (check_col(pinfo->fd, COL_INFO))
+				col_add_fstr(pinfo->fd, COL_INFO, "%s%s %s: %s (%d)",
 				typenode == hf_afs_ubik ? "UBIK-" : "",
 				val_to_str(port, port_types_short, "Unknown(%d)"),
 				reply ? "Reply" : "Request",
 				val_to_str(opcode, vals, "Unknown(%d)"), opcode);
-		}
-		else
-		{
-			if (check_col(fd, COL_INFO))
-				col_add_fstr(fd, COL_INFO, "%s%s %s: Unknown(%d)",
+		} else {
+			if (check_col(pinfo->fd, COL_INFO))
+				col_add_fstr(pinfo->fd, COL_INFO, "%s%s %s: Unknown(%d)",
 				typenode == hf_afs_ubik ? "UBIK-" : "",
 				val_to_str(port, port_types_short, "Unknown(%d)"),
 				reply ? "Reply" : "Request",
 				opcode);
 		}
-	}
-	else
-	{
-		if (check_col(fd, COL_INFO))
-			col_add_fstr(fd, COL_INFO, "Encrypted %s %s",
+	} else {
+		if (check_col(pinfo->fd, COL_INFO))
+			col_add_fstr(pinfo->fd, COL_INFO, "Encrypted %s %s",
 			val_to_str(port, port_types_short, "Unknown(%d)"),
 			reply ? "Reply" : "Request"
 			);
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_afs, NullTVB, doffset, END_OF_FRAME, FALSE);
+		ti = proto_tree_add_item(tree, proto_afs, tvb, offset, 
+				tvb_length_remaining(tvb, offset), FALSE);
 		afs_tree = proto_item_add_subtree(ti, ett_afs);
 
-		if ( !BYTES_ARE_IN_FRAME(offset, sizeof(struct rx_header) +
-			sizeof(struct afs_header)) &&
-			typenode != hf_afs_ubik )
-		{
-			proto_tree_add_text(afs_tree, NullTVB, doffset, END_OF_FRAME,
-				"Service: %s%s%s %s (Truncated)",
-				VALID_OPCODE(opcode) ? "" : "Encrypted ",
-				typenode == hf_afs_ubik ? "UBIK - " : "",
-				val_to_str(port, port_types, "Unknown(%d)"),
-				reply ? "Reply" : "Request");
-				return;
-		}
-		else
-		{
-			proto_tree_add_text(afs_tree, NullTVB, doffset, END_OF_FRAME,
-				"Service: %s%s%s %s",
-				VALID_OPCODE(opcode) ? "" : "Encrypted ",
-				typenode == hf_afs_ubik ? "UBIK - " : "",
-				val_to_str(port, port_types, "Unknown(%d)"),
-				reply ? "Reply" : "Request");
-		}
+		proto_tree_add_text(afs_tree, tvb,
+			offset, tvb_length_remaining(tvb, offset),
+			"Service: %s%s%s %s",
+			VALID_OPCODE(opcode) ? "" : "Encrypted ",
+			typenode == hf_afs_ubik ? "UBIK - " : "",
+			val_to_str(port, port_types, "Unknown(%d)"),
+			reply ? "Reply" : "Request");
 
-		if ( VALID_OPCODE(opcode) )
-		{
+		if ( VALID_OPCODE(opcode) ) {
 			/* until we do cache, can't handle replies */
 			ti = NULL;
-			if ( !reply && node != 0 )
-			{
+			if ( !reply && node != 0 ) {
 				ti = proto_tree_add_uint(afs_tree,
-					node, NullTVB, doffset, 4, opcode);
-			}
-			else if ( reply && node != 0 )
-			{
+					node, tvb, offset, 4, opcode);
+			} else if ( reply && node != 0 ) {
 				/* the opcode isn't in this packet */
 				ti = proto_tree_add_uint(afs_tree,
-					node, NullTVB, doffset, 0, opcode);
-			}
-			else
-			{
-				ti = proto_tree_add_text(afs_tree, NullTVB,
-					doffset, 0, "Operation: Unknown");
+					node, tvb, offset, 0, opcode);
+			} else {
+				ti = proto_tree_add_text(afs_tree, tvb,
+					offset, 0, "Operation: Unknown");
 			}
 	
 			/* Add the subtree for this particular service */
 			afs_op_tree = proto_item_add_subtree(ti, ett_afs_op);
 	
-			if ( typenode != 0 )
-			{
+			if ( typenode != 0 ) {
 				/* indicate the type of request */
-				proto_tree_add_boolean_hidden(afs_tree, typenode, NullTVB, doffset, 0, 1);
+				proto_tree_add_boolean_hidden(afs_tree, typenode, tvb, offset, 0, 1);
 			}
 	
 			/* Process the packet according to what service it is */
-			if ( dissector )
-			{
-				(*dissector)(pd,offset,fd,afs_op_tree,opcode);
+			if ( dissector ) {
+				(*dissector)(tvb, pinfo, afs_op_tree, offset, opcode);
 			}
 		}
 	}
@@ -435,8 +401,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	/* if it's the last packet, and it's a reply, remove opcode
 		from hash */
 	/* ignoring for now, I'm not sure how the chunk deallocation works */
-	if ( rxh->flags & RX_LAST_PACKET && reply )
-	{
+	if ( pinfo->ps.rx.flags & RX_LAST_PACKET && reply ){
 
 	}
 }
@@ -457,68 +422,62 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
  * ASCII strings containing the UID/PTS record and and a ascii number
  * representing a logical OR of all the ACL permission bits
  */
-
-static void dissect_acl(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+/* FIXME: sscanf is probably quite dangerous if we run outside the packet. */
+static int 
+dissect_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	int pos, neg, acl;
-	int n, i, bytes;
-	u_char const *s;
-	u_char const *end;
+	int old_offset;
+	guint32 bytes;
+	int i, n, pos, neg, acl;
 	char user[128]; /* Be sure to adjust sscanf()s below if length is changed... */
-	int curoffset;
-	int soff,eoff;
 
-	curoffset = offset;
-
-	TRUNC(sizeof(guint32));
-	bytes = pntohl(&pd[curoffset]);
+	old_offset = offset;
+	bytes = tvb_get_ntohl(tvb, offset);
 	OUT_UINT(hf_afs_fs_acl_datasize);
 
-	TRUNC(bytes);
 
-	soff = curoffset;
-	eoff = curoffset+bytes;
+	if (sscanf((char *) GETSTR, "%d %n", &pos, &n) != 1) {
+		/* does not matter what we return, if this fails, 
+		 * we cant dissect anything else in the packet either.
+		 */
+		return offset;
+	}
+	proto_tree_add_uint(tree, hf_afs_fs_acl_count_positive, tvb, 
+		offset, n, pos);
+	offset += n;
 
-	s = &pd[soff];
-	end = &pd[eoff];
 
-	if (sscanf((char *) s, "%d %n", &pos, &n) != 1)
-		return;
-	s += n;
-	TRUNC(1);
-	proto_tree_add_uint(tree, hf_afs_fs_acl_count_positive, NullTVB, curoffset, n, pos);
-	curoffset += n;
-
-	if (sscanf((char *) s, "%d %n", &neg, &n) != 1)
-		return;
-	s += n;
-	TRUNC(1);
-	proto_tree_add_uint(tree, hf_afs_fs_acl_count_negative, NullTVB, curoffset, n, neg);
-	curoffset += n;
-
+	if (sscanf((char *) GETSTR, "%d %n", &neg, &n) != 1) {
+		return offset;
+	}
+	proto_tree_add_uint(tree, hf_afs_fs_acl_count_negative, tvb, 
+		offset, n, neg);
+	offset += n;
 
 	/*
 	 * This wacky order preserves the order used by the "fs" command
 	 */
-
 	for (i = 0; i < pos; i++) {
-		if (sscanf((char *) s, "%127s %d %n", user, &acl, &n) != 2)
-			return;
-		s += n;
+		if (sscanf((char *) GETSTR, 
+				"%127s %d %n", user, &acl, &n) != 2) {
+			return offset;
+		}
 		ACLOUT(user,1,acl,n);
-		curoffset += n;
-		TRUNC(1);
+		offset += n;
+	}
+	for (i = 0; i < neg; i++) {
+		if (sscanf((char *) GETSTR, 
+			"%127s %d %n", user, &acl, &n) != 2) {
+			return offset;
+		}
+		ACLOUT(user,0,acl,n);
+		offset += n;
+		if (offset >= old_offset+bytes ) {
+			return offset;
+		}
 	}
 
-	for (i = 0; i < neg; i++) {
-		if (sscanf((char *) s, "%127s %d %n", user, &acl, &n) != 2)
-			return;
-		s += n;
-		ACLOUT(user,0,acl,n);
-		curoffset += n;
-		if (s > end)
-			return;
-	}
+	return offset;
 }
 
 /*
@@ -526,26 +485,15 @@ static void dissect_acl(const u_char *pd, int offset, frame_data *fd, proto_tree
  */
 
 static void
-dissect_fs_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int opcode)
+dissect_fs_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int opcode)
 {
-	struct rx_header *rxh;
-	unsigned char *data;
-	int doffset, curoffset;
-	int seq;
-
-	rxh = (struct rx_header *) &pd[offset];
-	data = (char *)rxh + sizeof(struct rx_header);
-	doffset = offset + sizeof(struct rx_header);
-	curoffset = doffset;
-
-	seq = pntohl(&rxh->seq);
-
-	if ( rxh->type == RX_PACKET_TYPE_DATA )
+	if ( pinfo->ps.rx.type == RX_PACKET_TYPE_DATA )
 	{
 		switch ( opcode )
 		{
 			case 130: /* fetch data */
-				if ( seq == 1 ) /* only on first packet */
+				/* only on first packet */
+				if ( pinfo->ps.rx.seq == 1 )
 				{
 					OUT_FS_AFSFetchStatus("Status");
 					OUT_FS_AFSCallBack();
@@ -554,7 +502,7 @@ dissect_fs_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 				OUT_BYTES_ALL(hf_afs_fs_data);
 				break;
 			case 131: /* fetch acl */
-				dissect_acl(pd,curoffset,fd,tree);
+				offset = dissect_acl(tvb, pinfo, tree, offset);
 				OUT_FS_AFSFetchStatus("Status");
 				OUT_FS_AFSVolSync();
 				break;
@@ -644,25 +592,16 @@ dissect_fs_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 				break;
 		}
 	}
-	else if ( rxh->type == RX_PACKET_TYPE_ABORT )
+	else if ( pinfo->ps.rx.type == RX_PACKET_TYPE_ABORT )
 	{
 		OUT_UINT(hf_afs_fs_errcode);
 	}
 }
 
 static void
-dissect_fs_request(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int opcode)
+dissect_fs_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int opcode)
 {
-	struct rx_header *rxh;
-	unsigned char *data;
-	int doffset, curoffset;
-
-	rxh = (struct rx_header *) &pd[offset];
-	data = (char *)rxh + sizeof(struct rx_header);
-	doffset = offset + sizeof(struct rx_header);
-	curoffset = doffset;
-
-	SKIP_OPCODE();
+	offset += 4;  /* skip the opcode */
 
 	switch ( opcode )
 	{
@@ -686,7 +625,7 @@ dissect_fs_request(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 			break;
 		case 134: /* Store ACL */
 			OUT_FS_AFSFid("Target");
-			dissect_acl(pd,curoffset,fd,tree);
+			offset = dissect_acl(tvb, pinfo, tree, offset);
 			break;
 		case 135: /* Store Status */
 			OUT_FS_AFSFid("Target");
@@ -815,18 +754,9 @@ dissect_fs_request(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
  * BOS Helpers
  */
 static void
-dissect_bos_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int opcode)
+dissect_bos_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int opcode)
 {
-	struct rx_header *rxh;
-	unsigned char *data;
-	int doffset, curoffset;
-
-	rxh = (struct rx_header *) &pd[offset];
-	data = (char *)rxh + sizeof(struct rx_header);
-	doffset = offset + sizeof(struct rx_header);
-	curoffset = doffset;
-
-	if ( rxh->type == RX_PACKET_TYPE_DATA )
+	if ( pinfo->ps.rx.type == RX_PACKET_TYPE_DATA )
 	{
 		switch ( opcode )
 		{
@@ -947,26 +877,17 @@ dissect_bos_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 				break;
 		}
 	}
-	else if ( rxh->type == RX_PACKET_TYPE_ABORT )
+	else if ( pinfo->ps.rx.type == RX_PACKET_TYPE_ABORT )
 	{
 		OUT_UINT(hf_afs_bos_errcode);
 	}
 }
 
 static void
-dissect_bos_request(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int opcode)
+dissect_bos_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int opcode)
 {
-	struct rx_header *rxh;
-	unsigned char *data;
-	int doffset, curoffset;
+	offset += 4;  /* skip the opcode */
 
-	rxh = (struct rx_header *) &pd[offset];
-	data = (char *)rxh + sizeof(struct rx_header);
-	doffset = offset + sizeof(struct rx_header);
-	curoffset = doffset;
-
-	SKIP_OPCODE();
-	
 	switch ( opcode )
 	{
 		case 80: /* create b node */
@@ -1093,18 +1014,9 @@ dissect_bos_request(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
  * VOL Helpers
  */
 static void
-dissect_vol_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int opcode)
+dissect_vol_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int opcode)
 {
-	struct rx_header *rxh;
-	unsigned char *data;
-	int doffset, curoffset;
-
-	rxh = (struct rx_header *) &pd[offset];
-	data = (char *)rxh + sizeof(struct rx_header);
-	doffset = offset + sizeof(struct rx_header);
-	curoffset = doffset;
-
-	if ( rxh->type == RX_PACKET_TYPE_DATA )
+	if ( pinfo->ps.rx.type == RX_PACKET_TYPE_DATA )
 	{
 		switch ( opcode )
 		{
@@ -1115,25 +1027,16 @@ dissect_vol_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 				break;
 		}
 	}
-	else if ( rxh->type == RX_PACKET_TYPE_ABORT )
+	else if ( pinfo->ps.rx.type == RX_PACKET_TYPE_ABORT )
 	{
 		OUT_UINT(hf_afs_vol_errcode);
 	}
 }
 
 static void
-dissect_vol_request(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int opcode)
+dissect_vol_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int opcode)
 {
-	struct rx_header *rxh;
-	unsigned char *data;
-	int doffset, curoffset;
-
-	rxh = (struct rx_header *) &pd[offset];
-	data = (char *)rxh + sizeof(struct rx_header);
-	doffset = offset + sizeof(struct rx_header);
-	curoffset = doffset;
-
-	SKIP_OPCODE();
+	offset += 4;  /* skip the opcode */
 
 	switch ( opcode )
 	{
@@ -1148,42 +1051,24 @@ dissect_vol_request(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
  * KAUTH Helpers
  */
 static void
-dissect_kauth_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int opcode)
+dissect_kauth_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int opcode)
 {
-	struct rx_header *rxh;
-	unsigned char *data;
-	int doffset, curoffset;
-
-	rxh = (struct rx_header *) &pd[offset];
-	data = (char *)rxh + sizeof(struct rx_header);
-	doffset = offset + sizeof(struct rx_header);
-	curoffset = doffset;
-
-	if ( rxh->type == RX_PACKET_TYPE_DATA )
+	if ( pinfo->ps.rx.type == RX_PACKET_TYPE_DATA )
 	{
 		switch ( opcode )
 		{
 		}
 	}
-	else if ( rxh->type == RX_PACKET_TYPE_ABORT )
+	else if ( pinfo->ps.rx.type == RX_PACKET_TYPE_ABORT )
 	{
 		OUT_UINT(hf_afs_kauth_errcode);
 	}
 }
 
 static void
-dissect_kauth_request(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int opcode)
+dissect_kauth_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int opcode)
 {
-	struct rx_header *rxh;
-	unsigned char *data;
-	int doffset, curoffset;
-
-	rxh = (struct rx_header *) &pd[offset];
-	data = (char *)rxh + sizeof(struct rx_header);
-	doffset = offset + sizeof(struct rx_header);
-	curoffset = doffset;
-
-	SKIP_OPCODE();
+	offset += 4;  /* skip the opcode */
 
 	switch ( opcode )
 	{
@@ -1224,42 +1109,24 @@ dissect_kauth_request(const u_char *pd, int offset, frame_data *fd, proto_tree *
  * CB Helpers
  */
 static void
-dissect_cb_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int opcode)
+dissect_cb_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int opcode)
 {
-	struct rx_header *rxh;
-	unsigned char *data;
-	int doffset, curoffset;
-
-	rxh = (struct rx_header *) &pd[offset];
-	data = (char *)rxh + sizeof(struct rx_header);
-	doffset = offset + sizeof(struct rx_header);
-	curoffset = doffset;
-
-	if ( rxh->type == RX_PACKET_TYPE_DATA )
+	if ( pinfo->ps.rx.type == RX_PACKET_TYPE_DATA )
 	{
 		switch ( opcode )
 		{
 		}
 	}
-	else if ( rxh->type == RX_PACKET_TYPE_ABORT )
+	else if ( pinfo->ps.rx.type == RX_PACKET_TYPE_ABORT )
 	{
 		OUT_UINT(hf_afs_cb_errcode);
 	}
 }
 
 static void
-dissect_cb_request(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int opcode)
+dissect_cb_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int opcode)
 {
-	struct rx_header *rxh;
-	unsigned char *data;
-	int doffset, curoffset;
-
-	rxh = (struct rx_header *) &pd[offset];
-	data = (char *)rxh + sizeof(struct rx_header);
-	doffset = offset + sizeof(struct rx_header);
-	curoffset = doffset;
-
-	SKIP_OPCODE();
+	offset += 4;  /* skip the opcode */
 
 	switch ( opcode )
 	{
@@ -1267,16 +1134,16 @@ dissect_cb_request(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 		{
 			unsigned int i,j;
 
-			TRUNC(4);
-			j = GETINT();
+			j = tvb_get_ntohl(tvb, offset);
+			offset += 4;
 
 			for (i=0; i<j; i++)
 			{
 				OUT_CB_AFSFid("Target");
 			}
 
-			TRUNC(4);
-			j = GETINT();
+			j = tvb_get_ntohl(tvb, offset);
+			offset += 4;
 			for (i=0; i<j; i++)
 			{
 				OUT_CB_AFSCallBack();
@@ -1289,18 +1156,9 @@ dissect_cb_request(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
  * PROT Helpers
  */
 static void
-dissect_prot_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int opcode)
+dissect_prot_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int opcode)
 {
-	struct rx_header *rxh;
-	unsigned char *data;
-	int doffset, curoffset;
-
-	rxh = (struct rx_header *) &pd[offset];
-	data = (char *)rxh + sizeof(struct rx_header);
-	doffset = offset + sizeof(struct rx_header);
-	curoffset = doffset;
-
-	if ( rxh->type == RX_PACKET_TYPE_DATA )
+	if ( pinfo->ps.rx.type == RX_PACKET_TYPE_DATA )
 	{
 		switch ( opcode )
 		{
@@ -1308,8 +1166,7 @@ dissect_prot_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 				{
 					unsigned int i, j;
 
-					TRUNC(4);
-					j = GETINT();
+					j = tvb_get_ntohl(tvb, offset);
 					OUT_UINT(hf_afs_prot_count);
 
 					for (i=0; i<j; i++)
@@ -1322,8 +1179,7 @@ dissect_prot_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 				{
 					unsigned int i, j;
 
-					TRUNC(4);
-					j = GETINT();
+					j = tvb_get_ntohl(tvb, offset);
 					OUT_UINT(hf_afs_prot_count);
 
 					for (i=0; i<j; i++)
@@ -1340,8 +1196,7 @@ dissect_prot_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 				{
 					unsigned int i, j;
 
-					TRUNC(4);
-					j = GETINT();
+					j = tvb_get_ntohl(tvb, offset);
 					OUT_UINT(hf_afs_prot_count);
 
 					for (i=0; i<j; i++)
@@ -1356,25 +1211,16 @@ dissect_prot_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 				break;
 		}
 	}
-	else if ( rxh->type == RX_PACKET_TYPE_ABORT )
+	else if ( pinfo->ps.rx.type == RX_PACKET_TYPE_ABORT )
 	{
 		OUT_UINT(hf_afs_prot_errcode);
 	}
 }
 
 static void
-dissect_prot_request(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int opcode)
+dissect_prot_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int opcode)
 {
-	struct rx_header *rxh;
-	unsigned char *data;
-	int doffset, curoffset;
-
-	rxh = (struct rx_header *) &pd[offset];
-	data = (char *)rxh + sizeof(struct rx_header);
-	doffset = offset + sizeof(struct rx_header);
-	curoffset = doffset;
-
-	SKIP_OPCODE();
+	offset += 4;  /* skip the opcode */
 
 	switch ( opcode )
 	{
@@ -1405,8 +1251,7 @@ dissect_prot_request(const u_char *pd, int offset, frame_data *fd, proto_tree *t
 			{
 				unsigned int i, j;
 
-				TRUNC(4);
-				j = GETINT();
+				j = tvb_get_ntohl(tvb, offset);
 				OUT_UINT(hf_afs_prot_count);
 
 				for (i=0; i<j; i++)
@@ -1419,8 +1264,7 @@ dissect_prot_request(const u_char *pd, int offset, frame_data *fd, proto_tree *t
 			{
 				unsigned int i, j;
 
-				TRUNC(4);
-				j = GETINT();
+				j = tvb_get_ntohl(tvb, offset);
 				OUT_UINT(hf_afs_prot_count);
 
 				for (i=0; i<j; i++)
@@ -1455,18 +1299,9 @@ dissect_prot_request(const u_char *pd, int offset, frame_data *fd, proto_tree *t
  * VLDB Helpers
  */
 static void
-dissect_vldb_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int opcode)
+dissect_vldb_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int opcode)
 {
-	struct rx_header *rxh;
-	unsigned char *data;
-	int doffset, curoffset;
-
-	rxh = (struct rx_header *) &pd[offset];
-	data = (char *)rxh + sizeof(struct rx_header);
-	doffset = offset + sizeof(struct rx_header);
-	curoffset = doffset;
-
-	if ( rxh->type == RX_PACKET_TYPE_DATA )
+	if ( pinfo->ps.rx.type == RX_PACKET_TYPE_DATA )
 	{
 		switch ( opcode )
 		{
@@ -1479,8 +1314,7 @@ dissect_vldb_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 				{
 					int nservers,i,j;
 					VECOUT(hf_afs_vldb_name, VLNAMEMAX);
-					TRUNC(4);
-					nservers = GETINT();
+					nservers = tvb_get_ntohl(tvb, offset);
 					OUT_UINT(hf_afs_vldb_numservers);
 					for (i=0; i<8; i++)
 					{
@@ -1496,14 +1330,13 @@ dissect_vldb_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 					for (i=0; i<8; i++)
 					{
 						char part[8];
-						TRUNC(4);
-						j = GETINT();
+						j = tvb_get_ntohl(tvb, offset);
 						strcpy(part, "/vicepa");
 						if ( i<nservers && j<=25 )
 						{
 							part[6] = 'a' + (char) j;
-							proto_tree_add_string(tree, hf_afs_vldb_partition, NullTVB,
-								curoffset, 4, part);
+							proto_tree_add_string(tree, hf_afs_vldb_partition, tvb,
+								offset, 4, part);
 						}
 						SKIP(4);
 					}
@@ -1526,8 +1359,7 @@ dissect_vldb_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 				{
 					int nservers,i,j;
 					VECOUT(hf_afs_vldb_name, VLNAMEMAX);
-					TRUNC(4);
-					nservers = GETINT();
+					nservers = tvb_get_ntohl(tvb, offset);
 					OUT_UINT(hf_afs_vldb_numservers);
 					for (i=0; i<13; i++)
 					{
@@ -1543,14 +1375,13 @@ dissect_vldb_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 					for (i=0; i<13; i++)
 					{
 						char part[8];
-						TRUNC(4);
-						j = GETINT();
+						j = tvb_get_ntohl(tvb, offset);
 						strcpy(part, "/vicepa");
 						if ( i<nservers && j<=25 )
 						{
 							part[6] = 'a' + (char) j;
-							proto_tree_add_string(tree, hf_afs_vldb_partition, NullTVB,
-								curoffset, 4, part);
+							proto_tree_add_string(tree, hf_afs_vldb_partition, tvb,
+								offset, 4, part);
 						}
 						SKIP(4);
 					}
@@ -1565,8 +1396,7 @@ dissect_vldb_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 				{
 					int nservers,i,j;
 					VECOUT(hf_afs_vldb_name, VLNAMEMAX);
-					TRUNC(4);
-					nservers = GETINT();
+					nservers = tvb_get_ntohl(tvb, offset);
 					OUT_UINT(hf_afs_vldb_numservers);
 					for (i=0; i<13; i++)
 					{
@@ -1582,14 +1412,13 @@ dissect_vldb_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 					for (i=0; i<13; i++)
 					{
 						char part[8];
-						TRUNC(4);
-						j = GETINT();
+						j = tvb_get_ntohl(tvb, offset);
 						strcpy(part, "/vicepa");
 						if ( i<nservers && j<=25 )
 						{
 							part[6] = 'a' + (char) j;
-							proto_tree_add_string(tree, hf_afs_vldb_partition, NullTVB,
-								curoffset, 4, part);
+							proto_tree_add_string(tree, hf_afs_vldb_partition, tvb,
+								offset, 4, part);
 						}
 						SKIP(4);
 					}
@@ -1601,25 +1430,16 @@ dissect_vldb_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 				break;
 		}
 	}
-	else if ( rxh->type == RX_PACKET_TYPE_ABORT )
+	else if ( pinfo->ps.rx.type == RX_PACKET_TYPE_ABORT )
 	{
 		OUT_UINT(hf_afs_vldb_errcode);
 	}
 }
 
 static void
-dissect_vldb_request(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int opcode)
+dissect_vldb_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int opcode)
 {
-	struct rx_header *rxh;
-	unsigned char *data;
-	int doffset, curoffset;
-
-	rxh = (struct rx_header *) &pd[offset];
-	data = (char *)rxh + sizeof(struct rx_header);
-	doffset = offset + sizeof(struct rx_header);
-	curoffset = doffset;
-
-	SKIP_OPCODE();
+	offset += 4;  /* skip the opcode */
 
 	switch ( opcode )
 	{
@@ -1662,17 +1482,8 @@ dissect_vldb_request(const u_char *pd, int offset, frame_data *fd, proto_tree *t
  * UBIK Helpers
  */
 static void
-dissect_ubik_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int opcode)
+dissect_ubik_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int opcode)
 {
-	struct rx_header *rxh;
-	unsigned char *data;
-	int doffset, curoffset;
-
-	rxh = (struct rx_header *) &pd[offset];
-	data = (char *)rxh + sizeof(struct rx_header);
-	doffset = offset + sizeof(struct rx_header);
-	curoffset = doffset;
-
 	switch ( opcode )
 	{
 		case 10000: /* vote-beacon */
@@ -1717,18 +1528,9 @@ dissect_ubik_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 }
 
 static void
-dissect_ubik_request(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int opcode)
+dissect_ubik_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int opcode)
 {
-	struct rx_header *rxh;
-	unsigned char *data;
-	int doffset, curoffset;
-
-	rxh = (struct rx_header *) &pd[offset];
-	data = (char *)rxh + sizeof(struct rx_header);
-	doffset = offset + sizeof(struct rx_header);
-	curoffset = doffset;
-
-	SKIP_OPCODE();
+	offset += 4;  /* skip the opcode */
 
 	switch ( opcode )
 	{
@@ -1805,42 +1607,24 @@ dissect_ubik_request(const u_char *pd, int offset, frame_data *fd, proto_tree *t
  * BACKUP Helpers
  */
 static void
-dissect_backup_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int opcode)
+dissect_backup_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int opcode)
 {
-	struct rx_header *rxh;
-	unsigned char *data;
-	int doffset, curoffset;
-
-	rxh = (struct rx_header *) &pd[offset];
-	data = (char *)rxh + sizeof(struct rx_header);
-	doffset = offset + sizeof(struct rx_header);
-	curoffset = doffset;
-
-	if ( rxh->type == RX_PACKET_TYPE_DATA )
+	if ( pinfo->ps.rx.type == RX_PACKET_TYPE_DATA )
 	{
 		switch ( opcode )
 		{
 		}
 	}
-	else if ( rxh->type == RX_PACKET_TYPE_ABORT )
+	else if ( pinfo->ps.rx.type == RX_PACKET_TYPE_ABORT )
 	{
 		OUT_UINT(hf_afs_backup_errcode);
 	}
 }
 
 static void
-dissect_backup_request(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int opcode)
+dissect_backup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int opcode)
 {
-	struct rx_header *rxh;
-	unsigned char *data;
-	int doffset, curoffset;
-
-	rxh = (struct rx_header *) &pd[offset];
-	data = (char *)rxh + sizeof(struct rx_header);
-	doffset = offset + sizeof(struct rx_header);
-	curoffset = doffset;
-
-	SKIP_OPCODE();
+	offset += 4;  /* skip the opcode */
 
 	switch ( opcode )
 	{
@@ -1877,3 +1661,4 @@ proto_register_afs(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	register_init_routine(&afs_init_protocol);
 }
+

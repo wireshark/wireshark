@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-macros.h,v 1.7 2001/03/26 15:27:55 nneul Exp $
+ * $Id: packet-afs-macros.h,v 1.8 2001/05/27 01:48:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,81 +37,59 @@
  * Macros for helper dissection routines
  *
  * The macros are here to save on coding. They assume that
- * the current offset is in 'curoffset', and that the offset
+ * the current offset is in 'offset', and that the offset
  * should be incremented after performing the macro's operation.
  */
 
-/* Get the next available integer, be sure and call TRUNC beforehand */
-#define GETINT() (pntohl(&pd[curoffset]))
-
-/* Check if enough bytes are present, if not, return to caller
-   after adding a 'Truncated' message to tree */
-#define TRUNC(bytes) \
-	if(!BYTES_ARE_IN_FRAME(curoffset,(bytes))) \
-	{	\
-		proto_tree_add_text(tree, NullTVB,curoffset, \
-			END_OF_FRAME,"Truncated"); \
-		/* not sure why, but this didn't work */ \
-		/* if (check_col(fd, COL_INFO)) */ \
-			/* col_append_fstr(fd, COL_INFO, " (TRUNCATED)"); */ \
-		return; \
-	} 
 
 /* Output a unsigned integer, stored into field 'field'
    Assumes it is in network byte order, converts to host before using */
 #define OUT_UINT(field) \
-	TRUNC(sizeof(guint32)) \
-	proto_tree_add_uint(tree,field, NullTVB,curoffset,sizeof(guint32), GETINT()); \
-	curoffset += 4;
+	proto_tree_add_uint(tree, field, tvb, offset, sizeof(guint32), tvb_get_ntohl(tvb, offset)); \
+	offset += 4;
 
 /* Output a unsigned integer, stored into field 'field'
    Assumes it is in network byte order, converts to host before using */
 #define OUT_INT(field) \
-	TRUNC(sizeof(guint32)) \
-	proto_tree_add_int(tree,field, NullTVB,curoffset,sizeof(gint32), GETINT()); \
-	curoffset += 4;
+	proto_tree_add_int(tree, field, tvb, offset, sizeof(gint32), tvb_get_ntohl(tvb, offset)); \
+	offset += 4;
 	
 /* Output a unsigned integer, stored into field 'field'
    Assumes it is in network byte order, converts to host before using, 
    Note - does not increment offset, so can be used repeatedly for bitfields */
 #define DISP_UINT(field) \
-	TRUNC(sizeof(guint32)) \
-	proto_tree_add_uint(tree,field, NullTVB,curoffset,sizeof(guint32), GETINT()); 
+	proto_tree_add_uint(tree,field,tvb,offset,sizeof(guint32),tvb_get_ntohl(tvb, offset)); 
 
 /* Output an IPv4 address, stored into field 'field' */
 #define OUT_IP(field) \
-	TRUNC(sizeof(gint32)) \
-	proto_tree_add_ipv4(tree,field, NullTVB,curoffset,sizeof(gint32),\
-		*((int*)&pd[curoffset]));\
-	curoffset += 4;
+	proto_tree_add_ipv4(tree,field,tvb,offset,sizeof(gint32),\
+		tvb_get_letohl(tvb, offset));\
+	offset += 4;
 
 /* Output a UNIX seconds/microseconds timestamp, after converting to a timeval */
 #define OUT_TIMESTAMP(field) \
 	{ struct timeval tv; \
-	TRUNC(2*sizeof(guint32)); \
-	tv.tv_sec = GETINT(); \
-	tv.tv_usec = GETINT(); \
-	proto_tree_add_time(tree,field, NullTVB,curoffset,2*sizeof(guint32),&tv); \
-	curoffset += 8; \
+	tv.tv_sec = tvb_get_ntohl(tvb, offset); \
+	tv.tv_usec = tvb_get_ntohl(tvb, offset); \
+	proto_tree_add_time(tree,field, tvb,offset,2*sizeof(guint32),&tv); \
+	offset += 8; \
 	}
 
 /* Output a UNIX seconds-only timestamp, after converting to a timeval */
 #define OUT_DATE(field) \
 	{ struct timeval tv; \
-	TRUNC(sizeof(guint32)); \
-	tv.tv_sec = GETINT(); \
+	tv.tv_sec = tvb_get_ntohl(tvb, offset); \
 	tv.tv_usec = 0; \
-	proto_tree_add_time(tree,field, NullTVB,curoffset,sizeof(guint32),&tv); \
-	curoffset += 4; \
+	proto_tree_add_time(tree,field, tvb,offset,sizeof(guint32),&tv); \
+	offset += 4; \
 	}
 
 /* Output a callback */
 #define OUT_FS_AFSCallBack() \
 	{ 	proto_tree *save, *ti; \
-		ti = proto_tree_add_text(tree, NullTVB, curoffset, 3*4, "Callback"); \
+		ti = proto_tree_add_text(tree, tvb, offset, 3*4, "Callback"); \
 		save = tree; \
 		tree = proto_item_add_subtree(ti, ett_afs_callback); \
-		TRUNC(3*sizeof(guint32)); \
 		OUT_UINT(hf_afs_fs_callback_version); \
 		OUT_DATE(hf_afs_fs_callback_expires); \
 		OUT_UINT(hf_afs_fs_callback_type); \
@@ -121,10 +99,9 @@
 /* Output a callback */
 #define OUT_CB_AFSCallBack() \
 	{ 	proto_tree *save, *ti; \
-		ti = proto_tree_add_text(tree, NullTVB, curoffset, 3*4, "Callback"); \
+		ti = proto_tree_add_text(tree, tvb, offset, 3*4, "Callback"); \
 		save = tree; \
 		tree = proto_item_add_subtree(ti, ett_afs_callback); \
-		TRUNC(3*sizeof(guint32)); \
 		OUT_UINT(hf_afs_cb_callback_version); \
 		OUT_DATE(hf_afs_cb_callback_expires); \
 		OUT_UINT(hf_afs_cb_callback_type); \
@@ -135,7 +112,7 @@
 /* Output a File ID */
 #define OUT_FS_AFSFid(label) \
 	{ 	proto_tree *save, *ti; \
-		ti = proto_tree_add_text(tree, NullTVB, curoffset, 3*4, \
+		ti = proto_tree_add_text(tree, tvb, offset, 3*4, \
 			"FileID (%s)", label); \
 		save = tree; \
 		tree = proto_item_add_subtree(ti, ett_afs_fid); \
@@ -149,32 +126,31 @@
 #define OUT_FS_STATUSMASK() \
 	{ 	proto_tree *save, *ti; \
 		guint32 mask; \
-		TRUNC(sizeof(guint32)); \
-		mask = GETINT(); \
-		ti = proto_tree_add_uint(tree, hf_afs_fs_status_mask, NullTVB, curoffset, \
+		mask = tvb_get_ntohl(tvb, offset); \
+		ti = proto_tree_add_uint(tree, hf_afs_fs_status_mask, tvb, offset, \
 			sizeof(guint32), mask); \
 		save = tree; \
 		tree = proto_item_add_subtree(ti, ett_afs_status_mask); \
 		proto_tree_add_uint(tree, hf_afs_fs_status_mask_setmodtime, \
-			NullTVB,curoffset,sizeof(guint32), mask); \
+			tvb,offset,sizeof(guint32), mask); \
 		proto_tree_add_uint(tree, hf_afs_fs_status_mask_setowner, \
-			NullTVB,curoffset,sizeof(guint32), mask); \
+			tvb,offset,sizeof(guint32), mask); \
 		proto_tree_add_uint(tree, hf_afs_fs_status_mask_setgroup, \
-			NullTVB,curoffset,sizeof(guint32), mask); \
+			tvb,offset,sizeof(guint32), mask); \
 		proto_tree_add_uint(tree, hf_afs_fs_status_mask_setmode, \
-			NullTVB,curoffset,sizeof(guint32), mask); \
+			tvb,offset,sizeof(guint32), mask); \
 		proto_tree_add_uint(tree, hf_afs_fs_status_mask_setsegsize, \
-			NullTVB,curoffset,sizeof(guint32), mask); \
+			tvb,offset,sizeof(guint32), mask); \
 		proto_tree_add_uint(tree, hf_afs_fs_status_mask_fsync, \
-			NullTVB,curoffset,sizeof(guint32), mask); \
-		curoffset += 4; \
+			tvb,offset,sizeof(guint32), mask); \
+		offset += 4; \
 		tree = save; \
 	}
 
 /* Output a File ID */
 #define OUT_CB_AFSFid(label) \
 	{ 	proto_tree *save, *ti; \
-		ti = proto_tree_add_text(tree, NullTVB, curoffset, 3*4, \
+		ti = proto_tree_add_text(tree, tvb, offset, 3*4, \
 			"FileID (%s)", label); \
 		save = tree; \
 		tree = proto_item_add_subtree(ti, ett_afs_fid); \
@@ -187,7 +163,7 @@
 /* Output a StoreStatus */
 #define OUT_FS_AFSStoreStatus(label) \
 	{ 	proto_tree *save, *ti; \
-		ti = proto_tree_add_text(tree, NullTVB, curoffset, 6*4, \
+		ti = proto_tree_add_text(tree, tvb, offset, 6*4, \
 			label); \
 		save = tree; \
 		tree = proto_item_add_subtree(ti, ett_afs_status); \
@@ -203,7 +179,7 @@
 /* Output a FetchStatus */
 #define OUT_FS_AFSFetchStatus(label) \
 	{ 	proto_tree *save, *ti; \
-		ti = proto_tree_add_text(tree, NullTVB, curoffset, 21*4, \
+		ti = proto_tree_add_text(tree, tvb, offset, 21*4, \
 			label); \
 		save = tree; \
 		tree = proto_item_add_subtree(ti, ett_afs_status); \
@@ -234,7 +210,7 @@
 /* Output a VolSync */
 #define OUT_FS_AFSVolSync() \
 	{ 	proto_tree *save, *ti; \
-		ti = proto_tree_add_text(tree, NullTVB, curoffset, 6*4, \
+		ti = proto_tree_add_text(tree, tvb, offset, 6*4, \
 			"VolSync"); \
 		save = tree; \
 		tree = proto_item_add_subtree(ti, ett_afs_volsync); \
@@ -251,9 +227,8 @@
 #define OUT_FS_AFSCBFids() \
 	{ \
 		unsigned int j,i; \
-		TRUNC(1); \
-		j = pntohl(&pd[curoffset]); \
-		curoffset += 1; \
+		j = tvb_get_guint8(tvb, offset); \
+		offset += 1; \
 		for (i=0; i<j; i++) { \
 			OUT_FS_AFSFid("Target"); \
 		} \
@@ -263,9 +238,8 @@
 #define OUT_FS_ViceIds() \
 	{ \
 		unsigned int j,i; \
-		TRUNC(1); \
-		j = pntohl(&pd[curoffset]); \
-		curoffset += 1; \
+		j = tvb_get_guint8(tvb,offset); \
+		offset += 1; \
 		for (i=0; i<j; i++) { \
 			OUT_UINT(hf_afs_fs_viceid); \
 		} \
@@ -275,9 +249,8 @@
 #define OUT_FS_IPAddrs() \
 	{ \
 		unsigned int j,i; \
-		TRUNC(1); \
-		j = pntohl(&pd[curoffset]); \
-		curoffset += 1; \
+		j = tvb_get_guint8(tvb, offset); \
+		offset += 1; \
 		for (i=0; i<j; i++) { \
 			OUT_IP(hf_afs_fs_ipaddr); \
 		} \
@@ -287,9 +260,8 @@
 #define OUT_FS_AFSCBs()	\
 	{ \
 		unsigned int j,i; \
-		TRUNC(1); \
-		j = pntohl(&pd[curoffset]); \
-		curoffset += 1; \
+		j = tvb_get_guint8(tvb,offset); \
+		offset += 1; \
 		for (i=0; i<j; i++) { \
 			OUT_FS_AFSCallBack(); \
 		} \
@@ -300,9 +272,8 @@
 #define OUT_FS_AFSBulkStats() \
 	{ \
 		unsigned int j,i; \
-		TRUNC(1); \
-		j = pntohl(&pd[curoffset]); \
-		curoffset += 1; \
+		j = tvb_get_guint8(tvb,offset); \
+		offset += 1; \
 		for (i=0; i<j; i++) { \
 			OUT_FS_AFSFetchStatus("Status"); \
 		} \
@@ -340,21 +311,21 @@
 		if ( acl & PRSFS_WRITE ) strcat(tmp, "w"); \
 		if ( acl & PRSFS_LOCK ) strcat(tmp, "k"); \
 		if ( acl & PRSFS_ADMINISTER ) strcat(tmp, "a"); \
-		ti = proto_tree_add_text(tree, NullTVB, curoffset, bytes, \
+		ti = proto_tree_add_text(tree, tvb, offset, bytes, \
 			"ACL:  %s %s%s", \
 			who, tmp, positive ? "" : " (negative)"); \
 		save = tree; \
 		tree = proto_item_add_subtree(ti, ett_afs_acl); \
-		proto_tree_add_string(tree,hf_afs_fs_acl_entity, NullTVB,curoffset,strlen(who), who);\
-		tmpoffset = curoffset + strlen(who) + 1; \
+		proto_tree_add_string(tree,hf_afs_fs_acl_entity, tvb,offset,strlen(who), who);\
+		tmpoffset = offset + strlen(who) + 1; \
 		acllen = bytes - strlen(who) - 1; \
-		proto_tree_add_uint(tree,hf_afs_fs_acl_r, NullTVB,tmpoffset,acllen,acl);\
-		proto_tree_add_uint(tree,hf_afs_fs_acl_l, NullTVB,tmpoffset,acllen,acl);\
-		proto_tree_add_uint(tree,hf_afs_fs_acl_i, NullTVB,tmpoffset,acllen,acl);\
-		proto_tree_add_uint(tree,hf_afs_fs_acl_d, NullTVB,tmpoffset,acllen,acl);\
-		proto_tree_add_uint(tree,hf_afs_fs_acl_w, NullTVB,tmpoffset,acllen,acl);\
-		proto_tree_add_uint(tree,hf_afs_fs_acl_k, NullTVB,tmpoffset,acllen,acl);\
-		proto_tree_add_uint(tree,hf_afs_fs_acl_a, NullTVB,tmpoffset,acllen,acl);\
+		proto_tree_add_uint(tree,hf_afs_fs_acl_r, tvb,tmpoffset,acllen,acl);\
+		proto_tree_add_uint(tree,hf_afs_fs_acl_l, tvb,tmpoffset,acllen,acl);\
+		proto_tree_add_uint(tree,hf_afs_fs_acl_i, tvb,tmpoffset,acllen,acl);\
+		proto_tree_add_uint(tree,hf_afs_fs_acl_d, tvb,tmpoffset,acllen,acl);\
+		proto_tree_add_uint(tree,hf_afs_fs_acl_w, tvb,tmpoffset,acllen,acl);\
+		proto_tree_add_uint(tree,hf_afs_fs_acl_k, tvb,tmpoffset,acllen,acl);\
+		proto_tree_add_uint(tree,hf_afs_fs_acl_a, tvb,tmpoffset,acllen,acl);\
 		tree = save; \
 	}
 
@@ -381,18 +352,17 @@
     { \
         unsigned int i,j,seen_null=0; \
         for (i=0; i<255; i++) { \
-			j = GETINT(); \
+			j = tvb_get_ntohl(tvb, offset); \
 			if ( j != 0 ) { \
 				OUT_IP(hf_afs_ubik_interface); \
 				seen_null = 0; \
 			} else { \
 				if ( ! seen_null ) { \
-				TRUNC(4); \
-				proto_tree_add_text(tree, NullTVB,curoffset,END_OF_FRAME, \
+				proto_tree_add_text(tree, tvb,offset,END_OF_FRAME, \
 					"Null Interface Addresses"); \
 					seen_null = 1; \
 				} \
-				curoffset += 4; \
+				offset += 4; \
 			}\
         } \
     }
@@ -440,55 +410,50 @@
 
 /* Skip a certain number of bytes */
 #define SKIP(bytes) \
-	TRUNC(bytes) \
-	curoffset += bytes;
+	offset += bytes;
 	
 /* Raw data - to end of frame */
-#define OUT_BYTES_ALL(field) OUT_BYTES(field, offset+END_OF_FRAME-curoffset)
+#define OUT_BYTES_ALL(field) OUT_BYTES(field, tvb_length_remaining(tvb,offset))
 
 /* Raw data */
 #define OUT_BYTES(field, bytes) \
-	TRUNC(bytes); \
-	proto_tree_add_bytes(tree,field, NullTVB,curoffset,bytes,\
-		(void *)&pd[curoffset]); \
-	curoffset += bytes;
+	proto_tree_add_bytes(tree,field, tvb,offset,bytes,\
+		tvb_get_ptr(tvb,offset,bytes)); \
+	offset += bytes;
 
 /* Output a rx style string, up to a maximum length first 
    4 bytes - length, then char data */
 #define OUT_STRING(field) \
 	{	int i; \
-		TRUNC(4); \
-		i = GETINT(); \
-		curoffset += 4; \
+		i = tvb_get_ntohl(tvb, offset); \
+		offset += 4; \
 		if ( i > 0 ) { \
 			char *tmp; \
-			TRUNC(i); \
 			tmp = g_malloc(i+1); \
-			memcpy(tmp, &pd[curoffset], i); \
+			memcpy(tmp, tvb_get_ptr(tvb,offset,i), i); \
 			tmp[i] = '\0'; \
-			proto_tree_add_string(tree, field, NullTVB, curoffset-4, i+4, \
+			proto_tree_add_string(tree, field, tvb, offset-4, i+4, \
 			(void *)tmp); \
 			g_free(tmp); \
 		} else { \
-			proto_tree_add_string(tree, field, NullTVB, curoffset-4, 4, \
+			proto_tree_add_string(tree, field, tvb, offset-4, 4, \
 			""); \
 		} \
-		curoffset += i; \
+		offset += i; \
 	}
 
 /* Output a fixed length vectorized string (each char is a 32 bit int) */
 #define VECOUT(field, length) \
 	{ 	char tmp[length+1]; \
 		int i,soff; \
-		soff = curoffset;\
-		TRUNC(length * sizeof(guint32));\
+		soff = offset;\
 		for (i=0; i<length; i++)\
 		{\
-			tmp[i] = (char) GETINT();\
-			curoffset += sizeof(guint32);\
+			tmp[i] = (char) tvb_get_ntohl(tvb, offset);\
+			offset += sizeof(guint32);\
 		}\
 		tmp[length] = '\0';\
-		proto_tree_add_string(tree, field, NullTVB, soff, length, tmp);\
+		proto_tree_add_string(tree, field, tvb, soff, length, tmp);\
 	}
 
 /* Skip the opcode */
@@ -502,24 +467,23 @@
 	{ 	proto_tree *save, *ti; \
 		unsigned int epoch,counter; \
 		struct timeval tv; \
-		TRUNC(8); \
-		epoch = GETINT(); \
-		curoffset += 4; \
-		counter = GETINT(); \
-		curoffset += 4; \
+		epoch = tvb_get_ntohl(tvb, offset); \
+		offset += 4; \
+		counter = tvb_get_ntohl(tvb, offset); \
+		offset += 4; \
 		tv.tv_sec = epoch; \
 		tv.tv_usec = 0; \
-		ti = proto_tree_add_text(tree, NullTVB, curoffset-8, 8, \
+		ti = proto_tree_add_text(tree, tvb, offset-8, 8, \
 			"UBIK Version (%s): %u.%u", label, epoch, counter ); \
 		save = tree; \
 		tree = proto_item_add_subtree(ti, ett_afs_ubikver); \
 		if ( epoch != 0 ) \
-		proto_tree_add_time(tree,hf_afs_ubik_version_epoch, NullTVB,curoffset-8, \
+		proto_tree_add_time(tree,hf_afs_ubik_version_epoch, tvb,offset-8, \
 			sizeof(guint32),&tv); \
 		else \
-			proto_tree_add_text(tree, NullTVB, curoffset-8, \
+			proto_tree_add_text(tree, tvb, offset-8, \
 			sizeof(guint32),"Epoch: 0"); \
-		proto_tree_add_uint(tree,hf_afs_ubik_version_counter, NullTVB,curoffset-4, \
+		proto_tree_add_uint(tree,hf_afs_ubik_version_counter, tvb,offset-4, \
 			sizeof(guint32),counter); \
 		tree = save; \
 	}
