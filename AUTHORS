@@ -1206,7 +1206,7 @@ Peter Valchev <pvalchev[AT]openbsd.org> {
 	   to check "getopt()"s return value with -1 rather than EOF
 }
 
-Alex Ruzin <alexr[AT]nbase.co.il> {
+Alex Rozin <Arozin[AT]mrv.com> {
 	Support for IEEE 802.1w RST BPDUs
 }
 

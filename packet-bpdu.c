@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.47 2003/09/21 20:06:00 gerald Exp $
+ * $Id: packet-bpdu.c,v 1.48 2004/01/05 17:26:10 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  *
@@ -71,7 +71,7 @@
 #define CONF_BPDU_SIZE		35
 #define TC_BPDU_SIZE		4
 #define RST_BPDU_SIZE		36
-#define VERSION_3_STATIC_LENGTH 64
+#define VERSION_3_STATIC_LENGTH 66
 #define	MSTI_MESSAGE_SIZE	16
 
 /* Flag bits */
@@ -339,7 +339,9 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       case BPDU_TYPE_RST:
 	if (protocol_version_identifier == 3) {
 	    version_3_length = tvb_get_ntohs(tvb, BPDU_VERSION_3_LENGTH);
-	    set_actual_length(tvb, RST_BPDU_SIZE + 2 + version_3_length);
+	    set_actual_length(tvb, RST_BPDU_SIZE +
+                                   VERSION_3_STATIC_LENGTH +
+                                   version_3_length * MSTI_MESSAGE_SIZE);
 	} else
 	    set_actual_length(tvb, RST_BPDU_SIZE);
         break;
@@ -513,8 +515,8 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			BPDU_CIST_REMAINING_HOPS, 1, cist_remaining_hops);
 
 	/* MSTI messages */
-		length = version_3_length - VERSION_3_STATIC_LENGTH;
 		offset = BPDU_MSTI;
+		length = tvb_reported_length_remaining(tvb, offset);
 		msti = 1;
 		while (length >= MSTI_MESSAGE_SIZE) {
 		    msti_regional_root_mstid = tvb_get_guint8(tvb,  offset+ MSTI_REGIONAL_ROOT);
