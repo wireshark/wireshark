@@ -288,13 +288,15 @@ gint lookup_str_index(gchar* str, gint length, const value_string *vs)
 
 static guint8 edonkey_metatag_name_get_type(tvbuff_t *tvb, gint start, gint length, guint8 special_tagtype) 
 {
-	guchar	*tag_name;
+    guint8 *tag_name;
+
     tag_name = match_strval(special_tagtype, edonkey_special_tags);
     if (tag_name == NULL) {
         gint index;
-		tag_name = (guchar*) tvb_get_ptr(tvb, start, length);
+	tag_name = tvb_get_string(tvb, start, length);
         index = lookup_str_index(tag_name, length, edonkey_special_tags);
-        if (index < 0) 
+        g_free(tag_name);
+        if (index < 0)
             return EDONKEY_STAG_UNKNOWN;
         else return edonkey_special_tags[index].value;
     }
