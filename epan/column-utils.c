@@ -309,7 +309,7 @@ col_append_sep_fstr(column_info *cinfo, gint el, const gchar *separator,
   else
 	max_len = COL_MAX_LEN;
 
-  if (cinfo->col_buf[0]) {
+  if (cinfo->col_data[0]) {
     col_append_str(cinfo, el, separator ? separator : ", ");
   }
   va_start(ap, format);
@@ -440,7 +440,7 @@ void
 col_append_sep_str(column_info *cinfo, gint el, const gchar* separator,
     const gchar* str)
 {
-  if (cinfo->col_buf[0]) {
+  if (cinfo->col_data[0]) {
     col_append_str(cinfo, el, separator ? separator : ", ");
   }  
   col_append_str(cinfo, el, str);
