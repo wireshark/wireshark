@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\DNSSERVER packet disassembly
  * Copyright 2001, 2002 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-dnsserver.c,v 1.3 2003/08/04 02:49:03 tpot Exp $
+ * $Id: packet-dcerpc-dnsserver.c,v 1.4 2003/10/02 21:37:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,11 +51,26 @@ static e_uuid_t uuid_dcerpc_dnsserver = {
 static guint16 ver_dcerpc_dnsserver = 5;
 
 static dcerpc_sub_dissector dcerpc_dnsserver_dissectors[] = {
-	{ UNKNOWN_00, "Unknown 0x00", NULL, NULL },
-	{ UNKNOWN_01, "Unknown 0x01", NULL, NULL },
-	{ UNKNOWN_02, "Unknown 0x02", NULL, NULL },
-	{ UNKNOWN_03, "Unknown 0x02", NULL, NULL },
-
+	{ DNSSERVER_DNSSRV_OPERATION, "DnssrvOperation", 
+	  NULL, NULL },
+	{ DNSSERVER_DNSSRV_QUERY, "DnssrvQuery", 
+	  NULL, NULL },
+	{ DNSSERVER_DNSSRV_COMPLEX_OPERATION, "DnssrvComplexOperation", 
+	  NULL, NULL },
+	{ DNSSERVER_DNSSRV_ENUM_RECORDS, "DnssrvEnumRecords", 
+	  NULL, NULL }, 
+	{ DNSSERVER_DNSSRV_UPDATE_RECORD, "DnssrvUpdateRecord", 
+	  NULL, NULL },
+	{ DNSSERVER_DNSSRV_OPERATION_2, "DnssrvOperation2", 
+	  NULL, NULL },
+	{ DNSSERVER_DNSSRV_QUERY_2, "DnssrvQuery2", 
+	  NULL, NULL },
+	{ DNSSERVER_DNSSRV_COMPLEX_OPERATION_2, "DnssrvComplexOperation2", 
+	  NULL, NULL },
+	{ DNSSERVER_DNSSRV_ENUM_RECORDS_2, "DnssrvEnumRecords2", 
+	  NULL, NULL },
+	{ DNSSERVER_DNSSRV_UPDATE_RECORD_2, "DnssrvUpdateRecord2", 
+	  NULL, NULL },
         { 0, NULL, NULL,  NULL }
 };
 

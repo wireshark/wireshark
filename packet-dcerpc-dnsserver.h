@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\DNSSERVER packet disassembly
  * Copyright 2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-dnsserver.h,v 1.1 2002/09/11 23:59:13 tpot Exp $
+ * $Id: packet-dcerpc-dnsserver.h,v 1.2 2003/10/02 21:37:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,9 +28,15 @@
 
 /* Functions available on the DNSSERVER pipe */
 
-#define UNKNOWN_00 0x00
-#define UNKNOWN_01 0x01
-#define UNKNOWN_02 0x02
-#define UNKNOWN_03 0x03
+#define DNSSERVER_DNSSRV_OPERATION 		0x00
+#define DNSSERVER_DNSSRV_QUERY 			0x01
+#define DNSSERVER_DNSSRV_COMPLEX_OPERATION	0x02
+#define DNSSERVER_DNSSRV_ENUM_RECORDS 		0x03
+#define DNSSERVER_DNSSRV_UPDATE_RECORD	 	0x04
+#define DNSSERVER_DNSSRV_OPERATION_2 		0x05
+#define DNSSERVER_DNSSRV_QUERY_2 		0x06
+#define DNSSERVER_DNSSRV_COMPLEX_OPERATION_2	0x07
+#define DNSSERVER_DNSSRV_ENUM_RECORDS_2 	0x08
+#define DNSSERVER_DNSSRV_UPDATE_RECORD_2 	0x09
 
 #endif /* packet-dcerpc-dnsserver.h */
