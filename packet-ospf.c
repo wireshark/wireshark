@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.45 2001/09/13 20:27:24 guy Exp $
+ * $Id: packet-ospf.c,v 1.46 2001/09/14 06:30:42 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -292,8 +292,8 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_text(ospf_header_tree, tvb, 4, 4, "Source OSPF Router ID: %s",
 			    ip_to_str(tvb_get_ptr(tvb, 4, 4)));
 	areaid=tvb_get_ntohl(tvb,8);
-	proto_tree_add_text(ospf_header_tree, tvb, 8, 4, "Area ID: %s %s",
-			       ip_to_str(tvb_get_ptr(tvb, 8, 4)), areaid == 0 ? "(Backbone)" : "");
+	proto_tree_add_text(ospf_header_tree, tvb, 8, 4, "Area ID: %s%s",
+			       ip_to_str(tvb_get_ptr(tvb, 8, 4)), areaid == 0 ? " (Backbone)" : "");
 	cksum = tvb_get_ntohs(tvb, 12);
 	length = tvb_length(tvb);
 	/* XXX - include only the length from the OSPF header? */
