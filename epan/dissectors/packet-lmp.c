@@ -1025,13 +1025,18 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		lmp_object_header_tree = proto_item_add_subtree(ti2, lmp_09_subtree[LMP_TREE_OBJECT_HEADER]);
 		proto_tree_add_text(lmp_object_header_tree, tvb, offset, 1,
 				negotiable ? "Negotiable" : "Not Negotiable");
-		proto_tree_add_text(lmp_object_header_tree, tvb, offset+2, 2,
-				"Length: %u", obj_length);
+		proto_tree_add_item(lmp_object_header_tree, lmp_filter[LMPF_VAL_CTYPE],
+				    tvb, offset, 1, type);
 		proto_tree_add_text(lmp_object_header_tree, tvb, offset+1, 1,
 				"Object Class: %u - %s",
 				class, object_type);
-		proto_tree_add_item(lmp_object_header_tree, lmp_filter[LMPF_VAL_CTYPE],
-				    tvb, offset, 1, type);
+		if (obj_length < 4) {
+		    proto_tree_add_text(lmp_object_header_tree, tvb, offset+2, 2,
+				    "Length: %u (bogus, must be >= 4)", obj_length);
+		    break;
+		}
+		proto_tree_add_text(lmp_object_header_tree, tvb, offset+2, 2,
+				"Length: %u", obj_length);
 		offset2 = offset+4;
 		mylen = obj_length - 4;
 	  } else /* LMP_VER_DRAFT_CCAMP_03 */ {
@@ -1058,13 +1063,18 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		lmp_object_header_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_OBJECT_HEADER]);
 		proto_tree_add_text(lmp_object_header_tree, tvb, offset, 1,
 				negotiable ? "Negotiable" : "Not Negotiable");
-		proto_tree_add_text(lmp_object_header_tree, tvb, offset+2, 2,
-				"Length: %u", obj_length);
+		proto_tree_add_item(lmp_object_header_tree, lmp_filter[LMPF_VAL_CTYPE],
+				    tvb, offset, 1, type);
 		proto_tree_add_text(lmp_object_header_tree, tvb, offset+1, 1,
 				"Object Class: %u - %s",
 				class, object_type);
-		proto_tree_add_item(lmp_object_header_tree, lmp_filter[LMPF_VAL_CTYPE],
-				    tvb, offset, 1, type);
+		if (obj_length < 4) {
+		    proto_tree_add_text(lmp_object_header_tree, tvb, offset+2, 2,
+				    "Length: %u (bogus, must be >= 4)", obj_length);
+		    break;
+		}
+		proto_tree_add_text(lmp_object_header_tree, tvb, offset+2, 2,
+				"Length: %u", obj_length);
 		offset2 = offset+4;
 		mylen = obj_length - 4;
 	  }
@@ -1417,6 +1427,11 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    lmp_subobj_tree = proto_item_add_subtree(ti2, lmp_09_subtree[LMP_TREE_DATA_LINK_SUBOBJ]);
 		    proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l, 1,
 					"Subobject Type: %d", tvb_get_guint8(tvb, offset2+l));
+		    if (mylen < 2) {
+			proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+1, 1,
+					    "Subobject Length: %d (bogus, must be >= 2)", mylen);
+			break;
+		    }
 		    proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+1, 1,
 					"Subobject Length: %d", mylen);
 		    switch(tvb_get_guint8(tvb, offset2+l)) {
@@ -1445,26 +1460,20 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		    case 2:
 			proto_item_set_text(ti2, "Wavelength: %d",
-					    tvb_get_ntohl(tvb, offset2+l+2));
+					    tvb_get_ntohl(tvb, offset2+l+4));
 			proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+4, 4,
 					    "Wavelength: %d",
 					    tvb_get_ntohl(tvb, offset2+l+4));
 			break;
 
 		    default:
-			proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l,
-					    tvb_get_guint8(tvb, offset2+l+1),
-					    "Data (%d bytes)", tvb_get_guint8(tvb, offset2+l+1));
+			proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+2,
+					    mylen-2,
+					    "Data (%d bytes)", mylen-2);
 			break;
 		    }
-            if (tvb_get_guint8(tvb, offset2+l+1) != 0) {
-		        l += tvb_get_guint8(tvb, offset2+l+1);
-            } else {
-                /* XXX - prevent an endless loop here, but what's the right way to do instead? */
-                return tvb_length(tvb);
-            }
+		    l += mylen;
 		}
-
 		break;
 
 	    case LMP_09_CLASS_CHANNEL_STATUS:
@@ -1965,6 +1974,11 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    lmp_subobj_tree = proto_item_add_subtree(ti2, lmp_subtree[LMP_TREE_DATA_LINK_SUBOBJ]);
 		    proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l, 1,
 					"Subobject Type: %d", tvb_get_guint8(tvb, offset2+l));
+		    if (mylen < 2) {
+			proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+1, 1,
+					    "Subobject Length: %d (bogus, must be >= 2)", mylen);
+			break;
+		    }
 		    proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+1, 1,
 					"Subobject Length: %d", mylen);
 		    switch(tvb_get_guint8(tvb, offset2+l)) {
@@ -2000,12 +2014,12 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 			    
 		    default:
-			proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l,
-					    tvb_get_guint8(tvb, offset2+l+1),
-					    "Data (%d bytes)", tvb_get_guint8(tvb, offset2+l+1));
+			proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+2,
+					    mylen,
+					    "Data (%d bytes)", mylen-2);
 			break;
 		    }
-		    l += tvb_get_guint8(tvb, offset2+l+1);
+		    l += mylen;
 		}
 		break;
 
