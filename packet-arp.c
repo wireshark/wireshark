@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.35 2000/11/17 21:00:35 gram Exp $
+ * $Id: packet-arp.c,v 1.36 2000/11/19 01:00:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -414,6 +414,11 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   tot_len = MIN_ATMARP_HEADER_SIZE + ar_shtl + ar_ssl + ar_spln +
 				ar_thtl + ar_tsl + ar_tpln;
+  
+  /* Adjust the length of this tvbuff to include only the ARP datagram.
+     Our caller may use that to determine how much of its packet
+     was padding. */
+  tvb_set_reported_length(tvb, tot_len);
 
   /* Extract the addresses.  */
   sha_offset = MIN_ATMARP_HEADER_SIZE;
@@ -459,7 +464,7 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tpa_offset = tsa_offset + ar_tsl;
   tpa_val = tvb_get_ptr(tvb, tpa_offset, ar_tpln);
   tpa_str = arpproaddr_to_str(tpa_val, ar_tpln, ar_pro);
-  
+
   if (check_col(pinfo->fd, COL_PROTOCOL)) {
     switch (ar_op) {
 
@@ -594,6 +599,11 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ar_op  = tvb_get_ntohs(tvb, AR_OP);
 
   tot_len = MIN_ARP_HEADER_SIZE + ar_hln*2 + ar_pln*2;
+  
+  /* Adjust the length of this tvbuff to include only the ARP datagram.
+     Our caller may use that to determine how much of its packet
+     was padding. */
+  tvb_set_reported_length(tvb, tot_len);
 
   /* Extract the addresses.  */
   sha_offset = MIN_ARP_HEADER_SIZE;
