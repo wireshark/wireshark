@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.714 2004/03/02 01:21:56 jmayer Exp $
+# $Id: Makefile.am,v 1.715 2004/03/03 00:07:00 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -611,9 +611,6 @@ mergecap.1: doc/mergecap.pod
 text2pcap.1: doc/text2pcap.pod
 	(cd doc ; \
 	$(MAKE) ../text2pcap.1 )
-
-packet-ncp2222.c : ncp2222.py
-	$(PYTHON) $(srcdir)/ncp2222.py -o $@
 
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status --recheck

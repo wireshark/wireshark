@@ -2,7 +2,7 @@
 # Automake file for the EPAN library
 # (Ethereal Protocol ANalyzer Library)
 #
-# $Id: Makefile.am,v 1.34 2004/03/02 03:46:02 jmayer Exp $
+# $Id: Makefile.am,v 1.35 2004/03/03 00:07:01 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -116,6 +116,8 @@ MAINTAINERCLEANFILES =	\
 libethereal_a_LIBADD = @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@
 libethereal_a_DEPENDENCIES = @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@
 
+../packet-ncp2222.c : $(srcdir)/../ncp2222.py
+	$(PYTHON) $(srcdir)/../ncp2222.py -o $@
 
 tvbtest: tvbtest.o tvbuff.o except.o strutil.o
 	$(LINK) -o tvbtest tvbtest.o tvbuff.o except.o strutil.o `glib-config --libs`
