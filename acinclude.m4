@@ -1125,6 +1125,7 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 		#
 		# It's not Heimdal.
 		#
+		AC_MSG_RESULT(no)
 		if test "x$want_krb5" = "xyes"
 		then
 		    #
@@ -1137,7 +1138,6 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 		    # Restore the versions of CFLAGS and CPPFLAGS
 		    # from before we added the flags for Kerberos.
 		    #
-		    AC_MSG_RESULT(no)
 		    AC_MSG_RESULT(Heimdal not found - disabling dissection for some kerberos data in packet decoding)
 		    CFLAGS="$ethereal_save_CFLAGS"
 		    CPPFLAGS="$ethereal_save_CPPFLAGS"
