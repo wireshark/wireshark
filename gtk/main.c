@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.219 2001/12/18 19:09:08 gram Exp $
+ * $Id: main.c,v 1.220 2001/12/21 20:18:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1136,13 +1136,7 @@ main(int argc, char *argv[])
       case 'b':        /* Ringbuffer option */
 #ifdef HAVE_LIBPCAP
         cfile.ringbuffer_on = TRUE;
-        /* get optional ringbuffer number of files parameter */
-        if (optarg[0] != '-') {
-          cfile.ringbuffer_num_files = get_positive_int(optarg, "ringbuffer number of files");
-        } else {
-          cfile.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
-          optind--;
-        }
+        cfile.ringbuffer_num_files = get_positive_int(optarg, "number of ring buffer files");
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;

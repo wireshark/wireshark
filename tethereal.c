@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.110 2001/12/21 20:06:43 guy Exp $
+ * $Id: tethereal.c,v 1.111 2001/12/21 20:18:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -422,13 +422,7 @@ main(int argc, char *argv[])
       case 'b':        /* Ringbuffer option */
 #ifdef HAVE_LIBPCAP
         cfile.ringbuffer_on = TRUE;
-        /* get optional ringbuffer number of files parameter */
-        if (optarg[0] != '-') {
-          cfile.ringbuffer_num_files = get_positive_int(optarg, "ring buffer number of files");
-        } else {
-          cfile.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
-          optind--;
-        }
+        cfile.ringbuffer_num_files = get_positive_int(optarg, "number of ring buffer files");
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
