@@ -2,7 +2,7 @@
  * Routines for iSCSI dissection
  * Copyright 2001, Eurologic and Mark Burton <markb@ordern.com>
  *
- * $Id: packet-iscsi.c,v 1.31 2002/05/14 21:35:17 guy Exp $
+ * $Id: packet-iscsi.c,v 1.32 2002/05/15 19:32:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,15 +55,17 @@
 #define ISCSI_PROTOCOL_DRAFT08 1
 #define ISCSI_PROTOCOL_DRAFT09 2
 #define ISCSI_PROTOCOL_DRAFT11 3
+#define ISCSI_PROTOCOL_DRAFT12 4
 
 static enum_val_t iscsi_protocol_versions[] = {
     { "Draft 08", ISCSI_PROTOCOL_DRAFT08 },
     { "Draft 09", ISCSI_PROTOCOL_DRAFT09 },
     { "Draft 11", ISCSI_PROTOCOL_DRAFT11 },
+    { "Draft 12", ISCSI_PROTOCOL_DRAFT12 },
     { NULL, 0 }
 };
 
-static gint iscsi_protocol_version = ISCSI_PROTOCOL_DRAFT08;
+static gint iscsi_protocol_version = ISCSI_PROTOCOL_DRAFT12;
 
 static gboolean iscsi_desegment = TRUE;
 
@@ -129,6 +131,7 @@ static int hf_iscsi_SCSIResponse_Response = -1;
 static int hf_iscsi_SCSIResponse_Status = -1;
 static int hf_iscsi_SenseLength = -1;
 static int hf_iscsi_SCSIData_F = -1;
+static int hf_iscsi_SCSIData_A = -1;
 static int hf_iscsi_SCSIData_S = -1;
 static int hf_iscsi_SCSIData_O = -1;
 static int hf_iscsi_SCSIData_U = -1;
@@ -154,6 +157,7 @@ static int hf_iscsi_ISID_c = -1;
 static int hf_iscsi_ISID_d = -1;
 /* #endif */
 static int hf_iscsi_TSID = -1;
+static int hf_iscsi_TSIH = -1;
 static int hf_iscsi_InitStatSN = -1;
 static int hf_iscsi_InitCmdSN = -1;
 /* #ifdef DRAFT09 */
@@ -258,6 +262,7 @@ static guint32 iscsi_init_count = 25;
 #define ISCSI_SCSI_DATA_FLAG_S 0x01
 #define ISCSI_SCSI_DATA_FLAG_U 0x02
 #define ISCSI_SCSI_DATA_FLAG_O 0x04
+#define ISCSI_SCSI_DATA_FLAG_A 0x40
 #define ISCSI_SCSI_DATA_FLAG_F 0x80
 
 static const value_string iscsi_opcodes[] = {
@@ -311,6 +316,11 @@ static const true_false_string iscsi_meaning_I = {
 static const true_false_string iscsi_meaning_F = {
     "Final PDU in sequence",
     "Not final PDU in sequence"
+};
+
+static const true_false_string iscsi_meaning_A = {
+    "Acknowledge requested",
+    "Acknowledge not requested"
 };
 
 static const true_false_string iscsi_meaning_T = {
@@ -946,7 +956,9 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		proto_tree_add_boolean(tt, hf_iscsi_SCSICommand_W, tvb, offset + 1, 1, b);
 		proto_tree_add_uint(tt, hf_iscsi_SCSICommand_Attr, tvb, offset + 1, 1, b);
 	    }
-	    proto_tree_add_item(ti, hf_iscsi_SCSICommand_CRN, tvb, offset + 3, 1, FALSE);
+	    if(iscsi_protocol_version < ISCSI_PROTOCOL_DRAFT12) {
+		proto_tree_add_item(ti, hf_iscsi_SCSICommand_CRN, tvb, offset + 3, 1, FALSE);
+	    }
 	    proto_tree_add_item(ti, hf_iscsi_TotalAHSLength, tvb, offset + 4, 1, FALSE);
 	    proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
 	    proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, FALSE);
@@ -1034,7 +1046,9 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
 	    }
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
-	    proto_tree_add_item(ti, hf_iscsi_TaskManagementFunction_ReferencedTaskTag, tvb, offset + 20, 4, FALSE);
+	    if(iscsi_protocol_version < ISCSI_PROTOCOL_DRAFT12) {
+		proto_tree_add_item(ti, hf_iscsi_TaskManagementFunction_ReferencedTaskTag, tvb, offset + 20, 4, FALSE);
+	    }
 	    proto_tree_add_item(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, FALSE);
@@ -1087,7 +1101,12 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		    proto_tree_add_item(tt, hf_iscsi_ISID_d, tvb, offset + 12, 2, FALSE);
 		}
 	    }
-	    proto_tree_add_item(ti, hf_iscsi_TSID, tvb, offset + 14, 2, FALSE);
+	    if(iscsi_protocol_version < ISCSI_PROTOCOL_DRAFT12) {
+		proto_tree_add_item(ti, hf_iscsi_TSID, tvb, offset + 14, 2, FALSE);
+	    }
+	    else {
+		proto_tree_add_item(ti, hf_iscsi_TSIH, tvb, offset + 14, 2, FALSE);
+	    }
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
 	    if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT08) {
 		proto_tree_add_item(ti, hf_iscsi_CID, tvb, offset + 20, 2, FALSE);
@@ -1144,7 +1163,12 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		    proto_tree_add_item(tt, hf_iscsi_ISID_d, tvb, offset + 12, 2, FALSE);
 		}
 	    }
-	    proto_tree_add_item(ti, hf_iscsi_TSID, tvb, offset + 14, 2, FALSE);
+	    if(iscsi_protocol_version < ISCSI_PROTOCOL_DRAFT12) {
+		proto_tree_add_item(ti, hf_iscsi_TSID, tvb, offset + 14, 2, FALSE);
+	    }
+	    else {
+		proto_tree_add_item(ti, hf_iscsi_TSIH, tvb, offset + 14, 2, FALSE);
+	    }
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, FALSE);
@@ -1235,6 +1259,9 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
 
 		proto_tree_add_boolean(tt, hf_iscsi_SCSIData_F, tvb, offset + 1, 1, b);
+		if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT08) {
+		    proto_tree_add_boolean(tt, hf_iscsi_SCSIData_A, tvb, offset + 1, 1, b);
+		}
 		proto_tree_add_boolean(tt, hf_iscsi_SCSIData_O, tvb, offset + 1, 1, b);
 		proto_tree_add_boolean(tt, hf_iscsi_SCSIData_U, tvb, offset + 1, 1, b);
 		proto_tree_add_boolean(tt, hf_iscsi_SCSIData_S, tvb, offset + 1, 1, b);
@@ -1820,6 +1847,11 @@ proto_register_iscsi(void)
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_F), ISCSI_SCSI_DATA_FLAG_F,
 	    "Final PDU", HFILL }
 	},
+	{ &hf_iscsi_SCSIData_A,
+	  { "F", "iscsi.scsidata.A",
+	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_A), ISCSI_SCSI_DATA_FLAG_A,
+	    "Acknowledge Requested", HFILL }
+	},
 	{ &hf_iscsi_SCSIData_S,
 	  { "S", "iscsi.scsidata.S",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_S), ISCSI_SCSI_DATA_FLAG_S,
@@ -1935,6 +1967,11 @@ proto_register_iscsi(void)
 	  { "TSID", "iscsi.tsid",
 	    FT_UINT16, BASE_HEX, NULL, 0,
 	    "Target part of session identifier", HFILL }
+	},
+	{ &hf_iscsi_TSIH,
+	  { "TSIH", "iscsi.tsih",
+	    FT_UINT16, BASE_HEX, NULL, 0,
+	    "Target session identifying handle", HFILL }
 	},
 	{ &hf_iscsi_InitStatSN,
 	  { "InitStatSN", "iscsi.initstatsn",
