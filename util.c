@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.32 2000/01/29 19:06:59 guy Exp $
+ * $Id: util.c,v 1.33 2000/01/29 19:08:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -585,7 +585,7 @@ get_home_dir(void)
 {
 	char *env_value;
 	static const char *home = NULL;
-#ifndef
+#ifndef WIN32
 	uid_t uid;
 	struct passwd *pwd;
 #endif
