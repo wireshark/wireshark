@@ -259,6 +259,11 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* user data length is packet len - frame id - optional cyclic status fields */
             data_len = tvb_len - 2 - 4;
         } else {
+            /* satisfy the gcc compiler, so it won't throw an "uninitialized" warning */
+		    u16CycleCounter     = 0;
+		    u8DataStatus        = 0;
+	        u8TransferStatus    = 0;
+
             /* acyclic transfer has no fields at the end */
 		    snprintf (szFieldSummary, sizeof(szFieldSummary),
 				      "%sFrameID: 0x%04x, DataLen: %4u",
@@ -322,7 +327,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	    	col_add_str(pinfo->cinfo, COL_PROTOCOL, pszProtShort);
 
-        pinfo->private_data = GINT_TO_POINTER(u16FrameID);
+        pinfo->private_data = GUINT_TO_POINTER(u16FrameID);
 
 		/* get frame user data tvb (without header and footer) */
 		next_tvb = tvb_new_subset(tvb, 2, data_len, data_len);
