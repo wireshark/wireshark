@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.48 2000/08/11 07:28:11 guy Exp $
+ * $Id: ngsniffer.c,v 1.49 2000/08/12 07:12:46 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -431,6 +431,8 @@ int ngsniffer_open(wtap *wth, int *err)
 
 	/* We don't yet have any list of compressed blobs. */
 	wth->capture.ngsniffer->first_blob = NULL;
+	wth->capture.ngsniffer->last_blob = NULL;
+	wth->capture.ngsniffer->current_blob = NULL;
 
 	wth->subtype_read = ngsniffer_read;
 	wth->subtype_seek_read = ngsniffer_seek_read;
@@ -1321,28 +1323,28 @@ ng_file_read(void *buffer, size_t elementsize, size_t numelements, wtap *wth,
     if (comp_stream->buf == NULL) {
 	comp_stream->buf = g_malloc(OUTBUF_SIZE);
 
-	/* If this is a sequential read, the list of blobs is empty (we
-	   have to do a sequential read before we can do any random
-	   reads, as we don't know where to go for a random read
-	   of a packet if we haven't seen the packet in a sequential
-	   read).
-
-	   If we also have a random stream open, allocate the first element
-	   for the list of blobs, and make it the last element as well.
-	   Also make it the current element; as we've done no random reads
-	   yet, the random stream has yet to be moved and is thus
-	   at the beginning of the sequence of blobs. */
-	if (!is_random && wth->random_fh != NULL) {
-	    g_assert(wth->capture.ngsniffer->first_blob == NULL);
-	    blob = g_malloc(sizeof (blob_info_t));
-	    blob->blob_comp_offset = comp_stream->comp_offset;
-	    blob->blob_uncomp_offset = comp_stream->uncomp_offset;
-	    wth->capture.ngsniffer->first_blob =
-		g_list_append(wth->capture.ngsniffer->first_blob, blob);
-	    wth->capture.ngsniffer->last_blob =
-	    	wth->capture.ngsniffer->first_blob;
+	if (is_random) {
+	    /* This is the first read of the random file, so we're at
+	       the beginning of the sequence of blobs in the file
+	       (as we've not done any random reads yet to move the
+	       current position in the random stream); set the
+	       current blob to be the first blob. */
 	    wth->capture.ngsniffer->current_blob =
 		wth->capture.ngsniffer->first_blob;
+	} else {
+	    /* This is the first sequential read; if we also have a
+	       random stream open, allocate the first element for the
+	       list of blobs, and make it the last element as well. */
+	    if (wth->random_fh != NULL) {
+		g_assert(wth->capture.ngsniffer->first_blob == NULL);
+		blob = g_malloc(sizeof (blob_info_t));
+		blob->blob_comp_offset = comp_stream->comp_offset;
+		blob->blob_uncomp_offset = comp_stream->uncomp_offset;
+		wth->capture.ngsniffer->first_blob =
+			g_list_append(wth->capture.ngsniffer->first_blob, blob);
+		wth->capture.ngsniffer->last_blob =
+			wth->capture.ngsniffer->first_blob;
+	    }
 	}
 
 	/* Now read the first blob into the buffer. */
