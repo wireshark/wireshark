@@ -5,7 +5,7 @@
  * Full Tacacs+ parsing with decryption by
  *   Emanuele Caratti <wiz@iol.it>
  *
- * $Id: packet-tacacs.c,v 1.25 2003/09/20 09:41:48 guy Exp $
+ * $Id: packet-tacacs.c,v 1.26 2003/09/20 09:54:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -339,8 +339,19 @@ tacplus_tvb_setup( tvbuff_t *tvb, tvbuff_t **dst_tvb, packet_info *pinfo, guint3
 
 	md5_xor( buff, tacplus_key, len, tmp_sess,version, tvb_get_guint8(tvb,2) );
 
+	/* Allocate a new tvbuff, referring to the decrypted data. */
 	*dst_tvb = tvb_new_real_data( buff, len, len );
+
+	/* Arrange that the allocated packet data copy be freed when the
+	   tvbuff is freed. */
+	tvb_set_free_cb( *dst_tvb, g_free );
+
+	/* Add the tvbuff to the list of tvbuffs to which the tvbuff we
+	   were handed refers, so it'll get cleaned up when that tvbuff
+	   is cleaned up. */
 	tvb_set_child_real_data_tvbuff( tvb, *dst_tvb );
+
+	/* Add the decrypted data to the data source list. */
 	add_new_data_source(pinfo, *dst_tvb, "TACACS+ Decrypted");
 
 	return 0;
