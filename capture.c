@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.173 2002/04/24 06:03:33 guy Exp $
+ * $Id: capture.c,v 1.174 2002/05/04 09:11:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -224,7 +224,7 @@ typedef struct _loop_data {
 
 #ifndef _WIN32
 static void adjust_header(loop_data *, struct pcap_hdr *, struct pcaprec_hdr *);
-static int pipe_open_live(char *, struct pcap_hdr *, loop_data *, char *);
+static int pipe_open_live(char *, struct pcap_hdr *, loop_data *);
 static int pipe_dispatch(int, loop_data *, struct pcap_hdr *);
 #endif
 
@@ -730,7 +730,8 @@ cap_timer_cb(gpointer data)
    us a message, or the sync pipe has closed, meaning the child has
    closed it (perhaps because it exited). */
 static void 
-cap_file_input_cb(gpointer data, gint source, GdkInputCondition condition)
+cap_file_input_cb(gpointer data, gint source _U_,
+  GdkInputCondition condition _U_)
 {
   capture_file *cf = (capture_file *)data;
 #define BUFSIZE	4096
@@ -1064,7 +1065,7 @@ adjust_header(loop_data *ld, struct pcap_hdr *hdr, struct pcaprec_hdr *rechdr)
  * N.B. : we can't read the libpcap formats used in RedHat 6.1 or SuSE 6.3
  * because we can't seek on pipes (see wiretap/libpcap.c for details) */
 static int
-pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld, char *ebuf)
+pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld)
 {
   struct stat pipe_stat;
   int         fd;
@@ -1393,10 +1394,16 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     goto error;
 #else
     /* try to open cfile.iface as a pipe */
-    pipe_fd = pipe_open_live(cfile.iface, &hdr, &ld, open_err_str);
+    pipe_fd = pipe_open_live(cfile.iface, &hdr, &ld);
 
     if (pipe_fd == -1) {
-      /* Well, we couldn't start the capture.
+      /* Well, we couldn't start the capture assuming the interface was
+         a device, and we couldn't open the pipe, either.
+
+	 We choose to report the error for the device, rather than the
+	 file, under the assumption that you're typically capturing on
+	 a device.
+
 	 If this is a child process that does the capturing in sync
 	 mode or fork mode, it shouldn't do any UI stuff until we pop up the
 	 capture-progress window, and, since we couldn't start the
@@ -1963,18 +1970,18 @@ pct(gint num, gint denom) {
 }
 
 static void
-stop_capture(int signo)
+stop_capture(int signo _U_)
 {
   ld.go = FALSE;
 }
 
 static void
-capture_delete_cb(GtkWidget *w, GdkEvent *event, gpointer data) {
+capture_delete_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data) {
   capture_stop_cb(NULL, data);
 }
 
 static void
-capture_stop_cb(GtkWidget *w, gpointer data) {
+capture_stop_cb(GtkWidget *w _U_, gpointer data) {
   loop_data *ld = (loop_data *) data;
   
   ld->go = FALSE;
