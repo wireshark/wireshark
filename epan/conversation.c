@@ -1,12 +1,11 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.6 2000/11/18 11:47:21 guy Exp $
+ * $Id: conversation.c,v 1.7 2001/06/04 06:46:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -130,13 +129,8 @@ conversation_match_exact(gconstpointer v, gconstpointer w)
 	 */
 	if (v1->port_src == v2->port_src &&
 	    v1->port_dst == v2->port_dst &&
-	    v1->src.type == v2->src.type &&
-	    v1->src.len == v2->src.len &&
-	    memcmp(v1->src.data, v2->src.data, v1->src.len) == 0 &&
-	    v1->dst.type == v2->dst.type &&
-	    v1->dst.type == v2->dst.type &&
-	    v1->dst.len == v2->dst.len &&
-	    memcmp(v1->dst.data, v2->dst.data, v1->dst.len) == 0) {
+	    ADDRESSES_EQUAL(&v1->src, &v2->src) &&
+	    ADDRESSES_EQUAL(&v1->dst, &v2->dst)) {
 		/*
 		 * Yes.  It's the same conversation, and the two
 		 * address/port pairs are going in the same direction.
@@ -153,12 +147,8 @@ conversation_match_exact(gconstpointer v, gconstpointer w)
 	 */
 	if (v1->port_dst == v2->port_src &&
 	    v1->port_src == v2->port_dst &&
-	    v1->dst.type == v2->src.type &&
-	    v1->dst.len == v2->src.len &&
-	    memcmp(v1->dst.data, v2->src.data, v1->dst.len) == 0 &&
-	    v1->src.type == v2->dst.type &&
-	    v1->src.len == v2->dst.len &&
-	    memcmp(v1->src.data, v2->dst.data, v1->src.len) == 0) {
+	    ADDRESSES_EQUAL(&v1->dst, &v2->src) &&
+	    ADDRESSES_EQUAL(&v1->src, &v2->dst)) {
 		/*
 		 * Yes.  It's the same conversation, and the two
 		 * address/port pairs are going in opposite directions.
@@ -216,9 +206,7 @@ conversation_match_no_dst_addr(gconstpointer v, gconstpointer w)
 	 */
 	if (v1->port_src == v2->port_src &&
 	    v1->port_dst == v2->port_dst &&
-	    v1->src.type == v2->src.type &&
-	    v1->src.len == v2->src.len &&
-	    memcmp(v1->src.data, v2->src.data, v1->src.len) == 0) {
+	    ADDRESSES_EQUAL(&v1->src, &v2->src)) {
 		/*
 		 * Yes.  It's the same conversation, and the two
 		 * address/port pairs are going in the same direction.
@@ -276,13 +264,8 @@ conversation_match_no_dst_port(gconstpointer v, gconstpointer w)
 	 * destination addresses the same?
 	 */
 	if (v1->port_src == v2->port_src &&
-	    v1->src.type == v2->src.type &&
-	    v1->src.len == v2->src.len &&
-	    memcmp(v1->src.data, v2->src.data, v1->src.len) == 0 &&
-	    v1->dst.type == v2->dst.type &&
-	    v1->dst.type == v2->dst.type &&
-	    v1->dst.len == v2->dst.len &&
-	    memcmp(v1->dst.data, v2->dst.data, v1->dst.len) == 0) {
+	    ADDRESSES_EQUAL(&v1->src, &v2->src) &&
+	    ADDRESSES_EQUAL(&v1->dst, &v2->dst)) {
 		/*
 		 * Yes.  It's the same conversation, and the two
 		 * address/port pairs are going in the same direction.
@@ -336,9 +319,7 @@ conversation_match_no_dst(gconstpointer v, gconstpointer w)
 	 * and second source addresses the same?
 	 */
 	if (v1->port_src == v2->port_src &&
-	    v1->src.type == v2->src.type &&
-	    v1->src.len == v2->src.len &&
-	    memcmp(v1->src.data, v2->src.data, v1->src.len) == 0) {
+	    ADDRESSES_EQUAL(&v1->src, &v2->src)) {
 		/*
 		 * Yes.  It's the same conversation, and the two
 		 * address/port pairs are going in the same direction.

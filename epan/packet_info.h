@@ -1,12 +1,11 @@
 /* packet_info.h
  * Definitions for packet info structures and routines
  *
- * $Id: packet_info.h,v 1.2 2001/05/27 01:48:25 guy Exp $
+ * $Id: packet_info.h,v 1.3 2001/06/04 06:46:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -54,6 +53,11 @@ typedef struct _address {
 	(addr)->len = (addr_len); \
 	(addr)->data = (addr_data); \
 	}
+
+#define ADDRESSES_EQUAL(addr1, addr2) \
+	((addr1)->type == (addr2)->type && \
+	 (addr1)->len == (addr2)->len && \
+	 memcmp((addr1)->data, (addr2)->data, (addr1)->len) == 0)
 
 /* Types of port numbers Ethereal knows about. */
 typedef enum {
