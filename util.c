@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.48 2000/12/23 19:50:36 guy Exp $
+ * $Id: util.c,v 1.49 2001/01/28 23:56:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -74,6 +74,8 @@ typedef int mode_t;	/* for win32 */
 #ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif
+
+#include <pcap.h>
 
 #ifndef WIN32
 #include <net/if.h>

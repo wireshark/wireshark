@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.78 2000/10/20 04:26:38 gram Exp $
+ * $Id: file.h,v 1.79 2001/01/28 23:56:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,10 +32,6 @@
 
 #include "wiretap/wtap.h"
 
-#ifdef HAVE_LIBPCAP
-#include <pcap.h>
-#endif
-
 #include "dfilter.h"
 #include "print.h"
 
@@ -55,8 +51,6 @@
 #define filed_open fdopen
 #define file_close fclose
 #endif /* HAVE_LIBZ */
-
-typedef struct bpf_program bpf_prog;
 
 /* Current state of file. */
 typedef enum {
@@ -93,7 +87,6 @@ typedef struct _capture_file {
   dfilter     *dfcode;    /* Compiled display filter program */ 
 #ifdef HAVE_LIBPCAP
   gchar       *cfilter;   /* Capture filter string */
-  bpf_prog     fcode;     /* Compiled capture filter program */
 #endif
   gchar       *sfilter;   /* Search filter string */
   gboolean     sbackward;  /* TRUE if search is backward, FALSE if forward */

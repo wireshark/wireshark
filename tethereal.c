@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.61 2001/01/04 00:16:43 guy Exp $
+ * $Id: tethereal.c,v 1.62 2001/01/28 23:56:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -52,6 +52,8 @@
 #endif
 
 #include <signal.h>
+
+#include <pcap.h>
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
@@ -531,6 +533,7 @@ capture(int packet_count, int out_file_type)
 {
   gchar       err_str[PCAP_ERRBUF_SIZE];
   bpf_u_int32 netnum, netmask;
+  struct bpf_program fcode;
   void        (*oldhandler)(int);
   int         err, inpkts;
   char        errmsg[1024+1];
@@ -609,12 +612,12 @@ capture(int packet_count, int out_file_type)
         "Warning:  Couldn't obtain netmask info (%s)\n.", err_str);
       netmask = 0;
     }
-    if (pcap_compile(ld.pch, &cfile.fcode, cfile.cfilter, 1, netmask) < 0) {
+    if (pcap_compile(ld.pch, &fcode, cfile.cfilter, 1, netmask) < 0) {
       snprintf(errmsg, sizeof errmsg, "Unable to parse filter string (%s).",
 	pcap_geterr(ld.pch));
       goto error;
     }
-    if (pcap_setfilter(ld.pch, &cfile.fcode) < 0) {
+    if (pcap_setfilter(ld.pch, &fcode) < 0) {
       snprintf(errmsg, sizeof errmsg, "Can't install filter (%s).",
 	pcap_geterr(ld.pch));
       goto error;

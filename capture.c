@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.136 2001/01/13 03:17:15 gram Exp $
+ * $Id: capture.c,v 1.137 2001/01/28 23:56:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -100,12 +100,10 @@
 #include <signal.h>
 #include <errno.h>
 
+#include <pcap.h>
+
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
-#endif
-
-#ifndef lib_pcap_h
-#include <pcap.h>
 #endif
 
 #ifdef _WIN32
@@ -1119,6 +1117,7 @@ capture(void)
   int         snaplen;
   gchar       err_str[PCAP_ERRBUF_SIZE], label_str[64];
   bpf_u_int32 netnum, netmask;
+  struct bpf_program fcode;
   time_t      upd_time, cur_time;
   int         err, inpkts, i;
   char        errmsg[4096+1];
@@ -1279,12 +1278,12 @@ capture(void)
        */
       netmask = 0;
     }
-    if (pcap_compile(pch, &cfile.fcode, cfile.cfilter, 1, netmask) < 0) {
+    if (pcap_compile(pch, &fcode, cfile.cfilter, 1, netmask) < 0) {
       snprintf(errmsg, sizeof errmsg, "Unable to parse filter string (%s).",
 	pcap_geterr(pch));
       goto error;
     }
-    if (pcap_setfilter(pch, &cfile.fcode) < 0) {
+    if (pcap_setfilter(pch, &fcode) < 0) {
       snprintf(errmsg, sizeof errmsg, "Can't install filter (%s).",
 	pcap_geterr(pch));
       goto error;
