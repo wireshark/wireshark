@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-bootp.c,v 1.64 2002/05/28 20:08:09 guy Exp $
+ * $Id: packet-bootp.c,v 1.65 2002/06/19 19:39:38 guy Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -56,7 +56,9 @@ static int hf_bootp_hw_len = -1;
 static int hf_bootp_hops = -1;
 static int hf_bootp_id = -1;
 static int hf_bootp_secs = -1;
-static int hf_bootp_flag = -1;
+static int hf_bootp_flags = -1;
+static int hf_bootp_flags_broadcast = -1;
+static int hf_bootp_flags_reserved = -1;
 static int hf_bootp_ip_client = -1;
 static int hf_bootp_ip_your = -1;
 static int hf_bootp_ip_server = -1;
@@ -65,13 +67,18 @@ static int hf_bootp_hw_addr = -1;
 static int hf_bootp_server = -1;
 static int hf_bootp_file = -1;
 static int hf_bootp_cookie = -1;
+static int hf_bootp_vendor = -1;
 static int hf_bootp_dhcp = -1;
 
 static guint ett_bootp = -1;
+static guint ett_bootp_flags = -1;
 static guint ett_bootp_option = -1;
 
 #define UDP_PORT_BOOTPS  67
 #define UDP_PORT_BOOTPC  68
+
+#define BOOTP_BC	0x8000
+#define BOOTP_MBZ	0x7FFF
 
 enum field_type { none, ipv4, string, toggle, yes_no, special, opaque,
 	time_in_secs,
@@ -81,6 +88,11 @@ enum field_type { none, ipv4, string, toggle, yes_no, special, opaque,
 struct opt_info {
 	char	*text;
 	enum field_type ftype;
+};
+
+static const true_false_string flag_set_broadcast = {
+  "Broadcast",
+  "Unicast"
 };
 
 #define NUM_OPT_INFOS 211
@@ -1085,6 +1097,8 @@ static void
 dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*bp_tree = NULL;
+	proto_tree	*flag_tree = NULL;
+	proto_tree	*ftree = NULL;
 	proto_item	*ti;
 	guint8		op;
 	guint8		htype, hlen;
@@ -1094,6 +1108,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean	at_end;
 	const char	*dhcp_type = NULL;
 	const guint8	*vendor_class_id = NULL;
+	guint16		flags;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BOOTP");
@@ -1127,6 +1142,9 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 
+	voff = 236;
+	eoff = tvb_reported_length(tvb);
+
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_bootp, tvb, 0, -1, FALSE);
 		bp_tree = proto_item_add_subtree(ti, ett_bootp);
@@ -1148,9 +1166,14 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    4, 4, FALSE);
 		proto_tree_add_item(bp_tree, hf_bootp_secs, tvb,
 				    8, 2, FALSE);
-		proto_tree_add_uint(bp_tree, hf_bootp_flag, tvb,
-				    10, 2, tvb_get_ntohs(tvb, 10) & 0x8000);
-
+		flags = tvb_get_ntohs(tvb, 10);
+		ftree = proto_tree_add_uint(bp_tree, hf_bootp_flags, tvb,
+				    10, 2, flags);
+    		flag_tree = proto_item_add_subtree(ftree, ett_bootp_flags);
+		proto_tree_add_boolean(flag_tree, hf_bootp_flags_broadcast, tvb,
+				    10, 2, flags);
+		proto_tree_add_uint(flag_tree, hf_bootp_flags_reserved, tvb,
+				    10, 2, flags);
 		proto_tree_add_item(bp_tree, hf_bootp_ip_client, tvb, 
 				    12, 4, FALSE);
 		proto_tree_add_item(bp_tree, hf_bootp_ip_your, tvb, 
@@ -1199,20 +1222,22 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						   "Boot file name not given");
 		}
 
-		tvb_memcpy(tvb, (void *)&ip_addr, 236, sizeof(ip_addr));
-		if (tvb_get_ntohl(tvb, 236) == 0x63825363) {
-			proto_tree_add_ipv4_format(bp_tree, hf_bootp_cookie, tvb,
+		/* rfc2132 says it SHOULD exist */
+		if (tvb_bytes_exist(tvb, 236, 4)) {
+			tvb_memcpy(tvb, (void *)&ip_addr, 236, sizeof(ip_addr));
+			if (tvb_get_ntohl(tvb, 236) == 0x63825363) {
+				proto_tree_add_ipv4_format(bp_tree, hf_bootp_cookie, tvb,
 					    236, 4, ip_addr,
 					    "Magic cookie: (OK)");
-		}
-		else {
-			proto_tree_add_ipv4(bp_tree, hf_bootp_cookie, tvb,
-					    236, 4, ip_addr);
+				voff += 4;
+			}
+			else {
+				proto_tree_add_text(bp_tree,  tvb,
+						236, 64, "Bootp vendor specific options");
+				voff += 64;
+			}
 		}
 	}
-
-	voff = 240;
-	eoff = tvb_reported_length(tvb);
 
 	/*
 	 * In the first pass, we just look for the DHCP message type
@@ -1306,9 +1331,19 @@ proto_register_bootp(void)
         BASE_DEC,			 NULL,		 0x0,
       	"", HFILL }},
 
-    { &hf_bootp_flag,
-      { "Broadcast flag",	       	"bootp.flag",    FT_UINT16,
+    { &hf_bootp_flags,
+      { "Bootp flags",		       	"bootp.flags",   FT_UINT16,
         BASE_HEX,			NULL,		 0x0,
+      	"", HFILL }},
+
+    { &hf_bootp_flags_broadcast,
+      { "Broadcast flag",	       	"bootp.flags.bc", FT_BOOLEAN,
+        16,			TFS(&flag_set_broadcast), BOOTP_BC,
+      	"", HFILL }},
+
+    { &hf_bootp_flags_reserved,
+      { "Reserved flags",	       	"bootp.flags.reserved", FT_UINT16,
+        BASE_HEX,			NULL,		BOOTP_MBZ,
       	"", HFILL }},
 
     { &hf_bootp_ip_client,
@@ -1350,9 +1385,15 @@ proto_register_bootp(void)
       { "Magic cookie",			"bootp.cookie",	 FT_IPv4,
          BASE_NONE,			NULL,		 0x0,
       	"", HFILL }},
+
+    { &hf_bootp_vendor,
+      { "Bootp Vendor Options",		"bootp.vendor", FT_BYTES,
+        BASE_NONE,			NULL,		 0x0,
+      	"", HFILL }},
   };
   static gint *ett[] = {
     &ett_bootp,
+    &ett_bootp_flags,
     &ett_bootp_option,
   };
   
