@@ -17,7 +17,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.48 2003/11/20 22:38:33 guy Exp $
+ * $Id: packet-sip.c,v 1.49 2003/11/25 18:02:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,6 +74,7 @@ static gint ett_sip_hdr = -1;
 static gint ett_raw_text = -1;
 static gint ett_sip_element = -1;
 
+/* PUBLISH method added as per http://www.ietf.org/internet-drafts/draft-ietf-sip-publish-01.txt */
 static const char *sip_methods[] = {
         "<Invalid method>",      /* Pad so that the real methods start at index 1 */
         "ACK",
@@ -91,117 +92,165 @@ static const char *sip_methods[] = {
         "REGISTER",
         "SPRACK",
         "SUBSCRIBE",
-        "UPDATE"
+        "UPDATE",
+        "PUBLISH"
 };
 
 /* from RFC 3261 */
+/* Updated with info from http://www.iana.org/assignments/sip-parameters */
+/* (last updated 2003-10-31) */
+/* Added two headsers ( Etag and If-Match )from http://www.ietf.org/internet-drafts/draft-ietf-sip-publish-01.txt */
 typedef struct {
         char *name;
         char *compact_name;
 } sip_header_t;
 static const sip_header_t sip_headers[] = {
-                { "Unknown-header", NULL }, /* Pad so that the real headers start at index 1 */
-                { "Accept", NULL },
-                { "Accept-Encoding", NULL },
-                { "Accept-Language", NULL },
-                { "Alert-Info", NULL },
-                { "Allow", NULL },
-                { "Allow-Events", NULL },
-                { "Authentication-Info", NULL },
-                { "Authorization", NULL },
-                { "Call-ID", "i" },
-                { "Call-Info", NULL },
-                { "Contact", "m" },
-                { "Content-Disposition", NULL },
-                { "Content-Encoding", "e" },
-                { "Content-Language", NULL },
-                { "Content-Length", "l" },
-                { "Content-Type", "c" },
-                { "CSeq", NULL },
-                { "Date", NULL },
-                { "Error-Info", NULL },
-                { "Event", NULL },
-                { "Expires", NULL },
-                { "From", "f" },
-                { "In-Reply-To", NULL },
-                { "Max-Forwards", NULL },
-                { "MIME-Version", NULL },
-                { "Min-Expires", NULL },
-                { "Organization", NULL },
-                { "Priority", NULL },
-                { "Proxy-Authenticate", NULL },
-                { "Proxy-Authorization", NULL },
-                { "Proxy-Require", NULL },
-                { "RAck", NULL },
-                { "RSeq", NULL },
-                { "Record-Route", NULL },
-                { "Reply-To", NULL },
-                { "Require", NULL },
-                { "Retry-After", NULL },
-                { "Route", NULL },
-                { "Server", NULL },
-                { "Subject", "s" },
-                { "Subscription-State", NULL },
-                { "Supported", "k" },
-                { "Timestamp", NULL },
-                { "To", "t" },
-                { "Unsupported", NULL },
-                { "User-Agent", NULL },
-                { "Via", "v" },
-                { "Warning", NULL },
-                { "WWW-Authenticate", NULL },
+                { "Unknown-header", 		NULL }, /* Pad so that the real headers start at index 1 */
+                { "Accept", 			NULL },
+                { "Accept-Encoding", 		NULL },
+                { "Accept-Language", 		NULL },
+                { "Alert-Info", 		NULL },
+                { "Allow", 			NULL },
+                { "Allow-Events", 		NULL },
+                { "Authentication-Info", 	NULL },
+                { "Authorization", 		NULL },
+                { "Call-ID", 			"i"  },
+                { "Call-Info", 			NULL },
+                { "Contact", 			"m"  },
+                { "Content-Disposition", 	NULL },
+                { "Content-Encoding", 		"e"  },
+                { "Content-Language", 		NULL },
+                { "Content-Length", 		"l"  },
+                { "Content-Type", 		"c"  },
+                { "CSeq", 			NULL },
+                { "Date", 			NULL },
+                { "Error-Info", 		NULL },
+                { "Event", 			"o"  },
+                { "Expires", 			NULL },
+                { "From", 			"f"  },
+                { "In-Reply-To", 		NULL },
+                { "Max-Forwards", 		NULL },
+                { "MIME-Version", 		NULL },
+                { "Min-Expires", 		NULL },
+                { "Organization", 		NULL },
+                { "Priority", 			NULL },
+                { "Proxy-Authenticate", 	NULL },
+                { "Proxy-Authorization", 	NULL },
+                { "Proxy-Require", 		NULL },
+                { "RAck", 			NULL },
+                { "RSeq", 			NULL },
+                { "Record-Route", 		NULL },
+                { "Reply-To", 			NULL },
+                { "Require", 			NULL },
+                { "Retry-After", 		NULL },
+                { "Route", 			NULL },
+                { "Server", 			NULL },
+                { "Subject", 			"s"  },
+                { "Subscription-State", 	NULL },
+                { "Supported", 			"k" },
+                { "Timestamp", 			NULL },
+                { "To", 			"t"  },
+                { "Unsupported", 		NULL },
+                { "User-Agent", 		NULL },
+                { "Via", 			"v" },
+                { "Warning", 			NULL },
+                { "WWW-Authenticate", 		NULL },
+                { "P-Access-Network-Info",	NULL },  /*  RFC3455  */  
+                { "P-Asserted-Identity",        NULL },  /*  RFC3325  */  
+                { "P-Associated-URI",           NULL },  /*  RFC3455  */  
+                { "P-Called-Party-ID",          NULL },  /*  RFC3455  */  
+                { "P-Charging-Function-Addresses",NULL }, /*  RFC3455  */  
+                { "P-Charging-Vector",          NULL },  /*  RFC3455  */  
+                { "P-DCS-Trace-Party-ID",       NULL },  /*  RFC3603  */  
+                { "P-DCS-OSPS",                 NULL },  /*  RFC3603  */  
+                { "P-DCS-Billing-Info",         NULL },  /*  RFC3603  */  
+                { "P-DCS-LAES",                 NULL },  /*  RFC3603  */  
+                { "P-DCS-Redirect",             NULL },  /*  RFC3603  */  
+                { "P-Media-Authorization",      NULL },  /*  RFC3313  */  
+                { "P-Preferred-Identity",       NULL },  /*  RFC3325  */  
+                { "P-Visited-Network-ID",       NULL },  /*  RFC3455  */  
+                { "Path",                       NULL },  /*  RFC3327  */  
+                { "Privacy",                    NULL },  /*  RFC3323  */  
+                { "Reason",                     NULL },  /*  RFC3326  */  
+                { "Refer-To",             	"r"  },  /*  RFC3515  */  
+                { "Service-Route",              NULL },  /*  RFC3608  */  
+                { "ETag",		        NULL },  /*  draft-ietf-sip-publish-01  */  
+                { "If-Match",	                NULL },  /*  draft-ietf-sip-publish-01  */  
+
 };
 
 
-#define POS_ACCEPT 		1
-#define POS_ACCEPT_ENCODING	2
-#define POS_ACCEPT_LANGUAGE	3
-#define POS_ALERT_INFO		4
-#define POS_ALLOW		5
-#define POS_ALLOW_EVENTS	6
-#define POS_AUTHENTICATION_INFO	7
-#define POS_AUTHORIZATION	8
-#define POS_CALL_ID		9
-#define POS_CALL_INFO		10
-#define POS_CONTACT		11
-#define POS_CONTENT_DISPOSITION	12
-#define POS_CONTENT_ENCODING	13
-#define POS_CONTENT_LANGUAGE	14
-#define POS_CONTENT_LENGTH	15
-#define POS_CONTENT_TYPE	16
-#define POS_CSEQ		17
-#define POS_DATE		18
-#define POS_ERROR_INFO		19
-#define POS_EVENT		20
-#define POS_EXPIRES		21
-#define POS_FROM		22
-#define POS_IN_REPLY_TO		23
-#define POS_MAX_FORWARDS	24
-#define POS_MIME_VERSION	25
-#define POS_MIN_EXPIRES		26
-#define POS_ORGANIZATION	27
-#define POS_PRIORITY		28
-#define POS_PROXY_AUTHENTICATE	29
-#define POS_PROXY_AUTHORIZATION	30
-#define POS_PROXY_REQUIRE	31
-#define POS_RACK		32
-#define POS_RSEQ		33
-#define POS_RECORD_ROUTE	34
-#define POS_REPLY_TO		35
-#define POS_REQUIRE		36
-#define POS_RETRY_AFTER		37
-#define POS_ROUTE		38
-#define POS_SERVER		39
-#define POS_SUBJECT		40
-#define POS_SUBSCRIPTION_STATE	41
-#define POS_SUPPORTED		42
-#define POS_TIMESTAMP		43
-#define POS_TO			44
-#define POS_UNSUPPORTED		45
-#define POS_USER_AGENT		46
-#define POS_VIA			47
-#define POS_WARNING		48
-#define POS_WWW_AUTHENTICATE	49
+#define POS_ACCEPT 			1
+#define POS_ACCEPT_ENCODING		2
+#define POS_ACCEPT_LANGUAGE		3
+#define POS_ALERT_INFO			4
+#define POS_ALLOW			5
+#define POS_ALLOW_EVENTS		6
+#define POS_AUTHENTICATION_INFO		7
+#define POS_AUTHORIZATION		8
+#define POS_CALL_ID			9
+#define POS_CALL_INFO			10
+#define POS_CONTACT			11
+#define POS_CONTENT_DISPOSITION		12
+#define POS_CONTENT_ENCODING		13
+#define POS_CONTENT_LANGUAGE		14
+#define POS_CONTENT_LENGTH		15
+#define POS_CONTENT_TYPE		16
+#define POS_CSEQ			17
+#define POS_DATE			18
+#define POS_ERROR_INFO			19
+#define POS_EVENT			20
+#define POS_EXPIRES			21
+#define POS_FROM			22
+#define POS_IN_REPLY_TO			23
+#define POS_MAX_FORWARDS		24
+#define POS_MIME_VERSION		25
+#define POS_MIN_EXPIRES			26
+#define POS_ORGANIZATION		27
+#define POS_PRIORITY			28
+#define POS_PROXY_AUTHENTICATE		29
+#define POS_PROXY_AUTHORIZATION		30
+#define POS_PROXY_REQUIRE		31
+#define POS_RACK			32
+#define POS_RSEQ			33
+#define POS_RECORD_ROUTE		34
+#define POS_REPLY_TO			35
+#define POS_REQUIRE			36
+#define POS_RETRY_AFTER			37
+#define POS_ROUTE			38
+#define POS_SERVER			39
+#define POS_SUBJECT			40
+#define POS_SUBSCRIPTION_STATE		41
+#define POS_SUPPORTED			42
+#define POS_TIMESTAMP			43
+#define POS_TO				44
+#define POS_UNSUPPORTED			45
+#define POS_USER_AGENT			46
+#define POS_VIA				47
+#define POS_WARNING			48
+#define POS_WWW_AUTHENTICATE		49
+
+#define POS_P_ACCESS_NETWORK_INFO	50  
+#define POS_P_ASSERTED_IDENTITY         51    
+#define POS_P_ASSOCIATED_URI            52  
+#define POS_P_CALLED_PARTY_ID           53  
+#define POS_P_CHARGING_FUNCTION_ADDRESSES 54  
+#define POS_P_CHARGING_VECTOR           55
+#define POS_P_DCS_TRACE_PARTY_ID        56 
+#define POS_P_DCS_OSPS                  57  
+#define POS_P_DCS_BILLING_INFO          58  
+#define POS_P_DCS_LAES                  59  
+#define POS_P_DCS_REDIRECT              60  
+#define POS_P_MEDIA_AUTHORIZATION       61  
+#define POS_P_PREFERRED_IDENTITY        62  
+#define POS_P_VISITED_NETWORK_ID        63  
+#define POS_PATH                        64  
+#define POS_PRIVACY                     65  
+#define POS_REASON                      66 
+#define POS_REFER_TO                    67 
+#define POS_SERVICE_ROUTE               68 
+#define POS_ETAG		        69 
+#define POS_IF_MATCH	                70  
 
 static gint hf_header_array[] = {
 		-1, /* "Unknown-header" - Pad so that the real headers start at index 1 */
@@ -253,7 +302,29 @@ static gint hf_header_array[] = {
                 -1, /* "User-Agent" */
                 -1, /* "Via" */
                 -1, /* "Warning" */
-                -1  /* "WWW-Authenticate" */
+                -1,  /* "WWW-Authenticate" */
+                -1,  /* "P-Access-Network-Info"	-   RFC3455  */  
+                -1,  /* "P-Asserted-Identity" 	-   RFC3325  */  
+                -1,  /* "P-Associated-URI" 	-   RFC3455  */  
+                -1,  /* "P-Called-Party-ID" 	-   RFC3455  */  
+                -1,  /* "P-Charging-Function-Addresses" -   RFC3455  */  
+                -1,  /* "P-Charging-Vector" 	-   RFC3455  */  
+                -1,  /* "P-DCS-Trace-Party-ID" 	-   RFC3603  */  
+                -1,  /* "P-DCS-OSPS" 		-   RFC3603  */  
+                -1,  /* "P-DCS-Billing-Info" 	-   RFC3603  */  
+                -1,  /* "P-DCS-LAES" 		-   RFC3603  */  
+                -1,  /* "P-DCS-Redirect" 	-   RFC3603  */  
+                -1,  /* "P-Media-Authorization" 	-   RFC3313  */  
+                -1,  /* "P-Preferred-Identity" 	-   RFC3325  */  
+                -1,  /* "P-Visited-Network-ID" 	-   RFC3455  */  
+                -1,  /* "Path" 			-   RFC3327  */  
+                -1,  /* "Privacy" 		-   RFC3323  */  
+                -1,  /* "Reason" 		-   RFC3326  */  
+                -1,  /* "Refer-To" 		-   RFC3515  */  
+                -1,  /* "Service-Route" 		-   RFC3608  */  
+                -1,  /* "ETag"     draft-ietf-sip-publish-01  */  
+                -1,  /* "If-Match  draft-ietf-sip-publish-01  */  
+
 };
 
 /*
@@ -1139,6 +1210,130 @@ void proto_register_sip(void)
 		       { "WWW-Authenticate", 		"sip.WWW-Authenticate", 
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: WWW-Authenticate Header", HFILL }
+		},
+		{ &hf_header_array[POS_P_ACCESS_NETWORK_INFO],  
+		       { "P-Access-Network-Info",	"sip.P-Access-Network-Info",  
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"P-Access-Network-Info Header", HFILL }
+		},
+
+		{ &hf_header_array[POS_P_ASSERTED_IDENTITY],    
+		       { "P-Asserted-Identity",		"sip.P-Asserted-Identity",  
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"P-Asserted-Identity Header", HFILL }
+		},
+
+		{ &hf_header_array[POS_P_ASSOCIATED_URI],  
+		       { "P-Associated-URI", 		"sip.P-Associated-URI", 
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"P-Associated-URI Header", HFILL }
+		},
+
+		{ &hf_header_array[POS_P_CALLED_PARTY_ID],  
+		       { "P-Called-Party-ID", 		"sip.P-Called-Party-ID", 
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"P-Called-Party-ID Header", HFILL }
+		},
+
+		{ &hf_header_array[POS_P_CHARGING_FUNCTION_ADDRESSES],  
+		       { "P-Charging-Function-Addresses","sip.P-Charging-Function-Addresses",  
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"P-Charging-Function-Addresses", HFILL }
+		},
+
+		{ &hf_header_array[POS_P_CHARGING_VECTOR],
+		       { "P-Charging-Vector", 		"sip.P-Charging-Vector", 
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"P-Charging-Vector Header", HFILL }
+		},
+
+		{ &hf_header_array[POS_P_DCS_TRACE_PARTY_ID], 
+		       { "P-DCS-Trace-Party-ID", 	"sip.P-DCS-Trace-Party-ID", 
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"P-DCS-Trace-Party-ID Header", HFILL }
+		},
+
+		{ &hf_header_array[POS_P_DCS_OSPS],  
+		       { "P-DCS-OSPS", 			"sip.P-DCS-OSPS", 
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"P-DCS-OSPS Header", HFILL }
+		},
+
+		{ &hf_header_array[POS_P_DCS_BILLING_INFO],  
+		       { "P-DCS-Billing-Info", 		"sip.P-DCS-Billing-Info", 
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"P-DCS-Billing-Info Header", HFILL }
+		},
+
+		{ &hf_header_array[POS_P_DCS_LAES],  
+		       { "P-DCS-LAES", 			"sip.P-DCS-LAES", 
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"P-DCS-LAES Header", HFILL }
+		},
+
+		{ &hf_header_array[POS_P_DCS_REDIRECT],  
+		       { "P-DCS-Redirect", 		"sip.P-DCS-Redirect", 
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"P-DCS-Redirect Header", HFILL }
+		},
+
+		{ &hf_header_array[POS_P_MEDIA_AUTHORIZATION],  
+		       { "P-Media-Authorization", 	"sip.P-Media-Authorization", 
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"P-Media-Authorization Header", HFILL }
+		},
+
+		{ &hf_header_array[POS_P_PREFERRED_IDENTITY],  
+		       { "P-Preferred-Identity",  	"sip.P-Preferred-Identity", 
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"P-Preferred-Identity Header", HFILL }
+		},
+
+		{ &hf_header_array[POS_P_VISITED_NETWORK_ID],  
+		       { "P-Visited-Network-ID", 	"sip.P-Visited-Network-ID",  
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"P-Visited-Network-ID Header", HFILL }
+		},
+
+		{ &hf_header_array[POS_PATH],  
+		       { "Path", 			"sip.Path", 
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"Path Header", HFILL }
+		},
+
+		{ &hf_header_array[POS_PRIVACY],  
+		       { "Privacy", 			"sip.Privacy", 
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"Privacy Header", HFILL }
+		},
+
+		{ &hf_header_array[POS_REASON], 
+		       { "Reason", 			"sip.Reason", 
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"Reason Header", HFILL }
+		},
+
+		{ &hf_header_array[POS_REFER_TO], 
+		       { "Refer-To", 			"sip.Refer-To", 
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"Refer-To Header", HFILL }
+		},
+
+		{ &hf_header_array[POS_SERVICE_ROUTE],                  
+		       { "Service-Route", 		"sip.Service-Route", 
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"Service-Route Header", HFILL }
+		},
+
+		{ &hf_header_array[POS_ETAG],                  
+		       { "ETag", 		"sip.ETag", 
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"ETag Header", HFILL }
+		},
+		{ &hf_header_array[POS_IF_MATCH],                  
+		       { "If_Match", 		"sip.If_Match", 
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"If-Match Header", HFILL }
 		},
         };
 
