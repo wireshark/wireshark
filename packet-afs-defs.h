@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM.
  *
- * $Id: packet-afs-defs.h,v 1.12 2002/08/28 21:00:06 jmayer Exp $
+ * $Id: packet-afs-defs.h,v 1.13 2003/03/05 09:52:22 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -752,6 +752,9 @@ static int hf_afs_ubik_lastvote = -1;
 static int hf_afs_ubik_currentdb = -1;
 static int hf_afs_ubik_beaconsincedown = -1;
 static int hf_afs_ubik_up = -1;
+static int hf_afs_repframe = -1;
+static int hf_afs_reqframe = -1;
+static int hf_afs_time = -1;
 
 static gint ett_afs = -1;
 static gint ett_afs_op = -1;

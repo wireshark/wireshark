@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM.
  *
- * $Id: packet-afs.c,v 1.53 2003/01/27 22:11:52 guy Exp $
+ * $Id: packet-afs.c,v 1.54 2003/03/05 09:52:22 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,6 +63,9 @@ struct afs_request_key {
 
 struct afs_request_val {
   guint32 opcode;
+  guint req_num;
+  guint rep_num;
+  nstime_t req_time;
 };
 
 static GHashTable *afs_request_hash = NULL;
@@ -180,11 +183,13 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int reply = 0;
 	conversation_t *conversation;
 	struct afs_request_key request_key, *new_request_key;
-	struct afs_request_val *request_val;
+	struct afs_request_val *request_val=NULL;
 	proto_tree      *afs_tree, *afs_op_tree, *ti;
 	int port, node, typenode, opcode;
 	value_string const *vals;
 	int offset = 0;
+	nstime_t ns;
+
 	void (*dissector)(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int offset, int opcode);
 
 
@@ -228,20 +233,30 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* only allocate a new hash element when it's a request */
 	opcode = 0;
-	if ( !request_val && !reply) {
-		new_request_key = g_mem_chunk_alloc(afs_request_keys);
-		*new_request_key = request_key;
+	if(!pinfo->fd->flags.visited){
+		if ( !request_val && !reply) {
+			new_request_key = g_mem_chunk_alloc(afs_request_keys);
+			*new_request_key = request_key;
 
-		request_val = g_mem_chunk_alloc(afs_request_vals);
-		request_val -> opcode = tvb_get_ntohl(tvb, offset);
+			request_val = g_mem_chunk_alloc(afs_request_vals);
+			request_val -> opcode = tvb_get_ntohl(tvb, offset);
+			request_val -> req_num = pinfo->fd->num;
+			request_val -> rep_num = 0;
+			request_val -> req_time.secs=pinfo->fd->abs_secs;
+			request_val -> req_time.nsecs=pinfo->fd->abs_usecs*1000;
 
-		g_hash_table_insert(afs_request_hash, new_request_key,
-			request_val);
+			g_hash_table_insert(afs_request_hash, new_request_key,
+				request_val);
+		}
+		if( request_val && reply ) {
+			request_val -> rep_num = pinfo->fd->num;
+		}
 	}
 
 	if ( request_val ) {
 		opcode = request_val->opcode;
 	}
+
 
 	node = 0;
 	typenode = 0;
@@ -361,6 +376,28 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			val_to_str(port, port_types, "Unknown(%d)"),
 			reply ? "Reply" : "Request");
 
+		if( request_val && !reply && request_val->rep_num) {
+			proto_tree_add_uint_format(afs_tree, hf_afs_repframe,
+			    tvb, 0, 0, request_val->rep_num,
+			    "The reply to this request is in frame %u",
+			    request_val->rep_num);
+		}
+		if( request_val && reply && request_val->rep_num) {
+			proto_tree_add_uint_format(afs_tree, hf_afs_reqframe,
+			    tvb, 0, 0, request_val->req_num,
+			    "This is a reply to a request in frame %u",
+			    request_val->req_num);
+			ns.secs= pinfo->fd->abs_secs-request_val->req_time.secs;
+			ns.nsecs=pinfo->fd->abs_usecs*1000-request_val->req_time.nsecs;
+			if(ns.nsecs<0){
+				ns.nsecs+=1000000000;
+				ns.secs--;
+			}
+			proto_tree_add_time(afs_tree, hf_afs_time, tvb, offset, 0,
+				&ns);
+		}
+
+
 		if ( VALID_OPCODE(opcode) ) {
 			/* until we do cache, can't handle replies */
 			ti = NULL;
@@ -385,6 +422,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Add the subtree for this particular service */
 			afs_op_tree = proto_item_add_subtree(ti, ett_afs_op);
 
+			
 			if ( typenode != 0 ) {
 				/* indicate the type of request */
 				proto_tree_add_boolean_hidden(afs_tree, typenode, tvb, offset, 0, 1);

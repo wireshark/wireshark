@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM.
  *
- * $Id: packet-afs-register-info.h,v 1.15 2003/01/18 02:18:39 guy Exp $
+ * $Id: packet-afs-register-info.h,v 1.16 2003/03/05 09:52:22 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -563,6 +563,13 @@
 	FT_ABSOLUTE_TIME, BASE_HEX, 0, 0, "Epoch Time", HFILL }},
 { &hf_afs_ubik_isclone, { "Is Clone", "afs.ubik.isclone",
 	FT_UINT32, BASE_HEX, 0, 0, "Is Clone", HFILL }},
+{ &hf_afs_reqframe, { "Request Frame", "rpc.reqframe",
+	FT_FRAMENUM, BASE_NONE, NULL, 0, "Request Frame", HFILL }},
+{ &hf_afs_repframe, { "Reply Frame", "rpc.repframe", 
+	FT_FRAMENUM, BASE_NONE,	NULL, 0, "Reply Frame", HFILL }},
+{ &hf_afs_time, { "Time from request", "rpc.time", 
+	FT_RELATIVE_TIME, BASE_NONE, NULL, 0, "Time between Request and Reply for ONC-RPC calls", HFILL }},
+
 
 
 
