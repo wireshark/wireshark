@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.17 1999/06/11 15:30:40 gram Exp $
+ * $Id: packet-udp.c,v 1.18 1999/06/25 07:15:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -205,46 +205,35 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   /* Skip over header */
   offset += 8;
 
-  /* To do: make sure we aren't screwing ourselves with the MIN call. */
-  switch (MIN(uh_sport, uh_dport)) {
-    case UDP_PORT_BOOTPS:
+  /* XXX - we should do all of this through the table of ports. */
+#define PORT_IS(port)	(uh_sport == port || uh_dport == port)
+ if (PORT_IS(UDP_PORT_BOOTPS))
       dissect_bootp(pd, offset, fd, tree);
-      break;
-    case UDP_PORT_DNS:
+ else if (PORT_IS(UDP_PORT_DNS))
       dissect_dns(pd, offset, fd, tree);
-      break;
-    case UDP_PORT_ISAKMP:
+ else if (PORT_IS(UDP_PORT_ISAKMP))
       dissect_isakmp(pd, offset, fd, tree);
-      break;
-    case UDP_PORT_RIP:
+ else if (PORT_IS(UDP_PORT_RIP)) {
       /* we should check the source port too (RIP: UDP src and dst port 520) */
       dissect_rip(pd, offset, fd, tree);
-      break;
-    case UDP_PORT_NBNS:
+ } else if (PORT_IS(UDP_PORT_NBNS))
       dissect_nbns(pd, offset, fd, tree);
-      break;
-    case UDP_PORT_NBDGM:
+ else if (PORT_IS(UDP_PORT_NBDGM))
       dissect_nbdgm(pd, offset, fd, tree, payload);
-      break;
-    case UDP_PORT_IPX: /* RFC 1234 */
+ else if (PORT_IS(UDP_PORT_IPX)) /* RFC 1234 */
       dissect_ipx(pd, offset, fd, tree);
-      break;
 #if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
-    case UDP_PORT_SNMP:
+ else if (PORT_IS(UDP_PORT_SNMP))
       dissect_snmp(pd, offset, fd, tree);
-      break;
 #endif
-    case UDP_PORT_VINES:
+ else if (PORT_IS(UDP_PORT_VINES)) {
       /* FIXME: AFAIK, src and dst port must be the same */
       dissect_vines_frp(pd, offset, fd, tree);
-      break;
-    case UDP_PORT_TFTP:
+ } else if (PORT_IS(UDP_PORT_TFTP)) {
       /* This is the first point of call, but it adds a dynamic call */
       udp_hash_add(MAX(uh_sport, uh_dport), dissect_tftp);  /* Add to table */
       dissect_tftp(pd, offset, fd, tree);
-      break;
-    default:
-
+ } else {
       /* OK, find a routine in the table, else use the default */
 
       if ((dissect_routine = udp_find_hash_ent(uh_sport))) {
