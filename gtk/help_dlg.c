@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.32 2003/03/02 17:42:37 jmayer Exp $
+ * $Id: help_dlg.c,v 1.33 2003/03/02 19:21:31 jmayer Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -369,9 +369,6 @@ static char *dfilter_help =
 "The following per-protocol fields can be used in display\n"
 "filters:\n";
 
-// static char *faq_help =
-// #include "../FAQ.include"
-// "\n";
 /* FAQ_PARTS, FAQ_SIZE, faq_part[0] ... faq_part[FAQ_PARTS-1] */
 #include "../FAQ.include"
 
