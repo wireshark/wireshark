@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  *
- * $Id: packet-wtp.c,v 1.59 2003/12/30 01:58:17 guy Exp $
+ * $Id: packet-wtp.c,v 1.60 2004/01/04 22:02:16 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -332,7 +332,6 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int			numMissing = 0;		/* Number of missing packets in a negative ack */
     int			i;
     tvbuff_t		*wsp_tvb = NULL;
-    fragment_data	*fd_head = NULL;
     guint8		psn = 0;		/* Packet sequence number*/
     guint16		TID = 0;		/* Transaction-Id	*/
     int			dataOffset;
@@ -351,10 +350,18 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    ti = proto_tree_add_item(tree, proto_wtp,
 				    tvb, offCur, 1, bo_little_endian);
 	    wtp_tree = proto_item_add_subtree(ti, ett_wtp_sub_pdu_tree);
+		proto_item_append_text(ti, ", PDU concatenation");
 	}
 	offCur = 1;
 	i = 1;
 	while (offCur < (int) tvb_reported_length(tvb)) {
+	    tvbuff_t *wtp_tvb;
+	    /* The length of an embedded WTP PDU is coded as either:
+	     *	- a 7-bit value contained in one octet with highest bit == 0.
+	     *	- a 15-bit value contained in two octets (little endian)
+	     *	  if the 1st octet has its highest bit == 1.
+	     * This means that this is NOT encoded as an uintvar-integer!!!
+	     */
 	    b0 = tvb_get_guint8(tvb, offCur + 0);
 	    if (b0 & 0x80) {
 		c_fieldlen = 2;
@@ -370,16 +377,27 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    if (i > 1 && check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_str(pinfo->cinfo, COL_INFO, ", ");
 	    }
-	    wsp_tvb = tvb_new_subset(tvb, offCur + c_fieldlen, c_pdulen, c_pdulen);
-	    dissect_wtp_common(wsp_tvb, pinfo, wtp_tree);
+	    /* Skip the length field for the WTP sub-tvb */
+	    wtp_tvb = tvb_new_subset(tvb, offCur + c_fieldlen, c_pdulen, c_pdulen);
+	    dissect_wtp_common(wtp_tvb, pinfo, wtp_tree);
 	    offCur += c_fieldlen + c_pdulen;
 	    i++;
 	}
+	if (tree) {
+		proto_item_append_text(ti, ", PDU count: %u", i);
+	}
 	return;
     }
+    /* No concatenation */
     fCon = b0 & 0x80;
     fRID = retransmission_indicator(b0);
     pdut = pdu_type(b0);
+
+#ifdef DEBUG
+	printf("WTP packet %u: tree = %p, pdu = %s (%u) length: %u\n",
+			pinfo->fd->num, tree,
+			match_strval(pdut, vals_wtp_pdu_type), pdut, tvb_length(tvb));
+#endif
 
     /* Develop the string to put in the Info column */
     g_string_sprintf(szInfo, "WTP %s",
@@ -473,6 +491,12 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(wtp_tree, hf_wtp_header_Inv_flag_UP, tvb, offCur + 3, 1, bo_little_endian);
 		proto_tree_add_item(wtp_tree, hf_wtp_header_Inv_Reserved, tvb, offCur + 3, 1, bo_little_endian);
 		proto_tree_add_item(wtp_tree, hf_wtp_header_Inv_TransactionClass, tvb, offCur + 3, 1, bo_little_endian);
+		proto_item_append_text(ti,
+				", PDU: Invoke (%u)"
+				", Transaction Class: %s (%u)",
+				INVOKE,
+				match_strval(clsTransaction, vals_transaction_classes),
+				clsTransaction);
 		break;
 
 	    case RESULT:
@@ -480,6 +504,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_RID, tvb, offCur, 1, bo_little_endian);
 		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, bo_big_endian);
 		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, bo_big_endian);
+		proto_item_append_text(ti, ", PDU: Result (%u)", RESULT);
 		break;
 
 	    case ACK:
@@ -488,6 +513,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_RID, tvb, offCur, 1, bo_little_endian);
 		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, bo_big_endian);
 		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, bo_big_endian);
+		proto_item_append_text(ti, ", PDU: ACK (%u)", ACK);
 		break;
 
 	    case ABORT:
@@ -498,11 +524,29 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (abortType == PROVIDER)
 		{
+			guint8 reason = tvb_get_guint8(tvb, offCur + 3);
 		    proto_tree_add_item( wtp_tree, hf_wtp_header_Abort_reason_provider , tvb, offCur + 3 , 1, bo_little_endian);
+			proto_item_append_text(ti,
+					", PDU: Abort (%u)"
+					", Type: Provider (%u)"
+					", Reason: %s (%u)",
+					ABORT,
+					PROVIDER,
+					match_strval(reason, vals_abort_reason_provider), 
+					reason);
 		}
 		else if (abortType == USER)
 		{
+			guint8 reason = tvb_get_guint8(tvb, offCur + 3);
 		    proto_tree_add_item(wtp_tree, hf_wtp_header_Abort_reason_user , tvb, offCur + 3 , 1, bo_little_endian);
+			proto_item_append_text(ti,
+					", PDU: Abort (%u)"
+					", Type: User (%u)"
+					", Reason: %s (%u)",
+					ABORT,
+					PROVIDER,
+					match_strval(reason, vals_wsp_reason_codes), 
+					reason);
 		}
 		break;
 
@@ -513,6 +557,10 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, bo_big_endian);
 
 		proto_tree_add_item(wtp_tree, hf_wtp_header_sequence_number , tvb, offCur + 3, 1, bo_little_endian);
+		proto_item_append_text(ti,
+				", PDU: Segmented Invoke (%u)"
+				", Packet Sequence Number: %u",
+				SEGMENTED_INVOKE, psn);
 		break;
 
 	    case SEGMENTED_RESULT:
@@ -522,6 +570,10 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, bo_big_endian);
 
 		proto_tree_add_item(wtp_tree, hf_wtp_header_sequence_number , tvb, offCur + 3, 1, bo_little_endian);
+		proto_item_append_text(ti,
+				", PDU: Segmented Result (%u)"
+				", Packet Sequence Number: %u",
+				SEGMENTED_RESULT, psn);
 		break;
 
 	    case NEGATIVE_ACK:
@@ -535,17 +587,24 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		{
 		    proto_tree_add_item(wtp_tree, hf_wtp_header_sequence_number, tvb, offCur + 4 + i, 1, bo_little_endian);
 		}
+		proto_item_append_text(ti,
+				", PDU: Negative Ack (%u)"
+				", Missing Packets: %u",
+				NEGATIVE_ACK, numMissing);
 		break;
 
 	    default:
 		break;
 	};
-    } else { /* Tree = closed */
+	if (fRID) {
+		proto_item_append_text(ti, ", Retransmission");
+	}
+    } else { /* tree is NULL */
 #ifdef DEBUG
 	fprintf(stderr, "dissect_wtp: (4) tree was %p\n", tree);
 #endif
     }
-	/* Process the varialbe part */
+	/* Process the variable part */
 	if (fCon) {			/* Now, analyze variable part	*/
 	    unsigned char	 tCon;
 	    unsigned char	 tByte;
@@ -592,105 +651,126 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * contain any data, so we allow payloadless packets to be
      * reassembled.  (XXX - does the reassembly code handle this
      * for packets other than the last packet?)
-     */
+     *
+	 * Try calling a subdissector only if:
+	 *	- The WTP payload is ressembled in this very packet,
+	 *	- The WTP payload is not fragmented across packets.
+	 */
     dataOffset = offCur + cbHeader + vHeader;
     dataLen = tvb_reported_length_remaining(tvb, dataOffset);
     if ((dataLen >= 0) &&
-	! ((pdut==ACK) || (pdut==NEGATIVE_ACK) || (pdut==ABORT)))
+			! ((pdut==ACK) || (pdut==NEGATIVE_ACK) || (pdut==ABORT)))
     {
-	gboolean save_fragmented;
+		/* Try to reassemble if needed, and hand over to WSP
+		 * A fragmented WTP packet is either:
+		 *	- An INVOKE with fTTR (transmission trailer) not set,
+		 *	- a SEGMENTED_INVOKE,
+		 *	- A RESULT with fTTR (transmission trailer) not set,
+		 *	- a SEGMENTED_RESULT.
+		 */
+		if ( ( (pdut == SEGMENTED_INVOKE) || (pdut == SEGMENTED_RESULT)
+				|| ( ((pdut == INVOKE) || (pdut == RESULT)) && (!fTTR) )
+			) && tvb_bytes_exist(tvb, dataOffset, dataLen) )
+		{
+			/* Try reassembling fragments */
+			fragment_data *fd_wtp = NULL;
+			gboolean reassembled = FALSE; /* Reassembly completed */
+			guint32 reassembled_in = 0;   /* ... in this packet */
+			gboolean save_fragmented = pinfo->fragmented;
 
-	if (((pdut == SEGMENTED_INVOKE) || (pdut == SEGMENTED_RESULT) ||
-	    (((pdut == INVOKE) || (pdut == RESULT)) && (!fTTR))) &&
-	    tvb_bytes_exist(tvb, dataOffset, dataLen))
-	{					/* 1st part of segment	*/
-	    save_fragmented = pinfo->fragmented;
-	    pinfo->fragmented = TRUE;
-	    fd_head = fragment_add_seq(tvb, dataOffset, pinfo, TID,
-			    wtp_fragment_table, psn, dataLen, !fTTR);
-	    if (fd_head != NULL)		/* Reassembled	*/
-	    {
-		/* Reassembly is complete; show the reassembled PDU */
-		wsp_tvb = tvb_new_real_data(fd_head->data,
-					    fd_head->len,
-					    fd_head->len);
-		tvb_set_child_real_data_tvbuff(tvb, wsp_tvb);
-		add_new_data_source(pinfo, wsp_tvb,
-					"Reassembled WTP");
-		pinfo->fragmented = FALSE;
-
-		/* show all fragments */
-		show_fragment_seq_tree(fd_head, &wtp_frag_items,
-					wtp_tree, pinfo, wsp_tvb);
-
-		if (pinfo->fd->num == fd_head->reassembled_in) {
-			/* Reassembled in this packet */
-			call_dissector(wsp_handle, wsp_tvb, pinfo, tree);
-		} else {
-			/* Reassembled in another packet */
-			if (check_col(pinfo->cinfo, COL_INFO))
-				/* Won't call WSP so display */
-		    	col_append_str(pinfo->cinfo, COL_INFO, szInfo->str);
-			if (dataLen != 0) {
-			    if (tree != NULL)
-				proto_tree_add_text(wtp_tree, tvb, dataOffset, -1, "Payload");
+			pinfo->fragmented = TRUE;
+			fd_wtp = fragment_add_seq(tvb, dataOffset, pinfo, TID,
+					wtp_fragment_table, psn, dataLen, !fTTR);
+			/* XXX - fragment_add_seq() yields NULL unless Ethereal knows
+			 * that the packet is part of a reassembled whole. This means
+			 * that fd_wtp will be NULL as long as Ethereal did not encounter
+			 * (and process) the packet containing the last fragment.
+			 * This implies that Ethereal needs two passes over the data for
+			 * correct reassembly. At the first pass, a capture containing
+			 * three fragments plus a retransmssion of the last fragment
+			 * will progressively show:
+			 *
+			 *		Packet 1: (Unreassembled fragment 1)
+			 *		Packet 2: (Unreassembled fragment 2)
+			 *		Packet 3: (Reassembled WTP)
+			 *		Packet 4: (WTP payload reassembled in packet 3)
+			 *
+			 * However at subsequent evaluation (e.g., by applying a display
+			 * filter) the packet summary will show:
+			 *
+			 *		Packet 1: (WTP payload reassembled in packet 3)
+			 *		Packet 2: (WTP payload reassembled in packet 3)
+			 *		Packet 3: (Reassembled WTP)
+			 *		Packet 4: (WTP payload reassembled in packet 3)
+			 *
+			 * This is important to know, and also affects read filters!
+			 */
+			wsp_tvb = process_reassembled_data(tvb, dataOffset, pinfo,
+					"Reassembled WTP", fd_wtp, &wtp_frag_items,
+					NULL, wtp_tree);
+#ifdef DEBUG
+			printf("WTP: Packet %u %s -> %d: wsp_tvb = %p, fd_wtp = %p, frame = %u\n",
+					pinfo->fd->num,
+					fd_wtp ? "Reassembled" : "Not reassembled",
+					fd_wtp ? fd_wtp->reassembled_in : -1,
+					wsp_tvb,
+					fd_wtp
+					);
+#endif
+			if (fd_wtp) {
+				/* Reassembled */
+				reassembled_in = fd_wtp->reassembled_in;
+				if (pinfo->fd->num == reassembled_in) {
+					/* Reassembled in this very packet:
+					 * We can safely hand the tvb to the WSP dissector */
+					call_dissector(wsp_handle, wsp_tvb, pinfo, tree);
+				} else {
+					/* Not reassembled in this packet */
+					if (check_col(pinfo->cinfo, COL_INFO)) {
+						col_append_fstr(pinfo->cinfo, COL_INFO,
+								"%s (WTP payload reassembled in packet %u)",
+								szInfo->str, fd_wtp->reassembled_in);
+					}
+					if (tree) {
+						proto_tree_add_text(wtp_tree, tvb, dataOffset, -1,
+								"Payload");
+					}
+				}
+			} else {
+				/* Not reassembled yet, or not reassembled at all */
+				if (check_col(pinfo->cinfo, COL_INFO)) {
+					col_append_fstr(pinfo->cinfo, COL_INFO,
+								"%s (Unreassembled fragment %u)",
+								szInfo->str, psn);
+				}
+				if (tree) {
+					proto_tree_add_text(wtp_tree, tvb, dataOffset, -1,
+							"Payload");
+				}
 			}
-			proto_tree_add_uint(wtp_tree, hf_wtp_reassembled_in,
-					tvb, 0, 0, fd_head->reassembled_in);
+			/* Now reset fragmentation information in pinfo */
+			pinfo->fragmented = save_fragmented;
 		}
-	    }
-	    else
-	    {
-		/* Reassembly isn't complete; just show the fragment */
-		if (check_col(pinfo->cinfo, COL_INFO))
-			/* Won't call WSP so display */
-		    col_append_str(pinfo->cinfo, COL_INFO, szInfo->str);
-		if (dataLen != 0) {
-		    if (tree != NULL)
-			proto_tree_add_text(wtp_tree, tvb, dataOffset, -1, "Payload");
+		else if ( ((pdut == INVOKE) || (pdut == RESULT)) && (fTTR) )
+		{
+			/* Non-fragmented payload */
+			wsp_tvb = tvb_new_subset(tvb, dataOffset, -1, -1);
+			/* We can safely hand the tvb to the WSP dissector */
+			call_dissector(wsp_handle, wsp_tvb, pinfo, tree);
 		}
-	    }
-	    pinfo->fragmented = save_fragmented;
+		else
+		{
+			/* Nothing to hand to subdissector */
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_str(pinfo->cinfo, COL_INFO, szInfo->str);
+		}
 	}
 	else
 	{
-	    /*
-	     * Normal packet, or not all the fragment data is available;
-	     * call next dissector, unless this is a segment of a
-	     * segmented invoke or result and isn't the first segment.
-	     */
-	    if ((pdut == SEGMENTED_INVOKE || pdut == SEGMENTED_RESULT) &&
-			psn != 0) {
-		/*
-		 * This is a segmented invoke or result, and not the first
-		 * segment; just show it as a segmented invoke or result,
-		 * don't try to dissect its payload.
-		 */
+		/* Nothing to hand to subdissector */
 		if (check_col(pinfo->cinfo, COL_INFO))
-		    col_add_fstr(pinfo->cinfo, COL_INFO,
-		    		 "WTP %s (%u)",
-				 (pdut == SEGMENTED_INVOKE ?
-				  "Segmented Invoke" : "Segmented Result"),
-				 psn);
-		if (tree != NULL)
-		    proto_tree_add_text(wtp_tree, tvb, dataOffset, -1, "Payload");
-	    } else {
-		wsp_tvb = tvb_new_subset(tvb, dataOffset, -1, -1);
-		call_dissector(wsp_handle, wsp_tvb, pinfo, tree);
-	    }
+			col_append_str(pinfo->cinfo, COL_INFO, szInfo->str);
 	}
-    } else {
-	/*
-	 * We didn't hand anything to a subsequent dissector, so update
-	 * the Info column.
-	 */
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-#ifdef DEBUG
-	    fprintf(stderr, "dissect_wtp: (6) About to set info_col header to %s\n", szInfo->str);
-#endif
-	    col_append_str(pinfo->cinfo, COL_INFO, szInfo->str);
-	}
-    }
 }
 
 /*
