@@ -25,7 +25,7 @@ http://developer.novell.com/ndk/doc/ncp/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.59 2003/06/11 20:57:11 gram Exp $
+$Id: ncp2222.py,v 1.60 2003/07/20 00:37:20 guy Exp $
 
 
 Portions Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>.
@@ -6429,7 +6429,7 @@ proto_register_ncp2222(void)
 	{ "Flags", "ncp.ndsflag", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
 
 	{ &hf_ncp_nds_verb,
-	{ "NDS Verb", "ncp.ndsverb", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "NDS Verb", "ncp.ndsverb", FT_UINT8, BASE_HEX, VALS(ncp_nds_verb_vals), 0x0, "", HFILL }},
 
         { &hf_ping_version,
         { "NDS Version", "ncp.ping_version", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
