@@ -215,13 +215,33 @@ General Questions
 
    Q 1.2: What protocols are currently supported?
 
-   A: There are currently 472 supported protocols and media, listed
+   A: There are currently 500 supported protocols and media, listed
    below. Descriptions can be found in the ethereal(1) man page.
 
+            3GPP2 A11
             802.1q Virtual LAN
             802.1x Authentication
             AAL type 2 signalling protocol - Capability set 1 (Q.2630.1)
             AFS (4.0) Replication Server call declarations
+            AIM Administrative
+            AIM Advertisements
+            AIM Buddylist Service
+            AIM Chat Navigation
+            AIM Chat Service
+            AIM Directory Search
+            AIM Generic Service
+            AIM ICQ
+            AIM Invitation Service
+            AIM Location
+            AIM Messaging
+            AIM OFT
+            AIM Popup
+            AIM Privacy Management Service
+            AIM Server Side Info
+            AIM Signon
+            AIM Statistics
+            AIM Translate
+            AIM User Lookup
             ANSI A-I/F BSMAP
             ANSI A-I/F DTAP
             ANSI IS-637-A (SMS) Teleservice Layer
@@ -230,7 +250,6 @@ General Questions
             ANSI Mobile Application Part
             AOL Instant Messenger
             ARCNET
-            ASN.1 BER
             ATM
             ATM AAL1
             ATM AAL3/4
@@ -244,6 +263,7 @@ General Questions
             Alteon - Transparent Proxy Cache Protocol
             Andrew File System (AFS)
             Apache JServ Protocol v1.3
+            Apple IP-over-IEEE 1394
             AppleTalk Filing Protocol
             AppleTalk Session Protocol
             AppleTalk Transaction Protocol packet
@@ -263,6 +283,7 @@ General Questions
             Banyan Vines LLC
             Banyan Vines RTP
             Banyan Vines SPP
+            Basic Encoding Rules (ASN.1 X.690)
             Bearer Independent Call Control
             Bi-directional Fault Detection Control Message
             Blocks Extensible Exchange Protocol
@@ -342,7 +363,7 @@ cies
             Diameter Protocol
             Distance Vector Multicast Routing Protocol
             Distcc Distributed Compiler
-            Distributed Checksum Clearinghouse Prototocl
+            Distributed Checksum Clearinghouse Protocol
             Domain Name Service
             Dynamic DNS Tools Protocol
             Echo
@@ -398,8 +419,10 @@ cies
             IEEE 802.11 wireless LAN
             IEEE 802.11 wireless LAN management frame
             ILMI
+            IP Device Control (SS7 over IP)
             IP Over FC
             IP Payload Compression
+            IP Virtual Services Sync Daemon
             IPX Message
             IPX Routing Information Protocol
             IPX WAN
@@ -413,6 +436,7 @@ cies
             ISO 8602 CLTP ConnectionLess Transport Protocol
             ISO 8823 OSI Presentation Protocol
             ISO 9542 ESIS Routeing Information Exchange Protocol
+            ITU-T E.164 number
             ITU-T Recommendation H.261
             ITU-T Recommendation H.263 RTP Payload header (RFC2190)
             InMon sFlow
@@ -527,7 +551,9 @@ cies
             Network Time Protocol
             Nortel SONMP
             Novell Distributed Print System
+            Novell Modular Authentication Service
             Null/Loopback
+            OSI ISO 8571 FTAM Protocol
             OSI ISO/IEC 10035-1 ACSE Protocol
             Open Shortest Path First
             OpenBSD Encapsulating device
@@ -637,6 +663,7 @@ cies
             Spanning Tree Protocol
             Spnego
             Stream Control Transmission Protocol
+            Symantec Enterprise Firewall
             Synchronous Data Link Control (SDLC)
             Syslog message
             Systems Network Architecture
@@ -666,6 +693,7 @@ cies
             WAP Binary XML
             WAP Session Initiation Request
             Web Cache Coordination Protocol
+            WebSphere MQ
             Wellfleet Breath of Life
             Wellfleet Compression
             Wellfleet HDLC
@@ -2056,7 +2084,7 @@ echo "Mode: ess">/proc/driver/aironet/ethN/Config
 
    Please send support questions about Ethereal to the
    ethereal-users[AT]ethereal.com mailing list.
-   For corrections/additions/suggestions for this web page page (and not
+   For corrections/additions/suggestions for this web page (and not
    Ethereal support questions), please send email to
    ethereal-web[AT]ethereal.com .
-   Last modified: Sat, March 13 2004.
+   Last modified: Tue, April 20 2004.
