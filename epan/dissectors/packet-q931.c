@@ -2108,6 +2108,7 @@ dissect_q931_number_ie(tvbuff_t *tvb, int offset, int len,
 			e164_info.E164_number_str = tvb_get_string(tvb, offset, len);
 			e164_info.E164_number_length = len;
 			dissect_e164_number(tvb, tree, offset, len, e164_info);
+			g_free(e164_info.E164_number_str);
 		}
 	}
 
