@@ -44,8 +44,9 @@
 #endif
 
 #include <epan/packet.h>
+#include <epan/conversation.h>
 #include "packet-ajp13.h"
-#include "plugins/plugin_api.h"
+#include "packet-tcp.h"
 
 
 
