@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.76 1999/12/16 06:20:16 gram Exp $
+ * $Id: main.c,v 1.77 1999/12/29 20:10:10 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,7 +31,6 @@
  * - Multiple window support
  * - Add cut/copy/paste
  * - Create header parsing routines
- * - Make byte view scrollbars automatic?
  * - Make byte view selections more fancy?
  *
  */
@@ -708,7 +707,7 @@ filter_reset_cb(GtkWidget *w, gpointer data)
 }
 
 /* What to do when a list item is selected/unselected */
-void
+static void
 packet_list_select_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
 
 #ifdef HAVE_LIBPCAP
@@ -723,31 +722,36 @@ packet_list_select_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
   select_packet(&cf, row);
 }
 
-void
+static void
 packet_list_unselect_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
   unselect_packet(&cf);
 }
 
-void
-tree_view_cb(GtkWidget *w, gpointer data) {
+static void
+tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user_data)
+{
+	field_info	*finfo;
+	int		tree_selected_start = -1;
+	int		tree_selected_len = -1;
 
-  field_info	*finfo;
-  int		tree_selected_start = -1;
-  int		tree_selected_len = -1;
+	g_assert(node);
+	finfo = gtk_ctree_node_get_row_data( ctree, GTK_CTREE_NODE(node) );
+	g_assert(finfo);
 
-  if (GTK_TREE(w)->selection) {
-    finfo = 
-	gtk_object_get_data(GTK_OBJECT(GTK_TREE(w)->selection->data),
-				   E_TREEINFO_FIELD_INFO_KEY);
-    g_assert(finfo);
-    finfo_selected = finfo;
-    tree_selected_start = finfo->start;
-    tree_selected_len   = finfo->length;
-  }
+	finfo_selected = finfo;
+	tree_selected_start = finfo->start;
+	tree_selected_len   = finfo->length;
 
-  packet_hex_print(GTK_TEXT(byte_view), cf.pd, cf.current_frame->cap_len, 
-		   tree_selected_start, tree_selected_len,
-		   cf.current_frame->encoding);
+	packet_hex_print(GTK_TEXT(byte_view), cf.pd, cf.current_frame->cap_len, 
+		tree_selected_start, tree_selected_len, cf.current_frame->encoding);
+}
+
+static void
+tree_view_unselect_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user_data)
+{
+	finfo_selected = NULL;
+	packet_hex_print(GTK_TEXT(byte_view), cf.pd, cf.current_frame->cap_len, 
+		-1, -1, cf.current_frame->encoding);
 }
 
 void collapse_all_cb(GtkWidget *widget, gpointer data) {
@@ -781,6 +785,30 @@ set_scrollbar_placement(int pos) /* 0=left, 1=right */
 	}
 }
 
+void
+set_plist_sel_browse(gboolean val)
+{
+	if (finfo_selected)
+		unselect_packet(&cf);
+
+	if (val) {
+		gtk_clist_set_selection_mode(GTK_CLIST(packet_list), GTK_SELECTION_SINGLE);
+	}
+	else {
+		gtk_clist_set_selection_mode(GTK_CLIST(packet_list), GTK_SELECTION_EXTENDED);
+	}
+}
+
+void
+set_ptree_sel_browse(gboolean val)
+{
+	if (val) {
+		gtk_clist_set_selection_mode(GTK_CLIST(tree_view), GTK_SELECTION_SINGLE);
+	}
+	else {
+		gtk_clist_set_selection_mode(GTK_CLIST(tree_view), GTK_SELECTION_EXTENDED);
+	}
+}
 
 void
 file_quit_cmd_cb (GtkWidget *widget, gpointer data) {
@@ -1207,13 +1235,16 @@ main(int argc, char *argv[])
   gtk_widget_show(l_pane);
 
   /* Packet list */
-  packet_list = gtk_clist_new_with_titles(cf.cinfo.num_cols, cf.cinfo.col_title);
-  gtk_clist_column_titles_passive(GTK_CLIST(packet_list));
   pkt_scrollw = gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(pkt_scrollw),
     GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
   gtk_widget_show(pkt_scrollw);
+  gtk_paned_add1(GTK_PANED(u_pane), pkt_scrollw);
+
+  packet_list = gtk_clist_new_with_titles(cf.cinfo.num_cols, cf.cinfo.col_title);
   gtk_container_add(GTK_CONTAINER(pkt_scrollw), packet_list);
+  gtk_clist_column_titles_passive(GTK_CLIST(packet_list));
+  set_plist_sel_browse(prefs->gui_plist_sel_browse);
   pl_style = gtk_style_new();
   gdk_font_unref(pl_style->font);
   pl_style->font = m_r_font;
@@ -1238,7 +1269,6 @@ main(int argc, char *argv[])
 						pl_style->font);
   }
   gtk_widget_set_usize(packet_list, -1, pl_size);
-  gtk_paned_add1(GTK_PANED(u_pane), pkt_scrollw);
   gtk_widget_show(packet_list);
   
   /* Tree view */
@@ -1249,15 +1279,15 @@ main(int argc, char *argv[])
   gtk_widget_set_usize(tv_scrollw, -1, tv_size);
   gtk_widget_show(tv_scrollw);
   
-  tree_view = gtk_tree_new();
-  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(tv_scrollw), tree_view);
-  gtk_tree_set_selection_mode(GTK_TREE(tree_view), GTK_SELECTION_SINGLE);
-
-  gtk_tree_set_view_lines(GTK_TREE(tree_view), FALSE);
-  gtk_tree_set_view_mode(GTK_TREE(tree_view), GTK_TREE_VIEW_ITEM);
-
-  gtk_signal_connect(GTK_OBJECT(tree_view), "selection_changed",
-    GTK_SIGNAL_FUNC(tree_view_cb), NULL);
+  tree_view = gtk_ctree_new(1, 0);
+  gtk_container_add(GTK_CONTAINER(tv_scrollw), tree_view);
+  gtk_ctree_set_line_style(GTK_CTREE(tree_view), GTK_CTREE_LINES_NONE);
+  gtk_ctree_set_expander_style(GTK_CTREE(tree_view), GTK_CTREE_EXPANDER_SQUARE);
+  set_ptree_sel_browse(prefs->gui_ptree_sel_browse);
+  gtk_signal_connect(GTK_OBJECT(tree_view), "tree-select-row",
+    GTK_SIGNAL_FUNC(tree_view_select_row_cb), NULL);
+  gtk_signal_connect(GTK_OBJECT(tree_view), "tree-unselect-row",
+    GTK_SIGNAL_FUNC(tree_view_unselect_row_cb), NULL);
   gtk_widget_show(tree_view);
 
   item_style = gtk_style_new();

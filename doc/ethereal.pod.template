@@ -399,8 +399,15 @@ desired color.  The new text colors are displayed in a sample window.
 =item GUI Preferences
 
 The I<GUI> page is used to modify small aspects of the GUI to your own
-personal taste. The only current option is the placement of the
-vertical scrollbars in the three panes, either on the left or the right.
+personal taste. The vertical scrollbars in the three panes can be
+set to be either on the left or the right. The selection bar in the
+packet list and protocol tree can have either a "browse" or "select"
+behavior. If the selection bar has a "browse" behavior, the arrow keys
+will move an outline of the selection bar, allowing you to browse
+the rest of the list or tree without changing the selection
+until you press the space bar. If the selection bar has a "select"
+behavior, the arrow keys will move the selection bar and change
+the selection to the new item in the packet list or protocol tree.
 
 =back
 

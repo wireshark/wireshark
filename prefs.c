@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.26 1999/12/29 05:53:41 guy Exp $
+ * $Id: prefs.c,v 1.27 1999/12/29 20:09:46 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -187,6 +187,8 @@ read_prefs(char **pf_path_return) {
     prefs.st_server_bg.green = 65535;
     prefs.st_server_bg.blue  = 65535;
     prefs.gui_scrollbar_on_right = TRUE;
+    prefs.gui_plist_sel_browse = FALSE;
+    prefs.gui_ptree_sel_browse = FALSE;
   }
 
   if (! pf_path) {
@@ -301,6 +303,8 @@ read_prefs(char **pf_path_return) {
 #define PRS_STREAM_SR_FG "stream.server.fg"
 #define PRS_STREAM_SR_BG "stream.server.bg"
 #define PRS_GUI_SCROLLBAR_ON_RIGHT "gui.scrollbar_on_right"
+#define PRS_GUI_PLIST_SEL_BROWSE "gui.packet_list_sel_browse"
+#define PRS_GUI_PTREE_SEL_BROWSE "gui.protocol_tree_sel_browse"
 
 #define RED_COMPONENT(x)   ((((x) >> 16) & 0xff) * 65535 / 255)
 #define GREEN_COMPONENT(x) ((((x) >>  8) & 0xff) * 65535 / 255)
@@ -392,6 +396,20 @@ set_pref(gchar *pref, gchar *value) {
     else {
 	    prefs.gui_scrollbar_on_right = FALSE;
     }
+  } else if (strcmp(pref, PRS_GUI_PLIST_SEL_BROWSE) == 0) {
+    if (strcmp(value, "TRUE") == 0) {
+	    prefs.gui_plist_sel_browse = TRUE;
+    }
+    else {
+	    prefs.gui_plist_sel_browse = FALSE;
+    }
+  } else if (strcmp(pref, PRS_GUI_PTREE_SEL_BROWSE) == 0) {
+    if (strcmp(value, "TRUE") == 0) {
+	    prefs.gui_ptree_sel_browse = TRUE;
+    }
+    else {
+	    prefs.gui_ptree_sel_browse = FALSE;
+    }
 
   } else {
     return 0;
@@ -480,5 +498,12 @@ write_prefs(void) {
   fprintf(pf, PRS_GUI_SCROLLBAR_ON_RIGHT ": %s\n",
 		  prefs.gui_scrollbar_on_right == TRUE ? "TRUE" : "FALSE");
 
+  fprintf(pf, "\n# Packet-list selection bar can be used to browse w/o selecting? TRUE/FALSE\n");
+  fprintf(pf, PRS_GUI_PLIST_SEL_BROWSE ": %s\n",
+		  prefs.gui_plist_sel_browse == TRUE ? "TRUE" : "FALSE");
+
+  fprintf(pf, "\n# Protocol-tree selection bar can be used to browse w/o selecting? TRUE/FALSE\n");
+  fprintf(pf, PRS_GUI_PTREE_SEL_BROWSE ": %s\n",
+		  prefs.gui_ptree_sel_browse == TRUE ? "TRUE" : "FALSE");
   fclose(pf);
 }

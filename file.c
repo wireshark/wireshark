@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.142 1999/12/29 07:25:48 guy Exp $
+ * $Id: file.c,v 1.143 1999/12/29 20:09:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1064,9 +1064,6 @@ change_time_formats(capture_file *cf)
 static void
 clear_tree_and_hex_views(void)
 {
-  GList *selection;
-  GtkWidget *tmp_item;
-
   /* Clear the hex dump. */
   gtk_text_freeze(GTK_TEXT(byte_view));
   gtk_text_set_point(GTK_TEXT(byte_view), 0);
@@ -1074,25 +1071,9 @@ clear_tree_and_hex_views(void)
     gtk_text_get_length(GTK_TEXT(byte_view)));
   gtk_text_thaw(GTK_TEXT(byte_view));
 
-  /* Deselect any selected tree item. gtktree.c should
-   * do this when we clear_items, but it doesn't. I copied
-   * this while() loop from gtktree.c, gtk_real_tree_select_child()
-   */
-  if (GTK_TREE(tree_view)->root_tree) {
-	  selection = GTK_TREE(tree_view)->root_tree->selection;
-	  while (selection) {
-		  tmp_item = selection->data;
-		  gtk_tree_item_deselect(GTK_TREE_ITEM(tmp_item));
-		  gtk_widget_unref(tmp_item);
-		  selection = selection->next;
-	  }
-	  g_list_free(GTK_TREE(tree_view)->root_tree->selection);
-	  GTK_TREE(tree_view)->root_tree->selection = NULL;
-  }
+  /* Remove all nodes in ctree. This is how it's done in testgtk.c in GTK+ */
+  gtk_clist_clear ( GTK_CLIST(tree_view) );
 
-  /* Clear the protocol tree view. The length arg of -1
-   * means to clear all items up to the end. */
-  gtk_tree_clear_items(GTK_TREE(tree_view), 0, -1);
 }
 
 gboolean
@@ -1225,12 +1206,6 @@ select_packet(capture_file *cf, int row)
   frame_data *fd;
   int i;
 
-  /* Clear out whatever's currently in the hex dump. */
-  gtk_text_freeze(GTK_TEXT(byte_view));
-  gtk_text_set_point(GTK_TEXT(byte_view), 0);
-  gtk_text_forward_delete(GTK_TEXT(byte_view),
-    gtk_text_get_length(GTK_TEXT(byte_view)));
-
   /* Search through the list of frames to see which one is in
      this row. */
   for (fd = cf->plist, i = 0; fd != NULL; fd = fd->next, i++) {
@@ -1259,7 +1234,6 @@ select_packet(capture_file *cf, int row)
   proto_tree_draw(cf->protocol_tree, tree_view);
   packet_hex_print(GTK_TEXT(byte_view), cf->pd, cf->current_frame->cap_len,
 			-1, -1, cf->current_frame->encoding);
-  gtk_text_thaw(GTK_TEXT(byte_view));
 
   /* A packet is selected, so "File/Print Packet" has something to print. */
   set_menu_sensitivity("/File/Print Packet", TRUE);
