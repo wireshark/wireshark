@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.52 2001/12/09 03:20:19 guy Exp $
+ * $Id: capture_dlg.c,v 1.53 2002/01/10 07:43:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -211,9 +211,15 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   if_cb = gtk_combo_new();
   if (if_list != NULL)
     gtk_combo_set_popdown_strings(GTK_COMBO(if_cb), if_list);
-  if (cfile.iface)
+  if (cfile.iface == NULL && prefs.capture_device != NULL) {
+    /* No interface was specified on the command line or in a previous
+       capture, but there is one specified in the preferences file;
+       make the one from the preferences file the default */
+    cfile.iface	= g_strdup(prefs.capture_device);
+  }
+  if (cfile.iface != NULL)
     gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry), cfile.iface);
-  else if (if_list)
+  else if (if_list != NULL)
     gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry), if_list->data);
   gtk_table_attach_defaults(GTK_TABLE(table), if_cb, 1, 2, 0, 1);
   gtk_widget_show(if_cb);

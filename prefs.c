@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.75 2001/12/31 04:41:48 gerald Exp $
+ * $Id: prefs.c,v 1.76 2002/01/10 07:43:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -801,6 +801,7 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
     prefs.gui_geometry_main_height   =        -1;
 
 /* set the default values for the capture dialog box */
+    prefs.capture_device      = NULL;
     prefs.capture_prom_mode   = TRUE;
     prefs.capture_real_time   = FALSE;
     prefs.capture_auto_scroll = FALSE;
@@ -1073,8 +1074,9 @@ prefs_set_pref(char *prefarg)
 #define PRS_CAP_NAME_RESOLVE "capture.name_resolve"
 
 /*  values for the capture dialog box */
-#define PRS_CAP_REAL_TIME "capture.real_time_update"
-#define PRS_CAP_PROM_MODE "capture.prom_mode"
+#define PRS_CAP_DEVICE      "capture.device"
+#define PRS_CAP_PROM_MODE   "capture.prom_mode"
+#define PRS_CAP_REAL_TIME   "capture.real_time_update"
 #define PRS_CAP_AUTO_SCROLL "capture.auto_scroll"
 
 #define RED_COMPONENT(x)   ((((x) >> 16) & 0xff) * 65535 / 255)
@@ -1322,12 +1324,14 @@ set_pref(gchar *pref_name, gchar *value)
     prefs.gui_geometry_main_height = strtol(value, NULL, 10);
 
 /* handle the capture options */ 
+  } else if (strcmp(pref_name, PRS_CAP_DEVICE) == 0) {
+    if (prefs.capture_device != NULL)
+      g_free(prefs.capture_device);
+    prefs.capture_device = g_strdup(value);
   } else if (strcmp(pref_name, PRS_CAP_PROM_MODE) == 0) {
     prefs.capture_prom_mode = ((strcasecmp(value, "true") == 0)?TRUE:FALSE); 
- 
   } else if (strcmp(pref_name, PRS_CAP_REAL_TIME) == 0) {
     prefs.capture_real_time = ((strcasecmp(value, "true") == 0)?TRUE:FALSE); 
-
   } else if (strcmp(pref_name, PRS_CAP_AUTO_SCROLL) == 0) {
     prefs.capture_auto_scroll = ((strcasecmp(value, "true") == 0)?TRUE:FALSE); 
  
@@ -1738,6 +1742,11 @@ write_prefs(const char **pf_path_return)
 		  name_resolve_to_string(prefs.name_resolve));
 
 /* write the capture options */
+  if (prefs.capture_device != NULL) {
+    fprintf(pf, "\n# Default capture device\n");
+    fprintf(pf, PRS_CAP_DEVICE ": %s\n", prefs.capture_device);
+  }
+
   fprintf(pf, "\n# Capture in promiscuous mode? TRUE/FALSE\n");
   fprintf(pf, PRS_CAP_PROM_MODE ": %s\n",
 		  prefs.capture_prom_mode == TRUE ? "TRUE" : "FALSE");
@@ -1801,6 +1810,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_geometry_main_width = src->gui_geometry_main_width;
   dest->gui_geometry_main_height = src->gui_geometry_main_height;
 /*  values for the capture dialog box */
+  dest->capture_device = g_strdup(src->capture_device);
   dest->capture_prom_mode = src->capture_prom_mode;
   dest->capture_real_time = src->capture_real_time;
   dest->capture_auto_scroll = src->capture_auto_scroll;
@@ -1824,6 +1834,10 @@ free_prefs(e_prefs *pr)
   if (pr->gui_font_name != NULL) {
     g_free(pr->gui_font_name);
     pr->gui_font_name = NULL;
+  }
+  if (pr->capture_device != NULL) {
+    g_free(pr->capture_device);
+    pr->capture_device = NULL;
   }
 }
 

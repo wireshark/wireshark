@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.35 2001/12/31 04:41:48 gerald Exp $
+ * $Id: prefs.h,v 1.36 2002/01/10 07:43:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,6 +77,7 @@ typedef struct _e_prefs {
   gint     gui_geometry_main_width;
   gint     gui_geometry_main_height;
   guint32  name_resolve;
+  gchar   *capture_device;
   gboolean capture_prom_mode;
   gboolean capture_real_time;
   gboolean capture_auto_scroll;

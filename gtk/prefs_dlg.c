@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.34 2001/12/04 07:23:47 guy Exp $
+ * $Id: prefs_dlg.c,v 1.35 2002/01/10 07:43:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,6 +58,7 @@
 #include "print_prefs.h"
 #include "stream_prefs.h"
 #include "gui_prefs.h"
+#include "capture_prefs.h"
 #include "ui_util.h"
 #include "dlg_utils.h"
 #include "simple_dialog.h"
@@ -72,10 +73,11 @@ static gboolean prefs_main_delete_cb(GtkWidget *, gpointer);
 static void     prefs_main_destroy_cb(GtkWidget *, gpointer);
 static void	prefs_tree_select_cb(GtkCTree *, GtkCTreeNode *, gint, gpointer);
 
-#define E_PRINT_PAGE_KEY  "printer_options_page"
-#define E_COLUMN_PAGE_KEY "column_options_page"
-#define E_STREAM_PAGE_KEY "tcp_stream_options_page"
-#define E_GUI_PAGE_KEY	  "gui_options_page"
+#define E_PRINT_PAGE_KEY   "printer_options_page"
+#define E_COLUMN_PAGE_KEY  "column_options_page"
+#define E_STREAM_PAGE_KEY  "tcp_stream_options_page"
+#define E_GUI_PAGE_KEY	   "gui_options_page"
+#define E_CAPTURE_PAGE_KEY "capture_options_page"
 
 #define FIRST_PROTO_PREFS_PAGE	4
 
@@ -274,7 +276,7 @@ void
 prefs_cb(GtkWidget *w, gpointer dummy) {
   GtkWidget        *main_vb, *top_hb, *bbox, *prefs_nb, *ct_sb, *frame,
                    *ok_bt, *apply_bt, *save_bt, *cancel_bt;
-  GtkWidget        *print_pg, *column_pg, *stream_pg, *gui_pg;
+  GtkWidget        *print_pg, *column_pg, *stream_pg, *gui_pg, *capture_pg;
   gchar            label_str[MAX_TREE_NODE_NAME_LEN], *label_ptr = label_str;
   GtkCTreeNode     *ct_node;
   struct ct_struct cts;
@@ -397,6 +399,21 @@ prefs_cb(GtkWidget *w, gpointer dummy) {
   		GINT_TO_POINTER(cts.page));
   cts.page++;
 
+#ifdef HAVE_LIBPCAP
+  /* capture prefs */
+  frame = gtk_frame_new("Capture");
+  gtk_widget_show(GTK_WIDGET(frame));
+  capture_pg = capture_prefs_show();
+  gtk_container_add(GTK_CONTAINER(frame), capture_pg);
+  gtk_object_set_data(GTK_OBJECT(prefs_w), E_CAPTURE_PAGE_KEY, capture_pg);
+  gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
+  strcpy(label_str, "Capture");
+  ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.ctree), NULL, NULL, 
+  		&label_ptr, 5, NULL, NULL, NULL, NULL, TRUE, TRUE);
+  gtk_ctree_node_set_row_data(GTK_CTREE(cts.ctree), ct_node,
+  		GINT_TO_POINTER(cts.page));
+  cts.page++;
+#endif
 
   /* Registered prefs */
   cts.notebook = prefs_nb;
@@ -603,6 +620,7 @@ prefs_main_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   column_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
   stream_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+  capture_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_CAPTURE_PAGE_KEY));
   prefs_module_foreach(module_prefs_fetch, &must_redissect);
 
   /* Now apply those preferences. */
@@ -610,6 +628,7 @@ prefs_main_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   column_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
   stream_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+  capture_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_CAPTURE_PAGE_KEY));
   prefs_apply_all();
 
   /* Now destroy the "Preferences" dialog. */
@@ -633,6 +652,7 @@ prefs_main_apply_cb(GtkWidget *apply_bt, gpointer parent_w)
   column_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
   stream_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+  capture_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_CAPTURE_PAGE_KEY));
   prefs_module_foreach(module_prefs_fetch, &must_redissect);
 
   /* Now apply those preferences. */
@@ -640,6 +660,7 @@ prefs_main_apply_cb(GtkWidget *apply_bt, gpointer parent_w)
   column_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
   stream_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+  capture_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_CAPTURE_PAGE_KEY));
   prefs_apply_all();
 
   if (must_redissect) {
@@ -663,6 +684,7 @@ prefs_main_save_cb(GtkWidget *save_bt, gpointer parent_w)
   column_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
   stream_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+  capture_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_CAPTURE_PAGE_KEY));
   prefs_module_foreach(module_prefs_fetch, &must_redissect);
 
   /* Create the directory that holds personal configuration files, if
@@ -700,6 +722,7 @@ prefs_main_save_cb(GtkWidget *save_bt, gpointer parent_w)
   column_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
   stream_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+  capture_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_CAPTURE_PAGE_KEY));
   prefs_apply_all();
 
   if (must_redissect) {
@@ -791,6 +814,7 @@ prefs_main_cancel_cb(GtkWidget *cancel_bt, gpointer parent_w)
   column_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
   stream_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+  capture_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_CAPTURE_PAGE_KEY));
   prefs_apply_all();
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
@@ -820,6 +844,7 @@ prefs_main_destroy_cb(GtkWidget *win, gpointer user_data)
   column_prefs_destroy(gtk_object_get_data(GTK_OBJECT(prefs_w), E_COLUMN_PAGE_KEY));
   stream_prefs_destroy(gtk_object_get_data(GTK_OBJECT(prefs_w), E_STREAM_PAGE_KEY));
   gui_prefs_destroy(gtk_object_get_data(GTK_OBJECT(prefs_w), E_GUI_PAGE_KEY));
+  capture_prefs_destroy(gtk_object_get_data(GTK_OBJECT(prefs_w), E_CAPTURE_PAGE_KEY));
 
   /* Free up the saved preferences (both for "prefs" and for registered
      preferences). */

@@ -1,12 +1,11 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.27 2001/12/31 04:41:50 gerald Exp $
+ * $Id: gui_prefs.c,v 1.28 2002/01/10 07:43:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -261,8 +260,6 @@ create_option_check_button(GtkWidget *main_vb, const gchar *key,
     gboolean active)
 {
 	GtkWidget *hbox, *check_box;
-	int menu_index, index;
-	const enum_val_t *enum_valp;
 
 	hbox = gtk_hbox_new(FALSE, 0);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), hbox, 1, 3,

@@ -19,6 +19,7 @@ CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 # some functions that have disappeared in gtk+-1.3. I might
 # get around to #ifdef'ing them out in our gtkclist.c.
 OBJECTS=capture_dlg.obj \
+	capture_prefs.obj \
 	color_dlg.obj    \
 	colors.obj       \
 	color_utils.obj  \

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.113 2002/01/03 22:03:24 guy Exp $
+ * $Id: tethereal.c,v 1.114 2002/01/10 07:43:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -717,24 +717,30 @@ main(int argc, char *argv[])
 
     /* Yes; did the user specify an interface to use? */
     if (cfile.iface == NULL) {
-        /* No - pick the first one from the list of interfaces. */
-        if_list = get_interface_list(&err, err_str);
-        if (if_list == NULL) {
-            switch (err) {
+        /* No - is a default specified in the preferences file? */
+        if (prefs->capture_device != NULL) {
+            /* Yes - use it. */
+            cfile.iface	= g_strdup(prefs->capture_device);
+        } else {
+            /* No - pick the first one from the list of interfaces. */
+            if_list = get_interface_list(&err, err_str);
+            if (if_list == NULL) {
+                switch (err) {
 
-            case CANT_GET_INTERFACE_LIST:
-                fprintf(stderr, "tethereal: Can't get list of interfaces: %s\n",
-			err_str);
-                break;
+                case CANT_GET_INTERFACE_LIST:
+                    fprintf(stderr, "tethereal: Can't get list of interfaces: %s\n",
+			    err_str);
+                    break;
 
-            case NO_INTERFACES_FOUND:
-                fprintf(stderr, "tethereal: There are no interfaces on which a capture can be done\n");
-                break;
+                case NO_INTERFACES_FOUND:
+                    fprintf(stderr, "tethereal: There are no interfaces on which a capture can be done\n");
+                    break;
+                }
+                exit(2);
             }
-            exit(2);
+            cfile.iface = g_strdup(if_list->data);	/* first interface */
+            free_interface_list(if_list);
         }
-        cfile.iface = g_strdup(if_list->data);	/* first interface */
-        free_interface_list(if_list);
     }
     capture(packet_count, out_file_type);
 
