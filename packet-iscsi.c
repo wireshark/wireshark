@@ -2,7 +2,7 @@
  * Routines for iSCSI dissection
  * Copyright 2001, Eurologic and Mark Burton <markb@ordern.com>
  *
- * $Id: packet-iscsi.c,v 1.39 2002/08/29 19:33:00 guy Exp $
+ * $Id: packet-iscsi.c,v 1.40 2002/09/26 08:20:22 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -153,11 +153,13 @@ static int hf_iscsi_InitCmdSN = -1;
 /* #ifdef DRAFT09 */
 static int hf_iscsi_Login_X = -1;
 /* #endif */
+static int hf_iscsi_Login_C = -1;
 static int hf_iscsi_Login_T = -1;
 static int hf_iscsi_Login_CSG = -1;
 static int hf_iscsi_Login_NSG = -1;
 static int hf_iscsi_Login_Status = -1;
 static int hf_iscsi_KeyValue = -1;
+static int hf_iscsi_Text_C = -1;
 static int hf_iscsi_Text_F = -1;
 static int hf_iscsi_ExpDataSN = -1;
 static int hf_iscsi_R2TSN = -1;
@@ -318,6 +320,11 @@ static const true_false_string iscsi_meaning_T = {
     "Stay in current login stage"
 };
 
+static const true_false_string iscsi_meaning_C = {
+    "Text is incomplete",
+    "Text is complete"
+};
+
 static const true_false_string iscsi_meaning_S = {
     "Response contains SCSI status",
     "Response does not contain SCSI status"
@@ -459,6 +466,7 @@ static const value_string iscsi_snack_types[] = {
 /* #ifndef DRAFT08 */
     {2, "Data ACK"},
 /* #endif */
+    {3, "R-Data"},
     {0, NULL}
 };
 
@@ -472,10 +480,11 @@ static const value_string iscsi_reject_reasons[] = {
     {0x05, "Command not supported in this session type"},
     {0x06, "Immediate command reject (too many immediate commands)"},
     {0x07, "Task in progress"},
-    {0x08, "Invalid SNACK"},
-    {0x09, "Bookmark reject (no bookmark for this initiator task tag)"},
-    {0x0a, "Bookmark reject (can't generate bookmark - out of resources)"},
+    {0x08, "Invalid Data Ack"},
+    {0x09, "Invalid PDU field"},
+    {0x0a, "Long operation reject"},
     {0x0b, "Negotiation reset"},
+    {0x0c, "Waiting for logout"},
     {0, NULL},
 };
 
@@ -861,14 +870,14 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 				 val_to_str (login_status, iscsi_login_status, "0x%x"));
 	    }
 	    else if (opcode == ISCSI_OPCODE_LOGOUT_COMMAND) {
-		guint16 logoutReason;
+		guint8 logoutReason;
 		if(iscsi_protocol_version == ISCSI_PROTOCOL_DRAFT08) {
-		    logoutReason = tvb_get_ntohs(tvb, offset+11);
+		    logoutReason = tvb_get_guint8(tvb, offset+11);
 		} else if(iscsi_protocol_version >= ISCSI_PROTOCOL_DRAFT13) {
-		    logoutReason = tvb_get_ntohs(tvb, offset+1) & 0x7f;
+		    logoutReason = tvb_get_guint8(tvb, offset+1) & 0x7f;
 		}
 		else {
-		    logoutReason = tvb_get_ntohs(tvb, offset+23);
+		    logoutReason = tvb_get_guint8(tvb, offset+23);
 		}
 		col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
 				 val_to_str (logoutReason, iscsi_logout_reasons, "0x%x"));
@@ -1078,6 +1087,9 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 #endif
 
 		proto_tree_add_boolean(ti, hf_iscsi_Login_T, tvb, offset + 1, 1, b);
+		if(iscsi_protocol_version >= ISCSI_PROTOCOL_DRAFT13) {
+		    proto_tree_add_boolean(ti, hf_iscsi_Login_C, tvb, offset + 1, 1, b);
+		}
 		if(iscsi_protocol_version == ISCSI_PROTOCOL_DRAFT08) {
 		    proto_tree_add_boolean(ti, hf_iscsi_Login_X, tvb, offset + 1, 1, b);
 		}
@@ -1143,6 +1155,9 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 #endif
 
 		proto_tree_add_boolean(ti, hf_iscsi_Login_T, tvb, offset + 1, 1, b);
+		if(iscsi_protocol_version >= ISCSI_PROTOCOL_DRAFT13) {
+		    proto_tree_add_boolean(ti, hf_iscsi_Login_C, tvb, offset + 1, 1, b);
+		}
 		proto_tree_add_item(ti, hf_iscsi_Login_CSG, tvb, offset + 1, 1, FALSE);
 		proto_tree_add_item(ti, hf_iscsi_Login_NSG, tvb, offset + 1, 1, FALSE);
 	    }
@@ -1197,6 +1212,9 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
 
 		proto_tree_add_boolean(tt, hf_iscsi_Text_F, tvb, offset + 1, 1, b);
+		if(iscsi_protocol_version >= ISCSI_PROTOCOL_DRAFT13) {
+		    proto_tree_add_boolean(tt, hf_iscsi_Text_C, tvb, offset + 1, 1, b);
+		}
 	    }
 	    if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT09) {
 		proto_tree_add_item(ti, hf_iscsi_TotalAHSLength, tvb, offset + 4, 1, FALSE);
@@ -1220,6 +1238,9 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
 
 		proto_tree_add_boolean(tt, hf_iscsi_Text_F, tvb, offset + 1, 1, b);
+		if(iscsi_protocol_version >= ISCSI_PROTOCOL_DRAFT13) {
+		    proto_tree_add_boolean(tt, hf_iscsi_Text_C, tvb, offset + 1, 1, b);
+		}
 	    }
 	    if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT09) {
 		proto_tree_add_item(ti, hf_iscsi_TotalAHSLength, tvb, offset + 4, 1, FALSE);
@@ -1789,7 +1810,7 @@ proto_register_iscsi(void)
 	{ &hf_iscsi_CmdSN,
 	  { "CmdSN", "iscsi.cmdsn",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Sequence number for this command (0 == immediate)", HFILL }
+	    "Sequence number for this command", HFILL }
 	},
 	{ &hf_iscsi_ExpStatSN,
 	  { "ExpStatSN", "iscsi.expstatsn",
@@ -2002,6 +2023,11 @@ proto_register_iscsi(void)
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_T), 0x80,
 	    "Transit to next login stage",  HFILL }
 	},
+	{ &hf_iscsi_Login_C,
+	  { "C", "iscsi.login.C",
+	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_C), 0x40,
+	    "Text incomplete",  HFILL }
+	},
 /* #ifdef DRAFT09 */
 	{ &hf_iscsi_Login_X,
 	  { "X", "iscsi.login.X",
@@ -2033,6 +2059,11 @@ proto_register_iscsi(void)
 	  { "F", "iscsi.text.F",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_F), 0x80,
 	    "Final PDU in text sequence", HFILL }
+	},
+	{ &hf_iscsi_Text_C,
+	  { "C", "iscsi.text.C",
+	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_C), 0x40,
+	    "Text incomplete", HFILL }
 	},
 	{ &hf_iscsi_ExpDataSN,
 	  { "ExpDataSN", "iscsi.expdatasn",
