@@ -1,7 +1,7 @@
 SUBDIRS = lemon
 
 EXTRA_DIST = \
-	EtherealXML.py
+	EtherealXML.py	\
 	Makefile.nmake	\
 	cvsdiff-fix.py	\
 	dfilter-test.py \
