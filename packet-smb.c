@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.280 2002/08/19 10:53:21 guy Exp $
+ * $Id: packet-smb.c,v 1.281 2002/08/22 06:47:08 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -229,6 +229,22 @@ static int hf_smb_access_locality = -1;
 static int hf_smb_access_caching = -1;
 static int hf_smb_access_writetru = -1;
 static int hf_smb_create_time = -1;
+static int hf_smb_modify_time = -1;
+static int hf_smb_backup_time = -1;
+static int hf_smb_mac_alloc_block_count = -1;
+static int hf_smb_mac_alloc_block_size = -1;
+static int hf_smb_mac_free_block_count = -1;
+static int hf_smb_mac_fndrinfo = -1;
+static int hf_smb_mac_root_file_count = -1;
+static int hf_smb_mac_root_dir_count = -1;
+static int hf_smb_mac_file_count = -1;
+static int hf_smb_mac_dir_count = -1;
+static int hf_smb_mac_support_flags = -1;
+static int hf_smb_mac_sup_access_ctrl = -1;
+static int hf_smb_mac_sup_getset_comments = -1;
+static int hf_smb_mac_sup_desktopdb_calls = -1;
+static int hf_smb_mac_sup_unique_ids = -1;
+static int hf_smb_mac_sup_streams = -1;
 static int hf_smb_create_dos_date = -1;
 static int hf_smb_create_dos_time = -1;
 static int hf_smb_last_write_time = -1;
@@ -630,6 +646,7 @@ static gint ett_smb_print_queue_entry = -1;
 static gint ett_smb_transaction_flags = -1;
 static gint ett_smb_transaction_params = -1;
 static gint ett_smb_find_first2_flags = -1;
+static gint ett_smb_mac_support_flags = -1;
 #if 0
 static gint ett_smb_ioflag = -1;
 #endif
@@ -9179,6 +9196,7 @@ static const value_string qfsi_vals[] = {
 	{ 0x0103,	"Query FS Size Info"},
 	{ 0x0104,	"Query FS Device Info"},
 	{ 0x0105,	"Query FS Attribute Info"},
+	{ 0x0301,	"Mac Query FS INFO"},
 	{ 1001,		"Query FS Label Info"},
 	{ 1002,		"Query FS Volume Info"},
 	{ 1003,		"Query FS Size Info"},
@@ -12088,6 +12106,32 @@ dissect_device_characteristics(tvbuff_t *tvb, proto_tree *parent_tree, int offse
 }
 
 /*dissect the data block for TRANS2_QUERY_FS_INFORMATION*/
+
+static const true_false_string tfs_smb_mac_access_ctrl = {
+  "Macintosh Access Control Supported",
+  "Macintosh Access Control Not Supported"
+};
+
+static const true_false_string tfs_smb_mac_getset_comments = {
+  "Macintosh Get & Set Comments Supported",
+  "Macintosh Get & Set Comments Not Supported"
+};
+
+static const true_false_string tfs_smb_mac_desktopdb_calls = {
+  "Macintosh Get & Set Desktop Database Info Supported",
+  "Macintosh Get & Set Desktop Database Info Supported"
+};
+
+static const true_false_string tfs_smb_mac_unique_ids = {
+  "Macintosh Unique IDs Supported",
+  "Macintosh Unique IDs Not Supported"
+};
+
+static const true_false_string tfs_smb_mac_streams = {
+  "Macintosh and Streams Extensions Not Supported",
+  "Macintosh and Streams Extensions Supported"
+};
+
 static int
 dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     int offset, guint16 *bcp)
@@ -12095,6 +12139,9 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	smb_info_t *si;
 	int fn_len, vll, fnl;
 	const char *fn;
+	guint support = 0;
+	proto_item *item = NULL;
+	proto_tree *ti = NULL;
 
 	if(!*bcp){
 		return offset;
@@ -12261,6 +12308,81 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		COUNT_BYTES_TRANS_SUBR(fn_len);
 
 		break;
+	case 0x301: 	/* MAC_QUERY_FS_INFO */
+		/* Create time */
+		CHECK_BYTE_COUNT_TRANS_SUBR(8);
+		offset = dissect_smb_64bit_time(tvb, tree, offset, hf_smb_create_time);
+		*bcp -= 8;
+		/* Modify Time */
+		CHECK_BYTE_COUNT_TRANS_SUBR(8);
+		offset = dissect_smb_64bit_time(tvb, tree, offset, hf_smb_modify_time);
+		*bcp -= 8;
+		/* Backup Time */
+		CHECK_BYTE_COUNT_TRANS_SUBR(8);
+		offset = dissect_smb_64bit_time(tvb, tree, offset, hf_smb_backup_time);
+		*bcp -= 8;
+		/* Allocation blocks */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		proto_tree_add_item(tree, hf_smb_mac_alloc_block_count, tvb, 
+				    offset,
+				    4, TRUE);
+		COUNT_BYTES_TRANS_SUBR(4);
+		/* Allocation Block Size */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		proto_tree_add_item(tree, hf_smb_mac_alloc_block_size, tvb,
+				    offset, 4, TRUE);
+		COUNT_BYTES_TRANS_SUBR(4);
+		/* Free Block Count */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		proto_tree_add_item(tree, hf_smb_mac_free_block_count, tvb,
+				    offset, 4, TRUE);
+		COUNT_BYTES_TRANS_SUBR(4);
+		/* Finder Info ... */
+		CHECK_BYTE_COUNT_TRANS_SUBR(32);
+		proto_tree_add_bytes_format(tree, hf_smb_mac_fndrinfo, tvb, 
+					    offset, 32, 
+					    tvb_get_ptr(tvb, offset,32),
+					    "Finder Info: %s",
+					    tvb_format_text(tvb, offset, 32));
+		COUNT_BYTES_TRANS_SUBR(32);
+		/* Number Files */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		proto_tree_add_item(tree, hf_smb_mac_root_file_count, tvb, 
+				    offset, 4, TRUE);
+		COUNT_BYTES_TRANS_SUBR(4);
+		/* Number of Root Directories */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		proto_tree_add_item(tree, hf_smb_mac_root_dir_count, tvb,
+				    offset, 4, TRUE);
+		COUNT_BYTES_TRANS_SUBR(4);
+		/* Number of files */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		proto_tree_add_item(tree, hf_smb_mac_file_count, tvb,
+				    offset, 4, TRUE);
+		COUNT_BYTES_TRANS_SUBR(4);
+		/* Dir Count */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		proto_tree_add_item(tree, hf_smb_mac_dir_count, tvb,
+				    offset, 4, TRUE);
+		COUNT_BYTES_TRANS_SUBR(4);
+		/* Mac Support Flags */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		support = tvb_get_ntohl(tvb, offset);
+		item = proto_tree_add_text(tree, tvb, offset, 4, 
+					   "Mac Support Flags: 0x%08x", support);
+		ti = proto_item_add_subtree(item, ett_smb_mac_support_flags);
+		proto_tree_add_boolean(ti, hf_smb_mac_sup_access_ctrl,
+				       tvb, offset, 4, support);
+		proto_tree_add_boolean(ti, hf_smb_mac_sup_getset_comments,
+				       tvb, offset, 4, support);
+		proto_tree_add_boolean(ti, hf_smb_mac_sup_desktopdb_calls,
+				       tvb, offset, 4, support);
+		proto_tree_add_boolean(ti, hf_smb_mac_sup_unique_ids,
+				       tvb, offset, 4, support);
+		proto_tree_add_boolean(ti, hf_smb_mac_sup_streams,
+				       tvb, offset, 4, support);
+		COUNT_BYTES_TRANS_SUBR(4);
+		break; 
 	case 1006:	/* QUERY_FS_QUOTA_INFO */
 		offset = dissect_nt_quota(tvb, tree, offset, bcp);
 		break;
@@ -16081,6 +16203,66 @@ proto_register_smb(void)
 		{ "Created", "smb.create.time", FT_ABSOLUTE_TIME, BASE_NONE,
 		NULL, 0, "Creation Time", HFILL }},
 
+	{ &hf_smb_modify_time,
+	        { "Modified", "smb.modify.time", FT_ABSOLUTE_TIME, BASE_NONE,
+		  NULL, 0, "Modification Time", HFILL }},
+
+	{ &hf_smb_backup_time,
+	        { "Backed-up", "smb.backup.time", FT_ABSOLUTE_TIME, BASE_NONE,
+		  NULL, 0, "Backup time", HFILL}},
+
+	{ &hf_smb_mac_alloc_block_count,
+	        { "Allocation Block Count", "smb.alloc.count", FT_UINT32, BASE_DEC,
+		  NULL, 0, "Allocation Block Count", HFILL}},
+
+	{ &hf_smb_mac_alloc_block_size,
+	        { "Allocation Block Count", "smb.alloc.size", FT_UINT32, BASE_DEC,
+		  NULL, 0, "Allocation Block Size", HFILL}},
+
+	{ &hf_smb_mac_free_block_count,
+	        { "Free Block Count", "smb.free_block.count", FT_UINT32, BASE_DEC,
+		  NULL, 0, "Free Block Count", HFILL}},
+
+	{ &hf_smb_mac_root_file_count,
+	        { "Root File Count", "smb.root.file.count", FT_UINT32, BASE_DEC,
+	        NULL, 0, "Root File Count", HFILL}},
+
+	{ &hf_smb_mac_root_dir_count,
+	  { "Root Directory Count", "smb.root.dir.count", FT_UINT32, BASE_DEC,
+	    NULL, 0, "Root Directory Count", HFILL}},
+
+	{ &hf_smb_mac_file_count, 
+	  { "Root File Count", "smb.file.count", FT_UINT32, BASE_DEC,
+	    NULL, 0, "File Count", HFILL}},
+
+	{ &hf_smb_mac_dir_count, 
+	  { "Root Directory Count", "smb.dir.count", FT_UINT32, BASE_DEC,
+	    NULL, 0, "Directory Count", HFILL}},
+
+	{ &hf_smb_mac_support_flags, 
+	  { "Mac Support Flags", "smb.mac.support.flags", FT_UINT32, BASE_DEC,
+	    NULL, 0, "Mac Support Flags", HFILL}},
+
+	{ &hf_smb_mac_sup_access_ctrl,
+	  { "Mac Access Control", "smb.mac.access_control", FT_BOOLEAN, 32,
+	    TFS(&tfs_smb_mac_access_ctrl), 0x0010, "Are Mac Access Control Supported", HFILL }},
+
+	{ &hf_smb_mac_sup_getset_comments,
+	  { "Get Set Comments", "smb.mac.get_set_comments", FT_BOOLEAN, 32,
+	    TFS(&tfs_smb_mac_getset_comments), 0x0020, "Are Mac Get Set Comments supported?", HFILL }},
+
+	{ &hf_smb_mac_sup_desktopdb_calls,
+	  { "Desktop DB Calls", "smb.mac.desktop_db_calls", FT_BOOLEAN, 32,
+	    TFS(&tfs_smb_mac_desktopdb_calls), 0x0040, "Are Macintosh Desktop DB Calls Supported?", HFILL }},
+
+	{ &hf_smb_mac_sup_unique_ids,
+	  { "Macintosh Unique IDs", "smb.mac.uids", FT_BOOLEAN, 32,
+	    TFS(&tfs_smb_mac_unique_ids), 0x0080, "Are Unique IDs supported", HFILL }},
+
+	{ &hf_smb_mac_sup_streams,
+	  { "Mac Streams", "smb.mac.streams_support", FT_BOOLEAN, 32,
+	    TFS(&tfs_smb_mac_streams), 0x0100, "Are Mac Extensions and streams supported?", HFILL }},
+
 	{ &hf_smb_create_dos_date,
 		{ "Create Date", "smb.create.smb.date", FT_UINT16, BASE_HEX,
 		NULL, 0, "Create Date, SMB_DATE format", HFILL }},
@@ -16120,6 +16302,10 @@ proto_register_smb(void)
 	{ &hf_smb_file_data,
 		{ "File Data", "smb.file_data", FT_BYTES, BASE_HEX,
 		NULL, 0, "Data read/written to the file", HFILL }},
+
+	{ &hf_smb_mac_fndrinfo,
+	        { "Finder Info", "smb.mac.finderinfo", FT_BYTES, BASE_HEX,
+		  NULL, 0, "Finder Info", HFILL}},
 
 	{ &hf_smb_total_data_len,
 		{ "Total Data Length", "smb.total_data_len", FT_UINT16, BASE_DEC,
@@ -17047,7 +17233,7 @@ proto_register_smb(void)
 		NULL, 0, "Latest referral version number understood", HFILL }},
 
 	{ &hf_smb_qfsi_information_level,
-		{ "Level of Interest", "smb.qfi_loi", FT_UINT16, BASE_DEC,
+		{ "Level of Interest", "smb.qfi_loi", FT_UINT16, BASE_HEX,
 		VALS(qfsi_vals), 0, "Level of interest for QUERY_FS_INFORMATION2 command", HFILL }},
 
   	{ &hf_smb_nt_rename_level,
@@ -17572,6 +17758,7 @@ proto_register_smb(void)
 		&ett_smb_ace_flags,
 		&ett_smb_sec_desc_type,
 		&ett_smb_quotaflags,
+		&ett_smb_mac_support_flags,
 	};
 	module_t *smb_module;
 
