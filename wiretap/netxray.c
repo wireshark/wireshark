@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.50 2002/04/07 21:44:55 guy Exp $
+ * $Id: netxray.c,v 1.51 2002/04/08 02:11:24 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -219,13 +219,12 @@ int netxray_open(wtap *wth, int *err)
 
 	/*
 	 * End-of-packet padding.  802.11 captures appear to have four
-	 * bytes of it; is this the FCS, rather than padding?  I think
-	 * we've seen padding at the end of some Ethernet captures; is
-	 * that an FCS as well?
+	 * bytes of it.
 	 *
-	 * Gerald indicates that the padding has values that don't look
-	 * as if they're FCS values, so perhaps it's just padding
-	 * junk.
+	 * We've seen what appears to be an FCS at the end of some frames
+	 * in some Ethernet captures, but this stuff appears to be just
+	 * padding - Sniffers don't show it, and it doesn't have values
+	 * that look like FCS values.
 	 */
 	wth->capture.netxray->padding = 0;
 	if (netxray_encap[hdr.network] == WTAP_ENCAP_IEEE_802_11) {
@@ -335,16 +334,6 @@ reread:
 	/*
 	 * We subtract the padding from the packet size, so our caller
 	 * doesn't see it.
-	 *
-	 * However, if it turns out the padding is really the FCS, we'd
-	 * probably want to supply it, along with an indication of whether
-	 * the frame has an FCS or not, so that Ethereal and Tethereal
-	 * could display it.
-	 *
-	 * That may also mean that if incl_len is shorter than orig_len
-	 * by less than 4 bytes, we shouldn't just subtract the length
-	 * of the padding from it, as the snapshot length would have
-	 * cut it off.
 	 */
 	wth->phdr.caplen = packet_size - wth->capture.netxray->padding;
 	wth->phdr.len = pletohs(&hdr.hdr_1_x.orig_len) - wth->capture.netxray->padding;
