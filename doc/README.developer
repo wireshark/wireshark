@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.74 2003/03/09 22:00:26 deniel Exp $
+$Id: README.developer,v 1.75 2003/06/12 10:15:25 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -208,7 +208,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.74 2003/03/09 22:00:26 deniel Exp $"
+The "$Id: README.developer,v 1.75 2003/06/12 10:15:25 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -218,7 +218,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.74 2003/03/09 22:00:26 deniel Exp $
+ * $Id: README.developer,v 1.75 2003/06/12 10:15:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -312,8 +312,10 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO)) 
 		col_set_str(pinfo->cinfo, COL_INFO, "XXX Request");
 
-/* In the interest of speed, if "tree" is NULL, don't do any work not
-   necessary to generate protocol tree items. */
+/* In the interest of speed, if "tree" is NULL, avoid building a
+   protocol tree and adding stuff to it if possible.  Note,
+   however, that you must call subdissectors regardless of whether
+   "tree" is NULL or not. */
 	if (tree) {
 
 /* NOTE: The offset and length values in the call to
