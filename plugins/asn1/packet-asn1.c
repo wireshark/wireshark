@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2003 by Matthijs Melchior <matthijs.melchior@xs4all.nl>
  *
- * $Id: packet-asn1.c,v 1.8 2003/11/04 16:44:25 gerald Exp $
+ * $Id: packet-asn1.c,v 1.9 2003/11/04 18:37:30 guy Exp $
  *
  * A plugin for:
  *
@@ -4771,7 +4771,7 @@ proto_reg_handoff_asn1(void) {
 
 /* Start the functions we need for the plugin stuff */
 
-#ifndef __ETHEREAL_STATIC__
+#ifndef ENABLE_STATIC
 
 G_MODULE_EXPORT void
 plugin_reg_handoff(void){

@@ -3,7 +3,7 @@
  * By Steve Limkemann <stevelim@dgtech.com>
  * Copyright 1998 Steve Limkemann
  *
- * $Id: packet-gryphon.c,v 1.42 2003/10/06 15:41:53 jmayer Exp $
+ * $Id: packet-gryphon.c,v 1.43 2003/11/04 18:37:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2290,6 +2290,9 @@ proto_reg_handoff_gryphon(void)
 }
 
 /* Start the functions we need for the plugin stuff */
+
+#ifndef ENABLE_STATIC
+
 G_MODULE_EXPORT void
 plugin_reg_handoff(void){
   proto_reg_handoff_gryphon();
@@ -2308,4 +2311,7 @@ _U_
     proto_register_gryphon();
   }
 }
+
+#endif
+
 /* End the functions we need for plugin stuff */
