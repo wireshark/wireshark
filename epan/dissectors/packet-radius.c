@@ -3757,9 +3757,6 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 
 			if ( next_attr_info )
 			{
-				rd_add_field_to_tree(tree, tvb, offset+8,
-				                     avph->avp_length-8,
-				                     next_attr_info);
 				if ( next_attr_info->value_type == THE3GPP_QOS )
 				{
 			    		cont = tmp_punt;
@@ -4319,7 +4316,7 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 rh.rh_ident, "Packet identifier: 0x%01x (%d)",
 			rhident,rhident);
 
-	if (avplength > 0) {
+	if (avplength >= 0) {
 	    proto_tree_add_uint(radius_tree, hf_radius_length, tvb,
 			2, 2, rhlength);
 	} else {
