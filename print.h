@@ -41,6 +41,8 @@ typedef struct print_stream_ops {
 	gboolean (*print_preamble)(struct print_stream *self, gchar *filename);
 	gboolean (*print_line)(struct print_stream *self, int indent,
 	    const char *line);
+	gboolean (*print_raw)(struct print_stream *self, 
+	    const unsigned char *buf, int len);
 	gboolean (*print_bookmark)(struct print_stream *self,
 	    const gchar *name, const gchar *title);
 	gboolean (*new_page)(struct print_stream *self);
@@ -60,6 +62,7 @@ extern print_stream_t *print_stream_ps_stdio_new(FILE *fh);
 
 extern gboolean print_preamble(print_stream_t *self, gchar *filename);
 extern gboolean print_line(print_stream_t *self, int indent, const char *line);
+extern gboolean print_raw(print_stream_t *self, const unsigned char *buf, int len);
 extern gboolean print_bookmark(print_stream_t *self, const gchar *name,
     const gchar *title);
 extern gboolean new_page(print_stream_t *self);

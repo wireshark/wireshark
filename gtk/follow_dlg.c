@@ -79,7 +79,8 @@ typedef enum {
 	SHOW_ASCII,
 	SHOW_EBCDIC,
 	SHOW_HEXDUMP,
-	SHOW_CARRAY
+	SHOW_CARRAY,
+	SHOW_RAW
 } show_type_t;
 
 typedef struct {
@@ -91,6 +92,7 @@ typedef struct {
 	GtkWidget	*ebcdic_bt;
 	GtkWidget	*hexdump_bt;
 	GtkWidget	*carray_bt;
+	GtkWidget	*raw_bt;
 	GtkWidget	*follow_save_as_w;
 	gboolean        is_ipv6;
 	char		*filter_out_filter;
@@ -417,6 +419,16 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
                        follow_info);
 	follow_info->carray_bt = radio_bt;
 
+	/* Raw radio button */
+	radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_group
+					    (GTK_RADIO_BUTTON(radio_bt)),
+					    "Raw");
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt), FALSE);
+	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
+	SIGNAL_CONNECT(radio_bt, "toggled", follow_charset_toggle_cb,
+                       follow_info);
+	follow_info->raw_bt = radio_bt;
+
 	/* button hbox */
 	button_hbox = gtk_hbutton_box_new();
 	gtk_box_pack_start(GTK_BOX(vbox), button_hbox, FALSE, FALSE, 0);
@@ -530,8 +542,8 @@ follow_charset_toggle_cb(GtkWidget * w _U_, gpointer data)
 			follow_info->show_type = SHOW_CARRAY;
 		else if (w == follow_info->ascii_bt)
 			follow_info->show_type = SHOW_ASCII;
-
-fprintf(stderr, "follow charset poo\n");
+		else if (w == follow_info->raw_bt)
+			follow_info->show_type = SHOW_RAW;
 		follow_load_text(follow_info);
 	}
 }
@@ -563,6 +575,8 @@ follow_read_stream(follow_info_t *follow_info,
     guint32             client_packet_count = 0;
     char                buffer[FLT_BUF_SIZE];
     size_t              nchars;
+    /* declare and initialize only once instead of once per loop below */
+    gchar		hexchars[] = "0123456789abcdef";
 
     iplen = (follow_info->is_ipv6) ? 16 : 4;
 
@@ -601,7 +615,8 @@ follow_read_stream(follow_info_t *follow_info,
 	    nchars = fread(buffer, 1, bcount, data_out_file);
 	    if (nchars == 0)
 		break;
-	    sc.dlen -= bcount;
+	    sc.dlen -= nchars; /* changed from bcount to account
+				  for short read */
 	    if (!skip) {
 		switch (follow_info->show_type) {
 
@@ -612,6 +627,7 @@ follow_read_stream(follow_info_t *follow_info,
 			goto print_error;
 		    break;
 
+		case SHOW_RAW:
 		case SHOW_ASCII:
 		    /* If our native arch is EBCDIC, call:
 		     * ASCII_TO_EBCDIC(buffer, nchars);
@@ -624,55 +640,44 @@ follow_read_stream(follow_info_t *follow_info,
 		    current_pos = 0;
 		    while (current_pos < nchars) {
 			gchar hexbuf[256];
-			gchar hexchars[] = "0123456789abcdef";
-			int i, cur;
+			int i;
+			gchar *cur = hexbuf, *ascii_start;
 
-			/* is_server indentation : put 63 spaces at the
+			/* is_server indentation : put 78 spaces at the
 			 * beginning of the string */
-			g_snprintf(hexbuf, sizeof(hexbuf),
-                (is_server && follow_info->show_stream == BOTH_HOSTS) ?
-				"                                 "
-				"                                             %08X  " :
-				"%08X  ", *global_pos);
-			cur = strlen(hexbuf);
+			if (is_server && follow_info->show_stream == BOTH_HOSTS) {
+			    memset(cur, ' ', 78);
+			    cur += 78;
+			}
+			cur += g_snprintf(cur, 20, "%08X  ", *global_pos);
+			/* 49 is space consumed by hex chars */
+			ascii_start = cur + 49;
 			for (i = 0; i < 16 && current_pos + i < nchars; i++) {
-			    hexbuf[cur++] =
+			    *cur++ =
 				hexchars[(buffer[current_pos + i] & 0xf0) >> 4];
-			    hexbuf[cur++] =
+			    *cur++ =
 				hexchars[buffer[current_pos + i] & 0x0f];
-			    if (i == 7) {
-				hexbuf[cur++] = ' ';
-				hexbuf[cur++] = ' ';
-			    } else if (i != 15)
-				hexbuf[cur++] = ' ';
+			    *cur++ = ' ';
+			    if (i == 7)
+				*cur++ = ' ';
 			}
 			/* Fill it up if column isn't complete */
-			if (i < 16) {
-			    int j;
-
-			    for (j = i; j < 16; j++) {
-				if (j == 7)
-				    hexbuf[cur++] = ' ';
-				hexbuf[cur++] = ' ';
-				hexbuf[cur++] = ' ';
-				hexbuf[cur++] = ' ';
-			    }
-			} else
-			    hexbuf[cur++] = ' ';
+			while (cur < ascii_start)  
+			    *cur++ = ' ';
 
 			/* Now dump bytes as text */
 			for (i = 0; i < 16 && current_pos + i < nchars; i++) {
-			    hexbuf[cur++] =
+			    *cur++ =
 			        (isprint((guchar)buffer[current_pos + i]) ?
 			        buffer[current_pos + i] : '.' );
 			    if (i == 7) {
-				hexbuf[cur++] = ' ';
+				*cur++ = ' ';
 			    }
 			}
 			current_pos += i;
 			(*global_pos) += i;
-			hexbuf[cur++] = '\n';
-			hexbuf[cur] = 0;
+			*cur++ = '\n';
+			*cur = 0;
 			if (!(*print_line) (hexbuf, strlen(hexbuf), is_server, arg))
 			    goto print_error;
 		    }
@@ -680,13 +685,13 @@ follow_read_stream(follow_info_t *follow_info,
 
 		case SHOW_CARRAY:
 		    current_pos = 0;
-		    g_snprintf(initbuf, 256, "char peer%d_%d[] = {\n", is_server ? 1 : 0,
+		    g_snprintf(initbuf, sizeof(initbuf), "char peer%d_%d[] = {\n", 
+			    is_server ? 1 : 0, 
 			    is_server ? server_packet_count++ : client_packet_count++);
 		    if (!(*print_line) (initbuf, strlen(initbuf), is_server, arg))
 			goto print_error;
 		    while (current_pos < nchars) {
 			gchar hexbuf[256];
-			gchar hexchars[] = "0123456789abcdef";
 			int i, cur;
 
 			cur = 0;
@@ -772,6 +777,16 @@ follow_print_text(char *buffer, int nchars, gboolean is_server _U_, void *arg)
     str[nchars] = 0;
     print_line(stream, /*indent*/ 0, str);
     g_free(str);
+
+    return TRUE;
+}
+
+static gboolean
+follow_print_raw(char *buffer, int nchars, gboolean is_server _U_, void *arg)
+{
+    print_stream_t *stream = arg;
+
+    print_raw(stream, buffer, nchars);
 
     return TRUE;
 }
@@ -908,18 +923,23 @@ print_error:
 #endif
 }
 
+/* static variable declarations to speed up the performance
+ * of follow_load_text and follow_add_to_gtk_text
+ */
+static GdkColor server_fg, server_bg;
+static GdkColor client_fg, client_bg;
+#if GTK_MAJOR_VERSION >= 2
+static GtkTextTag *server_tag, *client_tag;
+#endif
+
 static gboolean
 follow_add_to_gtk_text(char *buffer, int nchars, gboolean is_server,
 		       void *arg)
 {
     GtkWidget *text = arg;
-    GdkColor   fg, bg;
 #if GTK_MAJOR_VERSION >= 2
     GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text));
     GtkTextIter    iter;
-    GtkTextTag    *tag;
-    gsize          outbytes;
-    gchar         *convbuf;
 #endif
 
 #if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
@@ -939,24 +959,23 @@ follow_add_to_gtk_text(char *buffer, int nchars, gboolean is_server,
     }
 #endif
 
-    if (is_server) {
-    	color_t_to_gdkcolor(&fg, &prefs.st_server_fg);
-    	color_t_to_gdkcolor(&bg, &prefs.st_server_bg);
-    } else {
-    	color_t_to_gdkcolor(&fg, &prefs.st_client_fg);
-    	color_t_to_gdkcolor(&bg, &prefs.st_client_bg);
-    }
 #if GTK_MAJOR_VERSION < 2
-    gtk_text_insert(GTK_TEXT(text), user_font_get_regular(), &fg, &bg, buffer, nchars);
+    if (is_server) {
+	gtk_text_insert(GTK_TEXT(text), user_font_get_regular(), &server_fg, 
+			&server_bg, buffer, nchars);
+    } else {
+	gtk_text_insert(GTK_TEXT(text), user_font_get_regular(), &client_fg, 
+			&client_bg, buffer, nchars);
+    }
 #else
     gtk_text_buffer_get_end_iter(buf, &iter);
-    tag = gtk_text_buffer_create_tag(buf, NULL, "foreground-gdk", &fg,
-                                     "background-gdk", &bg, "font-desc",
-                                     user_font_get_regular(), NULL);
-    convbuf = g_locale_to_utf8(buffer, nchars, NULL, &outbytes, NULL);
-    gtk_text_buffer_insert_with_tags(buf, &iter, convbuf, outbytes, tag,
-                                     NULL);
-    g_free(convbuf);
+    if (is_server) {
+	gtk_text_buffer_insert_with_tags(buf, &iter, buffer, nchars, 
+					server_tag, NULL);
+    } else {
+	gtk_text_buffer_insert_with_tags(buf, &iter, buffer, nchars, 
+					client_tag, NULL);
+    }
 #endif
     return TRUE;
 }
@@ -972,6 +991,12 @@ follow_load_text(follow_info_t *follow_info)
     buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(follow_info->text));
 #endif
 
+    /* prepare colors one time for repeated use by follow_add_to_gtk_text */
+    color_t_to_gdkcolor(&server_fg, &prefs.st_server_fg);
+    color_t_to_gdkcolor(&server_bg, &prefs.st_server_bg);
+    color_t_to_gdkcolor(&client_fg, &prefs.st_client_fg);
+    color_t_to_gdkcolor(&client_bg, &prefs.st_client_bg);
+
     /* Delete any info already in text box */
 #if GTK_MAJOR_VERSION < 2
     bytes_already = gtk_text_get_length(GTK_TEXT(follow_info->text));
@@ -983,6 +1008,14 @@ follow_load_text(follow_info_t *follow_info)
     /* stop the updates while we fill the text box */
     gtk_text_freeze(GTK_TEXT(follow_info->text));
 #else
+    /* prepare tags one time for repeated use by follow_add_to_gtk_text */
+    server_tag = gtk_text_buffer_create_tag(buf, NULL, "foreground-gdk", &server_fg,
+                                     "background-gdk", &server_bg, "font-desc",
+                                     user_font_get_regular(), NULL);
+    client_tag = gtk_text_buffer_create_tag(buf, NULL, "foreground-gdk", &client_fg,
+                                     "background-gdk", &client_bg, "font-desc",
+                                     user_font_get_regular(), NULL);
+
     gtk_text_buffer_set_text(buf, "", -1);
 #endif
     follow_read_stream(follow_info, follow_add_to_gtk_text, follow_info->text);
@@ -1053,6 +1086,7 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
     FILE		*fh;
     print_stream_t	*stream;
     gchar		*dirname;
+    frs_return_t	ret;
 
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
     to_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
@@ -1083,8 +1117,12 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
     follow_info = OBJECT_GET_DATA(fs, E_FOLLOW_INFO_KEY);
     window_destroy(GTK_WIDGET(fs));
 
-    switch (follow_read_stream(follow_info, follow_print_text, stream)) {
+    if (follow_info->show_type == SHOW_RAW)
+	ret = follow_read_stream(follow_info, follow_print_raw, stream);
+    else
+	ret = follow_read_stream(follow_info, follow_print_text, stream);
 
+    switch (ret) {
     case FRS_OK:
         if (!destroy_print_stream(stream))
             write_failure_alert_box(to_name, errno);
