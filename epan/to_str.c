@@ -1,7 +1,7 @@
 /* to_str.h
  * Routines  for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.6 2001/04/02 10:44:09 guy Exp $
+ * $Id: to_str.c,v 1.7 2001/05/28 20:12:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -118,13 +118,15 @@ ether_to_str_punct(const guint8 *ad, char punct) {
 
 gchar *
 ip_to_str(const guint8 *ad) {
-  static gchar  str[3][16];
+  static gchar  str[4][16];
   static gchar *cur;
 
   if (cur == &str[0][0]) {
     cur = &str[1][0];
-  } else if (cur == &str[1][0]) {  
+  } else if (cur == &str[1][0]) {
     cur = &str[2][0];
+  } else if (cur == &str[2][0]) {
+    cur = &str[3][0];
   } else {  
     cur = &str[0][0];
   }
