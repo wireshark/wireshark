@@ -111,7 +111,7 @@ dissect_dtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 		if (valuelength > 0) {
-			dissect_dtp_tlv(tvb, offset, valuelength, tlv_tree, ti, type);
+			dissect_dtp_tlv(tvb, offset, valuelength, tlv_tree, ti, (guint8) type);
 		}
 
 		offset += valuelength;

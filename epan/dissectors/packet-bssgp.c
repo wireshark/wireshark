@@ -1243,7 +1243,7 @@ decode_nri(proto_tree *tf, build_info_t *bi, guint32 tmsi_tlli) {
   if (bssgp_decode_nri && (bssgp_nri_length > 0) && 
     (((tmsi_tlli & LOCAL_TLLI_MASK) == LOCAL_TLLI_MASK) ||
      ((tmsi_tlli & FOREIGN_TLLI_MASK) == FOREIGN_TLLI_MASK))) {
-    nri = get_masked_guint32(tmsi_tlli, make_mask32(bssgp_nri_length, 8));
+    nri = get_masked_guint32(tmsi_tlli, make_mask32( (guint8) bssgp_nri_length, 8));
     if (tf) {
       proto_tree_add_uint_hidden(tf, hf_bssgp_nri, bi->tvb, bi->offset, 4, 
       nri);     

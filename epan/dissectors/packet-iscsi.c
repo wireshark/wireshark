@@ -1675,7 +1675,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		  ~I_BIT)) == ISCSI_OPCODE_SCSI_COMMAND) {
         /* SCSI Command */
         dissect_scsi_cdb (tvb, pinfo, tree, cdb_offset, 16, SCSI_DEV_UNKNOWN, 
-		cdata?cdata->lun:0xffff);
+		(guint16) (cdata?cdata->lun:0xffff) );
     }
     else if (opcode == ISCSI_OPCODE_SCSI_RESPONSE) {
         if (scsi_status == 0x2) {
@@ -1691,12 +1691,12 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 					  iscsi_min (senseLen,
 						     end_offset-offset),
 					  
-					   cdata?cdata->lun:0xffff);
+					   (guint16) (cdata?cdata->lun:0xffff) );
 	    }
         }
         else {
             dissect_scsi_rsp (tvb, pinfo, tree, 
-		cdata?cdata->lun:0xffff, scsi_status);
+		(guint16) (cdata?cdata->lun:0xffff), scsi_status);
         }
     }
     else if ((opcode == ISCSI_OPCODE_SCSI_DATA_IN) ||
@@ -1705,7 +1705,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         dissect_scsi_payload (tvb, pinfo, tree, offset, 
 			      (opcode==ISCSI_OPCODE_SCSI_DATA_OUT),
                               iscsi_min (data_segment_len, end_offset-offset),
-			      cdata?cdata->lun:0xffff);
+			      (guint16) (cdata?cdata->lun:0xffff) );
     }
 }
 

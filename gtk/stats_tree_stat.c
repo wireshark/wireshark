@@ -291,7 +291,7 @@ static void init_gtk_tree(char* optarg) {
 	gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (st->pr->tree), column);
 #else
-	st->pr->textbox = GTK_TEXT(gtk_text_new(NULL,NULL));
+	st->pr->textbox = gtk_text_new(NULL,NULL);
 	gtk_text_set_editable(GTK_TEXT(st->pr->textbox),TRUE);
 	gtk_container_add( GTK_CONTAINER(scr_win), GTK_WIDGET(st->pr->textbox));
 	gtk_container_add( GTK_CONTAINER(st->pr->win), scr_win);

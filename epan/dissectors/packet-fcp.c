@@ -384,7 +384,7 @@ dissect_fcp_data (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_uint_hidden (fcp_tree, hf_fcp_singlelun, tvb,
                                         0, 0, cdata->fcp_lun);
 
-        dissect_scsi_payload (tvb, pinfo, tree, 0, FALSE, cdata->fcp_dl, cdata->fcp_lun);
+        dissect_scsi_payload (tvb, pinfo, tree, 0, FALSE, cdata->fcp_dl, (guint16) cdata->fcp_lun);
     }
     else {
         dissect_scsi_payload (tvb, pinfo, tree, 0, FALSE, 0, 0xffff);
@@ -480,7 +480,7 @@ dissect_fcp_rsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (flags & 0x2) {
             dissect_scsi_snsinfo (tvb, pinfo, tree, offset+24+rsplen,
                                   tvb_get_ntohl (tvb, offset+16), 
-				  cdata?cdata->fcp_lun:0xffff);
+				  (guint16) (cdata?cdata->fcp_lun:0xffff) );
         }
         if (cdata) {
             g_mem_chunk_free (fcp_req_vals, cdata);
