@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.106 2003/11/07 01:29:04 guy Exp $
+ * $Id: menu.c,v 1.107 2003/11/15 11:46:09 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -154,16 +154,16 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_STOCK_ENTRY("/Edit/_Preferences...", NULL, prefs_cb,
                              0, GTK_STOCK_PREFERENCES),
 #ifdef HAVE_LIBPCAP
-    ITEM_FACTORY_ENTRY("/Edit/_Capture Filters...", NULL, cfilter_dialog_cb,
-                       0, NULL, NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Edit/_Capture Filters...", NULL, cfilter_dialog_cb,
+                       0, ETHEREAL_STOCK_CAPTURE_FILTER),
 #endif /* HAVE_LIBPCAP */
-    ITEM_FACTORY_ENTRY("/Edit/_Display Filters...", NULL, dfilter_dialog_cb,
-                       0, NULL, NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Edit/_Display Filters...", NULL, dfilter_dialog_cb,
+                       0, ETHEREAL_STOCK_DISPLAY_FILTER),
     ITEM_FACTORY_ENTRY("/Edit/P_rotocols...", NULL, proto_cb, 0, NULL, NULL),
 #ifdef HAVE_LIBPCAP
     ITEM_FACTORY_ENTRY("/_Capture", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Capture/_Start...", "<control>K",
-                             capture_prep_cb, 0, GTK_STOCK_EXECUTE),
+                             capture_prep_cb, 0, ETHEREAL_STOCK_CAPTURE_START),
   /*
    * XXX - this doesn't yet work in Win32.
    */
@@ -201,8 +201,8 @@ static GtkItemFactoryEntry menu_items[] =
                        prepare_selected_cb_and_ptree_not, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Display/Prepare/O_r Not Selected", NULL,
                        prepare_selected_cb_or_ptree_not, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Display/_Colorize Display...", NULL, color_display_cb,
-                       0, NULL, NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Display/_Colorize Display...", NULL, color_display_cb,
+                       0, GTK_STOCK_SELECT_COLOR),
     ITEM_FACTORY_ENTRY("/Display/Collapse _All", NULL, collapse_all_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Display/_Expand All", NULL, expand_all_cb,
