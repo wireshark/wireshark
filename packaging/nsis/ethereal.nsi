@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.35 2003/12/22 21:41:40 ulfl Exp $
+; $Id: ethereal.nsi,v 1.36 2003/12/22 22:17:30 guy Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -145,6 +145,7 @@ SetOutPath $INSTDIR\lib\pango\1.2.0\modules
 File "${GTK_DIR}\lib\pango\1.2.0\modules\pango-*.dll"
 !endif
 SetOutPath $INSTDIR\help
+File "..\..\help\toc"
 File "..\..\help\overview.txt"
 File "..\..\help\capture_filters.txt"
 File "..\..\help\display_filters.txt"
