@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.34 2000/08/08 06:19:52 girlich Exp $
+ * $Id: packet-nfs.c,v 1.35 2000/08/14 13:21:15 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -465,21 +465,13 @@ dissect_fhandle_data_unknown(tvbuff_t *tvb, proto_tree *tree, int fhlen)
 static void
 dissect_fhandle_data(const u_char *pd, int offset, frame_data* fd, proto_tree *tree, int fhlen)
 {
+	tvbuff_t *tvb = tvb_create_from_top(offset);
+	packet_info *pinfo = &pi;
 	int fhtype = FHT_UNKNOWN;
-	tvbuff_t *realtvb;
-	tvbuff_t *tvb;
-
-	/* Make use of the new tvbuf code.
-	   There is no way to get the packet_info here. So  we have to
-	   create a totally new tvbuf. */
-	realtvb = tvb_new_real_data(pd, pi.captured_len, pi.len);
-	tvb = tvb_new_subset(realtvb, offset, 
-				pi.captured_len - offset,
-				pi.len - offset);
 
 	/* filehandle too long */
 	if (fhlen>64) goto type_ready;
-	/* Not all bytes there. Any attemtpt to decduce the type would be
+	/* Not all bytes there. Any attempt to deduce the type would be
 	   senseless. */
 	if (!tvb_bytes_exist(tvb,0,fhlen)) goto type_ready;
 		
