@@ -108,7 +108,9 @@
 #ifdef _WIN32
 #include "capture-wpcap.h"
 #endif
+#if GTK_MAJOR_VERSION < 2 && GTK_MINOR_VERSION < 3
 #include "ethclist.h"
+#endif
 
 /* GTK related */
 #include "statusbar.h"
