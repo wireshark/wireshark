@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.70 2002/08/02 23:35:48 jmayer Exp $
+ * $Id: packet-dcerpc.c,v 1.71 2002/08/13 07:25:36 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1503,7 +1503,16 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 	}
 
         if (check_col (pinfo->cinfo, COL_INFO)) {
-          col_append_fstr (pinfo->cinfo, COL_INFO, " UUID %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x ver %u.%u",
+	  dcerpc_uuid_key key;
+	  dcerpc_uuid_value *value;
+
+	  key.uuid = if_id;
+	  key.ver = if_ver;
+
+	  if ((value = g_hash_table_lookup(dcerpc_uuids, &key)))
+		  col_append_fstr(pinfo->cinfo, COL_INFO, " UUID: %s", value->name);
+	  else
+		  col_append_fstr(pinfo->cinfo, COL_INFO, " UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x ver %u.%u",
                            if_id.Data1, if_id.Data2, if_id.Data3,
                            if_id.Data4[0], if_id.Data4[1],
                            if_id.Data4[2], if_id.Data4[3],
