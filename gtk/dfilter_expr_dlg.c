@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster<jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.15 2001/02/20 09:53:48 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.16 2001/02/20 19:09:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -837,7 +837,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 	GtkWidget *range_label, *range_entry;
 	GtkWidget *value_vb;
 	GtkWidget *value_label, *value_entry, *value_list_scrolled_win, *value_list;
-	GtkWidget *list_bb, *accept_bt, *close_bt;
+	GtkWidget *list_bb, *alignment, *accept_bt, *close_bt;
 	GtkCTreeNode *protocol_node, *item_node;
 	header_field_info       *hfinfo;
 	int i, len;
@@ -1054,15 +1054,21 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 	gtk_signal_connect(GTK_OBJECT(accept_bt), "clicked",
 	    GTK_SIGNAL_FUNC(dfilter_expr_dlg_accept_cb), filter_te);
 	GTK_WIDGET_SET_FLAGS(accept_bt, GTK_CAN_DEFAULT);
-	gtk_box_pack_start(GTK_BOX(list_bb), accept_bt, TRUE, TRUE, 0);
+	alignment = gtk_alignment_new(0.0, 0.5, 1.0, 0.0);
+	gtk_container_add(GTK_CONTAINER(alignment), accept_bt);
+	gtk_box_pack_start(GTK_BOX(list_bb), alignment, TRUE, TRUE, 0);
 	gtk_widget_grab_default(accept_bt);
 	gtk_widget_show(accept_bt);
+	gtk_widget_show(alignment);
 
 	close_bt = gtk_button_new_with_label("Close");
 	gtk_signal_connect(GTK_OBJECT(close_bt), "clicked",
 	    GTK_SIGNAL_FUNC(dfilter_expr_dlg_cancel_cb), window);
-	gtk_box_pack_start(GTK_BOX(list_bb), close_bt, TRUE, TRUE, 0);
+	alignment = gtk_alignment_new(0.0, 0.5, 1.0, 0.0);
+	gtk_container_add(GTK_CONTAINER(alignment), close_bt);
+	gtk_box_pack_start(GTK_BOX(list_bb), alignment, TRUE, TRUE, 0);
 	gtk_widget_show(close_bt);
+	gtk_widget_show(alignment);
 
 	/* Catch the "activate" signal on the range and value text entries,
 	   so that if the user types Return there, we act as if the "Accept"
