@@ -119,3 +119,10 @@ EXTRA_DIST =                \
 	ylwrap
 
 SUBDIRS = @SUBDIRS@
+
+ethereal.1: doc/ethereal.pod VERSION
+	(cd doc ; \
+	pod2man ethereal.pod                \
+	--center="The Ethereal Network Analyzer" \
+	--release=`cat ../VERSION`                  \
+	> ../ethereal.1 )
