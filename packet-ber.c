@@ -2,7 +2,7 @@
  * Helpers for ASN.1/BER dissection
  * Ronnie Sahlberg (C) 2004
  *
- * $Id: packet-ber.c,v 1.4 2004/03/25 09:17:07 guy Exp $
+ * $Id: packet-ber.c,v 1.5 2004/03/25 23:57:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -76,16 +76,41 @@ static const true_false_string ber_pc_codes = {
 };
 
 static const value_string ber_uni_tag_codes[] = {
-	{ BER_UNI_TAG_BOOLEAN,		"Boolean" },
-	{ BER_UNI_TAG_INTEGER,		"Integer" },
-	{ BER_UNI_TAG_BITSTRING,	"Bit-String" },
-	{ BER_UNI_TAG_OCTETSTRING,	"Octet String" },
-	{ BER_UNI_TAG_SEQUENCE,		"Sequence" },
-	{ BER_UNI_TAG_GENTIME,		"Generalized Time" },
-	{ BER_UNI_TAG_GENSTR,		"General String" },
+	{ BER_UNI_TAG_EOC				, "'end-of-content'" },
+	{ BER_UNI_TAG_BOOLEAN			, "BOOLEAN" },
+	{ BER_UNI_TAG_INTEGER			, "INTEGER" },
+	{ BER_UNI_TAG_BITSTRING		, "BIT STRING" },
+	{ BER_UNI_TAG_OCTETSTRING		, "OCTET STRING" },
+	{ BER_UNI_TAG_NULL			, "NULL" },
+	{ BER_UNI_TAG_OID			 	, "OBJECT IDENTIFIER" },
+	{ BER_UNI_TAG_ObjectDescriptor, "ObjectDescriptor" },
+	{ BER_UNI_TAG_REAL			, "REAL" },
+	{ BER_UNI_TAG_ENUMERATED		, "ENUMERATED" },
+	{ BER_UNI_TAG_EMBEDDED_PDV	, "EMBEDDED PDV" },
+	{ BER_UNI_TAG_UTF8String		, "UTF8String" },
+	{ BER_UNI_TAG_RELATIVE_OID	, "RELATIVE-OID" },
+	{ BER_UNI_TAG_SEQUENCE		, "SEQUENCE, SEQUENCE OF" },
+	{ BER_UNI_TAG_SET				, "SET, SET OF" },
+	{ BER_UNI_TAG_NumericString	, "NumericString" },
+	{ BER_UNI_TAG_PrintableString	, "PrintableString" },
+	{ BER_UNI_TAG_TeletextString	, "TeletextString, T61String" },
+	{ BER_UNI_TAG_VideotexString	, "VideotexString" },
+	{ BER_UNI_TAG_IA5String		, "IA5String" },
+	{ BER_UNI_TAG_UCTTime			, "UCTTime" },
+	{ BER_UNI_TAG_GeneralizedTime	, "GeneralizedTime" },
+	{ BER_UNI_TAG_GraphicString	, "GraphicString" },
+	{ BER_UNI_TAG_VisibleString	, "VisibleString, ISO64String" },
+	{ BER_UNI_TAG_GenerealString	, "GenerealString" },
+	{ BER_UNI_TAG_UniversalString	, "UniversalString" },
+	{ BER_UNI_TAG_CHARACTERSTRING	, "CHARACTER STRING" },
+	{ BER_UNI_TAG_BMPString		, "BMPString" },
 	{ 0, NULL }
 };
 
+
+proto_item *get_ber_last_created_item(void) {
+  return ber_last_created_item;
+}
 
 static int dissect_ber_sq_of(gboolean implicit_tag, guint32 type, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, ber_sequence *seq, gint hf_id, gint ett_id);
 
@@ -579,7 +604,7 @@ dissect_ber_GeneralString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 {
 	tvbuff_t *out_tvb;
 
-	offset = dissect_ber_restricted_string(FALSE, BER_UNI_TAG_GENSTR, pinfo, tree, tvb, offset, hf_id, (name_string)?&out_tvb:NULL);
+	offset = dissect_ber_restricted_string(FALSE, BER_UNI_TAG_GenerealString, pinfo, tree, tvb, offset, hf_id, (name_string)?&out_tvb:NULL);
 
 	if (name_string) {
 		if (tvb_length(out_tvb) >= name_len) {
@@ -781,7 +806,7 @@ dissect_ber_generalized_time(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 	/* sanity check. we only handle universal/generalized time */
 	if( (class!=BER_CLASS_UNI)
-	  ||(tag!=BER_UNI_TAG_GENTIME)){
+	  ||(tag!=BER_UNI_TAG_GeneralizedTime)){
 	        proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: GeneralizedTime expected but Class:%d PC:%d Tag:%d was unexpected", class, pc, tag);
 		return end_offset;
 		end_offset=offset+len;
@@ -938,7 +963,7 @@ proto_register_ber(void)
     };
     module_t *ber_module;
 
-    proto_ber = proto_register_protocol("ASN.1 BER", "BER", "ber");
+    proto_ber = proto_register_protocol("Basic Encoding Rules (ASN.1 X.690)", "BER", "ber");
     proto_register_field_array(proto_ber, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
