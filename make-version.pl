@@ -2,7 +2,7 @@
 #
 # Copyright 2004 Jörg Mayer (see AUTHORS file)
 #
-# $Id: make-version.pl,v 1.5 2004/02/01 11:32:23 obiot Exp $
+# $Id: make-version.pl,v 1.6 2004/02/20 20:36:13 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -23,16 +23,34 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 # usage:  ./make-version.pl
+#
+# If "version.conf" is present, it is parsed for configuration values.  
+# Possible values are:
+#
+#   enable - Enable or disable versioning.  Zero (0) disables, nonzero
+#            enables.
+#   format - A strftime() formatted string to use as a template for the
+#            version string.
+#
+# Default configuration:
+#
+# enable: 1
+# format: CVS %Y%m%d%H%M%S
 
 use strict;
 
+use Time::Local;
+use POSIX qw(strftime);
+
 my $version_file = 'cvsversion.h';
-my %asctonum = ( "Jan" => "01", "Feb" => "02", "Mar" => "03", "Apr" => "04",
-		"May" => "05", "Jun" => "06", "Jul" => "07", "Aug" => "08",
-		"Sep" => "09", "Oct" => "10", "Nov" => "11", "Dec" => "12" );
+my $vconf_file = 'version.conf';
+my %monthnum = ( "Jan" => "0", "Feb" => "1", "Mar" => "2", "Apr" => "3",
+		"May" => "4", "Jun" => "5", "Jul" => "6", "Aug" => "7",
+		"Sep" => "8", "Oct" => "9", "Nov" => "10", "Dec" => "11" );
 my $last = "";
 my $last_modified = 0;
 my $last_file = undef;
+my %version_pref = ("enable" => 1, "format" => "CVS %Y%m%d%H%M%S");
 
 
 # Recursively find all CVS Entries files starting from the given directory,
@@ -77,11 +95,10 @@ sub lastentry {
 		# Regular lines look like this: /ethereal_be.py/1.6/Fri Aug  2 22:55:19 2002//
 		next if (/^D/);
 		$date = (split(/\//, $_, 5))[3];
-		next if ($date !~ /\d:\d\d:\d\d/);
-		($wdayascii, $monthascii, $day, $time, $year) = split(/\s+/, $date);
-		$day = substr("0".$day, -2, 2);
-		$time =~ s/://g;
-		$current = "$year$asctonum{$monthascii}$day$time";
+		#                        Month   Day   Hour   Minute Second Year
+		next if ($date !~ /\w{3} (\w{3}) (.\d) (\d\d):(\d\d):(\d\d) (\d{4})/);
+		$current = timegm($5, $4, $3, $2, $monthnum{$1}, $6);
+
 		if ($current gt $last) {
 			$last = $current;
 		}
@@ -99,7 +116,9 @@ sub print_cvs_version
 	my $needs_update = 1;
 
 	if ($last ne "") {
-		$cvs_version = "#define CVSVERSION \"$last\"\n";
+		$cvs_version = "#define CVSVERSION \"" . 
+			strftime($version_pref{"format"}, gmtime($last)) .
+			"\"\n";
 	} else {
 		$cvs_version = "/* #define CVSVERSION \"\" */\n";
 	}
@@ -120,11 +139,29 @@ sub print_cvs_version
 	}
 }
 
+# Read values from the configuration file, if it exists.
+sub get_config {
+	open(FILE, "<$vconf_file") || print STDERR "Version configuration file $vconf_file not found.  Using defaults.\n" && return 1;
+
+	while (<FILE>) {
+		chomp;
+		next if (/^#/);
+		next unless (/^(\w+):\s+(\S.*)/);
+		$version_pref{$1} = $2;
+	}
+	close FILE;
+	return 1;
+}
+
 ##
 ## Start of code
 ##
 
-if (-d "./CVS") {
+&get_config();
+
+if ($version_pref{"enable"} == 0) {
+	print "Version tag disabled in $vconf_file.\n";
+} elsif (-d "./CVS") {
 	print "This is a build from CVS (or a CVS snapshot), "
 	. "CVS version tag will be computed.\n";
 	&find_last_CVS_Entries(".");

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.228 2004/01/31 04:10:04 guy Exp $
+ * $Id: tethereal.c,v 1.229 2004/02/20 20:36:13 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1212,7 +1212,7 @@ main(int argc, char *argv[])
       case 'v':        /* Show version and exit */
         printf("t" PACKAGE " " VERSION
 #ifdef CVSVERSION
-	    " (cvs " CVSVERSION ")"
+	    " (" CVSVERSION ")"
 #endif
 	    "\n%s\n%s\n",
 	    comp_info_str->str, runtime_info_str->str);
