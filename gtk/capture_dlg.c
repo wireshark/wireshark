@@ -291,7 +291,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
 	  lt_list = get_pcap_linktype_list(if_name, err_buf);
 
       /* create string of list of IP addresses of this interface */
-      for( ; curr_ip = g_slist_nth(if_info->ip_addr, ips); ips++) {
+      for( ; (curr_ip = g_slist_nth(if_info->ip_addr, ips)) != NULL; ips++) {
           if (ips != 0) {
               g_string_append(ip_str, ", ");
           }
