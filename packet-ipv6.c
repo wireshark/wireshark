@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.66 2001/11/20 22:29:04 guy Exp $
+ * $Id: packet-ipv6.c,v 1.67 2001/11/21 21:37:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -653,8 +653,6 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int offset;
   fragment_data *ipfd_head;
   tvbuff_t   *next_tvb;
-  packet_info save_pi;
-  gboolean must_restore_pi = FALSE;
   gboolean update_col_info = TRUE;
 
   struct ip6_hdr ipv6;
@@ -908,12 +906,6 @@ again:
 
       /* It's not fragmented. */
       pinfo->fragmented = FALSE;
-
-      /* XXX - is this still necessary?  Do we have to worry about
-         subdissectors changing "pi", or, given that we're no longer
-         doing so, is that no longer an issue? */
-      save_pi = pi;
-      must_restore_pi = TRUE;
     } else {
       /* We don't have the complete reassembled payload. */
       next_tvb = NULL;

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.115 2001/11/20 22:29:04 guy Exp $
+ * $Id: packet-tcp.c,v 1.116 2001/11/21 21:37:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -375,7 +375,6 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		 */
 		if(nxtseq >= (tsk->start_seq + tsk->tot_len)){
 			/* ok, lest call subdissector with desegmented data */
-			packet_info save_pi;
 			tvbuff_t *next_tvb;
 
 			/* create a new TVB structure for desegmented data */
@@ -392,24 +391,10 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			/* indicate that this is reassembled data */
 			tcpinfo->is_reassembled = TRUE;
 
-			/* XXX - is this still necessary?  Do we have to
-			   worry about subdissectors changing "*pinfo", or,
-			   given that we're no longer doing so, is that no
-			   longer an issue? */
-			save_pi = *pinfo;
-
 			/* call subdissector */
 			decode_tcp_ports(next_tvb, 0, pinfo, tree,
 				sport, dport);
 			called_dissector = TRUE;
-
-			/*
-			 * Don't trash the new values of "desegment_offset"
-			 * and "desegment_len".
-			 */
-			save_pi.desegment_offset = pinfo->desegment_offset;
-			save_pi.desegment_len = pinfo->desegment_len;
-			*pinfo = save_pi;
 
 			/* Did the subdissector ask us to desegment some more
 			   data?  This means that the data at the beginning

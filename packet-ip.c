@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.146 2001/11/20 22:29:04 guy Exp $
+ * $Id: packet-ip.c,v 1.147 2001/11/21 21:37:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -821,8 +821,6 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16    ipsum;
   fragment_data *ipfd_head;
   tvbuff_t   *next_tvb;
-  packet_info save_pi;
-  gboolean must_restore_pi = FALSE;
   gboolean update_col_info = TRUE;
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
@@ -1070,12 +1068,6 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* It's not fragmented. */
       pinfo->fragmented = FALSE;
-
-      /* XXX - is this still necessary?  Do we have to worry about
-         subdissectors changing "pi", or, given that we're no longer
-         doing so, is that no longer an issue? */
-      save_pi = pi;
-      must_restore_pi = TRUE;
     } else {
       /* We don't have the complete reassembled payload. */
       next_tvb = NULL;
@@ -1112,9 +1104,6 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       col_add_fstr(pinfo->fd, COL_INFO, "Fragmented IP protocol (proto=%s 0x%02x, off=%u)",
 	ipprotostr(iph.ip_p), iph.ip_p, (iph.ip_off & IP_OFFSET) * 8);
     dissect_data(tvb, offset, pinfo, tree);
-
-    /* As we haven't reassembled anything, we haven't changed "pi", so
-       we don't have to restore it. */
     return;
   }
 
@@ -1133,9 +1122,6 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     dissect_data(next_tvb, 0, pinfo, tree);
   }
-
-  if (must_restore_pi)
-    pi = save_pi;
 }
 
 #define ICMP_MIP_EXTENSION_PAD	0

@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.16 2001/11/21 02:01:05 guy Exp $
+ * $Id: packet-gtp.c,v 1.17 2001/11/21 21:37:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3650,7 +3650,6 @@ decode_gtp_proto_conf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 	tvbuff_t        *next_tvb;
 	proto_tree      *ext_tree_proto;
 	proto_item      *te;
-	packet_info	save_pi;
 
 	length = tvb_get_ntohs(tvb, offset + 1);
 
@@ -3682,16 +3681,7 @@ decode_gtp_proto_conf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 			ptr[0] = tmp; 
 				
 			next_tvb = tvb_new_subset(tvb, offset + 5, proto_len + 2, proto_len + 2); 
-
-			/* XXX - is this still necessary?  Do we have to
-			   worry about subdissectors changing "pi", or,
-			   given that we're no longer doing so, is that
-			   no longer an issue? */
-			save_pi = pi;
-
 			call_dissector(ppp_handle, next_tvb, pinfo, ext_tree_proto); 
-
-			pi = save_pi;
 				
 			if (check_col(pinfo->fd, COL_PROTOCOL)) col_set_str(pinfo->fd, COL_PROTOCOL, "GTP"); 
 				

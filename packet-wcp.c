@@ -2,7 +2,7 @@
  * Routines for Wellfleet Compression frame disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-wcp.c,v 1.13 2001/11/20 22:29:04 guy Exp $
+ * $Id: packet-wcp.c,v 1.14 2001/11/21 21:37:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -308,8 +308,6 @@ void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	int		wcp_header_len;
 	guint16		temp, cmd, ext_cmd, seq;
 	tvbuff_t	*next_tvb;
-	packet_info	save_pi;
-	gboolean	must_restore_pi = FALSE;
 
 	pinfo->current_proto = "WCP";
 
@@ -395,12 +393,6 @@ void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                              		"[Malformed Frame: Bad WCP compressed data]" );
 			return;
 		}
-
-		/* XXX - is this still necessary?  Do we have to worry
-		   about subdissectors changing "pi", or, given that
-		   we're no longer doing so, is that no longer an issue? */
-		save_pi = pi;
-		must_restore_pi = TRUE;
 	}
 
 	if ( tree)	 		/* add the check byte */
@@ -409,9 +401,6 @@ void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		 	tvb_get_guint8( tvb, tvb_reported_length(tvb)-1));
 
 	dissect_fr_uncompressed(next_tvb, pinfo, tree);
-
-	if (must_restore_pi)
-		pi = save_pi;
 
 	return;
 }

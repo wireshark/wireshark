@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.38 2001/11/20 22:29:04 guy Exp $
+ * $Id: packet-clnp.c,v 1.39 2001/11/21 21:37:25 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -22,7 +22,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -1595,8 +1594,6 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gboolean    save_in_error_pkt;
   fragment_data *fd_head;
   tvbuff_t   *volatile next_tvb;
-  packet_info save_pi;
-  gboolean must_restore_pi = FALSE;
   gboolean update_col_info = TRUE;
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
@@ -1924,12 +1921,6 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* It's not fragmented. */
       pinfo->fragmented = FALSE;
-
-      /* XXX - is this still necessary?  Do we have to worry about
-         subdissectors changing "pi", or, given that we're no longer
-         doing so, is that no longer an issue? */
-      save_pi = pi;
-      must_restore_pi = TRUE;
     } else {
       /* We don't have the complete reassembled payload. */
       next_tvb = NULL;
