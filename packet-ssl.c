@@ -2,7 +2,7 @@
  * Routines for ssl dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
- * $Id: packet-ssl.c,v 1.1 2001/07/11 18:19:15 guy Exp $
+ * $Id: packet-ssl.c,v 1.2 2001/07/15 19:09:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2353,7 +2353,7 @@ proto_register_ssl(void)
             "Length of distinguished name", HFILL }
         },
         { &hf_ssl_handshake_dname,
-          { "Distinguished Name", "ss.handshake.dname",
+          { "Distinguished Name", "ssl.handshake.dname",
             FT_STRING, BASE_NONE, NULL, 0x0,
             "Distinguished name of a CA that server trusts", HFILL }
         },

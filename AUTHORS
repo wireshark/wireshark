@@ -644,6 +644,8 @@ Christian Lacunza <celacunza@gmx.net> {
 Scott Renfro <scott@renfro.org> {
 	LDAP checks for invalid packets
 	"-t" flag for editcap, to adjust timestamps in frames
+	SSL/TLS support
+	Mergecap utility for merging capture files
 }
 
 Juan Toledo <toledo@users.sourceforge.net> {
@@ -731,11 +733,6 @@ Aamer Akhter <aakhter@cisco.com> {
 
 Pekka Savola <pekkas@netcore.fi> {
 	Autoconf support for glibc IPv6 support
-}
-
-Scott Renfro <scott@renfro.org> {
-	SSL/TLS support
-	Mergecap utility for merging capture files
 }
 
 David Eisner <cradle@Glue.umd.edu> {
