@@ -1838,7 +1838,6 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Preferences...",
 	  properties);
 	set_menu_sensitivity(main_menu_factory, "/View/Expand Tree", cf->finfo_selected->tree_type != -1);
-//	set_menu_sensitivity(tree_view_menu_factory, "/Expand Tree", cf->finfo_selected->tree_type != -1);
 	set_menu_sensitivity(tree_view_menu_factory, "/Wiki Protocol Page",
 	  TRUE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Filter Field Reference",
