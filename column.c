@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.15 1999/07/13 02:52:46 gram Exp $
+ * $Id: column.c,v 1.16 1999/07/13 03:08:03 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -384,11 +384,7 @@ column_prefs_show() {
   gtk_list_set_selection_mode(GTK_LIST(column_l), GTK_SELECTION_SINGLE);
   gtk_signal_connect(GTK_OBJECT(column_l), "selection_changed",
     GTK_SIGNAL_FUNC(column_sel_list_cb), main_vb);
-#ifdef GTK_HAVE_FEATURES_1_1_4
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(column_sc), column_l);
-#else
-  gtk_container_add(GTK_CONTAINER(column_sc), column_l);
-#endif
   gtk_widget_show(column_l);
 
   clp = g_list_first(prefs.col_list);

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.37 1999/07/13 02:52:49 gram Exp $
+ * $Id: file.c,v 1.38 1999/07/13 03:08:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -238,35 +238,20 @@ load_cap_file(char *fname, capture_file *cf) {
     g_free(load_msg);
 
 /*    name_ptr[-1] = '\0';  Why is this here? It causes problems with capture files */
-#ifdef USE_ITEM
     set_menu_sensitivity("/File/Close", TRUE);
     set_menu_sensitivity("/File/Reload", TRUE);
     set_menu_sensitivity("/Tools/Summary", TRUE);
-#else
-    set_menu_sensitivity("<Main>/File/Close", TRUE);
-    set_menu_sensitivity("<Main>/File/Reload", TRUE);
-    set_menu_sensitivity("<Main>/Tools/Summary", TRUE);
-#endif
   } else {
     msg_len = strlen(name_ptr) + strlen(err_fmt) + 2;
     load_msg = g_realloc(load_msg, msg_len);
     snprintf(load_msg, msg_len, err_fmt, name_ptr);
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, load_msg);
     g_free(load_msg);
-#ifdef USE_ITEM
     set_menu_sensitivity("/File/Close", FALSE);
     set_menu_sensitivity("/File/Save", FALSE);
     set_menu_sensitivity("/File/Save As...", FALSE);
     set_menu_sensitivity("/File/Reload", FALSE);
     set_menu_sensitivity("/Tools/Summary", FALSE);
-
-#else
-    set_menu_sensitivity("<Main>/File/Close", FALSE);
-    set_menu_sensitivity("<Main>/File/Save", FALSE);
-    set_menu_sensitivity("<Main>/File/Save As...", FALSE);
-    set_menu_sensitivity("<Main>/File/Reload", FALSE);
-    set_menu_sensitivity("<Main>/Tools/Summary", FALSE);
-#endif
   }
   return err;
 }
@@ -294,7 +279,6 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
 
     wtap_close(cf->wth);
     cf->wth = NULL;
-#ifdef USE_ITEM
     set_menu_sensitivity("/File/Open...", TRUE);
     set_menu_sensitivity("/File/Close", TRUE);
     set_menu_sensitivity("/File/Save As...", TRUE);
@@ -302,15 +286,6 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
     set_menu_sensitivity("/Capture/Start...", TRUE);
     set_menu_sensitivity("/Tools/Capture...", TRUE);
     set_menu_sensitivity("/Tools/Summary", TRUE);
-#else
-    set_menu_sensitivity("<Main>/File/Open...", TRUE);
-    set_menu_sensitivity("<Main>/File/Close", TRUE);
-    set_menu_sensitivity("<Main>/File/Save As...", TRUE);
-    set_menu_sensitivity("<Main>/File/Reload", TRUE);
-    set_menu_sensitivity("<Main>/Capture/Start...", TRUE);
-    set_menu_sensitivity("<Main>/Tools/Capture...", TRUE);
-    set_menu_sensitivity("<Main>/Tools/Summary", TRUE);
-#endif
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, " File: <none>");
     return;
   }
@@ -372,21 +347,12 @@ tail_cap_file(char *fname, capture_file *cf) {
   err = open_cap_file(fname, cf);
   if ((err == 0) && (cf->cd_t != WTAP_FILE_UNKNOWN)) {
 
-#ifdef USE_ITEM
     set_menu_sensitivity("/File/Open...", FALSE);
     set_menu_sensitivity("/File/Close", FALSE);
     set_menu_sensitivity("/File/Reload", FALSE);
     set_menu_sensitivity("/Capture/Start...", FALSE);
     set_menu_sensitivity("/Tools/Capture...", FALSE);
     set_menu_sensitivity("/Tools/Summary", FALSE);
-#else
-    set_menu_sensitivity("<Main>/File/Open...", FALSE);
-    set_menu_sensitivity("<Main>/File/Close", FALSE);
-    set_menu_sensitivity("<Main>/File/Reload", FALSE);
-    set_menu_sensitivity("<Main>/Capture/Start...", FALSE);
-    set_menu_sensitivity("<Main>/Tools/Capture...", FALSE);
-    set_menu_sensitivity("<Main>/Tools/Summary", FALSE);
-#endif
 
     cf->fh = fopen(fname, "r");
     tail_timeout_id = -1;
@@ -400,19 +366,11 @@ tail_cap_file(char *fname, capture_file *cf) {
 		       " <live capture in progress>");
   }
   else {
-#ifdef USE_ITEM
     set_menu_sensitivity("/File/Close", FALSE);
     set_menu_sensitivity("/File/Save", FALSE);
     set_menu_sensitivity("/File/Save As...", FALSE);
     set_menu_sensitivity("/File/Reload", FALSE);
     set_menu_sensitivity("/Tools/Summary", FALSE);
-#else
-    set_menu_sensitivity("<Main>/File/Close", FALSE);
-    set_menu_sensitivity("<Main>/File/Save", FALSE);
-    set_menu_sensitivity("<Main>/File/Save As...", FALSE);
-    set_menu_sensitivity("<Main>/File/Reload", FALSE);
-    set_menu_sensitivity("<Main>/Tools/Summary", FALSE);
-#endif
     close(sync_pipe[0]);
   }
   return err;

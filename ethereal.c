@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.53 1999/07/13 02:52:49 gram Exp $
+ * $Id: ethereal.c,v 1.54 1999/07/13 03:08:04 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -188,15 +188,9 @@ file_sel_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 		cf_name);
   }
   g_free(cf_name);
-#ifdef USE_ITEM
-    set_menu_sensitivity("/File/Save", FALSE);
-    set_menu_sensitivity("/File/Save As...", TRUE);
-    set_menu_sensitivity("/Tools/Summary", TRUE);
-#else
-    set_menu_sensitivity("<Main>/File/Save", FALSE);
-    set_menu_sensitivity("<Main>/File/Save As...", TRUE);
-    set_menu_sensitivity("<Main>/Tools/Summary", TRUE);
-#endif
+  set_menu_sensitivity("/File/Save", FALSE);
+  set_menu_sensitivity("/File/Save As...", TRUE);
+  set_menu_sensitivity("/Tools/Summary", TRUE);
 }
 
 /* Update the progress bar */
@@ -428,15 +422,9 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
 void
 file_close_cmd_cb(GtkWidget *widget, gpointer data) {
   close_cap_file(&cf, info_bar, file_ctx);
-#ifdef USE_ITEM
   set_menu_sensitivity("/File/Close", FALSE);
   set_menu_sensitivity("/File/Reload", FALSE);
   set_menu_sensitivity("/Tools/Summary", FALSE);
-#else
-  set_menu_sensitivity("<Main>/File/Close", FALSE);
-  set_menu_sensitivity("<Main>/File/Reload", FALSE);
-  set_menu_sensitivity("<Main>/Tools/Summary", FALSE);
-#endif
 }
 
 void
@@ -496,13 +484,8 @@ file_save_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 		    file_open_error_message(err, FALSE), cf_name);
 	}
 
-#ifdef USE_ITEM
 	set_menu_sensitivity("/File/Save", FALSE);
 	set_menu_sensitivity("/File/Save As...", TRUE);
-#else
-	set_menu_sensitivity("<Main>/File/Save", FALSE);
-	set_menu_sensitivity("<Main>/File/Save As...", TRUE);
-#endif
 }
 
 static void
@@ -525,13 +508,8 @@ file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 		    file_open_error_message(err, FALSE), cf_name);
 	}
 
-#ifdef USE_ITEM
 	set_menu_sensitivity("/File/Save", FALSE);
 	set_menu_sensitivity("/File/Save As...", TRUE);
-#else
-	set_menu_sensitivity("<Main>/File/Save", FALSE);
-	set_menu_sensitivity("<Main>/File/Save As...", TRUE);
-#endif
 }
 
 /* Reload a file using the current display filter */
@@ -709,15 +687,8 @@ main(int argc, char *argv[])
   GtkWidget           *window, *main_vbox, *menubar, *u_pane, *l_pane,
                       *bv_table, *bv_hscroll, *bv_vscroll, *stat_hbox, 
                       *tv_scrollw, *filter_bt, *filter_te;
-#ifdef GTK_HAVE_FEATURES_1_1_0
   GtkAccelGroup *accel;
-#else
-  GtkAcceleratorTable *accel;
-#endif
-
-#ifdef GTK_HAVE_FEATURES_1_1_4
   GtkWidget	*packet_sw;
-#endif
   gint                 pl_size = 280, tv_size = 95, bv_size = 75;
   gchar               *rc_file, *cf_name = NULL;
   e_prefs             *prefs;
@@ -933,11 +904,7 @@ main(int argc, char *argv[])
 
   /* Menu bar */
   get_main_menu(&menubar, &accel);
-#ifdef GTK_HAVE_FEATURES_1_1_0
   gtk_window_add_accel_group(GTK_WINDOW(window), accel);
-#else
-  gtk_window_add_accelerator_table(GTK_WINDOW(window), accel);
-#endif
   gtk_box_pack_start(GTK_BOX(main_vbox), menubar, FALSE, TRUE, 0);
   gtk_widget_show(menubar);
 
@@ -955,11 +922,9 @@ main(int argc, char *argv[])
   packet_list = gtk_clist_new_with_titles(cf.cinfo.num_cols,
     cf.cinfo.col_title);
   gtk_clist_column_titles_passive(GTK_CLIST(packet_list));
-#ifdef GTK_HAVE_FEATURES_1_1_4
   packet_sw = gtk_scrolled_window_new(NULL, NULL);
   gtk_widget_show(packet_sw);
   gtk_container_add(GTK_CONTAINER(packet_sw), packet_list);
-#endif
   pl_style = gtk_style_new();
   gdk_font_unref(pl_style->font);
   pl_style->font = m_r_font;
@@ -977,11 +942,7 @@ main(int argc, char *argv[])
         GTK_JUSTIFY_RIGHT);
   }
   gtk_widget_set_usize(packet_list, -1, pl_size);
-#ifdef GTK_HAVE_FEATURES_1_1_4
   gtk_paned_add1(GTK_PANED(u_pane), packet_sw);
-#else
-  gtk_paned_add1(GTK_PANED(u_pane), packet_list);
-#endif
   gtk_widget_show(packet_list);
   
   /* Tree view */
@@ -993,12 +954,8 @@ main(int argc, char *argv[])
   gtk_widget_show(tv_scrollw);
   
   tree_view = gtk_tree_new();
-#ifdef GTK_HAVE_FEATURES_1_1_4
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(tv_scrollw),
 		  tree_view);
-#else
-  gtk_container_add(GTK_CONTAINER(tv_scrollw), tree_view);
-#endif
   gtk_tree_set_selection_mode(GTK_TREE(tree_view), GTK_SELECTION_SINGLE);
   gtk_tree_set_view_lines(GTK_TREE(tree_view), FALSE);
   gtk_tree_set_view_mode(GTK_TREE(tree_view), TRUE);
@@ -1056,17 +1013,10 @@ main(int argc, char *argv[])
     GTK_SIGNAL_FUNC(filter_activate_cb), (gpointer) NULL);
   gtk_widget_show(filter_te);
 
-#ifdef USE_ITEM
   set_menu_object_data("/File/Open...", E_DFILTER_TE_KEY, filter_te);
   set_menu_object_data("/File/Reload", E_DFILTER_TE_KEY, filter_te);
   set_menu_object_data("/Tools/Follow TCP Stream", E_DFILTER_TE_KEY,
     filter_te);
-#else
-  set_menu_object_data("<Main>/File/Open...", E_DFILTER_TE_KEY, filter_te);
-  set_menu_object_data("<Main>/File/Reload", E_DFILTER_TE_KEY, filter_te);
-  set_menu_object_data("<Main>/Tools/Follow TCP Stream", E_DFILTER_TE_KEY,
-    filter_te);
-#endif
   info_bar = gtk_statusbar_new();
   main_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "main");
   file_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "file");
@@ -1095,13 +1045,8 @@ main(int argc, char *argv[])
 		cf_name);
     }
     cf_name[0] = '\0';
-#ifdef USE_ITEM
     set_menu_sensitivity("/File/Save As...", TRUE);
     set_menu_sensitivity("/Tools/Summary", TRUE);
-#else
-    set_menu_sensitivity("<Main>/File/Save As...", TRUE);
-    set_menu_sensitivity("<Main>/Tools/Summary", TRUE);
-#endif
   }
 
   /* If we failed to open the preferences file, pop up an alert box;

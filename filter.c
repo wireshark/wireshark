@@ -1,7 +1,7 @@
 /* filter.c
  * Routines for managing filter sets
  *
- * $Id: filter.c,v 1.13 1999/07/13 02:52:50 gram Exp $
+ * $Id: filter.c,v 1.14 1999/07/13 03:08:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -181,12 +181,8 @@ filter_prefs_show(GtkWidget *w) {
   gtk_list_set_selection_mode(GTK_LIST(filter_l), GTK_SELECTION_SINGLE);
   gtk_signal_connect(GTK_OBJECT(filter_l), "selection_changed",
     GTK_SIGNAL_FUNC(filter_sel_list_cb), main_vb);
-#ifdef GTK_HAVE_FEATURES_1_1_4
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(filter_sc),
     filter_l);
-#else
-  gtk_container_add(GTK_CONTAINER(filter_sc), filter_l);
-#endif
   gtk_widget_show(filter_l);
 
   flp = g_list_first(fl);
