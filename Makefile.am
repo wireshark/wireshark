@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.123 1999/12/03 21:50:28 nneul Exp $
+# $Id: Makefile.am,v 1.124 1999/12/04 21:37:56 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -260,6 +260,12 @@ ps.c: print.ps rdps
 
 rdps: rdps.c
 	$(CC) -o rdps $(srcdir)/rdps.c
+
+editcap.o: editcap.c
+	$(COMPILE) -c $(srcdir)/editcap.c
+
+editcap: editcap.o wiretap/libwiretap.a
+	$(LINK) -o editcap editcap.o wiretap/libwiretap.a `glib-config --libs` -lz
 
 randpkt.o: randpkt.c
 	$(CC) -DHAVE_CONFIG_H -I. `glib-config --cflags` -c $(srcdir)/randpkt.c
