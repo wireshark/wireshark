@@ -2,7 +2,7 @@
  * Routines for SMB Browser packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.c,v 1.13 2001/07/20 07:11:57 guy Exp $
+ * $Id: packet-smb-browse.c,v 1.14 2001/07/30 05:20:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -537,7 +537,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	proto_item *item = NULL;
 	guint32 periodicity;
 	char host_name[17];
-	int namelen;
+	guint namelen;
 	guint8 server_count;
 	int i;
 	guint32 uptime;
@@ -643,19 +643,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		}
 
 		/* master browser server name or server comment */
-		namelen = tvb_strnlen(tvb, offset, -1);
-		if (namelen == -1) {
-			/*
-			 * The '\0' wasn't found.
-			 * Force the right exception to be thrown,
-			 * by calling "tvb_get_ptr()" starting at
-			 * "offset" and going one byte past the
-			 * end of the packet.
-			 */
-			namelen = tvb_reported_length_remaining(tvb, offset);
-			tvb_get_ptr(tvb, offset, namelen + 1);
-		}
-		namelen++;	/* include the '\0' */
+		namelen = tvb_strsize(tvb, offset);
 		proto_tree_add_item(tree,
 			(cmd==BROWSE_DOMAIN_ANNOUNCEMENT)?
 			    hf_mb_server_name : hf_server_comment,
@@ -670,19 +658,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		offset += 1;
 
 		/* name of computer to which to send reply */
-		namelen = tvb_strnlen(tvb, offset, -1);
-		if (namelen == -1) {
-			/*
-			 * The '\0' wasn't found.
-			 * Force the right exception to be thrown,
-			 * by calling "tvb_get_ptr()" starting at
-			 * "offset" and going one byte past the
-			 * end of the packet.
-			 */
-			namelen = tvb_reported_length_remaining(tvb, offset);
-			tvb_get_ptr(tvb, offset, namelen + 1);
-		}
-		namelen++;	/* include the '\0' */
+		namelen = tvb_strsize(tvb, offset);
 		proto_tree_add_item(tree, hf_response_computer_name, 
 			tvb, offset, namelen, TRUE);
 		offset += namelen;
@@ -709,19 +685,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		offset += 4;
 
 		/* server name */
-		namelen = tvb_strnlen(tvb, offset, -1);
-		if (namelen == -1) {
-			/*
-			 * The '\0' wasn't found.
-			 * Force the right exception to be thrown,
-			 * by calling "tvb_get_ptr()" starting at
-			 * "offset" and going one byte past the
-			 * end of the packet.
-			 */
-			namelen = tvb_reported_length_remaining(tvb, offset);
-			tvb_get_ptr(tvb, offset, namelen + 1);
-		}
-		namelen++;	/* include the '\0' */
+		namelen = tvb_strsize(tvb, offset);
 		proto_tree_add_item(tree, hf_server_name, 
 			tvb, offset, namelen, TRUE);
 		offset += namelen;
@@ -750,19 +714,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 		/* backup server names */
 		for (i = 0; i < server_count; i++) {
-			namelen = tvb_strnlen(tvb, offset, -1);
-			if (namelen == -1) {
-				/*
-				 * The '\0' wasn't found.
-				 * Force the right exception to be thrown,
-				 * by calling "tvb_get_ptr()" starting at
-				 * "offset" and going one byte past the
-				 * end of the packet.
-				 */
-				namelen = tvb_reported_length_remaining(tvb, offset);
-				tvb_get_ptr(tvb, offset, namelen + 1);
-			}
-			namelen++;	/* include the '\0' */
+			namelen = tvb_strsize(tvb, offset);
 			proto_tree_add_item(tree, hf_backup_server, 
 				tvb, offset, namelen, TRUE);
 			offset += namelen;
@@ -771,19 +723,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 	case BROWSE_MASTER_ANNOUNCEMENT:
 		/* master browser server name */
-		namelen = tvb_strnlen(tvb, offset, -1);
-		if (namelen == -1) {
-			/*
-			 * The '\0' wasn't found.
-			 * Force the right exception to be thrown,
-			 * by calling "tvb_get_ptr()" starting at
-			 * "offset" and going one byte past the
-			 * end of the packet.
-			 */
-			namelen = tvb_reported_length_remaining(tvb, offset);
-			tvb_get_ptr(tvb, offset, namelen + 1);
-		}
-		namelen++;	/* include the '\0' */
+		namelen = tvb_strsize(tvb, offset);
 		proto_tree_add_item(tree, hf_mb_server_name, 
 			tvb, offset, namelen, TRUE);
 		offset += namelen;
@@ -791,19 +731,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 	case BROWSE_BECOME_BACKUP:
 		/* name of browser to promote */
-		namelen = tvb_strnlen(tvb, offset, -1);
-		if (namelen == -1) {
-			/*
-			 * The '\0' wasn't found.
-			 * Force the right exception to be thrown,
-			 * by calling "tvb_get_ptr()" starting at
-			 * "offset" and going one byte past the
-			 * end of the packet.
-			 */
-			namelen = tvb_reported_length_remaining(tvb, offset);
-			tvb_get_ptr(tvb, offset, namelen + 1);
-		}
-		namelen++;	/* include the '\0' */
+		namelen = tvb_strsize(tvb, offset);
 		proto_tree_add_item(tree, hf_browser_to_promote, 
 			tvb, offset, namelen, TRUE);
 		offset += namelen;

@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.30 2001/07/20 09:22:05 guy Exp $
+ * $Id: packet-wsp.c,v 1.31 2001/07/30 05:20:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1607,7 +1607,7 @@ static int
 add_application_header (proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 	int startOffset;
-	gint tokenLen;
+	guint tokenSize;
 	const guint8 *token;
 	value_type_t valueType;
 	int subvalueLen;
@@ -1615,25 +1615,12 @@ add_application_header (proto_tree *tree, tvbuff_t *tvb, int offset)
 	guint secs;
 	struct timeval timeValue;
 	int asvOffset;
-	gint stringLen;
+	guint stringSize;
 
 	startOffset = offset;
-	tokenLen = tvb_strnlen(tvb, startOffset, -1);
-	if (tokenLen == -1) {
-		/*
-		 * Make the length (not including the null byte at the
-		 * end) the remaining reported length of the tvbuffer;
-		 * this should cause us to throw the correct exception
-		 * when we try to do a tvb_get_ptr starting at that
-		 * offset with that length + 1, which is what we want
-		 * (we ran past the end of the buffer trying
-		 * to find the End-of-string).
-		 */
-		tokenLen = tvb_reported_length_remaining (tvb, startOffset);
-	}
-	tokenLen++;	/* include the terminating null byte */
-	token = tvb_get_ptr (tvb, startOffset, tokenLen);
-	offset += tokenLen;
+	tokenSize = tvb_strsize (tvb, startOffset);
+	token = tvb_get_ptr (tvb, startOffset, tokenSize);
+	offset += tokenSize;
 
 	/*
 	 * Special case header "X-WAP.TOD" that is sometimes followed
@@ -1642,7 +1629,7 @@ add_application_header (proto_tree *tree, tvbuff_t *tvb, int offset)
 	 * XXX - according to the 4-May-2000 WSP spec, X-Wap-Tod is
 	 * encoded as a well known header, with a code of 0x3F.
 	 */
-	if (tokenLen == 10 && strncasecmp ("x-wap.tod", token, 9) == 0)
+	if (tokenSize == 10 && strncasecmp ("x-wap.tod", token, 9) == 0)
 	{
 		valueType = get_value_type_len (tvb, offset,
 		    &subvalueLen, &subvalueOffset, &offset);
@@ -1673,26 +1660,12 @@ add_application_header (proto_tree *tree, tvbuff_t *tvb, int offset)
 	else
 	{
 		asvOffset = offset;
-		stringLen = tvb_strnlen (tvb, asvOffset, -1);
-		if (stringLen == -1) {
-			/*
-			 * Make the length (not including the null byte at the
-			 * end) the remaining reported length of the tvbuffer;
-			 * this should cause us to throw the correct exception
-			 * when we try to do a tvb_get_ptr starting at that
-			 * offset with that length + 1, which is what we want
-			 * (we ran past the end of the buffer trying
-			 * to find the End-of-string).
-			 */
-			stringLen =
-			    tvb_reported_length_remaining (tvb, asvOffset);
-		}
-		stringLen++;	/* include the terminating null byte */
-		offset += stringLen;
+		stringSize = tvb_strsize (tvb, asvOffset);
+		offset += stringSize;
 		proto_tree_add_text (tree, tvb, startOffset,
 		    offset - startOffset,
 		    "%s: %s", token,
-		    tvb_get_ptr (tvb, asvOffset, stringLen));
+		    tvb_get_ptr (tvb, asvOffset, stringSize));
 	}
 	return offset;
 }
@@ -2490,21 +2463,7 @@ get_value_type_len (tvbuff_t *tvb, int offset, guint *valueLen,
 #ifdef DEBUG
 		fprintf (stderr, "dissect_wsp: Looking for NUL-terminated string\n");
 #endif
-		stringlen = tvb_strnlen (tvb, offset, -1);
-		if (stringlen == -1) {
-			/*
-			 * Make the length 1 byte more than the remaining
-			 * reported length of the tvbuffer; this should
-			 * cause us to throw the correct exception
-			 * when we try to make a tvbuff starting at
-			 * offset with that length, which is what we want
-			 * (we ran past the end of the buffer trying
-			 * to find the End-of-string).
-			 */
-			stringlen =
-			    tvb_reported_length_remaining (tvb, offset) + 1;
-		}
-		len = stringlen + 1;	/* Include NUL in length */
+		len = tvb_strsize (tvb, offset);
 		*valueLen = len;	/* Length of value */
 		*valueOffset = offset;	/* Offset of value */
 		offset += len;		/* Skip the value */
@@ -2880,32 +2839,19 @@ add_untyped_parameter (proto_tree *tree, tvbuff_t *value_buff, int startOffset,
     int offset)
 {
 	int tokenOffset;
-	gint tokenLen;
+	guint tokenSize;
 	const guint8 *token;
 	value_type_t valueType;
 	int subvalueLen;
 	int subvalueOffset;
 	guint value;
 	int textvOffset;
-	gint stringLen;
+	guint stringSize;
 
 	tokenOffset = offset;
-	tokenLen = tvb_strnlen(value_buff, tokenOffset, -1);
-	if (tokenLen == -1) {
-		/*
-		 * Make the length (not including the null byte at the
-		 * end) the remaining reported length of the tvbuffer;
-		 * this should cause us to throw the correct exception
-		 * when we try to do a tvb_get_ptr starting at that
-		 * offset with that length + 1, which is what we want
-		 * (we ran past the end of the buffer trying
-		 * to find the End-of-string).
-		 */
-		tokenLen = tvb_reported_length_remaining (value_buff, tokenOffset);
-	}
-	tokenLen++;	/* include the terminating null byte */
-	token = tvb_get_ptr (value_buff, tokenOffset, tokenLen);
-	offset += tokenLen;
+	tokenSize = tvb_strsize (value_buff, tokenOffset);
+	token = tvb_get_ptr (value_buff, tokenOffset, tokenSize);
+	offset += tokenSize;
 
 	/*
 	 * Now an Untyped-value; either an Integer-value or a Text-value.
@@ -2918,35 +2864,22 @@ add_untyped_parameter (proto_tree *tree, tvbuff_t *value_buff, int startOffset,
 		 * Text-value.
 		 */
 		textvOffset = offset;
-		stringLen = tvb_strnlen (value_buff, textvOffset, -1);
-		if (stringLen == 0) {
+		stringSize = tvb_strsize (value_buff, textvOffset);
+		if (stringSize == 1) {
 			/*
-			 * No-value.
+			 * No-value.  (stringSize includes the terminating
+			 * null byte, so an empty string has a size of 1.)
 			 */
 			proto_tree_add_text (tree, value_buff, startOffset,
 			    offset - startOffset,
 			    "%s", token);
 			return;
-		}			
-		if (stringLen == -1) {
-			/*
-			 * Make the length (not including the null byte at the
-			 * end) the remaining reported length of the tvbuffer;
-			 * this should cause us to throw the correct exception
-			 * when we try to do a tvb_get_ptr starting at that
-			 * offset with that length + 1, which is what we want
-			 * (we ran past the end of the buffer trying
-			 * to find the End-of-string).
-			 */
-			stringLen =
-			    tvb_reported_length_remaining (value_buff, textvOffset);
 		}
-		stringLen++;	/* include the terminating null byte */
-		offset += stringLen;
+		offset += stringSize;
 		proto_tree_add_text (tree, value_buff, startOffset,
 		    offset - startOffset,
 		    "%s: %s", token,
-		    tvb_get_ptr (value_buff, textvOffset, stringLen));
+		    tvb_get_ptr (value_buff, textvOffset, stringSize));
 	}
 	else
 	{
