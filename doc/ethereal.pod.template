@@ -130,7 +130,7 @@ the filter are discarded.
 Specifies that the live packet capture will be performed in a separate
 process (same as option B<-F>) and that the packet displaying should be
 synchronized with the capture session without human operation 
-(i.e. without load/reload). This is an experimental feature.
+(i.e. without load/reload).
 
 =item -s
 
@@ -225,6 +225,14 @@ display filter matches a packet, any additional display filters in the list
 are ignored. Therefore, if you are filtering on the existence of protocols,
 you should list the higher-level protocols first, and the lower-level
 protocols last.
+
+=item Display:Collapse All
+
+Collapses the protocol tree branches.
+
+=item Display:Expand All
+
+Expands all branches of the protocol tree.
 
 =item Tools:Follow TCP Stream
 
