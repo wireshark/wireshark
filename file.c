@@ -1,10 +1,10 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.236 2001/05/01 00:18:46 guy Exp $
+ * $Id: file.c,v 1.237 2001/05/27 21:33:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * 
@@ -1586,6 +1586,10 @@ select_packet(capture_file *cf, int row)
       proto_tree_free(cf->protocol_tree);
   cf->protocol_tree = proto_tree_create_root();
   proto_tree_is_visible = TRUE;
+  if (cf->edt != NULL) {
+    epan_dissect_free(cf->edt);
+    cf->edt = NULL;
+  }
   cf->edt = epan_dissect_new(&cf->pseudo_header, cf->pd, cf->current_frame,
 		cf->protocol_tree);
   proto_tree_is_visible = FALSE;
@@ -1610,11 +1614,14 @@ select_packet(capture_file *cf, int row)
 void
 unselect_packet(capture_file *cf)
 {
-  /* Destroy the protocol tree for that packet. */
+  /* Destroy the protocol tree and epan_dissect_t for that packet. */
   if (cf->protocol_tree != NULL) {
     proto_tree_free(cf->protocol_tree);
     cf->protocol_tree = NULL;
+  }
+  if (cf->edt != NULL) {
     epan_dissect_free(cf->edt);
+    cf->edt = NULL;
   }
 
   finfo_selected = NULL;
