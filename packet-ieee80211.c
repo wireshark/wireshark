@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.28 2001/06/20 23:04:36 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.29 2001/06/20 23:12:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -359,20 +359,8 @@ capture_ieee80211 (const u_char * pd, int offset, packet_counts * ld)
     {
 
     case DATA:			/* We got a data frame */
-      hdr_length = find_header_length (fcf);
-      capture_llc (pd, offset + hdr_length, ld);
-      break;
-
     case DATA_CF_ACK:		/* Data with ACK */
-      hdr_length = find_header_length (fcf);
-      capture_llc (pd, offset + hdr_length, ld);
-      break;
-
     case DATA_CF_POLL:
-      hdr_length = find_header_length (fcf);
-      capture_llc (pd, offset + hdr_length, ld);
-      break;
-
     case DATA_CF_ACK_POLL:
       hdr_length = find_header_length (fcf);
       capture_llc (pd, offset + hdr_length, ld);
@@ -1398,65 +1386,8 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
     case DATA:
-      next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
-
-      if (IS_WEP(COOK_FLAGS(fcf)))
-	{
-	  int pkt_len = tvb_reported_length (next_tvb);
-	  int cap_len = tvb_length (next_tvb);
-
-	  if (tree)
-	    get_wep_parameter_tree (tree, next_tvb, 0, pkt_len);
-	  pkt_len = MAX (pkt_len - 8, 0);
-	  cap_len = MIN (pkt_len, MAX (cap_len - 8, 0));
-	  next_tvb = tvb_new_subset (tvb, hdr_len + 4, cap_len, pkt_len);
-	  dissect_data (next_tvb, 0, pinfo, tree);
-	}
-      else
-	call_dissector (llc_handle, next_tvb, pinfo, tree);
-      break;
-
-
     case DATA_CF_ACK:
-      next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
-
-      if (IS_WEP(COOK_FLAGS(fcf)))
-	{
-	  int pkt_len = tvb_reported_length (next_tvb);
-	  int cap_len = tvb_length (next_tvb);
-
-	  if (tree)
-	    get_wep_parameter_tree (tree, next_tvb, 0, pkt_len);
-	  pkt_len = MAX (pkt_len - 8, 0);
-	  cap_len = MIN (pkt_len, MAX (cap_len - 8, 0));
-	  next_tvb = tvb_new_subset (tvb, hdr_len + 4, cap_len, pkt_len);
-	  dissect_data (next_tvb, 0, pinfo, tree);
-	}
-      else
-	call_dissector (llc_handle, next_tvb, pinfo, tree);
-      break;
-
-
     case DATA_CF_POLL:
-      next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
-
-      if (IS_WEP(COOK_FLAGS(fcf)))
-	{
-	  int pkt_len = tvb_reported_length (next_tvb);
-	  int cap_len = tvb_length (next_tvb);
-
-	  if (tree)
-	    get_wep_parameter_tree (tree, next_tvb, 0, pkt_len);
-	  pkt_len = MAX (pkt_len - 8, 0);
-	  cap_len = MIN (pkt_len, MAX (cap_len - 8, 0));
-	  next_tvb = tvb_new_subset (tvb, hdr_len + 4, cap_len, pkt_len);
-	  dissect_data (next_tvb, 0, pinfo, tree);
-	}
-      else
-	call_dissector (llc_handle, next_tvb, pinfo, tree);
-      break;
-
-
     case DATA_CF_ACK_POLL:
       next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
 
