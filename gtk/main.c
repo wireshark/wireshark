@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.318 2003/09/24 02:36:34 guy Exp $
+ * $Id: main.c,v 1.319 2003/09/24 06:18:20 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -781,15 +781,14 @@ packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data _U_)
     if (w == NULL || event == NULL)
         return FALSE;
 
-    if (event->type == GDK_BUTTON_PRESS &&
+    if (event->type == GDK_BUTTON_PRESS && event_button->button == 2 &&
+        event_button->window == GTK_CLIST(w)->clist_window &&
         gtk_clist_get_selection_info(GTK_CLIST(w), event_button->x,
                                      event_button->y, &row, &column)) {
-        if (event_button->button == 2)
-        {
-            frame_data *fdata = (frame_data *)gtk_clist_get_row_data(GTK_CLIST(w), row);
-            set_frame_mark(!fdata->flags.marked, fdata, row);
-            return TRUE;
-        }
+        frame_data *fdata = (frame_data *)gtk_clist_get_row_data(GTK_CLIST(w),
+                                                                 row);
+        set_frame_mark(!fdata->flags.marked, fdata, row);
+        return TRUE;
     }
     return FALSE;
 }
