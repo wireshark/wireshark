@@ -137,7 +137,9 @@ typedef struct _packet_info {
      the gssapi blob it self is decrypted othervise the gssapi_encrypted_tvb
      tvb will be decrypted (DCERPC has the data before the gssapi blob)
   */
-  gboolean decrypt_gssapi_tvb;
+#define DECRYPT_GSSAPI_NORMAL	1
+#define DECRYPT_GSSAPI_DCE	2
+  guint16 decrypt_gssapi_tvb;
   tvbuff_t *gssapi_wrap_tvb;
   tvbuff_t *gssapi_encrypted_tvb;
   tvbuff_t *gssapi_decrypted_tvb;
