@@ -1,10 +1,9 @@
 /*
- * $Id: ftypes.c,v 1.5 2001/10/26 17:29:12 gram Exp $
+ * $Id: ftypes.c,v 1.6 2002/02/05 22:50:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -238,18 +237,18 @@ fvalue_free(fvalue_t *fv)
 
 
 fvalue_t*
-fvalue_from_string(ftenum_t ftype, char *s, LogFunc log)
+fvalue_from_string(ftenum_t ftype, char *s, LogFunc logfunc)
 {
 	fvalue_t	*fv;
 
 	fv = fvalue_new(ftype);
 	if (fv->ftype->val_from_string) {
-		if (fv->ftype->val_from_string(fv, s, log)) {
+		if (fv->ftype->val_from_string(fv, s, logfunc)) {
 			return fv;
 		}
 	}
 	else {
-		log("\"%s\" cannot be converted to %s.",
+		logfunc("\"%s\" cannot be converted to %s.",
 				s, ftype_pretty_name(ftype));
 	}
 	fvalue_free(fv);

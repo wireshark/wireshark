@@ -1,5 +1,5 @@
 /* 
- * $Id: ftype-bytes.c,v 1.9 2002/01/21 07:37:39 guy Exp $
+ * $Id: ftype-bytes.c,v 1.10 2002/02/05 22:50:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -98,7 +98,7 @@ is_byte_sep(guint8 c)
 }
 	
 static gboolean
-val_from_string(fvalue_t *fv, char *s, LogFunc log)
+val_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
 {
 	GByteArray	*bytes;
 	guint8		val;
@@ -182,8 +182,8 @@ val_from_string(fvalue_t *fv, char *s, LogFunc log)
 	}
 
 	if (fail) {
-		if (log != NULL)
-			log("\"%s\" is not a valid byte string.", s);
+		if (logfunc != NULL)
+			logfunc("\"%s\" is not a valid byte string.", s);
 		g_byte_array_free(bytes, TRUE);
 		return FALSE;
 	}
@@ -195,7 +195,7 @@ val_from_string(fvalue_t *fv, char *s, LogFunc log)
 }
 
 static gboolean
-ether_from_string(fvalue_t *fv, char *s, LogFunc log)
+ether_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
 {
 	guint8	*mac;
 
@@ -210,7 +210,8 @@ ether_from_string(fvalue_t *fv, char *s, LogFunc log)
 
 	mac = get_ether_addr(s);
 	if (!mac) {
-		log("\"%s\" is not a valid hostname or Ethernet address.", s);
+		logfunc("\"%s\" is not a valid hostname or Ethernet address.",
+		    s);
 		return FALSE;
 	}
 
@@ -219,12 +220,12 @@ ether_from_string(fvalue_t *fv, char *s, LogFunc log)
 }
 
 static gboolean
-ipv6_from_string(fvalue_t *fv, char *s, LogFunc log)
+ipv6_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
 {
 	guint8	buffer[16];
 
 	if (!get_host_ipaddr6(s, (struct e_in6_addr*)buffer)) {
-		log("\"%s\" is not a valid hostname or IPv6 address.", s);
+		logfunc("\"%s\" is not a valid hostname or IPv6 address.", s);
 		return FALSE;
 	}
 
@@ -233,12 +234,12 @@ ipv6_from_string(fvalue_t *fv, char *s, LogFunc log)
 }
 
 static gboolean
-u64_from_string(fvalue_t *fv, char *s, LogFunc log)
+u64_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
 {
 	guint8	buffer[8];
 
 	if (atou64(s, buffer) == NULL) {
-		log("\"%s\" is not a valid integer", s);
+		logfunc("\"%s\" is not a valid integer", s);
 		return FALSE;
 	}
 
@@ -247,12 +248,12 @@ u64_from_string(fvalue_t *fv, char *s, LogFunc log)
 }
 
 static gboolean
-i64_from_string(fvalue_t *fv, char *s, LogFunc log)
+i64_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
 {
 	guint8	buffer[8];
 
 	if (atoi64(s, buffer) == NULL) {
-		log("\"%s\" is not a valid integer", s);
+		logfunc("\"%s\" is not a valid integer", s);
 		return FALSE;
 	}
 

@@ -1,11 +1,9 @@
 /*
- *
- * $Id: ftype-double.c,v 1.4 2001/07/13 00:55:56 guy Exp $
+ * $Id: ftype-double.c,v 1.5 2002/02/05 22:50:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -50,7 +48,7 @@ value_get_floating(fvalue_t *fv)
 }
 
 static gboolean
-val_from_string(fvalue_t *fv, char *s, LogFunc log)
+val_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
 {
 	char    *endptr = NULL;
 
@@ -58,18 +56,19 @@ val_from_string(fvalue_t *fv, char *s, LogFunc log)
 
 	if (endptr == s || *endptr != '\0') {
 		/* This isn't a valid number. */
-		log("\"%s\" is not a valid number.", s);
+		logfunc("\"%s\" is not a valid number.", s);
 		return FALSE;
 	}
 	if (errno == ERANGE) {
 		if (fv->value.floating == 0) {
-			log("\"%s\" causes floating-point underflow.", s);
+			logfunc("\"%s\" causes floating-point underflow.", s);
 		}
 		else if (fv->value.floating == HUGE_VAL) {
-			log("\"%s\" causes floating-point overflow.", s);
+			logfunc("\"%s\" causes floating-point overflow.", s);
 		}
 		else {
-			log("\"%s\" is not a valid floating-point number.", s);
+			logfunc("\"%s\" is not a valid floating-point number.",
+			    s);
 		}
 		return FALSE;
 	}

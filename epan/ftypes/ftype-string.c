@@ -1,10 +1,9 @@
 /*
- * $Id: ftype-string.c,v 1.4 2001/07/15 20:31:02 guy Exp $
+ * $Id: ftype-string.c,v 1.5 2002/02/05 22:50:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -61,7 +60,7 @@ value_get(fvalue_t *fv)
 }
 
 static gboolean
-val_from_string(fvalue_t *fv, char *s, LogFunc log)
+val_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
 {
 	fv->value.string = g_strdup(s);
 	return TRUE;

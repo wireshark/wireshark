@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-time.c,v 1.15 2002/01/30 10:19:44 guy Exp $
+ * $Id: ftype-time.c,v 1.16 2002/02/05 22:50:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -167,7 +167,7 @@ get_nsecs(char *startp, int *nsecs)
 }
 
 static gboolean
-relative_val_from_string(fvalue_t *fv, char *s, LogFunc log)
+relative_val_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
 {
 	char    *curptr, *endptr;
 
@@ -218,14 +218,14 @@ relative_val_from_string(fvalue_t *fv, char *s, LogFunc log)
 	return TRUE;
 
 fail:
-	if (log != NULL)
-		log("\"%s\" is not a valid time.", s);
+	if (logfunc != NULL)
+		logfunc("\"%s\" is not a valid time.", s);
 	return FALSE;
 }
 
 
 static gboolean
-absolute_val_from_string(fvalue_t *fv, char *s, LogFunc log)
+absolute_val_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
 {
 	struct tm tm;
 	char    *curptr;
@@ -271,8 +271,8 @@ absolute_val_from_string(fvalue_t *fv, char *s, LogFunc log)
 	return TRUE;
 
 fail:
-	if (log != NULL)
-		log("\"%s\" is not a valid absolute time. Example: \"Nov 12, 1999 08:55:44.123\"",
+	if (logfunc != NULL)
+		logfunc("\"%s\" is not a valid absolute time. Example: \"Nov 12, 1999 08:55:44.123\"",
 		    s);
 	return FALSE;
 }

@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-ipv4.c,v 1.7 2002/01/21 07:37:39 guy Exp $
+ * $Id: ftype-ipv4.c,v 1.8 2002/02/05 22:50:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,7 +45,7 @@ value_get(fvalue_t *fv)
 }
 
 static gboolean
-val_from_string(fvalue_t *fv, char *s, LogFunc log)
+val_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
 {
 	guint32	addr;
 	unsigned int nmask_bits;
@@ -65,7 +65,8 @@ val_from_string(fvalue_t *fv, char *s, LogFunc log)
 		/* I just checked for slash! I shouldn't get NULL here.
 		 * Double check just in case. */
 		if (!addr_str) {
-			log("Unexpected strtok() error parsing IP address: %s", s_copy);
+			logfunc("Unexpected strtok() error parsing IP address: %s",
+			    s_copy);
 			g_free(s_copy);
 			return FALSE;
 		}
@@ -75,7 +76,8 @@ val_from_string(fvalue_t *fv, char *s, LogFunc log)
 	}
 
 	if (!get_host_ipaddr(addr_str, &addr)) {
-		log("\"%s\" is not a valid hostname or IPv4 address.", addr_str);
+		logfunc("\"%s\" is not a valid hostname or IPv4 address.",
+		    addr_str);
 		if (has_slash) {
 			g_free(s_copy);
 		}
@@ -90,12 +92,13 @@ val_from_string(fvalue_t *fv, char *s, LogFunc log)
 		/* I checked for slash! I shouldn't get NULL here.
 		 * Double check just in case. */
 		if (!net_str) {
-			log("Unexpected strtok() error parsing netmask: %s", s_copy);
+			logfunc("Unexpected strtok() error parsing netmask: %s",
+			    s_copy);
 			g_free(s_copy);
 			return FALSE;
 		}
 
-		nmask_fvalue = fvalue_from_string(FT_UINT32, net_str, log);
+		nmask_fvalue = fvalue_from_string(FT_UINT32, net_str, logfunc);
 		g_free(s_copy);
 		if (!nmask_fvalue) {
 			return FALSE;
@@ -104,7 +107,7 @@ val_from_string(fvalue_t *fv, char *s, LogFunc log)
 		fvalue_free(nmask_fvalue);
 
 		if (nmask_bits > 32) {
-			log("Netmask bits in a CIDR IPv4 address should be <= 32, not %u",
+			logfunc("Netmask bits in a CIDR IPv4 address should be <= 32, not %u",
 					nmask_bits);
 			return FALSE;
 		}

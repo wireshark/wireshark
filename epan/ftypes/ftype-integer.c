@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-integer.c,v 1.7 2002/01/21 07:37:39 guy Exp $
+ * $Id: ftype-integer.c,v 1.8 2002/02/05 22:50:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,7 +54,7 @@ get_integer(fvalue_t *fv)
 }
 
 static gboolean
-val_from_string(fvalue_t *fv, char *s, LogFunc log)
+val_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
 {
 	char    *endptr;
 
@@ -62,17 +62,18 @@ val_from_string(fvalue_t *fv, char *s, LogFunc log)
 
 	if (endptr == s || *endptr != '\0') {
 		/* This isn't a valid number. */
-		if (log != NULL)
-			log("\"%s\" is not a valid number.", s);
+		if (logfunc != NULL)
+			logfunc("\"%s\" is not a valid number.", s);
 		return FALSE;
 	}
 	if (errno == ERANGE) {
-		if (log != NULL) {
+		if (logfunc != NULL) {
 			if (fv->value.integer == ULONG_MAX) {
-				log("\"%s\" causes an integer overflow.", s);
+				logfunc("\"%s\" causes an integer overflow.",
+				    s);
 			}
 			else {
-				log("\"%s\" is not an integer.", s);
+				logfunc("\"%s\" is not an integer.", s);
 			}
 		}
 		return FALSE;
@@ -82,7 +83,7 @@ val_from_string(fvalue_t *fv, char *s, LogFunc log)
 }
 
 static gboolean
-ipxnet_from_string(fvalue_t *fv, char *s, LogFunc log)
+ipxnet_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
 {
 	guint32 	val;
 	gboolean	known;
@@ -102,7 +103,7 @@ ipxnet_from_string(fvalue_t *fv, char *s, LogFunc log)
 		return TRUE;
 	}
 
-	log("\"%s\" is not a valid IPX network name or address.", s);
+	logfunc("\"%s\" is not a valid IPX network name or address.", s);
 	return FALSE;
 }
 
