@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.21 1999/09/21 07:15:38 guy Exp $
+ * $Id: packet-dns.c,v 1.22 1999/10/07 02:26:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -455,6 +455,10 @@ dissect_dns_query(const u_char *dns_data_ptr, const u_char *pd, int offset,
     &type, &class);
   dptr += len;
 
+  if (! BYTES_ARE_IN_FRAME(offset, len) ) {
+	  return 0;
+  }
+
   type_name = dns_type_name(type);
   class_name = dns_class_name(class);
   long_type_name = dns_long_type_name(type);
@@ -522,6 +526,10 @@ dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
   len = get_dns_name_type_class(dns_data_ptr, dptr, name, &name_len,
     &type, &class);
   dptr += len;
+
+  if (! BYTES_ARE_IN_FRAME(offset, len) ) {
+	  return 0;
+  }
 
   type_name = dns_type_name(type);
   class_name = dns_class_name(class);
@@ -735,15 +743,20 @@ static int
 dissect_query_records(const u_char *dns_data_ptr, int count, const u_char *pd, 
 		      int cur_off, proto_tree *dns_tree)
 {
-  int start_off;
+  int start_off, add_off;
   proto_tree *qatree;
   proto_item *ti;
   
   start_off = cur_off;
   ti = proto_tree_add_text(dns_tree, start_off, 0, "Queries");
   qatree = proto_item_add_subtree(ti, ETT_DNS_QRY);
-  while (count-- > 0)
-    cur_off += dissect_dns_query(dns_data_ptr, pd, cur_off, qatree);
+  while (count-- > 0) {
+    add_off = dissect_dns_query(dns_data_ptr, pd, cur_off, qatree);
+    if (add_off <= 0) {
+	    break;
+    }
+    cur_off += add_off;
+  }
   proto_item_set_len(ti, cur_off - start_off);
 
   return cur_off - start_off;
@@ -756,15 +769,20 @@ dissect_answer_records(const u_char *dns_data_ptr, int count,
                        const u_char *pd, int cur_off, proto_tree *dns_tree,
                        char *name)
 {
-  int start_off;
+  int start_off, add_off;
   proto_tree *qatree;
   proto_item *ti;
   
   start_off = cur_off;
   ti = proto_tree_add_text(dns_tree, start_off, 0, name);
   qatree = proto_item_add_subtree(ti, ETT_DNS_ANS);
-  while (count-- > 0)
-    cur_off += dissect_dns_answer(dns_data_ptr, pd, cur_off, qatree);
+  while (count-- > 0) {
+    add_off = dissect_dns_answer(dns_data_ptr, pd, cur_off, qatree);
+    if (add_off <= 0) {
+	    break;
+    }
+    cur_off += add_off;
+  }
   proto_item_set_len(ti, cur_off - start_off);
 
   return cur_off - start_off;
