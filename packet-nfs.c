@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2002, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
- * $Id: packet-nfs.c,v 1.74 2002/08/02 23:35:55 jmayer Exp $
+ * $Id: packet-nfs.c,v 1.75 2002/08/06 00:58:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -428,15 +428,15 @@ nfs_fhandle_data_free_all(gpointer key_arg _U_, gpointer value, gpointer user_da
 static gint
 nfs_fhandle_frame_equal(gconstpointer k1, gconstpointer k2)
 {
-	int key1 = (int)k1;
-	int key2 = (int)k2;
+	guint32 key1 = (guint32)k1;
+	guint32 key2 = (guint32)k2;
 
 	return key1==key2;
 }
 static guint
 nfs_fhandle_frame_hash(gconstpointer k)
 {
-	int key = (int)k;
+	guint32 key = (guint32)k;
 
 	return key;
 }
@@ -525,7 +525,7 @@ nfs_name_snoop_matched_hash(gconstpointer k)
 {
 	nfs_name_snoop_key_t *key = (nfs_name_snoop_key_t *)k;
 	int i;
-	int hash;
+	guint hash;
 
 	hash=key->key;
 	for(i=0;i<key->fh_length;i++)
@@ -676,7 +676,7 @@ nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, i
 	/* remove any old entry for this */
 	old_nns=g_hash_table_lookup(nfs_name_snoop_unmatched, (gconstpointer)xid);
 	if(old_nns){
-		/* if we havnt seen the reply yet, then there are no
+		/* if we haven't seen the reply yet, then there are no
 		   matched entries for it, thus we can dealloc the arrays*/
 		if(!old_nns->fh){
 			g_free(old_nns->name);
