@@ -343,6 +343,10 @@ Dug Song <dugsong@monkey.org> {
 	RPCSEC_GSS credential/verifier dissection for ONC RPC
 }
 
+Tuexen Michael <Michael.Tuexen@icn.siemens.de> {
+	SCTP
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
