@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.31 2000/11/19 08:53:57 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.32 2000/12/14 21:45:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,6 +54,7 @@
 #include "packet-ipv6.h"
 #include "packet-ip.h"
 #include "packet-dns.h"
+#include "in_cksum.h"
 #include "resolv.h"
 
 #ifndef offsetof
@@ -720,12 +721,16 @@ static void
 dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
     proto_tree *icmp6_tree, *field_tree;
-	proto_item *ti, *tf = NULL;
+    proto_item *ti, *tf = NULL;
     struct icmp6_hdr *dp;
     struct icmp6_nodeinfo *ni = NULL;
     char *codename, *typename;
     char *colcodename, *coltypename;
     int len;
+    guint length, reported_length;
+    vec_t cksum_vec[4];
+    guint32 phdr[2];
+    guint16 cksum, computed_cksum;
 
     OLD_CHECK_DISPLAY_AS_DATA(proto_icmpv6, pd, offset, fd, tree);
 
@@ -923,9 +928,44 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		dp->icmp6_code,
 		"Code: 0x%02x", dp->icmp6_code);
 	}
-	proto_tree_add_uint(icmp6_tree, hf_icmpv6_checksum, NullTVB,
-	    offset + offsetof(struct icmp6_hdr, icmp6_cksum), 2,
-	    (guint16)htons(dp->icmp6_cksum));
+	cksum = (guint16)htons(dp->icmp6_cksum);
+	length = pi.captured_len - offset;
+	reported_length = pi.len - offset;
+	if (!pi.fragmented && length >= reported_length) {
+	    /* The packet isn't part of a fragmented datagram and isn't
+	       truncated, so we can checksum it. */
+
+	    /* Set up the fields of the pseudo-header. */
+	    cksum_vec[0].ptr = pi.src.data;
+	    cksum_vec[0].len = pi.src.len;
+	    cksum_vec[1].ptr = pi.dst.data;
+	    cksum_vec[1].len = pi.dst.len;
+	    cksum_vec[2].ptr = (const guint8 *)&phdr;
+	    phdr[0] = htonl(reported_length);
+	    phdr[1] = htonl(IP_PROTO_ICMPV6);
+	    cksum_vec[2].len = 8;
+	    cksum_vec[3].ptr = &pd[offset];
+	    cksum_vec[3].len = reported_length;
+	    computed_cksum = in_cksum(cksum_vec, 4);
+	    if (computed_cksum == 0) {
+		proto_tree_add_uint_format(icmp6_tree, hf_icmpv6_checksum,
+			NullTVB,
+			offset + offsetof(struct icmp6_hdr, icmp6_cksum), 2,
+			cksum,
+			"Checksum: 0x%04x (correct)", cksum);
+	    } else {
+		proto_tree_add_uint_format(icmp6_tree, hf_icmpv6_checksum,
+			NullTVB,
+			offset + offsetof(struct icmp6_hdr, icmp6_cksum), 2,
+			cksum,
+			"Checksum: 0x%04x (incorrect, should be 0x%04x)",
+			cksum, in_cksum_shouldbe(cksum, computed_cksum));
+	    }
+	} else {
+	    proto_tree_add_uint(icmp6_tree, hf_icmpv6_checksum, NullTVB,
+		offset + offsetof(struct icmp6_hdr, icmp6_cksum), 2,
+		cksum);
+	}
 
 	/* decode... */
 	switch (dp->icmp6_type) {
