@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.102 2003/01/09 01:38:30 guy Exp $
+ * $Id: ngsniffer.c,v 1.103 2003/01/09 04:36:26 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1492,7 +1492,7 @@ static void set_pseudo_header_frame4(union wtap_pseudo_header *pseudo_header,
 	pseudo_header->atm.cells = pletohs(&frame4->atm_info.cells);
 	pseudo_header->atm.aal5t_u2u = pletohs(&frame4->atm_info.Trailer.aal5t_u2u);
 	pseudo_header->atm.aal5t_len = pletohs(&frame4->atm_info.Trailer.aal5t_len);
-	pseudo_header->atm.aal5t_chksum = pletohl(&frame4->atm_info.Trailer.aal5t_chksum);
+	pseudo_header->atm.aal5t_chksum = pntohl(&frame4->atm_info.Trailer.aal5t_chksum);
 }
 
 static gboolean ngsniffer_read_frame6(wtap *wth, gboolean is_random,
