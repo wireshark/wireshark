@@ -6,7 +6,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.c,v 1.22 2002/08/28 21:00:41 jmayer Exp $
+ * $Id: text2pcap.c,v 1.23 2002/10/10 01:45:25 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -348,7 +348,8 @@ in_checksum (void *buf, unsigned long count)
 
     while( count > 1 )  {
         /*  This is the inner loop */
-        sum += g_ntohs(* (unsigned short *) addr++);
+        sum += g_ntohs(* (unsigned short *) addr);
+	addr++;
         count -= 2;
     }
 
