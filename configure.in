@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.268 2004/06/19 04:12:56 guy Exp $
+# $Id: configure.in,v 1.269 2004/06/22 00:40:02 guy Exp $
 #
 AC_INIT(etypes.h)
 
@@ -151,6 +151,35 @@ else
 		;;
 	esac
 fi
+
+#
+# On OS X, if we find the headers for Core Foundation and Launch Services,
+# add -framework options to link with Application Services (of which
+# Launch Services is a subframework) and Core Foundation (required by
+# the Launch Services APIs), so we can use that to launch a Web browser
+# from the Help menu.
+#
+# (Do those headers exist on pure Darwin?  If so, does the CoreFoundation
+# *and* Launch Services code exist there, or are those headers just stubs?
+# If the frameworks aren't present on Darwin, how *should* we check for
+# their existence?)
+#
+case "$host_os" in
+
+darwin*)
+	AC_MSG_CHECKING(whether to build with Core Foundation and Launch Services)
+	if test -f /System/Library/Frameworks/CoreFoundation.framework/Headers/CFBase.h -a \
+	    -f /System/Library/Frameworks/ApplicationServices.framework/Frameworks/LaunchServices.framework/Headers/LSOpen.h
+	then
+		AC_DEFINE(HAVE_OS_X_FRAMEWORKS, 1, [Define to 1 if you have OS X frameworks])
+		FRAMEWORKS="-framework ApplicationServices -framework CoreFoundation"
+		AC_MSG_RESULT(yes)
+	else
+		AC_MSG_RESULT(no)
+	fi
+	;;
+esac
+AC_SUBST(FRAMEWORKS)
 
 dnl Look in /usr/local for header files and libraries ?
 dnl XXX FIXME don't include /usr/local if it is already in the system

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.734 2004/06/18 12:19:24 jmayer Exp $
+# $Id: Makefile.am,v 1.735 2004/06/22 00:40:02 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -228,7 +228,7 @@ ethereal_LDADD = \
 	@SNMP_LIBS@ @SSL_LIBS@ 		\
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
-	@PCAP_LIBS@ @GTK_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@
+	@PCAP_LIBS@ @GTK_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@ @FRAMEWORKS@
 
 # Additional libs that I know how to build. These will be
 # linked into the tethereal executable.

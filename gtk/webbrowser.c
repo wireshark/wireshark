@@ -32,13 +32,21 @@
 
 #include <glib.h>
 
-#ifdef G_OS_WIN32
+#if defined(G_OS_WIN32)
+/* Win32 - use Windows shell services to start a browser */
 #include <windows.h>
+#elif defined (HAVE_OS_X_FRAMEWORKS)
+/* Mac OS X - use Launch Services to start a browser */
+#include <CoreFoundation/CFBase.h>
+#include <CoreFoundation/CFString.h>
+#include <CoreFoundation/CFURL.h>
+#include <ApplicationServices/ApplicationServices.h>
+#else
+/* Everything else - launch the browser ourselves */
+#define MUST_LAUNCH_BROWSER_OURSELVES
 #endif
 
-
-
-#ifndef G_OS_WIN32
+#ifdef MUST_LAUNCH_BROWSER_OURSELVES
 static gchar*   strreplace       (const gchar      *string,
                                   const gchar      *delimiter,
                                   const gchar      *replacement);
@@ -48,10 +56,32 @@ static gchar*   strreplace       (const gchar      *string,
 gboolean
 browser_open_url (const gchar *url)
 {
-#ifdef G_OS_WIN32
+#if defined(G_OS_WIN32)
 
   return ((gint) ShellExecute (HWND_DESKTOP, "open", url, NULL, NULL, SW_SHOWNORMAL) > 32);
 
+#elif defined(HAVE_OS_X_FRAMEWORKS)
+
+  CFStringRef url_CFString;
+  CFURLRef url_CFURL;
+  OSStatus status;
+
+  /*
+   * XXX - if URLs passed to "browser_open_url()" contain non-ASCII
+   * characters, we'd have to choose an appropriate value from the
+   * CFStringEncodings enum.
+   */
+  url_CFString = CFStringCreateWithCString(NULL, url, kCFStringEncodingASCII);
+  url_CFURL = CFURLCreateWithString(NULL, url_CFString, NULL);
+  /*
+   * XXX - this is a Launch Services result code, and we should probably
+   * display a dialog box if it's not 0, describing what the error was.
+   * Then again, we should probably do the same
+   */
+  status = LSOpenCFURLRef(url_CFURL, NULL);
+  CFRelease(url_CFURL);
+  CFRelease(url_CFString);
+  return (status == 0);
 #else
 
   GError    *error = NULL;
@@ -115,7 +145,7 @@ browser_open_url (const gchar *url)
 #endif
 }
 
-#ifndef G_OS_WIN32
+#ifdef MUST_LAUNCH_BROWSER_OURSELVES
 
 static gchar*
 strreplace (const gchar *string,
@@ -136,4 +166,4 @@ strreplace (const gchar *string,
   return ret;
 }
 
-#endif /* !G_OS_WIN32 */
+#endif /* MUST_LAUNCH_BROWSER_OURSELVES */
