@@ -1,7 +1,7 @@
 /* packet-isl.c
  * Routines for Cisco ISL Ethernet header disassembly
  *
- * $Id: packet-isl.c,v 1.18 2000/12/28 09:49:09 guy Exp $
+ * $Id: packet-isl.c,v 1.19 2000/12/29 00:51:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -148,6 +148,8 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gint crc_offset;
   gint captured_length;
   tvbuff_t *next_tvb;
+  const guint8 *compat_pd;
+  int compat_offset;
 
   CHECK_DISPLAY_AS_DATA(proto_isl, tvb, pinfo, tree);
 
@@ -233,12 +235,23 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       captured_length = tvb_length_remaining(tvb, ISL_HEADER_SIZE);
       if (captured_length > 4) {
         /* Subtract the encapsulated frame CRC. */
-      	captured_length -= 4;
+        captured_length -= 4;
 
         /* Make sure it's not bigger than the actual length. */
-      	if (captured_length > length)
-      	  captured_length = length;
+        if (captured_length > length)
+          captured_length = length;
+
         next_tvb = tvb_new_subset(tvb, ISL_HEADER_SIZE, captured_length, length);
+
+        /* Set "pinfo"'s payload and captured-payload lengths to the values
+           we calculated.
+
+           XXX - when all dissectors are tvbuffified we shouldn't have to
+           do this any more. */
+        tvb_compat(next_tvb, &compat_pd, &compat_offset);
+        pinfo->len = compat_offset + length;
+        pinfo->captured_len = compat_offset + captured_length;
+
         dissect_eth(next_tvb, pinfo, tree);
       }
     }
