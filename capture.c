@@ -76,7 +76,7 @@ static gboolean normal_do_capture(capture_options *capture_opts, gboolean is_tem
 static void stop_capture_signal_handler(int signo);
 
 
-/* open the output file (temporary/specified name/ringbuffer) and close the old one */
+/* open the output file (temporary/specified name/ringbuffer) */
 /* Returns TRUE if the file opened successfully, FALSE otherwise. */
 static gboolean
 capture_open_output(capture_options *capture_opts, gboolean *is_tempfile) {
@@ -123,8 +123,6 @@ capture_open_output(capture_options *capture_opts, gboolean *is_tempfile) {
     return FALSE;
   }
 
-  /* close the old file */
-  cf_close(capture_opts->cf);
   if(capture_opts->save_file != NULL) {
     g_free(capture_opts->save_file);
   }
@@ -136,6 +134,7 @@ capture_open_output(capture_options *capture_opts, gboolean *is_tempfile) {
 }
 
 
+/* close the output file (NOT the capture file) */
 static void
 capture_close_output(capture_options *capture_opts)
 {
@@ -157,10 +156,14 @@ do_capture(capture_options *capture_opts)
   gboolean is_tempfile;
   gboolean ret;
 
-  /* open the output file (temporary/specified name/ringbuffer) and close the old one */
+
+  /* open the new output file (temporary/specified name/ringbuffer) */
   if(!capture_open_output(capture_opts, &is_tempfile)) {
     return FALSE;
   }
+
+  /* close the currently loaded capture file */
+  cf_close(capture_opts->cf);
 
   if (capture_opts->sync_mode) {	
     /* sync mode: do the capture in a child process */
@@ -178,36 +181,23 @@ do_capture(capture_options *capture_opts)
 }
 
 
-/* start a normal capture session */
+/* we've succeeded a capture, try to read it into a new capture file */
 static gboolean
-normal_do_capture(capture_options *capture_opts, gboolean is_tempfile)
+capture_read(capture_options *capture_opts, gboolean is_tempfile, gboolean stats_known,
+struct pcap_stat stats)
 {
-    int capture_succeeded;
-    gboolean stats_known;
-    struct pcap_stat stats;
     int err;
 
-    /* Not sync mode. */
-    capture_succeeded = capture_loop_start(capture_opts, &stats_known, &stats);
-    if (capture_opts->quit_after_cap) {
-      /* DON'T unlink the save file.  Presumably someone wants it. */
-        main_window_exit();
-    }
-    if (!capture_succeeded) {
-      /* We didn't succeed in doing the capture, so we don't have a save
-	 file. */
-      capture_close_output(capture_opts);
-      return FALSE;
-    }
+
     /* Capture succeeded; attempt to read in the capture file. */
     if (cf_open(capture_opts->cf, capture_opts->save_file, is_tempfile, &err) != CF_OK) {
       /* We're not doing a capture any more, so we don't have a save
 	 file. */
-      capture_close_output(capture_opts);
       return FALSE;
     }
 
     /* Set the read filter to NULL. */
+    /* XXX - this is odd here, try to put it somewhere, where it fits better */
     cf_set_rfcode(capture_opts->cf, NULL);
 
     /* Get the packet-drop statistics.
@@ -257,10 +247,6 @@ normal_do_capture(capture_options *capture_opts, gboolean is_tempfile)
       return FALSE;
     }
 
-    /* We're not doing a capture any more, so we don't have a save
-       file. */
-    capture_close_output(capture_opts);
-
     /* if we didn't captured even a single packet, close the file again */
     if(cf_packet_count(capture_opts->cf) == 0) {
       simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
@@ -271,6 +257,32 @@ normal_do_capture(capture_options *capture_opts, gboolean is_tempfile)
       cf_close(capture_opts->cf);
     }
   return TRUE;
+}
+
+
+/* start a normal capture session */
+static gboolean
+normal_do_capture(capture_options *capture_opts, gboolean is_tempfile)
+{
+    gboolean succeeded;
+    gboolean stats_known;
+    struct pcap_stat stats;
+
+
+    /* Not sync mode. */
+    succeeded = capture_loop_start(capture_opts, &stats_known, &stats);
+    if (capture_opts->quit_after_cap) {
+      /* DON'T unlink the save file.  Presumably someone wants it. */
+        main_window_exit();
+    }
+    if (succeeded) {
+        /* We succeed in doing the capture, try to read it in. */
+        succeeded = capture_read(capture_opts, is_tempfile, stats_known, stats);
+    }
+
+    /* wether the capture suceeded or not, we have to close the output file here */
+    capture_close_output(capture_opts);
+    return succeeded;
 }
 
 
