@@ -3358,7 +3358,6 @@ static void
 dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 tmp, bacapp_type;
-	tvbuff_t *next_tvb;
 
 	tmp = tvb_get_guint8(tvb, 0);
 	bacapp_type = (tmp >> 4) & 0x0f;
