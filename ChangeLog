@@ -213,9 +213,48 @@ Overview of changes in Ethereal 0.9.6:
 * Convert some all caps NETLOGON names to more friendly names (Tim)
 * Fixed incorrect NDR pointer type in Authenticate3 in NETLOGON (Ronnie)
 * Added new function name LogonSamLogonEx in NETLOGON (Ronnie)
-* 
+* Fix a typo in a M2UA table and reformat it (Michael)
+* Revert part of the TCP session tracking code (Ronnie)
+* Fix some incorrect NETLOGON poitner types (Jean-Francois Micouleau)
+* Adjust pointer usage in NETLOGON (Ronnie)
+* Sync PPP with IANA, add MPLSCP and CDPCP, CDP over PPP (ENDOH Akira)
+* Add protocol blurbs to "-G" fields (Vassilii Khachaturov)
+* Adjust "-G"scripts to handle FT_UINT64, FT_INT64 and FT_STRING (Guy)
+* Properly extract ISAKMP data, handle Initiator and Responder cookies
+  (Yaniv)
+* Fix handling of SCSI mode sense (Bill Studenmund)
+* Fix a couple of string handling bugs and properly display a uint in
+  NTLMSSP (Guy)
+* Tweak the Solaris/SVR4 packaging a bit (Gerald)
+* Limit the parameter and data tvbuffs in SMB (Guy)
+* Keep track of "i", "a" and "m" tags in SDP (Guy)
+* Fix "PS" bit recording in SCSI, improve unknown page display, fix MODE
+  SELECT payload length, add more data length checks, fix density code
+  (Guy)
+* Generalize paths in ethereal.nsi and remove the need for ethereal.nsi.in
+  (Ulf Lamping)
+* Set "SetShellVarContext all" in ethereal.nsi (Gerald)
+* Add COMMON_FILES_GNU to config.nmake (Gerald)
+* Add LLMNR support (Itojun)
+* Add a plain text FAQ to the distribution (Joerg)
+* Fix ethereal.nsi entries in Makefile.am (Joerg)
+* Add TDS protocol support (Brian Bruns, Joerg)
+* Add make-faq script (Joerg)
+* Add the text FAQ to each package (Joerg)
+* Clean up RPM building process (Joerg)
+* Fix zero-infinite-looping problem in packet-tds.c (Guy)
+* Fix formatting of SCSI "(size)" tags, track device/command types better,
+  other updates (Guy)
+* Parse ISAKMP group descriptions, improve transform/payload display, 
+  parse vendor ID (Yaniv)
+* Add -S option to tethereal (Joerg)
+* Improve SCSI device type handling, fix memory leaks, fix SSC READ(6) and
+  WRITE(6) dissectors (Guy)
+* Add missing "-static.o" to Makefile.am
+* Fix infinite recursion bug in DOCSIS (Anand)
+* Update CPHA to use the new dissector API (Guy)
 
-Stopped at: http://www.ethereal.com/lists/ethereal-cvs/200208/msg00091.html
+
 
 
 Overview of changes in Ethereal 0.9.5:

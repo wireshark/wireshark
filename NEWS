@@ -4,84 +4,53 @@ Ethereal 0.9.6 has been released.
 
 Bugs Fixed
 
-Buffer overflow in ISIS fixed.
-A bad TCP header could cause problems for "Follow TCP Stream".  Fixed.
-Setting "column.format" from the command line no longer crashes Ethereal
-and tethereal.
-Problems with capture files being overwritten (e.g. if you try to save over
-the current capture file) have been fixed.
-SMB conversation handling crash bug fixed.
-Thanks to Valgrind, some memory leaks have been fixed.
-Some problems with printing under Windows have been fixed.
+  A buffer overflow in the ISIS dissector has been fixed.  More
+  information can be found at
+  http://www.ethereal.com/appnotes/enpa-sa-00006.html.
+    
+  A bad TCP header could cause problems for the "Follow TCP Stream"
+  feature.
+  
+  Setting "column.format" from the command line no longer crashes
+  Ethereal and Tethereal.
+
+  Problems with capture files being overwritten (e.g. if you try to save over
+  the current capture file) have been fixed.
+
+  An SMB conversation handling bug has been fixed.
+
+  Thanks to Valgrind, several memory leaks have been fixed.
+
+  Some problems with printing under Windows have been fixed.
+
 
 New Features
 
-TCP sequence number analysis has been added.
-The DCE RPC NETLOGON dissector has received a major overhaul.
-Data types throughout the code have been cleaned up. 
+  TCP sequence number analysis has been added.
 
-Caveats
+  The DCE RPC NETLOGON dissector has received a major overhaul.
 
-Please note that the BACnet protocol dissector added in version 0.8.17 is
-still very incomplete, according to the folks on the BACnet Committee.
+  Data types throughout the code have been cleaned up. 
+
 
 New Procols
-CPHA,
-DOCSIS,
-NTLMSSP,
-Xyplex terminal server protocol,
-ZIP
+
+  CPHA, DOCSIS, NTLMSSP, Xyplex terminal server protocol, ZIP
 
 
 Updated Prococols
 
-802.11,
-AFP,
-ASAP,
-BGP,
-DDP,
-DCERPC,
-DCERPC NT,
-DCERPC REG,
-EPM,
-FTP,
-HCLNFSD,
-HTTP,
-IPX,
-ISIS,
-IUA,
-Kerberos,
-L2TP,
-LSA,
-MMSE,
-NBNS,
-NetBIOS,
-NETLOGON,
-NFS,
-NTLMSSP,
-PPP,
-Quake2,
-RADIUS,
-RSVP,
-RTCP,
-SAMR,
-SIP,
-SMB,
-SMB Mailslot,
-SMTP,
-SPOOLSS,
-TCP,
-TNS,
-TPKT,
-Token Ring,
-VJ TCP,
-WINREG,
-WSP,
+  802.11, AFP, ASAP, BGP, CDP, CDPCP, CPHA, DDP, DCERPC, DCERPC NT, DCERPC
+  REG, EPM, FTP, HCLNFSD, HTTP, IPX, ISAKMP, ISIS, IUA, Kerberos, L2TP,
+  LLMNR, LSA, MMSE, MPLSCP, NBNS, NetBIOS, NETLOGON, NFS, NTLMSSP, PPP,
+  Quake2, RADIUS, RSVP, RTCP, SAMR, SCSI, SDP, SIP, SMB, SMB Mailslot,
+  SMTP, SPOOLSS, TCP, TDS, TNS, TPKT, Token Ring, VJ TCP, WINREG, WSP
 
 
 Capture File Updates
-Added CheckPoint Firewall-1 monitor file, CoSine debug file, 
-updated pppdump, Netmon, 
+
+CheckPoint Firewall-1 monitor file support and CoSine debug file support
+were added.  Support for pppdump and Netmon files was updated.
 
 
 == June 28, 2002
