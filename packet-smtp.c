@@ -1,7 +1,7 @@
 /* packet-smtp.c
- * Routines for BXXP packet disassembly
+ * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.1 2000/08/19 23:06:51 sharpe Exp $
+ * $Id: packet-smtp.c,v 1.2 2000/08/20 02:16:23 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -103,7 +103,7 @@ dissect_smtp(const u_char *pd, int offset, frame_data *fd,
     /* Let's figure out this packet ... First check if we have done it 
        all before ... */
 
-    frame_data = p_get_proto_data(fd, proto_smtp);  /* FIXME: What about tvb */
+    frame_data = p_get_proto_data(pinfo->fd, proto_smtp);
 
     /* SMTP messages have a simple format ... */
 
@@ -111,7 +111,7 @@ dissect_smtp(const u_char *pd, int offset, frame_data *fd,
 
       request = pinfo -> destport == TCP_PORT_SMTP;
       cmd = pd + offset;   /* FIXME: What about tvb */
-      data = index(cmd, ' ');  /* Find the space */
+      data = strchr(cmd, ' ');  /* Find the space */
       if (data) data++;                /* Skip the space if there */
 
     }
@@ -195,7 +195,7 @@ proto_reg_handoff_smtp(void)
 
   if (smtp_prefs_initialized) {
 
-    dissector_delete("tcp.port", tcp_port, dissect_smtp);
+    old_dissector_delete("tcp.port", tcp_port, dissect_smtp);
 
   }
   else {
@@ -206,6 +206,6 @@ proto_reg_handoff_smtp(void)
 
   tcp_port = global_smtp_tcp_port;
 
-  dissector_add("tcp.port", global_smtp_tcp_port, dissect_smtp);
+  old_dissector_add("tcp.port", global_smtp_tcp_port, dissect_smtp);
 
 }
