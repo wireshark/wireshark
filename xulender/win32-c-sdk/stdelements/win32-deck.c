@@ -25,7 +25,7 @@
   */
 
 typedef struct _deck_data_t {
-    gint selectedindex;
+    guint selectedindex;
     win32_element_t *selectedpanel;
 } deck_data_t;
 

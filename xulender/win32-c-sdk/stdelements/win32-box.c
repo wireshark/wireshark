@@ -154,7 +154,7 @@ win32_box_add(win32_element_t *box, win32_element_t *box_el, int pos) {
 	box->contents = g_list_insert(box->contents, box_el, pos);
 
     if (box->type == BOX_DECK) {
-	if (g_list_index(box->contents, box_el) != win32_deck_get_selectedindex(box))
+	if (g_list_index(box->contents, box_el) != (gint) win32_deck_get_selectedindex(box))
 	    ShowWindow(box_el->h_wnd, SW_HIDE);
     }
 
