@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Gerald Combs <gerald@ethereal.com>
  *
- * $Id: packet-syslog.c,v 1.15 2002/01/24 09:20:52 guy Exp $
+ * $Id: packet-syslog.c,v 1.16 2002/02/02 03:04:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -149,11 +149,12 @@ static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
     
-  if (tvb_get_guint8(tvb, 0) == '<' && isdigit(tvb_get_guint8(tvb, 1))) {
+  if (tvb_get_guint8(tvb, msg_off) == '<') {
+    /* A facility and level follow. */
     msg_off++;
     pri = 0;
-    while (isdigit(tvb_get_guint8(tvb, msg_off)) && msg_off <= MAX_DIGITS &&
-           tvb_length_remaining(tvb, msg_off)) {
+    while (tvb_bytes_exist(tvb, msg_off, 1) &&
+           isdigit(tvb_get_guint8(tvb, msg_off)) && msg_off <= MAX_DIGITS) {
       pri = pri * 10 + (tvb_get_guint8(tvb, msg_off) - '0');
       msg_off++;
     }
@@ -164,7 +165,7 @@ static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* Copy the message into a string buffer, with a trailing ellipsis if needed. */
-  msg_len = tvb_length_remaining(tvb, msg_off);
+  msg_len = tvb_ensure_length_remaining(tvb, msg_off);
   if (msg_len >= COL_INFO_LEN) {
     tvb_memcpy(tvb, msg_str, msg_off, ellipsis_len);
     strcpy (msg_str + ellipsis_len, ELLIPSIS);
