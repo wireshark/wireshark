@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.16 2001/01/26 06:14:53 guy Exp $
+ * $Id: packet-mgcp.c,v 1.17 2001/03/04 00:43:56 guy Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -99,6 +99,7 @@ static int hf_mgcp_param_detectedevents = -1;
 static int hf_mgcp_param_capabilities = -1;
 static int hf_mgcp_param_extention = -1;
 static int hf_mgcp_param_invalid = -1;
+static int hf_mgcp_messagecount = -1;
 
 /* 
  * Define the trees for mgcp
@@ -131,7 +132,7 @@ static int global_mgcp_callagent_tcp_port = TCP_PORT_MGCP_CALLAGENT;
 static int global_mgcp_callagent_udp_port = UDP_PORT_MGCP_CALLAGENT;
 static gboolean global_mgcp_raw_text = FALSE;
 static gboolean global_mgcp_dissect_tree = TRUE;
-
+static gboolean global_mgcp_message_count = FALSE;
 
 /*
  * Variables to allow for proper deletion of dissector registration when 
@@ -161,6 +162,8 @@ static gint tvb_parse_param(tvbuff_t *tvb, gint offset, gint maxlength,
  * subpart of MGCP.  These aren't really proto dissectors but they 
  * are written in the same style.
  */ 
+static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, 
+				 proto_tree *tree);
 static void dissect_mgcp_firstline(tvbuff_t *tvb, 
 				   packet_info* pinfo, 
 				   proto_tree *tree);
@@ -177,6 +180,8 @@ static void mgcp_raw_text_add(tvbuff_t *tvb, packet_info *pinfo,
 static gint tvb_skip_wsp(tvbuff_t* tvb, gint offset, gint maxlength);
 static gint tvb_find_null_line(tvbuff_t* tvb, gint offset, gint len,
 			       gint* next_offset); 
+static gint tvb_find_dot_line(tvbuff_t* tvb, gint offset, 
+			      gint len, gint* next_offset);
 static gint tvb_section_length(tvbuff_t* tvb, gint tvb_sectionbegin, 
 			       gint tvb_sectionend);
 static gboolean is_rfc2234_alpha(guint8 c);
@@ -190,19 +195,18 @@ static dissector_handle_t sdp_handle;
 static void
 dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree *mgcp_tree, *ti;
   gint sectionlen;
+  guint32 num_messages;
   gint tvb_sectionend,tvb_sectionbegin, tvb_len, tvb_current_len;
-  tvbuff_t *next_tvb;
 
   /* Initialize variables */
-  
   tvb_sectionend = 0;
   tvb_sectionbegin = tvb_sectionend;
   sectionlen = 0;
   tvb_len = tvb_length(tvb);
   tvb_current_len  = tvb_len;
-  
+  num_messages = 0;
+
   /*
    * Set the columns now, so that they'll be set correctly if we throw
    * an exception.  We can set them later as well....
@@ -219,6 +223,82 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    */
   if(is_mgcp_verb(tvb,0,tvb_len) || is_mgcp_rspcode(tvb,0,tvb_len)){
 
+    /* Build the info tree if we've been given a root */
+    if (tree || global_mgcp_message_count == TRUE) {   
+      /* 
+       * Loop through however many mgcp messages may be stuck in 
+       * this packet using piggybacking
+       */
+      do{
+	num_messages++;
+	sectionlen = tvb_find_dot_line(tvb, tvb_sectionbegin, -1,
+				       &tvb_sectionend);
+	if( sectionlen != -1){
+	  dissect_mgcp_message(tvb_new_subset(tvb, tvb_sectionbegin, 
+					      sectionlen, -1),
+			       pinfo, tree);
+	  tvb_sectionbegin = tvb_sectionend;
+	}
+	else {
+	  break;
+	}
+      } while(tvb_sectionend < tvb_len );
+      proto_tree_add_uint_hidden(tree, hf_mgcp_messagecount,NullTVB,0,0,
+				 num_messages); 
+    } 
+
+    /* 
+     * Add our column information we do this after dissecting SDP 
+     * in order to prevent the column info changing to reflect the SDP.
+     */
+    tvb_sectionbegin = 0;
+    if (check_col(pinfo->fd, COL_PROTOCOL)){
+      if( global_mgcp_message_count == TRUE ){
+	if(num_messages > 1){
+	  col_add_fstr(pinfo->fd, COL_PROTOCOL, "MGCP (%i messages)",num_messages);
+	}
+	else {
+	  col_add_fstr(pinfo->fd, COL_PROTOCOL, "MGCP (%i message)",num_messages);
+	}
+      }
+      else {
+	  col_add_str(pinfo->fd, COL_PROTOCOL, "MGCP");
+      }
+    }
+	
+    if (check_col(pinfo->fd, COL_INFO) ){
+      sectionlen = tvb_find_line_end(tvb, tvb_sectionbegin,-1,
+				     &tvb_sectionend);
+      col_add_fstr(pinfo->fd,COL_INFO, "%s", 
+		   tvb_format_text(tvb,tvb_sectionbegin,sectionlen));
+    } 
+  }  
+}
+
+static void 
+dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+
+  /* Declare variables */
+  proto_tree *mgcp_tree, *ti;
+  gint sectionlen;
+  gint tvb_sectionend,tvb_sectionbegin, tvb_len, tvb_current_len;
+  tvbuff_t *next_tvb;
+
+  /* Initialize variables */
+  
+  tvb_sectionend = 0;
+  tvb_sectionbegin = tvb_sectionend;
+  sectionlen = 0;
+  tvb_len = tvb_length(tvb);
+  tvb_current_len  = tvb_len;
+
+  /* 
+   * Check to see whether we're really dealing with MGCP by looking 
+   * for a valid MGCP verb or response code.  This isn't infallible,
+   * but its cheap and its better than nothing.
+   */
+  if(is_mgcp_verb(tvb,0,tvb_len) || is_mgcp_rspcode(tvb,0,tvb_len)){
+    
     /* Build the info tree if we've been given a root */
     if (tree) {  
       
@@ -258,31 +338,19 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* Do we want to display the raw text of our MGCP packet? */
       if(global_mgcp_raw_text){
-	mgcp_raw_text_add(tvb_new_subset(tvb,0,sectionlen,-1),pinfo, 
+	mgcp_raw_text_add(tvb_new_subset(tvb,0,tvb_len,-1),pinfo, 
 			  mgcp_tree);
       }
 
       /* dissect sdp payload */
-      if( tvb_sectionend < tvb_len ){ 
+      if( tvb_sectionend < tvb_len && global_mgcp_dissect_tree == TRUE){ 
 	next_tvb = tvb_new_subset(tvb, tvb_sectionend, -1, -1);       
 	call_dissector(sdp_handle, next_tvb, pinfo, tree);
       }
     }
-    /* 
-     * Add our column information we do this after dissecting SDP 
-     * in order to prevent the column info changing to reflect the SDP.
-     */
-    tvb_sectionbegin = 0;
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-      col_add_str(pinfo->fd, COL_PROTOCOL, "MGCP");
-    if (check_col(pinfo->fd, COL_INFO) ){
-      sectionlen = tvb_find_line_end(tvb, tvb_sectionbegin,-1,
-				     &tvb_sectionend);
-      col_add_fstr(pinfo->fd,COL_INFO, "%s", 
-		   tvb_format_text(tvb,tvb_sectionbegin,sectionlen));
-    } 
-  }  
+  }
 }
+
 
 /* 
  * Add the raw text of the message to the dissect tree if appropriate 
@@ -298,25 +366,14 @@ static void mgcp_raw_text_add(tvbuff_t *tvb, packet_info *pinfo,
   tvb_linebegin = 0;
   tvb_len = tvb_length(tvb);
 
-  linelen = tvb_find_line_end(tvb,tvb_linebegin,-1,&tvb_lineend);
-  if(tvb_lineend < tvb_len){
+  do {
+    tvb_find_line_end(tvb,tvb_linebegin,-1,&tvb_lineend);    
     linelen = tvb_lineend - tvb_linebegin;
-  }
-  
-  while(tvb_lineend < tvb_len){
     proto_tree_add_text(tree, tvb, tvb_linebegin, linelen, 
 			"%s", tvb_format_text(tvb,tvb_linebegin, 
 					      linelen));
     tvb_linebegin = tvb_lineend;
-    tvb_find_line_end(tvb,tvb_linebegin,-1,&tvb_lineend);
-    linelen = tvb_lineend - tvb_linebegin;
-  }
-  if(tvb_linebegin < tvb_len){
-    linelen = tvb_len - tvb_linebegin;
-    proto_tree_add_text(tree, tvb, tvb_linebegin, linelen, 
-			"%s", tvb_format_text(tvb,tvb_linebegin, 
-					      linelen));
-  }
+  } while ( tvb_lineend < tvb_len );
 }
 
 /* Register all the bits needed with the filtering engine */
@@ -427,6 +484,9 @@ proto_register_mgcp(void)
     { &hf_mgcp_param_invalid,
       { "Invalid Parameter", "mgcp.param.invalid", FT_STRING, 
 	BASE_DEC, NULL, 0x0, "Invalid Parameter"}},
+    { &hf_mgcp_messagecount, 
+      { "MGCP Message Count", "mgcp.messagecount", FT_UINT32, 
+	BASE_DEC, NULL, 0x0, "Number of MGCP message in a packet"}},
     /* Add more fields here */
   };
   static gint *ett[] = {
@@ -486,6 +546,10 @@ proto_register_mgcp(void)
 				 "raw text",
                                  &global_mgcp_dissect_tree);
 
+  prefs_register_bool_preference(mgcp_module, "display_mgcp_message_count", 
+                                 "Display the number of MGCP messages", 
+                                 "found in a packet in the protocol column.",
+                                 &global_mgcp_message_count);
 }
 
 /* The registration hand-off routine */
@@ -832,7 +896,6 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb,
       else{
 	tokenlen = tvb_current_offset - tvb_previous_offset;
       }
-
       if(tokennum == 0){
 	if(is_mgcp_verb(tvb,tvb_previous_offset,tvb_current_len)){
 	  mgcp_type = MGCP_REQUEST;
@@ -877,8 +940,8 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb,
 				   tvb_previous_offset, tokenlen,
 				   tvb_format_text(tvb, tvb_previous_offset,
 						   tokenlen));
-	  }
-	break;
+	  break;
+	}
       }
       if( (tokennum == 3 && mgcp_type == MGCP_REQUEST) ){
 	if(tvb_current_offset < tvb_len ){
@@ -1082,6 +1145,111 @@ static gint tvb_find_null_line(tvbuff_t* tvb, gint offset,
   } 
 
   return (tvb_current_len);
+}
+
+/*
+ * tvb_find_dot_line -  Returns the length from offset to the first line 
+ *                      containing only a dot (.) character.  A line 
+ *                      containing only a dot is used to indicate a 
+ *                      separation between multiple MGCP messages 
+ *                      piggybacked in the same UDP packet.
+ *
+ * Parameters: 
+ * tvb - The tvbuff in which we are looking for a dot line.
+ * offset - The offset in tvb at which we will begin looking for 
+ *          a dot line.
+ * len - The maximum distance from offset in tvb that we will look for 
+ *       a dot line.  If it is -1 we will look to the end of the buffer.
+ *
+ * next_offset - The location to write the offset of first character 
+ *               FOLLOWING the dot line.  
+ *
+ * Returns: The length from offset to the first character BEFORE 
+ *          the dot line or -1 if the character at offset is a . 
+ *          followed by a newline or a carriage return.
+ */
+static gint tvb_find_dot_line(tvbuff_t* tvb, gint offset, 
+			       gint len, gint* next_offset){
+  gint tvb_current_offset, tvb_current_len, maxoffset,tvb_len;
+  guint8 tempchar;
+
+  tvb_current_offset = offset;
+  tvb_current_len = len;
+  tvb_len = tvb_length(tvb);
+
+  if(len == -1){
+    maxoffset = ( tvb_len - 1 );
+  }
+  else { 
+    maxoffset = (len - 1 ) + offset;
+  }
+  tvb_current_offset = offset -1;
+  do {
+    tvb_current_offset = tvb_find_guint8(tvb, tvb_current_offset+1,
+					 tvb_current_len, '.');
+    tvb_current_len = maxoffset - tvb_current_offset + 1;
+    /* 
+     * if we didn't find a . then break out of the loop
+     */
+    if(tvb_current_offset == -1){
+      break;
+    }
+    /* do we have and characters following the . ? */
+    if( tvb_current_offset < maxoffset ) { 
+      tempchar = tvb_get_guint8(tvb,tvb_current_offset+1);
+      /* 
+       * are the characters that follow the dot a newline or carriage return ? 
+       */
+      if(tempchar == '\r' || tempchar == '\n'){
+	/*
+	 * do we have any charaters that proceed the . ?
+	 */
+	if( tvb_current_offset == 0 ){
+	  break;
+	}
+	else {
+	  tempchar = tvb_get_guint8(tvb,tvb_current_offset-1);
+	  /*
+	   * are the characters that follow the dot a newline or a carriage 
+	   * return ?
+	   */
+	  if(tempchar == '\r' || tempchar == '\n'){
+	    break;
+	  }
+	}
+      }
+    }
+    else if ( tvb_current_offset == maxoffset ) {
+      if( tvb_current_offset == 0 ){
+	break;
+      }
+      else {
+	tempchar = tvb_get_guint8(tvb,tvb_current_offset-1);
+	if(tempchar == '\r' || tempchar == '\n'){
+	  break;
+	}
+      }
+    }    
+  } while (tvb_current_offset < maxoffset);
+  /* 
+   * so now we either have the tvb_current_offset of a . in a dot line 
+   * or a tvb_current_offset of -1
+   */
+  if(tvb_current_offset == -1){
+    tvb_current_offset = maxoffset +1;
+    *next_offset = maxoffset + 1;
+  }
+  else {
+    tvb_find_line_end(tvb,tvb_current_offset,tvb_current_len,next_offset);
+  }
+
+  if( tvb_current_offset == offset ){
+    tvb_current_len = -1;
+  }  
+  else {
+    tvb_current_len = tvb_current_offset - offset;
+  }
+  return tvb_current_len;  
 }
 
 static gint tvb_section_length(tvbuff_t* tvb, gint tvb_sectionbegin, 
