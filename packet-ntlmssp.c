@@ -2,7 +2,7 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.24 2002/09/24 00:14:46 tpot Exp $
+ * $Id: packet-ntlmssp.c,v 1.25 2002/09/24 00:40:42 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -402,7 +402,7 @@ dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset,
 static int
 dissect_ntlmssp_address_list (tvbuff_t *tvb, int offset, 
 			      proto_tree *ntlmssp_tree, 
-			      gboolean unicode_strings, int *end)
+			      int *end)
 {
   gint16 list_length = tvb_get_letohs(tvb, offset);
   gint16 list_maxlen = tvb_get_letohs(tvb, offset+2);
@@ -443,8 +443,12 @@ dissect_ntlmssp_address_list (tvbuff_t *tvb, int offset,
     int result_length;
     const char *text;
     bc = item_length;
+
+    /* Strings are always in unicode regardless of the negotiated
+       string type. */
+
     text = get_unicode_or_ascii_string(tvb, &item_offset,
-				       unicode_strings, &result_length,
+				       TRUE, &result_length,
 				       FALSE, FALSE, &bc);
 
     if (!text) text = ""; /* Make sure we don't blow up below */
@@ -488,7 +492,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree)
 
   /* need to find unicode flag */
   negotiate_flags = tvb_get_letohl (tvb, offset+8);
-  if (negotiate_flags && NTLMSSP_NEGOTIATE_UNICODE)
+  if (negotiate_flags & NTLMSSP_NEGOTIATE_UNICODE)
     unicode_strings = TRUE;
 
   /* Domain name */
@@ -512,8 +516,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree)
 		       tvb, offset, 8, FALSE);
   offset += 8;
 
-  offset = dissect_ntlmssp_address_list(tvb, offset, ntlmssp_tree, 
-					unicode_strings, &item_end);
+  offset = dissect_ntlmssp_address_list(tvb, offset, ntlmssp_tree, &item_end);
   data_end = MAX(data_end, item_end);
 
   return MAX(offset, data_end);
@@ -528,7 +531,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree)
   gboolean unicode_strings = FALSE;
 
   negotiate_flags = tvb_get_letohl (tvb, offset+50);
-  if (negotiate_flags && NTLMSSP_NEGOTIATE_UNICODE)
+  if (negotiate_flags & NTLMSSP_NEGOTIATE_UNICODE)
     unicode_strings = TRUE;
 
   /* Lan Manager response */
