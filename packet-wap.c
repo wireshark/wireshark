@@ -2,7 +2,7 @@
  *
  * Utility routines for WAP dissectors
  *
- * $Id: packet-wap.c,v 1.7 2002/08/28 21:00:37 jmayer Exp $
+ * $Id: packet-wap.c,v 1.8 2003/11/14 01:27:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,19 +50,17 @@ tvb_get_guintvar (tvbuff_t *tvb, guint offset, guint *octetCount)
 	guint counter = 0;
 	char cont = 1;
 
+#ifdef DEBUG
 	if (octetCount != NULL)
 	{
-#ifdef DEBUG
-		fprintf (stderr, "dissect_wsp: Starting tvb_get_guintvar at offset %d, count=NULL\n", offset);
-#endif
+		fprintf (stderr, "dissect_wap: Starting tvb_get_guintvar at offset %d, count=%d\n", offset, *octetCount);
 		/* counter = *octetCount; */
 	}
 	else
 	{
-#ifdef DEBUG
-		fprintf (stderr, "dissect_wsp: Starting tvb_get_guintvar at offset %d, count=%d\n", offset, *octetCount);
-#endif
+		fprintf (stderr, "dissect_wap: Starting tvb_get_guintvar at offset %d, count=NULL\n", offset);
 	}
+#endif
 
 	while (cont != 0)
 	{
@@ -72,7 +70,7 @@ tvb_get_guintvar (tvbuff_t *tvb, guint offset, guint *octetCount)
 		value += (octet & 0x7F);
 		cont = (octet & 0x80);
 #ifdef DEBUG
-		fprintf (stderr, "dissect_wsp: octet is %d (0x%02x), count=%d, value=%d, cont=%d\n", octet, octet, counter, value, cont);
+		fprintf (stderr, "dissect_wap: computing: octet is %d (0x%02x), count=%d, value=%d, cont=%d\n", octet, octet, counter, value, cont);
 #endif
 	}
 
@@ -80,7 +78,7 @@ tvb_get_guintvar (tvbuff_t *tvb, guint offset, guint *octetCount)
 	{
 		*octetCount = counter;
 #ifdef DEBUG
-		fprintf (stderr, "dissect_wsp: Leaving tvb_get_guintvar count=%d\n", *octetCount);
+		fprintf (stderr, "dissect_wap: Leaving tvb_get_guintvar count=%d, value=%u\n", *octetCount, value);
 #endif
 	}
 
