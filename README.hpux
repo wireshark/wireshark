@@ -72,46 +72,472 @@ interface, whilst on HP-UX you have to go through "/dev/dlpi", you won't
 get a list of interfaces in the dialog box for "Capture:Start" - you'll
 have to do through the aforementioned song and dance to find the PPA of
 the interface you want to use, and supply the "dlpiN" name by hand (I
-think you can omit the "/dev/" in both "tcpdump" and Ethereal).
+think you can omit the "/dev/" in both tcpdump and Ethereal).
 
-It looks as if vanilla "libpcap-0.4" will use various DLPI calls to get
-the PPA on systems such as HP-UX 10.x that have DL_HP_PPA_ACK_OBS
-defined, and will try to dredge it out of the kernel on HP-UX 9.x - but
-if 11.x doesn't define DL_HP_PPA_ACK_OBS, it will do neither on 11.x,
-which may mean you're stuck with the "dlpiN" hack on 11.x, at least
-until somebody indicates how to get the PPA on 11.x.  (Given the comment
-about the PPA:
+Here is a patch to "pcap-dlpi.c" in libpcap that, at least on HP-UX
+11.X, allows the name of the network interface, rather than the "dlpiN"
+name, to be specified to tcpdump and Ethereal.  It has not been tried on
+HP-UX 10.20; it fixes one bug that could have caused the code in vanilla
+libpcap not to correctly find the PPA for an interface on HP-UX 10.20,
+but HP-UX 10.20's DLPI doesn't supply, in the data returned by a
+DL_HP_PPA_REQ request, network interface names, so, on systems without
+the network interface names in that data, the code continues to check
+the major device number.
 
-	You get the PPA by looking at the output of lanscan.  On 10.20,
-	it is the same value as the NMID.  On 11.X, it is the Card
-	Instance number.
+On HP-UX 11.00, the patch allows a network interface to be specified by
+name as an argument to tcpdump, rather than requiring that you specify a
+"dlpiN" name (and it should work equally well with Ethereal).
 
-in Rick's posting, it may well be that the code has to do something
-different on 11.x.)
+If you try this code on HP-UX 10.20, and it doesn't let you specify the
+interface by name, please send mail to ethereal-dev@zing.org, so that we
+know that it didn't work - we'll probably send you debugging patches in
+the hopes of being able to make it work on 10.20 as well.
 
-The experimental stuff to which the second article refers is a STREAMS
-module that implements BPF-style filtering and buffering, an
-experimental version of "libpcap-0.4" that pushes that STREAMS module,
-and source to "tcpdump-3.4".
+Here's the patch (to vanilla libpcap 0.4; it patches "configure",
+"aclocal.m4", and "configure.in", to make the configure script check
+whether your version of HP-UX supplies the interface names in the reply
+to a DL_HP_PPA_REQ request, and "pcap-dlpi.c"):
 
-The STREAMS module is in source form - no binary has been provided. 
-It's in
+*** ../libpcap-0.4/configure	Sat Jul 25 12:41:51 1998
+--- configure	Fri Jan 14 00:40:04 2000
+***************
+*** 1702,1709 ****
+  
+      fi
+  
+  echo $ac_n "checking if unaligned accesses fail""... $ac_c" 1>&6
+! echo "configure:1707: checking if unaligned accesses fail" >&5
+      if eval "test \"`echo '$''{'ac_cv_lbl_unaligned_fail'+set}'`\" = set"; then
+    echo $ac_n "(cached) $ac_c" 1>&6
+  else
+--- 1702,1745 ----
+  
+      fi
+  
++ echo $ac_n "checking if dl_hp_ppa_info_t struct has dl_module_id_1 member""... $ac_c" 1>&6
++ echo "configure:1707: checking if dl_hp_ppa_info_t struct has dl_module_id_1 member" >&5
++     if eval "test \"`echo '$''{'ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1'+set}'`\" = set"; then
++   echo $ac_n "(cached) $ac_c" 1>&6
++ else
++   cat > conftest.$ac_ext <<EOF
++ #line 1712 "configure"
++ #include "confdefs.h"
++ 
++ #	include <sys/types.h>
++ #	include <sys/dlpi.h>
++ #	include <sys/dlpi_ext.h>
++ int main() {
++ u_int i = sizeof(((dl_hp_ppa_info_t *)0)->dl_module_id_1)
++ ; return 0; }
++ EOF
++ if { (eval echo configure:1722: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
++   rm -rf conftest*
++   ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1=yes
++ else
++   echo "configure: failed program was:" >&5
++   cat conftest.$ac_ext >&5
++   rm -rf conftest*
++   ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1=no
++ fi
++ rm -f conftest*
++ fi
++ 
++     echo "$ac_t""$ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1" 1>&6
++     if test $ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1 = yes ; then
++ 	    cat >> confdefs.h <<\EOF
++ #define HAVE_HP_PPA_INFO_T_DL_MODULE_ID_1 1
++ EOF
++ 
++     fi
++ 
+  echo $ac_n "checking if unaligned accesses fail""... $ac_c" 1>&6
+! echo "configure:1743: checking if unaligned accesses fail" >&5
+      if eval "test \"`echo '$''{'ac_cv_lbl_unaligned_fail'+set}'`\" = set"; then
+    echo $ac_n "(cached) $ac_c" 1>&6
+  else
+***************
+*** 1799,1805 ****
+  # SVR4 /usr/ucb/install, which tries to use the nonexistent group "staff"
+  # ./install, which can be erroneously created by make from ./install.sh.
+  echo $ac_n "checking for a BSD compatible install""... $ac_c" 1>&6
+! echo "configure:1803: checking for a BSD compatible install" >&5
+  if test -z "$INSTALL"; then
+  if eval "test \"`echo '$''{'ac_cv_path_install'+set}'`\" = set"; then
+    echo $ac_n "(cached) $ac_c" 1>&6
+--- 1835,1841 ----
+  # SVR4 /usr/ucb/install, which tries to use the nonexistent group "staff"
+  # ./install, which can be erroneously created by make from ./install.sh.
+  echo $ac_n "checking for a BSD compatible install""... $ac_c" 1>&6
+! echo "configure:1839: checking for a BSD compatible install" >&5
+  if test -z "$INSTALL"; then
+  if eval "test \"`echo '$''{'ac_cv_path_install'+set}'`\" = set"; then
+    echo $ac_n "(cached) $ac_c" 1>&6
 
-	ftp://ftp.cup.hp.com/dist/networking/tools/bpfmod/bpfmod_0.1.tar.gz
 
-"libpcap" and "tcpdump" are in both source and binary form; they're in
+*** ../libpcap-0.4/aclocal.m4	Fri Jun 12 03:45:15 1998
+--- aclocal.m4	Tue Jan  4 21:02:13 2000
+***************
+*** 415,420 ****
+--- 415,454 ----
+      fi])
+  
+  dnl
++ dnl Checks to see if the dl_hp_ppa_info_t struct has the HP-UX 11.00
++ dnl dl_module_id_1 member
++ dnl
++ dnl usage:
++ dnl
++ dnl	AC_LBL_HP_PPA_INFO_T_DL_MODULE_ID_1
++ dnl
++ dnl results:
++ dnl
++ dnl	HAVE_HP_PPA_INFO_T_DL_MODULE_ID_1 (defined)
++ dnl
++ dnl NOTE: any compile failure means we conclude that it doesn't have
++ dnl that member, so if we don't have DLPI, don't have a <sys/dlpi_ext.h>
++ dnl header, or have one that doesn't declare a dl_hp_ppa_info_t type,
++ dnl we conclude it doesn't have that member (which is OK, as either we
++ dnl won't be using code that would use that member, or we wouldn't
++ dnl compile in any case).
++ dnl
++ AC_DEFUN(AC_LBL_HP_PPA_INFO_T_DL_MODULE_ID_1,
++     [AC_MSG_CHECKING(if dl_hp_ppa_info_t struct has dl_module_id_1 member)
++     AC_CACHE_VAL(ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1,
++ 	AC_TRY_COMPILE([
++ #	include <sys/types.h>
++ #	include <sys/dlpi.h>
++ #	include <sys/dlpi_ext.h>],
++ 	[u_int i = sizeof(((dl_hp_ppa_info_t *)0)->dl_module_id_1)],
++ 	ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1=yes,
++ 	ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1=no))
++     AC_MSG_RESULT($ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1)
++     if test $ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1 = yes ; then
++ 	    AC_DEFINE(HAVE_HP_PPA_INFO_T_DL_MODULE_ID_1)
++     fi])
++ 
++ dnl
+  dnl Checks to see if -R is used
+  dnl
+  dnl usage:
 
-	ftp://ftp.cup.hp.com/dist/networking/tools/bpfmod/tcpdump_bpfmod.tar.gz
 
-NOTE: the "libpcap" source has "pcap-bpfmod.c" and "pcap-dlpi.c" and
-"pcap-dlpi.c.real".
+*** ../libpcap-0.4/configure.in	Sun Jul 27 22:16:22 1997
+--- configure.in	Tue Jan  4 21:02:13 2000
+***************
+*** 154,159 ****
+--- 154,161 ----
+  
+  AC_LBL_SOCKADDR_SA_LEN
+  
++ AC_LBL_HP_PPA_INFO_T_DL_MODULE_ID_1
++ 
+  AC_LBL_UNALIGNED_ACCESS
+  
+  if test "${srcdir}" = "." ; then
 
-"pcap-dlpi.c.real" appears to be the "libpcap-0.4" "pcap-dlpi.c"
-modified to push the BPF STREAMS module but not to do anything with it.
-
-"pcap-dlpi.c" is the same as "pcap-bpfmod.c".
-
-"pcap-bpfmod.c"/"pcap-dlpi.c" appears to have had a pile of stuff
-removed (e.g., the SunOS 5/Solaris support), and stuff added to push the
-BPF STREAMS module - however, it doesn't appear to include anything to
-hand the BPF filter to the STREAMS module or otherwise use it.
+*** ../libpcap-0.4/pcap-dlpi.c	Wed Oct 15 21:59:34 1997
+--- pcap-dlpi.c	Tue Jan  4 21:02:13 2000
+***************
+*** 246,255 ****
+  	}
+  	memset(p, 0, sizeof(*p));
+  
+  	/*
+! 	** Determine device and ppa
+  	*/
+! 	cp = strpbrk(device, "0123456789");
+  	if (cp == NULL) {
+  		sprintf(ebuf, "%s missing unit number", device);
+  		goto bad;
+--- 246,266 ----
+  	}
+  	memset(p, 0, sizeof(*p));
+  
++ #ifdef HAVE_DEV_DLPI
+  	/*
+! 	** Remove any "/dev/" on the front of the device.
+  	*/
+! 	cp = strrchr(device, '/');
+! 	if (cp == NULL)
+! 		cp = device;
+! 	else
+! 		cp++;
+! 	strcpy(dname, cp);
+! 
+! 	/*
+! 	 * Split the name into a device type and a unit number.
+! 	 */
+! 	cp = strpbrk(dname, "0123456789");
+  	if (cp == NULL) {
+  		sprintf(ebuf, "%s missing unit number", device);
+  		goto bad;
+***************
+*** 259,281 ****
+  		sprintf(ebuf, "%s bad unit number", device);
+  		goto bad;
+  	}
+  
+! 	if (*device == '/')
+! 		strcpy(dname, device);
+! 	else
+! 		sprintf(dname, "%s/%s", PCAP_DEV_PREFIX, device);
+! #ifdef HAVE_DEV_DLPI
+! 	/* Map network device to /dev/dlpi unit */
+  	cp = "/dev/dlpi";
+  	if ((p->fd = open(cp, O_RDWR)) < 0) {
+  		sprintf(ebuf, "%s: %s", cp, pcap_strerror(errno));
+  		goto bad;
+  	}
+! 	/* Map network interface to /dev/dlpi unit */
+  	ppa = get_dlpi_ppa(p->fd, dname, ppa, ebuf);
+  	if (ppa < 0)
+  		goto bad;
+  #else
+  	/* Try device without unit number */
+  	strcpy(dname2, dname);
+  	cp = strchr(dname, *cp);
+--- 270,331 ----
+  		sprintf(ebuf, "%s bad unit number", device);
+  		goto bad;
+  	}
++ 	*cp = '\0';
+  
+! 	/*
+! 	 * Use "/dev/dlpi" as the device.
+! 	 *
+! 	 * XXX - HP's DLPI Programmer's Guide for HP-UX 11.00 says that
+! 	 * the "dl_mjr_num" field is for the "major number of interface
+! 	 * driver"; that's the major of "/dev/dlpi" on the system on
+! 	 * which I tried this, but there may be DLPI devices that
+! 	 * use a different driver, in which case we may need to
+! 	 * search "/dev" for the appropriate device with that major
+! 	 * device number, rather than hardwiring "/dev/dlpi".
+! 	 *
+! 	 * I'm assuming that the code that was used for HP-UX 10.x
+! 	 * is valid, and therefore that, in 10.x, DLPIable devices have
+! 	 * "/dev" entries corresponding to them and that their
+! 	 * major device number is what appears in the "dl_hp_ppa_info_t"
+! 	 * structure for that device.  We can search by name in 11.x
+! 	 * (and we may have to, as it's not clear that DLPIable devices
+! 	 * will have those sorts of "/dev" entries), but we can't in
+! 	 * 10.x, as 10.x doesn't have the "dl_module_id_1" and
+! 	 * "dl_module_id_2" members in the "dl_hp_ppa_info_t" structure.
+! 	 */
+  	cp = "/dev/dlpi";
+  	if ((p->fd = open(cp, O_RDWR)) < 0) {
+  		sprintf(ebuf, "%s: %s", cp, pcap_strerror(errno));
+  		goto bad;
+  	}
+! 
+! 	/*
+! 	 * Get a table of all PPAs for that device, and search that
+! 	 * table for the specified device type name and unit number.
+! 	 */
+  	ppa = get_dlpi_ppa(p->fd, dname, ppa, ebuf);
+  	if (ppa < 0)
+  		goto bad;
+  #else
++ 	/*
++ 	** Determine device and ppa
++ 	*/
++ 	cp = strpbrk(device, "0123456789");
++ 	if (cp == NULL) {
++ 		sprintf(ebuf, "%s missing unit number", device);
++ 		goto bad;
++ 	}
++ 	ppa = strtol(cp, &eos, 10);
++ 	if (*eos != '\0') {
++ 		sprintf(ebuf, "%s bad unit number", device);
++ 		goto bad;
++ 	}
++ 
++ 	if (*device == '/')
++ 		strcpy(dname, device);
++ 	else
++ 		sprintf(dname, "%s/%s", PCAP_DEV_PREFIX, device);
++ 
+  	/* Try device without unit number */
+  	strcpy(dname2, dname);
+  	cp = strchr(dname, *cp);
+***************
+*** 391,397 ****
+  		break;
+  
+  	default:
+! 		sprintf(ebuf, "unknown mac type 0x%lu", infop->dl_mac_type);
+  		goto bad;
+  	}
+  
+--- 441,448 ----
+  		break;
+  
+  	default:
+! 		sprintf(ebuf, "unknown mac type 0x%lu",
+! 		    (unsigned long)infop->dl_mac_type);
+  		goto bad;
+  	}
+  
+***************
+*** 709,715 ****
+  
+  #ifdef DL_HP_PPA_ACK_OBS
+  /*
+!  * Under HP-UX 10, we can ask for the ppa
+   */
+  
+  
+--- 760,766 ----
+  
+  #ifdef DL_HP_PPA_ACK_OBS
+  /*
+!  * Under HP-UX 10 and HP-UX 11, we can ask for the ppa
+   */
+  
+  
+***************
+*** 719,736 ****
+      register char *ebuf)
+  {
+  	register dl_hp_ppa_ack_t *ap;
+! 	register dl_hp_ppa_info_t *ip;
+  	register int i;
+  	register u_long majdev;
+- 	dl_hp_ppa_req_t	req;
+  	struct stat statbuf;
+  	bpf_u_int32 buf[MAXDLBUF];
+  
+! 	if (stat(device, &statbuf) < 0) {
+! 		sprintf(ebuf, "stat: %s: %s", device, pcap_strerror(errno));
+  		return (-1);
+  	}
+  	majdev = major(statbuf.st_rdev);
+  
+  	memset((char *)&req, 0, sizeof(req));
+  	req.dl_primitive = DL_HP_PPA_REQ;
+--- 770,800 ----
+      register char *ebuf)
+  {
+  	register dl_hp_ppa_ack_t *ap;
+! 	register dl_hp_ppa_info_t *ipstart, *ip;
+  	register int i;
++ #ifndef HAVE_HP_PPA_INFO_T_DL_MODULE_ID_1
++ 	char dname[100];
+  	register u_long majdev;
+  	struct stat statbuf;
++ #endif
++ 	dl_hp_ppa_req_t	req;
+  	bpf_u_int32 buf[MAXDLBUF];
+  
+! #ifndef HAVE_HP_PPA_INFO_T_DL_MODULE_ID_1
+! 	/*
+! 	 * HP-UX 10 doesn't put the interface name in the
+! 	 * "dl_hp_ppa_info_t" structure, so we have to
+! 	 * try to get the major device number for the device
+! 	 * corresponding to the device and unit name provided to
+! 	 * us, and search for the entry with that major device number.
+! 	 */
+! 	sprintf(dname, "/dev/%s%d", device, unit);
+! 	if (stat(dname, &statbuf) < 0) {
+! 		sprintf(ebuf, "stat: %s: %s", dname, pcap_strerror(errno));
+  		return (-1);
+  	}
+  	majdev = major(statbuf.st_rdev);
++ #endif
+  
+  	memset((char *)&req, 0, sizeof(req));
+  	req.dl_primitive = DL_HP_PPA_REQ;
+***************
+*** 741,760 ****
+  		return (-1);
+  
+  	ap = (dl_hp_ppa_ack_t *)buf;
+! 	ip = (dl_hp_ppa_info_t *)((u_char *)ap + ap->dl_offset);
+  
+          for(i = 0; i < ap->dl_count; i++) {
+!                 if (ip->dl_mjr_num == majdev && ip->dl_instance_num == unit)
+                          break;
+  
+!                 ip = (dl_hp_ppa_info_t *)((u_char *)ip + ip->dl_next_offset);
+          }
+          if (i == ap->dl_count) {
+!                 sprintf(ebuf, "can't find PPA for %s", device);
+  		return (-1);
+          }
+          if (ip->dl_hdw_state == HDW_DEAD) {
+!                 sprintf(ebuf, "%s: hardware state: DOWN\n", device);
+  		return (-1);
+          }
+          return ((int)ip->dl_ppa);
+--- 805,831 ----
+  		return (-1);
+  
+  	ap = (dl_hp_ppa_ack_t *)buf;
+! 	ipstart = (dl_hp_ppa_info_t *)((u_char *)ap + ap->dl_offset);
+! 	ip = ipstart;
+  
+          for(i = 0; i < ap->dl_count; i++) {
+! #ifdef HAVE_HP_PPA_INFO_T_DL_MODULE_ID_1
+! 		if ((strcmp(ip->dl_module_id_1, device) == 0 ||
+! 		     strcmp(ip->dl_module_id_2, device) == 0) &&
+! #else
+!                 if (ip->dl_mjr_num == majdev &&
+! #endif
+! 		    ip->dl_instance_num == unit)
+                          break;
+  
+!                 ip = (dl_hp_ppa_info_t *)((u_char *)ipstart + ip->dl_next_offset);
+          }
+          if (i == ap->dl_count) {
+!                 sprintf(ebuf, "can't find PPA for %s%d", device, unit);
+  		return (-1);
+          }
+          if (ip->dl_hdw_state == HDW_DEAD) {
+!                 sprintf(ebuf, "%s%d: hardware state: DOWN\n", device, unit);
+  		return (-1);
+          }
+          return ((int)ip->dl_ppa);
+***************
+*** 783,789 ****
+  	register int kd;
+  	void *addr;
+  	struct ifnet ifnet;
+! 	char if_name[sizeof(ifnet.if_name)], tifname[32];
+  
+  	cp = strrchr(ifname, '/');
+  	if (cp != NULL)
+--- 854,860 ----
+  	register int kd;
+  	void *addr;
+  	struct ifnet ifnet;
+! 	char if_name[sizeof(ifnet.if_name) + 1];
+  
+  	cp = strrchr(ifname, '/');
+  	if (cp != NULL)
+***************
+*** 811,823 ****
+  		if (dlpi_kread(kd, (off_t)addr,
+  		    &ifnet, sizeof(ifnet), ebuf) < 0 ||
+  		    dlpi_kread(kd, (off_t)ifnet.if_name,
+! 		    if_name, sizeof(if_name), ebuf) < 0) {
+  			(void)close(kd);
+  			return (-1);
+  		}
+! 		sprintf(tifname, "%.*s%d",
+! 		    (int)sizeof(if_name), if_name, ifnet.if_unit);
+! 		if (strcmp(tifname, ifname) == 0)
+  			return (ifnet.if_index);
+  	}
+  
+--- 882,893 ----
+  		if (dlpi_kread(kd, (off_t)addr,
+  		    &ifnet, sizeof(ifnet), ebuf) < 0 ||
+  		    dlpi_kread(kd, (off_t)ifnet.if_name,
+! 		    if_name, sizeof(ifnet.if_name), ebuf) < 0) {
+  			(void)close(kd);
+  			return (-1);
+  		}
+! 		if_name[sizeof(ifnet.if_name)] = '\0';
+! 		if (strcmp(if_name, ifname) == 0 && ifnet.if_unit == unit)
+  			return (ifnet.if_index);
+  	}
+  
