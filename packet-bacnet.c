@@ -2,7 +2,7 @@
  * Routines for BACnet (NPDU) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bacnet.c,v 1.17 2003/01/25 00:06:12 guy Exp $
+ * $Id: packet-bacnet.c,v 1.18 2004/05/12 19:55:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -205,186 +205,182 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	i = 0;
 	j = 0;
 
-	if (tree) {
+/* I don't know the length of the NPDU by now. Setting the length after dissection */
+	ti = proto_tree_add_item(tree, proto_bacnet, tvb, 0, -1, FALSE);
 
-/* I don't know the length of the NPDU by know. Setting the length after dissection */
-		ti = proto_tree_add_item(tree, proto_bacnet, tvb, 0, -1, FALSE);
+	bacnet_tree = proto_item_add_subtree(ti, ett_bacnet);
 
-		bacnet_tree = proto_item_add_subtree(ti, ett_bacnet);
-
-		proto_tree_add_uint_format(bacnet_tree, hf_bacnet_version, tvb,
-			offset, 1,
-                        bacnet_version,"Version: 0x%02x (%s)",bacnet_version,
-                        (bacnet_version == 0x01)?"ASHRAE 135-1995":"unknown");
-		offset ++;
-		ct = proto_tree_add_uint_format(bacnet_tree, hf_bacnet_control,
-			tvb, offset, 1,
-                        bacnet_control,"Control: 0x%02x",bacnet_control);
-		control_tree = proto_item_add_subtree(ct,
-			ett_bacnet_control);
-		proto_tree_add_boolean(control_tree, hf_bacnet_control_net,
-			tvb, offset, 1, bacnet_control);
-		proto_tree_add_boolean(control_tree, hf_bacnet_control_res1, tvb,
-			offset, 1, bacnet_control);
-		proto_tree_add_boolean(control_tree, hf_bacnet_control_dest, tvb,
-			offset, 1, bacnet_control);
-		proto_tree_add_boolean(control_tree, hf_bacnet_control_res2, tvb,
-			offset, 1, bacnet_control);
-		proto_tree_add_boolean(control_tree, hf_bacnet_control_src, tvb,
-			offset, 1, bacnet_control);
-		proto_tree_add_boolean(control_tree, hf_bacnet_control_expect, tvb,
-			offset, 1, bacnet_control);
-		proto_tree_add_boolean(control_tree, hf_bacnet_control_prio_high,
-			tvb, offset, 1, bacnet_control);
-		proto_tree_add_boolean(control_tree, hf_bacnet_control_prio_low,
-			tvb, offset, 1, bacnet_control);
-		offset ++;
-		if (bacnet_control & BAC_CONTROL_DEST) { /* DNET, DLEN, DADR */
-			proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,
-				tvb, offset, 2, FALSE);
-			offset += 2;
-			bacnet_dlen = tvb_get_guint8(tvb, offset);
-			/* DLEN = 0 is broadcast on dest.network */
-			if( bacnet_dlen == 0) {
-				/* append to hf_bacnet_dlen: broadcast */
-				proto_tree_add_uint_format(bacnet_tree,
-				hf_bacnet_dlen, tvb, offset, 1, bacnet_dlen,
-				"Destination MAC Layer Address Length: %d indicates Broadcast on Destination Network",
-				bacnet_dlen);
-				offset ++;
-				/* going to SNET */
-			} else if (bacnet_dlen==6) {
-				proto_tree_add_uint(bacnet_tree, hf_bacnet_dlen,
-					tvb, offset, 1, bacnet_dlen);
-				offset ++;
-				/* Ethernet MAC */
-				proto_tree_add_item(bacnet_tree,
-					hf_bacnet_dadr_eth, tvb, offset,
-					bacnet_dlen, FALSE);
-				offset += bacnet_dlen;
-			} else if (bacnet_dlen<7) {
-				proto_tree_add_uint(bacnet_tree, hf_bacnet_dlen,
-					tvb, offset, 1, bacnet_dlen);
-				offset ++;
-				/* Other MAC formats should be included here */
-				proto_tree_add_item(bacnet_tree,
-					hf_bacnet_dadr_tmp, tvb, offset,
-					bacnet_dlen, FALSE);
-				offset += bacnet_dlen;
-			} else {
-				proto_tree_add_uint_format(bacnet_tree,
-				hf_bacnet_dlen, tvb, offset, 1, bacnet_dlen,
-				"Destination MAC Layer Address Length: %d invalid!",
-				bacnet_dlen);
-			}
-		}
-		if (bacnet_control & BAC_CONTROL_SRC) { /* SNET, SLEN, SADR */
-			/* SNET */
-			proto_tree_add_uint(bacnet_tree, hf_bacnet_snet,
-				tvb, offset, 2, tvb_get_ntohs(tvb, offset));
-			offset += 2;
-			bacnet_slen = tvb_get_guint8(tvb, offset);
-			if( bacnet_slen == 0) { /* SLEN = 0 invalid */
-				proto_tree_add_uint_format(bacnet_tree,
-				hf_bacnet_slen, tvb, offset, 1, bacnet_slen,
-				"Source MAC Layer Address Length: %d invalid!",
-				bacnet_slen);
-				offset ++;
-			} else if (bacnet_slen==6) {
-				/* SLEN */
-				 proto_tree_add_uint(bacnet_tree, hf_bacnet_slen,
-					tvb, offset, 1, bacnet_slen);
-				offset ++;
-				/* Ethernet MAC */
-				proto_tree_add_item(bacnet_tree,
-					hf_bacnet_sadr_eth, tvb, offset,
-					bacnet_slen, FALSE);
-				offset += bacnet_slen;
-			} else if (bacnet_slen<6) { /* LON,ARCNET,MS/TP MAC */
-				/* SLEN */
-				 proto_tree_add_uint(bacnet_tree, hf_bacnet_slen,
-					tvb, offset, 1, bacnet_slen);
-				offset ++;
-				/* Other MAC formats should be included here */
-				proto_tree_add_item(bacnet_tree,
-					hf_bacnet_sadr_tmp, tvb, offset,
-					bacnet_slen, FALSE);
-				offset += bacnet_slen;
-			} else {
-				proto_tree_add_uint_format(bacnet_tree,
-				hf_bacnet_slen, tvb, offset, 1, bacnet_slen,
-				"Source MAC Layer Address Length: %d invalid!",
-				bacnet_slen);
-				offset ++;
-			}
-		}
-		if (bacnet_control & BAC_CONTROL_DEST) { /* Hopcount */
-			proto_tree_add_item(bacnet_tree, hf_bacnet_hopc,
-				tvb, offset, 1, FALSE);
-			offset ++;
-		}
-		/* Network Layer Message Type */
-		if (bacnet_control & BAC_CONTROL_NET) {
-			bacnet_mesgtyp =  tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint_format(bacnet_tree, hf_bacnet_version, tvb,
+		offset, 1,
+                       bacnet_version,"Version: 0x%02x (%s)",bacnet_version,
+                       (bacnet_version == 0x01)?"ASHRAE 135-1995":"unknown");
+	offset ++;
+	ct = proto_tree_add_uint(bacnet_tree, hf_bacnet_control,
+		tvb, offset, 1, bacnet_control);
+	control_tree = proto_item_add_subtree(ct, ett_bacnet_control);
+	proto_tree_add_boolean(control_tree, hf_bacnet_control_net,
+		tvb, offset, 1, bacnet_control);
+	proto_tree_add_boolean(control_tree, hf_bacnet_control_res1, tvb,
+		offset, 1, bacnet_control);
+	proto_tree_add_boolean(control_tree, hf_bacnet_control_dest, tvb,
+		offset, 1, bacnet_control);
+	proto_tree_add_boolean(control_tree, hf_bacnet_control_res2, tvb,
+		offset, 1, bacnet_control);
+	proto_tree_add_boolean(control_tree, hf_bacnet_control_src, tvb,
+		offset, 1, bacnet_control);
+	proto_tree_add_boolean(control_tree, hf_bacnet_control_expect, tvb,
+		offset, 1, bacnet_control);
+	proto_tree_add_boolean(control_tree, hf_bacnet_control_prio_high,
+		tvb, offset, 1, bacnet_control);
+	proto_tree_add_boolean(control_tree, hf_bacnet_control_prio_low,
+		tvb, offset, 1, bacnet_control);
+	offset ++;
+	if (bacnet_control & BAC_CONTROL_DEST) { /* DNET, DLEN, DADR */
+		proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,
+			tvb, offset, 2, FALSE);
+		offset += 2;
+		bacnet_dlen = tvb_get_guint8(tvb, offset);
+		/* DLEN = 0 is broadcast on dest.network */
+		if( bacnet_dlen == 0) {
+			/* append to hf_bacnet_dlen: broadcast */
 			proto_tree_add_uint_format(bacnet_tree,
-			hf_bacnet_mesgtyp, tvb, offset, 1, bacnet_mesgtyp,
-			"Network Layer Message Type: %02x (%s)", bacnet_mesgtyp,
-			bacnet_mesgtyp_name(bacnet_mesgtyp));
+			    hf_bacnet_dlen, tvb, offset, 1, bacnet_dlen,
+			    "Destination MAC Layer Address Length: %d indicates Broadcast on Destination Network",
+			    bacnet_dlen);
 			offset ++;
-		}
-		/* Vendor ID
-		 * The standard says: "If Bit 7 of the control octet is 1 and
-		 * the Message Type field contains a value in the range
-		 * X'80' - X'FF', then a Vendor ID field shall be present (...)."
-		 * We should not go any further in dissecting the packet if it's
-		 * not present, but we don't know about that: No length field...
-		 */
-		if ((bacnet_mesgtyp > 0x7f) && (bacnet_control == BAC_CONTROL_NET)) {
-			proto_tree_add_item(bacnet_tree, hf_bacnet_vendor,
-				tvb, offset, 2, FALSE);
-			offset += 2;
-			/* attention: doesnt work here because of if(tree) */
-			call_dissector(data_handle,
-			    tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
-		}
-		/* Performance Index (in I-Could-Be-Router-To-Network) */
-		if (bacnet_mesgtyp == BAC_NET_ICB_R) {
-			proto_tree_add_item(bacnet_tree, hf_bacnet_perf,
-				tvb, offset, 1, FALSE);
+			/* going to SNET */
+		} else if (bacnet_dlen==6) {
+			proto_tree_add_uint(bacnet_tree, hf_bacnet_dlen,
+				tvb, offset, 1, bacnet_dlen);
 			offset ++;
-		}
-		/* Reason, DNET (in Reject-Message-To-Network) */
-		if (bacnet_mesgtyp == BAC_NET_REJ) {
-			bacnet_rejectreason = tvb_get_guint8(tvb, offset);
+			/* Ethernet MAC */
+			proto_tree_add_item(bacnet_tree,
+				hf_bacnet_dadr_eth, tvb, offset,
+				bacnet_dlen, FALSE);
+			offset += bacnet_dlen;
+		} else if (bacnet_dlen<7) {
+			proto_tree_add_uint(bacnet_tree, hf_bacnet_dlen,
+				tvb, offset, 1, bacnet_dlen);
+			offset ++;
+			/* Other MAC formats should be included here */
+			proto_tree_add_item(bacnet_tree,
+				hf_bacnet_dadr_tmp, tvb, offset,
+				bacnet_dlen, FALSE);
+			offset += bacnet_dlen;
+		} else {
 			proto_tree_add_uint_format(bacnet_tree,
-				hf_bacnet_rejectreason,
-				tvb, offset, 1,
-				bacnet_rejectreason, "Rejection Reason: %d (%s)",
-				bacnet_rejectreason,
-				bacnet_rejectreason_name(bacnet_rejectreason));
+			    hf_bacnet_dlen, tvb, offset, 1, bacnet_dlen,
+			    "Destination MAC Layer Address Length: %d invalid!",
+			    bacnet_dlen);
+		}
+	}
+	if (bacnet_control & BAC_CONTROL_SRC) { /* SNET, SLEN, SADR */
+		/* SNET */
+		proto_tree_add_uint(bacnet_tree, hf_bacnet_snet,
+			tvb, offset, 2, tvb_get_ntohs(tvb, offset));
+		offset += 2;
+		bacnet_slen = tvb_get_guint8(tvb, offset);
+		if( bacnet_slen == 0) { /* SLEN = 0 invalid */
+			proto_tree_add_uint_format(bacnet_tree,
+			    hf_bacnet_slen, tvb, offset, 1, bacnet_slen,
+			    "Source MAC Layer Address Length: %d invalid!",
+			    bacnet_slen);
 			offset ++;
-			proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,
-				tvb, offset, 2, FALSE);
-			offset += 2;
+		} else if (bacnet_slen==6) {
+			/* SLEN */
+			 proto_tree_add_uint(bacnet_tree, hf_bacnet_slen,
+				tvb, offset, 1, bacnet_slen);
+			offset ++;
+			/* Ethernet MAC */
+			proto_tree_add_item(bacnet_tree,
+				hf_bacnet_sadr_eth, tvb, offset,
+				bacnet_slen, FALSE);
+			offset += bacnet_slen;
+		} else if (bacnet_slen<6) { /* LON,ARCNET,MS/TP MAC */
+			/* SLEN */
+			 proto_tree_add_uint(bacnet_tree, hf_bacnet_slen,
+				tvb, offset, 1, bacnet_slen);
+			offset ++;
+			/* Other MAC formats should be included here */
+			proto_tree_add_item(bacnet_tree,
+				hf_bacnet_sadr_tmp, tvb, offset,
+				bacnet_slen, FALSE);
+			offset += bacnet_slen;
+		} else {
+			proto_tree_add_uint_format(bacnet_tree,
+			hf_bacnet_slen, tvb, offset, 1, bacnet_slen,
+			    "Source MAC Layer Address Length: %d invalid!",
+			    bacnet_slen);
+			offset ++;
 		}
-		/* N*DNET (in Router-Busy-To-Network,Router-Available-To-Network) */
-		if ((bacnet_mesgtyp == BAC_NET_R_BUSY) ||
-		(bacnet_mesgtyp == BAC_NET_R_AVA) || (bacnet_mesgtyp == BAC_NET_IAM_R) ) {
-		    while(tvb_reported_length_remaining(tvb, offset) > 1 ) {
-			proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,
-				tvb, offset, 2, FALSE);
-			offset += 2;
-		    }
-		}
-		/* Initialize-Routing-Table */
-		if ( (bacnet_mesgtyp == BAC_NET_INIT_RTAB) ||
-		    (bacnet_mesgtyp == BAC_NET_INIT_RTAB_ACK) ) {
-		    bacnet_rportnum = tvb_get_guint8(tvb, offset);
-		    /* number of ports */
-		    proto_tree_add_uint(bacnet_tree, hf_bacnet_rportnum,
-			tvb, offset, 1, bacnet_rportnum);
+	}
+	if (bacnet_control & BAC_CONTROL_DEST) { /* Hopcount */
+		proto_tree_add_item(bacnet_tree, hf_bacnet_hopc,
+			tvb, offset, 1, FALSE);
+		offset ++;
+	}
+	/* Network Layer Message Type */
+	if (bacnet_control & BAC_CONTROL_NET) {
+		bacnet_mesgtyp =  tvb_get_guint8(tvb, offset);
+		proto_tree_add_uint_format(bacnet_tree,
+		hf_bacnet_mesgtyp, tvb, offset, 1, bacnet_mesgtyp,
+		    "Network Layer Message Type: %02x (%s)", bacnet_mesgtyp,
+		    bacnet_mesgtyp_name(bacnet_mesgtyp));
 		    offset ++;
-		    for(i=0; i>bacnet_rportnum; i++) {
+	}
+	/* Vendor ID
+	 * The standard says: "If Bit 7 of the control octet is 1 and
+	 * the Message Type field contains a value in the range
+	 * X'80' - X'FF', then a Vendor ID field shall be present (...)."
+	 * We should not go any further in dissecting the packet if it's
+	 * not present, but we don't know about that: No length field...
+	 */
+	if ((bacnet_mesgtyp > 0x7f) && (bacnet_control == BAC_CONTROL_NET)) {
+		proto_tree_add_item(bacnet_tree, hf_bacnet_vendor,
+			tvb, offset, 2, FALSE);
+		offset += 2;
+		/* attention: doesnt work here because of if(tree) */
+		call_dissector(data_handle,
+		    tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
+	}
+	/* Performance Index (in I-Could-Be-Router-To-Network) */
+	if (bacnet_mesgtyp == BAC_NET_ICB_R) {
+		proto_tree_add_item(bacnet_tree, hf_bacnet_perf,
+			tvb, offset, 1, FALSE);
+		offset ++;
+	}
+	/* Reason, DNET (in Reject-Message-To-Network) */
+	if (bacnet_mesgtyp == BAC_NET_REJ) {
+		bacnet_rejectreason = tvb_get_guint8(tvb, offset);
+		proto_tree_add_uint_format(bacnet_tree,
+			hf_bacnet_rejectreason,
+			tvb, offset, 1,
+			bacnet_rejectreason, "Rejection Reason: %d (%s)",
+			bacnet_rejectreason,
+			bacnet_rejectreason_name(bacnet_rejectreason));
+		offset ++;
+		proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,
+			tvb, offset, 2, FALSE);
+		offset += 2;
+	}
+	/* N*DNET (in Router-Busy-To-Network,Router-Available-To-Network) */
+	if ((bacnet_mesgtyp == BAC_NET_R_BUSY) ||
+	    (bacnet_mesgtyp == BAC_NET_R_AVA) || (bacnet_mesgtyp == BAC_NET_IAM_R) ) {
+		while(tvb_reported_length_remaining(tvb, offset) > 1 ) {
+			proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,
+				tvb, offset, 2, FALSE);
+			offset += 2;
+		}
+	}
+	/* Initialize-Routing-Table */
+	if ( (bacnet_mesgtyp == BAC_NET_INIT_RTAB) ||
+	    (bacnet_mesgtyp == BAC_NET_INIT_RTAB_ACK) ) {
+		bacnet_rportnum = tvb_get_guint8(tvb, offset);
+		/* number of ports */
+		proto_tree_add_uint(bacnet_tree, hf_bacnet_rportnum,
+			tvb, offset, 1, bacnet_rportnum);
+		offset ++;
+		for(i=0; i>bacnet_rportnum; i++) {
 		    	/* Connected DNET */
 		    	proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,
 				tvb, offset, 2, FALSE);
@@ -404,11 +400,9 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				tvb, offset, 1, FALSE);
 		    	    offset ++;
 			}
-		    }
-
 		}
-		proto_item_set_len(ti, offset);
 	}
+	proto_item_set_len(ti, offset);
 
 /* dissect BACnet APDU
  */
@@ -433,7 +427,7 @@ proto_register_bacnet(void)
 		},
 		{ &hf_bacnet_control,
 			{ "Control",           "bacnet.control",
-			FT_UINT8, BASE_HEX, NULL, 0xff,
+			FT_UINT8, BASE_HEX, NULL, 0,
 			"BACnet Control", HFILL }
 		},
 		{ &hf_bacnet_control_net,
