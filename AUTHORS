@@ -1801,6 +1801,10 @@ Jesper Peterson <jesper [AT] endace.com> {
 	Cisco HDLC FCS support
 }
 
+Giles Scott <gscott2 [AT] nortelnetworks.com> {
+	Nortel/SynOptics Network Management Protocol support
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
