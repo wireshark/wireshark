@@ -1,9 +1,9 @@
-/* packet-dhis.h
- * Routines for DHIS (Dynamic Host Information Services) packet disassembly
- * see http://dhis.sourceforge.net/
+/* packet-ddtp.h
+ * Routines for DDTP (Dynamic DNS Tools Protocol) packet disassembly
+ * see http://ddt.sourceforge.net/
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-dhis.h,v 1.3 2000/04/08 07:07:13 guy Exp $
+ * $Id: packet-ddtp.h,v 1.1 2000/04/13 21:03:56 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,25 +27,25 @@
  *
  */
 
-#define DHIS_VERSION_ERROR	0
-#define DHIS_VERSION_4		1
-#define DHIS_VERSION_5		2
+#define DDTP_VERSION_ERROR	0
+#define DDTP_VERSION_4		1
+#define DDTP_VERSION_5		2
 
-#define DHIS_ENCRYPT_ERROR	0
-#define DHIS_ENCRYPT_PLAINTEXT	1
-#define DHIS_ENCRYPT_BLOWFISH	2
+#define DDTP_ENCRYPT_ERROR	0
+#define DDTP_ENCRYPT_PLAINTEXT	1
+#define DDTP_ENCRYPT_BLOWFISH	2
 
-#define DHIS_MESSAGE_ERROR	0
-#define DHIS_UPDATE_QUERY	1
-#define DHIS_UPDATE_REPLY	2
-#define DHIS_ALIVE_QUERY	3
-#define DHIS_ALIVE_REPLY	4
+#define DDTP_MESSAGE_ERROR	0
+#define DDTP_UPDATE_QUERY	1
+#define DDTP_UPDATE_REPLY	2
+#define DDTP_ALIVE_QUERY	3
+#define DDTP_ALIVE_REPLY	4
 
-#define DHIS_MARK_ONLINE	0
-#define DHIS_MARK_OFFLINE	1
+#define DDTP_MARK_ONLINE	0
+#define DDTP_MARK_OFFLINE	1
 
-#define DHIS_UPDATE_SUCCEEDED	0
-#define DHIS_UPDATE_FAILED	1
-#define DHIS_INVALID_PASSWORD	2
-#define DHIS_INVALID_ACCOUNT	3
-#define DHIS_INVALID_OPCODE	4
+#define DDTP_UPDATE_SUCCEEDED	0
+#define DDTP_UPDATE_FAILED	1
+#define DDTP_INVALID_PASSWORD	2
+#define DDTP_INVALID_ACCOUNT	3
+#define DDTP_INVALID_OPCODE	4
