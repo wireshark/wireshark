@@ -1,6 +1,7 @@
+%{
 /* ascend-grammar.y
  *
- * $Id: ascend-grammar.y,v 1.7 1999/10/27 17:07:08 guy Exp $
+ * $Id: ascend-grammar.y,v 1.8 1999/10/31 19:34:46 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -48,8 +49,6 @@ WD_DIALOUT_DISP: chunk 2515EE type IP.
 
  */
 
-%{
- 
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
