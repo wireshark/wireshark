@@ -2,7 +2,7 @@
  * Routines for EIGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-eigrp.c,v 1.13 2001/03/22 16:24:14 gram Exp $
+ * $Id: packet-eigrp.c,v 1.14 2001/04/20 08:14:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -181,7 +181,8 @@ dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	     tlv = tvb_get_ntohs(tvb,offset);
 	     size =  tvb_get_ntohs(tvb,offset+2);
 
-	     ti = proto_tree_add_notext (eigrp_tree, tvb, offset,size);
+	     ti = proto_tree_add_text (eigrp_tree, tvb, offset,size,
+	         "%s",val_to_str(tlv, eigrp_tlv_vals, "Unknown (0x%04x)"));
 
 	     tlv_tree = proto_item_add_subtree (ti, ett_tlv);
 	     proto_tree_add_uint_format (tlv_tree,hf_eigrp_tlv, tvb,offset,2,tlv,"Type = 0x%04x (%s)",tlv,val_to_str(tlv,eigrp_tlv_vals, "Unknown")) ;
@@ -226,9 +227,6 @@ dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	     	case TLV_AT_EXT:
      			dissect_eigrp_at_ext(next_tvb, tlv_tree, ti);
      			break;                   
-
-	     	default:
-			proto_item_set_text(ti,"Unknown TLV   (0x%04x)",tlv) ;
 	     	};
 
 	     offset+=size;
@@ -247,8 +245,6 @@ static void dissect_eigrp_par (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)	
 	proto_tree_add_text (tree,tvb,4,1,"K5 = %u",tvb_get_guint8(tvb,4));
 	proto_tree_add_text (tree,tvb,5,1,"Rezerved");
 	proto_tree_add_text (tree,tvb,6,2,"Hold Time = %u",tvb_get_ntohs(tvb,6));
-	proto_item_set_text (ti,"%s",match_strval(TLV_PAR,eigrp_tlv_vals));
-	
 }
 
 static void dissect_eigrp_seq (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
@@ -266,8 +262,6 @@ static void dissect_eigrp_seq (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
 			/* nothing */
 			;
 		}
-	proto_item_set_text (ti,"%s",match_strval(TLV_SEQ,eigrp_tlv_vals));
-			
 }        	
 
 static void dissect_eigrp_sv (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
