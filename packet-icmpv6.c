@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.60 2002/01/11 09:12:26 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.61 2002/01/11 09:19:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,6 +63,20 @@
 #ifndef offsetof
 #define	offsetof(type, member)	((size_t)(&((type *)0)->member))
 #endif
+
+/*
+ * See, under http://www.ietf.org/internet-drafts/
+ *
+ *	draft-ietf-mobileip-ipv6-15.txt
+ *
+ * and
+ *
+ *	draft-ietf-ipngwg-icmp-name-lookups-08.txt
+ *
+ * and
+ *
+ *	draft-ietf-mobileip-hmipv6-05.txt
+ */
 
 static int proto_icmpv6 = -1;
 static int hf_icmpv6_type = -1;
