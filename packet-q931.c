@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.53 2003/04/14 18:04:13 guy Exp $
+ * $Id: packet-q931.c,v 1.54 2003/06/24 05:58:32 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -158,6 +158,7 @@ static const true_false_string tfs_call_ref_flag = {
  * Information elements.
  */
 
+#define	Q931_IE_SO_MASK	0x80	/* single-octet/variable-length mask */
 /*
  * Single-octet IEs.
  */
@@ -2119,7 +2120,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint8		message_type;
 	guint8		info_element;
 	guint16		info_element_len;
-	int		codeset;
+	int		codeset, locked_codeset;
 	gboolean	non_locking_shift;
 	tvbuff_t	*h225_tvb;
 
@@ -2162,7 +2163,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/*
 	 * And now for the information elements....
 	 */
-	codeset = 0;	/* start out in codeset 0 */
+	codeset = locked_codeset = 0;	/* start out in codeset 0 */
 	non_locking_shift = TRUE;
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		info_element = tvb_get_guint8(tvb, offset);
@@ -2170,81 +2171,83 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/*
 		 * Check for the single-octet IEs.
 		 */
-		switch (info_element & Q931_IE_SO_IDENTIFIER_MASK) {
+		if (info_element & Q931_IE_SO_MASK) {
+			switch (info_element & Q931_IE_SO_IDENTIFIER_MASK) {
 
-		case Q931_IE_SHIFT:
-			non_locking_shift =
-			    !(info_element & Q931_IE_SHIFT_LOCKING);
-			codeset = info_element & Q931_IE_SHIFT_CODESET;
-			if (q931_tree != NULL) {
-				proto_tree_add_text(q931_tree, tvb, offset, 1,
-				    "%s shift to codeset %u: %s",
-				    (non_locking_shift ? "Non-locking" : "Locking"),
-				    codeset,
-				    val_to_str(codeset, q931_codeset_vals,
-				      "Unknown (0x%02X)"));
-			}
-			offset += 1;
-			continue;
-
-		case Q931_IE_MORE_DATA_OR_SEND_COMP:
-			switch (info_element) {
-
-			case Q931_IE_MORE_DATA:
+			case Q931_IE_SHIFT:
+				non_locking_shift = info_element & Q931_IE_SHIFT_LOCKING;
+				codeset = info_element & Q931_IE_SHIFT_CODESET;
+				if (!non_locking_shift)
+					locked_codeset = codeset;
 				if (q931_tree != NULL) {
 					proto_tree_add_text(q931_tree, tvb, offset, 1,
-					    "More data");
+					    "%s shift to codeset %u: %s",
+					    (non_locking_shift ? "Non-locking" : "Locking"),
+					    codeset,
+				    	val_to_str(codeset, q931_codeset_vals,
+					      "Unknown (0x%02X)"));
+				}
+				offset += 1;
+				continue;
+
+			case Q931_IE_MORE_DATA_OR_SEND_COMP:
+				switch (info_element) {	
+
+				case Q931_IE_MORE_DATA:
+					if (q931_tree != NULL) {
+						proto_tree_add_text(q931_tree, tvb, offset, 1,
+						    "More data");
+					}
+					break;
+
+				case Q931_IE_SENDING_COMPLETE:
+					if (q931_tree != NULL) {
+						proto_tree_add_text(q931_tree, tvb, offset, 1,
+						    "Sending complete");
+					}
+					break;
+
+				default:
+					if (q931_tree != NULL) {
+						proto_tree_add_text(q931_tree, tvb, offset, 1,
+						    "Unknown information element (0x%02X)",
+						    info_element);
+					}
+					break;
 				}
 				break;
 
-			case Q931_IE_SENDING_COMPLETE:
+			case Q931_IE_CONGESTION_LEVEL:
 				if (q931_tree != NULL) {
 					proto_tree_add_text(q931_tree, tvb, offset, 1,
-					    "Sending complete");
+					    "Congestion level: %s",
+					    val_to_str(info_element & Q931_IE_SO_IE_MASK,
+					      q931_congestion_level_vals,
+					      "Unknown (0x%X)"));
+				}
+				break;
+
+			case Q931_IE_REPEAT_INDICATOR:
+				if (q931_tree != NULL) {
+					proto_tree_add_text(q931_tree, tvb, offset, 1,
+					    "Repeat indicator: %s",
+					    val_to_str(info_element & Q931_IE_SO_IE_MASK,
+				    	  q931_repeat_indication_vals,
+					      "Unknown (0x%X)"));
 				}
 				break;
 
 			default:
 				if (q931_tree != NULL) {
 					proto_tree_add_text(q931_tree, tvb, offset, 1,
-					    "Unknown information element (0x%02X",
+					    "Unknown information element (0x%02X)",
 					    info_element);
 				}
 				break;
 			}
 			offset += 1;
-			if (non_locking_shift)
-				codeset = 0;
+			codeset = locked_codeset;
 			continue;
-
-		case Q931_IE_CONGESTION_LEVEL:
-			if (q931_tree != NULL) {
-				proto_tree_add_text(q931_tree, tvb, offset, 1,
-				    "Congestion level: %s",
-				    val_to_str(info_element & Q931_IE_SO_IE_MASK,
-				      q931_congestion_level_vals,
-				      "Unknown (0x%X)"));
-			}
-			offset += 1;
-			if (non_locking_shift)
-				codeset = 0;
-			continue;
-
-		case Q931_IE_REPEAT_INDICATOR:
-			if (q931_tree != NULL) {
-				proto_tree_add_text(q931_tree, tvb, offset, 1,
-				    "Repeat indicator: %s",
-				    val_to_str(info_element & Q931_IE_SO_IE_MASK,
-				      q931_repeat_indication_vals,
-				      "Unknown (0x%X)"));
-			}
-			offset += 1;
-			if (non_locking_shift)
-				codeset = 0;
-			continue;
-
-		default:
-			break;
 		}
 
 		/*
@@ -2519,8 +2522,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 			offset += 1 + 1 + info_element_len;
 		}
-		if (non_locking_shift)
-			codeset = 0;
+		codeset = locked_codeset;
 	}
 }
 
