@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.62 2000/04/03 09:37:39 guy Exp $
+ * $Id: packet-tcp.c,v 1.63 2000/04/04 05:37:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -406,7 +406,6 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   guint      hlen;
   guint      optlen;
   guint      packet_max = pi.len;
-  dissector_t subdissector;
 
   /* To do: Check for {cap len,pkt len} < struct len */
   /* Avoids alignment problems on many architectures. */
@@ -534,20 +533,11 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 #endif
 
     /* do lookup with the subdissector table */
-
-    subdissector = dissector_lookup( subdissector_table, th.th_sport);
-    if ( subdissector){
-	pi.match_port = th.th_sport;
-	(subdissector)( pd, offset, fd, tree);
+    if (dissector_try_port(subdissector_table, th.th_sport, pd, offset,
+				fd, tree) ||
+        dissector_try_port(subdissector_table, th.th_dport, pd, offset,
+				fd, tree))
 	goto reas;
-    }
-
-    subdissector = dissector_lookup( subdissector_table, th.th_dport);
-    if ( subdissector){
-	pi.match_port = th.th_dport;
-	(subdissector)( pd, offset, fd, tree);             
-	goto reas;
-    }		
 
     /* check existence of high level protocols */
 

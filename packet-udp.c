@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.54 2000/04/03 09:41:12 guy Exp $
+ * $Id: packet-udp.c,v 1.55 2000/04/04 05:37:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -135,7 +135,6 @@ void
 dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   e_udphdr  uh;
   guint16    uh_sport, uh_dport, uh_ulen, uh_sum;
-  dissector_t dissect_routine;
   proto_tree *udp_tree;
   proto_item *ti;
 
@@ -263,27 +262,11 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
  } else {
       /* OK, find a routine in the table, else use the default */
 
-      if ((dissect_routine = dissector_lookup(udp_dissector_table, uh_sport))) {
-
-	dissector_t dr2 = dissector_lookup(udp_dissector_table, uh_dport);
-
-	if (dr2 == NULL) {  /* Not in the table, add */
-
-	  dissector_add("udp.port", uh_dport, dissect_tftp);
-
-	}
-
-	(*dissect_routine)(pd, offset, fd, tree);
-      }
-      else if ((dissect_routine = dissector_lookup(udp_dissector_table, uh_dport))) {
-
-	(*dissect_routine)(pd, offset, fd, tree);
-
-      }
-      else {
-
+      if (!dissector_try_port(udp_dissector_table, uh_sport, pd, offset,
+				fd, tree) &&
+	  !dissector_try_port(udp_dissector_table, uh_dport, pd, offset,
+				fd, tree))
 	dissect_data(pd, offset, fd, tree);
-      }
   }
 }
 
@@ -328,7 +311,6 @@ proto_register_udp(void)
 	   "packet-tcp.c". */
 
 	dissector_add("udp.port", UDP_PORT_BOOTPS, dissect_bootp);
-	dissector_add("udp.port", UDP_PORT_TFTP, dissect_tftp);
 	dissector_add("udp.port", UDP_PORT_SAP, dissect_sap);
 	dissector_add("udp.port", UDP_PORT_HSRP, dissect_hsrp);
 	dissector_add("udp.port", UDP_PORT_PIM_RP_DISC, dissect_auto_rp);

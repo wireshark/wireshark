@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.177 2000/04/03 09:41:13 guy Exp $
+ * $Id: packet.h,v 1.178 2000/04/04 05:37:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -228,6 +228,11 @@ void dissector_add( char *abbrev, guint32 pattern, dissector_t dissector);
 /* that wants to de-register a sub-dissector.  */
 void dissector_delete( char *abbrev, guint32 pattern, dissector_t dissector);
 
+/* Look for a given port in a given dissector table and, if found, call
+   the dissector with the arguments supplied, and return TRUE, otherwise
+   return FALSE. */
+gboolean dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
+    const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
 
 /* Many of the structs and definitions below and in packet-*.c files
  * were taken from include files in the Linux distribution. */

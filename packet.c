@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.71 2000/04/04 02:34:38 gram Exp $
+ * $Id: packet.c,v 1.72 2000/04/04 05:37:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1289,6 +1289,23 @@ void dissector_delete( char *name, guint32 pattern, dissector_t dissector) {
 	g_hash_table_remove( sub_dissectors, GUINT_TO_POINTER( pattern));
 }
 
+/* Look for a given port in a given dissector table and, if found, call
+   the dissector with the arguments supplied, and return TRUE, otherwise
+   return FALSE. */
+gboolean
+dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
+    const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	dissector_t subdissector;
+
+	subdissector = dissector_lookup(sub_dissectors, port);
+	if (subdissector != NULL) {
+		pi.match_port = port;
+		(subdissector)(pd, offset, fd, tree);
+		return TRUE;
+	} else
+		return FALSE;
+}
 
 dissector_table_t register_dissector_table( int id){
 
