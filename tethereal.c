@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.36 2000/07/20 09:39:23 guy Exp $
+ * $Id: tethereal.c,v 1.37 2000/07/24 16:27:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -590,6 +590,11 @@ capture(int packet_count, int out_file_type)
   inpkts = pcap_loop(ld.pch, packet_count, capture_pcap_cb, (u_char *) &ld);
   pcap_close(ld.pch);
 
+  /* Send a newline if we were printing packet counts to stdout */
+  if (cfile.save_file != NULL) {
+    printf("\n");
+  }
+
   return TRUE;
 
 error:
@@ -620,7 +625,6 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   args.pdh = ld->pdh;
   if (ld->pdh) {
     wtap_dispatch_cb_write((u_char *)&args, &whdr, 0, NULL, pd);
-    cfile.count++;
     printf("\r%u ", cfile.count);
     fflush(stdout);
   } else {
