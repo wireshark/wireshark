@@ -1392,6 +1392,13 @@ Marcus Haebler <haeblerm[AT]yahoo.com> {
 	Handle a sub-protocol field of 0x00 as PPP
 }
 
+Ulf Lamping <ulf.lamping[AT]web.de> {
+	Put "bytes" after the byte counts for the frame sizes in the
+	    top-level item for the "Frame" protocol
+	Put the source and destination MAC addresses into the top-level
+	    item for Ethernet
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

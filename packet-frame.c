@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.28 2002/08/06 08:13:42 guy Exp $
+ * $Id: packet-frame.c,v 1.29 2002/08/26 19:09:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -116,7 +116,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  pkt_len = tvb_reported_length(tvb);
 
 	  ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, -1,
-	    "Frame %u (%u on wire, %u captured)", pinfo->fd->num, pkt_len, cap_len);
+	    "Frame %u (%u bytes on wire, %u bytes captured)", pinfo->fd->num, pkt_len, cap_len);
 
 	  fh_tree = proto_item_add_subtree(ti, ett_frame);
 

@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.75 2002/08/08 09:28:08 guy Exp $
+ * $Id: packet-eth.c,v 1.76 2002/08/26 19:08:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -222,7 +222,8 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       col_set_str(pinfo->cinfo, COL_INFO, "Ethernet II");
     if (tree) {
       ti = proto_tree_add_protocol_format(tree, proto_eth, tvb, 0, ETH_HEADER_SIZE,
-		"Ethernet II");
+		"Ethernet II, Src: %s, Dst: %s",
+		ether_to_str(src), ether_to_str(dst));
 
       fh_tree = proto_item_add_subtree(ti, ett_ether2);
 
