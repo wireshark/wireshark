@@ -385,6 +385,7 @@ Wes Hardaker <wjhardaker@ucdavis.edu> {
 
 Robert Tsai <rtsai@netapp.com> {
 	Rsh support
+	Support for embedded newlines in SDP fields
 }
 
 Craig Metz <cmetz@inner.net> {

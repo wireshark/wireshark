@@ -1,7 +1,7 @@
 /* strutil.c
  * String utility routines
  *
- * $Id: strutil.c,v 1.3 2000/09/30 05:44:48 guy Exp $
+ * $Id: strutil.c,v 1.4 2000/11/09 02:42:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -97,6 +97,36 @@ find_line_end(const u_char *data, const u_char *dataend, const u_char **eol)
     lineend++;
   }
   return lineend;
+}
+
+const u_char *
+find_line_end_unquoted(const u_char *data, const u_char *dataend,
+	const u_char **eol)
+{
+	const u_char	*pp;
+	gboolean	is_quoted;
+
+	pp = data;
+	is_quoted = FALSE;
+	*eol = NULL;
+	for (pp = data, is_quoted = FALSE; pp < dataend; pp++) {
+		if (*pp == '\n') {
+			if (is_quoted) {
+				/* Do nothing. Wait for next quote. */
+			} else {
+				*eol = (pp > data && *(pp - 1) == '\r')
+					? pp - 1
+					: pp;
+				pp++;
+				break;
+			}
+		} else if (*pp == '"') {
+			is_quoted = !is_quoted;
+		}
+	}
+	if (!*eol)
+		*eol = pp;
+	return pp;
 }
 
 /*
