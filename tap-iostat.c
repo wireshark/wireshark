@@ -1,7 +1,7 @@
 /* tap-iostat.c
  * iostat   2002 Ronnie Sahlberg
  *
- * $Id: tap-iostat.c,v 1.1 2002/11/01 01:49:38 sahlberg Exp $
+ * $Id: tap-iostat.c,v 1.2 2002/11/01 09:40:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -274,7 +274,7 @@ iostat_init(char *optarg)
 		/* find how many ',' separated filters we have */
 		str=filter;
 		io->num_items=1;
-		while((str=index(str,','))){
+		while((str=strchr(str,','))){
 			io->num_items++;
 			str++;
 		}
@@ -286,7 +286,7 @@ iostat_init(char *optarg)
 		i=0;
 		str=filter;
 		do{
-			pos=index(str,',');
+			pos=strchr(str,',');
 			if(pos==str){
 				register_io_tap(io, i, NULL);
 			} else if(pos==NULL) {
