@@ -1,9 +1,24 @@
-/*
- * wtap.h
- * ------
- * Wiretap Library for Packet Capturing and Filtering
+/* wtap.h
+ *
+ * $Id: wtap.h,v 1.2 1998/11/12 06:01:27 gram Exp $
+ *
+ * Wiretap Library
+ * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * 
- * Gilbert Ramirez
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
  */
 
 /* Encapsulation types */
@@ -30,6 +45,11 @@
 #include <pcap.h>
 #include <buffer.h>
 
+typedef struct {
+	guint16	pkt_len;
+	guint32	totpktt;
+} lanalyzer_t;
+
 struct wtap_pkthdr {
 	struct timeval ts;
 	guint32	caplen;
@@ -39,7 +59,9 @@ struct wtap_pkthdr {
 typedef void (*wtap_handler)(u_char*, const struct wtap_pkthdr*,
 		const u_char *);
 
-typedef struct _wtap {
+struct wtap;
+typedef int (*subtype_func)(struct wtap*);
+typedef struct wtap {
 	FILE*			fh;
 	int				file_type;
 	unsigned long	frame_number;
@@ -47,7 +69,12 @@ typedef struct _wtap {
 	Buffer			frame_buffer;
 	struct wtap_pkthdr	phdr;
 
-	pcap_t			*pcap;
+	union {
+		pcap_t			*pcap;
+		lanalyzer_t		*lanalyzer;
+	} capture;
+
+	subtype_func	subtype_read;	
 	char			err_str[PCAP_ERRBUF_SIZE];
 	int				encapsulation;
 } wtap;
@@ -61,6 +88,7 @@ int wtap_snapshot_length(wtap *wth); /* per file */
 int wtap_file_type(wtap *wth);
 int wtap_encapsulation(wtap *wth); /* per file */
 void wtap_close(wtap *wth);
+
 
 /* Pointer versions of ntohs and ntohl.  Given a pointer to a member of a
  * byte array, returns the value of the two or four bytes at the pointer.

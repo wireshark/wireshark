@@ -1,6 +1,6 @@
-/* ngsniffer.h
+/* lanalyzer.h
  *
- * $Id: ngsniffer.h,v 1.2 1998/11/12 06:01:25 gram Exp $
+ * $Id: lanalyzer.h,v 1.1 1998/11/12 06:01:23 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -20,15 +20,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  */
-struct ngsniffer_hdr {
-	guint32	junk1;
-	guint32	junk2;
-	guint32	junk3;
-	guint16	bytes;
-	guint16	junk4;
-	guint32	junk5;
-};
 
 
-int ngsniffer_open(wtap *wth);
-int ngsniffer_read(wtap *wth);
+
+int lanalyzer_open(wtap *wth);
+int lanalyzer_read(wtap *wth);

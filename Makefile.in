@@ -146,7 +146,7 @@ EXTRA_ethereal_SOURCES = \
 	snprintf.h           \
 	snprintf-imp.h
 
-ethereal_DEPENDENCIES = @SNPRINTF_O@
+ethereal_DEPENDENCIES = @SNPRINTF_O@ @LIBWIRETAP_A@
 ethereal_LDADD = @SNPRINTF_O@ @LIBWIRETAP_A@
 
 DISTCLEANFILES = \

@@ -1,15 +1,37 @@
+/* file.c
+ *
+ * $Id: file.c,v 1.2 1998/11/12 06:01:21 gram Exp $
+ *
+ * Wiretap Library
+ * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
+ */
 
 #include <stdio.h>
 #include <string.h>
 #include "wtap.h"
+#include "lanalyzer.h"
+#include "ngsniffer.h"
 
 /* The open_file_* routines should return the WTAP_FILE_* type
  * that they are checking for if the file is successfully recognized
  * as such. If the file is not of that type, the routine should return
  * WTAP_FILE_UNKNOWN */
 static int open_file_pcap(wtap *wth, char *filename);
-static int open_file_ngsniffer(wtap *wth);
-static int open_file_lanalyzer(wtap *wth);
 static int convert_dlt_to_wtap_encap(int dlt);
 
 /* Opens a file and prepares a wtap struct */
@@ -31,11 +53,11 @@ wtap* wtap_open_offline(char *filename, int filetype)
 			goto success;
 		}
 		/* WTAP_FILE_NGSNIFFER */
-		if (wth->file_type = open_file_ngsniffer(wth)) {
+		if (wth->file_type = ngsniffer_open(wth)) {
 			goto success;
 		}
 		/* WTAP_FILE_LANALYZER */
-		if (wth->file_type = open_file_lanalyzer(wth)) {
+		if (wth->file_type = lanalyzer_open(wth)) {
 			goto success;
 		}
 
@@ -52,12 +74,12 @@ wtap* wtap_open_offline(char *filename, int filetype)
 			}
 			break;
 		case WTAP_FILE_NGSNIFFER:
-			if (wth->file_type = open_file_ngsniffer(wth)) {
+			if (wth->file_type = ngsniffer_open(wth)) {
 				goto success;
 			}
 			break;
 		case WTAP_FILE_LANALYZER:
-			if (wth->file_type = open_file_lanalyzer(wth)) {
+			if (wth->file_type = lanalyzer_open(wth)) {
 				goto success;
 			}
 			break;
@@ -103,9 +125,10 @@ int open_file_pcap(wtap *wth, char *filename)
 	}
 
 	/* This is a pcap file */
-	wth->pcap = pcap_open_offline(filename, wth->err_str);
-	dlt = pcap_datalink(wth->pcap);
+	wth->capture.pcap = pcap_open_offline(filename, wth->err_str);
+	dlt = pcap_datalink(wth->capture.pcap);
 	wth->encapsulation =  convert_dlt_to_wtap_encap(dlt);
+	wth->subtype_read = NULL;
 
 	/* For most file types I don't fclose my handle, but for pcap I'm
 	 * letting libpcap handle the file, so I don't need an open file
@@ -116,69 +139,6 @@ int open_file_pcap(wtap *wth, char *filename)
 	return WTAP_FILE_PCAP;
 }
 
-/* Network General Sniffer (c) */
-static
-int open_file_ngsniffer(wtap *wth)
-{
-	int bytes_read;
-	char magic[33];
-
-	fseek(wth->fh, 0, SEEK_SET);
-	bytes_read = fread(magic, 1, 32, wth->fh);
-
-	if (bytes_read != 32) {
-		return WTAP_FILE_UNKNOWN;
-	}
-
-	magic[16] = 0;
-
-	if (strcmp(magic, "TRSNIFF data    ")) {
-		return WTAP_FILE_UNKNOWN;
-	}
-
-	/* This is a ngsniffer file */
-	wth->frame_number = 0;
-	wth->file_byte_offset = 0x10b;
-
-	/* I think this is link type */
-	if (magic[30] == 0x25) {
-		wth->encapsulation = WTAP_ENCAP_ETHERNET;
-	}
-	else if (magic[30] == 0x24) {
-		wth->encapsulation = WTAP_ENCAP_TR;
-	}
-	else {
-		g_error("The magic byte that I think tells DLT is 0x%02X\n", magic[30]);
-		exit(-1);
-	}
-
-	if (fseek(wth->fh, 0x10b, SEEK_SET) < 0) {
-		return WTAP_FILE_UNKNOWN; /* I should exit(-1) here */
-	}
-	return WTAP_FILE_NGSNIFFER;
-}
-
-/* Novell's LANAlyzer (c). */
-static
-int open_file_lanalyzer(wtap *wth)
-{
-	int bytes_read;
-	char magic[2];
-
-	fseek(wth->fh, 0, SEEK_SET);
-	bytes_read = fread(magic, 1, 2, wth->fh);
-
-	if (bytes_read != 2) {
-		return WTAP_FILE_UNKNOWN;
-	}
-
-	if (pletohs(magic) != 0x1001 && pletohs(magic) != 0x1007) {
-		return WTAP_FILE_UNKNOWN;
-	}
-
-/*	return WTAP_FILE_LANALYZER; until I work on it some more */
-	return WTAP_FILE_UNKNOWN;
-}
 
 static
 int convert_dlt_to_wtap_encap(dlt)

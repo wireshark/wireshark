@@ -109,6 +109,28 @@ dialog:
   - 'Cancel' button: Closes the window without making changes.
 
 
+Multiple File Types
+-------------------
+
+The wiretap library is a packet-capture library currently under development
+parallel to ethereal. In the future it is hoped that wiretap will have more
+features than libpcap, but wiretap is still in its infancy. You can compile
+ethereal with the wiretap library by using './configure --with-wiretap'. Using
+wiretap will allow you to read pcap, Sniffer, and LANalyzer trace files, but
+it disables display filters. You can still capture packets from within
+ethereal using libpcap, and therefore use libpcap-style capture filters,
+however.
+
+If you can live without display filters and would like to read non-pcap
+capture files, give wiretap a try. If you want to add support for other
+packet-capture file formats, please look at the wiretap source code in the
+wiretap directory.
+
+Please report any problems that are wiretap related to
+Gilbert Ramirez <gram@verdict.uthscsa.edu>. He uses token-ring at work, so he
+is especially interested in any non-token-ring trace files you can send him.
+
+
 Disclaimer
 ----------
 
