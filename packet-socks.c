@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.43 2002/08/28 21:00:35 jmayer Exp $
+ * $Id: packet-socks.c,v 1.44 2003/02/26 01:35:07 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -908,7 +908,7 @@ display_ping_and_tracert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
                 		linelen = lineend - data;
 
        		                proto_tree_add_text( tree, tvb, offset, linelen,
-       		                	format_text(data, linelen));
+       		                	"%s", format_text(data, linelen));
                		        offset += linelen;
                        		data = lineend;
                        	}
