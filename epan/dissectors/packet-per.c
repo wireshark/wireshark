@@ -409,21 +409,21 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 guint32
 dissect_per_NumericString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len)
 {
-	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, min_len, max_len, " 0123456789", 11, NULL, NULL);
+	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, min_len, max_len, " 0123456789", 11, NULL, 0);
 
 	return offset;
 }
 guint32
 dissect_per_PrintableString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len)
 {
-	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, min_len, max_len, " '()+,-.*0123456789:=?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 74, NULL, NULL);
+	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, min_len, max_len, " '()+,-.*0123456789:=?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 74, NULL, 0);
 	return offset;
 }
 guint32
 dissect_per_VisibleString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len)
 {
 	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, min_len, max_len,
-		" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~", 95, NULL, NULL);
+		" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~", 95, NULL, 0);
 	return offset;
 }
 guint32
