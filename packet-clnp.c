@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.63 2003/01/05 02:50:23 guy Exp $
+ * $Id: packet-clnp.c,v 1.64 2003/01/20 05:42:30 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -86,6 +86,7 @@ static const fragment_items clnp_frag_items = {
 	"segments"
 };
 
+static dissector_handle_t clnp_handle;
 static dissector_handle_t data_handle;
 
 /*
@@ -1617,15 +1618,9 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gint        len;
   guint       next_length;
   proto_tree *discpdu_tree;
-  volatile address save_dl_src;
-  volatile address save_dl_dst;
-  volatile address save_net_src;
-  volatile address save_net_dst;
-  volatile address save_src;
-  volatile address save_dst;
   gboolean    save_in_error_pkt;
   fragment_data *fd_head;
-  tvbuff_t   *volatile next_tvb;
+  tvbuff_t   *next_tvb;
   gboolean    update_col_info = TRUE;
   gboolean    save_fragmented;
 
@@ -1942,22 +1937,10 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (tree) {
         next_length = tvb_length_remaining(tvb, offset);
         if (next_length != 0) {
-          /* We have payload; dissect it.
-             Make the columns non-writable, so the packet isn't shown
-             in the summary based on what the discarded PDU's contents
-             are. */
-          col_set_writable(pinfo->cinfo, FALSE);
-
-          /* Also, save the current values of the addresses, and restore
-             them when we're finished dissecting the contained packet, so
-             that the address columns in the summary don't reflect the
-             contained packet, but reflect this packet instead. */
-          save_dl_src = pinfo->dl_src;
-          save_dl_dst = pinfo->dl_dst;
-          save_net_src = pinfo->net_src;
-          save_net_dst = pinfo->net_dst;
-          save_src = pinfo->src;
-          save_dst = pinfo->dst;
+          /* We have payload; dissect it. */
+          ti = proto_tree_add_text(clnp_tree, tvb, offset, next_length,
+            "Discarded PDU");
+          discpdu_tree = proto_item_add_subtree(ti, ett_clnp_disc_pdu);
 
           /* Save the current value of the "we're inside an error packet"
              flag, and set that flag; subdissectors may treat packets
@@ -1966,34 +1949,10 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           save_in_error_pkt = pinfo->in_error_pkt;
           pinfo->in_error_pkt = TRUE;
 
-          /* Dissect the contained packet.
-             Catch ReportedBoundsError, and do nothing if we see it,
-             because it's not an error if the contained packet is short;
-             there's no guarantee that all of it was included.
-
-             XXX - should catch BoundsError, and re-throw it after cleaning
-             up. */
-          ti = proto_tree_add_text(clnp_tree, tvb, offset, next_length,
-            "Discarded PDU");
-          discpdu_tree = proto_item_add_subtree(ti, ett_clnp_disc_pdu);
-          TRY {
-            dissect_clnp(next_tvb, pinfo, discpdu_tree);
-          }
-          CATCH(ReportedBoundsError) {
-            ; /* do nothing */
-          }
-          ENDTRY;
+          call_dissector(clnp_handle, next_tvb, pinfo, discpdu_tree);
 
           /* Restore the "we're inside an error packet" flag. */
           pinfo->in_error_pkt = save_in_error_pkt;
-
-          /* Restore the addresses. */
-          pinfo->dl_src = save_dl_src;
-          pinfo->dl_dst = save_dl_dst;
-          pinfo->net_src = save_net_src;
-          pinfo->net_dst = save_net_dst;
-          pinfo->src = save_src;
-          pinfo->dst = save_dst;
         }
       }
       pinfo->fragmented = save_fragmented;
@@ -2152,8 +2111,6 @@ void proto_register_cltp(void)
 void
 proto_reg_handoff_clnp(void)
 {
-	dissector_handle_t clnp_handle;
-
         data_handle = find_dissector("data");
 
 	clnp_handle = create_dissector_handle(dissect_clnp, proto_clnp);

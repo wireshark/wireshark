@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.179 2003/01/19 22:21:01 guy Exp $
+ * $Id: packet-ip.c,v 1.180 2003/01/20 05:42:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1304,14 +1304,6 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8     num_addrs = 0;
   guint8     addr_entry_size = 0;
   int        i;
-  gboolean   save_writable;
-  const char *save_current_proto;
-  volatile address save_dl_src;
-  volatile address save_dl_dst;
-  volatile address save_net_src;
-  volatile address save_net_dst;
-  volatile address save_src;
-  volatile address save_dst;
   gboolean   save_in_error_pkt;
   tvbuff_t   *next_tvb;
 
@@ -1496,31 +1488,6 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       case ICMP_PARAMPROB:
       case ICMP_SOURCEQUENCH:
       case ICMP_REDIRECT:
-	/* Decode the IP header and first 64 bits of data from the
-	   original datagram.
-
-	   Set the columns non-writable, so that the packet list
-	   shows this as an ICMP packet, not as the type of packet
-	   for which the ICMP packet was generated.  Save the current
-	   setting, so we can restore it after we're done. */
-	save_writable = col_get_writable(pinfo->cinfo);
-	col_set_writable(pinfo->cinfo, FALSE);
-
-	/* Save the current protocol string as well, and restore it
-	   after we're done. */
-	save_current_proto = pinfo->current_proto;
-
-	/* Also, save the current values of the addresses, and restore
-	   them when we're finished dissecting the contained packet, so
-	   that the address columns in the summary don't reflect the
-	   contained packet, but reflect this packet instead. */
-	save_dl_src = pinfo->dl_src;
-	save_dl_dst = pinfo->dl_dst;
-	save_net_src = pinfo->net_src;
-	save_net_dst = pinfo->net_dst;
-	save_src = pinfo->src;
-	save_dst = pinfo->dst;
-
 	/* Save the current value of the "we're inside an error packet"
 	   flag, and set that flag; subdissectors may treat packets
 	   that are the payload of error packets differently from
@@ -1528,50 +1495,13 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	save_in_error_pkt = pinfo->in_error_pkt;
 	pinfo->in_error_pkt = TRUE;
 
-	/* Dissect the contained packet.
-	   Catch ReportedBoundsError, and do nothing if we see it,
-	   because it's not an error if the contained packet is short;
-	   there's no guarantee that all of it was included. */
+	/* Decode the IP header and first 64 bits of data from the
+	   original datagram. */
 	next_tvb = tvb_new_subset(tvb, 8, -1, -1);
-	TRY {
-	  call_dissector(ip_handle, next_tvb, pinfo, icmp_tree);
-	}
-	CATCH(BoundsError) {
-	  /* Restore the writability of the columns. */
-	  col_set_writable(pinfo->cinfo, save_writable);
-
-	  /* Restore the current protocol string. */
-	  pinfo->current_proto = save_current_proto;
-
-	  /* Restore the "we're inside an error packet" flag. */
-	  pinfo->in_error_pkt = save_in_error_pkt;
-
-	  /* Restore the addresses. */
-	  pinfo->dl_src = save_dl_src;
-	  pinfo->dl_dst = save_dl_dst;
-	  pinfo->net_src = save_net_src;
-	  pinfo->net_dst = save_net_dst;
-	  pinfo->src = save_src;
-	  pinfo->dst = save_dst;
-
-	  /* Rethrow the exception, so this will be reported as a short frame */
-	  RETHROW;
-	}
-	CATCH(ReportedBoundsError) {
-	  ; /* do nothing */
-	}
-	ENDTRY;
+	call_dissector(ip_handle, next_tvb, pinfo, icmp_tree);
 
 	/* Restore the "we're inside an error packet" flag. */
 	pinfo->in_error_pkt = save_in_error_pkt;
-
-	/* Restore the addresses. */
-	pinfo->dl_src = save_dl_src;
-	pinfo->dl_dst = save_dl_dst;
-	pinfo->net_src = save_net_src;
-	pinfo->net_dst = save_net_dst;
-	pinfo->src = save_src;
-	pinfo->dst = save_dst;
 	break;
 
       case ICMP_ECHOREPLY:

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.84 2002/12/08 02:32:36 gerald Exp $
+ * $Id: packet.c,v 1.85 2003/01/20 05:42:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -335,6 +335,29 @@ struct dissector_handle {
 	int		proto_index;
 };
 
+static int
+call_dissector_through_handle(dissector_handle_t handle, tvbuff_t *tvb,
+    packet_info *pinfo, proto_tree *tree)
+{
+	int ret;
+
+	if (handle->is_new)
+		ret = (*handle->dissector.new)(tvb, pinfo, tree);
+	else {
+		(*handle->dissector.old)(tvb, pinfo, tree);
+		ret = tvb_length(tvb);
+		if (ret == 0) {
+			/*
+			 * XXX - a tvbuff can have 0 bytes of data in
+			 * it, so we have to make sure we don't return
+			 * 0.
+			 */
+			ret = 1;
+		}
+	}
+	return ret;
+}
+
 /*
  * Call a dissector through a handle.
  * If the protocol for that handle isn't enabled, return 0 without
@@ -349,7 +372,14 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 {
 	const char *saved_proto;
 	guint16 saved_can_desegment;
-	int ret;
+	volatile int ret;
+	gboolean save_writable;
+	volatile address save_dl_src;
+	volatile address save_dl_dst;
+	volatile address save_net_src;
+	volatile address save_net_dst;
+	volatile address save_src;
+	volatile address save_dst;
 
 	if (handle->proto_index != -1 &&
 	    !proto_is_protocol_enabled(handle->proto_index)) {
@@ -375,19 +405,87 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 		pinfo->current_proto =
 		    proto_get_protocol_short_name(handle->proto_index);
 	}
-	if (handle->is_new)
-		ret = (*handle->dissector.new)(tvb, pinfo, tree);
-	else {
-		(*handle->dissector.old)(tvb, pinfo, tree);
-		ret = tvb_length(tvb);
-		if (ret == 0) {
-			/*
-			 * XXX - a tvbuff can have 0 bytes of data in
-			 * it, so we have to make sure we don't return
-			 * 0.
-			 */
-			ret = 1;
+
+	if (pinfo->in_error_pkt) {
+		/*
+		 * This isn't a packet being transported inside
+		 * the protocol whose dissector is calling us,
+		 * it's a copy of a packet that caused an error
+		 * in some protocol included in a packet that
+		 * reports the error (e.g., an ICMP Unreachable
+		 * packet).
+		 */
+
+		/*
+		 * Save the current state of the writability of
+		 * the columns, and restore them after the
+		 * dissector returns, so that the columns
+		 * don't reflect the packet that got the error,
+		 * they reflect the packet that reported the
+		 * error.
+		 */
+		save_writable = col_get_writable(pinfo->cinfo);
+		col_set_writable(pinfo->cinfo, FALSE);
+	 	save_dl_src = pinfo->dl_src;
+		save_dl_dst = pinfo->dl_dst;
+		save_net_src = pinfo->net_src;
+		save_net_dst = pinfo->net_dst;
+		save_src = pinfo->src;
+		save_dst = pinfo->dst;
+
+		/* Dissect the contained packet. */
+		TRY {
+			ret = call_dissector_through_handle(handle, tvb,
+			    pinfo, tree);
 		}
+		CATCH(BoundsError) {
+			/*
+			 * Restore the column writability and addresses.
+			 */
+			col_set_writable(pinfo->cinfo, save_writable);
+			pinfo->dl_src = save_dl_src;
+			pinfo->dl_dst = save_dl_dst;
+			pinfo->net_src = save_net_src;
+			pinfo->net_dst = save_net_dst;
+			pinfo->src = save_src;
+			pinfo->dst = save_dst;
+
+			/*
+			 * Restore the current protocol, so any
+			 * "Short Frame" indication reflects that
+			 * protocol, not the protocol for the
+			 * packet that got the error.
+			 */
+			pinfo->current_proto = saved_proto;
+
+			/*
+			 * Restore the desegmentability state.
+			 */
+			pinfo->can_desegment = saved_can_desegment;
+
+			/*
+			 * Rethrow the exception, so this will be
+			 * reported as a short frame.
+			 */
+			RETHROW;
+		}
+		CATCH(ReportedBoundsError) {
+			; /* do nothing */
+		}
+		ENDTRY;
+
+		col_set_writable(pinfo->cinfo, save_writable);
+		pinfo->dl_src = save_dl_src;
+		pinfo->dl_dst = save_dl_dst;
+		pinfo->net_src = save_net_src;
+		pinfo->net_dst = save_net_dst;
+		pinfo->src = save_src;
+		pinfo->dst = save_dst;
+	} else {
+		/*
+		 * Just call the subdissector.
+		 */
+		ret = call_dissector_through_handle(handle, tvb, pinfo, tree);
 	}
 	pinfo->current_proto = saved_proto;
 	pinfo->can_desegment = saved_can_desegment;

@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.68 2002/12/02 23:43:26 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.69 2003/01/20 05:42:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -116,71 +116,27 @@ static const value_string names_router_pref[] = {
 static void
 dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    tvbuff_t *next_tvb;
-    volatile address save_dl_src;
-    volatile address save_dl_dst;
-    volatile address save_net_src;
-    volatile address save_net_dst;
-    volatile address save_src;
-    volatile address save_dst;
     gboolean save_in_error_pkt;
+    tvbuff_t *next_tvb;
+
+    /* Save the current value of the "we're inside an error packet"
+       flag, and set that flag; subdissectors may treat packets
+       that are the payload of error packets differently from
+       "real" packets. */
+    save_in_error_pkt = pinfo->in_error_pkt;
+    pinfo->in_error_pkt = TRUE;
 
     next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
     /* tiny sanity check */
     if ((tvb_get_guint8(tvb, offset) & 0xf0) == 0x60) {
-	/* The contained packet is an IPv6 datagram; dissect it.
-
-	   Set the columns non-writable, so that the packet list
-	   shows this as an ICMPv6 packet, not as the type of packet
-	   for which the ICMPv6 packet was generated. */
-	col_set_writable(pinfo->cinfo, FALSE);
-
-	/* Also, save the current values of the addresses, and restore
-	   them when we're finished dissecting the contained packet, so
-	   that the address columns in the summary don't reflect the
-	   contained packet, but reflect this packet instead. */
-	save_dl_src = pinfo->dl_src;
-	save_dl_dst = pinfo->dl_dst;
-	save_net_src = pinfo->net_src;
-	save_net_dst = pinfo->net_dst;
-	save_src = pinfo->src;
-	save_dst = pinfo->dst;
-
-	/* Save the current value of the "we're inside an error packet"
-	   flag, and set that flag; subdissectors may treat packets
-	   that are the payload of error packets differently from
-	   "real" packets. */
-	save_in_error_pkt = pinfo->in_error_pkt;
-	pinfo->in_error_pkt = TRUE;
-
-	/* Dissect the contained packet.
-	   Catch ReportedBoundsError, and do nothing if we see it,
-	   because it's not an error if the contained packet is short;
-	   there's no guarantee that all of it was included.
-
-	   XXX - should catch BoundsError, and re-throw it after cleaning
-	   up. */
-	TRY {
-	    call_dissector(ipv6_handle, next_tvb, pinfo, tree);
-	}
-	CATCH(ReportedBoundsError) {
-	    ; /* do nothing */
-	}
-	ENDTRY;
-
-	/* Restore the "we're inside an error packet" flag. */
-	pinfo->in_error_pkt = save_in_error_pkt;
-
-	/* Restore the addresses. */
-	pinfo->dl_src = save_dl_src;
-	pinfo->dl_dst = save_dl_dst;
-	pinfo->net_src = save_net_src;
-	pinfo->net_dst = save_net_dst;
-	pinfo->src = save_src;
-	pinfo->dst = save_dst;
+	/* The contained packet is an IPv6 datagram; dissect it. */
+	call_dissector(ipv6_handle, next_tvb, pinfo, tree);
     } else
 	call_dissector(data_handle,next_tvb, pinfo, tree);
+
+    /* Restore the "we're inside an error packet" flag. */
+    pinfo->in_error_pkt = save_in_error_pkt;
 }
 
 static void

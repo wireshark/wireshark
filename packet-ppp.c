@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.105 2003/01/06 22:33:57 guy Exp $
+ * $Id: packet-ppp.c,v 1.106 2003/01/20 05:42:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2276,7 +2276,7 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 	proto_tree *tree )
 {
   proto_item *ti;
-  proto_tree *volatile fh_tree = NULL;
+  proto_tree *fh_tree = NULL;
   proto_item *tf;
   proto_tree *field_tree;
 
@@ -2360,12 +2360,6 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 
     case PROTREJ:
       if(tree) {
-	volatile address save_dl_src;
-	volatile address save_dl_dst;
-	volatile address save_net_src;
-	volatile address save_net_dst;
-	volatile address save_src;
-	volatile address save_dst;
 	gboolean save_in_error_pkt;
 	tvbuff_t *next_tvb;
 
@@ -2381,24 +2375,6 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 			      "Rejected packet (%d byte%s)",
 			      length, plurality(length, "", "s"));
 
-	  /* Decode the rejected packet.
-
-	     Set the columns non-writable, so that the packet list
-	     shows this as an LCP packet, not as the type of packet
-	     for which the LCP packet was generated. */
-	  col_set_writable(pinfo->cinfo, FALSE);
-
-	  /* Also, save the current values of the addresses, and restore
-	     them when we're finished dissecting the contained packet, so
-	     that the address columns in the summary don't reflect the
-	     contained packet, but reflect this packet instead. */
-	  save_dl_src = pinfo->dl_src;
-	  save_dl_dst = pinfo->dl_dst;
-	  save_net_src = pinfo->net_src;
-	  save_net_dst = pinfo->net_dst;
-	  save_src = pinfo->src;
-	  save_dst = pinfo->dst;
-
 	  /* Save the current value of the "we're inside an error packet"
 	     flag, and set that flag; subdissectors may treat packets
 	     that are the payload of error packets differently from
@@ -2406,35 +2382,15 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 	  save_in_error_pkt = pinfo->in_error_pkt;
 	  pinfo->in_error_pkt = TRUE;
 
-	  /* Dissect the contained packet.
-	     Catch ReportedBoundsError, and do nothing if we see it,
-	     because it's not an error if the contained packet is short;
-	     there's no guarantee that all of it was included.
-
-	     XXX - should catch BoundsError, and re-throw it after cleaning
-	     up. */
+	  /* Decode the rejected packet. */
 	  next_tvb = tvb_new_subset(tvb, offset, length, length);
-	  TRY {
-	    if (!dissector_try_port(ppp_subdissector_table, protocol,
-				    next_tvb, pinfo, fh_tree)) {
-	      call_dissector(data_handle, next_tvb, pinfo, fh_tree);
-	    }
+	  if (!dissector_try_port(ppp_subdissector_table, protocol,
+				  next_tvb, pinfo, fh_tree)) {
+	    call_dissector(data_handle, next_tvb, pinfo, fh_tree);
 	  }
-	  CATCH(ReportedBoundsError) {
-	    ; /* do nothing */
-	  }
-	  ENDTRY;
 
 	  /* Restore the "we're inside an error packet" flag. */
 	  pinfo->in_error_pkt = save_in_error_pkt;
-
-	  /* Restore the addresses. */
-	  pinfo->dl_src = save_dl_src;
-	  pinfo->dl_dst = save_dl_dst;
-	  pinfo->net_src = save_net_src;
-	  pinfo->net_dst = save_net_dst;
-	  pinfo->src = save_src;
-	  pinfo->dst = save_dst;
         }
       }
       break;
