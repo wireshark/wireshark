@@ -2,7 +2,7 @@
 *
 * Routine to dissect ISO 8327-1 OSI Session Protocol packets
 *
-* $Id: packet-ses.c,v 1.2 2003/11/11 20:33:53 guy Exp $
+* $Id: packet-ses.c,v 1.3 2003/11/18 07:08:43 guy Exp $
 *
 * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
 *
@@ -308,16 +308,21 @@ get_item_len(tvbuff_t *tvb, int offset, int *len_len)
 	return len;
 }
 
-static void
+static gboolean
 dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
     proto_tree *param_tree, packet_info *pinfo, guint8 param_type,
     guint16 param_len)
 {
+	gboolean has_user_information = TRUE;
+	guint16       flags;
+	proto_item   *tf;
+	proto_tree   *flags_tree;
+
 	switch (param_type)
 	{
 	case Called_SS_user_Reference:
 		if (param_len == 0)
-			return;
+			break;
 		if (tree)
 		{
 			proto_tree_add_item(param_tree,
@@ -328,7 +333,7 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 	case Calling_SS_user_Reference:
 		if (param_len == 0)
-			return;
+			break;
 		if (tree)
 		{
 			proto_tree_add_item(param_tree,
@@ -339,7 +344,7 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 	case Common_Reference:
 		if (param_len == 0)
-			return;
+			break;
 		if (tree)
 		{
 			proto_tree_add_item(param_tree,
@@ -350,7 +355,7 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 	case Additional_Reference_Information:
 		if (param_len == 0)
-			return;
+			break;
 		if (tree)
 		{
 			proto_tree_add_item(param_tree,
@@ -365,14 +370,10 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			proto_tree_add_text(param_tree, tvb, offset,
 			    param_len, "Length is %u, should be 1",
 			    param_len);
-			return;
+			break;
 		}
 		if (tree)
 		{
-			guint8       flags;
-			proto_item   *tf;
-			proto_tree   *flags_tree;
-
 			flags = tvb_get_guint8(tvb, offset);
 			tf = proto_tree_add_uint(param_tree,
 			    hf_token_item_options_flags, tvb, offset, 1,
@@ -396,7 +397,7 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			proto_tree_add_text(param_tree, tvb, offset,
 			    param_len, "Length is %u, should be 1",
 			    param_len);
-			return;
+			break;
 		}
 		if (tree)
 		{
@@ -446,14 +447,10 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			proto_tree_add_text(param_tree, tvb, offset,
 			    param_len, "Length is %u, should be 1",
 			    param_len);
-			return;
+			break;
 		}
 		if (tree)
 		{
-			guint8       flags;
-			proto_item   *tf;
-			proto_tree   *flags_tree;
-
 			flags = tvb_get_guint8(tvb, offset);
 			tf = proto_tree_add_uint(param_tree,
 			    hf_connect_protocol_options_flags, tvb, offset, 1,
@@ -472,14 +469,10 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			proto_tree_add_text(param_tree, tvb, offset,
 			    param_len, "Length is %u, should be 2",
 			    param_len);
-			return;
+			break;
 		}
 		if (tree)
 		{
-			guint16       flags;
-			proto_item   *tf;
-			proto_tree   *flags_tree;
-
 			flags = tvb_get_ntohs(tvb, offset);
 			tf = proto_tree_add_uint(param_tree,
 			    hf_session_user_req_flags, tvb, offset, 2,
@@ -532,7 +525,7 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			proto_tree_add_text(param_tree, tvb, offset,
 			    param_len, "Length is %u, should be 4",
 			    param_len);
-			return;
+			break;
 		}
 		if (tree)
 		{
@@ -551,14 +544,10 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			proto_tree_add_text(param_tree, tvb, offset,
 			    param_len, "Length is %u, should be 1",
 			    param_len);
-			return;
+			break;
 		}
 		if (tree)
 		{
-			guint8       flags;
-			proto_item   *tf;
-			proto_tree   *flags_tree;
-
 			flags = tvb_get_guint8(tvb, offset);
 			tf = proto_tree_add_uint(param_tree,
 			    hf_version_number_options_flags, tvb, offset, 1,
@@ -574,7 +563,7 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 	case Initial_Serial_Number:
 		if (param_len == 0)
-			return;
+			break;
 		if (tree)
 		{
 			proto_tree_add_item(param_tree,
@@ -589,15 +578,11 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			proto_tree_add_text(param_tree, tvb, offset,
 			    param_len, "Length is %u, should be 1",
 			    param_len);
-			return;
+			break;
 		}
+		flags = tvb_get_guint8(tvb, offset);
 		if (tree)
 		{
-			guint8       flags;
-			proto_item   *tf;
-			proto_tree   *flags_tree;
-
-			flags = tvb_get_guint8(tvb, offset);
 			tf = proto_tree_add_uint(param_tree,
 			    hf_enclosure_item_options_flags, tvb, offset, 1,
 			    flags);
@@ -608,6 +593,17 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			proto_tree_add_boolean(flags_tree, hf_beginning_of_SSDU,
 			    tvb, offset, 1, flags);
 		}
+		if (flags & END_SPDU) {
+			/*
+			 * In Data Transfer and Typed Data SPDUs,
+			 * "The User Information Field shall be present
+			 * if the Enclosure Item is not present, or has
+			 * bit 2 = 0", which presumably means it shall
+			 * *not* be present if the Enclosure item *is*
+			 * present and has bit 2 = 1.
+			 */
+			has_user_information = FALSE;
+		}
 		break;
 
 	case Token_Setting_Item:
@@ -616,7 +612,7 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			proto_tree_add_text(param_tree, tvb, offset,
 			    param_len, "Length is %u, should be 1",
 			    param_len);
-			return;
+			break;
 		}
 		if (tree)
 		{
@@ -632,6 +628,17 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			proto_tree_add_item(param_tree,
 			    hf_data_token_setting,
 			    tvb, offset, 1, FALSE);
+		}
+		break;
+
+	case Serial_Number:
+		if (param_len == 0)
+			break;
+		if (tree)
+		{
+			proto_tree_add_item(param_tree,
+			    hf_serial_number,
+			    tvb, offset, param_len, FALSE);
 		}
 		break;
 
@@ -655,7 +662,7 @@ PICS.    */
 			proto_tree_add_text(param_tree, tvb, offset,
 			    param_len, "Length is %u, should be >= 1",
 			    param_len);
-			return;
+			break;
 		}
 		if (tree)
 		{
@@ -677,7 +684,7 @@ PICS.    */
 
 	case Calling_Session_Selector:
 		if (param_len == 0)
-			return;
+			break;
 		if (tree)
 		{
 			proto_tree_add_item(param_tree,
@@ -688,7 +695,7 @@ PICS.    */
 
 	case Called_Session_Selector:
 		if (param_len == 0)
-			return;
+			break;
 		if (tree)
 		{
 			proto_tree_add_item(param_tree,
@@ -699,7 +706,7 @@ PICS.    */
 
 	case Second_Serial_Number:
 		if (param_len == 0)
-			return;
+			break;
 		if (tree)
 		{
 			proto_tree_add_item(param_tree,
@@ -710,7 +717,7 @@ PICS.    */
 
 	case Second_Initial_Serial_Number:
 		if (param_len == 0)
-			return;
+			break;
 		if (tree)
 		{
 			proto_tree_add_item(param_tree,
@@ -721,7 +728,7 @@ PICS.    */
 
 	case Large_Initial_Serial_Number:
 		if (param_len == 0)
-			return;
+			break;
 		if (tree)
 		{
 			proto_tree_add_item(param_tree,
@@ -732,7 +739,7 @@ PICS.    */
 
 	case Large_Second_Initial_Serial_Number:
 		if (param_len == 0)
-			return;
+			break;
 		if (tree)
 		{
 			proto_tree_add_item(param_tree,
@@ -744,12 +751,14 @@ PICS.    */
 	default:
 		break;
 	}
+	return has_user_information;
 }
 
-static void
+static gboolean
 dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
     proto_tree *pg_tree, packet_info *pinfo, guint16 pg_len)
 {
+	gboolean has_user_information = TRUE;
 	proto_item *ti;
 	proto_tree *param_tree;
 	guint8 param_type;
@@ -775,7 +784,7 @@ dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
 			proto_item_set_len(ti, pg_len + 1);
 			proto_tree_add_text(param_tree, tvb, offset, pg_len,
 			    "Parameter length doesn't fit in parameter");
-			return;
+			return has_user_information;
 		}
 		pg_len -= len_len;
 		if (param_len > pg_len) {
@@ -783,7 +792,7 @@ dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
 			proto_tree_add_text(param_tree, tvb, offset, pg_len,
 			    "Parameter length: %u, should be <= %u",
 			    param_len, pg_len);
-			return;
+			return has_user_information;
 		}
 		proto_item_set_len(ti, 1 + len_len + param_len);
 		proto_tree_add_text(param_tree, tvb, offset, len_len,
@@ -806,20 +815,27 @@ dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
 				break;
 
 			default:
-				dissect_parameter(tvb, offset, tree,
-				    param_tree, pinfo, param_type, param_len);
+				if (!dissect_parameter(tvb, offset, tree,
+				    param_tree, pinfo, param_type, param_len))
+					has_user_information = FALSE;
 				break;
 			}
 		}
 		offset += param_len;
 		pg_len -= param_len;
 	}
+	return has_user_information;
 }
 
-static void
+/*
+ * Returns TRUE if there's a User Information field in this SPDU, FALSE
+ * otherwise.
+ */
+static gboolean
 dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
     proto_tree *ses_tree, packet_info *pinfo)
 {
+	gboolean has_user_information = TRUE;
 	proto_item *ti;
 	proto_tree *param_tree;
 	guint8 param_type;
@@ -845,7 +861,7 @@ dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
 			proto_item_set_len(ti, len + 1 );
 			proto_tree_add_text(param_tree, tvb, offset, len,
 			    "Parameter length doesn't fit in parameter");
-			return;
+			return has_user_information;
 		}
 		len -= len_len;
 		if (param_len > len) {
@@ -853,7 +869,7 @@ dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
 			proto_tree_add_text(param_tree, tvb, offset, len,
 			    "Parameter length: %u, should be <= %u",
 			    param_len, len);
-			return;
+			return has_user_information;
 		}
 		proto_item_set_len(ti, 1 + len_len + param_len);
 		proto_tree_add_text(param_tree, tvb, offset, len_len,
@@ -877,30 +893,32 @@ dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
 			case Connection_Identifier:
 			case Linking_Information:
 				/* Yes. */
-				dissect_parameter_group(tvb, offset, tree,
-				    param_tree, pinfo, param_len);
+				if (!dissect_parameter_group(tvb, offset, tree,
+				    param_tree, pinfo, param_len))
+					has_user_information = FALSE;
 				break;
 
 			/* everything else is a PI */
 			default:
-				dissect_parameter(tvb, offset, tree,
-				    param_tree, pinfo, param_type, param_len);
+				if (!dissect_parameter(tvb, offset, tree,
+				    param_tree, pinfo, param_type, param_len))
+					has_user_information = FALSE;
 				break;
 			}
 		}
 		offset += param_len;
 		len -= param_len;
 	}
+	return has_user_information;
 }
 
 /*
-* Dissect ses-encapsulated data in a SES stream.
-*/
-
-static void
-dissect_ses(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+ * Dissect an SPDU.
+ */
+static int
+dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	int offset = 0;
+	gboolean has_user_information;
 	guint8 type;
 	proto_item *ti = NULL;
 	proto_tree *ses_tree = NULL;
@@ -908,12 +926,9 @@ dissect_ses(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 parameters_len;
 	tvbuff_t *next_tvb;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SES");
-  	if (check_col(pinfo->cinfo, COL_INFO))
-  		col_clear(pinfo->cinfo, COL_INFO);
-
-/*   get SPDU type */
+	/*
+	 * Get SPDU type.
+	 */
 	type = tvb_get_guint8(tvb, offset);
   	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_str(pinfo->cinfo, COL_INFO,
@@ -928,6 +943,22 @@ dissect_ses(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	offset++;
 
+	/*
+	 * Might this SPDU have a User Information field?
+	 */
+	switch (type) {
+
+	case SES_DATA_TRANSFER:
+	case SES_EXPEDITED:
+	case SES_TYPED_DATA:
+		has_user_information = TRUE;
+		break;
+
+	default:
+		has_user_information = FALSE;
+		break;
+	}
+
 	/* get length of SPDU parameter field */
 	parameters_len = get_item_len(tvb, offset, &len_len);
 	if (tree)
@@ -936,24 +967,55 @@ dissect_ses(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += len_len;
 
 	/* Dissect parameters. */
-	dissect_parameters(tvb, offset, parameters_len, tree, ses_tree, pinfo);
+	if (!dissect_parameters(tvb, offset, parameters_len, tree, ses_tree,
+	    pinfo))
+		has_user_information = FALSE;
 	offset += parameters_len;
 	
-	/* Dissect user information */
-	if (tvb_reported_length_remaining(tvb, offset) > 0) {
-		proto_item_set_end(ti, tvb, offset);
-		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	proto_item_set_end(ti, tvb, offset);
 
-		/* do we have OSI presentation packet dissector ? */
-		if(!pres_handle)
-		{
-			call_dissector(data_handle, next_tvb, pinfo, tree);
-		}
-		else
-		{
-			call_dissector(pres_handle, next_tvb, pinfo, tree);
+	/* Dissect user information, if present */
+	if (has_user_information) {
+		if (tvb_reported_length_remaining(tvb, offset) > 0) {
+			next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+
+			/* do we have OSI presentation packet dissector ? */
+			if(!pres_handle)
+			{
+				call_dissector(data_handle, next_tvb, pinfo,
+				    tree);
+			}
+			else
+			{
+				call_dissector(pres_handle, next_tvb, pinfo,
+				    tree);
+			}
+
+			/*
+			 * No more SPDUs to dissect.  Set the offset to the
+			 * end of the tvbuff.
+			 */
+			offset = tvb_length(tvb);
 		}
 	}
+	return offset;
+}
+
+/*
+ * Dissect SPDUs inside a TSDU.
+ */
+static void
+dissect_ses(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	int offset = 0;
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SES");
+  	if (check_col(pinfo->cinfo, COL_INFO))
+  		col_clear(pinfo->cinfo, COL_INFO);
+
+	while (tvb_reported_length_remaining(tvb, offset) > 0)
+		offset = dissect_spdu(tvb, offset, pinfo, tree);
 }
 
 void
