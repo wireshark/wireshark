@@ -9,7 +9,7 @@
  * Modified 2004-01-10 by Anders Broman to add abillity to dissect
  * Content type application/ISUP RFC 3204 used in SIP-T
  *
- * $Id: packet-isup.c,v 1.46 2004/01/15 02:23:18 guy Exp $
+ * $Id: packet-isup.c,v 1.47 2004/01/15 02:29:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3436,7 +3436,7 @@ static void
 dissect_isup_user_service_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 { guint length = tvb_length(parameter_tvb);
   proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, "User service information (-> Q.931 Bearer_capability)");
-  proto_item_set_text(parameter_item, "User service information,(%u byte%s length)", length , plurality(length, "", "s"));
+  proto_item_set_text(parameter_item, "User service information, (%u byte%s length)", length , plurality(length, "", "s"));
   dissect_q931_bearer_capability_ie(parameter_tvb,
 					    0, length,
 					    parameter_tree);
