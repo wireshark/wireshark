@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.106 2003/04/19 06:04:58 guy Exp $
+ * $Id: packet-snmp.c,v 1.107 2003/04/19 09:45:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -106,19 +106,15 @@
 #include "packet-snmp.h"
 #include "format-oid.h"
 
-/* Null string of type "guchar[]". */
-static const guchar nullstring[] = "";
-
 /* Take a pointer that may be null and return a pointer that's not null
-   by turning null pointers into pointers to the above null string. */
-#define	SAFE_USTRING(s)	(((s) != NULL) ? (s) : nullstring)
-#define	SAFE_STRING(s)	(((s) != NULL) ? (s) : (char *)nullstring)
+   by turning null pointers into pointers to the above null string,
+   and, if the argument pointer wasn't null, make sure we handle
+   non-printable characters in the string by escaping them. */
+#define	SAFE_STRING(s, l)	(((s) != NULL) ? format_text((s), (l)) : "")
 
 static int proto_snmp = -1;
-static int proto_smux = -1;
 
 static gint ett_snmp = -1;
-static gint ett_smux = -1;
 static gint ett_parameters = -1;
 static gint ett_parameters_qos = -1;
 static gint ett_global = -1;
@@ -137,6 +133,13 @@ static int hf_snmpv3_flags = -1;
 static int hf_snmpv3_flags_auth = -1;
 static int hf_snmpv3_flags_crypt = -1;
 static int hf_snmpv3_flags_report = -1;
+
+static int proto_smux = -1;
+
+static gint ett_smux = -1;
+
+static int hf_smux_version = -1;
+static int hf_smux_pdutype = -1;
 
 static dissector_handle_t snmp_handle;
 static dissector_handle_t data_handle;
@@ -850,9 +853,8 @@ snmp_variable_decode(proto_tree *snmp_tree,
 			} else {
 				proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 				    length,
-				    "Value: %s: %.*s", vb_type_name,
-				    (int)vb_length,
-				    SAFE_USTRING(vb_octet_string));
+				    "Value: %s: %s", vb_type_name,
+				    SAFE_STRING(vb_octet_string, vb_length));
 			}
 #endif /* HAVE_SOME_SNMP */
 		}
@@ -1062,7 +1064,7 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (tree) {
 			oid_string = format_oid(enterprise, enterprise_length);
 			proto_tree_add_string(tree, hf_snmp_enterprise, tvb,
-			    offset, length, SAFE_STRING(oid_string));
+			    offset, length, oid_string);
 			g_free(oid_string);
 		}
 		g_free(enterprise);
@@ -1636,9 +1638,8 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			}
 			if (secur_tree) {
 				proto_tree_add_text(secur_tree, tvb, offset,
-				    length, "User Name: %.*s",
-				    username_length,
-				    SAFE_USTRING(username));
+				    length, "User Name: %s",
+				    SAFE_STRING(username, username_length));
 			}
 			g_free(username);
 			offset += length;
@@ -1736,8 +1737,8 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 		if (snmp_tree) {
 			proto_tree_add_text(snmp_tree, tvb, offset, length,
-			    "Context Name: %.*s", cname_length,
-			    SAFE_USTRING(cname));
+			    "Context Name: %s",
+			    SAFE_STRING(cname, cname_length));
 		}
 		g_free(cname);
 		offset += length;
@@ -1830,8 +1831,8 @@ dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			col_add_str(pinfo->cinfo, COL_INFO, pdu_type_string);
 		length = asn1.offset - start;
 		if (tree) {
-			proto_tree_add_text(smux_tree, tvb, offset, length,
-			    "PDU type: %s", pdu_type_string);
+			proto_tree_add_uint(smux_tree, hf_smux_pdutype, tvb,
+			    offset, length, pdu_type);
 		}
 		offset += length;
 		ret = asn1_uint32_decode (&asn1, &version, &length);
@@ -1841,8 +1842,8 @@ dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			return;
 		}
 		if (tree) {
-			proto_tree_add_text(smux_tree, tvb, offset, length,
-			    "Version: %d", version);
+			proto_tree_add_uint(smux_tree, hf_smux_version, tvb,
+			    offset, length, version);
 		}
 		offset += length;
 
@@ -1870,8 +1871,8 @@ dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 		if (tree) {
 			proto_tree_add_text(smux_tree, tvb, offset, length,
-			    "Application: %.*s", application_length,
-			     SAFE_USTRING(application));
+			    "Application: %s",
+			     SAFE_STRING(application, application_length));
 		}
 		g_free(application);
 		offset += length;
@@ -1885,8 +1886,8 @@ dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 		if (tree) {
 			proto_tree_add_text(smux_tree, tvb, offset, length,
-			    "Password: %.*s", password_length,
-			    SAFE_USTRING(password));
+			    "Password: %s",
+			    SAFE_STRING(password, password_length));
 		}
 		g_free(password);
 		offset += length;
@@ -1899,8 +1900,8 @@ dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			col_add_str(pinfo->cinfo, COL_INFO, pdu_type_string);
 		length = asn1.offset - start;
 		if (tree) {
-			proto_tree_add_text(smux_tree, tvb, offset, length,
-			    "PDU type: %s", pdu_type_string);
+			proto_tree_add_uint(smux_tree, hf_smux_pdutype, tvb,
+			    offset, length, pdu_type);
 		}
 		offset += length;
 		ret = asn1_uint32_value_decode (&asn1, pdu_length, &cause);
@@ -1925,8 +1926,8 @@ dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			col_add_str(pinfo->cinfo, COL_INFO, pdu_type_string);
 		length = asn1.offset - start;
 		if (tree) {
-			proto_tree_add_text(smux_tree, tvb, offset, length,
-			    "PDU type: %s", pdu_type_string);
+			proto_tree_add_uint(smux_tree, hf_smux_pdutype, tvb,
+			    offset, length, pdu_type);
 		}
 		offset += length;
 		ret = asn1_oid_decode (&asn1, &regid, &regid_length, &length);
@@ -1978,8 +1979,8 @@ dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			col_add_str(pinfo->cinfo, COL_INFO, pdu_type_string);
 		length = asn1.offset - start;
 		if (tree) {
-			proto_tree_add_text(smux_tree, tvb, offset, length,
-			    "PDU type: %s", pdu_type_string);
+			proto_tree_add_uint(smux_tree, hf_smux_pdutype, tvb,
+			    offset, length, pdu_type);
 		}
 		offset += length;
 		ret = asn1_uint32_value_decode (&asn1, pdu_length, &priority);
@@ -2004,8 +2005,8 @@ dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			col_add_str(pinfo->cinfo, COL_INFO, pdu_type_string);
 		length = asn1.offset - start;
 		if (tree) {
-			proto_tree_add_text(smux_tree, tvb, offset, length,
-			    "PDU type: %s", pdu_type_string);
+			proto_tree_add_uint(smux_tree, hf_smux_pdutype, tvb,
+			    offset, length, pdu_type);
 		}
 		offset += length;
 		ret = asn1_uint32_value_decode (&asn1, pdu_length, &commit);
@@ -2118,10 +2119,9 @@ proto_register_snmp(void)
 		{ &hf_snmpv3_flags_report,
 		{ "Reportable", "snmpv3.flags.report", FT_BOOLEAN, 8,
 		    TFS(&flags_set_truth), TH_REPORT, "", HFILL }},
-        };
+	};
 	static gint *ett[] = {
 		&ett_snmp,
-		&ett_smux,
 		&ett_parameters,
 		&ett_parameters_qos,
 		&ett_global,
@@ -2161,11 +2161,9 @@ proto_register_snmp(void)
 	init_mib();
 	read_configs();
 #endif /* HAVE_SOME_SNMP */
-        proto_snmp = proto_register_protocol("Simple Network Management Protocol",
+	proto_snmp = proto_register_protocol("Simple Network Management Protocol",
 	    "SNMP", "snmp");
-        proto_smux = proto_register_protocol("SNMP Multiplex Protocol",
-	    "SMUX", "smux");
-        proto_register_field_array(proto_snmp, hf, array_length(hf));
+	proto_register_field_array(proto_snmp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	snmp_handle = create_dissector_handle(dissect_snmp, proto_snmp);
 }
@@ -2173,15 +2171,41 @@ proto_register_snmp(void)
 void
 proto_reg_handoff_snmp(void)
 {
-	dissector_handle_t smux_handle;
-
 	dissector_add("udp.port", UDP_PORT_SNMP, snmp_handle);
 	dissector_add("udp.port", UDP_PORT_SNMP_TRAP, snmp_handle);
-	smux_handle = create_dissector_handle(dissect_smux, proto_smux);
-	dissector_add("tcp.port", TCP_PORT_SMUX, smux_handle);
 	dissector_add("ethertype", ETHERTYPE_SNMP, snmp_handle);
 	dissector_add("ipx.socket", IPX_SOCKET_SNMP_AGENT, snmp_handle);
 	dissector_add("ipx.socket", IPX_SOCKET_SNMP_SINK, snmp_handle);
 	dissector_add("hpext.dxsap", HPEXT_SNMP, snmp_handle);
 	data_handle = find_dissector("data");
+}
+
+void
+proto_register_smux(void)
+{
+	static hf_register_info hf[] = {
+		{ &hf_smux_version,
+		{ "Version", "smux.version", FT_UINT8, BASE_DEC, NULL,
+		    0x0, "", HFILL }},
+		{ &hf_smux_pdutype,
+		{ "PDU type", "smux.pdutype", FT_UINT8, BASE_DEC, VALS(smux_types),
+		    0x0, "", HFILL }},
+	};
+	static gint *ett[] = {
+		&ett_smux,
+	};
+
+	proto_smux = proto_register_protocol("SNMP Multiplex Protocol",
+	    "SMUX", "smux");
+	proto_register_field_array(proto_smux, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_smux(void)
+{
+	dissector_handle_t smux_handle;
+
+	smux_handle = create_dissector_handle(dissect_smux, proto_smux);
+	dissector_add("tcp.port", TCP_PORT_SMUX, smux_handle);
 }
