@@ -734,7 +734,7 @@ Inoue <inoue[AT]ainet.or.jp> {
 	Preference dialog crash fix
 }
 
-Olivier Biot <Olivier.Biot[AT]siemens.com> {
+Olivier Biot <ethereal[AT]tiscali.be> {
 	Various WTP fixes and enhancements
 	Rewrite of much of WSP
 	WBXML/WMLC support
