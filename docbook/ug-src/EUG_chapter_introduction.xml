@@ -504,7 +504,7 @@
 	    You can obtain this traceback information with the following commands:
 	    <programlisting>
 <![CDATA[
-$ gdb `whereis ethereal | cut -f2 -d: | cut -f' ' -d2` core >& bt.txt
+$ gdb `whereis ethereal | cut -f2 -d: | cut -d' ' -f2` core >& bt.txt
 backtrace
 ^D
 $

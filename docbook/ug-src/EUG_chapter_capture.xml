@@ -71,7 +71,7 @@ ethereal -i eth0 -k
 	  <varlistentry><term><command>Link-layer header type</command></term>
 	    <listitem>
 	      <para>
-		  Unless you are in the rare case that you will need this, just keep 
+		  Unless you are in the rare situation that you need this, just keep 
 		  the default. For a detailed description, see 
 		  <xref linkend="ChCapLinkLayerHeader"/>
 	      </para>
@@ -98,7 +98,7 @@ ethereal -i eth0 -k
 	    <listitem>
 	      <para>
 		This checkbox allows you to specify that Ethereal 
-		should set the interface in promiscuous mode when capturing. 
+		should put the interface in promiscuous mode when capturing. 
 		If you do not specify this, Ethereal will only capture the 
 		packets going to or from your computer (not 
 		all packets on your LAN segment).
@@ -773,7 +773,7 @@ tcp port 23 and not host 10.0.0.5
 	</listitem>
 	<listitem>
 	  <para>The capture will be automatically stopped, if one of the 
-	  <command>Stop Conditions</command> exceeded, e.g. the maximum amount 
+	  <command>Stop Conditions</command> is exceeded, e.g. the maximum amount 
 	  of data was captured.
 	  </para>
 	</listitem>
