@@ -1010,14 +1010,29 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 	    CFLAGS="$CFLAGS $KRB5_FLAGS"
             CPPFLAGS="$CPPFLAGS $KRB5_FLAGS"
 	    #
-	    # If we've set SSL_LIBS, use that instead of -lcrypto
-	    # in KRB5_LIBS.
+	    # If -lcrypto is in KRB5_FLAGS, we require it to build
+	    # with Heimdal.  We don't want to built with it by
+	    # default, due to annoying license incompatibilities
+	    # between the OpenSSL license and the GPL, so:
 	    #
-	    if test ! -z "$SSL_LIBS"
-	    then
-		KRB5_LIBS=`"$KRB5_CONFIG" --libs | sed 's/-lcrypto//'`
-		KRB5_LIBS="$KRB5_LIBS $SSL_LIBS"
-	    fi
+	    #	if SSL_LIBS is set to a non-empty string, we
+	    #	remove -lcrypto from KRB5_LIBS and replace
+	    #	it with SSL_LIBS;
+	    #
+	    #	if SSL_LIBS is not set to a non-empty string
+	    #	we fail with an appropriate error message.
+	    #
+	    case "$KRB5_LIBS" in
+	    *-lcrypto*)
+		if test ! -z "$SSL_LIBS"
+		then
+		    KRB5_LIBS=`echo $KRB5_FLAGS | sed 's/-lcrypto//'`
+		    KRB5_LIBS="$KRB5_LIBS $SSL_LIBS"
+		else
+		    AC_MSG_ERROR([Kerberos library requires -lcrypto but --with-ssl not specified])
+		fi
+		;;
+	    esac
 	    #
 	    # Looks like krb5-config is lacking -lresolv on some systems.
 	    # At least on some of those systems (such as FreeBSD 4.6),
