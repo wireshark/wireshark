@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-llc.c,v 1.95 2002/01/21 07:36:37 guy Exp $
+ * $Id: packet-llc.c,v 1.96 2002/03/31 21:09:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -213,8 +213,7 @@ capture_llc(const u_char *pd, int offset, int len, packet_counts *ld) {
 	 * uses extended operation, so we don't need to determine
 	 * whether it's basic or extended operation; is that the case?
 	 */
-	control = get_xdlc_control(pd, offset+2, pd[offset+1] & SSAP_CR_BIT,
-	    TRUE);
+	control = get_xdlc_control(pd, offset+2, pd[offset+1] & SSAP_CR_BIT);
 	llc_header_len += XDLC_CONTROL_LEN(control, TRUE);
 	if (is_snap)
 		llc_header_len += 5;	/* 3 bytes of OUI, 2 bytes of protocol ID */
