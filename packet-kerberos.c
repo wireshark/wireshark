@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.30 2002/09/04 21:34:38 sharpe Exp $
+ * $Id: packet-kerberos.c,v 1.31 2002/09/05 03:49:03 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -342,7 +342,7 @@ static const value_string krb5_msg_types[] = {
 static int dissect_PrincipalName(char *title, ASN1_SCK *asn1p,
                                  packet_info *pinfo, proto_tree *tree,
                                  int start_offset);
-static int dissect_Ticket(ASN1_SCK *asn1p, packet_info *pinfo,
+int dissect_Ticket(ASN1_SCK *asn1p, packet_info *pinfo,
                           proto_tree *tree, int start_offset);
 static int dissect_EncryptedData(char *title, ASN1_SCK *asn1p,
 				 packet_info *pinfo, proto_tree *tree,
@@ -1267,7 +1267,7 @@ dissect_EncryptedData(char *title, ASN1_SCK *asn1p, packet_info *pinfo,
     return offset - start_offset;
 }
 
-static int
+int
 dissect_Ticket(ASN1_SCK *asn1p, packet_info *pinfo,
 	       proto_tree *tree, int start_offset)
 {
@@ -1380,11 +1380,6 @@ proto_reg_handoff_kerberos(void)
     dissector_add("udp.port", UDP_PORT_KERBEROS, kerberos_handle);
     dissector_add("tcp.port", TCP_PORT_KERBEROS, kerberos_handle);
 
-    /* Register both the one MS created and the real one */
-    gssapi_init_oid("1.2.840.48018.1.2.2", proto_kerberos, ett_kerberos,
-                    kerberos_handle, "MS KRB5 (Microsoft Kerberos 5)");
-    gssapi_init_oid("1.2.840.113554.1.2.2", proto_kerberos, ett_kerberos,
-                    kerberos_handle, "KRB5 (Kerberos 5)");
 }
 
 /*

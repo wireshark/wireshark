@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.27 2002/09/04 22:20:57 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.28 2002/09/05 03:49:03 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,6 +55,7 @@
 #define SPNEGO_negResult_accept_reject 2
 
 static int proto_spnego = -1;
+static int proto_spnego_krb5 = -1;
 
 static int hf_spnego = -1;
 static int hf_spnego_negtokeninit = -1;
@@ -65,6 +66,7 @@ static int hf_spnego_negtokentarg_negresult = -1;
 static int hf_spnego_mechlistmic = -1;
 static int hf_spnego_responsetoken = -1;
 static int hf_spnego_reqflags = -1;
+static int hf_spnego_krb5 = -1;
 
 static gint ett_spnego = -1;
 static gint ett_spnego_negtokeninit = -1;
@@ -73,6 +75,7 @@ static gint ett_spnego_mechtype = -1;
 static gint ett_spnego_mechtoken = -1;
 static gint ett_spnego_mechlistmic = -1;
 static gint ett_spnego_responsetoken = -1;
+static gint ett_spnego_krb5 = -1;
 
 static const value_string spnego_negResult_vals[] = {
   { SPNEGO_negResult_accept_completed,   "Accept Completed" },
@@ -80,14 +83,6 @@ static const value_string spnego_negResult_vals[] = {
   { SPNEGO_negResult_accept_reject,      "Accept Reject"},
   { 0, NULL}
 };
-
-/*
- * We need to keep this around for other routines to use.
- * We store it in the per-protocol conversation data and 
- * retrieve it in the main dissector.
- */
-
-static dissector_handle_t next_level_dissector = NULL;
 
 /* Display an ASN1 parse error.  Taken from packet-snmp.c */
 
@@ -108,6 +103,133 @@ dissect_parse_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
 	}
 }
+
+/*
+ * This is the SPNEGO KRB5 dissector. It is not true KRB5, but some ASN.1
+ * wrapped blob with an OID, Boolean, and a Ticket, that is also ASN.1 wrapped
+ * by the looks of it.
+ */ 
+
+static void
+dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	int length = tvb_length_remaining(tvb, 0);
+	int ret, offset = 0;
+	ASN1_SCK hnd;
+	gboolean def;
+	guint len1, cls, con, tag, oid_len, nbytes;
+	subid_t *oid;
+	gchar *oid_string;
+	gssapi_oid_value *value;
+
+	item = proto_tree_add_item(tree, hf_spnego_krb5, tvb, offset, 
+				   length, FALSE);
+
+	subtree = proto_item_add_subtree(item, ett_spnego_krb5);
+
+	/*
+	 * According to all the info I have, the KRB5 blob contains:
+	 * APLICATION (0) {
+	 *   OID,
+	 *   BOOLEAN (0),
+	 *   OCTET STRING } 
+	 */
+
+	asn1_open(&hnd, tvb, offset);
+
+	/*
+	 * Get the first header ...
+	 */
+
+	ret = asn1_header_decode(&hnd, &cls, &con, &tag, &def, &len1);
+
+	if (ret != ASN1_ERR_NOERROR) {
+		dissect_parse_error(tvb, offset, pinfo, subtree,
+				    "SPNEGO KRB5 Header", ret);
+		goto done;
+	}
+
+	if (!(cls == ASN1_APL && con == ASN1_CON && tag == 0)) {
+		proto_tree_add_text(
+			subtree, tvb, offset, 0,
+			"Unknown header (cls=%d, con=%d, tag=%d)",
+			cls, con, tag);
+		goto done;
+	}
+
+	offset = hnd.offset;
+
+	/* Next, the OID */
+
+	ret = asn1_oid_decode(&hnd, &oid, &oid_len, &nbytes);
+
+	if (ret != ASN1_ERR_NOERROR) {
+		dissect_parse_error(tvb, offset, pinfo, subtree,
+				    "SPNEGO supportedMech token", ret);
+		goto done;
+	}
+
+	oid_string = format_oid(oid, oid_len);
+
+	value = g_hash_table_lookup(gssapi_oids, oid_string);
+
+	if (value) 
+	  proto_tree_add_text(subtree, tvb, offset, nbytes, 
+			      "OID: %s (%s)",
+			      oid_string, value->comment);
+	else
+	  proto_tree_add_text(subtree, tvb, offset, oid_len, "OID: %s",
+			      oid_string);
+	  
+	offset += nbytes;
+
+	/* Next, the 0 length boolean ... */
+
+	ret = asn1_header_decode(&hnd, &cls, &con, &tag, &def, &len1);
+
+	if (ret != ASN1_ERR_NOERROR) {
+		dissect_parse_error(tvb, offset, pinfo, subtree,
+				    "SPNEGO KRB5 Header", ret);
+		goto done;
+	}
+
+	if (!(cls == ASN1_UNI && con == ASN1_PRI && tag == ASN1_BOL)) {
+		proto_tree_add_text(
+			subtree, tvb, offset, 0,
+			"Unknown header (cls=%d, con=%d, tag=%d)",
+			cls, con, tag);
+		goto done;
+	}
+
+	if (len1 != 0) { /* Bail, it is an error */
+
+		proto_tree_add_text(
+			subtree, tvb, offset, 0,
+			"Non-zero length boolean encountered (len=%d)",
+			len1);
+		goto done;
+		
+	}
+
+	offset = hnd.offset;
+
+	offset = dissect_Ticket(&hnd, pinfo, subtree, offset);
+
+ done:
+	return;
+}
+
+/*
+ * We need to keep this around for other routines to use.
+ * We store it in the per-protocol conversation data and 
+ * retrieve it in the main dissector.
+ */
+
+static dissector_handle_t next_level_dissector = NULL;
+
+/* Spnego stuff from here */
 
 static int
 dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
@@ -807,8 +929,8 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
          * It seems to duplicate the responseToken into the mechListMic field
          * as well. Naughty, naughty.
          *
-         * FIXME, the following code is broken so far.
 	 */
+
 	asn1_open(&hnd, tvb, offset);
 
 	/*
@@ -894,7 +1016,10 @@ proto_register_spnego(void)
 		    BASE_HEX, VALS(spnego_negResult_vals), 0, "negResult", HFILL}},
 		{ &hf_spnego_reqflags, 
 		  { "reqFlags", "spnego.negtokeninit.reqflags", FT_BYTES,
-		    BASE_HEX, NULL, 0, "reqFlags", HFILL}},
+		    BASE_HEX, NULL, 0, "reqFlags", HFILL }},
+		{ &hf_spnego_krb5,
+		  { "krb5_blob", "spnego.krb5.blob", FT_BYTES,
+		    BASE_HEX, NULL, 0, "krb5_blob", HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -905,10 +1030,14 @@ proto_register_spnego(void)
 		&ett_spnego_mechtoken,
 		&ett_spnego_mechlistmic,
 		&ett_spnego_responsetoken,
+		&ett_spnego_krb5,
 	};
 
 	proto_spnego = proto_register_protocol(
 		"Spnego", "Spnego", "spnego");
+	proto_spnego_krb5 = proto_register_protocol("SPNEGO-KRB5",
+						    "SPNEGO-KRB5",
+						    "spnego-krb5");
 
 	proto_register_field_array(proto_spnego, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -917,11 +1046,19 @@ proto_register_spnego(void)
 void
 proto_reg_handoff_spnego(void)
 {
-	dissector_handle_t spnego_handle;
+	dissector_handle_t spnego_handle, spnego_krb5_handle;
 
 	/* Register protocol with GSS-API module */
 
 	spnego_handle = create_dissector_handle(dissect_spnego, proto_spnego);
+	spnego_krb5_handle = create_dissector_handle(dissect_spnego_krb5,
+						     proto_spnego_krb5);
 	gssapi_init_oid("1.3.6.1.5.5.2", proto_spnego, ett_spnego,
 	    spnego_handle, "SPNEGO (Simple Protected Negotiation)");
+
+	/* Register both the one MS created and the real one */
+	gssapi_init_oid("1.2.840.48018.1.2.2", proto_spnego_krb5, ett_spnego_krb5,
+			spnego_krb5_handle, "MS KRB5 (Microsoft Kerberos 5)");
+	gssapi_init_oid("1.2.840.113554.1.2.2", proto_spnego_krb5, ett_spnego_krb5,
+			spnego_krb5_handle, "KRB5 (Kerberos 5)");
 }
