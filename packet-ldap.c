@@ -3,7 +3,7 @@
  *
  * See RFC 1777 (LDAP v2), RFC 2251 (LDAP v3), and RFC 2222 (SASL).
  *
- * $Id: packet-ldap.c,v 1.69 2003/11/10 07:44:46 sahlberg Exp $
+ * $Id: packet-ldap.c,v 1.70 2003/12/04 08:13:27 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1007,14 +1007,49 @@ static void dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree,
     if (mechanism == NULL)
         mechanism = ldap_info->auth_mech;
     else {
-      if (ldap_info->auth_mech == NULL)
-        ldap_info->auth_mech = mechanism;
+      if (ldap_info->auth_mech == NULL) {
+        g_free(ldap_info->auth_mech);
+      }
+      ldap_info->auth_mech = mechanism;
     }
 
     if (a->offset < end) {
       if (mechanism != NULL && strcmp(mechanism, "GSS-SPNEGO") == 0) {
         /*
-         * This is a GSS-API token.
+         * This is a GSS-API token ancapsulated within GSS-SPNEGO.
+         * Find out how big it is by parsing the ASN.1 header for the
+         * OCTET STREAM that contains it.
+         */
+        token_offset = a->offset;
+        ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
+        if (ret != ASN1_ERR_NOERROR) {
+          proto_tree_add_text(tree, a->tvb, token_offset, 0,
+            "%s: ERROR: Couldn't parse header: %s",
+            proto_registrar_get_name(hf_ldap_message_bind_auth_credentials),
+            asn1_err_to_str(ret));
+          return;
+        }
+        if (tree) {
+          gitem = proto_tree_add_text(tree, tvb, token_offset,
+            (a->offset + length) - token_offset, "GSS-API Token");
+          gtree = proto_item_add_subtree(gitem, ett_ldap_gssapi_token);
+        }
+        available_length = tvb_length_remaining(tvb, token_offset);
+        reported_length = tvb_reported_length_remaining(tvb, token_offset);
+        g_assert(available_length >= 0);
+        g_assert(reported_length >= 0);
+        if (available_length > reported_length)
+          available_length = reported_length;
+        if ((guint)available_length > length)
+          available_length = length;
+        if ((guint)reported_length > length)
+          reported_length = length;
+        new_tvb = tvb_new_subset(tvb, a->offset, available_length, reported_length);
+        call_dissector(gssapi_handle, new_tvb, pinfo, gtree);
+        a->offset += length;
+      } else if (mechanism != NULL && strcmp(mechanism, "GSSAPI") == 0) {
+        /*
+         * This is a raw GSS-API token.
          * Find out how big it is by parsing the ASN.1 header for the
          * OCTET STREAM that contains it.
          */
@@ -1107,6 +1142,40 @@ static void dissect_ldap_response_bind(ASN1_SCK *a, proto_tree *tree,
       ldap_info->first_auth_frame = pinfo->fd->num + 1;
       if (ldap_info->auth_mech != NULL &&
           strcmp(ldap_info->auth_mech, "GSS-SPNEGO") == 0) {
+        /*
+         * This is a GSS-API token.
+         * Find out how big it is by parsing the ASN.1 header for the
+         * OCTET STREAM that contains it.
+         */
+        token_offset = a->offset;
+        ret = asn1_header_decode(a, &cls, &con, &tag, &def, &cred_length);
+        if (ret != ASN1_ERR_NOERROR) {
+          proto_tree_add_text(tree, a->tvb, token_offset, 0,
+            "%s: ERROR: Couldn't parse header: %s",
+            proto_registrar_get_name(hf_ldap_message_bind_auth_credentials),
+            asn1_err_to_str(ret));
+          return;
+        }
+        if (tree) {
+          gitem = proto_tree_add_text(tree, tvb, token_offset,
+            (a->offset + cred_length) - token_offset, "GSS-API Token");
+          gtree = proto_item_add_subtree(gitem, ett_ldap_gssapi_token);
+        }
+        available_length = tvb_length_remaining(tvb, token_offset);
+        reported_length = tvb_reported_length_remaining(tvb, token_offset);
+        g_assert(available_length >= 0);
+        g_assert(reported_length >= 0);
+        if (available_length > reported_length)
+          available_length = reported_length;
+        if ((guint)available_length > cred_length)
+          available_length = cred_length;
+        if ((guint)reported_length > cred_length)
+          reported_length = cred_length;
+        new_tvb = tvb_new_subset(tvb, a->offset, available_length, reported_length);
+        call_dissector(gssapi_handle, new_tvb, pinfo, gtree);
+        a->offset += cred_length;
+      } else if (ldap_info->auth_mech != NULL &&
+          strcmp(ldap_info->auth_mech, "GSSAPI") == 0) {
         /*
          * This is a GSS-API token.
          * Find out how big it is by parsing the ASN.1 header for the
