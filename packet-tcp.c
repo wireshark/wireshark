@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.232 2004/05/14 09:00:06 ulfl Exp $
+ * $Id: packet-tcp.c,v 1.233 2004/05/14 15:55:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1159,6 +1159,7 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 		item = proto_tree_add_uint(tree, hf_tcp_analysis_acks_frame,
 			tvb, 0, 0, ta->frame_acked);
         PROTO_ITEM_SET_GENERATED(item);
+        PROTO_ITEM_SET_LINK(item);
 	}
 	if( ta->ts.secs || ta->ts.nsecs ){
 		item = proto_tree_add_time(tree, hf_tcp_analysis_ack_rtt,

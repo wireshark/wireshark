@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.94 2004/05/09 07:01:07 ulfl Exp $
+ * $Id: proto_draw.c,v 1.95 2004/05/14 15:55:37 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1593,6 +1593,50 @@ set_ptree_font_all(PangoFontDescription *font)
 #endif
 }
 
+
+#if GTK_MAJOR_VERSION >= 2
+void tree_cell_renderer(GtkTreeViewColumn *tree_column,
+                                             GtkCellRenderer *cell,
+                                             GtkTreeModel *tree_model,
+                                             GtkTreeIter *iter,
+                                             gpointer data)
+{
+    field_info   *fi;
+
+    gtk_tree_model_get(tree_model, iter, 1, &fi, -1);
+
+    /* for each field, we have to reset the renderer attributes */
+    g_object_set (cell, "foreground-set", FALSE, NULL);
+
+    g_object_set (cell, "underline", PANGO_UNDERLINE_NONE, NULL);
+    g_object_set (cell, "underline-set", FALSE, NULL);
+
+    /*g_object_set (cell, "style", PANGO_STYLE_NORMAL, NULL);
+    g_object_set (cell, "style-set", FALSE, NULL);*/
+
+    /*g_object_set (cell, "weight", PANGO_WEIGHT_NORMAL, NULL);
+    g_object_set (cell, "weight-set", FALSE, NULL);*/
+
+    if(FI_GET_FLAG(fi, FI_GENERATED)) {
+        /* as some fonts don't support italic, don't use this */
+        /*g_object_set (cell, "style", PANGO_STYLE_ITALIC, NULL);
+        g_object_set (cell, "style-set", TRUE, NULL);
+        */
+        /*g_object_set (cell, "weight", PANGO_WEIGHT_BOLD, NULL);
+        g_object_set (cell, "weight-set", TRUE, NULL);*/
+    }
+
+    if(FI_GET_FLAG(fi, FI_LINK)) {
+        g_object_set (cell, "foreground", "blue", NULL);
+        g_object_set (cell, "foreground-set", TRUE, NULL);
+
+        g_object_set (cell, "underline", PANGO_UNDERLINE_SINGLE, NULL);
+        g_object_set (cell, "underline-set", TRUE, NULL);
+    }
+}
+#endif
+
+
 GtkWidget *
 main_tree_view_new(e_prefs *prefs, GtkWidget **tree_view_p)
 {
@@ -1625,11 +1669,18 @@ main_tree_view_new(e_prefs *prefs, GtkWidget **tree_view_p)
   g_object_unref(G_OBJECT(store));
   gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(tree_view), FALSE);
   renderer = gtk_cell_renderer_text_new();
+  g_object_set (renderer, "ypad", 0, NULL);
   col_offset = gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(tree_view),
                                                            -1, "Name", renderer,
                                                            "text", 0, NULL);
   column = gtk_tree_view_get_column(GTK_TREE_VIEW(tree_view),
                                     col_offset - 1);
+  gtk_tree_view_column_set_cell_data_func(column,
+                                             renderer,
+                                             tree_cell_renderer,
+                                             NULL,
+                                             NULL);
+
   gtk_tree_view_column_set_sizing(GTK_TREE_VIEW_COLUMN(column),
                                   GTK_TREE_VIEW_COLUMN_AUTOSIZE);
   SIGNAL_CONNECT(tree_view, "row-expanded", expand_tree, NULL);
@@ -1701,6 +1752,26 @@ main_proto_tree_draw(proto_tree *protocol_tree)
     proto_tree_draw(protocol_tree, tree_view);
 }
 
+
+#if GTK_MAJOR_VERSION >= 2
+void
+tree_view_follow_link(GtkTreeSelection    *sel)
+{
+    GtkTreeModel *model;
+    GtkTreeIter iter;
+    field_info   *fi;
+
+    if(gtk_tree_selection_get_selected (sel, &model, &iter)) {
+        gtk_tree_model_get(model, &iter, 1, &fi, -1);
+        if(FI_GET_FLAG(fi, FI_LINK)) {
+            g_assert(fi->hfinfo->type == FT_FRAMENUM);
+            goto_frame(&cfile, fi->value.value.integer);
+        }
+    }
+}
+#endif
+
+
 /* If the user selected a position in the tree view, try to find
  * the item in the GUI proto_tree that corresponds to that byte, and
  * select it. */
@@ -1739,6 +1810,11 @@ tree_view_select(GtkWidget *widget, GdkEventButton *event)
         {
             sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(widget));
             gtk_tree_selection_select_path(sel, path);
+
+            /* if that's a doubleclick, try to follow the link */
+            if(event->type == GDK_2BUTTON_PRESS) {
+                tree_view_follow_link(sel);
+            }
         } else {
             return FALSE;
         }
