@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-llc.c,v 1.80 2001/01/11 07:24:17 guy Exp $
+ * $Id: packet-llc.c,v 1.81 2001/01/18 07:44:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -398,7 +398,7 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		   packet type for AARP packets. */
 		if (XDLC_IS_INFORMATION(control)) {
 			ethertype(etype, tvb, offset+5,
-			    pinfo, tree, snap_tree, hf_type);
+			    pinfo, tree, snap_tree, hf_type, -1);
 		} else {
 			next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
 			dissect_data(next_tvb, 0, pinfo, tree);

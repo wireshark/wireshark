@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.19 2001/01/13 06:34:33 guy Exp $
+ * $Id: packet.h,v 1.20 2001/01/18 07:44:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -363,12 +363,12 @@ void old_dissect_data(const u_char *, int, frame_data *, proto_tree *);
 void dissect_data(tvbuff_t *tvb, int, packet_info *pinfo, proto_tree *tree);
 
 
-/* These functions are in ethertype.c */
+/* These functions are in packet-ethertype.c */
 void capture_ethertype(guint16 etype, int offset,
 		const u_char *pd, packet_counts *ld);
-guint ethertype(guint16 etype, tvbuff_t*, int offset_after_ethertype,
-		packet_info *pinfo, proto_tree *tree,
-		proto_tree *fh_tree, int item_id);
+void ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_ethertype,
+		packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
+		int etype_id, int trailer_id);
 extern const value_string etype_vals[];
 
 /* ipproto.c */

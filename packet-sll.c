@@ -1,7 +1,7 @@
 /* packet-sll.c
  * Routines for disassembly of packets from Linux "cooked mode" captures
  *
- * $Id: packet-sll.c,v 1.5 2001/01/09 09:59:28 guy Exp $
+ * $Id: packet-sll.c,v 1.6 2001/01/18 07:44:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -138,11 +138,8 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 hatype, halen;
 	guint8 *src;
 	proto_item *ti;
-	volatile guint16 length;
-	tvbuff_t *volatile next_tvb;
-	tvbuff_t *volatile trailer_tvb;
-	proto_tree *volatile fh_tree = NULL;
-	guint length_before;
+	tvbuff_t *next_tvb;
+	proto_tree *fh_tree = NULL;
 
 	CHECK_DISPLAY_AS_DATA(proto_sll, tvb, pinfo, tree);
 
@@ -201,7 +198,6 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    protocol);
 
 		next_tvb = tvb_new_subset(tvb, SLL_HEADER_SIZE, -1, -1);
-		trailer_tvb = NULL;
 		switch (protocol) {
 
 		case LINUX_SLL_P_802_2:
@@ -224,41 +220,8 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 	} else {
-		length_before = tvb_reported_length(tvb);
-		length = ethertype(protocol, tvb, SLL_HEADER_SIZE, pinfo, tree,
-		    fh_tree, hf_sll_etype) + SLL_HEADER_SIZE;
-		if (length < length_before) {
-			/*
-			 * Create a tvbuff for the padding.
-			 */
-			TRY {
-				trailer_tvb = tvb_new_subset(tvb, length, -1,
-				    -1);
-			}
-			CATCH2(BoundsError, ReportedBoundsError) {
-				/* The packet doesn't have "length" bytes
-				   worth of captured data left in it.  No
-				   trailer to display. */
-				trailer_tvb = NULL;
-			}
-			ENDTRY;
-		} else {
-			/*
-			 * There is no padding.
-			 */
-			trailer_tvb = NULL;
-		}
-	}
-
-	/* If there's some bytes left over, mark them. */
-	if (trailer_tvb && tree) {
-		guint trailer_length;
-
-		trailer_length = tvb_length(trailer_tvb);
-		if (trailer_length != 0) {
-			proto_tree_add_item(fh_tree, hf_sll_trailer,
-			    trailer_tvb, 0, trailer_length, FALSE);
-		}
+		ethertype(protocol, tvb, SLL_HEADER_SIZE, pinfo, tree,
+		    fh_tree, hf_sll_etype, hf_sll_trailer);
 	}
 }
 

@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.9 2000/11/18 10:38:24 guy Exp $
+ * $Id: packet-ethertype.c,v 1.10 2001/01/18 07:44:39 guy Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -95,20 +95,27 @@ capture_ethertype(guint16 etype, int offset,
   }
 }
 
-guint
-ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype, packet_info *pinfo,
-		proto_tree *tree, proto_tree *fh_tree, int item_id)
+void
+ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
+		packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
+		int etype_id, int trailer_id)
 {
 	char		*description;
 	tvbuff_t	*next_tvb;
+	guint		length_before, length;
+	tvbuff_t	*volatile trailer_tvb;
 	
 	/* Add to proto_tree */
 	if (tree) {
-		proto_tree_add_uint(fh_tree, item_id, tvb, offset_after_etype - 2, 2, etype);
+		proto_tree_add_uint(fh_tree, etype_id, tvb,
+		    offset_after_etype - 2, 2, etype);
 	}
 
 	/* Tvbuff for the payload after the Ethernet type. */
 	next_tvb = tvb_new_subset(tvb, offset_after_etype, -1, -1);
+
+	/* Remember how much data there is in it. */
+	length_before = tvb_reported_length(next_tvb);
 
 	/* Look for sub-dissector */
 	if (!dissector_try_port(ethertype_dissector_table, etype,
@@ -139,10 +146,39 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype, packet_info *pin
 		}
 	}
 
-	/* Return the length of that tvbuff; the subdissector may have
-	   reduced the length to a value specified by a length field
-	   in its header, meaning what remains is padding. */
-	return tvb_reported_length(next_tvb);
+	/* OK, how much is there in that tvbuff now? */
+	length = tvb_reported_length(next_tvb);
+
+	/* If there's less than there was before, what's left is
+	   a trailer. */
+	if (length < length_before) {
+		/*
+		 * Create a tvbuff for the padding.
+		 */
+		TRY {
+			trailer_tvb = tvb_new_subset(tvb,
+			    offset_after_etype + length, -1, -1);
+		}
+		CATCH2(BoundsError, ReportedBoundsError) {
+			/* The packet doesn't have "length" bytes worth of
+			   captured data left in it.  No trailer to display. */
+			trailer_tvb = NULL;
+		}
+		ENDTRY;
+	} else
+		trailer_tvb = NULL;	/* no trailer */
+
+	/* If there's some bytes left over, and we were given an item ID
+	   for a trailer, mark those bytes as a trailer. */
+	if (trailer_tvb && tree && trailer_id != -1) {
+		guint	trailer_length;
+
+		trailer_length = tvb_length(trailer_tvb);
+		if (trailer_length != 0) {
+			proto_tree_add_item(fh_tree, trailer_id, trailer_tvb, 0,
+			    trailer_length, FALSE);
+		}
+	}
 }
 
 

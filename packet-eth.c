@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.55 2001/01/09 09:59:28 guy Exp $
+ * $Id: packet-eth.c,v 1.56 2001/01/18 07:44:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -150,14 +150,13 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8		*dst, *src;
   const guint8		*pd;
 
-  volatile guint16	etype;
+  guint16		etype;
   volatile int		ethhdr_type;	/* the type of Ethernet frame */
-  volatile int		eth_offset;
+  int			eth_offset;
   volatile guint16  	length;
   tvbuff_t		*volatile next_tvb;
   tvbuff_t		*volatile trailer_tvb;
   proto_tree		*volatile fh_tree;
-  guint			length_before;
 
   CHECK_DISPLAY_AS_DATA(proto_eth, tvb, pinfo, tree);
 
@@ -218,20 +217,19 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		(ethhdr_type == ETHERNET_802_3 ? "Raw " : ""));
     }
     if (tree) {
-
-	ti = proto_tree_add_protocol_format(tree, proto_eth, tvb, 0, ETH_HEADER_SIZE,
+      ti = proto_tree_add_protocol_format(tree, proto_eth, tvb, 0, ETH_HEADER_SIZE,
 		"IEEE 802.3 %s", (ethhdr_type == ETHERNET_802_3 ? "Raw " : ""));
 
-	fh_tree = proto_item_add_subtree(ti, ett_ieee8023);
+      fh_tree = proto_item_add_subtree(ti, ett_ieee8023);
 
-	proto_tree_add_ether(fh_tree, hf_eth_dst, tvb, 0, 6, dst);
-	proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src);
+      proto_tree_add_ether(fh_tree, hf_eth_dst, tvb, 0, 6, dst);
+      proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src);
 
 /* add items for eth.addr filter */
-	proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 0, 6, dst);
-	proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 6, 6, src);
+      proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 0, 6, dst);
+      proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 6, 6, src);
 
-	proto_tree_add_uint(fh_tree, hf_eth_len, tvb, 12, 2, length);
+      proto_tree_add_uint(fh_tree, hf_eth_len, tvb, 12, 2, length);
     }
 
     /* Convert the LLC length from the 802.3 header to a total
@@ -247,99 +245,78 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       pinfo->len = length;
     if (pinfo->captured_len > length)
       pinfo->captured_len = length;
+
+    /* Give the next dissector only 'length' number of bytes */
+    TRY {
+      next_tvb = tvb_new_subset(tvb, ETH_HEADER_SIZE, etype, etype);
+      trailer_tvb = tvb_new_subset(tvb, ETH_HEADER_SIZE + etype, -1, -1);
+    }
+    CATCH2(BoundsError, ReportedBoundsError) {
+      /* Either:
+
+	    the packet doesn't have "etype" bytes worth of
+	    captured data left in it - or it may not even have
+	    "etype" bytes worth of data in it, period -
+	    so the "tvb_new_subset()" creating "next_tvb"
+	    threw an exception
+
+	 or
+
+	    the packet has exactly "etype" bytes worth of
+	    captured data left in it, so the "tvb_new_subset()"
+	    creating "trailer_tvb" threw an exception.
+
+	 In either case, this means that all the data in the frame
+	 is within the length value, so we give all the data to the
+	 next protocol and have no trailer. */
+      next_tvb = tvb_new_subset(tvb, ETH_HEADER_SIZE, -1, etype);
+      trailer_tvb = NULL;
+    }
+    ENDTRY;
+
+    /* Dissect the payload either as IPX or as an LLC frame. */
+    switch (ethhdr_type) {
+      case ETHERNET_802_3:
+        call_dissector(ipx_handle, next_tvb, pinfo, tree);
+        break;
+      case ETHERNET_802_2:
+        call_dissector(llc_handle, next_tvb, pinfo, tree);
+        break;
+    }
+
+    /* If there's some bytes left over, mark them. */
+    if (trailer_tvb && tree) {
+      guint trailer_length;
+
+      trailer_length = tvb_length(trailer_tvb);
+      if (trailer_length != 0) {
+	proto_tree_add_item(fh_tree, hf_eth_trailer, trailer_tvb, 0,
+			    trailer_length, FALSE);
+      }
+    }
   } else {
     ethhdr_type = ETHERNET_II;
     if (check_col(pinfo->fd, COL_INFO))
       col_set_str(pinfo->fd, COL_INFO, "Ethernet II");
     if (tree) {
-
-	ti = proto_tree_add_protocol_format(tree, proto_eth, tvb, 0, ETH_HEADER_SIZE,
+      ti = proto_tree_add_protocol_format(tree, proto_eth, tvb, 0, ETH_HEADER_SIZE,
 		"Ethernet II");
 
-	fh_tree = proto_item_add_subtree(ti, ett_ether2);
+      fh_tree = proto_item_add_subtree(ti, ett_ether2);
 
-	proto_tree_add_ether(fh_tree, hf_eth_dst, tvb, 0, 6, dst);
-	proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src);
+      proto_tree_add_ether(fh_tree, hf_eth_dst, tvb, 0, 6, dst);
+      proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src);
 /* add items for eth.addr filter */
-	proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 0, 6, dst);
-	proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 6, 6, src);
+      proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 0, 6, dst);
+      proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 6, 6, src);
     }
+
+    next_tvb = NULL;	/* "ethertype()" will create the next tvb for us */
+    trailer_tvb = NULL;	/* we don't know how big the trailer is */
+
+    ethertype(etype, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree, hf_eth_type,
+          hf_eth_trailer);
   }
-  eth_offset += ETH_HEADER_SIZE;
-
-  if (etype <= IEEE_802_3_MAX_LEN) {
-	  /* Give the next dissector only 'length' number of bytes */
-	  TRY {
-	    next_tvb = tvb_new_subset(tvb, ETH_HEADER_SIZE, etype, etype);
-	    trailer_tvb = tvb_new_subset(tvb, ETH_HEADER_SIZE + etype, -1, -1);
-	  }
-	  CATCH2(BoundsError, ReportedBoundsError) {
-	    /* Either:
-
-		 the packet doesn't have "etype" bytes worth of
-		 captured data left in it - or it may not even have
-		 "etype" bytes worth of data in it, period -
-		 so the "tvb_new_subset()" creating "next_tvb"
-		 threw an exception
-
-	       or
-
-		 the packet has exactly "etype" bytes worth of
-		 captured data left in it, so the "tvb_new_subset()"
-		 creating "trailer_tvb" threw an exception.
-
-	      In either case, this means that all the data in the frame
-	      is within the length value, so we give all the data to the
-	      next protocol and have no trailer. */
-	    next_tvb = tvb_new_subset(tvb, ETH_HEADER_SIZE, -1, etype);
-	    trailer_tvb = NULL;
-	  }
-	  ENDTRY;
-  }
-  else {
-     next_tvb = NULL;	/* "ethertype()" will create the next tvb for us */
-     trailer_tvb = NULL;	/* we don't know how big the trailer is */
-  }
-
-  switch (ethhdr_type) {
-    case ETHERNET_802_3:
-      call_dissector(ipx_handle, next_tvb, pinfo, tree);
-      break;
-    case ETHERNET_802_2:
-      call_dissector(llc_handle, next_tvb, pinfo, tree);
-      break;
-    case ETHERNET_II:
-      length_before = tvb_reported_length(tvb);
-      length = ethertype(etype, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree,
-          hf_eth_type) + ETH_HEADER_SIZE;
-      if (length < length_before) {
-	/*
-	 * Create a tvbuff for the padding.
-	 */
-	TRY {
-	  trailer_tvb = tvb_new_subset(tvb, length, -1, -1);
-	}
-	CATCH2(BoundsError, ReportedBoundsError) {
-	  /* The packet doesn't have "length" bytes worth of captured
-	     data left in it.  No trailer to display. */
-	  trailer_tvb = NULL;
-	}
-	ENDTRY;
-      }
-      break;
-  }
-
-  /* If there's some bytes left over, mark them. */
-  if (trailer_tvb && tree) {
-	  guint           trailer_length;
-
-	  trailer_length = tvb_length(trailer_tvb);
-	  if (trailer_length != 0) {
-		  proto_tree_add_item(fh_tree, hf_eth_trailer, trailer_tvb, 0,
-			  trailer_length, FALSE);
-	  }
-  }
-
 }
 
 void
