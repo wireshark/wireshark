@@ -1,7 +1,7 @@
 /* endpoint_talkers_fddi.c
  * endpoint_talkers_fddi   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_fddi.c,v 1.3 2003/08/30 00:53:15 sahlberg Exp $
+ * $Id: endpoint_talkers_fddi.c,v 1.4 2003/08/30 01:05:03 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,15 +57,6 @@ fddi_talkers_reset(void *pit)
 
 	snprintf(title, 255, "FDDI Talkers: %s", cfile.filename);
 	gtk_window_set_title(GTK_WINDOW(talkers->win), title);
-}
-
-
-static void
-fddi_talkers_draw(void *pit)
-{
-	endpoints_table *talkers=(endpoints_table *)pit;
-
-	draw_ett_table_data(talkers);
 }
 
 
@@ -129,7 +120,7 @@ gtk_fddi_talkers_init(char *optarg)
 
 	init_ett_table(talkers, vbox, NULL, filter_names);
 
-	error_string=register_tap_listener("fddi", talkers, filter, fddi_talkers_reset, fddi_talkers_packet, fddi_talkers_draw);
+	error_string=register_tap_listener("fddi", talkers, filter, fddi_talkers_reset, fddi_talkers_packet, (void *)draw_ett_table_data);
 	if(error_string){
 		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
 		g_string_free(error_string, TRUE);

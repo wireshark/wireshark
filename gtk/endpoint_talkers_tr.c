@@ -1,7 +1,7 @@
 /* endpoint_talkers_tr.c
  * endpoint_talkers_tr   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_tr.c,v 1.9 2003/08/30 00:53:15 sahlberg Exp $
+ * $Id: endpoint_talkers_tr.c,v 1.10 2003/08/30 01:05:03 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,15 +55,6 @@ tr_talkers_reset(void *pit)
 	reset_ett_table_data(talkers);
 	snprintf(title, 255, "Token Ring Talkers: %s", cfile.filename);
 	gtk_window_set_title(GTK_WINDOW(talkers->win), title);
-}
-
-
-static void
-tr_talkers_draw(void *pit)
-{
-	endpoints_table *talkers=(endpoints_table *)pit;
-
-	draw_ett_table_data(talkers);
 }
 
 
@@ -127,7 +118,7 @@ gtk_tr_talkers_init(char *optarg)
 
 	init_ett_table(talkers, vbox, NULL, filter_names);
 
-	error_string=register_tap_listener("tr", talkers, filter, tr_talkers_reset, tr_talkers_packet, tr_talkers_draw);
+	error_string=register_tap_listener("tr", talkers, filter, tr_talkers_reset, tr_talkers_packet, (void *)draw_ett_table_data);
 	if(error_string){
 		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
 		g_string_free(error_string, TRUE);

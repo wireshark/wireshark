@@ -1,7 +1,7 @@
 /* endpoint_talkers_ipx.c
  * endpoint_talkers_ipx   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_ipx.c,v 1.7 2003/08/30 00:53:15 sahlberg Exp $
+ * $Id: endpoint_talkers_ipx.c,v 1.8 2003/08/30 01:05:03 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,15 +56,6 @@ ipx_talkers_reset(void *pit)
 	reset_ett_table_data(talkers);
 	snprintf(title, 255, "IPX Talkers: %s", cfile.filename);
 	gtk_window_set_title(GTK_WINDOW(talkers->win), title);
-}
-
-
-static void
-ipx_talkers_draw(void *pit)
-{
-	endpoints_table *talkers=(endpoints_table *)pit;
-
-	draw_ett_table_data(talkers);
 }
 
 
@@ -128,7 +119,7 @@ gtk_ipx_talkers_init(char *optarg)
 
 	init_ett_table(talkers, vbox, NULL, filter_names);
 
-	error_string=register_tap_listener("ipx", talkers, filter, ipx_talkers_reset, ipx_talkers_packet, ipx_talkers_draw);
+	error_string=register_tap_listener("ipx", talkers, filter, ipx_talkers_reset, ipx_talkers_packet, (void *)draw_ett_table_data);
 	if(error_string){
 		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
 		g_string_free(error_string, TRUE);
