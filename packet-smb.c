@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.133 2001/11/05 07:46:01 guy Exp $
+ * $Id: packet-smb.c,v 1.134 2001/11/05 07:58:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4385,7 +4385,7 @@ wrap_dissect_smb_command(proto_tree *top_tree, const guint8 *pd, int offset,
 			  smb_dissector[cmd].response){ 
 	  /* call smb command dissector */
 	  our_pinfo->private_data = si;
-	  dissect_smb_command(our_tvb, our_pinfo, top_tree, offset, smb_tree, cmd);
+	  dissect_smb_command(our_tvb, our_pinfo, top_tree, offset, our_tree, cmd);
 	} else {
 	  proto_item *cmd_item;
 	  proto_tree *cmd_tree;
