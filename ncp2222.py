@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.20 2002/05/16 09:59:51 guy Exp $
+$Id: ncp2222.py,v 1.21 2002/05/17 05:00:50 gram Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1584,7 +1584,7 @@ DirHandleName			= uint8("dir_handle_name", "Handle Name")
 DirHandleLong			= uint32("dir_handle_long", "Directory Handle")
 DirectoryAccessRights           = uint8("directory_access_rights", "Directory Access Rights")
 DirectoryAttributes             = uint8("directory_attributes", "Directory Attributes")
-DirectoryBase 			= uint16("dir_base", "Directory Base")
+DirectoryBase 			= uint32("dir_base", "Directory Base")
 DirectoryBase.Display("BASE_HEX")
 DirectoryCount			= uint16("dir_count", "Directory Count")
 DirectoryEntryNumber	 	= uint32("directory_entry_number", "Directory Entry Number")
