@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.43 1999/12/08 21:59:12 nneul Exp $
+ * $Id: packet-ipx.c,v 1.44 1999/12/08 22:07:26 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -574,8 +574,9 @@ dissect_ipxmsg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	if (check_col(fd, COL_PROTOCOL))
 	 col_add_str(fd, COL_PROTOCOL, "IPX MSG");
 	if (check_col(fd, COL_PROTOCOL)) {
-		col_add_fstr(fd, COL_INFO, "Connection %d, Signature Char '%c'", conn_number,
-			sig_char);
+		col_add_fstr(fd, COL_INFO, 
+			"%s, Connection %d", 
+			val_to_str(sig_char, ipxmsg_sigchar_vals, "Unknown Signature Char"), conn_number);
 	}
 
 	if (tree) {
