@@ -295,10 +295,10 @@ get_multipart_info(packet_info *pinfo)
 	int len = 0;
 	multipart_info_t *m_info = NULL;
 	const char *type = pinfo->match_string;
-	const char *parameters = pinfo->private_data;
+	char *parameters;
 	gint dummy;
 
-	if ((type == NULL) || (parameters == NULL)) {
+	if ((type == NULL) || (pinfo->private_data == NULL)) {
 		/*
 		 * We need both a content type AND parameters
 		 * for multipart dissection.
@@ -307,7 +307,7 @@ get_multipart_info(packet_info *pinfo)
 	}
 
 	/* Clean up the parameters */
-	parameters = unfold_and_compact_mime_header(parameters, &dummy);
+	parameters = unfold_and_compact_mime_header(pinfo->private_data, &dummy);
 
 	/*
 	 * Process the private data
@@ -320,13 +320,17 @@ get_multipart_info(packet_info *pinfo)
 		/* Skip to next parameter */
 		p = strchr(p, ';');
 		if (p == NULL)
+		{
+			g_free(parameters);
 			return NULL;
+		}
 		p++; /* Skip semicolon */
 		while ((*p) && isspace((guchar)*p))
 			p++; /* Skip white space */
 	}
 	start = p + 9;
 	if (start[0] == 0) {
+		g_free(parameters);
 		return NULL;
 	}
 
@@ -343,6 +347,7 @@ get_multipart_info(packet_info *pinfo)
 			/*
 			 * No closing quote
 			 */
+			g_free(parameters);
 			return NULL;
 		}
 	} else {
@@ -364,6 +369,7 @@ get_multipart_info(packet_info *pinfo)
 	m_info->type = type;
 	m_info->boundary = g_strndup(start, len);
 	m_info->boundary_length = len;
+	g_free(parameters);
 
 	return m_info;
 }
@@ -548,9 +554,11 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 	while (line_len > 0)
 	{
 		gint colon_offset;
-		char *header_str = tvb_get_string(tvb, offset, next_offset - offset);
+		char *hdr_str = tvb_get_string(tvb, offset, next_offset - offset);
+		char *header_str;
 
-		header_str = unfold_and_compact_mime_header(header_str, &colon_offset);
+		header_str = unfold_and_compact_mime_header(hdr_str, &colon_offset);
+		g_free(hdr_str);
 		if (colon_offset <= 0) {
 			if (tree) {
 				proto_tree_add_text(subtree, tvb, offset, next_offset - offset,
@@ -609,6 +617,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 				}
 			}
 		}
+		g_free(header_str);
 		offset = next_offset;
 		line_len = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 	}
