@@ -3,7 +3,7 @@
  * Copyright 2004, Anders Broman <anders.broman[at]ericsson.com>
  * Copyright 2004, Olivier Biot <olivier.biot[at]siemens.com>
  *
- * $Id: packet-multipart.c,v 1.3 2004/01/16 04:32:30 gerald Exp $
+ * $Id: packet-multipart.c,v 1.4 2004/01/16 22:22:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -123,7 +123,7 @@ static gboolean display_unknown_body_as_text = FALSE;
 
 
 typedef struct {
-	char *type; /* Type of multipart */
+	const char *type; /* Type of multipart */
 	char *boundary; /* Boundary string (enclosing quotes removed if any) */
 	guint boundary_length; /* Length of the boundary string */
 } multipart_info_t;
@@ -284,7 +284,7 @@ index_of_char(const char *str, const char c)
 static multipart_info_t *
 get_multipart_info(packet_info *pinfo)
 {
-	char *start, *p;
+	const char *start, *p;
 	int len = 0;
 	multipart_info_t *m_info = NULL;
 	const char *type = pinfo->match_string;
