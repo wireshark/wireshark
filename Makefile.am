@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.129 1999/12/09 04:06:53 nneul Exp $
+# $Id: Makefile.am,v 1.130 1999/12/09 07:19:01 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -204,6 +204,7 @@ ethereal_SOURCES = \
 	timestamp.h    \
 	util.c         \
 	util.h         \
+	ui_util.h      \
 	xdlc.c         \
 	xdlc.h         \
 	$(DISSECTOR_SOURCES)

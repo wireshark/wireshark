@@ -1,7 +1,7 @@
-/* gtkglobals.h
- * GTK-related Global defines, etc.
+/* ui_util.h
+ * Definitions for UI utility routines
  *
- * $Id: gtkglobals.h,v 1.2 1999/12/09 07:19:18 guy Exp $
+ * $Id: ui_util.h,v 1.1 1999/12/09 07:19:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,17 +23,34 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __GTKGLOBALS_H__
-#define __GTKGLOBALS_H__
+#ifndef __UI_UTIL_H__
+#define __UI_UTIL_H__
 
-#ifndef __GTK_H__
-#include <gtk/gtk.h>
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+/* Set the name of the top-level window and its icon. */
+void set_main_window_name(gchar *);
+
+/* Dialog type. */
+#define ESD_TYPE_INFO 0
+#define ESD_TYPE_WARN 1
+#define ESD_TYPE_CRIT 2
+
+/* Which buttons to display. */
+#define ESD_BTN_OK     0
+#define ESD_BTN_CANCEL 1
+
+#if __GNUC__ == 2
+void simple_dialog(gint, gint *, gchar *, ...)
+    __attribute__((format (printf, 3, 4)));
+#else
+void simple_dialog(gint, gint *, gchar *, ...);
 #endif
 
-extern GtkWidget   *top_level, *file_sel, *packet_list, *tree_view,
-            *byte_view, *prog_bar, *info_bar;
-extern GdkFont     *m_r_font, *m_b_font;
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
-extern GtkStyle *item_style;
-
-#endif
+#endif /* __UI_UTIL_H__ */

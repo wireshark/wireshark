@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.85 1999/11/30 23:56:34 gram Exp $
+ * $Id: capture.c,v 1.86 1999/12/09 07:19:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -90,6 +90,7 @@
 #include "gtk/menu.h"
 #include "capture.h"
 #include "util.h"
+#include "ui_util.h"
 #include "prefs.h"
 #include "globals.h"
 

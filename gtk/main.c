@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.65 1999/12/07 22:59:18 guy Exp $
+ * $Id: main.c,v 1.66 1999/12/09 07:19:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -100,6 +100,7 @@
 #include "resolv.h"
 #include "follow.h"
 #include "util.h"
+#include "ui_util.h"
 #include "proto_draw.h"
 #include "dfilter.h"
 #include "keys.h"
@@ -107,8 +108,8 @@
 FILE        *data_out_file = NULL;
 packet_info  pi;
 capture_file cf;
-GtkWidget   *file_sel, *packet_list, *tree_view, *byte_view, *prog_bar,
-            *info_bar;
+GtkWidget   *top_level, *file_sel, *packet_list, *tree_view, *byte_view,
+            *prog_bar, *info_bar;
 GdkFont     *m_r_font, *m_b_font;
 guint        main_ctx, file_ctx;
 gchar        comp_info_str[256];
@@ -861,7 +862,7 @@ main(int argc, char *argv[])
 #else
   gboolean             capture_option_specified = FALSE;
 #endif
-  GtkWidget           *window, *main_vbox, *menubar, *u_pane, *l_pane,
+  GtkWidget           *main_vbox, *menubar, *u_pane, *l_pane,
                       *bv_table, *bv_hscroll, *bv_vscroll, *stat_hbox, 
                       *tv_scrollw, *filter_bt, *filter_cm, *filter_te,
                       *filter_reset;
@@ -1183,25 +1184,25 @@ main(int argc, char *argv[])
   }
 
   /* Main window */  
-  window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  gtk_widget_set_name(window, "main window");
-  gtk_signal_connect(GTK_OBJECT(window), "delete_event",
+  top_level = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  gtk_widget_set_name(top_level, "main window");
+  gtk_signal_connect(GTK_OBJECT(top_level), "delete_event",
     GTK_SIGNAL_FUNC(file_quit_cmd_cb), "WM destroy");
-  gtk_signal_connect(GTK_OBJECT(window), "destroy", 
+  gtk_signal_connect(GTK_OBJECT(top_level), "destroy", 
     GTK_SIGNAL_FUNC(file_quit_cmd_cb), "WM destroy");
-  gtk_window_set_title(GTK_WINDOW(window), "The Ethereal Network Analyzer");
-  gtk_widget_set_usize(GTK_WIDGET(window), DEF_WIDTH, -1);
-  gtk_window_set_policy(GTK_WINDOW(window), TRUE, TRUE, FALSE);
+  gtk_window_set_title(GTK_WINDOW(top_level), "The Ethereal Network Analyzer");
+  gtk_widget_set_usize(GTK_WIDGET(top_level), DEF_WIDTH, -1);
+  gtk_window_set_policy(GTK_WINDOW(top_level), TRUE, TRUE, FALSE);
 
   /* Container for menu bar, paned windows and progress/info box */
   main_vbox = gtk_vbox_new(FALSE, 1);
   gtk_container_border_width(GTK_CONTAINER(main_vbox), 1);
-  gtk_container_add(GTK_CONTAINER(window), main_vbox);
+  gtk_container_add(GTK_CONTAINER(top_level), main_vbox);
   gtk_widget_show(main_vbox);
 
   /* Menu bar */
   get_main_menu(&menubar, &accel);
-  gtk_window_add_accel_group(GTK_WINDOW(window), accel);
+  gtk_window_add_accel_group(GTK_WINDOW(top_level), accel);
   gtk_box_pack_start(GTK_BOX(main_vbox), menubar, FALSE, TRUE, 0);
   gtk_widget_show(menubar);
 
@@ -1362,7 +1363,7 @@ main(int argc, char *argv[])
     /* No.  Pop up the main window, and read in a capture file if
        we were told to. */
 
-    gtk_widget_show(window);
+    gtk_widget_show(top_level);
 
     cf.colors = colfilter_new();
 

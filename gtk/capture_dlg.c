@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.10 1999/12/07 22:11:02 guy Exp $
+ * $Id: capture_dlg.c,v 1.11 1999/12/09 07:19:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -75,7 +75,7 @@
 #include "main.h"
 #include "capture_dlg.h"
 #include "prefs_dlg.h"
-#include "util.h"
+#include "ui_util.h"
 
 /* Capture callback data keys */
 #define E_CAP_IFACE_KEY    "cap_iface"

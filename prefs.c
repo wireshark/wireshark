@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.23 1999/12/02 04:30:03 gerald Exp $
+ * $Id: prefs.c,v 1.24 1999/12/09 07:19:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,7 +51,7 @@
 #include "prefs.h"
 #include "column.h"
 #include "print.h"
-#include "util.h"
+#include "ui_util.h"
 
 /* Internal functions */
 static int    set_pref(gchar*, gchar*);

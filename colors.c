@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.17 1999/11/30 05:32:56 guy Exp $
+ * $Id: colors.c,v 1.18 1999/12/09 07:19:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,7 +41,7 @@
 #include "colors.h"
 #include "file.h"
 #include "dfilter.h"
-#include "util.h"
+#include "ui_util.h"
 
 extern capture_file cf;
 

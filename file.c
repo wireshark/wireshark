@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.134 1999/12/04 11:32:24 guy Exp $
+ * $Id: file.c,v 1.135 1999/12/09 07:19:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -76,6 +76,7 @@
 #include "print.h"
 #include "file.h"
 #include "util.h"
+#include "ui_util.h"
 #include "gtk/proto_draw.h"
 #include "dfilter.h"
 #include "timestamp.h"
@@ -229,6 +230,9 @@ close_cap_file(capture_file *cf, void *w)
      will there ever be more than one on the stack? */
   gtk_statusbar_pop(GTK_STATUSBAR(w), file_ctx);
 
+  /* Restore the standard title bar message. */
+  set_main_window_name("The Ethereal Network Analyzer");
+
   /* Disable all menu items that make sense only if you have a capture. */
   set_menu_sensitivity("/File/Save", FALSE);
   set_menu_sensitivity("/File/Save As...", FALSE);
@@ -247,13 +251,17 @@ close_cap_file(capture_file *cf, void *w)
   set_menu_sensitivity("/Tools/Summary", FALSE);
 }
 
+/* Set the file name in the status line, in the name for the main window,
+   and in the name for the main window's icon. */
 static void
-set_statusbar_filename(capture_file *cf)
+set_display_filename(capture_file *cf)
 {
   gchar  *name_ptr;
   size_t  msg_len;
   gchar  *done_fmt = " File: %s  Drops: %u";
   gchar  *done_msg;
+  gchar  *win_name_fmt = "%s - Ethereal";
+  gchar  *win_name;
 
   if (!cf->is_tempfile) {
     /* Get the last component of the file name, and put that in the
@@ -265,7 +273,7 @@ set_statusbar_filename(capture_file *cf)
   } else {
     /* The file we read is a temporary file from a live capture;
        we don't mention its name in the status bar. */
-    name_ptr = "<none>";
+    name_ptr = "<capture>";
   }
 
   msg_len = strlen(name_ptr) + strlen(done_fmt) + 64;
@@ -273,6 +281,12 @@ set_statusbar_filename(capture_file *cf)
   snprintf(done_msg, msg_len, done_fmt, name_ptr, cf->drops);
   gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, done_msg);
   g_free(done_msg);
+
+  msg_len = strlen(name_ptr) + strlen(win_name_fmt) + 1;
+  win_name = g_malloc(msg_len);
+  snprintf(win_name, msg_len, win_name_fmt, name_ptr);
+  set_main_window_name(win_name);
+  g_free(win_name);
 }
 
 int
@@ -326,7 +340,7 @@ read_cap_file(capture_file *cf)
   gtk_progress_set_value(GTK_PROGRESS(prog_bar), 0);
 
   gtk_statusbar_pop(GTK_STATUSBAR(info_bar), file_ctx);
-  set_statusbar_filename(cf);
+  set_display_filename(cf);
 
   /* Enable menu items that make sense if you have a capture file you've
      finished reading. */
@@ -471,7 +485,7 @@ finish_tail_cap_file(capture_file *cf)
   /* Pop the "<live capture in progress>" message off the status bar. */
   gtk_statusbar_pop(GTK_STATUSBAR(info_bar), file_ctx);
 
-  set_statusbar_filename(cf);
+  set_display_filename(cf);
 
   /* Restore the "File/Open" menu item. */
   set_menu_sensitivity("/File/Open...", TRUE);

@@ -1,7 +1,7 @@
 /* util.h
  * Utility definitions
  *
- * $Id: util.h,v 1.13 1999/11/22 06:24:42 gram Exp $
+ * $Id: util.h,v 1.14 1999/12/09 07:19:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,22 +29,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-/* Dialog type. */
-#define ESD_TYPE_INFO 0
-#define ESD_TYPE_WARN 1
-#define ESD_TYPE_CRIT 2
-
-/* Which buttons to display. */
-#define ESD_BTN_OK     0
-#define ESD_BTN_CANCEL 1
-
-#if __GNUC__ == 2
-void simple_dialog(gint, gint *, gchar *, ...)
-    __attribute__((format (printf, 3, 4)));
-#else
-void simple_dialog(gint, gint *, gchar *, ...);
-#endif
 
 int create_tempfile(char *, int, const char *);
 
