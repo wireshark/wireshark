@@ -1,6 +1,6 @@
 /* ascend.c
  *
- * $Id: ascend.c,v 1.13 2000/03/22 07:06:56 guy Exp $
+ * $Id: ascend.c,v 1.14 2000/05/10 22:20:26 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -57,6 +57,22 @@ XMIT-iguana:241:(task: B04E12C0, time: 1975432.85) 53 octets @ 8009EB16
   [0010]: 00 7A 06 D8 B1 CF 00 FB 08 CE 41 62 12 00 50 20 
   [0020]: 29 7C 4C 71 9C 9A 6A 93 A4 60 12 22 38 3F 10 00 
   [0030]: 00 02 04 05 B4 
+
+    Example 'wdd' output data:
+
+Date: 01/12/1990.  Time: 12:22:33
+Cause an attempt to place call to 14082750382
+WD_DIALOUT_DISP: chunk 2515EE type IP.
+(task: 251790, time: 994953.28) 44 octets @ 2782B8
+  [0000]: 00 C0 7B 71 45 6C 00 60 08 16 AA 51 08 00 45 00
+  [0010]: 00 2C 66 1C 40 00 80 06 53 F6 AC 14 00 18 CC 47
+  [0020]: C8 45 0A 31 00 50 3B D9 5B 75 00 00
+
+    (note that the capture whence this came dates back to January
+    *1999*; I presume that either the person who sent it to me
+    hadn't bothered keeping its internal clock set, or that its
+    internal clock or the date it displays in those messages
+    is only loosely connected to reality)
 
   Note that a maximum of eight rows will be displayed (for a maximum of
   128 bytes), no matter what the octet count is.
