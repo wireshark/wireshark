@@ -1893,6 +1893,7 @@ And assorted fixes and enhancements by the people listed above and by:
 	Ritchie <ritchie [AT] tipsybottle.com>
 	Aki Immonen <aki.immonen [AT] golftalma.fi>
 	Ian Schorr <ischorr [AT] comcast.net>
+	David E. Weekly <david [AT] weekly.org>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.

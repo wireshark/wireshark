@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.46 2003/09/17 15:58:11 jfoster Exp $
+ * $Id: packet-socks.c,v 1.47 2003/10/15 19:57:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -535,16 +535,13 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint temp;
 	char *AuthMethodStr;
 
+	proto_tree_add_item( tree, hf_socks_ver, tvb, offset, 1, FALSE);
+	++offset;
 
 	if (compare_packet( hash_info->connect_row)){
 
 		proto_tree      *AuthTree;
 		proto_item      *ti;
-
-						/* Do version 	*/
-		proto_tree_add_item( tree, hf_socks_ver, tvb, offset, 1,
-				hash_info->version);
-		++offset;
 
 		temp = tvb_get_guint8(tvb, offset);	/* Get Auth method count */
 							/* build auth tree */
@@ -569,8 +566,6 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}					/* Get accepted auth method */
 	else if (compare_packet( hash_info->auth_method_row)) {
 
-		++offset;
-
 		proto_tree_add_text( tree, tvb, offset, 1,
 			"Accepted Auth Method: 0x%0x (%s)", tvb_get_guint8( tvb, offset),
 				get_auth_method_name( tvb_get_guint8( tvb, offset)));
@@ -579,9 +574,6 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}					/* handle user/password auth */
 	else if (compare_packet( hash_info->user_name_auth_row)) {
 
-		proto_tree_add_item( tree, hf_socks_ver, tvb, offset, 1, FALSE);
-		++offset;
-						/* process user name	*/
 		offset += display_string( tvb, offset, tree,
 				"User name");
 						/* process password	*/
@@ -593,10 +585,6 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	else if ((compare_packet( hash_info->command_row)) ||
 	         (compare_packet( hash_info->cmd_reply_row)) ||
 	         (compare_packet( hash_info->bind_reply_row))){
-
-		proto_tree_add_item( tree, hf_socks_ver, tvb, offset, 1, FALSE);
-
-		++offset;
 
 		command = tvb_get_guint8(tvb, offset);
 
