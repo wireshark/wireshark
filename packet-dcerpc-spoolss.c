@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.35 2002/06/06 05:46:55 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.36 2002/06/07 03:42:02 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4467,6 +4467,7 @@ dissect_NOTIFY_INFO_DATA_printer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	case PRINTER_NOTIFY_PRINT_PROCESSOR:
 	case PRINTER_NOTIFY_PARAMETERS:
 	case PRINTER_NOTIFY_DATATYPE:
+	case PRINTER_NOTIFY_PORT_NAME:
 
 	case PRINTER_NOTIFY_SECURITY_DESCRIPTOR: /* Secdesc */
 	case PRINTER_NOTIFY_DEVMODE: /* Device mode */
@@ -4610,10 +4611,8 @@ static int
 dissect_NOTIFY_INFO(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    proto_tree *tree, char *drep) 
 {
-	guint32 count, i;
-
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_notify_info_count, &count);
+				    hf_spoolss_notify_info_count, NULL);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_notify_info_version, NULL);
@@ -4651,8 +4650,8 @@ static int SpoolssRFNPCNEX_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
-		dissect_NOTIFY_OPTIONS_ARRAY, NDR_POINTER_UNIQUE,
-		"NOTIFY_OPTIONS", -1, 0);
+		dissect_NOTIFY_OPTIONS_ARRAY_CTR, NDR_POINTER_UNIQUE,
+		"NOTIFY_OPTIONS_ARRAY_CTR", -1, 0);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
