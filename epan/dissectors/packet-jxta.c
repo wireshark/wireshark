@@ -53,8 +53,8 @@ static const char JXTA_WELCOME_MSG_SIG[] = { 'J', 'X', 'T', 'A', 'H', 'E', 'L', 
 static int proto_jxta = -1;
 static int proto_message_jxta = -1;
 
-static dissector_table_t media_type_dissector_table;
-static dissector_handle_t tcp_jxta_handle;
+static dissector_table_t media_type_dissector_table=NULL;
+static dissector_handle_t tcp_jxta_handle=NULL;
 
 static int hf_jxta_udp = -1;
 static int hf_jxta_udpsig = -1;
@@ -238,7 +238,7 @@ static int dissect_jxta_tcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
 
 static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
 static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint64 * content_length,
-                                        const char **content_type);
+                                        char **content_type);
 static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
 static int dissect_jxta_message_element(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int ns_count,
                                         const char **namespaces);
@@ -391,7 +391,7 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
         proto_tree *jxta_udp_tree = proto_item_add_subtree(jxta_udp_tree_item, ett_jxta_udp);
         tvbuff_t *jxta_message_framing_tvb;
         guint64 content_length = -1;
-        const char *content_type = NULL;
+        char *content_type = NULL;
         tvbuff_t *jxta_message_tvb;
         gboolean dissected = FALSE;
         int processed = 0;
@@ -406,7 +406,7 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
 
         jxta_message_tvb = tvb_new_subset(tvb, tree_offset, (gint) content_length, (gint) content_length);
         dissected = dissector_try_string(media_type_dissector_table, content_type, jxta_message_tvb, pinfo, jxta_udp_tree);
-        g_free((char *)content_type);
+        g_free(content_type);
 
         if (!dissected) {
             dissector_handle_t data_handle = find_dissector("data");
@@ -461,12 +461,13 @@ static int dissect_jxta_tcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
             processed = dissect_jxta_welcome(tvb, pinfo, tree);
         } else {
             guint64 content_length = -1;
-            const char *content_type = NULL;
+            char *content_type = NULL;
             gboolean dissected;
 
             processed = dissect_jxta_message_framing(tvb, pinfo, tree, &content_length, &content_type);
 
-            if (processed > 0) {
+
+            if ((processed > 0) && (NULL != content_type) && (-1 != (gint) content_length)) {
                 int msg_offset = offset + processed;
 
                 available = tvb_reported_length_remaining(tvb, msg_offset);
@@ -491,7 +492,7 @@ static int dissect_jxta_tcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
                     processed = available - (int)content_length;
                 }
 
-                g_free((char *)content_type);
+                g_free(content_type);
             }
         }
 
@@ -566,7 +567,7 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 *   @return number of bytes from the tvbuff_t which were processed.
 **/
 static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint64 * content_length,
-                                        const char **content_type)
+                                        char **content_type)
 {
     int offset = 0;
     int available;
