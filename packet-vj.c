@@ -1,7 +1,7 @@
 /* packet-vj.c
  * Routines for Van Jacobson header decompression. 
  *
- * $Id: packet-vj.c,v 1.2 2001/12/19 22:39:59 guy Exp $
+ * $Id: packet-vj.c,v 1.3 2001/12/20 06:32:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -346,22 +346,6 @@ vj_display_pkt(tvbuff_t *parent_tvb,
   else {
     tvb_set_child_real_data_tvbuff(parent_tvb, child_tvb);
     fd->data_src = g_slist_append(fd->data_src, child_tvb);
-    SET_ADDRESS(&pinfo->net_src, 
-                AT_IPv4, 
-                IP_ADDR_SIZE, 
-                tvb_get_ptr(child_tvb, IP_FIELD_SRC, IP_ADDR_SIZE));
-    SET_ADDRESS(&pinfo->src,     
-                AT_IPv4, 
-                IP_ADDR_SIZE, 
-                tvb_get_ptr(child_tvb, IP_FIELD_SRC, IP_ADDR_SIZE));
-    SET_ADDRESS(&pinfo->net_dst, 
-                AT_IPv4, 
-                IP_ADDR_SIZE, 
-                tvb_get_ptr(child_tvb, IP_FIELD_DST, IP_ADDR_SIZE));
-    SET_ADDRESS(&pinfo->dst,     
-                AT_IPv4, 
-                IP_ADDR_SIZE, 
-                tvb_get_ptr(child_tvb, IP_FIELD_DST, IP_ADDR_SIZE));
     call_dissector(ip_handle, child_tvb, pinfo, tree);
   }
   return;
