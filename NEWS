@@ -127,7 +127,7 @@ Overview of changes in Ethereal 0.9.0:
 * Many configuration directory-related fixes and updates: (Guy)
     Use the proper directory separator for each platform.
     On Windows, place config files in "Application Data\Ethereal" in the
-      user's home directory
+      user's "profile" directory
     On Windows, place "ethers" and "ipxnets" in the Ethereal application
       directory.
     Other miscellaneous fixes.
