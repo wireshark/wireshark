@@ -4,7 +4,7 @@
  *
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-dccp.c,v 1.8 2002/08/28 21:00:08 jmayer Exp $
+ * $Id: packet-dccp.c,v 1.9 2003/01/27 22:44:01 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,7 +59,6 @@ static int hf_dccp_ck_len = -1;
 static int hf_dccp_ck_sum = -1;
 
 static int hf_dccp_date = -1;
-static int hf_dccp_msg = -1;
 
 static int hf_dccp_target = -1;
 
@@ -216,7 +215,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int offset = 0;
 	int client_is_le = 0;
 	int op = 0;
-	int i, count, is_response;
+	int i, is_response;
 
 	if (pinfo->srcport != DCC_PORT && pinfo->destport != DCC_PORT) {
 		/* Not the right port - not a DCC packet. */
