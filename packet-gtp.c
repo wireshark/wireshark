@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.9 2001/09/19 06:08:36 guy Exp $
+ * $Id: packet-gtp.c,v 1.10 2001/09/27 10:01:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4740,7 +4740,7 @@ dissect_gtpv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(flags_tree, hf_gtpv0_flags_ver, tvb, 0, 1, gtpv0_hdr.flags);
 		proto_tree_add_uint(flags_tree, hf_gtpv0_flags_pt, tvb, 0, 1, gtpv0_hdr.flags);
 		proto_tree_add_uint(flags_tree, hf_gtpv0_flags_spare, tvb, 0, 1, gtpv0_hdr.flags);
-		proto_tree_add_uint(flags_tree, hf_gtpv0_flags_snn, tvb, 0, 1, gtpv0_hdr.flags);
+		proto_tree_add_boolean(flags_tree, hf_gtpv0_flags_snn, tvb, 0, 1, gtpv0_hdr.flags);
 		
 		gtpv0_hdr.length = ntohs(gtpv0_hdr.length);
 		gtpv0_hdr.seq_no = ntohs(gtpv0_hdr.seq_no);
@@ -4826,9 +4826,9 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		proto_tree_add_uint(flags_tree, hf_gtpv1_flags_ver, tvb, 0, 1, gtpv1_hdr.flags);
 		proto_tree_add_uint(flags_tree, hf_gtpv1_flags_pt, tvb, 0, 1, gtpv1_hdr.flags);
 		proto_tree_add_uint(flags_tree, hf_gtpv1_flags_spare, tvb, 0, 1, gtpv1_hdr.flags);
-		proto_tree_add_uint(flags_tree, hf_gtpv1_flags_e, tvb, 0, 1, gtpv1_hdr.flags);
-		proto_tree_add_uint(flags_tree, hf_gtpv1_flags_s, tvb, 0, 1, gtpv1_hdr.flags);
-		proto_tree_add_uint(flags_tree, hf_gtpv1_flags_pn, tvb, 0, 1, gtpv1_hdr.flags);
+		proto_tree_add_boolean(flags_tree, hf_gtpv1_flags_e, tvb, 0, 1, gtpv1_hdr.flags);
+		proto_tree_add_boolean(flags_tree, hf_gtpv1_flags_s, tvb, 0, 1, gtpv1_hdr.flags);
+		proto_tree_add_boolean(flags_tree, hf_gtpv1_flags_pn, tvb, 0, 1, gtpv1_hdr.flags);
 		
 		gtpv1_hdr.length = ntohs(gtpv1_hdr.length);
 		gtpv1_hdr.teid = ntohl(gtpv1_hdr.teid);
@@ -4918,6 +4918,11 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	}
 }
 
+static const true_false_string yes_no_tfs = { 
+	"yes" ,
+	"no"
+};
+
 void
 proto_register_gtp(void)
 {                 
@@ -4928,7 +4933,7 @@ proto_register_gtp(void)
 	{ &hf_gtpv0_flags_ver,		{ "Version",		"gtpv0.flags.version",		FT_UINT8,	BASE_DEC, VALS(ver_types), GTP_VER_MASK, "GTP Version", HFILL }},
 	{ &hf_gtpv0_flags_pt,		{ "Protocol type",	"gtpv0.flags.payload",		FT_UINT8,	BASE_DEC, NULL, GTP_PT_MASK, "Protocol Type (1 = GTP, 0 = GTP' )", HFILL }},
 	{ &hf_gtpv0_flags_spare,		{ "Reserved",		"gtpv0.flags.reserved",		FT_UINT8,	BASE_DEC, NULL, GTP_SPARE_MASK, "Reserved (shall be sent as '111' )", HFILL }},
-	{ &hf_gtpv0_flags_snn,		{ "Is SNDCP N-PDU included?", "gtpv0.flags.snn",	FT_UINT8, 	BASE_DEC, NULL, GTP_SNN_MASK, "Is SNDCP N-PDU LLC Number included? (1 = yes, 0 = no)", HFILL }},
+	{ &hf_gtpv0_flags_snn,		{ "Is SNDCP N-PDU included?", "gtpv0.flags.snn",	FT_BOOLEAN, 	8, TFS(&yes_no_tfs), GTP_SNN_MASK, "Is SNDCP N-PDU LLC Number included? (1 = yes, 0 = no)", HFILL }},
 	{ &hf_gtpv0_message_type,		{ "Message type",	"gtpv0.message",		FT_UINT8, 	BASE_HEX, VALS(message_type), 0x0, "GTP Message Type", HFILL }},
 	{ &hf_gtpv0_length,		{ "Length", 		"gtpv0.length", 		FT_UINT16, 	BASE_DEC, NULL, 0, "Length (i.e. number of octets after TID or TEID)", HFILL }},
 	{ &hf_gtpv0_seq_number,		{ "Sequence number", 	"gtpv0.seq_number",		FT_UINT16, 	BASE_HEX, NULL, 0, "Sequence Number", HFILL }},
@@ -4991,9 +4996,9 @@ proto_register_gtp(void)
 	{ &hf_gtpv1_flags_ver,		{ "Version",		"gtpv1.flags.version",		FT_UINT8,	BASE_DEC, VALS(ver_types), GTP_VER_MASK, "GTP Version", HFILL }},
 	{ &hf_gtpv1_flags_pt,		{ "Protocol type",	"gtpv1.flags.payload_type",	FT_UINT8,	BASE_DEC, NULL, GTP_PT_MASK, "Protocol Type (1 = GTP, 0 = GPRS charging protocol : GTP' )", HFILL }},
 	{ &hf_gtpv1_flags_spare,		{ "Spare bit", 		"gtpv1.flags.spare",		FT_UINT8, 	BASE_DEC, NULL, GTPv1_SPARE_MASK, "Spare bit (shall be sent as 0)", HFILL }},
-	{ &hf_gtpv1_flags_e,		{ "Is Next Extension Header present?",	"gtpv1.flags.e",		FT_UINT8, 	BASE_DEC, NULL, GTPv1_E_MASK, "Is Next Extension Header present? (1 = yes, 0 = no)", HFILL }},
-	{ &hf_gtpv1_flags_s,		{ "Is Sequence Number present?",	"gtpv1.flags.s",		FT_UINT8, 	BASE_DEC, NULL, GTPv1_S_MASK, "Is Sequence Number present? (1 = yes, 0 = no)", HFILL }},
-	{ &hf_gtpv1_flags_pn,		{ "Is N-PDU number present?",	"gtpv1.flags.pn",		FT_UINT8, 	BASE_DEC, NULL, GTPv1_PN_MASK, "Is N-PDU number present? (1 = yes, 0 = no)", HFILL }},
+	{ &hf_gtpv1_flags_e,		{ "Is Next Extension Header present?",	"gtpv1.flags.e",		FT_BOOLEAN, 	8, TFS(&yes_no_tfs), GTPv1_E_MASK, "Is Next Extension Header present? (1 = yes, 0 = no)", HFILL }},
+	{ &hf_gtpv1_flags_s,		{ "Is Sequence Number present?",	"gtpv1.flags.s",		FT_BOOLEAN, 	8, TFS(&yes_no_tfs), GTPv1_S_MASK, "Is Sequence Number present? (1 = yes, 0 = no)", HFILL }},
+	{ &hf_gtpv1_flags_pn,		{ "Is N-PDU number present?",	"gtpv1.flags.pn",		FT_BOOLEAN, 	8, TFS(&yes_no_tfs), GTPv1_PN_MASK, "Is N-PDU number present? (1 = yes, 0 = no)", HFILL }},
 	{ &hf_gtpv1_message_type,		{ "Message Type",	"gtpv1.message",		FT_UINT8, 	BASE_HEX, VALS(message_type), 0x0, "GTP Message Type", HFILL }},
 	{ &hf_gtpv1_length,		{ "Length", 		"gtpv1.length", 		FT_UINT16, 	BASE_DEC, NULL, 0, "Length (i.e. number of octets after TID or TEID)", HFILL }},
 	{ &hf_gtpv1_seq_number,		{ "Sequence Number", 	"gtpv1.seq_number",		FT_UINT16, 	BASE_HEX, NULL, 0, "Sequence Number", HFILL }},
