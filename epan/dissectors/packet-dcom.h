@@ -59,6 +59,7 @@ extern int
 dissect_dcom_append_UUID(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep,
 	int hfindex, gchar *field_name, int field_index);
+extern gchar* dcom_uuid_to_str(e_uuid_t *uuid);
 
 extern int
 dissect_dcom_indexed_WORD(tvbuff_t *tvb, int offset,	packet_info *pinfo,

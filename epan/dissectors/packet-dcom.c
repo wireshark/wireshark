@@ -86,7 +86,6 @@
 
 static int proto_dcom = -1;
 void proto_reg_handoff_dcom(void);
-static gchar* dcom_uuid_to_str(e_uuid_t *uuid);
 
 int dcom_prefs_display_unmarshalling_details = FALSE;
 
@@ -639,7 +638,7 @@ dissect_dcom_simple_resp(tvbuff_t *tvb, int offset,
    Returns the associated string ptr on a match.
    Formats uuid number and returns the resulting string, on failure.
    (copied from val_to_str) */
-static gchar* dcom_uuid_to_str(e_uuid_t *uuid) {
+gchar* dcom_uuid_to_str(e_uuid_t *uuid) {
   gchar *ret;
   static gchar  str[3][64];
   static gchar *cur;
