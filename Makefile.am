@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.574 2003/04/16 07:24:03 guy Exp $
+# $Id: Makefile.am,v 1.575 2003/04/21 21:28:31 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -418,6 +418,7 @@ DISSECTOR_SRC = \
 
 if HAVE_PLUGINS
 plugin_libs = \
+	plugins/artnet/artnet.la \
 	plugins/docsis/docsis.la \
 	plugins/giop/cosnaming.la \
 	plugins/giop/coseventcomm.la \
@@ -428,6 +429,7 @@ plugin_libs = \
 
 if ENABLE_STATIC
 plugin_ldadd = \
+	plugins/artnet/packet-artnet-static.o \
 	plugins/docsis/packet-bpkmattr-static.o \
 	plugins/docsis/packet-bpkmreq-static.o \
 	plugins/docsis/packet-bpkmrsp-static.o \
@@ -459,6 +461,7 @@ plugin_ldadd = \
 	plugins/pcli/packet-pcli-static.o
 
 plugin_src = \
+	plugins/artnet/packet-artnet.c \
 	plugins/docsis/packet-bpkmattr.c \
 	plugins/docsis/packet-bpkmreq.c \
 	plugins/docsis/packet-bpkmrsp.c \
@@ -492,6 +495,7 @@ plugin_src = \
 else		# ENABLE_STATIC
 plugin_ldadd = \
 	"-dlopen" self	\
+	"-dlopen" plugins/artnet/artnet.la \
 	"-dlopen" plugins/docsis/docsis.la \
 	"-dlopen" plugins/giop/cosnaming.la \
 	"-dlopen" plugins/giop/coseventcomm.la \

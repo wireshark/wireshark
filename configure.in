@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.203 2003/03/25 23:35:30 guy Exp $
+# $Id: configure.in,v 1.204 2003/04/21 21:28:31 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -765,6 +765,7 @@ AC_OUTPUT(
   packaging/svr4/checkinstall
   packaging/svr4/pkginfo
   plugins/Makefile
+  plugins/artnet/Makefile
   plugins/docsis/Makefile
   plugins/giop/Makefile
   plugins/gryphon/Makefile

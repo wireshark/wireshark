@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.16 2003/04/18 04:46:38 guy Exp $
+# $Id: Makefile.nmake,v 1.17 2003/04/21 21:28:35 guy Exp $
 #
 # NSIS is a free packager/installer/uninstaller program for Win32.
 # It was originally written for the Winamp package, but various
@@ -22,7 +22,8 @@ DOC=../../doc/ethereal.html		\
 	../../README.win32
 GPL=GPL.txt
 
-PLUGINS=../../plugins/docsis/docsis.dll \
+PLUGINS=../../plugins/artnet/artnet.dll \
+	../../plugins/docsis/docsis.dll \
 	../../plugins/giop/coseventcomm.dll \
 	../../plugins/giop/cosnaming.dll \
 	../../plugins/gryphon/gryphon.dll \

@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.99 2003/04/09 08:43:53 guy Exp $
+ * $Id: prefs.c,v 1.100 2003/04/21 21:28:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1656,6 +1656,10 @@ set_pref(gchar *pref_name, gchar *value)
       } else if (strcmp(module->name, "pcli") == 0) {
         /* Handle old names for PCLI preferences. */
         if (strcmp(dotp, "pcli.udp_port") == 0)
+          pref = find_preference(module, "udp_port");
+      } else if (strcmp(module->name, "artnet") == 0) {
+        /* Handle old names for ARTNET preferences. */
+        if (strcmp(dotp, "artnet.udp_port") == 0)
           pref = find_preference(module, "udp_port");
       } else if (strcmp(module->name, "mapi") == 0) {
         /* Handle old names for MAPI preferences. */
