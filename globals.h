@@ -1,7 +1,7 @@
 /* globals.h
  * Global defines, etc.
  *
- * $Id: globals.h,v 1.29 2002/08/28 21:00:06 jmayer Exp $
+ * $Id: globals.h,v 1.30 2002/09/06 18:29:41 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,7 +25,6 @@
 #ifndef __GLOBALS_H__
 #define __GLOBALS_H__
 
-#include <stdio.h>
 #include "file.h"
 #include <epan/timestamp.h>
 
