@@ -91,8 +91,10 @@ proper helper routines
 /* packet-h245.c
  * Routines for H.245 packet dissection
  * 2003  Ronnie Sahlberg
+ *       with great support with testing and providing capturefiles
+ *       from Martin Regner
  *
- * $Id: packet-h245.c,v 1.11 2003/07/08 18:16:43 guy Exp $
+ * $Id: packet-h245.c,v 1.12 2003/07/09 09:45:42 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1724,7 +1726,8 @@ dissect_per_GeneralString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, pro
 
 	offset=dissect_per_length_determinant(tvb, offset, pinfo, etr, hf_h245_GeneralString_length, &length);
 
-	proto_tree_add_string(tree, hf_index, tvb, (offset>>3), length, tvb_get_ptr(tvb, (offset>>3), length));
+
+	proto_tree_add_item(tree, hf_index, tvb, offset>>3, length, FALSE);
 
 	offset+=length*8;
 	
