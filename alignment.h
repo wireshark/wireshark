@@ -1,6 +1,8 @@
  /*
   * alignment.h, Copyright, 1998, Richard Sharpe, All Rights Reserved
   *
+  * $Id: alignment.h,v 1.3 1999/09/23 05:26:18 guy Exp $
+  *
   * Please see the file COPYING in the top level for details of copying
   * this software. Use of this software is approved only under certain 
   * conditions.
