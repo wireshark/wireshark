@@ -12,7 +12,7 @@
  * Routines for NDMP dissection
  * 2001 Ronnie Sahlberg (see AUTHORS for email)
  *
- * $Id: packet-ndmp.c,v 1.6 2002/01/15 10:01:19 guy Exp $
+ * $Id: packet-ndmp.c,v 1.7 2002/01/18 21:16:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -235,7 +235,7 @@ struct ndmp_header {
 };
 
 /* desegmentation of NDMP packets */
-static gboolean ndmp_desegment = FALSE;
+static gboolean ndmp_desegment = TRUE;
 
 
 
