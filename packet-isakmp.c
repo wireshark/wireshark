@@ -4,7 +4,7 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.62 2003/05/24 17:45:10 gerald Exp $
+ * $Id: packet-isakmp.c,v 1.63 2003/05/25 16:49:47 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -181,8 +181,8 @@ static const char *idtypestr[NUM_ID_TYPES] = {
   "KEY_ID"
 };
 
-#define NUM_GRPDESC_TYPES 14
-#define grpdesc2str(t) ((t < NUM_GRPDESC_TYPES) ? grpdescstr[t] : "UKNOWEN GROUP DESCRIPTION")
+#define NUM_GRPDESC_TYPES 18
+#define grpdesc2str(t) ((t < NUM_GRPDESC_TYPES) ? grpdescstr[t] : "UNKNOWN-GROUP-DESCRIPTION")
 
 static const char *grpdescstr[NUM_GRPDESC_TYPES] = {
   "UNDEFINED - 0",
@@ -190,7 +190,7 @@ static const char *grpdescstr[NUM_GRPDESC_TYPES] = {
   "Alternate 1024-bit MODP group",
   "EC2N group on GP[2^155] group",
   "EC2N group on GP[2^185] group",
-  "Reserved to IANA",
+  "1536 bit MODP group",
   "EC2N group over GF[2^163]",
   "EC2N group over GF[2^163]",
   "EC2N group over GF[2^283]",
@@ -198,7 +198,12 @@ static const char *grpdescstr[NUM_GRPDESC_TYPES] = {
   "EC2N group over GF[2^409]",
   "EC2N group over GF[2^409]",
   "EC2N group over GF[2^571]",
-  "EC2N group over GF[2^571]"
+  "EC2N group over GF[2^571]",
+  "2048 bit MODP group",
+  "3072 bit MODP group",
+  "4096 bit MODP group",
+  "6144 bit MODP group",
+  "8192 bit MODP group",
 };
 
 struct isakmp_hdr {
