@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-bootp.c,v 1.25 2000/01/22 06:22:12 guy Exp $
+ * $Id: packet-bootp.c,v 1.26 2000/02/14 18:15:29 guy Exp $
  *
  * The information used comes from:
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
@@ -168,6 +168,8 @@ bootp_option(const u_char *pd, proto_tree *bp_tree, int voff, int eoff)
 		/*  59 */ { "Rebinding Time Value",					time_in_secs },
 		/*  60 */ { "Vendor class identifier",				opaque },
 		/*  61 */ { "Client identifier",					special },
+		/*  62 */ { "undefined",					none },
+		/*  63 */ { "undefined",					none },
 		/*  64 */ { "Network Information Service+ Domain",	string },
 		/*  65 */ { "Network Information Service+ Servers",	ipv4 },
 		/*  66 */ { "TFTP Server Name",						string },
