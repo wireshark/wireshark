@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.12 2000/03/12 04:47:40 gram Exp $
+ * $Id: packet-ipsec.c,v 1.13 2000/04/16 22:46:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,7 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-ipsec.h"
+#include "packet-ip.h"
 #include "resolv.h"
 
 static int proto_ah = -1;
@@ -280,4 +281,11 @@ proto_register_ipsec(void)
   proto_register_field_array(proto_ipcomp, hf_ipcomp, array_length(hf_ipcomp));
 
   proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_ipsec(void)
+{
+  dissector_add("ip.proto", IP_PROTO_ESP, dissect_esp);
+  dissector_add("ip.proto", IP_PROTO_IPCOMP, dissect_ipcomp);
 }

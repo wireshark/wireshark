@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.80 2000/04/16 21:37:03 guy Exp $
+ * $Id: packet-ip.c,v 1.81 2000/04/16 22:46:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -52,17 +52,8 @@
 
 #include "etypes.h"
 #include "ppptypes.h"
-#include "packet-gre.h"
 #include "packet-ip.h"
 #include "packet-ipsec.h"
-#include "packet-ipv6.h"
-#include "packet-ospf.h"
-#include "packet-pim.h"
-#include "packet-rsvp.h"
-#include "packet-tcp.h"
-#include "packet-udp.h"
-#include "packet-vines.h"
-#include "packet-vrrp.h"
 
 static void dissect_eigrp(const u_char *, int, frame_data *, proto_tree *);
 static void dissect_icmp(const u_char *, int, frame_data *, proto_tree *);
@@ -105,6 +96,8 @@ static gint ett_ip_options = -1;
 static gint ett_ip_option_sec = -1;
 static gint ett_ip_option_route = -1;
 static gint ett_ip_option_timestamp = -1;
+
+static dissector_table_t ip_dissector_table;
 
 static int proto_igmp = -1;
 static int hf_igmp_version = -1;
@@ -1001,57 +994,17 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   }
 
 again:
+
+  /* do lookup with the subdissector table */
+  if (dissector_try_port(ip_dissector_table, nxt, pd, offset, fd, tree))
+      return;
+
   switch (nxt) {
-    case IP_PROTO_ICMP:
-      dissect_icmp(pd, offset, fd, tree);
-     break;
-    case IP_PROTO_IGMP:
-      dissect_igmp(pd, offset, fd, tree);
-     break;
-    case IP_PROTO_EIGRP:
-      dissect_eigrp(pd, offset, fd, tree);
-      break;  
-    case IP_PROTO_TCP:
-      dissect_tcp(pd, offset, fd, tree);
-      break;
-    case IP_PROTO_UDP:
-      dissect_udp(pd, offset, fd, tree);
-      break;
-    case IP_PROTO_OSPF:
-      dissect_ospf(pd, offset, fd, tree);
-      break;
-    case IP_PROTO_VINES:
-      dissect_vines_frp(pd, offset, fd, tree);
-      break;
-    case IP_PROTO_RSVP:
-      dissect_rsvp(pd, offset, fd, tree);
-      break;
     case IP_PROTO_AH:
       advance = dissect_ah(pd, offset, fd, tree);
       nxt = pd[offset];
       offset += advance;
       goto again;
-    case IP_PROTO_GRE:
-      dissect_gre(pd, offset, fd, tree);
-      break;
-    case IP_PROTO_ESP:
-      dissect_esp(pd, offset, fd, tree);
-      break;
-    case IP_PROTO_IPV6:
-      dissect_ipv6(pd, offset, fd, tree);
-      break;
-    case IP_PROTO_IPV4:
-      dissect_ip(pd, offset, fd, tree);
-      break;
-    case IP_PROTO_PIM:
-      dissect_pim(pd, offset, fd, tree);
-      break;
-    case IP_PROTO_IPCOMP:
-      dissect_ipcomp(pd, offset, fd, tree);
-      break;
-    case IP_PROTO_VRRP:
-      dissect_vrrp(pd, offset, fd, tree);
-      break;
     default:
       dissect_data(pd, offset, fd, tree);
       break;
@@ -1399,6 +1352,12 @@ proto_register_igmp(void)
 }
 
 void
+proto_reg_handoff_igmp(void)
+{
+	dissector_add("ip.proto", IP_PROTO_IGMP, dissect_igmp);
+}
+
+void
 proto_register_ip(void)
 {
 	static hf_register_info hf[] = {
@@ -1516,6 +1475,9 @@ proto_register_ip(void)
 	proto_ip = proto_register_protocol ("Internet Protocol", "ip");
 	proto_register_field_array(proto_ip, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	/* subdissector code */
+	ip_dissector_table = register_dissector_table("ip.proto");
 }
 
 void
@@ -1523,6 +1485,7 @@ proto_reg_handoff_ip(void)
 {
 	dissector_add("ethertype", ETHERTYPE_IP, dissect_ip);
 	dissector_add("ppp.protocol", PPP_IP, dissect_ip);
+	dissector_add("ip.proto", IP_PROTO_IPV4, dissect_ip);
 }
 
 void
@@ -1550,6 +1513,12 @@ proto_register_icmp(void)
 					"icmp");
   proto_register_field_array(proto_icmp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_icmp(void)
+{
+	dissector_add("ip.proto", IP_PROTO_ICMP, dissect_icmp);
 }
 
 static int proto_eigrp = -1;
@@ -1608,3 +1577,9 @@ proto_register_eigrp(void)
    proto_eigrp = proto_register_protocol("Enhanced Interior Gateway Routing Protocol", "eigrp");
    proto_register_subtree_array(ett, array_length(ett));
    }
+
+void
+proto_reg_handoff_eigrp(void)
+{
+    dissector_add("ip.proto", IP_PROTO_EIGRP, dissect_eigrp);
+}

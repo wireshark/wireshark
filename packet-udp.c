@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.64 2000/04/14 06:42:50 guy Exp $
+ * $Id: packet-udp.c,v 1.65 2000/04/16 22:46:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,11 +45,11 @@
 #include "resolv.h"
 
 #include "plugins.h"
+#include "packet-udp.h"
 
+#include "packet-ip.h"
 #include "packet-ncp.h"
-#include "packet-rip.h"
 #include "packet-rpc.h"
-#include "packet-rx.h"
 #include "packet-tftp.h"
 #include "packet-vines.h"
 
@@ -236,4 +236,10 @@ proto_register_udp(void)
 
 /* subdissector code */
 	udp_dissector_table = register_dissector_table("udp.port");
+}
+
+void
+proto_reg_handoff_udp(void)
+{
+	dissector_add("ip.proto", IP_PROTO_UDP, dissect_udp);
 }

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.69 2000/04/14 05:39:42 gram Exp $
+ * $Id: packet-tcp.c,v 1.70 2000/04/16 22:46:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,6 +51,7 @@
 #endif
 
 #include "plugins.h"
+#include "packet-tcp.h"
 
 #include "packet-ip.h"
 #include "packet-giop.h"
@@ -637,4 +638,10 @@ proto_register_tcp(void)
 
 /* subdissector code */
 	subdissector_table = register_dissector_table("tcp.port");
+}
+
+void
+proto_reg_handoff_tcp(void)
+{
+	dissector_add("ip.proto", IP_PROTO_TCP, dissect_tcp);
 }

@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.19 2000/04/07 19:10:51 guy Exp $
+ * $Id: packet-rsvp.c,v 1.20 2000/04/16 22:46:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -74,7 +74,6 @@
 #include "packet.h"
 #include "packet-ip.h"
 #include "packet-ipv6.h"
-#include "packet-rsvp.h"
 #include "ieee-float.h"
 
 static int proto_rsvp = -1;
@@ -827,7 +826,7 @@ static inline int rsvp_class_to_filter_num(int classnum)
     }
 }
 
-void 
+static void 
 dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
 {
     proto_tree *rsvp_tree = NULL, *ti, *ti2; 
@@ -2027,4 +2026,10 @@ proto_register_rsvp(void)
         proto_rsvp = proto_register_protocol("Resource ReserVation Protocol (RSVP)", "rsvp");
         proto_register_field_array(proto_rsvp, rsvpf_info, array_length(rsvpf_info));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_rsvp(void)
+{
+	dissector_add("ip.proto", IP_PROTO_RSVP, dissect_rsvp);
 }

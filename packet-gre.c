@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.17 2000/03/27 17:53:19 gram Exp $
+ * $Id: packet-gre.c,v 1.18 2000/04/16 22:46:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -71,7 +71,7 @@ static const value_string typevals[] = {
 	{ 0,        NULL  }
 };
 
-void
+static void
 dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   
   guint16	flags_and_ver = pntohs(pd + offset);
@@ -286,4 +286,10 @@ proto_register_gre(void)
         proto_gre = proto_register_protocol("Generic Routing Encapsulation", "gre");
         proto_register_field_array(proto_gre, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_gre(void)
+{
+	dissector_add("ip.proto", IP_PROTO_GRE, dissect_gre);
 }

@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.33 2000/04/16 21:37:04 guy Exp $
+ * $Id: packet-ipv6.c,v 1.34 2000/04/16 22:46:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -478,4 +478,5 @@ proto_reg_handoff_ipv6(void)
 {
 	dissector_add("ethertype", ETHERTYPE_IPv6, dissect_ipv6);
 	dissector_add("ppp.protocol", PPP_IPV6, dissect_ipv6);
+	dissector_add("ip.proto", IP_PROTO_IPV6, dissect_ipv6);
 }

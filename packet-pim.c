@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.10 2000/03/12 04:47:47 gram Exp $
+ * $Id: packet-pim.c,v 1.11 2000/04/16 22:46:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -601,3 +601,10 @@ proto_register_pim(void)
     proto_register_field_array(proto_pim, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }
+
+void
+proto_reg_handoff_pim(void)
+{
+    dissector_add("ip.proto", IP_PROTO_PIM, dissect_pim);
+}
+

@@ -1,6 +1,6 @@
 /* packet-ospf.h (c) 1998 Hannes Boehm */
 
-/* $Id: packet-ospf.h,v 1.7 2000/03/09 18:31:51 ashokn Exp $ */
+/* $Id: packet-ospf.h,v 1.8 2000/04/16 22:46:21 guy Exp $ */
 
 #define OSPF_HEADER_LENGTH	24
 
@@ -137,16 +137,3 @@ typedef struct _e_ospf_crypto {
     guint8      length;
     guint32   sequence_num;
 } e_ospf_crypto;
-
-void dissect_ospf(const u_char *, int, frame_data *, proto_tree *);
-void dissect_ospf_hello(const u_char*, int, frame_data*, proto_tree*);
-void dissect_ospf_db_desc(const u_char*, int, frame_data*, proto_tree*); 
-void dissect_ospf_ls_req(const u_char*, int, frame_data*, proto_tree*); 
-void dissect_ospf_ls_upd(const u_char*, int, frame_data*, proto_tree*); 
-void dissect_ospf_ls_ack(const u_char*, int, frame_data*, proto_tree*); 
-
-/* dissect_ospf_lsa returns the length of the LSA 
- * if disassemble_body is set to FALSE (e.g. in LSA ACK 
- * packets), the LSA-header length is returned (20)
- */
-int dissect_ospf_lsa(const u_char*, int, frame_data*, proto_tree*, int disassemble_body); 

@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.21 2000/03/14 06:03:23 guy Exp $
+ * $Id: packet-ospf.c,v 1.22 2000/04/16 22:46:20 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -49,6 +49,7 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-ospf.h"
+#include "packet-ip.h"
 #include "ieee-float.h"
 
 static int proto_ospf = -1;
@@ -67,7 +68,19 @@ static gint ett_ospf_lsa_mpls_router = -1;
 static gint ett_ospf_lsa_mpls_link = -1;
 static gint ett_ospf_lsa_mpls_link_stlv = -1;
 
-void 
+static void dissect_ospf_hello(const u_char*, int, frame_data*, proto_tree*);
+static void dissect_ospf_db_desc(const u_char*, int, frame_data*, proto_tree*); 
+static void dissect_ospf_ls_req(const u_char*, int, frame_data*, proto_tree*); 
+static void dissect_ospf_ls_upd(const u_char*, int, frame_data*, proto_tree*); 
+static void dissect_ospf_ls_ack(const u_char*, int, frame_data*, proto_tree*); 
+
+/* dissect_ospf_lsa returns the length of the LSA 
+ * if disassemble_body is set to FALSE (e.g. in LSA ACK 
+ * packets), the LSA-header length is returned (20)
+ */
+static int dissect_ospf_lsa(const u_char*, int, frame_data*, proto_tree*, int disassemble_body); 
+
+static void 
 dissect_ospf(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     e_ospfhdr ospfh;
     e_ospf_crypto *crypto;
@@ -189,7 +202,7 @@ dissect_ospf(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     pi.captured_len = saved_len;
 }
 
-void
+static void
 dissect_ospf_hello(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     e_ospf_hello ospfhello;
     guint32 *ospfneighbor;
@@ -248,7 +261,7 @@ dissect_ospf_hello(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
     }
 }
 
-void
+static void
 dissect_ospf_db_desc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     e_ospf_dbd ospf_dbd;
     char options[20]="";
@@ -319,7 +332,7 @@ dissect_ospf_db_desc(const u_char *pd, int offset, frame_data *fd, proto_tree *t
     }
 }
 
-void
+static void
 dissect_ospf_ls_req(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     e_ospf_ls_req ospf_lsr;
 
@@ -370,7 +383,8 @@ dissect_ospf_ls_req(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 	}
     }
 }
-void
+
+static void
 dissect_ospf_ls_upd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     e_ospf_lsa_upd_hdr upd_hdr;
     guint32 lsa_counter; 
@@ -396,7 +410,7 @@ dissect_ospf_ls_upd(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
     }
 }
 
-void
+static void
 dissect_ospf_ls_ack(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
     /* the body of a LS Ack packet simply contains zero or more LSA Headers */
@@ -625,7 +639,7 @@ void dissect_ospf_lsa_opaque(const u_char *pd,
     } /* switch on opaque LSA id */
 }
 
-int
+static int
 dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int disassemble_body) {
     e_ospf_lsa_hdr 	 lsa_hdr;
     char		*lsa_type;
@@ -883,4 +897,10 @@ proto_register_ospf(void)
         proto_ospf = proto_register_protocol("Open Shortest Path First", "ospf");
  /*       proto_register_field_array(proto_ospf, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_ospf(void)
+{
+	dissector_add("ip.proto", IP_PROTO_OSPF, dissect_ospf);
 }

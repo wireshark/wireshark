@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-vrrp.c,v 1.3 2000/03/12 04:47:51 gram Exp $
+ * $Id: packet-vrrp.c,v 1.4 2000/04/16 22:46:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,6 +41,7 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
+#include "packet-ip.h"
 
 static gint proto_vrrp = -1;
 static gint ett_vrrp = -1;
@@ -91,7 +92,8 @@ static const value_string vrrp_prio_vals[] = {
 };
 
 
-void dissect_vrrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+static void
+dissect_vrrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
         struct vrrp_header vrh;
         gboolean short_hdr = FALSE;
@@ -210,4 +212,10 @@ void proto_register_vrrp(void)
         proto_register_subtree_array(ett, array_length(ett));
 
         return;
+}
+
+void
+proto_reg_handoff_vrrp(void)
+{
+	dissector_add("ip.proto", IP_PROTO_VRRP, dissect_vrrp);
 }

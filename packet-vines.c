@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.14 2000/04/16 21:37:06 guy Exp $
+ * $Id: packet-vines.c,v 1.15 2000/04/16 22:46:24 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -41,6 +41,7 @@
 #include "ppptypes.h"
 #include "packet.h"
 #include "packet-vines.h"
+#include "packet-ip.h"
 
 static gint ett_vines = -1;
 static gint ett_vines_frp = -1;
@@ -354,4 +355,5 @@ proto_reg_handoff_vines(void)
 {
 	dissector_add("ethertype", ETHERTYPE_VINES, dissect_vines);
 	dissector_add("ppp.protocol", PPP_VINES, dissect_vines);
+	dissector_add("ip.proto", IP_PROTO_VINES, dissect_vines_frp);
 }
