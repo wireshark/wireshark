@@ -772,7 +772,7 @@ execute_next_instruction:
 	case SIGCOMP_INSTR_LOAD: /* 14 LOAD (%address, %value) */
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-				"Addr: %u ## LOAD(14) (%address, %value)",
+				"Addr: %u ## LOAD(14) (%%address, %%value)",
 				current_address);
 		}
 		operand_address = current_address + 1;
@@ -810,7 +810,7 @@ execute_next_instruction:
 		 */
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
-				"Addr: %u ## MULTILOAD(15) (%address, #n, value_0, ..., value_n-1)",
+				"Addr: %u ## MULTILOAD(15) (%%address, #n, value_0, ..., value_n-1)",
 				current_address);
 		}
 		operand_address = current_address + 1;
@@ -2696,7 +2696,7 @@ guint8	i;
 			if ( *remaining_bits < length ){
 				if (*remaining_bits > 8 ){
 					proto_tree_add_text(udvm_tree, message_tvb, *input_address, 1,
-					"               Yikes!! haven't coded this case yet!!remaining_bits %u  > 8 ", *remaining_bits, length);
+					"               Yikes!! haven't coded this case yet!!remaining_bits %u > 8 ", *remaining_bits);
 					return 0xfbad;
 				}
 				if ( *input_address > ( msg_end -1 ) ){
