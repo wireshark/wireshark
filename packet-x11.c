@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.38 2002/04/14 23:04:04 guy Exp $
+ * $Id: packet-x11.c,v 1.39 2002/04/15 00:10:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1151,6 +1151,12 @@ static void listOfString8(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       ti = proto_tree_add_item(t, hf, tvb, *offsetp, scanning_offset - *offsetp, little_endian);
       tt = proto_item_add_subtree(ti, ett_x11_list_of_string8);
 
+      /*
+       * In case we throw an exception, clean up whatever stuff we've
+       * allocated (if any).
+       */
+      CLEANUP_PUSH(g_free, s);
+
       while(length--) {
 	    unsigned l = VALUE8(tvb, *offsetp);
 	    if (allocated < (l + 1)) {
@@ -1163,7 +1169,11 @@ static void listOfString8(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 	    proto_tree_add_string_format(tt, hf_item, tvb, *offsetp, l + 1, s, "\"%s\"", s);
 	    *offsetp += l + 1;
       }
-      g_free(s);
+
+      /*
+       * Call the cleanup handler to free the string and pop the handler.
+       */
+      CLEANUP_CALL_AND_POP;
 }
 
 #define STRING16_MAX_DISPLAYED_LENGTH 150
@@ -1249,6 +1259,12 @@ static void listOfTextItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       ti = proto_tree_add_item(t, hf, tvb, *offsetp, scanning_offset - *offsetp, little_endian);
       tt = proto_item_add_subtree(ti, ett_x11_list_of_text_item);
 
+      /*
+       * In case we throw an exception, clean up whatever stuff we've
+       * allocated (if any).
+       */
+      CLEANUP_PUSH(g_free, s);
+
       while(n--) {
 	    unsigned l = VALUE8(tvb, *offsetp);
 	    if (l == 255) { /* Item is a font */
@@ -1283,7 +1299,11 @@ static void listOfTextItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 		  *offsetp += l + 2;
 	    }
       }
-      g_free(s);
+
+      /*
+       * Call the cleanup handler to free the string and pop the handler.
+       */
+      CLEANUP_CALL_AND_POP;
 }
 
 static guint32 field8(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf)
@@ -1502,9 +1522,20 @@ static void string8(tvbuff_t *tvb, int *offsetp, proto_tree *t,
 {
       char *s = g_malloc(length + 1);
 
+      /*
+       * In case we throw an exception, clean up whatever stuff we've
+       * allocated (if any).
+       */
+      CLEANUP_PUSH(g_free, s);
+
       stringCopy(s, tvb_get_ptr(tvb, *offsetp, length), length);
       proto_tree_add_string_format(t, hf, tvb, *offsetp, length, s, "%s: %s", nameAsChar, s);
-      g_free(s);
+
+      /*
+       * Call the cleanup handler to free the string and pop the handler.
+       */
+      CLEANUP_CALL_AND_POP;
+
       *offsetp += length;
 }
 
@@ -1516,9 +1547,20 @@ static void string16(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       char *s = NULL;
       unsigned l = 0;
 
+      /*
+       * In case we throw an exception, clean up whatever stuff we've
+       * allocated (if any).
+       */
+      CLEANUP_PUSH(g_free, s);
+
       length += length;
       string16_with_buffer_preallocated(tvb, t, hf, hf_bytes, *offsetp, length, &s, &l);
-      g_free(s);
+
+      /*
+       * Call the cleanup handler to free the string and pop the handler.
+       */
+      CLEANUP_CALL_AND_POP;
+
       *offsetp += length;
 }
 
@@ -1560,7 +1602,7 @@ static void windowAttributes(tvbuff_t *tvb, int *offsetp, proto_tree *t)
  ***                                                                  ***
  ************************************************************************/
 
-static int dissect_x11_request_loop(tvbuff_t *tvb, int *offsetp, proto_tree *root)
+static int dissect_x11_requests_loop(tvbuff_t *tvb, int *offsetp, proto_tree *root)
 {
       int left = tvb_reported_length(tvb), nextLeft;
       proto_item *ti;
@@ -2946,7 +2988,7 @@ guess_byte_ordering(tvbuff_t *tvb, packet_info *pinfo)
  ************************************************************************/
 
 static void
-dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 /* Set up structures we will need to add the protocol subtree and manage it */
       proto_item *ti;
@@ -2958,7 +3000,7 @@ dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    it, if possible, summarize what's in the packet, so that a user looking
    at the list of packets can tell what type of packet it is. */
       if (check_col(pinfo->cinfo, COL_INFO)) 
-	    col_set_str(pinfo->cinfo, COL_INFO, "X11 request");
+	    col_set_str(pinfo->cinfo, COL_INFO, "Requests");
 
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
@@ -2968,13 +3010,13 @@ dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       offset = 0;
       little_endian = guess_byte_ordering(tvb, pinfo);
-      left = dissect_x11_request_loop(tvb, &offset, x11_tree);
+      left = dissect_x11_requests_loop(tvb, &offset, x11_tree);
       if (left)
 	    call_dissector(data_handle, tvb_new_subset(tvb, offset,-1, tvb_reported_length_remaining(tvb, offset)), pinfo, x11_tree);
 }
 
 static void
-dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 /* Set up structures we will need to add the protocol subtree and manage it */
       proto_item *ti;
@@ -2984,18 +3026,18 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    it, if possible, summarize what's in the packet, so that a user looking
    at the list of packets can tell what type of packet it is. */
       if (check_col(pinfo->cinfo, COL_INFO)) 
-	    col_set_str(pinfo->cinfo, COL_INFO, "X11 event");
+	    col_set_str(pinfo->cinfo, COL_INFO, "Replies/events");
 
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
-      if (tree) {
-	    ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, FALSE);
-	    x11_tree = proto_item_add_subtree(ti, ett_x11);
+      if (!tree) return;
+      ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, FALSE);
+      x11_tree = proto_item_add_subtree(ti, ett_x11);
 
-/* Code to process the packet goes here */
-
-	    call_dissector(data_handle,tvb, pinfo, x11_tree);
-      }
+      /*
+       * XXX - dissect these in a loop, like the requests.
+       */
+      call_dissector(data_handle,tvb, pinfo, x11_tree);
 }
 
 static void
@@ -3005,9 +3047,9 @@ dissect_x11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "X11");
     
       if (pinfo->match_port == pinfo->destport)
-	    dissect_x11_request(tvb, pinfo, tree);
+	    dissect_x11_requests(tvb, pinfo, tree);
       else
-	    dissect_x11_event(tvb, pinfo, tree);
+	    dissect_x11_replies(tvb, pinfo, tree);
 }
 
 /* Register the protocol with Ethereal */
