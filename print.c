@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.81 2004/05/01 15:15:08 ulfl Exp $
+ * $Id: print.c,v 1.82 2004/05/01 21:04:27 obiot Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -272,6 +272,9 @@ print_escaped_xml(FILE *fh, char *unescaped_string)
 				break;
 			case '"':
 				fputs("&quot;", fh);
+				break;
+			case '\'':
+				fputs("&apos;", fh);
 				break;
 			default:
 				fputc(*p, fh);
