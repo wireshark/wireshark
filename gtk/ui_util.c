@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.24 2004/05/23 17:37:36 ulfl Exp $
+ * $Id: ui_util.c,v 1.25 2004/05/24 09:00:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,6 +25,8 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
+
+#include <string.h>
 
 #ifdef _WIN32
 #include <windows.h>
