@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.24 1999/10/05 07:22:53 guy Exp $
+ * $Id: wtap.c,v 1.25 1999/10/06 03:29:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -49,6 +49,11 @@ int wtap_file_type(wtap *wth)
 int wtap_snapshot_length(wtap *wth)
 {
 	return wth->snapshot_length;
+}
+
+int wtap_file_encap(wtap *wth)
+{
+	return wth->file_encap;
 }
 
 const char *wtap_file_type_string(wtap *wth)

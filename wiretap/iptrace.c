@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.13 1999/10/05 07:06:05 guy Exp $
+ * $Id: iptrace.c,v 1.14 1999/10/06 03:29:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -131,6 +131,19 @@ static int iptrace_read(wtap *wth, int *err)
 		    if_name1, if_name2);
 		*err = WTAP_ERR_BAD_RECORD;
 		return -1;
+	}
+
+	/* If the per-file encapsulation isn't known, set it to this
+	   packet's encapsulation.
+
+	   If it *is* known, and it isn't this packet's encapsulation,
+	   set it to WTAP_ENCAP_PER_PACKET, as this file doesn't
+	   have a single encapsulation for all packets in the file. */
+	if (wth->file_encap == WTAP_ENCAP_UNKNOWN)
+		wth->file_encap = wth->phdr.pkt_encap;
+	else {
+		if (wth->file_encap != wth->phdr.pkt_encap)
+			wth->file_encap= WTAP_ENCAP_PER_PACKET;
 	}
 	return data_offset;
 }

@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.42 1999/10/05 07:06:08 guy Exp $
+ * $Id: wtap.h,v 1.43 1999/10/06 03:29:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -31,6 +31,8 @@
  * "wtap_dump_fd_open()" to indicate that there is no single encapsulation
  * type for all packets in the file; this may cause those routines to
  * fail if the capture file format being written can't support that.
+ * It's also returned by "wtap_file_encap()" for capture files that
+ * don't have a single encapsulation type for all packets in the file.
  *
  * WTAP_ENCAP_UNKNOWN is returned by "wtap_pcap_encap_to_wtap_encap()"
  * if it's handed an unknown encapsulation.
@@ -345,6 +347,7 @@ FILE* wtap_file(wtap *wth);
 int wtap_fd(wtap *wth);
 int wtap_snapshot_length(wtap *wth); /* per file */
 int wtap_file_type(wtap *wth);
+int wtap_file_encap(wtap *wth);
 const char *wtap_file_type_string(wtap *wth);
 const char *wtap_strerror(int err);
 void wtap_close(wtap *wth);
