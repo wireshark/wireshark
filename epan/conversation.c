@@ -535,7 +535,7 @@ conversation_new(guint32 setup_frame, address *addr1, address *addr2, port_type 
     guint32 port1, guint32 port2, guint options)
 {
 /*
-	g_assert(!(options | CONVERSATION_TEMPLATE) || ((options | (NO_ADDR2 | NO_PORT2 | NO_PORT2_FORCE))) &&
+	DISSECTOR_ASSERT(!(options | CONVERSATION_TEMPLATE) || ((options | (NO_ADDR2 | NO_PORT2 | NO_PORT2_FORCE))) &&
 				"A conversation template may not be constructed without wildcard options");
 */
 	GHashTable* hashtable;
@@ -614,7 +614,7 @@ conversation_new(guint32 setup_frame, address *addr1, address *addr2, port_type 
 void
 conversation_set_port2(conversation_t *conv, guint32 port)
 {
-   g_assert(!(conv->options & CONVERSATION_TEMPLATE) &&
+   DISSECTOR_ASSERT(!(conv->options & CONVERSATION_TEMPLATE) &&
             "Use the conversation_create_from_template function when the CONVERSATION_TEMPLATE bit is set in the options mask");
 
 	/*
@@ -648,7 +648,7 @@ conversation_set_port2(conversation_t *conv, guint32 port)
 void
 conversation_set_addr2(conversation_t *conv, address *addr)
 {
-   g_assert(!(conv->options & CONVERSATION_TEMPLATE) &&
+   DISSECTOR_ASSERT(!(conv->options & CONVERSATION_TEMPLATE) &&
             "Use the conversation_create_from_template function when the CONVERSATION_TEMPLATE bit is set in the options mask");
    
 	/*

@@ -484,7 +484,7 @@ proto_tree_set_visible(proto_tree *tree, gboolean visible)
 }
 
 #define PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo) \
-	g_assert((guint)hfindex < gpa_hfinfo.len); \
+	DISSECTOR_ASSERT((guint)hfindex < gpa_hfinfo.len); \
 	hfinfo=gpa_hfinfo.hfi[hfindex];		
 
 /* Finds a record in the hf_info_records array by id. */
@@ -502,7 +502,7 @@ proto_registrar_get_nth(guint hfindex)
 header_field_info*
 proto_registrar_get_byname(const char *field_name)
 {
-	g_assert(field_name != NULL);
+	DISSECTOR_ASSERT(field_name != NULL);
 	return g_tree_lookup(gpa_name_tree, (gpointer)field_name);
 }
 
@@ -604,7 +604,7 @@ get_uint_value(tvbuff_t *tvb, gint offset, gint length, gboolean little_endian)
 		break;
 
 	default:
-		g_assert_not_reached();
+		DISSECTOR_ASSERT_NOT_REACHED();
 		value = 0;
 		break;
 	}
@@ -642,7 +642,7 @@ get_int_value(tvbuff_t *tvb, gint offset, gint length, gboolean little_endian)
 		break;
 
 	default:
-		g_assert_not_reached();
+		DISSECTOR_ASSERT_NOT_REACHED();
 		value = 0;
 		break;
 	}
@@ -732,7 +732,7 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 		case FT_INT64:
 		case FT_UINT64:
-			g_assert(length == 8);
+			DISSECTOR_ASSERT(length == 8);
 			proto_tree_set_uint64_tvb(new_fi, tvb, start, little_endian);
 			break;
 
@@ -746,29 +746,29 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			break;
 
 		case FT_IPv4:
-			g_assert(length == 4);
+			DISSECTOR_ASSERT(length == 4);
 			tvb_memcpy(tvb, (guint8 *)&value, start, 4);
 			proto_tree_set_ipv4(new_fi, little_endian ? GUINT32_SWAP_LE_BE(value) : value);
 			break;
 
 		case FT_IPXNET:
-			g_assert(length == 4);
+			DISSECTOR_ASSERT(length == 4);
 			proto_tree_set_ipxnet(new_fi,
 			    get_uint_value(tvb, start, 4, FALSE));
 			break;
 
 		case FT_IPv6:
-			g_assert(length == 16);
+			DISSECTOR_ASSERT(length == 16);
 			proto_tree_set_ipv6_tvb(new_fi, tvb, start);
 			break;
 
 		case FT_ETHER:
-			g_assert(length == 6);
+			DISSECTOR_ASSERT(length == 6);
 			proto_tree_set_ether_tvb(new_fi, tvb, start);
 			break;
 
 		case FT_FLOAT:
-			g_assert(length == 4);
+			DISSECTOR_ASSERT(length == 4);
 			if (little_endian)
 				floatval = tvb_get_letohieee_float(tvb, start);
 			else
@@ -777,7 +777,7 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			break;
 
 		case FT_DOUBLE:
-			g_assert(length == 8);
+			DISSECTOR_ASSERT(length == 8);
 			if (little_endian)
 				doubleval = tvb_get_letohieee_double(tvb, start);
 			else
@@ -876,7 +876,7 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			g_error("new_fi->hfinfo->type %d (%s) not handled\n",
 					new_fi->hfinfo->type,
 					ftype_name(new_fi->hfinfo->type));
-			g_assert_not_reached();
+			DISSECTOR_ASSERT_NOT_REACHED();
 			break;
 	}
 
@@ -929,7 +929,7 @@ proto_tree_add_none_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 		return (NULL);
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
-	g_assert(hfinfo->type == FT_NONE);
+	DISSECTOR_ASSERT(hfinfo->type == FT_NONE);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, NULL);
 
@@ -962,7 +962,7 @@ proto_tree_add_protocol_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gin
 		return (NULL);
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
-	g_assert(hfinfo->type == FT_PROTOCOL);
+	DISSECTOR_ASSERT(hfinfo->type == FT_PROTOCOL);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 
@@ -993,7 +993,7 @@ proto_tree_add_bytes(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		return (NULL);
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
-	g_assert(hfinfo->type == FT_BYTES);
+	DISSECTOR_ASSERT(hfinfo->type == FT_BYTES);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 	proto_tree_set_bytes(new_fi, start_ptr, length);
@@ -1066,7 +1066,7 @@ proto_tree_add_time(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gi
 		return (NULL);
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
-	g_assert(hfinfo->type == FT_ABSOLUTE_TIME ||
+	DISSECTOR_ASSERT(hfinfo->type == FT_ABSOLUTE_TIME ||
 				hfinfo->type == FT_RELATIVE_TIME);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
@@ -1128,7 +1128,7 @@ proto_tree_add_ipxnet(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, 
 		return (NULL);
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
-	g_assert(hfinfo->type == FT_IPXNET);
+	DISSECTOR_ASSERT(hfinfo->type == FT_IPXNET);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 	proto_tree_set_ipxnet(new_fi, value);
@@ -1189,7 +1189,7 @@ proto_tree_add_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gi
 		return (NULL);
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
-	g_assert(hfinfo->type == FT_IPv4);
+	DISSECTOR_ASSERT(hfinfo->type == FT_IPv4);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 	proto_tree_set_ipv4(new_fi, value);
@@ -1250,7 +1250,7 @@ proto_tree_add_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gi
 		return (NULL);
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
-	g_assert(hfinfo->type == FT_IPv6);
+	DISSECTOR_ASSERT(hfinfo->type == FT_IPv6);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 	proto_tree_set_ipv6(new_fi, value_ptr);
@@ -1335,10 +1335,10 @@ proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		return (NULL);
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
-	g_assert(hfinfo->type == FT_STRING || hfinfo->type == FT_STRINGZ);
+	DISSECTOR_ASSERT(hfinfo->type == FT_STRING || hfinfo->type == FT_STRINGZ);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
-	g_assert(length >= 0);
+	DISSECTOR_ASSERT(length >= 0);
 	proto_tree_set_string(new_fi, value, FALSE);
 
 	return pi;
@@ -1395,7 +1395,7 @@ proto_item_append_string(proto_item *pi, const char *str)
 
 	fi = PITEM_FINFO(pi);
 	hfinfo = fi->hfinfo;
-	g_assert(hfinfo->type == FT_STRING || hfinfo->type == FT_STRINGZ);
+	DISSECTOR_ASSERT(hfinfo->type == FT_STRING || hfinfo->type == FT_STRINGZ);
 	old_str = fvalue_get(&fi->value);
 	new_str = g_malloc(strlen(old_str) + strlen(str) + 1);
 	sprintf(new_str, "%s%s", old_str, str);
@@ -1437,7 +1437,7 @@ proto_tree_add_ether(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, g
 		return (NULL);
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
-	g_assert(hfinfo->type == FT_ETHER);
+	DISSECTOR_ASSERT(hfinfo->type == FT_ETHER);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 	proto_tree_set_ether(new_fi, value);
@@ -1504,7 +1504,7 @@ proto_tree_add_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		return (NULL);
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
-	g_assert(hfinfo->type == FT_BOOLEAN);
+	DISSECTOR_ASSERT(hfinfo->type == FT_BOOLEAN);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 	proto_tree_set_boolean(new_fi, value);
@@ -1565,7 +1565,7 @@ proto_tree_add_float(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, g
 		return (NULL);
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
-	g_assert(hfinfo->type == FT_FLOAT);
+	DISSECTOR_ASSERT(hfinfo->type == FT_FLOAT);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 	proto_tree_set_float(new_fi, value);
@@ -1626,7 +1626,7 @@ proto_tree_add_double(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, 
 		return (NULL);
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
-	g_assert(hfinfo->type == FT_DOUBLE);
+	DISSECTOR_ASSERT(hfinfo->type == FT_DOUBLE);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 	proto_tree_set_double(new_fi, value);
@@ -1699,7 +1699,7 @@ proto_tree_add_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gi
 			break;
 
 		default:
-			g_assert_not_reached();
+			DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
 	return pi;
@@ -1773,7 +1773,7 @@ proto_tree_add_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, 
 		return (NULL);
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
-	g_assert(hfinfo->type == FT_UINT64);
+	DISSECTOR_ASSERT(hfinfo->type == FT_UINT64);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 	proto_tree_set_uint64(new_fi, value);
@@ -1823,7 +1823,7 @@ proto_tree_add_int(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gin
 			break;
 
 		default:
-			g_assert_not_reached();
+			DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
 	return pi;
@@ -1897,7 +1897,7 @@ proto_tree_add_int64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, g
 		return (NULL);
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
-	g_assert(hfinfo->type == FT_INT64);
+	DISSECTOR_ASSERT(hfinfo->type == FT_INT64);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 	proto_tree_set_uint64(new_fi, (guint64)value);
@@ -1948,7 +1948,7 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
         /* XXX - is it safe to continue here? */
     }
 
-	g_assert(tfi == NULL ||
+	DISSECTOR_ASSERT(tfi == NULL ||
 	    (tfi->tree_type >= 0 && tfi->tree_type < num_tree_types));
 
 	PROTO_NODE_NEW(pnode);
@@ -1958,7 +1958,7 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 
 	if (tnode->last_child != NULL) {
 		sibling = tnode->last_child;
-		g_assert(sibling->next == NULL);
+		DISSECTOR_ASSERT(sibling->next == NULL);
 		sibling->next = pnode;
 	} else
 		tnode->first_child = pnode;
@@ -2013,7 +2013,7 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	 * We only allow a null tvbuff if the item has a zero length,
 	 * i.e. if there's no data backing it.
 	 */
-	g_assert(tvb != NULL || *length == 0);
+	DISSECTOR_ASSERT(tvb != NULL || *length == 0);
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
@@ -2077,14 +2077,14 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 				 */
 				tvb_ensure_bytes_exist(tvb, start, 0);
 			}
-			g_assert(*length >= 0);
+			DISSECTOR_ASSERT(*length >= 0);
 			break;
 
 		case FT_NONE:
 		case FT_BYTES:
 		case FT_STRING:
 			*length = tvb_ensure_length_remaining(tvb, start);
-			g_assert(*length >= 0);
+			DISSECTOR_ASSERT(*length >= 0);
 			break;
 
 		case FT_STRINGZ:
@@ -2095,7 +2095,7 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 			break;
 
 		default:
-			g_assert_not_reached();
+			DISSECTOR_ASSERT_NOT_REACHED();
 		}
 	} else {
 		if (*length < 0) {
@@ -2208,7 +2208,7 @@ proto_item_set_len(proto_item *pi, gint length)
 	if (pi == NULL)
 		return;
 	fi = PITEM_FINFO(pi);
-	g_assert(length >= 0);
+	DISSECTOR_ASSERT(length >= 0);
 	fi->length = length;
 }
 
@@ -2228,7 +2228,7 @@ proto_item_set_end(proto_item *pi, tvbuff_t *tvb, gint end)
 		return;
 	fi = PITEM_FINFO(pi);
 	end += TVB_RAW_OFFSET(tvb);
-	g_assert(end >= fi->start);
+	DISSECTOR_ASSERT(end >= fi->start);
 	fi->length = end - fi->start;
 }
 
@@ -2282,7 +2282,7 @@ proto_item_add_subtree(proto_item *pi,  gint idx) {
 		return(NULL);
 
 	fi = PITEM_FINFO(pi);
-	g_assert(idx >= 0 && idx < num_tree_types);
+	DISSECTOR_ASSERT(idx >= 0 && idx < num_tree_types);
 	fi->tree_type = idx;
 	return (proto_tree*) pi;
 }
@@ -2568,7 +2568,7 @@ proto_set_decoding(int proto_id, gboolean enabled)
 	protocol_t *protocol;
 
 	protocol = find_protocol_by_id(proto_id);
-	g_assert(protocol->can_toggle);
+	DISSECTOR_ASSERT(protocol->can_toggle);
 	protocol->is_enabled = enabled;
 }
 
@@ -2600,7 +2600,7 @@ proto_register_field_array(int parent, hf_register_info *hf, int num_records)
 		 * 0 (which is unlikely to be the field ID we get back
 		 * from "proto_register_field_init()").
 		 */
-		g_assert(*ptr->p_id == -1 || *ptr->p_id == 0);
+		DISSECTOR_ASSERT(*ptr->p_id == -1 || *ptr->p_id == 0);
 
 		if (proto != NULL) {
 			if (proto->fields == NULL) {
@@ -2620,11 +2620,11 @@ static int
 proto_register_field_init(header_field_info *hfinfo, int parent)
 {
 	/* The field must have names */
-	g_assert(hfinfo->name);
-	g_assert(hfinfo->abbrev);
+	DISSECTOR_ASSERT(hfinfo->name);
+	DISSECTOR_ASSERT(hfinfo->abbrev);
 
 	/* These types of fields are allowed to have value_strings or true_false_strings */
-	g_assert((hfinfo->strings == NULL) || (
+	DISSECTOR_ASSERT((hfinfo->strings == NULL) || (
 			(hfinfo->type == FT_UINT8) ||
 			(hfinfo->type == FT_UINT16) ||
 			(hfinfo->type == FT_UINT24) ||
@@ -2648,13 +2648,13 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 	case FT_INT32:
 		/* Require integral types (other than frame number, which is
 		   always displayed in decimal) to have a number base */
-		g_assert(hfinfo->display != BASE_NONE);
+		DISSECTOR_ASSERT(hfinfo->display != BASE_NONE);
 		break;
 
 	case FT_FRAMENUM:
 		/* Don't allow bitfields or value strings for frame numbers */
-		g_assert(hfinfo->bitmask == 0);
-		g_assert(hfinfo->strings == NULL);
+		DISSECTOR_ASSERT(hfinfo->bitmask == 0);
+		DISSECTOR_ASSERT(hfinfo->strings == NULL);
 		break;
 
 	default:
@@ -2694,7 +2694,7 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 		/* Check that the filter name (abbreviation) is legal;
 		 * it must contain only alphanumerics, '-', "_", and ".". */
 		for (p = hfinfo->abbrev; (c = *p) != '\0'; p++)
-			g_assert(isalnum(c) || c == '-' || c == '_' ||
+			DISSECTOR_ASSERT(isalnum(c) || c == '-' || c == '_' ||
 			    c == '.');
 
 		/* We allow multiple hfinfo's to be registered under the same
@@ -2843,7 +2843,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
-			g_assert(!hfinfo->bitmask);
+			DISSECTOR_ASSERT(!hfinfo->bitmask);
 			if (hfinfo->strings) {
 				fill_label_enumerated_int(fi, label_str);
 			}
@@ -2943,7 +2943,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			g_error("hfinfo->type %d (%s) not handled\n",
 					hfinfo->type,
 					ftype_name(hfinfo->type));
-			g_assert_not_reached();
+			DISSECTOR_ASSERT_NOT_REACHED();
 			break;
 	}
 }
@@ -3210,7 +3210,7 @@ hfinfo_bitwidth(header_field_info *hfinfo)
 			bitwidth = hfinfo->display; /* hacky? :) */
 			break;
 		default:
-			g_assert_not_reached();
+			DISSECTOR_ASSERT_NOT_REACHED();
 			;
 	}
 	return bitwidth;
@@ -3243,12 +3243,12 @@ hfinfo_uint_vals_format(header_field_info *hfinfo)
 					format = "%s: %s (0x%08x)";
 					break;
 				default:
-					g_assert_not_reached();
+					DISSECTOR_ASSERT_NOT_REACHED();
 					;
 			}
 			break;
 		default:
-			g_assert_not_reached();
+			DISSECTOR_ASSERT_NOT_REACHED();
 			;
 	}
 	return format;
@@ -3288,12 +3288,12 @@ hfinfo_uint_format(header_field_info *hfinfo)
 						format = "%s: 0x%08x";
 						break;
 					default:
-						g_assert_not_reached();
+						DISSECTOR_ASSERT_NOT_REACHED();
 						;
 				}
 				break;
 			default:
-				g_assert_not_reached();
+				DISSECTOR_ASSERT_NOT_REACHED();
 				;
 		}
 	}
@@ -3327,12 +3327,12 @@ hfinfo_int_vals_format(header_field_info *hfinfo)
 					format = "%s: %s (0x%08x)";
 					break;
 				default:
-					g_assert_not_reached();
+					DISSECTOR_ASSERT_NOT_REACHED();
 					;
 			}
 			break;
 		default:
-			g_assert_not_reached();
+			DISSECTOR_ASSERT_NOT_REACHED();
 			;
 	}
 	return format;
@@ -3355,7 +3355,7 @@ hfinfo_uint64_format(header_field_info *hfinfo)
 			format = "%s: 0x%016" PRIx64;
 			break;
 		default:
-			g_assert_not_reached();
+			DISSECTOR_ASSERT_NOT_REACHED();
 			;
 	}
 	return format;
@@ -3389,12 +3389,12 @@ hfinfo_int_format(header_field_info *hfinfo)
 					format = "%s: 0x%08x";
 					break;
 				default:
-					g_assert_not_reached();
+					DISSECTOR_ASSERT_NOT_REACHED();
 					;
 			}
 			break;
 		default:
-			g_assert_not_reached();
+			DISSECTOR_ASSERT_NOT_REACHED();
 			;
 	}
 	return format;
@@ -3417,7 +3417,7 @@ hfinfo_int64_format(header_field_info *hfinfo)
 			format = "%s: 0x%016" PRIx64;
 			break;
 		default:
-			g_assert_not_reached();
+			DISSECTOR_ASSERT_NOT_REACHED();
 			;
 	}
 	return format;
@@ -3909,7 +3909,7 @@ hfinfo_numeric_format(header_field_info *hfinfo)
 						format = "%s == %" PRId64;
 						break;
 					default:
-						g_assert_not_reached();
+						DISSECTOR_ASSERT_NOT_REACHED();
 						;
 				}
 				break;
@@ -3931,12 +3931,12 @@ hfinfo_numeric_format(header_field_info *hfinfo)
 						format = "%s == 0x%016" PRIx64;
 						break;
 					default:
-						g_assert_not_reached();
+						DISSECTOR_ASSERT_NOT_REACHED();
 						;
 				}
 				break;
 			default:
-				g_assert_not_reached();
+				DISSECTOR_ASSERT_NOT_REACHED();
 				;
 		}
 	}
@@ -3954,7 +3954,7 @@ proto_can_match_selected(field_info *finfo, epan_dissect_t *edt)
 	gint			length;
 
 	hfinfo = finfo->hfinfo;
-	g_assert(hfinfo);
+	DISSECTOR_ASSERT(hfinfo);
 
 	switch(hfinfo->type) {
 
@@ -4046,7 +4046,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 	guint8			c;
 
 	hfinfo = finfo->hfinfo;
-	g_assert(hfinfo);
+	DISSECTOR_ASSERT(hfinfo);
 	abbrev_len = strlen(hfinfo->abbrev);
 
 	/*

@@ -1062,7 +1062,7 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 				LINK_FRAG(fd_head,fd);
 				return TRUE;
 			}
-			g_assert(fd_head->len >= dfpos + fd->len);
+			DISSECTOR_ASSERT(fd_head->len >= dfpos + fd->len);
 			if ( memcmp(fd_head->data+dfpos,
 			    tvb_get_ptr(tvb,offset,fd->len),fd->len) ){
 				/*
