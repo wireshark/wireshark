@@ -2,7 +2,7 @@
 # Automake file for the EPAN library
 # (Ethereal Protocol ANalyzer Library)
 #
-# $Id: Makefile.am,v 1.47 2004/05/11 01:00:51 ulfl Exp $
+# $Id: Makefile.am,v 1.48 2004/05/11 11:19:26 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -104,6 +104,7 @@ EXTRA_libethereal_la_SOURCES =	\
 	inet_v6defs.h
 
 EXTRA_DIST = \
+	libethereal.def	\
 	Makefile.common	\
 	Makefile.nmake	\
 	tvbtest.c	\
