@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.47 2001/01/28 09:13:10 guy Exp $
+ * $Id: menu.c,v 1.48 2001/02/01 07:34:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -55,6 +55,7 @@
 #include "packet_win.h"
 #include "print.h"
 #include "follow_dlg.h"
+#include "decode_as_dlg.h"
 #include "help_dlg.h"
 #include "proto_dlg.h"
 #include "keys.h"
@@ -140,11 +141,13 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Display/Collapse _All", NULL, GTK_MENU_FUNC(collapse_all_cb), 0, NULL},
   {"/Display/_Expand All", NULL, GTK_MENU_FUNC(expand_all_cb), 0, NULL},
   {"/Display/_Show Packet In New Window", NULL, GTK_MENU_FUNC(new_window_cb), 0, NULL},
+  {"/Display/User Specified Decodes...", NULL, GTK_MENU_FUNC(decode_show_cb), 0, NULL},
   {"/_Tools", NULL, NULL, 0, "<Branch>" },
 #ifdef HAVE_PLUGINS
   {"/Tools/_Plugins...", NULL, GTK_MENU_FUNC(tools_plugins_cmd_cb), 0, NULL},
 #endif
   {"/Tools/_Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
+  {"/Tools/_Decode As...", NULL, GTK_MENU_FUNC(decode_as_cb), 0, NULL},
 /*  {"/Tools/Graph", NULL, NULL, 0, NULL}, future use */
   {"/Tools/_Summary", NULL, GTK_MENU_FUNC(summary_open_cb), 0, NULL},
   {"/_Help", NULL, NULL, 0, "<LastBranch>" },
@@ -160,6 +163,7 @@ static int nmenu_items = sizeof(menu_items) / sizeof(menu_items[0]);
 static GtkItemFactoryEntry packet_list_menu_items[] =
 {
 	{"/Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
+	{"/Decode As...", NULL, GTK_MENU_FUNC(decode_as_cb), 0, NULL},
 	{"/Display Filters...", NULL, GTK_MENU_FUNC(dfilter_dialog_cb), 0, NULL},
 	{"/<separator>", NULL, NULL, 0, "<Separator>"},
 	{"/Colorize Display...", NULL, GTK_MENU_FUNC(color_display_cb), 0, NULL},
@@ -171,6 +175,7 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
 static GtkItemFactoryEntry tree_view_menu_items[] =
 {
 	{"/Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
+	{"/Decode As...", NULL, GTK_MENU_FUNC(decode_as_cb), 0, NULL},
 	{"/Display Filters...", NULL, GTK_MENU_FUNC(dfilter_dialog_cb), 0, NULL},
 	{"/<separator>", NULL, NULL, 0, "<Separator>"},
 	{"/Resolve Name", NULL, GTK_MENU_FUNC(resolve_name_cb), 0, NULL},
@@ -184,6 +189,7 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
 static GtkItemFactoryEntry hexdump_menu_items[] =
 {
 	{"/Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
+	{"/Decode As...", NULL, GTK_MENU_FUNC(decode_as_cb), 0, NULL},
 	{"/Display Filters...", NULL, GTK_MENU_FUNC(dfilter_dialog_cb), 0, NULL}
 };
 
@@ -388,6 +394,7 @@ set_menus_for_selected_packet(gboolean have_selected_packet)
   set_menu_sensitivity("/Display/Show Packet In New Window", have_selected_packet);
   set_menu_sensitivity("/Tools/Follow TCP Stream",
       have_selected_packet ? (pi.ipproto == 6) : FALSE);
+  set_menu_sensitivity("/Tools/Decode As...", have_selected_packet);
   set_menu_sensitivity("/Resolve Name", 
       have_selected_packet && !g_resolving_actif);  
 }

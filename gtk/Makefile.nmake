@@ -19,6 +19,7 @@ OBJECTS=capture_dlg.obj \
 	colors.obj       \
 	color_utils.obj  \
 	column_prefs.obj \
+	decode_as_dlg.obj \
 	dfilter_expr_dlg.obj \
 	display_opts.obj \
 	dlg_utils.obj	\

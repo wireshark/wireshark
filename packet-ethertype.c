@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.11 2001/01/18 08:38:10 guy Exp $
+ * $Id: packet-ethertype.c,v 1.12 2001/02/01 07:34:29 guy Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -116,6 +116,8 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 
 	/* Tvbuff for the payload after the Ethernet type. */
 	next_tvb = tvb_new_subset(tvb, offset_after_etype, -1, -1);
+
+	pinfo->ethertype = etype;
 
 	/* Remember how much data there is in it. */
 	length_before = tvb_reported_length(next_tvb);

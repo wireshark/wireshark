@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.20 2001/01/18 07:44:41 guy Exp $
+ * $Id: packet.h,v 1.21 2001/02/01 07:34:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -170,6 +170,7 @@ typedef struct _packet_info {
   address net_dst;		/* network-layer destination address */
   address src;			/* source address (net if present, DL otherwise )*/
   address dst;			/* destination address (net if present, DL otherwise )*/
+  guint32 ethertype;		/* Ethernet Type Code, if this is an Ethernet packet */
   guint32 ipproto;		/* IP protocol, if this is an IP packet */
   gboolean fragmented;		/* TRUE if the protocol is only a fragment */
   port_type ptype;		/* type of the following two port numbers */
@@ -206,6 +207,18 @@ typedef GHashTable* dissector_table_t;
 typedef void (*old_dissector_t)(const u_char *, int, frame_data *, proto_tree *);
 typedef void (*dissector_t)(tvbuff_t *, packet_info *, proto_tree *);
 
+typedef void (*DATFunc) (gchar *table_name, gpointer key, gpointer value, gpointer user_data);
+
+/* Opaque structure - provides type checking but no access to components */
+typedef struct dtbl_entry dtbl_entry_t;
+
+gboolean dissector_get_old_flag (dtbl_entry_t *entry);
+gint dissector_get_proto (dtbl_entry_t * entry);
+gint dissector_get_initial_proto (dtbl_entry_t * entry);
+void dissector_table_foreach_changed (char *name, DATFunc func, gpointer user_data);
+void dissector_table_foreach (char *name, DATFunc func, gpointer user_data);
+void dissector_all_tables_foreach_changed (DATFunc func, gpointer user_data);
+
 /* a protocol uses the function to register a sub-dissector table */
 dissector_table_t register_dissector_table(const char *name);
 
@@ -220,6 +233,11 @@ void dissector_add(const char *abbrev, guint32 pattern,
 /* that wants to de-register a sub-dissector.  */
 void old_dissector_delete(const char *name, guint32 pattern, old_dissector_t dissector);
 void dissector_delete(const char *name, guint32 pattern, dissector_t dissector);
+
+/* Reset a dissector in a sub-dissector table to its initial value. */
+void dissector_change(const char *abbrev, guint32 pattern,
+    dissector_t dissector, gboolean old, int proto);
+void dissector_reset(const char *name, guint32 pattern);
 
 /* Look for a given port in a given dissector table and, if found, call
    the dissector with the arguments supplied, and return TRUE, otherwise
@@ -280,6 +298,14 @@ void old_conv_dissector_add(const char *name, old_dissector_t dissector,
     int proto);
 void conv_dissector_add(const char *name, dissector_t dissector,
     int proto);
+
+/* Opaque structure - provides type checking but no access to components */
+typedef struct conv_dtbl_entry conv_dtbl_entry_t;
+
+gboolean conv_dissector_get_old_flag (conv_dtbl_entry_t *entry);
+gint conv_dissector_get_proto (conv_dtbl_entry_t * entry);
+void dissector_conv_foreach(char *name, DATFunc func, gpointer user_data);
+void dissector_all_conv_foreach(DATFunc func, gpointer user_data);
 
 /* Handle for dissectors you call directly.
    This handle is opaque outside of "packet.c". */
