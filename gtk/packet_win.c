@@ -39,6 +39,8 @@
 
 #include <string.h>
 
+#include <pcap.h>
+
 #include <epan/epan.h>
 #include "main.h"
 #include <epan/timestamp.h>
