@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.95 2004/02/21 01:31:56 guy Exp $
+ * $Id: packet-http.c,v 1.96 2004/04/12 22:14:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -655,6 +655,11 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * for that content type?
 			 */
 			save_private_data = pinfo->private_data;
+			/*
+			 * XXX - this won't get freed if the subdissector
+			 * throws an exception.  Do we really need to
+			 * strdup it?
+			 */
 			if (headers.content_type_parameters)
 				pinfo->private_data = g_strdup(headers.content_type_parameters);
 			else
