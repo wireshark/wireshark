@@ -1,81 +1,41 @@
-$Id: NEWS,v 1.131 2003/07/23 02:06:24 gerald Exp $
+$Id: NEWS,v 1.132 2003/07/23 23:14:57 gerald Exp $
 
-== July ?, 2003
+== July 23, 2003
 
 Ethereal 0.9.14 has been released.
 
 New and updated features
 
-  Tethereal, the text-mode version of Ethereal, can now be compiled
-  without capture support.
-  
-  Service response time statistics have been enhanced.
-  
   The ringbuffer code has been (nearly) completely rewritten.  It now
   supports an unlimited number of files.
   
   Ethereal now supports searching for arbitrary text and binary data in
   frames.
 
+  Service response time statistics have been enhanced.
+  
+  Tethereal, the text-mode version of Ethereal, can now be compiled
+  without capture support.
+  
+
 New protocols
 
-Echo,
-eDonkey,
-Jabber,
-MS Messenger,
-sFlow,
+  Echo, eDonkey, Jabber, MS Messenger, sFlow
 
 
 Updated protocols
 
-AODV,
-AODV6,
-Boardwalk,
-DCE-RPC,
-ENIP,
-Fibre Channel,
-FIX,
-FW1,
-H.245,
-IPsec, 
-iSCSI,
-IS-IS,
-ISUP,
-LDAP,
-LDP,
-M2UA,
-MEGACO,
-MTP3,
-NDS,
-NETLOGON,
-NTLMSSP,
-NTP,
-Q.2931,
-Q.931,
-SAMR,
-SCCP,
-SCSI,
-SMB,
-SMPP,
-SNA,
-SNMP,
-SPNEGO,
-SPOOLSS,
-SRVLOC,
-UCP,
-Vines, 
-VRRP,
-WBXML,
-WEP,
-WSP,
-WTP,
-X11,
-Zebra,
+  AODV, AODV6, Boardwalk, DCE-RPC, ENIP, Fibre Channel, FIX, FW1, H.245,
+  IGMP, IPsec,  IS-IS, iSCSI, ISUP, LDAP, LDP, M2UA, MEGACO, MTP3, NDS,
+  NETLOGON, NTLMSSP, NTP, Q.2931, Q.931, SAMR, SCCP, SCSI, SMB, SMPP, SNA,
+  SNMP, SPNEGO, SPOOLSS, SRVLOC, UCP, Vines,  VRRP, WBXML, WEP, WSP, WTP,
+  X11, Zebra
 
 
 Updated capture file support
 
-LANalyzer, NetXRay, 
+  LANalyzer, NetXRay,
+
 
 == June 11, 2003
 
