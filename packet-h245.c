@@ -4,7 +4,7 @@
  *       with great support with testing and providing capturefiles
  *       from Martin Regner
  *
- * $Id: packet-h245.c,v 1.30 2003/08/21 18:00:21 guy Exp $
+ * $Id: packet-h245.c,v 1.31 2003/08/26 21:44:34 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -13126,6 +13126,23 @@ dissect_h245_NonStandardParameter(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	nsp_handle = NULL;
 
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_NonStandardParameter, ett_h245_NonStandardParameter, NonStandardParameter_sequence);
+
+	return offset;
+}
+
+static per_sequence_t NonStandardParameter_with_extension_sequence[] = {
+	{ "nonStandardIdentifier", EXTENSION_ROOT, NOT_OPTIONAL,
+		dissect_h245_NonStandardIdentifier },
+	{ "data", EXTENSION_ROOT, NOT_OPTIONAL,
+		dissect_h245_NonStandardParameterData },
+	{ NULL, 0, 0, NULL }
+};
+int
+dissect_h245_NonStandardParameter_with_extension_marker(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	nsp_handle = NULL;
+
+	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_NonStandardParameter, ett_h245_NonStandardParameter, NonStandardParameter_with_extension_sequence);
 
 	return offset;
 }
