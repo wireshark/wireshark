@@ -8,7 +8,6 @@
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -469,7 +468,7 @@ char number_to_char_2(int number)
 }
 
 /* Code to actually dissect the packets */
-static void
+static int
 dissect_etheric(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
@@ -483,6 +482,18 @@ dissect_etheric(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	
 	tvbuff_t	*message_tvb;
 	
+	
+	/* Do we have the version number? */
+	if (!tvb_bytes_exist(tvb, 0, 1)) {
+		/* No - reject this packet. */
+		return 0;
+	}
+	etheric_version = tvb_get_guint8(tvb, 0);
+	/* Do we know the version? */
+	if (match_strval(etheric_version, protocol_version_vals) == NULL) {
+		/* No - reject this packet. */
+		return 0;
+	}
 
 	/* Make entries in Protocol column and Info column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
@@ -502,7 +513,6 @@ dissect_etheric(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_etheric, tvb, 0, -1, FALSE);
 
 		etheric_tree = proto_item_add_subtree(ti, ett_etheric);
-		etheric_version = tvb_get_guint8(tvb, 0);
 		proto_tree_add_item(etheric_tree, hf_etheric_protocol_version, tvb, offset, 1, FALSE);
 		offset++;
 		message_length = tvb_get_guint8(tvb, offset);
@@ -518,6 +528,7 @@ dissect_etheric(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 	}/* end end if tree */
+	return tvb_length(tvb);
 }
 
 /* ------------------------------------------------------------------
@@ -1252,8 +1263,7 @@ proto_reg_handoff_etheric(void)
 
 
 	if (!Initialized) {
-		etheric_handle = create_dissector_handle(dissect_etheric,
-			proto_etheric);
+		etheric_handle = find_dissector("etheric");
 		Initialized=TRUE;
 	}else{
 		dissector_delete("udp.port", tcp_port1, etheric_handle);
@@ -1428,7 +1438,7 @@ proto_register_etheric(void)
 	proto_etheric = proto_register_protocol("Etheric",
 	    "ETHERIC", "etheric");
 
-	register_dissector("etheric", dissect_etheric, proto_etheric);
+	new_register_dissector("etheric", dissect_etheric, proto_etheric);
 
 
 /* Required function calls to register the header fields and subtrees used */
