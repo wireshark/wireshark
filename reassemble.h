@@ -1,7 +1,7 @@
 /* reassemble.h
  * Declarations of outines for {fragment,segment} reassembly
  *
- * $Id: reassemble.h,v 1.6 2002/04/17 08:25:05 guy Exp $
+ * $Id: reassemble.h,v 1.7 2002/05/24 11:51:14 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -139,6 +139,11 @@ fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 void
 fragment_set_tot_len(packet_info *pinfo, guint32 id, GHashTable *fragment_table, 
 		     guint32 tot_len);
+
+/* to resad whatever totlen previously set */
+guint32
+fragment_get_tot_len(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
+
 /*
  * This function will set the partial reassembly flag(FD_PARTIAL_REASSEMBLY) for a fh.
  * When this function is called, the fh MUST already exist, i.e.

@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.17 2002/04/25 21:28:15 guy Exp $
+ * $Id: reassemble.c,v 1.18 2002/05/24 11:51:14 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -350,6 +350,26 @@ fragment_set_tot_len(packet_info *pinfo, guint32 id, GHashTable *fragment_table,
 	}
 
 	return;
+}
+
+guint32
+fragment_get_tot_len(packet_info *pinfo, guint32 id, GHashTable *fragment_table)
+{
+	fragment_data *fd_head;
+	fragment_key key;
+
+	/* create key to search hash with */
+	key.src = pinfo->src;
+	key.dst = pinfo->dst;
+	key.id  = id;
+
+	fd_head = g_hash_table_lookup(fragment_table, &key);
+
+	if(fd_head){
+		return fd_head->datalen;
+	}
+
+	return 0;
 }
 
 

@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.49 2002/05/23 12:23:29 sahlberg Exp $
+ * $Id: packet-dcerpc.c,v 1.50 2002/05/24 11:51:14 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 #include "packet-dcerpc.h"
 #include <epan/conversation.h>
 #include "prefs.h"
+#include "reassemble.h"
 
 static const value_string pckt_vals[] = {
     { 0, "Request"},
@@ -204,6 +205,13 @@ static int hf_dcerpc_array_offset = -1;
 static int hf_dcerpc_array_actual_count = -1;
 static int hf_dcerpc_op = -1;
 static int hf_dcerpc_referent_id = -1;
+static int hf_dcerpc_fragments = -1;
+static int hf_dcerpc_fragment = -1;
+static int hf_dcerpc_fragment_overlap = -1;
+static int hf_dcerpc_fragment_overlap_conflict = -1;
+static int hf_dcerpc_fragment_multiple_tails = -1;
+static int hf_dcerpc_fragment_too_long_fragment = -1;
+static int hf_dcerpc_fragment_error = -1;
 
 static gint ett_dcerpc = -1;
 static gint ett_dcerpc_cn_flags = -1;
@@ -211,10 +219,26 @@ static gint ett_dcerpc_drep = -1;
 static gint ett_dcerpc_dg_flags1 = -1;
 static gint ett_dcerpc_dg_flags2 = -1;
 static gint ett_dcerpc_pointer_data = -1;
+static gint ett_dcerpc_fragments = -1;
+static gint ett_dcerpc_fragment = -1;
 
 /* try to desegment big DCE/RPC packets over TCP? */
 static gboolean dcerpc_cn_desegment = TRUE;
 
+/* reassemble DCE/RPC fragments */
+/* reassembly of dcerpc fragments will not work for the case where ONE frame 
+   might contain multiple dcerpc fragments for different PDUs.
+   this case would be so unusual/weird so if you got captures like that:
+	too bad
+*/
+static gboolean dcerpc_reassemble = FALSE;
+static GHashTable *dcerpc_reassemble_table = NULL;
+
+static void
+dcerpc_reassemble_init(void)
+{
+  fragment_table_init(&dcerpc_reassemble_table);
+}
 
 /*
  * Subdissectors
@@ -1407,9 +1431,10 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
     int auth_sz = 0;
     int auth_level;
     int offset = 16;
+    guint32 alloc_hint;
 
     offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
-                                    hf_dcerpc_cn_alloc_hint, NULL);
+                                    hf_dcerpc_cn_alloc_hint, &alloc_hint);
 
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_ctx_id, &ctx_id);
@@ -1526,10 +1551,129 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 				    tvb, 0, 0, value->rep_frame);
 	    }
 
-            dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
+	    /* If we dont have reassembly enabled, or this packet contains the
+	       entire PDU, just call the handoff directly */
+	    if( (!dcerpc_reassemble)
+	      || ((hdr->flags&0x03)==0x03) ){
+                dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
                                 tvb_new_subset (tvb, offset, length,
                                                 reported_length),
                                 0, opnum, TRUE, hdr->drep, &di, auth_level);
+            } else if(dcerpc_reassemble){
+	        /*OK we need to do reassembly */
+	        /* handle first fragment */
+	        if((hdr->flags&0x03)==0x01){  /* FIRST fragment */
+		    if( (!pinfo->fd->flags.visited) && value->req_frame ){
+			fragment_add(tvb, offset, pinfo, value->req_frame,
+			     dcerpc_reassemble_table,
+			     0,
+			     length,
+			     TRUE);
+			fragment_set_tot_len(pinfo, value->req_frame,
+			     dcerpc_reassemble_table, alloc_hint);
+		    }
+		    if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
+		    }
+		}
+	        if((hdr->flags&0x03)==0x00){  /* MIDDLE fragment(s) */
+		    if( (!pinfo->fd->flags.visited) && value->req_frame ){
+			guint32 tot_len;
+			tot_len = fragment_get_tot_len(pinfo, value->req_frame,
+			               dcerpc_reassemble_table);
+			fragment_add(tvb, offset, pinfo, value->req_frame,
+			     dcerpc_reassemble_table,
+			     tot_len-alloc_hint,
+			     length,
+			     TRUE);
+		    }
+		    if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
+		    }
+		}
+	        if((hdr->flags&0x03)==0x02){  /* LAST fragment */
+		    if( value->req_frame ){
+			fragment_data *ipfd_head;
+			guint32 tot_len;
+			tot_len = fragment_get_tot_len(pinfo, value->req_frame,
+			               dcerpc_reassemble_table);
+			ipfd_head = fragment_add(tvb, offset, pinfo, 
+			     value->req_frame,
+			     dcerpc_reassemble_table,
+			     tot_len-alloc_hint,
+			     length,
+			     TRUE);
+
+			if(ipfd_head){
+			    fragment_data *ipfd;
+			    proto_tree *ft=NULL;
+			    proto_item *fi=NULL;
+			    tvbuff_t *next_tvb;
+
+			    next_tvb = tvb_new_real_data(ipfd_head->data, ipfd_head->datalen, ipfd_head->datalen);
+			    tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+			    add_new_data_source(pinfo->fd, next_tvb, "Reassembled DCE/RPC");
+			    pinfo->fragmented=FALSE;
+			    fi = proto_tree_add_item(dcerpc_tree, hf_dcerpc_fragments, next_tvb, 0, -1, FALSE);
+			    ft = proto_item_add_subtree(fi, ett_dcerpc_fragments);
+			    for (ipfd=ipfd_head->next; ipfd; ipfd=ipfd->next){
+				if (ipfd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+				    proto_tree *fet=NULL;
+				    proto_item *fei=NULL;
+				    int hf;
+
+				    if (ipfd->flags & (FD_OVERLAPCONFLICT|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+					hf = hf_dcerpc_fragment_error;
+				    } else {
+					hf = hf_dcerpc_fragment;
+				    }
+				    fei = proto_tree_add_none_format(ft, hf, 
+					next_tvb, ipfd->offset, ipfd->len,
+					"Frame:%u payload:%u-%u",
+					ipfd->frame,
+					ipfd->offset,
+					ipfd->offset+ipfd->len-1);
+				    fet = proto_item_add_subtree(fei, ett_dcerpc_fragment);
+				    if (ipfd->flags&FD_OVERLAP) {
+					proto_tree_add_boolean(fet, hf_dcerpc_fragment_overlap, next_tvb, 0, 0, TRUE);
+				    }
+				    if (ipfd->flags&FD_OVERLAPCONFLICT) {
+					proto_tree_add_boolean(fet, hf_dcerpc_fragment_overlap_conflict, next_tvb, 0, 0, TRUE);
+				    }
+				    if (ipfd->flags&FD_MULTIPLETAILS) {
+					proto_tree_add_boolean(fet, hf_dcerpc_fragment_multiple_tails, next_tvb, 0, 0, TRUE);
+				    }
+				    if (ipfd->flags&FD_TOOLONGFRAGMENT) {
+					proto_tree_add_boolean(fet, hf_dcerpc_fragment_too_long_fragment, next_tvb, 0, 0, TRUE);
+				    }
+				} else {
+				    proto_tree_add_none_format(ft, hf_dcerpc_fragment, 
+		                	   next_tvb, ipfd->offset, ipfd->len,
+                			   "Frame:%u payload:%u-%u",
+                   			   ipfd->frame,
+               				   ipfd->offset,
+               				   ipfd->offset+ipfd->len-1
+          			    );
+				}
+			    }
+			    if (ipfd_head->flags & (FD_OVERLAPCONFLICT|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+				if (check_col(pinfo->cinfo, COL_INFO)) {
+					col_set_str(pinfo->cinfo, COL_INFO, "[Illegal fragments]");
+				}
+			    }
+			    dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
+                                next_tvb,
+                                0, opnum, TRUE, hdr->drep, &di,
+                                auth_level);
+			} else {
+			    if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
+			    }
+		    	}
+
+		    }
+		}
+	    }
         }
     }
 }
@@ -1544,9 +1688,10 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
     int auth_sz = 0;
     int offset = 16;
     int auth_level;
+    guint32 alloc_hint;
 
     offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
-                                    hf_dcerpc_cn_alloc_hint, NULL);
+                                    hf_dcerpc_cn_alloc_hint, &alloc_hint);
 
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_ctx_id, &ctx_id);
@@ -1622,11 +1767,130 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 				    tvb, 0, 0, value->req_frame);
 	    }
 
-            dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
+	    /* If we dont have reassembly enabled, or this packet contains the
+	       entire PDU, just call the handoff directly */
+	    if( (!dcerpc_reassemble)
+	      || ((hdr->flags&0x03)==0x03) ){
+                dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
                                 tvb_new_subset (tvb, offset, length,
                                                 reported_length),
                                 0, value->opnum, FALSE, hdr->drep, &di,
                                 auth_level);
+            } else if(dcerpc_reassemble){
+	        /*OK we need to do reassembly */
+	        /* handle first fragment */
+	        if((hdr->flags&0x03)==0x01){  /* FIRST fragment */
+		    if( (!pinfo->fd->flags.visited) && value->rep_frame ){
+			fragment_add(tvb, offset, pinfo, value->rep_frame,
+			     dcerpc_reassemble_table,
+			     0,
+			     length,
+			     TRUE);
+			fragment_set_tot_len(pinfo, value->rep_frame,
+			     dcerpc_reassemble_table, alloc_hint);
+		    }
+		    if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
+		    }
+		}
+	        if((hdr->flags&0x03)==0x00){  /* MIDDLE fragment(s) */
+		    if( (!pinfo->fd->flags.visited) && value->rep_frame ){
+			guint32 tot_len;
+			tot_len = fragment_get_tot_len(pinfo, value->rep_frame,
+			               dcerpc_reassemble_table);
+			fragment_add(tvb, offset, pinfo, value->rep_frame,
+			     dcerpc_reassemble_table,
+			     tot_len-alloc_hint,
+			     length,
+			     TRUE);
+		    }
+		    if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
+		    }
+		}
+	        if((hdr->flags&0x03)==0x02){  /* LAST fragment */
+		    if( value->rep_frame ){
+			fragment_data *ipfd_head;
+			guint32 tot_len;
+			tot_len = fragment_get_tot_len(pinfo, value->rep_frame,
+			               dcerpc_reassemble_table);
+			ipfd_head = fragment_add(tvb, offset, pinfo, 
+			     value->rep_frame,
+			     dcerpc_reassemble_table,
+			     tot_len-alloc_hint,
+			     length,
+			     TRUE);
+
+			if(ipfd_head){
+			    fragment_data *ipfd;
+			    proto_tree *ft=NULL;
+			    proto_item *fi=NULL;
+			    tvbuff_t *next_tvb;
+
+			    next_tvb = tvb_new_real_data(ipfd_head->data, ipfd_head->datalen, ipfd_head->datalen);
+			    tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+			    add_new_data_source(pinfo->fd, next_tvb, "Reassembled DCE/RPC");
+			    pinfo->fragmented=FALSE;
+			    fi = proto_tree_add_item(dcerpc_tree, hf_dcerpc_fragments, next_tvb, 0, -1, FALSE);
+			    ft = proto_item_add_subtree(fi, ett_dcerpc_fragments);
+			    for (ipfd=ipfd_head->next; ipfd; ipfd=ipfd->next){
+				if (ipfd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+				    proto_tree *fet=NULL;
+				    proto_item *fei=NULL;
+				    int hf;
+
+				    if (ipfd->flags & (FD_OVERLAPCONFLICT|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+					hf = hf_dcerpc_fragment_error;
+				    } else {
+					hf = hf_dcerpc_fragment;
+				    }
+				    fei = proto_tree_add_none_format(ft, hf, 
+					next_tvb, ipfd->offset, ipfd->len,
+					"Frame:%u payload:%u-%u",
+					ipfd->frame,
+					ipfd->offset,
+					ipfd->offset+ipfd->len-1);
+				    fet = proto_item_add_subtree(fei, ett_dcerpc_fragment);
+				    if (ipfd->flags&FD_OVERLAP) {
+					proto_tree_add_boolean(fet, hf_dcerpc_fragment_overlap, next_tvb, 0, 0, TRUE);
+				    }
+				    if (ipfd->flags&FD_OVERLAPCONFLICT) {
+					proto_tree_add_boolean(fet, hf_dcerpc_fragment_overlap_conflict, next_tvb, 0, 0, TRUE);
+				    }
+				    if (ipfd->flags&FD_MULTIPLETAILS) {
+					proto_tree_add_boolean(fet, hf_dcerpc_fragment_multiple_tails, next_tvb, 0, 0, TRUE);
+				    }
+				    if (ipfd->flags&FD_TOOLONGFRAGMENT) {
+					proto_tree_add_boolean(fet, hf_dcerpc_fragment_too_long_fragment, next_tvb, 0, 0, TRUE);
+				    }
+				} else {
+				    proto_tree_add_none_format(ft, hf_dcerpc_fragment, 
+		                	   next_tvb, ipfd->offset, ipfd->len,
+                			   "Frame:%u payload:%u-%u",
+                   			   ipfd->frame,
+               				   ipfd->offset,
+               				   ipfd->offset+ipfd->len-1
+          			    );
+				}
+			    }
+			    if (ipfd_head->flags & (FD_OVERLAPCONFLICT|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+				if (check_col(pinfo->cinfo, COL_INFO)) {
+					col_set_str(pinfo->cinfo, COL_INFO, "[Illegal fragments]");
+				}
+			    }
+			    dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
+                                next_tvb,
+                                0, value->opnum, FALSE, hdr->drep, &di,
+                                auth_level);
+			} else {
+			    if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
+			    }
+			}
+		    }
+		}
+	    }
+
         }
     }
 }
@@ -2439,6 +2703,29 @@ proto_register_dcerpc (void)
         { &hf_dcerpc_op,
           { "Operation", "dcerpc.op", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 
+	{ &hf_dcerpc_fragments,
+	  { "DCE/RPC Fragments", "dcerpc.fragments", FT_NONE, BASE_NONE, 
+	  NULL, 0x0, "DCE/RPC Fragments", HFILL }},
+
+	{ &hf_dcerpc_fragment,
+	  { "DCE/RPC Fragment", "dcerpc.fragment", FT_NONE, BASE_NONE, 
+	  NULL, 0x0, "DCE/RPC Fragment", HFILL }},
+
+	{ &hf_dcerpc_fragment_overlap,
+	  { "Fragment overlap",	"dcerpc.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "Fragment overlaps with other fragments", HFILL }},
+
+	{ &hf_dcerpc_fragment_overlap_conflict,
+	  { "Conflicting data in fragment overlap", "dcerpc.fragment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "Overlapping fragments contained conflicting data", HFILL }},
+
+	{ &hf_dcerpc_fragment_multiple_tails,
+	  { "Multiple tail fragments found", "dcerpc.fragment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "Several tails were found when defragmenting the packet", HFILL }},
+
+	{ &hf_dcerpc_fragment_too_long_fragment,
+	  { "Fragment too long", "dcerpc.fragment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "Fragment contained data past end of packet", HFILL }},
+
+	{ &hf_dcerpc_fragment_error,
+	  { "Defragmentation error", "dcerpc.fragment.error", FT_NONE, BASE_NONE, NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
+
     };
     static gint *ett[] = {
         &ett_dcerpc,
@@ -2447,19 +2734,27 @@ proto_register_dcerpc (void)
         &ett_dcerpc_dg_flags1,
         &ett_dcerpc_dg_flags2,
         &ett_dcerpc_pointer_data,
+        &ett_dcerpc_fragments,
+        &ett_dcerpc_fragment,
     };
+    module_t *dcerpc_module;
 
     proto_dcerpc = proto_register_protocol ("DCE RPC", "DCERPC", "dcerpc");
     proto_register_field_array (proto_dcerpc, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
     register_init_routine (dcerpc_init_protocol);
-
-    prefs_register_bool_preference (prefs_register_protocol (proto_dcerpc, 
-                                                             NULL),
+    dcerpc_module = prefs_register_protocol (proto_dcerpc, NULL);
+    prefs_register_bool_preference (dcerpc_module,
                                     "desegment_dcerpc",
                                     "Desegment all DCE/RPC over TCP",
                                     "Whether the DCE/RPC dissector should desegment all DCE/RPC over TCP",
                                     &dcerpc_cn_desegment);
+    prefs_register_bool_preference (dcerpc_module,
+                                    "reassemble_dcerpc",
+                                    "Reassemble DCE/RPC fragments",
+                                    "Whether the DCE/RPC dissector should reassemble all fragmented PDUs",
+                                    &dcerpc_reassemble);
+    register_init_routine(dcerpc_reassemble_init);
     dcerpc_uuids = g_hash_table_new (dcerpc_uuid_hash, dcerpc_uuid_equal);
 }
 
