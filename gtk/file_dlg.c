@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.12 1999/11/30 20:50:14 guy Exp $
+ * $Id: file_dlg.c,v 1.13 1999/12/06 09:02:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -64,9 +64,8 @@
 #include "main.h"
 #endif
 
-#define FILTER_CB_KEY          "filter_check_button"
-
 static void file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs);
+static void select_file_type_cb(GtkWidget *w, gpointer data);
 static void file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs);
 
 /* Open a file */
@@ -188,9 +187,107 @@ file_save_cmd_cb(GtkWidget *w, gpointer data) {
   file_save_as_cmd_cb(w, data);
 }
 
+/* XXX - can we make these not be static? */
+static gboolean filtered;
+static int filetype;
+static GtkWidget *filter_cb;
+static GtkWidget *ft_om;
+
+static gboolean
+can_save_with_wiretap(int ft)
+{
+  /* To save a file with Wiretap, Wiretap has to handle that format,
+     and its code to handle that format must be able to write a file
+     with this file's encapsulation type. */
+  return wtap_dump_can_open(ft) && wtap_dump_can_write_encap(ft, cf.lnk_t);
+}
+
+/* Generate a list of the file types we can save this file as.
+
+   "filetype" is the type it has now.
+
+   "encap" is the encapsulation for its packets (which could be
+   "unknown" or "per-packet").
+
+   "filtered" is TRUE if we're to save only the packets that passed
+   the display filter (in which case we have to save it using Wiretap)
+   and FALSE if we're to save the entire file (in which case, if we're
+   saving it in the type it has already, we can just copy it). */
+static void
+set_file_type_list(GtkWidget *option_menu)
+{
+  GtkWidget *ft_menu, *ft_menu_item;
+  int ft;
+  guint index;
+  guint item_to_select;
+
+  /* Default to the first supported file type, if the file's current
+     type isn't supported. */
+  item_to_select = 0;
+
+  ft_menu = gtk_menu_new();
+
+  /* Check all file types. */
+  index = 0;
+  for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
+    if (filtered || ft != cf.cd_t) {
+      /* Filtered, or a different file type.  We have to use Wiretap. */
+      if (!can_save_with_wiretap(ft))
+        continue;	/* We can't. */
+    }
+
+    /* OK, we can write it out in this type. */
+    ft_menu_item = gtk_menu_item_new_with_label(wtap_file_type_string(ft));
+    if (ft == filetype) {
+      /* Default to the same format as the file, if it's supported. */
+      item_to_select = index;
+    }
+    gtk_signal_connect(GTK_OBJECT(ft_menu_item), "activate",
+      GTK_SIGNAL_FUNC(select_file_type_cb), (gpointer)ft);
+    gtk_menu_append(GTK_MENU(ft_menu), ft_menu_item);
+    gtk_widget_show(ft_menu_item);
+    index++;
+  }
+
+  gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), ft_menu);
+  gtk_option_menu_set_history(GTK_OPTION_MENU(option_menu), item_to_select);
+}
+
+static void
+select_file_type_cb(GtkWidget *w, gpointer data)
+{
+  int new_filetype = (int)data;
+
+  if (filetype != new_filetype) {
+    /* We can select only the filtered packets to be saved iff we can
+       use Wiretap to save the file. */
+    gtk_widget_set_sensitive(filter_cb, can_save_with_wiretap(new_filetype));
+    filetype = new_filetype;
+  }
+}
+
+static void
+toggle_filtered_cb(GtkWidget *widget, gpointer data)
+{
+  gboolean new_filtered;
+
+  new_filtered = GTK_TOGGLE_BUTTON (widget)->active;
+
+  if (filtered != new_filtered) {
+    /* They changed the state of the "filtered" button. */
+    filtered = new_filtered;
+    set_file_type_list(ft_om);
+  }
+}
+
 void
-file_save_as_cmd_cb(GtkWidget *w, gpointer data) {
-  GtkWidget *ok_bt, *filter_cb;
+file_save_as_cmd_cb(GtkWidget *w, gpointer data)
+{
+  GtkWidget *ok_bt, *main_vb, *ft_hb, *ft_lb;
+
+  /* Default to saving all packets, in the file's current format. */
+  filtered = FALSE;
+  filetype = cf.cd_t;
 
   file_sel = gtk_file_selection_new ("Ethereal: Save Capture File As");
 
@@ -200,13 +297,36 @@ file_save_as_cmd_cb(GtkWidget *w, gpointer data) {
   gtk_signal_connect (GTK_OBJECT (ok_bt), "clicked",
     (GtkSignalFunc) file_save_as_ok_cb, file_sel );
 
-  filter_cb = gtk_check_button_new_with_label("Save only packets currently being displayed");
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
+  /* Container for each row of widgets */
+  main_vb = gtk_vbox_new(FALSE, 3);
+  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(file_sel)->action_area),
-    filter_cb, FALSE, FALSE, 0);
+    main_vb, FALSE, FALSE, 0);
+  gtk_widget_show(main_vb);
+  
+  filter_cb = gtk_check_button_new_with_label("Save only packets currently being displayed");
+  gtk_container_add(GTK_CONTAINER(main_vb), filter_cb);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
+  gtk_signal_connect(GTK_OBJECT(filter_cb), "toggled",
+			GTK_SIGNAL_FUNC(toggle_filtered_cb), NULL);
+  gtk_widget_set_sensitive(filter_cb, can_save_with_wiretap(filetype));
   gtk_widget_show(filter_cb);
 
-  gtk_object_set_data(GTK_OBJECT(ok_bt), FILTER_CB_KEY, filter_cb);
+  /* File type row */
+  ft_hb = gtk_hbox_new(FALSE, 3);
+  gtk_container_add(GTK_CONTAINER(main_vb), ft_hb);
+  gtk_widget_show(ft_hb);
+  
+  ft_lb = gtk_label_new("File type:");
+  gtk_box_pack_start(GTK_BOX(ft_hb), ft_lb, FALSE, FALSE, 0);
+  gtk_widget_show(ft_lb);
+
+  ft_om = gtk_option_menu_new();
+
+  /* Generate the list of file types we can save. */
+  set_file_type_list(ft_om);
+  gtk_box_pack_start(GTK_BOX(ft_hb), ft_om, FALSE, FALSE, 0);
+  gtk_widget_show(ft_om);
 
   /* Connect the cancel_button to destroy the widget */
   gtk_signal_connect_object(GTK_OBJECT (GTK_FILE_SELECTION
@@ -220,20 +340,14 @@ file_save_as_cmd_cb(GtkWidget *w, gpointer data) {
 static void
 file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   gchar	*cf_name;
-  GtkWidget *button;
-  gboolean filtered;
 
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
   gtk_widget_hide(GTK_WIDGET (fs));
   gtk_widget_destroy(GTK_WIDGET (fs));
 
-  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(w),
-                                              FILTER_CB_KEY);
-  filtered = GTK_TOGGLE_BUTTON (button)->active;
-
   /* Write out the packets (all, or only the ones that are currently
      displayed) to the file with the specified name. */
-  save_cap_file(cf_name, &cf, filtered, WTAP_FILE_PCAP);
+  save_cap_file(cf_name, &cf, filtered, filetype);
 
   /* If "save_cap_file()" saved the file name we handed it, it saved
      a copy, so we should free up our copy. */
