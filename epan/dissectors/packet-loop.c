@@ -77,7 +77,7 @@ dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree)
       proto_tree_add_item(loop_tree, hf_loop_skipcount, tvb, offset, 2, TRUE);
     offset += 2;
-    function = tvb_get_letohs(tvb, 2);
+    function = tvb_get_letohs(tvb, offset);
     if (!set_info) {
       if (check_col(pinfo->cinfo, COL_INFO)) {
         col_add_str(pinfo->cinfo, COL_INFO,
