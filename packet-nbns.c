@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.18 1999/05/10 21:50:13 guy Exp $
+ * $Id: packet-nbns.c,v 1.19 1999/05/10 22:07:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -984,7 +984,7 @@ void
 dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
     int max_data)
 {
-	proto_tree		*nbdgm_tree;
+	proto_tree		*nbdgm_tree = NULL;
 	proto_item		*ti;
 	struct nbdgm_header	header;
 	int			flags;
@@ -1072,49 +1072,59 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 				ip_to_str((guint8 *)&header.src_ip));
 		proto_tree_add_item(nbdgm_tree, offset+8, 2, "Source Port: %d",
 				header.src_port);
+	}
 
-		offset += 10;
-		max_data -= 10;
+	offset += 10;
+	max_data -= 10;
 
-		if (header.msg_type == 0x10 ||
-				header.msg_type == 0x11 || header.msg_type == 0x12) {
+	if (header.msg_type == 0x10 ||
+			header.msg_type == 0x11 || header.msg_type == 0x12) {
 
+		if (tree) {
 			proto_tree_add_item(nbdgm_tree, offset, 2,
 					"Datagram length: %d bytes", header.dgm_length);
 			proto_tree_add_item(nbdgm_tree, offset+2, 2,
 					"Packet offset: %d bytes", header.pkt_offset);
+		}
 
-			offset += 4;
-			max_data -= 4;
+		offset += 4;
+		max_data -= 4;
 
-			/* Source name */
-			len = get_nbns_name(&pd[offset], pd, offset, name);
+		/* Source name */
+		len = get_nbns_name(&pd[offset], pd, offset, name);
 
+		if (tree) {
 			proto_tree_add_item(nbdgm_tree, offset, len, "Source name: %s",
 					name);
-			offset += len;
-			max_data -= len;
+		}
+		offset += len;
+		max_data -= len;
 
-			/* Destination name */
-			len = get_nbns_name(&pd[offset], pd, offset, name);
+		/* Destination name */
+		len = get_nbns_name(&pd[offset], pd, offset, name);
 
+		if (tree) {
 			proto_tree_add_item(nbdgm_tree, offset, len, "Destination name: %s",
 					name);
-			offset += len;
-			max_data -= len;
-
-			/* here we can pass the packet off to the next protocol */
-			dissect_smb(pd, offset, fd, nbdgm_tree, max_data);
 		}
-		else if (header.msg_type == 0x13) {
+		offset += len;
+		max_data -= len;
+
+		/* here we can pass the packet off to the next protocol */
+		dissect_smb(pd, offset, fd, tree, max_data);
+	}
+	else if (header.msg_type == 0x13) {
+		if (tree) {
 			proto_tree_add_item(nbdgm_tree, offset, 1, "Error code: %s",
 				val_to_str(header.error_code, error_codes, "Unknown (0x%x)"));
 		}
-		else if (header.msg_type == 0x14 ||
-				header.msg_type == 0x15 || header.msg_type == 0x16) {
-			/* Destination name */
-			len = get_nbns_name(&pd[offset], pd, offset, name);
+	}
+	else if (header.msg_type == 0x14 ||
+			header.msg_type == 0x15 || header.msg_type == 0x16) {
+		/* Destination name */
+		len = get_nbns_name(&pd[offset], pd, offset, name);
 
+		if (tree) {
 			proto_tree_add_item(nbdgm_tree, offset, len, "Destination name: %s",
 					name);
 		}
