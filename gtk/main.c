@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.141 2000/08/20 21:55:58 deniel Exp $
+ * $Id: main.c,v 1.142 2000/08/21 01:52:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1157,14 +1157,18 @@ main(int argc, char *argv[])
   if (m_r_font == NULL || m_b_font == NULL) {
     /* XXX - pop this up as a dialog box? no */
     if (m_r_font == NULL) {
-      if (!capture_child) 
+#ifdef HAVE_LIBPCAP
+      if (!capture_child)
+#endif
 	fprintf(stderr, "ethereal: Warning: font %s not found - defaulting to 6x13 and 6x13bold\n",
 		prefs->gui_font_name);
     } else {
       gdk_font_unref(m_r_font);
     }
     if (m_b_font == NULL) {
+#ifdef HAVE_LIBPCAP
       if (!capture_child)
+#endif
 	fprintf(stderr, "ethereal: Warning: font %s not found - defaulting to 6x13 and 6x13bold\n",
 		bold_font_name);
     } else {
