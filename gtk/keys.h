@@ -1,7 +1,7 @@
 /* keys.h
  * Key definitions for various objects
  *
- * $Id: keys.h,v 1.8 1999/12/09 20:41:41 oabad Exp $
+ * $Id: keys.h,v 1.9 2000/01/06 07:33:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,7 +37,6 @@
 #define PRINT_CMD_TE_KEY          "printer_command_entry"
 #define PRINT_FILE_BT_KEY         "printer_file_button"
 #define PRINT_FILE_TE_KEY         "printer_file_entry"
-#define PRINT_DEST_RB_KEY         "printer_destination_radio_button"
 
 #define PLUGINS_DFILTER_TE        "plugins_dfilter_te"
 

@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.12 2000/01/03 06:59:24 guy Exp $
+ * $Id: print_dlg.c,v 1.13 2000/01/06 07:33:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -63,6 +63,15 @@ static void print_close_cb(GtkWidget *close_bt, gpointer parent_w);
  */
 static int     print_to_file;
 
+/*
+ * Remember whether we printed as text or PostScript the last time we
+ * printed something.
+ */
+static gint	print_format = PR_FMT_TEXT;
+
+#define PRINT_FORMAT_RB_KEY       "printer_format_radio_button"
+#define PRINT_DEST_RB_KEY         "printer_destination_radio_button"
+
 #define PRINT_SUMMARY_RB_KEY      "printer_summary_radio_button"
 #define PRINT_HEX_CB_KEY          "printer_hex_check_button"
 #define PRINT_EXPAND_ALL_RB_KEY   "printer_expand_all_radio_button"
@@ -74,10 +83,9 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
 {
   GtkWidget     *print_w;
   GtkWidget     *main_vb, *main_tb, *button;
-#if 0
+  GtkWidget     *format_rb;
   GtkWidget     *format_hb, *format_lb;
   GSList        *format_grp;
-#endif
   GtkWidget     *dest_rb;
   GtkWidget     *dest_hb, *dest_lb;
   GtkWidget     *cmd_lb, *cmd_te;
@@ -108,12 +116,6 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
   gtk_widget_show(main_tb);
 
-  /* XXX - printing multiple frames in PostScript looks as if it's
-     tricky - you have to deal with page boundaries, I think -
-     and I'll have to spend some time learning enough about
-     PostScript to figure it out, so, for now, we only print
-     multiple frames as text. */
-#if 0
   /* Output format */
   format_lb = gtk_label_new("Format:");
   gtk_misc_set_alignment(GTK_MISC(format_lb), 1.0, 0.5);
@@ -125,18 +127,17 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   gtk_widget_show(format_hb);
 
   button = gtk_radio_button_new_with_label(NULL, "Plain Text");
-  if (prefs.pr_format == PR_FMT_TEXT)
+  if (print_format == PR_FMT_TEXT)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), TRUE);
   format_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(button));
   gtk_box_pack_start(GTK_BOX(format_hb), button, FALSE, FALSE, 10);
   gtk_widget_show(button);
 
-  button = gtk_radio_button_new_with_label(format_grp, "PostScript");
-  if (prefs.pr_format == PR_FMT_PS)
-    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), TRUE);
-  gtk_box_pack_start(GTK_BOX(format_hb), button, FALSE, FALSE, 10);
-  gtk_widget_show(button);
-#endif
+  format_rb = gtk_radio_button_new_with_label(format_grp, "PostScript");
+  if (print_format == PR_FMT_PS)
+    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(format_rb), TRUE);
+  gtk_box_pack_start(GTK_BOX(format_hb), format_rb, FALSE, FALSE, 10);
+  gtk_widget_show(format_rb);
 
   /* Output destination */
   dest_lb = gtk_label_new("Print to:");
@@ -265,6 +266,7 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   gtk_widget_show(bbox);
 
   ok_bt = gtk_button_new_with_label ("OK");
+  gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_FORMAT_RB_KEY, format_rb);
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_DEST_RB_KEY, dest_rb);
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_CMD_TE_KEY, cmd_te);
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_FILE_TE_KEY, file_te);
@@ -395,6 +397,14 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
       PRINT_CMD_TE_KEY))));
 
   button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(ok_bt),
+                                              PRINT_FORMAT_RB_KEY);
+  if (GTK_TOGGLE_BUTTON (button)->active)
+    print_format = PR_FMT_PS;
+  else
+    print_format = PR_FMT_TEXT;
+  print_args.format = print_format;
+
+  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(ok_bt),
                                               PRINT_SUMMARY_RB_KEY);
   print_args.print_summary = GTK_TOGGLE_BUTTON (button)->active;
 
@@ -475,13 +485,14 @@ file_print_packet_cmd_cb(GtkWidget *widget, gpointer data) {
     return;
   }
 
-  print_preamble(fh);
+  print_preamble(fh, prefs.pr_format);
+  print_args.format = prefs.pr_format;
   print_args.print_summary = FALSE;
   print_args.print_hex = FALSE;
   print_args.expand_all = TRUE;
   proto_tree_print(TRUE, &print_args, (GNode*) cf.protocol_tree, cf.pd,
 		cf.current_frame, fh);
-  print_finale(fh);
+  print_finale(fh, prefs.pr_format);
   close_print_dest(print_args.to_file, fh);
 }
 

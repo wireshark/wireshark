@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.148 2000/01/05 07:22:47 guy Exp $
+ * $Id: file.c,v 1.149 2000/01/06 07:33:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -844,6 +844,8 @@ colorize_packets(capture_file *cf)
   gtk_clist_thaw(GTK_CLIST(packet_list));
 }
 
+#define	MAX_LINE_LENGTH	256
+
 int
 print_packets(capture_file *cf, print_args_t *print_args)
 {
@@ -856,19 +858,15 @@ print_packets(capture_file *cf, print_args_t *print_args)
   gint       *col_widths = NULL;
   gint        data_width;
   gboolean    print_separator;
+  char        line_buf[MAX_LINE_LENGTH+1];	/* static-sized buffer! */
+  char        *cp;
+  int         sprintf_len;
 
   cf->print_fh = open_print_dest(print_args->to_file, print_args->dest);
   if (cf->print_fh == NULL)
     return FALSE;	/* attempt to open destination failed */
 
-  /* XXX - printing multiple frames in PostScript looks as if it's
-     tricky - you have to deal with page boundaries, I think -
-     and I'll have to spend some time learning enough about
-     PostScript to figure it out, so, for now, we only print
-     multiple frames as text. */
-#if 0
-  print_preamble(cf->print_fh);
-#endif
+  print_preamble(cf->print_fh, print_args->format);
 
   if (print_args->print_summary) {
     /* We're printing packet summaries.
@@ -877,6 +875,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
        width of the title and the width of the data - and print
        the column titles. */
     col_widths = (gint *) g_malloc(sizeof(gint) * cf->cinfo.num_cols);
+    cp = &line_buf[0];
     for (i = 0; i < cf->cinfo.num_cols; i++) {
       /* Don't pad the last column. */
       if (i == cf->cinfo.num_cols - 1)
@@ -890,14 +889,17 @@ print_packets(capture_file *cf, print_args_t *print_args)
 
       /* Right-justify the packet number column. */
       if (cf->cinfo.col_fmt[i] == COL_NUMBER)
-        fprintf(cf->print_fh, "%*s", col_widths[i], cf->cinfo.col_title[i]);
+        sprintf_len = sprintf(cp, "%*s", col_widths[i], cf->cinfo.col_title[i]);
       else
-        fprintf(cf->print_fh, "%-*s", col_widths[i], cf->cinfo.col_title[i]);
+        sprintf_len = sprintf(cp, "%-*s", col_widths[i], cf->cinfo.col_title[i]);
+      cp += sprintf_len;
       if (i == cf->cinfo.num_cols - 1)
-        fputc('\n', cf->print_fh);
+        *cp++ = '\n';
       else
-        fputc(' ', cf->print_fh);
+        *cp++ = ' ';
     }
+    *cp = '\0';
+    print_line(cf->print_fh, print_args->format, line_buf);
   }
 
   print_separator = FALSE;
@@ -944,20 +946,24 @@ print_packets(capture_file *cf, print_args_t *print_args)
         }
         dissect_packet(cf->pd, fd, NULL);
         fill_in_columns(fd);
+        cp = &line_buf[0];
         for (i = 0; i < cf->cinfo.num_cols; i++) {
           /* Right-justify the packet number column. */
           if (cf->cinfo.col_fmt[i] == COL_NUMBER)
-            fprintf(cf->print_fh, "%*s", col_widths[i], cf->cinfo.col_data[i]);
+            sprintf_len = sprintf(cp, "%*s", col_widths[i], cf->cinfo.col_data[i]);
           else
-            fprintf(cf->print_fh, "%-*s", col_widths[i], cf->cinfo.col_data[i]);
+            sprintf_len = sprintf(cp, "%-*s", col_widths[i], cf->cinfo.col_data[i]);
+          cp += sprintf_len;
           if (i == cf->cinfo.num_cols - 1)
-            fputc('\n', cf->print_fh);
+            *cp++ = '\n';
           else
-            fputc(' ', cf->print_fh);
+            *cp++ = ' ';
         }
+        *cp = '\0';
+        print_line(cf->print_fh, print_args->format, line_buf);
       } else {
         if (print_separator)
-          fputc('\n', cf->print_fh);
+          print_line(cf->print_fh, print_args->format, "\n");
 
         /* Create the logical protocol tree. */
         protocol_tree = proto_tree_create_root();
@@ -971,7 +977,8 @@ print_packets(capture_file *cf, print_args_t *print_args)
 
 	if (print_args->print_hex) {
 	  /* Print the full packet data as hex. */
-	  print_hex_data(cf->print_fh, cf->pd, fd->cap_len, fd->encoding);
+	  print_hex_data(cf->print_fh, print_args->format, cf->pd,
+			fd->cap_len, fd->encoding);
 	}
 
         /* Print a blank line if we print anything after this. */
@@ -983,9 +990,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
   if (col_widths != NULL)
     g_free(col_widths);
 
-#if 0
-  print_finale(cf->print_fh);
-#endif
+  print_finale(cf->print_fh, print_args->format);
 
   close_print_dest(print_args->to_file, cf->print_fh);
  

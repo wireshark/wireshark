@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.82 2000/01/05 22:31:46 gerald Exp $
+ * $Id: main.c,v 1.83 2000/01/06 07:33:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -394,9 +394,11 @@ static void follow_print_stream(GtkWidget *w, gpointer parent_w)
                        E_FOLLOW_FILENAME_KEY);
 
        if (filename != NULL) {
-               print_preamble(fh);
-               print_file(fh, filename);
-               print_finale(fh);
+               /* XXX - make this look at the preferences and print in
+	          PostScript if that's what the user specified. */
+               print_preamble(fh, PR_FMT_TEXT);
+               print_file(fh, filename, PR_FMT_TEXT);
+               print_finale(fh, PR_FMT_TEXT);
                close_print_dest(to_file, fh);
        }
        else {

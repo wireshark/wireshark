@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.14 2000/01/03 06:29:33 guy Exp $
+ * $Id: prefs.h,v 1.15 2000/01/06 07:33:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,9 +25,6 @@
 
 #ifndef __PREFS_H__
 #define __PREFS_H__
-
-#define PR_FMT_TEXT 0
-#define PR_FMT_PS   1
 
 #define PR_DEST_CMD  0
 #define PR_DEST_FILE 1

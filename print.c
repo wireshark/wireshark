@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.25 1999/12/10 04:20:53 gram Exp $
+ * $Id: print.c,v 1.26 2000/01/06 07:33:22 guy Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -37,7 +37,6 @@
 #endif
 
 #include "packet.h"
-#include "prefs.h"
 #include "print.h"
 #include "ps.h"
 #include "util.h"
@@ -46,6 +45,8 @@ static void proto_tree_print_node_text(GNode *node, gpointer data);
 static void proto_tree_print_node_ps(GNode *node, gpointer data);
 static void ps_clean_string(unsigned char *out, const unsigned char *in,
 			int outbuf_size);
+static void print_hex_data_text(FILE *fh, register const u_char *cp,
+		register u_int length, char_enc encoding);
 static void print_hex_data_ps(FILE *fh, register const u_char *cp,
 		register u_int length, char_enc encoding);
 static void print_ps_file(FILE* target_fh, FILE* source_fh);
@@ -85,19 +86,19 @@ void close_print_dest(int to_file, FILE *fh)
 		pclose(fh);
 }
 
-void print_preamble(FILE *fh)
+void print_preamble(FILE *fh, gint format)
 {
-	if (prefs.pr_format == PR_FMT_PS)
+	if (format == PR_FMT_PS)
 		print_ps_preamble(fh);
 }
 
-void print_finale(FILE *fh)
+void print_finale(FILE *fh, gint format)
 {
-	if (prefs.pr_format == PR_FMT_PS)
+	if (format == PR_FMT_PS)
 		print_ps_finale(fh);
 }
 
-void print_file(FILE* fh, const char* filename)
+void print_file(FILE* fh, const char* filename, gint format)
 {
        FILE* fh2 = fopen(filename, "r");
        if (fh2 == NULL) {
@@ -105,7 +106,7 @@ void print_file(FILE* fh, const char* filename)
                return;
        }
 
-       if (prefs.pr_format == PR_FMT_PS)
+       if (format == PR_FMT_PS)
                print_ps_file(fh, fh2);
        else
                print_text_file(fh, fh2);
@@ -126,12 +127,7 @@ void proto_tree_print(gboolean print_one_packet, print_args_t *print_args,
 	    /* If we're printing the entire packet in hex, don't
 	       print uninterpreted data fields in hex as well. */
 
-	/* XXX - printing multiple frames in PostScript looks as if it's
-	   tricky - you have to deal with page boundaries, I think -
-	   and I'll have to spend some time learning enough about
-	   PostScript to figure it out, so, for now, we only print
-	   multiple frames as text. */
-	if (prefs.pr_format == PR_FMT_TEXT || !print_one_packet) {
+	if (print_args->format == PR_FMT_TEXT) {
 		g_node_children_foreach((GNode*) protocol_tree, G_TRAVERSE_ALL,
 			proto_tree_print_node_text, &data);
 	} else {
@@ -182,8 +178,8 @@ void proto_tree_print_node_text(GNode *node, gpointer data)
 	/* If it's uninterpreted data, dump it (unless our caller will
 	   be printing the entire packet in hex). */
 	if (fi->hfinfo->id == proto_data && pdata->print_hex_for_data)
-		print_hex_data(pdata->fh, &pdata->pd[fi->start], fi->length,
-				pdata->encoding);
+		print_hex_data_text(pdata->fh, &pdata->pd[fi->start],
+				fi->length, pdata->encoding);
 
 	/* If we're printing all levels, or if this level is expanded,
 	   recurse into the subtree, if it exists. */
@@ -197,10 +193,20 @@ void proto_tree_print_node_text(GNode *node, gpointer data)
 	}
 }
 
+void print_hex_data(FILE *fh, gint format, register const u_char *cp,
+		register u_int length, char_enc encoding)
+{
+	if (format == PR_FMT_PS)
+		print_hex_data_ps(fh, cp, length, encoding);
+	else
+		print_hex_data_text(fh, cp, length, encoding);
+}
+
 /* This routine was created by Dan Lasley <DLASLEY@PROMUS.com>, and
 only slightly modified for ethereal by Gilbert Ramirez. */
-void print_hex_data(FILE *fh, register const u_char *cp, register u_int length,
-		char_enc encoding)
+static
+void print_hex_data_text(FILE *fh, register const u_char *cp,
+		register u_int length, char_enc encoding)
 {
         register int ad, i, j, k;
         u_char c;
@@ -263,9 +269,9 @@ void proto_tree_print_node_ps(GNode *node, gpointer data)
 	ps_clean_string(psbuffer, label_ptr, MAX_LINE_LENGTH);
 	fprintf(pdata->fh, "%d (%s) putline\n", pdata->level, psbuffer);
 
-	/* If it's uninterpreted data, dump it. */
-	if (fi->hfinfo->id == proto_data) {
-		print_ps_hex(pdata->fh);
+	/* If it's uninterpreted data, dump it (unless our caller will
+	   be printing the entire packet in hex). */
+	if (fi->hfinfo->id == proto_data && pdata->print_hex_for_data) {
 		print_hex_data_ps(pdata->fh, &pdata->pd[fi->start], fi->length,
 				pdata->encoding);
 	}
@@ -308,8 +314,8 @@ void ps_clean_string(unsigned char *out, const unsigned char *in,
 }
 
 static
-void print_hex_data_ps(FILE *fh, register const u_char *cp, register u_int length,
-		char_enc encoding)
+void print_hex_data_ps(FILE *fh, register const u_char *cp,
+		register u_int length, char_enc encoding)
 {
         register int ad, i, j, k;
         u_char c;
@@ -319,6 +325,7 @@ void print_hex_data_ps(FILE *fh, register const u_char *cp, register u_int lengt
 			'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 		u_char psline[MAX_LINE_LENGTH];
 
+	print_ps_hex(fh);
         memset (line, ' ', sizeof line);
         line[sizeof (line)-1] = 0;
         for (ad=i=j=k=0; i<length; i++) {
@@ -368,3 +375,13 @@ void print_ps_file(FILE* target_fh, FILE* source_fh)
        }
 }
 
+void print_line(FILE *fh, gint format, char *line)
+{
+	char		psbuffer[MAX_LINE_LENGTH]; /* static sized buffer! */
+
+	if (format == PR_FMT_PS) {
+		ps_clean_string(psbuffer, line, MAX_LINE_LENGTH);
+		fprintf(fh, "(%s) hexdump\n", psbuffer);
+	} else
+		fputs(line, fh);
+}
