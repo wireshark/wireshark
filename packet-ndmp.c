@@ -12,7 +12,7 @@
  * Routines for NDMP dissection
  * 2001 Ronnie Sahlberg (see AUTHORS for email)
  *
- * $Id: packet-ndmp.c,v 1.2 2002/01/04 19:55:03 guy Exp $
+ * $Id: packet-ndmp.c,v 1.3 2002/01/04 23:53:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,6 +54,8 @@
 #include "prefs.h"
 
 #define TCP_PORT_NDMP 10000
+
+#define NDMP_FRAGLEN 0x7fffffffL
 
 static int proto_ndmp = -1;
 static int hf_ndmp_version = -1;
@@ -1746,6 +1748,7 @@ dissect_file_stats(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *pa
 	proto_item* item = NULL;
 	proto_tree* tree = NULL;
 	int old_offset=offset;
+	nstime_t ns;
 
 	if (parent_tree) {
 		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
@@ -1765,15 +1768,21 @@ dissect_file_stats(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *pa
 	offset += 4;
 
 	/* mtime */
-	proto_tree_add_item(tree, hf_ndmp_file_mtime, tvb, offset, 4, FALSE);
+	ns.secs=tvb_get_ntohl(tvb, offset);
+	ns.nsecs=0;
+	proto_tree_add_time(tree, hf_ndmp_file_mtime, tvb, offset, 4, &ns);
 	offset += 4;
 
 	/* atime */
-	proto_tree_add_item(tree, hf_ndmp_file_atime, tvb, offset, 4, FALSE);
+	ns.secs=tvb_get_ntohl(tvb, offset);
+	ns.nsecs=0;
+	proto_tree_add_time(tree, hf_ndmp_file_atime, tvb, offset, 4, &ns);
 	offset += 4;
 
 	/* ctime */
-	proto_tree_add_item(tree, hf_ndmp_file_ctime, tvb, offset, 4, FALSE);
+	ns.secs=tvb_get_ntohl(tvb, offset);
+	ns.nsecs=0;
+	proto_tree_add_time(tree, hf_ndmp_file_ctime, tvb, offset, 4, &ns);
 	offset += 4;
 
 	/* owner */
@@ -2226,9 +2235,10 @@ dissect_ndmp_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
 	proto_item* item = NULL;
 	proto_tree* tree = NULL;
 	guint32 msgtype, msg;
+	nstime_t ns;
 
 	if (parent_tree) {
-		item = proto_tree_add_item(tree, hf_ndmp_header, tvb,
+		item = proto_tree_add_item(parent_tree, hf_ndmp_header, tvb,
 				offset, 24, FALSE);
 		tree = proto_item_add_subtree(item, ett_ndmp_header);
 	}
@@ -2238,7 +2248,9 @@ dissect_ndmp_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
 	offset += 4;
 
 	/* timestamp */
-	proto_tree_add_item(tree, hf_ndmp_timestamp, tvb, offset, 4, FALSE);
+	ns.secs=tvb_get_ntohl(tvb, offset);
+	ns.nsecs=0;
+	proto_tree_add_time(tree, hf_ndmp_timestamp, tvb, offset, 4, &ns);
 	offset += 4;
 
 	/* Message Type */
@@ -2272,10 +2284,32 @@ dissect_ndmp_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
 
 
 static int
-dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree)
 {
 	int i;
+	int old_offset=offset;
 	guint32 msg, msgtype;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	proto_item *cmd_item=NULL;
+	proto_tree *cmd_tree=NULL;
+	guint32 size;
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+		col_add_str(pinfo->cinfo, COL_PROTOCOL, "NDMP");
+	if (check_col(pinfo->cinfo, COL_INFO)) 
+		col_clear(pinfo->cinfo, COL_INFO);
+
+	if(parent_tree){
+		item = proto_tree_add_item(parent_tree, proto_ndmp, tvb, offset, 0, FALSE);
+		tree = proto_item_add_subtree(item, ett_ndmp);
+	}
+
+	/* the size of the current PDU */
+	size = tvb_get_ntohl(tvb, offset);	
+	proto_tree_add_uint(tree, hf_ndmp_size, tvb, offset, 4, size&NDMP_FRAGLEN);
+	offset += 4;
+
 
 	msg=tvb_get_ntohl(tvb, offset+12);
 	msgtype=tvb_get_ntohl(tvb, offset+8);
@@ -2294,16 +2328,27 @@ dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 		/* we do not know this message */
 		proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Unknown type of NDMP message: 0x%02x", msg);
 		offset+=tvb_length_remaining(tvb, offset);
+		proto_item_set_len(item, offset-old_offset);
 		return offset;
 	}
 
-
-	if(msgtype==NDMP_MESSAGE_REQUEST){
-		offset=ndmp_commands[i].request(tvb, offset, pinfo, tree);
-	} else {
-		offset=ndmp_commands[i].response(tvb, offset, pinfo, tree);
+	if(tree){
+		cmd_item = proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), 
+			msg_vals[i].strptr);
+		cmd_tree = proto_item_add_subtree(cmd_item, ett_ndmp);
 	}
 
+	if(msgtype==NDMP_MESSAGE_REQUEST){
+		if(ndmp_commands[i].request){
+			offset=ndmp_commands[i].request(tvb, offset, pinfo, cmd_tree);
+		}
+	} else {
+		if(ndmp_commands[i].response){
+			offset=ndmp_commands[i].response(tvb, offset, pinfo, cmd_tree);
+		}
+	}
+
+	proto_item_set_len(item, offset-old_offset);
 	return offset;
 }
 
@@ -2318,7 +2363,7 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		available_bytes = tvb_length_remaining(tvb, offset);
 
 		/* size of this NDMP PDU */
-		size = tvb_get_ntohl(tvb, offset);	
+		size = (tvb_get_ntohl(tvb, offset)&NDMP_FRAGLEN) + 4;
 
 		/* desegmentation */
 		if(ndmp_desegment){
@@ -2329,10 +2374,6 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				return;
 			}
 		}
-
-		/* the size of the current PDU */
-		proto_tree_add_item(tree, hf_ndmp_size, tvb, offset, 4, size);
-		offset += 4;
 
 		offset = dissect_ndmp_cmd(tvb, offset, pinfo, tree);
 	} while(offset<(int)tvb_reported_length(tvb));
@@ -2372,7 +2413,7 @@ proto_register_ndmp(void)
 		VALS(msg_type_vals), 0, "Is this a Request or Response?", HFILL }},
 
 	{ &hf_ndmp_msg, {
-		"Message", "ndmp.msg", FT_UINT32, BASE_DEC,
+		"Message", "ndmp.msg", FT_UINT32, BASE_HEX,
 		VALS(msg_vals), 0, "Type of NDMP PDU", HFILL }},
 
 	{ &hf_ndmp_error, {
