@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.72 2003/01/16 22:44:05 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.73 2003/01/28 06:42:20 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -783,7 +783,7 @@ dissect_spoolss_buffer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
 		dissect_spoolss_buffer_data, NDR_POINTER_UNIQUE, 
-		"Buffer", -1, 0);
+		"Buffer", -1);
 
 	return offset;
 }
@@ -975,10 +975,11 @@ static int dissect_printerdata_data(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, subtree, drep,
 		hf_spoolss_printerdata_size, &size);
 
-	offset = dissect_ndr_uint8s(
-		tvb, offset, pinfo, subtree, drep,
-		hf_spoolss_printerdata_data, size, NULL);
-
+	if (size)
+		offset = dissect_ndr_uint8s(
+			tvb, offset, pinfo, subtree, drep,
+			hf_spoolss_printerdata_data, size, NULL);
+	
 	proto_item_set_len(item, size + 4);
 
 	return offset;
@@ -1656,7 +1657,7 @@ static int dissect_DEVMODE_CTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, subtree, drep,
-		dissect_DEVMODE, NDR_POINTER_UNIQUE, "DEVMODE", -1, 0);
+		dissect_DEVMODE, NDR_POINTER_UNIQUE, "DEVMODE", -1);
 
 	return offset;
 }
@@ -2280,15 +2281,13 @@ static int dissect_USER_LEVEL_1(tvbuff_t *tvb, int offset,
                 tvb, offset, pinfo, tree, drep,
                 hf_spoolss_userlevel_size, NULL);
 
-        offset = dissect_ndr_pointer(
-                tvb, offset, pinfo, tree, drep,
-                dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-                "Client", hf_spoolss_userlevel_client, 0);
+        offset = dissect_ndr_str_pointer_item(
+                tvb, offset, pinfo, tree, drep, NDR_POINTER_UNIQUE,
+                "Client", hf_spoolss_userlevel_client);
 
-        offset = dissect_ndr_pointer(
-                tvb, offset, pinfo, tree, drep,
-                dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-                "User", hf_spoolss_userlevel_user, 0);
+        offset = dissect_ndr_str_pointer_item(
+                tvb, offset, pinfo, tree, drep, NDR_POINTER_UNIQUE,
+                "User", hf_spoolss_userlevel_user);
 
         offset = dissect_ndr_uint32(
                 tvb, offset, pinfo, tree, drep, 
@@ -2339,7 +2338,7 @@ static int dissect_USER_LEVEL_CTR(tvbuff_t *tvb, int offset,
                 offset = dissect_ndr_pointer(
                         tvb, offset, pinfo, subtree, drep,
                         dissect_USER_LEVEL_1, NDR_POINTER_UNIQUE,
-                        "USER_LEVEL_1", -1, 0);
+                        "USER_LEVEL_1", -1);
                 break;
         default:
                 proto_tree_add_text(
@@ -2368,33 +2367,16 @@ static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 
 	/* Parse packet */
 
-	offset = dissect_ndr_pointer(
+	offset = dissect_ndr_pointer_cb(
 		tvb, offset, pinfo, tree, drep,
 		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-		"Printer", hf_spoolss_printername, 0);
-
-	/* TODO: When we are able to access return data from a ndr
-	   pointer dissection function we should set the private data
-	   to the name of the printer. */
-
-#if 0
-	if (printer_name) {
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-					printer_name);
-
-		/* Store printer name to match with reply packet */
-
-		dcv->private_data = printer_name;
-	}
-#else
-	dcv->private_data = g_strdup("");
-#endif
+		"Printer name", hf_spoolss_printername, cb_str_postprocess,
+		GINT_TO_POINTER(CB_STR_COL_INFO | CB_STR_ITEM | CB_STR_SAVE));
 
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
 		dissect_PRINTER_DATATYPE, NDR_POINTER_UNIQUE,
-		"PRINTER_DATATYPE", -1, 0);
+		"PRINTER_DATATYPE", -1);
 
 	offset = dissect_DEVMODE_CTR(tvb, offset, pinfo, tree, drep);
 
@@ -2405,6 +2387,8 @@ static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 	offset = dissect_USER_LEVEL_CTR(tvb, offset, pinfo, tree, drep);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+//	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 	return offset;
 }
@@ -2439,6 +2423,7 @@ static int SpoolssOpenPrinterEx_r(tvbuff_t *tvb, int offset,
 		/* Associate the returned printer handle with a name */
 
 		if (dcv->private_data) {
+
 			dcerpc_smb_store_pol_name(
 				&policy_hnd, dcv->private_data);
 
@@ -2562,12 +2547,10 @@ dissect_NOTIFY_OPTION_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = pinfo->private_data;
 	guint32 count, i;
-	guint16 type;
+	guint16 type = 0xffff;	/* XXX: currently broken */
 
 	if (di->conformant_run)
 		return offset;
-
-	type = di->levels;
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep,
@@ -2622,7 +2605,7 @@ dissect_NOTIFY_OPTION(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, subtree, drep,
 		dissect_NOTIFY_OPTION_DATA, NDR_POINTER_UNIQUE,
-		"NOTIFY_OPTION_DATA", -1, type);
+		"NOTIFY_OPTION_DATA", -1);
 
 	return offset;
 }
@@ -2692,7 +2675,7 @@ dissect_NOTIFY_OPTIONS_ARRAY_CTR(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
 		dissect_NOTIFY_OPTIONS_ARRAY, NDR_POINTER_UNIQUE,
-		"NOTIFY_OPTIONS", -1, 0);
+		"NOTIFY_OPTIONS", -1);
 
 	return offset;
 }
@@ -2957,10 +2940,9 @@ static int SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_rffpcnex_options, NULL);
 
-	offset = dissect_ndr_pointer(
-		tvb, offset, pinfo, tree, drep,
-		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-		"Server", hf_spoolss_servername, 0);
+	offset = dissect_ndr_str_pointer_item(
+		tvb, offset, pinfo, tree, drep, NDR_POINTER_UNIQUE,
+		"Server", hf_spoolss_servername);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_printerlocal, NULL);
@@ -2968,7 +2950,7 @@ static int SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
 		dissect_NOTIFY_OPTIONS_ARRAY_CTR, NDR_POINTER_UNIQUE,
-		"NOTIFY_OPTIONS_CTR", -1, 0);
+		"NOTIFY_OPTIONS_CTR", -1);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -3763,10 +3745,9 @@ static int SpoolssEnumPrinters_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		flags_subtree, hf_enumprinters_flags_default, tvb,
 		offset - 4, 4, flags);
 
-	offset = dissect_ndr_pointer(
+	offset = dissect_ndr_str_pointer_item(
 		tvb, offset, pinfo, tree, drep,
-		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-		"Server name", hf_spoolss_servername, 0);
+		NDR_POINTER_UNIQUE, "Server name", hf_spoolss_servername);
 
         offset = dissect_ndr_uint32(
                 tvb, offset, pinfo, tree, drep,
@@ -3834,10 +3815,9 @@ static int SpoolssAddPrinterDriver_q(tvbuff_t *tvb, int offset,
 
 	/* Parse packet */
 
-	offset = dissect_ndr_pointer(
-		tvb, offset, pinfo, tree, drep,
-		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-		"Server", hf_spoolss_servername, 0);
+	offset = dissect_ndr_str_pointer_item(
+		tvb, offset, pinfo, tree, drep, NDR_POINTER_UNIQUE,
+		"Server", hf_spoolss_servername);
 
 	offset = dissect_spoolss_DRIVER_INFO_CTR(
 		tvb, offset, pinfo, tree, drep);
@@ -3885,10 +3865,9 @@ static int dissect_FORM_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	subtree = proto_item_add_subtree(item, ett_FORM_1);
 
-	offset = dissect_ndr_pointer(
-		tvb, offset, pinfo, subtree, drep,
-		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-		"Name", hf_spoolss_form_name, 0);
+	offset = dissect_ndr_str_pointer_item(
+		tvb, offset, pinfo, subtree, drep, NDR_POINTER_UNIQUE,
+		"Name", hf_spoolss_form_name);
 
 	/* Eek - we need to know whether this pointer was NULL or not.
 	   Currently there is not any way to do this. */
@@ -4753,20 +4732,17 @@ dissect_spoolss_doc_info_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	subtree = proto_item_add_subtree(item, ett_DOC_INFO_1);
 
-	offset = dissect_ndr_pointer(
-		tvb, offset, pinfo, subtree, drep,
-		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-		"Document name", hf_spoolss_documentname, 0);
+	offset = dissect_ndr_str_pointer_item(
+		tvb, offset, pinfo, subtree, drep, NDR_POINTER_UNIQUE,
+		"Document name", hf_spoolss_documentname);
 
-	offset = dissect_ndr_pointer(
-		tvb, offset, pinfo, subtree, drep,
-		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-		"Output file", hf_spoolss_outputfile, 0);
+	offset = dissect_ndr_str_pointer_item(
+		tvb, offset, pinfo, subtree, drep, NDR_POINTER_UNIQUE,
+		"Output file", hf_spoolss_outputfile);
 
-	offset = dissect_ndr_pointer(
-		tvb, offset, pinfo, subtree, drep,
-		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-		"Data type", hf_spoolss_datatype, 0);
+	offset = dissect_ndr_str_pointer_item(
+		tvb, offset, pinfo, subtree, drep, NDR_POINTER_UNIQUE,
+		"Data type", hf_spoolss_datatype);
 
 	return offset;
 }
@@ -4776,18 +4752,19 @@ dissect_spoolss_doc_info_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			      proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = pinfo->private_data;
+	guint32 info_level = 1;	/* XXX */
 
 	if (di->conformant_run)
 		return offset;
 
-	switch(di->levels) {
+	switch(info_level) {
 	case 1:
 		offset = dissect_spoolss_doc_info_1(
 			tvb, offset, pinfo, tree, drep);
 		break;
 	default:
 		proto_tree_add_text(tree, tvb, offset, 0,
-				    "[Unknown info level %d]", di->levels);
+				    "[Unknown info level %d]", info_level);
 		break;
 	}
 
@@ -4818,7 +4795,7 @@ dissect_spoolss_doc_info(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, subtree, drep,
 				     dissect_spoolss_doc_info_data,
 				     NDR_POINTER_UNIQUE, "Document info",
-				     -1, level);
+				     -1);
 	return offset;
 }
 
@@ -5208,15 +5185,13 @@ static int SpoolssEnumPrinterDrivers_q(tvbuff_t *tvb, int offset,
 
 	/* Parse packet */
 
-	offset = dissect_ndr_pointer(
-		tvb, offset, pinfo, tree, drep,
-		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-		"Name", hf_spoolss_servername, 0);
+	offset = dissect_ndr_str_pointer_item(
+		tvb, offset, pinfo, tree, drep, NDR_POINTER_UNIQUE,
+		"Name", hf_spoolss_servername);
 
-	offset = dissect_ndr_pointer(
-		tvb, offset, pinfo, tree, drep,
-		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-		"Environment", hf_spoolss_servername, 0);
+	offset = dissect_ndr_str_pointer_item(
+		tvb, offset, pinfo, tree, drep, NDR_POINTER_UNIQUE,
+		"Environment", hf_spoolss_servername);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_level, &level);
@@ -5324,10 +5299,9 @@ static int SpoolssGetPrinterDriver2_q(tvbuff_t *tvb, int offset,
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				pol_name);
 
-	offset = dissect_ndr_pointer(
-		tvb, offset, pinfo, tree, drep,
-		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-		"Architecture", hf_spoolss_architecture, 0);
+	offset = dissect_ndr_str_pointer_item(
+		tvb, offset, pinfo, tree, drep, NDR_POINTER_UNIQUE,
+		"Architecture", hf_spoolss_architecture);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_level, &level);
@@ -5410,7 +5384,7 @@ dissect_notify_info_data_buffer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 len = di->levels;
+	guint32 len = (guint32)di->private_data;
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep,
@@ -5453,7 +5427,7 @@ dissect_NOTIFY_INFO_DATA_printer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			tvb, offset, pinfo, tree, drep,
 			dissect_notify_info_data_buffer,
 			NDR_POINTER_UNIQUE, "String",
-			hf_spoolss_notify_info_data_buffer, value1 / 2);
+			hf_spoolss_notify_info_data_buffer);
 
 		break;
 
@@ -5497,7 +5471,7 @@ dissect_NOTIFY_INFO_DATA_printer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			tvb, offset, pinfo, tree, drep,
 			dissect_notify_info_data_buffer,
 			NDR_POINTER_UNIQUE, "Buffer",
-			hf_spoolss_notify_info_data_buffer, value1 / 2);
+			hf_spoolss_notify_info_data_buffer);
 
 		break;
 
@@ -5545,7 +5519,7 @@ dissect_NOTIFY_INFO_DATA_job(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			tvb, offset, pinfo, tree, drep,
 			dissect_notify_info_data_buffer,
 			NDR_POINTER_UNIQUE, "String",
-			hf_spoolss_notify_info_data_buffer, value1 / 2);
+			hf_spoolss_notify_info_data_buffer);
 
 		break;
 
@@ -5571,7 +5545,7 @@ dissect_NOTIFY_INFO_DATA_job(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset = dissect_ndr_pointer(
 			tvb, offset, pinfo, tree, drep,
 			dissect_SYSTEM_TIME, NDR_POINTER_UNIQUE,
-			"SYSTEM_TIME", -1, 0);
+			"SYSTEM_TIME", -1);
 
 		break;
 
@@ -5587,7 +5561,7 @@ dissect_NOTIFY_INFO_DATA_job(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			tvb, offset, pinfo, tree, drep,
 			dissect_notify_info_data_buffer,
 			NDR_POINTER_UNIQUE, "Buffer",
-			hf_spoolss_notify_info_data_buffer, value1 / 2);
+			hf_spoolss_notify_info_data_buffer);
 
 		break;
 
@@ -5726,7 +5700,7 @@ static int SpoolssRFNPCNEX_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
 		dissect_NOTIFY_OPTIONS_ARRAY_CTR, NDR_POINTER_UNIQUE,
-		"NOTIFY_OPTIONS_ARRAY_CTR", -1, 0);
+		"NOTIFY_OPTIONS_ARRAY_CTR", -1);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -5748,7 +5722,7 @@ static int SpoolssRFNPCNEX_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
 		dissect_NOTIFY_INFO, NDR_POINTER_UNIQUE,
-		"NOTIFY_INFO", -1, 0);
+		"NOTIFY_INFO", -1);
 
 	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 				  hf_spoolss_rc, NULL);
@@ -5793,7 +5767,7 @@ static int SpoolssRRPCN_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
 		dissect_NOTIFY_INFO, NDR_POINTER_UNIQUE,
-		"NOTIFY_INFO", -1, 0);
+		"NOTIFY_INFO", -1);
 
 	/* Notify info */
 
