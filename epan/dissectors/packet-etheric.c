@@ -107,12 +107,6 @@ static const value_string protocol_version_vals[] = {
 	{ 0,	NULL }
 };
 
-/* Copied from packet-isup */
-/* since length field is 8 Bit long - used in number dissectors;
- * max. number of address digits is 15 digits, but MAXLENGTH used
- * to avoid runtime errors 
- */
-#define MAXLENGTH                            0xFF 
 /* Definition of Message Types */
 #define ETHERIC_MESSAGE_TYPE_INITIAL_ADDR       1
 #define ETHERIC_MESSAGE_TYPE_SUBSEQ_ADDR        2
@@ -423,7 +417,7 @@ dissect_etheric_called_party_number_parameter(tvbuff_t *parameter_tvb, proto_tre
   gint offset=0;
   gint i=0;
   gint length;
-  char called_number[MAXLENGTH]="";
+  char *called_number;
   e164_info_t e164_info;
  
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
@@ -436,6 +430,8 @@ dissect_etheric_called_party_number_parameter(tvbuff_t *parameter_tvb, proto_tre
 					    "Called Party Number");
   address_digits_tree = proto_item_add_subtree(address_digits_item, ett_etheric_address_digits);
 
+  length = tvb_reported_length_remaining(parameter_tvb, offset);
+  called_number = g_malloc((length+1) *2);
   while((length = tvb_reported_length_remaining(parameter_tvb, offset)) > 0){
     address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
     proto_tree_add_uint(address_digits_tree, hf_etheric_called_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
@@ -460,7 +456,7 @@ dissect_etheric_called_party_number_parameter(tvbuff_t *parameter_tvb, proto_tre
 								  (offset - 2), e164_info);
   proto_item_set_text(address_digits_item, "Called Party Number: %s", called_number);
   proto_item_set_text(parameter_item, "Called Party Number: %s", called_number);
-
+  g_free(called_number);
 }
 /* ------------------------------------------------------------------
   Dissector Parameter calling party number
@@ -475,7 +471,7 @@ dissect_etheric_calling_party_number_parameter(tvbuff_t *parameter_tvb, proto_tr
   gint offset=0;
   gint i=0;
   gint length;
-  char calling_number[MAXLENGTH]="";
+  char *calling_number;
   e164_info_t e164_info;
 
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
@@ -492,6 +488,8 @@ dissect_etheric_calling_party_number_parameter(tvbuff_t *parameter_tvb, proto_tr
   address_digits_tree = proto_item_add_subtree(address_digits_item, ett_etheric_address_digits);
 
   length = tvb_length_remaining(parameter_tvb, offset);
+  /* prevent running behind the end of calling_number array by throwing an exception */
+  calling_number = g_malloc((length+1) *2);
   while(length > 0){
     address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
     proto_tree_add_uint(address_digits_tree, hf_etheric_calling_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
@@ -518,7 +516,7 @@ dissect_etheric_calling_party_number_parameter(tvbuff_t *parameter_tvb, proto_tr
     e164_info.E164_number_str = calling_number;
     e164_info.E164_number_length = i - 1;
     dissect_e164_number(parameter_tvb, address_digits_tree, 2, (offset - 2), e164_info);
- 
+  g_free(calling_number);
 }
 /* ------------------------------------------------------------------
   Dissector Parameter location number
@@ -533,7 +531,7 @@ dissect_etheric_location_number_parameter(tvbuff_t *parameter_tvb, proto_tree *p
   gint offset=0;
   gint i=0;
   gint length;
-  char calling_number[MAXLENGTH]="";
+  char *calling_number;
 
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
   proto_tree_add_boolean(parameter_tree, hf_etheric_odd_even_indicator, parameter_tvb, 0, 1, indicators1);
@@ -564,6 +562,7 @@ dissect_etheric_location_number_parameter(tvbuff_t *parameter_tvb, proto_tree *p
   address_digits_tree = proto_item_add_subtree(address_digits_item, ett_etheric_address_digits);
 
   length = tvb_length_remaining(parameter_tvb, offset);
+  calling_number = g_malloc((length+1) *2);
   while(length > 0){
     address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
     proto_tree_add_uint(address_digits_tree, hf_etheric_calling_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
@@ -584,7 +583,7 @@ dissect_etheric_location_number_parameter(tvbuff_t *parameter_tvb, proto_tree *p
 
   proto_item_set_text(address_digits_item, "Location number: %s", calling_number);
   proto_item_set_text(parameter_item, "Location number: %s", calling_number);
-
+  g_free(calling_number);
 }
 
 /* ------------------------------------------------------------------
