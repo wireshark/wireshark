@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.5 2002/08/28 02:30:18 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.6 2002/08/28 05:02:41 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -106,10 +106,6 @@ dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	int ret, offset = 0;
 	int length = tvb_length_remaining(tvb, offset);
 
-	item = proto_tree_add_item( tree, hf_spnego_mechtype, tvb, offset, 
-				    length, FALSE);
-	subtree = proto_item_add_subtree(item, ett_spnego_mechtype);
-
 	/*
 	 * MechTypeList ::= SEQUENCE OF MechType 
 	 */
@@ -130,18 +126,20 @@ dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	  goto done;
 	}
 
+	item = proto_tree_add_item( tree, hf_spnego_mechtype, tvb, offset, 
+				    length, FALSE);
+	subtree = proto_item_add_subtree(item, ett_spnego_mechtype);
+
+	offset = hnd->offset;
+
 	/*
 	 * Now, the object IDs ... We should translate them: FIXME 
 	 */
 
-
 	while (len1) {
-	  printf("len1 = %d\n", len1);  
 
 	  ret = asn1_oid_decode(hnd, &oid, &len, &nbytes);
 
-	  printf("len = %d, nbytes = %d\n", len, nbytes);
- 
 	  if (ret != ASN1_ERR_NOERROR) {
 	    dissect_parse_error(tvb, offset, pinfo, subtree,
 				"GSS-API token", ret);
@@ -186,8 +184,47 @@ static int
 dissect_spnego_mechListMIC(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			   proto_tree *tree, ASN1_SCK *hnd)
 {
+	guint len1, len, cls, con, tag, nbytes;
+	int ret;
+	gboolean def;
+	int length = tvb_length_remaining(tvb, offset);
+	proto_tree *subtree = NULL;
 
-  return offset;
+	/*
+	 * Add the mechListMIC [3] Octet STring ...
+	 */
+ 	ret = asn1_header_decode(hnd, &cls, &con, &tag, &def, &len1);
+
+	if (ret != ASN1_ERR_NOERROR) {
+		dissect_parse_error(tvb, offset, pinfo, subtree,
+				    "SPNEGO sequence header", ret);
+		goto done;
+	}
+
+	if (!(cls == ASN1_UNI && con == ASN1_CON && tag == ASN1_SEQ)) {
+		proto_tree_add_text(
+			subtree, tvb, offset, 0,
+			"Unknown header (cls=%d, con=%d, tag=%d)",
+			cls, con, tag);
+		goto done;
+	}
+
+	offset = hnd->offset;
+
+	/* XXX: FIXME, we should dissect this as well */
+
+	proto_tree_add_text(tree, tvb, offset + 4, len1 - 4, 
+			    "mechListMIC: %s\n", 
+			    tvb_format_text(tvb, offset + 4, len1 - 4));
+
+	/* Naughty ... but we have to adjust for what we never took */
+
+	hnd->offset += 4;
+
+
+ done:
+
+	return offset + len1 - 4;
 
 }
 
@@ -240,6 +277,8 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	offset = hnd->offset;
 
+	len -= 2; /* Account for the Header above ... */
+
 	while (len1) {
 
 	  /*
@@ -255,7 +294,7 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	    goto done;
 	  }
 
-	  if (!(cls == ASN1_CTX && con == ASN1_CON && tag == 0)) {
+	  if (!(cls == ASN1_CTX && con == ASN1_CON)) {
 	    proto_tree_add_text(
 				subtree, tvb, offset, 0,
 				"Unknown header (cls=%d, con=%d, tag=%d)",
@@ -284,6 +323,9 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	  case SPNEGO_mechListMIC:
 
+	    offset = dissect_spnego_mechListMIC(tvb, offset, pinfo, subtree,
+						hnd);
+
 	    break;
 
 	  default:
@@ -291,7 +333,7 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	    break;
 	  }
 
-	  len1 -= len;
+	  len1 -= (len + 2); /* Account for header */
 
 	}
 
@@ -299,10 +341,11 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	/* Hand off to subdissector */
 
+	/*
 	if (((value = g_hash_table_lookup(gssapi_oids, oid_string)) == NULL) ||
 	    !proto_is_protocol_enabled(value->proto)) {
 
-		/* No dissector for this oid */
+		No dissector for this oid 
 
 		proto_tree_add_text(
 			subtree, tvb, offset, 
@@ -324,7 +367,7 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		oid_tvb = tvb_new_subset(tvb, offset + 4, -1, -1);
 		call_dissector(handle, oid_tvb, pinfo, oid_subtree);
 	}
-
+	*/
  done:
 
 	return offset; /* Not sure this is right */
@@ -405,6 +448,8 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			cls, con, tag);
 		goto done;
 	}
+
+	offset = hnd.offset;
 
 	/* 
 	 * The Tag is one of negTokenInit or negTokenTarg
