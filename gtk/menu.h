@@ -1,7 +1,7 @@
 /* menu.h
  * Menu definitions
  *
- * $Id: menu.h,v 1.8 2003/04/23 03:13:16 guy Exp $
+ * $Id: menu.h,v 1.9 2003/04/23 05:37:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,8 +40,7 @@ gint popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data);
  * be called from the routine that registers taps - we have to introduce
  * another per-tap registration routine.
  */
-extern void register_tap_menu_item(const char *name,
-    GtkItemFactoryCallback callback);
+extern void register_tap_menu_item(char *name, GtkItemFactoryCallback callback);
 
 extern GtkWidget           *popup_menu_object;
 

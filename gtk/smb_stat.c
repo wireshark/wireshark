@@ -1,7 +1,7 @@
 /* smb_stat.c
  * smb_stat   2003 Ronnie Sahlberg
  *
- * $Id: smb_stat.c,v 1.3 2003/04/23 03:51:03 guy Exp $
+ * $Id: smb_stat.c,v 1.4 2003/04/23 05:37:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,12 +34,12 @@
 
 #include <gtk/gtk.h>
 #include <string.h>
+#include "menu.h"
 #include "../epan/packet_info.h"
 #include "../tap.h"
 #include "../epan/value_string.h"
 #include "../smb.h"
 #include "../register.h"
-#include "smb_stat.h"
 #include "compat_macros.h"
 #include "../simple_dialog.h"
 #include "../file.h"
@@ -64,6 +64,7 @@ typedef struct _smbstat_t {
 	smb_procedure_t trans2[256];
 	smb_procedure_t nt_trans[256];
 } smbstat_t;
+
 
 
 
@@ -486,12 +487,6 @@ gtk_smbstat_init(char *optarg)
 }
 
 
-void
-register_tap_listener_gtksmbstat(void)
-{
-	register_ethereal_tap("smb,rtt", gtk_smbstat_init);
-}
-
 
 static GtkWidget *dlg=NULL, *dlg_box;
 static GtkWidget *filter_box;
@@ -519,7 +514,7 @@ smbstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 	}
 }
 
-void
+static void
 gtk_smbstat_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	/* if the window is already open, bring it to front */
@@ -562,3 +557,14 @@ gtk_smbstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_widget_show_all(dlg);
 }
 
+void
+register_tap_listener_gtksmbstat(void)
+{
+	register_ethereal_tap("smb,rtt", gtk_smbstat_init);
+}
+
+void
+register_tap_menu_gtksmbstat(void)
+{
+	register_tap_menu_item("SMB/RTT", gtk_smbstat_cb);
+}

@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.4 2003/04/23 03:51:02 guy Exp $
+ * $Id: dcerpc_stat.c,v 1.5 2003/04/23 05:37:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,12 +33,12 @@
 #endif
 
 #include <gtk/gtk.h>
+#include "menu.h"
 #include "epan/packet_info.h"
 #include "simple_dialog.h"
 #include "tap.h"
 #include "../register.h"
 #include "packet-dcerpc.h"
-#include "dcerpc_stat.h"
 #include "../globals.h"
 #include "compat_macros.h"
 
@@ -529,7 +529,7 @@ dlg_destroy_cb(void)
 }
 
 
-void
+static void
 gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	/* if the window is already open, bring it to front */
@@ -611,4 +611,10 @@ void
 register_tap_listener_gtkdcerpcstat(void)
 {
 	register_ethereal_tap("dcerpc,rtt,", gtk_dcerpcstat_init);
+}
+
+void
+register_tap_menu_gtkdcerpcstat(void)
+{
+	register_tap_menu_item("DCE-RPC/RTT", gtk_dcerpcstat_cb);
 }

@@ -2,7 +2,7 @@
  * mgcp-statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: mgcp_stat.c,v 1.2 2003/04/23 03:51:03 guy Exp $
+ * $Id: mgcp_stat.c,v 1.3 2003/04/23 05:37:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,7 +41,6 @@
 #include "../register.h"
 #include "../plugins/mgcp/packet-mgcp.h"
 #include "../timestats.h"
-#include "mgcp_stat.h"
 #include "compat_macros.h"
 #include "../simple_dialog.h"
 #include "../file.h"
@@ -346,8 +345,16 @@ register_tap_listener_gtkmgcpstat(void)
 }
 
 
-void
+static void
 gtk_mgcpstat_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	gtk_mgcpstat_init("mgcp,rtd");
 }
+
+void
+register_tap_menu_gtkmgcpstat(void)
+{
+	if (find_tap_id("mgcp"))
+		register_tap_menu_item("MGCP/RTD", gtk_mgcpstat_cb);
+}
+

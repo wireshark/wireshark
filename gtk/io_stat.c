@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.19 2003/04/23 03:51:02 guy Exp $
+ * $Id: io_stat.c,v 1.20 2003/04/23 05:37:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,7 +43,6 @@
 #include "epan/packet_info.h"
 #include "../tap.h"
 #include "../register.h"
-#include "io_stat.h"
 #include "simple_dialog.h"
 #include "../globals.h"
 #include "../color.h"
@@ -1636,7 +1635,7 @@ init_io_stat_window(io_stat_t *io)
 }
 
 
-void 
+static void 
 gtk_iostat_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	gtk_iostat_init(NULL);
@@ -1653,3 +1652,8 @@ register_tap_listener_gtk_iostat(void)
 	register_ethereal_tap("io,stat", gtk_iostat_init);
 }
 
+void
+register_tap_menu_gtkiostat(void)
+{
+	register_tap_menu_item("IO/IO-Stat", gtk_iostat_cb);
+}

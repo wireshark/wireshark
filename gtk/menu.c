@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.91 2003/04/23 03:51:03 guy Exp $
+ * $Id: menu.c,v 1.92 2003/04/23 05:37:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,12 +57,6 @@
 #include <epan/plugins.h>
 #include "tcp_graph.h"
 #include <epan/epan_dissect.h>
-#include "io_stat.h"
-#include "rpc_stat.h"
-#include "rpc_progs.h"
-#include "dcerpc_stat.h"
-#include "smb_stat.h"
-#include "mgcp_stat.h"
 #include "compat_macros.h"
 #include "gtkglobals.h"
 #include "../tap.h"
@@ -237,28 +231,6 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Tools/Protocol Hierarchy Statistics", NULL,
                        proto_hier_stats_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Tools/Statistics", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/Tools/Statistics/ONC-RPC", NULL, NULL, 0, "<Branch>",
-                       NULL),
-    ITEM_FACTORY_ENTRY("/Tools/Statistics/ONC-RPC/RTT", NULL, gtk_rpcstat_cb,
-                       0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Tools/Statistics/ONC-RPC/Programs", NULL,
-                       gtk_rpcprogs_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Tools/Statistics/DCE-RPC", NULL, NULL, 0, "<Branch>",
-                       NULL),
-    ITEM_FACTORY_ENTRY("/Tools/Statistics/DCE-RPC/RTT", NULL, gtk_dcerpcstat_cb,
-                       0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Tools/Statistics/IO", NULL, NULL, 0, "<Branch>",
-                       NULL),
-    ITEM_FACTORY_ENTRY("/Tools/Statistics/IO/IO-Stat", NULL, gtk_iostat_cb,
-                       0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Tools/Statistics/SMB", NULL, NULL, 0, "<Branch>",
-                       NULL),
-    ITEM_FACTORY_ENTRY("/Tools/Statistics/SMB/RTT", NULL, gtk_smbstat_cb,
-                       0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Tools/Statistics/MGCP", NULL, NULL, 0, "<Branch>",
-                       NULL),
-    ITEM_FACTORY_ENTRY("/Tools/Statistics/MGCP/RTD", NULL, gtk_mgcpstat_cb,
-                       0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/_Help", NULL, NULL, 0, "<LastBranch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Help/_Help", NULL, help_cb, 0, GTK_STOCK_HELP),
     ITEM_FACTORY_ENTRY("/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL),
@@ -433,10 +405,6 @@ menus_init(void) {
     set_menu_sensitivity(main_menu_factory, "/Edit/Paste", FALSE);
 #endif
 
-    if(!find_tap_id("mgcp")) {
-    	set_menu_sensitivity(main_menu_factory, "/Tools/Statistics/MGCP",
-    	    FALSE);
-    }
     set_menus_for_captured_packets(FALSE);
     set_menus_for_selected_packet(FALSE);
     set_menus_for_selected_tree_row(FALSE);
@@ -450,12 +418,58 @@ menus_init(void) {
  * another per-tap registration routine.
  */
 void
-register_tap_menu_item(const char *name, GtkItemFactoryCallback callback)
+register_tap_menu_item(char *name, GtkItemFactoryCallback callback)
 {
 	static const char statspath[] = "/Tools/Statistics/";
+	char *p;
 	char *menupath;
 	size_t menupathlen;
+	GtkWidget *w;
 	GtkItemFactoryEntry *entry;
+
+	/*
+	 * The menu path must be relative.
+	 */
+	g_assert(*name != '/');
+
+	/*
+	 * Create any submenus required.
+	 */
+	p = name;
+	while ((p = strchr(p, '/')) != NULL) {
+		/*
+		 * OK, everything between "name" and "p" is
+		 * a menu relative subtree into which the menu item
+		 * will be placed.
+		 *
+		 * Construct the absolute path name of that subtree.
+		 */
+		menupathlen = sizeof statspath + (p - name);
+		menupath = g_malloc(menupathlen);
+		strcpy(menupath, statspath);
+		strncat(menupath, name, p - name);
+
+		/*
+		 * Does there exist an entry with that path in the main
+		 * menu item factory?
+		 */
+		w = gtk_item_factory_get_widget(main_menu_factory, menupath);
+		if (w == NULL) {
+			/*
+			 * No.  Create such an item as a subtree.
+			 */
+			entry = g_malloc0(sizeof (GtkItemFactoryEntry));
+			entry->path = menupath;
+			entry->item_type = "<Branch>";
+			gtk_item_factory_create_item(main_menu_factory, entry,
+			    NULL, 2);
+		}
+
+		/*
+		 * Skip over the '/' we found.
+		 */
+		p++;
+	}
 
 	/*
 	 * Construct the main menu path for the menu item.

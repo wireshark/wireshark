@@ -1,7 +1,7 @@
 /* rpc_progs.c
  * rpc_progs   2002 Ronnie Sahlberg
  *
- * $Id: rpc_progs.c,v 1.7 2003/04/23 03:51:03 guy Exp $
+ * $Id: rpc_progs.c,v 1.8 2003/04/23 05:37:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,7 +36,6 @@
 #include "epan/packet_info.h"
 #include "tap.h"
 #include "../register.h"
-#include "rpc_progs.h"
 #include "packet-rpc.h"
 #include "../globals.h"
 #include "compat_macros.h"
@@ -388,7 +387,7 @@ gtk_rpcprogs_init(char *optarg _U_)
 	redissect_packets(&cfile);
 }
 
-void
+static void
 gtk_rpcprogs_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	gtk_rpcprogs_init("");
@@ -399,3 +398,10 @@ register_tap_listener_gtkrpcprogs(void)
 {
 	register_ethereal_tap("rpc,programs", gtk_rpcprogs_init);
 }
+
+void
+register_tap_menu_gtkrpcprogs(void)
+{
+	register_tap_menu_item("ONC-RPC/Programs", gtk_rpcprogs_cb);
+}
+
