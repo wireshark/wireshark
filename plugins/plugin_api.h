@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.12 2000/11/15 07:07:50 guy Exp $
+ * $Id: plugin_api.h,v 1.13 2000/11/29 09:49:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -24,10 +24,6 @@
  */
 
 #ifdef PLUGINS_NEED_ADDRESS_TABLE
-
-#ifdef _WIN32
-#define DLLEXPORT    __declspec(dllexport)
-#endif
 
 /* Some OSes (Win32) have DLLs that cannot reference symbols in the parent
    executable, so the executable needs to provide a collection of pointers
@@ -163,11 +159,6 @@
 #define prefs_register_enum_preference	(*p_prefs_register_enum_preference)
 
 #define pi	(*p_pi)
-
-#else
-
-/* ! PLUGINS_NEED_ADDRESS_TABLE */
-#define DLLEXPORT 
 
 #endif
 

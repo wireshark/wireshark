@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.21 2000/11/06 09:56:10 guy Exp $
+$Id: README.developer,v 1.22 2000/11/29 09:49:26 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -62,7 +62,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.21 2000/11/06 09:56:10 guy Exp $"
+The "$Id: README.developer,v 1.22 2000/11/29 09:49:26 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -72,7 +72,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.21 2000/11/06 09:56:10 guy Exp $
+ * $Id: README.developer,v 1.22 2000/11/29 09:49:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -1602,12 +1602,21 @@ $ cat moduleinfo.h
 /* Plugin version number */
 #define VERSION "0.1.2"
 
+#include <gmodule.h>
+
+This header is required to define G_MODULE_EXPORT, which must be used
+when defining constants and functions exported by the plugin.
+
+"gmodule.h" includes "glib.h", so you don't need to include "glib.h" if
+you include "gmodule.h"; however, "glib.h" is protected from multiple
+inclusion by #ifdefs, so it's safe to include it after including
+"gmodule.h".
+
 3.2 Exported constants
 
-Plugins need to provide the following exported constants (the DLLEXPORT macro is
-defined in plugin_api.h) :
+Plugins need to provide the following exported constants:
 
-DLLEXPORT const gchar version[] = VERSION;
+G_MODULE_EXPORT const gchar version[] = VERSION;
 
 version       : a version number associated with the plugin.
 
@@ -1615,7 +1624,7 @@ version       : a version number associated with the plugin.
 
 The following two functions need to be exported by the plugin:
 
-DLLEXPORT void plugin_init(plugin_address_table_t *pat)
+G_MODULE_EXPORT void plugin_init(plugin_address_table_t *pat)
 
 This function is called by Ethereal when the plugin is initialized; it's
 similar to the "proto_register_XXX()" routine for a non-plugin
@@ -1634,7 +1643,7 @@ Here is a sample code for the function:
 	  proto_register_subtree_array(ett, array_length(ett));
 	}
 
-DLLEXPORT void plugin_reg_handoff(void)
+G_MODULE_EXPORT void plugin_reg_handoff(void)
 
 This function is called by Ethereal after all dissectors, including all
 plugins, are initialized; it's similar to the "proto_reg_handoff_XXX()"

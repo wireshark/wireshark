@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.7 2000/11/22 06:22:35 gram Exp $
+ * $Id: packet-mgcp.c,v 1.8 2000/11/29 09:49:30 guy Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -42,7 +42,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <glib.h>
+#include <gmodule.h>
 #include <ctype.h>
 #include <time.h>
 #include <string.h>
@@ -51,7 +51,7 @@
 #include "prefs.h"
 #include "strutil.h"
 
-DLLEXPORT const gchar version[] = VERSION;
+G_MODULE_EXPORT const gchar version[] = VERSION;
 
 #define TCP_PORT_MGCP_GATEWAY 2427
 #define UDP_PORT_MGCP_GATEWAY 2427
@@ -1041,7 +1041,7 @@ static gint tvb_section_length(tvbuff_t* tvb, gint tvb_sectionbegin,
 
 
 /* Start the functions we need for the plugin stuff */
-DLLEXPORT void
+G_MODULE_EXPORT void
 plugin_reg_handoff(void){
   proto_reg_handoff_mgcp();
 
@@ -1051,7 +1051,7 @@ plugin_reg_handoff(void){
   sdp_handle = find_dissector("sdp");
 }
 
-DLLEXPORT void
+G_MODULE_EXPORT void
 plugin_init(plugin_address_table_t *pat){
   /* initialise the table of pointers needed in Win32 DLLs */
   plugin_address_table_init(pat);

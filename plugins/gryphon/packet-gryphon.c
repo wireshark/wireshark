@@ -1,7 +1,7 @@
 /* packet-gryphon.c
  * Routines for Gryphon protocol packet disassembly
  *
- * $Id: packet-gryphon.c,v 1.15 2000/11/06 08:44:05 guy Exp $
+ * $Id: packet-gryphon.c,v 1.16 2000/11/29 09:49:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
@@ -41,7 +41,7 @@
 #include <ctype.h>
 #include <time.h>
 
-#include <glib.h>
+#include <gmodule.h>
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
 #endif
@@ -49,7 +49,7 @@
 #include "dfilter.h"
 #include "packet-gryphon.h"
 
-DLLEXPORT const gchar version[] = VERSION;
+G_MODULE_EXPORT const gchar version[] = VERSION;
 
 #ifndef G_HAVE_GINT64
 #error "Sorry, this won't compile without 64-bit integer support"
@@ -1657,7 +1657,7 @@ blm_mode (int src, const u_char **data, const u_char *dataend, int *offset, int 
     BUMP (*offset, *data, 4);
 }
 
-DLLEXPORT void
+G_MODULE_EXPORT void
 plugin_init(plugin_address_table_t *pat)
 {
     static hf_register_info hf[] = {
@@ -1713,7 +1713,7 @@ plugin_init(plugin_address_table_t *pat)
     }
 }
 
-DLLEXPORT void
+G_MODULE_EXPORT void
 plugin_reg_handoff(void)
 {
     old_dissector_add("tcp.port", 7000, &dissect_gryphon);
