@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.40 2003/09/23 18:09:36 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.41 2003/09/29 06:41:46 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -244,6 +244,9 @@ field_select_row_cb(GtkTreeSelection *sel, gpointer tree)
 static void
 show_relations(GtkWidget *relation_list, ftenum_t ftype)
 {
+#if GTK_MAJOR_VERSION >= 2
+        GtkTreeIter iter;
+#endif
 	/*
 	 * Clear out the currently displayed list of relations.
 	 */
@@ -278,6 +281,11 @@ show_relations(GtkWidget *relation_list, ftenum_t ftype)
 	if (ftype_can_contains(ftype) ||
 	    (ftype_can_slice(ftype) && ftype_can_contains(FT_BYTES)))
 		add_relation_list(relation_list, "contains");
+
+#if GTK_MAJOR_VERSION >= 2
+        gtk_tree_model_get_iter_first(gtk_tree_view_get_model(GTK_TREE_VIEW(relation_list)), &iter);
+        gtk_tree_selection_select_iter(gtk_tree_view_get_selection(GTK_TREE_VIEW(relation_list)), &iter);
+#endif
 }
 
 /*
@@ -1066,8 +1074,9 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     GtkWidget *value_label, *value_entry, *value_list_scrolled_win, *value_list;
     GtkWidget *list_bb, *alignment, *accept_bt, *close_bt;
     header_field_info       *hfinfo;
-    int i, len;
+    int i;
 #if GTK_MAJOR_VERSION < 2
+    int len;
     void *cookie;
     gchar *name;
     GHashTable *proto_array;
@@ -1077,7 +1086,6 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     GtkTreeSelection *selection;
     GtkCellRenderer *renderer;
     GtkTreeViewColumn *column;
-    GtkTreeIter iter;
     GtkListStore      *l_store;
     GtkTreeSelection  *l_sel;
 #endif
