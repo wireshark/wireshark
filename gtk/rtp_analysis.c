@@ -220,16 +220,20 @@ static const key_value clock_map[] = {
 	{PT_MPV,        90000},
 	{PT_MP2T,       90000},
 	{PT_H263,       90000},
-	{-1, 1} /* leave this as the last entry to find the end of the map when searching */
 };
 
+#define NUM_CLOCK_VALUES	(sizeof clock_map / sizeof clock_map[0])
 
 static guint32
 get_clock_rate(guint32 key)
 {
-	guint32 i=0;
-	while (clock_map[i].key!=key && clock_map[i].key!=-1) i++;
-	return clock_map[i].value;
+	size_t i;
+
+	for (i = 0; i < NUM_CLOCK_VALUES; i++) {
+		if (clock_map[i].key == key)
+			return clock_map[i].value;
+	}
+	return 1;
 }
 
 
@@ -438,7 +442,7 @@ rtp_reset(void *user_data_arg)
 }
 
 /****************************************************************************/
-static int rtp_packet_add_graph(dialog_graph_graph_t *dgg, tap_rtp_stat_t *statinfo, packet_info *pinfo, struct _rtp_info *rtpinfo, guint32 value)
+static int rtp_packet_add_graph(dialog_graph_graph_t *dgg, tap_rtp_stat_t *statinfo, packet_info *pinfo, guint32 value)
 {
         dialog_graph_graph_item_t *it;
         int idx;
@@ -534,8 +538,8 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 		g_array_append_val(user_data->series_fwd.value_pairs, vp);
 #endif
 		rtp_packet_analyse(&(user_data->forward.statinfo), pinfo, rtpinfo);
-		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_FWD_JITTER]), &(user_data->forward.statinfo), pinfo, rtpinfo, (guint32)(user_data->forward.statinfo.jitter*1000000));
-		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_FWD_DIFF]), &(user_data->forward.statinfo), pinfo, rtpinfo, (guint32)(user_data->forward.statinfo.diff*1000000));
+		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_FWD_JITTER]), &(user_data->forward.statinfo), pinfo, (guint32)(user_data->forward.statinfo.jitter*1000000));
+		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_FWD_DIFF]), &(user_data->forward.statinfo), pinfo, (guint32)(user_data->forward.statinfo.diff*1000000));
 		rtp_packet_add_info(user_data->dlg.clist_fwd,
 			&(user_data->forward.statinfo), pinfo, rtpinfo);
 		rtp_packet_save_payload(&(user_data->forward.saveinfo),
@@ -549,8 +553,8 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 		g_array_append_val(user_data->series_rev.value_pairs, vp);
 #endif
 		rtp_packet_analyse(&(user_data->reversed.statinfo), pinfo, rtpinfo);
-		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_REV_JITTER]), &(user_data->reversed.statinfo), pinfo, rtpinfo, (guint32)(user_data->reversed.statinfo.jitter*1000000));
-                rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_REV_DIFF]), &(user_data->reversed.statinfo), pinfo, rtpinfo, (guint32)(user_data->reversed.statinfo.diff*1000000));
+		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_REV_JITTER]), &(user_data->reversed.statinfo), pinfo, (guint32)(user_data->reversed.statinfo.jitter*1000000));
+		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_REV_DIFF]), &(user_data->reversed.statinfo), pinfo, (guint32)(user_data->reversed.statinfo.diff*1000000));
 		rtp_packet_add_info(user_data->dlg.clist_rev,
 			&(user_data->reversed.statinfo), pinfo, rtpinfo);
 		rtp_packet_save_payload(&(user_data->reversed.saveinfo),
@@ -583,6 +587,11 @@ static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		statinfo->flags |= STAT_FLAG_PT_CHANGE;
 
 	statinfo->pt = rtpinfo->info_payload_type;
+	/*
+	 * XXX - should "get_clock_rate()" return 0 for unknown
+	 * payload types, presumably meaning that we should
+	 * just ignore this packet?
+	 */
 	clock_rate = get_clock_rate(statinfo->pt);
 
 	/* store the current time and calculate the current jitter */
