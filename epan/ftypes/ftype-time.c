@@ -1,10 +1,9 @@
 /*
- * $Id: ftype-time.c,v 1.7 2001/06/02 06:21:14 guy Exp $
+ * $Id: ftype-time.c,v 1.8 2001/06/18 01:42:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,6 +25,14 @@
 #endif
 
 #include <ctype.h>
+
+/*
+ * Just make sure we include the prototype for strptime as well
+ * (needed for glibc 2.2)
+ */
+#ifndef __USE_XOPEN
+#define __USE_XOPEN
+#endif
 
 #include <time.h>
 
