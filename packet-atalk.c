@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.41 2000/11/11 09:18:15 guy Exp $
+ * $Id: packet-atalk.c,v 1.42 2000/11/13 04:26:14 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -65,11 +65,14 @@ static int hf_nbp_node_type = -1;
 static int hf_nbp_node_zone = -1;
 
 static int proto_rtmp = -1;
-static int hf_rtmp_tuple_net = -1;
-static int hf_rtmp_tuple_dist = -1;
 static int hf_rtmp_net = -1;
 static int hf_rtmp_node_len = -1;
 static int hf_rtmp_node = -1;
+static int hf_rtmp_tuple_net = -1;
+static int hf_rtmp_tuple_range_start = -1;
+static int hf_rtmp_tuple_range_end = -1;
+static int hf_rtmp_tuple_dist = -1;
+static int hf_rtmp_function = -1;
 
 static gint ett_nbp = -1;
 static gint ett_nbp_info = -1;
@@ -130,6 +133,13 @@ static const value_string op_vals[] = {
   {0, NULL}
 };
 
+static const value_string rtmp_function_vals[] = {
+  {1, "Request"},
+  {2, "Route Data Request (split horizon processed)"},
+  {3, "Route Data Request (no split horizon processing)"},
+  {0, NULL}
+};
+
 #define NBP_LOOKUP 2
 #define NBP_FORWARD 4
 #define NBP_REPLY 3
@@ -141,21 +151,17 @@ static const value_string nbp_op_vals[] = {
   {0, NULL}
 };
 
-int dissect_pascal_string(const u_char *pd, int offset, frame_data *fd, 
-	proto_tree *tree, int hf_index)
+/*
+ * XXX - do this with an FT_UINT_STRING?
+ * Unfortunately, you can't extract from an FT_UINT_STRING the string,
+ * which we'd want to do in order to put it into the "Data:" portion.
+ */
+int dissect_pascal_string(tvbuff_t *tvb, int offset, proto_tree *tree,
+	int hf_index)
 {
 	int len;
 	
-	if ( ! BYTES_ARE_IN_FRAME(offset,1) ) {
-		old_dissect_data(pd,offset,fd,tree);
-		return END_OF_FRAME;
-	}
-		
-	len = pd[offset];
-	if ( ! BYTES_ARE_IN_FRAME(offset,len) ) {
-		old_dissect_data(pd,offset,fd,tree);
-		return END_OF_FRAME;
-	}
+	len = tvb_get_guint8(tvb, offset);
 	offset++;
 
 	if ( tree )
@@ -164,14 +170,19 @@ int dissect_pascal_string(const u_char *pd, int offset, frame_data *fd,
 		proto_tree *item;
 		proto_tree *subtree;
 		
+		/*
+		 * XXX - if we could do this inside the protocol tree
+		 * code, we could perhaps avoid allocating and freeing
+		 * this string buffer.
+		 */
 		tmp = g_malloc( len+1 );
-		memcpy(tmp, &pd[offset], len);
+		tvb_memcpy(tvb, tmp, offset, len);
 		tmp[len] = 0;
-		item = proto_tree_add_string(tree, hf_index, NullTVB, offset-1, len+1, tmp);
+		item = proto_tree_add_string(tree, hf_index, tvb, offset-1, len+1, tmp);
 
 		subtree = proto_item_add_subtree(item, ett_pstring);
-		proto_tree_add_text(subtree, NullTVB, offset-1, 1, "Length: %d", len);
-		proto_tree_add_text(subtree, NullTVB, offset, len, "Data: %s", tmp);
+		proto_tree_add_text(subtree, tvb, offset-1, 1, "Length: %d", len);
+		proto_tree_add_text(subtree, tvb, offset, len, "Data: %s", tmp);
 		
 		g_free(tmp);
 	}
@@ -181,206 +192,203 @@ int dissect_pascal_string(const u_char *pd, int offset, frame_data *fd,
 }
 
 static void
-dissect_rtmp_request(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
-  old_dissect_data(pd, offset, fd, tree);
-  return;
+dissect_rtmp_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  proto_tree *rtmp_tree;
+  proto_item *ti;
+  guint8 function;
+
+  CHECK_DISPLAY_AS_DATA(proto_rtmp, tvb, pinfo, tree);
+
+  pinfo->current_proto = "RTMP";
+
+  function = tvb_get_guint8(tvb, 0);
+
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_add_str(pinfo->fd, COL_PROTOCOL, "RTMP");
+
+  if (check_col(pinfo->fd, COL_INFO))
+    col_add_fstr(pinfo->fd, COL_INFO, "%s",
+	val_to_str(function, rtmp_function_vals, "Unknown function (%02)"));
+  
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_rtmp, tvb, 0, 1, FALSE);
+    rtmp_tree = proto_item_add_subtree(ti, ett_rtmp);
+
+    proto_tree_add_uint(rtmp_tree, hf_rtmp_function, tvb, 0, 1, function);
+  }
 }
 
 static void
-dissect_rtmp_data(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_rtmp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_tree *rtmp_tree;
   proto_item *ti;
+  int offset = 0;
   guint16 net;
   guint8 nodelen,nodelen_bits;
   guint16 node; /* might be more than 8 bits */
   int i;
 
-  OLD_CHECK_DISPLAY_AS_DATA(proto_rtmp, pd, offset, fd, tree);
+  CHECK_DISPLAY_AS_DATA(proto_rtmp, tvb, pinfo, tree);
 
-  if (!BYTES_ARE_IN_FRAME(offset, 3)) {
-    old_dissect_data(pd, offset, fd, tree);
-    return;
-  }
+  pinfo->current_proto = "RTMP";
 
-  net = pntohs(&pd[offset]);
-  nodelen_bits = pd[offset+2];
+  net = tvb_get_ntohs(tvb, offset);
+  nodelen_bits = tvb_get_guint8(tvb, offset+2);
   if ( nodelen_bits <= 8 ) {
-  	node = pd[offset]+1;
-	nodelen = 1;
+    node = tvb_get_guint8(tvb, offset)+1;
+    nodelen = 1;
   } else {
-    node = pntohs(&pd[offset]);
-	nodelen = 2;
+    node = tvb_get_ntohs(tvb, offset);
+    nodelen = 2;
   }
   
-  if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "RTMP");
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_add_str(pinfo->fd, COL_PROTOCOL, "RTMP");
 
-  if (check_col(fd, COL_INFO))
-    col_add_fstr(fd, COL_INFO, "Net: %d  Node Len: %d  Node: %d",
+  if (check_col(pinfo->fd, COL_INFO))
+    col_add_fstr(pinfo->fd, COL_INFO, "Net: %u  Node Len: %u  Node: %u",
 		net, nodelen_bits, node);
   
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_rtmp, NullTVB, offset, END_OF_FRAME, FALSE);
+    ti = proto_tree_add_item(tree, proto_rtmp, tvb, offset,
+			     tvb_length_remaining(tvb, offset), FALSE);
     rtmp_tree = proto_item_add_subtree(ti, ett_rtmp);
 
-	proto_tree_add_uint(rtmp_tree, hf_rtmp_net, NullTVB, offset, 2, net);
-	proto_tree_add_uint(rtmp_tree, hf_rtmp_node_len, NullTVB, offset+2, 1, nodelen_bits);
-	proto_tree_add_uint(rtmp_tree, hf_rtmp_node, NullTVB, offset+3, nodelen, nodelen);
+    proto_tree_add_uint(rtmp_tree, hf_rtmp_net, tvb, offset, 2, net);
+    proto_tree_add_uint(rtmp_tree, hf_rtmp_node_len, tvb, offset+2, 1,
+			nodelen_bits);
+    proto_tree_add_uint(rtmp_tree, hf_rtmp_node, tvb, offset+3, nodelen,
+			node);
     offset += 3 + nodelen;
 
     i = 1;
-	while ( BYTES_ARE_IN_FRAME(offset, 1) )
-	{
-		proto_tree *tuple_item, *tuple_tree;
-		guint16 tuple_net, tuple_net2;
-		guint8 tuple_dist, tuple_dist2;
+    while (tvb_length_remaining(tvb, offset) != 0) {
+      proto_tree *tuple_item, *tuple_tree;
+      guint16 tuple_net;
+      guint8 tuple_dist;
+      guint16 tuple_range_end;
 
-		if ( ! BYTES_ARE_IN_FRAME(offset, 3) )
-		{
-			old_dissect_data(pd,offset,fd,rtmp_tree);
-			return;
-		}
+      tuple_net = tvb_get_ntohs(tvb, offset);
+      tuple_dist = tvb_get_guint8(tvb, offset+2);
 
-		tuple_net = pntohs(&pd[offset]);
-		tuple_dist = pd[offset+2];
-
-		tuple_item = proto_tree_add_text(rtmp_tree, NullTVB, offset, 3, 
-			"Tuple %d:  Net: %d  Dist: %d",
+      if (tuple_dist & 0x80) {
+        tuple_range_end = tvb_get_ntohs(tvb, offset+3);
+        tuple_item = proto_tree_add_text(rtmp_tree, tvb, offset, 6,
+			"Tuple %d:  Range Start: %u  Dist: %u  Range End: %u",
+			i, tuple_net, tuple_dist&0x7F, tuple_range_end);
+      } else {
+        tuple_item = proto_tree_add_text(rtmp_tree, tvb, offset, 3,
+			"Tuple %d:  Net: %u  Dist: %u",
 			i, tuple_net, tuple_dist);
-		tuple_tree = proto_item_add_subtree(tuple_item, ett_rtmp_tuple);
+      }
+      tuple_tree = proto_item_add_subtree(tuple_item, ett_rtmp_tuple);
 
-		proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_net, NullTVB, offset, 2, 
+      if (tuple_dist & 0x80) {
+        proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_range_start, tvb, offset, 2, 
 			tuple_net);
-		proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_dist, NullTVB, offset+2, 1,
-			tuple_dist);
+      } else {
+        proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_net, tvb, offset, 2, 
+			tuple_net);
+      }
+      proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_dist, tvb, offset+2, 1,
+			tuple_dist & 0x7F);
 
-		if ( tuple_dist == 0 || tuple_dist & 0x80 ) /* phase 1/2 */
-		{
-			if ( ! BYTES_ARE_IN_FRAME(offset+3, 3) )
-			{
-				old_dissect_data(pd,offset,fd,rtmp_tree);
-				return;
-			}
+      if (tuple_dist & 0x80) {
+        /*
+         * Extended network tuple.
+         */
+        proto_tree_add_item(tuple_tree, hf_rtmp_tuple_range_end, tvb, offset+3, 2, 
+				FALSE);
+	offset += 6;
+      } else
+        offset += 3;
 
-			tuple_net2 = pntohs(&pd[offset+3]);
-			tuple_dist2 = pd[offset+5];
-
-			proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_net, NullTVB, offset, 2, 
-				tuple_net2);
-			proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_dist, NullTVB, offset+2, 1,
-				tuple_dist2);
-				
-			proto_item_set_len(tuple_item, 6);
-			offset += 6;
-		}
-		else /* screwy gatorbox/etc. */
-		{
-			offset += 3;
-		}
-
-		i++;
-	}
+      i++;
+    }
   }
-
-  return;
 }
 
 static void
-dissect_nbp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_tree *nbp_tree;
   proto_tree *nbp_info_tree;
   proto_item *ti, *info_item;
+  int offset = 0;
+  guint8 info;
   guint op, count;
   int i;
 
-  OLD_CHECK_DISPLAY_AS_DATA(proto_nbp, pd, offset, fd, tree);
+  CHECK_DISPLAY_AS_DATA(proto_nbp, tvb, pinfo, tree);
 
-  if (!BYTES_ARE_IN_FRAME(offset, 2)) {
-    old_dissect_data(pd, offset, fd, tree);
-    return;
-  }
+  pinfo->current_proto = "NBP";
 
-  op = pd[offset] >> 4;
-  count = pd[offset] & 0x0F;
+  info = tvb_get_guint8(tvb, offset);
+  op = info >> 4;
+  count = info & 0x0F;
 
-  if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "NBP");
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_add_str(pinfo->fd, COL_PROTOCOL, "NBP");
 
-  if (check_col(fd, COL_INFO))
-    col_add_fstr(fd, COL_INFO, "Op: %s  Count: %d",
-      val_to_str(op, nbp_op_vals, "unknown (%1x)"), count);
+  if (check_col(pinfo->fd, COL_INFO))
+    col_add_fstr(pinfo->fd, COL_INFO, "Op: %s  Count: %u",
+      val_to_str(op, nbp_op_vals, "Unknown (0x%01x)"), count);
   
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_nbp, NullTVB, offset, END_OF_FRAME, FALSE);
+    ti = proto_tree_add_item(tree, proto_nbp, tvb, offset, END_OF_FRAME, FALSE);
     nbp_tree = proto_item_add_subtree(ti, ett_nbp);
 
-    info_item = proto_tree_add_uint_format(nbp_tree, hf_nbp_info, NullTVB, offset, 1,
-		pd[offset], 
-		"Info: 0x%01X  Operation: %s  Count: %d", pd[offset],
-		val_to_str(op, nbp_op_vals, "unknown"),
+    info_item = proto_tree_add_uint_format(nbp_tree, hf_nbp_info, tvb, offset, 1,
+		info,
+		"Info: 0x%01X  Operation: %s  Count: %u", info,
+		val_to_str(op, nbp_op_vals, "Unknown (0x%01X)"),
 		count);
-	nbp_info_tree = proto_item_add_subtree(info_item, ett_nbp_info);
-    proto_tree_add_uint(nbp_info_tree, hf_nbp_op, NullTVB, offset, 1, pd[offset]);
-    proto_tree_add_uint(nbp_info_tree, hf_nbp_count, NullTVB, offset, 1, pd[offset]);
-    proto_tree_add_uint(nbp_tree, hf_nbp_tid, NullTVB, offset+1, 1, pd[offset+1]);
-	offset += 2;
+    nbp_info_tree = proto_item_add_subtree(info_item, ett_nbp_info);
+    proto_tree_add_uint(nbp_info_tree, hf_nbp_op, tvb, offset, 1, info);
+    proto_tree_add_uint(nbp_info_tree, hf_nbp_count, tvb, offset, 1, info);
+    proto_tree_add_item(nbp_tree, hf_nbp_tid, tvb, offset+1, 1, FALSE);
+    offset += 2;
 
     for (i=0; i<count; i++) {
-		struct atalk_ddp_addr addr;
-		proto_tree *node_item,*node_tree;
-		int soffset = offset;
+      proto_tree *node_item,*node_tree;
+      int soffset = offset;
 
-		if ( !BYTES_ARE_IN_FRAME(offset, 6) ) {
-			old_dissect_data(pd,offset,fd,nbp_tree);
-			return;
-		}
-
-		node_item = proto_tree_add_text(nbp_tree, NullTVB, offset, 4, 
+      node_item = proto_tree_add_text(nbp_tree, tvb, offset, 4, 
 			"Node %d", i+1);
-		node_tree = proto_item_add_subtree(node_item, ett_nbp_node);
+      node_tree = proto_item_add_subtree(node_item, ett_nbp_node);
 
-		addr.net = pntohs(&pd[offset]);
-		addr.node = pd[offset+2];
-		addr.port = pd[offset+3];
+      proto_tree_add_item(node_tree, hf_nbp_node_net, tvb, offset, 2, FALSE);
+      offset += 2;
+      proto_tree_add_item(node_tree, hf_nbp_node_node, tvb, offset, 1, FALSE);
+      offset++;
+      proto_tree_add_item(node_tree, hf_nbp_node_port, tvb, offset, 1, FALSE);
+      offset++;
+      proto_tree_add_item(node_tree, hf_nbp_node_enum, tvb, offset, 1, FALSE);
+      offset++;
 
-		/* note, this is probably wrong, I need to look at my info at work
-			tomorrow to straighten it out */
+      offset = dissect_pascal_string(tvb, offset, node_tree, hf_nbp_node_object);
+      offset = dissect_pascal_string(tvb, offset, node_tree, hf_nbp_node_type);
+      offset = dissect_pascal_string(tvb, offset, node_tree, hf_nbp_node_zone);
 
-		proto_tree_add_uint(node_tree, hf_nbp_node_net, NullTVB, offset, 2, addr.net);
-		offset += 2;
-		proto_tree_add_uint(node_tree, hf_nbp_node_node, NullTVB, offset, 1, addr.node);
-		offset++;
-		proto_tree_add_uint(node_tree, hf_nbp_node_port, NullTVB, offset, 1, addr.port);
-		offset++;
-		proto_tree_add_uint(node_tree, hf_nbp_node_enum, NullTVB, offset, 1, pd[offset]);
-		offset++;
-
-		offset = dissect_pascal_string(pd,offset,fd,node_tree,hf_nbp_node_object);
-		offset = dissect_pascal_string(pd,offset,fd,node_tree,hf_nbp_node_type);
-		offset = dissect_pascal_string(pd,offset,fd,node_tree,hf_nbp_node_zone);
-
-		proto_item_set_len(node_item, offset-soffset);
-	}
+      proto_item_set_len(node_item, offset-soffset);
+    }
   }
 
   return;
 }
 
 void
-dissect_ddp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   e_ddp       ddp;
   proto_tree *ddp_tree;
   proto_item *ti;
-  static struct atalk_ddp_addr src, dst;
+  struct atalk_ddp_addr src, dst;
+  tvbuff_t   *new_tvb;
 
-  OLD_CHECK_DISPLAY_AS_DATA(proto_ddp, pd, offset, fd, tree);
+  CHECK_DISPLAY_AS_DATA(proto_ddp, tvb, pinfo, tree);
 
-  if (!BYTES_ARE_IN_FRAME(offset, DDP_HEADER_SIZE)) {
-    old_dissect_data(pd, offset, fd, tree);
-    return;
-  }
+  pinfo->current_proto = "DDP";
 
-  memcpy(&ddp, &pd[offset], sizeof(e_ddp));
+  tvb_memcpy(tvb, (guint8 *)&ddp, 0, sizeof(e_ddp));
   ddp.dnet=ntohs(ddp.dnet);
   ddp.snet=ntohs(ddp.snet);
   ddp.sum=ntohs(ddp.sum);
@@ -392,38 +400,47 @@ dissect_ddp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   dst.net = ddp.dnet;
   dst.node = ddp.dnode;
   dst.port = ddp.dport;
-  SET_ADDRESS(&pi.net_src, AT_ATALK, sizeof src, (guint8 *)&src);
-  SET_ADDRESS(&pi.src, AT_ATALK, sizeof src, (guint8 *)&src);
-  SET_ADDRESS(&pi.net_dst, AT_ATALK, sizeof dst, (guint8 *)&dst);
-  SET_ADDRESS(&pi.dst, AT_ATALK, sizeof dst, (guint8 *)&dst);
+  SET_ADDRESS(&pinfo->net_src, AT_ATALK, sizeof src, (guint8 *)&src);
+  SET_ADDRESS(&pinfo->src, AT_ATALK, sizeof src, (guint8 *)&src);
+  SET_ADDRESS(&pinfo->net_dst, AT_ATALK, sizeof dst, (guint8 *)&dst);
+  SET_ADDRESS(&pinfo->dst, AT_ATALK, sizeof dst, (guint8 *)&dst);
 
-  if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "DDP");
-  if (check_col(fd, COL_INFO))
-    col_add_str(fd, COL_INFO,
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_add_str(pinfo->fd, COL_PROTOCOL, "DDP");
+  if (check_col(pinfo->fd, COL_INFO))
+    col_add_str(pinfo->fd, COL_INFO,
       val_to_str(ddp.type, op_vals, "Unknown DDP protocol (%02x)"));
   
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_ddp, NullTVB, offset, DDP_HEADER_SIZE, FALSE);
+    ti = proto_tree_add_item(tree, proto_ddp, tvb, 0, DDP_HEADER_SIZE,
+			     FALSE);
     ddp_tree = proto_item_add_subtree(ti, ett_ddp);
-    proto_tree_add_uint(ddp_tree, hf_ddp_hopcount, NullTVB, offset,      1, 
+    proto_tree_add_uint(ddp_tree, hf_ddp_hopcount,   tvb, 0, 1,
 			ddp_hops(ddp.hops_len));
-    proto_tree_add_uint(ddp_tree, hf_ddp_len, NullTVB, offset,	    2, 
+    proto_tree_add_uint(ddp_tree, hf_ddp_len,        tvb, 0, 2, 
 			ddp_len(ddp.hops_len));
-    proto_tree_add_uint(ddp_tree, hf_ddp_checksum, NullTVB, offset + 2,  2, ddp.sum);
-    proto_tree_add_uint(ddp_tree, hf_ddp_dst_net, NullTVB, offset + 4,  2, ddp.dnet);
-    proto_tree_add_uint(ddp_tree, hf_ddp_src_net, NullTVB,  offset + 6,  2, ddp.snet);
-    proto_tree_add_uint(ddp_tree, hf_ddp_dst_node, NullTVB, offset + 8,  1, ddp.dnode);
-    proto_tree_add_uint(ddp_tree, hf_ddp_src_node, NullTVB, offset + 9,  1, ddp.snode);
-    proto_tree_add_uint(ddp_tree, hf_ddp_dst_socket, NullTVB, offset + 10, 1, ddp.dport);
-    proto_tree_add_uint(ddp_tree, hf_ddp_src_socket, NullTVB, offset + 11, 1, ddp.sport);
-    proto_tree_add_uint(ddp_tree, hf_ddp_type, NullTVB, offset + 12, 1, ddp.type);  
+    proto_tree_add_uint(ddp_tree, hf_ddp_checksum,   tvb, 2,  2,
+			ddp.sum);
+    proto_tree_add_uint(ddp_tree, hf_ddp_dst_net,    tvb, 4,  2,
+			ddp.dnet);
+    proto_tree_add_uint(ddp_tree, hf_ddp_src_net,    tvb, 6,  2,
+			ddp.snet);
+    proto_tree_add_uint(ddp_tree, hf_ddp_dst_node,   tvb, 8,  1,
+			ddp.dnode);
+    proto_tree_add_uint(ddp_tree, hf_ddp_src_node,   tvb, 9,  1,
+			ddp.snode);
+    proto_tree_add_uint(ddp_tree, hf_ddp_dst_socket, tvb, 10, 1,
+			ddp.dport);
+    proto_tree_add_uint(ddp_tree, hf_ddp_src_socket, tvb, 11, 1,
+			ddp.sport);
+    proto_tree_add_uint(ddp_tree, hf_ddp_type,       tvb, 12, 1,
+			ddp.type);  
   }
 
-  offset += DDP_HEADER_SIZE;
+  new_tvb = tvb_new_subset(tvb, DDP_HEADER_SIZE, -1, -1);
 
-  if (!old_dissector_try_port(ddp_dissector_table, ddp.type, pd, offset, fd, tree))
-    old_dissect_data(pd, offset, fd, tree);
+  if (!dissector_try_port(ddp_dissector_table, ddp.type, new_tvb, pinfo, tree))
+    dissect_data(new_tvb, pinfo, tree);
 }
 
 void
@@ -520,9 +537,18 @@ proto_register_atalk(void)
     { &hf_rtmp_tuple_net,
       { "Net",		"rtmp.tuple.net",	FT_UINT16,  BASE_DEC, 
 		NULL, 0x0, "Net" }},
+    { &hf_rtmp_tuple_range_start,
+      { "Range Start",		"rtmp.tuple.range_start",	FT_UINT16,  BASE_DEC, 
+		NULL, 0x0, "Range Start" }},
+    { &hf_rtmp_tuple_range_end,
+      { "Range End",		"rtmp.tuple.range_end",	FT_UINT16,  BASE_DEC, 
+		NULL, 0x0, "Range End" }},
     { &hf_rtmp_tuple_dist,
       { "Distance",		"rtmp.tuple.dist",	FT_UINT16,  BASE_DEC, 
-		NULL, 0x0, "Distance" }}
+		NULL, 0x0, "Distance" }},
+    { &hf_rtmp_function,
+      { "Function",		"rtmp.function",	FT_UINT8,  BASE_DEC, 
+		VALS(rtmp_function_vals), 0x0, "Request Function" }}
   };
 
 
@@ -542,7 +568,8 @@ proto_register_atalk(void)
   proto_nbp = proto_register_protocol("Name Binding Protocol", "nbp");
   proto_register_field_array(proto_nbp, hf_nbp, array_length(hf_nbp));
 
-  proto_rtmp = proto_register_protocol("Routing Table", "rtmp");
+  proto_rtmp = proto_register_protocol("Routing Table Maintenance Protocol",
+				       "rtmp");
   proto_register_field_array(proto_rtmp, hf_rtmp, array_length(hf_rtmp));
 
   proto_register_subtree_array(ett, array_length(ett));
@@ -554,9 +581,9 @@ proto_register_atalk(void)
 void
 proto_reg_handoff_atalk(void)
 {
-  old_dissector_add("ethertype", ETHERTYPE_ATALK, dissect_ddp);
-  old_dissector_add("ppp.protocol", PPP_AT, dissect_ddp);
-  old_dissector_add("ddp.type", DDP_NBP, dissect_nbp);
-  old_dissector_add("ddp.type", DDP_RTMPREQ, dissect_rtmp_request);
-  old_dissector_add("ddp.type", DDP_RTMPDATA, dissect_rtmp_data);
+  dissector_add("ethertype", ETHERTYPE_ATALK, dissect_ddp);
+  dissector_add("ppp.protocol", PPP_AT, dissect_ddp);
+  dissector_add("ddp.type", DDP_NBP, dissect_nbp);
+  dissector_add("ddp.type", DDP_RTMPREQ, dissect_rtmp_request);
+  dissector_add("ddp.type", DDP_RTMPDATA, dissect_rtmp_data);
 }
