@@ -114,7 +114,9 @@ Johan Feyaerts <Johan.Feyaerts@siemens.atea.be> {
 }
 
 Olivier Abad <Olivier.Abad@capway.com> {
-	X.25 support in iptrace files
+	X.25 support in iptrace files and Sniffer files
+	Support for files from RADCOM WAN/LAN analzyers
+	LAPB, X.25
 }
 
 Thierry Andry <Thierry.Andry@advalvas.be> {
