@@ -37,6 +37,7 @@ noinst_HEADERS = \
 	about_dlg.h	\
 	capture_dlg.h	\
 	capture_prefs.h	\
+	cfilter_combo_utils.h \
 	color_dlg.h	\
 	colors.h	\
 	column_prefs.h	\
