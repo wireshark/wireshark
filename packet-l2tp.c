@@ -3,7 +3,11 @@
  * disassembly
  * John Thomes <john@ensemblecom.com>
  *
- * $Id: packet-l2tp.c,v 1.2 2000/01/07 21:53:24 guy Exp $
+ * Minor changes by: (2000-01-10)
+ * Laurent Cazalet <laurent.cazalet@mailclub.net>
+ * Thomas Parvais <thomas.parvais@advalvas.be>
+ *
+ * $Id: packet-l2tp.c,v 1.3 2000/01/10 23:22:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -89,24 +93,45 @@ static gint ett_l2tp_avp = -1;
 
 #define NUM_CONTROL_CALL_TYPES  16
 static const char *calltypestr[NUM_CONTROL_CALL_TYPES+1] = {
-  "Unknown Call Type",
-  "Start_Control_Request",
-  "Start_Control_Reply",
-  "Start_Control_Connected",
-  "Stop_Control_Notification",
-  "Reserved",
-  "Hello",
-  "Outgoing_Call_Request",
-  "Outgoing_Call_Reply",
-  "Outgoing_Call_Connected",
-  "Incoming_Call_Request",
-  "Incoming_Call_Reply",
-  "Incoming_Call_Connected",
-  "Reserved",
+  "Unknown Call Type           ",
+  "Start_Control_Request       ",
+  "Start_Control_Reply         ",
+  "Start_Control_Connected     ",
+  "Stop_Control_Notification   ",
+  "Reserved                    ",
+  "Hello                       ",
+  "Outgoing_Call_Request       ",
+  "Outgoing_Call_Reply         ",
+  "Outgoing_Call_Connected     ",
+  "Incoming_Call_Request       ",
+  "Incoming_Call_Reply         ",
+  "Incoming_Call_Connected     ",
+  "Reserved                    ",
   "Call_Disconnect_Notification",
-  "WAN_Error_Notify",
-  "Set_Link_Info",
+  "WAN_Error_Notify            ",
+  "Set_Link_Info               ",
 };
+
+static const char *calltype_short_str[NUM_CONTROL_CALL_TYPES+1] = {
+  "Unknown ",
+  "SCCRQ   ",
+  "SCCRP   ",
+  "SCCCN   ",
+  "StopCCN ",
+  "Reserved",
+  "Hello   ",
+  "OCRQ    ",
+  "OCRP    ",
+  "OCCN    ",
+  "ICRQ    ",
+  "ICRP    ",
+  "ICCN    ",
+  "Reserved",
+  "CDN     ",
+  "WEN     ",
+  "SLI     ",
+};
+
 
  static const char *control_msg="Control Message";
  static const char *data_msg="Data    Message";
@@ -258,8 +283,53 @@ void dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
         col_add_str(fd, COL_PROTOCOL, "L2TP"); 
   if (check_col(fd, COL_INFO)) {
         tid = htons(tid); cid = htons(cid); 
-	sprintf(textbuffer,"%s (tunnel id=%d, session id=%d)",
-		(CONTROL_BIT(ver) ? control_msg : data_msg), tid ,cid);
+
+        if (CONTROL_BIT(ver)) {
+            /* CONTROL MESSAGE */
+            tmp_ptr = ptr;
+
+              if ((LENGTH_BIT(ver))&&(length==12))  		/* ZLB Message */
+                  sprintf(textbuffer,"%s - ZLB      (tunnel id=%d, session id=%d)",
+                          control_msg , tid ,cid);
+              else
+              {
+                if (SEQUENCE_BIT(ver)) {
+                    tmp_ptr=tmp_ptr+4;
+                }
+    
+                tmp_ptr+=4;
+    
+                memcpy(&avp_type,(tmp_ptr+=2),sizeof(unsigned short));
+                avp_type=htons(avp_type);
+    
+                if (avp_type == CONTROL_MESSAGE)
+                {
+                    /* We print message type */
+                    memcpy(&msg_type,(tmp_ptr+=2),sizeof(unsigned short));
+                    msg_type=ntohs(msg_type);
+                    sprintf(textbuffer,"%s - %s (tunnel id=%d, session id=%d)",
+                            control_msg ,
+                            ((NUM_CONTROL_CALL_TYPES + 1 ) > msg_type) ?
+                            calltype_short_str[msg_type] : "Unknown",
+                            tid ,cid);
+                }
+                else
+                {
+                    /*
+		     * This is not a control message.
+                     * We never pass here except in case of bad l2tp packet!
+		     */
+                    sprintf(textbuffer,"%s (tunnel id=%d, session id=%d)",
+                            control_msg ,  tid ,cid);
+    
+                }
+              }
+        }
+        else {
+            /* DATA Message */
+               sprintf(textbuffer,"%s            (tunnel id=%d, session id=%d)",
+                       data_msg, tid ,cid);
+        }
         col_add_fstr(fd,COL_INFO,textbuffer);
   }
   if (tree) {
@@ -278,6 +348,10 @@ void dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	        proto_tree_add_item_format(l2tp_tree,hf_l2tp_code, (offset +=  6 ), 4,
                 rhcode, "Ns: %d Nr: %d ", htons(Ns), htons(Nr));
         }
+        if ((LENGTH_BIT(ver))&&(length==12)) {
+            proto_tree_add_item_format(l2tp_tree,hf_l2tp_code,offset,1,rhcode,
+                                       "Zero Length Bit message");
+        }
         if (!CONTROL_BIT(ver)) {  /* Data Messages so we are done */
 	         proto_tree_add_item_format(l2tp_tree,hf_l2tp_code, (offset +=  4) , (length - 12 )  , rhcode, "Data: ");
                  return;
@@ -285,24 +359,24 @@ void dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 
 	offset += 4;
 	while (index < length ) {    /* Process AVP's */
-		tmp_ptr =  ptr;  
-		memcpy(&ver_len_hidden,(tmp_ptr+=2),sizeof(unsigned short));
+                tmp_ptr =  ptr;
+                memcpy(&ver_len_hidden,(tmp_ptr+=2),sizeof(unsigned short));
    		avp_len =  AVP_LENGTH(htons(ver_len_hidden));
 		index += avp_len; /* track how far into the control msg */ 
 		memcpy(&vendor,(tmp_ptr+=2),sizeof(unsigned short));
 		memcpy(&avp_type,(tmp_ptr+=2),sizeof(unsigned short));
 		avp_type=htons(avp_type);
 		tf =  proto_tree_add_item_format(l2tp_tree,hf_l2tp_code, offset , avp_len,
-			rhcode, "AVP Type  %s  ",  (NUM_AVP_TYPES > avp_type) 
-			? avptypestr[avp_type] : "Unknown");
-			l2tp_avp_tree = proto_item_add_subtree(tf,  ett_l2tp_avp);
+                                                 rhcode, "AVP Type  %s  ",  (NUM_AVP_TYPES > avp_type)
+                                                 ? avptypestr[avp_type] : "Unknown");
+                l2tp_avp_tree = proto_item_add_subtree(tf,  ett_l2tp_avp);
 
-				proto_tree_add_item_format(l2tp_avp_tree,hf_l2tp_code, offset , 1,
-				rhcode, " Mandatory:%s" , (MANDATORY_BIT(htons(ver_len_hidden))) ? "True" : "False" );  
-				proto_tree_add_item_format(l2tp_avp_tree,hf_l2tp_code, offset , 1,
-				rhcode, " Hidden:%s" , (HIDDEN_BIT(htons(ver_len_hidden))) ? "True" : "False" );  
-				proto_tree_add_item_format(l2tp_avp_tree,hf_l2tp_code, (offset + 1), 1,
-				rhcode, " Length:%d" , avp_len );  
+                proto_tree_add_item_format(l2tp_avp_tree,hf_l2tp_code, offset , 1,
+                                           rhcode, " Mandatory:%s" , (MANDATORY_BIT(htons(ver_len_hidden))) ? "True" : "False" );
+                proto_tree_add_item_format(l2tp_avp_tree,hf_l2tp_code, offset , 1,
+                                           rhcode, " Hidden:%s" , (HIDDEN_BIT(htons(ver_len_hidden))) ? "True" : "False" );
+                        proto_tree_add_item_format(l2tp_avp_tree,hf_l2tp_code, (offset + 1), 1,
+                                                   rhcode, " Length:%d" , avp_len );
 
 			if (HIDDEN_BIT(htons(ver_len_hidden))) { /* don't try do display hidden */
 				ptr = ptr +  avp_len;
@@ -312,14 +386,13 @@ void dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			switch (avp_type) {
 
 			case CONTROL_MESSAGE:
-				memcpy(&msg_type,(tmp_ptr+=2),sizeof(unsigned short));
-				msg_type=htons(msg_type);
-				proto_tree_add_item_format(l2tp_avp_tree,hf_l2tp_code, offset + 6, 2 ,
-				  rhcode,
-				  " Control Message Type: (%d)  %s", msg_type,
-				    ((NUM_CONTROL_CALL_TYPES + 1 ) > msg_type) ?
-				      calltypestr[msg_type] : "Unknown" );
-				break;
+                            memcpy(&msg_type,(tmp_ptr+=2),sizeof(unsigned short));
+                            msg_type=htons(msg_type);
+                            proto_tree_add_item_format(l2tp_avp_tree,hf_l2tp_code, offset + 6, 2 ,
+                                                       rhcode, " Control Message Type: (%d)  %s", msg_type,
+                                                       ((NUM_CONTROL_CALL_TYPES + 1 ) > msg_type) ?
+                                                       calltypestr[msg_type] : "Unknown" );
+                            break;
 
 			case RESULT_ERROR_CODE:
 				if ( avp_len >= 10 ) {

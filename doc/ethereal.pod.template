@@ -792,6 +792,8 @@ B<http://ethereal.zing.org>.
   Bert Driehuis            <driehuis@playbeing.org>
   Stuart Stanley           <stuarts@mxmail.net>
   John Thomes              <john@ensemblecom.com>
+  Laurent Cazalet          <laurent.cazalet@mailclub.net>
+  Thomas Parvais           <thomas.parvais@advalvas.be>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
