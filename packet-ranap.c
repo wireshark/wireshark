@@ -3,7 +3,7 @@
  * Based on 3GPP TS 25.413 V3.4.0
  * Copyright 2001, Martin Held <Martin.Held@icn.siemens.de>
  *
- * $Id: packet-ranap.c,v 1.22 2003/12/21 05:51:33 jmayer Exp $
+ * $Id: packet-ranap.c,v 1.23 2004/05/01 17:02:09 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4029,7 +4029,15 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   {
       /* extended choice */
       /* decoding is not supported */
-      col_append_str(pinfo->cinfo, COL_INFO, "RANAP-PDU Protocol extension present, dissection not supported");
+      if (check_col(pinfo->cinfo, COL_INFO))
+      {
+	  col_append_str(pinfo->cinfo, COL_INFO, "RANAP-PDU Protocol extension present, dissection not supported");
+      }
+
+      if (tree)
+      {
+	  proto_tree_add_text(tree, tvb, 0, -1, "RANAP Message");
+      }
       return;
   }
 
