@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-string.c,v 1.10 2003/07/25 03:44:03 gram Exp $
+ * $Id: ftype-string.c,v 1.11 2003/07/30 22:20:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,11 +56,22 @@ string_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 static int
 string_repr_len(fvalue_t *fv, ftrepr_t rtype)
 {
+	gchar *p, c;
+	int repr_len;
+
 	switch (rtype) {
 		case FTREPR_DISPLAY:
 			return strlen(fv->value.string);
 		case FTREPR_DFILTER:
-			return strlen(fv->value.string) + 2;
+			repr_len = 0;
+			for (p = fv->value.string; (c = *p) != '\0'; p++) {
+				if (c == '\\') {
+					/* Backslashes must be escaped. */
+					repr_len++;
+				}
+				repr_len++;
+			}
+			return repr_len + 2;	/* string plus leading and trailing quotes */
 	}
 	g_assert_not_reached();
 	return -1;
@@ -69,8 +80,21 @@ string_repr_len(fvalue_t *fv, ftrepr_t rtype)
 static void
 string_to_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
 {
+	gchar *p, c;
+	char *bufp;
+
 	if (rtype == FTREPR_DFILTER) {
-		sprintf(buf, "\"%s\"", fv->value.string);
+		bufp = buf;
+		*bufp++ = '"';
+		for (p = fv->value.string; (c = *p) != '\0'; p++) {
+			if (c == '\\') {
+				/* Backslashes must be escaped. */
+				*bufp++ = '\\';
+			}
+			*bufp++ = c;
+		}
+		*bufp++ = '"';
+		*bufp = '\0';
 	}
 	else {
 		strcpy(buf, fv->value.string);
