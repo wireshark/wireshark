@@ -351,6 +351,10 @@ Bruce Korb <bkorb@sco.com> {
 	Improved autogen.sh script
 }
 
+Jose Pedro Oliveira <jpo@di.uminho.pt> {
+	DHCP enhancements
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

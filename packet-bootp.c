@@ -2,12 +2,16 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-bootp.c,v 1.36 2000/07/09 22:46:53 guy Exp $
+ * $Id: packet-bootp.c,v 1.37 2000/07/25 21:25:59 guy Exp $
  *
  * The information used comes from:
- * RFC 2132: DHCP Options and BOOTP Vendor Extensions
+ * RFC  951: Bootstrap Protocol
  * RFC 1542: Clarifications and Extensions for the Bootstrap Protocol
  * RFC 2131: Dynamic Host Configuration Protocol
+ * RFC 2132: DHCP Options and BOOTP Vendor Extensions
+ * RFC 2489: Procedure for Defining New DHCP Options
+ * BOOTP and DHCP Parameters
+ *     http://www.isi.edu/in-notes/iana/assignments/bootp-dhcp-parameters
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -74,7 +78,7 @@ struct opt_info {
 	enum field_type ftype;
 };
 
-#define NUM_OPT_INFOS 77
+#define NUM_OPT_INFOS 128
 #define NUM_O63_SUBOPTS 11
 
 static int dissect_netware_ip_suboption(proto_tree *v_tree, const u_char *pd,
@@ -201,7 +205,58 @@ bootp_option(const u_char *pd, proto_tree *bp_tree, int voff, int eoff)
 		/*  73 */ { "Default Finger Server",				ipv4 },
 		/*  74 */ { "Default IRC Server",					ipv4 },
 		/*  75 */ { "StreetTalk Server",					ipv4 },
-		/*  76 */ { "StreetTalk Directory Assistance Server", ipv4 }
+		/*  76 */ { "StreetTalk Directory Assistance Server", ipv4 },
+		/*  77 */ { "User Class Information",				opaque },
+		/*  78 */ { "Directory Agent Information",			opaque },
+		/*  79 */ { "Service Location Agent Scope",			opaque },
+		/*  80 */ { "Naming Authority",						opaque },
+		/*  81 */ { "Client Fully Qualified Domain Name",	opaque },
+		/*  82 */ { "Agent Circuit ID",						opaque },
+		/*  83 */ { "Agent Remote ID",						opaque },
+		/*  84 */ { "Agent Subnet Mask",					opaque },
+		/*  85 */ { "Novell Directory Services Servers",	opaque },
+		/*  86 */ { "Novell Directory Services Tree Name",	opaque },
+		/*  87 */ { "Novell Directory Services Context",	opaque },
+		/*  88 */ { "IEEE 1003.1 POSIX Timezone",			opaque },
+		/*  89 */ { "Fully Qualified Domain Name",			opaque },
+		/*  90 */ { "Authentication",						opaque },
+		/*  91 */ { "Vines TCP/IP Server Option",			opaque },
+		/*  92 */ { "Server Selection Option",				opaque },
+		/*  93 */ { "Client System Architecture",			opaque },
+		/*  94 */ { "Client Network Device Interface",		opaque },
+		/*  95 */ { "Lightweight Directory Access Protocol",	opaque },
+		/*  96 */ { "IPv6 Transitions",						opaque },
+		/*  97 */ { "UUID/GUID-based Client Identifier",	opaque },
+		/*  98 */ { "Open Group's User Authentication",		opaque },
+		/*  99 */ { "Unassigned",							opaque },
+		/* 100 */ { "Printer Name",							opaque },
+		/* 101 */ { "MDHCP multicast address",				opaque },
+		/* 102 */ { "Removed/unassigned",					opaque },
+		/* 103 */ { "Removed/unassigned",					opaque },
+		/* 104 */ { "Removed/unassigned",					opaque },
+		/* 105 */ { "Removed/unassigned",					opaque },
+		/* 106 */ { "Removed/unassigned",					opaque },
+		/* 107 */ { "Removed/unassigned",					opaque },
+		/* 108 */ { "Swap Path Option",						opaque },
+		/* 109 */ { "Unassigned",							opaque },
+		/* 110 */ { "IPX Compability",						opaque },
+		/* 111 */ { "Unassigned",							opaque },
+		/* 112 */ { "Netinfo Parent Server Address",		opaque },
+		/* 113 */ { "Netinfo Parent Server Tag",			opaque },
+		/* 114 */ { "URL",									opaque },
+		/* 115 */ { "DHCP Failover Protocol",				opaque },
+		/* 116 */ { "DHCP Auto-Configuration",				opaque },
+		/* 117 */ { "Unassigned",							opaque },
+		/* 118 */ { "Unassigned",							opaque },
+		/* 119 */ { "Unassigned",							opaque },
+		/* 120 */ { "Unassigned",							opaque },
+		/* 121 */ { "Unassigned",							opaque },
+		/* 122 */ { "Unassigned",							opaque },
+		/* 123 */ { "Unassigned",							opaque },
+		/* 124 */ { "Unassigned",							opaque },
+		/* 125 */ { "Unassigned",							opaque },
+		/* 126 */ { "Extension",							opaque },
+		/* 127 */ { "Extension",							opaque }
 	};
 
 	/* Options whose length isn't "vlen + 2". */
