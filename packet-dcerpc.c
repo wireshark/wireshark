@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.33 2002/02/12 07:35:20 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.34 2002/02/12 07:55:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2152,9 +2152,9 @@ proto_register_dcerpc (void)
         { &hf_dcerpc_dg_ihint,
           { "Interface Hint", "dcerpc.dg_ihint", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_dg_frag_len,
-          { "Fragment len", "dcerpc.dg_frag_len", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+          { "Fragment len", "dcerpc.dg_frag_len", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_dg_frag_num,
-          { "Fragment num", "dcerpc.dg_frag_num", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+          { "Fragment num", "dcerpc.dg_frag_num", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_dg_auth_proto,
           { "Auth proto", "dcerpc.dg_auth_proto", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_dg_seqnum,
