@@ -2,7 +2,7 @@
  * Routines for megaco packet disassembly
  * RFC 3015
  *
- * $Id: packet-megaco.c,v 1.3 2003/01/15 00:17:53 guy Exp $
+ * $Id: packet-megaco.c,v 1.4 2003/01/24 21:07:43 jmayer Exp $
  *
  * Christian Falckenberg, 2002/10/17
  * Copyright (c) 2002 by Christian Falckenberg
@@ -111,8 +111,6 @@ static gint tvb_skip_wsp(tvbuff_t* tvb, gint offset, gint maxlength);
  * subpart of MEGACO.  These aren't really proto dissectors but they
  * are written in the same style.
  */
-static void megaco_raw_text_add(tvbuff_t *tvb,
-				proto_tree *tree);
 
 /*
  * dissect_megaco_text - The dissector for the MEGACO Protocol, using
