@@ -1,6 +1,6 @@
 /* vms.c
  *
- * $Id: vms.c,v 1.3 2002/01/08 22:30:29 guy Exp $
+ * $Id: vms.c,v 1.4 2002/01/15 20:18:02 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <mmilgram@arrayinc.com>
@@ -64,7 +64,7 @@
 
 /* Magic text to check for VMS-ness of file */
 static const char vms_hdr_magic[]  =
-{ ' ', ' ', ' ', 'T', 'C', 'P', 'I', 'P', 't', 'r', 'a', 'c', 'e', ' '};
+{ 'T', 'C', 'P', 'I', 'P', 't', 'r', 'a', 'c', 'e', ' '};
 #define VMS_HDR_MAGIC_SIZE  (sizeof vms_hdr_magic  / sizeof vms_hdr_magic[0])
 
 /* Magic text for start of packet */
