@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.26 2001/11/20 22:46:12 guy Exp $
+ * $Id: tvbuff.c,v 1.27 2002/01/04 06:45:14 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -407,8 +407,10 @@ compute_offset_length(tvbuff_t *tvb, gint offset, gint length,
 	}
 
 	/* Compute the length */
-	g_assert(length >= -1);
-	if (length == -1) {
+	if (length < -1) {
+		return FALSE;
+	}
+	else if (length == -1) {
 		*length_ptr = tvb->length - *offset_ptr;
 	}
 	else {
@@ -456,6 +458,10 @@ check_offset_length(tvbuff_t *tvb, gint offset, gint length,
 		guint *offset_ptr, guint *length_ptr)
 {
 	int exception = 0;
+
+	if (length < -1) {
+		THROW(BoundsError);
+	}
 
 	if (!check_offset_length_no_exception(tvb, offset, length, offset_ptr, length_ptr, &exception)) {
 		g_assert(exception > 0);
