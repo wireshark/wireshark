@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.7 1999/05/11 00:28:18 guy Exp $
+ * $Id: packet-smb.c,v 1.8 1999/05/11 01:18:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -322,6 +322,32 @@ dissect_unknown_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
   }
 
+}
+
+/*
+ * Dissect a DOS-format date.
+ */
+static char *
+dissect_dos_date(guint16 date)
+{
+	static char datebuf[4+2+2+1];
+
+	sprintf(datebuf, "%04d-%02d-%02d",
+	    ((date>>9)&0x7F) + 1980, (date>>5)&0x0F, date&0x1F);
+	return datebuf;
+}
+
+/*
+ * Dissect a DOS-format time.
+ */
+static char *
+dissect_dos_time(guint16 time)
+{
+	static char timebuf[2+2+2+1];
+
+	sprintf(timebuf, "%02d:%02d:%02d",
+	    (time>>11)&0x1F, (time>>5)&0x3F, (time&0x1F)*2);
+	return timebuf;
 }
 
 /*
@@ -743,8 +769,10 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 2, "Server Time: 0x%04x", GSHORT(pd, offset));
-      proto_tree_add_item(tree, offset + 2, 2, "Server Date: 0x%04x", GSHORT(pd, offset + 2));
+      proto_tree_add_item(tree, offset, 2, "Server Time: %s",
+			dissect_dos_time(GSHORT(pd, offset)));
+      proto_tree_add_item(tree, offset + 2, 2, "Server Date: %s",
+			dissect_dos_date(GSHORT(pd, offset + 2)));
 
     }
 
