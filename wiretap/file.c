@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.58 2000/07/31 04:48:54 guy Exp $
+ * $Id: file.c,v 1.59 2000/08/08 22:16:42 mhall Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -50,6 +50,7 @@
 #include "netxray.h"
 #include "toshiba.h"
 #include "i4btrace.h"
+#include "csids.h"
 
 /* The open_file_* routines should return:
  *
@@ -94,6 +95,7 @@ static int (*open_routines[])(wtap *, int *) = {
 	ascend_open,
 	toshiba_open,
 	i4btrace_open,
+	csids_open,
 };
 
 #define	N_FILE_TYPES	(sizeof open_routines / sizeof open_routines[0])
@@ -321,6 +323,10 @@ const static struct file_type_info {
 	/* WTAP_FILE_I4BTRACE */
 	{ "I4B ISDN trace", NULL,
 	  NULL, NULL },
+
+        /* WTAP_FILE_CSIDS */
+        { "CSIDS IPLog", NULL,
+          NULL, NULL },
 
 };
 

@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.13 2000/05/29 20:11:31 guy Exp $
+# $Id: Makefile.nmake,v 1.14 2000/08/08 22:16:41 mhall Exp $
 #
 
 include ..\config.nmake
@@ -15,6 +15,7 @@ OBJECTS=ascend-grammar.obj \
 	ascend-scanner.obj \
 	ascend.obj \
 	buffer.obj \
+	csids.obj \
 	file.obj \
 	file_wrappers.obj \
 	i4btrace.obj \
