@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.92 2002/12/20 05:40:52 sharpe Exp $
+ * $Id: ngsniffer.c,v 1.93 2002/12/20 21:23:02 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -282,18 +282,32 @@ struct frame6_rec {
  * (sub)type is hidden.
  *
  * The semantics of these network types is inferred from the Sniffer
- * documentation, as they correspond to types described in the UI.
+ * documentation, as they correspond to types described in the UI;
+ * in particular, see
+ *
+ *	http://download.nai.com/products/media/sniffer/support/sdos/operation.pdf
+ *
+ * starting at page 3-10 (56 of 496).
  */
-#define NET_SDLC	0
-#define NET_HDLC	1	/* Used for X.25, among other things */
+#define NET_SDLC	0	/* Probably "SDLC then SNA" */
+#define NET_HDLC	1	/* Used for X.25; is it used for other
+				   things as well, or is it "HDLC then
+				   X.25", as referred to by the document
+				   cited above, and only used for X.25? */
 #define NET_FRAME_RELAY	2
-#define NET_ROUTER	3	/* various point-to-point protocols
-				   for use between bridges and routers,
-				   including PPP as well as various
-				   proprietary protocols; also used for
-				   ISDN */
+#define NET_ROUTER	3	/* Probably "Router/Bridge", for various
+				   point-to-point protocols for use between
+				   bridges and routers, including PPP as well
+				   as various proprietary protocols; also
+				   used for ISDN, for reasons not obvious
+				   to me, given that a Sniffer knows
+				   whether it's using a WAN or an ISDN pod */
 #define NET_PPP		4	/* "Asynchronous", which includes SLIP too */
-#define NET_SMDS	5
+#define NET_SMDS	5	/* Not mentioned in the document, but
+				   that's a document for version 5.50 of
+				   the Sniffer, and that version might use
+				   version 5 in the file format and thus
+				   might not be using type 7 records */
 
 /* values for V.timeunit */
 #define NUM_NGSNIFF_TIMEUNITS 7
