@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.15 2002/08/02 21:29:40 jmayer Exp $
+ * $Id: to_str.c,v 1.16 2002/08/03 19:35:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,8 +29,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>		/* needed for <netinet/in.h> */
+#endif
+
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
+#endif
+
+#ifdef HAVE_NETINET_IN_H
+# include <netinet/in.h>	/* needed for <arpa/inet.h> on some platforms */
 #endif
 
 #ifdef HAVE_ARPA_INET_H
