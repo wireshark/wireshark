@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.22 2000/01/22 06:22:41 guy Exp $
+ * $Id: netxray.c,v 1.23 2000/01/29 05:10:06 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -108,7 +108,7 @@ int netxray_open(wtap *wth, int *err)
 		WTAP_ENCAP_ETHERNET,
 		WTAP_ENCAP_TR,
 		WTAP_ENCAP_FDDI_BITSWAPPED,
-		WTAP_ENCAP_UNKNOWN,	/* WAN */
+		WTAP_ENCAP_ETHERNET,	/* WAN(PPP), but shaped like ethernet */
 		WTAP_ENCAP_UNKNOWN,	/* LocalTalk */
 		WTAP_ENCAP_UNKNOWN,	/* "DIX" - should not occur */
 		WTAP_ENCAP_UNKNOWN,	/* ARCNET raw */
