@@ -2,7 +2,7 @@
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.c,v 1.26 2004/01/22 18:13:57 ulfl Exp $
+ * $Id: toolbar.c,v 1.27 2004/01/23 16:08:38 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -355,6 +355,8 @@ toolbar_new(void)
     main_tb = gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL,
                                GTK_TOOLBAR_BOTH);
     gtk_toolbar_set_space_size(GTK_TOOLBAR(main_tb), 3);
+    /* the "space lines" in GTK1 looks ugly, so don't use them */
+    /* gtk_toolbar_set_space_style(GTK_TOOLBAR(main_tb), GTK_TOOLBAR_SPACE_LINE); */
 #else
     main_tb = gtk_toolbar_new();
     gtk_toolbar_set_orientation(GTK_TOOLBAR(main_tb),
