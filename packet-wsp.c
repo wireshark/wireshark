@@ -4,7 +4,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.16 2001/02/01 19:59:40 guy Exp $
+ * $Id: packet-wsp.c,v 1.17 2001/02/10 09:28:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1223,8 +1223,8 @@ dissect_wtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			else {
 				count = tvb_length (tvb)-offset_wtls;
 			}
-			ti = proto_tree_add_item(wtls_tree, hf_wtls_record, tvb, offset_wtls,
-				 count, bo_little_endian);
+			ti = proto_tree_add_uint(wtls_tree, hf_wtls_record, tvb, offset_wtls,
+				 count, pdut);
 			wtls_rec_tree = proto_item_add_subtree(ti, ett_wtls_rec);
 
 			offset = offset_wtls;
@@ -1288,9 +1288,11 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 	struct timeval timeValue;
 	int client_size = 0;
 	guint value = 0;
+	guint value_exponent;
 	int size = 0;
 	guint public_key = 0;
 	guint signature = 0;
+	char *newBuffer;
 
 	proto_item *ti;
 	proto_item *cli_key_item;
@@ -1299,10 +1301,10 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 	proto_tree *wtls_msg_type_item_sub_tree;
 	proto_tree *wtls_msg_type_item_sub_sub_tree;
 
-	ti = proto_tree_add_item(tree, hf_wtls_hands, tvb, offset,count, bo_little_endian);
+	pdu_msg_type = tvb_get_guint8 (tvb, offset);
+	ti = proto_tree_add_uint(tree, hf_wtls_hands, tvb, offset,count, pdu_msg_type);
 	wtls_msg_type_tree = proto_item_add_subtree(ti, ett_wtls_msg_type);
 	
-	pdu_msg_type = tvb_get_guint8 (tvb, offset);
 	ti = proto_tree_add_item (wtls_msg_type_tree, hf_wtls_hands_type,
 			tvb,offset,1,bo_big_endian);
 	offset+=1;
@@ -1337,9 +1339,9 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 			wtls_msg_type_item_sub_tree = proto_item_add_subtree(ti, ett_wtls_msg_type_item_sub);
 			offset+=2;
 			for (;count > 0;count-=client_size) {
-				cli_key_item = proto_tree_add_item(wtls_msg_type_item_sub_tree, 
+				cli_key_item = proto_tree_add_uint(wtls_msg_type_item_sub_tree, 
 						hf_wtls_hands_cli_hello_key_exchange, tvb, offset,1,
-						bo_little_endian);
+						tvb_get_guint8 (tvb,offset));
 				client_size=1;
 				wtls_msg_type_item_sub_sub_tree = proto_item_add_subtree(cli_key_item, 
 								  ett_wtls_msg_type_item_sub_sub);
@@ -1559,11 +1561,15 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 								offset+=2;
 								client_size+=2;
 								value =  tvb_get_guint8 (tvb, offset);
-								ti = proto_tree_add_item(
+								newBuffer = g_malloc (value+1);
+								strncpy (newBuffer, tvb_get_ptr (tvb, offset+1, value), value);
+								newBuffer[value] = 0;
+								ti = proto_tree_add_string(
 										wtls_msg_type_item_sub_tree, 
 										hf_wtls_hands_certificate_wtls_issuer_name,
 										tvb, offset,1+value,
-										bo_big_endian);
+										newBuffer);
+								g_free (newBuffer);
 								offset+=1+value;
 								client_size+=1+value;
 								break;
@@ -1607,11 +1613,15 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 								offset+=2;
 								client_size+=2;
 								value =  tvb_get_guint8 (tvb, offset);
-								ti = proto_tree_add_item(
+								newBuffer = g_malloc (value+1);
+								strncpy (newBuffer, tvb_get_ptr (tvb, offset+1, value), value);
+								newBuffer[value] = 0;
+								ti = proto_tree_add_string(
 										wtls_msg_type_item_sub_tree, 
 										hf_wtls_hands_certificate_wtls_subject_name,
 										tvb, offset,1+value,
-										bo_big_endian);
+										newBuffer);
+								g_free (newBuffer);
 								offset+=1+value;
 								client_size+=1+value;
 								break;
@@ -1646,15 +1656,33 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 						switch (public_key) {
 							case PUBLIC_KEY_RSA :
 								value = tvb_get_ntohs (tvb, offset);
-								ti = proto_tree_add_item(wtls_msg_type_item_sub_tree,
+								switch (value)
+								{
+									case 1 :
+										value_exponent = tvb_get_guint8 (tvb, offset+2);
+										break;
+									case 2 :	
+										value_exponent = tvb_get_ntohs (tvb, offset+2);
+										break;
+									case 3 :	
+										value_exponent = tvb_get_ntoh24 (tvb, offset+2);
+										break;
+									case 4 :
+										value_exponent = tvb_get_ntohl (tvb, offset+2);
+										break;
+									default :
+										value_exponent = 0;
+										break;
+								}
+								ti = proto_tree_add_uint(wtls_msg_type_item_sub_tree,
 									hf_wtls_hands_certificate_wtls_rsa_exponent,
-									tvb,offset,value+2,bo_big_endian);
+									tvb,offset,value+2,value_exponent);
 								offset+=2+value;
 								client_size+=2+value;
 								value = tvb_get_ntohs (tvb, offset);
-								ti = proto_tree_add_item(wtls_msg_type_item_sub_tree,
+								ti = proto_tree_add_uint(wtls_msg_type_item_sub_tree,
 									hf_wtls_hands_certificate_wtls_rsa_modules,
-									tvb,offset,value+2,bo_big_endian);
+									tvb,offset,value+2,value*8);
 								offset+=2+value;
 								client_size+=2+value;
 								break;
@@ -1664,9 +1692,9 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 								break;
 						}
 						value = tvb_get_ntohs (tvb, offset);
-						ti = proto_tree_add_item(wtls_msg_type_item_sub_tree,
+						ti = proto_tree_add_uint(wtls_msg_type_item_sub_tree,
 							hf_wtls_hands_certificate_wtls_signature,
-							tvb,offset,2+value,bo_big_endian);
+							tvb,offset,2+value,value*8);
 						offset+=2+value;
 						client_size+=2+value;
 						break;
@@ -2125,37 +2153,63 @@ add_header (proto_tree *tree, tvbuff_t *header_buff, tvbuff_t *value_buff)
 		case 0x14:		/* Expires */
 			timeValue.tv_sec = 0;
 			timeValue.tv_usec = 0;
-			switch (valueLen)
-			{
-				case 3:
-					timeValue.tv_sec = tvb_get_ntoh24 (value_buff, 1);
-					break;
-				case 4:
-					timeValue.tv_sec = tvb_get_ntohl (value_buff, 1);
-					break;
-				default:
-					fprintf (stderr, "dissect_wsp: Expires value length %d NYI\n", valueLen);
-					break;
+			if (peek < 31) {
+				switch (peek)
+				{
+					case 1:
+						timeValue.tv_sec = tvb_get_guint8 (value_buff, 1);
+						break;
+					case 2:
+						timeValue.tv_sec = tvb_get_ntohs (value_buff, 1);
+						break;
+					case 3:
+						timeValue.tv_sec = tvb_get_ntoh24 (value_buff, 1);
+						break;
+					case 4:
+						timeValue.tv_sec = tvb_get_ntohl (value_buff, 1);
+						break;
+					default:
+						timeValue.tv_sec = 0;
+						fprintf (stderr, "dissect_wsp: Expires value length %d NYI\n", peek);
+						break;
+				}
+				ti = proto_tree_add_time (tree, hf_wsp_header_expires, header_buff, offset, headerLen, &timeValue);
 			}
-			ti = proto_tree_add_time (tree, hf_wsp_header_expires, header_buff, offset, headerLen, &timeValue);
+			else
+			{
+				fprintf (stderr, "dissect_wsp: Expires value 0x%02x NYI\n", peek);
+			}
 			break;
 
 		case 0x17:		/* If-Modified-Since */
 			timeValue.tv_sec = 0;
 			timeValue.tv_usec = 0;
-			switch (valueLen)
-			{
-				case 3:
-					timeValue.tv_sec = tvb_get_ntoh24 (value_buff, 1);
-					break;
-				case 4:
-					timeValue.tv_sec = tvb_get_ntohl (value_buff, 1);
-					break;
-				default:
-					fprintf (stderr, "dissect_wsp: If Modified Since value length %d NYI\n", valueLen);
-					break;
+			if (peek < 31) {
+				switch (peek)
+				{
+					case 1:
+						timeValue.tv_sec = tvb_get_guint8 (value_buff, 1);
+						break;
+					case 2:
+						timeValue.tv_sec = tvb_get_ntohs (value_buff, 1);
+						break;
+					case 3:
+						timeValue.tv_sec = tvb_get_ntoh24 (value_buff, 1);
+						break;
+					case 4:
+						timeValue.tv_sec = tvb_get_ntohl (value_buff, 1);
+						break;
+					default:
+						timeValue.tv_sec = 0;
+						fprintf (stderr, "dissect_wsp: Expires value length %d NYI\n", peek);
+						break;
+				}
+				ti = proto_tree_add_time (tree, hf_wsp_header_if_modified_since, header_buff, offset, headerLen, &timeValue);
 			}
-			ti = proto_tree_add_time (tree, hf_wsp_header_if_modified_since, header_buff, offset, headerLen, &timeValue);
+			else
+			{
+				fprintf (stderr, "dissect_wsp: Expires value 0x%02x NYI\n", peek);
+			}
 			break;
 				
 		case 0x1C:		/* Location */
@@ -2165,20 +2219,32 @@ add_header (proto_tree *tree, tvbuff_t *header_buff, tvbuff_t *value_buff)
 		case 0x1D:		/* Last-Modified */
 			timeValue.tv_sec = 0;
 			timeValue.tv_usec = 0;
-			switch (valueLen)
-			{
-				case 3:
-					timeValue.tv_sec = tvb_get_ntoh24 (value_buff, 1);
-					break;
-				case 4:
-					timeValue.tv_sec = tvb_get_ntohl (value_buff, 1);
-					break;
-				default:
-					timeValue.tv_sec = 0;
-					fprintf (stderr, "dissect_wsp: Last Modified value length %d NYI\n", valueLen);
-					break;
+			if (peek < 31) {
+				switch (peek)
+				{
+					case 1:
+						timeValue.tv_sec = tvb_get_guint8 (value_buff, 1);
+						break;
+					case 2:
+						timeValue.tv_sec = tvb_get_ntohs (value_buff, 1);
+						break;
+					case 3:
+						timeValue.tv_sec = tvb_get_ntoh24 (value_buff, 1);
+						break;
+					case 4:
+						timeValue.tv_sec = tvb_get_ntohl (value_buff, 1);
+						break;
+					default:
+						timeValue.tv_sec = 0;
+						fprintf (stderr, "dissect_wsp: Expires value length %d NYI\n", peek);
+						break;
+				}
+				ti = proto_tree_add_time (tree, hf_wsp_header_last_modified, header_buff, offset, headerLen, &timeValue);
 			}
-			ti = proto_tree_add_time (tree, hf_wsp_header_last_modified, header_buff, offset, headerLen, &timeValue);
+			else
+			{
+				fprintf (stderr, "dissect_wsp: Expires value 0x%02x NYI\n", peek);
+			}
 			break;
 				
 		case 0x1F:		/* Pragma */
@@ -2384,7 +2450,7 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType)
 			peek = tvb_get_guint8 (tvb, offset);
 			if (peek == '=')
 			{
-				variableEnd = offset-1;
+				variableEnd = offset;
 				valueStart = offset+1;
 			}
 			else if (peek == '&')
@@ -2417,10 +2483,10 @@ add_post_variable (proto_tree *tree, tvbuff_t *tvb, guint variableStart, guint v
 	char *valueBuffer;
 
 	variableBuffer = g_malloc (variableLength+1);
-	strncpy (variableBuffer, tvb_get_ptr (tvb, variableStart, variableLength), variableLength+1);
-	variableBuffer[variableLength+1] = 0;
+	strncpy (variableBuffer, tvb_get_ptr (tvb, variableStart, variableLength), variableLength);
+	variableBuffer[variableLength] = 0;
 
-	if (valueEnd == 0)
+	if (valueEnd < valueStart)
 	{
 		valueBuffer = g_malloc (1);
 		valueBuffer[0] = 0;
@@ -2750,7 +2816,7 @@ proto_register_wsp(void)
 		{ &hf_wtls_record,
 			{ 	"Record",           
 				"wsp.wtls.record",
-				 FT_NONE, BASE_NONE, NULL, 0x00,
+				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_record_type ), 0x0f,
 				"Record" 
 			}
 		},
@@ -2785,7 +2851,7 @@ proto_register_wsp(void)
 		{ &hf_wtls_hands,
 			{ 	"Handshake",           
 				"wsp.wtls.handshake",
-				 FT_NONE, BASE_DEC, NULL, 0x00,
+				 FT_UINT8, BASE_HEX, VALS ( wtls_vals_handshake_type ), 0x00,
 				"Handshake" 
 			}
 		},
@@ -2855,7 +2921,7 @@ proto_register_wsp(void)
 		{ &hf_wtls_hands_cli_hello_key_exchange,
 			{ 	"Key Exchange",           
 				"wsp.wtls.handshake.client_hello.key.key_exchange",
-				 FT_NONE, BASE_NONE, NULL, 0x00,
+				 FT_UINT8, BASE_HEX, VALS ( wtls_vals_key_exchange_suite ), 0x00,
 				"Key Exchange" 
 			}
 		},
@@ -3063,10 +3129,10 @@ proto_register_wsp(void)
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_signature,
-			{ 	"Signature",           
+			{ 	"Signature Size",           
 				"wsp.wtls.handshake.certificate.signature.signature",
-				 FT_NONE, BASE_HEX, NULL, 0x00,
-				"Signature" 
+				 FT_UINT32, BASE_DEC, NULL, 0x00,
+				"Signature Size" 
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_issuer_type,
@@ -3086,7 +3152,7 @@ proto_register_wsp(void)
 		{ &hf_wtls_hands_certificate_wtls_issuer_name,
 			{ 	"Name",           
 				"wsp.wtls.handshake.certificate.issuer.name",
-				 FT_NONE, BASE_HEX, NULL, 0x00,
+				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Name" 
 			}
 		},
@@ -3121,7 +3187,7 @@ proto_register_wsp(void)
 		{ &hf_wtls_hands_certificate_wtls_subject_name,
 			{ 	"Name",           
 				"wsp.wtls.handshake.certificate.subject.name",
-				 FT_NONE, BASE_HEX, NULL, 0x00,
+				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Name" 
 			}
 		},
@@ -3149,14 +3215,14 @@ proto_register_wsp(void)
 		{ &hf_wtls_hands_certificate_wtls_rsa_exponent,
 			{ 	"RSA Exponent",           
 				"wsp.wtls.handshake.certificate.rsa.exponent",
-				 FT_NONE, BASE_HEX, NULL, 0x00,
+				 FT_UINT32, BASE_DEC, NULL, 0x00,
 				"RSA Exponent" 
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_rsa_modules,
-			{ 	"RSA Modulus",           
+			{ 	"RSA Modulus Size",           
 				"wsp.wtls.handshake.certificate.rsa.modulus",
-				 FT_NONE, BASE_HEX, NULL, 0x00,
+				 FT_UINT32, BASE_DEC, NULL, 0x00,
 				"RSA Modulus" 
 			}
 		},
