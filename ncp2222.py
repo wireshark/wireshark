@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.36 2002/10/10 23:32:01 guy Exp $
+$Id: ncp2222.py,v 1.37 2002/10/10 23:41:27 guy Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -6302,10 +6302,10 @@ proto_register_ncp2222(void)
 	{ "Completion Code", "ncp.completion_code", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
 
 	{ &hf_ncp_fragment_handle,
-	{ "Fragment Handle", "ncp.ndsfrag", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "NDS Fragment Handle", "ncp.ndsfrag", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
         
 	{ &hf_ncp_fragment_size,
-	{ "Fragment Size", "ncp.ndsfragsize", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "NDS Fragment Size", "ncp.ndsfragsize", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 
 	{ &hf_ncp_message_size,
 	{ "Message Size", "ncp.ndsmessagesize", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
