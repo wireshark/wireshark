@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.97 2000/07/26 03:38:27 gerald Exp $
+# $Id: configure.in,v 1.98 2000/07/28 16:30:17 gram Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -445,7 +445,6 @@ AC_CONFIG_SUBDIRS(wiretap)
 AC_OUTPUT(
   Makefile
   doc/Makefile
-  doc/dfilter2pod
   gtk/Makefile
   packaging/Makefile
   packaging/rpm/Makefile
@@ -454,5 +453,4 @@ AC_OUTPUT(
   packaging/svr4/checkinstall
   packaging/svr4/pkginfo
   plugins/Makefile
-  plugins/gryphon/Makefile,
-	[chmod +x doc/dfilter2pod])
+  plugins/gryphon/Makefile)

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal documentation
 #
-# $Id: Makefile.am,v 1.6 2000/01/26 03:42:28 gram Exp $
+# $Id: Makefile.am,v 1.7 2000/07/28 16:30:28 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -22,6 +22,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+PERL=@PERL_PATH@
+
 ../ethereal.1: ethereal.pod
 	pod2man ethereal.pod                     \
 	--center="The Ethereal Network Analyzer" \
@@ -29,7 +31,7 @@
 	> ../ethereal.1
 
 ethereal.pod: ethereal.pod.template  ../ethereal
-	../ethereal -G | ./dfilter2pod $(srcdir)/ethereal.pod.template > ethereal.pod
+	../ethereal -G | $(PERL) $(srcdir)/dfilter2pod.pl $(srcdir)/ethereal.pod.template > ethereal.pod
 
 ../tethereal.1: tethereal.pod
 	pod2man tethereal.pod                     \
@@ -38,7 +40,7 @@ ethereal.pod: ethereal.pod.template  ../ethereal
 	> ../tethereal.1
 
 tethereal.pod: tethereal.pod.template  ../tethereal
-	../tethereal -G | ./dfilter2pod $(srcdir)/tethereal.pod.template > tethereal.pod
+	../tethereal -G | $(PERL) $(srcdir)/dfilter2pod.pl $(srcdir)/tethereal.pod.template > tethereal.pod
 
 ../editcap.1: editcap.pod
 	pod2man $(srcdir)/editcap.pod                     \
