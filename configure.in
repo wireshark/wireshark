@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.116 2001/04/11 16:35:00 jfoster Exp $
+# $Id: configure.in,v 1.117 2001/04/11 18:38:19 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -482,7 +482,7 @@ AC_ARG_WITH(plugindir,
   *) PLUGIN_DIR="$withval"
   esac
   ],
-  : ${PLUGIN_DIR=$libdir/ethereal/plugins/0.8.16}
+  : ${PLUGIN_DIR=$libdir/ethereal/plugins/0.8.17}
 )
 
 PLUGIN_DIR=`(
