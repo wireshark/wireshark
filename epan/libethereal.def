@@ -482,6 +482,7 @@ rpc_prog_name
 rpc_roundup
 rtcp_add_address
 rtp_add_address
+rtp_free_hash_dyn_payload
 rtp_payload_type_vals           DATA
 rtp_payload_type_short_vals    DATA
 set_actual_length
