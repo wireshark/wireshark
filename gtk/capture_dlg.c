@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.58 2002/02/08 10:07:38 guy Exp $
+ * $Id: capture_dlg.c,v 1.59 2002/02/22 11:41:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -732,11 +732,11 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
 
   has_snaplen = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(snap_cb));
   if (has_snaplen) {
-    has_snaplen = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(snap_sb));
-    if (has_snaplen < 1)
-      has_snaplen = WTAP_MAX_PACKET_SIZE;
-    else if (has_snaplen < MIN_PACKET_SIZE)
-      has_snaplen = MIN_PACKET_SIZE;
+    snaplen = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(snap_sb));
+    if (snaplen < 1)
+      snaplen = WTAP_MAX_PACKET_SIZE;
+    else if (snaplen < MIN_PACKET_SIZE)
+      snaplen = MIN_PACKET_SIZE;
   }
 
   promisc_mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(promisc_cb));
