@@ -2,7 +2,7 @@
  * Routines for Universal Computer Protocol dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-ucp.c,v 1.15 2002/04/11 09:10:47 guy Exp $
+ * $Id: packet-ucp.c,v 1.16 2002/06/20 20:17:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -798,9 +798,7 @@ ucp_handle_data(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 static void
 ucp_handle_mt(proto_tree *tree, tvbuff_t *tvb, int *offset)
 {
-    char		 strval[BUFSIZ];
     guint		 intval;
-    int			 idx;
 
     intval = ucp_handle_byte(tree, tvb, hf_ucp_parm_MT, offset);
     switch (intval) {
@@ -1660,6 +1658,9 @@ dissect_ucp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	sub_tree = proto_item_add_subtree(sub_ti, ett_sub);
 
 	switch (OT) {
+	    case  0:
+		O_R == 'O' ? add_00O(sub_tree,tmp_tvb) : add_00R(sub_tree,tmp_tvb);
+		break;
 	    case  1:
 		O_R == 'O' ? add_01O(sub_tree,tmp_tvb) : add_01R(sub_tree,tmp_tvb);
 		break;
