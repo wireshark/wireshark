@@ -45,6 +45,9 @@
 
   The netatalk source code by Wesley Craig & Adrian Sun
 
+  The Data Stream Interface description from
+  http://developer.apple.com/documentation/Networking/Conceptual/AFPClient/AFPClient-6.html
+
  * What a Data Stream Interface packet looks like:
  * 0                               32
  * |-------------------------------|
