@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@netapp.com>
  *
- * $Id: packet-http.c,v 1.11 1999/11/16 11:42:31 guy Exp $
+ * $Id: packet-http.c,v 1.12 1999/12/06 20:27:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -216,12 +216,25 @@ is_http_request_or_reply(const u_char *data, int linelen)
 		}
 	}
 	if (linelen >= 6) {
-		if (strncasecmp(data, "DELETE", 6) == 0)
+		if (strncasecmp(data, "DELETE", 6) == 0) {
+			proto_tree_add_item_hidden(http_tree, 
+						   hf_http_request, 0, 0, 1);
 			return TRUE;
+		}
 	}
 	if (linelen >= 7) {
-		if (strncasecmp(data, "OPTIONS", 7) == 0)
+		if (strncasecmp(data, "OPTIONS", 7) == 0) {
+			proto_tree_add_item_hidden(http_tree, 
+						   hf_http_request, 0, 0, 1);
 			return TRUE;
+		}
+	}
+	if (linelen >= 7) {
+		if (strncasecmp(data, "CONNECT", 7) == 0) {
+			proto_tree_add_item_hidden(http_tree, 
+						   hf_http_request, 0, 0, 1);
+			return TRUE;
+		}
 	}
 	return FALSE;
 }

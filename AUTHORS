@@ -175,16 +175,20 @@ Warren Young <tangent@mail.com> {
 	"Print" button support in "Tools:Follow TCP Stream" window
 }
 
+Heikki Vatiainen <hessu@cs.tut.fi> {
+	SAP (Session Announcement Protocol) support
+	VRRP (Virtual Router Redundancy)
+	HSRP (Hot Standby Router Protocol)
+}
+
 Greg Hankins <gregh@twoguys.org> {
 	http://www.twoguys.org/~gregh
 
 	updates to BGP (Border Gateway Protocol) support
 }
 
-Heikki Vatiainen <hessu@cs.tut.fi> {
-	SAP (Session Announcement Protocol) support
-	VRRP (Virtual Router Redundancy)
-	HSRP (Hot Standby Router Protocol)
+Jerry Talkington <jerryt@netapp.com> {
+	updates to HTTP support
 }
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
