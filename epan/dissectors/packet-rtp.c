@@ -381,8 +381,9 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		{
 			call_dissector(rtpevent_handle, newtvb, pinfo, tree);
 		} else 
-		{
-			proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, FALSE );
+		{	
+			if (!dissector_try_port(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree))
+				proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, FALSE );
 		}
 	} else {
     /* is not part of a conv, use the preference saved value do decode the payload type */
