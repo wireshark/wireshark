@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly 
  *
- * $Id: packet-icmpv6.c,v 1.4 1999/07/13 02:52:51 gram Exp $
+ * $Id: packet-icmpv6.c,v 1.5 1999/07/28 02:14:14 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -181,7 +181,7 @@ again:
 	struct nd_opt_mtu *pi = (struct nd_opt_mtu *)opt;
 	proto_tree_add_text(icmp6opt_tree,
 	    offset + offsetof(struct nd_opt_mtu, nd_opt_mtu_mtu), 4,
-	    "MTU: %d", pi->nd_opt_mtu_mtu);
+	    "MTU: %d", pntohl(&pi->nd_opt_mtu_mtu));
 	break;
       }
     }
