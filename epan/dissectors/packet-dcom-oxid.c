@@ -1,4 +1,4 @@
-/* packet-dcerpc-oxid.c
+/* packet-dcom-oxid.c
  * Routines for DCOM OXID Resolver
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
@@ -22,6 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+/* see packet-dcom.c for details about DCOM */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
