@@ -1,10 +1,9 @@
 /* 
- * $Id: ftype-bytes.c,v 1.6 2001/10/29 21:13:13 guy Exp $
+ * $Id: ftype-bytes.c,v 1.7 2001/11/02 10:09:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -247,6 +246,20 @@ u64_from_string(fvalue_t *fv, char *s, LogFunc log)
 	return TRUE;
 }
 
+static gboolean
+i64_from_string(fvalue_t *fv, char *s, LogFunc log)
+{
+	guint8	buffer[8];
+
+	if (atoi64(s, buffer) == NULL) {
+		log("\"%s\" is not a valid integer", s);
+		return FALSE;
+	}
+
+	u64_fvalue_set(fv, buffer, FALSE);
+	return TRUE;
+}
+
 static guint
 len(fvalue_t *fv)
 {
@@ -357,6 +370,178 @@ cmp_le(fvalue_t *fv_a, fvalue_t *fv_b)
 		return FALSE;
 	}
 	
+	return (memcmp(a->data, b->data, a->len) <= 0);
+}
+
+static gboolean
+cmp_gt_i64(fvalue_t *fv_a, fvalue_t *fv_b)
+{
+	GByteArray	*a = fv_a->value.bytes;
+	GByteArray	*b = fv_b->value.bytes;
+
+	if (a->len > b->len) {
+		return TRUE;
+	}
+
+	if (a->len < b->len) {
+		return FALSE;
+	}
+	
+	if ((a->data[0] & 0x80) == 0) {
+		/*
+		 * "a" is positive.
+		 */
+		if (b->data[0] & 0x80) {
+			/*
+			 * "b" is negative, so a > b.
+			 */
+			return TRUE;
+		}
+	} else {
+		/*
+		 * "a" is negative.
+		 */
+		if ((b->data[0] & 0x80) == 0) {
+			/*
+			 * "b" is positive, so a < b.
+			 */
+			return FALSE;
+		}
+	}
+
+	/*
+	 * "a" and "b" have the same sign, so "memcmp()" should
+	 * give the right answer.
+	 */
+	return (memcmp(a->data, b->data, a->len) > 0);
+}
+
+static gboolean
+cmp_ge_i64(fvalue_t *fv_a, fvalue_t *fv_b)
+{
+	GByteArray	*a = fv_a->value.bytes;
+	GByteArray	*b = fv_b->value.bytes;
+
+	if (a->len > b->len) {
+		return TRUE;
+	}
+
+	if (a->len < b->len) {
+		return FALSE;
+	}
+	
+	if ((a->data[0] & 0x80) == 0) {
+		/*
+		 * "a" is positive.
+		 */
+		if (b->data[0] & 0x80) {
+			/*
+			 * "b" is negative, so a > b.
+			 */
+			return TRUE;
+		}
+	} else {
+		/*
+		 * "a" is negative.
+		 */
+		if ((b->data[0] & 0x80) == 0) {
+			/*
+			 * "b" is positive, so a < b.
+			 */
+			return FALSE;
+		}
+	}
+
+	/*
+	 * "a" and "b" have the same sign, so "memcmp()" should
+	 * give the right answer.
+	 */
+	return (memcmp(a->data, b->data, a->len) >= 0);
+}
+
+static gboolean
+cmp_lt_i64(fvalue_t *fv_a, fvalue_t *fv_b)
+{
+	GByteArray	*a = fv_a->value.bytes;
+	GByteArray	*b = fv_b->value.bytes;
+
+	if (a->len < b->len) {
+		return TRUE;
+	}
+
+	if (a->len > b->len) {
+		return FALSE;
+	}
+	
+	if (a->data[0] & 0x80) {
+		/*
+		 * "a" is negative.
+		 */
+		if ((b->data[0] & 0x80) == 0) {
+			/*
+			 * "b" is positive, so a < b.
+			 */
+			return TRUE;
+		}
+	} else {
+		/*
+		 * "a" is positive.
+		 */
+		if (b->data[0] & 0x80) {
+			/*
+			 * "b" is negative, so a > b.
+			 */
+			return FALSE;
+		}
+	}
+
+	/*
+	 * "a" and "b" have the same sign, so "memcmp()" should
+	 * give the right answer.
+	 */
+	return (memcmp(a->data, b->data, a->len) < 0);
+}
+
+static gboolean
+cmp_le_i64(fvalue_t *fv_a, fvalue_t *fv_b)
+{
+	GByteArray	*a = fv_a->value.bytes;
+	GByteArray	*b = fv_b->value.bytes;
+
+	if (a->len < b->len) {
+		return TRUE;
+	}
+
+	if (a->len > b->len) {
+		return FALSE;
+	}
+	
+	if (a->data[0] & 0x80) {
+		/*
+		 * "a" is negative.
+		 */
+		if ((b->data[0] & 0x80) == 0) {
+			/*
+			 * "b" is positive, so a < b.
+			 */
+			return TRUE;
+		}
+	} else {
+		/*
+		 * "a" is positive.
+		 */
+		if (b->data[0] & 0x80) {
+			/*
+			 * "b" is negative, so a > b.
+			 */
+			return FALSE;
+		}
+	}
+
+	/*
+	 * "a" and "b" have the same sign, so "memcmp()" should
+	 * give the right answer.
+	 */
 	return (memcmp(a->data, b->data, a->len) <= 0);
 }
 
@@ -472,8 +657,36 @@ ftype_register_bytes(void)
 		slice,
 	};
 
+	static ftype_t i64_type = {
+		"FT_INT64",
+		"Signed 64-bit integer",
+		U64_LEN,
+		bytes_fvalue_new,
+		bytes_fvalue_free,
+		i64_from_string,
+
+		u64_fvalue_set,
+		NULL,
+		NULL,
+
+		value_get,
+		NULL,
+		NULL,
+
+		cmp_eq,
+		cmp_ne,
+		cmp_gt_i64,
+		cmp_ge_i64,
+		cmp_lt_i64,
+		cmp_le_i64,
+
+		len,
+		slice,
+	};
+
 	ftype_register(FT_BYTES, &bytes_type);
 	ftype_register(FT_ETHER, &ether_type);
 	ftype_register(FT_IPv6, &ipv6_type);
 	ftype_register(FT_UINT64, &u64_type);
+	ftype_register(FT_INT64, &i64_type);
 }

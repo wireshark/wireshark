@@ -1,10 +1,9 @@
 /*
- * $Id: semcheck.c,v 1.5 2001/10/29 21:13:12 guy Exp $
+ * $Id: semcheck.c,v 1.6 2001/11/02 10:09:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -53,6 +52,7 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 		case FT_IPv4:
 		case FT_IPv6:
 		case FT_IPXNET:
+		case FT_INT64:
 		case FT_UINT64:
 			return a == b;
 
@@ -142,6 +142,8 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 		case FT_STRING:
 		case FT_STRINGZ:
 		case FT_UINT_STRING:
+		case FT_UINT64:
+		case FT_INT64:
 			return FALSE;
 
 		case FT_BOOLEAN:
@@ -227,10 +229,12 @@ is_bytes_type(enum ftenum type)
 		case FT_UINT16:
 		case FT_UINT24:
 		case FT_UINT32:
+		case FT_UINT64:
 		case FT_INT8:
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
+		case FT_INT64:
 			return FALSE;
 			
 		case FT_NUM_TYPES:

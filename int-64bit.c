@@ -2,7 +2,7 @@
  * Routines for handling of 64-bit integers
  * 2001 Ronnie Sahlberg
  *
- * $Id: int-64bit.c,v 1.3 2001/10/30 08:39:02 guy Exp $
+ * $Id: int-64bit.c,v 1.4 2001/11/02 10:09:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -118,13 +118,16 @@ static const signed char u64val[64][U64STRLEN] =
    It is much less important that the inverse: atou64
    be efficient since it is only called when  
    diplayfilters are entered.
+
+   "neg" should be 1 if the number should have a "-" put in
+   front of it.
 */
-char *
-u64toa(const unsigned char *u64ptr)
+static char *
+n64toa(const unsigned char *u64ptr, int neg)
 {
 	unsigned char acc[U64STRLEN]; /* accumulator */
 	int i,j,k,pos;
-	static char str[U64STRLEN];
+	static char str[U64STRLEN+1]; /* 1 extra for the sign */
 
 	/* clear out the accumulator */
 	for(i=0;i<U64STRLEN-1;i++){
@@ -168,21 +171,92 @@ u64toa(const unsigned char *u64ptr)
 	}
 
 	/* convert to a string */
-	str[U64STRLEN-1]=0;
+	str[U64STRLEN-1+neg]=0;
 	for(i=0;i<U64STRLEN-1;i++){
-		str[U64STRLEN-2-i]='0'+acc[i];
+		str[U64STRLEN-2-i+neg]='0'+acc[i];
 	}
 
 	/* skip the initial zeros */
 	for(i=0;i<U64STRLEN-2;i++){
-		if(str[i]>'0'){
+		if(str[i+neg]>'0'){
 			break;
 		}
 	}
 
+	/* insert the sign */
+	if (neg)
+		str[i] = '-';
+
 	return str+i;
 }
 
+/*
+ * Convert an unsigned 64-bit integer into a string, in decimal.
+ */
+char *
+u64toa(const unsigned char *u64ptr)
+{
+	/*
+	 * Just use "n64toa()".
+	 */
+	return n64toa(u64ptr, 0);
+}
+
+/*
+ * Convert a signed 64-bit integer into a string, in decimal.
+ */
+char *
+i64toa(const unsigned char *i64ptr)
+{
+	unsigned char neg[8];
+	int i;
+	int carry;
+	int byte;
+
+	/*
+	 * The bytes of the integer go from msb to lsb, so the
+	 * msb is "i64ptr[0]".
+	 *
+	 * The sign bit, therefore, is "i64ptr[0] & 0x80".
+	 */
+	if (i64ptr[0] & 0x80) {
+		/*
+		 * It's negative - compute the absolute value,
+		 * by taking the two's complement; take the
+		 * one's complement of the low-order byte, add
+		 * 1, take the one's complement of the next byte
+		 * up, add the carry from the previous addition,
+		 * etc.
+		 *
+		 * If it's the maximum negative value, which is
+		 * 0x8000000000000000, this will turn it back
+		 * into 0x8000000000000000, which "n64toa()"
+		 * will handle correctly, reporting the absolute
+		 * value of the maximum negative value;
+		 * thus, we don't have to worry about it.
+		 */
+		carry = 1;
+		for (i = 7; i >= 0; i--) {
+			byte = ((unsigned char)~i64ptr[i]) + carry;
+			neg[i] = byte;
+			if (byte & 0x100)
+				carry = 1;
+			else
+				carry = 0;
+		}
+
+		/*
+		 * Use "n64toa()" on the negative, and tell it to insert
+		 * a "-".
+		 */
+		return n64toa(neg, 1);
+	} else {
+		/*
+		 * It's positive, so just use "n64toa()".
+		 */
+		return n64toa(i64ptr, 0);
+	}
+}
 
 /* like memcmp but compares in reverse */
 static int
@@ -203,7 +277,9 @@ revcmp(const signed char *s1, const signed char *s2, int len)
 	return 0;
 }
 
-
+/*
+ * Convert a string to an unsigned 64-bit integer.
+ */
 unsigned char *
 atou64(const char *u64str, unsigned char *u64int)
 {
@@ -267,6 +343,58 @@ atou64(const char *u64str, unsigned char *u64int)
 	return u64int;
 }
 
+/*
+ * Convert a string to a signed 64-bit integer.
+ */
+unsigned char *
+atoi64(const char *i64str, unsigned char *i64int)
+{
+	int i;
+	int carry;
+	int byte;
+
+	if(!i64str){
+		return NULL;
+	}
+
+	/*
+	 * Does it begin with a minus sign?
+	 */
+	if (i64str[0] == '-') {
+		/*
+		 * Yes - convert the rest of the string to a number...
+		 */
+		if (atou64(&i64str[1], i64int) == NULL) {
+			/*
+			 * We failed.
+			 */
+			return NULL;
+		}
+
+		/*
+		 * ...and then take its negative.
+		 */
+		carry = 1;
+		for (i = 7; i >= 0; i--) {
+			byte = ((unsigned char)~i64int[i]) + carry;
+			i64int[i] = byte;
+			if (byte & 0x100)
+				carry = 1;
+			else
+				carry = 0;
+		}
+		return i64int;
+	} else {
+		/*
+		 * No - just let "atou64()" handle it.
+		 */
+		return atou64(i64str, i64int);
+	}
+}
+
+/*
+ * Convert an unsigned 64-bit integer to a string, in hex.
+ */
 char *
 u64toh(const unsigned char *u64ptr)
 {
@@ -305,6 +433,9 @@ ntoh(unsigned char h)
 	return 0;
 }
 
+/*
+ * Convert a hex string to an unsigned 64-bit integer.
+ */
 unsigned char *
 htou64(const char *u64str, unsigned char *u64int)
 {
@@ -370,15 +501,51 @@ htou64(const char *u64str, unsigned char *u64int)
 }
 
 #ifdef TEST_DEBUG
+#include <stdio.h>
+
 int main(void)
 {
-	char i[8] = {0,0,0,0,0x55,0x44,0x33,0x11};
+	char i998877665544331[8] =
+	    {0x0, 0x23, 0x7c, 0xbd, 0x4c, 0x49, 0xd5, 0x6f};
+	char iminus9988776655443311[8] =
+	    {0xff, 0xdc, 0x83, 0x42, 0xb3, 0xb6, 0x2a, 0x91};
+	char i9223372036854775807[8] =
+	    {0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+	char iminus1[8] =
+	    {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+	char iminus9223372036854775808[8] =
+	    {0x80, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
+	char u9223372036854775808[8] =
+	    {0x80, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
+	char u18446744073709551615[8] =
+	    {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+	char u0xaabbccdd00112233[8] =
+	    {0xaa, 0xbb, 0xcc, 0xdd, 0x0, 0x11, 0x22, 0x33};
 	char t[8];
 
-	printf("%s\n",u64toa(i));
-	printf("%s\n",u64toa(atou64("55443311",t)));
-	printf("%s\n",u64toh(i));
-	printf("%s\n",u64toh(htou64("0x55443311",t)));
+	printf("%s (9988776655443311)\n",i64toa(i998877665544331));
+	printf("%s (-9988776655443311)\n",i64toa(iminus9988776655443311));
+	printf("%s (9223372036854775807)\n",i64toa(i9223372036854775807));
+	printf("%s (-1)\n",i64toa(iminus1));
+	printf("%s (-9223372036854775808)\n",i64toa(iminus9223372036854775808));
+
+	printf("%s (9988776655443311)\n",u64toa(i998877665544331));
+	printf("%s (9223372036854775807)\n",u64toa(i9223372036854775807));
+	printf("%s (9223372036854775808)\n",u64toa(u9223372036854775808));
+	printf("%s (18446744073709551615)\n",u64toa(u18446744073709551615));
+
+	printf("%s (0xaabbccdd00112233)\n",u64toh(u0xaabbccdd00112233));
+
+	printf("%s (55443311)\n",i64toa(atoi64("55443311",t)));
+	printf("%s (-55443311)\n",i64toa(atoi64("-55443311",t)));
+	printf("%s (9988776655443311)\n",i64toa(atoi64("9988776655443311",t)));
+	printf("%s (-9988776655443311)\n",i64toa(atoi64("-9988776655443311",t)));
+	printf("%s (9223372036854775807)\n",i64toa(atoi64("9223372036854775807",t)));
+	printf("%s (-1)\n",i64toa(atoi64("-1",t)));
+	printf("%s (-9223372036854775808)\n",i64toa(atoi64("-9223372036854775808",t)));
+
+	printf("%s (55443311)\n",u64toa(atou64("55443311",t)));
+	printf("%s (0x55443311)\n",u64toh(htou64("0x55443311",t)));
 	return 0;
 }
 #endif

@@ -1,12 +1,11 @@
 /* ftypes.h
  * Definitions for field types
  *
- * $Id: ftypes.h,v 1.6 2001/10/29 21:13:13 guy Exp $
+ * $Id: ftypes.h,v 1.7 2001/11/02 10:09:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -42,8 +41,9 @@ enum ftenum {
 	FT_UINT64,
 	FT_INT8,
 	FT_INT16,
-	FT_INT24,
+	FT_INT24,	/* same as for UINT24 */
 	FT_INT32,
+	FT_INT64,
 	FT_DOUBLE,
 	FT_ABSOLUTE_TIME,
 	FT_RELATIVE_TIME,

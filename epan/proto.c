@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.38 2001/10/29 21:13:10 guy Exp $
+ * $Id: proto.c,v 1.39 2001/11/02 10:09:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,6 +54,7 @@ proto_tree_free_node(GNode *node, gpointer data);
 static void fill_label_boolean(field_info *fi, gchar *label_str);
 static void fill_label_uint(field_info *fi, gchar *label_str);
 static void fill_label_uint64(field_info *fi, gchar *label_str);
+static void fill_label_int64(field_info *fi, gchar *label_str);
 static void fill_label_enumerated_uint(field_info *fi, gchar *label_str);
 static void fill_label_enumerated_bitfield(field_info *fi, gchar *label_str);
 static void fill_label_numeric_bitfield(field_info *fi, gchar *label_str);
@@ -491,6 +492,7 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			    get_uint_value(tvb, start, length, little_endian));
 			break;
 
+		case FT_INT64:
 		case FT_UINT64:
 			g_assert(length == 8);
 			proto_tree_set_uint64_tvb(new_fi, tvb, start, little_endian);
@@ -2006,6 +2008,10 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			}
 			break;
 
+		case FT_INT64:
+			fill_label_int64(fi, label_str);
+			break;
+
 		case FT_DOUBLE:
 			snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %g", hfinfo->name, fvalue_get_floating(fi->value));
@@ -2083,6 +2089,30 @@ fill_label_uint64(field_info *fi, gchar *label_str)
 		snprintf(label_str, ITEM_LABEL_LENGTH,
 			"%s: %s", hfinfo->name,
 			u64toa(bytes));
+		break;
+	case BASE_HEX:
+		snprintf(label_str, ITEM_LABEL_LENGTH,
+			"%s: %s", hfinfo->name,
+			u64toh(bytes));
+		break;
+	default:
+		g_assert_not_reached();
+		;
+	}
+}
+
+static void
+fill_label_int64(field_info *fi, gchar *label_str)
+{
+	unsigned char *bytes;
+	header_field_info *hfinfo = fi->hfinfo;
+
+	bytes=fvalue_get(fi->value);
+	switch(hfinfo->display){
+	case BASE_DEC:
+		snprintf(label_str, ITEM_LABEL_LENGTH,
+			"%s: %s", hfinfo->name,
+			i64toa(bytes));
 		break;
 	case BASE_HEX:
 		snprintf(label_str, ITEM_LABEL_LENGTH,
@@ -2943,6 +2973,7 @@ proto_can_match_selected(field_info *finfo)
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
+		case FT_INT64:
 		case FT_IPv4:
 		case FT_IPXNET:
 		case FT_IPv6:
@@ -3007,6 +3038,14 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 
 		case FT_UINT64:
 			stringified = u64toa(fvalue_get(finfo->value));
+			dfilter_len = abbrev_len + 4 + strlen(stringified) +1;
+			buf = g_malloc0(dfilter_len);
+			snprintf(buf, dfilter_len, "%s == %s", hfinfo->abbrev,
+					stringified);
+			break;
+
+		case FT_INT64:
+			stringified = i64toa(fvalue_get(finfo->value));
 			dfilter_len = abbrev_len + 4 + strlen(stringified) +1;
 			buf = g_malloc0(dfilter_len);
 			snprintf(buf, dfilter_len, "%s == %s", hfinfo->abbrev,

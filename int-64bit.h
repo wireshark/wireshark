@@ -1,7 +1,7 @@
 /* int-64bit.h
  * Handling of 64-bit integers 
  *
- * $Id: int-64bit.h,v 1.2 2001/10/29 21:53:58 guy Exp $
+ * $Id: int-64bit.h,v 1.3 2001/11/02 10:09:47 guy Exp $
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,11 +26,36 @@
  * arrays of 8 bytes in network byte order (bit-endian), and ASCII strings
  * giving integer values in decimal or hexadecimal.
  */
-char *u64toa(const unsigned char *u64ptr);
-unsigned char *atou64(const char *u64str, unsigned char *u64int);
-char *u64toh(const unsigned char *u64ptr);
-unsigned char *htou64(const char *u64str, unsigned char *u64int);
 
+/*
+ * Convert an unsigned 64-bit integer into a string, in decimal.
+ */
+extern char *u64toa(const unsigned char *u64ptr);
+
+/*
+ * Convert a signed 64-bit integer into a string, in decimal.
+ */
+extern char *i64toa(const unsigned char *i64ptr);
+
+/*
+ * Convert a string to an unsigned 64-bit integer.
+ */
+unsigned char *atou64(const char *u64str, unsigned char *u64int);
+
+/*
+ * Convert a string to a signed 64-bit integer.
+ */
+unsigned char *atoi64(const char *i64str, unsigned char *i64int);
+
+/*
+ * Convert an unsigned 64-bit integer to a string, in hex.
+ */
+char *u64toh(const unsigned char *u64ptr);
+
+/*
+ * Convert a hex string to an unsigned 64-bit integer.
+ */
+unsigned char *htou64(const char *u64str, unsigned char *u64int);
 
 #endif
 
