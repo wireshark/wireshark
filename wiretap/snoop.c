@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.60 2003/01/09 01:55:12 guy Exp $
+ * $Id: snoop.c,v 1.61 2003/01/10 04:04:42 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -589,6 +589,7 @@ snoop_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	pseudo_header->atm.channel = (atm_phdr.flags & 0x80) ? 0 : 1;
 
 	/* We don't have this information */
+	pseudo_header->atm.flags = 0;
 	pseudo_header->atm.cells = 0;
 	pseudo_header->atm.aal5t_u2u = 0;
 	pseudo_header->atm.aal5t_len = 0;

@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.73 2003/01/09 01:55:12 guy Exp $
+ * $Id: netxray.c,v 1.74 2003/01/10 04:04:41 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -645,6 +645,12 @@ netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
 			break;
 
 		case WTAP_ENCAP_ATM_PDUS_UNTRUNCATED:
+			pseudo_header->atm.flags = 0;
+			/*
+			 * XXX - is 0x08 an "OAM cell" flag?
+			 */
+			if (hdr->hdr_2_x.xxx[9] & 0x04)
+				pseudo_header->atm.flags |= ATM_RAW_CELL;
 			pseudo_header->atm.vpi = hdr->hdr_2_x.xxx[11];
 			pseudo_header->atm.vci = pletohs(&hdr->hdr_2_x.xxx[12]);
 			pseudo_header->atm.channel =

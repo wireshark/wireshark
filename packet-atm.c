@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.56 2003/01/09 04:11:08 guy Exp $
+ * $Id: packet-atm.c,v 1.57 2003/01/10 04:04:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1511,14 +1511,13 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	val_to_str(pinfo->pseudo_header->atm.aal, aal_vals,
 	  "Unknown AAL (%u)"));
   }
-  if (pinfo->pseudo_header->atm.aal == AAL_5 ||
-      pinfo->pseudo_header->atm.aal == AAL_SIGNALLING) {
-    /* This is a reassembled PDU. */
-    dissect_reassembled_pdu(tvb, pinfo, tree, atm_tree, truncated);
-  } else {
-    /* Assume this is a single cell, with the cell header at the beginning. */
+  if (pinfo->pseudo_header->atm.flags & ATM_IS_CELL) {
+    /* This is a single cell, with the cell header at the beginning. */
     proto_item_set_len(ti, 5);
     dissect_atm_cell(tvb, pinfo, tree, atm_tree);
+  } else {
+    /* This is a reassembled PDU. */
+    dissect_reassembled_pdu(tvb, pinfo, tree, atm_tree, truncated);
   }
 }
 

@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.103 2003/01/09 04:36:26 guy Exp $
+ * $Id: ngsniffer.c,v 1.104 2003/01/10 04:04:41 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1254,8 +1254,17 @@ static gboolean ngsniffer_read_frame4(wtap *wth, gboolean is_random,
 static void set_pseudo_header_frame4(union wtap_pseudo_header *pseudo_header,
     struct frame4_rec *frame4)
 {
+	guint32 StatusWord;
 	guint8 aal_type, hl_type;
 	guint16 vpi, vci;
+
+	/*
+	 * Map flags from frame4.atm_info.StatusWord.
+	 */
+	pseudo_header->atm.flags = 0;
+	StatusWord = pletohl(&frame4->atm_info.StatusWord);
+	if (StatusWord & SW_RAW_CELL)
+		pseudo_header->atm.flags |= ATM_RAW_CELL;
 
 	aal_type = frame4->atm_info.AppTrafType & ATT_AALTYPE;
 	hl_type = frame4->atm_info.AppTrafType & ATT_HLTYPE;

@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.46 2003/01/03 06:45:45 guy Exp $
+ * $Id: iptrace.c,v 1.47 2003/01/10 04:04:41 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -531,6 +531,7 @@ get_atm_pseudo_header(const guint8 *pd, guint32 len,
 	atm_guess_traffic_type(pd, len, pseudo_header);
 
 	/* We don't have this information */
+	pseudo_header->atm.flags = 0;
 	pseudo_header->atm.cells = 0;
 	pseudo_header->atm.aal5t_u2u = 0;
 	pseudo_header->atm.aal5t_len = 0;

@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.131 2003/01/09 01:55:13 guy Exp $
+ * $Id: wtap.h,v 1.132 2003/01/10 04:04:42 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -208,6 +208,11 @@ struct isdn_phdr {
    Not all of this information is supplied by all capture types. */
 
 /*
+ * Status bits.
+ */
+#define ATM_RAW_CELL	0x01	/* TRUE if the packet is a single cell */
+
+/*
  * AAL types.
  */
 #define AAL_UNKNOWN	0	/* AAL unknown */
@@ -269,6 +274,7 @@ struct isdn_phdr {
 #define	TRAF_ST_IPSILON_FT2	3	/* Ipsilon: Flow Type 2 */
 
 struct atm_phdr {
+	guint32	flags;		/* status flags */
 	guint8	aal;		/* AAL of the traffic */
 	guint8	type;		/* traffic type */
 	guint8	subtype;	/* traffic subtype */
