@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.16 2002/05/13 22:52:15 gram Exp $
+$Id: ncp2222.py,v 1.17 2002/05/14 20:06:37 gram Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -2285,9 +2285,8 @@ JobControlFlagsWord		= bitfield16("job_control_flags_word", "Job Control Flags",
 
 ])
 JobCount			= uint32("job_count", "Job Count")
-JobFileHandle			= uint8("job_file_handle", "Job File Handle")
-JobFileHandle.Display("BASE_HEX")
-JobFileHandleLong			= uint32("job_file_handle_long", "Job File Handle")
+JobFileHandle			= bytes("job_file_handle", "Job File Handle", 6)
+JobFileHandleLong		= uint32("job_file_handle_long", "Job File Handle")
 JobFileHandleLong.Display("BASE_HEX")
 JobFileName			= fw_string("job_file_name", "Job File Name", 14)
 JobPosition			= uint8("job_position", "Job Position")
