@@ -75,9 +75,9 @@ dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   for (;;) {
     if (tree)
-      proto_tree_add_item(loop_tree, hf_loop_skipcount, tvb, offset, 2, FALSE);
+      proto_tree_add_item(loop_tree, hf_loop_skipcount, tvb, offset, 2, TRUE);
     offset += 2;
-    function = tvb_get_ntohs(tvb, 2);
+    function = tvb_get_letohs(tvb, 2);
     if (!set_info) {
       if (check_col(pinfo->cinfo, COL_INFO)) {
         col_add_str(pinfo->cinfo, COL_INFO,
@@ -93,7 +93,7 @@ dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case FUNC_REPLY:
       if (tree)
         proto_tree_add_item(loop_tree, hf_loop_receipt_number, tvb, offset, 2,
-                            FALSE);
+                            TRUE);
       offset += 2;
       next_tvb = tvb_new_subset(tvb, offset, -1, -1);
       call_dissector(data_handle, next_tvb, pinfo, tree);
