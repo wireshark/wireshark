@@ -406,6 +406,7 @@ Brian Wellington <bwelling@xbill.org> {
 
 Santeri Paavolainen <santtu@ssh.com> {
 	"Capture->Stop" menu bar item
+	Improved capture statistics box
 }
 
 Ulrich Kiermayr <uk@ap.univie.ac.at> {

@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.129 2000/10/11 06:01:14 guy Exp $
+ * $Id: capture.c,v 1.130 2000/10/21 04:20:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1024,15 +1024,14 @@ static loop_data   ld;
 int
 capture(void)
 {
-  GtkWidget  *cap_w, *main_vb, *count_lb, *sctp_lb, *tcp_lb, *udp_lb, *icmp_lb,
-             *ospf_lb, *gre_lb, *netbios_lb, *ipx_lb, *vines_lb, *other_lb, *stop_bt;
+  GtkWidget  *cap_w, *main_vb, *stop_bt, *counts_tb;
   pcap_t     *pch;
   int         pcap_encap;
   int         snaplen;
   gchar       err_str[PCAP_ERRBUF_SIZE], label_str[64];
   bpf_u_int32 netnum, netmask;
   time_t      upd_time, cur_time;
-  int         err, inpkts;
+  int         err, inpkts, i;
   char        errmsg[4096+1];
 #ifndef _WIN32
   static const char ppamsg[] = "can't find PPA for ";
@@ -1051,6 +1050,25 @@ capture(void)
   int         pipe_fd = -1;
   struct pcap_hdr hdr;
 #endif
+  struct {
+      const gchar *title;
+      gint *value_ptr;
+      GtkWidget *label, *value, *percent;
+  } stats[] = {
+      { "Total", &ld.counts.total },
+      { "SCTP", &ld.counts.sctp },
+      { "TCP", &ld.counts.tcp },
+      { "UDP", &ld.counts.udp },
+      { "ICMP", &ld.counts.icmp },
+      { "OSPF", &ld.counts.ospf },
+      { "GRE", &ld.counts.gre },
+      { "NetBIOS", &ld.counts.netbios },
+      { "IPX", &ld.counts.ipx },
+      { "VINES", &ld.counts.vines },
+      { "Other", &ld.counts.other }
+  };
+
+#define N_STATS (sizeof stats / sizeof stats[0])
 
   /* Initialize Windows Socket if we are in a WIN32 OS 
      This needs to be done before querying the interface for network/netmask */
@@ -1258,49 +1276,35 @@ capture(void)
   gtk_container_add(GTK_CONTAINER(cap_w), main_vb);
   gtk_widget_show(main_vb);
 
-  count_lb = gtk_label_new("Count: 0");
-  gtk_box_pack_start(GTK_BOX(main_vb), count_lb, FALSE, FALSE, 3);
-  gtk_widget_show(count_lb);
+  /* Individual statistic elements */
+  counts_tb = gtk_table_new(N_STATS, 3, TRUE);
+  gtk_box_pack_start(GTK_BOX(main_vb), counts_tb, TRUE, TRUE, 3);
+  gtk_widget_show(counts_tb);
 
-  sctp_lb = gtk_label_new("SCTP: 0 (0.0%)");
-  gtk_box_pack_start(GTK_BOX(main_vb), sctp_lb, FALSE, FALSE, 3);
-  gtk_widget_show(sctp_lb);
+  for (i = 0; i < N_STATS; i++) {
+      stats[i].label = gtk_label_new(stats[i].title);
+      gtk_misc_set_alignment(GTK_MISC(stats[i].label), 0.0f, 0.0f);
 
-  tcp_lb = gtk_label_new("TCP: 0 (0.0%)");
-  gtk_box_pack_start(GTK_BOX(main_vb), tcp_lb, FALSE, FALSE, 3);
-  gtk_widget_show(tcp_lb);
+      stats[i].value = gtk_label_new("0");
+      gtk_misc_set_alignment(GTK_MISC(stats[i].value), 0.0f, 0.0f);
 
-  udp_lb = gtk_label_new("UDP: 0 (0.0%)");
-  gtk_box_pack_start(GTK_BOX(main_vb), udp_lb, FALSE, FALSE, 3);
-  gtk_widget_show(udp_lb);
+      stats[i].percent = gtk_label_new("0.0%");
+      gtk_misc_set_alignment(GTK_MISC(stats[i].percent), 0.0f, 0.0f);
 
-  icmp_lb = gtk_label_new("ICMP: 0 (0.0%)");
-  gtk_box_pack_start(GTK_BOX(main_vb), icmp_lb, FALSE, FALSE, 3);
-  gtk_widget_show(icmp_lb);
+      gtk_table_attach_defaults(GTK_TABLE(counts_tb),
+                                stats[i].label, 0, 1, i, i + 1);
 
-  ospf_lb = gtk_label_new("OSPF: 0 (0.0%)");
-  gtk_box_pack_start(GTK_BOX(main_vb), ospf_lb, FALSE, FALSE, 3);
-  gtk_widget_show(ospf_lb);
+      gtk_table_attach(GTK_TABLE(counts_tb),
+                       stats[i].value,
+                       1, 2, i, i + 1, 0, 0, 5, 0);
 
-  gre_lb = gtk_label_new("GRE: 0 (0.0%)");
-  gtk_box_pack_start(GTK_BOX(main_vb), gre_lb, FALSE, FALSE, 3);
-  gtk_widget_show(gre_lb);
+      gtk_table_attach_defaults(GTK_TABLE(counts_tb),
+                                stats[i].percent, 2, 3, i, i + 1);
 
-  netbios_lb = gtk_label_new("NetBIOS: 0 (0.0%)");
-  gtk_box_pack_start(GTK_BOX(main_vb), netbios_lb, FALSE, FALSE, 3);
-  gtk_widget_show(netbios_lb);
-
-  ipx_lb = gtk_label_new("IPX: 0 (0.0%)");
-  gtk_box_pack_start(GTK_BOX(main_vb), ipx_lb, FALSE, FALSE, 3);
-  gtk_widget_show(ipx_lb);
-
-  vines_lb = gtk_label_new("VINES: 0 (0.0%)");
-  gtk_box_pack_start(GTK_BOX(main_vb), vines_lb, FALSE, FALSE, 3);
-  gtk_widget_show(vines_lb);
-
-  other_lb = gtk_label_new("Other: 0 (0.0%)");
-  gtk_box_pack_start(GTK_BOX(main_vb), other_lb, FALSE, FALSE, 3);
-  gtk_widget_show(other_lb);
+      gtk_widget_show(stats[i].label);
+      gtk_widget_show(stats[i].value);
+      gtk_widget_show(stats[i].percent);
+  }
 
   /* allow user to either click a stop button, or the close button on
 	the window to stop a capture in progress. */
@@ -1392,48 +1396,17 @@ capture(void)
     if (cur_time > upd_time) {
       upd_time = cur_time;
 
-      sprintf(label_str, "Count: %d", ld.counts.total);
-      gtk_label_set(GTK_LABEL(count_lb), label_str);
+      for (i = 0; i < N_STATS; i++) {
+          snprintf(label_str, sizeof(label_str), "%d",
+                   *stats[i].value_ptr);
 
-      sprintf(label_str, "SCTP: %d (%.1f%%)", ld.counts.sctp,
-                pct(ld.counts.sctp, ld.counts.total));
-      gtk_label_set(GTK_LABEL(sctp_lb), label_str);
+          gtk_label_set(GTK_LABEL(stats[i].value), label_str);
 
-      sprintf(label_str, "TCP: %d (%.1f%%)", ld.counts.tcp,
-		pct(ld.counts.tcp, ld.counts.total));
-      gtk_label_set(GTK_LABEL(tcp_lb), label_str);
+          snprintf(label_str, sizeof(label_str), "(%.1f%%)",
+                   pct(*stats[i].value_ptr, ld.counts.total));
 
-      sprintf(label_str, "UDP: %d (%.1f%%)", ld.counts.udp,
-		pct(ld.counts.udp, ld.counts.total));
-      gtk_label_set(GTK_LABEL(udp_lb), label_str);
-
-      sprintf(label_str, "ICMP: %d (%.1f%%)", ld.counts.icmp,
-		pct(ld.counts.icmp, ld.counts.total));
-      gtk_label_set(GTK_LABEL(icmp_lb), label_str);
-
-      sprintf(label_str, "OSPF: %d (%.1f%%)", ld.counts.ospf,
-		pct(ld.counts.ospf, ld.counts.total));
-      gtk_label_set(GTK_LABEL(ospf_lb), label_str);
-
-      sprintf(label_str, "GRE: %d (%.1f%%)", ld.counts.gre,
-		pct(ld.counts.gre, ld.counts.total));
-      gtk_label_set(GTK_LABEL(gre_lb), label_str);
-
-      sprintf(label_str, "NetBIOS: %d (%.1f%%)", ld.counts.netbios,
-		pct(ld.counts.netbios, ld.counts.total));
-      gtk_label_set(GTK_LABEL(netbios_lb), label_str);
-
-      sprintf(label_str, "IPX: %d (%.1f%%)", ld.counts.ipx,
-		pct(ld.counts.ipx, ld.counts.total));
-      gtk_label_set(GTK_LABEL(ipx_lb), label_str);
-
-      sprintf(label_str, "VINES: %d (%.1f%%)", ld.counts.vines,
-		pct(ld.counts.vines, ld.counts.total));
-      gtk_label_set(GTK_LABEL(vines_lb), label_str);
-
-      sprintf(label_str, "Other: %d (%.1f%%)", ld.counts.other,
-		pct(ld.counts.other, ld.counts.total));
-      gtk_label_set(GTK_LABEL(other_lb), label_str);
+          gtk_label_set(GTK_LABEL(stats[i].percent), label_str);
+      }
 
       /* do sync here, too */
       fflush(wtap_dump_file(ld.pdh));
