@@ -1,6 +1,6 @@
 $Id$
 
-== August ?, 2004
+== August 12, 2004
 
 Ethereal 0.10.6 has been released.
 
@@ -15,6 +15,10 @@ Ethereal 0.10.6 has been released.
 
   A new command-line utility called "capinfo" has been added to the
   distribution which prints statistics about capture files.  
+
+  You can now copy conversation and endpoint data to other applications as
+  CSV data.
+
 
 New and updated features
 
@@ -37,66 +41,24 @@ New and updated features
   
   RTP analysis can now dynamically determine the proper clock rate.
 
-[ last rev: 11623 ]
 
 New protocol support
 
-AX/4000,
-CMS,
-DCERPC (EVENTLOG, FRSAPI, FRSRPC),
-MANOLITO,
-PKCS#1,
-X.509AF,
-X.509CE,
-X.509IF,
-X.509SAT,
-
+  AX/4000, CMS, DCERPC (EVENTLOG, FRSAPI, FRSRPC), MANOLITO, PKCS#1,
+  X.509AF, X.509CE, X.509IF, X.509SAT
 
 
 Updated protocol support
 
-802.11,
-AIM,
-ASAP,
-ASN.1,
-ASN.1 BER,
-COPS,
-DCM,
-ENRP,
-Fibre Channel,
-GIOP,
-GTP,
-GSSAPI,
-HTTP,
-ICAP,
-iSNS,
-Kerberos,
-MPLS,
-NCP,
-NTLMSSP,
-OPSI,
-OSPF,
-PRES,
-RADIUS,
-Rlogin,
-RSVP,
-RTPS,
-RTSP,
-SCTP,
-Sigcomp,
-Skinny,
-SMB,
-SMB BROWSER,
-SNMP,
-SSL,
-TDS,
-Telnet,
+  802.11, AIM, ASAP, ASN.1 BER, ASN.1, COPS, DCM, DHCP Failover (ISC),
+  ENRP, Fibre Channel, GIOP, GSSAPI, GTP, HTTP, ICAP, iSNS, Kerberos,
+  MPLS, NCP, NTLMSSP, OPSI, OSPF, PRES, RADIUS, Rlogin, RSVP, RTPS, RTSP,
+  SCTP, Sigcomp, Skinny, SMB BROWSER, SMB, SNMP, SSL, TDS, Telnet
 
 
 New and updated capture file support
 
-LANalyzer
-
+  LANalyzer
 
 
 == July 7, 2004

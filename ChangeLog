@@ -1,4 +1,415 @@
 ------------------------------------------------------------------------
+r11730 | gerald | 2004-08-12 17:46:09 -0500 (Thu, 12 Aug 2004) | 2 lines
+Changed paths:
+   M /releases/ethereal-0.10.6/Makefile.am
+
+Add capinfo.rc.in and wiretap.rc.in to the distribution.
+
+------------------------------------------------------------------------
+r11728 | gerald | 2004-08-12 16:47:47 -0500 (Thu, 12 Aug 2004) | 3 lines
+Changed paths:
+   M /releases/ethereal-0.10.6/doc/Makefile.am
+   M /releases/ethereal-0.10.6/make-authors-short.pl
+
+From Graeme Hewson: Keep the list of authors in the Ethereal man page from 
+wrapping, and fix the title.
+
+------------------------------------------------------------------------
+r11720 | gerald | 2004-08-11 16:21:44 -0500 (Wed, 11 Aug 2004) | 2 lines
+Changed paths:
+   M /releases/ethereal-0.10.6/Makefile.nmake
+
+Update to GTK-Wimp 0.6.1.
+
+------------------------------------------------------------------------
+r11719 | gerald | 2004-08-11 15:36:21 -0500 (Wed, 11 Aug 2004) | 3 lines
+Changed paths:
+   M /releases/ethereal-0.10.6/Makefile.nmake
+
+Change the "setup" target to download the updated GTK+ libraries described
+at http://mail.gnome.org/archives/gtk-devel-list/2004-August/msg00058.html .
+
+------------------------------------------------------------------------
+r11716 | gerald | 2004-08-11 14:11:06 -0500 (Wed, 11 Aug 2004) | 2 lines
+Changed paths:
+   M /releases/ethereal-0.10.6/AUTHORS
+   M /releases/ethereal-0.10.6/epan/column-utils.c
+
+Copy in Neil Piercy's column fixes from the main trunk (r11648).
+
+------------------------------------------------------------------------
+r11645 | gerald | 2004-08-10 10:11:38 -0500 (Tue, 10 Aug 2004) | 2 lines
+Changed paths:
+   M /releases/ethereal-0.10.6/epan/Makefile.nmake
+
+From Graham Bloice: Allow libethereal.dll to be built after recent changes.
+
+------------------------------------------------------------------------
+r11643 | gerald | 2004-08-10 09:09:30 -0500 (Tue, 10 Aug 2004) | 2 lines
+Changed paths:
+   M /releases/ethereal-0.10.6/capture-wpcap.c
+   M /releases/ethereal-0.10.6/epan/Makefile.am
+   M /releases/ethereal-0.10.6/epan/Makefile.common
+   M /releases/ethereal-0.10.6/epan/Makefile.nmake
+   M /releases/ethereal-0.10.6/epan/dissectors/packet-dhcp-failover.c
+
+Pull in changes from revs 11639 - 11642.
+
+------------------------------------------------------------------------
+r11637 | gerald | 2004-08-09 17:19:03 -0500 (Mon, 09 Aug 2004) | 2 lines
+Changed paths:
+   M /releases/ethereal-0.10.6/epan/Makefile.nmake
+   M /releases/ethereal-0.10.6/epan/addr_resolv.c
+   M /releases/ethereal-0.10.6/epan/addr_resolv.h
+
+Rename "resolv" to "addr_resolv".
+
+------------------------------------------------------------------------
+r11636 | gerald | 2004-08-09 16:02:05 -0500 (Mon, 09 Aug 2004) | 2 lines
+Changed paths:
+   A /releases/ethereal-0.10.6 (from /trunk:11635)
+
+Branch off the 0.10.6 release.
+
+------------------------------------------------------------------------
+r11633 | jmayer | 2004-08-08 22:18:33 -0500 (Sun, 08 Aug 2004) | 1 line
+Changed paths:
+   M /trunk/FAQ
+   M /trunk/help/faq.txt
+
+Update FAQ again
+------------------------------------------------------------------------
+r11632 | jmayer | 2004-08-08 22:07:50 -0500 (Sun, 08 Aug 2004) | 4 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-dhcp-failover.c
+
+- Small cosmetic fix to DHCP failover prefs
+- free -> g_free (we are using g_malloc)
+- remove debug prinf
+
+------------------------------------------------------------------------
+r11631 | guy | 2004-08-08 21:41:41 -0500 (Sun, 08 Aug 2004) | 5 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-dhcp-failover.c
+
+Enable the configurable port number - and make the filter name for the
+protocol "dhcpfo", to match the filter names of its fields; that - or
+changing the long name or abbreviation of the protocol - fixes the core
+dump (which was in a check for a name being legal).
+
+------------------------------------------------------------------------
+r11630 | jmayer | 2004-08-08 20:53:26 -0500 (Sun, 08 Aug 2004) | 8 lines
+Changed paths:
+   M /trunk/AUTHORS
+   M /trunk/epan/dissectors/Makefile.common
+   A /trunk/epan/dissectors/packet-dhcp-failover.c
+
+M. Ortega y Strupp      <moys@loplof.de>
+ISC DHCP Server 3.0 failover protocol dissection
+
+Note: I tried to make the port configurable via prefs
+but failed to do so: It always cashed on startup so it
+is commented out for now.
+
+
+------------------------------------------------------------------------
+r11629 | jmayer | 2004-08-08 20:50:49 -0500 (Sun, 08 Aug 2004) | 1 line
+Changed paths:
+   M /trunk
+
+Add capinfo stuff to svn:ignore
+------------------------------------------------------------------------
+r11628 | tuexen | 2004-08-08 17:36:22 -0500 (Sun, 08 Aug 2004) | 2 lines
+Changed paths:
+   M /trunk/AUTHORS
+
+Fix typos.
+
+------------------------------------------------------------------------
+r11627 | jmayer | 2004-08-08 04:04:37 -0500 (Sun, 08 Aug 2004) | 1 line
+Changed paths:
+   M /trunk/NEWS
+
+Small typo fix
+------------------------------------------------------------------------
+r11626 | guy | 2004-08-08 01:25:24 -0500 (Sun, 08 Aug 2004) | 4 lines
+Changed paths:
+   M /trunk/gtk/dfilter_expr_dlg.c
+
+From Stas Grabois: make the previous change not to show disabled
+protocols in the "Add Expression" and "Decode As" dialogs work with GTK+
+2.x.
+
+------------------------------------------------------------------------
+r11625 | gerald | 2004-08-07 23:13:12 -0500 (Sat, 07 Aug 2004) | 2 lines
+Changed paths:
+   M /trunk/NEWS
+
+More updates for 0.10.6.
+
+------------------------------------------------------------------------
+r11624 | gerald | 2004-08-07 22:56:02 -0500 (Sat, 07 Aug 2004) | 2 lines
+Changed paths:
+   M /trunk/gtk/conversations_table.c
+   M /trunk/gtk/hostlist_table.c
+
+Put the "copy" button back in the conversation and host list tables.
+
+------------------------------------------------------------------------
+r11623 | guy | 2004-08-07 20:20:26 -0500 (Sat, 07 Aug 2004) | 8 lines
+Changed paths:
+   M /trunk/plugins/asn1/packet-asn1.c
+   M /trunk/prefs.c
+
+Map the old one-port "generic ASN.1" TCP/UDP/SCTP port-number
+preferences to the new multi-port ones, so that, instead of complaining
+when the old preferences were seen, we make the port be the one port in
+the new preference.
+
+Make the "message_win" "generic ASN.1" preference an obsolete
+preference, so we silently ignore it rather than complaining about it.
+
+------------------------------------------------------------------------
+r11622 | guy | 2004-08-06 22:36:20 -0500 (Fri, 06 Aug 2004) | 5 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-mpls.c
+
+While we're add it, support the multicast protocol type values for PPP
+and GRE.
+
+Put in the RFC number.
+
+------------------------------------------------------------------------
+r11621 | jmayer | 2004-08-06 19:11:16 -0500 (Fri, 06 Aug 2004) | 4 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ax4000.c
+   M /trunk/ipproto.c
+   M /trunk/ipproto.h
+
+Add protocol 0xad as AX/4000 Testframe.
+Make packet-ax4000.c use the value from ipproto.h
+
+
+------------------------------------------------------------------------
+r11620 | jmayer | 2004-08-06 19:07:53 -0500 (Fri, 06 Aug 2004) | 4 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-mpls.c
+
+Hanlde 8848 on Ethernet the same as 8847. Not sure that this
+is really correct, but the payload seems to be decoded correctly.
+
+
+------------------------------------------------------------------------
+r11619 | jmayer | 2004-08-06 16:17:01 -0500 (Fri, 06 Aug 2004) | 1 line
+Changed paths:
+   M /trunk/FAQ
+   M /trunk/help/faq.txt
+   M /trunk/manuf
+
+Update manuf and faq
+------------------------------------------------------------------------
+r11618 | jmayer | 2004-08-06 16:06:27 -0500 (Fri, 06 Aug 2004) | 13 lines
+Changed paths:
+   M /trunk/docbook
+   M /trunk/docbook/GFDPL_appendix.xml
+   M /trunk/docbook/Makefile
+   M /trunk/docbook/README.txt
+   M /trunk/docbook/catalog.xml
+   M /trunk/docbook/custom_layer_pdf.xsl
+   M /trunk/docbook/developer-guide.xml
+   M /trunk/docbook/dfilter2xml.pl
+   M /trunk/docbook/dg-src/EDG_chapter_five.xml
+   M /trunk/docbook/dg-src/EDG_chapter_four.xml
+   M /trunk/docbook/dg-src/EDG_chapter_one.xml
+   M /trunk/docbook/dg-src/EDG_chapter_three.xml
+   M /trunk/docbook/dg-src/EDG_chapter_two.xml
+   M /trunk/docbook/dg-src/EDG_meta_info.xml
+   M /trunk/docbook/ethereal-doc.txt
+   M /trunk/docbook/protocols.xml
+   M /trunk/docbook/ug-src/EUG_app_files.xml
+   M /trunk/docbook/ug-src/EUG_app_howitworks.xml
+   M /trunk/docbook/ug-src/EUG_app_messages.xml
+   M /trunk/docbook/ug-src/EUG_app_protocols.xml
+   M /trunk/docbook/ug-src/EUG_app_tools.xml
+   M /trunk/docbook/ug-src/EUG_chapter_advanced.xml
+   M /trunk/docbook/ug-src/EUG_chapter_build_install.xml
+   M /trunk/docbook/ug-src/EUG_chapter_capture.xml
+   M /trunk/docbook/ug-src/EUG_chapter_customize.xml
+   M /trunk/docbook/ug-src/EUG_chapter_introduction.xml
+   M /trunk/docbook/ug-src/EUG_chapter_io.xml
+   M /trunk/docbook/ug-src/EUG_chapter_statistics.xml
+   M /trunk/docbook/ug-src/EUG_chapter_troubleshoot.xml
+   M /trunk/docbook/ug-src/EUG_chapter_use.xml
+   M /trunk/docbook/ug-src/EUG_chapter_work.xml
+   M /trunk/docbook/ug-src/EUG_meta_info.xml
+   M /trunk/docbook/ug-src/EUG_preface.xml
+   M /trunk/docbook/user-guide.xml
+
+Svn stuff:
+- Add eol-style native to all text files
+- Add Id attributes
+
+Add $Id: $ to all text files
+
+Makefile:
+- add several files and directories to make clean
+- Add comments for values on Suse 9.1
+
+catalog.xml:
+- Add comments for values on Suse 9.1
+
+------------------------------------------------------------------------
+r11617 | ulfl | 2004-08-06 15:52:48 -0500 (Fri, 06 Aug 2004) | 1 line
+Changed paths:
+   M /trunk/docbook/ug-src/EUG_app_tools.xml
+   M /trunk/docbook/ug-src/EUG_chapter_advanced.xml
+   M /trunk/docbook/user-guide.xml
+
+some final review comment from Graeme Hewson, changed version to release 2.00
+------------------------------------------------------------------------
+r11616 | guy | 2004-08-06 15:12:20 -0500 (Fri, 06 Aug 2004) | 11 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-tds.c
+
+From Yaniv Kaul:
+
+1. define new TDS packet type (17) - NTLM authentication packet. Call
+the ntlmssp dissector to dissect it when needed.
+2. define new TDS packet type (18) - donno what it is exactly, but it's
+there. Will dissect it someday.
+3. heuristic in netlib_check_login_pkt should also check port 2433.
+4. unify the dissection of msg and err token. They have the same
+structure.
+5. improve the dissection of the above mentioned token.
+
+------------------------------------------------------------------------
+r11615 | guy | 2004-08-06 14:57:49 -0500 (Fri, 06 Aug 2004) | 4 lines
+Changed paths:
+   M /trunk/epan/Makefile.am
+   A /trunk/epan/addr_resolv.c (from /trunk/epan/resolv.c:11612)
+   A /trunk/epan/addr_resolv.h (from /trunk/epan/resolv.h:11612)
+   M /trunk/epan/column-utils.c
+   M /trunk/epan/dissectors/packet-afs.c
+   M /trunk/epan/dissectors/packet-ap1394.c
+   M /trunk/epan/dissectors/packet-arp.c
+   M /trunk/epan/dissectors/packet-atm.c
+   M /trunk/epan/dissectors/packet-auto_rp.c
+   M /trunk/epan/dissectors/packet-beep.c
+   M /trunk/epan/dissectors/packet-bpdu.c
+   M /trunk/epan/dissectors/packet-chdlc.c
+   M /trunk/epan/dissectors/packet-dec-bpdu.c
+   M /trunk/epan/dissectors/packet-diameter.c
+   M /trunk/epan/dissectors/packet-dns.c
+   M /trunk/epan/dissectors/packet-eigrp.c
+   M /trunk/epan/dissectors/packet-enc.c
+   M /trunk/epan/dissectors/packet-eth.c
+   M /trunk/epan/dissectors/packet-fddi.c
+   M /trunk/epan/dissectors/packet-icmpv6.c
+   M /trunk/epan/dissectors/packet-icp.c
+   M /trunk/epan/dissectors/packet-icq.c
+   M /trunk/epan/dissectors/packet-ieee80211.c
+   M /trunk/epan/dissectors/packet-ip.c
+   M /trunk/epan/dissectors/packet-ipsec.c
+   M /trunk/epan/dissectors/packet-ipv6.c
+   M /trunk/epan/dissectors/packet-ipx.c
+   M /trunk/epan/dissectors/packet-isis-hello.c
+   M /trunk/epan/dissectors/packet-isis-lsp.c
+   M /trunk/epan/dissectors/packet-l2tp.c
+   M /trunk/epan/dissectors/packet-ldp.c
+   M /trunk/epan/dissectors/packet-lwapp.c
+   M /trunk/epan/dissectors/packet-msproxy.c
+   M /trunk/epan/dissectors/packet-nt-tpcp.c
+   M /trunk/epan/dissectors/packet-ntp.c
+   M /trunk/epan/dissectors/packet-pflog.c
+   M /trunk/epan/dissectors/packet-pgm.c
+   M /trunk/epan/dissectors/packet-quake3.c
+   M /trunk/epan/dissectors/packet-radius.c
+   M /trunk/epan/dissectors/packet-rtps.c
+   M /trunk/epan/dissectors/packet-rx.c
+   M /trunk/epan/dissectors/packet-sebek.c
+   M /trunk/epan/dissectors/packet-sll.c
+   M /trunk/epan/dissectors/packet-slowprotocols.c
+   M /trunk/epan/dissectors/packet-smtp.c
+   M /trunk/epan/dissectors/packet-socks.c
+   M /trunk/epan/dissectors/packet-tcp.c
+   M /trunk/epan/dissectors/packet-teredo.c
+   M /trunk/epan/dissectors/packet-udp.c
+   M /trunk/epan/dissectors/packet-wfleet-hdlc.c
+   M /trunk/epan/epan.c
+   M /trunk/epan/ftypes/ftype-bytes.c
+   M /trunk/epan/ftypes/ftype-integer.c
+   M /trunk/epan/ftypes/ftype-ipv4.c
+   M /trunk/epan/packet.c
+   M /trunk/epan/proto.c
+   D /trunk/epan/resolv.c
+   D /trunk/epan/resolv.h
+   M /trunk/epan/to_str.c
+   M /trunk/gtk/capture_dlg.c
+   M /trunk/gtk/conversations_table.c
+   M /trunk/gtk/file_dlg.c
+   M /trunk/gtk/follow_dlg.c
+   M /trunk/gtk/hostlist_table.c
+   M /trunk/gtk/main.c
+   M /trunk/gtk/menu.c
+   M /trunk/gtk/nameres_prefs.c
+   M /trunk/gtk/packet_win.c
+   M /trunk/ipproto.c
+   M /trunk/plugins/acn/packet-acn.c
+   M /trunk/plugins/artnet/packet-artnet.c
+   M /trunk/plugins/asn1/packet-asn1.c
+   M /trunk/plugins/enttec/packet-enttec.c
+   M /trunk/plugins/megaco/packet-megaco.c
+   M /trunk/plugins/mgcp/packet-mgcp.c
+   M /trunk/plugins/pcli/packet-pcli.c
+   M /trunk/plugins/rdm/packet-rdm.c
+   M /trunk/plugins/rtnet/packet-rtnet.c
+   M /trunk/plugins/v5ua/packet-v5ua.c
+   M /trunk/prefs.c
+   M /trunk/tap-iousers.c
+   M /trunk/tethereal.c
+   M /trunk/util.c
+
+From Albert Chin: rename resolv.{ch} to addr_resolv.{ch}, so that an
+include of <resolv.h> in any system header file gets the system
+<resolv.h> (needed for builds on Tru64 with GTK+ 1.2[.x]).
+
+------------------------------------------------------------------------
+r11614 | guy | 2004-08-06 14:35:51 -0500 (Fri, 06 Aug 2004) | 2 lines
+Changed paths:
+   M /trunk/AUTHORS
+   M /trunk/epan/dissectors/Makefile.common
+   A /trunk/epan/dissectors/packet-manolito.c
+
+From Jeff Connelly: MANOLITO support.
+
+------------------------------------------------------------------------
+r11613 | guy | 2004-08-06 14:22:04 -0500 (Fri, 06 Aug 2004) | 3 lines
+Changed paths:
+   M /trunk/gtk/conversations_table.c
+   M /trunk/gtk/hostlist_table.c
+
+From Ian Schorr: fix a bug where addresses were drawn to the wrong rows
+in the clist, and get rid of some duplicated code.
+
+------------------------------------------------------------------------
+r11612 | gerald | 2004-08-06 11:25:59 -0500 (Fri, 06 Aug 2004) | 2 lines
+Changed paths:
+   M /trunk/Makefile.nmake
+
+Update the "setup" target for GLib 2.4.5, GTK+ 2.4.4, and Pango-1.4.1.
+
+------------------------------------------------------------------------
+r11611 | gerald | 2004-08-06 09:08:54 -0500 (Fri, 06 Aug 2004) | 3 lines
+Changed paths:
+   M /trunk/ChangeLog
+   M /trunk/NEWS
+   M /trunk/config.nmake
+   M /trunk/configure.in
+
+Bump the version to 0.10.6.  Drop in a new ChangeLog, and add the beginnings
+of the release announcement to NEWS.
+
+------------------------------------------------------------------------
 r11610 | ulfl | 2004-08-06 02:00:49 -0500 (Fri, 06 Aug 2004) | 1 line
 Changed paths:
    M /trunk/docbook/ug-src/EUG_app_files.xml
