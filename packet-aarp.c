@@ -91,7 +91,7 @@ dissect_aarp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   ea.ptype = pntohs(&pd[offset + 2]);
   ea.halen = (guint8) pd[offset + 4];
   ea.palen = (guint8) pd[offset + 5];
-  ea.op  = pletohs(&pd[offset + 6]);
+  ea.op  = pntohs(&pd[offset + 6]);
   memcpy(&ea.hsaddr, &pd[offset +  8], 6);
   memcpy(&ea.psaddr, &pd[offset + 14], 4);
   memcpy(&ea.hdaddr, &pd[offset + 18], 6);
