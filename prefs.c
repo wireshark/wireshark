@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.90 2002/09/14 10:07:37 oabad Exp $
+ * $Id: prefs.c,v 1.91 2002/09/28 15:23:13 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -837,7 +837,7 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
     prefs.capture_prom_mode   = TRUE;
     prefs.capture_real_time   = FALSE;
     prefs.capture_auto_scroll = FALSE;
-    prefs.name_resolve        = RESOLV_ALL;
+    prefs.name_resolve        = RESOLV_ALL ^ RESOLV_NETWORK;
   }
 
   /* Construct the pathname of the global preferences file. */

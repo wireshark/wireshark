@@ -7,6 +7,9 @@ Bugs Fixed
 
 New Features
 
+  In order to improve the out-of-box responsiveness of Ethereal and
+  Tethereal, network name resolution has been disabled by default.
+
   TCP analysis (a feature added in the 0.9.6 release) was improved.
 
   The NCP code base received quite a few updates.
