@@ -155,7 +155,7 @@ dissect_map (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	  proto_tree_add_item_hidden(map_tree, hf_docsis_map_sid, tvb, pos, 4, FALSE);
 	  proto_tree_add_item_hidden(map_tree, hf_docsis_map_iuc, tvb, pos, 4, FALSE);
 	  proto_tree_add_item_hidden(map_tree, hf_docsis_map_offset, tvb, pos, 4, FALSE);
-	  if (sid == 0x3FFF) 
+	  if (sid == 0x3FFF)
 	    proto_tree_add_uint_format (map_tree, hf_docsis_map_ie, tvb, pos, 4,
 				      ie, "SID = 0x%x (All CM's), IUC = %s, Offset = %u",
 				      sid, val_to_str (iuc, iuc_vals, "%s"),

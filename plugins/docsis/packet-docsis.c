@@ -2,7 +2,7 @@
  * Routines for docsis dissection
  * Copyright 2002, Anand V. Narwani <anarwani@cisco.com>
  *
- * $Id: packet-docsis.c,v 1.7 2002/08/20 22:44:25 guy Exp $
+ * $Id: packet-docsis.c,v 1.8 2002/08/28 20:38:59 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,14 +26,14 @@
 
 /* This code is based on the DOCSIS 1.1 specification available at:
  * http://www.cablemodem.com/specifications.html
- * 
- * DOCSIS Captures can be facilitated using the Cable Monitor Feature 
+ *
+ * DOCSIS Captures can be facilitated using the Cable Monitor Feature
  * available on Cisco Cable Modem Termination Systems :
  * http://www.cisco.com/univercd/cc/td/doc/product/cable/cab_rout/cmtsfg/ufg_cmon.htm
  *
  * This dissector depends on the presence of a DOCSIS enapsulation type.
  * There is no simple way to distinguish DOCSIS Frames from Ethernet frames,
- * since the frames are copied from the RF interface on the CMTS to 
+ * since the frames are copied from the RF interface on the CMTS to
  * a Fast Ethernet interface; Thus a preference was needed to enable
  * the DOCSIS encapsulation type.
  */
@@ -252,7 +252,7 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, gboolean isfrag)
 			       FALSE);
 	  proto_tree_add_item (ehdr_tree, hf_docsis_mini_slots, tvb, pos + 4,
 			       1, FALSE);
-	  if (isfrag) 
+	  if (isfrag)
 	    {
 	      proto_tree_add_item (ehdr_tree, hf_docsis_frag_rsvd, tvb, pos+5,
 	                          1, FALSE);
@@ -303,7 +303,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   tvbuff_t *next_tvb, *mgt_tvb;
   guint16 pdulen, captured_length, framelen;
   gboolean isfrag = FALSE;
-  
+
 /* Set up structures needed to add the protocol subtree and manage it */
   proto_item *ti;
   proto_tree *docsis_tree;
@@ -488,7 +488,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	}
     }
 
-  if ((fctype == FCTYPE_PACKET) && (pdulen == 0)) 
+  if ((fctype == FCTYPE_PACKET) && (pdulen == 0))
     {
       if (concatlen > 0)
         {
@@ -514,7 +514,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	  /* Don't do anything for a Request Frame */
 	  break;
 	case 0x03:
-	  /* For Fragmentation Frames simply dissect using the data 
+	  /* For Fragmentation Frames simply dissect using the data
 	   * dissector as we don't handle them yet
 	   */
 	  mgt_tvb = tvb_new_subset (tvb, hdrlen, captured_length, pdulen);
@@ -526,10 +526,10 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	    }
 	  break;
 	case 0x1c:
-	  /* call the docsis dissector on the same frame 
+	  /* call the docsis dissector on the same frame
 	   * to dissect DOCSIS frames within the concatenated
-	   * frame.  concatpos and concatlen are declared 
-	   * static and are decremented and incremented 
+	   * frame.  concatpos and concatlen are declared
+	   * static and are decremented and incremented
 	   * respectively when the inner
 	   * docsis frames are dissected. */
 	  while (concatlen > 0)

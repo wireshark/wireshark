@@ -1,22 +1,22 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.35 2002/08/24 19:45:24 guy Exp $
+ * $Id: proto.h,v 1.36 2002/08/28 20:40:44 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -122,7 +122,7 @@ typedef struct {
 /* Each GNode (proto_tree, proto_item) points to one of
  * these. */
 typedef struct {
-    field_info  *finfo;    
+    field_info  *finfo;
     tree_data_t *tree_data;
 } proto_node;
 
@@ -171,7 +171,7 @@ extern int proto_item_get_len(proto_item *ti);
 /* Creates new proto_tree root */
 extern proto_tree* proto_tree_create_root(void);
 
-/* Mark a field/protocol ID as "interesting". */    
+/* Mark a field/protocol ID as "interesting". */
 extern void
 proto_tree_prime_hfid(proto_tree *tree, int hfid);
 

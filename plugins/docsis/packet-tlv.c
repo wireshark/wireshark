@@ -42,7 +42,7 @@
 /* This module will dissect the Appendix C TLV's.  Please see:
  * http://www.cablemodem.com/specifications.html
  *
- * The main dissector is dissect_tlv.  This routine will dissect 
+ * The main dissector is dissect_tlv.  This routine will dissect
  * top level TLV's and call sub-dissectors for the sub-TLV's.
  */
 
@@ -1725,17 +1725,17 @@ dissect_svc_unavail(tvbuff_t * tvb, proto_tree * tree, guint16 pos, guint16 leng
 
   proto_item *svc_unavail_it;
   proto_tree *svc_unavail_tree;
-  svc_unavail_it = proto_tree_add_item (tree, 
-                            hf_docsis_tlv_svc_unavail, 
+  svc_unavail_it = proto_tree_add_item (tree,
+                            hf_docsis_tlv_svc_unavail,
 			    tvb, pos, length, FALSE);
   svc_unavail_tree = proto_item_add_subtree(svc_unavail_it, ett_docsis_tlv_svc_unavail );
-  proto_tree_add_item (svc_unavail_tree, 
+  proto_tree_add_item (svc_unavail_tree,
                        hf_docsis_tlv_svc_unavail_classid, tvb,
 	   		pos, 1, FALSE);
-  proto_tree_add_item (svc_unavail_tree, 
+  proto_tree_add_item (svc_unavail_tree,
 	           hf_docsis_tlv_svc_unavail_type, tvb,
 		   pos+1, 1, FALSE);
-  proto_tree_add_item (svc_unavail_tree, 
+  proto_tree_add_item (svc_unavail_tree,
 	           hf_docsis_tlv_svc_unavail_code, tvb,
 		   pos+2, 1, FALSE);
 
@@ -1748,22 +1748,22 @@ dissect_snmpv3_kickstart(tvbuff_t * tvb, proto_tree *tree, guint16 start, guint1
   guint8 type, length;
   guint16 pos = start;
 
-  snmpv3_it = proto_tree_add_item (tree, 
-                            hf_docsis_tlv_snmpv3_kick, 
+  snmpv3_it = proto_tree_add_item (tree,
+                            hf_docsis_tlv_snmpv3_kick,
 			    tvb, start, len, FALSE);
   snmpv3_tree = proto_item_add_subtree(snmpv3_it, ett_docsis_tlv_snmpv3_kick);
-  
+
   while (pos < (start + len)) {
     type = tvb_get_guint8 (tvb, pos++);
     length = tvb_get_guint8 (tvb, pos++);
     switch (type) {
 	case SNMPV3_SEC_NAME:
-  	  proto_tree_add_item (snmpv3_tree, 
+  	  proto_tree_add_item (snmpv3_tree,
 	           hf_docsis_tlv_snmpv3_kick_name, tvb,
 		   pos, length, FALSE);
 	  break;
 	case SNMPV3_MGR_PUB_NUM:
-  	  proto_tree_add_item (snmpv3_tree, 
+  	  proto_tree_add_item (snmpv3_tree,
 	           hf_docsis_tlv_snmpv3_kick_publicnum, tvb,
 		   pos, length, FALSE);
 	  break;
@@ -1800,7 +1800,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
 	    {
 	    case TLV_DOWN_FREQ:
 	      /* This is ugly.  There are multiple type 1 TLV's that may appear
-	       * in the TLV data, the problem is that they are dependent on 
+	       * in the TLV data, the problem is that they are dependent on
 	       * message type.  */
 	      if (length == 4)
 		proto_tree_add_item (tlv_tree, hf_docsis_tlv_down_freq, tvb,
@@ -1877,11 +1877,11 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
 				   length, FALSE);
 	      break;
 	    case TLV_SNMP_WRITE_CTRL:
-	      proto_tree_add_item (tlv_tree, hf_docsis_tlv_snmp_access, tvb, 
+	      proto_tree_add_item (tlv_tree, hf_docsis_tlv_snmp_access, tvb,
 			          pos, length, FALSE);
 	      break;
 	    case TLV_SNMP_OBJECT:
-	      proto_tree_add_item (tlv_tree, hf_docsis_tlv_snmp_obj, tvb, 
+	      proto_tree_add_item (tlv_tree, hf_docsis_tlv_snmp_obj, tvb,
 			          pos, length, FALSE);
 	      break;
 	    case TLV_MODEM_IP:
@@ -1896,7 +1896,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
 		}
 	      break;
 	    case TLV_SVC_UNAVAIL:
-	      if (length == 3) 
+	      if (length == 3)
 	        {
 	          dissect_svc_unavail(tvb, tlv_tree, pos, length);
 		}
@@ -1980,7 +1980,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
 	      dissect_phs (tvb, tlv_tree, pos, length);
 	      break;
 	    case TLV_HMAC_DIGEST:
-	      if (length == 20) 
+	      if (length == 20)
 	        {
 		  proto_tree_add_item (tlv_tree,
 				      hf_docsis_tlv_hmac_digest, tvb,
@@ -2045,24 +2045,24 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
 		                   tvb, pos, length, FALSE);
 	      break;
 	    case TLV_SUBS_MGMT_CPE:
-	      if ((length % 4) == 0) 
+	      if ((length % 4) == 0)
 	        {
 	        proto_tree_add_item (tlv_tree, hf_docsis_tlv_subs_mgmt_ip_table,
 		                   tvb, pos, length, FALSE);
-	        for (x = 0; x < length; x+=4) 
+	        for (x = 0; x < length; x+=4)
 		  {
-	          proto_tree_add_item (tlv_tree, 
+	          proto_tree_add_item (tlv_tree,
 				       hf_docsis_tlv_subs_mgmt_ip_entry,
 		                       tvb, pos + x, 4, FALSE);
 		  }
-	        } 
+	        }
 	      else
-	        {  
+	        {
 		  THROW (ReportedBoundsError);
 		}
 	      break;
 	    case TLV_SUBS_MGMT_FLTR:
-	      proto_tree_add_item (tlv_tree, 
+	      proto_tree_add_item (tlv_tree,
 			           hf_docsis_tlv_subs_mgmt_filter_grps,
 		                   tvb, pos, length, FALSE);
 	      break;

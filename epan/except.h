@@ -14,7 +14,7 @@
  * into proprietary software; there is no requirement for such software to
  * contain a copyright notice related to this source.
  *
- * $Id: except.h,v 1.3 2002/08/14 19:18:15 guy Exp $
+ * $Id: except.h,v 1.4 2002/08/28 20:40:44 jmayer Exp $
  * $Name:  $
  */
 
@@ -66,7 +66,7 @@ struct except_stacknode {
     struct except_stacknode *except_down;
     enum except_stacktype except_type;
     union {
-	struct except_catch *except_catcher;	
+	struct except_catch *except_catcher;
 	struct except_cleanup *except_cleanup;
     } except_info;
 };
@@ -105,7 +105,7 @@ extern void except_free(void *);
 #endif
 
 /*
- * void except_cleanup_push(void (*)(void *), void *); 
+ * void except_cleanup_push(void (*)(void *), void *);
  * void except_cleanup_pop(int);
  * void except_checked_cleanup_pop(void (*)(void *), int);
  * void except_try_push(const except_id_t [], size_t, except_t **);
@@ -130,7 +130,7 @@ extern void except_free(void *);
 	if (E)							\
 	    except_cl.except_func(except_cl.except_context);	\
     }
-	
+
 #define except_try_push(ID, NUM, PPE)				\
      {								\
 	struct except_stacknode except_sn;			\
@@ -144,6 +144,6 @@ extern void except_free(void *);
 #define except_try_pop()					\
 	except_free(except_ch.except_obj.except_dyndata);	\
 	except_pop();						\
-    } 
+    }
 
 #endif

@@ -1,22 +1,22 @@
 /* packet-gryphon.c
  * Definitions for Gryphon packet disassembly structures and routines
  *
- * $Id: packet-gryphon.h,v 1.6 2002/05/01 06:56:16 guy Exp $
+ * $Id: packet-gryphon.h,v 1.7 2002/08/28 20:39:05 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
  * Copyright 1998 Steve Limkemann
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -294,18 +294,18 @@
 #define GHONSLEEP	0x11600001
 #define GHONSILENCE	0x11600002
 
-#define GKWPSETPTIMES	0x11700011	
-#define GKWPSETWTIMES	0x11700010	
-#define GKWPDOWAKEUP	0x11700008	
-#define GKWPGETBITTIME	0x11700101	
-#define GKWPSETBITTIME	0x11700102	
-#define GKWPSETNODEADDR	0x11700104	
-#define GKWPGETNODETYPE	0x11700105	
-#define GKWPSETNODETYPE	0x11700106	
-#define GKWPSETWAKETYPE	0x11700108	
-#define GKWPSETTARGADDR	0x1170010a	
-#define GKWPSETKEYBYTES	0x1170010c	
-#define GKWPSETSTARTREQ	0x1170010e	
+#define GKWPSETPTIMES	0x11700011
+#define GKWPSETWTIMES	0x11700010
+#define GKWPDOWAKEUP	0x11700008
+#define GKWPGETBITTIME	0x11700101
+#define GKWPSETBITTIME	0x11700102
+#define GKWPSETNODEADDR	0x11700104
+#define GKWPGETNODETYPE	0x11700105
+#define GKWPSETNODETYPE	0x11700106
+#define GKWPSETWAKETYPE	0x11700108
+#define GKWPSETTARGADDR	0x1170010a
+#define GKWPSETKEYBYTES	0x1170010c
+#define GKWPSETSTARTREQ	0x1170010e
 #define GKWPSETSTARTRESP	0x11700110
 #define GKWPSETPROTOCOL		0x11700112
 #define GKWPGETLASTKEYBYTES	0x11700201

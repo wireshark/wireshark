@@ -2,20 +2,20 @@
  *
  * tvbtest : tvbtest.o tvbuff.o except.o
  *
- * $Id: tvbtest.c,v 1.2 2001/11/13 23:55:37 gram Exp $
+ * $Id: tvbtest.c,v 1.3 2002/08/28 20:40:45 jmayer Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -364,7 +364,7 @@ run_tests(void)
 	/* 4 composites */
 	printf("Making Composite 5\n");
 	tvb_comp[5]		= tvb_new_composite();
-	comp_length[5]		= comp_length[0] + 
+	comp_length[5]		= comp_length[0] +
 					comp_length[1] +
 					comp_length[2] +
 					comp_length[3];

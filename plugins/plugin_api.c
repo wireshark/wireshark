@@ -1,21 +1,21 @@
 /* plugin_api.c
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.c,v 1.41 2002/08/14 19:18:20 guy Exp $
+ * $Id: plugin_api.c,v 1.42 2002/08/28 20:38:57 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -144,7 +144,7 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_register_giop_user			= pat->p_register_giop_user;
 	p_is_big_endian				= pat->p_is_big_endian;
 	p_get_CDR_encap_info                    = pat->p_get_CDR_encap_info;
- 
+
 	p_get_CDR_any				= pat->p_get_CDR_any;
 	p_get_CDR_boolean			= pat->p_get_CDR_boolean;
 	p_get_CDR_char				= pat->p_get_CDR_char;
@@ -174,11 +174,11 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_decode_enumerated_bitfield		= pat->p_decode_enumerated_bitfield;
 	p_register_dissector_table		= pat->p_register_dissector_table;
 	p_except_throw				= pat->p_except_throw;
-	p_dissector_try_port			= pat->p_dissector_try_port; 
+	p_dissector_try_port			= pat->p_dissector_try_port;
 
-	p_conversation_add_proto_data		= pat->p_conversation_add_proto_data; 
-	p_conversation_get_proto_data		= pat->p_conversation_get_proto_data; 
-	p_conversation_delete_proto_data	= pat->p_conversation_delete_proto_data; 
-	p_p_add_proto_data			= pat->p_p_add_proto_data; 
-	p_p_get_proto_data			= pat->p_p_get_proto_data; 
+	p_conversation_add_proto_data		= pat->p_conversation_add_proto_data;
+	p_conversation_get_proto_data		= pat->p_conversation_get_proto_data;
+	p_conversation_delete_proto_data	= pat->p_conversation_delete_proto_data;
+	p_p_add_proto_data			= pat->p_p_add_proto_data;
+	p_p_get_proto_data			= pat->p_p_get_proto_data;
 }

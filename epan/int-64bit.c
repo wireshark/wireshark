@@ -2,22 +2,22 @@
  * Routines for handling of 64-bit integers
  * 2001 Ronnie Sahlberg
  *
- * $Id: int-64bit.c,v 1.2 2002/03/02 20:48:10 guy Exp $
+ * $Id: int-64bit.c,v 1.3 2002/08/28 20:40:44 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -30,11 +30,11 @@
 #include <string.h>
 #include "int-64bit.h"
 
-/* all functions take the 64bit integer parameter as a 
+/* all functions take the 64bit integer parameter as a
    pointer to a 64bit integer in network order.
    that is ptr[0] is the most significant byte and
    ptr[7] is the least significant byte.
-*/   
+*/
 
 #define U64STRLEN	21
 
@@ -112,11 +112,11 @@ static const signed char u64val[64][U64STRLEN] =
 
 
 /* convert an unsigned  64 bit integer into a string
-   it is important that this function is efficient 
+   it is important that this function is efficient
    since it will be used for every 64bit integer in
    any capture.
    It is much less important that the inverse: atou64
-   be efficient since it is only called when  
+   be efficient since it is only called when
    diplayfilters are entered.
 
    "neg" should be 1 if the number should have a "-" put in
@@ -154,7 +154,7 @@ n64toa(const unsigned char *u64ptr, int neg)
 		   since othevise the signed char in acc will
 		   owerflow/wrap, but we dont need to do it
 		   for every iteration. its enough if we
-		   do it halfway through and at the end 
+		   do it halfway through and at the end
 		   and we will prevent any overflow.
 		*/
 		if((i%4)==0){
@@ -162,7 +162,7 @@ n64toa(const unsigned char *u64ptr, int neg)
 			for(j=0;j<U64STRLEN-1;j++){
 				if(acc[j]>9){
 					int x;
-					x=acc[j]/10; 
+					x=acc[j]/10;
 					acc[j+1]+=x;
 					acc[j]-=x*10;
 				}
@@ -312,7 +312,7 @@ atou64(const char *u64str, unsigned char *u64int)
 
 	/* clear the residual string and copy the
 	   original to it (subtracting '0')
-	*/ 
+	*/
 	for(i=0;i<U64STRLEN;i++){
 		res[i]=0;
 	}
@@ -324,7 +324,7 @@ atou64(const char *u64str, unsigned char *u64int)
 		res[i]=u64str[len]-'0';
 	}
 
-	/* go through all bits and subtract their 
+	/* go through all bits and subtract their
 	   value */
 	for(i=63;i>=0;i--){
 		if(revcmp(u64val[i], res, U64STRLEN)<=0){
@@ -425,7 +425,7 @@ ntoh(unsigned char h)
 	if((h>='A')&&(h<='F')){
 		return h+10-'A';
 	}
- 
+
 	if((h>='a')&&(h<='f')){
 		return h+10-'a';
 	}
@@ -490,7 +490,7 @@ htou64(const char *u64str, unsigned char *u64int)
 	for(i=0;i<len;i++){
 		str[15-i]=u64str[len+1-i];
 	}
-	
+
 
 	for(i=0;i<8;i++){
 		u64int[i]=(ntoh(str[i*2])<<4)

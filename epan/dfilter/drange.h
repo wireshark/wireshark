@@ -1,8 +1,8 @@
 /* drange.h
  * Routines for providing general range support to the dfilter library
  *
- * $Id: drange.h,v 1.2 2001/03/02 17:04:23 gram Exp $
- * 
+ * $Id: drange.h,v 1.3 2002/08/28 20:40:55 jmayer Exp $
+ *
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
  * Ethereal - Network traffic analyzer
@@ -23,16 +23,16 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __DRANGE_H__ 
+#ifndef __DRANGE_H__
 #define __DRANGE_H__
 
 #include <glib.h>
 
-/* Please don't directly manipulate these structs.  Please use 
- * the methods provided.  If you REALLY can't do what you need to 
- * do with the methods provided please write new methods that do 
- * what you need, put them into the drange object here, and limit 
- * your direct manipulation of the drange and drange_node structs to 
+/* Please don't directly manipulate these structs.  Please use
+ * the methods provided.  If you REALLY can't do what you need to
+ * do with the methods provided please write new methods that do
+ * what you need, put them into the drange object here, and limit
+ * your direct manipulation of the drange and drange_node structs to
  * here.
  */
 
@@ -67,7 +67,7 @@ void drange_node_free(drange_node* drnode);
 /* Call drange_node destructor on all list items */
 void drange_node_free_list(GSList* list);
 
-/* drange_node accessors */  
+/* drange_node accessors */
 gint drange_node_get_start_offset(drange_node* drnode);
 gint drange_node_get_length(drange_node* drnode);
 gint drange_node_get_end_offset(drange_node* drnode);
@@ -83,7 +83,7 @@ void drange_node_set_to_the_end(drange_node* drnode);
 drange* drange_new();
 drange* drange_new_from_list(GSList *list);
 
-/* drange destructor, only use this if you used drange_new() to creat 
+/* drange destructor, only use this if you used drange_new() to creat
  * the drange
  */
 void drange_free(drange* dr);

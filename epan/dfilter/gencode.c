@@ -1,20 +1,20 @@
 /*
- * $Id: gencode.c,v 1.6 2002/03/02 20:48:11 guy Exp $
+ * $Id: gencode.c,v 1.7 2002/08/28 20:40:55 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -331,7 +331,7 @@ typedef struct {
     int i;
     int *fields;
 } hash_key_iterator;
- 
+
 static void
 get_hash_key(gpointer key, gpointer value _U_, gpointer user_data)
 {
@@ -356,7 +356,7 @@ dfw_interesting_fields(dfwork_t *dfw, int *caller_num_fields)
 
     hki.fields = g_new(int, num_fields);
     hki.i = 0;
-        
+
     g_hash_table_foreach(dfw->interesting_fields, get_hash_key, &hki);
     *caller_num_fields = num_fields;
     return hki.fields;

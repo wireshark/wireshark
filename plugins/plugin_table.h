@@ -1,21 +1,21 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.52 2002/08/14 19:18:20 guy Exp $
+ * $Id: plugin_table.h,v 1.53 2002/08/28 20:38:58 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -46,9 +46,9 @@ typedef void (*addr_register_postseq_cleanup_routine)(void (*func)(void));
 typedef gchar* (*addr_match_strval)(guint32, const value_string*);
 typedef gchar* (*addr_val_to_str)(guint32, const value_string *, const char *);
 
-typedef conversation_t *(*addr_conversation_new)(address *, address *, 
+typedef conversation_t *(*addr_conversation_new)(address *, address *,
     port_type, guint32, guint32, guint);
-typedef conversation_t *(*addr_find_conversation)(address *, address *, 
+typedef conversation_t *(*addr_find_conversation)(address *, address *,
     port_type, guint32, guint32, guint);
 typedef void (*addr_conversation_set_dissector)(conversation_t *,
     dissector_handle_t);

@@ -3,22 +3,22 @@
  * By Steve Limkemann <stevelim@dgtech.com>
  * Copyright 1998 Steve Limkemann
  *
- * $Id: packet-gryphon.c,v 1.34 2002/08/02 22:04:20 jmayer Exp $
+ * $Id: packet-gryphon.c,v 1.35 2002/08/28 20:39:05 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -50,7 +50,7 @@ G_MODULE_EXPORT const gchar version[] = VERSION;
 
 #ifndef G_HAVE_GINT64
 #error "Sorry, this won't compile without 64-bit integer support"
-#endif                                                                  
+#endif
 
 /*
  * See
@@ -421,7 +421,7 @@ static const value_string responses[] = {
 	{RESP_NO_SUCH_JOB,	"No such job"},
 	{0,	    	    	NULL},
 	};
-	
+
 static const value_string filter_data_types[] = {
 	{FILTER_DATA_TYPE_HEADER_FRAME, "frame header"},
 	{FILTER_DATA_TYPE_HEADER,   	"data message header"},
@@ -626,7 +626,7 @@ decode_response(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
     proto_tree_add_text (pt, tvb, offset, 4, "Command: %s", cmds[i].strptr);
     offset += 4;
     msglen -= 4;
-    
+
     resp = tvb_get_ntohl (tvb, offset);
     proto_tree_add_text (pt, tvb, offset, 4, "Status: %s",
 	val_to_str(resp, responses, "Unknown (0x%08x)"));
@@ -767,7 +767,7 @@ static int
 cmd_init(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     char    	*ptr;
-    
+
     if (tvb_get_guint8(tvb, offset) == 0)
     	ptr = "Always initialize";
     else
@@ -782,7 +782,7 @@ static int
 eventnum(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     guint8	event = tvb_get_guint8(tvb, offset);
-    
+
     if (event)
     	proto_tree_add_text(pt, tvb, offset, 1, "Event number: %u", event);
     else
@@ -802,7 +802,7 @@ resp_time(tvbuff_t *tvb, int offset, proto_tree *pt)
     } ts;
     unsigned int    timestamp;
     unsigned char   date[45];
-   
+
     ts.lng[1] = tvb_get_ntohl(tvb, offset);
     ts.lng[0] = tvb_get_ntohl(tvb, offset + 4);
     timestamp = ts.lnglng / 100000L;
@@ -825,7 +825,7 @@ cmd_setfilt(tvbuff_t *tvb, int offset, proto_tree *pt)
     int     	    flag = tvb_get_ntohl(tvb, offset);
     int     	    length, padding;
     unsigned char   mode[30];
-    
+
     length =  tvb_get_guint8(tvb, offset+4) + tvb_get_guint8(tvb, offset+5)
 	+ tvb_get_ntohs(tvb, offset+6);
     if (flag)
@@ -936,7 +936,7 @@ resp_filthan(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int     	handles = tvb_get_guint8(tvb, offset);
     int     	i, padding;
-    
+
     proto_tree_add_text(pt, tvb, offset, 1, "Number of filter handles: %d", handles);
     for (i = 1; i <= handles; i++){
 	proto_tree_add_text(pt, tvb, offset+i, 1, "Handle %d: %u", i,
@@ -953,7 +953,7 @@ static int
 dfiltmode(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     unsigned char   mode;
-    
+
     mode = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(pt, tvb, offset, 1, "Filter mode: %s",
 	val_to_str(mode, dmodes, "Unknown (%u)"));
@@ -966,7 +966,7 @@ static int
 filtmode(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     unsigned char   mode;
-    
+
     mode = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(pt, tvb, offset, 1, "Filter mode: %s",
 	val_to_str(mode, dmodes, "Unknown (%u)"));
@@ -982,7 +982,7 @@ resp_events(tvbuff_t *tvb, int offset, proto_tree *pt)
     unsigned int    i;
     proto_tree	    *tree;
     proto_item	    *item;
-    
+
     msglen = tvb_reported_length_remaining(tvb, offset);
     i = 1;
     while (msglen != 0) {
@@ -1030,7 +1030,7 @@ resp_getspeeds(tvbuff_t *tvb, int offset, proto_tree *pt)
     int size;
     int number;
     int index;
-    
+
     proto_tree_add_text(pt, tvb, offset, 4, "Set Speed IOCTL");
     proto_tree_add_text(pt, tvb, offset+4, 4, "Get Speed IOCTL");
     size = tvb_get_guint8(tvb, offset+8);
@@ -1050,7 +1050,7 @@ static int
 cmd_sort(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     char    	*which;
-    
+
     which = tvb_get_guint8(tvb, offset) ?
 	    "Sort into blocks of up to 16 messages" :
 	    "Do not sort messages";
@@ -1063,8 +1063,8 @@ static int
 cmd_optimize(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     char    	*which;
-    
-    which = tvb_get_guint8(tvb, offset) ? 
+
+    which = tvb_get_guint8(tvb, offset) ?
 	    "Optimize for latency (Nagle algorithm disabled)" :
 	    "Optimize for throughput (Nagle algorithm enabled)";
     proto_tree_add_text(pt, tvb, offset, 1, "Set optimization: %s", which);
@@ -1080,7 +1080,7 @@ resp_config(tvbuff_t *tvb, int offset, proto_tree *pt)
     int     	devices;
     int     	i;
     unsigned int x;
-    
+
     static const value_string protocol_types[] = {
 	{GDUMMY * 256 + GDGDMARKONE,	"Dummy device driver"},
 	{GCAN * 256 + G82527,	    	"CAN, 82527 subtype"},
@@ -1153,7 +1153,7 @@ cmd_sched(tvbuff_t *tvb, int offset, proto_tree *pt)
     int		    save_offset;
     unsigned int    i, x, length;
     unsigned char   def_chan = tvb_get_guint8(tvb, offset-9);
-    
+
     msglen = tvb_reported_length_remaining(tvb, offset);
     x = tvb_get_ntohl(tvb, offset);
     if (x == 0xFFFFFFFF)
@@ -1406,7 +1406,7 @@ resp_resphan(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int     	handles = tvb_get_guint8(tvb, offset);
     int     	i, padding;
-    
+
     proto_tree_add_text(pt, tvb, offset, 1, "Number of response handles: %d", handles);
     for (i = 1; i <= handles; i++){
 	proto_tree_add_text(pt, tvb, offset+i, 1, "Handle %d: %u", i,
@@ -1450,7 +1450,7 @@ resp_desc(tvbuff_t *tvb, int offset, proto_tree *pt)
     proto_item	*item;
     proto_tree	*tree;
     guint8	flags;
-    
+
     flags = tvb_get_guint8(tvb, offset);
     item = proto_tree_add_text(pt, tvb, offset, 1, "Flags: 0x%02x", flags);
     tree = proto_item_add_subtree (item, ett_gryphon_flags);
@@ -1470,7 +1470,7 @@ cmd_upload(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int		    msglen;
     unsigned int    length;
-    
+
     msglen = tvb_reported_length_remaining(tvb, offset);
     proto_tree_add_text(pt, tvb, offset, 2, "Block number: %u",
 	tvb_get_ntohs(tvb, offset));
@@ -1516,7 +1516,7 @@ resp_list(tvbuff_t *tvb, int offset, proto_tree *pt)
     proto_item	*item;
     proto_tree	*tree;
     unsigned int    i, count;
-    
+
     count = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(pt, tvb, offset, 1, "Number of programs in this response: %u", count);
     proto_tree_add_text(pt, tvb, offset+1, 1, "reserved");
@@ -1542,7 +1542,7 @@ cmd_start(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     char	    string[120];
     gint	    length;
-    
+
     offset = cmd_delete(tvb, offset, pt);
     length = tvb_get_nstringz0(tvb, offset, 120, string) + 1;
     proto_tree_add_text(pt, tvb, offset, length, "Arguments: %s", string);
@@ -1571,7 +1571,7 @@ resp_status(tvbuff_t *tvb, int offset, proto_tree *pt)
     proto_item	*item;
     proto_tree	*tree;
     unsigned int    i, copies, length;
-    
+
     copies = tvb_get_guint8(tvb, offset);
     item = proto_tree_add_text(pt, tvb, offset, 1, "Number of running copies: %u", copies);
     tree = proto_item_add_subtree (item, ett_gryphon_pgm_status);
@@ -1599,7 +1599,7 @@ cmd_options(tvbuff_t *tvb, int offset, proto_tree *pt)
     proto_tree	    *tree;
     unsigned int    i, size, padding, option, option_length, option_value;
     unsigned char   *string, *string1;
-    
+
     msglen = tvb_reported_length_remaining(tvb, offset);
     item = proto_tree_add_text(pt, tvb, offset, 1, "Handle: %u",
 	tvb_get_guint8(tvb, offset));
@@ -1667,13 +1667,13 @@ cmd_files(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int	    msglen;
     guchar  *which;
-    
+
     msglen = tvb_reported_length_remaining(tvb, offset);
     if (tvb_get_guint8(tvb, offset) == 0)
 	which = "First group of names";
     else
 	which = "Subsequent group of names";
-    
+
     proto_tree_add_text(pt, tvb, offset, 1, "%s", which);
     proto_tree_add_text(pt, tvb, offset+1, msglen-1, "Directory: %.*s",
 	msglen-1, tvb_get_ptr(tvb, offset+1, msglen-1));
@@ -1686,7 +1686,7 @@ resp_files(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int		msglen;
     guchar  	*flag;
-    
+
     msglen = tvb_reported_length_remaining(tvb, offset);
     flag = tvb_get_guint8(tvb, offset) ? "Yes": "No";
     proto_tree_add_text(pt, tvb, offset, 1, "More filenames to return: %s", flag);
@@ -1700,19 +1700,19 @@ cmd_usdt(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     guchar  *desc;
     guint8  assemble_flag;
-    
+
     if (tvb_get_guint8(tvb, offset))
 	desc = "Register with gusdt";
     else
 	desc = "Unregister with gusdt";
     proto_tree_add_text(pt, tvb, offset, 1, "%s", desc);
-    
+
     if (tvb_get_guint8(tvb, offset+1))
 	desc = "Echo long transmit messages back to the client";
     else
 	desc = "Do not echo long transmit messages back to the client";
     proto_tree_add_text(pt, tvb, offset+1, 1, "%s", desc);
-    
+
     assemble_flag = tvb_get_guint8(tvb, offset+2);
     if (assemble_flag == 2)
     	desc = "Assemble long received messages but do not send them to the client";
@@ -1721,7 +1721,7 @@ cmd_usdt(tvbuff_t *tvb, int offset, proto_tree *pt)
     else
     	desc = "Do not assemble long received messages on behalf of the client";
     proto_tree_add_text(pt, tvb, offset+2, 1, "%s", desc);
-    
+
     offset += 4;
     return offset;
 }
@@ -1741,7 +1741,7 @@ filter_block(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     unsigned int    type, operator;
     int     length, padding;
-    
+
     proto_tree_add_text(pt, tvb, offset, 2, "Filter field starts at byte %u",
 	tvb_get_ntohs(tvb, offset));
     length = tvb_get_ntohs(tvb, offset+2);
@@ -1755,7 +1755,7 @@ filter_block(tvbuff_t *tvb, int offset, proto_tree *pt)
 	val_to_str(operator, operators, "Unknown (%u)"));
     proto_tree_add_text(pt, tvb, offset+6, 2, "reserved");
     offset += 8;
-    
+
     if (operator == BIT_FIELD_CHECK) {
 	proto_tree_add_text(pt, tvb, offset, length, "Pattern");
 	proto_tree_add_text(pt, tvb, offset+length, length, "Mask");
@@ -1791,7 +1791,7 @@ blm_mode(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     char    *mode, line[50];
     int     x, y, seconds;
-    
+
     x = tvb_get_ntohl(tvb, offset);
     y = tvb_get_ntohl(tvb, offset+4);
     switch (x) {

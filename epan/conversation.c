@@ -1,22 +1,22 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.19 2002/08/02 21:29:39 jmayer Exp $
+ * $Id: conversation.c,v 1.20 2002/08/28 20:40:44 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -56,7 +56,7 @@ static GHashTable *conversation_hashtable_no_addr2_or_port2 = NULL;
 static GMemChunk *conversation_key_chunk = NULL;
 static GMemChunk *conversation_chunk = NULL;
 
-#ifdef __NOT_USED__ 
+#ifdef __NOT_USED__
 typedef struct conversation_key {
 	struct conversation_key *next;
 	address	addr1;
@@ -91,7 +91,7 @@ static GMemChunk *conv_proto_data_area = NULL;
  * Compute the hash value for two given address/port pairs if the match
  * is to be exact.
  */
-static guint 
+static guint
 conversation_hash_exact(gconstpointer v)
 {
 	conversation_key *key = (conversation_key *)v;
@@ -160,7 +160,7 @@ conversation_match_exact(gconstpointer v, gconstpointer w)
 
 	/*
 	 * The addresses or the ports don't match.
-	 */	
+	 */
 	return 0;
 }
 
@@ -168,7 +168,7 @@ conversation_match_exact(gconstpointer v, gconstpointer w)
  * Compute the hash value for two given address/port pairs if the match
  * has a wildcard address 2.
  */
-static guint 
+static guint
 conversation_hash_no_addr2(gconstpointer v)
 {
 	conversation_key *key = (conversation_key *)v;
@@ -218,7 +218,7 @@ conversation_match_no_addr2(gconstpointer v, gconstpointer w)
 
 	/*
 	 * The addresses or the ports don't match.
-	 */	
+	 */
 	return 0;
 }
 
@@ -226,7 +226,7 @@ conversation_match_no_addr2(gconstpointer v, gconstpointer w)
  * Compute the hash value for two given address/port pairs if the match
  * has a wildcard port 2.
  */
-static guint 
+static guint
 conversation_hash_no_port2(gconstpointer v)
 {
 	conversation_key *key = (conversation_key *)v;
@@ -277,7 +277,7 @@ conversation_match_no_port2(gconstpointer v, gconstpointer w)
 
 	/*
 	 * The addresses or the ports don't match.
-	 */	
+	 */
 	return 0;
 }
 
@@ -285,7 +285,7 @@ conversation_match_no_port2(gconstpointer v, gconstpointer w)
  * Compute the hash value for two given address/port pairs if the match
  * has a wildcard address 2 and port 2.
  */
-static guint 
+static guint
 conversation_hash_no_addr2_or_port2(gconstpointer v)
 {
 	conversation_key *key = (conversation_key *)v;
@@ -331,7 +331,7 @@ conversation_match_no_addr2_or_port2(gconstpointer v, gconstpointer w)
 
 	/*
 	 * The addresses or the ports don't match.
-	 */	
+	 */
 	return 0;
 }
 
@@ -512,7 +512,7 @@ conversation_set_port2(conversation_t *conv, guint32 port)
 		g_hash_table_insert(conversation_hashtable_exact,
 		    conv->key_ptr, conv);
 	}
-} 
+}
 
 /*
  * Set the address 2 value in a key.  Remove the original from
@@ -566,7 +566,7 @@ conversation_lookup_hashtable(GHashTable *hashtable, address *addr1, address *ad
 	key.port2 = port2;
 	return g_hash_table_lookup(hashtable, &key);
 }
- 
+
 
 /*
  * Given two address/port pairs for a packet, search for a conversation
@@ -655,7 +655,7 @@ find_conversation(address *addr_a, address *addr_b, port_type ptype,
 			 * oriented protocols, the endpoints of a connection
 			 * have only one address each, i.e. you don't get
 			 * packets in a given direction coming from more than
-			 * one address.) 
+			 * one address.)
 			 */
 			if (!(options & NO_ADDR_B) && ptype != PT_UDP)
 				conversation_set_addr2(conversation, addr_b);
@@ -922,7 +922,7 @@ try_conversation_dissector(address *addr_a, address *addr_b, port_type ptype,
 
 	conversation = find_conversation(addr_a, addr_b, ptype, port_a,
 	    port_b, 0);
-	
+
 	if (conversation != NULL) {
 		if (conversation->dissector_handle == NULL){
 			pinfo->can_desegment=saved_can_desegment;

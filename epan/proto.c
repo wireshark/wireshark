@@ -1,22 +1,22 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.73 2002/08/24 19:45:24 guy Exp $
+ * $Id: proto.c,v 1.74 2002/08/28 20:40:44 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -483,7 +483,7 @@ proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length,
 
 /* Add a text-only node to the proto_tree (va_list version) */
 proto_item *
-proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start, 
+proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start,
 	gint length, const char *format, va_list ap)
 {
 	proto_item	*pi;
@@ -802,7 +802,7 @@ proto_tree_add_none_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 	return pi;
 }
 
-	
+
 static void
 proto_tree_set_protocol_tvb(field_info *fi, tvbuff_t *tvb)
 {
@@ -1930,7 +1930,7 @@ void
 proto_item_set_len(proto_item *pi, gint length)
 {
 	field_info *fi;
-	
+
 	if (pi == NULL)
 		return;
 	fi = PITEM_FINFO(pi);
@@ -1967,7 +1967,7 @@ proto_tree_create_root(void)
 	return (proto_tree*) g_node_new(pnode);
 }
 
-	
+
 /* "prime" a proto_tree with a single hfid that a dfilter
  * is interested in. */
 void
@@ -2084,14 +2084,14 @@ static protocol_t *
 find_protocol_by_id(int proto_id)
 {
 	GList *list_entry;
-	
+
 	list_entry = g_list_find_custom(protocols, &proto_id, compare_proto_id);
 	if (list_entry == NULL)
 		return NULL;
 	return list_entry->data;
 }
 
-static gint compare_filter_name(gconstpointer proto_arg, 
+static gint compare_filter_name(gconstpointer proto_arg,
 				gconstpointer filter_name)
 {
 	const protocol_t *protocol = proto_arg;
@@ -2106,7 +2106,7 @@ int proto_get_id_by_filter_name(gchar* filter_name)
 	protocol_t *protocol;
 
 	list_entry = g_list_find_custom(protocols, filter_name,
-	    compare_filter_name); 
+	    compare_filter_name);
 	if (list_entry == NULL)
 		return -1;
 	protocol = list_entry->data;
@@ -2160,7 +2160,7 @@ proto_can_disable_protocol(int proto_id)
 	return protocol->can_disable;
 }
 
-void 
+void
 proto_set_decoding(int proto_id, gboolean enabled)
 {
 	protocol_t *protocol;
@@ -2170,7 +2170,7 @@ proto_set_decoding(int proto_id, gboolean enabled)
 	protocol->is_enabled = enabled;
 }
 
-void 
+void
 proto_set_cant_disable(int proto_id)
 {
 	protocol_t *protocol;
@@ -2304,7 +2304,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			bytes = fvalue_get(fi->value);
 			if (bytes) {
 				snprintf(label_str, ITEM_LABEL_LENGTH,
-					"%s: %s", hfinfo->name, 
+					"%s: %s", hfinfo->name,
 					 bytes_to_str(bytes, fvalue_length(fi->value)));
 			}
 			else {
@@ -2415,7 +2415,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 				get_hostname6((struct e_in6_addr *)bytes),
 				ip6_to_str((struct e_in6_addr*)bytes));
 			break;
-	
+
 		case FT_STRING:
 		case FT_STRINGZ:
 		case FT_UINT_STRING:
@@ -3456,7 +3456,7 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 				 /* XXX - bytes_to_str_punct() will truncate long strings with '...' */
 				 bytes_to_str_punct(fvalue_get(finfo->value),
 					 fvalue_length(finfo->value),':'));
-			break;       
+			break;
 
 		default:
 			c = pd + finfo->start;

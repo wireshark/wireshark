@@ -67,7 +67,7 @@
 #define TLV_VENDOR_SPEC 43
 #define TLV_END 255
 
-/* Define DOCSIS 1.0 Class Of Service Configuration Types 
+/* Define DOCSIS 1.0 Class Of Service Configuration Types
  * These are subtypes of TLV_COS (4)
  */
 #define COS_CLASSID 1
@@ -193,7 +193,7 @@
 #define SFW_MAX_DOWN_LAT 14
 
 /* Define Service Flow Error sub-subtypes
- * These are subtypes of 
+ * These are subtypes of
  * SFW_ERRORS ([24/25].5)
  */
 #define SFW_ERR_PARAM 1

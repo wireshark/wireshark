@@ -1,20 +1,20 @@
-/* 
- * $Id: ftype-bytes.c,v 1.12 2002/05/10 02:44:08 gram Exp $
+/*
+ * $Id: ftype-bytes.c,v 1.13 2002/08/28 20:41:00 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -96,7 +96,7 @@ is_byte_sep(guint8 c)
 {
 	return (c == '-' || c == ':' || c == '.');
 }
-	
+
 static gboolean
 val_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
 {
@@ -319,7 +319,7 @@ cmp_gt(fvalue_t *fv_a, fvalue_t *fv_b)
 	if (a->len < b->len) {
 		return FALSE;
 	}
-	
+
 	return (memcmp(a->data, b->data, a->len) > 0);
 }
 
@@ -336,7 +336,7 @@ cmp_ge(fvalue_t *fv_a, fvalue_t *fv_b)
 	if (a->len < b->len) {
 		return FALSE;
 	}
-	
+
 	return (memcmp(a->data, b->data, a->len) >= 0);
 }
 
@@ -353,7 +353,7 @@ cmp_lt(fvalue_t *fv_a, fvalue_t *fv_b)
 	if (a->len > b->len) {
 		return FALSE;
 	}
-	
+
 	return (memcmp(a->data, b->data, a->len) < 0);
 }
 
@@ -370,7 +370,7 @@ cmp_le(fvalue_t *fv_a, fvalue_t *fv_b)
 	if (a->len > b->len) {
 		return FALSE;
 	}
-	
+
 	return (memcmp(a->data, b->data, a->len) <= 0);
 }
 
@@ -387,7 +387,7 @@ cmp_gt_i64(fvalue_t *fv_a, fvalue_t *fv_b)
 	if (a->len < b->len) {
 		return FALSE;
 	}
-	
+
 	if ((a->data[0] & 0x80) == 0) {
 		/*
 		 * "a" is positive.
@@ -430,7 +430,7 @@ cmp_ge_i64(fvalue_t *fv_a, fvalue_t *fv_b)
 	if (a->len < b->len) {
 		return FALSE;
 	}
-	
+
 	if ((a->data[0] & 0x80) == 0) {
 		/*
 		 * "a" is positive.
@@ -473,7 +473,7 @@ cmp_lt_i64(fvalue_t *fv_a, fvalue_t *fv_b)
 	if (a->len > b->len) {
 		return FALSE;
 	}
-	
+
 	if (a->data[0] & 0x80) {
 		/*
 		 * "a" is negative.
@@ -516,7 +516,7 @@ cmp_le_i64(fvalue_t *fv_a, fvalue_t *fv_b)
 	if (a->len > b->len) {
 		return FALSE;
 	}
-	
+
 	if (a->data[0] & 0x80) {
 		/*
 		 * "a" is negative.

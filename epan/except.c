@@ -13,7 +13,7 @@
  * This source code may be translated into executable form and incorporated
  * into proprietary software; there is no requirement for such software to
  * contain a copyright notice related to this source.
- * $Id: except.c,v 1.2 2001/07/27 16:20:39 gram Exp $
+ * $Id: except.c,v 1.3 2002/08/28 20:40:44 jmayer Exp $
  * $Name:  $
  */
 
@@ -27,7 +27,7 @@
 #define XCEPT_BUFFER_SIZE	1024
 
 #ifdef KAZLIB_RCSID
-static const char rcsid[] = "$Id: except.c,v 1.2 2001/07/27 16:20:39 gram Exp $";
+static const char rcsid[] = "$Id: except.c,v 1.3 2002/08/28 20:40:44 jmayer Exp $";
 #endif
 
 #define group except_group
@@ -96,7 +96,7 @@ int except_init(void)
 	int uh_ok = (pthread_key_create(&uh_key, 0) == 0);
 	int alloc_ok = (pthread_key_create(&alloc_key, 0) == 0);
 	int dealloc_ok = (pthread_key_create(&dealloc_key, 0) == 0);
-       
+
 	if (!top_ok || !uh_ok || !alloc_ok || !dealloc_ok) {
 	    retval = 0;
 	    init_counter = 0;
@@ -187,7 +187,7 @@ static void do_throw(except_t *except)
 	    struct except_catch *catcher = top->info.catcher;
 	    const except_id_t *pi = catcher->id;
 	    size_t i;
-	
+
 	    assert (top->type == XCEPT_CATCHER);
 	    except_free(catcher->obj.dyndata);
 

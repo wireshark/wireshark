@@ -1,4 +1,4 @@
-/* $Id: glib-util.c,v 1.1 2001/02/01 20:21:18 gram Exp $ */
+/* $Id: glib-util.c,v 1.2 2002/08/28 20:40:55 jmayer Exp $ */
 
 #include <string.h>
 #include <glib.h>
@@ -44,4 +44,4 @@ g_substrdup(const char *s, int start, int len)
 	newstring[abs_len] = 0;
 
 	return newstring;
-}	
+}

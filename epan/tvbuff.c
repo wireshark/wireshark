@@ -1,7 +1,7 @@
 /* tvbuff.c
  *
  * Testy, Virtual(-izable) Buffer of guint8*'s
- * 
+ *
  * "Testy" -- the buffer gets mad when an attempt to access data
  * 		beyond the bounds of the buffer. An exception is thrown.
  *
@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.39 2002/08/02 21:29:40 jmayer Exp $
+ * $Id: tvbuff.c,v 1.40 2002/08/28 20:40:45 jmayer Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -19,17 +19,17 @@
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -1021,7 +1021,7 @@ tvb_memdup(tvbuff_t *tvb, gint offset, gint length)
 }
 
 
-	
+
 const guint8*
 tvb_get_ptr(tvbuff_t *tvb, gint offset, gint length)
 {
@@ -1635,7 +1635,7 @@ tvb_format_text(tvbuff_t *tvb, gint offset, gint size)
   }
 
   return format_text(ptr, len);
- 
+
 }
 
 /* Looks for a stringz (NUL-terminated string) in tvbuff and copies
@@ -1934,7 +1934,7 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
 			*next_offset = eob_offset;
 			break;
 		}
-			
+
 		if (is_quoted) {
 			/*
 			 * We're processing a quoted string.

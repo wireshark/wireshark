@@ -1,22 +1,22 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.17 2002/08/02 21:29:39 jmayer Exp $
+ * $Id: column-utils.c,v 1.18 2002/08/28 20:40:44 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -41,7 +41,7 @@
 #include "packet_info.h"
 #include "pint.h"
 #include "resolv.h"
-#include "ipv6-utils.h" 
+#include "ipv6-utils.h"
 #include "osi-utils.h"
 
 /* Allocate all the data structures for constructing column data, given
@@ -62,7 +62,7 @@ col_init(column_info *col_info, gint num_cols)
 
 #if 0
 /*
- * This function does not appear to be used anywhere...  
+ * This function does not appear to be used anywhere...
  */
 gboolean
 col_get_writable(column_info *cinfo)
@@ -120,7 +120,7 @@ col_clear(column_info *cinfo, gint el) {
 void
 col_set_str(column_info *cinfo, gint el, gchar* str) {
   int i;
-  
+
   for (i = 0; i < cinfo->num_cols; i++) {
     if (cinfo->fmt_matx[i][el])
       cinfo->col_data[i] = str;
@@ -138,7 +138,7 @@ col_add_fstr(column_info *cinfo, gint el, gchar *format, ...) {
 	max_len = COL_MAX_INFO_LEN;
   else
 	max_len = COL_MAX_LEN;
-  
+
   va_start(ap, format);
   for (i = 0; i < cinfo->num_cols; i++) {
     if (cinfo->fmt_matx[i][el]) {
@@ -155,12 +155,12 @@ col_append_fstr(column_info *cinfo, gint el, gchar *format, ...) {
   va_list ap;
   int     i;
   size_t  len, max_len;
-  
+
   if (el == COL_INFO)
 	max_len = COL_MAX_INFO_LEN;
   else
 	max_len = COL_MAX_LEN;
-  
+
   va_start(ap, format);
   for (i = 0; i < cinfo->num_cols; i++) {
     if (cinfo->fmt_matx[i][el]) {
@@ -189,12 +189,12 @@ col_prepend_fstr(column_info *cinfo, gint el, gchar *format, ...)
   char    orig_buf[COL_BUF_MAX_LEN];
   char   *orig;
   size_t  max_len;
-  
+
   if (el == COL_INFO)
 	max_len = COL_MAX_INFO_LEN;
   else
 	max_len = COL_MAX_LEN;
-  
+
   va_start(ap, format);
   for (i = 0; i < cinfo->num_cols; i++) {
     if (cinfo->fmt_matx[i][el]) {
@@ -226,7 +226,7 @@ col_add_str(column_info *cinfo, gint el, const gchar* str) {
 	max_len = COL_MAX_INFO_LEN;
   else
 	max_len = COL_MAX_LEN;
-  
+
   for (i = 0; i < cinfo->num_cols; i++) {
     if (cinfo->fmt_matx[i][el]) {
       strncpy(cinfo->col_buf[i], str, max_len);
@@ -245,7 +245,7 @@ col_append_str(column_info *cinfo, gint el, gchar* str) {
 	max_len = COL_MAX_INFO_LEN;
   else
 	max_len = COL_MAX_LEN;
-  
+
   for (i = 0; i < cinfo->num_cols; i++) {
     if (cinfo->fmt_matx[i][el]) {
       if (cinfo->col_data[i] != cinfo->col_buf[i]) {
@@ -496,7 +496,7 @@ col_set_port(packet_info *pinfo, int col, port_type ptype, guint32 port,
     else
       snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", port);
     break;
-    
+
   case PT_TCP:
     if (is_res)
       strncpy(pinfo->cinfo->col_buf[col], get_tcp_port(port), COL_MAX_LEN);

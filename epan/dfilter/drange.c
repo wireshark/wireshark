@@ -1,8 +1,8 @@
 /* drange.c
  * Routines for providing general range support to the dfilter library
  *
- * $Id: drange.c,v 1.3 2002/03/02 20:48:11 guy Exp $
- * 
+ * $Id: drange.c,v 1.4 2002/08/28 20:40:55 jmayer Exp $
+ *
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
  * Ethereal - Network traffic analyzer
@@ -46,7 +46,7 @@ drange_node_free(drange_node* drnode)
   g_free(drnode);
 }
 
-/* drange_node accessors */  
+/* drange_node accessors */
 gint
 drange_node_get_start_offset(drange_node* drnode)
 {
@@ -136,7 +136,7 @@ drange_new_from_list(GSList *list)
 	return new_drange;
 }
 
-  
+
 static void
 drange_node_free_wrapper(gpointer data, gpointer userdata _U_)
 {
@@ -163,7 +163,7 @@ gboolean drange_has_total_length(drange* dr){ return dr->has_total_length; }
 gint drange_get_total_length(drange* dr) { return dr->total_length; }
 gint drange_get_min_start_offset(drange* dr) { return dr->min_start_offset; }
 gint drange_get_max_start_offset(drange* dr) { return dr->max_start_offset; }
-    
+
 static void
 update_drange_with_node(drange *dr, drange_node *drnode)
 {
@@ -188,7 +188,7 @@ drange_prepend_drange_node(drange* dr, drange_node* drnode)
   if(drnode != NULL){
     dr->range_list = g_slist_prepend(dr->range_list,drnode);
     update_drange_with_node(dr, drnode);
-  }  
+  }
 }
 
 void
@@ -197,7 +197,7 @@ drange_append_drange_node(drange* dr, drange_node* drnode)
   if(drnode != NULL){
     dr->range_list = g_slist_append(dr->range_list,drnode);
     update_drange_with_node(dr, drnode);
-  }  
+  }
 }
 
 void

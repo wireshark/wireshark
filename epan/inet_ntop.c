@@ -20,7 +20,7 @@
 #endif
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$Id: inet_ntop.c,v 1.5 2002/08/04 00:45:59 jmayer Exp $";
+static char rcsid[] = "$Id: inet_ntop.c,v 1.6 2002/08/28 20:40:44 jmayer Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #ifdef HAVE_SYS_PARAM_H
@@ -220,7 +220,7 @@ inet_ntop6(src, dst, size)
 		tp += sprintf(tp, "%x", words[i]);
 	}
 	/* Was it a trailing run of 0x00's? */
-	if (best.base != -1 && (best.base + best.len) == 
+	if (best.base != -1 && (best.base + best.len) ==
 	    (NS_IN6ADDRSZ / NS_INT16SZ))
 		*tp++ = ':';
 	*tp++ = '\0';

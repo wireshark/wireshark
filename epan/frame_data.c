@@ -1,23 +1,23 @@
 /* frame_data.c
  * Routines for packet disassembly
  *
- * $Id: frame_data.c,v 1.2 2002/08/02 21:29:39 jmayer Exp $
+ * $Id: frame_data.c,v 1.3 2002/08/28 20:40:44 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -41,8 +41,8 @@ typedef struct _frame_proto_data {
 
 static GMemChunk *frame_proto_data_area = NULL;
 
-/* 
- * Free up any space allocated for frame proto data areas and then 
+/*
+ * Free up any space allocated for frame proto data areas and then
  * allocate a new area.
  *
  * We can free the area, as the structures it contains are pointed to by
@@ -68,7 +68,7 @@ frame_data_init(void)
   	register_init_routine(&packet_init_protocol);
 }
 
-void 
+void
 frame_data_cleanup(void)
 {
   /* this function intentionally left blank :) */
@@ -94,7 +94,7 @@ void
 p_add_proto_data(frame_data *fd, int proto, void *proto_data)
 {
   frame_proto_data *p1 = g_mem_chunk_alloc(frame_proto_data_area);
- 
+
   g_assert(p1 != NULL);
 
   p1 -> proto = proto;

@@ -1,20 +1,20 @@
 /*
- * $Id: semcheck.c,v 1.12 2002/08/24 19:45:26 guy Exp $
+ * $Id: semcheck.c,v 1.13 2002/08/28 20:40:55 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -86,7 +86,7 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 				default:
 					return FALSE;
 			}
-			
+
 		case FT_STRING:
 		case FT_STRINGZ:
 		case FT_UINT_STRING:
@@ -161,7 +161,7 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 		case FT_INT24:
 		case FT_INT32:
 			break;
-			
+
 		case FT_NUM_TYPES:
 			g_assert_not_reached();
 	}
@@ -243,7 +243,7 @@ is_bytes_type(enum ftenum type)
 		case FT_INT32:
 		case FT_INT64:
 			return FALSE;
-			
+
 		case FT_NUM_TYPES:
 			g_assert_not_reached();
 	}
@@ -348,7 +348,7 @@ check_relation_LHS_STRING(FtypeCanFunc can_func _U_, stnode_t *st_node,
 
 	type1 = stnode_type_id(st_arg1);
 	type2 = stnode_type_id(st_arg2);
-		
+
 	if (type2 == STTYPE_FIELD) {
 		hfinfo2 = stnode_data(st_arg2);
 		ftype2 = hfinfo2->type;
