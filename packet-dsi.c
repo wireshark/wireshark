@@ -2,7 +2,7 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.15 2002/04/28 22:10:00 guy Exp $
+ * $Id: packet-dsi.c,v 1.16 2002/04/30 22:05:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -78,6 +78,43 @@ static int hf_dsi_reserved = -1;
 
 static gint ett_dsi = -1;
 
+/* status stuff same for asp and afp */
+static int hf_dsi_server_name = -1;
+static int hf_dsi_server_type = -1;
+static int hf_dsi_server_vers = -1;
+static int hf_dsi_server_uams = -1;
+static int hf_dsi_server_icon = -1;
+
+static int hf_dsi_server_flag = -1;
+static int hf_dsi_server_flag_copyfile = -1;
+static int hf_dsi_server_flag_passwd   = -1;
+static int hf_dsi_server_flag_no_save_passwd = -1;
+static int hf_dsi_server_flag_srv_msg	= -1;
+static int hf_dsi_server_flag_srv_sig	= -1;
+static int hf_dsi_server_flag_tcpip	= -1;
+static int hf_dsi_server_flag_notify	= -1;
+static int hf_dsi_server_flag_fast_copy = -1;
+static int hf_dsi_server_signature	= -1;
+
+static int hf_dsi_server_addr_len	= -1;
+static int hf_dsi_server_addr_type	= -1;
+static int hf_dsi_server_addr_value	= -1;
+
+static gint ett_dsi_status = -1;
+static gint ett_dsi_uams   = -1;
+static gint ett_dsi_vers   = -1;
+static gint ett_dsi_addr   = -1;
+static gint ett_dsi_status_server_flag = -1;
+
+const value_string afp_server_addr_type_vals[] = {
+  {1,	"IP address" },
+  {2,	"IP+port address" },
+  {3,	"DDP address" },
+  {4,	"DNS name" },
+  {0,			NULL } };
+
+/* end status stuff */
+
 /* desegmentation of DSI */
 static gboolean dsi_desegment = TRUE;
 
@@ -117,6 +154,128 @@ static const value_string func_vals[] = {
   {DSIFUNC_WRITE,	"Write" },
   {DSIFUNC_ATTN,	"Attention" },
   {0,			NULL } };
+
+/* ----------------------------- 
+	from netatalk/etc/afpd/status.c
+*/
+static gint 
+dissect_dsi_reply_get_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+        proto_tree      *sub_tree;
+	proto_item	*ti;
+
+	guint16 ofs;
+	guint16 flag;
+	guint16 sign_ofs = 0;
+	guint16 adr_ofs = 0;
+	guint8	nbe;
+	guint8  len;
+	guint8  i;
+		
+	ti = proto_tree_add_text(tree, tvb, offset, -1, "Get Status");
+	tree = proto_item_add_subtree(ti, ett_dsi_status);
+
+	ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_MACHOFF);
+	proto_tree_add_text(tree, tvb, offset +AFPSTATUS_MACHOFF, 2, "Machine offset: %d", ofs);
+
+	ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_VERSOFF);
+	proto_tree_add_text(tree, tvb, offset +AFPSTATUS_VERSOFF, 2, "Version offset: %d", ofs);
+
+	ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_UAMSOFF);
+	proto_tree_add_text(tree, tvb, offset +AFPSTATUS_UAMSOFF, 2, "UAMS offset: %d", ofs);
+
+	ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_ICONOFF);
+	proto_tree_add_text(tree, tvb, offset +AFPSTATUS_ICONOFF, 2, "Icon offset: %d", ofs);
+
+	ofs = offset +AFPSTATUS_FLAGOFF;
+	ti = proto_tree_add_item(tree, hf_dsi_server_flag, tvb, ofs, 2, FALSE);
+	sub_tree = proto_item_add_subtree(ti, ett_dsi_status_server_flag);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_copyfile      , tvb, ofs, 2, FALSE);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_passwd        , tvb, ofs, 2, FALSE);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_no_save_passwd, tvb, ofs, 2, FALSE);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_srv_msg       , tvb, ofs, 2, FALSE);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_srv_sig       , tvb, ofs, 2, FALSE);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_tcpip         , tvb, ofs, 2, FALSE);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_notify        , tvb, ofs, 2, FALSE);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_fast_copy     , tvb, ofs, 2, FALSE);
+
+	proto_tree_add_item(tree, hf_dsi_server_name, tvb, offset +AFPSTATUS_PRELEN, 1, FALSE);
+
+	/* FIXME wild guess */
+	flag = tvb_get_ntohs(tvb, ofs);
+	if ((flag & AFPSRVRINFO_SRVSIGNATURE)) {
+		ofs = offset +AFPSTATUS_PRELEN +tvb_get_guint8(tvb, offset +AFPSTATUS_PRELEN);
+		if ((ofs & 1))
+			ofs++;
+
+		sign_ofs = tvb_get_ntohs(tvb, ofs);
+		proto_tree_add_text(tree, tvb, ofs, 2, "Signature offset: %d", sign_ofs);
+		sign_ofs += offset;
+
+		if ((flag & AFPSRVRINFO_TCPIP)) {
+			ofs += 2;
+			adr_ofs =  tvb_get_ntohs(tvb, ofs);
+			proto_tree_add_text(tree, tvb, ofs, 2, "Network address offset: %d", adr_ofs);
+			adr_ofs += offset;
+		}
+	}
+		
+	ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_MACHOFF);
+	if (ofs)
+		proto_tree_add_item(tree, hf_dsi_server_type, tvb, ofs, 1, FALSE);
+
+	ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_VERSOFF);
+	if (ofs) {
+		nbe = tvb_get_guint8(tvb, ofs);
+		ti = proto_tree_add_text(tree, tvb, ofs, 1, "Version list: %d", nbe);
+		ofs++;
+		sub_tree = proto_item_add_subtree(ti, ett_dsi_vers);
+		for (i = 0; i < nbe; i++) {
+			len = tvb_get_guint8(tvb, ofs) +1;
+			proto_tree_add_item(sub_tree, hf_dsi_server_vers, tvb, ofs, 1, FALSE);
+			ofs += len;
+		}
+	}
+	
+	ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_UAMSOFF);
+	if (ofs) {
+		nbe = tvb_get_guint8(tvb, ofs);
+		ti = proto_tree_add_text(tree, tvb, ofs, 1, "UAMS list: %d", nbe);
+		ofs++;
+		sub_tree = proto_item_add_subtree(ti, ett_dsi_uams);
+		for (i = 0; i < nbe; i++) {
+			len = tvb_get_guint8(tvb, ofs) +1;
+			proto_tree_add_item(sub_tree, hf_dsi_server_uams, tvb, ofs, 1, FALSE);
+			ofs += len;
+		}
+	}
+
+	ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_ICONOFF);
+	if (ofs)
+		proto_tree_add_item(tree, hf_dsi_server_icon, tvb, ofs, 256, FALSE);
+
+	if (sign_ofs) {
+		proto_tree_add_item(tree, hf_dsi_server_signature, tvb, sign_ofs, 16, FALSE);
+	}
+
+	if (adr_ofs) {
+		ofs = adr_ofs;
+		nbe = tvb_get_guint8(tvb, ofs);
+		ti = proto_tree_add_text(tree, tvb, ofs, 1, "Address list: %d", nbe);
+		ofs++;
+		sub_tree = proto_item_add_subtree(ti, ett_dsi_addr);
+		for (i = 0; i < nbe; i++) {
+			len = tvb_get_guint8(tvb, ofs) -2;
+			proto_tree_add_item(sub_tree, hf_dsi_server_addr_len, tvb, ofs, 1, FALSE);
+			ofs++;
+			proto_tree_add_item(sub_tree, hf_dsi_server_addr_type, tvb, ofs, 1, FALSE); 
+			ofs++;
+			proto_tree_add_item(sub_tree, hf_dsi_server_addr_value,tvb, ofs, len, FALSE);
+			ofs += len;
+		}
+	}
+	return offset;
+}
 
 static void
 dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -182,23 +341,34 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	else 
 		dsi_tree = tree;
+	switch (dsi_command) {
+	case DSIFUNC_STAT:
+		if (tree && (dsi_flags == DSIFL_REPLY)) {
+			dissect_dsi_reply_get_status(tvb, pinfo, dsi_tree, DSI_BLOCKSIZ);
+		}
+		break;	
+	case DSIFUNC_CMD:
+	case DSIFUNC_WRITE:
+		{
+  			tvbuff_t   *new_tvb;
+			int len = tvb_reported_length_remaining(tvb,DSI_BLOCKSIZ);
 
-	if (dsi_command == DSIFUNC_CMD || dsi_command == DSIFUNC_WRITE) {
-  		tvbuff_t   *new_tvb;
-		int len = tvb_reported_length_remaining(tvb,DSI_BLOCKSIZ);
+			aspinfo.reply = (dsi_flags == DSIFL_REPLY);
+			aspinfo.command = dsi_command;
+			aspinfo.seq = dsi_requestid;
+			aspinfo.code = dsi_code;
+			pinfo->private_data = &aspinfo;
+	  		proto_item_set_len(dsi_tree, DSI_BLOCKSIZ);
 
-		aspinfo.reply = dsi_flags & 1;
-		aspinfo.command = dsi_command;
-		aspinfo.seq = dsi_requestid;
-		aspinfo.code = dsi_code;
-		pinfo->private_data = &aspinfo;
-	  	proto_item_set_len(dsi_tree, DSI_BLOCKSIZ);
-
-		new_tvb = tvb_new_subset(tvb, DSI_BLOCKSIZ,-1,len);
-		call_dissector(afp_handle, new_tvb, pinfo, tree);
-  	}
-	else if (tree) {	
- 		call_dissector(data_handle,tvb_new_subset(tvb, DSI_BLOCKSIZ,-1,tvb_reported_length_remaining(tvb,DSI_BLOCKSIZ)), pinfo, dsi_tree); 
+			new_tvb = tvb_new_subset(tvb, DSI_BLOCKSIZ,-1,len);
+			call_dissector(afp_handle, new_tvb, pinfo, tree);
+		}
+		break;
+  	default:
+		if (tree) {	
+ 			call_dissector(data_handle,tvb_new_subset(tvb, DSI_BLOCKSIZ,-1,tvb_reported_length_remaining(tvb,DSI_BLOCKSIZ)), pinfo, dsi_tree); 
+		}
+		break;
 	}
 }
 
@@ -354,9 +524,97 @@ proto_register_dsi(void)
 	FT_UINT32, BASE_HEX, NULL, 0x0,
       	"Reserved for future use.  Should be set to zero.", HFILL }},
 
+    { &hf_dsi_server_name,
+      { "Server name",         "dsi.server_name",
+	FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+      	"Server name", HFILL }},
+
+    { &hf_dsi_server_type,
+      { "Server type",         "dsi.server_type",
+	FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+      	"Server type", HFILL }},
+
+    { &hf_dsi_server_vers,
+      { "AFP version",         "dsi.server_vers",
+	FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+      	"AFP version", HFILL }},
+
+    { &hf_dsi_server_uams,
+      { "UAM",         "dsi.server_uams",
+	FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+      	"UAM", HFILL }},
+
+    { &hf_dsi_server_icon,
+      { "Icon bitmap",         "dsi.server_icon",
+	FT_BYTES, BASE_HEX, NULL, 0x0,
+      	"Server icon bitmap", HFILL }},
+
+    { &hf_dsi_server_signature,
+      { "Server signature",         "dsi.server_signature",
+	FT_BYTES, BASE_HEX, NULL, 0x0,
+      	"Server signature", HFILL }},
+
+    { &hf_dsi_server_flag,
+      { "Flag",         "dsi.server_flag",
+	FT_UINT16, BASE_HEX, NULL, 0x0,
+      	"Server capabilities flag", HFILL }},
+    { &hf_dsi_server_flag_copyfile,
+      { "Support copyfile",      "dsi.server_flag.copyfile",
+		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_COPY,
+      	"Server support copyfile", HFILL }},
+    { &hf_dsi_server_flag_passwd,
+      { "Support change password",      "dsi.server_flag.passwd",
+		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_PASSWD,
+      	"Server support change password", HFILL }},
+    { &hf_dsi_server_flag_no_save_passwd,
+      { "Don't allow save password",      "dsi.server_flag.no_save_passwd",
+		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_NOSAVEPASSWD,
+      	"Don't allow save password", HFILL }},
+    { &hf_dsi_server_flag_srv_msg,
+      { "Support server message",      "dsi.server_flag.srv_msg",
+		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVMSGS,
+      	"Support server message", HFILL }},
+    { &hf_dsi_server_flag_srv_sig,
+      { "Support server signature",      "dsi.server_flag.srv_sig",
+		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVSIGNATURE,
+      	"Support server signature", HFILL }},
+    { &hf_dsi_server_flag_tcpip,
+      { "Support TCP/IP",      "dsi.server_flag.tcpip",
+		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_TCPIP,
+      	"Server support TCP/IP", HFILL }},
+    { &hf_dsi_server_flag_notify,
+      { "Support server notifications",      "dsi.server_flag.notify",
+		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVNOTIFY,
+      	"Server support notifications", HFILL }},
+    { &hf_dsi_server_flag_fast_copy,
+      { "Support fast copy",      "dsi.server_flag.fast_copy",
+		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_FASTBOZO,
+      	"Server support fast copy", HFILL }},
+
+
+    { &hf_dsi_server_addr_len,
+      { "Length",          "dsi.server_addr.len",
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+      	"Address length.", HFILL }},
+
+    { &hf_dsi_server_addr_type,
+      { "Type",          "dsi.server_addr.type",
+	FT_UINT8, BASE_DEC, VALS(afp_server_addr_type_vals), 0x0,
+      	"Address type.", HFILL }},
+
+    { &hf_dsi_server_addr_value,
+      { "Value",          "dsi.server_addr.value",
+	FT_BYTES, BASE_HEX, NULL, 0x0,
+      	"Address value", HFILL }},
+
   };
   static gint *ett[] = {
     &ett_dsi,
+    &ett_dsi_status,
+    &ett_dsi_status_server_flag,
+    &ett_dsi_vers,
+    &ett_dsi_uams,
+    &ett_dsi_addr,
   };
   module_t *dsi_module;
 

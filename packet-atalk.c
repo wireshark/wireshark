@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.67 2002/04/28 22:19:49 guy Exp $
+ * $Id: packet-atalk.c,v 1.68 2002/04/30 22:05:33 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -44,7 +44,17 @@
 #include <epan/atalk-utils.h>
 #include <epan/conversation.h>
 
+#include "prefs.h"
+#include "reassemble.h"
+
 #include "packet-afp.h"
+
+/* Tables for reassembly of fragments. */
+static GHashTable *atp_fragment_table = NULL;
+static GHashTable *atp_reassembled_table = NULL;
+
+/* desegmentation of ATP */
+static gboolean atp_defragment = TRUE;
 
 static dissector_handle_t afp_handle;
 
@@ -202,6 +212,7 @@ static int hf_rtmp_function = -1;
 
 static gint ett_atp = -1;
 
+static gint ett_atp_segment = -1;
 static gint ett_atp_info = -1;
 static gint ett_asp = -1;
 
@@ -259,11 +270,13 @@ static const value_string rtmp_function_vals[] = {
   {0, NULL}
 };
 
+#define NBP_BROADCAST 1
 #define NBP_LOOKUP 2
 #define NBP_FORWARD 4
 #define NBP_REPLY 3
 
 static const value_string nbp_op_vals[] = {
+  {NBP_BROADCAST, "broadcast request"},
   {NBP_LOOKUP, "lookup"},
   {NBP_FORWARD, "forward request"},
   {NBP_REPLY, "reply"},
@@ -571,45 +584,82 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   return;
 }
 
+static void
+show_fragments(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+	       fragment_data *fd_head)
+{
+  guint32 offset;
+  fragment_data *fd;
+  proto_tree *ft;
+  proto_item *fi;
+
+
+  fi = proto_tree_add_text(tree, tvb, 0, -1, "Segments");
+  ft = proto_item_add_subtree(fi, ett_atp_segment);
+  offset = 0;
+  for (fd = fd_head->next; fd != NULL; fd = fd->next){
+      	proto_tree_add_text (ft, tvb, offset, fd->len,
+				 "Frame:%u payload:%u-%u",
+				 fd->frame, offset, offset+fd->len-1);
+
+    	offset += fd->len;
+  }
+}
+
 /* ----------------------------- 
-   FIXME : need desegmentation 
-   atp.function == 0x80 (response)
-   atp.bitmap 0 .. 7
-   until atp.option == 0x10 (end of message)
+   ATP protocol cf. inside appletalk chap. 9
+   desegmentation from packet-ieee80211.c
 */
 static void
 dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-  proto_tree *atp_tree;
+  proto_tree *atp_tree = NULL;
   proto_item *ti;
   proto_tree *atp_info_tree;
   proto_item *info_item;
   int offset = 0;
   guint8 ctrlinfo;
+  guint8 frag_number = 0;
   guint op;
   guint16 tid;
   struct aspinfo aspinfo;
-  tvbuff_t   *new_tvb;
+  tvbuff_t   *new_tvb = NULL;
+  gboolean save_fragmented;
+  gboolean more_fragment = FALSE;
   int len;
+  guint8 bitmap;
   
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
 
   ctrlinfo = tvb_get_guint8(tvb, offset);
-  op = ctrlinfo >> 6;
-  tid = tvb_get_ntohs(tvb, offset +2);
+  bitmap   = tvb_get_guint8(tvb, offset +1);
+  tid      = tvb_get_ntohs(tvb, offset +2);
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s transaction %d", 
-    	val_to_str(op, atp_function_vals, "Unknown (0x%01x)"), 
-    	tid);
-  }  
+  op = ctrlinfo >> 6;
+
   aspinfo.reply   = (0x80 == (ctrlinfo & ATP_FUNCMASK))?1:0;
   aspinfo.release = (0xC0 == (ctrlinfo & ATP_FUNCMASK))?1:0;
-
   aspinfo.seq = tid;
   aspinfo.code = 0;
+
+  /* FIXME
+     ATP_EOM is not mandatory. Some implementations don't always set it
+     if the query is only one packet.
+    	
+     need to keep bitmap from request.
+    */    	
+  if (aspinfo.reply) {
+     more_fragment = !(ATP_EOM & ctrlinfo); /* or only one segment in transaction request */
+     frag_number = bitmap;
+  }
+  
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_clear(pinfo->cinfo, COL_INFO);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s transaction %d", 
+    	val_to_str(op, atp_function_vals, "Unknown (0x%01x)"),tid);
+    if (more_fragment) 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " [fragment]");
+  }  
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_atp, tvb, offset, -1, FALSE);
@@ -629,7 +679,6 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     }
 
     if (!aspinfo.reply) {
-      guint8 bitmap = tvb_get_guint8(tvb, offset +1);
       guint8 nbe = 0;
       guint8 t = bitmap;
 		
@@ -645,16 +694,61 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     }
     proto_tree_add_item(atp_tree, hf_atp_tid, tvb, offset +2, 2, FALSE);
   }
+  save_fragmented = pinfo->fragmented;
 
-  pinfo->private_data = &aspinfo;
-  len = tvb_reported_length_remaining(tvb,ATP_HDRSIZE -1);
-  new_tvb = tvb_new_subset(tvb, ATP_HDRSIZE -1,-1,len);
-  call_dissector(asp_handle, new_tvb, pinfo, tree);
-
+  /* FIXME 
+     asp doesn't fit very well here
+     move asp back in atp?
+  */
+  if (atp_defragment && aspinfo.reply && (more_fragment || frag_number != 0)) {
+     fragment_data *fd_head;
+     int hdr;
+     
+     hdr = ATP_HDRSIZE -1;
+     if (frag_number != 0)
+     	hdr += 4;	/* asp header */
+     len = tvb_length_remaining(tvb, hdr);
+     fd_head = fragment_add_seq_check(tvb, hdr, pinfo, tid,
+				     atp_fragment_table,
+				     atp_reassembled_table,
+				     frag_number,
+				     len,
+				     more_fragment);
+     if (fd_head != NULL) {
+	if (fd_head->next != NULL) {
+            new_tvb = tvb_new_real_data(fd_head->data, fd_head->len, fd_head->len);
+            tvb_set_child_real_data_tvbuff(tvb, new_tvb);
+            add_new_data_source(pinfo->fd, new_tvb, "Reassembled ATP");
+	    /* Show all fragments. */
+	    if (tree)
+		    show_fragments(new_tvb, pinfo, atp_tree, fd_head);
+        }
+        else 
+      	    new_tvb = tvb_new_subset(tvb, ATP_HDRSIZE -1, -1, -1);
+     }
+     else {
+	new_tvb = NULL;
+     }
+  }
+  else {
+      /* full packet */
+     new_tvb = tvb_new_subset(tvb, ATP_HDRSIZE -1, -1,- 1);
+  }
+  
+  if (new_tvb) {
+     pinfo->private_data = &aspinfo;
+     call_dissector(asp_handle, new_tvb, pinfo, tree);
+  }
+  else {
+    /* Just show this as a fragment. */
+    new_tvb = tvb_new_subset (tvb, ATP_HDRSIZE -1, -1, -1);
+    call_dissector(data_handle, new_tvb, pinfo, tree);
+  }
+  pinfo->fragmented = save_fragmented;
   return;
 }
 
-/* ----------------------------- */
+
 static void
 dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
 {
@@ -940,7 +1034,15 @@ dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   call_dissector(data_handle,new_tvb, pinfo, tree);
 }
 
-static void asp_reinit( void)
+static void
+atp_defragment_init(void)
+{
+  fragment_table_init(&atp_fragment_table);
+  reassembled_table_init(&atp_reassembled_table);
+}
+
+static void 
+asp_reinit( void)
 {
 
 	if (asp_request_hash)
@@ -1134,6 +1236,7 @@ proto_register_atalk(void)
 	&ett_ddp,
 	&ett_atp,
 	&ett_atp_info,
+	&ett_atp_segment,
 	&ett_asp,
 	&ett_nbp,
 	&ett_nbp_info,
@@ -1142,6 +1245,7 @@ proto_register_atalk(void)
 	&ett_rtmp,
 	&ett_rtmp_tuple,
   };
+  module_t *atp_module;
 
   proto_llap = proto_register_protocol("LocalTalk Link Access Protocol", "LLAP", "llap");
   proto_register_field_array(proto_llap, hf_llap, array_length(hf_llap));
@@ -1157,6 +1261,12 @@ proto_register_atalk(void)
 
   proto_asp = proto_register_protocol("AppleTalk Session Protocol", "ASP", "asp");
   proto_register_field_array(proto_asp, hf_asp, array_length(hf_asp));
+
+  atp_module = prefs_register_protocol(proto_atp, NULL);
+  prefs_register_bool_preference(atp_module, "desegment",
+    "Desegment all ATP messages spanning multiple DDP packets",
+    "Whether the ATP dissector should desegment all messages spanning multiple DDP packets",
+    &atp_defragment);
 
   proto_rtmp = proto_register_protocol("Routing Table Maintenance Protocol",
 				       "RTMP", "rtmp");
@@ -1198,6 +1308,7 @@ proto_reg_handoff_atalk(void)
   llap_handle = create_dissector_handle(dissect_llap, proto_llap);
   dissector_add("wtap_encap", WTAP_ENCAP_LOCALTALK, llap_handle);
 
+  register_init_routine( atp_defragment_init);
   register_init_routine( &asp_reinit);
 
   afp_handle = find_dissector("afp");

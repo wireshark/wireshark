@@ -1,7 +1,7 @@
 /* packet-afp.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-afp.h,v 1.2 2002/04/28 19:21:39 guy Exp $
+ * $Id: packet-afp.h,v 1.3 2002/04/30 22:05:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,15 +77,38 @@
 #define AFPERR_USRLOGIN -5047   /* user already logged on */
 
 extern const value_string asp_error_vals[];
+extern const value_string afp_server_addr_type_vals[];
+
+extern gint 
+dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset);
+
+/* server flags */
+#define AFPSRVRINFO_COPY         (1<<0)  /* supports copyfile */
+#define AFPSRVRINFO_PASSWD       (1<<1)  /* supports change password */
+#define AFPSRVRINFO_NOSAVEPASSWD (1<<2)  /* don't allow save password */
+#define AFPSRVRINFO_SRVMSGS      (1<<3)  /* supports server messages */
+#define AFPSRVRINFO_SRVSIGNATURE (1<<4)  /* supports server signature */
+#define AFPSRVRINFO_TCPIP        (1<<5)  /* supports tcpip */
+#define AFPSRVRINFO_SRVNOTIFY    (1<<6)  /* supports server notifications */
+#define AFPSRVRINFO_FASTBOZO     (1<<15) /* fast copying */
+
+#define AFPSTATUS_MACHOFF     0
+#define AFPSTATUS_VERSOFF     2
+#define AFPSTATUS_UAMSOFF     4
+#define AFPSTATUS_ICONOFF     6
+#define AFPSTATUS_FLAGOFF     8
+#define AFPSTATUS_PRELEN     10
+#define AFPSTATUS_POSTLEN     4
+#define AFPSTATUS_LEN        (AFPSTATUS_PRELEN + AFPSTATUS_POSTLEN)
 
 /*
  * Private data passed from DSI,DDP dissectors to AFP dissector.
- *                      DSI              DDP
- * aspinfo.reply     dsi.flags       atp.function == 0x80
- *         release                   atp.function == 0xc0
- *         command       command     asp.function
- *         seq           requestid   atp.tid
- *         code          code
+ *                       DSI              DDP
+ * aspinfo.reply     	dsi.flags       atp.function == 0x80
+ *         release                      atp.function == 0xc0
+ *         command          command     asp.function
+ *         seq              requestid   atp.tid
+ *         code             code
  */
 struct aspinfo {
 	guint8	reply;			/* 0 query  1 reply */
