@@ -386,12 +386,13 @@ capture.  I<type> specifies for which type of conversation we want to
 generate the statistics; currently the supported ones are
 
   "eth"   Ethernet
+  "fc"    Fibre Channel addresses
+  "fddi"  FDDI addresses
   "ip"    IP addresses
   "ipx"   IPX addresses
   "tcp"   TCP/IP socket pairs   Both IPv4 and IPv6 are supported
   "tr"    TokenRing
   "udp"   UDP/IP socket pairs   Both IPv4 and IPv6 are supported
-  "fc"    Fibre Channel addresses
 
 If the optional filter string is specified, only those packets that match the
 filter will be used in the calculations.

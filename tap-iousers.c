@@ -1,7 +1,7 @@
 /* tap-iousers.c
  * iostat   2003 Ronnie Sahlberg
  *
- * $Id: tap-iousers.c,v 1.12 2003/08/25 00:44:20 guy Exp $
+ * $Id: tap-iousers.c,v 1.13 2003/08/29 10:59:10 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,7 @@
 #include "packet-eth.h"
 #include "packet-tr.h"
 #include "packet-fc.h"
+#include "packet-fddi.h"
 #include <string.h>
 
 typedef struct _io_users_t {
@@ -355,6 +356,53 @@ iousers_eth_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, 
 }
 
 static int
+iousers_fddi_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, void *veth)
+{
+	fddi_hdr *ehdr=veth;
+	address *addr1, *addr2;
+	io_users_item_t *iui;
+
+	if(CMP_ADDRESS(&ehdr->src, &ehdr->dst)<0){
+		addr1=&ehdr->src;
+		addr2=&ehdr->dst;
+	} else {
+		addr2=&ehdr->src;
+		addr1=&ehdr->dst;
+	}
+
+	for(iui=iu->items;iui;iui=iui->next){
+		if((!CMP_ADDRESS(&iui->addr1, addr1))
+		&&(!CMP_ADDRESS(&iui->addr2, addr2)) ){
+			break;
+		}
+	}
+
+	if(!iui){
+		iui=g_malloc(sizeof(io_users_item_t));
+		iui->next=iu->items;
+		iu->items=iui;
+		COPY_ADDRESS(&iui->addr1, addr1);
+		iui->name1=strdup(address_to_str(addr1));
+		COPY_ADDRESS(&iui->addr2, addr2);
+		iui->name2=strdup(address_to_str(addr2));
+		iui->frames1=0;
+		iui->frames2=0;
+		iui->bytes1=0;
+		iui->bytes2=0;
+	}
+
+	if(!CMP_ADDRESS(&ehdr->dst,&iui->addr1)){
+		iui->frames1++;
+		iui->bytes1+=pinfo->fd->pkt_len;
+	} else {
+		iui->frames2++;
+		iui->bytes2+=pinfo->fd->pkt_len;
+	}
+
+	return 1;
+}
+
+static int
 iousers_tr_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, void *vtr)
 {
 	tr_hdr *trhdr=vtr;
@@ -470,6 +518,15 @@ iousers_init(char *optarg)
 		tap_type="fc";
 		tap_type_name="Fibre Channel";
 		packet_func=iousers_fc_packet;
+	} else if(!strncmp(optarg,"talkers,fddi",12)){
+		if(optarg[12]==','){
+			filter=optarg+13;
+		} else {
+			filter=NULL;
+		}
+		tap_type="fddi";
+		tap_type_name="FDDI";
+		packet_func=iousers_fddi_packet;
 	} else if(!strncmp(optarg,"talkers,tcp",11)){
 		if(optarg[11]==','){
 			filter=optarg+12;
@@ -520,6 +577,7 @@ iousers_init(char *optarg)
 		fprintf(stderr,"   <type> must be one of\n");
 		fprintf(stderr,"      \"eth\"\n");
 		fprintf(stderr,"      \"fc\"\n");
+		fprintf(stderr,"      \"fddi\"\n");
 		fprintf(stderr,"      \"ip\"\n");
 		fprintf(stderr,"      \"ipx\"\n");
 		fprintf(stderr,"      \"tcp\"\n");

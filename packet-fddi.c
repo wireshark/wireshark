@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
- * $Id: packet-fddi.c,v 1.61 2003/06/10 19:34:36 deniel Exp $
+ * $Id: packet-fddi.c,v 1.62 2003/08/29 10:59:09 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,7 @@
 #include "prefs.h"
 #include "packet-fddi.h"
 #include "packet-llc.h"
+#include "tap.h"
 
 #include <epan/resolv.h>
 
@@ -51,6 +52,8 @@ static int hf_fddi_addr = -1;
 
 static gint ett_fddi = -1;
 static gint ett_fddi_fc = -1;
+
+static int fddi_tap = -1;
 
 static gboolean fddi_padding = FALSE;
 
@@ -260,7 +263,6 @@ static void
 dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		gboolean bitswapped)
 {
-  int        fc;
   proto_tree *fh_tree = NULL;
   proto_item *ti;
   gchar      *fc_str;
@@ -268,12 +270,21 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   static guchar src[6], dst[6];
   guchar     src_swapped[6], dst_swapped[6];
   tvbuff_t   *next_tvb;
+  static fddi_hdr fddihdrs[4];
+  static int fddihdr_num=0;
+  fddi_hdr *fddihdr;
+
+  fddihdr_num++;
+  if(fddihdr_num>=4){
+     fddihdr_num=0;
+  }
+  fddihdr=&fddihdrs[fddihdr_num];
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FDDI");
 
-  fc = (int) tvb_get_guint8(tvb, FDDI_P_FC + FDDI_PADDING);
-  fc_str = fddifc_to_str(fc);
+  fddihdr->fc = tvb_get_guint8(tvb, FDDI_P_FC + FDDI_PADDING);
+  fc_str = fddifc_to_str(fddihdr->fc);
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_str(pinfo->cinfo, COL_INFO, fc_str);
@@ -282,24 +293,24 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ti = proto_tree_add_protocol_format(tree, proto_fddi, tvb, 0, FDDI_HEADER_SIZE+FDDI_PADDING,
 		"Fiber Distributed Data Interface, %s", fc_str);
     fh_tree = proto_item_add_subtree(ti, ett_fddi);
-    ti = proto_tree_add_uint_format(fh_tree, hf_fddi_fc, tvb, FDDI_P_FC + FDDI_PADDING, 1, fc,
-        "Frame Control: 0x%02x (%s)", fc, fc_str);
+    ti = proto_tree_add_uint_format(fh_tree, hf_fddi_fc, tvb, FDDI_P_FC + FDDI_PADDING, 1, fddihdr->fc,
+        "Frame Control: 0x%02x (%s)", fddihdr->fc, fc_str);
     fc_tree = proto_item_add_subtree(ti, ett_fddi_fc);
-    proto_tree_add_uint(fc_tree, hf_fddi_fc_clf, tvb, FDDI_P_FC + FDDI_PADDING, 1, fc);
-    switch (fc & FDDI_FC_CLFF) {
+    proto_tree_add_uint(fc_tree, hf_fddi_fc_clf, tvb, FDDI_P_FC + FDDI_PADDING, 1, fddihdr->fc);
+    switch ((fddihdr->fc) & FDDI_FC_CLFF) {
 
     case FDDI_FC_SMT:
-      proto_tree_add_uint(fc_tree, hf_fddi_fc_smt_subtype, tvb, FDDI_P_FC + FDDI_PADDING, 1, fc);
+      proto_tree_add_uint(fc_tree, hf_fddi_fc_smt_subtype, tvb, FDDI_P_FC + FDDI_PADDING, 1, fddihdr->fc);
       break;
 
     case FDDI_FC_MAC:
-      if (fc != FDDI_FC_RT)
-        proto_tree_add_uint(fc_tree, hf_fddi_fc_mac_subtype, tvb, FDDI_P_FC + FDDI_PADDING, 1, fc);
+      if (fddihdr->fc != FDDI_FC_RT)
+        proto_tree_add_uint(fc_tree, hf_fddi_fc_mac_subtype, tvb, FDDI_P_FC + FDDI_PADDING, 1, fddihdr->fc);
       break;
 
     case FDDI_FC_LLC_ASYNC:
-      if (!(fc & FDDI_FC_ASYNC_R))
-        proto_tree_add_uint(fc_tree, hf_fddi_fc_prio, tvb, FDDI_P_FC + FDDI_PADDING, 1, fc);
+      if (!((fddihdr->fc) & FDDI_FC_ASYNC_R))
+        proto_tree_add_uint(fc_tree, hf_fddi_fc_prio, tvb, FDDI_P_FC + FDDI_PADDING, 1, fddihdr->fc);
       break;
     }
   }
@@ -315,6 +326,7 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      just making "dst" static? */
   SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, &dst[0]);
   SET_ADDRESS(&pinfo->dst, AT_ETHER, 6, &dst[0]);
+  SET_ADDRESS(&fddihdr->dst, AT_ETHER, 6, &dst[0]);
 
   if (fh_tree) {
     proto_tree_add_ether(fh_tree, hf_fddi_dst, tvb, FDDI_P_DHOST + FDDI_PADDING, 6, dst);
@@ -336,6 +348,7 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      just making "src" static? */
   SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, &src[0]);
   SET_ADDRESS(&pinfo->src, AT_ETHER, 6, &src[0]);
+  SET_ADDRESS(&fddihdr->src, AT_ETHER, 6, &src[0]);
 
   if (fh_tree) {
       proto_tree_add_ether(fh_tree, hf_fddi_src, tvb, FDDI_P_SHOST + FDDI_PADDING, 6, src);
@@ -348,7 +361,10 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   next_tvb = tvb_new_subset(tvb, FDDI_HEADER_SIZE + FDDI_PADDING, -1, -1);
 
-  switch (fc) {
+
+  tap_queue_packet(fddi_tap, pinfo, fddihdr);
+
+  switch (fddihdr->fc) {
 
     /* From now, only 802.2 SNAP (Async. LCC frame) is supported */
 
@@ -459,6 +475,7 @@ proto_register_fddi(void)
 		"captured FDDI packets (useful with e.g. Tru64 UNIX tcpdump)",
 		&fddi_padding);
 
+	fddi_tap = register_tap("fddi");
 }
 
 void

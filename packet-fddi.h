@@ -1,6 +1,6 @@
 /* packet-fddi.h
  *
- * $Id: packet-fddi.h,v 1.7 2002/08/28 21:00:13 jmayer Exp $
+ * $Id: packet-fddi.h,v 1.8 2003/08/29 10:59:10 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,6 +23,12 @@
 
 #ifndef __PACKET_FDDI_H__
 #define __PACKET_FDDI_H__
+
+typedef struct _fddi_hdr {
+	guint8  fc;
+	address dst;
+	address src;
+} fddi_hdr;
 
 void capture_fddi(const guchar *, int, packet_counts *);
 
