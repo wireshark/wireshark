@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.21 2002/12/09 21:34:58 guy Exp $
+ * $Id: to_str.c,v 1.22 2002/12/10 07:39:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,16 +63,19 @@
 #include <stdio.h>
 #include <time.h>
 
+#define MAX_BYTESTRING_LEN	6
+
 /* Routine to convert a sequence of bytes to a hex string, one byte/two hex
  * digits at at a time, with a specified punctuation character between
- * the bytes.
+ * the bytes.  The sequence of bytes must be no longer than
+ * MAX_BYTESTRING_LEN.
  *
  * If punct is '\0', no punctuation is applied (and thus
- * the resulting string is 5 bytes shorter)
+ * the resulting string is (len-1) bytes shorter)
  */
 static gchar *
-bytestring_to_str(const guint8 *ad, char punct, guint32 len) {
-  static gchar  str[3][18];
+bytestring_to_str(const guint8 *ad, guint32 len, char punct) {
+  static gchar  str[3][MAX_BYTESTRING_LEN*3];
   static gchar *cur;
   gchar        *p;
   int          i;
@@ -86,6 +89,9 @@ bytestring_to_str(const guint8 *ad, char punct, guint32 len) {
   static const gchar hex_digits[16] =
       { '0', '1', '2', '3', '4', '5', '6', '7',
         '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+
+  g_assert(len > 0 && len <= MAX_BYTESTRING_LEN);
+  len--;
 
   if (cur == &str[0][0]) {
     cur = &str[1][0];
@@ -118,7 +124,7 @@ bytestring_to_str(const guint8 *ad, char punct, guint32 len) {
 gchar *
 ether_to_str(const guint8 *ad)
 {
-	return bytestring_to_str(ad, 5, ':');
+	return bytestring_to_str(ad, 6, ':');
 }
 
 gchar *
@@ -205,7 +211,7 @@ ipx_addr_to_str(guint32 net, const guint8 *ad)
 	}
 	else {
 		sprintf(cur, "%s.%s", get_ipxnet_name(net),
-		    bytestring_to_str(ad, 5, '\0'));
+		    bytestring_to_str(ad, 6, '\0'));
 	}
 	return cur;
 }
@@ -544,7 +550,7 @@ rel_time_to_secs_str(nstime_t *rel_time)
 gchar *
 fc_to_str(const guint8 *ad)
 {
-    return bytestring_to_str (ad, 2, '.');
+    return bytestring_to_str (ad, 3, '.');
 }
 
 gchar *
