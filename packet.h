@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.88 1999/08/25 00:55:45 guy Exp $
+ * $Id: packet.h,v 1.89 1999/08/25 06:52:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -285,7 +285,15 @@ enum {
  	ETT_PPPOED_TAGS,
  	ETT_PPPOES,
  	ETT_LCP,
+ 	ETT_LCP_OPTIONS,
+ 	ETT_LCP_MRU_OPT,
+ 	ETT_LCP_AUTHPROT_OPT,
+ 	ETT_LCP_QUALPROT_OPT,
+ 	ETT_LCP_MAGICNUM_OPT,
  	ETT_IPCP,
+ 	ETT_IPCP_OPTIONS,
+ 	ETT_IPCP_COMPRESSPROT_OPT,
+ 	ETT_IPCP_ADDR_OPT,
         ETT_RSVP,
         ETT_RSVP_UNKNOWN_CLASS,
         ETT_RSVP_HDR,

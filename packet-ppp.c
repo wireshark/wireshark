@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.15 1999/08/25 03:56:07 guy Exp $
+ * $Id: packet-ppp.c,v 1.16 1999/08/25 06:52:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -69,7 +69,6 @@ typedef struct _e_ppphdr {
 #define PPP_CHAP	0xc223	/* Cryptographic Handshake Auth. Protocol */
 #define PPP_CBCP	0xc029	/* Callback Control Protocol */
 
-
 static const value_string ppp_vals[] = {
 	{PPP_IP,        "IP"             },
 	{PPP_AT,        "Appletalk"      },
@@ -78,17 +77,18 @@ static const value_string ppp_vals[] = {
 	{PPP_VJC_UNCOMP,"VJ uncompressed TCP"}, 
 	{PPP_VINES,     "Vines"          },
 	{PPP_IPV6,      "IPv6"           },
-	{PPP_COMP,		  "compressed packet" },
-	{PPP_IPCP,		  "IP Control Protocol" },
-	{PPP_ATCP,		  "AppleTalk Control Protocol" },
-	{PPP_IPXCP,	    "IPX Control Protocol" },
-	{PPP_CCP,		    "Compression Control Protocol" },
-	{PPP_LCP,		    "Link Control Protocol" },
-	{PPP_PAP,		    "Password Authentication Protocol"  },
-	{PPP_LQR,		    "Link Quality Report protocol" },
-	{PPP_CHAP,		  "Cryptographic Handshake Auth. Protocol" },
-	{PPP_CBCP,		  "Callback Control Protocol" },
-	{0,             NULL            } };
+	{PPP_COMP,	"compressed packet" },
+	{PPP_IPCP,	"IP Control Protocol" },
+	{PPP_ATCP,	"AppleTalk Control Protocol" },
+	{PPP_IPXCP,	"IPX Control Protocol" },
+	{PPP_CCP,	"Compression Control Protocol" },
+	{PPP_LCP,	"Link Control Protocol" },
+	{PPP_PAP,	"Password Authentication Protocol"  },
+	{PPP_LQR,	"Link Quality Report protocol" },
+	{PPP_CHAP,	"Cryptographic Handshake Auth. Protocol" },
+	{PPP_CBCP,	"Callback Control Protocol" },
+	{0,             NULL            }
+};
 
 /* CP (LCP, IPCP, etc.) codes.
  * from pppd fsm.h 
@@ -109,7 +109,7 @@ static const value_string cp_vals[] = {
 	{TERMREQ,    "Termination Request " },
 	{TERMACK,    "Termination Ack " },
 	{CODEREJ,    "Code Reject " },
-	{0,             NULL            } };
+	{0,          NULL            } };
 
 /*
  * LCP-specific packet types.
@@ -128,24 +128,36 @@ static const value_string lcp_vals[] = {
 	{TERMREQ,    "Termination Request " },
 	{TERMACK,    "Termination Ack " },
 	{CODEREJ,    "Code Reject " },
-	{PROTREJ, "Protocol Reject " },
-	{ECHOREQ, "Echo Request " },
-	{ECHOREP, "Echo Reply " },
-	{DISCREQ, "Discard Request " },
-	{CBCP_OPT, "Use callback control protocol" },
-	{0,             NULL            } };
+	{PROTREJ,    "Protocol Reject " },
+	{ECHOREQ,    "Echo Request " },
+	{ECHOREP,    "Echo Reply " },
+	{DISCREQ,    "Discard Request " },
+	{CBCP_OPT,   "Use callback control protocol" },
+	{0,          NULL            } };
+
+/* Member of table of PPP (LCP, IPCP) options. */
+typedef struct cp_opt cp_opt;
+struct cp_opt {
+	int	optcode;	/* code for option */
+	char	*name;		/* name of option */
+	int	subtree_index;	/* ETT_ value for option */
+	gboolean fixed_length;	/* TRUE if option is always the same length */
+	int	optlen;		/* value length should be (minimum if VARIABLE) */
+	void	(*dissect)(const u_char *, const cp_opt *, int, int, proto_tree *);
+			/* routine to dissect option */
+};
 
 /*
  * Options.  (LCP)
  */
-#define CI_MRU    1 /* Maximum Receive Unit */
-#define CI_ASYNCMAP 2 /* Async Control Character Map */
-#define CI_AUTHTYPE 3 /* Authentication Type */
-#define CI_QUALITY  4 /* Quality Protocol */
-#define CI_MAGICNUMBER  5 /* Magic Number */
-#define CI_PCOMPRESSION 7 /* Protocol Field Compression */
-#define CI_ACCOMPRESSION 8  /* Address/Control Field Compression */
-#define CI_CALLBACK 13  /* callback */
+#define CI_MRU			1	/* Maximum Receive Unit */
+#define CI_ASYNCMAP		2	/* Async Control Character Map */
+#define CI_AUTHTYPE		3	/* Authentication Type */
+#define CI_QUALITY		4	/* Quality Protocol */
+#define CI_MAGICNUMBER		5	/* Magic Number */
+#define CI_PCOMPRESSION		7	/* Protocol Field Compression */
+#define CI_ACCOMPRESSION	8	/* Address/Control Field Compression */
+#define CI_CALLBACK		13	/* callback */
 
 static const value_string lcp_opt_vals[] = {
 	{CI_MRU,          "Maximum Receive Unit" },
@@ -156,28 +168,66 @@ static const value_string lcp_opt_vals[] = {
 	{CI_PCOMPRESSION, "Protocol Field Compression" },
 	{CI_ACCOMPRESSION,"Address/Control Field Compression" },
 	{CI_CALLBACK,     "callback" },
-	{0,             NULL            } };
+	{0,               NULL }
+};
+
+static void dissect_lcp_mru_opt(const u_char *pd, const cp_opt *optp,
+			int offset, int length, proto_tree *tree);
+static void dissect_lcp_protocol_opt(const u_char *pd, const cp_opt *optp,
+			int offset, int length, proto_tree *tree);
+static void dissect_lcp_magicnumber_opt(const u_char *pd, const cp_opt *optp,
+			int offset, int length, proto_tree *tree);
+
+static const cp_opt lcp_opts[] = {
+	{CI_MRU,           NULL,                      ETT_LCP_MRU_OPT,
+			TRUE,  4, dissect_lcp_mru_opt},
+	{CI_AUTHTYPE,      "Authentication protocol", ETT_LCP_AUTHPROT_OPT,
+			FALSE, 4, dissect_lcp_protocol_opt},
+	{CI_QUALITY,       "Quality protocol",        ETT_LCP_QUALPROT_OPT,
+			FALSE, 4, dissect_lcp_protocol_opt},
+	{CI_MAGICNUMBER,   NULL,                      ETT_LCP_MAGICNUM_OPT,
+			TRUE,  6, dissect_lcp_magicnumber_opt},
+	{CI_PCOMPRESSION,  NULL,                      -1,
+			TRUE,  2, NULL},
+	{CI_ACCOMPRESSION, NULL,                      -1,
+			TRUE,  2, NULL}
+};
+
+#define N_LCP_OPTS	(sizeof lcp_opts / sizeof lcp_opts[0])
 
 /*
  * Options.  (IPCP)
  */
-#define CI_ADDRS  1 /* IP Addresses */
-#define CI_COMPRESSTYPE 2 /* Compression Type */
-#define CI_ADDR   3
-#define CI_MS_DNS1  129 /* Primary DNS value */
-#define CI_MS_WINS1 130 /* Primary WINS value */
-#define CI_MS_DNS2  131 /* Secondary DNS value */
-#define CI_MS_WINS2 132 /* Secondary WINS value */
+#define CI_ADDRS	1	/* IP Addresses (deprecated) */
+#define CI_COMPRESSTYPE	2	/* Compression Type */
+#define CI_ADDR		3	/* IP Address */
+#define CI_MS_DNS1	129	/* Primary DNS value */
+#define CI_MS_WINS1	130	/* Primary WINS value */
+#define CI_MS_DNS2	131	/* Secondary DNS value */
+#define CI_MS_WINS2	132	/* Secondary WINS value */
 
 static const value_string ipcp_opt_vals[] = {
-	{CI_ADDRS,       "IP Addresses" },
-	{CI_COMPRESSTYPE,"Compression Type" },
-	{CI_ADDR,        "Address" }, 
-	{CI_MS_DNS1,     "Primary DNS value" },
-	{CI_MS_WINS1,    "Primary WINS value" },
-	{CI_MS_DNS2,     "Secondary DNS value" },
-	{CI_MS_WINS2,    "Secondary WINS value" },
-	{0,             NULL            } };
+	{CI_ADDRS,        "IP Addresses" },
+	{CI_COMPRESSTYPE, "Compression Type" },
+	{CI_ADDR,         "IP Address" }, 
+	{CI_MS_DNS1,      "Primary DNS value" },
+	{CI_MS_WINS1,     "Primary WINS value" },
+	{CI_MS_DNS2,      "Secondary DNS value" },
+	{CI_MS_WINS2,     "Secondary WINS value" },
+	{0,               NULL }
+};
+
+static void dissect_ipcp_addr_opt(const u_char *pd, const cp_opt *optp,
+			int offset, int length, proto_tree *tree);
+
+static const cp_opt ipcp_opts[] = {
+	{CI_COMPRESSTYPE, "IP compression protocol", ETT_IPCP_COMPRESSPROT_OPT,
+			FALSE, 4, dissect_lcp_protocol_opt},
+	{CI_ADDR,         NULL,                      ETT_IPCP_ADDR_OPT,
+			TRUE,  6, dissect_ipcp_addr_opt},
+};
+
+#define N_IPCP_OPTS	(sizeof ipcp_opts / sizeof ipcp_opts[0])
 
 void
 capture_ppp( const u_char *pd, guint32 cap_len, packet_counts *ld ) {
@@ -191,74 +241,196 @@ capture_ppp( const u_char *pd, guint32 cap_len, packet_counts *ld ) {
   }
 }
 
-void
-dissect_ipcp( const u_char *pd, int offset, frame_data *fd, proto_tree *tree ) {
-  proto_tree *fh_tree;
-  proto_item *ti;
+static void
+dissect_lcp_mru_opt(const u_char *pd, const cp_opt *optp, int offset,
+			int length, proto_tree *tree)
+{
+  proto_tree_add_text(tree, offset, length, "MRU: %u", pntohs(&pd[offset]));
+}
 
-	int ipcpcode;
-	int ipcpid;
-	int optionslength;
+static void
+dissect_lcp_protocol_opt(const u_char *pd, const cp_opt *optp, int offset,
+			int length, proto_tree *tree)
+{
+  guint16 protocol;
+  proto_item *tf;
+  proto_tree *field_tree = NULL;
+  
+  tf = proto_tree_add_text(tree, offset, length, "%s: %u bytes",
+	  optp->name, length);
+  field_tree = proto_item_add_subtree(tf, optp->subtree_index);
+  offset += 2;
+  length -= 2;
+  protocol = pntohs(&pd[offset]);
+  proto_tree_add_text(field_tree, offset, 2, "%s: %s (0x%02x)", optp->name,
+		val_to_str(protocol, ppp_vals, "Unknown"), protocol);
+  offset += 2;
+  length -= 2;
+  proto_tree_add_text(field_tree, offset, length, "Data (%d bytes)", length);
+}
 
-	ipcpcode = pd[0+offset];
-	ipcpid = pd[1+offset];
-	optionslength= pntohs(&pd[2+offset]);
-	
-	if(check_col(fd, COL_INFO))
-		col_add_fstr(fd, COL_INFO, "IPCP %s", 
-			val_to_str(ipcpcode, cp_vals, "Unknown"));
+static void
+dissect_lcp_magicnumber_opt(const u_char *pd, const cp_opt *optp, int offset,
+			int length, proto_tree *tree)
+{
+  proto_tree_add_text(tree, offset, length, "Magic number: 0x%08x",
+			pntohl(&pd[offset]));
+}
 
-  if(tree) {
-    ti = proto_tree_add_text(tree, 0+offset, 4, "IP Control Protocol" );
-    fh_tree = proto_item_add_subtree(ti, ETT_IPCP);
-    proto_tree_add_text(fh_tree, 0+offset, 1, "Code: %s (0x%02x)",
-      val_to_str(ipcpcode, cp_vals, "Unknown"), ipcpcode);
-    proto_tree_add_text(fh_tree, 1+offset, 1, "Identifier: 0x%02x",
-			ipcpid);
-    proto_tree_add_text(fh_tree, 2+offset, 2, "Length: %d",
-			optionslength);
-  }
+static void dissect_ipcp_addr_opt(const u_char *pd, const cp_opt *optp,
+			int offset, int length, proto_tree *tree)
+{
+  proto_tree_add_text(tree, offset, length, "IP address: %s",
+			ip_to_str((guint8 *)&pd[offset]));
+}
 
-  switch (ipcpcode) {
-		/* decode lcp options here. */
-    default:
-      dissect_data(pd, 4+offset, fd, tree);
-      break;
+static void
+dissect_cp_opts(const u_char *pd, int offset, int length,
+		const value_string *opt_vals, const cp_opt *opts,
+		int nopts, proto_tree *tree)
+{
+  guint8 opt;
+  guint16 opt_len;
+  const cp_opt *optp;
+  void (*dissect)(const u_char *, const cp_opt *, int, int, proto_tree *);
+  gboolean error;
+
+  while (length > 0) {
+    opt = pd[offset];
+    if (length == 1) {
+      proto_tree_add_text(tree, offset, 1, "%s: Length byte past end of options",
+        val_to_str(opt, opt_vals, "Unknown (0x%02x)"));
+      return;
+    }
+    opt_len = pd[offset+1];
+    if (length < opt_len) {
+      proto_tree_add_text(tree, offset, 1, "%s: Option length %u says option goes past end of options",
+        val_to_str(opt, opt_vals, "Unknown (0x%02x)"), opt_len);
+      return;
+    }
+    for (optp = &lcp_opts[0]; optp < &lcp_opts[nopts]; optp++) {
+      if (optp->optcode == opt)
+        break;
+    }
+    dissect = NULL;
+    error = FALSE;
+    if (optp != &lcp_opts[nopts]) {
+      if (optp->fixed_length) {
+        /* Option has a fixed length - complain if the length we got
+           doesn't match. */
+        if (opt_len != optp->optlen) {
+          proto_tree_add_text(tree, offset, 1, "%s: Option length is %u, should be %u",
+            val_to_str(opt, opt_vals, "Unknown (0x%02x)"), opt_len, optp->optlen);
+          error = TRUE;
+        } else
+          dissect = optp->dissect;
+      } else {
+        /* Option has a variable length - complain if the length we got
+           isn't at least as much as the minimum length. */
+        if (opt_len < optp->optlen) {
+          proto_tree_add_text(tree, offset, 1, "%s: Option length is %u, should be at least %u",
+            val_to_str(opt, opt_vals, "Unknown (0x%02x)"), opt_len, optp->optlen);
+          error = TRUE;
+        } else
+          dissect = optp->dissect;
+      }
+    }
+    if (dissect != NULL)
+      (*dissect)(pd, optp, offset, opt_len, tree);
+    else {
+      if (!error) {
+        proto_tree_add_text(tree, offset, opt_len, "%s: %u bytes",
+          val_to_str(opt, opt_vals, "Unknown (0x%02x)"), opt_len);
+      }
+    }
+    offset += opt_len;
+    length -= opt_len;
   }
 }
 
-void
-dissect_lcp( const u_char *pd, int offset, frame_data *fd, proto_tree *tree ) {
-  proto_tree *fh_tree;
+static void
+dissect_cp( const u_char *pd, int offset, const char *proto_short_name,
+	const char *proto_long_name, int proto_subtree_index,
+	const value_string *proto_vals, int options_subtree_index,
+	const value_string *opt_vals, const cp_opt *opts, int nopts,
+	frame_data *fd, proto_tree *tree ) {
   proto_item *ti;
+  proto_tree *fh_tree = NULL;
+  proto_item *tf;
+  proto_tree *field_tree;
 
-	int lcpcode;
-	int lcpid;
-	int optionslength;
+  guint8 code;
+  guint8 id;
+  guint16 length;
+  guint16 protocol;
 
-	lcpcode = pd[0+offset];
-	lcpid = pd[1+offset];
-	optionslength= pntohs(&pd[2+offset]);
-	
-	if(check_col(fd, COL_INFO))
-		col_add_fstr(fd, COL_INFO, "LCP %s", 
-			val_to_str(lcpcode, lcp_vals, "Unknown"));
+  code = pd[0+offset];
+  id = pd[1+offset];
+  length = pntohs(&pd[2+offset]);
+
+  if(check_col(fd, COL_INFO))
+	col_add_fstr(fd, COL_INFO, "%sCP %s", proto_short_name,
+		val_to_str(code, proto_vals, "Unknown"));
 
   if(tree) {
-    ti = proto_tree_add_text(tree, 0+offset, 4, "Link Control Protocol" );
-    fh_tree = proto_item_add_subtree(ti, ETT_LCP);
+    ti = proto_tree_add_text(tree, 0+offset, 4, "%s Control Protocol",
+				proto_long_name);
+    fh_tree = proto_item_add_subtree(ti, proto_subtree_index);
     proto_tree_add_text(fh_tree, 0+offset, 1, "Code: %s (0x%02x)",
-      val_to_str(lcpcode, lcp_vals, "Unknown"), lcpcode);
+      val_to_str(code, proto_vals, "Unknown"), code);
     proto_tree_add_text(fh_tree, 1+offset, 1, "Identifier: 0x%02x",
-			lcpid);
-    proto_tree_add_text(fh_tree, 2+offset, 2, "Length: %d",
-			optionslength);
+			id);
+    proto_tree_add_text(fh_tree, 2+offset, 2, "Length: %u",
+			length);
   }
+  offset += 4;
 
-  switch (lcpcode) {
-		/* decode lcp options here. */
+  switch (code) {
+    case CONFREQ:
+    case CONFACK:
+    case CONFNAK:
+    case CONFREJ:
+      if(tree) {
+        if (length > 4) {
+      	  length -= 4;
+          tf = proto_tree_add_text(fh_tree, offset, length,
+            "Options: (%d bytes)", length);
+          field_tree = proto_item_add_subtree(tf, options_subtree_index);
+          dissect_cp_opts(pd, offset, length, opt_vals,
+          		opts, nopts, field_tree);
+        }
+      }
+      break;
+
+    case ECHOREQ:
+    case ECHOREP:
+    case DISCREQ:
+      if(tree) {
+	proto_tree_add_text(fh_tree, offset, 4, "Magic number: 0x%08x",
+			pntohl(&pd[offset]));
+	offset += 4;
+	dissect_data(pd, offset, fd, fh_tree);
+      }
+      break;
+
+    case PROTREJ:
+      if(tree) {
+      	protocol = pntohs(&pd[offset]);
+	proto_tree_add_text(fh_tree, offset, 2, "Rejected protocol: %s (0x%04x)",
+		val_to_str(protocol, ppp_vals, "Unknown"), protocol);
+	offset += 2;
+	dissect_data(pd, offset, fd, fh_tree);
+		/* XXX - should be dissected as a PPP packet */
+      }
+      break;
+
+    case CODEREJ:
+		/* decode the rejected LCP packet here. */
+
+    case TERMREQ:
+    case TERMACK:
     default:
-      dissect_data(pd, 4+offset, fd, tree);
+      dissect_data(pd, offset, fd, tree);
       break;
   }
 }
@@ -267,50 +439,44 @@ static gboolean
 dissect_ppp_stuff( const u_char *pd, int offset, frame_data *fd,
 		proto_tree *tree, proto_tree *fh_tree ) {
   guint16 ppp_prot;
-  static const value_string ppp_vals[] = {
-    {PPP_IP,     "IP"                                 },
-    {PPP_AT,     "Appletalk"                          },
-    {PPP_IPX,    "Netware IPX/SPX"                    },
-    {PPP_VINES,  "Vines"                              },
-    {PPP_IPV6,   "IPv6"                               },
-    {PPP_LCP,    "Link Control Protocol"              },
-    {PPP_IPCP,   "Internet Protocol Control Protocol" },
-    {0,          NULL                                 } };
 
-  ppp_prot = pntohs(&pd[0+offset]);
+  ppp_prot = pntohs(&pd[offset]);
 
   if (tree) {
-    proto_tree_add_text(fh_tree, 0+offset, 2, "Protocol: %s (0x%04x)",
+    proto_tree_add_text(fh_tree, offset, 2, "Protocol: %s (0x%04x)",
       val_to_str(ppp_prot, ppp_vals, "Unknown"), ppp_prot);
   }
+  offset += 2;
 
   switch (ppp_prot) {
     case PPP_IP:
-      dissect_ip(pd, 2+offset, fd, tree);
+      dissect_ip(pd, offset, fd, tree);
       return TRUE;
     case PPP_AT:
-      dissect_ddp(pd, 2+offset, fd, tree);
+      dissect_ddp(pd, offset, fd, tree);
       return TRUE;
     case PPP_IPX:
-      dissect_ipx(pd, 2+offset, fd, tree);
+      dissect_ipx(pd, offset, fd, tree);
       return TRUE;
     case PPP_VINES:
-      dissect_vines(pd, 2+offset, fd, tree);
+      dissect_vines(pd, offset, fd, tree);
       return TRUE;
     case PPP_IPV6:
-      dissect_ipv6(pd, 2+offset, fd, tree);
+      dissect_ipv6(pd, offset, fd, tree);
       return TRUE;
     case PPP_LCP:
-      dissect_lcp(pd, 2+offset, fd, tree);
+      dissect_cp(pd, offset, "L", "Link", ETT_LCP, lcp_vals, ETT_LCP_OPTIONS,
+		lcp_opt_vals, lcp_opts, N_LCP_OPTS, fd, tree);
       return TRUE;
     case PPP_IPCP:
-      dissect_ipcp(pd, 2+offset, fd, tree);
+      dissect_cp(pd, offset, "IP", "IP", ETT_IPCP, cp_vals, ETT_IPCP_OPTIONS,
+		ipcp_opt_vals, ipcp_opts, N_IPCP_OPTS, fd, tree);
       return TRUE;
     default:
       if (check_col(fd, COL_INFO))
         col_add_fstr(fd, COL_INFO, "PPP %s (0x%04x)",
 		val_to_str(ppp_prot, ppp_vals, "Unknown"), ppp_prot);
-      dissect_data(pd, 2+offset, fd, tree);
+      dissect_data(pd, offset, fd, tree);
       return FALSE;
   }
 }
