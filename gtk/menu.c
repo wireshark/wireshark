@@ -381,8 +381,8 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
     ITEM_FACTORY_ENTRY("/Follow TCP Stream", NULL, follow_stream_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Decode As...", NULL, decode_as_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Display Filters...", NULL, dfilter_dialog_cb,
-                       0, NULL, NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Display Filters...", NULL, dfilter_dialog_cb,
+                       0, ETHEREAL_STOCK_DISPLAY_FILTER),
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Mark Packet", NULL, mark_frame_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Time Reference", NULL, NULL, 0, "<Branch>", NULL),
@@ -427,11 +427,14 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
 
 static GtkItemFactoryEntry tree_view_menu_items[] =
 {
+/*    ITEM_FACTORY_STOCK_ENTRY("/Online Protocol Info", NULL, selected_ptree_info_cb,
+                       0, GTK_STOCK_DIALOG_QUESTION),
+    ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),*/
     ITEM_FACTORY_ENTRY("/Follow TCP Stream", NULL, follow_stream_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Decode As...", NULL, decode_as_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Display Filters...", NULL, dfilter_dialog_cb,
-                       0, NULL, NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Display Filters...", NULL, dfilter_dialog_cb,
+                       0, ETHEREAL_STOCK_DISPLAY_FILTER),
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/_Resolve Name", NULL, resolve_name_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/_Go to Corresponding Packet", NULL, goto_framenum_cb, 0, NULL, NULL),
@@ -1834,6 +1837,8 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	  properties);
 	set_menu_sensitivity(main_menu_factory, "/View/Expand Tree", cf->finfo_selected->tree_type != -1);
 	set_menu_sensitivity(tree_view_menu_factory, "/Expand Tree", cf->finfo_selected->tree_type != -1);
+/*	set_menu_sensitivity(tree_view_menu_factory, "/Online Protocol Info",
+	  TRUE);*/
   } else {
 	set_menu_sensitivity(main_menu_factory,
 	    "/Go/Go to Corresponding Packet", FALSE);
@@ -1847,6 +1852,8 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	  FALSE);
 	set_menu_sensitivity(main_menu_factory, "/View/Expand Tree", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Expand Tree", FALSE);
+/*	set_menu_sensitivity(tree_view_menu_factory, "/Online Protocol Info",
+	  FALSE);*/
   }
 
   walk_menu_tree_for_selected_tree_row(tap_menu_tree_root, cf->finfo_selected);

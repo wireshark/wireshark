@@ -138,6 +138,7 @@
 #include "about_dlg.h"
 #include "help_dlg.h"
 #include "decode_as_dlg.h"
+#include "webbrowser.h"
 
 
 /*
@@ -274,6 +275,30 @@ match_selected_ptree_cb(GtkWidget *w, gpointer data, MATCH_SELECTED_E action)
 	match_selected_cb_do((data ? data : w),
 	    action,
 	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
+}
+
+
+void 
+selected_ptree_info_cb(GtkWidget *widget, gpointer data)
+{
+    int field_id;
+    gchar *selected_proto_url;
+
+
+    if (cfile.finfo_selected) {
+        /* convert selected field to protocol abbreviation */
+        /* XXX - could this conversion be simplified? */
+        field_id = cfile.finfo_selected->hfinfo->id;
+        /* if the selected field isn't a protocol, get it's parent */
+        if(!proto_registrar_is_protocol(field_id)) {
+            field_id = proto_registrar_get_parent(cfile.finfo_selected->hfinfo->id);
+        }
+
+        /* open wiki page with protocol abbreviation */
+        selected_proto_url = g_strdup_printf("http://wiki.ethereal.com/%s", proto_registrar_get_abbrev(field_id));
+        browser_open_url(selected_proto_url);
+        g_free(selected_proto_url);
+    }
 }
 
 
