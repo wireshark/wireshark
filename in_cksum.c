@@ -2,7 +2,7 @@
  * 4.4-Lite-2 Internet checksum routine, modified to take a vector of
  * pointers/lengths giving the pieces to be checksummed.
  *
- * $Id: in_cksum.c,v 1.5 2002/06/23 10:32:14 guy Exp $
+ * $Id: in_cksum.c,v 1.6 2002/07/21 20:31:21 guy Exp $
  */
 
 /*
@@ -166,9 +166,9 @@ in_cksum(const vec_t *vec, int veclen)
 
 /*
  * Given the host-byte-order value of the checksum field in a packet
- * header, and the one's complement negation of the host-byte-order
- * checksum of the packet, compute what the checksum field *should*
- * have been.
+ * header, and the network-byte-order computed checksum of the data
+ * that the checksum covers (including the checksum itself), compute
+ * what the checksum field *should* have been.
  */
 guint16
 in_cksum_shouldbe(guint16 sum, guint16 computed_sum)
@@ -204,14 +204,13 @@ in_cksum_shouldbe(guint16 sum, guint16 computed_sum)
 	 * byte-swapped before being stuffed into a big-endian checksum
 	 * field.
 	 *
-	 * "computed_sum" is a host-byte-order value, so we must put
-	 * it in network byte order before subtracting it from the
-	 * network-byte-order value from the header; the adjusted
-	 * checksum will be in network byte order, which is what
-	 * we'll return.
+	 * "computed_sum" is a network-byte-order value, so we must put
+	 * it in host byte order before subtracting it from the
+	 * host-byte-order value from the header; the adjusted checksum
+	 * will be in host byte order, which is what we'll return.
 	 */
 	shouldbe = sum;
-	shouldbe += htons(computed_sum);
+	shouldbe += ntohs(computed_sum);
 	shouldbe = (shouldbe & 0xFFFF) + (shouldbe >> 16);
 	shouldbe = (shouldbe & 0xFFFF) + (shouldbe >> 16);
 	return shouldbe;
