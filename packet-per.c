@@ -7,7 +7,7 @@ proper helper routines
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.c,v 1.20 2003/10/22 01:28:12 sahlberg Exp $
+ * $Id: packet-per.c,v 1.21 2003/10/24 10:46:43 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1307,6 +1307,7 @@ dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, prot
 {
 	guint32 length;
 	header_field_info *hfi;
+	char *tmpstr;
 
 	hfi = (hf_index==-1) ? NULL : proto_registrar_get_nth(hf_index);
 
@@ -1337,7 +1338,7 @@ DEBUG_ENTRY("dissect_per_octet_string");
 				bytes[1]=(bytes[1]<<1)|bit;
 			}
 		}
-
+		bytes[min_len]=0;
 		if (hfi) {
 			if(hfi->type==FT_STRING){
 				proto_tree_add_string(tree, hf_index, tvb, old_offset>>3, min_len+(offset&0x07)?1:0, bytes);
@@ -1361,10 +1362,13 @@ DEBUG_ENTRY("dissect_per_octet_string");
 		if(offset&0x07){
 			offset=(offset&0xfffffff8)+8;
 		}
-
 		if (hfi) {
 			if(hfi->type==FT_STRING){
-				proto_tree_add_string(tree, hf_index, tvb, offset>>3, min_len, tvb_get_ptr(tvb, offset>>3, min_len));
+				tmpstr=g_malloc(min_len+1);
+				tvb_memcpy(tvb, tmpstr, offset>>3, min_len);
+				tmpstr[min_len]=0;
+				proto_tree_add_string(tree, hf_index, tvb, offset>>3, min_len, tmpstr);
+				g_free(tmpstr);
 			} else {
 				proto_tree_add_bytes(tree, hf_index, tvb, offset>>3, min_len, tvb_get_ptr(tvb, offset>>3, min_len));
 			}
@@ -1393,9 +1397,17 @@ DEBUG_ENTRY("dissect_per_octet_string");
 		offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_per_octet_string_length, &length);
 	}
 	if(length){
+		/* align to byte */
+		if(offset&0x07){
+			offset=(offset&0xfffffff8)+8;
+		}
 		if (hfi) {
 			if(hfi->type==FT_STRING){
-				proto_tree_add_string(tree, hf_index, tvb, offset>>3, length, tvb_get_ptr(tvb, offset>>3, length));
+				tmpstr=g_malloc(length+1);
+				tvb_memcpy(tvb, tmpstr, offset>>3, length);
+				tmpstr[length]=0;
+				proto_tree_add_string(tree, hf_index, tvb, offset>>3, length, tmpstr);
+				g_free(tmpstr);
 			} else {
 				proto_tree_add_bytes(tree, hf_index, tvb, offset>>3, length, tvb_get_ptr(tvb, offset>>3, length));
 			}

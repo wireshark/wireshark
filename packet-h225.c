@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h225.c,v 1.19 2003/10/22 01:28:12 sahlberg Exp $
+ * $Id: packet-h225.c,v 1.20 2003/10/24 10:46:42 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4244,17 +4244,22 @@ dissect_h225_tunnelledProtocolObjectID(tvbuff_t *tvb, int offset, packet_info *p
 }
 
 
-static per_sequence_t TunnelledProtocol_id_sequence[] = {
-	{ "tunnelledProtocolObjectID", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+static const value_string TunnelledProtocol_id_vals[] = {
+	{ 0, "tunnelledProtocolObjectID" },
+	{ 1, "tunnelledProtocolAlternateID" },
+	{ 0, NULL }
+};
+static per_choice_t TunnelledProtocol_id_choice[] = {
+	{ 0, "tunnelledProtocolObjectID", ASN1_EXTENSION_ROOT,
 		dissect_h225_tunnelledProtocolObjectID },
-	{ "tunnelledProtocolAlternateID", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
+	{ 1, "tunnelledProtocolAlternateID", ASN1_EXTENSION_ROOT,
 		dissect_h225_TunnelledProtocolAlternateIdentifier },
-	{ NULL, 0, 0, NULL }
+	{ 0, NULL, 0, NULL }
 };
 static int 
 dissect_h225_TunnelledProtocol_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h225_TunnelledProtocol_id, ett_h225_TunnelledProtocol_id, TunnelledProtocol_id_sequence);
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_TunnelledProtocol_id, ett_h225_TunnelledProtocol_id, TunnelledProtocol_id_choice, "id", NULL);
 	return offset;
 }
 
@@ -8996,10 +9001,10 @@ proto_register_h225(void)
 		{ "PartyNumber", "h225.PartyNumber", FT_UINT32, BASE_DEC,
 		VALS(PartyNumber_vals), 0, "PartyNumber choice", HFILL }},
 	{ &hf_h225_protocolType,
-		{ "protocolType", "h225.protocolType", FT_BYTES, BASE_HEX,
+		{ "protocolType", "h225.protocolType", FT_STRING, BASE_HEX,
 		NULL, 0, "protocolType IA5String", HFILL }},
 	{ &hf_h225_protocolVariant,
-		{ "protocolVariant", "h225.protocolVariant", FT_BYTES, BASE_HEX,
+		{ "protocolVariant", "h225.protocolVariant", FT_STRING, BASE_HEX,
 		NULL, 0, "protocolVariant IA5String", HFILL }},
 	{ &hf_h225_TunnelledProtocolAlternateIdentifier,
 		{ "TunnelledProtocolAlternateIdentifier", "h225.TunnelledProtocolAlternateIdentifier", FT_NONE, BASE_NONE,
@@ -9104,8 +9109,8 @@ proto_register_h225(void)
 		{ "McuInfo", "h225.McuInfo", FT_NONE, BASE_NONE,
 		NULL, 0, "McuInfo sequence", HFILL }},
 	{ &hf_h225_TunnelledProtocol_id,
-		{ "id", "h225.TunnelledProtocol_id", FT_NONE, BASE_NONE,
-		NULL, 0, "TunnelledProtocol_id sequence", HFILL }},
+		{ "id", "h225.TunnelledProtocol_id", FT_UINT32, BASE_DEC,
+		VALS(TunnelledProtocol_id_vals), 0, "TunnelledProtocol_id choice", HFILL }},
 	{ &hf_h225_TunnelledProtocol_subIdentifier,
 		{ "subIdentifier", "h225.TunnelledProtocol_subIdentifier", FT_BYTES, BASE_HEX,
 		NULL, 0, "TunnelledProtocol_subIdentifier IA5String", HFILL }},
@@ -9209,7 +9214,7 @@ proto_register_h225(void)
 		{ "CallsAvailable_calls", "h225.CallsAvailable_calls", FT_UINT32, BASE_DEC,
 		NULL, 0, "CallsAvailable_calls", HFILL }},
 	{ &hf_h225_CallsAvailable_group,
-		{ "CallsAvailable_group", "h225.CallsAvailable_group", FT_BYTES, BASE_HEX,
+		{ "CallsAvailable_group", "h225.CallsAvailable_group", FT_STRING, BASE_HEX,
 		NULL, 0, "CallsAvailable_group IA5String", HFILL }},
 	{ &hf_h225_CallsAvailable,
 		{ "CallsAvailable", "h225.CallsAvailable", FT_NONE, BASE_NONE,
