@@ -5,7 +5,7 @@
  *
  * Copyright 2001, Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-mtp2.c,v 1.5 2003/04/19 20:13:22 tuexen Exp $
+ * $Id: packet-mtp2.c,v 1.6 2003/04/20 08:06:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,12 +73,12 @@ static void
 dissect_mtp2_header(tvbuff_t *su_tvb, proto_item *mtp2_tree)
 {
   if (mtp2_tree) {
-    proto_tree_add_item(mtp2_tree, hf_mtp2_bsn,   su_tvb, BSN_BIB_OFFSET, BSN_BIB_LENGTH, LITTLE_ENDIAN);
-    proto_tree_add_item(mtp2_tree, hf_mtp2_bib,   su_tvb, BSN_BIB_OFFSET, BSN_BIB_LENGTH, LITTLE_ENDIAN);
-    proto_tree_add_item(mtp2_tree, hf_mtp2_fsn,   su_tvb, FSN_FIB_OFFSET, FSN_FIB_LENGTH, LITTLE_ENDIAN);
-    proto_tree_add_item(mtp2_tree, hf_mtp2_fib,   su_tvb, FSN_FIB_OFFSET, FSN_FIB_LENGTH, LITTLE_ENDIAN);
-    proto_tree_add_item(mtp2_tree, hf_mtp2_li,    su_tvb, LI_OFFSET,      LI_LENGTH,      LITTLE_ENDIAN);
-    proto_tree_add_item(mtp2_tree, hf_mtp2_spare, su_tvb, LI_OFFSET,      LI_LENGTH,      LITTLE_ENDIAN);
+    proto_tree_add_item(mtp2_tree, hf_mtp2_bsn,   su_tvb, BSN_BIB_OFFSET, BSN_BIB_LENGTH, TRUE);
+    proto_tree_add_item(mtp2_tree, hf_mtp2_bib,   su_tvb, BSN_BIB_OFFSET, BSN_BIB_LENGTH, TRUE);
+    proto_tree_add_item(mtp2_tree, hf_mtp2_fsn,   su_tvb, FSN_FIB_OFFSET, FSN_FIB_LENGTH, TRUE);
+    proto_tree_add_item(mtp2_tree, hf_mtp2_fib,   su_tvb, FSN_FIB_OFFSET, FSN_FIB_LENGTH, TRUE);
+    proto_tree_add_item(mtp2_tree, hf_mtp2_li,    su_tvb, LI_OFFSET,      LI_LENGTH,      TRUE);
+    proto_tree_add_item(mtp2_tree, hf_mtp2_spare, su_tvb, LI_OFFSET,      LI_LENGTH,      TRUE);
   }
 }
 
@@ -118,9 +118,9 @@ dissect_mtp2_lssu(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_tree)
   if (mtp2_tree) {
     li = tvb_get_guint8(su_tvb, LI_OFFSET);
     if ((li & LI_MASK) == 1)
-      proto_tree_add_item(mtp2_tree, hf_mtp2_sf,      su_tvb, SF_OFFSET, SF_LENGTH,      LITTLE_ENDIAN);
+      proto_tree_add_item(mtp2_tree, hf_mtp2_sf,      su_tvb, SF_OFFSET, SF_LENGTH,      TRUE);
     else
-      proto_tree_add_item(mtp2_tree, hf_mtp2_long_sf, su_tvb, SF_OFFSET, LONG_SF_LENGTH, LITTLE_ENDIAN);
+      proto_tree_add_item(mtp2_tree, hf_mtp2_long_sf, su_tvb, SF_OFFSET, LONG_SF_LENGTH, TRUE);
   }
 }
 

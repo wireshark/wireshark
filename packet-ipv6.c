@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.95 2003/04/20 00:21:17 guy Exp $
+ * $Id: packet-ipv6.c,v 1.96 2003/04/20 08:06:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,6 +71,7 @@ static int hf_ipv6_fragment_overlap_conflict = -1;
 static int hf_ipv6_fragment_multiple_tails = -1;
 static int hf_ipv6_fragment_too_long_fragment = -1;
 static int hf_ipv6_fragment_error = -1;
+static int hf_ipv6_reassembled_in = -1;
 
 static int hf_ipv6_mipv6_type = -1;
 static int hf_ipv6_mipv6_length = -1;
@@ -644,28 +645,9 @@ again:
 			     offlg & IP6F_OFF_MASK,
 			     plen,
 			     offlg & IP6F_MORE_FRAG);
-
-    if (ipfd_head != NULL) {
-      /* OK, we have the complete reassembled payload.
-         Allocate a new tvbuff, referring to the reassembled payload. */
-      next_tvb = tvb_new_real_data(ipfd_head->data, ipfd_head->datalen,
-	ipfd_head->datalen);
-
-      /* Add the tvbuff to the list of tvbuffs to which the tvbuff we
-         were handed refers, so it'll get cleaned up when that tvbuff
-         is cleaned up. */
-      tvb_set_child_real_data_tvbuff(tvb, next_tvb);
-
-      /* Add the defragmented data to the data source list. */
-      add_new_data_source(pinfo, next_tvb, "Reassembled IPv6");
-
-      /* show all fragments */
-      update_col_info = !show_fragment_tree(ipfd_head, &ipv6_frag_items,
-        ipv6_tree, pinfo, next_tvb);
-    } else {
-      /* We don't have the complete reassembled payload. */
-      next_tvb = NULL;
-    }
+    next_tvb = process_reassembled_data(tvb, pinfo, "Reassembled IPv6",
+        ipfd_head, &ipv6_frag_items, hf_ipv6_reassembled_in, &update_col_info,
+        ipv6_tree);
   } else {
     /* If this is the first fragment, dissect its contents, otherwise
        just show it as a fragment.
@@ -809,6 +791,11 @@ proto_register_ipv6(void)
       { "IPv6 Fragments",	"ipv6.fragments",
 				FT_NONE, BASE_NONE, NULL, 0x0,
 				"IPv6 Fragments", HFILL }},
+
+    { &hf_ipv6_reassembled_in,
+      { "Reassembled IPv6 in frame", "ipv6.reassembled_in",
+				FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+				"This IPv6 packet is reassembled in this frame", HFILL }},
 
     /* Mobile IPv6 */
     { &hf_ipv6_mipv6_type,

@@ -1,7 +1,7 @@
 /* reassemble.h
  * Declarations of outines for {fragment,segment} reassembly
  *
- * $Id: reassemble.h,v 1.16 2003/04/20 00:27:29 guy Exp $
+ * $Id: reassemble.h,v 1.17 2003/04/20 08:06:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -217,6 +217,11 @@ typedef struct _fragment_items {
 
 	char	*tag;
 } fragment_items;
+
+extern tvbuff_t *
+process_reassembled_data(tvbuff_t *tvb, packet_info *pinfo, char *name,
+    fragment_data *fd_head, const fragment_items *frag_items,
+    int hf_reassembled_in, gboolean *update_col_infop, proto_tree *tree);
 
 extern gboolean
 show_fragment_tree(fragment_data *ipfd_head, const fragment_items *fit,

@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.34 2003/04/20 00:27:29 guy Exp $
+ * $Id: reassemble.c,v 1.35 2003/04/20 08:06:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1328,6 +1328,91 @@ fragment_add_seq_next(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return fragment_add_seq_check_work(tvb, offset, pinfo, id,
 	    fragment_table, reassembled_table, 0, frag_data_len,
 	    more_frags, TRUE);
+}
+
+/*
+ * Process reassembled data; if we're on the frame in which the data
+ * was reassembled, put the fragment information into the protocol
+ * tree, and construct a tvbuff with the reassembled data, otherwise
+ * just put a "reassembled in" item into the protocol tree.
+ */
+tvbuff_t *
+process_reassembled_data(tvbuff_t *tvb, packet_info *pinfo, char *name,
+    fragment_data *fd_head, const fragment_items *frag_items,
+    int hf_reassembled_in, gboolean *update_col_infop, proto_tree *tree)
+{
+	tvbuff_t *next_tvb;
+
+	if (fd_head != NULL) {
+		/*
+		 * XXX - Now that we're using "fragment_add_check()",
+		 * so that we don't get confused by reused IP IDs,
+		 * reassembled fragments are hashed by the number of
+		 * the frame in whch they're reassembled, so the only
+		 * one of the frames for which we'll get the frame info
+		 * is the one in which it's reassembled.
+		 *
+		 * That means we can't put the "reassembled in" information
+		 * into the protocol tree or Info column for packets other
+		 * than the last fragment.  In order to do that, we'd need
+		 * to hash the entry into the hash table multiple times - or
+		 * retroactively attach the entry to all the other frames
+		 * with, say, "p_add_proto_data()" and use that.  (That could
+		 * only be done by the reassembly code in "reassemble.c" if
+		 * we either guaranteed that no protocol doing reassembly
+		 * attached its own per-protocol data or if we added another
+		 * list of reassembly data to all frames, growing the
+		 * per-frame overhead by one pointer.)
+		 *
+		 * Note that putting it into the Info column doesn't work
+		 * when the file is read in or reprocessed; it works only
+		 * when the capture is filtered.  If we switch to a scheme
+		 * in which the column text is generated on the fly, by
+		 * having the column list widget get the text to draw by
+		 * calling back to a routine that would read and re-dissect
+		 * the packet, that problem would go away, although doing so
+		 * without running the risk of dragging the scroll bar
+		 * causing stalls requires fast random access even to
+		 * gzipped files and fast generation of protocol trees.
+		 * The former can probably be done by saving the string
+		 * dictionary at "checkpoint" locations; the latter may
+		 * require that we build protocol trees using our own code,
+		 * as "g_node_append()" is linear in the length of the list
+		 * to which it's appending.)
+		 */
+		if (pinfo->fd->num == fd_head->reassembled_in) {
+			/*
+			 * OK, we have the complete reassembled payload.
+			 * Allocate a new tvbuff, referring to the reassembled
+			 * payload.
+			 */
+			next_tvb = tvb_new_real_data(fd_head->data,
+			    fd_head->datalen, fd_head->datalen);
+
+			/*
+			 * Add the tvbuff to the list of tvbuffs to which
+			 * the tvbuff we were handed refers, so it'll get
+			 * cleaned up when that tvbuff is cleaned up.
+			 */
+			tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+
+			/* Add the defragmented data to the data source list. */
+			add_new_data_source(pinfo, next_tvb, name);
+
+			/* show all fragments */
+			*update_col_infop = !show_fragment_tree(fd_head,
+			    frag_items, tree, pinfo, next_tvb);
+		} else {
+			/* We don't have the complete reassembled payload. */
+			next_tvb = NULL;
+			proto_tree_add_uint(tree, hf_reassembled_in, tvb, 0, 0,
+			    fd_head->reassembled_in);
+		}
+	} else {
+		/* We don't have the complete reassembled payload. */
+		next_tvb = NULL;
+	}
+	return next_tvb;
 }
 
 /*
