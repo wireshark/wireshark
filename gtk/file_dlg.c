@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.33 2001/01/02 01:32:21 guy Exp $
+ * $Id: file_dlg.c,v 1.34 2001/01/21 01:45:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -67,9 +67,13 @@ static GtkWidget *file_open_w;
 
 /* Open a file */
 void
-file_open_cmd_cb(GtkWidget *w, gpointer data) {
+file_open_cmd_cb(GtkWidget *w, gpointer data)
+{
   GtkWidget	*filter_hbox, *filter_bt, *filter_te,
   		*resolv_cb;
+  /* No Apply button, and "OK" just sets our text widget, it doesn't
+     activate it (i.e., it doesn't cause us to try to open the file). */
+  static construct_args_t args = {FALSE, FALSE};
 
   if (file_open_w != NULL) {
     /* There's already an "Open Capture File" dialog box; reactivate it. */
@@ -112,7 +116,7 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
 
   filter_bt = gtk_button_new_with_label("Filter:");
   gtk_signal_connect(GTK_OBJECT(filter_bt), "clicked",
-    GTK_SIGNAL_FUNC(display_filter_construct_cb), NULL);
+    GTK_SIGNAL_FUNC(display_filter_construct_cb), &args);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
   

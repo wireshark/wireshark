@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.171 2001/01/10 10:11:27 guy Exp $
+ * $Id: main.c,v 1.172 2001/01/21 01:45:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1489,6 +1489,10 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   GList               *filter_list = NULL;
   GtkAccelGroup       *accel;
   int			i;
+  /* Display filter construct dialog has an Apply button, and "OK" not
+     only sets our text widget, it activates it (i.e., it causes us to
+     filter the capture). */
+  static construct_args_t args = {TRUE, TRUE};
 
   /* Main window */  
   top_level = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -1589,10 +1593,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   gtk_widget_show(stat_hbox);
 
   filter_bt = gtk_button_new_with_label("Filter:");
-  /* A non-null pointer passed to "display_filter_construct_cb()" causes it to
-     give the dialog box it pops up an "Apply" button. */
   gtk_signal_connect(GTK_OBJECT(filter_bt), "clicked",
-    GTK_SIGNAL_FUNC(display_filter_construct_cb), "");
+    GTK_SIGNAL_FUNC(display_filter_construct_cb), &args);
   gtk_box_pack_start(GTK_BOX(stat_hbox), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
   

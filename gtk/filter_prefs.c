@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.20 2001/01/02 01:32:21 guy Exp $
+ * $Id: filter_prefs.c,v 1.21 2001/01/21 01:45:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -57,12 +57,18 @@
 #include "prefs_dlg.h"
 #include "dfilter_expr_dlg.h"
 
-#define E_FILT_NAME_KEY "filter_name"
-#define E_FILT_LBL_KEY  "filter_label"
-#define E_FILT_CM_KEY   "in_cancel_mode"
-#define E_FILTER_WIDGET_KEY "filter_widget"
-#define E_FILT_DBLFUNC_KEY "filter_dblfunc"
-#define E_FILT_DBLARG_KEY "filter_dblarg"
+#define E_FILT_PARENT_FILTER_TE_KEY "filter_parent_filter_te"
+#define E_FILT_CONSTRUCT_ARGS_KEY   "filter_construct_args"
+#define E_FILT_NAME_KEY             "filter_name"
+#define E_FILT_LBL_KEY              "filter_label"
+#define E_FILT_FILTER_L_KEY         "filter_filter_l"
+#define E_FILT_CHG_BT_KEY           "filter_chg_bt"
+#define E_FILT_COPY_BT_KEY          "filter_copy_bt"
+#define E_FILT_DEL_BT_KEY           "filter_del_bt"
+#define E_FILT_NAME_TE_KEY          "filter_name_te"
+#define E_FILT_FILTER_TE_KEY        "filter_filter_te"
+#define E_FILT_DBLFUNC_KEY          "filter_dblfunc"
+#define E_FILT_DBLARG_KEY           "filter_dblarg"
 
 typedef struct _filter_def {
   char *name;
@@ -75,15 +81,15 @@ typedef struct _filter_cb_data {
 } filter_cb_data;
 
 
-static GtkWidget   *filter_l, *chg_bt, *copy_bt, *del_bt, *name_te, *filter_te;
 static GList       *fl = NULL;
 
 static void get_filter_list(void);
 static GtkWidget *filter_dialog_new(GtkWidget *caller, GtkWidget *filter_te,
-    gboolean wants_apply_button, gboolean wants_add_expression_button);
+    construct_args_t *construct_args, gboolean wants_add_expression_button);
 static void filter_dlg_dclick(GtkWidget *dummy, gpointer main_w_arg);
-static void filter_dlg_ok_cb(GtkWidget *ok_bt, gpointer main_w_arg);
-static void filter_dlg_apply_cb(GtkWidget *apply_bt, gpointer main_w_arg);
+static void filter_dlg_ok_cb(GtkWidget *ok_bt, gpointer dummy);
+static void filter_dlg_apply_cb(GtkWidget *apply_bt, gpointer dummy);
+static void filter_apply(GtkWidget *main_w);
 static void filter_dlg_save_cb(GtkWidget *save_bt, gpointer parent_w);
 static void filter_dlg_cancel_cb(GtkWidget *cancel_bt, gpointer parent_w);
 static void filter_dlg_destroy(GtkWidget *win, gpointer data);
@@ -91,13 +97,18 @@ static void filter_dlg_destroy(GtkWidget *win, gpointer data);
 static gint       filter_sel_list_button_cb(GtkWidget *, GdkEventButton *,
                            gpointer);
 static void       filter_sel_list_cb(GtkWidget *, gpointer);
+static void       filter_list_destroy_cb(GtkWidget *, gpointer);
 static void       filter_sel_new_cb(GtkWidget *, gpointer);
 static void       filter_sel_chg_cb(GtkWidget *, gpointer);
+static void       filter_chg_bt_destroy_cb(GtkWidget *, gpointer);
 static void       filter_sel_copy_cb(GtkWidget *, gpointer);
+static void       filter_copy_bt_destroy_cb(GtkWidget *, gpointer);
 static void       filter_sel_del_cb(GtkWidget *, gpointer);
+static void       filter_del_bt_destroy_cb(GtkWidget *, gpointer);
 static void       filter_expr_cb(GtkWidget *, gpointer);
-static void       filter_prefs_save(GtkWidget *);
-static void       filter_prefs_delete(GtkWidget *);
+static void       filter_name_te_destroy_cb(GtkWidget *, gpointer);
+static void       filter_filter_te_destroy_cb(GtkWidget *, gpointer);
+static void       filter_prefs_save(void);
 
 #define	FILTER_LINE_SIZE	2048
 
@@ -181,7 +192,10 @@ capture_filter_construct_cb(GtkWidget *w, gpointer user_data)
 {
 	GtkWidget *caller = gtk_widget_get_toplevel(w);
 	GtkWidget *filter_browse_w;
-	GtkWidget *filter_te;
+	GtkWidget *parent_filter_te;
+	/* No Apply button, and "OK" just sets our text widget, it doesn't
+	   activate it (i.e., it doesn't cause us to try to open the file). */
+	static construct_args_t args = {FALSE, FALSE};
 
 	/* Has a filter dialog box already been opened for that top-level
 	   widget? */
@@ -195,11 +209,11 @@ capture_filter_construct_cb(GtkWidget *w, gpointer user_data)
 	}
 
 	/* No.  Get the text entry attached to the button. */
-	filter_te = gtk_object_get_data(GTK_OBJECT(w), E_FILT_TE_PTR_KEY);
+	parent_filter_te = gtk_object_get_data(GTK_OBJECT(w), E_FILT_TE_PTR_KEY);
 
-	/* Now create a new dialog, without either an "Apply" or "Add
-	   Expression..." button. */
-	filter_browse_w = filter_dialog_new(caller, filter_te, FALSE, FALSE);
+	/* Now create a new dialog, without an "Add Expression..." button. */
+	filter_browse_w = filter_dialog_new(caller, parent_filter_te, &args,
+	    FALSE);
 
 	/* Set the E_FILT_CALLER_PTR_KEY for the new dialog to point to
 	   our caller. */
@@ -228,11 +242,12 @@ capture_filter_construct_cb(GtkWidget *w, gpointer user_data)
    lists, but we don't yet have that, so the list of filters this
    shows is a list of all filters. */
 void
-display_filter_construct_cb(GtkWidget *w, gpointer wants_apply_button)
+display_filter_construct_cb(GtkWidget *w, gpointer construct_args_ptr)
 {
+	construct_args_t *construct_args = construct_args_ptr;
 	GtkWidget *caller = gtk_widget_get_toplevel(w);
 	GtkWidget *filter_browse_w;
-	GtkWidget *filter_te;
+	GtkWidget *parent_filter_te;
 
 	/* Has a filter dialog box already been opened for that top-level
 	   widget? */
@@ -246,12 +261,12 @@ display_filter_construct_cb(GtkWidget *w, gpointer wants_apply_button)
 	}
 
 	/* No.  Get the text entry attached to the button. */
-	filter_te = gtk_object_get_data(GTK_OBJECT(w), E_FILT_TE_PTR_KEY);
+	parent_filter_te = gtk_object_get_data(GTK_OBJECT(w), E_FILT_TE_PTR_KEY);
 
 	/* Now create a new dialog, possibly with an "Apply" button, and
 	   definitely with an "Add Expression..." button. */
-	filter_browse_w = filter_dialog_new(caller, filter_te,
-	    (wants_apply_button != NULL), TRUE);
+	filter_browse_w = filter_dialog_new(caller, parent_filter_te,
+	    construct_args, TRUE);
 
 	/* Set the E_FILT_CALLER_PTR_KEY for the new dialog to point to
 	   our caller. */
@@ -270,6 +285,10 @@ static GtkWidget *global_filter_w;
 void
 filter_dialog_cb(GtkWidget *w)
 {
+	/* No Apply button, and there's no text widget to set, much less
+	   activate, on "OK". */
+	static construct_args_t args = {FALSE, FALSE};
+
 	/* Has a filter dialog box already been opened for editing? */
 	if (global_filter_w != NULL) {
 		/* Yes.  Just reactivate it. */
@@ -282,12 +301,12 @@ filter_dialog_cb(GtkWidget *w)
 	 * a button next to some text entry field, so don't associate it
 	 * with a text entry field.
 	 */
-	global_filter_w = filter_dialog_new(NULL, NULL, FALSE, TRUE);
+	global_filter_w = filter_dialog_new(NULL, NULL, &args, TRUE);
 }
 
 static GtkWidget *
 filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
-    gboolean wants_apply_button, gboolean wants_add_expression_button)
+    construct_args_t *construct_args, gboolean wants_add_expression_button)
 {
 	GtkWidget	*main_w,		/* main window */
 			*main_vb,		/* main container */
@@ -300,13 +319,19 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 	GtkWidget	*top_hb,
 			*list_bb,
 			*new_bt,
+			*chg_bt,
+			*copy_bt,
+			*del_bt,
 			*filter_sc,
+			*filter_l,
 			*nl_item,
 			*nl_lb,
 			*middle_hb,
 			*name_lb,
+			*name_te,
 			*bottom_hb,
 			*filter_lb,
+			*filter_te,
 			*add_expression_bt;
 	GtkWidget	*l_select = NULL;
 	GList		*flp = NULL;
@@ -314,6 +339,8 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 	gchar		*filter_te_str = NULL;
 
 	main_w = dlg_window_new("Ethereal: Filters");
+	gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_CONSTRUCT_ARGS_KEY,
+	    construct_args);
 
 	/* Call a handler when we're destroyed, so we can inform
 	   our caller, if any, that we've been destroyed. */
@@ -334,7 +361,6 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 	filter_pg = gtk_vbox_new(FALSE, 5);
 	gtk_container_border_width(GTK_CONTAINER(filter_pg), 5);
 	gtk_widget_show(filter_pg);
-	gtk_object_set_data(GTK_OBJECT(filter_pg), E_FILT_CM_KEY, (gpointer)FALSE);
 
 	/* Top row: Filter list and buttons */
 	top_hb = gtk_hbox_new(FALSE, 5);
@@ -356,6 +382,9 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 	gtk_widget_set_sensitive(chg_bt, FALSE);
 	gtk_signal_connect(GTK_OBJECT(chg_bt), "clicked",
 	    GTK_SIGNAL_FUNC(filter_sel_chg_cb), NULL);
+	gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_CHG_BT_KEY, chg_bt);
+	gtk_signal_connect(GTK_OBJECT(chg_bt), "destroy",
+	    GTK_SIGNAL_FUNC(filter_chg_bt_destroy_cb), NULL);
 	gtk_container_add(GTK_CONTAINER(list_bb), chg_bt);
 	gtk_widget_show(chg_bt);
 
@@ -363,6 +392,9 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 	gtk_widget_set_sensitive(copy_bt, FALSE);
 	gtk_signal_connect(GTK_OBJECT(copy_bt), "clicked",
 	    GTK_SIGNAL_FUNC(filter_sel_copy_cb), NULL);
+	gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_COPY_BT_KEY, copy_bt);
+	gtk_signal_connect(GTK_OBJECT(copy_bt), "destroy",
+	    GTK_SIGNAL_FUNC(filter_copy_bt_destroy_cb), NULL);
 	gtk_container_add(GTK_CONTAINER(list_bb), copy_bt);
 	gtk_widget_show(copy_bt);
 
@@ -370,6 +402,9 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 	gtk_widget_set_sensitive(del_bt, FALSE);
 	gtk_signal_connect(GTK_OBJECT(del_bt), "clicked",
 	    GTK_SIGNAL_FUNC(filter_sel_del_cb), NULL);
+	gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_DEL_BT_KEY, del_bt);
+	gtk_signal_connect(GTK_OBJECT(del_bt), "destroy",
+	    GTK_SIGNAL_FUNC(filter_del_bt_destroy_cb), NULL);
 	gtk_container_add(GTK_CONTAINER(list_bb), del_bt);
 	gtk_widget_show(del_bt);
 
@@ -394,6 +429,9 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 	gtk_list_set_selection_mode(GTK_LIST(filter_l), GTK_SELECTION_SINGLE);
 	gtk_signal_connect(GTK_OBJECT(filter_l), "selection_changed",
 	    GTK_SIGNAL_FUNC(filter_sel_list_cb), filter_pg);
+	gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_FILTER_L_KEY, filter_l);
+	gtk_signal_connect(GTK_OBJECT(filter_l), "destroy",
+	    GTK_SIGNAL_FUNC(filter_list_destroy_cb), NULL);
 	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(filter_sc),
 	    filter_l);
 	gtk_widget_show(filter_l);
@@ -437,6 +475,9 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
   
 	name_te = gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(middle_hb), name_te, TRUE, TRUE, 3);
+	gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_NAME_TE_KEY, name_te);
+	gtk_signal_connect(GTK_OBJECT(name_te), "destroy",
+	    GTK_SIGNAL_FUNC(filter_name_te_destroy_cb), NULL);
 	gtk_widget_show(name_te);
 
 	/* Bottom row: Filter text entry */
@@ -450,6 +491,9 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
   
 	filter_te = gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(bottom_hb), filter_te, TRUE, TRUE, 3);
+	gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_FILTER_TE_KEY, filter_te);
+	gtk_signal_connect(GTK_OBJECT(filter_te), "destroy",
+	    GTK_SIGNAL_FUNC(filter_filter_te_destroy_cb), NULL);
 	gtk_widget_show(filter_te);
 
 	if (l_select) {
@@ -460,8 +504,8 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 	}
 
 	gtk_box_pack_start(GTK_BOX(main_vb), filter_pg, TRUE, TRUE, 0);
-	gtk_object_set_data(GTK_OBJECT(filter_pg), E_FILT_TE_PTR_KEY, parent_filter_te);
-	gtk_object_set_data(GTK_OBJECT(main_w), E_FILTER_WIDGET_KEY, filter_pg);
+	gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_PARENT_FILTER_TE_KEY,
+	    parent_filter_te);
 
 	bbox = gtk_hbutton_box_new();
 	gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
@@ -471,17 +515,17 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 
 	ok_bt = gtk_button_new_with_label ("OK");
 	gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
-		GTK_SIGNAL_FUNC(filter_dlg_ok_cb), main_w);
+		GTK_SIGNAL_FUNC(filter_dlg_ok_cb), NULL);
 	GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
 	gtk_box_pack_start(GTK_BOX(bbox), ok_bt, TRUE, TRUE, 0);
 	gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_TE_KEY, filter_te);
 	gtk_widget_grab_default(ok_bt);
 	gtk_widget_show(ok_bt);
 
-	if (wants_apply_button) {
+	if (construct_args->wants_apply_button) {
 		apply_bt = gtk_button_new_with_label ("Apply");
 		gtk_signal_connect(GTK_OBJECT(apply_bt), "clicked",
-		    GTK_SIGNAL_FUNC(filter_dlg_apply_cb), main_w);
+		    GTK_SIGNAL_FUNC(filter_dlg_apply_cb), NULL);
 		GTK_WIDGET_SET_FLAGS(apply_bt, GTK_CAN_DEFAULT);
 		gtk_box_pack_start(GTK_BOX(bbox), apply_bt, TRUE, TRUE, 0);
 		gtk_widget_show(apply_bt);
@@ -509,16 +553,16 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 }
 
 static void
-filter_dlg_dclick(GtkWidget *dummy, gpointer main_w_arg)
+filter_dlg_dclick(GtkWidget *filter_l, gpointer main_w_arg)
 {
 	GtkWidget  *main_w = GTK_WIDGET(main_w_arg);
-	GtkWidget  *w = gtk_object_get_data(GTK_OBJECT(main_w), E_FILTER_WIDGET_KEY);
+	GtkWidget  *parent_filter_te =
+	    gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_PARENT_FILTER_TE_KEY);
 	GList      *flp, *sl;
 	GtkObject  *l_item;
 	filter_def *filt;
-	GtkWidget  *mw_filt = gtk_object_get_data(GTK_OBJECT(w), E_FILT_TE_PTR_KEY);
 
-	if (mw_filt != NULL) {
+	if (parent_filter_te != NULL) {
 		/*
 		 * We have a text entry widget associated with this dialog
 		 * box; is one of the filters in the list selected?
@@ -534,71 +578,77 @@ filter_dlg_dclick(GtkWidget *dummy, gpointer main_w_arg)
 			flp    = (GList *) gtk_object_get_data(l_item, E_FILT_NAME_KEY);
 			if (flp) {
 				filt = (filter_def *) flp->data;
-				gtk_entry_set_text(GTK_ENTRY(mw_filt),
+				gtk_entry_set_text(GTK_ENTRY(parent_filter_te),
 				    filt->strval);
-				gtk_signal_emit_by_name(GTK_OBJECT(mw_filt),
+				gtk_signal_emit_by_name(GTK_OBJECT(parent_filter_te),
 				    "activate");
 			}
 		}
 	}
 
-	filter_prefs_delete(w);
-
 	gtk_widget_destroy(main_w);
 }
 
 static void
-filter_dlg_ok_cb(GtkWidget *ok_bt, gpointer main_w_arg)
+filter_dlg_ok_cb(GtkWidget *ok_bt, gpointer data)
 {
-	GtkWidget  *main_w = GTK_WIDGET(main_w_arg);
-	GtkWidget  *w = gtk_object_get_data(GTK_OBJECT(main_w), E_FILTER_WIDGET_KEY);
+	GtkWidget  *main_w = gtk_widget_get_toplevel(ok_bt);
 
 	/*
 	 * Apply the filter.
 	 */
-	filter_dlg_apply_cb(NULL, main_w_arg);
+	filter_apply(main_w);
 
 	/*
 	 * Now dismiss the dialog box.
 	 */
-	filter_prefs_delete(w);
 	gtk_widget_destroy(main_w);
 }
 
 static void
-filter_dlg_apply_cb(GtkWidget *apply_bt, gpointer main_w_arg)
+filter_dlg_apply_cb(GtkWidget *apply_bt, gpointer dummy)
 {
-	GtkWidget  *main_w = GTK_WIDGET(main_w_arg);
-	GtkWidget  *w = gtk_object_get_data(GTK_OBJECT(main_w), E_FILTER_WIDGET_KEY);
-	GtkWidget  *mw_filt = gtk_object_get_data(GTK_OBJECT(w), E_FILT_TE_PTR_KEY);
+	filter_apply(gtk_widget_get_toplevel(apply_bt));
+}
+
+static void
+filter_apply(GtkWidget *main_w)
+{
+	construct_args_t *construct_args =
+	    gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_CONSTRUCT_ARGS_KEY);
+	GtkWidget  *parent_filter_te =
+	    gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_PARENT_FILTER_TE_KEY);
 	GtkWidget  *filter_te;
 	gchar      *filter_string;
 	
-	if (mw_filt != NULL) {
+	if (parent_filter_te != NULL) {
 		/*
 		 * We have a text entry widget associated with this dialog
 		 * box; put the filter in our text entry widget into that
 		 * text entry widget, and then activate that widget to
-		 * cause the filter we put there to be applied.
+		 * cause the filter we put there to be applied if we're
+		 * supposed to do so.
 		 */
 		filter_te = gtk_object_get_data(GTK_OBJECT(main_w),
 		    E_FILT_TE_KEY);
 		filter_string = gtk_entry_get_text(GTK_ENTRY(filter_te));
-		gtk_entry_set_text(GTK_ENTRY(mw_filt), filter_string);
-		gtk_signal_emit_by_name(GTK_OBJECT(mw_filt), "activate");
+		gtk_entry_set_text(GTK_ENTRY(parent_filter_te), filter_string);
+		if (construct_args->activate_on_ok) {
+			gtk_signal_emit_by_name(GTK_OBJECT(parent_filter_te),
+			    "activate");
+		}
 	}
 }
 
 static void
 filter_dlg_save_cb(GtkWidget *save_bt, gpointer parent_w)
 {
-	filter_prefs_save(gtk_object_get_data(GTK_OBJECT(parent_w), E_FILTER_WIDGET_KEY));
+	filter_prefs_save();
 }
 
 static void
 filter_dlg_cancel_cb(GtkWidget *cancel_bt, gpointer parent_w)
 {
-	filter_prefs_delete(gtk_object_get_data(GTK_OBJECT(parent_w),  E_FILTER_WIDGET_KEY));
 	gtk_widget_destroy(GTK_WIDGET(parent_w));
 }
 
@@ -641,14 +691,21 @@ filter_sel_list_button_cb (GtkWidget *widget, GdkEventButton *event,
         func_arg = gtk_object_get_data(GTK_OBJECT(parent), E_FILT_DBLARG_KEY);
 
         if (func)
-            (*func)(NULL, func_arg);
+            (*func)(func_data, func_arg);
     }
 
     return FALSE;
 }
 
 static void
-filter_sel_list_cb(GtkWidget *l, gpointer data) {
+filter_sel_list_cb(GtkWidget *l, gpointer data)
+{
+  GtkWidget  *main_w = gtk_widget_get_toplevel(l);
+  GtkWidget  *name_te = gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_NAME_TE_KEY);
+  GtkWidget  *filter_te = gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_FILTER_TE_KEY);
+  GtkWidget  *chg_bt = gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_CHG_BT_KEY);
+  GtkWidget  *copy_bt = gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_COPY_BT_KEY);
+  GtkWidget  *del_bt = gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_DEL_BT_KEY);
   filter_def *filt;
   gchar      *name = "", *strval = "";
   GList      *sl, *flp;
@@ -671,21 +728,55 @@ filter_sel_list_cb(GtkWidget *l, gpointer data) {
     }
   }
 
-  /* Did you know that this function is called when the window is destroyed? */
-  /* Funny, that. */
-  if (!gtk_object_get_data(GTK_OBJECT(data), E_FILT_CM_KEY)) {
+  /*
+   * Did you know that this function is called when the window is destroyed?
+   * Funny, that.
+   * This means that we have to:
+   *
+   *	attach to the top-level window data items containing pointers to
+   *	the widgets we affect here;
+   *
+   *	give each of those widgets their own destroy callbacks;
+   *
+   *	clear that pointer when the widget is destroyed;
+   *
+   *	don't do anything to the widget if the pointer we get back is
+   *	null;
+   *
+   * so that if we're called after any of the widgets we'd affect are
+   * destroyed, we know that we shouldn't do anything to those widgets.
+   */
+  if (name_te != NULL)
     gtk_entry_set_text(GTK_ENTRY(name_te), name);
+  if (filter_te != NULL)
     gtk_entry_set_text(GTK_ENTRY(filter_te), strval);
+  if (chg_bt != NULL)
     gtk_widget_set_sensitive(chg_bt, sensitivity);
+  if (copy_bt != NULL)
     gtk_widget_set_sensitive(copy_bt, sensitivity);
+  if (del_bt != NULL)
     gtk_widget_set_sensitive(del_bt, sensitivity);
-  }
+}
+
+static void
+filter_list_destroy_cb(GtkWidget *l, gpointer data)
+{
+  GtkWidget  *main_w = gtk_widget_get_toplevel(l);
+
+  gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_FILTER_L_KEY, NULL);
+
+  /* XXX - do we actually have to destroy the widget now? */
 }
 
 /* To do: add input checking to each of these callbacks */
  
 static void
-filter_sel_new_cb(GtkWidget *w, gpointer data) {
+filter_sel_new_cb(GtkWidget *w, gpointer data)
+{
+  GtkWidget  *main_w = gtk_widget_get_toplevel(w);
+  GtkWidget  *name_te = gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_NAME_TE_KEY);
+  GtkWidget  *filter_te = gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_FILTER_TE_KEY);
+  GtkWidget  *filter_l = gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_FILTER_L_KEY);
   filter_def *filt;
   gchar      *name, *strval;
   GtkWidget  *nl_item, *nl_lb;
@@ -712,7 +803,12 @@ filter_sel_new_cb(GtkWidget *w, gpointer data) {
 }
 
 static void
-filter_sel_chg_cb(GtkWidget *w, gpointer data) {
+filter_sel_chg_cb(GtkWidget *w, gpointer data)
+{
+  GtkWidget  *main_w = gtk_widget_get_toplevel(w);
+  GtkWidget  *name_te = gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_NAME_TE_KEY);
+  GtkWidget  *filter_te = gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_FILTER_TE_KEY);
+  GtkWidget  *filter_l = gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_FILTER_L_KEY);
   filter_def *filt;
   gchar      *name = "", *strval = "";
   GList      *sl, *flp;
@@ -742,7 +838,20 @@ filter_sel_chg_cb(GtkWidget *w, gpointer data) {
 }
 
 static void
-filter_sel_copy_cb(GtkWidget *w, gpointer data) {
+filter_chg_bt_destroy_cb(GtkWidget *chg_bt, gpointer data)
+{
+  GtkWidget  *main_w = gtk_widget_get_toplevel(chg_bt);
+
+  gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_CHG_BT_KEY, NULL);
+
+  /* XXX - do we actually have to destroy the widget now? */
+}
+
+static void
+filter_sel_copy_cb(GtkWidget *w, gpointer data)
+{
+  GtkWidget  *main_w = gtk_widget_get_toplevel(w);
+  GtkWidget  *filter_l = gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_FILTER_L_KEY);
   GList      *sl, *flp;
   filter_def *filt, *nfilt;
   gchar      *prefix = "Copy of ";
@@ -775,7 +884,20 @@ filter_sel_copy_cb(GtkWidget *w, gpointer data) {
 }
 
 static void
-filter_sel_del_cb(GtkWidget *w, gpointer data) {
+filter_copy_bt_destroy_cb(GtkWidget *copy_bt, gpointer data)
+{
+  GtkWidget  *main_w = gtk_widget_get_toplevel(copy_bt);
+
+  gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_COPY_BT_KEY, NULL);
+
+  /* XXX - do we actually have to destroy the widget now? */
+}
+
+static void
+filter_sel_del_cb(GtkWidget *w, gpointer data)
+{
+  GtkWidget  *main_w = gtk_widget_get_toplevel(w);
+  GtkWidget  *filter_l = gtk_object_get_data(GTK_OBJECT(main_w), E_FILT_FILTER_L_KEY);
   GList      *sl, *flp;
   filter_def *filt;
   GtkObject  *l_item;
@@ -799,6 +921,16 @@ filter_sel_del_cb(GtkWidget *w, gpointer data) {
 }
 
 static void
+filter_del_bt_destroy_cb(GtkWidget *del_bt, gpointer data)
+{
+  GtkWidget  *main_w = gtk_widget_get_toplevel(del_bt);
+
+  gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_DEL_BT_KEY, NULL);
+
+  /* XXX - do we actually have to destroy the widget now? */
+}
+
+static void
 filter_expr_cb(GtkWidget *w, gpointer main_w_arg)
 {
 	GtkWidget  *main_w = GTK_WIDGET(main_w_arg);
@@ -809,7 +941,28 @@ filter_expr_cb(GtkWidget *w, gpointer main_w_arg)
 }
 
 static void
-filter_prefs_save(GtkWidget *w) {
+filter_name_te_destroy_cb(GtkWidget *name_te, gpointer data)
+{
+  GtkWidget  *main_w = gtk_widget_get_toplevel(name_te);
+
+  gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_NAME_TE_KEY, NULL);
+
+  /* XXX - do we actually have to destroy the widget now? */
+}
+
+static void
+filter_filter_te_destroy_cb(GtkWidget *filter_te, gpointer data)
+{
+  GtkWidget  *main_w = gtk_widget_get_toplevel(filter_te);
+
+  gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_FILTER_TE_KEY, NULL);
+
+  /* XXX - do we actually have to destroy the widget now? */
+}
+
+static void
+filter_prefs_save(void)
+{
   GList       *flp;
   filter_def  *filt;
   gchar       *ff_path, *ff_dir = PF_DIR, *ff_name = "filters";
@@ -841,12 +994,3 @@ filter_prefs_save(GtkWidget *w) {
 
   g_free(ff_path);
 }
-
-static void
-filter_prefs_delete(GtkWidget *w) {
- 
-  /* Let the list cb know we're about to destroy the widget tree, so it */
-  /* doesn't operate on widgets that don't exist. */  
-  gtk_object_set_data(GTK_OBJECT(w), E_FILT_CM_KEY, (gpointer)TRUE);
-  gtk_widget_destroy(GTK_WIDGET(w));
-} 

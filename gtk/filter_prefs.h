@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.h,v 1.7 2001/01/02 01:32:21 guy Exp $
+ * $Id: filter_prefs.h,v 1.8 2001/01/21 01:45:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,8 +28,18 @@
 #ifndef __FILTER_H__
 #define __FILTER_H__
 
+/*
+ * Structure giving properties of the filter editing dialog box to be
+ * created.
+ */
+typedef struct {
+	gboolean wants_apply_button;	/* if it should have an Apply button */
+	gboolean activate_on_ok;	/* if parent text widget should be
+					   activated on "Ok" or "Apply" */
+} construct_args_t;
+
 void capture_filter_construct_cb(GtkWidget *w, gpointer user_data);
-void display_filter_construct_cb(GtkWidget *w, gpointer wants_apply_button);
+void display_filter_construct_cb(GtkWidget *w, gpointer construct_args_ptr);
 void filter_dialog_cb(GtkWidget *);
 
 #define E_FILT_TE_KEY		"filter_te"
