@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.105 2001/06/18 02:17:53 guy Exp $
+ * $Id: packet-tcp.c,v 1.106 2001/09/03 17:57:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,10 +89,6 @@ static gint ett_tcp_option_sack = -1;
 static dissector_table_t subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 static conv_dissector_list_t conv_subdissector_list;
-
-/* TCP Ports */
-
-#define TCP_PORT_SMTP			25
 
 /* TCP structs and definitions */
 
