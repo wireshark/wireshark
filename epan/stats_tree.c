@@ -150,7 +150,7 @@ static void free_stat_node( stat_node* node ) {
 			free_stat_node(child);
 	}
 	
-	if(node->st->free_node_pr) node->st->free_node_pr(node);
+	if(node->st->cfg->free_node_pr) node->st->cfg->free_node_pr(node);
 	
 	if (node->hash) g_hash_table_destroy(node->hash);
 
@@ -161,19 +161,19 @@ static void free_stat_node( stat_node* node ) {
 	g_free(node);
 }
 
-/* destroys the whole tree */
+/* destroys the whole tree instance */
 extern void free_stats_tree(stats_tree* st) {
 	stat_node* child;
 	
-	g_free(st->tapname);
-	g_free(st->abbr);
 	g_free(st->filter);
+	g_hash_table_destroy(st->names);
+	g_ptr_array_free(st->parents,FALSE);
 	
 	for (child = st->root.children; child; child = child->next ) 
 		free_stat_node(child);
 	
-	if (st->free_tree_pr)
-		st->free_tree_pr(st);
+	if (st->cfg->free_tree_pr)
+		st->cfg->free_tree_pr(st);
 			
 	g_free(st);
 }
@@ -190,8 +190,8 @@ static void reset_stat_node(stat_node* node) {
 	
 	node->counter = 0;
 	
-	if(node->st->reset_node) {
-		node->st->reset_node(node);
+	if(node->st->cfg->reset_node) {
+		node->st->cfg->reset_node(node);
 	}
 	
 }
@@ -201,8 +201,8 @@ extern void reset_stats_tree(void* p) {
 	stats_tree* st = p;
 	reset_stat_node(&st->root);
 	
-	if (st->reset_tree) {
-		st->reset_tree(st);
+	if (st->cfg->reset_tree) {
+		st->cfg->reset_tree(st);
 	}
 }
 
@@ -217,8 +217,8 @@ extern void reinit_stats_tree(void* p) {
 	st->root.children = NULL;
 	st->root.counter = 0;
 	
-	if (st->init) {
-		st->init(st);
+	if (st->cfg->init) {
+		st->cfg->init(st);
 	}
 }
 
@@ -229,18 +229,49 @@ extern void register_stats_tree(guint8* tapname,
 								stat_tree_packet_cb packet,
 								stat_tree_init_cb init ) {
 	
-	stats_tree* st = g_malloc( sizeof(stats_tree) );
+	stats_tree_cfg* cfg = g_malloc( sizeof(stats_tree_cfg) );
 
 	/* at the very least the abbrev and the packet function should be given */ 
 	g_assert( tapname && abbr && packet );
 
-	st->tapname = g_strdup(tapname);
-	st->abbr = g_strdup(abbr);
-	st->name = name ? g_strdup(name) : g_strdup(abbr);
-	st->filter = NULL;
+	cfg->tapname = g_strdup(tapname);
+	cfg->abbr = g_strdup(abbr);
+	cfg->name = name ? g_strdup(name) : g_strdup(abbr);
 	
+	cfg->packet = packet;
+	cfg->init = init;
+	
+	/* these have to be filled in by implementations */
+	cfg->setup_node_pr = NULL;
+	cfg->new_tree_pr = NULL;
+	cfg->free_node_pr = NULL;
+	cfg->free_tree_pr = NULL;
+	cfg->draw_node = NULL;
+	cfg->draw_tree = NULL;
+	cfg->reset_node = NULL;
+	cfg->reset_tree = NULL;
+
+	if (!registry) registry = g_hash_table_new(g_str_hash,g_str_equal);
+
+	g_hash_table_insert(registry,cfg->abbr,cfg);
+	
+}
+
+extern stats_tree* new_stats_tree(stats_tree_cfg* cfg, tree_pres* pr,char* filter) {
+	stats_tree* st = g_malloc(sizeof(stats_tree));
+
+	st->cfg = cfg;
+	st->pr = pr;
+
+	st->names = g_hash_table_new(g_str_hash,g_str_equal);
+	st->parents = g_ptr_array_new();
+	st->filter = filter;
+	
+	st->start = -1.0;
+	st->elapsed = 0.0;
+
 	st->root.counter = 0;
-	st->root.name = g_strdup(name);
+	st->root.name = g_strdup(cfg->name);
 	st->root.st = st;
 	st->root.parent = NULL;
 	st->root.children = NULL;
@@ -248,32 +279,10 @@ extern void register_stats_tree(guint8* tapname,
 	st->root.hash = NULL;
 	st->root.pr = NULL;
 	
-	st->names = g_hash_table_new(g_str_hash,g_str_equal);
-	st->parents = g_ptr_array_new();
-	
 	g_ptr_array_add(st->parents,&st->root);
 	
-	st->start = -1.0;
-	st->elapsed = 0.0;
-	
-	st->packet = packet;
-	st->init = init;
-	
-	/* these have to be filled in by implementations */
-	st->setup_node_pr = NULL;
-	st->new_tree_pr = NULL;
-	st->free_node_pr = NULL;
-	st->free_tree_pr = NULL;
-	st->draw_node = NULL;
-	st->draw_tree = NULL;
-	st->reset_node = NULL;
-	st->reset_tree = NULL;
-
-	if (!registry) registry = g_hash_table_new(g_str_hash,g_str_equal);
-
-	g_hash_table_insert(registry,st->abbr,st);
-	
-}
+	return st;
+}	
 
 /* will be the tap packet cb */
 extern int stats_tree_packet(void* p, packet_info* pinfo, epan_dissect_t *edt, const void *pri) {
@@ -285,8 +294,8 @@ extern int stats_tree_packet(void* p, packet_info* pinfo, epan_dissect_t *edt, c
 	
 	st->elapsed = now - st->start;
 	
-	if (st->packet)
-		return st->packet(st,pinfo,edt,pri);
+	if (st->cfg->packet)
+		return st->cfg->packet(st,pinfo,edt,pri);
 	else
 		return 0;
 }
@@ -295,12 +304,12 @@ extern GHashTable* stat_tree_registry(void) {
 	return registry;
 }
 
-extern stats_tree* get_stats_tree_by_abbr(guint8* abbr) {
+extern stats_tree_cfg* get_stats_tree_by_abbr(guint8* abbr) {
 	return g_hash_table_lookup(registry,abbr);
 }
 
 
-struct _stats_tree_pres_stuff {
+struct _stats_tree_pres_cbs {
 	void (*setup_node_pr)(stat_node*);
 	void (*free_node_pr)(stat_node*);
 	void (*draw_node)(stat_node*);
@@ -312,17 +321,17 @@ struct _stats_tree_pres_stuff {
 };
 
 static void setup_tree_presentation(gpointer k _U_, gpointer v, gpointer p) {
-	stats_tree* st = v;
-	struct _stats_tree_pres_stuff *d = p;
+	stats_tree_cfg* cfg = v;
+	struct _stats_tree_pres_cbs *d = p;
 	
-	st->setup_node_pr = d->setup_node_pr;
-	st->new_tree_pr = d->new_tree_pr;
-	st->free_node_pr = d->free_node_pr;
-	st->free_tree_pr = d->free_tree_pr;
-	st->draw_node = d->draw_node;
-	st->draw_tree = d->draw_tree;
-	st->reset_node = d->reset_node;
-	st->reset_tree = d->reset_tree;
+	cfg->setup_node_pr = d->setup_node_pr;
+	cfg->new_tree_pr = d->new_tree_pr;
+	cfg->free_node_pr = d->free_node_pr;
+	cfg->free_tree_pr = d->free_tree_pr;
+	cfg->draw_node = d->draw_node;
+	cfg->draw_tree = d->draw_tree;
+	cfg->reset_node = d->reset_node;
+	cfg->reset_tree = d->reset_tree;
 	
 }
 
@@ -336,7 +345,7 @@ extern void stats_tree_presentation(void (*registry_iterator)(gpointer,gpointer,
 									void (*draw_tree)(stats_tree*),
 									void (*reset_tree)(stats_tree*),
 									void* data) {
-	struct _stats_tree_pres_stuff d = {setup_node_pr,free_node_pr,draw_node,reset_node,new_tree_pr,free_tree_pr,draw_tree,reset_tree};
+	struct _stats_tree_pres_cbs d = {setup_node_pr,free_node_pr,draw_node,reset_node,new_tree_pr,free_tree_pr,draw_tree,reset_tree};
 	
 	if (registry) g_hash_table_foreach(registry,setup_tree_presentation,&d);
 	
@@ -407,15 +416,15 @@ static stat_node*  new_stat_node(stats_tree* st,
 		g_hash_table_insert(node->parent->hash,node->name,node);
 	}
 	
-	if (st->setup_node_pr) {
-		st->setup_node_pr(node);
+	if (st->cfg->setup_node_pr) {
+		st->cfg->setup_node_pr(node);
 	} else {
 		node->pr = NULL;
 	}
 	
 	return node;
 }
-
+/***/
 
 extern int create_node(stats_tree* st, const gchar* name, int parent_id, gboolean with_hash) {
 	stat_node* node = new_stat_node(st,name,parent_id,with_hash,TRUE);
@@ -527,13 +536,14 @@ extern int create_range_node(stats_tree* st,
 	return rng_root->id;
 }
 
+/****/
 extern int get_parent_id_by_name(stats_tree* st, const gchar* parent_name) {
 	stat_node* node = g_hash_table_lookup(st->names,parent_name);
 	
 	if (node)
 		return node->id;
 	else
-		return 0; /* ??? -1 ??? */
+		return 0; /* XXX: this is the root shoud we return -1 instead?*/
 }
 
 

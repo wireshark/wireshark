@@ -35,12 +35,17 @@
  * as well as some operations on it */
 typedef struct _st_node_pres st_node_pres;
 
-/* implementations should define this to contain its own tree related data
+/* implementations should define this to contain its own dynamic tree related data
 * as well as some operations on it */
 typedef struct _tree_pres tree_pres;
 
-typedef struct _stat_node stat_node;
+/* implementations should define this to contain its own static tree related data
+* as well as some operations on it */
+typedef struct _tree_cfg_pres tree_cfg_pres;
 
+
+typedef struct _stat_node stat_node;
+typedef struct _stats_tree_cfg stats_tree_cfg;
 
 typedef struct _range_pair {
 	gint floor;
@@ -58,7 +63,7 @@ struct _stat_node {
 	GHashTable*		hash;
 	
 	/* the owner of this node */
-	stats_tree*		st;
+	stats_tree*	st;
 	
 	/* relatives */
 	stat_node*	parent;
@@ -70,44 +75,52 @@ struct _stat_node {
 	
 	/* node presentation data */
 	st_node_pres* pr;
-} ;
+};
 
 struct _stats_tree {
-	guint8*			abbr;
-	guint8*			name;
-	guint8*			tapname;
+	/* the "class" from which it's derived */
+	stats_tree_cfg* cfg;
 	
 	char*			filter;
 	
 	/* times */
 	float			start;
 	float			elapsed;
-		
 
-	   /* used to lookup named parents:
-		*    key: parent node name
-		*  value: parent node
-		*/
+   /* used to lookup named parents:
+	*    key: parent node name
+	*  value: parent node
+	*/
 	GHashTable*			names;
 	
-	   /* used for quicker lookups of parent nodes */
+   /* used for quicker lookups of parent nodes */
 	GPtrArray*			parents;
+		
+	/*
+	 *  tree representation
+	 * 	to be defined (if needed) by the implementations
+	 */
+	tree_pres* pr;
 	
 	/* every tree in nature has one */
 	stat_node	root;
+};
+
+struct _stats_tree_cfg {
+	guint8*			abbr;
+	guint8*			name;
+	guint8*			tapname;
+	
 	
 	/* dissector defined callbacks */
 	stat_tree_packet_cb packet;
 	stat_tree_init_cb init;
 
-	/**** tree representation
-	 * 	to be defined (if needed) by the implementations
-	 */
-	tree_pres* pr;
 	
-	/*  node presentation callbacks
+	/*
+	 * node presentation callbacks
 	 */
-		
+
 	/* last to be called at node creation */
 	void (*setup_node_pr)(stat_node*);
 	
@@ -118,7 +131,11 @@ struct _stats_tree {
 	void (*draw_node)(stat_node*);
 	void (*reset_node)(stat_node*);
 	
-	/* tree presentation callbacks */
+	/*
+	 * tree presentation callbacks
+	 */
+	tree_cfg_pres* pr;
+	
 	
 	tree_pres* (*new_tree_pr)(stats_tree*);
 	void (*free_tree_pr)(stats_tree*);
@@ -138,6 +155,8 @@ extern void stats_tree_presentation(void (*registry_iterator)(gpointer,gpointer,
 									void (*reset_tree)(stats_tree*),
 									void* data);
 
+extern stats_tree* new_stats_tree(stats_tree_cfg* cfg, tree_pres* pr, char* filter);
+
 /* callback for taps */
 extern int  stats_tree_packet(void*, packet_info*, epan_dissect_t*, const void *);
 
@@ -155,7 +174,7 @@ extern void free_stats_tree(stats_tree* st);
 extern guint8* get_st_abbr(const guint8* optarg);
 
 /* obtains a stats tree from the registry given its abbr */
-extern stats_tree* get_stats_tree_by_abbr(guint8* abbr);
+extern stats_tree_cfg* get_stats_tree_by_abbr(guint8* abbr);
 
 /* extracts node data as strings from a stat_node into
    the buffers given by value, rate and precent

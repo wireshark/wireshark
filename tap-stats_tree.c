@@ -37,8 +37,11 @@ struct _st_node_pres {
 	void* dummy;
 };
 
-
 struct _tree_pres {
+	void* dummy;
+};
+
+struct _tree_cfg_pres {
 	guint8* init_string;	
 };
 
@@ -50,7 +53,7 @@ static void draw_stats_tree(void *psp) {
 	
 	s = g_string_new("\n===================================================================\n");
 	fmt = g_strdup_printf(" %%s%%-%us%%12s\t%%12s\t%%12s\n",stats_branch_max_name_len(&st->root,0));
-	g_string_sprintfa(s,fmt,"",st->name,"value","rate","percent");
+	g_string_sprintfa(s,fmt,"",st->cfg->name,"value","rate","percent");
 	g_free(fmt);
 	g_string_sprintfa(s,"-------------------------------------------------------------------\n");
 	
@@ -67,14 +70,15 @@ static void draw_stats_tree(void *psp) {
 static void  init_stats_tree(char *optarg) {
 	guint8* abbr = get_st_abbr(optarg);
 	GString	*error_string;
-	stats_tree *st = NULL;
-
+	stats_tree_cfg *cfg = NULL;
+	stats_tree* st = NULL;
+	
 	if (abbr) {
-		st = get_stats_tree_by_abbr(abbr);
-		
-		if (st != NULL) {
-			if (strncmp (optarg, st->pr->init_string, strlen(st->pr->init_string)) == 0){
-				st->filter=((guint8*)optarg)+strlen(st->pr->init_string);
+		cfg = get_stats_tree_by_abbr(abbr);
+
+		if (cfg != NULL) {
+			if (strncmp (optarg, cfg->pr->init_string, strlen(cfg->pr->init_string)) == 0){
+				st = new_stats_tree(cfg,NULL,((guint8*)optarg)+strlen(cfg->pr->init_string));
 			} else {
 				st->filter=NULL;
 			}
@@ -88,7 +92,7 @@ static void  init_stats_tree(char *optarg) {
 		g_error("could not obtain stats_tree abbr (%s) from optarg '%s'",abbr,optarg);		
 	}
 	
-	error_string = register_tap_listener( st->tapname,
+	error_string = register_tap_listener( st->cfg->tapname,
 										  st,
 										  st->filter,
 										  reset_stats_tree,
@@ -96,21 +100,25 @@ static void  init_stats_tree(char *optarg) {
 										  draw_stats_tree);
 	
 	if (error_string) {
-		g_error("stats_tree for: %s failed to attach to the tap: %s",st->name,error_string->str);
+		g_error("stats_tree for: %s failed to attach to the tap: %s",cfg->name,error_string->str);
 	}
 
-	if (st->init) st->init(st);
+	if (cfg->init) cfg->init(st);
 
 }
 
 void register_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_) {
-	stats_tree* st = v;
+	stats_tree_cfg* cfg = v;
 	
-	st->pr = g_malloc(sizeof(tree_pres));
-	st->pr->init_string = g_strdup_printf("%s,tree",st->abbr);
+	cfg->pr = g_malloc(sizeof(tree_cfg_pres));
+	cfg->pr->init_string = g_strdup_printf("%s,tree",cfg->abbr);
 
-	register_ethereal_tap(st->pr->init_string, init_stats_tree);
+	register_ethereal_tap(cfg->pr->init_string, init_stats_tree);
 	
+}
+
+static void free_tree_presentation(stats_tree* st) {
+	g_free(st->pr);
 }
 
 
@@ -119,5 +127,5 @@ register_tap_listener_stats_tree_stat(void)
 {
 	stats_tree_presentation(register_stats_tree_tap,
 							NULL, NULL, NULL, NULL, NULL,
-							NULL, NULL, NULL, NULL);
+							free_tree_presentation, NULL, NULL, NULL);
 }

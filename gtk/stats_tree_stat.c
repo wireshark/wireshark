@@ -57,9 +57,11 @@ struct _st_node_pres {
 #endif
 };
 
+struct _tree_cfg_pres {
+	tap_dfilter_dlg* stat_dlg;
+};
 
 struct _tree_pres {
-	tap_dfilter_dlg* stat_dlg;
 	GString*		text;
 	GtkWidget*		win;
 	
@@ -187,6 +189,9 @@ static void free_gtk_tree(GtkWindow *win _U_, stats_tree *st)
 	if (st->root.pr)
 		st->root.pr->iter = NULL;
 #endif
+	
+	free_stats_tree(st);
+	
 }
 
 
@@ -194,6 +199,8 @@ static void free_gtk_tree(GtkWindow *win _U_, stats_tree *st)
 static void init_gtk_tree(char* optarg) {
 	guint8* abbr = get_st_abbr(optarg);
 	stats_tree* st = NULL;
+	stats_tree_cfg* cfg = NULL;
+	tree_pres* pr = g_malloc(sizeof(tree_pres));
 	guint8* title = NULL;
 	guint8* window_name = NULL;
 	GString* error_string;
@@ -206,20 +213,20 @@ static void init_gtk_tree(char* optarg) {
 #endif
 	
 	if (abbr) {
-		st = get_stats_tree_by_abbr(abbr);
+		cfg = get_stats_tree_by_abbr(abbr);
 		
-		if (st != NULL) {
-			init_strlen = strlen(st->pr->stat_dlg->init_string);
+		if (cfg != NULL) {
+			init_strlen = strlen(cfg->pr->stat_dlg->init_string);
 			
-			if (strncmp (optarg, st->pr->stat_dlg->init_string, init_strlen) == 0){
+			if (strncmp (optarg, cfg->pr->stat_dlg->init_string, init_strlen) == 0){
 				if (init_strlen == strlen(optarg)) {
-					st->filter= "";
+					st = new_stats_tree(cfg,pr,NULL);
 				} else { 
-					st->filter=((guint8*)optarg)+init_strlen+1;
+					st = new_stats_tree(cfg,pr,((guint8*)optarg)+init_strlen+1);
 				}
 				
 			} else {
-				st->filter=NULL;
+				st = new_stats_tree(cfg,pr,NULL);
 			}
 		} else {
 			g_error("no such stats_tree (%s) found in stats_tree registry",abbr);
@@ -229,18 +236,18 @@ static void init_gtk_tree(char* optarg) {
 	} else {
 		g_error("could not obtain stats_tree abbr from optarg");		
 	}
-	
-	window_name = g_strdup_printf("%s Stats Tree", st->name);
+
+	window_name = g_strdup_printf("%s Stats Tree", cfg->name);
 	
 	st->pr->win = window_new_with_geom(GTK_WINDOW_TOPLEVEL,window_name,window_name);
 	gtk_window_set_default_size(GTK_WINDOW(st->pr->win), 400, 400);
 	g_free(window_name);
     
 	if(st->filter){
-		title=g_strdup_printf("%s with filter: %s",st->name,st->filter);
+		title=g_strdup_printf("%s with filter: %s",cfg->name,st->filter);
 	} else {
 		st->filter=NULL;
-		title=g_strdup_printf("%s", st->name);
+		title=g_strdup_printf("%s", cfg->name);
 	}
 	
     gtk_window_set_title(GTK_WINDOW(st->pr->win), title);
@@ -302,7 +309,7 @@ static void init_gtk_tree(char* optarg) {
 	gtk_container_add( GTK_CONTAINER(main_vb), scr_win);
 #endif
 	
-	error_string = register_tap_listener( st->tapname,
+	error_string = register_tap_listener( cfg->tapname,
 										  st,
 										  st->filter,
 										  NULL,
@@ -313,7 +320,7 @@ static void init_gtk_tree(char* optarg) {
 		/* error, we failed to attach to the tap. clean up */
 		simple_dialog( ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str );
 		/* destroy_stat_tree_window(st); */
-		g_error("stats_tree for: %s failed to attach to the tap: %s",st->name,error_string->str);
+		g_error("stats_tree for: %s failed to attach to the tap: %s",cfg->name,error_string->str);
 		g_string_free(error_string, TRUE);
 	}
 		
@@ -334,45 +341,35 @@ static void init_gtk_tree(char* optarg) {
 	gtk_tree_view_set_model(GTK_TREE_VIEW(st->pr->tree),GTK_TREE_MODEL(st->pr->store));
 #endif
 	
-	if (st->filter) {
-		reinit_stats_tree(st);
-	} else {
-		st->init(st);
-	}
+	st->cfg->init(st);
 
 	cf_retap_packets(&cfile);
-	
 }
 
 
 static void register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_) {
-	stats_tree* st = v;
+	stats_tree_cfg* cfg = v;
 	guint8* s;
 
-	s = g_strdup_printf("%s,tree",st->abbr);
+	s = g_strdup_printf("%s,tree",cfg->abbr);
 	
 	register_ethereal_tap(s, init_gtk_tree);
 	
-	st->pr = g_malloc(sizeof(tree_pres));
-	st->pr->text = NULL;
-	st->pr->win = NULL;
+	cfg->pr = g_malloc(sizeof(tree_pres));
 	
-#if GTK_MAJOR_VERSION >= 2
-	st->pr->store = NULL;
-	st->pr->tree = NULL;
-#else
-	st->pr->textbox = NULL;
-#endif
+	cfg->pr->stat_dlg = g_malloc(sizeof(tap_dfilter_dlg));
 	
-	st->pr->stat_dlg = g_malloc(sizeof(tap_dfilter_dlg));
+	cfg->pr->stat_dlg->win_title = g_strdup_printf("%s Stats Tree",cfg->name);
+	cfg->pr->stat_dlg->init_string = g_strdup_printf("%s,tree",cfg->abbr);
+	cfg->pr->stat_dlg->tap_init_cb = init_gtk_tree;
+	cfg->pr->stat_dlg->index = -1;
 	
-	st->pr->stat_dlg->win_title = g_strdup_printf("%s Stats Tree",st->name);
-	st->pr->stat_dlg->init_string = g_strdup_printf("%s,tree",st->abbr);
-	st->pr->stat_dlg->tap_init_cb = init_gtk_tree;
-	st->pr->stat_dlg->index = -1;
-	
-	register_tap_menu_item(st->name, REGISTER_TAP_GROUP_NONE,
-						   gtk_tap_dfilter_dlg_cb, NULL, NULL, st->pr->stat_dlg);
+	register_tap_menu_item(cfg->name, REGISTER_TAP_GROUP_NONE,
+						   gtk_tap_dfilter_dlg_cb, NULL, NULL, cfg->pr->stat_dlg);
+}
+
+static void free_tree_presentation(stats_tree* st) {
+	g_free(st->pr);
 }
 
 void
@@ -382,5 +379,5 @@ register_tap_listener_stats_tree_stat(void)
 	stats_tree_presentation(register_gtk_stats_tree_tap,
 							setup_gtk_node_pr, NULL,
 							NULL,
-							NULL, NULL, NULL, NULL, NULL, NULL);
+							NULL, NULL, free_tree_presentation, NULL, NULL, NULL);
 }
