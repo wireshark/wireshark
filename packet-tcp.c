@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.223 2004/02/24 17:49:06 ulfl Exp $
+ * $Id: packet-tcp.c,v 1.224 2004/03/19 06:14:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -103,6 +103,7 @@ static int hf_tcp_analysis_duplicate_ack_frame = -1;
 static int hf_tcp_analysis_zero_window = -1;
 static int hf_tcp_analysis_zero_window_probe = -1;
 static int hf_tcp_analysis_zero_window_violation = -1;
+static int hf_tcp_continuation_to = -1;
 static int hf_tcp_reassembled_in = -1;
 static int hf_tcp_segments = -1;
 static int hf_tcp_segment = -1;
@@ -163,7 +164,7 @@ static dissector_handle_t data_handle;
 static void
 process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 	proto_tree *tree, proto_tree *tcp_tree, int src_port, int dst_port,
-	guint32 nxtseq, gboolean is_tcp_segment);
+	guint32 seq, guint32 nxtseq, gboolean is_tcp_segment);
 
 /* **************************************************************************
  * stuff to analyze TCP sequencenumbers for retransmissions, missing segments,
@@ -265,8 +266,11 @@ static int tcp_next_pdu_count = 20;
 struct tcp_next_pdu {
 	struct tcp_next_pdu *next;
 	guint32 seq;
+	guint32 nxtpdu;
+	guint32 first_frame;
 };
 static GHashTable *tcp_pdu_tracking_table = NULL;
+static GHashTable *tcp_pdu_skipping_table = NULL;
 
 
 static struct tcp_analysis *
@@ -342,7 +346,7 @@ prune_next_pdu_list(struct tcp_next_pdu **tnp, guint32 seq)
 	}
 
 	for(tmptnp=*tnp;tmptnp;tmptnp=tmptnp->next){
-		if(tmptnp->seq<=seq){
+		if(tmptnp->nxtpdu<=seq){
 			struct tcp_next_pdu *oldtnp;
 			oldtnp=tmptnp;
 
@@ -376,7 +380,7 @@ prune_next_pdu_list(struct tcp_next_pdu **tnp, guint32 seq)
    and let TCP try to find out what it can about this segment
 */
 static int
-scan_for_next_pdu(packet_info *pinfo, int offset, guint32 seq, guint32 nxtseq)
+scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint32 seq, guint32 nxtseq)
 {
 	struct tcp_analysis *tcpd=NULL;
 	struct tcp_next_pdu *tnp=NULL;
@@ -402,15 +406,40 @@ scan_for_next_pdu(packet_info *pinfo, int offset, guint32 seq, guint32 nxtseq)
 			/* XXX here we should also try to handle sequence number
 			   wrapping
 			*/
-			if(seq<tnp->seq && nxtseq>tnp->seq){
+			/* If this segment is completely within a previous PDU
+			 * then we just skip this packet
+			 */
+			if(seq>tnp->seq && nxtseq<=tnp->nxtpdu){
+				g_hash_table_insert(tcp_pdu_skipping_table, 
+					(void *)pinfo->fd->num, (void *)tnp->first_frame);
+				if (check_col(pinfo->cinfo, COL_INFO)){
+					col_prepend_fstr(pinfo->cinfo, COL_INFO, "[Continuation to #%u] ",pinfo->fd->num);
+				}
+				proto_tree_add_uint(tree, hf_tcp_continuation_to,
+					tvb, 0, 0, pinfo->fd->num);
+				return -1;
+			}			
+			if(seq<tnp->nxtpdu && nxtseq>tnp->nxtpdu){
 				g_hash_table_insert(tcp_pdu_tracking_table, 
-					(void *)pinfo->fd->num, (void *)tnp->seq);
-				offset+=tnp->seq-seq;
+					(void *)pinfo->fd->num, (void *)tnp->nxtpdu);
+				offset+=tnp->nxtpdu-seq;
 				break;
 			}
 		}
 	} else {
 		guint32 pduseq;
+		guint32 first_frame;
+
+		/* check if this is a segment in the middle of a pdu */
+		first_frame=(guint32)g_hash_table_lookup(tcp_pdu_skipping_table, (void *)pinfo->fd->num);
+		if(first_frame){
+			if (check_col(pinfo->cinfo, COL_INFO)){
+				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[Continuation to #%u] ", first_frame);
+			}
+			proto_tree_add_uint(tree, hf_tcp_continuation_to,
+				tvb, 0, 0, first_frame);
+			return -1;
+		}
 
 		pduseq=(guint32)g_hash_table_lookup(tcp_pdu_tracking_table, (void *)pinfo->fd->num);
 		if(pduseq){
@@ -425,7 +454,7 @@ scan_for_next_pdu(packet_info *pinfo, int offset, guint32 seq, guint32 nxtseq)
    use this function to remember where the next pdu starts
 */
 static void
-pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 nxtpdu)
+pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nxtpdu)
 {
 	struct tcp_analysis *tcpd=NULL;
 	struct tcp_next_pdu *tnp=NULL;
@@ -435,7 +464,9 @@ pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 nxtpdu)
 	tcpd=get_tcp_conversation_data(pinfo);
 
 	tnp=g_mem_chunk_alloc(tcp_next_pdu_chunk);
-	tnp->seq=nxtpdu;
+	tnp->nxtpdu=nxtpdu;
+	tnp->seq=seq;
+	tnp->first_frame=pinfo->fd->num;
 
 	/* check direction and get pdu start list */
 	direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
@@ -458,8 +489,7 @@ pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 nxtpdu)
 
 /* if we saw a window scaling option, store it for future reference 
 */
-static void
-pdu_store_window_scale_option(packet_info *pinfo, guint8 ws)
+static void pdu_store_window_scale_option(packet_info *pinfo, guint8 ws)
 {
 	struct tcp_analysis *tcpd=NULL;
 	int direction;
@@ -1258,6 +1288,12 @@ tcp_analyze_seq_init(void)
 		g_hash_table_destroy(tcp_pdu_tracking_table);
 		tcp_pdu_tracking_table = NULL;
 	}
+	if( tcp_pdu_skipping_table ){
+		g_hash_table_foreach_remove(tcp_pdu_skipping_table,
+			free_all_acked, NULL);
+		g_hash_table_destroy(tcp_pdu_skipping_table);
+		tcp_pdu_skipping_table = NULL;
+	}
 
 	/*
 	 * Now destroy the chunk from which the conversation table
@@ -1290,6 +1326,8 @@ tcp_analyze_seq_init(void)
 		tcp_rel_seq_table = g_hash_table_new(tcp_acked_hash,
 			tcp_acked_equal);
 		tcp_pdu_tracking_table = g_hash_table_new(tcp_acked_hash,
+			tcp_acked_equal);
+		tcp_pdu_skipping_table = g_hash_table_new(tcp_acked_hash,
 			tcp_acked_equal);
 		tcp_next_pdu_chunk = g_mem_chunk_new("tcp_next_pdu_chunk",
 			sizeof(struct tcp_next_pdu),
@@ -1557,7 +1595,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		   Call the normal subdissector.
 		*/
 		process_tcp_payload(tvb, offset, pinfo, tree, tcp_tree,
-				sport, dport, 0, FALSE);
+				sport, dport, 0, 0, FALSE);
 		called_dissector = TRUE;
 
 		/* Did the subdissector ask us to desegment some more data
@@ -1626,7 +1664,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 			/* call subdissector */
 			process_tcp_payload(next_tvb, 0, pinfo, tree,
-			    tcp_tree, sport, dport, 0, FALSE);
+			    tcp_tree, sport, dport, 0, 0, FALSE);
 			called_dissector = TRUE;
 
 			/*
@@ -1935,6 +1973,19 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        */
       show_reported_bounds_error(tvb, pinfo, tree);
       return;
+    }
+
+    /* give a hint to TCP where the next PDU starts
+     * so that it can attempt to find it in case it starts
+     * somewhere in the middle of a segment.
+     */
+    if(!pinfo->fd->flags.visited && tcp_analyze_seq){
+       gint remaining_bytes;
+       remaining_bytes=tvb_reported_length_remaining(tvb, offset);
+       if(plen>remaining_bytes){
+          pinfo->want_pdu_tracking=2;
+          pinfo->bytes_until_next_pdu=plen-remaining_bytes;
+       }
     }
 
     /*
@@ -2329,7 +2380,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static void
 process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 	proto_tree *tree, proto_tree *tcp_tree, int src_port, int dst_port,
-	guint32 nxtseq, gboolean is_tcp_segment)
+	guint32 seq, guint32 nxtseq, gboolean is_tcp_segment)
 {
 	pinfo->want_pdu_tracking=0;
 
@@ -2337,15 +2388,19 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 		if(is_tcp_segment){
 			/*qqq   see if it is an unaligned PDU */
 			if(tcp_analyze_seq && (!tcp_desegment)){
-				guint32 seq;
-				seq=nxtseq-tvb_reported_length_remaining(tvb,
-				    offset);
-				offset=scan_for_next_pdu(pinfo, offset, seq,
-				    nxtseq);
+				if(seq || nxtseq){
+					offset=scan_for_next_pdu(tvb, tree, pinfo, offset,
+						seq, nxtseq);
+				}
 			}
 		}
-		if (decode_tcp_ports(tvb, offset, pinfo, tree, src_port,
-		    dst_port)) {
+		/* if offset is -1 this means that this segment is known
+		 * to be fully inside a previously detected pdu
+		 * so we dont even need to try to dissect it either.
+		 */
+		if( (offset!=-1) &&
+		    decode_tcp_ports(tvb, offset, pinfo, tree, src_port,
+		        dst_port) ){
 			/*
 			 * We succeeded in handing off to a subdissector.
 			 *
@@ -2357,9 +2412,12 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 				   store it in table */
 				if((!pinfo->fd->flags.visited) &&
 				    tcp_analyze_seq && pinfo->want_pdu_tracking){
-					pdu_store_sequencenumber_of_next_pdu(
-					    pinfo,
-					    nxtseq+pinfo->bytes_until_next_pdu);
+					if(seq || nxtseq){
+						pdu_store_sequencenumber_of_next_pdu(
+						    pinfo,
+                	                            seq,
+						    nxtseq+pinfo->bytes_until_next_pdu);
+					}
 				}
 			}
 		}
@@ -2390,8 +2448,11 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 			 * in table 
 			 */
 			if((!pinfo->fd->flags.visited) && tcp_analyze_seq && pinfo->want_pdu_tracking){
-				pdu_store_sequencenumber_of_next_pdu(pinfo,
-				    nxtseq+pinfo->bytes_until_next_pdu);
+				if(seq || nxtseq){
+					pdu_store_sequencenumber_of_next_pdu(pinfo,
+        	                            seq,
+					    nxtseq+pinfo->bytes_until_next_pdu);
+				}
 			}
 		}
 		RETHROW;
@@ -2418,7 +2479,7 @@ dissect_tcp_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 seq,
     save_fragmented = pinfo->fragmented;
     pinfo->fragmented = TRUE;
     process_tcp_payload(tvb, offset, pinfo, tree, tcp_tree, sport, dport,
-        nxtseq, TRUE);
+        seq, nxtseq, TRUE);
     pinfo->fragmented = save_fragmented;
   }
 }
@@ -2944,6 +3005,10 @@ proto_register_tcp(void)
 		{ &hf_tcp_analysis_duplicate_ack_frame,
 		{ "Duplicate to the ACK in frame",		"tcp.analysis.duplicate_ack_frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			"This is a duplicate to the ACK in frame #", HFILL }},
+
+		{ &hf_tcp_continuation_to,
+		{ "This is a continuation to the PDU in frame",		"tcp.continuation_to", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"This is a continuation to the PDU in frame #", HFILL }},
 
 		{ &hf_tcp_analysis_zero_window_violation,
 		{ "Zero Window Violation",		"tcp.analysis.zero_window_violation", FT_NONE, BASE_NONE, NULL, 0x0,
