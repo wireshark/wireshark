@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.16 2001/01/26 06:14:51 guy Exp $
+ * $Id: plugin_api.h,v 1.17 2001/01/28 20:26:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -35,6 +35,7 @@
    to functions, and the calls to it in plugins, in the plugins, turn
    into calls through the pointers. */
 #define	check_col			(*p_check_col)
+#define	col_clear			(*p_col_clear)
 #define	col_add_fstr			(*p_col_add_fstr)
 #define	col_append_fstr			(*p_col_append_fstr)
 #define	col_add_str			(*p_col_add_str)

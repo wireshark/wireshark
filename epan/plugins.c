@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.19 2001/01/26 06:14:50 guy Exp $
+ * $Id: plugins.c,v 1.20 2001/01/28 20:26:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -652,13 +652,11 @@ init_plugins(const char *plugin_dir)
 #ifdef PLUGINS_NEED_ADDRESS_TABLE
 	/* Intialize address table */
 	patable.p_check_col			= check_col;
+	patable.p_col_clear			= col_clear;
 	patable.p_col_add_fstr			= col_add_fstr;
 	patable.p_col_append_fstr		= col_append_fstr;
 	patable.p_col_add_str			= col_add_str;
 	patable.p_col_append_str		= col_append_str;
-
-	patable.p_dfilter_init			= dfilter_init;
-	patable.p_dfilter_cleanup		= dfilter_cleanup;
 
 	patable.p_pi				= &pi;
 
