@@ -793,13 +793,17 @@ AC_DEFUN([AC_ETHEREAL_NETSNMP_CHECK],
 			have_net_snmp="yes"
 		fi
 	else
-		#
-		# Restore the versions of CFLAGS and CPPFLAGS before
-		# we added the output of '$NETSNMPCONFIG --cflags",
-		# as we didn't actually find Net-SNMP there.
-		#
-		CFLAGS="$ethereal_save_CFLAGS"
-		CPPFLAGS="$ethereal_save_CPPFLAGS"
+		if test "x$want_netsnmp" = "xyes" ; then
+			AC_MSG_ERROR(Net-SNMP not found)
+		else
+			#
+			# Restore the versions of CFLAGS and CPPFLAGS before
+			# we added the output of '$NETSNMPCONFIG --cflags",
+			# as we didn't actually find Net-SNMP there.
+			#
+			CFLAGS="$ethereal_save_CFLAGS"
+			CPPFLAGS="$ethereal_save_CPPFLAGS"
+		fi
 	fi	
 ])
 
@@ -982,21 +986,6 @@ AC_DEFUN([AC_ETHEREAL_GNU_SED_CHECK],
 AC_DEFUN([AC_ETHEREAL_ADNS_CHECK],
 [
 	want_adns=defaultyes
-
-	AC_ARG_WITH(adns,
-changequote(<<, >>)dnl
-<<  --with-adns[=DIR]       use GNU ADNS (located in directory DIR, if supplied).   [default=yes, if present]>>,
-changequote([, ])dnl
-	[
-	if   test "x$withval" = "xno";  then
-		want_adns=no
-	elif test "x$withval" = "xyes"; then
-		want_adns=yes
-	elif test -d "$withval"; then
-		want_adns=yes
-		AC_ETHEREAL_ADD_DASH_L(LDFLAGS, ${withval}/lib)
-	fi
-	])
 
 	if test "x$want_adns" = "xdefaultyes"; then
 		want_adns=yes

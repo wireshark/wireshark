@@ -633,9 +633,7 @@ dnl pcap check
 AC_MSG_CHECKING(whether to use libpcap for packet capture)
 
 AC_ARG_WITH(pcap,
-changequote(<<, >>)dnl
-<<  --with-pcap[=DIR]       use libpcap for packet capturing.  [default=yes]>>,
-changequote([, ])dnl
+[  --with-pcap[[=DIR]]       use libpcap for packet capturing.  [[default=yes]]],
 [
 	if test $withval = no
 	then
@@ -662,9 +660,7 @@ dnl zlib check
 AC_MSG_CHECKING(whether to use zlib for reading compressed capture files)
 
 AC_ARG_WITH(zlib,
-changequote(<<, >>)dnl
-<<  --with-zlib[=DIR]       use zlib (located in directory DIR, if supplied) to read compressed data.  [default=yes, if present]>>,
-changequote([, ])dnl
+[  --with-zlib[[=DIR]]       use zlib (located in directory DIR, if supplied) to read compressed data.  [[default=yes, if available]]],
 [
 	if test $withval = no
 	then
@@ -680,7 +676,7 @@ changequote([, ])dnl
 	#
 	# Use zlib if it's present, otherwise don't.
 	#
-	want_zlib=ifpresent
+	want_zlib=ifavailable
 	zlib_dir=
 ])
 if test "x$want_zlib" = "xno" ; then
@@ -698,9 +694,7 @@ dnl pcre check
 AC_MSG_CHECKING(whether to use libpcre for regular expressions in dfilters)
 
 AC_ARG_WITH(pcre,
-changequote(<<, >>)dnl
-<<  --with-pcre[=DIR]       use libpcre (located in directory DIR, if supplied) to use in dfilter regular expressions.  [default=yes, if present]>>,
-changequote([, ])dnl
+[  --with-pcre[[=DIR]]       use libpcre (located in directory DIR, if supplied) to use in dfilter regular expressions.  [[default=yes, if available]]],
 [
 	if test $withval = no
 	then
@@ -716,7 +710,7 @@ changequote([, ])dnl
 	#
 	# Use libpcre if it's present, otherwise don't.
 	#
-	want_pcre=ifpresent
+	want_pcre=ifavailable
 	pcre_dir=
 ])
 if test "x$want_pcre" = "xno" ; then
@@ -769,9 +763,7 @@ SSL_LIBS=''
 AC_MSG_CHECKING(whether to use SSL library)
 
 AC_ARG_WITH(ssl,
-changequote(<<, >>)dnl
-<<  --with-ssl[=DIR]        use SSL crypto library (located in directory DIR, if supplied).   [default=no]>>,
-changequote([, ])dnl
+[  --with-ssl[[=DIR]]        use SSL crypto library (located in directory DIR, if supplied).   [[default=no]]],
 [
 if test "x$withval" = "xno";  then
 	want_ssl=no
@@ -802,9 +794,7 @@ dnl UCD SNMP/Net-SNMP Check
 SNMP_LIBS=''
 
 AC_ARG_WITH(net-snmp,
-changequote(<<, >>)dnl
-<<  --with-net-snmp[=PATH] use Net-SNMP library (with PATH as the location of the net-snmp-config shell script that comes with the net-snmp package, if supplied)  [default=yes, if present]>>,
-changequote([, ])dnl
+[  --with-net-snmp[[=PATH]]  use Net-SNMP library (with PATH as the location of the net-snmp-config shell script that comes with the net-snmp package, if supplied)  [[default=yes, if available]]],
 [
 	if test $withval = no
 	then
@@ -818,16 +808,14 @@ changequote([, ])dnl
 	fi
 ],[
 	#
-	# Set "want_netsnmp" to "ifpresent" to make the default "use it
+	# Set "want_netsnmp" to "ifavailable" to make the default "use it
 	# if you find it, otherwise don't".
 	#
-	want_netsnmp=ifpresent
+	want_netsnmp=ifavailable
 ])
 
 AC_ARG_WITH(ucd-snmp,
-changequote(<<, >>)dnl
-<<  --with-ucd-snmp[=DIR]   use UCD SNMP client library (located in directory DIR, if supplied).  [default=yes, if present]>>,
-changequote([, ])dnl
+[  --with-ucd-snmp[[=DIR]]   use UCD SNMP client library (located in directory DIR, if supplied).  [[default=yes, if available]]],
 [
 	if test $withval = no
 	then
@@ -841,21 +829,25 @@ changequote([, ])dnl
 	fi
 ],[
 	#
-	# Set "want_ucdsnmp" to "ifpresent" to make the default "use it
+	# Set "want_ucdsnmp" to "ifavailable" to make the default "use it
 	# if you find it, otherwise don't".
 	#
-	want_ucdsnmp=ifpresent
+	want_ucdsnmp=ifavailable
 	ucdsnmp_dir=
 ])
 
 #
 # Try Net-SNMP first.
 #
-AC_MSG_CHECKING(whether to use Net-SNMP library if available)
+AC_MSG_CHECKING(whether to use Net-SNMP library)
 if test "x$want_netsnmp" = "xno" ; then
 	AC_MSG_RESULT(no)
 else
-	AC_MSG_RESULT(yes)
+	if test "x$want_netsnmp" = "xifavailable" ; then
+		AC_MSG_RESULT([yes, if available])
+	else
+		AC_MSG_RESULT(yes)
+	fi
 	AC_ETHEREAL_NETSNMP_CHECK
 fi
 
@@ -863,11 +855,15 @@ fi
 # If that didn't find Net-SNMP, try UCD SNMP.
 #
 if test "x$have_net_snmp" != "xyes" ; then
-	AC_MSG_CHECKING(whether to use UCD SNMP library if available)
+	AC_MSG_CHECKING(whether to use UCD SNMP library)
 	if test "x$want_ucdsnmp" = "xno" ; then
 		AC_MSG_RESULT(no)
 	else
-		AC_MSG_RESULT(yes)
+		if test "x$want_ucdsnmp" = "xifavailable" ; then
+			AC_MSG_RESULT([yes, if available])
+		else
+			AC_MSG_RESULT(yes)
+		fi
 		AC_ETHEREAL_UCDSNMP_CHECK
 	fi
 fi
@@ -883,9 +879,7 @@ dnl kerberos check
 AC_MSG_CHECKING(whether to use kerberos)
 
 AC_ARG_WITH(krb5,
-changequote(<<, >>)dnl
-<<  --with-krb5[=DIR]       use kerberos (located in directory DIR, if supplied) to use in kerberos dissection  [default=yes]>>,
-changequote([, ])dnl
+[  --with-krb5[[=DIR]]       use kerberos (located in directory DIR, if supplied) to use in kerberos dissection  [[default=yes]]],
 [
 	if test $withval = no
 	then
@@ -901,7 +895,7 @@ changequote([, ])dnl
 	#
 	# Use kerberos if specified, otherwise don't.
 	#
-	want_krb5=ifpresent
+	want_krb5=ifavailable
 	krb5_dir=
 ])
 if test "x$want_krb5" = "xno" ; then
@@ -915,6 +909,19 @@ fi
 dnl ADNS Check
 ADNS_LIBS=''
 AC_MSG_CHECKING(whether to use the GNU ADNS library if available)
+
+AC_ARG_WITH(adns,
+[  --with-adns[[=DIR]]       use GNU ADNS (located in directory DIR, if supplied).   [[default=yes, if present]]],
+[
+if   test "x$withval" = "xno";  then
+	want_adns=no
+elif test "x$withval" = "xyes"; then
+	want_adns=yes
+elif test -d "$withval"; then
+	want_adns=yes
+	AC_ETHEREAL_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+fi
+])
 if test "x$with_adns" = "xno" ; then
 	AC_MSG_RESULT(no)
 else
@@ -1125,9 +1132,7 @@ dnl check for plugins directory - stolen from Amanda's configure.in
 dnl
 plugindir="$libdir/ethereal/plugins/$VERSION"
 AC_ARG_WITH(plugins,
-changequote(<<, >>)dnl
-<<  --with-plugins[=DIR]    support plugins (installed in DIR, if supplied).>>,
-changequote([, ])dnl
+[  --with-plugins[[=DIR]]    support plugins (installed in DIR, if supplied).],
 [
   case "$withval" in
   "" | y | ye | yes )
