@@ -86,13 +86,21 @@ static const aim_tlv msg_tlv[] = {
 
 #define AIM_LOCATION_RIGHTS_TLV_MAX_PROFILE_LENGTH 	0x0001
 #define AIM_LOCATION_RIGHTS_TLV_MAX_CAPABILITIES 	0x0002
-#define AIM_LOCATION_RIGHTS_TLV_CLIENT_CAPABILITIES 0x0005
 
 static const aim_tlv location_rights_tlvs[] = {
   { AIM_LOCATION_RIGHTS_TLV_MAX_PROFILE_LENGTH, "Max Profile Length", dissect_aim_tlv_value_uint16 },
   { AIM_LOCATION_RIGHTS_TLV_MAX_CAPABILITIES, "Max capabilities", dissect_aim_tlv_value_uint16 },
-  { AIM_LOCATION_RIGHTS_TLV_CLIENT_CAPABILITIES, "Client capabilities", dissect_aim_tlv_value_client_capabilities },
   { 0, "Unknown", NULL }
+};
+
+
+#define AIM_LOCATION_USERINFO_TLV_MIME_TYPE			  0x0001
+#define AIM_LOCATION_USERINFO_TLV_CLIENT_CAPABILITIES 0x0005
+
+static const aim_tlv location_userinfo_tlvs[] = {
+	{ AIM_LOCATION_USERINFO_TLV_MIME_TYPE, "Mime Type", dissect_aim_tlv_value_string },
+	{ AIM_LOCATION_USERINFO_TLV_CLIENT_CAPABILITIES, "Client capabilities", dissect_aim_tlv_value_client_capabilities },
+	{ 0, "Unknown", NULL }
 };
 
 #define FAMILY_LOCATION_USERINFO_INFOTYPE_GENERALINFO  0x0001
@@ -150,7 +158,7 @@ static int dissect_aim_location(tvbuff_t *tvb, packet_info *pinfo,
 	  return 0;
 	case FAMILY_LOCATION_SETUSERINFO:
 	  while(tvb_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv(tvb, pinfo, offset, loc_tree, location_rights_tlvs);
+		offset = dissect_aim_tlv(tvb, pinfo, offset, loc_tree, location_userinfo_tlvs);
 	  }
 	  return 0;
 	case FAMILY_LOCATION_WATCHERSUBREQ:
