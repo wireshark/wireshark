@@ -66,7 +66,7 @@ static int dissect_aim_tlv_value_icq(proto_item *ti, guint16 subtype, tvbuff_t *
 
 static const aim_tlv icq_tlv[] = {
    { TLV_ICQ_META_DATA, "Encapsulated ICQ Meta Data", dissect_aim_tlv_value_icq },
-   { 0, "Unknown", NULL },
+   { 0, NULL, NULL },
 };
 
 /* Initialize the protocol and registered fields */

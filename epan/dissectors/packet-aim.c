@@ -227,7 +227,7 @@ const aim_tlv client_tlvs[] = {
   { AIM_CLIENT_TLV_LOCAL_PERSONAL_ALERT, "Personal Alert for Buddy", dissect_aim_tlv_value_uint16 },
   { AIM_CLIENT_TLV_LOCAL_PERSONAL_SOUND, "Personal Sound for Buddy", dissect_aim_tlv_value_string },
   { AIM_CLIENT_TLV_FIRST_MESSAGE_SENT, " First Time Message Sent to Buddy (Unix Timestamp)", dissect_aim_tlv_value_uint32 },
-  { 0, "Unknown", NULL },
+  { 0, NULL, NULL },
 };
 
 
@@ -262,7 +262,7 @@ const aim_tlv onlinebuddy_tlvs[] = {
   { AIM_ONLINEBUDDY_SESSIONLEN, "Session Length (sec)", dissect_aim_tlv_value_uint32 },
   { AIM_ONLINEBUDDY_ICQSESSIONLEN, "ICQ Session Length (sec)", dissect_aim_tlv_value_uint32 },
   { AIM_ONLINEBUDDY_AVAILMSG, "Available Message", dissect_aim_tlv_value_bytes },
-  { 0, "Unknown", NULL }
+  { 0, NULL, NULL }
 };
 
 #define DC_DISABLED		0x0000
@@ -303,7 +303,7 @@ static GList *families = NULL;
 
 const aim_tlv motd_tlvs[] = {
   { AIM_MOTD_TLV_MOTD, "Message of the day message", dissect_aim_tlv_value_string },
-  { 0, "Unknown", NULL }
+  { 0, NULL, NULL }
 };
 
 #define CLASS_UNCONFIRMED            0x0001
@@ -326,7 +326,7 @@ const aim_tlv motd_tlvs[] = {
 
 static const aim_tlv fnac_tlvs[] = {
   { FNAC_TLV_FAMILY_VERSION, "SNAC Family Version", dissect_aim_tlv_value_uint16 },
-  { 0, "Unknown", NULL }
+  { 0, NULL, NULL }
 };
 
 static int dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -1225,6 +1225,7 @@ int dissect_aim_tlv(tvbuff_t *tvb, packet_info *pinfo _U_,
   guint16 length;
   int i = 0;
   const aim_tlv *tmp;
+  const char *desc;
   proto_item *ti1;
   proto_tree *tlv_tree;
   int orig_offset;
@@ -1256,13 +1257,18 @@ int dissect_aim_tlv(tvbuff_t *tvb, packet_info *pinfo _U_,
 
   if (tree) {
     offset = orig_offset;
+
+    if (tmp[i].desc != NULL)
+      desc = tmp[i].desc;
+    else
+      desc = "Unknown";
     
-    ti1 = proto_tree_add_text(tree, tvb, offset, length + 4, "TLV: %s", tmp[i].desc);
+    ti1 = proto_tree_add_text(tree, tvb, offset, length + 4, "TLV: %s", desc);
 
     tlv_tree = proto_item_add_subtree(ti1, ett_aim_tlv);
 
     proto_tree_add_text(tlv_tree, tvb, offset, 2,
-			"Value ID: %s (0x%04x)", tmp[i].desc, valueid);
+			"Value ID: %s (0x%04x)", desc, valueid);
     offset += 2;
     
     proto_tree_add_text(tlv_tree, tvb, offset, 2,

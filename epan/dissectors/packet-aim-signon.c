@@ -131,7 +131,7 @@ static int dissect_aim_tlv_value_registration(proto_item *ti _U_, guint16 value_
 
 static const aim_tlv registration_tlvs[] = {
 	{ REG_TLV_REGISTRATION_INFO, "Registration Info", dissect_aim_tlv_value_registration },
-	{ 0, "Unknown", NULL },
+	{ 0, NULL, NULL },
 };
 
 static int dissect_aim_snac_register (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)

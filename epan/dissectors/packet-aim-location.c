@@ -55,7 +55,7 @@ static const aim_tlv msg_tlv[] = {
   { FAMILY_LOCATION_USERINFO_AWAYENCODING, "Away Msg Encoding", dissect_aim_tlv_value_string },
   { FAMILY_LOCATION_USERINFO_AWAYMSG, "Away Message", dissect_aim_tlv_value_string },
   { FAMILY_LOCATION_USERINFO_CAPS, "Capabilities", dissect_aim_tlv_value_bytes },
-  { 0, "Unknown", 0 }
+  { 0, NULL, 0 }
 };
 
 #define AIM_LOCATION_RIGHTS_TLV_MAX_PROFILE_LENGTH 	0x0001
@@ -64,7 +64,7 @@ static const aim_tlv msg_tlv[] = {
 static const aim_tlv location_rights_tlvs[] = {
   { AIM_LOCATION_RIGHTS_TLV_MAX_PROFILE_LENGTH, "Max Profile Length", dissect_aim_tlv_value_uint16 },
   { AIM_LOCATION_RIGHTS_TLV_MAX_CAPABILITIES, "Max capabilities", dissect_aim_tlv_value_uint16 },
-  { 0, "Unknown", NULL }
+  { 0, NULL, NULL }
 };
 
 
@@ -74,7 +74,7 @@ static const aim_tlv location_rights_tlvs[] = {
 static const aim_tlv location_userinfo_tlvs[] = {
 	{ AIM_LOCATION_USERINFO_TLV_MIME_TYPE, "Mime Type", dissect_aim_tlv_value_string },
 	{ AIM_LOCATION_USERINFO_TLV_CLIENT_CAPABILITIES, "Client capabilities", dissect_aim_tlv_value_client_capabilities },
-	{ 0, "Unknown", NULL }
+	{ 0, NULL, NULL }
 };
 
 #define FAMILY_LOCATION_USERINFO_INFOTYPE_GENERALINFO  0x0001

@@ -60,7 +60,7 @@ static const aim_tlv messaging_incoming_ch1_tlvs[] = {
   { INCOMING_CH1_ICON_PRESENT, "Icon present", dissect_aim_tlv_value_bytes },
   { INCOMING_CH1_BUDDY_REQ, "Buddy Req", dissect_aim_tlv_value_bytes },
   { INCOMING_CH1_TYPING, "Non-direct connect typing notification", dissect_aim_tlv_value_bytes },
-  { 0, "Unknown", NULL },
+  { 0, NULL, NULL },
 };
 
 int dissect_aim_tlv_value_rendezvous ( proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_);
@@ -73,7 +73,7 @@ extern int dissect_aim_tlv_value_capability_data ( proto_item *ti, guint16 value
 static const aim_tlv messaging_incoming_ch2_tlvs[] = {
   { INCOMING_CH2_SERVER_ACK_REQ, "Server Ack Requested", dissect_aim_tlv_value_bytes },
   { INCOMING_CH2_RENDEZVOUS_DATA, "Rendez Vous Data", dissect_aim_tlv_value_rendezvous },
-  { 0, "Unknown", NULL },
+  { 0, NULL, NULL },
 };
 
 #define RENDEZVOUS_TLV_INT_IP				0x0003
@@ -86,7 +86,7 @@ static const aim_tlv rendezvous_tlvs[] = {
 	{ RENDEZVOUS_TLV_EXT_IP, "External IP", dissect_aim_tlv_value_ipv4 },
 	{ RENDEZVOUS_TLV_EXT_PORT, "External Port", dissect_aim_tlv_value_uint16 },
 	{ RENDEZVOUS_TLV_CAPABILITY_DATA, "Capability Data", dissect_aim_tlv_value_capability_data },
-	{ 0, "Unknown", NULL },
+	{ 0, NULL, NULL },
 };
 
 #define MINITYPING_FINISHED_SIGN			0x0000

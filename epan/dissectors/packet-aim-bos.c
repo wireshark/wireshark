@@ -62,7 +62,7 @@
 static const aim_tlv privacy_tlvs[] = {
 	{ AIM_PRIVACY_TLV_MAX_VISIB_LIST_SIZE, "Max visible list size", dissect_aim_tlv_value_uint16 },
 	{ AIM_PRIVACY_TLV_MAX_INVISIB_LIST_SIZE, "Max invisible list size", dissect_aim_tlv_value_uint16 },
-	{ 0, "Unknown", NULL },
+	{ 0, NULL, NULL },
 };
 
 /* Initialize the protocol and registered fields */

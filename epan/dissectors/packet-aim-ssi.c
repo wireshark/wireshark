@@ -66,7 +66,7 @@ static const value_string aim_fnac_family_ssi_types[] = {
 
 static const aim_tlv ssi_rightsinfo_tlvs[] = {
 	{ SSI_RIGHTSINFO_TLV_MAX_ITEMS, "Maximums For Items", dissect_aim_tlv_value_bytes }, 
-	{ 0, "Unknown", NULL },
+	{ 0, NULL, NULL },
 };
 
 /* Initialize the protocol and registered fields */
