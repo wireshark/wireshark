@@ -761,48 +761,50 @@ AC_DEFUN([AC_ETHEREAL_NETSNMP_CHECK],
 	# We already did that if it was set; presumably AC_PATH_PROG
 	# will fail if it doesn't find an executable version.
 	#
+	if test "x$NETSNMPCONFIG" != "x" ; then
+		dnl other choices for flags to use here: could also use
+		dnl --prefix or --exec-prefix if you don't want the full list.
 
-	dnl other choices for flags to use here: could also use
-	dnl --prefix or --exec-prefix if you don't want the full list.
+		#
+		# Save the current settings of CFLAGS and CPPFLAGS, and add
+		# the output of "$NETSNMPCONFIG --cflags" to it, so that when
+		# searching for the Net-SNMP headers, we look in whatever
+		# directory that output specifies.
+		#
+		ethereal_save_CFLAGS="$CFLAGS"
+		ethereal_save_CPPFLAGS="$CPPFLAGS"
+		CFLAGS="$CFLAGS `$NETSNMPCONFIG --cflags`"
+		CPPFLAGS="$CPPFLAGS `$NETSNMPCONFIG --cflags`"
 
-	#
-	# Save the current settings of CFLAGS and CPPFLAGS, and add
-	# the output of "$NETSNMPCONFIG --cflags" to it, so that when
-	# searching for the Net-SNMP headers, we look in whatever
-	# directory that output specifies.
-	#
-	ethereal_save_CFLAGS="$CFLAGS"
-	ethereal_save_CPPFLAGS="$CPPFLAGS"
-	CFLAGS="$CFLAGS `$NETSNMPCONFIG --cflags`"
-	CPPFLAGS="$CPPFLAGS `$NETSNMPCONFIG --cflags`"
-
-	AC_CHECK_HEADERS(net-snmp/net-snmp-config.h net-snmp/library/default_store.h)
-	if test "x$ac_cv_header_net_snmp_net_snmp_config_h" = "xyes" -a "x$ac_cv_header_net_snmp_library_default_store_h" = "xyes" ; then
-		SNMP_LIBS=`$NETSNMPCONFIG --libs`
-		if echo "$SNMP_LIBS" | grep crypto >/dev/null  && test "x$SSL_LIBS" = "x"; then
-			if test "x$want_netsnmp" = "xyes" ; then
-				AC_MSG_ERROR(Net-SNMP requires openssl but ssl not enabled)
+		AC_CHECK_HEADERS(net-snmp/net-snmp-config.h net-snmp/library/default_store.h)
+		if test "x$ac_cv_header_net_snmp_net_snmp_config_h" = "xyes" -a "x$ac_cv_header_net_snmp_library_default_store_h" = "xyes" ; then
+			SNMP_LIBS=`$NETSNMPCONFIG --libs`
+			if echo "$SNMP_LIBS" | grep crypto >/dev/null  && test "x$SSL_LIBS" = "x"; then
+				if test "x$want_netsnmp" = "xyes" ; then
+					AC_MSG_ERROR(Net-SNMP requires openssl but ssl not enabled)
+				else
+					AC_MSG_RESULT(Net-SNMP requires openssl but ssl not enabled - disabling Net-SNMP)
+				fi
+				CFLAGS="$ethereal_save_CFLAGS"
+				CPPFLAGS="$ethereal_save_CPPFLAGS"
+				SNMP_LIBS=
 			else
-				AC_MSG_RESULT(Net-SNMP requires openssl but ssl not enabled - disabling Net-SNMP)
+				AC_DEFINE(HAVE_NET_SNMP, 1, [Define to enable support for Net-SNMP])
+				have_net_snmp="yes"
 			fi
-			CFLAGS="$ethereal_save_CFLAGS"
-			CPPFLAGS="$ethereal_save_CPPFLAGS"
-			SNMP_LIBS=
 		else
-			AC_DEFINE(HAVE_NET_SNMP, 1, [Define to enable support for Net-SNMP])
-			have_net_snmp="yes"
-		fi
-	else
-		if test "x$want_netsnmp" = "xyes" ; then
-			AC_MSG_ERROR(Net-SNMP not found)
-		else
-			#
-			# Restore the versions of CFLAGS and CPPFLAGS before
-			# we added the output of '$NETSNMPCONFIG --cflags",
-			# as we didn't actually find Net-SNMP there.
-			#
-			CFLAGS="$ethereal_save_CFLAGS"
-			CPPFLAGS="$ethereal_save_CPPFLAGS"
+			if test "x$want_netsnmp" = "xyes" ; then
+				AC_MSG_ERROR(Net-SNMP not found)
+			else
+				#
+				# Restore the versions of CFLAGS and
+				# CPPFLAGS before we added the output
+				# of '$NETSNMPCONFIG --cflags", as we
+				# didn't actually find Net-SNMP there.
+				#
+				CFLAGS="$ethereal_save_CFLAGS"
+				CPPFLAGS="$ethereal_save_CPPFLAGS"
+			fi
 		fi
 	fi	
 ])
@@ -1042,7 +1044,7 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 	  fi
 	  if test "x$ac_krb5_version" = "xMIT"
 	  then
-	  AC_DEFINE(HAVE_MIT_KERBEROS, 1, [Define to use MIT kerberos])
+	    AC_DEFINE(HAVE_MIT_KERBEROS, 1, [Define to use MIT kerberos])
 	  fi
 	else
 	  AC_PATH_PROG(KRB5_CONFIG, krb5-config) 
@@ -1159,8 +1161,7 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 	    		    if test "x$ac_krb5_version" = "xHEIMDAL"
 			    then
 				AC_DEFINE(HAVE_HEIMDAL_KERBEROS, 1, [Define to use heimdal kerberos])
-			    fi
-			    if test "x$ac_krb5_version" = "xMIT"
+			    elif test "x$ac_krb5_version" = "xMIT"
 			    then
 				AC_DEFINE(HAVE_MIT_KERBEROS, 1, [Define to use MIT kerberos])
 			    fi
@@ -1196,6 +1197,33 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 			KRB5_LIBS=""
 			want_krb5=no
 		    fi
+		else
+		    #
+		    # We can link with Kerberos; see whether krb5.h
+		    # defines KEYTYPE_ARCFOUR_56 (where "defines" means
+		    # "as a #define or as an enum member).
+		    #
+		    AC_MSG_CHECKING([whether krb5.h defines KEYTYPE_ARCFOUR_56])
+		    AC_COMPILE_IFELSE(
+		      [
+			AC_LANG_SOURCE(
+			  [[
+			    #include <krb5.h>
+			    #include <stdio.h>
+
+			    main()
+			    {
+			      printf("%u\n", KEYTYPE_ARCFOUR_56);
+			    }
+			  ]])
+		      ],
+		      [
+			AC_MSG_RESULT(yes)
+			AC_DEFINE(HAVE_KEYTYPE_ARCFOUR_56, 1, [Define if krb5.h defines KEYTYPE_ARCFOUR_56])
+		      ],
+		      [
+			AC_MSG_RESULT(no)
+		      ])
 		fi
 		LIBS="$ethereal_save_LIBS"
 	    else

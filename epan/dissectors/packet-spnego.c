@@ -407,9 +407,11 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #ifdef HAVE_KERBEROS
 #include <epan/crypt-md5.h>
 
+#ifndef HAVE_KEYTYPE_ARCFOUR_56
+# define KEYTYPE_ARCFOUR_56 24
+#endif
 /* XXX - We should probably do a configure-time check for this instead */
 #ifndef HAVE_HEIMDAL_KERBEROS
-# define KEYTYPE_ARCFOUR_56 24
 # define KRB5_KU_USAGE_SEAL 22
 #endif
 
@@ -660,7 +662,6 @@ decrypt_arcfour(packet_info *pinfo,
 
 
 #ifdef HAVE_HEIMDAL_KERBEROS
-#include <krb5.h>
 
 static void
 decrypt_heimdal_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int keytype)
