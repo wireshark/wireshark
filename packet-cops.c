@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.6 2000/11/19 08:53:56 guy Exp $
+ * $Id: packet-cops.c,v 1.7 2000/12/27 12:38:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -106,22 +106,22 @@ enum cops_c_num {
 };
 
 static const value_string cops_c_num_vals[] = {
-        { COPS_OBJ_HANDLE,       " Handle Object (Handle)" },
-        { COPS_OBJ_CONTEXT,      " Context Object (Context)" },
-        { COPS_OBJ_IN_INT,       " In-Interface Object (IN-Int)" },
-        { COPS_OBJ_OUT_INT,      " Out-Interface Object (OUT-Int)" },
-        { COPS_OBJ_REASON,       " Reason Object (Reason)" },
-        { COPS_OBJ_DECISION,     " Decision Object (Decision)" },
-        { COPS_OBJ_LPDPDECISION, " LPDP Decision Object (LPDPDecision)" },
-        { COPS_OBJ_ERROR,        " Error Object (Error)" },
-        { COPS_OBJ_CLIENTSI,     " Client Specific Information Object (ClientSI)" },
-        { COPS_OBJ_KATIMER,      " Keep-Alive Timer Object (KATimer)" },
-        { COPS_OBJ_PEPID,        " PEP Identification Object (PEPID)" },
-        { COPS_OBJ_REPORT_TYPE,  " Report-Type Object (Report-Type)" },
-        { COPS_OBJ_PDPREDIRADDR, " PDP Redirect Address Object (PDPRedirAddr)" },
-        { COPS_OBJ_LASTPDPADDR,  " Last PDP Address (LastPDPaddr)" },
-        { COPS_OBJ_ACCTTIMER,    " Accounting Timer Object (AcctTimer)" },
-        { COPS_OBJ_INTEGRITY,    " Message Integrity Object (Integrity)" },
+        { COPS_OBJ_HANDLE,       "Handle Object (Handle)" },
+        { COPS_OBJ_CONTEXT,      "Context Object (Context)" },
+        { COPS_OBJ_IN_INT,       "In-Interface Object (IN-Int)" },
+        { COPS_OBJ_OUT_INT,      "Out-Interface Object (OUT-Int)" },
+        { COPS_OBJ_REASON,       "Reason Object (Reason)" },
+        { COPS_OBJ_DECISION,     "Decision Object (Decision)" },
+        { COPS_OBJ_LPDPDECISION, "LPDP Decision Object (LPDPDecision)" },
+        { COPS_OBJ_ERROR,        "Error Object (Error)" },
+        { COPS_OBJ_CLIENTSI,     "Client Specific Information Object (ClientSI)" },
+        { COPS_OBJ_KATIMER,      "Keep-Alive Timer Object (KATimer)" },
+        { COPS_OBJ_PEPID,        "PEP Identification Object (PEPID)" },
+        { COPS_OBJ_REPORT_TYPE,  "Report-Type Object (Report-Type)" },
+        { COPS_OBJ_PDPREDIRADDR, "PDP Redirect Address Object (PDPRedirAddr)" },
+        { COPS_OBJ_LASTPDPADDR,  "Last PDP Address (LastPDPaddr)" },
+        { COPS_OBJ_ACCTTIMER,    "Accounting Timer Object (AcctTimer)" },
+        { COPS_OBJ_INTEGRITY,    "Message Integrity Object (Integrity)" },
         { 0, NULL },
 
 };
@@ -278,9 +278,9 @@ static void dissect_cops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (tree) {
                 proto_item *ti, *tv;
                 proto_tree *cops_tree, *ver_flags_tree;
-                guint32 offset, msg_len, carbage;
+                guint32 offset, msg_len;
                 guint8 ver_flags;
-
+		gint garbage;
 
                 offset = 0;
                 ti = proto_tree_add_item(tree, proto_cops, tvb, offset, tvb_length(tvb), FALSE);
@@ -316,11 +316,11 @@ static void dissect_cops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         offset += consumed;
                 }
 
-                carbage = tvb_length_remaining(tvb, offset);
-                if (carbage != 0)
-                        proto_tree_add_text(cops_tree, tvb, offset, carbage,
-                                            "Trailing carbage: %u byte%s", carbage,
-                                            plurality(carbage, "", "s"));
+                garbage = tvb_length_remaining(tvb, offset);
+                if (garbage > 0)
+                        proto_tree_add_text(cops_tree, tvb, offset, garbage,
+                                            "Trailing garbage: %d byte%s", garbage,
+                                            plurality(garbage, "", "s"));
         }
 
         return;
