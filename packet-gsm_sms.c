@@ -11,7 +11,7 @@
  *   Technical realization of Short Message Service (SMS)
  *   (3GPP TS 23.040 version 5.4.0 Release 5)
  *
- * $Id: packet-gsm_sms.c,v 1.1 2003/10/30 07:00:18 guy Exp $
+ * $Id: packet-gsm_sms.c,v 1.2 2003/10/30 07:14:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1044,8 +1044,7 @@ dis_field_vp(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, guint8 vp_form)
 		    "TP-Validity-Period: %d day(s)",
 		    oct - 166);
 	    }
-	    else if ((oct >= 197) &&
-		(oct <= 255))
+	    else if (oct >= 197)
 	    {
 		proto_tree_add_text(subtree, tvb,
 		    offset, 1,
@@ -1302,8 +1301,7 @@ dis_field_st(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 	{ \
 	    str = "Reserved unspecified"; \
 	} \
-	else if ((oct >= 0xe0) && \
-	    (oct <= 0xff)) \
+	else if (oct >= 0xe0) \
 	{ \
 	    str = "Values specific for each SC"; \
 	} \
