@@ -1,7 +1,7 @@
 /* capture-util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.19 2004/02/13 00:53:37 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,10 +46,12 @@
 #include "win32-globals.h"
 #include "win32-c-sdk.h"
 #include "ethereal-win32.h"
+#include "win32-menu.h"
 
 #include <epan/packet.h>
 #include <epan/resolv.h>
 #include "capture.h"
+#include "capture-wpcap.h"
 #include "simple_dialog.h"
 #include <epan/filesystem.h>
 
@@ -61,7 +63,7 @@
  * These should match the element IDs in capture-info-dialog.xul AND
  * the packet_counts struct in epan/packet.h.
  */
-gchar *info_element_id[] = {
+static gchar *info_element_id[] = {
     "sctp",
     "tcp",
     "udp",
@@ -75,6 +77,171 @@ gchar *info_element_id[] = {
     "other"
     /* We handle "total" elsewhere. */
 };
+
+/* Make sure we can perform a capture, and if so open the capture options dialog */
+/* XXX - Switch over to value struct iteration, like we're using in the prefs dialog. */
+void
+capture_start_prep() {
+    GList *if_list, *if_entry;
+    int   err;
+    char  err_str[PCAP_ERRBUF_SIZE];
+    win32_element_t *if_el, *cb_el, *sp_el, *tb_el;
+    if_info_t *if_info;
+
+    /* Is WPcap loaded? */
+    if (!has_wpcap) {
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+	    "Unable to load WinPcap (wpcap.dll); Ethereal will not be able "
+	    "to capture packets.\n\n"
+	    "In order to capture packets, WinPcap must be installed; see\n"
+	    "\n"
+	    "        http://winpcap.polito.it/\n"
+	    "\n"
+	    "or the mirror at\n"
+	    "\n"
+	    "        http://winpcap.mirror.ethereal.com/\n"
+	    "\n"
+	    "or the mirror at\n"
+	    "\n"
+	    "        http://www.mirrors.wiretapped.net/security/packet-capre/winpcap/\n"
+	    "\n"
+	    "for a downloadable version of WinPcap and for instructions\n"
+	    "on how to install WinPcap.");
+	return;
+    }
+
+    if_list = get_interface_list(&err, err_str);
+    if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
+	simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, "Can't get list of interfaces: %s",
+	      err_str);
+    }
+
+    if (! g_hw_capture_dlg) {
+	g_hw_capture_dlg = capture_dialog_dialog_create(g_hw_mainwin);
+
+	if_el = win32_identifier_get_str("capture-dialog.interface-combo");
+	win32_element_assert(if_el);
+
+	for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
+	    if_info = if_entry->data;
+	    SendMessage(if_el->h_wnd, CB_ADDSTRING, 0, (LPARAM) (LPCTSTR) if_info->name);
+	}
+	SendMessage(if_el->h_wnd, CB_SETCURSEL, 0, 0);
+    }
+
+    /* Buffer size */
+    sp_el = win32_identifier_get_str("capture-dialog.buffer-size");
+    ethereal_spinner_set_range(sp_el, 1, 65535);
+    ethereal_spinner_set_pos(sp_el, capture_opts.buffer_size);
+
+    /* Promiscuous mode */
+    cb_el = win32_identifier_get_str("capture-dialog.promiscuous");
+    win32_checkbox_set_state(cb_el, capture_opts.promisc_mode);
+
+    /* Snaplen */
+    cb_el = win32_identifier_get_str("capture-dialog.packet-size-cb");
+    win32_checkbox_set_state(cb_el, capture_opts.has_snaplen);
+
+    sp_el = win32_identifier_get_str("capture-dialog.packet-size-spinner");
+    ethereal_spinner_set_range(sp_el, MIN_PACKET_SIZE, WTAP_MAX_PACKET_SIZE);
+    ethereal_spinner_set_pos(sp_el, capture_opts.snaplen);
+    win32_element_set_enabled(sp_el, capture_opts.has_snaplen);
+
+    /* Fill in our capture filter, if we have one */
+    if (cfile.cfilter) {
+	tb_el = win32_identifier_get_str("capture-dialog.capture-filter");
+	win32_textbox_set_text(tb_el, cfile.cfilter);
+    }
+
+    cb_el = win32_identifier_get_str("capture-dialog.next-file-every-size-cb");
+    win32_checkbox_set_state(cb_el, capture_opts.has_autostop_filesize);
+
+    /* Capture file options */
+    cb_el = win32_identifier_get_str("capture-dialog.use-multiple-files");
+    win32_checkbox_set_state(cb_el, capture_opts.multi_files_on);
+
+    /* Ring buffer file size */
+    cb_el = win32_identifier_get_str("capture-dialog.next-file-every-size-cb");
+    win32_checkbox_set_state(cb_el, capture_opts.has_autostop_filesize);
+
+    sp_el = win32_identifier_get_str("capture-dialog.next-file-every-size-spinner");
+    ethereal_spinner_set_range(sp_el, 1, INT_MAX);
+    ethereal_spinner_set_pos(sp_el, capture_opts.autostop_filesize);
+
+    /* Ring buffer duration */
+    cb_el = win32_identifier_get_str("capture-dialog.next-file-every-time-cb");
+    win32_checkbox_set_state(cb_el, capture_opts.has_file_duration);
+
+    sp_el = win32_identifier_get_str("capture-dialog.next-file-every-time-spinner");
+    ethereal_spinner_set_range(sp_el, 1, INT_MAX);
+    ethereal_spinner_set_pos(sp_el, capture_opts.file_duration);
+
+    /* Ring buffer files */
+    cb_el = win32_identifier_get_str("capture-dialog.ring-buffer-with-cb");
+    win32_checkbox_set_state(cb_el, capture_opts.has_ring_num_files);
+
+    sp_el = win32_identifier_get_str("capture-dialog.ring-buffer-with-spinner");
+    ethereal_spinner_set_range(sp_el, 2, RINGBUFFER_MAX_NUM_FILES);
+    ethereal_spinner_set_pos(sp_el, capture_opts.ring_num_files);
+    /* XXX - Set wrap and handle onchange */
+
+    /* Stop capture after */
+    cb_el = win32_identifier_get_str("capture-dialog.stop-capture-after-cb");
+    win32_checkbox_set_state(cb_el, capture_opts.has_autostop_files);
+
+    sp_el = win32_identifier_get_str("capture-dialog.stop-capture-after-spinner");
+    ethereal_spinner_set_range(sp_el, 1, INT_MAX);
+    ethereal_spinner_set_pos(sp_el, capture_opts.autostop_files);
+
+    /* Stop after... (capture limits frame) */
+    /* Packet count row */
+    cb_el = win32_identifier_get_str("capture-dialog.stop-after-packets-cb");
+    win32_checkbox_set_state(cb_el, capture_opts.has_autostop_packets);
+
+    sp_el = win32_identifier_get_str("capture-dialog.stop-after-packets-spinner");
+    ethereal_spinner_set_range(sp_el, 1, INT_MAX);
+    ethereal_spinner_set_pos(sp_el, capture_opts.autostop_packets);
+
+    /* Filesize row */
+    cb_el = win32_identifier_get_str("capture-dialog.stop-after-size-cb");
+    win32_checkbox_set_state(cb_el, capture_opts.has_autostop_filesize);
+
+    sp_el = win32_identifier_get_str("capture-dialog.stop-after-size-spinner");
+    ethereal_spinner_set_range(sp_el, 1, INT_MAX);
+    ethereal_spinner_set_pos(sp_el, capture_opts.autostop_filesize);
+
+    /* Duration row */
+    cb_el = win32_identifier_get_str("capture-dialog.stop-after-time-cb");
+    win32_checkbox_set_state(cb_el, capture_opts.has_autostop_duration);
+
+    sp_el = win32_identifier_get_str("capture-dialog.stop-after-time-spinner");
+    ethereal_spinner_set_range(sp_el, 1, INT_MAX);
+    ethereal_spinner_set_pos(sp_el, capture_opts.autostop_duration);
+
+    /* Set up our display options */
+    cb_el = win32_identifier_get_str("capture-dialog.update-real-time");
+    win32_checkbox_set_state(cb_el, capture_opts.sync_mode);
+
+    cb_el = win32_identifier_get_str("capture-dialog.auto-scroll-live");
+    win32_checkbox_set_state(cb_el, auto_scroll_live);
+
+    cb_el = win32_identifier_get_str("capture-dialog.show_info");
+    win32_checkbox_set_state(cb_el, !capture_opts.show_info);
+
+    /* Set up name resolution */
+    cb_el = win32_identifier_get_str("capture-mac-resolution");
+    win32_checkbox_set_state(cb_el, g_resolv_flags & RESOLV_MAC);
+
+    cb_el = win32_identifier_get_str("capture-network-resolution");
+    win32_checkbox_set_state(cb_el, g_resolv_flags & RESOLV_NETWORK);
+
+    cb_el = win32_identifier_get_str("capture-transport-resolution");
+    win32_checkbox_set_state(cb_el, g_resolv_flags & RESOLV_TRANSPORT);
+
+    capture_dialog_adjust_sensitivity(cb_el);
+
+    capture_dialog_dialog_show(g_hw_capture_dlg);
+}
 
 
 /* capture_info_counts_t and capture_info_ui_t wer
@@ -333,6 +500,8 @@ capture_dialog_start_capture (win32_element_t *ok_el) {
     cb_el = win32_identifier_get_str("capture-transport-resolution");
     if (win32_checkbox_get_state(cb_el))
 	g_resolv_flags |= RESOLV_TRANSPORT;
+
+    menu_name_resolution_changed(g_hw_mainwin);
 
     cb_el = win32_identifier_get_str("capture-dialog.ring-buffer-with-cb");
     capture_opts.has_ring_num_files = win32_checkbox_get_state(cb_el);

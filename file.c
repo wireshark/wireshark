@@ -2838,6 +2838,8 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
    outfile.st_ino = 2;  /* If one or other of the files is not accessible */
    stat(cf->filename, &infile);
    stat(fname, &outfile);
+   /* XXX - We need to disable this check for the native Windows interface.
+      See xulender/win32-c-sdk/win32-file-dlg.c for details. */
    if (infile.st_ino == outfile.st_ino) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
       "%sCapture file: \"%s\" already exists!%s\n\n"

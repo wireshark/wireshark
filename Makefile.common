@@ -198,6 +198,7 @@ wethereal_SOURCES =	\
 	color_filters.c	\
 	file.c		\
 	filters.c	\
+	merge.c		\
 	prefs-recent.c
 
 # text2pcap specifics

@@ -84,6 +84,8 @@ OBJECTS = \
 
 RESOURCES = win32-main.res
 
+RC_FILES = *.rc generated/*.rc win32-main.h win32-file-dlg.h
+
 XUL_SCRIPTS = \
 	..\frontendutil.py \
 	..\xulender.py \
@@ -93,7 +95,8 @@ all: win32-c-sdk.lib $(RESOURCES)
 
 $(GENERATED_OBJECTS): $(XUL_SCRIPTS)
 
-win32-c-sdk.lib : $(OBJECTS)
+win32-c-sdk.lib : $(OBJECTS) $(RC_FILES)
+	rm -f $(RESOURCES)
 	lib /out:win32-c-sdk.lib $(OBJECTS)
 
 clean:

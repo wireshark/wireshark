@@ -3,6 +3,7 @@
 
 /* Our main instance variable */
 extern HWND g_hw_mainwin;
+extern HWND g_hw_capture_dlg;
 extern HWND g_hw_capture_info_dlg;
 
 extern HFONT g_fixed_font;

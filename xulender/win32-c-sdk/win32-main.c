@@ -92,7 +92,6 @@
 
 LRESULT CALLBACK win32_main_wnd_proc( HWND, UINT, WPARAM, LPARAM);
 
-static void capture_start_prep();
 
 /*
  * XXX - A single, global cfile keeps us from having multiple files open
@@ -101,8 +100,6 @@ static void capture_start_prep();
 
 capture_file cfile;
 ts_type timestamp_type = RELATIVE;
-
-TCHAR open_name[MAX_PATH] = "\0";
 
 GString *comp_info_str, *runtime_info_str;
 gchar   *ethereal_path = NULL;
@@ -119,7 +116,7 @@ static void console_log_handler(const char *log_domain,
 static void main_load_window_geometry(HWND hw_mainwin);
 static void main_save_window_geometry(HWND hw_mainwin);
 static void file_save_as_cmd(void);
-static void file_quit_cmd(void);
+static void file_quit_cmd(HWND hw_mainwin);
 
 #ifdef HAVE_LIBPCAP
 static gboolean list_link_layer_types;
@@ -1171,16 +1168,18 @@ WinMain( HINSTANCE h_instance, HINSTANCE h_prev_instance, LPSTR lpsz_cmd_line, i
 #endif
 	/* Create and show the main window */
 	g_hw_mainwin = ethereal_main_window_create(h_instance);
-	/* XXX - Get our geometry */
-	ethereal_main_window_show(g_hw_mainwin, n_cmd_show);
-
-	main_window_update();
 
 	/* Read the recent file, as we have the gui now ready for it. */
 	read_recent(&rf_path, &rf_open_errno);
 
-	/* the window can be sized only, if it's not already shown, so do it now! */
+	/* Size the window before it's displayed. */
 	main_load_window_geometry(g_hw_mainwin);
+
+	ethereal_main_window_show(g_hw_mainwin, n_cmd_show);
+
+	menus_init(g_hw_mainwin);
+
+	main_window_update();
 
 	/* If we were given the name of a capture file, read it in now;
 	   we defer it until now, so that, if we can't open it, and pop
@@ -1371,9 +1370,9 @@ WinMain( HINSTANCE h_instance, HINSTANCE h_prev_instance, LPSTR lpsz_cmd_line, i
 		save_file = NULL;
 	    }
 	}
-//	else {
-//	    set_menus_for_capture_in_progress(FALSE);
-//	}
+	else {
+	    set_menus_for_capture_in_progress(FALSE);
+	}
     }
     if (!start_capture && (cfile.cfilter == NULL || strlen(cfile.cfilter) == 0)) {
 	if (cfile.cfilter) {
@@ -1408,8 +1407,6 @@ WinMain( HINSTANCE h_instance, HINSTANCE h_prev_instance, LPSTR lpsz_cmd_line, i
 LRESULT CALLBACK
 win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 {
-    BOOL ret;
-    read_status_t err;
 
     switch(msg) {
 	case WM_CREATE:
@@ -1426,24 +1423,26 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 	case WM_COMMAND:
 		switch(w_param) {
 		    case IDM_ETHEREAL_MAIN_OPEN:
-			ret = win32_open_file(hw_mainwin, open_name, MAX_PATH);
-			if (ret) {
-			    err = cf_open(open_name, FALSE, &cfile);
-			    if (err != 0) {
-				epan_cleanup();
-				exit(2);
-			    }
-			    err = cf_read(&cfile);
-			    if (err == READ_SUCCESS) {
-				ethereal_packetlist_init(&cfile);
-			    }
-			}
+			if (win32_open_file(hw_mainwin))
+			    ethereal_packetlist_init(&cfile);
 			break;
 		    case IDM_ETHEREAL_MAIN_OPEN_RECENT_CLEAR:
 			clear_menu_recent(hw_mainwin);
 			break;
+		    case IDM_ETHEREAL_MAIN_MERGE:
+			win32_merge_file(hw_mainwin);
+			break;
 		    case IDM_ETHEREAL_MAIN_CLOSE:
+			/* XXX - Prompt the user if we have an unsaved file */
 			cf_close(&cfile);
+			break;
+		    case IDM_ETHEREAL_MAIN_SAVE:
+			if (cfile.user_saved)
+			    break;
+			win32_save_as_file(hw_mainwin, after_save_no_action, NULL);
+			break;
+		    case IDM_ETHEREAL_MAIN_SAVE_AS:
+			win32_save_as_file(hw_mainwin, after_save_no_action, NULL);
 			break;
 		    case IDM_ETHEREAL_MAIN_EDIT_PREFERENCES:
 			prefs_dialog_init(hw_mainwin);
@@ -1458,7 +1457,12 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 			about_dialog_init(hw_mainwin);
 			break;
 		    case IDM_ETHEREAL_MAIN_EXIT:
-			file_quit_cmd();
+			file_quit_cmd(hw_mainwin);
+			break;
+		    case IDM_ETHEREAL_MAIN_VIEW_NAMERES_MAC:
+		    case IDM_ETHEREAL_MAIN_VIEW_NAMERES_NETWORK:
+		    case IDM_ETHEREAL_MAIN_VIEW_NAMERES_TRANSPORT:
+			menu_toggle_name_resolution(hw_mainwin, w_param);
 			break;
 		    default:
 			if (w_param >= IDM_RECENT_FILE_START && w_param < IDM_RECENT_FILE_START + prefs.gui_recent_files_count_max) {
@@ -1469,7 +1473,7 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 		break;
 
 	case WM_DESTROY:
-//	    main_do_quit();
+	    main_do_quit();
 	    break;
 
 	default:
@@ -1714,171 +1718,6 @@ main_do_quit(void)
     }
 }
 
-/* Make sure we can perform a capture, and if so open the capture options dialog */
-/* XXX - Move this to capture-util.c */
-/* XXX - Switch over to value struct iteration, like we're using in the prefs dialog. */
-static void
-capture_start_prep() {
-    GList *if_list, *if_entry;
-    int   err;
-    char  err_str[PCAP_ERRBUF_SIZE];
-    win32_element_t *if_el, *cb_el, *sp_el, *tb_el;
-    if_info_t *if_info;
-
-    /* Is WPcap loaded? */
-    if (!has_wpcap) {
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-	    "Unable to load WinPcap (wpcap.dll); Ethereal will not be able "
-	    "to capture packets.\n\n"
-	    "In order to capture packets, WinPcap must be installed; see\n"
-	    "\n"
-	    "        http://winpcap.polito.it/\n"
-	    "\n"
-	    "or the mirror at\n"
-	    "\n"
-	    "        http://winpcap.mirror.ethereal.com/\n"
-	    "\n"
-	    "or the mirror at\n"
-	    "\n"
-	    "        http://www.mirrors.wiretapped.net/security/packet-capre/winpcap/\n"
-	    "\n"
-	    "for a downloadable version of WinPcap and for instructions\n"
-	    "on how to install WinPcap.");
-	return;
-    }
-
-    if_list = get_interface_list(&err, err_str);
-    if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
-	simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, "Can't get list of interfaces: %s",
-	      err_str);
-    }
-
-    if (! g_hw_capture_dlg) {
-	g_hw_capture_dlg = capture_dialog_dialog_create(g_hw_mainwin);
-
-	if_el = win32_identifier_get_str("capture-dialog.interface-combo");
-	win32_element_assert(if_el);
-
-	for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
-	    if_info = if_entry->data;
-	    SendMessage(if_el->h_wnd, CB_ADDSTRING, 0, (LPARAM) (LPCTSTR) if_info->name);
-	}
-	SendMessage(if_el->h_wnd, CB_SETCURSEL, 0, 0);
-    }
-
-    /* Buffer size */
-    sp_el = win32_identifier_get_str("capture-dialog.buffer-size");
-    ethereal_spinner_set_range(sp_el, 1, 65535);
-    ethereal_spinner_set_pos(sp_el, capture_opts.buffer_size);
-
-    /* Promiscuous mode */
-    cb_el = win32_identifier_get_str("capture-dialog.promiscuous");
-    win32_checkbox_set_state(cb_el, capture_opts.promisc_mode);
-
-    /* Snaplen */
-    cb_el = win32_identifier_get_str("capture-dialog.packet-size-cb");
-    win32_checkbox_set_state(cb_el, capture_opts.has_snaplen);
-
-    sp_el = win32_identifier_get_str("capture-dialog.packet-size-spinner");
-    ethereal_spinner_set_range(sp_el, MIN_PACKET_SIZE, WTAP_MAX_PACKET_SIZE);
-    ethereal_spinner_set_pos(sp_el, capture_opts.snaplen);
-    win32_element_set_enabled(sp_el, capture_opts.has_snaplen);
-
-    /* Fill in our capture filter, if we have one */
-    if (cfile.cfilter) {
-	tb_el = win32_identifier_get_str("capture-dialog.capture-filter");
-	win32_textbox_set_text(tb_el, cfile.cfilter);
-    }
-
-    cb_el = win32_identifier_get_str("capture-dialog.next-file-every-size-cb");
-    win32_checkbox_set_state(cb_el, capture_opts.has_autostop_filesize);
-
-    /* Capture file options */
-    cb_el = win32_identifier_get_str("capture-dialog.use-multiple-files");
-    win32_checkbox_set_state(cb_el, capture_opts.multi_files_on);
-
-    /* Ring buffer file size */
-    cb_el = win32_identifier_get_str("capture-dialog.next-file-every-size-cb");
-    win32_checkbox_set_state(cb_el, capture_opts.has_autostop_filesize);
-
-    sp_el = win32_identifier_get_str("capture-dialog.next-file-every-size-spinner");
-    ethereal_spinner_set_range(sp_el, 1, INT_MAX);
-    ethereal_spinner_set_pos(sp_el, capture_opts.autostop_filesize);
-
-    /* Ring buffer duration */
-    cb_el = win32_identifier_get_str("capture-dialog.next-file-every-time-cb");
-    win32_checkbox_set_state(cb_el, capture_opts.has_file_duration);
-
-    sp_el = win32_identifier_get_str("capture-dialog.next-file-every-time-spinner");
-    ethereal_spinner_set_range(sp_el, 1, INT_MAX);
-    ethereal_spinner_set_pos(sp_el, capture_opts.file_duration);
-
-    /* Ring buffer files */
-    cb_el = win32_identifier_get_str("capture-dialog.ring-buffer-with-cb");
-    win32_checkbox_set_state(cb_el, capture_opts.has_ring_num_files);
-
-    sp_el = win32_identifier_get_str("capture-dialog.ring-buffer-with-spinner");
-    ethereal_spinner_set_range(sp_el, 2, RINGBUFFER_MAX_NUM_FILES);
-    ethereal_spinner_set_pos(sp_el, capture_opts.ring_num_files);
-    /* XXX - Set wrap and handle onchange */
-
-    /* Stop capture after */
-    cb_el = win32_identifier_get_str("capture-dialog.stop-capture-after-cb");
-    win32_checkbox_set_state(cb_el, capture_opts.has_autostop_files);
-
-    sp_el = win32_identifier_get_str("capture-dialog.stop-capture-after-spinner");
-    ethereal_spinner_set_range(sp_el, 1, INT_MAX);
-    ethereal_spinner_set_pos(sp_el, capture_opts.autostop_files);
-
-    /* Stop after... (capture limits frame) */
-    /* Packet count row */
-    cb_el = win32_identifier_get_str("capture-dialog.stop-after-packets-cb");
-    win32_checkbox_set_state(cb_el, capture_opts.has_autostop_packets);
-
-    sp_el = win32_identifier_get_str("capture-dialog.stop-after-packets-spinner");
-    ethereal_spinner_set_range(sp_el, 1, INT_MAX);
-    ethereal_spinner_set_pos(sp_el, capture_opts.autostop_packets);
-
-    /* Filesize row */
-    cb_el = win32_identifier_get_str("capture-dialog.stop-after-size-cb");
-    win32_checkbox_set_state(cb_el, capture_opts.has_autostop_filesize);
-
-    sp_el = win32_identifier_get_str("capture-dialog.stop-after-size-spinner");
-    ethereal_spinner_set_range(sp_el, 1, INT_MAX);
-    ethereal_spinner_set_pos(sp_el, capture_opts.autostop_filesize);
-
-    /* Duration row */
-    cb_el = win32_identifier_get_str("capture-dialog.stop-after-time-cb");
-    win32_checkbox_set_state(cb_el, capture_opts.has_autostop_duration);
-
-    sp_el = win32_identifier_get_str("capture-dialog.stop-after-time-spinner");
-    ethereal_spinner_set_range(sp_el, 1, INT_MAX);
-    ethereal_spinner_set_pos(sp_el, capture_opts.autostop_duration);
-
-    /* Set up our display options */
-    cb_el = win32_identifier_get_str("capture-dialog.update-real-time");
-    win32_checkbox_set_state(cb_el, capture_opts.sync_mode);
-
-    cb_el = win32_identifier_get_str("capture-dialog.auto-scroll-live");
-    win32_checkbox_set_state(cb_el, auto_scroll_live);
-
-    cb_el = win32_identifier_get_str("capture-dialog.show_info");
-    win32_checkbox_set_state(cb_el, !capture_opts.show_info);
-
-    /* Set up name resolution */
-    cb_el = win32_identifier_get_str("capture-mac-resolution");
-    win32_checkbox_set_state(cb_el, g_resolv_flags & RESOLV_MAC);
-
-    cb_el = win32_identifier_get_str("capture-network-resolution");
-    win32_checkbox_set_state(cb_el, g_resolv_flags & RESOLV_NETWORK);
-
-    cb_el = win32_identifier_get_str("capture-transport-resolution");
-    win32_checkbox_set_state(cb_el, g_resolv_flags & RESOLV_TRANSPORT);
-
-    capture_dialog_adjust_sensitivity(cb_el);
-
-    capture_dialog_dialog_show(g_hw_capture_dlg);
-}
 
 
 /* Routines defined elsewhere that we need to handle */
@@ -2007,7 +1846,7 @@ file_save_as_cmd(void) {
 }
 
 static void
-file_quit_cmd(void) {
+file_quit_cmd(HWND hw_mainwin) {
     gint btn;
 
     if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
@@ -2018,7 +1857,7 @@ file_quit_cmd(void) {
 	switch(btn) {
 	    case(ESD_BTN_SAVE):
 		/* save file first */
-//		file_save_as_cmd(after_save_exit, NULL);
+		win32_save_as_file(hw_mainwin, after_save_exit, NULL);
 		break;
 	    case(ESD_BTN_DONT_SAVE):
 		main_do_quit();

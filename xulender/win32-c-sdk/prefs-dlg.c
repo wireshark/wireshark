@@ -25,6 +25,7 @@
 #include "ethereal-win32.h"
 
 #include "win32-globals.h"
+#include "win32-menu.h"
 #include "win32-util.h"
 
 #include "color.h"
@@ -1118,7 +1119,7 @@ nameres_prefs_apply()
      * changed?
      */
     g_resolv_flags = prefs.name_resolve;
-//    menu_name_resolution_changed();
+    menu_name_resolution_changed(g_hw_mainwin);
 }
 
 /* apply all pref values to the real world */

@@ -27,6 +27,10 @@
           </menupopup>
         </menu>
         <menuitem
+          label="Merge..."
+          command="ethereal-main-merge"
+        />
+        <menuitem
           label="Close"
           command="ethereal-main-close"
         />
@@ -41,8 +45,12 @@
         />
         <menuseparator/>
         <menuitem
-          label="Export"
-          command="ethereal-main-export"
+          label="Export File..."
+          command="ethereal-main-export-file"
+        />
+        <menuitem
+          label="Export Selected Bytes..."
+          command="ethereal-main-export-selected"
         />
         <menuseparator/>
         <menuitem
@@ -60,8 +68,197 @@
     <menu label="Edit">
       <menupopup>
         <menuitem
+          label="Find Packet..."
+          command="ethereal-main-edit-find-packet"
+        />
+        <menuitem
+          label="Find Next..."
+          command="ethereal-main-edit-find-next"
+        />
+        <menuitem
+          label="Find Previous..."
+          command="ethereal-main-edit-find-previous"
+        />
+        <menuseparator />
+        <menu
+          label="Time Reference"
+          command="ethereal-main-edit-time-reference"
+        >
+          <menupopup>
+            <menuitem
+              label="Set Time Reference (toggle)"
+              command="ethereal-main-edit-time-ref-toggle"
+            />
+            <menuitem
+              label="Find Next"
+              command="ethereal-main-edit-time-ref-next"
+            />
+            <menuitem
+              label="Find Previous"
+              command="ethereal-main-edit-time-ref-prev"
+            />
+          </menupopup>
+        </menu>
+        <menuitem
+          label="Mark Packet"
+          command="ethereal-main-edit-mark-packet"
+        />
+        <menuitem
+          label="Mark All Packets"
+          command="ethereal-main-edit-mark-all-packets"
+        />
+        <menuitem
+          label="Unmark All Packets"
+          command="ethereal-main-edit-unmark-all-packets"
+        />
+        <menuseparator />
+        <menuitem
           label="Preferences..."
           command="ethereal-main-edit-preferences"
+        />
+      </menupopup>
+    </menu>
+
+    <menu label="View">
+      <menupopup>
+        <menuitem
+          label="Main Toolbar"
+          command="ethereal-main-view-main-toolbar"
+        />
+        <menuitem
+          label="Filter Toolbar"
+          command="ethereal-main-view-filter-toolbar"
+        />
+        <menuitem
+          label="Statusbar"
+          command="ethereal-main-view-statusbar"
+        />
+        <menuseparator />
+        <menuitem
+          label="Packet List"
+          command="ethereal-main-view-packet-list"
+        />
+        <menuitem
+          label="Packet Details"
+          command="ethereal-main-view-packet-details"
+        />
+        <menuitem
+          label="Packet Bytes"
+          command="ethereal-main-view-packet-bytes"
+        />
+        <menuseparator />
+        <menu
+          label="Time Display Format"
+          command="ethereal-main-view-timedf"
+        >
+          <menupopup>
+            <menuitem
+              label="Time of Day"
+              command="ethereal-main-view-timedf-tod"
+            />
+            <menuitem
+              label="Date and Time of Day"
+              command="ethereal-main-view-timedf-datod"
+            />
+            <menuitem
+              label="Seconds Since Beginning of Capture"
+              command="ethereal-main-view-timedf-secsbeg"
+            />
+            <menuitem
+              label="Seconds Since Previous Packet"
+              command="ethereal-main-view-timedf-secsprev"
+            />
+          </menupopup>
+        </menu>
+        <menu
+          label="Name Resolution"
+          command="ethereal-main-view-nameres"
+        >
+          <menupopup>
+            <menuitem
+              label="Resolve Name"
+              command="ethereal-main-view-nameres-resolve"
+            />
+            <menuseparator />
+            <menuitem
+              label="MAC Name Resolution"
+              command="ethereal-main-view-nameres-mac"
+            />
+            <menuitem
+              label="Network Name Resolution"
+              command="ethereal-main-view-nameres-network"
+            />
+            <menuitem
+              label="Transport Name Resolution"
+              command="ethereal-main-view-nameres-transport"
+            />
+          </menupopup>
+        </menu>
+        <menuitem
+          label="Auto Scroll in Live Capture"
+          command="ethereal-main-view-autoscroll"
+        />
+        <menuseparator />
+        <menuitem
+          label="Zoom In"
+          command="ethereal-main-view-zoomin"
+        />
+        <menuitem
+          label="Zoom Out"
+          command="ethereal-main-view-zoomout"
+        />
+        <menuitem
+          label="Normal Size"
+          command="ethereal-main-view-normalsz"
+        />
+        <menuseparator />
+        <menuitem
+          label="Collapse All"
+          command="ethereal-main-view-collapseall"
+        />
+        <menuitem
+          label="Expand All"
+          command="ethereal-main-view-expandall"
+        />
+        <menuitem
+          label="Expand Tree"
+          command="ethereal-main-view-expandtree"
+        />
+        <menuseparator />
+        <menuitem
+          label="Coloring Rules..."
+          command="ethereal-main-view-coloring"
+        />
+        <menuseparator />
+        <menuitem
+          label="Show Packet in New Window"
+          command="ethereal-main-view-newwindow"
+        />
+        <menuitem
+          label="Reload"
+          command="ethereal-main-view-reload"
+        />
+      </menupopup>
+    </menu>
+
+    <menu label="Go">
+      <menupopup>
+        <menuitem
+          label="Go to Packet..."
+          command="ethereal-main-go-topacket"
+        />
+        <menuitem
+          label="Go to Corresponding Packet"
+          command="ethereal-main-go-corresponding"
+        />
+        <menuseparator />
+        <menuitem
+          label="First Packet"
+          command="ethereal-main-go-first"
+        />
+        <menuitem
+          label="Last Packet"
+          command="ethereal-main-go-last"
         />
       </menupopup>
     </menu>
@@ -83,21 +280,190 @@
       </menupopup>
     </menu>
 
+    <menu label="Analyze">
+      <menupopup>
+        <menuitem
+          label="Display Filters..."
+          command="ethereal-main-analyze-df"
+        />
+        <menu
+          label="Apply as Filter"
+          command="ethereal-main-analyze-aaf"
+        >
+          <menupopup>
+            <menuitem
+              label="Selected"
+              command="ethereal-main-analyze-aaf-selected"
+            />
+            <menuitem
+              label="Not Selected"
+              command="ethereal-main-analyze-aaf-notselected"
+            />
+            <menuitem
+              label="... and Selected"
+              command="ethereal-main-analyze-aaf-andselected"
+            />
+            <menuitem
+              label="... or Selected"
+              command="ethereal-main-analyze-aaf-orselected"
+            />
+            <menuitem
+              label="... and not Selected"
+              command="ethereal-main-analyze-aaf-andnotselected"
+            />
+            <menuitem
+              label="... or not Selected"
+              command="ethereal-main-analyze-aaf-ornotselected"
+            />
+          </menupopup>
+        </menu>
+        <menu
+          label="Prepare as Filter"
+          command="ethereal-main-analyze-paf"
+        >
+          <menupopup>
+            <menuitem
+              label="Selected"
+              command="ethereal-main-analyze-paf-selected"
+            />
+            <menuitem
+              label="Not Selected"
+              command="ethereal-main-analyze-paf-notselected"
+            />
+            <menuitem
+              label="... and Selected"
+              command="ethereal-main-analyze-paf-andselected"
+            />
+            <menuitem
+              label="... or Selected"
+              command="ethereal-main-analyze-paf-orselected"
+            />
+            <menuitem
+              label="... and not Selected"
+              command="ethereal-main-analyze-paf-andnotselected"
+            />
+            <menuitem
+              label="... or not Selected"
+              command="ethereal-main-analyze-paf-ornotselected"
+            />
+          </menupopup>
+        </menu>
+        <menuitem
+          label="Enabled Protocols..."
+          command="ethereal-main-analyze-enaproto"
+        />
+        <menuitem
+          label="Decode As..."
+          command="ethereal-main-analyze-decodeas"
+        />
+        <menuitem
+          label="User Specified Decodes..."
+          command="ethereal-main-analyze-userspe"
+        />
+        <menuseparator />
+        <menuitem
+          label="Follow TCP Stream"
+          command="ethereal-main-analyze-follow"
+        />
+      </menupopup>
+    </menu>
+
+    <menu label="Statistics">
+      <menupopup>
+        <menuitem
+          label="Summary"
+          command="ethereal-main-stats-summary"
+        />
+        <menuitem
+          label="Protocol Hierarchy"
+          command="ethereal-main-stats-protohier"
+        />
+        <menuitem
+          label="Conversations"
+          command="ethereal-main-stats-conv"
+        />
+        <menuitem
+          label="Endpoints"
+          command="ethereal-main-stats-endpoints"
+        />
+      </menupopup>
+    </menu>
+
     <menu label="Help">
       <menupopup>
         <menuitem
           label="Contents"
-          command="ethereal-main-about-contents"
+          command="ethereal-main-help-contents"
         />
         <menuitem
           label="Supported Protocols"
-          command="ethereal-main-about-supported-protocols"
+          command="ethereal-main-help-protos"
         />
         <menuseparator/>
-        <menuitem
-          label="About Plugins"
-          command="ethereal-main-about-plugins"
-        />
+        <menu
+          label="Manual Pages"
+          command="ethereal-main-help-man"
+        >
+          <menupopup>
+            <menuitem
+              label="Ethereal"
+              command="ethereal-main-help-man-ethereal"
+            />
+            <menuitem
+              label="Ethereal Filter"
+              command="ethereal-main-help-man-etherealfilt"
+            />
+            <menuseparator />
+            <menuitem
+              label="Tethereal"
+              command="ethereal-main-help-man-tethereal"
+            />
+            <menuitem
+              label="Mergecap"
+              command="ethereal-main-help-man-mergecap"
+            />
+            <menuitem
+              label="Editcap"
+              command="ethereal-main-help-man-editcap"
+            />
+            <menuitem
+              label="Text2pcap"
+              command="ethereal-main-help-man-text2pcap"
+            />
+            <menuitem
+              label="Capinfo"
+              command="ethereal-main-help-man-capinfo"
+            />
+          </menupopup>
+        </menu>
+        <menu
+          label="Ethereal Online"
+          command="ethereal-main-help-online"
+        >
+          <menupopup>
+            <menuitem
+              label="Home Page"
+              command="ethereal-main-help-online-home"
+            />
+            <menuitem
+              label="User's Guide"
+              command="ethereal-main-help-online-ug"
+            />
+            <menuitem
+              label="FAQs"
+              command="ethereal-main-help-online-faqs"
+            />
+            <menuitem
+              label="Downloads"
+              command="ethereal-main-help-online-downloads"
+            />
+            <menuitem
+              label="Example Files"
+              command="ethereal-main-help-online-examples"
+            />
+          </menupopup>
+        </menu>
+        <menuseparator />
         <menuitem
           label="About Ethereal"
           command="ethereal-main-about-ethereal"
