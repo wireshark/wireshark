@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.89 2003/11/19 09:43:29 guy Exp $
+ * $Id: packet-wsp.c,v 1.90 2003/11/19 21:24:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,6 +49,7 @@
 #include <epan/packet.h>
 #include <epan/ipv6-utils.h>
 #include <epan/conversation.h>
+
 #include "packet-wap.h"
 #include "packet-wsp.h"
 
@@ -1850,7 +1851,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb)
 
 #define wkh_2_TextualValue					/* Parse Textual Value */ \
 		/* END */ \
-	} else if ((val_id == 0) || (val_id >=0x20)) { /* Textual value */ \
+	} else if ((val_id == 0) || (val_id >= 0x20)) { /* Textual value */ \
 		val_str = tvb_get_stringz (tvb, val_start, &val_len); \
 		g_assert(val_str); \
 		offset = val_start + val_len; \
@@ -1981,10 +1982,9 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
 			} \
 			off += len; \
 		} \
-		/* Remember: offset == val_start + val_len */ \
+		/* Remember: offset == val_start + val_len + val_len_len */ \
 		if (ok && (off < offset)) { /* Add parameters if any */ \
-			parameter_tree = proto_item_add_subtree (ti, \
-					ett_header); \
+			parameter_tree = proto_item_add_subtree (ti, ett_header); \
 			while (off < offset) { \
 				off = parameter (parameter_tree, ti, tvb, off, offset - off); \
 			} \
@@ -2100,8 +2100,7 @@ add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
 		} /* else ok = FALSE */
 		/* Remember: offset == val_start + val_len_len + val_len */
 		if (ok && (off < offset)) { /* Add parameters if any */
-			parameter_tree = proto_item_add_subtree (ti,
-					ett_header);
+			parameter_tree = proto_item_add_subtree (ti, ett_header);
 			while (off < offset) {
 				off = parameter (parameter_tree, ti, tvb, off, offset - off);
 			}
@@ -2154,8 +2153,7 @@ wkh_ ## underscored (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
 		} /* else ok = FALSE */ \
 		/* Remember: offset == val_start + val_len */ \
 		if (ok && (off < offset)) { /* Add Q-value if available */ \
-			parameter_tree = proto_item_add_subtree (ti, \
-					ett_header); \
+			parameter_tree = proto_item_add_subtree (ti, ett_header); \
 			off = parameter_value_q (parameter_tree, ti, tvb, off); \
 		} \
 	\
@@ -2519,7 +2517,12 @@ wkh_accept_encoding(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 
 
 /*
- * Content-disposition-value =
+ * Content-disposition-value = Value-length ( Disposition ) *( Parameter )
+ *	Disposition = Form-data | Attachment | Inline | Token-text
+ *	Form-data = 0x80
+ *	Attachment = 0x81
+ *	Inline = 0x82
+ * We handle this as:
  *	Value-length ( Short-integer | Text-string ) *( Parameter )
  */
 static guint32
@@ -2539,7 +2542,7 @@ wkh_content_disposition(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 		off = val_start + val_len_len;
 		peek = tvb_get_guint8(tvb, off);
 		if (is_short_integer(peek)) {
-			switch (val_id) {
+			switch (peek) {
 				case 0x80: /* form-data */
 					ti = proto_tree_add_string(tree, hf_hdr_content_disposition,
 							tvb, hdr_start, offset - hdr_start, "form-data");
@@ -2566,14 +2569,14 @@ wkh_content_disposition(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 			}
 			off += len;
 		}
-		if (ok) {
+		if ((ok) && (off < offset)) {
 			/* Remember: offset == val_start + val_len_len + val_len */
-			while (off < offset) { /* Add Q-value if available */
-				parameter_tree = proto_item_add_subtree(ti, ett_header);
-				off = parameter_value_q(parameter_tree, ti, tvb, off);
+			parameter_tree = proto_item_add_subtree(ti, ett_header);
+			while (off < offset) { /* Add parameters if available */
+				off = parameter(parameter_tree, ti, tvb, off, offset - off);
 			}
 		}
-	wkh_4_End(hf_hdr_accept_encoding);
+	wkh_4_End(hf_hdr_content_disposition);
 }
 
 
@@ -3828,6 +3831,9 @@ wkh_content_type_header(openwave_x_up_proxy_push_accept,
  * 			  | Q-value | Version-value | Uri-value )
  * 			| Text-value )
  *
+ *
+ * Returns: next offset
+ *
  * TODO - Verify byte highlighting in case of invalid parameter values
  */
 static int
@@ -3841,7 +3847,10 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 	gchar *s;
 	gboolean ok;
 
-	if (is_token_text (peek)) { /* Untyped parameter */
+	if (is_token_text (peek)) {
+		/*
+		 * Untyped parameter
+		 */
 		get_token_text (str,tvb,start,val_len,ok); /* Should always succeed */
 		if (ok) { /* Found a textual parameter name: str */
 			offset += val_len;
@@ -3884,7 +3893,10 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 			g_free(str);
 		}
 		return offset;
-	} /* Else: typed parameter */
+	}
+	/*
+	 * Else: Typed parameter
+	 */
 	get_integer_value (type,tvb,start,type_len,ok);
 	if (!ok) {
 		proto_tree_add_text (tree, tvb, start, offset - start,
@@ -4038,15 +4050,16 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 				proto_tree_add_string (tree, hf_wsp_parameter_level,
 						tvb, start, type_len + val_len, str);
 				proto_item_append_text (ti, "; level=%s", str);
+				offset += val_len;
 			} else {
 				proto_tree_add_text (tree, tvb, start, len - start,
 						InvalidParameterValue("Level", "Version-value"));
+				offset = start + len; /* Skip to end of buffer */
 			}
-			offset += val_len;
 			break;
 
 		case 0x00:	/* WSP 1.1 encoding - Q: Q-value */
-			offset += parameter_value_q (tree, ti, tvb, offset);
+			offset = parameter_value_q(tree, ti, tvb, offset);
 			break;
 
 		case 0x07:	/* WSP 1.1 encoding - Differences: Field-name */
@@ -4058,6 +4071,9 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 		case 0x15:	/* WSP 1.4 encoding - Read-date: Date-value */
 		case 0x16:	/* WSP 1.4 encoding - Size: Integer-value */
 		default:
+			proto_tree_add_text(tree, tvb, start, len - start, 
+					"Undecoded parameter type 0x%02x - decoding stopped",
+					type);
 			offset = start + len; /* Skip the parameters */
 			break;
 	}
@@ -4065,6 +4081,11 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 }
 
 
+/*
+ * Dissects the Q-value parameter value.
+ * 
+ * Returns: next offset
+ */
 static int
 parameter_value_q (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start)
 {
@@ -4090,7 +4111,7 @@ parameter_value_q (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start)
 				InvalidParameterValue("Q", "Q-value"));
 		offset += val_len;
 	}
-	return val_len;
+	return offset;
 }
 
 
