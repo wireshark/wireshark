@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.6 2001/01/10 09:07:35 guy Exp $
+ * $Id: packet-fr.c,v 1.7 2001/01/13 07:47:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,7 @@
 #include "xdlc.h"
 #include "oui.h"
 #include "nlpid.h"
+#include "greproto.h"
 
 static gint proto_fr    = -1;
 static gint ett_fr      = -1;
@@ -228,14 +229,12 @@ void proto_register_fr(void)
   proto_register_field_array(proto_fr, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_dissector("fr", dissect_fr, proto_fr);
-
   fr_subdissector_table = register_dissector_table("fr.ietf");
   fr_cisco_subdissector_table = register_dissector_table("fr.cisco");
-
-};
+}
 
 void proto_reg_handoff_fr(void)
 {
   dissector_add("wtap_encap", WTAP_ENCAP_FRELAY, dissect_fr, proto_fr);
+  dissector_add("gre.proto", GRE_FR, dissect_fr, proto_fr);
 }

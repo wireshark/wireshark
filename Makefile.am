@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.275 2001/01/13 03:17:15 gram Exp $
+# $Id: Makefile.am,v 1.276 2001/01/13 07:47:48 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -279,6 +279,7 @@ ETHEREAL_COMMON_SOURCES = \
 	etypes.h       \
 	follow.c       \
 	follow.h       \
+	greproto.h     \
 	in_cksum.c     \
 	in_cksum.h     \
 	ipproto.c      \

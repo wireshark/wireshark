@@ -1,7 +1,7 @@
 /* etypes.h
  * Defines ethernet packet types, similar to tcpdump's ethertype.h
  *
- * $Id: etypes.h,v 1.14 2000/08/09 22:10:23 deniel Exp $
+ * $Id: etypes.h,v 1.15 2001/01/13 07:47:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -152,6 +152,10 @@
 
 #ifndef ETHERTYPE_MPLS_MULTI
 #define ETHERTYPE_MPLS_MULTI 0x8848 /* MPLS multicast packet */
+#endif
+
+#ifndef ETHERTYPE_PPP
+#define ETHERTYPE_PPP	0x880b	/* no, this is not PPPoE */
 #endif
 
 #endif /* etypes.h */

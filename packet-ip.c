@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.120 2001/01/10 09:07:35 guy Exp $
+ * $Id: packet-ip.c,v 1.121 2001/01/13 07:47:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,6 +47,7 @@
 #include "resolv.h"
 #include "prefs.h"
 #include "etypes.h"
+#include "greproto.h"
 #include "ppptypes.h"
 #include "llcsaps.h"
 #include "aftypes.h"
@@ -1483,13 +1484,14 @@ proto_reg_handoff_ip(void)
 	dissector_add("ethertype", ETHERTYPE_IP, dissect_ip, proto_ip);
 	dissector_add("ppp.protocol", PPP_IP, dissect_ip, proto_ip);
 	dissector_add("ppp.protocol", ETHERTYPE_IP, dissect_ip, proto_ip);
+	dissector_add("gre.proto", ETHERTYPE_IP, dissect_ip, proto_ip);
+	dissector_add("gre.proto", GRE_WCCP, dissect_ip, proto_ip);
 	dissector_add("llc.dsap", SAP_IP, dissect_ip, proto_ip);
 	dissector_add("ip.proto", IP_PROTO_IPV4, dissect_ip, proto_ip);
 	dissector_add("ip.proto", IP_PROTO_IPIP, dissect_ip, proto_ip);
 	dissector_add("null.type", BSD_AF_INET, dissect_ip, proto_ip);
-        dissector_add("fr.cisco", ETHERTYPE_IP, dissect_ip, proto_ip);
-        dissector_add("fr.ietf", NLPID_IP, dissect_ip, proto_ip);
-        
+	dissector_add("fr.cisco", ETHERTYPE_IP, dissect_ip, proto_ip);
+	dissector_add("fr.ietf", NLPID_IP, dissect_ip, proto_ip);
 }
 
 void

@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.37 2001/01/09 09:59:28 guy Exp $
+ * $Id: packet-gre.c,v 1.38 2001/01/13 07:47:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,8 @@
 #include <netinet/in.h>
 #endif
 #include <glib.h>
+#include "etypes.h"
+#include "greproto.h"
 #include "packet.h"
 #include "packet-ip.h"
 #include "packet-ipx.h"
@@ -49,6 +51,8 @@ static gint ett_gre = -1;
 static gint ett_gre_flags = -1;
 static gint ett_gre_wccp2_redirect_header = -1;
 
+static dissector_table_t gre_dissector_table;
+
 /* bit positions for flags in header */
 #define GH_B_C		0x8000
 #define GH_B_R		0x4000
@@ -61,28 +65,17 @@ static gint ett_gre_wccp2_redirect_header = -1;
 #define GH_R_FLAGS	0x00F8
 #define GH_B_VER	0x0007
 
-#define GRE_PPP		0x880B
-#define	GRE_IP		0x0800
-#define GRE_WCCP	0x883E
-#define GRE_IPX		0x8137
-#define GRE_FR		0x6559
-
 static void add_flags_and_ver(proto_tree *, guint16, tvbuff_t *, int, int);
 static void dissect_gre_wccp2_redirect_header(tvbuff_t *, int, proto_tree *);
 
 static const value_string typevals[] = {
-	{ GRE_PPP,  "PPP" },
-	{ GRE_IP,   "IP" },
-	{ GRE_WCCP, "WCCP"},
-	{ GRE_IPX,  "IPX"},
-        { GRE_FR,   "FR"},
-	{ 0,        NULL  }
+	{ ETHERTYPE_PPP, "PPP" },
+	{ ETHERTYPE_IP,  "IP" },
+	{ GRE_WCCP,      "WCCP"},
+	{ ETHERTYPE_IPX, "IPX"},
+	{ GRE_FR,        "FR"},
+	{ 0,             NULL  }
 };
-
-static dissector_handle_t ip_handle;
-static dissector_handle_t ipx_handle;
-static dissector_handle_t ppp_handle;
-static dissector_handle_t fr_handle;
 
 static void
 dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -122,7 +115,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     len += 4;
   switch (type) {
 
-  case GRE_PPP:
+  case ETHERTYPE_PPP:
     if (flags_and_ver & GH_P_A)
       len += 4;
     is_ppp = TRUE;
@@ -257,32 +250,16 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 
-  next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-  switch (type) {
-    case GRE_PPP:
-      call_dissector(ppp_handle, next_tvb, pinfo, tree);
-      break;
-    case GRE_IP:
-      call_dissector(ip_handle, next_tvb, pinfo, tree);
-      break;
-    case GRE_WCCP:
-      if (is_wccp2) {
-      	if (tree)
-          dissect_gre_wccp2_redirect_header(tvb, offset, gre_tree);
-        offset += 4;
-      }
-      call_dissector(ip_handle, next_tvb, pinfo, tree);
-      break;
-    case GRE_IPX:
-      call_dissector(ipx_handle, next_tvb, pinfo, tree);
-      break;
-    case GRE_FR:
-      call_dissector(fr_handle, next_tvb, pinfo, tree);
-      break;        
-    default:
-      dissect_data(next_tvb, 0, pinfo, gre_tree);
-      break;
+  if (type == GRE_WCCP) {
+    if (is_wccp2) {
+      if (tree)
+        dissect_gre_wccp2_redirect_header(tvb, offset, gre_tree);
+      offset += 4;
+    }
   }
+  next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+  if (!dissector_try_port(gre_dissector_table, type, next_tvb, pinfo, tree))
+    dissect_data(next_tvb, 0, pinfo, gre_tree);
 }
 
 static void
@@ -380,18 +357,13 @@ proto_register_gre(void)
 	    "GRE", "gre");
         proto_register_field_array(proto_gre, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	/* subdissector code */
+	gre_dissector_table = register_dissector_table("gre.proto");
 }
 
 void
 proto_reg_handoff_gre(void)
 {
 	dissector_add("ip.proto", IP_PROTO_GRE, dissect_gre, proto_gre);
-
-	/*
-	 * Get handles for the IP, IPX, PPP, and Frame Relay dissectors.
-	 */
-	ip_handle = find_dissector("ip");
-	ipx_handle = find_dissector("ipx");
-	ppp_handle = find_dissector("ppp");
-	fr_handle = find_dissector("fr");
 }

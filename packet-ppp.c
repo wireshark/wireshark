@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.52 2001/01/10 09:07:35 guy Exp $
+ * $Id: packet-ppp.c,v 1.53 2001/01/13 07:47:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1473,4 +1473,5 @@ proto_reg_handoff_ppp(void)
   dissector_add("wtap_encap", WTAP_ENCAP_PPP, dissect_ppp, proto_ppp);
   dissector_add("wtap_encap", WTAP_ENCAP_PPP_WITH_PHDR, dissect_ppp, proto_ppp);
   dissector_add("fr.ietf", NLPID_PPP, dissect_ppp, proto_ppp);
+  dissector_add("gre.proto", ETHERTYPE_PPP, dissect_ppp, proto_ppp);
 }
