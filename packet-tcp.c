@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.204 2003/08/29 11:40:24 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.205 2003/09/08 10:19:06 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -94,6 +94,7 @@ static int hf_tcp_analysis_retransmission = -1;
 static int hf_tcp_analysis_lost_packet = -1;
 static int hf_tcp_analysis_ack_lost_packet = -1;
 static int hf_tcp_analysis_keep_alive = -1;
+static int hf_tcp_analysis_keep_alive_ack = -1;
 static int hf_tcp_analysis_duplicate_ack = -1;
 static int hf_tcp_analysis_duplicate_ack_num = -1;
 static int hf_tcp_analysis_duplicate_ack_frame = -1;
@@ -181,6 +182,8 @@ struct tcp_unacked {
 
 	/* this is to keep track of zero window and zero window probe */
 	guint32 window;
+
+	guint32 flags;
 };
 
 /* Idea for gt: either x > y, or y is much bigger (assume wrap) */
@@ -192,18 +195,19 @@ struct tcp_unacked {
 
 static GMemChunk *tcp_acked_chunk = NULL;
 static int tcp_acked_count = 5000;	/* one for almost every other segment in the capture */
-#define TCP_A_RETRANSMISSION		0x01
-#define TCP_A_LOST_PACKET		0x02
-#define TCP_A_ACK_LOST_PACKET		0x04
-#define TCP_A_KEEP_ALIVE		0x08
-#define TCP_A_DUPLICATE_ACK		0x10
-#define TCP_A_ZERO_WINDOW		0x20
-#define TCP_A_ZERO_WINDOW_PROBE		0x40
-#define TCP_A_ZERO_WINDOW_VIOLATION	0x80
+#define TCP_A_RETRANSMISSION		0x0001
+#define TCP_A_LOST_PACKET		0x0002
+#define TCP_A_ACK_LOST_PACKET		0x0004
+#define TCP_A_KEEP_ALIVE		0x0008
+#define TCP_A_DUPLICATE_ACK		0x0010
+#define TCP_A_ZERO_WINDOW		0x0020
+#define TCP_A_ZERO_WINDOW_PROBE		0x0040
+#define TCP_A_ZERO_WINDOW_VIOLATION	0x0080
+#define TCP_A_KEEP_ALIVE_ACK		0x0100
 struct tcp_acked {
 	guint32 frame_acked;
 	nstime_t ts;
-	guint8 flags;
+	guint16 flags;
 	guint32 dupack_num;	/* dup ack number */
 	guint32 dupack_frame;	/* dup ack to frame # */
 };
@@ -533,6 +537,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		ual1->ts.secs=pinfo->fd->abs_secs;
 		ual1->ts.nsecs=pinfo->fd->abs_usecs*1000;
 		ual1->window=window;
+		ual1->flags=0;
 		if(tcp_relative_seq){
 			base_seq=seq;
 			base_ack=ack;
@@ -553,6 +558,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		ual1->ts.secs=pinfo->fd->abs_secs;
 		ual1->ts.nsecs=pinfo->fd->abs_usecs*1000;
 		ual1->window=window;
+		ual1->flags=0;
 		if(tcp_relative_seq){
 			base_seq=seq;
 			base_ack=ack;
@@ -582,6 +588,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		ual->ts.secs=pinfo->fd->abs_secs;
 		ual->ts.nsecs=pinfo->fd->abs_usecs*1000;
 		ual->window=window;
+		ual->flags=0;
 		ual1=ual;
 		goto seq_finished;
 	}
@@ -609,6 +616,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 	
 			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
 			ta->flags|=TCP_A_KEEP_ALIVE;
+			ual1->flags|=TCP_A_KEEP_ALIVE;
 			goto seq_finished;
 		}
 	}
@@ -650,6 +658,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 	ual->ts.secs=pinfo->fd->abs_secs;
 	ual->ts.nsecs=pinfo->fd->abs_usecs*1000;
 	ual->window=window;
+	ual->flags=0;
 	ual1=ual;
 
 seq_finished:
@@ -768,6 +777,7 @@ ack_finished:
 		ual2->ts.secs=0;
 		ual2->ts.nsecs=0;
 		ual2->window=window;
+		ual2->flags=0;
 	}
 
 	/* update the ACK counter and check for
@@ -801,8 +811,15 @@ ack_finished:
 				ual->num_acks++;
 			}	
 			
+			/* is this an ACK to a KeepAlive? */
+			if( (ual->flags&TCP_A_KEEP_ALIVE)
+			&& (ack==ual->seq) ){
+				struct tcp_acked *ta;
+				ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+				ta->flags|=TCP_A_KEEP_ALIVE_ACK;
+				ual->flags^=TCP_A_KEEP_ALIVE;
+			} else if(ual->num_acks>1) {
 			/* ok we have found a potential duplicate ack */
-			if(ual->num_acks>1){
 				struct tcp_acked *ta;
 				ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
 				/* keepalives are not dupacks */
@@ -938,6 +955,12 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 			proto_tree_add_none_format(flags_tree, hf_tcp_analysis_keep_alive, tvb, 0, 0, "This is a TCP keep-alive segment");
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Keep-Alive] ");
+			}
+		}
+		if( ta->flags&TCP_A_KEEP_ALIVE_ACK ){
+			proto_tree_add_none_format(flags_tree, hf_tcp_analysis_keep_alive_ack, tvb, 0, 0, "This is an ACK to a TCP keep-alive segment");
+			if(check_col(pinfo->cinfo, COL_INFO)){
+				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Keep-Alive ACK] ");
 			}
 		}
 		if( ta->dupack_num){
@@ -2593,6 +2616,10 @@ proto_register_tcp(void)
 		{ &hf_tcp_analysis_keep_alive,
 		{ "Keep Alive",		"tcp.analysis.keep_alive", FT_NONE, BASE_NONE, NULL, 0x0,
 			"This is a keep-alive segment", HFILL }},
+
+		{ &hf_tcp_analysis_keep_alive_ack,
+		{ "Keep Alive ACK",		"tcp.analysis.keep_alive_ack", FT_NONE, BASE_NONE, NULL, 0x0,
+			"This is an ACK to a keep-alive segment", HFILL }},
 
 		{ &hf_tcp_analysis_duplicate_ack,
 		{ "Duplicate ACK",		"tcp.analysis.duplicate_ack", FT_NONE, BASE_NONE, NULL, 0x0,
