@@ -2,7 +2,7 @@
  * Routines for smb net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.1 2000/02/14 04:02:07 guy Exp $
+ * $Id: packet-smb-logon.c,v 1.2 2000/02/21 23:40:33 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -224,9 +224,24 @@ void dissect_smb_pdc_startup(const u_char *pd, int offset, frame_data *fd,
 	MoveAndCheckOffset(
 		display_ms_string( "PDC Name", pd, offset, fd, tree));
 
-	display_NT_version( pd, &offset, fd, tree, 4);
+	/* A short Announce will not have the rest */
 
-	display_LM_token( pd, &offset, fd, tree);
+	if (END_OF_FRAME > 0) { 
+
+	  if (offset % 2) offset++;      /* word align ... */
+
+	  MoveAndCheckOffset(
+		 display_unicode_string("Unicode PDC Name", pd, offset, fd, tree));
+
+	  if (offset % 2) offset++;
+
+	  MoveAndCheckOffset(
+		 display_unicode_string("Unicode Domain Name", pd, offset, fd, tree));
+
+	  display_NT_version( pd, &offset, fd, tree, 4);
+
+	  display_LM_token( pd, &offset, fd, tree);
+	}
 }
 
 
@@ -508,7 +523,7 @@ static void (*dissect_smb_logon_cmds[])(const u_char *, int, frame_data *,
    	cmd = MIN(  GBYTE(pd, offset), array_length(dissect_smb_logon_cmds)-1);
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "NET LOGON");
+		col_add_str(fd, COL_PROTOCOL, "NETLOGON");
 
 
 	if (check_col(fd, COL_INFO))
@@ -544,7 +559,7 @@ register_proto_smb_logon( void){
 	};
 
    	proto_smb_logon = proto_register_protocol(
-   		"Microsoft Windows Logon Protocol", "logon");           
+   		"Microsoft Windows Logon Protocol", "netlogon");
 
 	proto_register_subtree_array(ett, array_length(ett));          
 }
