@@ -5,7 +5,7 @@
  *
  * Copyright 2002, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-asap.c,v 1.2 2002/04/29 08:20:05 guy Exp $
+ * $Id: packet-asap.c,v 1.3 2002/05/02 07:49:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -375,7 +375,7 @@ static const value_string asap_message_type_values[] = {
   { 0,                           NULL } };
 
 static void
-dissect_asap_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *asap_tree)
+dissect_asap_message(tvbuff_t *message_tvb, proto_tree *asap_tree)
 {
   tvbuff_t *parameters_tvb;
   guint8  type, flags;
@@ -423,7 +423,7 @@ dissect_asap(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
     asap_tree = NULL;
   };
   /* dissect the message */
-  dissect_asap_message(message_tvb, pinfo, tree, asap_tree);
+  dissect_asap_message(message_tvb, asap_tree);
 }
 
 /* Register the protocol with Ethereal */
