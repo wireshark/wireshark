@@ -56,7 +56,7 @@ dnl "acspecific.m4" in GNU Autoconf 2.12, and turned into
 dnl AC_ETHEREAL_STRUCT_SA_LEN, which checks if "struct sockaddr"
 dnl has the 4.4BSD "sa_len" member, and defines HAVE_SA_LEN; that's
 dnl what's in this file.
-dnl Done by Guy Harris <guy@netapp.com> on 1998-11-14. 
+dnl Done by Guy Harris <guy@alum.mit.edu> on 1998-11-14. 
 
 dnl ### Checks for structure members
 

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.33 1999/11/10 19:58:39 gram Exp $
+ * $Id: main.c,v 1.34 1999/11/11 08:44:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -135,7 +135,7 @@ about_ethereal( GtkWidget *w, gpointer data ) {
 		"Bobo Rajec               <bobo@bsp-consulting.sk>\n"
 		"Laurent Deniel           <deniel@worldnet.fr>\n"
 		"Don Lafontaine           <lafont02@cn.ca>\n"
-		"Guy Harris               <guy@netapp.com>\n"
+		"Guy Harris               <guy@alum.mit.edu>\n"
 		"Simon Wilkinson          <sxw@dcs.ed.ac.uk>\n"
 		"Joerg Mayer              <jmayer@telemation.de>\n"
 		"Martin Maciaszek         <fastjack@i-s-o.net>\n"
@@ -567,6 +567,10 @@ tree_view_cb(GtkWidget *w, gpointer data) {
   packet_hex_print(GTK_TEXT(byte_view), cf.pd, cf.current_frame->cap_len, 
 		   tree_selected_start, 
 		   tree_selected_len);
+#if 0
+  if (tree_selected_start != -1)
+    gtk_editable_set_position(GTK_EDITABLE(byte_view), tree_selected_start);
+#endif
   
   gtk_text_thaw(GTK_TEXT(byte_view));
 }

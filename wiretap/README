@@ -1,4 +1,4 @@
-$Id: README,v 1.17 1999/10/31 17:46:05 gram Exp $
+$Id: README,v 1.18 1999/11/11 08:45:34 guy Exp $
 
 Wiretap is a library that is being developed as a future replacement for
 libpcap, the current standard Unix library for packet capturing. Libpcap is
@@ -114,4 +114,4 @@ You save this hex dump to disk with 'script' or by 'telnet | tee'. Wiretap will
 read the ASCII hex dump and convert it to binary data.
 
 Gilbert Ramirez <gram@xiexie.org>
-Guy Harris <guy@netapp.com>
+Guy Harris <guy@alum.mit.edu>

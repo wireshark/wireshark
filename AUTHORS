@@ -50,7 +50,7 @@ Don Lafontaine       <lafont02@cn.ca> {
     IGRP/EIGRP support
 }
 
-Guy Harris           <guy@netapp.com> {
+Guy Harris           <guy@alum.mit.edu> {
     DNS and NetBIOS Name Service enhancements
     Bitfield decoding
     IP and TCP option decoding
