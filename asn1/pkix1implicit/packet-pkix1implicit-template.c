@@ -36,6 +36,7 @@
 #include "packet-ber.h"
 #include "packet-pkix1implicit.h"
 #include "packet-pkix1explicit.h"
+#include "packet-x509ce.h"
 
 #define PNAME  "PKIX1Implitit"
 #define PSNAME "PKIX1IMPLICIT"
@@ -48,6 +49,13 @@ static int proto_pkix1implicit = -1;
 /* Initialize the subtree pointers */
 #include "packet-pkix1implicit-ett.c"
 
+
+int
+dissect_pkix1implicit_GeneralName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_x509ce_GeneralName(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
 
 #include "packet-pkix1implicit-fn.c"
 

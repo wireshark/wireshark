@@ -43,6 +43,7 @@
 #include "packet-ber.h"
 #include "packet-pkix1implicit.h"
 #include "packet-pkix1explicit.h"
+#include "packet-x509ce.h"
 
 #define PNAME  "PKIX1Implitit"
 #define PSNAME "PKIX1IMPLICIT"
@@ -55,13 +56,6 @@ static int proto_pkix1implicit = -1;
 
 static int hf_pkix1implicit_Dummy_PDU = -1;       /* Dummy */
 static int hf_pkix1implicit_AuthorityInfoAccessSyntax_PDU = -1;  /* AuthorityInfoAccessSyntax */
-static int hf_pkix1implicit_rfc822Name = -1;      /* IA5String */
-static int hf_pkix1implicit_dNSName = -1;         /* IA5String */
-static int hf_pkix1implicit_directoryName = -1;   /* Name */
-static int hf_pkix1implicit_ediPartyName = -1;    /* EDIPartyName */
-static int hf_pkix1implicit_uniformResourceIdentifier = -1;  /* IA5String */
-static int hf_pkix1implicit_iPAddress = -1;       /* OCTET_STRING */
-static int hf_pkix1implicit_registeredID = -1;    /* OBJECT_IDENTIFIER */
 static int hf_pkix1implicit_nameAssigner = -1;    /* DirectoryString */
 static int hf_pkix1implicit_partyName = -1;       /* DirectoryString */
 static int hf_pkix1implicit_AuthorityInfoAccessSyntax_item = -1;  /* AccessDescription */
@@ -83,7 +77,6 @@ static int hf_pkix1implicit_utf8String = -1;      /* UTF8String */
 
 /*--- Included file: packet-pkix1implicit-ett.c ---*/
 
-static gint ett_pkix1implicit_GeneralName = -1;
 static gint ett_pkix1implicit_EDIPartyName = -1;
 static gint ett_pkix1implicit_AuthorityInfoAccessSyntax = -1;
 static gint ett_pkix1implicit_AccessDescription = -1;
@@ -96,19 +89,26 @@ static gint ett_pkix1implicit_DisplayText = -1;
 
 
 
+int
+dissect_pkix1implicit_GeneralName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_x509ce_GeneralName(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+
 
 /*--- Included file: packet-pkix1implicit-fn.c ---*/
 
 /*--- Fields for imported types ---*/
 
-static int dissect_directoryName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pkix1explicit_Name(TRUE, tvb, offset, pinfo, tree, hf_pkix1implicit_directoryName);
-}
 static int dissect_nameAssigner_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_pkix1explicit_DirectoryString(TRUE, tvb, offset, pinfo, tree, hf_pkix1implicit_nameAssigner);
 }
 static int dissect_partyName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_pkix1explicit_DirectoryString(TRUE, tvb, offset, pinfo, tree, hf_pkix1implicit_partyName);
+}
+static int dissect_accessLocation(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_GeneralName(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_accessLocation);
 }
 
 
@@ -120,25 +120,6 @@ dissect_pkix1implicit_Dummy(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
   }
 
   return offset;
-}
-
-
-static int
-dissect_pkix1implicit_IA5String(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, 1,
-                                         pinfo, tree, tvb, offset, hf_index,
-                                         NULL);
-
-  return offset;
-}
-static int dissect_rfc822Name_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pkix1implicit_IA5String(TRUE, tvb, offset, pinfo, tree, hf_pkix1implicit_rfc822Name);
-}
-static int dissect_dNSName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pkix1implicit_IA5String(TRUE, tvb, offset, pinfo, tree, hf_pkix1implicit_dNSName);
-}
-static int dissect_uniformResourceIdentifier_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pkix1implicit_IA5String(TRUE, tvb, offset, pinfo, tree, hf_pkix1implicit_uniformResourceIdentifier);
 }
 
 static const ber_sequence EDIPartyName_sequence[] = {
@@ -154,21 +135,6 @@ dissect_pkix1implicit_EDIPartyName(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 
   return offset;
 }
-static int dissect_ediPartyName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pkix1implicit_EDIPartyName(TRUE, tvb, offset, pinfo, tree, hf_pkix1implicit_ediPartyName);
-}
-
-
-static int
-dissect_pkix1implicit_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
-
-  return offset;
-}
-static int dissect_iPAddress_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pkix1implicit_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_pkix1implicit_iPAddress);
-}
 
 
 static int
@@ -178,50 +144,13 @@ dissect_pkix1implicit_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_registeredID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pkix1implicit_OBJECT_IDENTIFIER(TRUE, tvb, offset, pinfo, tree, hf_pkix1implicit_registeredID);
-}
 static int dissect_accessMethod(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_pkix1implicit_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_accessMethod);
 }
 
-
-static const value_string GeneralName_vals[] = {
-  {   1, "rfc822Name" },
-  {   2, "dNSName" },
-  {   4, "directoryName" },
-  {   5, "ediPartyName" },
-  {   6, "uniformResourceIdentifier" },
-  {   7, "iPAddress" },
-  {   8, "registeredID" },
-  { 0, NULL }
-};
-
-static const ber_choice GeneralName_choice[] = {
-  {   1, BER_CLASS_CON, 1, 0, dissect_rfc822Name_impl },
-  {   2, BER_CLASS_CON, 2, 0, dissect_dNSName_impl },
-  {   4, BER_CLASS_CON, 4, 0, dissect_directoryName_impl },
-  {   5, BER_CLASS_CON, 5, 0, dissect_ediPartyName_impl },
-  {   6, BER_CLASS_CON, 6, 0, dissect_uniformResourceIdentifier_impl },
-  {   7, BER_CLASS_CON, 7, 0, dissect_iPAddress_impl },
-  {   8, BER_CLASS_CON, 8, 0, dissect_registeredID_impl },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
-dissect_pkix1implicit_GeneralName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              GeneralName_choice, hf_index, ett_pkix1implicit_GeneralName);
-
-  return offset;
-}
-static int dissect_accessLocation(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pkix1implicit_GeneralName(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_accessLocation);
-}
-
 static const ber_sequence AccessDescription_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_accessMethod },
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_accessLocation },
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_accessLocation },
   { 0, 0, 0, NULL }
 };
 
@@ -404,41 +333,13 @@ void proto_register_pkix1implicit(void) {
       { "AuthorityInfoAccessSyntax", "pkix1implicit.AuthorityInfoAccessSyntax",
         FT_UINT32, BASE_DEC, NULL, 0,
         "AuthorityInfoAccessSyntax", HFILL }},
-    { &hf_pkix1implicit_rfc822Name,
-      { "rfc822Name", "pkix1implicit.rfc822Name",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "GeneralName/rfc822Name", HFILL }},
-    { &hf_pkix1implicit_dNSName,
-      { "dNSName", "pkix1implicit.dNSName",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "GeneralName/dNSName", HFILL }},
-    { &hf_pkix1implicit_directoryName,
-      { "directoryName", "pkix1implicit.directoryName",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "GeneralName/directoryName", HFILL }},
-    { &hf_pkix1implicit_ediPartyName,
-      { "ediPartyName", "pkix1implicit.ediPartyName",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "GeneralName/ediPartyName", HFILL }},
-    { &hf_pkix1implicit_uniformResourceIdentifier,
-      { "uniformResourceIdentifier", "pkix1implicit.uniformResourceIdentifier",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "GeneralName/uniformResourceIdentifier", HFILL }},
-    { &hf_pkix1implicit_iPAddress,
-      { "iPAddress", "pkix1implicit.iPAddress",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "GeneralName/iPAddress", HFILL }},
-    { &hf_pkix1implicit_registeredID,
-      { "registeredID", "pkix1implicit.registeredID",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "GeneralName/registeredID", HFILL }},
     { &hf_pkix1implicit_nameAssigner,
       { "nameAssigner", "pkix1implicit.nameAssigner",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "EDIPartyName/nameAssigner", HFILL }},
     { &hf_pkix1implicit_partyName,
       { "partyName", "pkix1implicit.partyName",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "EDIPartyName/partyName", HFILL }},
     { &hf_pkix1implicit_AuthorityInfoAccessSyntax_item,
       { "Item", "pkix1implicit.AuthorityInfoAccessSyntax_item",
@@ -450,7 +351,7 @@ void proto_register_pkix1implicit(void) {
         "AccessDescription/accessMethod", HFILL }},
     { &hf_pkix1implicit_accessLocation,
       { "accessLocation", "pkix1implicit.accessLocation",
-        FT_UINT32, BASE_DEC, VALS(GeneralName_vals), 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "AccessDescription/accessLocation", HFILL }},
     { &hf_pkix1implicit_noticeRef,
       { "noticeRef", "pkix1implicit.noticeRef",
@@ -494,7 +395,6 @@ void proto_register_pkix1implicit(void) {
 
 /*--- Included file: packet-pkix1implicit-ettarr.c ---*/
 
-    &ett_pkix1implicit_GeneralName,
     &ett_pkix1implicit_EDIPartyName,
     &ett_pkix1implicit_AuthorityInfoAccessSyntax,
     &ett_pkix1implicit_AccessDescription,

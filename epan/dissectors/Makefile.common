@@ -397,6 +397,7 @@ DISSECTOR_SRC =	\
 	packet-pkix1implicit.c	\
 	packet-pkixproxy.c	\
 	packet-pkixqualified.c	\
+	packet-pkixtsp.c	\
 	packet-pkinit.c	\
 	packet-pktc.c	\
 	packet-pop.c	\
@@ -688,6 +689,7 @@ DISSECTOR_INCLUDES =	\
 	packet-pkix1implicit.h	\
 	packet-pkixproxy.h	\
 	packet-pkixqualified.h	\
+	packet-pkixtsp.h	\
 	packet-pkinit.h	\
 	packet-pktc.h	\
 	packet-portmap.h	\

@@ -1,7 +1,15 @@
-/* packet-pkix1implicit.h
- * Routines for PKIX1Implicit packet dissection
+/* Do not modify this file.                                                   */
+/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
+/* ./packet-pkixtsp.h                                                         */
+/* ../../tools/asn2eth.py -X -b -k -e -p pkixtsp -c pkixtsp.cnf -s packet-pkixtsp-template PKIXTSP.asn */
+
+/* Input file: packet-pkixtsp-template.h */
+
+/* packet-pkixtsp.h
+ * Routines for RFC3161 Time-Stamp Protocol packet dissection
+ *    Ronnie Sahlberg 2004
  *
- * $Id$
+ * $Id: packet-pkixtsp-template.h 12437 2004-10-30 02:18:44Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,12 +30,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef PACKET_PKIX1IMPLICIT_H
-#define PACKET_PKIX1IMPLICIT_H
+#ifndef PACKET_PKIXTSP_H
+#define PACKET_PKIXTSP_H
 
-int dissect_pkix1implicit_GeneralName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_);
+/*#include "packet-pkixtsp-exp.h"*/
 
-#include "packet-pkix1implicit-exp.h"
-
-#endif  /* PACKET_PKIX1IMPLICIT_H */
+#endif  /* PACKET_PKIXTSP_H */
 

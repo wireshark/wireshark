@@ -1,0 +1,31 @@
+# pkixtsp.cnf
+# Time-Stamp Protocol (RFC3161) conformation file
+
+# $Id: pkixtsp.cnf 12558 2004-11-21 10:16:06Z sahlberg $
+
+#.MODULE_IMPORT
+PKIX1Explicit88 pkix1explicit
+PKIX1Implicit88 pkix1implicit
+CryptographicMessageSyntax cms
+
+#.INCLUDE ../pkix1explicit/pkix1explicit_exp.cnf
+#.INCLUDE ../pkix1implicit/pkix1implicit_exp.cnf
+#.INCLUDE ../cms/cms-exp.cnf
+
+#.EXPORTS
+
+#.PDU
+
+#.REGISTER
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+TSTInfo/version tst_version
+
+#.FIELD_RENAME
+PKIStatusInfo/status	pki_status
+TSTInfo/version tst_version
+
+#.END
+

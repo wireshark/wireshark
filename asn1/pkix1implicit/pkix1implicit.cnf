@@ -5,13 +5,15 @@
 
 #.MODULE_IMPORT
 PKIX1Explicit93 pkix1explicit
+CertificateExtensions x509ce
 
 #.INCLUDE ../pkix1explicit/pkix1explicit_exp.cnf
+#.INCLUDE ../x509ce/x509ce-exp.cnf
 
 #.EXPORTS
 
-UserNotice
 AuthorityInfoAccessSyntax
+UserNotice
 
 #.PDU
 
