@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.25 1999/05/11 08:21:38 guy Exp $
+ * $Id: packet.c,v 1.26 1999/06/12 04:21:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -510,7 +510,7 @@ col_add_fstr(frame_data *fd, gint el, gchar *format, ...) {
 }
 
 void
-col_add_str(frame_data *fd, gint el, gchar* str) {
+col_add_str(frame_data *fd, gint el, const gchar* str) {
   int i;
   
   for (i = 0; i < fd->cinfo->num_cols; i++) {

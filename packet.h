@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.58 1999/06/11 16:44:52 gram Exp $
+ * $Id: packet.h,v 1.59 1999/06/12 04:21:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -317,7 +317,7 @@ void       col_append_fstr(frame_data *, gint, gchar *, ...)
 void       col_add_fstr(frame_data *, gint, gchar *, ...);
 void       col_append_fstr(frame_data *, gint, gchar *, ...);
 #endif
-void       col_add_str(frame_data *, gint, gchar *);
+void       col_add_str(frame_data *, gint, const gchar *);
 void       col_append_str(frame_data *, gint, gchar *);
 
 /* Routines in packet.c */
