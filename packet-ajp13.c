@@ -2,7 +2,7 @@
  * Routines for AJP13 dissection
  * Copyright 2002, Christopher K. St. John <cks@distributopia.com>
  *
- * $Id: packet-ajp13.c,v 1.4 2002/06/28 23:58:06 guy Exp $
+ * $Id: packet-ajp13.c,v 1.5 2002/06/29 00:05:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,7 +47,6 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include "packet-ajp13.h"
 #include "packet-tcp.h"
 
 
