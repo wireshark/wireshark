@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.216 2003/08/20 22:05:08 guy Exp $
+# $Id: configure.in,v 1.217 2003/08/21 07:06:48 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -437,7 +437,9 @@ dnl pcap check
 AC_MSG_CHECKING(whether to use libpcap for packet capture)
 
 AC_ARG_WITH(pcap,
-[  --with-pcap[=DIR]       use libpcap for packet capturing.  [default=yes]],
+changequote(<<, >>)dnl
+<<  --with-pcap[=DIR]       use libpcap for packet capturing.  [default=yes]>>,
+changequote([, ])dnl
 [
 	if test $withval = no
 	then
@@ -465,7 +467,9 @@ dnl zlib check
 AC_MSG_CHECKING(whether to use zlib for reading compressed capture files)
 
 AC_ARG_WITH(zlib,
-[  --with-zlib[=DIR]       use zlib (located in directory DIR, if supplied) to read compressed data.  [default=yes, if present]],
+changequote(<<, >>)dnl
+<<  --with-zlib[=DIR]       use zlib (located in directory DIR, if supplied) to read compressed data.  [default=yes, if present]>>,
+changequote([, ])dnl
 [
 	if test $withval = no
 	then
@@ -546,12 +550,16 @@ dnl UCD SNMP/NET-SNMP Check
 SNMP_LIBS=''
 
 AC_ARG_WITH(net-snmp,
-[  --with-net-snmp=PATH    use PATH as the location of the net-snmp-config shell script that comes with the net-snmp package.],
+changequote(<<, >>)dnl
+<<  --with-net-snmp=PATH    use NET-SNMP library, with PATH as the location of the net-snmp-config shell script that comes with the net-snmp package.>>,
+changequote([, ])dnl
 [netsnmpconfig=$withval]
 )
 
 AC_ARG_WITH(ucdsnmp,
-[  --with-ucdsnmp[=DIR]    use UCD SNMP/NET-SNMP client library (located in directory DIR, if supplied).  [default=yes, if present]],
+changequote(<<, >>)dnl
+<<  --with-ucdsnmp[=DIR]    use UCD SNMP client library (located in directory DIR, if supplied).  [default=yes, if present]>>,
+changequote([, ])dnl
 [
 	if test $withval = no
 	then
@@ -726,8 +734,10 @@ dnl check for plugins directory - stolen from Amanda's configure.in
 dnl
 plugindir="$libdir/ethereal/plugins/$VERSION"
 AC_ARG_WITH(plugins,
-  [  --with-plugins[=DIR]    support plugins (installed in DIR, if supplied).],
-  [
+changequote(<<, >>)dnl
+<<  --with-plugins[=DIR]    support plugins (installed in DIR, if supplied).>>,
+changequote([, ])dnl
+[
   case "$withval" in
   "" | y | ye | yes )
     if test x$have_plugins = xno
@@ -746,8 +756,7 @@ AC_ARG_WITH(plugins,
     plugindir="$withval"
     ;;
   esac
-  ]
-)
+])
 
 AM_CONDITIONAL(HAVE_PLUGINS, test x$have_plugins = xyes)
 if test x$have_plugins = xyes
