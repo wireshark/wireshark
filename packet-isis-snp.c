@@ -1,7 +1,7 @@
 /* packet-isis-snp.c
  * Routines for decoding isis complete & partial SNP and their payload
  *
- * $Id: packet-isis-snp.c,v 1.20 2002/09/02 22:10:15 guy Exp $
+ * $Id: packet-isis-snp.c,v 1.21 2003/03/31 07:44:09 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -41,6 +41,7 @@
 static int hf_isis_csnp_pdu_length = -1;
 static gint ett_isis_csnp = -1;
 static gint ett_isis_csnp_lsp_entries = -1;
+static gint ett_isis_csnp_lsp_entry = -1;
 static gint ett_isis_csnp_authentication = -1;
 static gint ett_isis_csnp_clv_unknown = -1;
 
@@ -48,6 +49,7 @@ static gint ett_isis_csnp_clv_unknown = -1;
 static int hf_isis_psnp_pdu_length = -1;
 static gint ett_isis_psnp = -1;
 static gint ett_isis_psnp_lsp_entries = -1;
+static gint ett_isis_psnp_lsp_entry = -1;
 static gint ett_isis_psnp_authentication = -1;
 static gint ett_isis_psnp_clv_unknown = -1;
 
@@ -162,17 +164,17 @@ static const isis_clv_handle_t clv_l2_psnp_opts[] = {
  * Description:
  *	All the snp packets use a common payload format.  We have up
  *	to n entries (based on length), which are made of:
- *		2 : remaining life time
- *		8 : lsp id
- *		4 : sequence number
- *		2 : checksum
+ *		2         : remaining life time
+ *		id_length : lsp id
+ *		4         : sequence number
+ *		2         : checksum
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
  *	proto_tree * : protocol display tree to fill out.  May be NULL
  *	int : offset into packet data where we are.
- *	int : length of payload to decode.
  *	int : length of IDs in packet.
+ *	int : length of payload to decode.
  *
  * Output:
  *      void, but we will add to proto tree if !NULL.
@@ -186,41 +188,42 @@ dissect_csnp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
 	while ( length > 0 ) {
 		if ( length < 2+id_length+2+4+2 ) {
 			isis_dissect_unknown(tvb, tree, offset,
-				"Short SNP header entry (%d vs %d)", length,
+				"Short CSNP header entry (%d vs %d)", length,
 				2+id_length+2+4+2 );
 			return;
 		}
 
-	        ti = proto_tree_add_text(tree, tvb, offset, 16,
+	        ti = proto_tree_add_text(tree, tvb, offset, 2+id_length+2+4+2,
                                     "LSP-ID: %s, Sequence: 0x%08x, Lifetime: %5us, Checksum: 0x%04x",
                                            print_system_id( tvb_get_ptr(tvb, offset+2, id_length+2), id_length+2 ),
-                                           tvb_get_ntohl(tvb, offset+10),
+                                           tvb_get_ntohl(tvb, offset+2+id_length+2),
                                            tvb_get_ntohs(tvb, offset),
-                                           tvb_get_ntohs(tvb, offset+14));
+                                           tvb_get_ntohs(tvb, offset+2+id_length+2+4));
 
-                subtree = proto_item_add_subtree(ti,ett_isis_csnp_lsp_entries);
+                subtree = proto_item_add_subtree(ti,ett_isis_csnp_lsp_entry);
 
 		proto_tree_add_text(subtree, tvb, offset+2, 8,
 			"LSP-ID:             : %s",
 			print_system_id( tvb_get_ptr(tvb, offset+2, id_length+2), id_length+2 ));
 
-		proto_tree_add_text(subtree, tvb, offset+10, 4,
+		proto_tree_add_text(subtree, tvb, offset+2+id_length+2, 4,
 			"LSP Sequence Number : 0x%08x",
-			tvb_get_ntohl(tvb, offset+10));
+			tvb_get_ntohl(tvb, offset+2+id_length+2));
 
 		proto_tree_add_text(subtree, tvb, offset, 2,
 			"Remaining Lifetime  : %us",
 			tvb_get_ntohs(tvb, offset));
 
-		proto_tree_add_text(subtree, tvb, offset+14, 2,
+		proto_tree_add_text(subtree, tvb, offset+2+id_length+2+4, 2,
 			"LSP checksum        : 0x%04x",
-			tvb_get_ntohs(tvb, offset+14));
+			tvb_get_ntohs(tvb, offset+2+id_length+2+4));
 
-		length -= 16;
-		offset += 16;
+		length -= 2+id_length+2+4+2;
+		offset += 2+id_length+2+4+2;
 	}
 
 }
+
 static void
 dissect_psnp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int id_length, int length)
@@ -230,38 +233,38 @@ dissect_psnp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
 	while ( length > 0 ) {
 		if ( length < 2+id_length+2+4+2 ) {
 			isis_dissect_unknown(tvb, tree, offset,
-				"Short SNP header entry (%d vs %d)", length,
+				"Short PSNP header entry (%d vs %d)", length,
 				2+id_length+2+4+2 );
 			return;
 		}
 
-	        ti = proto_tree_add_text(tree, tvb, offset, 16,
+	        ti = proto_tree_add_text(tree, tvb, offset, 2+id_length+2+4+2,
                                     "LSP-ID: %s, Sequence: 0x%08x, Lifetime: %5us, Checksum: 0x%04x",
                                            print_system_id( tvb_get_ptr(tvb, offset+2, id_length+2), id_length+2 ),
-                                           tvb_get_ntohl(tvb, offset+10),
+                                           tvb_get_ntohl(tvb, offset+2+id_length+2),
                                            tvb_get_ntohs(tvb, offset),
-                                           tvb_get_ntohs(tvb, offset+14));
+                                           tvb_get_ntohs(tvb, offset+2+id_length+2+4));
 
-                subtree = proto_item_add_subtree(ti,ett_isis_psnp_lsp_entries);
+                subtree = proto_item_add_subtree(ti,ett_isis_psnp_lsp_entry);
 
 		proto_tree_add_text(subtree, tvb, offset+2, 8,
 			"LSP-ID:             : %s",
 			print_system_id( tvb_get_ptr(tvb, offset+2, id_length+2), id_length+2 ));
 
-		proto_tree_add_text(subtree, tvb, offset+10, 4,
+		proto_tree_add_text(subtree, tvb, offset+2+id_length+2, 4,
 			"LSP Sequence Number : 0x%08x",
-			tvb_get_ntohl(tvb, offset+10));
+			tvb_get_ntohl(tvb, offset+2+id_length+2));
 
 		proto_tree_add_text(subtree, tvb, offset, 2,
 			"Remaining Lifetime  : %us",
 			tvb_get_ntohs(tvb, offset));
 
-		proto_tree_add_text(subtree, tvb, offset+14, 2,
+		proto_tree_add_text(subtree, tvb, offset+2+id_length+2+4, 2,
 			"LSP checksum        : 0x%04x",
-			tvb_get_ntohs(tvb, offset+14));
+			tvb_get_ntohs(tvb, offset+2+id_length+2+4));
 
-		length -= 16;
-		offset += 16;
+		length -= 2+id_length+2+4+2;
+		offset += 2+id_length+2+4+2;
 	}
 
 }
@@ -497,6 +500,7 @@ isis_register_csnp(int proto_isis) {
 	static gint *ett[] = {
 		&ett_isis_csnp,
 		&ett_isis_csnp_lsp_entries,
+		&ett_isis_csnp_lsp_entry,
 		&ett_isis_csnp_authentication,
 		&ett_isis_csnp_clv_unknown,
 	};
@@ -528,6 +532,7 @@ isis_register_psnp(int proto_isis) {
 	static gint *ett[] = {
 		&ett_isis_psnp,
 		&ett_isis_psnp_lsp_entries,
+		&ett_isis_psnp_lsp_entry,
 		&ett_isis_psnp_authentication,
 		&ett_isis_psnp_clv_unknown,
 	};
