@@ -1054,6 +1054,7 @@ Tomas Kukosa            <tomas.kukosa [AT] siemens.com> {
 	Fix to summary-printing code to handle reallocated line buffer
 	Support for registering subdissectors for Q.931 IEs and codesets
 	Reassembly of segmented Q.931 messages
+	ASN2ETH compiler to convert ASN.1 definitions to PER/DER dissectors
 }
 
 Andreas Stockmeier      <a.stockmeier[AT]avm.de> {

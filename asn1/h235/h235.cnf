@@ -1,0 +1,45 @@
+# h235.cnf
+# H235-SECURITY-MESSAGES conformation file
+# 2004  Tomas Kukosa
+
+# $Id: h235.cnf,v 1.1 2004/05/24 08:42:29 sahlberg Exp $
+
+#.EXPORTS
+
+SIGNEDxxx
+ENCRYPTEDxxx
+HASHEDxxx
+TimeStamp
+ClearToken
+CryptoToken WITH_VALS
+AuthenticationMechanism WITH_VALS
+
+#.FIELD_RENAME
+
+TypedCertificate/certificate           certificatedata
+SIGNEDxxx/signature                    signaturedata
+CryptoToken/cryptoHashedToken/token    hashedToken
+CryptoToken/cryptoSignedToken/token    signedToken
+CryptoToken/cryptoEncryptedToken/token encryptedToken
+
+#.END
+
+#.FN_HDR SIGNEDxxx
+  proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
+#.END
+#.FN_HDR ENCRYPTEDxxx
+  proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
+#.END
+#.FN_HDR HASHEDxxx
+  proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
+#.END
+
+#.FN_HDR ClearToken
+  proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
+#.END
+
+#.FN_HDR CryptoToken
+  proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
+#.END
+
+
