@@ -480,7 +480,7 @@ CreateDirectory "$SMPROGRAMS\Ethereal"
 Delete "$SMPROGRAMS\Ethereal\Ethereal Web Site.lnk"
 WriteINIStr "$SMPROGRAMS\Ethereal\Ethereal Web Site.url" \
           "InternetShortcut" "URL" "http://www.ethereal.com/"
-CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal.lnk" "$INSTDIR\ethereal.exe"
+CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal.lnk" "$INSTDIR\ethereal.exe" "" "$INSTDIR\ethereal.exe" 0 "" "" "The Ethereal Network Protocol Analyzer"
 CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Manual.lnk" "$INSTDIR\ethereal.html"
 CreateShortCut "$SMPROGRAMS\Ethereal\Display Filters Manual.lnk" "$INSTDIR\ethereal-filter.html"
 CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Program Directory.lnk" \
@@ -493,7 +493,7 @@ Section "Desktop Icon" SecDesktopIcon
 !ifdef GTK1_DIR & GTK2_DIR
 SectionIn 1 2
 !endif
-CreateShortCut "$DESKTOP\Ethereal.lnk" "$INSTDIR\ethereal.exe"
+CreateShortCut "$DESKTOP\Ethereal.lnk" "$INSTDIR\ethereal.exe" "" "$INSTDIR\ethereal.exe" 0 "" "" "The Ethereal Network Protocol Analyzer"
 SectionEnd
 
 Section "Associate file extensions to Ethereal" SecFileExtensions
