@@ -18,22 +18,24 @@ I<...>
 
 B<Mergecap> is a program that combines multiple saved capture files into
 a single output file specified by the B<-w> argument.  B<Mergecap> knows
-how to read B<libpcap> capture files, including those of B<tcpdump>.  In
+how to read B<libpcap> capture files, including those of B<tcpdump>,
+B<Ethereal>, and other tools that write captures in that format.  In
 addition, B<Mergecap> can read capture files from B<snoop> (including
 B<Shomiti>) and B<atmsnoop>, B<LanAlyzer>, B<Sniffer> (compressed or
 uncompressed), Microsoft B<Network Monitor>, AIX's B<iptrace>,
-B<NetXray>, B<Sniffer Pro>, B<Etherpeek>, B<RADCOM>'s WAN/LAN analyzer,
-B<Lucent/Ascend> router debug output, HP-UX's B<nettl>, the dump output
-from B<Toshiba's> ISDN routers, the output from B<i4btrace> from the
-ISDN4BSD project, the output in B<IPLog> format from the Cisco Secure
-Intrusion Detection System, B<pppd logs> (pppdump format), the output
-from VMS's B<TCPIPtrace> utility, the text output from the B<DBS
-Etherwatch> VMS utility, and traffic capture files from Visual Networks'
-software.  There is no need to tell B<Mergecap> what type of file you
-are reading; it will determine the file type by itself.  B<Mergecap> is
-also capable of reading any of these file formats if they are compressed
-using gzip.  B<Mergecap> recognizes this directly from the file; the
-'.gz' extension is not required for this purpose.
+B<NetXray>, B<Sniffer Pro>, B<Etherpeek> versions 5, 6, and 7 for
+Macintosh, B<RADCOM>'s WAN/LAN analyzer, B<Lucent/Ascend> router debug
+output, HP-UX's B<nettl>, the dump output from B<Toshiba's> ISDN
+routers, the output from B<i4btrace> from the ISDN4BSD project, the
+output in B<IPLog> format from the Cisco Secure Intrusion Detection
+System, B<pppd logs> (pppdump format), the output from VMS's
+B<TCPIPtrace> utility, the text output from the B<DBS Etherwatch> VMS
+utility, and traffic capture files from Visual Networks' software. 
+There is no need to tell B<Mergecap> what type of file you are reading;
+it will determine the file type by itself.  B<Mergecap> is also capable
+of reading any of these file formats if they are compressed using gzip. 
+B<Mergecap> recognizes this directly from the file; the '.gz' extension
+is not required for this purpose.
 
 By default, it writes the capture file in B<libpcap> format, and writes
 all of the packets in both input capture files to the output file.  The

@@ -34,17 +34,18 @@ S<[ filter expression ]>
 B<Tethereal> is a network protocol analyzer.  It lets you capture packet
 data from a live network, or read packets from a previously saved
 capture file, either printing a decoded form of those packets to the
-standard output or writing the packets to a file.  B<Tethereal> knows
-how to read B<libpcap> capture files, including those of B<tcpdump>.  In
-addition, B<Tethereal> can read capture files from B<snoop> (including
-B<Shomiti>) and B<atmsnoop>, B<LanAlyzer>, B<Sniffer> (compressed or
-uncompressed), Microsoft B<Network Monitor>, AIX's B<iptrace>,
-B<NetXray>, B<Sniffer Pro>, B<Etherpeek>, B<RADCOM>'s WAN/LAN analyzer,
-B<Lucent/Ascend> router debug output, HP-UX's B<nettl>, the dump output
-from B<Toshiba's> ISDN routers, the output from B<i4btrace> from the
-ISDN4BSD project, the output in B<IPLog> format from the Cisco Secure
-Intrusion Detection System, B<pppd logs> (pppdump format), the output
-from VMS's B<TCPIPtrace> utility, the text output from the B<DBS
+standard output or writing the packets to a file.  B<Tethereal>'s native
+capture file format is B<libpcap> format, which is also the format used
+by B<tcpdump> and various other tools.  In addition, B<Tethereal> can
+read capture files from B<snoop> (including B<Shomiti>) and B<atmsnoop>,
+B<LanAlyzer>, B<Sniffer> (compressed or uncompressed), Microsoft
+B<Network Monitor>, AIX's B<iptrace>, B<NetXray>, B<Sniffer Pro>,
+B<Etherpeek> versions 5, 6, and 7 for Macintosh, B<RADCOM>'s WAN/LAN
+analyzer, B<Lucent/Ascend> router debug output, HP-UX's B<nettl>, the
+dump output from B<Toshiba's> ISDN routers, the output from B<i4btrace>
+from the ISDN4BSD project, the output in B<IPLog> format from the Cisco
+Secure Intrusion Detection System, B<pppd logs> (pppdump format), the
+output from VMS's B<TCPIPtrace> utility, the text output from the B<DBS
 Etherwatch> VMS utility, and traffic capture files from Visual Networks'
 software.  There is no need to tell B<Tethereal> what type of file you
 are reading; it will determine the file type by itself.  B<Tethereal> is
