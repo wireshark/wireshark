@@ -30,9 +30,7 @@ typedef struct _eth_hdr {
 	guint16 type;
 } eth_hdr;
 
-#ifdef __CAPTURE_H__
 void capture_eth(const guchar *, int, int, packet_counts *);
-#endif
 
 void add_ethernet_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
 			  tvbuff_t *trailer_tvb, int fcs_len);
