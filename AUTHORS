@@ -371,6 +371,10 @@ Phil Techau <phil_t@altavista.net> {
 	BOOTP fixes
 }
 
+Wes Hardaker <wjhardaker@ucdavis.edu> {
+	Kerberos 5 support
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

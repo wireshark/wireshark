@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: nmake -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.50 2000/07/31 03:45:53 guy Exp $
+# $Id: Makefile.nmake,v 1.51 2000/08/11 03:32:43 guy Exp $
 
 include config.nmake
 
@@ -67,6 +67,7 @@ DISSECTOR_SOURCES = \
 	packet-isis-lsp.c \
 	packet-isis-snp.c \
 	packet-isl.c   \
+	packet-kerberos.c \
 	packet-l2tp.c  \
 	packet-lapb.c  \
 	packet-lapd.c  \
