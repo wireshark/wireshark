@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.39 2002/01/21 07:36:48 guy Exp $
+ * $Id: print.c,v 1.40 2002/02/15 11:56:10 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -251,7 +251,7 @@ void print_hex_data_text(FILE *fh, register const u_char *cp,
 {
         register unsigned int ad, i, j, k;
         u_char c;
-        u_char line[80];
+        u_char line[50+16+1];
 	static u_char binhex[16] = {
 		'0', '1', '2', '3', '4', '5', '6', '7',
 		'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
