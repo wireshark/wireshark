@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.96 2000/08/04 04:54:22 gram Exp $
+ * $Id: packet-ip.c,v 1.97 2000/08/04 22:43:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -776,46 +776,48 @@ static const true_false_string flags_set_truth = {
   "Not set"
 };
 
-static gboolean ip_checksum_state(e_ip *iph)
-{
-    unsigned long Sum;
-    unsigned char *Ptr, *PtrEnd;
-
-    Sum    = 0;
-    PtrEnd = (lo_nibble(iph->ip_v_hl) * 4 + (char *)iph);
-    for (Ptr = (unsigned char *) iph; Ptr < PtrEnd; Ptr += 2) {
-        Sum += pntohs(Ptr);
-    }
-
-    Sum = (Sum & 0xFFFF) + (Sum >> 16);
-    Sum = (Sum & 0xFFFF) + (Sum >> 16);
-
-    if (Sum != 0xffff)
-        return FALSE;
-
-    return TRUE;
-}
-
-static unsigned short ip_checksum(e_ip *iph)
+static guint16 ip_checksum(e_ip *iph)
 {
 	unsigned long Sum;
 	unsigned char *Ptr, *PtrEnd;
-	guint16 ipsum;
 
 	Sum    = 0;
-	ipsum = iph->ip_sum;
-	iph->ip_sum = 0;
 	PtrEnd = (lo_nibble(iph->ip_v_hl) * 4 + (char *)iph);
 	for (Ptr = (unsigned char *) iph; Ptr < PtrEnd; Ptr += 2) {
 		Sum += pntohs(Ptr);
 	}
-	iph->ip_sum = ipsum;
 	Sum = (Sum & 0xFFFF) + (Sum >> 16);
 	Sum = (Sum & 0xFFFF) + (Sum >> 16);
 
-	return((unsigned short)~Sum);
+	return (guint16)~Sum;
 }
 
+static gboolean ip_checksum_state(e_ip *iph)
+{
+	guint16 Sum;
+
+	Sum = ip_checksum(iph);
+
+	if (Sum != 0)
+		return FALSE;
+
+	return TRUE;
+}
+
+static guint16 ip_checksum_shouldbe(e_ip *iph)
+{
+	guint16 ipsum;
+	guint16 Sum;
+
+	ipsum = iph->ip_sum;
+	iph->ip_sum = 0;
+
+	Sum = ip_checksum(iph);
+
+	iph->ip_sum = ipsum;
+
+	return Sum;
+}
 
 void
 dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
@@ -904,7 +906,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     else {
 	proto_tree_add_uint_format(ip_tree, hf_ip_checksum, NullTVB, offset + 10, 2, iph.ip_sum,
             "Header checksum: 0x%04x (incorrect, should be 0x%04x)", iph.ip_sum,
-	    ip_checksum((e_ip*) &pd[offset]));
+	    ip_checksum_shouldbe((e_ip*) &pd[offset]));
     }
 
     proto_tree_add_ipv4(ip_tree, hf_ip_src, NullTVB, offset + 12, 4, iph.ip_src);
