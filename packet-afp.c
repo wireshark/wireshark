@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.1 2002/04/25 23:58:02 guy Exp $
+ * $Id: packet-afp.c,v 1.2 2002/04/28 19:21:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -151,7 +151,6 @@
 
 /* ----------------------------- */
 static int proto_afp = -1;
-static int hf_afp_flags = -1;
 static int hf_afp_requestid = -1;
 static int hf_afp_code = -1;
 static int hf_afp_length = -1;
@@ -179,16 +178,36 @@ static int hf_afp_vol_ex_bytes_free = -1;
 static int hf_afp_vol_ex_bytes_total = -1;
 static int hf_afp_vol_block_size = -1;
 
-static int hf_afp_did = -1;
-static int hf_afp_file_id = -1;
-static int hf_afp_dir_bitmap = -1;
-static int hf_afp_dir_off_spring = -1;
+/* desktop stuff */
+static int hf_afp_comment 		= -1;
+static int hf_afp_file_creator 	= -1;
+static int hf_afp_file_type 	= -1;
+static int hf_afp_icon_type 	= -1;
+static int hf_afp_icon_length 	= -1;
+static int hf_afp_icon_tag		= -1;
+static int hf_afp_icon_index	= -1;
+static int hf_afp_appl_index	= -1;
+static int hf_afp_appl_tag		= -1;
+
+static int hf_afp_did 				  = -1;
+static int hf_afp_file_id 			  = -1;
+static int hf_afp_file_DataForkLen    = -1;
+static int hf_afp_file_RsrcForkLen    = -1;
+static int hf_afp_file_ExtDataForkLen = -1;
+static int hf_afp_file_ExtRsrcForkLen = -1;
+static int hf_afp_file_UnixPrivs      = -1;
+
+static int hf_afp_dir_bitmap 	 = -1;
+static int hf_afp_dir_offspring  = -1;
+static int hf_afp_dir_OwnerID    = -1;
+static int hf_afp_dir_GroupID    = -1;
 
 static int hf_afp_file_bitmap = -1;
 static int hf_afp_req_count = -1;
 static int hf_afp_start_index = -1;
 static int hf_afp_max_reply_size = -1;
 static int hf_afp_file_flag = -1;
+static int hf_afp_create_flag = -1;
 static int hf_afp_struct_size = -1;
 
 static int hf_afp_creation_date = -1;
@@ -197,18 +216,29 @@ static int hf_afp_backup_date = -1;
 static int hf_afp_finder_info = -1;
 
 static int hf_afp_path_type = -1;
+static int hf_afp_path_len = -1;
 static int hf_afp_path_name = -1;
 
-static int hf_afp_flag    = -1;
-static int hf_afp_ofork   = -1;
-static int hf_afp_offset  = -1;
-static int hf_afp_rw_count = 1;
+static int hf_afp_flag    	= -1;
+static int hf_afp_dt_ref  	= -1;
+static int hf_afp_ofork   	= -1;
+static int hf_afp_ofork_len = -1;
+static int hf_afp_offset   	= -1;
+static int hf_afp_rw_count 	= -1;
+static int hf_afp_actual_count = -1;
+
 static int hf_afp_fork_type			= -1;
 static int hf_afp_access_mode		= -1;
 static int hf_afp_access_read		= -1;
 static int hf_afp_access_write		= -1;
 static int hf_afp_access_deny_read  = -1;
 static int hf_afp_access_deny_write = -1;
+
+static gint hf_afp_lock_op			= -1;
+static gint hf_afp_lock_from		= -1;
+static gint hf_afp_lock_offset  	= -1;
+static gint hf_afp_lock_len     	= -1;
+static gint hf_afp_lock_range_start = -1;
 
 static gint ett_afp = -1;
 
@@ -219,7 +249,12 @@ static gint ett_afp_access_mode = -1;
 
 static gint ett_afp_vol_bitmap = -1;
 static gint ett_afp_dir_bitmap = -1;
+static gint ett_afp_dir_attribute = -1;
+static gint ett_afp_file_attribute = -1;
 static gint ett_afp_file_bitmap = -1;
+static gint ett_afp_path_name = -1;
+static gint ett_afp_lock_flags = -1;
+static gint ett_afp_dir_ar = -1;
 
 static dissector_handle_t afp_handle;
 static dissector_handle_t data_handle;
@@ -339,6 +374,18 @@ static int hf_afp_dir_bitmap_AccessRights   = -1;
 static int hf_afp_dir_bitmap_UTF8Name       = -1;
 static int hf_afp_dir_bitmap_UnixPrivs      = -1;
 
+static int hf_afp_dir_attribute_Invisible     = -1;
+static int hf_afp_dir_attribute_IsExpFolder   = -1;
+
+static int hf_afp_dir_attribute_System        = -1;
+static int hf_afp_dir_attribute_Mounted       = -1;
+static int hf_afp_dir_attribute_InExpFolder   = -1;
+
+static int hf_afp_dir_attribute_BackUpNeeded  = -1;
+static int hf_afp_dir_attribute_RenameInhibit = -1;
+static int hf_afp_dir_attribute_DeleteInhibit = -1;
+static int hf_afp_dir_attribute_SetClear      = -1;
+
 static int hf_afp_file_bitmap_Attribute		 = -1;
 static int hf_afp_file_bitmap_ParentDirID    = -1;
 static int hf_afp_file_bitmap_CreateDate     = -1;
@@ -348,9 +395,26 @@ static int hf_afp_file_bitmap_FinderInfo     = -1;
 static int hf_afp_file_bitmap_LongName       = -1;
 static int hf_afp_file_bitmap_ShortName      = -1;
 static int hf_afp_file_bitmap_NodeID         = -1;
-static int hf_afp_file_bitmap_OffspringCount = -1;
+static int hf_afp_file_bitmap_DataForkLen    = -1;
+static int hf_afp_file_bitmap_RsrcForkLen    = -1;
+static int hf_afp_file_bitmap_ExtDataForkLen = -1;
+static int hf_afp_file_bitmap_LaunchLimit    = -1;
+
 static int hf_afp_file_bitmap_UTF8Name       = -1;
+static int hf_afp_file_bitmap_ExtRsrcForkLen = -1;
 static int hf_afp_file_bitmap_UnixPrivs      = -1;
+
+static int hf_afp_file_attribute_Invisible     = -1;
+static int hf_afp_file_attribute_MultiUser     = -1;
+static int hf_afp_file_attribute_System        = -1;
+static int hf_afp_file_attribute_DAlreadyOpen  = -1;
+static int hf_afp_file_attribute_RAlreadyOpen  = -1;
+static int hf_afp_file_attribute_WriteInhibit  = -1;
+static int hf_afp_file_attribute_BackUpNeeded  = -1;
+static int hf_afp_file_attribute_RenameInhibit = -1;
+static int hf_afp_file_attribute_DeleteInhibit = -1;
+static int hf_afp_file_attribute_CopyProtect   = -1;
+static int hf_afp_file_attribute_SetClear      = -1;
 
 static const value_string vol_bitmap_vals[] = {
   {kFPVolAttributeBit,          "VolAttribute"},
@@ -411,6 +475,46 @@ static const value_string path_type_vals[] = {
 #define kFPUnixPrivsBit 		(1 << 14)
 
 /*
+	directory Access Rights parameter AFP3.0.pdf
+	table 1-6 p. 34
+*/
+
+#define AR_O_SEARCH	(1 << 0)	/* owner has search access */
+#define AR_O_READ	(1 << 1)    /* owner has read access */
+#define AR_O_WRITE	(1 << 2)    /* owner has write access */
+
+#define AR_G_SEARCH	(1 << 8)    /* group has search access */
+#define AR_G_READ	(1 << 9)    /* group has read access */
+#define AR_G_WRITE	(1 << 10)   /* group has write access */
+
+#define AR_E_SEARCH	(1 << 16)	/* everyone has search access */
+#define AR_E_READ	(1 << 17)   /* everyone has read access */
+#define AR_E_WRITE	(1 << 18)   /* everyone has write access */
+
+#define AR_U_SEARCH	(1 << 24)   /* user has search access */
+#define AR_U_READ  	(1 << 25)   /* user has read access */
+#define AR_U_WRITE 	(1 << 26)	/* user has write access */ 
+
+#define AR_BLANK	(1 << 28)	/* Blank Access Privileges (use parent dir privileges) */
+#define AR_U_OWN 	(1 << 31)	/* user is the owner */
+
+static int hf_afp_dir_ar          = -1;
+static int hf_afp_dir_ar_o_search = -1;
+static int hf_afp_dir_ar_o_read   = -1;
+static int hf_afp_dir_ar_o_write  = -1;
+static int hf_afp_dir_ar_g_search = -1;
+static int hf_afp_dir_ar_g_read   = -1;
+static int hf_afp_dir_ar_g_write  = -1;
+static int hf_afp_dir_ar_e_search = -1;
+static int hf_afp_dir_ar_e_read   = -1;
+static int hf_afp_dir_ar_e_write  = -1;
+static int hf_afp_dir_ar_u_search = -1;
+static int hf_afp_dir_ar_u_read   = -1;
+static int hf_afp_dir_ar_u_write  = -1;
+static int hf_afp_dir_ar_blank    = -1;
+static int hf_afp_dir_ar_u_own    = -1;
+
+/*
   file bitmap AFP3.0.pdf 
   Table 1-7 p. 36
 same as dir
@@ -434,6 +538,27 @@ kFPUTF8NameBit 			(bit 13)
 
 #define kFPExtRsrcForkLenBit 		(1 << 14)
 #define kFPUnixPrivsBit_file 		(1 << 15)	/* :( */
+
+/*
+  file attribute AFP3.0.pdf 
+  Table 1-8 p. 37
+*/
+#define kFPInvisibleBit 			(1 << 0)
+#define kFPMultiUserBit 			(1 << 1)
+#define kFPSystemBit 				(1 << 2)
+#define kFPDAlreadyOpenBit 			(1 << 3)
+#define kFPRAlreadyOpenBit 			(1 << 4)
+#define kFPWriteInhibitBit 			(1 << 5)
+#define kFPBackUpNeededBit 			(1 << 6)
+#define kFPRenameInhibitBit 		(1 << 7)
+#define kFPDeleteInhibitBit 		(1 << 8)
+#define kFPCopyProtectBit 			(1 << 10)
+#define kFPSetClearBit 				(1 << 15)
+
+/* dir attribute */
+#define kIsExpFolder 	(1 << 1)
+#define kMounted 		(1 << 3)
+#define kInExpFolder 	(1 << 4)
 
 #define hash_init_count 20
 
@@ -531,7 +656,28 @@ decode_vol_attribute (proto_tree *tree, tvbuff_t *tvb, gint offset)
                                                                                
 	return bitmap;                                                             
 }                                                                              
-                                                                               
+
+/* -------------------------- 
+	cf AFP3.0.pdf page 38
+	date  are number of seconds from 12:00am on 01.01.2000 GMT
+	backup : 0x8000000 not set
+	from netatalk adouble.h	
+*/
+#define DATE_NOT_SET         0x80000000 
+#define AD_DATE_DELTA         946684800  
+#define AD_DATE_TO_UNIX(x)    (x + AD_DATE_DELTA)  
+static guint32
+print_date(proto_tree *tree,int id, tvbuff_t *tvb, gint offset)
+{
+time_t date = tvb_get_ntohl(tvb, offset);
+nstime_t tv;
+
+	tv.secs = AD_DATE_TO_UNIX(date);
+	proto_tree_add_time(tree, id, tvb, offset, 4, &tv);
+
+	return date;
+}
+
 /* -------------------------- */
 static gint
 parse_vol_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap)
@@ -547,15 +693,15 @@ guint16 nameoff = 0;
 		offset += 2;
 	}
 	if ((bitmap & kFPVolCreateDateBit)) {
-		proto_tree_add_item(tree, hf_afp_vol_creation_date,tvb, offset, 4, FALSE);
+		print_date(tree, hf_afp_vol_creation_date,tvb, offset);
 		offset += 4;
 	}
 	if ((bitmap & kFPVolModDateBit)) {
-		proto_tree_add_item(tree, hf_afp_vol_modification_date,tvb, offset, 4, FALSE);
+		print_date(tree, hf_afp_vol_modification_date,tvb, offset);
 		offset += 4;
 	}
 	if ((bitmap & kFPVolBackupDateBit)) {
-		proto_tree_add_item(tree, hf_afp_vol_backup_date,tvb, offset, 4, FALSE);
+		print_date(tree, hf_afp_vol_backup_date,tvb, offset);
 		offset += 4;
 	}
 	if ((bitmap & kFPVolIDBit)) {
@@ -589,7 +735,7 @@ guint16 nameoff = 0;
 		offset += 4;
 	}
 	if (nameoff) {
-	int len;
+	guint8 len;
 
 		len = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(tree, hf_afp_vol_name, tvb, offset, 1,FALSE);
@@ -622,16 +768,58 @@ decode_file_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset)
 	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_ShortName      , tvb, offset, 2,FALSE);
 	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_NodeID         , tvb, offset, 2,FALSE);
 
-	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_UTF8Name	   , tvb, offset, 2,FALSE);
+	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_DataForkLen   	, tvb, offset, 2,FALSE);   
+	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_RsrcForkLen   	, tvb, offset, 2,FALSE);
+	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_ExtDataForkLen	, tvb, offset, 2,FALSE);
+	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_LaunchLimit   	, tvb, offset, 2,FALSE);
+	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_UTF8Name	    , tvb, offset, 2,FALSE);
 
-	proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_UnixPrivs      , tvb, offset, 2,FALSE);
+	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_ExtRsrcForkLen	, tvb, offset, 2,FALSE);
+	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_UnixPrivs      , tvb, offset, 2,FALSE);
 
 	return bitmap;
 }
 
 /* -------------------------- */
+static guint16 
+decode_file_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset, int shared)
+{
+  	proto_tree *sub_tree = NULL;
+  	proto_item *item;
+	guint16		attribute;
+	
+	attribute = tvb_get_ntohs(tvb, offset);
+	if (tree) {
+		item = proto_tree_add_text(tree, tvb, offset, 2,
+					"file Attributes: 0x%04x", attribute);
+		sub_tree = proto_item_add_subtree(item, ett_afp_file_attribute);
+	}
+	proto_tree_add_item(sub_tree, hf_afp_file_attribute_Invisible    , tvb, offset, 2,FALSE);  
+	if (!shared) 
+		proto_tree_add_item(sub_tree, hf_afp_file_attribute_MultiUser    , tvb, offset, 2,FALSE);
+
+	proto_tree_add_item(sub_tree, hf_afp_file_attribute_System       , tvb, offset, 2,FALSE);
+
+	if (!shared) {
+		proto_tree_add_item(sub_tree, hf_afp_file_attribute_DAlreadyOpen , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_file_attribute_RAlreadyOpen , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_file_attribute_WriteInhibit , tvb, offset, 2,FALSE);
+	}
+	proto_tree_add_item(sub_tree, hf_afp_file_attribute_BackUpNeeded , tvb, offset, 2,FALSE);
+	proto_tree_add_item(sub_tree, hf_afp_file_attribute_RenameInhibit, tvb, offset, 2,FALSE);
+	proto_tree_add_item(sub_tree, hf_afp_file_attribute_DeleteInhibit, tvb, offset, 2,FALSE);
+
+	if (!shared) 
+		proto_tree_add_item(sub_tree, hf_afp_file_attribute_CopyProtect  , tvb, offset, 2,FALSE);
+
+	proto_tree_add_item(sub_tree, hf_afp_file_attribute_SetClear     , tvb, offset, 2,FALSE);
+
+	return(attribute);
+}
+
+/* -------------------------- */
 static gint
-parse_file_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap)
+parse_file_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap, int shared)
 {
 	guint16 lnameoff = 0;
 	guint16 snameoff = 0;
@@ -641,6 +829,7 @@ parse_file_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap)
 	gint 	org_offset = offset;
 
 	if ((bitmap & kFPAttributeBit)) {
+		decode_file_attribute(tree, tvb, offset, shared);
 		offset += 2;
 	}
 	if ((bitmap & kFPParentDirIDBit)) {
@@ -648,15 +837,15 @@ parse_file_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap)
 		offset += 4;
 	}
 	if ((bitmap & kFPCreateDateBit)) {
-		proto_tree_add_item(tree, hf_afp_creation_date,tvb, offset, 4, FALSE);
+		print_date(tree, hf_afp_creation_date,tvb, offset);
 		offset += 4;
 	}
 	if ((bitmap & kFPModDateBit)) {
-		proto_tree_add_item(tree, hf_afp_modification_date,tvb, offset, 4, FALSE);
+		print_date(tree, hf_afp_modification_date,tvb, offset);
 		offset += 4;
 	}
 	if ((bitmap & kFPBackupDateBit)) {
-		proto_tree_add_item(tree, hf_afp_backup_date,tvb, offset, 4, FALSE);
+		print_date(tree, hf_afp_backup_date,tvb, offset);
 		offset += 4;
 	}
 	if ((bitmap & kFPFinderInfoBit)) {
@@ -664,15 +853,18 @@ parse_file_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap)
 		offset += 32;
 	}
 	if ((bitmap & kFPLongNameBit)) {
-	gint tp_ofs;
-	guint8 len;
+		gint tp_ofs;
+		guint8 len;
+
 		lnameoff = tvb_get_ntohs(tvb, offset);
 		if (lnameoff) {
 			tp_ofs = lnameoff +org_offset;
 			proto_tree_add_item(tree, hf_afp_bitmap_offset,tvb, offset, 2, FALSE);
 			len = tvb_get_guint8(tvb, tp_ofs);
-			proto_tree_add_item(tree, hf_afp_path_name, tvb, tp_ofs, 1,FALSE);
-			tp_ofs += len +1;
+			proto_tree_add_item(tree, hf_afp_path_len, tvb, tp_ofs,  1,FALSE);
+			tp_ofs++;
+			proto_tree_add_item(tree, hf_afp_path_name, tvb, tp_ofs, len,FALSE);
+			tp_ofs += len;
 			max_offset = (tp_ofs >max_offset)?tp_ofs:max_offset;
 		}
 		offset += 2;
@@ -687,7 +879,40 @@ parse_file_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap)
 		offset += 4;
 	}
 
-	return offset;
+	if ((bitmap & kFPDataForkLenBit)) {
+		proto_tree_add_item(tree, hf_afp_file_DataForkLen, tvb, offset, 4,FALSE);
+		offset += 4;
+	}
+ 	
+	if ((bitmap & kFPRsrcForkLenBit)) {
+		proto_tree_add_item(tree, hf_afp_file_RsrcForkLen, tvb, offset, 4,FALSE);
+		offset += 4;
+	}
+
+	if ((bitmap & kFPExtDataForkLenBit)) {
+		proto_tree_add_item(tree, hf_afp_file_ExtDataForkLen, tvb, offset, 8,FALSE);
+		offset += 8;
+	}
+
+	if ((bitmap & kFPLaunchLimitBit)) {
+		offset += 2;	/* ? */
+	}
+
+	if ((bitmap & kFPUTF8NameBit)) {
+		offset += 2;
+	}
+
+	if ((bitmap & kFPExtRsrcForkLenBit)) {
+		proto_tree_add_item(tree, hf_afp_file_ExtRsrcForkLen, tvb, offset, 8,FALSE);
+		offset += 8;
+	}
+
+	if ((bitmap & kFPUnixPrivsBit_file)) {
+		proto_tree_add_item(tree, hf_afp_file_UnixPrivs, tvb, offset, 4,FALSE);
+		offset += 4;
+	}
+
+	return (max_offset)?max_offset:offset;
 }
 
 /* -------------------------- */
@@ -724,6 +949,32 @@ decode_dir_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset)
 }
 
 /* -------------------------- */
+static guint16 
+decode_dir_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset)
+{
+  	proto_tree *sub_tree = NULL;
+  	proto_item *item;
+	guint16		attribute;
+	
+	attribute = tvb_get_ntohs(tvb, offset);
+	if (tree) {
+		item = proto_tree_add_text(tree, tvb, offset, 2,
+					"dir Attributes: 0x%04x", attribute);
+		sub_tree = proto_item_add_subtree(item, ett_afp_dir_attribute);
+	}
+	proto_tree_add_item(sub_tree, hf_afp_dir_attribute_Invisible    , tvb, offset, 2,FALSE);  
+	proto_tree_add_item(sub_tree, hf_afp_dir_attribute_IsExpFolder  , tvb, offset, 2,FALSE);
+	proto_tree_add_item(sub_tree, hf_afp_dir_attribute_System       , tvb, offset, 2,FALSE);
+	proto_tree_add_item(sub_tree, hf_afp_dir_attribute_Mounted      , tvb, offset, 2,FALSE);
+	proto_tree_add_item(sub_tree, hf_afp_dir_attribute_InExpFolder  , tvb, offset, 2,FALSE);
+	proto_tree_add_item(sub_tree, hf_afp_dir_attribute_BackUpNeeded , tvb, offset, 2,FALSE);
+	proto_tree_add_item(sub_tree, hf_afp_dir_attribute_RenameInhibit, tvb, offset, 2,FALSE);
+	proto_tree_add_item(sub_tree, hf_afp_dir_attribute_DeleteInhibit, tvb, offset, 2,FALSE);
+
+	return(attribute);
+}
+
+/* -------------------------- */
 static gint
 parse_dir_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap)
 {
@@ -735,6 +986,7 @@ parse_dir_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap)
 	gint 	org_offset = offset;
 
 	if ((bitmap & kFPAttributeBit)) {
+		decode_dir_attribute(tree, tvb, offset);
 		offset += 2;
 	}
 	if ((bitmap & kFPParentDirIDBit)) {
@@ -742,15 +994,15 @@ parse_dir_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap)
 		offset += 4;
 	}
 	if ((bitmap & kFPCreateDateBit)) {
-		proto_tree_add_item(tree, hf_afp_creation_date,tvb, offset, 4, FALSE);
+		print_date(tree, hf_afp_creation_date,tvb, offset);
 		offset += 4;
 	}
 	if ((bitmap & kFPModDateBit)) {
-		proto_tree_add_item(tree, hf_afp_modification_date,tvb, offset, 4, FALSE);
+		print_date(tree, hf_afp_modification_date,tvb, offset);
 		offset += 4;
 	}
 	if ((bitmap & kFPBackupDateBit)) {
-		proto_tree_add_item(tree, hf_afp_backup_date,tvb, offset, 4, FALSE);
+		print_date(tree, hf_afp_backup_date,tvb, offset);
 		offset += 4;
 	}
 	if ((bitmap & kFPFinderInfoBit)) {
@@ -765,8 +1017,10 @@ parse_dir_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap)
 			tp_ofs = lnameoff +org_offset;
 			proto_tree_add_item(tree, hf_afp_bitmap_offset,tvb, offset, 2, FALSE);
 			len = tvb_get_guint8(tvb, tp_ofs);
-			proto_tree_add_item(tree, hf_afp_path_name, tvb, tp_ofs, 1,FALSE);
-			tp_ofs += len +1;
+			proto_tree_add_item(tree, hf_afp_path_len, tvb, tp_ofs,  1,FALSE);
+			tp_ofs++;
+			proto_tree_add_item(tree, hf_afp_path_name, tvb, tp_ofs, len,FALSE);
+			tp_ofs += len;
 			max_offset = (tp_ofs >max_offset)?tp_ofs:max_offset;
 		}
 		offset += 2;
@@ -781,23 +1035,50 @@ parse_dir_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap)
 		offset += 4;
 	}
 	if ((bitmap & kFPOffspringCountBit)) {
-		proto_tree_add_item(tree, hf_afp_dir_off_spring, tvb, offset, 2,FALSE);
+		proto_tree_add_item(tree, hf_afp_dir_offspring, tvb, offset, 2,FALSE);
 		offset += 2;		/* error in AFP3.0.pdf */
 	}
 	if ((bitmap & kFPOwnerIDBit)) {
+		proto_tree_add_item(tree, hf_afp_dir_OwnerID, tvb, offset, 4,	FALSE);  
 		offset += 4;
 	}
 	if ((bitmap & kFPGroupIDBit)) {
+		proto_tree_add_item(tree, hf_afp_dir_GroupID, tvb, offset, 4,	FALSE);  
 		offset += 4;
 	}
 	if ((bitmap & kFPAccessRightsBit)) {
+  		proto_tree *sub_tree = NULL;
+  		proto_item *item;
+  			
+		if (tree) {
+			item = proto_tree_add_item(tree, hf_afp_dir_ar, tvb, offset, 4, FALSE);
+			sub_tree = proto_item_add_subtree(item, ett_afp_dir_ar);
+		}
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_o_search, tvb, offset, 4,	FALSE);  
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_o_read  , tvb, offset, 4,	FALSE);  
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_o_write , tvb, offset, 4,	FALSE);  
+
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_g_search, tvb, offset, 4,	FALSE);  
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_g_read  , tvb, offset, 4,	FALSE);  
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_g_write , tvb, offset, 4,	FALSE);  
+
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_e_search, tvb, offset, 4,	FALSE);  
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_e_read  , tvb, offset, 4,	FALSE);  
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_e_write , tvb, offset, 4,	FALSE);  
+
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_u_search, tvb, offset, 4,	FALSE);  
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_u_read  , tvb, offset, 4,	FALSE);  
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_u_write , tvb, offset, 4,	FALSE);  
+
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_blank   , tvb, offset, 4,	FALSE);  
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_u_own   , tvb, offset, 4,	FALSE);  
+		
 		offset += 4;
 	}
 	if ((bitmap & kFPUTF8NameBit)) {
 		offset += 2;
 	}
 	if ((bitmap & kFPUnixPrivsBit)) {
-		unameoff = tvb_get_ntohs(tvb, offset);
 		offset += 4;
 	}
 	return (max_offset)?max_offset:offset;
@@ -878,13 +1159,21 @@ name_in_fbitmap(tvbuff_t *tvb, gint offset, guint16 bitmap)
 
 /* -------------------------- */
 static gint
-decode_vol_did_file_dir_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset)
+decode_vol_did(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
 	proto_tree_add_item(tree, hf_afp_vol_id, tvb, offset, 2,FALSE);
 	offset += 2;
 
 	proto_tree_add_item(tree, hf_afp_did, tvb, offset, 4,FALSE);
 	offset += 4;
+	return offset;
+}
+
+/* -------------------------- */
+static gint
+decode_vol_did_file_dir_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset)
+{
+	offset = decode_vol_did(tree, tvb, offset);
 
 	decode_file_bitmap(tree, tvb, offset);
 	offset += 2;
@@ -895,20 +1184,78 @@ decode_vol_did_file_dir_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset)
 	return offset;
 }
 
+/* ------------------------
+ * idea from packet-smb
+ *
+ */
+static gchar *
+get_name(tvbuff_t *tvb, int offset, int type)
+{
+  	static gchar  str[3][256];
+  	static int    cur;
+  	gchar *string;
+  	guint8 len;
+	int i;
+	len = tvb_get_guint8(tvb, offset);
+	offset++;
+	string = str[cur];
+	switch (type) {
+	case 1:
+	case 2:
+    	tvb_memcpy(tvb, (guint8 *)string, offset, len);
+    	string[len] = 0;
+		/* FIXME should use something else as separator ?
+		*/
+    	for (i = 0; i < len; i++) if (!string[i])
+    		string[i] = ':';	
+    	break;
+    case 3:
+    	strcpy(string, "error Unicode...,next time ");
+    	break;
+    }
+
+  	cur = ++cur % 3;
+  	return string;
+}
+
 /* -------------------------- */
 static gint
-decode_name (proto_tree *tree, tvbuff_t *tvb, gint offset)
+decode_name_label (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, const gchar *label)
 {
 	int len;
+	gchar *name;
+	guint8 type;
+  	proto_tree *sub_tree = NULL;
+  	proto_item *item;
+		
+	type = tvb_get_guint8(tvb, offset);
+	len = tvb_get_guint8(tvb, offset +1);
+	name = get_name(tvb, offset +1, type);
 
-	proto_tree_add_item(tree, hf_afp_path_type, tvb, offset, 1,FALSE);
-	offset += 1;
+	if (pinfo && check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", name);
+	}
 
-	len = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_afp_path_name, tvb, offset, 1,FALSE);
-	offset += len +1;
+	if (tree) {
+		item = proto_tree_add_text(tree, tvb, offset, len +2, label, name);
+		sub_tree = proto_item_add_subtree(item, ett_afp_path_name);
+		proto_tree_add_item(  sub_tree, hf_afp_path_type, tvb, offset,   1,FALSE);
+		offset++;
+		proto_tree_add_item(  sub_tree, hf_afp_path_len,  tvb, offset,   1,FALSE);
+		offset++;
+		proto_tree_add_string(sub_tree, hf_afp_path_name, tvb, offset, len,name);
+	}
+	else 
+		offset += 2;
 
-	return offset;
+	return offset +len;
+}
+
+/* -------------------------- */
+static gint
+decode_name (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset)
+{
+	return decode_name_label(tree, pinfo, tvb, offset," path : %s");
 }
 
 /* ************************** */
@@ -923,16 +1270,16 @@ dissect_query_afp_open_vol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 2;
 	
 	len = tvb_get_guint8(tvb, offset);
-#if 0	
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		gchar	*func_str;
 
-		if ((func_str = match_strval(afp_command, CommandCode_vals)))
-		{
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", func_str, aspinfo->reply?"reply":"");
-		}
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+	const gchar *rep;
+		rep = get_name(tvb, offset, 2);
+		col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", rep);
 	}
-#endif	
+
+	if (!tree)
+		return offset;
+		
 	proto_tree_add_item(tree, hf_afp_vol_name, tvb, offset, 1,FALSE);
 	offset += len +1;
 		
@@ -950,11 +1297,34 @@ static gint
 dissect_reply_afp_open_vol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
 	guint16 bitmap;
-
+	
+	if (!tree)
+		return offset;
 	bitmap = decode_vol_bitmap(tree, tvb, offset);
 	offset += 2;
 	offset = parse_vol_bitmap(tree, tvb, offset, bitmap);
 
+	return offset;
+}
+
+/* ************************** 
+	next calls use the same format :
+		1 pad byte 
+		volume id
+	AFP_FLUSH
+	AFP_CLOSEVOL
+	AFP_OPENDT
+*/
+static gint
+dissect_query_afp_with_vol_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+
+	if (!tree)
+		return offset;
+	PAD(1);
+	
+	proto_tree_add_item(tree, hf_afp_vol_id, tvb, offset, 2,FALSE);
+	offset += 2;
 	return offset;
 }
 
@@ -967,27 +1337,23 @@ dissect_query_afp_open_fork(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	proto_tree_add_item(tree, hf_afp_fork_type, tvb, offset, 1,FALSE);
 	offset++;
+
+	offset = decode_vol_did(tree, tvb, offset);
 	
-	proto_tree_add_item(tree, hf_afp_vol_id, tvb, offset, 2,FALSE);
-	offset += 2;
-
-	proto_tree_add_item(tree, hf_afp_did, tvb, offset, 4,FALSE);
-	offset += 4;
-
 	decode_file_bitmap(tree, tvb, offset);
 	offset += 2;
 	if (tree) {
 		item = proto_tree_add_item(tree, hf_afp_access_mode, tvb, offset, 2,FALSE);
 		sub_tree = proto_item_add_subtree(item, ett_afp_access_mode);
-	}
-	item = proto_tree_add_item(sub_tree, hf_afp_access_read      , tvb, offset, 2,FALSE);
-	item = proto_tree_add_item(sub_tree, hf_afp_access_write     , tvb, offset, 2,FALSE);
-	item = proto_tree_add_item(sub_tree, hf_afp_access_deny_read , tvb, offset, 2,FALSE);
-	item = proto_tree_add_item(sub_tree, hf_afp_access_deny_write, tvb, offset, 2,FALSE);
 
+		proto_tree_add_item(sub_tree, hf_afp_access_read      , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_access_write     , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_access_deny_read , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_access_deny_write, tvb, offset, 2,FALSE);
+	}
 	offset += 2;
 
-	offset = decode_name(tree,tvb, offset);
+	offset = decode_name(tree, pinfo, tvb, offset);
 
 	return offset;
 }
@@ -1004,7 +1370,7 @@ dissect_reply_afp_open_fork(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item(tree, hf_afp_ofork, tvb, offset, 2,FALSE);
 	offset += 2;
 
-	offset = parse_file_bitmap(tree, tvb, offset, f_bitmap);
+	offset = parse_file_bitmap(tree, tvb, offset, f_bitmap,0);
 
 	return offset;
 }
@@ -1026,7 +1392,7 @@ dissect_query_afp_enumerate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item(tree, hf_afp_max_reply_size, tvb, offset, 2,FALSE);
 	offset += 2;
 
-	offset = decode_name(tree,tvb, offset);
+	offset = decode_name(tree, pinfo, tvb, offset);
 
 	return offset;
 }
@@ -1059,26 +1425,27 @@ dissect_reply_afp_enumerate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	offset += 2;
 	/* loop */
-	if (tree) for (i = 0; i < count; i++) {
+	for (i = 0; i < count; i++) {
 		org = offset;
 		name = NULL;
 		size = tvb_get_guint8(tvb, offset);
 		flags = tvb_get_guint8(tvb, offset +1);
 
-		if (flags) {
-			name = name_in_dbitmap(tvb, offset +2, d_bitmap);
-		}
-		else {
-			name = name_in_fbitmap(tvb, offset +2, f_bitmap);
-		}
-		if (!name) {
-			if (!(name = g_malloc(50))) { /* no memory ! */
+		if (sub_tree) {
+			if (flags) {
+				name = name_in_dbitmap(tvb, offset +2, d_bitmap);
+			}	
+			else {
+				name = name_in_fbitmap(tvb, offset +2, f_bitmap);
 			}
-			snprintf(name, 50,"line %d", i +1);
+			if (!name) {
+				if (!(name = g_malloc(50))) { /* no memory ! */
+				}
+				snprintf(name, 50,"line %d", i +1);
+			}
+			item = proto_tree_add_text(sub_tree, tvb, offset, size, name);
+			tree = proto_item_add_subtree(item, ett_afp_enumerate_line);
 		}
-		item = proto_tree_add_text(sub_tree, tvb, offset, size, name);
-		tree = proto_item_add_subtree(item, ett_afp_enumerate_line);
-
 		proto_tree_add_item(tree, hf_afp_struct_size, tvb, offset, 1,FALSE);
 		offset++;
 
@@ -1088,12 +1455,13 @@ dissect_reply_afp_enumerate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			offset = parse_dir_bitmap(tree, tvb, offset, d_bitmap);
 		}
 		else {
-			offset = parse_file_bitmap(tree, tvb, offset, f_bitmap);
+			offset = parse_file_bitmap(tree, tvb, offset, f_bitmap,0);
 		}
 		if ((offset & 1)) 
 			PAD(1);
 		offset = org +size;		/* play safe */
-		g_free((gpointer)name);
+		if (sub_tree)
+			g_free((gpointer)name);
 	}	
 	return(offset);
 
@@ -1103,8 +1471,6 @@ dissect_reply_afp_enumerate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static gint
 dissect_query_afp_get_vol_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
-	if (!tree)
-		return offset;
 	PAD(1)
 	proto_tree_add_item(tree, hf_afp_vol_id, tvb, offset, 2,FALSE);
 	offset += 2;
@@ -1121,8 +1487,6 @@ dissect_reply_afp_get_vol_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 {
 	guint16 bitmap;
 
-	if (!tree)
-		return offset;
 	bitmap = decode_vol_bitmap(tree, tvb, offset);
 	offset += 2;
 
@@ -1131,30 +1495,51 @@ dissect_reply_afp_get_vol_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	return offset;
 }
 
+/* **************************/
+static gint
+dissect_query_afp_set_vol_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+	guint16 bitmap;
+
+	PAD(1)
+	proto_tree_add_item(tree, hf_afp_vol_id, tvb, offset, 2,FALSE);
+	offset += 2;
+
+	bitmap = decode_vol_bitmap(tree, tvb, offset);
+	offset += 2;
+	
+	offset = parse_vol_bitmap(tree, tvb, offset, bitmap);
+
+	return offset;	
+}
+
 /* ***************************/
 static gint
 dissect_query_afp_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
 	int len;
-	
-	if (!tree)
-		return offset;
+    const char *uam;
+    
 	len = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_afp_AFPVersion, tvb, offset, 1,FALSE);
 	offset += len +1;
 	len = tvb_get_guint8(tvb, offset);
+	uam = tvb_get_ptr(tvb, offset +1, len);
 	proto_tree_add_item(tree, hf_afp_UAM, tvb, offset, 1,FALSE);
 	offset += len +1;
 
-	/* clear text */
-	len = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_afp_user, tvb, offset, 1,FALSE);
-	offset += len +1;
+	if (!strncmp(uam, "Cleartxt passwrd", len)) {
+		/* clear text */
+		len = tvb_get_guint8(tvb, offset);
+		proto_tree_add_item(tree, hf_afp_user, tvb, offset, 1,FALSE);
+		offset += len +1;
 
-	len = tvb_strsize(tvb, offset);
-	proto_tree_add_item(tree, hf_afp_passwd, tvb, offset, len,FALSE);
-	offset += len;
-
+		len = tvb_strsize(tvb, offset);
+		proto_tree_add_item(tree, hf_afp_passwd, tvb, offset, len,FALSE);
+		offset += len;
+	}
+	else if (!strncmp(uam, "No User Authent", len)) {
+	}
 	return(offset);
 }
 
@@ -1164,8 +1549,6 @@ dissect_query_afp_write(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gin
 {
 	int len;
 	
-	if (!tree)
-		return offset;
 	proto_tree_add_item(tree, hf_afp_flag, tvb, offset, 1,FALSE);
 	offset += 1;
 
@@ -1183,14 +1566,80 @@ dissect_query_afp_write(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gin
 
 /* ************************** */
 static gint
+dissect_query_afp_read(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+	int len;
+	
+	PAD(1);
+	
+	proto_tree_add_item(tree, hf_afp_ofork, tvb, offset, 2,FALSE);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_afp_offset, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_afp_rw_count, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	/* FIXME */
+	offset++;
+	
+	offset++;
+	return offset;
+}
+
+/* ************************** 
+   Open desktop call 
+   query is the same than 	AFP_FLUSH, AFP_CLOSEVOL
+
+*/
+static gint
+dissect_reply_afp_open_dt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+	proto_tree_add_item(tree, hf_afp_dt_ref, tvb, offset, 2,FALSE);
+	offset += 2;
+
+	return offset;
+}
+
+/* ************************** 
+	no reply
+*/
+static gint
+dissect_query_afp_close_dt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+	PAD(1);
+	proto_tree_add_item(tree, hf_afp_dt_ref, tvb, offset, 2,FALSE);
+	offset += 2;
+
+	return offset;
+}
+
+/* ************************** 
+	calls using the same format :
+		1 pad byte 
+		fork number 
+	AFP_FLUSHFORK
+	AFP_CLOSEFORK
+*/
+static gint
+dissect_query_afp_with_fork(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+	PAD(1);
+	proto_tree_add_item(tree, hf_afp_ofork, tvb, offset, 2,FALSE);
+	offset += 2;
+
+	return offset;
+}
+
+/* ************************** */
+static gint
 dissect_query_afp_get_fldr_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
-	if (!tree)
-		return offset;
 	PAD(1);
 	offset = decode_vol_did_file_dir_bitmap(tree, tvb, offset);
 
-	offset = decode_name(tree, tvb, offset);
+	offset = decode_name(tree, pinfo, tvb, offset);
 
 	return offset;
 }
@@ -1199,11 +1648,9 @@ dissect_query_afp_get_fldr_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 static gint
 dissect_reply_afp_get_fldr_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
-guint8	flags;
-guint16 f_bitmap, d_bitmap;
+	guint8	flags;
+	guint16 f_bitmap, d_bitmap;
 
-	if (!tree)
-		return offset;
 	f_bitmap = decode_file_bitmap(tree, tvb, offset);
 	offset += 2;
 	
@@ -1218,8 +1665,518 @@ guint16 f_bitmap, d_bitmap;
 		offset = parse_dir_bitmap(tree, tvb, offset, d_bitmap);
 	}
 	else {
-		offset = parse_file_bitmap(tree, tvb, offset, f_bitmap);
+		offset = parse_file_bitmap(tree, tvb, offset, f_bitmap,0);
 	}
+	return offset;
+}
+
+/* ************************** 
+	no reply
+*/
+static gint
+dissect_query_afp_set_fldr_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+	guint16	f_bitmap;
+	
+	PAD(1);
+	offset = decode_vol_did(tree, tvb, offset);
+
+	f_bitmap = decode_file_bitmap(tree, tvb, offset);
+	offset += 2;
+	
+	offset = decode_name(tree, pinfo, tvb, offset);
+
+	if ((offset & 1))
+		PAD(1);
+	/* did:name can be a file or a folder but only the intersection between 
+	 * file bitmap and dir bitmap can be set
+	 */
+	offset = parse_file_bitmap(tree, tvb, offset, f_bitmap, 1);
+
+	return offset;
+}
+
+/* ************************** 
+	no reply
+*/
+static gint
+dissect_query_afp_set_file_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+	guint16	f_bitmap;
+	
+	PAD(1);
+	offset = decode_vol_did(tree, tvb, offset);
+
+	f_bitmap = decode_file_bitmap(tree, tvb, offset);
+	offset += 2;
+	
+	offset = decode_name(tree, pinfo, tvb, offset);
+
+	if ((offset & 1))
+		PAD(1);
+	offset = parse_file_bitmap(tree, tvb, offset, f_bitmap, 0);
+
+	return offset;
+}
+
+/* ************************** 
+	no reply
+*/
+static gint
+dissect_query_afp_set_dir_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+	guint16	d_bitmap;
+
+	PAD(1);
+	offset = decode_vol_did(tree, tvb, offset);
+
+	d_bitmap = decode_dir_bitmap(tree, tvb, offset);
+	offset += 2;
+	
+	offset = decode_name(tree, pinfo, tvb, offset);
+
+	if ((offset & 1))
+		PAD(1);
+	offset = parse_dir_bitmap(tree, tvb, offset, d_bitmap);
+
+	offset += 4;
+	return offset;
+}
+
+/* **************************
+	AFP_DELETE
+	AFP_CREATE_DIR
+ */
+static gint
+dissect_query_afp_create_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+	PAD(1);
+	offset = decode_vol_did(tree, tvb, offset);
+
+	offset = decode_name(tree, pinfo, tvb, offset);
+	return offset;
+}
+
+/* -------------------------- 
+	AFP_MOVE
+*/
+static gint
+dissect_reply_afp_create_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+	proto_tree_add_item(tree, hf_afp_file_id, tvb, offset, 4,FALSE);
+	offset += 4;
+	
+	return offset;
+}
+
+/* -------------------------- */
+static gint
+dissect_reply_afp_create_dir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+	proto_tree_add_item(tree, hf_afp_did, tvb, offset, 4,FALSE);
+	offset += 4;
+	
+	return offset;
+}
+
+/* ************************** 
+	no reply
+*/
+static gint
+dissect_query_afp_delete_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+	PAD(1);
+	proto_tree_add_item(tree, hf_afp_vol_id, tvb, offset, 2,FALSE);
+	offset += 2;
+	proto_tree_add_item(tree, hf_afp_file_id, tvb, offset, 4,FALSE);
+	offset += 4;
+	
+	return offset;
+}
+
+/* ************************** 
+	same reply as get_fork_param
+*/
+static gint
+dissect_query_afp_resolve_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+	PAD(1);
+	proto_tree_add_item(tree, hf_afp_vol_id, tvb, offset, 2,FALSE);
+	offset += 2;
+	proto_tree_add_item(tree, hf_afp_file_id, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	decode_file_bitmap(tree, tvb, offset);
+	offset += 2;
+
+	return offset;
+}
+
+/* ************************** */
+static gint
+dissect_query_afp_get_fork_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+
+	PAD(1);
+	proto_tree_add_item(tree, hf_afp_ofork, tvb, offset, 2,FALSE);
+	offset += 2;
+
+	decode_file_bitmap(tree, tvb, offset);
+	offset += 2;
+	return offset;
+}
+
+/* -------------------------- */
+static gint
+dissect_reply_afp_get_fork_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+	guint16 f_bitmap;
+
+	f_bitmap = decode_file_bitmap(tree, tvb, offset);
+	offset += 2;
+
+	offset = parse_file_bitmap(tree, tvb, offset, f_bitmap,0);
+
+	return offset;
+}
+
+/* ************************** */
+static gint
+dissect_query_afp_set_fork_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+
+	PAD(1);
+	proto_tree_add_item(tree, hf_afp_ofork, tvb, offset, 2,FALSE);
+	offset += 2;
+
+	decode_file_bitmap(tree, tvb, offset);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_afp_ofork_len, tvb, offset, 4,FALSE);
+	offset += 4;
+	return offset;
+}
+
+/* ************************** */
+static gint
+dissect_query_afp_move(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+		
+	PAD(1);
+	offset = decode_vol_did(tree, tvb, offset);
+
+	proto_tree_add_item(tree, hf_afp_did, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	offset = decode_name_label(tree, pinfo, tvb, offset," source path : %s");
+	offset = decode_name_label(tree, NULL, tvb, offset," dest dir    : %s");
+	offset = decode_name_label(tree, NULL, tvb, offset," new name    : %s");
+
+	return offset;
+}
+
+/* ************************** */
+static gint
+dissect_query_afp_rename(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+		
+	PAD(1);
+	offset = decode_vol_did(tree, tvb, offset);
+
+	offset = decode_name_label(tree, pinfo, tvb, offset," old name    : %s");
+	offset = decode_name_label(tree, NULL, tvb, offset," new name    : %s");
+
+	return offset;
+}
+
+/* ************************** */
+static gint
+dissect_query_afp_byte_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+  	proto_tree *sub_tree = NULL;
+  	proto_item *item;
+	guint8 flag;
+	
+	flag = tvb_get_guint8(tvb, offset);
+	if (tree) {
+		item = proto_tree_add_text(tree, tvb, offset, 1, "flags : 0x%02x", flag);
+		sub_tree = proto_item_add_subtree(item, ett_afp_lock_flags);
+	}
+
+	proto_tree_add_item(sub_tree, hf_afp_lock_op, tvb, offset, 1,FALSE);
+	proto_tree_add_item(sub_tree, hf_afp_lock_from, tvb, offset, 1,FALSE);
+	offset += 1;
+
+	proto_tree_add_item(tree, hf_afp_ofork, tvb, offset, 2,FALSE);
+	offset += 2;
+	
+	proto_tree_add_item(tree, hf_afp_lock_offset, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_afp_lock_len, tvb, offset, 4,FALSE);
+	offset += 4;
+	return offset;
+}
+
+/* -------------------------- */
+static gint
+dissect_reply_afp_byte_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+	proto_tree_add_item(tree, hf_afp_lock_range_start, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	return offset;
+}
+
+/* ************************** */
+static gint
+dissect_query_afp_add_cmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+	guint8 len;
+
+	PAD(1);
+	proto_tree_add_item(tree, hf_afp_dt_ref, tvb, offset, 2,FALSE);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_afp_did, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	offset = decode_name(tree, pinfo, tvb, offset);
+
+	if ((offset & 1)) 
+		PAD(1);
+
+	len = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_afp_comment, tvb, offset, 1,FALSE);
+	offset += len +1;
+
+	return offset;
+}
+
+
+/* ************************** */
+static gint
+dissect_query_afp_get_cmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+
+	PAD(1);
+	proto_tree_add_item(tree, hf_afp_dt_ref, tvb, offset, 2,FALSE);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_afp_did, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	offset = decode_name(tree, pinfo, tvb, offset);
+	return offset;
+}
+
+/* -------------------------- */
+static gint
+dissect_reply_afp_get_cmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+	guint8 len;
+
+	len = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_afp_comment, tvb, offset, 1,FALSE);
+	offset += len +1;
+
+	return offset;
+}
+
+/* ************************** */
+static gint
+dissect_query_afp_get_icon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+
+	PAD(1);
+	proto_tree_add_item(tree, hf_afp_dt_ref, tvb, offset, 2,FALSE);
+	offset += 2;
+	proto_tree_add_item(tree, hf_afp_file_creator, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_afp_file_type, tvb, offset, 4,FALSE);
+	offset += 4;
+	
+	proto_tree_add_item(tree, hf_afp_icon_type, tvb, offset, 1,FALSE);
+	offset += 1;
+	PAD(1);
+
+	proto_tree_add_item(tree, hf_afp_icon_length, tvb, offset, 2,FALSE);
+	offset += 2;
+
+	return offset;
+}
+
+/* -------------------------- 
+	fallback to data in afp dissector
+*/
+static gint
+dissect_reply_afp_get_icon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+	return offset;
+}
+
+/* ************************** */
+static gint
+dissect_query_afp_get_icon_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+
+	PAD(1);
+	proto_tree_add_item(tree, hf_afp_dt_ref, tvb, offset, 2,FALSE);
+	offset += 2;
+	proto_tree_add_item(tree, hf_afp_file_creator, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_afp_icon_index, tvb, offset, 2,FALSE);
+	offset += 2;
+
+	return offset;
+}
+
+/* -------------------------- */
+static gint
+dissect_reply_afp_get_icon_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+
+	proto_tree_add_item(tree, hf_afp_icon_tag, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_afp_file_type, tvb, offset, 4,FALSE);
+	offset += 4;
+	
+	proto_tree_add_item(tree, hf_afp_icon_type, tvb, offset, 1,FALSE);
+	offset += 1;
+
+	PAD(1);
+	proto_tree_add_item(tree, hf_afp_icon_length, tvb, offset, 2,FALSE);
+	offset += 2;
+
+	return offset;
+}
+
+/* ************************** */
+static gint
+dissect_query_afp_add_icon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+
+	PAD(1);
+	proto_tree_add_item(tree, hf_afp_dt_ref, tvb, offset, 2,FALSE);
+	offset += 2;
+	proto_tree_add_item(tree, hf_afp_file_creator, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_afp_file_type, tvb, offset, 4,FALSE);
+	offset += 4;
+	
+	proto_tree_add_item(tree, hf_afp_icon_type, tvb, offset, 1,FALSE);
+	offset += 1;
+	
+	PAD(1);
+	proto_tree_add_item(tree, hf_afp_icon_tag, tvb, offset, 4,FALSE);
+	offset += 4;
+	
+	proto_tree_add_item(tree, hf_afp_icon_length, tvb, offset, 2,FALSE);
+	offset += 2;
+
+	return offset;
+}
+
+/* ************************** 
+	no reply
+*/
+static gint
+dissect_query_afp_add_appl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+
+	PAD(1);
+	proto_tree_add_item(tree, hf_afp_dt_ref, tvb, offset, 2,FALSE);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_afp_did, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_afp_file_creator, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_afp_appl_tag, tvb, offset, 4,FALSE);
+	offset += 4;
+	
+	offset = decode_name(tree, pinfo, tvb, offset);
+
+	return offset;
+}
+
+/* ************************** 
+	no reply
+*/
+static gint
+dissect_query_afp_rmv_appl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+
+	PAD(1);
+	proto_tree_add_item(tree, hf_afp_dt_ref, tvb, offset, 2,FALSE);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_afp_did, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_afp_file_creator, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	offset = decode_name(tree, pinfo, tvb, offset);
+
+	return offset;
+}
+
+/* ************************** */
+static gint
+dissect_query_afp_get_appl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+
+	PAD(1);
+	proto_tree_add_item(tree, hf_afp_dt_ref, tvb, offset, 2,FALSE);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_afp_file_creator, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_afp_appl_index, tvb, offset, 2,FALSE);
+	offset += 2;
+
+	decode_file_bitmap(tree, tvb, offset);
+	offset += 2;
+
+	return offset;
+}
+
+/* -------------------------- */
+static gint
+dissect_reply_afp_get_appl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+	proto_tree_add_item(tree, hf_afp_appl_tag, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	return offset;
+}
+
+/* ************************** */
+static gint
+dissect_query_afp_create_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+	proto_tree_add_item(tree, hf_afp_create_flag, tvb, offset, 1,FALSE);
+	offset++;
+
+	offset = decode_vol_did(tree, tvb, offset);
+
+	offset = decode_name(tree, pinfo, tvb, offset);
+
+	return offset;
+}
+
+/* -------------------------- */
+static gint
+dissect_reply_afp_create_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
 	return offset;
 }
 
@@ -1237,7 +2194,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	gchar	*func_str;
 
-	guint8	afp_flags,afp_command;
+	guint8	afp_command;
 	guint16 afp_requestid;
 	gint32 	afp_code;
 	guint32 afp_length;
@@ -1300,22 +2257,31 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset++;
 		switch(afp_command) {
 		case AFP_BYTELOCK:
+			offset = dissect_query_afp_byte_lock(tvb, pinfo, afp_tree, offset);break; 
+		case AFP_OPENDT: 	/* same as close vol */
+		case AFP_FLUSH:		
 		case AFP_CLOSEVOL:
+			offset = dissect_query_afp_with_vol_id(tvb, pinfo, afp_tree, offset);break;
 		case AFP_CLOSEDIR:
-		case AFP_CLOSEFORK:
-		case AFP_COPYFILE:
-		case AFP_CREATEDIR:
-		case AFP_CREATEFILE:
-		case AFP_DELETE:
+			/* offset = dissect_query_afp_close_dir(tvb, pinfo, afp_tree, offset);break; */
 			break;
+		case AFP_CLOSEDT:	
+			offset = dissect_query_afp_close_dt(tvb, pinfo, afp_tree, offset);break;
+		case AFP_FLUSHFORK: /* same packet as closefork */
+		case AFP_CLOSEFORK:
+			offset = dissect_query_afp_with_fork(tvb, pinfo, afp_tree, offset);break;
+		case AFP_COPYFILE:
+			/* offset = dissect_query_afp_copy_file(tvb, pinfo, afp_tree, offset);break; */
+		case AFP_CREATEFILE:
+			offset = dissect_query_afp_create_file(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_ENUMERATE:
 			offset = dissect_query_afp_enumerate(tvb, pinfo, afp_tree, offset);break;
-		case AFP_FLUSH:
-		case AFP_FLUSHFORK:
 		case AFP_GETFORKPARAM:
+			offset = dissect_query_afp_get_fork_param(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_GETSRVINFO:
+			/* offset = dissect_query_afp_get_server_info(tvb, pinfo, afp_tree, offset);break; */
 		case AFP_GETSRVPARAM:
-			break;
+			break;					/* no parameters */
 		case AFP_GETVOLPARAM:
 			offset = dissect_query_afp_get_vol_param(tvb, pinfo, afp_tree, offset);break;
 		case AFP_LOGIN:
@@ -1324,8 +2290,9 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case AFP_LOGOUT:
 		case AFP_MAPID:
 		case AFP_MAPNAME:
-		case AFP_MOVE:
 			break;
+		case AFP_MOVE:
+			offset = dissect_query_afp_move(tvb, pinfo, afp_tree, offset);break;
 		case AFP_OPENVOL:
 			offset = dissect_query_afp_open_vol(tvb, pinfo, afp_tree, offset);break;
 		case AFP_OPENDIR:
@@ -1333,56 +2300,92 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case AFP_OPENFORK:
 			offset = dissect_query_afp_open_fork(tvb, pinfo, afp_tree, offset);break;
 		case AFP_READ:
+			offset = dissect_query_afp_read(tvb, pinfo, afp_tree, offset);break;
 		case AFP_RENAME:
+			offset = dissect_query_afp_rename(tvb, pinfo, afp_tree, offset);break;
 		case AFP_SETDIRPARAM:
+			offset = dissect_query_afp_set_dir_param(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_SETFILEPARAM:
+			offset = dissect_query_afp_set_file_param(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_SETFORKPARAM:
+			offset = dissect_query_afp_set_fork_param(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_SETVOLPARAM:
-			break;
+			offset = dissect_query_afp_set_vol_param(tvb, pinfo, afp_tree, offset);break;
 		case AFP_WRITE:
 			offset = dissect_query_afp_write(tvb, pinfo, afp_tree, offset);break;
 		case AFP_GETFLDRPARAM:
 			offset = dissect_query_afp_get_fldr_param(tvb, pinfo, afp_tree, offset);break;
 		case AFP_SETFLDRPARAM:
+			offset = dissect_query_afp_set_fldr_param(tvb, pinfo, afp_tree, offset);break;
 		case AFP_CHANGEPW:
 		case AFP_GETSRVRMSG:
+			break;
+		case AFP_DELETE:	/* same as create_id */
+		case AFP_CREATEDIR:
 		case AFP_CREATEID:
+			offset = dissect_query_afp_create_id(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_DELETEID:
+			offset = dissect_query_afp_delete_id(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_RESOLVEID:
+			offset = dissect_query_afp_resolve_id(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_EXCHANGEFILE:
 		case AFP_CATSEARCH:
-		case AFP_OPENDT:
-		case AFP_CLOSEDT:
+			break;
 		case AFP_GETICON:
+			offset = dissect_query_afp_get_icon(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_GTICNINFO:
+			offset = dissect_query_afp_get_icon_info(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_ADDAPPL:
+			offset = dissect_query_afp_add_appl(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_RMVAPPL:
+			offset = dissect_query_afp_rmv_appl(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_GETAPPL:
+			offset = dissect_query_afp_get_appl(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_ADDCMT:
-		case AFP_RMVCMT:
+			offset = dissect_query_afp_add_cmt(tvb, pinfo, afp_tree, offset);break; 
+		case AFP_RMVCMT: /* same as get_cmt */
 		case AFP_GETCMT:
+			offset = dissect_query_afp_get_cmt(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_ADDICON:
+			offset = dissect_query_afp_add_icon(tvb, pinfo, afp_tree, offset);break; 
 			break;
  		}
 	}
  	else {
  		switch(afp_command) {
+		case AFP_BYTELOCK:
+			offset = dissect_reply_afp_byte_lock(tvb, pinfo, afp_tree, offset);break; 
  		case AFP_ENUMERATE:
  			offset = dissect_reply_afp_enumerate(tvb, pinfo, afp_tree, offset);break;
  		case AFP_OPENVOL:
  			offset = dissect_reply_afp_open_vol(tvb, pinfo, afp_tree, offset);break;
 		case AFP_OPENFORK:
 			offset = dissect_reply_afp_open_fork(tvb, pinfo, afp_tree, offset);break;
-		case AFP_FLUSH:
-		case AFP_FLUSHFORK:
+		case AFP_RESOLVEID:
 		case AFP_GETFORKPARAM:
+			offset =dissect_reply_afp_get_fork_param(tvb, pinfo, afp_tree, offset);break;
 		case AFP_GETSRVINFO:
 		case AFP_GETSRVPARAM:
 			break;
+		case AFP_CREATEDIR:
+			offset = dissect_reply_afp_create_dir(tvb, pinfo, afp_tree, offset);break; 
+		case AFP_MOVE:		/* same as create_id */
+		case AFP_CREATEID:
+			offset = dissect_reply_afp_create_id(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_GETVOLPARAM:
 			offset = dissect_reply_afp_get_vol_param(tvb, pinfo, afp_tree, offset);break;
  		case AFP_GETFLDRPARAM:
  			offset = dissect_reply_afp_get_fldr_param(tvb, pinfo, afp_tree, offset);break;
+		case AFP_OPENDT:
+			offset = dissect_reply_afp_open_dt(tvb, pinfo, afp_tree, offset);break;
+		case AFP_GETICON:
+			offset = dissect_reply_afp_get_icon(tvb, pinfo, afp_tree, offset);break; 
+		case AFP_GTICNINFO:
+			offset = dissect_reply_afp_get_icon_info(tvb, pinfo, afp_tree, offset);break; 
+		case AFP_GETAPPL:
+			offset = dissect_reply_afp_get_appl(tvb, pinfo, afp_tree, offset);break; 
+		case AFP_GETCMT:
+			offset = dissect_reply_afp_get_cmt(tvb, pinfo, afp_tree, offset);break; 
 		}
 	}
 	if (tree && offset < len)
@@ -1577,7 +2580,7 @@ proto_register_afp(void)
 	    FT_BOOLEAN, 16, NULL,  kFPNodeIDBit,
       	"directory file ID", HFILL }},
     { &hf_afp_dir_bitmap_OffspringCount,   
-      { "offspring count",         "afp.dir_bitmap.off_spring_count",
+      { "offspring count",         "afp.dir_bitmap.offspring_count",
     	FT_BOOLEAN, 16, NULL,  kFPOffspringCountBit,
       	"directory offSpring count", HFILL }},
     { &hf_afp_dir_bitmap_OwnerID,		   
@@ -1600,6 +2603,43 @@ proto_register_afp(void)
       { "unix privs",         "afp.dir_bitmap.unix_privs",
 	    FT_BOOLEAN, 16, NULL,  kFPUnixPrivsBit,
       	"directory unix privs", HFILL }},
+
+    { &hf_afp_dir_attribute_Invisible,
+      { "invisible",         "afp.dir_attribute.invisible",
+	    FT_BOOLEAN, 16, NULL,  kFPInvisibleBit,
+      	"dir is not visible", HFILL }},
+    { &hf_afp_dir_attribute_IsExpFolder,
+      { "share point",         "afp.dir_attribute.share",
+	    FT_BOOLEAN, 16, NULL,  kFPMultiUserBit,
+      	"share point", HFILL }},
+    { &hf_afp_dir_attribute_System,
+      { "sytem",         	 "afp.dir_attribute.system",
+	    FT_BOOLEAN, 16, NULL,  kFPSystemBit,
+      	"sytem dir", HFILL }},
+    { &hf_afp_dir_attribute_Mounted,
+      { "mounted",         "afp.dir_attribute.mounted",
+	    FT_BOOLEAN, 16, NULL,  kFPDAlreadyOpenBit,
+      	"dir is mounted", HFILL }},
+    { &hf_afp_dir_attribute_InExpFolder,
+      { "shared area",         "afp.dir_attribute.in_exported_folder",
+	    FT_BOOLEAN, 16, NULL,  kFPRAlreadyOpenBit,
+      	"in a shared dir", HFILL }},
+    { &hf_afp_dir_attribute_BackUpNeeded,
+      { "backup needed",         "afp.dir_attribute.backup_needed",
+	    FT_BOOLEAN, 16, NULL,  kFPBackUpNeededBit,
+      	"backup needed", HFILL }},
+    { &hf_afp_dir_attribute_RenameInhibit,
+      { "rename inhibit",         "afp.dir_attribute.rename_inhibit",
+	    FT_BOOLEAN, 16, NULL,  kFPRenameInhibitBit,
+      	"rename inhibit", HFILL }},
+    { &hf_afp_dir_attribute_DeleteInhibit,
+      { "delete inhibit",         "afp.dir_attribute.delete_inhibit",
+	    FT_BOOLEAN, 16, NULL,  kFPDeleteInhibitBit,
+      	"delete inhibit", HFILL }},
+    { &hf_afp_dir_attribute_SetClear,
+      { "set",         "afp.dir_attribute.set_clear",
+	    FT_BOOLEAN, 16, NULL,  kFPSetClearBit,
+      	"clear/set attribute", HFILL }},
 
     { &hf_afp_file_bitmap_Attribute,        
       { "attribute",         "afp.file_bitmap.attribute",
@@ -1637,15 +2677,81 @@ proto_register_afp(void)
       { "file ID",         "afp.file_bitmap.fid",
 	    FT_BOOLEAN, 16, NULL,  kFPNodeIDBit,
       	"file file ID", HFILL }},
+
+    { &hf_afp_file_bitmap_DataForkLen,
+      	{ "data size",         "afp.file_bitmap.data_fork_len",
+	    FT_BOOLEAN, 16, NULL,  kFPDataForkLenBit,
+      	"data fork size", HFILL }},
+    { &hf_afp_file_bitmap_RsrcForkLen,
+      	{ "ressource size",         "afp.file_bitmap.ressource_fork_len",
+	    FT_BOOLEAN, 16, NULL,  kFPRsrcForkLenBit,
+      	"ressource fork size", HFILL }},
+    { &hf_afp_file_bitmap_ExtDataForkLen,
+      	{ "ext. data size",         "afp.file_bitmap.ex_data_fork_len",
+	    FT_BOOLEAN, 16, NULL,  kFPExtDataForkLenBit,
+      	">2Gbyte data fork size", HFILL }},
+    { &hf_afp_file_bitmap_LaunchLimit,
+      	{ "launch limit",         "afp.file_bitmap.launch_limit",
+	    FT_BOOLEAN, 16, NULL,  kFPLaunchLimitBit,
+      	"launch limit", HFILL }},
     { &hf_afp_file_bitmap_UTF8Name,		   
       { "UTF8 name",         "afp.file_bitmap.UTF8_name",
     	FT_BOOLEAN, 16, NULL,  kFPUTF8NameBit,
       	"file UTF8 name", HFILL }},
+    { &hf_afp_file_bitmap_ExtRsrcForkLen,
+      	{ "ext. ressource size",         "afp.file_bitmap.ex_ressource_fork_len",
+	    FT_BOOLEAN, 16, NULL,  kFPExtRsrcForkLenBit,
+      	">2Gbyte ressource fork size", HFILL }},
     { &hf_afp_file_bitmap_UnixPrivs,		   
       { "unix privs",         "afp.file_bitmap.unix_privs",
-	    FT_BOOLEAN, 16, NULL,  kFPUnixPrivsBit,
+	    FT_BOOLEAN, 16, NULL,  kFPUnixPrivsBit_file,
       	"file unix privs", HFILL }},
-
+	/* ---------- */
+    { &hf_afp_file_attribute_Invisible,
+      { "invisible",         "afp.file_attribute.invisible",
+	    FT_BOOLEAN, 16, NULL,  kFPInvisibleBit,
+      	"file is not visible", HFILL }},
+    { &hf_afp_file_attribute_MultiUser,
+      { "multi user",         "afp.file_attribute.multi_user",
+	    FT_BOOLEAN, 16, NULL,  kFPMultiUserBit,
+      	"multi user", HFILL }},
+    { &hf_afp_file_attribute_System,
+      { "sytem",         	 "afp.file_attribute.system",
+	    FT_BOOLEAN, 16, NULL,  kFPSystemBit,
+      	"system file", HFILL }},
+    { &hf_afp_file_attribute_DAlreadyOpen,
+      { "df open",         "afp.file_attribute.df_open",
+	    FT_BOOLEAN, 16, NULL,  kFPDAlreadyOpenBit,
+      	"data fork already open", HFILL }},
+    { &hf_afp_file_attribute_RAlreadyOpen,
+      { "rf open",         "afp.file_attribute.rf_open",
+	    FT_BOOLEAN, 16, NULL,  kFPRAlreadyOpenBit,
+      	"ressource fork already open", HFILL }},
+    { &hf_afp_file_attribute_WriteInhibit,
+      { "write inhibit",         "afp.file_attribute.write_inhibit",
+	    FT_BOOLEAN, 16, NULL,  kFPWriteInhibitBit,
+      	"write inhibit", HFILL }},
+    { &hf_afp_file_attribute_BackUpNeeded,
+      { "backup needed",         "afp.file_attribute.backup_needed",
+	    FT_BOOLEAN, 16, NULL,  kFPBackUpNeededBit,
+      	"backup needed", HFILL }},
+    { &hf_afp_file_attribute_RenameInhibit,
+      { "rename inhibit",         "afp.file_attribute.rename_inhibit",
+	    FT_BOOLEAN, 16, NULL,  kFPRenameInhibitBit,
+      	"rename inhibit", HFILL }},
+    { &hf_afp_file_attribute_DeleteInhibit,
+      { "delete inhibit",         "afp.file_attribute.delete_inhibit",
+	    FT_BOOLEAN, 16, NULL,  kFPDeleteInhibitBit,
+      	"delete inhibit", HFILL }},
+    { &hf_afp_file_attribute_CopyProtect,
+      { "copy protect",         "afp.file_attribute.copy_protect",
+	    FT_BOOLEAN, 16, NULL,  kFPCopyProtectBit,
+      	"copy protect", HFILL }},
+    { &hf_afp_file_attribute_SetClear,
+      { "set",         "afp.file_attribute.set_clear",
+	    FT_BOOLEAN, 16, NULL,  kFPSetClearBit,
+      	"clear/set attribute", HFILL }},
+	/* ---------- */
     { &hf_afp_vol_name,
       { "Volume",         "afp.vol_name",
 	FT_UINT_STRING, BASE_NONE, NULL, 0x0,
@@ -1664,15 +2770,15 @@ proto_register_afp(void)
       	"name offset in packet", HFILL }},
     { &hf_afp_vol_creation_date,
       { "creation date",         "afp.vol_creation_date",
-		FT_UINT32, BASE_HEX, NULL, 0x0,
+		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
       	"volume creation date", HFILL }},
     { &hf_afp_vol_modification_date,
       { "modification date",         "afp.vol_modification_date",
-		FT_UINT32, BASE_HEX, NULL, 0x0,
+		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
       	"volume modification date", HFILL }},
     { &hf_afp_vol_backup_date,
       { "backup date",         "afp.vol_backup_date",
-		FT_UINT32, BASE_HEX, NULL, 0x0,
+		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
       	"volume backup date", HFILL }},
     { &hf_afp_vol_bytes_free,
       { "bytes free",         "afp.vol_bytes_free",
@@ -1704,23 +2810,30 @@ proto_register_afp(void)
       { "dir bitmap",         "afp.dir_bitmap",
 		FT_UINT16, BASE_HEX, NULL, 0x0,
       	"directory bitmap", HFILL }},
-
-    { &hf_afp_dir_off_spring,
-      { "off spring",         "afp.dir_off_spring",
+    { &hf_afp_dir_offspring,
+      { "off spring",         "afp.dir_offspring",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
       	"directory offspring", HFILL }},
+    { &hf_afp_dir_OwnerID,
+      { "owner ID",         "afp.dir_owner_id",
+		FT_INT32, BASE_DEC, NULL, 0x0,
+      	"directory owner ID", HFILL }},
+    { &hf_afp_dir_GroupID,
+      { "group ID",         "afp.dir_group_id",
+		FT_INT32, BASE_DEC, NULL, 0x0,
+      	"directory group ID", HFILL }},
 
     { &hf_afp_creation_date,
       { "creation date",         "afp.creation_date",
-		FT_UINT32, BASE_HEX, NULL, 0x0,
+		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
       	"creation date", HFILL }},
     { &hf_afp_modification_date,
       { "modification date",         "afp.modification_date",
-		FT_UINT32, BASE_HEX, NULL, 0x0,
+		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
       	"modification date", HFILL }},
     { &hf_afp_backup_date,
       { "backup date",         "afp.backup_date",
-		FT_UINT32, BASE_HEX, NULL, 0x0,
+		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
       	"backup date", HFILL }},
 
     { &hf_afp_finder_info,
@@ -1732,6 +2845,26 @@ proto_register_afp(void)
       { "file id",         "afp.file_id",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
       	"file/directory id", HFILL }},
+    { &hf_afp_file_DataForkLen,
+      { "df size",         "afp.data_fork_len",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+      	"data fork size", HFILL }},
+    { &hf_afp_file_RsrcForkLen,
+      { "rf size",         "afp.ressource_fork_len",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+      	"ressource fork size", HFILL }},
+    { &hf_afp_file_ExtDataForkLen,
+      { "ext df size",         "afp.ext_data_fork_len",
+		FT_UINT64, BASE_DEC, NULL, 0x0,
+      	">2GByte data fork len", HFILL }},
+    { &hf_afp_file_ExtRsrcForkLen,
+      { "ext rf size",         "afp.ext_ressource_fork_len",
+		FT_UINT64, BASE_DEC, NULL, 0x0,
+      	">2GByte ressource fork len", HFILL }},
+    { &hf_afp_file_UnixPrivs,
+      { "unix privs",         "afp.unix_privs",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+      	"Unix privs", HFILL }},
     
     { &hf_afp_file_bitmap,
       { "file bitmap",         "afp.file_bitmap",
@@ -1758,6 +2891,11 @@ proto_register_afp(void)
 		FT_BOOLEAN, 8, NULL, 0x80,
       	"is a dir", HFILL }},
 
+    { &hf_afp_create_flag,
+      { "hard create",         "afp.create_flag",
+		FT_BOOLEAN, 8, NULL, 0x80,
+      	"soft/hard create file", HFILL }},
+
     { &hf_afp_struct_size,
       { "struct size",         "afp.struct_size",
 		FT_UINT8, BASE_DEC, NULL,0,
@@ -1767,6 +2905,10 @@ proto_register_afp(void)
       { "from",         "afp.flag",
 		FT_UINT8, BASE_HEX, VALS(flag_vals), 0x80,
       	"offset is relative to start/end of the fork", HFILL }},
+    { &hf_afp_dt_ref,
+      { "DT ref",         "afp.dt_ref",
+		FT_UINT16, BASE_DEC, NULL, 0x0,
+      	"Desktop database reference num", HFILL }},
 
     { &hf_afp_ofork,
       { "fork",         "afp.ofork",
@@ -1781,16 +2923,31 @@ proto_register_afp(void)
     { &hf_afp_rw_count,
       { "count",         "afp.rw_count",
 		FT_INT32, BASE_DEC, NULL, 0x0,
-      	"number of bytes to be written ", HFILL }},
+      	"number of bytes to be read/written ", HFILL }},
+
+    { &hf_afp_actual_count,
+      { "count",         "afp.actual_count",
+		FT_INT32, BASE_DEC, NULL, 0x0,
+      	"number of bytes returned by read/write", HFILL }},
       
+    { &hf_afp_ofork_len,
+      { "new length",         "afp.ofork_len",
+		FT_INT32, BASE_DEC, NULL, 0x0,
+      	"new length ", HFILL }},
+
     { &hf_afp_path_type,
-      { "path type ",         "afp.path_type",
+      { "type ",         "afp.path_type",
 		FT_UINT8, BASE_HEX, VALS(path_type_vals), 0,
       	"type of names", HFILL }},
 
+    { &hf_afp_path_len,
+      { "len",  "afp.path_len",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+      	"path len", HFILL }},
+
     { &hf_afp_path_name,
       { "Name ",  "afp.path_name",
-		FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+		FT_STRING, BASE_NONE, NULL, 0x0,
       	"path name", HFILL }},
 
     { &hf_afp_fork_type,
@@ -1808,17 +2965,151 @@ proto_register_afp(void)
       	"open for reading", HFILL }},
     { &hf_afp_access_write,
       { "write",         "afp.access.write",
-    	FT_BOOLEAN, 8, NULL,  1,
+    	FT_BOOLEAN, 8, NULL,  2,
       	"open for writing", HFILL }},
     { &hf_afp_access_deny_read,
       { "deny read",         "afp.access.deny_read",
-    	FT_BOOLEAN, 8, NULL,  1,
+    	FT_BOOLEAN, 8, NULL,  0x10,
       	"deny read", HFILL }},
     { &hf_afp_access_deny_write,
       { "deny write",         "afp.access.deny_write",
-    	FT_BOOLEAN, 8, NULL,  1,
+    	FT_BOOLEAN, 8, NULL,  0x20,
       	"deny write", HFILL }},
 
+    { &hf_afp_comment,
+      { "comment",         "afp.comment",
+		FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+      	"file/folder comment", HFILL }},
+
+    { &hf_afp_file_creator,
+      { "file creator",         "afp.file_creator",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+      	"file creator", HFILL }},
+
+    { &hf_afp_file_type,
+      { "file type",         "afp.file_type",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+      	"file type", HFILL }},
+
+    { &hf_afp_icon_type,
+      { "icon type",         "afp.icon_type",
+		FT_UINT8, BASE_HEX, NULL , 0,
+      	"icon type", HFILL }},
+
+    { &hf_afp_icon_length,
+      { "size",         "afp.icon_length",
+		FT_UINT16, BASE_DEC, NULL, 0x0,
+      	"size for icon bitmap", HFILL }},
+
+    { &hf_afp_icon_index,
+      { "index",         "afp.icon_index",
+		FT_UINT16, BASE_DEC, NULL, 0x0,
+      	"icon index in desktop database", HFILL }},
+
+    { &hf_afp_icon_tag,
+      { "tag",         "afp.icon_tag",
+		FT_UINT32, BASE_HEX, NULL, 0x0,
+      	"icon tag", HFILL }},
+
+    { &hf_afp_appl_index,
+      { "index",         "afp.appl_index",
+		FT_UINT16, BASE_DEC, NULL, 0x0,
+      	"appl index ", HFILL }},
+
+    { &hf_afp_appl_tag,
+      { "tag",         "afp.appl_tag",
+		FT_UINT32, BASE_HEX, NULL, 0x0,
+      	"appl tag", HFILL }},
+      	
+    { &hf_afp_lock_op,
+      { "unlock",         "afp.lock_op",
+		FT_BOOLEAN, 8, NULL, 0x1,
+      	"lock/unlock op", HFILL }},
+    { &hf_afp_lock_from,
+      { "end",         "afp.lock_from",
+		FT_BOOLEAN, 8, NULL, 0x80,
+      	"relative start/end of the fork", HFILL }},
+    
+    { &hf_afp_lock_offset,
+       { "offset",         "afp.lock_offset",
+		FT_INT32, BASE_DEC, NULL, 0x0,
+      	"first byte to be locked", HFILL }},
+
+    { &hf_afp_lock_len,
+       { "length",         "afp.lock_len",
+		FT_INT32, BASE_DEC, NULL, 0x0,
+      	"number of bytes to be locked/unlocked", HFILL }},
+
+    { &hf_afp_lock_range_start,
+       { "start",         "afp.lock_range_start",
+		FT_INT32, BASE_DEC, NULL, 0x0,
+      	"first byte locked/unlocked", HFILL }},
+
+    { &hf_afp_dir_ar,
+       { "access right",         "afp.dir_ar",
+		FT_UINT32, BASE_HEX, NULL, 0x0,
+      	"directory access right", HFILL }},
+
+    { &hf_afp_dir_ar_o_search,
+       { "owner has search access",      "afp.dir_ar.o_search",
+		FT_BOOLEAN, 32, NULL, AR_O_SEARCH,
+      	"owner search access", HFILL }},
+    { &hf_afp_dir_ar_o_read,
+       { "owner has read access",        "afp.dir_ar.o_read",
+		FT_BOOLEAN, 32, NULL, AR_O_READ,
+      	"owner read access", HFILL }},
+    { &hf_afp_dir_ar_o_write,
+       { "owner has write access",       "afp.dir_ar.o_write",
+		FT_BOOLEAN, 32, NULL, AR_O_WRITE,
+      	"owner write access", HFILL }},
+
+    { &hf_afp_dir_ar_g_search,
+       { "group has search access",      "afp.dir_ar.g_search",
+		FT_BOOLEAN, 32, NULL, AR_G_SEARCH,
+      	"group search access", HFILL }},
+    { &hf_afp_dir_ar_g_read,
+       { "group has read access",        "afp.dir_ar.g_read",
+		FT_BOOLEAN, 32, NULL, AR_G_READ,
+      	"group read access", HFILL }},
+    { &hf_afp_dir_ar_g_write,
+       { "group has write access",       "afp.dir_ar.g_write",
+		FT_BOOLEAN, 32, NULL, AR_G_WRITE,
+      	"group write access", HFILL }},
+
+    { &hf_afp_dir_ar_e_search,
+       { "everyone has search access",   "afp.dir_ar.e_search",
+		FT_BOOLEAN, 32, NULL, AR_E_SEARCH,
+      	"everyone search access", HFILL }},
+    { &hf_afp_dir_ar_e_read,
+       { "everyone has read access",     "afp.dir_ar.e_read",
+		FT_BOOLEAN, 32, NULL, AR_E_READ,
+      	"everyone read access", HFILL }},
+    { &hf_afp_dir_ar_e_write,
+       { "everyone has write access",    "afp.dir_ar.e_write",
+		FT_BOOLEAN, 32, NULL, AR_E_WRITE,
+      	"everyone write access", HFILL }},
+
+    { &hf_afp_dir_ar_u_search,
+       { "user has search access",   "afp.dir_ar.u_search",
+		FT_BOOLEAN, 32, NULL, AR_U_SEARCH,
+      	"user search access", HFILL }},
+    { &hf_afp_dir_ar_u_read,
+       { "user has read access",     "afp.dir_ar.u_read",
+		FT_BOOLEAN, 32, NULL, AR_U_READ,
+      	"user read access", HFILL }},
+    { &hf_afp_dir_ar_u_write,
+       { "user has write access",     "afp.dir_ar.u_write",
+		FT_BOOLEAN, 32, NULL, AR_U_WRITE,
+      	"user has write access", HFILL }},
+
+    { &hf_afp_dir_ar_blank,
+       { "blank access right",     "afp.dir_ar.blank",
+		FT_BOOLEAN, 32, NULL, AR_BLANK,
+      	"blank access right", HFILL }},
+    { &hf_afp_dir_ar_u_own,
+       { "user is the owner",     "afp.dir_ar.u_owner",
+		FT_BOOLEAN, 32, NULL, AR_U_OWN,
+      	"current user is the directory owner", HFILL }},
   };
 
   static gint *ett[] = {
@@ -1830,6 +3121,11 @@ proto_register_afp(void)
 	&ett_afp_enumerate,
 	&ett_afp_enumerate_line,
 	&ett_afp_access_mode,
+	&ett_afp_dir_attribute,
+	&ett_afp_file_attribute,
+	&ett_afp_path_name,
+	&ett_afp_lock_flags,
+	&ett_afp_dir_ar,
   };
 
   proto_afp = proto_register_protocol("AppleTalk Filing Protocol", "AFP", "afp");
@@ -1839,6 +3135,7 @@ proto_register_afp(void)
   register_init_routine( &afp_reinit);
 
   register_dissector("afp", dissect_afp, proto_afp);
+  data_handle = find_dissector("data");
 }
 
 void

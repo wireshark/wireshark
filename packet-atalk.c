@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.65 2002/04/26 07:41:31 guy Exp $
+ * $Id: packet-atalk.c,v 1.66 2002/04/28 19:21:39 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -299,7 +299,7 @@ static const value_string asp_func_vals[] = {
   {ASPFUNC_ATTN,	"Attention" },
   {0,			NULL } };
 
-static const value_string asp_error_vals[] = {
+const value_string asp_error_vals[] = {
   {AFP_OK			, "success"},
   {AFPERR_ACCESS	, "permission denied" },
   {AFPERR_AUTHCONT	, "logincont" },

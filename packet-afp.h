@@ -1,7 +1,7 @@
 /* packet-afp.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-afp.h,v 1.1 2002/04/25 23:58:02 guy Exp $
+ * $Id: packet-afp.h,v 1.2 2002/04/28 19:21:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -76,6 +76,7 @@
 #define AFPERR_PWDPOLCY -5046   /* password fails policy check */
 #define AFPERR_USRLOGIN -5047   /* user already logged on */
 
+extern const value_string asp_error_vals[];
 
 /*
  * Private data passed from DSI,DDP dissectors to AFP dissector.

@@ -2,7 +2,7 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.12 2002/04/25 23:58:02 guy Exp $
+ * $Id: packet-dsi.c,v 1.13 2002/04/28 19:21:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,6 +72,7 @@ static int hf_dsi_flags = -1;
 static int hf_dsi_command = -1;
 static int hf_dsi_requestid = -1;
 static int hf_dsi_code = -1;
+static int hf_dsi_error = -1;
 static int hf_dsi_length = -1;
 static int hf_dsi_reserved = -1;
 
@@ -161,8 +162,14 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			1, 1, dsi_command);
 		proto_tree_add_uint(dsi_tree, hf_dsi_requestid, tvb,
 			2, 2, dsi_requestid);
-		proto_tree_add_int(dsi_tree, hf_dsi_code, tvb,
-			4, 4, dsi_code);
+		if (dsi_code < 0) {
+			proto_tree_add_int(dsi_tree, hf_dsi_error, tvb,
+				4, 4, dsi_code);
+		}
+		else {
+			proto_tree_add_int(dsi_tree, hf_dsi_code, tvb,
+				4, 4, dsi_code);
+		}
 		proto_tree_add_uint_format(dsi_tree, hf_dsi_length, tvb,
 			8, 4, dsi_length,
 			"Length: %u bytes", dsi_length);
@@ -316,19 +323,24 @@ proto_register_dsi(void)
       	"Indicates request or reply.", HFILL }},
 
     { &hf_dsi_command,
-      { "Command",           "dsi.command",
+      { "Command",          "dsi.command",
 	FT_UINT8, BASE_DEC, VALS(func_vals), 0x0,
       	"Represents a DSI command.", HFILL }},
 
     { &hf_dsi_requestid,
-      { "Request ID",           "dsi.requestid",
+      { "Request ID",       "dsi.requestid",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
       	"Keeps track of which request this is.  Replies must match a Request.  IDs must be generated in sequential order.", HFILL }},
 
     { &hf_dsi_code,
-      { "Code",           "dsi.code",
+      { "Data offset",      "dsi.data_offset",
 	FT_INT32, BASE_DEC, NULL, 0x0,
-      	"In Reply packets this is an error code.  In Request Write packets this is a data offset.", HFILL }},
+      	"Data offset.", HFILL }},
+
+    { &hf_dsi_error,
+      { "Error code",       "dsi.error_code",
+	FT_INT32, BASE_DEC, VALS(asp_error_vals), 0x0,
+      	"Error code", HFILL }},
 
     { &hf_dsi_length,
       { "Length",           "dsi.length",
@@ -336,7 +348,7 @@ proto_register_dsi(void)
       	"Total length of the data that follows the DSI header.", HFILL }},
 
     { &hf_dsi_reserved,
-      { "Reserved",           "dsi.reserved",
+      { "Reserved",         "dsi.reserved",
 	FT_UINT32, BASE_HEX, NULL, 0x0,
       	"Reserved for future use.  Should be set to zero.", HFILL }},
 
