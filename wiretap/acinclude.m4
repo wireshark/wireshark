@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.15 2002/07/06 20:40:50 guy Exp $
+dnl $Id: acinclude.m4,v 1.16 2003/01/21 20:38:32 jmayer Exp $
 dnl
 
 #
@@ -44,7 +44,7 @@ AC_DEFUN(AC_WIRETAP_PCAP_CHECK,
 	  #
 	  AC_MSG_CHECKING(for extraneous pcap header directories)
 	  found_pcap_dir=""
-	  for pcap_dir in /usr/include/pcap /usr/local/include/pcap $prefix/include
+	  for pcap_dir in /usr/include/pcap $prefix/include /usr/local/include/pcap
 	  do
 	    if test -d $pcap_dir ; then
 	      if test x$pcap_dir != x/usr/include; then
@@ -52,6 +52,7 @@ AC_DEFUN(AC_WIRETAP_PCAP_CHECK,
 		CPPFLAGS="$CPPFLAGS -I$pcap_dir"
 	      fi
 	      found_pcap_dir=" $found_pcap_dir -I$pcap_dir"
+	      break
 	    fi
 	  done
 

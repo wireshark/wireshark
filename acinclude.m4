@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.47 2002/12/28 23:15:52 guy Exp $
+dnl $Id: acinclude.m4,v 1.48 2003/01/21 20:38:30 jmayer Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -257,6 +257,10 @@ AC_DEFUN(AC_ETHEREAL_PCAP_CHECK,
 [
 	if test -z "$pcap_dir"
 	then
+	  # Pcap header checks
+	  # XXX need to set a var AC_CHECK_HEADER(net/bpf.h,,)
+	  # XXX need to set a var AC_CHECK_HEADER(pcap.h,,)
+
 	  #
 	  # The user didn't specify a directory in which libpcap resides;
 	  # we assume that the current library search path will work,
@@ -270,14 +274,15 @@ AC_DEFUN(AC_ETHEREAL_PCAP_CHECK,
 	  #
 	  AC_MSG_CHECKING(for extraneous pcap header directories)
 	  found_pcap_dir=""
-	  for pcap_dir in /usr/include/pcap /usr/local/include/pcap $prefix/include
+	  for pcap_dir in /usr/include/pcap $prefix/include /usr/local/include/pcap
 	  do
 	    if test -d $pcap_dir ; then
-		if test x$pcap_dir != x/usr/include; then
+		if test x$pcap_dir != x/usr/include -a x$pcap_dir != x/usr/local/include ; then
 		    CFLAGS="$CFLAGS -I$pcap_dir"
 		    CPPFLAGS="$CPPFLAGS -I$pcap_dir"
 		fi
 		found_pcap_dir=" $found_pcap_dir -I$pcap_dir"
+		break
 	    fi
 	  done
 
