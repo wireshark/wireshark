@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.62 2003/01/03 06:45:45 guy Exp $
+ * $Id: netmon.c,v 1.63 2003/01/06 20:30:38 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -434,7 +434,7 @@ static gboolean netmon_read(wtap *wth, int *err, long *data_offset)
 		break;
 	}
 	secs = (time_t)(t/1000000);
-	usecs = (guint32)(t - secs*1000000);
+	usecs = (guint32)(t - (double)secs*1000000);
 	wth->phdr.ts.tv_sec = netmon->start_secs + secs;
 	wth->phdr.ts.tv_usec = usecs;
 	wth->phdr.caplen = packet_size;
