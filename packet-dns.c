@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.55 2000/10/11 04:12:05 guy Exp $
+ * $Id: packet-dns.c,v 1.56 2000/10/18 00:37:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1465,7 +1465,7 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
       unsigned short suf_len;
       unsigned short suf_octet_count;
       char pname[MAXDNAME];
-      int pname_len;
+      int pname_len = 0;
       int a6_offset;
       int suf_offset;
       guint8 suffix[16];
@@ -1477,7 +1477,7 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
       }
       pre_len = pd[cur_offset++];
       suf_len = 128 - pre_len;
-      suf_octet_count = (suf_len - 1) / 8 + 1;
+      suf_octet_count = suf_len ? (suf_len - 1) / 8 + 1 : 0;
       if (!BYTES_ARE_IN_FRAME(cur_offset, suf_octet_count)) {
         /* We ran past the end of the captured data in the packet. */
         return 0;
@@ -1490,11 +1490,15 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
         suffix[suf_offset] = pd[cur_offset++];
       }
 
-      pname_len = get_dns_name(pd, cur_offset, dns_data_offset, 
-                               pname, sizeof(pname));
-      if (pname_len < 0) {
-        /* We ran past the end of the captured data in the packet. */
-        return 0;
+      if (pre_len > 0) {
+        pname_len = get_dns_name(pd, cur_offset, dns_data_offset, 
+                                 pname, sizeof(pname));
+        if (pname_len < 0) {
+          /* We ran past the end of the captured data in the packet. */
+          return 0;
+        }
+      } else {
+        strcpy(pname, "");   
       }
 
       if (fd != NULL) {
@@ -1507,12 +1511,16 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
         proto_tree_add_text(rr_tree, NullTVB, a6_offset, 1, 
                             "Prefix len: %u", pre_len);
         a6_offset++;
-        proto_tree_add_text(rr_tree, NullTVB, a6_offset, suf_octet_count,
-                            "Address suffix: %s", 
-                            ip6_to_str((struct e_in6_addr *)&suffix));
-        a6_offset += suf_octet_count;
-        proto_tree_add_text(rr_tree, NullTVB, a6_offset, pname_len, 
-                            "Prefix name: %s", pname);
+        if (suf_len) {
+          proto_tree_add_text(rr_tree, NullTVB, a6_offset, suf_octet_count,
+                              "Address suffix: %s", 
+                              ip6_to_str((struct e_in6_addr *)&suffix));
+          a6_offset += suf_octet_count;
+        }
+        if (pre_len > 0) {
+          proto_tree_add_text(rr_tree, NullTVB, a6_offset, pname_len, 
+                              "Prefix name: %s", pname);
+        }
         proto_item_set_text(trr, "%s: type %s, class %s, addr %d %s %s",
                             name, 
                             type_name, 
