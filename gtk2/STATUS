@@ -3,7 +3,7 @@ Status of the GTK+ 2.0 port :
 
 GtkList and GtkCList ==> GtkTreeView conversion :
 - color_dlg.c
-- column_prefs.c
+- column_prefs.c : done
 - decode_as_dlg.c : done
 - dfilter_expr_dialog.c
 - filter_prefs.c : done
