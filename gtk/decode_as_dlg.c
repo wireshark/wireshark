@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.2 2001/02/11 23:02:04 guy Exp $
+ * $Id: decode_as_dlg.c,v 1.3 2001/02/12 01:17:23 guy Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -953,14 +953,14 @@ decode_add_srcdst_menu (GtkWidget *page)
 
     optmenu = gtk_option_menu_new();
     menu = gtk_menu_new();
-    sprintf(tmp, "source (%d)", pi.srcport);
+    sprintf(tmp, "source (%u)", pi.srcport);
     menuitem = gtk_menu_item_new_with_label(tmp);
     gtk_object_set_user_data(GTK_OBJECT(menuitem),
 			     GINT_TO_POINTER(E_DECODE_SPORT));
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
 
-    sprintf(tmp, "destination (%d)", pi.destport);
+    sprintf(tmp, "destination (%u)", pi.destport);
     menuitem = gtk_menu_item_new_with_label(tmp);
     gtk_object_set_user_data(GTK_OBJECT(menuitem),
 			     GINT_TO_POINTER(E_DECODE_DPORT));
@@ -1331,7 +1331,7 @@ decode_add_notebook (GtkWidget *format_hb)
 
     /* Add link level selection page */
     if (pi.ethertype) {
-	sprintf(buffer, "Ethertype %d", pi.ethertype);
+	sprintf(buffer, "Ethertype 0x%04x", pi.ethertype);
 	page = decode_add_simple_page(buffer, "Link", "ethertype", pi.ethertype);
 	label = gtk_label_new("Link");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
@@ -1339,7 +1339,7 @@ decode_add_notebook (GtkWidget *format_hb)
 
     /* Add network selection page */
     if (pi.ipproto) {
-	sprintf(buffer, "IP protocol %d", pi.ipproto);
+	sprintf(buffer, "IP protocol %u", pi.ipproto);
 	page = decode_add_simple_page(buffer, "Network", "ip.proto", pi.ipproto);
 	gtk_object_set_data(GTK_OBJECT(page), E_PAGE_ACTION, decode_network);
 	label = gtk_label_new("Network");
