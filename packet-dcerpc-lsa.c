@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.40 2002/05/02 06:13:07 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.41 2002/05/02 06:21:52 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -83,6 +83,7 @@ static int hf_lsa_mod_mtime = -1;
 static int hf_lsa_cur_mtime = -1;
 static int hf_lsa_old_mtime = -1;
 static int hf_lsa_name = -1;
+static int hf_lsa_key = -1;
 static int hf_lsa_flat_name = -1;
 static int hf_lsa_forest = -1;
 static int hf_lsa_info_type = -1;
@@ -257,6 +258,18 @@ lsa_dissect_LSA_SECRET(tvbuff_t *tvb, int offset,
 			"LSA SECRET data:", -1, 0);
 
 	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+static int
+lsa_dissect_LSA_SECRET_pointer(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *tree,
+			char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_SECRET, NDR_POINTER_UNIQUE,
+		"LSA_SECRET pointer: data", -1, 0);
+
 	return offset;
 }
 
@@ -3298,6 +3311,74 @@ lsa_dissect_lsalookupprivilegedisplayname_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+lsa_dissect_lsastoreprivatedata_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in] LSA_HANDLE hnd */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	/* [in, ref] LSA_UNICODE_STRING *key */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_key, 0);
+
+	/* [in, unique] LSA_SECRET **data */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_SECRET_pointer, NDR_POINTER_UNIQUE,
+		"LSA_SECRET* pointer: data", -1, 0);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsastoreprivatedata_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsaretrieveprivatedata_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in] LSA_HANDLE hnd */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	/* [in, ref] LSA_UNICODE_STRING *key */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_key, 0);
+
+	/* [in, out, ref] LSA_SECRET **data */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_SECRET_pointer, NDR_POINTER_REF,
+		"LSA_SECRET* pointer: data", -1, 0);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsaretrieveprivatedata_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in, out, ref] LSA_SECRET **data */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_SECRET_pointer, NDR_POINTER_REF,
+		"LSA_SECRET* pointer: data", -1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+
 
 
 static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
@@ -3428,17 +3509,11 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 		lsa_dissect_lsadeletetrusteddomain_rqst,
 		lsa_dissect_lsadeletetrusteddomain_reply },
 	{ LSA_LSASTOREPRIVATEDATA, "LSASTOREPRIVATEDATA",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsastoreprivatedata_rqst,
 		lsa_dissect_lsastoreprivatedata_reply },
-#endif
 	{ LSA_LSARETRIEVEPRIVATEDATA, "LSARETRIEVEPRIVATEDATA",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsaretrieveprivatedata_rqst,
 		lsa_dissect_lsaretrieveprivatedata_reply },
-#endif
 	{ LSA_LSAOPENPOLICY2, "LSAOPENPOLICY2",
 		lsa_dissect_lsaopenpolicy2_rqst,
 		lsa_dissect_lsaopenpolicy2_reply },
@@ -3689,6 +3764,10 @@ proto_register_dcerpc_lsa(void)
 
 	{ &hf_lsa_name,
 		{ "Name", "lsa.name", FT_STRING, BASE_NONE, 
+		NULL, 0x0, "", HFILL }},
+
+	{ &hf_lsa_key,
+		{ "Key", "lsa.key", FT_BYTES, BASE_NONE, 
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_lsa_flat_name,
