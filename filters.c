@@ -1,7 +1,7 @@
 /* filters.c
  * Code for reading and writing the filters file.
  *
- * $Id: filters.c,v 1.5 2001/02/03 06:03:42 guy Exp $
+ * $Id: filters.c,v 1.6 2001/02/03 06:10:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -181,7 +181,7 @@ read_filter_list(filter_list_type_t list, char **pref_path_return,
   filt_expr_len = INIT_BUF_SIZE;
   filt_expr = g_malloc(filt_expr_len + 1);
 
-  for (;;) {
+  for (line = 1; ; line++) {
     /* Lines in a filter file are of the form
 
 	"name" expression
@@ -195,7 +195,6 @@ read_filter_list(filter_list_type_t list, char **pref_path_return,
     while ((c = getc(ff)) != EOF && isspace(c)) {
       if (c == '\n') {
 	/* Blank line. */
-	line++;	/* next line */
 	continue;
       }
     }
@@ -210,7 +209,6 @@ read_filter_list(filter_list_type_t list, char **pref_path_return,
 		line);
       while (c != '\n')
 	c = getc(ff);	/* skip to the end of the line */
-      line++;	/* next line */
       continue;
     }
 
@@ -259,19 +257,13 @@ read_filter_list(filter_list_type_t list, char **pref_path_return,
       /* No newline seen before end-of-line */
       g_warning("'%s' line %d doesn't have a closing quote.", ff_path,
 		line);
-      line++;	/* next line */
       continue;
     }
 	  
     /* Skip over separating white space, if any. */
     while ((c = getc(ff)) != EOF && isspace(c)) {
-      if (c == '\n') {
-	/* No filter expression */
-	g_warning("'%s' line %d doesn't have a filter expression.", ff_path,
-		  line);
-	line++;	/* next line */
-	continue;
-      }
+      if (c == '\n')
+	break;
     }
 
     if (c == EOF) {
@@ -281,6 +273,13 @@ read_filter_list(filter_list_type_t list, char **pref_path_return,
 		  line);
       }
       break;	/* nothing more to read */
+    }
+
+    if (c == '\n') {
+      /* No filter expression */
+      g_warning("'%s' line %d doesn't have a filter expression.", ff_path,
+		line);
+      continue;
     }
 
     /* "c" is the first non-white-space character; it's the first
