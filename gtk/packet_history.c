@@ -86,7 +86,7 @@ static void clear_list(GList *current) {
         next_packet = g_list_next(current);
         history_list = g_list_remove(history_list, current->data);
         current = next_packet;
-    }    
+    }
 }
 
 
@@ -120,7 +120,8 @@ void packet_history_add(gint row) {
 void packet_history_clear(void) {
     
     /* clear "old" list */
-    clear_list(g_list_first(history_current));
+    clear_list(history_list);
+    history_current = NULL;
 
     /* add the currently selected first row */
     packet_history_add(0);
