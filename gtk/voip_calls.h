@@ -171,6 +171,7 @@ typedef struct _voip_rtp_stream_info {
 	guint32 ssrc;
 	guint8  pt;
 	guint32 npackets;
+	gboolean end_stream;
 
 	guint32 first_frame_num; /* frame number of first frame */
 	guint32 setup_frame_number; /* frame number of setup message */

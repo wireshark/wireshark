@@ -719,7 +719,10 @@ static gint key_press_event(GtkWidget *widget, GdkEventKey *event _U_)
 	graph_analysis_data_t *user_data;
 	
 	user_data=(graph_analysis_data_t *)OBJECT_GET_DATA(widget, "graph_analysis_data_t");
-	
+
+	/* if there is nothing selected, just return */
+	if (user_data->dlg.selected_item == 0xFFFFFFFF) return TRUE; 
+
 	/* Up arrow */
 	if (event->keyval == GDK_Up){
 		if (user_data->dlg.selected_item == 0) return TRUE;
@@ -738,7 +741,7 @@ static gint key_press_event(GtkWidget *widget, GdkEventKey *event _U_)
 	} else if (event->keyval == GDK_Right){
 		if ((user_data->dlg.first_node+user_data->dlg.h_scrollbar_adjustment->page_size+1 == user_data->num_nodes)) return TRUE;
 		user_data->dlg.first_node++;
-	}
+	} else return TRUE;
 	
 	user_data->dlg.needs_redraw=TRUE;
 	dialog_graph_draw(user_data);

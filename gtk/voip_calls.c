@@ -306,9 +306,16 @@ RTP_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 	while (list)
 	{
 		tmp_listinfo=list->data;
-		if ( (tmp_listinfo->setup_frame_number == pi->info_setup_frame_num) && (tmp_listinfo->ssrc == pi->info_sync_src) ){
+		if ( (tmp_listinfo->setup_frame_number == pi->info_setup_frame_num) 
+			&& (tmp_listinfo->ssrc == pi->info_sync_src) && (tmp_listinfo->end_stream == FALSE)){
+			/* if the payload type has changed, we mark the stream as finished to create a new one
+			   this is to show multiple payload changes in the Graph for example for DTMF RFC2833 */	   
+			if ( tmp_listinfo->pt != pi->info_payload_type ) 
+				tmp_listinfo->end_stream = TRUE;
+			else {
 				strinfo = (voip_rtp_stream_info_t*)(list->data);
 				break;
+			}
 		}
 		list = g_list_next (list);
 	}
@@ -321,6 +328,7 @@ RTP_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 		COPY_ADDRESS(&(strinfo->dest_addr), &(pinfo->dst));
 		strinfo->dest_port = pinfo->destport;
 		strinfo->ssrc = pi->info_sync_src;
+		strinfo->end_stream = FALSE;
 		strinfo->pt = pi->info_payload_type;
 		strinfo->npackets = 0;
 		strinfo->first_frame_num = pinfo->fd->num;
