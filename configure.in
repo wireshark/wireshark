@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.48 1999/10/01 21:41:38 guy Exp $
+# $Id: configure.in,v 1.49 1999/10/11 07:38:21 guy Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
@@ -182,6 +182,15 @@ if test "$ac_cv_func_mkstemp" = no ; then
 fi
 AC_SUBST(MKSTEMP_C)
 AC_SUBST(MKSTEMP_O)
+
+AC_CHECK_FUNC(inet_aton, INET_ADDR_O="",
+  INET_ATON_O="inet_aton.o")
+if test "$ac_cv_func_inet_aton" = no ; then
+  INET_ATON_C="inet_aton.c"
+  INET_ATON_O="inet_aton.o"
+fi
+AC_SUBST(INET_ATON_C)
+AC_SUBST(INET_ATON_O)
 
 dnl blank for now, but will be used in future
 AC_SUBST(ethereal_SUBDIRS)
