@@ -1188,6 +1188,7 @@ main(int argc, char *argv[])
         break;
       case 'r':        /* Read capture file xxx */
         cf_name = g_strdup(optarg);
+        quiet = TRUE;  /* We're not capturing, so don't print packet counts */
         break;
       case 'R':        /* Read file filter */
         rfilter = optarg;
