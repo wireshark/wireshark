@@ -6,7 +6,7 @@
  * Copyright 2003, Ragi BEJJANI - 6WIND - <ragi.bejjani@6wind.com>
  * Copyright 2003, Vincent JARDIN - 6WIND - <vincent.jardin@6wind.com>
  *
- * $Id: packet-teredo.c,v 1.3 2003/12/28 12:43:39 ulfl Exp $
+ * $Id: packet-teredo.c,v 1.4 2003/12/29 00:19:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,7 +60,7 @@ typedef struct {
 	guint16 th_indtyp;
 	guint8 th_cidlen;
 	guint8 th_authdlen;
-	guint64 th_nonce;
+	guint8 th_nonce[8];
 	guint8 th_conf; 
 
 	guint8 th_ip_v_hl;  
@@ -125,7 +125,7 @@ dissect_teredo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		teredoh->th_indtyp   = teredoh->th_header;
 		teredoh->th_cidlen   = tvb_get_guint8(tvb,offset+2);     /*Authentication header octet*/
 		teredoh->th_authdlen = tvb_get_guint8(tvb,offset+3);
-		teredoh->th_nonce    = (guint64) tvb_get_ntohieee_double(tvb, offset+4);
+		tvb_memcpy(tvb,teredoh->th_nonce,offset+4,sizeof teredoh->th_nonce);
 		teredoh->th_conf     = tvb_get_guint8(tvb,offset+12);
 
 		/*Skip over Authentication Header (fixed length-no authentication)*/
