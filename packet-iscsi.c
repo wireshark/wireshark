@@ -2,7 +2,7 @@
  * Routines for iSCSI dissection
  * Copyright 2001, Eurologic and Mark Burton <markb@ordern.com>
  *
- * $Id: packet-iscsi.c,v 1.32 2002/05/15 19:32:22 guy Exp $
+ * $Id: packet-iscsi.c,v 1.33 2002/05/16 10:03:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1848,7 +1848,7 @@ proto_register_iscsi(void)
 	    "Final PDU", HFILL }
 	},
 	{ &hf_iscsi_SCSIData_A,
-	  { "F", "iscsi.scsidata.A",
+	  { "A", "iscsi.scsidata.A",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_A), ISCSI_SCSI_DATA_FLAG_A,
 	    "Acknowledge Requested", HFILL }
 	},
