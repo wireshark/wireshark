@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.57 2002/06/17 01:11:00 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.58 2002/06/18 05:06:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2189,11 +2189,9 @@ dissect_dcerpc_cn_bs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-dissect_dcerpc_dg_auth (tvbuff_t *tvb, proto_tree *dcerpc_tree,
+dissect_dcerpc_dg_auth (tvbuff_t *tvb, int offset, proto_tree *dcerpc_tree,
                         e_dce_dg_common_hdr_t *hdr, int *auth_level_p)
 {
-    int offset;
-
     /*
      * Initially set "*auth_level_p" to -1 to indicate that we haven't
      * yet seen any authentication level information.
@@ -2209,11 +2207,9 @@ dissect_dcerpc_dg_auth (tvbuff_t *tvb, proto_tree *dcerpc_tree,
      * If the full packet is here, and there's data past the end of the
      * packet body, then dissect the auth info.
      */
-    if (tvb_length (tvb) >= hdr->frag_len) {
-        offset = hdr->frag_len;
-        
+    offset += hdr->frag_len;
+    if (tvb_length_remaining(tvb, offset) > 0)
         proto_tree_add_text (dcerpc_tree, tvb, offset, -1, "Auth data");
-    }
 }
 
 /*
@@ -2409,7 +2405,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * DCE_C_AUTHN_LEVEL_PKT_PRIVACY, we can't dissect the
          * stub data.
          */
-        dissect_dcerpc_dg_auth (tvb, dcerpc_tree, &hdr, NULL);
+        dissect_dcerpc_dg_auth (tvb, offset, dcerpc_tree, &hdr, NULL);
     }
     /* 
      * keeping track of the conversation shouldn't really be necessary
