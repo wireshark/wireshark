@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.1 2000/04/15 22:11:07 guy Exp $
+ * $Id: packet-clnp.c,v 1.2 2000/04/16 09:10:53 deniel Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -23,13 +23,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- *
- * To do:
- *
- * - add other network protocols (IS-IS)
- * - add NSAP decoding & resolution
- * 
  *
  */
 
