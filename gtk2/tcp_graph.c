@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.2 2002/09/05 18:48:52 jmayer Exp $
+ * $Id: tcp_graph.c,v 1.3 2002/10/10 02:57:13 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,6 +31,7 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 #include <math.h>		/* rint() */
+#include <string.h>
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"

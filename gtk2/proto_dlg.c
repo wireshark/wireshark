@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.2 2002/09/05 18:48:52 jmayer Exp $
+ * $Id: proto_dlg.c,v 1.3 2002/10/10 02:57:12 jmayer Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -28,6 +28,7 @@
 #endif
 
 #include <gtk/gtk.h>
+#include <string.h>
 
 #include "prefs.h"
 #include "globals.h"
