@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-bytes.c,v 1.21 2003/12/29 04:07:06 gerald Exp $
+ * $Id: ftype-bytes.c,v 1.22 2004/01/01 17:02:56 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -91,7 +91,6 @@ bytes_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 		if (i == 0) {
 			sprintf(write_cursor, "%02x", *c++);
 			write_cursor += 2;
-			
 		}
 		else {
 			sprintf(write_cursor, ":%02x", *c++);
@@ -135,6 +134,22 @@ static gpointer
 value_get(fvalue_t *fv)
 {
 	return fv->value.bytes->data;
+}
+
+static gboolean
+bytes_from_string(fvalue_t *fv, char *s, LogFunc logfunc _U_)
+{
+	GByteArray	*bytes;
+
+	bytes = g_byte_array_new();
+
+	g_byte_array_append(bytes, (guint8 *)s, strlen(s));
+
+	/* Free up the old value, if we have one */
+	bytes_fvalue_free(fv);
+	fv->value.bytes = bytes;
+
+	return TRUE;
 }
 
 static gboolean
@@ -587,7 +602,7 @@ ftype_register_bytes(void)
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
 		bytes_from_unparsed,		/* val_from_unparsed */
-		NULL,				/* val_from_string */
+		bytes_from_string,		/* val_from_string */
 		bytes_to_repr,			/* val_to_string_repr */
 		bytes_repr_len,			/* len_string_repr */
 
