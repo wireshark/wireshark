@@ -1,7 +1,7 @@
 /* airopeek9.c
  * Routines for opening EtherPeek and AiroPeek V9 files
  *
- * $Id: airopeek9.c,v 1.6 2004/02/06 02:11:52 guy Exp $
+ * $Id: airopeek9.c,v 1.7 2004/02/06 03:12:21 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -326,7 +326,7 @@ airopeekv9_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err)
     guint8 tag_value[6];
     guint16 tag;
 
-    hdr_info->ieee_802_11.fcs_len = 0;		/* no FCS for 802.11 */
+    hdr_info->ieee_802_11.fcs_len = 0;		/* assume no FCS for 802.11 */
 
     /* Extract the fields from the packet header */
     do {
@@ -363,6 +363,10 @@ airopeekv9_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err)
 
 	case TAG_AIROPEEK_V9_TIMESTAMP_UPPER:
 	    hdr_info->timestamp.upper = pletohl(&tag_value[2]);
+	    break;
+
+	case TAG_AIROPEEK_V9_FLAGS_AND_STATUS:
+	    /* XXX - not used yet */
 	    break;
 
 	case TAG_AIROPEEK_V9_CHANNEL:
@@ -461,10 +465,21 @@ static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info _U_,
     case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
 	/*
 	 * The last 4 bytes sometimes contains the FCS but on a lot of
-	 * interfaces these are zero. To eleminate problems we reduce
-	 * the length by 4.
+	 * interfaces these are zero.  Is there some way to determine
+	 * from the packet header whether it's an FCS or not?
 	 *
-	 * XXX - is there any way to find out whether it's an FCS or not?
+	 * For now, we just discard those bytes; if we can determine
+	 * whether it's an FCS or not, we should use that to determine
+	 * whether to supply it as an FCS or discard it.
+	 */
+	wth->phdr.len -= 4;
+	wth->phdr.caplen -= 4;
+	break;
+
+    case WTAP_ENCAP_ETHERNET:
+	/*
+	 * The last 4 bytes appear to be 0 in the captures I've seen;
+	 * are there any captures where it's an FCS?
 	 */
 	wth->phdr.len -= 4;
 	wth->phdr.caplen -= 4;
