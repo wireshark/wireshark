@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.51 2004/03/05 09:58:31 guy Exp $
+ * $Id: packet-cdp.c,v 1.52 2004/03/13 09:35:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -742,8 +742,8 @@ dissect_capabilities(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 	    "Not a Host"));
     proto_tree_add_text(capabilities_tree, tvb, offset, 4,
 	decode_boolean_bitfield(capabilities, 0x20, 4*8,
-	    "Is  a IGMP",
-	    "Not a IGMP"));
+	    "Is  IGMP capable",
+	    "Not IGMP capable"));
     proto_tree_add_text(capabilities_tree, tvb, offset, 4,
 	decode_boolean_bitfield(capabilities, 0x40, 4*8,
 	    "Is  a Repeater",
