@@ -1,6 +1,6 @@
 /* follow.h
  *
- * $Id: follow.h,v 1.6 1999/10/22 07:17:29 guy Exp $
+ * $Id: follow.h,v 1.7 1999/11/28 03:35:09 gerald Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -40,9 +40,16 @@ typedef struct _tcp_frag {
   struct _tcp_frag   *next;
 } tcp_frag;
 
+typedef struct _tcp_stream_chunk {
+  guint32     src_addr;
+  guint16     src_port;
+  guint32     secs, usecs;
+  guint32     dlen;
+} tcp_stream_chunk;
+
 char* build_follow_filter( packet_info * );
 void reassemble_tcp( u_long, u_long, const char*, u_long, int, 
-		     address *, address *, u_int, u_int );
+		     address *, address *, u_int, u_int, guint32, guint32 );
 void  reset_tcp_reassembly( void );
 
 #endif

@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.17 1999/11/18 21:04:53 guy Exp $
+ * $Id: follow.c,v 1.18 1999/11/28 03:35:09 gerald Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -53,8 +53,8 @@ gboolean incomplete_tcp_stream = FALSE;
 static guint32 ip_address[2];
 static u_int   tcp_port[2];
 
-static int check_fragments( int );
-static void write_packet_data( const char *, int );
+static int check_fragments( int, tcp_stream_chunk * );
+static void write_packet_data( tcp_stream_chunk *, const char * );
 
 /* this will build libpcap filter text that will only 
    pass the packets related to the stream. There is a 
@@ -94,13 +94,16 @@ static guint32 src[2] = { 0, 0 };
 void 
 reassemble_tcp( u_long sequence, u_long length, const char* data,
 		u_long data_length, int synflag, address *net_src,
-		address *net_dst, u_int srcport, u_int dstport ) {
+		address *net_dst, u_int srcport, u_int dstport,
+                guint32 secs, guint32 usecs) {
   guint32 srcx, dstx;
   int src_index, j, first = 0;
   u_long newseq;
   tcp_frag *tmp_frag;
+  tcp_stream_chunk sc;
+  
   src_index = -1;
-
+  
   /* first check if this packet should be processed */
   if (net_src->type != AT_IPv4 || net_dst->type != AT_IPv4)
     return;
@@ -111,6 +114,13 @@ reassemble_tcp( u_long sequence, u_long length, const char* data,
       (srcport != tcp_port[0] && srcport != tcp_port[1]) ||
       (dstport != tcp_port[0] && dstport != tcp_port[1]))
     return;
+
+  /* Initialize our stream chunk.  This data gets written to disk. */
+  sc.src_addr = srcx;
+  sc.src_port = srcport;
+  sc.secs     = secs;
+  sc.usecs    = usecs;
+  sc.dlen     = data_length;
 
   /* first we check to see if we have seen this src ip before. */
   for( j=0; j<2; j++ ) {
@@ -148,7 +158,7 @@ reassemble_tcp( u_long sequence, u_long length, const char* data,
       seq[src_index]++;
     }
     /* write out the packet data */
-    write_packet_data( data, data_length );
+    write_packet_data( &sc, data );
     return;
   }
   /* if we are here, we have already seen this src, let's
@@ -185,10 +195,10 @@ reassemble_tcp( u_long sequence, u_long length, const char* data,
     seq[src_index] += length;
     if( synflag ) seq[src_index]++;
     if( data ) {
-      write_packet_data( data, data_length );
+      write_packet_data( &sc, data );
     }
     /* done with the packet, see if it caused a fragment to fit */
-    while( check_fragments( src_index ) )
+    while( check_fragments( src_index, &sc ) )
       ;
   }
   else {
@@ -213,7 +223,7 @@ reassemble_tcp( u_long sequence, u_long length, const char* data,
 /* here we search through all the frag we have collected to see if
    one fits */
 static int 
-check_fragments( int index ) {
+check_fragments( int index, tcp_stream_chunk *sc ) {
   tcp_frag *prev = NULL;
   tcp_frag *current;
   current = frags[index];
@@ -221,7 +231,8 @@ check_fragments( int index ) {
     if( current->seq == seq[index] ) {
       /* this fragment fits the stream */
       if( current->data ) {
-	write_packet_data( current->data, current->data_len );
+        sc->dlen = current->data_len;
+	write_packet_data( sc, current->data );
       }
       seq[index] += current->len;
       if( prev ) {
@@ -262,7 +273,10 @@ reset_tcp_reassembly() {
 }
 
 static void 
-write_packet_data( const char* data, int length ) {
-  fwrite( data, 1, length, data_out_file );
+write_packet_data( tcp_stream_chunk *sc, const char *data ) {
+  if (sc->dlen == 0)
+    return;
+  fwrite( sc, 1, sizeof(tcp_stream_chunk), data_out_file );
+  fwrite( data, 1, sc->dlen, data_out_file );
 }
   

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.46 1999/11/26 05:23:40 gram Exp $
+ * $Id: main.c,v 1.47 1999/11/28 03:35:20 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -425,10 +425,16 @@ static void follow_print_stream(GtkWidget *w, gpointer parent_w)
        }
 }
 
+#define FLT_BUF_SIZE 1024
 static void
 follow_load_text(GtkWidget *text, char *filename, gboolean show_ascii)
 {
-	int bytes_already;
+	int bytes_already, bcount;
+        tcp_stream_chunk sc;
+        guint32 client_addr = 0;
+        guint16 client_port = 0;
+        GdkColor client = { 0, 16383, 0, 0 };
+        GdkColor server = { 0, 0, 0, 16383 };
 
 	/* Delete any info already in text box */
 	bytes_already = gtk_text_get_length(GTK_TEXT(text));
@@ -441,22 +447,33 @@ follow_load_text(GtkWidget *text, char *filename, gboolean show_ascii)
     gtk_text_freeze( GTK_TEXT(text) );
     data_out_file = fopen( filename, "r" );
     if( data_out_file ) {
-      char buffer[1024];
+      char buffer[FLT_BUF_SIZE];
       int nchars;
-      while( 1 ) {
-	nchars = fread( buffer, 1, 1024, data_out_file );
-	if (show_ascii) {
-		/* If our native arch is EBCDIC, call:
-		 * ASCII_TO_EBCDIC(buffer, nchars);
-		 */
-	}
-	else {
-		/* If our native arch is ASCII, call: */
-		EBCDIC_to_ASCII(buffer, nchars);
-	}
-	gtk_text_insert( GTK_TEXT(text), m_r_font, NULL, NULL, buffer, nchars );
-	if( nchars < 1024 ) {
-	  break;
+      while(fread(&sc.src_addr, 1, sizeof(sc), data_out_file)) {
+        if (client_addr == 0) {
+          client_addr = sc.src_addr;
+          client_port = sc.src_port;
+        }
+        
+        while (sc.dlen > 0) {
+          bcount = (sc.dlen < FLT_BUF_SIZE) ? sc.dlen : FLT_BUF_SIZE;
+	  nchars = fread( buffer, 1, bcount, data_out_file );
+          if (nchars == 0)
+            break;
+          sc.dlen -= bcount;
+	  if (show_ascii) {
+		  /* If our native arch is EBCDIC, call:
+		   * ASCII_TO_EBCDIC(buffer, nchars);
+		   */
+	  }
+	  else {
+		  /* If our native arch is ASCII, call: */
+		  EBCDIC_to_ASCII(buffer, nchars);
+	  }
+          if (client_addr == sc.src_addr && client_port == sc.src_port)
+	    gtk_text_insert( GTK_TEXT(text), m_r_font, &client, NULL, buffer, nchars );
+          else
+	    gtk_text_insert( GTK_TEXT(text), m_r_font, &server, NULL, buffer, nchars );
 	}
       }
       if( ferror( data_out_file ) ) {
