@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.68 2004/04/22 17:03:21 ulfl Exp $
+ * $Id: print_dlg.c,v 1.69 2004/04/22 21:31:09 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,6 +47,7 @@
 #include "print_mswin.h"
 #endif
 #include "compat_macros.h"
+#include "range_utils.h"
 
 
 /* On Win32, a GUI application apparently can't use "popen()" (it
@@ -96,27 +97,6 @@ static gchar * print_cmd;
 
 #define PRINT_BT_KEY              "printer_button"
 
-/* XXX - can we make these not be static? */
-static packet_range_t range;
-static GtkWidget *captured_bt;
-static GtkWidget *displayed_bt;
-static GtkWidget *select_all_rb;
-static GtkWidget *select_all_c_lb;
-static GtkWidget *select_all_d_lb;
-static GtkWidget *select_curr_rb;
-static GtkWidget *select_curr_c_lb;
-static GtkWidget *select_curr_d_lb;
-static GtkWidget *select_marked_only_rb;
-static GtkWidget *select_marked_only_c_lb;
-static GtkWidget *select_marked_only_d_lb;
-static GtkWidget *select_marked_range_rb;
-static GtkWidget *select_marked_range_c_lb;
-static GtkWidget *select_marked_range_d_lb;
-static GtkWidget *select_user_range_rb;
-static GtkWidget *select_user_range_c_lb;
-static GtkWidget *select_user_range_d_lb;
-static GtkWidget *select_user_range_entry;
-
 /*
  * Keep a static pointer to the current "Print" window, if any, so that if
  * somebody tries to do "File:Print" while there's already a "Print" window
@@ -124,192 +104,8 @@ static GtkWidget *select_user_range_entry;
  */
 static GtkWidget *print_w;
 
-static void
-file_set_print_dynamics(void) {
-  gboolean      filtered_active;
-  gchar         label_text[100];
-  gint          selected_num;
+static packet_range_t range;
 
-
-  filtered_active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(displayed_bt));
-
-  gtk_widget_set_sensitive(displayed_bt, TRUE);
-
-  gtk_widget_set_sensitive(select_all_c_lb, !filtered_active);
-  g_snprintf(label_text, sizeof(label_text), "%u", cfile.count);
-  gtk_label_set_text(GTK_LABEL(select_all_c_lb), label_text);
-  gtk_widget_set_sensitive(select_all_d_lb, filtered_active);
-  g_snprintf(label_text, sizeof(label_text), "%u", range.displayed_cnt);
-
-  gtk_label_set_text(GTK_LABEL(select_all_d_lb), label_text);
-
-  selected_num = (cfile.current_frame) ? cfile.current_frame->num : 0;
-  /* XXX: how to update the radio button label but keep the mnemonic? */
-/*  g_snprintf(label_text, sizeof(label_text), "_Selected packet #%u only", selected_num);
-  gtk_label_set_text(GTK_LABEL(GTK_BIN(select_curr_rb)->child), label_text);*/
-  gtk_widget_set_sensitive(select_curr_rb, selected_num);
-  g_snprintf(label_text, sizeof(label_text), "%u", selected_num ? 1 : 0);
-  gtk_label_set_text(GTK_LABEL(select_curr_c_lb), label_text);
-  gtk_widget_set_sensitive(select_curr_c_lb, selected_num && !filtered_active);
-  g_snprintf(label_text, sizeof(label_text), "%u", selected_num ? 1 : 0);
-  gtk_label_set_text(GTK_LABEL(select_curr_d_lb), label_text);
-  gtk_widget_set_sensitive(select_curr_d_lb, selected_num && filtered_active);
-
-  gtk_widget_set_sensitive(select_marked_only_rb, cfile.marked_count);
-  g_snprintf(label_text, sizeof(label_text), "%u", cfile.marked_count);
-  gtk_label_set_text(GTK_LABEL(select_marked_only_c_lb), label_text);
-  gtk_widget_set_sensitive(select_marked_only_c_lb, cfile.marked_count && !filtered_active);
-  g_snprintf(label_text, sizeof(label_text), "%u", range.displayed_marked_cnt);
-  gtk_label_set_text(GTK_LABEL(select_marked_only_d_lb), label_text);
-  gtk_widget_set_sensitive(select_marked_only_d_lb, range.displayed_marked_cnt && filtered_active);
-
-  gtk_widget_set_sensitive(select_marked_range_rb, range.mark_range_cnt);
-  g_snprintf(label_text, sizeof(label_text), "%u", range.mark_range_cnt);
-  gtk_label_set_text(GTK_LABEL(select_marked_range_c_lb), label_text);
-  gtk_widget_set_sensitive(select_marked_range_c_lb, range.mark_range_cnt && !filtered_active);
-  g_snprintf(label_text, sizeof(label_text), "%u", range.displayed_mark_range_cnt);
-  gtk_label_set_text(GTK_LABEL(select_marked_range_d_lb), label_text);
-  gtk_widget_set_sensitive(select_marked_range_d_lb, range.displayed_mark_range_cnt && filtered_active);
-
-  gtk_widget_set_sensitive(select_user_range_rb, TRUE);
-  g_snprintf(label_text, sizeof(label_text), "%u", range.user_range_cnt);
-  gtk_label_set_text(GTK_LABEL(select_user_range_c_lb), label_text);
-  gtk_widget_set_sensitive(select_user_range_c_lb, !filtered_active);
-  g_snprintf(label_text, sizeof(label_text), "%u", range.displayed_user_range_cnt);
-  gtk_label_set_text(GTK_LABEL(select_user_range_d_lb), label_text);
-  gtk_widget_set_sensitive(select_user_range_d_lb, filtered_active);
-}
-
-
-static void
-toggle_captured_cb(GtkWidget *widget, gpointer data _U_)
-{
-  /* is the button now active? */
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
-    /* They changed the state of the "captured" button. */
-    range.process_filtered = FALSE;
-    /* XXX: the following line fails, I have no idea why */
-    /* set_file_type_list(ft_om);*/
-
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(captured_bt), TRUE);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(displayed_bt), FALSE);
-
-    file_set_print_dynamics();
-  }
-}
-
-static void
-toggle_filtered_cb(GtkWidget *widget, gpointer data _U_)
-{
-  /* is the button now active? */
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
-    range.process_filtered = TRUE;
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(captured_bt), FALSE);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(displayed_bt), TRUE);
-    
-    file_set_print_dynamics();
-  }
-}
-
-static void
-toggle_select_all(GtkWidget *widget, gpointer data _U_)
-{
-  /* is the button now active? */
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
-    range.process = range_process_all;
-    file_set_print_dynamics();
-  }
-}
-
-static void
-toggle_select_selected(GtkWidget *widget, gpointer data _U_)
-{
-  /* is the button now active? */
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
-    range.process = range_process_selected;
-    file_set_print_dynamics();
-  }
-}
-
-static void
-toggle_select_marked_only(GtkWidget *widget, gpointer data _U_)
-{
-  /* is the button now active? */
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
-    range.process = range_process_marked;
-    file_set_print_dynamics();
-  }
-}
-
-static void
-toggle_select_marked_range(GtkWidget *widget, gpointer data _U_)
-{
-  /* is the button now active? */
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
-    range.process = range_process_marked_range;
-    file_set_print_dynamics();
-  }
-}
-
-static void
-toggle_select_user_range(GtkWidget *widget, gpointer data _U_)
-{
-  /* is the button now active? */
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
-    range.process = range_process_user_range;
-    file_set_print_dynamics();
-  }
-	
-  /* Make the entry widget sensitive or insensitive */
-  gtk_widget_set_sensitive(select_user_range_entry, range.process == range_process_user_range);
-
-  /* When selecting user specified range, then focus on the entry */
-  if (range.process == range_process_user_range)
-      gtk_widget_grab_focus(select_user_range_entry);
-
-}
-
-static void
-range_entry(GtkWidget *entry)
-{
-  const gchar *entry_text;
-
-  entry_text = gtk_entry_get_text (GTK_ENTRY (entry));
-  packet_range_convert_str(&range, entry_text);
-  file_set_print_dynamics();
-}
-
-/*
- * Set the "Print only marked packets" toggle button as appropriate for
- * the current output file type and count of marked packets.
- *
- * Called when the "Print..." dialog box is created and when either
- * the file type or the marked count changes.
- */
-void
-file_set_print_marked_sensitive(void)
-{
-  if (print_w == NULL) {
-    /* We don't currently have a "Print" dialog box up. */
-    return;
-  }
-	
-  /* We can request that only the marked packets be printed only if we
-     if there *are* marked packets. */
-  if (cfile.marked_count != 0) {
-    gtk_widget_set_sensitive(select_marked_only_rb, TRUE);
-    gtk_widget_set_sensitive(select_marked_range_rb, TRUE);	  
-  }
-  else {
-    /* Force the "Process only marked packets" toggle to "false", turn
-       off the flag it controls. */
-    range.process = range_process_all;
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(select_marked_only_rb), FALSE);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(select_marked_range_rb), FALSE);	  
-    gtk_widget_set_sensitive(select_marked_only_rb,  FALSE);
-    gtk_widget_set_sensitive(select_marked_range_rb, FALSE);	  
-  }
-}
 
 
 /* Print the capture */
@@ -508,117 +304,9 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_box_pack_start(GTK_BOX(packet_hb), range_fr, FALSE, FALSE, 0);
   gtk_widget_show(range_fr);
 
-  /* range table */
-  range_tb = gtk_table_new(7, 3, FALSE);
-  gtk_container_border_width(GTK_CONTAINER(range_tb), 5);
+  range_tb = range_new(&range);
   gtk_container_add(GTK_CONTAINER(range_fr), range_tb);
   gtk_widget_show(range_tb);
-
-  /* captured button */
-  captured_bt = TOGGLE_BUTTON_NEW_WITH_MNEMONIC("_Captured", accel_group);
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), captured_bt, 1, 2, 0, 1);
-  SIGNAL_CONNECT(captured_bt, "toggled", toggle_captured_cb, NULL);
-  gtk_tooltips_set_tip (tooltips,captured_bt,("Process all the below chosen packets"), NULL);
-  gtk_widget_show(captured_bt);
-
-  /* displayed button */
-  displayed_bt = TOGGLE_BUTTON_NEW_WITH_MNEMONIC("_Displayed", accel_group);
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), displayed_bt, 2, 3, 0, 1);
-  SIGNAL_CONNECT(displayed_bt, "toggled", toggle_filtered_cb, NULL);
-  gtk_tooltips_set_tip (tooltips,displayed_bt,("Process only the below chosen packets, which also passes the current display filter"), NULL);
-  gtk_widget_show(displayed_bt);
-
-
-  /* Process all packets */
-  select_all_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "_All packets", accel_group);
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_all_rb, 0, 1, 1, 2);
-  gtk_tooltips_set_tip (tooltips, select_all_rb, 
-      ("Process all packets"), NULL);
-  SIGNAL_CONNECT(select_all_rb, "toggled", toggle_select_all, NULL);
-  gtk_widget_show(select_all_rb);
-
-  select_all_c_lb = gtk_label_new("?");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_all_c_lb, 1, 2, 1, 2);
-  gtk_widget_show(select_all_c_lb);
-  select_all_d_lb = gtk_label_new("?");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_all_d_lb, 2, 3, 1, 2);
-  gtk_widget_show(select_all_d_lb);
-
-
-  /* Process currently selected */
-  select_curr_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(select_all_rb, "_Selected packet only", accel_group);
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_curr_rb, 0, 1, 2, 3);
-  gtk_tooltips_set_tip (tooltips, select_curr_rb, ("Process the currently selected packet only"), NULL);
-  SIGNAL_CONNECT(select_curr_rb, "toggled", toggle_select_selected, NULL);
-  gtk_widget_show(select_curr_rb);
-
-  select_curr_c_lb = gtk_label_new("?");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_curr_c_lb, 1, 2, 2, 3);
-  gtk_widget_show(select_curr_c_lb);
-  select_curr_d_lb = gtk_label_new("?");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_curr_d_lb, 2, 3, 2, 3);
-  gtk_widget_show(select_curr_d_lb);
-
-
-  /* Process marked packets */
-  select_marked_only_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(select_all_rb, "_Marked packets only", accel_group);
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_marked_only_rb, 0, 1, 3, 4);
-  gtk_tooltips_set_tip (tooltips, select_marked_only_rb, ("Process marked packets only"), NULL);
-  SIGNAL_CONNECT(select_marked_only_rb, "toggled", toggle_select_marked_only, NULL);
-  gtk_widget_show(select_marked_only_rb);
-
-  select_marked_only_c_lb = gtk_label_new("?");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_marked_only_c_lb, 1, 2, 3, 4);
-  gtk_widget_show(select_marked_only_c_lb);
-  select_marked_only_d_lb = gtk_label_new("?");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_marked_only_d_lb, 2, 3, 3, 4);
-  gtk_widget_show(select_marked_only_d_lb);
-
-
-  /* Process packet range between first and last packet */
-  select_marked_range_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(select_all_rb, "From first _to last marked packet", accel_group);
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_marked_range_rb, 0, 1, 4, 5);
-  gtk_tooltips_set_tip (tooltips,select_marked_range_rb,("Process all packets between the first and last marker"), NULL);
-  SIGNAL_CONNECT(select_marked_range_rb, "toggled", toggle_select_marked_range, NULL);
-  gtk_widget_show(select_marked_range_rb);
-
-  select_marked_range_c_lb = gtk_label_new("?");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_marked_range_c_lb, 1, 2, 4, 5);
-  gtk_widget_show(select_marked_range_c_lb);
-  select_marked_range_d_lb = gtk_label_new("?");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_marked_range_d_lb, 2, 3, 4, 5);
-  gtk_widget_show(select_marked_range_d_lb);
-
-
-  /* Process a user specified provided packet range : -10,30,40-70,80- */
-  select_user_range_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(select_all_rb, "Specify a packet _range:", accel_group);
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_user_range_rb, 0, 1, 5, 6);
-  gtk_tooltips_set_tip (tooltips,select_user_range_rb,("Process a specified packet range"), NULL);
-  SIGNAL_CONNECT(select_user_range_rb, "toggled", toggle_select_user_range, NULL);
-  gtk_widget_show(select_user_range_rb);
-
-  select_user_range_c_lb = gtk_label_new("?");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_user_range_c_lb, 1, 2, 5, 6);
-  gtk_widget_show(select_user_range_c_lb);
-  select_user_range_d_lb = gtk_label_new("?");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_user_range_d_lb, 2, 3, 5, 6);
-  gtk_widget_show(select_user_range_d_lb);
-
-
-  /* The entry part */
-  select_user_range_entry = gtk_entry_new();
-  gtk_entry_set_max_length (GTK_ENTRY (select_user_range_entry), 254);
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_user_range_entry, 0, 1, 6, 7);
-  gtk_tooltips_set_tip (tooltips,select_user_range_entry, 
-	("Specify a range of packet numbers :     \nExample :  1-10,18,25-100,332-"), NULL);
-  SIGNAL_CONNECT(select_user_range_entry,"changed", range_entry, select_user_range_entry);	
-  gtk_widget_set_sensitive(select_user_range_entry, FALSE);
-  gtk_widget_show(select_user_range_entry);
-
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(captured_bt), TRUE);
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(displayed_bt), FALSE);
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(select_all_rb),  TRUE);
-  
 
 /*****************************************************/
 
