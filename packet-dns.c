@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.77 2001/12/10 00:25:27 guy Exp $
+ * $Id: packet-dns.c,v 1.78 2002/01/19 23:59:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -638,10 +638,6 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
 
   len = get_dns_name_type_class(tvb, offset, dns_data_offset, name, &name_len,
     &type, &class);
-  if (len < 0) {
-    /* We ran past the end of the data in the packet. */
-    return 0;
-  }
   data_offset += len;
 
   type_name = dns_type_name(type);
@@ -1724,10 +1720,6 @@ dissect_query_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
   }
   while (count-- > 0) {
     add_off = dissect_dns_query(tvb, cur_off, dns_data_offset, cinfo, qatree);
-    if (add_off <= 0) {
-      /* We ran past the end of the captured data in the packet. */
-      break;
-    }
     cur_off += add_off;
   }
   if (ti)
@@ -1751,10 +1743,6 @@ dissect_answer_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
   }
   while (count-- > 0) {
     add_off = dissect_dns_answer(tvb, cur_off, dns_data_offset, cinfo, qatree);
-    if (add_off <= 0) {
-      /* We ran past the end of the captured data in the packet. */
-      break;
-    }
     cur_off += add_off;
   }
   if (ti)

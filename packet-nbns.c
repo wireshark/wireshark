@@ -3,7 +3,7 @@
  * to when it had only NBNS)
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.69 2002/01/07 00:57:46 guy Exp $
+ * $Id: packet-nbns.c,v 1.70 2002/01/19 23:59:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -933,11 +933,6 @@ dissect_query_records(tvbuff_t *tvb, int cur_off, int nbns_data_offset,
 	while (count-- > 0) {
 		add_off = dissect_nbns_query(tvb, cur_off, nbns_data_offset,
 		    cinfo, qatree);
-		if (add_off <= 0) {
-			/* We ran past the end of the captured data in the
-			   packet. */
-			break;
-		}
 		cur_off += add_off;
 	}
 	if (ti != NULL)
@@ -965,11 +960,6 @@ dissect_answer_records(tvbuff_t *tvb, int cur_off, int nbns_data_offset,
 	while (count-- > 0) {
 		add_off = dissect_nbns_answer(tvb, cur_off, nbns_data_offset,
 					cinfo, qatree, opcode);
-		if (add_off <= 0) {
-			/* We ran past the end of the captured data in the
-			   packet. */
-			break;
-		}
 		cur_off += add_off;
 	}
 	if (ti != NULL)
