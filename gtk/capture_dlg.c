@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.105 2004/02/20 22:56:00 gerald Exp $
+ * $Id: capture_dlg.c,v 1.106 2004/02/21 22:28:59 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -264,23 +264,29 @@ void
 capture_prep(void)
 {
   GtkWidget     *main_vb,
+                *main_hb, *left_vb, *right_vb,
+
                 *capture_fr, *capture_vb,
                 *if_hb, *if_cb, *if_lb,
                 *linktype_hb, *linktype_lb, *linktype_om,
                 *snap_hb, *snap_cb, *snap_sb, *snap_lb,
                 *promisc_cb,
                 *filter_hb, *filter_bt, *filter_te,
+
                 *file_fr, *file_vb,
                 *file_hb, *file_bt, *file_lb, *file_te,
                 *ringbuffer_hb, *ringbuffer_on_tb, *ringbuffer_nbf_lb, *ringbuffer_nbf_sb,
-                *display_fr, *display_vb,
-                *sync_cb, *auto_scroll_cb,
+
                 *limit_fr, *limit_vb,
                 *count_hb, *count_cb, *count_sb, *count_lb,
                 *filesize_hb, *filesize_cb, *filesize_sb, *filesize_lb,
                 *duration_hb, *duration_cb, *duration_sb, *duration_lb,
 		*ring_duration_hb, *ring_duration_cb, *ring_duration_sb, 
 		*ring_duration_lb,
+
+                *display_fr, *display_vb,
+                *sync_cb, *auto_scroll_cb,
+
                 *resolv_fr, *resolv_vb,
                 *m_resolv_cb, *n_resolv_cb, *t_resolv_cb,
                 *bbox, *ok_bt, *cancel_bt;
@@ -350,7 +356,8 @@ capture_prep(void)
   gtk_container_add(GTK_CONTAINER(main_vb), capture_fr);
   gtk_widget_show(capture_fr);
 
-  capture_vb = gtk_vbox_new(FALSE, 0);
+  capture_vb = gtk_vbox_new(FALSE, 3);
+  gtk_container_border_width(GTK_CONTAINER(capture_vb), 5);
   gtk_container_add(GTK_CONTAINER(capture_fr), capture_vb);
   gtk_widget_show(capture_vb);
 
@@ -403,6 +410,14 @@ capture_prep(void)
   SIGNAL_CONNECT(GTK_ENTRY(GTK_COMBO(if_cb)->entry), "changed",
                  capture_prep_interface_changed_cb, linktype_om);
 
+  /* Promiscuous mode row */
+  promisc_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
+      "Capture packets in _promiscuous mode", accel_group);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(promisc_cb),
+		capture_opts.promisc_mode);
+  gtk_container_add(GTK_CONTAINER(capture_vb), promisc_cb);
+  gtk_widget_show(promisc_cb);
+
   /* Capture length row */
   snap_hb = gtk_hbox_new(FALSE, 3);
   gtk_container_add(GTK_CONTAINER(capture_vb), snap_hb);
@@ -428,14 +443,6 @@ capture_prep(void)
   gtk_box_pack_start(GTK_BOX(snap_hb), snap_lb, FALSE, FALSE, 0);
   gtk_widget_show(snap_lb);
 
-  /* Promiscuous mode row */
-  promisc_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
-      "Capture packets in _promiscuous mode", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(promisc_cb),
-		capture_opts.promisc_mode);
-  gtk_container_add(GTK_CONTAINER(capture_vb), promisc_cb);
-  gtk_widget_show(promisc_cb);
-
   /* Filter row */
   filter_hb = gtk_hbox_new(FALSE, 3);
   gtk_container_add(GTK_CONTAINER(capture_vb), filter_hb);
@@ -453,12 +460,29 @@ capture_prep(void)
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_te, TRUE, TRUE, 3);
   gtk_widget_show(filter_te);
 
+  main_hb = gtk_hbox_new(FALSE, 5);
+  gtk_container_border_width(GTK_CONTAINER(main_hb), 0);
+  gtk_container_add(GTK_CONTAINER(main_vb), main_hb);
+  gtk_widget_show(main_hb);
+
+  left_vb = gtk_vbox_new(FALSE, 0);
+  gtk_container_border_width(GTK_CONTAINER(left_vb), 0);
+  gtk_box_pack_start(GTK_BOX(main_hb), left_vb, TRUE, TRUE, 0);
+  gtk_widget_show(left_vb);
+
+  right_vb = gtk_vbox_new(FALSE, 0);
+  gtk_container_border_width(GTK_CONTAINER(right_vb), 0);
+  gtk_box_pack_start(GTK_BOX(main_hb), right_vb, FALSE, FALSE, 0);
+  gtk_widget_show(right_vb);
+
+
   /* Capture file-related options frame */
   file_fr = gtk_frame_new("Capture file(s)");
-  gtk_container_add(GTK_CONTAINER(main_vb), file_fr);
+  gtk_container_add(GTK_CONTAINER(left_vb), file_fr);
   gtk_widget_show(file_fr);
 
   file_vb = gtk_vbox_new(FALSE, 3);
+  gtk_container_border_width(GTK_CONTAINER(file_vb), 5);
   gtk_container_add(GTK_CONTAINER(file_fr), file_vb);
   gtk_widget_show(file_vb);
 
@@ -541,37 +565,13 @@ capture_prep(void)
 		     FALSE, FALSE, 0);
   gtk_widget_show(ring_duration_lb);
 
-  /* Display-related options frame */
-  display_fr = gtk_frame_new("Display options");
-  gtk_container_add(GTK_CONTAINER(main_vb), display_fr);
-  gtk_widget_show(display_fr);
-
-  display_vb = gtk_vbox_new(FALSE, 0);
-  gtk_container_add(GTK_CONTAINER(display_fr), display_vb);
-  gtk_widget_show(display_vb);
-
-  /* "Update display in real time" row */
-  sync_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
-      "_Update list of packets in real time", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(sync_cb),
-		capture_opts.sync_mode);
-  SIGNAL_CONNECT(sync_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
-  gtk_container_add(GTK_CONTAINER(display_vb), sync_cb);
-  gtk_widget_show(sync_cb);
-
-  /* "Auto-scroll live update" row */
-  auto_scroll_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
-		"_Automatic scrolling in live capture", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(auto_scroll_cb), auto_scroll_live);
-  gtk_container_add(GTK_CONTAINER(display_vb), auto_scroll_cb);
-  gtk_widget_show(auto_scroll_cb);
-
   /* Capture limits frame */
   limit_fr = gtk_frame_new("Capture limits");
-  gtk_container_add(GTK_CONTAINER(main_vb), limit_fr);
+  gtk_container_add(GTK_CONTAINER(left_vb), limit_fr);
   gtk_widget_show(limit_fr);
 
-  limit_vb = gtk_vbox_new(FALSE, 0);
+  limit_vb = gtk_vbox_new(FALSE, 3);
+  gtk_container_border_width(GTK_CONTAINER(limit_vb), 5);
   gtk_container_add(GTK_CONTAINER(limit_fr), limit_vb);
   gtk_widget_show(limit_vb);
 
@@ -650,12 +650,39 @@ capture_prep(void)
   gtk_box_pack_start(GTK_BOX(duration_hb), duration_lb, FALSE, FALSE, 0);
   gtk_widget_show(duration_lb);
 
-  /* Resolution options frame */
+  /* Display-related options frame */
+  display_fr = gtk_frame_new("Display options");
+  gtk_container_add(GTK_CONTAINER(right_vb), display_fr);
+  gtk_widget_show(display_fr);
+
+  display_vb = gtk_vbox_new(FALSE, 0);
+  gtk_container_border_width(GTK_CONTAINER(display_vb), 5);
+  gtk_container_add(GTK_CONTAINER(display_fr), display_vb);
+  gtk_widget_show(display_vb);
+
+  /* "Update display in real time" row */
+  sync_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
+      "_Update list of packets in real time", accel_group);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(sync_cb),
+		capture_opts.sync_mode);
+  SIGNAL_CONNECT(sync_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
+  gtk_container_add(GTK_CONTAINER(display_vb), sync_cb);
+  gtk_widget_show(sync_cb);
+
+  /* "Auto-scroll live update" row */
+  auto_scroll_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
+		"_Automatic scrolling in live capture", accel_group);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(auto_scroll_cb), auto_scroll_live);
+  gtk_container_add(GTK_CONTAINER(display_vb), auto_scroll_cb);
+  gtk_widget_show(auto_scroll_cb);
+
+  /* Name Resolution frame */
   resolv_fr = gtk_frame_new("Name resolution");
-  gtk_container_add(GTK_CONTAINER(main_vb), resolv_fr);
+  gtk_container_add(GTK_CONTAINER(right_vb), resolv_fr);
   gtk_widget_show(resolv_fr);
 
   resolv_vb = gtk_vbox_new(FALSE, 0);
+  gtk_container_border_width(GTK_CONTAINER(resolv_vb), 5);
   gtk_container_add(GTK_CONTAINER(resolv_fr), resolv_vb);
   gtk_widget_show(resolv_vb);
 
@@ -682,7 +709,7 @@ capture_prep(void)
 
   /* Button row: OK and cancel buttons */
   bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
-  gtk_container_add(GTK_CONTAINER(main_vb), bbox);
+  gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
   gtk_widget_show(bbox);
 
   ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
