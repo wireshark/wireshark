@@ -1,7 +1,7 @@
 # 
 # /etc/manuf - Ethernet vendor codes, and well-known MAC addresses
 #
-# $Id: manuf,v 1.41 2004/05/11 22:07:12 jmayer Exp $
+# $Id: manuf,v 1.42 2004/06/03 16:35:57 jmayer Exp $
 #
 # Laurent Deniel <laurent.deniel [AT] free.fr>
 #
@@ -4442,6 +4442,54 @@
 00:11:50	Belkin                 # Belkin Corporation
 00:11:51	Mykotronx
 00:11:52	EidsvollEl             # Eidsvoll Electronics AS
+00:11:53	TridentTek             # Trident Tek, Inc.
+00:11:54	WebproTech             # Webpro Technologies Inc.
+00:11:55	Sevis                  # Sevis Systems
+00:11:56	PharosNz               # Pharos Systems NZ
+00:11:57	OfNetworks             # OF Networks Co., Ltd.
+00:11:58	NortelNetw             # Nortel Networks
+00:11:59	MatisseNet             # MATISSE NETWORKS INC
+00:11:5A	IvoclarViv             # Ivoclar Vivadent AG
+00:11:5B	Elitegroup             # Elitegroup Computer System Co. (ECS)
+00:11:5C	Cisco
+00:11:5D	Cisco
+00:11:5E	ProminentD             # ProMinent Dosiertechnik GmbH
+00:11:5F	Intellix               # Intellix Co., Ltd.
+00:11:60	Artdio                 # ARTDIO Company Co., LTD
+00:11:61	Netstreams             # NetStreams, LLC
+00:11:62	StarMicron             # STAR MICRONICS CO.,LTD.
+00:11:63	SystemSpaD             # SYSTEM SPA DEPT. ELECTRONICS
+00:11:64	AcardTechn             # ACARD Technology Corp.
+00:11:65	ZnyxNetwor             # Znyx Networks
+00:11:66	TaelimElec             # Taelim Electronics Co., Ltd.
+00:11:67	Integrated             # Integrated System Solution Corp.
+00:11:68	HomelogicL             # HomeLogic LLC
+00:11:69	EmsSatcom              # EMS Satcom
+00:11:6A	Domo                   # Domo Ltd
+00:11:6B	DigitalDat             # Digital Data Communications Asia Co.,Ltd
+00:11:6C	NanwangMul             # Nanwang Multimedia Inc.,Ltd
+00:11:6D	AmericanTi             # American Time and Signal
+00:11:6E	Peplink                # PePLink Ltd.
+00:11:6F	Netforyou              # Netforyou Co., LTD.
+00:11:70	GscSrl                 # GSC SRL
+00:11:71	DexterComm             # DEXTER Communications, Inc.
+00:11:72	Cotron                 # COTRON CORPORATION
+00:11:73	Adtron                 # Adtron Corporation
+00:11:74	WibhuTechn             # Wibhu Technologies, Inc.
+00:11:75	Pathscale              # PathScale, Inc.
+00:11:76	Intellambd             # Intellambda Systems, Inc.
+00:11:77	CoaxialNet             # COAXIAL NETWORKS, INC.
+00:11:78	ChironTech             # Chiron Technology Ltd
+00:11:79	SingularTe             # Singular Technology Co. Ltd.
+00:11:7A	SingimInte             # Singim International Corp.
+00:11:7B	BüChiLabor             # Büchi Labortechnik AG
+00:11:7C	E-ZyNet                # e-zy.net
+00:11:7D	ZmdAmerica             # ZMD America, Inc.
+00:11:7E	Progeny                # Progeny Inc.
+00:11:7F	NeotuneInf             # Neotune Information Technology Corporation,.LTD
+00:11:80	MotorolaBc             # Motorola BCS
+00:11:81	Interenerg             # InterEnergy Co.Ltd,
+00:11:82	ImiNorgren             # IMI Norgren Ltd
 00:17:00	Kabel
 00:1C:7C	Perq                   # PERQ SYSTEMS CORPORATION
 00:20:00	LexmarkInt             # LEXMARK INTERNATIONAL, INC.
@@ -7516,7 +7564,7 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 #
 # Well-known addresses.
 #
-# $Id: manuf,v 1.41 2004/05/11 22:07:12 jmayer Exp $
+# $Id: manuf,v 1.42 2004/06/03 16:35:57 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald [AT] ethereal.com>
