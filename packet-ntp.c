@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.26 2001/03/13 21:34:23 gram Exp $
+ * $Id: packet-ntp.c,v 1.27 2001/04/09 21:42:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -315,8 +315,8 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint_format(ntp_tree, hf_ntp_ppoll, tvb, 2, 1,
 					   ppoll,
 					   (((ppoll >= 4) && (ppoll <= 16)) ? 
-					   "Peer Pooling Interval: %u (%u sec)" :
-					   "Peer Pooling Interval: invalid (%u)"),
+					   "Peer Polling Interval: %u (%u sec)" :
+					   "Peer Polling Interval: invalid (%u)"),
 					   ppoll,
 					   1 << ppoll);
 
@@ -372,7 +372,7 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		} else {
 			buff[sizeof(buff) - 1] = '\0';
-			strncpy (buff, get_hostname (tvb_get_ntohl(tvb, 12)),
+			strncpy (buff, get_hostname (htonl(tvb_get_ntohl(tvb, 12))),
 			    sizeof(buff));
 			if (buff[sizeof(buff) - 1] != '\0')
 				strcpy(&buff[sizeof(buff) - 4], "...");
