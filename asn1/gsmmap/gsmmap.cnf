@@ -80,6 +80,8 @@ O-BcsmCamelTDP-CriteriaList/_item/o-BcsmTriggerDetectionPoint o-BcsmTriggerDetec
  digit_str = unpack_digits(parameter_tvb, 0);
 
  proto_tree_add_string(tree, hf_gsm_map_imsi_digits, parameter_tvb, 0, -1, digit_str);
+ if (digit_str)
+	g_free(digit_str);
  
 
 
@@ -102,8 +104,8 @@ O-BcsmCamelTDP-CriteriaList/_item/o-BcsmTriggerDetectionPoint o-BcsmTriggerDetec
  digit_str = unpack_digits(parameter_tvb, 1);
 
  proto_tree_add_string(tree, hf_gsm_map_servicecentreaddress_digits, parameter_tvb, 1, -1, digit_str);
-
-
+ if (digit_str)
+	g_free(digit_str);
 
 #.END
 #----------------------------------------------------------------------------------------
@@ -125,8 +127,8 @@ O-BcsmCamelTDP-CriteriaList/_item/o-BcsmTriggerDetectionPoint o-BcsmTriggerDetec
  digit_str = unpack_digits(parameter_tvb, 1);
 
  proto_tree_add_string(tree, hf_gsm_map_misdn_digits, parameter_tvb, 1, -1, digit_str);
-
-
+ if (digit_str)
+	g_free(digit_str);
 
 #.END
 #----------------------------------------------------------------------------------------
@@ -148,8 +150,8 @@ O-BcsmCamelTDP-CriteriaList/_item/o-BcsmTriggerDetectionPoint o-BcsmTriggerDetec
  digit_str = unpack_digits(parameter_tvb, 1);
 
  proto_tree_add_string(tree, hf_gsm_map_map_gmsc_address_digits, parameter_tvb, 1, -1, digit_str);
-
-
+ if (digit_str)
+	g_free(digit_str);
 
 #.END
 #----------------------------------------------------------------------------------------
@@ -171,9 +173,8 @@ O-BcsmCamelTDP-CriteriaList/_item/o-BcsmTriggerDetectionPoint o-BcsmTriggerDetec
  digit_str = unpack_digits(parameter_tvb, 1);
 
  proto_tree_add_string(tree, hf_gsm_map_map_hlr_number_digits, parameter_tvb, 1, -1, digit_str);
-
-
-
+ if (digit_str)
+	g_free(digit_str);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY RoamingNumber
@@ -194,7 +195,8 @@ O-BcsmCamelTDP-CriteriaList/_item/o-BcsmTriggerDetectionPoint o-BcsmTriggerDetec
  digit_str = unpack_digits(parameter_tvb, 1);
 
  proto_tree_add_string(tree, hf_gsm_map_map_RoamingNumber_digits, parameter_tvb, 1, -1, digit_str);
-
+ if (digit_str)
+	g_free(digit_str);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY ForwardedToNumber
@@ -215,6 +217,8 @@ O-BcsmCamelTDP-CriteriaList/_item/o-BcsmTriggerDetectionPoint o-BcsmTriggerDetec
  digit_str = unpack_digits(parameter_tvb, 1);
 
  proto_tree_add_string(tree, hf_gsm_map_map_ForwardedToNumber_digits, parameter_tvb, 1, -1, digit_str);
+ if (digit_str)
+	g_free(digit_str);
 
 #.END
 
