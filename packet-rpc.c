@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.136 2003/08/25 10:17:38 sahlberg Exp $
+ * $Id: packet-rpc.c,v 1.137 2003/09/03 07:11:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1818,7 +1818,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (rpc_tree) {
 		proto_tree_add_uint(rpc_tree, hf_rpc_msgtype, tvb,
 			offset+4, 4, msg_type);
-		proto_item_append_text(rpc_tree, ", Type:%s XID:0x%08x", msg_type_name, xid);
+		proto_item_append_text(rpc_item, ", Type:%s XID:0x%08x", msg_type_name, xid);
 	}
 
 	offset += 8;
@@ -1991,13 +1991,12 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				    &null_address, pinfo->ptype, pinfo->srcport,
 				    pinfo->destport, 0);
 			}
-
-			/* Make the dissector for this conversation the non-heuristic
-			   RPC dissector. */
-			conversation_set_dissector(conversation,
-				(pinfo->ptype == PT_TCP) ? rpc_tcp_handle : rpc_handle);
-
 		}
+
+		/* Make the dissector for this conversation the non-heuristic
+		   RPC dissector. */
+		conversation_set_dissector(conversation,
+			(pinfo->ptype == PT_TCP) ? rpc_tcp_handle : rpc_handle);
 
 		/* prepare the key data */
 		rpc_call_key.xid = xid;
@@ -2771,6 +2770,16 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * return 0 - we don't want to try to get
 			 * more data, as that's too likely to cause
 			 * us to misidentify this as valid.
+			 *
+			 * XXX - this means that we won't
+			 * recognize the first fragment of a
+			 * multi-fragment RPC operation unless
+			 * we've already identified this
+			 * conversation as being an RPC
+			 * conversation (and thus aren't running
+			 * heuristically) - that would be a problem
+			 * if, for example, the first segment were
+			 * the beginning of a large NFS WRITE.
 			 *
 			 * If this isn't a heuristic dissector,
 			 * we've already identified this conversation
