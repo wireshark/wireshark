@@ -9,6 +9,8 @@
 
 include ../../config.nmake
 
+UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
+
 !IFDEF GTK1_ONLY
 # define installer name and undefine GTK2_DIR to get a separate 
 # installer for ethereal GTK1 version
@@ -50,9 +52,9 @@ DOC=../../doc/ethereal.html		\
 	../../doc/mergecap.html 	\
 	../../doc/capinfo.html 	\
 	../../FAQ			\
-	../../NEWS			\
 	../../README			\
 	../../README.win32
+DOC_dos=NEWS.txt
 GPL=../../COPYING
 HELP=../../help/toc \
 	../../help/overview.txt \
@@ -81,9 +83,12 @@ PLUGINS=../../plugins/acn/acn.dll \
 	../../plugins/rudp/rudp.dll \
 	../../plugins/v5ua/v5ua.dll
 
-DELIVERABLES=$(EXE) $(DLL) $(DOC) $(GPL) $(HELP) $(PLUGINS)
+DELIVERABLES=$(EXE) $(DLL) $(DOC) $(DOC_dos) $(GPL) $(HELP) $(PLUGINS)
 
+all: NEWS.txt $(DEST)-setup-$(VERSION).exe
 
+NEWS.txt: ../../NEWS
+	$(UNIX2DOS) < ../../NEWS > NEWS.txt
 
 $(DEST)-setup-$(VERSION).exe : ethereal.nsi $(DELIVERABLES) Makefile.nmake
 	$(MAKENSIS) \
@@ -126,6 +131,7 @@ clean:
 	rm -f ethereal-setup-$(VERSION).exe
 	rm -f ethereal-gtk1-setup-$(VERSION).exe
 	rm -f ethereal-gtk2-setup-$(VERSION).exe
+	rm -f NEWS.txt
 
 distclean: clean
 
