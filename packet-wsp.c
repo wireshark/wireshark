@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.22 2001/06/18 22:27:30 guy Exp $
+ * $Id: packet-wsp.c,v 1.23 2001/07/03 09:53:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -434,7 +434,7 @@ static guint get_uintvar (tvbuff_t *, guint, guint);
 
 /* Code to actually dissect the packets */
 static void
-dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	frame_data *fdata = pinfo->fd;
 	int offset = 0;
@@ -463,20 +463,6 @@ dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    it, if possible, summarize what's in the packet, so that a user looking
    at the list of packets can tell what type of packet it is. */
     
-	/* Display protocol type depending on the port */
-	if (check_col(fdata, COL_PROTOCOL)) 
-	{
-		switch ( pinfo->match_port )
-		{
-			case UDP_PORT_WSP:
-				col_set_str(fdata, COL_PROTOCOL, "WSP" );
-				break;
-			case UDP_PORT_WTLS_WSP:
-				col_set_str(fdata, COL_PROTOCOL, "WTLS+WSP" );
-				break;
-		}
-	}
-
 	/* Clear the Info column before we fetch anything from the packet */
 	if (check_col(fdata, COL_INFO))
 	{
@@ -673,6 +659,30 @@ dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					break;
 			}
 	}
+}
+
+/*
+ * Called directly from UDP.
+ * Put "WSP" into the "Protocol" column.
+ */
+static void
+dissect_wsp_fromudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "WSP" );
+
+	dissect_wsp_common(tvb, pinfo, tree);
+}
+
+/*
+ * Called from a higher-level WAP dissector.
+ * Leave the "Protocol" column alone - the dissector calling us should
+ * have set it.
+ */
+static void
+dissect_wsp_fromwap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_wsp_common(tvb, pinfo, tree);
 }
 
 static void
@@ -2130,7 +2140,7 @@ proto_register_wsp(void)
 	proto_register_field_array(proto_wsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("wsp", dissect_wsp, proto_wsp);
+	register_dissector("wsp", dissect_wsp_fromwap, proto_wsp);
 };
 
 void
@@ -2142,7 +2152,7 @@ proto_reg_handoff_wsp(void)
 	wmlc_handle = find_dissector("wmlc");	/* Coming soon :) */
 
 	/* Only connection-less WSP has no previous handler */
-	dissector_add("udp.port", UDP_PORT_WSP, dissect_wsp, proto_wsp);
+	dissector_add("udp.port", UDP_PORT_WSP, dissect_wsp_fromudp, proto_wsp);
 
 	/* This dissector is also called from the WTP and WTLS dissectors */
 }

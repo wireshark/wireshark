@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTLS component of WAP traffic.
  * 
- * $Id: packet-wtls.c,v 1.9 2001/06/18 02:17:54 guy Exp $
+ * $Id: packet-wtls.c,v 1.10 2001/07/03 09:53:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1631,8 +1631,6 @@ proto_register_wtls(void)
 /* Required function calls to register the header fields and subtrees used  */
 	proto_register_field_array(proto_wtls, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
-	register_dissector("wtls", dissect_wtls, proto_wtls);
 }
 
 void

@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  * 
- * $Id: packet-wtp.c,v 1.14 2001/06/18 02:17:54 guy Exp $
+ * $Id: packet-wtp.c,v 1.15 2001/07/03 09:53:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -180,7 +180,7 @@ static char retransmission_indicator(unsigned char octet);
 
 /* Code to actually dissect the packets */
 static void
-dissect_wtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	frame_data *fdata = pinfo->fd;
 
@@ -212,27 +212,10 @@ dissect_wtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int i;
 	tvbuff_t *wsp_tvb = NULL;
 
-/* Make entries in Protocol column and Info column of summary display */
-
 #ifdef DEBUG
 	fprintf( stderr, "dissect_wtp: (Entering) Frame data at %p\n", fdata ); 
 	fprintf( stderr, "dissect_wtp: tvb length is %d\n", tvb_reported_length( tvb ) ); 
 #endif
-	/* Display protocol type depending on the port */
-	if (check_col(fdata, COL_PROTOCOL)) 
-	{
-		switch ( pinfo->match_port )
-		{
-			case UDP_PORT_WTP_WSP:
-				col_add_fstr(fdata, COL_PROTOCOL, "WTP+WSP" );
-				break;
-			case UDP_PORT_WTLS_WTP_WSP:
-				col_add_fstr(fdata, COL_PROTOCOL, "WTLS+WTP+WSP" );
-				break;
-			default:
-				break;
-		}
-	}
 	if (check_col(fdata, COL_INFO)) {
 		col_clear(fdata, COL_INFO);
 	};
@@ -428,7 +411,7 @@ dissect_wtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		fprintf( stderr, "dissect_wtp: (4) tree was %p\n", tree ); 
 #endif
 	}
-		
+
 	/* Any remaining data ought to be WSP data,
 	 * so hand off to the WSP dissector */
 	if (tvb_reported_length (tvb) > cbHeader)
@@ -441,6 +424,37 @@ dissect_wtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #ifdef DEBUG
 	fprintf( stderr, "dissect_wtp: (leaving) fdata->cinfo is %p\n", fdata->cinfo ); 
 #endif
+}
+
+/*
+ * Called directly from UDP.
+ * Put "WTP+WSP" into the "Protocol" column.
+ */
+static void
+dissect_wtp_fromudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "WTP+WSP" );
+
+	dissect_wtp_common(tvb, pinfo, tree);
+}
+
+/*
+ * Called from a higher-level WAP dissector, presumably WTLS.
+ * Put "WTLS+WSP+WTP" to the "Protocol" column.
+ *
+ * XXX - is this supposed to be called from WTLS?  If so, we're not
+ * calling it....
+ *
+ * XXX - can this be called from any other dissector?
+ */
+static void
+dissect_wtp_fromwap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "WTLS+WTP+WSP" );
+
+	dissect_wtp_common(tvb, pinfo, tree);
 }
 
 static char pdu_type(unsigned char octet)
@@ -639,6 +653,8 @@ proto_register_wtp(void)
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_wtp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	register_dissector("wtp", dissect_wtp_fromwap, proto_wtp);
 };
 
 void
@@ -649,5 +665,6 @@ proto_reg_handoff_wtp(void)
 	 */
 	wsp_handle = find_dissector("wsp");
 
-	dissector_add("udp.port", UDP_PORT_WTP_WSP, dissect_wtp, proto_wtp);
+	dissector_add("udp.port", UDP_PORT_WTP_WSP, dissect_wtp_fromudp,
+	    proto_wtp);
 }
