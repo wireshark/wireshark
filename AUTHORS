@@ -335,6 +335,10 @@ Mark Clayton <clayton@shore.net> {
 	Support for capturing on ATM interfaces on Linux
 }
 
+Michael Rozhavsky <mike@tochna.technion.ac.il> {
+	OSPF enhancements
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

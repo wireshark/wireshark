@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.24 2000/05/31 05:07:28 guy Exp $
+ * $Id: packet-ospf.c,v 1.25 2000/07/14 03:23:40 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -308,8 +308,8 @@ dissect_ospf_db_desc(const u_char *pd, int offset, frame_data *fd, proto_tree *t
 
 	flags_offset=0;
 	if(( ospf_dbd.flags & OSPF_DBD_FLAG_MS ) == OSPF_DBD_FLAG_MS){
-	    strcpy( (char *)(flags + flags_offset), "_I_");
-	    flags_offset+=1;
+	    strcpy( (char *)(flags + flags_offset), "_MS_");
+	    flags_offset+=4;
 	}
 	if(( ospf_dbd.flags & OSPF_DBD_FLAG_M ) == OSPF_DBD_FLAG_M){
 	    strcpy((char *) (flags + flags_offset), "_M_");
@@ -660,6 +660,7 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 
     /* data structures for the summary and ASBR LSAs */
     e_ospf_summary_lsa 	summary_lsa;
+    guint32             metric;
 
     /* data structures for the AS-External LSA */
     e_ospf_asexternal_lsa       asext_lsa;
@@ -828,6 +829,11 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
                 memcpy(&summary_lsa, &pd[offset], sizeof(e_ospf_summary_lsa));
                 proto_tree_add_text(ospf_lsa_tree, NullTVB, offset, 4, "Netmask: %s", 
                                                  ip_to_str((guint8 *) &(summary_lsa.network_mask)));
+		/* this routine returns only the TOS 0 metric (even if there are more TOS metrics) */
+		memcpy(&metric, &pd[offset+4], 4);
+		metric = ntohl(metric) & 0x00ffffff ;
+		proto_tree_add_text(ospf_lsa_tree, NullTVB, offset + 5, 3, "Metric: %d", metric);
+				                 
                 /* returns only the TOS 0 metric (even if there are more TOS metrics) */
                 break;
             case(OSPF_LSTYPE_ASEXT):
