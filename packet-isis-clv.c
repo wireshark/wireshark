@@ -1,7 +1,7 @@
 /* packet-isis-clv.c
  * Common CLV decode routines.
  *
- * $Id: packet-isis-clv.c,v 1.6 2000/06/19 08:33:47 guy Exp $
+ * $Id: packet-isis-clv.c,v 1.7 2000/08/10 14:21:09 deniel Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -304,7 +304,7 @@ isis_dissect_clvs(const isis_clv_handle_t *opts, int len, int id_length,
 		length = pd[offset++];
 		adj = (sizeof(code) + sizeof(length) + length);
 		len -= adj;
-		if ( len < 0 ) {
+		if ( len < 0 || !BYTES_ARE_IN_FRAME(offset, length) ) {
 			isis_dissect_unknown(offset, adj, tree, fd,
 				"Short CLV header (%d vs %d)",
 				adj, len + adj );
