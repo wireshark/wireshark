@@ -209,7 +209,7 @@ static const value_string CosNaming_NamingContext_NotFoundReason[] = {
 
 /* Exception = IDL:omg.org/CosNaming/NamingContext/NotFound:1.0 */
 
-static void decode_ex_CosNaming_NamingContext_NotFound(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+static void decode_ex_CosNaming_NamingContext_NotFound(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
     gboolean stream_is_big_endian;          /* big endianess */
 
@@ -255,7 +255,7 @@ static void decode_ex_CosNaming_NamingContext_NotFound(tvbuff_t *tvb, packet_inf
 
 /* Exception = IDL:omg.org/CosNaming/NamingContext/CannotProceed:1.0 */
 
-static void decode_ex_CosNaming_NamingContext_CannotProceed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+static void decode_ex_CosNaming_NamingContext_CannotProceed(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
     gboolean stream_is_big_endian;          /* big endianess */
 
@@ -304,9 +304,9 @@ static void decode_ex_CosNaming_NamingContext_CannotProceed(tvbuff_t *tvb, packe
  *
  */
  
-static gboolean decode_user_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation ) {
+static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_ ) {
     
-    gboolean be;                        /* big endianess */
+    gboolean be _U_;                        /* big endianess */
 
     
 
@@ -342,7 +342,7 @@ static gboolean decode_user_exception(tvbuff_t *tvb, packet_info *pinfo, proto_t
  */
  
 
-static void decode_CosNaming_NamingContext_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+static void decode_CosNaming_NamingContext_bind(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
     gboolean stream_is_big_endian;          /* big endianess */
 
@@ -435,7 +435,7 @@ static void decode_CosNaming_NamingContext_bind(tvbuff_t *tvb, packet_info *pinf
  */
  
 
-static void decode_CosNaming_NamingContext_rebind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+static void decode_CosNaming_NamingContext_rebind(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
     gboolean stream_is_big_endian;          /* big endianess */
 
@@ -528,7 +528,7 @@ static void decode_CosNaming_NamingContext_rebind(tvbuff_t *tvb, packet_info *pi
  */
  
 
-static void decode_CosNaming_NamingContext_bind_context(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+static void decode_CosNaming_NamingContext_bind_context(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
     gboolean stream_is_big_endian;          /* big endianess */
 
@@ -621,7 +621,7 @@ static void decode_CosNaming_NamingContext_bind_context(tvbuff_t *tvb, packet_in
  */
  
 
-static void decode_CosNaming_NamingContext_rebind_context(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+static void decode_CosNaming_NamingContext_rebind_context(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
     gboolean stream_is_big_endian;          /* big endianess */
 
@@ -714,7 +714,7 @@ static void decode_CosNaming_NamingContext_rebind_context(tvbuff_t *tvb, packet_
  */
  
 
-static void decode_CosNaming_NamingContext_resolve(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+static void decode_CosNaming_NamingContext_resolve(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
     gboolean stream_is_big_endian;          /* big endianess */
 
@@ -803,7 +803,7 @@ static void decode_CosNaming_NamingContext_resolve(tvbuff_t *tvb, packet_info *p
  */
  
 
-static void decode_CosNaming_NamingContext_unbind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+static void decode_CosNaming_NamingContext_unbind(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
     gboolean stream_is_big_endian;          /* big endianess */
 
@@ -893,7 +893,7 @@ static void decode_CosNaming_NamingContext_unbind(tvbuff_t *tvb, packet_info *pi
  */
  
 
-static void decode_CosNaming_NamingContext_new_context(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+static void decode_CosNaming_NamingContext_new_context(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
     gboolean stream_is_big_endian;          /* big endianess */
 
@@ -962,7 +962,7 @@ static void decode_CosNaming_NamingContext_new_context(tvbuff_t *tvb, packet_inf
  */
  
 
-static void decode_CosNaming_NamingContext_bind_new_context(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+static void decode_CosNaming_NamingContext_bind_new_context(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
     gboolean stream_is_big_endian;          /* big endianess */
 
@@ -1051,7 +1051,7 @@ static void decode_CosNaming_NamingContext_bind_new_context(tvbuff_t *tvb, packe
  */
  
 
-static void decode_CosNaming_NamingContext_destroy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+static void decode_CosNaming_NamingContext_destroy(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
     gboolean stream_is_big_endian;          /* big endianess */
 
@@ -1121,7 +1121,7 @@ static void decode_CosNaming_NamingContext_destroy(tvbuff_t *tvb, packet_info *p
  */
  
 
-static void decode_CosNaming_NamingContext_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+static void decode_CosNaming_NamingContext_list(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
     gboolean stream_is_big_endian;          /* big endianess */
 
@@ -1220,7 +1220,7 @@ static void decode_CosNaming_NamingContext_list(tvbuff_t *tvb, packet_info *pinf
  */
  
 
-static void decode_CosNaming_BindingIterator_next_one(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+static void decode_CosNaming_BindingIterator_next_one(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
     gboolean stream_is_big_endian;          /* big endianess */
 
@@ -1301,7 +1301,7 @@ static void decode_CosNaming_BindingIterator_next_one(tvbuff_t *tvb, packet_info
  */
  
 
-static void decode_CosNaming_BindingIterator_next_n(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+static void decode_CosNaming_BindingIterator_next_n(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
     gboolean stream_is_big_endian;          /* big endianess */
 
@@ -1399,7 +1399,7 @@ static void decode_CosNaming_BindingIterator_next_n(tvbuff_t *tvb, packet_info *
  */
  
 
-static void decode_CosNaming_BindingIterator_destroy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+static void decode_CosNaming_BindingIterator_destroy(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
     gboolean stream_is_big_endian;          /* big endianess */
 
@@ -1466,7 +1466,7 @@ static void decode_CosNaming_BindingIterator_destroy(tvbuff_t *tvb, packet_info 
 
 /* Struct = IDL:omg.org/CosNaming/NameComponent:1.0 */
 
-static void decode_CosNaming_NameComponent_st(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+static void decode_CosNaming_NameComponent_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
     gboolean stream_is_big_endian;          /* big endianess */
 
@@ -1509,7 +1509,7 @@ static void decode_CosNaming_NameComponent_st(tvbuff_t *tvb, packet_info *pinfo,
 
 /* Struct = IDL:omg.org/CosNaming/Binding:1.0 */
 
-static void decode_CosNaming_Binding_st(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+static void decode_CosNaming_Binding_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
     gboolean stream_is_big_endian;          /* big endianess */
 
@@ -1552,7 +1552,7 @@ static void decode_CosNaming_Binding_st(tvbuff_t *tvb, packet_info *pinfo, proto
     
 }
 
-static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname) {
+static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname _U_) {
 
     proto_item *ti = NULL;
     proto_tree *tree = NULL;            /* init later, inside if(tree) */
@@ -1764,7 +1764,11 @@ plugin_reg_handoff(void){
 }
 
 G_MODULE_EXPORT void
-plugin_init(plugin_address_table_t *pat){
+plugin_init(plugin_address_table_t *pat
+#ifndef PLUGINS_NEED_ADDRESS_TABLE
+_U_
+#endif
+){
    /* initialise the table of pointers needed in Win32 DLLs */
    plugin_address_table_init(pat);
    if (proto_cosnaming == -1) {
