@@ -113,8 +113,8 @@ extern guint8 *get_ether_addr(const gchar *name);
  * is set to TRUE. */
 guint32 get_ipxnet_addr(const gchar *name, gboolean *known);
 
-/* adds a hostname/IP in the hash table */
-extern void add_host_name(guint addr, const gchar *name);
+/* adds a hostname/IPv4 in the hash table */
+extern void add_ipv4_name(guint addr, const gchar *name);
 
 /* add ethernet address / name corresponding to IP address  */
 extern void add_ether_byip(guint ip, const guint8 *eth);

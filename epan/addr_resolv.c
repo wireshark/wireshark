@@ -126,18 +126,26 @@
 #define HASHMANUFSIZE   256
 #define HASHPORTSIZE	256
 
-/* hash table used for host and port lookup */
+/* hash table used for IPv4 lookup */
 
 #define HASH_IPV4_ADDRESS(addr)	((addr) & (HASHHOSTSIZE - 1))
 
-#define HASH_PORT(port)	((port) & (HASHPORTSIZE - 1))
-
-typedef struct hashname {
+typedef struct hashipv4 {
   guint			addr;
   gchar   		name[MAXNAMELEN];
   gboolean              is_dummy_entry;	/* name is IP address in dot format */
-  struct hashname 	*next;
-} hashname_t;
+  struct hashipv4 	*next;
+} hashipv4_t;
+
+/* hash table used for TCP/UDP/SCTP port lookup */
+
+#define HASH_PORT(port)	((port) & (HASHPORTSIZE - 1))
+
+typedef struct hashport {
+  guint16		port;
+  gchar   		name[MAXNAMELEN];
+  struct hashport 	*next;
+} hashport_t;
 
 /* hash table used for IPX network lookup */
 
@@ -145,7 +153,11 @@ typedef struct hashname {
 
 #define HASH_IPX_NET(net)	((net) & (HASHIPXNETSIZE - 1))
 
-typedef struct hashname hashipxnet_t;
+typedef struct hashipxnet {
+  guint			addr;
+  gchar   		name[MAXNAMELEN];
+  struct hashipxnet 	*next;
+} hashipxnet_t;
 
 /* hash tables used for ethernet and manufacturer lookup */
 
@@ -184,14 +196,14 @@ typedef struct _ipxnet
   char 			name[MAXNAMELEN];
 } ipxnet_t;
 
-static hashname_t 	*host_table[HASHHOSTSIZE];
-static hashname_t 	*udp_port_table[HASHPORTSIZE];
-static hashname_t 	*tcp_port_table[HASHPORTSIZE];
-static hashname_t       *sctp_port_table[HASHPORTSIZE];
-static hashether_t 	*eth_table[HASHETHSIZE];
-static hashmanuf_t 	*manuf_table[HASHMANUFSIZE];
-static hashether_t 	*(*wka_table[48])[HASHETHSIZE];
-static hashipxnet_t 	*ipxnet_table[HASHIPXNETSIZE];
+static hashipv4_t	*ipv4_table[HASHHOSTSIZE];
+static hashport_t	*udp_port_table[HASHPORTSIZE];
+static hashport_t	*tcp_port_table[HASHPORTSIZE];
+static hashport_t	*sctp_port_table[HASHPORTSIZE];
+static hashether_t	*eth_table[HASHETHSIZE];
+static hashmanuf_t	*manuf_table[HASHMANUFSIZE];
+static hashether_t	*(*wka_table[48])[HASHETHSIZE];
+static hashipxnet_t	*ipxnet_table[HASHIPXNETSIZE];
 
 static int 		eth_resolution_initialized = 0;
 static int 		ipxnet_resolution_initialized = 0;
@@ -245,8 +257,8 @@ GList *adns_queue_head = NULL;
 static gchar *serv_name_lookup(guint port, port_type proto)
 {
   int hash_idx;
-  hashname_t *tp;
-  hashname_t **table;
+  hashport_t *tp;
+  hashport_t **table;
   char *serv_proto = NULL;
   struct servent *servp;
 
@@ -274,14 +286,14 @@ static gchar *serv_name_lookup(guint port, port_type proto)
   tp = table[hash_idx];
 
   if( tp == NULL ) {
-    tp = table[hash_idx] = (hashname_t *)g_malloc(sizeof(hashname_t));
+    tp = table[hash_idx] = (hashport_t *)g_malloc(sizeof(hashport_t));
   } else {
     while(1) {
-      if( tp->addr == port ) {
+      if( tp->port == port ) {
 	return tp->name;
       }
       if (tp->next == NULL) {
-	tp->next = (hashname_t *)g_malloc(sizeof(hashname_t));
+	tp->next = (hashport_t *)g_malloc(sizeof(hashport_t));
 	tp = tp->next;
 	break;
       }
@@ -290,7 +302,7 @@ static gchar *serv_name_lookup(guint port, port_type proto)
   }
 
   /* fill in a new entry */
-  tp->addr = port;
+  tp->port = port;
   tp->next = NULL;
 
   if (!(g_resolv_flags & RESOLV_TRANSPORT) ||
@@ -322,7 +334,7 @@ static void abort_network_query(int sig _U_)
 static gchar *host_name_lookup(guint addr, gboolean *found)
 {
   int hash_idx;
-  hashname_t * volatile tp;
+  hashipv4_t * volatile tp;
   struct hostent *hostp;
 #ifdef HAVE_GNU_ADNS
   adns_queue_msg_t *qmsg;
@@ -332,10 +344,10 @@ static gchar *host_name_lookup(guint addr, gboolean *found)
 
   hash_idx = HASH_IPV4_ADDRESS(addr);
 
-  tp = host_table[hash_idx];
+  tp = ipv4_table[hash_idx];
 
   if( tp == NULL ) {
-    tp = host_table[hash_idx] = (hashname_t *)g_malloc(sizeof(hashname_t));
+    tp = ipv4_table[hash_idx] = (hashipv4_t *)g_malloc(sizeof(hashipv4_t));
   } else {
     while(1) {
       if( tp->addr == addr ) {
@@ -344,7 +356,7 @@ static gchar *host_name_lookup(guint addr, gboolean *found)
 	return tp->name;
       }
       if (tp->next == NULL) {
-	tp->next = (hashname_t *)g_malloc(sizeof(hashname_t));
+	tp->next = (hashipv4_t *)g_malloc(sizeof(hashipv4_t));
 	tp = tp->next;
 	break;
       }
@@ -1481,14 +1493,14 @@ read_hosts_file (FILE *hf)
       continue; /* no host name */
 
     if (!is_ipv6)
-      add_host_name(host_addr[0], cp);
+      add_ipv4_name(host_addr[0], cp);
 
     /*
      * Add the aliases, too, if there are any.
      */
     while ((cp = strtok(NULL, " \t")) != NULL) {
       if (!is_ipv6)
-        add_host_name(host_addr[0], cp);
+        add_ipv4_name(host_addr[0], cp);
     }
   }
   if (line != NULL)
@@ -1582,7 +1594,7 @@ host_name_lookup_process(gpointer data _U_) {
       ret = adns_check(ads, &almsg->query, &ans, NULL);
       if (ret == 0) {
 	if (ans->status == adns_s_ok) {
-	  add_host_name(almsg->ip4_addr, *ans->rrs.str);
+	  add_ipv4_name(almsg->ip4_addr, *ans->rrs.str);
 	}
 	dequeue = TRUE;
       }
@@ -1660,17 +1672,17 @@ extern const gchar *get_hostname6(struct e_in6_addr *addr)
   return host_name_lookup6(addr, &found);
 }
 
-extern void add_host_name(guint addr, const gchar *name)
+extern void add_ipv4_name(guint addr, const gchar *name)
 {
   int hash_idx;
-  hashname_t *tp;
+  hashipv4_t *tp;
 
   hash_idx = HASH_IPV4_ADDRESS(addr);
 
-  tp = host_table[hash_idx];
+  tp = ipv4_table[hash_idx];
 
   if( tp == NULL ) {
-    tp = host_table[hash_idx] = (hashname_t *)g_malloc(sizeof(hashname_t));
+    tp = ipv4_table[hash_idx] = (hashipv4_t *)g_malloc(sizeof(hashipv4_t));
   } else {
     while(1) {
       if (tp->addr == addr) {
@@ -1683,7 +1695,7 @@ extern void add_host_name(guint addr, const gchar *name)
 	}
       }
       if (tp->next == NULL) {
-	tp->next = (hashname_t *)g_malloc(sizeof(hashname_t));
+	tp->next = (hashipv4_t *)g_malloc(sizeof(hashipv4_t));
 	tp = tp->next;
 	break;
       }
@@ -1697,7 +1709,7 @@ extern void add_host_name(guint addr, const gchar *name)
   tp->next = NULL;
   tp->is_dummy_entry = FALSE;
 
-} /* add_host_name */
+} /* add_ipv4_name */
 
 extern gchar *get_udp_port(guint port)
 {

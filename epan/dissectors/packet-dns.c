@@ -1016,7 +1016,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       }
       if ((class & 0x7f) == C_IN) {
 	memcpy(&addr_int, addr, sizeof(addr_int));
-	add_host_name(addr_int, name);
+	add_ipv4_name(addr_int, name);
       }
     }
     break;
