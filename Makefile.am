@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.233 2000/10/14 03:53:24 gram Exp $
+# $Id: Makefile.am,v 1.234 2000/10/14 04:31:24 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -264,8 +264,6 @@ ETHEREAL_COMMON_SOURCES = \
 	etypes.h       \
 	follow.c       \
 	follow.h       \
-	inet_aton.h    \
-	inet_v6defs.h  \
 	ipproto.c      \
 	llcsaps.h      \
 	nlpid.h        \
@@ -315,10 +313,7 @@ EXTRA_ethereal_SOURCES = \
 	strcasecmp.c	\
 	strncasecmp.c	\
 	mkstemp.c	\
-	mkstemp.h	\
-	inet_aton.c     \
-	inet_pton.c     \
-	inet_ntop.c
+	mkstemp.h
 
 # Optional objects that I know how to build. These will be
 # linked into the ethereal executable.

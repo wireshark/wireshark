@@ -7,6 +7,12 @@ CFLAGS=/MT /DHAVE_CONFIG_H /I. /I.. /I../wiretap \
 	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
 	/I$(PCAP_DIR)\include $(LOCAL_CFLAGS)
 
+# For use when making ethereal.dll
+libethereal_LIBS = \
+	wsock32.lib user32.lib \
+	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
+	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib
+
 {$S}.c{$O}.obj::
    $(CC) $(CFLAGS) -Fd$O\ -c $<
 
@@ -17,6 +23,9 @@ OBJECTS=conversation.obj \
 	epan.obj         \
 	except.obj       \
 	filesystem.obj   \
+	inet_aton.obj	\
+	inet_pton.obj	\
+	inet_ntop.obj	\
 	ipv4.obj         \
 	packet.obj       \
 	plugins.obj      \
@@ -25,8 +34,12 @@ OBJECTS=conversation.obj \
 	strutil.obj      \
 	tvbuff.obj       \
 
+# For use when making ethereal.dll
+#ethereal.dll ethereal.lib	: ..\config.h $(OBJECTS)
+#	link /DLL /out:ethereal.dll $(OBJECTS) $(libethereal_LIBS)
+
 ethereal.lib	: ..\config.h $(OBJECTS)
-	lib /out:ethereal.lib $(OBJECTS)	
+	lib /out:ethereal.lib $(OBJECTS)
 
 dfilter-scanner.obj : dfilter-scanner.c dfilter-grammar.h
 

@@ -20,7 +20,7 @@
 #endif
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$Id: inet_ntop.c,v 1.4 2000/08/11 13:34:52 deniel Exp $";
+static char rcsid[] = "$Id: inet_ntop.c,v 1.1 2000/10/14 04:31:26 gram Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #ifdef HAVE_SYS_PARAM_H

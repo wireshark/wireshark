@@ -1,6 +1,6 @@
 /* inet_v6defs.h
  *
- * $Id: inet_v6defs.h,v 1.4 2000/08/11 13:34:19 deniel Exp $
+ * $Id: inet_v6defs.h,v 1.1 2000/10/14 04:31:26 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

@@ -1,6 +1,6 @@
 /* inet_aton.h
  *
- * $Id: inet_aton.h,v 1.2 2000/08/11 13:34:19 deniel Exp $
+ * $Id: inet_aton.h,v 1.1 2000/10/14 04:31:26 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
