@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: ansi_a_stat.c,v 1.1 2003/12/03 23:46:23 guy Exp $
+ * $Id: ansi_a_stat.c,v 1.2 2003/12/09 18:49:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -288,7 +288,8 @@ ansi_a_stat_gtk_win_destroy_cb(
 
 static void
 ansi_a_stat_gtk_win_create(
-    ansi_a_stat_dlg_t	*dlg_p)
+    ansi_a_stat_dlg_t	*dlg_p,
+    char		*title)
 {
 #define	INIT_TABLE_NUM_COLUMNS	3
     char		*default_titles[] = { "IEI", "Message Name", "Count" };
@@ -307,7 +308,7 @@ ansi_a_stat_gtk_win_create(
 
     dlg_p->win = gtk_dialog_new();
     gtk_window_set_default_size(GTK_WINDOW(dlg_p->win), 480, 450);
-    gtk_window_set_title(GTK_WINDOW(dlg_p->win), "ANSI A-Interface Statistics");
+    gtk_window_set_title(GTK_WINDOW(dlg_p->win), title);
     SIGNAL_CONNECT(dlg_p->win, "destroy", ansi_a_stat_gtk_win_destroy_cb, dlg_p);
 
     dialog_vbox = GTK_DIALOG(dlg_p->win)->vbox;
@@ -461,12 +462,12 @@ ansi_a_stat_gtk_bsmap_cb(
 	return;
     }
 
-    ansi_a_stat_gtk_win_create(&dlg_bsmap);
+    ansi_a_stat_gtk_win_create(&dlg_bsmap, "ANSI A-I/F BSMAP Statistics");
 
     i = 0;
     while (ansi_a_ios401_bsmap_strings[i].strptr)
     {
-	sprintf(str, "0x%02x", i);
+	sprintf(str, "0x%02x", ansi_a_ios401_bsmap_strings[i].value);
 	dlg_bsmap.entries[0] = g_strdup(str);
 
 	dlg_bsmap.entries[1] = g_strdup(ansi_a_ios401_bsmap_strings[i].strptr);
@@ -501,12 +502,12 @@ ansi_a_stat_gtk_dtap_cb(
 	return;
     }
 
-    ansi_a_stat_gtk_win_create(&dlg_dtap);
+    ansi_a_stat_gtk_win_create(&dlg_dtap, "ANSI A-I/F DTAP Statistics");
 
     i = 0;
     while (ansi_a_ios401_dtap_strings[i].strptr)
     {
-	sprintf(str, "0x%02x", i);
+	sprintf(str, "0x%02x", ansi_a_ios401_dtap_strings[i].value);
 	dlg_dtap.entries[0] = g_strdup(str);
 
 	dlg_dtap.entries[1] = g_strdup(ansi_a_ios401_dtap_strings[i].strptr);

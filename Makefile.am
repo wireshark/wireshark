@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.664 2003/12/06 16:35:17 gram Exp $
+# $Id: Makefile.am,v 1.665 2003/12/09 18:49:30 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -664,6 +664,7 @@ noinst_HEADERS = \
 	packet-frame.h  \
 	packet-giop.h  \
 	packet-gnutella.h \
+	packet-gsm_a.h  \
 	packet-gssapi.h \
 	packet-gtp.h    \
 	packet-h225.h    \
@@ -937,6 +938,7 @@ TETHEREAL_TAP_SRC = \
 	tap-ansi_astat.c	\
 	tap-bootpstat.c		\
 	tap-dcerpcstat.c	\
+	tap-gsm_astat.c		\
 	tap-h225counter.c	\
 	tap-h225rassrt.c	\
 	tap-httpstat.c		\

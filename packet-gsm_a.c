@@ -38,7 +38,7 @@
  *   Formats and coding
  *   (3GPP TS 24.080 version 4.3.0 Release 4)
  *
- * $Id: packet-gsm_a.c,v 1.7 2003/12/08 23:40:12 guy Exp $
+ * $Id: packet-gsm_a.c,v 1.8 2003/12/09 18:49:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,12 +70,14 @@
 
 #include "epan/packet.h"
 #include "prefs.h"
+#include "tap.h"
 
 #include "packet-bssap.h"
+#include "packet-gsm_a.h"
 
 /* PROTOTYPES/FORWARDS */
 
-static const value_string gsm_bssmap_msg_strings[] = {
+const value_string gsm_a_bssmap_msg_strings[] = {
     { 0x01,	"Assignment Request" },
     { 0x02,	"Assignment Complete" },
     { 0x03,	"Assignment Failure" },
@@ -153,7 +155,7 @@ static const value_string gsm_bssmap_msg_strings[] = {
     { 0, NULL },
 };
 
-static const value_string gsm_dtap_msg_mm_strings[] = {
+const value_string gsm_a_dtap_msg_mm_strings[] = {
     { 0x01,	"IMSI Detach Indication" },
     { 0x02,	"Location Updating Accept" },
     { 0x04,	"Location Updating Reject" },
@@ -180,7 +182,7 @@ static const value_string gsm_dtap_msg_mm_strings[] = {
     { 0, NULL },
 };
 
-static const value_string gsm_dtap_msg_rr_strings[] = {
+const value_string gsm_a_dtap_msg_rr_strings[] = {
     { 0x3c,	"RR Initialisation Request" },
     { 0x3b,	"Additional Assignment" },
     { 0x3f,	"Immediate Assignment" },
@@ -278,7 +280,7 @@ static const value_string gsm_dtap_msg_rr_strings[] = {
     { 0, NULL },
 };
 
-static const value_string gsm_dtap_msg_cc_strings[] = {
+const value_string gsm_a_dtap_msg_cc_strings[] = {
     { 0x01,	"Alerting" },
     { 0x08,	"Call Confirmed" },
     { 0x02,	"Call Proceeding" },
@@ -317,7 +319,7 @@ static const value_string gsm_dtap_msg_cc_strings[] = {
     { 0, NULL },
 };
 
-static const value_string gsm_dtap_msg_gmm_strings[] = {
+const value_string gsm_a_dtap_msg_gmm_strings[] = {
     { 0x01,	"Attach Request" },
     { 0x02,	"Attach Accept" },
     { 0x03,	"Attach Complete" },
@@ -344,14 +346,14 @@ static const value_string gsm_dtap_msg_gmm_strings[] = {
     { 0, NULL },
 };
 
-static const value_string gsm_dtap_msg_sms_strings[] = {
+const value_string gsm_a_dtap_msg_sms_strings[] = {
     { 0x01,	"CP-DATA" },
     { 0x04,	"CP-ACK" },
     { 0x10,	"CP-ERROR" },
     { 0, NULL },
 };
 
-static const value_string gsm_dtap_msg_sm_strings[] = {
+const value_string gsm_a_dtap_msg_sm_strings[] = {
     { 0x41,	"Activate PDP Context Request" },
     { 0x42,	"Activate PDP Context Accept" },
     { 0x43,	"Activate PDP Context Reject" },
@@ -376,7 +378,7 @@ static const value_string gsm_dtap_msg_sm_strings[] = {
     { 0, NULL },
 };
 
-static const value_string gsm_dtap_msg_ss_strings[] = {
+const value_string gsm_a_dtap_msg_ss_strings[] = {
     { 0x2a,	"Release Complete" },
     { 0x3a,	"Facility" },
     { 0x3b,	"Register" },
@@ -596,7 +598,7 @@ static const value_string gsm_dtap_elem_strings[] = {
     { 0, NULL },
 };
 
-static const gchar *pd_str[] = {
+const gchar *gsm_a_pd_str[] = {
     "Group Call Control",
     "Broadcast Call Control",
     "Reserved: was allocated in earlier phases of the protocol",
@@ -655,6 +657,8 @@ static const gchar *cell_disc_str[] = {
 static int proto_a_bssmap = -1;
 static int proto_a_dtap = -1;
 static int proto_a_rp = -1;
+
+static int gsm_a_tap = -1;
 
 static int hf_gsm_a_none = -1;
 static int hf_gsm_a_bssmap_msg_type = -1;
@@ -1283,7 +1287,7 @@ be_l3_header_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	tvb, curr_offset, 1,
 	"%s :  Protocol Discriminator: %s",
 	a_bigbuf,
-	pd_str[oct & DTAP_PD_MASK]);
+	gsm_a_pd_str[oct & DTAP_PD_MASK]);
 
     curr_offset++;
 
@@ -3442,7 +3446,7 @@ de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
     proto_tree_add_text(subtree, tvb, curr_offset, 1,
 	"%s :  PD (Protocol Discriminator): %s",
 	a_bigbuf,
-	pd_str[oct & 0x0f]);
+	gsm_a_pd_str[oct & 0x0f]);
 
     curr_offset++;
 
@@ -7980,7 +7984,7 @@ bssmap_conn_oriented(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
-#define	NUM_GSM_BSSMAP_MSG (sizeof(gsm_bssmap_msg_strings)/sizeof(value_string))
+#define	NUM_GSM_BSSMAP_MSG (sizeof(gsm_a_bssmap_msg_strings)/sizeof(value_string))
 static gint ett_gsm_bssmap_msg[NUM_GSM_BSSMAP_MSG];
 static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
     bssmap_ass_req,	/* Assignment Request */
@@ -9851,7 +9855,7 @@ rp_error_ms_n(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
-#define	NUM_GSM_DTAP_MSG_MM (sizeof(gsm_dtap_msg_mm_strings)/sizeof(value_string))
+#define	NUM_GSM_DTAP_MSG_MM (sizeof(gsm_a_dtap_msg_mm_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_mm[NUM_GSM_DTAP_MSG_MM];
 static void (*dtap_msg_mm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
     dtap_mm_imsi_det_ind,	/* IMSI Detach Indication */
@@ -9880,7 +9884,7 @@ static void (*dtap_msg_mm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     NULL,	/* NONE */
 };
 
-#define	NUM_GSM_DTAP_MSG_RR (sizeof(gsm_dtap_msg_rr_strings)/sizeof(value_string))
+#define	NUM_GSM_DTAP_MSG_RR (sizeof(gsm_a_dtap_msg_rr_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_rr[NUM_GSM_DTAP_MSG_RR];
 static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
     NULL,	/* RR Initialisation Request */
@@ -9980,7 +9984,7 @@ static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     NULL,	/* NONE */
 };
 
-#define	NUM_GSM_DTAP_MSG_CC (sizeof(gsm_dtap_msg_cc_strings)/sizeof(value_string))
+#define	NUM_GSM_DTAP_MSG_CC (sizeof(gsm_a_dtap_msg_cc_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_cc[NUM_GSM_DTAP_MSG_CC];
 static void (*dtap_msg_cc_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
     dtap_cc_alerting,	/* Alerting */
@@ -10021,7 +10025,7 @@ static void (*dtap_msg_cc_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     NULL,	/* NONE */
 };
 
-#define	NUM_GSM_DTAP_MSG_GMM (sizeof(gsm_dtap_msg_gmm_strings)/sizeof(value_string))
+#define	NUM_GSM_DTAP_MSG_GMM (sizeof(gsm_a_dtap_msg_gmm_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_gmm[NUM_GSM_DTAP_MSG_GMM];
 static void (*dtap_msg_gmm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
     NULL,	/* Attach Request */
@@ -10050,7 +10054,7 @@ static void (*dtap_msg_gmm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offse
     NULL,	/* NONE */
 };
 
-#define	NUM_GSM_DTAP_MSG_SMS (sizeof(gsm_dtap_msg_sms_strings)/sizeof(value_string))
+#define	NUM_GSM_DTAP_MSG_SMS (sizeof(gsm_a_dtap_msg_sms_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_sms[NUM_GSM_DTAP_MSG_SMS];
 static void (*dtap_msg_sms_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
     dtap_sms_cp_data,	/* CP-DATA */
@@ -10059,7 +10063,7 @@ static void (*dtap_msg_sms_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offse
     NULL,	/* NONE */
 };
 
-#define	NUM_GSM_DTAP_MSG_SM (sizeof(gsm_dtap_msg_sm_strings)/sizeof(value_string))
+#define	NUM_GSM_DTAP_MSG_SM (sizeof(gsm_a_dtap_msg_sm_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_sm[NUM_GSM_DTAP_MSG_SM];
 static void (*dtap_msg_sm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
     NULL,	/* Activate PDP Context Request */
@@ -10086,7 +10090,7 @@ static void (*dtap_msg_sm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     NULL,	/* NONE */
 };
 
-#define	NUM_GSM_DTAP_MSG_SS (sizeof(gsm_dtap_msg_ss_strings)/sizeof(value_string))
+#define	NUM_GSM_DTAP_MSG_SS (sizeof(gsm_a_dtap_msg_ss_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_ss[NUM_GSM_DTAP_MSG_SS];
 static void (*dtap_msg_ss_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
     dtap_cc_release_complete,	/* Release Complete */
@@ -10209,6 +10213,9 @@ dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+    static gsm_a_tap_rec_t	tap_rec[4];
+    static gsm_a_tap_rec_t	*tap_p;
+    static int			tap_current=0;
     guint8	oct;
     guint32	offset, saved_offset;
     guint32	len;
@@ -10224,13 +10231,15 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /*
-     * In the interest of speed, if "tree" is NULL, don't do any work
-     * not necessary to generate protocol tree items.
+     * set tap record pointer
      */
-    if (!tree)
+    tap_current++;
+    if (tap_current == 4)
     {
-	return;
+	tap_current = 0;
     }
+    tap_p = &tap_rec[tap_current];
+
 
     offset = 0;
     saved_offset = offset;
@@ -10245,7 +10254,7 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     oct = tvb_get_guint8(tvb, offset++);
 
-    str = my_match_strval((guint32) oct, gsm_bssmap_msg_strings, &idx);
+    str = my_match_strval((guint32) oct, gsm_a_bssmap_msg_strings, &idx);
 
     /*
      * create the protocol tree
@@ -10280,6 +10289,11 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint_format(bssmap_tree, hf_gsm_a_bssmap_msg_type,
 	tvb, saved_offset, 1, oct, "Message Type");
 
+    tap_p->pdu_type = BSSAP_PDU_TYPE_BSSMAP;
+    tap_p->message_type = oct;
+
+    tap_queue_packet(gsm_a_tap, pinfo, tap_p);
+
     if (str == NULL) return;
 
     if ((len - offset) <= 0) return;
@@ -10303,22 +10317,26 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    void (*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
-    guint8	oct;
-    guint8	pd;
-    guint32	offset;
-    guint32	len;
-    guint32	oct_1, oct_2;
-    gint	idx;
-    proto_item	*dtap_item = NULL;
-    proto_tree	*dtap_tree = NULL;
-    proto_item	*oct_1_item = NULL;
-    proto_tree	*pd_tree = NULL;
-    gchar	*msg_str;
-    const gchar	*str;
-    gint	ett_tree;
-    gint	ti;
-    int		hf_idx;
+    static gsm_a_tap_rec_t	tap_rec[4];
+    static gsm_a_tap_rec_t	*tap_p;
+    static int			tap_current=0;
+    void			(*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
+    guint8			oct;
+    guint8			pd;
+    guint32			offset;
+    guint32			len;
+    guint32			oct_1, oct_2;
+    gint			idx;
+    proto_item			*dtap_item = NULL;
+    proto_tree			*dtap_tree = NULL;
+    proto_item			*oct_1_item = NULL;
+    proto_tree			*pd_tree = NULL;
+    gchar			*msg_str;
+    const gchar			*str;
+    gint			ett_tree;
+    gint			ti;
+    int				hf_idx;
+    gboolean			nsd;
 
 
     len = tvb_length(tvb);
@@ -10338,13 +10356,15 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /*
-     * In the interest of speed, if "tree" is NULL, don't do any work
-     * not necessary to generate protocol tree items.
+     * set tap record pointer
      */
-    if (!tree)
+    tap_current++;
+    if (tap_current == 4)
     {
-	return;
+	tap_current = 0;
     }
+    tap_p = &tap_rec[tap_current];
+
 
     offset = 0;
     oct_2 = 0;
@@ -10375,6 +10395,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ett_tree = -1;
     hf_idx = -1;
     msg_fcn = NULL;
+    nsd = FALSE;
 
     /*
      * octet 1
@@ -10382,41 +10403,43 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch (pd)
     {
     case 3:
-	str = pd_str[pd];
-	msg_str = my_match_strval((guint32) (oct & DTAP_CC_IEI_MASK), gsm_dtap_msg_cc_strings, &idx);
+	str = gsm_a_pd_str[pd];
+	msg_str = my_match_strval((guint32) (oct & DTAP_CC_IEI_MASK), gsm_a_dtap_msg_cc_strings, &idx);
 	ett_tree = ett_gsm_dtap_msg_cc[idx];
 	hf_idx = hf_gsm_a_dtap_msg_cc_type;
 	msg_fcn = dtap_msg_cc_fcn[idx];
 	ti = (oct_1 & DTAP_TI_MASK) >> 4;
+	nsd = TRUE;
 	break;
 
     case 5:
-	str = pd_str[pd];
-	msg_str = my_match_strval((guint32) (oct & DTAP_MM_IEI_MASK), gsm_dtap_msg_mm_strings, &idx);
+	str = gsm_a_pd_str[pd];
+	msg_str = my_match_strval((guint32) (oct & DTAP_MM_IEI_MASK), gsm_a_dtap_msg_mm_strings, &idx);
 	ett_tree = ett_gsm_dtap_msg_mm[idx];
 	hf_idx = hf_gsm_a_dtap_msg_mm_type;
 	msg_fcn = dtap_msg_mm_fcn[idx];
+	nsd = TRUE;
 	break;
 
     case 6:
-	str = pd_str[pd];
-	msg_str = my_match_strval((guint32) (oct & DTAP_RR_IEI_MASK), gsm_dtap_msg_rr_strings, &idx);
+	str = gsm_a_pd_str[pd];
+	msg_str = my_match_strval((guint32) (oct & DTAP_RR_IEI_MASK), gsm_a_dtap_msg_rr_strings, &idx);
 	ett_tree = ett_gsm_dtap_msg_rr[idx];
 	hf_idx = hf_gsm_a_dtap_msg_rr_type;
 	msg_fcn = dtap_msg_rr_fcn[idx];
 	break;
 
     case 8:
-	str = pd_str[pd];
-	msg_str = my_match_strval((guint32) (oct & DTAP_GMM_IEI_MASK), gsm_dtap_msg_gmm_strings, &idx);
+	str = gsm_a_pd_str[pd];
+	msg_str = my_match_strval((guint32) (oct & DTAP_GMM_IEI_MASK), gsm_a_dtap_msg_gmm_strings, &idx);
 	ett_tree = ett_gsm_dtap_msg_gmm[idx];
 	hf_idx = hf_gsm_a_dtap_msg_gmm_type;
 	msg_fcn = dtap_msg_gmm_fcn[idx];
 	break;
 
     case 9:
-	str = pd_str[pd];
-	msg_str = my_match_strval((guint32) (oct & DTAP_SMS_IEI_MASK), gsm_dtap_msg_sms_strings, &idx);
+	str = gsm_a_pd_str[pd];
+	msg_str = my_match_strval((guint32) (oct & DTAP_SMS_IEI_MASK), gsm_a_dtap_msg_sms_strings, &idx);
 	ett_tree = ett_gsm_dtap_msg_sms[idx];
 	hf_idx = hf_gsm_a_dtap_msg_sms_type;
 	msg_fcn = dtap_msg_sms_fcn[idx];
@@ -10424,8 +10447,8 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
 
     case 10:
-	str = pd_str[pd];
-	msg_str = my_match_strval((guint32) (oct & DTAP_SM_IEI_MASK), gsm_dtap_msg_sm_strings, &idx);
+	str = gsm_a_pd_str[pd];
+	msg_str = my_match_strval((guint32) (oct & DTAP_SM_IEI_MASK), gsm_a_dtap_msg_sm_strings, &idx);
 	ett_tree = ett_gsm_dtap_msg_sm[idx];
 	hf_idx = hf_gsm_a_dtap_msg_sm_type;
 	msg_fcn = dtap_msg_sm_fcn[idx];
@@ -10433,16 +10456,17 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
 
     case 11:
-	str = pd_str[pd];
-	msg_str = my_match_strval((guint32) (oct & DTAP_SS_IEI_MASK), gsm_dtap_msg_ss_strings, &idx);
+	str = gsm_a_pd_str[pd];
+	msg_str = my_match_strval((guint32) (oct & DTAP_SS_IEI_MASK), gsm_a_dtap_msg_ss_strings, &idx);
 	ett_tree = ett_gsm_dtap_msg_ss[idx];
 	hf_idx = hf_gsm_a_dtap_msg_ss_type;
 	msg_fcn = dtap_msg_ss_fcn[idx];
 	ti = (oct_1 & DTAP_TI_MASK) >> 4;
+	nsd = TRUE;
 	break;
 
     default:
-	str = pd_str[pd];
+	str = gsm_a_pd_str[pd];
 	break;
     }
 
@@ -10544,9 +10568,13 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /*
-     * XXX
      * N(SD)
      */
+    if ((pinfo->p2p_dir == P2P_DIR_RECV) &&
+	nsd)
+    {
+	/* XXX */
+    }
 
     /*
      * add DTAP message name
@@ -10556,6 +10584,12 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	"Message Type");
 
     offset++;
+
+    tap_p->pdu_type = BSSAP_PDU_TYPE_DTAP;
+    tap_p->message_type = (nsd ? (oct & 0x3f) : oct);
+    tap_p->protocol_disc = pd;
+
+    tap_queue_packet(gsm_a_tap, pinfo, tap_p);
 
     if (msg_str == NULL) return;
 
@@ -10590,42 +10624,42 @@ proto_register_gsm_a(void)
     {
 	{ &hf_gsm_a_bssmap_msg_type,
 	    { "BSSMAP Message Type",	"gsm_a.bssmap_msgtype",
-	    FT_UINT8, BASE_HEX, VALS(gsm_bssmap_msg_strings), 0x0,
+	    FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_msg_strings), 0x0,
 	    "", HFILL }
 	},
 	{ &hf_gsm_a_dtap_msg_mm_type,
 	    { "DTAP Mobility Management Message Type",	"gsm_a.dtap_msg_mm_type",
-	    FT_UINT8, BASE_HEX, VALS(gsm_dtap_msg_mm_strings), 0x0,
+	    FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_mm_strings), 0x0,
 	    "", HFILL }
 	},
 	{ &hf_gsm_a_dtap_msg_rr_type,
 	    { "DTAP Radio Resources Management Message Type",	"gsm_a.dtap_msg_rr_type",
-	    FT_UINT8, BASE_HEX, VALS(gsm_dtap_msg_rr_strings), 0x0,
+	    FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_rr_strings), 0x0,
 	    "", HFILL }
 	},
 	{ &hf_gsm_a_dtap_msg_cc_type,
 	    { "DTAP Call Control Message Type",	"gsm_a.dtap_msg_cc_type",
-	    FT_UINT8, BASE_HEX, VALS(gsm_dtap_msg_cc_strings), 0x0,
+	    FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_cc_strings), 0x0,
 	    "", HFILL }
 	},
 	{ &hf_gsm_a_dtap_msg_gmm_type,
 	    { "DTAP GPRS Mobility Management Message Type",	"gsm_a.dtap_msg_gmm_type",
-	    FT_UINT8, BASE_HEX, VALS(gsm_dtap_msg_gmm_strings), 0x0,
+	    FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_gmm_strings), 0x0,
 	    "", HFILL }
 	},
 	{ &hf_gsm_a_dtap_msg_sms_type,
 	    { "DTAP Short Message Service Message Type",	"gsm_a.dtap_msg_sms_type",
-	    FT_UINT8, BASE_HEX, VALS(gsm_dtap_msg_sms_strings), 0x0,
+	    FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_sms_strings), 0x0,
 	    "", HFILL }
 	},
 	{ &hf_gsm_a_dtap_msg_sm_type,
 	    { "DTAP GPRS Session Management Message Type",	"gsm_a.dtap_msg_sm_type",
-	    FT_UINT8, BASE_HEX, VALS(gsm_dtap_msg_sm_strings), 0x0,
+	    FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_sm_strings), 0x0,
 	    "", HFILL }
 	},
 	{ &hf_gsm_a_dtap_msg_ss_type,
 	    { "DTAP Non call Supplementary Service Message Type",	"gsm_a.dtap_msg_ss_type",
-	    FT_UINT8, BASE_HEX, VALS(gsm_dtap_msg_ss_strings), 0x0,
+	    FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_ss_strings), 0x0,
 	    "", HFILL }
 	},
 	{ &hf_gsm_a_rp_msg_type,
@@ -10817,6 +10851,8 @@ proto_register_gsm_a(void)
 	FT_UINT8, BASE_DEC);
 
     proto_register_subtree_array(ett, array_length(ett));
+
+    gsm_a_tap = register_tap("gsm_a");
 }
 
 

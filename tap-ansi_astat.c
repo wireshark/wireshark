@@ -3,7 +3,7 @@
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
- * $Id: tap-ansi_astat.c,v 1.2 2003/12/03 23:46:22 guy Exp $
+ * $Id: tap-ansi_astat.c,v 1.3 2003/12/09 18:49:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -106,7 +106,7 @@ ansi_a_stat_draw(
 	if (stat_p->bsmap_message_type[ansi_a_ios401_bsmap_strings[i].value] > 0)
 	{
 	    printf("0x%02x  %-50s%d\n",
-		i,
+		ansi_a_ios401_bsmap_strings[i].value,
 		ansi_a_ios401_bsmap_strings[i].strptr,
 		stat_p->bsmap_message_type[ansi_a_ios401_bsmap_strings[i].value]);
 	}
@@ -123,7 +123,7 @@ ansi_a_stat_draw(
 	if (stat_p->dtap_message_type[ansi_a_ios401_dtap_strings[i].value] > 0)
 	{
 	    printf("0x%02x  %-50s%d\n",
-		i,
+		ansi_a_ios401_dtap_strings[i].value,
 		ansi_a_ios401_dtap_strings[i].strptr,
 		stat_p->dtap_message_type[ansi_a_ios401_dtap_strings[i].value]);
 	}
