@@ -413,8 +413,12 @@ dissect_payload_kink_ap_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   /* Analize time by the utc. */ 
   timer = tvb_get_ntohl(tvb, offset);
   tp = gmtime(&timer);
-  proto_tree_add_text(payload_kink_ap_rep_tree, tvb, offset, 4, "EPOCH: month  %u. day %u. year %u.%u.%u.%u by UTC", 
+  if(tp){
+    proto_tree_add_text(payload_kink_ap_rep_tree, tvb, offset, 4, "EPOCH: month  %u. day %u. year %u.%u.%u.%u by UTC", 
 		      (tp->tm_mon)+1, tp->tm_mday, (tp->tm_year)+1900, tp->tm_hour, tp->tm_min, tp->tm_sec);
+  } else {
+    proto_tree_add_text(payload_kink_ap_rep_tree, tvb, offset, 4, "EPOCH: value invalid");
+  }
   offset += 4;
 
   if(payload_length > PAYLOAD_HEADER){
@@ -821,7 +825,11 @@ dissect_payload_kink_not_defined(packet_info *pinfo, tvbuff_t *tvb, int offset, 
     payload_length += (PADDING - (payload_length % PADDING));
   }
   offset = start_payload_offset + payload_length;
-  control_payload(pinfo, tvb, offset, next_payload, tree);
+
+  /* XXX - prevent an endless loop if payload_length is 0, don't know the correct way to handle this! */
+  if(payload_length != 0) {
+    control_payload(pinfo, tvb, offset, next_payload, tree);
+  }
 }
 
 /* Output part */
