@@ -512,6 +512,7 @@ Ronnie Sahlberg <rsahlber@bigpond.net.au> {
 	rquota support completed
 	XDR array support
 	NIS+ support
+	Rewritten IGMP dissector
 }
 
 Borosa Tomislav <tomislav.borosa@SIEMENS.HR> {

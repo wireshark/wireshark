@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.131 2001/04/18 04:53:51 guy Exp $
+ * $Id: packet-ip.c,v 1.132 2001/05/20 22:20:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -58,7 +58,6 @@
 #include "nlpid.h"
 
 static void dissect_icmp(tvbuff_t *, packet_info *, proto_tree *);
-static void dissect_igmp(tvbuff_t *, packet_info *, proto_tree *);
 
 /* Decode the old IPv4 TOS field as the DiffServ DS Field */
 static gboolean g_ip_dscp_actif = TRUE;
@@ -114,15 +113,6 @@ static gint ett_ip_fragment  = -1;
 /* Used by IPv6 as well, so not static */
 dissector_table_t ip_dissector_table;
 
-static int proto_igmp = -1;
-static int hf_igmp_version = -1;
-static int hf_igmp_type = -1;
-static int hf_igmp_unused = -1;
-static int hf_igmp_checksum = -1;
-static int hf_igmp_group = -1;
-
-static gint ett_igmp = -1;
-
 static int proto_icmp = -1;
 static int hf_icmp_type = -1;
 static int hf_icmp_code = -1;
@@ -168,23 +158,6 @@ static gint ett_icmp = -1;
 #define ICMP_PREC_VIOLATION     14      /* Precedence violation */
 #define ICMP_PREC_CUTOFF        15      /* Precedence cut off */
 
-
-/* IGMP structs and definitions */
-typedef struct _e_igmp {
-  guint8  igmp_v_t; /* combines igmp_v and igmp_t */
-  guint8  igmp_unused;
-  guint16 igmp_cksum;
-  guint32 igmp_gaddr;
-} e_igmp;
-
-#define IGMP_M_QRY     0x01
-#define IGMP_V1_M_RPT  0x02
-#define IGMP_V2_LV_GRP 0x07
-#define IGMP_DVMRP     0x03
-#define IGMP_PIM       0x04
-#define IGMP_V2_M_RPT  0x06
-#define IGMP_MTRC_RESP 0x1e
-#define IGMP_MTRC      0x1f
 
 /* IP structs and definitions */
 
@@ -1718,109 +1691,6 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
     }
   }
-}
-
-static void
-dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  e_igmp     ih;
-  proto_tree *igmp_tree;
-  proto_item *ti;
-  gchar      *type_str;
-
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "IGMP");
-  if (check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
-
-  /* Avoids alignment problems on many architectures. */
-  memcpy(&ih, tvb_get_ptr(tvb, 0, sizeof(e_igmp)), sizeof(e_igmp));
-  
-  switch (lo_nibble(ih.igmp_v_t)) {
-    case IGMP_M_QRY:
-      type_str = "Router query";
-      break;
-    case IGMP_V1_M_RPT:
-      type_str = "Host response (v1)";
-      break;
-    case IGMP_V2_LV_GRP:
-      type_str = "Leave group (v2)";
-      break;
-    case IGMP_DVMRP:
-      type_str = "DVMRP";
-      break;
-    case IGMP_PIM:
-      type_str = "PIM";
-      break;
-    case IGMP_V2_M_RPT:
-      type_str = "Host response (v2)";
-      break;
-    case IGMP_MTRC_RESP:
-      type_str = "Traceroute response";
-      break;
-    case IGMP_MTRC:
-      type_str = "Traceroute message";
-      break;
-    default:
-      type_str = "Unknown IGMP";
-  }
-
-  if (check_col(pinfo->fd, COL_INFO))
-    col_add_str(pinfo->fd, COL_INFO, type_str);
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_igmp, tvb, 0, 8, FALSE);
-    igmp_tree = proto_item_add_subtree(ti, ett_igmp);
-    proto_tree_add_uint(igmp_tree, hf_igmp_version, tvb, 0,     1, 
-			hi_nibble(ih.igmp_v_t));
-    proto_tree_add_uint_format(igmp_tree, hf_igmp_type, tvb,  0    , 1, 
-			       lo_nibble(ih.igmp_v_t),
-			       "Type: %u (%s)",
-			       lo_nibble(ih.igmp_v_t), type_str);
-    proto_tree_add_item(igmp_tree, hf_igmp_unused, tvb,  1, 1, FALSE);
-    proto_tree_add_item(igmp_tree, hf_igmp_checksum, tvb,  2, 2, FALSE);
-    proto_tree_add_ipv4(igmp_tree, hf_igmp_group, tvb,  4, 4, ih.igmp_gaddr);
-  }
-}
-
-void
-proto_register_igmp(void)
-{
-	static hf_register_info hf[] = {
-
-		{ &hf_igmp_version,
-		{ "Version",		"igmp.version", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"" }},
-
-		{ &hf_igmp_type,
-		{ "Type",		"igmp.type", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"" }},
-
-		{ &hf_igmp_unused,
-		{ "Unused",		"igmp.unused", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"" }},
-
-		{ &hf_igmp_checksum,
-		{ "Checksum",		"igmp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"" }},
-
-		{ &hf_igmp_group,
-		{ "Group address",	"igmp.group", FT_IPv4, BASE_NONE, NULL, 0x0,
-			"" }},
-	};
-	static gint *ett[] = {
-		&ett_igmp,
-	};
-
-	proto_igmp = proto_register_protocol("Internet Group Management Protocol",
-	    "IGMP", "igmp");
-	proto_register_field_array(proto_igmp, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
-}
-
-void
-proto_reg_handoff_igmp(void)
-{
-	dissector_add("ip.proto", IP_PROTO_IGMP, dissect_igmp, proto_igmp);
 }
 
 void
