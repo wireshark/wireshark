@@ -8,7 +8,7 @@
 /* packet-x509af.c
  * Routines for X.509 Authentication Framework packet dissection
  *
- * $Id: packet-x509af-template.c 12245 2004-10-08 20:28:04Z guy $
+ * $Id: packet-x509af-template.c 12392 2004-10-26 13:04:09Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,6 +75,8 @@ static int hf_x509af_subjectUniqueIdentifier = -1;  /* UniqueIdentifier */
 static int hf_x509af_extensions = -1;             /* Extensions */
 static int hf_x509af_algorithmIdentifier = -1;    /* AlgorithmIdentifier */
 static int hf_x509af_encrypted = -1;              /* BIT_STRING */
+static int hf_x509af_algorithmId = -1;            /* T_algorithmId */
+static int hf_x509af_parameters = -1;             /* T_parameters */
 static int hf_x509af_notBefore = -1;              /* Time */
 static int hf_x509af_notAfter = -1;               /* Time */
 static int hf_x509af_algorithm = -1;              /* AlgorithmIdentifier */
@@ -164,6 +166,8 @@ static gint ett_x509af_SET_OF_AttributeType = -1;
 /*--- End of included file: packet-x509af-ett.c ---*/
 
 
+static char algorithm_id[64]; /*64 chars should be long enough? */
+
 
 static char extension_id[64]; /*64 chars should be long enough? */
 static int 
@@ -203,38 +207,6 @@ static int
 dissect_x509af_Extension(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 Extension_sequence, hf_index, ett_x509af_Extension);
-
-  return offset;
-}
-
-static char algorithm_id[64]; /*64 chars should be long enough? */
-static int 
-dissect_hf_x509af_algorithm_id(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) 
-{
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_x509af_algorithm_id, algorithm_id);
-  return offset;
-}
-
-static int 
-dissect_hf_x509af_algorithm_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) 
-{
-  offset=call_ber_oid_callback(algorithm_id, tvb, offset, pinfo, tree);
-
-  return offset;
-}
-
-/* Algorithm Identifier can not yet be handled by the compiler */
-static const ber_sequence AlgorithmIdentifier_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_hf_x509af_algorithm_id },
-  { BER_CLASS_ANY, 0, 0, dissect_hf_x509af_algorithm_type },
-  { 0, 0, 0, NULL }
-};
-
-int
-dissect_x509af_AlgorithmIdentifier(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                AlgorithmIdentifier_sequence, hf_index, ett_x509af_AlgorithmIdentifier);
 
   return offset;
 }
@@ -318,6 +290,44 @@ static int dissect_serial(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
   return dissect_x509af_CertificateSerialNumber(FALSE, tvb, offset, pinfo, tree, hf_x509af_serial);
 }
 
+
+static int
+dissect_x509af_T_algorithmId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                 hf_x509af_algorithm_id, algorithm_id);
+
+
+  return offset;
+}
+static int dissect_algorithmId(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509af_T_algorithmId(FALSE, tvb, offset, pinfo, tree, hf_x509af_algorithmId);
+}
+
+
+static int
+dissect_x509af_T_parameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset=call_ber_oid_callback(algorithm_id, tvb, offset, pinfo, tree);
+
+
+  return offset;
+}
+static int dissect_parameters(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509af_T_parameters(FALSE, tvb, offset, pinfo, tree, hf_x509af_parameters);
+}
+
+static const ber_sequence AlgorithmIdentifier_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_algorithmId },
+  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_parameters },
+  { 0, 0, 0, NULL }
+};
+
+int
+dissect_x509af_AlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                AlgorithmIdentifier_sequence, hf_index, ett_x509af_AlgorithmIdentifier);
+
+  return offset;
+}
 static int dissect_signature(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509af_AlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_x509af_signature);
 }
@@ -1012,6 +1022,14 @@ void proto_register_x509af(void) {
       { "encrypted", "x509af.encrypted",
         FT_BYTES, BASE_HEX, NULL, 0,
         "", HFILL }},
+    { &hf_x509af_algorithmId,
+      { "algorithmId", "x509af.algorithmId",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "AlgorithmIdentifier/algorithmId", HFILL }},
+    { &hf_x509af_parameters,
+      { "parameters", "x509af.parameters",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AlgorithmIdentifier/parameters", HFILL }},
     { &hf_x509af_notBefore,
       { "notBefore", "x509af.notBefore",
         FT_UINT32, BASE_DEC, VALS(Time_vals), 0,
@@ -1257,13 +1275,20 @@ void proto_register_x509af(void) {
 
 /*--- proto_reg_handoff_x509af -------------------------------------------*/
 void proto_reg_handoff_x509af(void) {
-	register_ber_oid_dissector("2.5.4.36", dissect_Certificate_PDU, proto_x509af, "id-at-userCertificate");
-	register_ber_oid_dissector("2.5.4.37", dissect_Certificate_PDU, proto_x509af, "id-at-cAcertificate");
-	register_ber_oid_dissector("2.5.4.38", dissect_CertificateList_PDU, proto_x509af, "id-at-authorityRevocationList");
-	register_ber_oid_dissector("2.5.4.39", dissect_CertificateList_PDU, proto_x509af, "id-at-certificateRevocationList");
-	register_ber_oid_dissector("2.5.4.40", dissect_CertificatePair_PDU, proto_x509af, "id-at-crossCertificatePair");
-	register_ber_oid_dissector("2.5.4.58", dissect_AttributeCertificate_PDU, proto_x509af, "id-at-attributeCertificate");
-	register_ber_oid_dissector("2.5.4.59", dissect_CertificateList_PDU, proto_x509af, "id-at-attributeCertificateRevocationList");
+
+/*--- Included file: packet-x509af-dis-tab.c ---*/
+
+ register_ber_oid_dissector("2.5.4.36", dissect_Certificate_PDU, proto_x509af, "id-at-userCertificate");
+ register_ber_oid_dissector("2.5.4.37", dissect_Certificate_PDU, proto_x509af, "id-at-cAcertificate");
+ register_ber_oid_dissector("2.5.4.38", dissect_CertificateList_PDU, proto_x509af, "id-at-authorityRevocationList");
+ register_ber_oid_dissector("2.5.4.39", dissect_CertificateList_PDU, proto_x509af, "id-at-certificateRevocationList");
+ register_ber_oid_dissector("2.5.4.40", dissect_CertificatePair_PDU, proto_x509af, "id-at-crossCertificatePair");
+ register_ber_oid_dissector("2.5.4.58", dissect_AttributeCertificate_PDU, proto_x509af, "id-at-attributeCertificate");
+ register_ber_oid_dissector("2.5.4.59", dissect_CertificateList_PDU, proto_x509af, "id-at-attributeCertificateRevocationList");
+
+
+/*--- End of included file: packet-x509af-dis-tab.c ---*/
+
 
 	/*XXX these should really go to a better place but since that
 	  I have not that ITU standard, ill put it here for the time

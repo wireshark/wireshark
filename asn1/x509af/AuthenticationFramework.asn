@@ -24,7 +24,9 @@ IMPORTS
     FROM SelectedAttributeTypes selectedAttributeTypes
   certificateExactMatch, certificatePairExactMatch, certificateListExactMatch,
     GeneralNames
-    FROM CertificateExtensions certificateExtensions;
+    FROM CertificateExtensions certificateExtensions
+  Any
+    FROM DummyAF;
 
 --  basic certificate definition
 Certificate ::= SEQUENCE {
@@ -50,10 +52,9 @@ Version ::= INTEGER {v1(0), v2(1), v3(2)}
 
 CertificateSerialNumber ::= INTEGER
 
--- Can not be handled by compiler. Handimplemented in the template
 AlgorithmIdentifier ::= SEQUENCE {
---  algorithm   ALGORITHM.&id({SupportedAlgorithms}),
---  parameters  ALGORITHM.&Type({SupportedAlgorithms}{@algorithm}) OPTIONAL
+  algorithmId OBJECT IDENTIFIER,
+  parameters  Any OPTIONAL
 }
 
 --	Definition of the following information object set is deferred, perhaps to standardized
@@ -79,11 +80,10 @@ Extensions ::= SEQUENCE OF Extension
 
 --  For those extensions where ordering of individual extensions within the SEQUENCE is significant, the
 --  specification of those individual extensions shall include the rules for the significance of the order therein
--- XXX Implemented by hand in the template
 Extension ::= SEQUENCE {
---  extnId     EXTENSION.&id({ExtensionSet}),
---  critical   BOOLEAN DEFAULT FALSE,
---  extnValue  OCTET STRING
+  extnId     OBJECT IDENTIFIER,
+  critical   BOOLEAN DEFAULT FALSE,
+  extnValue  Any
 --    contains a DER encoding of a value of type &ExtnType
 --    for the extension object identified by extnId 
 }

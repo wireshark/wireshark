@@ -11,9 +11,10 @@ SelectedAttributeTypes x509sat
 #.INCLUDE ../x509ce/x509ce_exp.cnf
 #.INCLUDE ../x509if/x509if_exp.cnf
 #.INCLUDE ../x509sat/x509sat_exp.cnf
+#.INCLUDE ./x509af_dummy.cnf
 
 #.EXPORTS
-
+AlgorithmIdentifier
 AttributeCertificate
 AttributeCertificateAssertion
 AttributeCertificationPath
@@ -37,7 +38,6 @@ CertificateList      B "2.5.4.59" "id-at-attributeCertificateRevocationList"
 
 #.NO_EMIT
 
-AlgorithmIdentifier
 Extension
 
 #.TYPE_RENAME
@@ -57,4 +57,10 @@ IssuerSerial/issuer			issuerName
 CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate		revokedUserCertificate
 #.END
 
+#.FN_BODY AlgorithmIdentifier/algorithmId
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                 hf_x509af_algorithm_id, algorithm_id);
+
+#.FN_BODY AlgorithmIdentifier/parameters
+  offset=call_ber_oid_callback(algorithm_id, tvb, offset, pinfo, tree);
 

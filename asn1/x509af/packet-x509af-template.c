@@ -53,6 +53,8 @@ static int hf_x509af_critical = -1;               /* BOOLEAN */
 /* Initialize the subtree pointers */
 #include "packet-x509af-ett.c"
 
+static char algorithm_id[64]; /*64 chars should be long enough? */
+
 
 static char extension_id[64]; /*64 chars should be long enough? */
 static int 
@@ -92,38 +94,6 @@ static int
 dissect_x509af_Extension(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 Extension_sequence, hf_index, ett_x509af_Extension);
-
-  return offset;
-}
-
-static char algorithm_id[64]; /*64 chars should be long enough? */
-static int 
-dissect_hf_x509af_algorithm_id(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) 
-{
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_x509af_algorithm_id, algorithm_id);
-  return offset;
-}
-
-static int 
-dissect_hf_x509af_algorithm_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) 
-{
-  offset=call_ber_oid_callback(algorithm_id, tvb, offset, pinfo, tree);
-
-  return offset;
-}
-
-/* Algorithm Identifier can not yet be handled by the compiler */
-static const ber_sequence AlgorithmIdentifier_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_hf_x509af_algorithm_id },
-  { BER_CLASS_ANY, 0, 0, dissect_hf_x509af_algorithm_type },
-  { 0, 0, 0, NULL }
-};
-
-int
-dissect_x509af_AlgorithmIdentifier(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                AlgorithmIdentifier_sequence, hf_index, ett_x509af_AlgorithmIdentifier);
 
   return offset;
 }

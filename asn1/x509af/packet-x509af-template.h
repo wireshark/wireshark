@@ -25,8 +25,6 @@
 #ifndef PACKET_X509AF_H
 #define PACKET_X509AF_H
 
-int dissect_x509af_AlgorithmIdentifier(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index);
-
 #include "packet-x509af-exp.h"
 
 #endif  /* PACKET_X509AF_H */
