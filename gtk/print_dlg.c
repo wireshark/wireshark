@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.40 2002/11/11 15:39:05 oabad Exp $
+ * $Id: print_dlg.c,v 1.41 2003/02/21 21:06:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -320,7 +320,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
                                                             accel_group);
 #else
   detail_rb = gtk_radio_button_new_with_mnemonic_from_widget(
-                                GTK_RADIO_BUTTON(button), "Print _detail");
+                                GTK_RADIO_BUTTON(summary_rb), "Print _detail");
 #endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(detail_rb), TRUE);
   SIGNAL_CONNECT(detail_rb, "toggled", print_cmd_toggle_detail, NULL);
