@@ -1109,6 +1109,7 @@ B<http://www.ethereal.com>.
   Randy McEoin             <rmceoin@pe.net>
   Edgar Iglesias           <edgar.iglesias@axis.com>
   Martina Obermeier        <Martina.Obermeier@icn.siemens.de>
+  Mark Burton              <markb@ordern.com>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

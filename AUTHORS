@@ -660,6 +660,10 @@ Martina Obermeier <Martina.Obermeier@icn.siemens.de> {
 	ISUP (ISDN User Part, ITU-T recommendation Q.763) support
 }
 
+Mark Burton <markb@ordern.com> {
+	iSCSI support
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
