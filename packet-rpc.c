@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.82 2002/01/19 19:15:33 guy Exp $
+ * $Id: packet-rpc.c,v 1.83 2002/01/20 01:13:41 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -463,47 +463,54 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *string_tree = NULL;
 	int old_offset = offset;
 
-	int length_truncated = 0;
-
-	int string_truncated = 0;
-	guint32 string_length = 0;
+	guint32 string_length;
 	guint32 string_length_full;
 	guint32 string_length_packet;
-	guint32 string_length_copy = 0;
+	guint32 string_length_captured;
+	guint32 string_length_copy;
 
-	int fill_truncated = 0;
-	guint32 fill_length  = 0;
-	guint32 fill_length_packet  = 0;
-	guint32 fill_length_copy  = 0;
+	int fill_truncated;
+	guint32 fill_length;
+	guint32 fill_length_packet;
+	guint32 fill_length_captured;
+	guint32 fill_length_copy;
+
+	int exception = 0;
 
 	char *string_buffer = NULL;
 	char *string_buffer_print = NULL;
 
 	string_length = tvb_get_ntohl(tvb,offset+0);
 	string_length_full = rpc_roundup(string_length);
-	/* XXX - just let the tvbuff stuff throw an exception? */
-	string_length_packet = tvb_length_remaining(tvb, offset + 4);
-	if (string_length_packet < string_length) {
+	string_length_captured = tvb_length_remaining(tvb, offset + 4);
+	string_length_packet = tvb_reported_length_remaining(tvb, offset + 4);
+	if (string_length_captured < string_length) {
 		/* truncated string */
-		string_truncated = 1;
-		string_length_copy = string_length_packet;
+		string_length_copy = string_length_captured;
 		fill_truncated = 2;
 		fill_length = 0;
-		fill_length_packet = 0;
 		fill_length_copy = 0;
+		if (string_length_packet < string_length)
+			exception = ReportedBoundsError;
+		else
+			exception = BoundsError;
 	}
 	else {
 		/* full string data */
-		string_truncated = 0;
 		string_length_copy = string_length;
 		fill_length = string_length_full - string_length;
-		/* XXX - just let the tvbuff stuff throw an exception? */
-		fill_length_packet = tvb_length_remaining(tvb,
+		fill_length_captured = tvb_length_remaining(tvb,
 		    offset + 4 + string_length);
-		if (fill_length_packet < fill_length) {
+		fill_length_packet = tvb_reported_length_remaining(tvb,
+		    offset + 4 + string_length);
+		if (fill_length_captured < fill_length) {
 			/* truncated fill bytes */
 			fill_length_copy = fill_length_packet;
 			fill_truncated = 1;
+			if (fill_length_packet < fill_length)
+				exception = ReportedBoundsError;
+			else
+				exception = BoundsError;
 		}
 		else {
 			/* full fill bytes */
@@ -565,47 +572,39 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			string_tree = proto_item_add_subtree(string_item, ett_rpc_string);
 		}
 	}
-	if (length_truncated) {
-		if (string_tree)
-			proto_tree_add_text(string_tree, tvb,
-				offset, tvb_length_remaining(tvb, offset),
-				"length: <TRUNCATED>");
-		offset = tvb_length(tvb);
-	} else {
-		if (string_tree)
-			proto_tree_add_text(string_tree, tvb,offset+0,4,
-				"length: %u", string_length);
-		offset += 4;
+	if (string_tree)
+		proto_tree_add_text(string_tree, tvb,offset+0,4,
+			"length: %u", string_length);
+	offset += 4;
 
+	if (string_tree) {
+		if (string_data) {
+			proto_tree_add_string_format(string_tree,
+			    hfindex, tvb, offset, string_length_copy,
+				string_buffer_print, 
+				"contents: %s", string_buffer_print);
+		} else {
+			proto_tree_add_bytes_format(string_tree,
+			    hfindex, tvb, offset, string_length_copy,
+				string_buffer_print, 
+				"contents: %s", string_buffer_print);
+		}
+	}
+	offset += string_length_copy;
+	if (fill_length) {
 		if (string_tree) {
-			if (string_data) {
-				proto_tree_add_string_format(string_tree,
-				    hfindex, tvb, offset, string_length_copy,
-					string_buffer_print, 
-					"contents: %s", string_buffer_print);
-			} else {
-				proto_tree_add_bytes_format(string_tree,
-				    hfindex, tvb, offset, string_length_copy,
-					string_buffer_print, 
-					"contents: %s", string_buffer_print);
+			if (fill_truncated) {
+				proto_tree_add_text(string_tree, tvb,
+				offset,fill_length_copy,
+				"fill bytes: opaque data<TRUNCATED>");
+			}
+			else {
+				proto_tree_add_text(string_tree, tvb,
+				offset,fill_length_copy,
+				"fill bytes: opaque data");
 			}
 		}
-		offset += string_length_copy;
-		if (fill_length) {
-			if (string_tree) {
-				if (fill_truncated) {
-					proto_tree_add_text(string_tree, tvb,
-					offset,fill_length_copy,
-					"fill bytes: opaque data<TRUNCATED>");
-				}
-				else {
-					proto_tree_add_text(string_tree, tvb,
-					offset,fill_length_copy,
-					"fill bytes: opaque data");
-				}
-			}
-			offset += fill_length_copy;
-		}
+		offset += fill_length_copy;
 	}
 	
 	if (string_item) {
@@ -619,6 +618,13 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		else
 			g_free (string_buffer_print);
 	}
+
+	/*
+	 * If the data was truncated, throw the appropriate exception,
+	 * so that dissection stops and the frame is properly marked.
+	 */
+	if (exception != 0)
+		THROW(exception);
 	return offset;
 }
 
