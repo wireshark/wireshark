@@ -1,7 +1,7 @@
 /* gtkpacket.h
  * Definitions for GTK+ packet display structures and routines
  *
- * $Id: gtkpacket.h,v 1.2 1999/07/07 22:51:39 gram Exp $
+ * $Id: proto_draw.h,v 1.1 1999/09/09 02:42:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

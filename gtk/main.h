@@ -1,7 +1,7 @@
 /* ethereal.h
  * Global defines, etc.
  *
- * $Id: ethereal.h,v 1.23 1999/08/28 01:51:58 guy Exp $
+ * $Id: main.h,v 1.1 1999/09/09 02:42:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,16 +62,6 @@
     #define BYTE_ORDER LITTLE_ENDIAN
   #endif
 #endif
-
-/* From the K&R book, p. 89 */
-#ifndef MAX
-  #define MAX(x, y) ((x) > (y) ? (x) : (y))
-#endif
-
-#ifndef MIN
-  #define MIN(x, y) ((x) < (y) ? (x) : (y))
-#endif
-
     
 typedef struct _selection_info {
   GtkWidget *tree;

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.86 1999/09/01 03:04:10 gram Exp $
+ * $Id: file.c,v 1.87 1999/09/09 02:42:24 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -68,14 +68,14 @@
 # include <netinet/in.h>
 #endif
 
-#include "ethereal.h"
+#include "gtk/main.h"
 #include "column.h"
 #include "gtk/menu.h"
 #include "packet.h"
 #include "print.h"
 #include "file.h"
 #include "util.h"
-#include "gtkpacket.h"
+#include "gtk/proto_draw.h"
 #include "dfilter.h"
 #include "timestamp.h"
 

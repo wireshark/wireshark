@@ -1,7 +1,7 @@
 /* summary.c
  * Routines for capture file summary window
  *
- * $Id: summary.c,v 1.11 1999/09/01 03:04:12 gram Exp $
+ * $Id: summary.c,v 1.12 1999/09/09 02:42:26 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -55,7 +55,7 @@
 # include <sys/sockio.h>
 #endif
 
-#include "ethereal.h"
+#include "gtk/main.h"
 #include "packet.h"
 #include "file.h"
 #include "summary.h"

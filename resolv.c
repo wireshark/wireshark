@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.8 1999/07/13 02:52:58 gram Exp $
+ * $Id: resolv.c,v 1.9 1999/09/09 02:42:26 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -67,7 +67,7 @@
 # include <setjmp.h>
 #endif
 
-#include "ethereal.h"
+#include "gtk/main.h"
 #include "packet.h"
 #include "packet-ipv6.h"
 #include "resolv.h"

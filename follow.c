@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.14 1999/07/31 13:55:16 deniel Exp $
+ * $Id: follow.c,v 1.15 1999/09/09 02:42:25 gram Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -42,7 +42,7 @@
 #endif
 
 #include <glib.h>
-#include "ethereal.h"
+#include "gtk/main.h"
 #include "packet.h"
 #include "follow.h"
 

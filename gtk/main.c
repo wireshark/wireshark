@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.110 1999/09/01 03:04:09 gram Exp $
+ * $Id: main.c,v 1.1 1999/09/09 02:42:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -79,22 +79,22 @@
 #include "strerror.h"
 #endif
 
-#include "ethereal.h"
+#include "main.h"
 #include "timestamp.h"
 #include "packet.h"
 #include "capture.h"
 #include "summary.h"
 #include "file.h"
-#include "gtk/menu.h"
+#include "menu.h"
 #include "prefs.h"
 #include "column.h"
 #include "print.h"
 #include "resolv.h"
 #include "follow.h"
 #include "util.h"
-#include "gtkpacket.h"
+#include "proto_draw.h"
 #include "dfilter.h"
-#include "gtk/keys.h"
+#include "keys.h"
 
 FILE        *data_out_file = NULL;
 packet_info  pi;

@@ -1,7 +1,7 @@
 /* gtkpacket.c
  * Routines for GTK+ packet display
  *
- * $Id: gtkpacket.c,v 1.6 1999/07/07 22:51:39 gram Exp $
+ * $Id: proto_draw.c,v 1.1 1999/09/09 02:42:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,12 +41,10 @@
 #endif
 
 #include <stdio.h>
-#include "ethereal.h"
+#include "main.h"
 #include "packet.h"
 
-#ifndef __GTKPACKET_H__
-#include "gtkpacket.h"
-#endif
+#include "proto_draw.h"
 
 #define BYTE_VIEW_WIDTH    16
 #define BYTE_VIEW_SEP      8

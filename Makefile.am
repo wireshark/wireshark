@@ -22,8 +22,6 @@ ethereal_SOURCES = \
 	dfilter.h      \
 	display.c      \
 	display.h      \
-	ethereal.c     \
-	ethereal.h     \
 	ethertype.c    \
 	etypes.h       \
 	file.c         \
@@ -33,8 +31,6 @@ ethereal_SOURCES = \
 	follow.c       \
 	follow.h       \
 	globals.h      \
-	gtkpacket.c    \
-	gtkpacket.h    \
 	packet-aarp.c  \
 	packet-arp.c   \
 	packet-atalk.c \

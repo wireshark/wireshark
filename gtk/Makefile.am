@@ -12,8 +12,12 @@ libui_a_SOURCES = \
 	gtkdnd.h	\
 	gtkmain.h	\
 	keys.h		\
+	main.c		\
+	main.h		\
 	menu.c		\
 	menu.h		\
 	print_dlg.c	\
 	print_prefs.c   \
-	print_prefs.h
+	print_prefs.h	\
+	proto_draw.c	\
+	proto_draw.h

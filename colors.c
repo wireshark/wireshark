@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.6 1999/08/28 23:47:41 gram Exp $
+ * $Id: colors.c,v 1.7 1999/09/09 02:42:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,7 +36,7 @@
 #include <errno.h>
 #include <sys/types.h>
 
-#include "ethereal.h"
+#include "gtk/main.h"
 #include "packet.h"
 #include "colors.h"
 #include "file.h"
