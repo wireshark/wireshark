@@ -1,4 +1,8 @@
 /*
+ * $Id: snprintf-imp.h,v 1.3 2000/08/11 22:03:03 guy Exp $
+ */
+
+/*
  Unix snprintf implementation.
  Version 1.2
    
@@ -7,7 +11,7 @@
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
    It can be redistribute also under the terms of GNU Library General
-   Public Lincense.
+   Public License.
    
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -68,9 +72,6 @@ Return values:
 
 Alain Magloire: alainm@rcsm.ee.mcgill.ca
 */
-
-#include <stdlib.h>    /* for atoi() */
-#include <ctype.h>
 
 
 /* 

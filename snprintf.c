@@ -1,3 +1,6 @@
+/*
+ * $Id: snprintf.c,v 1.11 2000/08/11 22:03:02 guy Exp $
+ */
 
 /*
    Unix snprintf implementation.
@@ -8,7 +11,7 @@
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
    It can be redistribute also under the terms of GNU Library General
-   Public Lincense.
+   Public License.
    
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -43,6 +46,9 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
+
+#include <stdlib.h>	/* for atoi and for size_t */
+#include <ctype.h>
 
 #include "snprintf.h"
 #include "snprintf-imp.h"
