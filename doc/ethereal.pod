@@ -366,8 +366,6 @@ B<http://ethereal.zing.org>.
   Brad Robel-Forrest       <bradr@watchguard.com>
   Ashok Narayanan          <ashokn@cisco.com>
 
-Brad Robel-Forrest <bradr@watchguard.com> {
-
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
 
