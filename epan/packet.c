@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.23 2001/03/23 14:44:01 jfoster Exp $
+ * $Id: packet.c,v 1.24 2001/03/31 23:02:31 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -69,9 +69,7 @@
 #endif
 
 #include "packet.h"
-#include "print.h"
 #include "timestamp.h"
-#include "file.h"
 
 #include "atalk-utils.h"
 #include "packet-frame.h"
