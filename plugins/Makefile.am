@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.27 2003/12/18 19:01:30 guy Exp $
+# $Id: Makefile.am,v 1.28 2003/12/29 21:39:10 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -54,11 +54,13 @@ EXTRA_DIST = \
 	Xplugin_api_decls.h	\
 	Xplugin_table.h
 
-CLEANFILES = \
+MAINTAINERCLEANFILES = \
 	Xass-list	\
 	Xplugin_api.c	\
 	Xplugin_api.h	\
 	Xplugin_api_decls.h	\
 	Xplugin_table.h	\
-	plugin_api_list.o	\
 	xyzzy
+
+CLEANFILES = \
+	plugin_api_list.o
