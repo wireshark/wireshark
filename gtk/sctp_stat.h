@@ -188,10 +188,10 @@ typedef struct _sctp_error_info {
 
 
 typedef struct _sctp_allassocs_info {
-guint32 sum_tvbs;
-GList*  assoc_info_list;
-gboolean is_registered;
-GList*	children;
+	guint32 sum_tvbs;
+	GList*  assoc_info_list;
+	gboolean is_registered;
+	GList*	children;
 } sctp_allassocs_info_t;
 
 
@@ -286,9 +286,6 @@ void sctp_stat_scan(void);
 
 void remove_tap_listener_sctp_stat(void);
 
-void reset(sctp_allassocs_info_t *tapdata _U_);
-
-
 void assoc_analyse(sctp_assoc_info_t* assoc);
 
 const sctp_assoc_info_t* get_selected_assoc(void);
@@ -297,7 +294,7 @@ void create_graph(guint16 dir, struct sctp_analyse* u_data);
 
 void create_byte_graph(guint16 dir, struct sctp_analyse* u_data);
 
-void sctp_error_dlg_show();
+void sctp_error_dlg_show(sctp_assoc_info_t* assoc);
 
 void sctp_stat_dlg_update(void);
 
@@ -315,11 +312,10 @@ void set_child(struct sctp_udata *child, struct sctp_analyse *parent);
 
 void remove_child(struct sctp_udata *child, struct sctp_analyse *parent);
 
-void decrease_analyse_childcount();
+void decrease_analyse_childcount(void);
 
-void increase_analyse_childcount();
+void increase_analyse_childcount(void);
 
 void set_analyse_child(struct sctp_analyse *child);
 
 void remove_analyse_child(struct sctp_analyse *child);
-

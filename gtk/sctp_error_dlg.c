@@ -93,19 +93,20 @@ sctp_error_on_unselect(GtkButton *button _U_, gpointer user_data _U_)
 
 void sctp_error_dlg_update(GList *list)
 {
-GList *ilist=NULL;
+	GList *ilist=NULL;
+
 printf("dlg_update\n");
 	if (sctp_error_dlg != NULL) {
-			gtk_clist_clear(GTK_CLIST(clist));
+		gtk_clist_clear(GTK_CLIST(clist));
 printf("vor ilist\n");
-	ilist=list;
-	if (ilist==NULL)
+		ilist=list;
+if (ilist==NULL)
 	printf("=NULL\n");
-	printf("nach ilist\n");
+printf("nach ilist\n");
 
 		while (ilist)
 		{
-		printf("while\n");
+printf("while\n");
 			add_to_clist((sctp_error_info_t*)(ilist->data));
 			ilist = g_list_next(ilist);
 		}
@@ -123,7 +124,7 @@ sctp_error_on_select_row(GtkCList *clist,
                                             GdkEventButton *event _U_,
                                             gpointer user_data _U_)
 {
-selected_packet = gtk_clist_get_row_data(GTK_CLIST(clist), row);
+	selected_packet = gtk_clist_get_row_data(GTK_CLIST(clist), row);
 }
 
 
@@ -239,7 +240,7 @@ gtk_sctperror_dlg(void)
 	gtk_widget_show (bt_frame);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_frame);
 
-    bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
+	bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
 	gtk_widget_show (bt_close);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_close);
 
@@ -250,33 +251,30 @@ gtk_sctperror_dlg(void)
 	SIGNAL_CONNECT(bt_close, "clicked", sctp_error_on_close, NULL);
 
 	sctp_error_dlg = sctp_error_dlg_w;
-
-
 }
 
 
 void sctp_error_dlg_show(sctp_assoc_info_t* assoc)
 {
-GList *list;
-
+	GList *list;
 
 	/* selected_assoc=(sctp_assoc_info_t*)get_selected_assoc(); */
 	list =assoc->error_info_list;
 	if (list != NULL)
 	{
-	if (sctp_error_dlg != NULL) {
-		/* There's already a dialog box; reactivate it. */
-		reactivate_window(sctp_error_dlg);
-		/* Another list since last call? */
-		if (list != last_list) {
+		if (sctp_error_dlg != NULL) {
+			/* There's already a dialog box; reactivate it. */
+			reactivate_window(sctp_error_dlg);
+			/* Another list since last call? */
+			if (list != last_list) {
+				sctp_error_dlg_update(list);
+			}
+		}
+		else {
+			/* Create and show the dialog box */
+			gtk_sctperror_dlg();
 			sctp_error_dlg_update(list);
 		}
-	}
-	else {
-		/* Create and show the dialog box */
-		gtk_sctperror_dlg();
-		sctp_error_dlg_update(list);
-	}
 	}
 	else
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,

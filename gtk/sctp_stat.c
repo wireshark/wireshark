@@ -122,28 +122,28 @@ static const value_string chunk_type_values[] = {
   { 0,                               NULL } };
 
 
-  #define FORWARD_STREAM						0
-  #define BACKWARD_STREAM						1
-  #define FORWARD_ADD_FORWARD_VTAG				2
-  #define BACKWARD_ADD_FORWARD_VTAG				3
-  #define BACKWARD_ADD_BACKWARD_VTAG			4
-  #define ADDRESS_FORWARD_STREAM				5
-  #define ADDRESS_BACKWARD_STREAM				6
-  #define ADDRESS_FORWARD_ADD_FORWARD_VTAG		7
-  #define ADDRESS_BACKWARD_ADD_FORWARD_VTAG		8
-  #define ADDRESS_BACKWARD_ADD_BACKWARD_VTAG	9
-  #define ASSOC_NOT_FOUND						10
+#define FORWARD_STREAM						0
+#define BACKWARD_STREAM						1
+#define FORWARD_ADD_FORWARD_VTAG				2
+#define BACKWARD_ADD_FORWARD_VTAG				3
+#define BACKWARD_ADD_BACKWARD_VTAG			4
+#define ADDRESS_FORWARD_STREAM				5
+#define ADDRESS_BACKWARD_STREAM				6
+#define ADDRESS_FORWARD_ADD_FORWARD_VTAG		7
+#define ADDRESS_BACKWARD_ADD_FORWARD_VTAG		8
+#define ADDRESS_BACKWARD_ADD_BACKWARD_VTAG	9
+#define ASSOC_NOT_FOUND						10
 
 struct v4addr {
-address_type 	type;
-int		len;
-guint32		addr;
+	address_type 	type;
+	int		len;
+	guint32		addr;
 };
 
 struct v6addr {
-address_type 	type;
-int		len;
-guint8		addr[16];
+	address_type 	type;
+	int		len;
+	guint8		addr[16];
 };  
   
 static sctp_allassocs_info_t sctp_tapinfo_struct =	{0, NULL, FALSE, NULL};
@@ -158,7 +158,8 @@ void free_first(gpointer data, gpointer user_data _U_)
 
 void tsn_free(gpointer data, gpointer user_data _U_)
 {
-tsn_t *tsn;
+	tsn_t *tsn;
+
 	tsn = (tsn_t *) data;
 	if (tsn->tsns!=NULL)
 	{
@@ -168,94 +169,95 @@ tsn_t *tsn;
 	}
 }
 
-void
-reset(sctp_allassocs_info_t *tapdata )
+static void
+reset(void *arg)
 {
-GList* list;
-sctp_assoc_info_t * info;
+	sctp_allassocs_info_t *tapdata = arg;
+	GList* list;
+	sctp_assoc_info_t * info;
 
 	list = g_list_first(tapdata->assoc_info_list);
-		while (list)
+	while (list)
+	{
+		info = (sctp_assoc_info_t *)  (list->data);
+
+		if (info->addr1!=NULL)
 		{
-			info = (sctp_assoc_info_t *)  (list->data);
-
-			if (info->addr1!=NULL)
-			{
-				g_list_foreach(info->addr1, free_first, NULL);
-				g_list_free(info->addr1);
-				info->addr1 = NULL;
-			}
-
-			if (info->addr2!=NULL)
-			{
-				g_list_foreach(info->addr2,free_first, NULL);
-				g_list_free(info->addr2);
-				info->addr2 = NULL;
-			}
-
-			if (info->error_info_list!=NULL)
-			{
-				g_list_foreach(info->error_info_list, free_first, NULL);
-				g_list_free(info->error_info_list);
-				info->error_info_list = NULL;
-			}
-
-			if (info->frame_numbers!=NULL)
-			{
-				g_list_free(info->frame_numbers);
-				info->frame_numbers = NULL;
-			}
-
-			if (info->tsn1!=NULL)
-			{
-				g_list_foreach(info->tsn1,tsn_free, NULL);
-				g_list_free(info->tsn1);
-				info->tsn1 = NULL;
-			}
-
-			if (info->tsn2!=NULL)
-			{
-				g_list_foreach(info->tsn2,tsn_free, NULL);
-				g_list_free(info->tsn2);
-				info->tsn2 = NULL;
-			}
-
-			if (info->sack1!=NULL)
-			{
-				g_list_foreach(info->sack1,tsn_free, NULL);
-				g_list_free(info->sack1);
-				info->sack1 = NULL;
-			}
-
-			if (info->sack2!=NULL)
-			{
-				g_list_foreach(info->sack2,tsn_free, NULL);
-				g_list_free(info->sack2);
-				info->sack2 = NULL;
-			}
-
-			if (info->sort_tsn1!=NULL)
-				g_array_free(info->sort_tsn1, TRUE);
-
-			if (info->sort_tsn2!=NULL)
-				g_array_free(info->sort_tsn2, TRUE);
-
-			if (info->sort_sack1!=NULL)
-				g_array_free(info->sort_sack1, TRUE);
-
-			if (info->sort_sack2!=NULL)
-				g_array_free(info->sort_sack2, TRUE);
-
-			if (info->min_max!=NULL)
-			{
-				g_slist_foreach(info->min_max,free_first, NULL);
-				info->min_max = NULL;
-			}
-
-			g_free(list->data);
-			list = g_list_next(list);
+			g_list_foreach(info->addr1, free_first, NULL);
+			g_list_free(info->addr1);
+			info->addr1 = NULL;
 		}
-		g_list_free(tapdata->assoc_info_list);
+
+		if (info->addr2!=NULL)
+		{
+			g_list_foreach(info->addr2,free_first, NULL);
+			g_list_free(info->addr2);
+			info->addr2 = NULL;
+		}
+
+		if (info->error_info_list!=NULL)
+		{
+			g_list_foreach(info->error_info_list, free_first, NULL);
+			g_list_free(info->error_info_list);
+			info->error_info_list = NULL;
+		}
+
+		if (info->frame_numbers!=NULL)
+		{
+			g_list_free(info->frame_numbers);
+			info->frame_numbers = NULL;
+		}
+
+		if (info->tsn1!=NULL)
+		{
+			g_list_foreach(info->tsn1,tsn_free, NULL);
+			g_list_free(info->tsn1);
+			info->tsn1 = NULL;
+		}
+
+		if (info->tsn2!=NULL)
+		{
+			g_list_foreach(info->tsn2,tsn_free, NULL);
+			g_list_free(info->tsn2);
+			info->tsn2 = NULL;
+		}
+
+		if (info->sack1!=NULL)
+		{
+			g_list_foreach(info->sack1,tsn_free, NULL);
+			g_list_free(info->sack1);
+			info->sack1 = NULL;
+		}
+
+		if (info->sack2!=NULL)
+		{
+			g_list_foreach(info->sack2,tsn_free, NULL);
+			g_list_free(info->sack2);
+			info->sack2 = NULL;
+		}
+
+		if (info->sort_tsn1!=NULL)
+			g_array_free(info->sort_tsn1, TRUE);
+
+		if (info->sort_tsn2!=NULL)
+			g_array_free(info->sort_tsn2, TRUE);
+
+		if (info->sort_sack1!=NULL)
+			g_array_free(info->sort_sack1, TRUE);
+
+		if (info->sort_sack2!=NULL)
+			g_array_free(info->sort_sack2, TRUE);
+
+		if (info->min_max!=NULL)
+		{
+			g_slist_foreach(info->min_max,free_first, NULL);
+			info->min_max = NULL;
+		}
+
+		g_free(list->data);
+		list = g_list_next(list);
+	}
+	g_list_free(tapdata->assoc_info_list);
 	tapdata->sum_tvbs=0;
 	tapdata->assoc_info_list=NULL;
 }
@@ -263,45 +265,45 @@ sctp_assoc_info_t * info;
 
 static sctp_assoc_info_t * calc_checksum(struct _sctp_info * check_data, sctp_assoc_info_t * data)
 {
-guint8 ok=0;
+	guint8 ok=0;
 
-if (check_data->adler32_calculated)
-{
-	data->n_adler32_calculated++;
-	if (check_data->adler32_correct)
-		data->n_adler32_correct++;
-}
-if (check_data->crc32c_calculated)
-{
-	data->n_crc32c_calculated++;
-	if (check_data->crc32c_correct)
-		data->n_crc32c_correct++;
-}
-if (data->n_adler32_calculated>0)
-{
-	if ((float)(data->n_adler32_correct*1.0/data->n_adler32_calculated)>0.5)
+	if (check_data->adler32_calculated)
 	{
-		strcpy(data->checksum_type,"ADLER32");
-		data->n_checksum_errors=(data->n_adler32_calculated-data->n_adler32_correct);
-		ok=1;
+		data->n_adler32_calculated++;
+		if (check_data->adler32_correct)
+			data->n_adler32_correct++;
 	}
-}
-
-if (data->n_crc32c_calculated>0)
-{
-	if ((float)(data->n_crc32c_correct*1.0/data->n_crc32c_calculated)>0.5)
+	if (check_data->crc32c_calculated)
 	{
-		strcpy(data->checksum_type,"CRC32C");
-		data->n_checksum_errors=data->n_crc32c_calculated-data->n_crc32c_correct;
-		ok=1;
+		data->n_crc32c_calculated++;
+		if (check_data->crc32c_correct)
+			data->n_crc32c_correct++;
 	}
-}
+	if (data->n_adler32_calculated>0)
+	{
+		if ((float)(data->n_adler32_correct*1.0/data->n_adler32_calculated)>0.5)
+		{
+			strcpy(data->checksum_type,"ADLER32");
+			data->n_checksum_errors=(data->n_adler32_calculated-data->n_adler32_correct);
+			ok=1;
+		}
+	}
 
-if (ok==0)
-{
-	strcpy(data->checksum_type,"UNKNOWN");
-	data->n_checksum_errors=0;
-}
+	if (data->n_crc32c_calculated>0)
+	{
+		if ((float)(data->n_crc32c_correct*1.0/data->n_crc32c_calculated)>0.5)
+		{
+			strcpy(data->checksum_type,"CRC32C");
+			data->n_checksum_errors=data->n_crc32c_calculated-data->n_crc32c_correct;
+			ok=1;
+		}
+	}
+
+	if (ok==0)
+	{
+		strcpy(data->checksum_type,"UNKNOWN");
+		data->n_checksum_errors=0;
+	}
 
 	return data;
 
@@ -358,24 +360,24 @@ gint sctp_assoc_vtag_cmp(gconstpointer aa, gconstpointer bb)
 
 gint sctp_assoc_address_cmp(gconstpointer aa, gconstpointer bb)
 {
-GList *srclist, *dstlist;
-const struct _sctp_tmp_info* a = aa;
-const struct _sctp_assoc_info* b = bb;
-address *store=NULL;
-address *srcstore=NULL;
-address *dststore=NULL;
-struct v4addr *src=NULL;
-struct v6addr *src6=NULL;
-struct v4addr *infosrc=NULL;
-struct v4addr *infodst=NULL;
-struct v6addr *infosrc6=NULL;
-struct v4addr *dst=NULL;
-struct v6addr *dst6=NULL;
-struct v6addr *infodst6=NULL;
-gboolean src_v4=FALSE;
-gboolean src_v6=FALSE;
-gboolean dst_v4=FALSE;
-gboolean dst_v6=FALSE;
+	GList *srclist, *dstlist;
+	const struct _sctp_tmp_info* a = aa;
+	const struct _sctp_assoc_info* b = bb;
+	address *store=NULL;
+	address *srcstore=NULL;
+	address *dststore=NULL;
+	struct v4addr *src=NULL;
+	struct v6addr *src6=NULL;
+	struct v4addr *infosrc=NULL;
+	struct v4addr *infodst=NULL;
+	struct v6addr *infosrc6=NULL;
+	struct v4addr *dst=NULL;
+	struct v6addr *dst6=NULL;
+	struct v6addr *infodst6=NULL;
+	gboolean src_v4=FALSE;
+	gboolean src_v6=FALSE;
+	gboolean dst_v4=FALSE;
+	gboolean dst_v6=FALSE;
 
 	store = g_malloc(sizeof(address));
 	g_memmove(store, &(a->src),sizeof(address));
@@ -654,10 +656,10 @@ gboolean dst_v6=FALSE;
 
 sctp_assoc_info_t * find_assoc(sctp_tmp_info_t * needle)
 {
-sctp_allassocs_info_t *assoc_info;
-sctp_assoc_info_t *info = NULL;
-GList* list;
-guint8 cmp;
+	sctp_allassocs_info_t *assoc_info;
+	sctp_assoc_info_t *info = NULL;
+	GList* list;
+	guint8 cmp;
 
 	assoc_info = &sctp_tapinfo_struct;
 	if ((list = g_list_first(assoc_info->assoc_info_list))!=NULL)
@@ -732,10 +734,11 @@ guint8 cmp;
 
 sctp_assoc_info_t * add_address(address * vadd, sctp_assoc_info_t *info, guint8 direction)
 {
-GList *list;
-struct v4addr *v4=NULL, *v4add=NULL;
-struct v6addr	*v6=NULL, *v6add=NULL;
-address *v=NULL;
+	GList *list;
+	struct v4addr *v4=NULL, *v4add=NULL;
+	struct v6addr	*v6=NULL, *v6add=NULL;
+	address *v=NULL;
+
 	if (direction == 1)
 		list = g_list_first(info->addr1);
 	else
@@ -790,31 +793,30 @@ address *v=NULL;
 }
 
 static int
-packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , void *data _U_)
+packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const void *data _U_)
 {
-struct _sctp_info *sctp_info;
-guint32 chunk_number=0, ip, tsnumber;
-sctp_tmp_info_t tmp_info;
-sctp_assoc_info_t *info = NULL;
-sctp_error_info_t *error = NULL;
-char str[200];
-guint16	type, length;
-struct v4addr v4n;
-struct v6addr v6n;
-address *store=NULL;
-tsn_t	*tsn=NULL;
-tsn_t	*sack=NULL;
-guint8 *t_s_n=NULL;
-gboolean sackchunk=FALSE;
-gboolean datachunk=FALSE;
-guint32 max;
-struct tsn_sort tsn_s;
-
+	struct _sctp_info *sctp_info;
+	guint32 chunk_number=0, ip, tsnumber;
+	sctp_tmp_info_t tmp_info;
+	sctp_assoc_info_t *info = NULL;
+	sctp_error_info_t *error = NULL;
+	char str[200];
+	guint16	type, length;
+	struct v4addr v4n;
+	struct v6addr v6n;
+	address *store=NULL;
+	tsn_t	*tsn=NULL;
+	tsn_t	*sack=NULL;
+	guint8 *t_s_n=NULL;
+	gboolean sackchunk=FALSE;
+	gboolean datachunk=FALSE;
+	guint32 max;
+	struct tsn_sort tsn_s;
 
 	sctp_allassocs_info_t *assoc_info=NULL;
 	assoc_info = &sctp_tapinfo_struct;
 
-    sctp_info = (struct _sctp_info *) data;
+	sctp_info = (struct _sctp_info *) data;
 	max =0xFFFFFFFF;
 
 	type = pinfo->src.type;
@@ -1379,7 +1381,7 @@ gtk_sctpstat_init(char *dummy _U_)
 
 }
 
-static void sctp_update(void)
+static void sctp_update(void *dummy _U_)
 {
 	if (get_stat_dlg()!=NULL)
 		sctp_stat_dlg_update();
@@ -1388,18 +1390,16 @@ static void sctp_update(void)
 void
 register_tap_listener_sctp_stat(void)
 {
-GString *error_string;
+	GString *error_string;
 
-if (!sctp_tapinfo_struct.is_registered)
-{
-register_ethereal_tap("sctp",gtk_sctpstat_init);
-	if ((error_string = register_tap_listener("sctp", &sctp_tapinfo_struct, NULL, (void *)reset, packet, (void *)sctp_update))) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
-		g_string_free(error_string, TRUE);
-		return;
+	if (!sctp_tapinfo_struct.is_registered)
+	{
+		register_ethereal_tap("sctp",gtk_sctpstat_init);
+		if ((error_string = register_tap_listener("sctp", &sctp_tapinfo_struct, NULL, reset, packet, sctp_update))) {
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
+			g_string_free(error_string, TRUE);
+			return;
+		}
+		sctp_tapinfo_struct.is_registered=TRUE;
 	}
-	sctp_tapinfo_struct.is_registered=TRUE;
-	}
-
-
 }
