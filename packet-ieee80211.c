@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.12 2001/01/23 05:54:09 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.13 2001/02/01 06:20:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -72,8 +72,8 @@
 #define COOK_PROT_VERSION(x)  ((x & 0x3))
 #define COOK_FRAME_TYPE(x)    ((x & 0xC) >> 2)
 #define COOK_FRAME_SUBTYPE(x) ((x & 0xF0) >> 4)
-#define COOK_ADDR_SELECTOR(x) (((x & 0x200) >> 8) + ((x & 0x100) >> 8))
-
+#define COOK_ADDR_SELECTOR(x) (((x & 0x2)) && ((x & 0x1)))
+#define COOK_ASSOC_ID(x)      ((x & 0x3FFF))
 #define COOK_FRAGMENT_NUMBER(x) (x & 0x000F)
 #define COOK_SEQUENCE_NUMBER(x) ((x & 0xFFF0) >> 4)
 #define COOK_FLAGS(x)           ((x & 0xFF00) >> 8)
@@ -81,14 +81,14 @@
 #define COL_SHOW_INFO(fd,info) if (check_col(fd,COL_INFO)) \
 col_add_str(fd,COL_INFO,info);
 
-#define IS_TO_DS(x)            ((x & 0x100) >> 8)
-#define IS_FROM_DS(x)          ((x & 0x200) >> 9)
-#define HAVE_FRAGMENTS(x)      ((x & 0x400) >> 10)
-#define IS_RETRY(x)            ((x & 0x800) >> 11)
-#define POWER_MGT_STATUS(x)    ((x & 0x1000))
-#define HAS_MORE_DATA(x)       ((x & 0x2000))
-#define IS_WEP(x)              ((x & 0x4000))
-#define IS_STRICTLY_ORDERED(x) ((x & 0x8000))
+#define IS_TO_DS(x)            ((x & 0x1))
+#define IS_FROM_DS(x)          ((x & 0x2))
+#define HAVE_FRAGMENTS(x)      ((x & 0x4))
+#define IS_RETRY(x)            ((x & 0x8))
+#define POWER_MGT_STATUS(x)    ((x & 0x10))
+#define HAS_MORE_DATA(x)       ((x & 0x20))
+#define IS_WEP(x)              ((x & 0x40))
+#define IS_STRICTLY_ORDERED(x) ((x & 0x80))
 
 #define MGT_RESERVED_RANGE(x) (((x>=0x06)&&(x<=0x07))||((x>=0x0D)&&(x<=0x0F)))
 #define CTRL_RESERVED_RANGE(x) ((x>=0x10)&&(x<=0x19))
@@ -129,10 +129,11 @@ col_add_str(fd,COL_INFO,info);
 #define DATA                 0x20	/* Data - Data                             */
 #define DATA_CF_ACK          0x21	/* Data - Data + CF acknowledge            */
 #define DATA_CF_POLL         0x22	/* Data - Data + CF poll                   */
-#define DATA_CF_ACK_POLL     0x23	/* Data - Data + CF acknowledge & CF poll  */
+#define DATA_CF_ACK_POLL     0x23	/* Data - Data + CF acknowledge + CF poll  */
 #define DATA_NULL_FUNCTION   0x24	/* Data - Null function (no data)          */
 #define DATA_CF_ACK_NOD      0x25	/* Data - CF ack (no data)                 */
-#define DATA_CF_ACK_POLL_NOD 0x26	/* Data - CF ack + CF poll (no data)       */
+#define DATA_CF_POLL_NOD     0x26       /* Data - Data + CF poll (No data)         */
+#define DATA_CF_ACK_POLL_NOD 0x27	/* Data - CF ack + CF poll (no data)       */
 
 #define DATA_ADDR_T1         0x00
 #define DATA_ADDR_T2         0x01
@@ -201,7 +202,7 @@ static int hf_fc_order = -1;
 /*                   Header values for Duration/ID field                     */
 /* ************************************************************************* */
 static int hf_did_duration = -1;
-
+static int hf_assoc_id = -1;
 
 
 /* ************************************************************************* */
@@ -244,7 +245,7 @@ static int ff_status_code = -1;	/* Status code                             */
 /*            Flags found in the capability field (fixed field)              */
 /* ************************************************************************* */
 static int ff_capture = -1;
-static int ff_cf_sta_poll = -1;	/* CF pollable status for a STA            */
+static int ff_cf_sta_poll = -1; /* CF pollable status for a STA            */
 static int ff_cf_ap_poll = -1;	/* CF pollable status for an AP            */
 static int ff_cf_ess = -1;
 static int ff_cf_ibss = -1;
@@ -275,7 +276,7 @@ static gint ett_tagged_parameters = -1;
 static dissector_handle_t llc_handle;
 
 /* ************************************************************************* */
-/*                                                                           */
+/*            Return the length of the current header (in bytes)             */
 /* ************************************************************************* */
 int
 find_header_length (const u_char * pd, int offset)
@@ -283,8 +284,8 @@ find_header_length (const u_char * pd, int offset)
   guint16 frame_control;
 
   frame_control = pntohs (pd);
-  return ((IS_FROM_DS (frame_control))
-	  && (IS_TO_DS (frame_control))) ? 30 : 24;
+  return ((IS_FROM_DS(frame_control))
+	  && (IS_TO_DS(frame_control))) ? 30 : 24;
 }
 
 
@@ -754,11 +755,10 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					   "IEEE 802.11 Header");
       hdr_tree = proto_item_add_subtree (ti, ett_80211);
 
-      fc_item =
-	proto_tree_add_uint_format (hdr_tree, hf_fc_field, tvb, 0, 2,
-				    tvb_get_letohs (tvb, 0),
-				    "Frame Control: 0x%04X",
-				    tvb_get_letohs (tvb, 0));
+      fc_item = proto_tree_add_uint_format (hdr_tree, hf_fc_field, tvb, 0, 2,
+					    tvb_get_letohs (tvb, 0),
+					    "Frame Control: 0x%04X",
+					    tvb_get_letohs (tvb, 0));
 
       fc_tree = proto_item_add_subtree (fc_item, ett_fc_tree);
 
@@ -784,12 +784,6 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       proto_tree_add_uint (flag_tree, hf_fc_data_ds, tvb, 1, 1,
 			   COOK_DS_STATUS (flags));
 
-      /*      proto_tree_add_boolean(flag_tree,hf_fc_to_ds,tvb,1,1,
-         flags);
-
-         proto_tree_add_boolean(flag_tree,hf_fc_from_ds,tvb,1,1,
-         flags); */
-
       proto_tree_add_boolean (flag_tree, hf_fc_more_frag, tvb, 1, 1,
 			      flags);
 
@@ -804,12 +798,16 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
       proto_tree_add_boolean (flag_tree, hf_fc_order, tvb, 1, 1, flags);
 
-      proto_tree_add_uint (hdr_tree, hf_did_duration, tvb, 2, 2,
-			   tvb_get_ntohs (tvb, 2));
-
+      if ((COMPOSE_FRAME_TYPE(fcf))==CTRL_PS_POLL) 
+	proto_tree_add_uint(hdr_tree, hf_assoc_id,tvb,2,2,
+			    COOK_ASSOC_ID(tvb_get_ntohs(tvb,2)));
+     
+      else
+	  proto_tree_add_uint (hdr_tree, hf_did_duration, tvb, 2, 2,
+			       tvb_get_ntohs (tvb, 2));
     }
 
-  /* Perform Tasks which are common to a certain frame type */
+  /* Perform tasks which are common to a certain frame type */
   switch (COOK_FRAME_TYPE (fcf))
     {
 
@@ -857,6 +855,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
     case DATA_FRAME:
       addr_type = COOK_ADDR_SELECTOR (fcf);
+      hdr_len = find_header_length (tvb_get_ptr (tvb, 0, cap_len), 0);
 
       /* In order to show src/dst address we must always do the following */
       switch (addr_type)
@@ -911,9 +910,15 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				    tvb_get_ptr (tvb, 10, 6));
 	      proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 16, 6,
 				    tvb_get_ptr (tvb, 16, 6));
+	      proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
+				   COOK_FRAGMENT_NUMBER (tvb_get_ntohs
+							 (tvb, 22)));
+	      proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
+				   COOK_SEQUENCE_NUMBER (tvb_get_ntohs
+							 (tvb, 22)));
 	      break;
-
-
+	      
+	      
 	    case DATA_ADDR_T2:
 	      proto_tree_add_ether (hdr_tree, hf_addr_da, tvb, 4, 6,
 				    tvb_get_ptr (tvb, 4, 6));
@@ -921,8 +926,14 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				    tvb_get_ptr (tvb, 10, 6));
 	      proto_tree_add_ether (hdr_tree, hf_addr_sa, tvb, 16, 6,
 				    tvb_get_ptr (tvb, 16, 6));
+	      proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
+				   COOK_FRAGMENT_NUMBER (tvb_get_ntohs
+							 (tvb, 22)));
+	      proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
+				   COOK_SEQUENCE_NUMBER (tvb_get_ntohs
+							 (tvb, 22)));
 	      break;
-
+   
 
 	    case DATA_ADDR_T3:
 	      proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 4, 6,
@@ -931,8 +942,14 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				    tvb_get_ptr (tvb, 10, 6));
 	      proto_tree_add_ether (hdr_tree, hf_addr_da, tvb, 16, 6,
 				    tvb_get_ptr (tvb, 16, 6));
+	      proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
+				   COOK_FRAGMENT_NUMBER (tvb_get_ntohs
+							 (tvb, 22)));
+	      proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
+				   COOK_SEQUENCE_NUMBER (tvb_get_ntohs
+							 (tvb, 22)));
 	      break;
-
+	      
 
 	    case DATA_ADDR_T4:
 	      proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6,
@@ -941,10 +958,15 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				    tvb_get_ptr (tvb, 10, 6));
 	      proto_tree_add_ether (hdr_tree, hf_addr_da, tvb, 16, 6,
 				    tvb_get_ptr (tvb, 16, 6));
+	      proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
+				   COOK_FRAGMENT_NUMBER (tvb_get_ntohs
+							 (tvb, 22)));
+	      proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
+				   COOK_SEQUENCE_NUMBER (tvb_get_ntohs
+							 (tvb, 22)));
 	      proto_tree_add_ether (hdr_tree, hf_addr_sa, tvb, 24, 6,
 				    tvb_get_ptr (tvb, 24, 6));
 	      break;
-
 	    }
 
 	}
@@ -1279,15 +1301,10 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
       if (tree)
 	{
-	  proto_tree_add_uint (hdr_tree, hf_did_duration, tvb, 2, 2,
-			       tvb_get_ntohs (tvb, 2));
-
 	  proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6,
 				tvb_get_ptr (tvb, 4, 6));
-
 	  proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 10, 6,
 				tvb_get_ptr (tvb, 10, 6));
-
 	}
       break;
 
@@ -1309,15 +1326,11 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
       if (tree)
 	{
-	  proto_tree_add_uint (hdr_tree, hf_did_duration, tvb, 2, 2,
-			       tvb_get_ntohs (tvb, 2));
-
 	  proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6,
 				tvb_get_ptr (tvb, 4, 6));
 
 	  proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 10, 6,
 				tvb_get_ptr (tvb, 10, 6));
-
 	}
       break;
 
@@ -1383,11 +1396,14 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       break;
 
 
+    case DATA_CF_POLL_NOD:
+      COL_SHOW_INFO (pinfo->fd, "Data + CF-Poll (No data)");
+      break;
+
 
     case DATA_CF_ACK_POLL_NOD:
       COL_SHOW_INFO (pinfo->fd, "Data + CF-Acknowledgement/Poll (No data)");
       break;
-
 
 
     default:
@@ -1591,6 +1607,10 @@ proto_register_wlan (void)
     {&hf_fc_order,
      {"Order flag", "wlan.fc.order", FT_BOOLEAN, 8, TFS (&order_flags), 0x80,
       "Strictly ordered flag"}},
+
+    {&hf_assoc_id,
+     {"Association ID","wlan.aid",FT_UINT16, BASE_DEC,NULL,0,
+      "Association-ID field" }},
 
     {&hf_did_duration,
      {"Duration", "wlan.duration", FT_UINT16, BASE_DEC, NULL, 0,
