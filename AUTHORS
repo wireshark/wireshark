@@ -688,7 +688,12 @@ Francisco Javier Cabello <fjcabello@vtools.es> {
 }
 
 Laurent Rabret <laurent.rabret@rd.francetelecom.fr> {
-	LCP-over Ethernet and IPCP-over-Ethernet support
+	LCP-over Ethernet and IPCP-over-Ethernet support (to handle
+	    captures on Windows; PPP packets show up as Ethernet
+	    packets, courtesy of NDISWAN, and apparently internal-to-PPP
+	    protocols get passed through, with PPP protocol types
+	    appearing in the Ethernet protocol type field)
+	PAP support
 }
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
