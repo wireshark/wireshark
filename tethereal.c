@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.132 2002/03/12 10:37:01 guy Exp $
+ * $Id: tethereal.c,v 1.133 2002/03/22 23:42:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -110,6 +110,7 @@
 static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
 static GString *comp_info_str;
+static gboolean quiet;
 static gboolean verbose;
 static gboolean print_hex;
 static gboolean line_buffered;
@@ -194,7 +195,7 @@ print_usage(void)
   fprintf(stderr, "\t[ -o <preference setting> ] ... [ -r <infile> ] [ -R <read filter> ]\n");
   fprintf(stderr, "\t[ -s <snaplen> ] [ -t <time stamp format> ] [ -w <savefile> ] [ -x ]\n");
 #else
-  fprintf(stderr, "t%s [ -vVhl ] [ -F <capture file type> ] [ -n ] [ -N <resolving> ]\n", PACKAGE);
+  fprintf(stderr, "t%s [ -qvVhl ] [ -F <capture file type> ] [ -n ] [ -N <resolving> ]\n", PACKAGE);
   fprintf(stderr, "\t[ -o <preference setting> ] ... [ -r <infile> ] [ -R <read filter> ]\n");
   fprintf(stderr, "\t[ -t <time stamp format> ] [ -w <savefile> ] [ -x ]\n");
 #endif
@@ -428,7 +429,7 @@ main(int argc, char *argv[])
 #endif
     
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "a:b:c:Df:F:hi:lnN:o:pr:R:s:t:vw:Vx")) != -1) {
+  while ((opt = getopt(argc, argv, "a:b:c:Df:F:hi:lnN:o:pqr:R:s:t:vw:Vx")) != -1) {
     switch (opt) {
       case 'a':        /* autostop criteria */
 #ifdef HAVE_LIBPCAP
@@ -567,6 +568,9 @@ main(int argc, char *argv[])
         arg_error = TRUE;
 #endif
 	break;
+      case 'q':        /* Quiet */
+        quiet = TRUE;
+        break;
       case 'r':        /* Read capture file xxx */
         cf_name = g_strdup(optarg);
         break;
@@ -1000,10 +1004,10 @@ capture(volatile int packet_count, int out_file_type)
   if (cnd_stop_timeout != NULL)
     cnd_delete(cnd_stop_timeout);
 
-  if (cfile.save_file != NULL) {
+  if ((cfile.save_file != NULL) && !quiet) {
     /* We're saving to a file, which means we're printing packet counts
-       to the standard output.  Send a newline so that we move to the
-       line after the packet count. */
+       to the standard output if we are not running silent and deep.
+       Send a newline so that we move to the line after the packet count. */
     fprintf(stderr, "\n");
   }
 
@@ -1022,6 +1026,12 @@ capture(volatile int packet_count, int out_file_type)
   } else {
     fprintf(stderr, "tethereal: Can't get packet-drop statistics: %s\n",
 	pcap_geterr(ld.pch));
+  }
+/* deicher */
+/* Report the number of captured packets if not reported during capture and
+   we are not saving to a file. */
+  if (quiet && (cfile.save_file != NULL)) {
+    fprintf(stderr, "\r%u packets captured\n", cfile.count);
   }
 
   pcap_close(ld.pch);
@@ -1070,8 +1080,12 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   args.pdh = ld->pdh;
   if (ld->pdh) {
     wtap_dispatch_cb_write((u_char *)&args, &whdr, 0, NULL, pd);
-    fprintf(stderr, "\r%u ", cfile.count);
-    fflush(stdout);
+/* deicher */
+/* Report packet capture count if not quiet */
+    if (!quiet) {
+      fprintf(stderr, "\r%u ", cfile.count);
+      fflush(stdout);
+    }
   } else {
     wtap_dispatch_cb_print((u_char *)&args, &whdr, 0, NULL, pd);
   }

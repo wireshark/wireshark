@@ -111,7 +111,7 @@ kilobytes (where a kilobyte is 1000 bytes, not 1024 bytes).
 
 =item -b
 
-If a maximum capture file size was specified, causes B<Ethereal> to run
+If a maximum capture file size was specified, cause B<Ethereal> to run
 in "ring buffer" mode, with the specified number of files.  In "ring
 buffer" mode, B<Ethereal> will write to several capture files; the name
 of the first file, while the capture is in progress, will be the name
@@ -130,24 +130,24 @@ packets most recently started being written to the file.
 
 =item -B
 
-Sets the initial height of the byte view (bottom) pane.
+Set the initial height of the byte view (bottom) pane.
 
 =item -c
 
-Sets the default number of packets to read when capturing live
+Set the default number of packets to read when capturing live
 data.
 
 =item -f
 
-Sets the capture filter expression.
+Set the capture filter expression.
 
 =item -h
 
-Prints the version and options and exits.
+Print the version and options and exit.
 
 =item -i
 
-Sets the name of the network interface or pipe to use for live packet capture.
+Set the name of the network interface or pipe to use for live packet capture.
 Network interface names should match one of the names listed in "B<netstat -i>"
 or "B<ifconfig -a>".
 Pipe names should be either the name of a FIFO (named pipe) or ``-'' to read
@@ -155,7 +155,7 @@ data from the standard input. Data read from pipes must be in libpcap format.
 
 =item -k
 
-Starts the capture session immediately.  If the B<-i> flag was
+Start the capture session immediately.  If the B<-i> flag was
 specified, the capture uses the specified interface.  Otherwise,
 B<Ethereal> searches the list of interfaces, choosing the first
 non-loopback interface if there are any non-loopback interfaces, and
@@ -165,33 +165,34 @@ doesn't start the capture.
 
 =item -l
 
-Turns on automatic scrolling if the packet display is being updated
+Turn on automatic scrolling if the packet display is being updated
 automatically as packets arrive during a capture (as specified by the
 B<-S> flag).
 
 =item -m
 
-Sets the name of the font used by B<Ethereal> for most text. 
+Set the name of the font used by B<Ethereal> for most text. 
 B<Ethereal> will construct the name of the bold font used for the data
 in the byte view pane that corresponds to the field selected in the
 protocol tree pane from the name of the main text font.
 
 =item -n
 
-Disables network object name resolution (such as hostname, TCP and UDP port
+Disable network object name resolution (such as hostname, TCP and UDP port
 names).
 
 =item -N
 
-Turns on name resolving for particular types of addresses and port
-numbers; the argument is a string that may contain the letters B<m> to
-enable MAC address resolution, B<n> to enable network address
-resolution, and B<t> to enable transport-layer port number resolution. 
-This overrides B<-n> if both B<-N> and B<-n> are present.
+Turn on name resolving for particular types of addresses and port
+numbers, with name resolving for other types of addresses and port
+numbers turned off; the argument is a string that may contain the
+letters B<m> to enable MAC address resolution, B<n> to enable network
+address resolution, and B<t> to enable transport-layer port number
+resolution.  This overrides B<-n> if both B<-N> and B<-n> are present.
 
 =item -o
 
-Sets a preference value, overriding the default value and any value read
+Set a preference value, overriding the default value and any value read
 from a preference file.  The argument to the flag is a string of the
 form I<prefname>B<:>I<value>, where I<prefname> is the name of the
 preference (which is the same name that would appear in the preference
@@ -208,17 +209,17 @@ machine.
 
 =item -P
 
-Sets the initial height of the packet list (top) pane.
+Set the initial height of the packet list (top) pane.
 
 =item -Q
 
-Causes B<Ethereal> to exit after the end of capture session (useful in
+Cause B<Ethereal> to exit after the end of capture session (useful in
 batch mode with B<-c> option for instance); this option requires the
 B<-i> and B<-w> parameters.
 
 =item -r
 
-Reads packet data from I<infile>.
+Read packet data from I<infile>.
 
 =item -R
 
@@ -229,23 +230,22 @@ capture file; packets not matching the filter are discarded.
 
 =item -S
 
-Specifies that the live packet capture will be performed in a separate
-process, and that the packet display will automatically be updated as
-packets are seen.
+Perform the live packet capture in a separate process, and automatically
+update the packet display as packets are seen.
 
 =item -s
 
-Sets the default snapshot length to use when capturing live data. 
+Set the default snapshot length to use when capturing live data. 
 No more than I<snaplen> bytes of each network packet will be read into
 memory, or saved to disk.
 
 =item -T
 
-Sets the initial height of the tree view (middle) pane.
+Set the initial height of the tree view (middle) pane.
 
 =item -t
 
-Sets the format of the packet timestamp displayed in the packet list
+Set the format of the packet timestamp displayed in the packet list
 window.  The format can be one of 'r' (relative), 'a' (absolute), 'ad'
 (absolute with date), or 'd' (delta).  The relative time is the time
 elapsed between the first packet and the current packet.  The absolute
@@ -256,11 +256,11 @@ captured.  The default is relative.
 
 =item -v
 
-Prints the version and exits.
+Print the version and exit.
 
 =item -w
 
-Sets the default capture file name.
+Set the default capture file name.
 
 =back
 
@@ -289,7 +289,7 @@ which to save it.
 
 =item File:Print
 
-Prints, for all the packets in the current capture, either the summary
+Print, for all the packets in the current capture, either the summary
 line for the packet or the protocol tree view of the packet; when
 printing the protocol tree view, the hex dump of the packet can be
 printed as well.  Printing options can be set with the
@@ -304,53 +304,53 @@ item.
 
 =item File:Quit
 
-Exits the application.
+Exit the application.
 
 =item Edit:Find Frame
 
-Allows you to search forward or backward, starting with the currently
-selected packet (or the most recently selected packet, if no packet is
-selected), for a packet matching a given display filter.
+Search forward or backward, starting with the currently selected packet
+(or the most recently selected packet, if no packet is selected), for a
+packet matching a given display filter.
 
 =item Edit:Go To Frame
 
-Allows you to go to a particular numbered packet.
+Go to a particular numbered packet.
 
 =item Edit:Mark Frame
 
-Allows you to mark (or unmark if currently marked) the selected packet.
+Mark (or unmark if currently marked) the selected packet.
 
 =item Edit:Mark All Frames
 
-Allows you to mark all packets that are currently displayed.
+Mark all packets that are currently displayed.
 
 =item Edit:Unmark All Frames
 
-Allows you to unmark all packets that are currently displayed.
+Unmark all packets that are currently displayed.
 
 =item Edit:Preferences
 
-Sets the packet printing, column display, TCP stream coloring, and GUI
+Set the packet printing, column display, TCP stream coloring, and GUI
 options (see L<"Preferences"> below).
 
 =item Edit:Capture Filters
 
-Edits the saved list of capture filters, allowing filters to be added,
+Edit the saved list of capture filters, allowing filters to be added,
 changed, or deleted.
 
 =item Edit:Display Filters
 
-Edits the saved list of display filters, allowing filters to be added,
+Edit the saved list of display filters, allowing filters to be added,
 changed, or deleted.
 
 =item Edit:Protocols
 
-Edits the list of protocols, allowing protocol dissection to be 
+Edit the list of protocols, allowing protocol dissection to be 
 enabled or disabled.
 
 =item Capture:Start
 
-Initiates a live packet capture (see L<"Capture Options"> below).  A
+Initiate a live packet capture (see L<"Capture Options"> below).  A
 temporary file will be created to hold the capture.  The location of the
 file can be chosen by setting your TMPDIR environment variable before
 starting B<Ethereal>.  Otherwise, the default TMPDIR location is
@@ -360,21 +360,21 @@ system-dependent, but is likely either F</var/tmp> or F</tmp>.
 
 In a capture that updates the packet display as packets arrive (so that
 Ethereal responds to user input other than pressing the "Stop" button in
-the capture packet statistics dialog box), stops the capture.
+the capture packet statistics dialog box), stop the capture.
 
 =item Display:Options
 
-Allows you to sets the format of the packet timestamp displayed in the
-packet list window to relative, absolute, absolute date and time, or
-delta, to enable or disable the automatic scrolling of the packet list
-while a live capture is in progress or to enable or disable translation
-of addresses to names in the display.
+Pop up a dialog allowing you to set the format of the packet timestamp
+displayed in the packet list window to relative, absolute, absolute date
+and time, or delta, to enable or disable the automatic scrolling of the
+packet list while a live capture is in progress or to enable or disable
+translation of addresses to names in the display.
 
 =item Display:Match
 
-Creates a display filter, or adds to the display filter strip at the
+Create a display filter, or add to the display filter strip at the
 bottom, a display filter based on the data currently highlighted in the
-protocol tree, and applies the filter.
+protocol tree, and apply the filter.
 
 If that data is a field that can be tested in a display filter
 expression, the display filter will test that field; otherwise, the
@@ -391,27 +391,27 @@ followed by the new display filter expression.
 
 =item Display:Prepare
 
-Creates a display filter, or adds to the display filter strip at the
+Create a display filter, or add to the display filter strip at the
 bottom, a display filter based on the data currently highlighted in the
-protocol tree, but doesn't apply the filter.
+protocol tree, but don't apply the filter.
 
 =item Display:Colorize Display
 
-Allows you to change the foreground and background colors of the packet
-information in the list of packets, based upon display filters.  The list
-of display filters is applied to each packet sequentially. After the first
-display filter matches a packet, any additional display filters in the list
-are ignored. Therefore, if you are filtering on the existence of protocols,
+Change the foreground and background colors of the packet information in
+the list of packets, based upon display filters.  The list of display
+filters is applied to each packet sequentially.  After the first display
+filter matches a packet, any additional display filters in the list are
+ignored.  Therefore, if you are filtering on the existence of protocols,
 you should list the higher-level protocols first, and the lower-level
 protocols last.
 
 =item Display:Collapse All
 
-Collapses the protocol tree branches.
+Collapse the protocol tree branches.
 
 =item Display:Expand All
 
-Expands all branches of the protocol tree.
+Expand all branches of the protocol tree.
 
 =item Display:Expand All
 
@@ -419,31 +419,31 @@ Expands all branches of the protocol tree.
 
 =item Display:Show Packet In New Window
 
-Creates a new window containing a protocol tree view and a hex dump
+Create a new window containing a protocol tree view and a hex dump
 window of the currently selected packet; this window will continue to
 display that packet's protocol tree and data even if another packet is
 selected.
 
 =item Display:User Specified Decodes
 
-Creates a new window showing whether any protocol ID to dissector
+Create a new window showing whether any protocol ID to dissector
 mappings have been changed by the user.  This window also allows the
 user to reset all decodes to their default values.
 
 =item Tools:Plugins
 
-Allows you to see what dynamically loadable dissector plugin modules
-have been loaded (see I<"Plugins"> below).
+See what dynamically loadable dissector plugin modules have been loaded
+(see I<"Plugins"> below).
 
 =item Tools:Follow TCP Stream
 
-If you have a TCP packet selected, it will display the contents of the
-data stream for the TCP connection to which that packet belongs, as
-text, in a separate window, and will leave the list of packets in a
-filtered state, with only those packets that are part of that TCP
-connection being displayed.  You can revert to your old view by pressing
-ENTER in the display filter text box, thereby invoking your old display
-filter (or resetting it back to no display filter).
+If you have a TCP packet selected, display the contents of the data
+stream for the TCP connection to which that packet belongs, as text, in
+a separate window, and leave the list of packets in a filtered state,
+with only those packets that are part of that TCP connection being
+displayed.  You can revert to your old view by pressing ENTER in the
+display filter text box, thereby invoking your old display filter (or
+resetting it back to no display filter).
 
 The window in which the data stream is displayed lets you select whether
 to display:
@@ -476,27 +476,24 @@ save it as text to a file.
 
 =item Tools:Decode As
 
-If you have a packet selected, this menu item will present a dialog
-allowing you to change which dissectors are used to decode this
-packet.  The dialog has one panel each for the link layer, network
-layer and transport layer protocol/port numbers, and will allow each
-of these to be changed independently.  For example, if the selected
-packet is a TCP packet to port 12345, using this dialog you can
-instruct Ethereal to decode all packets to or from that TCP port as
-HTTP packets.
+If you have a packet selected, present a dialog allowing you to change
+which dissectors are used to decode this packet.  The dialog has one
+panel each for the link layer, network layer and transport layer
+protocol/port numbers, and will allow each of these to be changed
+independently.  For example, if the selected packet is a TCP packet to
+port 12345, using this dialog you can instruct Ethereal to decode all
+packets to or from that TCP port as HTTP packets.
 
 =item Tools:Protocol Hierarchy Statistics
 
-This shows the number of packets, and the number of bytes
-in those packets, for each protocol in the trace. It
-organizes the protocols in the same hierarchy in which
-they were found in the trace. Besides counting the packets
-in which the protocol exists, a count is also made
-for packets in which the protocol is the last protocol in
-the stack. These last-protocol counts show you how many packets
-(and the byte count associated with those packets) B<ended> in a particular
-protocol. In the table, they are listed under "End Packets" and
-"End Bytes".
+Show the number of packets, and the number of bytes in those packets,
+for each protocol in the trace.  It organizes the protocols in the same
+hierarchy in which they were found in the trace.  Besides counting the
+packets in which the protocol exists, a count is also made for packets
+in which the protocol is the last protocol in the stack.  These
+last-protocol counts show you how many packets (and the byte count
+associated with those packets) B<ended> in a particular protocol.  In
+the table, they are listed under "End Packets" and "End Bytes".
 
 =head2 WINDOWS
 
@@ -1394,6 +1391,7 @@ B<http://www.ethereal.com>.
   Jakob Schlyter           <jakob[AT]crt.se>
   Jim Sienicki             <sienicki[AT]issanni.com>
   Steven French            <sfrench[AT]us.ibm.com>
+  Diana Eichert            <deicher[AT]sandia.gov>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

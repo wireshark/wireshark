@@ -19,6 +19,7 @@ S<[ B<-n> ]>
 S<[ B<-N> resolving flags ]>
 S<[ B<-o> preference setting ] ...>
 S<[ B<-p> ]>
+S<[ B<-q> ]>
 S<[ B<-r> infile ]>
 S<[ B<-R> display filter expression ]>
 S<[ B<-s> snaplen ]>
@@ -138,7 +139,7 @@ kilobytes (where a kilobyte is 1000 bytes, not 1024 bytes).
 
 =item -b
 
-If a maximum capture file size was specified, causes B<Tethereal> to run
+If a maximum capture file size was specified, cause B<Tethereal> to run
 in "ring buffer" mode, with the specified number of files.  In "ring
 buffer" mode, B<Tethereal> will write to several capture files; the name
 of the first file, while the capture is in progress, will be the name
@@ -159,13 +160,13 @@ You can only save files in B<libpcap> format when using a ring buffer.
 
 =item -c
 
-Sets the default number of packets to read when capturing live
+Set the default number of packets to read when capturing live
 data.
 
 =item -D
 
-Prints a list of the interfaces on which B<Tethereal> can capture, and
-exits.  Note that "can capture" means that B<Tethereal> was able to open
+Print a list of the interfaces on which B<Tethereal> can capture, and
+exit.  Note that "can capture" means that B<Tethereal> was able to open
 that device to do a live capture; if, on your system, a program doing a
 network capture must be run from an account with special privileges (for
 example, as root), then, if B<Tethereal> is run with the B<-D> flag and
@@ -173,19 +174,19 @@ is not run from such an account, it will not list any interfaces.
 
 =item -f
 
-Sets the capture filter expression.
+Set the capture filter expression.
 
 =item -F
 
-Sets the file format of the output capture file.
+Set the file format of the output capture file.
 
 =item -h
 
-Prints the version and options and exits.
+Print the version and options and exits.
 
 =item -i
 
-Sets the name of the network interface to use for live packet capture. 
+Set the name of the network interface to use for live packet capture. 
 It should match one of the names listed in "B<netstat -i>" or
 "B<ifconfig -a>".  If no interface is specified, B<Tethereal> searches
 the list of interfaces, choosing the first non-loopback interface if
@@ -213,20 +214,21 @@ standard output buffer containing that data fills up.
 
 =item -n
 
-Disables network object name resolution (such as hostname, TCP and UDP port
+Disable network object name resolution (such as hostname, TCP and UDP port
 names).
 
 =item -N
 
-Turns on name resolving for particular types of addresses and port
-numbers; the argument is a string that may contain the letters B<m> to
-enable MAC address resolution, B<n> to enable network address
-resolution, and B<t> to enable transport-layer port number resolution. 
-This overrides B<-n> if both B<-N> and B<-n> are present.
+Turn on name resolving for particular types of addresses and port
+numbers, with name resolving for other types of addresses and port
+numbers turned off; the argument is a string that may contain the
+letters B<m> to enable MAC address resolution, B<n> to enable network
+address resolution, and B<t> to enable transport-layer port number
+resolution.  This overrides B<-n> if both B<-N> and B<-n> are present.
 
 =item -o
 
-Sets a preference value, overriding the default value and any value read
+Set a preference value, overriding the default value and any value read
 from a preference file.  The argument to the flag is a string of the
 form I<prefname>B<:>I<value>, where I<prefname> is the name of the
 preference (which is the same name that would appear in the preference
@@ -241,26 +243,32 @@ traffic sent to or from the machine on which B<Tethereal> is running,
 broadcast traffic, and multicast traffic to addresses received by that
 machine.
 
+=item -q
+
+Don't display the continuous count of packets captured that is normally
+shown when saving a capture to a file; instead, just display, at the end
+of the capture, a count of packets captured.
+
 =item -r
 
-Reads packet data from I<infile>.
+Read packet data from I<infile>.
 
 =item -R
 
-Causes the specified filter (which uses the syntax of read filters,
+Cause the specified filter (which uses the syntax of read filters,
 rather than that of capture filters) to be applied before printing a
 decoded form of packets or writing packets to a file; packets not
 matching the filter are discarded rather than being printed or written.
 
 =item -s
 
-Sets the default snapshot length to use when capturing live data. 
+Set the default snapshot length to use when capturing live data. 
 No more than I<snaplen> bytes of each network packet will be read into
 memory, or saved to disk.
 
 =item -t
 
-Sets the format of the packet timestamp printed in summary lines.  The
+Set the format of the packet timestamp printed in summary lines.  The
 format can be one of 'r' (relative), 'a' (absolute), 'ad' (absolute with
 date), or 'd' (delta).  The relative time is the time elapsed between
 the first packet and the current packet.  The absolute time is the
@@ -271,20 +279,20 @@ captured.  The default is relative.
 
 =item -v
 
-Prints the version and exits.
+Print the version and exit.
 
 =item -V
 
-Causes B<Tethereal> to print a protocol tree for each packet rather than
+Cause B<Tethereal> to print a protocol tree for each packet rather than
 a one-line summary of the packet.
 
 =item -w
 
-Writes packet data to I<savefile>.
+Write packet data to I<savefile>.
 
 =item -x
 
-Causes B<Tethereal> to print a hex and ASCII dump of the packet data
+Cause B<Tethereal> to print a hex and ASCII dump of the packet data
 after printing the summary or protocol tree.
 
 =back
