@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.14 1999/03/01 18:57:01 gram Exp $
+ * $Id: menu.c,v 1.15 1999/03/01 20:32:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -179,6 +179,9 @@ menus_init(void) {
     set_menu_sensitivity("/Edit/Paste", FALSE);
     set_menu_sensitivity("/Edit/Find", FALSE);
     set_menu_sensitivity("/Tools/Graph", FALSE);
+#ifdef WITH_WIRETAP
+	set_menu_sensitivity("/Tools/Follow TCP Stream", FALSE);
+#endif
     
 #else
     factory = gtk_menu_factory_new(GTK_MENU_FACTORY_MENU_BAR);
@@ -196,6 +199,9 @@ menus_init(void) {
     set_menu_sensitivity("<Main>/Edit/Paste", FALSE);
     set_menu_sensitivity("<Main>/Edit/Find", FALSE);
     set_menu_sensitivity("<Main>/Tools/Graph", FALSE);
+#ifdef WITH_WIRETAP
+	set_menu_sensitivity("<Main>/Tools/Follow TCP Stream", FALSE);
+#endif
     if ((mp = gtk_menu_factory_find(factory, "<Main>/Help")) != NULL) {
       gtk_menu_item_right_justify((GtkMenuItem *) mp->widget);
     }
