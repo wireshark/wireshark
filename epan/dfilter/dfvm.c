@@ -1,5 +1,5 @@
 /*
- * $Id: dfvm.c,v 1.13 2003/12/06 16:35:19 gram Exp $
+ * $Id: dfvm.c,v 1.14 2003/12/19 04:40:24 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -156,6 +156,16 @@ dfvm_dump(FILE *f, GPtrArray *insns)
 
 			case ANY_LE:
 				fprintf(f, "%05d ANY_LE\t\treg#%d == reg#%d\n",
+					id, arg1->value.numeric, arg2->value.numeric);
+				break;
+
+			case ANY_CONTAINS:
+				fprintf(f, "%05d ANY_CONTAINS\treg#%d contains reg#%d\n",
+					id, arg1->value.numeric, arg2->value.numeric);
+				break;
+
+			case ANY_MATCHES:
+				fprintf(f, "%05d ANY_MATCHES\treg#%d matches reg#%d\n",
 					id, arg1->value.numeric, arg2->value.numeric);
 				break;
 
