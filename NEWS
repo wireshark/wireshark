@@ -1,3 +1,28 @@
+Overview of changes in Ethereal 0.8.10:
+* Code cleanup (Gilbert)
+* Assign port 1052 to DDTP (Olivier)
+* Add syslog dissector (Gerald)
+* Build cleanup (Guy)
+* X11 dissector (Christophe, Guy)
+* RPC cleanup (Guy)
+* tvbuffication (Olivier, Gilbert)
+* Remove dead tos_str symbol (itojun)
+* More manufacturer ether codes (Gaetan Soltesz <gaetan@cisco.com>)
+* Support for capturing on Linux ATM interfaces (Mark Clayton)
+* NG Sniffer file reading fixes (Joerg)
+* Make 'tethereal -h' look similar to 'ethereal -h' (Joerg)
+* Support for "Update list of packets in real time" on Win32 (Graham)
+* Win32 makefile dependency fix (Graham)
+* Fix for people who don't read the FAQ. I.e., fix for
+	calling snmp_set_full_objid(0 in packet-snmp.c (Guy)
+* OSI fix (Guy)
+* ISIS fix (Guy)
+* AFS volume name display fix (Guy)
+* tvbtest enhancements (Guy)
+* Treat TCP follow temp file as binary, for Win32 (Guy)
+* Read NetXRay 2.002 files (Joerg, Guy)
+
+
 Overview of changes in Ethereal 0.8.9:
 * Timestamps in RTP summary column (Jason Lango)
 * Fix build warnings (Ron Flory)
