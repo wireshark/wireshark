@@ -61,5 +61,6 @@ ServiceChangeRequest/terminationID			terminationIDList
 ServiceChangeReply/terminationID			terminationIDList
 
 #.END
-
-
+#.TYPE_ATTR
+IP4Address/address  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
+IP6Address/address  TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL

@@ -55,10 +55,18 @@ static int hf_h248_package_name		= -1;
 static int hf_h248_event_name		= -1;
 static int hf_h248_signal_name		= -1;
 static int hf_h248_package_bcp_BNCChar_PDU = -1;
+static int hf_h248_package_annex_C_ACodec = -1;
 static int hf_h248_package_annex_C_TMR = -1;
+static int hf_h248_package_annex_C_Mediatx = -1;
 static int hf_h248_package_annex_C_USI = -1;
 static int hf_h248_package_annex_C_NSAP = -1;
 static int hf_h248_package_annex_C_BIR = -1;
+static int hf_h248_package_3GUP_Mode = -1;
+static int hf_h248_package_3GUP_UPversions = -1;
+static int hf_h248_package_3GUP_delerrsdu = -1;
+static int hf_h248_package_3GUP_interface = -1;
+static int hf_h248_package_3GUP_initdir = -1;
+
 #include "packet-h248-hf.c"
 
 /* Initialize the subtree pointers */
@@ -256,6 +264,14 @@ static const value_string signal_name_vals[] = {
 	{0,     NULL}
 };
 
+static const value_string h248_package_annex_C_Mediatx_vals[] = {
+  {   0x0000, "TDM Circuit" },
+  {   0x0001, "ATM" },
+  {   0x0002, "FR" },
+  {   0x0003, "Ipv4" },
+  {   0x0004, "Ipv6" },
+	{0,     NULL}
+};
 static void 
 dissect_h248_annex_C_PDU(gboolean implicit_tag, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 name_minor) {
 	int offset = 0;
@@ -264,6 +280,12 @@ dissect_h248_annex_C_PDU(gboolean implicit_tag, tvbuff_t *tvb, packet_info *pinf
 	switch ( name_minor ){
 		case 0x1001: /* Media */
 			proto_tree_add_text(tree, tvb, offset, -1,"Media");
+			break;
+		case 0x1006: /* ACodec Ref.: ITU-T Rec. Q.765.5 */
+			offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_h248_package_annex_C_ACodec, &new_tvb);
+			break;
+		case 0x3001: /* Mediatx */
+			offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_h248_package_annex_C_Mediatx, NULL);
 			break;
 		case 0x3002: /* BIR */
 			offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_h248_package_annex_C_BIR, &new_tvb);
@@ -283,6 +305,79 @@ dissect_h248_annex_C_PDU(gboolean implicit_tag, tvbuff_t *tvb, packet_info *pinf
 			proto_tree_add_text(tree, tvb, offset, -1,"PropertyID not decoded(yet) 0x%x",name_minor);
 			break;
 	}
+}
+
+static const value_string h248_3GUP_Mode_vals[] = {
+  {   0x00000001, "Transparent mode" },
+  {   0x00000002, "Support mode for predefined SDU sizes" },
+	{0,     NULL}
+};
+
+static const value_string h248_3GUP_upversions_vals[] = {
+  {   0x01, "Version 1" },
+  {   0x02, "Version 2" },
+  {   0x03, "Version 3" },
+  {   0x04, "Version 4" },
+  {   0x05, "Version 5" },
+  {   0x06, "Version 6" },
+  {   0x07, "Version 7" },
+  {   0x08, "Version 8" },
+  {   0x09, "Version 9" },
+  {   0x0A, "Version 10" },
+  {   0x0B, "Version 11" },
+  {   0x0C, "Version 12" },
+  {   0x0D, "Version 13" },
+  {   0x0E, "Version 14" },
+  {   0x0F, "Version 15" },
+  {   0x10, "Version 16" },
+	{0,     NULL}
+};
+
+static const value_string h248_3GUP_delerrsdu_vals[] = {
+  {   0x0001, "Yes" },
+  {   0x0002, "No" },
+  {   0x0003, "Not Applicable" },
+	{0,     NULL}
+};
+
+static const value_string h248_3GUP_interface_vals[] = {
+  {   0x0001, "RAN (Iu interface)" },
+  {   0x0002, "CN (Nb interfac)" },
+	{0,     NULL}
+};
+
+static const value_string h248_3GUP_initdir_vals[] = {
+  {   0x0001, "Incoming" },
+  {   0x0002, "Outgoing" },
+	{0,     NULL}
+};
+
+static void
+dissect_3G_User_Plane_PDU(gboolean implicit_tag, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 name_minor){
+	int offset = 0;
+
+	switch ( name_minor ){
+	case 0x0001:
+			offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_h248_package_3GUP_Mode, NULL);
+			break;
+	case 0x0002:
+			offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_h248_package_3GUP_UPversions, NULL);
+			break;
+	case 0x0003:
+			offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_h248_package_3GUP_delerrsdu, NULL);
+			break;
+	case 0x0004:
+			offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_h248_package_3GUP_interface, NULL);
+			break;
+	case 0x0005:
+			offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_h248_package_3GUP_initdir, NULL);
+			break;
+		default:
+			proto_tree_add_text(tree, tvb, offset, -1,"PropertyID not decoded(yet) 0x%x",name_minor);
+			break;
+	}
+
+ 
 }
 static const value_string BNCChar_vals[] = {
   {   1, "aal1" },
@@ -309,6 +404,9 @@ guint offset=0;
 			break;
 		case 0x0021: /* Generic Bearer Connection Q.1950 Annex A */
 			proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset), "H.248: Dissector for Package/ID:0x%04x not implemented (yet).", name_major);
+			break;
+		case 0x002f: /* 3G User Plane TS 29.232 */
+			dissect_3G_User_Plane_PDU(implicit_tag, tvb, pinfo, tree, name_minor);
 			break;
 		default:
 			proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset), "H.248: Dissector for Package/ID:0x%04x not implemented (yet).", name_major);
@@ -514,10 +612,18 @@ void proto_register_h248(void) {
       { "BNCChar", "h248.package_bcp.BNCChar",
         FT_UINT32, BASE_DEC, VALS(BNCChar_vals), 0,
         "BNCChar", HFILL }},
+	{ &hf_h248_package_annex_C_ACodec,
+      { "ACodec", "h248.package_annex_C.ACodec",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ACodec", HFILL }},
 	{ &hf_h248_package_annex_C_TMR,
       { "TMR", "h248.package_annex_C.TMR",
         FT_UINT32, BASE_DEC, VALS(isup_transmission_medium_requirement_value), 0,
         "BNCChar", HFILL }},
+	{ &hf_h248_package_annex_C_Mediatx,
+      { "Mediatx", "h248.package_annex_C.Mediatx",
+        FT_UINT32, BASE_DEC, VALS(h248_package_annex_C_Mediatx_vals), 0,
+        "Mediatx", HFILL }},
 	{ &hf_h248_package_annex_C_USI,
       { "USI", "h248.package_annex_C.USI",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -530,6 +636,26 @@ void proto_register_h248(void) {
       { "NSAP", "h248.package_annex_C.NSAP",
         FT_BYTES, BASE_HEX, NULL, 0,
         "NSAP", HFILL }},
+	{ &hf_h248_package_3GUP_Mode,
+      { "Mode", "h248.package_3GUP.Mode",
+        FT_UINT32, BASE_DEC, VALS(h248_3GUP_Mode_vals), 0,
+        "Mode", HFILL }},
+	{ &hf_h248_package_3GUP_UPversions,
+      { "UPversions", "h248.package_3GUP.upversions",
+        FT_UINT32, BASE_DEC, VALS(h248_3GUP_upversions_vals), 0,
+        "UPversions", HFILL }},
+	{ &hf_h248_package_3GUP_delerrsdu,
+      { "Delivery of erroneous SDUs", "h248.package_3GUP.delerrsdu",
+        FT_UINT32, BASE_DEC, VALS(h248_3GUP_delerrsdu_vals), 0,
+        "Delivery of erroneous SDUs", HFILL }},
+	{ &hf_h248_package_3GUP_interface,
+      { "Interface", "h248.package_3GUP.interface",
+        FT_UINT32, BASE_DEC, VALS(h248_3GUP_interface_vals), 0,
+        "Interface", HFILL }},
+	{ &hf_h248_package_3GUP_initdir,
+      { "Initialisation Direction", "h248.package_3GUP.initdir",
+        FT_UINT32, BASE_DEC, VALS(h248_3GUP_initdir_vals), 0,
+        "Initialisation Direction", HFILL }},
 
 #include "packet-h248-hfarr.c"
   };
