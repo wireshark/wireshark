@@ -232,7 +232,7 @@ static ber_choice DirectoryString_choice[] = {
 };
 
 static int
-dissect_x509sat_DirectoryString(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+dissect_x509sat_DirectoryString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
   DirectoryString_hf_index = hf_index;
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               DirectoryString_choice, -1, ett_x509sat_DirectoryString);
