@@ -1,7 +1,7 @@
 /* packet-bootparams.c
  * Routines for bootparams dissection
  *
- * $Id: packet-bootparams.c,v 1.2 1999/11/10 21:05:09 nneul Exp $
+ * $Id: packet-bootparams.c,v 1.3 1999/11/11 16:20:24 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -28,24 +28,87 @@
 #include "config.h"
 #endif
 
-
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
 
+#ifdef HAVE_NETINET_IN_H
+# include <netinet/in.h>
+#endif
+
+#include <string.h>
+#include <glib.h>
 
 #include "packet-rpc.h"
 #include "packet-bootparams.h"
 
 static int proto_bootparams = -1;
+static int hf_bootparams_host = -1;
+static int hf_bootparams_fileid = -1;
+static int hf_bootparams_filepath = -1;
+static int hf_bootparams_addresstype = -1;
+static int hf_bootparams_address = -1;
+
+/* Dissect a getfile call */
+int dissect_getfile_call(const u_char *pd, int offset, frame_data *fd,
+	proto_tree *tree)
+{
+	if ( tree )
+	{
+		offset = dissect_rpc_string_item(pd,offset,fd,tree,hf_bootparams_host);
+		offset = dissect_rpc_string_item(pd,offset,fd,tree,hf_bootparams_fileid);
+	}
+	
+	return offset;
+}
+
+/* Dissect a getfile reply */
+int dissect_getfile_reply(const u_char *pd, int offset, frame_data *fd,
+	proto_tree *tree)
+{
+	guint32 type;
+	guint32 ipaddr;
+
+	if ( tree )
+	{
+		offset = dissect_rpc_string_item(pd,offset,fd,tree,hf_bootparams_host);
+
+		/* get the address type */
+		if ( !BYTES_ARE_IN_FRAME(offset, 1)) return offset;
+		type = pntohl(&pd[offset]); /* type of address */
+		proto_tree_add_item(tree, hf_bootparams_addresstype,
+			offset, 4, type);
+		offset += 4;
+
+		if ( type != 1 ) /* only know how to handle this type of address */
+		{
+			return offset;
+		}
+
+		/* get the address itself - weird ass format */
+		if ( ! BYTES_ARE_IN_FRAME(offset, 16)) return offset;
+		ipaddr = (pd[offset+3]<<24) + (pd[offset+7]<<16) +
+			(pd[offset+11]<<8) + (pd[offset+15]);
+		proto_tree_add_item(tree, hf_bootparams_address, 
+			offset, 16, ntohl(ipaddr));
+		offset += 16;
+
+		offset = dissect_rpc_string_item(pd,offset,fd,tree,hf_bootparams_filepath);
+	}
+	
+	return offset;
+}
 
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: take the generic one. */
 const vsff bootparams1_proc[] = {
-	{ BOOTPARAMSPROC_NULL,	"NULL",		NULL,				NULL },
-	{ BOOTPARAMSPROC_WHOAMI,	"WHOAMI",		NULL,				NULL },
-	{ BOOTPARAMSPROC_GETFILE,	"GETFILE",		NULL,				NULL },
-	{ 0,	NULL,		NULL,				NULL }
+	{ BOOTPARAMSPROC_NULL, "NULL",
+		NULL, NULL },
+	{ BOOTPARAMSPROC_WHOAMI, "WHOAMI", 
+		NULL, NULL },
+	{ BOOTPARAMSPROC_GETFILE, "GETFILE", 
+		dissect_getfile_call, dissect_getfile_reply },
+	{ 0, NULL, NULL, NULL }
 };
 /* end of Bootparams version 1 */
 
@@ -53,7 +116,26 @@ const vsff bootparams1_proc[] = {
 void
 proto_register_bootparams(void)
 {
+	static hf_register_info hf[] = {
+		{ &hf_bootparams_host, {
+			"Host", "bootparams.host", FT_STRING, BASE_DEC,
+			NULL, 0, "Host" }},
+		{ &hf_bootparams_fileid, {
+			"File ID", "bootparams.fileid", FT_STRING, BASE_DEC,
+			NULL, 0, "File ID" }},
+		{ &hf_bootparams_filepath, {
+			"File Path", "bootparams.filepath", FT_STRING, BASE_DEC,
+			NULL, 0, "File Path" }},
+		{ &hf_bootparams_addresstype, {
+			"Address Type", "bootparams.addresstype", FT_UINT32, BASE_DEC,
+			NULL, 0, "Address Type" }},
+		{ &hf_bootparams_address, {
+			"Address", "bootparams.address", FT_IPv4, BASE_DEC,
+			NULL, 0, "Address" }},
+	};
+
 	proto_bootparams = proto_register_protocol("Boot Parameters", "bootparams");
+	proto_register_field_array(proto_bootparams, hf, array_length(hf));
 
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_bootparams, BOOTPARAMS_PROGRAM, ETT_BOOTPARAMS);

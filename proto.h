@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.17 1999/10/12 06:20:24 gram Exp $
+ * $Id: proto.h,v 1.18 1999/11/11 16:20:25 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -188,6 +188,9 @@ proto_item_fill_label(field_info *fi, gchar *label_str);
 
 /* Returns number of items (protocols or header fields) registered. */
 int proto_registrar_n(void);
+
+/* Returns char* to name for item # n (0-indexed) */
+char* proto_registrar_get_name(int n);
 
 /* Returns char* to abbrev for item # n (0-indexed) */
 char* proto_registrar_get_abbrev(int n);

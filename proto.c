@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.46 1999/10/20 06:28:28 guy Exp $
+ * $Id: proto.c,v 1.47 1999/11/11 16:20:25 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -949,6 +949,16 @@ int
 proto_registrar_n(void)
 {
 	return gpa_hfinfo->len;
+}
+
+char*
+proto_registrar_get_name(int n)
+{
+    struct header_field_info *hfinfo;
+    hfinfo = find_hfinfo_record(n);
+    if (hfinfo)
+        return hfinfo->name;
+    else        return NULL;
 }
 
 char*

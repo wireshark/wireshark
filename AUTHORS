@@ -153,7 +153,8 @@ Nathan Neulinger <nneul@umr.edu> {
 	Andrew File System protocol support
 	802.1q VLAN support
 	RPC Portmap dissector
-	Stubs for ypbind/ypserv/ypxfr/bootparams rpc dissectors
+	RPC Bootparams dissector
+	Stubs for ypbind/ypserv/ypxfr rpc dissectors
 }
 
 Tomislav Vujec <tvujec@carnet.hr> {

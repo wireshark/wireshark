@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.6 1999/11/10 17:23:54 nneul Exp $
+ * $Id: packet-rpc.c,v 1.7 1999/11/11 16:20:24 nneul Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -373,6 +373,49 @@ dissect_rpc_string(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 		string_item = proto_tree_add_text(tree,offset+0,
 			4+string_length_full,
 			"%s: %s", name, string_buffer);
+		if (string_item) {
+			string_tree = proto_item_add_subtree(string_item, ETT_RPC_STRING);
+		}
+	}
+	if (string_tree) {
+		proto_tree_add_text(string_tree,offset+0,4,
+			"length: %u", string_length);
+		proto_tree_add_text(string_tree,offset+4,string_length,
+			"text: %s", string_buffer);
+		if (string_fill)
+			proto_tree_add_text(string_tree,offset+4+string_length,string_fill,
+				"fill bytes: opaque data");
+	}
+
+	offset += 4 + string_length_full;
+	return offset;
+}
+
+int
+dissect_rpc_string_item(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int hfindex)
+{
+	proto_item *string_item;
+	proto_tree *string_tree = NULL;
+
+	guint32 string_length;
+	guint32 string_fill;
+	guint32 string_length_full;
+	char string_buffer[RPC_STRING_MAXBUF];
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	string_length = EXTRACT_UINT(pd,offset+0);
+	string_length_full = roundup(string_length);
+	string_fill = string_length_full - string_length;
+	if (!BYTES_ARE_IN_FRAME(offset+4,string_length_full)) return offset;
+	if (string_length>=sizeof(string_buffer)) return offset;
+	memcpy(string_buffer,pd+offset+4,string_length);
+	string_buffer[string_length] = '\0';
+	if (tree) {
+		string_item = proto_tree_add_text(tree,offset+0,
+			4+string_length_full,
+			"%s: %s", proto_registrar_get_name(hfindex), string_buffer);
+		proto_tree_add_item_hidden(tree, hfindex, offset+4,
+			string_length, string_buffer);
 		if (string_item) {
 			string_tree = proto_item_add_subtree(string_item, ETT_RPC_STRING);
 		}
