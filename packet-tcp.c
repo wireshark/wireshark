@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.136 2002/03/31 22:43:03 guy Exp $
+ * $Id: packet-tcp.c,v 1.137 2002/04/11 08:59:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1187,6 +1187,19 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Check the packet length to see if there's more data
      (it could be an ACK-only packet) */
   length_remaining = tvb_length_remaining(tvb, offset);
+
+  if( data_out_file ) {
+    reassemble_tcp( th_seq,		/* sequence number */
+        seglen,				/* data length */
+        tvb_get_ptr(tvb, offset, length_remaining),	/* data */
+        length_remaining,		/* captured data length */
+        ( th_flags & TH_SYN ),		/* is syn set? */
+        &pinfo->net_src,
+	&pinfo->net_dst,
+	pinfo->srcport,
+	pinfo->destport);
+  }
+
   if (length_remaining != 0) {
     if (th_flags & TH_RST) {
       /*
@@ -1222,18 +1235,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         pinfo->fragmented = save_fragmented;
       }
     }
-  }
- 
-  if( data_out_file ) {
-    reassemble_tcp( th_seq,		/* sequence number */
-        seglen,				/* data length */
-        tvb_get_ptr(tvb, offset, length_remaining),	/* data */
-        length_remaining,		/* captured data length */
-        ( th_flags & TH_SYN ),		/* is syn set? */
-        &pinfo->net_src,
-	&pinfo->net_dst,
-	pinfo->srcport,
-	pinfo->destport);
   }
 }
 
