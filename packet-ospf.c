@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.14 1999/10/19 15:59:03 gram Exp $
+ * $Id: packet-ospf.c,v 1.15 1999/10/27 03:10:37 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -226,7 +226,6 @@ dissect_ospf_hello(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 
 	offset+=20;
 	while(((int)(pi.captured_len - offset)) >= 4){
-	    printf("%d", pi.captured_len - offset);
 	    ospfneighbor=(guint32 *) &pd[offset];
 	    proto_tree_add_text(ospf_hello_tree, offset, 4, "Active Neighbor: %s",  ip_to_str((guint8 *) ospfneighbor));
 	    offset+=4;
