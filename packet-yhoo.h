@@ -1,7 +1,7 @@
 /* packet-yhoo.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-yhoo.h,v 1.2 1999/10/14 03:12:32 guy Exp $
+ * $Id: packet-yhoo.h,v 1.3 1999/10/16 21:56:53 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -63,7 +63,7 @@
 #define YAHOO_SERVICE_FILETRANSFER 70
 
 /* Message flags */
-#define YAHOO_MSGTYPE_NONE 1
+#define YAHOO_MSGTYPE_NONE 0
 #define YAHOO_MSGTYPE_NORMAL 1
 #define YAHOO_MSGTYPE_BOUNCE 2
 #define YAHOO_MSGTYPE_STATUS 4
