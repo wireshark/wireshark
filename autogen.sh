@@ -2,7 +2,7 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.21 2002/09/27 02:55:00 gerald Exp $
+# $Id: autogen.sh,v 1.22 2003/01/22 00:19:00 jmayer Exp $
 
 DIE=true
 PROJECT="Ethereal"
@@ -21,8 +21,8 @@ _EOF_
 fi
 
 
-VER=`autoconf --version | grep '^autoconf' | sed 's/.*)//'`
-case "$VER" in
+ACVER=`autoconf --version | grep '^autoconf' | sed 's/.*)//'`
+case "$ACVER" in
 0* | 1\.* | 2\.[0-9] | 2\.[0-9][a-z]* | \
 2\.1[0-2] | 2\.1[0-2][a-z]* )
   cat >&2 <<_EOF_
@@ -36,8 +36,8 @@ _EOF_
 esac
 
 
-VER=`automake --version | grep '^automake' | sed 's/.*)//'`
-case "$VER" in
+AMVER=`automake --version | grep '^automake' | sed 's/.*)//'`
+case "$AMVER" in
 0* | 1\.[0-3] | 1\.[0-3][a-z]* )
 
   cat >&2 <<_EOF_
@@ -51,9 +51,9 @@ _EOF_
 esac
 
 
-VER=`libtool --version | grep ' libtool)' | \
+LTVER=`libtool --version | grep ' libtool)' | \
 sed 's/.*) \([0-9][0-9.]*\) .*/\1/' `
-case "$VER" in
+case "$LTVER" in
 0* | 1\.[0-2] | 1\.[0-2][a-z]* | \
 1\.3\.[0-2] | 1\.3\.[0-2][a-z]* )
 
@@ -87,8 +87,6 @@ if test -z "$*"; then
 	echo "please specify them on the $0 command line."
 fi
 
-aclocal_flags="`./aclocal-flags`"
-
 if glib-config --version >/dev/null 2>&1 ; then
 	rm -f aclocal-missing/glib.m4
 else
@@ -119,8 +117,8 @@ for dir in . epan wiretap ;  do
     else
         topdir=..
     fi
-    aclocal_missing="-I $topdir/aclocal-missing"
-    aclocalinclude="$ACLOCAL_FLAGS $aclocal_flags $aclocal_missing";
+    aclocal_flags=`$topdir/aclocal-flags`
+    aclocalinclude="$ACLOCAL_FLAGS $aclocal_flags";
     echo aclocal $aclocalinclude
     aclocal $aclocalinclude || exit 1
     echo autoheader
@@ -132,7 +130,7 @@ for dir in . epan wiretap ;  do
   ) || exit 1
 done
 
-./configure "$@" || exit 1
+#./configure "$@" || exit 1
 
 echo
-echo "Now type 'make' to compile $PROJECT."
+echo "Now type \"./configure [options]\" and \"make\" to compile $PROJECT."
