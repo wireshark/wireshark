@@ -577,6 +577,11 @@ dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree)
   offset = dissect_ntlmssp_negotiate_flags (tvb, offset, ntlmssp_tree,
 					    negotiate_flags);
 
+  /*
+   * XXX - the davenport document says that these might not be
+   * sent at all, presumably meaning the length of the message
+   * isn't enough to contain them.
+   */
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, FALSE, 
 				  hf_ntlmssp_negotiate_domain,
 				  &start, &workstation_end);
@@ -651,7 +656,7 @@ dissect_ntlmssp_address_list (tvbuff_t *tvb, int offset,
     content_offset = len_offset + 2;
     item_length = content_length + 4;
 
-    /* Strings are always in unicode regardless of the negotiated
+    /* Strings are always in Unicode regardless of the negotiated
        string type. */
     if (content_length > 0) {
       guint16 bc;
@@ -728,6 +733,10 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
     unicode_strings = TRUE;
 
   /* Domain name */
+  /*
+   * XXX - the davenport document calls this the "Target Name",
+   * presumably because non-domain targets are supported.
+   */
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, unicode_strings, 
 			 hf_ntlmssp_challenge_domain,
 			 &item_start, &item_end);
@@ -782,7 +791,18 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
   offset += 8;
 
   /* Reserved (function not completely known) */
-  /* XXX - SSP key? */
+  /*
+   * XXX - SSP key?  The davenport document says
+   *
+   *	The context field is typically populated when Negotiate Local
+   *	Call is set. It contains an SSPI context handle, which allows
+   *	the client to "short-circuit" authentication and effectively
+   *	circumvent responding to the challenge. Physically, the context
+   *	is two long values. This is covered in greater detail later,
+   *	in the "Local Authentication" section.
+   *
+   * It also says that that information may be omitted.
+   */
   proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_reserved,
 		       tvb, offset, 8, FALSE);
   offset += 8;

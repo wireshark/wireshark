@@ -112,6 +112,15 @@ void register_smb_common(int proto_smb);
 
 extern const value_string ntlm_name_types[];
 
+/*
+ * XXX - the document at
+ *
+ *	http://davenport.sourceforge.net/ntlm.html
+ *
+ * says that a type of 5 has been seen, "apparently containing the
+ * 'parent' DNS domain for servers in subdomains".
+ */
+
 #define NTLM_NAME_END        0x0000
 #define NTLM_NAME_NB_HOST    0x0001
 #define NTLM_NAME_NB_DOMAIN  0x0002
