@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.652 2003/11/16 23:11:17 sahlberg Exp $
+# $Id: Makefile.am,v 1.653 2003/11/16 23:17:14 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -709,7 +709,6 @@ noinst_HEADERS = \
 	packet-sll.h   \
 	packet-smb-browse.h \
 	packet-smb-common.h \
-	packet-smb-logon.h \
 	packet-smb-mailslot.h \
 	packet-smb-pipe.h \
 	packet-smb-sidsnooping.h \

@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.154 2003/11/13 23:13:51 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.155 2003/11/16 23:17:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -603,9 +603,10 @@ dcerpc_init_uuid (int proto, int ett, e_uuid_t *uuid, guint16 ver,
     key->uuid = *uuid;
     key->ver = ver;
 
-    value->proto = proto;
+    value->proto = find_protocol_by_id(proto);
+    value->proto_id = proto;
     value->ett = ett;
-    value->name = proto_get_protocol_short_name (proto);
+    value->name = proto_get_protocol_short_name (value->proto);
     value->procs = procs;
     value->opnum_hf = opnum_hf;
 
@@ -1809,7 +1810,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
 
     if (tree) {
         proto_item *sub_item;
-        sub_item = proto_tree_add_item (tree, sub_proto->proto, tvb, 0,
+        sub_item = proto_tree_add_item (tree, sub_proto->proto_id, tvb, 0,
                                         -1, FALSE);
 
         if (sub_item) {

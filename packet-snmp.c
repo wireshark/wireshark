@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.122 2003/11/02 23:12:31 gerald Exp $
+ * $Id: packet-snmp.c,v 1.123 2003/11/16 23:17:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1653,7 +1653,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
 		col_set_str(pinfo->cinfo, COL_PROTOCOL,
-		    proto_get_protocol_short_name(proto));
+		    proto_get_protocol_short_name(find_protocol_by_id(proto)));
 	}
 
 	if (tree) {

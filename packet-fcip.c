@@ -2,7 +2,7 @@
  * Routines for FCIP dissection
  * Copyright 2001, Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-fcip.c,v 1.8 2003/10/30 02:06:11 guy Exp $
+ * $Id: packet-fcip.c,v 1.9 2003/11/16 23:17:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -388,9 +388,6 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *fcip_tree = NULL;
     tvbuff_t *next_tvb;
     
-    if (!proto_is_protocol_enabled(proto_fcip))
-	return FALSE;	/* iSCSI has been disabled */
-
     if (bytes_remaining < FCIP_ENCAP_HEADER_LEN) {
         return FALSE;
     }

@@ -10,7 +10,7 @@
  *   2000 Access Network Interfaces
  *			3GPP2 A.S0001-1		TIA/EIA-2001
  *
- * $Id: packet-ansi_a.c,v 1.9 2003/11/11 05:51:09 guy Exp $
+ * $Id: packet-ansi_a.c,v 1.10 2003/11/16 23:17:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7979,13 +7979,6 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree	*bsmap_tree = NULL;
     gchar	*str;
 
-
-    if (!proto_is_protocol_enabled(proto_a_bsmap))
-    {
-	call_dissector(data_handle, tvb, pinfo, tree);
-	return;
-    }
-
     if (check_col(pinfo->cinfo, COL_INFO))
     {
 	col_append_str(pinfo->cinfo, COL_INFO, "(BSMAP) ");
@@ -8080,13 +8073,6 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item	*oct_1_item = NULL;
     proto_tree	*oct_1_tree = NULL;
     gchar	*str;
-
-
-    if (!proto_is_protocol_enabled(proto_a_dtap))
-    {
-	call_dissector(data_handle, tvb, pinfo, tree);
-	return;
-    }
 
     len = tvb_length(tvb);
 

@@ -1,7 +1,7 @@
 /* packet-msnip.c   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Routines for IGMP/MSNIP packet disassembly
  *
- * $Id: packet-msnip.c,v 1.8 2002/08/28 21:00:22 jmayer Exp $
+ * $Id: packet-msnip.c,v 1.9 2003/11/16 23:17:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -222,7 +222,7 @@ dissect_msnip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int of
 	proto_item *item;
 	guint8 type;
 
-	if (!proto_is_protocol_enabled(proto_msnip)) {
+	if (!proto_is_protocol_enabled(find_protocol_by_id(proto_msnip))) {
 		/* we are not enabled, skip entire packet to be nice
 		   to the igmp layer. (so clicking on IGMP will display the data)
 		 */

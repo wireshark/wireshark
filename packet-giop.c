@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.72 2003/03/05 15:33:12 gerald Exp $
+ * $Id: packet-giop.c,v 1.73 2003/11/16 23:17:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1073,7 +1073,7 @@ void register_giop_user_module(giop_sub_dissector_t *sub, gchar *name, gchar *mo
 
   module_val->subh->sub_name = name;	/* save dissector name */
   module_val->subh->sub_fn = sub;	/* save subdissector*/
-  module_val->subh->sub_proto = sub_proto;	/* save subdissector's proto_XXX value */
+  module_val->subh->sub_proto = find_protocol_by_id(sub_proto);	/* save protocol_t for subdissector's protocol */
 
   g_hash_table_insert(giop_module_hash, new_module_key, module_val);
 
@@ -1440,7 +1440,7 @@ void register_giop_user(giop_sub_dissector_t *sub, gchar *name, int sub_proto) {
 
   subh->sub_name = name;
   subh->sub_fn = sub;
-  subh->sub_proto = sub_proto;	/* proto_XXX from sub dissectors's proto_register_protocol() */
+  subh->sub_proto = find_protocol_by_id(sub_proto);	/* protocol_t for sub dissectors's proto_register_protocol() */
 
   giop_sub_list = g_slist_append (giop_sub_list, subh);
 

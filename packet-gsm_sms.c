@@ -11,7 +11,7 @@
  *   Technical realization of Short Message Service (SMS)
  *   (3GPP TS 23.040 version 5.4.0 Release 5)
  *
- * $Id: packet-gsm_sms.c,v 1.3 2003/10/30 11:54:21 guy Exp $
+ * $Id: packet-gsm_sms.c,v 1.4 2003/11/16 23:17:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2553,12 +2553,6 @@ dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gchar	*str = NULL;
     gint	ett_msg_idx;
 
-
-    if (!proto_is_protocol_enabled(proto_gsm_sms))
-    {
-	call_dissector(data_handle,tvb, pinfo, tree);
-	return;
-    }
 
     g_pinfo = pinfo;
 

@@ -2,7 +2,7 @@
  * Routines for ppp packet disassembly
  * RFC 1661, RFC 1662
  *
- * $Id: packet-ppp.c,v 1.116 2003/08/26 06:18:18 guy Exp $
+ * $Id: packet-ppp.c,v 1.117 2003/11/16 23:17:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2357,11 +2357,10 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 
   if(check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL,
-		proto_get_protocol_short_name(proto_id));
+		proto_get_protocol_short_name(find_protocol_by_id(proto_id)));
 
   if(check_col(pinfo->cinfo, COL_INFO))
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-		proto_get_protocol_short_name(proto_id),
+	col_add_str(pinfo->cinfo, COL_INFO,
 		val_to_str(code, proto_vals, "Unknown"));
 
   if(tree) {
@@ -2604,12 +2603,10 @@ dissect_bap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   length = tvb_get_ntohs(tvb, 2);
 
   if(check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL,
-		proto_get_protocol_short_name(proto_bap));
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP BAP");
 
   if(check_col(pinfo->cinfo, COL_INFO))
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-		proto_get_protocol_short_name(proto_bap),
+	col_add_str(pinfo->cinfo, COL_INFO,
 		val_to_str(type, bap_vals, "Unknown"));
 
   if(tree) {
@@ -2652,13 +2649,10 @@ dissect_comp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *comp_data_tree;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL,
-		proto_get_protocol_short_name(proto_comp_data));
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP Comp");
 
   if(check_col(pinfo->cinfo, COL_INFO))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-		 proto_get_protocol_short_name(proto_comp_data),
-		 val_to_str(PPP_COMP, ppp_vals, "Unknown"));
+    col_set_str(pinfo->cinfo, COL_INFO, "Compressed data");
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_comp_data, tvb, 0, -1, FALSE);
@@ -2982,12 +2976,10 @@ dissect_pap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   length = tvb_get_ntohs(tvb, 2);
 
   if(check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL,
-		proto_get_protocol_short_name(proto_pap));
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP PAP");
 
   if(check_col(pinfo->cinfo, COL_INFO))
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-		proto_get_protocol_short_name(proto_pap),
+	col_add_str(pinfo->cinfo, COL_INFO,
 		val_to_str(code, pap_vals, "Unknown"));
 
   if(tree) {
@@ -3082,12 +3074,10 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   length = tvb_get_ntohs(tvb, 2);
 
   if(check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL,
-		proto_get_protocol_short_name(proto_chap));
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP CHAP");
 
   if(check_col(pinfo->cinfo, COL_INFO))
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-		proto_get_protocol_short_name(proto_chap),
+	col_add_str(pinfo->cinfo, COL_INFO,
 		val_to_str(code, chap_vals, "Unknown"));
 
   if(tree) {

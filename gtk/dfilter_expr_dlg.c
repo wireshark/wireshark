@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.42 2003/10/29 23:15:35 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.43 2003/11/16 23:17:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1093,6 +1093,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     GtkWidget *list_bb, *alignment, *accept_bt, *close_bt;
     header_field_info       *hfinfo;
     int i;
+    protocol_t *protocol;
 #if GTK_MAJOR_VERSION < 2
     int len;
     void *cookie;
@@ -1306,7 +1307,8 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
         hfinfo = proto_registrar_get_nth(i);
         /* Create a node for the protocol, and remember it for
            later use. */
-        name = proto_get_protocol_short_name(i); /* name, short_name or filter name ? */
+        protocol = find_protocol_by_id(i);
+        name = proto_get_protocol_short_name(protocol); /* name, short_name or filter name ? */
         protocol_node = gtk_ctree_insert_node(GTK_CTREE(tree),
                                               NULL, NULL,
                                               &name, 5,
@@ -1381,7 +1383,8 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 	char *strp, str[TAG_STRING_LEN+1];
 
 	hfinfo = proto_registrar_get_nth(i);
-	name = proto_get_protocol_short_name(i); /* name, short_name or filter name ? */
+        protocol = find_protocol_by_id(i);
+	name = proto_get_protocol_short_name(protocol); /* name, short_name or filter name ? */
 
 	gtk_tree_store_append(store, &iter, NULL);
 	gtk_tree_store_set(store, &iter, 0, name, 1, hfinfo, -1);

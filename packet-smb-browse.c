@@ -2,7 +2,7 @@
  * Routines for SMB Browser packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.c,v 1.32 2003/09/03 20:58:09 guy Exp $
+ * $Id: packet-smb-browse.c,v 1.33 2003/11/16 23:17:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -563,7 +563,7 @@ dissect_smb_server_type_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-gboolean
+static gboolean
 dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	int offset = 0;
@@ -576,12 +576,6 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	guint8 server_count, reset_cmd;
 	int i;
 	guint32 uptime;
-
-	if (!proto_is_protocol_enabled(proto_smb_browse)) {
-		return FALSE;
-	}
-
-	pinfo->current_proto = "BROWSER";
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BROWSER");
@@ -820,7 +814,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
  *
  * XXX - what other browser packets go out to that mailslot?
  */
-gboolean
+static gboolean
 dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	int offset = 0;
@@ -830,12 +824,6 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	guint32 periodicity;
 	const char *host_name;
 	guint namelen;
-
-	if (!proto_is_protocol_enabled(proto_smb_browse)) {
-		return FALSE;
-	}
-
-	pinfo->current_proto = "BROWSER";
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BROWSER");
@@ -1175,4 +1163,9 @@ proto_register_smb_browse(void)
 
 	proto_register_field_array(proto_smb_browse, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	new_register_dissector("mailslot_browse", dissect_mailslot_browse,
+	    proto_smb_browse);
+	new_register_dissector("mailslot_lanman", dissect_mailslot_lanman,
+	    proto_smb_browse);
 }

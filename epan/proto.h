@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.42 2003/10/29 23:48:13 guy Exp $
+ * $Id: proto.h,v 1.43 2003/11/16 23:17:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,12 +49,16 @@ struct _value_string;
 /* ... and similarly, */
 #define TFS(x)	(const struct true_false_string*)(x)
 
+struct _protocol;
+
+typedef struct _protocol protocol_t;
+ 
 /* check protocol activation */
 #define CHECK_DISPLAY_AS_X(x_handle,index, tvb, pinfo, tree) {	\
-	if (!proto_is_protocol_enabled(index)) {		\
-		call_dissector(x_handle,tvb, pinfo, tree);	\
-		return;						\
-	}							\
+	if (!proto_is_protocol_enabled(find_protocol_by_id(index))) {	\
+		call_dissector(x_handle,tvb, pinfo, tree);		\
+		return;							\
+	}								\
   }
 
 enum {
@@ -97,7 +101,6 @@ typedef struct hf_register_info {
 	int			*p_id;	/* pointer to int; written to by register() function */
 	header_field_info	hfinfo;
 } hf_register_info;
-
 
 /* Contains the field information for the proto_item. */
 typedef struct field_info {
@@ -538,8 +541,8 @@ extern int proto_registrar_get_parent(int n);
 /* Is item #n a protocol? */
 extern gboolean proto_registrar_is_protocol(int n);
 
-/* Is item #n decoding enabled ? */
-extern gboolean proto_is_protocol_enabled(int proto_id);
+/* Is protocol's decoding enabled ? */
+extern gboolean proto_is_protocol_enabled(protocol_t *protocol);
 
 /* Can item #n decoding be disabled? */
 extern gboolean proto_can_disable_protocol(int proto_id);
@@ -552,14 +555,20 @@ extern int proto_get_next_protocol(void **cookie);
 extern header_field_info *proto_get_first_protocol_field(int proto_id, void **cookle);
 extern header_field_info *proto_get_next_protocol_field(void **cookle);
 
-/* Given a protocol's filter_name, return it's proto_id */
+/* Given a protocol's "protocol_t", return its proto_id */
+extern int proto_get_id(protocol_t *protocol);
+
+/* Given a protocol's filter_name, return its proto_id */
 extern int proto_get_id_by_filter_name(gchar* filter_name);
+
+/* Given a protocol's item number, find the "protocol_t" structure for it */
+extern protocol_t *find_protocol_by_id(int proto_id);
 
 /* Given a protocol's item number, return its name. */
 extern char *proto_get_protocol_name(int n);
 
-/* Given a protocol's item number, return its short name. */
-extern char *proto_get_protocol_short_name(int proto_id);
+/* Given a protocol's "protocol_t", return its short name. */
+extern char *proto_get_protocol_short_name(protocol_t *protocol);
 
 /* Given a protocol's item number, return its filter name. */
 extern char *proto_get_protocol_filter_name(int proto_id);

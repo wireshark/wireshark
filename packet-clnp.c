@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.78 2003/10/06 20:46:50 guy Exp $
+ * $Id: packet-clnp.c,v 1.79 2003/11/16 23:17:17 guy Exp $
  * Laurent Deniel <laurent.deniel@free.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -1621,7 +1621,7 @@ static gboolean dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
   gboolean is_cltp = FALSE;
   gboolean subdissector_found = FALSE;
 
-  if (!proto_is_protocol_enabled(proto_cotp))
+  if (!proto_is_protocol_enabled(find_protocol_by_id(proto_cotp)))
     return FALSE;	/* COTP has been disabled */
   /* XXX - what about CLTP? */
 

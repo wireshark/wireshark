@@ -2,7 +2,7 @@
  * Routines for SMB mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.c,v 1.33 2002/08/28 21:00:31 jmayer Exp $
+ * $Id: packet-smb-mailslot.c,v 1.34 2003/11/16 23:17:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,7 +29,6 @@
 #include "packet-smb-common.h"
 #include "packet-smb-mailslot.h"
 #include "packet-smb-browse.h"
-#include "packet-smb-logon.h"
 #include "packet-smb-pipe.h"
 
 static int proto_smb_msp = -1;
@@ -41,6 +40,9 @@ static int hf_name = -1;
 
 static int ett_smb_msp = -1;
 
+static dissector_handle_t mailslot_browse_handle;
+static dissector_handle_t mailslot_lanman_handle;
+static dissector_handle_t netlogon_handle;
 static dissector_handle_t data_handle;
 
 #define MAILSLOT_UNKNOWN              0
@@ -85,7 +87,7 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 	int             len;
 	gboolean        dissected;
 
-	if (!proto_is_protocol_enabled(proto_smb_msp)) {
+	if (!proto_is_protocol_enabled(find_protocol_by_id(proto_smb_msp))) {
 		return FALSE;
 	}
 	pinfo->current_proto = "SMB Mailslot";
@@ -185,15 +187,18 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 	dissected = FALSE;
 	switch(trans_subcmd){
 	case MAILSLOT_BROWSE:
-		dissected = dissect_mailslot_browse(tvb, pinfo, parent_tree);
+		dissected = call_dissector(mailslot_browse_handle, tvb, pinfo,
+		    parent_tree);
 		break;
 	case MAILSLOT_LANMAN:
-		dissected = dissect_mailslot_lanman(tvb, pinfo, parent_tree);
+		dissected = call_dissector(mailslot_lanman_handle, tvb, pinfo,
+		    parent_tree);
 		break;
 	case MAILSLOT_NET:
 	case MAILSLOT_TEMP_NETLOGON:
 	case MAILSLOT_MSSP:
-		dissected = dissect_smb_logon(tvb, pinfo, parent_tree);
+		dissected = call_dissector(netlogon_handle, tvb, pinfo,
+		    parent_tree);
 		break;
 	}
 	if (!dissected) {
@@ -247,5 +252,8 @@ proto_register_smb_mailslot(void)
 void
 proto_reg_handoff_smb_mailslot(void)
 {
+	mailslot_browse_handle = find_dissector("mailslot_browse");
+	mailslot_lanman_handle = find_dissector("mailslot_lanman");
+	netlogon_handle = find_dissector("netlogon");
 	data_handle = find_dissector("data");
 }

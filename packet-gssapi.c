@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@samba.org> Added a few 
  *		   bits and pieces ...
  *
- * $Id: packet-gssapi.c,v 1.27 2003/07/16 04:20:32 tpot Exp $
+ * $Id: packet-gssapi.c,v 1.28 2003/11/16 23:17:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -84,7 +84,7 @@ gssapi_init_oid(char *oid, int proto, int ett, dissector_handle_t handle,
 	char *key = g_strdup(oid);
 	gssapi_oid_value *value = g_malloc(sizeof(*value));
 
-	value->proto = proto;
+	value->proto = find_protocol_by_id(proto);
 	value->ett = ett;
 	value->handle = handle;
 	value->wrap_handle = wrap_handle;

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.97 2003/09/09 18:09:42 guy Exp $
+ * $Id: packet.c,v 1.98 2003/11/16 23:17:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -339,7 +339,7 @@ struct dissector_handle {
 		dissector_t	old;
 		new_dissector_t	new;
 	} dissector;
-	int		proto_index;
+	protocol_t	*protocol;
 };
 
 static int
@@ -351,9 +351,9 @@ call_dissector_through_handle(dissector_handle_t handle, tvbuff_t *tvb,
 
 	saved_proto = pinfo->current_proto;
 
-	if (handle->proto_index != -1) {
+	if (handle->protocol != NULL) {
 		pinfo->current_proto =
-		    proto_get_protocol_short_name(handle->proto_index);
+		    proto_get_protocol_short_name(handle->protocol);
 	}
 
 	if (handle->is_new)
@@ -399,8 +399,8 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 	volatile address save_src;
 	volatile address save_dst;
 
-	if (handle->proto_index != -1 &&
-	    !proto_is_protocol_enabled(handle->proto_index)) {
+	if (handle->protocol != NULL &&
+	    !proto_is_protocol_enabled(handle->protocol)) {
 		/*
 		 * The protocol isn't enabled.
 		 */
@@ -419,9 +419,9 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 	 * offers this service can use it.
 	 */
 	pinfo->can_desegment = saved_can_desegment-(saved_can_desegment>0);
-	if (handle->proto_index != -1) {
+	if (handle->protocol != NULL) {
 		pinfo->current_proto =
-		    proto_get_protocol_short_name(handle->proto_index);
+		    proto_get_protocol_short_name(handle->protocol);
 	}
 
 	if (pinfo->in_error_pkt) {
@@ -1103,7 +1103,7 @@ dissector_table_foreach_func (gpointer key, gpointer value, gpointer user_data)
 
 	dtbl_entry = value;
 	if (dtbl_entry->current == NULL ||
-	    dtbl_entry->current->proto_index == -1) {
+	    dtbl_entry->current->protocol == NULL) {
 		/*
 		 * Either there is no dissector for this entry, or
 		 * the dissector doesn't have a protocol associated
@@ -1362,7 +1362,7 @@ static GHashTable *heur_dissector_lists = NULL;
 
 typedef struct {
 	heur_dissector_t dissector;
-	int	proto_index;
+	protocol_t *protocol;
 } heur_dtbl_entry_t;
 
 /* Finds a heuristic dissector table by field name. */
@@ -1384,7 +1384,7 @@ heur_dissector_add(const char *name, heur_dissector_t dissector, int proto)
 
 	dtbl_entry = g_malloc(sizeof (heur_dtbl_entry_t));
 	dtbl_entry->dissector = dissector;
-	dtbl_entry->proto_index = proto;
+	dtbl_entry->protocol = find_protocol_by_id(proto);
 
 	/* do the table insertion */
 	*sub_dissectors = g_slist_append(*sub_dissectors, (gpointer)dtbl_entry);
@@ -1413,17 +1413,17 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 	for (entry = sub_dissectors; entry != NULL; entry = g_slist_next(entry)) {
 		pinfo->can_desegment = saved_can_desegment-(saved_can_desegment>0);
 		dtbl_entry = (heur_dtbl_entry_t *)entry->data;
-		if (dtbl_entry->proto_index != -1 &&
-		    !proto_is_protocol_enabled(dtbl_entry->proto_index)) {
+		if (dtbl_entry->protocol != NULL &&
+		    !proto_is_protocol_enabled(dtbl_entry->protocol)) {
 			/*
 			 * No - don't try this dissector.
 			 */
 			continue;
 		}
 
-		if (dtbl_entry->proto_index != -1) {
+		if (dtbl_entry->protocol != NULL) {
 			pinfo->current_proto =
-			    proto_get_protocol_short_name(dtbl_entry->proto_index);
+			    proto_get_protocol_short_name(dtbl_entry->protocol);
 		}
 		if ((*dtbl_entry->dissector)(tvb, pinfo, tree)) {
 			status = TRUE;
@@ -1469,14 +1469,14 @@ static GHashTable *registered_dissectors = NULL;
 char *
 dissector_handle_get_short_name(dissector_handle_t handle)
 {
-	return proto_get_protocol_short_name(handle->proto_index);
+	return proto_get_protocol_short_name(handle->protocol);
 }
 
 /* Get the index of the protocol for a dissector handle. */
 int
 dissector_handle_get_protocol_index(dissector_handle_t handle)
 {
-	return handle->proto_index;
+	return proto_get_id(handle->protocol);
 }
 
 /* Find a registered dissector by name. */
@@ -1497,7 +1497,7 @@ create_dissector_handle(dissector_t dissector, int proto)
 	handle->name = NULL;
 	handle->is_new = FALSE;
 	handle->dissector.old = dissector;
-	handle->proto_index = proto;
+	handle->protocol = find_protocol_by_id(proto);
 
 	return handle;
 }
@@ -1511,7 +1511,7 @@ new_create_dissector_handle(new_dissector_t dissector, int proto)
 	handle->name = NULL;
 	handle->is_new = TRUE;
 	handle->dissector.new = dissector;
-	handle->proto_index = proto;
+	handle->protocol = find_protocol_by_id(proto);
 
 	return handle;
 }
@@ -1535,7 +1535,7 @@ register_dissector(const char *name, dissector_t dissector, int proto)
 	handle->name = name;
 	handle->is_new = FALSE;
 	handle->dissector.old = dissector;
-	handle->proto_index = proto;
+	handle->protocol = find_protocol_by_id(proto);
 
 	g_hash_table_insert(registered_dissectors, (gpointer)name,
 	    (gpointer) handle);
@@ -1559,7 +1559,7 @@ new_register_dissector(const char *name, new_dissector_t dissector, int proto)
 	handle->name = name;
 	handle->is_new = TRUE;
 	handle->dissector.new = dissector;
-	handle->proto_index = proto;
+	handle->protocol = find_protocol_by_id(proto);
 
 	g_hash_table_insert(registered_dissectors, (gpointer)name,
 	    (gpointer) handle);
@@ -1579,7 +1579,7 @@ call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
 		 * it.  Just dissect this packet as data.
 		 */
 	        g_assert(data_handle != NULL);
-		g_assert(data_handle->proto_index != -1);
+		g_assert(data_handle->protocol != NULL);
 		call_dissector(data_handle, tvb, pinfo, tree);
 		return tvb_length(tvb);
 	}

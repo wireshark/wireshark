@@ -1,7 +1,7 @@
 /* plugin_api_list.c
  * Used to generate various included files for plugin API
  *
- * $Id: plugin_api_list.c,v 1.14 2003/11/11 06:10:07 guy Exp $
+ * $Id: plugin_api_list.c,v 1.15 2003/11/16 23:17:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -84,7 +84,7 @@ void tcp_dissect_pdus(tvbuff_t *, packet_info *, proto_tree *,
     gboolean, guint, guint (*)(tvbuff_t *, int),
     void (*)(tvbuff_t *, packet_info *, proto_tree *));
 
-gboolean proto_is_protocol_enabled(int);
+gboolean proto_is_protocol_enabled(protocol_t *);
 
 int proto_item_get_len(proto_item*);
 void proto_item_set_len(proto_item*, gint);
@@ -262,7 +262,7 @@ gchar*	abs_time_to_str(nstime_t*);
 
 int proto_get_id_by_filter_name(gchar* filter_name);
 char *proto_get_protocol_name(int n);
-char *proto_get_protocol_short_name(int proto_id);
+char *proto_get_protocol_short_name(protocol_t *);
 char *proto_get_protocol_filter_name(int proto_id);
 
 void prefs_register_obsolete_preference(module_t *, const char *);

@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.138 2003/09/05 10:26:42 sahlberg Exp $
+ * $Id: packet-rpc.c,v 1.139 2003/11/16 23:17:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -387,9 +387,10 @@ rpc_init_prog(int proto, guint32 prog, int ett)
 	key->prog = prog;
 
 	value = (rpc_prog_info_value *) g_malloc(sizeof(rpc_prog_info_value));
-	value->proto = proto;
+	value->proto = find_protocol_by_id(proto);
+	value->proto_id = proto;
 	value->ett = ett;
-	value->progname = proto_get_protocol_short_name(proto);
+	value->progname = proto_get_protocol_short_name(value->proto);
 	value->procedure_hfs = g_array_new(FALSE, TRUE, sizeof (int));
 
 	g_hash_table_insert(rpc_progs,key,value);
@@ -1649,7 +1650,8 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	flavor_t flavor = FLAVOR_UNKNOWN;
 	unsigned int gss_proc = 0;
 	unsigned int gss_svc = 0;
-	int	proto = 0;
+	protocol_t *proto = NULL;
+	int	proto_id = 0;
 	int	ett = 0;
 	int	procedure_hf;
 
@@ -1846,6 +1848,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* we know already the proto-entry, the ETT-const,
 		   and "rpc_prog" */
 		proto = rpc_prog->proto;
+		proto_id = rpc_prog->proto_id;
 		ett = rpc_prog->ett;
 		progname = rpc_prog->progname;
 
@@ -2131,12 +2134,14 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		rpc_prog_key.prog = prog;
 		if ((rpc_prog = g_hash_table_lookup(rpc_progs,&rpc_prog_key)) == NULL) {
-			proto = 0;
+			proto = NULL;
+			proto_id = 0;
 			ett = 0;
 			progname = "Unknown";
 		}
 		else {
 			proto = rpc_prog->proto;
+			proto_id = rpc_prog->proto_id;
 			ett = rpc_prog->ett;
 			progname = rpc_prog->progname;
 
@@ -2339,7 +2344,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* create here the program specific sub-tree */
 	if (tree && (flavor != FLAVOR_AUTHGSSAPI_MSG)) {
-		pitem = proto_tree_add_item(tree, proto, tvb, offset, -1,
+		pitem = proto_tree_add_item(tree, proto_id, tvb, offset, -1,
 		    FALSE);
 		if (pitem) {
 			ptree = proto_item_add_subtree(pitem, ett);

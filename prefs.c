@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.112 2003/11/09 01:36:21 guy Exp $
+ * $Id: prefs.c,v 1.113 2003/11/16 23:17:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -245,6 +245,8 @@ module_t *protocols_module;
 module_t *
 prefs_register_protocol(int id, void (*apply_cb)(void))
 {
+	protocol_t *protocol;
+
 	/*
 	 * Have we yet created the "Protocols" subtree?
 	 */
@@ -254,9 +256,10 @@ prefs_register_protocol(int id, void (*apply_cb)(void))
 		 */
 		protocols_module = prefs_register_subtree(NULL, "Protocols");
 	}
+	protocol = find_protocol_by_id(id);
 	return prefs_register_module(protocols_module,
 	    proto_get_protocol_filter_name(id),
-	    proto_get_protocol_short_name(id), apply_cb);
+	    proto_get_protocol_short_name(protocol), apply_cb);
 }
 
 /*
@@ -267,6 +270,7 @@ module_t *
 prefs_register_protocol_obsolete(int id)
 {
 	module_t *module;
+	protocol_t *protocol;
 
 	/*
 	 * Have we yet created the "Protocols" subtree?
@@ -277,9 +281,10 @@ prefs_register_protocol_obsolete(int id)
 		 */
 		protocols_module = prefs_register_subtree(NULL, "Protocols");
 	}
+	protocol = find_protocol_by_id(id);
 	module = prefs_register_module(protocols_module,
 	    proto_get_protocol_filter_name(id),
-	    proto_get_protocol_short_name(id), NULL);
+	    proto_get_protocol_short_name(protocol), NULL);
 	module->obsolete = TRUE;
 	return module;
 }

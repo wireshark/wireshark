@@ -1,7 +1,7 @@
 /* packet-dvmrp.c   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Routines for IGMP/DVMRP packet disassembly
  *
- * $Id: packet-dvmrp.c,v 1.13 2002/08/28 21:00:12 jmayer Exp $
+ * $Id: packet-dvmrp.c,v 1.14 2003/11/16 23:17:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -621,7 +621,7 @@ dissect_dvmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int of
 	proto_tree *tree;
 	proto_item *item;
 
-	if (!proto_is_protocol_enabled(proto_dvmrp)) {
+	if (!proto_is_protocol_enabled(find_protocol_by_id(proto_dvmrp))) {
 		/* we are not enabled, skip entire packet to be nice
 		   to the igmp layer. (so clicking on IGMP will display the data)
 		 */

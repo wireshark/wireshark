@@ -1,6 +1,6 @@
 /* packet-rpc.h
  *
- * $Id: packet-rpc.h,v 1.43 2003/09/05 10:26:43 sahlberg Exp $
+ * $Id: packet-rpc.h,v 1.44 2003/11/16 23:17:21 guy Exp $
  *
  * (c) 1999 Uwe Girlich
  *
@@ -163,7 +163,8 @@ typedef struct _rpc_prog_info_key {
 } rpc_prog_info_key;
 
 typedef struct _rpc_prog_info_value {
-	int proto;
+	protocol_t *proto;
+	int proto_id;
 	int ett;
 	char* progname;
 	GArray *procedure_hfs;

@@ -4,7 +4,7 @@
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
- * $Id: packet-ansi_683.c,v 1.2 2003/10/23 00:16:20 guy Exp $
+ * $Id: packet-ansi_683.c,v 1.3 2003/11/16 23:17:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2028,12 +2028,6 @@ dissect_ansi_683(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item	*ansi_683_item;
     proto_tree	*ansi_683_tree = NULL;
-
-    if (!proto_is_protocol_enabled(proto_ansi_683))
-    {
-	call_dissector(data_handle,tvb, pinfo, tree);
-	return;
-    }
 
     g_pinfo = pinfo;
 

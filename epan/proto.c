@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.102 2003/11/13 23:38:33 guy Exp $
+ * $Id: proto.c,v 1.103 2003/11/16 23:17:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -128,7 +128,7 @@ static int g_strcmp(gconstpointer a, gconstpointer b);
 int hf_text_only = -1;
 
 /* Structure for information about a protocol */
-typedef struct {
+struct _protocol {
 	char	*name;		/* long description */
 	char	*short_name;	/* short description */
 	char	*filter_name;	/* name of this protocol in filters */
@@ -137,9 +137,7 @@ typedef struct {
 	GList	*last_field;	/* pointer to end of list of fields */
 	gboolean is_enabled;	/* TRUE if protocol is enabled */
 	gboolean can_disable;	/* TRUE if protocol can be disabled */
-} protocol_t;
-
-static protocol_t *find_protocol_by_id(int proto_id);
+};
 
 /* List of all protocols */
 static GList *protocols;
@@ -2199,7 +2197,7 @@ compare_proto_id(gconstpointer proto_arg, gconstpointer id_arg)
 	return (protocol->proto_id == *id_ptr) ? 0 : 1;
 }
 
-static protocol_t *
+protocol_t *
 find_protocol_by_id(int proto_id)
 {
 	GList *list_entry;
@@ -2217,6 +2215,12 @@ static gint compare_filter_name(gconstpointer proto_arg,
 	const gchar* f_name = filter_name;
 
 	return (strcmp(protocol->filter_name, f_name));
+}
+
+int
+proto_get_id(protocol_t *protocol)
+{
+	return protocol->proto_id;
 }
 
 int proto_get_id_by_filter_name(gchar* filter_name)
@@ -2242,13 +2246,10 @@ proto_get_protocol_name(int proto_id)
 }
 
 char *
-proto_get_protocol_short_name(int proto_id)
+proto_get_protocol_short_name(protocol_t *protocol)
 {
-	protocol_t *protocol;
-
-	if (proto_id == -1)
+	if (protocol == NULL)
 		return "(none)";
-	protocol = find_protocol_by_id(proto_id);
 	return protocol->short_name;
 }
 
@@ -2262,11 +2263,8 @@ proto_get_protocol_filter_name(int proto_id)
 }
 
 gboolean
-proto_is_protocol_enabled(int proto_id)
+proto_is_protocol_enabled(protocol_t *protocol)
 {
-	protocol_t *protocol;
-
-	protocol = find_protocol_by_id(proto_id);
 	return protocol->is_enabled;
 }
 

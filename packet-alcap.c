@@ -6,7 +6,7 @@
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
- * $Id: packet-alcap.c,v 1.3 2003/10/06 19:25:20 guy Exp $
+ * $Id: packet-alcap.c,v 1.4 2003/11/16 23:17:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1665,12 +1665,6 @@ dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item	*alcap_item;
     proto_tree	*alcap_tree = NULL;
-
-    if (!proto_is_protocol_enabled(proto_alcap))
-    {
-	call_dissector(data_handle,tvb, pinfo, tree);
-	return;
-    }
 
     g_pinfo = pinfo;
 

@@ -2,7 +2,7 @@
  * Routines for SMB net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.34 2003/06/12 08:33:30 guy Exp $
+ * $Id: packet-smb-logon.c,v 1.35 2003/11/16 23:17:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,7 +26,6 @@
  */
 
 #include "packet-smb-common.h"
-#include "packet-smb-logon.h"
 
 static int proto_smb_logon = -1;
 static int hf_command = -1;
@@ -815,18 +814,13 @@ static int (*dissect_smb_logon_cmds[])(tvbuff_t *tvb, packet_info *pinfo, proto_
 };
 
 
-gboolean
+static gboolean
 dissect_smb_logon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int        offset = 0;
 	guint8     cmd;
 	proto_tree *smb_logon_tree = NULL;
 	proto_item *item = NULL;
-
-	if (!proto_is_protocol_enabled(proto_smb_logon))
-		return FALSE;
-
-	pinfo->current_proto = "NETLOGON";
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NETLOGON");
@@ -1035,4 +1029,6 @@ proto_register_smb_logon( void)
 
 	proto_register_field_array(proto_smb_logon, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	new_register_dissector("netlogon", dissect_smb_logon, proto_smb_logon);
 }

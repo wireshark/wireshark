@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.26 2003/08/07 00:41:28 guy Exp $
+ * $Id: proto_dlg.c,v 1.27 2003/11/16 23:17:26 guy Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -501,8 +501,10 @@ set_proto_selection(GtkWidget *parent_w _U_)
 
   for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
     protocol_data_t *p = entry->data;
+    protocol_t *protocol;
 
-    if (proto_is_protocol_enabled(p->hfinfo_index) != p->enabled) {
+    protocol = find_protocol_by_id(p->hfinfo_index);
+    if (proto_is_protocol_enabled(protocol) != p->enabled) {
       proto_set_decoding(p->hfinfo_index, p->enabled);
       need_redissect = TRUE;
     }
@@ -523,8 +525,10 @@ revert_proto_selection(void)
    */
   for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
     protocol_data_t *p = entry->data;
+    protocol_t *protocol;
 
-    if (proto_is_protocol_enabled(p->hfinfo_index) != p->was_enabled) {
+    protocol = find_protocol_by_id(p->hfinfo_index);
+    if (proto_is_protocol_enabled(protocol) != p->was_enabled) {
       proto_set_decoding(p->hfinfo_index, p->was_enabled);
       need_redissect = TRUE;
     }
@@ -553,6 +557,7 @@ show_proto_selection(GtkListStore *proto_store)
   GSList *entry;
   gint i;
   void *cookie;
+  protocol_t *protocol;
   protocol_data_t *p;
 #if GTK_MAJOR_VERSION < 2
   gchar *proto_text[3];
@@ -564,10 +569,11 @@ show_proto_selection(GtkListStore *proto_store)
        i = proto_get_next_protocol(&cookie)) {
       if (proto_can_disable_protocol(i)) {
         p = g_malloc(sizeof(protocol_data_t));
+        protocol = find_protocol_by_id(i);
         p->name = proto_get_protocol_name(i);
-        p->abbrev = proto_get_protocol_short_name(i);
+        p->abbrev = proto_get_protocol_short_name(protocol);
         p->hfinfo_index = i;
-        p->enabled = proto_is_protocol_enabled(i);
+        p->enabled = proto_is_protocol_enabled(protocol);
 	p->was_enabled = p->enabled;
         protocol_list = g_slist_insert_sorted(protocol_list,
 					    p, protocol_data_compare);

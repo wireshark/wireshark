@@ -2,7 +2,7 @@
  * Routines for iSCSI dissection
  * Copyright 2001, Eurologic and Mark Burton <markb@ordern.com>
  *
- * $Id: packet-iscsi.c,v 1.47 2003/09/09 09:54:13 sahlberg Exp $
+ * $Id: packet-iscsi.c,v 1.48 2003/11/16 23:17:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1625,9 +1625,6 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
     guint iSCSIPdusDissected = 0;
     guint offset = 0;
     guint32 available_bytes = tvb_length_remaining(tvb, offset);
-
-    if (!proto_is_protocol_enabled(proto_iscsi))
-	return FALSE;	/* iSCSI has been disabled */
 
     /* quick check to see if the packet is long enough to contain the
      * minimum amount of information we need */

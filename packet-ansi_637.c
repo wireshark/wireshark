@@ -9,7 +9,7 @@
  *   Short Message Service
  *			3GPP2 C.S0015-0		TIA/EIA-637-A
  *
- * $Id: packet-ansi_637.c,v 1.2 2003/10/22 20:59:01 guy Exp $
+ * $Id: packet-ansi_637.c,v 1.3 2003/11/16 23:17:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1674,12 +1674,6 @@ dissect_ansi_637_tele(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree	*ansi_637_tree = NULL;
     gchar	*str = NULL;
 
-    if (!proto_is_protocol_enabled(proto_ansi_637_tele))
-    {
-	call_dissector(data_handle,tvb, pinfo, tree);
-	return;
-    }
-
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, ansi_proto_name_short);
@@ -1791,12 +1785,6 @@ dissect_ansi_637_trans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gchar	*str = NULL;
     guint8	oct;
     guint8	len;
-
-    if (!proto_is_protocol_enabled(proto_ansi_637_trans))
-    {
-	call_dissector(data_handle,tvb, pinfo, tree);
-	return;
-    }
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {

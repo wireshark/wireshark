@@ -7,7 +7,7 @@
  * Routine to dissect RFC 1006 TPKT packet containing OSI TP PDU
  * Copyright 2001, Martin Thomas <Martin_A_Thomas@yahoo.com>
  *
- * $Id: packet-tpkt.c,v 1.22 2002/08/28 21:00:36 jmayer Exp $
+ * $Id: packet-tpkt.c,v 1.23 2003/11/16 23:17:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,7 +77,7 @@ is_tpkt(tvbuff_t *tvb, int min_len)
 	 * If TPKT is disabled, don't dissect it, just return -1, meaning
 	 * "this isn't TPKT".
 	 */
-	if (!proto_is_protocol_enabled(proto_tpkt))
+	if (!proto_is_protocol_enabled(find_protocol_by_id(proto_tpkt)))
 		return -1;
 
 	/* There should at least be 4 bytes left in the frame */

@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.45 2003/10/17 21:27:34 guy Exp $
+ * $Id: packet-pim.c,v 1.46 2003/11/16 23:17:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -113,7 +113,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *pimopt_tree = NULL;
     proto_item *tiopt;
 
-    if (!proto_is_protocol_enabled(proto_pim)) {
+    if (!proto_is_protocol_enabled(find_protocol_by_id(proto_pim))) {
 	/*
 	 * We are not enabled; skip entire packet to be nice to the
 	 * IGMP layer (so clicking on IGMP will display the data).

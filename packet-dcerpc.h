@@ -2,7 +2,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.h,v 1.36 2003/10/10 11:11:37 sahlberg Exp $
+ * $Id: packet-dcerpc.h,v 1.37 2003/11/16 23:17:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -280,7 +280,8 @@ typedef struct _dcerpc_uuid_key {
 } dcerpc_uuid_key;
 
 typedef struct _dcerpc_uuid_value {
-    int proto;
+    protocol_t *proto;
+    int proto_id;
     int ett;
     gchar *name;
     dcerpc_sub_dissector *procs;

@@ -2,7 +2,7 @@
  * Routines for AppleTalk packet disassembly: LLAP, DDP, NBP, ATP, ASP,
  * RTMP.
  *
- * $Id: packet-atalk.c,v 1.90 2003/09/21 20:05:59 gerald Exp $
+ * $Id: packet-atalk.c,v 1.91 2003/11/16 23:17:16 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -73,6 +73,7 @@ static int hf_ddp_dst_socket = -1;
 static int hf_ddp_src_socket = -1;
 static int hf_ddp_type = -1;
 
+static dissector_handle_t ddp_handle;
 
 /* --------------------------------------
  * ATP protocol parameters
@@ -1691,18 +1692,18 @@ dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   new_tvb = tvb_new_subset(tvb, 3, -1, -1);
 
-  if (proto_is_protocol_enabled(proto_ddp)) {
-    pinfo->current_proto = "DDP";
-    switch (type) {
+  switch (type) {
 
-    case 0x01:
+  case 0x01:
+    if (proto_is_protocol_enabled(find_protocol_by_id(proto_ddp))) {
+      pinfo->current_proto = "DDP";
       dissect_ddp_short(new_tvb, pinfo, dnode, snode, tree);
       return;
-
-    case 0x02:
-      dissect_ddp(new_tvb, pinfo, tree);
-      return;
     }
+
+  case 0x02:
+    if (call_dissector(ddp_handle, new_tvb, pinfo, tree))
+      return;
   }
   call_dissector(data_handle,new_tvb, pinfo, tree);
 }
@@ -2254,7 +2255,7 @@ proto_register_atalk(void)
 void
 proto_reg_handoff_atalk(void)
 {
-  dissector_handle_t ddp_handle, nbp_handle, rtmp_request_handle;
+  dissector_handle_t nbp_handle, rtmp_request_handle;
   dissector_handle_t atp_handle;
   dissector_handle_t zip_ddp_handle;
   dissector_handle_t rtmp_data_handle, llap_handle;

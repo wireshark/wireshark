@@ -1,7 +1,7 @@
 /* disabled_protos.c
  * Code for reading and writing the disabled protocols file.
  *
- * $Id: disabled_protos.c,v 1.2 2003/08/07 01:05:06 guy Exp $
+ * $Id: disabled_protos.c,v 1.3 2003/11/16 23:17:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -272,6 +272,7 @@ save_disabled_protos_list(char **pref_path_return, int *errno_return)
   gchar      *ff_path, *ff_path_new, *ff_name;
   FILE       *ff;
   gint        i;
+  protocol_t *protocol;
   void       *cookie;
 
   *pref_path_return = NULL;	/* assume no error */
@@ -302,7 +303,8 @@ save_disabled_protos_list(char **pref_path_return, int *errno_return)
       continue;
     }
 
-    if (proto_is_protocol_enabled(i)) {
+    protocol = find_protocol_by_id(i);
+    if (proto_is_protocol_enabled(protocol)) {
       continue;
     }
 
