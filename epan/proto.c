@@ -1315,6 +1315,7 @@ proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	g_assert(hfinfo->type == FT_STRING || hfinfo->type == FT_STRINGZ);
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
+	g_assert(length >= 0);
 	proto_tree_set_string(new_fi, value, FALSE);
 
 	return pi;
@@ -2047,12 +2048,14 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 				 */
 				tvb_ensure_bytes_exist(tvb, start, 0);
 			}
+			g_assert(*length >= 0);
 			break;
 
 		case FT_NONE:
 		case FT_BYTES:
 		case FT_STRING:
 			*length = tvb_ensure_length_remaining(tvb, start);
+			g_assert(*length >= 0);
 			break;
 
 		case FT_STRINGZ:
@@ -2065,7 +2068,8 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		default:
 			g_assert_not_reached();
 		}
-	}
+	} else
+		g_assert(*length >= 0);
 
 	FIELD_INFO_NEW(fi);
 
@@ -2075,9 +2079,8 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	fi->length = *length;
 	fi->tree_type = -1;
 	fi->flags = 0;
-    if(!PTREE_DATA(tree)->visible) {
-        FI_SET_FLAG(fi, FI_HIDDEN);
-    }
+	if (!PTREE_DATA(tree)->visible)
+		FI_SET_FLAG(fi, FI_HIDDEN);
 	fvalue_init(&fi->value, fi->hfinfo->type);
 	fi->rep = NULL;
 
@@ -2171,6 +2174,7 @@ proto_item_set_len(proto_item *pi, gint length)
 	if (pi == NULL)
 		return;
 	fi = PITEM_FINFO(pi);
+	g_assert(length >= 0);
 	fi->length = length;
 }
 
@@ -2190,6 +2194,7 @@ proto_item_set_end(proto_item *pi, tvbuff_t *tvb, gint end)
 		return;
 	fi = PITEM_FINFO(pi);
 	end += TVB_RAW_OFFSET(tvb);
+	g_assert(end >= fi->start);
 	fi->length = end - fi->start;
 }
 

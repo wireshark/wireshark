@@ -688,7 +688,7 @@ dissect_h4502_CTCompleteArg(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 static int
 dissect_h4502_connectedInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_BMPString(tvb, offset, pinfo, tree, hf_h4502_connectedInfo, 1, 128);
+   offset=dissect_per_BMPString(tvb, offset, pinfo, tree, hf_h4502_connectedInfo, 1, 128);
    return offset;
 }
 
@@ -727,31 +727,31 @@ dissect_h4501_argument(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
       switch (localOpcode) {
       case CallTransferIdentify:
       case CallTransferAbandon:
-         offset = dissect_h4502_DummyArg(argument_tvb, 0, pinfo, tree);
+         dissect_h4502_DummyArg(argument_tvb, 0, pinfo, tree);
          break;
 
       case CallTransferInitiate:
-         offset = dissect_h4502_CTInitiateArg(argument_tvb, 0, pinfo, tree);
+         dissect_h4502_CTInitiateArg(argument_tvb, 0, pinfo, tree);
          break;
 
       case CallTransferSetup:
-         offset = dissect_h4502_CTSetupArg(argument_tvb, 0, pinfo, tree);
+         dissect_h4502_CTSetupArg(argument_tvb, 0, pinfo, tree);
          break;
 
       case CallTransferUpdate:
-         offset = dissect_h4502_CTUpdateArg(argument_tvb, 0, pinfo, tree);
+         dissect_h4502_CTUpdateArg(argument_tvb, 0, pinfo, tree);
          break;
 
       case SubaddressTransfer:
-         offset = dissect_h4502_SubaddressTransferArg(argument_tvb, 0, pinfo, tree);
+         dissect_h4502_SubaddressTransferArg(argument_tvb, 0, pinfo, tree);
          break;
 
       case CallTransferComplete:
-         offset = dissect_h4502_CTCompleteArg(argument_tvb, 0, pinfo, tree);
+         dissect_h4502_CTCompleteArg(argument_tvb, 0, pinfo, tree);
          break;
 
       case CallTransferActive:
-         offset = dissect_h4502_CTActiveArg(argument_tvb, 0, pinfo, tree);
+         dissect_h4502_CTActiveArg(argument_tvb, 0, pinfo, tree);
          break;
 
       /* TODO - decode other H.450.x invoke arguments here */
@@ -761,7 +761,7 @@ PER_NOT_DECODED_YET("Unrecognized H.450.x operation");
          break;
       }
    }
-	return offset;
+   return offset;
 }
 
 
@@ -831,12 +831,12 @@ dissect_h4501_ReturnResult_result(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
       switch (localOpcode) {
       case CallTransferIdentify:
-         offset = dissect_h4502_CTIdentifyRes(result_tvb, 0, pinfo, tree);
+         dissect_h4502_CTIdentifyRes(result_tvb, 0, pinfo, tree);
          break;
 
       case CallTransferInitiate:
       case CallTransferSetup:
-         offset = dissect_h4502_DummyRes(result_tvb, 0, pinfo, tree);
+         dissect_h4502_DummyRes(result_tvb, 0, pinfo, tree);
          break;
 
       default:
