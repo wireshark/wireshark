@@ -167,6 +167,7 @@ static guint        packets_ctx;
 static gchar        *packets_str = NULL;
 GString *comp_info_str, *runtime_info_str;
 gchar       *ethereal_path = NULL;
+gboolean have_capture_file = FALSE; /* XXX - is there an aquivalent in cfile? */
 
 #ifdef _WIN32
 static gboolean has_console;	/* TRUE if app has console */
@@ -849,6 +850,13 @@ void packets_bar_update(void)
     }
 }
 
+void
+main_set_for_capture_file(gboolean have_capture_file_in)
+{
+    have_capture_file = have_capture_file_in;
+
+    main_widgets_show_or_hide();
+}
 
 gboolean
 main_do_quit(void)
@@ -2715,19 +2723,19 @@ main_widgets_show_or_hide(void)
         gtk_widget_hide(filter_tb);
     }
 
-    if (recent.packet_list_show) {
+    if (recent.packet_list_show && have_capture_file) {
         gtk_widget_show(pkt_scrollw);
     } else {
         gtk_widget_hide(pkt_scrollw);
     }
 
-    if (recent.tree_view_show) {
+    if (recent.tree_view_show && have_capture_file) {
         gtk_widget_show(tv_scrollw);
     } else {
         gtk_widget_hide(tv_scrollw);
     }
 
-    if (recent.byte_view_show) {
+    if (recent.byte_view_show && have_capture_file) {
         gtk_widget_show(byte_nb_ptr);
     } else {
         gtk_widget_hide(byte_nb_ptr);

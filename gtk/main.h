@@ -276,6 +276,10 @@ extern void dnd_open_file_cmd(GtkSelectionData *selection_data);
 /** Update the packets statusbar to the current values. */
 extern void packets_bar_update(void);
 
+/** Tell the main window that we have a capture file (or not) */
+extern void
+main_set_for_capture_file(gboolean have_capture_file_in);
+
 #ifdef _WIN32
 /** Win32 only: Create a console. Beware: cannot be closed again. */
 extern void create_console(void);
