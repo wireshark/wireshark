@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.32 1999/10/24 07:27:20 guy Exp $
+ * $Id: packet-smb.c,v 1.33 1999/10/26 21:30:11 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -2462,7 +2462,7 @@ void
 dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
-  guint8      wct, andxcmd;
+  guint8      wct, andxcmd = 0xFF;
   guint16     andxoffs, flags, passwdlen, bcc, optionsup;
   const char  *str;
   proto_tree  *flags_tree;
@@ -3546,7 +3546,6 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
   proto_tree    *Action_tree;
   proto_item    *ti;
   guint8        WordCount;
-  guint8        BufferFormat;
   guint8        AndXReserved;
   guint8        AndXCommand = 0xFF;
   guint32       ServerFID;
@@ -8186,7 +8185,6 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
   guint8        SetupCount;
   guint8        Reserved3;
   guint8        Reserved1;
-  guint8        Parameters;
   guint8        Parameter;
   guint8        Pad2;
   guint8        Pad1;
@@ -8195,7 +8193,7 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
   guint32       Timeout;
   guint16       TotalParameterCount;
   guint16       TotalDataCount;
-  guint16       Setup;
+  guint16       Setup = 0;
   guint16       Reserved2;
   guint16       ParameterOffset;
   guint16       ParameterDisplacement;
@@ -8821,7 +8819,6 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *t
   guint8        SetupCount;
   guint8        Reserved3;
   guint8        Reserved1;
-  guint8        Parameters;
   guint8        Parameter;
   guint8        Pad2;
   guint8        Pad1;
@@ -8830,7 +8827,7 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *t
   guint32       Timeout;
   guint16       TotalParameterCount;
   guint16       TotalDataCount;
-  guint16       Setup;
+  guint16       Setup = 0;
   guint16       Reserved2;
   guint16       ParameterOffset;
   guint16       ParameterDisplacement;
