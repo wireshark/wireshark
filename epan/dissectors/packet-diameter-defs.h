@@ -344,6 +344,12 @@ static const value_string diameter_inband_security_id_vals[]= {
 	{0,NULL}
 };
 
+/*
+ * XXX - this isn't an enumerated value list, it's a list of bits in a
+ * bitset.  The DIAMETER dissector doesn't have any mechanism to handle
+ * that; it would need one in order to dissect the value of this AVP
+ * correctly.
+ */
 /*    MIP-Feature-Vector AVP (code 337) */
 static const value_string diameter_mip_feature_vector_vals[]= {
 	{1, "Mobile-Node-Home-Address-Requested"},			/* RFC-ietf-aaa-diameter-mobileip-20.txt */
@@ -369,6 +375,10 @@ static const value_string diameter_mip_replay_mode[] = {
 	{3, "Nonces"},
 	{0, NULL}
 };
+/*
+ * XXX - this isn't used; does there need to be an entry for AVP 406
+ * that would use it?
+ */
 /* Accounting-Auth-Method AVP Values (code 406) */
 static const value_string diameter_accounting_auth_method_vals[] = {
 	{1, "PAP"},										/* [RFC-ietf-aaa-diameter-nasreq-17.txt] */
@@ -488,6 +498,10 @@ static const value_string diameter_multiple_services_indicator_vals[]= {
 };
 
 
+/*
+ * XXX - this isn't used; does there need to be an entry for AVP 459
+ * that would use it?
+ */
 /*  User-Equipment-Info-Type AVP Values (code 459)*/
 static const value_string diameter_user_equipment_info_type_vals[]= {
 	{0, "IMEISV"},										/* [RFC-ietf-aaa-diameter-cc-06.txt]  */
