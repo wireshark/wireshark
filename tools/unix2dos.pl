@@ -27,7 +27,9 @@
 use strict;
 
 while (<STDIN>) {
-	$_ =~ s/\n/\r\n/;
+	if($_ !~ /\r\n/) {
+		$_ =~ s/\n/\r\n/;
+	}
 	print $_;
 }
 1;
