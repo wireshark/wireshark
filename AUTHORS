@@ -843,6 +843,7 @@ Motonori Shindo <mshindo[AT]mshindo.net> {
 	    makefile.nmake clean", and put all the PDB files into the
 	    Windows binary distribution
 	Delete installed data files on a Windows uninstallation
+	OSPF fixes
 }
 
 Terje Krogdahl <tekr[AT]nextra.com> {

@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.64 2002/05/11 22:22:11 guy Exp $
+ * $Id: packet-ospf.c,v 1.65 2002/05/13 20:46:37 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -800,19 +800,17 @@ dissect_ospf_ls_req(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
 				 "Link State Request"); 
 	ospf_lsr_tree = proto_item_add_subtree(ti, ett_ospf_lsr);
       
-        reserved = tvb_get_guint8(tvb, offset);
-        proto_tree_add_text(ospf_lsr_tree, tvb, offset, 1,
-           (reserved == 0 ? "Reserved: %u" : "Reserved: %u (incorrect, should be 0)"),
-				reserved);
-
         switch ( version ) {
 
     	    case OSPF_VERSION_2:
  	        ls_type = tvb_get_ntohl(tvb, offset);
   	        proto_tree_add_item(ospf_lsr_tree, ospf_filter[OSPFF_LS_TYPE], 
-				    tvb, offset, 4, ls_type);
+				    tvb, offset, 4, FALSE);
 	        break;
     	    case OSPF_VERSION_3:
+ 	        reserved = tvb_get_ntohs(tvb, offset);
+ 	        proto_tree_add_text(ospf_lsr_tree, tvb, offset, 2,
+ 	            (reserved == 0 ? "Reserved: %u" :  "Reserved: %u (incorrect, should be 0)"), reserved);
  	        ls_type = tvb_get_ntohs(tvb, offset+2);
 	        proto_tree_add_text(ospf_lsr_tree, tvb, offset+2, 2, "LS Type: %s (0x%04x)",
 			    val_to_str(ls_type, v3_ls_type_vals, "Unknown"),
@@ -1205,7 +1203,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 			tvb_get_ntohs(tvb, offset));
     dissect_ospf_options(tvb, offset + 2, ospf_lsa_tree, OSPF_VERSION_2);
     proto_tree_add_item(ospf_lsa_tree, ospf_filter[OSPFF_LS_TYPE], tvb, 
-			offset + 3, 1, ls_type); 
+			offset + 3, 1, FALSE); 
     proto_tree_add_item_hidden(ospf_lsa_tree, 
 			       ospf_filter[ospf_ls_type_to_filter(ls_type)], tvb, 
 			       offset + 3, 1, FALSE); 
