@@ -979,7 +979,7 @@ gtk_iostat_draw(void *g)
    pruned 
 */
 static GString *
-enable_graph(io_stat_graph_t *gio, char *filter, char *field)
+enable_graph(io_stat_graph_t *gio, const char *filter, const char *field)
 {
 	char real_filter[260];
 
@@ -1505,12 +1505,12 @@ create_ctrl_area(io_stat_t *io, GtkWidget *box)
 static gint
 filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 {
-	char *filter;
-	char *field;
+	const char *filter;
+	const char *field;
 	header_field_info *hfi;
 	dfilter_t *dfilter;
 
-	field=(char *)gtk_entry_get_text(GTK_ENTRY(gio->calc_field));
+	field=gtk_entry_get_text(GTK_ENTRY(gio->calc_field));
 
 	/* this graph is not active, just update display and redraw */
 	if(!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gio->display_button))){
@@ -1612,7 +1612,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 	}
 
 	/* first check if the filter string is valid. */
-	filter=(char *)gtk_entry_get_text(GTK_ENTRY(gio->filter_field));
+	filter=gtk_entry_get_text(GTK_ENTRY(gio->filter_field));
 	if(!dfilter_compile(filter, &dfilter)) {
 		bad_dfilter_alert_box(filter);
 		disable_graph(gio);

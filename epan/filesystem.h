@@ -26,16 +26,9 @@
 #define FILESYSTEM_H
 
 /*
- * Given a pathname, return a pointer to the last pathname separator
- * character in the pathname, or NULL if the pathname contains no
- * separators.
- */
-char *find_last_pathname_separator(char *);
-
-/*
  * Given a pathname, return the last component.
  */
-char *get_basename(char *);
+const char *get_basename(const char *);
 
 /*
  * Given a pathname, return a string containing everything but the

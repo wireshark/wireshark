@@ -161,7 +161,7 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     }
 
     label = OBJECT_GET_DATA(prev, PREVIEW_FILENAME_KEY);
-    gtk_label_set_text(GTK_LABEL(label), get_basename((char *)cf_name));
+    gtk_label_set_text(GTK_LABEL(label), get_basename(cf_name));
 
     if (test_for_directory(cf_name) == EISDIR) {
         label = OBJECT_GET_DATA(prev, PREVIEW_FORMAT_KEY);
@@ -645,10 +645,11 @@ file_open_cmd_cb(GtkWidget *widget, gpointer data _U_) {
 /* user pressed "open" button */
 static void
 file_open_ok_cb(GtkWidget *w, gpointer fs) {
-  gchar     *cf_name, *rfilter, *s;
-  GtkWidget *filter_te, *m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
-  dfilter_t *rfcode = NULL;
-  int        err;
+  gchar       *cf_name, *s;
+  const gchar *rfilter;
+  GtkWidget   *filter_te, *m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
+  dfilter_t   *rfcode = NULL;
+  int          err;
 
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
@@ -656,7 +657,7 @@ file_open_ok_cb(GtkWidget *w, gpointer fs) {
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
 #endif
   filter_te = OBJECT_GET_DATA(w, E_RFILTER_TE_KEY);
-  rfilter = (gchar *)gtk_entry_get_text(GTK_ENTRY(filter_te));
+  rfilter = gtk_entry_get_text(GTK_ENTRY(filter_te));
   if (!dfilter_compile(rfilter, &rfcode)) {
     bad_dfilter_alert_box(rfilter);
     g_free(cf_name);
@@ -992,14 +993,15 @@ file_merge_cmd_cb(GtkWidget *widget, gpointer data _U_) {
 
 static void
 file_merge_ok_cb(GtkWidget *w, gpointer fs) {
-  gchar     *cf_name, *rfilter, *s;
-  GtkWidget *filter_te, *rb;
-  dfilter_t *rfcode = NULL;
-  int        err;
-  gboolean   merge_ok;
-  char      *in_filenames[2];
-  int        out_fd;
-  char       tmpname[128+1];
+  gchar       *cf_name, *s;
+  const gchar *rfilter;
+  GtkWidget   *filter_te, *rb;
+  dfilter_t   *rfcode = NULL;
+  int          err;
+  gboolean     merge_ok;
+  char        *in_filenames[2];
+  int          out_fd;
+  char         tmpname[128+1];
 
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
@@ -1007,7 +1009,7 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
 #endif
   filter_te = OBJECT_GET_DATA(w, E_RFILTER_TE_KEY);
-  rfilter = (gchar *)gtk_entry_get_text(GTK_ENTRY(filter_te));
+  rfilter = gtk_entry_get_text(GTK_ENTRY(filter_te));
   if (!dfilter_compile(rfilter, &rfcode)) {
     bad_dfilter_alert_box(rfilter);
     g_free(cf_name);

@@ -301,14 +301,14 @@ cf_close(capture_file *cf)
 static void
 set_display_filename(capture_file *cf)
 {
-  gchar  *name_ptr;
-  size_t  msg_len;
+  const gchar *name_ptr;
+  size_t       msg_len;
   static const gchar done_fmt_nodrops[] = " File: %s %s %02u:%02u:%02u";
   static const gchar done_fmt_drops[] = " File: %s %s %02u:%02u:%02u Drops: %u";
-  gchar  *done_msg;
-  gchar  *win_name_fmt = "%s - Ethereal";
-  gchar  *win_name;
-  gchar  *size_str;
+  gchar       *done_msg;
+  gchar       *win_name_fmt = "%s - Ethereal";
+  gchar       *win_name;
+  gchar       *size_str;
 
   name_ptr = cf_get_display_name(cf);
 	
@@ -345,28 +345,29 @@ set_display_filename(capture_file *cf)
 read_status_t
 cf_read(capture_file *cf)
 {
-  int        err;
-  gchar      *err_info;
-  gchar      *name_ptr, *load_msg, *load_fmt = "%s";
-  char       *errmsg;
-  char        errmsg_errno[1024+1];
-  gchar       err_str[2048+1];
-  long        data_offset;
-  progdlg_t  *progbar = NULL;
-  gboolean    stop_flag;
+  int         err;
+  gchar       *err_info;
+  const gchar *name_ptr;
+  gchar       *load_msg, *load_fmt = "%s";
+  char        *errmsg;
+  char         errmsg_errno[1024+1];
+  gchar        err_str[2048+1];
+  long         data_offset;
+  progdlg_t   *progbar = NULL;
+  gboolean     stop_flag;
   /*
    * XXX - should be "off_t", but Wiretap would need more work to handle
    * the full size of "off_t" on platforms where it's more than a "long"
    * as well.
    */
-  long        file_pos;
-  float       prog_val;
-  int         fd;
-  struct stat cf_stat;
-  GTimeVal    start_time;
-  gchar       status_str[100];
-  int         progbar_nextstep;
-  int         progbar_quantum;
+  long         file_pos;
+  float        prog_val;
+  int          fd;
+  struct stat  cf_stat;
+  GTimeVal     start_time;
+  gchar        status_str[100];
+  int          progbar_nextstep;
+  int          progbar_quantum;
 
   cum_bytes=0;
   reset_tap_listeners();
@@ -682,10 +683,10 @@ cf_finish_tail(capture_file *cf, int *err)
 }
 #endif /* HAVE_LIBPCAP */
 
-gchar *
+const gchar *
 cf_get_display_name(capture_file *cf)
 {
-  gchar *displayname;
+  const gchar *displayname;
 
   /* Return a name to use in displays */
   if (!cf->is_tempfile) {
@@ -3042,7 +3043,8 @@ gboolean
 cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
 {
   gchar        *from_filename;
-  gchar        *name_ptr, *save_msg, *save_fmt = " Saving: %s...";
+  const gchar  *name_ptr;
+  gchar        *save_msg, *save_fmt = " Saving: %s...";
   size_t        msg_len;
   int           err;
   gboolean      do_copy;

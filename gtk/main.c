@@ -1525,7 +1525,7 @@ int
 main(int argc, char *argv[])
 {
 #ifdef HAVE_LIBPCAP
-  char                *command_name;
+  const char          *command_name;
 #endif
   char                *s;
   int                  i;

@@ -252,10 +252,10 @@ static void
 smbstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 {
 	GString *str;
-	char *filter;
+	const char *filter;
 
 	str = g_string_new("smb,srt");
-	filter=(char *)gtk_entry_get_text(GTK_ENTRY(filter_entry));
+	filter=gtk_entry_get_text(GTK_ENTRY(filter_entry));
 	if(filter[0]!=0){
 		g_string_sprintfa(str,",%s", filter);
 	}

@@ -51,7 +51,7 @@ read_status_t cf_continue_tail(capture_file *, int, int *);
 read_status_t cf_finish_tail(capture_file *, int *);
 /* size_t read_frame_header(capture_file *); */
 gboolean cf_save(char *fname, capture_file * cf, packet_range_t *range, guint save_format);
-gchar *cf_get_display_name(capture_file *);
+const gchar *cf_get_display_name(capture_file *);
 
 gboolean
 cf_merge_files(const char *out_filename, int out_fd, int in_file_count,

@@ -352,7 +352,7 @@ static void
 dcerpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 {
 	GString *str;
-	char *filter;
+	const char *filter;
 
 	str = g_string_new("dcerpc,srt");
 	g_string_sprintfa(str,
@@ -364,7 +364,7 @@ dcerpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 	    dcerpc_uuid_program->Data4[4], dcerpc_uuid_program->Data4[5],
 	    dcerpc_uuid_program->Data4[6], dcerpc_uuid_program->Data4[7],
 	    dcerpc_version, 0);
-	filter=(char *)gtk_entry_get_text(GTK_ENTRY(filter_entry));
+	filter=gtk_entry_get_text(GTK_ENTRY(filter_entry));
 	if(filter[0]!=0){
 		g_string_sprintfa(str, ",%s", filter);
 	}

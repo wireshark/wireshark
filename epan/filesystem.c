@@ -60,8 +60,8 @@
  * character in the pathname, or NULL if the pathname contains no
  * separators.
  */
-char *
-find_last_pathname_separator(char *path)
+static char *
+find_last_pathname_separator(const char *path)
 {
 	char *separator;
 
@@ -72,7 +72,7 @@ find_last_pathname_separator(char *path)
 	 * We have to scan for '\' or '/'.
 	 * Get to the end of the string.
 	 */
-	separator = path + strlen(path);	/* points to ending '\0' */
+	separator = strchr(path, '\0');		/* points to ending '\0' */
 	while (separator > path) {
 		c = *--separator;
 		if (c == '\\' || c == '/')
@@ -93,10 +93,10 @@ find_last_pathname_separator(char *path)
 /*
  * Given a pathname, return the last component.
  */
-char *
-get_basename(char *path)
+const char *
+get_basename(const char *path)
 {
-	char *filename;
+	const char *filename;
 
 	g_assert(path != NULL);
 	filename = find_last_pathname_separator(path);

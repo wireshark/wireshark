@@ -204,10 +204,10 @@ static GtkWidget *
 about_folders_page_new(void)
 {
   GtkWidget   *table;
-  const char *path;
+  const char *constpath;
+  char *path;
   gchar *titles[] = { "Name", "Folder", "Typical Files"};
   GtkWidget *scrolledwindow;
-
 
   scrolledwindow = scrolled_window_new(NULL, NULL);
 #if GTK_MAJOR_VERSION >= 2
@@ -235,20 +235,18 @@ about_folders_page_new(void)
   g_free((void *) path);
 
   /* global conf */
-  path = get_datafile_dir();
-  about_folders_row(table, "Global configuration", path,
+  constpath = get_datafile_dir();
+  about_folders_row(table, "Global configuration", constpath,
       "\"dfilters\", \"preferences\", \"manuf\", ...");
-  /*g_free(path);*/
 
   /* system */
-  path = get_systemfile_dir();
-  about_folders_row(table, "System", path,
+  constpath = get_systemfile_dir();
+  about_folders_row(table, "System", constpath,
       "\"ethers\", \"ipxnets\"");
-  /*g_free(path);*/
 
   /* program */
   path = g_strdup(ethereal_path);
-  path = get_dirname((char *) path);
+  path = get_dirname(path);
   about_folders_row(table, "Program", path,
       "program files");
   g_free((void *) path);

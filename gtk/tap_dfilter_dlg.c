@@ -85,16 +85,16 @@ dlg_destroy_cb(GtkWidget *item _U_, gpointer dialog_data)
 static void
 tap_dfilter_dlg_start_button_clicked(GtkWidget *item _U_, gpointer dialog_data)
 {
-	char *filter;
+	const char *filter;
 	char str[256];
 	
 	tap_dfilter_dlg_list_item *dlg_data = (tap_dfilter_dlg_list_item *) dialog_data;
 
-	filter=(char *)gtk_entry_get_text(GTK_ENTRY(dlg_data->filter_entry));
+	filter=gtk_entry_get_text(GTK_ENTRY(dlg_data->filter_entry));
 	if(filter[0]==0){
 		g_snprintf(str, sizeof(str), "%s", dlg_data->cont.init_string);
 	} else {
-		g_snprintf(str, sizeof(str), "%s,%s", dlg_data->cont.init_string, filter);		
+		g_snprintf(str, sizeof(str), "%s,%s", dlg_data->cont.init_string, filter);
 	}
 	(dlg_data->cont.tap_init_cb)(str);
 }
