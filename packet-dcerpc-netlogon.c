@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.87 2003/08/04 02:49:02 tpot Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.88 2003/09/10 09:49:31 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5915,7 +5915,7 @@ netlogon_dissect_dsrderegisterdnshostrecords_rqst(tvbuff_t *tvb, int offset,
 		"GUID pointer: dsa_guid", -1);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-		NDR_POINTER_UNIQUE, "dns_host", hf_netlogon_dns_host, 0);
+		NDR_POINTER_REF, "dns_host", hf_netlogon_dns_host, 0);
 
 	return offset;
 }
