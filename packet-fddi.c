@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.3 1998/10/13 05:12:13 guy Exp $
+ * $Id: packet-fddi.c,v 1.4 1998/10/13 05:55:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -95,10 +95,9 @@ void dissect_fddi(const u_char *pd, frame_data *fd, GtkTree *tree)
 
   if (tree) {
     ti = add_item_to_tree(GTK_WIDGET(tree), 0, offset,
-			  "FDDI %s (%d on wire, %d captured)",
+			  "FDDI %s",
 			  (fc >= FDDI_FC_LLC_ASYNC_MIN && fc <= FDDI_FC_LLC_ASYNC_MAX) ?
-			  "Async LLC" : "unsupported FC",
-			  fd->pkt_len, fd->cap_len);
+			  "Async LLC" : "unsupported FC");
 
       fh_tree = gtk_tree_new();
       add_subtree(ti, fh_tree, ETT_FDDI);
