@@ -2603,6 +2603,7 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
                         dcerpc_auth_info *auth_info, guint32 alloc_hint,
                         guint32 frame)
 {
+    gint length, reported_length;
     gboolean save_fragmented;
     fragment_data *fd_head=NULL;
     guint32 tot_len;
@@ -2611,10 +2612,17 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     save_fragmented = pinfo->fragmented;
 
-    payload_tvb = tvb_new_subset(
-	    tvb, offset, tvb_length_remaining(tvb, offset) - 
-	    auth_info->auth_size, tvb_length_remaining(tvb, offset) - 
-	    auth_info->auth_size);    
+    length = tvb_length_remaining(tvb, offset);
+    reported_length = tvb_reported_length_remaining(tvb, offset);
+    if (reported_length < auth_info->auth_size) {
+	/* We don't even have enough bytes for the authentication
+	   stuff. */
+	return;
+    }
+    reported_length -= auth_info->auth_size;
+    if (length > reported_length)
+	length = reported_length;
+    payload_tvb = tvb_new_subset(tvb, offset, length, reported_length);
 
     /* Decrypt the PDU if it is encrypted */
 
@@ -2924,7 +2932,6 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
      * and we just have a security context?
      */
     dissect_dcerpc_cn_auth (tvb, offset, pinfo, dcerpc_tree, hdr, FALSE, &auth_info);
-    dissect_dcerpc_verifier (tvb, pinfo, dcerpc_tree, hdr, &auth_info);
 
     conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
                               pinfo->srcport, pinfo->destport, 0);
@@ -3028,6 +3035,10 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	} else
 	    show_stub_data (tvb, offset, dcerpc_tree, &auth_info, TRUE);
     }
+
+    /* Dissect the verifier */
+    dissect_dcerpc_verifier (tvb, pinfo, dcerpc_tree, hdr, &auth_info);
+
 }
 
 static void
@@ -3066,7 +3077,6 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
      * and we just have a security context?
      */
     dissect_dcerpc_cn_auth (tvb, offset, pinfo, dcerpc_tree, hdr, FALSE, &auth_info);
-    dissect_dcerpc_verifier (tvb, pinfo, dcerpc_tree, hdr, &auth_info);
 
     conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
                               pinfo->srcport, pinfo->destport, 0);
@@ -3137,6 +3147,9 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
         } else
             show_stub_data (tvb, offset, dcerpc_tree, &auth_info, TRUE);
     }
+
+    /* Dissect the verifier */
+    dissect_dcerpc_verifier (tvb, pinfo, dcerpc_tree, hdr, &auth_info);
 }
 
 static void
