@@ -1,7 +1,7 @@
 /* packet-dvmrp.c   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Routines for IGMP/DVMRP packet disassembly
  *
- * $Id: packet-dvmrp.c,v 1.7 2002/01/21 07:36:34 guy Exp $
+ * $Id: packet-dvmrp.c,v 1.8 2002/02/01 11:01:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,7 +65,7 @@
 
 #include <epan/packet.h>
 #include "ipproto.h"
-#include "in_cksum.h"
+#include "packet-igmp.h"
 #include "packet-dvmrp.h"
 
 static int proto_dvmrp = -1;
@@ -214,29 +214,6 @@ static const true_false_string tfs_cap_netmask = {
 	"NOT Netmask capable"
 };
 
-static void dvmrp_checksum(proto_tree *tree,tvbuff_t *tvb, int len)
-{
-	guint16 cksum,hdrcksum;
-	vec_t cksum_vec[1];
-
-	cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, len);
-	cksum_vec[0].len = len;
-
-	hdrcksum = tvb_get_ntohs(tvb, 2);
-	cksum = in_cksum(&cksum_vec[0],1);
-
-	if (cksum==0) {
-		proto_tree_add_uint_format(tree, hf_checksum, tvb, 2, 2, hdrcksum, "Header checksum: 0x%04x (correct)", hdrcksum);
-	} else {
-		proto_tree_add_item_hidden(tree, hf_checksum_bad, tvb, 2, 2, TRUE);
-		proto_tree_add_uint_format(tree, hf_checksum, tvb, 2, 2, hdrcksum, "Header checksum: 0x%04x (incorrect, should be 0x%04x)", hdrcksum,in_cksum_shouldbe(hdrcksum,cksum));
-	}
-
-	return;
-}
-
-
-
 int
 dissect_v3_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
 {
@@ -345,7 +322,7 @@ dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	}
 
 	/* checksum */
-	dvmrp_checksum(parent_tree, tvb, tvb_length_remaining(tvb, 0));
+	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_bad, pinfo, 0);
 	offset += 2;
 
 	/* skip unused byte */
@@ -475,7 +452,7 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	}
 
 	/* checksum */
-	dvmrp_checksum(parent_tree, tvb, tvb_length_remaining(tvb, 0));
+	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_bad, pinfo, 0);
 	offset += 2;
 
 	/* decode all the v1 commands */
@@ -812,4 +789,3 @@ proto_register_dvmrp(void)
 	proto_register_field_array(proto_dvmrp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
-

@@ -1,7 +1,7 @@
 /* packet-mrdisc.c   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Routines for IGMP/MRDISC packet disassembly
  *
- * $Id: packet-mrdisc.c,v 1.6 2002/01/21 07:36:37 guy Exp $
+ * $Id: packet-mrdisc.c,v 1.7 2002/02/01 11:01:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,7 +49,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include "in_cksum.h"
+#include "packet-igmp.h"
 #include "packet-mrdisc.h"
 
 
@@ -88,28 +88,6 @@ static const value_string mrdisc_options[] = {
 };
 
 
-static void mrdisc_checksum(proto_tree *tree,tvbuff_t *tvb, int len)
-{
-	guint16 cksum,hdrcksum;
-	vec_t cksum_vec[1];
-
-	cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, len);
-	cksum_vec[0].len = len;
-
-	hdrcksum = tvb_get_ntohs(tvb, 2);
-	cksum = in_cksum(&cksum_vec[0],1);
-
-	if (cksum==0) {
-		proto_tree_add_uint_format(tree, hf_checksum, tvb, 2, 2, hdrcksum, "Header checksum: 0x%04x (correct)", hdrcksum);
-	} else {
-		proto_tree_add_item_hidden(tree, hf_checksum_bad, tvb, 2, 2, TRUE);
-		proto_tree_add_uint_format(tree, hf_checksum, tvb, 2, 2, hdrcksum, "Header checksum: 0x%04x (incorrect, should be 0x%04x)", hdrcksum,in_cksum_shouldbe(hdrcksum,cksum));
-	}
-
-	return;
-}
-
-
 static int
 dissect_mrdisc_mra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
 {
@@ -120,7 +98,7 @@ dissect_mrdisc_mra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, i
 	offset += 1;
 
 	/* checksum */
-	mrdisc_checksum(parent_tree, tvb, tvb_length_remaining(tvb, 0));
+	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_bad, pinfo, 0);
 	offset += 2;
 
 	/* skip unused bytes */
@@ -199,7 +177,7 @@ dissect_mrdisc_mrst(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	offset += 1;
 
 	/* checksum */
-	mrdisc_checksum(parent_tree, tvb, tvb_length_remaining(tvb, 0));
+	igmp_checksum(parent_tree, tvb, hf_checksum, hf_checksum_bad, pinfo, 0);
 	offset += 2;
 
 	return offset;
