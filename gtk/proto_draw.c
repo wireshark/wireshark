@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.95 2004/05/14 15:55:37 ulfl Exp $
+ * $Id: proto_draw.c,v 1.96 2004/05/14 18:02:38 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1753,23 +1753,14 @@ main_proto_tree_draw(proto_tree *protocol_tree)
 }
 
 
-#if GTK_MAJOR_VERSION >= 2
 void
-tree_view_follow_link(GtkTreeSelection    *sel)
+tree_view_follow_link(field_info   *fi)
 {
-    GtkTreeModel *model;
-    GtkTreeIter iter;
-    field_info   *fi;
-
-    if(gtk_tree_selection_get_selected (sel, &model, &iter)) {
-        gtk_tree_model_get(model, &iter, 1, &fi, -1);
-        if(FI_GET_FLAG(fi, FI_LINK)) {
-            g_assert(fi->hfinfo->type == FT_FRAMENUM);
-            goto_frame(&cfile, fi->value.value.integer);
-        }
+    if(FI_GET_FLAG(fi, FI_LINK)) {
+        g_assert(fi->hfinfo->type == FT_FRAMENUM);
+        goto_frame(&cfile, fi->value.value.integer);
     }
 }
-#endif
 
 
 /* If the user selected a position in the tree view, try to find
@@ -1783,6 +1774,7 @@ tree_view_select(GtkWidget *widget, GdkEventButton *event)
         GtkCTreeNode *node;
         gint         row;
         gint         column;
+        field_info   *fi;
 
 
         if(gtk_clist_get_selection_info(GTK_CLIST(widget), 
@@ -1796,6 +1788,12 @@ tree_view_select(GtkWidget *widget, GdkEventButton *event)
             g_assert(node);
 
             gtk_ctree_select(ctree, node);
+
+            /* if that's a doubleclick, try to follow the link */
+            if(event->type == GDK_2BUTTON_PRESS) {
+                fi = gtk_ctree_node_get_row_data(ctree, node);
+                tree_view_follow_link(fi);
+            }
         } else {
             return FALSE;
         }
@@ -1813,7 +1811,14 @@ tree_view_select(GtkWidget *widget, GdkEventButton *event)
 
             /* if that's a doubleclick, try to follow the link */
             if(event->type == GDK_2BUTTON_PRESS) {
-                tree_view_follow_link(sel);
+                GtkTreeModel *model;
+                GtkTreeIter iter;
+                field_info   *fi;
+
+                if(gtk_tree_selection_get_selected (sel, &model, &iter)) {
+                    gtk_tree_model_get(model, &iter, 1, &fi, -1);
+                    tree_view_follow_link(fi);
+                }
             }
         } else {
             return FALSE;
