@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim.c,v 1.20 2003/01/15 06:09:11 guy Exp $
+ * $Id: packet-aim.c,v 1.21 2003/01/20 07:39:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,9 @@
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
+
+#include "packet-tcp.h"
+#include "prefs.h"
 
 #define TCP_PORT_AIM 5190
 #define MAX_BUDDYNAME_LENGTH 30
@@ -402,7 +405,9 @@ static const value_string aim_fnac_family_icq[] = {
   { 0, NULL }
 };
 
-static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static guint get_aim_pdu_len(tvbuff_t *tvb, int offset);
+static void dissect_aim_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static void get_message( guchar *msg, tvbuff_t *tvb, int msg_offset, int msg_length);
 static int get_buddyname( char *name, tvbuff_t *tvb, int len_offset, int name_offset);
@@ -491,8 +496,43 @@ static int hf_aim_userinfo_tlvcount = -1;
 static gint ett_aim          = -1;
 static gint ett_aim_fnac     = -1;
 
+/* desegmentation of AIM over TCP */
+static gboolean aim_desegment = TRUE;
+
 /* Code to actually dissect the packets */
-static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+/* check, if this is really an AIM packet, they start with 0x2a */
+/* XXX - I've seen some stuff starting with 0x5a followed by 0x2a */
+
+  if(tvb_bytes_exist(tvb, 0, 1) && tvb_get_guint8(tvb, 0) != 0x2a) {
+    /* Not an instant messenger packet, just happened to use the same port */
+    /* XXX - if desegmentation disabled, this might be a continuation
+       packet, not a non-AIM packet */
+    return 0;
+  }
+
+  tcp_dissect_pdus(tvb, pinfo, tree, aim_desegment, 6, get_aim_pdu_len,
+	dissect_aim_pdu);
+  return tvb_length(tvb);
+}
+
+static guint get_aim_pdu_len(tvbuff_t *tvb, int offset)
+{
+  guint16 plen;
+
+  /*
+   * Get the length of the AIM packet.
+   */
+  plen = tvb_get_ntohs(tvb, offset + 4);
+
+  /*
+   * That length doesn't include the length of the header itself; add that in.
+   */
+  return plen + 6;
+}
+
+static void dissect_aim_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   /* Header fields */
   unsigned char  hdr_channel;           /* channel ID */
@@ -505,14 +545,6 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *ti;
   proto_tree *aim_tree = NULL;
 
-/* check, if this is really an AIM packet, they start with 0x2a */
-
-  if(!(tvb_get_guint8(tvb, offset) == 0x2a)) {
-    /* Not an instant messenger packet, just happened to use the same port */
-    return;
-  }
-  offset += 1;
-
 /* Make entries in Protocol column and Info column on summary display */
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AIM");
@@ -521,6 +553,7 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_add_str(pinfo->cinfo, COL_INFO, "AOL Instant Messenger");
 
   /* get relevant header information */
+  offset += 1;          /* XXX - put the identifier into the tree? */	
   hdr_channel           = tvb_get_guint8(tvb, offset);
   offset += 1;
   hdr_sequence_no       = tvb_get_ntohs(tvb, offset);
@@ -660,8 +693,8 @@ static void dissect_aim_newconn(tvbuff_t *tvb, packet_info *pinfo,
 {
   if (check_col(pinfo->cinfo, COL_INFO)) 
     col_add_fstr(pinfo->cinfo, COL_INFO, "New Connection");
-  proto_tree_add_item(tree, hf_aim_data, tvb, offset, 
-		      tvb_length_remaining (tvb, offset), FALSE);
+  if (tvb_length_remaining(tvb, offset) > 0)
+    proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, FALSE);
 }
 
 static void dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, 
@@ -804,8 +837,8 @@ static void dissect_aim_snac_signon_logon_reply(tvbuff_t *tvb,
       col_append_fstr(pinfo->cinfo, COL_INFO, ", Login information reply");
 
     /* Show the undissected payload */
-    proto_tree_add_item(tree, hf_aim_data, tvb, offset, 
-			tvb_length_remaining (tvb, offset), FALSE);
+    if (tvb_length_remaining(tvb, offset) > 0)
+      proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, FALSE);
 }
 
 static void dissect_aim_snac_signon_signon(tvbuff_t *tvb, packet_info *pinfo, 
@@ -951,8 +984,8 @@ static void dissect_aim_snac_generic(tvbuff_t *tvb, packet_info *pinfo,
     }
 
   /* Show the undissected payload */
-  proto_tree_add_item(tree, hf_aim_data, tvb, offset, 
-		      tvb_length_remaining (tvb, offset), FALSE);
+  if (tvb_length_remaining(tvb, offset) > 0)
+    proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, FALSE);
 }
 
 static void dissect_aim_snac_buddylist(tvbuff_t *tvb, packet_info *pinfo, 
@@ -1046,8 +1079,8 @@ static void dissect_aim_snac_buddylist(tvbuff_t *tvb, packet_info *pinfo,
     }
 
   /* Show the undissected payload */
-  proto_tree_add_item(tree, hf_aim_data, tvb, offset, 
-		      tvb_length_remaining (tvb, offset), FALSE);
+  if (tvb_length_remaining(tvb, offset) > 0)
+    proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, FALSE);
 }
 
 static void dissect_aim_snac_location(tvbuff_t *tvb, packet_info *pinfo, 
@@ -1117,8 +1150,8 @@ static void dissect_aim_snac_location_request_user_information(tvbuff_t *tvb,
   offset += buddyname_length;
 
   /* Show the undissected payload */
-  proto_tree_add_item(tree, hf_aim_data, tvb, offset, 
-		      tvb_length_remaining (tvb, offset), FALSE);
+  if (tvb_length_remaining(tvb, offset) > 0)
+    proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, FALSE);
 }
 
 static void dissect_aim_snac_location_user_information(tvbuff_t *tvb, 
@@ -1146,8 +1179,8 @@ static void dissect_aim_snac_location_user_information(tvbuff_t *tvb,
   offset += 2;
 
   /* Show the undissected payload */
-  proto_tree_add_item(tree, hf_aim_data, tvb, offset, 
-		      tvb_length_remaining (tvb, offset), FALSE);
+  if (tvb_length_remaining(tvb, offset) > 0)
+    proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, FALSE);
 }
 
 static void dissect_aim_snac_adverts(tvbuff_t *tvb _U_, 
@@ -1172,8 +1205,8 @@ static void dissect_aim_snac_adverts(tvbuff_t *tvb _U_,
     }
 
   /* Show the undissected payload */
-  proto_tree_add_item(tree, hf_aim_data, tvb, offset, 
-		      tvb_length_remaining (tvb, offset), FALSE);
+  if (tvb_length_remaining(tvb, offset) > 0)
+    proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, FALSE);
 }
 
 static void dissect_aim_snac_userlookup(tvbuff_t *tvb _U_, packet_info *pinfo, 
@@ -1199,8 +1232,8 @@ static void dissect_aim_snac_userlookup(tvbuff_t *tvb _U_, packet_info *pinfo,
     }
 
   /* Show the undissected payload */
-  proto_tree_add_item(tree, hf_aim_data, tvb, offset, 
-		      tvb_length_remaining (tvb, offset), FALSE);
+  if (tvb_length_remaining(tvb, offset) > 0)
+    proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, FALSE);
 }
 
 static void dissect_aim_snac_chat(tvbuff_t *tvb, packet_info *pinfo, 
@@ -1311,8 +1344,8 @@ static void dissect_aim_snac_ssi(tvbuff_t *tvb, packet_info *pinfo _U_,
 				 guint16 subtype _U_)
 {
   /* Show the undissected payload */
-  proto_tree_add_item(tree, hf_aim_data, tvb, offset, 
-		      tvb_length_remaining (tvb, offset), FALSE);
+  if (tvb_length_remaining(tvb, offset) > 0)
+    proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, FALSE);
 }
 
 static void dissect_aim_snac_fnac_subtype(tvbuff_t *tvb, int offset, 
@@ -1409,8 +1442,8 @@ static void dissect_aim_flap_err(tvbuff_t *tvb, packet_info *pinfo,
   }
 
   /* Show the undissected payload */
-  proto_tree_add_item(tree, hf_aim_data, tvb, offset, 
-		      tvb_length_remaining (tvb, offset), FALSE);
+  if (tvb_length_remaining(tvb, offset) > 0)
+    proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, FALSE);
 }
 
 static void dissect_aim_close_conn(tvbuff_t *tvb, packet_info *pinfo, 
@@ -1421,8 +1454,8 @@ static void dissect_aim_close_conn(tvbuff_t *tvb, packet_info *pinfo,
   }
 
   /* Show the undissected payload */
-  proto_tree_add_item(tree, hf_aim_data, tvb, offset, 
-		      tvb_length_remaining (tvb, offset), FALSE);
+  if (tvb_length_remaining(tvb, offset) > 0)
+    proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, FALSE);
 }
 
 static void dissect_aim_unknown_channel(tvbuff_t *tvb, packet_info *pinfo, 
@@ -1433,8 +1466,8 @@ static void dissect_aim_unknown_channel(tvbuff_t *tvb, packet_info *pinfo,
   }
 
   /* Show the undissected payload */
-  proto_tree_add_item(tree, hf_aim_data, tvb, offset, 
-		      tvb_length_remaining (tvb, offset), FALSE);
+  if (tvb_length_remaining(tvb, offset) > 0)
+    proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, FALSE);
 }
 
 /* Register the protocol with Ethereal */
@@ -1550,6 +1583,7 @@ proto_register_aim(void)
     &ett_aim,
     &ett_aim_fnac,
   };
+  module_t *aim_module;
 
 /* Register the protocol name and description */
   proto_aim = proto_register_protocol("AOL Instant Messenger", "AIM", "aim");
@@ -1557,6 +1591,12 @@ proto_register_aim(void)
 /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_aim, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  aim_module = prefs_register_protocol(proto_aim, NULL);
+  prefs_register_bool_preference(aim_module, "desegment",
+    "Desegment all AIM messages spanning multiple TCP segments",
+    "Whether the AIM dissector should desegment all messages spanning multiple TCP segments",
+    &aim_desegment);
 };
 
 void
@@ -1564,6 +1604,6 @@ proto_reg_handoff_aim(void)
 {
   dissector_handle_t aim_handle;
 
-  aim_handle = create_dissector_handle(dissect_aim, proto_aim);
+  aim_handle = new_create_dissector_handle(dissect_aim, proto_aim);
   dissector_add("tcp.port", TCP_PORT_AIM, aim_handle);
 }
