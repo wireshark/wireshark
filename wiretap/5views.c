@@ -387,6 +387,7 @@ gboolean _5views_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 	wdh->subtype_write = _5views_dump;
 	wdh->subtype_close = _5views_dump_close;
 	wdh->dump._5views = g_malloc(sizeof(_5views_dump_t));
+	wdh->dump._5views->nframes = 0;
 
 	return TRUE;
 }
