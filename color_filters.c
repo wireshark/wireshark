@@ -44,6 +44,8 @@
 static gboolean read_filters(void);
 static gboolean read_global_filters(void);
 
+/* Variables and routines defined in color.h */
+
 GSList *filter_list = NULL;
 GSList *removed_filter_list = NULL;
 
@@ -142,6 +144,9 @@ filter_list_prime_edt(epan_dissect_t *edt)
 }
 
 /* read filters from the given file */
+
+/* XXX - Would it make more sense to use GStrings here instead of reallocing
+   our buffers? */
 static gboolean
 read_filters_file(FILE *f, gpointer arg)
 {
