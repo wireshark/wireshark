@@ -8,9 +8,9 @@ config.h.in
 config.log
 config.status
 configure
-rtnet.la
-packet-rtnet.lo
-packet-rtnet-static.lo
+rdm.la
+packet-rdm.lo
+packet-rdm-static.lo
 stamp-h
 *.obj
 *.dll

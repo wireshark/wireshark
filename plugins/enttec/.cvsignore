@@ -8,9 +8,9 @@ config.h.in
 config.log
 config.status
 configure
-artnet.la
-packet-artnet.lo
-packet-artnet-static.lo
+enttec.la
+packet-enttec.lo
+packet-enttec-static.lo
 stamp-h
 *.obj
 *.dll
