@@ -1,17 +1,7 @@
-/* BUG:
-   since file.c does not provide other times than absolute time
-   when we get called we have to do the base_time kludge.
-   This makes the time displayed wrong if we filter since we 
-   will not see the first packet of the capture but have to base the base_time
-   on the timestamp of the first packet we see.
-
-   file.c should be updated to calculate abs time and delta before the first 
-   dissection occurs
-*/
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.9 2002/12/02 19:44:09 guy Exp $
+ * $Id: io_stat.c,v 1.10 2002/12/05 22:19:24 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -516,7 +506,7 @@ gtk_iostat_draw(void *g)
 	if(io->max_y_units==AUTO_MAX_YSCALE){
 		guint32 max_value=0;
 		for(i=0;i<MAX_GRAPHS;i++){
-			int adv_type;
+			int adv_type=0;
 
 			if( (!io->graphs[i].display) || (!io->graphs[i].counts) ){
 				continue;
@@ -691,7 +681,7 @@ gtk_iostat_draw(void *g)
 
 	/* loop over all items */
 	for(i=MAX_GRAPHS-1;i>=0;i--){
-		int adv_type;
+		int adv_type=0;
 
 		if( (!io->graphs[i].display) || (!io->graphs[i].counts) ){
 			continue;
