@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.19 2000/01/15 21:01:04 guy Exp $
+dnl $Id: acinclude.m4,v 1.20 2000/01/21 06:18:15 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -266,67 +266,14 @@ AC_DEFUN(AC_ETHEREAL_PCAP_CHECK,
 	AC_CHECK_HEADER(pcap.h,, AC_MSG_ERROR(Header file pcap.h not found.))
 
 	#
-	# Try various directories to find libpcap
+	# Check to see if we find "pcap_open_live" in "-lpcap".
 	#
 	AC_CHECK_LIB(pcap, pcap_open_live,
 	  [
 	    PCAP_LIBS=-lpcap
 	    AC_DEFINE(HAVE_LIBPCAP)
-	  ],
-	  [
-	    #
-	    # Throw away the cached "we didn't find it"
-	    # answer, and see if it's in "/usr/local/lib".
-	    #
-	    unset ac_cv_lib_pcap_pcap_open_live
-	    ethereal_save_LIBS="$LIBS"
-	    AC_ETHEREAL_ADD_DASH_L(LIBS, /usr/local/lib)
-	    AC_CHECK_LIB(pcap, pcap_open_live,
-	      [
-		#
-		# Throw away the cached "we found it" answer, so that if
-		# we rerun "configure", we don't just blow off the above
-		# checks and blithely assume that we don't need to search
-		# "/usr/local/lib".
-		#
-		# XXX - autoconf really needs a way to test for a given
-		# routine in a given library *and* to test whether additional
-		# "-L"/"-R"/whatever flags are needed *before* the "-l"
-		# flag for the library and to test whether additional libraries
-		# are needed after the library *and* to cache all that
-		# information.
-		#
-		unset ac_cv_lib_pcap_pcap_open_live
-		AC_ETHEREAL_ADD_DASH_L(PCAP_LIBS, /usr/local/lib)
-		PCAP_LIBS="$PCAP_LIBS -lpcap"
-		AC_DEFINE(HAVE_LIBPCAP)
-		LIBS="$ethereal_save_LIBS"
-	      ],
-	      [
-		#
-		# Throw away the cached "we didn't find it"
-		# answer, and see if it's in "$prefix/lib".
-		#
-		unset ac_cv_lib_pcap_pcap_open_live
-		LIBS="$ethereal_save_LIBS -L$prefix/lib"
-		AC_CHECK_LIB(pcap, pcap_open_live,
-		  [
-		    #
-		    # Throw away the cached "we found it" answer, so that if
-		    # we rerun "configure", we don't just blow off the above
-		    # checks and blithely assume that we don't need to search
-		    # "$prefix/lib".
-		    #
-		    unset ac_cv_lib_pcap_pcap_open_live
-		    AC_ETHEREAL_ADD_DASH_L(PCAP_LIBS, $prefix/lib)
-		    PCAP_LIBS="$PCAP_LIBS -lpcap"
-		    AC_DEFINE(HAVE_LIBPCAP)
-		    LIBS="$ethereal_save_LIBS"
-		  ],
-		  AC_MSG_ERROR(Library libpcap not found.),
-		  $SOCKET_LIBS $NSL_LIBS)
-	      ], $SOCKET_LIBS $NSL_LIBS)
-	  ], $SOCKET_LIBS $NSL_LIBS)
+	  ], AC_MSG_ERROR(Library libpcap not found.),
+	  $SOCKET_LIBS $NSL_LIBS)
 	AC_SUBST(PCAP_LIBS)
 ])
 
@@ -391,7 +338,7 @@ AC_DEFUN(AC_ETHEREAL_UCDSNMP_CHECK,
 			AC_MSG_RESULT(added $d to paths)
 			CFLAGS="$CFLAGS -I${ucdsnmpdir}/include"
 			CPPFLAGS="$CPPFLAGS -I${ucdsnmpdir}/include"
-			LIBS="$LIBS -L${ucdsnmpdir}/lib"
+			AC_ETHEREAL_ADD_DASH_L(LDFLAGS, ${ucdsnmpdir}/lib)
 		fi
 	fi
 ])

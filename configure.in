@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.78 2000/01/16 00:13:24 guy Exp $
+# $Id: configure.in,v 1.79 2000/01/21 06:18:16 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -52,7 +52,7 @@ CPPFLAGS="$CPPFLAGS -I\$(top_srcdir) -I\$(top_srcdir)/wiretap -I/usr/local/inclu
 #
 # Arrange that we search for libraries in "/usr/local/lib".
 #
-AC_ETHEREAL_ADD_DASH_L(LIBS, /usr/local/lib)
+AC_ETHEREAL_ADD_DASH_L(LDFLAGS, /usr/local/lib)
 
 # Create DATAFILE_DIR #define for config.h
 DATAFILE_DIR=$sysconfdir
