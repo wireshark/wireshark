@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.56 2002/08/28 21:00:16 jmayer Exp $
+ * $Id: packet-http.c,v 1.57 2002/09/23 22:45:25 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,8 +73,10 @@ static dissector_handle_t http_handle;
  * Some headers that we dissect more deeply - Microsoft's abomination
  * called NTLMSSP over HTTP.
  */
-#define NTLMSSP_AUTH    "Authorization: NTLM "
-#define NTLMSSP_WWWAUTH "WWW-Authenticate: NTLM "
+#define NTLMSSP_AUTH_NTLM     "Authorization: NTLM "
+#define NTLMSSP_WWWAUTH_NTLM  "WWW-Authenticate: NTLM "
+#define NTLMSSP_AUTH_NEG      "Authorization: Negotiate "
+#define NTLMSSP_WWWAUTH_NEG   "WWW-Authenticate: Negotiate "
 
 /*
  * Protocols implemented atop HTTP.
@@ -308,17 +310,25 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			hdr_item = proto_tree_add_text(http_tree, tvb, offset,
 			    next_offset - offset, "%s", text);
 
-			if (strncmp(text, NTLMSSP_AUTH, strlen(NTLMSSP_AUTH)) == 0) {
+			if (!strncmp(text, NTLMSSP_AUTH_NTLM, strlen(NTLMSSP_AUTH_NTLM)) ||
+			    !strncmp(text, NTLMSSP_AUTH_NEG, strlen(NTLMSSP_AUTH_NEG))) {
 				hdr_tree = proto_item_add_subtree(
 					hdr_item, ett_http_ntlmssp);
-				text += strlen(NTLMSSP_AUTH);
+				if (!strncmp(text, NTLMSSP_AUTH_NTLM, strlen(NTLMSSP_AUTH_NTLM)))
+					text += strlen(NTLMSSP_AUTH_NTLM);
+				if (!strncmp(text, NTLMSSP_AUTH_NEG, strlen(NTLMSSP_AUTH_NEG)))
+					text += strlen(NTLMSSP_AUTH_NEG);
 				dissect_http_ntlmssp(tvb, pinfo, hdr_tree, text);
 			}
 
-			if (strncmp(text, NTLMSSP_WWWAUTH, strlen(NTLMSSP_WWWAUTH)) == 0) {
+			if (!strncmp(text, NTLMSSP_WWWAUTH_NTLM, strlen(NTLMSSP_WWWAUTH_NTLM)) ||
+			    !strncmp(text, NTLMSSP_WWWAUTH_NEG, strlen(NTLMSSP_WWWAUTH_NEG))) {
 				hdr_tree = proto_item_add_subtree(
 					hdr_item, ett_http_ntlmssp);
-				text += strlen(NTLMSSP_WWWAUTH);
+				if (!strncmp(text, NTLMSSP_WWWAUTH_NTLM, strlen(NTLMSSP_WWWAUTH_NTLM)))
+					text += strlen(NTLMSSP_WWWAUTH_NTLM);
+				if (!strncmp(text, NTLMSSP_WWWAUTH_NEG, strlen(NTLMSSP_WWWAUTH_NEG)))
+					text += strlen(NTLMSSP_WWWAUTH_NEG);
 				dissect_http_ntlmssp(tvb, pinfo, hdr_tree, text);
 			}
 		}
