@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.6 2000/03/22 23:49:20 guy Exp $
+ * $Id: packet-l2tp.c,v 1.7 2000/04/05 15:57:04 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -201,7 +201,7 @@ static const char *avptypestr[NUM_AVP_TYPES] = {
   "Vendor Name ",
   "Assigned Tunnel ID ",
   "Receive Window Size ",
-  "Challlenge ",
+  "Challenge ",
   "Cause Code ",
   "Challenge Response ",
   "Assigned Session ",
