@@ -126,7 +126,7 @@ static gboolean dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_rtp( tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree );
 static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static void get_conv_info(packet_info *pinfo);
+static void get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info);
 
 /* Preferences bool to control whether or not setup info should be shown */
 static gboolean global_rtp_show_setup_info = TRUE;
@@ -414,8 +414,6 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 }
 
-static struct _rtp_info rtp_info;
-
 static void
 dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
@@ -442,6 +440,16 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	guint32     csrc_item;
 	struct _rtp_conversation_info *p_conv_data = NULL;
 
+	/* Can tap up to 4 RTP packets within same packet */
+	static struct _rtp_info rtp_info_arr[4];
+	static int rtp_info_current=0;
+	struct _rtp_info *rtp_info;
+
+	rtp_info_current++;
+	if (rtp_info_current==4) {
+		rtp_info_current=0;
+	}
+	rtp_info = &rtp_info_arr[rtp_info_current];
 
 	/* Get the fields in the first octet */
 	octet1 = tvb_get_guint8( tvb, offset );
@@ -460,7 +468,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	}
 
 	/* fill in the rtp_info structure */
-	rtp_info.info_version = version;
+	rtp_info->info_version = version;
 	if (version != 2) {
 		/*
 		 * Unknown or unsupported version.
@@ -499,14 +507,14 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	sync_src = tvb_get_ntohl( tvb, offset + 8 );
 
 	/* fill in the rtp_info structure */
-	rtp_info.info_padding_set = padding_set;
-	rtp_info.info_padding_count = 0;
-	rtp_info.info_marker_set = marker_set;
-	rtp_info.info_payload_type = payload_type;
-	rtp_info.info_seq_num = seq_num;
-	rtp_info.info_timestamp = timestamp;
-	rtp_info.info_sync_src = sync_src;
-	rtp_info.info_setup_frame_num = 0;
+	rtp_info->info_padding_set = padding_set;
+	rtp_info->info_padding_count = 0;
+	rtp_info->info_marker_set = marker_set;
+	rtp_info->info_payload_type = payload_type;
+	rtp_info->info_seq_num = seq_num;
+	rtp_info->info_timestamp = timestamp;
+	rtp_info->info_sync_src = sync_src;
+	rtp_info->info_setup_frame_num = 0;
 
 	/*
 	 * Do we have all the data?
@@ -517,8 +525,8 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		/*
 		 * Yes.
 		 */
-		rtp_info.info_all_data_present = TRUE;
-		rtp_info.info_data_len = reported_length;
+		rtp_info->info_all_data_present = TRUE;
+		rtp_info->info_data_len = reported_length;
 
 		/*
 		 * Save the pointer to raw rtp data (header + payload incl.
@@ -531,18 +539,18 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		 * their data.)
 		 * See "add_packet_to_packet_list()" for details.
 		 */
-		rtp_info.info_data = tvb_get_ptr(tvb, 0, -1);
+		rtp_info->info_data = tvb_get_ptr(tvb, 0, -1);
 	} else {
 		/*
 		 * No - packet was cut short at capture time.
 		 */
-		rtp_info.info_all_data_present = FALSE;
-		rtp_info.info_data_len = 0;
-		rtp_info.info_data = NULL;
+		rtp_info->info_all_data_present = FALSE;
+		rtp_info->info_data_len = 0;
+		rtp_info->info_data = NULL;
 	}
 
 	/* Look for conv and add to the frame if found */
-	get_conv_info(pinfo);
+	get_conv_info(pinfo, rtp_info);
 
 	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
 		col_set_str( pinfo->cinfo, COL_PROTOCOL, "RTP" );
@@ -686,9 +694,9 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		data_len =
 		    tvb_reported_length_remaining( tvb, offset ) - padding_count;
 
-		rtp_info.info_payload_offset = offset;
-		rtp_info.info_payload_len = tvb_length_remaining(tvb, offset);
-		rtp_info.info_padding_count = padding_count;
+		rtp_info->info_payload_offset = offset;
+		rtp_info->info_payload_len = tvb_length_remaining(tvb, offset);
+		rtp_info->info_padding_count = padding_count;
 
 		if (data_len > 0) {
 			/*
@@ -738,15 +746,15 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		    tvb_length_remaining( tvb, offset ),
 		    tvb_reported_length_remaining( tvb, offset ),
 		    payload_type );
-		rtp_info.info_payload_offset = offset;
-		rtp_info.info_payload_len = tvb_length_remaining(tvb, offset);
+		rtp_info->info_payload_offset = offset;
+		rtp_info->info_payload_len = tvb_length_remaining(tvb, offset);
 	}
 	if (!pinfo->in_error_pkt)
-		tap_queue_packet(rtp_tap, pinfo, &rtp_info);
+		tap_queue_packet(rtp_tap, pinfo, rtp_info);
 }
 
 /* Look for conversation info */
-static void get_conv_info(packet_info *pinfo)
+static void get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
 {
 	/* Conversation and current data */
 	conversation_t *p_conv = NULL;
@@ -777,7 +785,7 @@ static void get_conv_info(packet_info *pinfo)
 			}
 		}
 	}
-	if (p_conv_data) rtp_info.info_setup_frame_num = p_conv_data->frame_number;
+	if (p_conv_data) rtp_info->info_setup_frame_num = p_conv_data->frame_number;
 }
 
 
