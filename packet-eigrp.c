@@ -2,7 +2,7 @@
  * Routines for EIGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-eigrp.c,v 1.22 2002/02/01 04:34:15 gram Exp $
+ * $Id: packet-eigrp.c,v 1.23 2002/05/02 09:28:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -123,8 +123,8 @@ static const value_string eigrp_pid_vals[] = {
 };
 
 
-static void dissect_eigrp_par (tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
-static void dissect_eigrp_seq (tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
+static void dissect_eigrp_par (tvbuff_t *tvb, proto_tree *tree);
+static void dissect_eigrp_seq (tvbuff_t *tvb, proto_tree *tree);
 static void dissect_eigrp_sv  (tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
 static void dissect_eigrp_nms (tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
 
@@ -205,10 +205,10 @@ dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                      
 	     switch (tlv){
 	     	case TLV_PAR:
-	     		dissect_eigrp_par(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
+	     		dissect_eigrp_par(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree);
 	     		break;
 	     	case TLV_SEQ:
-	     		dissect_eigrp_seq(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
+	     		dissect_eigrp_seq(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree);
 	     		break;
 	     	case TLV_SV:
 	     		dissect_eigrp_sv(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
@@ -243,7 +243,7 @@ dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		case TLV_AUTH:
 			proto_tree_add_text(tlv_tree,tvb,offset+4,size-4,"Authentication data");
 			break;
-	     	};
+	     }
 
 	     offset+=size;
      }     
@@ -253,17 +253,17 @@ dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 
 
-static void dissect_eigrp_par (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)	{
+static void dissect_eigrp_par (tvbuff_t *tvb, proto_tree *tree)	{
 	proto_tree_add_text (tree,tvb,0,1,"K1 = %u",tvb_get_guint8(tvb,0));
 	proto_tree_add_text (tree,tvb,1,1,"K2 = %u",tvb_get_guint8(tvb,1));
 	proto_tree_add_text (tree,tvb,2,1,"K3 = %u",tvb_get_guint8(tvb,2));
 	proto_tree_add_text (tree,tvb,3,1,"K4 = %u",tvb_get_guint8(tvb,3));
 	proto_tree_add_text (tree,tvb,4,1,"K5 = %u",tvb_get_guint8(tvb,4));
-	proto_tree_add_text (tree,tvb,5,1,"Rezerved");
+	proto_tree_add_text (tree,tvb,5,1,"Reserved");
 	proto_tree_add_text (tree,tvb,6,2,"Hold Time = %u",tvb_get_ntohs(tvb,6));
 }
 
-static void dissect_eigrp_seq (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
+static void dissect_eigrp_seq (tvbuff_t *tvb, proto_tree *tree)
 {	guint8 addr_len;
 	addr_len=tvb_get_guint8(tvb,0);
         proto_tree_add_text (tree,tvb,0,1,"Address length = %u",addr_len);
@@ -282,16 +282,27 @@ static void dissect_eigrp_seq (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
 
 static void dissect_eigrp_sv (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
 {
-	proto_tree_add_text (tree,tvb,0,2," IOS  release version = %u.%u",tvb_get_guint8(tvb,0),tvb_get_guint8(tvb,1));
-	proto_tree_add_text (tree,tvb,2,2,"EIGRP release version = %u.%u",tvb_get_guint8(tvb,2),tvb_get_guint8(tvb,3));
-        proto_item_set_text (ti,"%s : IOS=%u.%u, EIGRP=%u.%u ",match_strval(TLV_SV,eigrp_tlv_vals),tvb_get_guint8(tvb,0),tvb_get_guint8(tvb,1),tvb_get_guint8(tvb,2),tvb_get_guint8(tvb,3));
+        guint8 ios_rel_major, ios_rel_minor;
+        guint8 eigrp_rel_major, eigrp_rel_minor;
 
+        ios_rel_major = tvb_get_guint8(tvb,0);
+        ios_rel_minor = tvb_get_guint8(tvb,1);
+        proto_tree_add_text (tree,tvb,0,2," IOS  release version = %u.%u",
+                             ios_rel_major, ios_rel_minor);
+        proto_item_append_text (ti,": IOS=%u.%u", ios_rel_major, ios_rel_minor);
+
+        eigrp_rel_major = tvb_get_guint8(tvb,2);
+        eigrp_rel_minor = tvb_get_guint8(tvb,3);
+        proto_tree_add_text (tree,tvb,2,2,"EIGRP release version = %u.%u",
+                             eigrp_rel_major, eigrp_rel_minor);
+        proto_item_append_text (ti,", EIGRP=%u.%u",
+                                eigrp_rel_major, eigrp_rel_minor);
 }
 
 static void dissect_eigrp_nms (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
 {
         proto_tree_add_text (tree,tvb,0,4,"Next Multicast Sequence = %u",tvb_get_ntohl(tvb,0));
-	proto_item_set_text (ti,"%s : %u",match_strval(TLV_NMS,eigrp_tlv_vals),tvb_get_ntohl(tvb,0));
+	proto_item_append_text (ti,": %u",tvb_get_ntohl(tvb,0));
 }
 
 
@@ -307,14 +318,14 @@ static void dissect_eigrp_ip_int (tvbuff_t *tvb, proto_tree *tree, proto_item *t
 	proto_tree_add_text (tree,tvb,15,1,"Hop Count   = %u",tvb_get_guint8(tvb,15));
 	proto_tree_add_text (tree,tvb,16,1,"Reliability = %u",tvb_get_guint8(tvb,16));
 	proto_tree_add_text (tree,tvb,17,1,"Load        = %u",tvb_get_guint8(tvb,17));
-	proto_tree_add_text (tree,tvb,18,2,"Rezerved ");
+	proto_tree_add_text (tree,tvb,18,2,"Reserved ");
 	length=tvb_get_guint8(tvb,20);
 	proto_tree_add_text (tree,tvb,20,1,"Prefix Length = %u",length);
 	if (length % 8 == 0) addr_len=length/8 ; else addr_len=length/8+1;
 	ip_addr[0]=ip_addr[1]=ip_addr[2]=ip_addr[3]=0;
 	tvb_memcpy(tvb,ip_addr,21,addr_len);
         proto_tree_add_text (tree,tvb,21,addr_len,"Destination = %s",ip_to_str(ip_addr));
-        proto_item_set_text (ti,"%s  =   %s/%u%s",match_strval(TLV_IP_INT,eigrp_tlv_vals),ip_to_str(ip_addr),length,((tvb_get_ntohl(tvb,4)==0xffffffff)?" - Destination unreachable":""));
+        proto_item_append_text (ti,"  =   %s/%u%s",ip_to_str(ip_addr),length,((tvb_get_ntohl(tvb,4)==0xffffffff)?" - Destination unreachable":""));
 }
 
 static void dissect_eigrp_ip_ext (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
@@ -327,7 +338,7 @@ static void dissect_eigrp_ip_ext (tvbuff_t *tvb, proto_tree *tree, proto_item *t
 	proto_tree_add_text (tree,tvb,8,4,"Originating A.S. = %u",tvb_get_ntohl(tvb,8));
 	proto_tree_add_text (tree,tvb,12,4,"Arbitrary tag = %u",tvb_get_ntohl(tvb,12));
 	proto_tree_add_text (tree,tvb,16,4,"External protocol metric = %u",tvb_get_ntohl(tvb,16));	
-	proto_tree_add_text (tree,tvb,20,2,"Rezerved");	
+	proto_tree_add_text (tree,tvb,20,2,"Reserved");	
 	proto_tree_add_text (tree,tvb,22,1,"External protocol ID = %u (%s)",tvb_get_guint8(tvb,22),val_to_str(tvb_get_guint8(tvb,22),eigrp_pid_vals, "Unknown"));
 	proto_tree_add_text (tree,tvb,23,1,"Flags = 0x%0x",tvb_get_guint8(tvb,23));
 
@@ -337,14 +348,14 @@ static void dissect_eigrp_ip_ext (tvbuff_t *tvb, proto_tree *tree, proto_item *t
 	proto_tree_add_text (tree,tvb,35,1,"Hop Count = %u",tvb_get_guint8(tvb,35));
 	proto_tree_add_text (tree,tvb,36,1,"Reliability = %u",tvb_get_guint8(tvb,36));
 	proto_tree_add_text (tree,tvb,37,1,"Load = %u",tvb_get_guint8(tvb,37));
-	proto_tree_add_text (tree,tvb,38,2,"Rezerved ");
+	proto_tree_add_text (tree,tvb,38,2,"Reserved ");
 	length=tvb_get_guint8(tvb,40);
 	proto_tree_add_text (tree,tvb,40,1,"Prefix Length = %u",length);
         if (length % 8 == 0) addr_len=length/8 ; else addr_len=length/8+1;
         ip_addr[0]=ip_addr[1]=ip_addr[2]=ip_addr[3]=0;
         tvb_memcpy(tvb,ip_addr,41,addr_len);
         proto_tree_add_text (tree,tvb,41,addr_len,"Destination = %s",ip_to_str(ip_addr));
-        proto_item_set_text (ti,"%s  =   %s/%u%s",match_strval(TLV_IP_EXT,eigrp_tlv_vals),ip_to_str(ip_addr),length,((tvb_get_ntohl(tvb,24)==0xffffffff)?" - Destination unreachable":""));
+        proto_item_append_text (ti,"  =   %s/%u%s",ip_to_str(ip_addr),length,((tvb_get_ntohl(tvb,24)==0xffffffff)?" - Destination unreachable":""));
 }
 
 
@@ -359,9 +370,9 @@ static void dissect_eigrp_ipx_int (tvbuff_t *tvb, proto_tree *tree, proto_item *
 	proto_tree_add_text (tree,tvb,21,1,"Hop Count = %u",tvb_get_guint8(tvb,21));
 	proto_tree_add_text (tree,tvb,22,1,"Reliability = %u",tvb_get_guint8(tvb,22));
 	proto_tree_add_text (tree,tvb,23,1,"Load = %u",tvb_get_guint8(tvb,23));
-	proto_tree_add_text (tree,tvb,24,2,"Rezerved ");
+	proto_tree_add_text (tree,tvb,24,2,"Reserved ");
         proto_tree_add_text (tree,tvb,26,4,"Destination Address =  %08x",tvb_get_ntohl(tvb,26)); 
-        proto_item_set_text (ti,"%s  =   %08x%s",match_strval(TLV_IPX_INT,eigrp_tlv_vals),tvb_get_ntohl(tvb,26),((tvb_get_ntohl(tvb,10)==0xffffffff)?" - Destination unreachable":""));
+        proto_item_append_text (ti,"  =   %08x%s",tvb_get_ntohl(tvb,26),((tvb_get_ntohl(tvb,10)==0xffffffff)?" - Destination unreachable":""));
 }
 
 static void dissect_eigrp_ipx_ext (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
@@ -373,7 +384,7 @@ static void dissect_eigrp_ipx_ext (tvbuff_t *tvb, proto_tree *tree, proto_item *
         proto_tree_add_text (tree,tvb,16,4,"Originating A.S. = %u",tvb_get_ntohl(tvb,16));
         proto_tree_add_text (tree,tvb,20,4,"Arbitrary tag = %u",tvb_get_ntohl(tvb,20));
         proto_tree_add_text (tree,tvb,24,1,"External protocol  = %u",tvb_get_guint8(tvb,24));
-        proto_tree_add_text (tree,tvb,25,1,"Rezerved");
+        proto_tree_add_text (tree,tvb,25,1,"Reserved");
         proto_tree_add_text (tree,tvb,26,2,"External metric = %u ",tvb_get_ntohs(tvb,26)); 
         proto_tree_add_text (tree,tvb,28,2,"External delay  = %u ",tvb_get_ntohs(tvb,28)); 
         
@@ -383,9 +394,9 @@ static void dissect_eigrp_ipx_ext (tvbuff_t *tvb, proto_tree *tree, proto_item *
 	proto_tree_add_text (tree,tvb,41,1,"Hop Count = %u",tvb_get_guint8(tvb,41));
 	proto_tree_add_text (tree,tvb,42,1,"Reliability = %u",tvb_get_guint8(tvb,42));
 	proto_tree_add_text (tree,tvb,43,1,"Load = %u",tvb_get_guint8(tvb,43));
-	proto_tree_add_text (tree,tvb,44,2,"Rezerved ");
+	proto_tree_add_text (tree,tvb,44,2,"Reserved ");
         proto_tree_add_text (tree,tvb,46,4,"Destination Address =  %08x",tvb_get_ntohl(tvb,46)); 
-        proto_item_set_text (ti,"%s  =   %08x%s",match_strval(TLV_IPX_EXT,eigrp_tlv_vals),tvb_get_ntohl(tvb,46),((tvb_get_ntohl(tvb,30)==0xffffffff)?" - Destination unreachable":""));
+        proto_item_append_text (ti,"  =   %08x%s",tvb_get_ntohl(tvb,46),((tvb_get_ntohl(tvb,30)==0xffffffff)?" - Destination unreachable":""));
 
 }
 
@@ -395,7 +406,7 @@ static void dissect_eigrp_at_cbl (tvbuff_t *tvb, proto_tree *tree, proto_item *t
 {
         proto_tree_add_text (tree,tvb,0,4,"AppleTalk Cable Range = %u-%u",tvb_get_ntohs(tvb,0),tvb_get_ntohs(tvb,2));
         proto_tree_add_text (tree,tvb,4,4,"AppleTalk Router ID   = %u",tvb_get_ntohl(tvb,4));
-        proto_item_set_text (ti,"%s : Cable range= %u-%u, Router ID= %u",match_strval(TLV_AT_CBL,eigrp_tlv_vals),tvb_get_ntohs(tvb,0),tvb_get_ntohs(tvb,2),tvb_get_ntohl(tvb,4));
+        proto_item_append_text (ti,": Cable range= %u-%u, Router ID= %u",tvb_get_ntohs(tvb,0),tvb_get_ntohs(tvb,2),tvb_get_ntohl(tvb,4));
 
 }
 
@@ -409,10 +420,10 @@ static void dissect_eigrp_at_int (tvbuff_t *tvb, proto_tree *tree, proto_item *t
 	proto_tree_add_text (tree,tvb,15,1,"Hop Count = %u",tvb_get_guint8(tvb,15));
 	proto_tree_add_text (tree,tvb,16,1,"Reliability = %u",tvb_get_guint8(tvb,16));
 	proto_tree_add_text (tree,tvb,17,1,"Load = %u",tvb_get_guint8(tvb,17));
-	proto_tree_add_text (tree,tvb,18,2,"Rezerved ");
+	proto_tree_add_text (tree,tvb,18,2,"Reserved ");
 	proto_tree_add_text (tree,tvb,20,4,"Cable range = %u-%u",tvb_get_ntohs(tvb,20),tvb_get_ntohs(tvb,22));
 
-        proto_item_set_text (ti,"%s : %u-%u",match_strval(TLV_AT_INT,eigrp_tlv_vals),tvb_get_ntohs(tvb,20),tvb_get_ntohs(tvb,22));
+        proto_item_append_text (ti,": %u-%u",tvb_get_ntohs(tvb,20),tvb_get_ntohs(tvb,22));
 
 }
 
@@ -432,10 +443,10 @@ static void dissect_eigrp_at_ext (tvbuff_t *tvb, proto_tree *tree, proto_item *t
 	proto_tree_add_text (tree,tvb,31,1,"Hop Count = %u",tvb_get_guint8(tvb,31));
 	proto_tree_add_text (tree,tvb,32,1,"Reliability = %u",tvb_get_guint8(tvb,32));
 	proto_tree_add_text (tree,tvb,33,1,"Load = %u",tvb_get_guint8(tvb,33));
-	proto_tree_add_text (tree,tvb,34,2,"Rezerved ");
+	proto_tree_add_text (tree,tvb,34,2,"Reserved ");
 	proto_tree_add_text (tree,tvb,36,4,"Cable range = %u-%u",tvb_get_ntohs(tvb,36),tvb_get_ntohs(tvb,38));
 
-        proto_item_set_text (ti,"%s : %u-%u",match_strval(TLV_AT_EXT,eigrp_tlv_vals),tvb_get_ntohs(tvb,36),tvb_get_ntohs(tvb,38));
+        proto_item_append_text (ti,": %u-%u",tvb_get_ntohs(tvb,36),tvb_get_ntohs(tvb,38));
 }
 
 
