@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.90 2003/09/23 12:06:19 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.91 2003/09/29 00:01:26 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3797,7 +3797,7 @@ lsa_dissect_lsarenumeratetrusteddomainsex_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsafunction_38_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsartestcall_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE handle */
@@ -3818,7 +3818,7 @@ lsa_dissect_lsafunction_38_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsafunction_38_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsartestcall_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [out, ref] LSA_SECURITY_DESCRIPTOR **psd) */
@@ -3833,7 +3833,7 @@ lsa_dissect_lsafunction_38_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsafunction_3b_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarcreatetrusteddomainex2_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd */
@@ -3859,7 +3859,7 @@ lsa_dissect_lsafunction_3b_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsafunction_3b_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarcreatetrusteddomainex2_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [out] LSA_HANDLE *h2) */
@@ -4009,7 +4009,7 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 	{ LSA_LSAROPENPOLICY2, "LsarOpenPolicy2",
 		lsa_dissect_lsaropenpolicy2_rqst,
 		lsa_dissect_lsaropenpolicy2_reply },
-	{ LSA_LSARGETUSERNAME, "LsarGetUsername",
+	{ LSA_LSARGETUSERNAME, "LsarGetUserName",
 		lsa_dissect_lsargetusername_rqst,
 		lsa_dissect_lsargetusername_reply },
 	{ LSA_LSARQUERYINFORMATIONPOLICY2, "LsarQueryInformationPolicy2",
@@ -4042,18 +4042,47 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 	{ LSA_LSAROPENTRUSTEDDOMAINBYNAME, "LsarOpenTrustedDomainByName",
 		lsa_dissect_lsaropentrusteddomainbyname_rqst,
 		lsa_dissect_lsaropentrusteddomainbyname_reply },
-	{ LSA_LSAFUNCTION_38, "LSAFUNCTION_38",
-		lsa_dissect_lsafunction_38_rqst,
-		lsa_dissect_lsafunction_38_reply },
+	{ LSA_LSARTESTCALL, "LsarTestCall",
+		lsa_dissect_lsartestcall_rqst,
+		lsa_dissect_lsartestcall_reply },
 	{ LSA_LSARLOOKUPSIDS2, "LsarLookupSids2",
 		lsa_dissect_lsarlookupsids2_rqst,
 		lsa_dissect_lsarlookupsids2_reply },
 	{ LSA_LSARLOOKUPNAMES2, "LsarLookupNames2",
 		lsa_dissect_lsarlookupnames2_rqst,
 		lsa_dissect_lsarlookupnames2_reply },
-	{ LSA_LSAFUNCTION_3B, "LSAFUNCTION_3B",
-		lsa_dissect_lsafunction_3b_rqst,
-		lsa_dissect_lsafunction_3b_reply },
+	{ LSA_LSARCREATETRUSTEDDOMAINEX2, "LsarCreateTrustedDomainEx2",
+		lsa_dissect_lsarcreatetrusteddomainex2_rqst,
+		lsa_dissect_lsarcreatetrusteddomainex2_reply },
+	{ LSA_CREDRWRITE, "CredrWrite", NULL, NULL },
+	{ LSA_CREDRREAD, "CredrRead", NULL, NULL },
+	{ LSA_CREDRENUMERATE, "CredrEnumerate", NULL, NULL },
+	{ LSA_CREDRWRITEDOMAINCREDENTIALS, "CredrWriteDomainCredentials", 
+	  NULL, NULL },
+	{ LSA_CREDRREADDOMAINCREDENTIALS, "CredrReadDomainCredentials", 
+	  NULL, NULL },
+	{ LSA_CREDRDELETE, "CredrDelete", NULL, NULL },
+	{ LSA_CREDRGETTARGETINFO, "CredrGetTargetInfo", NULL, NULL },
+	{ LSA_CREDRPROFILELOADED, "CredrProfileLoaded", NULL, NULL },
+	{ LSA_LSARLOOKUPNAMES3, "LsarLookupNames3", NULL, NULL },
+	{ LSA_CREDRGETSESSIONTYPES, "CredrGetSessionTypes", NULL, NULL },
+	{ LSA_LSARREGISTERAUDITEVENT, "LsarRegisterAuditEvent", NULL, NULL },
+	{ LSA_LSARGENAUDITEVENT, "LsarGenAuditEvent", NULL, NULL },
+	{ LSA_LSARUNREGISTERAUDITEVENT, "LsarUnregisterAuditEvent", NULL, NULL},
+	{ LSA_LSARQUERYFORESTTRUSTINFORMATION,
+	  "LsarQueryForestTrustInformation", NULL, NULL },
+	{ LSA_LSARSETFORESTTRUSTINFORMATION, "LsarSetForestTrustInformation",
+	  NULL, NULL },
+	{ LSA_CREDRRENAME, "CredrRename", NULL, NULL },
+	{ LSA_LSARLOOKUPSIDS3, "LsarLookupSids3", NULL, NULL },
+	{ LSA_LSARLOOKUPNAMES4, "LsarLookupNames4", NULL, NULL },
+	{ LSA_LSAROPENPOLICYSCE, "LsarOpenPolicySce", NULL, NULL },
+	{ LSA_LSARADTREGISTERSECURITYEVENTSOURCE,
+            "LsarAdtRegisterSecurityEventSource", NULL, NULL },
+	{ LSA_LSARADTUNREGISTERSECURITYEVENTSOURCE, 
+	   "LsarAdtUnregisterSecurityEventSource", NULL, NULL },
+	{ LSA_LSARADTREPORTSECURITYEVENT, "LsarAdtReportSecurityEvent",
+	  NULL, NULL },
 	{0, NULL, NULL, NULL}
 };
 

@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.101 2003/09/23 12:06:20 sahlberg Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.102 2003/09/29 00:01:26 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5005,7 +5005,7 @@ static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
         { SAMR_QUERY_USERINFO, "SamrQueryInformationUser",
 		samr_dissect_query_information_user_rqst,
 		samr_dissect_query_information_user_reply },
-        { SAMR_SET_USERINFO2, "SamrSetInformationUser2",
+        { SAMR_SET_USERINFO, "SamrSetInformationUser",
 		samr_dissect_set_information_user2_rqst,
 		samr_dissect_set_information_user2_reply },
 	{ SAMR_CHANGE_PASSWORD_USER, "SamrChangePasswordUser",
@@ -5038,7 +5038,7 @@ static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
         { SAMR_QUERY_INFORMATION_USER2, "SamrQueryInformationUser2",
 		samr_dissect_query_information_user2_rqst,
 		samr_dissect_query_information_user2_reply },
-        { SAMR_QUERY_DISPINFO2, "QueryDispinfo2",
+        { SAMR_QUERY_DISPINFO2, "SamrQueryDisplayInformation2",
 		samr_dissect_query_dispinfo_rqst,
 		samr_dissect_query_dispinfo_reply },
         { SAMR_GET_DISPLAY_ENUMERATION_INDEX2, "SamrGetDisplayEnumerationIndex2",
@@ -5068,7 +5068,7 @@ static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
 	{ SAMR_CONNECT2, "SamrConnect2",
 		samr_dissect_connect2_rqst,
 		samr_dissect_connect2_reply },
-        { SAMR_SET_USERINFO, "SamrSetInformationUser",
+        { SAMR_SET_USERINFO2, "SamrSetInformationUser2",
 		samr_dissect_set_information_user2_rqst,
 		samr_dissect_set_information_user2_reply },
         { SAMR_SET_BOOT_KEY_INFORMATION, "SamrSetBootKeyInformation",
@@ -5083,6 +5083,12 @@ static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
 	{ SAMR_CONNECT4, "SamrConnect4",
 		samr_dissect_connect4_rqst,
 		samr_dissect_connect2_reply },
+	{ SAMR_UNICODE_CHANGE_PASSWORD_USER3, "SamrUnicodeChangePasswordUser3",
+		NULL, NULL },
+	{ SAMR_CONNECT5, "SamrConnect5", NULL, NULL },
+	{ SAMR_RID_TO_SID, "SamrRidToSid", NULL, NULL },
+	{ SAMR_SET_DSRM_PASSWORD, "SamrSetDSRMPassword", NULL, NULL },
+	{ SAMR_VALIDATE_PASSWORD, "SamrValidatePassword", NULL, NULL },
         {0, NULL, NULL,  NULL }
 };
 
