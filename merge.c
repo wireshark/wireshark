@@ -217,7 +217,7 @@ earliest(int count, merge_in_file_t in_files[]) {
 /*
  * actually merge the files
  */
-gboolean
+merge_status_e
 merge_files(int count, merge_in_file_t in_files[], merge_out_file_t *out_file, int *err)
 {
   int i;
@@ -227,10 +227,8 @@ merge_files(int count, merge_in_file_t in_files[], merge_out_file_t *out_file, i
     in_files[i].ok = wtap_read(in_files[i].wth, &(in_files[i].err),
                                &(in_files[i].err_info),
                                &(in_files[i].data_offset));
-    if (!in_files[i].ok) {
-      /* Read failure, not write failure. */
-      return TRUE;
-    }
+    if (!in_files[i].ok)
+      return MERGE_READ_ERROR;
   }
 
   /* now keep writing the earliest frame until we're out of frames */
@@ -240,20 +238,18 @@ merge_files(int count, merge_in_file_t in_files[], merge_out_file_t *out_file, i
      * input file
      */
     if(!write_frame(in_files[i].wth, out_file, err))
-        return FALSE;
+        return MERGE_WRITE_ERROR;
     in_files[i].ok = wtap_read(in_files[i].wth, &(in_files[i].err),
                                &(in_files[i].err_info),
                                &(in_files[i].data_offset));
-    if (!in_files[i].ok) {
-      /* Read failure, not write failure. */
-      return TRUE;
-    }
+    if (!in_files[i].ok)
+      return MERGE_READ_ERROR;
   }
 
-  return TRUE;
+  return MERGE_SUCCESS;
 }
 
-static gboolean
+static merge_status_e
 append_loop(merge_in_file_t in_files[], int i, int count,
             merge_out_file_t *out_file, int *err)
 {
@@ -266,33 +262,35 @@ append_loop(merge_in_file_t in_files[], int i, int count,
 
   while ( (wtap_read(in_files[i].wth, err, &err_info, &data_offset)) ) {
     if(!write_frame(in_files[i].wth, out_file, err))
-      return FALSE;   /* failure */
+      return MERGE_WRITE_ERROR;
     if (count > 0 && ++loop >= count)
       break;
   }
 
   if (*err != 0) {
-    /* Read failure, not write failure. */
     in_files[i].ok = FALSE;
     in_files[i].err = *err;
     in_files[i].err_info = err_info;
+    return MERGE_READ_ERROR;
   }
-  return TRUE;
+  return MERGE_SUCCESS;
 }
 
 /*
  * routine to concatenate files
  */
-gboolean
+merge_status_e
 merge_append_files(int count, merge_in_file_t in_files[],
                    merge_out_file_t *out_file, int *err)
 {
   int i;
+  merge_status_e status;
 
   for (i = 0; i < count; i++) {
-    if (!append_loop(in_files, i, 0, out_file, err))
-      return FALSE;
+    status = append_loop(in_files, i, 0, out_file, err);
+    if (status != MERGE_SUCCESS)
+      return status;
   }
 
-  return TRUE;
+  return MERGE_SUCCESS;
 }

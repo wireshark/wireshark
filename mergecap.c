@@ -142,7 +142,7 @@ main(int argc, char *argv[])
   gchar       *err_info;
   int          err_fileno;
   char        *out_filename = NULL;
-  gboolean     ret;
+  merge_status_e status;
 
   /* Process the options first */
   while ((opt = getopt(argc, argv, "hvas:T:F:w:")) != -1) {
@@ -194,7 +194,7 @@ main(int argc, char *argv[])
 
     case '?':              /* Bad options if GNU getopt */
       usage();
-      exit(1);
+      return 1;
       break;
 
     }
@@ -208,11 +208,11 @@ main(int argc, char *argv[])
   if (!out_filename) {
     fprintf(stderr, "mergecap: an output filename must be set with -w\n");
     fprintf(stderr, "          run with -h for help\n");
-    exit(1);
+    return 1;
   }
   if (in_file_count < 1) {
     fprintf(stderr, "mergecap: No input files were specified\n");
-    exit(1);
+    return 1;
   }
 
   /* open the input files */
@@ -229,7 +229,7 @@ main(int argc, char *argv[])
       g_free(err_info);
       break;
     }
-    exit(1);
+    return 2;
   }
 
   if (verbose) {
@@ -309,21 +309,49 @@ main(int argc, char *argv[])
 
   /* do the merge (or append) */
   if (do_append)
-    ret = merge_append_files(in_file_count, in_files, &out_file, &err);
+    status = merge_append_files(in_file_count, in_files, &out_file, &err);
   else
-    ret = merge_files(in_file_count, in_files, &out_file, &err);
+    status = merge_files(in_file_count, in_files, &out_file, &err);
 
   merge_close_in_files(in_file_count, in_files);
-  if (ret)
-    ret = merge_close_outfile(&out_file, &err);
-  else
+  if (status == MERGE_SUCCESS) {
+    if (!merge_close_outfile(&out_file, &err))
+      status = MERGE_WRITE_ERROR;
+  } else
     merge_close_outfile(&out_file, &close_err);
-  if (!ret) {
+  switch (status) {
+
+  case MERGE_SUCCESS:
+    break;
+
+  case MERGE_READ_ERROR:
+    /*
+     * Find the file on which we got the error, and report the error.
+     */
+    for (i = 0; i < in_file_count; i++) {
+      if (!in_files[i].ok) {
+        fprintf(stderr, "mergecap: Error reading %s: %s\n",
+                in_files[i].filename, wtap_strerror(in_files[i].err));
+        switch (err) {
+
+        case WTAP_ERR_UNSUPPORTED:
+        case WTAP_ERR_UNSUPPORTED_ENCAP:
+        case WTAP_ERR_BAD_RECORD:
+          fprintf(stderr, "(%s)\n", in_files[i].err_info);
+          g_free(in_files[i].err_info);
+          break;
+        }
+      }
+    }
+    break;
+
+  case MERGE_WRITE_ERROR:
     fprintf(stderr, "mergecap: Error writing to outfile: %s\n",
             wtap_strerror(err));
+    break;
   }
 
   free(in_files);
 
-  return ret ? 0 : 2;
+  return (status == MERGE_SUCCESS) ? 0 : 2;
 }

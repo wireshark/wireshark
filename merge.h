@@ -114,15 +114,25 @@ merge_select_frame_type(int in_file_count, merge_in_file_t in_files[]);
 extern int
 merge_max_snapshot_length(int in_file_count, merge_in_file_t in_files[]);
 
+/*
+ * Status from the merge-files routines.
+ */
+typedef enum {
+	MERGE_SUCCESS,
+	MERGE_READ_ERROR,
+	MERGE_WRITE_ERROR
+} merge_status_e;
+
 /** Merge the packets from the input files into the output file sorted chronologically.
  * 
  * @param in_file_count number of entries in in_files
  * @param in_files input file array
  * @param out_file the output file array
  * @param err wiretap error, if failed
- * @return TRUE on success or read failure, FALSE on write failure
+ * @return MERGE_SUCCESS on success, MERGE_READ_ERROR on read error,
+ *         MERGE_WRITE_ERROR on write error
  */
-extern gboolean
+extern merge_status_e
 merge_files(int in_file_count, merge_in_file_t in_files[], merge_out_file_t *out_file, int *err);
 
 /** Append the packets from the input files into the output file.
@@ -131,9 +141,10 @@ merge_files(int in_file_count, merge_in_file_t in_files[], merge_out_file_t *out
  * @param in_files input file array
  * @param out_file the output file array
  * @param err wiretap error, if failed
- * @return TRUE on success or read failure, FALSE on write failure
+ * @return MERGE_SUCCESS on success, MERGE_READ_ERROR on read error,
+ *         MERGE_WRITE_ERROR on write error
  */
-extern gboolean
+extern merge_status_e
 merge_append_files(int in_file_count, merge_in_file_t in_files[],
                    merge_out_file_t *out_file, int *err);
 

@@ -493,11 +493,12 @@ cf_read(capture_file *cf)
       snprintf(errmsg_errno, sizeof(errmsg_errno),
                "The capture file has a packet with a network type that Ethereal doesn't support.\n(%s)",
                err_info);
+      g_free(err_info);
       errmsg = errmsg_errno;
       break;
 
     case WTAP_ERR_CANT_READ:
-      errmsg = "An attempt to read from the file failed for"
+      errmsg = "An attempt to read from the capture file failed for"
                " some unknown reason.";
       break;
 
@@ -510,6 +511,7 @@ cf_read(capture_file *cf)
       snprintf(errmsg_errno, sizeof(errmsg_errno),
                "The capture file appears to be damaged or corrupt.\n(%s)",
                err_info);
+      g_free(err_info);
       errmsg = errmsg_errno;
       break;
 
@@ -977,7 +979,11 @@ cf_merge_files(const char *out_filename, int out_fd, int in_file_count,
   int               err, close_err;
   gchar            *err_info;
   int               err_fileno; 
-  gboolean          ret;
+  merge_status_e    status;
+  int               i;
+  char              errmsg_errno[1024+1];
+  gchar             err_str[2048+1];
+  char             *errmsg;
 
   /* open the input files */
   if (!merge_open_in_files(in_file_count, in_filenames, &in_files,
@@ -998,19 +1004,76 @@ cf_merge_files(const char *out_filename, int out_fd, int in_file_count,
 
   /* do the merge (or append) */
   if (do_append)
-    ret = merge_append_files(in_file_count, in_files, &out_file, &err);
+    status = merge_append_files(in_file_count, in_files, &out_file, &err);
   else
-    ret = merge_files(in_file_count, in_files, &out_file, &err);
+    status = merge_files(in_file_count, in_files, &out_file, &err);
 
   merge_close_in_files(in_file_count, in_files);
-  if (ret)
-      ret = merge_close_outfile(&out_file, &err);
-  else
-      merge_close_outfile(&out_file, &close_err);
+  if (status == MERGE_SUCCESS) {
+    if (!merge_close_outfile(&out_file, &err))
+      status = MERGE_WRITE_ERROR;
+  } else
+    merge_close_outfile(&out_file, &close_err);
 
-  if (!ret)
+  switch (status) {
+
+  case MERGE_SUCCESS:
+    break;
+
+  case MERGE_READ_ERROR:
+    /*
+     * Find the file on which we got the error, and report the error.
+     */
+    for (i = 0; i < in_file_count; i++) {
+      if (!in_files[i].ok) {
+	/* Put up a message box noting that the read failed somewhere along
+	   the line. */
+	switch (err) {
+
+	case WTAP_ERR_UNSUPPORTED_ENCAP:
+	  snprintf(errmsg_errno, sizeof(errmsg_errno),
+		   "The capture file %%s has a packet with a network type that Ethereal doesn't support.\n(%s)",
+		   err_info);
+	  g_free(err_info);
+	  errmsg = errmsg_errno;
+	  break;
+
+	case WTAP_ERR_CANT_READ:
+	  errmsg = "An attempt to read from the capture file %s failed for"
+		   " some unknown reason.";
+	  break;
+
+	case WTAP_ERR_SHORT_READ:
+	  errmsg = "The capture file %s appears to have been cut short"
+		   " in the middle of a packet.";
+	  break;
+
+	case WTAP_ERR_BAD_RECORD:
+	  snprintf(errmsg_errno, sizeof(errmsg_errno),
+		   "The capture file %%sappears to be damaged or corrupt.\n(%s)",
+		   err_info);
+	  g_free(err_info);
+	  errmsg = errmsg_errno;
+	  break;
+
+	default:
+	  snprintf(errmsg_errno, sizeof(errmsg_errno),
+		   "An error occurred while reading the"
+		   " capture file %%s: %s.", wtap_strerror(err));
+	  errmsg = errmsg_errno;
+	  break;
+	}
+	snprintf(err_str, sizeof err_str, errmsg, in_files[i].filename);
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, err_str);
+      }
+    }
+    break;
+
+  case MERGE_WRITE_ERROR:
     cf_write_failure_alert_box(out_filename, err);
-  return ret;
+    break;
+  }
+  return (status == MERGE_SUCCESS);
 }
 
 gboolean
