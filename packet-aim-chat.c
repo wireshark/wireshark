@@ -3,7 +3,7 @@
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim-chat.c,v 1.3 2004/04/20 04:48:31 guy Exp $
+ * $Id: packet-aim-chat.c,v 1.4 2004/04/26 18:21:09 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -69,6 +69,29 @@ static const value_string aim_fnac_family_chat[] = {
   { 0, NULL }
 };
 
+#define AIM_CHAT_TLV_BROWSABLE_TREE 		0x001
+#define AIM_CHAT_TLV_CLASS_EXCLUSIVE		0x002
+#define AIM_CHAT_TLV_MAX_CONCURRENT_ROOMS	0x003
+#define AIM_CHAT_TLV_MAX_ROOM_NAME_LEN		0x004
+#define AIM_CHAT_TLV_ROOT_ROOMS				0x005
+#define AIM_CHAT_TLV_SEARCH_TAGS			0x006
+#define AIM_CHAT_TLV_CHILD_ROOMS			0x065
+#define AIM_CHAT_TLV_CONTAINS_USER_CLASS	0x066
+#define AIM_CHAT_TLV_CONTAINS_USER_ARRAY	0x067
+
+static const aim_tlv chat_tlvs[] = {
+	{ AIM_CHAT_TLV_BROWSABLE_TREE, "Browsable tree", dissect_aim_tlv_value_bytes },
+	{ AIM_CHAT_TLV_CLASS_EXCLUSIVE, "Exclusively for class", dissect_aim_tlv_value_userclass },
+	{ AIM_CHAT_TLV_MAX_CONCURRENT_ROOMS, "Max. number of concurrent rooms", dissect_aim_tlv_value_uint8 },
+	{ AIM_CHAT_TLV_MAX_ROOM_NAME_LEN, "Max. length of room name", dissect_aim_tlv_value_uint8 },
+	{ AIM_CHAT_TLV_ROOT_ROOMS, "Root Rooms", dissect_aim_tlv_value_bytes },
+	{ AIM_CHAT_TLV_SEARCH_TAGS, "Search Tags", dissect_aim_tlv_value_bytes },
+	{ AIM_CHAT_TLV_CHILD_ROOMS, "Child Rooms", dissect_aim_tlv_value_bytes },
+	{ AIM_CHAT_TLV_CONTAINS_USER_CLASS, "Contains User Class", dissect_aim_tlv_value_bytes },
+	{ AIM_CHAT_TLV_CONTAINS_USER_ARRAY, "Contains User Array", dissect_aim_tlv_value_bytes },
+	{ 0, NULL, NULL }
+};
+
 /* Initialize the protocol and registered fields */
 static int proto_aim_chat = -1;
 
@@ -94,18 +117,15 @@ static int dissect_aim_snac_chat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     {
 	case FAMILY_CHAT_ERROR:
       return dissect_aim_snac_error(tvb, pinfo, offset, chat_tree);
-	case FAMILY_CHAT_ROOMINFOUPDATE:
-	  /* FIXME */
-	  return 0;
+	case FAMILY_CHAT_USERLEAVE:
 	case FAMILY_CHAT_USERJOIN:
 	  while(tvb_length_remaining(tvb, offset) > 0) {
-		  offset = dissect_aim_buddyname(tvb, pinfo, offset, chat_tree);
-		  /* FIXME */
+		offset = dissect_aim_userinfo(tvb, pinfo, offset, chat_tree);
 	  }
 	  return offset;
-	case FAMILY_CHAT_USERLEAVE:
 	case FAMILY_CHAT_EVIL_REQ:
 	case FAMILY_CHAT_EVIL_REPLY:
+	case FAMILY_CHAT_ROOMINFOUPDATE:
 	  /* FIXME */
 	  return 0;
     case FAMILY_CHAT_OUTGOINGMSG:

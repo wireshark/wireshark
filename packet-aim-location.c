@@ -3,7 +3,7 @@
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim-location.c,v 1.3 2004/04/20 04:48:32 guy Exp $
+ * $Id: packet-aim-location.c,v 1.4 2004/04/26 18:21:09 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,14 +72,25 @@ static const value_string aim_fnac_family_location[] = {
 #define FAMILY_LOCATION_USERINFO_AWAYENCODING  0x0003
 #define FAMILY_LOCATION_USERINFO_AWAYMSG       0x0004
 #define FAMILY_LOCATION_USERINFO_CAPS          0x0005
-                                                                                                                              
-static const aim_tlv aim_fnac_family_location_userinfo_tlv[] = {
+
+static const aim_tlv msg_tlv[] = {
   { FAMILY_LOCATION_USERINFO_INFOENCODING, "Info Msg Encoding", dissect_aim_tlv_value_string},
   { FAMILY_LOCATION_USERINFO_INFOMSG, "Info Message", dissect_aim_tlv_value_string },
   { FAMILY_LOCATION_USERINFO_AWAYENCODING, "Away Msg Encoding", dissect_aim_tlv_value_string },
   { FAMILY_LOCATION_USERINFO_AWAYMSG, "Away Message", dissect_aim_tlv_value_string },
   { FAMILY_LOCATION_USERINFO_CAPS, "Capabilities", dissect_aim_tlv_value_bytes },
   { 0, "Unknown", 0 }
+};
+
+#define AIM_LOCATION_RIGHTS_TLV_MAX_PROFILE_LENGTH 	0x0001
+#define AIM_LOCATION_RIGHTS_TLV_MAX_CAPABILITIES 	0x0002
+#define AIM_LOCATION_RIGHTS_TLV_CLIENT_CAPABILITIES 0x0005
+
+static const aim_tlv location_rights_tlvs[] = {
+  { AIM_LOCATION_RIGHTS_TLV_MAX_PROFILE_LENGTH, "Max Profile Length", dissect_aim_tlv_value_uint16 },
+  { AIM_LOCATION_RIGHTS_TLV_MAX_CAPABILITIES, "Max capabilities", dissect_aim_tlv_value_uint16 },
+  { AIM_LOCATION_RIGHTS_TLV_CLIENT_CAPABILITIES, "Client capabilities", dissect_aim_tlv_value_client_capabilities },
+  { 0, "Unknown", NULL }
 };
 
 #define FAMILY_LOCATION_USERINFO_INFOTYPE_GENERALINFO  0x0001
@@ -100,7 +111,6 @@ static int dissect_aim_snac_location_user_information(tvbuff_t *tvb, packet_info
 static int proto_aim_location = -1;
 static int hf_aim_snac_location_request_user_info_infotype = -1;
 static int hf_aim_userinfo_warninglevel = -1;
-static int hf_aim_userinfo_tlvcount = -1;
 static int hf_aim_buddyname_len = -1;
 static int hf_aim_buddyname = -1;
 
@@ -129,11 +139,26 @@ static int dissect_aim_location(tvbuff_t *tvb, packet_info *pinfo,
     case FAMILY_LOCATION_USERINFO:
       return dissect_aim_snac_location_user_information(tvb, pinfo, offset, loc_tree);
 	case FAMILY_LOCATION_REQRIGHTS:
+	  /* No data */
+	  return 0;
 	case FAMILY_LOCATION_RIGHTSINFO:
+	   while(tvb_length_remaining(tvb, offset) > 0) {
+		offset = dissect_aim_tlv(tvb, pinfo, offset, loc_tree, location_rights_tlvs);
+	  }
+	  return 0;
 	case FAMILY_LOCATION_SETUSERINFO:
+	  while(tvb_length_remaining(tvb, offset) > 0) {
+		offset = dissect_aim_tlv(tvb, pinfo, offset, loc_tree, location_rights_tlvs);
+	  }
+	  return 0;
 	case FAMILY_LOCATION_WATCHERSUBREQ:
-	case FAMILY_LOCATION_WATCHERNOT:
 	  /* FIXME */
+	  return 0;
+	case FAMILY_LOCATION_WATCHERNOT:
+	  while(tvb_length_remaining(tvb, offset) > 0) {
+		  offset = dissect_aim_buddyname(tvb, pinfo, offset, loc_tree);
+	  }
+	  return offset;
 	default:
 	  return 0;
     }
@@ -158,6 +183,7 @@ static int dissect_aim_snac_location_request_user_information(tvbuff_t *tvb,
   /* Buddy name */
   proto_tree_add_item(tree, hf_aim_buddyname, tvb, offset, buddyname_length, FALSE);
   offset += buddyname_length;
+
   return offset;
 }
 
@@ -166,8 +192,6 @@ static int dissect_aim_snac_location_user_information(tvbuff_t *tvb,
 						  int offset, proto_tree *tree)
 {
   guint8 buddyname_length = 0;
-  guint16 tlv_count = 0;
-  guint16 i = 0;
 
   /* Buddy Name length */
   buddyname_length = tvb_get_guint8(tvb, offset);
@@ -182,22 +206,12 @@ static int dissect_aim_snac_location_user_information(tvbuff_t *tvb,
   proto_tree_add_item(tree, hf_aim_userinfo_warninglevel, tvb, offset, 2, FALSE);
   offset += 2;
 
-  /* TLV Count */
-  tlv_count = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_item(tree, hf_aim_userinfo_tlvcount, tvb, offset, 2, FALSE);
-  offset += 2;
+  offset = dissect_aim_tlv_list(tvb, pinfo, offset, tree, onlinebuddy_tlvs);
 
-  /* Dissect the TLV array containing general user status  */
-  while (i++ < tlv_count) {
-    offset = dissect_aim_tlv_buddylist(tvb, pinfo, offset, tree);
+  while(tvb_length_remaining(tvb, offset) > 0) {
+	  offset = dissect_aim_tlv(tvb, pinfo, offset, tree, msg_tlv);
   }
 
-  /* Dissect the TLV array containing the away message (or whatever info was
-     specifically requested) */
-  while (tvb_length_remaining(tvb, offset) > 0) {
-    offset = dissect_aim_tlv_specific(tvb, pinfo, offset, tree, 
-			     aim_fnac_family_location_userinfo_tlv);
-  }
   return offset;
 }
 
@@ -215,9 +229,6 @@ proto_register_aim_location(void)
     },
     { &hf_aim_userinfo_warninglevel,
       { "Warning Level", "aim.userinfo.warninglevel", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
-    },
-    { &hf_aim_userinfo_tlvcount,
-      { "TLV Count", "aim.userinfo.tlvcount", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
     },
     { &hf_aim_snac_location_request_user_info_infotype,
       { "Infotype", "aim.snac.location.request_user_info.infotype", FT_UINT16, BASE_HEX, VALS(aim_snac_location_request_user_info_infotypes), 0x0,

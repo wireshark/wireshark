@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection, SNAC ICQ
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-icq.c,v 1.4 2004/04/20 05:32:46 ulfl Exp $
+ * $Id: packet-aim-icq.c,v 1.5 2004/04/26 18:21:09 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,10 +57,12 @@ static const value_string aim_fnac_family_icq[] = {
   { 0, NULL }
 };
 
+int dissect_aim_tlv_value_icq(proto_item *ti, guint16, tvbuff_t *);
+
 #define TLV_ICQ_META_DATA 			  0x0001
 
 static const aim_tlv icq_tlv[] = {
-   { TLV_ICQ_META_DATA, "Encapsulated ICQ Meta Data", dissect_aim_tlv_value_bytes },
+   { TLV_ICQ_META_DATA, "Encapsulated ICQ Meta Data", dissect_aim_tlv_value_icq },
    { 0, "Unknown", NULL },
 };
 
@@ -69,6 +71,12 @@ static int proto_aim_icq = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_aim_icq      = -1;
+
+int dissect_aim_tlv_value_icq(proto_item *ti _U_, guint16 subtype _U_, tvbuff_t *tvb _U_)
+{
+	/* FIXME */
+	return 0;
+}
 
 static int dissect_aim_icq(tvbuff_t *tvb, packet_info *pinfo, 
 				    proto_tree *tree)
@@ -79,7 +87,7 @@ static int dissect_aim_icq(tvbuff_t *tvb, packet_info *pinfo,
    case FAMILY_ICQ_ERROR:
 	   return dissect_aim_snac_error(tvb, pinfo, offset, tree);
    case FAMILY_ICQ_LOGINREQUEST:
-	   return dissect_aim_tlv_specific(tvb, pinfo, offset, tree, icq_tlv);
+	   return dissect_aim_tlv(tvb, pinfo, offset, tree, icq_tlv);
    case FAMILY_ICQ_LOGINRESPONSE:
    case FAMILY_ICQ_AUTHREQUEST:
 	case FAMILY_ICQ_AUTHRESPONSE:

@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection, SNAC Translate
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-translate.c,v 1.4 2004/04/20 04:48:32 guy Exp $
+ * $Id: packet-aim-translate.c,v 1.5 2004/04/26 18:21:10 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,7 +60,7 @@ static int proto_aim_translate = -1;
 /* Initialize the subtree pointers */
 static gint ett_aim_translate = -1;
 
-static int dissect_aim_translate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int dissect_aim_translate(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
 	
 	/* FIXME */
 	return 0;

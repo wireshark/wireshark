@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection, SNAC Directory
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-directory.c,v 1.3 2004/04/20 04:48:31 guy Exp $
+ * $Id: packet-aim-directory.c,v 1.4 2004/04/26 18:21:09 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,6 +63,7 @@ static int dissect_aim_directory(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 {
 	struct aiminfo *aiminfo = pinfo->private_data;
 	proto_item *ti;
+	int offset = 0;
 	proto_tree *directory_tree = NULL;
 
     if(tree) {
@@ -76,7 +77,13 @@ static int dissect_aim_directory(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	case FAMILY_DIRECTORY_INTERESTS_LIST_REQ:
 		return 0;
 	case FAMILY_DIRECTORY_SEARCH_USER_REQ:
+		/* FIXME */
+		return 0;
 	case FAMILY_DIRECTORY_SEARCH_USER_REPL:
+		while (tvb_length_remaining(tvb, offset) > 0) {
+			offset = dissect_aim_tlv(tvb, pinfo, offset, tree, client_tlvs);
+		}
+		return offset;
 	case FAMILY_DIRECTORY_INTERESTS_LIST_REP:
 		/* FIXME */
 		return 0;

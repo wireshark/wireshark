@@ -2,7 +2,7 @@
  * Routines for AIM (OSCAR) dissection, Administration Service
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-admin.c,v 1.2 2004/04/20 04:48:31 guy Exp $
+ * $Id: packet-aim-admin.c,v 1.3 2004/04/26 18:21:09 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -78,7 +78,6 @@ static const value_string confirm_statusses[] = {
 static int proto_aim_admin = -1;
 static int hf_admin_acctinfo_code = -1;
 static int hf_admin_acctinfo_permissions = -1;
-static int hf_admin_acctinfo_tlvcount = -1;
 static int hf_admin_confirm_status = -1;
 
 /* Initialize the subtree pointers */
@@ -106,18 +105,12 @@ static int dissect_aim_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	case FAMILY_ADMIN_INFOCHANGEREPLY:
     case FAMILY_ADMIN_ACCNT_INFO_REPL:
 		{
-			guint16 numtlvs, i;
 			proto_tree_add_uint(admin_tree, hf_admin_acctinfo_permissions, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
-			numtlvs = tvb_get_ntohs(tvb, offset);
-			proto_tree_add_uint(admin_tree, hf_admin_acctinfo_tlvcount, tvb, offset, 2, numtlvs); offset+=2;
-			for(i = 0; i < numtlvs; i++) {
-				offset = dissect_aim_tlv(tvb, pinfo, offset, admin_tree);
-			}
+			return dissect_aim_tlv_list(tvb, pinfo, offset, admin_tree, client_tlvs);
 		}
-		return offset;
 	case FAMILY_ADMIN_INFOCHANGEREQ:
 		while(tvb_length_remaining(tvb, offset) > 0) {
-			offset = dissect_aim_tlv(tvb, pinfo, offset, admin_tree);
+			offset = dissect_aim_tlv(tvb, pinfo, offset, admin_tree, client_tlvs);
 		}
 		return offset;
 	case FAMILY_ADMIN_ACCT_CFRM_REQ:
@@ -126,7 +119,7 @@ static int dissect_aim_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	case FAMILY_ADMIN_ACCT_CFRM_REPL:
 		proto_tree_add_uint(admin_tree, hf_admin_confirm_status, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
 		while(tvb_length_remaining(tvb, offset) > 0) {
-			offset = dissect_aim_tlv(tvb, pinfo, offset, admin_tree);
+			offset = dissect_aim_tlv(tvb, pinfo, offset, admin_tree, client_tlvs);
 		}
 		return offset;
 
@@ -148,9 +141,6 @@ proto_register_aim_admin(void)
 	  { &hf_admin_acctinfo_permissions,
 		  { "Account Permissions", "aim.acctinfo.permissions", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
 	  }, 
-	  { &hf_admin_acctinfo_tlvcount,
-		  { "TLV Count", "aim.acctinfo.tlvcount", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
-	  },
 	  { &hf_admin_confirm_status,
 		  { "Confirmation status", "admin.confirm_status", FT_UINT16, BASE_HEX, VALS(confirm_statusses), 0x0, "", HFILL },
 																					 },

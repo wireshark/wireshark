@@ -2,7 +2,7 @@
  * Routines for AIM (OSCAR) dissection, SNAC Advertisements
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-adverts.c,v 1.3 2004/04/20 04:48:31 guy Exp $
+ * $Id: packet-aim-adverts.c,v 1.4 2004/04/26 18:21:09 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,8 +74,13 @@ static int dissect_aim_adverts(tvbuff_t *tvb _U_,
 		return dissect_aim_snac_error(tvb, pinfo, offset, tree);
 		break;
 		case FAMILY_ADVERTS_REQUEST:
+			/* FIXME */
+		return 0;
 		case FAMILY_ADVERTS_DATA:
-		/* FIXME: */
+			/* FIXME: */
+			/* From other sources, I understand this response contains 
+			 * a GIF file, haven't actually seen one though. And this
+			 * family appears to be deprecated, so we might never find out.. */
 		return 0;
 	}
 

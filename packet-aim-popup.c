@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-popup.c,v 1.3 2004/03/24 06:36:32 ulfl Exp $
+ * $Id: packet-aim-popup.c,v 1.4 2004/04/26 18:21:10 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,21 +54,54 @@ static const value_string aim_fnac_family_popup[] = {
   { 0, NULL }
 };
 
+#define AIM_POPUP_TLV_MESSAGE_TEXT		0x001
+#define AIM_POPUP_TLV_URL_STRING		0x002
+#define AIM_POPUP_TLV_WINDOW_WIDTH		0x003
+#define AIM_POPUP_TLV_WINDOW_HEIGHT		0x004
+#define AIM_POPUP_TLV_AUTOHIDE_DELAY	0x005
+
+const aim_tlv popup_tlvs[] = {
+	{ AIM_POPUP_TLV_MESSAGE_TEXT, "Message text (html)", dissect_aim_tlv_value_string },
+	{ AIM_POPUP_TLV_URL_STRING, "URL string", dissect_aim_tlv_value_string },
+	{ AIM_POPUP_TLV_WINDOW_WIDTH, "Window Width (pixels)", dissect_aim_tlv_value_uint16 },
+	{ AIM_POPUP_TLV_WINDOW_HEIGHT, "Window Height (pixels)", dissect_aim_tlv_value_uint16 },
+	{ AIM_POPUP_TLV_AUTOHIDE_DELAY, "Autohide delay (seconds)", dissect_aim_tlv_value_uint16 },
+	{ 0, NULL, NULL }
+};
+
 /* Initialize the protocol and registered fields */
 static int proto_aim_popup = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_aim_popup    = -1;
 
+static int dissect_aim_snac_popup(tvbuff_t *tvb, packet_info *pinfo, 
+								  proto_tree *tree) 
+{
+    int offset = 0;
+    struct aiminfo *aiminfo = pinfo->private_data;
+    proto_item *ti = NULL;
+    proto_tree *popup_tree = NULL;
+                                                                                
+    if(tree) {
+        ti = proto_tree_add_text(tree, tvb, 0, -1,"AIM Popup Service");
+        popup_tree = proto_item_add_subtree(ti, ett_aim_popup);
+    }
+                                                             
+	switch(aiminfo->subtype) {
+	case FAMILY_POPUP_ERROR:
+      return dissect_aim_snac_error(tvb, pinfo, 0, popup_tree);
+	case FAMILY_POPUP_COMMAND:
+	  return dissect_aim_tlv(tvb, pinfo, offset, popup_tree, popup_tlvs);
+	}
+
+	return 0;
+}
+
 /* Register the protocol with Ethereal */
 void
 proto_register_aim_popup(void)
 {
-
-/* Setup list of header fields */
-/*FIXME
-  static hf_register_info hf[] = {
-  };*/
 
 /* Setup protocol subtree array */
   static gint *ett[] = {
@@ -79,16 +112,14 @@ proto_register_aim_popup(void)
   proto_aim_popup = proto_register_protocol("AIM Popup", "AIM Popup", "aim_popup");
 
 /* Required function calls to register the header fields and subtrees used */
-/*FIXME
-  proto_register_field_array(proto_aim_popup, hf, array_length(hf));*/
   proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_aim_popup(void)
 {
-  /*dissector_handle_t aim_handle;*/
-/*FIXME  aim_handle = new_create_dissector_handle(dissect_aim, proto_aim);
-  dissector_add("tcp.port", TCP_PORT_AIM, aim_handle);*/
+  dissector_handle_t aim_handle;
+  aim_handle = new_create_dissector_handle(dissect_aim_snac_popup, proto_aim_popup);
+  dissector_add("aim.family", FAMILY_POPUP, aim_handle);
   aim_init_family(FAMILY_POPUP, "Popup", aim_fnac_family_popup);
 }

@@ -1,7 +1,7 @@
-/* packet-aim.h
+/* packet-tcp.h
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim.h,v 1.2 2004/04/20 04:48:32 guy Exp $
+ * $Id: packet-aim.h,v 1.3 2004/04/26 18:21:10 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,18 +44,13 @@ void aim_init_family(guint16 family, const char *name, const value_string *subty
 int dissect_aim_buddyname(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
 void aim_get_message( guchar *msg, tvbuff_t *tvb, int msg_offset, int msg_length);
 int aim_get_buddyname( char *name, tvbuff_t *tvb, int len_offset, int name_offset);
+int dissect_aim_userinfo(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
 
 int dissect_aim_snac_error(tvbuff_t *tvb, packet_info *pinfo,
                  int offset, proto_tree *aim_tree);
 
-int dissect_aim_tlv(tvbuff_t *tvb, packet_info *pinfo _U_,
-               int offset, proto_tree *tree);
-
-int dissect_aim_tlv_buddylist(tvbuff_t *tvb, packet_info *pinfo _U_,
-               int offset, proto_tree *tree);
-
-int dissect_aim_tlv_specific(tvbuff_t *tvb, packet_info *pinfo _U_,
-               int offset, proto_tree *tree, const aim_tlv *);
+int dissect_aim_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *tree, const aim_tlv *);
+int dissect_aim_tlv_list(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *tree, const aim_tlv *);
 
 const char *aim_get_familyname( guint16 family );
 const char *aim_get_subtypename( guint16 family, guint16 subtype);
@@ -66,5 +61,12 @@ int dissect_aim_tlv_value_uint16(proto_item *ti, guint16, tvbuff_t *);
 int dissect_aim_tlv_value_uint32(proto_item *ti, guint16, tvbuff_t *);
 int dissect_aim_tlv_value_bytes(proto_item *ti, guint16, tvbuff_t *);
 int dissect_aim_tlv_value_ipv4(proto_item *ti, guint16, tvbuff_t *);
+int dissect_aim_tlv_value_time(proto_item *ti, guint16, tvbuff_t *);
+int dissect_aim_tlv_value_client_capabilities(proto_item *ti, guint16, tvbuff_t *);
+int dissect_aim_tlv_value_userclass(proto_item *ti, guint16, tvbuff_t *);
+
+extern const aim_tlv client_tlvs[];
+extern const aim_tlv onlinebuddy_tlvs[];
+extern const aim_tlv motd_tlvs[];
 
 #endif

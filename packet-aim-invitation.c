@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection, SNAC Invitation
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-invitation.c,v 1.3 2004/03/24 06:36:32 ulfl Exp $
+ * $Id: packet-aim-invitation.c,v 1.4 2004/04/26 18:21:09 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,15 +60,38 @@ static int proto_aim_invitation = -1;
 
 static int ett_aim_invitation = -1;
 
+static int dissect_aim_invitation(tvbuff_t *tvb, packet_info *pinfo,
+                       proto_tree *tree)
+{
+  int offset = 0;
+  struct aiminfo *aiminfo = pinfo->private_data;
+  proto_item *ti = NULL;
+  proto_tree *invite_tree = NULL;
+                                                                                
+  if(tree) {
+	ti = proto_tree_add_text(tree, tvb, 0, -1,"AIM Invite Service");
+    invite_tree = proto_item_add_subtree(ti, ett_aim_invitation);
+  }
+
+  switch(aiminfo->subtype) {
+ 	case FAMILY_INVITATION_ERROR:
+      return dissect_aim_snac_error(tvb, pinfo, offset, invite_tree);
+    case FAMILY_INVITATION_FRIEND_REQ:
+       while(tvb_length_remaining(tvb, offset) > 0) {
+          offset = dissect_aim_tlv(tvb, pinfo, offset, invite_tree, onlinebuddy_tlvs);
+	   }
+	   return 0;
+    case FAMILY_INVITATION_FRIEND_REPL:
+		return 0;
+  }
+
+  return 0;
+}
+                                                                                
 /* Register the protocol with Ethereal */
 void
 proto_register_aim_invitation(void)
 {
-
-/* Setup list of header fields */
-/*FIXME
-  static hf_register_info hf[] = {
-  };*/
 
 /* Setup protocol subtree array */
   static gint *ett[] = {
@@ -79,18 +102,15 @@ proto_register_aim_invitation(void)
   proto_aim_invitation = proto_register_protocol("AIM Invitation Service", "AIM Invitation", "aim_invitation");
 
 /* Required function calls to register the header fields and subtrees used */
-/*FIXME
-  proto_register_field_array(proto_aim_invitation, hf, array_length(hf));*/
   proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_aim_invitation(void)
 {
-  /*dissector_handle_t aim_handle;*/
-  /* FIXME: Add dissector
-   * aim_handle = new_create_dissector_handle(dissect_aim_invitation, proto_aim_invitation);
-   * dissector_add("aim.family", FAMILY_INVITATION, aim_handle);
-   */
+  dissector_handle_t aim_handle;
+  
+  aim_handle = new_create_dissector_handle(dissect_aim_invitation, proto_aim_invitation);
+  dissector_add("aim.family", FAMILY_INVITATION, aim_handle);
   aim_init_family(FAMILY_INVITATION, "Invitation", aim_fnac_family_invitation);
 }

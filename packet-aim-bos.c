@@ -2,7 +2,7 @@
  * Routines for AIM (OSCAR) dissection, SNAC BOS
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-bos.c,v 1.2 2004/04/20 04:48:31 guy Exp $
+ * $Id: packet-aim-bos.c,v 1.3 2004/04/26 18:21:09 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -78,30 +78,22 @@ static const value_string aim_fnac_family_bos[] = {
 #define CLASS_UNKNOWN400		     0x0400
 #define CLASS_UNKNOWN800		     0x0800
 
-static const aim_tlv bos_tlvs[] = {
-	{ 0, "Unknown", 0 },
+#define AIM_PRIVACY_TLV_MAX_VISIB_LIST_SIZE		0x001
+#define AIM_PRIVACY_TLV_MAX_INVISIB_LIST_SIZE	0x002
+
+static const aim_tlv privacy_tlvs[] = {
+	{ AIM_PRIVACY_TLV_MAX_VISIB_LIST_SIZE, "Max visible list size", dissect_aim_tlv_value_uint16 },
+	{ AIM_PRIVACY_TLV_MAX_INVISIB_LIST_SIZE, "Max invisible list size", dissect_aim_tlv_value_uint16 },
+	{ 0, "Unknown", NULL },
 };
 
 /* Initialize the protocol and registered fields */
 static int proto_aim_bos = -1;
 static int hf_aim_bos_data = -1;
 static int hf_aim_bos_class = -1;
-static int hf_aim_bos_class_unconfirmed = -1;
-static int hf_aim_bos_class_administrator = -1;
-static int hf_aim_bos_class_aol = -1;
-static int hf_aim_bos_class_commercial = -1;
-static int hf_aim_bos_class_free = -1;
-static int hf_aim_bos_class_away = -1;
-static int hf_aim_bos_class_icq = -1;
-static int hf_aim_bos_class_wireless = -1;
-static int hf_aim_bos_class_unknown100 = -1;
-static int hf_aim_bos_class_unknown200 = -1;
-static int hf_aim_bos_class_unknown400 = -1;
-static int hf_aim_bos_class_unknown800 = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_aim_bos      = -1;
-static gint ett_aim_bos_userclass      = -1;
 
 static int dissect_aim_bos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	struct aiminfo *aiminfo = pinfo->private_data;
@@ -121,28 +113,11 @@ static int dissect_aim_bos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
 			/* No data */
 			return 0;
 		case FAMILY_BOS_SET_GROUP_PERM:
-			{
-          		guint32 flags = tvb_get_ntoh24(tvb, offset);           
-				proto_tree *entry;
-			  	ti = proto_tree_add_uint(bos_tree, hf_aim_bos_class, tvb, offset, 4, flags);
-			  	entry = proto_item_add_subtree(ti, ett_aim_bos_userclass);
-proto_tree_add_boolean(entry, hf_aim_bos_class_unconfirmed, tvb, offset, 4, flags);
-proto_tree_add_boolean(entry, hf_aim_bos_class_administrator, tvb, offset, 4, flags);
-proto_tree_add_boolean(entry, hf_aim_bos_class_aol, tvb, offset, 4, flags);
-proto_tree_add_boolean(entry, hf_aim_bos_class_commercial, tvb, offset, 4, flags);
-proto_tree_add_boolean(entry, hf_aim_bos_class_free, tvb, offset, 4, flags);
-proto_tree_add_boolean(entry, hf_aim_bos_class_away, tvb, offset, 4, flags);
-proto_tree_add_boolean(entry, hf_aim_bos_class_icq, tvb, offset, 4, flags);
-proto_tree_add_boolean(entry, hf_aim_bos_class_wireless, tvb, offset, 4, flags);
-proto_tree_add_boolean(entry, hf_aim_bos_class_unknown100, tvb, offset, 4, flags);
-proto_tree_add_boolean(entry, hf_aim_bos_class_unknown200, tvb, offset, 4, flags);
-proto_tree_add_boolean(entry, hf_aim_bos_class_unknown400, tvb, offset, 4, flags);
-proto_tree_add_boolean(entry, hf_aim_bos_class_unknown800, tvb, offset, 4, flags);
-			}
-			return 4;
+		    ti = proto_tree_add_uint(bos_tree, hf_aim_bos_class, tvb, offset, 4, FALSE); 
+			return dissect_aim_userclass(tvb, offset, bos_tree);
 		case FAMILY_BOS_RIGHTS:
 			while(tvb_length_remaining(tvb, offset) > 0) {
-				offset = dissect_aim_tlv_specific(tvb, pinfo, offset, bos_tree, bos_tlvs);
+				offset = dissect_aim_tlv(tvb, pinfo, offset, bos_tree, privacy_tlvs);
 			}
 			return offset;
 		case FAMILY_BOS_ADD_TO_VISIBLE:
@@ -172,49 +147,11 @@ proto_register_aim_bos(void)
 	{ &hf_aim_bos_class,
 	   { "User class", "aim.bos.userclass", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL },
 	},
-	{ &hf_aim_bos_class_unconfirmed,
-	  { "AOL Unconfirmed user flag", "aim.bos.userclass.unconfirmed", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_UNCONFIRMED, "", HFILL },
-	},
-	{ &hf_aim_bos_class_administrator,
-	  { "AOL Administrator flag", "aim.bos.userclass.administrator", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_ADMINISTRATOR, "", HFILL },
-	},
-	{ &hf_aim_bos_class_aol,
-	  { "AOL Staff User Flag", "aim.bos.userclass.staff", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_AOL, "", HFILL },
-	}, 
-	{ &hf_aim_bos_class_commercial,
-	  { "AOL commercial account flag", "aim.bos.userclass.commercial", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_COMMERCIAL, "", HFILL },
-	},
-	{ &hf_aim_bos_class_free,
-	   { "ICQ non-commercial account flag", "aim.bos.userclass.noncommercial", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_FREE, "", HFILL },
-	},
-	{ &hf_aim_bos_class_away,
-	   { "AOL away status flag", "aim.bos.userclass.away", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_AWAY, "", HFILL },
-	},
-	{ &hf_aim_bos_class_icq,
-	   { "ICQ user sign", "aim.bos.userclass.icq", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_ICQ, "", HFILL },
-	},
-	{ &hf_aim_bos_class_wireless,
-	   { "AOL wireless user", "aim.bos.userclass.wireless", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_WIRELESS, "", HFILL },
-	},
-	{ &hf_aim_bos_class_unknown100,
-		{ "Unknown bit", "aim.bos.userclass.unknown100", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_UNKNOWN100, "", HFILL },
-	},
-	{ &hf_aim_bos_class_unknown200,
-		{ "Unknown bit", "aim.bos.userclass.unknown200", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_UNKNOWN200, "", HFILL },
-	},
-	{ &hf_aim_bos_class_unknown400,
-		{ "Unknown bit", "aim.bos.userclass.unknown400", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_UNKNOWN400, "", HFILL },
-	},
-	{ &hf_aim_bos_class_unknown800,
-		{ "Unknown bit", "aim.bos.userclass.unknown800", FT_BOOLEAN, 32, TFS(&flags_set_truth), CLASS_UNKNOWN800, "", HFILL },
-	},
-	
   };
 
 /* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_aim_bos,
-	&ett_aim_bos_userclass
   };
 
 /* Register the protocol name and description */

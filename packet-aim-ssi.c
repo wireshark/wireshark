@@ -3,7 +3,7 @@
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim-ssi.c,v 1.2 2004/04/20 04:48:32 guy Exp $
+ * $Id: packet-aim-ssi.c,v 1.3 2004/04/26 18:21:10 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -109,6 +109,10 @@ static const value_string aim_fnac_family_ssi_types[] = {
   { 0, NULL }
 };
 
+static const aim_tlv ssi_rights_tlvs[] = {
+	{ 0, NULL, NULL }
+};
+
 static int dissect_aim_snac_ssi_list(tvbuff_t *tvb, packet_info *pinfo _U_, 
 				      int offset, proto_tree *tree, guint16 subtype _U_);
 
@@ -116,6 +120,7 @@ static int dissect_aim_snac_ssi_list(tvbuff_t *tvb, packet_info *pinfo _U_,
 static int proto_aim_ssi = -1;
 static int hf_aim_fnac_subtype_ssi_version = -1;
 static int hf_aim_fnac_subtype_ssi_numitems = -1;
+static int hf_aim_fnac_subtype_ssi_last_change_time = -1;
 static int hf_aim_fnac_subtype_ssi_buddyname_len = -1;
 static int hf_aim_fnac_subtype_ssi_buddyname = -1;
 static int hf_aim_fnac_subtype_ssi_gid = -1;
@@ -128,79 +133,14 @@ static int hf_aim_fnac_subtype_ssi_data = -1;
 static gint ett_aim_ssi      = -1;
 static gint ett_ssi      = -1;
 
-static int dissect_aim_snac_ssi(tvbuff_t *tvb, packet_info *pinfo _U_, 
-				 proto_tree *tree)
-{
-	struct aiminfo *aiminfo = pinfo->private_data;
-	int offset = 0;
-    proto_item *ti = NULL;
-    proto_tree *ssi_tree = NULL;
-                                                                                
-    if(tree) {
-		ti = proto_tree_add_text(tree, tvb, 0, -1,"AIM Service Side Information Service");
-        ssi_tree = proto_item_add_subtree(ti, ett_ssi);
-    }
-
-  switch(aiminfo->subtype)
-    {    
-	case FAMILY_SSI_ERROR:
-      return dissect_aim_snac_error(tvb, pinfo, offset, ssi_tree);
-    case FAMILY_SSI_LIST:
-	  return dissect_aim_snac_ssi_list(tvb, pinfo, offset, ssi_tree, aiminfo->subtype);
-	case FAMILY_SSI_REQRIGHTS:
-	case FAMILY_SSI_RIGHTSINFO:
-	case FAMILY_SSI_REQLIST_FIRSTTIME:
-	case FAMILY_SSI_REQLIST:
-	case FAMILY_SSI_ACTIVATE:
-	case FAMILY_SSI_ADD:
-	case FAMILY_SSI_MOD:
-	case FAMILY_SSI_DEL:
-	case FAMILY_SSI_SRVACK:
-	case FAMILY_SSI_NOLIST:
-	case FAMILY_SSI_EDITSTART:
-	case FAMILY_SSI_EDITSTOP:
-	case FAMILY_SSI_GRANT_FUTURE_AUTH:
-	case FAMILY_SSI_FUTUR_AUTH_GRANTED:
-	case FAMILY_SSI_SEND_AUTH_REQ: 
-	case FAMILY_SSI_AUTH_REQ:
-	case FAMILY_SSI_SEND_AUTH_REPLY:
-	case FAMILY_SSI_AUTH_REPLY:
-	case FAMILY_SSI_WAS_ADDED:
-
-	  /* FIXME */
-	  return 0;
-	 
-    default:
-	  return 0;
-    }
-}
-
-static int dissect_aim_snac_ssi_list(tvbuff_t *tvb, packet_info *pinfo _U_, 
-				      int offset, proto_tree *tree, 
+static int dissect_ssi_item(tvbuff_t *tvb, packet_info *pinfo _U_, 
+				      int offset, proto_tree *ssi_entry, 
 				      guint16 subtype _U_)
 {
   guint16 buddyname_length = 0;
-  guint16 tlv_len = 0;
   int endoffset;
-  proto_item *ti;
-  proto_tree *ssi_entry = NULL;
-
-  /* SSI Version */
-  proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_version, tvb, offset, 1,
-		      FALSE);
-  offset += 1;
-  
-  /* Number of items */
-  proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_numitems, tvb, offset, 2,
-		      FALSE);
-  offset += 2;
-  
-  while (tvb_length_remaining(tvb, offset) > 4) {
-	
-    ti = proto_tree_add_text(tree, tvb, offset, tvb_get_ntohs(tvb, offset+10)+10, "SSI Entry");
-    ssi_entry = proto_item_add_subtree(ti, ett_aim_ssi);
-    
-    /* Buddy Name Length */
+  guint16 tlv_len = 0;
+	 /* Buddy Name Length */
     buddyname_length = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_buddyname_len, 
 			tvb, offset, 2, FALSE);
@@ -239,10 +179,91 @@ static int dissect_aim_snac_ssi_list(tvbuff_t *tvb, packet_info *pinfo _U_,
     /* For now, we just dump the TLV contents as-is, since there is not a
        TLV dissection utility that works based on total chain length */
 	while(endoffset < offset+tlv_len) {
-      	endoffset = dissect_aim_tlv(tvb, pinfo, endoffset, ssi_entry);
+      	endoffset = dissect_aim_tlv(tvb, pinfo, endoffset, ssi_entry, client_tlvs);
     }
-	offset = endoffset;
-  }
+	return endoffset;
+}
+
+static int dissect_aim_snac_ssi(tvbuff_t *tvb, packet_info *pinfo _U_, 
+				 proto_tree *tree)
+{
+	struct aiminfo *aiminfo = pinfo->private_data;
+	int offset = 0;
+    proto_item *ti = NULL;
+    proto_tree *ssi_tree = NULL;
+                                                                                
+    if(tree) {
+		ti = proto_tree_add_text(tree, tvb, 0, -1,"AIM Server Side Information Service");
+        ssi_tree = proto_item_add_subtree(ti, ett_ssi);
+    }
+
+  switch(aiminfo->subtype)
+    {    
+	case FAMILY_SSI_ERROR:
+      return dissect_aim_snac_error(tvb, pinfo, offset, ssi_tree);
+    case FAMILY_SSI_LIST:
+	  return dissect_aim_snac_ssi_list(tvb, pinfo, offset, ssi_tree, aiminfo->subtype);
+	case FAMILY_SSI_RIGHTSINFO:
+		while(tvb_length_remaining(tvb, offset) > 0) {
+			offset = dissect_aim_tlv(tvb, pinfo, offset, ssi_tree, ssi_rights_tlvs);
+		}
+	  return offset;
+	case FAMILY_SSI_REQRIGHTS:
+	case FAMILY_SSI_ACTIVATE:
+	case FAMILY_SSI_EDITSTART:
+	case FAMILY_SSI_EDITSTOP:
+	case FAMILY_SSI_REQLIST_FIRSTTIME:
+	  /* No data */
+	  return 0;
+	case FAMILY_SSI_ADD:
+	case FAMILY_SSI_MOD:
+	case FAMILY_SSI_DEL:
+      return dissect_ssi_item(tvb, pinfo, offset, ssi_tree, aiminfo->subtype);
+	case FAMILY_SSI_WAS_ADDED:
+	  return dissect_aim_buddyname(tvb, pinfo, offset, ssi_tree);
+	case FAMILY_SSI_REQLIST:
+	case FAMILY_SSI_SRVACK:
+	case FAMILY_SSI_NOLIST:
+	case FAMILY_SSI_GRANT_FUTURE_AUTH:
+	case FAMILY_SSI_FUTUR_AUTH_GRANTED:
+	case FAMILY_SSI_SEND_AUTH_REQ: 
+	case FAMILY_SSI_AUTH_REQ:
+	case FAMILY_SSI_SEND_AUTH_REPLY:
+	case FAMILY_SSI_AUTH_REPLY:
+		
+	  /* FIXME */
+	  return 0;
+	 
+    default:
+	  return 0;
+    }
+}
+
+static int dissect_aim_snac_ssi_list(tvbuff_t *tvb, packet_info *pinfo _U_, 
+				      int offset, proto_tree *tree, 
+				      guint16 subtype)
+{
+  proto_item *ti;
+  proto_tree *ssi_entry = NULL;
+  guint16 num_items, i;
+
+  /* SSI Version */
+  proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_version, tvb, offset, 1,
+		      FALSE);
+  offset += 1;
+  
+  /* Number of items */
+  proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_numitems, tvb, offset, 2,
+		      FALSE);
+  num_items = tvb_get_ntohs(tvb, offset);
+  offset += 2;
+  
+  for(i = 0; i < num_items; i++) {
+    ti = proto_tree_add_text(tree, tvb, offset, tvb_get_ntohs(tvb, offset+10)+10, "SSI Entry");
+    ssi_entry = proto_item_add_subtree(ti, ett_aim_ssi);
+    offset = dissect_ssi_item(tvb, pinfo, offset, ssi_entry, subtype);
+     }
+  proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_last_change_time, tvb, offset, 4, FALSE);
   return offset;
 }
 
@@ -258,6 +279,9 @@ proto_register_aim_ssi(void)
     },
     { &hf_aim_fnac_subtype_ssi_numitems,
       { "SSI Object count", "aim.fnac.ssi.numitems", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_subtype_ssi_last_change_time,
+      { "SSI Last Change Time", "aim.fnac.ssi.last_change_time", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }
     },
     { &hf_aim_fnac_subtype_ssi_buddyname_len,
       { "SSI Buddy Name length", "aim.fnac.ssi.buddyname_len", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }

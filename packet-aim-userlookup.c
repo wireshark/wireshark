@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection, SNAC Userlookup
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-userlookup.c,v 1.2 2004/03/23 18:36:05 guy Exp $
+ * $Id: packet-aim-userlookup.c,v 1.3 2004/04/26 18:21:10 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,6 +56,7 @@ static const value_string aim_fnac_family_userlookup[] = {
 };
 
 /* Initialize the protocol and registered fields */
+static int hf_aim_userlookup_email = -1;
 static int proto_aim_userlookup = -1;
 
 /* Initialize the subtree pointers */
@@ -66,14 +67,27 @@ static int dissect_aim_snac_userlookup(tvbuff_t *tvb _U_, packet_info *pinfo,
 {
 	struct aiminfo *aiminfo = pinfo->private_data;
 	int offset = 0;
+	
+    proto_item *ti = NULL;
+    proto_tree *lookup_tree = NULL;
+                                                                                
+    if(tree) {
+        ti = proto_tree_add_text(tree, tvb, 0, -1,"AIM Lookup Service");
+		lookup_tree = proto_item_add_subtree(ti, ett_aim_userlookup);
+    }
+
 
 	switch(aiminfo->subtype) {
 	case FAMILY_USERLOOKUP_ERROR:
       return dissect_aim_snac_error(tvb, pinfo, offset, tree);
 	case FAMILY_USERLOOKUP_SEARCHEMAIL:
+	  proto_tree_add_item(lookup_tree, hf_aim_userlookup_email, tvb, 0, tvb_length(tvb), FALSE);
+	  return tvb_length(tvb);
 	case FAMILY_USERLOOKUP_SEARCHRESULT:
-	  /* FIXME:*/
-	  return 0;
+        while(tvb_length_remaining(tvb, offset) > 0) {
+            offset = dissect_aim_tlv(tvb, pinfo, offset, lookup_tree, client_tlvs);
+        }
+		return offset;
 	}
 
 	return 0;
@@ -85,9 +99,11 @@ proto_register_aim_userlookup(void)
 {
 
 /* Setup list of header fields */
-/*FIXME
   static hf_register_info hf[] = {
-  };*/
+	  { &hf_aim_userlookup_email,
+		  { "Email address looked for", "aim.userlookup.email", FT_STRING, BASE_NONE, NULL, 0, "Email address", HFILL }
+	  },
+  };
 
 /* Setup protocol subtree array */
   static gint *ett[] = {
@@ -97,8 +113,7 @@ proto_register_aim_userlookup(void)
   proto_aim_userlookup = proto_register_protocol("AIM User Lookup", "AIM User Lookup", "aim_lookup");
 
 /* Required function calls to register the header fields and subtrees used */
-/*FIXME
-  proto_register_field_array(proto_aim_userlookup, hf, array_length(hf));*/
+  proto_register_field_array(proto_aim_userlookup, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
 

@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection, SNAC Buddylist
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-buddylist.c,v 1.2 2004/04/20 04:48:31 guy Exp $
+ * $Id: packet-aim-buddylist.c,v 1.3 2004/04/26 18:21:09 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,6 +68,18 @@ static const value_string aim_fnac_family_buddylist[] = {
   { 0, NULL }
 };
 
+#define AIM_BUDDYLIST_TLV_MAX_CONTACT_ENTRIES 		0x0001
+#define AIM_BUDDYLIST_TLV_MAX_WATCHER_ENTRIES 		0x0002
+#define AIM_BUDDYLIST_TLV_MAX_ONLINE_NOTIFICATIONS 	0x0003
+
+const aim_tlv buddylist_tlvs[] = {
+	{ AIM_BUDDYLIST_TLV_MAX_CONTACT_ENTRIES, "Max number of contact list entries", dissect_aim_tlv_value_uint16 },
+	{ AIM_BUDDYLIST_TLV_MAX_WATCHER_ENTRIES, "Max number of watcher list entries", dissect_aim_tlv_value_uint16 },
+	{ AIM_BUDDYLIST_TLV_MAX_ONLINE_NOTIFICATIONS, "Max online notifications", dissect_aim_tlv_value_uint16 },
+	{0, NULL, NULL }
+};
+
+
 /* Initialize the protocol and registered fields */
 static int proto_aim_buddylist = -1;
 static int hf_aim_buddyname_len = -1;
@@ -112,7 +124,7 @@ static int dissect_aim_snac_buddylist(tvbuff_t *tvb, packet_info *pinfo,
       return dissect_aim_snac_error(tvb, pinfo, offset, buddy_tree);
 	case FAMILY_BUDDYLIST_RIGHTSINFO:
 		while(tvb_length_remaining(tvb, offset) > 0) {
-			offset = dissect_aim_tlv_buddylist( tvb, pinfo, offset, buddy_tree);
+			offset = dissect_aim_tlv( tvb, pinfo, offset, buddy_tree, buddylist_tlvs);
 		}
 		return offset;
 	case FAMILY_BUDDYLIST_REJECT:
@@ -143,7 +155,7 @@ static int dissect_aim_snac_buddylist(tvbuff_t *tvb, packet_info *pinfo,
       offset += 2;
 
       while (tvb_length_remaining(tvb, offset) > 0) {
-	offset = dissect_aim_tlv_buddylist(tvb, pinfo, offset, buddy_tree);
+	offset = dissect_aim_tlv(tvb, pinfo, offset, buddy_tree, onlinebuddy_tlvs);
       }
 
       return offset;
@@ -166,14 +178,8 @@ static int dissect_aim_snac_buddylist(tvbuff_t *tvb, packet_info *pinfo,
       proto_tree_add_item(buddy_tree, hf_aim_userinfo_warninglevel, tvb, offset, 
 			  2, FALSE);
       offset += 2;
-      
-      /* TLV Count */
-      tlv_count = tvb_get_ntohs(tvb, offset);
-      proto_tree_add_item(buddy_tree, hf_aim_userinfo_tlvcount, tvb, offset, 
-			  2, FALSE);
-      offset += 2;
 
-      return offset;
+	  return dissect_aim_tlv_list(tvb, pinfo, offset, buddy_tree, onlinebuddy_tlvs);
 	default:
 	  return 0;
     }
@@ -207,7 +213,7 @@ proto_register_aim_buddylist(void)
   };
 
 /* Register the protocol name and description */
-  proto_aim_buddylist = proto_register_protocol("AIM Buddylist Service", "AIM/Buddylist", "aim_buddylist");
+  proto_aim_buddylist = proto_register_protocol("AIM Buddylist Service", "AIM Buddylist", "aim_buddylist");
 
 /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_aim_buddylist, hf, array_length(hf));

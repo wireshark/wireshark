@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection, SNAC Family Generic
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-generic.c,v 1.2 2004/04/20 04:48:31 guy Exp $
+ * $Id: packet-aim-generic.c,v 1.3 2004/04/26 18:21:09 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,7 +54,6 @@
 #define FAMILY_GENERIC_RATEINFOREQ    0x0006
 #define FAMILY_GENERIC_RATEINFO       0x0007
 #define FAMILY_GENERIC_RATEINFOACK    0x0008
-#define FAMILY_GENERIC_UNKNOWNx09     0x0009
 #define FAMILY_GENERIC_RATECHANGE     0x000a
 #define FAMILY_GENERIC_SERVERPAUSE    0x000b
 #define FAMILY_GENERIC_CLIENTPAUSEACK 0x000c
@@ -84,7 +83,6 @@ static const value_string aim_fnac_family_generic[] = {
   { FAMILY_GENERIC_RATEINFOREQ, "Rate Info Request" },
   { FAMILY_GENERIC_RATEINFO, "Rate Info" },
   { FAMILY_GENERIC_RATEINFOACK, "Rate Info Ack" },
-  { FAMILY_GENERIC_UNKNOWNx09, "Unknown" },
   { FAMILY_GENERIC_RATECHANGE, "Rate Change" },
   { FAMILY_GENERIC_SERVERPAUSE, "Server Pause" },
   { FAMILY_GENERIC_CLIENTPAUSEACK, "Client Pause Ack" },
@@ -98,8 +96,8 @@ static const value_string aim_fnac_family_generic[] = {
   { FAMILY_GENERIC_SETPRIVFLAGS, "Set Privilege Flags" },
   { FAMILY_GENERIC_WELLKNOWNURL, "Well Known URL" },
   { FAMILY_GENERIC_NOP, "noop" },
-  { FAMILY_GENERIC_CAPABILITIES, "Capabilities (ICQ specific)" },
-  { FAMILY_GENERIC_CAPACK, "Capabilities Ack (ICQ specific)" },
+  { FAMILY_GENERIC_CAPABILITIES, "Capabilities" },
+  { FAMILY_GENERIC_CAPACK, "Capabilities Ack" },
   { FAMILY_GENERIC_SETSTATUS, "Set Status (ICQ specific)" },
   { FAMILY_GENERIC_CLIENTVERREQ, "Client Verification Requst" },
   { FAMILY_GENERIC_CLIENTVERREPL, "Client Verification Reply" },
@@ -171,6 +169,12 @@ static int hf_generic_migration_numfams  = -1;
 static int hf_generic_priv_flags = -1;
 static int hf_generic_allow_idle_see = -1;
 static int hf_generic_allow_member_see = -1;
+static int hf_generic_selfinfo_warninglevel = -1;
+static int hf_generic_evil_new_warn_level = -1;
+static int hf_generic_idle_time = -1;
+static int hf_generic_client_ver_req_offset = -1;
+static int hf_generic_client_ver_req_length = -1;
+static int hf_generic_client_ver_req_hash = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_generic_clientready = -1;
@@ -310,7 +314,7 @@ static int dissect_aim_snac_generic(tvbuff_t *tvb, packet_info *pinfo,
 	  return offset;
 	case FAMILY_GENERIC_REDIRECT:
 	  while(tvb_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv(tvb, pinfo, offset, gen_tree);
+		offset = dissect_aim_tlv(tvb, pinfo, offset, gen_tree, client_tlvs);
 	  }
 	  return offset;
 	case FAMILY_GENERIC_CAPABILITIES:
@@ -340,7 +344,7 @@ static int dissect_aim_snac_generic(tvbuff_t *tvb, packet_info *pinfo,
 			  2, tvb_get_ntohs(tvb, offset));
 	  offset+=2;
 	  while(tvb_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv(tvb, pinfo, offset, gen_tree);
+		offset = dissect_aim_tlv(tvb, pinfo, offset, gen_tree, motd_tlvs);
 	  }
 	  return offset;
 
@@ -351,9 +355,6 @@ static int dissect_aim_snac_generic(tvbuff_t *tvb, packet_info *pinfo,
 		  proto_tree_add_uint(gen_tree, hf_generic_rateinfoack_group, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
 		  offset+=2;
 	  }
-	  return offset;
-	case FAMILY_GENERIC_UNKNOWNx09:
-	  /* Unknown: FIXME: */
 	  return offset;
 	case FAMILY_GENERIC_RATECHANGE:
 	  proto_tree_add_uint(gen_tree, hf_generic_ratechange_msg, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
@@ -390,7 +391,7 @@ static int dissect_aim_snac_generic(tvbuff_t *tvb, packet_info *pinfo,
 	  }
 
 	  while(tvb_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv(tvb, pinfo, offset, gen_tree);
+		offset = dissect_aim_tlv(tvb, pinfo, offset, gen_tree, client_tlvs);
 	  }
 
 	  return offset;
@@ -404,15 +405,34 @@ static int dissect_aim_snac_generic(tvbuff_t *tvb, packet_info *pinfo,
 		  offset+=4;
 	  }
 	  return offset;
-	case FAMILY_GENERIC_EVIL:
-	  /* FIXME */
-	  return offset;
 	case FAMILY_GENERIC_SELFINFO:
+	  offset = dissect_aim_buddyname(tvb, pinfo, offset, gen_tree);
+	  proto_tree_add_item(gen_tree, hf_generic_selfinfo_warninglevel, tvb, offset, 2, FALSE);
+	  offset += 2;
+	  return dissect_aim_tlv_list(tvb, pinfo, offset, gen_tree, onlinebuddy_tlvs);
+	case FAMILY_GENERIC_EVIL:
+	  proto_tree_add_item(gen_tree, hf_generic_evil_new_warn_level, tvb, offset, 2, FALSE);
+	  while(tvb_length_remaining(tvb, offset)) {
+		offset = dissect_aim_userinfo(tvb, pinfo, offset, gen_tree);
+	  }
+	  return offset;
 	case FAMILY_GENERIC_SETIDLE:
+	  proto_tree_add_item(gen_tree, hf_generic_idle_time, tvb, offset, 2, FALSE);
+	  return 4;
 	case FAMILY_GENERIC_SETSTATUS:
-	case FAMILY_GENERIC_WELLKNOWNURL:
+	  while(tvb_length_remaining(tvb, offset) > 0) {
+		offset = dissect_aim_tlv(tvb, pinfo, offset, gen_tree, onlinebuddy_tlvs);
+	  }
+	  return offset;
 	case FAMILY_GENERIC_CLIENTVERREQ:
+	  proto_tree_add_item(gen_tree, hf_generic_client_ver_req_offset, tvb, offset, 4, FALSE);
+	  offset+=4;
+	  proto_tree_add_item(gen_tree, hf_generic_client_ver_req_length, tvb, offset, 4, FALSE);
+	  return offset+4;
 	case FAMILY_GENERIC_CLIENTVERREPL:
+	  proto_tree_add_item(gen_tree, hf_generic_client_ver_req_hash, tvb, offset, 16, FALSE);
+	  return 16;
+	case FAMILY_GENERIC_WELLKNOWNURL:
 	  /* FIXME */
 	  return 0;
 	default: return 0;
@@ -488,6 +508,24 @@ proto_register_aim_generic(void)
 	},
 	{ &hf_generic_allow_member_see,
 	  { "Allow other users to see how long account has been a member", "aim.privilege_flags.allow_member", FT_BOOLEAN, 32, TFS(&flags_set_truth), 0x0002, "", HFILL },
+	},
+	{ &hf_generic_selfinfo_warninglevel,
+		{ "Warning level", "aim.selfinfo.warn_level", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
+	},
+	{ &hf_generic_evil_new_warn_level,
+		{ "New warning level", "aim.evil.new_warn_level", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
+	},
+	{ &hf_generic_idle_time,
+		{ "Idle time (seconds)", "aim.idle_time", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL },
+	},
+	{ &hf_generic_client_ver_req_offset, 
+		{ "Client Verification Request Offset", "aim.client_verification.offset", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL },
+	},
+	{ &hf_generic_client_ver_req_length, 
+		{ "Client Verification Request Length", "aim.client_verification.length", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL },
+	},
+	{ &hf_generic_client_ver_req_hash,
+		{ "Client Verification MD5 Hash", "aim.client_verification.hash", FT_BYTES, BASE_DEC, NULL, 0x0, "", HFILL },
 	},
   };
 

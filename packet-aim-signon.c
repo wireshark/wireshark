@@ -3,7 +3,7 @@
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim-signon.c,v 1.2 2004/04/11 20:47:58 guy Exp $
+ * $Id: packet-aim-signon.c,v 1.3 2004/04/26 18:21:10 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -87,24 +87,33 @@ static int dissect_aim_snac_signon(tvbuff_t *tvb, packet_info *pinfo,
 {
 	struct aiminfo *aiminfo = pinfo->private_data;
 	int offset = 0;
+
+	proto_item *ti = NULL;
+	proto_tree *signon_tree = NULL;
+	if(tree) {
+		ti = proto_tree_add_text(tree, tvb, 0, -1,"AIM Signon");
+		signon_tree = proto_item_add_subtree(ti, ett_aim_signon);
+	}                                                                                   
+	
   switch(aiminfo->subtype)
     {
 	case FAMILY_SIGNON_ERROR:
-      return dissect_aim_snac_error(tvb, pinfo, offset, tree);
+      return dissect_aim_snac_error(tvb, pinfo, offset, signon_tree);
     case FAMILY_SIGNON_LOGON:
-      return dissect_aim_snac_signon_logon(tvb, pinfo, offset, tree);
+      return dissect_aim_snac_signon_logon(tvb, pinfo, offset, signon_tree);
     case FAMILY_SIGNON_LOGON_REPLY:
-      return dissect_aim_snac_signon_logon_reply(tvb, pinfo, offset, tree);
+      return dissect_aim_snac_signon_logon_reply(tvb, pinfo, offset, signon_tree);
     case FAMILY_SIGNON_SIGNON:
-      return dissect_aim_snac_signon_signon(tvb, pinfo, offset, tree);
+      return dissect_aim_snac_signon_signon(tvb, pinfo, offset, signon_tree);
     case FAMILY_SIGNON_SIGNON_REPLY:
-      return dissect_aim_snac_signon_signon_reply(tvb, pinfo, offset, tree);
+      return dissect_aim_snac_signon_signon_reply(tvb, pinfo, offset, signon_tree);
+	case FAMILY_SIGNON_S_SECUREID_REQ:
+	  /* No data */
+	  return 0;
 	case FAMILY_SIGNON_UIN_REQ:
 	case FAMILY_SIGNON_UIN_REPL:
-	case FAMILY_SIGNON_S_SECUREID_REQ:
 	case FAMILY_SIGNON_C_SECUREID_REP:
 	/*FIXME*/	
-
 	default:
 	  return 0;
     }
@@ -114,7 +123,7 @@ static int dissect_aim_snac_signon_logon(tvbuff_t *tvb, packet_info *pinfo,
 					  int offset, proto_tree *tree)
 {
   while (tvb_length_remaining(tvb, offset) > 0) {
-    offset = dissect_aim_tlv(tvb, pinfo, offset, tree);
+    offset = dissect_aim_tlv(tvb, pinfo, offset, tree, client_tlvs);
   }
   return offset;
 }
@@ -127,7 +136,7 @@ static int dissect_aim_snac_signon_logon_reply(tvbuff_t *tvb,
       col_append_fstr(pinfo->cinfo, COL_INFO, ", Login information reply");
 
     while (tvb_length_remaining(tvb, offset) > 0) {
-      offset = dissect_aim_tlv(tvb, pinfo, offset, tree);
+      offset = dissect_aim_tlv(tvb, pinfo, offset, tree, client_tlvs);
     }
 	return offset;
 }
