@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.58 2002/05/21 21:44:28 guy Exp $
+ * $Id: packet-bgp.c,v 1.59 2002/05/21 21:55:46 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -303,10 +303,11 @@ decode_prefix6(tvbuff_t *tvb, gint offset, char *buf, int buflen)
  * Decode an MPLS label stack
  */
 static int
-decode_MPLS_stack(tvbuff_t *tvb, gint offset, char *buf, int buflen)
+decode_MPLS_stack(tvbuff_t *tvb, gint offset, char *buf, size_t buflen)
 {
     guint32     label_entry;    /* an MPLS label enrty (label + COS field + stack bit   */
     gint        index;          /* index for the label stack                            */
+    char        junk_buf[256];  /* tmp                                                  */
 
     index = offset ;
     label_entry = 0x000000 ;
@@ -322,8 +323,19 @@ decode_MPLS_stack(tvbuff_t *tvb, gint offset, char *buf, int buflen)
             snprintf(buf, buflen, "0 (withdrawn)");
             return (1);
         }
-        snprintf(buf, buflen,"%s%u%s", buf, (label_entry >> 4), ((label_entry & 0x000001) == 0) ? "," : " (bottom)");
+
+        snprintf(junk_buf, sizeof(junk_buf),"%u%s", (label_entry >> 4), ((label_entry & 0x000001) == 0) ? "," : " (bottom)");
+	if (strlen(buf) + strlen(junk_buf) + 1 <= buflen)
+	    strcat(buf, junk_buf);
         index += 3 ;
+
+	if ((label_entry & 0x000001) == 0) {
+	    /* real MPLS multi-label stack in BGP? - maybe later; for now, it must be a bogus packet */
+	    strcpy(junk_buf, " (BOGUS: Bottom of Stack NOT set!)");
+	    if (strlen(buf) + strlen(junk_buf) + 1 <= buflen)
+		strcat(buf, junk_buf);
+	    break;
+	}	  
     }
 
     return((index - offset) / 3);

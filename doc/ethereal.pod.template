@@ -1420,6 +1420,7 @@ B<http://www.ethereal.com>.
   Ruud Linders             <ruud[AT]lucent.com>
   Andrew Esh               <Andrew.Esh[AT]tricord.com>
   Greg Morris              <GMORRIS[AT]novell.com>
+  Dirk Steinberg           <dws[AT]dirksteinberg.de>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
