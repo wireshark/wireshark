@@ -2,7 +2,7 @@
  * Routines for hclnfsd (Hummingbird NFS Daemon) dissection
  * Copyright 2001, Mike Frisch <frisch@hummingbird.com>
  *
- * $Id: packet-hclnfsd.c,v 1.9 2002/04/01 21:17:27 guy Exp $
+ * $Id: packet-hclnfsd.c,v 1.10 2002/04/01 22:30:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,6 +75,7 @@ static int hf_hclnfsd_jobstatus = -1;
 static int hf_hclnfsd_timesubmitted = -1;
 static int hf_hclnfsd_size = -1;
 static int hf_hclnfsd_copies = -1;
+static int hf_hclnfsd_auth_ident_obscure = -1;
 
 static gint ett_hclnfsd = -1;
 static gint ett_hclnfsd_gids = -1;
@@ -83,7 +84,7 @@ static gint ett_hclnfsd_uids = -1;
 static gint ett_hclnfsd_usernames = -1;
 static gint ett_hclnfsd_printqueues = -1;
 static gint ett_hclnfsd_printjob = -1;
-
+static gint ett_hclnfsd_auth_ident = -1;
 
 static int
 dissect_hclnfsd_gids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
@@ -149,15 +150,40 @@ static const value_string names_request_type[] = {
 	{ 0, NULL }
 };
 
+void
+hclnfsd_decode_obscure(char *ident, int ident_len)
+{
+	int j, x, y;
+
+	for (x = -1, j = 0; j < ident_len; j++)
+	{
+		y = *ident;
+		x ^= *ident;
+		*ident++ = x;
+		x = y;
+	}
+}
+
 
 static int
 dissect_hclnfsd_authorize_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	guint32 request_type;
 	guint32 ip;
+	char *ident = NULL;
+	char *username = NULL;
+	char *password = NULL;
+	int ident_len = 0;
+	int newoffset;
+	char *p;
+	proto_item *ident_item = NULL;
+	proto_tree *ident_tree = NULL;
 
 	ip = tvb_get_ntohl(tvb, offset);
-	ip=((ip&0x000000ff)<<24)|((ip&0x0000ff00)<<8)|((ip&0x00ff0000)>>8)|((ip&0xff000000)>>24);
+	ip = ((ip & 0x000000ff) << 24) | 
+		((ip & 0x0000ff00) << 8) | 
+		((ip & 0x00ff0000) >> 8) | 
+		((ip & 0xff000000) >> 24);
 	proto_tree_add_ipv4(tree, hf_hclnfsd_server_ip, tvb, offset, 4, ip);
 	offset += 4;
 
@@ -167,9 +193,49 @@ dissect_hclnfsd_authorize_call(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			4, request_type);
 	offset += 4;
 
-	offset = dissect_rpc_string(tvb, pinfo, tree, hf_hclnfsd_device, offset, NULL);
+	offset = dissect_rpc_string(tvb, pinfo, tree, hf_hclnfsd_device, offset, 
+		NULL);
 
-	offset = dissect_rpc_string(tvb, pinfo, tree, hf_hclnfsd_login, offset, NULL);
+	if (tree)
+	{
+		ident_item = proto_tree_add_text(tree, tvb, offset, -1,
+			"Authentication Ident");
+
+		if (ident_item)
+		{
+			ident_tree = proto_item_add_subtree(ident_item,
+				ett_hclnfsd_auth_ident);
+
+			if (ident_tree)
+			{
+				newoffset = dissect_rpc_string(tvb, pinfo, ident_tree,
+					hf_hclnfsd_auth_ident_obscure, offset, &ident);
+
+				proto_item_set_len(ident_item, newoffset - offset);
+
+				if (ident)
+				{
+					ident_len = newoffset - offset;
+
+					hclnfsd_decode_obscure(ident, ident_len);
+
+					username = ident + 2;
+					password = username + strlen(username) + 1;
+
+					proto_tree_add_text(ident_tree, tvb, offset, ident_len,
+						"Username: %s", username);
+
+					proto_tree_add_text(ident_tree, tvb, offset, ident_len,
+						"Password: %s", password);
+
+					offset = newoffset;
+
+					g_free(ident);
+					ident = NULL;
+				}
+			}
+		}
+	}
 
 	return offset;
 }
@@ -635,11 +701,6 @@ static const vsff hclnfsd1_proc[] = {
 void
 proto_register_hclnfsd(void)
 {
-#if 0
-	static struct true_false_string okfailed = { "Ok", "Failed" };
-	static struct true_false_string yesno = { "Yes", "No" };
-#endif
-		
 	static hf_register_info hf[] = {
 		{ &hf_hclnfsd_request_type, {
 			"Request Type", "hclnfsd.request_type", FT_UINT32, BASE_DEC,
@@ -776,6 +837,10 @@ proto_register_hclnfsd(void)
 		{ &hf_hclnfsd_host_ip, {
 			"Host IP", "hclnfsd.host_ip", FT_IPv4, BASE_DEC,
 			NULL, 0, "Host IP", HFILL }},
+
+		{ &hf_hclnfsd_auth_ident_obscure, {
+			"Obscure Ident", "hclnfsd.authorize.ident.obscure", FT_STRING,
+			BASE_DEC	, NULL, 0, "Authentication Obscure Ident", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_hclnfsd,
@@ -785,6 +850,7 @@ proto_register_hclnfsd(void)
 		&ett_hclnfsd_usernames,
 		&ett_hclnfsd_printqueues,
 		&ett_hclnfsd_printjob,
+		&ett_hclnfsd_auth_ident
 	};
 
 	proto_hclnfsd = proto_register_protocol("Hummingbird NFS Daemon", 
