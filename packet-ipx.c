@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.9 1998/10/14 04:09:12 gram Exp $
+ * $Id: packet-ipx.c,v 1.10 1998/10/14 04:28:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -88,7 +88,7 @@ static struct port_info	ports[] = {
 	{ 0x0451, dissect_ncp,		"NCP" },
 	{ 0x0452, dissect_sap,		"SAP" },
 	{ 0x0453, dissect_ipxrip, 	"RIP" },
-	{ 0x0455, dissect_nbipx,	"NetBIOS" },
+	{ 0x0455, NULL,				"NetBIOS" },
 	{ 0x0456, NULL,				"Diagnostic" },
 	{ 0x0457, NULL,				"Serialization" },
 	{ 0x055d, NULL,				"Attachmate Gateway" },
@@ -224,7 +224,7 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 			break;
 
 		case 20: /* NetBIOS */
-			dissect_nbipx(pd, offset, fd, tree);
+			dissect_nbipx_ns(pd, offset, fd, tree);
 			break;
 
 		case 0: /* IPX, fall through to default */

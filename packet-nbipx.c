@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-nbipx.c,v 1.1 1998/10/14 04:09:12 gram Exp $
+ * $Id: packet-nbipx.c,v 1.2 1998/10/14 04:28:49 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -61,7 +61,7 @@ struct nbipx_header {
 
 
 void
-dissect_nbipx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
+dissect_nbipx_ns(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 {
 	GtkWidget			*nbipx_tree, *ti;
 	struct nbipx_header	header;
