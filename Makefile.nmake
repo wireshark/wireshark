@@ -33,6 +33,7 @@ DISSECTOR_OBJECTS = \
 	packet-bootparams.obj \
 	packet-bpdu.obj  \
 	packet-cdp.obj   \
+	packet-cgmp.obj  \
 	packet-clip.obj  \
 	packet-data.obj  \
 	packet-dns.obj   \

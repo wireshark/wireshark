@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.44 2000/01/24 02:44:52 guy Exp $
+ * $Id: packet-llc.c,v 1.45 2000/02/05 05:54:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -395,6 +395,10 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 				case 0x2000:
 					dissect_cdp(pd, offset+8, fd, tree);
+					break;
+
+				case 0x2001:
+					dissect_cgmp(pd, offset+8, fd, tree);
 					break;
 
 				default:
