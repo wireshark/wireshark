@@ -1,7 +1,7 @@
 %{
 /* ascend-scanner.l
  *
- * $Id: ascend-scanner.l,v 1.25 2003/10/03 21:03:00 guy Exp $
+ * $Id: ascend-scanner.l,v 1.26 2003/10/03 21:12:49 jmayer Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -53,7 +53,7 @@ int mul, scratch;
 
 #define NO_USER "<none>"
 
-#ifdef _WIN32
+#ifndef HAVE_UNISTD_H
 #define YY_NO_UNISTD_H
 #endif
 
