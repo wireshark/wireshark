@@ -41,6 +41,8 @@
 #include <time.h>
 
 #include <epan/packet.h>
+/* Include vendor id translation */
+#include <epan/sminmpec.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_a11 = -1;
@@ -97,7 +99,6 @@ static gint ett_a11_radiuses = -1;
 /* Port used for Mobile IP based Tunneling Protocol (A11) */
 #define UDP_PORT_3GA11    699
 #define NTP_BASETIME 2208988800ul
-#define THE3GPP2_VENDOR_ID 0x159f
 
 typedef enum {
     REGISTRATION_REQUEST = 1,
@@ -116,6 +117,11 @@ static const value_string a11_types[] = {
   {SESSION_UPDATE,   "Session Update"},
   {SESSION_ACK,   "Session Update Ack"},
   {0, NULL},
+};
+
+static const value_string a11_ses_ptype_vals[] = {
+	{0x8881, "Unstructured Byte Stream"},
+	{0, NULL},
 };
 
 static const value_string a11_reply_codes[]= {
@@ -356,7 +362,7 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
     {
       radius_vendor_id = tvb_get_ntohl(tvb, offset +2); 
 
-      if(radius_vendor_id != THE3GPP2_VENDOR_ID)
+      if(radius_vendor_id != VENDOR_THE3GPP2)
       {
         ti = proto_tree_add_text(radius_tree, tvb, offset, radius_len,
                 "Unknown Vendor-specific Attribute (Vendor Id: %x)", radius_vendor_id);
@@ -1053,12 +1059,12 @@ void proto_register_a11(void)
 	  },
 	  { &hf_a11_ses_ptype,
 		 { "Protocol Type",                      "a11.ext.ptype",
-			FT_UINT16, BASE_HEX, NULL, 0,
+			FT_UINT16, BASE_HEX, VALS(a11_ses_ptype_vals), 0,
 			"Protocol Type.", HFILL }
 	  },
 	  { &hf_a11_vse_vid,
 		 { "Vendor ID",                      "a11.ext.vid",
-			FT_UINT32, BASE_HEX, NULL, 0,
+			FT_UINT32, BASE_HEX, VALS(sminmpec_values), 0,
 			"Vendor ID.", HFILL }
 	  },
 	  { &hf_a11_vse_apptype,

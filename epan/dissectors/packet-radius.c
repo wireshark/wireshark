@@ -3147,6 +3147,119 @@ static const radius_attr_info radius_vendor_3gpp_attrib[] =
    {0, 0, NULL, NULL, NULL},
 };
 
+static const value_string the3gpp2_security_level_vals[] = {
+  {1,	"IPSec for registration messages (deprecated)"},
+  {2,	"IPSec for tunnels (deprecated)"},
+  {3,	"IPSec for tunnels and registration messages"}, 
+  {4,	"No IPSec security"},
+  {0, NULL}
+};
+static const value_string the3gpp2_diff_services_class_option_vals[] = {
+  {0,	"Best Effort"},
+  {10,	"AF11"},
+  {12,	"AF12"},
+  {14,	"AF13"},
+  {18,	"AF21"},
+  {20,	"AF22"},
+  {22,	"AF23"},
+  {26,	"AF31"},
+  {28,	"AF32"},
+  {30,	"AF33"},
+  {34,	"AF41"},
+  {36,	"AF42"},
+  {38,	"AF43"},
+  {46,	"EF"},
+  {0, NULL}
+};
+static const value_string the3gpp2_airlink_record_type_vals[] = {
+  {1,	"Connection Setup"},
+  {2,	"Active Start"},
+  {3,	"Active Stop"},
+  {4,	"A forward or reverse short data burst (SDB) was exchanged with the MS"},
+  {0, NULL}
+};
+static const value_string the3gpp2_session_termination_capability_vals[] = {
+  {1,	"Only Dynamic Authorization Extensions to RADIUS is used"},
+  {2,	"Only Registration Revocation in Mobile IPv4 is used"},
+  {3,	"Both Dynamic Authorization Extensions to RADIUS and Registration Revocation in Mobile IPv4 are used"},
+  {0, NULL}
+};
+static const value_string th3gpp2_always_on_vals[] = {
+  {0,	"Inactive"},
+  {1,	"Active"},
+  {0, NULL}
+};
+
+static const radius_attr_info radius_vendor_3gpp2_attrib[] =
+{
+   /* According to 3GPP2 X.S0011-005-C 
+	* http://www.3gpp2.org/Public_html/specs/X.S0011-005-C_v1.0_110703.pdf
+	* TODO Dissect the BITSTRING AVP:s further
+	*/
+   {1,		RADIUS_INTEGER4,		"IKE Pre-shared Secret Request", NULL, NULL},
+   {2,		RADIUS_INTEGER4,		"Security Level", the3gpp2_security_level_vals, NULL},
+   {3,		RADIUS_BINSTRING,		"Pre-Shared Secret:", NULL, NULL},
+   {4,		RADIUS_INTEGER4,		"Reverse Tunnel Specification", NULL, NULL},
+   {5,		RADIUS_INTEGER4,		"Differentiated Services Class Option", the3gpp2_diff_services_class_option_vals, NULL},
+   {6,		RADIUS_BINSTRING,		"Accounting Container", NULL, NULL},
+   {7,		RADIUS_IP_ADDRESS,		"Home Agent", NULL, NULL},
+   {8,		RADIUS_BINSTRING,		"KeyID", NULL, NULL},
+   {9,		RADIUS_IP_ADDRESS,		"Serving PCF", NULL, NULL},
+   {10,		RADIUS_STRING,			"BSID", NULL, NULL},
+   {11,		RADIUS_INTEGER4,		"User Zone", NULL, NULL},
+   {12,		RADIUS_INTEGER4,		"Forward FCH Mux Option", NULL, NULL},
+   {13,		RADIUS_INTEGER4,		"Reverse FCH Mux Option", NULL, NULL},
+   {14,		RADIUS_STRING,			"BSID", NULL, NULL},
+   {16,		RADIUS_INTEGER4,		"Service Option", NULL, NULL},
+   {17,		RADIUS_INTEGER4,		"Forward Traffic Type", NULL, NULL},
+   {18,		RADIUS_INTEGER4,		"Reverse Traffic Type", NULL, NULL},
+   {19,		RADIUS_INTEGER4,		"FCH Frame Size", NULL, NULL},
+   {20,		RADIUS_INTEGER4,		"Forward FCH RC", NULL, NULL},
+   {21,		RADIUS_INTEGER4,		"Reverse FCH RC", NULL, NULL},
+   {31,		RADIUS_INTEGER4,		"SDB Octet Count(term)", NULL, NULL},
+   {32,		RADIUS_INTEGER4,		"SDB Octet Count(orig)", NULL, NULL},
+   {39,		RADIUS_INTEGER4,		"Airlink Priority", NULL, NULL},
+   {40,		RADIUS_INTEGER4,		"Airlink Record", the3gpp2_airlink_record_type_vals, NULL},
+   {41,		RADIUS_INTEGER4,		"R-P Connection ID", NULL, NULL},
+   {42,		RADIUS_INTEGER4,		"Airlink Sequence number", NULL, NULL},
+   {45,		RADIUS_INTEGER4,		"Mobile Orig./Term. Indicator", NULL, NULL},
+   {49,		RADIUS_INTEGER4,		"Active Connection Time in Seconds", NULL, NULL},
+   {50,		RADIUS_STRING,			"DCCH Frame Size (0/5/20 ms)", NULL, NULL},
+   {54,		RADIUS_BINSTRING,		"S Key", NULL},
+   {55,		RADIUS_INTEGER4,		"S Request", NULL, NULL},
+   {56,		RADIUS_TIMESTAMP,		"S lifetime", NULL, NULL},
+   {57,		RADIUS_INTEGER4,		"MN-HA SPI", NULL, NULL},
+   {58,		RADIUS_BINSTRING,		"MN-HA shared key", NULL},
+   {59,		RADIUS_BINSTRING,		"Remote IPv4 Address", NULL, NULL},
+   {70,		RADIUS_BINSTRING,		"Remote IPv6 Address", NULL, NULL},
+   {71,		RADIUS_BINSTRING,		"Remote Address Table Index", NULL, NULL},
+   {72,		RADIUS_BINSTRING,		"Remote IPv4 Address Octet Count", NULL, NULL},
+   {73,		RADIUS_BINSTRING,		"Allowed Differentiated Services Marking", NULL, NULL},
+   {74,		RADIUS_BINSTRING,		"Service Option Profile", NULL, NULL},
+   {75,		RADIUS_INTEGER4,		"DNS-Update-Required", NULL, NULL},
+   {76,		RADIUS_INTEGER4,		"Always On", th3gpp2_always_on_vals, NULL},
+   {79,		RADIUS_IP_ADDRESS,		"Foreign Agent Address", NULL, NULL},
+   {81,		RADIUS_INTEGER4,		"MN-AAA Removal Indication", NULL, NULL},
+   {82,		RADIUS_INTEGER4,		"RN Packet Data Inactivity Timer", NULL, NULL},
+   {83,		RADIUS_INTEGER4,		"Forward PDCH RC", NULL, NULL},
+   {84,		RADIUS_STRING,			"Forward DCCH Mux Option", NULL, NULL},
+   {85,		RADIUS_STRING,			"Reverse DCCH Mux Option", NULL, NULL},
+   {86,		RADIUS_STRING,			"Forward DCCH RC", NULL, NULL},
+   {87,		RADIUS_STRING,			"Reverse DCCH RC", NULL, NULL},
+   {88,		RADIUS_INTEGER4,		"Session Termination Capability (STC)", the3gpp2_session_termination_capability_vals, NULL},
+   {89,		RADIUS_INTEGER4,		"Allowed Persistent TFTs", NULL, NULL},
+   {90,		RADIUS_BINSTRING,		"PrePaidAccountingQuota (PPAQ)", NULL, NULL},
+   {91,		RADIUS_BINSTRING,		"PrePaidAccountingCapability (PPAC)", NULL, NULL},
+   {92,		RADIUS_BINSTRING,		"MIP Lifetime", NULL, NULL},
+   {93,		RADIUS_INTEGER4,		"Accounting-Stop-triggered-by-Active-Stop-Indication:", NULL, NULL},
+   {94,		RADIUS_BINSTRING,		"Service Reference ID", NULL, NULL},
+   {95,		RADIUS_INTEGER4,		"DNS-Update-Capability", NULL, NULL},
+   {96,		RADIUS_INTEGER4,		"DisconnectReason", NULL, NULL},
+   {97,		RADIUS_BINSTRING,		"Remote IPv6 Address Octet Count", NULL, NULL},
+   {98,		RADIUS_BINSTRING,		"PrePaidTariffSwitching (PTS)", NULL, NULL},
+   {0, 0, NULL, NULL, NULL},
+};
+
 static const radius_attr_info radius_vendor_gemtek_systems_attrib[] =
 {
    {21, RADIUS_INTEGER4,	"Acct-Session-Input-Octets", NULL, NULL},
@@ -3203,6 +3316,7 @@ static rd_vsa_table radius_vsa_table[] =
   {VENDOR_THE3GPP,		radius_vendor_3gpp_attrib},
   {VENDOR_GEMTEK_SYSTEMS,	radius_vendor_gemtek_systems_attrib},
   {VENDOR_WIFI_ALLIANCE,	radius_vendor_wifi_alliance_attrib},
+  {VENDOR_THE3GPP2,			 radius_vendor_3gpp2_attrib},
   {0, NULL},
 };
 
