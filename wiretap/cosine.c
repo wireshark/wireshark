@@ -1,6 +1,6 @@
 /* cosine.c
  *
- * $Id: cosine.c,v 1.1 2002/07/31 19:27:56 guy Exp $
+ * $Id: cosine.c,v 1.2 2002/08/06 00:59:15 guy Exp $
  *
  * CoSine IPNOS L2 debug output parsing
  * Copyright (c) 2002 by Motonori Shindo <mshindo@mshindo.net>
@@ -185,7 +185,7 @@ static int parse_single_hex_dump_line(char* rec, guint8 *buf,
 
 /* Returns TRUE if the line appears to be an empty line. Otherwise it 
    returns FALSE. */
-static gboolean empty_line(const char *line)
+static gboolean empty_line(const guchar *line)
 {
 	while (*line) {
 		if (isspace(*line)) {
