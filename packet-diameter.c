@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.55 2003/07/09 05:37:47 tpot Exp $
+ * $Id: packet-diameter.c,v 1.56 2003/10/29 21:19:44 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -210,7 +210,7 @@ static int gbl_diameterSctpPort=SCTP_PORT_DIAMETER;
 static gboolean gbl_diameter_desegment = TRUE;
 
 #define DICT_FN  "diameter/dictionary.xml"
-static gchar *gbl_diameterDictionary = NULL;
+static gchar *gbl_diameterDictionary;
 
 typedef struct _e_diameterhdr {
   guint32  versionLength;
@@ -1870,6 +1870,7 @@ proto_register_diameter(void)
 		&ett_diameter_avpinfo
 	};
 	module_t *diameter_module;
+	gchar *default_diameterDictionary;
 
 	proto_diameter = proto_register_protocol ("Diameter Protocol", "Diameter", "diameter");
 	proto_register_field_array(proto_diameter, hf, array_length(hf));
@@ -1891,13 +1892,24 @@ proto_register_diameter(void)
 	/*
 	 * Build our default dictionary filename
 	 */
-	if (! gbl_diameterDictionary)
-		gbl_diameterDictionary = get_datafile_path(DICT_FN);
-	/* Now register its preferences so it can be changed. */
+	default_diameterDictionary = get_datafile_path(DICT_FN);
+
+	/*
+	 * Now register the dictionary filename as a preference,
+	 * so it can be changed.
+	 */
+	gbl_diameterDictionary = default_diameterDictionary;
 	prefs_register_string_preference(diameter_module, "dictionary.name",
 									 "Diameter XML Dictionary",
 									 "Set the dictionary used for Diameter messages",
 									 &gbl_diameterDictionary);
+
+	/*
+	 * We don't need the default dictionary, so free it (a copy was made
+	 * of it in "gbl_diameterDictionary" by
+	 * "prefs_register_string_preference()").
+	 */
+	g_free(default_diameterDictionary);
 
 	/* Desegmentation */
 	prefs_register_bool_preference(diameter_module, "desegment",
