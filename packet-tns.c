@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for Oracle TNS packet dissection
  *
- * $Id: packet-tns.c,v 1.36 2002/08/28 21:00:36 jmayer Exp $
+ * $Id: packet-tns.c,v 1.37 2003/01/11 09:57:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -849,11 +849,28 @@ get_tns_pdu_len(tvbuff_t *tvb, int offset)
         return tvb_get_ntohs(tvb, offset);
 }
 
-static void
+static int
 dissect_tns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	guint8 type;
+
+	/*
+	 * First, do a sanity check to make sure what we have
+	 * starts with a TNS PDU.
+	 */
+	if (tvb_bytes_exist(tvb, 4, 1)) {
+		/*
+		 * Well, we have the packet type; let's make sure
+		 * it's a known type.
+		 */
+		type = tvb_get_guint8(tvb, 4);
+		if (type < TNS_TYPE_CONNECT || type > TNS_TYPE_MAX)
+			return 0;	/* it's not a known type */
+	}
+
 	tcp_dissect_pdus(tvb, pinfo, tree, tns_desegment, 2,
 	    get_tns_pdu_len, dissect_tns_pdu);
+	return tvb_length(tvb);
 }
 
 static void
@@ -1311,7 +1328,7 @@ proto_reg_handoff_tns(void)
 {
 	dissector_handle_t tns_handle;
 
-	tns_handle = create_dissector_handle(dissect_tns, proto_tns);
+	tns_handle = new_create_dissector_handle(dissect_tns, proto_tns);
 	dissector_add("tcp.port", TCP_PORT_TNS, tns_handle);
 	data_handle = find_dissector("data");
 }
