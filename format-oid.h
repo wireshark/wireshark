@@ -1,7 +1,7 @@
 /* format-oid.h
  * Declare routine for formatting OIDs
  *
- * $Id: format-oid.h,v 1.2 2002/08/28 21:00:06 jmayer Exp $
+ * $Id: format-oid.h,v 1.3 2003/09/08 19:40:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,5 +26,7 @@
 #define __FORMAT_OID_H__
 
 extern gchar *format_oid(subid_t *oid, guint oid_length);
+extern void new_format_oid(subid_t *oid, guint oid_length, 
+			   gchar **non_decoded, gchar **decoded);
 
 #endif

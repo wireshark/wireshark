@@ -1178,6 +1178,8 @@ Adam Sulmicki <adam[AT]cfar.umd.edu> {
 
 Kari Tiirikainen <kari.tiirikainen[AT]nokia.com>
 	COPS-PR extension support
+	Support for reading MIBs containing converted PIBs in COPS
+	    dissector
 }
 
 John Mackenzie <John.A.Mackenzie[AT]t-online.de> {
