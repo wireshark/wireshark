@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.23 2004/01/21 21:19:34 ulfl Exp $
+ * $Id: summary_dlg.c,v 1.24 2004/02/01 13:13:33 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,14 +63,17 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 		*filter_box, *filter_fr,
 		*data_box, *capture_box, *bbox, *close_bt;
 
-  gchar          string_buff[SUM_STR_MAX];
+  gchar         string_buff[SUM_STR_MAX];
 
-  double         seconds;
+  double        seconds;
+  guint         offset;
+  gchar        *str_dup;
+  gchar        *str_work;
 
  /* initialize the tally */
   summary_fill_in(&summary);
 
-  /* initial compututations */
+  /* initial computations */
   seconds = summary.stop_time - summary.start_time;
   sum_open_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(sum_open_w), "Ethereal: Summary");
@@ -185,8 +188,21 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     double seconds;
 
     /* Display filter */
-    snprintf(string_buff, SUM_STR_MAX, "Display filter: %s", summary.dfilter);
-    add_string_to_box(string_buff, filter_box);
+    /* limit each row to some reasonable length */
+    str_dup = g_strdup_printf("Display filter: %s", summary.dfilter);
+    str_work = g_strdup(str_dup);
+    offset = 0;
+    while(strlen(str_work) > 100) {
+        str_work[100] = '\0';
+        add_string_to_box(str_work, filter_box);
+        g_free(str_work);
+        offset+=100;
+        str_work = g_strdup(&str_dup[offset]);
+    }
+    
+    add_string_to_box(str_work, filter_box);
+    g_free(str_work);
+    g_free(str_dup);
 
     /* seconds */
     seconds = (summary.filtered_stop - summary.filtered_start);
