@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.44 2002/12/27 22:55:40 guy Exp $
+ * $Id: packet-pim.c,v 1.45 2003/10/17 21:27:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -794,6 +794,25 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 					    "Generation ID: %d", opt_value);
 			break;
 
+		case 24: /* address list */
+		case 65001: /* address list (old implementations) */
+		{
+			int i;
+			proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len, 
+					    "%sAddress List",
+					    hello_opt == 65001 ? "old " : "");
+			for (i = offset + 4; i < offset + 4 + opt_len; ) {
+				int advance;
+				const char *s;
+
+				s = dissect_pim_addr(tvb, i, pimv2_unicast, &advance);
+				if (s == NULL)
+					break;
+				proto_tree_add_text(pimopt_tree, tvb, offset, 
+						    advance, "Address: %s", s);
+				i += advance;
+			}
+		}
 		default:
 			proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len,
 					    "Unknown option: %d  len: %d  value: 0x%x",
