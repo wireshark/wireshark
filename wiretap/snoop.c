@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.12 1999/09/24 05:49:52 guy Exp $
+ * $Id: snoop.c,v 1.13 1999/09/28 01:19:01 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -63,7 +63,7 @@ int snoop_open(wtap *wth, int *err)
 	char magic[sizeof snoop_magic];
 	struct snoop_hdr hdr;
 	static const int snoop_encap[] = {
-		WTAP_ENCAP_UNKNOWN,	/* IEEE 802.3 */
+		WTAP_ENCAP_ETHERNET,	/* IEEE 802.3 */
 		WTAP_ENCAP_UNKNOWN,	/* IEEE 802.4 Token Bus */
 		WTAP_ENCAP_TR,
 		WTAP_ENCAP_UNKNOWN,	/* IEEE 802.6 Metro Net */
