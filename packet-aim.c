@@ -3,7 +3,7 @@
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim.c,v 1.40 2004/04/26 21:11:33 obiot Exp $
+ * $Id: packet-aim.c,v 1.41 2004/05/05 09:30:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -561,7 +561,7 @@ static void dissect_aim_newconn(tvbuff_t *tvb, packet_info *pinfo,
   if (tvb_length_remaining(tvb, offset) > 0) {
 	  proto_tree_add_item(tree, hf_aim_authcookie, tvb, offset, 4, FALSE);
 	  offset+=4;
-	  while(tvb_length_remaining(tvb, offset) > 0) {
+	  while(tvb_reported_length_remaining(tvb, offset) > 0) {
 		  offset = dissect_aim_tlv(tvb, pinfo, offset, tree, client_tlvs);
 	  }
   }
@@ -699,7 +699,7 @@ static void dissect_aim_close_conn(tvbuff_t *tvb, packet_info *pinfo,
     col_add_fstr(pinfo->cinfo, COL_INFO, "Close Connection");
   }	  
   
-  while(tvb_length_remaining(tvb, offset) > 0) {
+  while(tvb_reported_length_remaining(tvb, offset) > 0) {
 	  offset = dissect_aim_tlv(tvb, pinfo, offset, tree, client_tlvs);
   }
 }
@@ -751,31 +751,31 @@ int dissect_aim_tlv_value_time(proto_item *ti _U_, guint16 valueid _U_, tvbuff_t
 	return tvb_length(tvb);
 }
 
-int dissect_aim_userclass(tvbuff_t *tvb, int offset, proto_item *ti) 
+int dissect_aim_userclass(tvbuff_t *tvb, int offset, int len, proto_item *ti, guint32 flags)
 {
-	guint32 flags = tvb_get_ntoh24(tvb, offset);
 	proto_tree *entry;
 
 	entry = proto_item_add_subtree(ti, ett_aim_userclass);
-	proto_tree_add_boolean(entry, hf_aim_userclass_unconfirmed, tvb, offset, 4, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_administrator, tvb, offset, 4, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_aol, tvb, offset, 4, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_commercial, tvb, offset, 4, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_free, tvb, offset, 4, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_away, tvb, offset, 4, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_icq, tvb, offset, 4, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_wireless, tvb, offset, 4, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_unknown100, tvb, offset, 4, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_unknown200, tvb, offset, 4, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_unknown400, tvb, offset, 4, flags);
-	proto_tree_add_boolean(entry, hf_aim_userclass_unknown800, tvb, offset, 4, flags);
-	return offset+4;
+	proto_tree_add_boolean(entry, hf_aim_userclass_unconfirmed, tvb, offset, len, flags);
+	proto_tree_add_boolean(entry, hf_aim_userclass_administrator, tvb, offset, len, flags);
+	proto_tree_add_boolean(entry, hf_aim_userclass_aol, tvb, offset, len, flags);
+	proto_tree_add_boolean(entry, hf_aim_userclass_commercial, tvb, offset, len, flags);
+	proto_tree_add_boolean(entry, hf_aim_userclass_free, tvb, offset, len, flags);
+	proto_tree_add_boolean(entry, hf_aim_userclass_away, tvb, offset, len, flags);
+	proto_tree_add_boolean(entry, hf_aim_userclass_icq, tvb, offset, len, flags);
+	proto_tree_add_boolean(entry, hf_aim_userclass_wireless, tvb, offset, len, flags);
+	proto_tree_add_boolean(entry, hf_aim_userclass_unknown100, tvb, offset, len, flags);
+	proto_tree_add_boolean(entry, hf_aim_userclass_unknown200, tvb, offset, len, flags);
+	proto_tree_add_boolean(entry, hf_aim_userclass_unknown400, tvb, offset, len, flags);
+	proto_tree_add_boolean(entry, hf_aim_userclass_unknown800, tvb, offset, len, flags);
+	return offset+len;
 }
 
-int dissect_aim_tlv_value_userclass(proto_item *ti, guint16 valueid, tvbuff_t *tvb)
+int dissect_aim_tlv_value_userclass(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb)
 {
-	dissect_aim_tlv_value_uint32(ti, valueid, tvb);
-	return dissect_aim_userclass(tvb, 0, ti);
+	guint16 value16 = tvb_get_ntohs(tvb, 0);
+	proto_item_set_text(ti, "Value: 0x%04x", value16);
+	return dissect_aim_userclass(tvb, 0, 2, ti, value16);
 }
 
 static int dissect_aim_tlv_value_userstatus(proto_item *ti _U_, guint16 valueid _U_, tvbuff_t *tvb)

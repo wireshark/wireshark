@@ -2,7 +2,7 @@
  * Routines for AIM (OSCAR) dissection, SNAC BOS
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-bos.c,v 1.3 2004/04/26 18:21:09 obiot Exp $
+ * $Id: packet-aim-bos.c,v 1.4 2004/05/05 09:30:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -100,10 +100,11 @@ static int dissect_aim_bos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
 	int offset = 0;
 	proto_item *ti;
 	proto_tree *bos_tree = NULL;
+	guint32 userclass;
 
 	if(tree) {
-        ti = proto_tree_add_text(tree, tvb, 0, -1,"AIM Privacy Management Service");
-        bos_tree = proto_item_add_subtree(ti, ett_aim_bos);
+		ti = proto_tree_add_text(tree, tvb, 0, -1,"AIM Privacy Management Service");
+		bos_tree = proto_item_add_subtree(ti, ett_aim_bos);
 	}
 
 	switch(aiminfo->subtype) {
@@ -113,10 +114,11 @@ static int dissect_aim_bos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
 			/* No data */
 			return 0;
 		case FAMILY_BOS_SET_GROUP_PERM:
-		    ti = proto_tree_add_uint(bos_tree, hf_aim_bos_class, tvb, offset, 4, FALSE); 
-			return dissect_aim_userclass(tvb, offset, bos_tree);
+			userclass = tvb_get_ntohl(tvb, offset);
+			ti = proto_tree_add_uint(bos_tree, hf_aim_bos_class, tvb, offset, 4, userclass); 
+			return dissect_aim_userclass(tvb, offset, 4, ti, userclass);
 		case FAMILY_BOS_RIGHTS:
-			while(tvb_length_remaining(tvb, offset) > 0) {
+			while(tvb_reported_length_remaining(tvb, offset) > 0) {
 				offset = dissect_aim_tlv(tvb, pinfo, offset, bos_tree, privacy_tlvs);
 			}
 			return offset;
@@ -124,7 +126,7 @@ static int dissect_aim_bos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
 		case FAMILY_BOS_DEL_FROM_VISIBLE:
 	  	case FAMILY_BOS_ADD_TO_INVISIBLE:
 	  	case FAMILY_BOS_DEL_FROM_INVISIBLE:
-			while(tvb_length_remaining(tvb, offset) > 0) {
+			while(tvb_reported_length_remaining(tvb, offset) > 0) {
 				offset = dissect_aim_buddyname(tvb, pinfo, offset, bos_tree);
 			}
 			return offset;

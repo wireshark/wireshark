@@ -4,7 +4,7 @@
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  * Copyright 2004, Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-aim-messaging.c,v 1.5 2004/04/26 18:21:09 obiot Exp $
+ * $Id: packet-aim-messaging.c,v 1.6 2004/05/05 09:30:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -149,19 +149,19 @@ static int dissect_aim_messaging(tvbuff_t *tvb, packet_info *pinfo,
   proto_item *ti = NULL;
   proto_tree *msg_tree = NULL;
   
-    if(tree) {
-        ti = proto_tree_add_text(tree, tvb, 0, -1,"AIM Messaging Service");
-        msg_tree = proto_item_add_subtree(ti, ett_aim_messaging);
-    }
+  if(tree) {
+    ti = proto_tree_add_text(tree, tvb, 0, -1,"AIM Messaging Service");
+    msg_tree = proto_item_add_subtree(ti, ett_aim_messaging);
+  }
 
   switch(aiminfo->subtype)
     {    
-	case FAMILY_MESSAGING_ERROR:
+    case FAMILY_MESSAGING_ERROR:
       return dissect_aim_snac_error(tvb, pinfo, offset, msg_tree);
-	case FAMILY_MESSAGING_RESETICBMPARAM:
-	case FAMILY_MESSAGING_REQPARAMINFO:
-	  /* No data */
-	  return 0;
+    case FAMILY_MESSAGING_RESETICBMPARAM:
+    case FAMILY_MESSAGING_REQPARAMINFO:
+      /* No data */
+      return 0;
     case FAMILY_MESSAGING_OUTGOING:
 
       /* Unknown */
@@ -192,53 +192,53 @@ static int dissect_aim_messaging(tvbuff_t *tvb, packet_info *pinfo,
     case FAMILY_MESSAGING_INCOMING:
 
       /* ICBM Cookie */
-      proto_tree_add_item(tree, hf_aim_icbm_cookie, tvb, offset, 8, FALSE);
+      proto_tree_add_item(msg_tree, hf_aim_icbm_cookie, tvb, offset, 8, FALSE);
       offset += 8;
 
       /* Message Channel ID */
-      proto_tree_add_item(tree, hf_aim_message_channel_id, tvb, offset, 2,
+      proto_tree_add_item(msg_tree, hf_aim_message_channel_id, tvb, offset, 2,
 			  FALSE);
       offset += 2;
 
-	  offset = dissect_aim_userinfo(tvb, pinfo, offset, tree);
+      offset = dissect_aim_userinfo(tvb, pinfo, offset, msg_tree);
 	  
-      while(tvb_length_remaining(tvb, offset) > 0) {
-	offset = dissect_aim_tlv(tvb, pinfo, offset, tree, 
+      while(tvb_reported_length_remaining(tvb, offset) > 0) {
+	offset = dissect_aim_tlv(tvb, pinfo, offset, msg_tree, 
 					  messaging_incoming_ch1_tlvs);
       }
       
       return offset;
-	case FAMILY_MESSAGING_SETICBMPARAM:
-	case FAMILY_MESSAGING_PARAMINFO:
-	  proto_tree_add_item(msg_tree, hf_aim_icbm_channel, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
-	  proto_tree_add_item(msg_tree, hf_aim_icbm_msg_flags, tvb, offset, 4, tvb_get_ntoh24(tvb, offset)); offset+=4;
-	  proto_tree_add_item(msg_tree, hf_aim_icbm_max_snac_size, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
-	  proto_tree_add_item(msg_tree, hf_aim_icbm_max_sender_warnlevel, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
-	  proto_tree_add_item(msg_tree, hf_aim_icbm_max_receiver_warnlevel, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
-	  proto_tree_add_item(msg_tree, hf_aim_icbm_min_msg_interval, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
-	  proto_tree_add_item(msg_tree, hf_aim_icbm_unknown, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
-	  return offset;
-	case FAMILY_MESSAGING_EVILREQ:
-		proto_tree_add_item(msg_tree, hf_aim_icbm_evil, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
-		return dissect_aim_buddyname(tvb, pinfo, offset, tree);
-	case FAMILY_MESSAGING_EVIL:
-		proto_tree_add_item(msg_tree, hf_aim_evil_warn_level, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
-		proto_tree_add_item(msg_tree, hf_aim_evil_new_warn_level, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
-		return offset;
-	case FAMILY_MESSAGING_MINITYPING:
-		proto_tree_add_item(msg_tree,hf_aim_icbm_notification_cookie, tvb, offset, 8, FALSE); offset+=8;
-		proto_tree_add_item(msg_tree,hf_aim_icbm_notification_channel, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
-		offset = dissect_aim_buddyname(tvb, pinfo, offset, tree);
-		proto_tree_add_item(msg_tree,hf_aim_icbm_notification_type, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
-		return offset;
-	case FAMILY_MESSAGING_MISSEDCALL:
-	case FAMILY_MESSAGING_CLIENTAUTORESP:
-	case FAMILY_MESSAGING_ACK:
-		/*FIXME*/
+    case FAMILY_MESSAGING_SETICBMPARAM:
+    case FAMILY_MESSAGING_PARAMINFO:
+      proto_tree_add_item(msg_tree, hf_aim_icbm_channel, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
+      proto_tree_add_item(msg_tree, hf_aim_icbm_msg_flags, tvb, offset, 4, tvb_get_ntoh24(tvb, offset)); offset+=4;
+      proto_tree_add_item(msg_tree, hf_aim_icbm_max_snac_size, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
+      proto_tree_add_item(msg_tree, hf_aim_icbm_max_sender_warnlevel, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
+      proto_tree_add_item(msg_tree, hf_aim_icbm_max_receiver_warnlevel, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
+      proto_tree_add_item(msg_tree, hf_aim_icbm_min_msg_interval, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
+      proto_tree_add_item(msg_tree, hf_aim_icbm_unknown, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
+      return offset;
+    case FAMILY_MESSAGING_EVILREQ:
+      proto_tree_add_item(msg_tree, hf_aim_icbm_evil, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
+      return dissect_aim_buddyname(tvb, pinfo, offset, tree);
+    case FAMILY_MESSAGING_EVIL:
+      proto_tree_add_item(msg_tree, hf_aim_evil_warn_level, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
+      proto_tree_add_item(msg_tree, hf_aim_evil_new_warn_level, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
+      return offset;
+    case FAMILY_MESSAGING_MINITYPING:
+      proto_tree_add_item(msg_tree,hf_aim_icbm_notification_cookie, tvb, offset, 8, FALSE); offset+=8;
+      proto_tree_add_item(msg_tree,hf_aim_icbm_notification_channel, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
+      offset = dissect_aim_buddyname(tvb, pinfo, offset, msg_tree);
+      proto_tree_add_item(msg_tree,hf_aim_icbm_notification_type, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
+      return offset;
+    case FAMILY_MESSAGING_MISSEDCALL:
+    case FAMILY_MESSAGING_CLIENTAUTORESP:
+    case FAMILY_MESSAGING_ACK:
+      /*FIXME*/
 
 
-	default:
-	  return 0;
+    default:
+      return 0;
     }
 }
 
@@ -249,51 +249,51 @@ proto_register_aim_messaging(void)
 
 /* Setup list of header fields */
   static hf_register_info hf[] = {
-	{ &hf_aim_icbm_channel,
-	   { "Channel to setup", "aim.icbm.channel", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
-	},
-	{ &hf_aim_icbm_msg_flags, 
-		{ "Message Flags", "aim.icbm.flags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL },
-	},
-	{ &hf_aim_icbm_max_snac_size,
-		{ "Max SNAC Size", "aim.icbm.max_snac", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
-	},
-	{ &hf_aim_icbm_max_sender_warnlevel,
-		{ "Max sender warn level", "aim.icbm.max_sender_warn-level", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
-	},
+    { &hf_aim_icbm_channel,
+      { "Channel to setup", "aim.icbm.channel", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
+    },
+    { &hf_aim_icbm_msg_flags, 
+      { "Message Flags", "aim.icbm.flags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL },
+    },
+    { &hf_aim_icbm_max_snac_size,
+      { "Max SNAC Size", "aim.icbm.max_snac", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
+    },
+    { &hf_aim_icbm_max_sender_warnlevel,
+      { "Max sender warn level", "aim.icbm.max_sender_warn-level", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
+    },
     { &hf_aim_icbm_max_receiver_warnlevel,
-		{ "max receiver warn level", "aim.icbm.max_receiver_warnlevel", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
-	},
-	{ &hf_aim_icbm_min_msg_interval,
-		{ "Minimum message interval (seconds)", "aim.icbm.min_msg_interval", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
-	},
-	{ &hf_aim_icbm_unknown,
-		{ "Uknown parameter", "aim.icbm.unknown", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
-	},
+      { "max receiver warn level", "aim.icbm.max_receiver_warnlevel", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
+    },
+    { &hf_aim_icbm_min_msg_interval,
+      { "Minimum message interval (seconds)", "aim.icbm.min_msg_interval", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
+    },
+    { &hf_aim_icbm_unknown,
+      { "Unknown parameter", "aim.icbm.unknown", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
+    },
     { &hf_aim_icbm_cookie,
       { "ICBM Cookie", "aim.messaging.icbmcookie", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
     },
     { &hf_aim_message_channel_id,
       { "Message Channel ID", "aim.messaging.channelid", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
     },
-	{ &hf_aim_icbm_evil,
-	  { "Send Evil Bit As", "aim.evilreq.origin", FT_UINT16, BASE_DEC, VALS(evil_origins), 0x0, "", HFILL },
-	},
-	{ &hf_aim_evil_warn_level,
-	  { "Old warning level", "aim.evil.warn_level", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
-	},
-	{ &hf_aim_evil_new_warn_level,
-	  { "New warning level", "aim.evil.new_warn_level", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
-	},
-	{ &hf_aim_icbm_notification_cookie,
-	  { "Notification Cookie", "aim.notification.cookie", FT_BYTES, BASE_DEC, NULL, 0x0, "", HFILL },
-	},
-	{ &hf_aim_icbm_notification_channel,
-	  { "Notification Channel", "aim.notification.channel", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
-	},
-	{ &hf_aim_icbm_notification_type,
-	  { "Notification Type", "aim.notification.type", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
-	},
+    { &hf_aim_icbm_evil,
+      { "Send Evil Bit As", "aim.evilreq.origin", FT_UINT16, BASE_DEC, VALS(evil_origins), 0x0, "", HFILL },
+    },
+    { &hf_aim_evil_warn_level,
+      { "Old warning level", "aim.evil.warn_level", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
+    },
+    { &hf_aim_evil_new_warn_level,
+      { "New warning level", "aim.evil.new_warn_level", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
+    },
+    { &hf_aim_icbm_notification_cookie,
+      { "Notification Cookie", "aim.notification.cookie", FT_BYTES, BASE_DEC, NULL, 0x0, "", HFILL },
+    },
+    { &hf_aim_icbm_notification_channel,
+      { "Notification Channel", "aim.notification.channel", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
+    },
+    { &hf_aim_icbm_notification_type,
+      { "Notification Type", "aim.notification.type", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
+    },
   };
 
 /* Setup protocol subtree array */
