@@ -1,5 +1,5 @@
 /*
- * $Id: semcheck.c,v 1.26 2004/05/09 08:17:32 guy Exp $
+ * $Id: semcheck.c,v 1.27 2004/06/03 07:33:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -309,6 +309,98 @@ check_exists(stnode_t *st_arg1)
 	}
 }
 
+struct check_drange_sanity_args {
+	stnode_t		*st;
+	gboolean		err;
+};
+
+/* Q: Where are sttype_range_drange() and sttype_range_hfinfo() defined?
+ *
+ * A: Those functions are defined by macros in epan/dfilter/sttype-range.h
+ *
+ *    The macro which creates them, STTYPE_ACCESSOR, is defined in
+ *    epan/dfilter/syntax-tree.h.
+ *
+ * From http://www.ethereal.com/lists/ethereal-dev/200308/msg00070.html
+ */
+
+static void
+check_drange_node_sanity(gpointer data, gpointer user_data)
+{
+	drange_node*		drnode = data;
+	struct check_drange_sanity_args *args = user_data;
+	gint			start_offset, end_offset, length;
+	header_field_info	*hfinfo;
+
+	switch (drange_node_get_ending(drnode)) {
+
+	case LENGTH:
+		length = drange_node_get_length(drnode);
+		if (length <= 0) {
+			if (!args->err) {
+				args->err = TRUE;
+				start_offset = drange_node_get_start_offset(drnode);
+				hfinfo = sttype_range_hfinfo(args->st);
+				dfilter_fail("Range %d:%d specified for \"%s\" isn't valid, "
+					"as length %d isn't positive",
+					start_offset, length,
+					hfinfo->abbrev,
+					length);
+			}
+		}
+		break;
+
+	case OFFSET:
+		/*
+		 * Make sure the start offset isn't beyond the end
+		 * offset.  This applies to negative offsets too.
+		 */
+
+		/* XXX - [-ve - +ve] is probably pathological, but isn't
+		 * disallowed.
+		 * [+ve - -ve] is probably pathological too, and happens to be
+		 * disallowed.
+		 */
+		start_offset = drange_node_get_start_offset(drnode);
+		end_offset = drange_node_get_end_offset(drnode);
+		if (start_offset > end_offset) {
+			if (!args->err) {
+				args->err = TRUE;
+				hfinfo = sttype_range_hfinfo(args->st);
+				dfilter_fail("Range %d-%d specified for \"%s\" isn't valid, "
+					"as %d is greater than %d",
+					start_offset, end_offset,
+					hfinfo->abbrev,
+					start_offset, end_offset);
+			}
+		}
+		break;
+
+	case TO_THE_END:
+		break;
+
+	case UNINITIALIZED:
+	default:
+		g_assert_not_reached();
+	}
+}
+
+static void
+check_drange_sanity(stnode_t *st)
+{
+	struct check_drange_sanity_args	args;
+
+	args.st = st;
+	args.err = FALSE;
+
+	drange_foreach_drange_node(sttype_range_drange(st),
+	    check_drange_node_sanity, &args);
+
+	if (args.err) {
+		THROW(TypeError);
+	}
+}
+
 /* If the LHS of a relation test is a FIELD, run some checks
  * and possibly some modifications of syntax tree nodes. */
 static void
@@ -397,6 +489,7 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 		stnode_free(st_arg2);
 	}
 	else if (type2 == STTYPE_RANGE) {
+		check_drange_sanity(st_arg2);
 		if (!is_bytes_type(ftype1)) {
 			if (!ftype_can_slice(ftype1)) {
 				dfilter_fail("\"%s\" is a %s and cannot be converted into a sequence of bytes.",
@@ -473,6 +566,7 @@ check_relation_LHS_STRING(const char* relation_string,
 		THROW(TypeError);
 	}
 	else if (type2 == STTYPE_RANGE) {
+		check_drange_sanity(st_arg2);
 		s = stnode_data(st_arg1);
 		fvalue = fvalue_from_string(FT_BYTES, s, dfilter_fail);
 		if (!fvalue) {
@@ -538,7 +632,7 @@ check_relation_LHS_UNPARSED(const char* relation_string,
 		THROW(TypeError);
 	}
 	else if (type2 == STTYPE_RANGE) {
-		/* XXX - is this right? */
+		check_drange_sanity(st_arg2);
 		s = stnode_data(st_arg1);
 		fvalue = fvalue_from_unparsed(FT_BYTES, s, allow_partial_value, dfilter_fail);
 		if (!fvalue) {
@@ -550,69 +644,6 @@ check_relation_LHS_UNPARSED(const char* relation_string,
 	}
 	else {
 		g_assert_not_reached();
-	}
-}
-
-struct check_drange_sanity_args {
-	drange_node*	err_node;
-};
-
-static void
-check_drange_node_sanity(gpointer data, gpointer user_data)
-{
-	drange_node* drnode = data;
-	struct check_drange_sanity_args *args = user_data;
-	gint start_offset, end_offset;
-
-	switch (drange_node_get_ending(drnode)) {
-
-	case UNINITIALIZED:
-		g_assert_not_reached();
-		break;
-
-	case LENGTH:
-		/*
-		 * Any sanity checks required here?
-		 */
-		break;
-
-	case OFFSET:
-		/*
-		 * Make sure the start offset isn't beyond the end
-		 * offset.
-		 */
-		start_offset = drange_node_get_start_offset(drnode);
-		end_offset = drange_node_get_end_offset(drnode);
-		if (start_offset > end_offset) {
-			if (args->err_node == NULL)
-				args->err_node = drnode;
-		}
-		break;
-
-	case TO_THE_END:
-		break;
-	}
-}
-
-static void
-check_drange_sanity(stnode_t *st)
-{
-	struct check_drange_sanity_args	args;
-	header_field_info		*hfinfo;
-	gint				start_offset, end_offset;
-
-	args.err_node = NULL;
-	drange_foreach_drange_node(sttype_range_drange(st),
-	    check_drange_node_sanity, &args);
-	if (args.err_node != NULL) {
-		hfinfo = sttype_range_hfinfo(st);
-		start_offset = drange_node_get_start_offset(args.err_node);
-		end_offset = drange_node_get_end_offset(args.err_node);
-		dfilter_fail("Range %d-%d specified for \"%s\" isn't valid, as %d is greater than %d",
-		    start_offset, end_offset,
-		    hfinfo->abbrev,
-		    start_offset, end_offset);
-		THROW(TypeError);
 	}
 }
 
@@ -707,7 +738,6 @@ check_relation_LHS_RANGE(const char *relation_string, FtypeCanFunc can_func _U_,
 	else if (type2 == STTYPE_RANGE) {
 		DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_RANGE)\n"));
 		check_drange_sanity(st_arg2);
-		/* XXX - check lengths of both ranges */
 	}
 	else {
 		g_assert_not_reached();
