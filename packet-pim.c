@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.46 2003/11/16 23:17:20 guy Exp $
+ * $Id: packet-pim.c,v 1.47 2003/12/12 21:17:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -761,37 +761,46 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		case 1: /* holdtime */
 			holdtime = opt_value;
 			proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len,
-					    "Holdtime: %u%s", holdtime,
+					    "Holdtime (%u): %us %s", hello_opt, holdtime,
 					    holdtime == 0xffff ? " (infty)" : "");
 			break;
-		case 2: /* LAN prune delay */
+		case 2: /* LAN prune delay
+                         *
+                         * 0                   1                   2                   3
+                         * 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+                         * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                         * |            Type = 2           |           Length = 4          |
+                         * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                         * |T|       LAN Prune Delay       |       Override Interval       |
+                         * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                         */
 		{
 			proto_tree *sub_tree = NULL;
 			proto_item *landelay_option;
 
-			landelay_option = proto_tree_add_text(pim_tree, tvb, offset, -1,
-							"LAN Prune Delay");
+			landelay_option = proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len,
+							"LAN Prune Delay (%u)", hello_opt);
 			sub_tree = proto_item_add_subtree(landelay_option, ett_pim);
 
-			lan_delay = (opt_value & 0x7f00) >> 8;
-			override_interval = opt_value & 0xff;
-			proto_tree_add_text(sub_tree, tvb, offset, 4 + opt_len,
+			lan_delay = (opt_value & 0x7fff0000) >> 16;
+			override_interval = opt_value & 0x0000ffff;
+			proto_tree_add_text(sub_tree, tvb, offset + 4, 1,
 					    "T bit is %s",
 					    opt_value & 0x8000 ? "set" : "not set");
-			proto_tree_add_text(sub_tree, tvb, offset, 4 + opt_len,
-					    "LAN Delay:  %u", lan_delay);
-			proto_tree_add_text(sub_tree, tvb, offset, 4 + opt_len,
-					    "Override Interval:  %u", override_interval);
+			proto_tree_add_text(sub_tree, tvb, offset + 4, 2,
+					    "LAN Delay: %ums", lan_delay);
+			proto_tree_add_text(sub_tree, tvb, offset + 6, 2,
+					    "Override Interval: %ums", override_interval);
 			break;
 		}
 		case 19: /* priority */
 			priority = opt_value;
 			proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len,
-					"DR Priority: %u", priority);
+					"DR Priority (%u): %u", hello_opt, priority);
 			break;
 		case 20: /* generation ID */
 			proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len,
-					    "Generation ID: %d", opt_value);
+					    "Generation ID (%u): %d", hello_opt, opt_value);
 			break;
 
 		case 24: /* address list */
@@ -799,8 +808,9 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		{
 			int i;
 			proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len, 
-					    "%sAddress List",
-					    hello_opt == 65001 ? "old " : "");
+					    "%sAddress List (%u)",
+					    hello_opt == 65001 ? "old " : "",
+                                            hello_opt);
 			for (i = offset + 4; i < offset + 4 + opt_len; ) {
 				int advance;
 				const char *s;
@@ -815,7 +825,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		}
 		default:
 			proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len,
-					    "Unknown option: %d  len: %d  value: 0x%x",
+					    "Unknown option (%u), length: %u, value: 0x%x",
 					    hello_opt, opt_len, opt_value);
 			break;
 		}
