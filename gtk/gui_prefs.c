@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.57 2004/01/21 12:19:19 oabad Exp $
+ * $Id: gui_prefs.c,v 1.58 2004/01/23 01:10:24 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -281,7 +281,6 @@ GtkWidget *
 gui_font_prefs_show(void)
 {
 #if 0
-	GdkWindow*  parent_win;
 #if GTK_MAJOR_VERSION < 2
 	static gchar *fixedwidths[] = { "c", "m", NULL };
 #endif
