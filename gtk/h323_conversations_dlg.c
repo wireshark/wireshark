@@ -359,8 +359,9 @@ static void h323conversations_dlg_create (void)
 	GtkWidget *hbuttonbox;
 	GtkWidget *bt_unselect;
 	GtkWidget *bt_filter;
-	GtkWidget *bt_analyse;
+	GtkWidget *bt_analyze;
 	GtkWidget *bt_close;
+    GtkTooltips *tooltips = gtk_tooltips_new();
 
 	gchar *titles[8] =  {"Side A IP addr", "Side B port",  "Side B IP addr", "Side B port", "Faststart", "H225 pkts", "H245 pkts", "Status"};
 	column_arrows *col_arrows;
@@ -447,21 +448,26 @@ static void h323conversations_dlg_create (void)
 
 	bt_unselect = gtk_button_new_with_label ("Unselect");
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_unselect);
+    /* what's the use of an unselect button? */
+    /*gtk_tooltips_set_tip (tooltips, bt_unselect, "Unselect what?", NULL);*/
 
 	bt_filter = gtk_button_new_with_label ("Set filter");
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_filter);
+    gtk_tooltips_set_tip (tooltips, bt_filter, "Set display filter of the selected conversation", NULL);
 
-	bt_analyse = gtk_button_new_with_label ("Analyse");
-	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_analyse);
+	bt_analyze = gtk_button_new_with_label ("Analyze");
+	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_analyze);
+    gtk_tooltips_set_tip (tooltips, bt_analyze, "Analyze the selected conversation", NULL);
 
 	bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
 	GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
+    gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);
 
 	SIGNAL_CONNECT(clist, "select_row", h323conversations_on_select_row, NULL);
 	SIGNAL_CONNECT(bt_unselect, "clicked", h323conversations_on_unselect, NULL);
 	SIGNAL_CONNECT(bt_filter, "clicked", h323conversations_on_filter, NULL);
-	SIGNAL_CONNECT(bt_analyse, "clicked", h323conversations_on_analyse, NULL);
+	SIGNAL_CONNECT(bt_analyze, "clicked", h323conversations_on_analyse, NULL);
 
 	window_set_cancel_button(h323conversations_dlg_w, bt_close, window_cancel_button_cb);
 
