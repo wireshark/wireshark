@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.39 2003/09/02 23:37:48 guy Exp $
+ * $Id: packet-fr.c,v 1.40 2003/09/02 23:42:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,7 +31,6 @@
  * RFC-1490
  * RFC-2427
  * Cisco encapsulation
- * http://www.trillium.com/products/legacy/frame/technical/
  * http://www.trillium.com/assets/legacyframe/white_paper/8771019.pdf
  */
 
