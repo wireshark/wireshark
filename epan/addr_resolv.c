@@ -139,7 +139,8 @@ typedef struct hashipv4 {
 
 /* hash table used for IPv6 lookup */
 
-#define HASH_IPV6_ADDRESS(addr)	(((addr).s6_addr32[3]) & (HASHHOSTSIZE - 1))
+#define HASH_IPV6_ADDRESS(addr)	\
+	((((addr).s6_addr8[14] << 8)|((addr).s6_addr8[15])) & (HASHHOSTSIZE - 1))
 
 typedef struct hashipv6 {
   struct e_in6_addr	addr;
