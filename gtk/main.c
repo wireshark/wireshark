@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.363 2004/01/20 18:47:23 ulfl Exp $
+ * $Id: main.c,v 1.364 2004/01/21 03:02:19 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2863,8 +2863,8 @@ char *font_zoom(char *gui_font_name)
     /* calculate the new font size */
     font_point_size_l = strtoul(font_point_size, NULL, 10);
     font_point_size_l += recent.gui_zoom_level*10;
-    if (font_point_size_l < 0)
-        font_point_size_l = 0;
+    if (font_point_size_l <= 0)
+        font_point_size_l = 10;
 
     /* build a new font name */
     sprintf(new_font_name, "-%s-%s-%s-%s-%s--%s-%u-%s-%s-%s-%s-%s-%s", 
