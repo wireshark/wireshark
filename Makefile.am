@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.205 2000/06/12 02:30:32 guy Exp $
+# $Id: Makefile.am,v 1.206 2000/06/22 06:37:59 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -451,6 +451,7 @@ randpkt: randpkt.o wiretap/libwiretap.a
 	$(LINK) -o randpkt randpkt.o wiretap/libwiretap.a `glib-config --libs` -lz
 
 tvbtest: tvbtest.o tvbuff.o except.o
+	$(LINK) -o tvbtest tvbtest.o tvbuff.o except.o `glib-config --libs`
 
 DISTCLEANFILES =	\
 	register.c	\
