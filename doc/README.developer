@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.64 2002/11/03 20:24:12 guy Exp $
+$Id: README.developer,v 1.65 2002/11/09 08:37:00 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -112,6 +112,15 @@ Ethereal is running.  Use the tvbuff routines to extract individual
 items from the packet, or use "proto_tree_add_item()" and let it extract
 the items for you.
 
+Don't use "ntohs()", "ntohl()", "htons()", or "htonl()"; the header
+files required to define or declare them differ between platforms, and
+you might be able to get away with not including the appropriate header
+file on your platform but that might not work on other platforms. 
+Instead, use "g_ntohs()", "g_ntohl()", "g_htons()", and "g_htonl()";
+those are declared by <glib.h>, and you'll need to include that anyway,
+as Ethereal header files that all dissectors must include use stuff from
+<glib.h>.
+
 1.1.2 Name convention.
 
 Ethereal uses the underscore_convention rather than the InterCapConvention for
@@ -149,7 +158,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.64 2002/11/03 20:24:12 guy Exp $"
+The "$Id: README.developer,v 1.65 2002/11/09 08:37:00 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -159,7 +168,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.64 2002/11/03 20:24:12 guy Exp $
+ * $Id: README.developer,v 1.65 2002/11/09 08:37:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
