@@ -2,7 +2,7 @@
  * Routines for CCSDS dissection
  * Copyright 2000, Scott Hovis scott.hovis@ums.msfc.nasa.gov
  *
- * $Id: packet-ccsds.c,v 1.1 2003/11/24 00:34:12 guy Exp $
+ * $Id: packet-ccsds.c,v 1.2 2003/11/24 23:46:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -158,72 +158,72 @@ proto_register_ccsds(void)
 		{ &hf_ccsds_version,
 			{ "version",           "ccsds.version",
 			FT_UINT16, BASE_DEC, NULL, HDR_VERSION,
-			"version" }
+			"version", HFILL }
 		},
 		{ &hf_ccsds_type,
 			{ "type",           "ccsds.type",
 			FT_UINT16, BASE_DEC, NULL, HDR_TYPE,          
-			"type" }
+			"type", HFILL }
 		},
 		{ &hf_ccsds_secheader,
 			{ "secondary header",           "ccsds.secheader",
 			FT_BOOLEAN, 16, NULL, HDR_SECHDR,
-			"secondary header present" }
+			"secondary header present", HFILL }
 		},
 		{ &hf_ccsds_apid,
 			{ "APID",           "ccsds.apid",
 			FT_UINT16, BASE_DEC, NULL, HDR_APID,
-			"Represents APID" }
+			"Represents APID", HFILL }
 		},
 		{ &hf_ccsds_seqflag,
 			{ "sequence flags",           "ccsds.seqflag",
 			FT_UINT16, BASE_DEC, NULL, 0xc000,
-			"sequence flags" }
+			"sequence flags", HFILL }
 		},
 		{ &hf_ccsds_seqnum,
 			{ "sequence number",           "ccsds.seqnum",
 			FT_UINT16, BASE_DEC, NULL, 0x3fff,          
-			"sequence number" }
+			"sequence number", HFILL }
 		},
 		{ &hf_ccsds_length,
 			{ "packet length",           "ccsds.length",
 			FT_UINT16, BASE_DEC, NULL, 0xffff,          
-			"packet length" }
+			"packet length", HFILL }
 		},
 		{ &hf_ccsds_time,
 			{ "time",           "ccsds.time",
 			FT_BYTES, BASE_HEX, NULL, 0x0,          
-			"time" }
+			"time", HFILL }
 		},
 		{ &hf_ccsds_timeid,
 			{ "time identifier",           "ccsds.timeid",
 			FT_UINT8, BASE_DEC, NULL, 0xC0,
-			"time identifier" }
+			"time identifier", HFILL }
 		},
 		{ &hf_ccsds_checkword,
 			{ "checkword indicator",           "ccsds.checkword",
 			FT_UINT8, BASE_DEC, NULL, 0x20,          
-			"checkword indicator" }
+			"checkword indicator", HFILL }
 		},
 		{ &hf_ccsds_zoe,
 			{ "ZOE TLM",           "ccsds.zoe",
 			FT_UINT8, BASE_DEC, NULL, 0x10,          
-			"CONTAINS S-BAND ZOE PACKETS" }
+			"CONTAINS S-BAND ZOE PACKETS", HFILL }
 		},
 		{ &hf_ccsds_packtype,
 			{ "packet type",           "ccsds.packtype",
 			FT_UINT8, BASE_DEC, NULL, 0x0f,          
-			"Packet Type - Unused in Ku-Band" }
+			"Packet Type - Unused in Ku-Band", HFILL }
 		},
 		{ &hf_ccsds_vid,
 			{ "version identifier",           "ccsds.vid",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"version identifier" }
+			"version identifier", HFILL }
 		},
 		{ &hf_ccsds_dcc,
 			{ "Data Cycle Counter",           "ccsds.dcc",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"Data Cycle Counter" }
+			"Data Cycle Counter", HFILL }
 		},
 	};
 
