@@ -1001,6 +1001,10 @@ fill_in_columns(packet_info *pinfo)
       pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
       break;
         
+    case COL_HPUX_SUBSYS: /* done by nettl disector */
+    case COL_HPUX_DEVID:  /* done by nettl disector */
+      break;
+        
     case NUM_COL_FMTS:	/* keep compiler happy - shouldn't get here */
       g_assert_not_reached();
       break;

@@ -1808,6 +1808,7 @@ Garth Bushell           <gbushell [AT] elipsan.com> {
 Mark C. Brown           <mbrown [AT] nosila.net> {
 	Improvements to code that reads HP-UX nettl files
 	Cisco Port Aggregation Protocol support
+	Nettl dissector
 }
 
 Can Erkin Acar          <canacar [AT] eee.metu.edu.tr> {

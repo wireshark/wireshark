@@ -55,22 +55,28 @@ definition that includes "-Ae".)
 3 - nettl support
 
 nettl is used on HP-UX to trace various streams based subsystems.  Ethereal
-can read nettl files containing IP frames (NS_LS_IP subsystem) and LAPB
-frames (SX25L2 subsystem).
-It has been tested with files generated on HP-UX 9.04 and 10.20.
+can read nettl files containing raw IP frames (NS_LS_IP, NS_LS_TCP,
+NS_LS_UDP, NS_LS_ICMP subsystems), all ethernet/tokenring/fddi driver
+level frames (such as BTLAN, BASE100, GELAN, IGELAN subsystems) and LAPB
+frames (SX25L2 subsystem).  Use "ioscan -kfClan" to see the driver
+names and compare that to /etc/nettlgen.conf to find the nettl subsystem
+name for your particular release.
+
+It has been tested with files generated on HP-UX 9.04, 10.20, and 11.x.
 
 Use the following commands to generate a trace (cf. nettl(1M)):
 
-# IP capture. 0x30000000 means PDU in and PDU out :
-nettl -tn 0x30000000 -e NS_LS_IP -f tracefile
+# IP capture:
+nettl -tn pduin pduout -e NS_LS_IP -f tracefile
+# Driver level capture.  Replace btlan with the name of your interface:
+nettl -tn pduin pduout -e btlan -f tracefile
 # X25 capture. You must specify an interface :
-nettl -tn 0x30000000 -e SX25l2 -d /dev/x25_0 -f tracefile
-# stop capture. subsystem is NS_LS_IP or SX25L2 :
+nettl -tn pduin pduout -e SX25l2 -d /dev/x25_0 -f tracefile
+# stop capture. subsystem is NS_LS_IP, btlan, SX25L2 :
 nettl -tf -e subsystem
 
-One may be able to specify "-tn pduin pduout" rather than
-"-tn 0x30000000"; the nettl man page for HP-UX 10.30 implies that it
-should work.
+You may have to use "-tn 0x30000000" instead of "-tn pduin pduout"
+on old versions of 10.20 and 9.04.
 
 4 - libpcap on HP-UX
 
@@ -95,8 +101,10 @@ as a shared library.
 
 Note that packet-capture programs such as Ethereal/Tethereal or tcpdump
 may, on HP-UX, not be able to see packets sent from the machine on which
-they're running.  Some articles on groups.google.com discussing this
-are:
+they're running.  Make sure you have a recent "LAN Cummulative/DLPI" patch
+installed.
+
+Some articles on groups.google.com discussing this are:
 
 	http://groups.google.com/groups?selm=82ld3v%2480i%241%40mamenchi.zrz.TU-Berlin.DE
 

@@ -69,15 +69,17 @@ struct nettlrec_sx25l2_hdr {
 /* This also works for BASE100 and GSC100BT */
 /* see /usr/include/sys/netdiag1.h for hints */
 struct nettlrec_ns_ls_ip_hdr {
-    guint32	kind;
+    guint32	devid;
     guint8	xxa[4];
-    guint8	rectype;
-    guint8	xxb[19];
+    guint32	kind;
+    guint8	xxb[16];
     guint32	caplen;
     guint32	length;
     guint32	sec;
     guint32	usec;
-    guint8	xxc[16];
+    guint32	pid;
+    guint8	xxc[10];
+    guint16	uid;
 };
 
 /* Full record header for writing out a nettl file */
@@ -228,22 +230,22 @@ int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
         case NETTL_SUBSYS_EISA_FDDI :
         case NETTL_SUBSYS_PCI_FDDI :
         case NETTL_SUBSYS_HSC_FDDI :
-		wth->file_encap = WTAP_ENCAP_FDDI_BITSWAPPED;
+		wth->file_encap = WTAP_ENCAP_NETTL_FDDI;
 		break;
         case NETTL_SUBSYS_TOKEN :
         case NETTL_SUBSYS_PCI_TR :
-		wth->file_encap = WTAP_ENCAP_TOKEN_RING;
+		wth->file_encap = WTAP_ENCAP_NETTL_TOKEN_RING;
 		break;
         case NETTL_SUBSYS_NS_LS_IP :
         case NETTL_SUBSYS_NS_LS_LOOPBACK :
         case NETTL_SUBSYS_NS_LS_TCP :
         case NETTL_SUBSYS_NS_LS_UDP :
         case NETTL_SUBSYS_NS_LS_IPV6 :
-		wth->file_encap = WTAP_ENCAP_RAW_IP;
+		wth->file_encap = WTAP_ENCAP_NETTL_RAW_IP;
 		break;
 	default:
-		/* if assumption is bad, the read will catch it */
-		wth->file_encap = WTAP_ENCAP_ETHERNET;
+		/* If this assumption is bad, the read will catch it */
+		wth->file_encap = WTAP_ENCAP_NETTL_ETHERNET;
     }
 
     if (file_seek(wth->fh, 0x80, SEEK_SET, err) == -1)
@@ -391,23 +393,21 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	     || (subsys == NETTL_SUBSYS_NS_LS_UDP)
 	     || (subsys == NETTL_SUBSYS_NS_LS_TCP)
 	     || (subsys == NETTL_SUBSYS_NS_LS_IPV6)) {
-		phdr->pkt_encap = WTAP_ENCAP_RAW_IP;
+		phdr->pkt_encap = WTAP_ENCAP_NETTL_RAW_IP;
 	    } else if (subsys == NETTL_SUBSYS_NS_LS_ICMP) {
-		phdr->pkt_encap = WTAP_ENCAP_RAW_ICMP;
+		phdr->pkt_encap = WTAP_ENCAP_NETTL_RAW_ICMP;
 	    } else if (subsys == NETTL_SUBSYS_NS_LS_ICMPV6) {
-		phdr->pkt_encap = WTAP_ENCAP_RAW_ICMPV6;
+		phdr->pkt_encap = WTAP_ENCAP_NETTL_RAW_ICMPV6;
 	    } else if( (subsys == NETTL_SUBSYS_HPPB_FDDI)
 		    || (subsys == NETTL_SUBSYS_EISA_FDDI)
 		    || (subsys == NETTL_SUBSYS_PCI_FDDI)
 		    || (subsys == NETTL_SUBSYS_HSC_FDDI) ) {
-		phdr->pkt_encap = WTAP_ENCAP_FDDI_BITSWAPPED;
+		phdr->pkt_encap = WTAP_ENCAP_NETTL_FDDI;
 	    } else if( (subsys == NETTL_SUBSYS_PCI_TR)
 		    || (subsys == NETTL_SUBSYS_TOKEN) ) {
-		phdr->pkt_encap = WTAP_ENCAP_TOKEN_RING;
+		phdr->pkt_encap = WTAP_ENCAP_NETTL_TOKEN_RING;
 	    } else {
-		phdr->pkt_encap = WTAP_ENCAP_ETHERNET;
-		/* We assume there's no FCS in this frame. */
-		pseudo_header->eth.fcs_len = 0;
+		phdr->pkt_encap = WTAP_ENCAP_NETTL_ETHERNET;
 	    }
 
 	    bytes_read = file_read(&ip_hdr, 1, sizeof ip_hdr, fh);
@@ -442,7 +442,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 
 	    /* HPPB FDDI has different inbound vs outbound trace records */
 	    if (subsys == NETTL_SUBSYS_HPPB_FDDI) {
-                if (ip_hdr.rectype == NETTL_HDR_PDUIN) {
+                if (pntohl(&ip_hdr.kind) == NETTL_HDR_PDUIN) {
                    /* inbound is very strange...
                       there are an extra 3 bytes after the DSAP and SSAP
                       for SNAP frames ???
@@ -452,8 +452,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		   if (length <= 0)
 		       return 0;
 		   phdr->len = length;
-		   length = pntohl(&ip_hdr.caplen);
-		   phdr->caplen = length;
+		   phdr->caplen = pntohl(&ip_hdr.caplen);
                 } else {
 	           /* outbound appears to have variable padding */
 		   bytes_read = file_read(dummyc, 1, 9, fh);
@@ -536,8 +535,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		if (length <= 0)
 		    return 0;
 		phdr->len = length;
-		length = pntohl(&ip_hdr.caplen);
-		phdr->caplen = length;
+		phdr->caplen = pntohl(&ip_hdr.caplen);
 	    }
 
 	    phdr->ts.tv_sec = pntohl(&ip_hdr.sec);
@@ -577,9 +575,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    /* XXX we dont know how to identify this as ethernet frames, so
 	       we assumes everything is. We will crash and burn for anything else */
 	    /* for encapsulated 100baseT we do this */
-	    phdr->pkt_encap = WTAP_ENCAP_ETHERNET;
-	    /* We assume there's no FCS in this frame. */
-	    pseudo_header->eth.fcs_len = 0;
+	    phdr->pkt_encap = WTAP_ENCAP_NETTL_ETHERNET;
 	    bytes_read = file_read(&drv_eth_hdr, 1, sizeof drv_eth_hdr, fh);
 	    if (bytes_read != sizeof drv_eth_hdr) {
 		*err = file_error(fh);
@@ -596,8 +592,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    length = pntohs(&drv_eth_hdr.length); 
 	    if (length <= 0) return 0;
 	    phdr->len = length;
-	    length = pntohs(&drv_eth_hdr.caplen);
-	    phdr->caplen = length;
+	    phdr->caplen = pntohs(&drv_eth_hdr.caplen);
 
 	    phdr->ts.tv_sec = pntohl(&ip_hdr.sec);
 	    phdr->ts.tv_usec = pntohl(&ip_hdr.usec);
@@ -643,11 +638,48 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		(lapb_hdr.from_dce & 0x20 ? FROM_DCE : 0x00);
 	    break;
 	default:
-	    *err = WTAP_ERR_UNSUPPORTED_ENCAP;
-	    *err_info = g_strdup_printf("nettl: subsystem %u unknown or unsupported",
-		    subsys);
-	    return -1;
+	    wth->file_encap = WTAP_ENCAP_PER_PACKET;
+	    phdr->pkt_encap = WTAP_ENCAP_NETTL_UNKNOWN;
+            bytes_read = file_read(&ip_hdr, 1, sizeof ip_hdr, fh);
+            if (bytes_read != sizeof ip_hdr) {
+                *err = file_error(fh);
+                if (*err != 0)
+                    return -1;
+                if (bytes_read != 0) {
+                    *err = WTAP_ERR_SHORT_READ;
+                    return -1;
+                }
+                return 0;
+            }
+            offset += sizeof ip_hdr;
+            length = pntohl(&ip_hdr.length);
+            if (length <= 0) return 0;
+            phdr->len = length;
+            phdr->caplen = pntohl(&ip_hdr.caplen);
+            phdr->ts.tv_sec = pntohl(&ip_hdr.sec);
+            phdr->ts.tv_usec = pntohl(&ip_hdr.usec);
+            if (wth->capture.nettl->is_hpux_11) {
+                bytes_read = file_read(dummy, 1, 4, fh);
+                if (bytes_read != 4) {
+                    *err = file_error(fh);
+                    if (*err != 0)
+                        return -1;
+                    if (bytes_read != 0) {
+                        *err = WTAP_ERR_SHORT_READ;
+                        return -1;
+                    }
+                    return 0;
+                }
+                offset += 4;
+            }
     }
+
+    pseudo_header->nettl.subsys   = subsys;
+    pseudo_header->nettl.devid    = pntohl(&ip_hdr.devid);
+    pseudo_header->nettl.kind     = pntohl(&ip_hdr.kind);
+    pseudo_header->nettl.pid      = pntohl(&ip_hdr.pid);
+    pseudo_header->nettl.uid      = pntohs(&ip_hdr.uid);
+
     return offset;
 }
 
@@ -708,11 +740,15 @@ int nettl_dump_can_write_encap(int encap)
 		case WTAP_ENCAP_ETHERNET:
 		case WTAP_ENCAP_FDDI_BITSWAPPED:
 		case WTAP_ENCAP_TOKEN_RING:
-		case WTAP_ENCAP_RAW_IP:
-		case WTAP_ENCAP_RAW_ICMP:
-		case WTAP_ENCAP_RAW_ICMPV6:
+		case WTAP_ENCAP_NETTL_ETHERNET:
+		case WTAP_ENCAP_NETTL_FDDI:
+		case WTAP_ENCAP_NETTL_TOKEN_RING:
+		case WTAP_ENCAP_NETTL_RAW_IP:
+		case WTAP_ENCAP_NETTL_RAW_ICMP:
+		case WTAP_ENCAP_NETTL_RAW_ICMPV6:
 		case WTAP_ENCAP_PER_PACKET:
 		case WTAP_ENCAP_UNKNOWN:
+		case WTAP_ENCAP_NETTL_UNKNOWN:
 			return 0;
 		default:
 			return WTAP_ERR_UNSUPPORTED_ENCAP;
@@ -767,13 +803,34 @@ static gboolean nettl_dump(wtap_dumper *wdh,
 
 	memset(&rec_hdr,0,sizeof(rec_hdr));
 	rec_hdr.hdr_len = g_htons(sizeof(rec_hdr));
-	rec_hdr.hdr.rectype = NETTL_HDR_PDUIN;
+	rec_hdr.hdr.kind = g_htonl(NETTL_HDR_PDUIN);
 	rec_hdr.hdr.sec = g_htonl(phdr->ts.tv_sec);
 	rec_hdr.hdr.usec = g_htonl(phdr->ts.tv_usec);
 	rec_hdr.hdr.caplen = g_htonl(phdr->caplen);
 	rec_hdr.hdr.length = g_htonl(phdr->len);
+	rec_hdr.hdr.devid = -1;
+	rec_hdr.hdr.pid = -1;
+	rec_hdr.hdr.uid = -1;
 
 	switch (phdr->pkt_encap) {
+
+		case WTAP_ENCAP_NETTL_FDDI:
+			/* account for pad bytes */
+			rec_hdr.hdr.caplen = g_htonl(phdr->caplen + 3);
+			rec_hdr.hdr.length = g_htonl(phdr->len + 3);
+                        /* fall through and fill the rest of the fields */
+		case WTAP_ENCAP_NETTL_ETHERNET:
+		case WTAP_ENCAP_NETTL_TOKEN_RING:
+		case WTAP_ENCAP_NETTL_RAW_IP:
+		case WTAP_ENCAP_NETTL_RAW_ICMP:
+		case WTAP_ENCAP_NETTL_RAW_ICMPV6:
+		case WTAP_ENCAP_NETTL_UNKNOWN:
+			rec_hdr.subsys = g_htons(pseudo_header->nettl.subsys);
+			rec_hdr.hdr.devid = g_htonl(pseudo_header->nettl.devid);
+			rec_hdr.hdr.kind = g_htonl(pseudo_header->nettl.kind);
+			rec_hdr.hdr.pid = g_htonl(pseudo_header->nettl.pid);
+			rec_hdr.hdr.uid = g_htons(pseudo_header->nettl.uid);
+			break;
 
 		case WTAP_ENCAP_RAW_IP:
 			rec_hdr.subsys = g_htons(NETTL_SUBSYS_NS_LS_IP);
@@ -794,14 +851,6 @@ static gboolean nettl_dump(wtap_dumper *wdh,
 			rec_hdr.subsys = g_htons(NETTL_SUBSYS_PCI_TR);
 			break;
 	
-		case WTAP_ENCAP_RAW_ICMP:
-			rec_hdr.subsys = g_htons(NETTL_SUBSYS_NS_LS_ICMP);
-			break;
-	
-		case WTAP_ENCAP_RAW_ICMPV6:
-			rec_hdr.subsys = g_htons(NETTL_SUBSYS_NS_LS_ICMPV6);
-			break;
-	
 		default:
 			/* found one we don't support */
 			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
@@ -818,7 +867,8 @@ static gboolean nettl_dump(wtap_dumper *wdh,
 	}
 	wdh->bytes_dumped += sizeof(rec_hdr);
 
-	if (phdr->pkt_encap == WTAP_ENCAP_FDDI_BITSWAPPED) {
+	if ((phdr->pkt_encap == WTAP_ENCAP_FDDI_BITSWAPPED) ||
+	    (phdr->pkt_encap == WTAP_ENCAP_NETTL_FDDI)) {
 		/* add those weird 3 bytes of padding */
 		nwritten = fwrite(&dummy, 1, 3, wdh->fh);
 		if (nwritten != 3) {

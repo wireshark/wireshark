@@ -1900,5 +1900,4 @@ proto_reg_handoff_icmp(void)
 
   icmp_handle = create_dissector_handle(dissect_icmp, proto_icmp);
   dissector_add("ip.proto", IP_PROTO_ICMP, icmp_handle);
-  dissector_add("wtap_encap", WTAP_ENCAP_RAW_ICMP, icmp_handle);
 }

@@ -53,7 +53,7 @@ col_format_to_string(gint fmt) {
                      "%rd", "%ud", "%hd", "%rhd", "%uhd", "%nd", "%rnd",
                      "%und", "%S", "%rS", "%uS", "%D", "%rD", "%uD", "%p",
                      "%i", "%L", "%B", "%XO", "%XR", "%I", "%c", "%Xs", 
-                     "%Xd", "%V", "%x", "%e" };
+                     "%Xd", "%V", "%x", "%e", "%H", "%P" };
                      
   if (fmt < 0 || fmt > NUM_COL_FMTS)
     return NULL;
@@ -107,6 +107,8 @@ static gchar *dlist[NUM_COL_FMTS] = {
 	"VSAN",
 	"IEEE 802.11 TX rate",
 	"IEEE 802.11 RSSI",
+	"HP-UX Subsystem",
+	"HP-UX Device ID",
 };
 
 gchar *
@@ -194,6 +196,12 @@ get_column_format_matches(gboolean *fmt_list, gint format) {
       break;
     case COL_RSSI:
       fmt_list[COL_RSSI] = TRUE;
+      break;
+    case COL_HPUX_SUBSYS:
+      fmt_list[COL_HPUX_SUBSYS] = TRUE;
+      break;
+    case COL_HPUX_DEVID:
+      fmt_list[COL_HPUX_DEVID] = TRUE;
       break;
     default:
       break;
@@ -296,6 +304,12 @@ get_column_longest_string(gint format)
       break;
     case COL_RSSI:
       return "100";
+      break;
+    case COL_HPUX_SUBSYS:
+      return "OTS9000-TRANSPORT";
+      break;
+    case COL_HPUX_DEVID:
+      return "0000";
       break;
     default: /* COL_INFO */
       return "Source port: kerberos-master  Destination port: kerberos-master";
@@ -434,6 +448,12 @@ get_column_format_from_str(gchar *str) {
       case 'e':
         return COL_RSSI;
         break;
+      case 'H':
+	return COL_HPUX_SUBSYS;
+	break;
+      case 'P':
+	return COL_HPUX_DEVID;
+	break;
     }
     cptr++;
   }

@@ -101,8 +101,8 @@
 
 /* from /usr/include/sys/subsys_id.h */
 
-#define NETTL_HDR_PDUIN			0x20
-#define NETTL_HDR_PDUOUT		0x10
+#define NETTL_HDR_PDUIN			0x20000000
+#define NETTL_HDR_PDUOUT		0x10000000
 
 int nettl_open(wtap *wth, int *err, gchar **err_info);
 gboolean nettl_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err);

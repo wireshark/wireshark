@@ -532,6 +532,15 @@ static const struct {
 	{ 19,		WTAP_ENCAP_LINUX_ATM_CLIP },
 
 	/*
+	 * nettl (HP-UX) mappings to standard DLT values
+         */
+
+	{ 1,		WTAP_ENCAP_NETTL_ETHERNET },
+	{ 6,		WTAP_ENCAP_NETTL_TOKEN_RING },
+	{ 10,		WTAP_ENCAP_NETTL_FDDI },
+	{ 101,		WTAP_ENCAP_NETTL_RAW_IP },
+
+	/*
 	 * To repeat:
 	 *
 	 * If you need a new encapsulation type for libpcap files, do
@@ -1658,6 +1667,7 @@ static int wtap_wtap_encap_to_pcap_encap(int encap)
 
 	case WTAP_ENCAP_FDDI:
 	case WTAP_ENCAP_FDDI_BITSWAPPED:
+	case WTAP_ENCAP_NETTL_FDDI:
 		/*
 		 * Special-case WTAP_ENCAP_FDDI and
 		 * WTAP_ENCAP_FDDI_BITSWAPPED; both of them get mapped

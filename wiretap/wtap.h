@@ -153,15 +153,20 @@
 #define WTAP_ENCAP_SYMANTEC			61
 #define WTAP_ENCAP_APPLE_IP_OVER_IEEE1394	62
 #define WTAP_ENCAP_BACNET_MS_TP			63
-#define WTAP_ENCAP_RAW_ICMP			64
-#define WTAP_ENCAP_RAW_ICMPV6			65
+#define WTAP_ENCAP_NETTL_RAW_ICMP		64
+#define WTAP_ENCAP_NETTL_RAW_ICMPV6		65
 #define WTAP_ENCAP_GPRS_LLC			67
 #define WTAP_ENCAP_JUNIPER_ATM1			68
 #define WTAP_ENCAP_JUNIPER_ATM2			69
 #define WTAP_ENCAP_REDBACK			70
+#define WTAP_ENCAP_NETTL_RAW_IP			71
+#define WTAP_ENCAP_NETTL_ETHERNET		72
+#define WTAP_ENCAP_NETTL_TOKEN_RING		73
+#define WTAP_ENCAP_NETTL_FDDI			74
+#define WTAP_ENCAP_NETTL_UNKNOWN		75
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			71
+#define WTAP_NUM_ENCAP_TYPES			76
 
 /* File types that can be read by wiretap.
    We support writing some many of these file types, too, so we
@@ -422,6 +427,16 @@ struct irda_phdr {
 	guint16 pkttype;    /* packet type */
 };
 
+/* Packet "pseudo-header" for nettl (HP-UX) capture files. */
+                                                                                
+struct nettl_phdr {
+	guint16 subsys;
+	guint32 devid;
+	guint32 kind;
+	gint32  pid;
+	gint16  uid;
+};
+
 union wtap_pseudo_header {
 	struct eth_phdr		eth;
 	struct x25_phdr		x25;
@@ -432,6 +447,7 @@ union wtap_pseudo_header {
 	struct ieee_802_11_phdr	ieee_802_11;
 	struct cosine_phdr	cosine;
 	struct irda_phdr	irda;
+	struct nettl_phdr	nettl;
 };
 
 struct wtap_pkthdr {

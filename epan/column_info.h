@@ -95,6 +95,8 @@ enum {
   COL_VSAN,           /* VSAN - Cisco MDS-specific */
   COL_TX_RATE,        /* IEEE 802.11 - TX rate in Mbps */
   COL_RSSI,           /* IEEE 802.11 - received signal strength */
+  COL_HPUX_SUBSYS,    /* HP-UX Nettl Subsystem */
+  COL_HPUX_DEVID,     /* HP-UX Nettl Device ID */
   NUM_COL_FMTS        /* Should always be last */
 };
 
