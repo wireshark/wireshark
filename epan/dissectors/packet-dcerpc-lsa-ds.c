@@ -34,7 +34,7 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
-#include "smb.h"
+#include "packet-windows-common.h"
 
 #define LSA_DS_DSROLERGETDOMINFO 			0x0000
 #define LSA_DS_DSROLER_DNS_NAME_TO_FLAT_NAME 		0x0001

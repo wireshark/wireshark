@@ -32,6 +32,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include "packet-windows-common.h"
 #include "packet-smb-common.h"
 
 static int proto_smb_logon = -1;
@@ -498,7 +499,7 @@ dissect_announce_change(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 			    TRUE);
 			offset += 8;
 
-			offset = dissect_smb_64bit_time(tvb, info_tree, offset,
+			offset = dissect_nt_64bit_time(tvb, info_tree, offset,
 			    hf_nt_date_time);
 
 			info_count--;

@@ -32,7 +32,7 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-mapi.h"
-#include "smb.h"	/* for "NT_errors[]" */
+#include "packet-windows-common.h"	/* for "NT_errors[]" */
 #include "prefs.h"
 
 static int proto_dcerpc_mapi = -1;

@@ -45,7 +45,7 @@
 #include "packet-dcerpc-nt.h"
 #include "packet-smb-common.h"
 #include "packet-smb-browse.h"
-#include "smb.h"
+#include "packet-windows-common.h"	/* for "DOS_errors[]" */
 
 static int proto_dcerpc_srvsvc = -1;
 static int hf_srvsvc_opnum = -1;

@@ -33,7 +33,7 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-efs.h"
-#include "smb.h"
+#include "packet-windows-common.h"
 
 
 static int proto_dcerpc_efs = -1;

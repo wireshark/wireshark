@@ -70,7 +70,7 @@
 #include "prefs.h"
 #include <epan/dissectors/packet-ber.h>
 #include <epan/dissectors/packet-cms.h>
-#include <epan/dissectors/packet-smb-common.h>
+#include <epan/dissectors/packet-windows-common.h>
 
 #include <epan/dissectors/packet-dcerpc-netlogon.h>
 #include <epan/dissectors/packet-dcerpc.h>
@@ -2017,7 +2017,7 @@ dissect_krb5_PAC_CLIENT_INFO_TYPE(packet_info *pinfo _U_, proto_tree *parent_tre
 	}
 
 	/* clientid */
-	offset = dissect_smb_64bit_time(tvb, tree, offset,
+	offset = dissect_nt_64bit_time(tvb, tree, offset,
 		       	hf_krb_pac_clientid);
 
 	/* name length */

@@ -35,7 +35,7 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-samr.h"
-#include "smb.h"	/* for "NT_errors[]" */
+#include "packet-windows-common.h"
 #include "packet-smb-common.h"
 #include "crypt-md4.h"
 #include "crypt-rc4.h"

@@ -33,8 +33,7 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-svcctl.h"
 #include "packet-dcerpc-nt.h"
-#include "smb.h"
-#include "packet-smb-common.h"
+#include "packet-windows-common.h"
 
 static int proto_dcerpc_svcctl = -1;
 static int hf_svcctl_opnum = -1;

@@ -46,6 +46,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
 #include "packet-smb-pipe.h"
 #include "packet-smb-browse.h"
 #include "packet-smb-common.h"
+#include "packet-windows-common.h"
 #include "packet-dcerpc.h"
 #include "reassemble.h"
 

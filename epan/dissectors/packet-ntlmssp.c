@@ -34,6 +34,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+#include "packet-windows-common.h"
 #include "packet-smb-common.h"
 #include "asn1.h"		/* XXX - needed for subid_t */
 #include "packet-gssapi.h"
@@ -640,7 +641,7 @@ dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
 
 	offset += 4;
 
-	offset = dissect_smb_64bit_time(
+	offset = dissect_nt_64bit_time(
 		tvb, ntlmv2_tree, offset, hf_ntlmssp_ntlmv2_response_time);
 
 	proto_tree_add_item(

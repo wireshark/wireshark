@@ -36,54 +36,6 @@ const gchar *get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
     gboolean useunicode, int *len, gboolean nopad, gboolean exactlen,
     guint16 *bcp);
 
-int dissect_smb_64bit_time(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date);
-
-int dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, 
-		   char *name, char **sid_str, int hf_sid);
-
-/* 
- * Stuff for dissecting NT access masks 
- */
-
-typedef void (nt_access_mask_fn_t)(tvbuff_t *tvb, gint offset,
-				   proto_tree *tree, guint32 access);
-
-/* Map generic access permissions to specific permissions */
-
-struct generic_mapping {
-	guint32 generic_read;
-	guint32 generic_write;
-	guint32 generic_execute;
-	guint32 generic_all;
-};
-
-/* Map standard access permissions to specific permissions */
-
-struct standard_mapping {
-	guint32 std_read;
-	guint32 std_write;
-	guint32 std_execute;
-	guint32 std_all;
-};
-
-struct access_mask_info {
-	char *specific_rights_name;
-	nt_access_mask_fn_t *specific_rights_fn;
-	struct generic_mapping *generic_mapping;
-	struct standard_mapping *standard_mapping;
-};
-
-int
-dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-		       proto_tree *tree, guint8 *drep, int hfindex,
-		       struct access_mask_info *ami,
-		       guint32 *perms);
-
-int
-dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		    proto_tree *parent_tree, guint8 *drep, int len, 
-		    struct access_mask_info *ami);
-
 extern const value_string share_type_vals[];
 
 #endif

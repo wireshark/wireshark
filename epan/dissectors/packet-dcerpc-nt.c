@@ -33,8 +33,7 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
-#include "smb.h"
-#include "packet-smb-common.h" /* for dissect_smb_64bit_time() */
+#include "packet-windows-common.h"
 
 /*
  * This file contains helper routines that are used by the DCERPC over SMB
@@ -219,7 +218,7 @@ dissect_ndr_counted_byte_array(tvbuff_t *tvb, int offset,
 }
 
 /* This function is used to dissect a DCERPC encoded 64 bit time value.
-   XXX it should be fixed both here and in dissect_smb_64bit_time so
+   XXX it should be fixed both here and in dissect_nt_64bit_time so
    it can handle both BIG and LITTLE endian encodings
  */
 int
@@ -237,7 +236,7 @@ dissect_ndr_nt_NTTIME (tvbuff_t *tvb, int offset,
 
 	ALIGN_TO_4_BYTES;
 
-	offset = dissect_smb_64bit_time(tvb, tree, offset, hf_index);
+	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_index);
 	return offset;
 }
 

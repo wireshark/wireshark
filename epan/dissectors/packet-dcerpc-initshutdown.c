@@ -34,7 +34,7 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-initshutdown.h"
-#include "smb.h"
+#include "packet-windows-common.h"
 
 /* Global hf index fields */
 
