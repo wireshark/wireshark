@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.65 2003/12/08 21:57:25 guy Exp $
+ * $Id: print.c,v 1.66 2003/12/09 22:27:28 ulfl Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -52,14 +52,14 @@ static void ps_clean_string(unsigned char *out, const unsigned char *in,
 			int outbuf_size);
 
 typedef struct {
-	int		level;
-	FILE		*fh;
-	GSList		*src_list;
-	gboolean	print_all_levels;
-	gboolean	print_hex_for_data;
-	char_enc	encoding;
-	gint		format;
-	epan_dissect_t	*edt;
+	int		            level;
+	FILE		        *fh;
+	GSList		        *src_list;
+	print_dissections_e print_dissections;
+	gboolean	        print_hex_for_data;
+	char_enc	        encoding;
+	gint		        format;
+	epan_dissect_t	    *edt;
 } print_data;
 
 static void print_pdml_geninfo(proto_tree *tree, print_data *pdata);
@@ -98,7 +98,7 @@ proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
 	data.fh = fh;
 	data.src_list = edt->pi.data_src;
 	data.encoding = edt->pi.fd->flags.encoding;
-	data.print_all_levels = print_args->expand_all;
+	data.print_dissections = print_args->print_dissections;
 	data.print_hex_for_data = !print_args->print_hex;
 	    /* If we're printing the entire packet in hex, don't
 	       print uninterpreted data fields in hex as well. */
@@ -184,14 +184,15 @@ void proto_tree_print_node(proto_node *node, gpointer data)
 		pd = get_field_data(pdata->src_list, fi);
 		print_hex_data_buffer(pdata->fh, pd, fi->length,
 		    pdata->encoding, pdata->format);
-	}
+    }
 
 	/* If we're printing all levels, or if this node is one with a
 	   subtree and its subtree is expanded, recurse into the subtree,
 	   if it exists. */
 	g_assert(fi->tree_type >= -1 && fi->tree_type < num_tree_types);
-	if (pdata->print_all_levels ||
-	    (fi->tree_type >= 0 && tree_is_expanded[fi->tree_type])) {
+	if (pdata->print_dissections == print_dissections_expanded ||
+	    (pdata->print_dissections == print_dissections_as_displayed &&
+        fi->tree_type >= 0 && tree_is_expanded[fi->tree_type])) {
 		if (node->first_child != NULL) {
 			pdata->level++;
 			proto_tree_children_foreach(node,

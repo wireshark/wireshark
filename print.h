@@ -1,7 +1,7 @@
 /* print.h
  * Definitions for printing packet analysis trees.
  *
- * $Id: print.h,v 1.32 2003/12/09 22:04:57 ulfl Exp $
+ * $Id: print.h,v 1.33 2003/12/09 22:21:24 ulfl Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -59,8 +59,6 @@ typedef struct {
 
   gboolean	print_summary;	/* TRUE if we should just print summary;
 				   FALSE if we should print protocol tree. */
-  gboolean	expand_all;	/* TRUE if we should expand all levels;
-				   FALSE if we should expand as displayed. */
   print_dissections_e   print_dissections;
   gboolean	print_hex;	/* TRUE if we should also print hex data;
 				   FALSE if we should print only if not dissected. */

@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.48 2003/12/01 02:01:56 guy Exp $
+ * $Id: print_dlg.c,v 1.49 2003/12/09 22:24:14 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -87,7 +87,10 @@ static gchar * print_cmd;
 #define PRINT_COLLAPSE_ALL_RB_KEY "printer_collapse_all_radio_button"
 #define PRINT_AS_DISPLAYED_RB_KEY "printer_as_displayed_radio_button"
 #define PRINT_EXPAND_ALL_RB_KEY   "printer_expand_all_radio_button"
-#define PRINT_PRINT_ONLY_MARKED_RB_KEY "printer_print_only_marked_radio_button"
+
+#define PRINT_ONLY_SELECTED_RB_KEY    "printer_print_only_selected_radio_button"
+#define PRINT_ONLY_MARKED_RB_KEY      "printer_print_only_marked_radio_button"
+#define PRINT_ONLY_DISPLAYED_RB_KEY   "printer_print_only_displayed_radio_button"
 
 /*
  * Keep a static pointer to the current "Print" window, if any, so that if
@@ -127,6 +130,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   GtkTooltips   *tooltips;
   gchar         label_text[100];
   frame_data    *packet;
+  guint32       captured_count;
   guint32       displayed_count;
 
   if (print_w != NULL) {
@@ -135,11 +139,13 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
     return;
   }
 
-  /* count displayed packets */
-  /* XXX: there should be a displayed_count in cfile, so we don't have to do this here */
+  /* count packets */
+  /* XXX: this counters should be a in cfile, so we don't have to do this here */
+  captured_count = 0;
   displayed_count = 0;
   packet = cfile.plist;
   while(packet != NULL) {
+    captured_count++;
     if (packet->flags.passed_dfilter) {
       displayed_count++;
     }
@@ -295,61 +301,34 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_widget_show(range_vb);
 
 
-  /* "All packets captured" */
-  /* "All packets displayed" */
   /* "Selected packet only" */
   /* "Marked packets only" */
+  /* "All packets displayed" */
+  /* "All packets captured" */
   /* "Packets from x to y" */
 
-  g_snprintf(label_text, sizeof(label_text), "XXX: All packets _captured, XXX%u packet(s)", 0);
-#if GTK_MAJOR_VERSION < 2
-  all_captured_rb = dlg_radio_button_new_with_label_with_mnemonic(NULL,
-				label_text, accel_group);
-#else
-  all_captured_rb = gtk_radio_button_new_with_mnemonic(NULL, label_text);
-#endif
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(all_captured_rb), TRUE);
-  gtk_tooltips_set_tip (tooltips, all_captured_rb, 
-      ("Print all packets captured"), NULL);
-  gtk_container_add(GTK_CONTAINER(range_vb), all_captured_rb);
-  /*gtk_widget_show(all_captured_rb);*/
-
-  g_snprintf(label_text, sizeof(label_text), "All packets _displayed, %u packet(s)", displayed_count);
-#if GTK_MAJOR_VERSION < 2
-  all_displayed_rb = dlg_radio_button_new_with_label_with_mnemonic(
-                gtk_radio_button_group(GTK_RADIO_BUTTON(all_captured_rb)),
-				label_text, accel_group);
-#else
-  all_displayed_rb = gtk_radio_button_new_with_mnemonic_from_widget(
-                    GTK_RADIO_BUTTON(all_captured_rb), label_text);
-#endif
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(all_displayed_rb), TRUE);
-  gtk_tooltips_set_tip (tooltips, all_displayed_rb, 
-      ("Print all packets currently displayed"), NULL);
-  gtk_container_add(GTK_CONTAINER(range_vb), all_displayed_rb);
-  gtk_widget_show(all_displayed_rb);
-
+  g_snprintf(label_text, sizeof(label_text), "_Selected packet only, 1 packet");
 #if GTK_MAJOR_VERSION < 2
   selected_rb = dlg_radio_button_new_with_label_with_mnemonic(
-                gtk_radio_button_group(GTK_RADIO_BUTTON(all_captured_rb)),
-				"XXX: _Selected packet only", accel_group);
+                NULL,
+				label_text, accel_group);
 #else
-  selected_rb = gtk_radio_button_new_with_mnemonic_from_widget(
-                    GTK_RADIO_BUTTON(all_captured_rb), "XXX: _Selected packet only");
+  selected_rb = gtk_radio_button_new_with_mnemonic(
+                    NULL, label_text);
 #endif
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(selected_rb), FALSE);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(selected_rb), TRUE);
   gtk_tooltips_set_tip (tooltips, selected_rb, ("Print the currently selected packet only"), NULL);
   gtk_container_add(GTK_CONTAINER(range_vb), selected_rb);
-  /*gtk_widget_show(selected_rb);*/
+  gtk_widget_show(selected_rb);
 
   g_snprintf(label_text, sizeof(label_text), "_Marked packets only, %u packet(s)", cfile.marked_count);
 #if GTK_MAJOR_VERSION < 2
   marked_rb = dlg_radio_button_new_with_label_with_mnemonic(
-                gtk_radio_button_group(GTK_RADIO_BUTTON(all_captured_rb)),
+                gtk_radio_button_group(GTK_RADIO_BUTTON(selected_rb)),
 				label_text, accel_group);
 #else
   marked_rb = gtk_radio_button_new_with_mnemonic_from_widget(
-                    GTK_RADIO_BUTTON(all_captured_rb), label_text);
+                    GTK_RADIO_BUTTON(selected_rb), label_text);
 #endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(marked_rb), FALSE);
   gtk_tooltips_set_tip (tooltips, marked_rb, ("Print marked packets only"), NULL);
@@ -357,13 +336,44 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_widget_set_sensitive(marked_rb, cfile.marked_count);
   gtk_widget_show(marked_rb);
 
+  g_snprintf(label_text, sizeof(label_text), "All packets _displayed, %u packet(s)", displayed_count);
+#if GTK_MAJOR_VERSION < 2
+  all_displayed_rb = dlg_radio_button_new_with_label_with_mnemonic(
+                gtk_radio_button_group(GTK_RADIO_BUTTON(selected_rb)),
+				label_text, accel_group);
+#else
+  all_displayed_rb = gtk_radio_button_new_with_mnemonic_from_widget(
+                    GTK_RADIO_BUTTON(selected_rb), label_text);
+#endif
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(all_displayed_rb), FALSE);
+  gtk_tooltips_set_tip (tooltips, all_displayed_rb, 
+      ("Print all packets currently displayed"), NULL);
+  gtk_container_add(GTK_CONTAINER(range_vb), all_displayed_rb);
+  gtk_widget_set_sensitive(all_displayed_rb, displayed_count != captured_count);
+  gtk_widget_show(all_displayed_rb);
+
+  g_snprintf(label_text, sizeof(label_text), "All packets _captured, %u packet(s)", captured_count);
+#if GTK_MAJOR_VERSION < 2
+  all_captured_rb = dlg_radio_button_new_with_label_with_mnemonic(
+                gtk_radio_button_group(GTK_RADIO_BUTTON(selected_rb)),
+				label_text, accel_group);
+#else
+  all_captured_rb = gtk_radio_button_new_with_mnemonic_from_widget(
+                    GTK_RADIO_BUTTON(selected_rb), label_text);
+#endif
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(all_captured_rb), FALSE);
+  gtk_tooltips_set_tip (tooltips, all_captured_rb, 
+      ("Print all packets captured"), NULL);
+  gtk_container_add(GTK_CONTAINER(range_vb), all_captured_rb);
+  gtk_widget_show(all_captured_rb);
+
 #if GTK_MAJOR_VERSION < 2
   range_rb = dlg_radio_button_new_with_label_with_mnemonic(
-                gtk_radio_button_group(GTK_RADIO_BUTTON(all_captured_rb)),
+                gtk_radio_button_group(GTK_RADIO_BUTTON(selected_rb)),
 				"XXX: Packets f_rom X to Y", accel_group);
 #else
   range_rb = gtk_radio_button_new_with_mnemonic_from_widget(
-                    GTK_RADIO_BUTTON(all_captured_rb), "XXX: Packets f_rom X to Y");
+                    GTK_RADIO_BUTTON(selected_rb), "XXX: Packets f_rom X to Y");
 #endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(range_rb), FALSE);
   gtk_tooltips_set_tip (tooltips, range_rb, ("Print packets from number X to Y only"), NULL);
@@ -406,18 +416,18 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_container_add(GTK_CONTAINER(details_fr), details_vb);
   gtk_widget_show(details_vb);
 
-  /* "As displayed"/"All Expanded" radio buttons */
+  /* "All collapsed"/"As displayed"/"All Expanded" radio buttons */
 #if GTK_MAJOR_VERSION < 2
   collapse_all_rb = dlg_radio_button_new_with_label_with_mnemonic(NULL,
-				    "XXX: All dissections co_llapsed", accel_group);
+				    "All dissections co_llapsed", accel_group);
 #else
   collapse_all_rb = gtk_radio_button_new_with_mnemonic(
-                    NULL, "XXX: All dissections co_llapsed");
+                    NULL, "All dissections co_llapsed");
 #endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(collapse_all_rb), FALSE);
   gtk_tooltips_set_tip (tooltips, collapse_all_rb, ("Print packet details tree \"collapsed\""), NULL);
   gtk_container_add(GTK_CONTAINER(details_vb), collapse_all_rb);
-  /*gtk_widget_show(collapse_all_rb);*/
+  gtk_widget_show(collapse_all_rb);
 
 #if GTK_MAJOR_VERSION < 2
   as_displayed_rb = dlg_radio_button_new_with_label_with_mnemonic(
@@ -427,7 +437,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   as_displayed_rb = gtk_radio_button_new_with_mnemonic_from_widget(
                     GTK_RADIO_BUTTON(collapse_all_rb), "Dissections as displa_yed");
 #endif
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(as_displayed_rb), FALSE);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(as_displayed_rb), TRUE);
   gtk_tooltips_set_tip (tooltips, as_displayed_rb, ("Print packet details tree \"as displayed\""), NULL);
   gtk_container_add(GTK_CONTAINER(details_vb), as_displayed_rb);
   gtk_widget_show(as_displayed_rb);
@@ -440,7 +450,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   expand_all_rb = gtk_radio_button_new_with_mnemonic_from_widget(
                     GTK_RADIO_BUTTON(collapse_all_rb), "All dissections e_xpanded");
 #endif
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(expand_all_rb), TRUE);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(expand_all_rb), FALSE);
   gtk_tooltips_set_tip (tooltips, expand_all_rb, ("Print packet details tree \"expanded\""), NULL);
   gtk_container_add(GTK_CONTAINER(details_vb), expand_all_rb);
   gtk_widget_show(expand_all_rb);
@@ -488,8 +498,11 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   OBJECT_SET_DATA(ok_bt, PRINT_FILE_TE_KEY, file_te);
   OBJECT_SET_DATA(ok_bt, PRINT_DETAILS_CB_KEY, details_cb);
   OBJECT_SET_DATA(ok_bt, PRINT_HEX_CB_KEY, hex_cb);
+  OBJECT_SET_DATA(ok_bt, PRINT_AS_DISPLAYED_RB_KEY, as_displayed_rb);
   OBJECT_SET_DATA(ok_bt, PRINT_EXPAND_ALL_RB_KEY, expand_all_rb);
-  OBJECT_SET_DATA(ok_bt, PRINT_PRINT_ONLY_MARKED_RB_KEY, marked_rb);
+  OBJECT_SET_DATA(ok_bt, PRINT_ONLY_SELECTED_RB_KEY, selected_rb);
+  OBJECT_SET_DATA(ok_bt, PRINT_ONLY_MARKED_RB_KEY, marked_rb);
+  OBJECT_SET_DATA(ok_bt, PRINT_ONLY_DISPLAYED_RB_KEY, all_displayed_rb);
   SIGNAL_CONNECT(ok_bt, "clicked", print_ok_cb, print_w);
   GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
   gtk_tooltips_set_tip (tooltips, ok_bt, ("Perform printing"), NULL);
@@ -653,11 +666,31 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_HEX_CB_KEY);
   print_args.print_hex = GTK_TOGGLE_BUTTON (button)->active;
 
-  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_EXPAND_ALL_RB_KEY);
-  print_args.expand_all = GTK_TOGGLE_BUTTON (button)->active;
+  print_args.print_dissections = print_dissections_collapsed;
 
-  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_PRINT_ONLY_MARKED_RB_KEY);
-  print_args.print_only_marked = GTK_TOGGLE_BUTTON (button)->active;
+  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_AS_DISPLAYED_RB_KEY);
+  if (GTK_TOGGLE_BUTTON (button)->active) {
+    print_args.print_dissections = print_dissections_as_displayed;
+  }
+  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_EXPAND_ALL_RB_KEY);
+  if (GTK_TOGGLE_BUTTON (button)->active) {
+    print_args.print_dissections = print_dissections_expanded;
+  }
+
+  print_args.print_range = print_range_all_captured;
+
+  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_ONLY_SELECTED_RB_KEY);
+  if (GTK_TOGGLE_BUTTON (button)->active) {
+    print_args.print_range = print_range_selected_only;
+  }
+  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_ONLY_MARKED_RB_KEY);
+  if (GTK_TOGGLE_BUTTON (button)->active) {
+    print_args.print_range = print_range_marked_only;
+  }
+  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_ONLY_DISPLAYED_RB_KEY);
+  if (GTK_TOGGLE_BUTTON (button)->active) {
+    print_args.print_range = print_range_all_displayed;
+  }
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 
@@ -707,81 +740,6 @@ print_destroy_cb(GtkWidget *win, gpointer user_data _U_)
   /* Note that we no longer have a "Print" dialog box. */
   print_w = NULL;
 }
-
-/* Print a packet */
-void
-file_print_packet_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
-{
-  FILE *fh;
-  print_args_t print_args;
-#ifdef _WIN32
-  int win_printer_flag = FALSE;
-#endif
-
-  switch (prefs.pr_dest) {
-
-  case PR_DEST_CMD:
-#ifdef _WIN32
-    /* "PR_DEST_CMD" means "to printer" on Windows */
-    win_printer_flag = TRUE;
-    setup_mswin_print(&print_args);
-    fh = fopen(print_args.dest, "w");
-    print_args.to_file = TRUE;
-    break;
-#else
-    fh = popen(prefs.pr_cmd, "w");
-    print_args.to_file = FALSE;
-    print_args.dest = prefs.pr_cmd;
-    break;
-#endif
-
-  case PR_DEST_FILE:
-    fh = fopen(prefs.pr_file, "w");
-    print_args.to_file = TRUE;
-    print_args.dest = prefs.pr_file;
-    break;
-
-  default:
-    fh = NULL;	/* XXX - "can't happen" */
-    break;
-  }
-  if (fh == NULL) {
-    switch (prefs.pr_dest) {
-
-    case PR_DEST_CMD:
-      simple_dialog(ESD_TYPE_WARN, NULL, "Couldn't run print command %s.",
-        prefs.pr_cmd);
-      break;
-
-    case PR_DEST_FILE:
-      simple_dialog(ESD_TYPE_WARN, NULL, file_write_error_message(errno),
-        prefs.pr_file);
-      break;
-    }
-    return;
-  }
-
-  print_preamble(fh, prefs.pr_format);
-  print_args.format = prefs.pr_format;
-  print_args.print_summary = FALSE;
-  print_args.print_hex = FALSE;
-  print_args.expand_all = TRUE;
-  print_args.print_only_marked = FALSE;
-  proto_tree_print(&print_args, cfile.edt, fh);
-  print_finale(fh, prefs.pr_format);
-  close_print_dest(print_args.to_file, fh);
-
-#ifdef _WIN32
-  if (win_printer_flag) {
-    print_mswin(print_args.dest);
-
-    /* trash temp file */
-    remove(print_args.dest);
-    g_free(print_args.dest);
-  }
-#endif
-}
-
 
 
 
