@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal help files
 #
-# $Id: Makefile.am,v 1.5 2003/12/22 22:16:25 guy Exp $
+# $Id: Makefile.am,v 1.6 2004/02/09 18:22:28 ulfl Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -27,6 +27,8 @@
 helpdir = $(pkgdatadir)/help
 help_DATA =            \
 	toc                 \
+	getting_started.txt \
+	capturing.txt       \
 	capture_filters.txt \
 	display_filters.txt \
 	faq.txt             \
