@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.241 2002/03/06 23:37:12 guy Exp $
+ * $Id: main.c,v 1.242 2002/03/10 23:19:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -90,10 +90,6 @@
 #ifdef HAVE_UCD_SNMP_VERSION_H
 #include <ucd-snmp/version.h>
 #endif /* HAVE_UCD_SNMP_VERSION_H */
-#elif defined(HAVE_SNMP_SNMP_H)
-#ifdef HAVE_SNMP_VERSION_H
-#include <snmp/version.h>
-#endif /* HAVE_SNMP_VERSION_H */
 #endif /* SNMP */
 
 #ifdef NEED_STRERROR_H
@@ -1408,14 +1404,7 @@ main(int argc, char *argv[])
 #else /* HAVE_UCD_SNMP_VERSION_H */
   g_string_append(comp_info_str, "(version unknown)");
 #endif /* HAVE_UCD_SNMP_VERSION_H */
-#elif defined(HAVE_SNMP_SNMP_H)
-  g_string_append(comp_info_str, ", with CMU SNMP ");
-#ifdef HAVE_SNMP_VERSION_H
-  g_string_append(comp_info_str, snmp_Version());
-#else /* HAVE_SNMP_VERSION_H */
-  g_string_append(comp_info_str, "(version unknown)");
-#endif /* HAVE_SNMP_VERSION_H */
-#else /* no SNMP */
+#else /* no SNMP library */
   g_string_append(comp_info_str, ", without SNMP MIB support");
 #endif
 
