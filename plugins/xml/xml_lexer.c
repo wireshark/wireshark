@@ -285,17 +285,15 @@ static void yy_fatal_error YY_PROTO(( yyconst char msg[] ));
 	*yy_cp = '\0'; \
 	yy_c_buf_p = yy_cp;
 
-#define YY_NUM_RULES 26
-#define YY_END_OF_BUFFER 27
-static yyconst short int yy_accept[68] =
+#define YY_NUM_RULES 17
+#define YY_END_OF_BUFFER 18
+static yyconst short int yy_accept[46] =
     {   0,
-        0,    0,    3,    3,    0,    0,    0,    0,    0,    0,
-       25,   25,   27,   26,   16,    3,    3,    4,   21,   26,
-       23,   20,    7,    8,    6,   13,   26,   14,   25,   24,
-        0,    5,    9,    3,    3,   21,   22,   20,   20,    0,
-        7,    6,   13,   15,   14,   14,    0,   25,   24,    0,
-        2,    0,    0,   19,    0,    0,   12,    1,    0,   17,
-        0,   18,    0,   10,    0,   11,    0
+        0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+        0,    0,    0,    0,    0,    0,    0,    0,   18,   17,
+        3,    1,   14,    3,   17,   17,   16,    8,   17,   13,
+       12,    4,    1,   11,    7,    9,    0,    2,    0,   15,
+       10,    0,    6,    5,    0
     } ;
 
 static yyconst int yy_ec[256] =
@@ -303,17 +301,17 @@ static yyconst int yy_ec[256] =
         1,    1,    1,    1,    1,    1,    1,    1,    2,    2,
         1,    1,    2,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    2,    3,    4,    1,    1,    1,    1,    5,    1,
-        1,    1,    1,    1,    6,    1,    7,    8,    8,    8,
-        8,    8,    8,    8,    8,    8,    8,    9,    1,   10,
-       11,   12,   13,    1,   14,   14,   14,   14,   14,   14,
-       14,   14,   14,   14,   14,   14,   14,   14,   14,   14,
-       14,   14,   14,   14,   14,   14,   14,   14,   14,   14,
-        1,    1,    1,    1,    8,    1,   14,   14,   14,   14,
+        1,    2,    3,    1,    1,    1,    1,    1,    1,    1,
+        1,    1,    1,    1,    4,    1,    5,    1,    1,    1,
+        1,    1,    1,    1,    1,    1,    1,    6,    1,    7,
+        1,    8,    9,    1,    6,    6,    1,    1,    1,    1,
+        1,    1,    1,    1,    6,    6,    1,    6,    1,    1,
+        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+       10,    1,   11,    1,    1,    1,    6,    6,    1,    1,
 
-       14,   14,   14,   14,   14,   14,   14,   14,   14,   14,
-       14,   14,   14,   14,   14,   14,   14,   14,   14,   14,
-       14,   14,    1,    1,    1,    1,    1,    1,    1,    1,
+        1,    1,    1,    1,    1,    1,    6,    6,    1,    6,
+        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -330,74 +328,48 @@ static yyconst int yy_ec[256] =
         1,    1,    1,    1,    1
     } ;
 
-static yyconst int yy_meta[15] =
+static yyconst int yy_meta[12] =
     {   0,
-        1,    1,    1,    1,    1,    2,    1,    2,    2,    3,
-        4,    1,    1,    2
+        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+        1
     } ;
 
-static yyconst short int yy_base[82] =
+static yyconst short int yy_base[48] =
     {   0,
-       58,   57,    0,    1,   10,    0,   23,    0,   36,    0,
-        3,    6,   65,  126,   48,    0,   58,    0,   58,   47,
-      126,    3,   56,  126,    0,   55,   44,   12,    0,   52,
-       47,  126,  126,    0,   40,   45,  126,    0,   15,   58,
-       44,    0,   43,  126,    0,   21,   69,    0,   42,   37,
-        0,   38,   36,   20,   36,   31,   25,  126,   27,  126,
-       24,  126,   15,  126,   10,  126,  126,   83,   87,   91,
-       95,   98,    2,  101,  105,    1,    0,  109,  113,  117,
-      121
+        0,    0,    0,   10,   30,   27,   17,   21,   20,   19,
+       15,   14,    0,    0,   22,   25,   13,   12,   18,   46,
+       46,   14,   33,   37,   11,    6,   46,   46,    5,   46,
+       46,   46,    8,    5,   46,   46,    0,   46,    0,   46,
+       46,    0,   46,   46,   46,    2,    0
     } ;
 
-static yyconst short int yy_def[82] =
+static yyconst short int yy_def[48] =
     {   0,
-       68,   68,   69,   69,   68,    5,    5,    7,    7,    9,
-       70,   70,   67,   67,   67,   71,   71,   15,   67,   67,
-       67,   72,   67,   67,   73,   67,   67,   74,   75,   75,
-       67,   67,   67,   71,   71,   67,   67,   76,   72,   67,
-       67,   73,   67,   67,   77,   74,   67,   75,   75,   67,
-       71,   78,   79,   67,   80,   81,   67,   67,   78,   67,
-       79,   67,   80,   67,   81,   67,    0,   67,   67,   67,
-       67,   67,   67,   67,   67,   67,   67,   67,   67,   67,
-       67
+       46,   46,   47,   47,   46,   46,   46,   46,   46,   46,
+       46,   46,   46,   46,   46,   46,   46,   46,   45,   45,
+       45,   45,   45,   45,   45,   45,   45,   45,   45,   45,
+       45,   45,   45,   45,   45,   45,   24,   45,   45,   45,
+       45,   45,   45,   45,    0,   45,   45
     } ;
 
-static yyconst short int yy_nxt[141] =
+static yyconst short int yy_nxt[58] =
     {   0,
-       67,   45,   38,   42,   30,   17,   17,   30,   38,   18,
-       18,   19,   15,   40,   66,   15,   20,   45,   64,   15,
-       38,   21,   47,   22,   23,   40,   45,   54,   62,   14,
-       60,   47,   57,   54,   24,   66,   25,   26,   57,   64,
-       62,   60,   58,   49,   43,   41,   36,   14,   27,   28,
-       31,   51,   50,   49,   32,   44,   43,   41,   37,   36,
-       33,   52,   53,   35,   67,   54,   15,   15,   67,   67,
-       67,   54,   55,   56,   67,   67,   57,   67,   67,   67,
-       67,   67,   57,   14,   14,   14,   14,   16,   16,   16,
-       16,   29,   29,   29,   29,   34,   34,   67,   34,   39,
-
-       67,   39,   46,   67,   46,   48,   48,   67,   48,   59,
-       59,   59,   59,   61,   61,   61,   61,   63,   63,   63,
-       63,   65,   65,   65,   65,   13,   67,   67,   67,   67,
-       67,   67,   67,   67,   67,   67,   67,   67,   67,   67
+       21,   22,   20,   44,   45,   45,   23,   43,   42,   33,
+       24,   22,   41,   40,   39,   33,   23,   45,   32,   32,
+       24,   26,   29,   29,   27,   26,   28,   28,   27,   30,
+       25,   31,   30,   25,   31,   34,   45,   35,   45,   45,
+       45,   36,   37,   45,   38,   19,   45,   45,   45,   45,
+       45,   45,   45,   45,   45,   45,   45
     } ;
 
-static yyconst short int yy_chk[141] =
+static yyconst short int yy_chk[58] =
     {   0,
-        0,   77,   76,   73,   11,    3,    4,   12,   22,    3,
-        4,    5,   11,   22,   65,   12,    5,   28,   63,    5,
-       39,    5,   28,    5,    7,   39,   46,   54,   61,    7,
-       59,   46,   57,   54,    7,   56,    7,    9,   57,   55,
-       53,   52,   50,   49,   43,   41,   36,    9,    9,    9,
-       15,   35,   31,   30,   15,   27,   26,   23,   20,   19,
-       15,   40,   40,   17,   13,   40,    2,    1,    0,    0,
-        0,   40,   47,   47,    0,    0,   47,    0,    0,    0,
-        0,    0,   47,   68,   68,   68,   68,   69,   69,   69,
-       69,   70,   70,   70,   70,   71,   71,    0,   71,   72,
-
-        0,   72,   74,    0,   74,   75,   75,    0,   75,   78,
-       78,   78,   78,   79,   79,   79,   79,   80,   80,   80,
-       80,   81,   81,   81,   81,   67,   67,   67,   67,   67,
-       67,   67,   67,   67,   67,   67,   67,   67,   67,   67
+       47,    3,   46,   42,    0,    0,    3,   39,   34,   33,
+        3,    4,   29,   26,   25,   22,    4,   19,   18,   17,
+        4,    7,   12,   11,    7,    8,   10,    9,    8,   15,
+        6,   15,   16,    5,   16,   23,    0,   23,    0,    0,
+        0,   23,   24,    0,   24,   45,   45,   45,   45,   45,
+       45,   45,   45,   45,   45,   45,   45
     } ;
 
 static yy_state_type yy_last_accepting_state;
@@ -414,7 +386,7 @@ char *yytext;
 #line 1 "xml_lexer.l"
 #define INITIAL 0
 #define YY_NO_UNPUT 1
-#line 4 "xml_lexer.l"
+#line 6 "xml_lexer.l"
 
 	/* xml_lexer.l
 	* an XML dissector for ethereal 
@@ -449,23 +421,27 @@ char *yytext;
 	static guint8* extracted = NULL;
 	static gint offset;
 	static gint last_offset;
+	static gint text_offset;
 	static gint len;
 	xml_token_t* head;
 	xml_token_t* tail;
-
-#define YY_INPUT(buff,result,max_size) ( (result) = tvb_yyinput((buff),(max_size)) )
-#define ECHO {add_xml_item(XML_GARBLED,XML_CTX_OUT, yyleng, yytext); return 0;} 
 	
-	static void add_xml_item(xml_token_type_t type, xml_context_t ctx, gint len, gchar* text);
+#define YY_INPUT(buff,result,max_size) ( (result) = tvb_yyinput((buff),(max_size)) )
+#define ECHO ; 
+	
+	static void add_xml_item(xml_token_type_t type, gint len);
 	static int tvb_yyinput(char* buff, guint max_len);
 	
-#define COMMENT 1
-#define TAG 2
-#define CLOSE_TAG 3
-#define META_TAG 4
-#define OUT 5
+#define OUT 1
+#define COMMENT 2
+#define TAG 3
+#define CLOSE_TAG 4
+#define XMLPI 5
+#define DOCTYPE 6
+#define MARKUPDECL 7
+#define TEXT 8
 
-#line 469 "xml_lexer.c"
+#line 445 "xml_lexer.c"
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -616,9 +592,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
 
-#line 64 "xml_lexer.l"
+#line 73 "xml_lexer.l"
 
-#line 622 "xml_lexer.c"
+
+#line 599 "xml_lexer.c"
 
 	if ( yy_init )
 		{
@@ -669,13 +646,13 @@ yy_match:
 			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
-				if ( yy_current_state >= 68 )
+				if ( yy_current_state >= 46 )
 					yy_c = yy_meta[(unsigned int) yy_c];
 				}
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
 			++yy_cp;
 			}
-		while ( yy_base[yy_current_state] != 126 );
+		while ( yy_base[yy_current_state] != 46 );
 
 yy_find_action:
 		yy_act = yy_accept[yy_current_state];
@@ -703,141 +680,99 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 65 "xml_lexer.l"
-{ add_xml_item(XML_COMMENT_START, XML_CTX_COMMENT, yyleng, yytext); BEGIN COMMENT;}
+#line 75 "xml_lexer.l"
+{ add_xml_item(XML_WHITESPACE, yyleng); }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 66 "xml_lexer.l"
-{ add_xml_item(XML_COMMENT_END, XML_CTX_COMMENT, yyleng, yytext); BEGIN OUT; }
+#line 76 "xml_lexer.l"
+{ add_xml_item(XML_DOCTYPE_STOP, yyleng); }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 67 "xml_lexer.l"
-add_xml_item(XML_TEXT, XML_CTX_COMMENT, yyleng, yytext);
+#line 78 "xml_lexer.l"
+{ text_offset = offset - yyleng -1; BEGIN TEXT; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 68 "xml_lexer.l"
-add_xml_item(XML_TEXT, XML_CTX_COMMENT, yyleng, yytext);
+#line 79 "xml_lexer.l"
+{ add_xml_item(XML_TEXT, --offset - text_offset -1 ); BEGIN OUT; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 70 "xml_lexer.l"
-{ add_xml_item(XML_CLOSE_TAG_START, XML_CTX_CLOSETAG, yyleng, yytext); BEGIN CLOSE_TAG; }
+#line 81 "xml_lexer.l"
+{ text_offset = offset - yyleng -1; BEGIN COMMENT; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 71 "xml_lexer.l"
-add_xml_item(XML_NAME, XML_CTX_CLOSETAG, yyleng, yytext);
+#line 82 "xml_lexer.l"
+{ add_xml_item(XML_COMMENT, offset - text_offset -1); BEGIN OUT; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 72 "xml_lexer.l"
-add_xml_item(XML_WHITESPACE, XML_CTX_CLOSETAG, yyleng,yytext);
+#line 84 "xml_lexer.l"
+{ text_offset = offset - yyleng -1; BEGIN CLOSE_TAG; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 73 "xml_lexer.l"
-{ add_xml_item(XML_TAG_END, XML_CTX_CLOSETAG, yyleng, yytext); BEGIN OUT; }
+#line 85 "xml_lexer.l"
+{ add_xml_item(XML_CLOSE_TAG, offset - text_offset -1); BEGIN OUT; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 75 "xml_lexer.l"
-{ add_xml_item(XML_METATAG_START, XML_CTX_METATAG, yyleng, yytext); BEGIN META_TAG; }
+#line 87 "xml_lexer.l"
+{ text_offset = offset - yyleng -1; BEGIN XMLPI; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 76 "xml_lexer.l"
-add_xml_item(XML_PROPERTY, XML_CTX_METATAG, yyleng, yytext);
+#line 88 "xml_lexer.l"
+{ add_xml_item(XML_XMLPI, offset - text_offset -1); BEGIN OUT; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 77 "xml_lexer.l"
-add_xml_item(XML_PROPERTY, XML_CTX_METATAG, yyleng, yytext);
+#line 90 "xml_lexer.l"
+{ text_offset = offset - yyleng -1; BEGIN MARKUPDECL; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 78 "xml_lexer.l"
-add_xml_item(XML_PROPERTY, XML_CTX_METATAG, yyleng, yytext);
+#line 91 "xml_lexer.l"
+{ add_xml_item(XML_DOCTYPE_START, offset - text_offset); BEGIN OUT; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 79 "xml_lexer.l"
-add_xml_item(XML_WHITESPACE,  XML_CTX_METATAG, yyleng, yytext);
+#line 92 "xml_lexer.l"
+{ add_xml_item(XML_MARKUPDECL,  offset - text_offset); BEGIN OUT; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 80 "xml_lexer.l"
-add_xml_item(XML_NAME,  XML_CTX_METATAG, yyleng, yytext);
+#line 94 "xml_lexer.l"
+{ text_offset = offset - yyleng -1; BEGIN TAG; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 81 "xml_lexer.l"
-{ add_xml_item(XML_METATAG_END,  XML_CTX_METATAG, yyleng,yytext); BEGIN OUT; }
+#line 95 "xml_lexer.l"
+{ add_xml_item(XML_CLOSEDTAG, offset - text_offset); BEGIN OUT; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 83 "xml_lexer.l"
-{ add_xml_item(XML_TAG_START, XML_CTX_TAG, yyleng, yytext); BEGIN TAG; }
+#line 96 "xml_lexer.l"
+{ add_xml_item(XML_TAG, offset - text_offset); BEGIN OUT; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 84 "xml_lexer.l"
-add_xml_item(XML_PROPERTY, XML_CTX_TAG, yyleng, yytext);
-	YY_BREAK
-case 18:
-YY_RULE_SETUP
-#line 85 "xml_lexer.l"
-add_xml_item(XML_PROPERTY, XML_CTX_TAG, yyleng, yytext);
-	YY_BREAK
-case 19:
-YY_RULE_SETUP
-#line 86 "xml_lexer.l"
-add_xml_item(XML_PROPERTY, XML_CTX_TAG, yyleng, yytext);
-	YY_BREAK
-case 20:
-YY_RULE_SETUP
-#line 87 "xml_lexer.l"
-add_xml_item(XML_NAME, XML_CTX_TAG, yyleng, yytext);
-	YY_BREAK
-case 21:
-YY_RULE_SETUP
-#line 88 "xml_lexer.l"
-add_xml_item(XML_WHITESPACE, XML_CTX_TAG, yyleng, yytext);
-	YY_BREAK
-case 22:
-YY_RULE_SETUP
-#line 89 "xml_lexer.l"
-{add_xml_item(XML_CLOSE_TAG_END, XML_CTX_TAG, yyleng, yytext); BEGIN OUT; }
-	YY_BREAK
-case 23:
-YY_RULE_SETUP
-#line 90 "xml_lexer.l"
-{add_xml_item(XML_TAG_END,  XML_CTX_TAG, yyleng, yytext); BEGIN OUT; }
-	YY_BREAK
-case 24:
-YY_RULE_SETUP
-#line 92 "xml_lexer.l"
-add_xml_item(XML_WHITESPACE,  XML_CTX_OUT, yyleng, yytext);
-	YY_BREAK
-case 25:
-YY_RULE_SETUP
-#line 93 "xml_lexer.l"
-add_xml_item(XML_TEXT,  XML_CTX_OUT, yyleng, yytext); 
-	YY_BREAK
-case 26:
-YY_RULE_SETUP
-#line 94 "xml_lexer.l"
+#line 100 "xml_lexer.l"
 ECHO;
 	YY_BREAK
-#line 835 "xml_lexer.c"
+#line 767 "xml_lexer.c"
 case YY_STATE_EOF(INITIAL):
+case YY_STATE_EOF(OUT):
 case YY_STATE_EOF(COMMENT):
 case YY_STATE_EOF(TAG):
 case YY_STATE_EOF(CLOSE_TAG):
-case YY_STATE_EOF(META_TAG):
-case YY_STATE_EOF(OUT):
+case YY_STATE_EOF(XMLPI):
+case YY_STATE_EOF(DOCTYPE):
+case YY_STATE_EOF(MARKUPDECL):
+case YY_STATE_EOF(TEXT):
 	yyterminate();
 
 	case YY_END_OF_BUFFER:
@@ -1128,7 +1063,7 @@ static yy_state_type yy_get_previous_state()
 		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
-			if ( yy_current_state >= 68 )
+			if ( yy_current_state >= 46 )
 				yy_c = yy_meta[(unsigned int) yy_c];
 			}
 		yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
@@ -1163,11 +1098,11 @@ yy_state_type yy_current_state;
 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
-		if ( yy_current_state >= 68 )
+		if ( yy_current_state >= 46 )
 			yy_c = yy_meta[(unsigned int) yy_c];
 		}
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
-	yy_is_jam = (yy_current_state == 67);
+	yy_is_jam = (yy_current_state == 45);
 
 	return yy_is_jam ? 0 : yy_current_state;
 	}
@@ -1722,17 +1657,15 @@ int main()
 	return 0;
 	}
 #endif
-#line 94 "xml_lexer.l"
+#line 100 "xml_lexer.l"
 
 
-static void add_xml_item(xml_token_type_t type, xml_context_t ctx, gint the_len, gchar* text) {
+static void add_xml_item(xml_token_type_t type, gint the_len) {
 	xml_token_t* xi = g_malloc(sizeof(xml_token_t));
 	
 	xi->type = type;
-	xi->ctx = ctx;
 	xi->offset = last_offset;
 	xi->len = the_len;
-	xi->text = text != NULL ? g_strdup(text) : NULL;
 	xi->next = NULL;
 	xi->prev = tail;
 	
@@ -1766,14 +1699,19 @@ extern xml_token_t* scan_tvb_for_xml_items(tvbuff_t* tvb, gint the_offset, gint 
 	offset = the_offset;
 	last_offset = the_offset;
 	len = the_len;
+	text_offset = offset;
 	extracted = tvb_memdup(tvb,offset,len);
 	
 	head = NULL;
 	tail = NULL;
 	
+	BEGIN OUT;
+	
 	yylex();
 	
 	yyrestart(NULL);
+	
+	g_free(extracted);
 	
 	return head;
 }
