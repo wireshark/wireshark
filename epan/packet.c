@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.15 2001/01/10 10:44:48 guy Exp $
+ * $Id: packet.c,v 1.16 2001/01/12 09:25:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1300,6 +1300,7 @@ old_dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 {
 	dtbl_entry_t *dtbl_entry;
 	tvbuff_t *tvb;
+	const char *saved_proto;
 
 	dtbl_entry = g_hash_table_lookup(sub_dissectors,
 	    GUINT_TO_POINTER(port));
@@ -1321,6 +1322,7 @@ old_dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 		 * Yes, it's enabled.
 		 */
 		pi.match_port = port;
+		saved_proto = pi.current_proto;
 		if (dtbl_entry->is_old_dissector)
 			(*dtbl_entry->dissector.old)(pd, offset, fd, tree);
 		else {
@@ -1340,6 +1342,7 @@ old_dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 			tvb = tvb_create_from_top(offset);
 			(*dtbl_entry->dissector.new)(tvb, &pi, tree);
 		}
+		pi.current_proto = saved_proto;
 		return TRUE;
 	} else
 		return FALSE;
@@ -1352,6 +1355,7 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 	dtbl_entry_t *dtbl_entry;
 	const guint8 *pd;
 	int offset;
+	const char *saved_proto;
 
 	dtbl_entry = g_hash_table_lookup(sub_dissectors,
 	    GUINT_TO_POINTER(port));
@@ -1369,7 +1373,11 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 			return FALSE;
 		}
 			
+		/*
+		 * Yes, it's enabled.
+		 */
 		pinfo->match_port = port;
+		saved_proto = pinfo->current_proto;
 		if (dtbl_entry->is_old_dissector) {
 			/*
 			 * New dissector calling old dissector; use
@@ -1385,6 +1393,7 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 			}
 			(*dtbl_entry->dissector.new)(tvb, pinfo, tree);
 		}
+		pinfo->current_proto = saved_proto;
 		return TRUE;
 	} else
 		return FALSE;
@@ -1480,11 +1489,15 @@ gboolean
 dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	gboolean status;
+	const char *saved_proto;
 	GSList *entry;
 	heur_dtbl_entry_t *dtbl_entry;
 	const guint8 *pd = NULL;
 	int offset;
 
+	status = FALSE;
+	saved_proto = pinfo->current_proto;
 	for (entry = sub_dissectors; entry != NULL; entry = g_slist_next(entry)) {
 		dtbl_entry = (heur_dtbl_entry_t *)entry->data;
 		if (dtbl_entry->proto_index != -1 &&
@@ -1503,14 +1516,23 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 			if (pd == NULL)
 				tvb_compat(tvb, &pd, &offset);
 			if ((*dtbl_entry->dissector.old)(pd, offset, pinfo->fd,
-			    tree))
-				return TRUE;
+			    tree)) {
+				status = TRUE;
+				break;
+			}
 		} else {
-			if ((*dtbl_entry->dissector.new)(tvb, pinfo, tree))
-				return TRUE;
+			if (dtbl_entry->proto_index != -1) {
+				pinfo->current_proto =
+				    proto_get_protocol_short_name(dtbl_entry->proto_index);
+			}
+			if ((*dtbl_entry->dissector.new)(tvb, pinfo, tree)) {
+				status = TRUE;
+				break;
+			}
 		}
 	}
-	return FALSE;
+	pinfo->current_proto = saved_proto;
+	return status;
 }
 
 void
@@ -1671,6 +1693,7 @@ old_call_dissector(dissector_handle_t handle, const u_char *pd,
     int offset, frame_data *fd, proto_tree *tree)
 {
 	tvbuff_t *tvb;
+	const char *saved_proto;
 
 	/*
 	 * Is this protocol enabled?
@@ -1693,17 +1716,22 @@ old_call_dissector(dissector_handle_t handle, const u_char *pd,
 	 * through the packet?
 	 */
 	tvb = tvb_create_from_top(offset);
+
+	saved_proto = pi.current_proto;
 	if (handle->proto_index != -1) {
 		pi.current_proto =
 		    proto_get_protocol_short_name(handle->proto_index);
 	}
 	(*handle->dissector)(tvb, &pi, tree);
+	pi.current_proto = saved_proto;
 }
 
 void
 call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree)
 {
+	const char *saved_proto;
+
 	if (handle->proto_index != -1 &&
 	    !proto_is_protocol_enabled(handle->proto_index)) {
 		/*
@@ -1712,9 +1740,11 @@ call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
 		dissect_data(tvb, 0, pinfo, tree);
 	}
 
+	saved_proto = pinfo->current_proto;
 	if (handle->proto_index != -1) {
 		pinfo->current_proto =
 		    proto_get_protocol_short_name(handle->proto_index);
 	}
 	(*handle->dissector)(tvb, pinfo, tree);
+	pinfo->current_proto = saved_proto;
 }
