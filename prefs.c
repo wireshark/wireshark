@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.80 2002/01/21 07:36:48 guy Exp $
+ * $Id: prefs.c,v 1.81 2002/03/31 21:05:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -212,7 +212,7 @@ prefs_module_foreach(module_cb callback, gpointer user_data)
 }
 
 static void
-call_apply_cb(gpointer data, gpointer user_data)
+call_apply_cb(gpointer data, gpointer user_data _U_)
 {
 	module_t *module = data;
 

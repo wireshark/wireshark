@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.9 2002/02/03 23:28:38 guy Exp $
+ * $Id: reassemble.c,v 1.10 2002/03/31 21:05:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -102,7 +102,7 @@ fragment_hash(gconstpointer k)
  * (The actual key and value structures get freed by "reassemble_init()".)
  */
 static gboolean
-free_all_fragments(gpointer key_arg, gpointer value, gpointer user_data)
+free_all_fragments(gpointer key_arg, gpointer value, gpointer user_data _U_)
 {
 	fragment_key *key = key_arg;
 	fragment_data *fd_head;

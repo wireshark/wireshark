@@ -1,7 +1,7 @@
 /* pcap-util.c
  * Utility routines for packet capture
  *
- * $Id: pcap-util.c,v 1.3 2001/11/09 08:16:24 guy Exp $
+ * $Id: pcap-util.c,v 1.4 2002/03/31 21:05:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,7 +75,11 @@
  * rest-of-the-universe libpcap.
  */
 int
-get_pcap_linktype(pcap_t *pch, char *devname)
+get_pcap_linktype(pcap_t *pch, char *devname
+#ifndef AIX
+	_U_
+#endif
+)
 {
 	int linktype;
 #ifdef AIX
@@ -431,7 +435,7 @@ get_interface_list(int *err, char *err_str) {
 #endif
 
 static void
-free_if_cb(gpointer data, gpointer user_data)
+free_if_cb(gpointer data, gpointer user_data _U_)
 {
 	g_free(data);
 }
