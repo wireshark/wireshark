@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.29 1999/08/20 06:55:19 guy Exp $
+ * $Id: wtap.h,v 1.30 1999/08/22 00:47:55 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -39,6 +39,12 @@
  * type for all packets in the file; this may cause those routines to
  * fail if the capture file format being written can't support that.
  *
+ * WTAP_ENCAP_NULL is the DLT_NULL some BSD systems use; at least with
+ * many drivers on FreeBSD (and the loopback driver in 4.4-Lite, so
+ * hopefully most BSD drivers, at least, model their DLT_NULL after it),
+ * it puts a 4-byte field containing the AF_ address family value,
+ * in *host* byte order, at the beginning of the packet.
+ *
  * WTAP_ENCAP_UNKNOWN is returned by "wtap_pcap_encap_to_wtap_encap()"
  * if it's handed an unknown encapsulation. */
 #define WTAP_ENCAP_UNKNOWN			-2
@@ -55,9 +61,10 @@
 #define WTAP_ENCAP_LINUX_ATM_CLIP		9
 #define WTAP_ENCAP_LAPB				10
 #define WTAP_ENCAP_ATM_SNIFFER			11
+#define WTAP_ENCAP_NULL				12
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			11
+#define WTAP_NUM_ENCAP_TYPES			12
 
 /* File types that can be read by wiretap.
    We may eventually support writing some or all of these file types,
@@ -75,6 +82,11 @@
 #define WTAP_FILE_NETXRAY_1_1			11
 #define WTAP_FILE_NETXRAY_2_001			12
 #define WTAP_FILE_RADCOM			13
+
+/*
+ * Maximum packet size we'll support.
+ */
+#define	WTAP_MAX_PACKET_SIZE			65535
 
 #include <sys/types.h>
 
@@ -206,6 +218,16 @@ struct wtap_pkthdr {
 	guint32 len;
 	int pkt_encap;
 	union pseudo_header pseudo_header;
+};
+
+/*
+ * Header that OpenBSD (and possibly other BSDs) DLT_ENC prepends to
+ * a packet.
+ */
+struct dlt_enc_hdr {
+	guint32	af;
+	guint32	spi;
+	guint32 flags;
 };
 
 typedef void (*wtap_handler)(u_char*, const struct wtap_pkthdr*,

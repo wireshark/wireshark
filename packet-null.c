@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.11 1999/08/21 17:56:06 guy Exp $
+ * $Id: packet-null.c,v 1.12 1999/08/22 00:47:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,142 +39,275 @@
 #endif
 
 #include "packet.h"
+#include "etypes.h"
 	
+extern const value_string etype_vals[];
+
+/* protocols and header fields */
 static int proto_null = -1;
-static int hf_null_next = -1;
-static int hf_null_len = -1;
+static int hf_null_etype = -1;
 static int hf_null_family = -1;
 
 /* Null/loopback structs and definitions */
 
-typedef struct _e_nullhdr {
-  guint8  null_next;
-  guint8  null_len;
-  guint16 null_family;
-} e_nullhdr;
+/* Macro to byte-swap 32-bit quantities. */
+#define	BSWAP32(x) \
+	((((x)&0xFF000000)>>24) | \
+	 (((x)&0x00FF0000)>>8) | \
+	 (((x)&0x0000FF00)<<8) | \
+	 (((x)&0x000000FF)<<24))
+
+/* BSD AF_ values. */
+#define BSD_AF_INET		2
+#define BSD_AF_APPLETALK	16
+#define BSD_AF_IPX		23	/* at least on FreeBSD */
+#define BSD_AF_INET6		28	/* at least on FreeBSD */
+
+/* Family values. */
+static const value_string family_vals[] = {
+    {BSD_AF_INET,      "IP"             },
+    {BSD_AF_APPLETALK, "Appletalk"      },
+    {BSD_AF_IPX,       "Netware IPX/SPX"},
+    {BSD_AF_INET6,     "IPv6"           },
+    {0,                NULL             }
+};
 
 void
-capture_null( const u_char *pd, guint32 cap_len, packet_counts *ld ) {
-  e_nullhdr  nh;
+capture_null( const u_char *pd, guint32 cap_len, packet_counts *ld )
+{
+  guint32 null_header;
 
-  memcpy((char *)&nh.null_family, (char *)&pd[2], sizeof(nh.null_family));
+  /*
+   * BSD drivers that use DLT_NULL - including the FreeBSD 3.2 ISDN-for-BSD
+   * drivers, as well as the 4.4-Lite and FreeBSD loopback drivers -
+   * appear to stuff the AF_ value for the protocol, in *host* byte
+   * order, in the first four bytes.
+   *
+   * However, according to Gerald Combs, a FreeBSD ISDN PPP dump that
+   * Andreas Klemm sent to ethereal-dev has a packet type of DLT_NULL,
+   * and the family bits look like PPP's protocol field.  (Was this an
+   * older, or different, ISDN driver?)  Looking at what appears to be
+   * that capture file, it appears that it's using PPP in HDLC framing,
+   * RFC 1549, wherein the first two octets of the frame are 0xFF
+   * (address) and 0x03 (control), so the header bytes are, in order:
+   *
+   *	0xFF
+   *	0x03
+   *	high-order byte of a PPP protocol field
+   *	low-order byte of a PPP protocol field
+   *
+   * when reading it on a little-endian machine; that means it's
+   * PPPP03FF, where PPPP is a byte-swapped PPP protocol field.
+   *
+   * "libpcap" for Linux uses DLT_NULL only for the loopback device.
+   * The loopback driver in Linux 2.0.36, at least, puts an *Ethernet*
+   * header at the beginning of loopback packets; however, "libpcap"
+   * for Linux compensates for this by skipping the source and
+   * destination MAC addresses, replacing them with 2 bytes of 0.
+   * This means that if we're reading the capture on a little-endian
+   * machine, the header, treated as a 32-bit integer, looks like
+   *
+   *	EEEEEEEEEEEEEEEE0000000000000000
+   *
+   * where "EEEEEEEEEEEEEEEE" is the Ethernet type, and if we're reading
+   * it on a big-endian machine, it looks like
+   *
+   *	0000000000000000EEEEEEEEEEEEEEEE
+   *
+   * The Ethernet type might or might not be byte-swapped; I haven't
+   * bothered thinking about that yet.
+   *
+   * AF_ values are (relatively) small integers, and shouldn't have their
+   * upper 16 bits zero; Ethernet types have to fit in 16 bits and
+   * thus must have their upper 16 bits zero.  Therefore, if the upper
+   * 16 bits of the field aren't zero, it's in the wrong byte order.
+   *
+   * Ethernet types are bigger than 1536, and AF_ values are smaller
+   * than 1536, so we needn't worry about one being mistaken for
+   * the other.  (There may be a problem if the 16-bit Ethernet
+   * type is byte-swapped as a 16-bit quantity, but if when treated
+   * as a 32-bit quantity its upper 16 bits are zero, but I'll think
+   * about that one later.)
+   *
+   * As for the PPP protocol field values:
+   *
+   * 0x0000 does not appear to be a valid PPP protocol field value,
+   * so the upper 16 bits will be non-zero, and we'll byte swap it.
+   * It'll then be
+   *
+   *	0xFF03PPPP
+   *
+   * where PPPP is a non-byte-swapped PPP protocol field; we'll
+   * check for the upper 16 bits of the byte-swapped field being
+   * non-zero and, if so, assume the lower 16 bits are a PPP
+   * protocol field (AF_ and Ethernet protocol fields should leave
+   * the upper 16 bits zero - unless somebody stuff something else
+   * there; see below).
+   *
+   * So, to compensate for this mess, we:
+   *
+   *	check if the first two octets are 0xFF and 0x03 and, if so,
+   *	treat it as a PPP frame;
+   *
+   *	otherwise, byte-swap the value if its upper 16 bits aren't zero,
+   *	and compare the lower 16 bits of the value against Ethernet
+   *	and AF_ types.
+   *
+   * If, as implied by an earlier version of the "e_nullhdr" structure,
+   * the family is only 16 bits, and there are "next" and "len" fields
+   * before it, that all goes completely to hell.  (Note that, for
+   * the BSD header, we could byte-swap it if the capture was written
+   * on a machine with the opposite byte-order to ours - the "libpcap"
+   * header lets us determine that - but it's more of a mess for Linux,
+   * given that the effect of inserting the two 0 bytes depends only
+   * on the byte order of the machine reading the file.)
+   */
+  if (pd[0] == 0xFF && pd[1] == 0x03) {
+    /*
+     * Hand it to PPP.
+     */
+    capture_ppp(pd, cap_len, ld);
+  } else {
+    /*
+     * Treat it as a normal DLT_NULL header.
+     */
+    memcpy((char *)&null_header, (char *)&pd[0], sizeof(null_header));
 
-  /* 
-  From what I've read in various sources, this is supposed to be an
-  address family, e.g. AF_INET.  However, a FreeBSD ISDN PPP dump that
-  Andreas Klemm sent to ethereal-dev has a packet type of DLT_NULL, and
-  the family bits look like PPP's protocol field.  A dump of the loopback
-  interface on my Linux box also has a link type of DLT_NULL (as it should
-  be), but the family bits look like ethernet's protocol type.  To
-  further  confuse matters, nobody seems to be paying attention to byte
-  order.
-  - gcc
-  */  
-   
-  switch (nh.null_family) {
-    case 0x0008:
-    case 0x0800:
-    case 0x0021:
-    case 0x2100:
-    case 0x0057:
-    case 0x5700:
-    case 0x86DD:
-    case 0xDD86:
-      capture_ip(pd, 4, cap_len, ld);
-      break;
-    default:
-      ld->other++;
-      break;
+    if ((null_header & 0xFFFF0000) != 0) {
+      /* Byte-swap it. */
+      null_header = BSWAP32(null_header);
+    }
+
+    /*
+     * The null header value must be greater than the IEEE 802.3 maximum
+     * frame length to be a valid Ethernet type; if it is, hand it
+     * to "ethertype()", otherwise treat it as a BSD AF_type (we wire
+     * in the values of the BSD AF_ types, because the values
+     * in the file will be BSD values, and the OS on which
+     * we're building this might not have the same values or
+     * might not have them defined at all; XXX - what if different
+     * BSD derivatives have different values?).
+     */
+    if (null_header > IEEE_802_3_MAX_LEN)
+      capture_ethertype(null_header, 4, pd, cap_len, ld);
+    else {
+      switch (null_header) {
+
+      case BSD_AF_INET:
+        capture_ip(pd, 4, cap_len, ld);
+        break;
+
+      default:
+        ld->other++;
+        break;
+      }
+    }
   }
 }
 
 void
-dissect_null( const u_char *pd, frame_data *fd, proto_tree *tree ) {
-  e_nullhdr  nh;
+dissect_null( const u_char *pd, frame_data *fd, proto_tree *tree )
+{
+  guint32     null_header;
   proto_tree *fh_tree;
   proto_item *ti;
 
-  nh.null_next   = pd[0];
-  nh.null_len    = pd[1];
-  memcpy((char *)&nh.null_family, (char *)&pd[2], sizeof(nh.null_family));
+  /*
+   * See comment in "capture_null()" for an explanation of what we're
+   * doing.
+   */
+  if (pd[0] == 0xFF && pd[1] == 0x03) {
+    /*
+     * Hand it to PPP.
+     */
+    dissect_ppp(pd, fd, tree);
+  } else {
+    /*
+     * Treat it as a normal DLT_NULL header.
+     */
+    memcpy((char *)&null_header, (char *)&pd[0], sizeof(null_header));
 
-  /* load the top pane info. This should be overwritten by
-     the next protocol in the stack */
-  if(check_col(fd, COL_RES_DL_SRC))
-    col_add_str(fd, COL_RES_DL_SRC, "N/A" );
-  if(check_col(fd, COL_RES_DL_DST))
-    col_add_str(fd, COL_RES_DL_DST, "N/A" );
-  if(check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "N/A" );
-  if(check_col(fd, COL_INFO))
-    col_add_str(fd, COL_INFO, "Null/Loopback" );
+    if ((null_header & 0xFFFF0000) != 0) {
+      /* Byte-swap it. */
+      null_header = BSWAP32(null_header);
+    }
 
-  /* populate a tree in the second pane with the status of the link
-     layer (ie none) */
-  if(tree) {
-    ti = proto_tree_add_item(tree, proto_null, 0, 4, NULL);
-    fh_tree = proto_item_add_subtree(ti, ETT_NULL);
-    proto_tree_add_item(fh_tree, hf_null_next, 0, 1, nh.null_next);
-    proto_tree_add_item(fh_tree, hf_null_len, 1, 1, nh.null_len);
-    proto_tree_add_item(fh_tree, hf_null_family, 2, 2, nh.null_family);
-  }
+    /* load the top pane info. This should be overwritten by
+       the next protocol in the stack */
+    if(check_col(fd, COL_RES_DL_SRC))
+      col_add_str(fd, COL_RES_DL_SRC, "N/A" );
+    if(check_col(fd, COL_RES_DL_DST))
+      col_add_str(fd, COL_RES_DL_DST, "N/A" );
+    if(check_col(fd, COL_PROTOCOL))
+      col_add_str(fd, COL_PROTOCOL, "N/A" );
+    if(check_col(fd, COL_INFO))
+      col_add_str(fd, COL_INFO, "Null/Loopback" );
 
-  /* 
-  From what I've read in various sources, this is supposed to be an
-  address family, e.g. AF_INET.  However, a FreeBSD ISDN PPP dump that
-  Andreas Klemm sent to ethereal-dev has a packet type of DLT_NULL, and
-  the family bits look like PPP's protocol field.  A dump of the loopback
-  interface on my Linux box also has a link type of DLT_NULL (as it should
-  be), but the family bits look like ethernet's protocol type.  To
-  further  confuse matters, nobody seems to be paying attention to byte
-  order.
-  - gcc
-  */  
-   
-  switch (nh.null_family) {
-    case 0x0008:
-    case 0x0800:
-    case 0x0021:
-    case 0x2100:
-      dissect_ip(pd, 4, fd, tree);
-      break;
-    case 0x86DD:
-    case 0xDD86:
-    case 0x0057:
-    case 0x5700:
-      dissect_ipv6(pd, 4, fd, tree);
-      break;
-    default:
-      dissect_data(pd, 4, fd, tree);
-      break;
+    /*
+     * The null header value must be greater than the IEEE 802.3 maximum
+     * frame length to be a valid Ethernet type; if it is, hand it
+     * to "ethertype()", otherwise treat it as a BSD AF_type (we wire
+     * in the values of the BSD AF_ types, because the values
+     * in the file will be BSD values, and the OS on which
+     * we're building this might not have the same values or
+     * might not have them defined at all; XXX - what if different
+     * BSD derivatives have different values?).
+     */
+    if (null_header > IEEE_802_3_MAX_LEN) {
+      if (tree) {
+        ti = proto_tree_add_item(tree, proto_null, 0, 4, NULL);
+        fh_tree = proto_item_add_subtree(ti, ETT_NULL);
+      } else
+      	fh_tree = NULL;
+      ethertype(null_header, 4, pd, fd, tree, fh_tree, hf_null_etype);
+    } else {
+      /* populate a tree in the second pane with the status of the link
+         layer (ie none) */
+      if (tree) {
+        ti = proto_tree_add_item(tree, proto_null, 0, 4, NULL);
+        fh_tree = proto_item_add_subtree(ti, ETT_NULL);
+        proto_tree_add_item(fh_tree, hf_null_family, 0, 4, null_header);
+      }
+
+      switch (null_header) {
+
+      case BSD_AF_INET:
+        dissect_ip(pd, 4, fd, tree);
+        break;
+
+      case BSD_AF_APPLETALK:
+        dissect_ddp(pd, 4, fd, tree);
+        break;
+
+      case BSD_AF_IPX:
+        dissect_ipx(pd, 4, fd, tree);
+        break;
+
+      case BSD_AF_INET6:
+        dissect_ipv6(pd, 4, fd, tree);
+        break;
+
+      default:
+        dissect_data(pd, 4, fd, tree);
+        break;
+      }
+    }
   }
 }
 
 void
 proto_register_null(void)
 {
-	proto_null = proto_register_protocol (
-		/* name */	"Null/Loopback",
-		/* abbrev */	"null" );
+	static hf_register_info hf[] = {
 
-	hf_null_next = proto_register_field (
-		/* name */	"Next",
-		/* abbrev */	"null.next",
-		/* ftype */	FT_UINT8,
-		/* parent */	proto_null,
-		/* vals[] */	NULL );
+		/* registered here but handled in ethertype.c */
+		{ &hf_null_etype,
+		{ "Type",		"null.type", FT_VALS_UINT16, VALS(etype_vals) }},
 
-	hf_null_len = proto_register_field (
-		/* name */	"Length",
-		/* abbrev */	"null.len",
-		/* ftype */	FT_UINT8,
-		/* parent */	proto_null,
-		/* vals[] */	NULL );
+		{ &hf_null_family,
+		{ "Family",		"null.family",	FT_VALS_UINT32, VALS(family_vals) }}
+	};
 
-	hf_null_family = proto_register_field (
-		/* name */	"Family",
-		/* abbrev */	"null.family",
-		/* ftype */	FT_UINT16,
-		/* parent */	proto_null,
-		/* vals[] */	NULL );
+	proto_null = proto_register_protocol ("Null/Loopback", "null" );
+	proto_register_field_array(proto_null, hf, array_length(hf));
 }

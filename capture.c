@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.57 1999/08/19 05:42:22 guy Exp $
+ * $Id: capture.c,v 1.58 1999/08/22 00:47:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -109,6 +109,8 @@ extern int quit_after_cap;
 /* Capture filter key */
 #define E_CAP_FILT_TE_KEY "cap_filt_te"
 
+static void search_for_if_cb(gpointer data, gpointer user_data);
+static void free_if_cb(gpointer data, gpointer user_data);
 static void capture_prep_ok_cb(GtkWidget *, gpointer);
 static void capture_prep_close_cb(GtkWidget *, gpointer);
 static float pct(gint, gint);
@@ -116,12 +118,20 @@ static void capture_stop_cb(GtkWidget *, gpointer);
 static void capture_pcap_cb(u_char *, const struct pcap_pkthdr *,
   const u_char *);
 
+struct search_user_data {
+	char	*name;
+	int	found;
+};
+
 static GList *
 get_interface_list() {
   GList  *il = NULL;
+  gint    nonloopback_pos = 0;
   struct  ifreq *ifr, *last;
   struct  ifconf ifc;
+  struct  ifreq ifrflags;
   int     sock = socket(AF_INET, SOCK_DGRAM, 0);
+  struct search_user_data user_data;
 
   if (sock < 0)
   {
@@ -139,7 +149,7 @@ get_interface_list() {
     ifc.ifc_len < sizeof(struct ifreq))
   {
     simple_dialog(ESD_TYPE_WARN, NULL,
-      "Can't list interfaces: ioctl error.");
+      "Can't list interfaces: SIOCGIFCONF error: %s", strerror(errno));
     return NULL;
   }
 
@@ -148,19 +158,62 @@ get_interface_list() {
   while (ifr < last)
   {
     /*
-     * What we want:
-     * - Interfaces that are up, and not loopback
-     * - IP interfaces (do we really need this?)
-     * - Anything that doesn't begin with "lo" (loopback again) or "dummy"
-     * - Anything that doesn't include a ":" (Solaris virtuals)
+     * Skip addresses that begin with "dummy", or that include a ":"
+     * (the latter are Solaris virtuals).
      */
-    if (! (ifr->ifr_flags & (IFF_UP | IFF_LOOPBACK)) &&
-        (ifr->ifr_addr.sa_family == AF_INET) &&
-        strncmp(ifr->ifr_name, "lo", 2) &&
-        strncmp(ifr->ifr_name, "dummy", 5) &&
-        ! strchr(ifr->ifr_name, ':')) {
-      il = g_list_append(il, g_strdup(ifr->ifr_name));
+    if (strncmp(ifr->ifr_name, "dummy", 5) == 0 ||
+	strchr(ifr->ifr_name, ':') != NULL)
+      goto next;
+
+    /*
+     * If we already have this interface name on the list, don't add
+     * it (SIOCGIFCONF returns, at least on BSD-flavored systems, one
+     * entry per interface *address*; if an interface has multiple
+     * addresses, we get multiple entries for it).
+     */
+    user_data.name = ifr->ifr_name;
+    user_data.found = FALSE;
+    g_list_foreach(il, search_for_if_cb, &user_data);
+    if (user_data.found)
+      goto next;
+
+    /*
+     * Get the interface flags.
+     */
+    memset(&ifrflags, 0, sizeof ifrflags);
+    strncpy(ifrflags.ifr_name, ifr->ifr_name, sizeof ifrflags.ifr_name);
+    if (ioctl(sock, SIOCGIFFLAGS, (char *)&ifrflags) < 0) {
+      if (errno == ENXIO)
+        goto next;
+      simple_dialog(ESD_TYPE_WARN, NULL,
+        "Can't list interfaces: SIOCGIFFLAGS error on %s: %s",
+        ifr->ifr_name, strerror(errno));
+      goto fail;
     }
+
+    /*
+     * Skip interfaces that aren't up.
+     */
+    if (!(ifrflags.ifr_flags & IFF_UP))
+      goto next;
+
+    /*
+     * If it's a loopback interface, add it at the end of the list,
+     * otherwise add it after the last non-loopback interface,
+     * so all loopback interfaces go at the end - we don't want a
+     * loopback interface to be the default capture device unless there
+     * are no non-loopback devices.
+     */
+    if ((ifrflags.ifr_flags & IFF_LOOPBACK) ||
+	strncmp(ifr->ifr_name, "lo", 2) == 0)
+      il = g_list_insert(il, g_strdup(ifr->ifr_name), -1);
+    else {
+      il = g_list_insert(il, g_strdup(ifr->ifr_name), nonloopback_pos);
+      /* Insert the next non-loopback interface after this one. */
+      nonloopback_pos++;
+    }
+
+next:
 #ifdef HAVE_SA_LEN
     ifr = (struct ifreq *) ((char *) ifr + ifr->ifr_addr.sa_len + IFNAMSIZ);
 #else
@@ -170,6 +223,26 @@ get_interface_list() {
 
   free(ifc.ifc_buf);
   return il;
+
+fail:
+  g_list_foreach(il, free_if_cb, NULL);
+  g_list_free(il);
+  return NULL;
+}
+
+static void
+search_for_if_cb(gpointer data, gpointer user_data)
+{
+	struct search_user_data *search_user_data = user_data;
+
+	if (strcmp((char *)data, search_user_data->name) == 0)
+		search_user_data->found = TRUE;
+}
+
+static void
+free_if_cb(gpointer data, gpointer user_data)
+{
+	g_free(data);
 }
 
 void
@@ -268,7 +341,7 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
   gtk_widget_show(snap_lb);
 
   adj = (GtkAdjustment *) gtk_adjustment_new((float) cf.snap,
-    MIN_PACKET_SIZE, MAX_PACKET_SIZE, 1.0, 10.0, 0.0);
+    MIN_PACKET_SIZE, WTAP_MAX_PACKET_SIZE, 1.0, 10.0, 0.0);
   snap_sb = gtk_spin_button_new (adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (snap_sb), TRUE);
   gtk_widget_set_usize (snap_sb, 80, 0);
@@ -330,7 +403,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
   cf.count = atoi(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(count_cb)->entry)));
   cf.snap = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(snap_sb));
   if (cf.snap < 1)
-    cf.snap = MAX_PACKET_SIZE;
+    cf.snap = WTAP_MAX_PACKET_SIZE;
   else if (cf.snap < MIN_PACKET_SIZE)
     cf.snap = MIN_PACKET_SIZE;
 
@@ -427,7 +500,6 @@ typedef struct _loop_data {
   gint           go;
   gint           max;
   gint           linktype;
-  gint           wtap_linktype;
   gint           sync_packets;
   packet_counts  counts;
   wtap_dumper   *pdh;
@@ -449,7 +521,7 @@ capture(void) {
   ld.go             = TRUE;
   ld.counts.total   = 0;
   ld.max            = cf.count;
-  ld.linktype       = DLT_NULL;
+  ld.linktype       = WTAP_ENCAP_UNKNOWN;
   ld.sync_packets   = 0;
   ld.counts.tcp     = 0;
   ld.counts.udp     = 0;
@@ -465,15 +537,14 @@ capture(void) {
   pch = pcap_open_live(cf.iface, cf.snap, 1, 250, err_str);
 
   if (pch) {
-    ld.linktype = pcap_datalink(pch);
-    ld.wtap_linktype = wtap_pcap_encap_to_wtap_encap(ld.linktype);
-    if (ld.wtap_linktype == WTAP_ENCAP_UNKNOWN) {
+    ld.linktype = wtap_pcap_encap_to_wtap_encap(pcap_datalink(pch));
+    if (ld.linktype == WTAP_ENCAP_UNKNOWN) {
       errmsg = "The network you're capturing from is of a type"
                " that Ethereal doesn't support.";
       goto fail;
     }
     ld.pdh = wtap_dump_fdopen(cf.save_file_fd, WTAP_FILE_PCAP,
-		ld.wtap_linktype, pcap_snapshot(pch), &err);
+		ld.linktype, pcap_snapshot(pch), &err);
 
     if (ld.pdh == NULL) {  /* We have an error */
       switch (err) {
@@ -740,29 +811,41 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
      whdr.ts = phdr->ts;
      whdr.caplen = phdr->caplen;
      whdr.len = phdr->len;
-     whdr.pkt_encap = ld->wtap_linktype;
+     whdr.pkt_encap = ld->linktype;
 
      /* XXX - do something if this fails */
      wtap_dump(ld->pdh, &whdr, pd, &err);
   }
     
   switch (ld->linktype) {
-    case DLT_EN10MB :
+    case WTAP_ENCAP_ETHERNET:
       capture_eth(pd, phdr->caplen, &ld->counts);
       break;
-    case DLT_FDDI :
+    case WTAP_ENCAP_FDDI:
       capture_fddi(pd, phdr->caplen, &ld->counts);
       break;
-    case DLT_IEEE802 :
+    case WTAP_ENCAP_TR:
       capture_tr(pd, phdr->caplen, &ld->counts);
       break;
-    case DLT_NULL :
+    case WTAP_ENCAP_NULL:
       capture_null(pd, phdr->caplen, &ld->counts);
       break;
-    case DLT_PPP :
+    case WTAP_ENCAP_PPP:
       capture_ppp(pd, phdr->caplen, &ld->counts);
       break;
-    case DLT_RAW :
+#if 0
+#ifdef DLT_ENC
+    case DLT_ENC :	/* XXX - OpenBSD "IPSEC enc type (af header, spi,
+    			   flags)" */
+#endif
+#ifdef DLT_LOOP
+    case DLT_LOOP :	/* XXX - prepended 4-byte AF_xxxx value in OpenBSD,
+    			   network byte order */
+#endif
+#endif
+			/* XXX - FreeBSD may append 4-byte ATM pseudo-header
+			   to DLT_ATM_RFC1483, with LLC header following */
+    case WTAP_ENCAP_RAW_IP:
       capture_raw(pd, phdr->caplen, &ld->counts);
       break;
   }

@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.38 1999/08/18 16:28:22 gram Exp $
+ * $Id: file.h,v 1.39 1999/08/22 00:47:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -76,13 +76,7 @@ typedef struct _capture_file {
   gchar       *cfilter;   /* Capture filter string */
   bpf_prog     fcode;     /* Compiled capture filter program */
 #endif
-  /* XXX - I'm cheating for now. I'll hardcode 65536 here until I re-arrange
-   * more header files so that ethereal.h is split up into two files, a
-   * generic header and a gtk+-specific header (or the gtk+ definitions are
-   * moved to different header files) --gilbert
-   */
-  /*guint8       pd[MAX_PACKET_SIZE];*/  /* Packet data */
-  guint8       pd[65536];  /* Packet data */
+  guint8       pd[WTAP_MAX_PACKET_SIZE];  /* Packet data */
   frame_data  *plist;     /* Packet list */
   frame_data  *plist_end; /* Last packet in list */
   column_info  cinfo;    /* Column formatting information */

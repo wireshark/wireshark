@@ -1,7 +1,7 @@
 /* etypes.h
  * Defines ethernet packet types, similar to tcpdump's ethertype.h
  *
- * $Id: etypes.h,v 1.6 1999/06/22 22:02:11 gram Exp $
+ * $Id: etypes.h,v 1.7 1999/08/22 00:47:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,6 +25,8 @@
 
 #ifndef __ETYPES_H__
 #define __ETYPES_H__
+
+#define IEEE_802_3_MAX_LEN 1500
 
 #ifndef ETHERTYPE_UNK
 #define ETHERTYP_UNK 0x0000

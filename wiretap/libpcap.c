@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.10 1999/08/19 05:31:37 guy Exp $
+ * $Id: libpcap.c,v 1.11 1999/08/22 00:47:56 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -75,26 +75,45 @@ static int libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const u_char *pd, int *err);
 static int libpcap_dump_close(wtap_dumper *wdh, int *err);
 
+/*
+ * XXX - this is a bit of a mess.  OpenBSD, and perhaps NetBSD, have
+ * different DLT_ codes from FreeBSD (and from the LBL BPF code).
+ * For now, we simply treat all except DLT_RAW as "unknown"; this
+ * means you won't be able to capture from a network using those
+ * types in Ethereal (and that capturing from the loopback interface
+ * won't necessarily work right on OpenBSD, either).
+ *
+ * Does anybody know what BSD/OS uses as DLT_ types for SLIP and
+ * PPP?  The LBL code, and the OpenBSD code, appear to disagree....
+ *
+ * Nothing in FreeBSD appears to use DLT_RAW, so it's not clear what
+ * link-layer header or fake header appears.  If it's completely
+ * unused, or if it behaves the same way OpenBSD DLT_LOOP behaves,
+ * i.e. it puts an address family in *network* byte order (as opposed
+ * to the *host* byte order that DLT_NULL uses on FreeBSD), then
+ * we should just make it WTAP_ENCAP_LOOP and process that as an
+ * OpenBSD DLT_LOOP.
+ */
 static const int pcap_encap[] = {
-	WTAP_ENCAP_NONE,	/* no encapsulation */
+	WTAP_ENCAP_NULL,	/* null encapsulation */
 	WTAP_ENCAP_ETHERNET,
-	WTAP_ENCAP_NONE,	/* 3Mb experimental Ethernet */
-	WTAP_ENCAP_NONE,	/* Amateur Radio AX.25 */
-	WTAP_ENCAP_NONE,	/* Proteon ProNET Token Ring */
-	WTAP_ENCAP_NONE,	/* Chaos */
+	WTAP_ENCAP_UNKNOWN,	/* 3Mb experimental Ethernet */
+	WTAP_ENCAP_UNKNOWN,	/* Amateur Radio AX.25 */
+	WTAP_ENCAP_UNKNOWN,	/* Proteon ProNET Token Ring */
+	WTAP_ENCAP_UNKNOWN,	/* Chaos */
 	WTAP_ENCAP_TR,		/* IEEE 802 Networks - assume token ring */
 	WTAP_ENCAP_ARCNET,
 	WTAP_ENCAP_SLIP,
 	WTAP_ENCAP_PPP,
 	WTAP_ENCAP_FDDI,
 	WTAP_ENCAP_ATM_RFC1483,
-	WTAP_ENCAP_RAW_IP,
-	WTAP_ENCAP_NONE,
-	WTAP_ENCAP_NONE,
-	WTAP_ENCAP_NONE,
-	WTAP_ENCAP_NONE,
-	WTAP_ENCAP_NONE,
-	WTAP_ENCAP_NONE,
+	WTAP_ENCAP_RAW_IP,	/* or, on OpenBSD, DLT_LOOP */
+	WTAP_ENCAP_UNKNOWN,	/* BSD/OS SLIP *and* OpenBSD DLT_ENC */
+	WTAP_ENCAP_UNKNOWN,	/* BSD/OS PPP *and* OpenBSD DLT_RAW */
+	WTAP_ENCAP_UNKNOWN,	/* OpenBSD BSD/OS SLIP */
+	WTAP_ENCAP_UNKNOWN,	/* OpenBSD BSD/OS PPP */
+	WTAP_ENCAP_UNKNOWN,
+	WTAP_ENCAP_UNKNOWN,
 	WTAP_ENCAP_LINUX_ATM_CLIP
 };
 #define NUM_PCAP_ENCAPS (sizeof pcap_encap / sizeof pcap_encap[0])
@@ -152,8 +171,9 @@ int libpcap_open(wtap *wth, int *err)
 		*err = WTAP_ERR_UNSUPPORTED;
 		return -1;
 	}
-	if (hdr.network >= NUM_PCAP_ENCAPS) {
-		g_message("pcap: network type %d unknown", hdr.network);
+	if (hdr.network >= NUM_PCAP_ENCAPS
+	    || pcap_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
+		g_message("pcap: network type %d unknown or unsupported", hdr.network);
 		*err = WTAP_ERR_UNSUPPORTED;
 		return -1;
 	}
@@ -173,7 +193,7 @@ int libpcap_open(wtap *wth, int *err)
 /* Read the next packet */
 static int libpcap_read(wtap *wth, int *err)
 {
-	int	packet_size;
+	guint	packet_size;
 	int	bytes_read;
 	struct pcaprec_hdr hdr;
 	int	data_offset;
@@ -221,6 +241,17 @@ static int libpcap_read(wtap *wth, int *err)
 	}
 
 	packet_size = hdr.incl_len;
+	if (packet_size > WTAP_MAX_PACKET_SIZE) {
+		/*
+		 * Probably a corrupt capture file; don't blow up trying
+		 * to allocate space for an immensely-large packet.
+		 */
+		g_message("pcap: File has %u-byte packet, bigger than maximum of %u",
+		    packet_size, WTAP_MAX_PACKET_SIZE);
+		*err = WTAP_ERR_BAD_RECORD;
+		return -1;
+	}
+
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	data_offset = ftell(wth->fh);
 	errno = WTAP_ERR_CANT_READ;

@@ -1,7 +1,7 @@
 /* ethereal.h
  * Global defines, etc.
  *
- * $Id: ethereal.h,v 1.21 1999/08/12 07:36:40 guy Exp $
+ * $Id: ethereal.h,v 1.22 1999/08/22 00:47:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,7 +41,6 @@
 #endif
 
 #define MIN_PACKET_SIZE 68	/* minimum amount of packet data we can read */
-#define MAX_PACKET_SIZE 65535	/* maximum amount of packet data we can read */
 
 /* Byte swapping routines */
 #define SWAP16(x) \

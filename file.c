@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.77 1999/08/20 20:37:47 gram Exp $
+ * $Id: file.c,v 1.78 1999/08/22 00:47:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -255,6 +255,10 @@ read_cap_file(capture_file *cf) {
     case WTAP_ERR_SHORT_READ:
       errmsg = "The capture file appears to have been cut short"
                " in the middle of a packet.";
+      break;
+
+    case WTAP_ERR_BAD_RECORD:
+      errmsg = "The capture file appears to be damaged or corrupt.";
       break;
 
     default:
@@ -1018,8 +1022,11 @@ file_open_error_message(int err, int for_writing)
 
   case WTAP_ERR_FILE_UNKNOWN_FORMAT:
   case WTAP_ERR_UNSUPPORTED:
-  case WTAP_ERR_BAD_RECORD:
     errmsg = "The file \"%s\" is not a capture file in a format Ethereal understands.";
+    break;
+
+  case WTAP_ERR_BAD_RECORD:
+    errmsg = "The file \"%s\" appears to be damaged or corrupt.";
     break;
 
   case WTAP_ERR_CANT_OPEN:

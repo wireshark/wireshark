@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.16 1999/08/20 06:55:06 guy Exp $
+ * $Id: packet-eth.c,v 1.17 1999/08/22 00:47:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,8 +44,6 @@ static int hf_eth_dst = -1;
 static int hf_eth_src = -1;
 static int hf_eth_len = -1;
 static int hf_eth_type = -1;
-
-#define IEEE_802_3_MAX_LEN 1500
 
 #define ETH_HEADER_SIZE	14
 
