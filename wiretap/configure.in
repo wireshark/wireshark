@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.20 2000/01/13 07:09:15 guy Exp $
+# $Id: configure.in,v 1.21 2000/02/12 08:54:32 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -55,11 +55,7 @@ AC_C_BIGENDIAN
 
 dnl zlib check
 AC_ARG_ENABLE(zlib,
-[  --enable-zlib           use zlib to read compressed data.  [default=yes]],, [dnl
-case "$host_os" in
-netbsd*)	enable_zlib=no;;
-*)		enable_zlib=yes;;
-esac])
+[  --enable-zlib           use zlib to read compressed data.  [default=yes]],,enable_zlib=yes)
 
 AC_MSG_CHECKING(whether to use zlib for reading compressed capture files)
 if test "x$enable_zlib" = "xno" ; then
@@ -67,6 +63,9 @@ if test "x$enable_zlib" = "xno" ; then
 else
         AC_MSG_RESULT(yes)
 	AC_WIRETAP_ZLIB_CHECK
+	if test "x$enable_zlib" = "xno" ; then
+		AC_MSG_RESULT(zlib not found - disabling compressed capture file support)
+	fi
 fi
 
 AC_OUTPUT(Makefile)
