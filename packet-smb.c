@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.48 1999/11/27 02:17:49 sharpe Exp $
+ * $Id: packet-smb.c,v 1.49 1999/11/30 03:46:46 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -10145,6 +10145,10 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
       }
 
       loc_offset += 2;
+
+      if (! BYTES_ARE_IN_FRAME(loc_offset, 26 * EntCount) ) {
+	return 1;
+      }
 
       if (tree) {
 
