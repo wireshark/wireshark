@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.387 2004/03/01 08:34:34 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.388 2004/03/20 06:06:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5729,6 +5729,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	guint16 pwlen=0;
 	guint16 sbloblen=0;
 	guint16 apwlen=0, upwlen=0;
+	gboolean unicodeflag;
 
 	WORD_COUNT;
 
@@ -5864,9 +5865,20 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			COUNT_BYTES(sbloblen);
 		}
 
-		/* OS */
+		/* OS
+		 * Eventhough this field should honour the unicode flag
+		 * some ms clients gets this wrong.
+		 * At least XP SP1 sends this in ASCII
+		 * even when the unicode flag is on.
+		 * Test if the first three bytes are "Win"
+		 * and if so just override the flag.
+		 */
+		unicodeflag=si->unicode;
+		if( !strncmp(tvb_get_ptr(tvb, offset, 3), "Win", 3) ){
+			unicodeflag=FALSE;
+		}
 		an = get_unicode_or_ascii_string(tvb, &offset,
-			si->unicode, &an_len, FALSE, FALSE, &bc);
+			unicodeflag, &an_len, FALSE, FALSE, &bc);
 		if (an == NULL)
 			goto endofcommand;
 		proto_tree_add_string(tree, hf_smb_os, tvb,
@@ -5879,9 +5891,20 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		 * appear to. I suspect that's a bug that got fixed; I also
 		 * suspect that, in practice, nobody ever looks at that field
 		 * because the bug didn't appear to get fixed until NT 5.0....
+		 *
+		 * Eventhough this field should honour the unicode flag
+		 * some ms clients gets this wrong.
+		 * At least XP SP1 sends this in ASCII
+		 * even when the unicode flag is on.
+		 * Test if the first three bytes are "Win"
+		 * and if so just override the flag.
 		 */
+		unicodeflag=si->unicode;
+		if( !strncmp(tvb_get_ptr(tvb, offset, 3), "Win", 3) ){
+			unicodeflag=FALSE;
+		}
 		an = get_unicode_or_ascii_string(tvb, &offset,
-			si->unicode, &an_len, FALSE, FALSE, &bc);
+			unicodeflag, &an_len, FALSE, FALSE, &bc);
 		if (an == NULL)
 			goto endofcommand;
 		proto_tree_add_string(tree, hf_smb_lanman, tvb,
