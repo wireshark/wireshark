@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.108 2001/09/27 10:10:08 guy Exp $
+ * $Id: packet-tcp.c,v 1.109 2001/09/28 23:34:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -474,16 +474,16 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	}
 
 	if (must_desegment) {
-		tcp_segment_key *tsk, *new_tsk;
+	    tcp_segment_key *tsk, *new_tsk;
 
-		/*
-		 * XXX - how do we detect out-of-order transmissions?
-		 * We can't just check for "nxtseq" being greater than
-		 * "tsk->start_seq"; for now, we check for the difference
-		 * being less than a megabyte, but this is a really
-		 * gross hack - we really need to handle out-of-order
-		 * transmissions correctly.
-		 */
+	    /*
+	     * XXX - how do we detect out-of-order transmissions?
+	     * We can't just check for "nxtseq" being greater than
+	     * "tsk->start_seq"; for now, we check for the difference
+	     * being less than a megabyte, but this is a really
+	     * gross hack - we really need to handle out-of-order
+	     * transmissions correctly.
+	     */
 	    if ((nxtseq - (seq + pinfo->desegment_offset)) <= 1024*1024) {
 		/* OK, subdissector wants us to desegment
 		   some data before it can process it. Add
