@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.180 2000/04/07 07:48:15 guy Exp $
+ * $Id: file.c,v 1.181 2000/04/07 08:00:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1194,12 +1194,6 @@ find_packet(capture_file *cf, dfilter *sfcode)
           fd = cf->plist;	/* wrap around */
       }
 
-      if (fd == start_fd) {
-        /* We're back to the frame we were on originally.  The search
-           failed. */
-        break;
-      }
-
       count++;
 
       /* Is this packet in the display? */
@@ -1214,6 +1208,12 @@ find_packet(capture_file *cf, dfilter *sfcode)
           new_fd = fd;
           break;	/* found it! */
         }
+      }
+
+      if (fd == start_fd) {
+        /* We're back to the frame we were on originally, and that frame
+	   doesn't match the search filter.  The search failed. */
+        break;
       }
     }
 
