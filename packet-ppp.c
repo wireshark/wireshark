@@ -2,7 +2,7 @@
  * Routines for ppp packet disassembly
  * RFC 1661, RFC 1662
  *
- * $Id: packet-ppp.c,v 1.117 2003/11/16 23:17:20 guy Exp $
+ * $Id: packet-ppp.c,v 1.118 2004/04/29 20:21:28 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,6 +72,12 @@ static gint ett_ipcp = -1;
 static gint ett_ipcp_options = -1;
 static gint ett_ipcp_ipaddrs_opt = -1;
 static gint ett_ipcp_compressprot_opt = -1;
+
+static int proto_osicp = -1;
+
+static gint ett_osicp = -1;
+static gint ett_osicp_options = -1;
+static gint ett_osicp_align_npdu_opt = -1;
 
 static int proto_ccp = -1;
 
@@ -977,6 +983,28 @@ static const ip_tcp_opt ipcp_opts[] = {
 };
 
 #define N_IPCP_OPTS	(sizeof ipcp_opts / sizeof ipcp_opts[0])
+
+/*
+ * Options.  (OSICP)
+ */
+#define CI_OSICP_ALIGN_NPDU      1       /* Alignment of the OSI NPDU (RFC 1377) */
+
+static void dissect_osicp_align_npdu_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                        int offset, guint length, packet_info *pinfo,
+                        proto_tree *tree);
+
+static const ip_tcp_opt osicp_opts[] = {
+        {
+                CI_OSICP_ALIGN_NPDU,
+                "Align-NPDU",
+                &ett_osicp_align_npdu_opt,
+                FIXED_LENGTH,
+                3,
+                dissect_osicp_align_npdu_opt
+        }
+};
+
+#define N_OSICP_OPTS     (sizeof osicp_opts / sizeof osicp_opts[0])
 
 /*
  * Options.  (CCP)
@@ -1982,6 +2010,22 @@ static void dissect_ipcp_addr_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 			ip_to_str(tvb_get_ptr(tvb, offset + 2, 4)));
 }
 
+static void dissect_osicp_align_npdu_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                        int offset, guint length, packet_info *pinfo _U_,
+                        proto_tree *tree)
+{
+  proto_item *tf;
+  proto_tree *field_tree;
+  guint8 alignment;
+
+  tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+
+  alignment = tvb_get_guint8(tvb, offset + 2);
+  proto_tree_add_text(field_tree, tvb, offset + 2, 1,
+      "Alignment: %u", alignment);
+}
+
 static void dissect_pppmuxcp_def_pid_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 			int offset, guint length, packet_info *pinfo _U_,
 			proto_tree *tree)
@@ -2551,6 +2595,16 @@ dissect_ipcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   dissect_cp(tvb, proto_ipcp, ett_ipcp, cp_vals, ett_ipcp_options,
 	     ipcp_opts, N_IPCP_OPTS, pinfo, tree);
+}
+
+/*
+ * RFC 1377.
+ */
+static void
+dissect_osicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_cp(tvb, proto_osicp, ett_osicp, cp_vals, ett_osicp_options,
+             osicp_opts, N_OSICP_OPTS, pinfo, tree);
 }
 
 /*
@@ -3359,6 +3413,35 @@ proto_reg_handoff_ipcp(void)
    * registering with the "ethertype" dissector table.
    */
   dissector_add("ethertype", PPP_IPCP, ipcp_handle);
+}
+
+void
+proto_register_osicp(void)
+{
+  static gint *ett[] = {
+    &ett_osicp,
+    &ett_osicp_options,
+    &ett_osicp_align_npdu_opt,
+  };
+
+  proto_osicp = proto_register_protocol("PPP OSI Control Protocol", "PPP OSICP",
+                                      "osicp");
+  proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_osicp(void)
+{
+  dissector_handle_t osicp_handle;
+
+  osicp_handle = create_dissector_handle(dissect_osicp, proto_osicp);
+  dissector_add("ppp.protocol", PPP_OSICP, osicp_handle);
+
+  /*
+   * See above comment about NDISWAN for an explanation of why we're
+   * registering with the "ethertype" dissector table.
+   */
+  dissector_add("ethertype", PPP_OSICP, osicp_handle);
 }
 
 void

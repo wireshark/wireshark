@@ -2101,6 +2101,7 @@ Carlos M. Pignataro <cpignata [AT] cisco.com> {
 	Graceful Restart Mechanism for LDP [RFC3478]
 	Fault Tolerance for LDP [RFC3479]
 	Other LDP enhancements
+        PPP OSI Network Layer Control Protocol [RFC1377]
 }
 
 And assorted fixes and enhancements by the people listed above and by:
