@@ -32,7 +32,13 @@ libdissectors_la_SOURCES = \
 	$(DISSECTOR_SUPPORT_SRC)
 
 EXTRA_DIST = \
-	Makefile.nmake		
+	Makefile.nmake		\
+	make-reg-dotc		\
+	make-reg-dotc.py	\
+	ncp2222.py		\
+	packet-ncp2222.inc	\
+	process-x11-fields.pl	\
+	x11-fields
 
 packet-ncp2222.c : $(srcdir)/ncp2222.py
 	$(PYTHON) $< -o $@

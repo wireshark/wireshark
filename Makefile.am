@@ -308,24 +308,6 @@ SUFFIXES = .sh
 	rm -f $@ $@.tmp
 	$(editsh) $< > $@.tmp && chmod +x $@.tmp && mv $@.tmp $@
 
-#
-# Build "tethereal-tap-register.c", which contains a function 
-# "register_all_tap_listeners()"
-# that calls the register routines for all tehtereal tap listeners.
-#
-# We do this by grepping through sources.
-#
-# Formatting conventions:  The name of the tap_listener_register_* 
-# routines must start in column zero, or must be preceded only by 
-# "void " starting in column zero, and must not be inside #if.
-#
-# The first argument is the directory in which the source files live.
-# All subsequent arguments are the files to scan.
-#
-tethereal-tap-register.c: $(TETHEREAL_TAP_SRC) $(srcdir)/make-tapreg-dotc
-	@echo Making tethereal-tap-register.c
-	@$(srcdir)/make-tapreg-dotc tethereal-tap-register.c $(srcdir) $(TETHEREAL_TAP_SRC)
-
 ps.c: print.ps rdps
 	./rdps $(srcdir)/print.ps ps.c
 
@@ -512,8 +494,6 @@ EXTRA_DIST = \
 	image/icon_layout_6.xpm \
 	make-authors-short.pl	\
 	make-manuf		\
-	make-reg-dotc		\
-	make-reg-dotc.py	\
 	make-tapreg-dotc	\
 	make-version.pl		\
 	manuf                   \
@@ -521,18 +501,14 @@ EXTRA_DIST = \
 	mergecap.c		\
 	mobileipv4.xml		\
 	nasreq.xml		\
-	ncp2222.py              \
-	packet-ncp2222.inc	\
 	print.ps                \
-	process-x11-fields.pl	\
 	randpkt.c		\
 	rdps.c			\
 	sunping.xml		\
 	text2pcap-scanner.l     \
 	text2pcap.c             \
 	text2pcap.h             \
-	wka.tmpl		\
-	x11-fields
+	wka.tmpl
 
 if SETUID_INSTALL
 install-exec-hook:
