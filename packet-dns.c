@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.108 2003/12/11 08:54:19 ulfl Exp $
+ * $Id: packet-dns.c,v 1.109 2003/12/11 18:38:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -890,8 +890,8 @@ static const value_string cert_vals[] = {
 
 /**
  *   Compute the key id of a KEY RR depending of the algorithm used.
- *   If the specified size is bad, or we don't support the algorithm,
- *   return -1.
+ *   If the specified size is bad, return -1.
+ *   If we don't support the algorithm, return -2.
  */
 static int
 compute_key_id(tvbuff_t *tvb, int offset, int size, guint8 algo) 
@@ -919,7 +919,7 @@ compute_key_id(tvbuff_t *tvb, int offset, int size, guint8 algo)
        ac += (ac >> 16) & 0xffff;
        return (ac & 0xffff);
      default:
-       return -1;
+       return -2;
   }
 }
 
@@ -1367,10 +1367,15 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Algorithm: %s",
 		val_to_str(algo, algo_vals, "Unknown (0x%02X)"));
 	cur_offset += 1;
-		rr_len -= 1;
+	rr_len -= 1;
 
 	key_id = compute_key_id(tvb, cur_offset-4, rr_len+4, algo);
-	if (key_id != -1)
+	/* XXX - -1 "can't happen", as rr_len should be >= 0; however,
+	   none of the RR dissectors check rr_len as we process the
+	   RR. */
+	if (key_id == -2)
+	  proto_tree_add_text(rr_tree, tvb, cur_offset-4, rr_len+4, "Key id: Unknown (algorithm 0x%02X not supported)", algo);
+	else
 	  proto_tree_add_text(rr_tree, tvb, cur_offset-4, rr_len+4, "Key id: %d", key_id);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, rr_len, "Public key");
       }
