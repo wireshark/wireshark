@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.62 2001/01/22 08:03:45 guy Exp $
+ * $Id: packet-dns.c,v 1.63 2001/02/20 07:17:20 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1888,7 +1888,7 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
 
   case T_TSIG:
     {
-      guint8 tsig_fudge;
+      guint16 tsig_fudge;
       guint16 tsig_originalid, tsig_error, tsig_timehi, tsig_siglen, tsig_otherlen;
       guint32 tsig_timelo;
       char tsig_algname[MAXDNAME];
@@ -1915,17 +1915,13 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
 	}
 
 	tsig_timehi = pntohs(&pd[cur_offset]);
-	cur_offset += 2;
-	rr_len -= 2;
-
-	tsig_timelo = pntohl(&pd[cur_offset]);
-	cur_offset += 4;
-	rr_len -= 4;
-
+	tsig_timelo = pntohl(&pd[cur_offset + 2]);
 	unixtime.tv_sec = tsig_timelo;
 	unixtime.tv_usec = 0;
 	proto_tree_add_text(rr_tree, NullTVB, cur_offset, 6, "Time signed: %s%s",
 		abs_time_to_str(&unixtime), tsig_timehi == 0 ? "" : "(high bits set)");
+	cur_offset += 6;
+	rr_len -= 6;
 
 	if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
 	  /* We ran past the end of the captured data in the packet. */
@@ -1933,11 +1929,10 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
 	}
 
 	tsig_fudge = pntohs(&pd[cur_offset]);
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset, 2, "Fudge: %u",
+		tsig_fudge);
 	cur_offset += 2;
 	rr_len -= 2;
-
-	proto_tree_add_text(rr_tree, NullTVB, cur_offset, 2, "Fudge: %d",
-		tsig_fudge);
 
 	if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
 	  /* We ran past the end of the captured data in the packet. */
@@ -1963,11 +1958,10 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
 	}
 
 	tsig_originalid = pntohs(&pd[cur_offset]);
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset, 2, "Original id: %d",
+		tsig_originalid);
 	cur_offset += 2;
 	rr_len -= 2;
-
-	proto_tree_add_text(rr_tree, NullTVB, cur_offset, 4, "Original id: %d",
-		tsig_originalid);
 
 	if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
 	  /* We ran past the end of the captured data in the packet. */
@@ -1975,12 +1969,11 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
 	}
 
 	tsig_error = pntohs(&pd[cur_offset]);
-	cur_offset += 2;
-	rr_len -= 2;
-
-        proto_tree_add_text(rr_tree, NullTVB, cur_offset, 4, "Error: %s",
+        proto_tree_add_text(rr_tree, NullTVB, cur_offset, 2, "Error: %s",
 		val_to_str(tsig_error, rcode_vals,
 		val_to_str(tsig_error, tsigerror_vals, "Unknown error (%x)")));
+	cur_offset += 2;
+	rr_len -= 2;
 
 	if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
 	  /* We ran past the end of the captured data in the packet. */
