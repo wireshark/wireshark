@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.75 2003/09/02 22:47:57 guy Exp $
+ * $Id: packet-wsp.c,v 1.76 2003/09/04 19:12:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -151,6 +151,11 @@ static int hf_wsp_header_via				= HF_EMPTY;
 static int hf_wsp_header_wap_application_id		= HF_EMPTY;
 static int hf_wsp_header_wap_application_id_str		= HF_EMPTY;
 
+/* Push-specific WSP headers */
+static int hf_wsp_header_push_flag			= HF_EMPTY;
+static int hf_wsp_header_push_flag_auth		= HF_EMPTY;
+static int hf_wsp_header_push_flag_trust	= HF_EMPTY;
+static int hf_wsp_header_push_flag_last		= HF_EMPTY;
 
 /* Openwave-specific WSP headers */
 static int hf_wsp_header_openwave_proxy_push_addr	= HF_EMPTY;
@@ -215,6 +220,7 @@ static gint ett_redirect_afl				= ETT_EMPTY;
 static gint ett_multiparts				= ETT_EMPTY;
 static gint ett_mpartlist				= ETT_EMPTY;
 static gint ett_header_credentials			= ETT_EMPTY;
+static gint ett_push_flags			= ETT_EMPTY;
 
 /* Handle for WSP-over-UDP dissector */
 static dissector_handle_t wsp_fromudp_handle;
@@ -971,6 +977,12 @@ static const true_false_string yes_no_truth = {
 	"No"
 };
 
+static const value_string vals_false_true[] = {
+	{ 0, "False" },
+	{ 1, "True" },
+	{ 0, NULL },
+};
+
 /*
  * Windows appears to define DELETE.
  */
@@ -1064,6 +1076,9 @@ static void add_credentials_value_header (proto_tree *tree,
 		tvbuff_t *header_buff, int headerLen, tvbuff_t *value_buff,
 		value_type_t valueType, int valueLen,
 		int hf_main, int hf_scheme, int hf_basic_user_id, int hf_basic_password);
+static void add_push_flag_header (proto_tree *tree,
+		tvbuff_t *header_buff, int headerLen, tvbuff_t *value_buff,
+		value_type_t valueType, int valueLen);
 static void add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type);
 static void add_capability_vals(tvbuff_t *, gboolean, int, guint, guint, char *, size_t);
 static value_type_t get_value_type_len (tvbuff_t *, int, guint *, int *, int *);
@@ -1947,6 +1962,11 @@ add_well_known_header (proto_tree *tree, tvbuff_t *tvb, int offset,
 		add_quoted_string_value_header (tree, header_buff, headerLen,
 		    value_buff, valueType, valueLen,
 		    hf_wsp_header_content_ID, headerType);
+		break;
+
+	case FN_PUSH_FLAG: /* Push-Flag */
+		add_push_flag_header (tree, header_buff, headerLen,
+				value_buff, valueType, valueLen);
 		break;
 	
 	case FN_AUTHORIZATION: /* Authorization */
@@ -3103,6 +3123,42 @@ add_credentials_value_header (proto_tree *tree, tvbuff_t *header_buff,
 	}
 	return;
 }
+
+
+static void
+add_push_flag_header (proto_tree *tree, tvbuff_t *header_buff,
+		int headerLen, tvbuff_t *value_buff, value_type_t valueType,
+		int valueLen)
+{
+	proto_item *ti = NULL;
+	proto_tree *subtree = NULL;
+	
+	if (valueType == VALUE_IN_LEN) {
+		valueLen &= 0x7F; /* Clear highest bit */
+		ti = proto_tree_add_uint (tree, hf_wsp_header_push_flag,
+				header_buff, 0, headerLen, valueLen);
+		subtree = proto_item_add_subtree (ti, ett_push_flags);
+		proto_tree_add_uint (subtree, hf_wsp_header_push_flag_auth,
+				value_buff, 1, 1, valueLen);
+		proto_tree_add_uint (subtree, hf_wsp_header_push_flag_trust,
+				value_buff, 1, 1, valueLen);
+		proto_tree_add_uint (subtree, hf_wsp_header_push_flag_last,
+				value_buff, 1, 1, valueLen);
+		if (valueLen & 0x01)
+			proto_item_append_text (ti, " (Initiator URI authenticated)");
+		if (valueLen & 0x02)
+			proto_item_append_text (ti, " (Content trusted)");
+		if (valueLen & 0x04)
+			proto_item_append_text (ti, " (Last push message)");
+		if (valueLen & 0x78)
+			proto_item_append_text (ti, " - Reserved flags set");
+	} else {
+		proto_tree_add_text (tree, header_buff, 0, headerLen,
+				"Push-Flag: (Invalid header value format)");
+	}
+	return;
+}
+
 
 static void
 add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type)
@@ -4920,6 +4976,34 @@ proto_register_wsp(void)
 				"Profile", HFILL
 			}
 		},
+		{ &hf_wsp_header_push_flag,
+			{	"Push-Flag",
+				"wsp.header.push_flag",
+				FT_UINT8, BASE_HEX, NULL, 0x00,
+				"Push-Flag (OTA-WSP header)", HFILL
+			}
+		},
+		{ &hf_wsp_header_push_flag_auth,
+			{	"Initiator URI is authenticated",
+				"wsp.header.push_flag.authenticated",
+				FT_UINT8, BASE_DEC, VALS(vals_false_true), 0x01,
+				"The X-Wap-Initiator-URI has been authenticated.", HFILL
+			}
+		},
+		{ &hf_wsp_header_push_flag_trust,
+			{	"Content is trusted",
+				"wsp.header.push_flag.trusted",
+				FT_UINT8, BASE_DEC, VALS(vals_false_true), 0x02,
+				"The push content is trusted.", HFILL
+			}
+		},
+		{ &hf_wsp_header_push_flag_last,
+			{	"Last push message",
+				"wsp.header.push_flag.last",
+				FT_UINT8, BASE_DEC, VALS(vals_false_true), 0x04,
+				"Indicates whether this is the last push message.", HFILL
+			}
+		},
 		{ &hf_wsp_header_server,
 			{ 	"Server",
 				"wsp.header.server",
@@ -5215,6 +5299,7 @@ proto_register_wsp(void)
 		&ett_multiparts,
 		&ett_mpartlist,
 		&ett_header_credentials,
+		&ett_push_flags,
 	};
 
 /* Register the protocol name and description */
