@@ -1,8 +1,9 @@
 /* packet-smb.c
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
+ * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.188 2001/12/18 08:27:06 guy Exp $
+ * $Id: packet-smb.c,v 1.189 2001/12/18 08:55:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7419,12 +7420,15 @@ static int
 dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8 wc, sc;
-	guint32 pc=0, po=0, pd, dc=0, od=0, dd;
+	guint32 pc=0, po=0, pd=0, dc=0, od=0, dd=0;
+	guint32 td=0, tp=0;
 	smb_info_t *si;
 	smb_nt_transact_info_t *nti;
 	static nt_trans_data ntd;
 	guint16 bc;
 	int padcnt;
+	fragment_data *r_fd = NULL;
+	tvbuff_t *pd_tvb=NULL;
 
 	si = (smb_info_t *)pinfo->private_data;
 	if (si->sip != NULL)
@@ -7454,11 +7458,13 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	offset += 3;
 
 	/* total param count */
-	proto_tree_add_item(tree, hf_smb_total_param_count, tvb, offset, 4, TRUE);
+	tp = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_total_param_count, tvb, offset, 4, tp);
 	offset += 4;
 	
 	/* total data count */
-	proto_tree_add_item(tree, hf_smb_total_data_count, tvb, offset, 4, TRUE);
+	td = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_total_data_count, tvb, offset, 4, td);
 	offset += 4;
 
 	/* param count */
@@ -7503,37 +7509,91 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	}
 
 	BYTE_COUNT;
-	
-	/* parameters */
-	if(po>(guint32)offset){
-		/* We have some initial padding bytes.
-		*/
-		padcnt = po-offset;
-		if (padcnt > bc)
-			padcnt = bc;
-	        proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, TRUE);
-		COUNT_BYTES(padcnt);
-	}
-	if(pc){
-		CHECK_BYTE_COUNT(pc);
-		dissect_nt_trans_param_response(tvb, pinfo, offset, tree, pc, &ntd, bc);
-		COUNT_BYTES(pc);
+
+	/* reassembly of SMB NT Transaction data payload.
+	   In this section we do reassembly of both the data and parameters
+	   blocks of the SMB transaction command.
+	*/
+	if(smb_trans_reassembly){
+		/* do we need reassembly? */
+		if( (td&&(td!=dc)) || (tp&&(tp!=pc)) ){
+			/* oh yeah, either data or parameter section needs 
+			   reassembly
+			*/
+			if(pc && ((unsigned int)tvb_length_remaining(tvb, po)>=pc) ){
+				r_fd = smb_trans_defragment(tree, pinfo, tvb, 
+							     po, pc, pd, td+tp);
+				
+			}
+			if((r_fd==NULL) && dc && ((unsigned int)tvb_length_remaining(tvb, od)>=dc) ){
+				r_fd = smb_trans_defragment(tree, pinfo, tvb, 
+							     od, dc, dd+tp, td+tp);
+			}
+		}
 	}
 
-	/* data */
-	if(od>(guint32)offset){
-		/* We have some initial padding bytes.
-		*/
-		padcnt = od-offset;
-		if (padcnt > bc)
-			padcnt = bc;
-	        proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, TRUE);
-		COUNT_BYTES(padcnt);
+	/* if we got a reassembled fd structure from the reassembly routine we must
+	   create pd_tvb from it 
+	*/
+	if(r_fd){
+		proto_tree *tr;
+		proto_item *it;
+		fragment_data *fd;
+		
+		it = proto_tree_add_text(tree, tvb, 0, 0, "Fragments");
+		tr = proto_item_add_subtree(it, ett_smb_segments);
+		for(fd=r_fd->next;fd;fd=fd->next){
+			proto_tree_add_text(tr, tvb, 0, 0, "Frame:%d Data:%d-%d",
+					    fd->frame, fd->offset, fd->offset+fd->len-1);
+		}
+		
+		pd_tvb = tvb_new_real_data(r_fd->data, r_fd->datalen,
+					     r_fd->datalen, "Reassembled SMB");
+		tvb_set_child_real_data_tvbuff(tvb, pd_tvb);
+		pinfo->fd->data_src = g_slist_append(pinfo->fd->data_src, pd_tvb);
+		pinfo->fragmented = FALSE;
 	}
-	if(dc){
-		CHECK_BYTE_COUNT(dc);
-		dissect_nt_trans_data_response(tvb, pinfo, offset, tree, dc, &ntd);
-		COUNT_BYTES(dc);
+
+
+	if(pd_tvb){
+	  /* we have reassembled data, grab param and data from there */
+	  dissect_nt_trans_param_response(pd_tvb, pinfo, 0, tree, tp,
+					  &ntd, tvb_length(pd_tvb));
+	  dissect_nt_trans_data_response(pd_tvb, pinfo, tp, tree, td, &ntd);
+	} else {
+	  /* we do not have reassembled data, just use what we have in the 
+	     packet as well as we can */
+	  /* parameters */
+	  if(po>(guint32)offset){
+	    /* We have some initial padding bytes.
+	     */
+	    padcnt = po-offset;
+	    if (padcnt > bc)
+	      padcnt = bc;
+	    proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, TRUE);
+	    COUNT_BYTES(padcnt);
+	  }
+	  if(pc){
+	    CHECK_BYTE_COUNT(pc);
+	    dissect_nt_trans_param_response(tvb, pinfo, offset, tree, pc, &ntd, bc);
+	    COUNT_BYTES(pc);
+	  }
+	  
+	  /* data */
+	  if(od>(guint32)offset){
+	    /* We have some initial padding bytes.
+	     */
+	    padcnt = od-offset;
+	    if (padcnt > bc)
+	      padcnt = bc;
+	    proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, TRUE);
+	    COUNT_BYTES(padcnt);
+	  }
+	  if(dc){
+	    CHECK_BYTE_COUNT(dc);
+	    dissect_nt_trans_data_response(tvb, pinfo, offset, tree, dc, &ntd);
+	    COUNT_BYTES(dc);
+	  }
 	}
 
 	END_OF_SMB
