@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.162 2000/02/03 06:35:27 guy Exp $
+ * $Id: file.c,v 1.163 2000/02/14 04:57:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,8 +28,6 @@
 #endif
 
 #include <gtk/gtk.h>
-
-#include <stdio.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
