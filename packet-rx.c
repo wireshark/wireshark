@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.6 2000/01/07 22:05:36 guy Exp $
+ * $Id: packet-rx.c,v 1.7 2000/01/14 19:11:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -115,15 +115,15 @@ dissect_rx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		rx_tree = proto_item_add_subtree(ti, ett_rx);
 
 		proto_tree_add_item(rx_tree, hf_rx_epoch,
-			offset, 4, ntohl(rxh->epoch));
+			offset, 4, pntohl(&rxh->epoch));
 		proto_tree_add_item(rx_tree, hf_rx_cid,
-			offset+4, 4, ntohl(rxh->cid));
+			offset+4, 4, pntohl(&rxh->cid));
 		proto_tree_add_item(rx_tree, hf_rx_callnumber,
-			offset+8, 4, ntohl(rxh->callNumber));
+			offset+8, 4, pntohl(&rxh->callNumber));
 		proto_tree_add_item(rx_tree, hf_rx_seq,
-			offset+12, 4, ntohl(rxh->seq));
+			offset+12, 4, pntohl(&rxh->seq));
 		proto_tree_add_item(rx_tree, hf_rx_serial,
-			offset+16, 4, ntohl(rxh->serial));
+			offset+16, 4, pntohl(&rxh->serial));
 
 		proto_tree_add_item(rx_tree, hf_rx_type,
 			offset+20, 1, rxh->type);
@@ -147,9 +147,9 @@ dissect_rx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		proto_tree_add_item(rx_tree, hf_rx_securityindex,
 			offset+23, 1, rxh->securityIndex);
 		proto_tree_add_item(rx_tree, hf_rx_spare,
-			offset+24, 2, ntohs(rxh->spare));
+			offset+24, 2, pntohs(&rxh->spare));
 		proto_tree_add_item(rx_tree, hf_rx_serviceid,
-			offset+26, 2, ntohs(rxh->serviceId));
+			offset+26, 2, pntohs(&rxh->serviceId));
 	}
 
 	if (check_col(fd, COL_INFO))
@@ -160,8 +160,8 @@ dissect_rx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			"Source Port: %s  "
 			"Destination Port: %s  ",
 			val_to_str(rxh->type, rx_types, "%d"),
-			(unsigned long)ntohl(rxh->seq),
-			(unsigned long)ntohl(rxh->callNumber),
+			(unsigned long)pntohl(&rxh->seq),
+			(unsigned long)pntohl(&rxh->callNumber),
 			get_udp_port(pi.srcport),
 			get_udp_port(pi.destport)
 		);
