@@ -26,10 +26,10 @@
 
 include ../config.nmake
 
-doc: ethereal.html tethereal.html ethereal-filter.html editcap.html \
-	idl2eth.html mergecap.html text2pcap.html
+doc: ethereal.html tethereal.html ethereal-filter.html capinfo.html \
+	editcap.html idl2eth.html mergecap.html text2pcap.html
 
-man: ethereal.1 tethereal.1 ethereal-filter.4 editcap.1 \
+man: ethereal.1 tethereal.1 ethereal-filter.4 capinfo.1 editcap.1 \
 	idl2eth.1 mergecap.1 text2pcap.1
 
 ethereal-tmp.pod: ethereal.pod ../AUTHORS-SHORT
@@ -86,6 +86,19 @@ ethereal-filter.pod: ethereal-filter.pod.template  ../tethereal.exe
 	rm -f libethereal.dll wiretap-$(WTAP_VERSION).dll
 	cd doc
 
+capinfo.1: capinfo.pod ../config.h
+	$(POD2MAN)                      \
+	--center="The Ethereal Network Analyzer" \
+	--release=$(VERSION)			 \
+	capinfo.pod > capinfo.1
+
+capinfo.html: capinfo.pod ../config.h
+	$(POD2HTML)                     \
+	--title="capinfo - The Ethereal Network Analyzer $(VERSION)" \
+	--noindex                                 \
+	capinfo.pod > capinfo.html
+
+
 editcap.1: editcap.pod ../config.h
 	$(POD2MAN)                      \
 	--center="The Ethereal Network Analyzer" \
@@ -138,6 +151,7 @@ clean:
 	rm -f ethereal.html ethereal.1 ethereal-tmp.pod
 	rm -f tethereal.html tethereal.1
 	rm -f ethereal-filter.html ethereal-filter.4 ethereal-filter.pod
+	rm -f capinfo.html capinfo.1
 	rm -f editcap.html editcap.1
 	rm -f idl2eth.html idl2eth.1
 	rm -f mergecap.html mergecap.1

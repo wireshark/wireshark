@@ -78,6 +78,10 @@ tethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(ZLIB_LIBS)
 !ENDIF
 
+capinfo_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
+	wsock32.lib user32.lib \
+	$(GLIB_LIBS)
+
 editcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS)
@@ -106,7 +110,7 @@ randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(GLIB_LIBS) \
 	$(NET_SNMP_DIR)\win32\lib\netsnmp.lib
 
-EXECUTABLES=ethereal.exe ethereal-gtk2.exe tethereal.exe editcap.exe mergecap.exe text2pcap.exe
+EXECUTABLES=ethereal.exe ethereal-gtk2.exe tethereal.exe capinfo.exe editcap.exe mergecap.exe text2pcap.exe
 
 RESOURCES=image\ethereal.res image\libethereal.res image\tethereal.res image\editcap.res image\mergecap.res image\text2pcap.res image\wiretap.res
 
@@ -159,6 +163,12 @@ tethereal.exe	: config.h svnversion.h $(tethereal_OBJECTS) $(EXTRA_OBJECTS) epan
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:tethereal.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(tethereal_LIBS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS) image\tethereal.res
+<<
+
+capinfo.exe	: config.h capinfo.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).lib image\editcap.res
+	@echo Linking $@
+	$(LINK) @<<
+		/OUT:capinfo.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console capinfo.obj getopt.obj $(capinfo_LIBS) image\editcap.res
 <<
 
 editcap.exe	: config.h editcap.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).lib image\editcap.res
@@ -247,7 +257,7 @@ gtk2_distclean:
 clean: gtk2_distclean
 	rm -f $(ethereal_OBJECTS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS) \
 		$(EXECUTABLES) $(PDB_FILE) \
-		editcap.obj mergecap.obj text2pcap.obj getopt.obj\
+		capinfo.obj editcap.obj mergecap.obj text2pcap.obj getopt.obj\
 		text2pcap-scanner.obj text2pcap-scanner.c rdps.obj \
 		rdps.pdb rdps.exe rdps.ilk config.h ps.c AUTHORS-SHORT \
 		dftest.obj dftest.exe randpkt.obj randpkt.ext doxygen.cfg \
