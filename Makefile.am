@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.228 2000/09/27 04:54:23 gram Exp $
+# $Id: Makefile.am,v 1.229 2000/09/27 05:17:56 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -270,8 +270,6 @@ ETHEREAL_COMMON_SOURCES = \
 	llcsaps.h      \
 	nlpid.h        \
 	oui.h          \
-	packet.c       \
-	packet.h       \
 	ppptypes.h     \
 	prefs.c        \
 	prefs.h        \
@@ -432,9 +430,9 @@ editcap_LDADD = wiretap/libwiretap.a @GLIB_LIBS@
 # The first argument is the directory in which the source files live.
 # All subsequent arguments are the files to scan.
 #
-register.c: packet.c $(DISSECTOR_SOURCES) $(srcdir)/make-reg-dotc
+register.c: $(srcdir)/epan/packet.c $(DISSECTOR_SOURCES) $(srcdir)/make-reg-dotc
 	@echo Making register.c
-	@$(srcdir)/make-reg-dotc $(srcdir) packet.c $(DISSECTOR_SOURCES)
+	@$(srcdir)/make-reg-dotc $(srcdir) $(srcdir)/epan/packet.c $(DISSECTOR_SOURCES)
 
 ps.c: print.ps rdps
 	./rdps $(srcdir)/print.ps ps.c

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.202 2000/09/21 04:41:08 gram Exp $
+ * $Id: packet.h,v 1.1 2000/09/27 05:18:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
