@@ -1,7 +1,7 @@
 /* packet-ypbind.c
  * Routines for ypbind dissection
  *
- * $Id: packet-ypbind.c,v 1.8 2001/12/29 22:23:07 guy Exp $
+ * $Id: packet-ypbind.c,v 1.9 2002/01/05 21:49:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -157,7 +157,7 @@ static const vsff ypbind2_proc[] = {
 	{ YPBINDPROC_NULL,	"NULL",		NULL,				NULL },
 	{ YPBINDPROC_DOMAIN,	"DOMAIN",	
 		dissect_ypbind_domain_v2_request, dissect_ypbind_domain_v2_reply},
-	{ YPBINDPROC_SETDOM,	"SETDOMAN",
+	{ YPBINDPROC_SETDOM,	"SETDOMAIN",
 		dissect_ypbind_setdomain_v2_request, NULL},
 	{ 0,    NULL,       NULL,               NULL }
 };
