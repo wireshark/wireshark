@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.3 1999/07/29 05:46:56 gram Exp $
+ * $Id: packet-ipsec.c,v 1.4 1999/10/11 12:37:50 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,7 +42,11 @@
 #include "resolv.h"
 
 static int proto_ah = -1;
+static int hf_ah_spi = -1;
+static int hf_ah_sequence = -1;
 static int proto_esp = -1;
+static int hf_esp_spi = -1;
+static int hf_esp_sequence = -1;
 
 struct newah {
 	guint8	ah_nxt;		/* Next Header */
@@ -95,10 +99,15 @@ dissect_ah(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    "Next Header: %d", ah.ah_nxt);
 	proto_tree_add_text(ah_tree, offset + offsetof(struct newah, ah_len), 1,
 	    "Length: %d", ah.ah_len << 2);
-	proto_tree_add_text(ah_tree, offset + offsetof(struct newah, ah_spi), 4,
-	    "SPI: %08x", (guint32)ntohl(ah.ah_spi));
-	proto_tree_add_text(ah_tree, offset + offsetof(struct newah, ah_seq), 4,
-	    "Sequence?: %08x", (guint32)ntohl(ah.ah_seq));
+	proto_tree_add_item_format(ah_tree, hf_ah_spi,
+				   offset + offsetof(struct newah, ah_spi), 4,
+				   (guint32)ntohl(ah.ah_spi),
+				   "SPI: %08x", (guint32)ntohl(ah.ah_spi));
+	proto_tree_add_item_format(ah_tree, hf_ah_sequence,
+				   offset + offsetof(struct newah, ah_seq), 4,
+				   (guint32)ntohl(ah.ah_seq),
+				   "Sequence?: %08x",
+				   (guint32)ntohl(ah.ah_seq));
 	proto_tree_add_text(ah_tree, offset + sizeof(ah), (ah.ah_len - 1) << 2,
 	    "ICV");
     }
@@ -134,22 +143,40 @@ dissect_esp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     if(tree) {
 	ti = proto_tree_add_item(tree, proto_esp, 0, 0, NULL);
 	esp_tree = proto_item_add_subtree(ti, ETT_ESP);
-	proto_tree_add_text(esp_tree, offset + offsetof(struct newesp, esp_spi), 4,
-	    "SPI: %08x", (guint32)ntohl(esp.esp_spi));
-	proto_tree_add_text(esp_tree, offset + offsetof(struct newesp, esp_seq), 4,
-	    "Sequence?: %08x", (guint32)ntohl(esp.esp_seq));
+	proto_tree_add_item_format(esp_tree, hf_esp_spi, 
+				   offset + offsetof(struct newesp, esp_spi), 4,
+				   (guint32)ntohl(esp.esp_spi),
+				   "SPI: %08x", 
+				   (guint32)ntohl(esp.esp_spi));
+	proto_tree_add_item_format(esp_tree, hf_esp_sequence,
+				   offset + offsetof(struct newesp, esp_seq), 4,
+				   (guint32)ntohl(esp.esp_seq),
+				   "Sequence?: %08x", 
+				   (guint32)ntohl(esp.esp_seq));
     }
 }
 
 void
 proto_register_ipsec(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "ah.abbreviation", TYPE, VALS_POINTER }},
-        };*/
 
-        proto_ah = proto_register_protocol("Authentication Header", "ah");
-        proto_esp = proto_register_protocol("Encapsulated Security Payload", "esp");
- /*       proto_register_field_array(proto_ah, hf, array_length(hf));*/
+  static hf_register_info hf_ah[] = {
+    { &hf_ah_spi,
+      { "SPI",		"ah.spi",	FT_UINT32,	NULL }},
+    { &hf_ah_sequence,
+      { "Sequence",     "ah.sequence",	FT_UINT32,	NULL }}
+  };
+
+  static hf_register_info hf_esp[] = {
+    { &hf_esp_spi,
+      { "SPI",		"esp.spi",	FT_UINT32,	NULL }},
+    { &hf_esp_sequence,
+      { "Sequence",     "esp.sequence",	FT_UINT32,	NULL }}
+  };
+
+  proto_ah = proto_register_protocol("Authentication Header", "ah");
+  proto_esp = proto_register_protocol("Encapsulated Security Payload", "esp");
+  proto_register_field_array(proto_ah, hf_ah, array_length(hf_ah));
+  proto_register_field_array(proto_esp, hf_esp, array_length(hf_esp));
+
 }
