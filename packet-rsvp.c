@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.6 1999/08/27 19:21:36 gram Exp $
+ * $Id: packet-rsvp.c,v 1.7 1999/08/28 21:59:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -391,14 +391,14 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 					ip_to_str((guint8 *) &(sess->destination)));
 		    */
 		    proto_tree_add_item(rsvp_object_tree, rsvp_filter[RSVPF_SESSION_IP], 
-					offset2, 4, sess->destination);
+					offset2, 4, pntohl(pd+offset2));
 
 		    /* proto_tree_add_text(rsvp_object_tree, offset2+4, 1,
 		       "Protocol: %d", sess->protocol);*/
 		    proto_tree_add_item(rsvp_object_tree, rsvp_filter[RSVPF_SESSION_PROTO], 
-					offset2+4, 1, sess->protocol);
+					offset2+4, 1, pntohs(pd+offset2+4));
 		    proto_tree_add_text(rsvp_object_tree, offset2+5, 1,
-					"Flags: %d", sess->flags);
+					"Flags: %d", pntohs(pd+offset2+5));
 		    /* proto_tree_add_text(rsvp_object_tree, offset2+6, 2,
 					"Destination port: %d", 
 					pntohs(pd+offset2+6)); */
