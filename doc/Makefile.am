@@ -53,6 +53,7 @@ ethereal-tmp.pod: $(srcdir)/ethereal.pod $(top_srcdir)/AUTHORS-SHORT
 
 ../ethereal-filter.4: ethereal-filter.pod ../config.h
 	$(POD2MAN)                     \
+	--section=4 \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
 	ethereal-filter.pod > ../ethereal-filter.4

@@ -21,7 +21,7 @@
 #  Ethereal is available at http://www.ethereal.com/
 #
 #  Omniidl is part of the OmniOrb distribution, and is available at
-#  http://www.uk.research.att.com/omniORB/omniORB.html
+#  http://omniorb.sourceforge.net/
 #
 #  This program is free software; you can redistribute it and/or modify it
 #  under the terms of the GNU General Public License as published by
