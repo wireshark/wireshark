@@ -89,13 +89,18 @@ static gint ett_multipart_body = -1;
  * the structure from SIP dissector, all the content- is also from SIP */
 
 
-static const char *multipart_headers[] = {
-	"Unknown-header",		/* Pad so that the real headers start at index 1 */
-	"Content-Disposition",
-	"Content-Encoding",
-	"Content-Language",
-	"Content-Length",
-	"Content-Type",
+typedef struct {
+        char *name;
+        char *compact_name;
+} multipart_header_t;
+
+static const multipart_header_t multipart_headers[] = {
+	{ "Unknown-header", NULL },		/* Pad so that the real headers start at index 1 */
+	{ "Content-Disposition", NULL },
+	{ "Content-Encoding", "e" },
+	{ "Content-Language", NULL },
+	{ "Content-Length", "l" },
+	{ "Content-Type", "c" },
 };
 
 #define POS_CONTENT_DISPOSITION		1
@@ -786,10 +791,13 @@ is_known_multipart_header(const char *header_str, guint len)
 	guint i;
 
 	for (i = 1; i < array_length(multipart_headers); i++) {
-		if (len == strlen(multipart_headers[i]) &&
-			strncasecmp(header_str, multipart_headers[i], len) == 0) {
+		if (len == strlen(multipart_headers[i].name) &&
+		    strncasecmp(header_str, multipart_headers[i].name, len) == 0)
 			return i;
-		}
+		if (multipart_headers[i].compact_name != NULL &&
+		    len == strlen(multipart_headers[i].compact_name) &&
+		    strncasecmp(header_str, multipart_headers[i].compact_name, len) == 0)
+			return i;
 	}
 
 	return -1;
