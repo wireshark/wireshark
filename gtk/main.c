@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.36 1999/11/16 06:59:17 guy Exp $
+ * $Id: main.c,v 1.37 1999/11/16 08:00:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -554,7 +554,7 @@ tree_view_cb(GtkWidget *w, gpointer data) {
 
   if (GTK_TREE(w)->selection) {
     finfo = 
-	(gint) gtk_object_get_data(GTK_OBJECT(GTK_TREE(w)->selection->data),
+	gtk_object_get_data(GTK_OBJECT(GTK_TREE(w)->selection->data),
 				   E_TREEINFO_FIELD_INFO_KEY);
     g_assert(finfo);
     tree_selected_start = finfo->start;
