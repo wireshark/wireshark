@@ -58,6 +58,12 @@ dissect_pkinit_PA_PK_AS_REQ(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return offset;
 }
 
+int
+dissect_pkinit_PA_PK_AS_REP(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  offset = dissect_pkinit_PaPkAsRep(FALSE, tvb, offset, pinfo, tree, -1);
+  return offset;
+}
+
 
 /*--- proto_register_pkinit ----------------------------------------------*/
 void proto_register_pkinit(void) {

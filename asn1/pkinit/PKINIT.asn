@@ -126,14 +126,14 @@ TrustedCA ::= CHOICE {
 --        ...
 --    }
 --
---
---    PA-PK-AS-REP ::= CHOICE {
---        dhSignedData            [0] ContentInfo,
---        encKeyPack              [1] ContentInfo,
---        ...
---    }
---
---
+
+PaPkAsRep ::= CHOICE {
+      dhSignedData            [0] ContentInfo,
+      encKeyPack              [1] ContentInfo,
+      ...
+}
+
+
 --    KDCDHKeyInfo ::= SEQUENCE {
 --        subjectPublicKey        [0] BIT STRING,
 --        nonce                   [1] INTEGER,
