@@ -59,5 +59,3 @@ tethereal-tap-register.c
 text2pcap
 text2pcap-scanner.c
 text2pcap.1
-x11-declarations.h
-x11-register-info.h

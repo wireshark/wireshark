@@ -23,3 +23,5 @@ stamp-h
 stamp-h.in
 stamp-h1
 tvbtest
+x11-declarations.h
+x11-register-info.h
