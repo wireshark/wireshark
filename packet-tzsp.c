@@ -1,6 +1,6 @@
 /* packet-tzsp.c
  *
- * $Id: packet-tzsp.c,v 1.2 2003/03/06 21:55:26 guy Exp $
+ * $Id: packet-tzsp.c,v 1.3 2003/10/05 22:44:24 jmayer Exp $
  *
  * Copyright 2002, Tazmen Technologies Inc
  *
@@ -392,13 +392,13 @@ proto_register_tzsp(void)
 			NULL, 0, "MAC port", HFILL }},
 		{ &hf_status_pcf, {
 			"PCF", "tzsp.wlan.status.pcf", FT_BOOLEAN, BASE_HEX,
-			VALS (&pcf_flag), 0, "Point Coordination Function", HFILL }},
+			TFS (&pcf_flag), 0, "Point Coordination Function", HFILL }},
 		{ &hf_status_undecrypted, {
 			"Undecrypted", "tzsp.wlan.status.undecrypted", FT_BOOLEAN, BASE_HEX,
-			VALS (&undecr_flag), 0, "Undecrypted", HFILL }},
+			TFS (&undecr_flag), 0, "Undecrypted", HFILL }},
 		{ &hf_status_fcs_error, {
 			"FCS", "tzsp.wlan.status.fcs_err", FT_BOOLEAN, BASE_HEX,
-			VALS (&fcs_err_flag), 0, "Frame check sequence", HFILL }},
+			TFS (&fcs_err_flag), 0, "Frame check sequence", HFILL }},
 		{ &hf_time, {
 			"Time", "tzsp.wlan.time", FT_UINT32, BASE_HEX,
 			NULL, 0, "Time", HFILL }},
