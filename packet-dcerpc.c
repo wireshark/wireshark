@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.21 2001/12/10 00:25:27 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.22 2001/12/17 23:08:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -445,12 +445,18 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     dcerpc_sub_dissector *proc;
     gchar *name = NULL;
     dcerpc_dissect_fnct_t *sub_dissect;
+    const char *saved_proto;
 
     key.uuid = *uuid;
     key.ver = ver;
 
     
-    if ((sub_proto = g_hash_table_lookup (dcerpc_uuids, &key)) == 0) {
+    if ((sub_proto = g_hash_table_lookup (dcerpc_uuids, &key)) == NULL
+         || !proto_is_protocol_enabled(sub_proto->proto)) {
+	/*
+	 * We don't have a dissector for this UUID, or the protocol
+	 * for that UUID is disabled.
+	 */
         length = tvb_length_remaining (tvb, offset);
         if (length > 0) {
             proto_tree_add_text (dcerpc_tree, tvb, offset, length,
@@ -491,7 +497,10 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
 
     sub_dissect = is_rqst ? proc->dissect_rqst : proc->dissect_resp;
     if (sub_dissect) {
+        saved_proto = pinfo->current_proto;
+        pinfo->current_proto = sub_proto->name;
         sub_dissect (tvb, offset, pinfo, sub_tree, drep);
+        pinfo->current_proto = saved_proto;
     } else {
         length = tvb_length_remaining (tvb, offset);
         if (length > 0) {
