@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sap.c,v 1.30 2002/08/28 21:00:30 jmayer Exp $
+ * $Id: packet-sap.c,v 1.31 2002/12/02 23:43:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -172,7 +172,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
           addr = tvb_get_ptr(tvb, offset, addr_len);
           proto_tree_add_text(sap_tree, tvb, offset, addr_len, "Originating Source: %s",
-              (is_ipv6) ? ip6_to_str((struct e_in6_addr*)addr) : ip_to_str(addr));
+              (is_ipv6) ? ip6_to_str((const struct e_in6_addr*)addr) : ip_to_str(addr));
           offset += addr_len;
 
           /* Authentication data lives in its own subtree */

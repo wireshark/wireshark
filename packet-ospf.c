@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.72 2002/11/27 19:10:51 guy Exp $
+ * $Id: packet-ospf.c,v 1.73 2002/12/02 23:43:28 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -1766,7 +1766,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
         /* Forwarding Address (optional - only if F-flag is on) */
         if ( (offset < end_offset) && (flags & OSPF_V3_AS_EXTERNAL_FLAG_F) ) {
 	    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 16,"Forwarding Address: %s",
-              ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset, 16)));
+              ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, 16)));
 
 	    offset+=16;
         }
@@ -1800,7 +1800,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
         /* Link-local Interface Address */
         proto_tree_add_text(ospf_lsa_tree, tvb, offset + 4, 16, "Link-local Interface Address: %s",
-           ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset + 4, 16)));
+           ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset + 4, 16)));
 
         /* Number prefixes */
         number_prefixes=tvb_get_ntohl(tvb, offset + 20);

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.167 2002/11/27 04:55:23 guy Exp $
+ * $Id: packet-tcp.c,v 1.168 2002/12/02 23:43:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -908,7 +908,7 @@ free_all_segments(gpointer key_arg, gpointer value _U_, gpointer user_data _U_)
 static guint
 tcp_segment_hash(gconstpointer k)
 {
-	tcp_segment_key *key = (tcp_segment_key *)k;
+	const tcp_segment_key *key = (const tcp_segment_key *)k;
 
 	return key->seq+key->sport;
 }
@@ -916,8 +916,8 @@ tcp_segment_hash(gconstpointer k)
 static gint
 tcp_segment_equal(gconstpointer k1, gconstpointer k2)
 {
-	tcp_segment_key *key1 = (tcp_segment_key *)k1;
-	tcp_segment_key *key2 = (tcp_segment_key *)k2;
+	const tcp_segment_key *key1 = (const tcp_segment_key *)k1;
+	const tcp_segment_key *key2 = (const tcp_segment_key *)k2;
 
 	return ( ( (key1->seq==key2->seq)
 		 &&(ADDRESSES_EQUAL(key1->src, key2->src))

@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.59 2002/11/08 05:06:36 guy Exp $
+ * $Id: packet-http.c,v 1.60 2002/12/02 23:43:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -428,7 +428,7 @@ is_http_request_or_reply(const guchar *data, int linelen, http_type_t *type)
 		*type = HTTP_RESPONSE;
 		isHttpRequestOrReply = TRUE;	/* response */
 	} else {
-		guchar * ptr = (guchar *)data;
+		const guchar * ptr = (const guchar *)data;
 		int		 index = 0;
 
 		/* Look for the space following the Method */

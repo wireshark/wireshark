@@ -1,7 +1,7 @@
 /* conditions.c
  * Implementation for condition handler.
  *
- * $Id: conditions.c,v 1.3 2002/08/28 21:00:06 jmayer Exp $
+ * $Id: conditions.c,v 1.4 2002/12/02 23:43:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -161,7 +161,7 @@ gboolean cnd_register_class(const char* class_id,
 
 static char* pkey = NULL;
 void cnd_unregister_class(const char* class_id){
-  char *key = (char*)class_id;
+  const char *key = (const char*)class_id;
   _cnd_class *cls = NULL;
   /* check if hash table is already initialized */
   _cnd_init();

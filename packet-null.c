@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.56 2002/08/28 21:00:24 jmayer Exp $
+ * $Id: packet-null.c,v 1.57 2002/12/02 23:43:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -173,7 +173,7 @@ capture_null( const guchar *pd, int len, packet_counts *ld )
       ld->other++;
       return;
     }
-    memcpy((char *)&null_header, (char *)&pd[0], sizeof(null_header));
+    memcpy((char *)&null_header, (const char *)&pd[0], sizeof(null_header));
 
     if ((null_header & 0xFFFF0000) != 0) {
       /* Byte-swap it. */

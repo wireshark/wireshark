@@ -2,7 +2,7 @@
  * Routines for NetWare's NDPS
  * Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ndps.c,v 1.9 2002/10/22 08:09:57 guy Exp $
+ * $Id: packet-ndps.c,v 1.10 2002/12/02 23:43:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1750,8 +1750,8 @@ static GMemChunk *ndps_req_hash_values = NULL;
 gint
 ndps_equal(gconstpointer v, gconstpointer v2)
 {
-	ndps_req_hash_key	*val1 = (ndps_req_hash_key*)v;
-	ndps_req_hash_key	*val2 = (ndps_req_hash_key*)v2;
+	const ndps_req_hash_key	*val1 = (const ndps_req_hash_key*)v;
+	const ndps_req_hash_key	*val2 = (const ndps_req_hash_key*)v2;
 
 	if (val1->conversation == val2->conversation &&
 	    val1->ndps_xid  == val2->ndps_xid ) {
@@ -1763,7 +1763,7 @@ ndps_equal(gconstpointer v, gconstpointer v2)
 guint
 ndps_hash(gconstpointer v)
 {
-	ndps_req_hash_key	*ndps_key = (ndps_req_hash_key*)v;
+	const ndps_req_hash_key	*ndps_key = (const ndps_req_hash_key*)v;
 	return GPOINTER_TO_UINT(ndps_key->conversation) + ndps_key->ndps_xid;
 }
 
@@ -1947,7 +1947,7 @@ dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     foffset += 4;
                     if (check_col(pinfo->cinfo, COL_INFO))
                     {
-                        col_append_str(pinfo->cinfo, COL_INFO, (gchar*) ndps_program_string);
+                        col_append_str(pinfo->cinfo, COL_INFO, (const gchar*) ndps_program_string);
                         col_append_str(pinfo->cinfo, COL_INFO, ", ");
                     }
                     proto_tree_add_item(ndps_tree, hf_spx_ndps_version, tvb, foffset, 4, FALSE);
@@ -1990,7 +1990,7 @@ dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         if (ndps_func_string != NULL) 
                         {
                             if (check_col(pinfo->cinfo, COL_INFO))
-                                col_append_str(pinfo->cinfo, COL_INFO, (gchar*) ndps_func_string);
+                                col_append_str(pinfo->cinfo, COL_INFO, (const gchar*) ndps_func_string);
 
                             foffset += 4;
                             proto_tree_add_item(ndps_tree, hf_ndps_auth_null, tvb, foffset, 16, FALSE);

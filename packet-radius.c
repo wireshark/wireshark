@@ -4,7 +4,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.68 2002/08/28 21:00:28 jmayer Exp $
+ * $Id: packet-radius.c,v 1.69 2002/12/02 23:43:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2425,7 +2425,7 @@ static gchar *rdconvertinttostr(gchar *dest, int print_type, guint32 val)
  *
  * At last, forgive me if I've messed up some indentation...
  * */
-static gchar *rd_value_to_str_2(gchar *dest, e_avphdr *avph, tvbuff_t *tvb,
+static gchar *rd_value_to_str_2(gchar *dest, const e_avphdr *avph, tvbuff_t *tvb,
 				int offset, const value_value_string *vvs, proto_tree *tree)
 {
   int print_type;
@@ -2452,7 +2452,7 @@ static gchar *rd_value_to_str_2(gchar *dest, e_avphdr *avph, tvbuff_t *tvb,
   int vsa_len;
   int vsa_index;
   rd_vsa_table *vsa_rvt;
-  e_avphdr *vsa_avph;
+  const e_avphdr *vsa_avph;
 
 /* prints the values of the attribute value pairs into a text buffer */
   print_type = match_numval(avph->avp_type, vvs);
@@ -2528,7 +2528,7 @@ static gchar *rd_value_to_str_2(gchar *dest, e_avphdr *avph, tvbuff_t *tvb,
 		vsa_rvt = get_vsa_table(intval);
 		do
 		{
-			vsa_avph = (e_avphdr*)tvb_get_ptr(tvb, offset+vsa_len,
+			vsa_avph = (const e_avphdr*)tvb_get_ptr(tvb, offset+vsa_len,
 				avph->avp_length-vsa_len);
 			if (vsa_rvt)
 				next_print_type = match_numval(vsa_avph->avp_type,

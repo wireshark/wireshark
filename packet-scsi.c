@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.21 2002/10/08 19:35:08 guy Exp $
+ * $Id: packet-scsi.c,v 1.22 2002/12/02 23:43:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1206,8 +1206,8 @@ static dissector_handle_t data_handle;
 static gint
 scsi_equal(gconstpointer v, gconstpointer w)
 {
-  scsi_task_id_t *v1 = (scsi_task_id_t *)v;
-  scsi_task_id_t *v2 = (scsi_task_id_t *)w;
+  const scsi_task_id_t *v1 = (const scsi_task_id_t *)v;
+  const scsi_task_id_t *v2 = (const scsi_task_id_t *)w;
 
   return (v1->conv_id == v2->conv_id && v1->task_id == v2->task_id);
 }
@@ -1215,7 +1215,7 @@ scsi_equal(gconstpointer v, gconstpointer w)
 static guint
 scsi_hash (gconstpointer v)
 {
-	scsi_task_id_t *key = (scsi_task_id_t *)v;
+	const scsi_task_id_t *key = (const scsi_task_id_t *)v;
 	guint val;
 
 	val = key->conv_id + key->task_id;
@@ -1226,8 +1226,8 @@ scsi_hash (gconstpointer v)
 static gint
 scsidev_equal (gconstpointer v, gconstpointer w)
 {
-    scsi_devtype_key_t *k1 = (scsi_devtype_key_t *)v;
-    scsi_devtype_key_t *k2 = (scsi_devtype_key_t *)w;
+    const scsi_devtype_key_t *k1 = (const scsi_devtype_key_t *)v;
+    const scsi_devtype_key_t *k2 = (const scsi_devtype_key_t *)w;
 
     if (ADDRESSES_EQUAL (&k1->devid, &k2->devid))
         return 1;
@@ -1238,7 +1238,7 @@ scsidev_equal (gconstpointer v, gconstpointer w)
 static guint
 scsidev_hash (gconstpointer v)
 {
-    scsi_devtype_key_t *key = (scsi_devtype_key_t *)v;
+    const scsi_devtype_key_t *key = (const scsi_devtype_key_t *)v;
     guint val;
     int i;
 

@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.77 2002/10/24 03:04:51 guy Exp $
+ * $Id: packet-rsvp.c,v 1.78 2002/12/02 23:43:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1067,7 +1067,7 @@ dissect_rsvp_session (proto_tree *ti, tvbuff_t *tvb,
 			    "C-type: 2 - IPv6");
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 16,
 			    "Destination address: %s",
-			    ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
+			    ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+16, 1,
 			    "Protocol: %u",
 			    tvb_get_guint8(tvb, offset2+16));
@@ -1245,7 +1245,7 @@ dissect_rsvp_hop (proto_tree *ti, tvbuff_t *tvb,
 			    "C-type: 2 - IPv6");
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 16,
 			    "Neighbor address: %s",
-			    ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
+			    ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+16, 4,
 			    "Logical interface: 0x%08x",
 			    tvb_get_ntohl(tvb, offset2+16));
@@ -1369,7 +1369,7 @@ dissect_rsvp_error (proto_tree *ti, tvbuff_t *tvb,
 			    "C-type: 2 - IPv6");
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 16,
 			    "Error node: %s",
-			    ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
+			    ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+16, 1,
 			    "Flags: 0x%02x",
 			    tvb_get_guint8(tvb, offset2+16));
@@ -1463,7 +1463,7 @@ dissect_rsvp_scope (proto_tree *ti, tvbuff_t *tvb,
 	while (mylen > 0) {
 	    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 16,
 				"IPv6 Address: %s",
-				ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
+				ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
 	    offset2 += 16;
 	    mylen -= 16;
 	}
@@ -1561,7 +1561,7 @@ dissect_rsvp_confirm (proto_tree *ti, tvbuff_t *tvb,
 			    "C-type: 2 - IPv6");
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 16,
 			    "Receiver address: %s",
-			    ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
+			    ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
 	break;
     }
 
@@ -1625,7 +1625,7 @@ dissect_rsvp_template_filter (proto_tree *ti, tvbuff_t *tvb,
 			     "C-type: 2 - IPv6");
 	 proto_tree_add_text(rsvp_object_tree, tvb, offset2, 16,
 			     "Source address: %s",
-			     ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
+			     ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
 	 proto_tree_add_text(rsvp_object_tree, tvb, offset2+18, 2,
 			     "Source port: %u",
 			     tvb_get_ntohs(tvb, offset2+18));
@@ -2815,7 +2815,7 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 				tvb_get_guint8(tvb, offset+l+1));
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+2, 16,
 				"IPv6 hop: %s",
-				ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset+l+2, 16)));
+				ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset+l+2, 16)));
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+18, 1,
 				"Prefix length: %u",
 				tvb_get_guint8(tvb, offset+l+18));

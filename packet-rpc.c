@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.110 2002/11/23 03:38:00 guy Exp $
+ * $Id: packet-rpc.c,v 1.111 2002/12/02 23:43:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -244,8 +244,8 @@ static void dissect_rpc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gint
 rpc_proc_equal(gconstpointer k1, gconstpointer k2)
 {
-	rpc_proc_info_key* key1 = (rpc_proc_info_key*) k1;
-	rpc_proc_info_key* key2 = (rpc_proc_info_key*) k2;
+	const rpc_proc_info_key* key1 = (const rpc_proc_info_key*) k1;
+	const rpc_proc_info_key* key2 = (const rpc_proc_info_key*) k2;
 
 	return ((key1->prog == key2->prog &&
 		key1->vers == key2->vers &&
@@ -257,7 +257,7 @@ rpc_proc_equal(gconstpointer k1, gconstpointer k2)
 static guint
 rpc_proc_hash(gconstpointer k)
 {
-	rpc_proc_info_key* key = (rpc_proc_info_key*) k;
+	const rpc_proc_info_key* key = (const rpc_proc_info_key*) k;
 
 	return (key->prog ^ (key->vers<<16) ^ (key->proc<<24));
 }
@@ -337,8 +337,8 @@ char *rpc_proc_name(guint32 prog, guint32 vers, guint32 proc)
 static gint
 rpc_prog_equal(gconstpointer k1, gconstpointer k2)
 {
-	rpc_prog_info_key* key1 = (rpc_prog_info_key*) k1;
-	rpc_prog_info_key* key2 = (rpc_prog_info_key*) k2;
+	const rpc_prog_info_key* key1 = (const rpc_prog_info_key*) k1;
+	const rpc_prog_info_key* key2 = (const rpc_prog_info_key*) k2;
 
 	return ((key1->prog == key2->prog) ?
 	TRUE : FALSE);
@@ -349,7 +349,7 @@ rpc_prog_equal(gconstpointer k1, gconstpointer k2)
 static guint
 rpc_prog_hash(gconstpointer k)
 {
-	rpc_prog_info_key* key = (rpc_prog_info_key*) k;
+	const rpc_prog_info_key* key = (const rpc_prog_info_key*) k;
 
 	return (key->prog);
 }
@@ -414,8 +414,8 @@ static GHashTable *rpc_indir_calls;
 static gint
 rpc_call_equal(gconstpointer k1, gconstpointer k2)
 {
-	rpc_call_info_key* key1 = (rpc_call_info_key*) k1;
-	rpc_call_info_key* key2 = (rpc_call_info_key*) k2;
+	const rpc_call_info_key* key1 = (const rpc_call_info_key*) k1;
+	const rpc_call_info_key* key2 = (const rpc_call_info_key*) k2;
 
 	return (key1->xid == key2->xid &&
 	    key1->conversation == key2->conversation);
@@ -426,7 +426,7 @@ rpc_call_equal(gconstpointer k1, gconstpointer k2)
 static guint
 rpc_call_hash(gconstpointer k)
 {
-	rpc_call_info_key* key = (rpc_call_info_key*) k;
+	const rpc_call_info_key* key = (const rpc_call_info_key*) k;
 
 	return key->xid + (guint32)(key->conversation);
 }
@@ -2302,7 +2302,7 @@ typedef struct _rpc_fragment_key {
 static guint
 rpc_fragment_hash(gconstpointer k)
 {
-	rpc_fragment_key *key = (rpc_fragment_key *)k;
+	const rpc_fragment_key *key = (const rpc_fragment_key *)k;
 
 	return key->conv_id + key->seq;
 }
@@ -2310,8 +2310,8 @@ rpc_fragment_hash(gconstpointer k)
 static gint
 rpc_fragment_equal(gconstpointer k1, gconstpointer k2)
 {
-	rpc_fragment_key *key1 = (rpc_fragment_key *)k1;
-	rpc_fragment_key *key2 = (rpc_fragment_key *)k2;
+	const rpc_fragment_key *key1 = (const rpc_fragment_key *)k1;
+	const rpc_fragment_key *key2 = (const rpc_fragment_key *)k2;
 
 	return key1->conv_id == key2->conv_id &&
 	    key1->seq == key2->seq;

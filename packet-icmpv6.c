@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.67 2002/08/28 21:00:17 jmayer Exp $
+ * $Id: packet-icmpv6.c,v 1.68 2002/12/02 23:43:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1268,7 +1268,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		(guint16)g_ntohs(dp->icmp6_maxdelay));
 	    proto_tree_add_text(icmp6_tree, tvb, offset + sizeof(*dp), 16,
 		"Multicast Address: %s",
-		ip6_to_str((struct e_in6_addr *)(tvb_get_ptr(tvb, offset + sizeof *dp, sizeof (struct e_in6_addr)))));
+		ip6_to_str((const struct e_in6_addr *)(tvb_get_ptr(tvb, offset + sizeof *dp, sizeof (struct e_in6_addr)))));
 	    break;
 	case ND_ROUTER_SOLICIT:
 	    dissect_icmpv6opt(tvb, offset + sizeof(*dp), pinfo, icmp6_tree);

@@ -5,12 +5,12 @@
  * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-addip-sctp-06.txt for the add-IP extension
  * - http://www.ietf.org/internet-drafts/draft-stewart-tsvwg-prsctp-01.txt for the 'Partial Reliability' extension
  * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctpcsum-07.txt
- * Copyright 2000, 2001, 2002, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
+ * Copyright 2000, 2001, 2002, Michael Tuexen <Michael.Tuexen [AT] siemens.com>
  * Still to do (so stay tuned)
  * - support for reassembly
  * - code cleanup
  *
- * $Id: packet-sctp.c,v 1.42 2002/10/17 18:44:10 tuexen Exp $
+ * $Id: packet-sctp.c,v 1.43 2002/12/02 23:43:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -751,12 +751,12 @@ static void
 dissect_hostname_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16  length, hostname_length;
-  char *hostname;
+  const char *hostname;
 
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
 
   hostname_length = length - PARAMETER_HEADER_LENGTH;
-  hostname = (char *)tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET, hostname_length);
+  hostname = (const char *)tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET, hostname_length);
   proto_tree_add_string(parameter_tree, hf_sctp_parameter_hostname_hostname, parameter_tvb,
 			PARAMETER_VALUE_OFFSET, hostname_length,
 			hostname);

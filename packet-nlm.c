@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.31 2002/11/01 00:48:38 sahlberg Exp $
+ * $Id: packet-nlm.c,v 1.32 2002/12/02 23:43:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -108,7 +108,7 @@ typedef struct _nlm_msg_res_unmatched_data {
 	int req_frame;
 	nstime_t ns;
 	int cookie_len;
-	char *cookie;
+	const char *cookie;
 } nlm_msg_res_unmatched_data;
 
 typedef struct _nlm_msg_res_matched_data {
@@ -140,7 +140,7 @@ nlm_msg_res_matched_free_all(gpointer key_arg _U_, gpointer value, gpointer user
 static guint
 nlm_msg_res_unmatched_hash(gconstpointer k)
 {
-	nlm_msg_res_unmatched_data *umd = (nlm_msg_res_unmatched_data *)k;
+	const nlm_msg_res_unmatched_data *umd = (const nlm_msg_res_unmatched_data *)k;
 	guint8 hash=0;
 	int i;
 
@@ -161,8 +161,8 @@ nlm_msg_res_matched_hash(gconstpointer k)
 static gint
 nlm_msg_res_unmatched_equal(gconstpointer k1, gconstpointer k2)
 {
-	nlm_msg_res_unmatched_data *umd1 = (nlm_msg_res_unmatched_data *)k1;
-	nlm_msg_res_unmatched_data *umd2 = (nlm_msg_res_unmatched_data *)k2;
+	const nlm_msg_res_unmatched_data *umd1 = (const nlm_msg_res_unmatched_data *)k1;
+	const nlm_msg_res_unmatched_data *umd2 = (const nlm_msg_res_unmatched_data *)k2;
 
 	if(umd1->cookie_len!=umd2->cookie_len){
 		return 0;
@@ -271,7 +271,7 @@ nlm_register_unmatched_res(packet_info *pinfo, tvbuff_t *tvb, int offset)
 	nlm_msg_res_unmatched_data *old_umd;
 
 	umd.cookie_len=tvb_get_ntohl(tvb, offset);
-	umd.cookie=(char *)tvb_get_ptr(tvb, offset+4, -1);
+	umd.cookie=(const char *)tvb_get_ptr(tvb, offset+4, -1);
 
 	/* have we seen this cookie before? */
 	old_umd=g_hash_table_lookup(nlm_msg_res_unmatched, (gconstpointer)&umd);
@@ -296,6 +296,7 @@ nlm_register_unmatched_msg(packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
 	nlm_msg_res_unmatched_data *umd;
 	nlm_msg_res_unmatched_data *old_umd;
+	char *cookie;
 
 	/* allocate and build the unmatched structure for this request */
 	umd=g_malloc(sizeof(nlm_msg_res_unmatched_data));
@@ -303,8 +304,9 @@ nlm_register_unmatched_msg(packet_info *pinfo, tvbuff_t *tvb, int offset)
 	umd->ns.secs=pinfo->fd->abs_secs;
 	umd->ns.nsecs=pinfo->fd->abs_usecs*1000;
 	umd->cookie_len=tvb_get_ntohl(tvb, offset);
-	umd->cookie=g_malloc(umd->cookie_len);
-	tvb_memcpy(tvb, (guint8 *)umd->cookie, offset+4, umd->cookie_len);
+	cookie=g_malloc(umd->cookie_len);
+	tvb_memcpy(tvb, (guint8 *)cookie, offset+4, umd->cookie_len);
+	umd->cookie=cookie;
 
 	/* remove any old duplicates */
 	old_umd=g_hash_table_lookup(nlm_msg_res_unmatched, (gconstpointer)umd);

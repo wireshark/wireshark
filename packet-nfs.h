@@ -1,5 +1,5 @@
 /* packet-nfs.h (c) 1999 Uwe Girlich */
-/* $Id: packet-nfs.h,v 1.11 2002/05/21 21:13:42 guy Exp $ */
+/* $Id: packet-nfs.h,v 1.12 2002/12/02 23:43:28 guy Exp $ */
 
 #ifndef __PACKET_NFS_H__
 #define __PACKET_NFS_H__
@@ -110,7 +110,7 @@ extern gboolean nfs_fhandle_reqrep_matching;
 extern GHashTable *nfs_fhandle_frame_table;
 typedef struct nfs_fhandle_data {
 	int len;
-	unsigned char *fh;
+	const unsigned char *fh;
 	tvbuff_t *tvb;
 } nfs_fhandle_data_t;
 void dissect_fhandle_hidden(packet_info *pinfo, proto_tree *tree, nfs_fhandle_data_t *nfd);

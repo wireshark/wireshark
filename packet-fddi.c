@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.58 2002/08/28 21:00:13 jmayer Exp $
+ * $Id: packet-fddi.c,v 1.59 2002/12/02 23:43:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -125,7 +125,7 @@ static dissector_handle_t llc_handle;
 static dissector_handle_t data_handle;
 
 static void
-swap_mac_addr(guchar *swapped_addr, const guchar *orig_addr)
+swap_mac_addr(guint8 *swapped_addr, const guint8 *orig_addr)
 {
 	int i;
 
@@ -300,10 +300,10 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* Extract the destination address, possibly bit-swapping it. */
   if (bitswapped)
-    swap_mac_addr(dst, (guchar *) tvb_get_ptr(tvb, FDDI_P_DHOST, 6));
+    swap_mac_addr(dst, tvb_get_ptr(tvb, FDDI_P_DHOST, 6));
   else
-    memcpy(dst, (guchar *) tvb_get_ptr(tvb, FDDI_P_DHOST, 6), sizeof dst);
-  swap_mac_addr(dst_swapped, (guchar*) tvb_get_ptr(tvb, FDDI_P_DHOST, 6));
+    memcpy(dst, tvb_get_ptr(tvb, FDDI_P_DHOST, 6), sizeof dst);
+  swap_mac_addr(dst_swapped, tvb_get_ptr(tvb, FDDI_P_DHOST, 6));
 
   /* XXX - copy them to some buffer associated with "pi", rather than
      just making "dst" static? */
@@ -321,10 +321,10 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* Extract the source address, possibly bit-swapping it. */
   if (bitswapped)
-    swap_mac_addr(src, (guchar *) tvb_get_ptr(tvb, FDDI_P_SHOST, 6));
+    swap_mac_addr(src, tvb_get_ptr(tvb, FDDI_P_SHOST, 6));
   else
-    memcpy(src, (guchar *) tvb_get_ptr(tvb, FDDI_P_SHOST, 6), sizeof src);
-  swap_mac_addr(src_swapped, (guchar*) tvb_get_ptr(tvb, FDDI_P_SHOST, 6));
+    memcpy(src, tvb_get_ptr(tvb, FDDI_P_SHOST, 6), sizeof src);
+  swap_mac_addr(src_swapped, tvb_get_ptr(tvb, FDDI_P_SHOST, 6));
 
   /* XXX - copy them to some buffer associated with "pi", rather than
      just making "src" static? */

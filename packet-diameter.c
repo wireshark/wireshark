@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.50 2002/08/28 21:00:12 jmayer Exp $
+ * $Id: packet-diameter.c,v 1.51 2002/12/02 23:43:26 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -387,10 +387,9 @@ xmlParseAVP(xmlNodePtr cur)
   cur = cur->xmlChildrenNode;
 
   while (cur != NULL ) {
-	if (!strcasecmp((char *)cur->name, "type")) {
+	if (strcasecmp(cur->name, "type") == 0) {
 	  type = XmlStub.xmlGetProp(cur, "type-name");
-	}
-	if (!strcasecmp((char *)cur->name, "enum")) {
+	} else if (strcasecmp(cur->name, "enum") == 0) {
 	  char *valueName=NULL, *valueCode=NULL;
 	  ValueName *ve = NULL;
 	  valueName = XmlStub.xmlGetProp(cur, "name");
@@ -407,8 +406,7 @@ xmlParseAVP(xmlNodePtr cur)
 
 	  ve->next = vEntry;
 	  vEntry = ve;
-	}
-	if (!strcasecmp((char *)cur->name, "grouped")) {
+	} else if (strcasecmp(cur->name, "grouped") == 0) {
 	  /* WORK Recurse here for grouped AVPs */
 	  type = "grouped";
 	}
@@ -628,19 +626,19 @@ xmlDictionaryParseSegment(xmlNodePtr cur, int base)
    */
   cur = cur->xmlChildrenNode;
   while (cur != NULL) {
-	if (!strcasecmp((char *)cur->name, "avp")) {
+	if (strcasecmp(cur->name, "avp") == 0) {
 	  /* we have an avp!!! */
 	  xmlParseAVP(cur);
-	} else if (!strcasecmp((char *)cur->name, "vendor")) {
+	} else if (strcasecmp(cur->name, "vendor") == 0) {
 	  /* we have a vendor */
 	  xmlParseVendor(cur);
 	  /* For now, ignore typedefn and text */
-	} else if (!strcasecmp((char *)cur->name, "command")) {
+	} else if (strcasecmp(cur->name, "command") == 0) {
 	  /* Found a command */
 	  xmlParseCommand(cur);
-	} else if (!strcasecmp((char *)cur->name, "text")) {
-	} else if (!strcasecmp((char *)cur->name, "comment")) {
-	} else if (!strcasecmp((char *)cur->name, "typedefn")) {
+	} else if (strcasecmp(cur->name, "text") == 0) {
+	} else if (strcasecmp(cur->name, "comment") == 0) {
+	} else if (strcasecmp(cur->name, "typedefn") == 0) {
 	  /* WORK -- parse in valid types . . . */
 	} else {
 	  /* IF we got here, we're an error */
@@ -662,13 +660,13 @@ xmlDictionaryParse(xmlNodePtr cur)
 {
   /* We should expect a base protocol, followed by multiple applicaitons */
   while (cur != NULL) {
-	if (!strcasecmp((char *)cur->name, "base")) {
+	if (strcasecmp(cur->name, "base") == 0) {
 	  /* Base protocol.  Descend and parse */
 	  xmlDictionaryParseSegment(cur, 1);
-	} else if (!strcasecmp((char *)cur->name, "application")) {
+	} else if (strcasecmp(cur->name, "application") == 0) {
 	  /* Application.  Descend and parse */
 	  xmlDictionaryParseSegment(cur, 0);
-	} else if (!strcasecmp((char *)cur->name, "text")) {
+	} else if (strcasecmp(cur->name, "text") == 0) {
 	  /* Ignore text */
 	} else {
 	  g_warning( "Diameter: XML Expecting a base or an application  (got \"%s\")",

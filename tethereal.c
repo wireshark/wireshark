@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.170 2002/11/10 20:53:03 gerald Exp $
+ * $Id: tethereal.c,v 1.171 2002/12/02 23:43:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1109,10 +1109,10 @@ capture(int out_file_type)
   init_capture_stop_conditions();
   /* create stop conditions */
   if (capture_opts.has_autostop_filesize)
-    cnd_stop_capturesize = cnd_new((char*)CND_CLASS_CAPTURESIZE,
+    cnd_stop_capturesize = cnd_new((const char*)CND_CLASS_CAPTURESIZE,
                                    (long)capture_opts.autostop_filesize * 1000);
   if (capture_opts.has_autostop_duration)
-    cnd_stop_timeout = cnd_new((char*)CND_CLASS_TIMEOUT,
+    cnd_stop_timeout = cnd_new((const char*)CND_CLASS_TIMEOUT,
                                (gint32)capture_opts.autostop_duration);
 
   if (!setjmp(ld.stopenv)) {

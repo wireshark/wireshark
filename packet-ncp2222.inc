@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.46 2002/10/22 08:24:39 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.47 2002/12/02 23:43:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -580,8 +580,8 @@ static GMemChunk *ncp_req_hash_values = NULL;
 gint
 ncp_equal(gconstpointer v, gconstpointer v2)
 {
-	ncp_req_hash_key	*val1 = (ncp_req_hash_key*)v;
-	ncp_req_hash_key	*val2 = (ncp_req_hash_key*)v2;
+	const ncp_req_hash_key	*val1 = (const ncp_req_hash_key*)v;
+	const ncp_req_hash_key	*val2 = (const ncp_req_hash_key*)v2;
 
 	if (val1->conversation == val2->conversation &&
 	    val1->nw_sequence  == val2->nw_sequence ) {
@@ -593,8 +593,8 @@ ncp_equal(gconstpointer v, gconstpointer v2)
 gint
 ncp_eid_equal(gconstpointer v, gconstpointer v2)
 {
-	ncp_req_eid_hash_key	*val1 = (ncp_req_eid_hash_key*)v;
-	ncp_req_eid_hash_key	*val2 = (ncp_req_eid_hash_key*)v2;
+	const ncp_req_eid_hash_key	*val1 = (const ncp_req_eid_hash_key*)v;
+	const ncp_req_eid_hash_key	*val2 = (const ncp_req_eid_hash_key*)v2;
 
         if (val1->nw_eid == val2->nw_eid ) {
 		return 1;
@@ -605,14 +605,14 @@ ncp_eid_equal(gconstpointer v, gconstpointer v2)
 guint
 ncp_hash(gconstpointer v)
 {
-	ncp_req_hash_key	*ncp_key = (ncp_req_hash_key*)v;
+	const ncp_req_hash_key	*ncp_key = (const ncp_req_hash_key*)v;
 	return GPOINTER_TO_UINT(ncp_key->conversation) + ncp_key->nw_sequence;
 }
 
 guint
 ncp_eid_hash(gconstpointer v)
 {
-	ncp_req_eid_hash_key	*ncp_eid_key = (ncp_req_eid_hash_key*)v;
+	const ncp_req_eid_hash_key	*ncp_eid_key = (const ncp_req_eid_hash_key*)v;
 	return GPOINTER_TO_UINT(ncp_eid_key->nw_eid);
 }
 
@@ -1418,7 +1418,7 @@ return;
 * %s = string = 2
 **************************************/  
 int
-get_info_type(gchar* check_string)
+get_info_type(const gchar* check_string)
 {
         guint length;
         guint i;
@@ -4199,38 +4199,38 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 
 				finfo = g_ptr_array_index(parray, 0);
 
-                                info_type = get_info_type((gchar*) ncp_rec->req_info_str->first_string);
+                                info_type = get_info_type((const gchar*) ncp_rec->req_info_str->first_string);
                                                             
                                 if (info_type == 2) {    /* Is this  a string or not? */
                                 
                                         col_append_fstr(pinfo->cinfo, COL_INFO,
-      		               	                (gchar*) ncp_rec->req_info_str->first_string,
+      		               	                (const gchar*) ncp_rec->req_info_str->first_string,
                                	                fvalue_get(finfo->value));
                                 }
                                 else
                                 {
                                 
             			        col_append_fstr(pinfo->cinfo, COL_INFO,
-                			        (gchar*) ncp_rec->req_info_str->first_string,
+                			        (const gchar*) ncp_rec->req_info_str->first_string,
         		        	        fvalue_get_integer(finfo->value));
                                 }
                         }
 			if (len > 1) {
 				for (i = 1; i < len; i++) {
 					finfo = g_ptr_array_index(parray, i);
-                                        info_type = get_info_type((gchar*) ncp_rec->req_info_str->repeat_string);
+                                        info_type = get_info_type((const gchar*) ncp_rec->req_info_str->repeat_string);
                                                                     
                                         if (info_type == 2) {    /* Is this  a string or not? */
                                         
                                                 col_append_fstr(pinfo->cinfo, COL_INFO,
-              		               	                (gchar*) ncp_rec->req_info_str->repeat_string,
+              		               	                (const gchar*) ncp_rec->req_info_str->repeat_string,
                                        	                fvalue_get(finfo->value));
                                         }
                                         else
                                         {
                                         
                     			        col_append_fstr(pinfo->cinfo, COL_INFO,
-                        			        (gchar*) ncp_rec->req_info_str->repeat_string,
+                        			        (const gchar*) ncp_rec->req_info_str->repeat_string,
                 		        	        fvalue_get_integer(finfo->value));
                                         }
                                 }

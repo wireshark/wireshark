@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.116 2002/10/19 01:17:13 guy Exp $
+ * $Id: packet-ipx.c,v 1.117 2002/12/02 23:43:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -886,9 +886,9 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_text(s_tree, tvb, cursor, 2, "Server Type: %s (0x%04X)",
 						server_type(server.server_type), server.server_type);
 				proto_tree_add_text(s_tree, tvb, cursor+50, 4, "Network: %s",
-						ipxnet_to_string((guint8*)tvb_get_ptr(tvb, cursor+50, 4)));
+						ipxnet_to_string(tvb_get_ptr(tvb, cursor+50, 4)));
 				proto_tree_add_text(s_tree, tvb, cursor+54, 6, "Node: %s",
-						ether_to_str((guint8*)tvb_get_ptr(tvb, cursor+54, 6)));
+						ether_to_str(tvb_get_ptr(tvb, cursor+54, 6)));
 				proto_tree_add_text(s_tree, tvb, cursor+60, 2, "Socket: %s (0x%04x)",
 						socket_text(server.server_port), server.server_port);
 				proto_tree_add_text(s_tree, tvb, cursor+62, 2,

@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.31 2002/08/28 21:00:06 jmayer Exp $
+ * $Id: follow.c,v 1.32 2002/12/02 23:43:25 guy Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -88,8 +88,8 @@ build_follow_filter( packet_info *pi ) {
     /* TCP over IPv6 */
     sprintf( buf,
 	     "(ipv6.addr eq %s and ipv6.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
-	     ip6_to_str((struct e_in6_addr *)pi->net_src.data),
-	     ip6_to_str((struct e_in6_addr *)pi->net_dst.data),
+	     ip6_to_str((const struct e_in6_addr *)pi->net_src.data),
+	     ip6_to_str((const struct e_in6_addr *)pi->net_dst.data),
 	     pi->srcport, pi->destport );
     len = 16;
     is_ipv6 = TRUE;

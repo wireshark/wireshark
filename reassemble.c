@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.26 2002/10/24 06:17:36 guy Exp $
+ * $Id: reassemble.c,v 1.27 2002/12/02 23:43:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,8 +57,8 @@ static int fragment_init_count = 200;
 static gint
 fragment_equal(gconstpointer k1, gconstpointer k2)
 {
-	fragment_key* key1 = (fragment_key*) k1;
-	fragment_key* key2 = (fragment_key*) k2;
+	const fragment_key* key1 = (const fragment_key*) k1;
+	const fragment_key* key2 = (const fragment_key*) k2;
 
 	/*key.id is the first item to compare since item is most
 	  likely to differ between sessions, thus shortcircuiting
@@ -74,7 +74,7 @@ fragment_equal(gconstpointer k1, gconstpointer k2)
 static guint
 fragment_hash(gconstpointer k)
 {
-	fragment_key* key = (fragment_key*) k;
+	const fragment_key* key = (const fragment_key*) k;
 	guint hash_val;
 /*
 	int i;
@@ -115,8 +115,8 @@ fragment_hash(gconstpointer k)
 static gint
 reassembled_equal(gconstpointer k1, gconstpointer k2)
 {
-	frame_data* key1 = (frame_data*) k1;
-	frame_data* key2 = (frame_data*) k2;
+	const frame_data* key1 = (const frame_data*) k1;
+	const frame_data* key2 = (const frame_data*) k2;
 
 	return (key1->num == key2->num);
 }
@@ -124,7 +124,7 @@ reassembled_equal(gconstpointer k1, gconstpointer k2)
 static guint
 reassembled_hash(gconstpointer k)
 {
-	frame_data* key = (frame_data*) k;
+	const frame_data* key = (const frame_data*) k;
 
 	return key->num;
 }

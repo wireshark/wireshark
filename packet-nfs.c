@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2002, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
- * $Id: packet-nfs.c,v 1.83 2002/10/24 20:55:03 guy Exp $
+ * $Id: packet-nfs.c,v 1.84 2002/12/02 23:43:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -400,8 +400,8 @@ GHashTable *nfs_fhandle_frame_table = NULL;
 static gint
 nfs_fhandle_data_equal(gconstpointer k1, gconstpointer k2)
 {
-	nfs_fhandle_data_t *key1 = (nfs_fhandle_data_t *)k1;
-	nfs_fhandle_data_t *key2 = (nfs_fhandle_data_t *)k2;
+	const nfs_fhandle_data_t *key1 = (const nfs_fhandle_data_t *)k1;
+	const nfs_fhandle_data_t *key2 = (const nfs_fhandle_data_t *)k2;
 
 	return (key1->len==key2->len)
 	     &&(!memcmp(key1->fh, key2->fh, key1->len));
@@ -409,7 +409,7 @@ nfs_fhandle_data_equal(gconstpointer k1, gconstpointer k2)
 static guint
 nfs_fhandle_data_hash(gconstpointer k)
 {
-	nfs_fhandle_data_t *key = (nfs_fhandle_data_t *)k;
+	const nfs_fhandle_data_t *key = (const nfs_fhandle_data_t *)k;
 	int i;
 	int hash;
 
@@ -506,7 +506,7 @@ typedef struct nfs_name_snoop {
 typedef struct nfs_name_snoop_key {
 	int key;
 	int fh_length;
-	unsigned char *fh;
+	const unsigned char *fh;
 } nfs_name_snoop_key_t;
 
 static GMemChunk *nfs_name_snoop_chunk = NULL;
@@ -522,8 +522,8 @@ static GHashTable *nfs_name_snoop_known = NULL;
 static gint
 nfs_name_snoop_matched_equal(gconstpointer k1, gconstpointer k2)
 {
-	nfs_name_snoop_key_t *key1 = (nfs_name_snoop_key_t *)k1;
-	nfs_name_snoop_key_t *key2 = (nfs_name_snoop_key_t *)k2;
+	const nfs_name_snoop_key_t *key1 = (const nfs_name_snoop_key_t *)k1;
+	const nfs_name_snoop_key_t *key2 = (const nfs_name_snoop_key_t *)k2;
 
 	return (key1->key==key2->key)
 	     &&(key1->fh_length==key2->fh_length)
@@ -532,7 +532,7 @@ nfs_name_snoop_matched_equal(gconstpointer k1, gconstpointer k2)
 static guint
 nfs_name_snoop_matched_hash(gconstpointer k)
 {
-	nfs_name_snoop_key_t *key = (nfs_name_snoop_key_t *)k;
+	const nfs_name_snoop_key_t *key = (const nfs_name_snoop_key_t *)k;
 	int i;
 	guint hash;
 
@@ -639,11 +639,11 @@ void
 nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, int parent_offset, int parent_len, unsigned char *name)
 {
 	nfs_name_snoop_t *nns, *old_nns;
-	unsigned char *ptr=NULL;
+	const unsigned char *ptr=NULL;
 
 	/* filter out all '.' and '..' names */
 	if(!name){
-		ptr=(unsigned char *)tvb_get_ptr(tvb, name_offset, name_len);
+		ptr=(const unsigned char *)tvb_get_ptr(tvb, name_offset, name_len);
 		if(ptr[0]=='.'){
 			if(ptr[1]==0){
 				return;
@@ -707,6 +707,7 @@ nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, i
 static void
 nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
 {
+	unsigned char *fh;
 	nfs_name_snoop_t *nns, *old_nns;
 	nfs_name_snoop_key_t *key;
 
@@ -723,8 +724,9 @@ nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
 	}
 
 	/* oki, we have a new entry */
-	nns->fh=g_malloc(fh_length);
-	memcpy(nns->fh, tvb_get_ptr(tvb, fh_offset, fh_length), fh_length);
+	fh=g_malloc(fh_length);
+	memcpy(fh, tvb_get_ptr(tvb, fh_offset, fh_length), fh_length);
+	nns->fh=fh;
 	nns->fh_length=fh_length;
 
 	key=g_mem_chunk_alloc(nfs_name_snoop_key_chunk);
@@ -800,7 +802,7 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 	if(!pinfo->fd->flags.visited){
 		key.key=0;
 		key.fh_length=fh_length;
-		key.fh=(unsigned char *)tvb_get_ptr(tvb, fh_offset, fh_length);
+		key.fh=(const unsigned char *)tvb_get_ptr(tvb, fh_offset, fh_length);
 
 		nns=g_hash_table_lookup(nfs_name_snoop_matched, &key);
 		if(nns){
@@ -828,7 +830,7 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 	if(!nns){
 		key.key=pinfo->fd->num;
 		key.fh_length=fh_length;
-		key.fh=(unsigned char *)tvb_get_ptr(tvb, fh_offset, fh_length);
+		key.fh=(const unsigned char *)tvb_get_ptr(tvb, fh_offset, fh_length);
 
 		nns=g_hash_table_lookup(nfs_name_snoop_known, &key);
 	}
@@ -1390,21 +1392,23 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	   of an RPC call */
 	if(nfs_fhandle_reqrep_matching && (!hidden) ){
 		nfs_fhandle_data_t *old_fhd=NULL;
+		unsigned char *fh;
 
 		if( !pinfo->fd->flags.visited ){
 			nfs_fhandle_data_t fhd;
 
 			/* first check if we have seen this fhandle before */
 			fhd.len=fhlen;
-			fhd.fh=(unsigned char *)tvb_get_ptr(tvb, offset, fhlen);
+			fhd.fh=(const unsigned char *)tvb_get_ptr(tvb, offset, fhlen);
 			old_fhd=g_hash_table_lookup(nfs_fhandle_data_table,
 				(gconstpointer)&fhd);
 			if(!old_fhd){
 				/* oh, a new fhandle, alloc struct and store it in the table*/
 				old_fhd=g_mem_chunk_alloc(nfs_fhandle_data_chunk);
 				old_fhd->len=fhlen;
-				old_fhd->fh=g_malloc(fhlen);
-				memcpy(old_fhd->fh, fhd.fh, fhlen);
+				fh=g_malloc(fhlen);
+				memcpy(fh, fhd.fh, fhlen);
+				old_fhd->fh=fh;
 				old_fhd->tvb=tvb_new_real_data(old_fhd->fh, old_fhd->len, old_fhd->len);
 				g_hash_table_insert(nfs_fhandle_data_table,
 					(gpointer)old_fhd, (gpointer)old_fhd);

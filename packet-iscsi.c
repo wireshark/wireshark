@@ -2,7 +2,7 @@
  * Routines for iSCSI dissection
  * Copyright 2001, Eurologic and Mark Burton <markb@ordern.com>
  *
- * $Id: packet-iscsi.c,v 1.41 2002/11/14 19:08:17 guy Exp $
+ * $Id: packet-iscsi.c,v 1.42 2002/12/02 23:43:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -588,7 +588,7 @@ static guint32 crc32Table[256] = {
 
 static guint32
 calculateCRC32(const void *buf, int len, guint32 crc) {
-    guint8 *p = (guint8 *)buf;
+    const guint8 *p = (const guint8 *)buf;
     crc = CRC32C_SWAP(crc);
     while(len-- > 0)
         crc = crc32Table[(crc ^ *p++) & 0xff] ^ (crc >> 8);
@@ -601,8 +601,8 @@ calculateCRC32(const void *buf, int len, guint32 crc) {
 static gint
 iscsi_equal(gconstpointer v, gconstpointer w)
 {
-  iscsi_conv_key_t *v1 = (iscsi_conv_key_t *)v;
-  iscsi_conv_key_t *v2 = (iscsi_conv_key_t *)w;
+  const iscsi_conv_key_t *v1 = (const iscsi_conv_key_t *)v;
+  const iscsi_conv_key_t *v2 = (const iscsi_conv_key_t *)w;
 
   return (v1->conv_idx == v2->conv_idx);
 }
@@ -610,7 +610,7 @@ iscsi_equal(gconstpointer v, gconstpointer w)
 static guint
 iscsi_hash (gconstpointer v)
 {
-	iscsi_conv_key_t *key = (iscsi_conv_key_t *)v;
+	const iscsi_conv_key_t *key = (const iscsi_conv_key_t *)v;
 	guint val;
 
 	val = key->conv_idx;
@@ -856,7 +856,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 
         if (opcode != ISCSI_OPCODE_SCSI_COMMAND) {
 
-            col_append_str(pinfo->cinfo, COL_INFO, (char *)opcode_str);
+            col_append_str(pinfo->cinfo, COL_INFO, opcode_str);
 
 	    if (opcode == ISCSI_OPCODE_SCSI_RESPONSE ||
 		(opcode == ISCSI_OPCODE_SCSI_DATA_IN &&
@@ -912,7 +912,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	/* create display subtree for the protocol */
 	tp = proto_tree_add_protocol_format(tree, proto_iscsi, tvb,
 					    offset, -1, "iSCSI (%s)",
-					    (char *)opcode_str);
+					    opcode_str);
 	ti = proto_item_add_subtree(tp, ett_iscsi);
 
 	proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,

@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.42 2002/08/28 21:00:25 jmayer Exp $
+ * $Id: packet-pim.c,v 1.43 2002/12/02 23:43:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -521,7 +521,7 @@ dissect_pim_addr(tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
 	case AFNUM_INET6:
 	    len = 16;
 	    (void)snprintf(buf, sizeof(buf), "%s",
-		ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset + 2, len)));
+		ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset + 2, len)));
 	    break;
 	}
 	if (advance)
@@ -540,7 +540,7 @@ dissect_pim_addr(tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
 	case AFNUM_INET6:
 	    len = 16;
 	    (void)snprintf(buf, sizeof(buf), "%s/%u",
-		ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset + 4, len)), mask_len);
+		ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset + 4, len)), mask_len);
 	    break;
 	}
 	if (advance)
@@ -560,7 +560,7 @@ dissect_pim_addr(tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
 	case AFNUM_INET6:
 	    len = 16;
 	    (void)snprintf(buf, sizeof(buf), "%s/%u",
-		ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset + 4, len)), mask_len);
+		ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset + 4, len)), mask_len);
 	    break;
 	}
 	if (flags) {

@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.63 2002/08/28 21:00:13 jmayer Exp $
+ * $Id: packet-giop.c,v 1.64 2002/12/02 23:43:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -853,8 +853,8 @@ static void add_sub_handle_repoid_to_comp_req_list(guint32 fn, giop_sub_handle_t
 /* giop_complete_reply_hash  "EQUAL" Functions */
 
 static gint complete_reply_equal_fn(gconstpointer v, gconstpointer w) {
-  struct complete_reply_hash_key *mk1 = (struct complete_reply_hash_key *)v;
-  struct complete_reply_hash_key *mk2 = (struct complete_reply_hash_key *)w;
+  const struct complete_reply_hash_key *mk1 = (const struct complete_reply_hash_key *)v;
+  const struct complete_reply_hash_key *mk2 = (const struct complete_reply_hash_key *)w;
 
   if (mk1->fn == mk2->fn) {
     return 1;
@@ -867,7 +867,7 @@ static gint complete_reply_equal_fn(gconstpointer v, gconstpointer w) {
 
 static guint32 complete_reply_hash_fn(gconstpointer v) {
   guint32 val;		/* init hash value */
-  struct complete_reply_hash_key *key = (struct complete_reply_hash_key *)v;
+  const struct complete_reply_hash_key *key = (const struct complete_reply_hash_key *)v;
 
   val = key->fn;		/* simple and unique */
 
@@ -969,10 +969,10 @@ static guint32 get_mfn_from_fn_and_reqid(guint32 fn, guint32 reqid) {
 /* Module Hash "EQUAL" Functions */
 
 static gint giop_hash_module_equal(gconstpointer v, gconstpointer w) {
-  struct giop_module_key *mk1 = (struct giop_module_key *)v;
-  struct giop_module_key *mk2 = (struct giop_module_key *)w;
+  const struct giop_module_key *mk1 = (const struct giop_module_key *)v;
+  const struct giop_module_key *mk2 = (const struct giop_module_key *)w;
 
-  if (!strcmp(mk1->module, mk2->module)) {
+  if (strcmp(mk1->module, mk2->module) == 0) {
     return 1;
   }
 
@@ -986,7 +986,7 @@ static guint32 giop_hash_module_hash(gconstpointer v) {
   int i,len;
   guint32 val = 0;		/* init hash value */
 
-  struct giop_module_key *key = (struct giop_module_key *)v;
+  const struct giop_module_key *key = (const struct giop_module_key *)v;
 
   /*
    * Hmm, try this simple hashing scheme for now.
@@ -1067,15 +1067,15 @@ void register_giop_user_module(giop_sub_dissector_t *sub, gchar *name, gchar *mo
 /* Object Key Hash "EQUAL" Functions */
 
 static gint giop_hash_objkey_equal(gconstpointer v, gconstpointer w) {
-  struct giop_object_key *v1 = (struct giop_object_key *)v;
-  struct giop_object_key *v2 = (struct giop_object_key *)w;
+  const struct giop_object_key *v1 = (const struct giop_object_key *)v;
+  const struct giop_object_key *v2 = (const struct giop_object_key *)w;
 
   if (v1->objkey_len != v2->objkey_len)
     return 0;			/* no match because different length */
 
   /* Now do a byte comaprison */
 
-  if (!memcmp(v1->objkey,v2->objkey, v1->objkey_len)) {
+  if (memcmp(v1->objkey,v2->objkey, v1->objkey_len) == 0) {
     return 1;		/* compares ok */
   }
 
@@ -1089,7 +1089,7 @@ static gint giop_hash_objkey_equal(gconstpointer v, gconstpointer w) {
 /* Object Key Hash "HASH" Functions */
 
 static guint32 giop_hash_objkey_hash(gconstpointer v) {
-  struct giop_object_key *key = (struct giop_object_key *)v;
+  const struct giop_object_key *key = (const struct giop_object_key *)v;
 
   guint32 i;
   guint32 val = 0;		/* init hash value */

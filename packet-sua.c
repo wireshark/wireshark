@@ -4,9 +4,9 @@
  * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-sua-08.txt
  * and also supports SUA light, a trivial Siemens proprietary version.
  *
- * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
+ * Copyright 2000, Michael Tüxen <Michael.Tuexen [AT] siemens.com>
  *
- * $Id: packet-sua.c,v 1.10 2002/08/28 21:00:35 jmayer Exp $
+ * $Id: packet-sua.c,v 1.11 2002/12/02 23:43:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -521,7 +521,7 @@ static void
 dissect_sua_info_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 length, info_string_length, padding_length;
-  char *info_string;
+  const char *info_string;
 
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   padding_length = nr_of_padding_bytes(length);
@@ -535,7 +535,7 @@ dissect_sua_info_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, 
                          parameter_tvb, PARAMETER_VALUE_OFFSET + info_string_length, padding_length,
                          tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET + info_string_length, padding_length));
 
-  info_string = (char *)tvb_get_ptr(parameter_tvb, INFO_PARAMETER_INFO_STRING_OFFSET, info_string_length);
+  info_string = (const char *)tvb_get_ptr(parameter_tvb, INFO_PARAMETER_INFO_STRING_OFFSET, info_string_length);
   proto_item_set_text(parameter_item, "Info String (%.*s)", (int) info_string_length, info_string);
 }
 
@@ -1721,12 +1721,12 @@ static void
 dissect_sua_hostname_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16  length, hostname_length, padding_length;
-  char *hostname;
+  const char *hostname;
 
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   padding_length = nr_of_padding_bytes(length);
   hostname_length = length - PARAMETER_HEADER_LENGTH;
-  hostname = (char *)tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET, hostname_length);
+  hostname = (const char *)tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET, hostname_length);
 
   proto_tree_add_string(parameter_tree, hf_sua_hostname, parameter_tvb,
 			                  PARAMETER_VALUE_OFFSET, hostname_length,

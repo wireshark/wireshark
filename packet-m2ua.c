@@ -6,9 +6,9 @@
  *        - provide better handling of length parameters
  *        - provide good information in summary window
  *
- * Copyright 2002, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
+ * Copyright 2002, Michael Tuexen <Michael.Tuexen [AT] siemens.com>
  *
- * $Id: packet-m2ua.c,v 1.4 2002/08/28 21:00:20 jmayer Exp $
+ * $Id: packet-m2ua.c,v 1.5 2002/12/02 23:43:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -307,12 +307,12 @@ static void
 dissect_m2ua_interface_identifier_text_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 length, id_length;
-  char *id;
+  const char *id;
 
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
 
   id_length = length - PARAMETER_HEADER_LENGTH;
-  id        = (char *)tvb_get_ptr(parameter_tvb, INTERFACE_IDENTIFIER_TEXT_OFFSET, id_length);
+  id        = (const char *)tvb_get_ptr(parameter_tvb, INTERFACE_IDENTIFIER_TEXT_OFFSET, id_length);
   proto_tree_add_string(parameter_tree, hf_m2ua_interface_id_text, parameter_tvb, INTERFACE_IDENTIFIER_TEXT_OFFSET, id_length, id);
   proto_item_set_text(parameter_item, "Interface identifier (Text: %.*s)", id_length, id);
 }
@@ -323,12 +323,12 @@ static void
 dissect_m2ua_info_string_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 length, info_string_length;
-  char *info_string;
+  const char *info_string;
 
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
 
   info_string_length = length - PARAMETER_HEADER_LENGTH;
-  info_string        = (char *)tvb_get_ptr(parameter_tvb, INFO_STRING_OFFSET, info_string_length);
+  info_string        = (const char *)tvb_get_ptr(parameter_tvb, INFO_STRING_OFFSET, info_string_length);
   proto_tree_add_string(parameter_tree, hf_m2ua_info_string, parameter_tvb, INFO_STRING_OFFSET, info_string_length, info_string);
   proto_item_set_text(parameter_item, "Info String (%.*s)", info_string_length, info_string);
 }

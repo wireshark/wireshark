@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-lmp.c,v 1.13 2002/10/17 01:29:30 guy Exp $
+ * $Id: packet-lmp.c,v 1.14 2002/12/02 23:43:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -953,9 +953,9 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    break;
 		case 2:
 		    proto_item_append_text(ti, ": IPv6 %s",
-					   ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
+					   ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
 		    proto_tree_add_text(lmp_object_tree, tvb, offset2, 16, "IPv6: %s",
-					ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
+					ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
 		    break;
 		case 3:
 		    l = (class == LMP_CLASS_LOCAL_LINK_ID) ?
@@ -984,9 +984,9 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    break;
 		case 2:
 		    proto_item_append_text(ti, ": IPv6 %s",
-					   ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
+					   ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
 		    proto_tree_add_text(lmp_object_tree, tvb, offset2, 16, "IPv6: %s",
-					ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
+					ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
 		    break;
 		case 3:
 		    l = (class == LMP_CLASS_LOCAL_INTERFACE_ID) ?
@@ -1143,12 +1143,12 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    break;
 		case 2:
 		    proto_item_append_text(ti, ": IPv6: Local %s, Remote %s",
-					   ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2+4, 16)),
-					   ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2+8, 16)));
+					   ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2+4, 16)),
+					   ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2+8, 16)));
 		    proto_tree_add_text(lmp_object_tree, tvb, offset2+4, 16, "TE-Link Local ID - IPv6: %s",
-					ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
+					ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
 		    proto_tree_add_text(lmp_object_tree, tvb, offset2+20,16, "TE-Link Remote ID - IPv6: %s",
-					ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2+4, 16)));
+					ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2+4, 16)));
 		    break;
 		case 3:
 		    proto_item_append_text(ti, ": Unnumbered: Local %d, Remote %d",
@@ -1192,14 +1192,14 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    break;
 		case 2:
 		    proto_item_append_text(ti, ": IPv6: Local %s, Remote %s",
-					   ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2+4, 16)),
-					   ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2+8, 16)));
+					   ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2+4, 16)),
+					   ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2+8, 16)));
 		    proto_tree_add_text(lmp_object_tree, tvb, offset2+4, 16,
 					"Data-Link Local ID - IPv6: %s",
-					ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
+					ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
 		    proto_tree_add_text(lmp_object_tree, tvb, offset2+20,16,
 					"Data-Link Remote ID - IPv6: %s",
-					ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2+4, 16)));
+					ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2+4, 16)));
 		    l = 36;
 		    break;
 		case 3:
@@ -1299,11 +1299,11 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    case 2:
 			if (j < 4)
 			    proto_item_append_text(ti, ": [IPv6-%s",
-						   ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2+l, 16)));
+						   ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2+l, 16)));
 			proto_item_append_text(ti2, ": IPv6 %s",
-					       ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2+l, 16)));
+					       ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2+l, 16)));
 			proto_tree_add_text(lmp_subobj_tree, tvb, offset2, 16, "Interface ID: IPv6: %s",
-					    ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2+l, 16)));
+					    ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2+l, 16)));
 			l += 16;
 			break;
 		    case 3:
@@ -1358,7 +1358,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		    case 2:
 			proto_tree_add_text(lmp_object_tree, tvb, offset2+l, 16, "Interface ID: IPv6: %s",
-					    ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2+l,16)));
+					    ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2+l,16)));
 			l += 16;
 			break;
 		    case 3:
