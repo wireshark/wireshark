@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.54 2003/04/18 17:34:37 guy Exp $
+ * $Id: packet-vines.c,v 1.55 2003/04/18 19:57:30 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -76,6 +76,7 @@ static gint ett_vines_arp = -1;
 static int proto_vines_rtp = -1;
 
 static gint ett_vines_rtp = -1;
+static gint ett_vines_rtp_compatibility_flags = -1;
 static gint ett_vines_rtp_req_info = -1;
 static gint ett_vines_rtp_control_flags = -1;
 static gint ett_vines_rtp_mtype = -1;
@@ -869,6 +870,7 @@ dissect_vines_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	guint8   version;
 	guint8   packet_type;
+	guint16  metric;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines ARP");
@@ -927,10 +929,11 @@ dissect_vines_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    2+VINES_ADDR_LEN, 4,
 					    "Sequence Number: %u",
 					    tvb_get_ntohl(tvb, 2+VINES_ADDR_LEN));
+			metric = tvb_get_ntohs(tvb, 2+VINES_ADDR_LEN+4);
 			proto_tree_add_text(vines_arp_tree, tvb,
 					    2+VINES_ADDR_LEN+4, 2,
-					    "Interface Metric: %u",
-					    tvb_get_ntohs(tvb, 2+VINES_ADDR_LEN+4));
+					    "Interface Metric: %u ticks (%g seconds)",
+					    metric, metric*.2);
 		}
 	} else {
 		/*
@@ -1024,6 +1027,7 @@ static const value_string vines_rtp_compatibility_flags_vals[] = {
 };
 
 static const value_string vines_rtp_info_type_vals[] = {
+	{ 0x00, "Update" },
 	{ 0x01, "Update" },
 	{ 0x02, "Response" },
 	{ 0,    NULL }
@@ -1144,10 +1148,12 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						    "Network Number: 0x%08x",
 						    tvb_get_ntohl(tvb, offset));
 					offset += 4;
+					metric = tvb_get_ntohs(tvb, offset);
 					proto_tree_add_text(vines_rtp_tree, tvb,
 						    offset, 2,
-						    "Neighbor Metric: %u",
-						    tvb_get_ntohs(tvb, offset));
+						    "Neighbor Metric: %u ticks (%g seconds)",
+						    metric,
+						    metric*.2);
 					offset += 2;
 				}
 				break;
@@ -1188,12 +1194,29 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    node_type);
 			offset += 1;
 			compatibility_flags = tvb_get_guint8(tvb, offset);
-			proto_tree_add_text(vines_rtp_tree, tvb, offset, 1,
-					    "Compatibility Flags: %s (0x%02x)",
-					    val_to_str(compatibility_flags,
-					      vines_rtp_compatibility_flags_vals,
-					      "Unknown"),
+			ti = proto_tree_add_text(vines_rtp_tree, tvb, offset, 1,
+					    "Compatibility Flags: 0x%02x",
 					    compatibility_flags);
+			subtree = proto_item_add_subtree(ti,
+			    ett_vines_rtp_compatibility_flags);
+			proto_tree_add_text(subtree, tvb,
+			    offset, 1,
+			    decode_boolean_bitfield(compatibility_flags,
+			      0x04, 1*8,
+			      "Auto-configured non-Vines-reachable neighbor router",
+			      "Not an auto-configured non-Vines-reachable neighbor router"));
+			proto_tree_add_text(subtree, tvb,
+			    offset, 1,
+			    decode_boolean_bitfield(compatibility_flags,
+			      0x02, 1*8,
+			      "Not all neighbor routers support Sequenced RTP",
+			      "All neighbor routers support Sequenced RTP"));
+			proto_tree_add_text(subtree, tvb,
+			    offset, 1,
+			    decode_boolean_bitfield(compatibility_flags,
+			      0x01, 1*8,
+			      "Sequenced RTP version mismatch",
+			      "No Sequenced RTP version mismatch"));
 			offset += 1;
 			offset += 1;	/* reserved */
 			switch (operation_type) {
@@ -1239,7 +1262,7 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    offset, 1,
 				    decode_boolean_bitfield(control_flags,
 				      0x04, 1*8,
-				      "A response to a specific request",
+				      "Contains info specifically requested or network changes",
 				      "Not a response to a specific request"));
 				/* XXX - need reassembly? */
 				proto_tree_add_text(subtree, tvb,
@@ -1270,10 +1293,11 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    "Router Sequence Number: %u",
 					    tvb_get_ntohl(tvb, offset));
 				offset += 4;
+				metric = tvb_get_ntohs(tvb, offset);
 				proto_tree_add_text(vines_rtp_tree, tvb,
 					    offset, 2,
-					    "Metric: %u",
-					    tvb_get_ntohs(tvb, offset));
+					    "Metric: %u ticks (%g seconds)",
+					    metric, metric*.2);
 				offset += 2;
 				while (tvb_reported_length_remaining(tvb, offset) > 0) {
 					proto_tree_add_text(vines_rtp_tree, tvb,
@@ -1289,8 +1313,8 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					} else {
 						proto_tree_add_text(vines_rtp_tree, tvb,
 							    offset, 2,
-							    "Neighbor Metric: %u",
-							    metric);
+							    "Neighbor Metric: %u ticks (%g seconds)",
+							    metric, metric*.2);
 					}
 					offset += 2;
 					proto_tree_add_text(vines_rtp_tree, tvb,
@@ -1323,10 +1347,11 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						    "Destination: %s",
 						    vines_addr_to_str(tvb_get_ptr(tvb, offset, VINES_ADDR_LEN)));
 				offset += VINES_ADDR_LEN;
+				metric = tvb_get_ntohs(tvb, offset);
 				proto_tree_add_text(vines_rtp_tree, tvb,
 						    offset, 2,
-						    "Metric to Destination: %u",
-						    tvb_get_ntohs(tvb, offset));
+						    "Metric to Destination: %u ticks (%g seconds)",
+						    metric, metric*.2);
 				offset += 2;
 				node_type = tvb_get_guint8(tvb, offset);
 				proto_tree_add_text(vines_rtp_tree, tvb,
@@ -1341,19 +1366,20 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    offset, "Destination");
 				offset += 1;
 				proto_tree_add_text(vines_rtp_tree, tvb,
-					    offset, 2,
+					    offset, 4,
 					    "Destination Sequence Number: %u",
-					    tvb_get_ntohs(tvb, offset));
-				offset += 2;
+					    tvb_get_ntohl(tvb, offset));
+				offset += 4;
 				proto_tree_add_text(vines_rtp_tree, tvb,
 						    offset, VINES_ADDR_LEN,
 						    "Preferred Gateway: %s",
 						    vines_addr_to_str(tvb_get_ptr(tvb, offset, VINES_ADDR_LEN)));
 				offset += VINES_ADDR_LEN;
+				metric - tvb_get_ntohs(tvb, offset);
 				proto_tree_add_text(vines_rtp_tree, tvb,
 						    offset, 2,
-						    "Metric to Preferred Gateway: %u",
-						    tvb_get_ntohs(tvb, offset));
+						    "Metric to Preferred Gateway: %u ticks (%g seconds)",
+						    metric, metric*.2);
 				offset += 2;
 				node_type = tvb_get_guint8(tvb, offset);
 				proto_tree_add_text(vines_rtp_tree, tvb,
@@ -1368,10 +1394,10 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    offset, "Preferred Gateway");
 				offset += 1;
 				proto_tree_add_text(vines_rtp_tree, tvb,
-					    offset, 2,
+					    offset, 4,
 					    "Preferred Gateway Sequence Number: %u",
-					    tvb_get_ntohs(tvb, offset));
-				offset += 2;
+					    tvb_get_ntohl(tvb, offset));
+				offset += 4;
 				offset = rtp_show_gateway_info(vines_rtp_tree,
 				    tvb,offset, link_addr_length,
 				    source_route_length);
@@ -1426,25 +1452,26 @@ rtp_show_flags(proto_tree *tree, tvbuff_t *tvb, int offset, char *tag)
 	flags_tree = proto_item_add_subtree(ti, ett_vines_rtp_flags);
 	proto_tree_add_text(flags_tree, tvb, offset, 1,
 	    decode_boolean_bitfield(flags, 0x08, 1*8,
-	      "Reachable through non-sequenced RTP only",
-	      "Reachable through sequenced or non-sequenced RTP"));
+	      "Network doesn't support Sequenced RTP",
+	      "Network supports Sequenced RTP"));
 	proto_tree_add_text(flags_tree, tvb, offset, 1,
 	    decode_boolean_bitfield(flags, 0x04, 1*8,
-	      "Neighbor accesses router across non-Vines network",
-	      "Neighbor accesses router across Vines network"));
+	      "Network accessed point-to-point on non-Vines network",
+	      "Network not accessed point-to-point on non-Vines network"));
 	proto_tree_add_text(flags_tree, tvb, offset, 1,
 	    decode_boolean_bitfield(flags, 0x02, 1*8,
-	      "Neighbor accesses router across point-to-point connection",
-	      "Neighbor accesses router across non-point-to-point connection"));
+	      "Data link to network uses point-to-point connection",
+	      "Data link to network doesn't use point-to-point connection"));
 	proto_tree_add_text(flags_tree, tvb, offset, 1,
 	    decode_boolean_bitfield(flags, 0x01, 1*8,
-	      "Neighbor accesses router across broadcast medium",
-	      "Neighbor accesses router across non-broadcast medium"));
+	      "Network accessed across broadcast medium",
+	      "Network not accessed across broadcast medium"));
 }
 
 static int
 srtp_show_machine_info(proto_tree *tree, tvbuff_t *tvb, int offset, char *tag)
 {
+	guint16 metric;
 	guint8 node_type;
 	guint8 controller_type;
 
@@ -1452,8 +1479,9 @@ srtp_show_machine_info(proto_tree *tree, tvbuff_t *tvb, int offset, char *tag)
 	    "%s: %s", tag,
 	    vines_addr_to_str(tvb_get_ptr(tvb, offset, VINES_ADDR_LEN)));
 	offset += VINES_ADDR_LEN;
+	metric = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_text(tree, tvb, offset, 2,
-	    "Metric to %s: %u", tag, tvb_get_ntohs(tvb, offset));
+	    "Metric to %s: %u ticks (%g seconds)", tag, metric, metric*.2);
 	offset += 2;
 	node_type = tvb_get_guint8(tvb, offset);
 	proto_tree_add_text(tree, tvb, offset, 1,
@@ -1498,6 +1526,7 @@ proto_register_vines_rtp(void)
 {
 	static gint *ett[] = {
 		&ett_vines_rtp,
+		&ett_vines_rtp_compatibility_flags,
 		&ett_vines_rtp_req_info,
 		&ett_vines_rtp_control_flags,
 		&ett_vines_rtp_mtype,
