@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.68 2003/04/30 23:40:42 guy Exp $
+ * $Id: plugins.c,v 1.69 2003/05/01 18:05:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -510,7 +510,7 @@ init_plugins(const char *plugin_dir)
 	patable.p_asn1_uint32_decode		= asn1_uint32_decode;
 	patable.p_asn1_bits_decode		= asn1_bits_decode;
 	patable.p_asn1_string_value_decode	= asn1_string_value_decode;
-	patable.p_asn1_string_decode		= asn1_octet_string_decode;
+	patable.p_asn1_string_decode		= asn1_string_decode;
 	patable.p_asn1_octet_string_decode	= asn1_octet_string_decode;
 	patable.p_asn1_subid_decode		= asn1_subid_decode;
 	patable.p_asn1_oid_value_decode		= asn1_oid_value_decode;
