@@ -1,6 +1,6 @@
 /* packet-rpc.h
  *
- * $Id: packet-rpc.h,v 1.26 2001/02/09 07:59:00 guy Exp $
+ * $Id: packet-rpc.h,v 1.27 2001/05/07 20:36:39 guy Exp $
  *
  * (c) 1999 Uwe Girlich
  *
@@ -113,6 +113,9 @@ extern int dissect_rpc_list(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree, old_dissect_function_t *rpc_list_dissector);
 extern int dissect_rpc_list_tvb(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int offset, dissect_function_t *rpc_list_dissector);
+extern int dissect_rpc_array_tvb(tvbuff_t *tvb, packet_info *pinfo,
+	proto_tree *tree, int offset, dissect_function_t *rpc_array_dissector,
+	int hfindex);
 extern int dissect_rpc_uint32(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree, char* name);
 extern int dissect_rpc_uint32_tvb(tvbuff_t *tvb, packet_info *pinfo,

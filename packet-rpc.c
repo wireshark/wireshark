@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.56 2001/04/18 20:27:42 guy Exp $
+ * $Id: packet-rpc.c,v 1.57 2001/05/07 20:36:38 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -166,6 +166,7 @@ static int hf_rpc_dup = -1;
 static int hf_rpc_call_dup = -1;
 static int hf_rpc_reply_dup = -1;
 static int hf_rpc_value_follows = -1;
+static int hf_rpc_array_len = -1;
 
 static gint ett_rpc = -1;
 static gint ett_rpc_string = -1;
@@ -173,6 +174,7 @@ static gint ett_rpc_cred = -1;
 static gint ett_rpc_verf = -1;
 static gint ett_rpc_gids = -1;
 static gint ett_rpc_gss_data = -1;
+static gint ett_rpc_array = -1;
 
 /* Hash table with info on RPC program numbers */
 static GHashTable *rpc_progs;
@@ -786,6 +788,42 @@ dissect_rpc_list_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 	}
 
+	return offset;
+}
+
+int
+dissect_rpc_array_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+	int offset, dissect_function_t *rpc_array_dissector,
+	int hfindex)
+{
+	proto_item* lock_item;
+	proto_tree* lock_tree;
+	guint32	num;
+	int old_offset = offset;
+
+	num = tvb_get_ntohl(tvb, offset);
+
+	if( num == 0 ){
+		proto_tree_add_none_format(tree, hfindex, tvb, offset, 4,
+			"no values");
+		offset += 4;
+
+		return offset;
+	}
+
+	lock_item = proto_tree_add_item(tree, hfindex, tvb, offset,
+			0, FALSE);
+
+	lock_tree = proto_item_add_subtree(lock_item, ett_rpc_array); 	
+
+	offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree,
+			hf_rpc_array_len, offset);
+
+	while (num--) {
+		offset = rpc_array_dissector(tvb, offset, pinfo, lock_tree);
+	}
+
+	proto_item_set_len(lock_item, offset-old_offset);
 	return offset;
 }
 
@@ -2066,7 +2104,10 @@ proto_register_rpc(void)
 			NULL, 0, "Duplicate Reply" }},
 		{ &hf_rpc_value_follows, {
 			"Value Follows", "rpc.value_follows", FT_BOOLEAN, BASE_NONE,
-			&yesno, 0, "Value Follows" }}
+			&yesno, 0, "Value Follows" }},
+		{ &hf_rpc_array_len, {
+			"num", "rpc.array.len", FT_UINT32, BASE_DEC,
+			NULL, 0, "Length of RPC array" }},
 	};
 	static gint *ett[] = {
 		&ett_rpc,
@@ -2074,6 +2115,7 @@ proto_register_rpc(void)
 		&ett_rpc_cred,
 		&ett_rpc_verf,
 		&ett_rpc_gids,
+		&ett_rpc_array,
 	};
 
 	proto_rpc = proto_register_protocol("Remote Procedure Call",
