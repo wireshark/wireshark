@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-pipe.c,v 1.13 2001/01/01 01:44:46 sharpe Exp $
+ * $Id: packet-smb-pipe.c,v 1.14 2001/01/03 04:37:07 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -565,7 +565,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
   guint16             FunctionCode;
   guint16             Level;
   guint16             RecvBufLen;
-  guint16             Flags;
+  guint32             Flags;
   const char          *ParameterDescriptor;
   const char          *ReturnDescriptor;
   proto_tree          *lanman_tree = NULL, *flags_tree = NULL;
