@@ -38,6 +38,8 @@
 
 /* Place AH payload in sub tree */
 static gboolean g_ah_payload_in_subtree = FALSE;
+/* Default ESP payload decode to off (only works if payload is NULL encrypted) */
+static gboolean g_esp_enable_null_encryption_decode_heuristic = FALSE;
 
 static int proto_ah = -1;
 static int hf_ah_spi = -1;
@@ -45,6 +47,8 @@ static int hf_ah_sequence = -1;
 static int proto_esp = -1;
 static int hf_esp_spi = -1;
 static int hf_esp_sequence = -1;
+static int hf_esp_pad = -1;
+static int hf_esp_protocol = -1;
 static int proto_ipcomp = -1;
 static int hf_ipcomp_flags = -1;
 static int hf_ipcomp_cpi = -1;
@@ -214,6 +218,9 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * (ie none)
      */
     if(tree) {
+        int len, pad, encapsulated_protocol;
+        gboolean auth_decode_ok = FALSE;
+
 	ti = proto_tree_add_item(tree, proto_esp, tvb, 0, -1, FALSE);
 	esp_tree = proto_item_add_subtree(ti, ett_esp);
 	proto_tree_add_uint(esp_tree, hf_esp_spi, tvb,
@@ -222,9 +229,60 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_uint(esp_tree, hf_esp_sequence, tvb,
 			    offsetof(struct newesp, esp_seq), 4,
 			    (guint32)g_ntohl(esp.esp_seq));
-	call_dissector(data_handle,
-	    tvb_new_subset(tvb, sizeof(struct newesp), -1, -1),
-	    pinfo, esp_tree);
+
+        if(g_esp_enable_null_encryption_decode_heuristic)
+        {
+           /* Get length of whole ESP packet. */
+           len = tvb_reported_length(tvb);
+
+           /* Make sure the packet is not truncated before the fields
+            * we need to read to determine the encapsulated protocol */
+           if(tvb_bytes_exist(tvb, len - 14, 2))
+           {
+              pad = tvb_get_guint8(tvb, len - 14);
+              encapsulated_protocol = tvb_get_guint8(tvb, len - 13);
+
+              if(dissector_try_port(ip_dissector_table, 
+                                    encapsulated_protocol,
+                                    tvb_new_subset(tvb, 
+                                                   sizeof(struct newesp), 
+                                                   -1, 
+                                                   len - sizeof(struct newesp) - 14 - pad),
+                                    pinfo,
+                                    esp_tree))
+              {
+                 auth_decode_ok = TRUE;
+              }
+           }
+        }
+        
+        if(auth_decode_ok)
+        {
+           proto_tree_add_uint(esp_tree, hf_esp_pad, tvb,
+                               len - 14, 1,
+                               pad);
+           proto_tree_add_uint(esp_tree, hf_esp_protocol, tvb,
+                               len - 13, 1,
+                               encapsulated_protocol);
+           /* Make sure we have the auth trailer data */
+           if(tvb_bytes_exist(tvb, len - 12, 12))
+           {
+              proto_tree_add_text(esp_tree, tvb, len - 12, 12,
+                                  "Authentication Data");
+           }
+           else
+           {
+              /* Truncated so just display what we have */
+              proto_tree_add_text(esp_tree, tvb, len - 12, 12 - (len - tvb_length(tvb)),
+                                  "Authentication Data (truncated)");
+           }
+        }
+        else
+        {
+           call_dissector(data_handle,
+                          tvb_new_subset(tvb, sizeof(struct newesp), -1, -1),
+                          pinfo, esp_tree);
+        }
     }
 }
 
@@ -299,6 +357,12 @@ proto_register_ipsec(void)
       	"", HFILL }},
     { &hf_esp_sequence,
       { "Sequence",     "esp.sequence",	FT_UINT32,	BASE_DEC, NULL, 0x0,
+      	"", HFILL }},
+    { &hf_esp_pad,
+      { "Pad Length",	"esp.pad",	FT_UINT8,	BASE_DEC, NULL, 0x0,
+      	"", HFILL }},
+    { &hf_esp_protocol,
+      { "Next Header",	"esp.protocol",	FT_UINT8,	BASE_HEX, NULL, 0x0,
       	"", HFILL }}
   };
 
@@ -317,6 +381,7 @@ proto_register_ipsec(void)
   };
 
   module_t *ah_module;
+  module_t *esp_module;
 
   proto_ah = proto_register_protocol("Authentication Header", "AH", "ah");
   proto_register_field_array(proto_ah, hf_ah, array_length(hf_ah));
@@ -337,6 +402,12 @@ proto_register_ipsec(void)
 	    "Place AH payload in subtree",
 "Whether the AH payload decode should be placed in a subtree",
 	    &g_ah_payload_in_subtree);
+
+  esp_module = prefs_register_protocol(proto_esp, NULL);
+  prefs_register_bool_preference(esp_module, "enable_null_encryption_decode_heuristic",
+	    "Attempt to detect/decode NULL encrypted ESP payloads",
+"Assumes a 12 byte auth (SHA1/MD5) and attempts decode based on the ethertype 13 bytes from packet end",
+	    &g_esp_enable_null_encryption_decode_heuristic);
 
   register_dissector("esp", dissect_esp, proto_esp);
   register_dissector("ah", dissect_ah, proto_ah);
