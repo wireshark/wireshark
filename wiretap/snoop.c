@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.14 1999/10/05 07:06:07 guy Exp $
+ * $Id: snoop.c,v 1.15 1999/11/26 11:18:12 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -57,6 +57,34 @@ struct snooprec_hdr {
 
 static int snoop_read(wtap *wth, int *err);
 
+/*
+ * See
+ * 
+ *	http://www.opengroup.org/onlinepubs/9638599/apdxf.htm
+ *
+ * for the "dlpi.h" header file specified by The Open Group, which lists
+ * the DL_ values for various protocols.  Those are the values that
+ * Solaris might also use, although the "atmdump" source seems to imply
+ * that Solaris might use 15 rather than 17 for ATM (although the README.ATM
+ * says of the Solaris version of "atmdump" "This version has not been
+ * tested yet").  Solaris 7 uses the same values as The Open Group's
+ * "dlpi.h".
+ *
+ * The "atmdump" source also says that an ATM packet handed up from the Sun
+ * driver for the Sun SBus ATM card on Solaris 2.5.1 has 1 byte of direction,
+ * 1 byte of VPI, 2 bytes of VCI, and then the ATM PDU, and suggests that
+ * the direction byte is 0x80 for "transmitted" (presumably meaning
+ * DTE->DCE) and presumably not 0x80 for "received" (presumably meaning
+ * DCE->DTE).  (The RADCOM dissector makes the X.25 flag 0x80 for DCE->DTE
+ * packets; is there some significance to 0x80?)
+ *
+ * I don't know what the encapsulation of any of the other types is, and
+ * haven't actually seen any packets from the Sun ATM driver, so I leave
+ * them all as WTAP_ENCAP_UNKNOWN.  I also don't know whether "snoop"
+ * can handle any of them; even if it can't, this may be useful reference
+ * information for anybody doing code to use DLPI to do raw packet
+ * captures.
+ */
 int snoop_open(wtap *wth, int *err)
 {
 	int bytes_read;
@@ -69,10 +97,26 @@ int snoop_open(wtap *wth, int *err)
 		WTAP_ENCAP_UNKNOWN,	/* IEEE 802.6 Metro Net */
 		WTAP_ENCAP_ETHERNET,
 		WTAP_ENCAP_UNKNOWN,	/* HDLC */
-		WTAP_ENCAP_UNKNOWN,	/* Character Synchronous */
+		WTAP_ENCAP_UNKNOWN,	/* Character Synchronous, e.g. bisync */
 		WTAP_ENCAP_UNKNOWN,	/* IBM Channel-to-Channel */
 		WTAP_ENCAP_FDDI_BITSWAPPED,
-		WTAP_ENCAP_UNKNOWN	/* Other */
+		WTAP_ENCAP_UNKNOWN,	/* Other */
+		WTAP_ENCAP_UNKNOWN,	/* Frame Relay LAPF */
+		WTAP_ENCAP_UNKNOWN,	/* Multi-protocol over Frame Relay */
+		WTAP_ENCAP_UNKNOWN,	/* Character Async (e.g., SLIP and PPP?) */
+		WTAP_ENCAP_UNKNOWN,	/* X.25 Classical IP */
+		WTAP_ENCAP_UNKNOWN,	/* software loopback */
+		WTAP_ENCAP_UNKNOWN,	/* not defined in "dlpi.h" */
+		WTAP_ENCAP_UNKNOWN,	/* Fibre Channel */
+		WTAP_ENCAP_UNKNOWN,	/* ATM */
+		WTAP_ENCAP_UNKNOWN,	/* ATM Classical IP */
+		WTAP_ENCAP_UNKNOWN,	/* X.25 LAPB */
+		WTAP_ENCAP_UNKNOWN,	/* ISDN */
+		WTAP_ENCAP_UNKNOWN,	/* HIPPI */
+		WTAP_ENCAP_UNKNOWN,	/* 100VG-AnyLAN Ethernet */
+		WTAP_ENCAP_UNKNOWN,	/* 100VG-AnyLAN Token Ring */
+		WTAP_ENCAP_UNKNOWN,	/* "ISO 8802/3 and Ethernet" */
+		WTAP_ENCAP_UNKNOWN,	/* 100BaseT (but that's just Ethernet) */
 	};
 	#define NUM_SNOOP_ENCAPS (sizeof snoop_encap / sizeof snoop_encap[0])
 
