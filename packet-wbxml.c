@@ -3,7 +3,7 @@
  * Routines for WAP Binary XML dissection
  * Copyright 2003, 2004, Olivier Biot.
  *
- * $Id: packet-wbxml.c,v 1.33 2004/04/16 22:44:24 obiot Exp $
+ * $Id: packet-wbxml.c,v 1.34 2004/04/17 10:45:58 obiot Exp $
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
@@ -296,7 +296,7 @@ date_time_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
 			break;
 		case 7: /* YYYY-MM-DDThh:mm[:00Z] */
 			str = g_strdup_printf("%%DateTime: "
-					"%02x%02x-%02x-%02xT%02x:%02x%02xZ",
+					"%02x%02x-%02x-%02xT%02x:%02x:%02xZ",
 					tvb_get_guint8(tvb, offset),
 					tvb_get_guint8(tvb, offset + 1),
 					tvb_get_guint8(tvb, offset + 2),
