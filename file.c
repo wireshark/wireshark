@@ -142,7 +142,7 @@ static   gboolean copy_binary_file(char *from_filename, char *to_filename);
 #define	FRAME_DATA_CHUNK_SIZE	1024
 
 
-cf_status_t
+gboolean
 cf_open(capture_file *cf, char *fname, gboolean is_tempfile, int *err)
 {
   wtap       *wth;
@@ -211,11 +211,11 @@ cf_open(capture_file *cf, char *fname, gboolean is_tempfile, int *err)
 	G_ALLOC_AND_FREE);
   g_assert(cf->plist_chunk);
 
-  return CF_OK;
+  return TRUE;
 
 fail:
   cf_open_failure_alert_box(fname, *err, err_info, FALSE, 0);
-  return CF_ERROR;
+  return FALSE;
 }
 
 /* Reset everything to a pristine state */
@@ -340,7 +340,7 @@ set_display_filename(capture_file *cf)
   g_free(win_name);
 }
 
-cf_status_t
+cf_read_status_t
 cf_read(capture_file *cf)
 {
   int         err;
@@ -529,14 +529,14 @@ cf_read(capture_file *cf)
 }
 
 #ifdef HAVE_LIBPCAP
-cf_status_t
+gboolean
 cf_start_tail(capture_file *cf, char *fname, gboolean is_tempfile, int *err)
 {
   gchar *capture_msg;
-  cf_status_t cf_status;
+  gboolean status;
 
-  cf_status = cf_open(cf, fname, is_tempfile, err);
-  if (cf_status == CF_OK) {
+  status = cf_open(cf, fname, is_tempfile, err);
+  if (status) {
     /* Disable menu items that make no sense if you're currently running
        a capture. */
     set_menus_for_capture_in_progress(TRUE);
@@ -552,10 +552,10 @@ cf_start_tail(capture_file *cf, char *fname, gboolean is_tempfile, int *err)
     g_free(capture_msg);
 
   }
-  return cf_status;
+  return status;
 }
 
-cf_status_t
+cf_read_status_t
 cf_continue_tail(capture_file *cf, int to_read, int *err)
 {
   long data_offset = 0;
@@ -598,7 +598,7 @@ cf_continue_tail(capture_file *cf, int to_read, int *err)
     return CF_OK;
 }
 
-cf_status_t
+cf_read_status_t
 cf_finish_tail(capture_file *cf, int *err)
 {
   gchar *err_info;
@@ -1197,7 +1197,7 @@ cf_merge_files(const char *out_filename, int out_fd, int in_file_count,
   return (!got_read_error && !got_write_error);
 }
 
-cf_status_t
+gboolean
 cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
 {
   dfilter_t *dfcode;
@@ -1206,7 +1206,7 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
 
   /* if new filter equals old one, do nothing unless told to do so */
   if (!force && strcmp(filter_new, filter_old) == 0) {
-    return CF_OK;
+    return TRUE;
   }
 
   if (dftext == NULL) {
@@ -1233,7 +1233,7 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
       g_free(safe_dfilter_error_msg);
       g_free(safe_dftext);
       g_free(dftext);
-      return CF_ERROR;
+      return FALSE;
     }
 
     /* Was it empty? */
@@ -1259,7 +1259,7 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
   } else {
     rescan_packets(cf, "Filtering", dftext, TRUE, FALSE);
   }
-  return CF_OK;
+  return TRUE;
 }
 
 void
@@ -1691,7 +1691,7 @@ retap_packet(capture_file *cf _U_, frame_data *fdata,
   return TRUE;
 }
 
-cf_status_t 
+gboolean
 cf_retap_packets(capture_file *cf)
 {
   packet_range_t range;
@@ -1713,14 +1713,14 @@ cf_retap_packets(capture_file *cf)
   case PSP_STOPPED:
     /* Well, the user decided to abort the refiltering.
        Return FALSE so our caller knows they did that. */
-    return CF_ERROR;
+    return FALSE;
 
   case PSP_FAILED:
     /* Error while retapping. */
-    return CF_ERROR;
+    return FALSE;
   }
 
-  return CF_OK;
+  return TRUE;
 }
 
 typedef struct {
@@ -1881,7 +1881,7 @@ fail:
   return FALSE;
 }
 
-cf_status_t
+cf_print_status_t
 cf_print_packets(capture_file *cf, print_args_t *print_args)
 {
   int         i;
@@ -2033,7 +2033,7 @@ write_pdml_packet(capture_file *cf _U_, frame_data *fdata,
   return !ferror(fh);
 }
 
-cf_status_t
+cf_print_status_t
 cf_write_pdml_packets(capture_file *cf, print_args_t *print_args)
 {
   FILE        *fh;
@@ -2103,7 +2103,7 @@ write_psml_packet(capture_file *cf, frame_data *fdata,
   return !ferror(fh);
 }
 
-cf_status_t
+cf_print_status_t
 cf_write_psml_packets(capture_file *cf, print_args_t *print_args)
 {
   FILE        *fh;
@@ -3084,7 +3084,7 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
   return TRUE;
 }
 
-cf_status_t
+gboolean
 cf_save(capture_file *cf, char *fname, packet_range_t *range, guint save_format)
 {
   gchar        *from_filename;
@@ -3271,12 +3271,12 @@ cf_save(capture_file *cf, char *fname, packet_range_t *range, guint save_format)
       set_menus_for_unsaved_capture_file(FALSE);
     }
   }
-  return CF_OK;
+  return TRUE;
 
 fail:
   /* Pop the "Saving:" message off the status bar. */
   statusbar_pop_file_msg();
-  return CF_ERROR;
+  return FALSE;
 }
 
 static void

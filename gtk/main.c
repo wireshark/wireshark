@@ -511,14 +511,15 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
   gboolean   add_filter = TRUE;
   gboolean   free_filter = TRUE;
   char      *s;
-  cf_status_t cf_status;
+  gboolean   status;
+
   s = g_strdup(dftext);
 
   /* GtkCombos don't let us get at their list contents easily, so we maintain
      our own filter list, and feed it to gtk_combo_set_popdown_strings when
      a new filter is added. */
-  cf_status = cf_filter_packets(cf, s, force);
-  if (cf_status == CF_OK) {
+  status = cf_filter_packets(cf, s, force);
+  if (status) {
     li = g_list_first(filter_list);
     while (li) {
       if (li->data && strcmp(s, li->data) == 0)
@@ -542,11 +543,7 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
   if (free_filter)
     g_free(s);
 
-  if (cf_status == CF_OK) {
-    return TRUE;
-  } else {
-    return FALSE;
-  }
+  return status;
 }
 
 

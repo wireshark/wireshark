@@ -34,14 +34,19 @@
 
 #include "cfile.h"
 
-/** Return values from various cf_xxx functions. */
+/** Return values from functions that read capture files. */
 typedef enum {
-	CF_OK,	                /**< operation succeeded */
-	CF_ERROR,	            /**< operation got an error (function may provide err with details) */
-	CF_ABORTED,	            /**< operation aborted by user */
+	CF_OK,			/**< operation succeeded */
+	CF_ERROR,		/**< operation got an error (function may provide err with details) */
+	CF_ABORTED		/**< operation aborted by user */
+} cf_read_status_t;
+
+/** Return values from functions that print sets of packets. */
+typedef enum {
+	CF_PRINT_OK,		/**< operation succeeded */
 	CF_PRINT_OPEN_ERROR,    /**< print operation failed while opening printer */
 	CF_PRINT_WRITE_ERROR    /**< print operation failed while writing to the printer */
-} cf_status_t;
+} cf_print_status_t;
 
 /**
  * Open a capture file.
@@ -49,9 +54,9 @@ typedef enum {
  * @param cf the capture file to be opened
  * @param fname the filename to be opened
  * @param is_tempfile is this a temporary file?
- * @return one of cf_status_t
+ * @return TRUE on success, FALSE on failure
  */
-cf_status_t cf_open(capture_file *cf, char *fname, gboolean is_tempfile, int *err);
+gboolean cf_open(capture_file *cf, char *fname, gboolean is_tempfile, int *err);
 
 /**
  * Close a capture file.
@@ -71,9 +76,9 @@ void cf_reload(capture_file *cf);
  * Read all packets of a capture file into the internal structures.
  * 
  * @param cf the capture file to be read
- * @return one of cf_status_t
+ * @return one of cf_read_status_t
  */
-cf_status_t cf_read(capture_file *cf);
+cf_read_status_t cf_read(capture_file *cf);
 
 /**
  * Start reading from the end of a capture file.
@@ -83,9 +88,9 @@ cf_status_t cf_read(capture_file *cf);
  * @param fname the filename to be read from
  * @param is_tempfile is this a temporary file?
  * @param err the error code, if an error had occured
- * @return one of cf_status_t
+ * @return TRUE on success, FALSE on failure
  */
-cf_status_t cf_start_tail(capture_file *cf, char *fname, gboolean is_tempfile, int *err);
+gboolean cf_start_tail(capture_file *cf, char *fname, gboolean is_tempfile, int *err);
 
 /**
  * Read packets from the "end" of a capture file.
@@ -93,18 +98,18 @@ cf_status_t cf_start_tail(capture_file *cf, char *fname, gboolean is_tempfile, i
  * @param cf the capture file to be read from
  * @param to_read the number of packets to read
  * @param err the error code, if an error had occured
- * @return one of cf_status_t
+ * @return one of cf_read_status_t
  */
-cf_status_t cf_continue_tail(capture_file *cf, int to_read, int *err);
+cf_read_status_t cf_continue_tail(capture_file *cf, int to_read, int *err);
 
 /**
  * Finish reading from "end" of a capture file.
  * 
  * @param cf the capture file to be read from
  * @param err the error code, if an error had occured
- * @return one of cf_status_t
+ * @return one of cf_read_status_t
  */
-cf_status_t cf_finish_tail(capture_file *cf, int *err);
+cf_read_status_t cf_finish_tail(capture_file *cf, int *err);
 
 /**
  * Save a capture file (or a range of it).
@@ -113,9 +118,9 @@ cf_status_t cf_finish_tail(capture_file *cf, int *err);
  * @param fname the filename to save to
  * @param range the range of packets to save
  * @param save_format the format of the file to save (libpcap, ...)
- * @return one of cf_status_t
+ * @return TRUE on success, FALSE on failure
  */
-cf_status_t cf_save(capture_file * cf, char *fname, packet_range_t *range, guint save_format);
+gboolean cf_save(capture_file * cf, char *fname, packet_range_t *range, guint save_format);
 
 /**
  * Get a displayable name of the capture file.
@@ -188,9 +193,9 @@ void cf_set_rfcode(capture_file *cf, dfilter_t *rfcode);
  * @param cf the capture file
  * @param dfilter the display filter
  * @param force TRUE if do in any case, FALSE only if dfilter changed
- * @return one of cf_status_t
+ * @return TRUE on success, FALSE on failure
  */
-cf_status_t cf_filter_packets(capture_file *cf, gchar *dfilter, gboolean force);
+gboolean cf_filter_packets(capture_file *cf, gchar *dfilter, gboolean force);
 
 /**
  * At least one "Refence Time" flag has changed, rescan all packets.
@@ -214,12 +219,12 @@ void cf_colorize_packets(capture_file *cf);
 void cf_redissect_packets(capture_file *cf);
 
 /**
- * A tap listener want's to rescan all packets.
+ * Rescan all packets and just run taps - don't reconstruct the display.
  * 
  * @param cf the capture file
- * @return one of cf_status_t
+ * @return TRUE on success, FALSE on failure
  */
-cf_status_t cf_retap_packets(capture_file *cf);
+gboolean cf_retap_packets(capture_file *cf);
 
 /**
  * The time format has changed, rescan all packets.
@@ -233,27 +238,27 @@ void cf_change_time_formats(capture_file *cf);
  * 
  * @param cf the capture file
  * @param print_args the arguments what and how to print
- * @return one of cf_status_t
+ * @return one of cf_print_status_t
  */
-cf_status_t cf_print_packets(capture_file *cf, print_args_t *print_args);
+cf_print_status_t cf_print_packets(capture_file *cf, print_args_t *print_args);
 
 /**
  * Print (export) the capture file into PDML format.
  * 
  * @param cf the capture file
  * @param print_args the arguments what and how to export
- * @return one of cf_status_t
+ * @return one of cf_print_status_t
  */
-cf_status_t cf_write_pdml_packets(capture_file *cf, print_args_t *print_args);
+cf_print_status_t cf_write_pdml_packets(capture_file *cf, print_args_t *print_args);
 
 /**
  * Print (export) the capture file into PSML format.
  * 
  * @param cf the capture file
  * @param print_args the arguments what and how to export
- * @return one of cf_status_t
+ * @return one of cf_print_status_t
  */
-cf_status_t cf_write_psml_packets(capture_file *cf, print_args_t *print_args);
+cf_print_status_t cf_write_psml_packets(capture_file *cf, print_args_t *print_args);
 
 /**
  * Find Packet in protocol tree.

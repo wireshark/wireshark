@@ -760,16 +760,16 @@ print_cmd_toggle_detail(GtkWidget *widget _U_, gpointer data)
 static void
 print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 {
-  GtkWidget     *button;
-  print_args_t  *args;
-  const gchar   *g_dest;
-  gchar         *f_name;
-  gchar         *dirname;
-  gboolean      export_as_pdml = FALSE, export_as_psml = FALSE;
+  GtkWidget         *button;
+  print_args_t      *args;
+  const gchar       *g_dest;
+  gchar             *f_name;
+  gchar             *dirname;
+  gboolean          export_as_pdml = FALSE, export_as_psml = FALSE;
 #ifdef _WIN32
-  gboolean win_printer = FALSE;
+  gboolean          win_printer = FALSE;
 #endif
-  cf_status_t   status;
+  cf_print_status_t status;
 
   args = (print_args_t *)OBJECT_GET_DATA(ok_bt, PRINT_ARGS_KEY);
 
@@ -903,7 +903,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   }
   switch (status) {
 
-  case CF_OK:
+  case CF_PRINT_OK:
     break;
 
   case CF_PRINT_OPEN_ERROR:
