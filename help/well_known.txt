@@ -1,0 +1,112 @@
+Well known things
+-----------------
+Following is a simple selection of well known numbers, useful when working with Ethereal. This is not intended to replace comprehensive network documentation.
+
+
+Ethernet addresses [RFC 1700]:
+------------------------------
+ff:ff:ff:ff:ff:ff Broadcast, send to all nodes
+
+Ethernet type field:
+--------------------
+ 0 -   45 invalid
+46 - 1500 length field (Ethernet-II)
+   0x0800 IP(V4), internet protocol version 4
+   0x0806 ARP, address resolution protocol
+   0x8137 IPX, internet packet exchange (Novell)
+
+IP addresses:
+-------------
+127.0.0.0 - 127.255.255.255 local loopback, should never appear on the network
+224.0.0.0 - 239.255.255.255 multicasting [RFC1112], transmission to a host group
+            255.255.255.255 limited Broadcast, send to all nodes
+
+IP private addresses [RFC 1597]:
+--------------------------------
+The following IP addresses will not be routed, and should be used for private networks:
+   10.0.0.0 -  10.255.255.255 private in Class A
+ 172.16.0.0 -  172.31.255.255 private in Class B
+192.168.0.0 - 192.168.255.255 private in Class C
+
+IP address classes:
+-------------------
+  0.1.0.0 - 126.0.0.0       Class A
+128.0.0.0 - 191.255.0.0     Class B
+192.0.1.0 - 223.255.255.0   Class C
+224.0.0.0 - 239.255.255.255 Class D
+240.0.0.0 - 247.255.255.255 Class E
+
+IP protocols:
+-------------
+ 1 ICMP internet control message protocol v 4
+ 6 TCP  transmission control protocol
+17 UDP  user datagram protocol
+58 ICMPv6 internet control message protocol v 6
+
+TCP/UDP ports [RFC 1700]:
+-------------------------
+  20 FTP-data   file transfer protocol
+  21 FTP-ctrl   file transfer protocol
+  22 SSH        secure shell
+  23 Telnet     telecommunications networking
+  25 SMTP       simple mail transfer protocol
+  53 DNS        domain name server
+  67 BOOTPS     bootstrap protocol server / DHCP
+  68 BOOTPC     bootstrap protocol client / DHCP
+  69 TFTP       trivial file transfer protocol
+  80 HTTP       hypertext transfer protocol
+ 102 ISO-TSAP   iso on tcp
+ 110 POP3       post office protocol version 3
+ 119 NNTP       network news transfer protocol
+ 123 NTP        network time protocol
+ 137 NETBIOS    name service
+ 138 NETBIOS    datagram
+ 139 NETBIOS    session
+ 143 IMAP       interim mail access protocol v2
+ 161 SNMP       simple network management protocol
+ 194 IRC        internet relay chat protocol
+ 389 LDAP       lightweight directory access protocol
+ 443 HTTPS      http through SSL
+2401 CVSPSERVER concurrent versioning system
+
+
+
+RFC References:
+---------------
+ARP     RFC  826 "An Ethernet Address Resolution Protocol"
+BOOTP   RFC  951 "BOOTSTRAP PROTOCOL (BOOTP)"
+CSLIP   RFC 1144 "Compressing TCP/IP Headers for Low-Speed Serial Links"
+DHCP    RFC 2131 "Dynamic Host Configuration Protocol"
+DNS     RFC 1034,1035 "DOMAIN NAMES"
+FTP     RFC  959 "FILE TRANSFER PROTOCOL (FTP)"
+HTTP    RFC 2068 "Hypertext Transfer Protocol -- HTTP/1.1"
+ICMP    RFC  792 "INTERNET CONTROL MESSAGE PROTOCOL"
+IMAPv4  RFC 2060 "INTERNET MESSAGE ACCESS PROTOCOL - VERSION 4rev1"
+IPv4    RFC  791 "INTERNET PROTOCOL"
+IP      RFC  894 "Transmission of IP Datagrams over Ethernet Networks"
+IP      RFC  950 "Internet Standard Subnetting Procedure"
+IP      RFC 1112 "Host Extensions for IP Multicasting"
+IP      RFC 1812 "Requirements for IP Version 4 Routers"
+MIME    RFC 2045-2049 "Multipurpose Internet Mail Extensions (MIME)"
+NetBIOS RFC 1001,1002 "NetBIOS SERVICE ON A TCP/UDP TRANSPORT"
+NFS     RFC 1014,1057,1094,1813 "XDR/SUN-RPC/NFS/NFSv3"
+NNTP    RFC  977 "Network News Transfer Protocol"
+NTP     RFC  958 "Network Time Protocol (NTP)"
+POP2    RFC  918 "POST OFFICE PROTOCOL"
+POP3    RFC 1725 "Post Office Protocol - Version 3"
+PPP     RFC 1661 "The Point-to-Point Protocol (PPP)"
+PPP-MP  RFC 1990 "The PPP Multilink Protocol (MP)"
+RARP    RFC  903 "A Reverse Address Resolution Protocol"
+SLIP    RFC 1055 "TRANSMISSION OF IP DATAGRAMS OVER SERIAL LINES: SLIP"
+SMTP    RFC  821,822 "SIMPLE MAIL TRANSFER PROTOCOL"
+SNMP    RFC 1157,1901-10,2271-75 "A Simple Network Management Protocol (SNMP)"
+UDP     RFC  768 "User Datagram Protocol"
+URN     RFC 1737 "Functional Requirements for Uniform Resource Names"
+URL     RFC 1738 "Uniform Resource Locators (URL)"
+TCP     RFC  793 "TRANSMISSION CONTROL PROTOCOL"
+TELNET  RFC  854,855 "TELNET PROTOCOL SPECIFICATION"
+TELNET  RFC 1700 see: TELNET OPTIONS
+TFTP    RFC  783 "THE TFTP PROTOCOL (REVISION 2)"
+
+RFC 1166 "INTERNET NUMBERS" list of assigned IP addresses
+RFC 1700 "ASSIGNED NUMBERS" Various assigned numbers, e.g. TCP/UDP ports
