@@ -324,7 +324,6 @@ print_bookmark
 print_finale
 print_hex_data
 print_line
-print_packet_header
 print_preamble
 print_stream_ps_new
 print_stream_ps_stdio_new
