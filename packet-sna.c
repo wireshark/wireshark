@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-sna.c,v 1.1 1999/10/12 06:20:17 gram Exp $
+ * $Id: packet-sna.c,v 1.2 1999/10/18 03:14:26 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -52,6 +52,20 @@ static int hf_sna_th_oaf = -1;
 static int hf_sna_th_snf = -1;
 static int hf_sna_th_dcf = -1;
 static int hf_sna_th_lsid = -1;
+static int hf_sna_th_tg_sweep = -1;
+static int hf_sna_th_er_vr_supp_ind = -1;
+static int hf_sna_th_vr_pac_cnt_ind = -1;
+static int hf_sna_th_ntwk_prty = -1;
+static int hf_sna_th_tgsf = -1;
+static int hf_sna_th_mft = -1;
+static int hf_sna_th_piubf = -1;
+static int hf_sna_th_iern = -1;
+static int hf_sna_th_nlpoi = -1;
+static int hf_sna_th_nlp_cp = -1;
+static int hf_sna_th_ern = -1;
+static int hf_sna_th_vrn = -1;
+static int hf_sna_th_tpf = -1;
+
 static int hf_sna_rh = -1;
 static int hf_sna_rh_0 = -1;
 static int hf_sna_rh_1 = -1;
@@ -158,9 +172,63 @@ static const value_string sna_rh_csi_vals[] = {
 	{ 1, "ASCII" }
 };
 
+/* TG Sweep */
+static const value_string sna_th_tg_sweep_vals[] = {
+	{ 0, "This PIU may overtake any PU ahead of it." },
+	{ 1, "This PIU does not ovetake any PIU ahead of it." }
+};
+
+/* ER_VR_SUPP_IND */
+static const value_string sna_th_er_vr_supp_ind_vals[] = {
+	{ 0, "Each node supports ER and VR protocols" },
+	{ 1, "Includes at least one node that does not support ER and VR protocols"  }
+};
+
+/* VR_PAC_CNT_IND */
+static const value_string sna_th_vr_pac_cnt_ind_vals[] = {
+	{ 0, "Pacing count on the VR has not reached 0" },
+	{ 1, "Pacing count on the VR has reached 0" }
+};
+
+/* NTWK_PRTY */
+static const value_string sna_th_ntwk_prty_vals[] = {
+	{ 0, "PIU flows at a lower priority" },
+	{ 1, "PIU flows at network priority (highest transmission priority)" }
+};
+
+/* TGSF */
+static const value_string sna_th_tgsf_vals[] = {
+	{ 0x00, "Not segmented" },
+	{ 0x01, "Last segment" },
+	{ 0x10, "First segment" },
+	{ 0x11, "Middle segment" }
+};
+
+/* PIUBF */
+static const value_string sna_th_piubf_vals[] = {
+	{ 0x00, "Single PIU frame" },
+	{ 0x01, "Last PIU of a multiple PIU frame" },
+	{ 0x10, "First PIU of a multiple PIU frame" },
+	{ 0x11, "Middle PIU of a multiple PIU frame" }
+};
+
+/* NLPOI */
+static const value_string sna_th_nlpoi_vals[] = {
+	{ 0x0, "NLP starts within this FID4 TH" },
+	{ 0x1, "NLP byte 0 starts after RH byte 0 following NLP C/P pad" },
+};
+
+/* TPF */
+static const value_string sna_th_tpf_vals[] = {
+	{ 0x00, "Low Priority" },
+	{ 0x01, "Medium Priority" },
+	{ 0x10, "High Priority" },
+};
+
 static int  dissect_fid0_1 (const u_char*, int, frame_data*, proto_tree*);
 static int  dissect_fid2 (const u_char*, int, frame_data*, proto_tree*);
 static int  dissect_fid3 (const u_char*, int, frame_data*, proto_tree*);
+static int  dissect_fid4 (const u_char*, int, frame_data*, proto_tree*);
 static void dissect_rh (const u_char*, int, frame_data*, proto_tree*);
 
 void
@@ -209,6 +277,9 @@ dissect_sna(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				break;
 			case 0x3:
 				th_header_len = dissect_fid3(pd, offset, fd, th_tree);
+				break;
+			case 0x4:
+				th_header_len = dissect_fid4(pd, offset, fd, th_tree);
 				break;
 			default:
 				dissect_data(pd, offset+1, fd, tree);
@@ -359,6 +430,67 @@ dissect_fid3 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	return bytes_in_header;
 }
 
+/* FID Type 4 */
+static int
+dissect_fid4 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+
+	proto_tree	*bf_tree;
+	proto_item	*bf_item;
+	guint8		th_byte, mft;
+	guint16		th_word;
+
+	static int bytes_in_header = 26;
+
+	if (!BYTES_ARE_IN_FRAME(offset, bytes_in_header)) {
+		return 0;
+	}
+
+	th_byte = pd[offset+0];
+
+	/* Create the bitfield tree */
+	bf_item = proto_tree_add_item(tree, hf_sna_th_0, offset, 1, th_byte);
+	bf_tree = proto_item_add_subtree(bf_item, ETT_SNA_TH_FID);
+
+	/* Byte 0 */
+	proto_tree_add_item(bf_tree, hf_sna_th_fid, offset, 1, th_byte);
+	proto_tree_add_item(bf_tree, hf_sna_th_tg_sweep, offset, 1, th_byte);
+	proto_tree_add_item(bf_tree, hf_sna_th_er_vr_supp_ind, offset, 1, th_byte);
+	proto_tree_add_item(bf_tree, hf_sna_th_vr_pac_cnt_ind, offset, 1, th_byte);
+	proto_tree_add_item(bf_tree, hf_sna_th_ntwk_prty, offset, 1, th_byte);
+
+	th_byte = pd[offset+1];
+
+	/* Byte 1 */
+	proto_tree_add_item(bf_tree, hf_sna_th_tgsf, offset, 1, th_byte);
+	proto_tree_add_item(bf_tree, hf_sna_th_mft, offset, 1, th_byte);
+	proto_tree_add_item(bf_tree, hf_sna_th_piubf, offset, 1, th_byte);
+
+	mft = th_byte & 0x04;
+	th_byte = pd[offset+2];
+
+	/* Byte 2 */
+	if (mft) {
+		proto_tree_add_item(bf_tree, hf_sna_th_nlpoi, offset, 1, th_byte);
+		proto_tree_add_item(bf_tree, hf_sna_th_nlp_cp, offset, 1, th_byte);
+	}
+	else {
+		proto_tree_add_item(bf_tree, hf_sna_th_iern, offset, 1, th_byte);
+	}
+	proto_tree_add_item(bf_tree, hf_sna_th_ern, offset, 1, th_byte);
+	
+	th_byte = pd[offset+3];
+
+	/* Byte 3 */
+	proto_tree_add_item(bf_tree, hf_sna_th_vrn, offset, 1, th_byte);
+	proto_tree_add_item(bf_tree, hf_sna_th_tpf, offset, 1, th_byte);
+
+	th_word = pntohs(&pd[offset+4]);
+
+	/* Bytes 4-5 */
+
+	return bytes_in_header;
+}
+
 /* RH */
 static void
 dissect_rh (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
@@ -382,10 +514,8 @@ dissect_rh (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	proto_tree_add_item(bf_tree, hf_sna_rh_ru_category, offset, 1, rh_0);
 	proto_tree_add_item(bf_tree, hf_sna_rh_fi, offset, 1, rh_0);
 	proto_tree_add_item(bf_tree, hf_sna_rh_sdi, offset, 1, rh_0);
-	if (is_response) {
-		proto_tree_add_item(bf_tree, hf_sna_rh_bci, offset, 1, rh_0);
-		proto_tree_add_item(bf_tree, hf_sna_rh_eci, offset, 1, rh_0);
-	}
+	proto_tree_add_item(bf_tree, hf_sna_rh_bci, offset, 1, rh_0);
+	proto_tree_add_item(bf_tree, hf_sna_rh_eci, offset, 1, rh_0);
 
 	offset += 1;
 
@@ -486,6 +616,67 @@ proto_register_sna(void)
                 { &hf_sna_th_lsid,
                 { "Local Session Identification",	"sna.th.lsid", FT_UINT8, BASE_HEX, NULL, 0x0,
 			"" }},
+
+                { &hf_sna_th_tg_sweep,
+                { "Transmission Group Sweep",		"sna.th.tg_sweep", FT_UINT8, BASE_DEC,
+			VALS(sna_th_tg_sweep_vals), 0x08,
+			"" }},
+
+                { &hf_sna_th_er_vr_supp_ind,
+                { "ER and VR Support Indicator",	"sna.th.er_vr_supp_ind", FT_UINT8, BASE_DEC,
+			VALS(sna_th_er_vr_supp_ind_vals), 0x04,
+			"" }},
+
+                { &hf_sna_th_vr_pac_cnt_ind,
+                { "Virtual Route Pacing Count Indicator",	"sna.th.vr_pac_cnt_ind",
+			FT_UINT8, BASE_DEC, VALS(sna_th_vr_pac_cnt_ind_vals), 0x02,
+			"" }},
+
+                { &hf_sna_th_ntwk_prty,
+                { "Network Priority",	"sna.th.ntwk_prty",
+			FT_UINT8, BASE_DEC, VALS(sna_th_ntwk_prty_vals), 0x01,
+			"" }},
+
+                { &hf_sna_th_tgsf,
+                { "Transmission Group Segmenting Field",	"sna.th.tgsf",
+			FT_UINT8, BASE_HEX, VALS(sna_th_tgsf_vals), 0xc0,
+			"" }},
+
+                { &hf_sna_th_mft,
+                { "MPR FID4 Type",	"sna.th.mft", FT_BOOLEAN, BASE_NONE, NULL, 0x04,
+			"" }},
+
+                { &hf_sna_th_piubf,
+                { "PIU Blocking Field",	"sna.th.piubf", FT_UINT8, BASE_HEX,
+			VALS(sna_th_piubf_vals), 0x03,
+			"Specifies whether this frame contains a single PIU or multiple PIUs." }},
+
+                { &hf_sna_th_iern,
+                { "Initial Explicit Route Number",	"sna.th.iern", FT_UINT8, BASE_DEC, NULL, 0xf0,
+			"" }},
+
+                { &hf_sna_th_nlpoi,
+                { "NLP Offset Indicator",	"sna.th.nlpoi", FT_UINT8, BASE_DEC,
+			VALS(sna_th_nlpoi_vals), 0x80,
+			"" }},
+
+                { &hf_sna_th_nlp_cp,
+                { "NLP Count or Padding",	"sna.th.nlp_cp", FT_UINT8, BASE_DEC, NULL, 0x70,
+			"" }},
+
+                { &hf_sna_th_ern,
+                { "Explicit Route Number",	"sna.th.ern", FT_UINT8, BASE_DEC, NULL, 0x0f,
+			"The ERN in a TH identifies an explicit route direction of flow." }},
+
+                { &hf_sna_th_vrn,
+                { "Virtual Route Number",	"sna.th.vrn", FT_UINT8, BASE_DEC, NULL, 0xf0,
+			"" }},
+
+                { &hf_sna_th_tpf,
+                { "Transmission Priority Field",	"sna.th.tpf", FT_UINT8, BASE_HEX,
+			VALS(sna_th_tpf_vals), 0x03,
+			"" }},
+
 
                 { &hf_sna_rh,
                 { "Request/Response Header",	"sna.rh", FT_NONE, BASE_NONE, NULL, 0x0,
