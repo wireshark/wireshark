@@ -1,6 +1,6 @@
 /* dftest.c.c
  *
- * $Id: dftest.c,v 1.6 2003/08/18 18:35:21 guy Exp $
+ * $Id: dftest.c,v 1.7 2004/01/19 03:46:41 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,7 +58,7 @@
 #include "register.h"
 
 packet_info	pi;
-ts_type		timestamp_type = RELATIVE;
+ts_type		timestamp_type = TS_RELATIVE;
 
 int
 main(int argc, char **argv)

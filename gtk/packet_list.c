@@ -1,7 +1,7 @@
 /* packet_list.c
  * packet list related functions   2002 Olivier Abad
  *
- * $Id: packet_list.c,v 1.10 2004/01/19 00:42:10 ulfl Exp $
+ * $Id: packet_list.c,v 1.11 2004/01/19 03:46:42 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -110,8 +110,8 @@ packet_list_compare(EthCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
   gint  col_fmt = cfile.cinfo.col_fmt[clist->sort_column];
 
   if ((col_fmt == COL_NUMBER) || (col_fmt == COL_REL_TIME) || (col_fmt == COL_DELTA_TIME) ||
-      ((col_fmt == COL_CLS_TIME) && (timestamp_type == RELATIVE)) ||
-      ((col_fmt == COL_CLS_TIME) && (timestamp_type == DELTA))    ||
+      ((col_fmt == COL_CLS_TIME) && (timestamp_type == TS_RELATIVE)) ||
+      ((col_fmt == COL_CLS_TIME) && (timestamp_type == TS_DELTA))    ||
       (col_fmt == COL_UNRES_SRC_PORT) || (col_fmt == COL_UNRES_DST_PORT) ||
       ((num1 != 0) && (num2 != 0) && ((col_fmt == COL_DEF_SRC_PORT) || (col_fmt == COL_RES_SRC_PORT) ||
                                       (col_fmt == COL_DEF_DST_PORT) || (col_fmt == COL_RES_DST_PORT))) ||

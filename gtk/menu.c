@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.137 2004/01/19 00:42:10 ulfl Exp $
+ * $Id: menu.c,v 1.138 2004/01/19 03:46:42 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -85,6 +85,10 @@ static void packet_list_show_cb(GtkWidget *w _U_, gpointer d _U_);
 static void tree_view_show_cb(GtkWidget *w _U_, gpointer d _U_);
 static void byte_view_show_cb(GtkWidget *w _U_, gpointer d _U_);
 static void statusbar_show_cb(GtkWidget *w _U_, gpointer d _U_);
+static void timestamp_absolute_cb(GtkWidget *w _U_, gpointer d _U_);
+static void timestamp_absolute_date_cb(GtkWidget *w _U_, gpointer d _U_);
+static void timestamp_relative_cb(GtkWidget *w _U_, gpointer d _U_);
+static void timestamp_delta_cb(GtkWidget *w _U_, gpointer d _U_);
 
 /* This is the GtkItemFactoryEntry structure used to generate new menus.
        Item 1: The menu path. The letter after the underscore indicates an
@@ -183,15 +187,19 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/View/Show/Packet Data", NULL, byte_view_show_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/Show/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/View/Show/Status Bar", NULL, statusbar_show_cb, 0, "<CheckItem>", NULL),
-#if 0
 	/* XXX: the settings in the "Options" dialog could be seperated into the following menu items. */
 	/* before this, some effort must be taken to transfer the functionality of this dialog to the menu items */
 	/* (getting the current values, handling the radioitems, ...) */
     ITEM_FACTORY_ENTRY("/View/_Time Display Format", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Time Display Format/Time of day", NULL, NULL, 0, "<RadioItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Time Display Format/Date and time of day", NULL, NULL, 0, "<RadioItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds since beginning of capture", NULL, NULL, 0, "<RadioItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds since previous capture", NULL, NULL, 0, "<RadioItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Time of day", NULL, timestamp_absolute_cb, 
+                        0, "<RadioItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Date and time of day", NULL, timestamp_absolute_date_cb, 
+                        0, "/View/Time Display Format/Time of day", NULL),
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds since beginning of capture", NULL, timestamp_relative_cb, 
+                        0, "/View/Time Display Format/Time of day", NULL),
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds since previous capture", NULL, timestamp_delta_cb, 
+                        0, "/View/Time Display Format/Time of day", NULL),
+#if 0
     ITEM_FACTORY_ENTRY("/View/_Name Resolution", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable MAC", NULL, NULL, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable Network", NULL, NULL, 0, "<CheckItem>", NULL),
@@ -962,6 +970,47 @@ statusbar_show_cb(GtkWidget *w _U_, gpointer d _U_)
 }
 
 
+static void 
+timestamp_absolute_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    if (recent.gui_time_format != TS_ABSOLUTE) {
+        timestamp_type          = TS_ABSOLUTE;
+        recent.gui_time_format  = timestamp_type;
+        change_time_formats(&cfile);
+    }
+}
+
+static void 
+timestamp_absolute_date_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    if (recent.gui_time_format != TS_ABSOLUTE_WITH_DATE) {
+        timestamp_type          = TS_ABSOLUTE_WITH_DATE;
+        recent.gui_time_format  = timestamp_type;
+        change_time_formats(&cfile);
+    }
+}
+
+static void 
+timestamp_relative_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    if (recent.gui_time_format != TS_RELATIVE) {
+        timestamp_type          = TS_RELATIVE;
+        recent.gui_time_format  = timestamp_type;
+        change_time_formats(&cfile);
+    }
+}
+
+static void 
+timestamp_delta_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    if (recent.gui_time_format != TS_DELTA) {
+        timestamp_type          = TS_DELTA;
+        recent.gui_time_format  = timestamp_type;
+        change_time_formats(&cfile);
+    }
+}
+
+
 /* the recent file read has finished, update the menu corresponding */
 void
 menu_recent_read_finished(void) {
@@ -986,6 +1035,42 @@ menu_recent_read_finished(void) {
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.statusbar_show);
 
     main_widgets_rearrange();
+
+    /* don't change the time format, if we had a command line value */
+    if (timestamp_type != -1) {
+        recent.gui_time_format = timestamp_type;
+    }
+
+    switch(recent.gui_time_format) {
+    case(TS_ABSOLUTE):
+        menu = gtk_item_factory_get_widget(main_menu_factory, 
+            "/View/Time Display Format/Time of day");
+        /* set_active will not trigger the callback when activating an active item! */
+        recent.gui_time_format = -1;
+        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), FALSE);
+        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
+        break;
+    case(TS_ABSOLUTE_WITH_DATE):
+        menu = gtk_item_factory_get_widget(main_menu_factory, 
+            "/View/Time Display Format/Date and time of day");
+        recent.gui_time_format = -1;
+        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
+        break;
+    case(TS_RELATIVE):
+        menu = gtk_item_factory_get_widget(main_menu_factory, 
+            "/View/Time Display Format/Seconds since beginning of capture");
+        recent.gui_time_format = -1;
+        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
+        break;
+    case(TS_DELTA):
+        menu = gtk_item_factory_get_widget(main_menu_factory, 
+            "/View/Time Display Format/Seconds since previous capture");
+        recent.gui_time_format = -1;
+        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
+        break;
+    default:
+        g_assert_not_reached();
+    }
 }
 
 

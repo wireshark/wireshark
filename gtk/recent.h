@@ -2,7 +2,7 @@
  * Definitions for recent "preference" handling routines
  * Copyright 2004, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: recent.h,v 1.1 2004/01/19 00:42:11 ulfl Exp $
+ * $Id: recent.h,v 1.2 2004/01/19 03:46:43 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,17 +37,18 @@
 #define RECENT_KEY_TREE_VIEW_SHOW       "gui.tree_view_show"
 #define RECENT_KEY_BYTE_VIEW_SHOW       "gui.byte_view_show"
 #define RECENT_KEY_STATUSBAR_SHOW       "gui.statusbar_show"
-
+#define RECENT_GUI_TIME_FORMAT          "gui.time_format"
 
 typedef struct recent_settings_tag {
     gboolean    main_toolbar_show;
     gboolean    filter_toolbar_show;
     gboolean    packet_list_show;
-    /*gboolean    packet_list_height;*/
+    /*gboolean  packet_list_height;*/
     gboolean    tree_view_show;
-    /*gboolean    tree_view_height;*/
+    /*gboolean  tree_view_height;*/
     gboolean    byte_view_show;
     gboolean    statusbar_show;
+    gint        gui_time_format;
 } recent_settings_t;
 
 extern recent_settings_t recent;

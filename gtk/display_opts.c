@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.34 2004/01/10 16:27:41 ulfl Exp $
+ * $Id: display_opts.c,v 1.35 2004/01/19 03:46:42 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,10 +41,6 @@
 extern capture_file  cfile;
 
 /* Display callback data keys */
-#define E_DISPLAY_TIME_ABS_KEY          "display_time_abs"
-#define E_DISPLAY_DATE_TIME_ABS_KEY     "display_date_time_abs"
-#define E_DISPLAY_TIME_REL_KEY          "display_time_rel"
-#define E_DISPLAY_TIME_DELTA_KEY        "display_time_delta"
 #ifdef HAVE_LIBPCAP
 #define E_DISPLAY_AUTO_SCROLL_KEY       "display_auto_scroll"
 #endif
@@ -55,7 +51,6 @@ extern capture_file  cfile;
 static void display_opt_ok_cb(GtkWidget *, gpointer);
 static void display_opt_apply_cb(GtkWidget *, gpointer);
 static void get_display_options(GtkWidget *);
-static void update_display(void);
 static void display_opt_close_cb(GtkWidget *, gpointer);
 static void display_opt_destroy_cb(GtkWidget *, gpointer);
 
@@ -66,9 +61,6 @@ static void display_opt_destroy_cb(GtkWidget *, gpointer);
  * than creating a new one.
  */
 static GtkWidget *display_opt_w;
-
-static ts_type initial_timestamp_type;
-static ts_type current_timestamp_type;
 
 void
 display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
@@ -82,17 +74,6 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
     reactivate_window(display_opt_w);
     return;
   }
-
-  /* Save the timestamp type value as of when the dialog box was first popped
-     up, so that "Cancel" can put it back if we've changed it with "Apply". */
-  initial_timestamp_type = timestamp_type;
-
-  /* Save the current timestamp type so that we know whether it has changed;
-     we don't want to redisplay the time fields unless we've changed the way
-     they should be displayed (as redisplaying the time fields could be
-     expensive - we have to scan through all the packets and rebuild the
-     packet list).*/
-  current_timestamp_type = timestamp_type;
 
   display_opt_w = dlg_window_new("Ethereal: View Options");
   SIGNAL_CONNECT(display_opt_w, "destroy", display_opt_destroy_cb, NULL);
@@ -110,39 +91,6 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(display_opt_w), main_vb);
   gtk_widget_show(main_vb);
-
-  button = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "_Time of day",
-							accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
-               (timestamp_type == ABSOLUTE));
-  OBJECT_SET_DATA(display_opt_w, E_DISPLAY_TIME_ABS_KEY, button);
-  gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
-
-  gtk_widget_show(button);
-
-  button = RADIO_BUTTON_NEW_WITH_MNEMONIC(
-               button, "_Date and time of day", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
-               (timestamp_type == ABSOLUTE_WITH_DATE));
-  OBJECT_SET_DATA(display_opt_w, E_DISPLAY_DATE_TIME_ABS_KEY, button);
-  gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
-  gtk_widget_show(button);
-
-  button = RADIO_BUTTON_NEW_WITH_MNEMONIC(
-               button, "Seconds since _beginning of capture", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
-               (timestamp_type == RELATIVE));
-  OBJECT_SET_DATA(display_opt_w, E_DISPLAY_TIME_REL_KEY, button);
-  gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
-  gtk_widget_show(button);
-
-  button = RADIO_BUTTON_NEW_WITH_MNEMONIC(
-               button, "Seconds since _previous packet", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
-               (timestamp_type == DELTA));
-  OBJECT_SET_DATA(display_opt_w, E_DISPLAY_TIME_DELTA_KEY, button);
-  gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
-  gtk_widget_show(button);
 
 #ifdef HAVE_LIBPCAP
   button = CHECK_BUTTON_NEW_WITH_MNEMONIC(
@@ -217,36 +165,18 @@ display_opt_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 
-  update_display();
 }
 
 static void
 display_opt_apply_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   get_display_options(GTK_WIDGET(parent_w));
 
-  update_display();
 }
 
 static void
 get_display_options(GtkWidget *parent_w)
 {
   GtkWidget *button;
-
-  button = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_DISPLAY_TIME_ABS_KEY);
-  if (GTK_TOGGLE_BUTTON (button)->active)
-    timestamp_type = ABSOLUTE;
-
-  button = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_DISPLAY_DATE_TIME_ABS_KEY);
-  if (GTK_TOGGLE_BUTTON (button)->active)
-    timestamp_type = ABSOLUTE_WITH_DATE;
-
-  button = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_DISPLAY_TIME_REL_KEY);
-  if (GTK_TOGGLE_BUTTON (button)->active)
-    timestamp_type = RELATIVE;
-
-  button = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_DISPLAY_TIME_DELTA_KEY);
-  if (GTK_TOGGLE_BUTTON (button)->active)
-    timestamp_type = DELTA;
 
 #ifdef HAVE_LIBPCAP
   button = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_DISPLAY_AUTO_SCROLL_KEY);
@@ -270,35 +200,8 @@ get_display_options(GtkWidget *parent_w)
 }
 
 static void
-update_display(void)
-{
-  if (timestamp_type != current_timestamp_type) {
-      /* Time stamp format changed; update the display.
-
-         XXX - redissecting the packets could actually be faster;
-	 we have to find the row number for each frame, in order to
-	 update the time stamp columns, and doing that is linear in
-	 the row number, which means the whole process is N^2 in
-	 the number of rows, whilst redissecting the packets is only
-	 linear in the number of rows (assuming you're using our
-	 CList code, or the GTK+ 1.2.8 CList code, or other CList
-	 code which doesn't have to scan the entire list to find the
-	 last element), even though the latter involves doing more work
-	 per packet. */
-    current_timestamp_type = timestamp_type;
-    change_time_formats(&cfile);
-  }
-}
-
-static void
 display_opt_close_cb(GtkWidget *close_bt _U_, gpointer parent_w)
 {
-  /* Revert the timestamp type to the value it has when we started. */
-  timestamp_type = initial_timestamp_type;
-
-  /* Update the display if either of those changed. */
-  update_display();
-
   gtk_grab_remove(GTK_WIDGET(parent_w));
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 }

@@ -1,7 +1,7 @@
 /* timestamp.h
  * Defines for packet timestamps
  *
- * $Id: timestamp.h,v 1.2 2002/08/28 20:40:45 jmayer Exp $
+ * $Id: timestamp.h,v 1.3 2004/01/19 03:46:42 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,25 +26,21 @@
 #ifndef __TIMESTAMP_H__
 #define __TIMESTAMP_H__
 
-/* MS VC has these macros */
-#ifdef RELATIVE
-#undef RELATIVE
-#endif
-
-#ifdef ABSOLUTE
-#undef ABSOLUTE
-#endif
 
 /*
  * Type of time-stamp shown in the summary display.
  */
 typedef enum {
-	RELATIVE,
-	ABSOLUTE,
-	ABSOLUTE_WITH_DATE,
-	DELTA
+	TS_RELATIVE,
+	TS_ABSOLUTE,
+	TS_ABSOLUTE_WITH_DATE,
+	TS_DELTA
 } ts_type;
 
 extern ts_type timestamp_type;
+
+static char *ts_type_text[] =
+	{ "RELATIVE", "ABSOLUTE", "ABSOLUTE_WITH_DATE", "DELTA", NULL };
+
 
 #endif /* timestamp.h */

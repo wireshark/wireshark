@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.358 2004/01/19 00:42:09 ulfl Exp $
+ * $Id: main.c,v 1.359 2004/01/19 03:46:42 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -155,7 +155,9 @@ static gboolean updated_last_open_dir = FALSE;
 static gint root_x = G_MAXINT, root_y = G_MAXINT, top_width, top_height;
 static gboolean updated_geometry = FALSE;
 
-ts_type timestamp_type = RELATIVE;
+/* init with an invalid value, so that "recent" can detect this and */
+/* distinguish it from a command line value */
+ts_type timestamp_type = -1;
 
 #if GTK_MAJOR_VERSION < 2
 GtkStyle *item_style;
@@ -1805,13 +1807,13 @@ main(int argc, char *argv[])
         break;
       case 't':        /* Time stamp type */
         if (strcmp(optarg, "r") == 0)
-          timestamp_type = RELATIVE;
+          timestamp_type = TS_RELATIVE;
         else if (strcmp(optarg, "a") == 0)
-          timestamp_type = ABSOLUTE;
+          timestamp_type = TS_ABSOLUTE;
         else if (strcmp(optarg, "ad") == 0)
-          timestamp_type = ABSOLUTE_WITH_DATE;
+          timestamp_type = TS_ABSOLUTE_WITH_DATE;
         else if (strcmp(optarg, "d") == 0)
-          timestamp_type = DELTA;
+          timestamp_type = TS_DELTA;
         else {
           fprintf(stderr, "ethereal: Invalid time stamp type \"%s\"\n",
             optarg);

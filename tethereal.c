@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.221 2004/01/18 04:13:44 guy Exp $
+ * $Id: tethereal.c,v 1.222 2004/01/19 03:46:41 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -182,7 +182,7 @@ static int pipe_dispatch(int, loop_data *, struct pcap_hdr *, \
 #endif
 
 capture_file cfile;
-ts_type timestamp_type = RELATIVE;
+ts_type timestamp_type = TS_RELATIVE;
 #ifdef HAVE_LIBPCAP
 typedef struct {
 	int snaplen;			/* Maximum captured packet length */
@@ -1176,13 +1176,13 @@ main(int argc, char *argv[])
         break;
       case 't':        /* Time stamp type */
         if (strcmp(optarg, "r") == 0)
-          timestamp_type = RELATIVE;
+          timestamp_type = TS_RELATIVE;
         else if (strcmp(optarg, "a") == 0)
-          timestamp_type = ABSOLUTE;
+          timestamp_type = TS_ABSOLUTE;
         else if (strcmp(optarg, "ad") == 0)
-          timestamp_type = ABSOLUTE_WITH_DATE;
+          timestamp_type = TS_ABSOLUTE_WITH_DATE;
         else if (strcmp(optarg, "d") == 0)
-          timestamp_type = DELTA;
+          timestamp_type = TS_DELTA;
         else {
           fprintf(stderr, "tethereal: Invalid time stamp type \"%s\"\n",
             optarg);

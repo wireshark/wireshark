@@ -2,7 +2,7 @@
  * Recent "preference" handling routines
  * Copyright 2004, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: recent.c,v 1.2 2004/01/19 01:00:58 guy Exp $
+ * $Id: recent.c,v 1.3 2004/01/19 03:46:43 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,6 +47,29 @@ extern void menu_recent_read_finished(void);
 
 
 recent_settings_t recent;
+
+
+
+
+/* Takes an string and a pointer to an array of strings, and a default int value.
+ * The array must be terminated by a NULL string. If the string is found in the array
+ * of strings, the index of that string in the array is returned. Otherwise, the
+ * default value that was passed as the third argument is returned.
+ */
+static int
+find_index_from_string_array(char *needle, char **haystack, int default_value)
+{
+	int i = 0;
+
+	while (haystack[i] != NULL) {
+		if (strcmp(needle, haystack[i]) == 0) {
+			return i;
+		}
+		i++;
+	}
+	return default_value;
+}
+
 
 
 /* Write out "recent" to the user's recent file, and return 0.
@@ -116,6 +139,11 @@ write_recent(char **rf_path_return)
   fprintf(rf, RECENT_KEY_STATUSBAR_SHOW ": %s\n",
 		  recent.statusbar_show == TRUE ? "TRUE" : "FALSE");
 
+  fprintf(rf, "\n# Timestamp display format.\n");
+  fprintf(rf, "# One of: RELATIVE, ABSOLUTE, ABSOLUTE_WITH_DATE, DELTA\n");
+  fprintf(rf, RECENT_GUI_TIME_FORMAT ": %s\n",
+          ts_type_text[recent.gui_time_format]);
+
   fclose(rf);
 
   /* XXX - catch I/O errors (e.g. "ran out of disk space") and return
@@ -177,6 +205,9 @@ read_set_recent_pair(gchar *key, gchar *value)
     else {
         recent.statusbar_show = FALSE;
     }
+  } else if (strcmp(key, RECENT_GUI_TIME_FORMAT) == 0) {
+        recent.gui_time_format =
+	    find_index_from_string_array(value, ts_type_text, TS_RELATIVE);
   }
 
   return PREFS_SET_OK;
@@ -192,12 +223,13 @@ read_recent(char **rf_path_return, int *rf_errno_return)
 
 
   /* set defaults */
-  recent.main_toolbar_show  = TRUE;
-  recent.filter_toolbar_show= TRUE;
-  recent.packet_list_show   = TRUE;
-  recent.tree_view_show     = TRUE;
-  recent.byte_view_show     = TRUE;
-  recent.statusbar_show     = TRUE;
+  recent.main_toolbar_show      = TRUE;
+  recent.filter_toolbar_show    = TRUE;
+  recent.packet_list_show       = TRUE;
+  recent.tree_view_show         = TRUE;
+  recent.byte_view_show         = TRUE;
+  recent.statusbar_show         = TRUE;
+  recent.gui_time_format        = TS_RELATIVE;
 
   /* Construct the pathname of the user's recent file. */
   rf_path = get_persconffile_path(RECENT_FILE_NAME, FALSE);

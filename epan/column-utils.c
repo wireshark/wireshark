@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.41 2003/12/09 06:48:39 guy Exp $
+ * $Id: column-utils.c,v 1.42 2004/01/19 03:46:41 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -479,19 +479,19 @@ void
 col_set_cls_time(frame_data *fd, column_info *cinfo, int col)
 {
   switch (timestamp_type) {
-    case ABSOLUTE:
+    case TS_ABSOLUTE:
       col_set_abs_time(fd, cinfo, col);
       break;
 
-    case ABSOLUTE_WITH_DATE:
+    case TS_ABSOLUTE_WITH_DATE:
       col_set_abs_date_time(fd, cinfo, col);
       break;
 
-    case RELATIVE:
+    case TS_RELATIVE:
       col_set_rel_time(fd, cinfo, col);
       break;
 
-    case DELTA:
+    case TS_DELTA:
       col_set_delta_time(fd, cinfo, col);
       break;
   }

@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.44 2003/12/09 06:48:38 guy Exp $
+ * $Id: column.c,v 1.45 2004/01/19 03:46:41 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -212,9 +212,9 @@ get_column_longest_string(gint format)
       return "0000000";
       break;
     case COL_CLS_TIME:
-      if (timestamp_type == ABSOLUTE)
+      if (timestamp_type == TS_ABSOLUTE)
         return "00:00:00.000000";
-      else if (timestamp_type == ABSOLUTE_WITH_DATE)
+      else if (timestamp_type == TS_ABSOLUTE_WITH_DATE)
         return "0000-00-00 00:00:00.000000";
       else
         return "0000.000000";
