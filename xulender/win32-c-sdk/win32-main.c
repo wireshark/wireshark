@@ -76,8 +76,8 @@
 #include "simple_dialog.h"
 #include "prefs-dlg.h"
 #include "about-dlg.h"
-#include "find-util.h"
 #include "statusbar.h"
+#include "toolbar-util.h"
 
 #include "win32-c-sdk.h"
 
@@ -86,6 +86,7 @@
 #include "win32-statusbar.h"
 #include "capture-util.h"
 #include "color-util.h"
+#include "find-util.h"
 #include "packet-win-util.h"
 
 #include "ethereal-main.h"
@@ -649,6 +650,10 @@ WinMain( HINSTANCE h_instance, HINSTANCE h_prev_instance, LPSTR lpsz_cmd_line, i
     /* Initialize our controls. */
     memset (&comm_ctrl, 0, sizeof(comm_ctrl));
     comm_ctrl.dwSize = sizeof(comm_ctrl);
+    /* Includes the animate, header, hot key, list view, progress bar,
+     * status bar, tab, tooltip, toolbar, trackbar, tree view, and
+     * up-down controls
+     */
     comm_ctrl.dwICC = ICC_WIN95_CLASSES;
     InitCommonControlsEx(&comm_ctrl);
 
@@ -1204,6 +1209,8 @@ WinMain( HINSTANCE h_instance, HINSTANCE h_prev_instance, LPSTR lpsz_cmd_line, i
 
 	menus_init(g_hw_mainwin);
 
+	toolbar_new();
+
 	main_window_update();
 
 	/* If we were given the name of a capture file, read it in now;
@@ -1446,8 +1453,11 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 	    break;
 
 	case WM_COMMAND:
+		/* XXX - It would be nice if we implemented the <command> element;
+		 * we could then handle all of this as a set of <command> callbacks. */
 		switch(w_param) {
 		    case IDM_ETHEREAL_MAIN_OPEN:
+		    case IDB_MAIN_TOOLBAR_OPEN:
 			if (win32_open_file(hw_mainwin))
 			    ethereal_packetlist_init(&cfile);
 			break;
@@ -1464,25 +1474,31 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 			win32_export_raw_file(hw_mainwin);
 			break;
 		    case IDM_ETHEREAL_MAIN_CLOSE:
+		    case IDB_MAIN_TOOLBAR_CLOSE:
 			/* XXX - Prompt the user if we have an unsaved file */
 			cf_close(&cfile);
 			break;
 		    case IDM_ETHEREAL_MAIN_SAVE:
+		    case IDB_MAIN_TOOLBAR_SAVE:
 			if (cfile.user_saved)
 			    break;
 			win32_save_as_file(hw_mainwin, after_save_no_action, NULL);
 			break;
 		    case IDM_ETHEREAL_MAIN_SAVE_AS:
+		    case IDB_MAIN_TOOLBAR_SAVE_AS:
 			win32_save_as_file(hw_mainwin, after_save_no_action, NULL);
 			break;
 
 		    case IDM_ETHEREAL_MAIN_EDIT_FIND_PACKET:
-			find_dialog_init(hw_mainwin);
+		    case IDB_MAIN_TOOLBAR_FIND:
+			find_dialog_init();
 			break;
 		    case IDM_ETHEREAL_MAIN_EDIT_FIND_NEXT:
+		    case IDB_MAIN_TOOLBAR_FIND_NEXT:
 			find_previous_next(FALSE);
 			break;
 		    case IDM_ETHEREAL_MAIN_EDIT_FIND_PREVIOUS:
+		    case IDB_MAIN_TOOLBAR_FIND_PREV:
 			find_previous_next(TRUE);
 			break;
 		    case IDM_ETHEREAL_MAIN_EDIT_TIME_REF_TOGGLE:
@@ -1504,10 +1520,12 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 			mark_all_frames(FALSE);
 			break;
 		    case IDM_ETHEREAL_MAIN_EDIT_PREFERENCES:
+		    case IDB_MAIN_TOOLBAR_PREFS:
 			prefs_dialog_init(hw_mainwin);
 			break;
 
 		    case IDM_ETHEREAL_MAIN_VIEW_COLORING:
+		    case IDB_MAIN_TOOLBAR_COLOR_DLG:
 			coloring_rules_dialog_init(hw_mainwin);
 			break;
 		    case IDM_ETHEREAL_MAIN_VIEW_NEWWINDOW:
@@ -1515,9 +1533,11 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 			break;
 
 		    case IDM_ETHEREAL_MAIN_CAPTURE_START:
+		    case IDB_MAIN_TOOLBAR_CAPTURE_START:
 			capture_start_prep();
 			break;
 		    case IDM_ETHEREAL_MAIN_CAPTURE_STOP:
+		    case IDB_MAIN_TOOLBAR_CAPTURE_STOP:
 			capture_stop();
 			break;
 

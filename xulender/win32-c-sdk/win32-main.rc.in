@@ -57,3 +57,6 @@ END
 #define RT_MANIFEST 24
 
 MANIFEST_RESOURCE_ID RT_MANIFEST "wethereal.exe.manifest"
+
+/* XXX - We need a #defined value here */
+5020 BITMAP "..\..\image\win32-toolbar.bmp"

@@ -3,7 +3,7 @@
 #ifndef FIND_UTIL_H
 #define FIND_UTIL_H
 
-void find_dialog_init(HWND hw_parent);
+win32_element_t *find_dialog_init();
 void find_frame_with_filter(HWND hw_parent, char *filter);
 void find_previous_next(gboolean sens);
 void find_previous_next_frame_with_filter(char *filter, gboolean backwards);

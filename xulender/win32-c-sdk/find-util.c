@@ -25,14 +25,14 @@ static gboolean case_sensitive = FALSE;
 static gboolean summary_data = FALSE;
 static gboolean decode_data = FALSE;
 
-void
-find_dialog_init(HWND hw_parent) {
+win32_element_t *
+find_dialog_init() {
     win32_element_t *find_dlg = win32_identifier_get_str("find-packet-dialog");
     HWND             hw_find;
     win32_element_t *cur_el;
 
     if (! find_dlg) {
-	hw_find = find_packet_dialog_dialog_create(hw_parent);
+	hw_find = find_packet_dialog_dialog_create(g_hw_mainwin);
 	find_dlg = (win32_element_t *) GetWindowLong(hw_find, GWL_USERDATA);
     }
 
@@ -86,6 +86,8 @@ find_dialog_init(HWND hw_parent) {
     find_dlg_by_toggle(NULL);
 
     find_packet_dialog_dialog_show(find_dlg->h_wnd);
+
+    return find_dlg;
 }
 
 BOOL CALLBACK
@@ -130,6 +132,9 @@ find_dlg_find (win32_element_t *find_btn) {
     char            *string = NULL;
     dfilter_t       *sfcode;
     gboolean         found_packet;
+
+    if (!find_dlg)
+	find_dlg = find_dialog_init();
 
     win32_element_assert(find_dlg);
 
@@ -369,7 +374,7 @@ void
 find_frame_with_filter(HWND hw_parent, char *filter) {
     win32_element_t *cur_el;
 
-    find_dialog_init(hw_parent);
+    find_dialog_init();
 
     cur_el = win32_identifier_get_str("find-packet.find-string");
     win32_element_assert(cur_el);

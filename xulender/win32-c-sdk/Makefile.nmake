@@ -66,6 +66,8 @@ STD_OBJECTS = \
 	win32-spacer.obj \
 	win32-statusbarpanel.obj \
 	win32-textbox.obj \
+	win32-toolbar.obj \
+	win32-toolbox.obj \
 	win32-tree.obj
 
 OBJECTS = \
@@ -79,6 +81,7 @@ OBJECTS = \
 	find-util.obj \
 	packet-win-util.obj \
 	prefs-dlg.obj \
+	toolbar-util.obj \
 	ui_util.obj \
 	win32-file-dlg.obj \
 	win32-main.obj \
@@ -103,7 +106,7 @@ all: win32-c-sdk.lib $(RESOURCES)
 
 $(GENERATED_OBJECTS): $(XUL_SCRIPTS)
 
-win32-main.rc: win32-main.rc.in ..\..\config.nmake
+win32-main.rc: win32-main.rc.in ..\..\config.nmake ..\..\image\win32-toolbar.bmp
 	sed -e s/@VERSION@/$(VERSION)/ \
 		-e s/@RC_VERSION@/$(RC_VERSION)/ \
 		< win32-main.rc.in > $@

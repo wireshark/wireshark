@@ -19,6 +19,7 @@
 #include "win32-spacer.h"
 #include "win32-statusbarpanel.h"
 #include "win32-textbox.h"
+#include "win32-toolbar.h"
 #include "win32-tree.h"
 
 #endif /* win32-c-sdk.h */

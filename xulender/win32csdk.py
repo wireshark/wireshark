@@ -20,9 +20,12 @@ cur_width = 250
 cur_height = 100
 xpadding = 15
 ypadding = 15
-cur_menu_id = 1000
 start_group = 0
 callbacks = {}
+
+# XXX - These could be folded into a single "cur_cmd_id" list, dict, or class.
+cur_menu_id = 1000
+cur_button_id = 2000
 
 class CodeGenerationError:
     pass
@@ -651,7 +654,7 @@ def win32_gen_menuitem(node):
     if node.parentNode.nodeName != 'menupopup':
 	raise CodeGenerationError
 
-    global cur_menu_id, cur_hfd, cur_rcfd
+    global cur_menu_id
 
     label = get_attribute(node, 'label', '[ No Label ]')
     command = get_attribute(node, 'command', None)
@@ -662,7 +665,7 @@ def win32_gen_menuitem(node):
 	    raise CodeGenerationError
 
 	id = 'IDM_' + command.upper()
-	for ch in [' ', '-']: id = id.replace(ch, '_')
+	for ch in [' ', '-', '.']: id = id.replace(ch, '_')
 
 	cur_rcf.write_body('    MENUITEM "&%(label)s", %(id)s\n' % {
 	    'id': id,
@@ -851,7 +854,7 @@ def win32_gen_statusbar(node):
     cur_box = cur_el;
 ''')
 
-def win32_gen_hbox_end(node):
+def win32_gen_statusbar_end(node):
     cur_cf.write_body('''
     box_stack = g_list_first(box_stack);
     cur_box = (win32_element_t *) box_stack->data;
@@ -913,6 +916,96 @@ def win32_gen_textbox(node):
 # XXX - Add multiline, onchange, oninput, other textbox-specific attributes
 
     cur_cf.write_body('    /* End <textbox> */\n')
+
+#
+# <toolbar>
+#
+def win32_gen_toolbar(node):
+    # <toolbar>s MUST be a child of <toolbox>
+    # XXX - Move to xulender.py
+    if node.parentNode.nodeName != 'toolbox':
+	raise CodeGenerationError
+
+    cur_cf.write_body('''
+    /* Begin <toolbar> */
+    cur_el = win32_toolbar_new(cur_box->h_wnd);
+    win32_box_add(cur_box, cur_el, -1);
+''')
+
+    get_element_attributes(node)
+
+def win32_gen_toolbar_end(node):
+    cur_cf.write_body('''
+    win32_statusbarpanel_apply_styles(cur_el);
+    /* End <statusbarpanel> */
+''')
+
+#
+# <toolbarbutton>
+#
+def win32_gen_toolbarbutton(node):
+    # <toolbarbutton>s MUST be a child of <toolbar>
+    # XXX - Move to xulender.py
+    if node.parentNode.nodeName != 'toolbar':
+	raise CodeGenerationError
+
+    global cur_button_id
+
+    command = get_attribute(node, 'command', None)
+    if command is None:
+	raise CodeGenerationError
+
+    label = get_attribute(node, 'label', 'NULL')
+    if label != 'NULL':
+	label = '"' + label + '"'
+
+    id = 'IDB_' + command.upper()
+    for ch in [' ', '-', '.']: id = id.replace(ch, '_')
+
+    cur_hf.write_body('#define %(id)s %(cur_button_id)d\n' % {
+	'cur_button_id': cur_button_id,
+	'id': id,
+	})
+    cur_button_id = cur_button_id + 1
+
+
+    cur_cf.write_body('''
+    /* Begin <toolbarbutton> */
+    win32_toolbar_add_button(cur_el, %(id)s, %(label)s);
+''' % {
+	'id': id,
+	'label': label
+    })
+
+
+#
+# <toolbox>
+#
+
+def win32_gen_toolbox(node):
+
+    cur_cf.write_body('''
+    /* Begin <toolbox> */
+    cur_el = win32_toolbox_new(NULL, cur_box->h_wnd);
+    win32_box_add(cur_box, cur_el, -1);
+''')
+
+    get_element_attributes(node)
+
+    cur_cf.write_body('''
+    box_stack = g_list_prepend(box_stack, cur_box);
+    cur_box = cur_el;
+''')
+
+def win32_gen_toolbox_end(node):
+    cur_cf.write_body('''
+    box_stack = g_list_first(box_stack);
+    cur_box = (win32_element_t *) box_stack->data;
+    box_stack = g_list_remove(box_stack, cur_box);
+    /* End <toolbox> */
+''')
+
+
 
 #
 # <tree>

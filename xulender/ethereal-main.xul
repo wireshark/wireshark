@@ -475,6 +475,39 @@
 
   <vbox flex="1">
 
+    <toolbox>
+      <toolbar id="main-toolbar">
+        <toolbarbutton command="main-toolbar.capture-start" />
+        <toolbarbutton command="main-toolbar.capture-stop" />
+        <toolbarspacer />
+        <toolbarbutton command="main-toolbar.open" />
+        <toolbarbutton command="main-toolbar.save" />
+        <toolbarbutton command="main-toolbar.save-as" />
+        <toolbarbutton command="main-toolbar.close" />
+        <toolbarbutton command="main-toolbar.reload" />
+        <toolbarbutton command="main-toolbar.print" />
+        <toolbarspacer />
+        <toolbarbutton command="main-toolbar.find" />
+        <toolbarbutton command="main-toolbar.find-next" />
+        <toolbarbutton command="main-toolbar.find-prev" />
+        <toolbarspacer />
+        <toolbarbutton command="main-toolbar.goto-num" />
+        <toolbarbutton command="main-toolbar.goto-first" />
+        <toolbarbutton command="main-toolbar.goto-last" />
+        <toolbarspacer />
+        <toolbarbutton command="main-toolbar.zoom-in" />
+        <toolbarbutton command="main-toolbar.zoom-out" />
+        <toolbarbutton command="main-toolbar.zoom-norm" />
+        <toolbarspacer />
+        <toolbarbutton command="main-toolbar.cap-filt" />
+        <toolbarbutton command="main-toolbar.disp-filt" />
+        <toolbarbutton command="main-toolbar.color-dlg" />
+        <toolbarbutton command="main-toolbar.prefs" />
+        <toolbarspacer />
+        <toolbarbutton command="main-toolbar.help" />
+      </toolbar>
+    </toolbox>
+
     <hbox>
       <button label="Filter:" />
       <ethereal:combobox id="dfilter-entry" flex="1"/>
@@ -499,7 +532,7 @@
     <ethereal:byteview id="main-byteview" flex="1" />
 
     <statusbar>
-      <statusbarpanel id="main-info-bar" flex="1" />
+      <statusbarpanel id="main-info-bar" flex="4" />
       <splitter />
       <statusbarpanel id="main-packets-bar" flex="1" />
     </statusbar>

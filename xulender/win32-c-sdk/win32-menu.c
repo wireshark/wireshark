@@ -19,8 +19,9 @@
 #include "win32-globals.h"
 #include "win32-menu.h"
 #include "win32-statusbar.h"
+#include "toolbar-util.h"
 
-#include "generated/ethereal-main.h"
+#include "ethereal-main.h"
 
 #include "menu.h"
 
@@ -182,6 +183,7 @@ void set_menus_for_capture_file(gboolean have_capture_file) {
     EnableMenuItem(file_menu, IDM_ETHEREAL_MAIN_EXPORT_FILE, enable | MF_BYCOMMAND);
     EnableMenuItem(file_menu, IDM_ETHEREAL_MAIN_VIEW_RELOAD, enable | MF_BYCOMMAND);
 
+    set_toolbar_for_capture_file(have_capture_file);
     packets_bar_update();
 }
 
@@ -195,7 +197,7 @@ void set_menus_for_unsaved_capture_file(gboolean have_unsaved_capture_file) {
     file_menu = GetSubMenu(mainwin_menu, MAINWIN_FILE_POS);
 
     EnableMenuItem(file_menu, IDM_ETHEREAL_MAIN_SAVE, enable | MF_BYCOMMAND);
-//    set_toolbar_for_unsaved_capture_file(have_unsaved_capture_file);
+    set_toolbar_for_unsaved_capture_file(have_unsaved_capture_file);
 }
 
 /* Enable or disable menu items based on whether there's a capture in
@@ -216,7 +218,7 @@ void set_menus_for_capture_in_progress(gboolean capture_in_progress) {
     EnableMenuItem(capture_menu, IDM_ETHEREAL_MAIN_CAPTURE_STOP, enable | MF_BYCOMMAND);
 #endif /* HAVE_LIBPCAP */
 
-//    set_toolbar_for_capture_in_progress(capture_in_progress);
+    set_toolbar_for_capture_in_progress(capture_in_progress);
 
 //    set_capture_if_dialog_for_capture_in_progress(capture_in_progress);
 }
@@ -252,7 +254,7 @@ void set_menus_for_captured_packets(gboolean have_captured_packets) {
 
 //    walk_menu_tree_for_captured_packets(tap_menu_tree_root,
 //	have_captured_packets);
-//    set_toolbar_for_captured_packets(have_captured_packets);
+    set_toolbar_for_captured_packets(have_captured_packets);
     packets_bar_update();
 }
 
