@@ -1,7 +1,7 @@
 /* airopeek9.c
  * Routines for opening AiroPeek V9 files
  *
- * $Id: airopeek9.c,v 1.4 2004/01/25 21:55:12 guy Exp $
+ * $Id: airopeek9.c,v 1.5 2004/01/27 08:06:11 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -74,6 +74,8 @@ static gboolean airopeek_read_v9(wtap *wth, int *err, gchar **err_info,
 static gboolean airopeek_seek_read_v9(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info);
+static void airopeek_fill_pseudo_header(union wtap_pseudo_header *pseudo_header,
+    guchar *ap_pkt);
 
 static int wtap_file_read_pattern (wtap *wth, char *pattern, int *err)
 {
@@ -297,20 +299,7 @@ static gboolean airopeek_read_v9(wtap *wth, int *err, gchar **err_info _U_,
     wth->phdr.len    = length;
     wth->phdr.caplen = sliceLength;
 
-    /*
-     * Fill the pseudo header with radio information.
-     * XXX - we should supply the additional information;
-     * the pseudo-header should probably be supplied in a fashion
-     * similar to the new BSD radio header, so that the 802.11
-     * dissector can determine which, if any, information items
-     * are present.
-     */
-    wth->pseudo_header.ieee_802_11.channel =
-	    pletohl(&ap_pkt[AIROPEEK_V9_CHANNEL_OFFSET]);
-    wth->pseudo_header.ieee_802_11.data_rate =
-	    pletohl(&ap_pkt[AIROPEEK_V9_RATE_OFFSET]);
-    wth->pseudo_header.ieee_802_11.signal_level =
-	    pletohl(&ap_pkt[AIROPEEK_V9_SIGNAL_PERC_OFFSET]);
+    airopeek_fill_pseudo_header(&wth->pseudo_header, ap_pkt);
 
     /* read the frame data */
     buffer_assure_space(wth->frame_buffer, sliceLength);
@@ -356,12 +345,7 @@ airopeek_seek_read_v9(wtap *wth, long seek_off,
     /* Read the packet header. */
     wtap_file_read_expected_bytes(ap_pkt, sizeof(ap_pkt), wth->random_fh, err);
 
-    pseudo_header->ieee_802_11.channel =
-	    pletohl(&ap_pkt[AIROPEEK_V9_CHANNEL_OFFSET]);
-    pseudo_header->ieee_802_11.data_rate =
-	    pletohl(&ap_pkt[AIROPEEK_V9_RATE_OFFSET]);
-    pseudo_header->ieee_802_11.signal_level =
-	    pletohl(&ap_pkt[AIROPEEK_V9_SIGNAL_PERC_OFFSET]);
+    airopeek_fill_pseudo_header(pseudo_header, ap_pkt);
 
     /*
      * XXX - should "errno" be set in "wtap_file_read_expected_bytes()"?
@@ -369,4 +353,25 @@ airopeek_seek_read_v9(wtap *wth, long seek_off,
     errno = WTAP_ERR_CANT_READ;
     wtap_file_read_expected_bytes(pd, length, wth->random_fh, err);
     return TRUE;
+}
+
+/*
+ * Fill the pseudo header with radio information.
+ * XXX - we should supply the additional information;
+ * the pseudo-header should probably be supplied in a fashion
+ * similar to the new BSD radio header, so that the 802.11
+ * dissector can determine which, if any, information items
+ * are present.
+ */
+static void
+airopeek_fill_pseudo_header(union wtap_pseudo_header *pseudo_header,
+    guchar *ap_pkt)
+{
+    pseudo_header->ieee_802_11.fcs_len = 0;		/* no FCS */
+    pseudo_header->ieee_802_11.channel =
+	    pletohl(&ap_pkt[AIROPEEK_V9_CHANNEL_OFFSET]);
+    pseudo_header->ieee_802_11.data_rate =
+	    pletohl(&ap_pkt[AIROPEEK_V9_RATE_OFFSET]);
+    pseudo_header->ieee_802_11.signal_level =
+	    pletohl(&ap_pkt[AIROPEEK_V9_SIGNAL_PERC_OFFSET]);
 }

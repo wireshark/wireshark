@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.148 2004/01/25 21:55:17 guy Exp $
+ * $Id: wtap.h,v 1.149 2004/01/27 08:06:12 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -330,8 +330,10 @@ struct p2p_phdr {
 	gboolean	sent; /* TRUE=sent, FALSE=received */
 };
 
-/* Packet "pseudo-header" information for 802.11 with radio information. */
+/* Packet "pseudo-header" information for 802.11
+   Radio information is only present for WTAP_ENCAP_IEEE_802_11_WITH_RADIO. */
 struct ieee_802_11_phdr {
+	gint	fcs_len;	/* Number of bytes of FCS - -1 means "unknown" */
 	guint8	channel;	/* Channel number */
 	guint8	data_rate;	/* in .5 Mb/s units */
 	guint8	signal_level;	/* percentage */

@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.103 2003/12/29 04:02:39 gerald Exp $
+ * $Id: packet-ieee80211.c,v 1.104 2004/01/27 08:06:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1243,7 +1243,7 @@ set_dst_addr_cols(packet_info *pinfo, const guint8 *addr, char *type)
 static void
 dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 			  proto_tree * tree, gboolean fixed_length_header,
-			  gboolean has_radio_information, gboolean has_no_fcs,
+			  gboolean has_radio_information, gint fcs_len,
 			  gboolean wlan_broken_fc)
 {
   guint16 fcf, flags, frame_type_subtype;
@@ -1258,6 +1258,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   proto_tree *flag_tree;
   proto_tree *fc_tree;
   guint16 hdr_len;
+  gboolean has_fcs;
   gint len, reported_len;
   gboolean save_fragmented;
   tvbuff_t *volatile next_tvb = NULL;
@@ -1642,7 +1643,21 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   len = tvb_length_remaining(tvb, hdr_len);
   reported_len = tvb_reported_length_remaining(tvb, hdr_len);
 
-  if (!has_no_fcs && (wlan_check_fcs))
+  switch (fcs_len)
+    {
+      case 0: /* Definitely has no FCS */
+        has_fcs = FALSE;
+        break;
+
+      case 4: /* Definitely has an FCS */
+        has_fcs = TRUE;
+        break;
+
+      default: /* Don't know - use "wlan_check_fcs" */
+        has_fcs = wlan_check_fcs;
+        break;
+    }
+  if (has_fcs)
     {
       /*
        * Well, this packet should, in theory, have an FCS.
@@ -1973,7 +1988,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 static void
 dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, FALSE, FALSE);
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE,
+      pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE);
 }
 
 /*
@@ -1983,8 +1999,8 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 static void
 dissect_ieee80211_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  /* These packets do NOT have a FCS present */
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, TRUE, TRUE, FALSE);
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, TRUE,
+     pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE);
 }
 
 /*

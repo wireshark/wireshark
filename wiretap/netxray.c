@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.88 2004/01/25 23:50:48 guy Exp $
+ * $Id: netxray.c,v 1.89 2004/01/27 08:06:12 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -800,13 +800,6 @@ netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
 			break;
 
 		case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
-			pseudo_header->ieee_802_11.channel =
-			    hdr->hdr_2_x.xxx[12];
-			pseudo_header->ieee_802_11.data_rate =
-			    hdr->hdr_2_x.xxx[13];
-			pseudo_header->ieee_802_11.signal_level =
-			    hdr->hdr_2_x.xxx[14];
-
 			/*
 			 * It appears, in one 802.11 capture, that
 			 * we have 4 bytes of junk at the ends of
@@ -824,23 +817,22 @@ netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
 					/*
 					 * FCS.
 					 */
-#if 0
-					pseudo_header->eth.fcs_len = 4;
-#else
-					padding = 4;
-#endif
+					pseudo_header->ieee_802_11.fcs_len = 4;
 				} else {
 					/*
 					 * Junk.
 					 */
 					padding = 4;
 				}
-#if 0
 			} else
-				pseudo_header->eth.fcs_len = 0;
-#else
-			}
-#endif
+				pseudo_header->ieee_802_11.fcs_len = 0;
+
+			pseudo_header->ieee_802_11.channel =
+			    hdr->hdr_2_x.xxx[12];
+			pseudo_header->ieee_802_11.data_rate =
+			    hdr->hdr_2_x.xxx[13];
+			pseudo_header->ieee_802_11.signal_level =
+			    hdr->hdr_2_x.xxx[14];
 			break;
 
 		case WTAP_ENCAP_ISDN:

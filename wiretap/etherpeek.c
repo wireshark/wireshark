@@ -2,7 +2,7 @@
  * Routines for opening EtherPeek (and TokenPeek?) files
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
- * $Id: etherpeek.c,v 1.26 2004/01/25 21:55:13 guy Exp $
+ * $Id: etherpeek.c,v 1.27 2004/01/27 08:06:11 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -141,6 +141,8 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
 static gboolean etherpeek_seek_read_v7(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info);
+static void etherpeek_fill_pseudo_header_v7(
+    union wtap_pseudo_header *pseudo_header, airopeek_radio_hdr_t *radio_hdr);
 static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info,
     long *data_offset);
 static gboolean etherpeek_seek_read_v56(wtap *wth, long seek_off,
@@ -418,9 +420,8 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
 		wth->phdr.caplen -= 4;
 		wth->data_offset += 4;
 
-		wth->pseudo_header.ieee_802_11.channel = radio_hdr.channel;
-		wth->pseudo_header.ieee_802_11.data_rate = radio_hdr.data_rate;
-		wth->pseudo_header.ieee_802_11.signal_level = radio_hdr.signal_level;
+		etherpeek_fill_pseudo_header_v7(&wth->pseudo_header,
+		    &radio_hdr);
 		break;
 
 	case WTAP_ENCAP_ETHERNET:
@@ -497,9 +498,8 @@ etherpeek_seek_read_v7(wtap *wth, long seek_off,
 		wtap_file_read_expected_bytes(&radio_hdr, 4, wth->random_fh,
 		    err);
 
-		pseudo_header->ieee_802_11.channel = radio_hdr.channel;
-		pseudo_header->ieee_802_11.data_rate = radio_hdr.data_rate;
-		pseudo_header->ieee_802_11.signal_level = radio_hdr.signal_level;
+		etherpeek_fill_pseudo_header_v7(pseudo_header,
+		    &radio_hdr);
 		break;
 
 	case WTAP_ENCAP_ETHERNET:
@@ -516,6 +516,16 @@ etherpeek_seek_read_v7(wtap *wth, long seek_off,
 	errno = WTAP_ERR_CANT_READ;
 	wtap_file_read_expected_bytes(pd, length, wth->random_fh, err);
 	return TRUE;
+}
+
+static void
+etherpeek_fill_pseudo_header_v7(union wtap_pseudo_header *pseudo_header,
+    airopeek_radio_hdr_t *radio_hdr)
+{
+	pseudo_header->ieee_802_11.fcs_len = 0;		/* no FCS */
+	pseudo_header->ieee_802_11.channel = radio_hdr->channel;
+	pseudo_header->ieee_802_11.data_rate = radio_hdr->data_rate;
+	pseudo_header->ieee_802_11.signal_level = radio_hdr->signal_level;
 }
 
 static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info _U_,
