@@ -454,6 +454,7 @@ EXTRA_DIST = \
 	image/Ethereal.icns	\
 	image/Makefile.nmake	\
 	image/README.image	\
+	image/capinfo.rc.in	\
 	image/clist_ascend.xpm	\
 	image/clist_descend.xpm	\
 	image/dn_arrow.xpm	\
@@ -518,6 +519,7 @@ EXTRA_DIST = \
 	image/icon_layout_4.xpm \
 	image/icon_layout_5.xpm \
 	image/icon_layout_6.xpm \
+	image/wiretap.rc.in	\
 	make-authors-short.pl	\
 	make-manuf		\
 	make-tapreg-dotc	\
