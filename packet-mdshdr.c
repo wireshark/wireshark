@@ -2,7 +2,7 @@
  * Routines for dissection of Cisco MDS Switch Internal Header
  * Copyright 2001, Dinesh G Dutt <ddutt@andiamo.com>
  *
- * $Id: packet-mdshdr.c,v 1.6 2003/06/07 09:35:13 guy Exp $
+ * $Id: packet-mdshdr.c,v 1.7 2003/10/27 19:30:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -114,6 +114,7 @@ static int hf_mdshdr_srcidx = -1;
 static int hf_mdshdr_vsan = -1;
 static int hf_mdshdr_eof = -1;
 static int hf_mdshdr_span = -1;
+static int hf_mdshdr_fccrc = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_mdshdr = -1;
@@ -187,7 +188,6 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         trailer_start = MDSHDR_HEADER_SIZE + pktlen - MDSHDR_TRAILER_SIZE; 
     
         eof = tvb_get_guint8 (tvb, trailer_start);
-        
         tvb_set_reported_length (tvb, MDSHDR_HEADER_SIZE+pktlen);
     }
     else {
@@ -239,6 +239,8 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         
             proto_tree_add_item (mdshdr_tree_trlr, hf_mdshdr_eof, tvb,
                                  trailer_start, MDSHDR_SIZE_BYTE, 0);
+            proto_tree_add_item (mdshdr_tree_trlr, hf_mdshdr_fccrc, tvb,
+                                 trailer_start+2, MDSHDR_SIZE_INT32, 0);
         }
     }
     
@@ -273,7 +275,7 @@ proto_register_mdshdr(void)
         { &hf_mdshdr_sof,
           {"SOF", "mdshdr.sof", FT_UINT8, BASE_DEC, VALS(sof_vals), 0x0, "", HFILL}},
         { &hf_mdshdr_pkt_len,
-          {"Packet Len", "mdshdr.plen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}},
+          {"Packet Len", "mdshdr.plen", FT_UINT16, BASE_DEC, NULL, 0x1FFF, "", HFILL}},
         { &hf_mdshdr_dstidx,
           {"Dst Index", "mdshdr.dstidx", FT_UINT16, BASE_HEX, NULL, 0xFFC, "", HFILL}},
         { &hf_mdshdr_srcidx,
@@ -284,7 +286,9 @@ proto_register_mdshdr(void)
           {"EOF", "mdshdr.eof", FT_UINT8, BASE_DEC, VALS(eof_vals), 0x0, "", HFILL}},
         { &hf_mdshdr_span,
           {"SPAN Frame", "mdshdr.span", FT_UINT8, BASE_DEC, NULL, 0x0,
-           "", HFILL}}, 
+           "", HFILL}},
+        { &hf_mdshdr_fccrc,
+          {"CRC", "mdshdr.crc", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
     };
 
 /* Setup protocol subtree array */
