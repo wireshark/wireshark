@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.65 2001/08/30 18:33:30 guy Exp $
+ * $Id: packet-rpc.c,v 1.66 2001/09/02 22:49:56 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -377,6 +377,7 @@ typedef struct _rpc_call_info_value {
 	guint32	prog;
 	guint32	vers;
 	guint32	proc;
+	gboolean flavor_known;	/* true if authentication flavor known */
 	guint32 flavor;
 	guint32 gss_proc;
 	guint32 gss_svc;
@@ -1161,6 +1162,12 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			rpc_call->prog = prog;
 			rpc_call->vers = vers;
 			rpc_call->proc = proc;
+
+			/*
+			 * XXX - what about RPCSEC_GSS?
+			 * Do we have to worry about it?
+			 */
+			rpc_call->flavor_known = TRUE;
 			rpc_call->flavor = 0;
 			rpc_call->gss_proc = 0;
 			rpc_call->gss_svc = 0;
@@ -1309,6 +1316,7 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	unsigned int prog = 0;
 	unsigned int vers = 0;
 	unsigned int proc = 0;
+	gboolean flavor_known = FALSE;
 	unsigned int flavor = 0;
 	unsigned int gss_proc = 0;
 	unsigned int gss_svc = 0;
@@ -1499,13 +1507,6 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proc = tvb_get_ntohl(tvb, offset+12);
 
-		/* Check for RPCSEC_GSS */
-		flavor = tvb_get_ntohl(tvb, offset+16);
-		if (flavor == RPCSEC_GSS) {
-			gss_proc = tvb_get_ntohl(tvb, offset+28);
-			gss_svc = tvb_get_ntohl(tvb, offset+36);
-		}
-
 		key.prog = prog;
 		key.vers = vers;
 		key.proc = proc;
@@ -1536,6 +1537,16 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				procname,
 				msg_type_name,
 				xid);
+		}
+
+		/* Check for RPCSEC_GSS */
+		if (tvb_bytes_exist(tvb, offset+16, 4)) {
+			flavor_known = TRUE;
+			flavor = tvb_get_ntohl(tvb, offset+16);
+			if (flavor == RPCSEC_GSS) {
+				gss_proc = tvb_get_ntohl(tvb, offset+28);
+				gss_svc = tvb_get_ntohl(tvb, offset+36);
+			}
 		}
 
 		/* Keep track of the address and port whence the call came,
@@ -1594,6 +1605,7 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			rpc_call->prog = prog;
 			rpc_call->vers = vers;
 			rpc_call->proc = proc;
+			rpc_call->flavor_known = flavor_known;
 			rpc_call->flavor = flavor;
 			rpc_call->gss_proc = gss_proc;
 			rpc_call->gss_svc = gss_svc;
@@ -1618,6 +1630,7 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		prog = rpc_call->prog;
 		vers = rpc_call->vers;
 		proc = rpc_call->proc;
+		flavor_known = rpc_call->flavor_known;
 		flavor = rpc_call->flavor;
 		gss_proc = rpc_call->gss_proc;
 		gss_svc = rpc_call->gss_svc;
@@ -1811,6 +1824,20 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (!proto_is_protocol_enabled(proto))
 		dissect_function = NULL;
 
+	/*
+	 * If we don't know the authentication flavor, we don't know whether
+	 * we have to do any special processing for RPCSEC_GSS, so don't
+	 * process the call or reply.
+	 */
+	if (!flavor_known) {
+		/*
+		 * OK, just report the data as "unknown flavor, can't
+		 * dissect".
+		 */
+		proto_tree_add_text(ptree, tvb, offset, tvb_length_remaining(tvb, offset),
+		    "Unknown authentication flavor - cannot dissect");
+		return TRUE;
+	}
 	/* RPCSEC_GSS processing. */
 	if (flavor == RPCSEC_GSS) {
 		switch (gss_proc) {
