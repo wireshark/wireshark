@@ -621,6 +621,7 @@ B<http://ethereal.zing.org>.
   Christophe Tronche       <ch.tronche@computer.org>
   Nathan Neulinger         <nneul@umr.edu>
   Tomislav Vujec           <tvujec@carnet.hr>
+  Kojak                    <kojak@bigwig.net>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
