@@ -525,9 +525,10 @@ Ralf Holzer <ralf[AT]well.com> {
 	AIM/OSCAR support
 }
 
-Craig Rodrigues <rodrigc[AT]mediaone.net> {
+Craig Rodrigues <rodrigc [AT] attbi.com> {
 	GIOP 1.2 support and other GIOP enhancements
 	Handle current versions of RPM, which compress man pages
+	Real-time CORBA priority value support
 }
 
 Ed Warnicke <hagbard[AT]physics.rutgers.edu> {

@@ -3,13 +3,13 @@
  *
  * Initial Code by,
  * Laurent Deniel <laurent.deniel@free.fr>
- * Craig Rodrigues <rodrigc@mediaone.net>
+ * Craig Rodrigues <rodrigc@attbi.com>
  *
  * GIOP API extensions by,
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.65 2003/01/26 19:35:24 deniel Exp $
+ * $Id: packet-giop.c,v 1.66 2003/02/13 01:23:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -455,6 +455,7 @@ static gint ett_giop_locate_reply = -1;
 static gint ett_giop_fragment = -1;
 
 static gint ett_giop_scl = -1;	/* ServiceContextList */
+static gint ett_giop_scl_st1 = -1; 
 static gint ett_giop_ior = -1;	/* IOR  */
 
 static dissector_handle_t data_handle;
@@ -541,6 +542,33 @@ static const value_string tckind_vals[] = {
   { 32, "tk_abstract_interface"},
   { 0, NULL }
 };
+
+/*
+ *  These values are taken from the CORBA 3.0.2 standard,
+ *  section 13.7.1 "Standard Service Contexts".
+ */
+static const guint32 max_service_context_id = 0x10;
+static const value_string service_context_ids[] = {
+        { 0x00, "TransactionService" },
+        { 0x01, "CodeSets"},
+        { 0x02, "ChainBypassCheck"},
+        { 0x03, "ChainBypassInfo"},
+        { 0x04, "LogicalThreadId"},
+        { 0x05, "BI_DIR_IIOP"},
+        { 0x06, "SendingContextRunTime"},
+        { 0x07, "INVOCATION_POLICIES"},
+        { 0x08, "FORWARDED_IDENTITY"},
+        { 0x09, "UnknownExceptionInfo"},
+        { 0x0a, "RTCorbaPriority"},
+        { 0x0b, "RTCorbaPriorityRange"},
+        { 0x0c, "FT_GROUP_VERSION"},
+        { 0x0d, "FT_REQUEST"},
+        { 0x0e, "ExceptionDetailMessage"},
+        { 0x0f, "SecurityAttributeService"},
+        { 0x10, "ActivityService"},
+        { 0, NULL }
+};
+
 
 
 
@@ -4179,6 +4207,7 @@ proto_register_giop (void)
     &ett_giop_locate_reply,
     &ett_giop_fragment,
     &ett_giop_scl,
+    &ett_giop_scl_st1,
     &ett_giop_ior
 
   };
@@ -4588,34 +4617,79 @@ static void decode_IIOP_IOR_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 }
 
-
 /*
- * Service Contexts Begin
+ *  From Section 2.7.3 of the Real-time CORBA 1.1 Standard, the CORBA priority
+ *  is represented in the GIOP service request as:
  *
- */
-
-
-
-
-
-#if 0
-void dissect_SID_BI_DIR_IIOP(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset,
-			       MessageHeader *header, gchar *operation, guint32 boundary) {
-
-  return;
-
-};
-
-#endif
-
-
-/*
- * Service Contexts End
+ *  module IOP {
+ *     typedef short ServiceId;
+ *     const ServiceId  RTCorbaPriority = 10;
+ *  };
  *
- */
+ *  The RT-CORBA priority is a CDR encoded short value in a sequence<octet>
+ *  buffer.
+ */ 
+static void decode_RTCorbaPriority(tvbuff_t *tvb, proto_tree *tree, int *offset, 
+	                           gboolean stream_is_be, guint32 boundary) {
+
+  gint16 rtpriority;
+
+  /* RTCorbaPriority is stored as a CDR encoded short */
+  rtpriority = get_CDR_short(tvb, offset, stream_is_be, boundary );
+
+  if(tree) {
+    proto_tree_add_text (tree, tvb, *offset - (boundary - 1), boundary - 1,
+                             "RTCorbaPriority: %d", rtpriority);
+  }
+
+}
+
+static void decode_UnknownServiceContext(tvbuff_t *tvb, proto_tree *tree, int *offset,
+			       gboolean stream_is_be, guint32 boundary,
+			       guint32 vscid, guint32 scid) {
+
+  guint32 seqlen_cd;
+  gchar *p_context_data;
+  gchar *context_data;
+
+ if (tree) {
+    proto_tree_add_uint(tree,hf_giop_iop_vscid,tvb,
+	  *offset-sizeof(guint32),4,vscid);
+
+    proto_tree_add_uint(tree,hf_giop_iop_scid,tvb,
+	  *offset-sizeof(guint32),4,scid);
+
+  }
+
+   /* get sequence length, and NO  encapsulation */
+  seqlen_cd = get_CDR_ulong(tvb, offset, stream_is_be,boundary);
 
 
+  /* return if zero length sequence */
+  if(seqlen_cd == 0)
+    return;
 
+  /*
+   * Now decode sequence according to vendor ServiceId, but I dont
+   * have that yet, so just dump it as data.
+   */
+
+  /* fetch all octets in this sequence */
+
+  get_CDR_octet_seq(tvb, &context_data, offset, seqlen_cd);
+
+  /* Make a printable string */
+
+  p_context_data = make_printable_string( context_data, seqlen_cd );
+
+  if(tree) {
+    proto_tree_add_text (tree, tvb, *offset - seqlen_cd , seqlen_cd,
+	                 "context_data: %s", p_context_data);
+  }
+
+  g_free(context_data);
+  g_free(p_context_data);
+}
 
 /*
  * Corba , chp 13.7
@@ -4636,8 +4710,6 @@ void dissect_SID_BI_DIR_IIOP(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
  *
  */
 
-
-
 void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *ptree, int *offset,
 			       gboolean stream_is_be, guint32 boundary) {
 
@@ -4645,15 +4717,18 @@ void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *ptree, int *offset,
   guint32 seqlen_cd;		/* sequence length, context_data  */
 
   proto_tree *tree = NULL;	/* ServiceContext tree */
-  proto_item *tf;
+  proto_tree *sub_tree1 = NULL;
+  proto_item *tf, *tf_st1;
 
   guint32 context_id;
-  gchar *context_data;
-  gchar *p_context_data;
 
   guint32 i;
   guint32 vscid;		/* Vendor Service context id */
   guint32 scid;
+  const gchar *service_context_name;
+  gboolean encapsulation_is_be;
+  guint32 encapsulation_boundary;
+  int temp_offset;
 
   /* create a subtree */
 
@@ -4680,66 +4755,61 @@ void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *ptree, int *offset,
   for (i=0; i<seqlen; i++) {
 
     context_id = get_CDR_ulong(tvb,offset,stream_is_be,boundary);
-    if (tree) {
-      proto_tree_add_uint(tree,hf_giop_iop_vscid,tvb,
-			  *offset-sizeof(context_id),4,context_id);
+    vscid = context_id & 0xffffff00; /* vendor info, top 24 bits */
+    scid = context_id  & 0x000000ff; /* standard service info, lower 8 bits */
+    service_context_name = match_strval(scid, service_context_ids);
 
-      proto_tree_add_uint(tree,hf_giop_iop_scid,tvb,
-			  *offset-sizeof(context_id),4,context_id);
-
+    if ( service_context_name == NULL ) {
+       service_context_name = "Unknown";
     }
-
-    vscid = context_id && 0xfffff000; /* vendor info, top 20 bits */
-    scid = context_id  && 0x00000fff; /* standard service info, lower 12 bits */
-
-
-#if CONTEXT_DATA_IS_ENCAPSULATED
-
-    /* get sequence length, new endianness and boundary for encapsulation */
-
-    seqlen_cd = get_CDR_encap_info(tvb, tree, offset,
-			       stream_is_be, boundary,
-			       &new_big_endianess, &new_boundary);
-
-
-#else
-   /* get sequence length, and NO  encapsulation */
-
-    seqlen_cd = get_CDR_ulong(tvb, offset, stream_is_be,boundary);
-
-#endif
-
-    /* return if zero length sequence */
-
-    if(seqlen_cd == 0)
-      return;
-
-    /*
-     * Now decode sequence according to vendor ServiceId, but I dont
-     * have that yet, so just dump it as data.
-     */
-
-    /* fetch all octets in this sequence */
-
-    get_CDR_octet_seq(tvb, &context_data, offset, seqlen_cd);
-
-    /* Make a printable string */
-
-    p_context_data = make_printable_string( context_data, seqlen_cd );
 
     if(tree) {
-      proto_tree_add_text (tree, tvb, *offset - seqlen_cd , seqlen_cd,
-			   "context_data: %s", p_context_data);
+      proto_tree_add_text (tree, tvb, *offset -sizeof(context_id), 4,
+                           "Service Context ID: %s (%u)", service_context_name, 
+	                                   context_id);
     }
 
-    g_free(context_data);
-    g_free(p_context_data);
+    /* The OMG has vscid of 0 reserved */
+    if( vscid != 0 || scid > max_service_context_id ) {
+        decode_UnknownServiceContext(tvb, tree, offset, stream_is_be, boundary,
+	                             vscid, scid); 
+        return;
+    }
+
+    if (tree) {
+      tf_st1 = proto_tree_add_text (tree, tvb, *offset, -1, service_context_name);
+      sub_tree1 = proto_item_add_subtree (tf_st1, ett_giop_scl_st1);
+    }
+
+    /* get sequence length, new endianness and boundary for encapsulation */
+    seqlen_cd = get_CDR_encap_info(tvb, sub_tree1, offset,
+			       stream_is_be, boundary,
+			       &encapsulation_is_be , &encapsulation_boundary);
+
+    if (seqlen_cd == 0)
+        return;
+
+    /* See CORBA 3.0.2 standard, section Section 15.3.3 "Encapsulation",
+     * for how CDR types can be marshalled into a sequence<octet>.
+     * The first octet in the sequence determines endian order,
+     * 0 == big-endian, 1 == little-endian
+     */
+
+    switch(scid)
+    {
+	case 0x0a: /* RTCorbaPriority */
+           decode_RTCorbaPriority(tvb, sub_tree1, offset, 
+	                          encapsulation_is_be, seqlen_cd); 
+	   break;
+	default:
+           /* Need to fill these in as we learn them */
+	   temp_offset = *offset - sizeof(seqlen_cd) - sizeof(context_id);
+           decode_UnknownServiceContext(tvb, sub_tree1, &temp_offset, stream_is_be, 
+			                boundary, vscid, scid);
+	break;
+    }
 
   } /* seqlen  */
-
-
-  return;			/* for now, fix later */
-
 
 }
 
