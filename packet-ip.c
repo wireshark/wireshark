@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.62 1999/11/16 11:42:33 guy Exp $
+ * $Id: packet-ip.c,v 1.63 1999/11/17 01:35:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1224,7 +1224,7 @@ dissect_igmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       strcpy(type_str, "PIM");
       break;
     case IGMP_V2_M_RPT:
-      strcpy(type_str, "Host reponse (v2)");
+      strcpy(type_str, "Host response (v2)");
       break;
     case IGMP_MTRC_RESP:
       strcpy(type_str, "Traceroute response");
