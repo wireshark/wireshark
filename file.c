@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.26 1999/06/12 09:10:19 guy Exp $
+ * $Id: file.c,v 1.27 1999/06/14 21:46:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,6 +47,10 @@
 #  include <varargs.h>
 # endif
 # include "snprintf.h"
+#endif
+
+#ifdef NEED_STRERROR_H
+#include "strerror.h"
 #endif
 
 #ifdef HAVE_SYS_TYPES_H

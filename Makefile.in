@@ -72,6 +72,8 @@ SNMP_A = @SNMP_A@
 SNMP_O = @SNMP_O@
 SNPRINTF_C = @SNPRINTF_C@
 SNPRINTF_O = @SNPRINTF_O@
+STRERROR_C = @STRERROR_C@
+STRERROR_O = @STRERROR_O@
 VERSION = @VERSION@
 
 bin_PROGRAMS = ethereal
@@ -83,11 +85,11 @@ sysconf_DATA = manuf
 ethereal_SOURCES =  	alignment.h    	capture.c      	capture.h      	column.c       	column.h       	config.h       	ethereal.c     	ethereal.h     	ethertype.c    	etypes.h       	file.c         	file.h         	filter.c       	filter.h       	follow.c       	follow.h       	gtkpacket.c    	gtkpacket.h    	menu.c         	menu.h         	packet-aarp.c  	packet-arp.c   	packet-atalk.c 	packet-bootp.c 	packet-cdp.c   	packet-data.c  	packet-dns.c   	packet-dns.h   	packet-eth.c   	packet-fddi.c  	packet-ftp.c   	packet-giop.c  	packet-gre.c   	packet-http.c  	packet-icmpv6.c 	packet-ip.c    	packet-ip.h    	packet-ipsec.c 	packet-ipv6.c  	packet-ipv6.h  	packet-ipx.c   	packet-ipx.h   	packet-isakmp.c 	packet-llc.c   	packet-lpd.c   	packet-nbipx.c 	packet-nbns.c  	packet-ncp.c   	packet-ncp.h   	packet-nntp.c  	packet-null.c  	packet-osi.c   	packet-ospf.c  	packet-ospf.h  	packet-pop.c   	packet-ppp.c   	packet-pppoe.c 	packet-pptp.c  	packet-raw.c   	packet-rip.c   	packet-rip.h   	packet-rsvp.c  	packet-rsvp.h  	packet-smb.c   	packet-tcp.c   	packet-telnet.c 	packet-tftp.c  	packet-tr.c    	packet-trmac.c 	packet-udp.c   	packet-vines.c 	packet-vines.h 	packet.c       	packet.h       	prefs.c        	prefs.h        	print.c        	print.h        	ps.c           	ps.h           	resolv.c       	resolv.h       	smb.h          	util.c         	util.h
 
 
-EXTRA_ethereal_SOURCES =  	packet-snmp.c		snprintf.c		snprintf.h		snprintf-imp.h
+EXTRA_ethereal_SOURCES =  	packet-snmp.c		snprintf.c		snprintf.h		snprintf-imp.h		strerror.c		strerror.h
 
 
-ethereal_DEPENDENCIES = @SNMP_O@ @SNPRINTF_O@ @LIBWIRETAP_A@
-ethereal_LDADD = @SNMP_O@ @SNPRINTF_O@ @LIBWIRETAP_A@ @SNMP_A@
+ethereal_DEPENDENCIES = @SNMP_O@ @SNPRINTF_O@ @STRERROR_O@ @LIBWIRETAP_A@
+ethereal_LDADD = @SNMP_O@ @SNPRINTF_O@ @STRERROR_O@ @LIBWIRETAP_A@ @SNMP_A@
 
 DISTCLEANFILES =  	rdps			ps.c			*~
 
@@ -157,7 +159,7 @@ DEP_FILES =  .deps/capture.P .deps/column.P .deps/ethereal.P \
 .deps/packet-telnet.P .deps/packet-tftp.P .deps/packet-tr.P \
 .deps/packet-trmac.P .deps/packet-udp.P .deps/packet-vines.P \
 .deps/packet.P .deps/prefs.P .deps/print.P .deps/ps.P .deps/resolv.P \
-.deps/snprintf.P .deps/util.P
+.deps/snprintf.P .deps/strerror.P .deps/util.P
 SOURCES = $(ethereal_SOURCES) $(EXTRA_ethereal_SOURCES)
 OBJECTS = $(ethereal_OBJECTS)
 

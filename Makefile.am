@@ -95,10 +95,12 @@ EXTRA_ethereal_SOURCES = \
 	packet-snmp.c	\
 	snprintf.c	\
 	snprintf.h	\
-	snprintf-imp.h
+	snprintf-imp.h	\
+	strerror.c	\
+	strerror.h
 
-ethereal_DEPENDENCIES = @SNMP_O@ @SNPRINTF_O@ @LIBWIRETAP_A@
-ethereal_LDADD = @SNMP_O@ @SNPRINTF_O@ @LIBWIRETAP_A@ @SNMP_A@
+ethereal_DEPENDENCIES = @SNMP_O@ @SNPRINTF_O@ @STRERROR_O@ @LIBWIRETAP_A@
+ethereal_LDADD = @SNMP_O@ @SNPRINTF_O@ @STRERROR_O@ @LIBWIRETAP_A@ @SNMP_A@
 
 ps.c: print.ps rdps
 	./rdps print.ps ps.c

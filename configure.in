@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.25 1999/05/19 23:16:42 gram Exp $
+# $Id: configure.in,v 1.26 1999/06/14 21:46:35 guy Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
@@ -167,6 +167,15 @@ if test "$ac_cv_func_snprintf" = no ; then
 fi
 AC_SUBST(SNPRINTF_C)
 AC_SUBST(SNPRINTF_O)
+
+AC_CHECK_FUNC(strerror, STRERROR_O="",
+  STRERROR_O="strerror.o" [AC_DEFINE(NEED_STRERROR_H)])
+if test "$ac_cv_func_strerror" = no ; then
+  STRERROR_C="strerror.c"
+  STRERROR_O="strerror.o"
+fi
+AC_SUBST(STRERROR_C)
+AC_SUBST(STRERROR_O)
 
 AM_CONFIG_HEADER(config.h)
 if test x$WIRETAP_DIR != x ; then

@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.38 1999/06/12 09:10:20 guy Exp $
+ * $Id: ethereal.c,v 1.39 1999/06/14 21:46:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -65,6 +65,10 @@
 #  include <varargs.h>
 # endif
 # include "snprintf.h"
+#endif
+
+#ifdef NEED_STRERROR_H
+#include "strerror.h"
 #endif
 
 #include "ethereal.h"
