@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.32 1999/11/06 06:27:07 guy Exp $
+ * $Id: main.c,v 1.33 1999/11/10 19:58:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1123,6 +1123,7 @@ main(int argc, char *argv[])
   gtk_main();
 
   ethereal_proto_cleanup();
+  g_free(rc_file);
 
   exit(0);
 }

@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.14 1999/10/12 05:00:49 guy Exp $
+ * $Id: colors.c,v 1.15 1999/11/10 19:58:32 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -226,6 +226,7 @@ read_filters(capture_file *cf)
 	  g_free(path);
 	  return FALSE;
 	}
+	g_free(path);
 
 	i = 0;
 
