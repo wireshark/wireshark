@@ -229,12 +229,10 @@ def t_QSTRING (t):
 def t_UCASE_IDENT (t):
     r"[A-Z](-[a-zA-Z0-9]|[a-zA-Z0-9])*" # can't end w/ '-'
     t.type = reserved_words.get(t.value, "UCASE_IDENT")
-    #t.value = t.value.replace('-', '_') # XXX is it OK to do this during lex
     return t
 
 def t_LCASE_IDENT (t):
     r"[a-z](-[a-zA-Z0-9]|[a-zA-Z0-9])*" # can't end w/ '-'
-    #t.value = t.value.replace ('-', '_')  # XXX is it OK to do this during lex
     return t
 
 # 11.8 Numbers
@@ -349,12 +347,14 @@ class Ctx:
 
 #--- EthCtx -------------------------------------------------------------------
 class EthCtx:
-  def __init__(self, conform, indent = 0):
+  def __init__(self, conform, output, indent = 0):
     self.tags_def = 'EXPLICIT' # default = explicit
     self.conform = conform
+    self.output = output
     self.assign = {}
     self.assign_ord = []
     self.field = {}
+    self.pdu_ord = []
     self.field_ord = []
     self.type = {}
     self.type_ord = []
@@ -366,11 +366,10 @@ class EthCtx:
     self.value_ord = []
     self.value_imp = []
 
-  def pvp(self):  # PER dissector version postfix
-    if (self.new):
-      return '_new'
-    else:
-      return ''
+  def encp(self):  # encoding protocol
+    encp = self.encoding
+    if (self.new): encp += 'n'
+    return encp
 
   # API type
   def Org(self): return not self.new
@@ -475,26 +474,31 @@ class EthCtx:
     #print "eth_reg_value(ident='%s')" % (ident)
     if self.value.has_key(ident):
       raise "Duplicate value for " + ident
-    self.value[ident] = { 'type' : type, 'value' : value, 'import' : None }
+    self.value[ident] = { 'import' : None, 'proto' : self.proto,
+                          'type' : type, 'value' : value }
     self.value[ident]['export'] = self.conform.use_item('EXPORTS', ident)
     self.value[ident]['ethname'] = ''
     self.value_ord.append(ident)
 
   #--- eth_reg_field ----------------------------------------------------------
-  def eth_reg_field(self, ident, type, idx='', parent=None, impl=False):
+  def eth_reg_field(self, ident, type, idx='', parent=None, impl=False, pdu=False):
     #print "eth_reg_field(ident='%s', type='%s')" % (ident, type)
     if self.field.has_key(ident):
       raise "Duplicate field for " + ident
-    self.field[ident] = {'type' : type, 'idx' : idx, 'impl' : impl, 
+    self.field[ident] = {'type' : type, 'idx' : idx, 'impl' : impl, 'pdu' : pdu,
                          'modified' : '', 'attr' : {} }
     if self.conform.check_item('FIELD_ATTR', ident):
       self.field[ident]['modified'] = '#' + str(id(self))
       self.field[ident]['attr'].update(self.conform.use_item('FIELD_ATTR', ident))
-    self.field_ord.append(ident)
+    if (pdu):
+      self.pdu_ord.append(ident)
+    else:
+      self.field_ord.append(ident)
     if parent: self.eth_dep_add(parent, type)
 
   #--- eth_prepare ------------------------------------------------------------
   def eth_prepare(self):
+    self.eproto = self.proto.replace('-', '_').replace('.', '_')
     #--- types -------------------
     self.eth_type = {}
     self.eth_type_ord = []
@@ -504,7 +508,8 @@ class EthCtx:
 
     for t in self.type_imp:
       nm = t
-      self.eth_type[nm] = { 'import' : self.type[t]['import'], 'proto' : self.type[t]['proto'],
+      self.eth_type[nm] = { 'import' : self.type[t]['import'], 
+                            'proto' : self.type[t]['proto'].replace('-', '_').replace('.', '_'),
                             'attr' : {}, 'ref' : []}
       self.type[t]['ethname'] = nm
     for t in self.type_ord:
@@ -528,7 +533,7 @@ class EthCtx:
         self.eth_type[nm]['ref'].append(t)
       else:
         self.eth_type_ord.append(nm)
-        self.eth_type[nm] = { 'import' : None, 'proto' : self.proto, 'export' : 0,
+        self.eth_type[nm] = { 'import' : None, 'proto' : self.eproto, 'export' : 0,
                               'user_def' : 0x03, 'no_emit' : 0x03, 
                               'val' : self.type[t]['val'], 
                               'attr' : {}, 
@@ -547,12 +552,12 @@ class EthCtx:
       if (bits):
         for (val, id) in bits:
           self.named_bit.append({'name' : id, 'val' : val,
-                                 'ethname' : 'hf_%s_%s_%s' % (self.proto, t, id),
+                                 'ethname' : 'hf_%s_%s_%s' % (self.eproto, t, id),
                                  'ftype'   : 'FT_BOOLEAN', 'display' : '8',
                                  'strings' : 'NULL',
                                  'bitmask' : '0x'+('80','40','20','10','08','04','02','01')[val%8]})
       if self.eth_type[t]['val'].eth_need_tree():
-        self.eth_type[t]['tree'] = "ett_%s_%s" % (self.proto, t)
+        self.eth_type[t]['tree'] = "ett_%s_%s" % (self.eth_type[t]['proto'], t)
       else:
         self.eth_type[t]['tree'] = None
 
@@ -564,11 +569,9 @@ class EthCtx:
       else:
         dep = self.value[v]['value']
       if dep and self.value.has_key(dep):
-        if self.value_dep.has_key(v):
-          self.value_dep[v].append(dep)
-        else:
-          self.value_dep[v] = [dep]
+        self.value_dep.setdefault(v, []).append(dep)
     
+    #--- exports all necessary values
     for v in self.value_ord:
       if not self.value[v]['export']: continue
       deparr = self.value_dep.get(v, [])
@@ -585,32 +588,29 @@ class EthCtx:
 
     for v in self.value_imp:
       nm = v.replace('-', '_')
-      self.eth_value[nm] = { 'import' : self.value[v]['import'], 'proto' : self.value[v]['proto'], 'ref' : []}
+      self.eth_value[nm] = { 'import' : self.value[v]['import'], 
+                             'proto' : self.value[v]['proto'].replace('-', '_').replace('.', '_'), 
+                             'ref' : []}
       self.value[v]['ethname'] = nm
     for v in self.value_ord:
       nm = v.replace('-', '_')
-      self.eth_value[nm] = { 'import' : None, 'proto' : self.proto, 
+      self.eth_value[nm] = { 'import' : None, 
+                             'proto' : self.value[v]['proto'].replace('-', '_').replace('.', '_'),
                              'export' : self.value[v]['export'], 'ref' : [v] }
       if isinstance (self.value[v]['value'], Value):
         self.eth_value[nm]['value'] = self.value[v]['value'].to_str()
-        dep = self.value[v]['value'].get_dep()
       else:
         self.eth_value[nm]['value'] = self.value[v]['value']
-        dep = self.value[v]['value']
-      if dep and self.value.has_key(dep):
-        if self.value_dep.has_key(v):
-          self.value_dep[v].append(dep)
-        else:
-          self.value_dep[v] = [dep]
       self.eth_value_ord.append(nm)
       self.value[v]['ethname'] = nm
 
     #--- fields -------------------------
     self.eth_hf = {}
     self.eth_hf_ord = []
+    self.eth_hfpdu_ord = []
     self.eth_hf_dupl = {}
 
-    for f in self.field_ord:
+    for f in (self.pdu_ord + self.field_ord):
       if len(f.split('/')) > 1 and f.split('/')[-1] == '_item':  # Sequnce of type
         nm = f.split('/')[-2] + f.split('/')[-1]
         name = 'Item'
@@ -621,6 +621,8 @@ class EthCtx:
       abbrev = nm.replace('-', '_')
       nm = self.conform.use_item('FIELD_RENAME', f, val_dflt=nm)
       nm = nm.replace('-', '_')
+      if (self.field[f]['pdu']): 
+        nm += '_PDU'
       t = self.field[f]['type']
       if self.type.has_key(t):
         ethtype = self.type[t]['ethname']
@@ -654,14 +656,17 @@ class EthCtx:
             self.eth_hf_dupl[nm] = {self.eth_hf[nm]['ethtype']+self.eth_hf[nm]['modified'] : nm, \
                                     ethtypemod : nm+'1'}
             nm += '1'
-      self.eth_hf_ord.append(nm)
-      fullname = "hf_%s_%s" % (self.proto, nm)
+      if (self.field[f]['pdu']):
+        self.eth_hfpdu_ord.append(nm)
+      else:
+        self.eth_hf_ord.append(nm)
+      fullname = "hf_%s_%s" % (self.eproto, nm)
       attr = self.eth_get_type_attr(self.field[f]['type']).copy()
       attr.update(self.field[f]['attr'])
       attr['NAME'] = '"%s"' % name
       attr['ABBREV'] = abbrev
       attr.update(self.conform.use_item('EFIELD_ATTR', nm))
-      self.eth_hf[nm] = {'fullname' : fullname,
+      self.eth_hf[nm] = {'fullname' : fullname, 'pdu' : self.field[f]['pdu'],
                          'ethtype' : ethtype, 'modified' : self.field[f]['modified'],
                          'attr' : attr.copy(), 'ref' : [f]}
       self.field[f]['ethname'] = nm
@@ -702,10 +707,7 @@ class EthCtx:
     i = 0
     while i < len(self.eth_dep_cycle):
       t = self.type[self.eth_dep_cycle[i][0]]['ethname']
-      if self.dep_cycle_eth_type.has_key(t):
-        self.dep_cycle_eth_type[t].append(i)
-      else:
-        self.dep_cycle_eth_type[t] = [i]
+      self.dep_cycle_eth_type.setdefault(t, []).append(i)
       i += 1
 
     #--- value dependencies and export -------------------
@@ -734,7 +736,7 @@ class EthCtx:
     out += "static "
     out += "asn_namedbit %s_bits[] = {\n" % (tname)
     for (val, id) in bits:
-      out += '  { %2d, &hf_%s_%s_%s, -1, -1, NULL, NULL },\n' % (val, self.proto, tname, id)
+      out += '  { %2d, &hf_%s_%s_%s, -1, -1, NULL, NULL },\n' % (val, self.eproto, tname, id)
     out += "  { 0, NULL, 0, 0, NULL, NULL }\n};\n"
     return out
 
@@ -745,11 +747,11 @@ class EthCtx:
       out += "static "
     out += "int "
     if (self.OBer()):
-      out += "dissect_%s_%s(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index)" % (self.proto, tname)
+      out += "dissect_%s_%s(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index)" % (self.eth_type[tname]['proto'], tname)
     elif (self.NPer()):
-      out += "dissect_%s_%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index, proto_item **item, void *private_data)" % (self.proto, tname)
+      out += "dissect_%s_%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index, proto_item **item, void *private_data)" % (self.eth_type[tname]['proto'], tname)
     elif (self.OPer()):
-      out += "dissect_%s_%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index)" % (self.proto, tname)
+      out += "dissect_%s_%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index)" % (self.eth_type[tname]['proto'], tname)
     out += ";\n"
     return out
 
@@ -777,11 +779,11 @@ class EthCtx:
       out += "static "
     out += "int\n"
     if (self.OBer()):
-      out += "dissect_%s_%s(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {\n" % (self.proto, tname)
+      out += "dissect_%s_%s(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {\n" % (self.eth_type[tname]['proto'], tname)
     elif (self.NPer()):
-      out += "dissect_%s_%s(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index, proto_item **item, void *private_data) {\n" % (self.proto, tname)
+      out += "dissect_%s_%s(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index, proto_item **item, void *private_data) {\n" % (self.eth_type[tname]['proto'], tname)
     elif (self.OPer()):
-      out += "dissect_%s_%s(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {\n" % (self.proto, tname)
+      out += "dissect_%s_%s(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {\n" % (self.eth_type[tname]['proto'], tname)
     if self.conform.get_fn_presence(self.eth_type[tname]['ref'][0]):
       out += self.conform.get_fn_text(self.eth_type[tname]['ref'][0], 'FN_HDR')
     return out
@@ -805,38 +807,23 @@ class EthCtx:
       out = body
     return out
 
-  #--- eth_output_fname -------------------------------------------------------
-  def eth_output_fname (self, ftype, ext='c'):
-    fn = ''
-    if not ext in ('cnf',):
-      fn += 'packet-' 
-    fn += self.outnm
-    if (ftype):
-      fn += '-' + ftype
-    fn += '.' + ext
-    return fn
-
   #--- eth_output_hf ----------------------------------------------------------
   def eth_output_hf (self):
-    if not len(self.eth_hf_ord) and not len(self.named_bit): return
-    fn = self.eth_output_fname('hf')
-    fx = file(fn, 'w')
-    fx.write(eth_fhdr(fn))
-    for f in self.eth_hf_ord:
+    if not len(self.eth_hf_ord) and not len(self.eth_hfpdu_ord) and not len(self.named_bit): return
+    fx = self.output.file_open('hf')
+    for f in (self.eth_hfpdu_ord + self.eth_hf_ord):
       fx.write("%-50s/* %s */\n" % ("static int %s = -1;  " % (self.eth_hf[f]['fullname']), self.eth_hf[f]['ethtype']))
     if (self.named_bit):
       fx.write('/* named bits */\n')
     for nb in self.named_bit:
       fx.write("static int %s = -1;\n" % (nb['ethname']))
-    fx.close()
+    self.output.file_close(fx)
     
   #--- eth_output_hf_arr ------------------------------------------------------
   def eth_output_hf_arr (self):
-    if not len(self.eth_hf_ord) and not len(self.named_bit): return
-    fn = self.eth_output_fname('hfarr')
-    fx = file(fn, 'w')
-    fx.write(eth_fhdr(fn))
-    for f in self.eth_hf_ord:
+    if not len(self.eth_hf_ord) and not len(self.eth_hfpdu_ord) and not len(self.named_bit): return
+    fx = self.output.file_open('hfarr')
+    for f in (self.eth_hfpdu_ord + self.eth_hf_ord):
       if len(self.eth_hf[f]['ref']) == 1:
         blurb = '"' + self.eth_hf[f]['ref'][0] + '"'
       else:
@@ -855,56 +842,46 @@ class EthCtx:
       fx.write('      { "%s", "%s.%s",\n' % (nb['name'], self.proto, nb['name']))
       fx.write('        %s, %s, %s, %s,\n' % (nb['ftype'], nb['display'], nb['strings'], nb['bitmask']))
       fx.write('        "%s", HFILL }},\n' % (blurb))
-    fx.close()
+    self.output.file_close(fx)
 
   #--- eth_output_ett ---------------------------------------------------------
   def eth_output_ett (self):
-    fn = self.eth_output_fname('ett')
-    fx = file(fn, 'w')
-    fx.write(eth_fhdr(fn))
+    fx = self.output.file_open('ett')
     fempty = True
-    #fx.write("static gint ett_%s = -1;\n" % (self.proto))
+    #fx.write("static gint ett_%s = -1;\n" % (self.eproto))
     for t in self.eth_type_ord:
       if self.eth_type[t]['tree']:
         fx.write("static gint %s = -1;\n" % (self.eth_type[t]['tree']))
         fempty = False
-    fx.close()
-    if fempty: os.unlink(fn)
+    self.output.file_close(fx, discard=fempty)
 
   #--- eth_output_ett_arr -----------------------------------------------------
   def eth_output_ett_arr(self):
-    fn = self.eth_output_fname('ettarr')
-    fx = file(fn, 'w')
-    fx.write(eth_fhdr(fn))
+    fx = self.output.file_open('ettarr')
     fempty = True
-    #fx.write("    &ett_%s,\n" % (self.proto))
+    #fx.write("    &ett_%s,\n" % (self.eproto))
     for t in self.eth_type_ord:
       if self.eth_type[t]['tree']:
         fx.write("    &%s,\n" % (self.eth_type[t]['tree']))
         fempty = False
-    fx.close()
-    if fempty: os.unlink(fn)
+    self.output.file_close(fx, discard=fempty)
 
   #--- eth_output_export ------------------------------------------------------
   def eth_output_export(self):
     if (not len(self.eth_export_ord)): return
-    fn = self.eth_output_fname('exp', ext='h')
-    fx = file(fn, 'w')
-    fx.write(eth_fhdr(fn))
+    fx = self.output.file_open('exp', ext='h')
     for t in self.eth_export_ord:  # vals
       if (self.eth_type[t]['export'] & 0x02) and self.eth_type[t]['val'].eth_has_vals():
         fx.write("extern const value_string %s_vals[];\n" % (t))
     for t in self.eth_export_ord:  # functions
       if (self.eth_type[t]['export'] & 0x01):
         fx.write(self.eth_type_fn_h(t))
-    fx.close()
+    self.output.file_close(fx)
 
   #--- eth_output_expcnf ------------------------------------------------------
   def eth_output_expcnf(self):
     if (not len(self.eth_export_ord)): return
-    fn = self.eth_output_fname('exp', ext='cnf')
-    fx = file(fn, 'w')
-    fx.write(eth_fhdr(fn, comment = '#'))
+    fx = self.output.file_open('exp', ext='cnf')
     if self.Ber():
       fx.write('#.IMPORT_TAG\n')
       for t in self.eth_export_ord:  # tags
@@ -919,27 +896,23 @@ class EthCtx:
         attr = self.eth_get_type_attr(self.eth_type[t]['ref'][0]).copy()
         fx.write('TYPE = %(TYPE)-9s  DISPLAY = %(DISPLAY)-9s  STRINGS = %(STRINGS)s  BITMASK = %(BITMASK)s\n' % attr)
     fx.write('#.END\n\n')
-    fx.close()
+    self.output.file_close(fx)
 
   #--- eth_output_val ------------------------------------------------------
   def eth_output_val(self):
     if (not len(self.eth_value_ord1)): return
-    fn = self.eth_output_fname('val', ext='h')
-    fx = file(fn, 'w')
-    fx.write(eth_fhdr(fn))
+    fx = self.output.file_open('val', ext='h')
     for v in self.eth_value_ord1:
       fx.write("#define %-30s %s\n" % (v, self.eth_value[v]['value']))
-    fx.close()
+    self.output.file_close(fx)
 
   #--- eth_output_valexp ------------------------------------------------------
   def eth_output_valexp(self):
     if (not len(self.eth_vexport_ord)): return
-    fn = self.eth_output_fname('valexp', ext='h')
-    fx = file(fn, 'w')
-    fx.write(eth_fhdr(fn))
+    fx = self.output.file_open('valexp', ext='h')
     for v in self.eth_vexport_ord:
       fx.write("#define %-30s %s\n" % (v, self.eth_value[v]['value']))
-    fx.close()
+    self.output.file_close(fx)
 
   #--- eth_output_types -------------------------------------------------------
   def eth_output_types(self):
@@ -973,9 +946,19 @@ class EthCtx:
         out += '}\n'
       return out
     #end out_field()
-    fn = self.eth_output_fname('fn')
-    fx = file(fn, 'w')
-    fx.write(eth_fhdr(fn))
+    def out_pdu(f):
+      t = self.eth_hf[f]['ethtype']
+      out = 'static int dissect_'+f+'(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {\n'
+      if (self.Ber()):
+        par=(('FALSE', 'tvb', '0', 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
+      else:
+        par=(('tvb', '0', 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
+      out += self.eth_fn_call('dissect_%s_%s' % (self.eth_type[t]['proto'], t), ret='return',
+                              par=par)
+      out += '}\n'
+      return out
+    #end out_pdu()
+    fx = self.output.file_open('fn')
     pos = fx.tell()
     if self.eth_dep_cycle:
       fx.write('/*--- Cyclic dependencies ---*/\n\n')
@@ -1008,21 +991,26 @@ class EthCtx:
         elif self.eth_type[t]['user_def'] & 0x02:
           fx.write("extern const value_string %s_vals[];\n" % (t))
         else:
-          fx.write(self.eth_type[t]['val'].eth_type_vals(self.proto, t, self))
+          fx.write(self.eth_type[t]['val'].eth_type_vals(self.eth_type[t]['proto'], t, self))
       if self.eth_type[t]['no_emit'] & 0x01:
         pass
       elif self.eth_type[t]['user_def'] & 0x01:
         fx.write(self.eth_type_fn_h(t))
       else:
-        fx.write(self.eth_type[t]['val'].eth_type_fn(self.proto, t, self))
+        fx.write(self.eth_type[t]['val'].eth_type_fn(self.eth_type[t]['proto'], t, self))
       if (not self.new and not self.dep_cycle_eth_type.has_key(t)):
         for f in self.eth_hf_ord:
           if (self.eth_hf[f]['ethtype'] == t):
             fx.write(out_field(f))
       fx.write('\n')
+    if (len(self.eth_hfpdu_ord)):
+      fx.write('/*--- PDUs ---*/\n\n')
+      for f in self.eth_hfpdu_ord:
+        if (self.eth_hf[f]['pdu']):
+          fx.write(out_pdu(f))
+      fx.write('\n')
     fempty = pos == fx.tell()
-    fx.close()
-    if fempty: os.unlink(fn)
+    self.output.file_close(fx, discard=fempty)
 
   def dupl_report(self):
     # types
@@ -1125,6 +1113,7 @@ class EthCnf:
       for i in range(len(par)):
         if par[i] == '-':
           par[i] = None
+          continue
         if par[i][0] == '#':
           par[i:] = []
           break
@@ -1194,7 +1183,8 @@ class EthCnf:
       if comment.search(line): continue
       result = directive.search(line)
       if result:  # directive
-        if result.group('name') in ('EXPORTS', 'USER_DEFINED', 'NO_EMIT', 'MODULE_IMPORT', 'OMIT_ASSIGNMENT', 'TYPE_RENAME', 'FIELD_RENAME', 'IMPORT_TAG',
+        if result.group('name') in ('EXPORTS', 'PDU', 'USER_DEFINED', 'NO_EMIT', 'MODULE_IMPORT', 'OMIT_ASSIGNMENT', 
+                                    'TYPE_RENAME', 'FIELD_RENAME', 'IMPORT_TAG',
                                     'TYPE_ATTR', 'ETYPE_ATTR', 'FIELD_ATTR', 'EFIELD_ATTR'):
           ctx = result.group('name')
         elif result.group('name') in ('FN_HDR', 'FN_FTR', 'FN_BODY'):
@@ -1211,8 +1201,13 @@ class EthCnf:
             name = par[0]
         elif result.group('name') == 'INCLUDE':
           par = get_par(line[result.end():], 1, 1, fn=fn, lineno=lineno)
-          if not par: continue
-          fnew = open(par[0], "r")
+          if not par: 
+            warnings.warn_explicit("INCLUDE requires parameter", UserWarning, fn, lineno)
+            continue
+          fname = os.path.join(os.path.split(fn)[0], par[0])
+          if (not os.path.exists(fname)):
+            fname = par[0]
+          fnew = open(fname, "r")
           stack.append({'fn' : fn, 'f' : f, 'lineno' : lineno})
           fn, f, lineno = par[0], fnew, 0
         elif result.group('name') == 'END':
@@ -1238,6 +1233,13 @@ class EthCnf:
           else:
             warnings.warn_explicit("Unknown parameter value '%s'" % (par[1]), UserWarning, fn, lineno)
         self.add_item(ctx, par[0], flag=flag, fn=fn, lineno=lineno)
+      elif ctx == 'PDU':
+        if empty.match(line): continue
+        par = get_par(line, 1, 2, fn=fn, lineno=lineno)
+        if not par: continue
+        reg = None
+        if (len(par) > 1): reg = par[1]
+        self.add_item('PDU', par[0], attr={'reg' : reg}, fn=fn, lineno=lineno)
       elif ctx == 'MODULE_IMPORT':
         if empty.match(line): continue
         par = get_par(line, 2, 2, fn=fn, lineno=lineno)
@@ -1282,6 +1284,119 @@ class EthCnf:
         if not self.table[t][k]['used']:
           warnings.warn_explicit("Unused %s for %s" % (t, k),
                                   UserWarning, self.table[t][k]['fn'], self.table[t][k]['lineno'])
+
+#--- EthOut -------------------------------------------------------------------
+import sys
+import os
+import os.path
+class EthOut:
+  def __init__(self):
+    self.outnm = None
+    self.outdir = '.'
+    self.single_file = None
+    self.created_files = []
+    self.keep = False
+  #--- output_fname -------------------------------------------------------
+  def output_fname(self, ftype, ext='c'):
+    fn = ''
+    if not ext in ('cnf',):
+      fn += 'packet-' 
+    fn += self.outnm
+    if (ftype):
+      fn += '-' + ftype
+    fn += '.' + ext
+    return fn
+  #--- output_fullname -------------------------------------------------------
+  def output_fullname(self, ftype, ext='c'):
+    return os.path.join(self.outdir, self.output_fname(ftype, ext=ext))
+  #--- file_open -------------------------------------------------------
+  def file_open(self, ftype, ext='c'):
+    fn = self.output_fullname(ftype, ext=ext)
+    fx = file(fn, 'w')
+    if (not self.single_file):
+      if ext in ('cnf',):
+        fx.write(self.fhdr(fn, comment = '#'))
+      else:
+        fx.write(self.fhdr(fn))
+    return fx
+  #--- file_close -------------------------------------------------------
+  def file_close(self, fx, discard=False):
+    fx.close()
+    if (discard): 
+      os.unlink(fx.name)
+    else: 
+      self.created_files.append(os.path.normcase(os.path.abspath(fx.name)))
+  #--- fhdr -------------------------------------------------------
+  def fhdr(self, fn, comment=None):
+    def outln(ln):
+      if comment:
+        return '# %s\n' % (ln)
+      else:
+        return '/* %-74s */\n' % (ln)
+    out = ''
+    out += outln('Do not modify this file.')
+    out += outln('It is created automatically by the ASN.1 to Ethereal dissector compiler')
+    out += outln(fn)
+    out += outln(' '.join(sys.argv))
+    out += '\n'
+    return out
+
+  #--- make_single_file -------------------------------------------------------
+  def make_single_file(self):
+    if (not self.single_file): return
+    in_nm = self.single_file + '.c'
+    out_nm = self.output_fullname('')
+    self.do_include(out_nm, in_nm)
+    in_nm = self.single_file + '.h'
+    if (os.path.exists(in_nm)):
+      out_nm = self.output_fullname('', ext='h')
+      self.do_include(out_nm, in_nm)
+    if (not self.keep):
+      for fn in self.created_files:
+        os.unlink(fn)
+
+  #--- do_include -------------------------------------------------------
+  def do_include(self, out_nm, in_nm):
+    def check_file(fn, fnlist):
+      fnfull = os.path.normcase(os.path.abspath(fn))
+      if ((fnfull in fnlist) and os.path.exists(fnfull)):
+        return os.path.normpath(fn)
+      return None
+    fin = file(in_nm, "r")
+    fout = file(out_nm, "w")
+    fout.write(self.fhdr(out_nm))
+    fout.write('/* Input file: ' + in_nm +' */\n')
+    fout.write('\n')
+
+    include = re.compile(r'^\s*#\s*include\s+[<"](?P<fname>[^>"]+)[>"]', re.IGNORECASE)
+
+    while (True):
+      line = fin.readline()
+      if (line == ''): break
+      ifile = None
+      result = include.search(line)
+      #if (result): print os.path.normcase(os.path.abspath(result.group('fname')))
+      if (result):
+        ifile = check_file(os.path.join(os.path.split(in_nm)[0], result.group('fname')), self.created_files)
+        if (not ifile):
+          ifile = check_file(os.path.join(self.outdir, result.group('fname')), self.created_files)
+        if (not ifile):
+          ifile = check_file(result.group('fname'), self.created_files)
+      if (ifile):
+        fout.write('\n')
+        fout.write('/*--- Included file: ' + ifile + ' ---*/\n')
+        fout.write('\n')
+        finc = file(ifile, "r")
+        fout.write(finc.read())
+        fout.write('\n')
+        fout.write('/*--- End of included file: ' + ifile + ' ---*/\n')
+        fout.write('\n')
+        finc.close()
+      else:
+        fout.write(line)
+
+    fout.close()
+    fin.close()
 
 
 #--- Node ---------------------------------------------------------------------
@@ -1330,6 +1445,7 @@ class value_assign (Node):
     Node.__init__ (self,*args, **kw)
 
   def eth_reg(self, ident, ectx):
+    if ectx.conform.use_item('OMIT_ASSIGNMENT', self.ident): return # Assignment to omit
     ectx.eth_reg_vassign(self)
     ectx.eth_reg_value(self.ident, self.typ, self.val)
 
@@ -1419,6 +1535,8 @@ class Type (Node):
       ectx.eth_reg_assign(nm, self)
       if self.type == 'Type_Ref':
         ectx.eth_reg_type(nm, self)
+      if (ectx.conform.check_item('PDU', nm)):
+        ectx.eth_reg_field(nm, nm, impl=self.HasImplicitTag(), pdu=ectx.conform.use_item('PDU', nm))
     if self.type == 'Type_Ref':
       if ectx.conform.check_item('TYPE_RENAME', nm) or ectx.conform.get_fn_presence(nm):
         ectx.eth_reg_type(nm, self)  # new type
@@ -1522,7 +1640,7 @@ class Module_Body (Node):
     def to_eth(self, ectx):
         for i in self.imports:
           mod = i.module.val
-          proto = ectx.conform.use_item('MODULE_IMPORT', mod, val_dflt=mod.replace('-', '_'))
+          proto = ectx.conform.use_item('MODULE_IMPORT', mod, val_dflt=mod)
           for s in i.symbol_list:
             if isinstance(s, Type_Ref):
               ectx.eth_import_type(s.val, mod, proto)
@@ -1710,16 +1828,16 @@ class SequenceOfType (SqType):
       out += "};\n"
     out += ectx.eth_type_fn_hdr(tname)
     if (ectx.OBer()):
-      body = ectx.eth_fn_call('dissect_ber_sequence_of' + ectx.pvp(), ret='offset',
+      body = ectx.eth_fn_call('dissect_ber_sequence_of', ret='offset',
                                 par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset'),
                                      (tname+'_sequence_of', 'hf_index', ectx.eth_type[tname]['tree'])))
     elif (ectx.NPer()):
-      body = ectx.eth_fn_call('dissect_per_sequence_of' + ectx.pvp(), ret='offset',
+      body = ectx.eth_fn_call('dissect_pern_sequence_of', ret='offset',
                               par=(('tvb', 'offset', 'pinfo', 'tree'),
                                    ('hf_index', 'item', 'private_data'),
                                    (ectx.eth_type[tname]['tree'], ef, 'dissect_%s_%s' % (ectx.eth_type[ectx.eth_hf[ef]['ethtype']]['proto'], ectx.eth_hf[ef]['ethtype']))))
     elif (ectx.OPer()):
-      body = ectx.eth_fn_call('dissect_per_sequence_of' + ectx.pvp(), ret='offset',
+      body = ectx.eth_fn_call('dissect_per_sequence_of', ret='offset',
                               par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
                                    (ectx.eth_type[tname]['tree'], 'dissect_'+ef)))
     else:
@@ -1760,11 +1878,11 @@ class SetOfType (SqType):
       out += "};\n"
     out += ectx.eth_type_fn_hdr(tname)
     if (ectx.OBer()):
-      body = ectx.eth_fn_call('dissect_ber_set_of' + ectx.pvp(), ret='offset',
+      body = ectx.eth_fn_call('dissect_ber_set_of', ret='offset',
                                 par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset'),
                                      (tname+'_set_of', 'hf_index', ectx.eth_type[tname]['tree'])))
     elif (ectx.NPer()):
-      body = ectx.eth_fn_call('dissect_per_set_of' + ectx.pvp(), ret='offset',
+      body = ectx.eth_fn_call('dissect_pern_set_of', ret='offset',
                               par=(('tvb', 'offset', 'pinfo', 'tree'),
                                    ('hf_index', 'item', 'private_data'),
                                    (ectx.eth_type[tname]['tree'], ef, 'dissect_%s_%s' % (ectx.eth_type[ectx.eth_hf[ef]['ethtype']]['proto'], ectx.eth_hf[ef]['ethtype']))))
@@ -1858,10 +1976,10 @@ class SequenceType (SqType):
 
     def eth_type_fn(self, proto, tname, ectx):
       fname = ectx.eth_type[tname]['ref'][0]
-      if (ectx.encoding == 'ber'):
-        out = "static ber_sequence %s_sequence[] = {\n" % (tname)
+      if (ectx.OBer()):
+        out = "static %s_sequence %s_sequence[] = {\n" % (ectx.encp(), tname)
       else:
-        out = "static per_sequence%s_t %s_sequence%s[] = {\n" % (ectx.pvp(), tname, ectx.pvp())
+        out = "static %s_sequence_t %s_sequence[] = {\n" % (ectx.encp(), tname)
       if hasattr(self, 'ext_list'):
         ext = 'ASN1_EXTENSION_ROOT'
       else:
@@ -1879,18 +1997,18 @@ class SequenceType (SqType):
         out += "  { NULL, 0, 0, NULL }\n};\n"
       out += ectx.eth_type_fn_hdr(tname)
       if (ectx.OBer()):
-        body = ectx.eth_fn_call('dissect_ber_sequence' + ectx.pvp(), ret='offset',
+        body = ectx.eth_fn_call('dissect_ber_sequence', ret='offset',
                                 par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset'),
                                      (tname+'_sequence', 'hf_index', ectx.eth_type[tname]['tree'])))
       elif (ectx.NPer()):
-        body = ectx.eth_fn_call('dissect_per_sequence' + ectx.pvp(), ret='offset',
+        body = ectx.eth_fn_call('dissect_pern_sequence', ret='offset',
                                 par=(('tvb', 'offset', 'pinfo', 'tree'),
                                      ('hf_index', 'item', 'private_data'),
-                                     (ectx.eth_type[tname]['tree'], tname+'_sequence'+ectx.pvp(), '"'+tname+'"')))
+                                     (ectx.eth_type[tname]['tree'], tname+'_sequence', '"'+tname+'"')))
       elif (ectx.OPer()):
-        body = ectx.eth_fn_call('dissect_per_sequence' + ectx.pvp(), ret='offset',
+        body = ectx.eth_fn_call('dissect_per_sequence', ret='offset',
                                 par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
-                                     (ectx.eth_type[tname]['tree'], tname+'_sequence'+ectx.pvp())))
+                                     (ectx.eth_type[tname]['tree'], tname+'_sequence')))
       else:
         body = '#error Can not decode %s' % (tname)
       out += ectx.eth_type_fn_body(tname, body)
@@ -2086,10 +2204,10 @@ class ChoiceType (Type):
         for e in (lst):
           if (e.GetTag(ectx)[0] != t):
             tagval = False
-      if (ectx.encoding == 'ber'):
-        out += "static ber_choice %s_choice[] = {\n" % (tname)
+      if (ectx.OBer()):
+        out += "static %s_choice %s_choice[] = {\n" % (ectx.encp(), tname)
       else:
-        out += "static per_choice%s_t %s_choice%s[] = {\n" % (ectx.pvp(), tname, ectx.pvp())
+        out += "static %s_choice_t %s_choice[] = {\n" % (ectx.encp(), tname)
       cnt = 0
       if hasattr(self, 'ext_list'):
         ext = 'ASN1_EXTENSION_ROOT'
@@ -2112,19 +2230,19 @@ class ChoiceType (Type):
         out += "  { 0, NULL, 0, NULL }\n};\n"
       out += ectx.eth_type_fn_hdr(tname)
       if (ectx.Ber()):
-        body = ectx.eth_fn_call('dissect_ber_choice' + ectx.pvp(), ret='offset',
+        body = ectx.eth_fn_call('dissect_ber_choice', ret='offset',
                                 par=(('pinfo', 'tree', 'tvb', 'offset'),
                                      (tname+'_choice', 'hf_index', ectx.eth_type[tname]['tree'])))
       elif (ectx.NPer()):
-        body = ectx.eth_fn_call('dissect_per_choice' + ectx.pvp(), ret='offset',
+        body = ectx.eth_fn_call('dissect_pern_choice', ret='offset',
                                 par=(('tvb', 'offset', 'pinfo', 'tree'),
                                      ('hf_index', 'item', 'private_data'),
                                      (ectx.eth_type[tname]['tree'], tname+'_choice'+ectx.pvp(), '"'+tname+'"'),
                                      ('NULL',)))
       elif (ectx.OPer()):
-        body = ectx.eth_fn_call('dissect_per_choice' + ectx.pvp(), ret='offset',
+        body = ectx.eth_fn_call('dissect_per_choice', ret='offset',
                                 par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
-                                     (ectx.eth_type[tname]['tree'], tname+'_choice'+ectx.pvp(), '"'+tname+'"'),
+                                     (ectx.eth_type[tname]['tree'], tname+'_choice', '"'+tname+'"'),
                                      ('NULL',)))
       else:
         body = '#error Can not decode %s' % (tname)
@@ -2152,8 +2270,7 @@ class EnumeratedType (Type):
   def GetTTag(self, ectx):
     return ('BER_CLASS_UNI', 'BER_UNI_TAG_ENUMERATED')
 
-  def eth_type_vals(self, proto, tname, ectx):
-    out = '\n'
+  def get_vals_maxv(self, proto, tname, ectx):
     vals = []
     lastv = 0
     used = {}
@@ -2186,11 +2303,19 @@ class EnumeratedType (Type):
         vals.append((val, e.ident))
         if val > maxv:
           maxv = val
+    return (vals, maxv)
+
+  def eth_type_vals(self, proto, tname, ectx):
+    out = '\n'
+    (vals, None) = self.get_vals_maxv(proto, tname, ectx)
     out += ectx.eth_vals(tname, vals)
     return out
 
   def eth_type_fn(self, proto, tname, ectx):
     fname = ectx.eth_type[tname]['ref'][0]
+    (None, maxv) = self.get_vals_maxv(proto, tname, ectx)
+    maxv = str(maxv)
+    minv = '0'
     out = '\n'
     if self.ext is None:
       ext = 'FALSE'
@@ -2198,13 +2323,20 @@ class EnumeratedType (Type):
       ext = 'TRUE'
     out += ectx.eth_type_fn_hdr(tname)
     if (ectx.Ber()):
-      body = ectx.eth_fn_call('dissect_ber_integer' + ectx.pvp(), ret='offset',
+      body = ectx.eth_fn_call('dissect_ber_integer', ret='offset',
                               par=(('pinfo', 'tree', 'tvb', 'offset', 'hf_index', 'NULL'),))
-    else:
-      body = "  offset = dissect_per_constrained_integer_new(tvb, offset, pinfo, tree,\n"
+    elif (ectx.NPer()):
+      body = "  offset = dissect_pern_constrained_integer_new(tvb, offset, pinfo, tree,\n"
       body += "                                               %s, %s, %s,\n" \
              % (0, maxv, ext)
       body += "                                               NULL);\n"
+    elif (ectx.OPer()):
+      body = ectx.eth_fn_call('dissect_per_constrained_integer', ret='offset',
+                              par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
+                                   (minv, maxv, 'NULL', 'NULL', ext)))
+    else:
+      body = '#error Can not decode %s' % (tname)
+
     out += ectx.eth_type_fn_body(tname, body)
     out += ectx.eth_type_fn_ftr(tname)
     return out
@@ -2227,7 +2359,7 @@ class NullType (Type):
   def eth_type_fn(self, proto, tname, ectx):
     out = ectx.eth_type_fn_hdr(tname)
     if (ectx.new):
-      body = ectx.eth_fn_call('dissect_per_null' + ectx.pvp(), ret='offset',
+      body = ectx.eth_fn_call('dissect_pern_null', ret='offset',
                               par=(('tvb', 'offset', 'pinfo', 'tree'),
                                    ('hf_index', 'item', 'NULL')))
     else:
@@ -2278,14 +2410,14 @@ class BooleanType (Type):
   def eth_type_fn(self, proto, tname, ectx):
     out = ectx.eth_type_fn_hdr(tname)
     if (ectx.Ber()):
-      body = ectx.eth_fn_call('dissect_ber_boolean' + ectx.pvp(), ret='offset',
+      body = ectx.eth_fn_call('dissect_ber_boolean', ret='offset',
                               par=(('pinfo', 'tree', 'tvb', 'offset', 'hf_index'),))
     elif (ectx.NPer()):
-      body = ectx.eth_fn_call('dissect_per_boolean' + ectx.pvp(), ret='offset',
+      body = ectx.eth_fn_call('dissect_pern_boolean', ret='offset',
                               par=(('tvb', 'offset', 'pinfo', 'tree'),
                                    ('hf_index', 'item', 'NULL')))
     elif (ectx.OPer()):
-      body = ectx.eth_fn_call('dissect_per_boolean' + ectx.pvp(), ret='offset',
+      body = ectx.eth_fn_call('dissect_per_boolean', ret='offset',
                               par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
                                    ('NULL', 'NULL')))
     else:
@@ -2317,17 +2449,17 @@ class OctetStringType (Type):
     out = ectx.eth_type_fn_hdr(tname)
     (minv, maxv, ext) = self.eth_get_size_constr()
     if (ectx.OBer()):
-      body = ectx.eth_fn_call('dissect_ber_octet_string' + ectx.pvp(), ret='offset',
+      body = ectx.eth_fn_call('dissect_ber_octet_string', ret='offset',
                               par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset', 'hf_index'),
                                    ('NULL',)))
     elif (ectx.NPer()):
-      body = ectx.eth_fn_call('dissect_per_octet_string' + ectx.pvp(), ret='offset',
+      body = ectx.eth_fn_call('dissect_pern_octet_string', ret='offset',
                               par=(('tvb', 'offset', 'pinfo', 'tree'),
                                    ('hf_index', 'item', 'private_data'),
                                    (minv, maxv, ext),
                                    ('NULL', 'NULL')))
     elif (ectx.OPer()):
-      body = ectx.eth_fn_call('dissect_per_octet_string' + ectx.pvp(), ret='offset',
+      body = ectx.eth_fn_call('dissect_per_octet_string', ret='offset',
                               par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
                                    (minv, maxv),
                                    ('NULL', 'NULL')))
@@ -2361,18 +2493,18 @@ class RestrictedCharacterStringType (CharacterStringType):
     out = ectx.eth_type_fn_hdr(tname)
     (minv, maxv, ext) = self.eth_get_size_constr()
     if (ectx.Ber()):
-      body = ectx.eth_fn_call('dissect_ber_restricted_string' + ectx.pvp(), ret='offset',
+      body = ectx.eth_fn_call('dissect_ber_restricted_string', ret='offset',
                               par=(('implicit_tag', self.GetTag(ectx)[1]),
                                    ('pinfo', 'tree', 'tvb', 'offset', 'hf_index'),
                                    ('NULL',)))
     elif (ectx.NPer()):
-      body = ectx.eth_fn_call('dissect_per_' + self.eth_tsname() + ectx.pvp(), ret='offset',
+      body = ectx.eth_fn_call('dissect_pern_' + self.eth_tsname(), ret='offset',
                               par=(('tvb', 'offset', 'pinfo', 'tree'),
                                    ('hf_index', 'item', 'private_data'),
                                    (minv, maxv, ext),
                                    ('NULL', 'NULL')))
     elif (ectx.OPer()):
-      body = ectx.eth_fn_call('dissect_per_'  + self.eth_tsname() + ectx.pvp(), ret='offset',
+      body = ectx.eth_fn_call('dissect_per_'  + self.eth_tsname(), ret='offset',
                               par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
                                    (minv, maxv)))
     else:
@@ -2451,7 +2583,7 @@ class GeneralizedTime (RestrictedCharacterStringType):
   def eth_type_fn(self, proto, tname, ectx):
     if (ectx.Ber()):
       out = ectx.eth_type_fn_hdr(tname)
-      body = ectx.eth_fn_call('dissect_ber_generalized_time' + ectx.pvp(), ret='offset',
+      body = ectx.eth_fn_call('dissect_ber_generalized_time', ret='offset',
                               par=(('pinfo', 'tree', 'tvb', 'offset', 'hf_index'),))
       out += ectx.eth_type_fn_body(tname, body)
       out += ectx.eth_type_fn_ftr(tname)
@@ -2485,15 +2617,15 @@ class ObjectIdentifierType (Type):
   def eth_type_fn(self, proto, tname, ectx):
     out = ectx.eth_type_fn_hdr(tname)
     if (ectx.OBer()):
-      body = ectx.eth_fn_call('dissect_ber_object_identifier' + ectx.pvp(), ret='offset',
+      body = ectx.eth_fn_call('dissect_ber_object_identifier', ret='offset',
                               par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset'),
                                    ('hf_index', 'NULL')))
     elif (ectx.NPer()):
-      body = ectx.eth_fn_call('dissect_per_object_identifier' + ectx.pvp(), ret='offset',
+      body = ectx.eth_fn_call('dissect_pern_object_identifier', ret='offset',
                               par=(('tvb', 'offset', 'pinfo', 'tree'),
                                    ('hf_index', 'item', 'NULL')))
     elif (ectx.OPer()):
-      body = ectx.eth_fn_call('dissect_per_object_identifier' + ectx.pvp(), ret='offset',
+      body = ectx.eth_fn_call('dissect_per_object_identifier', ret='offset',
                               par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
                                    ('NULL',)))
     else:
@@ -2608,16 +2740,16 @@ class IntegerType (Type):
     out = '\n'
     out += ectx.eth_type_fn_hdr(tname)
     if (ectx.Ber()):
-      body = ectx.eth_fn_call('dissect_ber_integer' + ectx.pvp(), ret='offset',
+      body = ectx.eth_fn_call('dissect_ber_integer', ret='offset',
                               par=(('pinfo', 'tree', 'tvb', 'offset', 'hf_index', 'NULL'),))
     elif (not self.HasConstraint()):
       if (ectx.New()):
-        body = ectx.eth_fn_call('dissect_per_integer' + ectx.pvp(), ret='offset',
+        body = ectx.eth_fn_call('dissect_pern_integer', ret='offset',
                                 par=(('tvb', 'offset', 'pinfo', 'tree'),
                                      ('hf_index', 'item', 'private_data'),
                                      ('NULL',)))
       else:
-        body = ectx.eth_fn_call('dissect_per_integer' + ectx.pvp(), ret='offset',
+        body = ectx.eth_fn_call('dissect_per_integer', ret='offset',
                                 par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
                                      ('NULL', 'NULL')))
     elif ((self.constr.type == 'SingleValue') or (self.constr.type == 'ValueRange')):
@@ -2634,13 +2766,13 @@ class IntegerType (Type):
       else:
         ext = 'FALSE'
       if (ectx.New()):
-        body = ectx.eth_fn_call('dissect_per_constrained_integer' + ectx.pvp(), ret='offset',
+        body = ectx.eth_fn_call('dissect_pern_constrained_integer', ret='offset',
                                 par=(('tvb', 'offset', 'pinfo', 'tree'),
                                      ('hf_index', 'item', 'private_data'),
                                      (minv, maxv, ext),
                                      ('NULL',)))
       else:
-        body = ectx.eth_fn_call('dissect_per_constrained_integer' + ectx.pvp(), ret='offset',
+        body = ectx.eth_fn_call('dissect_per_constrained_integer', ret='offset',
                                 par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
                                      (minv, maxv, 'NULL', 'NULL', ext)))
     out += ectx.eth_type_fn_body(tname, body)
@@ -2694,18 +2826,18 @@ class BitStringType (Type):
     if (ectx.eth_type[tname]['tree']):
       tree = ectx.eth_type[tname]['tree']
     if (ectx.OBer()):
-      body = ectx.eth_fn_call('dissect_ber_bitstring' + ectx.pvp(), ret='offset',
+      body = ectx.eth_fn_call('dissect_ber_bitstring', ret='offset',
                               par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset'),
                                    (bitsp, 'hf_index', tree),
                                    ('NULL',)))
     elif (ectx.NPer()):
-      body = ectx.eth_fn_call('dissect_per_bit_string' + ectx.pvp(), ret='offset',
+      body = ectx.eth_fn_call('dissect_pern_bit_string', ret='offset',
                               par=(('tvb', 'offset', 'pinfo', 'tree'),
                                    ('hf_index', 'item', 'private_data'),
                                    (minv, maxv, ext),
                                    ('NULL', 'NULL')))
     elif (ectx.OPer()):
-      body = ectx.eth_fn_call('dissect_per_bit_string' + ectx.pvp(), ret='offset',
+      body = ectx.eth_fn_call('dissect_per_bit_string', ret='offset',
                               par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
                                    (minv, maxv)))
     else:
@@ -3941,12 +4073,12 @@ def eth_do_module (ast, ectx):
       print "\n# ASN.1 Fields"
       print "ASN.1 unique name                        Ethereal name        ASN.1 type"
       print "-" * 100
-      for f in ectx.field_ord:
+      for f in (ectx.pdu_ord + ectx.field_ord):
         print "%-40s %-20s %s" % (f, ectx.field[f]['ethname'], ectx.field[f]['type'])
       print "\n# Ethereal Fields"
       print "Ethereal name                  Ethereal type        References (ASN.1 fields)"
       print "-" * 100
-      for f in ectx.eth_hf_ord:
+      for f in (ectx.eth_hfpdu_ord + ectx.eth_hf_ord):
         print "%-30s %-20s %s" % (f, ectx.eth_hf[f]['ethtype'], len(ectx.eth_hf[f]['ref'])),
         print ', '.join(ectx.eth_hf[f]['ref'])
       #print '\n'.join(ectx.eth_type_ord1)
@@ -3977,13 +4109,12 @@ from PyZ3950 import asn1""" % (fn, time_str)
       eth_do_module (module, defined_dict)
 
 import sys
-import os.path
 import getopt
 
 # Ethereal compiler
 def eth_usage():
   print """
-competh [-h|?] [-d dbg] [-p proto] [-c conform_file] input_file
+asn2eth [-h|?] [-d dbg] [-b] [-p proto] [-c conform_file] [-e] input_file
   -h|?       : usage
   -d dbg     : debug output, dbg = [l][y][s][a][t]
                l - lex 
@@ -3993,68 +4124,23 @@ competh [-h|?] [-d dbg] [-p proto] [-c conform_file] input_file
                t - tables
   -b         : BER (default is PER)
   -X         : original dissector API (see Note)
-  -p proto   : protocol name (default is basenam of <input_file> without extension)
-  -o name    : output files name (default is <proto>)
+  -p proto   : protocol name (default is basename of <input_file> without extension)
+  -o name    : output files name core (default is <proto>)
+  -O dir     : output directory
   -c conform_file : conformation file
   -e         : create conformation file for exported types
   -s template : single file output (templete is input file without .c/.h extension)
+  -k         : keep intermediate files though single file output is used
   input_file : input ASN.1 file
 
 Note: It can create output for an original or a new PER/BER dissectors API,
       but the new PER/BER dissectors API is not implemented now.
 """
 
-def eth_fhdr(fn, comment = None):
-  def outln(ln):
-    if comment:
-      return '# %s\n' % (ln)
-    else:
-      return '/* %-74s */\n' % (ln)
-  out = ''
-  out += outln('Do not modify this file.')
-  out += outln('It is created automatically by the ASN.1 to Ethereal dissector compiler')
-  out += outln(fn)
-  out += outln(' '.join(sys.argv))
-  out += '\n'
-  return out
-
-def make_include(out_nm, in_nm, inc_nms, remove_inc=False):
-  fin = file(in_nm, "r")
-  fout = file(out_nm, "w")
-  fout.write(eth_fhdr(out_nm))
-  fout.write('/* Input file: ' + in_nm +' */\n')
-  fout.write('/* Include files: ' + ', '.join(inc_nms) + ' */\n')
-  fout.write('\n')
-
-  include = re.compile(r'^\s*#\s*include\s+[<"](?P<fname>[^>"]+)[>"]', re.IGNORECASE)
-
-  while (True):
-    line = fin.readline()
-    if (line == ''): break
-    result = include.search(line)
-    if (result and 
-        (result.group('fname') in inc_nms) and
-        os.path.exists(result.group('fname'))):
-      fout.write('\n')
-      fout.write('/*--- Included file: ' + result.group('fname') + ' ---*/\n')
-      fout.write('\n')
-      finc = file(result.group('fname'), "r")
-      fout.write(finc.read())
-      fout.write('\n')
-      fout.write('/*--- End of included file: ' + result.group('fname') + ' ---*/\n')
-      fout.write('\n')
-      finc.close()
-      if (remove_inc): os.unlink(result.group('fname'))
-    else:
-      fout.write(line)
-
-  fout.close()
-  fin.close()
-
 def eth_main():
   print "ASN.1 to Ethereal dissector compiler";
   try:
-    opts, args = getopt.getopt(sys.argv[1:], "h?bXd:p:o:c:es:");
+    opts, args = getopt.getopt(sys.argv[1:], "h?d:bXp:o:O:c:es:k");
   except getopt.GetoptError:
     eth_usage(); sys.exit(2)
   if len(args) != 1:
@@ -4062,15 +4148,16 @@ def eth_main():
 
   fn = args[0];
   conform = EthCnf()
-  ectx = EthCtx(conform)
+  output = EthOut()
+  ectx = EthCtx(conform, output)
   ectx.encoding = 'per'
   ectx.proto = os.path.splitext(os.path.basename(fn))[0].lower()
-  ectx.outnm = ectx.proto
   ectx.new = True
   ectx.dbgopt = ''
   ectx.new = True
   ectx.expcnf = False
-  single_file = None
+  ectx.output.outnm = ectx.proto
+  ectx.output.single_file = None
   for o, a in opts:
     if o in ("-h", "-?"):
       eth_usage(); sys.exit(2)
@@ -4078,9 +4165,7 @@ def eth_main():
       ectx.encoding = 'ber'
     if o in ("-p",):
       ectx.proto = a
-      ectx.outnm = ectx.proto
-    if o in ("-o",):
-      ectx.outnm = a
+      ectx.output.outnm = ectx.proto
     if o in ("-c",):
       ectx.conform.read(a)
     if o in ("-X",):
@@ -4089,8 +4174,14 @@ def eth_main():
       ectx.dbgopt = a
     if o in ("-e",):
       ectx.expcnf = True
+    if o in ("-o",):
+      ectx.output.outnm = a
+    if o in ("-O",):
+      ectx.output.outdir = a
     if o in ("-s",):
-      single_file = a
+      ectx.output.single_file = a
+    if o in ("-k",):
+      ectx.output.keep = True
   
   f = open(fn, "r")
   s = f.read();
@@ -4100,17 +4191,7 @@ def eth_main():
   for module in ast:
     eth_do_module(module, ectx)
 
-  if (single_file):
-    in_nm = single_file + '.c'
-    out_nm = ectx.eth_output_fname('')
-    inc_nms = map (lambda x: ectx.eth_output_fname(x), ('hf', 'ett', 'fn', 'hfarr', 'ettarr'))
-    inc_nms.extend(map (lambda x: ectx.eth_output_fname(x, ext='h'), ('val',)))
-    make_include(out_nm, in_nm, inc_nms, remove_inc=True)
-    in_nm = single_file + '.h'
-    if (os.path.exists(in_nm)):
-      out_nm = ectx.eth_output_fname('', ext='h')
-      inc_nms = map (lambda x: ectx.eth_output_fname(x, ext='h'), ('exp', 'valexp'))
-      make_include(out_nm, in_nm, inc_nms, remove_inc=True)
+  ectx.output.make_single_file()
     
 
 # Python compiler
