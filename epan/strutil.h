@@ -125,4 +125,23 @@ const guint8 * epan_memmem(const guint8 *haystack, guint haystack_len,
 #define _STRINGIFY(a)           # a
 #define STRINGIFY(a)            _STRINGIFY(a)
 
+/** Scan a string to make sure it's valid hex.
+ *
+ * @param string The string to validate
+ * @param nbytes The length of the return buffer
+ * @return A pointer to a buffer containing the converted raw bytes.  This
+ *         buffer must be g_free()d by the caller.
+ */
+guint8 * convert_string_to_hex(const char *string, size_t *nbytes);
+
+/** Prep a string for case-sensitive vs case-insensitive searching.
+ *
+ * @param string The search string
+ * @param case_sensitive TRUE if case-sensitive, FALSE if not
+ * @return A direct copy of the string if it's a case-sensitive search and
+ * an uppercased version if not.  In either case the string must be g_free()d
+ * by the caller.
+ */
+char * convert_string_case(const char *string, gboolean case_insensitive);
+
 #endif /* __STRUTIL_H__ */

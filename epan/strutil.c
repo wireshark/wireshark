@@ -476,3 +476,113 @@ epan_memmem(const guint8 *haystack, guint haystack_len,
 
 	return NULL;
 }
+
+/*
+ * Scan the search string to make sure it's valid hex.  Return the
+ * number of bytes in nbytes.
+ */
+guint8 *
+convert_string_to_hex(const char *string, size_t *nbytes)
+{
+  size_t n_bytes;
+  const char *p;
+  guchar c;
+  guint8 *bytes, *q, byte_val;
+
+  n_bytes = 0;
+  p = &string[0];
+  for (;;) {
+    c = *p++;
+    if (c == '\0')
+      break;
+    if (isspace(c))
+      continue;	/* allow white space */
+    if (c==':' || c=='.' || c=='-')
+      continue; /* skip any ':', '.', or '-' between bytes */
+    if (!isxdigit(c)) {
+      /* Not a valid hex digit - fail */
+      return NULL;
+    }
+
+    /*
+     * We can only match bytes, not nibbles; we must have a valid
+     * hex digit immediately after that hex digit.
+     */
+    c = *p++;
+    if (!isxdigit(c))
+      return NULL;
+
+    /* 2 hex digits = 1 byte */
+    n_bytes++;
+  }
+
+  /*
+   * Were we given any hex digits?
+   */
+  if (n_bytes == 0) {
+      /* No. */
+      return NULL;
+  }
+
+  /*
+   * OK, it's valid, and it generates "n_bytes" bytes; generate the
+   * raw byte array.
+   */
+  bytes = g_malloc(n_bytes);
+  p = &string[0];
+  q = &bytes[0];
+  for (;;) {
+    c = *p++;
+    if (c == '\0')
+      break;
+    if (isspace(c))
+      continue;	/* allow white space */
+    if (c==':' || c=='.' || c=='-')
+      continue; /* skip any ':', '.', or '-' between bytes */
+    /* From the loop above, we know this is a hex digit */
+    if (isdigit(c))
+      byte_val = c - '0';
+    else if (c >= 'a')
+      byte_val = (c - 'a') + 10;
+    else
+      byte_val = (c - 'A') + 10;
+    byte_val <<= 4;
+
+    /* We also know this is a hex digit */
+    c = *p++;
+    if (isdigit(c))
+      byte_val |= c - '0';
+    else if (c >= 'a')
+      byte_val |= (c - 'a') + 10;
+    else if (c >= 'A')
+      byte_val |= (c - 'A') + 10;
+
+    *q++ = byte_val;
+  }
+  *nbytes = n_bytes;
+  return bytes;
+}
+
+/*
+ * Copy if if it's a case-sensitive search; uppercase it if it's
+ * a case-insensitive search.
+ */
+char *
+convert_string_case(const char *string, gboolean case_insensitive)
+{
+  char *out_string;
+  const char *p;
+  char c;
+  char *q;
+
+  if (case_insensitive) {
+    out_string = g_malloc(strlen(string) + 1);
+    for (p = &string[0], q = &out_string[0]; (c = *p) != '\0'; p++, q++)
+      *q = toupper((unsigned char)*p);
+    *q = '\0';
+  } else
+    out_string = g_strdup(string);
+  return out_string;
+}
+
+
