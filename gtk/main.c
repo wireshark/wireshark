@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.50 1999/11/29 03:06:19 guy Exp $
+ * $Id: main.c,v 1.51 1999/11/29 03:56:26 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -129,7 +129,7 @@ void
 about_ethereal( GtkWidget *w, gpointer data ) {
   simple_dialog(ESD_TYPE_INFO, NULL,
 		"GNU Ethereal - network protocol analyzer\n"
-		"Version %s (C) 1998 Gerald Combs <gerald@zing.org>\n"
+		"Version %s (C) 1999 Gerald Combs <gerald@zing.org>\n"
                 "Compiled with %s\n\n"
 		"Contributors:\n"
 
