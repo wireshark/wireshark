@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.49 2002/08/17 00:35:46 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.50 2002/08/17 00:45:03 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5516,7 +5516,7 @@ netlogon_dissect_function_26_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-netlogon_dissect_function_27_rqst(tvbuff_t *tvb, int offset,
+netlogon_dissect_logonsamlogonex_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -5545,7 +5545,7 @@ netlogon_dissect_function_27_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-netlogon_dissect_function_27_reply(tvbuff_t *tvb, int offset,
+netlogon_dissect_logonsamlogonex_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -5751,9 +5751,9 @@ static dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
 	{ NETLOGON_FUNCTION_26, "Function_0x26",
 		netlogon_dissect_function_26_rqst,
 		netlogon_dissect_function_26_reply },
-	{ NETLOGON_FUNCTION_27, "Function_0x27",
-		netlogon_dissect_function_27_rqst,
-		netlogon_dissect_function_27_reply },
+	{ NETLOGON_LOGONSAMLOGONEX, "LogonSamLogonEx",
+		netlogon_dissect_logonsamlogonex_rqst,
+		netlogon_dissect_logonsamlogonex_reply },
 	{ NETLOGON_DSRROLEGETPRIMARYDOMAININFORMATION, "DsrRoleGetPrimaryDomainInformation",
 		netlogon_dissect_dsrrolegetprimarydomaininformation_rqst,
 		netlogon_dissect_dsrrolegetprimarydomaininformation_reply },
@@ -5803,7 +5803,7 @@ static const value_string netlogon_opnum_vals[] = {
 	{ NETLOGON_FUNCTION_24, "Function_0x24" },
 	{ NETLOGON_FUNCTION_25, "Function_0x25" },
 	{ NETLOGON_FUNCTION_26, "Function_0x26" },
-	{ NETLOGON_FUNCTION_27, "Function_0x27" },
+	{ NETLOGON_LOGONSAMLOGONEX, "LogonSamLogonEx" },
 	{ NETLOGON_DSRROLEGETPRIMARYDOMAININFORMATION, "DsrRoleGetPrimaryDomainInformation" },
 	{ NETLOGON_DSRDEREGISTERDNSHOSTRECORDS, "DsrDeregisterDNSHostRecords" },
 	{ 0, NULL }
