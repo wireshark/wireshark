@@ -2179,7 +2179,7 @@ static value_string bat_ase_action_indicator_field_vals[] = {
 	{ 0x14,	"stop signal, no notify"},
 	{ 0x15,	"start signal acknowledge"},
 	{ 0x16,	"start signal reject"},
-	{ 0x16,	"stop signal acknowledge"},
+	{ 0x17,	"stop signal acknowledge"},
 	{ 0x18,	"bearer redirect"},
 	{ 0,	NULL }
 };    
@@ -2391,6 +2391,7 @@ guint8 tempdata, compatibility_info;
 						if ( content_len > 2 ) {	
 							tempdata = tvb_get_guint8(parameter_tvb, offset);
 							proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, 1, "Configuration data : 0x%x", tempdata);
+							offset = offset + 1;
 						}
 						break;	
         		            		case G_728 :							
@@ -2399,13 +2400,13 @@ guint8 tempdata, compatibility_info;
 						if ( content_len > 2 ) {	
 							tempdata = tvb_get_guint8(parameter_tvb, offset);
 							proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, 1 , "Configuration data : 0x%x", tempdata);
+							offset = offset + 1;
 						}
 						break;
 						default:
 						break;
 
 					}/* switch ITU codec type*/
-			offset = offset + 1;
 			break;	
 			case ETSI:
 					offset = offset + 1;
@@ -2562,20 +2563,20 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 			break;
 			case CODEC_LIST :    
 				list_end = offset + content_len;
-				while ( offset < ( list_end - 1 )) { 
-				identifier = tvb_get_guint8(parameter_tvb, offset);			      	
-				offset = offset + 1;
-				tempdata = tvb_get_guint8(parameter_tvb, offset);
-				if ( tempdata & 0x80 ) {
-					length_indicator = tempdata & 0x7f;	
-				}
-				else {
-					offset = offset +1;
-					length_indicator = tvb_get_guint8(parameter_tvb, offset);
-					length_indicator = length_indicator << 7;
-					length_indicator = length_indicator & ( tempdata & 0x7f );
-				}
-				offset = dissect_codec(parameter_tvb, bat_ase_element_tree, length_indicator , offset, identifier);
+				while ( offset < ( list_end - 1 )) {
+					identifier = tvb_get_guint8(parameter_tvb, offset);
+					offset = offset + 1;
+					tempdata = tvb_get_guint8(parameter_tvb, offset);
+						if ( tempdata & 0x80 ) {
+							length_indicator = tempdata & 0x7f;	
+						}
+						else {
+							offset = offset +1;
+							length_indicator = tvb_get_guint8(parameter_tvb, offset);
+							length_indicator = length_indicator << 7;
+							length_indicator = length_indicator & ( tempdata & 0x7f );
+						}
+					offset = dissect_codec(parameter_tvb, bat_ase_element_tree, length_indicator , offset, identifier);
 				}
 			break;
 			case CODEC :       
