@@ -14777,6 +14777,19 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 						new_key->frame = sip->frame_res;
 						new_key->pid_mid = pid_mid;
 						g_hash_table_insert(si->ct->matched, new_key, sip);
+						/* We remove the entry for unmatched since we have found a match.
+						 * We have to do this since the MID value wraps so quickly (effective only 10 bits)
+						 * and if there is packetloss in the trace (maybe due to large holes
+						 * created by a sniffer device not being able to keep up
+						 * with the line rate.
+						 * There is a real possibility that the following would occur which is painful :
+						 * 1, -> Request  MID:5
+						 * 2, <- Response MID:5
+						 *   3, ->Request  MID:5 (missing from capture)
+						 * 4, <- Response MID:5
+						 * We DONT want #4 to be presented as a response to #1
+						 */
+						g_hash_table_remove(si->ct->unmatched, (void *)pid_mid);
 					} else {
 						/* We have already seen another response to this MID.
 						   Since the MID in reality is only something like 10 bits
