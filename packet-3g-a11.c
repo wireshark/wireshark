@@ -8,7 +8,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <sraab@cisco.com>
  *
- * $Id: packet-3g-a11.c,v 1.2 2004/03/05 22:17:09 jmayer Exp $
+ * $Id: packet-3g-a11.c,v 1.3 2004/03/05 22:22:51 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -435,7 +435,7 @@ dissect_a11_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
   guint8        ext_subtype=0;
   size_t        hdrLen;
 
-  guint16       apptype = -1;
+  gint16       apptype = -1;
 
   /* None of this really matters if we don't have a tree */
   if (!tree) return;
