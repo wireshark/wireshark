@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.61 2002/06/19 10:06:02 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.62 2002/06/22 01:30:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3279,11 +3279,19 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
 
     case PDU_CL_CANCEL:
-        dissect_dcerpc_dg_cancel (tvb, offset, pinfo, dcerpc_tree, &hdr);
+        /*
+         * XXX - The DCE RPC 1.1 spec doesn't say the body is optional,
+         * but in at least one capture none of the Cl_cancel PDUs had a
+         * body.
+         */
+        /* XXX - we assume "frag_len" is the length of the body */
+        if (hdr.frag_len != 0)
+            dissect_dcerpc_dg_cancel (tvb, offset, pinfo, dcerpc_tree, &hdr);
         break;
 
     case PDU_NOCALL:
         /* Body is optional; if present, it's the same as PDU_FACK */
+        /* XXX - we assume "frag_len" is the length of the body */
         if (hdr.frag_len != 0)
             dissect_dcerpc_dg_fack (tvb, offset, pinfo, dcerpc_tree, &hdr);
         break;

@@ -1270,6 +1270,9 @@ Solomon Peachy <pizza[AT]shaftnet.org> {
 	WEP support and other mangling of the 802.11 disector
 }
 
+Jaime Fournier <jafour1[AT]yahoo.com> {
+	Handle DCE RPC connectionless CANCEL PDUs with no body
+}
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
