@@ -2,7 +2,7 @@
  * Routines for EAP Extensible Authentication Protocol dissection
  * RFC 2284
  *
- * $Id: packet-eap.c,v 1.20 2002/03/22 11:41:59 guy Exp $
+ * $Id: packet-eap.c,v 1.21 2002/03/23 21:24:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,10 +37,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "packet-ieee8023.h"
-#include "packet-ipx.h"
-#include "packet-llc.h"
-#include "etypes.h"
+#include <epan/conversation.h>
 #include "ppptypes.h"
 
 static int proto_eap = -1;
@@ -51,8 +48,6 @@ static int hf_eap_type = -1;
 static int hf_eap_type_nak = -1;
 
 static gint ett_eap = -1;
-
-static int leap_state = -1;
 
 static dissector_handle_t ssl_handle;
 
@@ -153,9 +148,11 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   guint16     eap_len;
   guint8      eap_type;
   gint        len;
+  conversation_t *conversation;
+  leap_state_t *conversation_state, *packet_state;
+  int leap_state;
   proto_tree *ti;
   proto_tree *eap_tree = NULL;
-  leap_state_t *leap_state_info;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAP");
@@ -167,8 +164,70 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     col_add_str(pinfo->cinfo, COL_INFO,
 		val_to_str(eap_code, eap_code_vals, "Unknown code (0x%02X)"));
 
+  /*
+   * Find a conversation to which we belong; create one if we don't find
+   * it.
+   *
+   * We use the source and destination addresses, and the *matched* port
+   * number, because if this is running over RADIUS, there's no guarantee
+   * that the source port number for request and the destination port
+   * number for replies will be the same in all messages - the client
+   * may use different port numbers for each request.
+   *
+   * We have to pair up the matched port number with the corresponding
+   * address; we determine which that is by comparing it with the
+   * destination port - if it matches, we matched on the destination
+   * port (this is a request), otherwise we matched on the source port
+   * (this is a reply).
+   *
+   * XXX - what if we're running over a TCP or UDP protocol with a
+   * heuristic dissector, meaning the matched port number won't be set?
+   *
+   * XXX - what if we have a capture file with captures on multiple
+   * PPP interfaces, with LEAP traffic on all of them?  How can we
+   * keep them separate?  (Or is that not going to happen?)
+   */
+  if (pinfo->destport == pinfo->match_port) {
+    conversation = find_conversation(&pinfo->dst, &pinfo->src,
+				     pinfo->ptype, pinfo->destport,
+				     0, NO_PORT_B);
+  } else {
+    conversation = find_conversation(&pinfo->src, &pinfo->dst,
+				     pinfo->ptype, pinfo->srcport,
+				     0, NO_PORT_B);
+  }
+  if (conversation == NULL) {
+    if (pinfo->destport == pinfo->match_port) {
+      conversation = conversation_new(&pinfo->dst, &pinfo->src,
+				      pinfo->ptype, pinfo->destport,
+				      0, NO_PORT2);
+    } else {
+      conversation = conversation_new(&pinfo->src, &pinfo->dst,
+				      pinfo->ptype, pinfo->srcport,
+				      0, NO_PORT2);
+    }
+  }
+
+  /*
+   * Get the LEAP state information for the conversation; attach some if
+   * we don't find it.
+   */
+  conversation_state = conversation_get_proto_data(conversation, proto_eap);
+  if (conversation_state == NULL) {
+    /*
+     * Attach LEAP state information to the conversation.
+     */
+    conversation_state = g_mem_chunk_alloc(leap_state_chunk);
+    conversation_state->state = -1;
+    conversation_add_proto_data(conversation, proto_eap, conversation_state);
+  }
+
+  /*
+   * Set this now, so that it gets remembered even if we throw an exception
+   * later.
+   */
   if (eap_code == EAP_FAILURE)
-    leap_state = -1;
+    conversation_state->state = -1;
 
   eap_len = tvb_get_ntohs(tvb, 2);
   len = eap_len;
@@ -200,6 +259,10 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   switch (eap_code) {
 
+  case EAP_SUCCESS:
+  case EAP_FAILURE:
+    break;
+
   case EAP_REQUEST:
   case EAP_RESPONSE:
     eap_type = tvb_get_guint8(tvb, 4);
@@ -223,10 +286,10 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			      "Identity (%d byte%s): %s",
 			      size, plurality(size, "", "s"),
 			      tvb_format_text(tvb, offset, size));
-	}
-	leap_state = 0;
+         }
+	conversation_state->state = 0;
 	break;
-
+	
       case EAP_TYPE_NOTIFY:
 	if (tree) {
 	  proto_tree_add_text(eap_tree, tvb, offset, size, 
@@ -278,7 +341,7 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	  call_dissector(ssl_handle, next_tvb, pinfo, eap_tree);
 	}
 	}
-	break;
+	break; /*  EAP_TYPE_TLS */
 
 	/*
 	  Cisco's LEAP
@@ -316,61 +379,70 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	  size--;
 	  offset++;
 
-	  /* Data    (byte*Count)
-	     This part is state-dependent.
+	  /* Data    (byte*Count) */
+	  /* This part is state-dependent. */
 
-	     See if we've already remembered the state. */
-	  leap_state_info = p_get_proto_data(pinfo->fd, proto_eap);
-	  if (leap_state_info != NULL) {
-	    /* We have - use the remembered state. */
-	    leap_state = leap_state_info->state;
-	  } else {
-	    /* We haven't - remember the state for subsequent accesses. */
-	    leap_state_info = g_mem_chunk_alloc(leap_state_chunk);
-	    leap_state_info->state = leap_state;
-	    p_add_proto_data(pinfo->fd, proto_eap, leap_state_info);
+
+	  /* See if we've already remembered the state. */
+	  packet_state = p_get_proto_data(pinfo->fd, proto_eap);
+	  if (packet_state == NULL) {
+	    /*
+	     * We haven't - compute the state based on the current
+	     * state in the conversation.
+	     */
+	    leap_state = conversation_state->state;
+	    
+	    /* Advance the state machine. */
+	    if (leap_state==0) leap_state =  1; else
+	    if (leap_state==1) leap_state =  2; else
+	    if (leap_state==2) leap_state =  3; else
+	    if (leap_state==3) leap_state =  4; else
+	    if (leap_state==4) leap_state = -1;
+
+	    /*
+	     * Remember the state for subsequent accesses to this
+	     * frame.
+	     */
+	    packet_state = g_mem_chunk_alloc(leap_state_chunk);
+	    packet_state->state = leap_state;
+	    p_add_proto_data(pinfo->fd, proto_eap, packet_state);
+
+	    /*
+	     * Update the conversation's state.
+	     */
+	    conversation_state->state = leap_state;
 	  }
 
-	  if (leap_state==0) {
-	    if (tree) {
+	  /* Get the remembered state. */
+	  leap_state = packet_state->state;
+
+	  if (tree) { 
+
+	    if        (leap_state==1) {
 	      proto_tree_add_text(eap_tree, tvb, offset, count, 
-			       "Peer Challenge [R8] (%d byte%s) Value:'%s'",
-				  count, plurality(count, "", "s"),
+				  "Peer Challenge [8] Random Value:\"%s\"",
 				  tvb_bytes_to_str(tvb, offset, count));
-	    }
-	    leap_state++;
-	  } else if (leap_state==1) {
-	    if (tree) {
+	    } else if (leap_state==2) {
 	      proto_tree_add_text(eap_tree, tvb, offset, count, 
-				  "Peer Response MSCHAP [24] (%d byte%s) NtChallengeResponse(%s)",
-				  count, plurality(count, "", "s"),
+				  "Peer Response [24] NtChallengeResponse(%s)",
 				  tvb_bytes_to_str(tvb, offset, count));
-	    }
-	    leap_state++;
-	  } else if (leap_state==2) {
-	    if (tree) {
+	    } else if (leap_state==3) {
 	      proto_tree_add_text(eap_tree, tvb, offset, count, 
-			       "AP Challenge [R8] (%d byte%s) Value:'%s'",
-				  count, plurality(count, "", "s"),
+				  "AP Challenge [8] Random Value:\"%s\"",
 				  tvb_bytes_to_str(tvb, offset, count));
-	    }
-	    leap_state++;
-	  } else if (leap_state==3) {
-	    if (tree) {
+	    } else if (leap_state==4) {
 	      proto_tree_add_text(eap_tree, tvb, offset, count, 
-				  "AP Response [24] (%d byte%s) NtChallengeResponse(%s)",
-				  count, plurality(count, "", "s"),
+				  "AP Response [24] ChallengeResponse(%s)",
 				  tvb_bytes_to_str(tvb, offset, count));
-	    }
-	    leap_state++;
-	  } else {
-	    if (tree) {
+	    } else {
 	      proto_tree_add_text(eap_tree, tvb, offset, count, 
-				"Data (%d byte%s): %s",
+				"Data (%d byte%s): \"%s\"",
 				count, plurality(count, "", "s"),
 				tvb_bytes_to_str(tvb, offset, count));
 	    }
-	  }
+
+	  } /* END: if (tree) */
+
 
 	  size   -= count;
 	  offset += count;
@@ -386,7 +458,8 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	  size   -= namesize;
 	  offset += namesize;
 	}
-	break;
+
+	break; /* EAP_TYPE_LEAP */
 
       default:
         if (tree) {
@@ -396,9 +469,10 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			      tvb_bytes_to_str(tvb, offset, size));
 	}
 	break;
-      }
+      } /* switch (eap_type) */
     }
-  }
+
+  } /* switch (eap_code) */
 
   return tvb_length(tvb);
 }
