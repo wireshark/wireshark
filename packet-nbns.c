@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Much stuff added by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.40 2000/04/12 20:43:45 guy Exp $
+ * $Id: packet-nbns.c,v 1.41 2000/04/12 21:42:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1588,7 +1588,15 @@ dissect_nbss(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	msg_type = pd[offset];
 
-	if (pi.srcport == TCP_PORT_CIFS || pi.destport == TCP_PORT_CIFS) {
+	if (pi.match_port == TCP_PORT_CIFS) {
+		/*
+		 * Windows 2000 CIFS clients can dispense completely
+		 * with the NETBIOS encapsulation and directly use CIFS
+		 * over TCP. As would be expected, the framing is
+		 * identical, except that the length is 24 bits instead
+		 * of 17. The only message types used are
+		 * SESSION_MESSAGE and SESSION_KEEP_ALIVE.
+		 */
 		flags = 0;
 		length = pntohl(&pd[offset]) & 0x00FFFFFF;
 		is_cifs = TRUE;
