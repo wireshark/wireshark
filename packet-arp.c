@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.11 1999/01/28 21:29:34 gram Exp $
+ * $Id: packet-arp.c,v 1.12 1999/03/23 03:14:35 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,19 +27,11 @@
 # include "config.h"
 #endif
 
-#include <gtk/gtk.h>
-
-#include <stdio.h>
-
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
 
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
-#include "ethereal.h"
+#include <glib.h>
 #include "packet.h"
 #include "etypes.h"
 
@@ -81,6 +73,21 @@
 
 /* Max string length for displaying unknown type of ARP address.  */
 #define	MAX_ADDR_STR_LEN	16
+
+/* ARP / RARP structs and definitions */
+#ifndef ARPOP_REQUEST
+#define ARPOP_REQUEST  1       /* ARP request.  */
+#endif
+#ifndef ARPOP_REPLY
+#define ARPOP_REPLY    2       /* ARP reply.  */
+#endif
+/* Some OSes have different names, or don't define these at all */
+#ifndef ARPOP_RREQUEST
+#define ARPOP_RREQUEST 3       /* RARP request.  */
+#endif
+#ifndef ARPOP_RREPLY
+#define ARPOP_RREPLY   4       /* RARP reply.  */
+#endif
 
 static gchar *
 arpaddr_to_str(guint8 *ad, int ad_len) {
@@ -181,13 +188,14 @@ arphrdtype_to_str(guint16 hwtype, const char *fmt) {
 #define	AR_OP		6
 
 void
-dissect_arp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
+dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   guint16     ar_hrd;
   guint16     ar_pro;
   guint8      ar_hln;
   guint8      ar_pln;
   guint16     ar_op;
-  GtkWidget   *arp_tree, *ti;
+  proto_tree  *arp_tree;
+  proto_item  *ti;
   gchar       *op_str;
   int         sha_offset, spa_offset, tha_offset, tpa_offset;
   gchar       *sha_str, *spa_str, *tha_str, *tpa_str;
@@ -246,30 +254,30 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
   if (tree) {
     if ((op_str = match_strval(ar_op, op_vals)))
-      ti = add_item_to_tree(GTK_WIDGET(tree), offset, 8 + 2*ar_hln + 2*ar_pln,
+      ti = proto_tree_add_item(tree, offset, 8 + 2*ar_hln + 2*ar_pln,
         op_str);
     else
-      ti = add_item_to_tree(GTK_WIDGET(tree), offset, 8 + 2*ar_hln + 2*ar_pln,
+      ti = proto_tree_add_item(tree, offset, 8 + 2*ar_hln + 2*ar_pln,
         "Unknown ARP (opcode 0x%04x)", ar_op);
-    arp_tree = gtk_tree_new();
-    add_subtree(ti, arp_tree, ETT_ARP);
-    add_item_to_tree(arp_tree, offset + AR_HRD, 2,
+    arp_tree = proto_tree_new();
+    proto_item_add_subtree(ti, arp_tree, ETT_ARP);
+    proto_tree_add_item(arp_tree, offset + AR_HRD, 2,
       "Hardware type: %s", arphrdtype_to_str(ar_hrd, "Unknown (0x%04x)"));
-    add_item_to_tree(arp_tree, offset + AR_PRO, 2,
+    proto_tree_add_item(arp_tree, offset + AR_PRO, 2,
       "Protocol type: %s", ethertype_to_str(ar_pro, "Unknown (0x%04x)"));
-    add_item_to_tree(arp_tree, offset + AR_HLN, 1,
+    proto_tree_add_item(arp_tree, offset + AR_HLN, 1,
       "Hardware size: %d", ar_hln);
-    add_item_to_tree(arp_tree, offset + AR_PLN, 1,
+    proto_tree_add_item(arp_tree, offset + AR_PLN, 1,
       "Protocol size: %d", ar_pln);
-    add_item_to_tree(arp_tree, offset + AR_OP,  2,
+    proto_tree_add_item(arp_tree, offset + AR_OP,  2,
       "Opcode: 0x%04x (%s)", ar_op, op_str ? op_str : "Unknown");
-    add_item_to_tree(arp_tree, sha_offset, ar_hln,
+    proto_tree_add_item(arp_tree, sha_offset, ar_hln,
       "Sender hardware address: %s", sha_str);
-    add_item_to_tree(arp_tree, spa_offset, ar_pln,
+    proto_tree_add_item(arp_tree, spa_offset, ar_pln,
       "Sender protocol address: %s", spa_str);
-    add_item_to_tree(arp_tree, tha_offset, ar_hln,
+    proto_tree_add_item(arp_tree, tha_offset, ar_hln,
       "Target hardware address: %s", tha_str);
-    add_item_to_tree(arp_tree, tpa_offset, ar_pln,
+    proto_tree_add_item(arp_tree, tpa_offset, ar_pln,
       "Target protocol address: %s", tpa_str);
   }
 }

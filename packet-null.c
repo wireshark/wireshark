@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.6 1999/02/09 00:35:38 guy Exp $
+ * $Id: packet-null.c,v 1.7 1999/03/23 03:14:41 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,12 +32,18 @@
 #include <sys/types.h>
 #endif
 
-#include <gtk/gtk.h>
-#include <stdio.h>
+#include <glib.h>
 #include <sys/socket.h>
 
-#include "ethereal.h"
 #include "packet.h"
+
+/* Null/loopback structs and definitions */
+
+typedef struct _e_nullhdr {
+  guint8  null_next;
+  guint8  null_len;
+  guint16 null_family;
+} e_nullhdr;
 
 void
 capture_null( const u_char *pd, guint32 cap_len, packet_counts *ld ) {
@@ -71,9 +77,10 @@ capture_null( const u_char *pd, guint32 cap_len, packet_counts *ld ) {
 }
 
 void
-dissect_null( const u_char *pd, frame_data *fd, GtkTree *tree ) {
+dissect_null( const u_char *pd, frame_data *fd, proto_tree *tree ) {
   e_nullhdr  nh;
-  GtkWidget *ti, *fh_tree;
+  proto_tree *fh_tree;
+  proto_item *ti;
 
   nh.null_next   = pd[0];
   nh.null_len    = pd[1];
@@ -93,13 +100,12 @@ dissect_null( const u_char *pd, frame_data *fd, GtkTree *tree ) {
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
   if(tree) {
-    ti = add_item_to_tree( GTK_WIDGET(tree), 0, 4,
-      "Null/Loopback" );
-    fh_tree = gtk_tree_new();
-    add_subtree(ti, fh_tree, ETT_NULL);
-    add_item_to_tree(fh_tree, 0, 1, "Next: %02x", nh.null_next);
-    add_item_to_tree(fh_tree, 1, 1, "Length: %02x", nh.null_len);
-    add_item_to_tree(fh_tree, 2, 2, "Family: %04x", nh.null_family);
+    ti = proto_tree_add_item(tree, 0, 4, "Null/Loopback" );
+    fh_tree = proto_tree_new();
+    proto_item_add_subtree(ti, fh_tree, ETT_NULL);
+    proto_tree_add_item(fh_tree, 0, 1, "Next: %02x", nh.null_next);
+    proto_tree_add_item(fh_tree, 1, 1, "Length: %02x", nh.null_len);
+    proto_tree_add_item(fh_tree, 2, 2, "Family: %04x", nh.null_family);
   }
 
   /* 

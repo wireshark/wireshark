@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.13 1999/03/01 18:28:12 gram Exp $
+ * $Id: packet-udp.c,v 1.14 1999/03/23 03:14:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,11 +29,6 @@
 # include "config.h"
 #endif
 
-#include <gtk/gtk.h>
-
-#include <stdio.h>
-#include <stdlib.h>
-
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
@@ -42,13 +37,37 @@
 # include <netinet/in.h>
 #endif
 
-#include "ethereal.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <glib.h>
 #include "packet.h"
 #include "resolv.h"
 
+/* UDP structs and definitions */
+
+typedef struct _e_udphdr {
+  guint16 uh_sport;
+  guint16 uh_dport;
+  guint16 uh_ulen;
+  guint16 uh_sum;
+} e_udphdr;
+
+/* UDP Ports -> should go in packet-udp.h */
+
+#define UDP_PORT_DNS     53
+#define UDP_PORT_BOOTPS  67
+#define UDP_PORT_TFTP    69
+#define UDP_PORT_IPX    213
+#define UDP_PORT_NBNS	137
+#define UDP_PORT_NBDGM	138
+#define UDP_PORT_RIP    520
+#define UDP_PORT_VINES	573
+
+
 struct hash_struct {
   guint16 proto;
-  void (*dissect)(const u_char *, int, frame_data *, GtkTree *);
+  void (*dissect)(const u_char *, int, frame_data *, proto_tree *);
   struct hash_struct *next;
 };
 
@@ -83,7 +102,7 @@ struct hash_struct *udp_find_hash_ent(guint16 proto) {
 }
 
 void udp_hash_add(guint16 proto,
-	void (*dissect)(const u_char *, int, frame_data *, GtkTree *)) {
+	void (*dissect)(const u_char *, int, frame_data *, proto_tree *)) {
 
   int idx = proto % 256;   /* Simply take the remainder, hope for no collisions */
   struct hash_struct *hash_ent = (struct hash_struct *)malloc(sizeof(struct hash_struct));
@@ -135,11 +154,12 @@ void init_dissect_udp(void) {
 }
 
 void
-dissect_udp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
+dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   e_udphdr  uh;
   guint16    uh_sport, uh_dport, uh_ulen, uh_sum;
   struct hash_struct *dissect_routine = NULL;
-  GtkWidget *udp_tree, *ti;
+  proto_tree *udp_tree;
+  proto_item *ti;
 
   /* To do: Check for {cap len,pkt len} < struct len */
   /* Avoids alignment problems on many architectures. */
@@ -164,16 +184,15 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
     col_add_fstr(fd, COL_UNRES_DST_PORT, "%u", uh_dport);
     
   if (tree) {
-    ti = add_item_to_tree(GTK_WIDGET(tree), offset, 8,
-      "User Datagram Protocol");
-    udp_tree = gtk_tree_new();
-    add_subtree(ti, udp_tree, ETT_UDP);
-    add_item_to_tree(udp_tree, offset,     2, "Source port: %s (%u)",
+    ti = proto_tree_add_item(tree, offset, 8, "User Datagram Protocol");
+    udp_tree = proto_tree_new();
+    proto_item_add_subtree(ti, udp_tree, ETT_UDP);
+    proto_tree_add_item(udp_tree, offset,     2, "Source port: %s (%u)",
       get_udp_port(uh_sport), uh_sport);
-    add_item_to_tree(udp_tree, offset + 2, 2, "Destination port: %s (%u)",
+    proto_tree_add_item(udp_tree, offset + 2, 2, "Destination port: %s (%u)",
       get_udp_port(uh_dport), uh_dport);
-    add_item_to_tree(udp_tree, offset + 4, 2, "Length: %u", uh_ulen);
-    add_item_to_tree(udp_tree, offset + 6, 2, "Checksum: 0x%04x", uh_sum);
+    proto_tree_add_item(udp_tree, offset + 4, 2, "Length: %u", uh_ulen);
+    proto_tree_add_item(udp_tree, offset + 6, 2, "Checksum: 0x%04x", uh_sum);
   }
 
   /* Skip over header */

@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.8 1999/02/09 00:35:36 guy Exp $
+ * $Id: packet-eth.c,v 1.9 1999/03/23 03:14:37 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,15 +31,12 @@
 # include <sys/types.h>
 #endif
 
-#include <gtk/gtk.h>
-
-#include <stdio.h>
-
-
-#include "ethereal.h"
+#include <glib.h>
 #include "packet.h"
 #include "etypes.h"
 #include "resolv.h"
+
+#define IEEE_802_3_MAX_LEN 1500
 
 /* These are the Netware-ish names for the different Ethernet frame types.
 	EthernetII: The ethernet with a Type field instead of a length field
@@ -96,10 +93,11 @@ capture_eth(const u_char *pd, guint32 cap_len, packet_counts *ld) {
 }
 
 void
-dissect_eth(const u_char *pd, frame_data *fd, GtkTree *tree) {
+dissect_eth(const u_char *pd, frame_data *fd, proto_tree *tree) {
   guint16    etype, length;
   int        offset = 14;
-  GtkWidget *fh_tree = NULL, *ti;
+  proto_tree *fh_tree = NULL;
+  proto_item *ti;
   int   	ethhdr_type;	/* the type of ethernet frame */
 
   if (check_col(fd, COL_RES_DL_DST))
@@ -137,30 +135,30 @@ dissect_eth(const u_char *pd, frame_data *fd, GtkTree *tree) {
     if (check_col(fd, COL_INFO))
       col_add_str(fd, COL_INFO, "802.3");
     if (tree) {
-      ti = add_item_to_tree(GTK_WIDGET(tree), 0, offset,
+      ti = proto_tree_add_item(tree, 0, offset,
         "IEEE 802.3 %s", (ethhdr_type == ETHERNET_802_3 ? "Raw " : ""));
 
-      fh_tree = gtk_tree_new();
-      add_subtree(ti, fh_tree, ETT_IEEE8023);
-      add_item_to_tree(fh_tree, 0, 6, "Destination: %s (%s)",
+      fh_tree = proto_tree_new();
+      proto_item_add_subtree(ti, fh_tree, ETT_IEEE8023);
+      proto_tree_add_item(fh_tree, 0, 6, "Destination: %s (%s)",
 	ether_to_str((guint8 *) &pd[0]),
         get_ether_name((u_char *) &pd[0]));
-      add_item_to_tree(fh_tree, 6, 6, "Source: %s (%s)",
+      proto_tree_add_item(fh_tree, 6, 6, "Source: %s (%s)",
 	ether_to_str((guint8 *) &pd[6]),
 	get_ether_name((u_char *)&pd[6]));
-      add_item_to_tree(fh_tree, 12, 2, "Length: %d", length);
+      proto_tree_add_item(fh_tree, 12, 2, "Length: %d", length);
     }
 
   } else {
     ethhdr_type = ETHERNET_II;
     if (tree) {
-      ti = add_item_to_tree(GTK_WIDGET(tree), 0, 14, "Ethernet II");
-      fh_tree = gtk_tree_new();
-      add_subtree(ti, fh_tree, ETT_ETHER2);
-      add_item_to_tree(fh_tree, 0, 6, "Destination: %s (%s)",
+      ti = proto_tree_add_item(tree, 0, 14, "Ethernet II");
+      fh_tree = proto_tree_new();
+      proto_item_add_subtree(ti, fh_tree, ETT_ETHER2);
+      proto_tree_add_item(fh_tree, 0, 6, "Destination: %s (%s)",
 	ether_to_str((guint8 *) &pd[0]),
 	get_ether_name((u_char *)&pd[0]));
-      add_item_to_tree(fh_tree, 6, 6, "Source: %s (%s)",
+      proto_tree_add_item(fh_tree, 6, 6, "Source: %s (%s)",
         ether_to_str((guint8 *) &pd[6]),
         get_ether_name((u_char *)&pd[6]));
     }

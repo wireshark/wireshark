@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.13 1999/01/05 09:01:42 guy Exp $
+ * $Id: packet-nbns.c,v 1.14 1999/03/23 03:14:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,21 +29,13 @@
 # include "config.h"
 #endif
 
-#include <gtk/gtk.h>
-
-#include <stdio.h>
-#include <string.h>
-#include <memory.h>
-
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
 
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
-#include "ethereal.h"
+#include <stdio.h>
+#include <string.h>
+#include <glib.h>
 #include "packet.h"
 #include "packet-dns.h"
 #include "util.h"
@@ -307,7 +299,7 @@ get_nbns_name_type_class(const u_char *nbns_data_ptr, const u_char *pd,
 
 static int
 dissect_nbns_query(const u_char *nbns_data_ptr, const u_char *pd, int offset,
-    GtkWidget *nbns_tree)
+    proto_tree *nbns_tree)
 {
 	int len;
 	char name[MAXDNAME];
@@ -318,7 +310,8 @@ dissect_nbns_query(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 	char *type_name;
 	const u_char *dptr;
 	const u_char *data_start;
-	GtkWidget *q_tree, *tq;
+	proto_tree *q_tree;
+	proto_item *tq;
 
 	data_start = dptr = pd + offset;
 
@@ -329,29 +322,30 @@ dissect_nbns_query(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 	type_name = nbns_type_name(type);
 	class_name = dns_class_name(class);
 
-	tq = add_item_to_tree(nbns_tree, offset, len, "%s: type %s, class %s", 
+	tq = proto_tree_add_item(nbns_tree, offset, len, "%s: type %s, class %s", 
 	    name, type_name, class_name);
-	q_tree = gtk_tree_new();
-	add_subtree(tq, q_tree, ETT_NBNS_QD);
+	q_tree = proto_tree_new();
+	proto_item_add_subtree(tq, q_tree, ETT_NBNS_QD);
 
-	add_item_to_tree(q_tree, offset, name_len, "Name: %s", name);
+	proto_tree_add_item(q_tree, offset, name_len, "Name: %s", name);
 	offset += name_len;
 
-	add_item_to_tree(q_tree, offset, 2, "Type: %s", type_name);
+	proto_tree_add_item(q_tree, offset, 2, "Type: %s", type_name);
 	offset += 2;
 
-	add_item_to_tree(q_tree, offset, 2, "Class: %s", class_name);
+	proto_tree_add_item(q_tree, offset, 2, "Class: %s", class_name);
 	offset += 2;
 	
 	return dptr - data_start;
 }
 
 static void
-nbns_add_nbns_flags(GtkWidget *nbns_tree, int offset, u_short flags,
+nbns_add_nbns_flags(proto_tree *nbns_tree, int offset, u_short flags,
     int is_wack)
 {
 	char buf[128+1];
-	GtkWidget *field_tree, *tf;
+	proto_tree *field_tree;
+	proto_item *tf;
 	static const value_string rcode_vals[] = {
 		  { RCODE_NOERROR,   "No error"              },
 		  { RCODE_FMTERROR,  "Format error"          },
@@ -372,49 +366,49 @@ nbns_add_nbns_flags(GtkWidget *nbns_tree, int offset, u_short flags,
 		strcat(buf, val_to_str(flags & F_RCODE, rcode_vals,
 		    "Unknown error"));
 	}
-	tf = add_item_to_tree(nbns_tree, offset, 2,
+	tf = proto_tree_add_item(nbns_tree, offset, 2,
 			"Flags: 0x%04x (%s)", flags, buf);
-	field_tree = gtk_tree_new();
-	add_subtree(tf, field_tree, ETT_NBNS_FLAGS);
-	add_item_to_tree(field_tree, offset, 2, "%s",
+	field_tree = proto_tree_new();
+	proto_item_add_subtree(tf, field_tree, ETT_NBNS_FLAGS);
+	proto_tree_add_item(field_tree, offset, 2, "%s",
 			decode_boolean_bitfield(flags, F_RESPONSE,
 				2*8, "Response", "Query"));
-	add_item_to_tree(field_tree, offset, 2, "%s",
+	proto_tree_add_item(field_tree, offset, 2, "%s",
 			decode_enumerated_bitfield(flags, F_OPCODE,
 				2*8, opcode_vals, "%s"));
 	if (flags & F_RESPONSE) {
-		add_item_to_tree(field_tree, offset, 2,
+		proto_tree_add_item(field_tree, offset, 2,
 			"%s",
 			decode_boolean_bitfield(flags, F_AUTHORITATIVE,
 				2*8,
 				"Server is an authority for domain",
 				"Server isn't an authority for domain"));
 	}
-	add_item_to_tree(field_tree, offset, 2, "%s",
+	proto_tree_add_item(field_tree, offset, 2, "%s",
 			decode_boolean_bitfield(flags, F_TRUNCATED,
 				2*8,
 				"Message is truncated",
 				"Message is not truncated"));
-	add_item_to_tree(field_tree, offset, 2, "%s",
+	proto_tree_add_item(field_tree, offset, 2, "%s",
 			decode_boolean_bitfield(flags, F_RECDESIRED,
 				2*8,
 				"Do query recursively",
 				"Don't do query recursively"));
 	if (flags & F_RESPONSE) {
-		add_item_to_tree(field_tree, offset, 2,
+		proto_tree_add_item(field_tree, offset, 2,
 			"%s",
 			decode_boolean_bitfield(flags, F_RECAVAIL,
 				2*8,
 				"Server can do recursive queries",
 				"Server can't do recursive queries"));
 	}
-	add_item_to_tree(field_tree, offset, 2, "%s",
+	proto_tree_add_item(field_tree, offset, 2, "%s",
 			decode_boolean_bitfield(flags, F_BROADCAST,
 				2*8,
 				"Broadcast packet",
 				"Not a broadcast packet"));
 	if (flags & F_RESPONSE && !is_wack) {
-		add_item_to_tree(field_tree, offset, 2,
+		proto_tree_add_item(field_tree, offset, 2,
 			"%s",
 			decode_enumerated_bitfield(flags, F_RCODE,
 				2*8,
@@ -423,10 +417,11 @@ nbns_add_nbns_flags(GtkWidget *nbns_tree, int offset, u_short flags,
 }
 
 static void
-nbns_add_nb_flags(GtkWidget *rr_tree, int offset, u_short flags)
+nbns_add_nb_flags(proto_tree *rr_tree, int offset, u_short flags)
 {
 	char buf[128+1];
-	GtkWidget *field_tree, *tf;
+	proto_tree *field_tree;
+	proto_item *tf;
 	static const value_string nb_flags_ont_vals[] = {
 		  { NB_FLAGS_ONT_B_NODE, "B-node" },
 		  { NB_FLAGS_ONT_P_NODE, "P-node" },
@@ -442,25 +437,26 @@ nbns_add_nb_flags(GtkWidget *rr_tree, int offset, u_short flags)
 		strcat(buf, "group");
 	else
 		strcat(buf, "unique");
-	tf = add_item_to_tree(rr_tree, offset, 2, "Flags: 0x%x (%s)", flags,
+	tf = proto_tree_add_item(rr_tree, offset, 2, "Flags: 0x%x (%s)", flags,
 			buf);
-	field_tree = gtk_tree_new();
-	add_subtree(tf, field_tree, ETT_NBNS_NB_FLAGS);
-	add_item_to_tree(field_tree, offset, 2, "%s",
+	field_tree = proto_tree_new();
+	proto_item_add_subtree(tf, field_tree, ETT_NBNS_NB_FLAGS);
+	proto_tree_add_item(field_tree, offset, 2, "%s",
 			decode_boolean_bitfield(flags, NB_FLAGS_G,
 				2*8,
 				"Group name",
 				"Unique name"));
-	add_item_to_tree(field_tree, offset, 2, "%s",
+	proto_tree_add_item(field_tree, offset, 2, "%s",
 			decode_enumerated_bitfield(flags, NB_FLAGS_ONT,
 				2*8, nb_flags_ont_vals, "%s"));
 }
 
 static void
-nbns_add_name_flags(GtkWidget *rr_tree, int offset, u_short flags)
+nbns_add_name_flags(proto_tree *rr_tree, int offset, u_short flags)
 {
 	char buf[128+1];
-	GtkWidget *field_tree, *tf;
+	proto_item *field_tree;
+	proto_item *tf;
 	static const value_string name_flags_ont_vals[] = {
 		  { NAME_FLAGS_ONT_B_NODE, "B-node" },
 		  { NAME_FLAGS_ONT_P_NODE, "P-node" },
@@ -483,34 +479,34 @@ nbns_add_name_flags(GtkWidget *rr_tree, int offset, u_short flags)
 		strcat(buf, ", active");
 	if (flags & NAME_FLAGS_PRM)
 		strcat(buf, ", permanent node name");
-	tf = add_item_to_tree(rr_tree, offset, 2, "Name flags: 0x%x (%s)",
+	tf = proto_tree_add_item(rr_tree, offset, 2, "Name flags: 0x%x (%s)",
 			flags, buf);
-	field_tree = gtk_tree_new();
-	add_subtree(tf, field_tree, ETT_NBNS_NAME_FLAGS);
-	add_item_to_tree(field_tree, offset, 2, "%s",
+	field_tree = proto_tree_new();
+	proto_item_add_subtree(tf, field_tree, ETT_NBNS_NAME_FLAGS);
+	proto_tree_add_item(field_tree, offset, 2, "%s",
 			decode_boolean_bitfield(flags, NAME_FLAGS_G,
 				2*8,
 				"Group name",
 				"Unique name"));
-	add_item_to_tree(field_tree, offset, 2, "%s",
+	proto_tree_add_item(field_tree, offset, 2, "%s",
 			decode_enumerated_bitfield(flags, NAME_FLAGS_ONT,
 				2*8, name_flags_ont_vals, "%s"));
-	add_item_to_tree(field_tree, offset, 2, "%s",
+	proto_tree_add_item(field_tree, offset, 2, "%s",
 			decode_boolean_bitfield(flags, NAME_FLAGS_DRG,
 				2*8,
 				"Name is being deregistered",
 				"Name is not being deregistered"));
-	add_item_to_tree(field_tree, offset, 2, "%s",
+	proto_tree_add_item(field_tree, offset, 2, "%s",
 			decode_boolean_bitfield(flags, NAME_FLAGS_CNF,
 				2*8,
 				"Name is in conflict",
 				"Name is not in conflict"));
-	add_item_to_tree(field_tree, offset, 2, "%s",
+	proto_tree_add_item(field_tree, offset, 2, "%s",
 			decode_boolean_bitfield(flags, NAME_FLAGS_ACT,
 				2*8,
 				"Name is active",
 				"Name is not active"));
-	add_item_to_tree(field_tree, offset, 2, "%s",
+	proto_tree_add_item(field_tree, offset, 2, "%s",
 			decode_boolean_bitfield(flags, NAME_FLAGS_PRM,
 				2*8,
 				"Permanent node name",
@@ -519,7 +515,7 @@ nbns_add_name_flags(GtkWidget *rr_tree, int offset, u_short flags)
 
 static int
 dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
-    GtkWidget *nbns_tree, int opcode)
+    proto_tree *nbns_tree, int opcode)
 {
 	int len;
 	char name[MAXDNAME];
@@ -533,7 +529,8 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 	u_int ttl;
 	u_short data_len;
 	u_short flags;
-	GtkWidget *rr_tree, *trr;
+	proto_tree *rr_tree;
+	proto_item *trr;
 
 	data_start = dptr = pd + offset;
 
@@ -552,7 +549,7 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 
 	switch (type) {
 	case T_NB: 		/* "NB" record */
-		trr = add_item_to_tree(nbns_tree, offset,
+		trr = proto_tree_add_item(nbns_tree, offset,
 		    (dptr - data_start) + data_len,
 		    "%s: type %s, class %s",
 		    name, type_name, class_name);
@@ -565,7 +562,7 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 				 * same type of RR data as other T_NB
 				 * responses.  */
 				if (data_len < 2) {
-					add_item_to_tree(rr_tree, offset,
+					proto_tree_add_item(rr_tree, offset,
 					    data_len, "(incomplete entry)");
 					break;
 				}
@@ -576,7 +573,7 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 				data_len -= 2;
 			} else {
 				if (data_len < 2) {
-					add_item_to_tree(rr_tree, offset,
+					proto_tree_add_item(rr_tree, offset,
 					    data_len, "(incomplete entry)");
 					break;
 				}
@@ -587,11 +584,11 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 				data_len -= 2;
 
 				if (data_len < 4) {
-					add_item_to_tree(rr_tree, offset,
+					proto_tree_add_item(rr_tree, offset,
 					    data_len, "(incomplete entry)");
 					break;
 				}
-				add_item_to_tree(rr_tree, offset, 4,
+				proto_tree_add_item(rr_tree, offset, 4,
 				    "Addr: %s",
 				    ip_to_str((guint8 *)dptr));
 				dptr += 4;
@@ -607,7 +604,7 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 			char nbname[16+4+1];	/* 4 for [<last char>] */
 			u_short name_flags;
 			
-			trr = add_item_to_tree(nbns_tree, offset,
+			trr = proto_tree_add_item(nbns_tree, offset,
 			    (dptr - data_start) + data_len,
 			    "%s: type %s, class %s",
 			    name, type_name, class_name);
@@ -615,32 +612,32 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 			    name_len, type_name, class_name, ttl, data_len);
 			offset += (dptr - data_start);
 			if (data_len < 1) {
-				add_item_to_tree(rr_tree, offset,
+				proto_tree_add_item(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
 			num_names = *dptr;
 			dptr += 1;
-			add_item_to_tree(rr_tree, offset, 2,
+			proto_tree_add_item(rr_tree, offset, 2,
 			    "Number of names: %u", num_names);
 			offset += 1;
 
 			while (num_names != 0) {
 				if (data_len < 16) {
-					add_item_to_tree(rr_tree, offset,
+					proto_tree_add_item(rr_tree, offset,
 					    data_len, "(incomplete entry)");
 					goto out;
 				}
 				memcpy(nbname, dptr, 16);
 				dptr += 16;
 				canonicalize_netbios_name(nbname);
-				add_item_to_tree(rr_tree, offset, 16,
+				proto_tree_add_item(rr_tree, offset, 16,
 				    "Name: %s", nbname);
 				offset += 16;
 				data_len -= 16;
 
 				if (data_len < 2) {
-					add_item_to_tree(rr_tree, offset,
+					proto_tree_add_item(rr_tree, offset,
 					    data_len, "(incomplete entry)");
 					goto out;
 				}
@@ -654,11 +651,11 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 			}
 
 			if (data_len < 6) {
-				add_item_to_tree(rr_tree, offset,
+				proto_tree_add_item(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			add_item_to_tree(rr_tree, offset, 6,
+			proto_tree_add_item(rr_tree, offset, 6,
 			    "Unit ID: %s",
 			    ether_to_str((guint8 *)dptr));
 			dptr += 6;
@@ -666,181 +663,181 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 			data_len -= 6;
 
 			if (data_len < 1) {
-				add_item_to_tree(rr_tree, offset,
+				proto_tree_add_item(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			add_item_to_tree(rr_tree, offset, 1,
+			proto_tree_add_item(rr_tree, offset, 1,
 			    "Jumpers: 0x%x", *dptr);
 			dptr += 1;
 			offset += 1;
 			data_len -= 1;
 
 			if (data_len < 1) {
-				add_item_to_tree(rr_tree, offset,
+				proto_tree_add_item(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			add_item_to_tree(rr_tree, offset, 1,
+			proto_tree_add_item(rr_tree, offset, 1,
 			    "Test result: 0x%x", *dptr);
 			dptr += 1;
 			offset += 1;
 			data_len -= 1;
 
 			if (data_len < 2) {
-				add_item_to_tree(rr_tree, offset,
+				proto_tree_add_item(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			add_item_to_tree(rr_tree, offset, 2,
+			proto_tree_add_item(rr_tree, offset, 2,
 			    "Version number: 0x%x", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
 			data_len -= 2;
 
 			if (data_len < 2) {
-				add_item_to_tree(rr_tree, offset,
+				proto_tree_add_item(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			add_item_to_tree(rr_tree, offset, 2,
+			proto_tree_add_item(rr_tree, offset, 2,
 			    "Period of statistics: 0x%x", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
 			data_len -= 2;
 
 			if (data_len < 2) {
-				add_item_to_tree(rr_tree, offset,
+				proto_tree_add_item(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			add_item_to_tree(rr_tree, offset, 2,
+			proto_tree_add_item(rr_tree, offset, 2,
 			    "Number of CRCs: %u", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
 			data_len -= 2;
 
 			if (data_len < 2) {
-				add_item_to_tree(rr_tree, offset,
+				proto_tree_add_item(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			add_item_to_tree(rr_tree, offset, 2,
+			proto_tree_add_item(rr_tree, offset, 2,
 			    "Number of alignment errors: %u", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
 			data_len -= 2;
 
 			if (data_len < 2) {
-				add_item_to_tree(rr_tree, offset,
+				proto_tree_add_item(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			add_item_to_tree(rr_tree, offset, 2,
+			proto_tree_add_item(rr_tree, offset, 2,
 			    "Number of collisions: %u", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
 			data_len -= 2;
 
 			if (data_len < 2) {
-				add_item_to_tree(rr_tree, offset,
+				proto_tree_add_item(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			add_item_to_tree(rr_tree, offset, 2,
+			proto_tree_add_item(rr_tree, offset, 2,
 			    "Number of send aborts: %u", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
 			data_len -= 2;
 
 			if (data_len < 4) {
-				add_item_to_tree(rr_tree, offset,
+				proto_tree_add_item(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			add_item_to_tree(rr_tree, offset, 4,
+			proto_tree_add_item(rr_tree, offset, 4,
 			    "Number of good sends: %u", pntohl(dptr));
 			dptr += 4;
 			offset += 4;
 			data_len -= 4;
 
 			if (data_len < 4) {
-				add_item_to_tree(rr_tree, offset,
+				proto_tree_add_item(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			add_item_to_tree(rr_tree, offset, 4,
+			proto_tree_add_item(rr_tree, offset, 4,
 			    "Number of good receives: %u", pntohl(dptr));
 			dptr += 4;
 			offset += 4;
 			data_len -= 4;
 
 			if (data_len < 2) {
-				add_item_to_tree(rr_tree, offset,
+				proto_tree_add_item(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			add_item_to_tree(rr_tree, offset, 2,
+			proto_tree_add_item(rr_tree, offset, 2,
 			    "Number of retransmits: %u", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
 			data_len -= 2;
 
 			if (data_len < 2) {
-				add_item_to_tree(rr_tree, offset,
+				proto_tree_add_item(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			add_item_to_tree(rr_tree, offset, 2,
+			proto_tree_add_item(rr_tree, offset, 2,
 			    "Number of no resource conditions: %u", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
 			data_len -= 2;
 
 			if (data_len < 2) {
-				add_item_to_tree(rr_tree, offset,
+				proto_tree_add_item(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			add_item_to_tree(rr_tree, offset, 2,
+			proto_tree_add_item(rr_tree, offset, 2,
 			    "Number of command blocks: %u", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
 			data_len -= 2;
 
 			if (data_len < 2) {
-				add_item_to_tree(rr_tree, offset,
+				proto_tree_add_item(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			add_item_to_tree(rr_tree, offset, 2,
+			proto_tree_add_item(rr_tree, offset, 2,
 			    "Number of pending sessions: %u", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
 			data_len -= 2;
 
 			if (data_len < 2) {
-				add_item_to_tree(rr_tree, offset,
+				proto_tree_add_item(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			add_item_to_tree(rr_tree, offset, 2,
+			proto_tree_add_item(rr_tree, offset, 2,
 			    "Max number of pending sessions: %u", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
 
-			add_item_to_tree(rr_tree, offset, 2,
+			proto_tree_add_item(rr_tree, offset, 2,
 			    "Max total sessions possible: %u", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
 			data_len -= 2;
 
 			if (data_len < 2) {
-				add_item_to_tree(rr_tree, offset,
+				proto_tree_add_item(rr_tree, offset,
 				    data_len, "(incomplete entry)");
 				break;
 			}
-			add_item_to_tree(rr_tree, offset, 2,
+			proto_tree_add_item(rr_tree, offset, 2,
 			    "Session data packet size: %u", pntohs(dptr));
 			dptr += 2;
 			offset += 2;
@@ -850,14 +847,14 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 		break;
 
 	default:
-		trr = add_item_to_tree(nbns_tree, offset,
+		trr = proto_tree_add_item(nbns_tree, offset,
 		    (dptr - data_start) + data_len,
                     "%s: type %s, class %s",
 		    name, type_name, class_name);
 		rr_tree = add_rr_to_tree(trr, ETT_NBNS_RR, offset, name,
 		    name_len, type_name, class_name, ttl, data_len);
 		offset += (dptr - data_start);
-		add_item_to_tree(rr_tree, offset, data_len, "Data");
+		proto_tree_add_item(rr_tree, offset, data_len, "Data");
 		break;
 	}
 	dptr += data_len;
@@ -867,19 +864,19 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 
 static int
 dissect_query_records(const u_char *nbns_data_ptr, int count, const u_char *pd, 
-    int cur_off, GtkWidget *nbns_tree)
+    int cur_off, proto_tree *nbns_tree)
 {
 	int start_off;
-	GtkWidget *qatree, *ti;
+	proto_tree *qatree;
+	proto_item *ti;
 	
 	start_off = cur_off;
-	ti = add_item_to_tree(GTK_WIDGET(nbns_tree), 
-			start_off, 0, "Queries");
-	qatree = gtk_tree_new();
-	add_subtree(ti, qatree, ETT_NBNS_QRY);
+	ti = proto_tree_add_item(nbns_tree, start_off, 0, "Queries");
+	qatree = proto_tree_new();
+	proto_item_add_subtree(ti, qatree, ETT_NBNS_QRY);
 	while (count-- > 0)
 		cur_off += dissect_nbns_query(nbns_data_ptr, pd, cur_off, qatree);
-	set_item_len(ti, cur_off - start_off);
+	proto_item_set_len(ti, cur_off - start_off);
 
 	return cur_off - start_off;
 }
@@ -888,28 +885,29 @@ dissect_query_records(const u_char *nbns_data_ptr, int count, const u_char *pd,
 
 static int
 dissect_answer_records(const u_char *nbns_data_ptr, int count,
-    const u_char *pd, int cur_off, GtkWidget *nbns_tree, int opcode, char *name)
+    const u_char *pd, int cur_off, proto_tree *nbns_tree, int opcode, char *name)
 {
 	int start_off;
-	GtkWidget *qatree, *ti;
+	proto_tree *qatree;
+	proto_item *ti;
 	
 	start_off = cur_off;
-	ti = add_item_to_tree(GTK_WIDGET(nbns_tree),
-			start_off, 0, name);
-	qatree = gtk_tree_new();
-	add_subtree(ti, qatree, ETT_NBNS_ANS);
+	ti = proto_tree_add_item(nbns_tree, start_off, 0, name);
+	qatree = proto_tree_new();
+	proto_item_add_subtree(ti, qatree, ETT_NBNS_ANS);
 	while (count-- > 0)
 		cur_off += dissect_nbns_answer(nbns_data_ptr, pd, cur_off,
 					qatree, opcode);
-	set_item_len(ti, cur_off - start_off);
+	proto_item_set_len(ti, cur_off - start_off);
 	return cur_off - start_off;
 }
 
 void
-dissect_nbns(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
+dissect_nbns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	const u_char		*nbns_data_ptr;
-	GtkWidget		*nbns_tree, *ti;
+	proto_tree		*nbns_tree;
+	proto_item		*ti;
 	guint16			id, flags, quest, ans, auth, add;
 	int			cur_off;
 
@@ -933,25 +931,25 @@ dissect_nbns(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	}
 
 	if (tree) {
-		ti = add_item_to_tree(GTK_WIDGET(tree), offset, END_OF_FRAME,
+		ti = proto_tree_add_item(tree, offset, END_OF_FRAME,
 				"NetBIOS Name Service");
-		nbns_tree = gtk_tree_new();
-		add_subtree(ti, nbns_tree, ETT_NBNS);
+		nbns_tree = proto_tree_new();
+		proto_item_add_subtree(ti, nbns_tree, ETT_NBNS);
 
-		add_item_to_tree(nbns_tree, offset + NBNS_ID, 2,
+		proto_tree_add_item(nbns_tree, offset + NBNS_ID, 2,
 				"Transaction ID: 0x%04X", id);
 
 		nbns_add_nbns_flags(nbns_tree, offset + NBNS_FLAGS, flags, 0);
-		add_item_to_tree(nbns_tree, offset + NBNS_QUEST, 2,
+		proto_tree_add_item(nbns_tree, offset + NBNS_QUEST, 2,
 					"Questions: %d",
 					quest);
-		add_item_to_tree(nbns_tree, offset + NBNS_ANS, 2,
+		proto_tree_add_item(nbns_tree, offset + NBNS_ANS, 2,
 					"Answer RRs: %d",
 					ans);
-		add_item_to_tree(nbns_tree, offset + NBNS_AUTH, 2,
+		proto_tree_add_item(nbns_tree, offset + NBNS_AUTH, 2,
 					"Authority RRs: %d",
 					auth);
-		add_item_to_tree(nbns_tree, offset + NBNS_ADD, 2,
+		proto_tree_add_item(nbns_tree, offset + NBNS_ADD, 2,
 					"Additional RRs: %d",
 					add);
 
@@ -983,9 +981,10 @@ dissect_nbns(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 
 
 void
-dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
+dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
-	GtkWidget		*nbdgm_tree, *ti;
+	proto_tree		*nbdgm_tree;
+	proto_item		*ti;
 	struct nbdgm_header	header;
 	int			flags;
 	int			message_index;
@@ -1052,25 +1051,25 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	}
 
 	if (tree) {
-		ti = add_item_to_tree(GTK_WIDGET(tree), offset, header.dgm_length,
+		ti = proto_tree_add_item(tree, offset, header.dgm_length,
 				"NetBIOS Datagram Service");
-		nbdgm_tree = gtk_tree_new();
-		add_subtree(ti, nbdgm_tree, ETT_NBDGM);
+		nbdgm_tree = proto_tree_new();
+		proto_item_add_subtree(ti, nbdgm_tree, ETT_NBDGM);
 
-		add_item_to_tree(nbdgm_tree, offset, 1, "Message Type: %s",
+		proto_tree_add_item(nbdgm_tree, offset, 1, "Message Type: %s",
 				message[message_index]);
-		add_item_to_tree(nbdgm_tree, offset+1, 1, "More fragments follow: %s",
+		proto_tree_add_item(nbdgm_tree, offset+1, 1, "More fragments follow: %s",
 				yesno[header.flags.more]);
-		add_item_to_tree(nbdgm_tree, offset+1, 1, "This is first fragment: %s",
+		proto_tree_add_item(nbdgm_tree, offset+1, 1, "This is first fragment: %s",
 				yesno[header.flags.first]);
-		add_item_to_tree(nbdgm_tree, offset+1, 1, "Node Type: %s",
+		proto_tree_add_item(nbdgm_tree, offset+1, 1, "Node Type: %s",
 				node[header.flags.node_type]);
 
-		add_item_to_tree(nbdgm_tree, offset+2, 2, "Datagram ID: 0x%04X",
+		proto_tree_add_item(nbdgm_tree, offset+2, 2, "Datagram ID: 0x%04X",
 				header.dgm_id);
-		add_item_to_tree(nbdgm_tree, offset+4, 4, "Source IP: %s",
+		proto_tree_add_item(nbdgm_tree, offset+4, 4, "Source IP: %s",
 				ip_to_str((guint8 *)&header.src_ip));
-		add_item_to_tree(nbdgm_tree, offset+8, 2, "Source Port: %d",
+		proto_tree_add_item(nbdgm_tree, offset+8, 2, "Source Port: %d",
 				header.src_port);
 
 		offset += 10;
@@ -1078,9 +1077,9 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 		if (header.msg_type == 0x10 ||
 				header.msg_type == 0x11 || header.msg_type == 0x12) {
 
-			add_item_to_tree(nbdgm_tree, offset, 2,
+			proto_tree_add_item(nbdgm_tree, offset, 2,
 					"Datagram length: %d bytes", header.dgm_length);
-			add_item_to_tree(nbdgm_tree, offset+2, 2,
+			proto_tree_add_item(nbdgm_tree, offset+2, 2,
 					"Packet offset: %d bytes", header.pkt_offset);
 
 			offset += 4;
@@ -1088,22 +1087,22 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 			/* Source name */
 			len = get_nbns_name(&pd[offset], pd, offset, name);
 
-			add_item_to_tree(nbdgm_tree, offset, len, "Source name: %s",
+			proto_tree_add_item(nbdgm_tree, offset, len, "Source name: %s",
 					name);
 			offset += len;
 
 			/* Destination name */
 			len = get_nbns_name(&pd[offset], pd, offset, name);
 
-			add_item_to_tree(nbdgm_tree, offset, len, "Destination name: %s",
+			proto_tree_add_item(nbdgm_tree, offset, len, "Destination name: %s",
 					name);
 			offset += len;
 
 			/* here we can pass the packet off to the next protocol */
-			dissect_data(pd, offset, fd, GTK_TREE(nbdgm_tree));
+			dissect_data(pd, offset, fd, nbdgm_tree);
 		}
 		else if (header.msg_type == 0x13) {
-			add_item_to_tree(nbdgm_tree, offset, 1, "Error code: %s",
+			proto_tree_add_item(nbdgm_tree, offset, 1, "Error code: %s",
 				val_to_str(header.error_code, error_codes, "Unknown (0x%x)"));
 		}
 		else if (header.msg_type == 0x14 ||
@@ -1111,7 +1110,7 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 			/* Destination name */
 			len = get_nbns_name(&pd[offset], pd, offset, name);
 
-			add_item_to_tree(nbdgm_tree, offset, len, "Destination name: %s",
+			proto_tree_add_item(nbdgm_tree, offset, len, "Destination name: %s",
 					name);
 		}
 	}

@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@netapp.com>
  *
- * $Id: packet-http.c,v 1.1 1999/02/12 09:03:40 guy Exp $
+ * $Id: packet-http.c,v 1.2 1999/03/23 03:14:37 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,28 +29,22 @@
 
 #include "config.h"
 
-#include <gtk/gtk.h>
-
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
+#include <string.h>
+#include <ctype.h>
 
-#include "ethereal.h"
+#include <glib.h>
 #include "packet.h"
 
 static int is_http_request_or_reply(const u_char *data, int linelen);
 
-void dissect_http(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
+void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
-	GtkWidget	*http_tree, *ti;
+	proto_tree	*http_tree;
+	proto_item	*ti;
 	const u_char	*data, *dataend;
 	const u_char	*linep, *lineend;
 	int		linelen;
@@ -76,11 +70,10 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	}
 
 	if (tree) {
-		ti = add_item_to_tree(GTK_WIDGET(tree), offset,
-		   END_OF_FRAME,
+		ti = proto_tree_add_item(tree, offset, END_OF_FRAME,
 		  "Hypertext Transfer Protocol");
-		http_tree = gtk_tree_new();
-		add_subtree(ti, http_tree, ETT_HTTP);
+		http_tree = proto_tree_new();
+		proto_item_add_subtree(ti, http_tree, ETT_HTTP);
 
 		while (data < dataend) {
 			/*
@@ -167,14 +160,14 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 			/*
 			 * Put this line.
 			 */
-			add_item_to_tree(http_tree, offset, linelen, "%s",
+			proto_tree_add_item(http_tree, offset, linelen, "%s",
 			    format_line(data, linelen));
 			offset += linelen;
 			data = lineend;
 		}
 
 		if (data < dataend) {
-			add_item_to_tree(http_tree, offset, END_OF_FRAME,
+			proto_tree_add_item(http_tree, offset, END_OF_FRAME,
 			    "Data (%d bytes)", END_OF_FRAME);
 		}
 	}

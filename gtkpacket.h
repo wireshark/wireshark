@@ -1,11 +1,10 @@
-/* packet-data.c
- * Routines for raw data (default case)
- * Gilbert Ramirez <gram@verdict.uthscsa.edu>
+/* gtkpacket.h
+ * Definitions for GTK+ packet display structures and routines
  *
- * $Id: packet-data.c,v 1.8 1999/03/23 03:14:36 gram Exp $
+ * $Id: gtkpacket.h,v 1.1 1999/03/23 03:14:35 gram Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
  * 
@@ -24,23 +23,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
+
+#ifndef __GTKPACKET_H__
+#define __GTKPACKET_H__
+
+void       packet_hex_print(GtkText *, guint8 *, gint, gint, gint);
+
+#define E_TREEINFO_START_KEY "tree_info_start"
+#define E_TREEINFO_LEN_KEY   "tree_info_len"
+
 #endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#include <glib.h>
-#include "packet.h"
-
-void
-dissect_data(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
-
-	if (fd->cap_len > offset && tree) {
-		proto_tree_add_item(tree, offset, END_OF_FRAME,
-			"Data (%d bytes)", END_OF_FRAME);
-	}
-}
-

@@ -12,6 +12,7 @@ ethereal_SOURCES = \
 	file.c         \
 	filter.c       \
 	follow.c       \
+	gtkpacket.c    \
 	menu.c         \
 	packet.c       \
 	packet-aarp.c  \

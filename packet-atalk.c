@@ -22,22 +22,18 @@
 # include "config.h"
 #endif
 
-#include <gtk/gtk.h>
-
-#include <stdio.h>
-
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
 
+#include <glib.h>
+#include "packet.h"
+
+#if BYTE_ORDER == LITTLE_ENDIAN
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
 #endif
-
-#include "ethereal.h"
-#include "packet.h"
-#include "etypes.h"
-#include "resolv.h"
+#endif
 
 extern packet_info pi;
 
@@ -68,9 +64,10 @@ typedef struct _e_ddp {
 #define DDP_ADSP	0x07
 
 void
-dissect_ddp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
+dissect_ddp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   e_ddp       ddp;
-  GtkWidget *ddp_tree, *ti;
+  proto_tree *ddp_tree;
+  proto_item *ti;
   value_string op_vals[] = { {DDP_RTMPDATA, "AppleTalk Routing Table response or data" },
   			     {DDP_NBP, "AppleTalk Name Binding Protocol packet"},
   			     {DDP_ATP, "AppleTalk Transaction Protocol packet"},
@@ -96,20 +93,19 @@ dissect_ddp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       val_to_str(ddp.type, op_vals, "Unknown DDP protocol (%02x)"));
   
   if (tree) {
-    ti = add_item_to_tree(GTK_WIDGET(tree), offset, 13,
-      "Datagram Delivery Protocol");
-    ddp_tree = gtk_tree_new();
-    add_subtree(ti, ddp_tree, ETT_IP);
-    add_item_to_tree(ddp_tree, offset,      1, "Hop count: %d", ddp_hops(ddp.hops_len));
-    add_item_to_tree(ddp_tree, offset,	    2, "Datagram length: %d", ddp_len(ddp.hops_len));
-    add_item_to_tree(ddp_tree, offset + 2,  2, "Checksum: %d",ddp.sum);
-    add_item_to_tree(ddp_tree, offset + 4,  2, "Destination Net: %d",ddp.dnet);
-    add_item_to_tree(ddp_tree, offset + 6,  2, "Source Net: %d",ddp.snet);
-    add_item_to_tree(ddp_tree, offset + 8,  1, "Destination Node: %d",ddp.dnode);
-    add_item_to_tree(ddp_tree, offset + 9,  1, "Source Node: %d",ddp.snode);
-    add_item_to_tree(ddp_tree, offset + 10, 1, "Destination Socket: %d",ddp.dport);
-    add_item_to_tree(ddp_tree, offset + 11, 1, "Source Socket: %d",ddp.sport);
-    add_item_to_tree(ddp_tree, offset + 12, 1, "Type: %d",ddp.type);  
+    ti = proto_tree_add_item(tree, offset, 13, "Datagram Delivery Protocol");
+    ddp_tree = proto_tree_new();
+    proto_item_add_subtree(ti, ddp_tree, ETT_IP);
+    proto_tree_add_item(ddp_tree, offset,      1, "Hop count: %d", ddp_hops(ddp.hops_len));
+    proto_tree_add_item(ddp_tree, offset,	    2, "Datagram length: %d", ddp_len(ddp.hops_len));
+    proto_tree_add_item(ddp_tree, offset + 2,  2, "Checksum: %d",ddp.sum);
+    proto_tree_add_item(ddp_tree, offset + 4,  2, "Destination Net: %d",ddp.dnet);
+    proto_tree_add_item(ddp_tree, offset + 6,  2, "Source Net: %d",ddp.snet);
+    proto_tree_add_item(ddp_tree, offset + 8,  1, "Destination Node: %d",ddp.dnode);
+    proto_tree_add_item(ddp_tree, offset + 9,  1, "Source Node: %d",ddp.snode);
+    proto_tree_add_item(ddp_tree, offset + 10, 1, "Destination Socket: %d",ddp.dport);
+    proto_tree_add_item(ddp_tree, offset + 11, 1, "Source Socket: %d",ddp.sport);
+    proto_tree_add_item(ddp_tree, offset + 12, 1, "Type: %d",ddp.type);  
   }
 
   offset += 13;

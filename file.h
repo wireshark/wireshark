@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.10 1999/02/11 06:17:30 guy Exp $
+ * $Id: file.h,v 1.11 1999/03/23 03:14:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -82,7 +82,13 @@ typedef struct _capture_file {
   gchar      *dfilter;   /* Display filter string */
   gchar      *cfilter;   /* Capture filter string */
   bpf_prog    fcode;     /* Compiled filter program */
-  guint8      pd[MAX_PACKET_SIZE];  /* Packet data */
+  /* XXX - I'm cheating for now. I'll hardcode 65536 here until I re-arrange
+   * more header files so that ethereal.h is split up into two files, a
+   * generic header and a gtk+-speficic header (or the gtk+ definitions are
+   * moved to different header files) --gilbert
+   */
+  /*guint8      pd[MAX_PACKET_SIZE];*/  /* Packet data */
+  guint8      pd[65536];  /* Packet data */
   GList      *plist;     /* Packet list */
   frame_data *cur;       /* Current list item */
   column_info  cinfo;    /* Column formatting information */
@@ -109,7 +115,7 @@ typedef struct _snoop_frame_hdr {
 #endif
 
 int  open_cap_file(char *, capture_file *);
-void close_cap_file(capture_file *, GtkWidget *, guint);
+void close_cap_file(capture_file *, void *, guint);
 int  load_cap_file(char *, capture_file *);
 /* size_t read_frame_header(capture_file *); */
 

@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.16 1999/03/22 23:31:05 guy Exp $
+ * $Id: packet-dns.c,v 1.17 1999/03/23 03:14:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,21 +27,15 @@
 # include "config.h"
 #endif
 
-#include <gtk/gtk.h>
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
 
 #include <stdio.h>
 #include <string.h>
 #include <memory.h>
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
-#include "ethereal.h"
+#include <glib.h>
 #include "packet.h"
 #include "packet-dns.h"
 #include "util.h"
@@ -421,7 +415,7 @@ get_dns_name_type_class (const u_char *dns_data_ptr,
 
 static int
 dissect_dns_query(const u_char *dns_data_ptr, const u_char *pd, int offset,
-  GtkWidget *dns_tree)
+  proto_tree *dns_tree)
 {
   int len;
   char name[MAXDNAME];
@@ -433,7 +427,8 @@ dissect_dns_query(const u_char *dns_data_ptr, const u_char *pd, int offset,
   char *long_type_name;
   const u_char *dptr;
   const u_char *data_start;
-  GtkWidget *q_tree, *tq;
+  proto_tree *q_tree;
+  proto_item *tq;
 
   data_start = dptr = pd + offset;
 
@@ -445,49 +440,49 @@ dissect_dns_query(const u_char *dns_data_ptr, const u_char *pd, int offset,
   class_name = dns_class_name(class);
   long_type_name = dns_long_type_name(type);
 
-  tq = add_item_to_tree(dns_tree, offset, len, "%s: type %s, class %s", 
+  tq = proto_tree_add_item(dns_tree, offset, len, "%s: type %s, class %s", 
 		   name, type_name, class_name);
-  q_tree = gtk_tree_new();
-  add_subtree(tq, q_tree, ETT_DNS_QD);
+  q_tree = proto_tree_new();
+  proto_item_add_subtree(tq, q_tree, ETT_DNS_QD);
 
-  add_item_to_tree(q_tree, offset, name_len, "Name: %s", name);
+  proto_tree_add_item(q_tree, offset, name_len, "Name: %s", name);
   offset += name_len;
 
-  add_item_to_tree(q_tree, offset, 2, "Type: %s", long_type_name);
+  proto_tree_add_item(q_tree, offset, 2, "Type: %s", long_type_name);
   offset += 2;
 
-  add_item_to_tree(q_tree, offset, 2, "Class: %s", class_name);
+  proto_tree_add_item(q_tree, offset, 2, "Class: %s", class_name);
   offset += 2;
   
   return dptr - data_start;
 }
 
 
-GtkWidget *
-add_rr_to_tree(GtkWidget *trr, int rr_type, int offset, const char *name,
+proto_tree *
+add_rr_to_tree(proto_item *trr, int rr_type, int offset, const char *name,
   int namelen, const char *type_name, const char *class_name, u_int ttl,
   u_short data_len)
 {
-  GtkWidget *rr_tree;
+  proto_tree *rr_tree;
 
-  rr_tree = gtk_tree_new();
-  add_subtree(trr, rr_tree, rr_type);
-  add_item_to_tree(rr_tree, offset, namelen, "Name: %s", name);
+  rr_tree = proto_tree_new();
+  proto_item_add_subtree(trr, rr_tree, rr_type);
+  proto_tree_add_item(rr_tree, offset, namelen, "Name: %s", name);
   offset += namelen;
-  add_item_to_tree(rr_tree, offset, 2, "Type: %s", type_name);
+  proto_tree_add_item(rr_tree, offset, 2, "Type: %s", type_name);
   offset += 2;
-  add_item_to_tree(rr_tree, offset, 2, "Class: %s", class_name);
+  proto_tree_add_item(rr_tree, offset, 2, "Class: %s", class_name);
   offset += 2;
-  add_item_to_tree(rr_tree, offset, 4, "Time to live: %s",
+  proto_tree_add_item(rr_tree, offset, 4, "Time to live: %s",
 						time_secs_to_str(ttl));
   offset += 4;
-  add_item_to_tree(rr_tree, offset, 2, "Data length: %u", data_len);
+  proto_tree_add_item(rr_tree, offset, 2, "Data length: %u", data_len);
   return rr_tree;
 }
 
 static int
 dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
-  GtkWidget *dns_tree)
+  proto_tree *dns_tree)
 {
   int len;
   char name[MAXDNAME];
@@ -501,7 +496,8 @@ dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
   const u_char *data_start;
   u_int ttl;
   u_short data_len;
-  GtkWidget *rr_tree, *trr;
+  proto_tree *rr_tree;
+  proto_item *trr;
 
   data_start = dptr = pd + offset;
 
@@ -521,14 +517,14 @@ dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
 
   switch (type) {
   case T_A: 		/* "A" record */
-    trr = add_item_to_tree(dns_tree, offset, (dptr - data_start) + data_len,
+    trr = proto_tree_add_item(dns_tree, offset, (dptr - data_start) + data_len,
 		     "%s: type %s, class %s, addr %s",
 		     name, type_name, class_name,
 		     ip_to_str((guint8 *)dptr));
     rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
                      long_type_name, class_name, ttl, data_len);
     offset += (dptr - data_start);
-    add_item_to_tree(rr_tree, offset, 4, "Addr: %s",
+    proto_tree_add_item(rr_tree, offset, 4, "Addr: %s",
                      ip_to_str((guint8 *)dptr));
     break;
 
@@ -538,13 +534,13 @@ dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
       int ns_name_len;
       
       ns_name_len = get_dns_name(dns_data_ptr, dptr, 0, ns_name, sizeof(ns_name));
-      trr = add_item_to_tree(dns_tree, offset, (dptr - data_start) + data_len,
+      trr = proto_tree_add_item(dns_tree, offset, (dptr - data_start) + data_len,
 		       "%s: type %s, class %s, ns %s",
 		       name, type_name, class_name, ns_name);
       rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
                        long_type_name, class_name, ttl, data_len);
       offset += (dptr - data_start);
-      add_item_to_tree(rr_tree, offset, ns_name_len, "Name server: %s", ns_name);
+      proto_tree_add_item(rr_tree, offset, ns_name_len, "Name server: %s", ns_name);
     }
     break;
 
@@ -554,13 +550,13 @@ dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
       int cname_len;
       
       cname_len = get_dns_name(dns_data_ptr, dptr, 0, cname, sizeof(cname));
-      trr = add_item_to_tree(dns_tree, offset, (dptr - data_start) + data_len,
+      trr = proto_tree_add_item(dns_tree, offset, (dptr - data_start) + data_len,
 		     "%s: type %s, class %s, cname %s",
 		     name, type_name, class_name, cname);
       rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
                        long_type_name, class_name, ttl, data_len);
       offset += (dptr - data_start);
-      add_item_to_tree(rr_tree, offset, data_len, "Primary name: %s", cname);
+      proto_tree_add_item(rr_tree, offset, data_len, "Primary name: %s", cname);
     }
     break;
 
@@ -570,13 +566,13 @@ dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
       int pname_len;
       
       pname_len = get_dns_name(dns_data_ptr, dptr, 0, pname, sizeof(pname));
-      trr = add_item_to_tree(dns_tree, offset, (dptr - data_start) + data_len,
+      trr = proto_tree_add_item(dns_tree, offset, (dptr - data_start) + data_len,
 		     "%s: type %s, class %s, ptr %s",
 		     name, type_name, class_name, pname);
       rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
                        long_type_name, class_name, ttl, data_len);
       offset += (dptr - data_start);
-      add_item_to_tree(rr_tree, offset, data_len, "Domain name: %s", pname);
+      proto_tree_add_item(rr_tree, offset, data_len, "Domain name: %s", pname);
       break;
     }
     break;
@@ -584,13 +580,13 @@ dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
     /* TODO: parse more record types */
 
   default:
-    trr = add_item_to_tree(dns_tree, offset, (dptr - data_start) + data_len,
+    trr = proto_tree_add_item(dns_tree, offset, (dptr - data_start) + data_len,
                      "%s: type %s, class %s",
 		     name, type_name, class_name);
     rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
                        long_type_name, class_name, ttl, data_len);
     offset += (dptr - data_start);
-    add_item_to_tree(rr_tree, offset, data_len, "Data");
+    proto_tree_add_item(rr_tree, offset, data_len, "Data");
   }
   
   dptr += data_len;
@@ -600,19 +596,19 @@ dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
 
 static int
 dissect_query_records(const u_char *dns_data_ptr, int count, const u_char *pd, 
-		      int cur_off, GtkWidget *dns_tree)
+		      int cur_off, proto_tree *dns_tree)
 {
   int start_off;
-  GtkWidget *qatree, *ti;
+  proto_tree *qatree;
+  proto_item *ti;
   
   start_off = cur_off;
-  ti = add_item_to_tree(GTK_WIDGET(dns_tree), 
-			start_off, 0, "Queries");
-  qatree = gtk_tree_new();
-  add_subtree(ti, qatree, ETT_DNS_QRY);
+  ti = proto_tree_add_item(dns_tree, start_off, 0, "Queries");
+  qatree = proto_tree_new();
+  proto_item_add_subtree(ti, qatree, ETT_DNS_QRY);
   while (count-- > 0)
     cur_off += dissect_dns_query(dns_data_ptr, pd, cur_off, qatree);
-  set_item_len(ti, cur_off - start_off);
+  proto_item_set_len(ti, cur_off - start_off);
 
   return cur_off - start_off;
 }
@@ -621,29 +617,30 @@ dissect_query_records(const u_char *dns_data_ptr, int count, const u_char *pd,
 
 static int
 dissect_answer_records(const u_char *dns_data_ptr, int count,
-                       const u_char *pd, int cur_off, GtkWidget *dns_tree,
+                       const u_char *pd, int cur_off, proto_tree *dns_tree,
                        char *name)
 {
   int start_off;
-  GtkWidget *qatree, *ti;
+  proto_tree *qatree;
+  proto_item *ti;
   
   start_off = cur_off;
-  ti = add_item_to_tree(GTK_WIDGET(dns_tree),
-			start_off, 0, name);
-  qatree = gtk_tree_new();
-  add_subtree(ti, qatree, ETT_DNS_ANS);
+  ti = proto_tree_add_item(dns_tree, start_off, 0, name);
+  qatree = proto_tree_new();
+  proto_item_add_subtree(ti, qatree, ETT_DNS_ANS);
   while (count-- > 0)
     cur_off += dissect_dns_answer(dns_data_ptr, pd, cur_off, qatree);
-  set_item_len(ti, cur_off - start_off);
+  proto_item_set_len(ti, cur_off - start_off);
 
   return cur_off - start_off;
 }
 
 
 void
-dissect_dns(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
+dissect_dns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   const u_char *dns_data_ptr;
-  GtkWidget *dns_tree, *ti, *field_tree, *tf;
+  proto_tree *dns_tree, *field_tree;
+  proto_item *ti, *tf;
   guint16    id, flags, quest, ans, auth, add;
   char buf[128+1];
   int cur_off;
@@ -681,13 +678,13 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   }
   
   if (tree) {
-    ti = add_item_to_tree(GTK_WIDGET(tree), offset, 4,
+    ti = proto_tree_add_item(tree, offset, 4,
 			  (flags & F_RESPONSE) ? "DNS response" : "DNS query");
     
-    dns_tree = gtk_tree_new();
-    add_subtree(ti, dns_tree, ETT_DNS);
+    dns_tree = proto_tree_new();
+    proto_item_add_subtree(ti, dns_tree, ETT_DNS);
     
-    add_item_to_tree(dns_tree, offset + DNS_ID, 2, "Transaction ID: 0x%04x",
+    proto_tree_add_item(dns_tree, offset + DNS_ID, 2, "Transaction ID: 0x%04x",
     			id);
 
     strcpy(buf, val_to_str(flags & F_OPCODE, opcode_vals, "Unknown operation"));
@@ -697,47 +694,47 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       strcat(buf, val_to_str(flags & F_RCODE, rcode_vals,
             "Unknown error"));
     }
-    tf = add_item_to_tree(dns_tree, offset + DNS_FLAGS, 2, "Flags: 0x%04x (%s)",
+    tf = proto_tree_add_item(dns_tree, offset + DNS_FLAGS, 2, "Flags: 0x%04x (%s)",
                           flags, buf);
-    field_tree = gtk_tree_new();
-    add_subtree(tf, field_tree, ETT_DNS_FLAGS);
-    add_item_to_tree(field_tree, offset + DNS_FLAGS, 2, "%s",
+    field_tree = proto_tree_new();
+    proto_item_add_subtree(tf, field_tree, ETT_DNS_FLAGS);
+    proto_tree_add_item(field_tree, offset + DNS_FLAGS, 2, "%s",
        decode_boolean_bitfield(flags, F_RESPONSE,
             2*8, "Response", "Query"));
-    add_item_to_tree(field_tree, offset + DNS_FLAGS, 2, "%s",
+    proto_tree_add_item(field_tree, offset + DNS_FLAGS, 2, "%s",
        decode_enumerated_bitfield(flags, F_OPCODE,
             2*8, opcode_vals, "%s"));
     if (flags & F_RESPONSE) {
-      add_item_to_tree(field_tree, offset + DNS_FLAGS, 2, "%s",
+      proto_tree_add_item(field_tree, offset + DNS_FLAGS, 2, "%s",
          decode_boolean_bitfield(flags, F_AUTHORITATIVE,
               2*8,
               "Server is an authority for domain",
               "Server isn't an authority for domain"));
     }
-    add_item_to_tree(field_tree, offset + DNS_FLAGS, 2, "%s",
+    proto_tree_add_item(field_tree, offset + DNS_FLAGS, 2, "%s",
        decode_boolean_bitfield(flags, F_TRUNCATED,
             2*8,
             "Message is truncated",
             "Message is not truncated"));
-    add_item_to_tree(field_tree, offset + DNS_FLAGS, 2, "%s",
+    proto_tree_add_item(field_tree, offset + DNS_FLAGS, 2, "%s",
        decode_boolean_bitfield(flags, F_RECDESIRED,
             2*8,
             "Do query recursively",
             "Don't do query recursively"));
     if (flags & F_RESPONSE) {
-      add_item_to_tree(field_tree, offset + DNS_FLAGS, 2, "%s",
+      proto_tree_add_item(field_tree, offset + DNS_FLAGS, 2, "%s",
          decode_boolean_bitfield(flags, F_RECAVAIL,
               2*8,
               "Server can do recursive queries",
               "Server can't do recursive queries"));
-      add_item_to_tree(field_tree, offset + DNS_FLAGS, 2, "%s",
+      proto_tree_add_item(field_tree, offset + DNS_FLAGS, 2, "%s",
          decode_enumerated_bitfield(flags, F_RCODE,
               2*8, rcode_vals, "%s"));
     }
-    add_item_to_tree(dns_tree, offset + DNS_QUEST, 2, "Questions: %d", quest);
-    add_item_to_tree(dns_tree, offset + DNS_ANS, 2, "Answer RRs: %d", ans);
-    add_item_to_tree(dns_tree, offset + DNS_AUTH, 2, "Authority RRs: %d", auth);
-    add_item_to_tree(dns_tree, offset + DNS_ADD, 2, "Additional RRs: %d", add);
+    proto_tree_add_item(dns_tree, offset + DNS_QUEST, 2, "Questions: %d", quest);
+    proto_tree_add_item(dns_tree, offset + DNS_ANS, 2, "Answer RRs: %d", ans);
+    proto_tree_add_item(dns_tree, offset + DNS_AUTH, 2, "Authority RRs: %d", auth);
+    proto_tree_add_item(dns_tree, offset + DNS_ADD, 2, "Additional RRs: %d", add);
 
     cur_off = offset + DNS_HDRLEN;
     

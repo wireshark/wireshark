@@ -1,7 +1,7 @@
 /* packet-raw.c
  * Routines for raw packet disassembly
  *
- * $Id: packet-raw.c,v 1.8 1999/02/09 00:35:38 guy Exp $
+ * $Id: packet-raw.c,v 1.9 1999/03/23 03:14:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,10 +32,7 @@
 # include <sys/types.h>
 #endif
 
-#include <gtk/gtk.h>
-#include <stdio.h>
-
-#include "ethereal.h"
+#include <glib.h>
 #include "packet.h"
 
 void
@@ -56,8 +53,9 @@ capture_raw( const u_char *pd, guint32 cap_len, packet_counts *ld ) {
 }
 
 void
-dissect_raw( const u_char *pd, frame_data *fd, GtkTree *tree ) {
-  GtkWidget *ti, *fh_tree;
+dissect_raw( const u_char *pd, frame_data *fd, proto_tree *tree ) {
+  proto_tree *fh_tree;
+  proto_item *ti;
 
   /* load the top pane info. This should be overwritten by
      the next protocol in the stack */
@@ -73,11 +71,10 @@ dissect_raw( const u_char *pd, frame_data *fd, GtkTree *tree ) {
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
   if(tree) {
-    ti = add_item_to_tree( GTK_WIDGET(tree), 0, 0,
-			   "Raw packet data" );
-    fh_tree = gtk_tree_new();
-    add_subtree(ti, fh_tree, ETT_RAW);
-    add_item_to_tree(fh_tree, 0, 0, "No link information available");
+    ti = proto_tree_add_item(tree, 0, 0, "Raw packet data" );
+    fh_tree = proto_tree_new();
+    proto_item_add_subtree(ti, fh_tree, ETT_RAW);
+    proto_tree_add_item(fh_tree, 0, 0, "No link information available");
   }
 
   /* So far, the only time we get raw connection types are with Linux and

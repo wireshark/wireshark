@@ -2,7 +2,7 @@
  * Routines for Token-Ring Media Access Control
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-trmac.c,v 1.10 1999/03/01 18:28:11 gram Exp $
+ * $Id: packet-trmac.c,v 1.11 1999/03/23 03:14:44 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -32,22 +32,8 @@
 # include <sys/types.h>
 #endif
 
-
-#include <gtk/gtk.h>
-
-#include <stdio.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
-#include "ethereal.h"
+#include <glib.h>
 #include "packet.h"
-#include "etypes.h"
 
 /* Major Vector */
 static value_string major_vectors[] = {
@@ -81,7 +67,7 @@ static value_string major_vectors[] = {
 
 /* Sub-vectors */
 static int
-sv_text(const u_char *pd, int pkt_offset, GtkWidget *tree)
+sv_text(const u_char *pd, int pkt_offset, proto_tree *tree)
 {
 	int	sv_length = pd[0];
 
@@ -89,175 +75,177 @@ sv_text(const u_char *pd, int pkt_offset, GtkWidget *tree)
 		"Streaming signal not Claim Token MAC frame",
 		"Streaming signal, Claim Token MAC frame"};
 
-	GtkWidget	*sv_tree, *ti;
+	proto_tree	*sv_tree;
+	proto_item	*ti;
 
 	u_char		errors[6];	/* isolating or non-isolating */
 
 	/* this just adds to the clutter on the screen...
-	add_item_to_tree(tree, pkt_offset, 1,
+	proto_tree_add_item(tree, pkt_offset, 1,
 		"Subvector Length: %d bytes", sv_length);*/
 
 	switch(pd[1]) {
 		case 0x01: /* Beacon Type */
-			add_item_to_tree(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_item(tree, pkt_offset+1, sv_length-1,
 				"Beacon Type: %s", beacon[ pntohs( &pd[2] ) ] );
 			break;
 
 		case 0x02: /* NAUN */
-			add_item_to_tree(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_item(tree, pkt_offset+1, sv_length-1,
 				"NAUN: %s", ether_to_str((guint8*)&pd[2]));
 			break;
 
 		case 0x03: /* Local Ring Number */
-			add_item_to_tree(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_item(tree, pkt_offset+1, sv_length-1,
 				"Local Ring Number: 0x%04X (%d)",
 				pntohs( &pd[2] ), pntohs( &pd[2] ));
 			break;
 
 		case 0x04: /* Assign Physical Location */
-			add_item_to_tree(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_item(tree, pkt_offset+1, sv_length-1,
 				"Assign Physical Location: 0x%08X", pntohl( &pd[2] ) );
 			break;
 
 		case 0x05: /* Soft Error Report Value */
-			add_item_to_tree(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_item(tree, pkt_offset+1, sv_length-1,
 				"Soft Error Report Value: %d ms", 10 * pntohs( &pd[2] ) );
 			break;
 
 		case 0x06: /* Enabled Function Classes */
-			add_item_to_tree(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_item(tree, pkt_offset+1, sv_length-1,
 				"Enabled Function Classes: %04X",  pntohs( &pd[2] ) );
 			break;
 
 		case 0x07: /* Allowed Access Priority */
-			add_item_to_tree(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_item(tree, pkt_offset+1, sv_length-1,
 				"Allowed Access Priority: %04X",  pntohs( &pd[2] ) );
 			break;
 
 		case 0x09: /* Correlator */
-			add_item_to_tree(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_item(tree, pkt_offset+1, sv_length-1,
 				"Correlator: %04X",  pntohs( &pd[2] ) );
 			break;
 
 		case 0x0A: /* Address of last neighbor notification */
-			add_item_to_tree(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_item(tree, pkt_offset+1, sv_length-1,
 				"Address of Last Neighbor Notification: %s",
 				ether_to_str((guint8*)&pd[2]));
 			break;
 
 		case 0x0B: /* Physical Location */
-			add_item_to_tree(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_item(tree, pkt_offset+1, sv_length-1,
 				"Physical Location: 0x%08X", pntohl( &pd[2] ) );
 			break;
 
 		case 0x20: /* Response Code */
-			add_item_to_tree(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_item(tree, pkt_offset+1, sv_length-1,
 				"Response Code: 0x%04X 0x%04X", pntohl( &pd[2] ),
 				pntohl( &pd[4] ) );
 			break;
 
 		case 0x21: /* Reserved */
-			add_item_to_tree(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_item(tree, pkt_offset+1, sv_length-1,
 				"Reserved: 0x%04X", pntohs( &pd[2] ) );
 			break;
 
 		case 0x22: /* Product Instance ID */
-			add_item_to_tree(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_item(tree, pkt_offset+1, sv_length-1,
 				"Product Instance ID: ...");
 			break;
 
 		case 0x23: /* Ring Station Microcode Level */
-			add_item_to_tree(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_item(tree, pkt_offset+1, sv_length-1,
 				"Ring Station Microcode Level: ...");
 			break;
 
 		case 0x26: /* Wrap data */
-			add_item_to_tree(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_item(tree, pkt_offset+1, sv_length-1,
 				"Wrap Data: ... (%d bytes)", sv_length - 2);
 			break;
 
 		case 0x27: /* Frame Forward */
-			add_item_to_tree(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_item(tree, pkt_offset+1, sv_length-1,
 				"Frame Forward: ... (%d bytes)", sv_length - 2);
 			break;
 
 		case 0x29: /* Ring Station Status Subvector */
-			add_item_to_tree(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_item(tree, pkt_offset+1, sv_length-1,
 				"Ring Station Status Subvector: ...");
 			break;
 
 		case 0x2A: /* Transmit Status Code */
-			add_item_to_tree(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_item(tree, pkt_offset+1, sv_length-1,
 				"Transmit Status Code: %04X", pntohs( &pd[2] ) );
 			break;
 
 		case 0x2B: /* Group Address */
-			add_item_to_tree(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_item(tree, pkt_offset+1, sv_length-1,
 				"Group Address: %08X", pntohl( &pd[2] ) );
 			break;
 
 		case 0x2C: /* Functional Address */
-			add_item_to_tree(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_item(tree, pkt_offset+1, sv_length-1,
 				"Functional Address: %08X", pntohl( &pd[2] ) );
 			break;
 
 		case 0x2D: /* Isolating Error Counts */
 			memcpy(errors, &pd[2], 6);
-			ti = add_item_to_tree(GTK_WIDGET(tree), pkt_offset+1, sv_length-1,
+			ti = proto_tree_add_item(tree, pkt_offset+1, sv_length-1,
 				"Isolating Error Counts (%d total)",
 				errors[0] + errors[1] + errors[2] + errors[3] + errors[4]);
-			sv_tree = gtk_tree_new();
-			add_subtree(ti, sv_tree, ETT_TR_IERR_CNT);
+			sv_tree = proto_tree_new();
+			proto_item_add_subtree(ti, sv_tree, ETT_TR_IERR_CNT);
 
-			add_item_to_tree(sv_tree, pkt_offset+2, 1,
+			proto_tree_add_item(sv_tree, pkt_offset+2, 1,
 				"Line Errors: %d", errors[0]);
-			add_item_to_tree(sv_tree, pkt_offset+3, 1,
+			proto_tree_add_item(sv_tree, pkt_offset+3, 1,
 				"Internal Errors: %d", errors[1]);
-			add_item_to_tree(sv_tree, pkt_offset+4, 1,
+			proto_tree_add_item(sv_tree, pkt_offset+4, 1,
 				"Burst Errors: %d", errors[2]);
-			add_item_to_tree(sv_tree, pkt_offset+5, 1,
+			proto_tree_add_item(sv_tree, pkt_offset+5, 1,
 				"A/C Errors: %d", errors[3]);
-			add_item_to_tree(sv_tree, pkt_offset+6, 1,
+			proto_tree_add_item(sv_tree, pkt_offset+6, 1,
 				"Abort delimiter transmitted: %d", errors[4]);
 
 			break;
 
 		case 0x2E: /* Non-Isolating Error Counts */
 			memcpy(errors, &pd[2], 6);
-			ti = add_item_to_tree(GTK_WIDGET(tree), pkt_offset+1, sv_length-1,
+			ti = proto_tree_add_item(tree, pkt_offset+1, sv_length-1,
 				"Non-Isolating Error Counts (%d total)",
 				errors[0] + errors[1] + errors[2] + errors[3] + errors[4]);
-			sv_tree = gtk_tree_new();
-			add_subtree(ti, sv_tree, ETT_TR_NERR_CNT);
+			sv_tree = proto_tree_new();
+			proto_item_add_subtree(ti, sv_tree, ETT_TR_NERR_CNT);
 
-			add_item_to_tree(sv_tree, pkt_offset+2, 1,
+			proto_tree_add_item(sv_tree, pkt_offset+2, 1,
 				"Lost Frame Errors: %d", errors[0]);
-			add_item_to_tree(sv_tree, pkt_offset+3, 1,
+			proto_tree_add_item(sv_tree, pkt_offset+3, 1,
 				"Receiver Congestion: %d", errors[1]);
-			add_item_to_tree(sv_tree, pkt_offset+4, 1,
+			proto_tree_add_item(sv_tree, pkt_offset+4, 1,
 				"Frame-Copied Congestion: %d", errors[2]);
-			add_item_to_tree(sv_tree, pkt_offset+5, 1,
+			proto_tree_add_item(sv_tree, pkt_offset+5, 1,
 				"Frequency Errors: %d", errors[3]);
-			add_item_to_tree(sv_tree, pkt_offset+6, 1,
+			proto_tree_add_item(sv_tree, pkt_offset+6, 1,
 				"Token Errors: %d", errors[4]);
 			break;
 
 		case 0x30: /* Error Code */
-			add_item_to_tree(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_item(tree, pkt_offset+1, sv_length-1,
 				"Error Code: %04X", pntohs( &pd[2] ) );
 			break;
 
 		default: /* Unknown */
-			add_item_to_tree(tree, pkt_offset+1, 1,
+			proto_tree_add_item(tree, pkt_offset+1, 1,
 				"Unknown Sub-Vector: 0x%02X", pd[1]);
 	}
 	return sv_length;
 }
 
 void
-dissect_trmac(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
+dissect_trmac(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
-	GtkWidget	*mac_tree = NULL, *ti;
+	proto_tree	*mac_tree = NULL;
+	proto_item	*ti;
 	int			mv_length, sv_length, sv_offset, sv_additional;
 	char		*class[] = { "Ring Station", "LLC Manager", "", "",
 		"Configuration Report Server", "Ring Parameter Server",
@@ -267,10 +255,10 @@ dissect_trmac(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	mv_length = pntohs(&pd[offset]);
 
 	if (tree) {
-		ti = add_item_to_tree(GTK_WIDGET(tree), offset, mv_length,
+		ti = proto_tree_add_item(tree, offset, mv_length,
 			"Media Access Control");
-		mac_tree = gtk_tree_new();
-		add_subtree(ti, mac_tree, ETT_TR_MAC);
+		mac_tree = proto_tree_new();
+		proto_item_add_subtree(ti, mac_tree, ETT_TR_MAC);
 	}
 
 	/* Interpret the major vector */
@@ -284,16 +272,16 @@ dissect_trmac(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
 	if (tree) {
 		if (mv_text)
-			add_item_to_tree(mac_tree, offset+3, 1, "Major Vector Command: %s",
+			proto_tree_add_item(mac_tree, offset+3, 1, "Major Vector Command: %s",
 							mv_text);
 		else
-			add_item_to_tree(mac_tree, offset+3, 1, "Major Vector Command: %02X (Unknown)",
+			proto_tree_add_item(mac_tree, offset+3, 1, "Major Vector Command: %02X (Unknown)",
 							pd[offset+3]);
-		add_item_to_tree(mac_tree, offset, 2, "Total Length: %d bytes",
+		proto_tree_add_item(mac_tree, offset, 2, "Total Length: %d bytes",
 			mv_length);
-		add_item_to_tree(mac_tree, offset+2, 1, "Source Class: %s",
+		proto_tree_add_item(mac_tree, offset+2, 1, "Source Class: %s",
 			class[ pd[offset+2] & 0x0f ]);
-		add_item_to_tree(mac_tree, offset+2, 1, "Destination Class: %s",
+		proto_tree_add_item(mac_tree, offset+2, 1, "Destination Class: %s",
 			class[ pd[offset+2] >> 4 ]);
 
 		/* interpret the subvectors */

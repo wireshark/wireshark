@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.20 1999/02/12 09:03:41 guy Exp $
+ * $Id: packet.c,v 1.21 1999/03/23 03:14:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,7 +31,7 @@
 # include <sys/types.h>
 #endif
 
-#include <gtk/gtk.h>
+#include <glib.h>
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -47,13 +47,9 @@
 # include <netinet/in.h>
 #endif
 
-#include "ethereal.h"
 #include "packet.h"
-#include "etypes.h"
 #include "file.h"
 
-extern GtkWidget    *byte_view;
-extern GdkFont      *m_r_font, *m_b_font;
 extern capture_file  cf;
 
 gchar *
@@ -139,93 +135,7 @@ time_secs_to_str(guint32 time)
   return cur;
 }
 
-void
-packet_hex_print(GtkText *bv, guchar *pd, gint len, gint bstart, gint blen) {
-  gint     i = 0, j, k, cur;
-  gchar    line[128], hexchars[] = "0123456789abcdef";
-  GdkFont *cur_font, *new_font;
-  
-  while (i < len) {
-    /* Print the line number */
-    sprintf(line, "%04x  ", i);
-    gtk_text_insert(bv, m_r_font, NULL, NULL, line, -1);
-    /* Do we start in bold? */
-    cur_font = (i >= bstart && i < (bstart + blen)) ? m_b_font : m_r_font;
-    j   = i;
-    k   = i + BYTE_VIEW_WIDTH;
-    cur = 0;
-    /* Print the hex bit */
-    while (i < k) {
-      if (i < len) {
-        line[cur++] = hexchars[(pd[i] & 0xf0) >> 4];
-        line[cur++] = hexchars[pd[i] & 0x0f];
-      } else {
-        line[cur++] = ' '; line[cur++] = ' ';
-      }
-      line[cur++] = ' ';
-      i++;
-      /* Did we cross a bold/plain boundary? */
-      new_font = (i >= bstart && i < (bstart + blen)) ? m_b_font : m_r_font;
-      if (cur_font != new_font) {
-        gtk_text_insert(bv, cur_font, NULL, NULL, line, cur);
-        cur_font = new_font;
-        cur = 0;
-      }
-    }
-    line[cur++] = ' ';
-    gtk_text_insert(bv, cur_font, NULL, NULL, line, cur);
-    cur = 0;
-    i = j;
-    /* Print the ASCII bit */
-    cur_font = (i >= bstart && i < (bstart + blen)) ? m_b_font : m_r_font;
-    while (i < k) {
-      if (i < len) {
-        line[cur++] = (isgraph(pd[i])) ? pd[i] : '.';
-      } else {
-        line[cur++] = ' ';
-      }
-      i++;
-      /* Did we cross a bold/plain boundary? */
-      new_font = (i >= bstart && i < (bstart + blen)) ? m_b_font : m_r_font;
-      if (cur_font != new_font) {
-        gtk_text_insert(bv, cur_font, NULL, NULL, line, cur);
-        cur_font = new_font;
-        cur = 0;
-      }
-    }
-    line[cur++] = '\n';
-    line[cur]   = '\0';
-    gtk_text_insert(bv, cur_font, NULL, NULL, line, -1);
-  }
-}
 
-static void
-set_item_style(GtkWidget *widget, gpointer dummy)
-{
-  gtk_widget_set_style(widget, item_style);
-}
-
-GtkWidget *
-add_item_to_tree(GtkWidget *tree, gint start, gint len,
-  gchar *format, ...) {
-  GtkWidget *ti;
-  va_list    ap;
-  gchar      label_str[256];
-  
-  if (!tree)
-    return(NULL);
-  
-  va_start(ap, format);
-  vsnprintf(label_str, 256, format, ap);
-  ti = gtk_tree_item_new_with_label(label_str);
-  gtk_container_foreach(GTK_CONTAINER(ti), set_item_style, NULL);
-  gtk_object_set_data(GTK_OBJECT(ti), E_TREEINFO_START_KEY, (gpointer) start);
-  gtk_object_set_data(GTK_OBJECT(ti), E_TREEINFO_LEN_KEY, (gpointer) len);
-  gtk_tree_append(GTK_TREE(tree), ti);
-  gtk_widget_show(ti);
-
-  return ti;
-}
 
 /*
  * Given a pointer into a data buffer, and to the end of the buffer,
@@ -359,36 +269,6 @@ format_line(const u_char *line, int len)
   return linebuf;
 }
 
-void
-set_item_len(GtkWidget *ti, gint len)
-{
-  gtk_object_set_data(GTK_OBJECT(ti), E_TREEINFO_LEN_KEY, (gpointer) len);
-}
-
-void
-add_subtree(GtkWidget *ti, GtkWidget *subtree, gint idx) {
-  static gint tree_type[NUM_TREE_TYPES];
-
-  gtk_tree_item_set_subtree(GTK_TREE_ITEM(ti), subtree);
-  if (tree_type[idx])
-    gtk_tree_item_expand(GTK_TREE_ITEM(ti));
-  gtk_signal_connect(GTK_OBJECT(ti), "expand", (GtkSignalFunc) expand_tree,
-    (gpointer) &tree_type[idx]);
-  gtk_signal_connect(GTK_OBJECT(ti), "collapse", (GtkSignalFunc) collapse_tree,
-    (gpointer) &tree_type[idx]);
-}
-
-void
-expand_tree(GtkWidget *w, gpointer data) {
-  gint *val = (gint *) data;
-  *val = 1;
-}
-
-void
-collapse_tree(GtkWidget *w, gpointer data) {
-  gint *val = (gint *) data;
-  *val = 0;
-}
 
 /* Tries to match val against each element in the value_string array vs.
    Returns the associated string ptr on a match.
@@ -487,9 +367,10 @@ static const char *mon_names[12] = {
 
 /* this routine checks the frame type from the cf structure */
 void
-dissect_packet(const u_char *pd, frame_data *fd, GtkTree *tree)
+dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
 {
-	GtkWidget *fh_tree, *ti;
+	proto_tree *fh_tree;
+	proto_item *ti;
 	struct tm *tmp;
 	time_t then;
 
@@ -511,15 +392,15 @@ dissect_packet(const u_char *pd, frame_data *fd, GtkTree *tree)
 	}
 
 	if (tree) {
-	  ti = add_item_to_tree(GTK_WIDGET(tree), 0, fd->cap_len,
+	  ti = proto_tree_add_item(tree, 0, fd->cap_len,
 	    "Frame (%d on wire, %d captured)",
 	    fd->pkt_len, fd->cap_len);
 
-	  fh_tree = gtk_tree_new();
-	  add_subtree(ti, fh_tree, ETT_FRAME);
+	  fh_tree = proto_tree_new();
+	  proto_item_add_subtree(ti, fh_tree, ETT_FRAME);
 	  then = fd->abs_secs;
 	  tmp = localtime(&then);
-	  add_item_to_tree(fh_tree, 0, 0,
+	  proto_tree_add_item(fh_tree, 0, 0,
 	    "Frame arrived on %s %2d, %d %02d:%02d:%02d.%04ld",
 	    mon_names[tmp->tm_mon],
 	    tmp->tm_mday,
@@ -529,9 +410,9 @@ dissect_packet(const u_char *pd, frame_data *fd, GtkTree *tree)
 	    tmp->tm_sec,
 	    (long)fd->abs_usecs/100);
 
-	  add_item_to_tree(fh_tree, 0, 0, "Total frame length: %d bytes",
+	  proto_tree_add_item(fh_tree, 0, 0, "Total frame length: %d bytes",
 	    fd->pkt_len);
-	  add_item_to_tree(fh_tree, 0, 0, "Capture frame length: %d bytes",
+	  proto_tree_add_item(fh_tree, 0, 0, "Capture frame length: %d bytes",
 	    fd->cap_len);
 	}
 

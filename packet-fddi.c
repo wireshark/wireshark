@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.10 1999/03/02 20:50:05 gram Exp $
+ * $Id: packet-fddi.c,v 1.11 1999/03/23 03:14:37 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,12 +33,7 @@
 # include <sys/types.h>
 #endif
 
-#include <gtk/gtk.h>
-
-#include <stdio.h>
-
-
-#include "ethereal.h"
+#include <glib.h>
 #include "packet.h"
 #include "resolv.h"
 
@@ -176,10 +171,11 @@ capture_fddi(const u_char *pd, guint32 cap_len, packet_counts *ld) {
 
 } /* capture_fddi */
 
-void dissect_fddi(const u_char *pd, frame_data *fd, GtkTree *tree) 
+void dissect_fddi(const u_char *pd, frame_data *fd, proto_tree *tree) 
 {
   int        offset = 0, fc;
-  GtkWidget *fh_tree, *ti;
+  proto_tree *fh_tree;
+  proto_item *ti;
   u_char     src[6], dst[6];
 
   if (fd->cap_len < FDDI_HEADER_SIZE) {
@@ -210,17 +206,17 @@ void dissect_fddi(const u_char *pd, frame_data *fd, GtkTree *tree)
   offset = FDDI_HEADER_SIZE;
 
   if (tree) {
-    ti = add_item_to_tree(GTK_WIDGET(tree), 0, offset,
+    ti = proto_tree_add_item(tree, 0, offset,
 			  "FDDI %s",
 			  (fc >= FDDI_FC_LLC_ASYNC_MIN && fc <= FDDI_FC_LLC_ASYNC_MAX) ?
 			  "Async LLC" : "unsupported FC");
 
-      fh_tree = gtk_tree_new();
-      add_subtree(ti, fh_tree, ETT_FDDI);
-      add_item_to_tree(fh_tree, FDDI_P_FC, 1, "Frame Control: 0x%02x", fc);
-      add_item_to_tree(fh_tree, FDDI_P_DHOST, 6, "Destination: %s (%s)",
+      fh_tree = proto_tree_new();
+      proto_item_add_subtree(ti, fh_tree, ETT_FDDI);
+      proto_tree_add_item(fh_tree, FDDI_P_FC, 1, "Frame Control: 0x%02x", fc);
+      proto_tree_add_item(fh_tree, FDDI_P_DHOST, 6, "Destination: %s (%s)",
 		       ether_to_str(dst), get_ether_name(dst));
-      add_item_to_tree(fh_tree, FDDI_P_SHOST, 6, "Source: %s (%s)",
+      proto_tree_add_item(fh_tree, FDDI_P_SHOST, 6, "Source: %s (%s)",
 		       ether_to_str(src), get_ether_name(src));
     }
 

@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.9 1999/02/09 00:35:38 guy Exp $
+ * $Id: packet-ppp.c,v 1.10 1999/03/23 03:14:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,11 +32,17 @@
 # include <sys/types.h>
 #endif
 
-#include <gtk/gtk.h>
-#include <stdio.h>
-
-#include "ethereal.h"
+#include <glib.h>
 #include "packet.h"
+
+/* PPP structs and definitions */
+
+typedef struct _e_ppphdr {
+  guint8  ppp_addr;
+  guint8  ppp_ctl;
+  guint16 ppp_prot;
+} e_ppphdr;
+
 
 /* Protocol types, from Linux "ppp_defs.h" and
 
@@ -74,9 +80,11 @@ capture_ppp( const u_char *pd, guint32 cap_len, packet_counts *ld ) {
 }
 
 void
-dissect_ppp( const u_char *pd, frame_data *fd, GtkTree *tree ) {
+dissect_ppp( const u_char *pd, frame_data *fd, proto_tree *tree ) {
   e_ppphdr   ph;
-  GtkWidget *ti, *fh_tree;
+  proto_tree *fh_tree;
+  proto_item *ti;
+
   static const value_string ppp_vals[] = {
     {PPP_IP,     "IP"             },
     {PPP_AT,     "Appletalk"      },
@@ -103,13 +111,12 @@ dissect_ppp( const u_char *pd, frame_data *fd, GtkTree *tree ) {
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
   if(tree) {
-    ti = add_item_to_tree( GTK_WIDGET(tree), 0, 4,
-      "Point-to-Point Protocol" );
-    fh_tree = gtk_tree_new();
-    add_subtree(ti, fh_tree, ETT_PPP);
-    add_item_to_tree(fh_tree, 0, 1, "Address: %02x", ph.ppp_addr);
-    add_item_to_tree(fh_tree, 1, 1, "Control: %02x", ph.ppp_ctl);
-    add_item_to_tree(fh_tree, 2, 2, "Protocol: %s (0x%04x)",
+    ti = proto_tree_add_item(tree, 0, 4, "Point-to-Point Protocol" );
+    fh_tree = proto_tree_new();
+    proto_item_add_subtree(ti, fh_tree, ETT_PPP);
+    proto_tree_add_item(fh_tree, 0, 1, "Address: %02x", ph.ppp_addr);
+    proto_tree_add_item(fh_tree, 1, 1, "Control: %02x", ph.ppp_ctl);
+    proto_tree_add_item(fh_tree, 2, 2, "Protocol: %s (0x%04x)",
       val_to_str(ph.ppp_prot, ppp_vals, "Unknown"), ph.ppp_prot);
   }
 

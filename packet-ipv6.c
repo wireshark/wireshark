@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.5 1998/11/17 04:28:55 gerald Exp $
+ * $Id: packet-ipv6.c,v 1.6 1999/03/23 03:14:38 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,10 +27,6 @@
 # include "config.h"
 #endif
 
-#include <gtk/gtk.h>
-
-#include <stdio.h>
-
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
@@ -39,14 +35,16 @@
 # include <netinet/in.h>
 #endif
 
-#include "ethereal.h"
+#include <glib.h>
 #include "packet.h"
+#include "packet-ip.h"
 #include "packet-ipv6.h"
 #include "etypes.h"
 
 void
-dissect_ipv6(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
-  GtkWidget *ipv6_tree, *ti;
+dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+  proto_tree *ipv6_tree;
+  proto_item *ti;
 
   e_ipv6_header ipv6;
 
@@ -71,15 +69,14 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
   if (tree) {
     /* !!! specify length */
-    ti = add_item_to_tree(GTK_WIDGET(tree), offset, 40,
-      "Internet Protocol Version 6");
-    ipv6_tree = gtk_tree_new();
-    add_subtree(ti, ipv6_tree, ETT_IPv6);
+    ti = proto_tree_add_item(tree, offset, 40, "Internet Protocol Version 6");
+    ipv6_tree = proto_tree_new();
+    proto_item_add_subtree(ti, ipv6_tree, ETT_IPv6);
 
     /* !!! warning: version also contains 4 Bit priority */
-    add_item_to_tree(ipv6_tree, offset,      1, "Version: %d Priority: %d", ipv6.version >> 4 , ipv6.version & 15);
-    add_item_to_tree(ipv6_tree, offset + 6,  1, "Next Header: %d", ipv6.next_header);
-    add_item_to_tree(ipv6_tree, offset + 4,  2, "Payload Length: %d", ntohs(ipv6.payload_length));
+    proto_tree_add_item(ipv6_tree, offset,      1, "Version: %d Priority: %d", ipv6.version >> 4 , ipv6.version & 15);
+    proto_tree_add_item(ipv6_tree, offset + 6,  1, "Next Header: %d", ipv6.next_header);
+    proto_tree_add_item(ipv6_tree, offset + 4,  2, "Payload Length: %d", ntohs(ipv6.payload_length));
   }
 
   /* start of the new header (could be a extension header) */

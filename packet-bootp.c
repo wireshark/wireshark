@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-bootp.c,v 1.15 1999/01/28 21:29:35 gram Exp $
+ * $Id: packet-bootp.c,v 1.16 1999/03/23 03:14:35 gram Exp $
  *
  * The information used comes from:
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
@@ -33,22 +33,12 @@
 # include "config.h"
 #endif
 
-#include <gtk/gtk.h>
-
-#include <stdio.h>
-
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
 
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
-
-#include "ethereal.h"
+#include <glib.h>
 #include "packet.h"
-#include "etypes.h"
 
 enum field_type { none, ipv4, string, toggle, yes_no, special, opaque,
 	time_in_secs,
@@ -64,7 +54,7 @@ struct opt_info {
 
 /* returns the number of bytes consumed by this option */
 static int
-bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
+bootp_option(const u_char *pd, proto_tree *bp_tree, int voff, int eoff)
 {
 	char			*text;
 	enum field_type	ftype;
@@ -73,7 +63,8 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 	u_char			byte;
 	int				i, consumed = vlen + 2;
 	u_long			time_secs;
-	GtkWidget		*vti, *v_tree;
+	proto_tree		*v_tree;
+	proto_item		*vti;
 
 	static const char	*opt53_text[] = {
 		"Unknown Message Type",
@@ -183,7 +174,7 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 				}
 			}
 			i = i - voff;
-			add_item_to_tree(bp_tree, voff, i, "Padding");
+			proto_tree_add_item(bp_tree, voff, i, "Padding");
 			consumed = i;
 			return consumed;
 
@@ -191,7 +182,7 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 		case 21:
 			/* one IP address pair */
 			if (vlen == 8) {
-				add_item_to_tree(bp_tree, voff, consumed,
+				proto_tree_add_item(bp_tree, voff, consumed,
 					"Option %d: %s = %s/%s", code, text,
 					ip_to_str((guint8*)&pd[voff+2]),
 					ip_to_str((guint8*)&pd[voff+6]));
@@ -199,12 +190,12 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 			/* > 1 IP address pair. Let's make a sub-tree */
 			else {
 
-				vti = add_item_to_tree(GTK_WIDGET(bp_tree), voff,
+				vti = proto_tree_add_item(bp_tree, voff,
 					consumed, "Option %d: %s", code, text);
-				v_tree = gtk_tree_new();
-				add_subtree(vti, v_tree, ETT_BOOTP_OPTION);
+				v_tree = proto_tree_new();
+				proto_item_add_subtree(vti, v_tree, ETT_BOOTP_OPTION);
 				for (i = voff + 2; i < voff + consumed; i += 8) {
-					add_item_to_tree(v_tree, i, 8, "IP Address/Mask: %s/%s",
+					proto_tree_add_item(v_tree, i, 8, "IP Address/Mask: %s/%s",
 						ip_to_str((guint8*)&pd[i]),
 						ip_to_str((guint8*)&pd[i+4]));
 				}
@@ -215,7 +206,7 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 		case 33:
 			/* one IP address pair */
 			if (vlen == 8) {
-				add_item_to_tree(bp_tree, voff, consumed,
+				proto_tree_add_item(bp_tree, voff, consumed,
 					"Option %d: %s = %s/%s", code, text,
 					ip_to_str((guint8*)&pd[voff+2]),
 					ip_to_str((guint8*)&pd[voff+6]));
@@ -223,12 +214,12 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 			/* > 1 IP address pair. Let's make a sub-tree */
 			else {
 
-				vti = add_item_to_tree(GTK_WIDGET(bp_tree), voff,
+				vti = proto_tree_add_item(bp_tree, voff,
 					consumed, "Option %d: %s", code, text);
-				v_tree = gtk_tree_new();
-				add_subtree(vti, v_tree, ETT_BOOTP_OPTION);
+				v_tree = proto_tree_new();
+				proto_item_add_subtree(vti, v_tree, ETT_BOOTP_OPTION);
 				for (i = voff + 2; i < voff + consumed; i += 8) {
-					add_item_to_tree(v_tree, i, 8,
+					proto_tree_add_item(v_tree, i, 8,
 						"Destination IP Address/Router: %s/%s",
 						ip_to_str((guint8*)&pd[i]),
 						ip_to_str((guint8*)&pd[i+4]));
@@ -238,14 +229,14 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 
 		/* Vendor-Specific Info */
 		case 43:
-			add_item_to_tree(bp_tree, voff, consumed,
+			proto_tree_add_item(bp_tree, voff, consumed,
 					"Option %d: %s", code, text);
 			break;
 
 		/* NetBIOS-over-TCP/IP Node Type */
 		case 46:
 			byte = pd[voff+2];
-			add_item_to_tree(bp_tree, voff, consumed,
+			proto_tree_add_item(bp_tree, voff, consumed,
 					"Option %d: %s = %s", code, text,
 					val_to_str(byte, nbnt_vals,
 					    "Unknown (0x%02x)"));
@@ -260,24 +251,24 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 			else {
 				i = 0;
 			}
-			add_item_to_tree(bp_tree, voff, 3, "Option %d: %s = DHCP %s",
+			proto_tree_add_item(bp_tree, voff, 3, "Option %d: %s = DHCP %s",
 				code, text, opt53_text[i]);
 			break;
 
 		/* Parameter Request List */
 		case 55:
-			vti = add_item_to_tree(GTK_WIDGET(bp_tree), voff,
+			vti = proto_tree_add_item(bp_tree, voff,
 				vlen + 2, "Option %d: %s", code, text);
-			v_tree = gtk_tree_new();
-			add_subtree(vti, v_tree, ETT_BOOTP_OPTION);
+			v_tree = proto_tree_new();
+			proto_item_add_subtree(vti, v_tree, ETT_BOOTP_OPTION);
 			for (i = 0; i < vlen; i++) {
 				byte = pd[voff+2+i];
 				if (byte < NUM_OPT_INFOS) {
-					add_item_to_tree(v_tree, voff+2+i, 1, "%d = %s",
+					proto_tree_add_item(v_tree, voff+2+i, 1, "%d = %s",
 							byte, opt[byte].text);
 				}
 				else {
-					add_item_to_tree(vti, voff+2+i, 1,
+					proto_tree_add_item(vti, voff+2+i, 1,
 						"Unknown Option Code: %d", byte);
 				}
 			}
@@ -289,29 +280,29 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 				guess that the first is the hwtype, and the last 6 are
 				the hw addr */
 			if (vlen == 7) {
-				vti = add_item_to_tree(GTK_WIDGET(bp_tree), voff,
+				vti = proto_tree_add_item(bp_tree, voff,
 					consumed, "Option %d: %s", code, text);
-				v_tree = gtk_tree_new();
-				add_subtree(vti, v_tree, ETT_BOOTP_OPTION);
-				add_item_to_tree(v_tree, voff+2, 1,
+				v_tree = proto_tree_new();
+				proto_item_add_subtree(vti, v_tree, ETT_BOOTP_OPTION);
+				proto_tree_add_item(v_tree, voff+2, 1,
 					"Hardware type: %s",
 					arphrdtype_to_str(pd[voff+2],
 						"Unknown (0x%02x)"));
-				add_item_to_tree(v_tree, voff+3, 6,
+				proto_tree_add_item(v_tree, voff+3, 6,
 					"Client hardware address: %s",
 					arphrdaddr_to_str((guint8*)&pd[voff+3],
 						6, pd[voff+2]));
 			}
 			/* otherwise, it's opaque data */
 			else {
-				add_item_to_tree(bp_tree, voff, consumed,
+				proto_tree_add_item(bp_tree, voff, consumed,
 					"Option %d: %s (%d bytes)", code, text, vlen);
 			}
 			break;
 
 		/* End Option */
 		case 255:
-			add_item_to_tree(bp_tree, voff, 1, "End Option");
+			proto_tree_add_item(bp_tree, voff, 1, "End Option");
 			consumed = 1;
 			return consumed;
 
@@ -332,19 +323,19 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 			case ipv4:
 				/* one IP address */
 				if (vlen == 4) {
-					add_item_to_tree(bp_tree, voff, consumed,
+					proto_tree_add_item(bp_tree, voff, consumed,
 						"Option %d: %s = %s", code, text,
 						ip_to_str((guint8*)&pd[voff+2]));
 				}
 				/* > 1 IP addresses. Let's make a sub-tree */
 				else {
 
-					vti = add_item_to_tree(GTK_WIDGET(bp_tree), voff,
+					vti = proto_tree_add_item(bp_tree, voff,
 						consumed, "Option %d: %s", code, text);
-					v_tree = gtk_tree_new();
-					add_subtree(vti, v_tree, ETT_BOOTP_OPTION);
+					v_tree = proto_tree_new();
+					proto_item_add_subtree(vti, v_tree, ETT_BOOTP_OPTION);
 					for (i = voff + 2; i < voff + consumed; i += 4) {
-						add_item_to_tree(v_tree, i, 4, "IP Address: %s",
+						proto_tree_add_item(v_tree, i, 4, "IP Address: %s",
 							ip_to_str((guint8*)&pd[i]));
 					}
 				}
@@ -354,12 +345,12 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 				/* Fix for non null-terminated string supplied by
 				 * John Lines <John.Lines@aeat.co.uk>
 				 */
-				add_item_to_tree(bp_tree, voff, consumed,
+				proto_tree_add_item(bp_tree, voff, consumed,
 						"Option %d: %s = %.*s", code, text, vlen, &pd[voff+2]);
 				break;
 
 			case opaque:
-				add_item_to_tree(bp_tree, voff, consumed,
+				proto_tree_add_item(bp_tree, voff, consumed,
 						"Option %d: %s (%d bytes)",
 						code, text, vlen);
 				break;
@@ -367,43 +358,43 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 			case val_u_short:
 				/* one IP address */
 				if (vlen == 2) {
-					add_item_to_tree(bp_tree, voff, consumed,
+					proto_tree_add_item(bp_tree, voff, consumed,
 							"Option %d: %s = %d", code, text,
 							pntohs(&pd[voff+2]));
 				}
 				/* > 1 u_short */
 				else {
-					vti = add_item_to_tree(GTK_WIDGET(bp_tree), voff,
+					vti = proto_tree_add_item(bp_tree, voff,
 						consumed, "Option %d: %s", code, text);
-					v_tree = gtk_tree_new();
-					add_subtree(vti, v_tree, ETT_BOOTP_OPTION);
+					v_tree = proto_tree_new();
+					proto_item_add_subtree(vti, v_tree, ETT_BOOTP_OPTION);
 					for (i = voff + 2; i < voff + consumed; i += 2) {
-						add_item_to_tree(v_tree, i, 4, "Value: %d",
+						proto_tree_add_item(v_tree, i, 4, "Value: %d",
 							pntohs(&pd[i]));
 					}
 				}
 				break;
 
 			case val_u_long:
-				add_item_to_tree(bp_tree, voff, consumed,
+				proto_tree_add_item(bp_tree, voff, consumed,
 						"Option %d: %s = %d", code, text,
 						pntohl(&pd[voff+2]));
 				break;
 
 			case val_u_byte:
-				add_item_to_tree(bp_tree, voff, consumed,
+				proto_tree_add_item(bp_tree, voff, consumed,
 						"Option %d: %s = %d", code, text, pd[voff+2]);
 				break;
 
 			case toggle:
 				i = pd[voff+2];
 				if (i != 0 && i != 1) {
-					add_item_to_tree(bp_tree, voff, consumed,
+					proto_tree_add_item(bp_tree, voff, consumed,
 							"Option %d: %s = Invalid Value %d", code, text,
 							pd[voff+2]);
 				}
 				else {
-					add_item_to_tree(bp_tree, voff, consumed,
+					proto_tree_add_item(bp_tree, voff, consumed,
 							"Option %d: %s = %s", code, text,
 							pd[voff+2] == 0 ? "Disabled" : "Enabled");
 				}
@@ -412,12 +403,12 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 			case yes_no:
 				i = pd[voff+2];
 				if (i != 0 && i != 1) {
-					add_item_to_tree(bp_tree, voff, consumed,
+					proto_tree_add_item(bp_tree, voff, consumed,
 							"Option %d: %s = Invalid Value %d", code, text,
 							pd[voff+2]);
 				}
 				else {
-					add_item_to_tree(bp_tree, voff, consumed,
+					proto_tree_add_item(bp_tree, voff, consumed,
 							"Option %d: %s = %s", code, text,
 							pd[voff+2] == 0 ? "No" : "Yes");
 				}
@@ -425,7 +416,7 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 
 			case time_in_secs:
 				time_secs = pntohl(&pd[voff+2]);
-				add_item_to_tree(bp_tree, voff, consumed,
+				proto_tree_add_item(bp_tree, voff, consumed,
 					"Option %d: %s = %s", code, text,
 					((time_secs == 0xffffffff) ?
 					    "infinity" :
@@ -433,12 +424,12 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 				break;
 
 			default:
-				add_item_to_tree(bp_tree, voff, consumed,
+				proto_tree_add_item(bp_tree, voff, consumed,
 						"Option %d: %s (%d bytes)", code, text, vlen);
 		}
 	}
 	else {
-		add_item_to_tree(bp_tree, voff, consumed,
+		proto_tree_add_item(bp_tree, voff, consumed,
 				"Unknown Option Code: %d (%d bytes)", code, vlen);
 	}
 
@@ -446,9 +437,10 @@ bootp_option(const u_char *pd, GtkWidget *bp_tree, int voff, int eoff)
 }
 
 void
-dissect_bootp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
+dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
-	GtkWidget	*bp_tree, *ti;
+	proto_tree	*bp_tree;
+	proto_item	*ti;
 	int			voff, eoff; /* vender offset, end offset */
 
 	if (check_col(fd, COL_PROTOCOL))
@@ -466,66 +458,66 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	}
 
 	if (tree) {
-		ti = add_item_to_tree(GTK_WIDGET(tree), offset, END_OF_FRAME,
+		ti = proto_tree_add_item(tree, offset, END_OF_FRAME,
 		  "Bootstrap Protocol");
-		bp_tree = gtk_tree_new();
-		add_subtree(ti, bp_tree, ETT_BOOTP);
+		bp_tree = proto_tree_new();
+		proto_item_add_subtree(ti, bp_tree, ETT_BOOTP);
 
-		add_item_to_tree(bp_tree, offset, 1, pd[offset] == 1 ?
+		proto_tree_add_item(bp_tree, offset, 1, pd[offset] == 1 ?
 			"Boot Request" : "Boot Reply");
-		add_item_to_tree(bp_tree, offset + 1, 1,
+		proto_tree_add_item(bp_tree, offset + 1, 1,
 			"Hardware type: %s",
 			arphrdtype_to_str(pd[offset+1], "Unknown (0x%02x)"));
-		add_item_to_tree(bp_tree, offset + 2, 1,
+		proto_tree_add_item(bp_tree, offset + 2, 1,
 			"Hardware address length: %d", pd[offset+2]);
-		add_item_to_tree(bp_tree, offset + 3, 1,
+		proto_tree_add_item(bp_tree, offset + 3, 1,
 			"Hops: %d", pd[offset+3]);
-		add_item_to_tree(bp_tree, offset + 4, 4,
+		proto_tree_add_item(bp_tree, offset + 4, 4,
 			"Transaction ID: 0x%08x", pntohl(&pd[offset+4]));
-		add_item_to_tree(bp_tree, offset + 8, 2,
+		proto_tree_add_item(bp_tree, offset + 8, 2,
 			"Seconds elapsed: %d", pntohs(&pd[offset+8]));
-		add_item_to_tree(bp_tree, offset + 10, 2,
+		proto_tree_add_item(bp_tree, offset + 10, 2,
 			"Broadcast flag: %d", pd[offset+10] & 1);
-		add_item_to_tree(bp_tree, offset + 12, 4,
+		proto_tree_add_item(bp_tree, offset + 12, 4,
 			"Client IP address: %s", ip_to_str((guint8*)&pd[offset+12]));
-		add_item_to_tree(bp_tree, offset + 16, 4,
+		proto_tree_add_item(bp_tree, offset + 16, 4,
 			"Your (client) IP address: %s", ip_to_str((guint8*)&pd[offset+16]));
-		add_item_to_tree(bp_tree, offset + 20, 4,
+		proto_tree_add_item(bp_tree, offset + 20, 4,
 			"Next server IP address: %s", ip_to_str((guint8*)&pd[offset+20]));
-		add_item_to_tree(bp_tree, offset + 24, 4,
+		proto_tree_add_item(bp_tree, offset + 24, 4,
 			"Relay agent IP address: %s", ip_to_str((guint8*)&pd[offset+24]));
 
-		add_item_to_tree(bp_tree, offset + 28, pd[offset+2],
+		proto_tree_add_item(bp_tree, offset + 28, pd[offset+2],
 			"Client hardware address: %s",
 			arphrdaddr_to_str((guint8*)&pd[offset+28],
 				pd[offset+2], pd[offset+1]));
 
 		/* The server host name is optional */
 		if (pd[offset+44]) {
-			add_item_to_tree(bp_tree, offset + 44, 64,
+			proto_tree_add_item(bp_tree, offset + 44, 64,
 				"Server host name: %s", &pd[offset+44]);
 		}
 		else {
-			add_item_to_tree(bp_tree, offset + 44, 64,
+			proto_tree_add_item(bp_tree, offset + 44, 64,
 				"Server host name not given");
 		}
 
 		/* Boot file */
 		if (pd[offset+108]) {
-			add_item_to_tree(bp_tree, offset + 108, 128,
+			proto_tree_add_item(bp_tree, offset + 108, 128,
 				"Boot file name: %s", &pd[offset+108]);
 		}
 		else {
-			add_item_to_tree(bp_tree, offset + 108, 128,
+			proto_tree_add_item(bp_tree, offset + 108, 128,
 				"Boot file name not given");
 		}
 
 		if (pntohl(&pd[offset+236]) == 0x63825363) {
-			add_item_to_tree(bp_tree, offset + 236, 4,
+			proto_tree_add_item(bp_tree, offset + 236, 4,
 				"Magic cookie: (OK)");
 		}
 		else {
-			add_item_to_tree(bp_tree, offset + 236, 4,
+			proto_tree_add_item(bp_tree, offset + 236, 4,
 				"Magic cookie: %s",
 					ip_to_str((guint8*)&pd[offset+236]));
 		}

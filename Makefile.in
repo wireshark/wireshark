@@ -87,6 +87,7 @@ ethereal_SOURCES = \
 	file.c         \
 	filter.c       \
 	follow.c       \
+	gtkpacket.c    \
 	menu.c         \
 	packet.c       \
 	packet-aarp.c  \
@@ -184,14 +185,14 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 ethereal_OBJECTS =  capture.o column.o ethereal.o ethertype.o file.o \
-filter.o follow.o menu.o packet.o packet-aarp.o packet-arp.o \
-packet-atalk.o packet-bootp.o packet-cdp.o packet-data.o packet-dns.o \
-packet-eth.o packet-fddi.o packet-giop.o packet-http.o packet-llc.o \
-packet-lpd.o packet-ip.o packet-ipv6.o packet-ipx.o packet-nbipx.o \
-packet-nbns.o packet-ncp.o packet-null.o packet-osi.o packet-ospf.o \
-packet-ppp.o packet-raw.o packet-rip.o packet-tcp.o packet-tftp.o \
-packet-tr.o packet-trmac.o packet-udp.o packet-vines.o prefs.o print.o \
-ps.o resolv.o util.o
+filter.o follow.o gtkpacket.o menu.o packet.o packet-aarp.o \
+packet-arp.o packet-atalk.o packet-bootp.o packet-cdp.o packet-data.o \
+packet-dns.o packet-eth.o packet-fddi.o packet-giop.o packet-http.o \
+packet-llc.o packet-lpd.o packet-ip.o packet-ipv6.o packet-ipx.o \
+packet-nbipx.o packet-nbns.o packet-ncp.o packet-null.o packet-osi.o \
+packet-ospf.o packet-ppp.o packet-raw.o packet-rip.o packet-tcp.o \
+packet-tftp.o packet-tr.o packet-trmac.o packet-udp.o packet-vines.o \
+prefs.o print.o ps.o resolv.o util.o
 ethereal_LDFLAGS = 
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
@@ -214,7 +215,7 @@ TAR = tar
 GZIP = --best
 DEP_FILES =  .deps/capture.P .deps/column.P .deps/ethereal.P \
 .deps/ethertype.P .deps/file.P .deps/filter.P .deps/follow.P \
-.deps/menu.P .deps/packet-aarp.P .deps/packet-arp.P \
+.deps/gtkpacket.P .deps/menu.P .deps/packet-aarp.P .deps/packet-arp.P \
 .deps/packet-atalk.P .deps/packet-bootp.P .deps/packet-cdp.P \
 .deps/packet-data.P .deps/packet-dns.P .deps/packet-eth.P \
 .deps/packet-fddi.P .deps/packet-giop.P .deps/packet-http.P \

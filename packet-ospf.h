@@ -122,14 +122,14 @@ typedef struct _e_ospf_asexternal_lsa {
 } e_ospf_asexternal_lsa;
 
 
-void dissect_ospf_hello(const u_char*, int, frame_data*, GtkTree*);
-void dissect_ospf_db_desc(const u_char*, int, frame_data*, GtkTree*); 
-void dissect_ospf_ls_req(const u_char*, int, frame_data*, GtkTree*); 
-void dissect_ospf_ls_upd(const u_char*, int, frame_data*, GtkTree*); 
-void dissect_ospf_ls_ack(const u_char*, int, frame_data*, GtkTree*); 
+void dissect_ospf_hello(const u_char*, int, frame_data*, proto_tree*);
+void dissect_ospf_db_desc(const u_char*, int, frame_data*, proto_tree*); 
+void dissect_ospf_ls_req(const u_char*, int, frame_data*, proto_tree*); 
+void dissect_ospf_ls_upd(const u_char*, int, frame_data*, proto_tree*); 
+void dissect_ospf_ls_ack(const u_char*, int, frame_data*, proto_tree*); 
 
 /* dissect_ospf_lsa returns the length of the LSA 
  * if disassemble_body is set to FALSE (e.g. in LSA ACK 
  * packets), the LSA-header length is returned (20)
  */
-int dissect_ospf_lsa(const u_char*, int, frame_data*, GtkTree*, int disassemble_body); 
+int dissect_ospf_lsa(const u_char*, int, frame_data*, proto_tree*, int disassemble_body); 

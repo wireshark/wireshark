@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.40 1999/03/22 03:56:34 guy Exp $
+ * $Id: packet.h,v 1.41 1999/03/23 03:14:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,8 +60,6 @@
  */
 #define END_OF_FRAME	(fd->cap_len - offset)
 
-#define IEEE_802_3_MAX_LEN 1500
-#define BYTE_VIEW_WIDTH    16
 
 typedef struct _column_info {
   gint       num_cols; /* Number of columns */
@@ -113,266 +111,10 @@ typedef struct _value_string {
   gchar   *strptr;
 } value_string;
 
-/* Many of the structs and definitions below were taken from include files
- * in the Linux distribution. */
+/* Many of the structs and definitions below and in packet-*.c files
+ * were taken from include files in the Linux distribution. */
 
-/* ARP / RARP structs and definitions */
 
-#ifndef ARPOP_REQUEST
-#define ARPOP_REQUEST  1       /* ARP request.  */
-#endif
-#ifndef ARPOP_REPLY
-#define ARPOP_REPLY    2       /* ARP reply.  */
-#endif
-/* Some OSes have different names, or don't define these at all */
-#ifndef ARPOP_RREQUEST
-#define ARPOP_RREQUEST 3       /* RARP request.  */
-#endif
-#ifndef ARPOP_RREPLY
-#define ARPOP_RREPLY   4       /* RARP reply.  */
-#endif
-
-/* ICMP structs and definitions */
-
-typedef struct _e_icmp {
-  guint8  icmp_type;
-  guint8  icmp_code;
-  guint16 icmp_cksum;
-  union {
-    struct {  /* Address mask request/reply */
-      guint16 id;
-      guint16 seq;
-      guint32 sn_mask;
-    } am;
-    struct {  /* Timestap request/reply */
-      guint16 id;
-      guint16 seq;
-      guint32 orig;
-      guint32 recv;
-      guint32 xmit;
-    } ts;
-    guint32 zero;  /* Unreachable */
-  } opt;
-} e_icmp;
-
-#define ICMP_ECHOREPLY     0
-#define ICMP_UNREACH       3
-#define ICMP_SOURCEQUENCH  4
-#define ICMP_REDIRECT      5
-#define ICMP_ECHO          8
-#define ICMP_TIMXCEED     11
-#define ICMP_PARAMPROB    12
-#define ICMP_TSTAMP       13
-#define ICMP_TSTAMPREPLY  14
-#define ICMP_IREQ         15
-#define ICMP_IREQREPLY    16
-#define ICMP_MASKREQ      17
-#define ICMP_MASKREPLY    18
-
-/* IGMP structs and definitions */
-
-typedef struct _e_igmp {
-  guint8  igmp_v_t; /* combines igmp_v and igmp_t */
-  guint8  igmp_unused;
-  guint16 igmp_cksum;
-  guint32 igmp_gaddr;
-} e_igmp;
-
-#define IGMP_M_QRY     0x01
-#define IGMP_V1_M_RPT  0x02
-#define IGMP_V2_LV_GRP 0x07
-#define IGMP_DVMRP     0x03
-#define IGMP_PIM       0x04
-#define IGMP_V2_M_RPT  0x06
-#define IGMP_MTRC_RESP 0x1e
-#define IGMP_MTRC      0x1f
-
-/* IP structs and definitions */
-
-typedef struct _e_ip {
-  guint8  ip_v_hl; /* combines ip_v and ip_hl */
-  guint8  ip_tos;
-  guint16 ip_len;
-  guint16 ip_id;
-  guint16 ip_off;
-  guint8  ip_ttl;
-  guint8  ip_p;
-  guint16 ip_sum;
-  guint32 ip_src;
-  guint32 ip_dst;
-} e_ip;
-
-/* IP flags. */
-#define IP_CE		0x8000		/* Flag: "Congestion"		*/
-#define IP_DF		0x4000		/* Flag: "Don't Fragment"	*/
-#define IP_MF		0x2000		/* Flag: "More Fragments"	*/
-#define IP_OFFSET	0x1FFF		/* "Fragment Offset" part	*/
-
-#define IPTOS_TOS_MASK    0x1E
-#define IPTOS_TOS(tos)    ((tos) & IPTOS_TOS_MASK)
-#define IPTOS_NONE        0x00
-#define IPTOS_LOWCOST     0x02
-#define IPTOS_RELIABILITY 0x04
-#define IPTOS_THROUGHPUT  0x08
-#define IPTOS_LOWDELAY    0x10
-#define IPTOS_SECURITY    0x1E
-
-#define IPTOS_PREC_MASK		0xE0
-#define IPTOS_PREC(tos)		((tos)&IPTOS_PREC_MASK)
-#define IPTOS_PREC_NETCONTROL           0xe0
-#define IPTOS_PREC_INTERNETCONTROL      0xc0
-#define IPTOS_PREC_CRITIC_ECP           0xa0
-#define IPTOS_PREC_FLASHOVERRIDE        0x80
-#define IPTOS_PREC_FLASH                0x60
-#define IPTOS_PREC_IMMEDIATE            0x40
-#define IPTOS_PREC_PRIORITY             0x20
-#define IPTOS_PREC_ROUTINE              0x00
-
-/* IP options */
-#define IPOPT_COPY		0x80
-
-#define	IPOPT_CONTROL		0x00
-#define	IPOPT_RESERVED1		0x20
-#define	IPOPT_MEASUREMENT	0x40
-#define	IPOPT_RESERVED2		0x60
-
-#define IPOPT_END	(0 |IPOPT_CONTROL)
-#define IPOPT_NOOP	(1 |IPOPT_CONTROL)
-#define IPOPT_SEC	(2 |IPOPT_CONTROL|IPOPT_COPY)
-#define IPOPT_LSRR	(3 |IPOPT_CONTROL|IPOPT_COPY)
-#define IPOPT_TIMESTAMP	(4 |IPOPT_MEASUREMENT)
-#define IPOPT_RR	(7 |IPOPT_CONTROL)
-#define IPOPT_SID	(8 |IPOPT_CONTROL|IPOPT_COPY)
-#define IPOPT_SSRR	(9 |IPOPT_CONTROL|IPOPT_COPY)
-#define IPOPT_RA	(20|IPOPT_CONTROL|IPOPT_COPY)
-
-/* IP option lengths */
-#define IPOLEN_SEC      11
-#define IPOLEN_LSRR_MIN 3
-#define IPOLEN_TIMESTAMP_MIN 5
-#define IPOLEN_RR_MIN   3
-#define IPOLEN_SID      4
-#define IPOLEN_SSRR_MIN 3
-
-#define IPSEC_UNCLASSIFIED	0x0000
-#define	IPSEC_CONFIDENTIAL	0xF135
-#define	IPSEC_EFTO		0x789A
-#define	IPSEC_MMMM		0xBC4D
-#define	IPSEC_RESTRICTED	0xAF13
-#define	IPSEC_SECRET		0xD788
-#define	IPSEC_TOPSECRET		0x6BC5
-#define	IPSEC_RESERVED1		0x35E2
-#define	IPSEC_RESERVED2		0x9AF1
-#define	IPSEC_RESERVED3		0x4D78
-#define	IPSEC_RESERVED4		0x24BD
-#define	IPSEC_RESERVED5		0x135E
-#define	IPSEC_RESERVED6		0x89AF
-#define	IPSEC_RESERVED7		0xC4D6
-#define	IPSEC_RESERVED8		0xE26B
-
-#define	IPOPT_TS_TSONLY		0		/* timestamps only */
-#define	IPOPT_TS_TSANDADDR	1		/* timestamps and addresses */
-#define	IPOPT_TS_PRESPEC	3		/* specified modules only */
-
-#define IP_PROTO_ICMP  1
-#define IP_PROTO_IGMP  2
-#define IP_PROTO_TCP   6
-#define IP_PROTO_UDP  17
-#define IP_PROTO_OSPF 89
-
-/* Null/loopback structs and definitions */
-
-typedef struct _e_nullhdr {
-  guint8  null_next;
-  guint8  null_len;
-  guint16 null_family;
-} e_nullhdr;
-
-/* PPP structs and definitions */
-
-typedef struct _e_ppphdr {
-  guint8  ppp_addr;
-  guint8  ppp_ctl;
-  guint16 ppp_prot;
-} e_ppphdr;
-
-/* TCP structs and definitions */
-
-typedef struct _e_tcphdr {
-  guint16 th_sport;
-  guint16 th_dport;
-  guint32 th_seq;
-  guint32 th_ack;
-  guint8  th_off_x2; /* combines th_off and th_x2 */
-  guint8  th_flags;
-#define TH_FIN  0x01
-#define TH_SYN  0x02
-#define TH_RST  0x04
-#define TH_PUSH 0x08
-#define TH_ACK  0x10
-#define TH_URG  0x20
-  guint16 th_win;
-  guint16 th_sum;
-  guint16 th_urp;
-} e_tcphdr;
-
-/*
- *	TCP option
- */
- 
-#define TCPOPT_NOP		1	/* Padding */
-#define TCPOPT_EOL		0	/* End of options */
-#define TCPOPT_MSS		2	/* Segment size negotiating */
-#define TCPOPT_WINDOW		3	/* Window scaling */
-#define TCPOPT_SACK_PERM        4       /* SACK Permitted */
-#define TCPOPT_SACK             5       /* SACK Block */
-#define TCPOPT_ECHO             6
-#define TCPOPT_ECHOREPLY        7
-#define TCPOPT_TIMESTAMP	8	/* Better RTT estimations/PAWS */
-#define TCPOPT_CC               11
-#define TCPOPT_CCNEW            12
-#define TCPOPT_CCECHO           13
-
-/*
- *     TCP option lengths
- */
-
-#define TCPOLEN_MSS            4
-#define TCPOLEN_WINDOW         3
-#define TCPOLEN_SACK_PERM      2
-#define TCPOLEN_SACK_MIN       2
-#define TCPOLEN_ECHO           6
-#define TCPOLEN_ECHOREPLY      6
-#define TCPOLEN_TIMESTAMP      10
-#define TCPOLEN_CC             6
-#define TCPOLEN_CCNEW          6
-#define TCPOLEN_CCECHO         6
-
-/* UDP structs and definitions */
-
-typedef struct _e_udphdr {
-  guint16 uh_sport;
-  guint16 uh_dport;
-  guint16 uh_ulen;
-  guint16 uh_sum;
-} e_udphdr;
-
-/* UDP Ports -> should go in packet-udp.h */
-
-#define UDP_PORT_DNS     53
-#define UDP_PORT_BOOTPS  67
-#define UDP_PORT_TFTP    69
-#define UDP_PORT_IPX    213
-#define UDP_PORT_NBNS	137
-#define UDP_PORT_NBDGM	138
-#define UDP_PORT_RIP    520
-#define UDP_PORT_VINES	573
-
-/* TCP Ports */
-
-#define TCP_PORT_HTTP     80
-#define TCP_PORT_PRINTER  515
-#define TCP_ALT_PORT_HTTP 8080
 
 /* Tree types.  Each dissect_* routine should have one for each
    add_subtree() call. */
@@ -473,42 +215,13 @@ enum {
 #define DLT_PPP_BSDOS 14
 #endif
 
-typedef enum {
-  NO_LENGTH,		/* option has no data, hence no length */
-  FIXED_LENGTH,		/* option always has the same length */
-  VARIABLE_LENGTH	/* option is variable-length - optlen is minimum */
-} opt_len_type;
-
-/* Member of table of IP or TCP options. */
-typedef struct {
-  int   optcode;	/* code for option */
-  char *name;		/* name of option */
-  opt_len_type len_type; /* type of option length field */
-  int	optlen;		/* value length should be (minimum if VARIABLE) */
-  void	(*dissect)(GtkWidget *, const char *, const u_char *, int, guint);
-			/* routine to dissect option */
-} ip_tcp_opt;
-
-/* Routine to dissect IP or TCP options. */
-void       dissect_ip_tcp_options(GtkWidget *, const u_char *, int, guint,
-    ip_tcp_opt *, int, int);
 
 /* Utility routines used by packet*.c */
 gchar*     ether_to_str(const guint8 *);
 gchar*     ip_to_str(const guint8 *);
 gchar*     time_secs_to_str(guint32);
-void       packet_hex_print(GtkText *, guint8 *, gint, gint, gint);
-#define E_TREEINFO_START_KEY "tree_info_start"
-#define E_TREEINFO_LEN_KEY   "tree_info_len"
-#if __GNUC__ == 2
-GtkWidget* add_item_to_tree(GtkWidget *, gint, gint, gchar *, ...)
-    __attribute__((format (printf, 4, 5)));
-#else
-GtkWidget* add_item_to_tree(GtkWidget *, gint, gint, gchar *, ...);
-#endif
 const u_char *find_line_end(const u_char *data, const u_char *dataend);
 gchar*     format_line(const u_char *line, int len);
-void       set_item_len(GtkWidget *, gint);
 gchar*     val_to_str(guint32, const value_string *, const char *);
 gchar*     match_strval(guint32, const value_string*);
 gint       check_col(frame_data *, gint);
@@ -522,11 +235,25 @@ void       col_add_str(frame_data *, gint, gchar *);
 
 /* Routines in packet.c */
 
-void dissect_packet(const u_char *, frame_data *, GtkTree *);
-void add_subtree(GtkWidget *, GtkWidget*, gint);
-void expand_tree(GtkWidget *, gpointer);
-void collapse_tree(GtkWidget *, gpointer);
+typedef struct GtkWidget proto_tree;
+typedef struct GtkWidget proto_item;
 
+struct GtkWidget;
+
+void proto_item_set_len(proto_item *ti, gint len);
+proto_tree* proto_tree_new(void);
+void proto_item_add_subtree(proto_item *ti, proto_tree *subtree, gint idx);
+
+#if __GNUC__ == 2
+proto_item* proto_tree_add_item(proto_tree *tree, gint start, gint len,
+		gchar *format, ...)
+    __attribute__((format (printf, 4, 5)));
+#else
+proto_item* proto_tree_add_item(proto_tree *tree, gint start, gint len,
+		gchar *format, ...)
+#endif
+
+void dissect_packet(const u_char *, frame_data *, proto_tree *);
 /*
  * Routines in packet-*.c
  * Routines should take three args: packet data *, cap_len, packet_counts *
@@ -553,12 +280,12 @@ void capture_ip(const u_char *, int, guint32, packet_counts *);
  * Routines should take three args: packet data *, frame_data *, tree *
  * They should never modify the packet data.
  */
-void dissect_eth(const u_char *, frame_data *, GtkTree *);
-void dissect_fddi(const u_char *, frame_data *, GtkTree *);
-void dissect_null(const u_char *, frame_data *, GtkTree *);
-void dissect_ppp(const u_char *, frame_data *, GtkTree *);
-void dissect_raw(const u_char *, frame_data *, GtkTree *);
-void dissect_tr(const u_char *, frame_data *, GtkTree *);
+void dissect_eth(const u_char *, frame_data *, proto_tree *);
+void dissect_fddi(const u_char *, frame_data *, proto_tree *);
+void dissect_null(const u_char *, frame_data *, proto_tree *);
+void dissect_ppp(const u_char *, frame_data *, proto_tree *);
+void dissect_raw(const u_char *, frame_data *, proto_tree *);
+void dissect_tr(const u_char *, frame_data *, proto_tree *);
 
 /*
  * Routines in packet-*.c
@@ -566,42 +293,42 @@ void dissect_tr(const u_char *, frame_data *, GtkTree *);
  * tree *
  * They should never modify the packet data.
  */
-void dissect_aarp(const u_char *, int, frame_data *, GtkTree *);
-void dissect_arp(const u_char *, int, frame_data *, GtkTree *);
-void dissect_bootp(const u_char *, int, frame_data *, GtkTree *);
-void dissect_cdp(const u_char *, int, frame_data *, GtkTree *);
-void dissect_data(const u_char *, int, frame_data *, GtkTree *);
-void dissect_ddp(const u_char *, int, frame_data *, GtkTree *);
-void dissect_dns(const u_char *, int, frame_data *, GtkTree *);
-void dissect_giop(const u_char *, int, frame_data *, GtkTree *);
-void dissect_http(const u_char *, int, frame_data *, GtkTree *);
-void dissect_icmp(const u_char *, int, frame_data *, GtkTree *);
-void dissect_igmp(const u_char *, int, frame_data *, GtkTree *);
-void dissect_ip(const u_char *, int, frame_data *, GtkTree *);
-void dissect_ipv6(const u_char *, int, frame_data *, GtkTree *);
-void dissect_ipx(const u_char *, int, frame_data *, GtkTree *);
-void dissect_llc(const u_char *, int, frame_data *, GtkTree *);
-void dissect_lpd(const u_char *, int, frame_data *, GtkTree *);
-void dissect_nbdgm(const u_char *, int, frame_data *, GtkTree *);
-void dissect_nbipx_ns(const u_char *, int, frame_data *, GtkTree *);
-void dissect_nbns(const u_char *, int, frame_data *, GtkTree *);
-void dissect_ncp(const u_char *, int, frame_data *, GtkTree *);
-void dissect_nwlink_dg(const u_char *, int, frame_data *, GtkTree *);
-void dissect_osi(const u_char *, int, frame_data *, GtkTree *);
-void dissect_ospf(const u_char *, int, frame_data *, GtkTree *);
-void dissect_ospf_hello(const u_char *, int, frame_data *, GtkTree *);
-void dissect_rip(const u_char *, int, frame_data *, GtkTree *);
-void dissect_tcp(const u_char *, int, frame_data *, GtkTree *);
-void dissect_tftp(const u_char *, int, frame_data *, GtkTree *);
-void dissect_trmac(const u_char *, int, frame_data *, GtkTree *);
-void dissect_udp(const u_char *, int, frame_data *, GtkTree *);
-void dissect_vines(const u_char *, int, frame_data *, GtkTree *);
-void dissect_vines_arp(const u_char *, int, frame_data *, GtkTree *);
-void dissect_vines_frp(const u_char *, int, frame_data *, GtkTree *);
-void dissect_vines_icp(const u_char *, int, frame_data *, GtkTree *);
-void dissect_vines_ipc(const u_char *, int, frame_data *, GtkTree *);
-void dissect_vines_rtp(const u_char *, int, frame_data *, GtkTree *);
-void dissect_vines_spp(const u_char *, int, frame_data *, GtkTree *);
+void dissect_aarp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_arp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_bootp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_cdp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_data(const u_char *, int, frame_data *, proto_tree *);
+void dissect_ddp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_dns(const u_char *, int, frame_data *, proto_tree *);
+void dissect_giop(const u_char *, int, frame_data *, proto_tree *);
+void dissect_http(const u_char *, int, frame_data *, proto_tree *);
+void dissect_icmp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_igmp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_ip(const u_char *, int, frame_data *, proto_tree *);
+void dissect_ipv6(const u_char *, int, frame_data *, proto_tree *);
+void dissect_ipx(const u_char *, int, frame_data *, proto_tree *);
+void dissect_llc(const u_char *, int, frame_data *, proto_tree *);
+void dissect_lpd(const u_char *, int, frame_data *, proto_tree *);
+void dissect_nbdgm(const u_char *, int, frame_data *, proto_tree *);
+void dissect_nbipx_ns(const u_char *, int, frame_data *, proto_tree *);
+void dissect_nbns(const u_char *, int, frame_data *, proto_tree *);
+void dissect_ncp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_nwlink_dg(const u_char *, int, frame_data *, proto_tree *);
+void dissect_osi(const u_char *, int, frame_data *, proto_tree *);
+void dissect_ospf(const u_char *, int, frame_data *, proto_tree *);
+void dissect_ospf_hello(const u_char *, int, frame_data *, proto_tree *);
+void dissect_rip(const u_char *, int, frame_data *, proto_tree *);
+void dissect_tcp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_tftp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_trmac(const u_char *, int, frame_data *, proto_tree *);
+void dissect_udp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_vines(const u_char *, int, frame_data *, proto_tree *);
+void dissect_vines_arp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_vines_frp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_vines_icp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_vines_ipc(const u_char *, int, frame_data *, proto_tree *);
+void dissect_vines_rtp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_vines_spp(const u_char *, int, frame_data *, proto_tree *);
 
 void init_dissect_udp(void);
 
@@ -610,11 +337,52 @@ gchar *ethertype_to_str(guint16 etype, const char *fmt);
 void capture_ethertype(guint16 etype, int offset,
 		const u_char *pd, guint32 cap_len, packet_counts *ld);
 void ethertype(guint16 etype, int offset,
-		const u_char *pd, frame_data *fd, GtkTree *tree,
-		GtkWidget *fh_tree);
+		const u_char *pd, frame_data *fd, proto_tree *tree,
+		proto_tree *fh_tree);
 
 /* These functions are in packet-arp.c */
 gchar *arphrdaddr_to_str(guint8 *ad, int ad_len, guint16 type);
 gchar *arphrdtype_to_str(guint16 hwtype, const char *fmt);
+
+/*
+ * All of the possible columns in summary listing.
+ *
+ * NOTE: The SRC and DST entries MUST remain in this order, or else you
+ * need to fix the offset #defines before get_column_format!
+ */
+enum {
+  COL_NUMBER,         /* Packet list item number */
+  COL_CLS_TIME,       /* Command line-specified time (default relative) */
+  COL_REL_TIME,       /* Relative time */
+  COL_ABS_TIME,       /* Absolute time */
+  COL_DELTA_TIME,     /* Delta time */
+  COL_DEF_SRC,        /* Source address */
+  COL_RES_SRC,        /* Resolved source */
+  COL_UNRES_SRC,      /* Unresolved source */
+  COL_DEF_DL_SRC,     /* Data link layer source address */
+  COL_RES_DL_SRC,     /* Resolved DL source */
+  COL_UNRES_DL_SRC,   /* Unresolved DL source */
+  COL_DEF_NET_SRC,    /* Network layer source address */
+  COL_RES_NET_SRC,    /* Resolved net source */
+  COL_UNRES_NET_SRC,  /* Unresolved net source */
+  COL_DEF_DST,        /* Destination address */
+  COL_RES_DST,        /* Resolved dest */
+  COL_UNRES_DST,      /* Unresolved dest */
+  COL_DEF_DL_DST,     /* Data link layer dest address */
+  COL_RES_DL_DST,     /* Resolved DL dest */
+  COL_UNRES_DL_DST,   /* Unresolved DL dest */
+  COL_DEF_NET_DST,    /* Network layer dest address */
+  COL_RES_NET_DST,    /* Resolved net dest */
+  COL_UNRES_NET_DST,  /* Unresolved net dest */
+  COL_DEF_SRC_PORT,   /* Source port */
+  COL_RES_SRC_PORT,   /* Resolved source port */
+  COL_UNRES_SRC_PORT, /* Unresolved source port */
+  COL_DEF_DST_PORT,   /* Destination port */
+  COL_RES_DST_PORT,   /* Resolved dest port */
+  COL_UNRES_DST_PORT, /* Unresolved dest port */
+  COL_PROTOCOL,       /* Protocol */
+  COL_INFO,           /* Description */
+  NUM_COL_FMTS        /* Should always be last */
+};
 
 #endif /* packet.h */

@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.7 1999/03/01 18:28:11 gram Exp $
+ * $Id: packet-cdp.c,v 1.8 1999/03/23 03:14:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,21 +26,14 @@
  
 #include "config.h"
 
-#include <gtk/gtk.h>
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
+#include <stdlib.h>
+#include <string.h>
 
-#include "ethereal.h"
+#include <glib.h>
 #include "packet.h"
 
 /* Offsets in TLV structure. */
@@ -48,12 +41,13 @@
 #define	TLV_LENGTH	2
 
 static void
-add_multi_line_string_to_tree(GtkWidget *tree, gint start, gint len,
+add_multi_line_string_to_tree(proto_tree *tree, gint start, gint len,
   const gchar *prefix, const gchar *string);
 
 void 
-dissect_cdp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
-    GtkWidget *cdp_tree = NULL, *ti; 
+dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+    proto_tree *cdp_tree = NULL;
+	proto_item *ti; 
     
     typedef struct _e_cdp_hdr{
 		char version;
@@ -72,20 +66,20 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
         col_add_str(fd, COL_INFO, "Cisco Discovery Protocol"); 
 
     if(tree){
-        ti = add_item_to_tree(GTK_WIDGET(tree), offset, (fd->cap_len - offset), 
+        ti = proto_tree_add_item(tree, offset, (fd->cap_len - offset), 
                                                           "Cisco Discovery Protocol");
-	cdp_tree = gtk_tree_new(); 
-	add_subtree(ti, cdp_tree, ETT_CDP);
+	cdp_tree = proto_tree_new(); 
+	proto_item_add_subtree(ti, cdp_tree, ETT_CDP);
 	
 	/* CDP header */
 	cdp_hdr = (e_cdp_hdr *) &pd[offset];
-	add_item_to_tree(cdp_tree, offset, 1, "Version: %d", cdp_hdr->version);
-	add_item_to_tree(cdp_tree, offset+1, 1, "Flags (unknown)");
-	add_item_to_tree(cdp_tree, offset+2, 2, "TTL (unknown)");
+	proto_tree_add_item(cdp_tree, offset, 1, "Version: %d", cdp_hdr->version);
+	proto_tree_add_item(cdp_tree, offset+1, 1, "Flags (unknown)");
+	proto_tree_add_item(cdp_tree, offset+2, 2, "TTL (unknown)");
 	offset+=4;
 
 	/* CVS -> exit here 
-    	dissect_data(pd, offset, fd, (GtkTree *) cdp_tree);
+    	dissect_data(pd, offset, fd, cdp_tree);
 		return;
      */
 	
@@ -97,7 +91,7 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 				offset+=length + 4;
 				break;
 			case 1: /* ??? Chassis ID */
-				add_item_to_tree(cdp_tree, offset + 4,
+				proto_tree_add_item(cdp_tree, offset + 4,
 				    length - 4, "Chassis ID: %s", &pd[offset+4] );
 				offset+=length;
 				break;
@@ -108,7 +102,7 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 				offset+=4; 
 				break;
 			case 3: /* ??? Port  */    
-				add_item_to_tree(cdp_tree, offset + 4,
+				proto_tree_add_item(cdp_tree, offset + 4,
 				  length - 4, "Sent through Interface: %s", &pd[offset+4] );
 				offset+=length;
 				break;
@@ -123,13 +117,13 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 				stringmem = malloc(length);
 				memset(stringmem, '\0', length);
 				memcpy(stringmem, &pd[offset+4], length - 4 );
-				add_item_to_tree(cdp_tree, offset + 4, length - 4, 
+				proto_tree_add_item(cdp_tree, offset + 4, length - 4, 
                                                      "Platform: %s", stringmem );
 				free(stringmem);
 				offset+=length;
 				break;
 			case 0x01cc: /* ??? Mgmt Addr */
-				add_item_to_tree(cdp_tree, offset + 4, length, 
+				proto_tree_add_item(cdp_tree, offset + 4, length, 
                                                      "Mgmt IP: %s",
 						     ip_to_str(&pd[offset+4]) );
 				offset+=length + 4;
@@ -137,16 +131,16 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 			default:
 /*
 				if( type > 512){
-					dissect_data(pd, offset, fd, (GtkTree *) cdp_tree);
+					dissect_data(pd, offset, fd, cdp_tree);
 					return;
 				}
 */
 /*
-				add_item_to_tree(cdp_tree, offset + TLV_TYPE,
+				proto_tree_add_item(cdp_tree, offset + TLV_TYPE,
 				    2, "Type: %d", type);
-				add_item_to_tree(cdp_tree, offset + TLV_LENGTH,
+				proto_tree_add_item(cdp_tree, offset + TLV_LENGTH,
 				    2, "Length: %d", length);
-				add_item_to_tree(cdp_tree, offset + 4,
+				proto_tree_add_item(cdp_tree, offset + 4,
 				    length - 4, "Data");
 */
 
@@ -154,12 +148,12 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 		}
 
 	}
-    	dissect_data(pd, offset, fd, (GtkTree *) cdp_tree);
+    	dissect_data(pd, offset, fd, cdp_tree);
     }
 }
 
 static void
-add_multi_line_string_to_tree(GtkWidget *tree, gint start, gint len,
+add_multi_line_string_to_tree(proto_tree *tree, gint start, gint len,
   const gchar *prefix, const gchar *string)
 {
     int prefix_len;
@@ -185,7 +179,7 @@ add_multi_line_string_to_tree(GtkWidget *tree, gint start, gint len,
 	    line_len = strlen(p);
 	    data_len = line_len;
 	}
-	add_item_to_tree(tree, start, data_len, "%s%.*s", prefix,
+	proto_tree_add_item(tree, start, data_len, "%s%.*s", prefix,
 	   line_len, p);
 	if (q == NULL)
 	    break;

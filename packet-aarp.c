@@ -22,19 +22,12 @@
 # include "config.h"
 #endif
 
-#include <gtk/gtk.h>
-
-#include <stdio.h>
-
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
 
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
-#include "ethereal.h"
+#include <stdio.h>
+#include <glib.h>
 #include "packet.h"
 #include "etypes.h"
 
@@ -78,10 +71,11 @@ atalkid_to_str(guint8 *ad) {
 }
     
 void
-dissect_aarp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
+dissect_aarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   e_ether_aarp  ea;
-  GtkWidget   *aarp_tree, *ti;
-  gchar       *op_str;
+  proto_tree	*aarp_tree;
+  proto_item	*ti;
+  gchar			*op_str;
   value_string op_vals[] = { {AARP_REQUEST,  "AARP request" },
                              {AARP_REPLY,    "AARP reply"   },
                              {AARP_PROBE,    "AARP probe"   },
@@ -102,29 +96,29 @@ dissect_aarp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   
   if (tree) {
     if ((op_str = match_strval(ea.op, op_vals)))
-      ti = add_item_to_tree(GTK_WIDGET(tree), offset, 28, op_str);
+      ti = proto_tree_add_item(tree, offset, 28, op_str);
     else
-      ti = add_item_to_tree(GTK_WIDGET(tree), offset, 28,
+      ti = proto_tree_add_item(tree, offset, 28,
         "Unknown AARP (opcode 0x%04x)", ea.op);
-    aarp_tree = gtk_tree_new();
-    add_subtree(ti, aarp_tree, ETT_AARP);
-    add_item_to_tree(aarp_tree, offset,      2,
+    aarp_tree = proto_tree_new();
+    proto_item_add_subtree(ti, aarp_tree, ETT_AARP);
+    proto_tree_add_item(aarp_tree, offset,      2,
       "Hardware type: 0x%04x", ea.htype);
-    add_item_to_tree(aarp_tree, offset +  2, 2,
+    proto_tree_add_item(aarp_tree, offset +  2, 2,
       "Protocol type: 0x%04x", ea.ptype);
-    add_item_to_tree(aarp_tree, offset +  4, 1,
+    proto_tree_add_item(aarp_tree, offset +  4, 1,
       "Hardware size: 0x%02x", ea.halen);
-    add_item_to_tree(aarp_tree, offset +  5, 1,
+    proto_tree_add_item(aarp_tree, offset +  5, 1,
       "Protocol size: 0x%02x", ea.palen);
-    add_item_to_tree(aarp_tree, offset +  6, 2,
+    proto_tree_add_item(aarp_tree, offset +  6, 2,
       "Opcode: 0x%04x (%s)", ea.op, op_str ? op_str : "Unknown");
-    add_item_to_tree(aarp_tree, offset +  8, 6,
+    proto_tree_add_item(aarp_tree, offset +  8, 6,
       "Sender ether: %s", ether_to_str((guint8 *) ea.hsaddr));
-    add_item_to_tree(aarp_tree, offset + 14, 4,
+    proto_tree_add_item(aarp_tree, offset + 14, 4,
       "Sender ID: %s", atalkid_to_str((guint8 *) ea.psaddr));
-    add_item_to_tree(aarp_tree, offset + 18, 6,
+    proto_tree_add_item(aarp_tree, offset + 18, 6,
       "Target ether: %s", ether_to_str((guint8 *) ea.hdaddr));
-    add_item_to_tree(aarp_tree, offset + 24, 4,
+    proto_tree_add_item(aarp_tree, offset + 24, 4,
       "Target ID: %s", atalkid_to_str((guint8 *) ea.pdaddr));
   }
 

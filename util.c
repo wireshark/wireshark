@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.10 1999/01/01 07:40:34 gram Exp $
+ * $Id: util.c,v 1.11 1999/03/23 03:14:46 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,6 +53,8 @@
 
 #include "image/icon-excl.xpm"
 #include "image/icon-ethereal.xpm"
+
+static void simple_dialog_cancel_cb(GtkWidget *, gpointer);
 
 const gchar *bm_key = "button mask";
 
@@ -162,7 +164,7 @@ simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
   gtk_widget_show(win);
 }
 
-void
+static void
 simple_dialog_cancel_cb(GtkWidget *w, gpointer win) {
   gint *btn_mask = (gint *) gtk_object_get_data(win, bm_key);
   

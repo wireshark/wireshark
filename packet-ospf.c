@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.9 1999/01/17 09:30:05 guy Exp $
+ * $Id: packet-ospf.c,v 1.10 1999/03/23 03:14:42 gram Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -35,11 +35,6 @@
 # include "config.h"
 #endif
 
-#include <gtk/gtk.h>
-
-#include <stdio.h>
-#include <string.h>
-
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
@@ -48,17 +43,21 @@
 # include <netinet/in.h>
 #endif
 
-#include "ethereal.h"
+#include <stdio.h>
+#include <string.h>
+
+#include <glib.h>
 #include "packet.h"
 #include "packet-ospf.h"
 
 
 void 
-dissect_ospf(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
+dissect_ospf(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     e_ospfhdr ospfh;
 
-    GtkWidget *ospf_tree = NULL, *ti; 
-    GtkWidget *ospf_header_tree;
+    proto_tree *ospf_tree = NULL;
+	proto_item *ti; 
+    proto_tree *ospf_header_tree;
     char auth_data[9]="";
     char *packet_type;
     static value_string pt_vals[] = { {OSPF_HELLO,   "Hello Packet"   },
@@ -81,49 +80,49 @@ dissect_ospf(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
     }  
 
     if (tree) {
-	ti = add_item_to_tree(GTK_WIDGET(tree), offset, ntohs(ospfh.length), "Open Shortest Path First"); 
-	ospf_tree = gtk_tree_new(); 
-	add_subtree(ti, ospf_tree, ETT_OSPF);
+	ti = proto_tree_add_item(tree, offset, ntohs(ospfh.length), "Open Shortest Path First"); 
+	ospf_tree = proto_tree_new(); 
+	proto_item_add_subtree(ti, ospf_tree, ETT_OSPF);
 
-	ti = add_item_to_tree(GTK_WIDGET(ospf_tree), offset, OSPF_HEADER_LENGTH, "OSPF Header"); 
-	ospf_header_tree = gtk_tree_new();
-	add_subtree(ti, ospf_header_tree, ETT_OSPF_HDR);
+	ti = proto_tree_add_item(ospf_tree, offset, OSPF_HEADER_LENGTH, "OSPF Header"); 
+	ospf_header_tree = proto_tree_new();
+	proto_item_add_subtree(ti, ospf_header_tree, ETT_OSPF_HDR);
 
-        add_item_to_tree(ospf_header_tree, offset, 1, "OSPF Version: %d", ospfh.version);  
-	add_item_to_tree(ospf_header_tree, offset + 1 , 1, "OSPF Packet Type: %d (%s)", 
+        proto_tree_add_item(ospf_header_tree, offset, 1, "OSPF Version: %d", ospfh.version);  
+	proto_tree_add_item(ospf_header_tree, offset + 1 , 1, "OSPF Packet Type: %d (%s)", 
 	                                                   ospfh.packet_type,
 							   (packet_type != NULL ?
 							     packet_type :
 							     "Unknown"));
-	add_item_to_tree(ospf_header_tree, offset + 2 , 2, "Packet Length: %d", 
+	proto_tree_add_item(ospf_header_tree, offset + 2 , 2, "Packet Length: %d", 
 	                                                   ntohs(ospfh.length));
-	add_item_to_tree(ospf_header_tree, offset + 4 , 4, "Source OSPF Router ID: %s", 
+	proto_tree_add_item(ospf_header_tree, offset + 4 , 4, "Source OSPF Router ID: %s", 
 
 	                                                   ip_to_str((guint8 *) &(ospfh.routerid)));
 	if (!(ospfh.area)) {
-	   add_item_to_tree(ospf_header_tree, offset + 8 , 4, "Area ID: Backbone");
+	   proto_tree_add_item(ospf_header_tree, offset + 8 , 4, "Area ID: Backbone");
 	} else {
-	   add_item_to_tree(ospf_header_tree, offset + 8 , 4, "Area ID: %s", ip_to_str((guint8 *) &(ospfh.area)));
+	   proto_tree_add_item(ospf_header_tree, offset + 8 , 4, "Area ID: %s", ip_to_str((guint8 *) &(ospfh.area)));
 	}
-	add_item_to_tree(ospf_header_tree, offset + 12 , 2, "Packet Checksum: 0x%x",
+	proto_tree_add_item(ospf_header_tree, offset + 12 , 2, "Packet Checksum: 0x%x",
 	      ntohs(ospfh.checksum));
 	switch( ntohs(ospfh.auth_type) ) {
 	    case OSPF_AUTH_NONE:
-	         add_item_to_tree(ospf_header_tree, offset + 14 , 2, "Auth Type: none");
-	         add_item_to_tree(ospf_header_tree, offset + 16 , 8, "Auth Data (none)");
+	         proto_tree_add_item(ospf_header_tree, offset + 14 , 2, "Auth Type: none");
+	         proto_tree_add_item(ospf_header_tree, offset + 16 , 8, "Auth Data (none)");
 		 break;
 	    case OSPF_AUTH_SIMPLE:
-	         add_item_to_tree(ospf_header_tree, offset + 14 , 2, "Auth Type: simple");
+	         proto_tree_add_item(ospf_header_tree, offset + 14 , 2, "Auth Type: simple");
                  strncpy(auth_data, (char *) &ospfh.auth_data, 8);
-	         add_item_to_tree(ospf_header_tree, offset + 16 , 8, "Auth Data: %s", auth_data);
+	         proto_tree_add_item(ospf_header_tree, offset + 16 , 8, "Auth Data: %s", auth_data);
 		 break;
 	    case OSPF_AUTH_CRYPT:
-	         add_item_to_tree(ospf_header_tree, offset + 14 , 2, "Auth Type: crypt");
-	         add_item_to_tree(ospf_header_tree, offset + 16 , 8, "Auth Data (crypt)");
+	         proto_tree_add_item(ospf_header_tree, offset + 14 , 2, "Auth Type: crypt");
+	         proto_tree_add_item(ospf_header_tree, offset + 16 , 8, "Auth Data (crypt)");
 		 break;
             default:
-	         add_item_to_tree(ospf_header_tree, offset + 14 , 2, "Auth Type (unknown)");
-	         add_item_to_tree(ospf_header_tree, offset + 16 , 8, "Auth Data (unknown)");
+	         proto_tree_add_item(ospf_header_tree, offset + 14 , 2, "Auth Type (unknown)");
+	         proto_tree_add_item(ospf_header_tree, offset + 16 , 8, "Auth Data (unknown)");
 	}
 
     }
@@ -132,19 +131,19 @@ dissect_ospf(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
     offset += OSPF_HEADER_LENGTH;
     switch(ospfh.packet_type){
 	case OSPF_HELLO:
-	    dissect_ospf_hello(pd, offset, fd, (GtkTree *) ospf_tree); 
+	    dissect_ospf_hello(pd, offset, fd, ospf_tree); 
 	    break;
 	case OSPF_DB_DESC:
-	    dissect_ospf_db_desc(pd, offset, fd, (GtkTree *) ospf_tree);   
+	    dissect_ospf_db_desc(pd, offset, fd, ospf_tree);   
 	    break;
 	case OSPF_LS_REQ:
-	    dissect_ospf_ls_req(pd, offset, fd, (GtkTree *) ospf_tree);   
+	    dissect_ospf_ls_req(pd, offset, fd, ospf_tree);   
 	    break;
 	case OSPF_LS_UPD:
-	    dissect_ospf_ls_upd(pd, offset, fd, (GtkTree *) ospf_tree);
+	    dissect_ospf_ls_upd(pd, offset, fd, ospf_tree);
 	    break;
 	case OSPF_LS_ACK:
-	    dissect_ospf_ls_ack(pd, offset, fd, (GtkTree *) ospf_tree);
+	    dissect_ospf_ls_ack(pd, offset, fd, ospf_tree);
 	    break;
 	default:
             dissect_data(pd, offset, fd, tree); 
@@ -152,24 +151,25 @@ dissect_ospf(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 }
 
 void
-dissect_ospf_hello(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
+dissect_ospf_hello(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     e_ospf_hello ospfhello;
     guint32 *ospfneighbor;
     char options[20]="";
     int options_offset;
 
-    GtkWidget *ospf_hello_tree, *ti; 
+    proto_tree *ospf_hello_tree;
+	proto_item *ti; 
 
     memcpy(&ospfhello, &pd[offset], sizeof(e_ospf_hello));
 
     if (tree) {
-	ti = add_item_to_tree(GTK_WIDGET(tree), offset, (fd->cap_len - offset) , "OSPF Hello Packet"); 
-	ospf_hello_tree = gtk_tree_new(); 
-	add_subtree(ti, ospf_hello_tree, ETT_OSPF_HELLO);
+	ti = proto_tree_add_item(tree, offset, (fd->cap_len - offset) , "OSPF Hello Packet"); 
+	ospf_hello_tree = proto_tree_new(); 
+	proto_item_add_subtree(ti, ospf_hello_tree, ETT_OSPF_HELLO);
 
 
-	add_item_to_tree(ospf_hello_tree, offset , 4, "Network Mask: %s",  ip_to_str((guint8 *) &ospfhello.network_mask));
-	add_item_to_tree(ospf_hello_tree, offset + 4, 2, "Hello Interval: %d seconds",  ntohs(ospfhello.hellointervall));
+	proto_tree_add_item(ospf_hello_tree, offset , 4, "Network Mask: %s",  ip_to_str((guint8 *) &ospfhello.network_mask));
+	proto_tree_add_item(ospf_hello_tree, offset + 4, 2, "Hello Interval: %d seconds",  ntohs(ospfhello.hellointervall));
 
 	/* ATTENTION !!! no check for length of options string */
 	options_offset=0;
@@ -194,41 +194,42 @@ dissect_ospf_hello(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) 
 	    options_offset+=3;
 	}
 
-	add_item_to_tree(ospf_hello_tree, offset + 6, 1, "Options: %d (%s)",  ospfhello.options, options);
-	add_item_to_tree(ospf_hello_tree, offset + 7, 1, "Router Priority: %d",  ospfhello.priority);
-	add_item_to_tree(ospf_hello_tree, offset + 8, 4, "Router Dead Interval: %ld seconds",  (long)ntohl(ospfhello.dead_interval));
-	add_item_to_tree(ospf_hello_tree, offset + 12, 4, "Designated Router: %s",  ip_to_str((guint8 *) &ospfhello.drouter));
-	add_item_to_tree(ospf_hello_tree, offset + 16, 4, "Backup Designated Router: %s",  ip_to_str((guint8 *) &ospfhello.bdrouter));
+	proto_tree_add_item(ospf_hello_tree, offset + 6, 1, "Options: %d (%s)",  ospfhello.options, options);
+	proto_tree_add_item(ospf_hello_tree, offset + 7, 1, "Router Priority: %d",  ospfhello.priority);
+	proto_tree_add_item(ospf_hello_tree, offset + 8, 4, "Router Dead Interval: %ld seconds",  (long)ntohl(ospfhello.dead_interval));
+	proto_tree_add_item(ospf_hello_tree, offset + 12, 4, "Designated Router: %s",  ip_to_str((guint8 *) &ospfhello.drouter));
+	proto_tree_add_item(ospf_hello_tree, offset + 16, 4, "Backup Designated Router: %s",  ip_to_str((guint8 *) &ospfhello.bdrouter));
 
 
 	offset+=20;
 	while(((int)(fd->cap_len - offset)) >= 4){
 	    printf("%d", fd->cap_len - offset);
 	    ospfneighbor=(guint32 *) &pd[offset];
-	    add_item_to_tree(ospf_hello_tree, offset, 4, "Active Neighbor: %s",  ip_to_str((guint8 *) ospfneighbor));
+	    proto_tree_add_item(ospf_hello_tree, offset, 4, "Active Neighbor: %s",  ip_to_str((guint8 *) ospfneighbor));
 	    offset+=4;
 	}
     }
 }
 
 void
-dissect_ospf_db_desc(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
+dissect_ospf_db_desc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     e_ospf_dbd ospf_dbd;
     char options[20]="";
     int options_offset;
     char flags[20]="";
     int flags_offset;
 
-    GtkWidget *ospf_db_desc_tree=NULL, *ti; 
+    proto_tree *ospf_db_desc_tree=NULL;
+	proto_item *ti; 
 
     memcpy(&ospf_dbd, &pd[offset], sizeof(e_ospf_dbd));
 
     if (tree) {
-	ti = add_item_to_tree(GTK_WIDGET(tree), offset, (fd->cap_len - offset) , "OSPF DB Description"); 
-	ospf_db_desc_tree = gtk_tree_new(); 
-	add_subtree(ti, ospf_db_desc_tree, ETT_OSPF_DESC);
+	ti = proto_tree_add_item(tree, offset, (fd->cap_len - offset) , "OSPF DB Description"); 
+	ospf_db_desc_tree = proto_tree_new(); 
+	proto_item_add_subtree(ti, ospf_db_desc_tree, ETT_OSPF_DESC);
 
-	add_item_to_tree(ospf_db_desc_tree, offset, 2, "Interface MTU: %d", ntohs(ospf_dbd.interface_mtu) );
+	proto_tree_add_item(ospf_db_desc_tree, offset, 2, "Interface MTU: %d", ntohs(ospf_dbd.interface_mtu) );
 
 
 	options_offset=0;
@@ -253,7 +254,7 @@ dissect_ospf_db_desc(const u_char *pd, int offset, frame_data *fd, GtkTree *tree
 	    options_offset+=3;
 	}
 
-	add_item_to_tree(ospf_db_desc_tree, offset + 2 , 1, "Options: %d (%s)", ospf_dbd.options, options );
+	proto_tree_add_item(ospf_db_desc_tree, offset + 2 , 1, "Options: %d (%s)", ospf_dbd.options, options );
 
 
 	flags_offset=0;
@@ -270,23 +271,24 @@ dissect_ospf_db_desc(const u_char *pd, int offset, frame_data *fd, GtkTree *tree
 	    flags_offset+=3;
 	}
 
-	add_item_to_tree(ospf_db_desc_tree, offset + 3 , 1, "Flags: %d (%s)", ospf_dbd.flags, flags );
-	add_item_to_tree(ospf_db_desc_tree, offset + 4 , 4, "DD Sequence: %ld", (long)ntohl(ospf_dbd.dd_sequence) );
+	proto_tree_add_item(ospf_db_desc_tree, offset + 3 , 1, "Flags: %d (%s)", ospf_dbd.flags, flags );
+	proto_tree_add_item(ospf_db_desc_tree, offset + 4 , 4, "DD Sequence: %ld", (long)ntohl(ospf_dbd.dd_sequence) );
     }
     /* LS Headers will be processed here */
     /* skip to the end of DB-Desc header */
     offset+=8;
     while( ((int) (fd->cap_len - offset)) >= OSPF_LSA_HEADER_LENGTH ) {
-       dissect_ospf_lsa(pd, offset, fd, (GtkTree *) tree, FALSE);
+       dissect_ospf_lsa(pd, offset, fd, tree, FALSE);
        offset+=OSPF_LSA_HEADER_LENGTH;
     }
 }
 
 void
-dissect_ospf_ls_req(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
+dissect_ospf_ls_req(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     e_ospf_ls_req ospf_lsr;
 
-    GtkWidget *ospf_lsr_tree, *ti; 
+    proto_tree *ospf_lsr_tree;
+	proto_item *ti; 
 
 
     /* zero or more LS requests may be within a LS Request */
@@ -294,39 +296,39 @@ dissect_ospf_ls_req(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
     if (tree) {
 	while( ((int) ( fd->cap_len - offset)) >= OSPF_LS_REQ_LENGTH ){
              memcpy(&ospf_lsr, &pd[offset], sizeof(e_ospf_ls_req));
-	     ti = add_item_to_tree(GTK_WIDGET(tree), offset, OSPF_LS_REQ_LENGTH, "Link State Request"); 
-	     ospf_lsr_tree = gtk_tree_new(); 
-	     add_subtree(ti, ospf_lsr_tree, ETT_OSPF_LSR);
+	     ti = proto_tree_add_item(tree, offset, OSPF_LS_REQ_LENGTH, "Link State Request"); 
+	     ospf_lsr_tree = proto_tree_new(); 
+	     proto_item_add_subtree(ti, ospf_lsr_tree, ETT_OSPF_LSR);
 
 	     switch( ntohl( ospf_lsr.ls_type ) ){
 		 case OSPF_LSTYPE_ROUTER:
-	             add_item_to_tree(ospf_lsr_tree, offset, 4, "LS Type: Router-LSA (%ld)", 
+	             proto_tree_add_item(ospf_lsr_tree, offset, 4, "LS Type: Router-LSA (%ld)", 
 	                               (long)ntohl( ospf_lsr.ls_type ) );
 		     break;
 		 case OSPF_LSTYPE_NETWORK:
-	             add_item_to_tree(ospf_lsr_tree, offset, 4, "LS Type: Network-LSA (%ld)", 
+	             proto_tree_add_item(ospf_lsr_tree, offset, 4, "LS Type: Network-LSA (%ld)", 
 	                               (long)ntohl( ospf_lsr.ls_type ) );
 		     break;
 		 case OSPF_LSTYPE_SUMMERY:
-	             add_item_to_tree(ospf_lsr_tree, offset, 4, "LS Type: Summary-LSA (IP network) (%ld)", 
+	             proto_tree_add_item(ospf_lsr_tree, offset, 4, "LS Type: Summary-LSA (IP network) (%ld)", 
 	                               (long)ntohl( ospf_lsr.ls_type ) );
 		     break;
 		 case OSPF_LSTYPE_ASBR:
-	             add_item_to_tree(ospf_lsr_tree, offset, 4, "LS Type: Summary-LSA (ASBR) (%ld)", 
+	             proto_tree_add_item(ospf_lsr_tree, offset, 4, "LS Type: Summary-LSA (ASBR) (%ld)", 
 	                               (long)ntohl( ospf_lsr.ls_type ) );
 		     break;
 		 case OSPF_LSTYPE_ASEXT:
-	             add_item_to_tree(ospf_lsr_tree, offset, 4, "LS Type: AS-External-LSA (ASBR) (%ld)", 
+	             proto_tree_add_item(ospf_lsr_tree, offset, 4, "LS Type: AS-External-LSA (ASBR) (%ld)", 
 	                               (long)ntohl( ospf_lsr.ls_type ) );
 		     break;
 		 default:
-	             add_item_to_tree(ospf_lsr_tree, offset, 4, "LS Type: %ld (unknown)", 
+	             proto_tree_add_item(ospf_lsr_tree, offset, 4, "LS Type: %ld (unknown)", 
 	                               (long)ntohl( ospf_lsr.ls_type ) );
 	     }
 
-             add_item_to_tree(ospf_lsr_tree, offset + 4, 4, "Link State ID : %s", 
+             proto_tree_add_item(ospf_lsr_tree, offset + 4, 4, "Link State ID : %s", 
 	                                 ip_to_str((guint8 *) &(ospf_lsr.ls_id)));
-             add_item_to_tree(ospf_lsr_tree, offset + 8, 4, "Advertising Router : %s", 
+             proto_tree_add_item(ospf_lsr_tree, offset + 8, 4, "Advertising Router : %s", 
 	                                 ip_to_str((guint8 *) &(ospf_lsr.adv_router)));
 
 	     offset+=12;
@@ -334,44 +336,45 @@ dissect_ospf_ls_req(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
     }
 }
 void
-dissect_ospf_ls_upd(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
+dissect_ospf_ls_upd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     e_ospf_lsa_upd_hdr upd_hdr;
     guint32 lsa_counter; 
 
-    GtkWidget *ospf_lsa_upd_tree=NULL, *ti; 
+    proto_tree *ospf_lsa_upd_tree=NULL;
+	proto_item *ti; 
 
     memcpy(&upd_hdr, &pd[offset], sizeof(e_ospf_lsa_upd_hdr));
 
     if (tree) {
-	ti = add_item_to_tree(GTK_WIDGET(tree), offset, (fd->cap_len - offset) , "LS Update Packet"); 
-	ospf_lsa_upd_tree = gtk_tree_new(); 
-	add_subtree(ti, ospf_lsa_upd_tree, ETT_OSPF_LSA_UPD);
+	ti = proto_tree_add_item(tree, offset, (fd->cap_len - offset) , "LS Update Packet"); 
+	ospf_lsa_upd_tree = proto_tree_new(); 
+	proto_item_add_subtree(ti, ospf_lsa_upd_tree, ETT_OSPF_LSA_UPD);
 
-	add_item_to_tree(ospf_lsa_upd_tree, offset, 4, "Nr oF LSAs: %ld", (long)ntohl(upd_hdr.lsa_nr) );
+	proto_tree_add_item(ospf_lsa_upd_tree, offset, 4, "Nr oF LSAs: %ld", (long)ntohl(upd_hdr.lsa_nr) );
     }
     /* skip to the beginning of the first LSA */
     offset+=4; /* the LS Upd PAcket contains only a 32 bit #LSAs field */
     
     lsa_counter = 0;
     while(lsa_counter < ntohl(upd_hdr.lsa_nr)){
-        offset+=dissect_ospf_lsa(pd, offset, fd, (GtkTree *) ospf_lsa_upd_tree, TRUE);
+        offset+=dissect_ospf_lsa(pd, offset, fd, ospf_lsa_upd_tree, TRUE);
         lsa_counter += 1;
     }
 }
 
 void
-dissect_ospf_ls_ack(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
+dissect_ospf_ls_ack(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
     /* the body of a LS Ack packet simply contains zero or more LSA Headers */
     while( ((int)(fd->cap_len - offset)) >= OSPF_LSA_HEADER_LENGTH ) {
-       dissect_ospf_lsa(pd, offset, fd, (GtkTree *) tree, FALSE);
+       dissect_ospf_lsa(pd, offset, fd, tree, FALSE);
        offset+=OSPF_LSA_HEADER_LENGTH;
     }
 
 }
 
 int
-dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, GtkTree *tree, int disassemble_body) {
+dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int disassemble_body) {
     e_ospf_lsa_hdr 	 lsa_hdr;
     char		*lsa_type;
 
@@ -395,7 +398,8 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, GtkTree *tree, in
     e_ospf_asexternal_lsa       asext_lsa;
     guint32                   asext_metric;
 
-    GtkWidget *ospf_lsa_tree, *ti; 
+    proto_tree *ospf_lsa_tree;
+	proto_item *ti; 
 
     memcpy(&lsa_hdr, &pd[offset], sizeof(e_ospf_lsa_hdr));
 
@@ -423,29 +427,29 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, GtkTree *tree, in
 
     if (tree) {
 	if(disassemble_body){
-             ti = add_item_to_tree(GTK_WIDGET(tree), offset, ntohs(lsa_hdr.length), 
+             ti = proto_tree_add_item(tree, offset, ntohs(lsa_hdr.length), 
 	                                              "%s (Type: %d)", lsa_type, lsa_hdr.ls_type); 
         } else {
-             ti = add_item_to_tree(GTK_WIDGET(tree), offset, OSPF_LSA_HEADER_LENGTH, "LSA Header"); 
+             ti = proto_tree_add_item(tree, offset, OSPF_LSA_HEADER_LENGTH, "LSA Header"); 
         }
-        ospf_lsa_tree = gtk_tree_new(); 
-        add_subtree(ti, ospf_lsa_tree, ETT_OSPF_LSA);
+        ospf_lsa_tree = proto_tree_new(); 
+        proto_item_add_subtree(ti, ospf_lsa_tree, ETT_OSPF_LSA);
 
 	
-        add_item_to_tree(ospf_lsa_tree, offset, 2, "LS Age: %d seconds", ntohs(lsa_hdr.ls_age));
-        add_item_to_tree(ospf_lsa_tree, offset + 2, 1, "Options: %d ", lsa_hdr.options);
-        add_item_to_tree(ospf_lsa_tree, offset + 3, 1, "LSA Type: %d (%s)", lsa_hdr.ls_type, lsa_type);
+        proto_tree_add_item(ospf_lsa_tree, offset, 2, "LS Age: %d seconds", ntohs(lsa_hdr.ls_age));
+        proto_tree_add_item(ospf_lsa_tree, offset + 2, 1, "Options: %d ", lsa_hdr.options);
+        proto_tree_add_item(ospf_lsa_tree, offset + 3, 1, "LSA Type: %d (%s)", lsa_hdr.ls_type, lsa_type);
 
-        add_item_to_tree(ospf_lsa_tree, offset + 4, 4, "Linke State ID: %s ", 
+        proto_tree_add_item(ospf_lsa_tree, offset + 4, 4, "Linke State ID: %s ", 
 	                                             ip_to_str((guint8 *) &(lsa_hdr.ls_id)));
 
-        add_item_to_tree(ospf_lsa_tree, offset + 8, 4, "Advertising Router: %s ", 
+        proto_tree_add_item(ospf_lsa_tree, offset + 8, 4, "Advertising Router: %s ", 
 	                                             ip_to_str((guint8 *) &(lsa_hdr.adv_router)));
-        add_item_to_tree(ospf_lsa_tree, offset + 12, 4, "LS Sequence Number: 0x%04lx ", 
+        proto_tree_add_item(ospf_lsa_tree, offset + 12, 4, "LS Sequence Number: 0x%04lx ", 
 	                                             (unsigned long)ntohl(lsa_hdr.ls_seq));
-        add_item_to_tree(ospf_lsa_tree, offset + 16, 2, "LS Checksum: %d ", ntohs(lsa_hdr.ls_checksum));
+        proto_tree_add_item(ospf_lsa_tree, offset + 16, 2, "LS Checksum: %d ", ntohs(lsa_hdr.ls_checksum));
 
-        add_item_to_tree(ospf_lsa_tree, offset + 18, 2, "Length: %d ", ntohs(lsa_hdr.length));
+        proto_tree_add_item(ospf_lsa_tree, offset + 18, 2, "Length: %d ", ntohs(lsa_hdr.length));
 
 	if(!disassemble_body){
            return OSPF_LSA_HEADER_LENGTH;
@@ -459,8 +463,8 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, GtkTree *tree, in
                 memcpy(&router_lsa, &pd[offset], sizeof(e_ospf_router_lsa));
 
 		/* again: flags should be secified in detail */
-		add_item_to_tree(ospf_lsa_tree, offset, 1, "Flags: 0x%02x ", router_lsa.flags);
-		add_item_to_tree(ospf_lsa_tree, offset + 2, 2, "Nr. of Links: %d ", 
+		proto_tree_add_item(ospf_lsa_tree, offset, 1, "Flags: 0x%02x ", router_lsa.flags);
+		proto_tree_add_item(ospf_lsa_tree, offset + 2, 2, "Nr. of Links: %d ", 
 		                                                   ntohs(router_lsa.nr_links));
 		offset += 4;
 		/* router_lsa.nr_links links follow 
@@ -492,17 +496,17 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, GtkTree *tree, in
 			    link_id="unknown link id";
                     }
 
-		    add_item_to_tree(ospf_lsa_tree, offset, 4, "%s: %s", link_id,
+		    proto_tree_add_item(ospf_lsa_tree, offset, 4, "%s: %s", link_id,
 		                                   ip_to_str((guint8 *) &(router_data.link_id)));
 
 		    /* link_data should be specified in detail (e.g. network mask) (depends on link type)*/
-		    add_item_to_tree(ospf_lsa_tree, offset + 4, 4, "Link Data: %s", 
+		    proto_tree_add_item(ospf_lsa_tree, offset + 4, 4, "Link Data: %s", 
 		                                   ip_to_str((guint8 *) &(router_data.link_data)));
 
-		    add_item_to_tree(ospf_lsa_tree, offset + 8, 1, "Link Type: %d - %s", 
+		    proto_tree_add_item(ospf_lsa_tree, offset + 8, 1, "Link Type: %d - %s", 
 		                                              router_data.link_type, link_type);
-		    add_item_to_tree(ospf_lsa_tree, offset + 9, 1, "Nr. of TOS metrics: %d", router_data.nr_tos);
-		    add_item_to_tree(ospf_lsa_tree, offset + 10, 2, "TOS 0 metric: %d", ntohs( router_data.tos0_metric ));
+		    proto_tree_add_item(ospf_lsa_tree, offset + 9, 1, "Nr. of TOS metrics: %d", router_data.nr_tos);
+		    proto_tree_add_item(ospf_lsa_tree, offset + 10, 2, "TOS 0 metric: %d", ntohs( router_data.tos0_metric ));
 
 		    offset += 12;
 
@@ -513,7 +517,7 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, GtkTree *tree, in
 
 		    for(tos_counter = 1 ; link_counter <= ntohs(router_data.nr_tos); tos_counter++){
                         memcpy(&tos_data, &pd[offset], sizeof(e_ospf_router_metric));
-			add_item_to_tree(ospf_lsa_tree, offset, 1, "TOS: %d, Metric: %d", 
+			proto_tree_add_item(ospf_lsa_tree, offset, 1, "TOS: %d, Metric: %d", 
 			                        tos_data.tos, ntohs(tos_data.metric));
 			offset += 4;
 		    }
@@ -521,13 +525,13 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, GtkTree *tree, in
                 break;
             case(OSPF_LSTYPE_NETWORK):
                 memcpy(&network_lsa, &pd[offset], sizeof(e_ospf_network_lsa));
-		add_item_to_tree(ospf_lsa_tree, offset, 4, "Netmask: %s", 
+		proto_tree_add_item(ospf_lsa_tree, offset, 4, "Netmask: %s", 
                                                  ip_to_str((guint8 *) &(network_lsa.network_mask)));
 		offset += 4;
 
 		while( ((int) (fd->cap_len - offset)) >= 4){
 		    attached_router = (guint32 *) &pd[offset];
-		    add_item_to_tree(ospf_lsa_tree, offset, 4, "Attached Router: %s", 
+		    proto_tree_add_item(ospf_lsa_tree, offset, 4, "Attached Router: %s", 
                                                  ip_to_str((guint8 *) attached_router));
 		    offset += 4;
 		}
@@ -536,22 +540,22 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, GtkTree *tree, in
                 /* Type 3 and 4 LSAs have the same format */
             case(OSPF_LSTYPE_ASBR):
                 memcpy(&summary_lsa, &pd[offset], sizeof(e_ospf_summary_lsa));
-                add_item_to_tree(ospf_lsa_tree, offset, 4, "Netmask: %s", 
+                proto_tree_add_item(ospf_lsa_tree, offset, 4, "Netmask: %s", 
                                                  ip_to_str((guint8 *) &(summary_lsa.network_mask)));
                 /* returns only the TOS 0 metric (even if there are more TOS metrics) */
                 break;
             case(OSPF_LSTYPE_ASEXT):
                 memcpy(&summary_lsa, &pd[offset], sizeof(e_ospf_summary_lsa));
-                add_item_to_tree(ospf_lsa_tree, offset, 4, "Netmask: %s", 
+                proto_tree_add_item(ospf_lsa_tree, offset, 4, "Netmask: %s", 
                                                   ip_to_str((guint8 *) &(summary_lsa.network_mask)));
 
                 /* asext_lsa = (e_ospf_asexternal_lsa *) &pd[offset + 4]; */
                 memcpy(&asext_lsa, &pd[offset + 4], sizeof(asext_lsa));
                 if( (asext_lsa.options & 128) == 128 ) { /* check wether or not E bit is set */
-                   add_item_to_tree(ospf_lsa_tree, offset, 1, 
+                   proto_tree_add_item(ospf_lsa_tree, offset, 1, 
                             "External Type: Type 2 (metric is larger than any other link state path)");
                 } else {
-                   add_item_to_tree(ospf_lsa_tree, offset + 4, 1, 
+                   proto_tree_add_item(ospf_lsa_tree, offset + 4, 1, 
                             "External Type: Type 1 (metric is specified in the same units as interface cost)");
                 }
                 /* the metric field of a AS-external LAS is specified in 3 bytes -> not well aligned */
@@ -561,15 +565,15 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, GtkTree *tree, in
                 /* erase the leading 8 bits (the dont belong to the metric */
                 asext_metric = ntohl(asext_metric) & 0x00ffffff ;
 
-                add_item_to_tree(ospf_lsa_tree, offset + 5,  3,"Metric: %d", asext_metric);
-                add_item_to_tree(ospf_lsa_tree, offset + 8,  4,"Forwarding Address: %s", 
+                proto_tree_add_item(ospf_lsa_tree, offset + 5,  3,"Metric: %d", asext_metric);
+                proto_tree_add_item(ospf_lsa_tree, offset + 8,  4,"Forwarding Address: %s", 
                                                  ip_to_str((guint8 *) &(asext_lsa.gateway)));
-                add_item_to_tree(ospf_lsa_tree, offset + 12, 4,"External Route Tag: %ld", (long)ntohl(asext_lsa.external_tag)); 
+                proto_tree_add_item(ospf_lsa_tree, offset + 12, 4,"External Route Tag: %ld", (long)ntohl(asext_lsa.external_tag)); 
                     
                 break;
             default:
                /* unknown LSA type */
-	        add_item_to_tree(ospf_lsa_tree, offset, (fd->cap_len - offset), "Unknown LSA Type");
+	        proto_tree_add_item(ospf_lsa_tree, offset, (fd->cap_len - offset), "Unknown LSA Type");
         }
     }
     /* return the length of this LSA */

@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.11 1999/03/01 18:28:11 gram Exp $
+ * $Id: packet-tr.c,v 1.12 1999/03/23 03:14:44 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -28,25 +28,17 @@
 # include "config.h"
 #endif
 
-#include <gtk/gtk.h>
-
-#include <stdio.h>
-
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
 
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
-
-#include "ethereal.h"
+#include <stdio.h>
+#include <glib.h>
 #include "packet.h"
 #include "etypes.h"
 
 static void
-add_ring_bridge_pairs(int rcf_len, const u_char *pd, GtkWidget *tree);
+add_ring_bridge_pairs(int rcf_len, const u_char *pd, proto_tree *tree);
 
 static char*
 sr_broadcast(u_char val) {
@@ -169,15 +161,16 @@ capture_tr(const u_char *pd, guint32 cap_len, packet_counts *ld) {
 
 
 void
-dissect_tr(const u_char *pd, frame_data *fd, GtkTree *tree) {
+dissect_tr(const u_char *pd, frame_data *fd, proto_tree *tree) {
 
-	GtkWidget	*fh_tree, *ti;
+	proto_tree	*fh_tree;
+	proto_item	*ti;
 	int			offset = 14;
 
 	int			source_routed = 0;
 	int			frame_type;
-	guint8			trn_rif_bytes;
-	guint8			actual_rif_bytes;
+	guint8		trn_rif_bytes;
+	guint8		actual_rif_bytes;
 
 	/* The trn_hdr struct, as separate variables */
 	guint8			trn_ac;		/* access control field */
@@ -203,10 +196,6 @@ dissect_tr(const u_char *pd, frame_data *fd, GtkTree *tree) {
 
 	/* Token-Ring Strings */
 	char *fc[] = { "MAC", "LLC", "Reserved", "Unknown" };
-/*	char *fc_pcf[] = {
-		"Normal buffer", "Express buffer", "Purge",
-		"Claim Token", "Beacon", "Active Monitor Present",
-		"Standby Monitor Present" };*/
 	char *rc_arrow[] = { "-->", "<--" };
 	char *rc_direction[] = { "From originating station",
 		"To originating station" };
@@ -293,11 +282,10 @@ dissect_tr(const u_char *pd, frame_data *fd, GtkTree *tree) {
 
 	/* protocol analysis tree */
 	if (tree) {
-		ti = add_item_to_tree(GTK_WIDGET(tree), 0, 14 + actual_rif_bytes,
-		  "Token-Ring");
-		fh_tree = gtk_tree_new();
-		add_subtree(ti, fh_tree, ETT_TOKEN_RING);
-		add_item_to_tree(fh_tree, 0, 1,
+		ti = proto_tree_add_item(tree, 0, 14 + actual_rif_bytes, "Token-Ring");
+		fh_tree = proto_tree_new();
+		proto_item_add_subtree(ti, fh_tree, ETT_TOKEN_RING);
+		proto_tree_add_item(fh_tree, 0, 1,
 			"Access Control: %s, Priority=%d, Monitor Count=%d, "
 			"Priority Reservation=%d",
 			((trn_ac & 16) >> 4) ? "Frame" : "Token",	/* frame/token */
@@ -305,26 +293,26 @@ dissect_tr(const u_char *pd, frame_data *fd, GtkTree *tree) {
 			((trn_ac & 8) >> 3),				/* monitor count */
 			((trn_ac & 7)));				/* priority reserv. */
 
-		add_item_to_tree(fh_tree, 1, 1,
+		proto_tree_add_item(fh_tree, 1, 1,
 			"Frame Control: %s, Physical Control=%d (%s)",
 			fc[frame_type], (trn_fc & 15),
 			val_to_str((trn_fc & 15), fc_pcf, "Unknown"));
 
-		add_item_to_tree(fh_tree, 2, 6, "Destination: %s",
+		proto_tree_add_item(fh_tree, 2, 6, "Destination: %s",
 			ether_to_str((guint8 *) trn_dhost));
-		add_item_to_tree(fh_tree, 8, 6, "Source: %s",
+		proto_tree_add_item(fh_tree, 8, 6, "Source: %s",
 			ether_to_str((guint8 *) trn_shost));
 
 		if (source_routed) {
-			add_item_to_tree(fh_tree, 14, 1, "RIF length: %d bytes", trn_rif_bytes);
+			proto_tree_add_item(fh_tree, 14, 1, "RIF length: %d bytes", trn_rif_bytes);
 
-			add_item_to_tree(fh_tree, 15, 1,
+			proto_tree_add_item(fh_tree, 15, 1,
 				"%s, up to %d bytes in frame (LF=%d)",
 				sr_broadcast((pd[14] & 224) >> 5),
 				sr_frame((pd[15] & 112) >> 4),
 				(pd[15] & 112) >> 4);
 
-			add_item_to_tree(fh_tree, 15, 1,
+			proto_tree_add_item(fh_tree, 15, 1,
 				"Direction: %s (%s)",
 				rc_direction[(pd[15] & 128) >> 7],
 				rc_arrow[(pd[15] & 128) >> 7]);
@@ -347,18 +335,18 @@ dissect_tr(const u_char *pd, frame_data *fd, GtkTree *tree) {
 		frame type is LLC.  It's very much a hack. -- Gilbert Ramirez */
 		if (actual_rif_bytes > trn_rif_bytes) {
 			/*printf("trn_rif %d    actual_rif %d\n", trn_rif_bytes, actual_rif_bytes);*/
-			add_item_to_tree(fh_tree, 14 + trn_rif_bytes, actual_rif_bytes - trn_rif_bytes,
+			proto_tree_add_item(fh_tree, 14 + trn_rif_bytes, actual_rif_bytes - trn_rif_bytes,
 				"Empty RIF from Linux 2.0.x driver. The sniffing NIC "
 				"is also running a protocol stack.");
 		}
 		/*
 		if (source_routed && (trn_rif_bytes == 2) && silly_linux) {
-			add_item_to_tree(fh_tree, 14 + trn_rif_bytes, 18 - actual_rif_bytes,
+			proto_tree_add_item(fh_tree, 14 + trn_rif_bytes, 18 - actual_rif_bytes,
 				"Empty RIF from Linux 2.0.x driver. The sniffing NIC "
 				"is also running a protocol stack.");
 		}
 		else if ((!source_routed) && silly_linux ) {
-			add_item_to_tree(fh_tree, 14, 18,
+			proto_tree_add_item(fh_tree, 14, 18,
 				"Empty RIF from Linux 2.0.x driver. The sniffing NIC "
 				"is also running a protocol stack.");
 		}*/
@@ -383,7 +371,7 @@ dissect_tr(const u_char *pd, frame_data *fd, GtkTree *tree) {
 /* this routine is taken from the Linux net/802/tr.c code, which shows
 ring-bridge paires in the /proc/net/tr_rif virtual file. */
 static void
-add_ring_bridge_pairs(int rcf_len, const u_char *pd, GtkWidget *tree)
+add_ring_bridge_pairs(int rcf_len, const u_char *pd, proto_tree *tree)
 {
 	int 	j, size;
 	int 	segment, brdgnmb;
@@ -398,16 +386,16 @@ add_ring_bridge_pairs(int rcf_len, const u_char *pd, GtkWidget *tree)
 	for(j = 1; j < rcf_len; j++) {
 		if (j==1) {
 			segment=pntohs(&pd[16]) >> 4;
-			size = sprintf(buffer,"%03X",segment);
+			size = sprintf(buffer, "%03X",segment);
 			buff_offset += size;
 		}
 		segment=pntohs(&pd[17+j]) >> 4;
 		brdgnmb=pd[16+j] & 0x0f;
-		size = sprintf(buffer+buff_offset,"-%01X-%03X",brdgnmb,segment);
+		size = sprintf(buffer+buff_offset, "-%01X-%03X",brdgnmb,segment);
 		buff_offset += size;	
 	}
 
-	add_item_to_tree(tree, 16, rcf_len << 1,
+	proto_tree_add_item(tree, 16, rcf_len << 1,
 		"Ring-Bridge Pairs: %s",
 		buffer);
 

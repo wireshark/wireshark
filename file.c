@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.21 1999/03/20 04:38:57 gram Exp $
+ * $Id: file.c,v 1.22 1999/03/23 03:14:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -199,7 +199,7 @@ open_cap_file(char *fname, capture_file *cf) {
 
 /* Reset everything to a pristine state */
 void
-close_cap_file(capture_file *cf, GtkWidget *w, guint context) {
+close_cap_file(capture_file *cf, void *w, guint context) {
   if (cf->fh) {
     fclose(cf->fh);
     cf->fh = NULL;

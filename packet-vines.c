@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.5 1998/12/29 04:05:36 gerald Exp $
+ * $Id: packet-vines.c,v 1.6 1999/03/23 03:14:45 gram Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -28,10 +28,6 @@
 
 #include "config.h"
 
-#include <gtk/gtk.h>
-
-#include <stdio.h>
-
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
@@ -40,9 +36,8 @@
 #include <netinet/in.h>
 #endif
 
-#include "ethereal.h"
+#include <glib.h>
 #include "packet.h"
-#include "etypes.h"
 #include "packet-vines.h"
 
 
@@ -52,9 +47,10 @@
  */
 
 void
-dissect_vines_frp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
+dissect_vines_frp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   guint8   vines_frp_ctrl, vines_frp_seqno; 
-  GtkWidget *vines_frp_tree, *ti;
+  proto_tree *vines_frp_tree;
+  proto_item *ti;
   gchar	frp_flags_str[32];
 
   /* To do: Check for {cap len,pkt len} < struct len */
@@ -88,12 +84,11 @@ dissect_vines_frp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   }
   
   if (tree) {
-    ti = add_item_to_tree(GTK_WIDGET(tree), offset, 2,
-      "Vines Fragmentation Protocol");
-    vines_frp_tree = gtk_tree_new();
-    add_subtree(ti, vines_frp_tree, ETT_VINES_FRP);
-    add_item_to_tree(vines_frp_tree, offset,     1, "Control Flags: 0x%02x = %s fragment", vines_frp_ctrl, frp_flags_str);
-    add_item_to_tree(vines_frp_tree, offset + 1, 1, "Sequence Number: 0x%02x", vines_frp_seqno);
+    ti = proto_tree_add_item(tree, offset, 2, "Vines Fragmentation Protocol");
+    vines_frp_tree = proto_tree_new();
+    proto_item_add_subtree(ti, vines_frp_tree, ETT_VINES_FRP);
+    proto_tree_add_item(vines_frp_tree, offset,     1, "Control Flags: 0x%02x = %s fragment", vines_frp_ctrl, frp_flags_str);
+    proto_tree_add_item(vines_frp_tree, offset + 1, 1, "Sequence Number: 0x%02x", vines_frp_seqno);
   }
 
   /* Skip over header */
@@ -104,10 +99,11 @@ dissect_vines_frp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 }
 
 void
-dissect_vines(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) 
+dissect_vines(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
 	{
   	e_vip       viph;
-  	GtkWidget *vip_tree, *ti;
+  	proto_tree *vip_tree;
+	proto_item *ti;
 /*  	gchar      tos_str[32]; */
 	int  is_broadcast = 0;
 	int  hops = 0;
@@ -199,15 +195,14 @@ dissect_vines(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
   */
   	if (tree) 
   		{
-    	ti = add_item_to_tree(GTK_WIDGET(tree), offset, (viph.vip_pktlen),
-      		"Vines IP");
-    	vip_tree = gtk_tree_new();
-    	add_subtree(ti, vip_tree, ETT_VINES);
-    	add_item_to_tree(vip_tree, offset,      2, "Packet checksum: 0x%04x", viph.vip_chksum);
-    	add_item_to_tree(vip_tree, offset +  2, 2, "Packet length: 0x%04x (%d)", viph.vip_pktlen, viph.vip_pktlen); 
-    	add_item_to_tree(vip_tree, offset +  4, 1, "Transport control: 0x%02x",
+    	ti = proto_tree_add_item(tree, offset, (viph.vip_pktlen), "Vines IP");
+    	vip_tree = proto_tree_new();
+    	proto_item_add_subtree(ti, vip_tree, ETT_VINES);
+    	proto_tree_add_item(vip_tree, offset,      2, "Packet checksum: 0x%04x", viph.vip_chksum);
+    	proto_tree_add_item(vip_tree, offset +  2, 2, "Packet length: 0x%04x (%d)", viph.vip_pktlen, viph.vip_pktlen); 
+    	proto_tree_add_item(vip_tree, offset +  4, 1, "Transport control: 0x%02x",
       		viph.vip_tctl);
-    	add_item_to_tree(vip_tree, offset +  5, 1, "Protocol: 0x%02x", viph.vip_proto);
+    	proto_tree_add_item(vip_tree, offset +  5, 1, "Protocol: 0x%02x", viph.vip_proto);
   		}
 
 
@@ -221,10 +216,11 @@ dissect_vines(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	}
 #define VINES_VSPP_DATA 1
 #define VINES_VSPP_ACK 5
-void dissect_vines_spp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) 
+void dissect_vines_spp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
 	{
   	e_vspp       viph;
-  	GtkWidget *vspp_tree, *ti;
+  	proto_tree *vspp_tree;
+	proto_item *ti;
 
   /* To do: check for runts, errs, etc. */
   /* Avoids alignment problems on many architectures. */
@@ -287,19 +283,18 @@ void dissect_vines_spp(const u_char *pd, int offset, frame_data *fd, GtkTree *tr
 */ 
   	if (tree) 
   		{
-    	ti = add_item_to_tree(GTK_WIDGET(tree), offset, sizeof(viph),
-      		"Vines SPP");
-    	vspp_tree = gtk_tree_new();
-    	add_subtree(ti, vspp_tree, ETT_VINES_SPP);
-    	add_item_to_tree(vspp_tree, offset,      2, "Source port: 0x%04x", viph.vspp_sport);
-    	add_item_to_tree(vspp_tree, offset+2,    2, "Destination port: 0x%04x", viph.vspp_dport); 
-    	add_item_to_tree(vspp_tree, offset+4,    1, "Packet type: 0x%02x", viph.vspp_pkttype);
-    	add_item_to_tree(vspp_tree, offset+5,    1, "Control: 0x%02x", viph.vspp_control);
-    	add_item_to_tree(vspp_tree, offset+6,    2, "Local Connection ID: 0x%04x", viph.vspp_lclid);
-    	add_item_to_tree(vspp_tree, offset+8,    2, "Remote Connection ID: 0x%04x", viph.vspp_rmtid);
-    	add_item_to_tree(vspp_tree, offset+10,   2, "Sequence number: 0x%04x", viph.vspp_seqno);
-    	add_item_to_tree(vspp_tree, offset+12,   2, "Ack number: 0x%04x", viph.vspp_ack);
-    	add_item_to_tree(vspp_tree, offset+14,   2, "Window: 0x%04x", viph.vspp_win);
+    	ti = proto_tree_add_item(tree, offset, sizeof(viph), "Vines SPP");
+    	vspp_tree = proto_tree_new();
+    	proto_item_add_subtree(ti, vspp_tree, ETT_VINES_SPP);
+    	proto_tree_add_item(vspp_tree, offset,      2, "Source port: 0x%04x", viph.vspp_sport);
+    	proto_tree_add_item(vspp_tree, offset+2,    2, "Destination port: 0x%04x", viph.vspp_dport); 
+    	proto_tree_add_item(vspp_tree, offset+4,    1, "Packet type: 0x%02x", viph.vspp_pkttype);
+    	proto_tree_add_item(vspp_tree, offset+5,    1, "Control: 0x%02x", viph.vspp_control);
+    	proto_tree_add_item(vspp_tree, offset+6,    2, "Local Connection ID: 0x%04x", viph.vspp_lclid);
+    	proto_tree_add_item(vspp_tree, offset+8,    2, "Remote Connection ID: 0x%04x", viph.vspp_rmtid);
+    	proto_tree_add_item(vspp_tree, offset+10,   2, "Sequence number: 0x%04x", viph.vspp_seqno);
+    	proto_tree_add_item(vspp_tree, offset+12,   2, "Ack number: 0x%04x", viph.vspp_ack);
+    	proto_tree_add_item(vspp_tree, offset+14,   2, "Window: 0x%04x", viph.vspp_win);
   		}
 
 	}

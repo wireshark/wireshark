@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-nbipx.c,v 1.5 1998/11/17 04:28:57 gerald Exp $
+ * $Id: packet-nbipx.c,v 1.6 1999/03/23 03:14:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,20 +28,12 @@
 # include "config.h"
 #endif
 
-#include <gtk/gtk.h>
-
-#include <stdio.h>
-#include <memory.h>
-
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
 
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
-#include "ethereal.h"
+/*#include <memory.h>*/
+#include <glib.h>
 #include "packet.h"
 #include "packet-ipx.h" /* for ipxnet_to_string() */
 
@@ -51,7 +43,7 @@ enum nbipx_protocol {
 };
 
 static void
-nbipx_ns(const u_char *pd, int offset, frame_data *fd, GtkTree *tree,
+nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		enum nbipx_protocol nbipx);
 
 /* There is no RFC or public specification of Netware or Microsoft
@@ -81,23 +73,24 @@ struct nbipx_header {
 
 /* NetWare */
 void
-dissect_nbipx_ns(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
+dissect_nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	nbipx_ns(pd, offset, fd, tree, NETBIOS_NETWARE);
 }
 
 void
-dissect_nwlink_dg(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
+dissect_nwlink_dg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	nbipx_ns(pd, offset, fd, tree, NETBIOS_NWLINK);
 }
 
 
 static void
-nbipx_ns(const u_char *pd, int offset, frame_data *fd, GtkTree *tree,
+nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		enum nbipx_protocol nbipx)
 {
-	GtkWidget			*nbipx_tree, *ti;
+	proto_tree			*nbipx_tree;
+	proto_item			*ti;
 	struct nbipx_header	header;
 	int					i, rtr_offset;
 	int					name_offset;
@@ -141,18 +134,18 @@ nbipx_ns(const u_char *pd, int offset, frame_data *fd, GtkTree *tree,
 	}
 
 	if (tree) {
-		ti = add_item_to_tree(GTK_WIDGET(tree), offset, END_OF_FRAME,
+		ti = proto_tree_add_item(tree, offset, END_OF_FRAME,
 				"NetBIOS over IPX");
-		nbipx_tree = gtk_tree_new();
-		add_subtree(ti, nbipx_tree, ETT_NBIPX);
+		nbipx_tree = proto_tree_new();
+		proto_item_add_subtree(ti, nbipx_tree, ETT_NBIPX);
 
 		if (header.packet_type <= 1) {
-			add_item_to_tree(nbipx_tree, offset+33, 1,
+			proto_tree_add_item(nbipx_tree, offset+33, 1,
 					"Packet Type: %s (%02X)", packet_type[header.packet_type],
 					header.packet_type);
 		}
 		else {
-			add_item_to_tree(nbipx_tree, offset+33, 1,
+			proto_tree_add_item(nbipx_tree, offset+33, 1,
 					"Packet Type: Unknown (%02X)", header.packet_type);
 		}
 
@@ -161,22 +154,22 @@ nbipx_ns(const u_char *pd, int offset, frame_data *fd, GtkTree *tree,
 			rtr_offset = offset + (i << 2);
 			memcpy(&header.router[i], &pd[rtr_offset], 4);
 			if (header.router[i] != 0) {
-				add_item_to_tree(nbipx_tree, rtr_offset, 4, "IPX Network: %s",
+				proto_tree_add_item(nbipx_tree, rtr_offset, 4, "IPX Network: %s",
 						ipxnet_to_string((guint8*)&header.router[i]));
 			}
 		}
 
-		add_item_to_tree(nbipx_tree, offset+32, 1, "Name Type: %02X",
+		proto_tree_add_item(nbipx_tree, offset+32, 1, "Name Type: %02X",
 				header.name_type);
 
 		if (nbipx == NETBIOS_NETWARE) {
-			add_item_to_tree(nbipx_tree, offset+name_offset, 16,
+			proto_tree_add_item(nbipx_tree, offset+name_offset, 16,
 					"Name String: %s", header.name);
 		}
 		else {
-			add_item_to_tree(nbipx_tree, offset+name_offset, 16,
+			proto_tree_add_item(nbipx_tree, offset+name_offset, 16,
 					"Group Name String: %s", header.name);
-			add_item_to_tree(nbipx_tree, offset+52, 16,
+			proto_tree_add_item(nbipx_tree, offset+52, 16,
 					"Node Name String: %s", header.node_name);
 
 		}

@@ -2,7 +2,7 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ncp.c,v 1.9 1999/03/20 04:38:57 gram Exp $
+ * $Id: packet-ncp.c,v 1.10 1999/03/23 03:14:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -28,10 +28,6 @@
 # include "config.h"
 #endif
 
-#include <gtk/gtk.h>
-#include <glib.h>
-#include <stdio.h>
-
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
@@ -40,16 +36,16 @@
 # include <netinet/in.h>
 #endif
 
-#include "ethereal.h"
+#include <glib.h>
 #include "packet.h"
 #include "packet-ipx.h"
 #include "packet-ncp.h"
 
 static void
-dissect_ncp_request(const u_char *pd, int offset, frame_data *fd, GtkWidget *ncp_tree, GtkTree *tree);
+dissect_ncp_request(const u_char *pd, int offset, frame_data *fd, proto_tree *ncp_tree, proto_tree *tree);
 
 static void
-dissect_ncp_reply(const u_char *pd, int offset, frame_data *fd, GtkWidget *ncp_tree, GtkTree *tree);
+dissect_ncp_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *ncp_tree, proto_tree *tree);
 
 static struct ncp2222_record *
 ncp2222_find(guint8 func, guint8 subfunc);
@@ -319,9 +315,10 @@ svc_record_byte_count(svc_record *sr)
 }
 
 void
-dissect_ncp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
+dissect_ncp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
-	GtkWidget	*ncp_tree = NULL, *ti;
+	proto_tree	*ncp_tree = NULL;
+	proto_item	*ti;
 	int		ncp_hdr_length = 0;
 	struct ncp_common_header	header;
 
@@ -345,22 +342,22 @@ dissect_ncp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	nw_ncp_type = header.type;
 
 	if (tree) {
-		ti = add_item_to_tree(GTK_WIDGET(tree), offset, END_OF_FRAME,
+		ti = proto_tree_add_item(tree, offset, END_OF_FRAME,
 			"NetWare Core Protocol");
-		ncp_tree = gtk_tree_new();
-		add_subtree(ti, ncp_tree, ETT_NCP);
+		ncp_tree = proto_tree_new();
+		proto_item_add_subtree(ti, ncp_tree, ETT_NCP);
 
-		add_item_to_tree(ncp_tree, offset,      2,
+		proto_tree_add_item(ncp_tree, offset,      2,
 			"Type: %s", val_to_str( header.type,
 			request_reply_values, "Unknown (%04X)"));
 
-		add_item_to_tree(ncp_tree, offset+2,    1,
+		proto_tree_add_item(ncp_tree, offset+2,    1,
 			"Sequence Number: %d", header.sequence);
 
-		add_item_to_tree(ncp_tree, offset+3,    3,
+		proto_tree_add_item(ncp_tree, offset+3,    3,
 			"Connection Number: %d", nw_connection);
 
-		add_item_to_tree(ncp_tree, offset+4,    1,
+		proto_tree_add_item(ncp_tree, offset+4,    1,
 			"Task Number: %d", header.task);
 	}
 
@@ -374,7 +371,7 @@ dissect_ncp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 }
 
 void
-dissect_ncp_request(const u_char *pd, int offset, frame_data *fd, GtkWidget *ncp_tree, GtkTree *tree) {
+dissect_ncp_request(const u_char *pd, int offset, frame_data *fd, proto_tree *ncp_tree, proto_tree *tree) {
 
 	struct ncp_request_header	request;
 	struct ncp2222_record		*ncp_request;
@@ -395,7 +392,7 @@ dissect_ncp_request(const u_char *pd, int offset, frame_data *fd, GtkWidget *ncp
 		col_add_fstr(fd, COL_INFO, "C %s", description);
 
 	if (ncp_tree) {
-		add_item_to_tree(ncp_tree, offset+6, 1, "Function Code: 0x%02X (%s)",
+		proto_tree_add_item(ncp_tree, offset+6, 1, "Function Code: 0x%02X (%s)",
 			request.function, description);
 		if (ncp_request) {
 			offset += 10 + svc_record_byte_count(ncp_request->req);
@@ -416,7 +413,7 @@ dissect_ncp_request(const u_char *pd, int offset, frame_data *fd, GtkWidget *ncp
 }
 
 void
-dissect_ncp_reply(const u_char *pd, int offset, frame_data *fd, GtkWidget *ncp_tree, GtkTree *tree) {
+dissect_ncp_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *ncp_tree, proto_tree *tree) {
 	struct ncp_reply_header		reply;
 	struct ncp2222_record		*ncp_request = NULL;
 	struct ncp_request_val		*request_val;
@@ -443,10 +440,10 @@ dissect_ncp_reply(const u_char *pd, int offset, frame_data *fd, GtkWidget *ncp_t
 		col_add_fstr(fd, COL_INFO, "R %s", description);
 
 	if (ncp_tree) {
-		add_item_to_tree(ncp_tree, offset+6,    1,
+		proto_tree_add_item(ncp_tree, offset+6,    1,
 			"Completion Code: %d", reply.completion_code);
 
-		add_item_to_tree(ncp_tree, offset+7,    1,
+		proto_tree_add_item(ncp_tree, offset+7,    1,
 			"Connection Status: %d", reply.connection_state);
 		offset += 8;
 		dissect_data(pd, offset, fd, tree);

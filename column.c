@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.9 1999/03/05 06:09:39 gram Exp $
+ * $Id: column.c,v 1.10 1999/03/23 03:14:32 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,6 +42,7 @@
 #include "ethereal.h"
 #include "prefs.h"
 #include "column.h"
+#include "packet.h"
 
 extern e_prefs prefs;
 

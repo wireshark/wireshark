@@ -2,7 +2,7 @@
  * Routines for calling the right protocol for the ethertype.
  * This is called by both packet-eth.c (Ethernet II) and packet-llc.c (SNAP)
  *
- * $Id: ethertype.c,v 1.12 1999/02/09 00:35:36 guy Exp $
+ * $Id: ethertype.c,v 1.13 1999/03/23 03:14:34 gram Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -34,11 +34,7 @@
 # include <sys/types.h>
 #endif
 
-#include <gtk/gtk.h>
-
-#include <stdio.h>
-
-#include "ethereal.h"
+#include <glib.h>
 #include "packet.h"
 #include "etypes.h"
 
@@ -77,11 +73,11 @@ capture_ethertype(guint16 etype, int offset,
 
 void
 ethertype(guint16 etype, int offset,
-		const u_char *pd, frame_data *fd, GtkTree *tree, GtkWidget
+		const u_char *pd, frame_data *fd, proto_tree *tree, proto_tree
 		*fh_tree)
 {
   if (tree) {
-    add_item_to_tree(fh_tree, offset - 2, 2, "Type: %s (0x%04x)",
+    proto_tree_add_item(fh_tree, offset - 2, 2, "Type: %s (0x%04x)",
       ethertype_to_str(etype, "Unknown"), etype);
   }
   switch (etype) {

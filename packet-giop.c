@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-giop.c,v 1.1 1998/11/18 03:04:25 gerald Exp $
+ * $Id: packet-giop.c,v 1.2 1999/03/23 03:14:37 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,17 +31,13 @@
 # include "config.h"
 #endif
 
-#include <gtk/gtk.h>
-
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
 
-#include "ethereal.h"
+#include <string.h>
+#include <ctype.h>
+#include <glib.h>
 #include "packet.h"
 
 /*
@@ -187,11 +183,12 @@ u_char *print_object_key(int length, u_char *from)
 
 /* main entry point */
 
-void dissect_giop(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) 
+void dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
 {
 
   MessageHeader header;
-  GtkWidget *clnp_tree = NULL, *ti;
+  proto_tree *clnp_tree = NULL;
+  proto_item *ti;
   u_char response_expected = 0;
   u_int first_offset = offset;
   u_int big_endian = FALSE;
@@ -261,27 +258,27 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
   }
 
   if (tree) {
-    ti = add_item_to_tree(GTK_WIDGET(tree), offset, 
+    ti = proto_tree_add_item(tree, offset, 
 			  GIOP_HEADER_SIZE + message_size,
 			  "General Inter-ORB Protocol");
-    clnp_tree = gtk_tree_new();
-    add_subtree(ti, clnp_tree, ETT_GIOP);
-    add_item_to_tree(clnp_tree, offset,      4,
+    clnp_tree = proto_tree_new();
+    proto_item_add_subtree(ti, clnp_tree, ETT_GIOP);
+    proto_tree_add_item(clnp_tree, offset,      4,
 		     "Magic number: %s", GIOP_MAGIC);
-    add_item_to_tree(clnp_tree, offset +  4, 2, 
+    proto_tree_add_item(clnp_tree, offset +  4, 2, 
 		     "Version: %d.%d", 
 		     header.GIOP_version.major,
 		     header.GIOP_version.minor);
     switch(minor_version) {
       case 1  :
-	add_item_to_tree(clnp_tree, offset +  6, 1, 
+	proto_tree_add_item(clnp_tree, offset +  6, 1, 
 			 "Flags: 0x%02x (%s%s)", 
 			 header.flags,
 			 (big_endian) ? "little" : "big",
 			 (header.flags & 0x02) ? " fragment" : "");
 	break;
       case 0  :
-	add_item_to_tree(clnp_tree, offset +  6, 1, 
+	proto_tree_add_item(clnp_tree, offset +  6, 1, 
 			 "Byte ordering: %s endian",
 			 (big_endian) ? "little" : "big");
 	break;
@@ -289,7 +286,7 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	break;
     } /* minor_version */
 
-    add_item_to_tree(clnp_tree, offset +  7, 1, 
+    proto_tree_add_item(clnp_tree, offset +  7, 1, 
 		     "Message type: %s",
 		     (header.message_type == Request) ? "Request" :
 		     (header.message_type == Reply) ? "Reply" :
@@ -300,7 +297,7 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 		     (header.message_type == MessageError) ? "MessageError" :
 		     (header.message_type == Fragment) ? "Fragment" : "?");
 
-    add_item_to_tree(clnp_tree, offset +  8, 4, 
+    proto_tree_add_item(clnp_tree, offset +  8, 4, 
 		     "Message size: %d", message_size);
 
   } /* tree */
@@ -335,12 +332,12 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	}
 
 	if (tree) {
-	  add_item_to_tree(clnp_tree, offset, sizeof(context_id),
+	  proto_tree_add_item(clnp_tree, offset, sizeof(context_id),
 			   "Context id: %d", context_id);
-	  add_item_to_tree(clnp_tree, offset + sizeof(context_id),
+	  proto_tree_add_item(clnp_tree, offset + sizeof(context_id),
 			   sizeof(sequence_length),
 			   "Sequence length: %d", sequence_length);
-	  add_item_to_tree(clnp_tree,
+	  proto_tree_add_item(clnp_tree,
 			   offset + 
 			   sizeof(context_id) + sizeof(sequence_length),
 			   sequence_length,
@@ -370,13 +367,13 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	  request_id = (big_endian)? pntohl(&request_1_1.request_id) :
 	    pletohl(&request_1_1.request_id);
 	  if (tree) {
-	    add_item_to_tree(clnp_tree, offset, sizeof(request_id),
+	    proto_tree_add_item(clnp_tree, offset, sizeof(request_id),
 			     "Request id: %d", request_id);
-	    add_item_to_tree(clnp_tree, offset + sizeof(request_id),
+	    proto_tree_add_item(clnp_tree, offset + sizeof(request_id),
 			     sizeof(request_1_1.response_expected),
 			     "Response expected: %d", 
 			     response_expected);
-	    add_item_to_tree(clnp_tree, offset + sizeof(request_id) +
+	    proto_tree_add_item(clnp_tree, offset + sizeof(request_id) +
 			     sizeof(request_1_1.response_expected),
 			     3,
 			     "Reserved");
@@ -390,9 +387,9 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	  request_id = (big_endian)? pntohl(&request_1_0.request_id) :
 	    pletohl(&request_1_0.request_id);
 	  if (tree) {
-	    add_item_to_tree(clnp_tree, offset, sizeof(request_id),
+	    proto_tree_add_item(clnp_tree, offset, sizeof(request_id),
 			     "Request id: %d", request_id);
-	    add_item_to_tree(clnp_tree, offset + sizeof(request_id),
+	    proto_tree_add_item(clnp_tree, offset + sizeof(request_id),
 			     sizeof(request_1_0.response_expected),
 			     "Response expected: %d", 
 			     response_expected);
@@ -415,9 +412,9 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	pntohl(&pd[offset]) : pletohl(&pd[offset]);
 
       if (tree) {
-	add_item_to_tree(clnp_tree, offset, sizeof(sequence_length),
+	proto_tree_add_item(clnp_tree, offset, sizeof(sequence_length),
 			 "Object key length: %d", sequence_length);
-	add_item_to_tree(clnp_tree, offset + sizeof(sequence_length),
+	proto_tree_add_item(clnp_tree, offset + sizeof(sequence_length),
 			 sequence_length,
 			 "Object key: %s",
 			 print_object_key(sequence_length, 
@@ -438,13 +435,13 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
       }
        
       if (tree) {
-	add_item_to_tree(clnp_tree, offset, sizeof(sequence_length),
+	proto_tree_add_item(clnp_tree, offset, sizeof(sequence_length),
 			 "Operation length: %d", sequence_length);
-	add_item_to_tree(clnp_tree, offset + sizeof(sequence_length), 
+	proto_tree_add_item(clnp_tree, offset + sizeof(sequence_length), 
 			 sequence_length,
 			 "Operation: %s",
 			 &pd[offset+sizeof(sequence_length)]);
-	add_item_to_tree(clnp_tree, offset +
+	proto_tree_add_item(clnp_tree, offset +
 			 sizeof(sequence_length)+ sequence_length,
 			 message_size - END_OF_GIOP_MESSAGE - 
 			 sizeof(sequence_length) - sequence_length,
@@ -469,9 +466,9 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	pntohl(&reply.reply_status) : pletohl(&reply.reply_status);
 
       if (tree) {
-	add_item_to_tree(clnp_tree, offset, sizeof(request_id),
+	proto_tree_add_item(clnp_tree, offset, sizeof(request_id),
 			 "Request id: %d", request_id);
-	add_item_to_tree(clnp_tree, offset + sizeof(request_id), 
+	proto_tree_add_item(clnp_tree, offset + sizeof(request_id), 
 			 sizeof(reply_status),
 			 "Reply status: %s",
 			 reply_status == NO_EXCEPTION ? "no exception" :
@@ -507,9 +504,9 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	}
 
 	if (tree) {
-	  add_item_to_tree(clnp_tree, offset, sizeof(sequence_length),
+	  proto_tree_add_item(clnp_tree, offset, sizeof(sequence_length),
 			   "Exception length: %d", sequence_length);
-	  add_item_to_tree(clnp_tree, offset + sizeof(sequence_length), 
+	  proto_tree_add_item(clnp_tree, offset + sizeof(sequence_length), 
 			   sequence_length,
 			   "Exception id: %s",
 			   &pd[offset+sizeof(sequence_length)]);
@@ -525,9 +522,9 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	  pletohl(&pd[offset+sizeof(minor_code_value)]);
 	
 	if (tree) {
-	  add_item_to_tree(clnp_tree, offset, sizeof(minor_code_value),
+	  proto_tree_add_item(clnp_tree, offset, sizeof(minor_code_value),
 			   "Minor code value: %d", minor_code_value);
-	  add_item_to_tree(clnp_tree, offset + sizeof(minor_code_value),
+	  proto_tree_add_item(clnp_tree, offset + sizeof(minor_code_value),
 			   sizeof(completion_status),
 			   "Completion Status: %d",
 			   completion_status);
@@ -546,9 +543,9 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	}
 
 	if (tree) {
-	  add_item_to_tree(clnp_tree, offset, sizeof(sequence_length),
+	  proto_tree_add_item(clnp_tree, offset, sizeof(sequence_length),
 			   "Exception length: %d", sequence_length);
-	  add_item_to_tree(clnp_tree, offset + sizeof(sequence_length), 
+	  proto_tree_add_item(clnp_tree, offset + sizeof(sequence_length), 
 			   sequence_length,
 			   "Exception id: %s",
 			   &pd[offset+sizeof(sequence_length)]);
@@ -566,9 +563,9 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	}
 
 	if (tree && sequence_length) {
-	  add_item_to_tree(clnp_tree, offset, sizeof(sequence_length),
+	  proto_tree_add_item(clnp_tree, offset, sizeof(sequence_length),
 			   "Exception member length: %d", sequence_length);
-	  add_item_to_tree(clnp_tree, offset + sizeof(sequence_length), 
+	  proto_tree_add_item(clnp_tree, offset + sizeof(sequence_length), 
 			   sequence_length,
 			   "Exception member: %s",
 			   &pd[offset+sizeof(sequence_length)]);
@@ -580,7 +577,7 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
       else {
 	
 	if (tree) {
-	  add_item_to_tree(clnp_tree, offset,
+	  proto_tree_add_item(clnp_tree, offset,
 			   message_size - END_OF_GIOP_MESSAGE,
 			   "Reply body: <not shown>");
 	}
@@ -600,13 +597,13 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	pletohl(&pd[offset+sizeof(request_id)]);
 
       if (tree) {
-	add_item_to_tree(clnp_tree, offset, sizeof(request_id),
+	proto_tree_add_item(clnp_tree, offset, sizeof(request_id),
 			 "Request id: %d", request_id);
-	add_item_to_tree(clnp_tree, offset + sizeof(request_id), 
+	proto_tree_add_item(clnp_tree, offset + sizeof(request_id), 
 			 sizeof(sequence_length),
 			 "Object key length: %d", sequence_length);
 	offset += sizeof(request_id) + sizeof(sequence_length);
-	add_item_to_tree(clnp_tree,
+	proto_tree_add_item(clnp_tree,
 			 offset,
 			 sequence_length,
 			 "Object key: %s", 
@@ -629,14 +626,14 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	pntohl(&locate_rep.locate_status) : pletohl(&locate_rep.locate_status);
 
       if (tree) {
-	add_item_to_tree(clnp_tree, offset, sizeof(request_id),
+	proto_tree_add_item(clnp_tree, offset, sizeof(request_id),
 			 "Request id: %d", request_id);
-	add_item_to_tree(clnp_tree, offset + sizeof(request_id), 
+	proto_tree_add_item(clnp_tree, offset + sizeof(request_id), 
 			 sizeof(locate_status),
 			 "Locate status: %d", locate_status);
 	offset += sizeof(request_id) + sizeof(locate_status);
 	if (locate_status == OBJECT_FORWARD) {
-	  add_item_to_tree(clnp_tree, offset,
+	  proto_tree_add_item(clnp_tree, offset,
 			   message_size - END_OF_GIOP_MESSAGE,
 			   "Locate reply body: <not shown>");
 	}
@@ -658,7 +655,7 @@ void dissect_giop(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	pntohl(&pd[offset]) : pletohl(&pd[offset]);
 
       if (tree) {
-	add_item_to_tree(clnp_tree, offset, sizeof(request_id),
+	proto_tree_add_item(clnp_tree, offset, sizeof(request_id),
 			 "Request id: %d", request_id);
       }
 

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.15 1999/02/12 09:03:41 guy Exp $
+ * $Id: packet-tcp.c,v 1.16 1999/03/23 03:14:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,10 +27,6 @@
 # include "config.h"
 #endif
 
-#include <gtk/gtk.h>
-
-#include <stdio.h>
-
 #ifdef NEED_SNPRINTF_H
 # ifdef HAVE_STDARG_H
 #  include <stdarg.h>
@@ -48,17 +44,80 @@
 # include <netinet/in.h>
 #endif
 
-#include "ethereal.h"
+#include <stdio.h>
+#include <glib.h>
 #include "packet.h"
 #include "resolv.h"
 #include "follow.h"
 #include "util.h"
+
+#ifndef __PACKET_IP_H__
+#include "packet-ip.h"
+#endif
 
 extern FILE* data_out_file;
 extern packet_info pi;
 
 static gchar info_str[COL_MAX_LEN];
 static int   info_len;
+
+/* TCP Ports */
+
+#define TCP_PORT_HTTP     80
+#define TCP_PORT_PRINTER  515
+#define TCP_ALT_PORT_HTTP 8080
+
+/* TCP structs and definitions */
+
+typedef struct _e_tcphdr {
+  guint16 th_sport;
+  guint16 th_dport;
+  guint32 th_seq;
+  guint32 th_ack;
+  guint8  th_off_x2; /* combines th_off and th_x2 */
+  guint8  th_flags;
+#define TH_FIN  0x01
+#define TH_SYN  0x02
+#define TH_RST  0x04
+#define TH_PUSH 0x08
+#define TH_ACK  0x10
+#define TH_URG  0x20
+  guint16 th_win;
+  guint16 th_sum;
+  guint16 th_urp;
+} e_tcphdr;
+
+/*
+ *	TCP option
+ */
+ 
+#define TCPOPT_NOP		1	/* Padding */
+#define TCPOPT_EOL		0	/* End of options */
+#define TCPOPT_MSS		2	/* Segment size negotiating */
+#define TCPOPT_WINDOW		3	/* Window scaling */
+#define TCPOPT_SACK_PERM        4       /* SACK Permitted */
+#define TCPOPT_SACK             5       /* SACK Block */
+#define TCPOPT_ECHO             6
+#define TCPOPT_ECHOREPLY        7
+#define TCPOPT_TIMESTAMP	8	/* Better RTT estimations/PAWS */
+#define TCPOPT_CC               11
+#define TCPOPT_CCNEW            12
+#define TCPOPT_CCECHO           13
+
+/*
+ *     TCP option lengths
+ */
+
+#define TCPOLEN_MSS            4
+#define TCPOLEN_WINDOW         3
+#define TCPOLEN_SACK_PERM      2
+#define TCPOLEN_SACK_MIN       2
+#define TCPOLEN_ECHO           6
+#define TCPOLEN_ECHOREPLY      6
+#define TCPOLEN_TIMESTAMP      10
+#define TCPOLEN_CC             6
+#define TCPOLEN_CCNEW          6
+#define TCPOLEN_CCECHO         6
 
 static void
 tcp_info_append_uint(const char *abbrev, guint32 val) {
@@ -73,41 +132,42 @@ tcp_info_append_uint(const char *abbrev, guint32 val) {
 }
 
 static void
-dissect_tcpopt_maxseg(GtkWidget *opt_tree, const char *name, const u_char *opd,
+dissect_tcpopt_maxseg(proto_tree *opt_tree, const char *name, const u_char *opd,
     int offset, guint optlen)
 {
-  add_item_to_tree(opt_tree, offset,      optlen,
+  proto_tree_add_item(opt_tree, offset,      optlen,
     "%s: %u bytes", name, pntohs(opd));
   tcp_info_append_uint("MSS", pntohs(opd));
 }
 
 static void
-dissect_tcpopt_wscale(GtkWidget *opt_tree, const char *name, const u_char *opd,
+dissect_tcpopt_wscale(proto_tree *opt_tree, const char *name, const u_char *opd,
     int offset, guint optlen)
 {
-  add_item_to_tree(opt_tree, offset,      optlen,
+  proto_tree_add_item(opt_tree, offset,      optlen,
     "%s: %u bytes", name, *opd);
   tcp_info_append_uint("WS", *opd);
 }
 
 static void
-dissect_tcpopt_sack(GtkWidget *opt_tree, const char *name, const u_char *opd,
+dissect_tcpopt_sack(proto_tree *opt_tree, const char *name, const u_char *opd,
     int offset, guint optlen)
 {
-  GtkWidget *field_tree = NULL, *tf;
+  proto_tree *field_tree = NULL;
+  proto_item *tf;
   guint leftedge, rightedge;
 
-  tf = add_item_to_tree(opt_tree, offset,      optlen, "%s:", name);
+  tf = proto_tree_add_item(opt_tree, offset,      optlen, "%s:", name);
   offset += 2;	/* skip past type and length */
   optlen -= 2;	/* subtract size of type and length */
   while (optlen > 0) {
     if (field_tree == NULL) {
       /* Haven't yet made a subtree out of this option.  Do so. */
-      field_tree = gtk_tree_new();
-      add_subtree(tf, field_tree, ETT_TCP_OPTION_SACK);
+      field_tree = proto_tree_new();
+      proto_item_add_subtree(tf, field_tree, ETT_TCP_OPTION_SACK);
     }
     if (optlen < 4) {
-      add_item_to_tree(field_tree, offset,      optlen,
+      proto_tree_add_item(field_tree, offset,      optlen,
         "(suboption would go past end of option)");
       break;
     }
@@ -116,7 +176,7 @@ dissect_tcpopt_sack(GtkWidget *opt_tree, const char *name, const u_char *opd,
     opd += 4;
     optlen -= 4;
     if (optlen < 4) {
-      add_item_to_tree(field_tree, offset,      optlen,
+      proto_tree_add_item(field_tree, offset,      optlen,
         "(suboption would go past end of option)");
       break;
     }
@@ -124,7 +184,7 @@ dissect_tcpopt_sack(GtkWidget *opt_tree, const char *name, const u_char *opd,
     rightedge = pntohl(opd);
     opd += 4;
     optlen -= 4;
-    add_item_to_tree(field_tree, offset,      8,
+    proto_tree_add_item(field_tree, offset,      8,
         "left edge = %u, right edge = %u", leftedge, rightedge);
     tcp_info_append_uint("SLE", leftedge);
     tcp_info_append_uint("SRE", rightedge);
@@ -133,29 +193,29 @@ dissect_tcpopt_sack(GtkWidget *opt_tree, const char *name, const u_char *opd,
 }
 
 static void
-dissect_tcpopt_echo(GtkWidget *opt_tree, const char *name, const u_char *opd,
+dissect_tcpopt_echo(proto_tree *opt_tree, const char *name, const u_char *opd,
     int offset, guint optlen)
 {
-  add_item_to_tree(opt_tree, offset,      optlen,
+  proto_tree_add_item(opt_tree, offset,      optlen,
     "%s: %u", name, pntohl(opd));
   tcp_info_append_uint("ECHO", pntohl(opd));
 }
 
 static void
-dissect_tcpopt_timestamp(GtkWidget *opt_tree, const char *name,
+dissect_tcpopt_timestamp(proto_tree *opt_tree, const char *name,
     const u_char *opd, int offset, guint optlen)
 {
-  add_item_to_tree(opt_tree, offset,      optlen,
+  proto_tree_add_item(opt_tree, offset,      optlen,
     "%s: tsval %u, tsecr %u", name, pntohl(opd), pntohl(opd + 4));
   tcp_info_append_uint("TSV", pntohl(opd));
   tcp_info_append_uint("TSER", pntohl(opd + 4));
 }
 
 static void
-dissect_tcpopt_cc(GtkWidget *opt_tree, const char *name, const u_char *opd,
+dissect_tcpopt_cc(proto_tree *opt_tree, const char *name, const u_char *opd,
     int offset, guint optlen)
 {
-  add_item_to_tree(opt_tree, offset,      optlen,
+  proto_tree_add_item(opt_tree, offset,      optlen,
     "%s: %u", name, pntohl(opd));
   tcp_info_append_uint("CC", pntohl(opd));
 }
@@ -250,9 +310,10 @@ static ip_tcp_opt tcpopts[] = {
 #define N_TCP_OPTS	(sizeof tcpopts / sizeof tcpopts[0])
 
 void
-dissect_tcp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
+dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   e_tcphdr   th;
-  GtkWidget *tcp_tree = NULL, *ti, *field_tree = NULL, *tf;
+  proto_tree *tcp_tree = NULL, *field_tree = NULL;
+  proto_item *ti, *tf;
   gchar      flags[64] = "<None>";
   gchar     *fstr[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG"};
   gint       fpos = 0, i;
@@ -315,45 +376,45 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   }
   
   if (tree) {
-    ti = add_item_to_tree(GTK_WIDGET(tree), offset, hlen,
+    ti = proto_tree_add_item(tree, offset, hlen,
       "Transmission Control Protocol");
-    tcp_tree = gtk_tree_new();
-    add_subtree(ti, tcp_tree, ETT_TCP);
-    add_item_to_tree(tcp_tree, offset,      2, "Source port: %s (%u)",
+    tcp_tree = proto_tree_new();
+    proto_item_add_subtree(ti, tcp_tree, ETT_TCP);
+    proto_tree_add_item(tcp_tree, offset,      2, "Source port: %s (%u)",
       get_tcp_port(th.th_sport), th.th_sport);
-    add_item_to_tree(tcp_tree, offset +  2, 2, "Destination port: %s (%u)",
+    proto_tree_add_item(tcp_tree, offset +  2, 2, "Destination port: %s (%u)",
       get_tcp_port(th.th_dport), th.th_dport);
-    add_item_to_tree(tcp_tree, offset +  4, 4, "Sequence number: %u",
+    proto_tree_add_item(tcp_tree, offset +  4, 4, "Sequence number: %u",
       th.th_seq);
     if (th.th_flags & TH_ACK)
-      add_item_to_tree(tcp_tree, offset +  8, 4, "Acknowledgement number: %u",
+      proto_tree_add_item(tcp_tree, offset +  8, 4, "Acknowledgement number: %u",
         th.th_ack);
-    add_item_to_tree(tcp_tree, offset + 12, 1, "Header length: %u bytes", hlen);
-     tf = add_item_to_tree(tcp_tree, offset + 13, 1, "Flags: 0x%x", th.th_flags);
-     field_tree = gtk_tree_new();
-     add_subtree(tf, field_tree, ETT_TCP_FLAGS);
-     add_item_to_tree(field_tree, offset + 13, 1, "%s",
+    proto_tree_add_item(tcp_tree, offset + 12, 1, "Header length: %u bytes", hlen);
+     tf = proto_tree_add_item(tcp_tree, offset + 13, 1, "Flags: 0x%x", th.th_flags);
+     field_tree = proto_tree_new();
+     proto_item_add_subtree(tf, field_tree, ETT_TCP_FLAGS);
+     proto_tree_add_item(field_tree, offset + 13, 1, "%s",
        decode_boolean_bitfield(th.th_flags, TH_URG, sizeof (th.th_flags)*8,
                          "Urgent pointer", "No urgent pointer"));
-     add_item_to_tree(field_tree, offset + 13, 1, "%s",
+     proto_tree_add_item(field_tree, offset + 13, 1, "%s",
        decode_boolean_bitfield(th.th_flags, TH_ACK, sizeof (th.th_flags)*8,
                          "Acknowledgment", "No acknowledgment"));
-     add_item_to_tree(field_tree, offset + 13, 1, "%s",
+     proto_tree_add_item(field_tree, offset + 13, 1, "%s",
        decode_boolean_bitfield(th.th_flags, TH_PUSH, sizeof (th.th_flags)*8,
                          "Push", "No push"));
-     add_item_to_tree(field_tree, offset + 13, 1, "%s",
+     proto_tree_add_item(field_tree, offset + 13, 1, "%s",
        decode_boolean_bitfield(th.th_flags, TH_RST, sizeof (th.th_flags)*8,
                          "Reset", "No reset"));
-     add_item_to_tree(field_tree, offset + 13, 1, "%s",
+     proto_tree_add_item(field_tree, offset + 13, 1, "%s",
        decode_boolean_bitfield(th.th_flags, TH_SYN, sizeof (th.th_flags)*8,
                          "Syn", "No Syn"));
-     add_item_to_tree(field_tree, offset + 13, 1, "%s",
+     proto_tree_add_item(field_tree, offset + 13, 1, "%s",
        decode_boolean_bitfield(th.th_flags, TH_FIN, sizeof (th.th_flags)*8,
                          "Fin", "No Fin"));
-    add_item_to_tree(tcp_tree, offset + 14, 2, "Window size: %u", th.th_win);
-    add_item_to_tree(tcp_tree, offset + 16, 2, "Checksum: 0x%04x", th.th_sum);
+    proto_tree_add_item(tcp_tree, offset + 14, 2, "Window size: %u", th.th_win);
+    proto_tree_add_item(tcp_tree, offset + 16, 2, "Checksum: 0x%04x", th.th_sum);
     if (th.th_flags & TH_URG)
-      add_item_to_tree(tcp_tree, offset + 18, 2, "Urgent pointer: 0x%04x",
+      proto_tree_add_item(tcp_tree, offset + 18, 2, "Urgent pointer: 0x%04x",
         th.th_urp);
   }
 
@@ -363,10 +424,10 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
        options. */
     optlen = hlen - sizeof (e_tcphdr); /* length of options, in bytes */
     if (tree) {
-      tf = add_item_to_tree(tcp_tree, offset +  20, optlen,
+      tf = proto_tree_add_item(tcp_tree, offset +  20, optlen,
         "Options: (%d bytes)", optlen);
-      field_tree = gtk_tree_new();
-      add_subtree(tf, field_tree, ETT_TCP_OPTIONS);
+      field_tree = proto_tree_new();
+      proto_item_add_subtree(tf, field_tree, ETT_TCP_OPTIONS);
     }
     dissect_ip_tcp_options(field_tree, &pd[offset + 20], offset + 20, optlen,
        tcpopts, N_TCP_OPTS, TCPOPT_EOL);

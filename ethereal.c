@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.24 1999/03/01 18:57:00 gram Exp $
+ * $Id: ethereal.c,v 1.25 1999/03/23 03:14:33 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -78,6 +78,7 @@
 #include "resolv.h"
 #include "follow.h"
 #include "util.h"
+#include "gtkpacket.h"
 
 FILE        *data_out_file = NULL;
 packet_info  pi;
@@ -322,7 +323,7 @@ packet_list_select_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
     fd = (frame_data *) l->data;
     fseek(cf.fh, fd->file_off, SEEK_SET);
     fread(cf.pd, sizeof(guint8), fd->cap_len, cf.fh);
-    dissect_packet(cf.pd, fd, GTK_TREE(tree_view));
+    dissect_packet(cf.pd, fd, (proto_tree*)tree_view);
     packet_hex_print(GTK_TEXT(byte_view), cf.pd, fd->cap_len, -1, -1);
   }
   gtk_text_thaw(GTK_TEXT(byte_view));

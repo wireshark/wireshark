@@ -2,7 +2,7 @@
  * Routines for LPR and LPRng packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-lpd.c,v 1.6 1998/12/17 05:42:28 gram Exp $
+ * $Id: packet-lpd.c,v 1.7 1999/03/23 03:14:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -28,31 +28,22 @@
 # include "config.h"
 #endif
 
-#include <gtk/gtk.h>
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
 
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
+#include <string.h>
 
-
-#include "ethereal.h"
+#include <glib.h>
 #include "packet.h"
-#include "etypes.h"
 
 enum lpr_type { request, response };
 
 void
-dissect_lpd(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
+dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
-	GtkWidget	*lpd_tree, *ti;
+	proto_tree	*lpd_tree;
+	proto_item	*ti;
 	enum lpr_type	lpr_packet_type;
 	char		*newline, *printer, *line_pos;
 	int			substr_len, curr_offset;
@@ -102,34 +93,34 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	}
 
 	if (tree) {
-		ti = add_item_to_tree(GTK_WIDGET(tree), offset, fd->cap_len - offset,
+		ti = proto_tree_add_item(tree, offset, fd->cap_len - offset,
 		  "Line Printer Daemon Protocol");
-		lpd_tree = gtk_tree_new();
-		add_subtree(ti, lpd_tree, ETT_LPD);
+		lpd_tree = proto_tree_new();
+		proto_item_add_subtree(ti, lpd_tree, ETT_LPD);
 
 		if (lpr_packet_type == request) {
 			if (pd[offset] <= 9) {
-				add_item_to_tree(lpd_tree, offset,		1,
+				proto_tree_add_item(lpd_tree, offset,		1,
 					lpd_client_code[pd[offset]]);
 			}
 			else {
-				add_item_to_tree(lpd_tree, offset,		1,
+				proto_tree_add_item(lpd_tree, offset,		1,
 					lpd_client_code[0]);
 			}
-			printer = strdup(&pd[offset+1]);
+			printer = g_strdup(&pd[offset+1]);
 
 			/* get rid of the new-line so that the tree prints out nicely */
 			if (printer[fd->cap_len - offset - 2] == 0x0a) {
 				printer[fd->cap_len - offset - 2] = 0;
 			}
-			add_item_to_tree(lpd_tree, offset+1, fd->cap_len - (offset+1),
+			proto_tree_add_item(lpd_tree, offset+1, fd->cap_len - (offset+1),
 					/*"Printer/options: %s", &pd[offset+1]);*/
 					"Printer/options: %s", printer);
-			free(printer);
+			g_free(printer);
 		}
 		else {
 			if (pd[offset] <= 3) {
-				add_item_to_tree(lpd_tree, offset, 2, "Response: %s",
+				proto_tree_add_item(lpd_tree, offset, 2, "Response: %s",
 					lpd_server_code[pd[offset]]);
 			}
 			else {
@@ -139,13 +130,13 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 				while (fd->cap_len > curr_offset) {
 					newline = strchr(line_pos, '\n');
 					if (!newline) {
-						add_item_to_tree(lpd_tree, curr_offset,
+						proto_tree_add_item(lpd_tree, curr_offset,
 							fd->cap_len - offset, "Text: %s", line_pos);
 						break;
 					}
 					*newline = 0;
 					substr_len = strlen(line_pos);
-					add_item_to_tree(lpd_tree, curr_offset, substr_len + 1,
+					proto_tree_add_item(lpd_tree, curr_offset, substr_len + 1,
 						"Text: %s", line_pos);
 					curr_offset += substr_len + 1;
 					line_pos = newline + 1;

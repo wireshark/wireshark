@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-llc.c,v 1.13 1999/03/22 03:56:34 guy Exp $
+ * $Id: packet-llc.c,v 1.14 1999/03/23 03:14:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -32,17 +32,11 @@
 # include <sys/types.h>
 #endif
 
-
-#include <gtk/gtk.h>
-
-#include <stdio.h>
-
-#include "ethereal.h"
+#include <glib.h>
 #include "packet.h"
-#include "etypes.h"
 
 typedef void (capture_func_t)(const u_char *, int, guint32, packet_counts *);
-typedef void (dissect_func_t)(const u_char *, int, frame_data *, GtkTree *);
+typedef void (dissect_func_t)(const u_char *, int, frame_data *, proto_tree *);
 
 struct sap_info {
 	guint8	sap;
@@ -164,9 +158,10 @@ capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
 }
 
 void
-dissect_llc(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
+dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
-	GtkWidget	*llc_tree = NULL, *ti;
+	proto_tree	*llc_tree = NULL;
+	proto_item	*ti;
 	guint16		etype;
 	int		is_snap;
 	dissect_func_t	*dissect;
@@ -183,15 +178,15 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	}
   
 	if (tree) {
-		ti = add_item_to_tree(GTK_WIDGET(tree), offset, (is_snap ? 8 : 3),
+		ti = proto_tree_add_item(tree, offset, (is_snap ? 8 : 3),
 			"Logical-Link Control");
-		llc_tree = gtk_tree_new();
-		add_subtree(ti, llc_tree, ETT_LLC);
-		add_item_to_tree(llc_tree, offset,      1, "DSAP: %s (0x%02X)",
+		llc_tree = proto_tree_new();
+		proto_item_add_subtree(ti, llc_tree, ETT_LLC);
+		proto_tree_add_item(llc_tree, offset,      1, "DSAP: %s (0x%02X)",
 			sap_text(pd[offset]), pd[offset]);
-		add_item_to_tree(llc_tree, offset+1,    1, "SSAP: %s (0x%02X)",
+		proto_tree_add_item(llc_tree, offset+1,    1, "SSAP: %s (0x%02X)",
 			sap_text(pd[offset+1]), pd[offset+1]);
-		add_item_to_tree(llc_tree, offset+2,    1, "Control: %s",
+		proto_tree_add_item(llc_tree, offset+2,    1, "Control: %s",
 			llc_ctrl[pd[offset+2] & 3]);
 	}
 
@@ -200,7 +195,7 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 			col_add_str(fd, COL_INFO, "802.2 LLC (SNAP)");
 		}
 		if (tree) {
-			add_item_to_tree(llc_tree, offset+3,    3,
+			proto_tree_add_item(llc_tree, offset+3,    3,
 				"Organization Code: %s (%02X-%02X-%02X)",
 				llc_org(&pd[offset+3]), 
 				pd[offset+3], pd[offset+4], pd[offset+5]);

@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.8 1998/10/28 21:38:11 gerald Exp $
+ * $Id: print.c,v 1.9 1999/03/23 03:14:46 gram Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -38,6 +38,7 @@
 #endif
 
 #include "ethereal.h"
+#include "gtkpacket.h"
 #include "packet.h"
 #include "prefs.h"
 #include "print.h"
