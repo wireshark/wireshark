@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.31 2001/08/29 08:12:32 guy Exp $
+ * $Id: packet-ipsec.c,v 1.32 2001/08/30 02:23:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -342,6 +342,7 @@ proto_register_ipsec(void)
 	    &g_ah_payload_in_subtree);
 
   register_dissector("esp", dissect_esp, proto_esp);
+  register_dissector("ah", dissect_ah, proto_ah);
 }
 
 void
