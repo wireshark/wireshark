@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *   decode srvsvc calls where Samba knows them ...
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.26 2002/06/19 09:59:42 sahlberg Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.27 2002/06/19 10:22:55 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2452,7 +2452,7 @@ srvsvc_dissect_netrsharegetinfo_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_pointer_UNICODE_STRING,
-			NDR_POINTER_UNIQUE, "Share",
+			NDR_POINTER_REF, "Share",
 			hf_srvsvc_share, 0);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -2476,6 +2476,130 @@ srvsvc_dissect_netrsharegetinfo_reply(tvbuff_t *tvb, int offset,
 
 	return offset;
 }
+
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrShareSetInfo(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] [string] [ref] wchar_t *ShareName,
+ * IDL      [in] long Level,
+ * IDL      [in] [ref] SHARE_INFO_UNION *share
+ * IDL      [in] [unique] long *ParmError,
+ * IDL );
+ */
+static int
+srvsvc_dissect_netrsharesetinfo_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Server",
+			hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_REF, "Share",
+			hf_srvsvc_share, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_srvsvc_info_level, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SHARE_INFO_UNION,
+			NDR_POINTER_REF, "Share",
+			-1, 0);
+
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_pointer_long, NDR_POINTER_UNIQUE,
+			"Parameter Error:", hf_srvsvc_parm_error, 0);
+
+	return offset;
+}
+
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrShareDel(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] [string] [ref] wchar_t *ShareName,
+ * IDL      [in] long Reserved,
+ * IDL );
+ */
+static int
+srvsvc_dissect_netrsharedel_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Server",
+			hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_REF, "Share",
+			hf_srvsvc_share, 0);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_reserved, NULL);
+	
+	return offset;
+}
+
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrShareDelSticky(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] [string] [ref] wchar_t *ShareName,
+ * IDL      [in] long Reserved,
+ * IDL );
+ */
+static int
+srvsvc_dissect_netrsharedelsticky_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Server",
+			hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_REF, "Share",
+			hf_srvsvc_share, 0);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_reserved, NULL);
+	
+	return offset;
+}
+
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrShareCheck(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] [string] [ref] wchar_t *DeviceName,
+ * IDL );
+ */
+static int
+srvsvc_dissect_netrsharecheck_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_pointer_UNICODE_STRING,
+			NDR_POINTER_UNIQUE, "Server",
+			hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Char Device",
+		hf_srvsvc_chrdev, 0);
+	
+	return offset;
+}
+
 
 
 
@@ -2741,10 +2865,18 @@ static dcerpc_sub_dissector dcerpc_srvsvc_dissectors[] = {
 	{SRV_NETRSHAREGETINFO,		"NetrShareGetInfo",
 		srvsvc_dissect_netrsharegetinfo_rqst,
 		srvsvc_dissect_netrsharegetinfo_reply},
-	{SRV_NETRSHARESETINFO,		"NetrShareSetInfo", NULL, NULL},
-	{SRV_NETRSHAREDEL,		"NetrShareDel", NULL, NULL},
-	{SRV_NETRSHAREDELSTICKY,	"NetrShareDelSticky", NULL, NULL},
-	{SRV_NETRSHARECHECK,		"NetrShareCheck", NULL, NULL},
+	{SRV_NETRSHARESETINFO,		"NetrShareSetInfo",
+		srvsvc_dissect_netrsharesetinfo_rqst,
+		NULL},
+	{SRV_NETRSHAREDEL,		"NetrShareDel",
+		srvsvc_dissect_netrsharedel_rqst,
+		NULL},
+	{SRV_NETRSHAREDELSTICKY,	"NetrShareDelSticky",
+		srvsvc_dissect_netrsharedelsticky_rqst,
+		NULL},
+	{SRV_NETRSHARECHECK,		"NetrShareCheck",
+		srvsvc_dissect_netrsharecheck_rqst,
+		NULL},
 	{SRV_NETRSERVERGETINFO,		"NetrServerGetInfo",
 			srvsvc_dissect_net_srv_get_info_rqst, 
 			srvsvc_dissect_net_srv_get_info_reply},
