@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.81 2002/10/29 05:15:24 guy Exp $
+ * $Id: packet.c,v 1.82 2002/11/15 03:10:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -433,7 +433,7 @@ struct dissector_table {
 static GHashTable *dissector_tables = NULL;
 
 /* Finds a dissector table by table name. */
-static dissector_table_t
+dissector_table_t
 find_dissector_table(const char *name)
 {
 	g_assert(dissector_tables);
@@ -1007,6 +1007,13 @@ char *
 dissector_handle_get_short_name(dissector_handle_t handle)
 {
 	return proto_get_protocol_short_name(handle->proto_index);
+}
+
+/* Get the index of the protocol for a dissector handle. */
+int
+dissector_handle_get_protocol_index(dissector_handle_t handle)
+{
+  return handle->proto_index;
 }
 
 /* Find a registered dissector by name. */

@@ -1308,6 +1308,8 @@ Chris Waters <chris[AT]waters.co.nz> {
 	Check 802.11 FCS if present
 	Put the "wlan.fc.fromds" and "wlan.fc.tods" fields into the
 	    protocol tree
+	Export "find_dissector_table()" and add
+	    "dissector_handle_get_protocol_index()"
 }
 
 Solomon Peachy <pizza[AT]shaftnet.org> {
