@@ -210,7 +210,7 @@ static int dissect_serialNumber(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 
 static int
-dissect_cms_ContentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_ContentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
                                          hf_index, NULL);
 
@@ -222,7 +222,7 @@ static int dissect_contentType1(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 
 static int
-dissect_cms_T_contentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_T_contentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
                                          hf_cms_ci_contentType, object_identifier_id);
 
@@ -236,7 +236,7 @@ static int dissect_contentType(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 
 static int
-dissect_cms_T_content(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_T_content(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -253,7 +253,7 @@ static const ber_sequence ContentInfo_sequence[] = {
 };
 
 int
-dissect_cms_ContentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_ContentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 ContentInfo_sequence, hf_index, ett_cms_ContentInfo);
 
@@ -272,7 +272,7 @@ static const value_string CMSVersion_vals[] = {
 
 
 static int
-dissect_cms_CMSVersion(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_CMSVersion(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -283,7 +283,7 @@ static int dissect_version(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 
 
 static int
-dissect_cms_DigestAlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_DigestAlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_x509af_AlgorithmIdentifier(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -303,7 +303,7 @@ static const ber_sequence DigestAlgorithmIdentifiers_set_of[1] = {
 };
 
 static int
-dissect_cms_DigestAlgorithmIdentifiers(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_DigestAlgorithmIdentifiers(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
                               DigestAlgorithmIdentifiers_set_of, hf_index, ett_cms_DigestAlgorithmIdentifiers);
 
@@ -315,7 +315,7 @@ static int dissect_digestAlgorithms(packet_info *pinfo, proto_tree *tree, tvbuff
 
 
 static int
-dissect_cms_T_eContentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_T_eContentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
                                          hf_cms_ci_contentType, object_identifier_id);
 
@@ -328,7 +328,7 @@ static int dissect_eContentType(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 
 static int
-dissect_cms_T_eContent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_T_eContent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   guint8 class;
   gboolean pc, ind;
   guint32 tag, len;
@@ -355,7 +355,7 @@ static const ber_sequence EncapsulatedContentInfo_sequence[] = {
 };
 
 int
-dissect_cms_EncapsulatedContentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_EncapsulatedContentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 EncapsulatedContentInfo_sequence, hf_index, ett_cms_EncapsulatedContentInfo);
 
@@ -367,7 +367,7 @@ static int dissect_encapContentInfo(packet_info *pinfo, proto_tree *tree, tvbuff
 
 
 static int
-dissect_cms_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
                                          hf_index, NULL);
 
@@ -383,7 +383,7 @@ static const ber_sequence Attribute_sequence[] = {
 };
 
 static int
-dissect_cms_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 Attribute_sequence, hf_index, ett_cms_Attribute);
 
@@ -410,7 +410,7 @@ static const ber_sequence UnauthAttributes_set_of[1] = {
 };
 
 static int
-dissect_cms_UnauthAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_UnauthAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
                               UnauthAttributes_set_of, hf_index, ett_cms_UnauthAttributes);
 
@@ -431,7 +431,7 @@ static const ber_sequence ExtendedCertificateInfo_sequence[] = {
 };
 
 static int
-dissect_cms_ExtendedCertificateInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_ExtendedCertificateInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 ExtendedCertificateInfo_sequence, hf_index, ett_cms_ExtendedCertificateInfo);
 
@@ -443,7 +443,7 @@ static int dissect_extendedCertificateInfo(packet_info *pinfo, proto_tree *tree,
 
 
 static int
-dissect_cms_SignatureAlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_SignatureAlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_x509af_AlgorithmIdentifier(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -454,7 +454,7 @@ static int dissect_signatureAlgorithm(packet_info *pinfo, proto_tree *tree, tvbu
 
 
 static int
-dissect_cms_Signature(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_Signature(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
                                  NULL, hf_index, -1,
                                  NULL);
@@ -473,7 +473,7 @@ static const ber_sequence ExtendedCertificate_sequence[] = {
 };
 
 static int
-dissect_cms_ExtendedCertificate(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_ExtendedCertificate(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 ExtendedCertificate_sequence, hf_index, ett_cms_ExtendedCertificate);
 
@@ -499,7 +499,7 @@ static const ber_choice CertificateChoices_choice[] = {
 };
 
 static int
-dissect_cms_CertificateChoices(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_CertificateChoices(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               CertificateChoices_choice, hf_index, ett_cms_CertificateChoices);
 
@@ -514,7 +514,7 @@ static const ber_sequence CertificateSet_set_of[1] = {
 };
 
 static int
-dissect_cms_CertificateSet(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_CertificateSet(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
                               CertificateSet_set_of, hf_index, ett_cms_CertificateSet);
 
@@ -532,7 +532,7 @@ static const ber_sequence CertificateRevocationLists_set_of[1] = {
 };
 
 static int
-dissect_cms_CertificateRevocationLists(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_CertificateRevocationLists(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
                               CertificateRevocationLists_set_of, hf_index, ett_cms_CertificateRevocationLists);
 
@@ -549,7 +549,7 @@ static const ber_sequence IssuerAndSerialNumber_sequence[] = {
 };
 
 int
-dissect_cms_IssuerAndSerialNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_IssuerAndSerialNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 IssuerAndSerialNumber_sequence, hf_index, ett_cms_IssuerAndSerialNumber);
 
@@ -561,7 +561,7 @@ static int dissect_issuerAndSerialNumber(packet_info *pinfo, proto_tree *tree, t
 
 
 static int
-dissect_cms_SubjectKeyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_SubjectKeyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     NULL);
 
@@ -588,7 +588,7 @@ static const ber_choice SignerIdentifier_choice[] = {
 };
 
 static int
-dissect_cms_SignerIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_SignerIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               SignerIdentifier_choice, hf_index, ett_cms_SignerIdentifier);
 
@@ -603,7 +603,7 @@ static const ber_sequence SignedAttributes_set_of[1] = {
 };
 
 static int
-dissect_cms_SignedAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_SignedAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
                               SignedAttributes_set_of, hf_index, ett_cms_SignedAttributes);
 
@@ -615,7 +615,7 @@ static int dissect_signedAttrs_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 
 
 static int
-dissect_cms_SignatureValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_SignatureValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     NULL);
 
@@ -630,7 +630,7 @@ static const ber_sequence UnsignedAttributes_set_of[1] = {
 };
 
 static int
-dissect_cms_UnsignedAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_UnsignedAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
                               UnsignedAttributes_set_of, hf_index, ett_cms_UnsignedAttributes);
 
@@ -652,7 +652,7 @@ static const ber_sequence SignerInfo_sequence[] = {
 };
 
 static int
-dissect_cms_SignerInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_SignerInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 SignerInfo_sequence, hf_index, ett_cms_SignerInfo);
 
@@ -667,7 +667,7 @@ static const ber_sequence SignerInfos_set_of[1] = {
 };
 
 static int
-dissect_cms_SignerInfos(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_SignerInfos(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
                               SignerInfos_set_of, hf_index, ett_cms_SignerInfos);
 
@@ -688,7 +688,7 @@ static const ber_sequence SignedData_sequence[] = {
 };
 
 int
-dissect_cms_SignedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_SignedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 SignedData_sequence, hf_index, ett_cms_SignedData);
 
@@ -702,7 +702,7 @@ static const ber_sequence OriginatorInfo_sequence[] = {
 };
 
 static int
-dissect_cms_OriginatorInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_OriginatorInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 OriginatorInfo_sequence, hf_index, ett_cms_OriginatorInfo);
 
@@ -726,7 +726,7 @@ static const ber_choice RecipientIdentifier_choice[] = {
 };
 
 static int
-dissect_cms_RecipientIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_RecipientIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               RecipientIdentifier_choice, hf_index, ett_cms_RecipientIdentifier);
 
@@ -738,7 +738,7 @@ static int dissect_rid(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 
 
 static int
-dissect_cms_KeyEncryptionAlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_KeyEncryptionAlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_x509af_AlgorithmIdentifier(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -749,7 +749,7 @@ static int dissect_keyEncryptionAlgorithm(packet_info *pinfo, proto_tree *tree, 
 
 
 static int
-dissect_cms_EncryptedKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_EncryptedKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     NULL);
 
@@ -768,7 +768,7 @@ static const ber_sequence KeyTransRecipientInfo_sequence[] = {
 };
 
 static int
-dissect_cms_KeyTransRecipientInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_KeyTransRecipientInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 KeyTransRecipientInfo_sequence, hf_index, ett_cms_KeyTransRecipientInfo);
 
@@ -780,7 +780,7 @@ static int dissect_ktri(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 
 
 static int
-dissect_cms_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
                                  NULL, hf_index, -1,
                                  NULL);
@@ -798,7 +798,7 @@ static const ber_sequence OriginatorPublicKey_sequence[] = {
 };
 
 static int
-dissect_cms_OriginatorPublicKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_OriginatorPublicKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 OriginatorPublicKey_sequence, hf_index, ett_cms_OriginatorPublicKey);
 
@@ -824,7 +824,7 @@ static const ber_choice OriginatorIdentifierOrKey_choice[] = {
 };
 
 static int
-dissect_cms_OriginatorIdentifierOrKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_OriginatorIdentifierOrKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               OriginatorIdentifierOrKey_choice, hf_index, ett_cms_OriginatorIdentifierOrKey);
 
@@ -836,7 +836,7 @@ static int dissect_originator(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
 
 static int
-dissect_cms_UserKeyingMaterial(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_UserKeyingMaterial(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     NULL);
 
@@ -848,7 +848,7 @@ static int dissect_ukm(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 
 
 static int
-dissect_cms_GeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_GeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_generalized_time(pinfo, tree, tvb, offset, hf_index);
 
   return offset;
@@ -859,7 +859,7 @@ static int dissect_date(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 
 
 static int
-dissect_cms_T_keyAttrId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_T_keyAttrId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
                                          hf_cms_ci_contentType, object_identifier_id);
 
@@ -873,7 +873,7 @@ static int dissect_keyAttrId(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 
 static int
-dissect_cms_T_keyAttr(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_T_keyAttr(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -890,7 +890,7 @@ static const ber_sequence OtherKeyAttribute_sequence[] = {
 };
 
 int
-dissect_cms_OtherKeyAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_OtherKeyAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 OtherKeyAttribute_sequence, hf_index, ett_cms_OtherKeyAttribute);
 
@@ -908,7 +908,7 @@ static const ber_sequence RecipientKeyIdentifier_sequence[] = {
 };
 
 static int
-dissect_cms_RecipientKeyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_RecipientKeyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 RecipientKeyIdentifier_sequence, hf_index, ett_cms_RecipientKeyIdentifier);
 
@@ -932,7 +932,7 @@ static const ber_choice KeyAgreeRecipientIdentifier_choice[] = {
 };
 
 static int
-dissect_cms_KeyAgreeRecipientIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_KeyAgreeRecipientIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               KeyAgreeRecipientIdentifier_choice, hf_index, ett_cms_KeyAgreeRecipientIdentifier);
 
@@ -949,7 +949,7 @@ static const ber_sequence RecipientEncryptedKey_sequence[] = {
 };
 
 static int
-dissect_cms_RecipientEncryptedKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_RecipientEncryptedKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 RecipientEncryptedKey_sequence, hf_index, ett_cms_RecipientEncryptedKey);
 
@@ -964,7 +964,7 @@ static const ber_sequence RecipientEncryptedKeys_sequence_of[1] = {
 };
 
 static int
-dissect_cms_RecipientEncryptedKeys(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_RecipientEncryptedKeys(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                    RecipientEncryptedKeys_sequence_of, hf_index, ett_cms_RecipientEncryptedKeys);
 
@@ -984,7 +984,7 @@ static const ber_sequence KeyAgreeRecipientInfo_sequence[] = {
 };
 
 static int
-dissect_cms_KeyAgreeRecipientInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_KeyAgreeRecipientInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 KeyAgreeRecipientInfo_sequence, hf_index, ett_cms_KeyAgreeRecipientInfo);
 
@@ -996,7 +996,7 @@ static int dissect_kari_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 
 static int
-dissect_cms_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     NULL);
 
@@ -1014,7 +1014,7 @@ static const ber_sequence KEKIdentifier_sequence[] = {
 };
 
 static int
-dissect_cms_KEKIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_KEKIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 KEKIdentifier_sequence, hf_index, ett_cms_KEKIdentifier);
 
@@ -1033,7 +1033,7 @@ static const ber_sequence KEKRecipientInfo_sequence[] = {
 };
 
 static int
-dissect_cms_KEKRecipientInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_KEKRecipientInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 KEKRecipientInfo_sequence, hf_index, ett_cms_KEKRecipientInfo);
 
@@ -1059,7 +1059,7 @@ static const ber_choice RecipientInfo_choice[] = {
 };
 
 static int
-dissect_cms_RecipientInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_RecipientInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               RecipientInfo_choice, hf_index, ett_cms_RecipientInfo);
 
@@ -1074,7 +1074,7 @@ static const ber_sequence RecipientInfos_set_of[1] = {
 };
 
 static int
-dissect_cms_RecipientInfos(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_RecipientInfos(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
                               RecipientInfos_set_of, hf_index, ett_cms_RecipientInfos);
 
@@ -1086,7 +1086,7 @@ static int dissect_recipientInfos(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 
 static int
-dissect_cms_ContentEncryptionAlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_ContentEncryptionAlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_x509af_AlgorithmIdentifier(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -1097,7 +1097,7 @@ static int dissect_contentEncryptionAlgorithm(packet_info *pinfo, proto_tree *tr
 
 
 static int
-dissect_cms_EncryptedContent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_EncryptedContent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     NULL);
 
@@ -1115,7 +1115,7 @@ static const ber_sequence EncryptedContentInfo_sequence[] = {
 };
 
 static int
-dissect_cms_EncryptedContentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_EncryptedContentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 EncryptedContentInfo_sequence, hf_index, ett_cms_EncryptedContentInfo);
 
@@ -1130,7 +1130,7 @@ static const ber_sequence UnprotectedAttributes_set_of[1] = {
 };
 
 static int
-dissect_cms_UnprotectedAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_UnprotectedAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
                               UnprotectedAttributes_set_of, hf_index, ett_cms_UnprotectedAttributes);
 
@@ -1150,7 +1150,7 @@ static const ber_sequence EnvelopedData_sequence[] = {
 };
 
 static int
-dissect_cms_EnvelopedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_EnvelopedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 EnvelopedData_sequence, hf_index, ett_cms_EnvelopedData);
 
@@ -1159,7 +1159,7 @@ dissect_cms_EnvelopedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
 
 static int
-dissect_cms_Digest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_Digest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     NULL);
 
@@ -1178,7 +1178,7 @@ static const ber_sequence DigestedData_sequence[] = {
 };
 
 static int
-dissect_cms_DigestedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_DigestedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 DigestedData_sequence, hf_index, ett_cms_DigestedData);
 
@@ -1193,7 +1193,7 @@ static const ber_sequence EncryptedData_sequence[] = {
 };
 
 static int
-dissect_cms_EncryptedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_EncryptedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 EncryptedData_sequence, hf_index, ett_cms_EncryptedData);
 
@@ -1202,7 +1202,7 @@ dissect_cms_EncryptedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
 
 static int
-dissect_cms_MessageAuthenticationCodeAlgorithm(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_MessageAuthenticationCodeAlgorithm(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_x509af_AlgorithmIdentifier(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -1216,7 +1216,7 @@ static const ber_sequence AuthAttributes_set_of[1] = {
 };
 
 static int
-dissect_cms_AuthAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_AuthAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
                               AuthAttributes_set_of, hf_index, ett_cms_AuthAttributes);
 
@@ -1228,7 +1228,7 @@ static int dissect_authenticatedAttributes_impl(packet_info *pinfo, proto_tree *
 
 
 static int
-dissect_cms_MessageAuthenticationCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_MessageAuthenticationCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     NULL);
 
@@ -1252,7 +1252,7 @@ static const ber_sequence AuthenticatedData_sequence[] = {
 };
 
 static int
-dissect_cms_AuthenticatedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_AuthenticatedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 AuthenticatedData_sequence, hf_index, ett_cms_AuthenticatedData);
 
@@ -1261,7 +1261,7 @@ dissect_cms_AuthenticatedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
 
 int
-dissect_cms_Countersignature(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_cms_Countersignature(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_cms_SignerInfo(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
