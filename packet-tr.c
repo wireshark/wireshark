@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.13 1999/06/14 20:30:06 gram Exp $
+ * $Id: packet-tr.c,v 1.14 1999/06/16 20:14:51 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -94,7 +94,7 @@ capture_tr(const u_char *pd, guint32 cap_len, packet_counts *ld) {
 
 	/* sometimes we have a RCF but no RIF... half source-routed? */
 	/* I'll check for 2 bytes of RIF and the 0x70 byte */
-	if (!source_routed) {
+	if (!source_routed && trn_rif_bytes > 0) {
 		if (trn_rif_bytes == 2) {
 			source_routed = 1;
 		}
@@ -234,7 +234,7 @@ dissect_tr(const u_char *pd, frame_data *fd, proto_tree *tree) {
 
 	/* sometimes we have a RCF but no RIF... half source-routed? */
 	/* I'll check for 2 bytes of RIF and the 0x70 byte */
-	if (!source_routed) {
+	if (!source_routed && trn_rif_bytes > 0) {
 		if (trn_rif_bytes == 2) {
 			source_routed = 1;
 		}
