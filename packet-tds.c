@@ -3,7 +3,7 @@
  * Copyright 2000-2002, Brian Bruns <camber@ais.org>
  * Copyright 2002, Steve Langasek <vorlon@netexpress.net>
  *
- * $Id: packet-tds.c,v 1.25 2004/02/06 03:25:26 guy Exp $
+ * $Id: packet-tds.c,v 1.26 2004/02/18 04:41:37 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1017,7 +1017,7 @@ dissect_tds_login_ack_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_t
 }
 
 int 
-dissect_tds7_results_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_tree *tree)
+dissect_tds7_results_token(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	guint16 num_columns, table_len;
 	guint8 type, msg_len;
@@ -1207,7 +1207,7 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			dissect_tds_login_ack_token(tvb, pos + 3, token_sz - 3, token_tree);
 			break;
 		case TDS7_RESULT_TOKEN:
-			pos = (dissect_tds7_results_token(tvb, pos + 1, token_sz - 1, token_tree)-1);
+			pos = (dissect_tds7_results_token(tvb, pos + 1, token_tree)-1);
 			break;
 		}
 
