@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal documentation
 #
-# $Id: Makefile.am,v 1.25 2004/06/27 00:21:57 gerald Exp $
+# $Id: Makefile.am,v 1.26 2004/06/27 17:56:15 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -133,4 +133,6 @@ CLEANFILES =		\
 	../idl2eth.html
 
 DISTCLEANFILES =	\
+	pod2htmi.tmp	\
+	pod2htmd.tmp	\
 	*~
