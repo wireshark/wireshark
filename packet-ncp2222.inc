@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.15 2002/08/23 22:08:50 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.16 2002/08/23 22:15:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1380,7 +1380,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
        		 * display filters can't possibly work. If we already have
        		 * a proto_tree, then wonderful. If we don't, we need to build
        		 * one. */
-       		if (ncp_rec && ncp_tree != NULL) {
+       		if (ncp_rec && ncp_tree == NULL) {
          		proto_item *ti;
                                
          		temp_tree = proto_tree_create_root();
