@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.50 2003/04/18 03:00:28 guy Exp $
+ * $Id: packet-vines.c,v 1.51 2003/04/18 03:40:49 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -74,6 +74,10 @@ static int proto_vines_rtp = -1;
 static int proto_vines_srtp = -1;
 
 static gint ett_vines_srtp = -1;
+
+static int proto_vines_icp = -1;
+
+static gint ett_vines_icp = -1;
 
 void
 capture_vines(packet_counts *ld)
@@ -296,16 +300,6 @@ dissect_vines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	viph.vip_chksum = g_ntohs(viph.vip_chksum);
 	viph.vip_pktlen = g_ntohs(viph.vip_pktlen);
 
-	/*
-	 * Handle Vines protocols for which we don't have dissectors.
-	 */
-	switch (viph.vip_proto) {
-
-	case VIP_PROTO_ICP:
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines ICP");
-		break;
-	}
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%02x)",
 		    val_to_str(viph.vip_proto, proto_vals,
@@ -997,4 +991,124 @@ proto_reg_handoff_vines_rtp(void)
 	vines_rtp_handle = create_dissector_handle(dissect_vines_rtp,
 	    proto_vines_rtp);
 	dissector_add("vines_ip.protocol", VIP_PROTO_RTP, vines_rtp_handle);
+}
+
+#define VICP_EXCEPTION_NOTIFICATION	0x0000
+#define VICP_METRIC_NOTIFICATION	0x0001
+
+static const value_string vines_icp_packet_type_vals[] = {
+	{ VICP_EXCEPTION_NOTIFICATION, "Exception notification" },
+	{ VICP_METRIC_NOTIFICATION,    "Metric notification" },
+	{ 0,                           NULL }
+};
+
+static void
+dissect_vines_icp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	int offset = 0;
+	proto_tree *vines_icp_tree = NULL;
+	proto_item *ti;
+	guint16  packet_type;
+	guint16  exception_code;
+	guint16  metric;
+	gboolean save_in_error_pkt;
+	tvbuff_t *next_tvb;
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines ICP");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
+
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_vines_icp, tvb, 0, -1,
+		    FALSE);
+		vines_icp_tree = proto_item_add_subtree(ti, ett_vines_icp);
+	}
+
+	packet_type = tvb_get_ntohs(tvb, offset);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_str(pinfo->cinfo, COL_INFO,
+		    val_to_str(packet_type, vines_icp_packet_type_vals,
+		      "Unknown (0x%02x)"));
+	}
+	if (tree) {
+		proto_tree_add_text(vines_icp_tree, tvb, offset, 2,
+				    "Packet Type: %s (0x%04x)",
+				    val_to_str(packet_type,
+				      vines_icp_packet_type_vals,
+				      "Unknown"),
+				    packet_type);
+	}
+	offset += 2;
+
+	switch (packet_type) {
+
+	case VICP_EXCEPTION_NOTIFICATION:
+		exception_code = tvb_get_ntohs(tvb, offset);
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+			    val_to_str(exception_code, vipc_err_vals,
+			        "Unknown exception code (%u)"));
+		}
+		if (tree) {
+			proto_tree_add_text(vines_icp_tree, tvb, offset, 2,
+					    "Exception Code: %s (%u)",
+					    val_to_str(exception_code,
+					      vipc_err_vals,
+					      "Unknown"),
+					    exception_code);
+		}
+		break;
+
+	case VICP_METRIC_NOTIFICATION:
+		metric = tvb_get_ntohs(tvb, offset);
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", metric %u",
+			    metric);
+		}
+		if (tree) {
+			proto_tree_add_text(vines_icp_tree, tvb, offset, 2,
+					    "Metric: %u", metric);
+		}
+		break;
+	}
+	offset += 2;
+
+	/*
+	 * Save the current value of the "we're inside an error packet"
+	 * flag, and set that flag; subdissectors may treat packets
+	 * that are the payload of error packets differently from
+	 * "real" packets.
+	 */
+	save_in_error_pkt = pinfo->in_error_pkt;
+	pinfo->in_error_pkt = TRUE;
+
+	/* Decode the first 40 bytes of the original VIP datagram. */
+	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	call_dissector(vines_handle, next_tvb, pinfo, vines_icp_tree);
+
+	/* Restore the "we're inside an error packet" flag. */
+	pinfo->in_error_pkt = save_in_error_pkt;
+}
+
+void
+proto_register_vines_icp(void)
+{
+	static gint *ett[] = {
+		&ett_vines_icp,
+	};
+
+	proto_vines_icp = proto_register_protocol(
+	    "Banyan Vines ICP", "Vines ICP", "vines_icp");
+	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_vines_icp(void)
+{
+	dissector_handle_t vines_icp_handle;
+
+	vines_icp_handle = create_dissector_handle(dissect_vines_icp,
+	    proto_vines_icp);
+	dissector_add("vines_ip.protocol", VIP_PROTO_ICP, vines_icp_handle);
 }
