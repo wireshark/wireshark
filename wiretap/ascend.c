@@ -1,6 +1,6 @@
 /* ascend.c
  *
- * $Id: ascend.c,v 1.8 1999/10/08 07:45:31 guy Exp $
+ * $Id: ascend.c,v 1.9 1999/10/28 01:42:43 gerald Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -63,7 +63,7 @@ XMIT-iguana:241:(task: B04E12C0, time: 1975432.85) 53 octets @ 8009EB16
  */
 
 /* How far into the file we should look for packet headers */
-#define ASCEND_MAX_SEEK 1000000
+#define ASCEND_MAX_SEEK 100000
 
 /* XXX  Should we replace this with a more generalized array? */
 /* Magic numbers for Ascend wandsession/wanopening/ether-display data */
