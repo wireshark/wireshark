@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.44 2004/01/05 17:33:27 ulfl Exp $
+ * $Id: lanalyzer.c,v 1.45 2004/01/07 04:50:21 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -131,7 +131,8 @@ int lanalyzer_open(wtap *wth, int *err)
 	char summary[210];
 	guint16 board_type, mxslc;
 	guint16 record_type, record_length;
-	guint8 cr_day, cr_month, cr_year;
+	guint8 cr_day, cr_month;
+	guint16 cr_year;
 	struct tm tm;
 
 	errno = WTAP_ERR_CANT_READ;
@@ -211,17 +212,14 @@ int lanalyzer_open(wtap *wth, int *err)
 				 */
 				cr_day = summary[0];
 				cr_month = summary[1];
-				cr_year = (guint8) pletohs(&summary[2]);
+				cr_year = pletohs(&summary[2]);
 				/*g_message("Day %d Month %d Year %d (%04X)", cr_day, cr_month,
 						cr_year, cr_year);*/
 
 				/* Get capture start time. I learned how to do
 				 * this from Guy's code in ngsniffer.c
 				 */
-				/* this strange year offset is not in the
-				 * lanalyzer file format documentation, but it
-				 * works. */
-				tm.tm_year = cr_year - (1900 - 1792);
+				tm.tm_year = cr_year - 1900;
 				tm.tm_mon = cr_month - 1;
 				tm.tm_mday = cr_day;
 				tm.tm_hour = 0;
