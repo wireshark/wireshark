@@ -773,7 +773,7 @@ snmp_variable_decode(proto_tree *snmp_tree,
     ,
     ASN1_SCK *asn1, int offset, guint *lengthp, tvbuff_t **out_tvb)
 {
-	int start;
+	int start, vb_value_start;
 	guint length;
 	gboolean def;
 	guint vb_length;
@@ -806,6 +806,7 @@ snmp_variable_decode(proto_tree *snmp_tree,
 	ret = asn1_header_decode (asn1, &cls, &con, &tag, &def, &vb_length);
 	if (ret != ASN1_ERR_NOERROR)
 		return ret;
+	vb_value_start = asn1->offset;
 	if (!def)
 		return ASN1_ERR_LENGTH_NOT_DEFINITE;
 
@@ -889,7 +890,7 @@ snmp_variable_decode(proto_tree *snmp_tree,
 			return ret;
 		length = asn1->offset - start;
 		if (out_tvb) {
-			*out_tvb = tvb_new_subset(asn1->tvb, start, length, vb_length);
+			*out_tvb = tvb_new_subset(asn1->tvb, vb_value_start, asn1->offset - vb_value_start, vb_length);
 		}
 		if (snmp_tree) {
 #ifdef HAVE_SOME_SNMP
@@ -2500,7 +2501,7 @@ proto_register_snmp(void)
 	    "SNMP", "snmp");
 	proto_register_field_array(proto_snmp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	snmp_handle = create_dissector_handle(dissect_snmp, proto_snmp);
+	register_dissector("snmp", dissect_snmp, proto_snmp);
 
 	/* Register configuration preferences */
 	snmp_module = prefs_register_protocol(proto_snmp, process_prefs);
@@ -2534,6 +2535,8 @@ void
 proto_reg_handoff_snmp(void)
 {
 	dissector_handle_t snmp_tcp_handle;
+
+	snmp_handle = find_dissector("snmp");
 
 	dissector_add("udp.port", UDP_PORT_SNMP, snmp_handle);
 	dissector_add("udp.port", UDP_PORT_SNMP_TRAP, snmp_handle);
