@@ -15,6 +15,7 @@ core_file = None
 output_file = None
 
 verbose = 0
+debug = 0
 
 class BackTrace:
 	re_frame = re.compile(r"^#(?P<num>\d+) ")
@@ -265,26 +266,43 @@ def get_int_from_frame(frame_num, variable):
 
 
 def get_byte_array_from_frame(frame_num, variable, length):
-	var = "{char}%s@%d" % (variable, length)
-	text = get_value_from_frame(frame_num, var, "/u")
-	
-	# Remove curly braces
-	i = text.find("{")
-	if i == -1:
-		sys.exit("Left curly brace not found in '%s'" % (text,))
-	text = text[i+1:]
+	cmds = []
+	if frame_num > 0:
+		cmds.append("up %d" % (frame_num,))
 
-	i = text.find("}")
-	if i == -1:
-		sys.exit("Right curly brace not found in '%s'" % (text,))
-	text = text[:i]
+	cmds.append("print %s" % (variable,))
+	cmds.append("x/%dxb %s" % (length, variable))
+	lines = apply(run_gdb, cmds)
+	if debug:
+		print lines
 
-	# Split the string until many little strings, each representing a byte
-	# in decimal
-	values_as_text = text.split(',')
+	bytes = []
 
-	# And get the numeric values
-	return map(int, values_as_text)
+	LOOKING_FOR_START = 0
+	BYTES = 1
+	state = LOOKING_FOR_START
+
+	for line in lines:
+		if state == LOOKING_FOR_START:
+			if len(line) < 3:
+				continue
+			elif line[0:3] == "$1 ":
+				state = BYTES
+		elif state == BYTES:
+			line.rstrip()
+			fields = line.split('\t')
+			if fields[0][-1] != ":":
+				print "Failed to parse byte array from gdb:"
+				print line
+				sys.exit(1)
+
+			for field in fields[1:]:
+				val = int(field, 16)
+				bytes.append(val)
+		else:
+			assert 0
+
+	return bytes
 
 def make_cap_file(pkt_data, lnk_t):
 
@@ -408,8 +426,9 @@ def main():
 	global core_file
 	global output_file
 	global verbose
+	global debug
 
-	optstring = "vw:"
+	optstring = "dvw:"
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], optstring)
 	except getopt.error:
@@ -420,6 +439,8 @@ def main():
 			output_file = arg
 		elif opt == "-v":
 			verbose = 1
+		elif opt == "-d":
+			debug = 1
 		else:
 			assert 0
 
