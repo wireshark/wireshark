@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.231 2000/09/28 03:52:03 gram Exp $
+# $Id: Makefile.am,v 1.232 2000/10/06 10:10:44 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -58,6 +58,7 @@ DISSECTOR_SOURCES = \
 	packet-eth.c   \
 	packet-ethertype.c   \
 	packet-fddi.c  \
+	packet-frame.c  \
 	packet-ftp.c   \
 	packet-giop.c  \
 	packet-gre.c   \
@@ -188,6 +189,7 @@ noinst_HEADERS = \
 	packet-esis.h  \
 	packet-eth.h   \
 	packet-fddi.h  \
+	packet-frame.h  \
 	packet-http.h  \
 	packet-ip.h    \
 	packet-ipp.h   \
@@ -413,8 +415,7 @@ editcap_LDADD = wiretap/libwiretap.a @GLIB_LIBS@
 # start in column zero, or must be preceded only by "void " starting in
 # column zero, and must not be inside #if.
 #
-# We assume that all dissector routines are in "packet-XXX.c" files,
-# or in "packet.c".
+# We assume that all dissector routines are in "packet-XXX.c" files.
 #
 # For some unknown reason, having a big "for" loop in the Makefile
 # to scan all the "packet-XXX.c" files doesn't work with some "make"s;
@@ -426,9 +427,9 @@ editcap_LDADD = wiretap/libwiretap.a @GLIB_LIBS@
 # The first argument is the directory in which the source files live.
 # All subsequent arguments are the files to scan.
 #
-register.c: $(srcdir)/epan/packet.c $(DISSECTOR_SOURCES) $(srcdir)/make-reg-dotc
+register.c: $(DISSECTOR_SOURCES) $(srcdir)/make-reg-dotc
 	@echo Making register.c
-	@$(srcdir)/make-reg-dotc $(srcdir) $(srcdir)/epan/packet.c $(DISSECTOR_SOURCES)
+	@$(srcdir)/make-reg-dotc $(srcdir) $(DISSECTOR_SOURCES)
 
 ps.c: print.ps rdps
 	./rdps $(srcdir)/print.ps ps.c

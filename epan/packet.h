@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.1 2000/09/27 05:18:06 gram Exp $
+ * $Id: packet.h,v 1.2 2000/10/06 10:11:17 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -190,6 +190,9 @@ typedef struct true_false_string {
 	char	*false_string;
 } true_false_string;
 
+void packet_init(void);
+void packet_cleanup(void);
+
 /* Hash table for matching port numbers and dissectors */
 typedef GHashTable* dissector_table_t;
 
@@ -305,12 +308,10 @@ void init_all_protocols(void);
 void init_dissect_rpc(void);
 
 /*
- * Routines should take four args: packet data *, offset, frame_data *,
- * tree *
- * They should never modify the packet data.
+ * Dissectors should never modify the packet data.
  */
-void dissect_packet(union wtap_pseudo_header *, const u_char *, frame_data *,
-    proto_tree *);
+void dissect_packet(tvbuff_t **p_tvb, union wtap_pseudo_header *pseudo_header,
+		const u_char *pd, frame_data *fd, proto_tree *tree);
 void old_dissect_data(const u_char *, int, frame_data *, proto_tree *);
 void dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 

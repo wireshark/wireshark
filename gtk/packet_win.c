@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.15 2000/09/09 10:26:56 guy Exp $
+ * $Id: packet_win.c,v 1.16 2000/10/06 10:11:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -46,6 +46,7 @@
 #include <unistd.h>
 #endif
 
+#include <epan.h>
 #include "main.h"
 #include "timestamp.h"
 #include "packet.h"
@@ -80,6 +81,7 @@ struct PacketWinData {
  	GtkWidget  *bv_scrollw;
  	GtkWidget  *byte_view;
  	field_info *finfo_selected;
+	epan_dissect_t	*edt;
 };
 
 /* List of all the packet-detail windows popped up. */
@@ -171,7 +173,7 @@ create_new_window ( char *Title, gint tv_size, gint bv_size){
   memcpy(DataPtr->pd, cfile.pd, DataPtr->frame->cap_len);
   DataPtr->protocol_tree = proto_tree_create_root();
   proto_tree_is_visible = TRUE;
-  dissect_packet(&DataPtr->pseudo_header, DataPtr->pd, DataPtr->frame,
+  DataPtr->edt = epan_dissect_new(&DataPtr->pseudo_header, DataPtr->pd, DataPtr->frame,
 		DataPtr->protocol_tree);
   proto_tree_is_visible = FALSE;
   DataPtr->main = main_w;
@@ -206,6 +208,7 @@ destroy_new_window(GtkObject *object, gpointer user_data)
 
   detail_windows = g_list_remove(detail_windows, DataPtr);
   proto_tree_free(DataPtr->protocol_tree);
+  epan_dissect_free(DataPtr->edt);
   g_free(DataPtr->pd);
   g_free(DataPtr);
 }

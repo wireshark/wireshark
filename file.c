@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.223 2000/09/27 04:54:28 gram Exp $
+ * $Id: file.c,v 1.224 2000/10/06 10:10:46 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -604,6 +604,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   apply_color_filter_args args;
   gint          i, row;
   proto_tree   *protocol_tree = NULL;
+  epan_dissect_t *edt;
 
   /* We don't yet have a color filter to apply. */
   args.colorf = NULL;
@@ -640,7 +641,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     protocol_tree = proto_tree_create_root();
 
   /* Dissect the frame. */
-  dissect_packet(pseudo_header, buf, fdata, protocol_tree);
+  edt = epan_dissect_new(pseudo_header, buf, fdata, protocol_tree);
 
   /* If we have a display filter, apply it if we're refiltering, otherwise
      leave the "passed_dfilter" flag alone.
@@ -671,6 +672,8 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
      tree; free it if we created it. */
   if (protocol_tree != NULL)
     proto_tree_free(protocol_tree);
+
+  epan_dissect_free(edt);
 
   if (fdata->flags.passed_dfilter) {
     /* This frame passed the display filter, so add it to the clist. */
@@ -759,6 +762,7 @@ read_packet(capture_file *cf, int offset)
   int           passed;
   proto_tree   *protocol_tree;
   frame_data   *plist_end;
+  epan_dissect_t *edt;
 
   /* Allocate the next list entry, and add it to the list. */
   fdata = g_mem_chunk_alloc(cf->plist_chunk);
@@ -780,9 +784,10 @@ read_packet(capture_file *cf, int offset)
   passed = TRUE;
   if (cf->rfcode) {
     protocol_tree = proto_tree_create_root();
-    dissect_packet(pseudo_header, buf, fdata, protocol_tree);
+    edt = epan_dissect_new(pseudo_header, buf, fdata, protocol_tree);
     passed = dfilter_apply(cf->rfcode, protocol_tree, buf, fdata->cap_len);
     proto_tree_free(protocol_tree);
+    epan_dissect_free(edt);
   }   
   if (passed) {
     plist_end = cf->plist_end;
@@ -1052,6 +1057,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
   char        *cp;
   int         column_len;
   int         line_len;
+  epan_dissect_t *edt = NULL;
 
   cf->print_fh = open_print_dest(print_args->to_file, print_args->dest);
   if (cf->print_fh == NULL)
@@ -1167,7 +1173,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
         for (i = 0; i < fdata->cinfo->num_cols; i++) {
           fdata->cinfo->col_data[i][0] = '\0';
         }
-        dissect_packet(&cf->pseudo_header, cf->pd, fdata, NULL);
+        edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, NULL);
         fill_in_columns(fdata);
         cp = &line_buf[0];
         line_len = 0;
@@ -1204,7 +1210,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
 
         /* Create the logical protocol tree. */
         protocol_tree = proto_tree_create_root();
-        dissect_packet(&cf->pseudo_header, cf->pd, fdata, protocol_tree);
+        edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, protocol_tree);
 
         /* Print the information in that tree. */
         proto_tree_print(FALSE, print_args, (GNode *)protocol_tree,
@@ -1221,6 +1227,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
         /* Print a blank line if we print anything after this. */
         print_separator = TRUE;
       }
+      epan_dissect_free(edt);
     }
   }
 
@@ -1380,6 +1387,7 @@ find_packet(capture_file *cf, dfilter *sfcode)
   proto_tree *protocol_tree;
   gboolean frame_matched;
   int row;
+  epan_dissect_t	*edt;
 
   start_fd = cf->current_frame;
   if (start_fd != NULL)  {
@@ -1444,9 +1452,10 @@ find_packet(capture_file *cf, dfilter *sfcode)
         protocol_tree = proto_tree_create_root();
         wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
         		cf->pd, fdata->cap_len);
-        dissect_packet(&cf->pseudo_header, cf->pd, fdata, protocol_tree);
+        edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, protocol_tree);
         frame_matched = dfilter_apply(sfcode, protocol_tree, cf->pd, fdata->cap_len);
         proto_tree_free(protocol_tree);
+	epan_dissect_free(edt);
         if (frame_matched) {
           new_fd = fdata;
           break;	/* found it! */
@@ -1552,7 +1561,7 @@ select_packet(capture_file *cf, int row)
       proto_tree_free(cf->protocol_tree);
   cf->protocol_tree = proto_tree_create_root();
   proto_tree_is_visible = TRUE;
-  dissect_packet(&cf->pseudo_header, cf->pd, cf->current_frame,
+  cf->edt = epan_dissect_new(&cf->pseudo_header, cf->pd, cf->current_frame,
 		cf->protocol_tree);
   proto_tree_is_visible = FALSE;
 
@@ -1573,6 +1582,7 @@ unselect_packet(capture_file *cf)
   if (cf->protocol_tree != NULL) {
     proto_tree_free(cf->protocol_tree);
     cf->protocol_tree = NULL;
+    epan_dissect_free(cf->edt);
   }
 
   finfo_selected = NULL;

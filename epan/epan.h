@@ -5,12 +5,18 @@
  */
 
 #ifndef EPAN_H
+#define EPAN_H
 
 #include <glib.h>
-	
+
+/* XXX - for now */
+#include "packet.h"
+
 void epan_init(void);
 void epan_cleanup(void);
 void epan_conversation_init(void);
+
+
 
 /* A client will create one epan_t for an entire dissection session.
  * A single epan_t will be used to analyze the entire sequence of packets,
@@ -20,7 +26,6 @@ void epan_conversation_init(void);
  * This inter-packet "state" is stored in the epan_t.
  */
 typedef struct epan_session epan_t;
-
 
 epan_t*
 epan_new(void);
@@ -39,17 +44,21 @@ epan_free(epan_t*);
  */
 typedef struct epan_dissect epan_dissect_t;
 
-
 epan_dissect_t*
-epan_dissect_new(epan_t*, guint8* data, guint len, guint32 wtap_encap,
-		void* pseudo_header);
+epan_dissect_new(void* pseudo_header, const guint8* data, frame_data *fd, proto_tree *tree);
 
 void
-epan_dissect_free(epan_t*, epan_dissect_t*);
+epan_dissect_free(epan_dissect_t* edt);
+
+
+
+
 
 /* Should this be ".libepan"? For backwards-compatibility, I'll keep
  * it ".ethereal" for now.
  */
 #define PF_DIR ".ethereal"
+
+
 
 #endif /* EPAN_H */

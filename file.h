@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.76 2000/08/21 15:45:21 deniel Exp $
+ * $Id: file.h,v 1.77 2000/10/06 10:10:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,6 +41,8 @@
 #include "print.h"
 
 #include <errno.h>
+
+#include <epan.h>
 
 #ifdef HAVE_LIBZ
 #include "zlib.h"
@@ -106,6 +108,7 @@ typedef struct _capture_file {
   column_info  cinfo;    /* Column formatting information */
   frame_data  *current_frame;  /* Frame data for current frame */
   proto_tree  *protocol_tree; /* Protocol tree for currently selected packet */
+  epan_dissect_t *edt; /* Protocol dissection fo rcurrently selected packet */
   FILE        *print_fh;  /* File we're printing to */
 } capture_file;
 

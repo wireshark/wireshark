@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.48 2000/09/27 04:54:33 gram Exp $
+ * $Id: tethereal.c,v 1.49 2000/10/06 10:10:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -883,16 +883,18 @@ wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   proto_tree   *protocol_tree;
   int           err;
   gboolean      passed;
+  epan_dissect_t *edt;
 
   cf->count++;
   if (cf->rfcode) {
     fill_in_fdata(&fdata, cf, phdr, pseudo_header, offset);
     protocol_tree = proto_tree_create_root();
-    dissect_packet(pseudo_header, buf, &fdata, protocol_tree);
+    edt = epan_dissect_new(pseudo_header, buf, &fdata, protocol_tree);
     passed = dfilter_apply(cf->rfcode, protocol_tree, buf, fdata.cap_len);
   } else {
     protocol_tree = NULL;
     passed = TRUE;
+    edt = NULL;
   }
   if (passed) {
     /* XXX - do something if this fails */
@@ -900,6 +902,8 @@ wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   }
   if (protocol_tree != NULL)
     proto_tree_free(protocol_tree);
+  if (edt != NULL)
+    epan_dissect_free(edt);
 }
 
 static void
@@ -912,6 +916,7 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   proto_tree   *protocol_tree;
   gboolean      passed;
   print_args_t print_args;
+  epan_dissect_t *edt;
 
   cf->count++;
 
@@ -926,7 +931,7 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr, int offset,
     protocol_tree = proto_tree_create_root();
   else
     protocol_tree = NULL;
-  dissect_packet(pseudo_header, buf, &fdata, protocol_tree);
+  edt = epan_dissect_new(pseudo_header, buf, &fdata, protocol_tree);
   if (cf->rfcode)
     passed = dfilter_apply(cf->rfcode, protocol_tree, buf, fdata.cap_len);
   if (passed) {
@@ -974,6 +979,8 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   }
   if (protocol_tree != NULL)
     proto_tree_free(protocol_tree);
+
+  epan_dissect_free(edt);
 
   proto_tree_is_visible = FALSE;
 }

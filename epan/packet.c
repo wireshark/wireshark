@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.1 2000/09/27 05:18:05 gram Exp $
+ * $Id: packet.c,v 1.2 2000/10/06 10:11:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -73,22 +73,10 @@
 #include "timestamp.h"
 #include "file.h"
 
-#include "packet-ascend.h"
 #include "packet-atalk.h"
-#include "packet-atm.h"
-#include "packet-clip.h"
-#include "packet-eth.h"
-#include "packet-fddi.h"
+#include "packet-frame.h"
 #include "packet-ipv6.h"
-#include "packet-lapb.h"
-#include "packet-lapd.h"
-#include "packet-llc.h"
-#include "packet-null.h"
-#include "packet-ppp.h"
-#include "packet-raw.h"
 #include "packet-sna.h"
-#include "packet-tr.h"
-#include "packet-v120.h"
 #include "packet-vines.h"
 
 #include "resolv.h"
@@ -97,29 +85,15 @@
 
 extern capture_file  cfile;
 
-static int proto_frame = -1;
-static int hf_frame_arrival_time = -1;
-static int hf_frame_time_delta = -1;
-static int hf_frame_number = -1;
-static int hf_frame_packet_len = -1;
-static int hf_frame_capture_len = -1;
-static int hf_frame_p2p_dir = -1;
-static int proto_short = -1;
-static int proto_malformed = -1;
 
-static gint ett_frame = -1;
+extern int proto_malformed;
+
 
 static void display_signed_time(gchar *, int, gint32, gint32);
 
 
-static const value_string p2p_dirs[] = {
-	{ P2P_DIR_SENT,	"Sent" },
-	{ P2P_DIR_RECV, "Received" },
-	{ 0, NULL }
-};
-	
 
-/* Protocol-specific data attched to a frame_data structure - protocol
+/* Protocol-specific data attached to a frame_data structure - protocol
    index and opaque pointer. */
 typedef struct _frame_proto_data {
   int proto;
@@ -127,6 +101,7 @@ typedef struct _frame_proto_data {
 } frame_proto_data;
 
 GMemChunk *frame_proto_data_area = NULL;
+
 
 /* 
  * Free up any space allocated for frame proto data areas and then 
@@ -147,6 +122,19 @@ packet_init_protocol(void)
 					  20 * sizeof(frame_proto_data), /* FIXME*/
 					  G_ALLOC_ONLY);
 
+}
+
+	
+void
+packet_init(void)
+{
+	register_init_routine(&packet_init_protocol);
+}
+
+void
+packet_cleanup(void)
+{
+	/* nothing */
 }
 
 /* Wrapper for the most common case of asking
@@ -980,62 +968,12 @@ init_all_protocols(void)
 	g_slist_foreach(init_routines, &call_init_routine, NULL);
 }
 
-/* this routine checks the frame type from the cf structure */
+/* Creates the top-most tvbuff and calls dissect_frame() */
 void
-dissect_packet(union wtap_pseudo_header *pseudo_header, const u_char *pd,
-    frame_data *fd, proto_tree *tree)
+dissect_packet(tvbuff_t **p_tvb, union wtap_pseudo_header *pseudo_header,
+		const u_char *pd, frame_data *fd, proto_tree *tree)
 {
-	proto_tree *fh_tree;
-	proto_item *ti;
-	struct timeval tv;
-	static tvbuff_t *tvb;
-
 	blank_packetinfo();
-
-	if (fd->lnk_t == WTAP_ENCAP_LAPD ||
-			fd->lnk_t == WTAP_ENCAP_PPP_WITH_PHDR) {
-
-		pi.p2p_dir = pseudo_header->p2p.sent ? P2P_DIR_SENT : P2P_DIR_RECV;
-	}
-
-	/* Put in frame header information. */
-	if (tree) {
-	  ti = proto_tree_add_protocol_format(tree, proto_frame, NullTVB, 0, fd->cap_len,
-	    "Frame %u (%u on wire, %u captured)", fd->num,
-	    fd->pkt_len, fd->cap_len);
-
-	  fh_tree = proto_item_add_subtree(ti, ett_frame);
-
-	  tv.tv_sec = fd->abs_secs;
-	  tv.tv_usec = fd->abs_usecs;
-
-	  proto_tree_add_time(fh_tree, hf_frame_arrival_time, NullTVB,
-		0, 0, &tv);
-
-	  tv.tv_sec = fd->del_secs;
-	  tv.tv_usec = fd->del_usecs;
-
-	  proto_tree_add_time(fh_tree, hf_frame_time_delta, NullTVB,
-		0, 0, &tv);
-
-	  proto_tree_add_uint(fh_tree, hf_frame_number, NullTVB,
-		0, 0, fd->num);
-
-	  proto_tree_add_uint_format(fh_tree, hf_frame_packet_len, NullTVB,
-		0, 0, fd->pkt_len, "Packet Length: %d byte%s", fd->pkt_len,
-		plurality(fd->pkt_len, "", "s"));
-		
-	  proto_tree_add_uint_format(fh_tree, hf_frame_capture_len, NullTVB,
-		0, 0, fd->cap_len, "Capture Length: %d byte%s", fd->cap_len,
-		plurality(fd->cap_len, "", "s"));
-
-	  /* Check for existences of P2P pseudo header */
-	  if (fd->lnk_t == WTAP_ENCAP_LAPD || fd->lnk_t == WTAP_ENCAP_PPP_WITH_PHDR) {
-		  proto_tree_add_uint(fh_tree, hf_frame_p2p_dir, NullTVB,
-				  0, 0, pi.p2p_dir);
-	  }
-	}
-
 
 	/* Set the initial payload to the packet length, and the initial
 	   captured payload to the capture length (other protocols may
@@ -1045,80 +983,28 @@ dissect_packet(union wtap_pseudo_header *pseudo_header, const u_char *pd,
 
 	pi.fd = fd;
 	pi.pseudo_header = pseudo_header;
-	pi.current_proto = "Frame";
 
 	col_set_writable(fd, TRUE);
 
 	TRY {
-		tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len);
-		pi.compat_top_tvb = tvb;
-
-		switch (fd->lnk_t) {
-			case WTAP_ENCAP_ETHERNET :
-				dissect_eth(tvb, &pi, tree);
-				break;
-			case WTAP_ENCAP_FDDI :
-				dissect_fddi(tvb, &pi, tree, FALSE);
-				break;
-			case WTAP_ENCAP_FDDI_BITSWAPPED :
-				dissect_fddi(tvb, &pi, tree, TRUE);
-				break;
-			case WTAP_ENCAP_TOKEN_RING :
-				dissect_tr(tvb, &pi, tree);
-				break;
-			case WTAP_ENCAP_NULL :
-				dissect_null(tvb, &pi, tree);
-				break;
-			case WTAP_ENCAP_PPP :
-			case WTAP_ENCAP_PPP_WITH_PHDR :
-				dissect_ppp(tvb, &pi, tree);
-				break;
-			case WTAP_ENCAP_LAPB :
-				dissect_lapb(tvb, &pi, tree);
-				break;
-			case WTAP_ENCAP_RAW_IP :
-				dissect_raw(tvb, &pi, tree);
-				break;
-			case WTAP_ENCAP_LINUX_ATM_CLIP :
-				dissect_clip(tvb, &pi, tree);
-				break;
-			case WTAP_ENCAP_ATM_SNIFFER :
-				dissect_atm(tvb, &pi, tree);
-				break;
-			case WTAP_ENCAP_ASCEND :
-				dissect_ascend(tvb, &pi, tree);
-				break;
-			case WTAP_ENCAP_LAPD :
-				dissect_lapd(tvb, &pi, tree);
-				break;
-			case WTAP_ENCAP_V120 :
-	 			dissect_v120(tvb, &pi, tree);
-				break;
-			case WTAP_ENCAP_ATM_RFC1483:
-				dissect_llc(tvb, &pi, tree);
-				break;
-			default:
-				g_assert_not_reached();
-				break;
-		}
+		*p_tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len);
+		pi.compat_top_tvb = *p_tvb;
 	}
 	CATCH(BoundsError) {
-		proto_tree_add_protocol_format(tree, proto_short, NullTVB, 0, 0,
-				"[Short Frame: %s]", pi.current_proto );
+		g_assert_not_reached();
 	}
 	CATCH(ReportedBoundsError) {
-		proto_tree_add_protocol_format(tree, proto_malformed, NullTVB, 0, 0,
-				"[Malformed Frame: %s]", pi.current_proto );
+		proto_tree_add_protocol_format(tree, proto_malformed, *p_tvb, 0, 0,
+				"[Malformed Frame: Packet Length]" );
 	}
 	ENDTRY;
 
-	/* Free all tvb's created from this tvb, unless dissector
-	 * wanted to store the pointer (in which case, the dissector
-	 * would have incremented the usage count on that tvbuff_t*) */
-	tvb_free_chain(tvb);
+	dissect_frame(*p_tvb, &pi, tree);
 
 	fd->flags.visited = 1;
 }
+
+
 
 gint p_compare(gconstpointer a, gconstpointer b)
 {
@@ -1189,48 +1075,6 @@ p_rem_proto_data(frame_data *fd, int proto)
 
 }
 
-void
-proto_register_frame(void)
-{
-	static hf_register_info hf[] = {
-		{ &hf_frame_arrival_time,
-		{ "Arrival Time",		"frame.time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-			""}},
-
-		{ &hf_frame_time_delta,
-		{ "Time delta from previous packet",	"frame.time_delta", FT_RELATIVE_TIME, BASE_NONE, NULL,
-			0x0,
-			"" }},
-
-		{ &hf_frame_number,
-		{ "Frame Number",		"frame.number", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"" }},
-
-		{ &hf_frame_packet_len,
-		{ "Total Frame Length",		"frame.pkt_len", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"" }},
-
-		{ &hf_frame_capture_len,
-		{ "Capture Frame Length",	"frame.cap_len", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"" }},
-
-		{ &hf_frame_p2p_dir,
-		{ "Point-to-Point Direction",	"frame.p2p_dir", FT_UINT8, BASE_DEC, VALS(p2p_dirs), 0x0,
-			"" }},
-	};
-	static gint *ett[] = {
-		&ett_frame,
-	};
-
-	proto_frame = proto_register_protocol("Frame", "frame");
-	proto_register_field_array(proto_frame, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
-
-	proto_short = proto_register_protocol("Short Frame", "short");
-	proto_malformed = proto_register_protocol("Malformed Frame", "malformed");
-	register_init_routine(&packet_init_protocol);
-
-}
 
 /*********************** code added for sub-dissector lookup *********************/
 
