@@ -603,7 +603,8 @@ static void dissect_auth_verf(tvbuff_t *auth_tvb, packet_info *pinfo,
 
 /* Hand off payload data to a registered dissector */
 
-static tvbuff_t *decode_encrypted_data(tvbuff_t *enc_tvb, 
+static tvbuff_t *decode_encrypted_data(tvbuff_t *data_tvb, 
+				       tvbuff_t *auth_tvb,
 				       packet_info *pinfo,
 				       dcerpc_auth_subdissector_fns *auth_fns,
 				       gboolean is_request, 
@@ -617,7 +618,7 @@ static tvbuff_t *decode_encrypted_data(tvbuff_t *enc_tvb,
 		fn = auth_fns->resp_data_fn;
 
 	if (fn)
-		return fn(enc_tvb, 0, pinfo, auth_info);
+		return fn(data_tvb, auth_tvb, 0, pinfo, auth_info);
 
 	return NULL;
 }
@@ -2890,7 +2891,7 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    tvbuff_t *result;
 		    
 		    result = decode_encrypted_data(
-			    payload_tvb, pinfo, auth_fns,
+			    payload_tvb, NULL, pinfo, auth_fns,
 			    hdr->ptype == PDU_REQ, auth_info);	    
 		    
 		    if (result) {

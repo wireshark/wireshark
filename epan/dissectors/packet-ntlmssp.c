@@ -1411,7 +1411,9 @@ dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static tvbuff_t *
-dissect_ntlmssp_encrypted_payload(tvbuff_t *tvb, int offset,
+dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb, 
+				  tvbuff_t *auth_tvb _U_,
+				  int offset,
 				  packet_info *pinfo, 
 				  dcerpc_auth_info *auth_info _U_)
 {
@@ -1424,7 +1426,7 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *tvb, int offset,
   ntlmssp_info *conv_ntlmssp_info = NULL;
   ntlmssp_packet_info *packet_ntlmssp_info = NULL;
 
-  encrypted_block_length = tvb_length_remaining (tvb, offset);
+  encrypted_block_length = tvb_length_remaining (data_tvb, offset);
 
   /* Check to see if we already have state for this packet */
   packet_ntlmssp_info = p_get_proto_data(pinfo->fd, proto_ntlmssp);
@@ -1470,7 +1472,7 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *tvb, int offset,
 
     /* Store the decrypted contents in the packet state struct
        (of course at this point, they aren't decrypted yet) */
-    packet_ntlmssp_info->decrypted_payload = tvb_memdup(tvb, offset,
+    packet_ntlmssp_info->decrypted_payload = tvb_memdup(data_tvb, offset,
                                                         encrypted_block_length);
     decrypted_payloads = g_slist_prepend(decrypted_payloads,
                                          packet_ntlmssp_info->decrypted_payload);
@@ -1495,7 +1497,7 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *tvb, int offset,
 			       encrypted_block_length,
 			       encrypted_block_length);
 
-  tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
+  tvb_set_child_real_data_tvbuff(data_tvb, decr_tvb);
   
   offset += encrypted_block_length;
 

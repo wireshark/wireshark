@@ -304,7 +304,9 @@ typedef struct _dcerpc_uuid_value {
 
 /* Authenticated pipe registration functions and miscellanea */
 
-typedef tvbuff_t *(dcerpc_decode_data_fnct_t)(tvbuff_t *tvb, int offset, 
+typedef tvbuff_t *(dcerpc_decode_data_fnct_t)(tvbuff_t *data_tvb, 
+					      tvbuff_t *auth_tvb,
+					      int offset, 
 					      packet_info *pinfo,
 					      dcerpc_auth_info *auth_info);
 
