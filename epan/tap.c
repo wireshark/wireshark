@@ -58,15 +58,14 @@ static tap_dissector_t *tap_dissector_list=NULL;
  * to build and tear it down as fast as possible.
  */
 typedef struct _tap_packet_t {
-	struct _tap_packet_t *next;
 	int tap_id;
 	packet_info *pinfo;
 	const void *tap_specific_data;
 } tap_packet_t;
-static tap_packet_t *tap_packet_list_free=NULL;
-static tap_packet_t *tap_packet_list_queue=NULL;
-#define TAP_PACKET_QUEUE_LEN 100
 
+#define TAP_PACKET_QUEUE_LEN 100
+static tap_packet_t tap_packet_array[TAP_PACKET_QUEUE_LEN];
+static guint tap_packet_index;
 
 typedef struct _tap_listener_t {
 	struct _tap_listener_t *next;
@@ -108,15 +107,7 @@ static GSList *taps_requested = NULL;
 void
 tap_init(void)
 {
-	int i;
-	tap_packet_t *tpt;
-
-	for(i=0;i<TAP_PACKET_QUEUE_LEN;i++){
-		tpt=g_malloc(sizeof(tap_packet_t));
-		tpt->next=tap_packet_list_free;
-		tap_packet_list_free=tpt;
-	}
-	tap_packet_list_queue=NULL;
+	tap_packet_index=0;
 
 	return;
 }
@@ -259,19 +250,11 @@ tap_queue_packet(int tap_id, packet_info *pinfo, const void *tap_specific_data)
 		return;
 	}
 
-	/* get a free tap_packet structure, this is CHEAP */
-	tpt=tap_packet_list_free;
-	if (!tpt) {
-	    return;
-	}
-	tap_packet_list_free=tpt->next;
-	tpt->next=tap_packet_list_queue;
-	tap_packet_list_queue=tpt;
-
+	tpt=&tap_packet_array[tap_packet_index];
 	tpt->tap_id=tap_id;
 	tpt->pinfo=pinfo;
 	tpt->tap_specific_data=tap_specific_data;
-
+	tap_packet_index++;
 }
 
 
@@ -288,7 +271,6 @@ tap_queue_packet(int tap_id, packet_info *pinfo, const void *tap_specific_data)
 void
 tap_queue_init(epan_dissect_t *edt)
 {
-	tap_packet_t *tpt;
 	tap_listener_t *tl;
 
 	/* nothing to do, just return */
@@ -297,15 +279,8 @@ tap_queue_init(epan_dissect_t *edt)
 	}
 
 	tapping_is_active=TRUE;
-	tpt=tap_packet_list_queue;
-	if(tpt){
-		for(;tpt->next;tpt=tpt->next)
-			;
 
-		tpt->next=tap_packet_list_free;
-		tap_packet_list_free=tap_packet_list_queue;
-		tap_packet_list_queue=NULL;
-	}
+	tap_packet_index=0;
 
 	/* loop over all tap listeners and build the list of all
 	   interesting hf_fields */
@@ -324,6 +299,7 @@ tap_push_tapped_queue(epan_dissect_t *edt)
 {
 	tap_packet_t *tp;
 	tap_listener_t *tl;
+	guint i;
 
 	/* nothing to do, just return */
 	if(!tapping_is_active){
@@ -333,14 +309,15 @@ tap_push_tapped_queue(epan_dissect_t *edt)
 	tapping_is_active=FALSE;
 
 	/* nothing to do, just return */
-	if(!tap_packet_list_queue){
+	if(!tap_packet_index){
 		return;
- 	}
+	}
 
 	/* loop over all tap listeners and call the listener callback
 	   for all packets that match the filter. */
-	for(tp=tap_packet_list_queue;tp;tp=tp->next){
+	for(i=0;i<tap_packet_index;i++){
 		for(tl=(tap_listener_t *)tap_listener_queue;tl;tl=tl->next){
+			tp=&tap_packet_array[i];
 			if(tp->tap_id==tl->tap_id){
 				int passed=TRUE;
 				if(tl->code){
