@@ -2,7 +2,7 @@
  * 4.4-Lite-2 Internet checksum routine, modified to take a vector of
  * pointers/lengths giving the pieces to be checksummed.
  *
- * $Id: in_cksum.c,v 1.3 2001/01/10 23:34:06 guy Exp $
+ * $Id: in_cksum.c,v 1.4 2001/06/09 01:02:29 guy Exp $
  */
 
 /*
@@ -79,12 +79,12 @@ in_cksum(const vec_t *vec, int veclen)
 	int byte_swapped = 0;
 
 	union {
-		char	c[2];
+		guint8	c[2];
 		guint16	s;
 	} s_util;
 	union {
 		guint16 s[2];
-		long	l;
+		guint32	l;
 	} l_util;
 
 	for (; veclen != 0; vec++, veclen--) {
@@ -100,7 +100,7 @@ in_cksum(const vec_t *vec, int veclen)
 			 * s_util.c[0] is already saved when scanning previous 
 			 * chunk.
 			 */
-			s_util.c[1] = *(char *)w;
+			s_util.c[1] = *(const guint8 *)w;
 			sum += s_util.s;
 			w = (const guint16 *)((const guint8 *)w + 1);
 			mlen = vec->len - 1;
@@ -145,13 +145,13 @@ in_cksum(const vec_t *vec, int veclen)
 			sum <<= 8;
 			byte_swapped = 0;
 			if (mlen == -1) {
-				s_util.c[1] = *(char *)w;
+				s_util.c[1] = *(const guint8 *)w;
 				sum += s_util.s;
 				mlen = 0;
 			} else
 				mlen = -1;
 		} else if (mlen == -1)
-			s_util.c[0] = *(char *)w;
+			s_util.c[0] = *(const guint8 *)w;
 	}
 	if (mlen == -1) {
 		/* The last mbuf has odd # of bytes. Follow the
