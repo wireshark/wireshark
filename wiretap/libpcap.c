@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.96 2003/05/15 07:14:45 guy Exp $
+ * $Id: libpcap.c,v 1.97 2003/09/04 06:40:45 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -102,6 +102,16 @@ static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
  * using them are foreign, and we don't hazard a guess as to which
  * platform they came from; we could, I guess, choose the most likely
  * platform).
+ *
+ * Note: if you need a new encapsulation type for libpcap files, do
+ * *N*O*T* use *ANY* of the values listed here!  I.e., do *NOT*
+ * add a new encapsulation type by changing an existing entry;
+ * leave the existing entries alone.
+ *
+ * Instead, send mail to tcpdump-workers@tcpdump.org, asking for a new
+ * DLT_ value, and specifying the purpose of the new value.  When you
+ * get the new DLT_ value, use that numerical value in the "dlt_value"
+ * field of "pcap_to_wtap_map[]".
  */
 
 static const struct {
@@ -243,6 +253,27 @@ static const struct {
 	{ 127,		WTAP_ENCAP_WLAN_HEADER },  /* 802.11 plus WLAN header */
 	{ 128,		WTAP_ENCAP_TZSP },	/* Tazmen Sniffer Protocol */
 	{ 129,		WTAP_ENCAP_ARCNET_LINUX },
+
+	/*
+	 * Values 130 thorugh 137 are reserved for use in Juniper
+	 * hardware.
+	 *
+	 * 138 is reserved for Apple IP-over-IEEE 1394.
+	 */
+
+	/*
+	 * To repeat:
+	 *
+	 * If you need a new encapsulation type for libpcap files, do
+	 * *N*O*T* use *ANY* of the values listed here!  I.e., do *NOT*
+	 * add a new encapsulation type by changing an existing entry;
+	 * leave the existing entries alone.
+	 *
+	 * Instead, send mail to tcpdump-workers@tcpdump.org, asking for
+	 * a new DLT_ value, and specifying the purpose of the new value.
+	 * When you get the new DLT_ value, use that numerical value in
+	 * the "dlt_value" field of "pcap_to_wtap_map[]".
+	 */
 
 	/*
 	 * The following are entries for libpcap type values that have
@@ -404,6 +435,21 @@ static const struct {
 	 * purpose - hopefully nobody will do so in the future.
 	 */
 	{ 19,		WTAP_ENCAP_LINUX_ATM_CLIP },
+
+	/*
+	 * To repeat:
+	 *
+	 * If you need a new encapsulation type for libpcap files, do
+	 * *N*O*T* use *ANY* of the values listed here!  I.e., do *NOT*
+	 * add a new encapsulation type by changing an existing entry;
+	 * leave the existing entries alone.
+	 *
+	 * Instead, send mail to tcpdump-workers@tcpdump.org, asking for
+	 * a new DLT_ value, and specifying the purpose of the new value.
+	 * When you get the new DLT_ value, use that numerical value in
+	 * the "dlt_value" field of "pcap_to_wtap_map[]".
+	 */
+
 };
 #define NUM_PCAP_ENCAPS (sizeof pcap_to_wtap_map / sizeof pcap_to_wtap_map[0])
 
