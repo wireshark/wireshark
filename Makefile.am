@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.211 2000/07/22 04:09:53 gerald Exp $
+# $Id: Makefile.am,v 1.212 2000/07/22 20:56:13 oabad Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -588,3 +588,6 @@ solaris-package: $(bin_SCRIPTS) $(lib_LTLIBRARIES)
 
 clean-local:
 	rm -rf $(top_stagedir)
+
+debian-package: debian/rules
+	dpkg-buildpackage -rfakeroot -us -uc
