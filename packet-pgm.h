@@ -1,7 +1,7 @@
 /* packet-pgm.h
  * Declarations for pgm packet disassembly
  *
- * $Id: packet-pgm.h,v 1.5 2001/08/02 17:05:00 guy Exp $
+ * $Id: packet-pgm.h,v 1.6 2001/08/06 19:05:14 guy Exp $
  * 
  * Copyright (c) 2000 by Talarian Corp
  *
@@ -239,5 +239,11 @@ typedef struct {
 	nshort_t loss_rate;
 	nlong_t acker;
 } pgm_opt_pgmcc_feedback_t;
+
+/*
+ * Udp port for UDP encapsulation
+ */
+#define DEFAULT_UDP_ENCAP_UCAST_PORT 3055
+#define DEFAULT_UDP_ENCAP_MCAST_PORT 3056
 
 #endif /* _PACKET_PGM_H */

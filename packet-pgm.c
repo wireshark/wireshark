@@ -1,7 +1,7 @@
 /* packet-pgm.c
  * Routines for pgm packet disassembly
  *
- * $Id: packet-pgm.c,v 1.6 2001/08/02 17:05:00 guy Exp $
+ * $Id: packet-pgm.c,v 1.7 2001/08/06 19:05:14 guy Exp $
  * 
  * Copyright (c) 2000 by Talarian Corp
  *
@@ -52,12 +52,17 @@
 #include "resolv.h"
 #include "strutil.h"
 #include "conversation.h"
+#include "prefs.h"
 
 #include "proto.h"
 
 void proto_reg_handoff_pgm(void);
-extern void decode_tcp_ports(tvbuff_t *, int , packet_info *,
-    proto_tree *, int, int);
+void proto_rereg_pgm(void);
+
+static int udp_encap_ucast_port = 0;
+static int udp_encap_mcast_port = 0;
+static int old_encap_ucast_port = 0;
+static int old_encap_mcast_port = 0;
 
 static int proto_pgm = -1;
 static int ett_pgm = -1;
@@ -1064,6 +1069,7 @@ proto_register_pgm(void)
 	&ett_pgm_opts_naklist,
 	&ett_pgm_opts_ccdata,
   };
+  module_t *pgm_module;
 
   proto_pgm = proto_register_protocol("Pragmatic General Multicast",
 				       "PGM", "pgm");
@@ -1075,12 +1081,56 @@ proto_register_pgm(void)
   subdissector_table = register_dissector_table("pgm.port");
   register_heur_dissector_list("pgm", &heur_subdissector_list);
 
+  /*
+   * Register configuration preferences for UDP encapsulation
+   * (Note: Initially the ports are set to zero so the 
+   *        dissecting of PGM encapsulated in UPD packets
+   *        is off by default)
+   */
+   pgm_module = prefs_register_protocol(proto_pgm, proto_rereg_pgm);
+
+   prefs_register_uint_preference(pgm_module, "udp.encap_ucast_port",
+		"PGM Encap Unicast Port (Default 3055)", 
+		"PGM Encap is PGM packets encapsulated in UDP packets"
+		" (Note: This is option is off by default", 
+		10, &udp_encap_ucast_port);
+   old_encap_ucast_port = udp_encap_ucast_port;
+
+   prefs_register_uint_preference(pgm_module, "udp.encap_mcast_port",
+		"PGM Encap Multicast Port (Default 3056)", 
+		"PGM Encap is PGM packets encapsulated in UDP packets"
+		" (Note: This is option is off by default", 
+		10, &udp_encap_mcast_port);
+
+   old_encap_mcast_port = udp_encap_mcast_port;
 }
 
 /* The registration hand-off routine */
 void
 proto_reg_handoff_pgm(void)
 {
+
+  /*
+   * Set up PGM Encap dissecting, which is off by default
+   */
+  dissector_add("udp.port", udp_encap_ucast_port, dissect_pgm, proto_pgm);
+  dissector_add("udp.port", udp_encap_mcast_port, dissect_pgm, proto_pgm);
+
   dissector_add("ip.proto", IP_PROTO_PGM, dissect_pgm, proto_pgm);
 
+}
+void
+proto_rereg_pgm(void)
+{
+	/*
+	 * Remove the old ones
+	 */
+	dissector_delete("udp.port", old_encap_ucast_port, dissect_pgm);
+	dissector_delete("udp.port", old_encap_mcast_port, dissect_pgm);
+
+	/*
+	 * Set the new ones
+	 */
+	dissector_add("udp.port", udp_encap_ucast_port, dissect_pgm, proto_pgm);
+	dissector_add("udp.port", udp_encap_mcast_port, dissect_pgm, proto_pgm);
 }
