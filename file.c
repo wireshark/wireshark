@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.63 1999/08/14 01:27:29 guy Exp $
+ * $Id: file.c,v 1.64 1999/08/14 01:33:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -361,6 +361,7 @@ tail_cap_file(char *fname, capture_file *cf) {
   if ((err == 0) && (cf->cd_t != WTAP_FILE_UNKNOWN)) {
 
     set_menu_sensitivity("/File/Open...", FALSE);
+    set_menu_sensitivity("/Display/Options...", TRUE);
 #ifdef HAVE_LIBPCAP
     set_menu_sensitivity("/Capture/Start...", FALSE);
 #endif
