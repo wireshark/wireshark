@@ -2,19 +2,17 @@
 <!-- $Id$ -->
 
 <appendix id="AppFiles">
-  <title>Configuration Files and Folders</title>
+  <title>Configuration (and other) Files and Folders</title>
     <para>
-      Ethereal uses a number of files while it is running. Some of these 
-      reside in the personal configuration folder and are used to maintain 
-	  information between runs of Ethereal, while some of them are maintained 
-	  in system areas.
-    </para>
-    <para>
-	XXX - Add info about "temporary capture file" folders.
+      Ethereal uses a number of files and folders while it is running. Some 
+	  of these reside in the personal configuration folder and are used to 
+	  maintain information between runs of Ethereal, while some of them are 
+	  maintained in system areas.
     </para>
 	<tip><title>Tip</title>
 	<para>A list of the folders Ethereal actually uses can be found under the 
-	"Folders" tab in the "About" dialog box.
+	<command>Folders</command> tab in the dialog box coming up, when you select 
+	<command>About Ethereal</command> from the <command>Help</command> menu.
 	</para>
 	</tip>
     <para>
@@ -22,14 +20,15 @@
 	However, to match the different policies for unix and windows platforms, 
 	different folders for these files are used.
     </para>
-    <table id="AppFilesTabFolders" frame="none"><title>Configuration files overview</title>
+    <table id="AppFilesTabFolders" frame="none">
+	<title>Configuration files and folders overview</title>
       <tgroup cols="4">
 	<colspec colnum="1" colwidth="72pt"/>
 	  <colspec colnum="2" colwidth="80pt"/>
 	  <colspec colnum="3" colwidth="80pt"/>
 	    <thead>
 	      <row>
-		<entry>File</entry>
+		<entry>File/Folder</entry>
 		<entry>Description</entry>
 		<entry>Unix folders</entry>
 		<entry>Windows folders</entry>
@@ -99,6 +98,12 @@
 		</entry>
 		<entry>%ETHEREAL%\plugins\&lt;version&gt;, 
 		%APPDATA%\Ethereal\plugins</entry>
+	      </row>
+	      <row>
+		<entry><command>temp</command></entry>
+		<entry>Temporary files.</entry>
+		<entry>Environment: TMPDIR</entry>
+		<entry>Environment: TMPDIR or TEMP</entry>
 	      </row>
 	    </tbody>
       </tgroup>
@@ -275,7 +280,7 @@ c0-a8-1c-00      CEO
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><command>plugins</command></term>
+	  <term><command>plugins</command> folder</term>
 	  <listitem>
 	    <para>
 	      Ethereal searches for plugins in the directories listed in
@@ -284,9 +289,42 @@ c0-a8-1c-00      CEO
 	    </para>
 	  </listitem>
 	</varlistentry>
+	<varlistentry>
+	  <term><command>temp</command> folder</term>
+	  <listitem>
+	    <para>
+	      If you start a new capture and don't specify a filename for it, 
+		  Ethereal uses this directory to place that file in, see
+		  <xref linkend="ChCapCaptureFiles"/>.
+	    </para>
+	  </listitem>
+	</varlistentry>
       </variablelist>
     </para>
-<!--  </section> -->
+
+	<section><title>Windows NT/2000/XP roaming profiles</title>
+	<para>
+	The following will only be applicable if you are using roaming profiles.
+	This might be the case, if you work in a Windows domain environment 
+	(used in huge company networks). The configurations of all 
+	programs you use won't be saved on the local harddrive of the computer 
+	you are currently working on, but on the domain server.
+	</para>
+	<para>
+	As Ethereal is using the correct places to store it's configuration data
+	(namely: 
+	C:\Documents and Settings\&lt;username&gt;\Application Data\Ethereal),
+	your settings will travel with you, if you logon to a different computer 
+	the next time.
+	</para>
+	<para>
+	There is an exception to this: The "Local Settings" folder in your profile 
+	data (typically something like: 
+	C:\Documents and Settings\&lt;username&gt;\Local Settings)
+	will not be transferred to the domain server. This is the default for 
+	temporary capture files.
+	</para>
+	</section>
 
 </appendix>
 <!-- End of EUG Appendix Files -->
