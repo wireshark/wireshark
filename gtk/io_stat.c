@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.54 2004/01/05 18:11:27 ulfl Exp $
+ * $Id: io_stat.c,v 1.55 2004/01/13 21:04:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -121,7 +121,7 @@ typedef struct _io_stat_graph_t {
 	struct _io_stat_t *io;
 	io_item_t items[NUM_IO_ITEMS];
 	int plot_style;
-	int display;
+	gboolean display;
 	GtkWidget *display_button;
 	GtkWidget *color_button;
 	GtkWidget *filter_button;
@@ -180,16 +180,15 @@ io_stat_set_title(io_stat_t *io)
 }
 
 static void
-gtk_iostat_reset(void *g)
+io_stat_reset(io_stat_t *io)
 {
-	io_stat_graph_t *gio=g;
 	int i, j;
 
-	gio->io->needs_redraw=TRUE;
+	io->needs_redraw=TRUE;
 	for(i=0;i<MAX_GRAPHS;i++){
 		for(j=0;j<NUM_IO_ITEMS;j++){
 			io_item_t *ioi;
-			ioi=&gio->io->graphs[i].items[j];
+			ioi=&io->graphs[i].items[j];
 
 			ioi->frames=0;
 			ioi->bytes=0;
@@ -204,13 +203,20 @@ gtk_iostat_reset(void *g)
 			ioi->time_tot.nsecs=0;
 		}
 	}
-	gio->io->last_interval=0xffffffff;
-	gio->io->max_interval=0;
-	gio->io->num_items=0;
+	io->last_interval=0xffffffff;
+	io->max_interval=0;
+	io->num_items=0;
 
-	io_stat_set_title(gio->io);
+	io_stat_set_title(io);
 }
 
+static void
+gtk_iostat_reset(void *g)
+{
+	io_stat_graph_t *gio=g;
+
+	io_stat_reset(gio->io);
+}
 
 static int
 gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, void *dummy _U_)
@@ -493,12 +499,9 @@ print_time_scale_string(char *buf, guint32 t)
 	}
 }
 
-
 static void
-gtk_iostat_draw(void *g)
+io_stat_draw(io_stat_t *io)
 {
-	io_stat_graph_t *git=g;
-	io_stat_t *io;
 	int i;
 	guint32 last_interval, first_interval, interval_delta, delta_multiplier;
 	gint32 current_interval;
@@ -521,15 +524,14 @@ gtk_iostat_draw(void *g)
 	guint32 max_y;			/* max value of the Y scale */
 	gboolean draw_y_as_time;
 
-	io=git->io;
 #if GTK_MAJOR_VERSION <2
 	font = io->draw_area->style->font;
 #endif
 
-	if(!git->io->needs_redraw){
+	if(!io->needs_redraw){
 		return;
 	}
-	git->io->needs_redraw=FALSE;
+	io->needs_redraw=FALSE;
 
 
 	/* 
@@ -906,6 +908,41 @@ gtk_iostat_draw(void *g)
 
 }
 
+static void
+io_stat_redraw(io_stat_t *io)
+{
+	io->needs_redraw=TRUE;
+	io_stat_draw(io);
+}
+
+static void
+gtk_iostat_draw(void *g)
+{
+	io_stat_graph_t *git=g;
+
+	io_stat_draw(git->io);
+}
+
+static GString *
+enable_graph(io_stat_graph_t *gio, char *filter)
+{
+	gio->display=TRUE;
+	return register_tap_listener("frame", gio, filter,
+	    gtk_iostat_reset, gtk_iostat_packet, gtk_iostat_draw);
+}
+
+static void
+disable_graph(io_stat_graph_t *gio)
+{
+	if (gio->display) {
+		gio->display=FALSE;
+		protect_thread_critical_region();
+		remove_tap_listener(gio);
+		unprotect_thread_critical_region();
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button),
+		    FALSE);
+	}
+}
 
 static void
 gtk_iostat_init(char *optarg _U_)
@@ -944,7 +981,7 @@ gtk_iostat_init(char *optarg _U_)
 		io->graphs[i].color.red=col[i].red;
 		io->graphs[i].color.green=col[i].green;
 		io->graphs[i].color.blue=col[i].blue;
-		io->graphs[i].display=i?0:1;
+		io->graphs[i].display=0;
 		io->graphs[i].display_button=NULL;
 		io->graphs[i].color_button=NULL;
 		io->graphs[i].filter_button=NULL;
@@ -958,9 +995,9 @@ gtk_iostat_init(char *optarg _U_)
 
 		io->graphs[i].filter_bt=NULL;
 	}
-	gtk_iostat_reset(&io->graphs[0]);
+	io_stat_reset(io);
 
-	error_string=register_tap_listener("frame", &io->graphs[0], NULL, gtk_iostat_reset, gtk_iostat_packet, gtk_iostat_draw);
+	error_string=enable_graph(&io->graphs[0], NULL);
 	if(error_string){
 		fprintf(stderr, "ethereal: Can't attach io_stat tap: %s\n",
 		    error_string->str);
@@ -976,26 +1013,8 @@ gtk_iostat_init(char *optarg _U_)
 	init_io_stat_window(io);
 
 	redissect_packets(&cfile);
-	io->needs_redraw=TRUE;
-	gtk_iostat_draw(&io->graphs[0]);
+	io_stat_redraw(io);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 static gint
 quit(GtkWidget *widget, GdkEventExpose *event _U_)
@@ -1070,8 +1089,7 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 		
 	}
 
-	io->needs_redraw=TRUE;
-	gtk_iostat_draw(&io->graphs[0]);
+	io_stat_redraw(io);
 	return TRUE;
 }
 
@@ -1091,8 +1109,7 @@ scrollbar_changed(GtkWidget *widget _U_, gpointer data)
 	}
 
 	io->last_interval=(mi/io->interval)*io->interval;
-	io->needs_redraw=TRUE;
-	gtk_iostat_draw(&io->graphs[0]);
+	io_stat_redraw(io);
 
 	return TRUE;
 }
@@ -1156,8 +1173,7 @@ tick_interval_select(GtkWidget *item, gpointer key)
 
 	io->interval=val;
 	redissect_packets(&cfile);
-	io->needs_redraw=TRUE;
-	gtk_iostat_draw(&io->graphs[0]);
+	io_stat_redraw(io);
 }
 
 static void
@@ -1169,8 +1185,7 @@ pixels_per_tick_select(GtkWidget *item, gpointer key)
 	io=(io_stat_t *)key;
 	val=(int)OBJECT_GET_DATA(item, "pixels_per_tick");
 	io->pixels_per_tick=val;
-	io->needs_redraw=TRUE;
-	gtk_iostat_draw(&io->graphs[0]);
+	io_stat_redraw(io);
 }
 
 static void
@@ -1184,8 +1199,7 @@ plot_style_select(GtkWidget *item, gpointer key)
 
 	ppt->plot_style=val;
 
-	ppt->io->needs_redraw=TRUE;
-	gtk_iostat_draw(ppt);
+	io_stat_redraw(ppt->io);
 }
 
 static void 
@@ -1221,8 +1235,7 @@ yscale_select(GtkWidget *item, gpointer key)
 	val=(int)OBJECT_GET_DATA(item, "yscale_max");
 
 	io->max_y_units=val;
-	io->needs_redraw=TRUE;
-	gtk_iostat_draw(&io->graphs[0]);
+	io_stat_redraw(io);
 }
 
 static void 
@@ -1290,10 +1303,9 @@ count_type_select(GtkWidget *item, gpointer key)
 	if(io->count_type==COUNT_TYPE_ADVANCED){
 		int i;
 		for(i=0;i<MAX_GRAPHS;i++){
-			io->graphs[i].display=0;
-			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(io->graphs[i].display_button), io->graphs[i].display);
+			disable_graph(&io->graphs[i]);
 			gtk_widget_show(io->graphs[i].advanced_buttons);
-/* redraw the entire window so teh unhidden widgets show up, hopefully */
+/* redraw the entire window so the unhidden widgets show up, hopefully */
 {GdkRectangle update_rect;
 update_rect.x=0;
 update_rect.y=0;
@@ -1309,8 +1321,7 @@ gtk_widget_draw(io->window, &update_rect);
 		}
 	}
 
-	io->needs_redraw=TRUE;
-	gtk_iostat_draw(&io->graphs[0]);
+	io_stat_redraw(io);
 }
 
 static void 
@@ -1377,8 +1388,8 @@ static gint
 filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 {
 	char *filter;
-	int i;
 	header_field_info *hfi;
+	dfilter_t *dfilter;
 
 	/* first check if the field string is valid */
 	if(gio->io->count_type==COUNT_TYPE_ADVANCED){
@@ -1387,20 +1398,16 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 		/* warn and bail out if there was no field specified */
 		if(field==NULL || field[0]==0){
 			simple_dialog(ESD_TYPE_WARN, NULL, "You did not specify a field name.");
-			gio->display=0;
-			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button), gio->display);
-			gio->io->needs_redraw=TRUE;
-			gtk_iostat_draw(gio);
+			disable_graph(gio);
+			io_stat_redraw(gio->io);
 			return 0;
 		}
 		/* warn and bail out if the field could not be found */
 		hfi=proto_registrar_get_byname(field);
 		if(hfi==NULL){
 			simple_dialog(ESD_TYPE_WARN, NULL, "'%s' is not a valid field name.", field);
-			gio->display=0;
-			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button), gio->display);
-			gio->io->needs_redraw=TRUE;
-			gtk_iostat_draw(gio);
+			disable_graph(gio);
+			io_stat_redraw(gio->io);
 			return 0;
 		}
 		gio->hf_index=hfi->id;
@@ -1419,10 +1426,8 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 			case CALC_TYPE_LOAD:
 				simple_dialog(ESD_TYPE_WARN, NULL,
 				    "LOAD(*) is only supported for relative-time fields.");
-				gio->display=0;
-				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button), gio->display);
-				gio->io->needs_redraw=TRUE;
-				gtk_iostat_draw(gio);
+				disable_graph(gio);
+				io_stat_redraw(gio->io);
 				return 0;
 			}
 			/* these types support all calculations */
@@ -1441,10 +1446,8 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 				    "%s is a relative-time field, so %s calculations are not supported on it.",
 				    field,
 				    calc_type_names[gio->calc_type]);
-				gio->display=0;
-				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button), gio->display);
-				gio->io->needs_redraw=TRUE;
-				gtk_iostat_draw(gio);
+				disable_graph(gio);
+				io_stat_redraw(gio->io);
 				return 0;
 			}
 			break;
@@ -1459,10 +1462,8 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 				    "%s is a 64-bit integer, so %s calculations are not supported on it.",
 				    field,
 				    calc_type_names[gio->calc_type]);
-				gio->display=0;
-				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button), gio->display);
-				gio->io->needs_redraw=TRUE;
-				gtk_iostat_draw(gio);
+				disable_graph(gio);
+				io_stat_redraw(gio->io);
 				return 0;
 			}
 			break;
@@ -1476,44 +1477,29 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 				    "%s doesn't have integral values, so %s calculations are not supported on it.",
 				    field,
 				    calc_type_names[gio->calc_type]);
-				gio->display=0;
-				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button), gio->display);
-				gio->io->needs_redraw=TRUE;
-				gtk_iostat_draw(gio);
+				disable_graph(gio);
+				io_stat_redraw(gio->io);
 				return 0;
 			}
 			break;
 		}
 	}
 
-	/* first check if the filter string is valid.  Do this by just trying
-	   to register, deregister a dummy listener. */
+	/* first check if the filter string is valid. */
 	filter=(char *)gtk_entry_get_text(GTK_ENTRY(gio->filter_button));
-	if(register_tap_listener("frame", &filter, filter, NULL, NULL, NULL)){
-		simple_dialog(ESD_TYPE_WARN, NULL, "%s is not a valid filter string", filter);
-		if(gio->display){
-			gio->display=0;
-			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button), gio->display);
-		}
-		protect_thread_critical_region();
-		remove_tap_listener(gio);
-		unprotect_thread_critical_region();
-
-		gio->io->needs_redraw=TRUE;
-		gtk_iostat_draw(gio);
-
+	if(!dfilter_compile(filter, &dfilter)) {
+		simple_dialog(ESD_TYPE_WARN, NULL,
+		    "Filter \"%s\" is invalid - %s", filter, dfilter_error_msg);
+		disable_graph(gio);
+		io_stat_redraw(gio->io);
 		return 0;
 	}
-	/* just remove the dummy again */
-	protect_thread_critical_region();
-	remove_tap_listener(&filter);
-	unprotect_thread_critical_region();
+	dfilter_free(dfilter);
 
 	/* this graph is not active, just update display and redraw */
 	if(!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gio->display_button))){
-		gio->display=0;
-		gio->io->needs_redraw=TRUE;
-		gtk_iostat_draw(gio);
+		disable_graph(gio);
+		io_stat_redraw(gio->io);
 		return 0;
 	}
 
@@ -1525,16 +1511,10 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 	remove_tap_listener(gio);
 	unprotect_thread_critical_region();
 	
-	gio->display=1;
-
-	/* only register the draw routine for the first gio. */
-	for(i=0;i<MAX_GRAPHS;i++){
-		gtk_iostat_reset(&gio->io->graphs[i]);
-	}
-	register_tap_listener("frame", gio, filter, gtk_iostat_reset, gtk_iostat_packet, gtk_iostat_draw);
+	io_stat_reset(gio->io);
+	enable_graph(gio, filter);
 	redissect_packets(&cfile);
-	gio->io->needs_redraw=TRUE;
-	gtk_iostat_draw(gio);
+	io_stat_redraw(gio->io);
 
 	return 0;
 }
@@ -1548,11 +1528,8 @@ calc_type_select(GtkWidget *item _U_, gpointer key)
 	ct->gio->calc_type=ct->calc_type;
 
 	/* disable the graph */
-	ct->gio->display=0;
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ct->gio->display_button), ct->gio->display);
-
-	ct->gio->io->needs_redraw=TRUE;
-	gtk_iostat_draw(&ct->gio->io->graphs[0]);
+	disable_graph(ct->gio);
+	io_stat_redraw(ct->gio->io);
 }
 
 
@@ -1600,13 +1577,15 @@ create_advanced_menu(io_stat_graph_t *gio, GtkWidget *box, char *name, void (*fu
 }
 
 
+/*
+ * XXX - why are we disabling a graph when we change the filter expression
+ * for it?
+ */
 static gint
 field_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 {
-	gio->display=0;
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button), gio->display);
-	gio->io->needs_redraw=TRUE;
-	gtk_iostat_draw(gio);
+	disable_graph(gio);
+	io_stat_redraw(gio->io);
 	return 0;
 }
 
@@ -1675,8 +1654,6 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gtk_widget_show(gio->display_button);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button), gio->display);
 	SIGNAL_CONNECT(gio->display_button, "toggled", filter_callback, gio);
-
-
 
 	gio->color_button=gtk_toggle_button_new();
 	gtk_box_pack_start(GTK_BOX(hbox), gio->color_button, FALSE, FALSE, 0);
