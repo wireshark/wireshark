@@ -89,6 +89,7 @@ static int hf_uma_urr_ECMC				= -1;
 static int hf_uma_urr_EC				= -1;
 static int hf_uma_urr_T3212_timer		= -1;
 static int hf_uma_urr_RAC				= -1;
+static int hf_uma_urr_ap_location		= -1;
 static int hf_uma_urr_SGSNR				= -1;
 static int hf_uma_urr_ECMP				= -1;
 static int hf_uma_urr_RE				= -1;
@@ -137,6 +138,11 @@ static int hf_uma_urr_TLLI				= -1;
 static int hf_uma_urr_packet_flow_id	= -1;
 static int hf_uma_urr_suspension_cause	= -1;
 static int hf_uma_urr_TU3920_timer		= -1;
+static int hf_uma_urr_rate				= -1;
+static int hf_uma_urr_precedence		= -1;
+static int hf_uma_urr_a_bit				= -1;
+static int hf_uma_urr_t_bit				= -1;
+static int hf_uma_urr_c_r_bit			= -1;
 static int hf_uma_urr_URLCcause			= -1;
 static int hf_uma_urr_udr				= -1;
 static int hf_uma_urr_RI				= -1;
@@ -144,6 +150,7 @@ static int hf_uma_urr_TU4001_timer		= -1;
 static int hf_uma_urr_LS				= -1;
 static int hf_uma_urr_cipher_res		= -1;
 static int hf_uma_urr_rand_val			= -1;
+static int hf_uma_urr_ciphering_command_mac = -1;
 static int hf_uma_urr_establishment_cause = -1;
 static int hf_uma_urr_channel			= -1;
 static int hf_uma_urr_PDU_in_error		= -1;
@@ -753,12 +760,35 @@ static const value_string packet_flow_id_vals[] = {
 /*Suspension cause value (octet 2)*/
 static const value_string suspension_cause_vals[] = {
 	{ 0,		"Emergency call, mobile originating call or call re-establishment"},
-	{ 0,		"Location Area Update"},
-	{ 0,		"MO Short message service"},
-	{ 0,		"Other procedure which can be completed with an SDCCH"},
-	{ 0,		"MO Voice broadcast or group call"},
-	{ 0,		"Mobile terminating CS connection"},
-	{ 0,		"DTM not supported in the cell"},
+	{ 1,		"Location Area Update"},
+	{ 2,		"MO Short message service"},
+	{ 3,		"Other procedure which can be completed with an SDCCH"},
+	{ 4,		"MO Voice broadcast or group call"},
+	{ 5,		"Mobile terminating CS connection"},
+	{ 6,		"DTM not supported in the cell"},
+	{ 0,	NULL }
+};
+static const value_string precedence_vals[] = {
+	{ 0,		"Radio priority 1"},
+	{ 1,		"Radio priority 2"},
+	{ 2,		"Radio priority 3"},
+	{ 3,		"Radio priority 4"},
+	{ 3,		"Radio Priority Unknown"},
+	{ 0,	NULL }
+};
+static const value_string a_bit_vals[] = {
+	{ 0,		"Radio interface uses RLC/MAC ARQ functionality"},
+	{ 1,		"Radio interface uses RLC/MAC-UNITDATA functionality"},
+	{ 0,	NULL }
+};
+static const value_string t_bit_vals[] = {
+	{ 0,		"The SDU contains signalling (e.g. related to GMM)"},
+	{ 1,		"The SDU contains data"},
+	{ 0,	NULL }
+};
+static const value_string c_r_bit_vals[] = {
+	{ 0,		"The SDU contains a LLC ACK or SACK command/response frame type "},
+	{ 1,		"The SDU does not contain a LLC ACK or SACK command/response frame type"},
 	{ 0,	NULL }
 };
 /*URLC Cause (octet 3) */
@@ -1290,7 +1320,21 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	case 38:		
 		/* QoS 
 		 * The rest of the IE is coded as QoS Profile IE in [TS 48.018], not including IEI and length, if present.
+		 * octet 3-4	Peak bit rate provided by the network, coded as the Bucket Leak Rate "R value" part, 
+		 * see sub-clause 11.3.4 (note)
+		 * NOTE:	The bit rate 0 (zero) shall mean "best effort" in this IE.
+		 * The R field is the binary encoding of the rate information expressed in 100 bits/s increments, 
+		 * starting from 0 x 100 bits/s until 65 535 x 100 bits/s (6 Mbps).
 		 */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_rate, tvb, ie_offset, 1, FALSE);
+		ie_offset = ie_offset + 2;
+		/*
+		 * octet 5	SPARE	C/R	T	A	Precedence 
+		 */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_precedence, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_a_bit, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_t_bit, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_c_r_bit, tvb, ie_offset, 1, FALSE);
 		break;
 	case 39:		/* URLC Cause */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_URLCcause, tvb, ie_offset, 1, FALSE);
@@ -1303,10 +1347,14 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* Routing Area Code
 		 * The rest of the IE is coded as in [TS 23.003] not including IEI and length, if present.
 		 */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RAC, tvb, ie_offset, 1, FALSE);
+		break;
 	case 42:		
 		/* AP Location
 		 * The rest of the IE is coded as in [GEOPRIV], not including IEI and length, if present
+		 * http://www.ietf.org/internet-drafts/draft-ietf-geopriv-dhcp-civil-05.txt
 		 */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ap_location, tvb, ie_offset, ie_len, FALSE);
 		break;
 	case 43:		/* TU4001 Timer */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU4001_timer, tvb, ie_offset, 2, FALSE);
@@ -1320,7 +1368,9 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	case 46:		/* Ciphering Command RAND */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_rand_val, tvb, ie_offset, ie_len, FALSE);
 		break;
-	case 47:		/* Ciphering Command MAC */
+	case 47:		/* Ciphering Command MAC (Message Authentication Code)*/
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ciphering_command_mac, tvb, ie_offset, ie_len, FALSE);
+		break;
 	case 48:		/* Ciphering Key Sequence Number */
 	case 49:		/* SAPI ID */
 		break;
@@ -1800,6 +1850,11 @@ proto_register_uma(void)
 			FT_UINT8,BASE_DEC,  NULL, 0x0,          
 			"Routing Area Code", HFILL }
 		},
+		{ &hf_uma_urr_ap_location,
+			{ "AP Location","uma.urr.ap_location",
+			FT_BYTES,BASE_HEX,  NULL, 0x0,          
+			"AP Location", HFILL }
+		},
 		{ &hf_uma_urr_SGSNR,
 			{ "SGSN Release","uma.urr.SGSNR",
 			FT_UINT8,BASE_DEC,  VALS(SGSNR_vals), 0x01,          
@@ -2040,6 +2095,31 @@ proto_register_uma(void)
 			FT_UINT16,BASE_DEC,  NULL, 0x0,          
 			"TU3920 Timer value(seconds)", HFILL }
 		},
+		{ &hf_uma_urr_rate,
+			{ "Peak bit rate provided by the network(100 bits/s)","uma.urr.tu3920",
+			FT_UINT16,BASE_DEC,  NULL, 0x0,          
+			"Peak bit rate provided by the network(100 bits/s)", HFILL }
+		},
+		{ &hf_uma_urr_precedence,
+			{ "Precedence","uma.urr.precedence",
+			FT_UINT8,BASE_DEC,  VALS(precedence_vals), 0x7,          
+			"Precedence", HFILL }
+		},
+		{ &hf_uma_urr_a_bit,
+			{ "A bit","uma.urr.a_bit",
+			FT_UINT8,BASE_DEC,  VALS(a_bit_vals), 0x8,          
+			"A bit", HFILL }
+		},
+		{ &hf_uma_urr_t_bit,
+			{ "T bit","uma.urr.t_bit",
+			FT_UINT8,BASE_DEC,  VALS(t_bit_vals), 0x10,          
+			"T bit", HFILL }
+		},
+		{ &hf_uma_urr_c_r_bit,
+			{ "C/R bit","uma.urr.c_r_bit",
+			FT_UINT8,BASE_DEC,  VALS(c_r_bit_vals), 0x20,          
+			"C/R bit", HFILL }
+		},
 		{ &hf_uma_urr_URLCcause,
 			{ "URLC Cause","uma.urr.URLCcause",
 			FT_UINT8,BASE_DEC,  VALS(URLC_cause_vals), 0x0,          
@@ -2069,6 +2149,11 @@ proto_register_uma(void)
 			{ "Ciphering Command RAND value","uma.rand_val",
 			FT_BYTES,BASE_HEX,  NULL, 0x0,          
 			"Ciphering Command RAND value", HFILL }
+		},
+		{ &hf_uma_urr_ciphering_command_mac,
+			{ "Ciphering Command MAC (Message Authentication Code)","uma.ciphering_command_mac",
+			FT_BYTES,BASE_HEX,  NULL, 0x0,          
+			"Ciphering Command MAC (Message Authentication Code)", HFILL }
 		},
 
 		{ &hf_uma_urr_establishment_cause,
