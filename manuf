@@ -1,7 +1,7 @@
 # 
 # /etc/manuf - Ethernet vendor codes, and well-known MAC addresses
 #
-# $Id: manuf,v 1.40 2004/04/25 16:52:14 jmayer Exp $
+# $Id: manuf,v 1.41 2004/05/11 22:07:12 jmayer Exp $
 #
 # Laurent Deniel <laurent.deniel [AT] free.fr>
 #
@@ -4385,6 +4385,7 @@
 00:11:17	Cesnet
 00:11:18	BlxIcDesig             # BLX IC Design Corp., Ltd.
 00:11:19	Solteras               # Solteras, Inc.
+00:11:1A	MotorolaBc             # Motorola BCS
 00:11:1B	TargaDivL-             # Targa Systems Div L-3 Communications Canada
 00:11:1C	PleoraTech             # Pleora Technologies Inc.
 00:11:1D	Hectrix                # Hectrix Limited
@@ -4413,7 +4414,34 @@
 00:11:34	Mediacell              # MediaCell, Inc.
 00:11:35	Grandeye               # Grandeye Ltd
 00:11:36	GoodrichSe             # Goodrich Sensor Systems
-00:11:37	AichiElect             # AICHI ELECTRIC CO.LTD.
+00:11:37	AichiElect             # AICHI ELECTRIC CO., LTD.
+00:11:38	Taishin                # TAISHIN CO., LTD.
+00:11:39	StoeberAnt             # STOEBER ANTRIEBSTECHNIK GmbH + Co. KG.
+00:11:3A	Shinboram
+00:11:3B	MicronetCo             # Micronet Communications Inc.
+00:11:3C	Micronas               # Micronas GmbH
+00:11:3D	KnSoltec               # KN SOLTEC CO.,LTD.
+00:11:3E	Jl                     # JL Corporation
+00:11:3F	AlcatelDi              # Alcatel DI
+00:11:40	Nanometric             # Nanometrics Inc.
+00:11:41	Goodman                # GoodMan Corporation
+00:11:42	E-Smartcom             # e-SMARTCOM  INC.
+00:11:43	DellWwPcba             # DELL INC.   (WW PCBA Test)
+00:11:44	AssuranceT             # Assurance Technology Corp
+00:11:45	Valuepoint             # ValuePoint Networks
+00:11:46	Private
+00:11:47	Secom-Indu             # Secom-Industry co.LTD.
+00:11:48	ProlonCont             # Prolon Control Systems
+00:11:49	ProliphixL             # Proliphix LLC
+00:11:4A	KayabaIndu             # KAYABA INDUSTRY Co,.Ltd.
+00:11:4B	Francotyp-             # Francotyp-Postalia AG & Co. KG
+00:11:4C	CaffeinaAp             # caffeina applied research ltd.
+00:11:4D	AtsumiElec             # Atsumi Electric Co.,LTD.
+00:11:4E	690885Onta             # 690885 Ontario Inc.
+00:11:4F	UsDigitalT             # US Digital Television, Inc
+00:11:50	Belkin                 # Belkin Corporation
+00:11:51	Mykotronx
+00:11:52	EidsvollEl             # Eidsvoll Electronics AS
 00:17:00	Kabel
 00:1C:7C	Perq                   # PERQ SYSTEMS CORPORATION
 00:20:00	LexmarkInt             # LEXMARK INTERNATIONAL, INC.
@@ -5505,7 +5533,7 @@
 00:60:49	VinaTechno             # VINA TECHNOLOGIES
 00:60:4A	SaicIdeasG             # SAIC IDEAS GROUP
 00:60:4B	Biodata                # BIODATA GmbH
-00:60:4C	Sat
+00:60:4C	SagemSa                # SAGEM SA
 00:60:4D	MmcNetwork             # MMC NETWORKS, INC.
 00:60:4E	CycleCompu             # CYCLE COMPUTER CORPORATION, INC.
 00:60:4F	SuzukiMfg              # SUZUKI MFG. CO., LTD.
@@ -6100,7 +6128,7 @@
 00:90:9A	OneWorld               # ONE WORLD SYSTEMS, INC.
 00:90:9B	Markpoint              # MARKPOINT AB
 00:90:9C	TerayonCom             # Terayon Communications Systems
-00:90:9D	Gse                    # GSE SYSTEMS, INC.
+00:90:9D	NovatechPr             # NovaTech Process Solutions, LLC
 00:90:9E	CriticalIo             # Critical IO, LLC
 00:90:9F	Digi-Data              # DIGI-DATA CORPORATION
 00:90:A0	8x8                    # 8X8 INC.
@@ -7488,7 +7516,7 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 #
 # Well-known addresses.
 #
-# $Id: manuf,v 1.40 2004/04/25 16:52:14 jmayer Exp $
+# $Id: manuf,v 1.41 2004/05/11 22:07:12 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald [AT] ethereal.com>

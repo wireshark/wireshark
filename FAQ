@@ -1960,7 +1960,7 @@ echo "Mode: ess">/proc/driver/aironet/ethN/Config
 
    Q 5.40: How can I capture entire frames, including the FCS?
 
-   A: Ethereal can't capture any data that the packet capture library -
+   A: Ethereal can only capture data that the packet capture library -
    libpcap on UNIX-flavored OSes, and the WinPcap port to Windows of
    libpcap on Windows - can capture, and libpcap/WinPcap can capture only
    the data that the OS's raw packet capture mechanism (or the WinPcap
@@ -2087,4 +2087,4 @@ echo "Mode: ess">/proc/driver/aironet/ethN/Config
    For corrections/additions/suggestions for this web page (and not
    Ethereal support questions), please send email to
    ethereal-web[AT]ethereal.com .
-   Last modified: Tue, April 20 2004.
+   Last modified: Mon, April 26 2004.
