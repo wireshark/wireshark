@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.63 2002/01/29 08:44:53 guy Exp $
+ * $Id: libpcap.c,v 1.64 2002/01/29 08:55:24 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -231,9 +231,10 @@ static const struct {
 	 * 17 is DLT_LANE8023 in SuSE 6.3 libpcap; we don't currently
 	 * handle it.
 	 * It is also used as the PF (Packet Filter) logging format beginning
-	 * with OpenBSD 3.0.
+	 * with OpenBSD 3.0; we use 17 for PF logs unless DLT_LANE8023 is
+	 * defined with the value 17.
 	 */
-#if defined(DLT_PFLOG) && (DLT_PFLOG == 17)
+#if !defined(DLT_LANE8023) || (DLT_LANE8023 != 17)
 	{ 17,		WTAP_ENCAP_PFLOG },
 #endif
 
