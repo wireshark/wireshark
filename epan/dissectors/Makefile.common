@@ -303,6 +303,7 @@ DISSECTOR_SRC =	\
 	packet-jabber.c	\
 	packet-kadm5.c	\
 	packet-kerberos.c	\
+	packet-kerberos4.c	\
 	packet-klm.c	\
 	packet-kpasswd.c	\
 	packet-l2tp.c	\
