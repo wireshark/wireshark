@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.354 2003/06/15 00:35:49 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.355 2003/07/10 04:44:58 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -9639,6 +9639,19 @@ static const value_string spi_loi_vals[] = {
 	{ 0x0200,	"Set File Unix Basic (4.2.18.3)"},
 	{ 0x0201,	"Set File Unix Link (4.2.18.4)"},
 	{ 0x0202,	"Set File Unix HardLink (4.2.18.5)"},
+	{ 1004,         "Set File Basic Info"},
+	{ 1010,         "Set Rename Information"},
+	{ 1013,         "Set Disposition Information"},
+	{ 1014,         "Set Position Information"},
+	{ 1016,         "Set Mode Information"},
+	{ 1019,         "Set Allocation Information"},
+	{ 1020,         "Set EOF Information"},
+	{ 1023,         "Set File Pipe Information"},
+	{ 1025,         "Set File Pipe Remote Information"},
+	{ 1029,         "Set Copy On Write Information"},
+	{ 1032,         "Set OLE Class ID Information"},
+	{ 1039,         "Set Inherit Context Index Information"},
+	{ 1040,         "Set OLE Information (?)"},
 	{0, NULL}
 };
 
@@ -9658,6 +9671,7 @@ static const value_string qfsi_vals[] = {
 	{ 1005,		"Query FS Attribute Info"},
 	{ 1006,		"Query FS Quota Info"},
 	{ 1007,		"Query Full FS Size Info"},
+	{ 1008,         "Object ID Information"},
 	{0, NULL}
 };
 
@@ -10020,6 +10034,11 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 			t2i->info_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_qfsi_information_level, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
+
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+					val_to_str(si->info_level, qfsi_vals, 
+						   "Unknown (0x%02x)"));
 
 		break;
 	case 0x05:	/*TRANS2_QUERY_PATH_INFORMATION*/
@@ -11263,6 +11282,21 @@ dissect_spi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	case 0x0203:	/*Set File Unix HardLink*/
 		/* XXX add this from the SNIA doc */
 		break;
+	case 1004:
+	case 1010:
+	case 1013:
+	case 1014:
+	case 1016:
+	case 1019:
+	case 1020:
+	case 1023:
+	case 1025:
+	case 1029:
+	case 1032:
+	case 1039:
+	case 1040:
+		/* XXX: TODO, extra levels discovered by tridge */
+		break;
 	}
 
 	return offset;
@@ -11714,7 +11748,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				proto_tree_add_uint(tree, hf_smb_trans2_subcmd,
 				    tvb, offset, 2, subcmd);
 				if (check_col(pinfo->cinfo, COL_INFO)) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+					col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
  					    val_to_str(subcmd, trans2_cmd_vals,
 						"Unknown (0x%02x)"));
 				}
@@ -13053,6 +13087,9 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		proto_tree_add_item(tree, hf_smb_fs_sector, tvb, offset, 4, TRUE);
 		COUNT_BYTES_TRANS_SUBR(4);
 		break;
+	case 1008: /* Query Object ID Information - unknown data */
+		/* XXX: TODO */
+		break;
 	}
 
 	return offset;
@@ -13535,7 +13572,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 			} else {
 				proto_tree_add_uint(tree, hf_smb_trans2_subcmd, tvb, 0, 0, t2i->subcmd);
 				if (check_col(pinfo->cinfo, COL_INFO)) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+					col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 						val_to_str(t2i->subcmd,
 							trans2_cmd_vals,
 							"<unknown (0x%02x)>"));
