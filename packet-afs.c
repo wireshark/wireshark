@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs.c,v 1.23 2000/11/19 08:53:54 guy Exp $
+ * $Id: packet-afs.c,v 1.24 2000/11/19 16:58:57 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -442,7 +442,7 @@ static void dissect_acl(const u_char *pd, int offset, frame_data *fd, proto_tree
 	int n, i, bytes;
 	u_char const *s;
 	u_char const *end;
-	char user[128];
+	char user[128]; /* Be sure to adjust sscanf()s below if length is changed... */
 	int curoffset;
 	int soff,eoff;
 
@@ -480,7 +480,7 @@ static void dissect_acl(const u_char *pd, int offset, frame_data *fd, proto_tree
 	 */
 
 	for (i = 0; i < pos; i++) {
-		if (sscanf((char *) s, "%s %d %n", user, &acl, &n) != 2)
+		if (sscanf((char *) s, "%127s %d %n", user, &acl, &n) != 2)
 			return;
 		s += n;
 		ACLOUT(user,1,acl,n);
@@ -489,7 +489,7 @@ static void dissect_acl(const u_char *pd, int offset, frame_data *fd, proto_tree
 	}
 
 	for (i = 0; i < neg; i++) {
-		if (sscanf((char *) s, "%s %d %n", user, &acl, &n) != 2)
+		if (sscanf((char *) s, "%127s %d %n", user, &acl, &n) != 2)
 			return;
 		s += n;
 		ACLOUT(user,0,acl,n);

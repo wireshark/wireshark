@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Much stuff added by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.47 2000/11/19 08:54:00 guy Exp $
+ * $Id: packet-nbns.c,v 1.48 2000/11/19 16:58:57 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -194,13 +194,15 @@ nbns_type_name (int type)
 	return "unknown";
 }
 
+#define NBNAME_BUF_LEN 128
+
 static int
 get_nbns_name(const u_char *pd, int offset, int nbns_data_offset,
     char *name_ret, int *name_type_ret)
 {
 	int name_len;
 	char name[MAXDNAME];
-	char nbname[NETBIOS_NAME_LEN];
+	char nbname[NBNAME_BUF_LEN];
 	char *pname, *pnbname, cname, cnbname;
 	int name_type;
 
