@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.27 1999/09/03 01:43:08 guy Exp $
+ * $Id: packet-nbns.c,v 1.28 1999/10/03 01:19:25 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1293,6 +1293,7 @@ dissect_nbss(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 #define RJSHACK 1
 #ifdef RJSHACK
 	if (((msg_type != SESSION_REQUEST) && 
+	     (msg_type != POSITIVE_SESSION_RESPONSE) &&
 	     (msg_type != NEGATIVE_SESSION_RESPONSE) &&
 	     (msg_type != RETARGET_SESSION_RESPONSE) &&
 	     (msg_type != SESSION_MESSAGE)) ||
