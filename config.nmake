@@ -1,4 +1,4 @@
-# $Id: config.nmake,v 1.73 2003/12/27 13:19:06 ulfl Exp $
+# $Id: config.nmake,v 1.74 2003/12/28 18:31:14 ulfl Exp $
 
 VERSION=0.10.0
 #
@@ -25,13 +25,19 @@ WTAP_VERSION=0.0
 #
 WINPCAP_VERSION=2.3
 
+# 
+# Base directory, where your libraries reside, which needs to be 
+# compiling the sources. This is only inside this file.
+#
+ETHEREAL_LIBS=C:\ethereal-win32-libs
+
 #
 # Current versions of GTK+ 1.3 require GLib 2.0.  Earlier versions of
 # GTK+ 1.3 are buggy; we don't recommend using them, and we don't
 # support them.  Upgrade to the current version.
 #
 GLIB_VERSION=2.0
-GLIB_DIR=C:\ethereal-win32-libs\glib
+GLIB_DIR=$(ETHEREAL_LIBS)\glib
 
 #
 # This presumes that GTK+ 1.3 packages put header files and libraries
@@ -45,7 +51,12 @@ GLIB_DIR=C:\ethereal-win32-libs\glib
 # of the directory in which the "include" and "lib" directories reside.
 #
 GTK_VERSION=1.3
-GTK_DIR=C:\ethereal-win32-libs\gtk+
+#GTK_VERSION=2.0
+!IF "$(GTK_VERSION)" == "1.3"
+GTK_DIR=$(ETHEREAL_LIBS)\gtk+
+!ELSE
+GTK_DIR=$(ETHEREAL_LIBS)\gtk2
+!ENDIF
 
 #
 # If you have Zlib, set this to the pathname of the directory in
@@ -54,19 +65,19 @@ GTK_DIR=C:\ethereal-win32-libs\gtk+
 # If you don't have Zlib, comment this line out, so that Zlib isn't
 # defined.
 #
-ZLIB_DIR=C:\ethereal-win32-libs\zlib121-dll
+ZLIB_DIR=$(ETHEREAL_LIBS)\zlib121-dll
 
 #
 # Set PCAP_DIR to the pathname of the directory in which the WinPcap
 # developer's pack resides
 #
-PCAP_DIR=C:\ethereal-win32-libs\WPdpack
+PCAP_DIR=$(ETHEREAL_LIBS)\WPdpack
 
 #
 # Set NET_SNMP_DIR to the pathname of the directory in which the
 # Net-SNMP include files and library resides.
 #
-NET_SNMP_DIR=C:\ethereal-win32-libs\net-snmp-5.1
+NET_SNMP_DIR=$(ETHEREAL_LIBS)\net-snmp-5.1
 
 #
 # If you have GNU ADNS, set this to the pathname of the directory in
@@ -75,7 +86,7 @@ NET_SNMP_DIR=C:\ethereal-win32-libs\net-snmp-5.1
 # If you don't have GNU ADNS, comment this line out, so that ADNS_DIR
 # isn't defined.
 #
-ADNS_DIR=C:\ethereal-win32-libs\adns-1.0-win32-01
+ADNS_DIR=$(ETHEREAL_LIBS)\adns-1.0-win32-01
 
 #
 # If you have the PCRE (Perl Compatible Regular Expressions) library,
@@ -85,23 +96,24 @@ ADNS_DIR=C:\ethereal-win32-libs\adns-1.0-win32-01
 # If you don't have PCRE, comment this line out, so that PCRE_DIR
 # isn't defined.
 #
-PCRE_DIR=C:\ethereal-win32-libs\pcre-4.4
+PCRE_DIR=$(ETHEREAL_LIBS)\pcre-4.4
 
 #
 # Set ICONV_DIR to the pathname of the directory in which the
 # ICONV include files and library resides.
 #
-ICONV_DIR=C:\ethereal-win32-libs\libiconv-1.9.1.bin.woe32
+ICONV_DIR=$(ETHEREAL_LIBS)\libiconv-1.9.1.bin.woe32
 
 #
 # Set GETTEXT_DIR to the pathname of the directory in which the
 # GETTEXT include files and library resides.
 #
-GETTEXT_DIR=C:\ethereal-win32-libs\gettext-runtime-0.12.1.bin.woe32
+GETTEXT_DIR=$(ETHEREAL_LIBS)\gettext-runtime-0.12.1.bin.woe32
 
 # Compiler flags
-# -Zi create .pdb file for debugging
-LOCAL_CFLAGS=-Zi
+# /W2  warning level 2 (0 less - 4 most, 1 default)
+# /Zi  create .pdb file for debugging
+LOCAL_CFLAGS=/Zi /W2
 
 # Linker flags
 # /DEBUG generate debug info
@@ -111,7 +123,7 @@ LOCAL_LDFLAGS=/DEBUG
 PDB_FILE=vc*.pdb
 
 # Set path if you need to find some binary
-PATH=c:\cygwin\rootdir\bin;c:\python22;$(PATH)
+PATH=c:\cygwin\bin;c:\python22;$(PATH)
 
 # Set path to some required DLLs
 PATH=.\wiretap;$(ZLIB_DIR);$(ICONV_DIR)\bin;$(PCRE_DIR)\bin;$(PATH)
