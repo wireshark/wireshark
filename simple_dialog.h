@@ -2,7 +2,7 @@
  * Definitions for alert box routines with toolkit-independent APIs but
  * toolkit-dependent implementations.
  *
- * $Id: simple_dialog.h,v 1.9 2004/02/04 01:10:36 guy Exp $
+ * $Id: simple_dialog.h,v 1.10 2004/02/11 03:55:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,15 +37,15 @@ extern "C" {
 
    WARN: tells the user about a problem; the only button should be "OK"
 
-   QUESTION: asks the user for confirmation; there should be more than one
-   button
+   CONFIRMATION: asks the user for confirmation; there should be more than
+   one button
    
    ERROR: tells the user about a serious problem; the only button should be
    "OK". */
-#define ESD_TYPE_INFO	    0x00
-#define ESD_TYPE_WARN	    0x01
-#define ESD_TYPE_QUESTION   0x02
-#define ESD_TYPE_ERROR	    0x03
+#define ESD_TYPE_INFO	      0x00
+#define ESD_TYPE_WARN	      0x01
+#define ESD_TYPE_CONFIRMATION 0x02
+#define ESD_TYPE_ERROR	      0x03
 
 /* Flag to be ORed with the dialog type, to specify that the dialog is
    to be modal. */

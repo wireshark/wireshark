@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.94 2004/02/11 00:55:27 guy Exp $
+ * $Id: file_dlg.c,v 1.95 2004/02/11 03:55:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -364,7 +364,7 @@ file_open_cmd_cb(GtkWidget *widget, gpointer data _U_) {
 
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved) {
     /* user didn't saved his current file, ask him */
-    dialog = simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, 
+    dialog = simple_dialog(ESD_TYPE_CONFIRMATION | ESD_TYPE_MODAL, 
                 ESD_BTNS_YES_NO_CANCEL,
                 PRIMARY_TEXT_START "Save capture file before opening a new one?" PRIMARY_TEXT_END "\n\n"
                 "If you open a new capture file without saving, your capture data will be discarded.");
@@ -491,7 +491,7 @@ file_close_cmd_cb(GtkWidget *widget _U_, gpointer data _U_) {
 
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved) {
     /* user didn't saved his current file, ask him */
-    dialog = simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, 
+    dialog = simple_dialog(ESD_TYPE_CONFIRMATION | ESD_TYPE_MODAL, 
                 ESD_BTNS_YES_NO_CANCEL,
                 PRIMARY_TEXT_START "Save capture file before closing it?" PRIMARY_TEXT_END "\n\n"
                 "If you close without saving, your capture data will be discarded.");

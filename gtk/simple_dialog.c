@@ -1,7 +1,7 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.25 2004/02/11 03:40:17 guy Exp $
+ * $Id: simple_dialog.c,v 1.26 2004/02/11 03:55:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,7 +41,6 @@
 
 #include "image/stock_dialog_error_48.xpm"
 #include "image/stock_dialog_info_48.xpm"
-#include "image/stock_dialog_question_48.xpm"
 #include "image/stock_dialog_warning_48.xpm"
 
 static void simple_dialog_cancel_cb(GtkWidget *, gpointer);
@@ -78,8 +77,8 @@ simple_dialog(gint type, gint btn_mask, gchar *msg_format, ...) {
   case ESD_TYPE_WARN :
     icon = stock_dialog_warning_48_xpm;
     break;
-  case ESD_TYPE_QUESTION:
-    icon = stock_dialog_question_48_xpm;
+  case ESD_TYPE_CONFIRMATION:
+    icon = stock_dialog_warning_48_xpm;
     break;
   case ESD_TYPE_ERROR:
     icon = stock_dialog_error_48_xpm;
