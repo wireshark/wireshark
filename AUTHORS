@@ -155,6 +155,7 @@ Olivier Abad <oabad[AT]cybercable.fr> {
 	LAPB, X.25
 	Plugins support
 	Support for capturing packet data from pipes
+	Support for writing NetXRay 2.x (Windows Sniffer) format captures
 }
 
 Thierry Andry <Thierry.Andry[AT]advalvas.be> {
