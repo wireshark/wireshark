@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.16 2003/06/11 09:17:01 guy Exp $
+; $Id: ethereal.nsi,v 1.17 2003/07/22 22:00:38 gerald Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -71,10 +71,18 @@ SetShellVarContext all
 
 SetOutPath $INSTDIR
 File "..\..\wiretap\wiretap-${WTAP_VERSION}.dll"
+!ifndef GLIB2
 File "${COMMON_FILES_GNU}\iconv-1.3.dll"
 File "${COMMON_FILES_GNU}\glib-1.3.dll"
 File "${COMMON_FILES_GNU}\gmodule-1.3.dll"
 File "${COMMON_FILES_GNU}\gnu-intl.dll"
+!else
+File "${COMMON_FILES_GNU}\iconv.dll"
+File "${COMMON_FILES_GNU}\libglib-2.0-0.dll"
+File "${COMMON_FILES_GNU}\libgmodule-2.0-0.dll"
+File "${COMMON_FILES_GNU}\libgobject-2.0-0.dll"
+File "${COMMON_FILES_GNU}\libintl-1.dll"
+!endif
 File "${COMMON_FILES_GNU}\zlib.dll"
 File "${COMMON_FILES_GNU}\adns_dll.dll"
 File "..\..\FAQ"
@@ -105,8 +113,33 @@ Section "Ethereal"
 SetOutPath $INSTDIR
 File "..\..\ethereal.exe"
 File "..\..\doc\ethereal.html"
+!ifndef GTK2
+!ifndef GLIB2
 File "${COMMON_FILES_GNU}\gtk-1.3.dll"
 File "${COMMON_FILES_GNU}\gdk-1.3.dll"
+!else
+File "${COMMON_FILES_GNU}\libgtk-0.dll"
+File "${COMMON_FILES_GNU}\libgdk-0.dll"
+!endif
+!else
+File "${COMMON_FILES_GNU}\libgdk-win32-2.0-0.dll"
+File "${COMMON_FILES_GNU}\libgdk_pixbuf-2.0-0.dll"
+File "${COMMON_FILES_GNU}\libgtk-win32-2.0-0.dll"
+File "${COMMON_FILES_GNU}\libatk-1.0-0.dll"
+File "${COMMON_FILES_GNU}\libpango-1.0-0.dll"
+File "${COMMON_FILES_GNU}\libpangowin32-1.0-0.dll"
+SetOutPath $INSTDIR\etc\gtk-2.0
+File "${COMMON_FILES_GNU}\etc\gtk-2.0\gdk-pixbuf.loaders"
+File "${COMMON_FILES_GNU}\etc\gtk-2.0\gtk.immodules"
+SetOutPath $INSTDIR\etc\pango
+File "${COMMON_FILES_GNU}\etc\pango\pango.modules"
+SetOutPath $INSTDIR\lib\gtk-2.0\2.2.0\loaders
+File "${COMMON_FILES_GNU}\lib\gtk-2.0\2.2.0\loaders\libpixbufloader-*.dll"
+SetOutPath $INSTDIR\lib\gtk-2.0\2.2.0\immodules
+File "${COMMON_FILES_GNU}\lib\gtk-2.0\2.2.0\immodules\im-*.dll"
+SetOutPath $INSTDIR\lib\pango\1.2.0\modules
+File "${COMMON_FILES_GNU}\lib\pango\1.2.0\modules\pango-*.dll"
+!endif
 SectionEnd
 
 Section "Tethereal"
@@ -191,6 +224,13 @@ DeleteRegKey HKEY_LOCAL_MACHINE SOFTWARE\Ethereal
 ;
 SetShellVarContext all
 
+!ifdef GTK2
+Delete "$INSTDIR\etc\gtk-2.0\*.*"
+Delete "$INSTDIR\etc\pango\*.*"
+Delete "$INSTDIR\lib\gtk-2.0\2.2.0\loaders\*.*"
+Delete "$INSTDIR\lib\gtk-2.0\2.2.0\immodules\*.*"
+Delete "$INSTDIR\lib\pango\1.2.0\modules\*.*"
+!endif
 Delete "$INSTDIR\plugins\${VERSION}\*.*"
 Delete "$INSTDIR\plugins\*.*"
 Delete "$INSTDIR\diameter\*.*"
@@ -200,6 +240,19 @@ Delete "$INSTDIR\*.*"
 Delete "$SMPROGRAMS\Ethereal\*.*"
 Delete "$DESKTOP\Ethereal.lnk"
 
+!ifdef GTK2
+RMDir "$INSTDIR\etc\gtk-2.0"
+RMDir "$INSTDIR\etc\pango"
+RMDir "$INSTDIR\etc"
+RMDir "$INSTDIR\lib\gtk-2.0\2.2.0\loaders"
+RMDir "$INSTDIR\lib\gtk-2.0\2.2.0\immodules"
+RMDir "$INSTDIR\lib\gtk-2.0\2.2.0"
+RMDir "$INSTDIR\lib\gtk-2.0"
+RMDir "$INSTDIR\lib\pango\1.2.0\modules"
+RMDir "$INSTDIR\lib\pango\1.2.0"
+RMDir "$INSTDIR\lib\pango"
+RMDir "$INSTDIR\lib"
+!endif
 RMDir "$SMPROGRAMS\Ethereal"
 RMDir "$INSTDIR\plugins\${VERSION}"
 RMDir "$INSTDIR\plugins"
