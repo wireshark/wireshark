@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.144 2004/01/22 18:13:56 ulfl Exp $
+ * $Id: menu.c,v 1.145 2004/01/23 00:43:29 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1192,9 +1192,10 @@ set_menus_for_capture_file(gboolean have_capture_file)
 {
   set_menu_sensitivity(main_menu_factory, "/File/Open...", have_capture_file);
   set_menu_sensitivity(main_menu_factory, "/File/Open Recent", have_capture_file);
+  set_menu_sensitivity(main_menu_factory, "/File/Close", have_capture_file);
   set_menu_sensitivity(main_menu_factory, "/File/Save As...",
       have_capture_file);
-  set_menu_sensitivity(main_menu_factory, "/File/Close", have_capture_file);
+  set_menu_sensitivity(main_menu_factory, "/File/Export", have_capture_file);
   set_menu_sensitivity(main_menu_factory, "/View/Reload", have_capture_file);
   set_toolbar_for_capture_file(have_capture_file);
 }
@@ -1311,7 +1312,17 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
       have_captured_packets);
   set_menu_sensitivity(main_menu_factory, "/Edit/Find Previous",
       have_captured_packets);
+  set_menu_sensitivity(main_menu_factory, "/Edit/Go To First Packet",
+      have_captured_packets);
+  set_menu_sensitivity(main_menu_factory, "/Edit/Go To Last Packet",
+      have_captured_packets);
   set_menu_sensitivity(main_menu_factory, "/Edit/Go To Packet...",
+      have_captured_packets);
+  set_menu_sensitivity(main_menu_factory, "/View/Zoom In",
+      have_captured_packets);
+  set_menu_sensitivity(main_menu_factory, "/View/Zoom Out",
+      have_captured_packets);
+  set_menu_sensitivity(main_menu_factory, "/View/Normal Size",
       have_captured_packets);
   set_menu_sensitivity(main_menu_factory, "/View/Coloring Rules...",
       have_captured_packets);
