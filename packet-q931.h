@@ -1,13 +1,13 @@
 /* packet-q931.h
- * Declarations of exported routines for Q.931 and Q.2931 frame disassembly
+ * Declarations of exported routines and tables for Q.931 and Q.2931 frame
+ * disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.h,v 1.5 2001/05/27 07:27:21 guy Exp $
+ * $Id: packet-q931.h,v 1.6 2002/05/14 09:24:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -35,5 +35,9 @@ extern void dissect_q931_high_layer_compat_ie(tvbuff_t *, int, int,
 
 extern void dissect_q931_progress_indicator_ie(tvbuff_t *, int, int,
     proto_tree *);
+
+extern const value_string q931_cause_location_vals[];
+
+extern const value_string q931_cause_code_vals[];
 
 #endif

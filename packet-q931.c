@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.43 2002/05/13 21:18:25 guy Exp $
+ * $Id: packet-q931.c,v 1.44 2002/05/14 09:24:26 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -898,7 +898,7 @@ static const value_string q931_cause_coding_standard_vals[] = {
 	{ 0,    NULL }
 };
 	
-static const value_string q931_cause_location_vals[] = {
+const value_string q931_cause_location_vals[] = {
 	{ 0x00, "User (U)" },
 	{ 0x01, "Private network serving the local user (LPN)" },
 	{ 0x02, "Public network serving the local user (LN)" },
@@ -921,7 +921,7 @@ static const value_string q931_cause_recommendation_vals[] = {
 /*
  * Cause codes for Cause.
  */
-static const value_string q931_cause_code_vals[] = {
+const value_string q931_cause_code_vals[] = {
 	{ 0x00,	"Valid cause code not yet received" },
 	{ 0x01,	"Unallocated (unassigned) number" },
 	{ 0x02,	"No route to specified transit network" },
