@@ -5,7 +5,7 @@
  *
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.53 2002/12/03 08:24:58 guy Exp $
+ * $Id: packet-netbios.c,v 1.54 2002/12/17 08:48:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1223,26 +1223,21 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 			} else {
 				/*
-				 * If this is NB_DATA_FIRST_MIDDLE,
-				 * just show it as a fragment.
-				 * (XXX - it'd be nice to dissect it
-				 * if it's the first fragment, but we'd
-				 * need to do reassembly in order to
-				 * discover that.)
+				 * Dissect this, regardless of whether
+				 * it's NB_DATA_FIRST_MIDDLE or
+				 * NB_DATA_ONLY_LAST.
 				 *
-				 * If this is NB_DATA_ONLY_LAST, dissect
-				 * it.  (XXX - it'd be nice to show it
-				 * as a fragment if it's part of a
-				 * fragmented datagram, but we'd need
-				 * to do reassembly in order to discover
-				 * that.)
+				 * XXX - it'd be nice to show
+				 * NB_DATA_FIRST_MIDDLE as a fragment
+				 * if it's not the first fragment (i.e.,
+				 * MIDDLE rather than FIRST), and show
+				 * NB_DATA_ONLY_LAST as a fragment if
+				 * it's part of a fragmented datagram
+				 * (i.e, LAST rather than ONLY), but
+				 * we'd have to do reassembly to
+				 * be able to determine that.
 				 */
-				if (command == NB_DATA_FIRST_MIDDLE)
-					next_tvb = NULL;
-				else {
-					next_tvb = tvb_new_subset(tvb, offset,
-					    -1, -1);
-				}
+				next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 			}
 			if (next_tvb != NULL)
 				dissect_netbios_payload(next_tvb, pinfo, tree);
