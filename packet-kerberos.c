@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.1 2000/08/11 03:32:43 guy Exp $
+ * $Id: packet-kerberos.c,v 1.2 2000/08/11 08:21:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -823,8 +823,10 @@ dissect_ticket(char *title, ASN1_SCK *asn1p, frame_data *fd, proto_tree *tree,
 
 void
 proto_register_kerberos(void) {
+/*
     static hf_register_info hf[] = {
     };
+*/
     static gint *ett[] = {
         &ett_kerberos,
         &ett_preauth,
@@ -836,7 +838,9 @@ proto_register_kerberos(void) {
         &ett_etype,
     };
     proto_kerberos = proto_register_protocol("Kerberos", "kerberos");
+/*
     proto_register_field_array(proto_kerberos, hf, array_length(hf));
+*/
     proto_register_subtree_array(ett, array_length(ett));
 }
 
