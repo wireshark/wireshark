@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.31 2001/03/23 22:26:33 guy Exp $
+ * $Id: proto_draw.c,v 1.32 2001/03/24 23:57:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -57,9 +57,6 @@
 
 #define BYTE_VIEW_WIDTH    16
 #define BYTE_VIEW_SEP      8
-
-
-GtkWidget *byte_nb_ptr;
 
 static void
 proto_tree_draw_node(GNode *node, gpointer data);
@@ -385,8 +382,10 @@ GtkWidget *add_byte_tab( GtkWidget *byte_nb, const char *name, const guint8 *dat
   gtk_text_set_editable(GTK_TEXT(byte_view), FALSE);
   gtk_text_set_word_wrap(GTK_TEXT(byte_view), FALSE);
   gtk_text_set_line_wrap(GTK_TEXT(byte_view), FALSE);
-  gtk_object_set_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_DATA_PTR_KEY, (guint8*)data);
-  gtk_object_set_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_DATA_LEN_KEY, GINT_TO_POINTER(len));
+  gtk_object_set_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_DATA_PTR_KEY,
+		      (gpointer)data);
+  gtk_object_set_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_DATA_LEN_KEY,
+		      GINT_TO_POINTER(len));
   gtk_label_get(GTK_LABEL(label), &name_ptr);
   gtk_object_set_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_NAME_KEY, name_ptr);
   gtk_container_add(GTK_CONTAINER(byte_scrollw), byte_view);
@@ -395,7 +394,8 @@ GtkWidget *add_byte_tab( GtkWidget *byte_nb, const char *name, const guint8 *dat
 		     GTK_SIGNAL_FUNC(byte_view_realize_cb), NULL);
   gtk_signal_connect(GTK_OBJECT(byte_view), "button_press_event",
 		     GTK_SIGNAL_FUNC(byte_view_button_press_cb),
-		     gtk_object_get_data(GTK_OBJECT(popup_menu_object), PM_HEXDUMP_KEY));
+		     gtk_object_get_data(GTK_OBJECT(popup_menu_object),
+					 PM_HEXDUMP_KEY));
 
   gtk_widget_show(byte_view);
 
@@ -645,7 +645,7 @@ packet_hex_print(GtkText *bv, guint8 *pd, frame_data *fd, field_info *finfo, int
     blen = -1;
   }
   if (bstart >= 0 && blen >= 0) {
-          bend = bstart + blen;
+    bend = bstart + blen;
   }
 
   /* save the information needed to redraw the text */
