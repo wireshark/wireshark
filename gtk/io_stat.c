@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.17 2003/03/05 15:54:31 gerald Exp $
+ * $Id: io_stat.c,v 1.18 2003/03/05 20:12:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1624,7 +1624,7 @@ init_io_stat_window(io_stat_t *io)
 	create_draw_area(io, vbox);
 
 	hbox=gtk_hbox_new(FALSE, 0);
-	gtk_box_pack_end(GTK_CONTAINER(vbox), hbox, FALSE, FALSE, 5);
+	gtk_box_pack_end(GTK_BOX(vbox), hbox, FALSE, FALSE, 5);
 	gtk_box_set_child_packing(GTK_BOX(vbox), hbox, FALSE, FALSE, 0, GTK_PACK_START);
 	gtk_widget_show(hbox);
 
