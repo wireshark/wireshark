@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.15 2003/06/05 22:10:49 gerald Exp $
+; $Id: ethereal.nsi,v 1.16 2003/06/11 09:17:01 guy Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -149,6 +149,7 @@ File "..\..\plugins\gryphon\gryphon.dll"
 File "..\..\plugins\megaco\megaco.dll"
 File "..\..\plugins\mgcp\mgcp.dll"
 File "..\..\plugins\pcli\pcli.dll"
+File "..\..\plugins\rtnet\rtnet.dll"
 SectionEnd
 
 Section "SNMP MIBs"

@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.35 2003/04/22 08:50:07 guy Exp $
+ * $Id: packet-ethertype.c,v 1.36 2003/06/11 09:17:00 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -78,6 +78,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_ETHBRIDGE,	"Transparent Ethernet bridging" },
     {ETHERTYPE_CGMP,		"Cisco Group Management Protocol" },
     {ETHERTYPE_SLOW_PROTOCOLS,	"Slow Protocols"		},
+    {ETHERTYPE_RTNET,		"RTNET Protocol"                },
 
     /*
      * NDISWAN on Windows translates Ethernet frames from higher-level

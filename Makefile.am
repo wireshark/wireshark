@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.587 2003/06/11 09:02:18 guy Exp $
+# $Id: Makefile.am,v 1.588 2003/06/11 09:17:00 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -433,7 +433,8 @@ plugin_libs = \
 	plugins/gryphon/gryphon.la \
 	plugins/megaco/megaco.la \
 	plugins/mgcp/mgcp.la \
-	plugins/pcli/pcli.la
+	plugins/pcli/pcli.la \
+	plugins/rtnet/rtnet.la 
 
 if ENABLE_STATIC
 plugin_ldadd = \
@@ -466,7 +467,8 @@ plugin_ldadd = \
 	plugins/gryphon/packet-gryphon-static.o \
 	plugins/megaco/packet-megaco-static.o \
 	plugins/mgcp/packet-mgcp-static.o \
-	plugins/pcli/packet-pcli-static.o
+	plugins/pcli/packet-pcli-static.o \
+	plugins/rtnet/packet-rtnet-static.o 
 
 plugin_src = \
 	plugins/artnet/packet-artnet.c \
@@ -498,7 +500,8 @@ plugin_src = \
 	plugins/gryphon/packet-gryphon.c \
 	plugins/megaco/packet-megaco.c \
 	plugins/mgcp/packet-mgcp.c \
-	plugins/pcli/packet-pcli.c
+	plugins/pcli/packet-pcli.c \
+	plugins/rtnet/packet-rtnet.c 
 
 else		# ENABLE_STATIC
 plugin_ldadd = \
@@ -510,7 +513,8 @@ plugin_ldadd = \
 	"-dlopen" plugins/gryphon/gryphon.la \
 	"-dlopen" plugins/megaco/megaco.la \
 	"-dlopen" plugins/mgcp/mgcp.la \
-	"-dlopen" plugins/pcli/pcli.la
+	"-dlopen" plugins/pcli/pcli.la \
+	"-dlopen" plugins/rtnet/rtnet.la 
 
 plugin_src =
 
