@@ -224,6 +224,38 @@
 	</para>
 	</section>
 
+	<section id="ChUIGTKWeb">
+	<title>GTK resources on the web</title>
+	<para>
+	You can find several resources about GTK.
+	</para>
+	<para>
+	First of all, have a look at: <ulink url="http://www.gtk.org"/> as this 
+	will be the first place to look at. If you want to develop GTK related 
+	things for Ethereal, the most important place might 
+	be the GTK API documentation at: <ulink url="http://gtk.org/api/"/>.
+	</para>
+	<para>
+	Several mailing lists are available about GTK development, see <ulink 
+	url="http://gtk.org/mailinglists.html"/>, the gtk-app-devel-list
+	may be you friend.
+	</para>
+	<para>
+	Theres no Win32 specific GTK mailing list. If you want to post 
+	a Win32 specific problem (e.g. a problem in the GtkFileChooser dialog)
+	and you are sure that it's really win32 specific, you 
+	could send it to GIMPwin-users at <ulink 
+	url="http://www.gimp.org/mail_lists.html"/>.
+	</para>
+	<para>
+	As it's often done wrong: You should post a mail to *help* the developers 
+	there instead of only complaining. Posting such a thing like "I don't like 
+	your dialog, it looks ugly" won't be much helpful. You might think about 
+	what you dislike and describe why you dislike it and a suggestion for a 
+	better way.
+	</para>
+	</section>
+
 	</section>
 
 	<section id="ChUIGUIDocs">

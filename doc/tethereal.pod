@@ -410,9 +410,10 @@ might be set to "disabled" by default on at least some BSDs, so you'd
 have to explicitly set it to use it) will cause the current count to be
 displayed.
 
-When reading a capture file, don't print packet information; this is
-useful if you're using a B<-z> flag to calculate statistics and don't
-want the packet information printed, just the statistics.
+When reading a capture file, or when capturing and not saving to a file,
+don't print packet information; this is useful if you're using a B<-z>
+flag to calculate statistics and don't want the packet information
+printed, just the statistics.
 
 =item -r
 

@@ -33,6 +33,7 @@ asn1_uint32_decode
 asn1_uint32_value_decode
 BandRejectReason_vals           DATA
 build_follow_filter
+bytes_to_str_punct
 call_dissector
 capture_ap1394
 capture_arcnet
@@ -324,6 +325,7 @@ prefs_register_enum_preference
 prefs_register_modules
 prefs_register_obsolete_preference
 prefs_register_protocol
+prefs_register_range_preference
 prefs_register_string_preference
 prefs_register_uint_preference
 prefs_set_pref
@@ -420,6 +422,7 @@ range_convert_range
 range_convert_str
 range_copy
 range_empty
+range_foreach
 ranges_are_equal
 RasMessage_vals                 DATA
 read_prefs

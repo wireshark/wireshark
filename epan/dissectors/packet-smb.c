@@ -4850,7 +4850,7 @@ static const value_string oa_open_vals[] = {
 	{ 3,		"The file existed and was truncated"},
 	{ 0x8001,       "The file existed and was opened, and an OpLock was granted"}, 
 	{ 0x8002,       "The file did not exist but was created, and an OpLock was granted"},
-	{ 0x8002,       "The file existed and was truncated, and an OpLock was granted"},
+	{ 0x8003,       "The file existed and was truncated, and an OpLock was granted"},
 	{0,	NULL}
 };
 static const true_false_string tfs_oa_lock = {
