@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.53 2003/06/04 05:41:37 guy Exp $
+ * $Id: smb.h,v 1.54 2003/12/18 00:18:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -250,7 +250,7 @@ typedef struct {
 	guint32 frame_req, frame_res;
 	nstime_t req_time;
 	guint16 flags;
-	int cmd;
+	guint8 cmd;
 	void *extra_info;
 } smb_saved_info_t;
 
@@ -296,7 +296,7 @@ typedef struct conv_tables {
 } conv_tables_t;
 
 typedef struct smb_info {
-  int cmd;
+  guint8 cmd;
   int tid, pid, uid, mid;
   gboolean unicode;		/* Are strings in this SMB Unicode? */
   gboolean request;		/* Is this a request? */

@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.378 2003/12/17 23:35:29 ulfl Exp $
+ * $Id: packet-smb.c,v 1.379 2003/12/18 00:18:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -735,7 +735,7 @@ static const fragment_items smb_frag_items = {
 
 proto_tree *top_tree=NULL;     /* ugly */
 
-static char *decode_smb_name(unsigned char);
+static char *decode_smb_name(guint8);
 static int dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *smb_tree, guint8 cmd, gboolean first_pdu);
 
 /*
@@ -5629,7 +5629,7 @@ dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	si = (smb_info_t *)pinfo->private_data;
 	/* first check if we have seen the request */
 	if(si->sip != NULL && si->sip->frame_req>0){
-		add_fid(tvb, pinfo, tree, 0, 0, (guint16) si->sip->extra_info);
+		add_fid(tvb, pinfo, tree, 0, 0, (guint16) GPOINTER_TO_UINT(si->sip->extra_info));
 	}
 
 	/* write count low */
@@ -14917,7 +14917,7 @@ const value_string smb_cmd_vals[] = {
   { 0x00, NULL },
 };
 
-static char *decode_smb_name(unsigned char cmd)
+static char *decode_smb_name(guint8 cmd)
 {
   return(smb_cmd_vals[cmd].strptr);
 }
@@ -16629,7 +16629,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 	/* smb command */
-	proto_tree_add_uint_format(htree, hf_smb_cmd, tvb, offset, 1, si->cmd, "SMB Command: %s (0x%02x)", decode_smb_name((unsigned char) si->cmd), si->cmd);
+	proto_tree_add_uint_format(htree, hf_smb_cmd, tvb, offset, 1, si->cmd, "SMB Command: %s (0x%02x)", decode_smb_name(si->cmd), si->cmd);
 	offset += 1;
 
 	if(flags2 & 0x4000){
@@ -16767,7 +16767,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	   the tap listener called even if there is an exception.
 	*/
 	tap_queue_packet(smb_tap, pinfo, si);
-        dissect_smb_command(tvb, pinfo, offset, tree, (guint8) si->cmd, TRUE);
+        dissect_smb_command(tvb, pinfo, offset, tree, si->cmd, TRUE);
 
 	/* Append error info from this packet to info string. */
 	if (!si->request && check_col(pinfo->cinfo, COL_INFO)) {
