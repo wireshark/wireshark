@@ -118,7 +118,7 @@ Prints the version and options and exits.
 
 =head1 SEE ALSO
 
-L<tcpdump(8)>, L<pcap(3)>, L<ethereal(1)>
+L<tcpdump(8)>, L<pcap(3)>, L<ethereal(1)>, L<mergecap(1)>
 
 =head1 NOTES
 

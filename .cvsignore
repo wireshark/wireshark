@@ -25,6 +25,8 @@ install-sh
 libtool
 ltconfig
 ltmain.sh
+mergecap
+mergecap.1
 missing
 mkinstalldirs
 packet-ncp2222.c

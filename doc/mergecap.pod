@@ -1,0 +1,127 @@
+
+=head1 NAME
+
+mergecap - Merges two capture files into one
+
+=head1 SYNOPSYS
+
+B<mergecap>
+S<[ B<-F> file format ]>
+S<[ B<-T> encapsulation type ]>
+S<[ B<-a> ]>
+S<[ B<-v> ]>
+S<[ B<-s> snaplen ]>
+S<[ B<-h> ]>
+I<infile1>
+I<infile2>
+I<outfile>
+
+=head1 DESCRIPTION
+
+B<Mergecap> is a program that reads two saved capture files and merges
+all of the packets in those capture files into a third capture
+file. B<Mergecap> knows how to read B<libpcap> capture files, including
+those of B<tcpdump>.  In addition, B<Mergecap> can read capture files
+from B<snoop> (including B<Shomiti>) and B<atmsnoop>, B<LanAlyzer>,
+B<Sniffer> (compressed or uncompressed), Microsoft B<Network Monitor>,
+AIX's B<iptrace>, B<NetXray>, B<Sniffer Pro>, B<RADCOM>'s WAN/LAN
+analyzer, B<Lucent/Ascend> router debug output, HP-UX's B<nettl>, and
+the dump output from B<Toshiba's> ISDN routers.  There is no need to
+tell B<Mergecap> what type of file you are reading; it will determine the
+file type by itself.  B<Mergecap> is also capable of reading any of
+these file formats if they are compressed using gzip.  B<Mergecap>
+recognizes this directly from the file; the '.gz' extension is not
+required for this purpose.
+
+By default, it writes the capture file in B<libpcap> format, and writes
+all of the packets in both input capture files to the output file.  The
+B<-F> flag can be used to specify the format in which to write the
+capture file; it can write the file in B<libpcap> format (standard
+B<libpcap> format, a modified format used by some patched versions of
+B<libpcap>, the format used by Red Hat Linux 6.1, or the format used by
+SuSE Linux 6.3), B<snoop> format, uncompressed B<Sniffer> format,
+Microsoft B<Network Monitor> 1.x format, and the format used by
+Windows-based versions of the B<Sniffer> software.
+
+By default, the packets in the input files are merged in chronological
+order based on each frame's timestamp, unless the B<-a> flag is
+specified.  B<Mergecap> assumes that frames within a single capture file
+are already stored in chronological order.  When the B<-a> flag is
+specified, all the packets from the first input capture file are output,
+followed by all of the packets from the second input capture file.
+
+If the B<-s> flag is used to specify a snapshot length, frames in the
+input file with more captured data than the specified snapshot length
+will have only the amount of data specified by the snapshot length
+written to the output file.  This may be useful if the program that is
+to read the output file cannot handle packets larger than a certain size
+(for example, the versions of snoop in Solaris 2.5.1 and Solaris 2.6
+appear to reject Ethernet frames larger than the standard Ethernet MTU,
+making them incapable of handling gigabit Ethernet captures if jumbo
+frames were used).
+
+If the B<-T> flag is used to specify an encapsulation type, the
+encapsulation type of the output capture file will be forced to the
+specified type, rather than being the type appropriate to the
+encapsulation type of the input capture file.  Note that this merely
+forces the encapsulation type of the output file to be the specified
+type; the packet headers of the packets will not be translated from the
+encapsulation type of the input capture file to the specified
+encapsulation type (for example, it will not translate an Ethernet
+capture to an FDDI capture if an Ethernet capture is read and 'B<-T
+fddi>' is specified).
+
+=head1 OPTIONS
+
+=over 4
+
+=item -F
+
+Sets the file format of the output capture file.
+
+=item -T
+
+Sets the packet encapsulation type of the output capture file.
+
+=item -a
+
+Causes the frame timestamps to be ignored, writing all packets from the
+first input file followed by all packets from the second input file.  By
+default, when B<-a> is not specified, the contents of the input files
+are merged in chronological order based on each frame's timestamp.
+Note: when merging, B<mergecap> assumes that packets within a capture
+file are already in chronological order.
+
+=item -v
+
+Causes B<mergecap> to print a number of messages while it's working.
+
+=item -s
+
+Sets the snapshot length to use when writing the data.
+
+=item -h
+
+Prints the version and options and exits.
+
+=head1 SEE ALSO
+
+L<tcpdump(8)>, L<pcap(3)>, L<ethereal(1)>, L<editcap(1)>
+
+=head1 NOTES
+
+B<Mergecap> is based heavily upon B<editcap> by Richard Sharpe
+<sharpe@ns.aus.com> and Guy Harris <guy@alum.mit.edu>.
+
+B<Mergecap> is part of the B<Ethereal> distribution.  The latest version
+of B<Ethereal> can be found at B<http://www.ethereal.com>.
+
+=head1 AUTHORS
+
+  Original Author
+  -------- ------
+  Scott Renfro             <scott@renfro.org>
+
+
+  Contributors
+  ------------

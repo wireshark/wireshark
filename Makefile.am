@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.349 2001/07/11 18:19:15 guy Exp $
+# $Id: Makefile.am,v 1.350 2001/07/12 19:59:38 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -60,11 +60,11 @@ ACLOCAL_AMFLAGS = `./aclocal-flags`
 # automake will arrange that the Makefile define it as the union of all
 # the "man{section}_MANS" variables.
 #
-bin_PROGRAMS = @ethereal_bin@ @editcap_bin@ @tethereal_bin@ @dftest_bin@ @randpkt_bin@ @text2pcap_bin@
-man1_MANS = @ethereal_man@ @editcap_man@ @tethereal_man@ @text2pcap_man@
+bin_PROGRAMS = @ethereal_bin@ @editcap_bin@ @mergecap_bin@ @tethereal_bin@ @dftest_bin@ @randpkt_bin@ @text2pcap_bin@
+man1_MANS = @ethereal_man@ @editcap_man@ @mergecap_man@ @tethereal_man@ @text2pcap_man@
 man_MANS = 
 
-EXTRA_PROGRAMS = ethereal ethereal_static tethereal tethereal_static editcap dftest text2pcap
+EXTRA_PROGRAMS = ethereal ethereal_static tethereal tethereal_static editcap mergecap dftest text2pcap
 
 sysconf_DATA = manuf
 
@@ -583,6 +583,9 @@ tethereal_static_LDFLAGS = -Wl,-static
 text2pcap_SOURCES = text2pcap.c text2pcap-scanner.l
 text2pcap_DEPENDENCIES = text2pcap.h
 
+mergecap_SOURCES = mergecap.c
+mergecap_DEPENDENCIES = wiretap/libwiretap.a
+
 editcap_SOURCES = editcap.c
 
 # This is the automake dependency variable for the executable
@@ -590,6 +593,7 @@ editcap_DEPENDENCIES = wiretap/libwiretap.a
 
 # This automake variable adds to the link-line for the executable
 editcap_LDADD = wiretap/libwiretap.a @GLIB_LIBS@
+mergecap_LDADD = wiretap/libwiretap.a @GLIB_LIBS@
 
 #
 # Build various header files for the X11 dissector.
@@ -703,12 +707,14 @@ EXTRA_DIST = \
 	doc/dfilter2pod.pl	\
 	doc/editcap.pod		\
 	doc/ethereal.pod.template \
+	doc/mergecap.pod	\
 	doc/randpkt.txt		\
 	doc/tethereal.pod.template \
 	doc/text2pcap.pod	\
 	editcap.c		\
 	ethereal_be.py		\
 	ethereal_gen.py		\
+	mergecap.c		\
 	text2pcap.c             \
 	text2pcap.h             \
 	text2pcap-scanner.l     \
@@ -789,6 +795,10 @@ tethereal.1: tethereal doc/tethereal.pod.template
 editcap.1: doc/editcap.pod
 	(cd doc ; \
 	$(MAKE) ../editcap.1 )
+
+mergecap.1: doc/mergecap.pod
+	(cd doc ; \
+	$(MAKE) ../mergecap.1 )
 
 text2pcap.1: doc/text2pcap.pod
 	(cd doc ; \

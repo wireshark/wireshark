@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.124 2001/07/11 18:19:15 guy Exp $
+# $Id: Makefile.nmake,v 1.125 2001/07/12 19:59:38 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -286,15 +286,20 @@ editcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
 	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib
 
+mergecap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
+	wsock32.lib user32.lib \
+	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
+	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib
+
 dftest_LIBS= epan\ethereal.lib \
 	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
 	wsock32.lib user32.lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
 	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib
 
-EXECUTABLES=ethereal.exe tethereal.exe editcap.exe text2pcap.exe
+EXECUTABLES=ethereal.exe tethereal.exe editcap.exe mergecap.exe text2pcap.exe
 
-RESOURCES=image\ethereal.res image\tethereal.res image\editcap.res image\text2pcap.res
+RESOURCES=image\ethereal.res image\tethereal.res image\editcap.res image\mergecap.res image\text2pcap.res
 
 all: tools wiretap gtk epan image $(EXECUTABLES) $(RESOURCES)
 
@@ -314,6 +319,12 @@ editcap.exe	: config.h editcap.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).li
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:editcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console editcap.obj getopt.obj $(editcap_LIBS) image\editcap.res
+<<
+
+mergecap.exe	: config.h mergecap.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).lib image\mergecap.res
+	@echo Linking $@
+	$(LINK) @<<
+		/OUT:mergecap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console mergecap.obj getopt.obj $(mergecap_LIBS) image\mergecap.res
 <<
 
 text2pcap.exe	: config.h text2pcap.obj text2pcap-scanner.obj getopt.obj image\text2pcap.res
@@ -361,7 +372,7 @@ text2pcap-scanner.c : text2pcap-scanner.l
 
 clean:
 	rm -f $(ethereal_OBJECTS) $(EXTRA_OBJECTS) $(EXECUTABLES) \
-		tethereal.obj editcap.obj text2pcap.obj \
+		tethereal.obj editcap.obj mergecap.obj text2pcap.obj \
 		text2pcap-scanner.c register.c rdps.obj config.h \
 		ps.c packet-ncp2222.c register.c
 	cd wiretap

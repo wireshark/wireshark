@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.2 2001/05/21 05:04:49 guy Exp $
+# $Id: Makefile.nmake,v 1.3 2001/07/12 19:59:41 guy Exp $
 #
 
 include ..\config.nmake
@@ -21,6 +21,11 @@ editcap.rc	: editcap.rc.in
 	sed -e s/@VERSION@/$(VERSION)/ \
 		-e s/@RC_VERSION@/$(RC_VERSION)/ \
 		< editcap.rc.in > $@
+
+mergecap.rc	: mergecap.rc.in
+	sed -e s/@VERSION@/$(VERSION)/ \
+		-e s/@RC_VERSION@/$(RC_VERSION)/ \
+		< mergecap.rc.in > $@
 
 text2pcap.rc	: text2pcap.rc.in
 	sed -e s/@VERSION@/$(VERSION)/ \

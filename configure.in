@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.130 2001/06/27 07:47:48 guy Exp $
+# $Id: configure.in,v 1.131 2001/07/12 19:59:38 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -280,6 +280,22 @@ else
 fi
 AC_SUBST(editcap_bin)
 AC_SUBST(editcap_man)
+
+
+# Enable/disable mergecap
+
+AC_ARG_ENABLE(mergecap,
+[  --enable-mergecap        build mergecap.  [default=yes]],,enable_mergecap=yes)
+
+if test "x$enable_mergecap" = "xyes" ; then
+	mergecap_bin="mergecap"
+	mergecap_man="mergecap.1"
+else
+	mergecap_bin=""
+	mergecap_man=""
+fi
+AC_SUBST(mergecap_bin)
+AC_SUBST(mergecap_man)
 
 
 # Enable/disable text2pcap
@@ -638,6 +654,7 @@ echo "The Ethereal package has been configured with the following options."
 echo "                    Build ethereal : $enable_ethereal"
 echo "                   Build tethereal : $enable_tethereal"
 echo "                     Build editcap : $enable_editcap"
+echo "                    Build mergecap : $enable_mergecap"
 echo "                   Build text2pcap : $enable_text2pcap"
 echo "                     Build randpkt : $enable_randpkt"
 echo "                      Build dftest : $enable_dftest"

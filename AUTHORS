@@ -734,6 +734,7 @@ Pekka Savola <pekkas@netcore.fi> {
 
 Scott Renfro <scott@renfro.org> {
 	SSL/TLS support
+	Mergecap utility for merging capture files
 }
 
 David Eisner <cradle@Glue.umd.edu> {
