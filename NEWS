@@ -8,45 +8,100 @@ Bugs Fixed
 New Features
 
   TCP analysis was improved
+
   NCP code received quite a few updates
+
   Initial GTK2 support
 
+  RPC staticstics (which use the new Tap API) were added
+
+  The Ethernet "manuf" file now handles addresses specified with a
+  mask, and  contains many well-known addresses.
+
 * BGP segfault?
+* NTLMSSP crash?
 
 New Protocols
 
+DCE/RPC:
+AFS4INT,
+BOSSVR,
+CDS_CLERKSERVER,
+CDS_SOLICIT,
+CPRPC_SERVER,
+DNSSERVER,
+DTSPROVIDER,
+DTSSTIME_REQ,
+FLDB,
+FTSERVER,
+KRB5RPC,
+REP_PROC, 
+REPADMIN,
+RS_ATTR,
+RS_MISC,
+RS_PGO,
+RS_REPLIST,
+RS_UNIX,
+RSEC_LOGIN,
+RPRIV,
+ROVERRIDE,
+SECIDMAP,
+TKN4INT,
+UBIKDISK,
+UKIKVOTE,
+
+Other:
+802.1s MSTP,
+FIX,
 GSS-API,
 Interbase,
+NDPS,
+Netflow (Cisco and Juniper),
+SCCP-Management,
 SPNEGO,
 
 
 Updated Protocols
 
+AFP,
 AODV/AODV6,
 BGP,
+CHDLC,
 CHPA,
-DCERPC NT,
-DCERPC LSA,
-DCERPC SAMR,
+DCE/RPC CONV,
+DCE/RPC NT,
+DCE/RPC LSA,
+DCE/RPC SAMR,
 DNS,
 DOCSIS,
+EAP,
 GTP,
+HTTP,
 IP,
 IS-IS,
 iSCSI,
 Kerberos,
 LDAP,
 LDP,
+M2PA
+MMSE,
 NCP,
+NBNS,
+NDS,
 NETLOGON,
 NTLMSSP,
+OSI
+Q.931
 RPC,
+RPCSTAT,
 SCSI,
+Skinny,
 SMB,
 SNEGO,
 SPOOLSS,
 SRVSVC,
 TCP,
+WSP,
 
 
 
