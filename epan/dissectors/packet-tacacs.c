@@ -58,6 +58,10 @@
 #include <winsock2.h>		/* needed to define AF_ values on Windows */
 #endif
 
+#ifdef NEED_INET_V6DEFS_H
+# include "inet_v6defs.h"
+#endif
+
 #include <glib.h>
 #include <epan/packet.h>
 
