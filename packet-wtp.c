@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  *
- * $Id: packet-wtp.c,v 1.45 2003/04/20 11:36:16 guy Exp $
+ * $Id: packet-wtp.c,v 1.46 2003/05/08 18:49:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -358,8 +358,8 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		c_pdulen = b0;
 	    }
 	    if (tree) {
-		proto_tree_add_item(wtp_tree, hf_wtp_header_sub_pdu_size,
-				    tvb, offCur, c_fieldlen, bo_big_endian);
+		proto_tree_add_uint(wtp_tree, hf_wtp_header_sub_pdu_size,
+				    tvb, offCur, c_fieldlen, c_pdulen);
 	    }
 	    if (i > 1 && check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_str(pinfo->cinfo, COL_INFO, ", ");
@@ -691,8 +691,8 @@ proto_register_wtp(void)
 	{ &hf_wtp_header_sub_pdu_size,
 	    { 	"Sub PDU size",
 		"wtp.sub_pdu_size",
-		FT_BYTES, BASE_HEX, NULL, 0x0,
-		"Size of Sub-PDU", HFILL
+		FT_UINT16, BASE_DEC, NULL, 0x0,
+		"Size of Sub-PDU (bytes)", HFILL
 	    }
 	},
 	{ &hf_wtp_header_flag_continue,
