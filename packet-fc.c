@@ -2,7 +2,7 @@
  * Routines for Fibre Channel Decoding (FC Header, Link Ctl & Basic Link Svc) 
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fc.c,v 1.5 2003/03/05 07:41:23 guy Exp $
+ * $Id: packet-fc.c,v 1.6 2003/06/23 08:45:08 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,6 +77,7 @@ static int hf_fc_rctl = -1;
 static int hf_fc_did = -1;
 static int hf_fc_csctl = -1;
 static int hf_fc_sid = -1;
+static int hf_fc_id = -1;
 static int hf_fc_type = -1;
 static int hf_fc_fctl = -1;
 static int hf_fc_seqid = -1;
@@ -526,11 +527,19 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_string (fc_tree, hf_fc_did, tvb, offset+1, 3,
                                fc_to_str ((guint8 *)tvb_get_ptr (tvb,
                                                                  offset+1, 3)));
+        proto_tree_add_string_hidden (fc_tree, hf_fc_id, tvb, offset+1, 3,
+                               fc_to_str ((guint8 *)tvb_get_ptr (tvb,
+                                                                 offset+1, 3)));
+
         proto_tree_add_item (fc_tree, hf_fc_csctl, tvb, offset+4, 1, FALSE);
 
         proto_tree_add_string (fc_tree, hf_fc_sid, tvb, offset+5, 3,
                                fc_to_str ((guint8 *)tvb_get_ptr (tvb,
                                                                  offset+5, 3)));
+        proto_tree_add_string_hidden (fc_tree, hf_fc_id, tvb, offset+5, 3,
+                               fc_to_str ((guint8 *)tvb_get_ptr (tvb,
+                                                                 offset+5, 3)));
+
         
         if (ftype == FC_FTYPE_LINKCTL) {
             if (((r_ctl & 0x0F) == FC_LCTL_FBSYB) ||
@@ -757,6 +766,9 @@ proto_register_fc(void)
         { &hf_fc_sid,
           {"Src Addr", "fc.s_id", FT_STRING, BASE_HEX, NULL, 0x0,
            "Source Address", HFILL}},
+        { &hf_fc_id,
+          {"Addr", "fc.id", FT_STRING, BASE_HEX, NULL, 0x0,
+           "Source or Destination Address", HFILL}},
         { &hf_fc_type,
           {"Type", "fc.type", FT_UINT8, BASE_HEX, VALS (fc_fc4_val), 0x0,
            "", HFILL}},
