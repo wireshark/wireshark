@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.7 2001/04/01 07:06:24 hagbard Exp $
+ * $Id: resolv.c,v 1.8 2001/04/02 09:41:54 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -98,8 +98,8 @@
 /* hash table used for host and port lookup */
 
 typedef struct hashname {
-  u_int			addr;
-  u_char   		name[MAXNAMELEN];
+  guint			addr;
+  guchar   		name[MAXNAMELEN];
   gboolean              is_dummy_entry;	/* name is IP address in dot format */
   struct hashname 	*next;
 } hashname_t;
@@ -111,13 +111,13 @@ typedef struct hashname hashipxnet_t;
 /* hash tables used for ethernet and manufacturer lookup */
 
 typedef struct hashmanuf {
-  u_char 		addr[3];
+  guint8 		addr[3];
   char 			name[MAXMANUFLEN];
   struct hashmanuf     	*next;
 } hashmanuf_t;
 
 typedef struct hashether {
-  u_char 		addr[6];
+  guint8 		addr[6];
   char 			name[MAXNAMELEN];
   gboolean		is_dummy_entry;		/* not a complete entry */
   struct hashether     	*next;
@@ -127,7 +127,7 @@ typedef struct hashether {
 
 typedef struct _ether
 {
-  u_char		addr[6];
+  guint8		addr[6];
   char 			name[MAXNAMELEN];
 } ether_t;
 
@@ -135,7 +135,7 @@ typedef struct _ether
 
 typedef struct _ipxnet
 {
-  u_int			addr;
+  guint			addr;
   char 			name[MAXNAMELEN];
 } ipxnet_t;
 
@@ -167,7 +167,7 @@ gchar *g_manuf_path   = EPATH_MANUF;	/* may only be changed before the   */
  *  Local function definitions 
  */
 
-static u_char *serv_name_lookup(u_int port, port_type proto)
+static guchar *serv_name_lookup(guint port, port_type proto)
 {
 
   hashname_t *tp;
@@ -245,7 +245,7 @@ static void abort_network_query(int sig)
 }
 #endif /* AVOID_DNS_TIMEOUT */
 
-static u_char *host_name_lookup(u_int addr, gboolean *found)
+static guchar *host_name_lookup(guint addr, gboolean *found)
 {
 
   hashname_t * volatile tp;
@@ -313,9 +313,9 @@ static u_char *host_name_lookup(u_int addr, gboolean *found)
 
 } /* host_name_lookup */
 
-static u_char *host_name_lookup6(struct e_in6_addr *addr, gboolean *found)
+static guchar *host_name_lookup6(struct e_in6_addr *addr, gboolean *found)
 {
-  static u_char name[MAXNAMELEN];
+  static guchar name[MAXNAMELEN];
 #ifdef INET6
   struct hostent *hostp;
 
@@ -512,7 +512,7 @@ static ether_t *get_ethent(int six_bytes)
 
 } /* get_ethent */
 
-static ether_t *get_ethbyname(const u_char *name)
+static ether_t *get_ethbyname(const guchar *name)
 {
   ether_t *eth;
   
@@ -536,7 +536,7 @@ static ether_t *get_ethbyname(const u_char *name)
 
 } /* get_ethbyname */
 
-static ether_t *get_ethbyaddr(const u_char *addr)
+static ether_t *get_ethbyaddr(const guint8 *addr)
 {
 
   ether_t *eth;
@@ -561,7 +561,7 @@ static ether_t *get_ethbyaddr(const u_char *addr)
 
 } /* get_ethbyaddr */
 
-static void add_manuf_name(u_char *addr, u_char *name)
+static void add_manuf_name(guint8 *addr, guchar *name)
 {
 
   hashmanuf_t *tp;
@@ -590,7 +590,7 @@ static void add_manuf_name(u_char *addr, u_char *name)
 
 } /* add_manuf_name */
 
-static hashmanuf_t *manuf_name_lookup(const u_char *addr)
+static hashmanuf_t *manuf_name_lookup(const guint8 *addr)
 {
 
   hashmanuf_t *tp;
@@ -635,7 +635,7 @@ static void initialize_ethers(void)
 
 } /* initialize_ethers */
 
-static hashether_t *add_eth_name(const u_char *addr, const u_char *name)
+static hashether_t *add_eth_name(const guint8 *addr, const guchar *name)
 {
   hashether_t *tp;
   hashether_t **table = eth_table;
@@ -679,7 +679,7 @@ static hashether_t *add_eth_name(const u_char *addr, const u_char *name)
 
 } /* add_eth_name */
 
-static u_char *eth_name_lookup(const u_char *addr)
+static guchar *eth_name_lookup(const guint8 *addr)
 {
   hashmanuf_t *manufp;
   hashether_t *tp;
@@ -735,7 +735,7 @@ static u_char *eth_name_lookup(const u_char *addr)
 
 } /* eth_name_lookup */
 
-static u_char *eth_addr_lookup(const u_char *name)
+static guint8 *eth_addr_lookup(const guchar *name)
 {
   ether_t *eth;
   hashether_t *tp;
@@ -856,7 +856,7 @@ static ipxnet_t *get_ipxnetent(void)
 
 } /* get_ipxnetent */
 
-static ipxnet_t *get_ipxnetbyname(u_char *name)
+static ipxnet_t *get_ipxnetbyname(const guchar *name)
 {
   ipxnet_t *ipxnet;
   
@@ -919,7 +919,7 @@ static void initialize_ipxnets(void)
 
 } /* initialize_ipxnets */
 
-static hashipxnet_t *add_ipxnet_name(u_int addr, u_char *name)
+static hashipxnet_t *add_ipxnet_name(guint addr, const guchar *name)
 {
   hashipxnet_t *tp;
   hashipxnet_t **table = ipxnet_table;
@@ -951,7 +951,7 @@ static hashipxnet_t *add_ipxnet_name(u_int addr, u_char *name)
 
 } /* add_ipxnet_name */
 
-static u_char *ipxnet_name_lookup(const u_int addr)
+static guchar *ipxnet_name_lookup(const guint addr)
 {
   hashipxnet_t *tp;
   hashipxnet_t **table = ipxnet_table;
@@ -994,7 +994,7 @@ static u_char *ipxnet_name_lookup(const u_int addr)
 
 } /* ipxnet_name_lookup */
 
-static u_int ipxnet_addr_lookup(u_char *name, gboolean *success)
+static guint ipxnet_addr_lookup(const guchar *name, gboolean *success)
 {
   ipxnet_t *ipxnet;
   hashipxnet_t *tp;
@@ -1032,7 +1032,7 @@ static u_int ipxnet_addr_lookup(u_char *name, gboolean *success)
  *  External Functions
  */
 
-extern u_char *get_hostname(u_int addr) 
+extern guchar *get_hostname(guint addr) 
 {
   gboolean found;
 
@@ -1042,7 +1042,7 @@ extern u_char *get_hostname(u_int addr)
   return host_name_lookup(addr, &found);
 }
 
-extern gchar *get_hostname6(struct e_in6_addr *addr) 
+extern const guchar *get_hostname6(struct e_in6_addr *addr)
 {
   gboolean found;
 
@@ -1056,7 +1056,7 @@ extern gchar *get_hostname6(struct e_in6_addr *addr)
   return host_name_lookup6(addr, &found);
 }
 
-extern void add_host_name(u_int addr, u_char *name)
+extern void add_host_name(guint addr, const guchar *name)
 {
 
   hashname_t *tp;
@@ -1095,7 +1095,7 @@ extern void add_host_name(u_int addr, u_char *name)
 
 } /* add_host_name */
 
-extern u_char *get_udp_port(u_int port) 
+extern guchar *get_udp_port(guint port)
 {
   static gchar  str[3][MAXNAMELEN];
   static gchar *cur;
@@ -1116,7 +1116,7 @@ extern u_char *get_udp_port(u_int port)
 
 } /* get_udp_port */
 
-extern u_char *get_tcp_port(u_int port) 
+extern guchar *get_tcp_port(guint port) 
 {
   static gchar  str[3][MAXNAMELEN];
   static gchar *cur;
@@ -1137,7 +1137,7 @@ extern u_char *get_tcp_port(u_int port)
 
 } /* get_tcp_port */
 
-extern u_char *get_sctp_port(u_int port) 
+extern guchar *get_sctp_port(guint port) 
 {
   static gchar  str[3][MAXNAMELEN];
   static gchar *cur;
@@ -1158,7 +1158,7 @@ extern u_char *get_sctp_port(u_int port)
 
 } /* get_sctp_port */
 
-extern u_char *get_ether_name(const u_char *addr)
+extern guchar *get_ether_name(const guint8 *addr)
 {
   if (!g_resolving_actif)
     return ether_to_str((guint8 *)addr);
@@ -1176,7 +1176,7 @@ extern u_char *get_ether_name(const u_char *addr)
  * If it's not found, simply return NULL. We DO NOT make a new
  * hash entry for it with the hex digits turned into a string.
  */
-u_char *get_ether_name_if_known(const u_char *addr)
+guchar *get_ether_name_if_known(const guint8 *addr)
 {
   hashether_t *tp;
   hashether_t **table = eth_table;
@@ -1233,7 +1233,7 @@ u_char *get_ether_name_if_known(const u_char *addr)
 }
 
 
-extern u_char *get_ether_addr(u_char *name)
+extern guint8 *get_ether_addr(const guchar *name)
 {
 
   /* force resolution (do not check g_resolving_actif) */
@@ -1247,10 +1247,10 @@ extern u_char *get_ether_addr(u_char *name)
 
 } /* get_ether_addr */
 
-extern void add_ether_byip(u_int ip, const u_char *eth)
+extern void add_ether_byip(guint ip, const guint8 *eth)
 {
 
-  u_char *host;
+  guchar *host;
   gboolean found;
 
   /* first check that IP address can be resolved */
@@ -1265,7 +1265,7 @@ extern void add_ether_byip(u_int ip, const u_char *eth)
 
 } /* add_ether_byip */
 
-extern u_char *get_ipxnet_name(const guint32 addr)
+extern const guchar *get_ipxnet_name(const guint32 addr)
 {
 
   if (!g_resolving_actif) {
@@ -1281,10 +1281,10 @@ extern u_char *get_ipxnet_name(const guint32 addr)
 
 } /* get_ipxnet_name */
 
-extern guint32 get_ipxnet_addr(u_char *name, gboolean *known)
+extern guint32 get_ipxnet_addr(const guchar *name, gboolean *known)
 {
-	guint32 addr;
-	gboolean success;
+  guint32 addr;
+  gboolean success;
 
   /* force resolution (do not check g_resolving_actif) */
 
@@ -1300,7 +1300,7 @@ extern guint32 get_ipxnet_addr(u_char *name, gboolean *known)
 
 } /* get_ipxnet_addr */
 
-extern u_char *get_manuf_name(u_char *addr) 
+extern const guchar *get_manuf_name(const guint8 *addr)
 {
   static gchar  str[3][MAXMANUFLEN];
   static gchar *cur;

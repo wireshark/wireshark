@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.11 2000/11/21 23:54:09 guy Exp $
+ * $Id: follow_dlg.c,v 1.12 2001/04/02 09:41:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -156,7 +156,7 @@ follow_stream_cb(GtkWidget * w, gpointer data)
 	GtkWidget	*stream_om, *stream_menu, *stream_mi;
 	int		tmp_fd;
 	gchar		*follow_filter;
-	char		*hostname0, *hostname1;
+	const char	*hostname0, *hostname1;
 	char		*port0, *port1;
 	char		string[128];
 	follow_tcp_stats_t stats;

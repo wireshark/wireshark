@@ -1,7 +1,7 @@
 /* resolv.h
  * Definitions for network object lookup
  *
- * $Id: resolv.h,v 1.4 2001/01/31 05:52:24 gram Exp $
+ * $Id: resolv.h,v 1.5 2001/04/02 09:41:54 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -44,49 +44,49 @@ extern gchar *g_pipxnets_path;
 /* Functions in resolv.c */
 
 /* get_tcp_port returns the UDP port name or "%u" if not found */
-extern u_char *get_udp_port(u_int port);
+extern guchar *get_udp_port(guint port);
 
 /* get_tcp_port returns the TCP port name or "%u" if not found */
-extern u_char *get_tcp_port(u_int port);
+extern guchar *get_tcp_port(guint port);
 
 /* get_sctp_port returns the SCTP port name or "%u" if not found */
-extern u_char *get_sctp_port(u_int port);
+extern guchar *get_sctp_port(guint port);
 
 /* get_hostname returns the host name or "%d.%d.%d.%d" if not found */
-extern u_char *get_hostname(u_int addr);
+extern guchar *get_hostname(guint addr);
 
 /* get_hostname returns the host name, or numeric addr if not found */
 struct e_in6_addr;
-gchar* get_hostname6(struct e_in6_addr *ad);
+const guchar* get_hostname6(struct e_in6_addr *ad);
 
 /* get_ether_name returns the logical name if found in ethers files else
    "<vendor>_%02x:%02x:%02x" if the vendor code is known else
    "%02x:%02x:%02x:%02x:%02x:%02x" */
-extern u_char *get_ether_name(const u_char *addr);
+extern guchar *get_ether_name(const guint8 *addr);
 
 /* get_ether_name returns the logical name if found in ethers files else NULL */
-extern u_char *get_ether_name_if_known(const u_char *addr);
+extern guchar *get_ether_name_if_known(const guint8 *addr);
 
 /* get_manuf_name returns the vendor name or "%02x:%02x:%02x" if not known */
-extern u_char *get_manuf_name(u_char *addr);
+extern const guchar *get_manuf_name(const guint8 *addr);
 
 /* get_ipxnet_name returns the logical name if found in an ipxnets file,
  * or a string formatted with "%X" if not */
-extern u_char *get_ipxnet_name(const guint32 addr);
+extern const guchar *get_ipxnet_name(const guint32 addr);
 
 /* returns the ethernet address corresponding to name or NULL if not known */
-extern u_char *get_ether_addr(u_char *name);
+extern guint8 *get_ether_addr(const guchar *name);
 
 /* returns the ipx network corresponding to name. If name is unknown,
  * 0 is returned and 'known' is set to FALSE. On success, 'known'
  * is set to TRUE. */
-guint32 get_ipxnet_addr(u_char *name, gboolean *known);
+guint32 get_ipxnet_addr(const guchar *name, gboolean *known);
 
 /* adds a hostname/IP in the hash table */
-extern void add_host_name(u_int addr, u_char *name);
+extern void add_host_name(guint addr, const guchar *name);
 
 /* add ethernet address / name corresponding to IP address  */
-extern void add_ether_byip(u_int ip, const u_char *eth);
+extern void add_ether_byip(guint ip, const guint8 *eth);
 
 /* Translates a string representing the hostname or dotted-decimal IP address
  * into a numeric IP address value, returning TRUE if it succeeds and
