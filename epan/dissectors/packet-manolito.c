@@ -184,6 +184,7 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			length = tvb_get_guint8(tvb, ++offset);
 
 			/* get the payload */
+			g_assert(length<0xff); /* to avoid guint8 overflow */
 			data = malloc(length + 1);
 			tvb_memcpy(tvb, (guint8*)data, ++offset, length);
 			offset += length; 
