@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-tr.c,v 1.56 2001/01/10 09:07:35 guy Exp $
+ * $Id: packet-tr.c,v 1.57 2001/01/21 20:16:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -294,7 +294,7 @@ capture_tr(const u_char *pd, int offset, packet_counts *ld) {
 }
 
 
-void
+static void
 dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*tr_tree, *bf_tree;

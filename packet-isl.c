@@ -1,7 +1,7 @@
 /* packet-isl.c
  * Routines for Cisco ISL Ethernet header disassembly
  *
- * $Id: packet-isl.c,v 1.21 2001/01/09 06:31:37 guy Exp $
+ * $Id: packet-isl.c,v 1.22 2001/01/21 20:16:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -81,6 +81,9 @@ static gint ett_isl = -1;
 #define	TYPE_TR		0x1
 #define	TYPE_FDDI	0x2
 #define	TYPE_ATM	0x3
+
+static dissector_handle_t eth_handle;
+static dissector_handle_t tr_handle;
 
 void
 capture_isl(const u_char *pd, int offset, packet_counts *ld)
@@ -252,7 +255,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         pinfo->len = compat_offset + length;
         pinfo->captured_len = compat_offset + captured_length;
 
-        dissect_eth(next_tvb, pinfo, tree);
+        call_dissector(eth_handle, next_tvb, pinfo, tree);
       }
     }
     break;
@@ -267,7 +270,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(fh_tree, hf_isl_esize, tvb, 30, 1, FALSE);
     }
     next_tvb = tvb_new_subset(tvb, 31, -1, -1);
-    dissect_tr(next_tvb, pinfo, tree);
+    call_dissector(tr_handle, next_tvb, pinfo, tree);
     break;
 
   default:
@@ -347,4 +350,14 @@ proto_register_isl(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   register_dissector("isl", dissect_isl, proto_isl);
+}
+
+void
+proto_reg_handoff_isl(void)
+{
+  /*
+   * Get handles for the Ethernet and Token Ring dissectors.
+   */
+  eth_handle = find_dissector("eth");
+  tr_handle = find_dissector("tr");
 }

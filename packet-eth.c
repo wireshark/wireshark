@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.57 2001/01/18 08:28:09 guy Exp $
+ * $Id: packet-eth.c,v 1.58 2001/01/21 20:16:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -142,7 +142,7 @@ capture_eth(const u_char *pd, int offset, packet_counts *ld)
   }
 }
 
-void
+static void
 dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   int        		orig_captured_len;

@@ -1,6 +1,6 @@
 /* packet-tr.h
  *
- * $Id: packet-tr.h,v 1.3 2000/08/11 13:33:58 deniel Exp $
+ * $Id: packet-tr.h,v 1.4 2001/01/21 20:16:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,6 +26,5 @@
 #define __PACKET_TR_H__
 
 void capture_tr(const u_char *, int, packet_counts *);
-void dissect_tr(tvbuff_t *, packet_info *, proto_tree *);
 
 #endif

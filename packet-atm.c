@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.31 2001/01/09 06:31:33 guy Exp $
+ * $Id: packet-atm.c,v 1.32 2001/01/21 20:16:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,11 +37,8 @@
 #include "oui.h"
 #include "resolv.h"
 
-#include "packet-eth.h"
-#include "packet-llc.h"
 #include "packet-snmp.h"
 #include "packet-sscop.h"
-#include "packet-tr.h"
 
 static int proto_atm = -1;
 static int hf_atm_vpi = -1;
@@ -56,6 +53,10 @@ static gint ett_atm_lane_lc_lan_dest_rd = -1;
 static gint ett_atm_lane_lc_flags = -1;
 static gint ett_atm_lane_lc_tlv = -1;
 static gint ett_ilmi = -1;
+
+static dissector_handle_t eth_handle;
+static dissector_handle_t tr_handle;
+static dissector_handle_t llc_handle;
 
 /*
  * See
@@ -399,7 +400,7 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Dissect as Ethernet */
     next_tvb_le_client	= tvb_new_subset(tvb, 2, -1, -1);
-    dissect_eth(next_tvb_le_client, pinfo, tree);
+    call_dissector(eth_handle, next_tvb_le_client, pinfo, tree);
     break;
 
   case AHLT_LANE_802_5:
@@ -408,7 +409,7 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Dissect as Token-Ring */
     next_tvb_le_client	= tvb_new_subset(tvb, 2, -1, -1);
-    dissect_tr(next_tvb_le_client, pinfo, tree);
+    call_dissector(tr_handle, next_tvb_le_client, pinfo, tree);
     break;
 
   default:
@@ -481,8 +482,6 @@ static const value_string ipsilon_type_vals[] = {
 	{ AHLT_IPSILON_FT2, "Flow type 2" },
 	{ 0,                NULL }
 };
-
-static dissector_handle_t llc_handle;
 
 /*
  * We don't know what kind of traffic this is; try to guess.
@@ -797,8 +796,10 @@ void
 proto_reg_handoff_atm(void)
 {
 	/*
-	 * Get a handle for the LLC dissector.
+	 * Get handles for the Ethernet, Token Ring, and LLC dissectors.
 	 */
+	eth_handle = find_dissector("eth");
+	tr_handle = find_dissector("tr");
 	llc_handle = find_dissector("llc");
 
 	dissector_add("wtap_encap", WTAP_ENCAP_ATM_SNIFFER, dissect_atm,
