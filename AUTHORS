@@ -1500,6 +1500,7 @@ Ulf Lamping <ulf.lamping[AT]web.de> {
 	Win32 fixes
 	Count ARP packets in capture progress dialog box
 	Show total running time of capture in capture progress dialog box
+	Toolbar
 }
 
 Matthew Smart <smart[AT]monkey.org> {

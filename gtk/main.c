@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.322 2003/10/14 23:20:17 guy Exp $
+ * $Id: main.c,v 1.323 2003/10/15 19:40:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -113,6 +113,7 @@
 #include "register.h"
 #include "ringbuffer.h"
 #include "ui_util.h"
+#include "toolbar.h"
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
 #include "../tap.h"
@@ -2777,7 +2778,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     SIGNAL_CONNECT(top_level, "configure_event", main_window_configure_event_cb,
                    NULL);
 
-    /* Container for menu bar, paned windows and progress/info box */
+    /* Container for menu bar, toolbar(s), paned windows and progress/info box */
     main_vbox = gtk_vbox_new(FALSE, 1);
     gtk_container_border_width(GTK_CONTAINER(main_vbox), 1);
     gtk_container_add(GTK_CONTAINER(top_level), main_vbox);
@@ -2788,6 +2789,9 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_window_add_accel_group(GTK_WINDOW(top_level), accel);
     gtk_box_pack_start(GTK_BOX(main_vbox), menubar, FALSE, TRUE, 0);
     gtk_widget_show(menubar);
+
+    /* Main Toolbar */
+    create_toolbar(main_vbox);
 
     /* Panes for the packet list, tree, and byte view */
     u_pane = gtk_vpaned_new();

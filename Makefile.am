@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.639 2003/10/14 01:18:09 guy Exp $
+# $Id: Makefile.am,v 1.640 2003/10/15 19:40:39 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -1185,11 +1185,26 @@ EXTRA_DIST = \
 	image/nsis-unchecked.bmp	\
 	image/tethereal.rc.in	\
 	image/text2pcap.rc.in	\
+	image/toolbar/capture_24.xpm	\
+	image/toolbar/cfilter_24.xpm	\
+	image/toolbar/dfilter_24.xpm	\
+	image/toolbar/stock_close_24.xpm	\
+	image/toolbar/stock_colorselector_24.xpm	\
+	image/toolbar/stock_help_24.xpm	\
+	image/toolbar/stock_jump_to_24.xpm	\
+	image/toolbar/stock_open_24.xpm	\
+	image/toolbar/stock_preferences_24.xpm	\
+	image/toolbar/stock_print_24.xpm	\
+	image/toolbar/stock_refresh_24.xpm	\
+	image/toolbar/stock_right_arrow_24.xpm	\
+	image/toolbar/stock_save_24.xpm	\
+	image/toolbar/stock_search_24.xpm	\
+	image/toolbar/stock_stop_24.xpm	\
 	image/up_arrow.xpm	\
 	make-manuf		\
 	make-reg-dotc		\
 	make-reg-dotc.py	\
-	make-tapreg-dotc		\
+	make-tapreg-dotc	\
 	manuf                   \
 	manuf.tmpl		\
 	mergecap.c		\

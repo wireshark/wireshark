@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for the GTK interface routines for Ethereal
 #
-# $Id: Makefile.am,v 1.70 2003/09/24 07:48:10 guy Exp $
+# $Id: Makefile.am,v 1.71 2003/10/15 19:40:39 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -136,6 +136,8 @@ libui_a_SOURCES = \
 	summary_dlg.h   \
 	tcp_graph.c     \
 	tcp_graph.h     \
+	toolbar.c       \
+	toolbar.h       \
 	ui_util.c       \
 	ui_util.h	\
 	$(ETHEREAL_TAP_SRC)
@@ -222,6 +224,8 @@ libui_a_SOURCES = \
 	summary_dlg.h   \
 	tcp_graph.c     \
 	tcp_graph.h     \
+	toolbar.c       \
+	toolbar.h       \
 	ui_util.c       \
 	ui_util.h	\
 	$(ETHEREAL_TAP_SRC)

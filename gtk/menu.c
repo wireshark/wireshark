@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.101 2003/10/10 08:39:24 sahlberg Exp $
+ * $Id: menu.c,v 1.102 2003/10/15 19:40:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,6 +56,7 @@
 #include "tcp_graph.h"
 #include <epan/epan_dissect.h>
 #include "compat_macros.h"
+#include "toolbar.h"
 #include "gtkglobals.h"
 #include "../tap.h"
 #include "../menu.h"
@@ -695,6 +696,7 @@ set_menus_for_capture_file(gboolean have_capture_file)
       have_capture_file);
   set_menu_sensitivity(main_menu_factory, "/File/Close", have_capture_file);
   set_menu_sensitivity(main_menu_factory, "/File/Reload", have_capture_file);
+  set_toolbar_for_capture_file(have_capture_file);
 }
 
 /* Enable or disable menu items based on whether you have an unsaved
@@ -722,6 +724,7 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
   set_menu_sensitivity(main_menu_factory, "/Capture/Stop",
       capture_in_progress);
 #endif
+  set_toolbar_for_capture_in_progress(capture_in_progress);
 }
 
 /* Enable or disable menu items based on whether you have some captured
@@ -817,6 +820,7 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
       have_captured_packets);
   walk_menu_tree_for_captured_packets(&tap_menu_tree_root,
       have_captured_packets);
+  set_toolbar_for_captured_packets(have_captured_packets);
 }
 
 /* Enable or disable menu items based on whether a packet is selected and,

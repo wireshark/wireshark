@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.54 2003/10/10 21:31:48 guy Exp $
+# $Id: Makefile.nmake,v 1.55 2003/10/15 19:40:40 guy Exp $
 
 include ..\config.nmake
 
@@ -95,6 +95,7 @@ OBJECTS = \
 	summary_dlg.obj \
 	tcp_graph.obj \
 	ui_util.obj	\
+	toolbar.obj \
 	$(ETHEREAL_TAP_OBJECTS)
 
 libui.lib	: ..\config.h $(OBJECTS)
