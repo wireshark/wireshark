@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.38 2003/06/30 00:41:33 guy Exp $
+ * $Id: lanalyzer.c,v 1.39 2003/07/29 20:30:00 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -820,10 +820,6 @@ static gboolean lanalyzer_dump_header(wtap_dumper *wdh, int *err)
  *---------------------------------------------------*/
 static gboolean lanalyzer_dump_close(wtap_dumper *wdh, int *err)
 {
-      if (wdh->dump.opaque) {
-            lanalyzer_dump_header(wdh,err);
-            g_free(wdh->dump.opaque);
-            wdh->dump.opaque = 0;
-            }
+      lanalyzer_dump_header(wdh,err);
       return *err ? FALSE : TRUE;
 }
