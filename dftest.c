@@ -1,6 +1,6 @@
 /* dftest.c.c
  *
- * $Id: dftest.c,v 1.3 2002/01/21 07:36:31 guy Exp $
+ * $Id: dftest.c,v 1.4 2002/07/17 00:42:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,32 +33,6 @@
 #include <locale.h>
 #include <string.h>
 #include <errno.h>
-
-#if 0
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
-
-#include <signal.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-#endif
 
 #ifdef NEED_STRERROR_H
 #include "strerror.h"

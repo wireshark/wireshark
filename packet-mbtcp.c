@@ -10,7 +10,7 @@
  *
  * for information on Modbus/TCP.
  *
- * $Id: packet-mbtcp.c,v 1.8 2002/01/21 07:36:37 guy Exp $
+ * $Id: packet-mbtcp.c,v 1.9 2002/07/17 00:42:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,10 +55,6 @@
 #endif
 
 #include <glib.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include <epan/packet.h>
 

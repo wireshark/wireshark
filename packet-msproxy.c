@@ -2,7 +2,7 @@
  * Routines for Microsoft Proxy packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-msproxy.c,v 1.29 2002/05/01 08:14:32 guy Exp $
+ * $Id: packet-msproxy.c,v 1.30 2002/07/17 00:42:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,10 +56,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include <epan/packet.h>
 #include <epan/resolv.h>

@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTLS component of WAP traffic.
  * 
- * $Id: packet-wtls.c,v 1.19 2002/06/15 23:27:15 guy Exp $
+ * $Id: packet-wtls.c,v 1.20 2002/07/17 00:42:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,11 +43,6 @@
 #endif
 
 #ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
 # include "snprintf.h"
 #endif
 

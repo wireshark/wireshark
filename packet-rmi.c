@@ -2,7 +2,7 @@
  * Routines for java rmiregistry dissection
  * Copyright 2002, Michael Stiller <ms@2scale.net>
  *
- * $Id: packet-rmi.c,v 1.1 2002/05/29 18:52:26 guy Exp $
+ * $Id: packet-rmi.c,v 1.2 2002/07/17 00:42:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,10 +40,6 @@
 #endif
 
 #include <glib.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include <epan/packet.h>
 #include <epan/strutil.h>

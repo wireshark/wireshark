@@ -9,7 +9,7 @@
  *
  * Copyright 2000, 2001, 2002, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-m3ua.c,v 1.18 2002/05/01 00:09:16 guy Exp $
+ * $Id: packet-m3ua.c,v 1.19 2002/07/17 00:42:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,10 +50,6 @@
 
 #include <string.h>
 #include <glib.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include <epan/packet.h>
 #include "prefs.h"

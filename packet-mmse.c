@@ -2,7 +2,7 @@
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-mmse.c,v 1.12 2002/06/07 22:50:49 guy Exp $
+ * $Id: packet-mmse.c,v 1.13 2002/07/17 00:42:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,10 +44,6 @@
 #endif
 
 #include <glib.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include <epan/packet.h>
 #include "packet-wap.h"

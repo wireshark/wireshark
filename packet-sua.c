@@ -6,7 +6,7 @@
  *
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sua.c,v 1.7 2002/05/30 08:34:19 guy Exp $
+ * $Id: packet-sua.c,v 1.8 2002/07/17 00:42:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,10 +47,6 @@
 
 #include <string.h>
 #include <glib.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include <epan/packet.h>
 #include "prefs.h"

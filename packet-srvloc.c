@@ -6,7 +6,7 @@
  *       In particular I have not had an opportunity to see how it 
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.30 2002/05/30 08:34:18 guy Exp $
+ * $Id: packet-srvloc.c,v 1.31 2002/07/17 00:42:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,10 +47,6 @@
 #include <string.h>
 #include <time.h>
 #include <glib.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include <epan/packet.h>
 #include <epan/strutil.h>

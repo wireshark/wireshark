@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  * 
- * $Id: packet-wtp.c,v 1.35 2002/06/07 10:11:41 guy Exp $
+ * $Id: packet-wtp.c,v 1.36 2002/07/17 00:42:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,11 +43,6 @@
 #endif
 
 #ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
 # include "snprintf.h"
 #endif
 

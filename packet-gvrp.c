@@ -2,7 +2,7 @@
  * Routines for GVRP (GARP VLAN Registration Protocol) dissection
  * Copyright 2000, Kevin Shi <techishi@ms22.hinet.net>
  *
- * $Id: packet-gvrp.c,v 1.11 2002/05/30 05:26:05 guy Exp $
+ * $Id: packet-gvrp.c,v 1.12 2002/07/17 00:42:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,10 +40,6 @@
 #endif
 
 #include <glib.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include <epan/packet.h>
 #include "llcsaps.h"

@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.70 2002/06/22 23:11:36 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.71 2002/07/17 00:42:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,11 +50,6 @@
 #endif
 
 #ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
 # include "snprintf.h"
 #endif
 

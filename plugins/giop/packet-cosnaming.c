@@ -49,15 +49,6 @@
 # include <netinet/in.h>
 #endif
 
-#ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
-# include "snprintf.h"
-#endif
-
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>

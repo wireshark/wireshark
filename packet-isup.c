@@ -2,7 +2,7 @@
  * Routines for ISUP dissection
  * Copyright 2001, Martina Obermeier <martina.obermeier@icn.siemens.de>
  *
- * $Id: packet-isup.c,v 1.12 2002/05/02 09:52:20 guy Exp $
+ * $Id: packet-isup.c,v 1.13 2002/07/17 00:42:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,10 +42,6 @@
 #endif
 
 #include <glib.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include <epan/packet.h>
 #include "packet-ip.h"

@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.17 2002/06/20 00:44:33 guy Exp $
+ * $Id: packet-afp.c,v 1.18 2002/07/17 00:42:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,11 +41,6 @@
 #endif
 
 #ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
 # include "snprintf.h"
 #endif
 

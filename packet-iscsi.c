@@ -2,7 +2,7 @@
  * Routines for iSCSI dissection
  * Copyright 2001, Eurologic and Mark Burton <markb@ordern.com>
  *
- * $Id: packet-iscsi.c,v 1.34 2002/06/24 07:57:50 guy Exp $
+ * $Id: packet-iscsi.c,v 1.35 2002/07/17 00:42:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,10 +40,6 @@
 #endif
 
 #include <glib.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include <epan/packet.h>
 #include "prefs.h"

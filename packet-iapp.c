@@ -2,7 +2,7 @@
  * Routines for IAPP dissection
  * Copyright 2002, Alfred Arnold <aarnold@elsa.de>
  *
- * $Id: packet-iapp.c,v 1.3 2002/05/10 23:20:38 guy Exp $
+ * $Id: packet-iapp.c,v 1.4 2002/07/17 00:42:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,10 +46,6 @@
 #endif
 
 #include <glib.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include <epan/packet.h>
 #include "oui.h"

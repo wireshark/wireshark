@@ -2,7 +2,7 @@
  * Routines for docsis dissection
  * Copyright 2002, Anand V. Narwani <anarwani@cisco.com>
  *
- * $Id: packet-docsis.c,v 1.1 2002/07/12 22:52:41 guy Exp $
+ * $Id: packet-docsis.c,v 1.2 2002/07/17 00:42:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,10 +59,6 @@
 #endif
 
 #include <gmodule.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include <epan/packet.h>
 

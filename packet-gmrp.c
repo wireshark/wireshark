@@ -5,7 +5,7 @@
  * Based on the code from packet-gvrp.c (GVRP) from
  * Kevin Shi <techishi@ms22.hinet.net> Copyright 2000
  *
- * $Id: packet-gmrp.c,v 1.7 2002/06/28 23:59:47 guy Exp $
+ * $Id: packet-gmrp.c,v 1.8 2002/07/17 00:42:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,10 +43,6 @@
 #endif
 
 #include <glib.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include <epan/packet.h>
 #include "llcsaps.h"

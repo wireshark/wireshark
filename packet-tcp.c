@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.145 2002/07/02 08:18:45 guy Exp $
+ * $Id: packet-tcp.c,v 1.146 2002/07/17 00:42:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,10 +38,6 @@
 #include <string.h>
 #include <glib.h>
 #include "in_cksum.h"
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include <epan/resolv.h>
 #include "ipproto.h"

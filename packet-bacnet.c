@@ -2,7 +2,7 @@
  * Routines for BACnet (NPDU) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bacnet.c,v 1.11 2002/05/30 02:04:43 guy Exp $
+ * $Id: packet-bacnet.c,v 1.12 2002/07/17 00:42:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,10 +42,6 @@
 #endif
 
 #include <glib.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include <epan/packet.h>
 

@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.54 2002/06/24 00:08:28 guy Exp $
+ * $Id: proto_draw.c,v 1.55 2002/07/17 00:42:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,10 +38,6 @@
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include <stdio.h>
 #include <string.h>

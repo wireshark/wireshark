@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-integer.c,v 1.8 2002/02/05 22:50:17 guy Exp $
+ * $Id: ftype-integer.c,v 1.9 2002/07/17 00:42:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,11 +22,6 @@
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
-
-
-#ifdef NEED_SNPRINTF_H
-#include "snprintf.h"
 #endif
 
 #include <stdlib.h>

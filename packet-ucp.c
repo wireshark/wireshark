@@ -2,7 +2,7 @@
  * Routines for Universal Computer Protocol dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-ucp.c,v 1.16 2002/06/20 20:17:40 guy Exp $
+ * $Id: packet-ucp.c,v 1.17 2002/07/17 00:42:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,10 +49,6 @@
 #endif
 
 #include <glib.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include <epan/packet.h>
 /* #include "packet-ucp.h" */			/* We autoregister	*/

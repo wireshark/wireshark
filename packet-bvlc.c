@@ -2,7 +2,7 @@
  * Routines for BACnet/IP (BVLL, BVLC) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bvlc.c,v 1.10 2002/06/05 00:03:06 gerald Exp $
+ * $Id: packet-bvlc.c,v 1.11 2002/07/17 00:42:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,10 +44,6 @@
 #endif
 
 #include <glib.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include <epan/packet.h>
 

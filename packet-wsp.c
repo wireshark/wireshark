@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.57 2002/06/15 23:23:31 guy Exp $
+ * $Id: packet-wsp.c,v 1.58 2002/07/17 00:42:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,11 +44,6 @@
 #endif
 
 #ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
 # include "snprintf.h"
 #endif
 

@@ -2,7 +2,7 @@
  * Routines for Short Message Peer to Peer dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-smpp.c,v 1.6 2002/03/10 03:08:31 guy Exp $
+ * $Id: packet-smpp.c,v 1.7 2002/07/17 00:42:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,10 +46,6 @@
 #endif
 
 #include <glib.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include <epan/packet.h>
 /* #include "packet-smpp.h"	*/		/* We autoregister	*/

@@ -3,7 +3,7 @@
  * Based on 3GPP TS 25.413 V3.4.0
  * Copyright 2001, Martin Held <Martin.Held@icn.siemens.de>
  *
- * $Id: packet-ranap.c,v 1.12 2002/04/14 23:22:21 guy Exp $
+ * $Id: packet-ranap.c,v 1.13 2002/07/17 00:42:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,10 +44,6 @@
 
 #include <string.h>
 #include <glib.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include <epan/packet.h>
 

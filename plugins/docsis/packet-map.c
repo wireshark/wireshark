@@ -44,10 +44,6 @@
 
 #include <gmodule.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <epan/packet.h>
 
 #define IUC_REQUEST 1

@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.26 2002/05/06 21:50:28 guy Exp $
+# $Id: ethereal_gen.py,v 1.27 2002/07/17 00:42:40 guy Exp $
 #                           
 # ethereal_gen.py (part of idl2eth)           
 #
@@ -2188,11 +2188,6 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 #endif
 
 #ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
 # include "snprintf.h"
 #endif
 

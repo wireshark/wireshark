@@ -43,10 +43,6 @@
 
 #include <gmodule.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <epan/packet.h>
 
 #define RNGRSP_TIMING 1
