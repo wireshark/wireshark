@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.48 2003/01/22 00:40:31 sahlberg Exp $
+ * $Id: smb.h,v 1.49 2003/02/25 02:00:33 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -153,6 +153,7 @@ extern const value_string nt_cmd_vals[];
 #define SMBE_eas_didnt_fit 275     /* Extended attributes didn't fit */
 #define SMBE_eas_nsup 282          /* Extended attributes not supported */
 #define SMBE_notify_buf_small 1022 /* Buffer too small to return change notify. */
+#define SMBE_serverunavailable 1722/* Server unavailable */
 #define SMBE_unknownipc 2142
 #define SMBE_noipc 66              /* don't support ipc */
 
