@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.12 2000/06/08 19:07:13 gram Exp $
+ * $Id: packet-l2tp.c,v 1.13 2000/06/15 03:48:41 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -298,7 +298,7 @@ dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   if (check_col(fd, COL_PROTOCOL))	/* build output for closed L2tp frame displayed  */
         col_add_str(fd, COL_PROTOCOL, "L2TP"); 
 
-  tvb = tvb_new_subset(pi.compat_top_tvb, offset, -1, -1);
+  tvb = tvb_create_from_top(offset);
 
   control = tvb_get_ntohs(tvb, 0);
 

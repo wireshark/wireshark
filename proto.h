@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.34 2000/05/31 18:32:07 gram Exp $
+ * $Id: proto.h,v 1.35 2000/06/15 03:48:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -454,6 +454,17 @@ proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, co
 proto_item *
 proto_tree_add_notext(proto_tree *tree, tvbuff_t *tvb, gint start, gint length);
 
+
+/* Useful for quick debugging. Also sends string to STDOUT, so don't
+ * leave call to this function in production code. */
+#if __GNUC__ == 2
+proto_item *
+proto_tree_add_debug_text(proto_tree *tree, const char *format, ...)
+	__attribute__((format (printf, 2, 3)));
+#else
+proto_item *
+proto_tree_add_debug_text(proto_tree *tree, const char *format, ...);
+#endif
 
 void
 proto_item_fill_label(field_info *fi, gchar *label_str);

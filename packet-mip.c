@@ -2,7 +2,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <Stefan.Raab@nextel.com>
  *
- * $Id: packet-mip.c,v 1.4 2000/05/31 05:07:18 guy Exp $
+ * $Id: packet-mip.c,v 1.5 2000/06/15 03:48:42 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -149,7 +149,7 @@ dissect_mip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	/* Make our own tvb until the function call includes one */
 	tvbuff_t	*tvb;
 	packet_info	*pinfo = &pi;
-	tvb = tvb_new_subset(pi.compat_top_tvb, offset, -1, -1);
+	tvb = tvb_create_from_top(offset);
 
 /* Make entries in Protocol column and Info column on summary display */
 

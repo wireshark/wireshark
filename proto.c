@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.68 2000/05/31 17:10:09 gram Exp $
+ * $Id: proto.c,v 1.69 2000/06/15 03:48:44 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -300,6 +300,29 @@ proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length,
 	return pi;
 }
 
+/* Add a text-only node for debugging purposes. The caller doesn't need
+ * to worry about tvbuff, start, or length. Debug message gets sent to
+ * STDOUT, too */
+proto_item *
+proto_tree_add_debug_text(proto_tree *tree, const char *format, ...)
+{
+	proto_item	*pi;
+	va_list		ap;
+
+	pi = proto_tree_add_notext(tree, NULL, 0, 0);
+	if (pi == NULL)
+		return(NULL);
+
+	va_start(ap, format);
+	proto_tree_set_representation(pi, format, ap);
+	vprintf(format, ap);
+	va_end(ap);
+	printf("\n");
+
+	return pi;
+}
+
+
 static guint32
 get_uint_value(tvbuff_t *tvb, gint offset, gint length, gboolean little_endian)
 {
@@ -425,9 +448,9 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			break;
 
 		case FT_IPXNET:
-			g_assert(length == 4);	/* 2? */
-			tvb_memcpy(tvb, (guint8 *)&value, start, 4);
-			proto_tree_set_ipxnet(new_fi, value);
+			g_assert(length == 4);
+			proto_tree_set_ipxnet(new_fi,
+			    get_uint_value(tvb, start, 4, FALSE));
 			break;
 
 		case FT_IPv6:

@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.6 2000/06/14 07:16:07 guy Exp $
+ * $Id: packet-x11.c,v 1.7 2000/06/15 03:48:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -2869,7 +2869,7 @@ dissect_x11_request(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
 /* Code to process the packet goes here */
 
-      tvb = tvb_new_subset(pi.compat_top_tvb, offset, -1, -1);
+      tvb = tvb_create_from_top(offset);
       cur_offset = 0;
       little_endian = guess_byte_ordering(tvb);
       left = dissect_x11_request_loop(x11_tree);
@@ -2919,6 +2919,7 @@ dissect_x11_event(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 static void
 dissect_x11(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
+      pi.current_proto = "X11";
       if (pi.destport == TCP_PORT_X11 || pi.destport == TCP_PORT_X11_2 || pi.destport == TCP_PORT_X11_3)
 	    dissect_x11_request(pd, offset, fd, tree);
       else

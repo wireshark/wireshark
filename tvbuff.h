@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.4 2000/05/29 08:57:42 guy Exp $
+ * $Id: tvbuff.h,v 1.5 2000/06/15 03:48:45 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -233,5 +233,9 @@ guint8* tvb_get_ptr(tvbuff_t*, gint offset, gint length);
  * that only understands pd/offset and not tvbuffs.
  * This is the "compatibility" function */
 void tvb_compat(tvbuff_t*, const guint8 **pd, int *offset);
+
+#define tvb_create_from_top(offset) \
+	tvb_new_subset(pi.compat_top_tvb, (offset), \
+				pi.captured_len - (offset), pi.len - (offset))
 
 #endif /* __TVBUFF_H__ */

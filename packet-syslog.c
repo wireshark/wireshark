@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Gerald Combs <gerald@zing.org>
  *
- * $Id: packet-syslog.c,v 1.2 2000/06/11 15:54:02 gerald Exp $
+ * $Id: packet-syslog.c,v 1.3 2000/06/15 03:48:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -150,6 +150,8 @@ static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #else
 static void dissect_syslog(const u_char *pd, int o, frame_data *fd, proto_tree *tree)
 {
+  packet_info	*pinfo = &pi;
+  tvbuff_t	*tvb = tvb_create_from_top(o);
   gint pri = -1, lev = -1, fac = -1;
   gint msg_off = 0, msg_len;
   gint ellipsis_len = (COL_INFO_LEN - strlen(ELLIPSIS)) - 1;
@@ -157,9 +159,6 @@ static void dissect_syslog(const u_char *pd, int o, frame_data *fd, proto_tree *
   proto_tree *syslog_tree;
   gchar msg_str[COL_INFO_LEN];
 
-  tvbuff_t *tvb;
-  packet_info *pinfo = &pi;
-  tvb = tvb_new_subset(pinfo->compat_top_tvb, o, -1, -1);
 #endif
 
   pinfo->current_proto = "Syslog";

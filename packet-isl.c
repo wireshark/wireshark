@@ -1,7 +1,7 @@
 /* packet-isl.c
  * Routines for Cisco ISL Ethernet header disassembly
  *
- * $Id: packet-isl.c,v 1.12 2000/05/31 05:07:15 guy Exp $
+ * $Id: packet-isl.c,v 1.13 2000/06/15 03:48:41 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -209,7 +209,7 @@ dissect_isl(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   switch (type) {
 
   case TYPE_ETHER:
-    next_tvb = tvb_new_subset(pi.compat_top_tvb, offset+26, -1, -1);
+    next_tvb = tvb_create_from_top(offset+26);
     dissect_eth(next_tvb, &pi, tree);
     break;
 
@@ -226,12 +226,12 @@ dissect_isl(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			pd[offset+30]);
     proto_tree_add_uint(fh_tree, hf_isl_esize, NullTVB, offset+16, 1,
 			pd[offset+30]);
-    next_tvb = tvb_new_subset(pi.compat_top_tvb, offset+31, -1, -1);
+    next_tvb = tvb_create_from_top(offset+31);
     dissect_tr(next_tvb, &pi, tree);
     break;
 
   default:
-    next_tvb = tvb_new_subset(pi.compat_top_tvb, offset+26, -1, -1);
+    next_tvb = tvb_create_from_top(offset+26);
     dissect_data_tvb(next_tvb, &pi, tree);
     break;
   }

@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.61 2000/05/31 05:07:10 guy Exp $
+ * $Id: packet-ipx.c,v 1.62 2000/06/15 03:48:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -115,26 +115,12 @@ dissect_ipxmsg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
 
 #define UDP_PORT_IPX    213		/* RFC 1234 */
 
-struct port_info {
-	guint16	port;
-	char	*text;
-};
-
-struct conn_info {
-	guint8	ctrl;
-	char	*text;
-};
-
-struct server_info {
-	guint16	type;
-	char	*text;
-};
+#define IPX_HEADER_LEN	30		/* It's *always* 30 bytes */
 
 /* ================================================================= */
 /* IPX                                                               */
 /* ================================================================= */
-
-static struct port_info	ports[] = {
+static const value_string ipx_socket_vals[] = {
 	{ IPX_SOCKET_PING_CISCO,		"CISCO PING" },
 	{ IPX_SOCKET_NCP,			"NCP" },
 	{ IPX_SOCKET_SAP,			"SAP" },
@@ -149,7 +135,7 @@ static struct port_info	ports[] = {
 	{ IPX_SOCKET_IPX_MESSAGE,		"IPX Message" },
 	{ IPX_SOCKET_SNMP_AGENT,		"SNMP Agent" },
 	{ IPX_SOCKET_SNMP_SINK,			"SNMP Sink" },
-	{ IPX_SOCKET_PING_NOVELL,		"NOVELL PING" },
+	{ IPX_SOCKET_PING_NOVELL,		"Novell PING" },
 	{ IPX_SOCKET_UDP_TUNNEL,		"UDP Tunnel" },
 	{ IPX_SOCKET_TCP_TUNNEL,		"TCP Tunnel" },
 	{ IPX_SOCKET_TCP_TUNNEL,		"TCP Tunnel" },
@@ -159,17 +145,18 @@ static struct port_info	ports[] = {
 	{ 0x0000,				NULL }
 };
 
-static char*
-port_text(guint16 port) {
-	int i=0;
+static const char*
+socket_text(guint16 socket)
+{
+	const char	*p;
 
-	while (ports[i].text != NULL) {
-		if (ports[i].port == port) {
-			return ports[i].text;
-		}
-		i++;
+	p = match_strval(socket, ipx_socket_vals);
+	if (p) {
+		return p;
 	}
-	return "Unknown";
+	else {
+		return "Unknown";
+	}
 }
 
 static const value_string ipx_packet_type_vals[] = {
@@ -242,7 +229,8 @@ ipx_addr_to_str(guint32 net, const guint8 *ad)
 }
 
 gchar *
-ipxnet_to_str_punct(const guint32 ad, char punct) {
+ipxnet_to_str_punct(const guint32 ad, char punct)
+{
   static gchar  str[3][12];
   static gchar *cur;
   gchar        *p;
@@ -282,86 +270,113 @@ capture_ipx(const u_char *pd, int offset, packet_counts *ld)
 	ld->ipx++;
 }
 
+#if 0
 void
-dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+#else
+void
+dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	packet_info	*pinfo = &pi;
+	tvbuff_t	*tvb = tvb_create_from_top(offset);
+#endif
+	tvbuff_t	*next_tvb;
+	const guint8	*this_pd;
+	int		this_offset, len;
+	const guint8	*next_pd;
+	int		next_offset;
 
 	proto_tree	*ipx_tree;
 	proto_item	*ti;
+
+	guint8		*src_net_node, *dst_net_node;
+
 	guint8		ipx_type, ipx_hops;
-	guint16		ipx_checksum, ipx_length;
-	int		len;
-	guint8		*ipx_snode, *ipx_dnode, *ipx_snet, *ipx_dnet;
+	guint16		ipx_length;
+	int		reported_length, available_length;
 
 	guint16		ipx_dsocket, ipx_ssocket;
-	guint32		ipx_dnet_val, ipx_snet_val;
+
+
+	pinfo->current_proto = "IPX";
 
 	/* Calculate here for use in pinfo and in tree */
-	ipx_dnet = (guint8*)&pd[offset+6];
-	ipx_snet = (guint8*)&pd[offset+18];
-	ipx_dnet_val = pntohl(ipx_dnet);
-	ipx_snet_val = pntohl(ipx_snet);
-	ipx_dsocket = pntohs(&pd[offset+16]);
-	ipx_ssocket = pntohs(&pd[offset+28]);
-	ipx_dnode = (guint8*)&pd[offset+10];
-	ipx_snode = (guint8*)&pd[offset+22];
-	ipx_type = pd[offset+5];
-	ipx_length = pntohs(&pd[offset+2]);
-
-	/* Length of IPX datagram plus headers above it. */
-	len = ipx_length + offset;
+	ipx_dsocket	= tvb_get_ntohs(tvb, 16);
+	ipx_ssocket	= tvb_get_ntohs(tvb, 28);
+	ipx_type	= tvb_get_guint8(tvb, 5);
+	ipx_length	= tvb_get_ntohs(tvb, 2);
 
 	/* Set the payload and captured-payload lengths to the minima of
 	   (the IPX length plus the length of the headers above it) and
-	   the frame lengths. */
+	   the frame lengths. XXX - remove once all dissectors use tvbuffs */
+	tvb_compat(tvb, &this_pd, &this_offset);
+	len = ipx_length + this_offset;
 	if (pi.len > len)
 		pi.len = len;
 	if (pi.captured_len > len)
 		pi.captured_len = len;
 
-	SET_ADDRESS(&pi.net_src, AT_IPX, 10, &pd[offset+18]);
-	SET_ADDRESS(&pi.src, AT_IPX, 10, &pd[offset+18]);
-	SET_ADDRESS(&pi.net_dst, AT_IPX, 10, &pd[offset+6]);
-	SET_ADDRESS(&pi.dst, AT_IPX, 10, &pd[offset+6]);
+	src_net_node = tvb_get_ptr(tvb, 18, 10);
+	dst_net_node = tvb_get_ptr(tvb, 6,  10);
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "IPX");
-	if (check_col(fd, COL_INFO))
-		col_add_fstr(fd, COL_INFO, "%s (0x%04X)", port_text(ipx_dsocket),
-				ipx_dsocket);
+	SET_ADDRESS(&pi.net_src,	AT_IPX, 10, src_net_node);
+	SET_ADDRESS(&pi.src,		AT_IPX, 10, src_net_node);
+	SET_ADDRESS(&pi.net_dst,	AT_IPX, 10, dst_net_node);
+	SET_ADDRESS(&pi.dst,		AT_IPX, 10, dst_net_node);
+
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_add_str(pinfo->fd, COL_PROTOCOL, "IPX");
+	if (check_col(pinfo->fd, COL_INFO))
+		col_add_fstr(pinfo->fd, COL_INFO, "%s (0x%04X)",
+				socket_text(ipx_dsocket), ipx_dsocket);
 
 	if (tree) {
-		ipx_checksum = pntohs(&pd[offset]);
-		ipx_hops = pd[offset+4];
 
-		ti = proto_tree_add_item(tree, proto_ipx, NullTVB, offset, 30, FALSE);
+		ti = proto_tree_add_item(tree, proto_ipx, tvb, 0, IPX_HEADER_LEN, FALSE);
 		ipx_tree = proto_item_add_subtree(ti, ett_ipx);
-		proto_tree_add_uint(ipx_tree, hf_ipx_checksum, NullTVB, offset, 2, ipx_checksum);
-		proto_tree_add_uint_format(ipx_tree, hf_ipx_len, NullTVB, offset+2, 2, ipx_length,
+
+		proto_tree_add_item(ipx_tree, hf_ipx_checksum, tvb, 0, 2, FALSE);
+		proto_tree_add_uint_format(ipx_tree, hf_ipx_len, tvb, 2, 2, ipx_length,
 			"Length: %d bytes", ipx_length);
-		proto_tree_add_uint_format(ipx_tree, hf_ipx_hops, NullTVB, offset+4, 1, ipx_hops,
+		ipx_hops = tvb_get_guint8(tvb, 4);
+		proto_tree_add_uint_format(ipx_tree, hf_ipx_hops, tvb, 4, 1, ipx_hops,
 			"Transport Control: %d hops", ipx_hops);
-		proto_tree_add_uint(ipx_tree, hf_ipx_packet_type, NullTVB, offset+5, 1, ipx_type);
-		proto_tree_add_ipxnet(ipx_tree, hf_ipx_dnet, NullTVB, offset+6, 4, ipx_dnet_val);
-		proto_tree_add_ether(ipx_tree, hf_ipx_dnode, NullTVB, offset+10, 6, ipx_dnode);
-		proto_tree_add_uint_format(ipx_tree, hf_ipx_dsocket, NullTVB, offset+16, 2,
+		proto_tree_add_uint(ipx_tree, hf_ipx_packet_type, tvb, 5, 1, ipx_type);
+
+		/* Destination */
+		proto_tree_add_item(ipx_tree, hf_ipx_dnet, tvb, 6, 4, FALSE);
+		proto_tree_add_item(ipx_tree, hf_ipx_dnode, tvb, 10, 6, FALSE);
+		proto_tree_add_uint_format(ipx_tree, hf_ipx_dsocket, tvb, 16, 2,
 			ipx_dsocket, "Destination Socket: %s (0x%04X)",
-			port_text(ipx_dsocket), ipx_dsocket);
-		proto_tree_add_ipxnet(ipx_tree, hf_ipx_snet, NullTVB, offset+18, 4, ipx_snet_val);
-		proto_tree_add_ether(ipx_tree, hf_ipx_snode, NullTVB, offset+22, 6, ipx_snode);
-		proto_tree_add_uint_format(ipx_tree, hf_ipx_ssocket, NullTVB, offset+28, 2,
-			ipx_ssocket, "Source Socket: %s (0x%04X)", port_text(ipx_ssocket),
+			socket_text(ipx_dsocket), ipx_dsocket);
+
+		/* Source */
+		proto_tree_add_item(ipx_tree, hf_ipx_snet, tvb, 18, 4, FALSE);
+		proto_tree_add_item(ipx_tree, hf_ipx_snode, tvb, 22, 6, FALSE);
+		proto_tree_add_uint_format(ipx_tree, hf_ipx_ssocket, tvb, 28, 2,
+			ipx_ssocket, "Source Socket: %s (0x%04X)", socket_text(ipx_ssocket),
 			ipx_ssocket);
 	}
-	offset += 30;
 
-	if (dissector_try_port(ipx_type_dissector_table, ipx_type, pd,
-	    offset, fd, tree))
+	/* Make the next tvbuff */
+	reported_length = ipx_length - IPX_HEADER_LEN;
+	available_length = tvb_length(tvb) - IPX_HEADER_LEN;
+	next_tvb = tvb_new_subset(tvb, IPX_HEADER_LEN,
+			MIN(available_length, reported_length),
+			reported_length);
+
+	tvb_compat(next_tvb, &next_pd, &next_offset);
+
+	if (dissector_try_port(ipx_type_dissector_table, ipx_type, next_pd,
+	    next_offset, pinfo->fd, tree))
 		return;
+
 	switch (ipx_type) {
 		case IPX_PACKET_TYPE_WANBCAST:
 		case IPX_PACKET_TYPE_PEP:
 			if (ipx_dsocket == IPX_SOCKET_NETBIOS) {
-				dissect_nbipx(pd, offset, fd, tree);
+				dissect_nbipx(next_pd, next_offset, pinfo->fd, tree);
 				return;
 			}
 			/* else fall through */
@@ -371,25 +386,26 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			   if they're aimed at the NetBIOS socket? */
 			break;
 	}
-	if (dissector_try_port(ipx_socket_dissector_table, ipx_dsocket, pd,
-	    offset, fd, tree))
+
+	if (dissector_try_port(ipx_socket_dissector_table, ipx_dsocket, next_pd,
+	    next_offset, pinfo->fd, tree))
 		return;
-	if (dissector_try_port(ipx_socket_dissector_table, ipx_ssocket, pd,
-	    offset, fd, tree))
+	if (dissector_try_port(ipx_socket_dissector_table, ipx_ssocket, next_pd,
+	    next_offset, pinfo->fd, tree))
 		return;
-	dissect_data(pd, offset, fd, tree);
+	dissect_data_tvb(next_tvb, pinfo, tree);
 }
 
 
 /* ================================================================= */
 /* SPX                                                               */
 /* ================================================================= */
-static char*
-spx_conn_ctrl(u_char ctrl)
+static const char*
+spx_conn_ctrl(guint8 ctrl)
 {
-	int i=0;
+	const char *p;
 
-	static struct conn_info	conns[] = {
+	static const value_string conn_vals[] = {
 		{ 0x10, "End-of-Message" },
 		{ 0x20, "Attention" },
 		{ 0x40, "Acknowledgment Required"},
@@ -397,17 +413,18 @@ spx_conn_ctrl(u_char ctrl)
 		{ 0x00, NULL }
 	};
 
-	while (conns[i].text != NULL) {
-		if (conns[i].ctrl == ctrl) {
-			return conns[i].text;
-		}
-		i++;
+	p = match_strval(ctrl, conn_vals);
+
+	if (p) {
+		return p;
 	}
-	return "Unknown";
+	else {
+		return "Unknown";
+	}
 }
 
-static char*
-spx_datastream(u_char type)
+static const char*
+spx_datastream(guint8 type)
 {
 	switch (type) {
 		case 0xfe:
@@ -419,90 +436,97 @@ spx_datastream(u_char type)
 	}
 }
 
+#define SPX_HEADER_LEN	12
+
+#if 0
 static void
-dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+#else
+static void
+dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	packet_info	*pinfo = &pi;
+	tvbuff_t	*tvb = tvb_create_from_top(offset);
+#endif
 	proto_tree	*spx_tree;
 	proto_item	*ti;
+	tvbuff_t	*next_tvb;
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "SPX");
-	if (check_col(fd, COL_INFO))
-		col_add_str(fd, COL_INFO, "SPX");
+	guint8		conn_ctrl;
+	guint8		datastream_type;
+
+	pinfo->current_proto = "SPX";
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_add_str(pinfo->fd, COL_PROTOCOL, "SPX");
+	if (check_col(pinfo->fd, COL_INFO))
+		col_add_str(pinfo->fd, COL_INFO, "SPX");
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_spx, NullTVB, offset, 12, FALSE);
+		ti = proto_tree_add_item(tree, proto_spx, tvb, 0, SPX_HEADER_LEN, FALSE);
 		spx_tree = proto_item_add_subtree(ti, ett_spx);
 
-		proto_tree_add_uint_format(spx_tree, hf_spx_connection_control, NullTVB,
-					   offset,      1,
-					   pd[offset],
+		conn_ctrl = tvb_get_guint8(tvb, 0);
+		proto_tree_add_uint_format(spx_tree, hf_spx_connection_control, tvb,
+					   0, 1, conn_ctrl,
 					   "Connection Control: %s (0x%02X)",
-					   spx_conn_ctrl(pd[offset]), 
-					   pd[offset]);
+					   spx_conn_ctrl(conn_ctrl), conn_ctrl);
 
-		proto_tree_add_uint_format(spx_tree, hf_spx_datastream_type, NullTVB,
-					   offset+1,     1,
-					   pd[offset+1],
+		datastream_type = tvb_get_guint8(tvb, 1);
+		proto_tree_add_uint_format(spx_tree, hf_spx_datastream_type, tvb,
+					   1, 1, datastream_type,
 					   "Datastream Type: %s (0x%02X)",
-					   spx_datastream(pd[offset+1]), 
-					   pd[offset+1]);
+					   spx_datastream(datastream_type), datastream_type);
 
-		proto_tree_add_uint(spx_tree, hf_spx_src_id, NullTVB, 
-				    offset+2,     2,
-				    pntohs( &pd[offset+2] ));
+		proto_tree_add_item(spx_tree, hf_spx_src_id, tvb,  2, 2, FALSE);
+		proto_tree_add_item(spx_tree, hf_spx_dst_id, tvb,  4, 2, FALSE);
+		proto_tree_add_item(spx_tree, hf_spx_seq_nr, tvb,  6, 2, FALSE);
+		proto_tree_add_item(spx_tree, hf_spx_ack_nr, tvb,  8, 2, FALSE);
+		proto_tree_add_item(spx_tree, hf_spx_all_nr, tvb, 10, 2, FALSE);
 
-		proto_tree_add_uint(spx_tree, hf_spx_dst_id, NullTVB,
-				    offset+4,     2,
-				    pntohs( &pd[offset+4] ));
-
-		proto_tree_add_uint(spx_tree, hf_spx_seq_nr, NullTVB, 
-				    offset+6,     2,
-				    pntohs( &pd[offset+6] ) );
-
-		proto_tree_add_uint(spx_tree, hf_spx_ack_nr, NullTVB,
-				    offset+8,     2,
-				    pntohs( &pd[offset+8] ) );
-
-		proto_tree_add_uint(spx_tree, hf_spx_all_nr, NullTVB,
-				    offset+10,     2,
-				    pntohs( &pd[offset+10] ) );
-
-		offset += 12;
-		dissect_data(pd, offset, fd, tree);
+		next_tvb = tvb_new_subset(tvb, SPX_HEADER_LEN, -1, -1);
+		dissect_data_tvb(next_tvb, pinfo, tree);
 	}
 }
 
 /* ================================================================= */
 /* IPX Message                                                       */
 /* ================================================================= */
+#if 0
 static void
-dissect_ipxmsg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_ipxmsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+#else
+static void
+dissect_ipxmsg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	packet_info	*pinfo = &pi;
+	tvbuff_t	*tvb = tvb_create_from_top(offset);
+#endif
 	proto_tree	*msg_tree;
 	proto_item	*ti;
-	u_char conn_number, sig_char;
+	guint8		conn_number, sig_char;
 
-	if ( ! BYTES_ARE_IN_FRAME(offset,2) )
-	{
-		return;
-	}
+	pinfo->current_proto = "IPX MSG";
 
-	conn_number = pd[offset];
-	sig_char = pd[offset+1];
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+	 col_add_str(pinfo->fd, COL_PROTOCOL, "IPX MSG");
 
-	if (check_col(fd, COL_PROTOCOL))
-	 col_add_str(fd, COL_PROTOCOL, "IPX MSG");
-	if (check_col(fd, COL_PROTOCOL)) {
-		col_add_fstr(fd, COL_INFO, 
+	conn_number = tvb_get_guint8(tvb, 0);
+	sig_char = tvb_get_guint8(tvb, 1);
+
+	if (check_col(pinfo->fd, COL_PROTOCOL)) {
+		col_add_fstr(pinfo->fd, COL_INFO, 
 			"%s, Connection %d", 
 			val_to_str(sig_char, ipxmsg_sigchar_vals, "Unknown Signature Char"), conn_number);
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ipxmsg, NullTVB, offset, END_OF_FRAME, FALSE);
+		ti = proto_tree_add_item(tree, proto_ipxmsg, tvb, 0, tvb_length(tvb), FALSE);
 		msg_tree = proto_item_add_subtree(ti, ett_ipxmsg);
 
-		proto_tree_add_uint(msg_tree, hf_msg_conn, NullTVB, offset, 1, conn_number);
-		proto_tree_add_uint(msg_tree, hf_msg_sigchar, NullTVB, offset+1, 1, sig_char);
+		proto_tree_add_uint(msg_tree, hf_msg_conn, tvb, 0, 1, conn_number);
+		proto_tree_add_uint(msg_tree, hf_msg_sigchar, tvb, 1, 1, sig_char);
 	}
 }
 
@@ -510,66 +534,75 @@ dissect_ipxmsg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 /* ================================================================= */
 /* IPX RIP                                                           */
 /* ================================================================= */
+#if 0
 static void
-dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+#else
+static void
+dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	packet_info	*pinfo = &pi;
+	tvbuff_t	*tvb = tvb_create_from_top(offset);
+#endif
 	proto_tree	*rip_tree;
 	proto_item	*ti;
 	guint16		operation;
 	struct ipx_rt_def route;
 	int		cursor;
+	int		available_length;
 
-	char		*rip_type[2] = { "Request", "Response" };
+	char		*rip_type[3] = { "Request", "Response", "Unknown" };
 
-	operation = pntohs(&pd[offset]) - 1;
+	pinfo->current_proto = "IPX RIP";
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+	 col_add_str(pinfo->fd, COL_PROTOCOL, "IPX RIP");
 
-	if (check_col(fd, COL_PROTOCOL))
-	 col_add_str(fd, COL_PROTOCOL, "IPX RIP");
-	if (check_col(fd, COL_PROTOCOL)) {
-	 if (operation < 2) {
-		 col_add_str(fd, COL_INFO, rip_type[operation]);
-	 }
-	 else {
-		 col_add_str(fd, COL_INFO, "Unknown Packet Type");
-	 }
+	operation = tvb_get_ntohs(tvb, 0) - 1;
+
+	if (check_col(pinfo->fd, COL_PROTOCOL)) {
+		/* rip_types 0 and 1 are valid, anything else becomes 2 or "Unknown" */
+		col_add_str(pinfo->fd, COL_INFO, rip_type[MIN(operation, 2)]);
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ipxrip, NullTVB, offset, END_OF_FRAME, FALSE);
+		ti = proto_tree_add_item(tree, proto_ipxrip, tvb, 0, tvb_length(tvb), FALSE);
 		rip_tree = proto_item_add_subtree(ti, ett_ipxrip);
 
 		if (operation < 2) {
-			proto_tree_add_text(rip_tree, NullTVB, offset, 2,
+			proto_tree_add_text(rip_tree, tvb, 0, 2,
 			"RIP packet type: %s", rip_type[operation]);
 
 			if (operation == 0) {
 			  proto_tree_add_boolean_hidden(rip_tree, 
 						     hf_ipxrip_request, 
-						     NullTVB, offset, 2, 1);
+						     tvb, 0, 2, 1);
 			} else {
 			  proto_tree_add_boolean_hidden(rip_tree, 
 						     hf_ipxrip_response, 
-						     NullTVB, offset, 2, 1);
+						     tvb, 0, 2, 1);
 			}
 
 		}
 		else {
-			proto_tree_add_text(rip_tree, NullTVB, offset, 2, "Unknown RIP packet type");
+			proto_tree_add_text(rip_tree, tvb, 0, 2, "Unknown RIP packet type");
 		}
 
-		for (cursor = offset + 2; cursor < pi.captured_len; cursor += 8) {
-			memcpy(&route.network, &pd[cursor], 4);
-			route.hops = pntohs(&pd[cursor+4]);
-			route.ticks = pntohs(&pd[cursor+6]);
+		available_length = tvb_length(tvb);
+		for (cursor =  2; cursor < available_length; cursor += 8) {
+			memcpy(&route.network, tvb_get_ptr(tvb, cursor, 4), 4);
+			route.hops = tvb_get_ntohs(tvb, cursor+4);
+			route.ticks = tvb_get_ntohs(tvb, cursor+6);
 
 			if (operation == IPX_RIP_REQUEST - 1) {
-				proto_tree_add_text(rip_tree, NullTVB, cursor,      8,
+				proto_tree_add_text(rip_tree, tvb, cursor,      8,
 					"Route Vector: %s, %d hop%s, %d tick%s",
 					ipxnet_to_string((guint8*)&route.network),
 					route.hops,  route.hops  == 1 ? "" : "s",
 					route.ticks, route.ticks == 1 ? "" : "s");
 			}
 			else {
-				proto_tree_add_text(rip_tree, NullTVB, cursor,      8,
+				proto_tree_add_text(rip_tree, tvb, cursor,      8,
 					"Route Vector: %s, %d hop%s, %d tick%s (%d ms)",
 					ipxnet_to_string((guint8*)&route.network),
 					route.hops,  route.hops  == 1 ? "" : "s",
@@ -585,13 +618,13 @@ dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 /* ================================================================= */
 /* SAP	        							 */
 /* ================================================================= */
-static char*
+static const char*
 server_type(guint16 type)
 {
-	int i=0;
+	const char *p;
 
 	/* some of these are from ncpfs, others are from the book */
-	static struct server_info	servers[] = {
+	static const value_string server_vals[] = {
 		{ 0x0001,	"User" },
 		{ 0x0002,	"User Group" },
 		{ 0x0003,	"Print Queue" },
@@ -646,17 +679,26 @@ server_type(guint16 type)
 		{ 0x0000,	NULL }
 	};
 
-	while (servers[i].text != NULL) {
-		if (servers[i].type == type) {
-			return servers[i].text;
-		}
-		i++;
+	p = match_strval(type, server_vals);
+	if (p) {
+		return p;
 	}
-	return "Unknown";
+	else {
+		return "Unknown";
+	}
 }
 
+#if 0
 static void
-dissect_ipxsap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+#else
+static void
+dissect_ipxsap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	packet_info	*pinfo = &pi;
+	tvbuff_t	*tvb = tvb_create_from_top(offset);
+#endif
 
 	proto_tree	*sap_tree, *s_tree;
 	proto_item	*ti;
@@ -667,71 +709,74 @@ dissect_ipxsap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	char		*sap_type[4] = { "General Query", "General Response",
 		"Nearest Query", "Nearest Response" };
 
-	query.query_type = pntohs(&pd[offset]);
-	query.server_type = pntohs(&pd[offset+2]);
+	pinfo->current_proto = "IPX SAP";
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_add_str(pinfo->fd, COL_PROTOCOL, "IPX SAP");
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "SAP");
-	if (check_col(fd, COL_INFO)) {
+	query.query_type = tvb_get_ntohs(tvb, 0);
+	query.server_type = tvb_get_ntohs(tvb, 2);
+
+	if (check_col(pinfo->fd, COL_INFO)) {
 		if (query.query_type >= 1 && query.query_type <= 4) {
-			col_add_str(fd, COL_INFO, sap_type[query.query_type - 1]);
+			col_add_str(pinfo->fd, COL_INFO, sap_type[query.query_type - 1]);
 		}
 		else {
-			col_add_str(fd, COL_INFO, "Unknown Packet Type");
+			col_add_str(pinfo->fd, COL_INFO, "Unknown Packet Type");
 		}
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_sap, NullTVB, offset, END_OF_FRAME, FALSE);
+		ti = proto_tree_add_item(tree, proto_sap, tvb, 0, tvb_length(tvb), FALSE);
 		sap_tree = proto_item_add_subtree(ti, ett_ipxsap);
 
 		if (query.query_type >= 1 && query.query_type <= 4) {
-			proto_tree_add_text(sap_tree, NullTVB, offset, 2, sap_type[query.query_type - 1]);
+			proto_tree_add_text(sap_tree, tvb, 0, 2, sap_type[query.query_type - 1]);
 			if ((query.query_type - 1) % 2) {
 			  proto_tree_add_boolean_hidden(sap_tree, 
 						     hf_sap_response, 
-						     NullTVB, offset, 2, 1);
+						     tvb, 0, 2, 1);
 			} else {
 			  proto_tree_add_boolean_hidden(sap_tree, 
 						     hf_sap_request, 
-						     NullTVB, offset, 2, 1);
+						     tvb, 0, 2, 1);
 			}
 		}
 		else {
-			proto_tree_add_text(sap_tree, NullTVB, offset, 2,
+			proto_tree_add_text(sap_tree, tvb, 0, 2,
 					"Unknown SAP Packet Type %d", query.query_type);
 		}
 
 		if (query.query_type == IPX_SAP_GENERAL_RESPONSE ||
 				query.query_type == IPX_SAP_NEAREST_RESPONSE) { /* responses */
 
-			for (cursor = offset + 2; (cursor + 64) <= pi.captured_len; cursor += 64) {
-				server.server_type = pntohs(&pd[cursor]);
-				memcpy(server.server_name, &pd[cursor+2], 48);
-				memcpy(&server.server_network, &pd[cursor+50], 4);
-				memcpy(&server.server_node, &pd[cursor+54], 6);
-				server.server_port = pntohs(&pd[cursor+60]);
-				server.intermediate_network = pntohs(&pd[cursor+62]);
+			int available_length = tvb_length(tvb);
+			for (cursor =  2; (cursor + 64) <= available_length; cursor += 64) {
+				server.server_type = tvb_get_ntohs(tvb, cursor);
+				memcpy(server.server_name, tvb_get_ptr(tvb, cursor+2, 48), 48);
+				memcpy(&server.server_network, tvb_get_ptr(tvb, cursor+50, 4), 4);
+				memcpy(&server.server_node, tvb_get_ptr(tvb, cursor+54, 6), 6);
+				server.server_port = tvb_get_ntohs(tvb, cursor+60);
+				server.intermediate_network = tvb_get_ntohs(tvb, cursor+62);
 
-				ti = proto_tree_add_text(sap_tree, NullTVB, cursor+2, 48,
+				ti = proto_tree_add_text(sap_tree, tvb, cursor+2, 48,
 					"Server Name: %s", server.server_name);
 				s_tree = proto_item_add_subtree(ti, ett_ipxsap_server);
 
-				proto_tree_add_text(s_tree, NullTVB, cursor, 2, "Server Type: %s (0x%04X)",
+				proto_tree_add_text(s_tree, tvb, cursor, 2, "Server Type: %s (0x%04X)",
 						server_type(server.server_type), server.server_type);
-				proto_tree_add_text(s_tree, NullTVB, cursor+50, 4, "Network: %s",
-						ipxnet_to_string((guint8*)&pd[cursor+50]));
-				proto_tree_add_text(s_tree, NullTVB, cursor+54, 6, "Node: %s",
-						ether_to_str((guint8*)&pd[cursor+54]));
-				proto_tree_add_text(s_tree, NullTVB, cursor+60, 2, "Socket: %s (0x%04X)",
-						port_text(server.server_port), server.server_port);
-				proto_tree_add_text(s_tree, NullTVB, cursor+62, 2,
+				proto_tree_add_text(s_tree, tvb, cursor+50, 4, "Network: %s",
+						ipxnet_to_string((guint8*)tvb_get_ptr(tvb, cursor+50, 4)));
+				proto_tree_add_text(s_tree, tvb, cursor+54, 6, "Node: %s",
+						ether_to_str((guint8*)tvb_get_ptr(tvb, cursor+54, 6)));
+				proto_tree_add_text(s_tree, tvb, cursor+60, 2, "Socket: %s (0x%04X)",
+						socket_text(server.server_port), server.server_port);
+				proto_tree_add_text(s_tree, tvb, cursor+62, 2,
 						"Intermediate Networks: %d",
 						server.intermediate_network);
 			}
 		}
 		else {  /* queries */
-			proto_tree_add_text(sap_tree, NullTVB, offset+2, 2, "Server Type: %s (0x%04X)",
+			proto_tree_add_text(sap_tree, tvb, 2, 2, "Server Type: %s (0x%04X)",
 					server_type(query.server_type), query.server_type);
 		}
 	}
