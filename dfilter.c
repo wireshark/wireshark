@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.17 1999/08/29 04:06:43 gram Exp $
+ * $Id: dfilter.c,v 1.18 1999/08/30 15:51:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -553,7 +553,6 @@ gboolean fill_array_numeric_value(GNode *gnode, gpointer data)
 	dfilter_node	*dnode = (dfilter_node*) (gnode->data);
 
 	g_array_append_val(array, dnode->value.numeric);
-
 	return FALSE; /* FALSE = do not end traversal of GNode tree */
 }
 

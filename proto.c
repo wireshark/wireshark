@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.19 1999/08/29 04:06:43 gram Exp $
+ * $Id: proto.c,v 1.20 1999/08/30 15:51:44 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -753,8 +753,12 @@ proto_find_protocol_multi(proto_tree* tree, int target, GNodeTraverseFunc callba
 gboolean
 proto_get_field_values(proto_tree* subtree, proto_tree_search_info *sinfo)
 {
+	/* Don't try to check value of top-level NULL GNode */
+	if (!((GNode*)subtree)->data) {
+		return FALSE; /* don't halt */
+	}
 	g_node_traverse((GNode*)subtree, G_IN_ORDER, G_TRAVERSE_ALL, -1, sinfo->traverse_func, (gpointer*)sinfo);
-	return TRUE; /* halt */
+	return FALSE; /* don't halt */
 }
 
 /* Dumps the contents of the registration database to stdout. An indepedent program can take
