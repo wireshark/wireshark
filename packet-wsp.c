@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.95 2003/12/15 22:38:29 obiot Exp $
+ * $Id: packet-wsp.c,v 1.96 2003/12/16 22:39:32 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -13,7 +13,8 @@
  * WTLS support by Alexandre P. Ferreira (Splice IP)
  * Openwave header support by Dermot Bradley <dermot.bradley@openwave.com>
  * Code optimizations, header value dissection simplification with parse error
- * notification and macros, extra missing headers, WBXML registration
+ * notification and macros, extra missing headers, WBXML registration,
+ * Session Initiation Request dissection
  * by Olivier Biot <olivier.biot(ad)siemens.com>.
  *
  * TODO - Move parts of dissection before and other parts after "if (tree)",
@@ -57,6 +58,21 @@
 #include "packet-wsp.h"
 
 #define PLURALIZE(x)	( (x) == 1 ? "" : "s" )
+
+/* General-purpose debug logger.
+ * Requires double parentheses because of variable arguments of printf().
+ *
+ * Enable debug logging for WBXML by defining AM_FLAGS
+ * so that it contains "-DDEBUG_wbxml"
+ */
+#ifdef DEBUG_wsp
+#define DebugLog(x) \
+	printf("%s:%u: ", __FILE__, __LINE__); \
+	printf x; \
+	fflush(stdout)
+#else
+#define DebugLog(x) ;
+#endif
 
 /* Statistics (see doc/README.tapping) */
 #include "tap.h"
@@ -220,16 +236,25 @@ static int hf_wsp_header_tid				= HF_EMPTY;
 static int hf_wsp_header_pdu_type			= HF_EMPTY;
 static int hf_wsp_version_major				= HF_EMPTY;
 static int hf_wsp_version_minor				= HF_EMPTY;
-static int hf_wsp_capability_length			= HF_EMPTY;
-static int hf_wsp_capabilities_section			= HF_EMPTY;
-static int hf_wsp_capabilities_client_SDU		= HF_EMPTY;
-static int hf_wsp_capabilities_server_SDU		= HF_EMPTY;
-static int hf_wsp_capabilities_protocol_opt		= HF_EMPTY;
-static int hf_wsp_capabilities_method_MOR		= HF_EMPTY;
-static int hf_wsp_capabilities_push_MOR			= HF_EMPTY;
-static int hf_wsp_capabilities_extended_methods		= HF_EMPTY;
-static int hf_wsp_capabilities_header_code_pages	= HF_EMPTY;
-static int hf_wsp_capabilities_aliases			= HF_EMPTY;
+/* Session capabilities (CO-WSP) */
+static int hf_capabilities_length		= HF_EMPTY;
+static int hf_capabilities_section		= HF_EMPTY;
+static int hf_capa_client_sdu_size		= HF_EMPTY;
+static int hf_capa_server_sdu_size		= HF_EMPTY;
+static int hf_capa_protocol_options		= HF_EMPTY;
+static int hf_capa_protocol_option_confirmed_push		= HF_EMPTY; /* Subfield */
+static int hf_capa_protocol_option_push					= HF_EMPTY; /* Subfield */
+static int hf_capa_protocol_option_session_resume		= HF_EMPTY; /* Subfield */
+static int hf_capa_protocol_option_ack_headers			= HF_EMPTY; /* Subfield */
+static int hf_capa_protocol_option_large_data_transfer	= HF_EMPTY; /* Subfield */
+static int hf_capa_method_mor			= HF_EMPTY;
+static int hf_capa_push_mor				= HF_EMPTY;
+static int hf_capa_extended_methods		= HF_EMPTY;
+static int hf_capa_header_code_pages	= HF_EMPTY;
+static int hf_capa_aliases				= HF_EMPTY;
+static int hf_capa_client_message_size	= HF_EMPTY;
+static int hf_capa_server_message_size	= HF_EMPTY;
+
 static int hf_wsp_header_uri_len			= HF_EMPTY;
 static int hf_wsp_header_uri				= HF_EMPTY;
 static int hf_wsp_server_session_id			= HF_EMPTY;
@@ -262,18 +287,38 @@ static int hf_wsp_mpart					= HF_EMPTY;
 static int hf_wsp_header_shift_code			= HF_EMPTY;
 
 /* WSP Redirect fields */
-static int hf_wsp_redirect_flags			= HF_EMPTY;
-static int hf_wsp_redirect_permanent			= HF_EMPTY;
+static int hf_wsp_redirect_flags					= HF_EMPTY;
+static int hf_wsp_redirect_permanent				= HF_EMPTY;
 static int hf_wsp_redirect_reuse_security_session	= HF_EMPTY;
-static int hf_wsp_redirect_afl				= HF_EMPTY;
-static int hf_wsp_redirect_afl_bearer_type_included	= HF_EMPTY;
-static int hf_wsp_redirect_afl_port_number_included	= HF_EMPTY;
-static int hf_wsp_redirect_afl_address_len		= HF_EMPTY;
-static int hf_wsp_redirect_bearer_type			= HF_EMPTY;
-static int hf_wsp_redirect_port_num			= HF_EMPTY;
-static int hf_wsp_redirect_ipv4_addr			= HF_EMPTY;
-static int hf_wsp_redirect_ipv6_addr			= HF_EMPTY;
-static int hf_wsp_redirect_addr				= HF_EMPTY;
+static int hf_redirect_addresses					= HF_EMPTY;
+
+/* Address fields */
+static gint hf_address_entry			= HF_EMPTY;
+static int hf_address_flags_length		= HF_EMPTY;
+static int hf_address_flags_length_bearer_type_included	= HF_EMPTY; /* Subfield */
+static int hf_address_flags_length_port_number_included	= HF_EMPTY; /* Subfield */
+static int hf_address_flags_length_address_len			= HF_EMPTY; /* Subfield */
+static int hf_address_bearer_type		= HF_EMPTY;
+static int hf_address_port_num			= HF_EMPTY;
+static int hf_address_ipv4_addr			= HF_EMPTY;
+static int hf_address_ipv6_addr			= HF_EMPTY;
+static int hf_address_addr				= HF_EMPTY;
+
+/* Session Initiation Request fields */
+static gint hf_sir_section					= HF_EMPTY;
+static gint hf_sir_version					= HF_EMPTY;
+static gint hf_sir_app_id_list_len			= HF_EMPTY;
+static gint hf_sir_app_id_list				= HF_EMPTY;
+static gint hf_sir_wsp_contact_points_len	= HF_EMPTY;
+static gint hf_sir_wsp_contact_points		= HF_EMPTY;
+static gint hf_sir_contact_points_len		= HF_EMPTY;
+static gint hf_sir_contact_points			= HF_EMPTY;
+static gint hf_sir_protocol_options_len		= HF_EMPTY;
+static gint hf_sir_protocol_options			= HF_EMPTY;
+static int hf_sir_prov_url_len				= HF_EMPTY;
+static int hf_sir_prov_url					= HF_EMPTY;
+static int hf_sir_cpi_tag_len				= HF_EMPTY;
+static int hf_sir_cpi_tag					= HF_EMPTY;
 
 /*
  * Initialize the subtree pointers
@@ -287,11 +332,16 @@ static gint ett_header 					= ETT_EMPTY;
 static gint ett_headers					= ETT_EMPTY;
 /* CO-WSP session capabilities */
 static gint ett_capabilities			= ETT_EMPTY;
+static gint ett_capability				= ETT_EMPTY;
 static gint ett_post					= ETT_EMPTY;
 static gint ett_redirect_flags			= ETT_EMPTY;
-static gint ett_redirect_afl			= ETT_EMPTY;
+static gint ett_address_flags			= ETT_EMPTY;
 static gint ett_multiparts				= ETT_EMPTY;
 static gint ett_mpartlist				= ETT_EMPTY;
+/* Session Initiation Request tree */
+static gint ett_sir						= ETT_EMPTY;
+static gint ett_addresses				= ETT_EMPTY;
+static gint ett_address					= ETT_EMPTY;
 
 
 
@@ -515,6 +565,9 @@ const value_string vals_wsp_reason_codes[] = {
 #define FN_CONTENT_DISPOSITION14	0x45	/* encoding version 1.4 */
 #define FN_X_WAP_SECURITY	0x46
 #define FN_CACHE_CONTROL14	0x47	/* encoding version 1.4 */
+#define FN_EXPECT15 0x48	/* encoding version 1.5 */
+#define FN_X_WAP_LOC_INVOCATION 0x49
+#define FN_X_WAP_LOC_DELIVERY 0x4A
 
 
 /*
@@ -659,6 +712,10 @@ static const value_string vals_field_names[] = {
 	{ FN_CONTENT_DISPOSITION14,"Content-Disposition (encoding 1.4)" },
 	{ FN_X_WAP_SECURITY,       "X-WAP-Security" },
 	{ FN_CACHE_CONTROL14,      "Cache-Control (encoding 1.4)" },
+	/* encoding-version 1.5 */
+	{ FN_EXPECT15,             "Expect (encoding 1.5)" },
+	{ FN_X_WAP_LOC_INVOCATION, "X-Wap-Loc-Invocation" },
+	{ FN_X_WAP_LOC_DELIVERY,   "X-Wap-Loc-Delivery" },
 	{ 0,                       NULL }
 };
 
@@ -1146,12 +1203,6 @@ enum {
 
 #define VAL_STRING_SIZE 200
 
-typedef enum {
-	VALUE_LEN_SUPPLIED,
-	VALUE_IS_TEXT_STRING,
-	VALUE_IN_LEN,
-} value_type_t;
-
 /* Dissector tables for handoff */
 static dissector_table_t media_type_table;
 static heur_dissector_list_t heur_subdissector_list;
@@ -1161,17 +1212,14 @@ static void add_uri (proto_tree *, packet_info *, tvbuff_t *, guint, guint);
 static void add_post_variable (proto_tree *, tvbuff_t *, guint, guint, guint, guint);
 static void add_multipart_data (proto_tree *, tvbuff_t *);
 
-static void add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type);
-static void add_capability_vals(tvbuff_t *, gboolean, int, guint, guint, char *, size_t);
-static guint get_uintvar (tvbuff_t *, guint, guint);
-
+static void add_capabilities (proto_tree *tree, tvbuff_t *tvb, guint8 pdu_type);
 
 
 /*
  * Dissect the WSP header part.
  * This function calls wkh_XXX functions that dissect well-known headers.
  */
-static void add_headers (proto_tree *tree, tvbuff_t *tvb);
+static void add_headers (proto_tree *tree, tvbuff_t *tvb, int hf);
 
 /* The following macros define WSP basic data structures as found
  * in the ABNF notation of WSP headers.
@@ -1680,7 +1728,7 @@ static const hdr_parse_func_ptr WellKnownOpenwaveHeader[128] = {
  *         2nd byte: 0x80 -- 0xFF: <Binary value (7-bit encoded ID)>
  */
 static void
-add_headers (proto_tree *tree, tvbuff_t *tvb)
+add_headers (proto_tree *tree, tvbuff_t *tvb, int hf)
 {
 	guint8 hdr_id, val_id, codepage = 1;
 	gint32 tvb_len = tvb_length(tvb);
@@ -1696,7 +1744,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb)
 	if (offset >= tvb_len)
 		return; /* No headers! */
 
-	ti = proto_tree_add_item(tree, hf_wsp_headers_section,
+	ti = proto_tree_add_item(tree, hf,
 			tvb, offset, tvb_len, bo_little_endian);
 	wsp_headers = proto_item_add_subtree(ti, ett_headers);
 
@@ -1709,17 +1757,15 @@ add_headers (proto_tree *tree, tvbuff_t *tvb)
 			val_id = tvb_get_guint8(tvb, val_start);
 			/* Call header value dissector for given header */
 			if (codepage == 1) { /* Default header code page */
-#ifdef DEBUG
-				printf("DBG: %s\n", match_strval (hdr_id & 0x7f, vals_field_names));
-#endif
+				DebugLog(("add_headers(code page 0): %s\n",
+							match_strval (hdr_id & 0x7f, vals_field_names)));
 				offset = WellKnownHeader[hdr_id & 0x7F](wsp_headers, tvb,
 						hdr_start);
 			} else { /* Openwave header code page */
 				/* Here I'm delibarately assuming that Openwave is the only
 				 * company that defines a WSP header code page. */
-#ifdef DEBUG
-				printf("DBG: %s\n", match_strval (hdr_id & 0x7f, vals_openwave_field_names));
-#endif
+				DebugLog(("add_headers(code page 0x%02x - assumed to be x-up-1): %s\n",
+							codepage, match_strval (hdr_id & 0x7f, vals_openwave_field_names)));
 				offset = WellKnownOpenwaveHeader[hdr_id & 0x7F](wsp_headers,
 						tvb, hdr_start);
 			}
@@ -4174,17 +4220,23 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	guint8 flags;
 	proto_item *ti;
+	proto_tree *addresses_tree;
+	proto_tree *addr_tree = NULL;
 	proto_tree *flags_tree;
 	guint8 bearer_type;
 	guint8 address_flags_len;
 	int address_len;
-	proto_tree *atf_tree;
+	proto_tree *address_flags_tree;
 	guint16 port_num;
 	guint32 address_ipv4;
 	struct e_in6_addr address_ipv6;
 	address redir_address;
 	conversation_t *conv;
+	guint32 index = 0; /* Address index */
 
+	/*
+	 * Redirect flags.
+	 */
 	flags = tvb_get_guint8 (tvb, offset);
 	if (tree) {
 		ti = proto_tree_add_uint (tree, hf_wsp_redirect_flags,
@@ -4196,33 +4248,51 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    tvb, offset, 1, flags);
 	}
 	offset++;
+
+	/*
+	 * Redirect addresses.
+	 */
+	ti = proto_tree_add_item(tree, hf_redirect_addresses, tvb, 0, -1, bo_little_endian);
+	addresses_tree = proto_item_add_subtree(ti, ett_addresses);
+
 	while (tvb_reported_length_remaining (tvb, offset) > 0) {
+		index++;
+		/*
+		 * Read a single address at a time.
+		 */
 		address_flags_len = tvb_get_guint8 (tvb, offset);
+		address_len = address_flags_len & ADDRESS_LEN;
 		if (tree) {
-			ti = proto_tree_add_uint (tree, hf_wsp_redirect_afl,
+
+			ti = proto_tree_add_uint(addresses_tree, hf_address_entry,
+					tvb, offset, 1 + address_len, index);
+			addr_tree = proto_item_add_subtree(ti, ett_address);
+
+			ti = proto_tree_add_uint (addr_tree, hf_address_flags_length,
 			    tvb, offset, 1, address_flags_len);
-			atf_tree = proto_item_add_subtree (ti, ett_redirect_afl);
-			proto_tree_add_boolean (atf_tree, hf_wsp_redirect_afl_bearer_type_included,
+			address_flags_tree = proto_item_add_subtree (ti, ett_address_flags);
+			proto_tree_add_boolean (address_flags_tree, hf_address_flags_length_bearer_type_included,
 			    tvb, offset, 1, address_flags_len);
-			proto_tree_add_boolean (atf_tree, hf_wsp_redirect_afl_port_number_included,
+			proto_tree_add_boolean (address_flags_tree, hf_address_flags_length_port_number_included,
 			    tvb, offset, 1, address_flags_len);
-			proto_tree_add_uint (atf_tree, hf_wsp_redirect_afl_address_len,
+			proto_tree_add_uint (address_flags_tree, hf_address_flags_length_address_len,
 			    tvb, offset, 1, address_flags_len);
 		}
 		offset++;
 		if (address_flags_len & BEARER_TYPE_INCLUDED) {
 			bearer_type = tvb_get_guint8 (tvb, offset);
 			if (tree) {
-				proto_tree_add_uint (tree, hf_wsp_redirect_bearer_type,
+				proto_tree_add_uint (addr_tree, hf_address_bearer_type,
 				    tvb, offset, 1, bearer_type);
 			}
 			offset++;
-		} else
+		} else {
 			bearer_type = 0x00;	/* XXX */
+		}
 		if (address_flags_len & PORT_NUMBER_INCLUDED) {
 			port_num = tvb_get_ntohs (tvb, offset);
 			if (tree) {
-				proto_tree_add_uint (tree, hf_wsp_redirect_port_num,
+				proto_tree_add_uint (addr_tree, hf_address_port_num,
 				    tvb, offset, 2, port_num);
 			}
 			offset += 2;
@@ -4234,7 +4304,6 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 */
 			port_num = pinfo->srcport;
 		}
-		address_len = address_flags_len & ADDRESS_LEN;
 		if (!(address_flags_len & BEARER_TYPE_INCLUDED)) {
 			/*
 			 * We don't have the bearer type in the message,
@@ -4276,8 +4345,8 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			}
 			tvb_memcpy(tvb, (guint8 *)&address_ipv4, offset, 4);
 			if (tree) {
-				proto_tree_add_ipv4 (tree,
-				    hf_wsp_redirect_ipv4_addr,
+				proto_tree_add_ipv4 (addr_tree,
+				    hf_address_ipv4_addr,
 				    tvb, offset, 4, address_ipv4);
 			}
 
@@ -4310,8 +4379,8 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			}
 			tvb_memcpy(tvb, (guint8 *)&address_ipv6, offset, 16);
 			if (tree) {
-				proto_tree_add_ipv6 (tree,
-				    hf_wsp_redirect_ipv6_addr,
+				proto_tree_add_ipv6 (addr_tree,
+				    hf_address_ipv6_addr,
 				    tvb, offset, 16, (guint8 *)&address_ipv6);
 			}
 
@@ -4336,15 +4405,271 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		default:
 			if (address_len != 0) {
 				if (tree) {
-					proto_tree_add_item (tree,
-					    hf_wsp_redirect_addr,
-					    tvb, offset, address_len,
-					    bo_little_endian);
+					proto_tree_add_item (addr_tree, hf_address_addr,
+							tvb, offset, address_len, bo_little_endian);
 				}
 			}
 			break;
 		}
 		offset += address_len;
+	} /* while */
+}
+
+static void
+add_addresses(proto_tree *tree, tvbuff_t *tvb, int hf)
+{
+	proto_item *ti;
+	proto_tree *addresses_tree;
+	proto_tree *addr_tree;
+	guint8 bearer_type;
+	guint8 address_flags_len;
+	int address_len;
+	proto_tree *address_flags_tree;
+	guint16 port_num;
+	guint32 address_ipv4;
+	struct e_in6_addr address_ipv6;
+	guint32 tvb_len = tvb_length(tvb);
+	guint32 offset = 0;
+	guint32 index = 0; /* Address index */
+
+	/* Skip needless processing */
+	if (! tree)
+		return;
+	if (offset >= tvb_len)
+		return;
+
+	/*
+	 * Addresses.
+	 */
+	ti = proto_tree_add_item(tree, hf, tvb, 0, -1, bo_little_endian);
+	addresses_tree = proto_item_add_subtree(ti, ett_addresses);
+
+	while (offset < tvb_len) {
+		index++;
+		/*
+		 * Read a single address at a time.
+		 */
+		address_flags_len = tvb_get_guint8 (tvb, offset);
+		address_len = address_flags_len & ADDRESS_LEN;
+
+		ti = proto_tree_add_uint(addresses_tree, hf_address_entry,
+				tvb, offset, 1 + address_len, index);
+		addr_tree = proto_item_add_subtree(ti, ett_address);
+
+		ti = proto_tree_add_uint (addr_tree, hf_address_flags_length,
+				tvb, offset, 1, address_flags_len);
+		address_flags_tree = proto_item_add_subtree (ti, ett_address_flags);
+		proto_tree_add_boolean (address_flags_tree, hf_address_flags_length_bearer_type_included,
+				tvb, offset, 1, address_flags_len);
+		proto_tree_add_boolean (address_flags_tree, hf_address_flags_length_port_number_included,
+				tvb, offset, 1, address_flags_len);
+		proto_tree_add_uint (address_flags_tree, hf_address_flags_length_address_len,
+				tvb, offset, 1, address_flags_len);
+		offset++;
+		if (address_flags_len & BEARER_TYPE_INCLUDED) {
+			bearer_type = tvb_get_guint8 (tvb, offset);
+			proto_tree_add_uint (addr_tree, hf_address_bearer_type,
+					tvb, offset, 1, bearer_type);
+			offset++;
+		} else {
+			bearer_type = 0x00;	/* XXX */
+		}
+		if (address_flags_len & PORT_NUMBER_INCLUDED) {
+			port_num = tvb_get_ntohs (tvb, offset);
+				proto_tree_add_uint (addr_tree, hf_address_port_num,
+						tvb, offset, 2, port_num);
+			offset += 2;
+		} else {
+			/*
+			 * Redirecting to the same server port number as was
+			 * being used, i.e. the source port number of this
+			 * redirect.
+			 */
+			port_num = 0;
+		}
+		if (!(address_flags_len & BEARER_TYPE_INCLUDED)) {
+			/*
+			 * We don't have the bearer type in the message,
+			 * so we don't know the address type.
+			 * (It's the same bearer type as the original
+			 * connection.)
+			 */
+			goto unknown_address_type;
+		}
+
+		/*
+		 * We know the bearer type, so we know the address type.
+		 */
+		switch (bearer_type) {
+
+		case BT_IPv4:
+		case BT_IS_95_CSD:
+		case BT_IS_95_PACKET_DATA:
+		case BT_ANSI_136_CSD:
+		case BT_ANSI_136_PACKET_DATA:
+		case BT_GSM_CSD:
+		case BT_GSM_GPRS:
+		case BT_GSM_USSD_IPv4:
+		case BT_AMPS_CDPD:
+		case BT_PDC_CSD:
+		case BT_PDC_PACKET_DATA:
+		case BT_IDEN_CSD:
+		case BT_IDEN_PACKET_DATA:
+		case BT_PHS_CSD:
+		case BT_TETRA_PACKET_DATA:
+			/*
+			 * IPv4.
+			 */
+			if (address_len != 4) {
+				/*
+				 * Say what?
+				 */
+				goto unknown_address_type;
+			}
+			tvb_memcpy(tvb, (guint8 *)&address_ipv4, offset, 4);
+			proto_tree_add_ipv4 (addr_tree, hf_address_ipv4_addr,
+					tvb, offset, 4, address_ipv4);
+			break;
+
+		case BT_IPv6:
+			/*
+			 * IPv6.
+			 */
+			if (address_len != 16) {
+				/*
+				 * Say what?
+				 */
+				goto unknown_address_type;
+			}
+			tvb_memcpy(tvb, (guint8 *)&address_ipv6, offset, 16);
+			proto_tree_add_ipv6 (addr_tree, hf_address_ipv6_addr,
+					tvb, offset, 16, (guint8 *)&address_ipv6);
+			break;
+
+		unknown_address_type:
+		default:
+			if (address_len != 0) {
+				proto_tree_add_item (addr_tree, hf_address_addr,
+						tvb, offset, address_len, bo_little_endian);
+			}
+			break;
+		}
+		offset += address_len;
+	} /* while */
+}
+
+static const value_string vals_sir_protocol_options[] = {
+	{ 0, "OTA-HTTP, no CPITag present" },
+	{ 1, "OTA-HTTP, CPITag present" },
+	/* 2--255 are reserved */
+	/* 256--16383 are available for private WINA registration */
+
+	{ 0x00, NULL }
+};
+
+/*
+ * Dissect a Session Initiation Request.
+ *
+ * Arguably this should be a separate dissector, but SIR does not make sense
+ * outside of WSP anyway.
+ */
+static void
+dissect_sir(proto_tree *tree, tvbuff_t *tvb)
+{
+	guint8 version;
+	guint32 val_len;
+	guint32 len;
+	guint32 offset = 0;
+	guint32 i;
+	tvbuff_t *tmp_tvb;
+	proto_tree *subtree;
+	proto_item *ti;
+
+	if (! tree)
+		return;
+
+	ti = proto_tree_add_item(tree, hf_sir_section,
+			tvb, 0, -1, bo_little_endian);
+	subtree = proto_item_add_subtree(ti, ett_sir);
+	
+	/* Version */
+	version = tvb_get_guint8(tvb, 0);
+	proto_tree_add_uint(subtree, hf_sir_version,
+			tvb, 0, 1, version);
+
+	/* Length of Application-Id headers list */
+	val_len = tvb_get_guintvar(tvb, 1, &len);
+	proto_tree_add_uint(subtree, hf_sir_app_id_list_len,
+			tvb, 1, len, val_len);
+	offset = 1 + len;
+	/* Application-Id headers */
+	tmp_tvb = tvb_new_subset(tvb, offset, val_len, val_len);
+	add_headers (subtree, tmp_tvb, hf_sir_app_id_list);
+	offset += val_len;
+
+	/* Length of WSP contact points list */
+	val_len = tvb_get_guintvar(tvb, offset, &len);
+	proto_tree_add_uint(subtree, hf_sir_wsp_contact_points_len,
+			tvb, offset, len, val_len);
+	offset += len;
+	/* WSP contact point list */
+	tmp_tvb = tvb_new_subset (tvb, offset, val_len, val_len);
+	add_addresses(subtree, tmp_tvb, hf_sir_wsp_contact_points);
+	g_free(tmp_tvb);
+
+	/* End of version 0 SIR content */
+	if (version == 0)
+		return;
+
+	/* Length of non-WSP contact points list */
+	val_len = tvb_get_guintvar(tvb, offset, &len);
+	proto_tree_add_uint(subtree, hf_sir_contact_points_len,
+			tvb, offset, len, val_len);
+	offset += len;
+	/* Non-WSP contact point list */
+	tmp_tvb = tvb_new_subset (tvb, offset, val_len, val_len);
+	add_addresses(subtree, tmp_tvb, hf_sir_contact_points);
+	g_free(tmp_tvb);
+
+	/* Number of entries in the Protocol Options list */
+	val_len = tvb_get_guintvar(tvb, offset, &len);
+	proto_tree_add_uint(subtree, hf_sir_protocol_options_len,
+			tvb, offset, len, val_len);
+	offset += len;
+	/* Protocol Options list.
+	 * Each protocol option is encoded as a guintvar */
+	for (i = 0; i < val_len; i++) {
+		val_len = tvb_get_guintvar(tvb, offset, &len);
+		proto_tree_add_uint(subtree, hf_sir_protocol_options,
+				tvb, offset, len, val_len);
+		offset += len;
+	}
+
+	/* Length of ProvURL */
+	val_len = tvb_get_guintvar(tvb, offset, &len);
+	proto_tree_add_uint(subtree, hf_sir_prov_url_len,
+			tvb, offset, len, val_len);
+	offset += len;
+	/* ProvURL */
+	tvb_ensure_bytes_exist(tvb, offset, val_len);
+	ti = proto_tree_add_item (tree, hf_sir_prov_url,
+			tvb, offset, val_len, bo_little_endian);
+	offset += val_len;
+
+	/* Number of entries in the CPITag list */
+	val_len = tvb_get_guintvar(tvb, offset, &len);
+	proto_tree_add_uint(subtree, hf_sir_cpi_tag_len,
+			tvb, offset, len, val_len);
+	offset += len;
+	/* CPITag list.
+	 * Each CPITag is encoded as 4 octets of opaque data.
+	 * In OTA-HTTP, it is conveyed in the X-Wap-CPITag header
+	 * but with a Base64 encoding of the 4 bytes. */
+	for (i = 0; i < val_len; i++) {
+		val_len = tvb_get_guintvar(tvb, offset, &len);
+		proto_tree_add_item(subtree, hf_sir_cpi_tag,
+				tvb, offset, 4, val_len);
+		offset += 4;
 	}
 }
 
@@ -4452,7 +4777,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				count = 0;	/* Initialise count */
 				capabilityLength = tvb_get_guintvar (tvb, offset, &count);
 				offset += count;
-				ti = proto_tree_add_uint (wsp_tree, hf_wsp_capability_length,
+				ti = proto_tree_add_uint (wsp_tree, hf_capabilities_length,
 						tvb, capabilityStart, count, capabilityLength);
 
 				if (pdut != WSP_PDU_RESUME)
@@ -4484,7 +4809,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				{
 					tmp_tvb = tvb_new_subset (tvb, offset,
 							headerLength, headerLength);
-					add_headers (wsp_tree, tmp_tvb);
+					add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section);
 				}
 			}
 
@@ -4514,7 +4839,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (tree) {
 				offset += value + count; /* VERIFY */
 				tmp_tvb = tvb_new_subset (tvb, offset, -1, -1);
-				add_headers (wsp_tree, tmp_tvb);
+				add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section);
 			}
 			break;
 
@@ -4550,7 +4875,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				{
 					tmp_tvb = tvb_new_subset (tvb, nextOffset,
 							headerLength, headerLength);
-					add_headers (wsp_tree, tmp_tvb);
+					add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section);
 				}
 				offset = nextOffset+headerLength;
 			}
@@ -4621,7 +4946,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				{
 					tmp_tvb = tvb_new_subset (tvb, nextOffset,
 							headerLength, headerLength);
-					add_headers (wsp_tree, tmp_tvb);
+					add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section);
 				}
 				offset += count+headersLength+1;
 			}
@@ -4682,7 +5007,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				{
 					tmp_tvb = tvb_new_subset (tvb, nextOffset,
 							headerLength, headerLength);
-					add_headers (wsp_tree, tmp_tvb);
+					add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section);
 				}
 				offset += headersLength;
 			}
@@ -4702,6 +5027,9 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					/*
 					 * Content type is a string.
 					 */
+					if (strcasecmp(contentTypeStr, "application/vnd.wap.sia") == 0) {
+						dissect_sir(tree, tmp_tvb);
+					} else
 					found_match = dissector_try_string(media_type_table,
 							contentTypeStr, tmp_tvb, pinfo, tree);
 				}
@@ -4799,240 +5127,322 @@ add_uri (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 /*
  * CO-WSP capability negotiation
  */
+
+enum {
+	WSP_CAPA_CLIENT_SDU_SIZE = 0x00,
+	WSP_CAPA_SERVER_SDU_SIZE,
+	WSP_CAPA_PROTOCOL_OPTIONS,
+	WSP_CAPA_METHOD_MOR,
+	WSP_CAPA_PUSH_MOR,
+	WSP_CAPA_EXTENDED_METHODS,
+	WSP_CAPA_HEADER_CODE_PAGES,
+	WSP_CAPA_ALIASES,
+	WSP_CAPA_CLIENT_MESSAGE_SIZE,
+	WSP_CAPA_SERVER_MESSAGE_SIZE
+};
+
 static void
-add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type)
+add_capabilities (proto_tree *tree, tvbuff_t *tvb, guint8 pdu_type)
 {
-	proto_item *ti;
 	proto_tree *wsp_capabilities;
-	guint offset = 0;
-	guint offsetStr = 0;
-	guint capabilitiesLen = tvb_reported_length (tvb);
-	guint capabilitiesStart = 0;
-	guint peek = 0;
-	guint length = 0;
-	guint value = 0;
-	guint i;
-	int ret;
-	char valString[VAL_STRING_SIZE];
+	proto_tree *capa_subtree;
+	proto_item *ti;
+	char *capaName, *str, *valStr;
+	guint32 offset = 0;
+	guint32 len = 0;
+	guint32 capaStart = 0;		/* Start offset of the capability */
+	guint32 capaLen = 0;		/* Length of the entire capability */
+	guint32 capaValueLen = 0;	/* Length of the capability value & type */
+	guint32 tvb_len = tvb_reported_length(tvb);
+	gboolean ok = FALSE;
+	guint8 peek;
+	guint32 value;
 
-#ifdef DEBUG
-	fprintf (stderr, "dissect_wsp: Offset is %d, size is %d\n", offset, capabilitiesLen);
-#endif
-
-	/* End of buffer */
-	if (capabilitiesLen <= 0)
-	{
-#ifdef DEBUG
-		fprintf (stderr, "dissect_wsp: Capabilities = 0\n");
-#endif
+	if (tvb_len == 0) {
+		DebugLog(("add_capabilities(): Capabilities = 0\n"));
 		return;
 	}
 
-#ifdef DEBUG
-	fprintf (stderr, "dissect_wsp: capabilities to process\n");
-#endif
+	DebugLog(("add_capabilities(): capabilities to process\n"));
 
-	ti = proto_tree_add_item (tree, hf_wsp_capabilities_section,tvb,offset,capabilitiesLen,bo_little_endian);
-	wsp_capabilities = proto_item_add_subtree( ti, ett_capabilities );
+	ti = proto_tree_add_item(tree, hf_capabilities_section,
+			tvb, 0, tvb_len, bo_little_endian);
+	wsp_capabilities = proto_item_add_subtree(ti, ett_capabilities);
 
-	/* Parse Headers */
-
-	while (offset < capabilitiesLen)
-	{
-		/* Loop round each header */
-		capabilitiesStart = offset;
-		length = tvb_get_guint8 (tvb, capabilitiesStart);
-
-		if (length >= 127)		/* length */
-		{
-#ifdef DEBUG
-			fprintf (stderr, "dissect_wsp: capabilities length invalid %d\n",length);
-#endif
-			offset+=length;
-			continue;
+	while (offset < tvb_len) {
+		/*
+		 * WSP capabilities consist of:
+		 *  - a guint32 length field,
+		 *  - a capability identifier as Token-text or Short-integer,
+		 *  - a capability-specific sequence of <length> octets.
+		 */
+		capaStart = offset;
+		/*
+		 * Now Offset points to the 1st byte of a capability field.
+		 * Get the length of the capability field
+		 */
+		capaValueLen = tvb_get_guintvar(tvb, offset, &len);
+		capaLen = capaValueLen + len;
+		offset += len;
+		/*
+		 * Now offset points to the 1st byte of the capability type.
+		 * Get the capability identifier.
+		 */
+		peek = tvb_get_guint8(tvb, offset);
+		if (is_token_text(peek)) { /* Literal capability name */
+			/* 1. Get the string from the tvb */
+			get_token_text(capaName, tvb, offset, len, ok);
+			if (! ok) {
+				DebugLog(("add_capabilities(): expecting capability name as token_text "
+							"at offset %u (1st char = 0x%02x)\n", offset, peek));
+				return;
+			}
+			/* 2. Look up the string capability name */
+			if (strcasecmp(capaName, "client-sdu-size") == 0) {
+				peek = WSP_CAPA_CLIENT_SDU_SIZE;
+			} else if (strcasecmp(capaName, "server-sdu-size") == 0) {
+				peek = WSP_CAPA_SERVER_SDU_SIZE;
+			} else if (strcasecmp(capaName, "protocol options") == 0) {
+				peek = WSP_CAPA_PROTOCOL_OPTIONS;
+			} else if (strcasecmp(capaName, "method-mor") == 0) {
+				peek = WSP_CAPA_METHOD_MOR;
+			} else if (strcasecmp(capaName, "push-mor") == 0) {
+				peek = WSP_CAPA_PUSH_MOR;
+			} else if (strcasecmp(capaName, "extended methods") == 0) {
+				peek = WSP_CAPA_EXTENDED_METHODS;
+			} else if (strcasecmp(capaName, "header code pages") == 0) {
+				peek = WSP_CAPA_HEADER_CODE_PAGES;
+			} else if (strcasecmp(capaName, "aliases") == 0) {
+				peek = WSP_CAPA_ALIASES;
+			} else if (strcasecmp(capaName, "client-message-size") == 0) {
+				peek = WSP_CAPA_CLIENT_MESSAGE_SIZE;
+			} else if (strcasecmp(capaName, "server-message-size") == 0) {
+				peek = WSP_CAPA_SERVER_MESSAGE_SIZE;
+			} else {
+				DebugLog(("add_capabilities(): unknown capability '%s' at offset %u\n",
+							capaName, offset));
+				proto_tree_add_text(wsp_capabilities, tvb, capaStart, capaLen,
+						"Unknown or invalid textual capability: %s", capaName);
+				g_free(capaName);
+				/* Skip this capability */
+				offset = capaStart + capaLen;
+				continue;
+			}
+			g_free(capaName);
+			offset += len;
+			/* Now offset points to the 1st value byte of the capability. */
+		} else if (peek < 0x80) {
+			DebugLog(("add_capabilities(): invalid capability type identifier 0x%02X at offset %u.",
+						peek, offset - 1));
+			proto_tree_add_text(wsp_capabilities, tvb, capaStart, capaLen,
+					"Invalid well-known capability: 0x%02X", peek);
+			/* Skip further capability parsing */
+			return;
 		}
-		offset++;
-		peek = tvb_get_guint8 (tvb, offset);
-		offset++;
-		switch (peek & 0x7f)
-		{
-			case 0x00 : /* Client-SDU-Size */
-				value = get_uintvar (tvb, offset, length+capabilitiesStart+1);
-				proto_tree_add_uint (wsp_capabilities, hf_wsp_capabilities_client_SDU, tvb, capabilitiesStart, length+1, value);
+		if (peek & 0x80) { /* Well-known capability */
+			peek &= 0x7F;
+			len = 1;
+			offset++;
+			/* Now offset points to the 1st value byte of the capability. */
+		}
+		/* Now the capability type is known */
+		switch (peek) {
+			case WSP_CAPA_CLIENT_SDU_SIZE:
+				value = tvb_get_guintvar(tvb, offset, &len);
+				DebugLog(("add_capabilities(client-sdu-size): "
+							"guintvar = %u (0x%X) at offset %u (1st byte = 0x%02X) (len = %u)\n",
+							value, value, offset, tvb_get_guint8(tvb, offset), len));
+				proto_tree_add_uint(wsp_capabilities, hf_capa_client_sdu_size,
+						tvb, capaStart, capaLen, value);
 				break;
-			case 0x01 : /* Server-SDU-Size */
-				value = get_uintvar (tvb, offset, length+capabilitiesStart+1);
-				proto_tree_add_uint (wsp_capabilities, hf_wsp_capabilities_server_SDU, tvb, capabilitiesStart, length+1, value);
+			case WSP_CAPA_SERVER_SDU_SIZE:
+				value = tvb_get_guintvar(tvb, offset, &len);
+				DebugLog(("add_capabilities(server-sdu-size): "
+							"guintvar = %u (0x%X) at offset %u (1st byte = 0x%02X) (len = %u)\n",
+							value, value, offset, tvb_get_guint8(tvb, offset), len));
+				proto_tree_add_uint(wsp_capabilities, hf_capa_server_sdu_size,
+						tvb, capaStart, capaLen, value);
 				break;
-			case 0x02 : /* Protocol Options */
-				value = get_uintvar (tvb, offset, length+capabilitiesStart+1);
-				i = 0;
-				valString[0]=0;
+			case WSP_CAPA_PROTOCOL_OPTIONS:
+				ti = proto_tree_add_string(wsp_capabilities, hf_capa_protocol_options,
+						tvb, capaStart, capaLen, "");
+				capa_subtree = proto_item_add_subtree(ti, ett_capability);
+				/*
+				 * The bits are stored in one or more octets, not an
+				 * uintvar-integer! Note that capability name and value
+				 * have length capaValueLength, and that the capability
+				 * name has length = len. Hence the remaining length is
+				 * given by capaValueLen - len.
+				 */
+				switch (capaValueLen - len) {
+					case 1:
+						value = tvb_get_guint8(tvb, offset);
+						len = 1;
+						break;
+					default:
+						/*
+						 * The WSP spec foresees that this bit field can be
+						 * extended in the future. This does not make sense yet.
+						 */
+							DebugLog(("add_capabilities(protocol options): "
+										"bit field too large (%u bytes)\n",
+										capaValueLen));
+							proto_item_append_text(ti,
+									" <warning: bit field too large>");
+							offset = capaStart + capaLen;
+							continue;
+				}
+				DebugLog(("add_capabilities(protocol options): "
+							"guintvar = %u (0x%X) at offset %u (1st byte = 0x%02X) (len = %u)\n",
+							value, value, offset, tvb_get_guint8(tvb, offset), len));
 				if (value & 0x80)
-				{
-					ret = snprintf(valString+i,VAL_STRING_SIZE-i,"%s","(Confirmed push facility) ");
-					if (ret == -1 || (unsigned int) ret >= VAL_STRING_SIZE-i) {
-						/*
-						 * We've been truncated
-						 */
-						goto add_string;
-					}
-					i += ret;
-				}
+					proto_item_append_string(ti, " (confirmed push facility)");
 				if (value & 0x40)
-				{
-					if (i >= 200) {
-						/* No more room. */
-						goto add_string;
-					}
-					ret = snprintf(valString+i,VAL_STRING_SIZE-i,"%s","(Push facility) ");
-					if (ret == -1 || (unsigned int) ret >= VAL_STRING_SIZE-i) {
-						/*
-						 * We've been truncated
-						 */
-						goto add_string;
-					}
-					i += ret;
-				}
+					proto_item_append_string(ti, " (push facility)");
 				if (value & 0x20)
-				{
-					if (i >= 200) {
-						/* No more room. */
-						goto add_string;
-					}
-					ret = snprintf(valString+i,VAL_STRING_SIZE-i,"%s","(Session resume facility) ");
-					if (ret == -1 || (unsigned int) ret >= VAL_STRING_SIZE-i) {
-						/*
-						 * We've been truncated
-						 */
-						goto add_string;
-					}
-					i += ret;
-				}
+					proto_item_append_string(ti, " (session resume facility)");
 				if (value & 0x10)
-				{
-					if (i >= VAL_STRING_SIZE) {
-						/* No more room. */
-						goto add_string;
+					proto_item_append_string(ti, " (acknowledgement headers)");
+				if (value & 0x08)
+					proto_item_append_string(ti, " (large data transfer)");
+				if (value & 0xFFFFFF07)
+					proto_item_append_text(ti, " <warning: reserved bits have been set>");
+				proto_tree_add_boolean(capa_subtree,
+						hf_capa_protocol_option_confirmed_push,
+						tvb, offset, len, value);
+				proto_tree_add_boolean(capa_subtree,
+						hf_capa_protocol_option_push,
+						tvb, offset, len, value);
+				proto_tree_add_boolean(capa_subtree,
+						hf_capa_protocol_option_session_resume,
+						tvb, offset, len, value);
+				proto_tree_add_boolean(capa_subtree,
+						hf_capa_protocol_option_ack_headers,
+						tvb, offset, len, value);
+				proto_tree_add_boolean(capa_subtree,
+						hf_capa_protocol_option_large_data_transfer,
+						tvb, offset, len, value);
+				break;
+			case WSP_CAPA_METHOD_MOR:
+				value = tvb_get_guint8(tvb, offset);
+				proto_tree_add_uint (wsp_capabilities,
+						hf_capa_method_mor,
+						tvb, capaStart, capaLen, value);
+				break;
+			case WSP_CAPA_PUSH_MOR:
+				value = tvb_get_guint8(tvb, offset);
+				proto_tree_add_uint (wsp_capabilities,
+						hf_capa_push_mor,
+						tvb, capaStart, capaLen, value);
+				break;
+			case WSP_CAPA_EXTENDED_METHODS:
+				/* Extended Methods capability format:
+				 * Connect PDU: collection of { Method (octet), Method-name (Token-text) }
+				 * ConnectReply PDU: collection of accepted { Method (octet) }
+				 */
+				ti = proto_tree_add_string(wsp_capabilities,
+						hf_capa_extended_methods,
+						tvb, capaStart, capaLen, "");
+				if (pdu_type == WSP_PDU_CONNECT) {
+					while (offset < capaStart + capaLen) {
+						peek = tvb_get_guint8(tvb, offset++);
+						get_text_string(str, tvb, offset, len, ok);
+						if (! ok) {
+							proto_item_append_text(ti, " <error: invalid capability encoding>");
+							DebugLog(("add_capability(extended methods): "
+										"invalid method name at offset %u "
+										"(octet = 0x%02X)\n",
+										offset, tvb_get_guint8(tvb, offset)));
+							return;
+						}
+						valStr = g_strdup_printf(" (0x%02x = %s)", peek, str);
+						DebugLog(("add_capabilities(extended methods):%s\n",
+									valStr));
+						proto_item_append_string(ti, valStr);
+						g_free(valStr);
+						g_free(str);
+						offset += len;
 					}
-					ret = snprintf(valString+i,VAL_STRING_SIZE-i,"%s","(Acknowledgement headers) ");
-					if (ret == -1 || (unsigned int) ret >= VAL_STRING_SIZE-i) {
-						/*
-						 * We've been truncated
-						 */
-						goto add_string;
+				} else {
+					while (offset < capaStart + capaLen) {
+						peek = tvb_get_guint8(tvb, offset++);
+						valStr = g_strdup_printf(" (0x%02x)", peek);
+						DebugLog(("add_capabilities(extended methods):%s\n",
+									valStr));
+						proto_item_append_string(ti, valStr);
+						g_free(valStr);
 					}
-					i += ret;
 				}
-			add_string:
-				valString[VAL_STRING_SIZE-1] = '\0';
-				proto_tree_add_string(wsp_capabilities, hf_wsp_capabilities_protocol_opt, tvb, capabilitiesStart, length+1, valString);
 				break;
-			case 0x03 : /* Method-MOR */
-				value = tvb_get_guint8(tvb, offset);
-				proto_tree_add_uint (wsp_capabilities, hf_wsp_capabilities_method_MOR, tvb, capabilitiesStart, length+1, value);
+			case WSP_CAPA_HEADER_CODE_PAGES:
+				/* Header Code Pages capability format:
+				 * Connect PDU: collection of { Page-id (octet), Page-name (Token-text) }
+				 * ConnectReply PDU: collection of accepted { Page-id (octet) }
+				 */
+				ti = proto_tree_add_string(wsp_capabilities,
+						hf_capa_header_code_pages,
+						tvb, capaStart, capaLen, "");
+				if (pdu_type == WSP_PDU_CONNECT) {
+					while (offset < capaStart + capaLen) {
+						peek = tvb_get_guint8(tvb, offset++);
+						get_text_string(str, tvb, offset, len, ok);
+						if (! ok) {
+							proto_item_append_text(ti,
+									" <error: invalid capability encoding>");
+							DebugLog(("add_capability(header code pages): "
+										"invalid header code page name at offset %u "
+										"(octet = 0x%02X)\n",
+										offset, tvb_get_guint8(tvb, offset)));
+							return;
+						}
+						valStr = g_strdup_printf(" (0x%02x = %s)", peek, str);
+						DebugLog(("add_capabilities(header code pages):%s\n",
+									valStr));
+						proto_item_append_string(ti, valStr);
+						g_free(valStr);
+						g_free(str);
+						offset += len;
+					}
+				} else {
+					while (offset < capaStart + capaLen) {
+						peek = tvb_get_guint8(tvb, offset++);
+						valStr = g_strdup_printf(" (0x%02x)", peek);
+						DebugLog(("add_capabilities(header code pages):%s\n",
+									valStr));
+						proto_item_append_string(ti, valStr);
+						g_free(valStr);
+					}
+				}
 				break;
-			case 0x04 : /* Push-MOR */
-				value = tvb_get_guint8(tvb, offset);
-				proto_tree_add_uint (wsp_capabilities, hf_wsp_capabilities_push_MOR, tvb, capabilitiesStart, length+1, value);
+			case WSP_CAPA_ALIASES:
+				/* TODO - same format as redirect addresses */
+				proto_tree_add_item(wsp_capabilities, hf_capa_aliases,
+						tvb, capaStart, capaLen, bo_little_endian);
 				break;
+			case WSP_CAPA_CLIENT_MESSAGE_SIZE:
+				value = tvb_get_guintvar(tvb, offset, &len);
+				DebugLog(("add_capabilities(client-message-size): "
+							"guintvar = %u (0x%X) at offset %u (1st byte = 0x%02X) (len = %u)\n",
+							value, value, offset, tvb_get_guint8(tvb, offset), len));
+				proto_tree_add_uint(wsp_capabilities, hf_capa_client_message_size,
+						tvb, capaStart, capaLen, value);
 				break;
-			case 0x05 : /* Extended Methods */
-				offsetStr = offset;
-				offset++;
-				add_capability_vals(tvb, (type == WSP_PDU_CONNECT),
-				    offsetStr, length, capabilitiesStart,
-				    valString, sizeof valString);
-				proto_tree_add_string(wsp_capabilities, hf_wsp_capabilities_extended_methods, tvb, capabilitiesStart, length+1, valString);
-				break;
-			case 0x06 : /* Header Code Pages */
-				offsetStr = offset;
-				offset++;
-				add_capability_vals(tvb, (type == WSP_PDU_CONNECT),
-				    offsetStr, length, capabilitiesStart,
-				    valString, sizeof valString);
-				proto_tree_add_string(wsp_capabilities, hf_wsp_capabilities_header_code_pages, tvb, capabilitiesStart, length+1, valString);
-				break;
-			case 0x07 : /* Aliases */
+			case WSP_CAPA_SERVER_MESSAGE_SIZE:
+				value = tvb_get_guintvar(tvb, offset, &len);
+				DebugLog(("add_capabilities(server-message-size): "
+							"guintvar = %u (0x%X) at offset %u (1st byte = 0x%02X) (len = %u)\n",
+							value, value, offset, tvb_get_guint8(tvb, offset), len));
+				proto_tree_add_uint(wsp_capabilities, hf_capa_server_message_size,
+						tvb, capaStart, capaLen, value);
 				break;
 			default:
-				proto_tree_add_text (wsp_capabilities, tvb , capabilitiesStart, length+1,
-				       "Undecoded Header (0x%02X)", peek & 0x7F);
+				proto_tree_add_text(wsp_capabilities, tvb, capaStart, capaLen,
+						"Unknown well-known capability: 0x%02X", peek);
 				break;
 		}
-		offset=capabilitiesStart+length+1;
+		offset = capaStart + capaLen;
 	}
 }
-
-static void
-add_capability_vals(tvbuff_t *tvb, gboolean add_string, int offsetStr,
-    guint length, guint capabilitiesStart, char *valString,
-    size_t valStringSize)
-{
-	guint i;
-	int ret;
-	guint value;
-	guint8 c;
-
-	i = 0;
-	while ((offsetStr-capabilitiesStart) <= length)
-	{
-		value = tvb_get_guint8(tvb, offsetStr);
-		if (i >= valStringSize) {
-			/* No more room. */
-			break;
-		}
-		if (add_string)
-		{
-			ret = snprintf(valString+i,valStringSize-i,
-			    "(0x%02x - ",value);
-		}
-		else
-		{
-			ret = snprintf(valString+i,valStringSize-i,"(0x%02x) ",
-			    value);
-		}
-		if (ret == -1 || (unsigned int) ret >= valStringSize-i) {
-			/*
-			 * We've been truncated.
-			 */
-			break;
-		}
-		i += ret;
-		offsetStr++;
-		if (add_string)
-		{
-			for (;(c = tvb_get_guint8(tvb, offsetStr))
-			    && i < valStringSize - 1; i++,offsetStr++)
-				valString[i] = c;
-			offsetStr++;
-			if (i < valStringSize - 2) {
-				valString[i++] = ')';
-				valString[i++] = ' ';
-			}
-		}
-	}
-	valString[i] = '\0';
-}
-
-
-static guint
-get_uintvar (tvbuff_t *tvb, guint offset, guint offsetEnd)
-{
-	guint value = 0;
-	guint octet;
-
-	do
-	{
-		octet = tvb_get_guint8 (tvb, offset);
-		offset++;
-		value <<= 7;
-		value += octet & 0x7f;
-	}
-	while ((offsetEnd > offset) && (octet & 0x80));
-	return value;
-}
-
 
 void
 add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType,
@@ -5152,13 +5562,10 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb)
 			*ti;
 	proto_tree	*mpart_tree;
 
-#ifdef DEBUG
-	printf("DBG: public: add_multipart_data: (offset = %u, 0x%02x): ", offset, tvb_get_guint8(tvb,offset));
-#endif
+	DebugLog(("add_multipart_data(): offset = %u, byte = 0x%02x: ",
+				offset, tvb_get_guint8(tvb,offset)));
 	nEntries = tvb_get_guintvar (tvb, offset, &count);
-#ifdef DEBUG
-	printf("parts = %u\n", nEntries);
-#endif
+	DebugLog(("parts = %u\n", nEntries));
 	offset += count;
 	if (nEntries)
 	{
@@ -5168,11 +5575,9 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb)
 	}
 	while (nEntries--)
 	{
-#ifdef DEBUG
-		printf("DBG: add_multipart_data: Parts to do after this: %u"
+		DebugLog(("add_multipart_data(): Parts to do after this: %u"
 				" (offset = %u, 0x%02x): ",
-				nEntries, offset, tvb_get_guint8(tvb,offset));
-#endif
+				nEntries, offset, tvb_get_guint8(tvb,offset)));
 		part_start = offset;
 		HeadersLen = tvb_get_guintvar (tvb, offset, &count);
 		offset += count;
@@ -5186,7 +5591,7 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb)
 		if (HeadersLen > 0)
 		{
 			tmp_tvb = tvb_new_subset (tvb, nextOffset, HeadersLen, HeadersLen);
-			add_headers (mpart_tree, tmp_tvb);
+			add_headers (mpart_tree, tmp_tvb, hf_wsp_headers_section);
 		}
 		offset = nextOffset + HeadersLen;
 		/* TODO - Try the dissectors of the multipart content */
@@ -5232,11 +5637,11 @@ proto_register_wsp(void)
 				"Version (Minor)", HFILL
 			}
 		},
-		{ &hf_wsp_capability_length,
-			{ 	"Capability Length",
-				"wsp.capability.length",
+		{ &hf_capabilities_length,
+			{ 	"Capabilities Length",
+				"wsp.capabilities.length",
 				 FT_UINT32, BASE_DEC, NULL, 0x00,
-				"Length of Capability field (bytes)", HFILL
+				"Length of Capabilities field (bytes)", HFILL
 			}
 		},
 		{ &hf_wsp_header_length,
@@ -5246,7 +5651,7 @@ proto_register_wsp(void)
 				"Length of Headers field (bytes)", HFILL
 			}
 		},
-		{ &hf_wsp_capabilities_section,
+		{ &hf_capabilities_section,
 			{ 	"Capabilities",
 				"wsp.capabilities",
 				 FT_NONE, BASE_DEC, NULL, 0x00,
@@ -5417,60 +5822,109 @@ proto_register_wsp(void)
 		/*
 		 * CO-WSP capability negotiation
 		 */
-		{ &hf_wsp_capabilities_client_SDU,
-			{	"Client SDU",
-				"wsp.capabilities.client_SDU",
+		{ &hf_capa_client_sdu_size,
+			{	"Client SDU Size",
+				"wsp.capability.client_sdu_size",
 				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Client SDU", HFILL
+				"Client Service Data Unit size (bytes)", HFILL
 			}
 		},
-		{ &hf_wsp_capabilities_server_SDU,
-			{	"Server SDU",
-				"wsp.capabilities.server_SDU",
+		{ &hf_capa_server_sdu_size,
+			{	"Server SDU Size",
+				"wsp.capability.server_sdu_size",
 				 FT_UINT8, BASE_DEC, NULL, 0x00,
-				"Server SDU", HFILL
+				"Server Service Data Unit size (bytes)", HFILL
 			}
 		},
-		{ &hf_wsp_capabilities_protocol_opt,
+		{ &hf_capa_protocol_options,
 			{	"Protocol Options",
-				"wsp.capabilities.protocol_opt",
+				"wsp.capability.protocol_opt",
 				 FT_STRING, BASE_HEX, NULL, 0x00,
 				"Protocol Options", HFILL
 			}
 		},
-		{ &hf_wsp_capabilities_method_MOR,
+		{ &hf_capa_protocol_option_confirmed_push,
+			{	"Confirmed Push facility",
+				"wsp.capability.protocol_option.confirmed_push",
+				FT_BOOLEAN, 8, NULL, 0x80,
+				"If set, this CO-WSP session supports the Confirmed Push facility", HFILL
+			}
+		},
+		{ &hf_capa_protocol_option_push,
+			{	"Push facility",
+				"wsp.capability.protocol_option.push",
+				FT_BOOLEAN, 8, NULL, 0x40,
+				"If set, this CO-WSP session supports the Push facility", HFILL
+			}
+		},
+		{ &hf_capa_protocol_option_session_resume,
+			{	"Session Resume facility",
+				"wsp.capability.protocol_option.session_resume",
+				FT_BOOLEAN, 8, NULL, 0x20,
+				"If set, this CO-WSP session supports the Session Resume facility", HFILL
+			}
+		},
+		{ &hf_capa_protocol_option_ack_headers,
+			{	"Acknowledgement headers",
+				"wsp.capability.protocol_option.ack_headers",
+				FT_BOOLEAN, 8, NULL, 0x10,
+				"If set, this CO-WSP session supports Acknowledgement headers", HFILL
+			}
+		},
+		{ &hf_capa_protocol_option_large_data_transfer,
+			{	"Large data transfer",
+				"wsp.capability.protocol_option.large_data_transfer",
+				FT_BOOLEAN, 8, NULL, 0x08,
+				"If set, this CO-WSP session supports Large data transfer", HFILL
+			}
+		},
+		{ &hf_capa_method_mor,
 			{	"Method MOR",
-				"wsp.capabilities.method_mor",
+				"wsp.capability.method_mor",
 				 FT_UINT8, BASE_DEC, NULL, 0x00,
 				"Method MOR", HFILL
 			}
 		},
-		{ &hf_wsp_capabilities_push_MOR,
+		{ &hf_capa_push_mor,
 			{	"Push MOR",
-				"wsp.capabilities.push_mor",
+				"wsp.capability.push_mor",
 				 FT_UINT8, BASE_DEC, NULL, 0x00,
 				"Push MOR", HFILL
 			}
 		},
-		{ &hf_wsp_capabilities_extended_methods,
+		{ &hf_capa_extended_methods,
 			{	"Extended Methods",
-				"wsp.capabilities.extend_methods",
+				"wsp.capability.extended_methods",
 				 FT_STRING, BASE_HEX, NULL, 0x00,
 				"Extended Methods", HFILL
 			}
 		},
-		{ &hf_wsp_capabilities_header_code_pages,
+		{ &hf_capa_header_code_pages,
 			{	"Header Code Pages",
-				"wsp.capabilities.code_pages",
+				"wsp.capability.code_pages",
 				 FT_STRING, BASE_HEX, NULL, 0x00,
 				"Header Code Pages", HFILL
 			}
 		},
-		{ &hf_wsp_capabilities_aliases,
+		{ &hf_capa_aliases,
 			{	"Aliases",
-				"wsp.capabilities.aliases",
-				 FT_UINT8, BASE_HEX, NULL, 0x00,
+				"wsp.capability.aliases",
+				 FT_BYTES, BASE_NONE, NULL, 0x00,
 				"Aliases", HFILL
+			}
+		},
+		{ &hf_capa_client_message_size,
+			{	"Client Message Size",
+				"wsp.capability.client_message_size",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"Client Message size (bytes)", HFILL
+			}
+		},
+		{ &hf_capa_server_message_size,
+			{	"Server Message Size",
+				"wsp.capability.server_message_size",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"Server Message size (bytes)", HFILL
 			}
 		},
 		{ &hf_wsp_post_data,
@@ -5503,86 +5957,104 @@ proto_register_wsp(void)
 		},
 		{ &hf_wsp_redirect_flags,
 			{ 	"Flags",
-				"wsp.redirect_flags",
+				"wsp.redirect.flags",
 				 FT_UINT8, BASE_HEX, NULL, 0x00,
 				"Redirect Flags", HFILL
 			}
 		},
 		{ &hf_wsp_redirect_permanent,
 			{ 	"Permanent Redirect",
-				"wsp.redirect_flags.permanent",
+				"wsp.redirect.flags.permanent",
 				 FT_BOOLEAN, 8, TFS(&yes_no_truth), PERMANENT_REDIRECT,
 				"Permanent Redirect", HFILL
 			}
 		},
 		{ &hf_wsp_redirect_reuse_security_session,
 			{ 	"Reuse Security Session",
-				"wsp.redirect_flags.reuse_security_session",
+				"wsp.redirect.flags.reuse_security_session",
 				 FT_BOOLEAN, 8, TFS(&yes_no_truth), REUSE_SECURITY_SESSION,
-				"Permanent Redirect", HFILL
+				"If set, the existing Security Session may be reused", HFILL
 			}
 		},
-		{ &hf_wsp_redirect_afl,
+		{ &hf_redirect_addresses,
+			{	"Redirect Addresses",
+				"wsp.redirect.addresses",
+				FT_NONE, BASE_NONE, NULL, 0x00,
+				"List of Redirect Addresses", HFILL
+			}
+		},
+
+		/*
+		 * Addresses
+		 */
+		{ &hf_address_entry,
+			{	"Address Record",
+				"wsp.address",
+				FT_UINT32, BASE_DEC, NULL, 0x00,
+				"Address Record", HFILL
+			}
+		},
+		{ &hf_address_flags_length,
 			{ 	"Flags/Length",
-				"wsp.redirect_afl",
+				"wsp.address.flags",
 				 FT_UINT8, BASE_HEX, NULL, 0x00,
-				"Redirect Address Flags/Length", HFILL
+				"Address Flags/Length", HFILL
 			}
 		},
-		{ &hf_wsp_redirect_afl_bearer_type_included,
+		{ &hf_address_flags_length_bearer_type_included,
 			{ 	"Bearer Type Included",
-				"wsp.redirect_afl.bearer_type_included",
+				"wsp.address.flags.bearer_type_included",
 				 FT_BOOLEAN, 8, TFS(&yes_no_truth), BEARER_TYPE_INCLUDED,
-				"Redirect Address bearer type included", HFILL
+				"Address bearer type included", HFILL
 			}
 		},
-		{ &hf_wsp_redirect_afl_port_number_included,
+		{ &hf_address_flags_length_port_number_included,
 			{ 	"Port Number Included",
-				"wsp.redirect_afl.port_number_included",
+				"wsp.address.flags.port_number_included",
 				 FT_BOOLEAN, 8, TFS(&yes_no_truth), PORT_NUMBER_INCLUDED,
-				"Redirect Address port number included", HFILL
+				"Address port number included", HFILL
 			}
 		},
-		{ &hf_wsp_redirect_afl_address_len,
-			{ 	"Address Len",
-				"wsp.redirect_afl.address_len",
+		{ &hf_address_flags_length_address_len,
+			{ 	"Address Length",
+				"wsp.address.flags.length",
 				 FT_UINT8, BASE_DEC, NULL, ADDRESS_LEN,
-				"Redirect Address Length", HFILL
+				"Address Length", HFILL
 			}
 		},
-		{ &hf_wsp_redirect_bearer_type,
+		{ &hf_address_bearer_type,
 			{ 	"Bearer Type",
-				"wsp.redirect_bearer_type",
+				"wsp.address.bearer_type",
 				 FT_UINT8, BASE_HEX, VALS(vals_bearer_types), 0x0,
-				"Redirect Bearer Type", HFILL
+				"Bearer Type", HFILL
 			}
 		},
-		{ &hf_wsp_redirect_port_num,
+		{ &hf_address_port_num,
 			{ 	"Port Number",
-				"wsp.redirect_port_num",
+				"wsp.address.port",
 				 FT_UINT16, BASE_DEC, NULL, 0x0,
-				"Redirect Port Number", HFILL
+				"Port Number", HFILL
 			}
 		},
-		{ &hf_wsp_redirect_ipv4_addr,
-			{ 	"IP Address",
-				"wsp.redirect_ipv4_addr",
+		{ &hf_address_ipv4_addr,
+			{ 	"IPv4 Address",
+				"wsp.address.ipv4",
 				 FT_IPv4, BASE_NONE, NULL, 0x0,
-				"Redirect Address (IP)", HFILL
+				"Address (IPv4)", HFILL
 			}
 		},
-		{ &hf_wsp_redirect_ipv6_addr,
+		{ &hf_address_ipv6_addr,
 			{ 	"IPv6 Address",
-				"wsp.redirect_ipv6_addr",
+				"wsp.address.ipv6",
 				 FT_IPv6, BASE_NONE, NULL, 0x0,
-				"Redirect Address (IPv6)", HFILL
+				"Address (IPv6)", HFILL
 			}
 		},
-		{ &hf_wsp_redirect_addr,
+		{ &hf_address_addr,
 			{ 	"Address",
-				"wsp.redirect_addr",
+				"wsp.address.unknown",
 				 FT_BYTES, BASE_NONE, NULL, 0x0,
-				"Redirect Address", HFILL
+				"Address (unknown)", HFILL
 			}
 		},
 
@@ -6437,6 +6909,110 @@ proto_register_wsp(void)
 				"Charset parameter", HFILL
 			}
 		},
+
+		/*
+		 * Session Initiation Request
+		 */
+		{ &hf_sir_section,
+			{	"Session Initiation Request",
+				"wsp.sir",
+				FT_NONE, BASE_NONE, NULL, 0x00,
+				"Session Initiation Request content", HFILL
+			}
+		},
+		{ &hf_sir_version,
+			{	"Version",
+				"wsp.sir.version",
+				FT_UINT8, BASE_DEC, NULL, 0x00,
+				"Version of the Session Initiation Request document", HFILL
+			}
+		},
+		{ &hf_sir_app_id_list_len,
+			{	"Application-ID List Length",
+				"wsp.sir.app_id_list.length",
+				FT_UINT32, BASE_DEC, NULL, 0x00,
+				"Length of the Application-ID list (bytes)", HFILL
+			}
+		},
+		{ &hf_sir_app_id_list,
+			{	"Application-ID List",
+				"wsp.sir.app_id_list",
+				FT_NONE, BASE_NONE, NULL, 0x00,
+				"Application-ID list", HFILL
+			}
+		},
+		{ &hf_sir_wsp_contact_points_len,
+			{	"WSP Contact Points Length",
+				"wsp.sir.wsp_contact_points.length",
+				FT_UINT32, BASE_DEC, NULL, 0x00,
+				"Length of the WSP Contact Points list (bytes)", HFILL
+			}
+		},
+		{ &hf_sir_wsp_contact_points,
+			{	"WSP Contact Points",
+				"wsp.sir.wsp_contact_points",
+				FT_NONE, BASE_NONE, NULL, 0x00,
+				"WSP Contact Points list", HFILL
+			}
+		},
+		{ &hf_sir_contact_points_len,
+			{	"Non-WSP Contact Points Length",
+				"wsp.sir.contact_points.length",
+				FT_UINT32, BASE_DEC, NULL, 0x00,
+				"Length of the Non-WSP Contact Points list (bytes)", HFILL
+			}
+		},
+		{ &hf_sir_contact_points,
+			{	"Non-WSP Contact Points",
+				"wsp.sir.contact_points",
+				FT_NONE, BASE_NONE, NULL, 0x00,
+				"Non-WSP Contact Points list", HFILL
+			}
+		},
+		{ &hf_sir_protocol_options_len,
+			{	"Protocol Options List Entries",
+				"wsp.sir.protocol_options.length",
+				FT_UINT32, BASE_DEC, NULL, 0x00,
+				"Number of entries in the Protocol Options list", HFILL
+			}
+		},
+		{ &hf_sir_protocol_options,
+			{	"Protocol Options",
+				"wsp.sir.protocol_options",
+				FT_UINT16, BASE_DEC, VALS(vals_sir_protocol_options), 0x00,
+				"Protocol Options list", HFILL
+			}
+		},
+		{ &hf_sir_prov_url_len,
+			{ 	"X-Wap-ProvURL Length",
+				"wsp.sir.prov_url.length",
+				FT_UINT32, BASE_DEC, NULL, 0x00,
+				"Length of the X-Wap-ProvURL (Identifies the WAP Client Provisioning Context)", HFILL
+			}
+		},
+		{ &hf_sir_prov_url,
+			{ 	"X-Wap-ProvURL",
+				"wsp.sir.prov_url",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"X-Wap-ProvURL (Identifies the WAP Client Provisioning Context)", HFILL
+			}
+		},
+		{ &hf_sir_cpi_tag_len,
+			{	"CPITag List Entries",
+				"wsp.sir.cpi_tag.length",
+				FT_UINT32, BASE_DEC, NULL, 0x00,
+				"Number of entries in the CPITag list", HFILL
+			}
+		},
+		{ &hf_sir_cpi_tag,
+			{	"CPITag",
+				"wsp.sir.cpi_tag",
+				FT_BYTES, BASE_HEX, NULL, 0x00,
+				"CPITag (OTA-HTTP)", HFILL
+			}
+		},
+
+
 	};
 
 
@@ -6446,11 +7022,15 @@ proto_register_wsp(void)
 		&ett_header, /* Header field subtree */
 		&ett_headers, /* Subtree for WSP headers */
 		&ett_capabilities, /* CO-WSP Session Capabilities */
+		&ett_capability, /* CO-WSP Session single Capability */
 		&ett_post,
 		&ett_redirect_flags,
-		&ett_redirect_afl,
+		&ett_address_flags,
 		&ett_multiparts,
 		&ett_mpartlist,
+		&ett_sir,			/* Session Initiation Request */
+		&ett_addresses,		/* Addresses */
+		&ett_address,		/* Single address */
 	};
 
 /* Register the protocol name and description */

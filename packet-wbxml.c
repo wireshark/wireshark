@@ -3,7 +3,7 @@
  * Routines for wbxml dissection
  * Copyright 2003, Olivier Biot <olivier.biot (ad) siemens.com>
  *
- * $Id: packet-wbxml.c,v 1.21 2003/12/15 22:38:29 obiot Exp $
+ * $Id: packet-wbxml.c,v 1.22 2003/12/16 22:39:32 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2207,14 +2207,14 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " (WBXML %s)", summary);
 
+	/* create display subtree for the protocol */
+	ti = proto_tree_add_item (tree, proto_wbxml, tvb, 0, -1, FALSE);
+	proto_item_append_text(ti, ", Version: %s", summary);
+	g_free(summary);
 	/*
 	 * Now show the protocol subtree, if tree is set.
 	 */
 	if ( tree ) {
-		/* create display subtree for the protocol */
-		ti = proto_tree_add_item (tree, proto_wbxml, tvb, 0, -1, FALSE);
-		proto_item_append_text(ti, ", Version: %s", summary);
-		g_free(summary);
 		wbxml_tree = proto_item_add_subtree(ti, ett_wbxml);
 
 		/* WBXML Version */
@@ -2303,7 +2303,6 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		return;
 	}
-	g_free(summary);
 }
 
 
