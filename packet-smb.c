@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.112 2001/09/03 10:33:06 guy Exp $
+ * $Id: packet-smb.c,v 1.113 2001/09/11 05:31:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1760,10 +1760,10 @@ dissect_write_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree 
 
     offset += 2; /* Skip Data Length */
 
-    if (ByteCount > 0 && tree) {
+    if (DataLength > 0 && tree) {
 
-	if(END_OF_FRAME >= ByteCount)
-	    proto_tree_add_text(tree, NullTVB, offset, ByteCount, "Data (%u bytes)", ByteCount);
+	if(END_OF_FRAME >= DataLength)
+	    proto_tree_add_text(tree, NullTVB, offset, DataLength, "Data (%u bytes)", DataLength);
 	else
 	    proto_tree_add_text(tree, NullTVB, offset, END_OF_FRAME, "Data (first %u bytes)", END_OF_FRAME);
 
