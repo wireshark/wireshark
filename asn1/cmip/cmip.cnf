@@ -35,14 +35,14 @@ ROS
 
 #.FN_BODY CMIPAbortSource
   guint32 value;
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, &value);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, &value);
   if(check_col(pinfo->cinfo, COL_INFO)){
     col_append_fstr(pinfo->cinfo, COL_INFO, " AbortSource:%s", val_to_str(value, CMIPAbortSource_vals, " Unknown AbortSource:%d"));
   }
 #.END
 
 #.FN_BODY Opcode
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, &opcode);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, &opcode);
   if(check_col(pinfo->cinfo, COL_INFO)){
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(opcode, Opcode_vals, " Unknown Opcode:%d"));
   }
@@ -83,7 +83,7 @@ ROS
 
 #.FN_BODY AttributeId/localForm
   attributeform = ATTRIBUTE_LOCAL_FORM;
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_localForm, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_localForm, NULL);
 
 #.FN_BODY Attribute/value
   /*XXX handle local form here */
@@ -172,7 +172,7 @@ ROS
 
 #.FN_BODY ObjectClass/oclocalForm
   objectclassform = OBJECTCLASS_LOCAL_FORM;
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_oclocalForm, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_oclocalForm, NULL);
 
 #.FN_BODY ActionInfo/actionType
   offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,

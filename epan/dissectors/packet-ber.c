@@ -193,7 +193,7 @@ dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *t
 	case BER_CLASS_UNI:
 		switch(tag){
 		case BER_UNI_TAG_INTEGER:
-			offset = dissect_ber_integer_new(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_INTEGER, NULL);
+			offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_INTEGER, NULL);
 			break;
 		case BER_UNI_TAG_OCTETSTRING:
 			offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_OCTETSTRING, NULL);
@@ -489,7 +489,7 @@ int dissect_ber_octet_string_wcb(gboolean implicit_tag, packet_info *pinfo, prot
 
 
 int
-dissect_ber_integer_new(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, guint32 *value)
+dissect_ber_integer(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, guint32 *value)
 {
 	guint8 class;
 	gboolean pc;
@@ -510,9 +510,9 @@ name=hfinfo->name;
 name="unnamed";
 }
 if(tvb_length_remaining(tvb,offset)>3){
-printf("INTEGERnew dissect_ber_integer_new(%s) entered implicit_tag:%d offset:%d len:%d %02x:%02x:%02x\n",name,implicit_tag,offset,tvb_length_remaining(tvb,offset),tvb_get_guint8(tvb,offset),tvb_get_guint8(tvb,offset+1),tvb_get_guint8(tvb,offset+2));
+printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d offset:%d len:%d %02x:%02x:%02x\n",name,implicit_tag,offset,tvb_length_remaining(tvb,offset),tvb_get_guint8(tvb,offset),tvb_get_guint8(tvb,offset+1),tvb_get_guint8(tvb,offset+2));
 }else{
-printf("INTEGERnew dissect_ber_integer_new(%s) entered implicit_tag:%d len:%d\n",name,implicit_tag,len);
+printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d len:%d\n",name,implicit_tag,len);
 }
 }
 #endif

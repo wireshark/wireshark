@@ -688,6 +688,7 @@ class EthCtx:
     #print '# Dependency computation'
     for t in self.type_ord:
       if x.has_key(self.type[t]['ethname']):
+        #print 'Continue: %s : %s' % (t, self.type[t]['ethname'])
         continue
       stack = [t]
       stackx = {t : self.type_dep.get(t, [])[:]}
@@ -712,6 +713,9 @@ class EthCtx:
           #print 'Pop: %s' % (stack[-1])
           del stackx[stack[-1]]
           e = self.type[stack.pop()]['ethname']
+          if x.has_key(e):
+            continue
+          #print 'Add: %s' % (e)
           self.eth_type_ord1.append(e)
           x[e] = True
     i = 0
@@ -906,7 +910,7 @@ class EthCtx:
         attr = self.eth_get_type_attr(self.eth_type[t]['ref'][0]).copy()
         fx.write('TYPE = %(TYPE)-9s  DISPLAY = %(DISPLAY)-9s  STRINGS = %(STRINGS)s  BITMASK = %(BITMASK)s\n' % attr)
     fx.write('#.END\n\n')
-    self.output.file_close(fx)
+    self.output.file_close(fx, keep_anyway=True)
 
   #--- eth_output_val ------------------------------------------------------
   def eth_output_val(self):
@@ -1430,11 +1434,11 @@ class EthOut:
         fx.write(self.fhdr(fn))
     return fx
   #--- file_close -------------------------------------------------------
-  def file_close(self, fx, discard=False):
+  def file_close(self, fx, discard=False, keep_anyway=False):
     fx.close()
     if (discard): 
       os.unlink(fx.name)
-    else: 
+    elif (not keep_anyway): 
       self.created_files.append(os.path.normcase(os.path.abspath(fx.name)))
   #--- fhdr -------------------------------------------------------
   def fhdr(self, fn, comment=None):
@@ -1664,7 +1668,7 @@ class Type (Node):
         ectx.eth_reg_field(nm, nm, idx=idx, parent=parent, impl=self.HasImplicitTag(ectx))
     self.eth_reg_sub(nm, ectx)
 
-  def eth_get_size_constr(self, ):
+  def eth_get_size_constr(self):
     minv = '-1'
     maxv = '-1'
     ext = 'FALSE'
@@ -1720,13 +1724,22 @@ class Constraint (Node):
     return "Constraint: type=%s, subtype=%s" % (self.type, self.subtype)
 
   def eth_constrname(self):
+    def int2str(val):
+      try:
+        if (int(val) < 0):
+          return 'M' + str(-int(val))
+        else:
+          return str(val)
+      except (ValueError, TypeError):
+        return str(val)
+
     ext = ''
     if hasattr(self, 'ext') and self.ext:
       ext = '_'
     if self.type == 'SingleValue':
-      return str(self.subtype) + ext
+      return int2str(self.subtype) + ext
     elif self.type == 'ValueRange':
-      return str(self.subtype[0]) + '_' + str(self.subtype[1]) + ext
+      return int2str(self.subtype[0]) + '_' + int2str(self.subtype[1]) + ext
     elif self.type == 'Size':
       return 'SIZE_' + self.subtype.eth_constrname() + ext
     else:
@@ -1918,10 +1931,15 @@ class SequenceOfType (SqType):
     self.val.eth_reg(itmnm, ectx, idx='[##]', parent=ident)
 
   def eth_tname(self):
-    return "SEQUNCE_OF_" + self.val.eth_tname()
+    if not self.HasConstraint():
+      return "SEQUNCE_OF_" + self.val.eth_tname()
+    elif self.constr.type == 'Size' and (self.constr.subtype.type == 'SingleValue' or self.constr.subtype.type == 'ValueRange'):
+      return 'SEQUNCE_' + self.constr.eth_constrname() + '_OF_' + self.val.eth_tname()
+    else:
+      return '#' + self.type + '_' + str(id(self))
 
   def eth_ftype(self):
-    return ('FT_UINT32', 'BASE_DEC')
+    return ('FT_NONE', 'BASE_NONE')
 
   def eth_need_tree(self):
     return True
@@ -1942,19 +1960,33 @@ class SequenceOfType (SqType):
       out += self.out_item(f, self.val, False, '', ectx)
       out += "};\n"
     out += ectx.eth_type_fn_hdr(tname)
+    (minv, maxv, ext) = self.eth_get_size_constr()
     if (ectx.OBer()):
       body = ectx.eth_fn_call('dissect_ber_sequence_of', ret='offset',
                                 par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset'),
                                      (tname+'_sequence_of', 'hf_index', ectx.eth_type[tname]['tree'])))
     elif (ectx.NPer()):
-      body = ectx.eth_fn_call('dissect_pern_sequence_of', ret='offset',
-                              par=(('tvb', 'offset', 'pinfo', 'tree'),
-                                   ('hf_index', 'item', 'private_data'),
-                                   (ectx.eth_type[tname]['tree'], ef, 'dissect_%s_%s' % (ectx.eth_type[ectx.eth_hf[ef]['ethtype']]['proto'], ectx.eth_hf[ef]['ethtype']))))
+      if not self.HasConstraint():
+        body = ectx.eth_fn_call('dissect_pern_sequence_of', ret='offset',
+                                par=(('tvb', 'offset', 'pinfo', 'tree'),
+                                     ('hf_index', 'item', 'private_data'),
+                                     (ectx.eth_type[tname]['tree'], ef, 'dissect_%s_%s' % (ectx.eth_type[ectx.eth_hf[ef]['ethtype']]['proto'], ectx.eth_hf[ef]['ethtype']))))
+      else:
+        body = ectx.eth_fn_call('dissect_pern_constrained_sequence_of', ret='offset',
+                                par=(('tvb', 'offset', 'pinfo', 'tree'),
+                                     ('hf_index', 'item', 'private_data'),
+                                     (ectx.eth_type[tname]['tree'], ef, 'dissect_%s_%s' % (ectx.eth_type[ectx.eth_hf[ef]['ethtype']]['proto'], ectx.eth_hf[ef]['ethtype']))
+                                     (minv, maxv, ext)))
     elif (ectx.OPer()):
-      body = ectx.eth_fn_call('dissect_per_sequence_of', ret='offset',
-                              par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
-                                   (ectx.eth_type[tname]['tree'], 'dissect_'+ef)))
+      if not self.HasConstraint():
+        body = ectx.eth_fn_call('dissect_per_sequence_of', ret='offset',
+                                par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
+                                     (ectx.eth_type[tname]['tree'], 'dissect_'+ef)))
+      else:
+        body = ectx.eth_fn_call('dissect_per_constrained_sequence_of', ret='offset',
+                                par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
+                                     (ectx.eth_type[tname]['tree'], 'dissect_'+ef),
+                                     (minv, maxv)))
     else:
       body = '#error Can not decode %s' % (tname)
     out += ectx.eth_type_fn_body(tname, body)
@@ -1971,10 +2003,15 @@ class SetOfType (SqType):
     self.val.eth_reg(itmnm, ectx, idx='(##)', parent=ident)
 
   def eth_tname(self):
+    if not self.HasConstraint():
       return "SET_OF_" + self.val.eth_tname()
+    elif self.constr.type == 'Size' and (self.constr.subtype.type == 'SingleValue' or self.constr.subtype.type == 'ValueRange'):
+      return 'SET_' + self.constr.eth_constrname() + '_OF_' + self.val.eth_tname()
+    else:
+      return '#' + self.type + '_' + str(id(self))
 
   def eth_ftype(self):
-    return ('FT_UINT32', 'BASE_DEC')
+    return ('FT_NONE', 'BASE_NONE')
 
   def eth_need_tree(self):
     return True
@@ -1992,15 +2029,33 @@ class SetOfType (SqType):
       out += self.out_item(f, self.val, False, '', ectx)
       out += "};\n"
     out += ectx.eth_type_fn_hdr(tname)
+    (minv, maxv, ext) = self.eth_get_size_constr()
     if (ectx.OBer()):
       body = ectx.eth_fn_call('dissect_ber_set_of', ret='offset',
                                 par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset'),
                                      (tname+'_set_of', 'hf_index', ectx.eth_type[tname]['tree'])))
     elif (ectx.NPer()):
-      body = ectx.eth_fn_call('dissect_pern_set_of', ret='offset',
-                              par=(('tvb', 'offset', 'pinfo', 'tree'),
-                                   ('hf_index', 'item', 'private_data'),
-                                   (ectx.eth_type[tname]['tree'], ef, 'dissect_%s_%s' % (ectx.eth_type[ectx.eth_hf[ef]['ethtype']]['proto'], ectx.eth_hf[ef]['ethtype']))))
+      if not self.HasConstraint():
+        body = ectx.eth_fn_call('dissect_pern_set_of', ret='offset',
+                                par=(('tvb', 'offset', 'pinfo', 'tree'),
+                                     ('hf_index', 'item', 'private_data'),
+                                     (ectx.eth_type[tname]['tree'], ef, 'dissect_%s_%s' % (ectx.eth_type[ectx.eth_hf[ef]['ethtype']]['proto'], ectx.eth_hf[ef]['ethtype']))))
+      else:
+        body = ectx.eth_fn_call('dissect_pern_constrained_set_of', ret='offset',
+                                par=(('tvb', 'offset', 'pinfo', 'tree'),
+                                     ('hf_index', 'item', 'private_data'),
+                                     (ectx.eth_type[tname]['tree'], ef, 'dissect_%s_%s' % (ectx.eth_type[ectx.eth_hf[ef]['ethtype']]['proto'], ectx.eth_hf[ef]['ethtype']))
+                                     (minv, maxv, ext)))
+    elif (ectx.OPer()):
+      if not self.HasConstraint():
+        body = ectx.eth_fn_call('dissect_per_set_of', ret='offset',
+                                par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
+                                     (ectx.eth_type[tname]['tree'], 'dissect_'+ef)))
+      else:
+        body = ectx.eth_fn_call('dissect_per_constrained_set_of', ret='offset',
+                                par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
+                                     (ectx.eth_type[tname]['tree'], 'dissect_'+ef),
+                                     (minv, maxv)))
     else:
       body = '#error Can not decode %s' % (tname)
     out += ectx.eth_type_fn_body(tname, body)
@@ -2032,103 +2087,103 @@ class Tag (Node):
  
 #--- SequenceType -------------------------------------------------------------
 class SequenceType (SqType):
-    def to_python (self, ctx):
-        # name, tag (None for no tag, EXPLICIT() for explicit), typ)
-        # or '' + (1,) for optional
-        # XXX should also collect names for SEQUENCE inside SEQUENCE or
-        # CHOICE or SEQUENCE_OF (where should the SEQUENCE_OF name come
-        # from?  for others, element or arm name would be fine)
-        seq_name = getattr (self, 'sequence_name', None)
-        if seq_name == None:
-            seq_name = 'None'
-        else:
-            seq_name = "'" + seq_name + "'"
-        if self.__dict__.has_key('ext_list'):
-          return "%sasn1.SEQUENCE ([%s], ext=[%s], seq_name = %s)" % (ctx.spaces (), 
-                                   self.elts_to_py (self.elt_list, ctx),
-                                   self.elts_to_py (self.ext_list, ctx), seq_name)
-        else:
-          return "%sasn1.SEQUENCE ([%s]), seq_name = %s" % (ctx.spaces (), 
-                                   self.elts_to_py (self.elt_list, ctx), seq_name)
-    def elts_to_py (self, list, ctx):
-        # we have elt_type, val= named_type, maybe default=, optional=
-        # named_type node: either ident = or typ =
-        # need to dismember these in order to generate Python output syntax.
-        ctx.indent ()
-        def elt_to_py (e):
-            assert (e.type == 'elt_type')
-            nt = e.val
-            optflag = e.optional
-#            assert (not hasattr (e, 'default')) # XXX add support for DEFAULT!
-            assert (nt.type == 'named_type')
-            tagstr = 'None'
-            identstr = nt.ident
-            if hasattr (nt.typ, 'type') and nt.typ.type == 'tag': # ugh
-                tagstr = mk_tag_str (ctx,nt.typ.tag.cls,
-                                     nt.typ.tag.tag_typ,nt.typ.tag.num)
-        
-
-                nt = nt.typ
-            return "('%s',%s,%s,%d)" % (identstr, tagstr,
-                                      nt.typ.to_python (ctx), optflag)
-        indentstr = ",\n" + ctx.spaces ()
-        rv = indentstr.join ([elt_to_py (e) for e in list])
-        ctx.outdent ()
-        return rv
-
-    def eth_reg_sub(self, ident, ectx):
-        for e in (self.elt_list):
-            e.val.eth_reg(ident, ectx, parent=ident)
-        if hasattr(self, 'ext_list'):
-            for e in (self.ext_list):
-                e.val.eth_reg(ident, ectx, parent=ident)
-
-    def eth_need_tree(self):
-      return True
-
-    def GetTTag(self, ectx):
-      return ('BER_CLASS_UNI', 'BER_UNI_TAG_SEQUENCE')
-
-    def eth_type_fn(self, proto, tname, ectx):
-      fname = ectx.eth_type[tname]['ref'][0]
-      if (ectx.OBer()):
-        out = "static const %s_sequence %s_sequence[] = {\n" % (ectx.encp(), tname)
+  def to_python (self, ctx):
+      # name, tag (None for no tag, EXPLICIT() for explicit), typ)
+      # or '' + (1,) for optional
+      # XXX should also collect names for SEQUENCE inside SEQUENCE or
+      # CHOICE or SEQUENCE_OF (where should the SEQUENCE_OF name come
+      # from?  for others, element or arm name would be fine)
+      seq_name = getattr (self, 'sequence_name', None)
+      if seq_name == None:
+          seq_name = 'None'
       else:
-        out = "static const %s_sequence_t %s_sequence[] = {\n" % (ectx.encp(), tname)
-      if hasattr(self, 'ext_list'):
-        ext = 'ASN1_EXTENSION_ROOT'
+          seq_name = "'" + seq_name + "'"
+      if self.__dict__.has_key('ext_list'):
+        return "%sasn1.SEQUENCE ([%s], ext=[%s], seq_name = %s)" % (ctx.spaces (), 
+                                 self.elts_to_py (self.elt_list, ctx),
+                                 self.elts_to_py (self.ext_list, ctx), seq_name)
       else:
-        ext = 'ASN1_NO_EXTENSIONS'
+        return "%sasn1.SEQUENCE ([%s]), seq_name = %s" % (ctx.spaces (), 
+                                 self.elts_to_py (self.elt_list, ctx), seq_name)
+  def elts_to_py (self, list, ctx):
+      # we have elt_type, val= named_type, maybe default=, optional=
+      # named_type node: either ident = or typ =
+      # need to dismember these in order to generate Python output syntax.
+      ctx.indent ()
+      def elt_to_py (e):
+          assert (e.type == 'elt_type')
+          nt = e.val
+          optflag = e.optional
+          #assert (not hasattr (e, 'default')) # XXX add support for DEFAULT!
+          assert (nt.type == 'named_type')
+          tagstr = 'None'
+          identstr = nt.ident
+          if hasattr (nt.typ, 'type') and nt.typ.type == 'tag': # ugh
+              tagstr = mk_tag_str (ctx,nt.typ.tag.cls,
+                                   nt.typ.tag.tag_typ,nt.typ.tag.num)
+      
+
+              nt = nt.typ
+          return "('%s',%s,%s,%d)" % (identstr, tagstr,
+                                    nt.typ.to_python (ctx), optflag)
+      indentstr = ",\n" + ctx.spaces ()
+      rv = indentstr.join ([elt_to_py (e) for e in list])
+      ctx.outdent ()
+      return rv
+
+  def eth_reg_sub(self, ident, ectx):
       for e in (self.elt_list):
-        f = fname + '/' + e.val.name
-        out += self.out_item(f, e.val, e.optional, ext, ectx)
+          e.val.eth_reg(ident, ectx, parent=ident)
       if hasattr(self, 'ext_list'):
-        for e in (self.ext_list):
-          f = fname + '/' + e.val.name
-          out += self.out_item(f, e.val, e.optional, 'ASN1_NOT_EXTENSION_ROOT', ectx)
-      if (ectx.Ber()):
-        out += "  { 0, 0, 0, NULL }\n};\n"
-      else:
-        out += "  { NULL, 0, 0, NULL }\n};\n"
-      out += ectx.eth_type_fn_hdr(tname)
-      if (ectx.OBer()):
-        body = ectx.eth_fn_call('dissect_ber_sequence', ret='offset',
-                                par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset'),
-                                     (tname+'_sequence', 'hf_index', ectx.eth_type[tname]['tree'])))
-      elif (ectx.NPer()):
-        body = ectx.eth_fn_call('dissect_pern_sequence', ret='offset',
-                                par=(('tvb', 'offset', 'pinfo', 'tree'),
-                                     ('hf_index', 'item', 'private_data'),
-                                     (ectx.eth_type[tname]['tree'], tname+'_sequence', '"'+tname+'"')))
-      elif (ectx.OPer()):
-        body = ectx.eth_fn_call('dissect_per_sequence', ret='offset',
-                                par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
-                                     (ectx.eth_type[tname]['tree'], tname+'_sequence')))
-      else:
-        body = '#error Can not decode %s' % (tname)
-      out += ectx.eth_type_fn_body(tname, body)
-      out += ectx.eth_type_fn_ftr(tname)
-      return out
+          for e in (self.ext_list):
+              e.val.eth_reg(ident, ectx, parent=ident)
+
+  def eth_need_tree(self):
+    return True
+
+  def GetTTag(self, ectx):
+    return ('BER_CLASS_UNI', 'BER_UNI_TAG_SEQUENCE')
+
+  def eth_type_fn(self, proto, tname, ectx):
+    fname = ectx.eth_type[tname]['ref'][0]
+    if (ectx.OBer()):
+      out = "static const %s_sequence %s_sequence[] = {\n" % (ectx.encp(), tname)
+    else:
+      out = "static const %s_sequence_t %s_sequence[] = {\n" % (ectx.encp(), tname)
+    if hasattr(self, 'ext_list'):
+      ext = 'ASN1_EXTENSION_ROOT'
+    else:
+      ext = 'ASN1_NO_EXTENSIONS'
+    for e in (self.elt_list):
+      f = fname + '/' + e.val.name
+      out += self.out_item(f, e.val, e.optional, ext, ectx)
+    if hasattr(self, 'ext_list'):
+      for e in (self.ext_list):
+        f = fname + '/' + e.val.name
+        out += self.out_item(f, e.val, e.optional, 'ASN1_NOT_EXTENSION_ROOT', ectx)
+    if (ectx.Ber()):
+      out += "  { 0, 0, 0, NULL }\n};\n"
+    else:
+      out += "  { NULL, 0, 0, NULL }\n};\n"
+    out += ectx.eth_type_fn_hdr(tname)
+    if (ectx.OBer()):
+      body = ectx.eth_fn_call('dissect_ber_sequence', ret='offset',
+                              par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset'),
+                                   (tname+'_sequence', 'hf_index', ectx.eth_type[tname]['tree'])))
+    elif (ectx.NPer()):
+      body = ectx.eth_fn_call('dissect_pern_sequence', ret='offset',
+                              par=(('tvb', 'offset', 'pinfo', 'tree'),
+                                   ('hf_index', 'item', 'private_data'),
+                                   (ectx.eth_type[tname]['tree'], tname+'_sequence', '"'+tname+'"')))
+    elif (ectx.OPer()):
+      body = ectx.eth_fn_call('dissect_per_sequence', ret='offset',
+                              par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
+                                   (ectx.eth_type[tname]['tree'], tname+'_sequence')))
+    else:
+      body = '#error Can not decode %s' % (tname)
+    out += ectx.eth_type_fn_body(tname, body)
+    out += ectx.eth_type_fn_ftr(tname)
+    return out
 
 #--- SetType ------------------------------------------------------------------
 class SetType(SqType):
@@ -2161,10 +2216,21 @@ class SetType(SqType):
         out += self.out_item(f, e.val, e.optional, 'ASN1_NOT_EXTENSION_ROOT', ectx)
     out += "  { NULL, 0, 0, NULL }\n};\n"
     out += ectx.eth_type_fn_hdr(tname)
-    body = "  offset = dissect_per_set_new(tvb, offset, pinfo, tree,\n" \
-           "                               hf_index, item, private_data,\n"
-    body += '                               %s, %s_sequence_new, "%s");\n' \
-           % (ectx.eth_type[tname]['tree'], tname, tname)
+    if (ectx.OBer()):
+      body = ectx.eth_fn_call('dissect_ber_set', ret='offset',
+                              par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset'),
+                                   (tname+'_sequence', 'hf_index', ectx.eth_type[tname]['tree'])))
+    elif (ectx.NPer()):
+      body = ectx.eth_fn_call('dissect_pern_set', ret='offset',
+                              par=(('tvb', 'offset', 'pinfo', 'tree'),
+                                   ('hf_index', 'item', 'private_data'),
+                                   (ectx.eth_type[tname]['tree'], tname+'_sequence', '"'+tname+'"')))
+    elif (ectx.OPer()):
+      body = ectx.eth_fn_call('dissect_per_sequence', ret='offset',
+                              par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
+                                   (ectx.eth_type[tname]['tree'], tname+'_sequence')))
+    else:
+      body = '#error Can not decode %s' % (tname)
     out += ectx.eth_type_fn_body(tname, body)
     out += ectx.eth_type_fn_ftr(tname)
     return out
@@ -2438,10 +2504,10 @@ class EnumeratedType (Type):
       ext = 'TRUE'
     out += ectx.eth_type_fn_hdr(tname)
     if (ectx.Ber()):
-      body = ectx.eth_fn_call('dissect_ber_integer_new', ret='offset',
+      body = ectx.eth_fn_call('dissect_ber_integer', ret='offset',
                               par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset', 'hf_index', 'NULL'),))
     elif (ectx.NPer()):
-      body = "  offset = dissect_pern_constrained_integer_new(tvb, offset, pinfo, tree,\n"
+      body = "  offset = dissect_pern_constrained_integer(tvb, offset, pinfo, tree,\n"
       body += "                                               %s, %s, %s,\n" \
              % (0, maxv, ext)
       body += "                                               NULL);\n"
@@ -2638,9 +2704,13 @@ class RestrictedCharacterStringType (CharacterStringType):
                                    (minv, maxv, ext),
                                    ('NULL', 'NULL')))
     elif (ectx.OPer()):
-      body = ectx.eth_fn_call('dissect_per_'  + self.eth_tsname(), ret='offset',
-                              par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
-                                   (minv, maxv)))
+      if (self.eth_tsname() == 'GeneralString'):
+        body = ectx.eth_fn_call('dissect_per_'  + self.eth_tsname(), ret='offset',
+                                par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),))
+      else:
+        body = ectx.eth_fn_call('dissect_per_'  + self.eth_tsname(), ret='offset',
+                                par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
+                                     (minv, maxv)))
     else:
       body = '#error Can not decode %s' % (tname)
     out += ectx.eth_type_fn_body(tname, body)
@@ -2874,7 +2944,7 @@ class IntegerType (Type):
     out = '\n'
     out += ectx.eth_type_fn_hdr(tname)
     if (ectx.Ber()):
-      body = ectx.eth_fn_call('dissect_ber_integer_new', ret='offset',
+      body = ectx.eth_fn_call('dissect_ber_integer', ret='offset',
                               par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset', 'hf_index', 'NULL'),))
     elif (not self.HasConstraint()):
       if (ectx.NAPI()):
@@ -4214,6 +4284,7 @@ def eth_do_module (ast, ectx):
       for f in (ectx.eth_hfpdu_ord + ectx.eth_hf_ord):
         print "%-30s %-20s %s" % (f, ectx.eth_hf[f]['ethtype'], len(ectx.eth_hf[f]['ref'])),
         print ', '.join(ectx.eth_hf[f]['ref'])
+      #print "\n# Order after dependencies"
       #print '\n'.join(ectx.eth_type_ord1)
       print "\n# Cyclic dependencies"
       for c in ectx.eth_dep_cycle:

@@ -1476,7 +1476,7 @@ dissect_krb5_ctime(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 static int
 dissect_krb5_cusec(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_cusec, NULL);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_cusec, NULL);
 	return offset;
 }
 
@@ -1489,7 +1489,7 @@ dissect_krb5_stime(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 static int
 dissect_krb5_susec(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_susec, NULL);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_susec, NULL);
 	return offset;
 }
 
@@ -1497,7 +1497,7 @@ dissect_krb5_susec(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 static int
 dissect_krb5_error_code(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_error_code, &krb5_errorcode);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_error_code, &krb5_errorcode);
 	if(krb5_errorcode && check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO,
 			"KRB Error: %s",
@@ -1527,7 +1527,7 @@ dissect_krb5_from(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offse
 static int
 dissect_krb5_nonce(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_nonce, NULL);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_nonce, NULL);
 	return offset;
 }
 
@@ -1540,7 +1540,7 @@ dissect_krb5_etype(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 {
 	guint32 etype;
 
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_etype, &etype);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_etype, &etype);
 	if(tree){
 		proto_item_append_text(tree, " %s",
 			val_to_str(etype, krb5_encryption_types,
@@ -1562,7 +1562,7 @@ static guint32 authenticator_etype;
 static int
 dissect_krb5_authenticator_etype(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_etype, &authenticator_etype);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_etype, &authenticator_etype);
 	if(tree){
 		proto_item_append_text(tree, " %s",
 			val_to_str(authenticator_etype, krb5_encryption_types,
@@ -1574,7 +1574,7 @@ static guint32 Ticket_etype;
 static int
 dissect_krb5_Ticket_etype(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_etype, &Ticket_etype);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_etype, &Ticket_etype);
 	if(tree){
 		proto_item_append_text(tree, " %s",
 			val_to_str(Ticket_etype, krb5_encryption_types,
@@ -1586,7 +1586,7 @@ static guint32 AP_REP_etype;
 static int
 dissect_krb5_AP_REP_etype(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_etype, &AP_REP_etype);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_etype, &AP_REP_etype);
 	if(tree){
 		proto_item_append_text(tree, " %s",
 			val_to_str(AP_REP_etype, krb5_encryption_types,
@@ -1598,7 +1598,7 @@ static guint32 PA_ENC_TIMESTAMP_etype;
 static int
 dissect_krb5_PA_ENC_TIMESTAMP_etype(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_etype, &PA_ENC_TIMESTAMP_etype);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_etype, &PA_ENC_TIMESTAMP_etype);
 	if(tree){
 		proto_item_append_text(tree, " %s",
 			val_to_str(PA_ENC_TIMESTAMP_etype, krb5_encryption_types,
@@ -1617,7 +1617,7 @@ dissect_krb5_PA_ENC_TIMESTAMP_etype(packet_info *pinfo, proto_tree *tree, tvbuff
 static guint32 addr_type;
 static int dissect_krb5_addr_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_addr_type, &addr_type);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_addr_type, &addr_type);
 	return offset;
 }
 static int dissect_krb5_address(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
@@ -1712,7 +1712,7 @@ dissect_krb5_msg_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
 {
 	guint32 msgtype;
 
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_msg_type, &msgtype);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_msg_type, &msgtype);
 
 	if (do_col_info & check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_str(pinfo->cinfo, COL_INFO,
@@ -1732,7 +1732,7 @@ dissect_krb5_msg_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
 static int
 dissect_krb5_pvno(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_pvno, NULL);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_pvno, NULL);
 
 	return offset;
 }
@@ -1749,7 +1749,7 @@ static int
 dissect_krb5_name_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_name_type, &name_type);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_name_type, &name_type);
 	if(tree){
 		proto_item_append_text(tree, " (%s):",
 			val_to_str(name_type, krb5_princ_types,
@@ -1858,7 +1858,7 @@ dissect_krb5_PA_PROV_SRV_LOCATION(packet_info *pinfo, proto_tree *tree, tvbuff_t
 static int
 dissect_krb5_kvno(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_kvno, NULL);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_kvno, NULL);
 
 	return offset;
 }
@@ -1868,7 +1868,7 @@ dissect_krb5_kvno(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offse
 static int
 dissect_krb5_seq_number(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_seq_number, NULL);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_seq_number, NULL);
 
 	return offset;
 }
@@ -1879,7 +1879,7 @@ dissect_krb5_seq_number(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 static int
 dissect_krb5_pausec(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_pausec, NULL);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_pausec, NULL);
 	return offset;
 }
 static int
@@ -2002,7 +2002,7 @@ guint32 krb_PA_DATA_type;
 static int
 dissect_krb5_PA_DATA_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_PA_DATA_type, &krb_PA_DATA_type);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_PA_DATA_type, &krb_PA_DATA_type);
 	krb_PA_DATA_type&=0xff; /*this is really just one single byte */
 
 	if(tree){
@@ -2167,7 +2167,7 @@ static guint32 keytype;
 static int
 dissect_krb5_keytype(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_keytype, &keytype);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_keytype, &keytype);
 	if(tree){
 		proto_item_append_text(tree, " %s",
 			val_to_str(keytype, krb5_encryption_types,
@@ -2429,7 +2429,7 @@ static guint32 IF_RELEVANT_type;
 static int
 dissect_krb5_IF_RELEVANT_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_IF_RELEVANT_type, &IF_RELEVANT_type);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_IF_RELEVANT_type, &IF_RELEVANT_type);
 	if(tree){
 		proto_item_append_text(tree, " %s",
 			val_to_str(IF_RELEVANT_type, krb5_ad_types,
@@ -2480,7 +2480,7 @@ static guint32 adtype;
 static int
 dissect_krb5_adtype(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_adtype, &adtype);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_adtype, &adtype);
 	if(tree){
 		proto_item_append_text(tree, " %s",
 			val_to_str(adtype, krb5_ad_types,
@@ -2537,7 +2537,7 @@ dissect_krb5_transited_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 {
 	guint32 trtype;
 
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_transitedtype, &trtype);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_transitedtype, &trtype);
 	if(tree){
 		proto_item_append_text(tree, " %s",
 			val_to_str(trtype, krb5_transited_types,
@@ -2696,7 +2696,7 @@ static const value_string krb5_lr_types[] = {
 static int
 dissect_krb5_lr_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_lr_type, &lr_type);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_lr_type, &lr_type);
 
 	return offset;
 }
@@ -2779,7 +2779,7 @@ dissect_krb5_EncKDCRepPart(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 static int
 dissect_krb5_authenticator_vno(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_authenticator_vno, NULL);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_authenticator_vno, NULL);
 
 	return offset;
 }
@@ -2788,7 +2788,7 @@ dissect_krb5_authenticator_vno(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 static int
 dissect_krb5_checksum_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_checksum_type, NULL);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_checksum_type, NULL);
 
 	return offset;
 }
@@ -2927,7 +2927,7 @@ dissect_krb5_SAFE_BODY_timestamp(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 static int
 dissect_krb5_SAFE_BODY_usec(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_SAFE_BODY_usec, NULL);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_SAFE_BODY_usec, NULL);
 	return offset;
 }
 
@@ -3168,7 +3168,7 @@ dissect_krb5_encrypted_authenticator(packet_info *pinfo, proto_tree *tree, tvbuf
 static int
 dissect_krb5_tkt_vno(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_tkt_vno, NULL);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_tkt_vno, NULL);
 	return offset;
 }
 
@@ -3398,7 +3398,7 @@ static guint32 KDC_REP_etype;
 static int
 dissect_krb5_KDC_REP_etype(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_integer_new(FALSE, pinfo, tree, tvb, offset, hf_krb_etype, &KDC_REP_etype);
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_etype, &KDC_REP_etype);
 	if(tree){
 		proto_item_append_text(tree, " %s",
 			val_to_str(KDC_REP_etype, krb5_encryption_types,

@@ -9,7 +9,7 @@
  * Routines for X.509 Authentication Framework packet dissection
  *  Ronnie Sahlberg 2004
  *
- * $Id: packet-x509af-template.c 12573 2004-11-22 03:36:26Z sahlberg $
+ * $Id: packet-x509af-template.c 12624 2004-11-30 04:08:16Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -229,7 +229,7 @@ const value_string Version_vals[] = {
 
 int
 dissect_x509af_Version(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -241,7 +241,7 @@ static int dissect_version(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 
 int
 dissect_x509af_CertificateSerialNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -1055,7 +1055,7 @@ void proto_register_x509af(void) {
         "Certificate/signedCertificate/subjectUniqueIdentifier", HFILL }},
     { &hf_x509af_extensions,
       { "extensions", "x509af.extensions",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_x509af_algorithmIdentifier,
       { "algorithmIdentifier", "x509af.algorithmIdentifier",
@@ -1119,11 +1119,11 @@ void proto_register_x509af(void) {
         "", HFILL }},
     { &hf_x509af_certificationPath,
       { "certificationPath", "x509af.certificationPath",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "Certificates/certificationPath", HFILL }},
     { &hf_x509af_ForwardCertificationPath_item,
       { "Item", "x509af.ForwardCertificationPath_item",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "ForwardCertificationPath/_item", HFILL }},
     { &hf_x509af_CrossCertificates_item,
       { "Item", "x509af.CrossCertificates_item",
@@ -1131,7 +1131,7 @@ void proto_register_x509af(void) {
         "CrossCertificates/_item", HFILL }},
     { &hf_x509af_theCACertificates,
       { "theCACertificates", "x509af.theCACertificates",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "CertificationPath/theCACertificates", HFILL }},
     { &hf_x509af_theCACertificates_item,
       { "Item", "x509af.theCACertificates_item",
@@ -1159,7 +1159,7 @@ void proto_register_x509af(void) {
         "CertificateList/signedCertificateList/nextUpdate", HFILL }},
     { &hf_x509af_revokedCertificates,
       { "revokedCertificates", "x509af.revokedCertificates",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "CertificateList/signedCertificateList/revokedCertificates", HFILL }},
     { &hf_x509af_revokedCertificates_item,
       { "Item", "x509af.revokedCertificates_item",
@@ -1175,11 +1175,11 @@ void proto_register_x509af(void) {
         "CertificateList/signedCertificateList/revokedCertificates/_item/revocationDate", HFILL }},
     { &hf_x509af_crlEntryExtensions,
       { "crlEntryExtensions", "x509af.crlEntryExtensions",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "CertificateList/signedCertificateList/revokedCertificates/_item/crlEntryExtensions", HFILL }},
     { &hf_x509af_crlExtensions,
       { "crlExtensions", "x509af.crlExtensions",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "CertificateList/signedCertificateList/crlExtensions", HFILL }},
     { &hf_x509af_attributeCertificate,
       { "attributeCertificate", "x509af.attributeCertificate",
@@ -1187,7 +1187,7 @@ void proto_register_x509af(void) {
         "", HFILL }},
     { &hf_x509af_acPath,
       { "acPath", "x509af.acPath",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "AttributeCertificationPath/acPath", HFILL }},
     { &hf_x509af_acPath_item,
       { "Item", "x509af.acPath_item",
@@ -1223,7 +1223,7 @@ void proto_register_x509af(void) {
         "AttributeCertificateInfo/attCertValidityPeriod", HFILL }},
     { &hf_x509af_attributes,
       { "attributes", "x509af.attributes",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "AttributeCertificateInfo/attributes", HFILL }},
     { &hf_x509af_attributes_item,
       { "Item", "x509af.attributes_item",
@@ -1267,7 +1267,7 @@ void proto_register_x509af(void) {
         "AttributeCertificateAssertion/attCertValidity", HFILL }},
     { &hf_x509af_attType,
       { "attType", "x509af.attType",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "AttributeCertificateAssertion/attType", HFILL }},
     { &hf_x509af_attType_item,
       { "Item", "x509af.attType_item",

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* ./packet-cmip.c                                                            */
-/* ../../tools/asn2eth.py -e -X -b -p cmip -c cmip.cnf -s packet-cmip-template CMIP.asn */
+/* ../../tools/asn2eth.py -X -b -k -e -p cmip -c cmip.cnf -s packet-cmip-template CMIP.asn */
 
 /* Input file: packet-cmip-template.c */
 
@@ -332,7 +332,7 @@ static const value_string ModifyOperator_vals[] = {
 
 static int
 dissect_cmip_ModifyOperator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -404,7 +404,7 @@ static int dissect_ocglobalForm_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 static int
 dissect_cmip_T_oclocalForm(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   objectclassform = OBJECTCLASS_LOCAL_FORM;
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_oclocalForm, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_oclocalForm, NULL);
 
 
   return offset;
@@ -511,7 +511,7 @@ static const value_string T_errorStatus_vals[] = {
 
 static int
 dissect_cmip_T_errorStatus(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -538,7 +538,7 @@ static int dissect_globalForm_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
 static int
 dissect_cmip_T_localForm(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   attributeform = ATTRIBUTE_LOCAL_FORM;
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_localForm, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_cmip_localForm, NULL);
 
 
   return offset;
@@ -731,7 +731,7 @@ static const value_string T_errorStatus2_vals[] = {
 
 static int
 dissect_cmip_T_errorStatus2(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -855,7 +855,7 @@ static const value_string T_errorStatus1_vals[] = {
 
 static int
 dissect_cmip_T_errorStatus1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -1206,7 +1206,7 @@ static const value_string T_deleteErrorInfo_vals[] = {
 
 static int
 dissect_cmip_T_deleteErrorInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -1289,7 +1289,7 @@ static const value_string CMISSync_vals[] = {
 
 static int
 dissect_cmip_CMISSync(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -1308,7 +1308,7 @@ static const value_string T_namedNumbers_vals[] = {
 
 static int
 dissect_cmip_T_namedNumbers(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -1320,7 +1320,7 @@ static int dissect_namedNumbers(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_cmip_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -1993,7 +1993,7 @@ static const value_string Opcode_vals[] = {
 
 static int
 dissect_cmip_Opcode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, &opcode);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, &opcode);
   if(check_col(pinfo->cinfo, COL_INFO)){
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(opcode, Opcode_vals, " Unknown Opcode:%d"));
   }
@@ -2025,7 +2025,7 @@ static int dissect_rRBody(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 
 static int
 dissect_cmip_InvokeID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -2184,7 +2184,7 @@ static const value_string GeneralProblem_vals[] = {
 
 static int
 dissect_cmip_GeneralProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -2208,7 +2208,7 @@ static const value_string InvokeProblem_vals[] = {
 
 static int
 dissect_cmip_InvokeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -2227,7 +2227,7 @@ static const value_string ReturnResultProblem_vals[] = {
 
 static int
 dissect_cmip_ReturnResultProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -2248,7 +2248,7 @@ static const value_string ReturnErrorProblem_vals[] = {
 
 static int
 dissect_cmip_ReturnErrorProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -2283,7 +2283,7 @@ static const value_string RejectProblem_vals[] = {
 
 static int
 dissect_cmip_RejectProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -2373,7 +2373,7 @@ static const value_string CMIPAbortSource_vals[] = {
 static int
 dissect_cmip_CMIPAbortSource(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   guint32 value;
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, &value);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, &value);
   if(check_col(pinfo->cinfo, COL_INFO)){
     col_append_fstr(pinfo->cinfo, COL_INFO, " AbortSource:%s", val_to_str(value, CMIPAbortSource_vals, " Unknown AbortSource:%d"));
   }
@@ -2565,7 +2565,7 @@ void proto_register_cmip(void) {
         "", HFILL }},
     { &hf_cmip_getInfoList,
       { "getInfoList", "cmip.getInfoList",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "GetListError/getInfoList", HFILL }},
     { &hf_cmip_getInfoList_item,
       { "Item", "cmip.getInfoList_item",
@@ -2589,7 +2589,7 @@ void proto_register_cmip(void) {
         "AttributeIdError/attributeId", HFILL }},
     { &hf_cmip_setInfoList,
       { "setInfoList", "cmip.setInfoList",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "SetListError/setInfoList", HFILL }},
     { &hf_cmip_setInfoList_item,
       { "Item", "cmip.setInfoList_item",
@@ -2685,7 +2685,7 @@ void proto_register_cmip(void) {
         "AttributeError/attributeValue", HFILL }},
     { &hf_cmip_attributeList,
       { "attributeList", "cmip.attributeList",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_cmip_attributeList_item,
       { "Item", "cmip.attributeList_item",
@@ -2717,7 +2717,7 @@ void proto_register_cmip(void) {
         "", HFILL }},
     { &hf_cmip_modificationList,
       { "modificationList", "cmip.modificationList",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "SetArgument/modificationList", HFILL }},
     { &hf_cmip_modificationList_item,
       { "Item", "cmip.modificationList_item",
@@ -2861,7 +2861,7 @@ void proto_register_cmip(void) {
         "FilterItem/equality", HFILL }},
     { &hf_cmip_substrings,
       { "substrings", "cmip.substrings",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "FilterItem/substrings", HFILL }},
     { &hf_cmip_substrings_item,
       { "Item", "cmip.substrings_item",
@@ -2909,7 +2909,7 @@ void proto_register_cmip(void) {
         "CMISFilter/item", HFILL }},
     { &hf_cmip_and,
       { "and", "cmip.and",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "CMISFilter/and", HFILL }},
     { &hf_cmip_and_item,
       { "Item", "cmip.and_item",
@@ -2917,7 +2917,7 @@ void proto_register_cmip(void) {
         "CMISFilter/and/_item", HFILL }},
     { &hf_cmip_or,
       { "or", "cmip.or",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "CMISFilter/or", HFILL }},
     { &hf_cmip_or_item,
       { "Item", "cmip.or_item",
@@ -2941,7 +2941,7 @@ void proto_register_cmip(void) {
         "Scope/baseToNthLevel", HFILL }},
     { &hf_cmip_attributeIdList,
       { "attributeIdList", "cmip.attributeIdList",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "GetArgument/attributeIdList", HFILL }},
     { &hf_cmip_attributeIdList_item,
       { "Item", "cmip.attributeIdList_item",

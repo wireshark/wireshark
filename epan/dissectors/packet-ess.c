@@ -189,7 +189,7 @@ static const value_string AllOrFirstTier_vals[] = {
 
 static int
 dissect_ess_AllOrFirstTier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -269,7 +269,7 @@ static const value_string ESSVersion_vals[] = {
 
 static int
 dissect_ess_ESSVersion(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -382,7 +382,7 @@ static const value_string SecurityClassification_vals[] = {
 
 static int
 dissect_ess_SecurityClassification(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -740,7 +740,7 @@ void proto_register_ess(void) {
         "ContentReference", HFILL }},
     { &hf_ess_MLExpansionHistory_PDU,
       { "MLExpansionHistory", "ess.MLExpansionHistory",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "MLExpansionHistory", HFILL }},
     { &hf_ess_SigningCertificate_PDU,
       { "SigningCertificate", "ess.SigningCertificate",
@@ -756,7 +756,7 @@ void proto_register_ess(void) {
         "ReceiptRequest/receiptsFrom", HFILL }},
     { &hf_ess_receiptsTo,
       { "receiptsTo", "ess.receiptsTo",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "ReceiptRequest/receiptsTo", HFILL }},
     { &hf_ess_receiptsTo_item,
       { "Item", "ess.receiptsTo_item",
@@ -768,7 +768,7 @@ void proto_register_ess(void) {
         "ReceiptsFrom/allOrFirstTier", HFILL }},
     { &hf_ess_receiptList,
       { "receiptList", "ess.receiptList",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "ReceiptsFrom/receiptList", HFILL }},
     { &hf_ess_receiptList_item,
       { "Item", "ess.receiptList_item",
@@ -840,7 +840,7 @@ void proto_register_ess(void) {
         "MLReceiptPolicy/none", HFILL }},
     { &hf_ess_insteadOf,
       { "insteadOf", "ess.insteadOf",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "MLReceiptPolicy/insteadOf", HFILL }},
     { &hf_ess_insteadOf_item,
       { "Item", "ess.insteadOf_item",
@@ -848,7 +848,7 @@ void proto_register_ess(void) {
         "MLReceiptPolicy/insteadOf/_item", HFILL }},
     { &hf_ess_inAdditionTo,
       { "inAdditionTo", "ess.inAdditionTo",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "MLReceiptPolicy/inAdditionTo", HFILL }},
     { &hf_ess_inAdditionTo_item,
       { "Item", "ess.inAdditionTo_item",
@@ -856,7 +856,7 @@ void proto_register_ess(void) {
         "MLReceiptPolicy/inAdditionTo/_item", HFILL }},
     { &hf_ess_certs,
       { "certs", "ess.certs",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "SigningCertificate/certs", HFILL }},
     { &hf_ess_certs_item,
       { "Item", "ess.certs_item",
@@ -864,7 +864,7 @@ void proto_register_ess(void) {
         "SigningCertificate/certs/_item", HFILL }},
     { &hf_ess_policies,
       { "policies", "ess.policies",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "SigningCertificate/policies", HFILL }},
     { &hf_ess_policies_item,
       { "Item", "ess.policies_item",

@@ -8,7 +8,7 @@
 /* packet-pkix1implicit.c
  * Routines for PKIX1Implitic packet dissection
  *
- * $Id: packet-pkix1implicit-template.c 12552 2004-11-21 05:21:26Z sahlberg $
+ * $Id: packet-pkix1implicit-template.c 12669 2004-12-05 21:47:49Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -249,7 +249,7 @@ static int dissect_organization(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_pkix1implicit_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -331,7 +331,7 @@ void proto_register_pkix1implicit(void) {
         "Dummy", HFILL }},
     { &hf_pkix1implicit_AuthorityInfoAccessSyntax_PDU,
       { "AuthorityInfoAccessSyntax", "pkix1implicit.AuthorityInfoAccessSyntax",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "AuthorityInfoAccessSyntax", HFILL }},
     { &hf_pkix1implicit_nameAssigner,
       { "nameAssigner", "pkix1implicit.nameAssigner",
@@ -367,7 +367,7 @@ void proto_register_pkix1implicit(void) {
         "NoticeReference/organization", HFILL }},
     { &hf_pkix1implicit_noticeNumbers,
       { "noticeNumbers", "pkix1implicit.noticeNumbers",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "NoticeReference/noticeNumbers", HFILL }},
     { &hf_pkix1implicit_noticeNumbers_item,
       { "Item", "pkix1implicit.noticeNumbers_item",

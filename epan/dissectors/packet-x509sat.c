@@ -8,8 +8,9 @@
 #define BER_UNI_TAG_TeletexString	    20  /* until we fix the bug in asn2eth */
 /* packet-x509sat.c
  * Routines for X.509 Selected Attribute Types packet dissection
+ *  Ronnie Sahlberg 2004
  *
- * $Id: packet-x509sat-template.c 12546 2004-11-20 06:54:45Z sahlberg $
+ * $Id: packet-x509sat-template.c 12573 2004-11-22 03:36:26Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -441,7 +442,7 @@ static const value_string T_subset_vals[] = {
 
 static int
 dissect_x509sat_T_subset(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -584,7 +585,7 @@ static const value_string PreferredDeliveryMethod_item_vals[] = {
 
 static int
 dissect_x509sat_PreferredDeliveryMethod_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -853,7 +854,7 @@ const value_string ZonalResult_vals[] = {
 
 int
 dissect_x509sat_ZonalResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -906,7 +907,7 @@ static int dissect_absolute(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
 static int
 dissect_x509sat_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -1047,7 +1048,7 @@ static const value_string T_intNamedDays_vals[] = {
 
 static int
 dissect_x509sat_T_intNamedDays(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -1368,7 +1369,7 @@ static int dissect_entirely(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
 int
 dissect_x509sat_TimeZone(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -1503,7 +1504,7 @@ void proto_register_x509sat(void) {
         "Criteria/type", HFILL }},
     { &hf_x509sat_and,
       { "and", "x509sat.and",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "Criteria/and", HFILL }},
     { &hf_x509sat_and_item,
       { "Item", "x509sat.and_item",
@@ -1511,7 +1512,7 @@ void proto_register_x509sat(void) {
         "Criteria/and/_item", HFILL }},
     { &hf_x509sat_or,
       { "or", "x509sat.or",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "Criteria/or", HFILL }},
     { &hf_x509sat_or_item,
       { "Item", "x509sat.or_item",
@@ -1591,7 +1592,7 @@ void proto_register_x509sat(void) {
         "PresentationAddress/tSelector", HFILL }},
     { &hf_x509sat_nAddresses,
       { "nAddresses", "x509sat.nAddresses",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "PresentationAddress/nAddresses", HFILL }},
     { &hf_x509sat_nAddresses_item,
       { "Item", "x509sat.nAddresses_item",
@@ -1603,7 +1604,7 @@ void proto_register_x509sat(void) {
         "ProtocolInformation/nAddress", HFILL }},
     { &hf_x509sat_profiles,
       { "profiles", "x509sat.profiles",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "ProtocolInformation/profiles", HFILL }},
     { &hf_x509sat_profiles_item,
       { "Item", "x509sat.profiles_item",
@@ -1611,7 +1612,7 @@ void proto_register_x509sat(void) {
         "ProtocolInformation/profiles/_item", HFILL }},
     { &hf_x509sat_dn,
       { "dn", "x509sat.dn",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "NameAndOptionalUID/dn", HFILL }},
     { &hf_x509sat_uid,
       { "uid", "x509sat.uid",
@@ -1623,7 +1624,7 @@ void proto_register_x509sat(void) {
         "MultipleMatchingLocalities/matchingRuleUsed", HFILL }},
     { &hf_x509sat_attributeList,
       { "attributeList", "x509sat.attributeList",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "MultipleMatchingLocalities/attributeList", HFILL }},
     { &hf_x509sat_attributeList_item,
       { "Item", "x509sat.attributeList_item",
@@ -1691,7 +1692,7 @@ void proto_register_x509sat(void) {
         "", HFILL }},
     { &hf_x509sat_periodic,
       { "periodic", "x509sat.periodic",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "TimeSpecification/time/periodic", HFILL }},
     { &hf_x509sat_periodic_item,
       { "Item", "x509sat.periodic_item",
@@ -1707,7 +1708,7 @@ void proto_register_x509sat(void) {
         "TimeSpecification/timeZone", HFILL }},
     { &hf_x509sat_timesOfDay,
       { "timesOfDay", "x509sat.timesOfDay",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "Period/timesOfDay", HFILL }},
     { &hf_x509sat_timesOfDay_item,
       { "Item", "x509sat.timesOfDay_item",
@@ -1719,7 +1720,7 @@ void proto_register_x509sat(void) {
         "Period/days", HFILL }},
     { &hf_x509sat_intDay,
       { "intDay", "x509sat.intDay",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "Period/days/intDay", HFILL }},
     { &hf_x509sat_intDay_item,
       { "Item", "x509sat.intDay_item",
@@ -1743,7 +1744,7 @@ void proto_register_x509sat(void) {
         "Period/weeks/allWeeks", HFILL }},
     { &hf_x509sat_intWeek,
       { "intWeek", "x509sat.intWeek",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "Period/weeks/intWeek", HFILL }},
     { &hf_x509sat_intWeek_item,
       { "Item", "x509sat.intWeek_item",
@@ -1763,7 +1764,7 @@ void proto_register_x509sat(void) {
         "Period/months/allMonths", HFILL }},
     { &hf_x509sat_intMonth,
       { "intMonth", "x509sat.intMonth",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "Period/months/intMonth", HFILL }},
     { &hf_x509sat_intMonth_item,
       { "Item", "x509sat.intMonth_item",
@@ -1775,7 +1776,7 @@ void proto_register_x509sat(void) {
         "Period/months/bitMonth", HFILL }},
     { &hf_x509sat_years,
       { "years", "x509sat.years",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "Period/years", HFILL }},
     { &hf_x509sat_years_item,
       { "Item", "x509sat.years_item",

@@ -196,7 +196,7 @@ static const value_string Version_vals[] = {
 
 static int
 dissect_ocsp_Version(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -366,7 +366,7 @@ static const value_string OCSPResponseStatus_vals[] = {
 
 static int
 dissect_ocsp_OCSPResponseStatus(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -701,7 +701,7 @@ static int dissect_crlUrl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 
 static int
 dissect_ocsp_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -818,7 +818,7 @@ void proto_register_ocsp(void) {
         "ArchiveCutoff", HFILL }},
     { &hf_ocsp_AcceptableResponses_PDU,
       { "AcceptableResponses", "ocsp.AcceptableResponses",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "AcceptableResponses", HFILL }},
     { &hf_ocsp_ServiceLocator_PDU,
       { "ServiceLocator", "ocsp.ServiceLocator",
@@ -846,7 +846,7 @@ void proto_register_ocsp(void) {
         "TBSRequest/requestorName", HFILL }},
     { &hf_ocsp_requestList,
       { "requestList", "ocsp.requestList",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "TBSRequest/requestList", HFILL }},
     { &hf_ocsp_requestList_item,
       { "Item", "ocsp.requestList_item",
@@ -866,7 +866,7 @@ void proto_register_ocsp(void) {
         "", HFILL }},
     { &hf_ocsp_certs,
       { "certs", "ocsp.certs",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_ocsp_certs_item,
       { "Item", "ocsp.certs_item",
@@ -926,7 +926,7 @@ void proto_register_ocsp(void) {
         "ResponseData/producedAt", HFILL }},
     { &hf_ocsp_responses,
       { "responses", "ocsp.responses",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "ResponseData/responses", HFILL }},
     { &hf_ocsp_responses_item,
       { "Item", "ocsp.responses_item",

@@ -9,7 +9,7 @@
  * Routines for RFC2630 Cryptographic Message Syntax packet dissection
  *   Ronnie Sahlberg 2004
  *
- * $Id: packet-cms-template.h 12434 2004-10-29 12:11:42Z sahlberg $
+ * $Id: packet-cms-template.h 12573 2004-11-22 03:36:26Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

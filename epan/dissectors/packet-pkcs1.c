@@ -7,8 +7,9 @@
 
 /* packet-pkcs1.c
  * Routines for PKCS#1/RFC2313 packet dissection
+ *  Ronnie Sahlberg 2004
  *
- * $Id: packet-pkcs1-template.c 12203 2004-10-05 09:18:55Z guy $
+ * $Id: packet-pkcs1-template.c 12573 2004-11-22 03:36:26Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -88,7 +89,7 @@ static gint ett_pkcs1_DigestInfo = -1;
 
 static int
 dissect_pkcs1_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -135,7 +136,7 @@ dissect_pkcs1_RSAPublicKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
 static int
 dissect_pkcs1_Version(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }

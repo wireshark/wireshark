@@ -7,8 +7,9 @@
 
 /* packet-pkcs1.h
  * Routines for PKCS#1/RFC2313 packet dissection
+ *  Ronnie Sahlberg 2004
  *
- * $Id: packet-pkcs1-template.h 12203 2004-10-05 09:18:55Z guy $
+ * $Id: packet-pkcs1-template.h 12573 2004-11-22 03:36:26Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

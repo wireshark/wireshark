@@ -9,7 +9,7 @@
  * Routines for PKINIT packet dissection
  *  Ronnie Sahlberg 2004
  *
- * $Id: packet-pkinit-template.c 12463 2004-11-01 17:49:53Z gerald $
+ * $Id: packet-pkinit-template.c 12573 2004-11-22 03:36:26Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -197,7 +197,7 @@ dissect_pkinit_PaPkAsReq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 
 static int
 dissect_pkinit_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -212,7 +212,7 @@ static int dissect_dhNonce(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 
 static int
 dissect_pkinit_INTEGER_0_4294967295(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -378,7 +378,7 @@ void proto_register_pkinit(void) {
         "PaPkAsReq/signedAuthPack", HFILL }},
     { &hf_pkinit_trustedCertifiers,
       { "trustedCertifiers", "pkinit.trustedCertifiers",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "PaPkAsReq/trustedCertifiers", HFILL }},
     { &hf_pkinit_trustedCertifiers_item,
       { "Item", "pkinit.trustedCertifiers_item",
@@ -406,7 +406,7 @@ void proto_register_pkinit(void) {
         "AuthPack/clientPublicValue", HFILL }},
     { &hf_pkinit_supportedCMSTypes,
       { "supportedCMSTypes", "pkinit.supportedCMSTypes",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "AuthPack/supportedCMSTypes", HFILL }},
     { &hf_pkinit_supportedCMSTypes_item,
       { "Item", "pkinit.supportedCMSTypes_item",

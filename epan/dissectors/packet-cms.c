@@ -9,7 +9,7 @@
  * Routines for RFC2630 Cryptographic Message Syntax packet dissection
  *   Ronnie Sahlberg 2004
  *
- * $Id: packet-cms-template.c 12434 2004-10-29 12:11:42Z sahlberg $
+ * $Id: packet-cms-template.c 12573 2004-11-22 03:36:26Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -274,7 +274,7 @@ static const value_string CMSVersion_vals[] = {
 
 static int
 dissect_cms_CMSVersion(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -1337,7 +1337,7 @@ void proto_register_cms(void) {
         "", HFILL }},
     { &hf_cms_digestAlgorithms,
       { "digestAlgorithms", "cms.digestAlgorithms",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "SignedData/digestAlgorithms", HFILL }},
     { &hf_cms_encapContentInfo,
       { "encapContentInfo", "cms.encapContentInfo",
@@ -1345,15 +1345,15 @@ void proto_register_cms(void) {
         "", HFILL }},
     { &hf_cms_certificates,
       { "certificates", "cms.certificates",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "SignedData/certificates", HFILL }},
     { &hf_cms_crls,
       { "crls", "cms.crls",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_cms_signerInfos,
       { "signerInfos", "cms.signerInfos",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "SignedData/signerInfos", HFILL }},
     { &hf_cms_DigestAlgorithmIdentifiers_item,
       { "Item", "cms.DigestAlgorithmIdentifiers_item",
@@ -1381,7 +1381,7 @@ void proto_register_cms(void) {
         "", HFILL }},
     { &hf_cms_signedAttrs,
       { "signedAttrs", "cms.signedAttrs",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "SignerInfo/signedAttrs", HFILL }},
     { &hf_cms_signatureAlgorithm,
       { "signatureAlgorithm", "cms.signatureAlgorithm",
@@ -1393,7 +1393,7 @@ void proto_register_cms(void) {
         "SignerInfo/signature", HFILL }},
     { &hf_cms_unsignedAttrs,
       { "unsignedAttrs", "cms.unsignedAttrs",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "SignerInfo/unsignedAttrs", HFILL }},
     { &hf_cms_issuerAndSerialNumber,
       { "issuerAndSerialNumber", "cms.issuerAndSerialNumber",
@@ -1421,7 +1421,7 @@ void proto_register_cms(void) {
         "", HFILL }},
     { &hf_cms_recipientInfos,
       { "recipientInfos", "cms.recipientInfos",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_cms_encryptedContentInfo,
       { "encryptedContentInfo", "cms.encryptedContentInfo",
@@ -1429,11 +1429,11 @@ void proto_register_cms(void) {
         "", HFILL }},
     { &hf_cms_unprotectedAttrs,
       { "unprotectedAttrs", "cms.unprotectedAttrs",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_cms_certs,
       { "certs", "cms.certs",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "OriginatorInfo/certs", HFILL }},
     { &hf_cms_RecipientInfos_item,
       { "Item", "cms.RecipientInfos_item",
@@ -1489,7 +1489,7 @@ void proto_register_cms(void) {
         "KeyAgreeRecipientInfo/ukm", HFILL }},
     { &hf_cms_recipientEncryptedKeys,
       { "recipientEncryptedKeys", "cms.recipientEncryptedKeys",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "KeyAgreeRecipientInfo/recipientEncryptedKeys", HFILL }},
     { &hf_cms_originatorKey,
       { "originatorKey", "cms.originatorKey",
@@ -1541,7 +1541,7 @@ void proto_register_cms(void) {
         "AuthenticatedData/macAlgorithm", HFILL }},
     { &hf_cms_authenticatedAttributes,
       { "authenticatedAttributes", "cms.authenticatedAttributes",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "AuthenticatedData/authenticatedAttributes", HFILL }},
     { &hf_cms_mac,
       { "mac", "cms.mac",
@@ -1549,7 +1549,7 @@ void proto_register_cms(void) {
         "AuthenticatedData/mac", HFILL }},
     { &hf_cms_unauthenticatedAttributes,
       { "unauthenticatedAttributes", "cms.unauthenticatedAttributes",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "AuthenticatedData/unauthenticatedAttributes", HFILL }},
     { &hf_cms_AuthAttributes_item,
       { "Item", "cms.AuthAttributes_item",
@@ -1605,7 +1605,7 @@ void proto_register_cms(void) {
         "ExtendedCertificate/signature", HFILL }},
     { &hf_cms_attributes,
       { "attributes", "cms.attributes",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "ExtendedCertificateInfo/attributes", HFILL }},
 
 /*--- End of included file: packet-cms-hfarr.c ---*/

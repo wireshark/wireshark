@@ -144,7 +144,7 @@ static const value_string PredefinedBiometricType_vals[] = {
 
 static int
 dissect_pkixqualified_PredefinedBiometricType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -379,11 +379,11 @@ void proto_register_pkixqualified(void) {
         "Printablestring", HFILL }},
     { &hf_pkixqualified_BiometricSyntax_PDU,
       { "BiometricSyntax", "pkixqualified.BiometricSyntax",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "BiometricSyntax", HFILL }},
     { &hf_pkixqualified_QCStatements_PDU,
       { "QCStatements", "pkixqualified.QCStatements",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "QCStatements", HFILL }},
     { &hf_pkixqualified_SemanticsInformation_PDU,
       { "SemanticsInformation", "pkixqualified.SemanticsInformation",
@@ -435,7 +435,7 @@ void proto_register_pkixqualified(void) {
         "SemanticsInformation/semanticsIdentifier", HFILL }},
     { &hf_pkixqualified_nameRegistrationAuthorities,
       { "nameRegistrationAuthorities", "pkixqualified.nameRegistrationAuthorities",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "SemanticsInformation/nameRegistrationAuthorities", HFILL }},
     { &hf_pkixqualified_NameRegistrationAuthorities_item,
       { "Item", "pkixqualified.NameRegistrationAuthorities_item",

@@ -10,7 +10,7 @@
 /* packet-pkix1explicit.c
  * Routines for PKIX1Explitic packet dissection
  *
- * $Id: packet-pkix1explicit-template.c 12465 2004-11-01 18:11:48Z gerald $
+ * $Id: packet-pkix1explicit-template.c 12617 2004-11-29 08:43:19Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -137,7 +137,7 @@ dissect_pkix1explicit_SubjectPublicKeyInfo(gboolean implicit_tag, tvbuff_t *tvb,
 
 int
 dissect_pkix1explicit_CertificateSerialNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -220,7 +220,7 @@ dissect_pkix1explicit_Extensions(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 
 static int
 dissect_pkix1explicit_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -382,7 +382,7 @@ const value_string TerminalType_vals[] = {
 
 int
 dissect_pkix1explicit_TerminalType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -504,7 +504,7 @@ void proto_register_pkix1explicit(void) {
         "AttributeTypeAndValue/value", HFILL }},
     { &hf_pkix1explicit_RDNSequence_item,
       { "Item", "pkix1explicit.RDNSequence_item",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "RDNSequence/_item", HFILL }},
     { &hf_pkix1explicit_RelativeDistinguishedName_item,
       { "Item", "pkix1explicit.RelativeDistinguishedName_item",
