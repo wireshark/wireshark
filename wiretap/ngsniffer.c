@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.88 2002/11/01 08:18:36 guy Exp $
+ * $Id: ngsniffer.c,v 1.89 2002/11/09 07:31:17 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -294,6 +294,10 @@ static double Usec[] = { 15.0, 0.838096, 15.0, 0.5, 2.0, 1.0, 0.1 };
 
 static int process_header_records(wtap *wth, int *err, gint16 version,
     gboolean *is_router);
+static int process_rec_header2_v2(wtap *wth, unsigned char *buffer,
+    guint16 length, int *err);
+static int process_rec_header2_v4(wtap *wth, unsigned char *buffer,
+    guint16 length, gboolean *is_router, int *err);
 static gboolean ngsniffer_read(wtap *wth, int *err, long *data_offset);
 static gboolean ngsniffer_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
@@ -532,7 +536,7 @@ process_header_records(wtap *wth, int *err, gint16 version, gboolean *is_router)
 				  the last 2 are "reserved" and are thrown away */
 	guint16 type, length;
 	int bytes_to_read;
-	unsigned char buffer[32];
+	unsigned char buffer[256];
 
 	*is_router = FALSE;
 	for (;;) {
@@ -580,21 +584,21 @@ process_header_records(wtap *wth, int *err, gint16 version, gboolean *is_router)
 		length = pletohs(record_length);
 
 		/*
-		 * Is this a version 4 capture, is this a REC_HEADER2
-		 * record, and do we not yet know the encapsulation
-		 * type (i.e., is this is an "Internetwork analyzer"
-		 * capture?
+		 * Do we not yet know the encapsulation type (i.e., is
+		 * this is an "Internetwork analyzer" capture?), and
+		 * is this a REC_HEADER2 record?
+		 *
+		 * If so, it appears to specify the particular type
+		 * of network we're on.
 		 *
 		 * If so, the 5th byte of the record appears to specify
 		 * the particular type of network we're on.
 		 */
-		if (version == 4 && type == REC_HEADER2 &&
-		    wth->file_encap == WTAP_ENCAP_PER_PACKET) {
+		if (wth->file_encap == WTAP_ENCAP_PER_PACKET &&
+		    type == REC_HEADER2) {
 			/*
-			 * Yes, get the first 32 bytes of the record
-			 * data.  (The record appears to have only
-			 * 8 bytes of data in all the captures I've
-			 * seen.)
+			 * Yes, get the first up-to-256 bytes of the
+			 * record data.
 			 */
 			bytes_to_read = MIN(length, sizeof buffer);
 			bytes_read = file_read(buffer, 1, bytes_to_read,
@@ -606,6 +610,22 @@ process_header_records(wtap *wth, int *err, gint16 version, gboolean *is_router)
 					return -1;
 				}
 			}
+
+			switch (version) {
+
+			case 2:
+				if (process_rec_header2_v2(wth, buffer,
+				    length, err) < 0)
+					return -1;
+				break;
+
+			case 4:
+				if (process_rec_header2_v4(wth, buffer,
+				    length, is_router, err) < 0)
+					return -1;
+				break;
+			}
+
 			/*
 			 * Skip the rest of the record.
 			 */
@@ -615,50 +635,6 @@ process_header_records(wtap *wth, int *err, gint16 version, gboolean *is_router)
 					return -1;
 			}
 
-			/*
-			 * The X.25 captures I've seen have a type of
-			 * NET_HDLC; however, I've seen both PPP and
-			 * ISDN captures with a type of NET_ROUTER.
-			 *
-			 * For now, we interpret NET_HDLC as X.25 (LAPB)
-			 * and NET_ROUTER as "per-packet encapsulation".
-			 * We remember that we saw NET_ROUTER, though,
-			 * as it appears that we can infer whether
-			 * a packet is PPP or ISDN based on the
-			 * channel number subfield of the frame error
-			 * status bits - if it's 0, it's PPP, otherwise
-			 * it's ISDN and the channel number indicates
-			 * which channel it is.
-			 */
-			switch (buffer[4]) {
-
-			case NET_HDLC:
-				wth->file_encap = WTAP_ENCAP_LAPB;
-				break;
-
-			case NET_FRAME_RELAY:
-				wth->file_encap = WTAP_ENCAP_FRELAY;
-				break;
-
-			case NET_ROUTER:
-				wth->file_encap = WTAP_ENCAP_PER_PACKET;
-				*is_router = TRUE;
-				break;
-
-			case NET_PPP:
-				wth->file_encap = WTAP_ENCAP_PPP_WITH_PHDR;
-				break;
-
-			default:
-				/*
-				 * Reject these until we can figure them
-				 * out.
-				 */
-				g_message("ngsniffer: WAN network subtype %u unknown or unsupported",
-				    buffer[4]);
-				*err = WTAP_ERR_UNSUPPORTED_ENCAP;
-				return -1;
-			}
 		} else {
 			/* Nope, just skip over the data. */
 			if (file_seek(wth->fh, length, SEEK_CUR, err) == -1)
@@ -666,6 +642,102 @@ process_header_records(wtap *wth, int *err, gint16 version, gboolean *is_router)
 		}
 		wth->data_offset += length;
 	}
+}
+
+static int
+process_rec_header2_v2(wtap *wth, unsigned char *buffer, guint16 length,
+    int *err)
+{
+	static const char x_25_str[] = "HDLC\nX.25\n";
+
+	/*
+	 * There appears to be a string in a REC_HEADER2 record, with
+	 * a list of protocols.  In one X.25 capture I've seen, the
+	 * string was "HDLC\nX.25\nCLNP\nISO_TP\nSESS\nPRES\nVTP\nACSE".
+	 * Presumably CLNP and everything else is per-packet, but
+	 * we assume "HDLC\nX.25\n" indicates that it's an X.25 capture.
+	 */
+	if (length < sizeof x_25_str - 1) {
+		/*
+		 * There's not enough data to compare.
+		 */
+		g_message("ngsniffer: WAN capture has too-short protocol list");
+		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		return -1;
+	}
+
+	if (strncmp(buffer, x_25_str, sizeof x_25_str - 1) == 0) {
+		/*
+		 * X.25.
+		 */
+		wth->file_encap = WTAP_ENCAP_LAPB;
+	} else {
+		g_message("ngsniffer: WAN capture protocol string %.*s unknown",
+		    length, buffer);
+		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		return -1;
+	}
+	return 0;
+}
+
+static int
+process_rec_header2_v4(wtap *wth, unsigned char *buffer, guint16 length,
+    gboolean *is_router, int *err)
+{
+	/*
+	 * The 5th byte of the REC_HEADER2 record appears to be a
+	 * network type.
+	 */
+	if (length < 5) {
+		/*
+		 * There is no 5th byte; give up.
+		 */
+		g_message("ngsniffer: WAN capture has no network subtype");
+		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		return -1;
+	}
+
+	/*
+	 * The X.25 captures I've seen have a type of NET_HDLC;
+	 * however, I've seen both PPP and ISDN captures with a
+	 * type of NET_ROUTER.
+	 *
+	 * For now, we interpret NET_HDLC as X.25 (LAPB) and NET_ROUTER
+	 * as "per-packet encapsulation".  We remember that we saw
+	 * NET_ROUTER, though, as it appears that we can infer whether
+	 * a packet is PPP or ISDN based on the channel number subfield
+	 * of the frame error status bits - if it's 0, it's PPP, otherwise
+	 * it's ISDN and the channel number indicates which channel it is.
+	 */
+	switch (buffer[4]) {
+
+	case NET_HDLC:
+		wth->file_encap = WTAP_ENCAP_LAPB;
+		break;
+
+	case NET_FRAME_RELAY:
+		wth->file_encap = WTAP_ENCAP_FRELAY;
+		break;
+
+	case NET_ROUTER:
+		wth->file_encap = WTAP_ENCAP_PER_PACKET;
+		*is_router = TRUE;
+		break;
+
+	case NET_PPP:
+		wth->file_encap = WTAP_ENCAP_PPP_WITH_PHDR;
+		break;
+
+	default:
+		/*
+		 * Reject these until we can figure them out.
+		 */
+		g_message("ngsniffer: WAN network subtype %u unknown or unsupported",
+		    buffer[4]);
+		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		return -1;
+	}
+	return 0;
 }
 
 /* Read the next packet */
