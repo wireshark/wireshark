@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.8 1999/07/07 22:52:56 gram Exp $
+ * $Id: wtap.c,v 1.9 1999/07/07 22:58:37 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -23,8 +23,6 @@
 
 #include "wtap.h"
 #include "buffer.h"
-#include "bpf-engine.h"
-#include "rt-compile.h"
 
 FILE* wtap_file(wtap *wth)
 {
