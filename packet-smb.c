@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.170 2001/11/26 10:24:59 guy Exp $
+ * $Id: packet-smb.c,v 1.171 2001/11/27 05:16:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -733,7 +733,7 @@ smb_trans_defragment(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 		}
 
 		next_tvb = tvb_new_real_data(fd_head->data, fd_head->datalen,
-				fd_head->datalen, "Reassembled  SMB");
+				fd_head->datalen, "Reassembled SMB");
 		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 		pinfo->fd->data_src = g_slist_append(pinfo->fd->data_src, next_tvb);
 		pinfo->fragmented = FALSE;
@@ -10862,6 +10862,10 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					 */
 					pd_tvb = tvb_new_subset(tvb, po, -1, -1);
 
+					/* This function is safe to call for 
+					   s_tvb==sp_tvb==NULL, i.e. if we dont
+					   know them at this point 
+					*/
 					dissected_trans = dissect_pipe_smb(
 					    sp_tvb, s_tvb, pd_tvb, p_tvb,
 					    d_tvb, NULL, pinfo, top_tree);
@@ -10875,6 +10879,9 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					sp_tvb = tvb_new_subset(tvb, spo, spc,
 					    spc);
 
+					/* This one should be safe to call
+					   even if s_tvb and sp_tvb is NULL
+					*/
 					dissected_trans = dissect_mailslot_smb(
 					    sp_tvb, s_tvb, d_tvb, NULL, pinfo,
 					    top_tree);
@@ -10882,6 +10889,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				}
 			}
 			if (!dissected_trans) {
+				/* This one is safe to call for s_tvb==NULL */
 				dissect_trans_data(s_tvb, p_tvb, d_tvb,
 				    pinfo, tree);
 			}
