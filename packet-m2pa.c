@@ -6,7 +6,7 @@
  * Copyright 2001, 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>, 
  * updated by Michael Tuexen <michael.tuexen[AT]icn.siemens.de>
  *
- * $Id: packet-m2pa.c,v 1.8 2002/04/08 19:18:11 guy Exp $
+ * $Id: packet-m2pa.c,v 1.9 2002/05/18 22:25:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -176,11 +176,12 @@ dissect_m2pa_link_status_message(tvbuff_t *message_data_tvb, proto_tree *m2pa_tr
   guint16 filler_length;
   
   if (m2pa_tree) {
-    status = tvb_get_ntohl (message_data_tvb, STATUS_OFFSET);
+    status        = tvb_get_ntohl (message_data_tvb, STATUS_OFFSET);
     filler_length = tvb_length(message_data_tvb) - STATUS_LENGTH;
     proto_tree_add_uint(m2pa_tree, hf_m2pa_status, message_data_tvb, STATUS_OFFSET, STATUS_LENGTH, status);
-    proto_tree_add_bytes(m2pa_tree, hf_m2pa_filler, message_data_tvb, FILLER_OFFSET, filler_length,
-                         tvb_get_ptr(message_data_tvb, FILLER_OFFSET, filler_length));
+    if (filler_length > 0)
+      proto_tree_add_bytes(m2pa_tree, hf_m2pa_filler, message_data_tvb, FILLER_OFFSET, filler_length,
+                           tvb_get_ptr(message_data_tvb, FILLER_OFFSET, filler_length));
   };
 
 }
