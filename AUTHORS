@@ -2114,6 +2114,7 @@ Carlos Pignataro <cpignata [AT] cisco.com> {
 	    from various IETF PWE3 drafts
 	MPLS PW Control Channel Header
 	Multiprotocol Label Switching Echo [draft-ietf-mpls-lsp-ping-05]
+	MPLS in Generic Routing Encapsulation (GRE)
 }
 
 Thomas Anders <thomas.anders [AT] blue-cable.de> {

@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.55 2004/01/29 03:51:25 guy Exp $
+ * $Id: packet-gre.c,v 1.56 2004/05/15 19:54:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,8 +40,9 @@
  * See RFC 1701 "Generic Routing Encapsulation (GRE)", RFC 1702
  * "Generic Routing Encapsulation over IPv4 networks", RFC 2637
  * "Point-to-Point Tunneling Protocol (PPTP)", RFC 2784 "Generic
- * Routing Encapsulation (GRE)", and RFC 2890 "Key and Sequence
- * Number Extensions to GRE".
+ * Routing Encapsulation (GRE)", RFC 2890 "Key and Sequence
+ * Number Extensions to GRE" and draft-ietf-mpls-in-ip-or-gre-07.txt
+ * "Encapsulating MPLS in IP or Generic Routing Encapsulation (GRE)".
  */
 
 static int proto_gre = -1;
@@ -78,6 +79,7 @@ static const value_string typevals[] = {
 	{ ETHERTYPE_ETHBRIDGE, "Transparent Ethernet bridging" },
 	{ GRE_FR,              "Frame Relay"},
 	{ ETHERTYPE_IPv6,      "IPv6" },
+	{ ETHERTYPE_MPLS,      "MPLS label switched packet" },
 	{ 0,                   NULL }
 };
 
