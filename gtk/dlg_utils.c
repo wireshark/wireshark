@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.39 2004/06/20 19:35:04 ulfl Exp $
+ * $Id: dlg_utils.c,v 1.40 2004/07/12 18:39:03 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -425,8 +425,14 @@ file_selection_set_current_folder(GtkWidget *fs, const gchar *filename)
     int filename_len = strlen(filename);
     gchar *new_filename;
 
-    /* trim filename, so gtk_file_chooser_set_current_folder() likes it */
-    if (filename[filename_len -1] == G_DIR_SEPARATOR && filename[1] != ':') {
+    /* trim filename, so gtk_file_chooser_set_current_folder() likes it, see below */
+    if (filename[filename_len -1] == G_DIR_SEPARATOR 
+#ifdef WIN32
+        && filename_len > 3)    /* e.g. "D:\" */
+#else
+        && filename_len > 1)    /* e.g. "/" */
+#endif
+    {
         new_filename = g_strdup(filename);
 	    new_filename[filename_len-1] = '\0';
     } else {
