@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.61 2003/09/18 21:42:45 gerald Exp $
+ * $Id: packet-gtp.c,v 1.62 2003/09/20 08:56:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1667,7 +1667,7 @@ col_append_str_gtp(column_info *cinfo, gint el, gchar *proto_name) {
 static gchar *
 id_to_str(const guint8 *ad) {
 
-	gchar	str[17] = "                ";
+	static gchar	str[17] = "                ";
 	guint8		bits8to5, bits4to1;
 	int		i;
 	static const	gchar hex_digits[10] = "0123456789";
@@ -1686,7 +1686,7 @@ id_to_str(const guint8 *ad) {
 static gchar *
 imsi_to_str(const guint8 *ad) {
 
-	gchar	str[17] = "                ";
+	static gchar	str[17] = "                ";
 	int		i, j = 0;
 
 	for (i = 0; i < 8; i++) {
@@ -1701,7 +1701,7 @@ imsi_to_str(const guint8 *ad) {
 static gchar *
 msisdn_to_str(const guint8 *ad, int len) {
 
-	gchar	str[18] = "+                ";
+	static gchar	str[18] = "+                ";
 	gchar		*p;
 	guint8		bits8to5, bits4to1;
 	int		i;
