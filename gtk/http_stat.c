@@ -1,7 +1,7 @@
 /* http_stat.c
  * http_stat   2003 Jean-Michel FAYARD
  *
- * $Id: http_stat.c,v 1.28 2004/04/12 09:48:18 ulfl Exp $
+ * $Id: http_stat.c,v 1.29 2004/05/13 12:19:24 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -259,10 +259,11 @@ http_reset_hash_requests(gchar *key _U_ , http_request_methode_t *data, gpointer
 static void
 httpstat_reset(void *psp  )
 {
-	httpstat_t *sp=psp;
-	if (!sp) {
+ 	httpstat_t *sp=psp;
+	if (sp) {
+        sp->packets = 0;
 		g_hash_table_foreach( sp->hash_responses, (GHFunc)http_reset_hash_responses, NULL);
-		g_hash_table_foreach( sp->hash_responses, (GHFunc)http_reset_hash_requests, NULL);
+		g_hash_table_foreach( sp->hash_requests, (GHFunc)http_reset_hash_requests, NULL);
 	}
 }
 
