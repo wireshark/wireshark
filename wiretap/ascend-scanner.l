@@ -10,7 +10,7 @@
 #include "ascend.h"
 #include "ascend-grammar.h"
 
-extern ascend_pkthdr header;
+struct ascend_phdr *pseudo_header;
 
 int at_eof;
 int mul, scratch;
@@ -57,8 +57,10 @@ EPFX "ETHER "
 
 <sc_user>[^:]+ {
   BEGIN(sc_sess);
-  strncpy(header.user, ascendtext, ASCEND_MAX_STR_LEN);
-  header.user[ASCEND_MAX_STR_LEN - 1] = '\0';
+  if (pseudo_header != NULL) {
+    strncpy(pseudo_header->user, ascendtext, ASCEND_MAX_STR_LEN);
+    pseudo_header->user[ASCEND_MAX_STR_LEN - 1] = '\0';
+  }
   return USERNAME;
 }
 

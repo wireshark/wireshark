@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.36 1999/09/11 04:50:44 gerald Exp $
+ * $Id: wtap.h,v 1.37 1999/09/11 22:36:38 gerald Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -189,6 +189,22 @@ struct ngsniffer_atm_phdr {
 	guint32	aal5t_chksum;	/* checksum for AAL5 packet */
 };
 
+/* Packet "pseudo-header" for the output from "wandsession", "wannext",
+   "wandisplay", and similar commands on Lucent/Ascend access equipment. */
+
+#define ASCEND_MAX_STR_LEN 64
+
+#define ASCEND_PFX_ETHER 1
+#define ASCEND_PFX_PPP_X 2
+#define ASCEND_PFX_PPP_R 3
+
+struct ascend_phdr {
+	guint16	type;			/* ASCEND_PFX_*, as defined above */
+	char	user[ASCEND_MAX_STR_LEN];   /* Username, from header */
+	guint32	sess;			/* Session number */
+	guint32	task;			/* Task number */
+};
+
 /*
  * Bits in AppTrafType.
  *
@@ -244,6 +260,7 @@ struct ngsniffer_atm_phdr {
 union pseudo_header {
 	struct x25_phdr x25;
 	struct ngsniffer_atm_phdr ngsniffer_atm;
+	struct ascend_phdr ascend;
 };
 
 struct wtap_pkthdr {

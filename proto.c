@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.22 1999/09/11 16:41:18 deniel Exp $
+ * $Id: proto.c,v 1.23 1999/09/11 22:36:30 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -87,6 +87,7 @@ static int proto_register_field_init(header_field_info *hfinfo, int parent);
 /* centralization of registration functions */
 void proto_register_aarp(void);
 void proto_register_arp(void);
+void proto_register_ascend(void);
 void proto_register_atalk(void);
 void proto_register_atm(void);
 void proto_register_bootp(void);
@@ -191,6 +192,7 @@ proto_init(void)
 	 * just to make it easy. */
 	proto_register_aarp();
 	proto_register_arp();
+	proto_register_ascend();
 	proto_register_atalk();
 	proto_register_atm();
 	proto_register_bootp();

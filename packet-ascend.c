@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.2 1999/09/11 06:51:28 guy Exp $
+ * $Id: packet-ascend.c,v 1.3 1999/09/11 22:36:29 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,20 +33,20 @@
 #include <string.h>
 #include "packet.h"
 
-#include "wiretap/ascend.h"
+static int proto_ascend  = -1;
+static int hf_session_id = -1;
+static int hf_task       = -1;
+
+static const value_string encaps_vals[] = {
+  {ASCEND_PFX_ETHER, "Ethernet"    },
+  {ASCEND_PFX_PPP_X, "PPP Transmit"},
+  {ASCEND_PFX_PPP_R, "PPP Receive" },
+  {0,                NULL          } };
 
 void
 dissect_ascend( const u_char *pd, frame_data *fd, proto_tree *tree ) {
   proto_tree *fh_tree;
   proto_item *ti;
-  ascend_pkthdr header;
-  static const value_string encaps_vals[] = {
-    {ASCEND_PFX_ETHER, "Ethernet"    },
-    {ASCEND_PFX_PPP_X, "PPP Transmit"},
-    {ASCEND_PFX_PPP_R, "PPP Receive" },
-    {0,                NULL          } };
-
-  memcpy(&header, pd, ASCEND_PKTHDR_OFFSET);
 
   /* load the top pane info. This should be overwritten by
      the next protocol in the stack */
@@ -64,18 +64,24 @@ dissect_ascend( const u_char *pd, frame_data *fd, proto_tree *tree ) {
   if(tree) {
     ti = proto_tree_add_text(tree, 0, 0, "Lucent/Ascend packet trace" );
     fh_tree = proto_item_add_subtree(ti, ETT_RAW);
-    proto_tree_add_text(fh_tree, 0, 0, "Link type: %s", val_to_str(header.type,
-      encaps_vals, "Unknown (%d)"));
-    proto_tree_add_text(fh_tree, 0, 0, "Username: %s", header.user);
-    proto_tree_add_text(fh_tree, 0, 0, "Session: %d", header.sess);
-    proto_tree_add_text(fh_tree, 0, 0, "Task: %08X", header.task);
+
+    /* XXX - should these be added with "proto_tree_add_item_format()"
+       (see "dissect_packet()" for an example of how to add items
+       that aren't in the packet data in that fashion) so that we
+       can filter on them? */
+    proto_tree_add_text(fh_tree, 0, 0, "Link type: %s",
+      val_to_str(fd->pseudo_header.ascend.type, encaps_vals, "Unknown (%d)"));
+    proto_tree_add_text(fh_tree, 0, 0, "Username: %s",
+      fd->pseudo_header.ascend.user);
+    proto_tree_add_item_format(fh_tree, hf_session_id, 0, 0,
+      fd->pseudo_header.ascend.sess, "Session: %d",
+      fd->pseudo_header.ascend.sess);
+    proto_tree_add_item_format(fh_tree, hf_task, 0, 0,
+      fd->pseudo_header.ascend.task, "Task: 0x%08X",
+      fd->pseudo_header.ascend.task);
   }
 
-  /* The header is metadata, so we copy the packet data to the front */
-  /* XXX Maybe we should leave it in, and mark it as metadata, so that
-     it can be filtered upon? */
-  memmove(pd, pd + ASCEND_PKTHDR_OFFSET, fd->cap_len);
-  switch (header.type) {
+  switch (fd->pseudo_header.ascend.type) {
     case ASCEND_PFX_ETHER:
       dissect_eth(pd, 0, fd, tree);
       break;
@@ -84,5 +90,20 @@ dissect_ascend( const u_char *pd, frame_data *fd, proto_tree *tree ) {
       dissect_ppp(pd, fd, tree);
       break;
   }
+}
+
+void
+proto_register_ascend(void)
+{
+  static hf_register_info hf[] = {
+    { &hf_session_id,
+    { "Session ID",	"ascend.sess",	FT_UINT32,	NULL }},
+
+    { &hf_task,
+    { "Task",		"ascend.task",	FT_UINT32,	NULL }}
+  };
+
+  proto_ascend = proto_register_protocol("Lucent/Ascend debug output", "ascend");
+  proto_register_field_array(proto_ascend, hf, array_length(hf));
 }
 

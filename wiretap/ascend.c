@@ -1,6 +1,6 @@
 /* ascend.c
  *
- * $Id: ascend.c,v 1.3 1999/09/11 07:07:41 guy Exp $
+ * $Id: ascend.c,v 1.4 1999/09/11 22:36:38 gerald Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -129,13 +129,18 @@ int ascend_open(wtap *wth, int *err)
   wth->subtype_read = ascend_read;
   wth->capture.ascend = g_malloc(sizeof(ascend_t));
 
+  /* MAXen and Pipelines report the time since reboot.  In order to keep 
+     from reporting packet times near the epoch, we subtract the first
+     packet's timestamp from the capture file's ctime, which gives us an
+     offset that we can apply to each packet.
+   */
   fstat(fileno(wth->fh), &statbuf);
   wth->capture.ascend->inittime = statbuf.st_ctime;
   wth->capture.ascend->adjusted = 0;
   wth->capture.ascend->seek_add = -1;
 
   init_parse_ascend();
-  
+
   return 1;
 }
 
@@ -157,15 +162,13 @@ static int ascend_read(wtap *wth, int *err)
   if (offset < 1) {
     return 0;
   }
-  if (! parse_ascend(wth->fh, buf, 0)) {
+  if (! parse_ascend(wth->fh, buf, &wth->phdr.pseudo_header.ascend, &header, 0)) {
     *err = WTAP_ERR_BAD_RECORD;
     return -1;
   }
 
-  buffer_assure_space(wth->frame_buffer, wth->snapshot_length +
-    ASCEND_PKTHDR_OFFSET);
+  buffer_assure_space(wth->frame_buffer, wth->snapshot_length);
 
-  memcpy(&header, buf, ASCEND_PKTHDR_OFFSET);
   if (! wth->capture.ascend->adjusted) {
     wth->capture.ascend->adjusted = 1;
     if (wth->capture.ascend->inittime > header.secs)
@@ -177,12 +180,12 @@ static int ascend_read(wtap *wth, int *err)
   wth->phdr.len = header.len;
   wth->phdr.pkt_encap = wth->file_encap;
   wth->data_offset = offset;
-  
+
   return offset;
 }
 
 int ascend_seek_read (FILE *fh, int seek_off, guint8 *pd, int len)
 {
   fseek(fh, seek_off - 1, SEEK_SET);
-  return parse_ascend(fh, pd, len);
+  return parse_ascend(fh, pd, NULL, NULL, len);
 }

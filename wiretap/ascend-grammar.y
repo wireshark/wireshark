@@ -35,7 +35,8 @@ void yyerror(char *);
 
 int bcur = 0, bcount;
 guint32 secs, usecs, caplen, wirelen;
-ascend_pkthdr header;
+ascend_pkthdr *header;
+struct ascend_phdr *pseudo_header;
 char *pkt_data;
 FILE *nfh = NULL;
 
@@ -84,10 +85,12 @@ header: prefix username sessnum KEYWORD tasknum KEYWORD timeval timeval octets K
   else
   secs = $7;
   usecs = $8;
-  /* header.user is set in ascend-scanner.l */
-  header.type = $1;
-  header.sess = $3;
-  header.task = $5;
+  if (pseudo_header != NULL) {
+    /* pseudo_header->user is set in ascend-scanner.l */
+    pseudo_header->type = $1;
+    pseudo_header->sess = $3;
+    pseudo_header->task = $5;
+  }
   
   bcur = 0;
 }
@@ -95,16 +98,17 @@ header: prefix username sessnum KEYWORD tasknum KEYWORD timeval timeval octets K
  
 byte: BYTE {
   if (bcur < caplen) {
-    pkt_data[bcur + ASCEND_PKTHDR_OFFSET] = $1;
+    pkt_data[bcur] = $1;
     bcur++;
   }
 
   if (bcur >= caplen) {
-    header.secs = secs;
-    header.usecs = usecs;
-    header.caplen = caplen;
-    header.len = wirelen;
-    memcpy(pkt_data, &header, ASCEND_PKTHDR_OFFSET);
+    if (header != NULL) {
+      header->secs = secs;
+      header->usecs = usecs;
+      header->caplen = caplen;
+      header->len = wirelen;
+    }
     YYACCEPT;
   }
 } 
@@ -160,15 +164,17 @@ init_parse_ascend()
 /* Parse the capture file.  Return the offset of the next packet, or zero
    if there is none. */
 int
-parse_ascend(FILE *fh, void *pd, int len)
+parse_ascend(FILE *fh, void *pd, struct ascend_phdr *phdr,
+		ascend_pkthdr *hdr, int len)
 {
   /* yydebug = 1; */
  
   ascend_init_lexer(fh, nfh);
   pkt_data = pd;
+  pseudo_header = phdr;
+  header = hdr;
   bcount = len;
   
-  /* Skip errors until we get something parsed. */
   if (yyparse())
     return 0;
   else

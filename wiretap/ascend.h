@@ -1,6 +1,6 @@
 /* ascend.h
  *
- * $Id: ascend.h,v 1.2 1999/09/11 06:49:42 guy Exp $
+ * $Id: ascend.h,v 1.3 1999/09/11 22:36:38 gerald Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -21,29 +21,19 @@
  *
  */
 
-#define ASCEND_MAX_STR_LEN 64
 #define ASCEND_MAX_DATA_ROWS 8
 #define ASCEND_MAX_DATA_COLS 16
 #define ASCEND_MAX_PKT_LEN (ASCEND_MAX_DATA_ROWS * ASCEND_MAX_DATA_COLS)
 
-#define ASCEND_PFX_ETHER 1
-#define ASCEND_PFX_PPP_X 2
-#define ASCEND_PFX_PPP_R 3
-
 typedef struct {
-  guint16 type;                       /* ASCEND_PFX_*, as defined above */
-  char    user[ASCEND_MAX_STR_LEN];   /* Username, from header */
-  guint32 sess;                       /* Session number */
-  guint32 task;                       /* Task number */
-  guint32 secs;
-  guint32 usecs;
+  time_t secs;
+  time_t usecs;
   guint32 caplen;
   guint32 len;
 } ascend_pkthdr;
 
-#define ASCEND_PKTHDR_OFFSET sizeof(ascend_pkthdr)
-
 int ascend_open(wtap *wth, int *err);
 void init_parse_ascend();
-int parse_ascend(FILE *fh, void *pd, int len);
+int parse_ascend(FILE *fh, void *pd, struct ascend_phdr *phdr,
+		ascend_pkthdr *hdr, int len);
 int ascend_seek_read (FILE *fh, int seek_off, guint8 *pd, int len);
