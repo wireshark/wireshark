@@ -1,4 +1,57 @@
-$Id: NEWS,v 1.136 2003/09/09 23:17:08 gerald Exp $
+$Id: NEWS,v 1.137 2003/11/03 02:50:11 gerald Exp $
+
+== November 2, 2003
+
+Ethereal 0.9.16 has been released.
+
+  This release fixes potential security issues with the GTP, ISAKMP,
+  MEGACO, and SOCKS dissectors. See
+
+    http://www.ethereal.com/appnotes/enpa-sa-00011.html
+
+  for more details.
+
+New and updated features
+
+  Ethereal has leapt forward into the 90's and added a toolbar.
+
+  Ethereal and Tethereal can now force the data link type of captured
+  frames.
+
+  RTP analysis has been enhanced.
+  
+  Individual frames can now be marked as time references
+
+  Service response time and general I/O statistics have been enhanced.  I/O
+  statistics can now calculate client load (experimental).
+
+New protocol support
+
+  ACN, ALCAP, ANSI MAP, ASN.1 BER, BSSAP, DCE/RPC DRSUAPI, DCE/RPC
+  INITSHUTDOWN, DCE/RPC RS_BIND, FC-SP, FICON, GSM BSSMAP, GSM DTAP, GSM
+  SMS TPDU, GSM SMS, GSM SS, H.450, IOS 4.0.1 IS-637-A (SMS), IS-683-A
+  (OTA), T.38, TCAP, TPCP
+
+Updated protocol support
+
+  AODV, ASN.1 PER, BSSGP, CDP, Cisco HDLC, COPS, DCE/RPC BROWSER, DCE/RPC
+  DNSSERVER, DCE/RPC EPM, DCE/RPC LSA, DCE/RPC Messenger, DCE/RPC REG,
+  DCE/RPC SVCCTL, DCE/RPC, DFS, DHCPv6, DOCSIS, EAPOL, ENIP, Frame Relay,
+  FTP, GPRS, Gryphon, GTP, H.225, H.245, HTTP, ICMP, IEEE 802.11, IPX,
+  ISAKMP, ISUP, LAPB, Laplink, LWAPP, MAPI, MDSHDR, MEGACO, MPLS, NCP,
+  NDPS, NETLOGON, NFS, NTLMSSP, OSPF, OXID, PPP, Q.931, Q.933, RANAP, RIP,
+  RTP, SAMR, SCCP, SCSI, SCTP, SDP, SIP, SMB, SMPP, SNMP, SOCKS, SONMP,
+  SPOOLSS SRVLOC, SRVSVC, T.35, TACACS+, TAPI, TCP, TZSP, WKSSVC, WSP,
+  X.25, Yahoo! Messenger
+
+
+Updated capture file support
+
+  Linux Bluez Bluetooth hcidump support has been added.
+
+  Endace ERF and Network Instruments Observer, and NetXRay support has
+  been enhanced.
+
 
 == September 9, 2003
 
