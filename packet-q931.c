@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.54 2003/06/24 05:58:32 guy Exp $
+ * $Id: packet-q931.c,v 1.55 2003/06/25 06:12:13 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -167,7 +167,7 @@ static const true_false_string tfs_call_ref_flag = {
 #define	Q931_IE_SO_IE_MASK		0x0F	/* IE mask */
 
 #define	Q931_IE_SHIFT			0x90
-#define	Q931_IE_SHIFT_LOCKING		0x08	/* locking shift */
+#define	Q931_IE_SHIFT_NON_LOCKING	0x08	/* non-locking shift */
 #define	Q931_IE_SHIFT_CODESET		0x0F	/* codeset */
 
 #define	Q931_IE_MORE_DATA_OR_SEND_COMP	0xA0	/* More Data or Sending Complete */
@@ -2175,7 +2175,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			switch (info_element & Q931_IE_SO_IDENTIFIER_MASK) {
 
 			case Q931_IE_SHIFT:
-				non_locking_shift = info_element & Q931_IE_SHIFT_LOCKING;
+				non_locking_shift = info_element & Q931_IE_SHIFT_NON_LOCKING;
 				codeset = info_element & Q931_IE_SHIFT_CODESET;
 				if (!non_locking_shift)
 					locked_codeset = codeset;
