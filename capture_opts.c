@@ -90,7 +90,7 @@ capture_opts_init(capture_options *capture_opts, void *cfile)
 void
 capture_opts_info(capture_options *capture_opts) {
     g_warning("CAPTURE OPTIONS    :");
-    g_warning("File               : %s", capture_opts->cf);
+    g_warning("File               : %p", capture_opts->cf);
     g_warning("Filter             : %s", capture_opts->cfilter);
     g_warning("Interface          : %s", capture_opts->iface);
 #ifdef _WIN32
