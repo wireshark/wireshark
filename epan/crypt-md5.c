@@ -56,6 +56,7 @@
 #endif
 
 #include <string.h>
+#include <glib.h>  /* for g_malloc() */
 
 #include <epan/crypt-md5.h>
 
@@ -384,3 +385,65 @@ md5_finish(md5_state_t *pms, md5_byte_t digest[16])
     for (i = 0; i < 16; ++i)
 	digest[i] = (md5_byte_t)(pms->abcd[i >> 2] >> ((i & 3) << 3));
 }
+
+static void
+md5_checksum(const md5_byte_t *data,
+		 int len,
+		 md5_byte_t digest[16])
+{
+	md5_state_t ms;
+
+	md5_init(&ms);
+	md5_append(&ms, data, len);
+	md5_finish(&ms, digest);
+}
+
+void
+md5_hmac(const md5_byte_t *data, 
+     int len, 
+     md5_byte_t *key_data,
+     int key_length,
+     md5_byte_t digest[16])
+{
+    md5_byte_t *ipad;
+    md5_byte_t *key;
+    md5_byte_t opad[80];
+    int key_len;
+    int i;
+    
+    ipad = g_malloc(64 + len);
+    if (ipad == NULL)
+	g_assert_not_reached();
+
+    memset(ipad, 0x36, 64);
+    memset(opad, 0x5c, 64);
+
+    if(key_length > 65){
+	md5_checksum(
+		key_data,
+		key_length,
+		digest);
+	key = digest;
+	key_len = 16;
+    } else {
+	key = key_data;
+	key_len = key_length;
+    }
+    for(i = 0; i < key_len; i++){
+	ipad[i] ^= key[i];
+	opad[i] ^= key[i];
+    }
+    memcpy(ipad + 64, data, len);
+    md5_checksum(
+		ipad,
+		64+len,
+		digest);
+    memcpy(opad + 64, digest, 
+	   16);
+    md5_checksum(
+		opad,
+		64+16,
+		digest);
+    g_free(ipad);
+}
+
