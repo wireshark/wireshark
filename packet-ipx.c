@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.13 1998/11/17 04:28:55 gerald Exp $
+ * $Id: packet-ipx.c,v 1.14 1998/12/31 20:36:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -116,7 +116,7 @@ port_func(guint16 port) {
 		}
 		i++;
 	}
-	return dissect_data;
+	return NULL;
 }
 
 char *
@@ -174,6 +174,7 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	dnet = ipxnet_to_string((guint8*)&pd[offset+6]);
 	snet = ipxnet_to_string((guint8*)&pd[offset+18]);
 	dsocket = pntohs(&pd[offset+16]);
+	ssocket = pntohs(&pd[offset+28]);
 
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "IPX");
@@ -206,7 +207,6 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 			snet);
 		add_item_to_tree(ipx_tree, offset+22,   6, "Source Node: %s",
 			ether_to_str((guint8*)&pd[offset+22]));
-		ssocket = pntohs(&pd[offset+28]);
 		add_item_to_tree(ipx_tree, offset+28,   2,
 			"Source Socket: %s (0x%04X)", port_text(ssocket), ssocket);
 	}
@@ -235,7 +235,13 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 				dissect(pd, offset, fd, tree);
 			}
 			else {
-				dissect_data(pd, offset, fd, tree);
+				dissect = port_func(ssocket);
+				if (dissect) {
+					dissect(pd, offset, fd, tree);
+				}
+				else {
+					dissect_data(pd, offset, fd, tree);
+				}
 			}
 			break;
 	}
