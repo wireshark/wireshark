@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.414 2004/04/10 07:29:14 ulfl Exp $
+# $Id: Makefile.nmake,v 1.415 2004/04/23 05:19:49 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -28,6 +28,9 @@ PLATFORM_SRC = capture-wpcap.c
 include Makefile.common
 
 include epan\Makefile.common
+
+BUILT_SOURCES =	$(BUILT_SOURCES) \
+	cvsversion.h
 
 DISSECTOR_SRC = $(DISSECTOR_SRC:../=)
 DISSECTOR_OBJECTS = $(DISSECTOR_SRC:.c=.obj)
@@ -418,3 +421,9 @@ setup: verify_apps
 !ENDIF
 	@echo.
 	@echo Ethereal is ready to build.
+
+update_plugin_api: config.h
+	cd plugins
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake xyzzy
+	cd ..
+
