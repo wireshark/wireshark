@@ -2,7 +2,7 @@
  * Routines for Q.2931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q2931.c,v 1.30 2002/11/10 20:26:24 guy Exp $
+ * $Id: packet-q2931.c,v 1.31 2003/07/08 07:55:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1001,14 +1001,6 @@ l3_done:
 /*
  * Dissect a Cause information element.
  */
-static const value_string q2931_cause_coding_standard_vals[] = {
-	{ 0x00, "ITU-T standardized coding" },
-	{ 0x20, "ISO/IEC standard" },
-	{ 0x40, "National standard" },
-	{ 0x60, "Standard defined for the network" },
-	{ 0,    NULL }
-};
-
 static const value_string q2931_cause_location_vals[] = {
 	{ 0x00, "User (U)" },
 	{ 0x01, "Private network serving the local user (LPN)" },
@@ -1044,45 +1036,82 @@ static const value_string q2931_cause_code_vals[] = {
 	{ Q2931_CAUSE_UNALLOC_NUMBER,	"Unallocated (unassigned) number" },
 	{ 0x02,				"No route to specified transit network" },
 	{ Q2931_CAUSE_NO_ROUTE_TO_DEST,	"No route to destination" },
+	{ 0x04,				"Send special information tone" },
+	{ 0x05,				"Misdialled trunk prefix" },
+	{ 0x06,				"Channel unacceptable" },
+	{ 0x07,				"Call awarded and being delivered in an established channel" },
+	{ 0x08,				"Preemption" },
+	{ 0x09,				"Preemption - circuit reserved for reuse" },
+	{ 0x0E,				"QoR: ported number" },
 	{ 0x10,				"Normal call clearing" },
 	{ 0x11,				"User busy" },
 	{ 0x12,				"No user responding" },
+	{ 0x13,				"No answer from user (user alerted)" },
+	{ 0x14,				"Subscriber absent" },
 	{ Q2931_CAUSE_CALL_REJECTED,	"Call rejected" },
 	{ Q2931_CAUSE_NUMBER_CHANGED,	"Number changed" },
-	{ 0x17,				"User rejects calls with calling line identification restriction" },
+	{ 0x17,				"Redirection to new destination" },
+	{ 0x18,				"Call rejected due to feature at the destination" },
+	{ 0x19,				"Exchange routing error" },
+	{ 0x1A,				"Non-selected user clearing" },
 	{ 0x1B,				"Destination out of order" },
 	{ 0x1C,				"Invalid number format (incomplete number)" },
 	{ 0x1E,				"Response to STATUS ENQUIRY" },
 	{ 0x1F,				"Normal unspecified" },
+	{ 0x20,				"Too many pending add party request" },
 	{ 0x23,				"Requested VPCI/VCI not available" },
 	{ 0x24,				"VPCI/VCI assignment failure" },
 	{ Q2931_CAUSE_CELL_RATE_UNAVAIL,"User cell rate not available" },
 	{ 0x26,				"Network out of order" },
+	{ 0x27,				"Permanent frame mode connection out of service" },
+	{ 0x28,				"Permanent frame mode connection operational" },
 	{ 0x29,				"Temporary failure" },
+	{ 0x2A,				"Switching equipment congestion" },
 	{ Q2931_CAUSE_ACCESS_INFO_DISC,	"Access information discarded" },
+	{ 0x2C,				"Requested circuit/channel not available" },
 	{ 0x2D,				"No VPCI/VCI available" },
 	{ 0x2F,				"Resources unavailable, unspecified" },
 	{ Q2931_CAUSE_QOS_UNAVAILABLE,	"Quality of service unavailable" },
+	{ 0x32,				"Requested facility not subscribed" },
+	{ 0x35,				"Outgoing calls barred within CUG" },
+	{ 0x37,				"Incoming calls barred within CUG" },
 	{ 0x39,				"Bearer capability not authorized" },
 	{ 0x3A,				"Bearer capability not presently available" },
+	{ 0x3E,				"Inconsistency in designated outgoing access information and subscriber class" },
 	{ 0x3F,				"Service or option not available, unspecified" },
 	{ 0x41,				"Bearer capability not implemented" },
+	{ 0x42,				"Channel type not implemented" },
+	{ 0x45,				"Requested facility not implemented" },
+	{ 0x46,				"Only restricted digital information bearer capability is available" },
 	{ 0x49,				"Unsupported combination of traffic parameters" },
 	{ 0x4E,				"AAL parameters cannot be supported" },
+	{ 0x4F,				"Service or option not implemented, unspecified" },
 	{ 0x51,				"Invalid call reference value" },
 	{ Q2931_CAUSE_CHAN_NONEXISTENT,	"Identified channel does not exist" },
+	{ 0x53,				"Call identity does not exist for suspended call" },
+	{ 0x54,				"Call identity in use" },
+	{ 0x55,				"No call suspended" },
+	{ 0x56,				"Call having the requested call identity has been cleared" },
+	{ 0x57,				"Called user not member of CUG" },
 	{ Q2931_CAUSE_INCOMPATIBLE_DEST,"Incompatible destination" },
 	{ 0x59,				"Invalid endpoint reference" },
+	{ 0x5A,				"Non-existent CUG" },
 	{ 0x5B,				"Invalid transit network selection" },
 	{ 0x5C,				"Too many pending ADD PARTY requests" },
+	{ 0x5D,				"AAL parameters cannot be supported" },
+	{ 0x5F,				"Invalid message, unspecified" },
 	{ Q2931_CAUSE_MAND_IE_MISSING,	"Mandatory information element is missing" },
 	{ Q2931_CAUSE_MT_NONEX_OR_UNIMPL,"Message type non-existent or not implemented" },
+	{ 0x62,				"Message not compatible with call state or message type non-existent or not implemented" },
 	{ Q2931_CAUSE_IE_NONEX_OR_UNIMPL,"Information element nonexistant or not implemented" },
 	{ Q2931_CAUSE_INVALID_IE_CONTENTS,"Invalid information element contents" },
 	{ Q2931_CAUSE_MSG_INCOMPAT_W_CS,"Message not compatible with call state" },
 	{ Q2931_CAUSE_REC_TIMER_EXP,	"Recovery on timer expiry" },
+	{ 0x67,				"Parameter non-existent or not implemented - passed on" },
 	{ 0x68,				"Incorrect message length" },
+	{ 0x6E,				"Message with unrecognized parameter discarded" },
 	{ 0x6F,				"Protocol error, unspecified" },
+	{ 0x7F,				"Internetworking, unspecified" },
 	{ 0,				NULL }
 };
 
@@ -1160,7 +1189,7 @@ dissect_q2931_cause_ie(tvbuff_t *tvb, int offset, int len,
 		rejection_reason = octet & 0x7C;
 		proto_tree_add_text(tree, tvb, offset, 1,
 		    "Rejection reason: %s",
-		    val_to_str(octet & 0x7C, q2931_cause_condition_vals,
+		    val_to_str(octet & 0x7C, q2931_rejection_reason_vals,
 		      "Unknown (0x%X)"));
 		proto_tree_add_text(tree, tvb, offset, 1,
 		    "Condition: %s",
