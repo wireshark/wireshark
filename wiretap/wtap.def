@@ -1,7 +1,6 @@
 EXPORTS
 wtap_buf_ptr
 wtap_close
-wtap_def_seek_read
 wtap_dump
 wtap_dump_can_open
 wtap_dump_can_write_encap
