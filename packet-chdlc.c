@@ -1,7 +1,7 @@
 /* packet-chdlc.c
  * Routines for Cisco HDLC packet disassembly
  *
- * $Id: packet-chdlc.c,v 1.1 2001/03/15 09:11:00 guy Exp $
+ * $Id: packet-chdlc.c,v 1.2 2001/04/03 05:42:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -87,14 +87,15 @@ static const value_string chdlc_address_vals[] = {
 };
 
 const value_string chdlc_vals[] = {
-	{0x2000,           "Cisco Discovery Protocol"},
-	{ETHERTYPE_IP,     "IP"},
-	{CISCO_SLARP,      "SLARP"},
-	{ETHERTYPE_DEC_LB, "DEC LanBridge"},
-	{ETHERTYPE_ATALK,  "Appletalk"},
-	{ETHERTYPE_AARP,   "AARP"},
-	{ETHERTYPE_IPX,    "Netware IPX/SPX"},
-	{0,                NULL}
+	{0x2000,              "Cisco Discovery Protocol"},
+	{ETHERTYPE_IP,        "IP"},
+	{CISCO_SLARP,         "SLARP"},
+	{ETHERTYPE_DEC_LB,    "DEC LanBridge"},
+	{ETHERTYPE_ATALK,     "Appletalk"},
+	{ETHERTYPE_AARP,      "AARP"},
+	{ETHERTYPE_IPX,       "Netware IPX/SPX"},
+	{ETHERTYPE_ETHBRIDGE, "Transparent Ethernet bridging" },
+	{0,                   NULL}
 };
 
 void

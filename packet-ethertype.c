@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.13 2001/03/29 08:05:06 guy Exp $
+ * $Id: packet-ethertype.c,v 1.14 2001/04/03 05:42:11 guy Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -71,6 +71,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_DEC_DIAG,	"DEC Diagnostics"		},
     {ETHERTYPE_DEC_CUST,	"DEC Customer use"		},
     {ETHERTYPE_DEC_SCA,		"DEC LAVC/SCA"			},
+    {ETHERTYPE_ETHBRIDGE,	"Transparent Ethernet bridging" },
     {0,				NULL				} };
 
 static void add_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,

@@ -1,7 +1,7 @@
 /* etypes.h
  * Defines ethernet packet types, similar to tcpdump's ethertype.h
  *
- * $Id: etypes.h,v 1.16 2001/03/29 08:05:06 guy Exp $
+ * $Id: etypes.h,v 1.17 2001/04/03 05:42:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,8 +45,31 @@
  * http://www.cavebear.com/CaveBear/Ethernet/
  */
 
+#ifndef ETHERTYPE_VINES
+#define ETHERTYPE_VINES		0x0bad
+#endif
+
+#ifndef ETHERTYPE_TRAIN
+/*
+ * Created by Microsoft Network Monitor as a summary packet.
+ */
+#define ETHERTYPE_TRAIN		0x1984
+#endif
+
 #ifndef ETHERTYPE_3C_NBP_DGRAM
 #define ETHERTYPE_3C_NBP_DGRAM	0x3c07
+#endif
+
+#ifndef ETHERTYPE_IP
+#define ETHERTYPE_IP		0x0800
+#endif
+
+#ifndef ETHERTYPE_X25L3
+#define ETHERTYPE_X25L3		0x0805
+#endif
+
+#ifndef ETHERTYPE_ARP
+#define ETHERTYPE_ARP		0x0806
 #endif
 
 #ifndef ETHERTYPE_DEC
@@ -81,85 +104,68 @@
 #define ETHERTYPE_DEC_SCA	0x6007
 #endif
 
-#ifndef ETHERTYPE_IP
-#define ETHERTYPE_IP 0x0800
-#endif
-
-#ifndef ETHERTYPE_IPv6
-#define ETHERTYPE_IPv6 0x086dd
-#endif
-
-#ifndef ETHERTYPE_ARP
-#define ETHERTYPE_ARP 0x0806
-#endif
-
-#ifndef ETHERTYPE_X25L3
-#define ETHERTYPE_X25L3 0x0805
+#ifndef ETHERTYPE_ETHBRIDGE
+#define ETHERTYPE_ETHBRIDGE	0x6558	/* transparent Ethernet bridging */
 #endif
 
 #ifndef ETHERTYPE_REVARP
-#define ETHERTYPE_REVARP 0x8035
+#define ETHERTYPE_REVARP	0x8035
 #endif
 
 #ifndef ETHERTYPE_DEC_LB
-#define ETHERTYPE_DEC_LB 0x8038
+#define ETHERTYPE_DEC_LB	0x8038
 #endif
 
 #ifndef ETHERTYPE_ATALK
-#define ETHERTYPE_ATALK 0x809b
+#define ETHERTYPE_ATALK		0x809b
 #endif
 
 #ifndef ETHERTYPE_AARP
-#define ETHERTYPE_AARP 0x80f3
+#define ETHERTYPE_AARP		0x80f3
 #endif
 
 #ifndef ETHERTYPE_IPX
-#define ETHERTYPE_IPX 0x8137
-#endif
-
-#ifndef ETHERTYPE_VINES
-#define ETHERTYPE_VINES 0xbad
-#endif
-
-#ifndef ETHERTYPE_TRAIN
-#define ETHERTYPE_TRAIN 0x1984
-/* Created by Netmon as a summary packet */
-#endif
-
-#ifndef ETHERTYPE_WCP
-#define ETHERTYPE_WCP 0x80ff	/* Wellfleet Compression Protocol */
-#endif
-
-#ifndef ETHERTYPE_LOOP
-#define ETHERTYPE_LOOP 0x9000 	/* used for layer 2 testing (do i see my own frames on the wire) */
-#endif
-
-#ifndef ETHERTYPE_PPPOED
-#define ETHERTYPE_PPPOED 0x8863 /* PPPoE Discovery Protocol */
-#endif
-
-#ifndef ETHERTYPE_PPPOES
-#define ETHERTYPE_PPPOES 0x8864 /* PPPoE Session Protocol */
+#define ETHERTYPE_IPX		0x8137
 #endif
 
 #ifndef ETHERTYPE_VLAN
-#define ETHERTYPE_VLAN 0x8100 /* 802.1Q Virtual LAN */
+#define ETHERTYPE_VLAN		0x8100	/* 802.1Q Virtual LAN */
 #endif
 
 #ifndef ETHERTYPE_SNMP
-#define ETHERTYPE_SNMP 0x814c /* SNMP over Ethernet, RFC 1089 */
+#define ETHERTYPE_SNMP		0x814c	/* SNMP over Ethernet, RFC 1089 */
 #endif
 
-#ifndef ETHERTYPE_MPLS
-#define ETHERTYPE_MPLS 0x8847 /* MPLS unicast packet */
+#ifndef ETHERTYPE_WCP
+#define ETHERTYPE_WCP		0x80ff	/* Wellfleet Compression Protocol */
 #endif
 
-#ifndef ETHERTYPE_MPLS_MULTI
-#define ETHERTYPE_MPLS_MULTI 0x8848 /* MPLS multicast packet */
+#ifndef ETHERTYPE_IPv6
+#define ETHERTYPE_IPv6		0x86dd
 #endif
 
 #ifndef ETHERTYPE_PPP
-#define ETHERTYPE_PPP	0x880b	/* no, this is not PPPoE */
+#define ETHERTYPE_PPP		0x880b	/* no, this is not PPPoE */
+#endif
+
+#ifndef ETHERTYPE_MPLS
+#define ETHERTYPE_MPLS		0x8847	/* MPLS unicast packet */
+#endif
+
+#ifndef ETHERTYPE_MPLS_MULTI
+#define ETHERTYPE_MPLS_MULTI	0x8848	/* MPLS multicast packet */
+#endif
+
+#ifndef ETHERTYPE_PPPOED
+#define ETHERTYPE_PPPOED	0x8863	/* PPPoE Discovery Protocol */
+#endif
+
+#ifndef ETHERTYPE_PPPOES
+#define ETHERTYPE_PPPOES	0x8864	/* PPPoE Session Protocol */
+#endif
+
+#ifndef ETHERTYPE_LOOP
+#define ETHERTYPE_LOOP		0x9000 	/* used for layer 2 testing (do i see my own frames on the wire) */
 #endif
 
 #endif /* etypes.h */

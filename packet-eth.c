@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.62 2001/03/22 23:22:23 gram Exp $
+ * $Id: packet-eth.c,v 1.63 2001/04/03 05:42:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -312,5 +312,11 @@ proto_reg_handoff_eth(void)
 	isl_handle = find_dissector("isl");
 
 	dissector_add("wtap_encap", WTAP_ENCAP_ETHERNET, dissect_eth,
+	    proto_eth);
+	dissector_add("ethertype", ETHERTYPE_ETHBRIDGE, dissect_eth,
+	    proto_eth);
+	dissector_add("chdlctype", ETHERTYPE_ETHBRIDGE, dissect_eth,
+	    proto_eth);
+	dissector_add("gre.proto", ETHERTYPE_ETHBRIDGE, dissect_eth,
 	    proto_eth);
 }
