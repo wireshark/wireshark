@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.312 2003/03/14 00:46:54 sharpe Exp $
+ * $Id: packet-smb.c,v 1.313 2003/03/17 08:28:56 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -278,7 +278,7 @@ static int hf_smb_data_offset = -1;
 static int hf_smb_dcm = -1;
 static int hf_smb_request_mask = -1;
 static int hf_smb_response_mask = -1;
-static int hf_smb_sid = -1;
+static int hf_smb_search_id = -1;
 static int hf_smb_write_mode_write_through = -1;
 static int hf_smb_write_mode_return_remaining = -1;
 static int hf_smb_write_mode_raw = -1;
@@ -4245,7 +4245,7 @@ dissect_sid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset,
 	WORD_COUNT;
 
 	/* sid */
-	proto_tree_add_item(tree, hf_smb_sid, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_search_id, tvb, offset, 2, TRUE);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -9856,7 +9856,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 	case 0x02:	/*TRANS2_FIND_NEXT2*/
 		/* sid */
 		CHECK_BYTE_COUNT_TRANS(2);
-		proto_tree_add_item(tree, hf_smb_sid, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_smb_search_id, tvb, offset, 2, TRUE);
 		COUNT_BYTES_TRANS(2);
 
 		/* search count */
@@ -13037,7 +13037,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		proto_tree_add_uint(tree, hf_smb_ff2_information_level, tvb, 0, 0, si->info_level);
 
 		/* sid */
-		proto_tree_add_item(tree, hf_smb_sid, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_smb_search_id, tvb, offset, 2, TRUE);
 		offset += 2;
 
 		/* search count */
@@ -16748,9 +16748,9 @@ proto_register_smb(void)
 		{ "Response Mask", "smb.response.mask", FT_UINT32, BASE_HEX,
 		NULL, 0, "Connectionless mode mask", HFILL }},
 
-	{ &hf_smb_sid,
-		{ "SID", "smb.sid", FT_UINT16, BASE_HEX,
-		NULL, 0, "SID: Search ID, handle for find operations", HFILL }},
+	{ &hf_smb_search_id,
+		{ "Search ID", "smb.search_id", FT_UINT16, BASE_HEX,
+		NULL, 0, "Search ID, handle for find operations", HFILL }},
 
 	{ &hf_smb_write_mode_write_through,
 		{ "Write Through", "smb.write.mode.write_through", FT_BOOLEAN, 16,
