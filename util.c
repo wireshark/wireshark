@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.63 2003/06/13 03:43:44 guy Exp $
+ * $Id: util.c,v 1.64 2003/06/13 20:03:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,6 +62,11 @@ typedef int mode_t;	/* for win32 */
 #include <zlib.h>	/* to get the libz version number */
 #endif
 
+#ifdef HAVE_LIBPCAP
+#include <pcap.h>
+#include "pcap-util.h"
+#endif
+
 #ifdef HAVE_SOME_SNMP
 
 #ifdef HAVE_NET_SNMP
@@ -81,6 +86,26 @@ typedef int mode_t;	/* for win32 */
 #include "util.h"
 
 /*
+ * See whether the last line in the string goes past column 80; if so,
+ * replace the blank at the specified point with a newline.
+ */
+static void
+do_word_wrap(GString *str, gint point)
+{
+	char *line_begin;
+
+	line_begin = strrchr(str->str, '\n');
+	if (line_begin == NULL)
+		line_begin = str->str;
+	else
+		line_begin++;
+	if (strlen(line_begin) > 80) {
+		g_assert(str->str[point] == ' ');
+		str->str[point] = '\n';
+	}
+}	
+
+/*
  * Get various library compile-time versions and append them to
  * the specified GString.
  */
@@ -92,61 +117,82 @@ get_compiled_version_info(GString *str)
 	extern char pcap_version[];
 #endif /* HAVE_PCAP_VERSION */
 #endif /* HAVE_LIBPCAP */
+	gint break_point;
 
 	g_string_append(str, "with ");
 	g_string_sprintfa(str,
 #ifdef GLIB_MAJOR_VERSION
-	    "GLib %d.%d.%d", GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION,
+	    "GLib %d.%d.%d,", GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION,
 	    GLIB_MICRO_VERSION);
 #else
-	    "GLib (version unknown)");
+	    "GLib (version unknown),");
 #endif
 
 #ifdef HAVE_LIBPCAP
-	g_string_append(str, ", with libpcap ");
+	g_string_append(str, " ");
+	break_point = str->len - 1;
+#ifdef WIN32
+	g_string_append("with WinPcap (version unknown)");
+#else /* WIN32 */
 #ifdef HAVE_PCAP_VERSION
-	g_string_append(str, pcap_version);
+	g_string_sprintfa(str, "with libpcap %s,", pcap_version);
 #else /* HAVE_PCAP_VERSION */
-	g_string_append(str, "(version unknown)");
+	g_string_append("with libpcap (version unknown)");
 #endif /* HAVE_PCAP_VERSION */
+	do_word_wrap(str, break_point);
+#endif /* WIN32 */
 #else /* HAVE_LIBPCAP */
-	g_string_append(str, ", without libpcap");
+	g_string_append(str, " ");
+	break_point = str->len - 1;
+	g_string_append(str, "without libpcap,");
+	do_word_wrap(str, break_point);
 #endif /* HAVE_LIBPCAP */
 
+	g_string_append(str, " ");
+	break_point = str->len - 1;
 #ifdef HAVE_LIBZ
-	g_string_append(str, ", with libz ");
+	g_string_append(str, "with libz ");
 #ifdef ZLIB_VERSION
 	g_string_append(str, ZLIB_VERSION);
 #else /* ZLIB_VERSION */
 	g_string_append(str, "(version unknown)");
 #endif /* ZLIB_VERSION */
 #else /* HAVE_LIBZ */
-	g_string_append(str, ", without libz");
+	g_string_append(str, "without libz");
 #endif /* HAVE_LIBZ */
+	g_string_append(str, ",");
+	do_word_wrap(str, break_point);
 
 /* Oh, this is pretty. */
 /* Oh, ha.  you think that was pretty.  Try this:! --Wes */
+	g_string_append(str, " ");
+	break_point = str->len - 1;
 #ifdef HAVE_SOME_SNMP
 
 #ifdef HAVE_UCD_SNMP
-	g_string_append(str, ",\nwith UCD-SNMP ");
+	g_string_append(str, "with UCD-SNMP ");
 	g_string_append(str, VersionInfo);
 #endif /* HAVE_UCD_SNMP */
 
 #ifdef HAVE_NET_SNMP
-	g_string_append(str, ",\nwith Net-SNMP ");
+	g_string_append(str, "with Net-SNMP ");
 	g_string_append(str, netsnmp_get_version());
 #endif /* HAVE_NET_SNMP */
 
 #else /* no SNMP library */
-	g_string_append(str, ",\nwithout UCD-SNMP or Net-SNMP");
+	g_string_append(str, "without UCD-SNMP or Net-SNMP");
 #endif /* HAVE_SOME_SNMP */
+	g_string_append(str, ",");
+	do_word_wrap(str, break_point);
 
+	g_string_append(str, " ");
+	break_point = str->len - 1;
 #ifdef HAVE_GNU_ADNS
-	g_string_append(str, ", with ADNS");
+	g_string_append(str, "with ADNS");
 #else
-	g_string_append(str, ", without ADNS");
+	g_string_append(str, "without ADNS");
 #endif /* HAVE_GNU_ADNS */
+	do_word_wrap(str, break_point);
 }
 
 /*
@@ -161,6 +207,24 @@ get_runtime_version_info(GString *str)
 #elif defined(HAVE_SYS_UTSNAME_H)
 	struct utsname name;
 #endif
+
+#ifdef HAVE_LIBPCAP
+#ifdef WIN32
+	/*
+	 * On Windows, we might have been compiled with WinPcap but
+	 * might not have it loaded; indicate whether we have it or
+	 * not.
+	 *
+	 * XXX - when versions of libcap and WinPcap with
+	 * "pcap_lib_version()" are released, we should use it
+	 * here if available.
+	 */
+	if (has_wpcap)
+		g_string_sprintfa(str, "with WinPcap ");
+	else
+		g_string_append(str, "without WinPcap ");
+#endif /* WIN32 */
+#endif /* HAVE_LIBPCAP */
 
 	g_string_append(str, "on ");
 #if defined(WIN32)
