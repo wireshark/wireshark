@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: make-manuf,v 1.10 2003/01/21 20:20:09 jmayer Exp $
+# $Id: make-manuf,v 1.11 2003/04/08 16:41:58 jmayer Exp $
 #
 # Make-manuf - Creates a file containing ethernet OUIs and their
 # company IDs.  It merges the databases at
@@ -60,7 +60,7 @@ sub shorten
   if ($manuf =~ /\Q$origmanuf\E/i) {
     return $manuf;
   } else {
-    return sprintf("%-22s # %s\n", $manuf, $origmanuf);
+    return sprintf("%-22s # %s", $manuf, $origmanuf);
   }
 }
 
