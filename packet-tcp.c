@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.184 2003/03/03 23:20:57 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.185 2003/03/04 04:36:44 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1573,6 +1573,8 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
     if (field_tree == NULL) {
       /* Haven't yet made a subtree out of this option.  Do so. */
       field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+      proto_tree_add_boolean_hidden(field_tree, hf_tcp_option_sack, tvb, 
+				    offset, optlen, TRUE);
     }
     if (optlen < 4) {
       proto_tree_add_text(field_tree, tvb, offset,      optlen,
@@ -1580,6 +1582,9 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
       break;
     }
     leftedge = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_uint_format(field_tree, hf_tcp_option_sack_sle, tvb, 
+			       offset, 4, leftedge, 
+			       "left edge = %u", leftedge);
     optlen -= 4;
     if (optlen < 4) {
       proto_tree_add_text(field_tree, tvb, offset,      optlen,
@@ -1589,13 +1594,8 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
     /* XXX - check whether it goes past end of packet */
     rightedge = tvb_get_ntohl(tvb, offset + 4);
     optlen -= 4;
-    proto_tree_add_boolean_hidden(field_tree, hf_tcp_option_sack, tvb, 
-				  offset, 8, TRUE);
-    proto_tree_add_uint_format(field_tree, hf_tcp_option_sack_sle, tvb, 
-			       offset, 8, leftedge, 
-			       "left edge = %u", leftedge);
     proto_tree_add_uint_format(field_tree, hf_tcp_option_sack_sre, tvb, 
-			       offset, 8, rightedge, 
+			       offset+4, 4, rightedge, 
 			       "right edge = %u", rightedge);
     tcp_info_append_uint(pinfo, "SLE", leftedge);
     tcp_info_append_uint(pinfo, "SRE", rightedge);
