@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-bootp.c,v 1.28 2000/03/20 21:39:00 gerald Exp $
+ * $Id: packet-bootp.c,v 1.29 2000/03/29 09:29:16 guy Exp $
  *
  * The information used comes from:
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
@@ -598,7 +598,7 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		proto_tree_add_item(bp_tree, hf_bootp_secs,
 				    offset + 8, 2, pntohs(&pd[offset+8]));
 		proto_tree_add_item(bp_tree, hf_bootp_flag,
-				    offset + 10, 2, pd[offset+10] & 1);
+				    offset + 10, 2, pntohs(&pd[offset+10]) & 0x8000);
 
 		memcpy(&ip_addr, &pd[offset+12], sizeof(ip_addr));
 		proto_tree_add_item(bp_tree, hf_bootp_ip_client, 
@@ -700,7 +700,7 @@ proto_register_bootp(void)
       	"" }},
 
     { &hf_bootp_flag,
-      { "Broadcast flag",	       	"bootp.flag",    FT_UINT16, BASE_DEC, NULL, 0x0,
+      { "Broadcast flag",	       	"bootp.flag",    FT_UINT16, BASE_HEX, NULL, 0x0,
       	"" }},
 
     { &hf_bootp_ip_client,
