@@ -199,7 +199,7 @@ AC_DEFUN(AC_ETHEREAL_UCDSNMP_CHECK,
 	want_ucdsnmp=yes
 
 	AC_ARG_WITH(ucdsnmp,
-	--with-ucdsnmp=<directory>   use UCD SNMP client library, [
+	[  --with-ucdsnmp=DIR      use UCD SNMP client library, located in directory DIR.], [
 	if test $withval = no
 	then
 		want_ucdsnmp=no
