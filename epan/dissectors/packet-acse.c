@@ -79,14 +79,6 @@ static const value_string acse_vals[] =
   {0,             NULL           }
 };
 
-static const value_string cr_vals[] =
-{
-  {MODE_SELECTOR, "Mode Selector"},
-  {SEQUENCE_TOP, "Sequence"},
-  {SET_TOP, "Set"},
-  {0, NULL}
-};
-
 static const value_string request_sequence_top_vals[] =
 {
   {PROTOCOL_VERSION, "Protocol version"},
@@ -111,8 +103,8 @@ static const value_string response_sequence_top_vals[] =
   {ACSE_RESULT_SOURCE_DIAGNOSTIC, "Result source diagnostic"},
   {RESPONDING_AP_TITLE, "Responding AP title"},
   {RESPONDING_AE_QUALIFIER, "Responding AE qualifier"},
-  {RESPONDING_AP_INVOKATION_ID, "Responding AP invokation id"},
-  {RESPONDING_AE_INVOKATION_ID, "Responding AE invokation id"},
+  {RESPONDING_AP_INVOKATION_ID, "Responding AP invocation id"},
+  {RESPONDING_AE_INVOKATION_ID, "Responding AE invocation id"},
   {IMPLEMENTATION_INFORMATION,"Implementation information"},
   {USER_INFORMATION,"User information"},
   {0, NULL}
@@ -137,13 +129,13 @@ static const value_string acse_service_user_values_vals[] =
   {ACSE_NO_REASON_GIVEN,"No reason given"},
   {ACSE_APPLICATION_CONTEXT_NAME_NOT_SUPPORTED,"Application context name not supported"},
   {ACSE_CALLING_AP_TITLE_NOT_RECOGNIZED,"Calling AP title not recognized"},
-  {ACSE_CALLING_AP_INVOKATION_IDENTIFIER_NOT_RECOGNIZED,"Calling AP invokation identifier not recognized"},
+  {ACSE_CALLING_AP_INVOKATION_IDENTIFIER_NOT_RECOGNIZED,"Calling AP invocation identifier not recognized"},
   {ACSE_CALLING_AE_QUALIFIER_NOT_RECOGNIZED,"Calling AE qualifier not recognized"},
-  {ACSE_CALLING_AE_INVOKATION_IDENTIFIER_NOT_RECOGNIZED,"Calling AE invokation identifier not recognized"},
+  {ACSE_CALLING_AE_INVOKATION_IDENTIFIER_NOT_RECOGNIZED,"Calling AE invocation identifier not recognized"},
   {ACSE_CALLED_AP_TITLE_NOT_RECOGNIZED,"Called AP title not recognized"},
-  {ACSE_CALLED_AP_INVOKATION_IDENTIFIER_NOT_RECOGNIZED,"Called AP invokation identifier not recognized"},
+  {ACSE_CALLED_AP_INVOKATION_IDENTIFIER_NOT_RECOGNIZED,"Called AP invocation identifier not recognized"},
   {ACSE_CALLED_AE_QUALIFIER_NOT_RECOGNIZED,"Called AE qualifier not recognized"},
-  {ACSE_CALLED_AE_INVOKATION_IDENTIFIER_NOT_RECOGNIZED,"Called AE invokation identifier not recognized"},
+  {ACSE_CALLED_AE_INVOKATION_IDENTIFIER_NOT_RECOGNIZED,"Called AE invocation identifier not recognized"},
   {0, NULL}
 };
 static const value_string acse_service_provider_values_vals[] =
@@ -157,13 +149,6 @@ static const value_string acse_service_provider_values_vals[] =
 static const value_string acse_user_information_vals[] =
 {
   {ACSE_EXTERNAL_USER,"External"},
-  {0, NULL}
-};
-static const value_string sequence_list_vals[] =
-{
-  {PRESENTATION_CONTEXT_IDENTIFIER,"Presentation context identifier"},
-  {ABSTRACT_SYNTAX_NAME,"Abstract syntax name"},
-  {TRANSFER_SYNTAX_NAMES,"Transfer syntax names"},
   {0, NULL}
 };
 static const value_string presentation_context_definition_vals[] =
@@ -208,13 +193,6 @@ static const value_string abort_reason[] =
   {0, NULL}
 };
 
-static const value_string type_app[] =
-{
-	{0,""},             /*   for unknown dissector   */
-	{FTAM_APP,"FTAM"},
-	{CMIP_APP,"CMIP"},
-	{0, NULL}
-};
 
 /*      pointers for acse dissector  */
 static proto_tree *global_tree  = NULL;
