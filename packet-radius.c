@@ -6,7 +6,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.99 2004/03/20 19:09:22 guy Exp $
+ * $Id: packet-radius.c,v 1.100 2004/03/22 16:05:48 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2611,6 +2611,7 @@ dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
   guint8 *reassembled_data = NULL;
   int reassembled_data_len = 0;
   int data_needed = 0;
+  char *attr_info_str = "(Invalid)";
 
   if (avplength==0)
   {
@@ -2635,9 +2636,12 @@ dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
        * fields, so it must be >= 2.
        */
       if (tree) {
+        if (attr_info) {
+	  attr_info_str = attr_info->str;
+	}
         proto_tree_add_text(tree, tvb, offset, avph.avp_length,
 			    "t:%s(%u) l:%u (length not >= 2)",
-			    attr_info->str, avph.avp_type, avph.avp_length);
+			    attr_info_str, avph.avp_type, avph.avp_length);
       }
       break;
     }

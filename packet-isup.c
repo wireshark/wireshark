@@ -9,7 +9,7 @@
  * Modified 2004-01-10 by Anders Broman to add abillity to dissect
  * Content type application/ISUP RFC 3204 used in SIP-T
  *
- * $Id: packet-isup.c,v 1.55 2004/03/18 09:00:37 guy Exp $
+ * $Id: packet-isup.c,v 1.56 2004/03/22 16:05:48 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6124,7 +6124,7 @@ proto_register_isup(void)
 			"", HFILL }},
 
 		{ &hf_BAT_ASE_Comp_Report_diagnostic,
-			{ "Diagnostics",  "Comp_Report_diagnostic",
+			{ "Diagnostics",  "bat_ase.Comp_Report_diagnostic",
 			FT_UINT16, BASE_HEX, NULL,0x0,
 			"", HFILL }},
 

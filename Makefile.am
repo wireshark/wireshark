@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.723 2004/03/17 19:57:28 jmayer Exp $
+# $Id: Makefile.am,v 1.724 2004/03/22 16:05:48 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -385,6 +385,7 @@ EXTRA_DIST = \
 	cleanbld.bat		\
 	config.h.win32		\
 	config.nmake		\
+	cvsversion.h		\
 	debian/README.debian	\
 	debian/changelog	\
 	debian/control		\
