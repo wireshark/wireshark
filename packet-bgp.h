@@ -1,7 +1,7 @@
 /* packet-bgp.c
  * Definitions for BGP packet disassembly structures and routine
  *
- * $Id: packet-bgp.h,v 1.16 2001/11/03 21:25:12 guy Exp $
+ * $Id: packet-bgp.h,v 1.17 2002/01/30 23:04:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -117,8 +117,8 @@ struct bgp_attr {
 #define BGP_COMM_NO_EXPORT           0xFFFFFF01
 #define BGP_COMM_NO_ADVERTISE        0xFFFFFF02
 #define BGP_COMM_NO_EXPORT_SUBCONFED 0xFFFFFF03
-#define FOURHEX0                     0x0000
-#define FOURHEXF                     0xFFFF
+#define FOURHEX0                     0x00000000
+#define FOURHEXF                     0xFFFF0000
 
 /* attribute types */
 #define BGPTYPE_ORIGIN            1   /* RFC1771          */

@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.53 2002/01/21 07:36:32 guy Exp $
+ * $Id: packet-bgp.c,v 1.54 2002/01/30 23:04:02 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -492,6 +492,13 @@ decode_prefix_MP(guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf
 /*
  * Dissect a BGP OPEN message.
  */
+static const value_string community_vals[] = {
+	{ BGP_COMM_NO_EXPORT,           "NO_EXPORT" },
+	{ BGP_COMM_NO_ADVERTISE,        "NO_ADVERTISE" },
+	{ BGP_COMM_NO_EXPORT_SUBCONFED, "NO_EXPORT_SUBCONFED" },
+	{ 0,                            NULL }
+};
+
 static void
 dissect_bgp_open(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
@@ -1309,28 +1316,16 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
                 /* snarf each community */
                 while (q < end) {
                     /* check for reserved values */
-		    if (tvb_get_ntohs(tvb, q) == FOURHEX0 || tvb_get_ntohs(tvb, q) == FOURHEXF) {
-                        /* check for well-known communities */
-		        if (tvb_get_ntohl(tvb, q) == BGP_COMM_NO_EXPORT)
-		            proto_tree_add_text(communities_tree, tvb,
-                                   q - 3 + aoff, 4,
-                                   "Community: NO_EXPORT (0x%x)", tvb_get_ntohl(tvb, q));
-		        else if (tvb_get_ntohl(tvb, q) == BGP_COMM_NO_ADVERTISE)
-		            proto_tree_add_text(communities_tree, tvb,
-                                   q - 3 + aoff, 4,
-                                   "Community: NO_ADVERTISE (0x%x)", pntohl(q));
-		        else if (tvb_get_ntohl(tvb, q) == BGP_COMM_NO_EXPORT_SUBCONFED)
-		            proto_tree_add_text(communities_tree, tvb,
-                                    q - 3 + aoff, 4,
-                                    "Community: NO_EXPORT_SUBCONFED (0x%x)",
-                                    tvb_get_ntohl(tvb, q));
-                        else
-		            proto_tree_add_text(communities_tree, tvb,
-                                    q - 3 + aoff, 4,
-                                    "Community (reserved): 0x%x", tvb_get_ntohl(tvb, q));
+		    guint32 community = tvb_get_ntohl(tvb, q);
+		    if ((community & 0xFFFF0000) == FOURHEX0 ||
+		         (community & 0xFFFF0000) == FOURHEXF) {
+		        proto_tree_add_text(communities_tree, tvb,
+                               q - 3 + aoff, 4,
+                               "Community: %s (0x%08x)",
+                               val_to_str(community, community_vals, "(reserved)"),
+                               community);
                     }
                     else {
-
                         ti = proto_tree_add_text(communities_tree, tvb,
                                 q - 3 + aoff, 4, "Community: %u:%u",
                                 tvb_get_ntohs(tvb, q), tvb_get_ntohs(tvb, q + 2));
