@@ -7,7 +7,7 @@
  * Copyright 2001, 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>,
  * updated by Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-m2pa.c,v 1.19 2003/05/01 21:38:43 guy Exp $
+ * $Id: packet-m2pa.c,v 1.20 2003/05/04 09:33:15 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -139,7 +139,7 @@ static const value_string v6_message_type_values[] = {
 static void
 dissect_v2_header(tvbuff_t *header_tvb, packet_info *pinfo, proto_tree *m2pa_tree)
 {
-  guint message_type;
+  guint16 message_type;
   
   message_type  = tvb_get_ntohs(header_tvb, V2_TYPE_OFFSET);
 
@@ -157,9 +157,9 @@ dissect_v2_header(tvbuff_t *header_tvb, packet_info *pinfo, proto_tree *m2pa_tre
 static void
 dissect_v6_header(tvbuff_t *header_tvb, packet_info *pinfo, proto_tree *m2pa_tree)
 {
-  guint message_type;
+  guint8 message_type;
   
-  message_type  = tvb_get_ntohs(header_tvb, V6_TYPE_OFFSET);
+  message_type  = tvb_get_guint8(header_tvb, V6_TYPE_OFFSET);
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, v6_message_type_values, "Unknown"));
@@ -212,9 +212,7 @@ dissect_v2_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo, pro
 #define V6_LI_PRIORITY_MASK      0xc0
 
 static void
-dissect_v6_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo,
-                   proto_item *m2pa_item, proto_tree *m2pa_tree,
-                   proto_tree *tree)
+dissect_v6_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo, proto_item *m2pa_item, proto_tree *m2pa_tree, proto_tree *tree)
 {
   proto_item *m2pa_li_item;
   proto_tree *m2pa_li_tree;
@@ -320,7 +318,7 @@ static void
 dissect_v6_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2pa_item, proto_tree *m2pa_tree, proto_tree *tree)
 {
   guint32 message_data_length;
-  guint16 type;
+  guint8 type;
   tvbuff_t *message_data_tvb;
 
   message_data_length = tvb_get_ntohl(message_tvb, V6_LENGTH_OFFSET) - V6_HEADER_LENGTH;
