@@ -223,6 +223,7 @@ Nathan Neulinger <nneul[AT]umr.edu> {
 	    of automake (which will probably eventually become the next
 	    releases of automake and autoconf)
 	Additional cipher suite names for SSL
+	SEBEK - Kernel read() data capture protocol support
 }
 
 Tomislav Vujec <tvujec[AT]carnet.hr> {
