@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.14 2001/07/02 07:11:40 guy Exp $
+ * $Id: tvbuff.h,v 1.15 2001/10/26 17:29:09 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -277,14 +277,14 @@ const guint8* tvb_get_ptr(tvbuff_t*, gint offset, gint length);
  * Will not throw an exception, even if maxlength exceeds boundary of tvbuff;
  * in that case, -1 will be returned if the boundary is reached before
  * finding needle. */
-gint tvb_find_guint8(tvbuff_t*, gint offset, guint maxlength, guint8 needle);
+gint tvb_find_guint8(tvbuff_t*, gint offset, gint maxlength, guint8 needle);
 
 /* Find first occurence of any of the needles in tvbuff, starting at offset.
  * Searches at most maxlength number of bytes. Returns the offset of the
  * found needle, or -1 if not found. Will not throw an exception, even if
  * maxlength exceeds boundary of tvbuff; in that case, -1 will be returned if
  * the boundary is reached before finding needle. */
-gint tvb_pbrk_guint8(tvbuff_t *, gint offset, guint maxlength, guint8 *needles);
+gint tvb_pbrk_guint8(tvbuff_t *, gint offset, gint maxlength, guint8 *needles);
 
 /* Find size of stringz (NUL-terminated string) by looking for terminating
  * NUL.  The size of the string includes the terminating NUL.

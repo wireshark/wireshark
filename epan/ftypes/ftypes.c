@@ -1,5 +1,5 @@
 /*
- * $Id: ftypes.c,v 1.4 2001/03/02 17:04:25 gram Exp $
+ * $Id: ftypes.c,v 1.5 2001/10/26 17:29:12 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -80,7 +80,6 @@ void
 ftype_register(enum ftenum ftype, ftype_t *ft)
 {
 	/* Check input */
-	g_assert(ftype >= 0);
 	g_assert(ftype < FT_NUM_TYPES);
 
 	/* Don't re-register. */
@@ -96,7 +95,6 @@ ftype_lookup(enum ftenum ftype)
 	ftype_t* result;
 
 	/* Check input */
-	g_assert(ftype >= 0);
 	g_assert(ftype < FT_NUM_TYPES);
 
 	result = type_list[ftype];
@@ -351,7 +349,7 @@ slice_func(gpointer data, gpointer user_data)
 /*	g_debug("(NEW) start_offset=%d length=%d end_offset=%d",
 			start_offset, length, end_offset); */
 
-	if (start_offset > field_length || end_offset > field_length) {
+	if (start_offset > (int) field_length || end_offset > (int) field_length) {
 		slice_data->slice_failure = TRUE;
 		return;
 	}

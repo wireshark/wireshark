@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.18 2001/07/02 07:11:40 guy Exp $
+ * $Id: tvbuff.c,v 1.19 2001/10/26 17:29:09 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -360,13 +360,13 @@ compute_offset_length(tvbuff_t *tvb, gint offset, gint length,
 	/* Compute the offset */
 	if (offset >= 0) {
 		/* Positive offset - relative to the beginning of the packet. */
-		if (offset > tvb->reported_length) {
+		if ((guint) offset > tvb->reported_length) {
 			if (exception) {
 				*exception = ReportedBoundsError;
 			}
 			return FALSE;
 		}
-		else if (offset > tvb->length) {
+		else if ((guint) offset > tvb->length) {
 			if (exception) {
 				*exception = BoundsError;
 			}
@@ -378,13 +378,13 @@ compute_offset_length(tvbuff_t *tvb, gint offset, gint length,
 	}
 	else {
 		/* Negative offset - relative to the end of the packet. */
-		if (-offset > tvb->reported_length) {
+		if ((guint) -offset > tvb->reported_length) {
 			if (exception) {
 				*exception = ReportedBoundsError;
 			}
 			return FALSE;
 		}
-		else if (-offset > tvb->length) {
+		else if ((guint) -offset > tvb->length) {
 			if (exception) {
 				*exception = BoundsError;
 			}
@@ -553,7 +553,7 @@ tvb_composite_finalize(tvbuff_t* tvb)
 	composite->end_offsets = g_new(guint, num_members);
 
 	for (slist = composite->tvbs; slist != NULL; slist = slist->next) {
-		g_assert(i < num_members);
+		g_assert((guint) i < num_members);
 		member_tvb = slist->data;
 		composite->start_offsets[i] = tvb->length;
 		tvb->length += member_tvb->length;
@@ -805,7 +805,7 @@ guint8_find(const guint8* haystack, size_t haystacklen, guint8 needle)
 	const guint8	*b;
 	int		i;
 
-	for (b = haystack, i = 0; i < haystacklen; i++, b++) {
+	for (b = haystack, i = 0; (guint) i < haystacklen; i++, b++) {
 		if (*b == needle) {
 			return b;
 		}
@@ -821,7 +821,7 @@ guint8_pbrk(const guint8* haystack, size_t haystacklen, guint8 *needles)
 	int		i;
 	guint8		item, *needlep, needle;
 
-	for (b = haystack, i = 0; i < haystacklen; i++, b++) {
+	for (b = haystack, i = 0; (guint) i < haystacklen; i++, b++) {
 		item = *b;
 		needlep = needles;
 		while ((needle = *needlep) != '\0') {
@@ -1040,7 +1040,7 @@ tvb_get_letohll(tvbuff_t *tvb, gint offset)
  * in that case, -1 will be returned if the boundary is reached before
  * finding needle. */
 gint
-tvb_find_guint8(tvbuff_t *tvb, gint offset, guint maxlength, guint8 needle)
+tvb_find_guint8(tvbuff_t *tvb, gint offset, gint maxlength, guint8 needle)
 {
 	const guint8	*result;
 	guint		abs_offset, junk_length;
@@ -1055,7 +1055,7 @@ tvb_find_guint8(tvbuff_t *tvb, gint offset, guint maxlength, guint8 needle)
 		/* No maximum length specified; search to end of tvbuff. */
 		limit = tvbufflen;
 	}
-	else if (tvbufflen < maxlength) {
+	else if (tvbufflen < (guint) maxlength) {
 		/* Maximum length goes past end of tvbuff; search to end
 		   of tvbuff. */
 		limit = tvbufflen;
@@ -1103,7 +1103,7 @@ tvb_find_guint8(tvbuff_t *tvb, gint offset, guint maxlength, guint8 needle)
  * in that case, -1 will be returned if the boundary is reached before
  * finding needle. */
 gint
-tvb_pbrk_guint8(tvbuff_t *tvb, gint offset, guint maxlength, guint8 *needles)
+tvb_pbrk_guint8(tvbuff_t *tvb, gint offset, gint maxlength, guint8 *needles)
 {
 	const guint8	*result;
 	guint		abs_offset, junk_length;
@@ -1118,7 +1118,7 @@ tvb_pbrk_guint8(tvbuff_t *tvb, gint offset, guint maxlength, guint8 *needles)
 		/* No maximum length specified; search to end of tvbuff. */
 		limit = tvbufflen;
 	}
-	else if (tvbufflen < maxlength) {
+	else if (tvbufflen < (guint) maxlength) {
 		/* Maximum length goes past end of tvbuff; search to end
 		   of tvbuff. */
 		limit = tvbufflen;
@@ -1330,7 +1330,7 @@ tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer)
 {
 	gint	stringlen;
 	guint	abs_offset, junk_length;
-	gint	limit;
+	gint	limit, len;
 
 	check_offset_length(tvb, offset, 0, &abs_offset, &junk_length);
 
@@ -1340,7 +1340,14 @@ tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer)
 	}
 
 	/* Only copy to end of tvbuff, w/o throwing exception. */
-	if (tvb_length_remaining(tvb, abs_offset) < maxlength) {
+	len = tvb_length_remaining(tvb, abs_offset);
+
+    /* This should not happen because check_offset_length() would
+     * have already thrown an exception if 'offset' were out-of-bounds.
+     */
+    g_assert(len != -1);
+
+    if ((guint)len < maxlength) {
 		limit = maxlength - (tvb_length(tvb) - abs_offset);
 	}
 	else {

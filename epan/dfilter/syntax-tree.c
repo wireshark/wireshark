@@ -1,5 +1,5 @@
 /*
- * $Id: syntax-tree.c,v 1.3 2001/02/27 19:23:28 gram Exp $
+ * $Id: syntax-tree.c,v 1.4 2001/10/26 17:29:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -66,7 +66,6 @@ sttype_register(sttype_t *type)
 	type_id = type->id;
 
 	/* Check input */
-	g_assert(type_id >= 0);
 	g_assert(type_id < STTYPE_NUM_TYPES);
 
         /* Don't re-register. */
@@ -81,7 +80,6 @@ sttype_lookup(sttype_id_t type_id)
 	sttype_t	*result;
 
 	/* Check input */
-	g_assert(type_id >= 0);
 	g_assert(type_id < STTYPE_NUM_TYPES);
 
 	result = type_list[type_id];

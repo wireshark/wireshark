@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.16 2001/10/24 07:18:37 guy Exp $
+ * $Id: resolv.c,v 1.17 2001/10/26 17:29:09 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -1381,7 +1381,7 @@ gboolean get_host_ipaddr(const char *host, guint32 *addrp)
 			return FALSE;
 			/* Apparently, some versions of gethostbyaddr can
 			 * return IPv6 addresses. */
-		} else if (hp->h_length <= sizeof (struct in_addr)) {
+		} else if (hp->h_length <= (int) sizeof (struct in_addr)) {
 			memcpy(&ipaddr, hp->h_addr, hp->h_length);
 		} else {
 			return FALSE;

@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.36 2001/10/23 05:40:36 guy Exp $
+ * $Id: proto.c,v 1.37 2001/10/26 17:29:09 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -286,7 +286,7 @@ proto_tree_free_node(GNode *node, gpointer data)
 header_field_info*
 proto_registrar_get_nth(int hfindex)
 {
-	g_assert(hfindex >= 0 && hfindex < gpa_hfinfo->len);
+	g_assert(hfindex >= 0 && (guint) hfindex < gpa_hfinfo->len);
 	return g_ptr_array_index(gpa_hfinfo, hfindex);
 }
 
@@ -1468,7 +1468,7 @@ alloc_field_info(int hfindex, tvbuff_t *tvb, gint start, gint length)
 
 	fi = g_mem_chunk_alloc(gmc_field_info);
 
-	g_assert(hfindex >= 0 && hfindex < gpa_hfinfo->len);
+	g_assert(hfindex >= 0 && (guint) hfindex < gpa_hfinfo->len);
 	fi->hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(fi->hfinfo != NULL);
 	fi->start = start;
@@ -2683,8 +2683,8 @@ check_for_offset(GNode *node, gpointer data)
 
 	/* !fi == the top most container node which holds nothing */
 	if (fi && fi->visible && !strcmp( offsearch->name,fi->ds_name)) {
-		if (offsearch->offset >= fi->start &&
-				offsearch->offset < (fi->start + fi->length)) {
+		if (offsearch->offset >= (guint) fi->start &&
+				offsearch->offset < (guint) (fi->start + fi->length)) {
 
 			offsearch->finfo = fi;
 			return FALSE; /* keep traversing */
