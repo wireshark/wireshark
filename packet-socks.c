@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.52 2003/12/30 00:03:48 guy Exp $
+ * $Id: packet-socks.c,v 1.53 2003/12/30 00:19:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,7 +27,11 @@
  * The Version 5 decoder is based upon rfc-1928
  * The Version 5 User/Password authentication is based on rfc-1929.
  *
- * See http://www.socks.nec.com/socksprot.html for these and other documents
+ * See
+ *
+ *	http://www.socks.permeo.com/TechnicalResources/ProtocolDocuments.asp
+ *
+ * for these and other documents.
  *
  * Revisions:
  *
