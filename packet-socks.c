@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.58 2004/02/12 21:04:05 guy Exp $
+ * $Id: packet-socks.c,v 1.59 2004/06/03 08:04:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,7 +31,11 @@
  *
  *	http://www.socks.permeo.com/TechnicalResources/ProtocolDocuments.asp
  *
- * for these and other documents.
+ * for these and other documents.  See
+ *
+ *	http://www.socks.nec.com/protocol/socks4a.protocol
+ *
+ * for information on SOCKS version 4a.
  *
  * Revisions:
  *
@@ -118,6 +122,7 @@ static int hf_socks_ver = -1;
 static int hf_socks_ip_dst = -1;
 static int hf_socks_ip6_dst = -1;
 static int hf_user_name = -1;
+static int hf_v4a_dns_name = -1;
 static int hf_socks_dstport = -1;
 static int hf_socks_cmd = -1;
 static int hf_socks_results = -1;
@@ -457,6 +462,8 @@ display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 	guint command;
+	unsigned char ipaddr[4];
+	guint username_len, domainname_len;
 
 					/* Display command from client */
 	if (compare_packet( hash_info->connect_row)){
@@ -477,6 +484,7 @@ display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset += 2;
 
 						/* Do destination address */
+		tvb_memcpy(tvb, ipaddr, offset, 4);
 		proto_tree_add_item( tree, hf_socks_ip_dst, tvb, offset,
 				4, FALSE);
 
@@ -486,9 +494,18 @@ display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* Should perhaps do TCP reassembly as well */
 		if ( tvb_offset_exists(tvb, offset)) {
 						/* display user name 	*/
-			proto_tree_add_string( tree, hf_user_name, tvb, offset,
-				tvb_strsize(tvb, offset),
-				tvb_get_ptr(tvb, offset, -1));
+			username_len = tvb_strsize(tvb, offset);
+			proto_tree_add_item( tree, hf_user_name, tvb, offset,
+				username_len, FALSE);
+			offset += username_len;
+			if ( ipaddr[0] == 0 && ipaddr[1] == 0 &&
+			     ipaddr[2] == 0 && ipaddr[3] != 0) {
+			     	/* 0.0.0.x , where x!=0 means v4a support */
+			     	domainname_len = tvb_strsize(tvb, offset);
+				proto_tree_add_item( tree, hf_v4a_dns_name,
+					tvb, offset, domainname_len,
+					FALSE);
+			}
 		}
 
 	}
@@ -1147,10 +1164,15 @@ proto_register_socks( void){
 		},
 
                 { &hf_user_name,
-                	{ "User Name", "socks.username", FT_STRING, BASE_NONE,
+                	{ "User Name", "socks.username", FT_STRINGZ, BASE_NONE,
                 		 NULL, 0x0, "", HFILL
                 	}
                 },
+		{ &hf_v4a_dns_name,
+			{ "SOCKS v4a Remote Domain Name", "socks.v4a_dns_name", FT_STRINGZ, BASE_NONE,
+				NULL, 0x0, "", HFILL
+			}
+		},
 		{ &hf_socks_dstport,
 			{ "Remote Port", "socks.dstport", FT_UINT16,
 				BASE_DEC, NULL, 0x0, "", HFILL
