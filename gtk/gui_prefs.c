@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.67 2004/04/06 19:02:18 ulfl Exp $
+ * $Id: gui_prefs.c,v 1.68 2004/04/29 16:35:15 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -498,7 +498,7 @@ gui_prefs_apply(GtkWidget *w _U_)
 			/* We assume this means that the specified size
 			   isn't available. */
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			    "That font font isn't available at the specified zoom level;\n"
+			    "That font isn't available at the specified zoom level;\n"
 			    "turning zooming off.");
 			recent.gui_zoom_level = 0;
 			break;
