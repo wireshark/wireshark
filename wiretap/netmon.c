@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.58 2002/07/29 06:09:59 guy Exp $
+ * $Id: netmon.c,v 1.59 2002/08/13 03:26:30 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -28,7 +28,9 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
+#include "atm.h"
 #include "netmon.h"
+
 /* The file at
  *
  *	ftp://ftp.microsoft.com/developr/drg/cifs/cifs/Bhfile.zip
@@ -308,6 +310,7 @@ static gboolean netmon_read(wtap *wth, int *err, long *data_offset)
 	}	hdr;
 	int	hdr_size = 0;
 	int	rec_offset;
+	guint8	*data_ptr;
 	time_t	secs;
 	guint32	usecs;
 	double	t;
@@ -413,8 +416,8 @@ static gboolean netmon_read(wtap *wth, int *err, long *data_offset)
 	}
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
-	if (!netmon_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
-	    packet_size, err))
+	data_ptr = buffer_start_ptr(wth->frame_buffer);
+	if (!netmon_read_rec_data(wth->fh, data_ptr, packet_size, err))
 		return FALSE;	/* Read error */
 	wth->data_offset += packet_size;
 
@@ -438,6 +441,13 @@ static gboolean netmon_read(wtap *wth, int *err, long *data_offset)
 	wth->phdr.len = orig_size;
 	wth->phdr.pkt_encap = wth->file_encap;
 
+	/*
+	 * Attempt to guess from the packet data, the VPI, and the VCI
+	 * information about the type of traffic.
+	 */
+	atm_guess_traffic_type(data_ptr, packet_size, wth->pseudo_header.atm.vpi,
+	    wth->pseudo_header.atm.vci, &wth->pseudo_header);
+
 	return TRUE;
 }
 
@@ -459,7 +469,16 @@ netmon_seek_read(wtap *wth, long seek_off,
 	/*
 	 * Read the packet data.
 	 */
-	return netmon_read_rec_data(wth->random_fh, pd, length, err);
+	if (!netmon_read_rec_data(wth->random_fh, pd, length, err))
+		return FALSE;
+
+	/*
+	 * Attempt to guess from the packet data, the VPI, and the VCI
+	 * information about the type of traffic.
+	 */
+	atm_guess_traffic_type(pd, length, pseudo_header->atm.vpi,
+	    pseudo_header->atm.vci, pseudo_header);
+	return TRUE;
 }
 
 static gboolean
@@ -481,17 +500,6 @@ netmon_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 
 	vpi = g_ntohs(atm_phdr.vpi);
 	vci = g_ntohs(atm_phdr.vci);
-
-	/*
-	 * Assume it's AAL5, unless it's VPI 0 and VCI 5, in which case
-	 * assume it's AAL_SIGNALLING; we know nothing more about it.
-	 */
-	if (vpi == 0 && vci == 5)
-		pseudo_header->atm.aal = AAL_SIGNALLING;
-	else
-		pseudo_header->atm.aal = AAL_5;
-	pseudo_header->atm.type = TRAF_UNKNOWN;
-	pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
 
 	pseudo_header->atm.vpi = vpi;
 	pseudo_header->atm.vci = vci;
