@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.19 2002/02/22 11:16:11 guy Exp $
+ * $Id: packet-cops.c,v 1.20 2002/02/22 11:28:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -497,6 +497,18 @@ dissect_cops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * Construct a tvbuff containing the amount of the payload
 		 * we have available.  Make its reported length the
 		 * amount of data in the COPS packet.
+		 *
+		 * XXX - if reassembly isn't enabled. the subdissector
+		 * will throw a BoundsError exception, rather than a
+		 * ReportedBoundsError exception.  We really want
+		 * a tvbuff where the length is "length", the reported
+		 * length is "plen + 2", and the "if the snapshot length
+		 * were infinite" length were the minimum of the
+		 * reported length of the tvbuff handed to us and "plen+2",
+		 * with a new type of exception thrown if the offset is
+		 * within the reported length but beyond that third length,
+		 * with that exception getting the "Unreassembled Packet"
+		 * error.
 		 */
 		length = length_remaining;
 		if ((guint32)length > msg_len)

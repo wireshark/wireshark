@@ -7,7 +7,7 @@
  * Routine to dissect RFC 1006 TPKT packet containing OSI TP PDU
  * Copyright 2001, Martin Thomas <Martin_A_Thomas@yahoo.com>
  *
- * $Id: packet-tpkt.c,v 1.12 2002/02/22 08:56:46 guy Exp $
+ * $Id: packet-tpkt.c,v 1.13 2002/02/22 11:28:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,6 +47,7 @@
 #include <string.h>
 
 #include "packet-tpkt.h"
+#include "packet-frame.h"
 #include "prefs.h"
 
 /* TPKT header fields             */
@@ -207,6 +208,18 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * Construct a tvbuff containing the amount of the payload
 		 * we have available.  Make its reported length the
 		 * amount of data in this TPKT packet.
+		 *
+		 * XXX - if reassembly isn't enabled. the subdissector
+		 * will throw a BoundsError exception, rather than a
+		 * ReportedBoundsError exception.  We really want
+		 * a tvbuff where the length is "length", the reported
+		 * length is "plen + 2", and the "if the snapshot length
+		 * were infinite" length were the minimum of the
+		 * reported length of the tvbuff handed to us and "plen+2",
+		 * with a new type of exception thrown if the offset is
+		 * within the reported length but beyond that third length,
+		 * with that exception getting the "Unreassembled Packet"
+		 * error.
 		 */
 		length = length_remaining - 4;
 		if (length > data_len)
@@ -215,8 +228,27 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/*
 		 * Call the subdissector.
+		 *
+		 * Catch the ReportedBoundsError exception; if this
+		 * particular message happens to get a ReportedBoundsError
+		 * exception, that doesn't mean that we should stop
+		 * dissecting TPKT messages within this frame or chunk
+		 * of reassembled data.
+		 *
+		 * If it gets a BoundsError, we can stop, as there's nothing
+		 * more to see, so we just re-throw it.
 		 */
-		call_dissector(subdissector_handle, next_tvb, pinfo, tree);
+		TRY {
+			call_dissector(subdissector_handle, next_tvb, pinfo,
+			    tree);
+		}
+		CATCH(BoundsError) {
+			RETHROW;
+		}
+		CATCH(ReportedBoundsError) {
+			show_reported_bounds_error(tvb, pinfo, tree);
+		}
+		ENDTRY;
 
 		/*
 		 * Skip the payload.

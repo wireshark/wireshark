@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.81 2002/02/22 08:45:02 guy Exp $
+ * $Id: packet-dns.c,v 1.82 2002/02/22 11:28:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 #include "ipproto.h"
 #include <epan/resolv.h>
 #include "packet-dns.h"
+#include "packet-frame.h"
 #include "prefs.h"
 
 static int proto_dns = -1;
@@ -2012,6 +2013,18 @@ dissect_dns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * Construct a tvbuff containing the amount of the payload
 		 * we have available.  Make its reported length the
 		 * amount of data in the DNS-over-TCP packet.
+		 *
+		 * XXX - if reassembly isn't enabled. the subdissector
+		 * will throw a BoundsError exception, rather than a
+		 * ReportedBoundsError exception.  We really want
+		 * a tvbuff where the length is "length", the reported
+		 * length is "plen + 2", and the "if the snapshot length
+		 * were infinite" length were the minimum of the
+		 * reported length of the tvbuff handed to us and "plen+2",
+		 * with a new type of exception thrown if the offset is
+		 * within the reported length but beyond that third length,
+		 * with that exception getting the "Unreassembled Packet"
+		 * error.
 		 */
 		length = length_remaining;
 		if (length > plen + 2)
@@ -2020,8 +2033,26 @@ dissect_dns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/*
 		 * Dissect the DNS-over-TCP packet.
+		 *
+		 * Catch the ReportedBoundsError exception; if this
+		 * particular message happens to get a ReportedBoundsError
+		 * exception, that doesn't mean that we should stop
+		 * dissecting COPS messages within this frame or chunk
+		 * of reassembled data.
+		 *
+		 * If it gets a BoundsError, we can stop, as there's nothing
+		 * more to see, so we just re-throw it.
 		 */
-		dissect_dns_common(next_tvb, plen, pinfo, tree, TRUE);
+		TRY {
+			dissect_dns_common(next_tvb, plen, pinfo, tree, TRUE);
+		}
+		CATCH(BoundsError) {
+			RETHROW;
+		}
+		CATCH(ReportedBoundsError) {
+			show_reported_bounds_error(tvb, pinfo, tree);
+		}
+		ENDTRY;
 
 		/*
 		 * Skip the DNS-over-TCP header and the payload.
