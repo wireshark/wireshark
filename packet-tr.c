@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-tr.c,v 1.59 2001/02/05 02:06:27 guy Exp $
+ * $Id: packet-tr.c,v 1.60 2001/02/23 17:19:52 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -364,7 +364,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * see if there's a SNAP or IPX field right after
 	 * my RIF fields.
 	 */
-	if (!source_routed && trn_rif_bytes > 0) {
+	if (frame_type == 1 && !source_routed && trn_rif_bytes > 0) {
 		TRY {
 
 			c1_nonsr = tvb_get_guint8(tr_tvb, 14);
@@ -404,8 +404,8 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	in front of the other #ifdef linux. If we're sniffing our own NIC,
 	 we get a full RIF, sometimes with garbage */
 	TRY {
-		if ((source_routed && trn_rif_bytes == 2 && frame_type == 1) ||
-			(!source_routed && frame_type == 1)) {
+		if (frame_type == 1 && ( (source_routed && trn_rif_bytes == 2) ||
+					 !source_routed) ) {
 			/* look for SNAP or IPX only */
 			if ( 	
 				(tvb_get_ntohs(tr_tvb, 0x20) == 0xaaaa &&
