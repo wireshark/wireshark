@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs.c,v 1.21 2000/11/03 19:27:11 nneul Exp $
+ * $Id: packet-afs.c,v 1.22 2000/11/03 22:11:36 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -509,20 +509,26 @@ dissect_fs_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	struct rx_header *rxh;
 	unsigned char *data;
 	int doffset, curoffset;
+	int seq;
 
 	rxh = (struct rx_header *) &pd[offset];
 	data = (char *)rxh + sizeof(struct rx_header);
 	doffset = offset + sizeof(struct rx_header);
 	curoffset = doffset;
 
+	seq = pntohl(&rxh->seq);
+
 	if ( rxh->type == RX_PACKET_TYPE_DATA )
 	{
 		switch ( opcode )
 		{
 			case 130: /* fetch data */
-				OUT_FS_AFSFetchStatus("Status");
-				OUT_FS_AFSCallBack();
-				OUT_FS_AFSVolSync();
+				if ( seq == 1 ) /* only on first packet */
+				{
+					OUT_FS_AFSFetchStatus("Status");
+					OUT_FS_AFSCallBack();
+					OUT_FS_AFSVolSync();
+				}
 				OUT_BYTES_ALL(hf_afs_fs_data);
 				break;
 			case 131: /* fetch acl */
@@ -852,8 +858,120 @@ dissect_bos_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	{
 		switch ( opcode )
 		{
+			case 80: /* create bnode */
+				/* no output */
+				break;
+			case 81: /* delete bnode */
+				/* no output */
+				break;
+			case 82: /* set status */
+				/* no output */
+				break;
+			case 83: /* get status */
+				OUT_INT(hf_afs_bos_status);
+				OUT_STRING(hf_afs_bos_statusdesc);
+				break;
+			case 84: /* enumerate instance */
+				OUT_STRING(hf_afs_bos_instance);
+				break;
 			case 85: /* get instance info */
 				OUT_STRING(hf_afs_bos_type);
+				OUT_BOS_STATUS();
+				break;
+			case 86: /* get instance parm */
+				OUT_STRING(hf_afs_bos_parm);
+				break;
+			case 87: /* add siperuser */
+				/* no output */
+				break;
+			case 88: /* delete superuser */
+				/* no output */
+				break;
+			case 89: /* list superusers */
+				OUT_STRING(hf_afs_bos_user);
+				break;
+			case 90: /* list keys */
+				OUT_UINT(hf_afs_bos_kvno);
+				OUT_BOS_KEY();
+				OUT_BOS_KEYINFO();
+				break;
+			case 91: /* add key */
+				/* no output */
+				break;
+			case 92: /* delete key */
+				/* no output */
+				break;
+			case 93: /* set cell name */
+				/* no output */
+				break;
+			case 94: /* get cell name */
+				OUT_STRING(hf_afs_bos_cell);
+				break;
+			case 95: /* get cell host */
+				OUT_STRING(hf_afs_bos_host);
+				break;
+			case 96: /* add cell host */
+				/* no output */
+				break;
+			case 97: /* delete cell host */
+				/* no output */
+				break;
+			case 98: /* set tstatus */
+				/* no output */
+				break;
+			case 99: /* shutdown all */
+				/* no output */
+				break;
+			case 100: /* restart all */
+				/* no output */
+				break;
+			case 101: /* startup all */
+				/* no output */
+				break;
+			case 102: /* set noauth flag */
+				/* no output */
+				break;
+			case 103: /* rebozo */
+				/* no output */
+				break;
+			case 104: /* restart */
+				/* no output */
+				break;
+			case 105: /* install */
+				/* no output */
+				break;
+			case 106: /* uninstall */
+				/* no output */
+				break;
+			case 107: /* get dates */
+				OUT_DATE(hf_afs_bos_newtime);
+				OUT_DATE(hf_afs_bos_baktime);
+				OUT_DATE(hf_afs_bos_oldtime);
+				break;
+			case 108: /* exec */
+				/* no output */
+				break;
+			case 109: /* prune */
+				/* no output */
+				break;
+			case 110: /* set restart time */
+				/* no output */
+				break;
+			case 111: /* get restart time */
+				OUT_BOS_TIME();
+				break;
+			case 112: /* get log */
+				/* need to make this dump a big string somehow */
+				OUT_BYTES_ALL(hf_afs_bos_data);
+				break;
+			case 113: /* wait all */
+				/* no output */
+				break;
+			case 114: /* get instance strings */
+				OUT_STRING(hf_afs_bos_error);
+				OUT_STRING(hf_afs_bos_spare1);
+				OUT_STRING(hf_afs_bos_spare2);
+				OUT_STRING(hf_afs_bos_spare3);
 				break;
 		}
 	}
@@ -882,44 +1000,119 @@ dissect_bos_request(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 		case 80: /* create b node */
 			OUT_STRING(hf_afs_bos_type);
 			OUT_STRING(hf_afs_bos_instance);
+			OUT_STRING(hf_afs_bos_parm);
+			OUT_STRING(hf_afs_bos_parm);
+			OUT_STRING(hf_afs_bos_parm);
+			OUT_STRING(hf_afs_bos_parm);
+			OUT_STRING(hf_afs_bos_parm);
+			OUT_STRING(hf_afs_bos_parm);
 			break;
 		case 81: /* delete b node */
-		case 83: /* get status */
-		case 85: /* get instance info */
-		case 87: /* add super user */
-		case 88: /* delete super user */
-		case 93: /* set cell name */
-		case 96: /* add cell host */
-		case 97: /* delete cell host */
-		case 104: /* restart */
-		case 106: /* uninstall */
-		case 108: /* exec */
-		case 112: /* get log */
-		case 114: /* get instance strings */
-			OUT_STRING(hf_afs_bos_content);
+			OUT_STRING(hf_afs_bos_instance);
 			break;
 		case 82: /* set status */
-		case 98: /* set t status */
-			OUT_STRING(hf_afs_bos_content);
+			OUT_STRING(hf_afs_bos_instance);
 			OUT_UINT(hf_afs_bos_status);
+			break;
+		case 83: /* get status */
+			OUT_STRING(hf_afs_bos_instance);
+			break;
+		case 84: /* enumerate instance */
+			OUT_UINT(hf_afs_bos_num);
+			break;
+		case 85: /* get instance info */
+			OUT_STRING(hf_afs_bos_instance);
 			break;
 		case 86: /* get instance parm */
 			OUT_STRING(hf_afs_bos_instance);
 			OUT_UINT(hf_afs_bos_num);
 			break;
-		case 84: /* enumerate instance */
+		case 87: /* add super user */
+			OUT_STRING(hf_afs_bos_user);
+			break;
+		case 88: /* delete super user */
+			OUT_STRING(hf_afs_bos_user);
+			break;
 		case 89: /* list super users */
+			OUT_UINT(hf_afs_bos_num);
+			break;
 		case 90: /* list keys */
+			OUT_UINT(hf_afs_bos_num);
+			break;
 		case 91: /* add key */
+			OUT_UINT(hf_afs_bos_num);
+			OUT_BOS_KEY();
+			break;
 		case 92: /* delete key */
+			OUT_UINT(hf_afs_bos_num);
+			break;
+		case 93: /* set cell name */
+			OUT_STRING(hf_afs_bos_content);
+			break;
 		case 95: /* set cell host */
 			OUT_UINT(hf_afs_bos_num);
 			break;
-		case 105: /* install */
+		case 96: /* add cell host */
 			OUT_STRING(hf_afs_bos_content);
+			break;
+		case 97: /* delete cell host */
+			OUT_STRING(hf_afs_bos_content);
+			break;
+		case 98: /* set t status */
+			OUT_STRING(hf_afs_bos_content);
+			OUT_UINT(hf_afs_bos_status);
+			break;
+		case 99: /* shutdown all */
+			/* no params */
+			break;
+		case 100: /* restart all */
+			/* no params */
+			break;
+		case 101: /* startup all */
+			/* no params */
+			break;
+		case 102: /* set no-auth flag */
+			OUT_UINT(hf_afs_bos_flags);
+			break;
+		case 103: /* re-bozo? */
+			/* no params */
+			break;
+		case 104: /* restart */
+			OUT_STRING(hf_afs_bos_instance);
+			break;
+		case 105: /* install */
+			OUT_STRING(hf_afs_bos_path);
 			OUT_UINT(hf_afs_bos_size);
 			OUT_UINT(hf_afs_bos_flags);
 			OUT_UINT(hf_afs_bos_date);
+			break;
+		case 106: /* uninstall */
+			OUT_STRING(hf_afs_bos_path);
+			break;
+		case 107: /* get dates */
+			OUT_STRING(hf_afs_bos_path);
+			break;
+		case 108: /* exec */
+			OUT_STRING(hf_afs_bos_cmd);
+			break;
+		case 109: /* prune */
+			OUT_UINT(hf_afs_bos_flags);
+			break;
+		case 110: /* set restart time */
+			OUT_UINT(hf_afs_bos_num);
+			OUT_BOS_TIME();
+			break;
+		case 111: /* get restart time */
+			OUT_UINT(hf_afs_bos_num);
+			break;
+		case 112: /* get log */
+			OUT_STRING(hf_afs_bos_file);
+			break;
+		case 113: /* wait all */
+			/* no params */
+			break;
+		case 114: /* get instance strings */
+			OUT_STRING(hf_afs_bos_content);
 			break;
 	}
 }

@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-macros.h,v 1.3 2000/11/03 19:27:11 nneul Exp $
+ * $Id: packet-afs-macros.h,v 1.4 2000/11/03 22:11:36 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,6 +62,13 @@
 #define OUT_UINT(field) \
 	TRUNC(sizeof(guint32)) \
 	proto_tree_add_uint(tree,field, NullTVB,curoffset,sizeof(guint32), GETINT()); \
+	curoffset += 4;
+
+/* Output a unsigned integer, stored into field 'field'
+   Assumes it is in network byte order, converts to host before using */
+#define OUT_INT(field) \
+	TRUNC(sizeof(guint32)) \
+	proto_tree_add_int(tree,field, NullTVB,curoffset,sizeof(gint32), GETINT()); \
 	curoffset += 4;
 	
 /* Output a unsigned integer, stored into field 'field'
@@ -277,10 +284,29 @@
 	}
 
 /* Output a AFSCBs */
-#define OUT_FS_AFSCBs()
+#define OUT_FS_AFSCBs()	\
+	{ \
+		unsigned int j,i; \
+		TRUNC(1); \
+		j = pntohl(&pd[curoffset]); \
+		curoffset += 1; \
+		for (i=0; i<j; i++) { \
+			OUT_FS_AFSCallBack(); \
+		} \
+	}
+
 
 /* Output a AFSBulkStats */
-#define OUT_FS_AFSBulkStats()
+#define OUT_FS_AFSBulkStats() \
+	{ \
+		unsigned int j,i; \
+		TRUNC(1); \
+		j = pntohl(&pd[curoffset]); \
+		curoffset += 1; \
+		for (i=0; i<j; i++) { \
+			OUT_FS_AFSFetchStatus("Status"); \
+		} \
+	}
 
 /* Output a AFSFetchVolumeStatus */
 #define OUT_FS_AFSFetchVolumeStatus()
@@ -298,7 +324,7 @@
 #define OUT_FS_VolumeInfo()
 
 /* Output an AFS Token - might just be bytes though */
-#define OUT_FS_AFSTOKEN()
+#define OUT_FS_AFSTOKEN() VECOUT(hf_afs_fs_token, 1024)
 
 /* Output a AFS acl */
 #define ACLOUT(who, positive, acl, bytes) \
@@ -332,11 +358,27 @@
 		tree = save; \
 	}
 
+/* output a bozo_key */
+#define OUT_BOS_KEY() \
+	OUT_BYTES(hf_afs_bos_key, 8);
+
+/* output a bozo_key */
+#define OUT_BOS_KEYINFO() \
+	OUT_BYTES(hf_afs_bos_key, 4*4);
+
+/* output a bozo_netKTime */
+#define OUT_BOS_TIME() \
+	SKIP(4); SKIP(2); SKIP(2); SKIP(2); SKIP(2);
+
+/* output a bozo_status */
+#define OUT_BOS_STATUS() \
+	SKIP(10 * 4);
+
 /* Skip a certain number of bytes */
 #define SKIP(bytes) \
 	TRUNC(bytes) \
 	curoffset += bytes;
-
+	
 /* Raw data - to end of frame */
 #define OUT_BYTES_ALL(field) OUT_BYTES(field, offset+END_OF_FRAME-curoffset)
 
@@ -352,12 +394,17 @@
 #define OUT_STRING(field) \
 	{	int i; \
 		TRUNC(4); \
-		i = pntohl(&pd[curoffset]); \
+		i = GETINT(); \
 		curoffset += 4; \
-		TRUNC(i); \
 		if ( i > 0 ) { \
+			char *tmp; \
+			TRUNC(i); \
+			tmp = g_malloc(i+1); \
+			memcpy(tmp, &pd[curoffset], i); \
+			tmp[i] = '\0'; \
 			proto_tree_add_string(tree, field, NullTVB, curoffset-4, i+4, \
-			(void *)&pd[curoffset]); \
+			(void *)tmp); \
+			g_free(tmp); \
 		} else { \
 			proto_tree_add_string(tree, field, NullTVB, curoffset-4, 4, \
 			""); \

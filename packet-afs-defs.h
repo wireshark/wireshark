@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-defs.h,v 1.3 2000/11/03 19:27:11 nneul Exp $
+ * $Id: packet-afs-defs.h,v 1.4 2000/11/03 22:11:36 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -469,6 +469,13 @@ static const value_string ubik_lock_types[] = {
 	{ 0,		NULL },
 };
 
+static const value_string xstat_collections[] = {
+	{ 0,		"call counting & info" },
+	{ 1,		"performance info" },
+	{ 2,		"full performance info" },
+	{ 0,		NULL },
+};
+
 static const value_string vice_lock_types[] = {
 	{ 0,		"read" },
 	{ 1,		"write" },
@@ -539,6 +546,7 @@ static int hf_afs_fs_cps_spare3 = -1;
 static int hf_afs_fs_vicelocktype = -1;
 static int hf_afs_fs_viceid = -1;
 static int hf_afs_fs_ipaddr = -1;
+static int hf_afs_fs_token = -1;
 
 static int hf_afs_fs_status_anonymousaccess = -1;
 static int hf_afs_fs_status_author = -1;
@@ -596,11 +604,29 @@ static int hf_afs_bos_errcode = -1;
 static int hf_afs_bos_type = -1;
 static int hf_afs_bos_instance = -1;
 static int hf_afs_bos_status = -1;
+static int hf_afs_bos_statusdesc = -1;
 static int hf_afs_bos_num = -1;
 static int hf_afs_bos_size = -1;
 static int hf_afs_bos_flags = -1;
 static int hf_afs_bos_date = -1;
 static int hf_afs_bos_content = -1;
+static int hf_afs_bos_user = -1;
+static int hf_afs_bos_key = -1;
+static int hf_afs_bos_path = -1;
+static int hf_afs_bos_file = -1;
+static int hf_afs_bos_cmd = -1;
+static int hf_afs_bos_error = -1;
+static int hf_afs_bos_spare1 = -1;
+static int hf_afs_bos_spare2 = -1;
+static int hf_afs_bos_spare3 = -1;
+static int hf_afs_bos_parm = -1;
+static int hf_afs_bos_kvno = -1;
+static int hf_afs_bos_cell = -1;
+static int hf_afs_bos_host = -1;
+static int hf_afs_bos_newtime = -1;
+static int hf_afs_bos_baktime = -1;
+static int hf_afs_bos_oldtime = -1;
+static int hf_afs_bos_data = -1;
 
 static int hf_afs_vldb_errcode = -1;
 static int hf_afs_vldb_name = -1;
