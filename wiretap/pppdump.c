@@ -1,6 +1,6 @@
 /* pppdump.c
  *
- * $Id: pppdump.c,v 1.20 2002/07/14 10:59:38 guy Exp $
+ * $Id: pppdump.c,v 1.21 2002/07/15 08:45:32 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  * 
@@ -38,18 +38,21 @@ pppdump records
 Daniel Thompson (STMicroelectronics) <daniel.thompson@st.com>
 
 +------+
-| 0x07 +------+------+------+         Reset time
+| 0x07 |                              Reset time
++------+------+------+------+
 |  t3  |  t2  |  t1  |  t0  |         t = time_t
 +------+------+------+------+
 
 +------+
 | 0x06 |                              Time step (short)
-|  ts  |                              ts = time step (tenths)
++------+
+|  ts  |                              ts = time step (tenths of seconds)
 +------+
 
 +------+
-| 0x05 +------+------+------+         Time step (long)
-| ts3  | ts2  | ts1  | ts0  |         ts = time step (tenths)
+| 0x05 |                              Time step (long)
++------+------+------+------+
+| ts3  | ts2  | ts1  | ts0  |         ts = time step (tenths of seconds)
 +------+------+------+------+
 
 +------+
@@ -61,14 +64,18 @@ Daniel Thompson (STMicroelectronics) <daniel.thompson@st.com>
 +------+
 
 +------+
-| 0x02 +------+                       Received data
+| 0x02 |                              Received data
++------+------+
 |  n1  |  n0  |                       n = number of bytes following
++------+------+
 |    data     |
 |             |
 
 +------+
-| 0x01 +------+                       Sent data
+| 0x01 |                              Sent data
++------+------+
 |  n1  |  n0  |                       n = number of bytes following
++------+------+
 |    data     |
 |             |
 */
@@ -80,8 +87,6 @@ Daniel Thompson (STMicroelectronics) <daniel.thompson@st.com>
 #define PPPD_TIME_STEP_LONG	0x05
 #define PPPD_TIME_STEP_SHORT	0x06
 #define PPPD_RESET_TIME		0x07
-
-#define PPPD_NULL		0x00	/* For my own use */
 
 /* this buffer must be at least (2*PPPD_MTU) + sizeof(ppp_header) + sizeof(lcp_header) + 
  * sizeof(ipcp_header). PPPD_MTU is *very* rarely larger than 1500 so this value is fine
@@ -97,39 +102,108 @@ static gboolean pppdump_read(wtap *wth, int *err, long *data_offset);
 static gboolean pppdump_seek_read(wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err);
 
+/*
+ * Information saved about a packet, during the initial sequential pass
+ * through the file, to allow us to later re-read it when randomly
+ * reading packets.
+ *
+ * "offset" is the offset in the file of the first data chunk containing data
+ * from that packet; note that it may also contain data from previous
+ * packets.
+ *
+ * "num_bytes_to_skip" is the number of bytes from previous packets in that
+ * first data chunk.
+ *
+ * "dir" is the direction of the packet.
+ */
 typedef struct {
 	long		offset;
-	int		num_saved_states;
+	int		num_bytes_to_skip;
 	direction_enum	dir;
 } pkt_id;
 
+/*
+ * Information about a packet currently being processed.  There is one of
+ * these for the sent packet being processed and one of these for the
+ * received packet being processed, as we could be in the middle of
+ * processing both a received packet and a sent packet.
+ *
+ * "dir" is the direction of the packet.
+ *
+ * "cnt" is the number of bytes of packet data we've accumulated.
+ *
+ * "esc" is TRUE if the next byte we see is escaped (and thus must be XORed
+ * with 0x20 before saving it), FALSE otherwise.
+ *
+ * "buf" is a buffer containing the packet data we've accumulated.
+ *
+ * "id_offset" is the offset in the file of the first data chunk
+ * containing data from the packet we're processing.
+ *
+ * "sd_offset" is the offset in the file of the first data byte from
+ * the packet we're processing - which isn't necessarily right after
+ * the header of the first data chunk, as we may already have assembled
+ * packets from that chunk.
+ *
+ * "cd_offset" is the offset in the file of the current data chunk we're
+ * processing.
+ */
 typedef struct {
 	direction_enum	dir;
 	int		cnt;
 	gboolean	esc;
 	guint8		buf[PPPD_BUF_SIZE];
 	long		id_offset;
+	long		sd_offset;
+	long		cd_offset;
 } pkt_t;
 
-/* Partial-record state */
-typedef struct {
-	int		num_bytes;
-	pkt_t		*pkt;
-} prec_state;
-
-struct _pppdump_t;
-
+/*
+ * This keeps state used while processing records.
+ *
+ * "timestamp" is the seconds portion of the current time stamp value,
+ * as updated from PPPD_RESET_TIME, PPPD_TIME_STEP_LONG, and
+ * PPPD_TIME_STEP_SHORT records.  "tenths" is the tenths-of-seconds
+ * portion.
+ *
+ * "spkt" and "rpkt" are "pkt_t" structures for the sent and received
+ * packets we're currently working on.
+ *
+ * "offset" is the current offset in the file.
+ *
+ * "num_bytes" and "pkt" are information saved when we finish accumulating
+ * the data for a packet, if the data chunk we're working on still has more
+ * data in it:
+ *
+ *	"num_bytes" is the number of bytes of additional data remaining
+ *	in the chunk after we've finished accumulating the data for the
+ *	packet.
+ *
+ *	"pkt" is the "pkt_t" for the type of packet the data chunk is for
+ *	(sent or received packet).
+ *
+ * "seek_state" is another state structure used while processing records
+ * when doing a seek-and-read.  (That structure doesn't itself have a
+ * "seek_state" structure.)
+ *
+ * "pids" is a GPtrArray of pointers to "pkt_id" structures for all the
+ * packets we've seen during the initial sequential pass, to allow us to
+ * later retrieve them with random accesses.
+ *
+ * "pkt_cnt" is the number of packets we've seen up to this point in the
+ * sequential pass.
+ */
 typedef struct _pppdump_t {
 	time_t			timestamp;
 	guint			tenths;
 	pkt_t			spkt;
 	pkt_t			rpkt;
 	long			offset;
-	GList			*precs;
+	int			num_bytes;
+	pkt_t			*pkt;
 	struct _pppdump_t	*seek_state;
 	GPtrArray		*pids;
 	guint			pkt_cnt;
-	int			num_saved_states;
 } pppdump_t;
 
 static int
@@ -138,7 +212,7 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd, int *er
 
 static gboolean
 collate(pppdump_t*, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
-		direction_enum *direction, pkt_id *pid);
+		direction_enum *direction, pkt_id *pid, int num_bytes_to_skip);
 
 static void
 pppdump_close(wtap *wth);
@@ -147,17 +221,22 @@ static void
 init_state(pppdump_t *state)
 {
 
-	state->precs = NULL;
+	state->num_bytes = 0;
+	state->pkt = NULL;
 
 	state->spkt.dir = DIRECTION_SENT;
 	state->spkt.cnt = 0;
 	state->spkt.esc = FALSE;
 	state->spkt.id_offset = 0;
+	state->spkt.sd_offset = 0;
+	state->spkt.cd_offset = 0;
 
 	state->rpkt.dir = DIRECTION_RECV;
 	state->rpkt.cnt = 0;
 	state->rpkt.esc = FALSE;
 	state->rpkt.id_offset = 0;
+	state->rpkt.sd_offset = 0;
+	state->rpkt.cd_offset = 0;
 
 	state->seek_state = NULL;
 	state->offset = 0x100000; /* to detect errors during development */
@@ -217,7 +296,6 @@ pppdump_open(wtap *wth, int *err)
 
 	state->pids = g_ptr_array_new();
 	state->pkt_cnt = 0;
-	state->num_saved_states = 0;
 
 	return 1;
 }
@@ -226,7 +304,6 @@ pppdump_open(wtap *wth, int *err)
 static gboolean
 pppdump_read(wtap *wth, int *err, long *data_offset)
 {
-	gboolean	retval;
 	int		num_bytes;
 	direction_enum	direction;
 	guint8		*buf;
@@ -243,11 +320,9 @@ pppdump_read(wtap *wth, int *err, long *data_offset)
 		return FALSE;
 	}
 	pid->offset = 0;
-	pid->num_saved_states = 0;
 
-	retval = collate(state, wth->fh, err, buf, &num_bytes, &direction, pid);
-
-	if (!retval) {
+	if (!collate(state, wth->fh, err, buf, &num_bytes, &direction,
+	    pid, 0)) {
 		g_free(pid);
 		return FALSE;
 	}
@@ -269,41 +344,6 @@ pppdump_read(wtap *wth, int *err, long *data_offset)
 
 	return TRUE;
 }
-
-#define PKT(x)	(x)->dir == DIRECTION_SENT ? "SENT" : "RECV"
-
-static gboolean
-save_prec_state(pppdump_t *state, int num_bytes, pkt_t *pkt)
-{
-	prec_state	*prec;
-
-	prec = g_new(prec_state, 1);
-	if (!prec) {
-		return FALSE;
-	}
-	prec->num_bytes = num_bytes;
-	prec->pkt = pkt;
-
-	state->precs = g_list_append(state->precs, prec);
-	return TRUE;
-}
-
-static int
-process_data_from_prec_state(pppdump_t *state, FILE_T fh, guint8* pd, int *err,
-		gboolean *state_saved, pkt_t **ppkt)
-{
-	prec_state	*prec;
-
-	prec = state->precs->data;
-
-	state->precs = g_list_remove(state->precs, prec);
-
-	*ppkt = prec->pkt;
-
-	return process_data(state, fh, prec->pkt, prec->num_bytes, pd, err, state_saved);
-}
-	
-
 
 /* Returns number of bytes copied for record, -1 if failure.
  *
@@ -370,12 +410,19 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd, int *er
 
 					num_bytes--;
 					if (num_bytes > 0) {
-						if (!save_prec_state(state, num_bytes, pkt)) {
-							*err = errno;
-							return -1;
-						}
+						/*
+						 * There's data left in
+						 * this record, so set
+						 * up information for
+						 * the next packet to
+						 * use that data.
+						 */
+						pkt->id_offset = pkt->cd_offset;
+						pkt->sd_offset = state->offset;
 						*state_saved = TRUE;
 					}
+					state->num_bytes = num_bytes;
+					state->pkt = pkt;
 					return num_written;
 				}
 				break;
@@ -426,7 +473,6 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd, int *er
 
 	/* we could have run out of bytes to read */
 	return 0;
-
 }
 
 
@@ -435,7 +481,7 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd, int *er
 /* Returns TRUE if packet data copied, FALSE if error occurred or EOF (no more records). */
 static gboolean
 collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
-		direction_enum *direction, pkt_id *pid)
+		direction_enum *direction, pkt_id *pid, int num_bytes_to_skip)
 {
 	int		id;
 	pkt_t		*pkt = NULL;
@@ -444,38 +490,66 @@ collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
 	guint32		time_long;
 	guint8		time_short;
 
-	if (!state->precs) {
-		state->num_saved_states = 0;
-	}
-	if (pid) {
-		pid->num_saved_states = state->num_saved_states;
-	}
-
-
-	while (state->precs) {
-		num_written = process_data_from_prec_state(state, fh, pd, err, &ss, &pkt);
-		state->num_saved_states++;
-		if (pid) {
-			pid->num_saved_states++;
-		}
+	/*
+	 * Process any data left over in the current record when doing
+	 * sequential processing.
+	 */
+	if (state->num_bytes > 0) {
+		g_assert(num_bytes_to_skip == 0);
+		pkt = state->pkt;
+		num_written = process_data(state, fh, pkt, state->num_bytes,
+		    pd, err, &ss);
 
 		if (num_written < 0) {
 			return FALSE;
 		}
-		else if (num_written > 0) {
+
+		/*
+		 * Well, we processed some of the data in this record.
+		 * Remember where the record started, and how far into
+		 * that record to skip to get to the beginning of the
+		 * data for this packet; the number of bytes to skip
+		 * into that record is the file offset of the first
+		 * byte of this packet minus the file offset of the
+		 * first byte of this record, minus 3 bytes for the
+		 * header of this record (which, if we re-read this
+		 * record, we will process, not skip).
+		 */
+		if (pid) {
+			pid->offset = pkt->id_offset;
+			pid->num_bytes_to_skip =
+			    pkt->sd_offset - pkt->id_offset - 3;
+			g_assert(pid->num_bytes_to_skip >= 0);
+		}
+		if (num_written > 0) {
 			*num_bytes = num_written;
 			*direction = pkt->dir;
-			if (pid) {
-				pid->offset = pkt->id_offset;
-			}
 			if (!ss) {
+				/*
+				 * We haven't saved any state, which means
+				 * there is no more data in this record.
+				 * Thus, we don't have the initial data
+				 * offset for the next packet.
+				 */
 				pkt->id_offset = 0;
+				pkt->sd_offset = 0;
 			}
 			return TRUE;
 		}
 		/* if 0 bytes written, keep processing */
+	} else {
+		/*
+		 * We didn't have any data left over, so the packet will
+		 * start at the beginning of a record.
+		 */
+		if (pid)
+			pid->num_bytes_to_skip = 0;
 	}
 
+	/*
+	 * That didn't get all the data for this packet, so process
+	 * subsequent records.
+	 */
 	while ((id = file_getc(fh)) != EOF) {
 		state->offset++;
 		switch (id) {
@@ -483,15 +557,45 @@ collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
 			case PPPD_RECV_DATA:
 				pkt = id == PPPD_SENT_DATA ? &state->spkt : &state->rpkt;
 
-				if (pkt->id_offset == 0) {
-					pkt->id_offset = state->offset - 1;
-				}
+				/*
+				 * Save the offset of the beginning of
+				 * the current record.
+				 */
+				pkt->cd_offset = state->offset - 1;
 
+				/*
+				 * Get the length of the record.
+				 */
 				n = file_getc(fh);
 				n = (n << 8) + file_getc(fh);
 				state->offset += 2;
 
-				num_written = process_data(state, fh, pkt, n, pd, err, &ss);
+				if (pkt->id_offset == 0) {
+					/*
+					 * We don't have the initial data
+					 * offset for this packet, which
+					 * means this is the first
+					 * data record for that packet.
+					 * Save the offset of the
+					 * beginning of that record and
+					 * the offset of the first data
+					 * byte in the packet, which is
+					 * the first data byte in the
+					 * record.
+					 */
+					pkt->id_offset = pkt->cd_offset;
+					pkt->sd_offset = state->offset;
+				}
+
+				g_assert(num_bytes_to_skip < n);
+				while (num_bytes_to_skip) {
+					file_getc(fh);
+					state->offset++;
+					num_bytes_to_skip--;
+					n--;
+				}
+				num_written = process_data(state, fh, pkt, n,
+				    pd, err, &ss);
 
 				if (num_written < 0) {
 					return FALSE;
@@ -501,9 +605,23 @@ collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
 					*direction = pkt->dir;
 					if (pid) {
 						pid->offset = pkt->id_offset;
+						pid->num_bytes_to_skip =
+						    pkt->sd_offset -
+						    pkt->id_offset - 3;
+						g_assert(pid->num_bytes_to_skip >= 0);
 					}
 					if (!ss) {
+						/*
+						 * We haven't saved any
+						 * state, which means there
+						 * is no more data in this
+						 * record.  Thus, we
+						 * don't have the initial
+						 * data offset for the
+						 * next packet.
+						 */
 						pkt->id_offset = 0;
+						pkt->sd_offset = 0;
 					}
 					return TRUE;
 				}
@@ -564,7 +682,7 @@ collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
 
 /* Used to read packets in random-access fashion */
 static gboolean
-pppdump_seek_read (wtap *wth,
+pppdump_seek_read(wtap *wth,
 		 long seek_off,
 		 union wtap_pseudo_header *pseudo_header,
 		 guint8 *pd,
@@ -573,11 +691,9 @@ pppdump_seek_read (wtap *wth,
 {
 	int		num_bytes;
 	direction_enum	direction;
-	gboolean	retval;
 	pppdump_t	*state;
 	pkt_id		*pid;
-	int		i;
-
+	int		num_bytes_to_skip;
 
 	state = wth->capture.generic;
 
@@ -591,20 +707,26 @@ pppdump_seek_read (wtap *wth,
 		return FALSE;
 
 	init_state(state->seek_state);
+	state->seek_state->offset = pid->offset;
 
-	for (i = 0 ; i <= pid->num_saved_states; i++) {
-	  again:
-		retval = collate(state->seek_state, wth->random_fh, err, pd, &num_bytes,
-				&direction, NULL);
-
-		if (!retval) {
+	/*
+	 * We'll start reading at the first record containing data from
+	 * this packet; however, that doesn't mean "collate()" will
+	 * stop only when we've read that packet, as there might be
+	 * data for packets going in the other direction as well, and
+	 * we might finish processing one of those packets before we
+	 * finish processing the packet we're reading.
+	 *
+	 * Therefore, we keep reading until we get a packet that's
+	 * going in the direction we want.
+	 */
+	num_bytes_to_skip = pid->num_bytes_to_skip;
+	do {
+		if (!collate(state->seek_state, wth->random_fh, err, pd,
+		    &num_bytes, &direction, NULL, num_bytes_to_skip))
 			return FALSE;
-		}
-
-		if (direction != pid->dir) {
-			goto again;
-		}
-	}
+		num_bytes_to_skip = 0;
+	} while (direction != pid->dir);
 
 	if (len != num_bytes) {
 		*err = WTAP_ERR_BAD_RECORD;	/* XXX - better error? */
@@ -617,23 +739,11 @@ pppdump_seek_read (wtap *wth,
 }
 
 static void
-simple_g_free(gpointer data, gpointer dummy _U_)
-{
-	if (data)
-		g_free(data);
-}
-
-static void
 pppdump_close(wtap *wth)
 {
 	pppdump_t	*state;
 
 	state = wth->capture.generic;
-
-	if (state->precs) {
-		g_list_foreach(state->precs, simple_g_free, NULL);
-		g_list_free(state->precs);
-	}
 
 	if (state->seek_state) { /* should always be TRUE */
 		g_free(state->seek_state);
