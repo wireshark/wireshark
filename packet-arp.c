@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.55 2003/01/23 04:03:58 guy Exp $
+ * $Id: packet-arp.c,v 1.56 2003/02/10 21:13:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -653,6 +653,7 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static const guint8 mac_broadcast[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+static const guint8 mac_allzero[6] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
 static void
 dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -769,19 +770,21 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint ip;
     const guint8 *mac;
 
-    /* add sender address in all cases */
-
+    /* Add sender address if sender MAC address is neither a broadcast/
+       multicast address nor an all-zero address and if sender IP address
+       isn't all zeroes. */
     tvb_memcpy(tvb, (guint8 *)&ip, spa_offset, sizeof(ip));
-    add_ether_byip(ip, tvb_get_ptr(tvb, sha_offset, 6));
+    mac = tvb_get_ptr(tvb, sha_offset, 6);
+    if ((mac[0] & 0x01) == 0 && memcmp(mac, mac_allzero, 6) != 0 && ip != 0)
+      add_ether_byip(ip, mac);
 
-    if (ar_op == ARPOP_REQUEST) {
-      /* Add target address *if* the target MAC address isn't a
-         broadcast address. */
-      tvb_memcpy(tvb, (guint8 *)&ip, tpa_offset, sizeof(ip));
-      mac = tvb_get_ptr(tvb, tha_offset, 6);
-      if (memcmp(mac, mac_broadcast, 6) != 0)
-        add_ether_byip(ip, mac);
-    }
+    /* Add target address if target MAC address is neither a broadcast/
+       multicast address nor an all-zero address and if target IP address
+       isn't all zeroes. */
+    tvb_memcpy(tvb, (guint8 *)&ip, tpa_offset, sizeof(ip));
+    mac = tvb_get_ptr(tvb, tha_offset, 6);
+    if ((mac[0] & 0x01) == 0 && memcmp(mac, mac_allzero, 6) != 0 && ip != 0)
+      add_ether_byip(ip, mac);
   }
 
   if (tree) {
