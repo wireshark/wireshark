@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.50 2004/01/08 20:05:20 guy Exp $
+ * $Id: packet-bpdu.c,v 1.51 2004/04/13 04:04:55 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  *
@@ -824,4 +824,5 @@ proto_reg_handoff_bpdu(void)
   dissector_add("llc.dsap", SAP_BPDU, bpdu_handle);
   dissector_add("ppp.protocol", PPP_BPDU, bpdu_handle);
   dissector_add("chdlctype", CHDLCTYPE_BPDU, bpdu_handle);
+  dissector_add("llc.cisco_pid", 0x010b, bpdu_handle);
 }

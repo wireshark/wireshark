@@ -2133,6 +2133,7 @@ And assorted fixes and enhancements by the people listed above and by:
 	Chernishov Yury <Chernishov [AT] iskrauraltel.ru>
 	Thomas Palmer <Thomas.Palmer [AT] Gunter.AF.mil>
 	Jon Oberheide <jon [AT] focalhost.com>
+	Clinton Work <clinton [AT] scripty.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
