@@ -348,7 +348,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, guint8 initial_payload,
     if (ntree == NULL)
       break;
     if (payload_length >= 4) {	/* XXX = > 4? */
-      if ((f = getpayload_func(payload)) != NULL)
+      if ((f = getpayload_func(payload)) != NULL && f->func != NULL)
         (*f->func)(tvb, offset + 4, payload_length - 4, ntree, pinfo, -1);
       else {
 	if (payload == 130)
