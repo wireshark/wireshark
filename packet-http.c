@@ -7,7 +7,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.104 2004/05/07 17:36:46 obiot Exp $
+ * $Id: packet-http.c,v 1.105 2004/05/08 10:28:47 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -629,6 +629,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 		next_tvb = tvb_new_subset(tvb, offset, datalen,
 		    reported_datalen);
+		/*
+		 * BEWARE - next_tvb is a subset of another tvb,
+		 * so we MUST NOT attempt tvb_free(next_tvb);
+		 */
 
 		/*
 		 * Handle transfer encodings other than "identity".
@@ -680,6 +684,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * the aformentioned patent.
 			 */
 			tvbuff_t *uncomp_tvb = NULL;
+			proto_item *e_ti = NULL;
+			proto_tree *e_tree = NULL;
 
 			if (http_decompress_body &&
 			    (strcasecmp(headers.content_encoding, "gzip") == 0 ||
@@ -690,36 +696,31 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				    tvb_length(next_tvb));
 			}
 
+			/*
+			 * Add the encoded entity to the protocol tree
+			 */
+			e_ti = proto_tree_add_text(http_tree, next_tvb,
+					0, tvb_length(next_tvb),
+					"Encoded entity-body (%s)",
+					headers.content_encoding);
+			e_tree = proto_item_add_subtree(e_ti,
+					ett_http_encoded_entity);
+
 			if (uncomp_tvb != NULL) {
 				/*
 				 * Decompression worked
 				 */
-				tvb_free(next_tvb);
 				next_tvb = uncomp_tvb;
-				
 				tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 				add_new_data_source(pinfo, next_tvb, 
 				    "Uncompressed entity body");
 			} else {
-
-				proto_item *e_ti = NULL;
-				proto_tree *e_tree = NULL;
-
 				if (chunks_decoded > 1) {
 					tvb_set_child_real_data_tvbuff(tvb,
 					    next_tvb);
 					add_new_data_source(pinfo, next_tvb,
 					    "Compressed entity body");
 				}
-
-				e_ti = proto_tree_add_text(http_tree,
-				    next_tvb, 0, tvb_length(next_tvb),
-				    "Encoded entity-body (%s)",
-				    headers.content_encoding);
-
-				e_tree = proto_item_add_subtree(e_ti,
-				    ett_http_encoded_entity);
-
 				call_dissector(data_handle, next_tvb, pinfo,
 				    e_tree);
 				
@@ -963,6 +964,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 
 			new_tvb = tvb_new_real_data(raw_data,
 			    chunked_data_size, chunked_data_size);
+			tvb_set_free_cb(new_tvb, g_free);
 
 		}
 		
