@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.138 2001/11/08 10:34:11 guy Exp $
+ * $Id: packet-smb.c,v 1.139 2001/11/08 10:57:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5369,7 +5369,7 @@ dissect_nt_create_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-			"Create Flags: 0x%04x", mask);
+			"Create Flags: 0x%08x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_nt_create_bits);
 	}
 
@@ -5585,59 +5585,66 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	case NT_TRANS_CREATE:
 		/* Create flags */
 		offset = dissect_nt_create_bits(tvb, pinfo, tree, offset);
+		bc -= 4;
 
 		/* root directory fid */
 		proto_tree_add_item(tree, hf_smb_root_dir_fid, tvb, offset, 4, TRUE);
-		offset += 4;
+		COUNT_BYTES(4);
 
 		/* nt access mask */
 		offset = dissect_nt_access_mask(tvb, pinfo, tree, offset);
+		bc -= 4;
 	
 		/* allocation size */
 		proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
-		offset += 8;
+		COUNT_BYTES(8);
 	
 		/* Extended File Attributes */
 		offset = dissect_file_ext_attr(tvb, pinfo, tree, offset);
+		bc -= 4;
 
 		/* share access */
 		offset = dissect_nt_share_access(tvb, pinfo, tree, offset);
+		bc -= 4;
 	
 		/* create disposition */
 		proto_tree_add_item(tree, hf_smb_nt_create_disposition, tvb, offset, 4, TRUE);
-		offset += 4;
+		COUNT_BYTES(4);
 
 		/* create options */
 		proto_tree_add_item(tree, hf_smb_nt_create_options, tvb, offset, 4, TRUE);
-		offset += 4;
+		COUNT_BYTES(4);
 
 		/* sd length */
 		ntd->sd_len = tvb_get_letohl(tvb, offset);
 		proto_tree_add_uint(tree, hf_smb_sd_length, tvb, offset, 4, ntd->sd_len);
-		offset += 4;
+		COUNT_BYTES(4);
 
 		/* ea length */
 		ntd->ea_len = tvb_get_letohl(tvb, offset);
 		proto_tree_add_uint(tree, hf_smb_ea_length, tvb, offset, 4, ntd->ea_len);
-		offset += 4;
+		COUNT_BYTES(4);
 
 		/* file name len */
 		fn_len = (guint32)tvb_get_letohl(tvb, offset);
 		proto_tree_add_uint(tree, hf_smb_file_name_len, tvb, offset, 4, fn_len);
-		offset += 4;
+		COUNT_BYTES(4);
 
 		/* impersonation level */
 		proto_tree_add_item(tree, hf_smb_nt_impersonation_level, tvb, offset, 4, TRUE);
-		offset += 4;
+		COUNT_BYTES(4);
 	
 		/* security flags */
 		offset = dissect_nt_security_flags(tvb, pinfo, tree, offset);
+		bc -= 1;
 
 		/* file name */
 		fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, TRUE, TRUE, &bc);
-		proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
-			fn);
-		offset += fn_len;
+		if (fn != NULL) {
+			proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
+				fn);
+			COUNT_BYTES(fn_len);
+		}
 
 		break;
 	case NT_TRANS_IOCTL:
@@ -6069,14 +6076,14 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo, int offset, p
 		while(len){
 			/* next entry offset */
 			proto_tree_add_item(tree, hf_smb_next_entry_offset, tvb, offset, 4, TRUE);
-			offset += 4;
+			COUNT_BYTES(4);
 			len -= 4;
 			/* broken implementations */
 			if(len<0)break;
 	
 			/* action */
 			proto_tree_add_item(tree, hf_smb_nt_notify_action, tvb, offset, 4, TRUE);
-			offset += 4;
+			COUNT_BYTES(4);
 			len -= 4;
 			/* broken implementations */
 			if(len<0)break;
@@ -6084,16 +6091,18 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo, int offset, p
 			/* file name len */
 			fn_len = (guint32)tvb_get_letohl(tvb, offset);
 			proto_tree_add_uint(tree, hf_smb_file_name_len, tvb, offset, 4, fn_len);
-			offset += 4;
+			COUNT_BYTES(4);
 			len -= 4;
 			/* broken implementations */
 			if(len<0)break;
 
 			/* file name */
 			fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, TRUE, TRUE, &bc);
+			if (fn == NULL)
+				break;
 			proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 				fn);
-			offset += fn_len;
+			COUNT_BYTES(fn_len);
 			len -= fn_len;
 			/* broken implementations */
 			if(len<0)break;
