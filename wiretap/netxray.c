@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.67 2003/01/03 08:00:51 guy Exp $
+ * $Id: netxray.c,v 1.68 2003/01/07 01:06:58 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -184,6 +184,7 @@ int netxray_open(wtap *wth, int *err)
 	};
 	#define NUM_NETXRAY_ENCAPS (sizeof netxray_encap / sizeof netxray_encap[0])
 	int file_encap;
+	guint isdn_type = 0;
 
 	/* Read in the string that should be at the start of a NetXRay
 	 * file */
@@ -296,10 +297,11 @@ int netxray_open(wtap *wth, int *err)
 					file_encap = WTAP_ENCAP_LAPB;
 					break;
 
-				case 1:	/* European PRI? */
-				case 2:	/* North American PRI? */
+				case 1:	/* E1 PRI */
+				case 2:	/* T1 PRI */
 				case 3:	/* BRI */
 					file_encap = WTAP_ENCAP_ISDN;
+					isdn_type = hdr.xxb[28];
 					break;
 
 				default:
@@ -339,16 +341,27 @@ int netxray_open(wtap *wth, int *err)
 
 	/*
 	 * End-of-packet padding.  802.11 captures appear to have four
-	 * bytes of it.
+	 * bytes of it, as do some ISDN captures.
 	 *
 	 * We've seen what appears to be an FCS at the end of some frames
 	 * in some Ethernet captures, but this stuff appears to be just
 	 * padding - Sniffers don't show it, and it doesn't have values
-	 * that look like FCS values.
+	 * that look like FCS values.  The same applies to those ISDN
+	 * captures.
+	 *
+	 * XXX - but some ISDN captures *don't* have the extra end-of-packet
+	 * stuff; how to tell?
 	 */
 	wth->capture.netxray->padding = 0;
-	if (netxray_encap[hdr.network] == WTAP_ENCAP_IEEE_802_11_WITH_RADIO)
+	if (file_encap == WTAP_ENCAP_IEEE_802_11_WITH_RADIO
+	    /*|| file_encap == WTAP_ENCAP_ISDN*/)
 		wth->capture.netxray->padding = 4;
+
+	/*
+	 * Remember the ISDN type, as we need it to interpret the
+	 * channel number in ISDN captures.
+	 */
+	wth->capture.netxray->isdn_type = isdn_type;
 
 	/* Remember the offset after the last packet in the capture (which
 	 * isn't necessarily the last packet in the file), as it appears
@@ -577,12 +590,46 @@ netxray_set_pseudo_header(wtap *wth, union wtap_pseudo_header *pseudo_header,
 			 * is enough for European PRI.  (XXX - maybe the
 			 * whole byte is the channel number?)
 			 *
+			 * XXX - some stuff that Sniffer Pro 4.6 considers
+			 * D-channel traffic has a channel number of 16.
+			 * Let's call channel numbers 0 and 16 D channels,
+			 * channel numbers 1 through 15 B1 through B15,
+			 * and channel numbers 17 through 31 B16 through B31.
+			 *
 			 * XXX - is that direction flag right?
 			 */
 			pseudo_header->isdn.uton =
 			    (hdr->hdr_2_x.xxx[10] & 0x80);
 			pseudo_header->isdn.channel =
 			    hdr->hdr_2_x.xxx[13] & 0x1F;
+			switch (wth->capture.netxray->isdn_type) {
+
+			case 1:
+				/*
+				 * E1 PRI.  Channel numbers 0 and 16
+				 * are the D channel; channel numbers 1
+				 * through 15 are B1 through B15; channel
+				 * numbers 17 through 31 are B16 through
+				 * B31.
+				 */
+				if (pseudo_header->isdn.channel == 16)
+					pseudo_header->isdn.channel = 0;
+				else if (pseudo_header->isdn.channel > 16)
+					pseudo_header->isdn.channel -= 1;
+				break;
+
+			case 2:
+				/*
+				 * T1 PRI.  Channel numbers 0 and 24
+				 * are the D channel; channel numbers 1
+				 * through 23 are B1 through B23.
+				 */
+				if (pseudo_header->isdn.channel == 24)
+					pseudo_header->isdn.channel = 0;
+				else if (pseudo_header->isdn.channel > 24)
+					pseudo_header->isdn.channel -= 1;
+				break;
+			}
 			break;
 
 		case WTAP_ENCAP_ATM_PDUS_UNTRUNCATED:
