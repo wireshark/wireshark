@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.439 2004/05/23 17:37:36 ulfl Exp $
+ * $Id: main.c,v 1.440 2004/06/01 17:33:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -132,6 +132,18 @@
 #include "follow_dlg.h"
 
 
+/*
+ * File under personal preferences directory in which GTK settings for
+ * Ethereal are stored.
+ */
+#define RC_FILE "gtkrc"
+
+#ifdef HAVE_LIBPCAP
+#define DEF_READY_MESSAGE " Ready to load or capture"
+#else
+#define DEF_READY_MESSAGE " Ready to load file"
+#endif
+
 capture_file cfile;
 GtkWidget   *main_display_filter_widget=NULL;
 GtkWidget   *top_level = NULL, *tree_view, *byte_nb_ptr, *tv_scrollw;
@@ -152,8 +164,6 @@ static guint        packets_ctx;
 static gchar        *packets_str = NULL;
 GString *comp_info_str, *runtime_info_str;
 gchar       *ethereal_path = NULL;
-gchar       *last_open_dir = NULL;
-static gboolean updated_last_open_dir = FALSE;
 
 #if GTK_MAJOR_VERSION < 2
 GtkStyle *item_style;
@@ -183,6 +193,11 @@ static void try_to_get_windows_font_gtk2 (void);
 #define E_DFILTER_CM_KEY          "display_filter_combo"
 #define E_DFILTER_FL_KEY          "display_filter_list"
 
+#if GTK_MAJOR_VERSION < 2
+void set_fonts(GdkFont *regular, GdkFont *bold);
+#else
+void set_fonts(PangoFontDescription *regular, PangoFontDescription *bold);
+#endif
 
 
 #if GTK_MAJOR_VERSION < 2
@@ -204,39 +219,6 @@ set_fonts(PangoFontDescription *regular, PangoFontDescription *bold)
 	m_font_width = gdk_string_width(m_r_font, "0");
 #endif
 }
-
-/*
- * Go to frame specified by currently selected protocol tree item.
- */
-void
-goto_framenum_cb(GtkWidget *w _U_, gpointer data _U_)
-{
-    if (cfile.finfo_selected) {
-	header_field_info	*hfinfo;
-	guint32			framenum;
-
-	hfinfo = cfile.finfo_selected->hfinfo;
-	g_assert(hfinfo);
-	if (hfinfo->type == FT_FRAMENUM) {
-	    framenum = fvalue_get_integer(&cfile.finfo_selected->value);
-	    if (framenum != 0)
-		goto_frame(&cfile, framenum);
-	}
-    }
-}
-
-void
-goto_top_frame_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-    goto_top_frame(&cfile);
-}
-
-void
-goto_bottom_frame_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-    goto_bottom_frame(&cfile);
-}
-
 
 void
 view_zoom_in_cb(GtkWidget *w _U_, gpointer d _U_)
@@ -395,112 +377,14 @@ match_selected_cb_do(gpointer data, int action, gchar *text)
 }
 
 void
-match_selected_cb_replace_ptree(GtkWidget *w, gpointer data)
+match_selected_ptree_cb(GtkWidget *w, gpointer data, MATCH_SELECTED_E action)
 {
     if (cfile.finfo_selected)
 	match_selected_cb_do((data ? data : w),
-	    MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW,
+	    action,
 	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
 }
 
-void
-match_selected_cb_and_ptree(GtkWidget *w, gpointer data)
-{
-    if (cfile.finfo_selected)
-	match_selected_cb_do((data ? data : w),
-	    MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW,
-	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
-}
-
-void
-match_selected_cb_or_ptree(GtkWidget *w, gpointer data)
-{
-    if (cfile.finfo_selected)
-	match_selected_cb_do((data ? data : w),
-	    MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW,
-	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
-}
-
-void
-match_selected_cb_not_ptree(GtkWidget *w, gpointer data)
-{
-    if (cfile.finfo_selected)
-	match_selected_cb_do((data ? data : w),
-	    MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW,
-	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
-}
-
-void
-match_selected_cb_and_ptree_not(GtkWidget *w, gpointer data)
-{
-    if (cfile.finfo_selected)
-	match_selected_cb_do((data ? data : w),
-	    MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW,
-	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
-}
-
-void
-match_selected_cb_or_ptree_not(GtkWidget *w, gpointer data)
-{
-    if (cfile.finfo_selected)
-	match_selected_cb_do((data ? data : w),
-	    MATCH_SELECTED_OR_NOT,
-	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
-}
-
-void
-prepare_selected_cb_replace_ptree(GtkWidget *w, gpointer data)
-{
-    if (cfile.finfo_selected)
-	match_selected_cb_do((data ? data : w),
-	    MATCH_SELECTED_REPLACE,
-	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
-}
-
-void
-prepare_selected_cb_and_ptree(GtkWidget *w, gpointer data)
-{
-    if (cfile.finfo_selected)
-	match_selected_cb_do((data ? data : w),
-	    MATCH_SELECTED_AND,
-	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
-}
-
-void
-prepare_selected_cb_or_ptree(GtkWidget *w, gpointer data)
-{
-    if (cfile.finfo_selected)
-	match_selected_cb_do((data ? data : w),
-	    MATCH_SELECTED_OR,
-	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
-}
-
-void
-prepare_selected_cb_not_ptree(GtkWidget *w, gpointer data)
-{
-    if (cfile.finfo_selected)
-	match_selected_cb_do((data ? data : w),
-	    MATCH_SELECTED_NOT,
-	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
-}
-
-void
-prepare_selected_cb_and_ptree_not(GtkWidget *w, gpointer data)
-{
-    if (cfile.finfo_selected)
-	match_selected_cb_do((data ? data : w),
-	    MATCH_SELECTED_AND_NOT,
-	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
-}
-
-void
-prepare_selected_cb_or_ptree_not(GtkWidget *w, gpointer data)
-{
-    if (cfile.finfo_selected)
-	match_selected_cb_do((data ? data : w),
-	    MATCH_SELECTED_OR_NOT,
-	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
-}
 
 static gchar *
 get_text_from_packet_list(gpointer data)
@@ -543,100 +427,13 @@ get_text_from_packet_list(gpointer data)
 }
 
 void
-match_selected_cb_replace_plist(GtkWidget *w _U_, gpointer data)
+match_selected_plist_cb(GtkWidget *w _U_, gpointer data, MATCH_SELECTED_E action)
 {
     match_selected_cb_do(data,
-        MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW,
+        action,
         get_text_from_packet_list(data));
 }
 
-void
-match_selected_cb_and_plist(GtkWidget *w _U_, gpointer data)
-{
-    match_selected_cb_do(data,
-        MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW,
-        get_text_from_packet_list(data));
-}
-
-void
-match_selected_cb_or_plist(GtkWidget *w _U_, gpointer data)
-{
-    match_selected_cb_do(data,
-        MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW,
-        get_text_from_packet_list(data));
-}
-
-void
-match_selected_cb_not_plist(GtkWidget *w _U_, gpointer data)
-{
-    match_selected_cb_do(data,
-        MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW,
-        get_text_from_packet_list(data));
-}
-
-void
-match_selected_cb_and_plist_not(GtkWidget *w _U_, gpointer data)
-{
-    match_selected_cb_do(data,
-        MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW,
-        get_text_from_packet_list(data));
-}
-
-void
-match_selected_cb_or_plist_not(GtkWidget *w _U_, gpointer data)
-{
-    match_selected_cb_do(data,
-        MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW,
-        get_text_from_packet_list(data));
-}
-
-void
-prepare_selected_cb_replace_plist(GtkWidget *w _U_, gpointer data)
-{
-    match_selected_cb_do(data,
-        MATCH_SELECTED_REPLACE,
-        get_text_from_packet_list(data));
-}
-
-void
-prepare_selected_cb_and_plist(GtkWidget *w _U_, gpointer data)
-{
-    match_selected_cb_do(data,
-        MATCH_SELECTED_AND,
-        get_text_from_packet_list(data));
-}
-
-void
-prepare_selected_cb_or_plist(GtkWidget *w _U_, gpointer data)
-{
-    match_selected_cb_do(data,
-        MATCH_SELECTED_OR,
-        get_text_from_packet_list(data));
-}
-
-void
-prepare_selected_cb_not_plist(GtkWidget *w _U_, gpointer data)
-{
-    match_selected_cb_do(data,
-        MATCH_SELECTED_NOT,
-        get_text_from_packet_list(data));
-}
-
-void
-prepare_selected_cb_and_plist_not(GtkWidget *w _U_, gpointer data)
-{
-    match_selected_cb_do(data,
-        MATCH_SELECTED_AND_NOT,
-        get_text_from_packet_list(data));
-}
-
-void
-prepare_selected_cb_or_plist_not(GtkWidget *w _U_, gpointer data)
-{
-    match_selected_cb_do(data,
-        MATCH_SELECTED_OR_NOT,
-        get_text_from_packet_list(data));
-}
 
 
 /* XXX: use a preference for this setting! */
@@ -800,16 +597,12 @@ set_frame_reftime(gboolean set, frame_data *frame, gint row) {
   reftime_packets(&cfile);
 }
 
-/* 0: toggle ref time status for the selected frame 
- * 1: find next ref time frame
- * 2: find previous reftime frame
- */
 void 
-reftime_frame_cb(GtkWidget *w _U_, gpointer data _U_, guint action)
+reftime_frame_cb(GtkWidget *w _U_, gpointer data _U_, REFTIME_ACTION_E action)
 {
 
   switch(action){
-  case 0: /* toggle ref frame */
+  case REFTIME_TOGGLE:
     if (cfile.current_frame) {
       /* XXX hum, should better have a "cfile->current_row" here ... */
       set_frame_reftime(!cfile.current_frame->flags.ref_time,
@@ -817,10 +610,10 @@ reftime_frame_cb(GtkWidget *w _U_, gpointer data _U_, guint action)
 		     packet_list_find_row_from_data(cfile.current_frame));
     }
     break;
-  case 1: /* find next ref frame */
+  case REFTIME_FIND_NEXT:
     find_previous_next_frame_with_filter("frame.ref_time", FALSE);
     break;
-  case 2: /* find previous ref frame */
+  case REFTIME_FIND_PREV:
     find_previous_next_frame_with_filter("frame.ref_time", TRUE);
     break;
   }
@@ -2749,7 +2542,7 @@ main(int argc, char *argv[])
              argument. */
           s = get_dirname(cf_name);
           /* we might already set this from the recent file, don't overwrite this */
-          if(last_open_dir == NULL) 
+          if(get_last_open_dir() == NULL) 
             set_last_open_dir(s);
           g_free(cf_name);
           cf_name = NULL;
@@ -3884,37 +3677,4 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     /* Pane for the statusbar */
     status_pane = gtk_hpaned_new();
     gtk_widget_show(status_pane);
-}
-
-
-void
-set_last_open_dir(char *dirname)
-{
-	int len;
-	gchar *new_last_open_dir;
-
-	if (dirname) {
-		len = strlen(dirname);
-		if (dirname[len-1] == G_DIR_SEPARATOR) {
-			new_last_open_dir = g_strconcat(dirname, NULL);
-		}
-		else {
-			new_last_open_dir = g_strconcat(dirname,
-				G_DIR_SEPARATOR_S, NULL);
-		}
-
-		if (last_open_dir == NULL ||
-		    strcmp(last_open_dir, new_last_open_dir) != 0)
-			updated_last_open_dir = TRUE;
-	}
-	else {
-		new_last_open_dir = NULL;
-		if (last_open_dir != NULL)
-			updated_last_open_dir = TRUE;
-	}
-
-	if (last_open_dir) {
-		g_free(last_open_dir);
-	}
-	last_open_dir = new_last_open_dir;
 }

@@ -1,7 +1,7 @@
 /* gtkglobals.h
  * GTK-related Global defines, etc.
  *
- * $Id: gtkglobals.h,v 1.24 2004/01/09 08:36:23 guy Exp $
+ * $Id: gtkglobals.h,v 1.25 2004/06/01 17:33:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,18 +25,44 @@
 #ifndef __GTKGLOBALS_H__
 #define __GTKGLOBALS_H__
 
-extern GtkWidget *top_level, *packet_list, *tree_view, *byte_nb_ptr;
-#if GTK_MAJOR_VERSION < 2
-extern GdkFont   *m_r_font, *m_b_font;
-extern guint      m_font_height, m_font_width;
+/** @file
+ *  GTK globals like the main application window.
+ */
 
+/** application window */
+extern GtkWidget *top_level;
+
+/** packet list pane */
+extern GtkWidget *packet_list;
+
+/** tree view (packet details) pane */
+extern GtkWidget *tree_view;
+
+/** byte notebook (packet bytes) pane */
+extern GtkWidget *byte_nb_ptr;
+
+#if GTK_MAJOR_VERSION < 2
+/** normal font */
+extern GdkFont   *m_r_font;
+/** bold font */
+extern GdkFont   *m_b_font;
+/** font height */
+extern guint      m_font_height;
+/** font width */
+extern guint      m_font_width;
+/** ??? 
+ * @todo what's this?
+ */
 extern GtkStyle  *item_style;
 #else
-extern PangoFontDescription *m_r_font, *m_b_font;
+/** normal font */
+extern PangoFontDescription *m_r_font;
+/** bold font */
+extern PangoFontDescription *m_b_font;
 #endif
 
 #if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
-/*
+/**
  * XXX - "isprint()" can return "true" for non-ASCII characters, but
  * those don't work with GTK+ 1.3 or later, as they take UTF-8 strings
  * as input.  Until we fix up Ethereal to properly handle non-ASCII

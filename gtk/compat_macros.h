@@ -1,7 +1,7 @@
 /* compat_macros.h
  * GTK-related Global defines, etc.
  *
- * $Id: compat_macros.h,v 1.16 2004/05/31 15:47:34 ulfl Exp $
+ * $Id: compat_macros.h,v 1.17 2004/06/01 17:33:35 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,8 +28,9 @@
 
 /** @file
  *
- * Helper macros for gtk1.2/gtk2 compatibility :
- * in gtk2, gtk_signal_xxx is deprecated in favor of g_signal_xxx,
+ * Helper macros for gtk1.x / gtk2.x compatibility. Use these macros instead of the GTK deprecated functions, 
+ * to keep compatibility between GTK 1.x and 2.x.
+ * For example in gtk2.x, gtk_signal_xxx is deprecated in favor of g_signal_xxx,
  *          gtk_object_xxx is deprecated in favor of g_object_xxx,
  *          gtk_widget_set_usize is deprecated in favor of
  *              gtk_widget_set_size_request, ...
@@ -222,21 +223,47 @@ gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name)
 #define ETHEREAL_STOCK_EDIT                     "Edit..."
 #define ETHEREAL_STOCK_ADD_EXPRESSION           "Add Expression..."
 
+/** Create a stock button. Will create a "normal" button for GTK1.
+ *
+ * @param stock_id the stock id for this button (e.g. GTK_STOCK_OK)
+ * @return the new button
+ */
 #define BUTTON_NEW_FROM_STOCK(stock_id) \
 gtk_button_new_with_label(stock_id);
 
+/** Create a check button.
+ *
+ * @param label_text the text to display
+ * @param accel_group accelerator group (GTK1 only)
+ * @return the new check button
+ */
 #define CHECK_BUTTON_NEW_WITH_MNEMONIC(label_text, accel_group) \
 dlg_check_button_new_with_label_with_mnemonic(label_text, accel_group)
 
+/** Create a radio button.
+ *
+ * @param radio_group group the radio buttons (another radio button or NULL for first one)
+ * @param label_text the text to display
+ * @param accel_group accelerator group (GTK1 only)
+ * @return the new radio button
+ */
 #define RADIO_BUTTON_NEW_WITH_MNEMONIC(radio_group, label_text, accel_group) \
 dlg_radio_button_new_with_label_with_mnemonic( \
     radio_group ? gtk_radio_button_group(GTK_RADIO_BUTTON(radio_group)) : NULL, \
     label_text, accel_group)
 
+/** Create a toggle button.
+ *
+ * @param label_text the text to display
+ * @param accel_group accelerator group (GTK1 only)
+ * @return the new toggle button
+ */
 #define TOGGLE_BUTTON_NEW_WITH_MNEMONIC(label_text, accel_group) \
 dlg_toggle_button_new_with_label_with_mnemonic(label_text, accel_group)
 
+/** tag(s) start for first row of simple_dialog (and others). */
 #define PRIMARY_TEXT_START ""
+/** tag(s) end for first row of simple_dialog (and others). */
 #define PRIMARY_TEXT_END ""
 
 #else /* GTK_MAJOR_VERSION >= 2 */

@@ -1,7 +1,7 @@
 /* goto_dlg.h
  * Definitions for "go to frame" window
  *
- * $Id: goto_dlg.h,v 1.2 2002/08/28 21:03:47 jmayer Exp $
+ * $Id: goto_dlg.h,v 1.3 2004/06/01 17:33:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,6 +26,36 @@
 #ifndef __GOTO_DLG_H__
 #define __GOTO_DLG_H__
 
-void   goto_frame_cb(GtkWidget *, gpointer);
+/** @file
+ * "Go To" dialog box and similar functions.
+ */
+
+/** User requested the "Go To" dialog box by menu or toolbar.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void goto_frame_cb(GtkWidget *widget, gpointer data);
+
+/** User requested "Go To Corresponding Packet" by menu.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void goto_framenum_cb(GtkWidget *widget, gpointer data);
+
+/** User requested "Go To First Packet" by menu or toolbar.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void goto_top_frame_cb(GtkWidget *widget, gpointer data);
+
+/** User requested "Go To Last Packet" by menu or toolbar.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void goto_bottom_frame_cb(GtkWidget *widget, gpointer data);
 
 #endif /* goto_dlg.h */

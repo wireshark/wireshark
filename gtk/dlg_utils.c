@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.36 2004/05/26 03:49:22 ulfl Exp $
+ * $Id: dlg_utils.c,v 1.37 2004/06/01 17:33:35 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,6 +47,9 @@
 
 /* Keys ... */
 #define E_FS_CALLER_PTR_KEY       "fs_caller_ptr"
+
+static gchar *last_open_dir = NULL;
+static gboolean updated_last_open_dir = FALSE;
 
 
 static void
@@ -379,6 +382,14 @@ file_selection_new(const gchar *title, file_selection_action_t action)
                                     ok_button_text, GTK_RESPONSE_ACCEPT,
                                     GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
                                     NULL);
+
+  gtk_file_selection_set_filename(GTK_FILE_SELECTION(win), "");
+
+  /* If we've opened a file before, start out by showing the files in the directory
+     in which that file resided. */
+  if (last_open_dir)
+    file_selection_set_current_folder(win, last_open_dir);
+
   return win;
 }
 #else
@@ -392,6 +403,14 @@ file_selection_new(const gchar *title, file_selection_action_t action _U_)
   gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);
 #endif
   gtk_window_set_transient_for(GTK_WINDOW(win), GTK_WINDOW(top_level));
+
+  gtk_file_selection_set_filename(GTK_FILE_SELECTION(win), "");
+
+  /* If we've opened a file before, start out by showing the files in the directory
+     in which that file resided. */
+  if (last_open_dir)
+    file_selection_set_current_folder(win, last_open_dir);
+
   return win;
 }
 #endif
@@ -449,11 +468,6 @@ file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *label,
 
   fs = file_selection_new(label, action);
 
-  /* If we've opened a file, start out by showing the files in the directory
-     in which that file resided. */
-  if (last_open_dir)
-    file_selection_set_current_folder(fs, last_open_dir);
-
   OBJECT_SET_DATA(fs, PRINT_FILE_TE_KEY, file_te);
 
   /* Set the E_FS_CALLER_PTR_KEY for the new dialog to point to our caller. */
@@ -504,8 +518,7 @@ file_selection_browse_ok_cb(GtkWidget *w _U_, gpointer data)
         /* It's a directory - set the file selection box to display it. */
         set_last_open_dir(f_name);
         g_free(f_name);
-        gtk_file_selection_set_filename(GTK_FILE_SELECTION(data),
-                                        last_open_dir);
+        file_selection_set_current_folder(data, last_open_dir);
         return;
   }
 
@@ -536,7 +549,43 @@ file_selection_browse_destroy_cb(GtkWidget *win, GtkWidget* parent_te)
 }
 
 
+void
+set_last_open_dir(char *dirname)
+{
+	int len;
+	gchar *new_last_open_dir;
 
+	if (dirname) {
+		len = strlen(dirname);
+		if (dirname[len-1] == G_DIR_SEPARATOR) {
+			new_last_open_dir = g_strconcat(dirname, NULL);
+		}
+		else {
+			new_last_open_dir = g_strconcat(dirname,
+				G_DIR_SEPARATOR_S, NULL);
+		}
+
+		if (last_open_dir == NULL ||
+		    strcmp(last_open_dir, new_last_open_dir) != 0)
+			updated_last_open_dir = TRUE;
+	}
+	else {
+		new_last_open_dir = NULL;
+		if (last_open_dir != NULL)
+			updated_last_open_dir = TRUE;
+	}
+
+	if (last_open_dir) {
+		g_free(last_open_dir);
+	}
+	last_open_dir = new_last_open_dir;
+}
+
+char *
+get_last_open_dir(void)
+{
+    return last_open_dir;
+}
 
 /* Set the "activate" signal for a widget to call a routine to
    activate the "OK" button for a dialog box.

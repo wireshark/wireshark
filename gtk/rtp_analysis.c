@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.44 2004/05/27 19:59:50 ulfl Exp $
+ * $Id: rtp_analysis.c,v 1.45 2004/06/01 17:33:37 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -969,7 +969,7 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 		/* It's a directory - set the file selection box to display it. */
 		set_last_open_dir(g_dest);
 		g_free(g_dest);
-		gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
+		file_selection_set_current_folder(fs, get_last_open_dir());
 		return;
 	}
 	
@@ -1391,7 +1391,7 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 		/* It's a directory - set the file selection box to display it. */
 		set_last_open_dir(g_dest);
 		g_free(g_dest);
-		gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
+		file_selection_set_current_folder(fs, get_last_open_dir());
 		return;
 	}
 	

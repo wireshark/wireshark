@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.64 2004/05/27 23:09:09 ulfl Exp $
+ * $Id: follow_dlg.c,v 1.65 2004/06/01 17:33:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -994,11 +994,6 @@ follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
     /* Tuck away the follow_info object into the window */
     OBJECT_SET_DATA(new_win, E_FOLLOW_INFO_KEY, follow_info);
 
-    /* If we've opened a file, start out by showing the files in the directory
-       in which that file resided. */
-    if (last_open_dir)
-	file_selection_set_current_folder(new_win, last_open_dir);
-
     SIGNAL_CONNECT(new_win, "destroy", follow_save_as_destroy_cb, follow_info);
 
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
@@ -1048,7 +1043,7 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
            directory, and leave the selection box displayed. */
         set_last_open_dir(to_name);
         g_free(to_name);
-	file_selection_set_current_folder(fs, last_open_dir);
+        file_selection_set_current_folder(fs, get_last_open_dir());
         return;
     }
 

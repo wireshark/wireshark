@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.h,v 1.18 2004/02/28 04:18:47 guy Exp $
+ * $Id: filter_prefs.h,v 1.19 2004/06/01 17:33:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,31 +27,99 @@
 #ifndef __FILTER_H__
 #define __FILTER_H__
 
-/*
+/** @file
+ * "Capture Filter" / "Display Filter" / "Add expression" dialog boxes.
+ * (This used to be a notebook page under "Preferences", hence the
+ * "prefs" in the file name.)
+ * @todo rename this and the corresponding .c file to filter_dlg to reflect current implementation
+ */
+
+/**
  * Structure giving properties of the filter editing dialog box to be
  * created.
  */
 typedef struct {
-	gchar    *title;		/* title of dialog box */
-	gboolean wants_apply_button;	/* if it should have an Apply button */
-	gboolean activate_on_ok;	/* if parent text widget should be
-					   activated on "Ok" or "Apply" */
+    gchar    *title;                /**< title of dialog box */
+    gboolean wants_apply_button;    /**< dialog should have an Apply button */
+    gboolean activate_on_ok;        /**< if parent text widget should be
+                                        activated on "Ok" or "Apply" */
 } construct_args_t;
 
-void capture_filter_construct_cb(GtkWidget *w, gpointer user_data);
-void display_filter_construct_cb(GtkWidget *w, gpointer construct_args_ptr);
-void filter_button_destroy_cb(GtkWidget *button, gpointer user_data);
-void cfilter_dialog_cb(GtkWidget *w);
-void dfilter_dialog_cb(GtkWidget *w);
+/** Create a "Capture Filter" dialog box caused by a button click.
+ *
+ * @param widget parent widget
+ * @param user_data unused
+ */
+void capture_filter_construct_cb(GtkWidget *widget, gpointer user_data);
 
-void filter_add_expr_bt_cb(GtkWidget *w _U_, gpointer main_w_arg);
-void colorize_filter_te_as_empty(GtkWidget *w);
-void colorize_filter_te_as_invalid(GtkWidget *w);
-void colorize_filter_te_as_valid(GtkWidget *w);
-void filter_te_syntax_check_cb(GtkWidget *w);
+/** Create a "Display Filter" dialog box caused by a button click.
+ *
+ * @param widget parent widget
+ * @param construct_args_ptr parameters to construct the dialog (construct_args_t)
+ */
+void display_filter_construct_cb(GtkWidget *widget, gpointer construct_args_ptr);
 
+/** Should be called when the widget (usually a button) that creates filters
+ *  is destroyed. It destroys any filter dialog created by that widget.
+ *
+ * @param widget parent widget
+ * @param user_data unused
+ */
+void filter_button_destroy_cb(GtkWidget *widget, gpointer user_data);
+
+/** User requested the "Capture Filter" dialog box by menu or toolbar.
+ *
+ * @param widget parent widget
+ */
+void cfilter_dialog_cb(GtkWidget *widget);
+
+/** User requested the "Display Filter" dialog box by menu or toolbar.
+ *
+ * @param widget parent widget
+ */
+void dfilter_dialog_cb(GtkWidget *widget);
+
+/** Create an "Add expression" dialog box caused by a button click.
+ *
+ * @param widget unused
+ * @param main_w_arg parent widget
+ */
+void filter_add_expr_bt_cb(GtkWidget *widget, gpointer main_w_arg);
+
+/** Colorize a text entry as empty.
+ *
+ * @param widget the text entry to colorize
+ */
+void colorize_filter_te_as_empty(GtkWidget *widget);
+
+/** Colorize a text entry as a invalid.
+ *
+ * @param widget the text entry to colorize
+ */
+void colorize_filter_te_as_invalid(GtkWidget *widget);
+
+/** Colorize a text entry as a valid.
+ *
+ * @param widget the text entry to colorize
+ */
+void colorize_filter_te_as_valid(GtkWidget *widget);
+
+/** Colorize a filter text entry depending on "validity".
+ *
+ * @param widget the text entry to colorize
+ */
+void filter_te_syntax_check_cb(GtkWidget *widget);
+
+/** ???
+ * @todo check usage of this define */
 #define E_FILT_BT_PTR_KEY	    "filter_bt_ptr"
+
+/** ???
+ * @todo check usage of this define */
 #define E_FILT_TE_PTR_KEY	    "filter_te_ptr"
+
+/** ???
+ * @todo check usage of this define */
 #define E_FILT_FILTER_TE_KEY    "filter_filter_te"
 
 #endif /* filter.h */

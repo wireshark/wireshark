@@ -1,7 +1,7 @@
 /* file_dlg.h
  * Definitions for dialog boxes for handling files
  *
- * $Id: file_dlg.h,v 1.10 2004/05/26 03:49:22 ulfl Exp $
+ * $Id: file_dlg.h,v 1.11 2004/06/01 17:33:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,27 +25,76 @@
 #ifndef __FILE_DLG_H__
 #define __FILE_DLG_H__
 
+/** @file
+ *  "Open" / "Close" / "Save" / "Save As" / etc dialog boxes.
+ */
+
+/** the action to take, after save has been done */
 typedef enum {
-    after_save_no_action,
-    after_save_close_file,
-    after_save_open_dialog,
-    after_save_open_recent_file,
-    after_save_open_dnd_file,
-    after_save_capture_dialog,
-    after_save_exit
+    after_save_no_action,           /**< no action to take */
+    after_save_close_file,          /**< close the file */
+    after_save_open_dialog,         /**< open the file open dialog */
+    after_save_open_recent_file,    /**< open the specified recent file */
+    after_save_open_dnd_file,       /**< open the specified file from drag and drop */
+    after_save_capture_dialog,      /**< open the capture dialog */
+    after_save_exit                 /**< exit program */
 } action_after_save_e;
 
+/** Open the "Save As" dialog box.
+ *
+ * @param action_after_save the action to take, when save completed
+ * @param action_after_save_data data for action_after_save
+ */
 void file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_save_data);
 
+/** User requested the "Open" dialog box.
+ *
+ * @param widget parent widget
+ * @param data unused
+ */
+void file_open_cmd_cb(GtkWidget *widget, gpointer data);
 
-void file_open_cmd_cb(GtkWidget *, gpointer);
-void file_save_cmd_cb(GtkWidget *, gpointer);
-void file_save_as_cmd_cb(GtkWidget *, gpointer);
-void file_close_cmd_cb(GtkWidget *, gpointer);
-void file_reload_cmd_cb(GtkWidget *, gpointer);
+/** User requested the "Save" dialog box.
+ *
+ * @param widget parent widget
+ * @param data unused
+ */
+void file_save_cmd_cb(GtkWidget *widget, gpointer data);
 
-void file_color_import_cmd_cb(GtkWidget *w, gpointer data);
-void file_color_export_cmd_cb(GtkWidget *, gpointer);
+/** User requested the "Save As" dialog box.
+ *
+ * @param widget parent widget
+ * @param data unused
+ */
+void file_save_as_cmd_cb(GtkWidget *widget, gpointer data);
+
+/** User requested "Close".
+ *
+ * @param widget parent widget
+ * @param data unused
+ */
+void file_close_cmd_cb(GtkWidget *widget, gpointer data);
+
+/** User requested "Reload".
+ *
+ * @param widget parent widget
+ * @param data unused
+ */
+void file_reload_cmd_cb(GtkWidget *widget, gpointer data);
+
+/** User requested "Import". Currently only called from the color dialog.
+ *
+ * @param widget parent widget
+ * @param data unused
+ */
+void file_color_import_cmd_cb(GtkWidget *widget, gpointer data);
+
+/** User requested "Export". Currently only called from the color dialog.
+ *
+ * @param widget parent widget
+ * @param data unused
+ */
+void file_color_export_cmd_cb(GtkWidget *widget, gpointer data);
 
 /*
  * Set the "Save only marked packets" toggle button as appropriate for

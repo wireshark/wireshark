@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.54 2004/05/30 11:54:37 ulfl Exp $
+ * $Id: help_dlg.c,v 1.55 2004/06/01 17:33:36 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -237,7 +237,7 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
  * Open the help dialog and show a specific help page.
  */
 
-void help_topic_cb(GtkWidget *w _U_, gpointer data _U_) {
+void help_topic_cb(GtkWidget *w _U_, gpointer data) {
     gchar       *topic = data;
     gchar       *page_topic;
     GtkWidget   *help_nb;

@@ -2,7 +2,7 @@
  * Recent "preference" handling routines
  * Copyright 2004, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: recent.c,v 1.16 2004/05/31 02:42:39 guy Exp $
+ * $Id: recent.c,v 1.17 2004/06/01 17:33:37 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 #include "prefs.h"
 #include "prefs-int.h"
 #include "ui_util.h"
+#include "dlg_utils.h"
 
 
 #define RECENT_KEY_MAIN_TOOLBAR_SHOW        "gui.toolbar_main_show"
@@ -190,9 +191,9 @@ write_recent(char **rf_path_return)
   fprintf(rf, RECENT_GUI_GEOMETRY_STATUS_PANE ": %d\n",
 		  recent.gui_geometry_status_pane);
 
-  if (last_open_dir != NULL) {
+  if (get_last_open_dir() != NULL) {
     fprintf(rf, "\n# Last directory navigated to in File Open dialog.\n");
-    fprintf(rf, RECENT_GUI_FILEOPEN_REMEMBERED_DIR ": %s\n", last_open_dir);
+    fprintf(rf, RECENT_GUI_FILEOPEN_REMEMBERED_DIR ": %s\n", get_last_open_dir());
   }
 
   window_geom_recent_write_all(rf);

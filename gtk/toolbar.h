@@ -2,7 +2,7 @@
  * Definitions for toolbar utility routines
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.h,v 1.7 2004/01/20 02:21:17 ulfl Exp $
+ * $Id: toolbar.h,v 1.8 2004/06/01 17:33:37 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,14 +26,49 @@
 #ifndef __TOOLBAR_H__
 #define __TOOLBAR_H__
 
-void set_toolbar_for_capture_file(gboolean have_capture_file);
-void set_toolbar_for_unsaved_capture_file(gboolean have_unsaved_capture_file);
-void set_toolbar_for_capture_in_progress(gboolean have_capture_file);
-void set_toolbar_for_captured_packets(gboolean have_captured_packets);
+/** @file
+ *  The main toolbar.
+ */
 
+/** Create the main toolbar.
+ * @return the new (still hidden) toolbar
+ */
 GtkWidget *toolbar_new(void);
+
+/** Redraw the main toolbar. Used, when user changes preferences. */
 void toolbar_redraw_all(void);
 
+/** We have (or don't have) a capture file now.
+ *
+ * @param have_capture_file TRUE, if we have a capture file
+ */
+void set_toolbar_for_capture_file(gboolean have_capture_file);
+
+/** We have (or don't have) an unsaved capture file now.
+ *
+ * @param have_unsaved_capture_file TRUE, if we have an unsaved capture file
+ */
+void set_toolbar_for_unsaved_capture_file(gboolean have_unsaved_capture_file);
+
+/** We have (or don't have) a capture in progress now.
+ *
+ * @param have_capture_file TRUE, if we have a capture in progress file
+ */
+void set_toolbar_for_capture_in_progress(gboolean have_capture_file);
+
+/** We have (or don't have) captured packets now.
+ *
+ * @param have_captured_packets TRUE, if we have captured packets
+ */
+void set_toolbar_for_captured_packets(gboolean have_captured_packets);
+
+/** Set object data of some buttons (where needed). It's needed so callback 
+ *  functions can read back their required data. Acts like OBJECT_SET_DATA() 
+ *  on multiple buttons.
+ *
+ * @param key the key
+ * @param data the data to set
+ */
 void set_toolbar_object_data(gchar *key, gpointer data);
 
 #endif /* __TOOLBAR_H__ */

@@ -1,6 +1,6 @@
 /* about_dlg.c
  *
- * $Id: about_dlg.c,v 1.12 2004/05/27 16:41:33 ulfl Exp $
+ * $Id: about_dlg.c,v 1.13 2004/06/01 17:33:35 ulfl Exp $
  *
  * Ulf Lamping <ulf.lamping@web.de>
  *
@@ -148,7 +148,7 @@ about_folders_page_new(void)
   table = simple_list_new(3, titles);
 
   /* "file open" */
-  about_folders_row(table, "\"File\" dialogs", last_open_dir,
+  about_folders_row(table, "\"File\" dialogs", get_last_open_dir(),
       "capture files");
 
   /* temp */

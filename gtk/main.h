@@ -1,7 +1,7 @@
 /* main.h
  * Global defines, etc.
  *
- * $Id: main.h,v 1.49 2004/05/21 08:44:45 guy Exp $
+ * $Id: main.h,v 1.50 2004/06/01 17:33:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,108 +31,221 @@
 
 #include "globals.h"
 
-/*
- * File under personal preferences directory in which GTK settings for
- * Ethereal are stored.
+/** @file
+ *  Various functions provided by main.c
  */
-#define RC_FILE "gtkrc"
 
-#ifdef HAVE_LIBPCAP
-#define DEF_READY_MESSAGE " Ready to load or capture"
-#else
-#define DEF_READY_MESSAGE " Ready to load file"
-#endif
+/** User requested "Zoom In" by menu or toolbar.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void view_zoom_in_cb(GtkWidget *widget, gpointer data);
 
-#define MATCH_SELECTED_REPLACE		0
-#define MATCH_SELECTED_AND		1
-#define MATCH_SELECTED_OR		2
-#define MATCH_SELECTED_NOT		3
-#define MATCH_SELECTED_AND_NOT		4
-#define MATCH_SELECTED_OR_NOT		5
+/** User requested "Zoom Out" by menu or toolbar.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void view_zoom_out_cb(GtkWidget *widget, gpointer data);
 
-#define MATCH_SELECTED_MASK		0x0ff
-#define MATCH_SELECTED_APPLY_NOW	0x100
+/** User requested "Zoom 100%" by menu or toolbar.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void view_zoom_100_cb(GtkWidget *widget, gpointer data);
 
-typedef struct _selection_info {
-  GtkWidget *tree;
-  GtkWidget *text;
-} selection_info;
+/** "Apply as Filter" / "Prepare a Filter" action type. */
+typedef enum {
+    MATCH_SELECTED_REPLACE, /**< "Selected" */
+    MATCH_SELECTED_AND,     /**< "and Selected" */
+    MATCH_SELECTED_OR,      /**< "or Selected" */
+    MATCH_SELECTED_NOT,     /**< "Not Selected" */
+    MATCH_SELECTED_AND_NOT, /**< "and not Selected" */
+    MATCH_SELECTED_OR_NOT   /**< "or not Selected" */
+} MATCH_SELECTED_E;
 
-#if GTK_MAJOR_VERSION < 2
-extern GtkStyle *item_style;
-#endif
+/** mask MATCH_SELECTED_E values (internally used) */
+#define MATCH_SELECTED_MASK         0x0ff
 
-void goto_framenum_cb(GtkWidget *, gpointer);
-void goto_top_frame_cb(GtkWidget *w _U_, gpointer d _U_);
-void goto_bottom_frame_cb(GtkWidget *w _U_, gpointer d _U_);
-void view_zoom_in_cb(GtkWidget *w _U_, gpointer d _U_);
-void view_zoom_out_cb(GtkWidget *w _U_, gpointer d _U_);
-void view_zoom_100_cb(GtkWidget *w _U_, gpointer d _U_);
-void match_selected_cb_replace_ptree( GtkWidget *, gpointer);
-void match_selected_cb_and_ptree( GtkWidget *, gpointer);
-void match_selected_cb_or_ptree( GtkWidget *, gpointer);
-void match_selected_cb_not_ptree( GtkWidget *, gpointer);
-void match_selected_cb_and_ptree_not( GtkWidget *, gpointer);
-void match_selected_cb_or_ptree_not( GtkWidget *, gpointer);
-void prepare_selected_cb_replace_ptree( GtkWidget *, gpointer);
-void prepare_selected_cb_and_ptree( GtkWidget *, gpointer);
-void prepare_selected_cb_or_ptree( GtkWidget *, gpointer);
-void prepare_selected_cb_not_ptree( GtkWidget *, gpointer);
-void prepare_selected_cb_and_ptree_not( GtkWidget *, gpointer);
-void prepare_selected_cb_or_ptree_not( GtkWidget *, gpointer);
-void match_selected_cb_replace_plist( GtkWidget *, gpointer);
-void match_selected_cb_and_plist( GtkWidget *, gpointer);
-void match_selected_cb_or_plist( GtkWidget *, gpointer);
-void match_selected_cb_not_plist( GtkWidget *, gpointer);
-void match_selected_cb_and_plist_not( GtkWidget *, gpointer);
-void match_selected_cb_or_plist_not( GtkWidget *, gpointer);
-void prepare_selected_cb_replace_plist( GtkWidget *, gpointer);
-void prepare_selected_cb_and_plist( GtkWidget *, gpointer);
-void prepare_selected_cb_or_plist( GtkWidget *, gpointer);
-void prepare_selected_cb_not_plist( GtkWidget *, gpointer);
-void prepare_selected_cb_and_plist_not( GtkWidget *, gpointer);
-void prepare_selected_cb_or_plist_not( GtkWidget *, gpointer);
-void file_quit_cmd_cb(GtkWidget *, gpointer);
-void file_print_cmd_cb(GtkWidget *, gpointer);
-void export_text_cmd_cb(GtkWidget *, gpointer);
-void export_ps_cmd_cb(GtkWidget *, gpointer);
-void export_psml_cmd_cb(GtkWidget *, gpointer);
-void export_pdml_cmd_cb(GtkWidget *, gpointer);
-void tools_plugins_cmd_cb(GtkWidget *, gpointer);
-void expand_tree_cb(GtkWidget *, gpointer);
-void expand_all_cb(GtkWidget *, gpointer);
-void collapse_all_cb(GtkWidget *, gpointer);
-void resolve_name_cb(GtkWidget *, gpointer);
-void reftime_frame_cb(GtkWidget *, gpointer, guint);
+/** "bitwise or" this with MATCH_SELECTED_E value for instant apply instead of prepare only */
+#define MATCH_SELECTED_APPLY_NOW    0x100
 
-extern gboolean dfilter_combo_add_recent(gchar *s);
+/** User requested one of "Apply as Filter" or "Prepare a Filter" functions 
+ *  by menu or context menu of protocol tree.
+ *
+ * @param widget parent widget
+ * @param data parent widget
+ * @param action the function to use
+ */
+extern void match_selected_ptree_cb(GtkWidget *widget, gpointer data, MATCH_SELECTED_E action);
+
+/** User requested one of "Apply as Filter" or "Prepare a Filter" functions
+ *  by context menu of packet list.
+ *
+ * @param widget parent widget (unused)
+ * @param data parent widget
+ * @param action the function to use
+ */
+extern void match_selected_plist_cb(GtkWidget *widget, gpointer data, MATCH_SELECTED_E action);
+
+/** User requested "Quit" by menu or toolbar.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void file_quit_cmd_cb(GtkWidget *widget, gpointer data);
+
+/** User requested "Print" by menu or toolbar.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void file_print_cmd_cb(GtkWidget *widget, gpointer data);
+
+/** User requested "Export as Plain Text" by menu.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void export_text_cmd_cb(GtkWidget *widget, gpointer data);
+
+/** User requested "Export as Postscript" by menu.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void export_ps_cmd_cb(GtkWidget *widget, gpointer data);
+
+/** User requested "Export as PSML" by menu.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void export_psml_cmd_cb(GtkWidget *widget, gpointer data);
+
+/** User requested "Export as PDML" by menu.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void export_pdml_cmd_cb(GtkWidget *widget, gpointer data);
+
+/** User requested "Expand Tree" by menu.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void expand_tree_cb(GtkWidget *widget, gpointer data);
+
+/** User requested "Expand All" by menu.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void expand_all_cb(GtkWidget *widget, gpointer data);
+
+/** User requested "Collapse All" by menu.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void collapse_all_cb(GtkWidget *widget, gpointer data);
+
+/** User requested "Resolve Name" by menu.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void resolve_name_cb(GtkWidget *widget, gpointer data);
+
+/** Action to take for reftime_frame_cb() */
+typedef enum {
+    REFTIME_TOGGLE,     /**< toggle ref frame */
+    REFTIME_FIND_NEXT,  /**< find next ref frame */
+    REFTIME_FIND_PREV,  /**< find previous ref frame */
+} REFTIME_ACTION_E;
+
+/** User requested one of the "Time Reference" functions by menu.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ * @param action the function to use
+ */
+extern void reftime_frame_cb(GtkWidget *widget, gpointer data, REFTIME_ACTION_E action);
+
+/** Add a display filter coming from the user's recent file to the dfilter combo box.
+ *
+ * @param dftext the filter string
+ */
+extern gboolean dfilter_combo_add_recent(gchar *dftext);
+
+/** Empty out the combobox entry field */
 extern void dfilter_combo_add_empty(void);
+
+/** Write all non empty display filters (until maximum count) 
+ *  of the combo box GList to the user's recent file.
+ *
+ * @param rf the recent file
+ */
 extern void dfilter_recent_combo_write_all(FILE *rf);
 
+/** Quit the program.
+ *
+ * @return TRUE, if a file read is in progress
+ */
 extern gboolean main_do_quit(void);
+
+/** Rearrange the main window widgets, user changed it's preferences. */
 extern void main_widgets_rearrange(void);
+
+/** Show or hide the main window widgets, user changed it's preferences. */
 extern void main_widgets_show_or_hide(void);
+
+/** Apply a new filter string. 
+ *  Call filter_packets() and add this filter string to the recent filter list.
+ *
+ * @param cf the capture file
+ * @param dftext the new filter string
+ * @param force force the refiltering, even if filter string doesn't changed
+ * @return TRUE, if the filtering succeeded
+ */
 extern gboolean main_filter_packets(capture_file *cf, const gchar *dftext,
     gboolean force);
+
+/** Open a new file coming from drag and drop.
+ * @param cf_name the new capture filename
+ */
 extern void dnd_open_file_cmd(gpointer cf_name);
+
+/** Update the packets statusbar to the current values. */
 extern void packets_bar_update(void);
 
 #ifdef _WIN32
+/** Win32 only: Create a console. Beware: cannot be closed again. */
 extern void create_console(void);
 #endif
 
+/** Return value from font_apply() */
 typedef enum {
-	FA_SUCCESS,
-	FA_FONT_NOT_RESIZEABLE,
-	FA_FONT_NOT_AVAILABLE
+	FA_SUCCESS,             /**< function succeeded */
+	FA_FONT_NOT_RESIZEABLE, /**< the choosen font isn't resizable */
+	FA_FONT_NOT_AVAILABLE   /**< the choosen font isn't available */
 } fa_ret_t;
+
+/** Applies a new font. Will also redraw the screen.
+ *
+ * @return if the new font could be set or not
+ */
 extern fa_ret_t font_apply(void);
 #if GTK_MAJOR_VERSION < 2
-char *font_boldify(const char *);
-void set_fonts(GdkFont *regular, GdkFont *bold);
-#else
-void set_fonts(PangoFontDescription *regular, PangoFontDescription *bold);
+/* Try to convert a font name to it's bold version.
+ *
+ * @param the font to convert
+ * @return the bold font
+ */
+char *font_boldify(const char *font_name);
 #endif
-void set_last_open_dir(char *dirname);
 
 #endif /* __MAIN_H__ */

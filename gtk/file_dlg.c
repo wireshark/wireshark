@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.107 2004/05/27 19:59:49 ulfl Exp $
+ * $Id: file_dlg.c,v 1.108 2004/06/01 17:33:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -134,8 +134,7 @@ file_open_cmd(GtkWidget *w)
        directory, if we could determine it, as the directory, otherwise
        use the "last opened" directory saved in the preferences file if
        there was one. */
-    if (last_open_dir)
-      file_selection_set_current_folder(file_open_w, last_open_dir);
+    /* This is now the default behaviour in file_selection_new() */
     break;
 
   case FO_STYLE_SPECIFIED:
@@ -304,9 +303,9 @@ file_open_ok_cb(GtkWidget *w, gpointer fs) {
   if (test_for_directory(cf_name) == EISDIR) {
 	/* It's a directory - set the file selection box to display that
 	   directory, don't try to open the directory as a capture file. */
-	set_last_open_dir(cf_name);
+        set_last_open_dir(cf_name);
         g_free(cf_name);
-	gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
+        file_selection_set_current_folder(fs, get_last_open_dir());
     	return;
   }
 
@@ -580,11 +579,6 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   gtk_window_add_accel_group(GTK_WINDOW(file_save_as_w), accel_group);
 #endif
 	
-  /* If we've opened a file, start out by showing the files in the directory
-     in which that file resided. */
-  if (last_open_dir)
-    file_selection_set_current_folder(file_save_as_w, last_open_dir);
-
   /* Container for each row of widgets */
        
   main_vb = gtk_vbox_new(FALSE, 5);
@@ -653,8 +647,6 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
 
   SIGNAL_CONNECT(file_save_as_w, "delete_event", window_delete_event_cb, NULL);
 
-  gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_save_as_w), "");
-
   gtk_widget_show(file_save_as_w);
   window_present(file_save_as_w);
 #endif
@@ -684,7 +676,7 @@ file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
            directory, and leave the selection box displayed. */
         set_last_open_dir(cf_name);
         g_free(cf_name);
-        gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
+        file_selection_set_current_folder(fs, get_last_open_dir());
         return;
   }
 
@@ -832,7 +824,7 @@ color_global_cb(GtkWidget *widget _U_, gpointer data)
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   gtk_file_chooser_select_filename(GTK_FILE_CHOOSER(fs_widget), path);
 #else
-  gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs_widget), path);
+  file_selection_set_current_folder(fs_widget, path);
 #endif
   g_free((gchar *)path);
 }
@@ -864,11 +856,6 @@ file_color_import_cmd_cb(GtkWidget *w _U_, gpointer data)
   accel_group = gtk_accel_group_new();
   gtk_window_add_accel_group(GTK_WINDOW(file_color_import_w), accel_group);
 #endif
-
-  /* If we've opened a file, start out by showing the files in the directory
-     in which that file resided. */
-  if (last_open_dir)
-    file_selection_set_current_folder(file_color_import_w, last_open_dir);
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
@@ -929,9 +916,9 @@ file_color_import_ok_cb(GtkWidget *w, gpointer fs) {
   if (test_for_directory(cf_name) == EISDIR) {
 	/* It's a directory - set the file selection box to display that
 	   directory, don't try to open the directory as a capture file. */
-	set_last_open_dir(cf_name);
+        set_last_open_dir(cf_name);
         g_free(cf_name);
-	gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
+        file_selection_set_current_folder(fs, get_last_open_dir());
     	return;
   }
 
@@ -1019,11 +1006,6 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   file_color_export_w = file_selection_new("Ethereal: Export Color Filters",
                                            FILE_SELECTION_SAVE);
 
-  /* If we've opened a file, start out by showing the files in the directory
-     in which that file resided. */
-  if (last_open_dir)
-    file_selection_set_current_folder(file_color_export_w, last_open_dir);
-
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
@@ -1087,7 +1069,7 @@ file_color_export_ok_cb(GtkWidget *w _U_, gpointer fs) {
            directory, and leave the selection box displayed. */
         set_last_open_dir(cf_name);
         g_free(cf_name);
-        gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
+        file_selection_set_current_folder(fs, get_last_open_dir());
         return;
   }
 

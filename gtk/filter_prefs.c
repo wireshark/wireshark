@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.65 2004/05/27 19:59:49 ulfl Exp $
+ * $Id: filter_prefs.c,v 1.66 2004/06/01 17:33:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -166,7 +166,7 @@ display_filter_construct_cb(GtkWidget *w, gpointer construct_args_ptr)
 }
 
 /* Should be called when a button that creates filters is destroyed; it
-   destroys any filter created by that button. */
+   destroys any filter dialog created by that button. */
 void
 filter_button_destroy_cb(GtkWidget *button, gpointer user_data _U_)
 {

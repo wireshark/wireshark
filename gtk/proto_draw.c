@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.103 2004/06/01 01:01:31 guy Exp $
+ * $Id: proto_draw.c,v 1.104 2004/06/01 17:33:37 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -890,11 +890,6 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 	 * Build the dialog box we need.
 	 */
     savehex_dlg = file_selection_new("Ethereal: Export Selected Packet Bytes", FILE_SELECTION_SAVE);
-
-    /* If we've opened a file, start out by showing the files in the directory
-       in which that file resided. */
-    if (last_open_dir)
-      file_selection_set_current_folder(savehex_dlg, last_open_dir);
 
     /* label */
     label = g_strdup_printf("Will save %u %s of raw binary data to specified file.", 

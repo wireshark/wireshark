@@ -1,7 +1,7 @@
 /* goto_dlg.c
  * Routines for "go to packet" window
  *
- * $Id: goto_dlg.c,v 1.26 2004/05/26 03:49:23 ulfl Exp $
+ * $Id: goto_dlg.c,v 1.27 2004/06/01 17:33:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -129,4 +129,37 @@ goto_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
     window_destroy(GTK_WIDGET(parent_w));
   }
 }
+
+/*
+ * Go to frame specified by currently selected protocol tree item.
+ */
+void
+goto_framenum_cb(GtkWidget *w _U_, gpointer data _U_)
+{
+    if (cfile.finfo_selected) {
+	header_field_info	*hfinfo;
+	guint32			framenum;
+
+	hfinfo = cfile.finfo_selected->hfinfo;
+	g_assert(hfinfo);
+	if (hfinfo->type == FT_FRAMENUM) {
+	    framenum = fvalue_get_integer(&cfile.finfo_selected->value);
+	    if (framenum != 0)
+		goto_frame(&cfile, framenum);
+	}
+    }
+}
+
+void
+goto_top_frame_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    goto_top_frame(&cfile);
+}
+
+void
+goto_bottom_frame_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    goto_bottom_frame(&cfile);
+}
+
 

@@ -1,6 +1,6 @@
 /* help_dlg.h
  *
- * $Id: help_dlg.h,v 1.6 2004/01/25 21:27:16 ulfl Exp $
+ * $Id: help_dlg.h,v 1.7 2004/06/01 17:33:36 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -27,10 +27,26 @@
 #ifndef __HELP_DLG_H__
 #define __HELP_DLG_H__
 
-void help_cb(GtkWidget *, gpointer);
-void help_topic_cb(GtkWidget *w _U_, gpointer data _U_);
+/** @file
+ * "Help" dialog box.
+ */
 
-/* Redraw all the text widgets, to use a new font. */
+/** User requested the "Help" dialog box by menu or toolbar.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+void help_cb(GtkWidget *widget, gpointer data);
+
+/** Create a "Help" dialog box and start with a specific topic.
+ *  Will show the first page if topic is not found.
+ *
+ * @param widget parent widget (unused)
+ * @param topic the topic to display (a string)
+ */
+void help_topic_cb(GtkWidget *widget, gpointer topic);
+
+/** Redraw all the text widgets, to use a new font. */
 void help_redraw(void);
 
 #endif

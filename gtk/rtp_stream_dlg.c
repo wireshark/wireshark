@@ -1,7 +1,7 @@
 /* rtp_stream_dlg.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream_dlg.c,v 1.21 2004/05/26 03:49:24 ulfl Exp $
+ * $Id: rtp_stream_dlg.c,v 1.22 2004/06/01 17:33:37 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -161,7 +161,7 @@ static void save_stream_ok_cb(GtkWidget *ok_bt _U_, gpointer user_data _U_)
 		/* It's a directory - set the file selection box to display it. */
 		set_last_open_dir(g_dest);
 		g_free(g_dest);
-		gtk_file_selection_set_filename(GTK_FILE_SELECTION(rtpstream_save_dlg), last_open_dir);
+		file_selection_set_current_folder(rtpstream_save_dlg, get_last_open_dir());
 		return;
 	}
 

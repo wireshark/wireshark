@@ -1,7 +1,7 @@
 /* dlg_utils.h
  * Declarations of utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.h,v 1.17 2004/05/31 15:47:34 ulfl Exp $
+ * $Id: dlg_utils.h,v 1.18 2004/06/01 17:33:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,13 +23,28 @@
  */
 
 /** @file
- * Utility functions for dialog windows related to Ethereal's main window, 
- * depending on the window functions in ui_util.h. See window_new() and others in
- * ui_util.h for further explanation of dialogs and windows in Ethereal.
+ * Utility functions for dialog boxes, depending on the window functions in 
+ * ui_util.h. These dialog box windows will be related to Ethereal's main 
+ * window. See window_new() and others in ui_util.h for further explanation 
+ * of dialogs and windows in Ethereal.
  */
 
 #ifndef __DLG_UTILS_H__
 #define __DLG_UTILS_H__
+
+/** Get the latest opened directory.
+ *
+ * @return the dirname
+ */
+char *get_last_open_dir(void);
+
+/** Set the latest opened directory.
+ *  Will already be done when using file_selection_new().
+ *
+ * @param dirname the dirname
+ */
+void set_last_open_dir(char *dirname);
+
 
 /** Create a dialog box window that belongs to Ethereal's main window.
  * If you want to create a window, use window_new() instead. 
