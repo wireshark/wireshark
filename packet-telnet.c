@@ -2,7 +2,7 @@
  * Routines for Telnet packet dissection; see RFC 854 and RFC 855
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.36 2003/02/24 19:25:00 guy Exp $
+ * $Id: packet-telnet.c,v 1.37 2003/04/22 19:57:33 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,6 +72,11 @@ static gint ett_auth_subopt = -1;
 static gint ett_enc_subopt = -1;
 static gint ett_newenv_subopt = -1;
 static gint ett_tn3270e_subopt = -1;
+static gint ett_xauth_subopt = -1;
+static gint ett_charset_subopt = -1;
+static gint ett_rsp_subopt = -1;
+static gint ett_comport_subopt = -1;
+
 
 /* Some defines for Telnet */
 
@@ -97,6 +102,7 @@ static gint ett_tn3270e_subopt = -1;
 #define TN_ABORT 238
 #define TN_SUSP  237
 #define TN_EOF   236
+
 
 typedef enum {
   NO_LENGTH,		/* option has no data, hence no length */
@@ -288,6 +294,274 @@ dissect_naws_subopt(const char *optname _U_, tvbuff_t *tvb, int offset,
   offset += 2;
   proto_tree_add_text(tree, tvb, offset, 2, "Height: %u",
                       tvb_get_ntohs(tvb, offset));
+}
+
+// BEGIN RFC-2217 (COM Port Control) Definitions
+
+#define TNCOMPORT_SIGNATURE		0
+#define TNCOMPORT_SETBAUDRATE		1
+#define TNCOMPORT_SETDATASIZE		2
+#define TNCOMPORT_SETPARITY		3
+#define TNCOMPORT_SETSTOPSIZE		4
+#define TNCOMPORT_SETCONTROL		5
+#define TNCOMPORT_NOTIFYLINESTATE	6
+#define TNCOMPORT_NOTIFYMODEMSTATE	7
+#define TNCOMPORT_FLOWCONTROLSUSPEND	8
+#define TNCOMPORT_FLOWCONTROLRESUME      9
+#define TNCOMPORT_SETLINESTATEMASK	10
+#define TNCOMPORT_SETMODEMSTATEMASK	11
+#define TNCOMPORT_PURGEDATA		12
+
+// END RFC-2217 (COM Port Control) Definitions
+
+static void
+dissect_comport_subopt(const char *optname, tvbuff_t *tvb, int offset, int len,
+                       proto_tree *tree)
+{static const char *datasizes[] = {
+    "Request",
+    "<invalid>",
+    "<invalid>",
+    "<invalid>",
+    "<invalid>",
+    "5",
+    "6",
+    "7",
+    "8"
+ };
+ static const char *parities[] = {
+    "Request",
+    "None",
+    "Odd",
+    "Even",
+    "Mark",
+    "Space"
+ };
+ static const char *stops[] = {
+    "Request",
+    "1",
+    "2",
+    "1.5"
+ };
+ static const char *control[] = {
+    "Output Flow Control Request",
+    "Output Flow: None",
+    "Output Flow: XON/XOFF",
+    "Output Flow: CTS/RTS",
+    "Break Request",
+    "Break: ON",
+    "Break: OFF",
+    "DTR Request",
+    "DTR: ON",
+    "DTR: OFF",
+    "RTS Request",
+    "RTS: ON",
+    "RTS: OFF",
+    "Input Flow Control Request",
+    "Input Flow: None",
+    "Input Flow: XON/XOFF",
+    "Input Flow: CTS/RTS",
+    "Output Flow: DCD",
+    "Input Flow: DTR",
+    "Output Flow: DSR"
+ };
+ static const char *linestate_bits[] = {
+    "Data Ready",
+    "Overrun Error",
+    "Parity Error",
+    "Framing Error",
+    "Break Detected",
+    "Transfer Holding Register Empty",
+    "Transfer Shift Register Empty",
+    "Timeout Error"
+ };
+ static const char *modemstate_bits[] = {
+     "DCTS",
+     "DDSR",
+     "TERI",
+     "DDCD",
+     "CTS",
+     "DSR",
+     "RI",
+     "DCD"
+ };
+ static const char *purges[] = {
+     "Purge None",
+     "Purge RX",
+     "Purge TX",
+     "Purge RX/TX"
+ };
+  
+  guint8 cmd;
+  guint8 isservercmd;
+  char *source;
+  
+  cmd = tvb_get_guint8(tvb, offset);
+  isservercmd = cmd > 99;
+  cmd = (isservercmd) ? (cmd - 100) : cmd;
+  source = (isservercmd) ? "Server" : "Client";
+  switch (cmd) {
+
+  case TNCOMPORT_SIGNATURE:
+    len--;
+    if (len == 0) {
+        proto_tree_add_text(tree, tvb, offset, 1, "%s Requests Signature",source);
+    } else {
+        guint8 *sig = (char *)malloc(len + 4);
+        gint siglen = tvb_get_nstringz0(tvb, offset+1, len, sig);
+        proto_tree_add_text(tree, tvb, offset, 1 + siglen, "%s Signature: %s",source, sig);
+	free(sig);
+    }
+    break;
+
+  case TNCOMPORT_SETBAUDRATE:
+    len--;
+    if (len >= 4) {
+  	    guint32 baud = tvb_get_ntohl(tvb, offset+1);
+        if (baud == 0) {
+            proto_tree_add_text(tree, tvb, offset, 5, "%s Requests Baud Rate",source);            
+        } else {
+            proto_tree_add_text(tree, tvb, offset, 5, "%s Baud Rate: %d",source,baud);
+        }
+    } else {
+        proto_tree_add_text(tree, tvb, offset, 1 + len, "%s <Invalid Baud Rate Packet>",source);
+    }
+    break;
+    
+  case TNCOMPORT_SETDATASIZE:
+    len--;
+    if (len >= 1) {
+  	    guint8 datasize = tvb_get_guint8(tvb, offset+1);
+        const char *ds = (datasize > 8) ? "<invalid>" : datasizes[datasize];
+        proto_tree_add_text(tree, tvb, offset, 2, "%s Data Size: %s",source,ds);
+    } else {
+        proto_tree_add_text(tree, tvb, offset, 1 + len, "%s <Invalid Data Size Packet>",source);
+    }
+    break;
+
+  case TNCOMPORT_SETPARITY:
+    len--;
+    if (len >= 1) {
+  	    guint8 parity = tvb_get_guint8(tvb, offset+1);
+        const char *pr = (parity > 5) ? "<invalid>" : parities[parity];
+        proto_tree_add_text(tree, tvb, offset, 2, "%s Parity: %s",source,pr);
+    } else {
+        proto_tree_add_text(tree, tvb, offset, 1 + len, "%s <Invalid Parity Packet>",source);
+    }
+    break;
+    
+  case TNCOMPORT_SETSTOPSIZE:
+    len--;
+    if (len >= 1) {
+  	    guint8 stop = tvb_get_guint8(tvb, offset+1);
+        const char *st = (stop > 3) ? "<invalid>" : stops[stop];
+        proto_tree_add_text(tree, tvb, offset, 2, "%s Stop: %s",source,st);
+    } else {
+        proto_tree_add_text(tree, tvb, offset, 1 + len, "%s <Invalid Stop Packet>",source);
+    }
+    break;
+
+  case TNCOMPORT_SETCONTROL:
+    len--;
+    if (len >= 1) {
+  	    guint8 crt = tvb_get_guint8(tvb, offset+1);
+        const char *c = (crt > 19) ? "Control: <invalid>" : control[crt];
+        proto_tree_add_text(tree, tvb, offset, 2, "%s %s",source,c);
+    } else {
+        proto_tree_add_text(tree, tvb, offset, 1 + len, "%s <Invalid Control Packet>",source);
+    }
+    break;
+    
+  case TNCOMPORT_SETLINESTATEMASK:
+  case TNCOMPORT_NOTIFYLINESTATE:
+    len--;
+    if (len >= 1) {
+        const char *print_pattern = (cmd == TNCOMPORT_SETLINESTATEMASK) ?
+                                        "%s Set Linestate Mask: %s" : "%s Linestate: %s";
+        char ls_buffer[512];
+  	    guint8 ls = tvb_get_guint8(tvb, offset+1);
+        int print_count = 0;
+        int idx;
+        ls_buffer[0] = '\0';
+        for (idx = 0; idx < 8; idx++) {
+            int bit = ls & 1;
+            if (bit) {
+                if (print_count != 0) {
+                    strcat(ls_buffer,", ");
+                }
+                strcat(ls_buffer,linestate_bits[idx]);
+                print_count++;
+            }
+            ls = ls >> 1;
+        }
+        proto_tree_add_text(tree, tvb, offset, 2, print_pattern, source, ls_buffer);
+    } else {
+        const char *print_pattern = (cmd == TNCOMPORT_SETLINESTATEMASK) ?
+                                        "%s <Invalid Linestate Mask>" : "%s <Invalid Linestate Packet>";
+        proto_tree_add_text(tree, tvb, offset, 1 + len, print_pattern, source);
+    }
+    break;
+    
+  case TNCOMPORT_SETMODEMSTATEMASK:
+  case TNCOMPORT_NOTIFYMODEMSTATE:
+    len--;
+    if (len >= 1) {
+        const char *print_pattern = (cmd == TNCOMPORT_SETMODEMSTATEMASK) ?
+                                        "%s Set Modemstate Mask: %s" : "%s Modemstate: %s";
+        char ms_buffer[256];
+  	    guint8 ms = tvb_get_guint8(tvb, offset+1);
+        int print_count = 0;
+        int idx;
+        ms_buffer[0] = '\0';
+        for (idx = 0; idx < 8; idx++) {
+            int bit = ms & 1;
+            if (bit) {
+                if (print_count != 0) {
+                    strcat(ms_buffer,", ");
+                }
+                strcat(ms_buffer,modemstate_bits[idx]);
+                print_count++;
+            }
+            ms = ms >> 1;
+        }
+        proto_tree_add_text(tree, tvb, offset, 2, print_pattern, source, ms_buffer);
+    } else {
+        const char *print_pattern = (cmd == TNCOMPORT_SETMODEMSTATEMASK) ?
+                                         "%s <Invalid Modemstate Mask>" : "%s <Invalid Modemstate Packet>";
+        proto_tree_add_text(tree, tvb, offset, 1 + len, print_pattern, source);
+    }
+    break;
+
+  case TNCOMPORT_FLOWCONTROLSUSPEND:
+    len--;
+    proto_tree_add_text(tree, tvb, offset, 1, "%s Flow Control Suspend",source);
+    break;
+  
+  case TNCOMPORT_FLOWCONTROLRESUME:
+    len--;
+    proto_tree_add_text(tree, tvb, offset, 1, "%s Flow Control Resume",source);
+    break;
+  
+  case TNCOMPORT_PURGEDATA:
+    len--;
+    if (len >= 1) {
+  	    guint8 purge = tvb_get_guint8(tvb, offset+1);
+        const char *p = (purge > 3) ? "<Purge invalid>" : purges[purge];
+        proto_tree_add_text(tree, tvb, offset, 2, "%s %s",source,p);
+    } else {
+        proto_tree_add_text(tree, tvb, offset, 1 + len, "%s <Invalid Purge Packet>",source);
+    }
+    break;
+  
+  default:
+    proto_tree_add_text(tree, tvb, offset, 1, "Invalid %s subcommand %u",
+                        optname, cmd);
+    offset++;
+    len--;
+    if (len > 0)
+      proto_tree_add_text(tree, tvb, offset, len, "Subcommand data");
+    return;
+  }
+
 }
 
 static const value_string rfc_opt_vals[] = {
@@ -597,6 +871,35 @@ static tn_opt options[] = {
     1,
     NULL					/* XXX - fill me in */
   },
+  {
+    "XAUTH",					/* XAUTH  */
+    &ett_xauth_subopt,
+    VARIABLE_LENGTH,
+    1,
+    NULL					/* XXX - fill me in */
+  },
+  {
+    "CHARSET",					/* CHARSET  */
+    &ett_charset_subopt,
+    VARIABLE_LENGTH,
+    1,
+    NULL					/* XXX - fill me in */
+  },
+  {
+    "Remote Serial Port",				/* Remote Serial Port */
+    &ett_rsp_subopt,
+    VARIABLE_LENGTH,
+    1,
+    NULL					/* XXX - fill me in */
+  },
+  {
+    "COM Port Control",					/* RFC 2217 */
+    &ett_comport_subopt,
+    VARIABLE_LENGTH,
+    1,
+    dissect_comport_subopt
+  },
+  
 };
 
 #define	NOPTIONS	(sizeof options / sizeof options[0])
@@ -612,6 +915,8 @@ telnet_sub_option(proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
   gint ett;
   int iac_offset;
   guint len;
+  gint cur_offset = 0;
+  gint iac_found = 0;
   void (*dissect)(const char *, tvbuff_t *, int, int, proto_tree *);
 
   offset += 2;	/* skip IAC and SB */
@@ -632,15 +937,30 @@ telnet_sub_option(proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
   }
   offset++;
 
-  /* Search for an IAC. */
+  /* Search for an unpadded IAC. */
+  cur_offset = offset;
   len = tvb_length_remaining(tvb, offset);
-  iac_offset = tvb_find_guint8(tvb, offset, len, TN_IAC);
-  if (iac_offset == -1) {
-    /* None found - run to the end of the packet. */
-    offset += len;
-  } else
-    offset = iac_offset;
+  do {
+      iac_offset = tvb_find_guint8(tvb, cur_offset, len, TN_IAC);
+      iac_found = 1;
+      if (iac_offset == -1) {
+        /* None found - run to the end of the packet. */
+        offset += len;
+      } else {
 
+        /* If we really found a single IAC, we're done */
+        if (((iac_offset + 1) >= len) || (tvb_get_guint8(tvb, iac_offset + 1) != TN_IAC)) {
+            offset = iac_offset;
+
+        /* Otherwise we have to move ahead to the next section */
+        } else {
+            iac_found = 0;
+            cur_offset = iac_offset + 2;
+        }
+      }
+
+  } while (!iac_found);
+  
   subneg_len = offset - start_offset;
 
   ti = proto_tree_add_text(telnet_tree, tvb, start_offset, subneg_len,
@@ -983,6 +1303,10 @@ proto_register_telnet(void)
 		&ett_enc_subopt,
 		&ett_newenv_subopt,
 		&ett_tn3270e_subopt,
+		&ett_xauth_subopt,
+		&ett_charset_subopt,
+		&ett_rsp_subopt,
+		&ett_comport_subopt,
 	};
 
         proto_telnet = proto_register_protocol("Telnet", "TELNET", "telnet");
