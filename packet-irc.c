@@ -1,7 +1,7 @@
 /* packet-irc.c
  * Routines for MSX irc packet dissection
  *
- * $Id: packet-irc.c,v 1.1 1999/12/06 23:57:51 nneul Exp $
+ * $Id: packet-irc.c,v 1.2 1999/12/07 00:22:11 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -52,17 +52,17 @@ static gint ett_irc = -1;
 void dissect_irc_request(proto_tree *tree, char *line, int offset, int len)
 {
 	proto_tree_add_item_hidden(tree, hf_irc_request,
-		offset, END_OF_FRAME, TRUE);
+		offset, len, TRUE);
 	proto_tree_add_text(tree, offset, 
-		END_OF_FRAME, "Request Line: %s", line);
+		len, "Request Line: %s", line);
 }
 
 void dissect_irc_response(proto_tree *tree, char *line, int offset, int len)
 {
 	proto_tree_add_item_hidden(tree, hf_irc_response,
-		offset, END_OF_FRAME, TRUE);
+		offset, len, TRUE);
 	proto_tree_add_text(tree, offset, 
-		END_OF_FRAME, "Response Line: %s", line);
+		len, "Response Line: %s", line);
 }
 
 void
@@ -71,7 +71,7 @@ dissect_irc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	proto_tree      *irc_tree, *ti;
 	char *tmpline;
 	int start, cur, len;
-	const u_char *i = pd+offset;
+	const u_char *i;
 
 	if (check_col(fd, COL_PROTOCOL))
 	col_add_str(fd, COL_PROTOCOL, "IRC");
@@ -87,19 +87,20 @@ dissect_irc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_irc, offset, END_OF_FRAME, NULL);
 		irc_tree = proto_item_add_subtree(ti, ett_irc);
 
-		start = 0;
-		len = 0;
 		tmpline = (char *)g_malloc( pi.captured_len );
+		i = pd+offset;
 		while ( i < pd + pi.captured_len )
 		{
-			start = i-pd;
+			start = i - pd;
 			cur = 0;
+			len = 0;
 			tmpline[cur] = 0;
 
 			/* copy up to end or cr/nl */
 			while ( i < pd + pi.captured_len && *i != '\r' && *i != '\n' )
 			{
 				tmpline[cur++] = *(i++);
+				len++;
 			}
 			tmpline[cur] = 0;
 
@@ -108,6 +109,7 @@ dissect_irc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				(*i == '\r' || *i == '\n') )
 			{
 				i++;
+				len++;
 			}
 
 			if ( strlen(tmpline) > 0 )

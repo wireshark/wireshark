@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.31 1999/11/27 08:59:28 guy Exp $
+ * $Id: packet-dns.c,v 1.32 1999/12/07 00:22:10 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1377,7 +1377,7 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   
   if (tree) {
     ti = proto_tree_add_item_format(tree, proto_dns, offset, 4, NULL,
-			  (flags & F_RESPONSE) ? "DNS response" : "DNS query");
+      "Domain Name System (%s)", (flags & F_RESPONSE) ? "response" : "query");
     
     dns_tree = proto_item_add_subtree(ti, ett_dns);
 
