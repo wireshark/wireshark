@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-auto_rp.c,v 1.19 2002/02/01 04:34:15 gram Exp $
+ * $Id: packet-auto_rp.c,v 1.20 2002/02/01 12:05:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -168,7 +168,7 @@ static void dissect_auto_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 for (i = 0; i < rp_count; i++)
                         offset = do_auto_rp_map(tvb, offset, auto_rp_tree);
 
-                if (tvb_length_remaining(tvb, offset) > 0)
+                if (tvb_offset_exists(tvb, offset))
                         proto_tree_add_text(tree, tvb, offset, -1, "Trailing junk");
         }
 
