@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.41 2001/11/20 10:37:16 guy Exp $
+ * $Id: proto_draw.c,v 1.42 2001/12/18 19:09:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -927,7 +927,7 @@ proto_tree_draw_node(GNode *node, gpointer data)
 	struct proto_tree_draw_info	info;
 	struct proto_tree_draw_info	*parent_info = (struct proto_tree_draw_info*) data;
 
-	field_info	*fi = (field_info*) (node->data);
+	field_info	*fi = PITEM_FINFO(node);
 	gchar		label_str[ITEM_LABEL_LENGTH];
 	gchar		*label_ptr;
 	GtkCTreeNode	*parent;

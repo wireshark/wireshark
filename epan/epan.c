@@ -1,6 +1,6 @@
 /* epan.h
  *
- * $Id: epan.c,v 1.14 2001/12/16 22:16:13 guy Exp $
+ * $Id: epan.c,v 1.15 2001/12/18 19:09:03 gram Exp $
  *
  * Ethereal Protocol Analyzer Library
  *
@@ -11,14 +11,13 @@
 #endif
 
 #include <glib.h>
-#include <epan.h>
+#include "epan.h"
+#include "epan_dissect.h"
 
 #include "conversation.h"
-#include "dfilter/dfilter.h"
 #include "except.h"
 #include "packet.h"
-#include "proto.h"
-#include "tvbuff.h"
+#include "column-utils.h"
 
 /*
  * XXX - this takes the plugin directory as an argument, because
@@ -74,37 +73,34 @@ epan_conversation_init(void)
 
 
 epan_dissect_t*
-epan_dissect_new(void* pseudo_header, const guint8* data, frame_data *fd,
-		gboolean create_proto_tree, gboolean proto_tree_visible,
-		column_info *cinfo)
+epan_dissect_new(gboolean create_proto_tree, gboolean proto_tree_visible)
 {
 	epan_dissect_t	*edt;
 
 	edt = g_new(epan_dissect_t, 1);
 
-	/* start with empty data source list */
-	if ( fd->data_src)
-                g_slist_free( fd->data_src);
-        fd->data_src = 0;
-
-	/*
-	 * Set the global "proto_tree_is_visible" to control whether
-	 * to fill in the text representation field in the protocol
-	 * tree fields.
-	 */
-	proto_tree_is_visible = proto_tree_visible;
 	if (create_proto_tree) {
 		edt->tree = proto_tree_create_root();
+        proto_tree_set_visible(edt->tree, proto_tree_visible);
 	}
 	else {
 		edt->tree = NULL;
 	}
 
-	dissect_packet(edt, pseudo_header, data, fd, cinfo);
-
-	proto_tree_is_visible = FALSE;
-
 	return edt;
+}
+
+void
+epan_dissect_run(epan_dissect_t *edt, void* pseudo_header,
+        const guint8* data, frame_data *fd, column_info *cinfo)
+{
+	/* start with empty data source list */
+	if (fd->data_src) {
+        g_slist_free(fd->data_src);
+    }
+    fd->data_src = NULL;
+
+	dissect_packet(edt, pseudo_header, data, fd, cinfo);
 }
 
 
@@ -121,4 +117,25 @@ epan_dissect_free(epan_dissect_t* edt)
 	}
 
 	g_free(edt);
+}
+
+static void
+prime_dfilter(gpointer data, gpointer user_data)
+{
+    int hfid = GPOINTER_TO_INT(data);
+    proto_tree *tree = user_data;
+
+    proto_tree_prime_hfid(tree, hfid);
+}
+
+void
+epan_dissect_prime_dfilter(epan_dissect_t *edt, dfilter_t* dfcode)
+{
+    dfilter_foreach_interesting_field(dfcode, prime_dfilter, edt->tree);
+}
+
+void
+epan_dissect_fill_in_columns(epan_dissect_t *edt)
+{
+    fill_in_columns(&edt->pi);
 }

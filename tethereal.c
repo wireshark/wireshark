@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.106 2001/12/16 22:16:11 guy Exp $
+ * $Id: tethereal.c,v 1.107 2001/12/18 19:09:02 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -107,6 +107,7 @@
 #include "conditions.h"
 #include "capture_stop_conditions.h"
 #include "ringbuffer.h"
+#include "epan_dissect.h"
 
 #ifdef WIN32
 #include "capture-wpcap.h"
@@ -1239,7 +1240,9 @@ wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr,
   cf->count++;
   if (cf->rfcode) {
     fill_in_fdata(&fdata, cf, phdr, pseudo_header, offset);
-    edt = epan_dissect_new(pseudo_header, buf, &fdata, TRUE, FALSE, NULL);
+    edt = epan_dissect_new(TRUE, FALSE);
+    epan_dissect_prime_dfilter(edt, cf->rfcode);
+    epan_dissect_run(edt, pseudo_header, buf, &fdata, NULL);
     passed = dfilter_apply_edt(cf->rfcode, edt);
   } else {
     passed = TRUE;
@@ -1343,10 +1346,14 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr,
 
      We only need the columns if we're *not* verbose; in verbose mode,
      we print the protocol tree, not the protocol summary. */
-  edt = epan_dissect_new(pseudo_header, buf, &fdata, create_proto_tree,
-    verbose, verbose ? NULL : &cf->cinfo);
-  if (cf->rfcode)
+  edt = epan_dissect_new(create_proto_tree, verbose);
+  if (cf->rfcode) {
+    epan_dissect_prime_dfilter(edt, cf->rfcode);
+  }
+  epan_dissect_run(edt, pseudo_header, buf, &fdata, verbose ? NULL : &cf->cinfo);
+  if (cf->rfcode) {
     passed = dfilter_apply_edt(cf->rfcode, edt);
+  }
   if (passed) {
     /* The packet passed the read filter. */
     if (verbose) {
@@ -1367,7 +1374,7 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr,
       }
     } else {
       /* Just fill in the columns. */
-      fill_in_columns(&edt->pi);
+      epan_dissect_fill_in_columns(edt);
 
       /* Now print them. */
       for (i = 0; i < cf->cinfo.num_cols; i++) {

@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.15 2001/12/12 21:38:58 gerald Exp $
+ * $Id: follow_dlg.c,v 1.16 2001/12/18 19:09:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -70,6 +70,7 @@
 #include "resolv.h"
 #include "util.h"
 #include "ui_util.h"
+#include "epan_dissect.h"
 
 /* Show Stream */
 typedef enum {

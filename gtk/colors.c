@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.16 2001/12/02 00:16:02 guy Exp $
+ * $Id: colors.c,v 1.17 2001/12/18 19:09:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -126,6 +126,25 @@ delete_color_filter(color_filter_t *colorf)
 	filter_list = g_slist_remove(filter_list, colorf);
 	g_free(colorf);
 }
+
+
+static void
+prime_edt(gpointer data, gpointer user_data)
+{
+    color_filter_t  *colorf = data;
+    epan_dissect_t   *edt = user_data;
+
+    epan_dissect_prime_dfilter(edt, colorf->c_colorfilter);
+} 
+
+/* Prime the epan_dissect_t with all the compiler
+ * color filters in 'filter_list'. */
+void
+filter_list_prime_edt(epan_dissect_t *edt)
+{
+    g_slist_foreach(filter_list, prime_edt, edt);
+}
+
 
 /* read filters from the file */
 static gboolean

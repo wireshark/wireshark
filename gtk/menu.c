@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.57 2001/12/08 09:27:51 guy Exp $
+ * $Id: menu.c,v 1.58 2001/12/18 19:09:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,6 +61,7 @@
 #include "keys.h"
 #include "plugins.h"
 #include "tcp_graph.h"
+#include "epan_dissect.h"
 
 GtkWidget *popup_menu_object;
 

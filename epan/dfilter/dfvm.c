@@ -1,5 +1,5 @@
 /*
- * $Id: dfvm.c,v 1.4 2001/12/13 05:55:23 gram Exp $
+ * $Id: dfvm.c,v 1.5 2001/12/18 19:09:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -211,6 +211,9 @@ read_tree(dfilter_t *df, proto_tree *tree, int field_id, int reg)
 	if (!finfos) {
 		return FALSE;
 	}
+    else if (g_ptr_array_len(finfos) == 0) {
+        return FALSE;
+    }
 
 	len = finfos->len;
 	for (i = 0; i < len; i++) {
@@ -218,7 +221,6 @@ read_tree(dfilter_t *df, proto_tree *tree, int field_id, int reg)
 		fvalues = g_list_prepend(fvalues, finfo->value);
 	}
 	fvalues = g_list_reverse(fvalues);
-	g_ptr_array_free(finfos, TRUE);
 
 	df->registers[reg] = fvalues;
 	return TRUE;

@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter-int.h,v 1.3 2001/02/15 06:22:45 guy Exp $
+ * $Id: dfilter-int.h,v 1.4 2001/12/18 19:09:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,6 +35,8 @@ struct _dfilter_t {
 	int		num_registers;
 	GList		**registers;
 	gboolean	*attempted_load;
+    int         *interesting_fields;
+    int         num_interesting_fields;
 };
 
 typedef struct {
@@ -43,6 +45,7 @@ typedef struct {
 	gboolean	syntax_error;
 	GPtrArray	*insns;
 	GHashTable	*loaded_fields;
+	GHashTable	*interesting_fields;
 	int		next_insn_id;
 	int		next_register;
 } dfwork_t;

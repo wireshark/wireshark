@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.29 2001/12/16 22:16:14 guy Exp $
+ * $Id: packet_win.c,v 1.30 2001/12/18 19:09:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,6 +63,7 @@
 #include "keys.h"
 #include "gtkglobals.h"
 #include "plugins.h"
+#include "epan_dissect.h"
 
 /* Data structure holding information about a packet-detail window. */
 struct PacketWinData {
@@ -166,8 +167,9 @@ create_new_window(char *Title, gint tv_size, gint bv_size)
   memcpy(&DataPtr->pseudo_header, &cfile.pseudo_header, sizeof DataPtr->pseudo_header);
   DataPtr->pd = g_malloc(DataPtr->frame->cap_len);
   memcpy(DataPtr->pd, cfile.pd, DataPtr->frame->cap_len);
-  DataPtr->edt = epan_dissect_new(&DataPtr->pseudo_header, DataPtr->pd, DataPtr->frame,
-		TRUE, TRUE, &cfile.cinfo);
+  DataPtr->edt = epan_dissect_new(TRUE, TRUE);
+  epan_dissect_run(DataPtr->edt, &DataPtr->pseudo_header, DataPtr->pd,
+          DataPtr->frame, &cfile.cinfo);
   DataPtr->main = main_w;
   DataPtr->tv_scrollw = tv_scrollw;
   DataPtr->tree_view = tree_view;

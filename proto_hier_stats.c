@@ -1,7 +1,7 @@
 /* proto_hier_stats.c
  * Routines for calculating statistics based on protocol.
  *
- * $Id: proto_hier_stats.c,v 1.7 2001/12/16 22:16:11 guy Exp $
+ * $Id: proto_hier_stats.c,v 1.8 2001/12/18 19:09:02 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,6 +30,7 @@
 #include "globals.h"
 #include "proto_hier_stats.h"
 #include "progress_dlg.h"
+#include "epan_dissect.h"
 #include <wtap.h>
 
 #include <stdio.h>
@@ -48,7 +49,7 @@ find_stat_node(GNode *parent_node, header_field_info *needle_hfinfo)
 	needle_node = g_node_first_child(parent_node);
 
 	while (needle_node) {
-		finfo = needle_node->data;
+		finfo = PITEM_FINFO(needle_node);
 		if (finfo && finfo->hfinfo && finfo->hfinfo->id == needle_hfinfo->id) {
 			return needle_node;
 		}
@@ -72,14 +73,14 @@ find_stat_node(GNode *parent_node, header_field_info *needle_hfinfo)
 
 
 static void
-process_node(proto_item *proto_node, GNode *parent_stat_node, ph_stats_t *ps, guint pkt_len)
+process_node(proto_item *ptree_node, GNode *parent_stat_node, ph_stats_t *ps, guint pkt_len)
 {
 	field_info		*finfo;
 	ph_stats_node_t	*stats;
 	proto_item		*proto_sibling_node;
 	GNode			*stat_node;
 
-	finfo = proto_node->data;
+	finfo = PITEM_FINFO(ptree_node);
 	g_assert(finfo);
 
 	stat_node = find_stat_node(parent_stat_node, finfo->hfinfo);
@@ -91,7 +92,7 @@ process_node(proto_item *proto_node, GNode *parent_stat_node, ph_stats_t *ps, gu
 	stats->num_pkts_total++;
 	stats->num_bytes_total += pkt_len;
 
-	proto_sibling_node = g_node_next_sibling(proto_node);
+	proto_sibling_node = g_node_next_sibling(ptree_node);
 
 	if (proto_sibling_node) {
 		process_node(proto_sibling_node, stat_node, ps, pkt_len);
@@ -107,14 +108,14 @@ process_node(proto_item *proto_node, GNode *parent_stat_node, ph_stats_t *ps, gu
 static void
 process_tree(proto_tree *protocol_tree, ph_stats_t* ps, guint pkt_len)
 {
-	proto_item	*proto_node;
+	proto_item	*ptree_node;
 
-	proto_node = g_node_first_child(protocol_tree);
-	if (!proto_node) {
+	ptree_node = g_node_first_child(protocol_tree);
+	if (!ptree_node) {
 		return;
 	}
 
-	process_node(proto_node, ps->stats_tree, ps, pkt_len);
+	process_node(ptree_node, ps->stats_tree, ps, pkt_len);
 }
 
 static void
@@ -129,7 +130,8 @@ process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 			pd, frame->cap_len);
 
 	/* Dissect the frame */
-	edt = epan_dissect_new(&phdr, pd, frame, TRUE, FALSE, cinfo);
+	edt = epan_dissect_new(TRUE, FALSE);
+    epan_dissect_run(edt, &phdr, pd, frame, cinfo);
 
 	/* Get stats from this protocol tree */
 	process_tree(edt->tree, ps, frame->pkt_len);

@@ -1,5 +1,5 @@
 /*
- * $Id: semcheck.c,v 1.6 2001/11/02 10:09:49 guy Exp $
+ * $Id: semcheck.c,v 1.7 2001/12/18 19:09:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,6 +32,7 @@
 #include "sttype-test.h"
 
 #include "exceptions.h"
+#include "packet.h"
 
 static void
 semcheck(dfwork_t *dfw, stnode_t *st_node);

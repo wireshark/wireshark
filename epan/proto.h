@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.24 2001/12/07 03:39:26 gram Exp $
+ * $Id: proto.h,v 1.25 2001/12/18 19:09:04 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,9 +42,6 @@
 #include "tvbuff.h"
 #include "ftypes/ftypes.h"
 
-
-typedef GNode proto_tree;
-typedef GNode proto_item;
 struct value_string;
 
 #define ITEM_LABEL_LENGTH	240
@@ -107,7 +104,7 @@ typedef struct hf_register_info {
 } hf_register_info;
 
 
-/* Info stored in each proto_item GNode */
+/* Contains the field information for the proto_item. */
 typedef struct field_info {
 	header_field_info		*hfinfo;
 	gint				start;
@@ -119,6 +116,31 @@ typedef struct field_info {
 	gchar				*ds_name;  /* data source name */
 } field_info;
 
+/* One of these exists for the entire protocol tree. Each proto_node
+ * in the protocol tree points to the same copy. */
+typedef struct {
+    GHashTable  *interesting_hfids;
+    gboolean    visible;
+} tree_data_t;
+
+/* Each GNode (proto_tree, proto_item) points to one of
+ * these. */
+typedef struct {
+    field_info  *finfo;    
+    tree_data_t *tree_data;
+} proto_node;
+
+typedef GNode proto_tree;
+typedef GNode proto_item;
+
+/* Retrieve the proto_node from a GNode. */
+#define GNODE_PNODE(t)  ((proto_node*)((GNode*)(t))->data)
+
+/* Retrieve the field_info from a proto_item */
+#define PITEM_FINFO(t)  (GNODE_PNODE(t)->finfo)
+
+/* Retrieve the tree_data_t from a proto_tree */
+#define PTREE_DATA(t)   (GNODE_PNODE(t)->tree_data)
 
 /* Sets up memory used by proto routines. Called at program startup */
 extern void proto_init(const char *plugin_dir,
@@ -152,6 +174,10 @@ extern int proto_item_get_len(proto_item *ti);
 
 /* Creates new proto_tree root */
 extern proto_tree* proto_tree_create_root(void);
+
+/* Mark a field/protocol ID as "interesting". */    
+void
+proto_tree_prime_hfid(proto_tree *tree, int hfid);
 
 /* Clear memory for entry proto_tree. Clears proto_tree struct also. */
 extern void proto_tree_free(proto_tree *tree);
@@ -456,6 +482,9 @@ proto_tree_add_debug_text(proto_tree *tree, const char *format, ...);
 
 extern void
 proto_item_fill_label(field_info *fi, gchar *label_str);
+
+extern void
+proto_tree_set_visible(proto_tree *tree, gboolean visible);
 
 /* Returns number of items (protocols or header fields) registered. */
 extern int proto_registrar_n(void);

@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter.h,v 1.2 2001/02/01 20:31:18 gram Exp $
+ * $Id: dfilter.h,v 1.3 2001/12/18 19:09:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,11 +25,13 @@
 #define DFILTER_H
 
 #include <glib.h>
-#include "epan.h"
-#include "proto.h"
 
 /* Passed back to user */
 typedef struct _dfilter_t dfilter_t;
+
+#include "epan.h"
+#include "proto.h"
+
 
 /* Module-level initialization */
 void
@@ -75,6 +77,10 @@ dfilter_apply_edt(dfilter_t *df, epan_dissect_t* edt);
 gboolean
 dfilter_apply(dfilter_t *df, tvbuff_t *tvb, proto_tree *tree);
 
+/* Run a callback for each interesting field in the dfilter. */
+void
+dfilter_foreach_interesting_field(dfilter_t *df, GFunc func,
+        gpointer user_data);
 
 /* Print bytecode of dfilter to stdout */
 void

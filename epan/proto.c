@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.47 2001/12/07 03:39:26 gram Exp $
+ * $Id: proto.c,v 1.48 2001/12/18 19:09:04 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,11 +73,12 @@ static proto_item*
 proto_tree_add_node(proto_tree *tree, field_info *fi);
 
 static field_info *
-alloc_field_info(int hfindex, tvbuff_t *tvb, gint start, gint length);
+alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+        gint start, gint length);
 
 static proto_item *
-proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
-		field_info **pfi);
+proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+        gint start, gint length, field_info **pfi);
 static void
 proto_tree_set_representation(proto_item *pi, const char *format, va_list ap);
 
@@ -138,6 +139,12 @@ typedef struct {
 /* List of all protocols */
 static GList *protocols;
 
+#define INITIAL_NUM_PROTOCOL_HFINFO     200
+#define INITIAL_NUM_FIELD_INFO          100
+#define INITIAL_NUM_PROTO_NODE          100
+#define INITIAL_NUM_ITEM_LABEL          100
+
+
 /* Contains information about protocols and header fields. Used when
  * dissectors register their data */
 static GMemChunk *gmc_hfinfo = NULL;
@@ -145,6 +152,9 @@ static GMemChunk *gmc_hfinfo = NULL;
 /* Contains information about a field when a dissector calls
  * proto_tree_add_item.  */
 static GMemChunk *gmc_field_info = NULL;
+
+/* Contains the space for proto_nodes. */
+static GMemChunk *gmc_proto_node = NULL;
 
 /* String space for protocol and field items for the GUI */
 static GMemChunk *gmc_item_labels = NULL;
@@ -159,12 +169,6 @@ gboolean	*tree_is_expanded;
 
 /* Number of elements in that array. */
 int		num_tree_types;
-
-/* Is the parsing being done for a visible proto_tree or an invisible one?
- * By setting this correctly, the proto_tree creation is sped up by not
- * having to call vsnprintf and copy strings around.
- */
-gboolean proto_tree_is_visible = FALSE;
 
 /* initialize data structures and register protocols and fields */
 void
@@ -181,6 +185,8 @@ proto_init(const char *plugin_dir,void (register_all_protocols)(void),
 		g_mem_chunk_destroy(gmc_hfinfo);
 	if (gmc_field_info)
 		g_mem_chunk_destroy(gmc_field_info);
+	if (gmc_proto_node)
+		g_mem_chunk_destroy(gmc_proto_node);
 	if (gmc_item_labels)
 		g_mem_chunk_destroy(gmc_item_labels);
 	if (gpa_hfinfo)
@@ -189,13 +195,25 @@ proto_init(const char *plugin_dir,void (register_all_protocols)(void),
 		g_free(tree_is_expanded);
 
 	gmc_hfinfo = g_mem_chunk_new("gmc_hfinfo",
-		sizeof(header_field_info), 50 * sizeof(header_field_info), G_ALLOC_ONLY);
+		sizeof(header_field_info),
+        INITIAL_NUM_PROTOCOL_HFINFO * sizeof(header_field_info),
+        G_ALLOC_ONLY);
+
 	gmc_field_info = g_mem_chunk_new("gmc_field_info",
-		sizeof(struct field_info), 200 * sizeof(struct field_info),
+		sizeof(field_info),
+        INITIAL_NUM_FIELD_INFO * sizeof(field_info),
 		G_ALLOC_AND_FREE);
+
+	gmc_proto_node = g_mem_chunk_new("gmc_proto_node",
+		sizeof(proto_node),
+        INITIAL_NUM_PROTO_NODE * sizeof(proto_node),
+		G_ALLOC_AND_FREE);
+
 	gmc_item_labels = g_mem_chunk_new("gmc_item_labels",
-		ITEM_LABEL_LENGTH, 20 * ITEM_LABEL_LENGTH,
+		ITEM_LABEL_LENGTH,
+        INITIAL_NUM_ITEM_LABEL* ITEM_LABEL_LENGTH,
 		G_ALLOC_AND_FREE);
+
 	gpa_hfinfo = g_ptr_array_new();
 
 	/* Allocate "tree_is_expanded", with one element for ETT_NONE,
@@ -248,10 +266,14 @@ proto_cleanup(void)
 		g_mem_chunk_destroy(gmc_hfinfo);
 	if (gmc_field_info)
 		g_mem_chunk_destroy(gmc_field_info);
+	if (gmc_proto_node)
+		g_mem_chunk_destroy(gmc_proto_node);
 	if (gmc_item_labels)
 		g_mem_chunk_destroy(gmc_item_labels);
 	if (gpa_hfinfo)
 		g_ptr_array_free(gpa_hfinfo, TRUE);
+	if (tree_is_expanded != NULL)
+		g_free(tree_is_expanded);
 
 	/* Cleanup the ftype subsystem */
 	ftypes_cleanup();
@@ -261,8 +283,11 @@ proto_cleanup(void)
 void
 proto_tree_free(proto_tree *tree)
 {
+    /* Free all the data pointed to by the tree. */
 	g_node_traverse((GNode*)tree, G_IN_ORDER, G_TRAVERSE_ALL, -1,
 		proto_tree_free_node, NULL);
+
+    /* Then free the tree. */
 	g_node_destroy((GNode*)tree);
 }
 
@@ -273,20 +298,69 @@ free_field_info(void *fi)
 	g_mem_chunk_free(gmc_field_info, (field_info*)fi);
 }
 
+static void
+free_GPtrArray_value(gpointer key, gpointer value, gpointer user_data)
+{
+    GPtrArray   *ptrs = value;
+
+    g_ptr_array_free(ptrs, TRUE);
+}
+
+static void
+free_node_tree_data(tree_data_t *tree_data)
+{
+        /* Free all the GPtrArray's in the interesting_hfids hash. */
+        g_hash_table_foreach(tree_data->interesting_hfids,
+            free_GPtrArray_value, NULL);
+
+        /* And then destroy the hash. */
+        g_hash_table_destroy(tree_data->interesting_hfids);
+
+        /* And finally the tree_data_t itself. */
+        g_free(tree_data);
+}
+
+static void
+free_node_field_info(field_info* finfo)
+{
+		if (finfo->representation) {
+			g_mem_chunk_free(gmc_item_labels, finfo->representation);
+		}
+		fvalue_free(finfo->value);
+		free_field_info(finfo);
+}
+
 static gboolean
 proto_tree_free_node(GNode *node, gpointer data)
 {
-	field_info *fi = (field_info*) (node->data);
+	field_info *finfo = PITEM_FINFO(node);
 
-	if (fi != NULL) {
-		if (fi->representation) {
-			g_mem_chunk_free(gmc_item_labels, fi->representation);
-		}
-		fvalue_free(fi->value);
-		free_field_info(fi);
+    if (finfo == NULL) {
+        /* This is the root GNode. Destroy the per-tree data.
+         * There is no field_info to destroy. */
+        free_node_tree_data(PTREE_DATA(node));
+    }
+    else {
+        /* This is a child GNode. Don't free the per-tree data, but
+         * do free the field_info data. */
+        free_node_field_info(finfo);
 	}
+
+    /* Free the proto_node. */
+	g_mem_chunk_free(gmc_proto_node, GNODE_PNODE(node));
+
 	return FALSE; /* FALSE = do not end traversal of GNode tree */
-}	
+}
+
+/* Is the parsing being done for a visible proto_tree or an invisible one?
+ * By setting this correctly, the proto_tree creation is sped up by not
+ * having to call vsnprintf and copy strings around.
+ */
+void
+proto_tree_set_visible(proto_tree *tree, gboolean visible)
+{
+    PTREE_DATA(tree)->visible = visible;
+}
 
 /* Finds a record in the hf_info_records array by id. */
 header_field_info*
@@ -451,11 +525,13 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	guint32		value, n;
 	char		*string;
 	int		found_length;
+    GHashTable  *hash;
+    GPtrArray   *ptrs;
 
 	if (!tree)
 		return(NULL);
 
-	new_fi = alloc_field_info(hfindex, tvb, start, length);
+	new_fi = alloc_field_info(tree, hfindex, tvb, start, length);
 
 	if (new_fi == NULL)
 		return(NULL);
@@ -574,6 +650,14 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	 * raised by a tvbuff access method doesn't leave junk in the proto_tree. */
 	pi = proto_tree_add_node(tree, new_fi);
 
+    /* If the proto_tree wants to keep a record of this finfo
+     * for quick lookup, then record it. */
+    hash = PTREE_DATA(tree)->interesting_hfids;
+    ptrs = g_hash_table_lookup(hash, GINT_TO_POINTER(hfindex));
+    if (ptrs) {
+        g_ptr_array_add(ptrs, new_fi);
+    }
+
 	return pi;
 }
 
@@ -588,7 +672,7 @@ proto_tree_add_item_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	if (pi == NULL)
 		return(NULL);
 
-	fi = (field_info*) (((GNode*)pi)->data);
+	fi = PITEM_FINFO(pi);
 	fi->visible = FALSE;
 
 	return pi;
@@ -691,7 +775,7 @@ proto_tree_add_bytes_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
 	if (pi == NULL)
 		return (NULL);
 
-	fi = (field_info*) (((GNode*)pi)->data);
+	fi = PITEM_FINFO(pi);
 	fi->visible = FALSE;
 
 	return pi;
@@ -767,7 +851,7 @@ proto_tree_add_time_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 	if (pi == NULL)
 		return (NULL);
 
-	fi = (field_info*) (((GNode*)pi)->data);
+	fi = PITEM_FINFO(pi);
 	fi->visible = FALSE;
 
 	return pi;
@@ -830,7 +914,7 @@ proto_tree_add_ipxnet_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint 
 	if (pi == NULL)
 		return (NULL);
 
-	fi = (field_info*) (((GNode*)pi)->data);
+	fi = PITEM_FINFO(pi);
 	fi->visible = FALSE;
 
 	return pi;
@@ -893,7 +977,7 @@ proto_tree_add_ipv4_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 	if (pi == NULL)
 		return (NULL);
 
-	fi = (field_info*) (((GNode*)pi)->data);
+	fi = PITEM_FINFO(pi);
 	fi->visible = FALSE;
 
 	return pi;
@@ -956,7 +1040,7 @@ proto_tree_add_ipv6_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 	if (pi == NULL)
 		return (NULL);
 
-	fi = (field_info*) (((GNode*)pi)->data);
+	fi = PITEM_FINFO(pi);
 	fi->visible = FALSE;
 
 	return pi;
@@ -1047,7 +1131,7 @@ proto_tree_add_string_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint 
 	if (pi == NULL)
 		return (NULL);
 
-	fi = (field_info*) (((GNode*)pi)->data);
+	fi = PITEM_FINFO(pi);
 	fi->visible = FALSE;
 
 	return pi;
@@ -1122,7 +1206,7 @@ proto_tree_add_ether_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
 	if (pi == NULL)
 		return (NULL);
 
-	fi = (field_info*) (((GNode*)pi)->data);
+	fi = PITEM_FINFO(pi);
 	fi->visible = FALSE;
 
 	return pi;
@@ -1191,7 +1275,7 @@ proto_tree_add_boolean_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint
 	if (pi == NULL)
 		return (NULL);
 
-	fi = (field_info*) (((GNode*)pi)->data);
+	fi = PITEM_FINFO(pi);
 	fi->visible = FALSE;
 
 	return pi;
@@ -1254,7 +1338,7 @@ proto_tree_add_double_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint 
 	if (pi == NULL)
 		return (NULL);
 
-	fi = (field_info*) (((GNode*)pi)->data);
+	fi = PITEM_FINFO(pi);
 	fi->visible = FALSE;
 
 	return pi;
@@ -1326,7 +1410,7 @@ proto_tree_add_uint_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 	if (pi == NULL)
 		return (NULL);
 
-	fi = (field_info*) (((GNode*)pi)->data);
+	fi = PITEM_FINFO(pi);
 	fi->visible = FALSE;
 
 	return pi;
@@ -1413,7 +1497,7 @@ proto_tree_add_int_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint sta
 	if (pi == NULL)
 		return (NULL);
 
-	fi = (field_info*) (((GNode*)pi)->data);
+	fi = PITEM_FINFO(pi);
 	fi->visible = FALSE;
 
 	return pi;
@@ -1464,12 +1548,17 @@ proto_tree_set_int(field_info *fi, gint32 value)
 static proto_item *
 proto_tree_add_node(proto_tree *tree, field_info *fi)
 {
-	proto_item *pi;
+	GNode *new_gnode;
+    proto_node *pnode;
 
-	pi = (proto_item*) g_node_new(fi);
-	g_node_append((GNode*)tree, (GNode*)pi);
+    pnode = g_mem_chunk_alloc(gmc_proto_node);
+    pnode->finfo = fi;
+    pnode->tree_data = PTREE_DATA(tree);
 
-	return pi;
+    new_gnode = g_node_new(pnode);
+    g_node_append((GNode*)tree, new_gnode);
+
+    return (proto_item*) new_gnode;
 }
 
 
@@ -1481,13 +1570,24 @@ proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint
 {
 	proto_item	*pi;
 	field_info	*fi;
+    GHashTable  *hash;
+    GPtrArray   *ptrs;
 
 	if (!tree)
 		return(NULL);
 
-	fi = alloc_field_info(hfindex, tvb, start, length);
+	fi = alloc_field_info(tree, hfindex, tvb, start, length);
 	pi = proto_tree_add_node(tree, fi);
 
+    /* If the proto_tree wants to keep a record of this finfo
+     * for quick lookup, then record it. */
+    hash = PTREE_DATA(tree)->interesting_hfids;
+    ptrs = g_hash_table_lookup(hash, GINT_TO_POINTER(hfindex));
+    if (ptrs) {
+        g_ptr_array_add(ptrs, fi);
+    }
+
+    /* Does the caller want to know the fi pointer? */
 	if (pfi) {
 		*pfi = fi;
 	}
@@ -1496,7 +1596,7 @@ proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint
 }
 
 static field_info *
-alloc_field_info(int hfindex, tvbuff_t *tvb, gint start, gint length)
+alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length)
 {
 	field_info	*fi;
 
@@ -1517,7 +1617,7 @@ alloc_field_info(int hfindex, tvbuff_t *tvb, gint start, gint length)
 	}
 	fi->length = length;
 	fi->tree_type = ETT_NONE;
-	fi->visible = proto_tree_is_visible;
+	fi->visible = PTREE_DATA(tree)->visible;
 	fi->representation = NULL;
 
 	fi->value = fvalue_new(fi->hfinfo->type);
@@ -1537,7 +1637,7 @@ alloc_field_info(int hfindex, tvbuff_t *tvb, gint start, gint length)
 static void
 proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 {
-	field_info *fi = (field_info*) (((GNode*)pi)->data);
+	field_info *fi = PITEM_FINFO(pi);
 
 	if (fi->visible) {
 		fi->representation = g_mem_chunk_alloc(gmc_item_labels);
@@ -1556,7 +1656,7 @@ proto_item_set_text(proto_item *pi, const char *format, ...)
 		return;
 	}
 
-	fi = (field_info *)(((GNode*)pi)->data);
+	fi = PITEM_FINFO(pi);
 
 	if (fi->representation)
 		g_mem_chunk_free(gmc_item_labels, fi->representation);
@@ -1578,7 +1678,7 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 		return;
 	}
 
-	fi = (field_info*) (((GNode*)pi)->data);
+	fi = PITEM_FINFO(pi);
 
 	if (fi->visible) {
 		va_start(ap, format);
@@ -1603,21 +1703,45 @@ proto_item_set_len(proto_item *pi, gint length)
 	
 	if (pi == NULL)
 		return;
-	fi = (field_info*) (((GNode*)pi)->data);
+	fi = PITEM_FINFO(pi);
 	fi->length = length;
 }
 
 int
 proto_item_get_len(proto_item *pi)
 {
-	field_info *fi = (field_info*) (((GNode*)pi)->data);
+	field_info *fi = PITEM_FINFO(pi);
 	return fi->length;
 }
 
 proto_tree*
 proto_tree_create_root(void)
 {
-	return (proto_tree*) g_node_new(NULL);
+    proto_node  *pnode;
+
+    /* Initialize the proto_node */
+    pnode = g_mem_chunk_alloc(gmc_proto_node);
+    pnode->finfo = NULL;
+    pnode->tree_data = g_new(tree_data_t, 1);
+
+    /* Initialize the tree_data_t */
+    pnode->tree_data->interesting_hfids =
+        g_hash_table_new(g_direct_hash, g_direct_equal);
+
+    /* Set the default to FALSE so it's easier to
+     * find errors; if we expect to see the protocol tree
+     * but for some reason the default 'visible' is not
+     * changed, then we'll find out very quickly. */
+    pnode->tree_data->visible = FALSE;
+
+	return (proto_tree*) g_node_new(pnode);
+}
+
+void
+proto_tree_prime_hfid(proto_tree *tree, int hfid)
+{
+    g_hash_table_insert(PTREE_DATA(tree)->interesting_hfids,
+            GINT_TO_POINTER(hfid), g_ptr_array_new());
 }
 
 proto_tree*
@@ -1627,7 +1751,7 @@ proto_item_add_subtree(proto_item *pi,  gint idx) {
 	if (!pi)
 		return(NULL);
 
-	fi = (field_info*) (((GNode*)pi)->data);
+	fi = PITEM_FINFO(pi);
 	g_assert(idx >= 0 && idx < num_tree_types);
 	fi->tree_type = idx;
 	return (proto_tree*) pi;
@@ -2594,7 +2718,7 @@ proto_find_protocol_multi(proto_tree* tree, GNodeTraverseFunc callback,
 static gboolean
 traverse_subtree_for_field(GNode *node, gpointer data)
 {
-	field_info		*fi = (field_info*) (node->data);
+	field_info *fi = PITEM_FINFO(node);
 	proto_tree_search_info	*sinfo = (proto_tree_search_info*) data;
 
 	if (fi) { /* !fi == the top most container node which holds nothing */
@@ -2606,124 +2730,35 @@ traverse_subtree_for_field(GNode *node, gpointer data)
 	return FALSE; /* keep traversing */
 }
 
-static gboolean
-check_for_protocol_or_field_id(GNode *node, gpointer data)
-{
-	field_info		*fi = (field_info*) (node->data);
-	proto_tree_search_info	*sinfo = (proto_tree_search_info*) data;
-	header_field_info	*hfinfo;
-
-	if (fi) { /* !fi == the top most container node which holds nothing */
-		/* Is this field one of the fields in the specified list
-		 * of fields? */
-		for (hfinfo = sinfo->target; hfinfo != NULL;
-		    hfinfo = hfinfo->same_name_next) {
-			if (fi->hfinfo == hfinfo) {
-				sinfo->result.node = node;
-				return TRUE; /* halt traversal */
-			}
-		}
-	}
-	return FALSE; /* keep traversing */
-}
-
 /* Looks for a protocol or a field in a proto_tree. Returns TRUE if
  * it exists anywhere, or FALSE if it exists nowhere. */
 gboolean
 proto_check_for_protocol_or_field(proto_tree* tree, int id)
 {
-	proto_tree_search_info	sinfo;
-	header_field_info	*hfinfo;
+    GPtrArray *ptrs = proto_get_finfo_ptr_array(tree, id);
 
-	hfinfo = proto_registrar_get_nth(id);
-
-	/* Find the first entry on the list of fields with the same
-	 * name as this field. */
-	while (hfinfo->same_name_prev != NULL)
-		hfinfo = hfinfo->same_name_prev;
-
-	sinfo.target		= hfinfo;
-	sinfo.result.node	= NULL;
-	sinfo.traverse_func	= check_for_protocol_or_field_id;
-	sinfo.halt_on_first_hit	= TRUE;
-
-	/* do a quicker check if target is a protocol */
-	if (proto_registrar_is_protocol(id) == TRUE) {
-		proto_find_protocol_multi(tree, check_for_protocol_or_field_id, &sinfo);
-	}
-	else {
-		/* Go through each protocol subtree. */
-		g_node_traverse((GNode*)tree, G_IN_ORDER, G_TRAVERSE_ALL, 2,
-						traverse_subtree_for_field, &sinfo);
-	}
-
-	if (sinfo.result.node)
-		return TRUE;
-	else
-		return FALSE;
+    if (!ptrs) {
+        return FALSE;
+    }
+    else if (g_ptr_array_len(ptrs) > 0) {
+        return TRUE;
+    }
+    else {
+        return FALSE;
+    }
 }
 
-
-
-static gboolean
-get_finfo_ptr_array(GNode *node, gpointer data)
-{
-	field_info		*fi = (field_info*) (node->data);
-	proto_tree_search_info	*sinfo = (proto_tree_search_info*) data;
-	header_field_info	*hfinfo;
-
-	if (fi) { /* !fi == the top most container node which holds nothing */
-		/* Is this field one of the fields in the specified list
-		 * of fields? */
-		for (hfinfo = sinfo->target; hfinfo != NULL;
-		    hfinfo = hfinfo->same_name_next) {
-			if (fi->hfinfo == hfinfo) {
-				if (!sinfo->result.ptr_array) {
-					sinfo->result.ptr_array = g_ptr_array_new();
-				}
-				g_ptr_array_add(sinfo->result.ptr_array,
-						(gpointer)fi);
-				return FALSE; /* keep traversing */
-			}
-		}
-	}
-	return FALSE; /* keep traversing */
-}
-
-/* Return GPtrArray* of field_info pointers for all hfindex that appear in tree
- * (we assume that a field will only appear under its registered parent's subtree) */
+/* Return GPtrArray* of field_info pointers for all hfindex that appear in tree.
+ * This only works if the hfindex was "primed" before the dissection
+ * took place, as we just pass back the already-created GPtrArray*.
+ * The caller should *not* free the GPtrArray*; proto_tree_free_node()
+ * handles that. */
 GPtrArray*
 proto_get_finfo_ptr_array(proto_tree *tree, int id)
 {
-	proto_tree_search_info	sinfo;
-	header_field_info	*hfinfo;
-
-	hfinfo = proto_registrar_get_nth(id);
-
-	/* Find the first entry on the list of fields with the same
-	 * name as this field. */
-	while (hfinfo->same_name_prev != NULL)
-		hfinfo = hfinfo->same_name_prev;
-
-	sinfo.target		= hfinfo;
-	sinfo.result.ptr_array	= NULL;
-	sinfo.traverse_func	= get_finfo_ptr_array;
-	sinfo.halt_on_first_hit	= FALSE;
-
-	/* do a quicker check if target is a protocol */
-	if (proto_registrar_is_protocol(id) == TRUE) {
-		proto_find_protocol_multi(tree, get_finfo_ptr_array, &sinfo);
-	}
-	else {
-		/* Go through each protocol subtree. */
-		sinfo.traverse_func = get_finfo_ptr_array;
-		g_node_traverse((GNode*)tree, G_IN_ORDER, G_TRAVERSE_ALL, 2,
-						traverse_subtree_for_field, &sinfo);
-	}
-
-	return sinfo.result.ptr_array;
+    return g_hash_table_lookup(PTREE_DATA(tree)->interesting_hfids,
+            GINT_TO_POINTER(id));
 }
-
 
 
 typedef struct {
@@ -2735,7 +2770,7 @@ typedef struct {
 static gboolean
 check_for_offset(GNode *node, gpointer data)
 {
-	field_info		*fi = node->data;
+	field_info          *fi = PITEM_FINFO(node);
 	offset_search_t		*offsearch = data;
 
 	/* !fi == the top most container node which holds nothing */

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.254 2001/12/16 22:16:11 guy Exp $
+ * $Id: file.c,v 1.255 2001/12/18 19:09:01 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -92,6 +92,7 @@
 #include "reassemble.h"
 #include "globals.h"
 #include "gtk/colors.h"
+#include "epan_dissect.h"
 
 extern GtkWidget *packet_list, *byte_nb_ptr, *tree_view;
 
@@ -643,8 +644,16 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 	  create_proto_tree = TRUE;
 
   /* Dissect the frame. */
-  edt = epan_dissect_new(pseudo_header, buf, fdata, create_proto_tree,
-    FALSE, &cf->cinfo);
+  edt = epan_dissect_new(create_proto_tree, FALSE);
+
+  if (cf->dfcode) {
+      epan_dissect_prime_dfilter(edt, cf->dfcode);
+  }
+  if (filter_list) {
+      filter_list_prime_edt(edt);
+  }
+  epan_dissect_run(edt, pseudo_header, buf, fdata, &cf->cinfo);
+
 
   /* If we have a display filter, apply it if we're refiltering, otherwise
      leave the "passed_dfilter" flag alone.
@@ -702,7 +711,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     prevsec = fdata->abs_secs;
     prevusec = fdata->abs_usecs;
 
-    fill_in_columns(&edt->pi);
+    epan_dissect_fill_in_columns(edt);
 
     /* If we haven't yet seen the first frame, this is it.
 
@@ -777,7 +786,9 @@ read_packet(capture_file *cf, long offset)
 
   passed = TRUE;
   if (cf->rfcode) {
-    edt = epan_dissect_new(pseudo_header, buf, fdata, TRUE, FALSE, NULL);
+    edt = epan_dissect_new(TRUE, FALSE);
+    epan_dissect_prime_dfilter(edt, cf->rfcode);
+    epan_dissect_run(edt, pseudo_header, buf, fdata, NULL);
     passed = dfilter_apply_edt(cf->rfcode, edt);
     epan_dissect_free(edt);
   }   
@@ -1173,9 +1184,9 @@ print_packets(capture_file *cf, print_args_t *print_args)
       if (print_args->print_summary) {
         /* Fill in the column information, but don't bother creating
            the logical protocol tree. */
-        edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, FALSE,
-          FALSE, &cf->cinfo);
-        fill_in_columns(&edt->pi);
+        edt = epan_dissect_new(FALSE, FALSE);
+        epan_dissect_run(edt, &cf->pseudo_header, cf->pd, fdata, &cf->cinfo);
+        epan_dissect_fill_in_columns(edt);
         cp = &line_buf[0];
         line_len = 0;
         for (i = 0; i < cf->cinfo.num_cols; i++) {
@@ -1212,8 +1223,8 @@ print_packets(capture_file *cf, print_args_t *print_args)
         /* Create the logical protocol tree, complete with the display
            representation of the items; we don't need the columns here,
            however. */
-        edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, TRUE,
-          TRUE, NULL);
+        edt = epan_dissect_new(TRUE, TRUE);
+        epan_dissect_run(edt, &cf->pseudo_header, cf->pd, fdata, NULL);
 
         /* Print the information in that tree. */
         proto_tree_print(FALSE, print_args, (GNode *)edt->tree,
@@ -1432,10 +1443,11 @@ find_packet(capture_file *cf, dfilter_t *sfcode)
         /* Yes.  Does it match the search filter? */
         wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
         		cf->pd, fdata->cap_len);
-        edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, TRUE,
-          FALSE, NULL);
+        edt = epan_dissect_new(TRUE, FALSE);
+        epan_dissect_prime_dfilter(edt, sfcode);
+        epan_dissect_run(edt, &cf->pseudo_header, cf->pd, fdata, NULL);
         frame_matched = dfilter_apply_edt(sfcode, edt);
-	epan_dissect_free(edt);
+        epan_dissect_free(edt);
         if (frame_matched) {
           new_fd = fdata;
           break;	/* found it! */
@@ -1542,8 +1554,9 @@ select_packet(capture_file *cf, int row)
     cf->edt = NULL;
   }
   /* We don't need the columns here. */
-  cf->edt = epan_dissect_new(&cf->pseudo_header, cf->pd, cf->current_frame,
-    TRUE, TRUE, NULL);
+  cf->edt = epan_dissect_new(TRUE, TRUE);
+  epan_dissect_run(cf->edt, &cf->pseudo_header, cf->pd, cf->current_frame,
+          NULL);
 
   /* Display the GUI protocol tree and hex dump.
      XXX - why does the protocol tree not show up if we call

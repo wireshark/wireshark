@@ -1,5 +1,5 @@
 /*
- * $Id: gencode.c,v 1.3 2001/02/27 19:23:28 gram Exp $
+ * $Id: gencode.c,v 1.4 2001/12/18 19:09:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -57,7 +57,7 @@ dfw_append_read_tree(dfwork_t *dfw, int field_id)
 	 * can re-use registers. */
 	reg = GPOINTER_TO_UINT(
 			g_hash_table_lookup(dfw->loaded_fields,
-			GUINT_TO_POINTER(field_id)));
+			GINT_TO_POINTER(field_id)));
 	if (reg) {
 		/* Reg's are stored in has as reg+1, so
 		 * that the non-existence of a field_id in
@@ -70,6 +70,10 @@ dfw_append_read_tree(dfwork_t *dfw, int field_id)
 		g_hash_table_insert(dfw->loaded_fields,
 			GUINT_TO_POINTER(field_id),
 			GUINT_TO_POINTER(reg + 1));
+
+        /* Record the FIELD_ID in hash of interesting fields. */
+        g_hash_table_insert(dfw->interesting_fields,
+            GINT_TO_POINTER(field_id), GUINT_TO_POINTER(TRUE));
 	}
 
 	insn = dfvm_insn_new(READ_TREE);
@@ -232,6 +236,11 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 			insn = dfvm_insn_new(CHECK_EXISTS);
 			insn->arg1 = val1;
 			dfw_append_insn(dfw, insn);
+
+            /* Record the FIELD_ID in hash of interesting fields. */
+            g_hash_table_insert(dfw->interesting_fields,
+                GINT_TO_POINTER(hfinfo->id), GUINT_TO_POINTER(TRUE));
+
 			break;
 
 		case TEST_OP_NOT:
@@ -312,7 +321,44 @@ dfw_gencode(dfwork_t *dfw)
 {
 	dfw->insns = g_ptr_array_new();
 	dfw->loaded_fields = g_hash_table_new(g_direct_hash, g_direct_equal);
+	dfw->interesting_fields = g_hash_table_new(g_direct_hash, g_direct_equal);
 	gencode(dfw, dfw->st_root);
 	dfw_append_insn(dfw, dfvm_insn_new(RETURN));
 }
 
+
+
+typedef struct {
+    int i;
+    int *fields;
+} hash_key_iterator;
+ 
+static void
+get_hash_key(gpointer key, gpointer value, gpointer user_data)
+{
+    int field_id = GPOINTER_TO_INT(key);
+    hash_key_iterator *hki = user_data;
+
+    hki->fields[hki->i] = field_id;
+    hki->i++;
+}
+
+int*
+dfw_interesting_fields(dfwork_t *dfw, int *caller_num_fields)
+{
+    int num_fields = g_hash_table_size(dfw->interesting_fields);
+
+    hash_key_iterator hki;
+
+    if (num_fields == 0) {
+        *caller_num_fields = 0;
+        return NULL;
+    }
+
+    hki.fields = g_new(int, num_fields);
+    hki.i = 0;
+        
+    g_hash_table_foreach(dfw->interesting_fields, get_hash_key, &hki);
+    *caller_num_fields = num_fields;
+    return hki.fields;
+}

@@ -1,7 +1,7 @@
 /* colors.h
  * Definitions for color structures and routines
  *
- * $Id: colors.h,v 1.4 2001/02/01 20:21:21 gram Exp $
+ * $Id: colors.h,v 1.5 2001/12/18 19:09:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,6 +28,7 @@
 #include  "proto.h"
 #include  "dfilter/dfilter.h"
 #include <gtk/gtk.h>
+#include  "epan.h"
 
 #define MAXCOLORS	255
 #define MAX_COLOR_FILTER_NAME_LEN 33
@@ -66,5 +67,8 @@ color_filter_t *new_color_filter(colfilter *filters, gchar *name,
 void delete_color_filter(color_filter_t *colorf);
 
 gboolean get_color (GdkColor *new_color);
+
+void
+filter_list_prime_edt(epan_dissect_t *edt);
 
 #endif

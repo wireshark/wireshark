@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter.c,v 1.5 2001/07/13 00:55:54 guy Exp $
+ * $Id: dfilter.c,v 1.6 2001/12/18 19:09:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,6 +37,7 @@
 #include "gencode.h"
 #include "semcheck.h"
 #include "dfvm.h"
+#include "epan_dissect.h"
 
 
 /* Balanced tree of abbreviations and IDs */
@@ -228,6 +229,10 @@ dfilter_free(dfilter_t *df)
 		free_insns(df->insns);
 	}
 
+    if (df->interesting_fields) {
+        g_free(df->interesting_fields);
+    }
+
 	g_free(df->registers);
 	g_free(df->attempted_load);
 	g_free(df);
@@ -245,6 +250,7 @@ dfwork_new(void)
 	dfw->syntax_error = FALSE;
 	dfw->insns = NULL;
 	dfw->loaded_fields = NULL;
+	dfw->interesting_fields = NULL;
 	dfw->next_insn_id = 0;
 	dfw->next_register = 0;
 
@@ -262,9 +268,14 @@ dfwork_free(dfwork_t *dfw)
 		g_hash_table_destroy(dfw->loaded_fields);
 	}
 
+	if (dfw->interesting_fields) {
+		g_hash_table_destroy(dfw->interesting_fields);
+	}
+
 	if (dfw->insns) {
 		free_insns(dfw->insns);
 	}
+
 
 	g_free(dfw);
 }
@@ -333,6 +344,8 @@ dfilter_compile(gchar *text, dfilter_t **dfp)
 		dfilter = dfilter_new();
 		dfilter->insns = dfw->insns;
 		dfw->insns = NULL;
+        dfilter->interesting_fields = dfw_interesting_fields(dfw,
+                &dfilter->num_interesting_fields);
 
 		/* Initialize run-time space */
 		dfilter->num_registers = dfw->next_register;
@@ -376,6 +389,18 @@ dfilter_apply_edt(dfilter_t *df, epan_dissect_t* edt)
 	return dfvm_apply(df, edt->tvb, edt->tree);
 }
 
+
+void
+dfilter_foreach_interesting_field(dfilter_t *df, GFunc func,
+        gpointer user_data)
+{
+    int i;
+
+    for (i = 0; i < df->num_interesting_fields; i++) {
+        func(GINT_TO_POINTER(df->interesting_fields[i]), user_data);
+    }
+}
+                
 
 void
 dfilter_dump(dfilter_t *df)

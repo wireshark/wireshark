@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.54 2001/12/10 00:26:16 guy Exp $
+ * $Id: packet.c,v 1.55 2001/12/18 19:09:03 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,6 +79,7 @@
 #include "resolv.h"
 #include "tvbuff.h"
 #include "plugins.h"
+#include "epan_dissect.h"
 
 static gint proto_malformed = -1;
 static dissector_handle_t frame_handle = NULL;
