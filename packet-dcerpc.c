@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.155 2003/11/16 23:17:17 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.156 2003/11/21 04:01:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3641,10 +3641,16 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     gboolean save_fragmented;
     fragment_data *fd_head;
     tvbuff_t *next_tvb;
+    e_uuid_t uuid1;
+    uuid1 = di->call_data->uuid;
 
     if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, " opnum: %u",
-                         di->call_data->opnum);
+        col_append_fstr (pinfo->cinfo, COL_INFO, " UNKUUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x opnum: %u",
+                     uuid1.Data1, uuid1.Data2, uuid1.Data3, uuid1.Data4[0],
+                     uuid1.Data4[1], uuid1.Data4[2], uuid1.Data4[3],
+                     uuid1.Data4[4], uuid1.Data4[5], uuid1.Data4[6],
+                     uuid1.Data4[7], di->call_data->opnum);
+
     }
 
     length = tvb_length_remaining (tvb, offset);
