@@ -1,13 +1,10 @@
 .rn '' }`
-''' $RCSfile: ethereal.1,v $$Revision: 1.6 $$Date: 1999/04/06 16:35:46 $
+''' $RCSfile: ethereal.1,v $$Revision: 1.7 $$Date: 1999/05/12 06:04:46 $
 '''
 ''' $Log: ethereal.1,v $
-''' Revision 1.6  1999/04/06 16:35:46  gram
-''' Touch-up fixes to my previous fix of making the packet-capture facility save
-''' to a file unknown to the user first. The manpage has now been updated to reflect
-''' the ability of the user to use the TMPDIR environment variable to change the
-''' location of this capture file. And now the capture file is deleted when
-''' ethereal exits, if the user has not saved the trace file.
+''' Revision 1.7  1999/05/12 06:04:46  gram
+''' Credited John McDermott <jjm@jkintl.com> for his pseudo-real-time
+''' capture patch.
 '''
 '''
 .de Sh
@@ -100,7 +97,7 @@
 .nr % 0
 .rr F
 .\}
-.TH ETHEREAL 1 "perl 5.005, patch 02" "6/Apr/99" "User Contributed Perl Documentation"
+.TH ETHEREAL 1 "0.6.1" "12/May/99" "The Ethereal Network Analyzer"
 .UC
 .if n .hy 0
 .if n .na
@@ -201,12 +198,17 @@ Ethereal \- Interactively browse network traffic
 [\ \fB\-B\fR\ byte\ view\ height\ ]
 [\ \fB\-b\fR\ bold\ font\ ]
 [\ \fB\-c\fR\ count\ ]
+[\ \fB\-F\fR\ ]
+[\ \fB\-f\fR\ filter\ expression\ ]
 [\ \fB\-h\fR\ ]
 [\ \fB\-i\fR\ interface\ ] 
+[\ \fB\-k\fR\ ]
 [\ \fB\-m\fR\ font\ ]
 [\ \fB\-n\fR\ ]
 [\ \fB\-P\fR\ packet\ list\ height\ ]
+[\ \fB\-Q\fR\ ]
 [\ \fB\-r\fR\ infile\ ]
+[\ \fB\-S\fR\ ]
 [\ \fB\-s\fR\ snaplen\ ]
 [\ \fB\-T\fR\ tree\ view\ height\ ]
 [\ \fB\-t\fR\ time\ stamp\ format\ ]
@@ -223,11 +225,20 @@ Sets the initial height of the byte view (bottom) pane
 The bold font name used for packet fied display.
 .Ip "-c" 4
 The default number of packets to read when capturing live data.
+.Ip "-F" 4
+Specifies that the live packet capture will be performed in a separate
+process. It is then possible to open/reload the file to display the
+packets actually captured.
+.Ip "-f" 4
+Sets a filter expression.
 .Ip "-h" 4
 Prints the version and options and exits.
 .Ip "-i" 4
 The name of the interface to use for live packet capture.  It should match
 one of the names listed in \*(L"\fBnetstat \-i\fR\*(R" or \*(L"\fBifconfig \-a\fR\*(R".
+.Ip "-k" 4
+Start the capture session immediately, this option requires 
+the \fB\-i\fR and \fB\-w\fR parameters.
 .Ip "-m" 4
 The font name used by \fBEthereal\fR.
 .Ip "-n" 4
@@ -235,9 +246,18 @@ Disable network object name resolution (such as hostname, \s-1TCP\s0 and \s-1UDP
 names).
 .Ip "-P" 4
 Sets the initial height of the packet list (top) pane
+.Ip "-Q" 4
+Exit after the end of capture session (useful in batch mode with \fB\-c\fR 
+option for instance), this option requires the \fB\-i\fR and \fB\-w\fR 
+parameters.
 .Ip "-r" 4
 Read packet data from \fIfile\fR.  Currently, \fBEthereal\fR only understands
 \fBpcap\fR / \fBtcpdump\fR formatted files.
+.Ip "-S" 4
+Specifies that the live packet capture will be performed in a separate
+process (same as option \fB\-F\fR) and that the packet displaying should be
+synchronized with the capture session without human operation 
+(i.e. without load/reload). This is an experimental feature.
 .Ip "-s" 4
 The default snapshot length to use when capturing live data.  No more than
 \fIsnaplen\fR bytes of each network packet will be read into memory, or saved
@@ -391,7 +411,7 @@ The latest version of \fBethereal\fR can be found at
 \&  -------- ------
 \&  Gerald Combs  <gerald@zing.org>
 .Ve
-.Vb 15
+.Vb 16
 \&  Contributors
 \&  ------------
 \&  Gilbert Ramirez          <gramirez@tivoli.com>
@@ -407,6 +427,7 @@ The latest version of \fBethereal\fR can be found at
 \&  Didier Jorand            <Didier.Jorand@alcatel.fr>
 \&  Jun-ichiro itojun Hagino <itojun@iijlab.net>
 \&  Richard Sharpe           <sharpe@ns.aus.com>
+\&  John McDermott           <jjm@jkintl.com> 
 .Ve
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
@@ -432,9 +453,15 @@ routine to be used.
 
 .IX Item "-c"
 
+.IX Item "-F"
+
+.IX Item "-f"
+
 .IX Item "-h"
 
 .IX Item "-i"
+
+.IX Item "-k"
 
 .IX Item "-m"
 
@@ -442,7 +469,11 @@ routine to be used.
 
 .IX Item "-P"
 
+.IX Item "-Q"
+
 .IX Item "-r"
+
+.IX Item "-S"
 
 .IX Item "-s"
 

@@ -84,6 +84,10 @@ Richard Sharpe <sharpe@ns.aus.com> {
 	SMB support
 }
 
+John McDermott <jjm@jkintl.com> {
+	Pseudo-real-time capture
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

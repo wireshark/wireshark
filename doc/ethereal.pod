@@ -361,6 +361,7 @@ B<http://ethereal.zing.org>.
   Didier Jorand            <Didier.Jorand@alcatel.fr>
   Jun-ichiro itojun Hagino <itojun@iijlab.net>
   Richard Sharpe           <sharpe@ns.aus.com>
+  John McDermott           <jjm@jkintl.com> 
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
