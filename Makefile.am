@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.442 2002/06/28 19:26:15 guy Exp $
+# $Id: Makefile.am,v 1.443 2002/06/28 21:02:55 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -86,6 +86,7 @@ DISSECTOR_SRC = \
 	packet-afp.c   \
 	packet-afs.c   \
 	packet-aim.c   \
+	packet-ajp13.c		\
 	packet-aodv.c  \
 	packet-aodv6.c \
 	packet-arp.c   \
@@ -373,6 +374,7 @@ noinst_HEADERS = \
 	packet-afs-macros.h \
 	packet-afs-register-info.h \
 	packet-afs-defs.h \
+	packet-ajp13.h		\
 	packet-arp.h   \
 	packet-atalk.h \
 	packet-atm.h   \

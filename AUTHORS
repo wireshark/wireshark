@@ -1296,6 +1296,10 @@ Anand V. Narwani <anarwani[AT]cisco.com> {
 	gtk/Makefile.am fix
 }
 
+Christopher K. St. John <cks[AT]distributopia.com> {
+	Apache JServ Protocol v1.3 support
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
