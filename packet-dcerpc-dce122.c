@@ -3,7 +3,7 @@
  * Copyright 2002, Jaime Fournier <jafour1@yahoo.com>
  * This information is based off the released idl files from opengroup.
  *
- * $Id: packet-dcerpc-dce122.c,v 1.2 2002/09/18 12:12:50 sahlberg Exp $
+ * $Id: packet-dcerpc-dce122.c,v 1.3 2003/12/19 16:42:27 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1407,7 +1407,7 @@ const value_string dce_error_vals[] = {
 { 701088126, "CM cm_NeedRPC(.lu,,.lu): Yes, we have to make an RPC" },
 { 701088127, "CM cm_ConnAndReset: RPC rejection in .d seconds!" },
 { 701088128, "CM cm_ConnByAddr: RPC rejection in .d seconds!" },
-{ 701088129, "CM cm_putapage throwing away page past EOF. scp .x length .x offset .x\n" },
+{ 701088129, "CM cm_putapage throwing away page past EOF. scp .x length .x offset .x" },
 { 701088130, "CM cm_getpage request fully past EOF, scp .x scp->m.Length .x offset .x len .x" },
 { 701088131, "CM cm_setfl vp .x, oflags .#x, nflags .#x" },
 { 701088132, "CM cm_CheckOpens(.x, .d): opens .d, v_count .d" },
@@ -1455,7 +1455,7 @@ const value_string dce_error_vals[] = {
 { 701088174, "CM tryLockRevoke preserving .lx: type .d, [.lx...lx]" },
 { 701088175, "CM tryLockRevoke blocked preserving type .d [.lx...lx] pid .d" },
 { 701088176, "CM tryLockRevoke returning token type .d, id .lx,,.lx, flags .#lx" },
-{ 701088177, "CM cm_Analyze: conn .x, code .d, pag .x,\n                               fid .x..x..x..x" },
+{ 701088177, "CM cm_Analyze: conn .x, code .d, pag .x, fid .x..x..x..x" },
 { 701088178, "CM cm_AdjustSize: dcp .x has chunkBytes .x, startDirty .x, endDirty .x" },
 { 701088179, "CM cm_AdjustSize: newSize .x: now chunkBytes .x, startDirty .x, endDirty .x" },
 { 701088180, "CM cm_QuickDiscard: dcp .x starts with chunkBytes .x, startDirty .x, endDirty .x" },
@@ -1565,7 +1565,7 @@ const value_string dce_error_vals[] = {
 { 701088284, "CM cm_HotWireSegment: scp .x, dcp .x, offset .llx, checkLength .llx" },
 { 701088285, "CM pagein vp .x off .llx len .x rw=.d" },
 { 701088286, "CM vmrw vp .x, write=.d, off=.#llx, len=.#x" },
-{ 701088287, "CM cm_putapage throwing away page past EOF. scp .x length .x offset .llx\n" },
+{ 701088287, "CM cm_putapage throwing away page past EOF. scp .x length .x offset .llx" },
 { 701088288, "CM pageout vp .x off .llx len .x flags=.x" },
 { 701088289, "CM at len=.d; kluster got page, offset .llu, delta .d, hilim .llu" },
 { 701088290, "CM writing past end-of-world: biggest .lu,,.lu, first .lu,,.lu, last .lu,,.lu; EFBIG." },
@@ -2221,11 +2221,11 @@ const value_string dce_error_vals[] = {
 { 701219251, "dmepi_getFtInfo: aggrp .#x, code2 .d, code3 .d, code4 .d" },
 { 701247489, "dacl_FindMatchingListEntry: entered" },
 { 701247490, "dacl_FindMatchingListEntry: user uuid is: `.s'" },
-{ 701247491, "dacl_FindMatchingListEntry: unable to translate user uuid into string\n" },
+{ 701247491, "dacl_FindMatchingListEntry: unable to translate user uuid into string" },
 { 701247492, "dacl_FindMatchingListEntry: group uuid is: `.s'" },
-{ 701247493, "dacl_FindMatchingListEntry: unable to translate group uuid into string\n" },
+{ 701247493, "dacl_FindMatchingListEntry: unable to translate group uuid into string" },
 { 701247494, "dacl_FindMatchingListEntry: realm uuid is: `.s'" },
-{ 701247495, "dacl_FindMatchingListEntry: unable to translate realm uuid into string\n" },
+{ 701247495, "dacl_FindMatchingListEntry: unable to translate realm uuid into string" },
 { 701247496, "dacl_FindMatchingListEntry: considering user id: `.s'" },
 { 701247497, "dacl_FindMatchingListEntry: unable to translate user entry uuid into string" },
 { 701247498, "dacl_FindMatchingListEntry: match found" },
@@ -2291,7 +2291,7 @@ const value_string dce_error_vals[] = {
 { 701247558, "dacl_DeleteAclEntry: warning: attempt to remove required acl entry: .s" },
 { 701247559, ".s: entered" },
 { 701247560, ".s: principal uuid is: `.s'" },
-{ 701247561, ".s: unable to translate uuid into string\n" },
+{ 701247561, ".s: unable to translate uuid into string" },
 { 701247562, "dacl_ParseExtendedInfo: entered, bytes in buffer: .d" },
 { 701247563, "dacl_ParseExtendedInfo: Error: not enough bytes for extended entry data (.d needed, .d left)" },
 { 701247564, "dacl_ParseExtendedInfo: Error: not enough bytes for extended entry header (.d needed, .d left)" },
