@@ -6,7 +6,7 @@
  *
  * Copyright 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-sccp.c,v 1.4 2002/04/02 22:42:11 guy Exp $
+ * $Id: packet-sccp.c,v 1.5 2002/04/13 22:34:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2185,7 +2185,8 @@ proto_register_sccp(void)
     &ett_sccp_calling_pc,
     &ett_sccp_calling_gt,
     &ett_sccp_sequencing_segmenting,
-    &ett_sccp_segmentation
+    &ett_sccp_segmentation,
+    &ett_sccp_ansi_isni_routing_control,
   };
 
   /* Register the protocol name and description */
