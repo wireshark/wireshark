@@ -1,7 +1,7 @@
 /* strutil.c
  * String utility routines
  *
- * $Id: strutil.c,v 1.19 2004/05/01 20:46:24 obiot Exp $
+ * $Id: strutil.c,v 1.20 2004/05/01 23:56:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -405,6 +405,9 @@ xml_escape(const gchar *unescaped)
 	GString *buffer = g_string_sized_new(128);
 	const gchar *p;
 	gchar c;
+#if GLIB_MAJOR_VERSION < 2
+	gchar *ret;
+#endif
 
 	p = unescaped;
 	while ( (c = *p++) ) {
@@ -429,10 +432,19 @@ xml_escape(const gchar *unescaped)
 				break;
 		}
 	}
+#if GLIB_MAJOR_VERSION >= 2
 	/* Return the string value contained within the GString
 	 * after getting rid of the GString structure.
 	 * This is the way to do this, see the GLib reference. */
 	return g_string_free(buffer, FALSE);
+#else
+	/* But it's not the way to do it in GLib 1.2[.x], as
+	 * 1.2[.x]'s "g_string_free()" doesn't return anything.
+	 * This is the way to do this in GLib 1.2[.x]. */
+	ret = buffer->str;
+	g_string_free(buffer, FALSE);
+	return ret;
+#endif
 }
 
 
