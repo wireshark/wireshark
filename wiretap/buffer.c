@@ -1,6 +1,6 @@
 /* buffer.c
  *
- * $Id: buffer.c,v 1.4 1999/01/29 17:06:56 gram Exp $
+ * $Id: buffer.c,v 1.5 1999/08/24 17:36:24 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -25,9 +25,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 
 #include "buffer.h"
-#include "glib.h"
 
 /* Initializes a buffer with a certain amount of allocated space */
 void buffer_init(Buffer* buffer, unsigned int space)
