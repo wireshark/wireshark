@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.45 2003/07/23 02:06:25 gerald Exp $
+# $Id: configure.in,v 1.46 2003/08/21 07:20:56 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -268,7 +268,9 @@ dnl check whether plugins should be enabled; we don't set plugindir,
 dnl as that's set by the top-level configure script
 dnl
 AC_ARG_WITH(plugins,
-  [  --with-plugins=DIR    support plugins (installed in DIR, if supplied)],
+changequote(<<, >>)dnl
+<<  --with-plugins[=DIR]    support plugins (installed in DIR, if supplied).>>,
+changequote([, ])dnl
   [
   case "$withval" in
   "" | y | ye | yes )
