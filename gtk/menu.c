@@ -215,7 +215,7 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Edit/Time Reference/Set Time Reference (toggle)", "<control>T", reftime_frame_cb, REFTIME_TOGGLE, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/Time Reference/Find Next", NULL, reftime_frame_cb, REFTIME_FIND_NEXT, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/Time Reference/Find Previous", NULL, reftime_frame_cb, REFTIME_FIND_PREV, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Edit/_Mark Packet", "<control>M", mark_frame_cb,
+    ITEM_FACTORY_ENTRY("/Edit/_Mark Packet (toggle)", "<control>M", mark_frame_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/Mark _All Packets", NULL, mark_all_frames_cb,
                        0, NULL, NULL),
@@ -378,17 +378,14 @@ static int nmenu_items = sizeof(menu_items) / sizeof(menu_items[0]);
 /* packet list popup */
 static GtkItemFactoryEntry packet_list_menu_items[] =
 {
-    ITEM_FACTORY_ENTRY("/Follow TCP Stream", NULL, follow_stream_cb,
-                       0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Decode As...", NULL, decode_as_cb, 0, NULL, NULL),
-    ITEM_FACTORY_STOCK_ENTRY("/Display Filters...", NULL, dfilter_dialog_cb,
-                       0, ETHEREAL_STOCK_DISPLAY_FILTER),
-    ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/Mark Packet", NULL, mark_frame_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Mark Packet (toggle)", NULL, mark_frame_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Time Reference", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/Time Reference/Set Time Reference (toggle)", NULL, reftime_frame_cb, REFTIME_TOGGLE, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Time Reference/Find Next", NULL, reftime_frame_cb, REFTIME_FIND_NEXT, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Time Reference/Find Previous", NULL, reftime_frame_cb, REFTIME_FIND_PREV, NULL, NULL),
+
+    ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+
     ITEM_FACTORY_ENTRY("/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/Apply as Filter/_Selected", NULL, match_selected_plist_cb, 
                        MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW, NULL, NULL),
@@ -417,33 +414,24 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
     ITEM_FACTORY_ENTRY("/Prepare a Filter/... o_r not Selected", NULL, match_selected_plist_cb,
                        MATCH_SELECTED_OR_NOT, NULL, NULL),
 
-    ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/Coloring Rules...", NULL, color_display_cb,
+    ITEM_FACTORY_ENTRY("/Follow TCP Stream", NULL, follow_stream_cb,
                        0, NULL, NULL),
+
+    ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+
+    ITEM_FACTORY_ENTRY("/Decode As...", NULL, decode_as_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Print...", NULL, file_print_cmd_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Show Packet in New Window", NULL, new_window_cb,
-                       0, NULL, NULL),
+                       0, NULL, NULL)
 };
 
 static GtkItemFactoryEntry tree_view_menu_items[] =
 {
-    ITEM_FACTORY_STOCK_ENTRY("/Online Protocol Info", NULL, selected_ptree_info_cb,
-                       0, GTK_STOCK_DIALOG_QUESTION),
-    ITEM_FACTORY_STOCK_ENTRY("/Online Filter Reference", NULL, selected_ptree_ref_cb,
-                       0, GTK_STOCK_DIALOG_QUESTION),
+    ITEM_FACTORY_ENTRY("/Expand All", NULL, expand_all_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Collapse All", NULL, collapse_all_cb, 0, NULL, NULL),
+
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/Follow TCP Stream", NULL, follow_stream_cb,
-                       0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Decode As...", NULL, decode_as_cb, 0, NULL, NULL),
-    ITEM_FACTORY_STOCK_ENTRY("/Display Filters...", NULL, dfilter_dialog_cb,
-                       0, ETHEREAL_STOCK_DISPLAY_FILTER),
-    ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/_Resolve Name", NULL, resolve_name_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/_Go to Corresponding Packet", NULL, goto_framenum_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/_Export Selected Packet Bytes...", NULL, savehex_cb,
-                       0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Protocol Preferences...", NULL, properties_cb,
-                       0, NULL, NULL),
+
     ITEM_FACTORY_ENTRY("/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/Apply as Filter/_Selected", NULL, match_selected_ptree_cb, 
                        MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW, NULL, NULL),
@@ -471,23 +459,30 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
                        MATCH_SELECTED_AND_NOT, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Prepare a Filter/... o_r not Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_OR_NOT, NULL, NULL),
+
+    ITEM_FACTORY_ENTRY("/Follow TCP Stream", NULL, follow_stream_cb,
+                       0, NULL, NULL),
+
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/Collapse All", NULL, collapse_all_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Expand All", NULL, expand_all_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Expand Tree", NULL, expand_tree_cb, 0, NULL, NULL)
+
+    ITEM_FACTORY_STOCK_ENTRY("/Wiki Protocol Page", NULL, selected_ptree_info_cb,
+                       0, GTK_STOCK_HOME),
+    ITEM_FACTORY_STOCK_ENTRY("/Filter Field Reference", NULL, selected_ptree_ref_cb,
+                       0, GTK_STOCK_HOME),
+    ITEM_FACTORY_ENTRY("/Protocol Preferences...", NULL, properties_cb,
+                       0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+    ITEM_FACTORY_ENTRY("/Decode As...", NULL, decode_as_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/_Resolve Name", NULL, resolve_name_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/_Go to Corresponding Packet", NULL, goto_framenum_cb, 0, NULL, NULL),
 };
 
 static GtkItemFactoryEntry hexdump_menu_items[] =
 {
-    ITEM_FACTORY_ENTRY("/Follow TCP Stream", NULL, follow_stream_cb,
-                       0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Decode As...", NULL, decode_as_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Display Filters...", NULL, dfilter_dialog_cb,
+    ITEM_FACTORY_ENTRY("/Copy", NULL, copy_hex_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Export Selected Packet Bytes...", NULL, savehex_cb,
                        0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Copy Packet Bytes into Clipboard", NULL, copy_hex_cb,
-                       0, NULL, NULL)
 };
 
 static int initialize = TRUE;
@@ -1620,8 +1615,6 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
       have_captured_packets);
   set_menu_sensitivity(main_menu_factory, "/View/Normal Size",
       have_captured_packets);
-  set_menu_sensitivity(packet_list_menu_factory, "/Coloring Rules...",
-      have_captured_packets);
   set_menu_sensitivity(main_menu_factory, "/Go/Go to Packet...",
       have_captured_packets);
   set_menu_sensitivity(main_menu_factory, "/Go/First Packet",
@@ -1700,9 +1693,9 @@ walk_menu_tree_for_selected_packet(GList *node, frame_data *fd,
 void
 set_menus_for_selected_packet(capture_file *cf)
 {
-  set_menu_sensitivity(main_menu_factory, "/Edit/Mark Packet",
+  set_menu_sensitivity(main_menu_factory, "/Edit/Mark Packet (toggle)",
       cf->current_frame != NULL);
-  set_menu_sensitivity(packet_list_menu_factory, "/Mark Packet",
+  set_menu_sensitivity(packet_list_menu_factory, "/Mark Packet (toggle)",
       cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/Edit/Time Reference",
       cf->current_frame != NULL);
@@ -1726,11 +1719,15 @@ set_menus_for_selected_packet(capture_file *cf)
       cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/Analyze/Follow TCP Stream",
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
-  set_menu_sensitivity(NULL, "/Follow TCP Stream",
+  set_menu_sensitivity(packet_list_menu_factory, "/Follow TCP Stream",
+      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+  set_menu_sensitivity(tree_view_menu_factory, "/Follow TCP Stream",
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
   set_menu_sensitivity(main_menu_factory, "/Analyze/Decode As...",
       cf->current_frame != NULL && decode_as_ok());
-  set_menu_sensitivity(NULL, "/Decode As...",
+  set_menu_sensitivity(packet_list_menu_factory, "/Decode As...",
+      cf->current_frame != NULL && decode_as_ok());
+  set_menu_sensitivity(tree_view_menu_factory, "/Decode As...",
       cf->current_frame != NULL && decode_as_ok());
   set_menu_sensitivity(main_menu_factory, "/View/Name Resolution/Resolve Name",
       cf->current_frame != NULL && (g_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
@@ -1811,7 +1808,7 @@ set_menus_for_selected_tree_row(capture_file *cf)
 
   set_menu_sensitivity(main_menu_factory, "/File/Export/Selected Packet Bytes...", 
       cf->finfo_selected != NULL);  
-  set_menu_sensitivity(tree_view_menu_factory, "/Export Selected Packet Bytes...", 
+  set_menu_sensitivity(hexdump_menu_factory, "/Copy", 
       cf->finfo_selected != NULL);
   set_menu_sensitivity(hexdump_menu_factory, "/Export Selected Packet Bytes...", 
       cf->finfo_selected != NULL);
@@ -1838,9 +1835,11 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Preferences...",
 	  properties);
 	set_menu_sensitivity(main_menu_factory, "/View/Expand Tree", cf->finfo_selected->tree_type != -1);
-	set_menu_sensitivity(tree_view_menu_factory, "/Expand Tree", cf->finfo_selected->tree_type != -1);
-/*	set_menu_sensitivity(tree_view_menu_factory, "/Online Protocol Info",
-	  TRUE);*/
+//	set_menu_sensitivity(tree_view_menu_factory, "/Expand Tree", cf->finfo_selected->tree_type != -1);
+	set_menu_sensitivity(tree_view_menu_factory, "/Wiki Protocol Page",
+	  TRUE);
+	set_menu_sensitivity(tree_view_menu_factory, "/Filter Field Reference",
+	  TRUE);
   } else {
 	set_menu_sensitivity(main_menu_factory,
 	    "/Go/Go to Corresponding Packet", FALSE);
@@ -1853,9 +1852,10 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Preferences...",
 	  FALSE);
 	set_menu_sensitivity(main_menu_factory, "/View/Expand Tree", FALSE);
-	set_menu_sensitivity(tree_view_menu_factory, "/Expand Tree", FALSE);
-/*	set_menu_sensitivity(tree_view_menu_factory, "/Online Protocol Info",
-	  FALSE);*/
+	set_menu_sensitivity(tree_view_menu_factory, "/Wiki Protocol Page",
+	  FALSE);
+	set_menu_sensitivity(tree_view_menu_factory, "/Filter Field Reference",
+	  FALSE);
   }
 
   walk_menu_tree_for_selected_tree_row(tap_menu_tree_root, cf->finfo_selected);
