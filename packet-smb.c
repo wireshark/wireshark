@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.234 2002/03/20 07:55:51 guy Exp $
+ * $Id: packet-smb.c,v 1.235 2002/03/25 20:01:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -13024,13 +13024,18 @@ static char *decode_smb_error(guint8 errcls, guint16 errcode)
 }
 
 
-/* These are the MS country codes from www.unicode.org/unicode/onlinedat/countries.html
-   For countries that share teh same number I choose to use only the name of the largest
-   country. Appologies for this. If this offends you, here is the table to change that.
+/* These are the MS country codes from
+
+	http://www.unicode.org/unicode/onlinedat/countries.html
+
+   For countries that share the same number, I choose to use only the
+   name of the largest country. Apologies for this. If this offends you,
+   here is the table to change that.
 
   There might be more info in winnls.h for those that have wincompilers
 */
 const value_string ms_country_codes[] = {
+	{  0,	"Default"},
 	{  1,	"USA"},
 	{  2,	"Canada"},
 	{  7,	"Russia"},
