@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.94 2003/03/08 09:11:53 guy Exp $
+ * $Id: libpcap.c,v 1.95 2003/03/25 06:04:54 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -517,9 +517,17 @@ int libpcap_open(wtap *wth, int *err)
 	 *	FDDI		15
 	 *
 	 * which correspond to DLT_IEEE802 (used for Token Ring),
-	 * DLT_PPP, and DLT_SLIP_BSDOS, respectively.  We shall
-	 * assume that if the minor version number is 2, and
-	 * the network type is 6, 9, or 15, that it's AIX libpcap.
+	 * DLT_PPP, and DLT_SLIP_BSDOS, respectively.  The ifType value
+	 * for a loopback interface is 24, which currently isn't
+	 * used by any version of libpcap I know about (and, as
+	 * tcpdump.org are assigning DLT_ values above 100, and
+	 * NetBSD started assigning values starting at 50, and
+	 * the values chosen by other libpcaps appear to stop at
+	 * 19, it's probably not going to be used by any libpcap
+	 * in the future).
+	 *
+	 * We shall assume that if the minor version number is 2, and
+	 * the network type is 6, 9, 15, or 24, that it's AIX libpcap.
 	 *
 	 * I'm assuming those older versions of libpcap didn't
 	 * use DLT_IEEE802 for Token Ring, and didn't use DLT_SLIP_BSDOS
@@ -546,6 +554,11 @@ int libpcap_open(wtap *wth, int *err)
 
 		case 15:
 			hdr.network = 10;	/* DLT_FDDI, FDDI */
+			aix = TRUE;
+			break;
+
+		case 24:
+			hdr.network = 0;	/* DLT_NULL, loopback */
 			aix = TRUE;
 			break;
 		}

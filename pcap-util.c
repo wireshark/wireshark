@@ -1,7 +1,7 @@
 /* pcap-util.c
  * Utility routines for packet capture
  *
- * $Id: pcap-util.c,v 1.10 2002/08/28 21:00:40 jmayer Exp $
+ * $Id: pcap-util.c,v 1.11 2003/03/25 06:04:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -100,12 +100,16 @@ get_pcap_linktype(pcap_t *pch, char *devname
 	 *	Token Ring	9
 	 *	FDDI		15
 	 *
+	 * and the ifType value for a loopback device is 24.
+	 *
 	 * The AIX names for LAN devices begin with:
 	 *
 	 *	Ethernet		en
 	 *	802.3			et
 	 *	Token Ring		tr
 	 *	FDDI			fi
+	 *
+	 * and the AIX names for loopback devices begin with "lo".
 	 *
 	 * (The difference between "Ethernet" and "802.3" is presumably
 	 * whether packets have an Ethernet header, with a packet type,
@@ -173,6 +177,15 @@ get_pcap_linktype(pcap_t *pch, char *devname
 			 * DLT_FDDI.
 			 */
 			linktype = 10;
+		}
+	} else if (strncmp(ifacename, "lo") == 0) {
+		if (linktype == 24) {
+			/*
+			 * That's the RFC 1573 value for "software loopback"
+			 * devices; map it to DLT_NULL, which is what's used
+			 * for loopback devices on BSD.
+			 */
+			linktype = 0;
 		}
 	}
 #endif
