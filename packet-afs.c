@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM.
  *
- * $Id: packet-afs.c,v 1.52 2003/01/18 02:18:39 guy Exp $
+ * $Id: packet-afs.c,v 1.53 2003/01/27 22:11:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -920,7 +920,7 @@ dissect_bos_request(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, 
 			break;
 		case 82: /* set status */
 			OUT_RXString(hf_afs_bos_instance);
-			OUT_UINT(hf_afs_bos_status);
+			OUT_INT(hf_afs_bos_status);
 			break;
 		case 83: /* get status */
 			OUT_RXString(hf_afs_bos_instance);
@@ -968,7 +968,7 @@ dissect_bos_request(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, 
 			break;
 		case 98: /* set t status */
 			OUT_RXString(hf_afs_bos_content);
-			OUT_UINT(hf_afs_bos_status);
+			OUT_INT(hf_afs_bos_status);
 			break;
 		case 99: /* shutdown all */
 			/* no params */
