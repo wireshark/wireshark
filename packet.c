@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.105 2000/09/11 16:16:11 gram Exp $
+ * $Id: packet.c,v 1.106 2000/09/12 07:04:30 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -532,6 +532,19 @@ decode_numeric_bitfield(guint32 val, guint32 mask, int width,
   p = decode_bitfield_value(buf, val, mask, width);
   sprintf(p, fmt, (val & mask) >> shift);
   return buf;
+}
+
+gboolean
+col_get_writable(frame_data *fd)
+{
+  if (fd) {
+
+    return (fd->cinfo ? fd->cinfo->writable : NULL);
+
+  }
+
+  return NULL;
+
 }
 
 void
