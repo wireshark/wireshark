@@ -3,7 +3,7 @@
  * Copyright 2003, Brad Hards <bradh@frogmouth.net>
  * Copyright 2003, Ronnie Sahlberg, added TCP desegmentation.
  *
- * $Id: packet-distcc.c,v 1.4 2003/09/16 17:36:09 guy Exp $
+ * $Id: packet-distcc.c,v 1.5 2004/01/25 15:56:04 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,7 +63,7 @@ static gboolean distcc_desegment = TRUE;
 
 #define TCP_PORT_DISTCC	3632
 
-static int glb_distcc_tcp_port = TCP_PORT_DISTCC;
+static guint glb_distcc_tcp_port = TCP_PORT_DISTCC;
 
 extern void proto_reg_handoff_distcc(void);
 
@@ -289,7 +289,7 @@ dissect_distcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree *tree=NULL;
 	proto_item *item=NULL;
 	char token[4];
-	gint parameter;
+	guint32 parameter;
 	
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
