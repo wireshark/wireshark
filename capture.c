@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.218 2003/12/18 18:56:36 guy Exp $
+ * $Id: capture.c,v 1.219 2003/12/18 21:18:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1593,8 +1593,8 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 #endif
   }
 
-  /* capture filters only work on real interfaces, except IrDA adapters */
-  if (cfile.cfilter && !ld.from_pipe && strncmp(cfile.iface, "irda", 4) != 0) {
+  /* capture filters only work on real interfaces */
+  if (cfile.cfilter && !ld.from_pipe) {
     /* A capture filter was specified; set it up. */
     if (pcap_lookupnet(cfile.iface, &netnum, &netmask, lookup_net_err_str) < 0) {
       /*
