@@ -12,7 +12,7 @@
  * version: 2004/04/15 9:40:45
  * dedication to Kj :]
  *
- * $Id: packet-rtps.c,v 1.7 2004/04/19 08:19:48 guy Exp $
+ * $Id: packet-rtps.c,v 1.8 2004/04/19 20:20:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -114,12 +114,16 @@ static int proto_rtps                    = -1;
 static int hf_rtps_submessage_id         = -1;
 static int hf_rtps_submessage_flags      = -1;
 static int hf_rtps_octets_to_next_header = -1;
+static int hf_rtps_parameter_id          = -1;
+static int hf_rtps_parameter_length      = -1;
 static int hf_rtps_issue_data            = -1;
 
 /*  Initialize the subtree pointers */
 static gint ett_rtps                     = -1;
 static gint ett_rtps_submessage          = -1;
 static gint ett_rtps_bitmap              = -1;
+static gint ett_rtps_parameter_sequence  = -1;
+static gint ett_rtps_parameter           = -1;
 
 /*  Functions declarations */
 static void dissect_PAD(tvbuff_t *tvb,gint offset,guint8 flags,
@@ -170,8 +174,9 @@ static char *get_NtpTime(gint offset,tvbuff_t *tvb,gboolean little_endian,char b
 static void  get_bitmap(tvbuff_t *tvb, gint *p_offset, gboolean little_endian,
                         gint next_submsg, proto_tree *tree);
 
-static char *get_parameter(gint offset, tvbuff_t *tvb, gboolean little_endian, char buff[],
-                           guint16 parameter, guint16 param_length);
+static void  get_parameter_sequence(tvbuff_t *tvb, gint *p_offset,
+                                    gboolean little_endian,
+                                    gint next_submsg_offset, proto_tree *tree);
 
 static gint  seq_nr_to_string( gint offset, gboolean little_endian, tvbuff_t *tvb,
                              SequenceNumber *p_seqNumber);
@@ -188,6 +193,37 @@ static const value_string submessage_id_vals[] = {
   { INFO_REPLY, "INFO_REPLY" },
   { INFO_DST, "INFO_DST" },
   { APP_QUIT, "APP_QUIT" },
+  { 0, NULL }
+};
+
+static const value_string parameter_id_vals[] = {
+  { PID_PAD, "PID_PAD" },
+  { PID_SENTINEL, "PID_SENTINEL" },
+  { PID_EXPIRATION_TIME, "PID_EXPIRATION_TIME" },
+  { PID_PERSISTENCE, "PID_PERSISTENCE" },
+  { PID_MINIMUM_SEPARATION, "PID_MINIMUM_SEPARATION" },
+  { PID_TOPIC, "PID_TOPIC" },
+  { PID_STRENGTH, "PID_STRENGTH" },
+  { PID_TYPE_NAME, "PID_TYPE_NAME" },
+  { PID_TYPE_CHECKSUM, "PID_TYPE_CHECKSUM" },
+  { RTPS_PID_TYPE2_NAME, "RTPS_PID_TYPE2_NAME" },
+  { RTPS_PID_TYPE2_CHECKSUM, "RTPS_PID_TYPE2_CHECKSUM" },
+  { PID_METATRAFFIC_MULTICAST_IPADDRESS, "PID_METATRAFFIC_MULTICAST_IPADDRESS" },
+  { PID_APP_IPADDRESS, "PID_APP_IPADDRESS" },
+  { PID_METATRAFFIC_UNICAST_PORT, "PID_METATRAFFIC_UNICAST_PORT" },
+  { PID_USERDATA_UNICAST_PORT, "PID_USERDATA_UNICAST_PORT" },
+  { PID_IS_RELIABLE, "PID_IS_RELIABLE" },
+  { PID_EXPECTS_ACK, "PID_EXPECTS_ACK" },
+  { PID_USERDATA_MULTICAST_IPADDRESS, "PID_USERDATA_MULTICAST_IPADDRESS" },
+  { PID_MANAGER_KEY, "PID_MANAGER_KEY" },
+  { PID_SEND_QUEUE_SIZE, "PID_SEND_QUEUE_SIZE" },
+  { PID_RELIABILITY_ENABLED, "PID_RELIABILITY_ENABLED" },
+  { PID_PROTOCOL_VERSION, "PID_PROTOCOL_VERSION" },
+  { PID_VENDOR_ID, "PID_VENDOR_ID" },
+  { PID_VARGAPPS_SEQUENCE_NUMBER_LAST, "PID_VARGAPPS_SEQUENCE_NUMBER_LAST" },
+  { PID_RECV_QUEUE_SIZE, "PID_RECV_QUEUE_SIZE" },
+  { PID_RELIABILITY_OFFERED, "PID_RELIABILITY_OFFERED" },
+  { PID_RELIABILITY_REQUESTED, "PID_RELIABILITY_REQUESTED" },
   { 0, NULL }
 };
 
@@ -296,7 +332,7 @@ dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       else                          little_endian = FALSE;
 
     next_submsg  = get_guint16(tvb, offset + 2, little_endian);
-    proto_item_set_end(ti, tvb, offset + 2 + next_submsg);
+    proto_item_set_len(ti, next_submsg);
 
     switch (submessageId)
     {
@@ -771,33 +807,48 @@ get_bitmap(tvbuff_t *tvb, gint *p_offset, gboolean little_endian,
   gint                    i = 0;
   gint                    offset = *p_offset;
   SequenceNumber          sequenceNumber;
+  guint32                 num_bits;
+  guint                   num_longs;
 
   /* making subtree for the bitmap */
   ti = proto_tree_add_text(tree,tvb,offset,(next_submsg-offset),"Bitmap");
   rtps_bitmap_tree = proto_item_add_subtree(ti, ett_rtps_bitmap);
 
-   /* SekvenceNumber bitmapBase */
-   seq_nr_to_string(offset, little_endian, tvb, &sequenceNumber);
-   proto_tree_add_text(rtps_bitmap_tree, tvb, offset, 8,
-                       "bitmapBase:  0x%X%X",
-                       sequenceNumber.high, sequenceNumber.low);
-   offset +=8;
+  /* SekvenceNumber bitmapBase */
+  seq_nr_to_string(offset, little_endian, tvb, &sequenceNumber);
+  proto_tree_add_text(rtps_bitmap_tree, tvb, offset, 8,
+                      "bitmapBase:  0x%X%X",
+                      sequenceNumber.high, sequenceNumber.low);
+  offset +=8;
 
-   proto_tree_add_text(rtps_bitmap_tree, tvb, offset, 4,
-                       "numBits:     0x%X",
-                       get_guint32(tvb, offset, little_endian));
-   offset += 4;
+  num_bits = get_guint32(tvb, offset, little_endian);
+  proto_tree_add_text(rtps_bitmap_tree, tvb, offset, 4,
+                      "numBits:     %u",
+                      num_bits);
+  offset += 4;
 
-   while (offset < (next_submsg -1))
-   {
-      proto_tree_add_text(rtps_bitmap_tree, tvb, offset, 4,
-                          "bitmap[%d]:   0x%08X",
-                          i, get_guint32(tvb, offset, little_endian));
-      offset +=4;
-      ++i;
-   }  /* end while */
+  if (num_bits+31 < num_bits)
+    num_longs = UINT_MAX; /* overflow */
+  else
+    num_longs = (num_bits+31)/32;
+  while (num_longs != 0)
+  {
+    if (next_submsg-offset < 4)
+    {
+      proto_tree_add_text(rtps_bitmap_tree, tvb, offset, next_submsg-offset,
+                          "bitmap[%d]:   < 4 bytes remain in message", i);
+      offset = next_submsg;
+      break;
+    }
+    proto_tree_add_text(rtps_bitmap_tree, tvb, offset, 4,
+                        "bitmap[%d]:   0x%08X",
+                        i, get_guint32(tvb, offset, little_endian));
+    offset +=4;
+    ++i;
+    --num_longs;
+  }  /* end while */
 
-   *p_offset = offset;
+  *p_offset = offset;
 }
 
 /* *********************************************************************** */
@@ -837,295 +888,484 @@ static void
 dissect_VAR(tvbuff_t *tvb, gint offset, guint8 flags, gboolean little_endian,
             int next_submsg_offset, proto_tree *rtps_submessage_tree)
 {
-   char               buff[200];
-   SequenceNumber     writerSeqNumber;
-   guint16            parameter;       /* sekvence parameter */
-   guint16            param_length;    /* length of sekvence parameter */
+  int                min_len;
+  char               buff[200];
+  SequenceNumber     writerSeqNumber;
 
-   proto_tree_add_uint(rtps_submessage_tree, hf_rtps_submessage_flags,
-                       tvb, offset, 1, flags);
-   offset +=1;
+  proto_tree_add_uint(rtps_submessage_tree, hf_rtps_submessage_flags,
+                      tvb, offset, 1, flags);
+  offset +=1;
 
-   proto_tree_add_uint(rtps_submessage_tree, hf_rtps_octets_to_next_header,
-                       tvb, offset, 2, next_submsg_offset);
-   offset +=2;
-   next_submsg_offset += offset;
+  min_len = 20;
+  if ((flags & FLAG_H) != 0)
+    min_len += 8;
+  if ((flags & FLAG_P) != 0)
+    min_len += 4;
+  if (next_submsg_offset < min_len)
+  {
+    proto_tree_add_uint_format(rtps_submessage_tree, hf_rtps_octets_to_next_header,
+                               tvb, offset, 2, next_submsg_offset,
+                               "Octets to next header: %u (bogus, must be >= %u)",
+                               next_submsg_offset, min_len);
+    return;
+  }
+  proto_tree_add_uint(rtps_submessage_tree, hf_rtps_octets_to_next_header,
+                      tvb, offset, 2, next_submsg_offset);
+  offset +=2;
+  next_submsg_offset += offset;
 
   /*  readerObjectId*/
-   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
-                       "Reader Object ID:   %s ",
-                        object_id_to_string(offset, tvb, buff));
-   offset +=4;
+  proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
+                      "Reader Object ID:   %s ",
+                       object_id_to_string(offset, tvb, buff));
+  offset +=4;
 
-   /*  writerObjectId*/
+  /*  writerObjectId*/
+  proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
+                      "Writer Object ID:   %s ",
+                      object_id_to_string(offset, tvb, buff));
+  offset+=4;
+
+  /*  H flag |XXXX|HAPE| => masks with 00001000b = 8 */
+  if ((flags & FLAG_H) != 0)
+  {
+    /*  HostId */
     proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
-                        "Writer Object ID:   %s ",
-                        object_id_to_string(offset, tvb, buff));
+                        "Host ID:            %s",
+                        host_id_to_string(offset,tvb,buff));
     offset+=4;
 
-   /*  H flag |XXXX|HAPE| => masks with 00001000b = 8 */
-    if ((flags & FLAG_H) != 0)
-     {
-      /*  HostId */
-       proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
-                           "Host ID:            %s",
-                           host_id_to_string(offset,tvb,buff));
-       offset+=4;
+    /*  App Id  */
+    proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
+                        "App ID:             %s",
+                        app_id_to_string(offset, tvb, buff));
+    offset +=4;
+  }
 
-      /*  App Id  */
-       proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
-                           "App ID:             %s",
-                            app_id_to_string(offset, tvb, buff));
-       offset +=4;
-     }
+  /* Object Id */
+  proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
+                      "Object ID:          %s ",
+                      object_id_to_string(offset, tvb, buff));
+  offset +=4;
 
-    /* Object Id */
-     proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
-                         "Object ID:          %s ",
-                         object_id_to_string(offset, tvb, buff));
-     offset +=4;
+  /*  WriterSequence Number */
+  seq_nr_to_string(offset, little_endian, tvb, &writerSeqNumber);
+  proto_tree_add_text(rtps_submessage_tree, tvb, offset, 8,
+                      "WriterSeqNumber:    0x%X%X",
+                      writerSeqNumber.high, writerSeqNumber.low);
+  offset +=8;
 
-    /*  WriterSequence Number */
-     seq_nr_to_string(offset, little_endian, tvb, &writerSeqNumber);
-     proto_tree_add_text(rtps_submessage_tree, tvb, offset, 8,
-                         "WriterSeqNumber:    0x%X%X",
-                         writerSeqNumber.high, writerSeqNumber.low);
-     offset +=8;
-
-
-   /*  P flag |XXXX|HAPE| => masks with 00000010b = 2 */
-    if ((flags & FLAG_P) != 0)
-    {
-      proto_tree_add_text(rtps_submessage_tree, tvb, offset,
-                          (next_submsg_offset - offset),
-                          "Parameters:");
-     do
-     {
-       parameter    = get_guint16(tvb, offset, little_endian);  offset +=2;
-       param_length = get_guint16(tvb, offset, little_endian);  offset +=2;
-
-       proto_tree_add_text(rtps_submessage_tree, tvb,offset, param_length,
-                           "%s", get_parameter(offset, tvb, little_endian, buff,
-                                               parameter,param_length));
-       offset += param_length;
-
-     }  while (offset < (next_submsg_offset -1));
-
-    }  /* end if */
-
-
+  /*  P flag |XXXX|HAPE| => masks with 00000010b = 2 */
+  if ((flags & FLAG_P) != 0)
+  {
+    get_parameter_sequence(tvb, &offset, little_endian, next_submsg_offset,
+                           rtps_submessage_tree);
+  }
 }
 
 /* *********************************************************************** */
 
-
 /* *********************************************************************** *
  *                                                                         *
- *                                get_Parameter                            *
+ *                            get_ParameterSequence                        *
  *                                                                         *
  * *********************************************************************** */
 
-static char *
-get_parameter(gint offset, tvbuff_t *tvb, gboolean little_endian, char buff[],
-              guint16 parameter, guint16 param_length)
+
+static void
+get_parameter_sequence(tvbuff_t *tvb, gint *p_offset, gboolean little_endian,
+                       gint next_submsg_offset, proto_tree *tree)
 {
-  char              buff_tmp[MAX_PATHNAME];
-  int               i;
+  proto_item             *ti;
+  proto_tree             *rtps_parameter_sequence_tree;
+  proto_tree             *rtps_parameter_tree;
+  gint                    offset = *p_offset;
+  guint16                 parameter, param_length;
+  gint                    str_length;
+  SequenceNumber          seqNumber;
+  char                    buff_tmp[MAX_PATHNAME];
+  int                     i;
 
-  SequenceNumber    seqNumber;
-
-  switch (parameter)
+  ti = proto_tree_add_text(tree, tvb, offset, (next_submsg_offset - offset),
+                      "Parameters:");
+  rtps_parameter_sequence_tree = proto_item_add_subtree(ti,
+                                                        ett_rtps_parameter_sequence);
+  for (;;)
   {
-    case PID_PAD:
+    if (next_submsg_offset-offset < 2)
     {
-      sprintf(buff," PARAM_PID_PAD: -");
-      return(buff);
+      proto_tree_add_text(rtps_parameter_sequence_tree, tvb, offset,
+                          next_submsg_offset-offset,
+                          "Parameter: < 2 bytes remain in message");
+      offset = next_submsg_offset;
+      break;
+    }
+    parameter    = get_guint16(tvb, offset, little_endian);
+    ti = proto_tree_add_text(rtps_parameter_sequence_tree, tvb, offset, 2,
+                             "Parameter: %s",
+                             val_to_str(parameter, parameter_id_vals,
+                                        "Unknown (0x%04X)"));
+    rtps_parameter_tree = proto_item_add_subtree(ti, ett_rtps_parameter);
+    proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_id,
+                        tvb, offset, 2, parameter);
+    offset +=2;
+    if (next_submsg_offset-offset < 2)
+    {
+      proto_tree_add_text(rtps_parameter_tree, tvb, offset,
+                          next_submsg_offset-offset,
+                          "Parameter length: < 2 bytes remain in message");
+      offset = next_submsg_offset;
+      proto_item_set_end(ti, tvb, offset);
+      break;
+    }
+    param_length = get_guint16(tvb, offset, little_endian);
+    proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_length,
+                        tvb, offset, 2, param_length);
+    offset +=2;
+
+    if (parameter == PID_SENTINEL) {
+      proto_item_set_end(ti, tvb, offset);
+      break;
     }
 
-    case PID_SENTINEL:
+    if (next_submsg_offset-offset < param_length)
     {
-      sprintf(buff," PARAM_PID_SENTINEL: -");
-      return(buff);
+      proto_tree_add_text(rtps_parameter_tree, tvb, offset,
+                          next_submsg_offset-offset,
+                          "Parameter value: < %u bytes remain in message",
+                          param_length);
+      offset = next_submsg_offset;
+      proto_item_set_end(ti, tvb, offset);
+      break;
     }
+    proto_item_set_end(ti, tvb, offset + param_length);
 
-    case PID_EXPIRATION_TIME:
+    switch (parameter)
     {
-      sprintf(buff," PID_EXPIRATION_TIME: %s",
-              get_NtpTime(offset, tvb, little_endian,buff_tmp));
-      return(buff);
-    }
+      case PID_PAD:
+        proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                            "PID_PAD: -");
+        break;
 
-    case PID_PERSISTENCE:
-    {
-      sprintf(buff," PID_PERSISTENCE: %s",
-              get_NtpTime(offset, tvb, little_endian,buff_tmp));
-      return(buff);
-    }
+      case PID_EXPIRATION_TIME:
+      	if (param_length < 8)
+      	{
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_EXPIRATION_TIME: length < 8");
+        }
+        else
+        {
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_EXPIRATION_TIME: %s",
+                              get_NtpTime(offset, tvb, little_endian,buff_tmp));
+        }
+        break;
 
-   case PID_MINIMUM_SEPARATION:
-   {
-      sprintf(buff," PID_MINIMUM_SEPARATION: %s",
-              get_NtpTime(offset, tvb, little_endian,buff_tmp));
-      return(buff);
-   }
+      case PID_PERSISTENCE:
+      	if (param_length < 8)
+      	{
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_PERSISTENCE: length < 8");
+        }
+        else
+        {
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_PERSISTENCE: %s",
+                              get_NtpTime(offset, tvb, little_endian,buff_tmp));
+        }
+        break;
 
-   case PID_TOPIC: /* --- ?? funguje spravne ?? */
-   {
-     for (i = 0; i < param_length; i++)
-     {
-       buff_tmp[i] = tvb_get_guint8(tvb,offset);
-       offset++;
-     }
+      case PID_MINIMUM_SEPARATION:
+      	if (param_length < 8)
+      	{
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_MINIMUM_SEPARATION: length < 8");
+        }
+        else
+        {
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_MINIMUM_SEPARATION: %s",
+                              get_NtpTime(offset, tvb, little_endian,buff_tmp));
+        }
+        break;
 
-     sprintf(buff," PID_TOPIC: ");
-     strcat(buff,buff_tmp);
-     return(buff);
-   }
+      case PID_TOPIC: /* --- ?? funguje spravne ?? */
+        str_length = tvb_strnlen(tvb, offset, param_length);
+        if (str_length == -1)
+        {
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_TOPIC: Terminating zero missing");
+        }
+        else
+        {
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_TOPIC: %s",
+                              tvb_format_text(tvb, offset, str_length));
+        }
+        break;   
 
-   case PID_STRENGTH:
-   {
-     sprintf(buff," PID_STRENGTH: 0x%X",
-             get_guint32(tvb, offset, little_endian));
-     return(buff);
-   }
+      case PID_STRENGTH:
+      	if (param_length < 4)
+      	{
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_MINIMUM_SEPARATION: length < 4");
+        }
+        else
+        {
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_STRENGTH: 0x%X",
+                              get_guint32(tvb, offset, little_endian));
+        }
+        break;
 
-   case PID_TYPE_NAME: /* --- ?? funguje spravne ?? */
-   {
-     for (i = 0; i < param_length; i++)
-     {
-       buff_tmp[i] = tvb_get_guint8(tvb,offset);
-       offset++;
-     }
-     sprintf(buff," PID_TYPE_NAME:");
-     strcat(buff,buff_tmp);
-     return(buff);
-   }
+      case PID_TYPE_NAME: /* --- ?? funguje spravne ?? */
+        str_length = tvb_strnlen(tvb, offset, param_length);
+        if (str_length == -1)
+        {
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_TYPE_NAME: Terminating zero missing");
+        }
+        else
+        {
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_TYPE_NAME: %s",
+                              tvb_format_text(tvb, offset, str_length));
+        }
+        break;   
 
-   case PID_TYPE_CHECKSUM:
-   {
-     /* nacitam jako UNSIGNED - nemuze to byt i zaporne cislo?? */
-     sprintf(buff," PID_TYPE_CHECKSUM: 0x%X",
-             get_guint32(tvb, offset, little_endian));
-     return(buff);
-   }
+      case PID_TYPE_CHECKSUM:
+        /* nacitam jako UNSIGNED - nemuze to byt i zaporne cislo?? */
+      	if (param_length < 4)
+      	{
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_MINIMUM_SEPARATION: length < 4");
+        }
+        else
+        {
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_TYPE_CHECKSUM: 0x%X",
+                              get_guint32(tvb, offset, little_endian));
+        }
+        break;
 
-   case RTPS_PID_TYPE2_NAME:
-   {
-     sprintf(buff," RTPS_PID_TYPE2_NAME:"); return(buff);
-   }
+      case RTPS_PID_TYPE2_NAME:
+        proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                            "RTPS_PID_TYPE2_NAME");
+        break;
+                          
+      case RTPS_PID_TYPE2_CHECKSUM:
+        proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                            "RTPS_PID_TYPE2_CHECKSUM");
+        break;
 
-   case RTPS_PID_TYPE2_CHECKSUM:
-   {
-     sprintf(buff," RTPS_PID_TYPE2_CHECKSUM:"); return(buff);
-   }
+      case PID_METATRAFFIC_MULTICAST_IPADDRESS:
+        i = 0;
+        while (param_length >= 4)
+      	{
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_METATRAFFIC_MULTICAST_IPADDRESS[%d]: %s", i,
+                              IP_to_string(offset, tvb, little_endian,buff_tmp));
+          ++i;
+          offset +=4;
+        }
+        offset += param_length;
+        break;
 
-   case PID_METATRAFFIC_MULTICAST_IPADDRESS:
-   {
-      sprintf(buff," PID_METATRAFFIC_MULTICAST_IPADDRESS: %s",
-              IP_to_string(offset, tvb, little_endian,buff_tmp));
-      return(buff);
-   }
+      case PID_APP_IPADDRESS:
+        i = 0;
+        while (param_length >= 4)
+      	{
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_APP_IPADDRESS[%d]: %s", i,
+                              IP_to_string(offset, tvb, little_endian,buff_tmp));
+          ++i;
+          offset +=4;
+        }
+        offset += param_length;
+        break;
 
-   case PID_APP_IPADDRESS:
-   {
-      sprintf(buff," PID_APP_IPADDRESS: %s",
-              IP_to_string(offset, tvb, little_endian,buff_tmp));
-      return(buff);
-   }
+      case PID_METATRAFFIC_UNICAST_PORT:
+      	if (param_length < 4)
+      	{
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_METATRAFFIC_UNICAST_PORT: length < 4");
+        }
+        else
+        {
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_METATRAFFIC_UNICAST_PORT: %s",
+                              port_to_string(offset, tvb, little_endian,buff_tmp));
+        }
+        break;
 
-   case PID_METATRAFFIC_UNICAST_PORT:
-   {
-      sprintf(buff," PID_METATRAFFIC_UNICAST_PORT: %s",
-              port_to_string(offset, tvb, little_endian,buff_tmp));
-      return(buff);
-   }
+      case PID_USERDATA_UNICAST_PORT:
+      	if (param_length < 4)
+      	{
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_USERDATA_UNICAST_PORT: length < 4");
+        }
+        else
+        {
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_USERDATA_UNICAST_PORT: %s",
+                              port_to_string(offset, tvb, little_endian,buff_tmp));
+        }
+        break;
 
-   case PID_USERDATA_UNICAST_PORT:
-   {
-      sprintf(buff," PID_USERDATA_UNICAST_PORT: %s",
-              port_to_string(offset, tvb, little_endian,buff_tmp));
-      return(buff);
-   }
+      case PID_EXPECTS_ACK:
+      	if (param_length < 1)
+      	{
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_USERDATA_UNICAST_PORT: length < 1");
+        }
+        else
+        {
+          if (tvb_get_guint8(tvb, offset) == 0)
+            proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                                "PID_EXPECTS_ACK: No");
+          else
+            proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                                "PID_EXPECTS_ACK: Yes");
+        }
+        break;
 
-   case PID_EXPECTS_ACK:
-   {
-      if (tvb_get_guint8(tvb, offset) == 0)
-      { sprintf(buff," PID_EXPECTS_ACK: No"); return(buff); }
-      else
-      { sprintf(buff," PID_EXPECTS_ACK: Yes"); return(buff); }
-   }
+      case PID_USERDATA_MULTICAST_IPADDRESS:
+        i = 0;
+        while (param_length >= 4)
+      	{
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_USERDATA_MULTICAST_IPADDRESS[%d]: %s", i,
+                              IP_to_string(offset, tvb, little_endian,buff_tmp));
+          ++i;
+          offset +=4;
+        }
+        offset += param_length;
+        break;
 
-   case PID_USERDATA_MULTICAST_IPADDRESS:
-   {
-      sprintf(buff," PID_USERDATA_MULTICAST_IPADDRESS: %s",
-              IP_to_string(offset, tvb, little_endian,buff_tmp));
-      return(buff);
-   }
+      case PID_MANAGER_KEY:
+        i = 0;
+        while (param_length >= 4)
+      	{
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_MANAGER_KEY[%d]: 0x%X", i,
+                              get_guint32(tvb, offset, little_endian));
+          ++i;
+          offset +=4;
+        }
+        offset += param_length;
+        break;
 
-   case PID_MANAGER_KEY:
-   {
-      sprintf(buff," PID_STRENGTH: 0x%X",
-              get_guint32(tvb, offset, little_endian));
-      return(buff);
-   }
+      case PID_SEND_QUEUE_SIZE:
+      	if (param_length < 4)
+      	{
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_SEND_QUEUE_SIZE: length < 4");
+        }
+        else
+        {
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_SEND_QUEUE_SIZE: %u",
+                              get_guint32(tvb, offset, little_endian));
+        }
+        break;
 
-   case PID_SEND_QUEUE_SIZE:
-   {
-      sprintf(buff," PID_SEND_QUEUE_SIZE: 0x%X",
-              get_guint32(tvb, offset, little_endian));
-      return(buff);
-   }
+      case PID_PROTOCOL_VERSION:
+      	if (param_length < 2)
+      	{
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_PROTOCOL_VERSION: length < 2");
+        }
+        else
+        {
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_PROTOCOL_VERSION: %s",
+                              protocol_version_to_string(offset, tvb, buff_tmp));
+        }
+        break;
 
-   case PID_PROTOCOL_VERSION:
-   {
-      sprintf(buff," PID_PROTOCOL_VERSION: %s",
-              protocol_version_to_string(offset, tvb, buff_tmp));
-      return(buff);
-   }
+      case PID_VENDOR_ID:
+      	if (param_length < 2)
+      	{
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_VENDOR_ID: length < 2");
+        }
+        else
+        {
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_VENDOR_ID: %s",
+                              vendor_id_to_string(offset, tvb, buff_tmp));
+        }
+        break;
 
-   case PID_VENDOR_ID:
-   {
-      sprintf(buff," PID_VENDOR_ID: %s",
-              vendor_id_to_string(offset, tvb, buff_tmp));
-      return(buff);
-   }
+      case PID_VARGAPPS_SEQUENCE_NUMBER_LAST:
+      	if (param_length < 8)
+      	{
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_VARGAPPS_SEQUENCE_NUMBER_LAST: length < 8");
+        }
+        else
+        {
+          seq_nr_to_string(offset, little_endian, tvb, &seqNumber);
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_VARGAPPS_SEQUENCE_NUMBER_LAST: 0x%X%X",
+                              seqNumber.high, seqNumber.low);
+        }
+        break;
 
-   case PID_VARGAPPS_SEQUENCE_NUMBER_LAST:
-   {
-     seq_nr_to_string(offset, little_endian, tvb, &seqNumber);
-     sprintf(buff," PID_VARGAPPS_SEQUENCE_NUMBER_LAST: 0x%X%X",
-             seqNumber.high, seqNumber.low);
-     return(buff);
-   }
+      case PID_RECV_QUEUE_SIZE:
+      	if (param_length < 4)
+      	{
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_RECV_QUEUE_SIZE: length < 4");
+        }
+        else
+        {
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_RECV_QUEUE_SIZE: %u",
+                              get_guint32(tvb, offset, little_endian));
+        }
+        break;
 
-   case PID_RECV_QUEUE_SIZE:
-   {
-      sprintf(buff," PID_RECV_QUEUE_SIZE: 0x%X",
-              get_guint32(tvb, offset, little_endian));
-      return(buff);
-   }
+      case PID_RELIABILITY_OFFERED:
+        if (param_length < 4)
+        {
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_RELIABILITY_OFFERED: length < 4");
+        }
+        else
+        {
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_RELIABILITY_OFFERED: 0x%X",
+                              get_guint32(tvb, offset, little_endian));
+        }
+        break;
 
-  case PID_RELIABILITY_OFFERED:
-  {
-     sprintf(buff," PID_RELIABILITY_OFFERED: 0x%X",
-             get_guint32(tvb, offset, little_endian));
-     return(buff);
+      case PID_RELIABILITY_REQUESTED:
+        if (param_length < 4)
+        {
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_RELIABILITY_OFFERED: length < 4");
+        }
+        else
+        {
+          proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                              "PID_RELIABILITY_REQUESTED: 0x%X",
+                              get_guint32(tvb, offset, little_endian));
+        }
+        break;
+
+      default:
+        proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
+                            "Unknown parameter value");
+        break;
+    }   /* end switch */
+
+    offset += param_length;
+    if (parameter == PID_SENTINEL)
+      break;
   }
 
-  case PID_RELIABILITY_REQUESTED:
-  {
-     sprintf(buff," PID_RELIABILITY_REQUESTED: 0x%X",
-             get_guint32(tvb, offset, little_endian));
-     return(buff);
-  }
-
-  default:
-  {
-     sprintf(buff," :!: Unknown sequence parameter");
-     return(buff);
-  }
- }   /* end switch */
-
+  *p_offset = offset;
 }
 
 /* *********************************************************************** */
@@ -1142,6 +1382,7 @@ dissect_ISSUE(tvbuff_t *tvb, gint offset, guint8 flags,
               gboolean little_endian, int next_submsg_offset,
               proto_tree *rtps_submessage_tree)
 {
+  int                       min_len;
   char                      buff[40];
   SequenceNumber            sequenceNumber;      /*  type struct  */
 
@@ -1149,6 +1390,17 @@ dissect_ISSUE(tvbuff_t *tvb, gint offset, guint8 flags,
                       tvb, offset, 1, flags);
   offset +=1;
 
+  min_len = 16;
+  if ((flags & FLAG_P) != 0)
+    min_len += 4;
+  if (next_submsg_offset < min_len)
+  {
+    proto_tree_add_uint_format(rtps_submessage_tree, hf_rtps_octets_to_next_header,
+                               tvb, offset, 2, next_submsg_offset,
+                               "Octets to next header: %u (bogus, must be >= %u)",
+                               next_submsg_offset, min_len);
+    return;
+  }
   proto_tree_add_uint(rtps_submessage_tree, hf_rtps_octets_to_next_header,
                       tvb, offset, 2, next_submsg_offset);
   offset +=2;
@@ -1175,8 +1427,6 @@ dissect_ISSUE(tvbuff_t *tvb, gint offset, guint8 flags,
 
   /*  Parameters */
 /* *********************************************************************** *
- * 'Parameters' - are saved in 64bites so I dissect it like a              *
- *                'Sequence Number'                                        *
  *              - for future extension of the protocol - in                *
  *                implementation of RTPS 1.0 can ignore the content        *
  * *********************************************************************** */
@@ -1184,11 +1434,8 @@ dissect_ISSUE(tvbuff_t *tvb, gint offset, guint8 flags,
   /* -- P flag |XXXX|HAPE| => masks with 00000010b = 2 */
   if ((flags & FLAG_P) != 0)
   {
-    seq_nr_to_string(offset, little_endian, tvb, &sequenceNumber);
-    proto_tree_add_text(rtps_submessage_tree, tvb, offset, 8,
-                        "Parameters:   0x%X%X",
-                        sequenceNumber.high, sequenceNumber.low);
-    offset += 8;
+    get_parameter_sequence(tvb, &offset, little_endian, next_submsg_offset,
+                           rtps_submessage_tree);
   }
 
   /*  Issue Data */
@@ -1217,6 +1464,14 @@ dissect_ACK(tvbuff_t *tvb, gint offset, guint8 flags,
                       tvb, offset, 1, flags);
   offset +=1;
 
+  if (next_submsg_offset < 20)
+  {
+    proto_tree_add_uint_format(rtps_submessage_tree, hf_rtps_octets_to_next_header,
+                               tvb, offset, 2, next_submsg_offset,
+                               "Octets to next header: %u (bogus, must be >= 20)",
+                               next_submsg_offset);
+    return;
+  }
   proto_tree_add_uint(rtps_submessage_tree, hf_rtps_octets_to_next_header,
                       tvb, offset, 2, next_submsg_offset);
   offset +=2;
@@ -1259,6 +1514,14 @@ dissect_HEARTBEAT(tvbuff_t *tvb, gint offset, guint8 flags,
                       tvb, offset, 1, flags);
   offset +=1;
 
+  if (next_submsg_offset < 24)
+  {
+    proto_tree_add_uint_format(rtps_submessage_tree, hf_rtps_octets_to_next_header,
+                               tvb, offset, 2, next_submsg_offset,
+                               "Octets to next header: %u (bogus, must be >= 24)",
+                               next_submsg_offset);
+    return;
+  }
   proto_tree_add_uint(rtps_submessage_tree, hf_rtps_octets_to_next_header,
                       tvb, offset, 2, next_submsg_offset);
   offset +=2;
@@ -1313,6 +1576,14 @@ dissect_GAP(tvbuff_t *tvb, gint offset, guint8 flags,
                       tvb, offset, 1, flags);
   offset +=1;
 
+  if (next_submsg_offset < 28)
+  {
+    proto_tree_add_uint_format(rtps_submessage_tree, hf_rtps_octets_to_next_header,
+                               tvb, offset, 2, next_submsg_offset,
+                               "Octets to next header: %u (bogus, must be >= 28)",
+                               next_submsg_offset);
+    return;
+  }
   proto_tree_add_uint(rtps_submessage_tree, hf_rtps_octets_to_next_header,
                       tvb, offset, 2, next_submsg_offset);
   offset +=2;
@@ -1362,6 +1633,19 @@ dissect_INFO_TS(tvbuff_t *tvb, gint offset, guint8 flags,
                       tvb, offset, 1, flags);
   offset +=1;
 
+  /*   npTimestamp - valid if flag I = 1         *
+   *   |XXXX|XXIE| => masks with 00000010b = 2   */
+  if ((flags & FLAG_I) != 0)
+  {
+    if (next_submsg_offset < 8)
+    {
+      proto_tree_add_uint_format(rtps_submessage_tree, hf_rtps_octets_to_next_header,
+                                 tvb, offset, 2, next_submsg_offset,
+                                 "Octets to next header: %u (bogus, must be >= 8)",
+                                 next_submsg_offset);
+      return;
+    }
+  }
   proto_tree_add_uint(rtps_submessage_tree, hf_rtps_octets_to_next_header,
                       tvb, offset, 2, next_submsg_offset);
   offset +=2;
@@ -1399,6 +1683,14 @@ dissect_INFO_SRC(tvbuff_t *tvb, gint offset, guint8 flags,
                       tvb, offset, 1, flags);
   offset +=1;
 
+  if (next_submsg_offset < 16)
+  {
+    proto_tree_add_uint_format(rtps_submessage_tree, hf_rtps_octets_to_next_header,
+                               tvb, offset, 2, next_submsg_offset,
+                               "Octets to next header: %u (bogus, must be >= 16)",
+                               next_submsg_offset);
+    return;
+  }
   proto_tree_add_uint(rtps_submessage_tree, hf_rtps_octets_to_next_header,
                       tvb, offset, 2, next_submsg_offset);
   offset +=2;
@@ -1450,12 +1742,29 @@ dissect_INFO_REPLY(tvbuff_t *tvb, gint offset, guint8 flags,
                    gboolean little_endian, int next_submsg_offset,
                    proto_tree *rtps_submessage_tree)
 {
+  int                     min_len;
   char                    buff_ip[10], buff_port[10];
 
   proto_tree_add_uint(rtps_submessage_tree, hf_rtps_submessage_flags,
                       tvb, offset, 1, flags);
   offset +=1;
 
+ /*  'multicastReplyAdress' and 'multicastReplyPort' are    *
+  *   parts of submessage INFO REPLY which are available    *
+  *   only when FLAG  M=1  flags: XXXX XXME                 */
+
+  if ((flags & FLAG_M) != 0)
+    min_len = 16;
+  else
+    min_len = 8;
+  if (next_submsg_offset < min_len)
+  {
+    proto_tree_add_uint_format(rtps_submessage_tree, hf_rtps_octets_to_next_header,
+                               tvb, offset, 2, next_submsg_offset,
+                               "Octets to next header: %u (bogus, must be >= %u)",
+                               next_submsg_offset, min_len);
+    return;
+  }
   proto_tree_add_uint(rtps_submessage_tree, hf_rtps_octets_to_next_header,
                       tvb, offset, 2, next_submsg_offset);
   offset +=2;
@@ -1475,8 +1784,8 @@ dissect_INFO_REPLY(tvbuff_t *tvb, gint offset, guint8 flags,
   offset +=4;
 
 
- /*  'multicastReplayAdress' and 'multicastReplayPort'are   *
-  *   parts of submessage INFO REPLAY which are available   *
+ /*  'multicastReplyAdress' and 'multicastReplyPort' are    *
+  *   parts of submessage INFO REPLY which are available    *
   *   only when FLAG  M=1  flags: XXXX XXME                 */
 
   if ((flags & FLAG_M) != 0)
@@ -1516,6 +1825,14 @@ dissect_INFO_DST(tvbuff_t *tvb, gint offset, guint8 flags,
                       tvb, offset, 1, flags);
   offset +=1;
 
+  if (next_submsg_offset < 8)
+  {
+    proto_tree_add_uint_format(rtps_submessage_tree, hf_rtps_octets_to_next_header,
+                               tvb, offset, 2, next_submsg_offset,
+                               "Octets to next header: %u (bogus, must be >= 8)",
+                               next_submsg_offset);
+    return;
+  }
   proto_tree_add_uint(rtps_submessage_tree, hf_rtps_octets_to_next_header,
                       tvb, offset, 2, next_submsg_offset);
   offset +=2;
@@ -1550,7 +1867,6 @@ void proto_register_rtps(void)
          FT_UINT8, BASE_HEX, VALS(submessage_id_vals), 0x0,
         "Submessage flags", HFILL }},
 
-
     { &hf_rtps_submessage_flags,
       { "Submessage flags", "rtps.submessage_flags",
          FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -1560,6 +1876,16 @@ void proto_register_rtps(void)
       { "Octets to next header", "rtps.octets_to_next_header",
          FT_UINT16, BASE_DEC, NULL, 0x0,
         "Octets to next header", HFILL }},
+
+    { &hf_rtps_parameter_id,
+      { "Parameter Id", "rtps.parameter_id",
+         FT_UINT16, BASE_HEX, VALS(parameter_id_vals), 0x0,
+        "Parameter Id", HFILL }},
+
+    { &hf_rtps_parameter_length,
+      { "Parameter Length", "rtps.parameter_length",
+         FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Parameter Length", HFILL }},
 
     { &hf_rtps_issue_data,
       { "User Data", "rtps.issue_data",
@@ -1571,6 +1897,8 @@ void proto_register_rtps(void)
     &ett_rtps,
     &ett_rtps_submessage,
     &ett_rtps_bitmap,
+    &ett_rtps_parameter_sequence,
+    &ett_rtps_parameter,
   };
 
   proto_rtps = proto_register_protocol("Real-Time Publish-Subscribe Wire Protocol",
