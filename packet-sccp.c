@@ -6,7 +6,7 @@
  *
  * Copyright 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-sccp.c,v 1.3 2002/03/06 17:56:28 gram Exp $
+ * $Id: packet-sccp.c,v 1.4 2002/04/02 22:42:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1464,8 +1464,8 @@ dissect_sccp_optional_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 
 static void
-dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_item *sccp_item,
-		     proto_tree *sccp_tree, proto_tree *tree)
+dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
+		     proto_tree *tree)
 {
   guint8 message_type;
   guint8 variable_pointer1 = 0, variable_pointer2 = 0, variable_pointer3 = 0;
@@ -1838,7 +1838,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_item *sccp_item,
 static void
 dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item *sccp_item = NULL;
+  proto_item *sccp_item;
   proto_tree *sccp_tree = NULL;
 
   /* Make entry in the Protocol column on summary display */
@@ -1849,13 +1849,12 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the sccp protocol tree */
-    sccp_item = proto_tree_add_item(tree, proto_sccp, tvb, 0,
-				    tvb_length(tvb), FALSE);
+    sccp_item = proto_tree_add_item(tree, proto_sccp, tvb, 0, -1, FALSE);
     sccp_tree = proto_item_add_subtree(sccp_item, ett_sccp);
   }
 
   /* dissect the message */
-  dissect_sccp_message(tvb, pinfo, sccp_item, sccp_tree, tree);
+  dissect_sccp_message(tvb, pinfo, sccp_tree, tree);
 }
 
 /* Register the protocol with Ethereal */
@@ -2213,4 +2212,3 @@ proto_reg_handoff_sccp(void)
 
   data_handle = find_dissector("data");
 }
-
