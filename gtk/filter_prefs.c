@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.59 2004/01/31 03:22:40 guy Exp $
+ * $Id: filter_prefs.c,v 1.60 2004/02/06 19:19:09 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -422,9 +422,12 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_box_pack_start(GTK_BOX(top_hb), filter_fr, TRUE, TRUE, 0);
     gtk_widget_show(filter_fr);
 
-    filter_sc = gtk_scrolled_window_new(NULL, NULL);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(filter_sc),
-                                   GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+    filter_sc = scrolled_window_new(NULL, NULL);
+#if GTK_MAJOR_VERSION >= 2
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(filter_sc), 
+                                   GTK_SHADOW_IN);
+#endif
+
     WIDGET_SET_SIZE(filter_sc, 250, 150);
     gtk_container_set_border_width  (GTK_CONTAINER (filter_sc), 5);
     gtk_container_add(GTK_CONTAINER(filter_fr), filter_sc);

@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.17 2004/01/30 06:43:16 ulfl Exp $
+ * $Id: ui_util.c,v 1.18 2004/02/06 19:19:11 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -310,6 +310,9 @@ static void
 setup_scrolled_window(GtkWidget *scrollw)
 {
   set_scrollbar_placement_scrollw(scrollw);
+
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollw),
+                                   GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
   scrolled_windows = g_list_append(scrolled_windows, scrollw);
 

@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.45 2004/01/31 03:22:41 guy Exp $
+ * $Id: help_dlg.c,v 1.46 2004/02/06 19:19:10 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -83,7 +83,12 @@ static GtkWidget * help_page(const char *topic, const char *filename)
   page_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_border_width(GTK_CONTAINER(page_vb), 1);
   txt_scrollw = scrolled_window_new(NULL, NULL);
+#if GTK_MAJOR_VERSION >= 2
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw), 
+                                   GTK_SHADOW_IN);
+#endif
   gtk_box_pack_start(GTK_BOX(page_vb), txt_scrollw, TRUE, TRUE, 0);
+
 #if GTK_MAJOR_VERSION < 2
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
 				 GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
@@ -97,6 +102,13 @@ static GtkWidget * help_page(const char *topic, const char *filename)
   txt = gtk_text_view_new();
   gtk_text_view_set_editable(GTK_TEXT_VIEW(txt), FALSE);
   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(txt), GTK_WRAP_WORD);
+  gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(txt), FALSE);
+  /* XXX: there seems to be no way to add a small border *around* the whole text,
+   * so the text will be "bump" against the edges.
+   * the following is only working for left and right edges,
+   * there is no such thing for top and bottom :-( */
+  /* gtk_text_view_set_left_margin(GTK_TEXT_VIEW(txt), 3); */
+  /* gtk_text_view_set_right_margin(GTK_TEXT_VIEW(txt), 3); */
 #endif
 
   relative_path = g_strconcat(HELP_DIR, G_DIR_SEPARATOR_S, filename, NULL);
@@ -148,7 +160,7 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
   help_w = dlg_window_new("Ethereal: Help");
   SIGNAL_CONNECT(help_w, "destroy", help_destroy_cb, NULL);
   /* XXX: improve this, e.g. remember the last window size in a file */
-  WIDGET_SET_SIZE(help_w, DEF_WIDTH * 2/3, DEF_HEIGHT * 2/3);
+  WIDGET_SET_SIZE(help_w, DEF_WIDTH, DEF_HEIGHT);
   gtk_container_border_width(GTK_CONTAINER(help_w), 2);
 
   /* Container for each row of widgets */

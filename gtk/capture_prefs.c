@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.28 2004/01/31 03:22:39 guy Exp $
+ * $Id: capture_prefs.c,v 1.29 2004/02/06 19:19:09 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -254,9 +254,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_widget_show(cur_opts_fr);
 	
 	/* create a scrolled window to pack the current options CList widget into */
-	cur_scr_win = gtk_scrolled_window_new(NULL, NULL);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(cur_scr_win),
-			GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
+	cur_scr_win = scrolled_window_new(NULL, NULL);
 	gtk_container_border_width(GTK_CONTAINER(cur_scr_win), 3);
 	gtk_container_add(GTK_CONTAINER(cur_opts_fr), cur_scr_win);
 	gtk_widget_show(cur_scr_win);
@@ -287,9 +285,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_widget_show(main_hb);
 	
 	/* create a scrolled window to pack the interface CList widget into */
-	if_scr_win = gtk_scrolled_window_new(NULL, NULL);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(if_scr_win),
-			GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
+	if_scr_win = scrolled_window_new(NULL, NULL);
 	gtk_box_pack_start(GTK_BOX(main_hb), if_scr_win, TRUE, TRUE, 0);
 	gtk_widget_show(if_scr_win);
 	

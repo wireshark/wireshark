@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.31 2004/01/31 09:48:26 guy Exp $
+ * $Id: rtp_analysis.c,v 1.32 2004/02/06 19:19:10 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -1976,10 +1976,8 @@ void create_rtp_dialog(user_data_t* user_data)
 	gtk_box_pack_end(GTK_BOX(page), label_stats_fwd, FALSE, FALSE, 0);
 
 	/* scrolled window */
-	scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+	scrolled_window = scrolled_window_new(NULL, NULL);
 	WIDGET_SET_SIZE(scrolled_window, 560, 200);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window), 
-		GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
 
 	/* packet clist */
 	clist_fwd = create_clist(user_data);
@@ -2000,10 +1998,8 @@ void create_rtp_dialog(user_data_t* user_data)
 	label_stats_rev = gtk_label_new("\n");
 	gtk_box_pack_end(GTK_BOX(page_r), label_stats_rev, FALSE, FALSE, 0);
 
-	scrolled_window_r = gtk_scrolled_window_new(NULL, NULL);
+	scrolled_window_r = scrolled_window_new(NULL, NULL);
 	WIDGET_SET_SIZE(scrolled_window_r, 560, 200);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window_r), 
-		GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
 
 	clist_rev = create_clist(user_data);
 	gtk_widget_show(clist_rev);

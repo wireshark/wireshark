@@ -1,7 +1,7 @@
 /* column_prefs.c
  * Dialog box for column preferences
  *
- * $Id: column_prefs.c,v 1.21 2004/01/25 12:10:27 ulfl Exp $
+ * $Id: column_prefs.c,v 1.22 2004/02/06 19:19:09 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,6 +34,7 @@
 #include "prefs.h"
 #include "column.h"
 #include "compat_macros.h"
+#include "ui_util.h"
 
 #if GTK_MAJOR_VERSION >= 2
 #include "ui_util.h"
@@ -144,9 +145,11 @@ column_prefs_show() {
   gtk_widget_show (list_lb);
   gtk_box_pack_start (GTK_BOX (list_vb), list_lb, FALSE, FALSE, 0);
 
-  list_sc = gtk_scrolled_window_new(NULL, NULL);
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(list_sc),
-                                 GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+  list_sc = scrolled_window_new(NULL, NULL);
+#if GTK_MAJOR_VERSION >= 2
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(list_sc), 
+                                   GTK_SHADOW_IN);
+#endif
   gtk_container_add(GTK_CONTAINER(list_vb), list_sc);
   gtk_widget_show(list_sc);
 

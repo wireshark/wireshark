@@ -1,6 +1,6 @@
 /* proto_hier_stats_dlg.c
  *
- * $Id: proto_hier_stats_dlg.c,v 1.14 2004/01/21 21:19:34 ulfl Exp $
+ * $Id: proto_hier_stats_dlg.c,v 1.15 2004/02/06 19:19:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -179,10 +179,11 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
 #endif
 
     /* Scrolled Window */
-    sw = gtk_scrolled_window_new(NULL, NULL);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(sw),
-                                   GTK_POLICY_AUTOMATIC,
-                                   GTK_POLICY_AUTOMATIC);
+    sw = scrolled_window_new(NULL, NULL);
+#if GTK_MAJOR_VERSION >= 2
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(sw), 
+                                   GTK_SHADOW_IN);
+#endif
     gtk_container_add(GTK_CONTAINER(container), sw);
 
 #if GTK_MAJOR_VERSION < 2

@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2003 by Matthijs Melchior <matthijs.melchior@xs4all.nl>
  *
- * $Id: packet-asn1.c,v 1.15 2004/01/18 15:57:47 jmayer Exp $
+ * $Id: packet-asn1.c,v 1.16 2004/02/06 19:19:12 ulfl Exp $
  *
  * A plugin for:
  *
@@ -89,6 +89,7 @@
 
 #ifdef DISSECTOR_WITH_GUI
 #include <gtk/gtk.h>
+#include "ui_util.h"
 #endif
 
 #include <ipproto.h>
@@ -3671,12 +3672,9 @@ create_message_window()
 			    FALSE, FALSE, 0);
 	g_free(text);
 
-	sw = gtk_scrolled_window_new (NULL, NULL);
+	sw = scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (sw),
-					     GTK_SHADOW_ETCHED_IN);
-	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (sw),
-					GTK_POLICY_AUTOMATIC,
-					GTK_POLICY_AUTOMATIC);
+					     GTK_SHADOW_IN);
 	gtk_box_pack_start (GTK_BOX (vbox), sw, TRUE, TRUE, 0);
 
 	model = gtk_tree_store_new(N_COLUMNS, G_TYPE_STRING, G_TYPE_INT, G_TYPE_INT,

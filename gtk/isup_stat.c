@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: isup_stat.c,v 1.13 2004/01/31 03:22:41 guy Exp $
+ * $Id: isup_stat.c,v 1.14 2004/02/06 19:19:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,8 +51,9 @@
 #include "../globals.h"
 #include "filter_prefs.h"
 #include "compat_macros.h"
-
 #include "packet-isup.h"
+#include "ui_util.h"
+
 
 typedef struct column_arrows {
     GtkWidget		*table;
@@ -309,13 +310,11 @@ isup_stat_gtk_win_create(
     gtk_box_pack_start(GTK_BOX(dialog_vbox), vbox, TRUE, TRUE, 0);
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 8);
 
-    dlg_p->scrolled_win = gtk_scrolled_window_new(NULL, NULL);
+    dlg_p->scrolled_win = scrolled_window_new(NULL, NULL);
     gtk_widget_ref(dlg_p->scrolled_win);
     OBJECT_SET_DATA_FULL(dlg_p->win, "scrolled_win", dlg_p->scrolled_win,
                          gtk_widget_unref);
     gtk_widget_show(dlg_p->scrolled_win);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(dlg_p->scrolled_win),
-	GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
     gtk_box_pack_start(GTK_BOX(vbox), dlg_p->scrolled_win, TRUE, TRUE, 0);
 
     dlg_p->table = gtk_clist_new(INIT_TABLE_NUM_COLUMNS);

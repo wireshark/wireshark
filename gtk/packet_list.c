@@ -1,7 +1,7 @@
 /* packet_list.c
  * packet list related functions   2002 Olivier Abad
  *
- * $Id: packet_list.c,v 1.17 2004/02/03 00:16:59 ulfl Exp $
+ * $Id: packet_list.c,v 1.18 2004/02/06 19:19:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -491,8 +491,12 @@ packet_list_new(e_prefs *prefs)
 
     /* Packet list */
     pkt_scrollw = scrolled_window_new(NULL, NULL);
-    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(pkt_scrollw),
-                                    GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+#if GTK_MAJOR_VERSION >= 2
+    /* the eth_clist will have it's own GTK_SHADOW_IN, so don't use a shadow 
+     * for both widgets */
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(pkt_scrollw), 
+                                    GTK_SHADOW_NONE);
+#endif
 
     packet_list = eth_clist_new(cfile.cinfo.num_cols);
     /* Column titles are filled in below */

@@ -117,6 +117,10 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_container_border_width(GTK_CONTAINER(proto_vb), 1);
 
   txt_scrollw = scrolled_window_new(NULL, NULL);
+#if GTK_MAJOR_VERSION >= 2
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw), 
+                                   GTK_SHADOW_IN);
+#endif
   gtk_box_pack_start(GTK_BOX(proto_vb), txt_scrollw, TRUE, TRUE, 0);
 #if GTK_MAJOR_VERSION < 2
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
@@ -129,9 +133,6 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(txt_scrollw),
 					proto_text);
 #else
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
-				 GTK_POLICY_AUTOMATIC,
-				 GTK_POLICY_AUTOMATIC);
   proto_text = gtk_text_view_new();
   gtk_text_view_set_editable(GTK_TEXT_VIEW(proto_text), FALSE);
   set_supported_text(proto_text, PROTOCOL_SUPPORTED);
@@ -155,6 +156,10 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_container_border_width(GTK_CONTAINER(dfilter_tb), 1);
 
   txt_scrollw = scrolled_window_new(NULL, NULL);
+#if GTK_MAJOR_VERSION >= 2
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw), 
+                                   GTK_SHADOW_IN);
+#endif
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
 				 GTK_POLICY_ALWAYS,
 				 GTK_POLICY_NEVER);
@@ -183,10 +188,11 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_container_border_width(GTK_CONTAINER(dfilter_vb), 1);
 
   txt_scrollw = scrolled_window_new(NULL, NULL);
+#if GTK_MAJOR_VERSION >= 2
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw), 
+                                   GTK_SHADOW_IN);
+#endif
   gtk_box_pack_start(GTK_BOX(dfilter_vb), txt_scrollw, TRUE, TRUE, 0);
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
-				 GTK_POLICY_AUTOMATIC,
-				 GTK_POLICY_AUTOMATIC);
   dfilter_text = gtk_text_view_new();
   if (prefs.gui_scrollbar_on_right) {
     gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(txt_scrollw),

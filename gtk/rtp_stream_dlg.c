@@ -1,7 +1,7 @@
 /* rtp_stream_dlg.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream_dlg.c,v 1.12 2004/01/26 19:16:30 obiot Exp $
+ * $Id: rtp_stream_dlg.c,v 1.13 2004/02/06 19:19:11 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -622,7 +622,7 @@ static void rtpstream_dlg_create (void)
 	gtk_widget_show (label10);
 	gtk_box_pack_start (GTK_BOX (vbox1), label10, FALSE, FALSE, 8);
 	
-	scrolledwindow1 = gtk_scrolled_window_new (NULL, NULL);
+	scrolledwindow1 = scrolled_window_new (NULL, NULL);
 	gtk_widget_show (scrolledwindow1);
 	gtk_box_pack_start (GTK_BOX (vbox1), scrolledwindow1, TRUE, TRUE, 0);
 	

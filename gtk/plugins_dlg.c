@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.33 2004/01/21 21:19:33 ulfl Exp $
+ * $Id: plugins_dlg.c,v 1.34 2004/02/06 19:19:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,9 +31,7 @@
 #include "globals.h"
 #include <epan/plugins.h>
 #include "dlg_utils.h"
-#if GTK_MAJOR_VERSION >= 2
 #include "ui_util.h"
-#endif
 #include "compat_macros.h"
 
 #ifdef HAVE_PLUGINS
@@ -79,11 +77,13 @@ tools_plugins_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
     gtk_container_set_border_width(GTK_CONTAINER(frame_hbox), 5);
     gtk_widget_show(frame_hbox);
 
-    scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
+    scrolledwindow = scrolled_window_new(NULL, NULL);
+#if GTK_MAJOR_VERSION >= 2
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow), 
+                                   GTK_SHADOW_IN);
+#endif
     gtk_box_pack_start(GTK_BOX(frame_hbox), scrolledwindow, TRUE, TRUE, 0);
     WIDGET_SET_SIZE(scrolledwindow, 250, 200);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledwindow),
-                                   GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
     gtk_widget_show(scrolledwindow);
 
 #if GTK_MAJOR_VERSION < 2

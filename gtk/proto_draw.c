@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.85 2004/01/31 03:22:41 guy Exp $
+ * $Id: proto_draw.c,v 1.86 2004/02/06 19:19:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -605,6 +605,9 @@ byte_view_new(void)
   byte_nb = gtk_notebook_new();
   gtk_notebook_set_tab_pos(GTK_NOTEBOOK(byte_nb), GTK_POS_BOTTOM);
 
+  /* this will only have an effect, if no tabs are shown */
+  gtk_notebook_set_show_border(GTK_NOTEBOOK(byte_nb), FALSE);
+
   /* Add a placeholder byte view so that there's at least something
      displayed in the byte view notebook. */
   add_byte_tab(byte_nb, "", NULL, NULL, NULL);
@@ -644,11 +647,6 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
 
   /* Byte view.  Create a scrolled window for the text. */
   byte_scrollw = scrolled_window_new(NULL, NULL);
-
-  /* Add scrolled pane to tabbed window */
-  label = gtk_label_new(name);
-  gtk_notebook_append_page(GTK_NOTEBOOK(byte_nb), byte_scrollw, label);
-
 #if GTK_MAJOR_VERSION < 2
   /* The horizontal scrollbar of the scroll-window doesn't seem
    * to affect the GtkText widget at all, even when line wrapping
@@ -658,10 +656,13 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
 			/* Horizontal */GTK_POLICY_NEVER,
 			/* Vertical*/	GTK_POLICY_ALWAYS);
 #else
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(byte_scrollw),
-                                 GTK_POLICY_AUTOMATIC,
-                                 GTK_POLICY_AUTOMATIC);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(byte_scrollw), 
+                                   GTK_SHADOW_IN);
 #endif
+  /* Add scrolled pane to tabbed window */
+  label = gtk_label_new(name);
+  gtk_notebook_append_page(GTK_NOTEBOOK(byte_nb), byte_scrollw, label);
+
   gtk_widget_show(byte_scrollw);
 
 #if GTK_MAJOR_VERSION < 2
@@ -1504,12 +1505,9 @@ main_tree_view_new(e_prefs *prefs, GtkWidget **tree_view_p)
 
   /* Tree view */
   tv_scrollw = scrolled_window_new(NULL, NULL);
-#if GTK_MAJOR_VERSION < 2
-  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(tv_scrollw),
-                                  GTK_POLICY_ALWAYS, GTK_POLICY_ALWAYS);
-#else
-  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(tv_scrollw),
-                                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+#if GTK_MAJOR_VERSION >= 2
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(tv_scrollw), 
+                                   GTK_SHADOW_IN);
 #endif
 
 #if GTK_MAJOR_VERSION < 2

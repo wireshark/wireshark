@@ -3,7 +3,7 @@
  * Helper routines common to all service response time statistics
  * tap.
  *
- * $Id: service_response_time_table.c,v 1.13 2004/01/31 03:22:42 guy Exp $
+ * $Id: service_response_time_table.c,v 1.14 2004/02/06 19:19:11 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,7 @@
 #include "color.h"
 #include "gtk/color_dlg.h"
 #include "main.h"
+#include "ui_util.h"
 
 extern GtkWidget   *main_display_filter_widget;
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
@@ -342,8 +343,7 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, char *filter
 	} else {
 		rst->filter_string=NULL;
 	}
-	rst->scrolled_window=gtk_scrolled_window_new(NULL, NULL);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(rst->scrolled_window), GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
+	rst->scrolled_window=scrolled_window_new(NULL, NULL);
 	gtk_box_pack_start(GTK_BOX(vbox), rst->scrolled_window, TRUE, TRUE, 0);
 
 	rst->table=(GtkCList *)gtk_clist_new(6);

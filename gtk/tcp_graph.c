@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.49 2004/01/31 03:22:42 guy Exp $
+ * $Id: tcp_graph.c,v 1.50 2004/02/06 19:19:11 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -594,6 +594,10 @@ static void create_text_widget (struct graph *g)
 	gtk_widget_show (box);
 
 	txt_scrollw = scrolled_window_new (NULL, NULL);
+#if GTK_MAJOR_VERSION >= 2
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw), 
+                                   GTK_SHADOW_IN);
+#endif
 	gtk_box_pack_start (GTK_BOX (box), txt_scrollw, TRUE, TRUE, 0);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (txt_scrollw),
 					GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
@@ -1022,9 +1026,11 @@ static void callback_create_help(GtkWidget *widget _U_, gpointer data _U_)
 
 	box = gtk_vbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (toplevel), box);
-	scroll = gtk_scrolled_window_new (NULL, NULL);
-	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scroll),
-						GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	scroll = scrolled_window_new (NULL, NULL);
+#if GTK_MAJOR_VERSION >= 2
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scroll), 
+                                   GTK_SHADOW_IN);
+#endif
 	gtk_box_pack_start (GTK_BOX (box), scroll, TRUE, TRUE, 0);
 #if GTK_MAJOR_VERSION < 2
 	text = gtk_text_new (NULL, NULL);

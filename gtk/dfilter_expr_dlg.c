@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.49 2004/01/31 03:22:39 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.50 2004/02/06 19:19:09 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1093,7 +1093,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     GtkWidget *col1_vb;
     GtkWidget *tree_label, *tree, *tree_scrolled_win;
     GtkWidget *col2_vb;
-    GtkWidget *relation_label, *relation_list;
+    GtkWidget *relation_label, *relation_list, *relation_list_scrolled_win;
     GtkWidget *range_label, *range_entry;
     GtkWidget *value_vb;
     GtkWidget *value_label, *value_entry, *value_list_scrolled_win, *value_list;
@@ -1139,10 +1139,12 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_box_pack_start(GTK_BOX(col1_vb), tree_label, FALSE, FALSE, 0);
     gtk_widget_show(tree_label);
 
-    tree_scrolled_win = gtk_scrolled_window_new(NULL, NULL);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(tree_scrolled_win),
-                                   GTK_POLICY_AUTOMATIC,
-                                   GTK_POLICY_AUTOMATIC);
+    tree_scrolled_win = scrolled_window_new(NULL, NULL);
+#if GTK_MAJOR_VERSION >= 2
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(tree_scrolled_win), 
+                                   GTK_SHADOW_IN);
+#endif
+
     WIDGET_SET_SIZE(tree_scrolled_win, 300, 400);
     gtk_box_pack_start(GTK_BOX(col1_vb), tree_scrolled_win, FALSE, FALSE, 0);
     gtk_widget_show(tree_scrolled_win);
@@ -1188,6 +1190,16 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_misc_set_alignment(GTK_MISC(relation_label), 0.0, 0.0);
     gtk_box_pack_start(GTK_BOX(col2_vb), relation_label, FALSE, FALSE, 0);
 
+    relation_list_scrolled_win = scrolled_window_new(NULL, NULL);
+    /* never use a scrollbar in x direction, show the complete relation string */
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(relation_list_scrolled_win),
+                                   GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+#if GTK_MAJOR_VERSION >= 2
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(relation_list_scrolled_win), 
+                                   GTK_SHADOW_IN);
+#endif
+    gtk_widget_show(relation_list_scrolled_win);
+
 #if GTK_MAJOR_VERSION < 2
     relation_list = gtk_list_new();
     gtk_list_set_selection_mode(GTK_LIST(relation_list),
@@ -1204,7 +1216,13 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     l_sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(relation_list));
     gtk_tree_selection_set_mode(l_sel, GTK_SELECTION_BROWSE);
 #endif
-    gtk_box_pack_start(GTK_BOX(col2_vb), relation_list, TRUE, TRUE, 0);
+#if GTK_MAJOR_VERSION < 2
+    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(relation_list_scrolled_win),
+                                          relation_list);
+#else
+    gtk_container_add(GTK_CONTAINER(relation_list_scrolled_win), relation_list);
+#endif
+    gtk_box_pack_start(GTK_BOX(col2_vb), relation_list_scrolled_win, TRUE, TRUE, 0);
 
     range_label = gtk_label_new("Range (offset:length)");
     gtk_misc_set_alignment(GTK_MISC(range_label), 0.0, 0.0);
@@ -1247,10 +1265,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_box_pack_start(GTK_BOX(value_vb), value_entry, FALSE, FALSE, 0);
     gtk_widget_show(value_entry);
 
-    value_list_scrolled_win = gtk_scrolled_window_new(NULL, NULL);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(value_list_scrolled_win),
-                                   GTK_POLICY_AUTOMATIC,
-                                   GTK_POLICY_AUTOMATIC);
+    value_list_scrolled_win = scrolled_window_new(NULL, NULL);
     gtk_box_pack_start(GTK_BOX(value_vb), value_list_scrolled_win, TRUE,
                        TRUE, 0);
     gtk_widget_show(value_list_scrolled_win);

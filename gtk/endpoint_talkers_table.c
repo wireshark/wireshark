@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.29 2004/01/31 03:22:39 guy Exp $
+ * $Id: endpoint_talkers_table.c,v 1.30 2004/02/06 19:19:09 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,6 +48,7 @@
 #include "gtk/color_dlg.h"
 #include "gtkglobals.h"
 #include "main.h"
+#include "ui_util.h"
 
 extern GtkWidget   *main_display_filter_widget;
 
@@ -978,8 +979,7 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
 	gtk_widget_show(talkers->win);
 
 
-	talkers->scrolled_window=gtk_scrolled_window_new(NULL, NULL);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(talkers->scrolled_window), GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
+	talkers->scrolled_window=scrolled_window_new(NULL, NULL);
 	gtk_box_pack_start(GTK_BOX(vbox), talkers->scrolled_window, TRUE, TRUE, 0);
 
 	talkers->table=(GtkCList *)gtk_clist_new(NUM_COLS);

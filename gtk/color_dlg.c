@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.39 2004/01/31 12:13:22 ulfl Exp $
+ * $Id: color_dlg.c,v 1.40 2004/02/06 19:19:09 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -344,10 +344,10 @@ colorize_dialog_new (char *filter)
   gtk_box_pack_start (GTK_BOX (list_vbox), list_label, FALSE, FALSE, 0);
 
   /* create the list of filters */
-  scrolledwindow1 = gtk_scrolled_window_new (NULL, NULL);
+  scrolledwindow1 = scrolled_window_new(NULL, NULL);
 #if GTK_MAJOR_VERSION >= 2
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledwindow1),
-                                 GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow1), 
+                                   GTK_SHADOW_IN);
 #endif
   gtk_widget_ref (scrolledwindow1);
   OBJECT_SET_DATA_FULL(color_win, "scrolledwindow1", scrolledwindow1, gtk_widget_unref);

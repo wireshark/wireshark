@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.42 2004/01/31 03:22:40 guy Exp $
+ * $Id: follow_dlg.c,v 1.43 2004/02/06 19:19:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -266,10 +266,11 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 
 	/* create a scrolled window for the text */
 	txt_scrollw = scrolled_window_new(NULL, NULL);
+#if GTK_MAJOR_VERSION >= 2
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw), 
+                                   GTK_SHADOW_IN);
+#endif
 	gtk_box_pack_start(GTK_BOX(vbox), txt_scrollw, TRUE, TRUE, 0);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
-				       GTK_POLICY_AUTOMATIC,
-				       GTK_POLICY_AUTOMATIC);
 
 	/* create a text box */
 #if GTK_MAJOR_VERSION < 2

@@ -2,7 +2,7 @@
  * gui functions used by stats
  * Copyright 2003 Lars Roland
  *
- * $Id: gtk_stat_util.c,v 1.3 2003/08/21 17:48:04 guy Exp $
+ * $Id: gtk_stat_util.c,v 1.4 2004/02/06 19:19:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -101,9 +101,6 @@ create_stat_table(GtkWidget *scrolled_window, GtkWidget *vbox, int columns, char
 	/* create table */
 	table = GTK_CLIST(gtk_clist_new_with_titles(columns, titles));
 
-	/* configure scrolling window*/
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
-				       GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 	gtk_box_pack_start(GTK_BOX(vbox), scrolled_window, TRUE, TRUE, 0);
 
 	/* configure clist */

@@ -2,7 +2,7 @@
  * h225 message counter for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: h225_counter.c,v 1.8 2004/01/31 03:22:41 guy Exp $
+ * $Id: h225_counter.c,v 1.9 2004/02/06 19:19:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,6 +50,8 @@
 #include "../globals.h"
 #include "../tap_dfilter_dlg.h"
 #include "tap_dfilter_dlg.h"
+#include "ui_util.h"
+
 
 extern GtkWidget *main_display_filter_widget;
 
@@ -494,7 +496,7 @@ gtk_h225counter_init(char *optarg)
 	init_main_stat_window(hs->win, hs->vbox, "ITU-T H.225 Message and Message Reason Counter", filter);
 
         /* init a scrolled window*/
-	hs->scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+	hs->scrolled_window = scrolled_window_new(NULL, NULL);
 	WIDGET_SET_SIZE(hs->scrolled_window, 400, 200);
 
 	hs->table = create_stat_table(hs->scrolled_window, hs->vbox, 2, titles);

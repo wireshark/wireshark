@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.36 2004/01/31 03:22:39 guy Exp $
+ * $Id: decode_as_dlg.c,v 1.37 2004/02/06 19:19:09 ulfl Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -526,9 +526,14 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
 #endif
 
 	/* Put clist into a scrolled window */
-	scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+	scrolled_window = scrolled_window_new(NULL, NULL);
+    /* this will result to set the width of the dialog to the required size */
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
 				       GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+#if GTK_MAJOR_VERSION >= 2
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window), 
+                                   GTK_SHADOW_IN);
+#endif
 	gtk_container_add(GTK_CONTAINER(scrolled_window),
                           GTK_WIDGET(list));
 	gtk_box_pack_start(GTK_BOX(main_vb), scrolled_window, TRUE, TRUE, 0);
@@ -1127,7 +1132,6 @@ static void
 decode_list_menu_start(GtkWidget *page, GtkWidget **list_p,
                        GtkWidget **scrolled_win_p)
 {
-    GtkWidget *window;
 #if GTK_MAJOR_VERSION < 2
     gchar             *titles[E_LIST_S_COLUMNS] = {"Short Name", "Table Name"};
     GtkCList          *list;
@@ -1167,16 +1171,21 @@ decode_list_menu_start(GtkWidget *page, GtkWidget **list_p,
     g_object_set_data(G_OBJECT(page), E_PAGE_LIST, list);
 #endif
 
-    *scrolled_win_p = window = gtk_scrolled_window_new(NULL, NULL);
-    /* Provide a minimum of a couple of rows worth of data */
-    WIDGET_SET_SIZE(window, -1, E_DECODE_MIN_HEIGHT);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(window),
+    *scrolled_win_p = scrolled_window_new(NULL, NULL);
+    /* this will result to set the width of the dialog to the required size */
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(*scrolled_win_p),
 				   GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+#if GTK_MAJOR_VERSION >= 2
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(*scrolled_win_p), 
+                                   GTK_SHADOW_IN);
+#endif
+    /* Provide a minimum of a couple of rows worth of data */
+	WIDGET_SET_SIZE(*scrolled_win_p, -1, E_DECODE_MIN_HEIGHT);
 #if GTK_MAJOR_VERSION < 2
-    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(window),
+    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(*scrolled_win_p),
 					  GTK_WIDGET(list));
 #else
-    gtk_container_add(GTK_CONTAINER(window), GTK_WIDGET(list));
+    gtk_container_add(GTK_CONTAINER(*scrolled_win_p), GTK_WIDGET(list));
 #endif
 
     *list_p = GTK_WIDGET(list);

@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.31 2004/01/31 03:22:41 guy Exp $
+ * $Id: proto_dlg.c,v 1.32 2004/02/06 19:19:10 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -139,7 +139,11 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_container_border_width(GTK_CONTAINER(proto_vb), 5);
   gtk_widget_show(proto_vb);
   
-  proto_sw = gtk_scrolled_window_new(NULL, NULL);
+  proto_sw = scrolled_window_new(NULL, NULL);
+#if GTK_MAJOR_VERSION >= 2
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(proto_sw), 
+                                   GTK_SHADOW_IN);
+#endif
   gtk_box_pack_start(GTK_BOX(proto_vb), proto_sw, TRUE, TRUE, 0);
   gtk_widget_show(proto_sw);
 
