@@ -1,7 +1,7 @@
 /* packet-bxxp.c
  * Routines for BXXP packet disassembly
  *
- * $Id: packet-bxxp.c,v 1.5 2000/10/03 10:59:10 sharpe Exp $
+ * $Id: packet-bxxp.c,v 1.6 2000/10/05 13:13:49 sharpe Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -114,6 +114,9 @@ static int tcp_port = 0;
 struct bxxp_proto_data {
   int pl_left;   /* Payload at beginning of frame */
   int pl_size;   /* Payload in current message ...*/
+  int mime_hdr;  /* Whether we expect a mime header. 1 on first, 0 on rest 
+		  * in a message
+		  */
 };
 
 /*
@@ -128,6 +131,10 @@ struct bxxp_request_key {
 struct bxxp_request_val {
   guint16 processed;     /* Have we processed this conversation? */
   int size;              /* Size of the message                  */
+                         /* We need an indication in each dirn of
+			  * whether on not a mime header is expected 
+			  */
+  int c_mime_hdr, s_mime_hdr;
 };
 
 GHashTable *bxxp_request_hash = NULL;
@@ -213,12 +220,18 @@ int bxxp_get_more(char more)
   return BXXP_VIOL;
 }
 
-void
+/* dissect the more flag, and return a value of:
+ *  1 -> more
+ *  0 -> no more
+ *  -1 -> Proto violation
+ */
+
+int
 dissect_bxxp_more(tvbuff_t *tvb, int offset, frame_data *fd, 
 		  proto_tree *tree)
 {
 
-  /* FIXME: We should return a value to indicate all OK */
+
   switch (bxxp_get_more(tvb_get_guint8(tvb, offset))) {
 
   case BXXP_COMPLETE:
@@ -227,6 +240,8 @@ dissect_bxxp_more(tvbuff_t *tvb, int offset, frame_data *fd,
       proto_tree_add_boolean_hidden(tree, hf_bxxp_complete, tvb, offset, 1, TRUE);
       proto_tree_add_text(tree, tvb, offset, 1, "More: Complete");
     }
+
+    return 0;
 
     break;
 
@@ -237,11 +252,19 @@ dissect_bxxp_more(tvbuff_t *tvb, int offset, frame_data *fd,
       proto_tree_add_text(tree, tvb, offset, 1, "More: Intermediate");
     }
 
+    return 1;
+
     break;
 
-  default:  /* FIXME: Add code for this case ... */
+  default:  
 
-    fprintf(stderr, "Error from bxxp_get_more ...\n");
+    if (tree) {
+      proto_tree_add_boolean_hidden(tree, hf_bxxp_proto_viol, tvb, offset, 1, TRUE);
+      proto_tree_add_text(tree, tvb, offset, 1, "PROTOCOL VIOLATION: Expected More Flag (* or .)");
+    }
+
+    return -1;
+
     break;
   }
 
@@ -323,6 +346,7 @@ check_term(tvbuff_t *tvb, int offset, proto_tree *tree)
 
     if (tree) {
       proto_tree_add_text(tree, tvb, offset, 1, "Nonstandard Terminator: CR");
+      proto_tree_add_boolean_hidden(tree, hf_bxxp_proto_viol, tvb, offset, 1, TRUE);
     }
     return 1;
 
@@ -331,6 +355,7 @@ check_term(tvbuff_t *tvb, int offset, proto_tree *tree)
 
     if (tree) {
       proto_tree_add_text(tree, tvb, offset, 1, "Nonstandard Terminator: LF");
+      proto_tree_add_boolean_hidden(tree, hf_bxxp_proto_viol, tvb, offset, 1, TRUE);
     }
     return 1;
 
@@ -339,6 +364,7 @@ check_term(tvbuff_t *tvb, int offset, proto_tree *tree)
 
     if (tree) {
       proto_tree_add_text(tree, tvb, offset, 2, "PROTOCOL VIOLATION, Invalid Terminator: %s", tvb_format_text(tvb, offset, 2));
+      proto_tree_add_boolean_hidden(tree, hf_bxxp_proto_viol, tvb, offset, 2, TRUE);
     }
     return -1;
 
@@ -346,7 +372,7 @@ check_term(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 }
 
-/* Get the MIME header length */
+/* Get the header length, up to CRLF or CR or LF */
 int header_len(tvbuff_t *tvb, int offset)
 {
   int i = 0;
@@ -376,11 +402,14 @@ int header_len(tvbuff_t *tvb, int offset)
 }
 
 int
-dissect_bxxp_mime_header(tvbuff_t *tvb, int offset, frame_data *fd,
+dissect_bxxp_mime_header(tvbuff_t *tvb, int offset, 
+			 struct bxxp_proto_data *frame_data,
 			 proto_tree *tree)
 {
   proto_tree    *ti = NULL, *mime_tree = NULL;
   int           mime_length = header_len(tvb, offset), cc = 0;
+
+  if (frame_data && !frame_data->mime_hdr) return 0;
 
   if (tree) {
 
@@ -452,6 +481,52 @@ dissect_bxxp_int(tvbuff_t *tvb, int offset, frame_data *fd,
 
 }
 
+void
+set_mime_hdr_flags(int more, struct bxxp_request_val *request_val, 
+		   struct bxxp_proto_data *frame_data)
+{
+
+  if (!request_val) return; /* Nothing to do ??? */
+
+  if (pi.destport == tcp_port) { /* Going to the server ... client */
+
+    if (request_val->c_mime_hdr) {
+
+      frame_data->mime_hdr = 0;
+
+      if (!more) request_val->c_mime_hdr = 0; 
+
+    }
+    else {
+
+      frame_data->mime_hdr = 1;
+
+      if (more) request_val->c_mime_hdr = 1;
+
+    }
+
+  }
+  else {
+
+    if (request_val->s_mime_hdr) {
+
+      frame_data->mime_hdr = 0;
+
+      if (!more) request_val->s_mime_hdr = 0; 
+
+    }
+    else {
+
+      frame_data->mime_hdr = 1;
+
+      if (more) request_val->s_mime_hdr = 1;
+
+    }
+
+  }
+
+}
+
 /* Build the tree
  *
  * A return value of <= 0 says we bailed out, skip the rest of this message,
@@ -466,7 +541,8 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		  struct bxxp_proto_data *frame_data)
 {
   proto_tree     *ti = NULL, *hdr = NULL;
-  int            st_offset, serial, seqno, size, channel, ackno, window, cc;
+  int            st_offset, serial, seqno, size, channel, ackno, window, cc,
+                 more;
 
   st_offset = offset;
 
@@ -495,7 +571,34 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     /* Insert the more elements ... */
 
-    dissect_bxxp_more(tvb, offset, pinfo->fd, hdr);
+    if ((more = dissect_bxxp_more(tvb, offset, pinfo->fd, hdr)) >= 0) {
+
+      /* Figure out which direction this is in and what mime_hdr flag to 
+       * add to the frame_data. If there are missing segments, this code
+       * will get it wrong!
+       */
+
+      set_mime_hdr_flags(more, request_val, frame_data);
+
+    }
+    else {  /* Protocol violation, so dissect rest as undisectable */
+
+      if (tree) {
+
+	proto_tree_add_text(hdr, tvb, offset, 
+			    tvb_length_remaining(tvb, offset),
+			    "Undissected Payload: %s",
+			    tvb_format_text(tvb, offset,
+					    tvb_length_remaining(tvb, offset)
+					    )
+			    );
+
+      }
+
+      return -1;
+
+    }
+
     offset += 1;
       
     /* Check the space ... */
@@ -518,11 +621,11 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
     offset += 1;
 
     offset += dissect_bxxp_int(tvb, offset, pinfo->fd, hdr, hf_bxxp_size, &size, req_size_hfa);
-    if (request_val)
+    if (request_val)   /* FIXME, is this the right order ... */
       request_val -> size = size;  /* Stash this away */
     else {
       frame_data->pl_size = size;
-      if (frame_data->pl_size < 0) frame_data->pl_size = 0;
+      if (frame_data->pl_size < 0) frame_data->pl_size = 0; /* FIXME: OK? */
     }
 
     /* Check the space */
@@ -555,7 +658,8 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
     
     /* Insert MIME header ... */
 
-    offset += dissect_bxxp_mime_header(tvb, offset, pinfo->fd, hdr);
+    if (frame_data && frame_data->mime_hdr)
+      offset += dissect_bxxp_mime_header(tvb, offset, frame_data, hdr);
 
     /* Now for the payload, if any */
 
@@ -613,7 +717,29 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     /* Next, the 'more' flag ... */
 
-    dissect_bxxp_more(tvb, offset, pinfo->fd, hdr);
+    if ((more = dissect_bxxp_more(tvb, offset, pinfo->fd, hdr)) >= 0) {
+
+      set_mime_hdr_flags(more, request_val, frame_data);
+
+    }
+    else { 
+
+      if (tree) {
+
+	proto_tree_add_text(hdr, tvb, offset, 
+			    tvb_length_remaining(tvb, offset),
+			    "Undissected Payload: %s",
+			    tvb_format_text(tvb, offset,
+					    tvb_length_remaining(tvb, offset)
+					    )
+			    );
+
+      }
+
+      return -1;
+
+    }
+
     offset += 1;
 
     /* Check the space */
@@ -669,7 +795,8 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
     
     /* Insert MIME header ... */
 
-    offset += dissect_bxxp_mime_header(tvb, offset, pinfo->fd, hdr);
+    if (frame_data && frame_data->mime_hdr)
+      offset += dissect_bxxp_mime_header(tvb, offset, pinfo->fd, hdr);
 
     /* Now for the payload, if any */
 
@@ -942,32 +1069,19 @@ dissect_bxxp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   
   /* Check the per-frame data and the conversation for any left-over 
    * payload from the previous frame 
+   *
+   * We check that per-frame data exists first, and if so, use it,
+   * else we use the conversation data.
+   *
+   * We create per-frame data here as well, but we must ensure we create it
+   * after we have done the check for per-frame or conversation data.
+   *
+   * We also depend on the first frame in a group having a pl_size of 0.
    */
 
-  /* FIXME: This conditional is not quite correct */
-  if ((frame_data && frame_data->pl_left > 0) ||
-      (request_val && request_val->size > 0)) {
-    int pl_left = 0;
+  if (frame_data && frame_data->pl_left > 0) {
 
-    if (frame_data) {
-      pl_left = frame_data->pl_left;
-    }
-    else {
-      pl_left = request_val->size;
-      request_val->size = 0;
-
-      /* We create the frame data here for this case, and 
-       * elsewhere for other frames
-       */
-
-      frame_data = g_mem_chunk_alloc(bxxp_packet_infos);
-
-      frame_data->pl_left = pl_left;
-      frame_data->pl_size = 0;
-
-      p_add_proto_data(pinfo->fd, proto_bxxp, frame_data);
-
-    }
+    int pl_left = frame_data->pl_left;
 
     pl_left = MIN(pl_left, tvb_length_remaining(tvb, offset));
 
@@ -978,14 +1092,29 @@ dissect_bxxp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     offset += pl_left;
   }
+  else if (request_val && request_val->size > 0) {
 
-  if (tvb_length_remaining(tvb, offset) > 0) {
+    int pl_left = request_val->size;
 
-    offset += dissect_bxxp_tree(tvb, offset, pinfo, bxxp_tree, request_val, frame_data);
+    request_val->size = 0;
+
+    /* We create the frame data here for this case, and 
+     * elsewhere for other frames
+     */
+
+    frame_data = g_mem_chunk_alloc(bxxp_packet_infos);
+
+    frame_data->pl_left = pl_left;
+    frame_data->pl_size = 0;
+    frame_data->mime_hdr = 0;
+      
+    p_add_proto_data(pinfo->fd, proto_bxxp, frame_data);
 
   }
 
-  /* Set up the per-frame data here if not already done so */
+  /* Set up the per-frame data here if not already done so
+   * This _must_ come after the checks above ...
+   */
 
   if (frame_data == NULL) { 
 
@@ -993,9 +1122,16 @@ dissect_bxxp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     frame_data->pl_left = 0;
     frame_data->pl_size = 0;
+    frame_data->mime_hdr = 0;
 
     p_add_proto_data(pinfo->fd, proto_bxxp, frame_data);
 	
+  }
+
+  if (tvb_length_remaining(tvb, offset) > 0) {
+
+    offset += dissect_bxxp_tree(tvb, offset, pinfo, bxxp_tree, request_val, frame_data);
+
   }
 
 }
