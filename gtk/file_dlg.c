@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.118 2004/06/20 15:57:09 ulfl Exp $
+ * $Id: file_dlg.c,v 1.119 2004/06/20 18:36:16 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -138,7 +138,7 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     guint64     filesize;
 
     label = OBJECT_GET_DATA(prev, PREVIEW_FILENAME_KEY);
-    gtk_label_set_text(GTK_LABEL(label), get_basename((char *)cf_name));
+    gtk_label_set_text(GTK_LABEL(label), "-");
     label = OBJECT_GET_DATA(prev, PREVIEW_FORMAT_KEY);
     gtk_label_set_text(GTK_LABEL(label), "-");
     label = OBJECT_GET_DATA(prev, PREVIEW_SIZE_KEY);
@@ -149,6 +149,13 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     gtk_label_set_text(GTK_LABEL(label), "-");
     label = OBJECT_GET_DATA(prev, PREVIEW_FIRST_KEY);
     gtk_label_set_text(GTK_LABEL(label), "-");
+
+    if(!cf_name) {
+        return FALSE;
+    }
+
+    label = OBJECT_GET_DATA(prev, PREVIEW_FILENAME_KEY);
+    gtk_label_set_text(GTK_LABEL(label), get_basename((char *)cf_name));
 
     if (test_for_directory(cf_name) == EISDIR) {
         label = OBJECT_GET_DATA(prev, PREVIEW_FORMAT_KEY);
