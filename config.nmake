@@ -1,4 +1,4 @@
-# $Id: config.nmake,v 1.74 2003/12/28 18:31:14 ulfl Exp $
+# $Id: config.nmake,v 1.75 2004/01/05 15:05:00 ulfl Exp $
 
 VERSION=0.10.0
 #
@@ -126,7 +126,7 @@ PDB_FILE=vc*.pdb
 PATH=c:\cygwin\bin;c:\python22;$(PATH)
 
 # Set path to some required DLLs
-PATH=.\wiretap;$(ZLIB_DIR);$(ICONV_DIR)\bin;$(PCRE_DIR)\bin;$(PATH)
+PATH=.\wiretap;$(GLIB_DIR)\bin;$(GETTEXT_DIR)\bin;$(ICONV_DIR)\bin;$(PATH)
 
 SH=bash
 PERL=perl
@@ -205,6 +205,7 @@ WPCAP_CONSTIFIED=
 !ENDIF
 
 !IFDEF ZLIB_DIR
+PATH=$(ZLIB_DIR);$(PATH)
 ZLIB_CFLAGS=/I$(ZLIB_DIR)\include
 ZLIB_LIBS=$(ZLIB_DIR)\lib\zdll.lib
 # Nmake uses carets to escape special characters
@@ -216,6 +217,7 @@ ZLIB_CONFIG=
 !ENDIF
 
 !IFDEF ADNS_DIR
+PATH=$(ADNS_DIR)\adns_win32\lib;$(PATH)
 ADNS_CFLAGS=/I$(ADNS_DIR)\src /I$(ADNS_DIR)\adns_win32
 ADNS_LIBS=$(ADNS_DIR)\adns_win32\lib\adns_dll.lib
 # Nmake uses carets to escape special characters
@@ -227,6 +229,7 @@ ADNS_CONFIG=
 !ENDIF
 
 !IFDEF PCRE_DIR
+PATH=$(PCRE_DIR)\bin;$(PATH)
 PCRE_CFLAGS=/I$(PCRE_DIR)\include
 PCRE_LIBS=$(PCRE_DIR)\lib\pcre.lib
 # Nmake uses carets to escape special characters
