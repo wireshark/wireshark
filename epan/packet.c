@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.93 2003/06/05 04:47:58 guy Exp $
+ * $Id: packet.c,v 1.94 2003/08/12 20:09:38 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -346,7 +346,15 @@ static int
 call_dissector_through_handle(dissector_handle_t handle, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree)
 {
+	const char *saved_proto;
 	int ret;
+
+	saved_proto = pinfo->current_proto;
+
+	if (handle->proto_index != -1) {
+		pinfo->current_proto =
+		    proto_get_protocol_short_name(handle->proto_index);
+	}
 
 	if (handle->is_new)
 		ret = (*handle->dissector.new)(tvb, pinfo, tree);
@@ -362,6 +370,9 @@ call_dissector_through_handle(dissector_handle_t handle, tvbuff_t *tvb,
 			ret = 1;
 		}
 	}
+
+	pinfo->current_proto = saved_proto;
+
 	return ret;
 }
 
