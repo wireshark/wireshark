@@ -202,9 +202,9 @@ static char *yyTokenName[] = {
 ** A pointer to a parser.  This pointer is used in subsequent calls
 ** to Parse and ParseFree.
 */
-void *ParseAlloc(void *(*mallocProc)()){
+void *ParseAlloc(void *(*mallocProc)(gulong)){
   yyParser *pParser;
-  pParser = (yyParser*)(*mallocProc)( sizeof(yyParser), __FILE__, __LINE__ );
+  pParser = (yyParser*)(*mallocProc)( sizeof(yyParser) );
   if( pParser ){
     pParser->idx = -1;
   }
@@ -272,13 +272,13 @@ static int yy_pop_parser_stack(yyParser *pParser){
 ** </ul>
 */
 void ParseFree(
-  void *p,               /* The parser to be deleted */
-  void (*freeProc)()     /* Function used to reclaim memory */
+  void *p,                 /* The parser to be deleted */
+  void (*freeProc)(void *) /* Function used to reclaim memory */
 ){
   yyParser *pParser = (yyParser*)p;
   if( pParser==0 ) return;
   while( pParser->idx>=0 ) yy_pop_parser_stack(pParser);
-  (*freeProc)(pParser, __FILE__, __LINE__);
+  (*freeProc)(pParser);
 }
 
 /*

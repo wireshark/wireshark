@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter-int.h,v 1.2 2001/02/01 20:31:18 gram Exp $
+ * $Id: dfilter-int.h,v 1.3 2001/02/15 06:22:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,8 +48,8 @@ typedef struct {
 } dfwork_t;
 
 /* Constructor/Destructor prototypes for Lemon Parser */
-void *DfilterAlloc(void* (*)());
-void DfilterFree(void*, void (*)());
+void *DfilterAlloc(void* (*)(gulong));
+void DfilterFree(void*, void (*)(void *));
 void Dfilter(void*, int, stnode_t*, dfwork_t*);
 
 /* Scanner's lval */
