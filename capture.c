@@ -314,8 +314,6 @@ capture_child_stop_signal_handler(int signo _U_)
 int  
 capture_child_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats)
 {
-  g_assert(capture_opts->capture_child);
-
 #ifndef _WIN32
   /*
    * Catch SIGUSR1, so that we exit cleanly if the parent process
@@ -328,15 +326,17 @@ capture_child_start(capture_options *capture_opts, gboolean *stats_known, struct
 }
 
 void
+capture_child_stop(capture_options *capture_opts)
+{
+  /* stop the capture loop */
+  capture_loop_stop();
+}
+
+void
 capture_stop(capture_options *capture_opts)
 {
   /* stop the capture child, if we have one */
-  if (!capture_opts->capture_child) {	
-    sync_pipe_stop(capture_opts);
-  }
-
-  /* stop the capture loop */
-  capture_loop_stop();
+  sync_pipe_stop(capture_opts);
 }
 
 void

@@ -50,7 +50,6 @@ typedef struct capture_options_tag {
     gboolean promisc_mode;  /**< Capture in promiscuous mode */
     int      linktype;      /**< Data link type to use, or -1 for
                                  "use default" */
-    gboolean capture_child; /**< True if this is the child for "-S" */
     gchar    *save_file;    /**< the capture file name */
 
     /* GUI related */
@@ -118,15 +117,20 @@ extern void capture_input_new_packets(capture_options *capture_opts, int to_read
  */
 extern void capture_input_closed(capture_options *capture_opts);
 
-/** Do the low-level work of a capture (start the capture child).
- *  Returns TRUE if it succeeds, FALSE otherwise. */
-extern int  capture_child_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats);
-
 /** Stop a capture (usually from a menu item). */
 extern void capture_stop(capture_options *capture_opts);
 
 /** Terminate the capture child cleanly when exiting. */
 extern void capture_kill_child(capture_options *capture_opts);
+
+
+
+/** Do the low-level work of a capture (start the capture child).
+ *  Returns TRUE if it succeeds, FALSE otherwise. */
+extern int  capture_child_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats);
+
+/** Stop a capture child (usually from a menu item). */
+extern void capture_child_stop(capture_options *capture_opts);
 
 /** Do the low-level work of a capture.
  *  Returns TRUE if it succeeds, FALSE otherwise. */

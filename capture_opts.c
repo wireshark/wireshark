@@ -59,7 +59,6 @@ capture_opts_init(capture_options *capture_opts, void *cfile)
                                                                     infinite, in effect */
   capture_opts->promisc_mode            = TRUE;             /* promiscuous mode is the default */
   capture_opts->linktype                = -1;               /* the default linktype */
-  capture_opts->capture_child           = FALSE;
   capture_opts->save_file               = NULL;
   capture_opts->sync_mode               = TRUE;
   capture_opts->show_info               = TRUE;
@@ -98,7 +97,6 @@ capture_opts_info(capture_options *capture_opts) {
     g_warning("SnapLen         (%u): %u", capture_opts->has_snaplen, capture_opts->snaplen);
     g_warning("Promisc            : %u", capture_opts->promisc_mode);
     g_warning("LinkType           : %d", capture_opts->linktype);
-    g_warning("Child              : %u", capture_opts->capture_child);
     g_warning("SaveFile           : %s", capture_opts->save_file);
     g_warning("SyncMode           : %u", capture_opts->sync_mode);
     g_warning("ShowInfo           : %u", capture_opts->show_info);

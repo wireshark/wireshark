@@ -1524,6 +1524,7 @@ main(int argc, char *argv[])
   ethereal_tap_list   *tli = NULL;
   gchar               *tap_opt = NULL;
   GtkWidget           *splash_win = NULL;
+  gboolean             capture_child; /* True if this is the child for "-S" */
 
 #define OPTSTRING_INIT "a:b:B:c:f:Hhi:klLm:nN:o:pP:Qr:R:Ss:t:T:w:vy:z:"
 
@@ -1588,8 +1589,8 @@ main(int argc, char *argv[])
   command_name = get_basename(ethereal_path);
   /* Set "capture_child" to indicate whether this is going to be a child
      process for a "-S" capture. */
-  capture_opts->capture_child = (strcmp(command_name, CHILD_NAME) == 0);
-  if (capture_opts->capture_child) {
+  capture_child = (strcmp(command_name, CHILD_NAME) == 0);
+  if (capture_child) {
     strcat(optstring, OPTSTRING_CHILD);
   }
 #endif
@@ -1608,7 +1609,7 @@ main(int argc, char *argv[])
        they're supposed to override saved preferences. */
   if ((argc < 2 || strcmp(argv[1], "-G") != 0)
 #ifdef HAVE_LIBPCAP
-      && !capture_opts->capture_child
+      && !capture_child
 #endif
       ) {
     splash_win = splash_new("Loading Ethereal ...");
@@ -1736,7 +1737,7 @@ main(int argc, char *argv[])
 
      Otherwise, set promiscuous mode from the preferences setting. */
   /* the same applies to other preferences settings as well. */
-  if (capture_opts->capture_child) {
+  if (capture_child) {
     auto_scroll_live             = FALSE;
   } else {
     capture_opts->promisc_mode   = prefs->capture_prom_mode;
@@ -2204,7 +2205,7 @@ main(int argc, char *argv[])
   gtk_rc_parse(rc_file);
 
 #ifdef HAVE_LIBPCAP
-  font_init(capture_opts->capture_child);
+  font_init(capture_child);
 #else
   font_init(FALSE);
 #endif
@@ -2217,7 +2218,7 @@ main(int argc, char *argv[])
   /* Is this a "child" ethereal, which is only supposed to pop up a
      capture box to let us stop the capture, and run a capture
      to a file that our parent will read? */
-  if (capture_opts->capture_child) {
+  if (capture_child) {
     /* This is the child process for a sync mode or fork mode capture,
        so just do the low-level work of a capture - don't create
        a temporary file and fork off *another* child process (so don't

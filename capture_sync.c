@@ -519,9 +519,6 @@ sync_pipe_input_cb(gint source, gpointer user_data)
   int  to_read = 0;
 
 
-  /* we are a capture parent */
-  g_assert(!capture_opts->capture_child);
-
   if ((nread = read(source, buffer, BUFSIZE)) <= 0) {
     /* The child has closed the sync pipe, meaning it's not going to be
        capturing any more packets.  Pick up its exit status, and

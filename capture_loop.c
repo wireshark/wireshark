@@ -601,9 +601,7 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
        mode or fork mode, it shouldn't do any UI stuff until we pop up the
        capture-progress window, and, since we couldn't start the
        capture, we haven't popped it up. */
-    if (!capture_opts->capture_child) {
-      main_window_update();
-    }
+
 
     /* On Win32 OSes, the capture devices are probably available to all
        users; don't warn about permissions problems.
@@ -628,15 +626,6 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
     ld->cap_pipe_fd = cap_pipe_open_live(capture_opts->iface, &ld->cap_pipe_hdr, ld, errmsg, errmsg_len);
 
     if (ld->cap_pipe_fd == -1) {
-
-      /* If this is a child process that does the capturing in sync
-       * mode or fork mode, it shouldn't do any UI stuff until we pop up the
-       * capture-progress window, and, since we couldn't start the
-       * capture, we haven't popped it up.
-       */
-      if (!capture_opts->capture_child) {
-          main_window_update();
-      }
 
       if (ld->cap_pipe_err == PIPNEXIST) {
 	/* Pipe doesn't exist, so output message for interface */
@@ -1124,11 +1113,9 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
      in other places as well - and I don't think that works all the
      time in any case, due to libpcap bugs. */
 
-  if (capture_opts->capture_child) {
     /* Well, we should be able to start capturing.
 
-       This is the child process for a sync mode capture, so sync out
-       the capture file, so the header makes it to the file system,
+       Sync out the capture file, so the header makes it to the file system,
        and send a "capture started successfully and capture file created"
        message to our parent so that they'll open the capture file and
        update its windows to indicate that we have a live capture in
@@ -1136,7 +1123,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     fflush(wtap_dump_file(ld.wtap_pdh));
     sync_pipe_capstart_to_parent();
     sync_pipe_filename_to_parent(capture_opts->save_file);
-  }
 
   /* initialize capture stop (and alike) conditions */
   init_capture_stop_conditions();
@@ -1198,9 +1184,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             if (cnd_file_duration) {
               cnd_reset(cnd_file_duration);
             }
-            if (capture_opts->capture_child) {
-                sync_pipe_filename_to_parent(capture_opts->save_file);
-            }
+            sync_pipe_filename_to_parent(capture_opts->save_file);
           } else {
             /* File switch failed: stop here */
             ld.go = FALSE;
@@ -1236,12 +1220,9 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
         /* do sync here */
         fflush(wtap_dump_file(ld.wtap_pdh));
 
-        if (capture_opts->capture_child) {
-	  /* This is the child process for a sync mode capture, so send
-	     our parent a message saying we've written out "ld.sync_packets"
+	  /* Send our parent a message saying we've written out "ld.sync_packets"
 	     packets to the capture file. */
         sync_pipe_packet_count_to_parent(ld.packets_sync_pipe);
-        }
 
         ld.packets_sync_pipe = 0;
       }
@@ -1269,9 +1250,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             cnd_reset(cnd_file_duration);
             if(cnd_autostop_size)
               cnd_reset(cnd_autostop_size);
-            if (capture_opts->capture_child) {
-                sync_pipe_filename_to_parent(capture_opts->save_file);
-            }
+            sync_pipe_filename_to_parent(capture_opts->save_file);
           } else {
             /* File switch failed: stop here */
 	        ld.go = FALSE;
@@ -1350,10 +1329,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
        dropped. */
     if (pcap_stats(ld.pcap_h, stats) >= 0) {
       *stats_known = TRUE;
-      if (capture_opts->capture_child) {
-      	/* Let the parent process know. */
-        sync_pipe_drops_to_parent(stats->ps_drop);
-      }
+      /* Let the parent process know. */
+      sync_pipe_drops_to_parent(stats->ps_drop);
     } else {
       g_snprintf(errmsg, sizeof(errmsg),
 		"Can't get packet-drop statistics: %s",
@@ -1459,15 +1436,9 @@ capture_loop_get_errmsg(char *errmsg, int errmsglen, const char *fname,
 static void
 capture_loop_popup_errmsg(capture_options *capture_opts, const char *errmsg)
 {
-  if (capture_opts->capture_child) {
-    /* This is the child process for a sync mode capture.
-       Send the error message to our parent, so they can display a
+    /* Send the error message to our parent, so they can display a
        dialog box containing it. */
     sync_pipe_errmsg_to_parent(errmsg);
-  } else {
-    /* Display the dialog box ourselves; there's no parent. */
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", errmsg);
-  }
 }
 
 
