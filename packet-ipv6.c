@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.56 2001/04/23 03:56:57 guy Exp $
+ * $Id: packet-ipv6.c,v 1.57 2001/05/27 02:16:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -623,7 +623,10 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   struct ip6_hdr ipv6;
 
-  CHECK_DISPLAY_AS_DATA(proto_ipv6, tvb, pinfo, tree);
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_set_str(pinfo->fd, COL_PROTOCOL, "IPv6");
+  if (check_col(pinfo->fd, COL_INFO))
+    col_clear(pinfo->fd, COL_INFO);
 
   offset = 0;
   tvb_memcpy(tvb, (guint8 *)&ipv6, offset, sizeof(ipv6)); 
@@ -759,8 +762,6 @@ again:
 #endif
   if (frag) {
     /* fragmented */
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-      col_set_str(pinfo->fd, COL_PROTOCOL, "IPv6");
     /* COL_INFO was filled in by "dissect_frag6()" */
     dissect_data(tvb, offset, pinfo, tree);
   }	else {
@@ -769,8 +770,6 @@ again:
     /* do lookup with the subdissector table */
     if (!dissector_try_port(ip_dissector_table, nxt, next_tvb, pinfo, tree)) {
       /* Unknown protocol */
-      if (check_col(pinfo->fd, COL_PROTOCOL))
-	col_set_str(pinfo->fd, COL_PROTOCOL, "IPv6");
       if (check_col(pinfo->fd, COL_INFO))
 	col_add_fstr(pinfo->fd, COL_INFO, "%s (0x%02x)", ipprotostr(nxt),nxt);
       dissect_data(next_tvb, 0, pinfo, tree);
@@ -782,14 +781,12 @@ static void
 dissect_ipv6_none(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   /* BT INSERT BEGIN */
   if (hf_ipv6_mipv6_length!=-1) {
-  	if (check_col(pinfo->fd, COL_PROTOCOL))
-    	col_set_str(pinfo->fd, COL_PROTOCOL, "IPv6");
   	if (check_col(pinfo->fd, COL_INFO))
-    	col_add_fstr(pinfo->fd, COL_INFO, "MobileIPv6 Destination Option");
-	} else {
-  /* BT INSERT END */
-  if (check_col(pinfo->fd, COL_INFO))
-    col_add_fstr(pinfo->fd, COL_INFO, "IPv6 no next header");
+	  col_add_fstr(pinfo->fd, COL_INFO, "MobileIPv6 Destination Option");
+  } else {
+    /* BT INSERT END */
+    if (check_col(pinfo->fd, COL_INFO))
+      col_add_fstr(pinfo->fd, COL_INFO, "IPv6 no next header");
   }
   /* XXX - dissect the payload as padding? */
 }
