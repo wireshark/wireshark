@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.93 2003/04/03 05:43:58 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.94 2003/04/10 05:38:43 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5056,6 +5056,9 @@ static int SpoolssWritePrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_buffer_size, &size);
 
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %d bytes", size);
+
 	item = proto_tree_add_text(tree, tvb, offset, 0, "Buffer");
 
 	subtree = proto_item_add_subtree(item, ett_writeprinter_buffer);
@@ -5076,11 +5079,17 @@ static int SpoolssWritePrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int SpoolssWritePrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 proto_tree *tree, char *drep)
 {
+	guint32 size;
+
 	/* Parse packet */
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_writeprinter_numwritten, 
-		NULL);
+		&size);
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(
+			pinfo->cinfo, COL_INFO, ", %d bytes written", size);
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
