@@ -360,7 +360,7 @@ proto_register_gre(void)
 				"The protocol that is GRE encapsulated", HFILL }
 		},
 		{ &hf_gre_key,
-			{ "Key", "gre.key", FT_UINT32, BASE_HEX, NULL, 0x0,
+			{ "GRE Key", "gre.key", FT_UINT32, BASE_HEX, NULL, 0x0,
 				"", HFILL }
 		},
 	};
