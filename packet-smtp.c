@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.34 2003/06/11 18:22:12 guy Exp $
+ * $Id: packet-smtp.c,v 1.35 2003/09/16 17:42:01 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -42,8 +42,6 @@
 
 #define TCP_PORT_SMTP 25
 
-void proto_reg_handoff_smtp(void);
-
 static int proto_smtp = -1;
 
 static int hf_smtp_req = -1;
@@ -55,8 +53,6 @@ static int hf_smtp_rsp_parameter = -1;
 
 static int ett_smtp = -1;
 static int ett_smtp_cmdresp = -1;
-
-static int global_smtp_tcp_port = TCP_PORT_SMTP;
 
 /* desegmentation of SMTP command and response lines */
 static gboolean smtp_desegment = TRUE;
@@ -590,25 +586,8 @@ proto_register_smtp(void)
 void
 proto_reg_handoff_smtp(void)
 {
-  static int smtp_prefs_initialized = FALSE;
-  static dissector_handle_t smtp_handle;
-  static int tcp_port = 0;
+  dissector_handle_t smtp_handle;
 
-  if (!smtp_prefs_initialized) {
-
-    smtp_handle = create_dissector_handle(dissect_smtp, proto_smtp);
-
-    smtp_prefs_initialized = TRUE;
-
-  }
-  else {
-
-    dissector_delete("tcp.port", tcp_port, smtp_handle);
-
-  }
-
-  tcp_port = global_smtp_tcp_port;
-
-  dissector_add("tcp.port", global_smtp_tcp_port, smtp_handle);
-
+  smtp_handle = create_dissector_handle(dissect_smtp, proto_smtp);
+  dissector_add("tcp.port", TCP_PORT_SMTP, smtp_handle);
 }
