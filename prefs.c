@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.86 2002/06/16 00:58:37 guy Exp $
+ * $Id: prefs.c,v 1.87 2002/08/01 03:15:25 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -721,10 +721,10 @@ static void read_prefs_file(const char *pf_path, FILE *pf);
    return NULL. */
 e_prefs *
 read_prefs(int *gpf_errno_return, char **gpf_path_return,
-	   int *pf_errno_return, const char **pf_path_return)
+	   int *pf_errno_return, char **pf_path_return)
 {
   int         i;
-  const char *pf_path;
+  char       *pf_path;
   FILE       *pf;
   fmt_data   *cfmt;
   gchar      *col_fmt[] = {"No.",      "%m", "Time",        "%t",
@@ -876,6 +876,8 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
     /* We succeeded in opening it; read it. */
     read_prefs_file(pf_path, pf);
     fclose(pf);
+    g_free(pf_path);
+    pf_path = NULL;
   } else {
     /* We failed to open it.  If we failed for some reason other than
        "it doesn't exist", return the errno and the pathname, so our
@@ -1662,9 +1664,9 @@ write_module_prefs(gpointer data, gpointer user_data)
    If we got an error, stuff a pointer to the path of the preferences file
    into "*pf_path_return", and return the errno. */
 int
-write_prefs(const char **pf_path_return)
+write_prefs(char **pf_path_return)
 {
-  const char  *pf_path;
+  char        *pf_path;
   FILE        *pf;
   GList       *clp, *col_l;
   fmt_data    *cfmt;

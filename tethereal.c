@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.149 2002/07/17 00:22:12 guy Exp $
+ * $Id: tethereal.c,v 1.150 2002/08/01 03:15:26 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -313,7 +313,7 @@ main(int argc, char *argv[])
 #endif
 
   char                *gpf_path;
-  const char          *pf_path;
+  char                *pf_path;
   int                  gpf_open_errno, pf_open_errno;
   int                  err;
 #ifdef HAVE_LIBPCAP
@@ -377,6 +377,8 @@ main(int argc, char *argv[])
   if (pf_path != NULL) {
     fprintf(stderr, "Can't open your preferences file \"%s\": %s.\n", pf_path,
         strerror(pf_open_errno));
+    g_free(pf_path);
+    pf_path = NULL;
   }
 
   /* Set the name resolution code's flags from the preferences. */

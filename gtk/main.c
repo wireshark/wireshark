@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.255 2002/07/07 22:14:03 guy Exp $
+ * $Id: main.c,v 1.256 2002/08/01 03:15:29 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1213,7 +1213,7 @@ main(int argc, char *argv[])
 #endif
 
   char                *gpf_path, *cf_path, *df_path;
-  const char          *pf_path;
+  char                *pf_path;
   int                  gpf_open_errno, pf_open_errno, cf_open_errno, df_open_errno;
   int                  err;
 #ifdef HAVE_LIBPCAP
@@ -1953,6 +1953,8 @@ main(int argc, char *argv[])
       simple_dialog(ESD_TYPE_WARN, NULL,
         "Could not open your preferences file\n\"%s\": %s.", pf_path,
         strerror(pf_open_errno));
+      g_free(pf_path);
+      pf_path = NULL;
   }
 
   /* If the user's capture filter file exists but we failed to open it,
@@ -2060,6 +2062,9 @@ main(int argc, char *argv[])
 		if (prefs_write_needed) {
 			write_prefs(&pf_path);
 		}
+	} else {
+		/* Ignore errors silently */
+		g_free(pf_path);
 	}
 	
   epan_cleanup();

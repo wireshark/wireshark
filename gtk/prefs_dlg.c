@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.49 2002/07/17 00:22:30 guy Exp $
+ * $Id: prefs_dlg.c,v 1.50 2002/08/01 03:15:29 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -914,7 +914,7 @@ prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
   gboolean must_redissect = FALSE;
   int err;
   char *pf_dir_path;
-  const char *pf_path;
+  char *pf_path;
 
   /* Fetch the preferences (i.e., make sure all the values set in all of
      the preferences panes have been copied to "prefs" and the registered
@@ -950,6 +950,7 @@ prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
        simple_dialog(ESD_TYPE_WARN, NULL,
         "Can't open preferences file\n\"%s\": %s.", pf_path,
         strerror(err));
+       g_free(pf_path);
     }
   }
 
