@@ -4,7 +4,7 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quakeworld.c,v 1.13 2002/04/14 23:04:04 guy Exp $
+ * $Id: packet-quakeworld.c,v 1.14 2002/06/09 21:25:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,7 +86,9 @@ static dissector_handle_t data_handle;
 	quakeworldsource/client/common.c
 */
 
-static	char		com_token[1024];
+#define MAX_TEXT_SIZE	2048
+
+static	char		com_token[MAX_TEXT_SIZE+1];
 static	int		com_token_start;
 static	int		com_token_length;
 
@@ -361,13 +363,13 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 	proto_item	*cl_item = NULL;
 	proto_item	*text_item = NULL;
 	proto_tree	*text_tree = NULL;
-	guint8		text[2048];
+	guint8		text[MAX_TEXT_SIZE+1];
 	int		maxbufsize = 0;
 	int		len;
 	int		offset;
 	guint32 marker;
 	int command_len;
-	char command[2048];
+	char command[MAX_TEXT_SIZE+1];
 	int command_finished = FALSE;
 
 	marker = tvb_get_ntohl(tvb, 0);
@@ -387,7 +389,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 	/* all the rest of the packet is just text */
         offset = 4;
 
-        maxbufsize = MIN((gint)sizeof(text), tvb_length_remaining(tvb, offset));
+        maxbufsize = MIN((gint)MAX_TEXT_SIZE, tvb_length_remaining(tvb, offset));
         len = tvb_get_nstringz0(tvb, offset, maxbufsize, text);
 	/* actually, we should look for a eol char and stop already there */
 
@@ -483,7 +485,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 		} else if (strcmp(c,"rcon") == 0) {
 			char* password;
 			int i;
-			char remaining[1024];
+			char remaining[MAX_TEXT_SIZE+1];
 			proto_item *argument_item = NULL;
 			proto_tree *argument_tree = NULL;
 			strcpy(command, "Remote Command");
