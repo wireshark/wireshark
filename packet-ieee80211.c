@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.35 2001/06/22 07:46:25 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.36 2001/06/22 08:12:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -780,6 +780,8 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
   guint32 next_len;
   int tagged_parameter_tree_len;
 
+  CHECK_DISPLAY_AS_DATA(proto_wlan_mgt, tvb, pinfo, tree);
+
   if (tree)
     {
       ti = proto_tree_add_item (tree, proto_wlan_mgt, tvb, 0, tvb_length(tvb), FALSE);
@@ -1333,6 +1335,24 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     }
 
   /*
+   * Only management and data frames have a body, so we don't have
+   * anything more to do for other types of frames.
+   */
+  switch (COOK_FRAME_TYPE (fcf))
+    {
+
+    case MGT_FRAME:
+    case DATA_FRAME:
+      break;
+
+    default:
+      return;
+    }
+
+  /*
+   * For WEP-encrypted frames, dissect the WEP parameters and
+   * display the payload as data.
+   *
    * XXX - allow the key to be specified, and, if it is, decrypt
    * the payload and dissect it?
    */
