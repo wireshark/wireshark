@@ -2,7 +2,7 @@
  * Routines for dissection of Cisco MDS Switch Internal Header
  * Copyright 2001, Dinesh G Dutt <ddutt@andiamo.com>
  *
- * $Id: packet-mdshdr.c,v 1.4 2003/03/05 07:41:23 guy Exp $
+ * $Id: packet-mdshdr.c,v 1.5 2003/06/05 18:46:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -150,16 +150,6 @@ static const value_string eof_vals[] = {
     {0,                          NULL},
 };
 
-static const gchar * sof_strings[] = {
-    "Null", "SOFc1", "SOFi1", "SOFn1", "SOFi2", "SOFn2", "SOFi3", "SOFn3",
-    "SOFf", "SOFc4", "SOFi4", "SOFn4",
-};
-
-static const gchar *eof_strings[] = {
-    "Null", "EOFt", "EOFdt", "EOFn", "EOFa", "", "EOFdti", "EOFni",
-    "", "", "EOFrt", "", "", "", "EOFrti", 
-};
-
 /* Code to actually dissect the packets */
 static void
 dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -212,7 +202,8 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti_main = proto_tree_add_protocol_format (tree, proto_mdshdr, tvb, 0,
                                                   MDSHDR_HEADER_SIZE+pktlen,
                                                   "MDS Header(%s/%s)", 
-                                                  sof_strings[sof], eof_strings[eof]);
+						  val_to_str(sof, sof_vals, "Unknown(%u)"),
+                                                  val_to_str(eof, eof_vals, "Unknown(%u)"));
 
         mdshdr_tree_main = proto_item_add_subtree (ti_main, ett_mdshdr);
 
