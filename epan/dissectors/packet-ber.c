@@ -1,3 +1,6 @@
+/* TODO: change #.REGISTER signature to new_dissector_t and
+ * update call_ber_oid_callback() accordingly.
+ */
 /* packet-ber.c
  * Helpers for ASN.1/BER dissection
  * Ronnie Sahlberg (C) 2004
@@ -146,6 +149,12 @@ call_ber_oid_callback(char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, 
 	if(!dissector_try_string(ber_oid_dissector_table, oid, next_tvb, pinfo, tree)){
 		proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "BER: Dissector for OID:%s not implemented. Contact Ethereal developers if you want this supported", oid);
 	}
+
+	/*XXX until we change the #.REGISTER signature for _PDU()s 
+	 * into new_dissector_t   we have to do this kludge with
+	 * manually step past the content in the ANY type.
+	 */
+	offset+=tvb_length_remaining(tvb, offset);
 
 	return offset;
 }
