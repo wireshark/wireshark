@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.240 2004/02/21 13:40:06 ulfl Exp $
+ * $Id: capture.c,v 1.241 2004/02/21 14:04:17 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -191,28 +191,6 @@ static int fork_child = -1;	    /* If not -1, in parent, process ID of child */
 #define SP_DROPS	'#'	    /* followed by count of packets dropped in capture */
 
 
-static gboolean sync_pipe_do_capture(gboolean is_tempfile);
-static gboolean sync_pipe_input_cb(gint source, gpointer user_data);
-static void sync_pipe_wait_for_child(gboolean);
-static void sync_pipe_errmsg_to_parent(const char *);
-#ifndef _WIN32
-static char *sync_pipe_signame(int);
-#endif
-
-static gboolean normal_do_capture(gboolean is_tempfile);
-static void capture_pcap_cb(guchar *, const struct pcap_pkthdr *,
-  const guchar *);
-static void get_capture_file_io_error(char *, int, const char *, int, gboolean);
-static void popup_errmsg(const char *);
-static void stop_capture_signal_handler(int signo);
-
-#ifndef _WIN32
-static void cap_pipe_adjust_header(loop_data *, struct pcap_hdr *, struct pcaprec_hdr *);
-static int cap_pipe_open_live(char *, struct pcap_hdr *, loop_data *, char *, int);
-static int cap_pipe_dispatch(int, loop_data *, struct pcap_hdr *, \
-		struct pcaprec_modified_hdr *, guchar *, char *, int);
-#endif
-
 typedef struct _loop_data {
   gboolean       go;           /* TRUE as long as we're supposed to keep capturing */
   gint           max;          /* Number of packets we're supposed to capture - 0 means infinite */
@@ -241,6 +219,28 @@ typedef struct _loop_data {
 #define O_BINARY	0
 #endif
 
+
+static gboolean sync_pipe_do_capture(gboolean is_tempfile);
+static gboolean sync_pipe_input_cb(gint source, gpointer user_data);
+static void sync_pipe_wait_for_child(gboolean);
+static void sync_pipe_errmsg_to_parent(const char *);
+#ifndef _WIN32
+static char *sync_pipe_signame(int);
+#endif
+
+static gboolean normal_do_capture(gboolean is_tempfile);
+static void capture_pcap_cb(guchar *, const struct pcap_pkthdr *,
+  const guchar *);
+static void get_capture_file_io_error(char *, int, const char *, int, gboolean);
+static void popup_errmsg(const char *);
+static void stop_capture_signal_handler(int signo);
+
+#ifndef _WIN32
+static void cap_pipe_adjust_header(loop_data *, struct pcap_hdr *, struct pcaprec_hdr *);
+static int cap_pipe_open_live(char *, struct pcap_hdr *, loop_data *, char *, int);
+static int cap_pipe_dispatch(int, loop_data *, struct pcap_hdr *, \
+		struct pcaprec_modified_hdr *, guchar *, char *, int);
+#endif
 
 
 
