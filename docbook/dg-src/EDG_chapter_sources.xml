@@ -8,11 +8,8 @@
 	<title>Introduction</title>
 	<para>
 	This chapter will explain how to work with the Ethereal source code.
-	It will show how to:
+	It will show you how to:
 	<itemizedlist>
-	<listitem><para>
-	look at the source
-	</para></listitem>
 	<listitem><para>
 	get the source
 	</para></listitem>
@@ -20,45 +17,55 @@
 	compile the source
 	</para></listitem>
 	<listitem><para>
+	submit changes
+	</para></listitem>
+	<listitem><para>
 	...
 	</para></listitem>
 	</itemizedlist>
-	However, it will not explain the source file contents in detail, such as 
-	where to find a specific functionality. This is done in 
-	<xref linkend="PartDevelopment"/>.
+	However, this chapter will not explain the source file contents in detail, 
+	such as where to find a specific functionality. This is done in 
+	<xref linkend="ChCodeOverview"/>.
 	</para>
   </section>
 	
   <section id="ChSrcSVNServer">
-	<title>The Ethereal subversion (SVN) server</title>
+	<title>The Ethereal subversion (SVN) repository</title>
 	<para>
 	The Ethereal source code is stored inside Ethereal project's Subversion 
-	(SVN) server at svn.ethereal.com. SVN is used to keep track of the changes 
-	made to the source code. There is a book on subversion available at:
-	<ulink url="http://svnbook.red-bean.com/"/>
+	(SVN) repository located at the ethereal.com domain. SVN is used to keep 
+	track of the changes made to the source code.
 	</para>
 	<para>
 	The svn server makes it possible to get the source files from any previous 
-	release, see which person changed a specific piece of code, or a lot more 
-	things related to the history of the source code development.
+	release, see which person changed a specific piece of code, and a lot more 
+	things related to the history of the Ethereal source code development.
 	</para>
 	<para>
 	There are several ways to have a look at and obtain the sources from this 
 	server. Please note that the anonymous SVN repository is separate from 
 	the main repository. It may take several minutes for committed changes to 
-	appear in the anonymous repository. 
+	appear in the anonymous repository. XXX - be more specific here.
 	</para>
 	<tip><title>Tip!</title>
 	<para>
 	The Ethereal project has switched from CVS (Concurrent versioning system) 
-	to SVN some time ago. You may still find old references to CVS in the 
-	Ethereal documentation and source files.
+	to SVN (subversion) some time ago. You may still find old references to 
+	CVS in the Ethereal documentation and source files.
 	</para>
 	</tip>
+	<para>
+	For further reference about subversion, there is a book about it available 
+	at: <ulink url="http://svnbook.red-bean.com/"/>.
+	</para>
   </section>
 	
   <section id="ChSrcQuickLook">
 	<title>A quick look at the Ethereal sources</title>
+	<para>
+	If you need a quick look at the Ethereal source code, 
+	you will only need a Web browser.
+	</para>
 	<para>
 	A <command>simple view</command> on the latest developer version can be 
 	found at: 
@@ -114,19 +121,19 @@
 	Age: a few minutes.
 	</para>
 	<para>
-	You can use a a Subversion client to download the source code from 
+	You can use a Subversion client to download the source code from 
 	Ethereal's anonymous SVN repository. The URL for the repository trunk is:
 	<ulink url="http://anonsvn.ethereal.com/ethereal/trunk"/>.
 	</para>
+	<tip><title>Tip!</title>
 	<para>
-	Even
-	"Read-Only" SVN access can make your life much easier, compared to
-	merge sources by hand everytime you do an update using a zip file. SVN
-	handles merging
-	of changes into your personal sourcetree in a very comfortable way. So
-	you can update your sourcetree several times a day without much
-	effort, compared to use the zipped sources.
+	Anonymous SVN access can make your life much easier, compared to
+	update your source tree by using any of the zip files mentioned below.
+	SVN handles merging of changes into your personal source tree in a very 
+	comfortable and quick way. So you can update your source tree several times 
+	a day without much effort.
 	</para>
+	</tip>
 	<para>
 	See <xref linkend="ChToolsSubversion"/> how to install a subversion client.
 	</para>
@@ -154,7 +161,7 @@
 	<para>
 	This will only take a few seconds, even on a slow internet line. It will 
 	replace old file versions by new ones. If you and someone else have 
-	changed the same file, svn will try to merge the changes from outside into 
+	changed the same file, svn will try to merge the changes into 
 	your private file (this is working remarkably well).
 	</para>
 	</section>
@@ -259,8 +266,7 @@ make
 	The next thing to do will be editing the file 
 	<filename>config.nmake</filename> to reflect your configuration.
 	The settings in this file are well documented, so please have a look at 
-	that file. XXX - add the settings everyone typical has to change 
-	(only very few).
+	that file.
 	</para>
 	<para>
 	After doing this, typing inside the command line (cmd.exe):
@@ -280,6 +286,13 @@ make
 	
   </section>
 
+  <section id="ChSrcRunFirstTime">
+	<title>Run generated Ethereal for the first time</title>
+	<para>
+	XXX - add more info here.
+	</para>
+  </section>
+	
   <section id="ChSrcChange">
 	<title>Make changes to the Ethereal sources</title>
 	<para>
@@ -297,17 +310,22 @@ make
 	  <listitem><para>fix a bug</para></listitem>
 	  <listitem><para>implement a new glorious feature :-)</para></listitem>
 	</itemizedlist>
-	The internal structure of the Ethereal sources will be described in one
-	of the following chapters.
+	The internal structure of the Ethereal sources will be described in 
+	<xref linkend="PartDevelopment"/>.
 	</para>
+	<tip><title>Tip!</title>
 	<para>
-	If you have an idea what and how you want to add/change something, it
-	might be a good idea to ask the developer mailing list before
-	you really start implementing it. Someone else might already working on
-	the same topic,
-	or can give you some tips what should be thought about too (like side
-	effects that are sometimes very hard to see).
+	<command>Ask the developer mailing list before you really start a new 
+	development task.</command>	
+	If you have an idea what you want to add/change, it's a good idea to 
+	contact the developer mailing list 
+	(see <xref linkend="ChIntroMailingLists"/>) 
+	and explain your idea. Someone else might already be working on the same 
+	topic, so double effort can be reduced, or can give you some tips what 
+	should be thought about too (like side effects that are sometimes very 
+	hard to see).
 	</para>
+	</tip>
   </section>
 
   <section id="ChSrcCommit">
@@ -315,11 +333,11 @@ make
 	<para>
 	If you have finished changing the Ethereal sources to suit your needs,
 	you might want to contribute your changes back to the Ethereal SVN
-	server.
+	repository.
 	</para>
 	<para>
-	You gain two benefits by contributing your improvements back to the
-	community:
+	You gain the following benefits by contributing your improvements back to 
+	the community:
 	<itemizedlist>
 	<listitem><para>
 	Other people who find your contributions useful will appreciate
@@ -327,44 +345,82 @@ make
 	that the developers of Ethereal have helped people
 	</para></listitem>
 	<listitem><para>
-	The maintainers and developers of Ethereal will maintain your
+	The developers of Ethereal might improve your changes even more, as 
+	there's always room for improvements. Or they may implement some advanced 
+	things on top of your code, which can be useful for yourself too.
+	</para></listitem>
+	<listitem><para>
+	The maintainers and developers of Ethereal will maintain your code as 
+	well, fixing it when API changes or other changes are made, and generally 
+	keeping it in tune with what is happening with Ethereal. So if Ethereal is 
+	updated (which is done often), you can get a new Ethereal version from 
+	the website and your changes will already be included without any effort 
+	for you. The maintainers and developers of Ethereal will maintain your
 	code as well, fixing it when API changes or other changes are made, and
 	generally keeping it in tune with what is happening with Ethereal.
 	</para></listitem>
 	</itemizedlist>
-	There's no direct way to commit changes to the SVN server. Only a few
-	people are authorised to
-	actually
+	There's no direct way to commit changes to the SVN repository. Only a few
+	people are authorised to actually
 	make changes to the source code (check-in changed files). If you want
 	to submit your changes, you should make a diff file (a patch) and send
 	it to
 	the developer mailing list.	
 	</para>
-	<para>
-	Before submitting your changes, please read the "Portability" section of 
-	doc/README.developer - as that section notes:
-	</para>
-	<para>
-    Ethereal runs on many platforms, and can be compiled with a number of 
-	different compilers; here are some rules for writing code that will work 
-	on multiple platforms. 
-	</para>
-	<note><title>Note!</title>
-	<para>
-	Just because something compiles on your platform, that doesn't mean it'll 
-	compile on all of the other platforms for which Ethereal is built. 
-	</para>
-	</note>
 
-	<section id="ChSrcSVN">
-	<title>Generate a diff file (a patch)</title>
+	<section id="ChSrcDiffWhat">
+	<title>What is a diff file (a patch)?</title>
 	<para>
-	There are several ways to generate such a patch.
-
+	A diff file is a plain text file containing the differences between a 
+	pair of files (or multiple of such pairs). 
 	<tip><title>Tip!</title>
-	<para>The diff file containing all changes is often also called a patch.
+	<para>A diff file is often also called a patch, 
+	as it can be used to patch an existing source file or tree with changes
+	from somewhere else.
 	</para>
 	</tip>
+	</para>
+	<para>
+	The Ethereal community is using patches to transfer source code changes 
+	between the authors.
+	</para>
+	<para>
+	A patch is both readable by humans and (as it is specially formatted) by 
+	some dedicated tools.
+	</para>
+	<para>
+	Here is a small example of a patch file (XXX - generate a better example):
+	<programlisting>
+<![CDATA[
+diff -ur ../ethereal-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/packet-dcerpc.c
+--- ../ethereal-0.10.6/epan/dissectors/packet-dcerpc.c	2004-08-12 15:42:26.000000000 -0700
++++ ./epan/dissectors/packet-dcerpc.c	2004-08-19 18:48:32.000000000 -0700
+@@ -282,6 +282,7 @@
+ /* we need to keep track of what transport were used, ie what handle we came
+  * in through so we know what kind of pinfo->private_data was passed to us.
+  */
++/* Value of -1 is reserved for "not DCE packet" in packet_info.dcetransporttype. */
+ #define DCE_TRANSPORT_UNKNOWN		0
+ #define DCE_CN_TRANSPORT_SMBPIPE	1
+ 
+]]> 
+	</programlisting>
+	The plus sign at the start of a line indicates an added line, a minus 
+	sign indicates a deleted line compared to the original sources.
+ 	</para>
+ 	<para>
+	As we always use so called "unified" diff files in Ethereal development, 
+	three unchanged lines before and after the actual changed parts are 
+	included. This will make it much easier for a merge/patch tool to find 
+	the right place(s) to change in the existing sources.
+ 	</para>
+	</section>
+
+
+	<section id="ChSrcGeneratePatch">
+	<title>Generate a patch</title>
+	<para>
+	There are several ways to generate such a patch.
 	</para>
 
 	<section id="ChSrcSVNDiff">
@@ -378,10 +434,12 @@ make
 	</section>
 
 	<section id="ChSrcSVNGUIDiff">
-	<title>Using the diff feature of the GUI subverion clients</title>
+	<title>Using the diff feature of the GUI subversion clients</title>
 	<para>
 	Most (if not all) of the GUI subversion clients (RapidSVN, TortoiseSVN, ...) 
 	have a built-in "diff" feature.
+	</para>
+	<para>
 	XXX - add details at least for recommended TortoiseSVN
 	</para>
 	</section>
@@ -416,7 +474,7 @@ make
 	of temporary files which might be otherwise included in the diff. After
 	doing the diff, you should edit the <filename>foo.diff</filename>
 	file and remove unnecessary things, like your private changes to the
-	config.nmake file.
+	<filename>config.nmake</filename> file.
 	</para>
 	<para>
 	The diff tool has several options, you will get a complete list with:
@@ -463,6 +521,72 @@ make
 
 	</section>
 
+	<section id="ChSrcGoodPatch">
+	<title>Some tips for a good patch</title>
+	<para>
+	Some tips that will make the merging of your changes into the 
+	SVN tree much more likely (and you want exactly that, don't you :-):
+	<itemizedlist>
+	  <listitem><para>
+	  <command>Use the latest SVN sources, or alike.</command>
+	  It's a good idea to work with the same sources that are used by the 
+	  other developer's, this makes it usually much easier to apply your 
+	  patch. For information about the different ways to get the sources,
+	  see <xref linkend="ChSrcObtaining"/>.
+	  </para></listitem>
+	  <listitem><para>
+	  <command>Update your SVN sources just before making a patch.
+	  </command> For the same reasons as the previous point.
+	  </para></listitem>
+	  <listitem><para>
+	  <command>Do a "make clean" before generating the patch.</command>
+	  This removes a lot of unneeded intermediate files (like object files) 
+	  which can confuse the diff tool generating a lot of unneeded stuff which 
+	  you have to remove by hand from the patch again.
+	  </para></listitem>
+	  <listitem><para>
+	  <command>Find a good descriptive filename for your patch.</command> 
+	  Think a moment to find a proper name for your patch file. Often a 
+	  filename like <filename>ethereal.diff</filename> is used, which isn't 
+	  really helpful if keeping several of these files and find the right 
+	  one later. For example: If you want to commit changes to the datatypes 
+	  of dissector foo, a good filename might be: 
+	  <filename>packet-foo-datatypes.diff</filename>.
+	  </para></listitem>
+	  <listitem><para>
+	  <command>Follow the Ethereal source code style guide.</command> 
+	  Ethereal runs on many platforms, and can be compiled with a number of 
+	  different compilers. See <xref linkend="ChCodeStyle"/> for details.
+	  </para>
+	<note><title>Note!</title>
+	<para>
+	Just because something compiles on your platform, that doesn't mean it'll 
+	compile on all of the other platforms for which Ethereal is built. 
+	</para>
+	</note>
+	  </listitem>
+	  <listitem><para>
+	  <command>Don't put unrelated things into one large patch.
+	  </command> A few smaller patches are usually easier to apply (but also 
+	  don't put every changed line into a seperate patch :-).
+	  </para></listitem>
+	  <listitem><para>
+	  <command>Remove any parts of the patch not related to the
+	  changes you want to submit.</command> You can use a text editor for this. 
+	  A common example for win32 developers are the differences in your private 
+	  <filename>config.nmake</filename> file.
+	  </para></listitem>
+	</itemizedlist>
+	In general: making it easier to understand and apply your patch by one
+	of the maintainers will make it much more likely (and faster) that it 
+	will actually be applied.
+	</para>
+	<para>
+	Please remember: you don't pay the person "on the
+	other side of the mail" for his/her effort applying your patch!
+	</para>
+	</section>
+	
 	<section id="ChSrcSend">
 	<title>Sending your patch to the developer mailing list</title>
 	<para>
@@ -470,40 +594,40 @@ make
 	changes included into the SVN server.
 	</para>
 	<para>
-	Think a moment to find a proper name for your patch file. Often a
-	filename
-	like <filename>ethereal.diff</filename> is used,
-	which isn't really helpful if keeping
-	several of these files and find the right one later. For example:
-	If you
-	want to commit changes to the datatypes of dissector foo, a good
-	filename could be: <filename>packet-foo-datatypes.diff</filename>.
-	</para>
-	<para>
 	You should send an email to <ulink
-	url="mailto:ethereal-dev[AT]ethereal.com"/>
-	with a description of your changes and the reasons for it and with your
-	diff file as an attachment. Don't include your diff file into the mail
+	url="mailto:ethereal-dev[AT]ethereal.com"/> containing: 
+	<itemizedlist>
+	  <listitem><para>
+	  subject: [PATCH] and a short description of your changes
+	  </para></listitem>
+	  <listitem><para>
+	  body: the reasons for your changes and a short description what you 
+	  changed and how you changed it
+	  </para></listitem>
+	  <listitem><para>
+	  attachment: the patch file
+	  </para></listitem>
+	</itemizedlist>
+	Don't include your patch into the mail
 	text, as this often changes the text formatting and makes it much
 	harder to apply your patch.
 	</para>
 	<para>
 	When someone from the Ethereal core maintainers finds the time to look
-	at your patch, it will be merged into the SVN server sources, so
-	the latest SVN versions and
-	the new releases will include it :-)
+	at your patch, it will be merged into the SVN repository, so
+	the latest SVN revisions and new releases will include it :-)
 	</para>
 	<para>
 	You might get one of the following responses from your mail:
 	<itemizedlist>
 	  <listitem><para>
-	  your patch is checked into the SVN :-)
+	  your patch is checked into the SVN repository :-)
 	  </para></listitem>
 	  <listitem><para>
 	  your patch is rejected (and you get a response mail like: please
 	  change xy because of ...). Possible reasons: you didn't followed the 
 	  style guides, your code was buggy or insecure, your code does not 
-	  compilable on all of the supported platforms, ... So please fix the 
+	  compile on all of the supported platforms, ... So please fix the 
 	  mentioned things and send a newly generated patch.
 	  </para></listitem>
 	  <listitem><para>
@@ -516,46 +640,60 @@ make
 	</itemizedlist>
 	</para>
 	</section>
-	<section id="ChSrcGoodPatch">
-	<title>Some tips for a good patch</title>
+	
+	<section id="ChSrcPatchApply">
+	<title>Apply a patch</title>
 	<para>
-	Some tips that will make the merging of your changes into the SVN tree
-	much more likely (and you want exactly that, don't you :-):
-	<itemizedlist>
-	  <listitem><para>
-	  ask the developer mailing list before starting a new task, as
-	  someone might already be working on your desired topic (this might
-	  reduce double effort)
-	  </para></listitem>
-	  <listitem><para>
-	  explain why your change is needed (don't worry if your change
-	  seems to be needed only by yourself, other's might find it helpful too)
-	  </para></listitem>
-	  <listitem><para>
-	  keep your own sources up to date (use the latest SVN sources)
-	  before making a patch, as this makes it usually much easier to apply
-	  your patch
-	  </para></listitem>
-	  <listitem><para>
-	  find a good descriptive filename for your diff file as described
-	  above
-	  </para></listitem>
-	  <listitem><para>
-	  follow the source code style guide and other documented tips
-	  </para></listitem>
-	  <listitem><para>
-	  don't put a lot of unrelated things into one large patch, as a few 
-	  smaller patches are usually easier to apply (but don't put every 
-	  changed line into a seperate patch :-)
-	  </para></listitem>
-	</itemizedlist>
-	In general: making it easier to understand and apply your patch by one
-	of the maintainers will make it much more likely (and faster) that it 
-	will actually be applied.
+	Sometimes you need to apply a patch to your private source tree. Maybe 
+	because you want to try a patch from someone on the developer mailing 
+	list, or you want to check your own patch before submitting.
 	</para>
 	<para>
-	Please remember: you don't pay the person "on the
-	other side of the mail" for his/her effort applying your patch!
+	Given the file "new.diff" containing a unified diff, the right way to 
+	call the patch tool depends on what the pathnames in "new.diff" look like.
+	If they're relative to the top-level source directory - for example, if a 
+	patch to "prefs.c" just has "prefs.c" as the file name - you'd run it as:
+	</para>
+	<para>
+    <userinput>patch -p0 &lt;new.diff</userinput>
+	</para>
+	<para>
+	If they're relative to a higher-level directory, you'd replace 0 with the 
+	number of higher-level directories in the path, e.g. if the names are 
+	"ethereal.orig/prefs.c" and "ethereal.mine/prefs.c", you'd run it with:
+	<para>
+    <userinput>patch -p1 &lt;new.diff</userinput>
+	</para>
+	If they're relative to a <command>subdirectory</command> of the top-level 
+	directory, you'd run "patch" in <command>that</command> directory and run 
+	it with "-p0".
+	</para>
+	<para>
+	If you run it without "-p" at all, the patch tool flattens path names, so 
+	that if you 
+	have a patch file with patches to "Makefile.am" and "wiretap/Makefile.am", 
+	it'll try to apply the first patch to the top-level "Makefile.am" and then 
+	apply the "wiretap/Makefile.am" patch to the top-level "Makefile.am" as 
+	well.  
+	</para>
+	<para>
+	At which position in the filesystem has the patch tool to be called?
+	</para>
+	<para>
+	If the pathnames are relative to the top-level source directory, or to a 
+	directory above that directory, you'd run it in the top-level source 
+	directory.
+	</para>
+	<para>
+	If they're relative to a <command>subdirectory</command> - for example, 
+	if somebody did a patch to "packet-ip.c" and ran "diff" or "svn diff" in 
+	the "epan/dissectors" directory - you'd run it in that subdirectory.  
+	It is preferred that people <command>NOT</command> submit patches like 
+	that - especially if they're only patching files that exist in multiple 
+	directories, such as "Makefile.am".
+	</para>
+	<para>
+	XXX - add some more details and do some cleanup.
 	</para>
 	</section>
 
@@ -591,8 +729,8 @@ make
 	generation script at <filename>packaging/nsis/ethereal.nsi</filename>.
 	</para>
 	<para>
-	You will probably have to
-	modify the config.nmake file to specify where the NSIS binaries are
+	You will probably have to modify the <filename>config.nmake</filename> 
+	file to specify where the NSIS binaries are
 	installed and wether to use the modern UI (which is recommended) or not.
 	</para>
 	<para>
