@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.24 2000/02/12 08:31:49 guy Exp $
+ * $Id: menu.c,v 1.25 2000/02/20 14:52:28 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -149,6 +149,7 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
 static GtkItemFactoryEntry tree_view_menu_items[] =
 {
 	{"/Match Selected", NULL, GTK_MENU_FUNC(match_selected_cb), 0, NULL},
+	{"/Resolve Name", NULL, GTK_MENU_FUNC(resolve_name_cb), 0, NULL},
 	{"/Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
 	{"/Filters...", NULL, GTK_MENU_FUNC(filter_dialog_cb), 0, NULL},
 	{"/<separator>", NULL, NULL, 0, "<Separator>"},
@@ -329,4 +330,6 @@ set_menus_for_selected_packet(gboolean have_selected_packet)
   set_menu_sensitivity("/Display/Expand All", have_selected_packet);
   set_menu_sensitivity("/Tools/Follow TCP Stream",
       have_selected_packet ? (pi.ipproto == 6) : FALSE);
+  set_menu_sensitivity("/Resolve Name", 
+      have_selected_packet && !g_resolving_actif);
 }
