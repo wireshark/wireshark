@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.80 2003/01/31 01:02:12 guy Exp $
+ * $Id: wtap.c,v 1.81 2003/03/04 02:38:02 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -296,7 +296,16 @@ wtap_close(wtap *wth)
 gboolean
 wtap_read(wtap *wth, int *err, long *data_offset)
 {
-	return wth->subtype_read(wth, err, data_offset);
+	if (!wth->subtype_read(wth, err, data_offset))
+		return FALSE;	/* failure */
+
+	/*
+	 * It makes no sense for the captured data length to be bigger
+	 * than the actual data length.
+	 */
+	if (wth->phdr.caplen > wth->phdr.len)
+		wth->phdr.caplen = wth->phdr.len;
+	return TRUE;	/* success */
 }
 
 struct wtap_pkthdr*
