@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-h248.c                                                            */
+/* .\packet-h248.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p h248 -c h248.cnf -s packet-h248-template MEGACO.asn */
 
 /* Input file: packet-h248-template.c */
@@ -59,6 +59,8 @@ static int proto_h248_annex_C		= -1;
 static int hf_h248_mtpaddress_ni	= -1;
 static int hf_h248_mtpaddress_pc	= -1;
 static int hf_h248_package_name		= -1;
+static int hf_h248_event_name		= -1;
+static int hf_h248_signal_name		= -1;
 static int hf_h248_package_bcp_BNCChar_PDU = -1;
 static int hf_h248_package_annex_C_TMR = -1;
 static int hf_h248_package_annex_C_USI = -1;
@@ -256,6 +258,7 @@ static int hf_h248_termList_item = -1;            /* TerminationID */
 static int hf_h248_nonStandardData = -1;          /* NonStandardData */
 static int hf_h248_eventList = -1;                /* SEQUNCE_OF_RequestedEvent */
 static int hf_h248_eventList_item = -1;           /* RequestedEvent */
+static int hf_h248_pkgdName1 = -1;                /* EventName */
 static int hf_h248_eventAction = -1;              /* RequestedActions */
 static int hf_h248_evParList = -1;                /* SEQUNCE_OF_EventParameter */
 static int hf_h248_evParList_item = -1;           /* EventParameter */
@@ -636,6 +639,34 @@ static const value_string package_name_vals[] = {
   {   0x800a, "Nokia Bearer Characteristics Package" },
 	{0,     NULL}
 };
+/* 
+ * This table consist of PackageName + EventName and its's corresponding string 
+ * 
+ */
+static const value_string event_name_vals[] = {
+  {   0x00000000, "Media stream properties H.248.1 Annex C" },
+  {   0x00010000, "g H.248.1 Annex E" },
+  {   0x00010001, "g, Cause" },
+  {   0x00010002, "g, Signal Completion" },
+  {   0x00210000, "Generic Bearer Connection Q.1950 Annex A" }, 
+  {   0x00210001, "GB BNC change" }, 
+  {   0x800a0000, "Nokia Bearer Characteristics Package" },
+	{0,     NULL}
+};
+
+/* 
+ * This table consist of PackageName + SignalName and its's corresponding string 
+ */
+static const value_string signal_name_vals[] = {
+  {   0x00000000, "Media stream properties H.248.1 Annex C" },
+  {   0x00010000, "g H.248.1 Annex E" },
+  {   0x00210000, "GB Generic Bearer Connection Q.1950 Annex A" }, 
+  {   0x00210001, "GB Establish BNC" }, 
+  {   0x00210002, "GB Modify BNC" }, 
+  {   0x00210003, "GB Release BNC" }, 
+  {   0x800a0000, "Nokia Bearer Characteristics Package" },
+	{0,     NULL}
+};
 
 static void 
 dissect_h248_annex_C_PDU(gboolean implicit_tag, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 name_minor) {
@@ -685,8 +716,11 @@ guint offset=0;
 		case 0x0001: /* g H.248.1 Annex E */
 			proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset), "H.248: Dissector for Package/ID:0x%04x not implemented (yet).", name_major);
 			break;
-		case 0x001e: /* g H.248.1 Annex E */
+		case 0x001e: /* Bearer Characteristics Q.1950 Annex A */
 			offset = dissect_ber_integer(pinfo, tree, tvb, offset, hf_h248_package_bcp_BNCChar_PDU, NULL);
+			break;
+		case 0x0021: /* Generic Bearer Connection Q.1950 Annex A */
+			proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset), "H.248: Dissector for Package/ID:0x%04x not implemented (yet).", name_major);
 			break;
 		default:
 			proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset), "H.248: Dissector for Package/ID:0x%04x not implemented (yet).", name_major);
@@ -700,7 +734,7 @@ static int
 dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
   tvbuff_t *new_tvb;
   proto_tree *package_tree=NULL;
-  guint32 name_major, name_minor;
+  guint16 name_major, name_minor;
   int old_offset;
 
   old_offset=offset;
@@ -718,11 +752,61 @@ dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_i
     package_tree = proto_item_add_subtree(ber_last_created_item, ett_packagename);
   }
   proto_tree_add_uint(package_tree, hf_h248_package_name, tvb, offset-4, 2, name_major);
-
-
   return offset;
 }
 
+
+static int 
+dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+  tvbuff_t *new_tvb;
+  proto_tree *package_tree=NULL;
+  guint16 name_major, name_minor;
+  int old_offset;
+
+  old_offset=offset;
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
+
+
+  /* this field is always 4 bytes  so just read it into two integers */
+  name_major=tvb_get_ntohs(new_tvb, 0);
+  name_minor=tvb_get_ntohs(new_tvb, 2);
+  packageandid=(name_major<<16)|name_minor;
+
+  /* do the prettification */
+  proto_item_append_text(ber_last_created_item, "  %s (%04x)", val_to_str(name_major, package_name_vals, "Unknown Package"), name_major);
+  if(tree){
+    package_tree = proto_item_add_subtree(ber_last_created_item, ett_packagename);
+  }
+  proto_tree_add_uint(package_tree, hf_h248_event_name, tvb, offset-4, 4, packageandid);
+  return offset;
+}
+
+
+
+static int
+dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int offset, packet_info *pinfo , proto_tree *tree, int hf_index) {
+  tvbuff_t *new_tvb;
+  proto_tree *package_tree=NULL;
+  guint16 name_major, name_minor;
+  int old_offset;
+
+  old_offset=offset;
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
+
+
+  /* this field is always 4 bytes  so just read it into two integers */
+  name_major=tvb_get_ntohs(new_tvb, 0);
+  name_minor=tvb_get_ntohs(new_tvb, 2);
+  packageandid=(name_major<<16)|name_minor;
+
+  /* do the prettification */
+  proto_item_append_text(ber_last_created_item, "  %s (%04x)", val_to_str(name_major, package_name_vals, "Unknown Package"), name_major);
+  if(tree){
+    package_tree = proto_item_add_subtree(ber_last_created_item, ett_packagename);
+  }
+  proto_tree_add_uint(package_tree, hf_h248_signal_name, tvb, offset-4, 4, packageandid);
+  return offset;
+}
 static int
 dissect_h248_PropertyID(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
 
@@ -2018,6 +2102,13 @@ static int dissect_requestId_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
   return dissect_h248_RequestID(TRUE, tvb, offset, pinfo, tree, hf_h248_requestId);
 }
 
+static int dissect_eventName1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_h248_EventName(TRUE, tvb, offset, pinfo, tree, hf_h248_eventName1);
+}
+static int dissect_pkgdName1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_h248_EventName(TRUE, tvb, offset, pinfo, tree, hf_h248_pkgdName1);
+}
+
 
 static int
 dissect_h248_Name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
@@ -2091,13 +2182,6 @@ static int dissect_eventDM(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
   return dissect_h248_EventDM(FALSE, tvb, offset, pinfo, tree, hf_h248_eventDM);
 }
 
-
-static int
-dissect_h248_SignalName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_h248_PkgdName(implicit_tag, tvb, offset, pinfo, tree, hf_index);
-
-  return offset;
-}
 static int dissect_signalName1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_h248_SignalName(TRUE, tvb, offset, pinfo, tree, hf_h248_signalName1);
 }
@@ -2401,7 +2485,7 @@ static int dissect_evParList_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
 }
 
 static const ber_sequence SecondRequestedEvent_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_pkgdName_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_pkgdName1_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_streamID_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_eventAction1_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_evParList_impl },
@@ -2471,7 +2555,7 @@ static int dissect_eventAction_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 }
 
 static const ber_sequence RequestedEvent_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_pkgdName_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_pkgdName1_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_streamID_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_eventAction_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_evParList_impl },
@@ -2519,17 +2603,6 @@ dissect_h248_EventsDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 }
 static int dissect_eventsDescriptor_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_h248_EventsDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_eventsDescriptor);
-}
-
-
-static int
-dissect_h248_EventName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_h248_PkgdName(implicit_tag, tvb, offset, pinfo, tree, hf_index);
-
-  return offset;
-}
-static int dissect_eventName1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_EventName(TRUE, tvb, offset, pinfo, tree, hf_h248_eventName1);
 }
 
 static const ber_sequence EventSpec_sequence[] = {
@@ -4085,8 +4158,14 @@ void proto_register_h248(void) {
       "PC", "h248.mtpaddress.pc", FT_UINT32, BASE_DEC,
       NULL, 0, "PC", HFILL }},
     { &hf_h248_package_name, {
-      "Package", "h248.package_name", FT_UINT32, BASE_HEX,
+      "Package", "h248.package_name", FT_UINT16, BASE_HEX,
       VALS(package_name_vals), 0, "Package", HFILL }},
+    { &hf_h248_event_name, {
+      "Package and Event name", "h248.event_name", FT_UINT32, BASE_HEX,
+      VALS(event_name_vals), 0, "Package", HFILL }},
+    { &hf_h248_signal_name, {
+      "Package and Signal name", "h248.signal_name", FT_UINT32, BASE_HEX,
+      VALS(signal_name_vals), 0, "Package", HFILL }},
 	{ &hf_h248_package_bcp_BNCChar_PDU,
       { "BNCChar", "h248.package_bcp.BNCChar",
         FT_UINT32, BASE_DEC, VALS(BNCChar_vals), 0,
@@ -4630,7 +4709,7 @@ void proto_register_h248(void) {
     { &hf_h248_pkgdName,
       { "pkgdName", "h248.pkgdName",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
+        "IndAudEventsDescriptor/pkgdName", HFILL }},
     { &hf_h248_eventName,
       { "eventName", "h248.eventName",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -4867,6 +4946,10 @@ void proto_register_h248(void) {
       { "Item", "h248.eventList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "EventsDescriptor/eventList/_item", HFILL }},
+    { &hf_h248_pkgdName1,
+      { "pkgdName", "h248.pkgdName",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "", HFILL }},
     { &hf_h248_eventAction,
       { "eventAction", "h248.eventAction",
         FT_NONE, BASE_NONE, NULL, 0,
