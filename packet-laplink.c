@@ -2,7 +2,7 @@
  * Routines for laplink dissection
  * Copyright 2003, Brad Hards <bradh@frogmouth.net>
  *
- * $Id: packet-laplink.c,v 1.1 2003/07/24 20:22:50 guy Exp $
+ * $Id: packet-laplink.c,v 1.2 2003/09/05 08:44:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -76,33 +76,42 @@ static const value_string laplink_tcp_magic[] = {
 };
 
 /* Code to actually dissect the packets - UDP */
-static void
+static gint
 dissect_laplink_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
 	proto_item *ti;
 	proto_tree *laplink_tree;
 	guint32 udp_ident;
+	gchar *udp_ident_string;
+
+	/*
+	 * Make sure the identifier is reasonable.
+	 */
+	if (!tvb_bytes_exist(tvb, offset, 4))
+		return 0;	/* not enough bytes to check */
+	udp_ident = tvb_get_ntohl(tvb, offset);
+	udp_ident_string = match_strval(udp_ident, laplink_udp_magic);
+	if (udp_ident_string == NULL)
+		return 0;	/* unknown */
 
 /* Make entries in Protocol column and Info column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Laplink");
 
-	udp_ident = tvb_get_ntohl(tvb, offset);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_str(pinfo->cinfo, COL_INFO,
-			    val_to_str(udp_ident, laplink_udp_magic, "Unknown UDP (%u)"));
-	}
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_str(pinfo->cinfo, COL_INFO, udp_ident_string);
     
 	if (tree){
 		ti = proto_tree_add_item(tree, proto_laplink, tvb, 0, -1, FALSE);
 		laplink_tree = proto_item_add_subtree(ti, ett_laplink);
 
-		proto_tree_add_item(laplink_tree, hf_laplink_udp_ident, tvb, offset, 4, FALSE);
-		offset =+ 4;
+		proto_tree_add_uint(laplink_tree, hf_laplink_udp_ident, tvb, offset, 4, udp_ident);
+		offset += 4;
 
 		proto_tree_add_item(laplink_tree, hf_laplink_udp_name, tvb, offset, -1, FALSE);
 	}
+	return tvb_length(tvb);
 }
 
 /* Code to actually dissect the packets - TCP aspects*/
@@ -214,7 +223,7 @@ proto_reg_handoff_laplink(void)
 	    proto_laplink);
 	dissector_add("tcp.port", TCP_PORT_LAPLINK, laplink_tcp_handle);
 
-	laplink_udp_handle = create_dissector_handle(dissect_laplink_udp,
+	laplink_udp_handle = new_create_dissector_handle(dissect_laplink_udp,
 	    proto_laplink);
 	dissector_add("udp.port", UDP_PORT_LAPLINK, laplink_udp_handle);
 }
