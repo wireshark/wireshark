@@ -80,6 +80,9 @@ CLEANFILES =  	libwiretap.a			*~
 
 libwiretap_a_SOURCES =  	buffer.c			buffer.h			config.h			file.c				iptrace.c			iptrace.h			lanalyzer.c			lanalyzer.h			libpcap.c			libpcap.h			netmon.c			netmon.h			netxray.c			netxray.h			ngsniffer.c			ngsniffer.h			snoop.c				snoop.h				wtap.c				wtap.h
 
+
+EXTRA_DIST =  	config.h.win32			Makefile.nmake
+
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/../mkinstalldirs
 CONFIG_HEADER = config.h

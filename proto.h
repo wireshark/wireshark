@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.3 1999/07/13 02:52:58 gram Exp $
+ * $Id: proto.h,v 1.4 1999/07/15 15:32:44 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -74,29 +74,25 @@ enum ftenum {
 	NUM_FIELD_TYPES /* last item number plus one */
 };
 
-
+/* information describing a header field */
 typedef struct header_field_info {
 	char				*name;
 	char				*abbrev;
 	enum ftenum			type;
-	int				parent;
 	struct value_string		*vals;
 	int				id; /* assigned by order of registration */
-/*	int				color;  for use by GUI code */
+	int				parent; /* parent protocol */
+	int				color;  /* for use by GUI code */
 } header_field_info;
-
-/*extern struct header_field_info hfinfo[];*/
 
 /* Used when registering many fields at once */
 typedef struct hf_register_info {
-	char			*name;
-	char			*abbrev;
 	int			*p_id;	/* pointer to int; written to by register() function */
-	enum ftenum		type;
-	struct value_string	*vals;
+	header_field_info	hfinfo;
 } hf_register_info;
 
 #ifdef WIN32
+/* 'boolean' is a reserved word on win32 */
 #define boolean truth_value
 #endif
 
@@ -138,7 +134,7 @@ int
 proto_register_protocol(char *name, char *abbrev);
 
 void
-proto_register_field_array(int parent, const hf_register_info *hf, int num_records);
+proto_register_field_array(int parent, hf_register_info *hf, int num_records);
 
 proto_item *
 proto_tree_add_item(proto_tree *tree, int hfindex, gint start,
@@ -168,5 +164,8 @@ proto_item* proto_find_field(proto_tree* tree, int id);
 proto_item* proto_find_protocol(proto_tree* tree, int protocol_id);
 void proto_get_field_values(proto_tree* subtree, GNodeTraverseFunc fill_array_func,
 	proto_tree_search_info *sinfo);
+
+/* Dumps a glossary of the protocol and field registrations to STDOUT */
+void proto_registrar_dump(void);
 
 #endif /* proto.h */

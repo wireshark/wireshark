@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.12 1999/07/13 04:38:13 guy Exp $
+ * $Id: print.c,v 1.13 1999/07/15 15:32:43 gram Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -57,6 +57,7 @@ static void ps_clean_string(unsigned char *out, const unsigned char *in,
 static void dumpit_ps (FILE *fh, register const u_char *cp, register u_int length);
 
 extern e_prefs prefs;
+extern int proto_data; /* in packet-data.c */
 
 /* #include "ps.c" */
 
@@ -343,9 +344,8 @@ void proto_tree_print_node_text(GNode *node, gpointer data)
 	/* Print the text */
 	fprintf(pdata->fh, "%s%s\n", space, label_ptr);
 
-	/* If it's uninterpreted data, dump it.
-	   XXX - have a better way of doing this than looking for "Data (" */
-	if (strncmp("Data (", label_ptr, 6) == 0)
+	/* If it's uninterpreted data, dump it. */
+	if (fi->hfinfo->id == proto_data)
 		dumpit(pdata->fh, &pdata->pd[fi->start], fi->length);
 
 	/* Recurse into the subtree, if it exists */
@@ -420,9 +420,8 @@ void proto_tree_print_node_ps(GNode *node, gpointer data)
 	ps_clean_string(psbuffer, label_ptr, MAX_LINE_LENGTH);
 	fprintf(pdata->fh, "%d (%s) putline\n", pdata->level, psbuffer);
 
-	/* If it's uninterpreted data, dump it.
-	   XXX - have a better way of doing this than looking for "Data (" */
-	if (strncmp("Data (", label_ptr, 6) == 0) {
+	/* If it's uninterpreted data, dump it. */
+	if (fi->hfinfo->id == proto_data) {
 		print_ps_hex(pdata->fh);
 		dumpit_ps(pdata->fh, &pdata->pd[fi->start], fi->length);
 	}

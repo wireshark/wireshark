@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.15 1999/07/07 22:51:56 gram Exp $
+ * $Id: packet-tr.c,v 1.16 1999/07/15 15:32:42 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -439,27 +439,66 @@ add_ring_bridge_pairs(int rcf_len, const u_char *pd, proto_tree *tree)
 void
 proto_register_tr(void)
 {
-	const hf_register_info hf[] = {
-		{ "Access Control",	"tr.ac", &hf_tr_ac, FT_UINT8, NULL },
-		{ "Priority",		"tr.priority", &hf_tr_priority, FT_UINT8, NULL },
-		{ "Frame",		"tr.frame", &hf_tr_frame, FT_VALS_UINT8, VALS(ac_vals) },
-		{ "Monitor Count",	"tr.monitor_cnt", &hf_tr_monitor_cnt, FT_UINT8, NULL },
-		{ "Priority Reservation","tr.priority_reservation", &hf_tr_priority_reservation, FT_UINT8, NULL },
-		{ "Frame Control",	"tr.fc", &hf_tr_fc, FT_UINT8, NULL },
-		{ "Frame Type",		"tr.frame_type", &hf_tr_fc_type, FT_VALS_UINT8, VALS(frame_vals) },
-		{ "Frame PCF",		"tr.frame_pcf", &hf_tr_fc_pcf, FT_VALS_UINT8, VALS(pcf_vals) },
-		{ "Destination",	"tr.dst", &hf_tr_dst, FT_ETHER, NULL },
-		{ "Source",		"tr.src", &hf_tr_src, FT_ETHER, NULL },
-		{ "Destination Hardware Vendor", "tr.dst_vendor", &hf_tr_dst_vendor, FT_ETHER_VENDOR, NULL },
-		{ "Source Hardware Vendor", "tr.src_vendor", &hf_tr_src_vendor, FT_ETHER_VENDOR, NULL },
-		{ "Source Routed",	"tr.sr", &hf_tr_sr, FT_BOOLEAN, NULL },
-		{ "RIF Bytes",		"tr.rif_bytes", &hf_tr_rif_bytes, FT_UINT8, NULL },
-		{ "Broadcast Type",	"tr.broadcast", &hf_tr_broadcast, FT_VALS_UINT8, VALS(broadcast_vals) },
-		{ "Maximum Frame Size",	"tr.max_frame_size", &hf_tr_max_frame_size, FT_VALS_UINT8, VALS(max_frame_size_vals) },
-		{ "Direction",		"tr.direction", &hf_tr_direction, FT_VALS_UINT8, VALS(direction_vals) },
-		{ "Ring-Bridge Pairs",	"tr.rif", &hf_tr_rif, FT_STRING, NULL },
-		{ "RIF Ring",		"tr.rif_ring", &hf_tr_rif_ring, FT_UINT16, NULL },
-		{ "RIF Bridge",		"tr.rif_bridge", &hf_tr_rif_bridge, FT_UINT8, NULL },
+	static hf_register_info hf[] = {
+		{ &hf_tr_ac,
+		{ "Access Control",	"tr.ac", FT_UINT8, NULL }},
+
+		{ &hf_tr_priority,
+		{ "Priority",		"tr.priority", FT_UINT8, NULL }},
+
+		{ &hf_tr_frame,
+		{ "Frame",		"tr.frame", FT_VALS_UINT8, VALS(ac_vals) }},
+
+		{ &hf_tr_monitor_cnt,
+		{ "Monitor Count",	"tr.monitor_cnt", FT_UINT8, NULL }},
+
+		{ &hf_tr_priority_reservation,
+		{ "Priority Reservation","tr.priority_reservation", FT_UINT8, NULL }},
+
+		{ &hf_tr_fc,
+		{ "Frame Control",	"tr.fc", FT_UINT8, NULL }},
+
+		{ &hf_tr_fc_type,
+		{ "Frame Type",		"tr.frame_type", FT_VALS_UINT8, VALS(frame_vals) }},
+
+		{ &hf_tr_fc_pcf,
+		{ "Frame PCF",		"tr.frame_pcf", FT_VALS_UINT8, VALS(pcf_vals) }},
+
+		{ &hf_tr_dst,
+		{ "Destination",	"tr.dst", FT_ETHER, NULL }},
+
+		{ &hf_tr_src,
+		{ "Source",		"tr.src", FT_ETHER, NULL }},
+
+		{ &hf_tr_dst_vendor,
+		{ "Destination Hardware Vendor", "tr.dst_vendor",  FT_ETHER_VENDOR, NULL }},
+
+		{ &hf_tr_src_vendor,
+		{ "Source Hardware Vendor", "tr.src_vendor", FT_ETHER_VENDOR, NULL }},
+
+		{ &hf_tr_sr,
+		{ "Source Routed",	"tr.sr", FT_BOOLEAN, NULL }},
+
+		{ &hf_tr_rif_bytes,
+		{ "RIF Bytes",		"tr.rif_bytes", FT_UINT8, NULL }},
+
+		{ &hf_tr_broadcast,
+		{ "Broadcast Type",	"tr.broadcast", FT_VALS_UINT8, VALS(broadcast_vals) }},
+
+		{ &hf_tr_max_frame_size,
+		{ "Maximum Frame Size",	"tr.max_frame_size", FT_VALS_UINT8, VALS(max_frame_size_vals) }},
+
+		{ &hf_tr_direction,
+		{ "Direction",		"tr.direction", FT_VALS_UINT8, VALS(direction_vals) }},
+
+		{ &hf_tr_rif,
+		{ "Ring-Bridge Pairs",	"tr.rif", FT_STRING, NULL }},
+
+		{ &hf_tr_rif_ring,
+		{ "RIF Ring",		"tr.rif.ring", FT_UINT16, NULL }},
+
+		{ &hf_tr_rif_bridge,
+		{ "RIF Bridge",		"tr.rif.bridge", FT_UINT8, NULL }}
 	};
 
 	proto_tr = proto_register_protocol("Token-Ring", "tr");

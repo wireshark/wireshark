@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.56 1999/07/13 07:14:18 guy Exp $
+ * $Id: ethereal.c,v 1.57 1999/07/15 15:32:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,7 +32,6 @@
  * - Playback window
  * - Multiple window support
  * - Add cut/copy/paste
- * - Fix progress/status bar glitches?  (GTK+ bug?)
  * - Create header parsing routines
  * - Check fopens, freads, fwrites
  * - Make byte view scrollbars automatic?
@@ -751,7 +750,7 @@ main(int argc, char *argv[])
 
 #ifndef WIN32
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "b:B:c:f:Fhi:km:nP:Qr:Ss:t:T:w:v")) != EOF) {
+  while ((opt = getopt(argc, argv, "b:B:c:f:FGhi:km:nP:Qr:Ss:t:T:w:v")) != EOF) {
     switch (opt) {
       case 'b':	       /* Bold font */
 	bold_font = g_strdup(optarg);
@@ -770,6 +769,10 @@ main(int argc, char *argv[])
         fork_mode = 1;
         break;
 #endif
+      case 'G':		/* print glossary of display filter symbols */
+	ethereal_proto_init();
+	proto_registrar_dump();
+	exit(0);
       case 'h':        /* Print help and exit */
 	print_usage();
 	exit(0);

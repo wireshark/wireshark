@@ -3,7 +3,9 @@ Overview of changes in Ethereal 0.7.0:
 * New proto_tree and display filter system (Gilbert)
 * Updated SMB suport (Richard)
 * RADIUS dissector added (Johan)
+* Display filter text-entry does auto-reload (Guy)
 * Now compiles on Win32 (Gilbert)
+* Removed support for GTK+-1.[01].x (Gilbert)
 
 Overview of changes in Ethereal 0.6.3:
 * Capture dialogue window data bug-fix (Guy)

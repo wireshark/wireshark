@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.11 1999/07/08 03:18:20 gram Exp $
+ * $Id: packet-eth.c,v 1.12 1999/07/15 15:32:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -195,15 +195,26 @@ dissect_eth(const u_char *pd, frame_data *fd, proto_tree *tree) {
 void
 proto_register_eth(void)
 {
-	const hf_register_info hf[] = {
-		{ "Destination",	"eth.dst", &hf_eth_dst, FT_ETHER, NULL },
-		{ "Source",		"eth.src", &hf_eth_src, FT_ETHER, NULL },
-		{ "Destination Hardware Vendor", "eth.dst_vendor", &hf_eth_dst_vendor, FT_ETHER, NULL },
-		{ "Source Hardware Vendor", "eth.src_vendor", &hf_eth_src_vendor, FT_ETHER, NULL },
-		{ "Length",		"eth.len", &hf_eth_len, FT_UINT16, NULL },
+	static hf_register_info hf[] = {
 
-		/* registered here but handled in ethertype.c */	
-		{ "Type",		"eth.type", &hf_eth_type, FT_VALS_UINT16, VALS(etype_vals) }
+		{ &hf_eth_dst,
+		{ "Destination",	"eth.dst", FT_ETHER, NULL }},
+
+		{ &hf_eth_src,
+		{ "Source",		"eth.src", FT_ETHER, NULL }},
+
+		{ &hf_eth_dst_vendor,
+		{ "Destination Hardware Vendor", "eth.dst_vendor", FT_ETHER, NULL }},
+
+		{ &hf_eth_src_vendor,
+		{ "Source Hardware Vendor", "eth.src_vendor", FT_ETHER, NULL }},
+
+		{ &hf_eth_len,
+		{ "Length",		"eth.len", FT_UINT16, NULL }},
+
+		/* registered here but handled in ethertype.c */
+		{ &hf_eth_type,
+		{ "Type",		"eth.type", FT_VALS_UINT16, VALS(etype_vals) }}
 	};
 
 	proto_eth = proto_register_protocol ("Ethernet", "eth" );

@@ -130,16 +130,21 @@ DISTCLEANFILES =	\
 	ps.c		\
 	*~
 
-EXTRA_DIST =                \
+EXTRA_DIST = \
+	config.h.win32		\
 	doc/Makefile            \
+	doc/dfilter2pod         \
 	doc/ethereal.pod        \
+	doc/ethereal.pod.template \
 	ethereal.1              \
 	ethereal.spec           \
 	image/icon-excl.xpm     \
 	image/icon-ethereal.xpm \
+	Makefile.nmake		\
 	manuf                   \
 	print.ps                \
 	README.tru64		\
+	README.win32		\
 	rdps.c			\
 	ylwrap			\
 	VERSION
@@ -148,7 +153,8 @@ SUBDIRS = wiretap @SUBDIRS@
 
 ethereal.1: doc/ethereal.pod VERSION
 	(cd doc ; \
-	pod2man ethereal.pod                \
-	--center="The Ethereal Network Analyzer" \
-	--release=`cat ../VERSION`                  \
-	> ../ethereal.1 )
+	make ../ethereal.1 )
+
+doc/ethereal.pod: doc/ethereal.pod.template ethereal
+	(cd doc ; \
+	make ethereal.pod )

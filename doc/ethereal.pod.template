@@ -11,6 +11,7 @@ S<[ B<-b> bold font ]>
 S<[ B<-c> count ]>
 S<[ B<-F> ]>
 S<[ B<-f> filter expression ]>
+S<[ B<-G> ]>
 S<[ B<-h> ]>
 S<[ B<-i> interface ]> 
 S<[ B<-k> ]>
@@ -29,8 +30,10 @@ S<[ B<-w> savefile]>
 =head1 DESCRIPTION
 
 B<Ethereal> is a network protocol analyzer based on the B<GTK+> GUI toolkit.  It lets
-you interactively browse packet data from a live network or from a B<pcap>
-/ B<tcpdump()> formatted capture file.
+you interactively browse packet data from a live network or from a previously saved
+capture file. Ethereal nows how to read B<pcap> / B<tcpdump> formatted capture files,
+as well as those of B<snoop>, B<LanAlyzer>, uncompressed B<Sniffer>,
+Microsoft B<Network Monitor>, AIX's B<iptrace>, B<NetXray>, and B<Sniffer Pro>.
 
 =head1 OPTIONS
 
@@ -57,6 +60,10 @@ packets actually captured.
 =item -f
 
 Sets a filter expression.
+
+=item -G
+
+Dumps a glossary of display filter keywords to stdout and exits.
 
 =item -h
 
@@ -202,9 +209,8 @@ The lowest pane contains a hex dump of the actual packet data.
 Selecting a field in the I<protocol tree> highlights the corresponding
 bytes in this section.
 
-A display filter can be entered into the strip at the bottom.  (XXX -
-put in syntax of display filter here?).  A filter for HTTP, HTTPS, and
-DNS traffic might look like this:
+A display filter can be entered into the strip at the bottom. 
+A filter for HTTP, HTTPS, and DNS traffic might look like this:
 
   tcp.port == 80 || tcp.port == 443 || tcp.port == 53
 
@@ -342,6 +348,13 @@ in the packet list.  You can select "Time of day" for absolute time stamps,
 
 =back
 
+=head1 DISPLAY FILTER SYNTAX
+
+The grammar used for B<Ethereal>'s display filter syntax is similar to
+the syntax of the C programming language.
+
+=insert_dfilter_table
+
 =head1 SEE ALSO
 
 L<tcpdump(1)>, L<pcap(3)>
@@ -386,3 +399,4 @@ permission to use his version of snprintf.c.
 
 Dan Lasley <dlasley@promus.com> gave permission for his dumpit() hex-dump
 routine to be used.
+

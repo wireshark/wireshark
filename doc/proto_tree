@@ -1,3 +1,5 @@
+$Id: proto_tree,v 1.3 1999/07/15 15:33:09 gram Exp $
+
 The Ethereal Protocol Tree
 ==========================
 
@@ -102,18 +104,33 @@ during registration.
                 /* vals[] */    NULL );
 
 Groups of header fields can be registered with one call to
-proto_register_field_array(). An const array of hf_register_info
+proto_register_field_array(). A static array of hf_register_info
 structs is declared, then passed to proto_register_field_array, along
-with a count of the number of records. You can use the handy
-array_length() macro found in packet.h to have the compiler compute
-the array length for you at compile time:
+with a count of the number of records. Be sure that your array
+of hf_register_info structs is declared 'static', since the
+proto_register_field_array() function does not create a copy of
+the information in the array... it uses that static copy of the
+information that the compiler created inside your array. Here's
+the layout of the hf_register_info struct:
+
+typedef struct hf_register_info {
+	int			*p_id;	/* pointer to parent variable */
+	header_field_info	hfinfo;
+} hf_register_info;
+
+You can use the handy array_length() macro found in packet.h
+to have the compiler compute the array length for you at compile time:
 
 	int hf_field_a = -1;
 	int hf_field_b = -1;
 
-	const hf_register_info hf[] = {
-		{ "Field A",	"proto.field_a", &hf_field_a, FT_UINT8, NULL },
-		{ "Field B",	"proto.field_a", &hf_field_a, FT_VALS_UINT16, VALS(vs) },
+	static hf_register_info hf[] = {
+
+		{ &hf_field_a,
+		{ "Field A",	"proto.field_a", FT_UINT8, NULL }},
+
+		{ &hf_field_b,
+		{ "Field B",	"proto.field_a", FT_VALS_UINT16, VALS(vs) }}
 	};
 
 	proto_tr = proto_register_protocol("Token-Ring", "tr");

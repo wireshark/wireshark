@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.13 1999/07/08 03:18:19 gram Exp $
+ * $Id: packet-fddi.c,v 1.14 1999/07/15 15:32:41 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -279,14 +279,22 @@ void dissect_fddi(const u_char *pd, frame_data *fd, proto_tree *tree)
 void
 proto_register_fddi(void)
 {
-	const hf_register_info hf[] = {
-		{ "Frame Control",	"fddi.fc", &hf_fddi_fc, FT_UINT8, NULL },
-		{ "Destination",	"fddi.dst", &hf_fddi_dst, FT_ETHER, NULL },
-		{ "Source",		"fddi.src", &hf_fddi_src, FT_ETHER, NULL },
-		{ "Destination Hardware Vendor",
-					"fddi.dst_vendor", &hf_fddi_dst_vendor, FT_ETHER_VENDOR, NULL },
-		{ "Source Hardware Vendor",
-					"fddi.src_vendor", &hf_fddi_src_vendor, FT_ETHER_VENDOR, NULL }
+	static hf_register_info hf[] = {
+
+		{ &hf_fddi_fc,
+		{ "Frame Control",	"fddi.fc", FT_UINT8, NULL }},
+
+		{ &hf_fddi_dst,
+		{ "Destination",	"fddi.dst", FT_ETHER, NULL }},
+
+		{ &hf_fddi_src,
+		{ "Source",		"fddi.src", FT_ETHER, NULL }},
+
+		{ &hf_fddi_dst_vendor,
+		{ "Destination Hardware Vendor", "fddi.dst_vendor", FT_ETHER_VENDOR, NULL }},
+
+		{ &hf_fddi_src_vendor,
+		{ "Source Hardware Vendor", "fddi.src_vendor", FT_ETHER_VENDOR, NULL }}
 	};
 
 	proto_fddi = proto_register_protocol ("Fiber Distributed Data Interface", "fddi" );

@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.28 1999/07/08 04:23:03 gram Exp $
+ * $Id: packet-ip.c,v 1.29 1999/07/15 15:32:41 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,6 +53,8 @@ int hf_ip_version = -1;
 int hf_ip_hdr_len = -1;
 int hf_ip_tos = -1;
 int hf_ip_tos_precedence = -1;
+int hf_ip_len = -1;
+int hf_ip_id = -1;
 int hf_ip_dst = -1;
 int hf_ip_src = -1;
 
@@ -681,9 +683,10 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     proto_tree_add_text(field_tree, offset + 1, 1, "%s",
        decode_boolean_bitfield(iph.ip_tos, IPTOS_LOWCOST,
             sizeof (iph.ip_tos)*8, "low cost", "normal cost"));
-    proto_tree_add_text(ip_tree, offset +  2, 2, "Total length: %d", iph.ip_len);
-    proto_tree_add_text(ip_tree, offset +  4, 2, "Identification: 0x%04x",
+    proto_tree_add_item(ip_tree, hf_ip_len, offset +  2, 2, iph.ip_len);
+    proto_tree_add_item_format(ip_tree, hf_ip_id, offset +  4, 2, iph.ip_id, "Identification: 0x%04x",
       iph.ip_id);
+
     tf = proto_tree_add_text(ip_tree, offset +  6, 2, "Flags: 0x%x",
       (iph.ip_off & (IP_DF|IP_MF)) >> 12);
     field_tree = proto_item_add_subtree(tf, ETT_IP_OFF);
@@ -1066,14 +1069,31 @@ dissect_igmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 void
 proto_register_ip(void)
 {
-	const hf_register_info hf[] = {
-		{ "Version",		"ip.version", &hf_ip_version, FT_UINT8, NULL },
-		{ "Header Length",	"ip.hdr_len", &hf_ip_hdr_len, FT_UINT8, NULL },
-		{ "Type of Service",	"ip.tos", &hf_ip_tos, FT_UINT8, NULL },
-		{ "Precedence",		"ip.tos_precedence",
-					&hf_ip_tos_precedence, FT_VALS_UINT8, VALS(precedence_vals) },
-		{ "Destination",	"ip.dst", &hf_ip_dst, FT_IPv4, NULL },
-		{ "Source",		"ip.src", &hf_ip_src, FT_IPv4, NULL }
+	static hf_register_info hf[] = {
+
+		{ &hf_ip_version,
+		{ "Version",		"ip.version", FT_UINT8, NULL }},
+
+		{ &hf_ip_hdr_len,
+		{ "Header Length",	"ip.hdr_len", FT_UINT8, NULL }},
+
+		{ &hf_ip_tos,
+		{ "Type of Service",	"ip.tos", FT_UINT8, NULL }},
+
+		{ &hf_ip_tos_precedence,
+		{ "Precedence",		"ip.tos.precedence", FT_VALS_UINT8, VALS(precedence_vals) }},
+
+		{ &hf_ip_len,
+		{ "Total Length",	"ip.len", FT_UINT16 }},
+
+		{ &hf_ip_id,
+		{ "Identification",	"ip.id", FT_UINT32 }},
+
+		{ &hf_ip_dst,
+		{ "Destination",	"ip.dst", FT_IPv4, NULL }},
+
+		{ &hf_ip_src,
+		{ "Source",		"ip.src", FT_IPv4, NULL }}
 	};
 
 	proto_ip = proto_register_protocol ("Internet Protocol", "ip");

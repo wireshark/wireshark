@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.15 1999/07/07 22:51:46 gram Exp $
+ * $Id: packet-llc.c,v 1.16 1999/07/15 15:32:42 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -247,15 +247,22 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 void
 proto_register_llc(void)
 {
-	const hf_register_info hf[] = {
-		{ "DSAP",		"llc.dsap", &hf_llc_dsap, FT_VALS_UINT8, VALS(sap_vals) },
-		{ "SSAP",		"llc.ssap", &hf_llc_ssap, FT_VALS_UINT8, VALS(sap_vals) },
-		{ "Control",		"llc.control", &hf_llc_ctrl, FT_VALS_UINT8, VALS(llc_ctrl_vals) },
+	static hf_register_info hf[] = {
+		{ &hf_llc_dsap,
+		{ "DSAP",		"llc.dsap", FT_VALS_UINT8, VALS(sap_vals) }},
 
-		/* registered here but handled in ethertype.c */	
-		{ "Type",		"llc.type", &hf_llc_type, FT_VALS_UINT16, VALS(etype_vals) },
+		{ &hf_llc_ssap,
+		{ "SSAP",		"llc.ssap", FT_VALS_UINT8, VALS(sap_vals) }},
 
-		{ "Organization Code",	"llc.oui", &hf_llc_oui, FT_VALS_UINT24, VALS(llc_oui_vals) }
+		{ &hf_llc_ctrl,
+		{ "Control",		"llc.control", FT_VALS_UINT8, VALS(llc_ctrl_vals) }},
+
+		/* registered here but handled in ethertype.c */
+		{ &hf_llc_type,
+		{ "Type",		"llc.type", FT_VALS_UINT16, VALS(etype_vals) }},
+
+		{ &hf_llc_oui,
+		{ "Organization Code",	"llc.oui", FT_VALS_UINT24, VALS(llc_oui_vals) }}
 	};
 
 	proto_llc = proto_register_protocol ("Logical-Link Control", "llc" );

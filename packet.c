@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.30 1999/07/13 02:52:57 gram Exp $
+ * $Id: packet.c,v 1.31 1999/07/15 15:32:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -688,28 +688,17 @@ dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
 void
 proto_register_frame(void)
 {
-	proto_frame = proto_register_protocol (
-		/* name */	"Frame",
-		/* abbrev */	"frame");
+	static hf_register_info hf[] = {
+		{ &hf_frame_arrival_time,
+		{ "Arrival Time",		"frame.time", FT_ABSOLUTE_TIME, NULL }},
 
-	hf_frame_arrival_time = proto_register_field (
-		/* name */	"Arrival Time",
-		/* abbrev */	"frame.time",
-		/* ftype */	FT_ABSOLUTE_TIME,
-		/* parent */	proto_frame,
-		/* vals[] */	NULL );
+		{ &hf_frame_packet_len,
+		{ "Total Frame Length",		"frame.pkt_len", FT_UINT32, NULL }},
 
-	hf_frame_packet_len = proto_register_field(
-		/* name */	"Total Frame Length",
-		/* abbrev */	"frame.frame_len",
-		/* ftype */	FT_UINT32,
-		/* parent */	proto_frame,
-		/* vals[] */	NULL );
+		{ &hf_frame_capture_len,
+		{ "Capture Frame Length",	"frame.cap_len", FT_UINT32, NULL }}
+	};
 
-	hf_frame_capture_len = proto_register_field(
-		/* name */	"Capture Frame Length",
-		/* abbrev */	"frame.cap_len",
-		/* ftype */	FT_UINT32,
-		/* parent */	proto_frame,
-		/* vals[] */	NULL );
+	proto_frame = proto_register_protocol("Frame", "frame");
+	proto_register_field_array(proto_frame, hf, array_length(hf));
 }

@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.1 1999/07/07 22:51:59 gram Exp $
+ * $Id: proto.c,v 1.2 1999/07/15 15:32:44 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -75,6 +75,8 @@ proto_tree_add_item_value(proto_tree *tree, int hfindex, gint start,
 
 static gboolean proto_check_id(GNode *node, gpointer data);
 
+static int proto_register_field_init(header_field_info *hfinfo, int parent);
+
 void dfilter_yacc_init(void);
 
 /* centralization of registration functions */
@@ -87,6 +89,7 @@ void proto_register_llc(void);
 void proto_register_null(void);
 void proto_register_tr(void);
 
+/* special-case header field used within proto.c */
 int hf_text_only = 1;
 
 /* Contains information about protocols and header fields. Used when
@@ -362,20 +365,22 @@ proto_register_protocol(char *name, char *abbrev)
 	return proto_register_field(name, abbrev, FT_NONE, -1, NULL);
 }
 
+/* for use with static arrays only, since we don't allocate our own copies
+of the header_field_info struct contained withing the hf_register_info struct */
 void
-proto_register_field_array(int parent, const hf_register_info *hf, int num_records)
+proto_register_field_array(int parent, hf_register_info *hf, int num_records)
 {
 	int			field_id, i;
-	const hf_register_info	*ptr = hf;
+	hf_register_info	*ptr = hf;
 
 	for (i = 0; i < num_records; i++, ptr++) {
-		field_id = proto_register_field(ptr->name, ptr->abbrev,
-				ptr->type, parent, ptr->vals);
+		field_id = proto_register_field_init(&ptr->hfinfo, parent);
 		*ptr->p_id = field_id;
 	}
 }
 
 
+/* Here we do allocate a new header_field_info struct */
 int
 proto_register_field(char *name, char *abbrev, enum ftenum type, int parent,
 	struct value_string* vals)
@@ -386,11 +391,20 @@ proto_register_field(char *name, char *abbrev, enum ftenum type, int parent,
 	hfinfo->name = name; /* should I g_strdup? */
 	hfinfo->abbrev = abbrev; /* should I g_strdup? */
 	hfinfo->type = type;
-	hfinfo->parent = parent; /* this field differentiates protos and fields */
 	hfinfo->vals = vals;
+	hfinfo->parent = parent; /* this field differentiates protos and fields */
 
-	g_assert((vals == NULL) || (type == FT_VALS_UINT8 || type == FT_VALS_UINT16 ||
-		type == FT_VALS_UINT24 || type == FT_VALS_UINT32));
+	return proto_register_field_init(hfinfo, parent);
+}
+
+static int
+proto_register_field_init(header_field_info *hfinfo, int parent)
+{
+	g_assert((hfinfo->vals == NULL) || (hfinfo->type == FT_VALS_UINT8 || hfinfo->type == FT_VALS_UINT16 ||
+		hfinfo->type == FT_VALS_UINT24 || hfinfo->type == FT_VALS_UINT32));
+
+	hfinfo->parent = parent;
+	hfinfo->color = 0;
 
 	/* if we always add and never delete, then id == len - 1 is correct */
 	g_ptr_array_add(gpa_hfinfo, hfinfo);
@@ -617,4 +631,112 @@ void
 proto_get_field_values(proto_tree* subtree, GNodeTraverseFunc fill_array_func, proto_tree_search_info *sinfo)
 {
 	g_node_traverse((GNode*)subtree, G_IN_ORDER, G_TRAVERSE_ALL, -1, fill_array_func, sinfo);
+}
+
+/* Dumps the contents of the registration database to stdout. An indepedent program can take
+ * this output and format it into nice tables or HTML or whatever.
+ *
+ * There is one record per line. Each record is either a protocol or a header
+ * field, differentiated by the first field. The fields are tab-delimited.
+ *
+ * Protocols
+ * ---------
+ * Field 1 = 'P'
+ * Field 2 = protocol name
+ * Field 3 = protocol abbreviation
+ *
+ * Header Fields
+ * -------------
+ * Field 1 = 'F'
+ * Field 2 = field name
+ * Field 3 = field abbreviation
+ * Field 4 = type ( textual representation of the the ftenum type )
+ * Field 5 = parent protocol abbreviation
+ */
+void
+proto_registrar_dump(void)
+{
+	header_field_info	*hfinfo, *parent_hfinfo;
+	int			i, len;
+	const char 		*enum_name;
+
+	len = gpa_hfinfo->len;
+	for (i = 0; i < len ; i++) {
+		hfinfo = find_hfinfo_record(i);
+
+		/* format for protocols */
+		if (proto_registrar_is_protocol(i)) {
+			printf("P\t%s\t%s\n", hfinfo->name, hfinfo->abbrev);
+		}
+		/* format for header fields */
+		else {
+			parent_hfinfo = find_hfinfo_record(hfinfo->parent);
+			g_assert(parent_hfinfo);
+
+			switch(hfinfo->type) {
+			case FT_NONE:
+				enum_name = "FT_NONE";
+				break;
+			case FT_BOOLEAN:
+				enum_name = "FT_BOOLEAN";
+				break;
+			case FT_UINT8:
+				enum_name = "FT_UINT8";
+				break;
+			case FT_UINT16:
+				enum_name = "FT_UINT16";
+				break;
+			case FT_UINT32:
+				enum_name = "FT_UINT32";
+				break;
+			case FT_ABSOLUTE_TIME:
+				enum_name = "FT_ABSOLUTE_TIME";
+				break;
+			case FT_RELATIVE_TIME:
+				enum_name = "FT_RELATIVE_TIME";
+				break;
+			case FT_STRING:
+				enum_name = "FT_STRING";
+				break;
+			case FT_ETHER:
+				enum_name = "FT_ETHER";
+				break;
+			case FT_ETHER_VENDOR:
+				enum_name = "FT_ETHER_VENDOR";
+				break;
+			case FT_BYTES:
+				enum_name = "FT_BYTES";
+				break;
+			case FT_IPv4:
+				enum_name = "FT_IPv4";
+				break;
+			case FT_IPv6:
+				enum_name = "FT_IPv6";
+				break;
+			case FT_IPXSERVER:
+				enum_name = "FT_IPXSERVER";
+				break;
+			case FT_VALS_UINT8:
+				enum_name = "FT_VALS_UINT8";
+				break;
+			case FT_VALS_UINT16:
+				enum_name = "FT_VALS_UINT16";
+				break;
+			case FT_VALS_UINT24:
+				enum_name = "FT_VALS_UINT24";
+				break;
+			case FT_VALS_UINT32:
+				enum_name = "FT_VALS_UINT32";
+				break;
+			case FT_TEXT_ONLY:
+				enum_name = "FT_TEXT_ONLY";
+				break;
+			default:
+				enum_name = "UNKNOWN";
+				break;
+			}
+			printf("F\t%s\t%s\t%s\t%s\n", hfinfo->name, hfinfo->abbrev,
+				enum_name,parent_hfinfo->abbrev);
+		}
+	}
 }

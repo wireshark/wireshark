@@ -27,3 +27,7 @@ libwiretap_a_SOURCES = \
 	snoop.h			\
 	wtap.c			\
 	wtap.h
+
+EXTRA_DIST = \
+	config.h.win32		\
+	Makefile.nmake
