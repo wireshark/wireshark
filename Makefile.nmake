@@ -429,7 +429,7 @@ setup: verify_apps
 !IFDEF GTK2_DIR
 !IF "$(GTK2_INST_VERSION)" == "2.4"
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
-		gtk2 gtk2.4/gtk+-2.4.4.zip
+		gtk2 gtk2.4/gtk+-2.4.4-20040808.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		gtk2 gtk2.4/gtk+-dev-2.4.4.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
@@ -460,7 +460,7 @@ setup: verify_apps
 !ENDIF
 !IFDEF GTK_WIMP_DIR
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
-		gtk-wimp gtk2/gtk-wimp-0.5.4-bin.zip
+		gtk-wimp gtk-wimp/gtk-wimp-0.5.4-bin.zip
 !ENDIF
 	@echo.
 	@echo Ethereal is ready to build.
