@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.363 2003/08/16 00:31:16 guy Exp $
+ * $Id: packet-smb.c,v 1.364 2003/08/17 21:21:50 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4655,7 +4655,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	if(cmd!=0xff){
 		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
 	} else {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -4871,7 +4871,7 @@ dissect_locking_andx_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 	if(cmd!=0xff){
 		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
 	} else {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -5010,7 +5010,7 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	if(cmd!=0xff){
 		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
 	} else {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -5142,7 +5142,7 @@ dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	if(cmd!=0xff){
 		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
 	} else {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -5217,7 +5217,7 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	if(cmd!=0xff){
 		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
 	} else {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -5298,7 +5298,7 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	if(cmd!=0xff){
 		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
 	} else {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -5385,7 +5385,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	if(cmd!=0xff){
 		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
 	} else {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -5497,7 +5497,7 @@ dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if(cmd!=0xff){
 		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
 	} else {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -5596,7 +5596,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	if(cmd!=0xff){
 		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
 	} else {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -5888,7 +5888,7 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	if(cmd!=0xff){
 		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
 	} else {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -6001,7 +6001,7 @@ dissect_empty_andx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
 	if(cmd!=0xff){
 		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
 	} else {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -6104,7 +6104,7 @@ dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	if(cmd!=0xff){
 		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
 	} else {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: No further commands");
+		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -6189,7 +6189,7 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	if(cmd!=0xff){
 		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
 	} else {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: No further commands");
+		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -9332,7 +9332,7 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	if(cmd!=0xff){
 		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
 	} else {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: No further commands (0xff)");
+		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
 	}
 	offset += 1;
 
@@ -9426,7 +9426,7 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	if(cmd!=0xff){
 		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
 	} else {
-		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: No further commands");
+		proto_tree_add_text(tree, tvb, offset, 1, "AndXCommand: No further commands (0xff)");
 	}
 	offset += 1;
 
