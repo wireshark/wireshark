@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.30 2001/06/08 06:27:15 guy Exp $
+ * $Id: packet-clnp.c,v 1.31 2001/06/08 07:44:36 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -2000,6 +2000,8 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* The payload is the header and "none, some, or all of the data
          part of the discarded PDU", i.e. it's like an ICMP error;
 	 dissect it as a CLNP PDU. */
+      if (check_col(pinfo->fd, COL_INFO))
+        col_add_fstr(pinfo->fd, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
       if (tree) {
         next_length = tvb_length_remaining(tvb, offset);
         if (next_length != 0) {
@@ -2033,11 +2035,9 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           pinfo->net_dst = save_net_dst;
           pinfo->src = save_src;
           pinfo->dst = save_dst;
-
-          offset += next_length;
         }
       }
-      break;
+      return;	/* we're done with this PDU */
 
     case ERQ_NPDU:
     case ERP_NPDU:
