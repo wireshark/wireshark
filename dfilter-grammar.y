@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.3 1999/08/01 04:28:06 gram Exp $
+ * $Id: dfilter-grammar.y,v 1.4 1999/08/02 06:34:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -117,9 +117,8 @@ GSList *dfilter_list_byte_arrays = NULL;
 %type <node>	boolean_value boolean_variable
 
 %type <operand>	numeric_relation
-%type <operand>	ether_relation
+%type <operand>	equality_relation
 %type <operand>	bytes_relation
-%type <operand>	boolean_relation
 
 %type <variable>	any_variable_type
 %type <operand>		exists_operand
@@ -171,47 +170,31 @@ relation:	numeric_variable numeric_relation numeric_value
 		{
 			$$ = dfilter_mknode_join($1, relation, $2, $3);
 		}
-	|	numeric_value numeric_relation numeric_variable
-		{
-			$$ = dfilter_mknode_join($1, relation, $2, $3);
-		}
 	|	numeric_variable numeric_relation numeric_variable
 		{
 			$$ = dfilter_mknode_join($1, relation, $2, $3);
 		}
 
-	|	ether_variable ether_relation ether_value
+	|	ether_variable equality_relation ether_value
 		{
 			$$ = dfilter_mknode_join($1, relation, $2, $3);
 		}
-	|	ether_value ether_relation ether_variable
-		{
-			$$ = dfilter_mknode_join($1, relation, $2, $3);
-		}
-	|	ether_variable ether_relation ether_variable
+	|	ether_variable equality_relation ether_variable
 		{
 			$$ = dfilter_mknode_join($1, relation, $2, $3);
 		}
 
-	|	ipxnet_variable ether_relation ipxnet_value
+	|	ipxnet_variable equality_relation ipxnet_value
 		{
 			$$ = dfilter_mknode_join($1, relation, $2, $3);
 		}
-	|	ipxnet_value ether_relation ipxnet_variable
-		{
-			$$ = dfilter_mknode_join($1, relation, $2, $3);
-		}
-	|	ipxnet_variable ether_relation ipxnet_variable
+	|	ipxnet_variable equality_relation ipxnet_variable
 		{
 			$$ = dfilter_mknode_join($1, relation, $2, $3);
 		}
 
 
 	|	ipv4_variable numeric_relation ipv4_value
-		{
-			$$ = dfilter_mknode_join($1, relation, $2, $3);
-		}
-	|	ipv4_value numeric_relation ipv4_variable
 		{
 			$$ = dfilter_mknode_join($1, relation, $2, $3);
 		}
@@ -224,24 +207,16 @@ relation:	numeric_variable numeric_relation numeric_value
 		{
 			$$ = dfilter_mknode_join($1, relation, $2, $3);
 		}
-	|	bytes_value bytes_relation bytes_variable
-		{
-			$$ = dfilter_mknode_join($1, relation, $2, $3);
-		}
 	|	bytes_variable bytes_relation bytes_variable
 		{
 			$$ = dfilter_mknode_join($1, relation, $2, $3);
 		}
 
-	|	boolean_variable boolean_relation boolean_value
+	|	boolean_variable equality_relation boolean_value
 		{
 			$$ = dfilter_mknode_join($1, relation, $2, $3);
 		}
-	|	boolean_value boolean_relation boolean_variable
-		{
-			$$ = dfilter_mknode_join($1, relation, $2, $3);
-		}
-	|	boolean_variable boolean_relation boolean_variable
+	|	boolean_variable equality_relation boolean_variable
 		{
 			$$ = dfilter_mknode_join($1, relation, $2, $3);
 		}
@@ -356,7 +331,7 @@ numeric_relation:	TOK_EQ { $$ = $1; }
 	|		TOK_LE { $$ = $1; }
 	;
 
-ether_relation:		TOK_EQ { $$ = $1; }
+equality_relation:	TOK_EQ { $$ = $1; }
 	|		TOK_NE { $$ = $1; }
 	;
 
@@ -364,10 +339,6 @@ bytes_relation:		TOK_EQ { $$ = $1; }
 	|		TOK_NE { $$ = $1; }
 	|		TOK_GT { $$ = $1; }
 	|		TOK_LT { $$ = $1; }
-	;
-
-boolean_relation:	TOK_EQ { $$ = $1; }
-	|		TOK_NE { $$ = $1; }
 	;
 
 exists_operand:		TOK_EXIST	{ $$ = $1; }
