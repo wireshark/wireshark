@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.9 2000/03/12 04:47:49 gram Exp $
+ * $Id: packet-rx.c,v 1.10 2000/04/14 06:42:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,6 +47,10 @@
 #include "packet-rx.h"
 #include "packet-afs.h"
 #include "resolv.h"
+
+#define UDP_PORT_RX_LOW		7000
+#define UDP_PORT_RX_HIGH	7009
+#define UDP_PORT_RX_AFS_BACKUPS	7021
 
 static const value_string rx_types[] = {
 	{ RX_PACKET_TYPE_DATA,		"data" },
@@ -92,7 +96,7 @@ static int hf_rx_serviceid = -1;
 static gint ett_rx = -1;
 static gint ett_rx_flags = -1;
 
-void
+static void
 dissect_rx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	proto_tree      *rx_tree, *rx_tree_flags, *rx_flags, *ti;
@@ -236,4 +240,16 @@ proto_register_rx(void)
 	proto_rx = proto_register_protocol("RX Protocol", "rx");
 	proto_register_field_array(proto_rx, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_rx(void)
+{
+	int port;
+
+	/* Ports in the range UDP_PORT_RX_LOW to UDP_PORT_RX_HIGH
+	   are all used for various AFS services. */
+	for (port = UDP_PORT_RX_LOW; port <= UDP_PORT_RX_HIGH; port++)
+		dissector_add("udp.port", port, dissect_rx);
+	dissector_add("udp.port", UDP_PORT_RX_AFS_BACKUPS, dissect_rx);
 }

@@ -1,7 +1,7 @@
 /* packet-rx.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-rx.h,v 1.2 2000/02/15 21:03:06 gram Exp $
+ * $Id: packet-rx.h,v 1.3 2000/04/14 06:42:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,8 +26,6 @@
 
 #ifndef PACKET_RX_H
 #define PACKET_RX_H
-
-void dissect_rx(const u_char *, int, frame_data *, proto_tree *);
 
 struct rx_header {
 	guint32 epoch;

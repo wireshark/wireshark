@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.63 2000/04/14 06:17:22 guy Exp $
+ * $Id: packet-udp.c,v 1.64 2000/04/14 06:42:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -76,9 +76,6 @@ typedef struct _e_udphdr {
 #define UDP_PORT_TFTP    69
 #define UDP_PORT_NCP    524
 #define UDP_PORT_VINES	573
-#define UDP_PORT_RX_LOW 7000
-#define UDP_PORT_RX_HIGH 7009
-#define UDP_PORT_RX_AFS_BACKUPS 7021
 
 static dissector_table_t udp_dissector_table;
 
@@ -132,10 +129,6 @@ decode_udp_ports( const u_char *pd, int offset, frame_data *fd,
 #define PORT_IS(port)	(uh_sport == port || uh_dport == port)
   if (PORT_IS(UDP_PORT_NCP))
       dissect_ncp(pd, offset, fd, tree); /* XXX -- need to handle nw_server_address */
-  else if ((uh_sport >= UDP_PORT_RX_LOW && uh_sport <= UDP_PORT_RX_HIGH) ||
-	(uh_dport >= UDP_PORT_RX_LOW && uh_dport <= UDP_PORT_RX_HIGH) ||
-	PORT_IS(UDP_PORT_RX_AFS_BACKUPS)) 
-      dissect_rx(pd, offset, fd, tree); /* transarc AFS's RX protocol */
   else if (PORT_IS(UDP_PORT_VINES)) {
       /* FIXME: AFAIK, src and dst port must be the same */
       dissect_vines_frp(pd, offset, fd, tree);
