@@ -40,8 +40,8 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
+#include <epan/base64.h>
 
-#include "util.h"
 #include "req_resp_hdrs.h"
 #include "packet-http.h"
 #include "prefs.h"

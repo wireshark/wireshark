@@ -27,6 +27,7 @@ LIBETHEREAL_SRC = 		\
 	addr_and_mask.c		\
 	addr_resolv.c		\
 	atalk-utils.c		\
+	base64.c		\
 	bitswap.c		\
 	charsets.c		\
 	circuit.c		\
@@ -54,6 +55,7 @@ LIBETHEREAL_INCLUDES = 		\
 	addr_resolv.h		\
 	address.h		\
 	atalk-utils.h		\
+	base64.h		\
 	bitswap.h		\
 	charsets.h		\
 	circuit.h		\
