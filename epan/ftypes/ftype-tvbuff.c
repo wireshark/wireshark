@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-tvbuff.c,v 1.2 2001/02/01 20:31:21 gram Exp $
+ * $Id: ftype-tvbuff.c,v 1.3 2001/02/01 23:39:18 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -63,8 +63,15 @@ slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 	guint8* data;
 
 	if (fv->value.tvb) {
-		data = tvb_get_ptr(fv->value.tvb, offset, length);
-		g_byte_array_append(bytes, data, length);
+		TRY {
+			data = tvb_get_ptr(fv->value.tvb, offset, length);
+			g_byte_array_append(bytes, data, length);
+		}
+		CATCH_ALL {
+			/* nothing */
+		}
+		ENDTRY;
+
 	}
 }
 
