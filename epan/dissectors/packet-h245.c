@@ -22486,6 +22486,14 @@ proto_register_h245(void)
 	nsp_h221_dissector_table = register_dissector_table("h245.nsp.h221", "H.245 NonStandardParameter (h221)", FT_UINT32, BASE_HEX);
 
 	h245_tap = register_tap("h245");
+
+	register_ber_oid_name("0.0.8.245.0.3","itu-t(0) recommendation(0) h(8) h245(245) version(0) 3");
+	register_ber_oid_name("0.0.8.245.0.5","itu-t(0) recommendation(0) h(8) h245(245) version(0) 5");
+	register_ber_oid_name("0.0.8.245.0.6","itu-t(0) recommendation(0) h(8) h245(245) version(0) 6");
+	register_ber_oid_name("0.0.8.245.0.7","itu-t(0) recommendation(0) h(8) h245(245) version(0) 7");
+	register_ber_oid_name("0.0.8.245.0.8","itu-t(0) recommendation(0) h(8) h245(245) version(0) 8");
+	register_ber_oid_name("0.0.8.245.1.0.0","itu-t(0) recommendation(0) h(8) h245(245) generic-capabilities(1) video (0) ISO/IEC 14496-2 (0)= MPEG-4 video");
+	register_ber_oid_name("0.0.8.245.1.1.0","itu-t(0) recommendation(0) h(8) h245(245) generic-capabilities(1) audio (1) ISO/IEC 14496-3 (0)= MPEG-4 audio");
 	register_ber_oid_name("0.0.8.245.1.1.1","itu-t(0) recommendation(0) h(8) h245(245) generic-capabilities(1) audio(1) amr(1)");
 
 }
