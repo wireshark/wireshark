@@ -1,7 +1,7 @@
 /* smb_stat.c
  * smb_stat   2003 Ronnie Sahlberg
  *
- * $Id: smb_stat.c,v 1.44 2004/05/27 19:59:50 ulfl Exp $
+ * $Id: smb_stat.c,v 1.45 2004/06/02 07:12:11 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,8 +51,8 @@
 #include "../globals.h"
 #include "filter_prefs.h"
 #include "service_response_time_table.h"
+#include "gtkglobals.h"
 
-extern GtkWidget   *main_display_filter_widget;
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _smbstat_t {

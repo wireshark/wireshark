@@ -2,7 +2,7 @@
  * Routines for display filter dialog used by gui taps
  * Copyright 2003 Lars Roland
  *
- * $Id: tap_dfilter_dlg.c,v 1.9 2004/05/27 19:59:50 ulfl Exp $
+ * $Id: tap_dfilter_dlg.c,v 1.10 2004/06/02 07:12:11 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,8 +45,8 @@
 #include "../tap_dfilter_dlg.h"
 #include "tap_dfilter_dlg.h"
 #include "ui_util.h"
+#include "gtkglobals.h"
 
-extern GtkWidget *main_display_filter_widget;
 
 typedef struct _tap_dfilter_dlg_list_item {
 	GtkWidget *dlg;

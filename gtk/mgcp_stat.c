@@ -2,7 +2,7 @@
  * mgcp-statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: mgcp_stat.c,v 1.36 2004/05/27 19:59:49 ulfl Exp $
+ * $Id: mgcp_stat.c,v 1.37 2004/06/02 07:12:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,8 +54,6 @@
 #include "tap_dfilter_dlg.h"
 #include "ui_util.h"
 
-
-extern GtkWidget *main_display_filter_widget;
 
 #define NUM_TIMESTATS 10
 

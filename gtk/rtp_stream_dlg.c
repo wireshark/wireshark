@@ -1,7 +1,7 @@
 /* rtp_stream_dlg.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream_dlg.c,v 1.24 2004/06/02 07:01:04 guy Exp $
+ * $Id: rtp_stream_dlg.c,v 1.25 2004/06/02 07:12:10 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -39,8 +39,8 @@
 #include "tap_menu.h"
 #include "dlg_utils.h"
 #include "ui_util.h"
-#include "main.h"
 #include "compat_macros.h"
+#include "gtkglobals.h"
 
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
@@ -49,7 +49,6 @@
 
 #include <string.h>
 
-extern GtkWidget *main_display_filter_widget;
 
 typedef const guint8 * ip_addr_p;
 

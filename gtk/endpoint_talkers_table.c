@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.43 2004/06/01 21:29:50 guy Exp $
+ * $Id: endpoint_talkers_table.c,v 1.44 2004/06/02 07:12:09 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,8 +53,6 @@
 #include "main.h"
 #include "ui_util.h"
 #include "dlg_utils.h"
-
-extern GtkWidget   *main_display_filter_widget;
 
 
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))

@@ -2,7 +2,7 @@
  * modified from endpoint_talkers_table.c   2003 Ronnie Sahlberg
  * Helper routines common to all host list taps.
  *
- * $Id: hostlist_table.c,v 1.15 2004/06/01 23:00:24 guy Exp $
+ * $Id: hostlist_table.c,v 1.16 2004/06/02 07:12:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,8 +49,6 @@
 #include "main.h"
 #include "ui_util.h"
 #include "dlg_utils.h"
-
-extern GtkWidget   *main_display_filter_widget;
 
 
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))

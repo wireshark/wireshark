@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.47 2004/05/27 19:59:50 ulfl Exp $
+ * $Id: rpc_stat.c,v 1.48 2004/06/02 07:12:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,8 +48,8 @@
 #include "filter_prefs.h"
 #include "compat_macros.h"
 #include "service_response_time_table.h"
+#include "gtkglobals.h"
 
-extern GtkWidget   *main_display_filter_widget;
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _rpcstat_t {

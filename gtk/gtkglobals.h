@@ -1,7 +1,7 @@
 /* gtkglobals.h
  * GTK-related Global defines, etc.
  *
- * $Id: gtkglobals.h,v 1.25 2004/06/01 17:33:36 ulfl Exp $
+ * $Id: gtkglobals.h,v 1.26 2004/06/02 07:12:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,9 @@ extern GtkWidget *tree_view;
 
 /** byte notebook (packet bytes) pane */
 extern GtkWidget *byte_nb_ptr;
+
+/** the filter text entry in the filter toolbar */
+extern GtkWidget   *main_display_filter_widget;
 
 #if GTK_MAJOR_VERSION < 2
 /** normal font */
