@@ -154,8 +154,9 @@ proto_register_xot(void)
 
 	xot_module = prefs_register_protocol(proto_xot, NULL);
 	prefs_register_bool_preference(xot_module, "desegment",
-	    "Desegment all X.25-over-TCP messages spanning multiple TCP segments",
-	    "Whether the X.25-over-TCP dissector should desegment all messages spanning multiple TCP segments",
+	    "Reassemble X.25-over-TCP messages spanning multiple TCP segments",
+	    "Whether the X.25-over-TCP dissector should reassemble messages spanning multiple TCP segments. "
+	    "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &xot_desegment);
 }
 

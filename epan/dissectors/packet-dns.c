@@ -2488,8 +2488,9 @@ proto_register_dns(void)
 
   dns_module = prefs_register_protocol(proto_dns, NULL);
   prefs_register_bool_preference(dns_module, "desegment_dns_messages",
-    "Desegment all DNS messages spanning multiple TCP segments",
-    "Whether the DNS dissector should desegment all messages spanning multiple TCP segments",
+    "Reassemble DNS messages spanning multiple TCP segments",
+    "Whether the DNS dissector should reassemble messages spanning multiple TCP segments."
+    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &dns_desegment);
 }
 

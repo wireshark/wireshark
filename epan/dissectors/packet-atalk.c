@@ -2244,8 +2244,8 @@ proto_register_atalk(void)
 
   atp_module = prefs_register_protocol(proto_atp, NULL);
   prefs_register_bool_preference(atp_module, "desegment",
-    "Desegment all ATP messages spanning multiple DDP packets",
-    "Whether the ATP dissector should desegment all messages spanning multiple DDP packets",
+    "Reassemble ATP messages spanning multiple DDP packets",
+    "Whether the ATP dissector should reassemble messages spanning multiple DDP packets",
     &atp_defragment);
 
   proto_rtmp = proto_register_protocol("Routing Table Maintenance Protocol",

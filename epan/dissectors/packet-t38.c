@@ -896,7 +896,8 @@ proto_register_t38(void)
 	prefs_register_bool_preference(t38_module, "reassembly",
 		"Reassemble T.38 PDUs over TPKT over TCP",
 		"Whether the dissector should reassemble T.38 PDUs spanning multiple TCP segments "
-		"when TPKT is used over TCP",
+		"when TPKT is used over TCP. "
+        "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 		&t38_tpkt_reassembly);
 	prefs_register_enum_preference(t38_module, "tpkt_usage",
 		"TPKT used over TCP",

@@ -1757,12 +1757,13 @@ proto_register_netlib(void)
 
 	tds_module = prefs_register_protocol(proto_tds, NULL);
 	prefs_register_bool_preference(tds_module, "desegment_buffers",
-	    "Desegment all TDS buffers spanning multiple TCP segments",
-	    "Whether the TDS dissector should desegment all TDS buffers spanning multiple TCP segments",
+	    "Reassemble TDS buffers spanning multiple TCP segments",
+	    "Whether the TDS dissector should reassemble TDS buffers spanning multiple TCP segments. "
+	    "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &tds_desegment);
 	prefs_register_bool_preference(tds_module, "defragment",
-	    "Defragment all TDS messages with multiple buffers",
-	    "Whether the TDS dissector should defragment all messages spanning multiple Netlib buffers",
+	    "Reassemble fragmented TDS messages with multiple buffers",
+	    "Whether the TDS dissector should defragment messages spanning multiple Netlib buffers",
 	    &tds_defragment);
 
 	register_init_routine(tds_init);

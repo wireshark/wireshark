@@ -3102,8 +3102,9 @@ proto_register_ldp(void)
 				 10, &global_ldp_udp_port);
 
   prefs_register_bool_preference(ldp_module, "desegment_ldp_messages",
-    "Desegment all LDP messages\nspanning multiple TCP segments",
-    "Whether the LDP dissector should desegment all messages spanning multiple TCP segments",
+    "Reassemble LDP messages spanning multiple TCP segments",
+    "Whether the LDP dissector should reassemble messages spanning multiple TCP segments."
+    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &ldp_desegment);
 }
 

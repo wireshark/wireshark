@@ -16,6 +16,14 @@
 	on win32.
   </para>
   <para>
+	The first part of this book will describe how to set up the environment 
+	needed to develop Ethereal.
+  </para>
+  <para>
+	The second part of this book will describe how to change the Ethereal 
+	source code.
+  </para>
+  <para>
     We hope that you find this book useful, and look forward to your comments.
   </para>
   </section>
@@ -28,7 +36,9 @@
   </para>
   <para>
   This book is not intended to explain the usage of Ethereal in general. 
-  Please refer to the "Ethereal User's Guide" about Ethereal usage.
+  Please refer the 
+  <ulink url="&EtherealUsersGuidePage;">Ethereal User's Guide</ulink> 
+  about Ethereal usage.
   </para>
   <para>
   By reading this book, you will learn how to develop Ethereal. It will 
@@ -95,7 +105,7 @@
     </note>
     <tip><title>This is a tip!</title>
 	<para>
-	Tips will be helpful for your everyday work using Ethereal.
+	Tips will be helpful for your everyday work developing Ethereal.
 	</para>
     </tip>
   </section>

@@ -77,6 +77,13 @@ static gint ett_cotp_segment   = -1;
 
 static int hf_cotp_srcref      = -1;
 static int hf_cotp_destref     = -1;
+static int hf_cotp_tpdu_number = -1;
+static int hf_cotp_tpdu_number_extended = -1;
+static int hf_cotp_next_tpdu_number = -1;
+static int hf_cotp_next_tpdu_number_extended = -1;
+static int hf_cotp_eot			= -1;
+static int hf_cotp_eot_extended	= -1;
+
 static int hf_cotp_type        = -1;
 static int hf_cotp_segments    = -1;
 static int hf_cotp_segment     = -1;
@@ -86,6 +93,11 @@ static int hf_cotp_segment_multiple_tails = -1;
 static int hf_cotp_segment_too_long_segment = -1;
 static int hf_cotp_segment_error = -1;
 static int hf_cotp_reassembled_in = -1;
+
+static const true_false_string fragment_descriptions = {
+	"Yes",
+	"No"
+};
 
 static int  proto_cltp         = -1;
 static gint ett_cltp           = -1;
@@ -859,7 +871,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   gboolean is_class_234;
   guint16  dst_ref;
   guint    tpdu_nr;
-  guint    fragment = 0;
+  gboolean fragment = FALSE;
   guint32  fragment_length = 0;
   tvbuff_t *next_tvb;
   tvbuff_t *reassembled_tvb = NULL;
@@ -880,7 +892,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
       if ( tpdu_nr & 0x80 )
 	tpdu_nr = tpdu_nr & 0x7F;
       else
-	fragment = 1;
+	fragment = TRUE;
       is_extended = FALSE;
       is_class_234 = TRUE;
       dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
@@ -896,7 +908,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
       if ( tpdu_nr & 0x80000000 )
 	tpdu_nr = tpdu_nr & 0x7FFFFFFF;
       else
-	fragment = 1;
+	fragment = TRUE;
       is_extended = TRUE;
       is_class_234 = TRUE;
       dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
@@ -907,7 +919,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
       if ( tpdu_nr & 0x80 )
 	tpdu_nr = tpdu_nr & 0x7F;
       else
-	fragment = 1;
+	fragment = TRUE;
       is_extended = FALSE;
       is_class_234 = FALSE;
       dst_ref = 0;
@@ -959,19 +971,18 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
   if (is_extended) {
     if (tree) {
-      proto_tree_add_text(cotp_tree, tvb, offset, 4,
-			    "TPDU number: 0x%08x (%s)",
-			    tpdu_nr,
-			    (fragment)? "fragment":"complete");
+      proto_tree_add_uint(cotp_tree, hf_cotp_tpdu_number_extended, tvb, offset, 4,
+			  tpdu_nr);
+      proto_tree_add_item(cotp_tree, hf_cotp_eot_extended, tvb, offset, 4,
+      			  TRUE);
     }
     offset += 4;
     li -= 4;
   } else {
     if (tree) {
-      proto_tree_add_text(cotp_tree, tvb, offset, 1,
-			    "TPDU number: 0x%02x (%s)",
-			    tpdu_nr,
-			    (fragment)? "fragment":"complete");
+      proto_tree_add_uint(cotp_tree, hf_cotp_tpdu_number, tvb, offset, 1,
+			  tpdu_nr);
+      proto_tree_add_item(cotp_tree, hf_cotp_eot, tvb, offset, 1, TRUE);
     }
     offset += 1;
     li -= 1;
@@ -1143,15 +1154,15 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
   if (is_extended) {
     if (tree) {
-      proto_tree_add_text(cotp_tree, tvb, offset, 4,
-			    "TPDU number: 0x%02x", tpdu_nr);
+      proto_tree_add_uint(cotp_tree, hf_cotp_tpdu_number_extended, tvb,
+			  offset, 4, tpdu_nr);
     }
     offset += 4;
     li -= 4;
   } else {
     if (tree) {
-      proto_tree_add_text(cotp_tree, tvb, offset, 1,
-			    "TPDU number: 0x%02x", tpdu_nr);
+      proto_tree_add_uint(cotp_tree, hf_cotp_tpdu_number, tvb, offset, 1,
+			  tpdu_nr);
     }
     offset += 1;
     li -= 1;
@@ -1214,11 +1225,11 @@ static int ositp_decode_RJ(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 			  "Credit: %u", cdt);
     proto_tree_add_uint(cotp_tree, hf_cotp_destref, tvb, offset +  2, 2, dst_ref);
     if (li == LI_NORMAL_RJ)
-      proto_tree_add_text(cotp_tree, tvb, offset +  4, 1,
-			  "Your TPDU number: 0x%02x", tpdu_nr);
+      proto_tree_add_uint(cotp_tree, hf_cotp_next_tpdu_number, tvb, offset + 4,
+			  1, tpdu_nr);
     else {
-      proto_tree_add_text(cotp_tree, tvb, offset +  4, 4,
-			  "Your TPDU number: 0x%02x", tpdu_nr);
+      proto_tree_add_uint(cotp_tree, hf_cotp_next_tpdu_number_extended, tvb,
+			  offset + 4, 4, tpdu_nr);
       proto_tree_add_text(cotp_tree, tvb, offset +  8, 2,
 			  "Credit: 0x%02x", credit);
     }
@@ -1415,8 +1426,8 @@ static int ositp_decode_AK(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     li -= 2;
 
     if (tree) {
-      proto_tree_add_text(cotp_tree, tvb, offset, 1,
-			  "Your TPDU number: 0x%02x", tpdu_nr);
+      proto_tree_add_uint(cotp_tree, hf_cotp_next_tpdu_number, tvb, offset, 1,
+			  tpdu_nr);
     }
     offset += 1;
     li -= 1;
@@ -1456,8 +1467,8 @@ static int ositp_decode_AK(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     li -= 2;
 
     if (tree) {
-      proto_tree_add_text(cotp_tree, tvb, offset, 4,
-			  "Your TPDU number: 0x%08x", tpdu_nr);
+      proto_tree_add_uint(cotp_tree, hf_cotp_next_tpdu_number_extended, tvb,
+			  offset, 4, tpdu_nr);
     }
     offset += 4;
     li -= 4;
@@ -1553,15 +1564,15 @@ static int ositp_decode_EA(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
   if (is_extended) {
     if (tree) {
-      proto_tree_add_text(cotp_tree, tvb, offset, 4,
-			    "Your TPDU number: 0x%08x", tpdu_nr);
+      proto_tree_add_uint(cotp_tree, hf_cotp_next_tpdu_number_extended, tvb,
+			  offset, 4, tpdu_nr);
     }
     offset += 4;
     li -= 4;
   } else {
     if (tree) {
-      proto_tree_add_text(cotp_tree, tvb, offset, 1,
-			    "Your TPDU number: 0x%02x", tpdu_nr);
+      proto_tree_add_uint(cotp_tree, hf_cotp_next_tpdu_number, tvb, offset, 1,
+			  tpdu_nr);
     }
     offset += 1;
     li -= 1;
@@ -2292,6 +2303,24 @@ void proto_register_cotp(void)
     { &hf_cotp_type,
       { "COTP PDU Type", "cotp.type", FT_UINT8, BASE_HEX, VALS(cotp_tpdu_type_abbrev_vals), 0x0,
         "COTP PDU Type", HFILL}},
+    { &hf_cotp_tpdu_number,
+      { "TPDU number", "cotp.tpdu-number", FT_UINT8, BASE_HEX, NULL, 0x0,
+        "TPDU number", HFILL}},
+    { &hf_cotp_tpdu_number_extended,
+      { "TPDU number", "cotp.tpdu-number", FT_UINT32, BASE_HEX, NULL, 0x0,
+        "TPDU number", HFILL}},
+    { &hf_cotp_next_tpdu_number,
+      { "Your TPDU number", "cotp.next-tpdu-number", FT_UINT8, BASE_HEX, NULL, 0x0,
+        "Your TPDU number", HFILL}},
+    { &hf_cotp_next_tpdu_number_extended,
+      { "Your TPDU number", "cotp.next-tpdu-number", FT_UINT32, BASE_HEX, NULL, 0x0,
+        "Your TPDU number", HFILL}},
+    { &hf_cotp_eot,
+      { "Last data unit", "cotp.eot", FT_BOOLEAN, 8, TFS(&fragment_descriptions),  0x80,
+        "Is current TPDU the last data unit of a complete DT TPDU sequence?", HFILL}},
+    { &hf_cotp_eot_extended,
+      { "Last data unit", "cotp.eot", FT_BOOLEAN, 32, TFS(&fragment_descriptions),  0x80000000,
+        "Is current TPDU the last data unit of a complete DT TPDU sequence?", HFILL}},
     { &hf_cotp_segment_overlap,
       { "Segment overlap", "cotp.segment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 	"Segment overlaps with other segments", HFILL }},
@@ -2350,7 +2379,8 @@ void proto_register_cotp(void)
 
   prefs_register_bool_preference(cotp_module, "reassemble",
 	 "Reassemble segmented COTP datagrams",
-	 "Whether segmented COTP datagrams should be reassembled",
+	 "Whether segmented COTP datagrams should be reassembled."
+    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	&cotp_reassemble);
 
   prefs_register_enum_preference(cotp_module, "tsap_display",

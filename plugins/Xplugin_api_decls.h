@@ -292,3 +292,5 @@ addr_dissect_rpc_uint64 p_dissect_rpc_uint64;
 addr_dissect_rpc_indir_call p_dissect_rpc_indir_call;
 addr_dissect_rpc_indir_reply p_dissect_rpc_indir_reply;
 addr_crc16_ccitt_tvb p_crc16_ccitt_tvb;
+addr_tvb_get_letoh64 p_tvb_get_letoh64;
+addr_tvb_get_ntoh64 p_tvb_get_ntoh64;

@@ -480,3 +480,6 @@ int dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo,
  proto_tree *tree, int offset, int result_id, int prog_id, int vers_id,
  int proc_id);
 guint16 crc16_ccitt_tvb(tvbuff_t *tvb, unsigned int len);
+
+guint64 tvb_get_letoh64(tvbuff_t *tvb, gint offset);
+guint64 tvb_get_ntoh64(tvbuff_t *tvb, gint offset);

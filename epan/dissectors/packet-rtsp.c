@@ -352,7 +352,6 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 	guchar		*tmp;
 	guint		c_data_port, c_mon_port;
 	guint		s_data_port, s_mon_port;
-	address		null_addr;
 
 	if (line_len > sizeof(buf) - 1) {
 		/*
@@ -441,15 +440,13 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 	 * sent the packet, so we construct a conversation with no
 	 * second address.
 	 */
-	SET_ADDRESS(&null_addr, pinfo->src.type, 0, NULL);
-
-	rtp_add_address(pinfo, (char *)pinfo->dst.data, c_data_port, s_data_port,
+	rtp_add_address(pinfo, &pinfo->dst, c_data_port, s_data_port,
                     "RTSP", pinfo->fd->num);
 
 	if (!c_mon_port)
 		return;
 
-	rtcp_add_address(pinfo, (char *)pinfo->dst.data, c_mon_port, s_mon_port,
+	rtcp_add_address(pinfo, &pinfo->dst, c_mon_port, s_mon_port,
                      "RTSP", pinfo->fd->num);
 }
 
@@ -1173,9 +1170,10 @@ proto_register_rtsp(void)
 		"Set the alternate TCP port for RTSP messages",
 		10, &global_rtsp_tcp_alternate_port);
 	prefs_register_bool_preference(rtsp_module, "desegment_headers",
-	    "Desegment all RTSP headers\nspanning multiple TCP segments",
-	    "Whether the RTSP dissector should desegment all headers "
-	    "of a request spanning multiple TCP segments",
+	    "Reassemble RTSP headers spanning multiple TCP segments",
+	    "Whether the RTSP dissector should reassemble headers "
+	    "of a request spanning multiple TCP segments. "
+	    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &rtsp_desegment_headers);
 	prefs_register_bool_preference(rtsp_module, "desegment_body",
 	    "Trust the \"Content-length:\" header and\ndesegment RTSP "

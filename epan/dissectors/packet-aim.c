@@ -1146,8 +1146,9 @@ proto_register_aim(void)
 
   aim_module = prefs_register_protocol(proto_aim, NULL);
   prefs_register_bool_preference(aim_module, "desegment",
-    "Desegment all AIM messages spanning multiple TCP segments",
-    "Whether the AIM dissector should desegment all messages spanning multiple TCP segments",
+    "Reassemble AIM messages spanning multiple TCP segments",
+    "Whether the AIM dissector should reassemble messages spanning multiple TCP segments."
+    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &aim_desegment);
 
   subdissector_table = register_dissector_table("aim.family", 

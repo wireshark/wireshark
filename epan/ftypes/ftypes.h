@@ -147,6 +147,7 @@ typedef struct _fvalue_t {
 		/* Put a few basic types in here */
 		gpointer	pointer;
 		guint32		integer;
+		guint64		integer64;
 		gdouble		floating;
 		gchar		*string;
 		guchar		*ustring;
@@ -177,10 +178,12 @@ typedef int (*FvalueStringReprLen)(fvalue_t*, ftrepr_t);
 
 typedef void (*FvalueSetFunc)(fvalue_t*, gpointer, gboolean);
 typedef void (*FvalueSetIntegerFunc)(fvalue_t*, guint32);
+typedef void (*FvalueSetInteger64Func)(fvalue_t*, guint64);
 typedef void (*FvalueSetFloatingFunc)(fvalue_t*, gdouble);
 
 typedef gpointer (*FvalueGetFunc)(fvalue_t*);
 typedef guint32 (*FvalueGetIntegerFunc)(fvalue_t*);
+typedef guint64 (*FvalueGetInteger64Func)(fvalue_t*);
 typedef double (*FvalueGetFloatingFunc)(fvalue_t*);
 
 typedef gboolean (*FvalueCmp)(fvalue_t*, fvalue_t*);
@@ -202,11 +205,13 @@ struct _ftype_t {
 	/* could be union */
 	FvalueSetFunc		set_value;
 	FvalueSetIntegerFunc	set_value_integer;
+	FvalueSetInteger64Func	set_value_integer64;
 	FvalueSetFloatingFunc	set_value_floating;
 
 	/* could be union */
 	FvalueGetFunc		get_value;
 	FvalueGetIntegerFunc	get_value_integer;
+	FvalueGetInteger64Func	get_value_integer64;
 	FvalueGetFloatingFunc	get_value_floating;
 
 	FvalueCmp		cmp_eq;
@@ -289,6 +294,9 @@ void
 fvalue_set_integer(fvalue_t *fv, guint32 value);
 
 void
+fvalue_set_integer64(fvalue_t *fv, guint64 value);
+
+void
 fvalue_set_floating(fvalue_t *fv, gdouble value);
 
 gpointer
@@ -296,6 +304,9 @@ fvalue_get(fvalue_t *fv);
 
 guint32
 fvalue_get_integer(fvalue_t *fv);
+
+guint64
+fvalue_get_integer64(fvalue_t *fv);
 
 double
 fvalue_get_floating(fvalue_t *fv);

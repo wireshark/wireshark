@@ -2783,8 +2783,9 @@ proto_register_bgp(void)
 
     bgp_module = prefs_register_protocol(proto_bgp, NULL);
     prefs_register_bool_preference(bgp_module, "desegment",
-      "Desegment all BGP messages spanning multiple TCP segments",
-      "Whether the BGP dissector should desegment all messages spanning multiple TCP segments",
+      "Reassemble BGP messages spanning multiple TCP segments",
+      "Whether the BGP dissector should reassemble messages spanning multiple TCP segments."
+      " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
       &bgp_desegment);
     prefs_register_enum_preference(bgp_module, "asn_len",
       "Length of the AS number",

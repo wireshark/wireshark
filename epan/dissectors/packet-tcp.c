@@ -413,10 +413,10 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
 				g_hash_table_insert(tcp_pdu_skipping_table, 
 					(void *)pinfo->fd->num, (void *)tnp->first_frame);
 				if (check_col(pinfo->cinfo, COL_INFO)){
-					col_prepend_fstr(pinfo->cinfo, COL_INFO, "[Continuation to #%u] ",pinfo->fd->num);
+					col_prepend_fstr(pinfo->cinfo, COL_INFO, "[Continuation to #%u] ", tnp->first_frame);
 				}
 				proto_tree_add_uint(tcp_tree, hf_tcp_continuation_to,
-					tvb, 0, 0, pinfo->fd->num);
+					tvb, 0, 0, tnp->first_frame);
 				return -1;
 			}			
 			if(seq<tnp->nxtpdu && nxtseq>tnp->nxtpdu){
@@ -485,6 +485,26 @@ pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nx
 	  Add check for ACKs and purge list of sequence numbers
 	  already acked.
 	*/
+}
+
+/* This is called for SYN+ACK packets and the purpose is to verify that we
+ * have seen window scaling in both directions.
+ * If we cant find window scaling being set in both directions
+ * that means it was present in the SYN but not in the SYN+ACK
+ * (or the SYN was missing) and then we disable the window scaling
+ * for this tcp session.
+ */
+static void verify_tcp_window_scaling(packet_info *pinfo)
+{
+	struct tcp_analysis *tcpd=NULL;
+
+	/* find(or create if needed) the conversation for this tcp session */
+	tcpd=get_tcp_conversation_data(pinfo);
+
+	if( (tcpd->win_scale1==-1) || (tcpd->win_scale2==-1) ){
+		tcpd->win_scale1=-1;
+		tcpd->win_scale2=-1;
+	}
 }
 
 /* if we saw a window scaling option, store it for future reference 
@@ -1677,7 +1697,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
 			/* add desegmented data to the data source list */
-			add_new_data_source(pinfo, next_tvb, "Desegmented TCP");
+			add_new_data_source(pinfo, next_tvb, "Reassembled TCP");
 
 			/*
 			 * Supply the sequence number of the first of the
@@ -1902,7 +1922,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 				col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCP");
 			}
 			if (check_col(pinfo->cinfo, COL_INFO)){
-				col_set_str(pinfo->cinfo, COL_INFO, "[Desegmented TCP]");
+				col_set_str(pinfo->cinfo, COL_INFO, "[TCP segment of a reassembled PDU]");
 			}
 		}
 
@@ -2530,6 +2550,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   vec_t      cksum_vec[4];
   guint32    phdr[2];
   guint16    computed_cksum;
+  guint16    real_window;
   guint      length_remaining;
   gboolean   desegment_ok;
   struct tcpinfo tcpinfo;
@@ -2588,6 +2609,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   th_off_x2 = tvb_get_guint8(tvb, offset + 12);
   tcph->th_flags = tvb_get_guint8(tvb, offset + 13);
   tcph->th_win = tvb_get_ntohs(tvb, offset + 14);
+  real_window = tcph->th_win;
   tcph->th_hlen = hi_nibble(th_off_x2) * 4;  /* TCP header length, in bytes */
 
   /*
@@ -2724,7 +2746,11 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_boolean(field_tree, hf_tcp_flags_reset, tvb, offset + 13, 1, tcph->th_flags);
     proto_tree_add_boolean(field_tree, hf_tcp_flags_syn, tvb, offset + 13, 1, tcph->th_flags);
     proto_tree_add_boolean(field_tree, hf_tcp_flags_fin, tvb, offset + 13, 1, tcph->th_flags);
-    proto_tree_add_uint(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, tcph->th_win);
+    if(tcp_relative_seq && (tcph->th_win!=real_window)){
+      proto_tree_add_uint_format(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, tcph->th_win, "Window size: %d  (scaled)", tcph->th_win);
+    } else {
+      proto_tree_add_uint(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, tcph->th_win);
+    }
   }
 
   /* Supply the sequence number of the first byte and of the first byte
@@ -2861,6 +2887,17 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       field_tree = NULL;
     dissect_ip_tcp_options(tvb, offset + 20, optlen,
       tcpopts, N_TCP_OPTS, TCPOPT_EOL, pinfo, field_tree);
+  }
+
+  /* If there was window scaling in the SYN packet byt none in the SYN+ACK
+   * then we should just forget about the windowscaling completely.
+   */
+  if(!pinfo->fd->flags.visited){
+    if(tcp_analyze_seq && tcp_relative_seq){
+      if((tcph->th_flags & (TH_SYN|TH_ACK))==(TH_SYN|TH_ACK)) {
+        verify_tcp_window_scaling(pinfo);
+      }
+    }
   }
 
   /* Skip over header + options */
@@ -3092,15 +3129,15 @@ proto_register_tcp(void)
 
 		{ &hf_tcp_segment_multiple_tails,
 		{ "Multiple tail segments found",	"tcp.segment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			"Several tails were found when desegmenting the pdu", HFILL }},
+			"Several tails were found when reassembling the pdu", HFILL }},
 
 		{ &hf_tcp_segment_too_long_fragment,
 		{ "Segment too long",	"tcp.segment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"Segment contained data past end of the pdu", HFILL }},
 
 		{ &hf_tcp_segment_error,
-		{ "Desegmentation error", "tcp.segment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-			"Desegmentation error due to illegal segments", HFILL }},
+		{ "Reassembling error", "tcp.segment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"Reassembling error due to illegal segments", HFILL }},
 
 		{ &hf_tcp_segment,
 		{ "TCP Segment", "tcp.segment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
@@ -3112,7 +3149,7 @@ proto_register_tcp(void)
 
 		{ &hf_tcp_reassembled_in,
 		{ "Reassembled PDU in frame", "tcp.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-			"The PDU that starts but doesn't end in this segment is reassembled in this frame", HFILL }},
+			"The PDU that doesn't end in this segment is reassembled in this frame", HFILL }},
 
 		{ &hf_tcp_option_mss,
 		  { "TCP MSS Option", "tcp.options.mss", FT_BOOLEAN, 
@@ -3212,8 +3249,8 @@ proto_register_tcp(void)
 	    "Whether to check the validity of the TCP checksum",
 	    &tcp_check_checksum);
 	prefs_register_bool_preference(tcp_module, "desegment_tcp_streams",
-	    "Allow subdissector to desegment TCP streams",
-	    "Whether subdissector can request TCP streams to be desegmented",
+	    "Allow subdissector to reassemble TCP streams",
+	    "Whether subdissector can request TCP streams to be reassembled",
 	    &tcp_desegment);
 	prefs_register_bool_preference(tcp_module, "analyze_sequence_numbers",
 	    "Analyze TCP sequence numbers",

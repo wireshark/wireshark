@@ -1,7 +1,7 @@
 /* packet-lwapp.c
  *
  * Routines for LWAPP encapsulated packet disassembly
- * draft-calhoun-seamoby-lwapp-N (the current draft is 3)
+ * draft-ohara-capwap-lwapp-N (the current draft is 0)
  *
  * $Id$
  *

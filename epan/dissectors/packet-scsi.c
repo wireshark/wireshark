@@ -83,7 +83,6 @@
 #include <string.h>
 #include <epan/strutil.h>
 #include <epan/packet.h>
-#include <epan/int-64bit.h>
 #include "prefs.h"
 #include "packet-scsi.h"
 
@@ -1827,8 +1826,8 @@ dissect_scsi_blockdescs (tvbuff_t *tvb, packet_info *pinfo _U_,
                 payload_len -= desclen;
                 break;
             }
-            proto_tree_add_text (scsi_tree, tvb, offset, 8, "No. of Blocks: %s",
-                                 u64toa (tvb_get_ptr (tvb, offset, 8)));
+            proto_tree_add_text (scsi_tree, tvb, offset, 8, "No. of Blocks: %" PRIu64,
+                                 tvb_get_ntoh64 (tvb, offset));
             offset += 8;
             payload_len -= 8;
             desclen -= 8;
@@ -3755,21 +3754,21 @@ dissect_scsi_ssc2_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
                 offset += 4;
 
                 proto_tree_add_text (tree, tvb, offset, 8,
-                                     "Block Number: %s",
-                                     u64toa (tvb_get_ptr (tvb, offset, 8)));
+                                     "Block Number: %" PRIu64,
+                                     tvb_get_ntoh64 (tvb, offset));
                  offset += 8;
             } else
                 offset += 12;
 
             if (!(flags & MPU)) {
                 proto_tree_add_text (tree, tvb, offset, 8,
-                                     "File Number: %s",
-                                     u64toa (tvb_get_ptr (tvb, offset, 8)));
+                                     "File Number: %" PRIu64,
+                                     tvb_get_ntoh64 (tvb, offset));
                 offset += 8;
 
                 proto_tree_add_text (tree, tvb, offset, 8,
-                                     "Set Number: %s",
-                                     u64toa (tvb_get_ptr (tvb, offset, 8)));
+                                     "Set Number: %" PRIu64,
+                                     tvb_get_ntoh64 (tvb, offset));
                 offset += 8;
             } else
                 offset += 16;
@@ -3806,13 +3805,13 @@ dissect_scsi_ssc2_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
             if (!(flags & BPU)) {
                 proto_tree_add_text (tree, tvb, offset, 8,
-                                     "First Block Location: %s",
-                                     u64toa (tvb_get_ptr (tvb, offset, 8)));
+                                     "First Block Location: %" PRIu64,
+                                     tvb_get_ntoh64 (tvb, offset));
                 offset += 8;
 
                 proto_tree_add_text (tree, tvb, offset, 8,
-                                     "Last Block Location: %s",
-                                     u64toa (tvb_get_ptr (tvb, offset, 8)));
+                                     "Last Block Location: %" PRIu64,
+                                     tvb_get_ntoh64 (tvb, offset));
                 offset += 8;
             } else
                 offset += 16;
@@ -3821,8 +3820,8 @@ dissect_scsi_ssc2_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
             if (!(flags & BYCU)) {
                 proto_tree_add_text (tree, tvb, offset, 8,
-                                     "Number of Bytes in Buffer: %s",
-                                     u64toa (tvb_get_ptr (tvb, offset, 8)));
+                                     "Number of Bytes in Buffer: %" PRIu64,
+                                     tvb_get_ntoh64 (tvb, offset));
             }
             offset += 8;
             break;

@@ -50,6 +50,7 @@ DOC=../../doc/ethereal.html		\
 	../../doc/mergecap.html 	\
 	../../doc/capinfo.html 	\
 	../../FAQ			\
+	../../NEWS			\
 	../../README			\
 	../../README.win32
 GPL=../../COPYING

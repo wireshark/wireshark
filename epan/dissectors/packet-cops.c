@@ -1986,8 +1986,9 @@ void proto_register_cops(void)
                                  "Set the TCP port for COPS messages",
                                  10,&global_cops_tcp_port);
   prefs_register_bool_preference(cops_module, "desegment",
-                                 "Desegment all COPS messages\nspanning multiple TCP segments",
-                                 "Whether the COPS dissector should desegment all messages spanning multiple TCP segments",
+                                 "Reassemble COPS messages spanning multiple TCP segments",
+                                 "Whether the COPS dissector should reassemble messages spanning multiple TCP segments."
+                                 " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
                                  &cops_desegment);
 
   /* For PacketCable */

@@ -1052,6 +1052,15 @@ tvb_get_ntohl(tvbuff_t *tvb, gint offset)
 	return pntohl(ptr);
 }
 
+guint64
+tvb_get_ntoh64(tvbuff_t *tvb, gint offset)
+{
+	const guint8* ptr;
+
+	ptr = ensure_contiguous(tvb, offset, sizeof(guint64));
+	return pntoh64(ptr);
+}
+
 /*
  * Stuff for IEEE float handling on platforms that don't have IEEE
  * format as the native floating-point format.
@@ -1280,6 +1289,15 @@ tvb_get_letohl(tvbuff_t *tvb, gint offset)
 
 	ptr = ensure_contiguous(tvb, offset, sizeof(guint32));
 	return pletohl(ptr);
+}
+
+guint64
+tvb_get_letoh64(tvbuff_t *tvb, gint offset)
+{
+	const guint8* ptr;
+
+	ptr = ensure_contiguous(tvb, offset, sizeof(guint64));
+	return pletoh64(ptr);
 }
 
 /*

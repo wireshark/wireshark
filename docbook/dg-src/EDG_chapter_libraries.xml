@@ -1,0 +1,254 @@
+<!-- EDG Chapter Libraries -->
+<!-- $Id$ -->
+
+<chapter id="ChapterLibraries">
+  <title>Libraries</title>
+  
+  <section id="ChLibIntro">
+	<title>Introduction</title>
+	<para>
+	Several libraries are needed to build / run Ethereal. Most of the
+	libraries are splitted into three packages:
+	<orderedlist>
+	<listitem>
+	<para>
+	Runtime package: binaries (e.g. win32 DLL's) and alike
+	</para>
+	</listitem>
+	<listitem>
+	<para>
+	Developer package: documentation, header files and alike
+	</para>
+	</listitem>
+	<listitem>
+	<para>
+	Source package: library sources, usually not required to
+	build ethereal
+	</para>
+	</listitem>
+	</orderedlist>
+	<note><title>Note!</title>
+	<para>
+	Win32: The library formats for GCC (cygwin) .a and MSVC .lib are
+	different, only the MSVC library variants are currently 
+	recommended / supported.
+	</para>	
+	</note>
+	<tip><title>Tip!</title>
+	<para>
+	Win32: All required libraries for the MSVC
+	generation are available at: 
+	<ulink	url="http://www.ethereal.com/distribution/win32/development/"/>,
+	but see <xref linkend="ChLibsSetup"/> for an easier way to install the 
+	libraries.
+	</para>
+	</tip>
+	</para>
+  </section>
+	
+  <section id="ChLibsSetup">
+    <title>Win32: Automated library download</title>
+	<tip><title>Tip!</title>
+	<para>
+	It's a really good idea to use the Win32 automated library download to 
+	install the required libraries as it makes this download very easy.
+	</para>
+	</tip>
+	<para>
+	You can download/install all required libraries by using the setup target 
+	of the <filename>Makefile.nmake</filename> from the source package.
+	</para>
+	<para>
+	Before you start the download, you must have installed both
+	the required tools (see <xref linkend="ChapterTools"/>) and also the 
+	Ethereal sources (see <xref linkend="ChSrcObtaining"/>).
+	</para>
+	<para>
+	By default the libraries will be downloaded and installed into 
+	<filename>C:\ethereal-win32-libs</filename>.
+	You can change this to any other location by editing the file
+	<filename>config.nmake</filename> and changing the line containing 
+	the ETHEREAL_LIBS setting to your favourite place (use an absolute path 
+	here).
+	</para>
+	<para>
+	Then enter at the command line:
+	</para>
+	<para>
+	<prompt>&gt;</prompt> <userinput>nmake -f Makefile.nmake setup</userinput>
+	</para>
+	<para>
+	This will first check for all the various tools needed to build Ethereal,
+	as described already in <xref linkend="ChToolsWin32Verify"/>.
+	</para>
+	<para>
+	Then it will download and install (unpack) all required libraries into the
+	directory specified by ETHEREAL_LIBS.
+	</para>
+  </section>
+	  
+	  
+  <section id="ChLibsGTK">
+	<title>GLIB / GDK / GTK / Pango / Atk / GNU libiconv / GNU gettext</title>
+	<para>
+	The libraries (and dependant libraries) of the user interface. See 
+	<xref linkend="ChUIWhatGTK"/> for a detailed description of the GTK 
+	libraries.
+	</para>
+	
+	<section id="ChLibsUnixGTK">
+	<title>Unix: ...</title>
+	<para>
+	Unix: <ulink url="http://www.gtk.org"/>
+	</para>
+	</section>
+
+	<section id="ChLibsWin32GTK">
+	<title>Win32 native: ...</title>
+	<para>
+	Win32 native: <ulink url="http://www.gimp.org/%7Etml/gimp/win32/downloads.html"/>
+	</para>
+	</section>
+	
+  </section>
+  
+  
+  <section id="ChLibsSNMP">
+	<title>Net SNMP</title>
+	<para>
+	"Various tools relating to the Simple Network Management Protocol"
+	</para>
+	
+	<section id="ChLibsUnixSNMP">
+	<title>Unix: Net SNMP</title>
+	<para>
+	Unix: XXX: where to find the right binaries?
+	</para>
+	</section>
+
+	<section id="ChLibsWin32SNMP">
+	<title>Win32 native: Net SNMP</title>
+	<para>
+	Win32 native: XXX: where to find the right binaries?
+	</para>
+	</section>
+		
+  </section>
+  
+
+  <section id="ChLibsADNS">
+	<title>GNU ADNS (optional)</title>
+	<para>
+	"Advanced, easy to use, asynchronous-capable DNS client library and
+utilities."
+	</para>
+	
+	<section id="ChLibsUnixADNS">
+	<title>Unix: GNU ADNS</title>
+	<para>
+	Unix: XXX: where to find the right binaries?
+	</para>
+	</section>
+
+	<section id="ChLibsWin32ADNS">
+	<title>Win32 native: GNU ADNS</title>
+	<para>
+	Win32 native: <ulink url="http://adns.jgaa.com/"/>
+	</para>
+	</section>
+	
+  </section>
+  
+
+  <section id="ChLibsPCRE">
+	<title>PCRE(optional)</title>
+	<para>
+	"Perl compatible regular expressions"
+	</para>
+	
+	<section id="ChLibsUnixPCRE">
+	<title>Unix: PCRE</title>
+	<para>
+	Unix: XXX: where to find the right binaries?
+	</para>
+	</section>
+
+	<section id="ChLibsWin32PCRE">
+	<title>Win32 native: PCRE</title>
+	<para>
+	Win32 native: <ulink url="http://gnuwin32.sourceforge.net/packages/pcre.htm"/>
+	</para>
+	</section>
+		
+  </section>
+  
+  
+  <section id="ChLibsZlib">
+	<title>zlib (optional)</title>
+	<para>
+	"zlib is designed to be a 
+	<ulink url="http://www.gzip.org/zlib/zlib_license.html">free</ulink>,
+	general-purpose, legally unencumbered -- that is, not covered by any
+	patents -- lossless data-compression library for use on virtually any computer
+	hardware and operating system."
+	</para>
+
+	<section id="ChLibsUnixZlib">
+	<title>Unix: zlib</title>
+	<para>
+	Unix: XXX: where to find the right binaries?
+	</para>
+	</section>
+
+	<section id="ChLibsWin32Zlib">
+	<title>Win32 native: zlib</title>
+	<para>
+	Win32 native: <ulink url="http://www.gzip.org/zlib/"/>
+	</para>
+	</section>
+
+  </section>
+  
+  
+  <section id="ChLibsPcap">
+	<title>libpcap/WinPcap (optional)</title>
+	<para>
+	"packet capture library"
+	</para>
+	
+	<section id="ChLibsLibpcap">
+	<title>Unix: libpcap</title>
+	<para>
+	Unix: XXX
+	</para>
+	</section>
+
+	<section id="ChLibsWinpPcap">
+	<title>Win32 native: WinPcap</title>
+	<para>
+	"Windows packet capture library"
+	</para>
+	<para>
+	Win32 native: <ulink url="http://winpcap.polito.it/install/default.htm"/>
+	</para>
+	</section>
+
+  </section>
+
+
+  <section id="ChLibsWimp">
+	<title>Win32: GTK WIMP (optional) for GTK 2.x only</title>
+	<para>
+	"GTK-Wimp ("Windows impersonator") is a GTK theme that blends well into
+	the Windows desktop environment."
+	</para>
+	<para>
+	Wimp is only available for the GTK2.x versions at: 
+	<ulink url="http://gtk-wimp.sourceforge.net/"/>.
+	</para>
+
+  </section>
+
+  
+</chapter>
+<!-- End of EUG Chapter Libraries -->

@@ -312,10 +312,12 @@ ftype_register_string(void)
 
 		string_fvalue_set,		/* set_value */
 		NULL,				/* set_value_integer */
+		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		value_get,			/* get_value */
 		NULL,				/* get_value_integer */
+		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq,
@@ -332,23 +334,25 @@ ftype_register_string(void)
 		slice,
 	};
 	static ftype_t stringz_type = {
-		"FT_STRINGZ",
-		"character string",
-		0,
-		string_fvalue_new,
-		string_fvalue_free,
+		"FT_STRINGZ",			/* name */
+		"character string",		/* pretty name */
+		0,				/* wire_size */
+		string_fvalue_new,		/* new_value */
+		string_fvalue_free,		/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
-		string_fvalue_set,
-		NULL,
-		NULL,
+		string_fvalue_set,		/* set_value */
+		NULL,				/* set_value_integer */
+		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_floating */
 
-		value_get,
-		NULL,
-		NULL,
+		value_get,			/* get_value */
+		NULL,				/* get_value_integer */
+		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,
@@ -364,23 +368,25 @@ ftype_register_string(void)
 		slice,
 	};
 	static ftype_t uint_string_type = {
-		"FT_UINT_STRING",
-		"character string",
-		0,
-		string_fvalue_new,
-		string_fvalue_free,
+		"FT_UINT_STRING",		/* name */
+		"character string",		/* pretty_name */
+		0,				/* wire_size */
+		string_fvalue_new,		/* new_value */
+		string_fvalue_free,		/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
-		string_fvalue_set,
-		NULL,
-		NULL,
+		string_fvalue_set,		/* set_value */
+		NULL,				/* set_value_integer */
+		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_floating */
 
-		value_get,
-		NULL,
-		NULL,
+		value_get,			/* get_value */
+		NULL,				/* get_value_integer */
+		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,

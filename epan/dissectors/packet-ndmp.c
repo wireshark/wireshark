@@ -3474,12 +3474,13 @@ proto_register_ndmp(void)
 	ndmp_protocol_versions,
 	FALSE);
   prefs_register_bool_preference(ndmp_module, "desegment",
-  	"Desegment all NDMP messages spanning multiple TCP segments",
-  	"Whether the dissector should desegment NDMP messages",
+    "Reassemble NDMP messages spanning multiple TCP segments",
+    "Whether the NDMP dissector should reassemble messages spanning multiple TCP segments."
+    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
   	&ndmp_desegment);
   prefs_register_bool_preference(ndmp_module, "defragment",
-  	"Defragment all multi-fragment NDMP messages",
-  	"Whether the dissector should defragment multi-fragment NDMP messages",
+  	"Reassemble fragmented NDMP messages spanning multiple packets",
+  	"Whether the dissector should defragment NDMP messages spanning multiple packets.",
   	&ndmp_defragment);
 }
 

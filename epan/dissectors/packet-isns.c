@@ -1932,10 +1932,10 @@ void proto_register_isns(void)
     /* Register preferences */
     isns_module = prefs_register_protocol(proto_isns, NULL);
     prefs_register_bool_preference(isns_module, "desegment",
-	"Desegment iSNS over TCP messages",
-	"Whether the dissector should desegment "
-	"multi-segment iSNS messages", &isns_desegment);
-
+	"Reassemble iSNS messages spanning multiple TCP segments",
+	"Whether the iSNS dissector should reassemble messages spanning multiple TCP segments."
+	" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+    &isns_desegment);
 }
 
 /* If this dissector uses sub-dissector registration add a registration routine.

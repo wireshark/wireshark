@@ -38,7 +38,6 @@ struct _rtcp_conversation_info
 
 /* Add an RTCP conversation with the given details */
 void rtcp_add_address(packet_info *pinfo,
-                      const unsigned char* ip_addr, int port,
+                      address *addr, int port,
                       int other_port,
                       gchar *setup_method, guint32 setup_frame_number);
-

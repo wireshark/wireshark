@@ -371,6 +371,8 @@ static int hf_artnet_output_physical = -1;
 static int hf_artnet_output_universe = -1;
 static int hf_artnet_output_length = -1;
 static int hf_artnet_output_data = -1;
+static int hf_artnet_output_dmx_data = -1;
+static int hf_artnet_output_data_filter = -1;
 
 /* ArtAddress */
 static int hf_artnet_address = -1;
@@ -491,6 +493,9 @@ static int ett_artnet = -1;
 
 static guint global_udp_port_artnet = UDP_PORT_ARTNET;
 static guint udp_port_artnet = UDP_PORT_ARTNET;
+static guint global_disp_chan_val_type = 0;
+static guint global_disp_col_count = 16;
+static guint global_disp_chan_nr_type = 0;
 
 /* A static handle for the ip dissector */
 static dissector_handle_t ip_handle;
@@ -762,7 +767,21 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
 static guint
 dissect_artnet_output(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-  guint16 length;
+  proto_tree *hi,*si;
+  guint16 length,r,c,row_count;
+  guint8 v;
+  static char string[255];
+  char* ptr;
+  const char* chan_format[] = {
+    "%2u ",
+    "%02x ",
+    "%3u "
+  };
+  const char* string_format[] = {
+    "%03x: %s",
+    "%3u: %s"
+  };
+
   proto_tree_add_item(tree, hf_artnet_output_sequence, tvb,
                       offset, 1, FALSE);
   offset += 1;
@@ -780,7 +799,46 @@ dissect_artnet_output(tvbuff_t *tvb, guint offset, proto_tree *tree)
                       offset, 2, length);
   offset += 2;
 
-  proto_tree_add_item(tree, hf_artnet_output_data, tvb,
+  hi = proto_tree_add_item(tree,
+                           hf_artnet_output_data,
+                           tvb,
+                           offset,
+                           length,
+                           FALSE);
+                                                                                                                
+  si = proto_item_add_subtree(hi, ett_artnet);
+
+  row_count = (length/global_disp_col_count) + ((length%global_disp_col_count) == 0 ? 0 : 1);
+  ptr = string;
+  for (r=0; r < row_count;r++) {
+    for (c=0;(c < global_disp_col_count) && (((r*global_disp_col_count)+c) < length);c++) {
+      if ((c % (global_disp_col_count/2)) == 0) {
+        sprintf(ptr, " ");
+        ptr++;
+      }
+
+      v = tvb_get_guint8(tvb, (offset+(r*global_disp_col_count)+c));
+      if (global_disp_chan_val_type == 0) {
+        v = (v * 100) / 255;
+        if (v == 100) {
+          sprintf(ptr, "FL ");
+        } else {
+          sprintf(ptr, chan_format[global_disp_chan_val_type], v);
+        }
+      } else {
+        sprintf(ptr, chan_format[global_disp_chan_val_type], v);
+      }
+      ptr += strlen(ptr);
+    }
+    
+    proto_tree_add_none_format(si,hf_artnet_output_dmx_data, tvb,
+                               offset+(r*global_disp_col_count), c, 
+                               string_format[global_disp_chan_nr_type], (r*global_disp_col_count)+1, string);
+    ptr = string;
+  }
+
+  /* Add the real type hidden */
+  proto_tree_add_item_hidden(si, hf_artnet_output_data_filter, tvb,
                       offset, length, FALSE );
   offset += length;
 
@@ -2055,7 +2113,19 @@ proto_register_artnet(void) {
     { &hf_artnet_output_data,
       { "DMX data",
         "artnet.output.data",
+        FT_NONE, BASE_DEC, NULL, 0x0,
+        "DMX Data", HFILL }},
+
+    { &hf_artnet_output_data_filter,
+      { "DMX data filter",
+        "artnet.output.data_filter",
         FT_BYTES, BASE_DEC, NULL, 0x0,
+        "DMX Data Filter", HFILL }},
+
+    { &hf_artnet_output_dmx_data,
+      { "DMX data",
+        "artnet.output.dmx_data",
+        FT_NONE, BASE_DEC, NULL, 0x0,
         "DMX Data", HFILL }},
 
     /* ArtAddress */
@@ -2573,6 +2643,28 @@ proto_register_artnet(void) {
 
   module_t *artnet_module;
 
+  static enum_val_t disp_chan_val_types[] = {
+     { "pro", "Percent", 0 },
+     { "hex", "Hexadecimal", 1 },
+     { "dec", "Decimal", 2 },
+     { NULL, NULL, 0 }
+  };
+
+  static enum_val_t disp_chan_nr_types[] = {
+     { "hex", "Hexadecimal", 0 },
+     { "dec", "Decimal", 1 },
+     { NULL, NULL, 0 }
+  };
+
+  static enum_val_t col_count[] = {
+     { "6", "6", 6 },
+     { "10", "10", 10 },
+     { "12", "12", 12 },
+     { "16", "16", 16 },
+     { "24", "24", 24 },
+     { NULL, NULL, 0 }
+  };
+
   proto_artnet = proto_register_protocol("Art-Net",
 				       "ARTNET","artnet");
   proto_register_field_array(proto_artnet,hf,array_length(hf));
@@ -2581,12 +2673,29 @@ proto_register_artnet(void) {
   artnet_module = prefs_register_protocol(proto_artnet,
 					proto_reg_handoff_artnet);
   prefs_register_uint_preference(artnet_module, "udp_port",
-				 "ARTNET UDP Port",
+				 "UDP Port",
 				 "The UDP port on which "
 				 "Art-Net "
 				 "packets will be sent",
 				 10,&global_udp_port_artnet);
 
+  prefs_register_enum_preference(artnet_module, "dmx_disp_chan_val_type",
+            "DMX Display channel value type", 
+            "The way DMX values are displayed", 
+				 &global_disp_chan_val_type,
+            			 disp_chan_val_types, FALSE);
+
+  prefs_register_enum_preference(artnet_module, "dmx_disp_chan_nr_type",
+            "DMX Display channel nr. type",
+            "The way DMX channel numbers are displayed",
+                                 &global_disp_chan_nr_type,
+                                 disp_chan_nr_types, FALSE);
+
+  prefs_register_enum_preference(artnet_module, "dmx_disp_col_count",
+            "DMX Display Column Count",
+            "The number of columns for the DMX display",
+                                 &global_disp_col_count,
+                                 col_count, FALSE);
 }
 
 /* The registration hand-off routing */

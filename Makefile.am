@@ -383,7 +383,6 @@ MAINTAINERCLEANFILES =		\
 
 EXTRA_DIST = \
 	AUTHORS-SHORT		\
-	Ethereal.desktop	\
 	FAQ			\
 	INSTALL.configure       \
 	Makefile.common		\
@@ -448,6 +447,7 @@ EXTRA_DIST = \
 	epan/libethereal.def	\
 	ethereal_be.py		\
 	ethereal_gen.py		\
+	ethereal.desktop	\
 	getopt.c		\
 	getopt.h		\
 	idl2eth.sh		\

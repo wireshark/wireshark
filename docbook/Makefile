@@ -40,12 +40,16 @@ clean:
 	rm -f *.html
 	rm -f htmlhelp.*
 	rm -f *.hhc
+	rm -f *.hhp
 	rm -f *.fo
 	rm -f *.pdf
 	rm -f *.chm
 	rm -rf eug_html
 	rm -rf eug_html_chunked
-	rm -rf toc.hhc htmlhelp.hhp eug_chm
+	rm -rf eug_chm
+	rm -rf edg_html
+	rm -rf edg_html_chunked
+	rm -rf edg_chm
 
 
 images:
@@ -113,14 +117,23 @@ ifdef HHC
 endif
 
 
-edg: edg_validate edg_html_chunked 
-#eug_pdf_a4 eug_html eug_chm 
+edg: edg_validate edg_html_chunked edg_pdf_a4 edg_html edg_chm 
 
 # validate the content
 edg_validate:
 	@ echo --- VALIDATING XML ---
 	$(XMLLINT) --valid --noout developer-guide.xml
 
+# create html single page file
+edg_html:
+	@ echo --- HTML SINGLE PAGE ---
+	mkdir -p edg_html
+	mkdir -p edg_html/graphics
+	mkdir -p edg_html/graphics/toolbar
+	cp ./graphics/*.* edg_html/graphics
+	cp ./graphics/toolbar/*.* edg_html/graphics/toolbar
+	$(XSLTPROC) --nonet $(DOCBOOKXSL)/html/docbook.xsl developer-guide.xml > edg_html/developer-guide.html
+	
 # create html chunked page files
 edg_html_chunked: images
 	@ echo --- HTML CHUNKED ---
@@ -130,4 +143,38 @@ edg_html_chunked: images
 	cp ./graphics/*.* edg_html_chunked/graphics
 	cp ./graphics/toolbar/*.* edg_html_chunked/graphics/toolbar
 	$(XSLTPROC) --stringparam base.dir edg_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet $(DOCBOOKXSL)/html/chunk.xsl developer-guide.xml
+
+# create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
+# you will get lot's of errors, but that's ok
+edg_pdf_us: images
+ifdef FOP
+	@ echo --- PDF US PAPER ---
+	$(XSLTPROC) --nonet custom_layer_pdf.xsl $(DOCBOOKXSL)/fo/docbook.xsl developer-guide.xml > developer-guide.fo
+	$(FOP) developer-guide.fo developer-guide.pdf
+endif
+
+# create pdf file (through XSL-FO), portrait pages on A4 paper
+# you will get lot's of errors, but that's ok
+edg_pdf_a4: images
+ifdef FOP
+	@ echo --- PDF A4 PAPER ---
+	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl developer-guide.xml > developer-guide.fo
+	$(FOP) developer-guide.fo developer-guide.pdf
+endif
+
+# create MS html help file (through html chunked pages)
+edg_chm: images
+ifdef HHC
+	@ echo --- MICROSOFT HTML HELP ---
+	mkdir -p edg_chm
+	mkdir -p edg_chm/graphics
+	mkdir -p edg_chm/graphics/toolbar
+	cp ./graphics/*.* edg_chm/graphics
+	cp ./graphics/toolbar/*.* edg_chm/graphics/toolbar
+	$(XSLTPROC) --stringparam base.dir edg_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet $(DOCBOOKXSL)/htmlhelp/htmlhelp.xsl developer-guide.xml
+	-$(HHC) htmlhelp.hhp
+	mv htmlhelp.chm developer-guide.chm
+	rm -r htmlhelp.hhp
+	rm -r toc.hhc
+endif
 

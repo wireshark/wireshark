@@ -803,8 +803,9 @@ proto_register_mysql(void)
 
 	mysql_module = prefs_register_protocol(proto_mysql, NULL);
 	prefs_register_bool_preference(mysql_module, "desegment_buffers",
-		"Desegment all MySQL buffers spanning multiple TCP segments",
-		"Whether the MySQL dissector should desegment all MySQL buffers spanning multiple TCP segments",
+		"Reassemble MySQL buffers spanning multiple TCP segments",
+		"Whether the MySQL dissector should reassemble MySQL buffers spanning multiple TCP segments."
+		" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 		&mysql_desegment);
 }
 

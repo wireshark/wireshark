@@ -115,19 +115,21 @@ Single-byte accessor:
 
 guint8  tvb_get_guint8(tvbuff_t*, gint offset);
 
-Network-to-host-order access for shorts (guint16), longs (guint24), and
-24-bit ints:
+Network-to-host-order access for 16-bit integers (guint16), 32-bit
+integers (guint32), 24-bit integers, and 64-bit integers (guint64):
 
 guint16 tvb_get_ntohs(tvbuff_t*, gint offset);
 guint32 tvb_get_ntohl(tvbuff_t*, gint offset);
 guint32 tvb_get_ntoh24(tvbuff_t*, gint offset);
+guint64 tvb_get_ntoh64(tvbuff_t*, gint offset);
 
-Little-Endian-to-host-order access for shorts (guint16), longs (guint24), and
-24-bit ints:
+Little-Endian-to-host-order access for 16-bit integers (guint16), 32-bit
+integers (guint32), 24-bit integers, and 64-bit integers (guint64):
 
 guint16 tvb_get_letohs(tvbuff_t*, gint offset);
 guint32 tvb_get_letohl(tvbuff_t*, gint offset);
 guint32 tvb_get_letoh24(tvbuff_t*, gint offset);
+guint64 tvb_get_letoh64(tvbuff_t*, gint offset);
 
 
 Copying memory:

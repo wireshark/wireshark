@@ -268,13 +268,13 @@ static const sip_header_t sip_headers[] = {
 #define POS_SIP_IF_MATCH					70
 
 static gint hf_header_array[] = {
-				-1, /* "Unknown-header" - Pad so that the real headers start at index 1 */
-				-1, /* "Accept" */
-				-1, /* "Accept-Encoding" */
+                -1, /* "Unknown-header" - Pad so that the real headers start at index 1 */
+                -1, /* "Accept" */
+                -1, /* "Accept-Encoding" */
                 -1, /* "Accept-Language" */
                 -1, /* "Alert-Info" */
                 -1, /* "Allow" */
-				-1, /* "Allow-Events" - RFC 3265 */
+                -1, /* "Allow-Events" - RFC 3265 */
                 -1, /* "Authentication-Info" */
                 -1, /* "Authorization" */
                 -1, /* "Call-ID" */
@@ -289,7 +289,7 @@ static gint hf_header_array[] = {
                 -1, /* "Date" */
                 -1, /* "Error-Info" */
                 -1, /* "Expires" */
-				-1, /* "Event" - RFC 3265 */
+                -1, /* "Event" - RFC 3265 */
                 -1, /* "From" */
                 -1, /* "In-Reply-To" */
                 -1, /* "Max-Forwards" */
@@ -300,8 +300,8 @@ static gint hf_header_array[] = {
                 -1, /* "Proxy-Authenticate" */
                 -1, /* "Proxy-Authorization" */
                 -1, /* "Proxy-Require" */
-				-1, /* "RAck" - RFC 3262 */
-				-1, /* "RSeq" - RFC 3261 */
+                -1, /* "RAck" - RFC 3262 */
+                -1, /* "RSeq" - RFC 3261 */
                 -1, /* "Record-Route" */
                 -1, /* "Reply-To" */
                 -1, /* "Require" */
@@ -309,7 +309,7 @@ static gint hf_header_array[] = {
                 -1, /* "Route" */
                 -1, /* "Server" */
                 -1, /* "Subject" */
-				-1, /* "Subscription-State" - RFC 3265 */
+                -1, /* "Subscription-State" - RFC 3265 */
                 -1, /* "Supported" */
                 -1, /* "Timestamp" */
                 -1, /* "To" */
@@ -2013,6 +2013,7 @@ void proto_register_sip(void)
             "SIP", "sip");
         proto_raw_sip = proto_register_protocol("Session Initiation Protocol (SIP as raw text)",
             "Raw_SIP", "raw_sip");
+        new_register_dissector("sip", dissect_sip, proto_sip);
 
         /* Required function calls to register the header fields and subtrees used */
         proto_register_field_array(proto_sip, hf, array_length(hf));
@@ -2020,9 +2021,7 @@ void proto_register_sip(void)
         proto_register_subtree_array(ett_raw, array_length(ett_raw));
 
 	/* SIP content type and internet media type used by other dissectors are the same */
-
 	media_type_dissector_table = find_dissector_table("media_type");
-
 
         sip_module = prefs_register_protocol(proto_sip, NULL);
 

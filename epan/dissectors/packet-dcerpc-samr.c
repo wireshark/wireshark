@@ -1742,25 +1742,77 @@ samr_dissect_decrypted_NT_PASSCHANGE_BLOCK(tvbuff_t *tvb, int offset,
     }
 }
 
-static int
-samr_dissect_NT_PASSCHANGE_BLOCK(tvbuff_t *tvb, int offset,
-				 packet_info *pinfo _U_, proto_tree *tree,
-				 guint8 *drep _U_)
+tvbuff_t *
+decrypt_tvb_using_nt_password(packet_info *pinfo, tvbuff_t *tvb, int offset, int len)
 {
-	dcerpc_info *di;
+	rc4_state_struct rc4_state;
+	guint i;
 	size_t password_len;
 	unsigned char *password_unicode;
 	size_t password_len_unicode;
 	unsigned char password_md4_hash[16];
 	guint8 *block;
 	tvbuff_t *decr_tvb; /* Used to store decrypted buffer */
-	rc4_state_struct rc4_state;
-	guint i;
-	
+
+	if (nt_password[0] == '\0') {
+		/* We dont have an NT password, so we cant decrypt the 
+		   blob. */
+		return NULL;
+	}
+
 	/* This implements the the algorithm discussed in lkcl -"DCE/RPC 
 	   over SMB" page 257.  Note that this code does not properly support
 	   Unicode. */
 
+	/* Convert the password provided in the Ethereal GUI to Unicode 
+	   (UCS-2).  Since the input is always ASCII, we can just fake
+	   it and pad every other byte with a NUL.  If we ever support
+	   UTF-8 in the GUI, we would have to perform a real UTF-8 to
+	   UCS-2 conversion */
+	password_len = strlen(nt_password);
+	password_len_unicode = password_len*2;
+	password_unicode = g_malloc(password_len_unicode);
+	for (i = 0; i < password_len; i++) {
+		password_unicode[i*2] = nt_password[i];
+		password_unicode[i*2+1] = 0;
+	}
+
+	/* Run MD4 against the resulting Unicode password.  This will
+	   be used to perform RC4 decryption on the blob.  
+	   Then free the Unicode password, as we're done
+	   with it. */
+	crypt_md4(password_md4_hash, password_unicode,
+	    password_len_unicode);
+	g_free(password_unicode);
+	
+	/* Copy the block into a temporary buffer so we can decrypt
+	   it */
+	block = g_malloc(len);
+	memset(block, 0, len);
+	tvb_memcpy(tvb, block, offset, len);
+
+	/* RC4 decrypt the block with the old NT password hash */
+	crypt_rc4_init(&rc4_state, password_md4_hash, 16);
+	crypt_rc4(&rc4_state, block, len);
+
+	/* Show the decrypted buffer in a new window */
+	decr_tvb = tvb_new_real_data(block, len, len);
+	tvb_set_free_cb(decr_tvb, g_free);
+	tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
+	add_new_data_source(pinfo, decr_tvb,
+	    "Decrypted NT Blob");
+
+	return decr_tvb;
+}
+
+static int
+samr_dissect_NT_PASSCHANGE_BLOCK(tvbuff_t *tvb, int offset,
+				 packet_info *pinfo, proto_tree *tree,
+				 guint8 *drep _U_)
+{
+	dcerpc_info *di;
+	tvbuff_t *decr_tvb; /* Used to store decrypted buffer */
+	
 	di=pinfo->private_data;
 	if(di->conformant_run){
 		/* just a run to handle conformant arrays, no scalars to dissect */
@@ -1771,53 +1823,14 @@ samr_dissect_NT_PASSCHANGE_BLOCK(tvbuff_t *tvb, int offset,
 	proto_tree_add_text(tree, tvb, offset, NT_BLOCK_SIZE,
 	    "Encrypted NT Password Block");
 
-	if (nt_password[0] != '\0') {
-		/* We have an NT password, so we can decrypt the password
-		   change block. */
+	decr_tvb=decrypt_tvb_using_nt_password(pinfo, tvb, offset, NT_BLOCK_SIZE);
 
-		/* Convert the password provided in the Ethereal GUI to Unicode 
-		   (UCS-2).  Since the input is always ASCII, we can just fake
-		   it and pad every other byte with a NUL.  If we ever support
-		   UTF-8 in the GUI, we would have to perform a real UTF-8 to
-		   UCS-2 conversion */
-		password_len = strlen(nt_password);
-		password_len_unicode = password_len*2;
-		password_unicode = g_malloc(password_len_unicode);
-		for (i = 0; i < password_len; i++) {
-			password_unicode[i*2] = nt_password[i];
-			password_unicode[i*2+1] = 0;
-		}
-
-		/* Run MD4 against the resulting Unicode password.  This will
-		   be used to perform RC4 decryption on the password change
-		   block.  Then free the Unicode password, as we're done
-		   with it. */
-		crypt_md4(password_md4_hash, password_unicode,
-		    password_len_unicode);
-		g_free(password_unicode);
-	
-		/* Copy the block into a temporary buffer so we can decrypt
-		   it */
-		block = g_malloc(NT_BLOCK_SIZE);
-		memset(block, 0, NT_BLOCK_SIZE);
-		tvb_memcpy(tvb, block, offset, NT_BLOCK_SIZE);
-	
-		/* RC4 decrypt the block with the old NT password hash */
-		crypt_rc4_init(&rc4_state, password_md4_hash, 16);
-		crypt_rc4(&rc4_state, block, NT_BLOCK_SIZE);
-
-		/* Show the decrypted buffer in a new window */
-		decr_tvb = tvb_new_real_data(block, NT_BLOCK_SIZE,
-		    NT_BLOCK_SIZE);
-		tvb_set_free_cb(decr_tvb, g_free);
-		tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
-		add_new_data_source(pinfo, decr_tvb,
-		    "Decrypted NT Password Block");
-
+	if(decr_tvb){
 		/* Dissect the decrypted block */
 		samr_dissect_decrypted_NT_PASSCHANGE_BLOCK(decr_tvb, 0, pinfo,
 							   tree, drep);
 	}
+
 	offset += NT_BLOCK_SIZE;
 	return offset;
 }

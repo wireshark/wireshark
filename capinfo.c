@@ -97,24 +97,20 @@ print_stats(capture_info *cf_info)
 {
   const gchar		*file_type_string;
   time_t		start_time_t;
-  struct tm		*start_time_tm;
   time_t		stop_time_t;
-  struct tm		*stop_time_tm;
 
   /* Build printable strings for various stats */
   file_type_string = wtap_file_type_string(cf_info->file_type);
-  start_time_t = (long)cf_info->start_time;
-  stop_time_t = (long)cf_info->stop_time;
-  start_time_tm = localtime (&start_time_t);
-  stop_time_tm = localtime (&stop_time_t);
+  start_time_t = (time_t)cf_info->start_time;
+  stop_time_t = (time_t)cf_info->stop_time;
 
   if (cap_file_type) printf("File Type: %s\n", file_type_string);
   if (cap_packet_count) printf("Number of packets: %u \n", cf_info->packet_count);
   if (cap_file_size) printf("File Size: %" PRIu64 " bytes\n", cf_info->filesize);
   if (cap_data_size) printf("Data Size: %" PRIu64 " bytes\n", cf_info->packet_bytes);
   if (cap_duration) printf("Capture duration: %f seconds\n", cf_info->duration);
-  if (cap_start_time) printf("Start time: %s", asctime (start_time_tm));
-  if (cap_end_time) printf("End time: %s", asctime (stop_time_tm));
+  if (cap_start_time) printf("Start time: %s", ctime (&start_time_t));
+  if (cap_end_time) printf("End time: %s", ctime (&stop_time_t));
   if (cap_data_rate_byte) printf("Data rate: %.2f bytes/s\n", cf_info->data_rate);
   if (cap_data_rate_bit) printf("Data rate: %.2f bits/s\n", cf_info->data_rate*8);
   if (cap_packet_size) printf("Average packet size: %.2f bytes\n", cf_info->packet_size);
@@ -140,30 +136,30 @@ process_cap_file(wtap *wth)
   /* Tally up data that we need to parse through the file to find */
   while (wtap_read(wth, &err, &err_info, &data_offset))  {
     phdr = wtap_phdr(wth);
-	cur_time = secs_usecs(phdr->ts.tv_sec, phdr->ts.tv_usec);
-	if(packet==0) {
-	  start_time = cur_time;
-	  stop_time = cur_time;
-	}
-	if (cur_time < start_time) {
-	  start_time = cur_time;
-	}
-	if (cur_time > stop_time) {
-	  stop_time = cur_time;
-	}
-	bytes+=phdr->len;
+    cur_time = secs_usecs(phdr->ts.tv_sec, phdr->ts.tv_usec);
+    if(packet==0) {
+      start_time = cur_time;
+      stop_time = cur_time;
+    }
+    if (cur_time < start_time) {
+      start_time = cur_time;
+    }
+    if (cur_time > stop_time) {
+      stop_time = cur_time;
+    }
+    bytes+=phdr->len;
     packet++;
   }
   
   if (err != 0) {
     fprintf(stderr, "Error after reading %i packets\n", packet);
-	exit(1);
+    exit(1);
   }
 
   /* File size */
   if (fstat(wtap_fd(wth), &cf_stat) < 0) {
     wtap_close(wth);
-	return 1;
+    return 1;
   }
   
   cf_info.filesize = cf_stat.st_size;
@@ -178,7 +174,7 @@ process_cap_file(wtap *wth)
   cf_info.start_time = start_time;
   cf_info.stop_time = stop_time;
   cf_info.duration = stop_time-start_time;
-	
+
   /* Number of packet bytes */
   cf_info.packet_bytes = bytes;
   
@@ -199,7 +195,7 @@ static void usage(gboolean is_error)
   
   if (!is_error) {
     output = stdout;
-	/* XXX - add capinfo header info here */
+    /* XXX - add capinfo header info here */
   }
   else {
     output = stderr;
@@ -239,45 +235,45 @@ int main(int argc, char *argv[])
 
     switch (opt) {
 
-	case 't':
-	  cap_file_type = TRUE;
-	  break;
+    case 't':
+      cap_file_type = TRUE;
+      break;
 
-	case 'c':
-	  cap_packet_count = TRUE;
-	  break;
+    case 'c':
+      cap_packet_count = TRUE;
+      break;
 
-	case 's':
-	  cap_file_size = TRUE;
-	  break;
+    case 's':
+      cap_file_size = TRUE;
+      break;
 
-	case 'd':
-	  cap_data_size = TRUE;
-	  break;
+    case 'd':
+      cap_data_size = TRUE;
+      break;
 
-	case 'u':
-	  cap_duration = TRUE;
-	  break;
+    case 'u':
+      cap_duration = TRUE;
+      break;
 
-	case 'a':
-	  cap_start_time = TRUE;
-	  break;
+    case 'a':
+      cap_start_time = TRUE;
+      break;
 
-	case 'e':
-	  cap_end_time = TRUE;
-	  break;
+    case 'e':
+      cap_end_time = TRUE;
+      break;
 
-	case 'y':
-	  cap_data_rate_byte = TRUE;
-	  break;
+    case 'y':
+      cap_data_rate_byte = TRUE;
+      break;
 
-	case 'i':
-	  cap_data_rate_bit = TRUE;
-	  break;
+    case 'i':
+      cap_data_rate_bit = TRUE;
+      break;
 
-	case 'z':
-	  cap_packet_size = TRUE;
-	  break;
+    case 'z':
+      cap_packet_size = TRUE;
+      break;
 
     case 'h':
       usage(FALSE);
@@ -288,9 +284,7 @@ int main(int argc, char *argv[])
       usage(TRUE);
       exit(1);
       break;
-
     }
-
   }
 
   if (optind < 2) {
@@ -307,12 +301,11 @@ int main(int argc, char *argv[])
     cap_data_rate_byte = TRUE;
     cap_data_rate_bit = TRUE;
     cap_packet_size = TRUE;
-
   }
   
   if ((argc - optind) < 1) {
     usage(TRUE);
-	exit(1);
+    exit(1);
   }
   
   wth = wtap_open_offline(argv[optind], &err, &err_info, FALSE);
@@ -330,7 +323,6 @@ int main(int argc, char *argv[])
       break;
     }
     exit(1);
-
   }
 
   status = process_cap_file(wth);

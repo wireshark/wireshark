@@ -113,7 +113,6 @@ static GtkWidget *file_save_as_w;
 #endif
 
 #define PREVIEW_STR_MAX         200
-#define PREVIEW_TIMEOUT_SECS    3
 
 static double
 secs_usecs( guint32 s, guint32 us)
@@ -123,29 +122,19 @@ secs_usecs( guint32 s, guint32 us)
 
 
 /* set a new filename for the preview widget */
-static gboolean
+static wtap *
 preview_set_filename(GtkWidget *prev, const gchar *cf_name)
 {
     GtkWidget  *label;
     wtap       *wth;
-    const struct wtap_pkthdr *phdr;
     int         err = 0;
     gchar      *err_info;
     struct stat cf_stat;
-    long        data_offset;
     gchar       string_buff[PREVIEW_STR_MAX];
-    unsigned int packet = 0;
-    double      start_time = 0;	/* seconds, with msec resolution */
-    double      stop_time = 0;	/* seconds, with msec resolution */
-    double      cur_time;
-    time_t      ti_time;
-    struct tm  *ti_tm;
-    unsigned int elapsed_time;
-    time_t      time_preview;
-    time_t      time_current;
-    gboolean    is_breaked = FALSE;
     guint64     filesize;
 
+
+    /* init preview labels */
     label = OBJECT_GET_DATA(prev, PREVIEW_FILENAME_KEY);
     gtk_label_set_text(GTK_LABEL(label), "-");
     label = OBJECT_GET_DATA(prev, PREVIEW_FORMAT_KEY);
@@ -200,11 +189,37 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     label = OBJECT_GET_DATA(prev, PREVIEW_FORMAT_KEY);
     gtk_label_set_text(GTK_LABEL(label), string_buff);
 
+    return wth;
+}
+
+
+/* do a preview run on the currently selected capture file */
+static void
+preview_do(GtkWidget *prev, wtap *wth)
+{
+    GtkWidget  *label;
+    unsigned int elapsed_time;
+    time_t      time_preview;
+    time_t      time_current;
+    int         err = 0;
+    gchar      *err_info;
+    long        data_offset;
+    const struct wtap_pkthdr *phdr;
+    double      start_time = 0;	/* seconds, with msec resolution */
+    double      stop_time = 0;	/* seconds, with msec resolution */
+    double      cur_time;
+    unsigned int packets = 0;
+    gboolean    is_breaked = FALSE;
+    gchar       string_buff[PREVIEW_STR_MAX];
+    time_t      ti_time;
+    struct tm  *ti_tm;
+
+
     time(&time_preview);
     while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
         phdr = wtap_phdr(wth);        
         cur_time = secs_usecs(phdr->ts.tv_sec, phdr->ts.tv_usec);
-        if(packet == 0) {
+        if(packets == 0) {
             start_time 	= cur_time;
             stop_time = cur_time;
         }
@@ -214,10 +229,12 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
         if (cur_time > stop_time){
             stop_time = cur_time;
         }
-        packet++;
-        if(packet%100) {
+
+        packets++;
+        if(packets%1000) {
+            /* do we have a timeout? */
             time(&time_current);
-            if(time_current-time_preview >= PREVIEW_TIMEOUT_SECS) {
+            if(time_current-time_preview >= (time_t) prefs.gui_fileopen_preview) {
                 is_breaked = TRUE;
                 break;
             }
@@ -225,18 +242,18 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     }
 
     if(err != 0) {
-        g_snprintf(string_buff, PREVIEW_STR_MAX, "error after reading %u packets", packet);
+        g_snprintf(string_buff, PREVIEW_STR_MAX, "error after reading %u packets", packets);
         label = OBJECT_GET_DATA(prev, PREVIEW_PACKETS_KEY);
         gtk_label_set_text(GTK_LABEL(label), string_buff);
         wtap_close(wth);
-        return TRUE;
+        return;
     }
 
     /* packet count */
     if(is_breaked) {
-        g_snprintf(string_buff, PREVIEW_STR_MAX, "more than %u packets (preview timeout)", packet);
+        g_snprintf(string_buff, PREVIEW_STR_MAX, "more than %u packets (preview timeout)", packets);
     } else {
-        g_snprintf(string_buff, PREVIEW_STR_MAX, "%u", packet);
+        g_snprintf(string_buff, PREVIEW_STR_MAX, "%u", packets);
     }
     label = OBJECT_GET_DATA(prev, PREVIEW_PACKETS_KEY);
     gtk_label_set_text(GTK_LABEL(label), string_buff);
@@ -271,8 +288,6 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     gtk_label_set_text(GTK_LABEL(label), string_buff);
 
     wtap_close(wth);
-
-    return TRUE;
 }
 
 #if 0
@@ -298,13 +313,14 @@ update_preview_cb (GtkFileChooser *file_chooser, gpointer data)
 #endif
 
 
-/* the text entry changed */
+/* the filename text entry changed */
 static void
 file_open_entry_changed(GtkWidget *w _U_, gpointer file_sel)
 {
     GtkWidget *prev = OBJECT_GET_DATA(file_sel, PREVIEW_TABLE_KEY);
     const gchar* cf_name;
     gboolean have_preview;
+    wtap       *wth;
 
     /* get the filename */
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
@@ -314,7 +330,8 @@ file_open_entry_changed(GtkWidget *w _U_, gpointer file_sel)
 #endif
 
     /* set the filename to the preview */
-    have_preview = preview_set_filename(prev, cf_name);
+    wth = preview_set_filename(prev, cf_name);
+    have_preview = (gboolean) wth;
 
     /* make the preview widget sensitive */
     gtk_widget_set_sensitive(prev, have_preview);
@@ -325,6 +342,10 @@ file_open_entry_changed(GtkWidget *w _U_, gpointer file_sel)
 #else
     gtk_widget_set_sensitive(GTK_FILE_SELECTION(file_sel)->ok_button, have_preview);
 #endif
+
+    /* do the actual preview */
+    if(have_preview)
+        preview_do(prev, wth);
 }
 
 
@@ -613,6 +634,7 @@ file_open_cmd_cb(GtkWidget *widget, gpointer data _U_) {
   }
 }
 
+/* user pressed "open" button */
 static void
 file_open_ok_cb(GtkWidget *w, gpointer fs) {
   gchar     *cf_name, *rfilter, *s;

@@ -36,7 +36,6 @@
 #include <string.h>
 #include <glib.h>
 #include <ctype.h>
-#include <epan/int-64bit.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include "smb.h"
@@ -4665,8 +4664,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 			proto_item *litem = NULL;
 			proto_tree *ltree = NULL;
 			if(lt&0x10){
-				guint8 buf[8];
-				guint32 val;
+				guint64 val;
 
 				/* large lock format */
 				litem = proto_tree_add_text(tr, tvb, offset, 20,
@@ -4685,32 +4683,16 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 				/* offset */
 				CHECK_BYTE_COUNT(8);
-				val=tvb_get_letohl(tvb, offset);
-				buf[3]=(val>>24)&0xff;
-				buf[2]=(val>>16)&0xff;
-				buf[1]=(val>> 8)&0xff;
-				buf[0]=(val    )&0xff;
-				val=tvb_get_letohl(tvb, offset+4);
-				buf[7]=(val>>24)&0xff;
-				buf[6]=(val>>16)&0xff;
-				buf[5]=(val>> 8)&0xff;
-				buf[4]=(val    )&0xff;
-				proto_tree_add_string(ltree, hf_smb_lock_long_offset, tvb, offset, 8, u64toa(buf));
+				val=((guint64)tvb_get_letohl(tvb, offset)) << 32
+				    | tvb_get_letohl(tvb, offset+4);
+				proto_tree_add_uint64(ltree, hf_smb_lock_long_offset, tvb, offset, 8, val);
 				COUNT_BYTES(8);
 
 				/* length */
 				CHECK_BYTE_COUNT(8);
-				val=tvb_get_letohl(tvb, offset);
-				buf[3]=(val>>24)&0xff;
-				buf[2]=(val>>16)&0xff;
-				buf[1]=(val>> 8)&0xff;
-				buf[0]=(val    )&0xff;
-				val=tvb_get_letohl(tvb, offset+4);
-				buf[7]=(val>>24)&0xff;
-				buf[6]=(val>>16)&0xff;
-				buf[5]=(val>> 8)&0xff;
-				buf[4]=(val    )&0xff;
-				proto_tree_add_string(ltree, hf_smb_lock_long_length, tvb, offset, 8, u64toa(buf));
+				val=((guint64)tvb_get_letohl(tvb, offset)) << 32
+				    | tvb_get_letohl(tvb, offset+4);
+				proto_tree_add_uint64(ltree, hf_smb_lock_long_length, tvb, offset, 8, val);
 				COUNT_BYTES(8);
 			} else {
 				/* normal lock format */
@@ -4749,8 +4731,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 			proto_item *litem = NULL;
 			proto_tree *ltree = NULL;
 			if(lt&0x10){
-				guint8 buf[8];
-				guint32 val;
+				guint64 val;
 
 				/* large lock format */
 				litem = proto_tree_add_text(tr, tvb, offset, 20,
@@ -4769,32 +4750,16 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 				/* offset */
 				CHECK_BYTE_COUNT(8);
-				val=tvb_get_letohl(tvb, offset);
-				buf[3]=(val    )&0xff;
-				buf[2]=(val>> 8)&0xff;
-				buf[1]=(val>>16)&0xff;
-				buf[0]=(val>>24)&0xff;
-				val=tvb_get_letohl(tvb, offset+4);
-				buf[7]=(val    )&0xff;
-				buf[6]=(val>> 8)&0xff;
-				buf[5]=(val>>16)&0xff;
-				buf[4]=(val>>24)&0xff;
-				proto_tree_add_string(ltree, hf_smb_lock_long_offset, tvb, offset, 8, u64toa(buf));
+				val=((guint64)tvb_get_letohl(tvb, offset)) << 32
+				    | tvb_get_letohl(tvb, offset+4);
+				proto_tree_add_uint64(ltree, hf_smb_lock_long_offset, tvb, offset, 8, val);
 				COUNT_BYTES(8);
 
 				/* length */
 				CHECK_BYTE_COUNT(8);
-				val=tvb_get_letohl(tvb, offset);
-				buf[3]=(val    )&0xff;
-				buf[2]=(val>> 8)&0xff;
-				buf[1]=(val>>16)&0xff;
-				buf[0]=(val>>24)&0xff;
-				val=tvb_get_letohl(tvb, offset+4);
-				buf[7]=(val    )&0xff;
-				buf[6]=(val>> 8)&0xff;
-				buf[5]=(val>>16)&0xff;
-				buf[4]=(val>>24)&0xff;
-				proto_tree_add_string(ltree, hf_smb_lock_long_length, tvb, offset, 8, u64toa(buf));
+				val=((guint64)tvb_get_letohl(tvb, offset)) << 32
+				    | tvb_get_letohl(tvb, offset+4);
+				proto_tree_add_uint64(ltree, hf_smb_lock_long_length, tvb, offset, 8, val);
 				COUNT_BYTES(8);
 			} else {
 				/* normal lock format */
@@ -10015,7 +9980,7 @@ dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 
-/* this dissects the SMB_INFO_STANDARD and SMB_INFO_QUERY_EA_SIZE
+/* this dissects the SMB_INFO_STANDARD
    as described in 4.2.16.1
 */
 static int
@@ -10684,9 +10649,12 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	si = (smb_info_t *)pinfo->private_data;
 	switch(si->info_level){
 	case 1:		/*Info Standard*/
+		offset = dissect_4_2_16_1(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
 		
 	case 2:		/*Info Query EA Size*/
-		offset = dissect_4_2_16_1(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_4_2_16_2(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 3:		/*Info Query EAs From List*/
@@ -10771,9 +10739,11 @@ dissect_spi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	si = (smb_info_t *)pinfo->private_data;
 	switch(si->info_level){
 	case 1:		/*Info Standard*/
-		
-	case 2:		/*Info Query EA Size*/
 		offset = dissect_4_2_16_1(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
+	case 2:		/*Info Query EA Size*/
+		offset = dissect_4_2_16_2(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 4:		/*Info Query All EAs*/
@@ -15932,11 +15902,11 @@ proto_register_smb(void)
 		NULL, 0, "Number of unlock requests in this request", HFILL }},
 
 	{ &hf_smb_lock_long_length,
-		{ "Length", "smb.lock.length", FT_STRING, BASE_DEC,
+		{ "Length", "smb.lock.length", FT_UINT64, BASE_DEC,
 		NULL, 0, "Length of lock/unlock region", HFILL }},
 
 	{ &hf_smb_lock_long_offset,
-		{ "Offset", "smb.lock.offset", FT_STRING, BASE_DEC,
+		{ "Offset", "smb.lock.offset", FT_UINT64, BASE_DEC,
 		NULL, 0, "Offset in the file of lock/unlock region", HFILL }},
 
 	{ &hf_smb_file_type,

@@ -234,13 +234,15 @@ ftype_register_tvbuff(void)
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
-		value_set,
-		NULL,
-		NULL,
+		value_set,			/* set_value */
+		NULL,				/* set_value_integer */
+		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_floating */
 
-		value_get,
-		NULL,
-		NULL,
+		value_get,			/* get_value */
+		NULL,				/* get_value_integer */
+		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_floating */
 
 
 		/* TODO - tvb's *can* do 'eq', etc. */

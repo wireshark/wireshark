@@ -592,7 +592,6 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 {
 	proto_item *ti = NULL;
 	proto_tree *subtree = NULL;
-	proto_tree *subtree_details = NULL;
 	char *str;
 	gint str_size;
 	guint32 offset, tiff_start;
@@ -707,6 +706,8 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 		offset += 4;
 		proto_tree_add_text(subtree, tvb, offset, -1, "Remainder of APP1 marker skipped");
 	} else {
+		proto_tree_add_text(subtree, tvb, offset, -1,
+				"Remaining segment data (%u bytes)", len - 2 - str_size);
 		proto_item_append_text(ti, " (Unknown identifier)");
 	}
 }
@@ -721,7 +722,6 @@ process_app2_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 {
 	proto_item *ti = NULL;
 	proto_tree *subtree = NULL;
-	proto_tree *subtree_details = NULL;
 	char *str;
 	gint str_size;
 
@@ -742,6 +742,8 @@ process_app2_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 	if (strcmp(str, "FPXR") == 0) {
 		proto_tree_add_text(tree, tvb, 0, -1, "Exif FlashPix APP2 application marker");
 	} else {
+		proto_tree_add_text(subtree, tvb, 4 + str_size, -1,
+				"Remaining segment data (%u bytes)", len - 2 - str_size);
 		proto_item_append_text(ti, " (Unknown identifier)");
 	}
 }

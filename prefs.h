@@ -125,9 +125,10 @@ typedef struct _e_prefs {
   gboolean gui_geometry_save_size;
   gboolean gui_geometry_save_maximized;
   console_open_e gui_console_open;
-  guint    gui_fileopen_style;
   guint    gui_recent_files_count_max;
+  guint    gui_fileopen_style;
   gchar	   *gui_fileopen_dir;
+  guint    gui_fileopen_preview;
   gboolean gui_ask_unsaved;
   gboolean gui_find_wrap;
   gchar   *gui_webbrowser;

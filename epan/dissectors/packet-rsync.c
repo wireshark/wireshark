@@ -326,9 +326,10 @@ proto_register_rsync(void)
 				   10,
 				   &glb_rsync_tcp_port);
     prefs_register_bool_preference(rsync_module, "desegment",
-        "Desegment all RSYNC messages\nspanning multiple TCP segments",
-	"Whether the RSYNC dissector should desegment all messages spanning multiple TCP segments",
-				   &rsync_desegment);
+	    "Reassemble RSYNC messages spanning multiple TCP segments",
+	    "Whether the RSYNC dissector should reassemble messages spanning multiple TCP segments."
+	    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+	    &rsync_desegment);
 }
 void
 proto_reg_handoff_rsync(void)

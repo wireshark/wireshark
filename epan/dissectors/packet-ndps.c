@@ -8846,12 +8846,13 @@ proto_register_ndps(void)
 
 	ndps_module = prefs_register_protocol(proto_ndps, NULL);
 	prefs_register_bool_preference(ndps_module, "desegment_tcp",
-	    "Desegment all NDPS messages spanning multiple TCP segments",
-	    "Whether the NDPS dissector should desegment all messages spanning multiple TCP segments",
+	    "Reassemble NDPS messages spanning multiple TCP segments",
+	    "Whether the NDPS dissector should reassemble messages spanning multiple TCP segments."
+	    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &ndps_desegment);
 	prefs_register_bool_preference(ndps_module, "desegment_spx",
-	    "Desegment all NDPS messages spanning multiple SPX packets",
-	    "Whether the NDPS dissector should desegment all messages spanning multiple SPX packets",
+	    "Reassemble fragmented NDPS messages spanning multiple SPX packets",
+	    "Whether the NDPS dissector should reassemble fragmented NDPS messages spanning multiple SPX packets",
 	    &ndps_defragment);
 	prefs_register_bool_preference(ndps_module, "show_oid",
 	    "Display NDPS Details",

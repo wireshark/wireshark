@@ -222,6 +222,7 @@ static gint hf_krb_PRIV_BODY = -1;
 static gint hf_krb_ENC_PRIV = -1;
 static gint hf_krb_authenticator_enc = -1;
 static gint hf_krb_ticket_enc = -1;
+static gint hf_krb_e_checksum = -1;
 
 static gint ett_krb_kerberos = -1;
 static gint ett_krb_TransitedEncoding = -1;
@@ -263,7 +264,7 @@ static gint ett_krb_ticket = -1;
 static gint ett_krb_ticket_enc = -1;
 static gint ett_krb_PRIV = -1;
 static gint ett_krb_PRIV_enc = -1;
-
+static gint ett_krb_e_checksum = -1;
 
 guint32 krb5_errorcode;
 
@@ -305,15 +306,17 @@ static char *keytab_filename = "insert filename here";
 #ifdef HAVE_HEIMDAL_KERBEROS
 #include <krb5.h>
 
+#define MAX_ORIG_LEN	256
 typedef struct _enc_key_t {
 	struct _enc_key_t	*next;
 	krb5_keytab_entry	key;
+	char 			key_origin[MAX_ORIG_LEN+1];
 } enc_key_t;
 static enc_key_t *enc_key_list=NULL;
 
 
 static void
-add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *keyvalue)
+add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *keyvalue, char *origin)
 {
 	enc_key_t *new_key;
 
@@ -323,6 +326,7 @@ add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *k
 printf("added key in %d\n",pinfo->fd->num);
 
 	new_key=g_malloc(sizeof(enc_key_t));
+	sprintf(new_key->key_origin, "%s learnt from frame %d",origin,pinfo->fd->num);
 	new_key->next=enc_key_list;
 	enc_key_list=new_key;
 	new_key->key.principal=NULL;
@@ -361,6 +365,18 @@ read_keytab_file(char *filename, krb5_context *context)
 		new_key->next=enc_key_list;
 		ret = krb5_kt_next_entry(*context, keytab, &(new_key->key), &cursor);
 		if(ret==0){
+			unsigned int i;
+			char *pos;
+
+			/* generate origin string, describing where this key came from */
+			pos=new_key->key_origin;
+			pos+=sprintf(pos, "keytab principal ");
+			for(i=0;i<new_key->key.principal->name.name_string.len;i++){
+				pos+=sprintf(pos,"%s%s",(i?"/":""),new_key->key.principal->name.name_string.val[i]);
+			}
+			pos+=sprintf(pos,"@%s",new_key->key.principal->realm);
+			*pos=0;
+
 			enc_key_list=new_key;
 		}
 	}while(ret==0);
@@ -374,7 +390,7 @@ read_keytab_file(char *filename, krb5_context *context)
 
 
 static guint8 *
-decrypt_krb5_data(packet_info *pinfo,
+decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			krb5_keyusage usage,
 			int length,
 			const char *cryptotext,
@@ -432,6 +448,7 @@ decrypt_krb5_data(packet_info *pinfo,
 		g_free(cryptocopy);
 		if (ret == 0) {
 printf("woohoo decrypted keytype:%d in frame:%d\n", keytype, pinfo->fd->num);
+			proto_tree_add_text(tree, NULL, 0, 0, "[Decrypted using: %s]", ek->key_origin);
 			krb5_crypto_destroy(context, crypto);
 			return data.data;
 		}
@@ -516,6 +533,11 @@ printf("woohoo decrypted keytype:%d in frame:%d\n", keytype, pinfo->fd->num);
 #define KRB5_CHKSUM_KRB_DES_MAC_K       5
 #define KRB5_CHKSUM_MD5                 7
 #define KRB5_CHKSUM_MD5_DES             8
+/* the following four comes from packetcable */
+#define KRB5_CHKSUM_MD5_DES3            9
+#define KRB5_CHKSUM_HMAC_SHA1_DES3_KD   12
+#define KRB5_CHKSUM_HMAC_SHA1_DES3      13
+#define KRB5_CHKSUM_SHA1_UNKEYED        14
 #define KRB5_CHKSUM_HMAC_MD5            0xffffff76
 #define KRB5_CHKSUM_MD5_HMAC            0xffffff77
 #define KRB5_CHKSUM_RC4_MD5             0xffffff78
@@ -857,6 +879,10 @@ static const value_string krb5_checksum_types[] = {
     { KRB5_CHKSUM_KRB_DES_MAC_K   , "krb-des-mac-k" },
     { KRB5_CHKSUM_MD5             , "md5" },
     { KRB5_CHKSUM_MD5_DES         , "md5-des" },
+    { KRB5_CHKSUM_MD5_DES3        , "md5-des3" },
+    { KRB5_CHKSUM_HMAC_SHA1_DES3_KD, "hmac-sha1-des3-kd" },
+    { KRB5_CHKSUM_HMAC_SHA1_DES3  , "hmac-sha1-des3" },
+    { KRB5_CHKSUM_SHA1_UNKEYED    , "sha1 (unkeyed)" },
     { KRB5_CHKSUM_HMAC_MD5        , "hmac-md5" },
     { KRB5_CHKSUM_MD5_HMAC        , "md5-hmac" },
     { KRB5_CHKSUM_RC4_MD5         , "rc5-md5" },
@@ -1374,6 +1400,7 @@ dissect_krb5_name_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 	}
 	return offset;
 }
+static char name_string_separator;
 static int 
 dissect_krb5_name_string(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
@@ -1381,7 +1408,8 @@ dissect_krb5_name_string(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
 
 	offset=dissect_ber_GeneralString(pinfo, tree, tvb, offset, hf_krb_name_string, name_string, 255);
 	if(tree){
-		proto_item_append_text(tree, " %s", name_string);
+		proto_item_append_text(tree, "%c%s", name_string_separator, name_string);
+		name_string_separator='/';
 	}
 
 	return offset;
@@ -1392,6 +1420,7 @@ static ber_sequence name_stringe_sequence_of[1] = {
 static int 
 dissect_krb5_name_strings(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
+	name_string_separator=' ';
 	offset=dissect_ber_sequence_of(FALSE, pinfo, tree, tvb, offset, name_stringe_sequence_of, -1, -1);
 
 	return offset;
@@ -1595,7 +1624,7 @@ dissect_krb5_decrypt_PA_ENC_TIMESTAMP (packet_info *pinfo, proto_tree *tree, tvb
 	 * == 1
 	 */
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(pinfo, 1, length, tvb_get_ptr(tvb, offset, length), PA_ENC_TIMESTAMP_etype);
+		plaintext=decrypt_krb5_data(tree, pinfo, 1, length, tvb_get_ptr(tvb, offset, length), PA_ENC_TIMESTAMP_etype);
 	}
 
 	if(plaintext){
@@ -1895,7 +1924,7 @@ dissect_krb5_key(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, EncryptionKey_sequence, hf_krb_key, ett_krb_key);
 
 #ifdef HAVE_KERBEROS
-	add_encryption_key(pinfo, keytype, keylength, keyvalue);
+	add_encryption_key(pinfo, keytype, keylength, keyvalue, "key");
 #endif
 	return offset;
 }
@@ -1904,7 +1933,7 @@ dissect_krb5_subkey(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 {
 	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, EncryptionKey_sequence, hf_krb_subkey, ett_krb_subkey);
 #ifdef HAVE_KERBEROS
-	add_encryption_key(pinfo, keytype, keylength, keyvalue);
+	add_encryption_key(pinfo, keytype, keylength, keyvalue, "subkey");
 #endif
 	return offset;
 }
@@ -2769,10 +2798,10 @@ dissect_krb5_decrypt_authenticator_data (packet_info *pinfo, proto_tree *tree, t
 	 * == 11
 	 */
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(pinfo, 7, length, tvb_get_ptr(tvb, offset, length), authenticator_etype);
+		plaintext=decrypt_krb5_data(tree, pinfo, 7, length, tvb_get_ptr(tvb, offset, length), authenticator_etype);
 	}
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(pinfo, 11, length, tvb_get_ptr(tvb, offset, length), authenticator_etype);
+		plaintext=decrypt_krb5_data(tree, pinfo, 11, length, tvb_get_ptr(tvb, offset, length), authenticator_etype);
 	}
 
 	if(plaintext){
@@ -2852,7 +2881,7 @@ dissect_krb5_decrypt_Ticket_data (packet_info *pinfo, proto_tree *tree, tvbuff_t
 	 * 7.5.1
 	 * All Ticket encrypted parts use usage == 2 
 	 */
-	if( (plaintext=decrypt_krb5_data(pinfo, 2, length, tvb_get_ptr(tvb, offset, length), Ticket_etype)) ){
+	if( (plaintext=decrypt_krb5_data(tree, pinfo, 2, length, tvb_get_ptr(tvb, offset, length), Ticket_etype)) ){
 		tvbuff_t *next_tvb;
 		next_tvb = tvb_new_real_data (plaintext,
                                           length,
@@ -2983,7 +3012,7 @@ dissect_krb5_decrypt_AP_REP_data(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 	 * == 11
 	 */
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(pinfo, 12, length, tvb_get_ptr(tvb, offset, length), AP_REP_etype);
+		plaintext=decrypt_krb5_data(tree, pinfo, 12, length, tvb_get_ptr(tvb, offset, length), AP_REP_etype);
 	}
 
 	if(plaintext){
@@ -3090,13 +3119,13 @@ dissect_krb5_decrypt_KDC_REP_data (packet_info *pinfo, proto_tree *tree, tvbuff_
          * == 9
 	 */
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(pinfo, 3, length, tvb_get_ptr(tvb, offset, length), KDC_REP_etype);
+		plaintext=decrypt_krb5_data(tree, pinfo, 3, length, tvb_get_ptr(tvb, offset, length), KDC_REP_etype);
 	}
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(pinfo, 8, length, tvb_get_ptr(tvb, offset, length), KDC_REP_etype);
+		plaintext=decrypt_krb5_data(tree, pinfo, 8, length, tvb_get_ptr(tvb, offset, length), KDC_REP_etype);
 	}
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(pinfo, 9, length, tvb_get_ptr(tvb, offset, length), KDC_REP_etype);
+		plaintext=decrypt_krb5_data(tree, pinfo, 9, length, tvb_get_ptr(tvb, offset, length), KDC_REP_etype);
 	}
 
 	if(plaintext){
@@ -3206,6 +3235,18 @@ dissect_krb5_e_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 }
 
 
+/* This optional field in KRB_ERR is used by the early drafts which 
+ * PacketCable still use.
+ */
+static int 
+dissect_krb5_e_checksum(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, Checksum_sequence, hf_krb_e_checksum, ett_krb_e_checksum);
+
+	return offset;
+}
+
+
 /*
  *  KRB-ERROR ::=   [APPLICATION 30] SEQUENCE {
  *                  pvno[0]               INTEGER,
@@ -3258,6 +3299,8 @@ static ber_sequence ERROR_sequence[] = {
 		dissect_krb5_e_text },
 	{ BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL,
 		dissect_krb5_e_data },
+	{ BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL,
+		dissect_krb5_e_checksum }, /* used by PacketCable */
 	{ 0, 0, 0, NULL }
 };
 static int
@@ -3822,6 +3865,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_pac_namelen, { 
 	    "Name Length", "kerberos.pac.namelen", FT_UINT16, BASE_DEC,
 	    NULL, 0, "Length of client name", HFILL }},
+	{ &hf_krb_e_checksum, {
+	    "e-checksum", "kerberos.e_checksum", FT_NONE, BASE_DEC,
+	    NULL, 0, "This is a Kerberos e-checksum", HFILL }},
     };
 
     static gint *ett[] = {
@@ -3865,6 +3911,7 @@ proto_register_kerberos(void)
 	&ett_krb_PAC_PRIVSVR_CHECKSUM,
 	&ett_krb_PAC_CLIENT_INFO_TYPE,
 	&ett_krb_signedAuthPack,
+	&ett_krb_e_checksum,
     };
     module_t *krb_module;
 
@@ -3875,9 +3922,10 @@ proto_register_kerberos(void)
     /* Register preferences */
     krb_module = prefs_register_protocol(proto_kerberos, NULL);
     prefs_register_bool_preference(krb_module, "desegment",
-	"Desegment Kerberos over TCP messages",
-	"Whether the dissector should desegment "
-	"multi-segment Kerberos messages", &krb_desegment);
+	"Reassemble Kerberos over TCP messages spanning multiple TCP segments",
+	"Whether the Kerberos dissector should reassemble messages spanning multiple TCP segments."
+	" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+    &krb_desegment);
 #ifdef HAVE_KERBEROS
     prefs_register_bool_preference(krb_module, "decrypt",
 	"Try to decrypt Kerberos blobs",

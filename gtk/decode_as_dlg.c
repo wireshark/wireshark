@@ -79,6 +79,9 @@ enum srcdst_type {
 #define E_MENU_SRCDST "menu_src_dst"
 
 #define E_PAGE_ACTION "notebook_page_action"
+#define E_PAGE_DPORT "dport"
+#define E_PAGE_SPORT "sport"
+
 #define E_PAGE_LIST   "notebook_page_list"
 #define E_PAGE_TABLE  "notebook_page_table_name"
 #define E_PAGE_TITLE  "notebook_page_title"
@@ -614,7 +617,7 @@ decode_change_one_dissector(gchar *table_name, guint selector, GtkWidget *list)
 #if GTK_MAJOR_VERSION < 2
     if (!GTK_CLIST(list)->selection)
     {
-	abbrev = "(NULL)";
+	abbrev = NULL;
 	handle = NULL;
     } else {
 	row = GPOINTER_TO_INT(GTK_CLIST(list)->selection->data);
@@ -625,7 +628,7 @@ decode_change_one_dissector(gchar *table_name, guint selector, GtkWidget *list)
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
     if (gtk_tree_selection_get_selected(selection, &model, &iter) == FALSE)
     {
-	abbrev = "(NULL)";
+	abbrev = NULL;
 	handle = NULL;
     } else {
         gtk_tree_model_get(model, &iter, E_LIST_S_PROTO_NAME, &abbrev,
@@ -633,13 +636,14 @@ decode_change_one_dissector(gchar *table_name, guint selector, GtkWidget *list)
     }
 #endif
 
-    if (strcmp(abbrev, "(default)") == 0) {
+    if (abbrev != NULL && strcmp(abbrev, "(default)") == 0) {
 	dissector_reset(table_name, selector);
     } else {
 	dissector_change(table_name, selector, handle);
     }
 #if GTK_MAJOR_VERSION >= 2
-    g_free(abbrev);
+    if (abbrev != NULL)
+	g_free(abbrev);
 #endif
 }
 
@@ -739,7 +743,8 @@ decode_transport(GtkWidget *notebook_pg)
     GtkWidget *menu, *menuitem;
     GtkWidget *list;
     gchar *table_name;
-    gint requested_srcdst;
+    gint requested_srcdst, requested_port;
+    gpointer portp;
 
     list = OBJECT_GET_DATA(notebook_pg, E_PAGE_LIST);
     if (requested_action == E_DECODE_NO)
@@ -764,10 +769,20 @@ decode_transport(GtkWidget *notebook_pg)
     	decode_change_one_dissector(table_name, 0, list);
 	return;
     }
-    if (requested_srcdst != E_DECODE_DPORT)
-	decode_change_one_dissector(table_name, cfile.edt->pi.srcport, list);
-    if (requested_srcdst != E_DECODE_SPORT)
-	decode_change_one_dissector(table_name, cfile.edt->pi.destport, list);
+    if (requested_srcdst != E_DECODE_DPORT) {
+        portp = OBJECT_GET_DATA(notebook_pg, E_PAGE_SPORT);
+        if (portp != NULL) {
+            requested_port = GPOINTER_TO_INT(portp);
+            decode_change_one_dissector(table_name, requested_port, list);
+        }
+    }
+    if (requested_srcdst != E_DECODE_SPORT) {
+        portp = OBJECT_GET_DATA(notebook_pg, E_PAGE_DPORT);
+        if (portp != NULL) {
+            requested_port = GPOINTER_TO_INT(portp);
+            decode_change_one_dissector(table_name, requested_port, list);
+        }
+    }
 }
 
 /**************************************************/
@@ -1017,6 +1032,8 @@ decode_add_srcdst_menu (GtkWidget *page)
 
     OBJECT_SET_DATA(page, E_MENU_SRCDST, menu);
     gtk_option_menu_set_menu(GTK_OPTION_MENU(optmenu), menu);
+    OBJECT_SET_DATA(page, E_PAGE_SPORT, GINT_TO_POINTER(cfile.edt->pi.srcport));
+    OBJECT_SET_DATA(page, E_PAGE_DPORT, GINT_TO_POINTER(cfile.edt->pi.destport));
 
     alignment = decode_add_pack_menu(optmenu);
 

@@ -1682,8 +1682,9 @@ proto_register_srvloc(void)
     proto_register_subtree_array(ett, array_length(ett));
 	srvloc_module = prefs_register_protocol(proto_srvloc, NULL);
 	prefs_register_bool_preference(srvloc_module, "desegment_tcp",
-	    "Desegment all SRVLOC messages spanning multiple TCP segments",
-	    "Whether the SRVLOC dissector should desegment all messages spanning multiple TCP segments",
+	    "Reassemble SRVLOC messages spanning multiple TCP segments",
+	    "Whether the SRVLOC dissector should reassemble messages spanning multiple TCP segments. "
+	    "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &srvloc_desegment);
 }
 

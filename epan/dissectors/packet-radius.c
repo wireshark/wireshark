@@ -52,6 +52,16 @@ static int proto_radius = -1;
 static int hf_radius_length = -1;
 static int hf_radius_code = -1;
 static int hf_radius_id =-1;
+static int hf_radius_cisco_cai = -1;
+static int hf_radius_callingStationId = -1;
+static int hf_radius_calledStationId = -1;
+static int hf_radius_framedAddress = -1;
+static int hf_radius_class = -1;
+static int hf_radius_nasIp = -1;
+static int hf_radius_acctStatusType = -1;
+static int hf_radius_acctSessionId = -1;
+static int hf_radius_3gpp_SgsnIpAddr = -1;
+static int hf_radius_3gpp_GgsnIpAddr = -1;
 
 static char *shared_secret = NULL;
 static gpointer authenticator = NULL;
@@ -98,6 +108,9 @@ typedef struct _rd_vsa_buffer {
 	gchar *str;
 	int offset;
 	guint8 length;
+	gchar *val_str;
+	int val_offset;
+	guint val_len;
 } rd_vsa_buffer;
 
 #define AUTHENTICATOR_LENGTH	16
@@ -2891,6 +2904,8 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
   int vsa_index;
   const radius_attr_info *vsa_attr_info_table;
   const e_avphdr *vsa_avph;
+  gchar *val_str;
+  guint32 val_addr;
 
   /* Default begin */
   strcpy(dest, "Value:");
@@ -2903,10 +2918,34 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
   {
         case( RADIUS_STRING ):
 		rdconvertbufftostr(cont,tvb,offset+2,avph->avp_length-2);
+		switch ( avph->avp_type ) {
+			case (31): /* calling station id */
+				val_str = tvb_get_string(tvb,offset+2,avph->avp_length-2);
+				proto_tree_add_string_hidden(tree, hf_radius_callingStationId, tvb, offset+8,avph->avp_length-8, val_str);
+				g_free(val_str);
+				break;
+			case (30): /* called station id */
+				val_str = tvb_get_string(tvb,offset+2,avph->avp_length-2);
+				proto_tree_add_string_hidden(tree, hf_radius_calledStationId, tvb, offset+8,avph->avp_length-8, val_str);
+				g_free(val_str);
+				break;
+			case(44): /* accounting session id */
+				val_str = tvb_get_string(tvb,offset+2,avph->avp_length-2);
+				proto_tree_add_string_hidden(tree, hf_radius_acctSessionId, tvb, offset+8,avph->avp_length-8, val_str);
+				g_free(val_str);
+				break;
+		}
                 break;
 
         case( RADIUS_BINSTRING ):
 		rdconvertbufftobinstr(cont,tvb,offset+2,avph->avp_length-2);
+		switch ( avph->avp_type ) {
+			case(25): /* class */
+				val_str = tvb_get_string(tvb,offset+2,avph->avp_length-2);
+				proto_tree_add_string_hidden(tree, hf_radius_class, tvb, offset+8,avph->avp_length-8, val_str);
+				g_free(val_str);
+				break;
+		}
                 break;
 
         case( RADIUS_USERPASSWORD ):
@@ -2919,11 +2958,26 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 			sprintf(cont, "%s(%u)", rd_match_strval(intval, attr_info->vs), intval);
 		else
 	                sprintf(cont,"%u", intval);
+		switch ( avph->avp_type ) {
+			case(40): /*accounting status type */
+				proto_tree_add_uint_hidden(tree, hf_radius_acctStatusType, tvb,offset+2,1, intval);
+				break;
+		}
                 break;
 
         case( RADIUS_IP_ADDRESS ):
                 ip_to_str_buf(tvb_get_ptr(tvb,offset+2,4),cont);
-                break;
+		switch ( avph->avp_type ) {
+			case(8): /* framed address */
+				tvb_memcpy(tvb,(guint8 *)&val_addr,offset+2,4);
+				proto_tree_add_ipv4_hidden(tree, hf_radius_framedAddress, tvb,offset+2,4, val_addr);
+				break;
+			case(4): /* nas ip */
+				tvb_memcpy(tvb,(guint8 *)&val_addr,offset+2,4);
+				proto_tree_add_ipv4_hidden(tree, hf_radius_nasIp, tvb,offset+2,4, val_addr);
+				break;
+		}
+		break;
 
         case( RADIUS_IP6_ADDRESS ):
                 ip6_to_str_buf((const struct e_in6_addr *)tvb_get_ptr(tvb,offset+2,16),cont);
@@ -2996,6 +3050,31 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 					tree);
 			vsa_index++;
 			vsa_len += vsa_avph->avp_length;
+			
+			if ( next_attr_info ) {
+				switch ( intval) {
+				case (VENDOR_CISCO):
+					switch ( vsa_avph->avp_type ) {
+					case (250): /* account information */
+						val_str = tvb_get_string(tvb,offset+8,avph->avp_length-8);
+						proto_tree_add_string_hidden(tree, hf_radius_cisco_cai, tvb, offset+8,avph->avp_length-8, val_str);
+						g_free(val_str);
+						break;
+					}
+				case ( VENDOR_THE3GPP ) :
+					switch (vsa_avph->avp_type) {
+					case (6): /* sgsn ip addr*/	
+						tvb_memcpy(tvb,(guint8 *)&val_addr,offset+8,4);
+						proto_tree_add_ipv4_hidden(tree, hf_radius_3gpp_SgsnIpAddr, tvb,offset+2,4, val_addr);
+						break;
+					case (7): /* sgsn ip addr*/	
+						tvb_memcpy(tvb,(guint8 *)&val_addr,offset+8,4);
+						proto_tree_add_ipv4_hidden(tree, hf_radius_3gpp_GgsnIpAddr, tvb,offset+2,4, val_addr);
+						break;				
+					}
+				} 
+				
+			}
 			if (next_attr_info != NULL &&
 			    next_attr_info->value_type == THE3GPP_QOS )
 			{
@@ -3262,9 +3341,10 @@ dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
         rd_value_to_str(textbuffer, &vsabuffer, &avph, tvb, offset,
 			attr_info, vsa_tree);
         proto_item_append_text(ti, ", %s", textbuffer);
-	for (i = 0; vsabuffer[i].str && i < VSABUFFER; i++)
+	for (i = 0; vsabuffer[i].str && i < VSABUFFER; i++) {
 	    proto_tree_add_text(vsa_tree, tvb, vsabuffer[i].offset,
 				vsabuffer[i].length, "%s", vsabuffer[i].str);
+	}
       }
     }
 
@@ -3384,11 +3464,51 @@ proto_register_radius(void)
 		{ &hf_radius_id,
 		{ "Identifier",	"radius.id", FT_UINT8, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
+			
+		{ &hf_radius_cisco_cai,
+		{ "Cisco Account Info",	"radius.cisco.cai", FT_STRING, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+			
+		{ &hf_radius_callingStationId,
+		{ "Calling Station Id",	"radius.calling", FT_STRING, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+			
+		{ &hf_radius_calledStationId,
+		{ "Called Station Id",	"radius.called", FT_STRING, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+			
+		{ &hf_radius_class,
+		{ "Class",	"radius.class", FT_STRING, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+
+		{ &hf_radius_acctSessionId,
+		{ "Accounting Session Id",	"radius.acct.sessionid", FT_STRING, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+
+		{ &hf_radius_framedAddress,
+		{ "Framed Address",	"radius.framed_addr", FT_IPv4, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+			
+		{ &hf_radius_nasIp,
+		{ "Nas IP Address",	"radius.nas_ip", FT_IPv4, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+			
+		{ &hf_radius_3gpp_SgsnIpAddr,
+		{ "SGSN IP Address",	"radius.3gpp.sgsn_ip", FT_IPv4, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+			
+		{ &hf_radius_3gpp_GgsnIpAddr,
+		{ "GGSN IP Address",	"radius.3gpp.ggsn_ip", FT_IPv4, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+
+		{ &hf_radius_acctStatusType,
+		{ "Accounting Status Type",	"radius.acct.status_type", FT_UINT32, BASE_DEC, VALS(radius_accounting_status_type_vals), 0x0,
+			"", HFILL }},
 
 		{ &hf_radius_length,
 		{ "Length","radius.length", FT_UINT16, BASE_DEC, NULL, 0x0,
 			"", HFILL }}
-	};
+	}; 
 	static gint *ett[] = {
 		&ett_radius,
 		&ett_radius_avp,

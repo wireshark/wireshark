@@ -644,8 +644,9 @@ proto_register_fcip (void)
     fcip_module = prefs_register_protocol(proto_fcip, NULL);
     prefs_register_bool_preference(fcip_module,
                                    "desegment",
-                                   "Desegment FCIP messages",
-                                   "When enabled, FCIP messages that span multiple TCP segments are desegmented",
+                                   "Reassemble FCIP messages spanning multiple TCP segments",
+                                   "Whether the FCIP dissector should reassemble messages spanning multiple TCP segments."
+                                   " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
                                    &fcip_desegment);
     prefs_register_uint_preference(fcip_module,
                                    "target_port",

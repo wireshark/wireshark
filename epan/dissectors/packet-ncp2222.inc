@@ -1823,15 +1823,6 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                                         value1, vvalues->vstring);
                                voffset = voffset + value1;
                                voffset += align_4(tvb, voffset);
-                               value2 = tvb_get_letohl(tvb, voffset); /* Bit Count */
-                               voffset=voffset+4;
-                               value3 = tvb_get_letohl(tvb, voffset); /* Bit length */
-                               voffset = voffset+4;
-                               get_string(tvb, voffset, value3, vvalues->vstring);
-                               proto_tree_add_string(nvtree, hf_value_string, tvb, voffset, 
-                                        value3, vvalues->vstring);
-                               voffset = voffset+value3;         
-                               voffset += align_4(tvb, voffset);
                                break;
                        case 0x0000000c:        /* Network Address */
                                value1 = tvb_get_letohl(tvb, voffset); /* length of field */
@@ -4862,9 +4853,10 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_item(ncp_tree, hf_ncp_connection_status, tvb, 7, 1, FALSE);
 
 		/*
-		 * Unless this is a reply, that's all there is to parse.
+		 * Unless this is a successful reply, that's all there
+		 * is to parse.
 		 */
-		if (type != NCP_SERVICE_REPLY)
+		if (type != NCP_SERVICE_REPLY || completion_code != 0)
 			return;
 
                 /* Decode NDS Reply packets */

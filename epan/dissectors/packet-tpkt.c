@@ -379,8 +379,9 @@ proto_register_tpkt(void)
 
 	tpkt_module = prefs_register_protocol(proto_tpkt, NULL);
 	prefs_register_bool_preference(tpkt_module, "desegment",
-	    "Desegment all TPKT messages spanning multiple TCP segments",
-	    "Whether the TPKT dissector should desegment all messages spanning multiple TCP segments",
+	    "Reassemble TPKT messages spanning multiple TCP segments",
+	    "Whether the TPKT dissector should reassemble messages spanning multiple TCP segments. "
+	    "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &tpkt_desegment);
 }
 

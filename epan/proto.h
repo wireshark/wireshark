@@ -747,6 +747,32 @@ extern proto_item *
 proto_tree_add_uint_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
 
+/** Add an FT_UINT64 to a proto_tree.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param value data to display
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, guint64 value);
+
+/** Add a formatted FT_UINT64 to a proto_tree.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param value data to display
+ @param format printf like format string
+ @param ... printf like parameters
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_uint64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, guint64 value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+
 /** Add one of FT_INT8, FT_INT16, FT_INT24 or FT_INT32 to a proto_tree.
  @param tree the tree to append this item to
  @param hfindex field index
@@ -778,6 +804,32 @@ proto_tree_add_int_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint sta
 extern proto_item *
 proto_tree_add_int_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, gint32 value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
+
+/** Add an FT_INT64 to a proto_tree.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param value data to display
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_int64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, gint64 value);
+
+/** Add a formatted FT_INT64 to a proto_tree.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param value data to display
+ @param format printf like format string
+ @param ... printf like parameters
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_int64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, gint64 value, const char *format, ...) GNUC_FORMAT_CHECK(printf,7,8);
 
 /** Useful for quick debugging. Also sends string to STDOUT, so don't
  * leave call to this function in production code.

@@ -142,4 +142,6 @@
 #define GROUP_ACCESS_REMOVE_MEMBER   0x00000008
 #define GROUP_ACCESS_GET_MEMBERS     0x00000010
 
+tvbuff_t *decrypt_tvb_using_nt_password(packet_info *pinfo, tvbuff_t *tvb, int offset, int len);
+
 #endif /* packet-dcerpc-samr.h */

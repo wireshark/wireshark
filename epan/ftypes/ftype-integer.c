@@ -30,11 +30,15 @@
 #include <epan/addr_resolv.h>
 
 /*
- * GLib 1.2[.x] doesn't define G_MAXUINT32; if it's not defined, we define
- * it as the maximum 32-bit unsigned number.
+ * GLib 1.2[.x] doesn't define G_MAXUINT32 or G_MAXUINT64; if they're
+ * not defined, we define them as the maximum 32-bit and 32-bit
+ * unsigned numbers.
  */
 #ifndef G_MAXUINT32
 #define G_MAXUINT32	((guint32)0xFFFFFFFF)
+#endif
+#ifndef G_MAXUINT64
+#define G_MAXUINT64	((guint64)G_GINT64_CONSTANT(0xFFFFFFFFFFFFFFFF))
 #endif
 
 static void
@@ -188,7 +192,136 @@ s_cmp_le(fvalue_t *a, fvalue_t *b)
 static gboolean
 cmp_bitwise_and(fvalue_t *a, fvalue_t *b)
 {
-	return (a->value.integer & b->value.integer);
+	return ((a->value.integer & b->value.integer) != 0);
+}
+
+static void
+int64_fvalue_new(fvalue_t *fv)
+{
+	fv->value.integer64 = 0;
+}
+
+static void
+set_integer64(fvalue_t *fv, guint64 value)
+{
+	fv->value.integer64 = value;
+}
+
+static guint64
+get_integer64(fvalue_t *fv)
+{
+	return fv->value.integer64;
+}
+
+static gboolean
+val64_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+{
+	guint64 value;
+	char    *endptr;
+
+	errno = 0;
+	value = strtoull(s, &endptr, 0);
+
+	if (errno == EINVAL || endptr == s || *endptr != '\0') {
+		/* This isn't a valid number. */
+		if (logfunc != NULL)
+			logfunc("\"%s\" is not a valid number.", s);
+		return FALSE;
+	}
+	if (errno == ERANGE) {
+		if (logfunc != NULL) {
+			if (value == ULONG_MAX) {
+				logfunc("\"%s\" causes an integer overflow.",
+				    s);
+			}
+			else {
+				/*
+				 * XXX - can "strtoul()" set errno to
+				 * ERANGE without returning ULONG_MAX?
+				 */
+				logfunc("\"%s\" is not an integer.", s);
+			}
+		}
+		return FALSE;
+	}
+	if (value > G_MAXUINT64) {
+		/*
+		 * Fits in an unsigned long, but not in a guint64
+		 * (unlikely, but not impossible).
+		 */
+		if (logfunc != NULL)
+			logfunc("\"%s\" causes an integer overflow.", s);
+		return FALSE;
+	}
+
+	fv->value.integer64 = value;
+	return TRUE;
+}
+
+static gboolean
+cmp_eq64(fvalue_t *a, fvalue_t *b)
+{
+	return a->value.integer64 == b->value.integer64;
+}
+
+static gboolean
+cmp_ne64(fvalue_t *a, fvalue_t *b)
+{
+	return a->value.integer64 != b->value.integer64;
+}
+
+static gboolean
+u_cmp_gt64(fvalue_t *a, fvalue_t *b)
+{
+	return (gint64)a->value.integer64 > (gint64)b->value.integer64;
+}
+
+static gboolean
+u_cmp_ge64(fvalue_t *a, fvalue_t *b)
+{
+	return (gint64)a->value.integer64 >= (gint64)b->value.integer64;
+}
+
+static gboolean
+u_cmp_lt64(fvalue_t *a, fvalue_t *b)
+{
+	return (gint64)a->value.integer64 < (gint64)b->value.integer64;
+}
+
+static gboolean
+u_cmp_le64(fvalue_t *a, fvalue_t *b)
+{
+	return (gint64)a->value.integer64 <= (gint64)b->value.integer64;
+}
+
+static gboolean
+s_cmp_gt64(fvalue_t *a, fvalue_t *b)
+{
+	return a->value.integer64 > b->value.integer64;
+}
+
+static gboolean
+s_cmp_ge64(fvalue_t *a, fvalue_t *b)
+{
+	return a->value.integer64 >= b->value.integer64;
+}
+
+static gboolean
+s_cmp_lt64(fvalue_t *a, fvalue_t *b)
+{
+	return a->value.integer64 < b->value.integer64;
+}
+
+static gboolean
+s_cmp_le64(fvalue_t *a, fvalue_t *b)
+{
+	return a->value.integer64 <= b->value.integer64;
+}
+
+static gboolean
+cmp_bitwise_and64(fvalue_t *a, fvalue_t *b)
+{
+	return ((a->value.integer64 & b->value.integer64) != 0);
 }
 
 /* BOOLEAN-specific */
@@ -259,10 +392,12 @@ ftype_register_integers(void)
 
 		NULL,				/* set_value */
 		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq,
@@ -291,10 +426,12 @@ ftype_register_integers(void)
 
 		NULL,				/* set_value */
 		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq,
@@ -323,10 +460,12 @@ ftype_register_integers(void)
 
 		NULL,				/* set_value */
 		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq,
@@ -355,10 +494,12 @@ ftype_register_integers(void)
 
 		NULL,				/* set_value */
 		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq,
@@ -374,6 +515,40 @@ ftype_register_integers(void)
 		NULL,				/* len */
 		NULL,				/* slice */
 	};
+	static ftype_t uint64_type = {
+		"FT_UINT64",			/* name */
+		"unsigned, 8 bytes",		/* pretty_name */
+		8,				/* wire_size */
+		int64_fvalue_new,		/* new_value */
+		NULL,				/* free_value */
+		val64_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
+		NULL,				/* val_to_string_repr */
+		NULL,				/* len_string_repr */
+
+		NULL,				/* set_value */
+		NULL,				/* set_value_integer */
+		set_integer64,			/* set_value_integer64 */
+		NULL,				/* set_value_floating */
+
+		NULL,				/* get_value */
+		NULL,				/* get_value_integer */
+		get_integer64,			/* get_value_integer64 */
+		NULL,				/* get_value_floating */
+
+		cmp_eq64,
+		cmp_ne64,
+		u_cmp_gt64,
+		u_cmp_ge64,
+		u_cmp_lt64,
+		u_cmp_le64,
+		cmp_bitwise_and64,
+		NULL,				/* cmp_contains */
+		NULL,				/* cmp_matches */
+
+		NULL,
+		NULL,
+	};
 	static ftype_t int8_type = {
 		"FT_INT8",			/* name */
 		"signed, 1 byte",		/* pretty_name */
@@ -387,10 +562,12 @@ ftype_register_integers(void)
 
 		NULL,				/* set_value */
 		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq,
@@ -419,10 +596,12 @@ ftype_register_integers(void)
 
 		NULL,				/* set_value */
 		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq,
@@ -451,10 +630,12 @@ ftype_register_integers(void)
 
 		NULL,				/* set_value */
 		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq,
@@ -483,10 +664,12 @@ ftype_register_integers(void)
 
 		NULL,				/* set_value */
 		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq,
@@ -502,6 +685,40 @@ ftype_register_integers(void)
 		NULL,				/* len */
 		NULL,				/* slice */
 	};
+	static ftype_t int64_type = {
+		"FT_INT64",			/* name */
+		"signed, 8 bytes",		/* pretty_name */
+		8,				/* wire_size */
+		int64_fvalue_new,		/* new_value */
+		NULL,				/* free_value */
+		val64_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
+		NULL,				/* val_to_string_repr */
+		NULL,				/* len_string_repr */
+
+		NULL,				/* set_value */
+		NULL,				/* set_value_integer */
+		set_integer64,			/* set_value_integer64 */
+		NULL,				/* set_value_floating */
+
+		NULL,				/* get_value */
+		NULL,				/* get_value_integer */
+		get_integer64,			/* get_value_integer64 */
+		NULL,				/* get_value_floating */
+
+		cmp_eq64,
+		cmp_ne64,
+		s_cmp_gt64,
+		s_cmp_ge64,
+		s_cmp_lt64,
+		s_cmp_le64,
+		cmp_bitwise_and64,
+		NULL,				/* cmp_contains */
+		NULL,				/* cmp_matches */
+
+		NULL,
+		NULL,
+	};
 	static ftype_t boolean_type = {
 		"FT_BOOLEAN",			/* name */
 		"Boolean",			/* pretty_name */
@@ -515,10 +732,12 @@ ftype_register_integers(void)
 
 		NULL,				/* set_value */
 		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
 		bool_eq,			/* cmp_eq */
@@ -548,10 +767,12 @@ ftype_register_integers(void)
 
 		NULL,				/* set_value */
 		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq,
@@ -581,10 +802,12 @@ ftype_register_integers(void)
 
 		NULL,				/* set_value */
 		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq,
@@ -605,10 +828,12 @@ ftype_register_integers(void)
 	ftype_register(FT_UINT16, &uint16_type);
 	ftype_register(FT_UINT24, &uint24_type);
 	ftype_register(FT_UINT32, &uint32_type);
+	ftype_register(FT_UINT64, &uint64_type);
 	ftype_register(FT_INT8, &int8_type);
 	ftype_register(FT_INT16, &int16_type);
 	ftype_register(FT_INT24, &int24_type);
 	ftype_register(FT_INT32, &int32_type);
+	ftype_register(FT_INT64, &int64_type);
 	ftype_register(FT_BOOLEAN, &boolean_type);
 	ftype_register(FT_IPXNET, &ipxnet_type);
 	ftype_register(FT_FRAMENUM, &framenum_type);

@@ -1,0 +1,31 @@
+<!-- EDG Chapter Dissection -->
+<!-- $Id: EDG_chapter_libraries.xml 11816 2004-08-23 19:46:18Z ulfl $ -->
+
+<chapter id="ChapterDissection">
+  <title>Packet dissection</title>
+  
+  <section id="ChDissectWorks">
+	<title>How it works</title>
+	<para>
+	XXX - well, how does it work?
+	</para>
+  </section>
+
+  <section id="ChDissectAdd">
+	<title>Adding a basic dissector</title>
+	<para>
+	The steps to add a new dissector (including some skeleton code) can be 
+	found in the file doc/README.developer.
+	</para>
+  </section>
+
+  <section id="ChDissectConversation">
+	<title>How to use conversations</title>
+	<para>
+	Some info about how to use conversations in a dissector can be 
+	found in the file doc/README.developer.
+	</para>
+  </section>
+
+</chapter>
+<!-- End of EUG Chapter Dissection -->

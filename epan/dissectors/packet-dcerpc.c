@@ -4755,13 +4755,14 @@ proto_register_dcerpc (void)
     dcerpc_module = prefs_register_protocol (proto_dcerpc, NULL);
     prefs_register_bool_preference (dcerpc_module,
                                     "desegment_dcerpc",
-                                    "Desegment all DCE/RPC over TCP",
-                                    "Whether the DCE/RPC dissector should desegment all DCE/RPC over TCP",
+                                    "Reassemble DCE/RPC messages spanning multiple TCP segments",
+                                    "Whether the DCE/RPC dissector should reassemble messages spanning multiple TCP segments."
+                                    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
                                     &dcerpc_cn_desegment);
     prefs_register_bool_preference (dcerpc_module,
                                     "reassemble_dcerpc",
                                     "Reassemble DCE/RPC fragments",
-                                    "Whether the DCE/RPC dissector should reassemble all fragmented PDUs",
+                                    "Whether the DCE/RPC dissector should reassemble fragmented DCE/RPC PDUs",
                                     &dcerpc_reassemble);
     register_init_routine(dcerpc_reassemble_init);
     dcerpc_uuids = g_hash_table_new (dcerpc_uuid_hash, dcerpc_uuid_equal);

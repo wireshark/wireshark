@@ -46,7 +46,6 @@
 
 #include <string.h>
 #include <glib.h>
-#include <epan/int-64bit.h>
 #include <epan/packet.h>
 #include "packet-arp.h"
 #include "packet-dns.h"				/* for get_dns_name() */
@@ -850,8 +849,8 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 
 		case AUTHEN_RDM_MONOTONIC_COUNTER:
 			proto_tree_add_text(v_tree, tvb, voff+5, 8,
-				    "Replay Detection Value: %s",
-				    u64toh(tvb_get_ptr(tvb, voff+5, 8)));
+				    "Replay Detection Value: %" PRIx64,
+				    tvb_get_ntoh64(tvb, voff+5));
 			break;
 
 		default:
@@ -1572,7 +1571,9 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (hlen > 0) {
 			haddr = tvb_get_ptr(tvb, 28, hlen);
 			proto_tree_add_bytes_format(bp_tree, hf_bootp_hw_addr, tvb,
-						   28, hlen,
+				/* The chaddr element is 16 bytes in length, although
+				   only the first hlen bytes are used */
+						   28, 16,
 						   haddr,
 						   "Client hardware address: %s",
 						   arphrdaddr_to_str(haddr,
@@ -1581,7 +1582,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		else {
 			proto_tree_add_text(bp_tree,  tvb,
-						   28, 0, "Client address not given");
+						   28, 16, "Client address not given");
 		}
 
 		/* The server host name is optional */

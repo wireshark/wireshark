@@ -234,8 +234,9 @@ proto_register_laplink(void)
 
 	laplink_module = prefs_register_protocol(proto_laplink, NULL);
 	prefs_register_bool_preference(laplink_module, "desegment_laplink_over_tcp",
-				       "Desegment all Laplink-over-TCP messages",
-				       "Whether the Laplink dissector should desegment all Laplink-over-TCP messages",
+				       "Reassemble Laplink over TCP messages spanning multiple TCP segments",
+				       "Whether the Laplink dissector should reassemble messages spanning multiple TCP segments."
+				       " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 				       &laplink_desegment);
 }
 

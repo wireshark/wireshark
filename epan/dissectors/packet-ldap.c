@@ -77,6 +77,7 @@
 #include <epan/conversation.h>
 #include "packet-frame.h"
 #include "tap.h"
+#include "packet-ber.h"
 #include "packet-ldap.h"
 
 static int proto_ldap = -1;
@@ -264,47 +265,47 @@ static value_string msgTypes [] = {
   {0, NULL},
 };
 
-static value_string result_codes[] = {
-    {0, "Success"},
-    {1, "Operations error"},
-    {2, "Protocol error"},
-    {3, "Time limit exceeded"},
-    {4, "Size limit exceeded"},
-    {5, "Compare false"},
-    {6, "Compare true"},
-    {7, "Authentication method not supported"},
-    {8, "Strong authentication required"},
-    {10, "Referral"},
-    {11, "Administrative limit exceeded"},
-    {12, "Unavailable critical extension"},
-    {13, "Confidentiality required"},
-    {14, "SASL bind in progress"},
-    {16, "No such attribute"},
-    {17, "Undefined attribute type"},
-    {18, "Inappropriate matching"},
-    {19, "Constraint violation"},
-    {20, "Attribute or value exists"},
-    {21, "Invalid attribute syntax"},
-    {32, "No such object"},
-    {33, "Alias problem"},
-    {34, "Invalid DN syntax"},
-    {36, "Alias derefetencing problem"},
-    {48, "Inappropriate authentication"},
-    {49, "Invalid credentials"},
-    {50, "Insufficient access rights"},
-    {51, "Busy"},
-    {52, "Unavailable"},
-    {53, "Unwilling to perform"},
-    {54, "Loop detected"},
-    {64, "Naming violation"},
-    {65, "Objectclass violation"},
-    {66, "Not allowed on non-leaf"},
-    {67, "Not allowed on RDN"},
-    {68, "Entry already exists"},
-    {69, "Objectclass modification prohibited"},
-    {71, "Affects multiple DSAs"},
-    {80, "Other"},
-    {0,  NULL},
+static const value_string LDAPResultCode_vals[] = {
+  {   0, "success" },
+  {   1, "operationsError" },
+  {   2, "protocolError" },
+  {   3, "timeLimitExceeded" },
+  {   4, "sizeLimitExceeded" },
+  {   5, "compareFalse" },
+  {   6, "compareTrue" },
+  {   7, "authMethodNotSupported" },
+  {   8, "strongAuthRequired" },
+  {  10, "referral" },
+  {  11, "adminLimitExceeded" },
+  {  12, "unavailableCriticalExtension" },
+  {  13, "confidentialityRequired" },
+  {  14, "saslBindInProgress" },
+  {  16, "noSuchAttribute" },
+  {  17, "undefinedAttributeType" },
+  {  18, "inappropriateMatching" },
+  {  19, "constraintViolation" },
+  {  20, "attributeOrValueExists" },
+  {  21, "invalidAttributeSyntax" },
+  {  32, "noSuchObject" },
+  {  33, "aliasProblem" },
+  {  34, "invalidDNSyntax" },
+  {  36, "aliasDereferencingProblem" },
+  {  48, "inappropriateAuthentication" },
+  {  49, "invalidCredentials" },
+  {  50, "insufficientAccessRights" },
+  {  51, "busy" },
+  {  52, "unavailable" },
+  {  53, "unwillingToPerform" },
+  {  54, "loopDetect" },
+  {  64, "namingViolation" },
+  {  65, "objectClassViolation" },
+  {  66, "notAllowedOnNonLeaf" },
+  {  67, "notAllowedOnRDN" },
+  {  68, "entryAlreadyExists" },
+  {  69, "objectClassModsProhibited" },
+  {  71, "affectsMultipleDSAs" },
+  {  80, "other" },
+  { 0, NULL }
 };
 
 static int read_length(ASN1_SCK *a, proto_tree *tree, int hf_id, guint *len)
@@ -934,7 +935,7 @@ static void dissect_ldap_result(ASN1_SCK *a, proto_tree *tree, packet_info *pinf
   if (resultCode != 0) {
 	  if (check_col(pinfo->cinfo, COL_INFO))
 		  col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", 
-				  val_to_str(resultCode, result_codes,
+				  val_to_str(resultCode, LDAPResultCode_vals,
 					     "Unknown (%u)"));
   }
 
@@ -2712,7 +2713,7 @@ proto_register_ldap(void)
 
     { &hf_ldap_message_result,
       { "Result Code",		"ldap.result.code",
-	FT_UINT8, BASE_HEX, result_codes, 0x0,
+	FT_UINT8, BASE_HEX, VALS(LDAPResultCode_vals), 0x0,
 	"LDAP Result Code", HFILL }},
     { &hf_ldap_message_result_matcheddn,
       { "Matched DN",		"ldap.result.matcheddn",
@@ -2977,8 +2978,9 @@ proto_register_ldap(void)
 
   ldap_module = prefs_register_protocol(proto_ldap, NULL);
   prefs_register_bool_preference(ldap_module, "desegment_ldap_messages",
-    "Desegment all LDAP messages spanning multiple TCP segments",
-    "Whether the LDAP dissector should desegment all messages spanning multiple TCP segments",
+    "Reassemble LDAP messages spanning multiple TCP segments",
+    "Whether the LDAP dissector should reassemble messages spanning multiple TCP segments."
+    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &ldap_desegment);
 
   proto_cldap = proto_register_protocol(

@@ -2614,7 +2614,6 @@ dissect_rsvp_integrity (proto_tree *ti, tvbuff_t *tvb,
     proto_tree *rsvp_object_tree;
     proto_tree *ti2, *rsvp_integ_flags_tree;
     int flags;
-    guint64 sequence_number;
 
     rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_INTEGRITY));
     proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
@@ -2632,11 +2631,8 @@ dissect_rsvp_integrity (proto_tree *ti, tvbuff_t *tvb,
 	decode_boolean_bitfield(flags, 0x01, 8, "Handshake capable", "Handshake not capable"));
     proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 6,
 			"Key Identifier: %s", tvb_bytes_to_str(tvb, offset2+2, 6));
-    sequence_number = tvb_get_ntohl(tvb, offset2+8);
-    sequence_number <<= 32;
-    sequence_number = tvb_get_ntohl(tvb, offset2+12);
     proto_tree_add_text(rsvp_object_tree, tvb, offset2+8, 8,
-			"Sequence Number: %" PRIu64, sequence_number);
+			"Sequence Number: %" PRIu64, tvb_get_ntoh64(tvb, offset2+8));
     proto_tree_add_text(rsvp_object_tree, tvb, offset2+16, obj_length - 20,
 			"Hash: %s", tvb_bytes_to_str(tvb, offset2+16, obj_length - 20));
 }

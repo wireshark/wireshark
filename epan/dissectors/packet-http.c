@@ -117,6 +117,7 @@ static gboolean http_decompress_body = FALSE;
 #define TCP_PORT_PROXY_ADMIN_HTTP	3132
 #define TCP_ALT_PORT_HTTP		8080
 #define TCP_PORT_HKP			11371
+#define TCP_PORT_DAAP			3689
 /*
  * SSDP is implemented atop HTTP (yes, it really *does* run over UDP).
  */
@@ -128,7 +129,8 @@ static gboolean http_decompress_body = FALSE;
  */
 typedef enum {
 	PROTO_HTTP,		/* just HTTP */
-	PROTO_SSDP		/* Simple Service Discovery Protocol */
+	PROTO_SSDP,		/* Simple Service Discovery Protocol */
+	PROTO_DAAP		/* Digital Audio Access Protocol */
 } http_proto_t;
 
 typedef void (*RequestDissector)(tvbuff_t*, proto_tree*, int);
@@ -293,6 +295,11 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	case TCP_PORT_SSDP:	/* TCP_PORT_SSDP = UDP_PORT_SSDP */
 		proto = PROTO_SSDP;
 		proto_tag = "SSDP";
+		break;
+
+	case TCP_PORT_DAAP:	
+		proto = PROTO_DAAP;
+		proto_tag = "DAAP";
 		break;
 
 	default:
@@ -1619,16 +1626,20 @@ proto_register_http(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	http_module = prefs_register_protocol(proto_http, NULL);
 	prefs_register_bool_preference(http_module, "desegment_headers",
-	    "Desegment all HTTP headers spanning multiple TCP segments",
-	    "Whether the HTTP dissector should desegment all headers "
-	    "of a request spanning multiple TCP segments",
+	    "Reassemble HTTP headers spanning multiple TCP segments",
+	    "Whether the HTTP dissector should reassemble headers "
+	    "of a request spanning multiple TCP segments. "
+		"To use this option, you must also enable "
+        "\"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &http_desegment_headers);
 	prefs_register_bool_preference(http_module, "desegment_body",
-	    "Desegment HTTP bodies spanning multiple TCP segments",
+	    "Reassemble HTTP bodies spanning multiple TCP segments",
 	    "Whether the HTTP dissector should use the "
-	    "\"Content-length:\" value, if present, to desegment "
+	    "\"Content-length:\" value, if present, to reassemble "
 	    "the body of a request spanning multiple TCP segments, "
-	    "and desegment chunked data spanning multiple TCP segments",
+	    "and reassemble chunked data spanning multiple TCP segments. "
+		"To use this option, you must also enable "
+        "\"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &http_desegment_body);
 	prefs_register_bool_preference(http_module, "dechunk_body",
 	    "Reassemble chunked transfer-coded bodies",

@@ -43,7 +43,6 @@
 #include <epan/packet.h>
 
 #include <epan/strutil.h>
-#include <epan/int-64bit.h>
 #include "prefs.h"
 #include "packet-ber.h"
 
@@ -344,6 +343,7 @@ dissect_ber_integer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 	guint32 tag;
 	guint32 len;
 	gint32 val;
+	gint64 val64;
 	guint32 i;
 
 	offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
@@ -367,11 +367,19 @@ dissect_ber_integer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 	}
 	if(len>4){
 		header_field_info *hfinfo;
-		char buf[8]={0,0,0,0,0,0,0,0};
 
-		tvb_memcpy(tvb, buf+8-len, offset, len);
+		val64=0;
+		if (len > 0) {
+			/* extend sign bit */
+			val64 = (gint8)tvb_get_guint8(tvb, offset);
+			offset++;
+		}
+		for(i=1;i<len;i++){
+			val64=(val64<<8)|tvb_get_guint8(tvb, offset);
+			offset++;
+		}
 		hfinfo = proto_registrar_get_nth(hf_id);
-		proto_tree_add_text(tree, tvb, offset, len, "%s: %s", hfinfo->name, u64toa(buf));
+		proto_tree_add_text(tree, tvb, offset, len, "%s: %" PRIu64, hfinfo->name, val64);
 		return 0xdeadbeef;
 	}
 	

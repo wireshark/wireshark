@@ -14374,7 +14374,7 @@ dissect_h245_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 		src_addr.len=4;
 		src_addr.data=(char *)&ipv4_address;
 
-		rtp_add_address(pinfo, (char *)&ipv4_address, ipv4_port, 0, "H245", pinfo->fd->num);
+		rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num);
 	}
 	return offset;
 }
@@ -14393,7 +14393,7 @@ dissect_h245_mediaControlChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 		src_addr.len=4;
 		src_addr.data=(char *)&ipv4_address;
 
-		rtcp_add_address(pinfo, (char *)&ipv4_address, ipv4_port, 0, "H245", pinfo->fd->num);
+		rtcp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num);
 	}
 	return offset;
 }
@@ -22431,8 +22431,9 @@ proto_register_h245(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	h245_module = prefs_register_protocol(proto_h245, NULL);
 	prefs_register_bool_preference(h245_module, "reassembly",
-		"Reassemble H.245 over TCP",
-		"Whether the dissector should reassemble H.245 PDUs spanning multiple TCP segments",
+		"Reassemble H.245 messages spanning multiple TCP segments",
+		"Whether the H.245 dissector should reassemble messages spanning multiple TCP segments."
+		" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 		&h245_reassembly);
 	prefs_register_bool_preference(h245_module, "shorttypes",
 		"Show short message types",
