@@ -1,16 +1,15 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.34 2004/03/02 01:21:56 jmayer Exp $
+# $Id: Makefile.nmake,v 1.35 2004/03/02 18:55:30 ulfl Exp $
 
 include ..\config.nmake
-
-include Makefile.common
 
 ############### no need to modify below this line #########
 
 CFLAGS=-DHAVE_CONFIG_H /I. /I.. /I../wiretap $(GLIB_CFLAGS) \
 	$(ADNS_CFLAGS) $(PCRE_CFLAGS) /I$(PCAP_DIR)\include \
+	$(ZLIB_CFLAGS) /I$(NET_SNMP_DIR)\include /I$(NET_SNMP_DIR)\win32 \
 	-D_U_="" $(LOCAL_CFLAGS)
 
 CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
@@ -20,8 +19,21 @@ libethereal_LIBS = \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS)
 
+# .c.obj::
+#	$(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
+
+include Makefile.common
+
+DISSECTOR_OBJECTS = $(DISSECTOR_SRC:.c=.obj)
+DISSECTOR_OBJECTS = $(DISSECTOR_OBJECTS:../=)
+
+DISSECTOR_SUPPORT_OBJECTS = $(DISSECTOR_SUPPORT_SRC:.c=.obj)
+DISSECTOR_SUPPORT_OBJECTS = $(DISSECTOR_SUPPORT_OBJECTS:../=)
+ 
 .c.obj::
-	$(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
+	$(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $(DISSECTOR_SRC)
+	$(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $(DISSECTOR_SUPPORT_SRC)
+ 	$(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
 
 OBJECTS=atalk-utils.obj	\
 	bitswap.obj	\
@@ -46,19 +58,19 @@ OBJECTS=atalk-utils.obj	\
 	strutil.obj      \
 	to_str.obj	\
 	tvbuff.obj       \
-	value_string.obj \
-	$(DISSECTOR_OBJECTS)	\
-	$(DISSECTOR_SUPPORT_OBJECTS)
+	value_string.obj 
+#	$(DISSECTOR_OBJECTS)	\
+#	$(DISSECTOR_SUPPORT_OBJECTS)
 
 
 all: ftypes dfilter ethereal.lib
 
 # For use when making ethereal.dll
-#ethereal.dll ethereal.lib	: config.h $(OBJECTS)
+#ethereal.dll ethereal.lib	: config.h $(OBJECTS) 
 #	link /DLL /out:ethereal.dll $(OBJECTS) $(libethereal_LIBS)
 
-ethereal.lib	: config.h $(OBJECTS)
-	lib /out:ethereal.lib $(OBJECTS)
+ethereal.lib	: config.h $(OBJECTS) $(DISSECTOR_SUPPORT_SRC) $(DISSECTOR_SRC)
+	lib /out:ethereal.lib $(OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS) $(DISSECTOR_OBJECTS)
 
 config.h	: config.h.win32 ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
@@ -67,7 +79,7 @@ config.h	: config.h.win32 ..\config.nmake
 	    < config.h.win32 > $@
 
 clean:
-	rm -f $(OBJECTS) ethereal.lib $(PDB_FILE)
+	rm -f $(OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS) $(DISSECTOR_OBJECTS) ethereal.lib $(PDB_FILE)
 	cd ftypes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../dfilter
@@ -75,7 +87,7 @@ clean:
 	cd ..
 
 distclean: clean
-	rm -f config.h
+	rm -f config.h register.c
 	cd ftypes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../dfilter

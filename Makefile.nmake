@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.408 2004/03/02 01:21:56 jmayer Exp $
+# $Id: Makefile.nmake,v 1.409 2004/03/02 18:55:30 ulfl Exp $
 
 include config.nmake
 include <win32.mak>
@@ -240,7 +240,7 @@ gtk2_distclean:
 clean: gtk2_distclean
 	rm -f $(ethereal_OBJECTS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS) \
 		$(EXECUTABLES) $(PDB_FILE) \
-		editcap.obj mergecap.obj text2pcap.obj \
+		editcap.obj mergecap.obj text2pcap.obj getopt.obj\
 		text2pcap-scanner.obj text2pcap-scanner.c rdps.obj \
 		rdps.pdb config.h ps.c \
 		rdps.exe rdps.ilk dftest.obj dftest.exe randpkt.obj randpkt.ext \
@@ -319,7 +319,7 @@ gtk2:: help config.h cvsversion.h
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake GTK_CFLAGS="$(GTK2_CFLAGS)" GTK_LIBS="$(GTK2_LIBS)" libui.lib
 	cd ..
 
-epan::
+epan:: packet-ncp2222.c x11-declarations.h x11-register-info.h
 	cd epan
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
