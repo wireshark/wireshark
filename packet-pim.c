@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.30 2001/07/02 09:23:02 guy Exp $
+ * $Id: packet-pim.c,v 1.31 2001/07/02 09:42:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,6 +58,7 @@ enum pimv2_addrtype {
 static int proto_pim = -1;
 static int hf_pim_version = -1;
 static int hf_pim_type = -1;
+static int hf_pim_code = -1;
 static int hf_pim_cksum = -1;
 
 static gint ett_pim = -1;
@@ -112,6 +113,19 @@ dissect_pimv1_addr(tvbuff_t *tvb, int offset) {
     return buf;
 }
 
+static const value_string type1vals[] = {
+    { 0, "Query" },
+    { 1, "Register" },
+    { 2, "Register-stop" },
+    { 3, "Join/Prune" },
+    { 4, "RP-Reachable" },
+    { 5, "Assert" },
+    { 6, "Graft" },
+    { 7, "Graft-Ack" },
+    { 8, "Mode" },
+    { 0, NULL },
+};
+
 /* This function is only called from the IGMP dissector */
 int
 dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -121,19 +135,6 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint length, pim_length;
     guint16 pim_cksum, computed_cksum;
     vec_t cksum_vec[1];
-    static const value_string type1vals[] = {
-	{ 0, "Query" },
-	{ 1, "Register" },
-	{ 2, "Register-stop" },
-	{ 3, "Join/Prune" },
-	{ 4, "RP-Reachable" },
-	{ 5, "Assert" },
-	{ 6, "Graft" },
-	{ 7, "Graft-Ack" },
-	{ 8, "Mode" },
-	{ 0, NULL },
-    };
-    char *typestr;
     proto_tree *pim_tree = NULL;
     proto_item *ti; 
     proto_tree *pimopt_tree = NULL;
@@ -157,22 +158,19 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    tvb_length_remaining(tvb, offset), FALSE);
 	pim_tree = proto_item_add_subtree(ti, ett_pim);
 
-#if 0
-	/* Put IGMP type, 0x14, into the tree? */
-	proto_tree_add_uint(pim_tree, hf_type, tvb, offset, 1, 0x13);
-#endif
+	/* Put IGMP type, 0x14, into the tree */
+	proto_tree_add_text(pim_tree, tvb, offset, 1,
+	    "Type: PIM (0x14)");
     }
     offset += 1;
 
     pim_type = tvb_get_guint8(tvb, offset);
-    typestr = val_to_str(pim_type, type1vals, "Unknown");
-
     if (check_col(pinfo->fd, COL_INFO))
-	col_add_str(pinfo->fd, COL_INFO, typestr); 
+	col_add_str(pinfo->fd, COL_INFO,
+	    val_to_str(pim_type, type1vals, "Unknown (%u)"));
 
     if (tree) {
-	proto_tree_add_uint_format(pim_tree, hf_pim_type, tvb, offset, 1,
-	    pim_type, "Type: %s (%u)", typestr, pim_type);
+	proto_tree_add_uint(pim_tree, hf_pim_code, tvb, offset, 1, pim_type);
     }
     offset += 1;
 
@@ -481,9 +479,6 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	case 5:	/* assert */
 	  {
-	    const char *s;
-	    int advance;
-
 	    proto_tree_add_text(pimopt_tree, tvb, offset, 4,
 	        "Group Address: %s",
 		ip_to_str(tvb_get_ptr(tvb, offset, 4)));
@@ -617,6 +612,19 @@ dissect_pim_addr(tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
     return buf;
 }
 
+static const value_string type2vals[] = {
+    { 0, "Hello" },
+    { 1, "Register" },
+    { 2, "Register-stop" },
+    { 3, "Join/Prune" },
+    { 4, "Bootstrap" },
+    { 5, "Assert" },
+    { 6, "Graft" },
+    { 7, "Graft-Ack" },
+    { 8, "Candidate-RP-Advertisement" },
+    { 0, NULL },
+};
+
 static void 
 dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     int offset = 0;
@@ -624,18 +632,6 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     guint length, pim_length;
     guint16 pim_cksum, computed_cksum;
     vec_t cksum_vec[1];
-    static const value_string type2vals[] = {
-	{ 0, "Hello" },
-	{ 1, "Register" },
-	{ 2, "Register-stop" },
-	{ 3, "Join/Prune" },
-	{ 4, "Bootstrap" },
-	{ 5, "Assert" },
-	{ 6, "Graft" },
-	{ 7, "Graft-Ack" },
-	{ 8, "Candidate-RP-Advertisement" },
-	{ 0, NULL },
-    };
     char *typestr;
     proto_tree *pim_tree = NULL;
     proto_item *ti; 
@@ -651,7 +647,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     switch (PIM_VER(pim_typever)) {
     case 2:
-	typestr = val_to_str(PIM_TYPE(pim_typever), type2vals, "Unknown");
+	typestr = val_to_str(PIM_TYPE(pim_typever), type2vals, "Unknown (%u)");
 	break;
     case 1:	/* PIMv1 - we should never see this */
     default:
@@ -673,9 +669,8 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 	proto_tree_add_uint(pim_tree, hf_pim_version, tvb, offset, 1,
 	    PIM_VER(pim_typever)); 
-	proto_tree_add_uint_format(pim_tree, hf_pim_type, tvb, offset, 1,
-	    PIM_TYPE(pim_typever),
-	    "Type: %s (%u)", typestr, PIM_TYPE(pim_typever)); 
+	proto_tree_add_uint(pim_tree, hf_pim_type, tvb, offset, 1,
+	    PIM_TYPE(pim_typever)); 
 
 	pim_cksum = tvb_get_ntohs(tvb, offset + 2);
 	length = tvb_length(tvb);
@@ -1101,8 +1096,11 @@ proto_register_pim(void)
 	{ "Version",		"pim.version",
 				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
       { &hf_pim_type,
-	{ "Type",			"pim.type",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Type",		"pim.type",
+				FT_UINT8, BASE_DEC, VALS(type2vals), 0x0, "", HFILL }},
+      { &hf_pim_code,
+	{ "Code",		"pim.code",
+				FT_UINT8, BASE_DEC, VALS(type1vals), 0x0, "", HFILL }},
       { &hf_pim_cksum,
 	{ "Checksum",		"pim.cksum",
 				FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
