@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.32 1999/12/11 10:02:11 guy Exp $
+ * $Id: ngsniffer.c,v 1.33 1999/12/14 12:41:13 oabad Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -509,7 +509,8 @@ static int ngsniffer_read(wtap *wth, int *err)
 			 * or 0xcc, and "flags" was either 0 or 0x18,
 			 * with no obvious correlation with anything.
 			 */
-			wth->phdr.pseudo_header.x25.flags = frame2.fs & 0x80;
+			wth->phdr.pseudo_header.x25.flags =
+			    (frame2.fs & 0x80) ? 0x00 : 0x80;
 
 			goto found;
 
@@ -783,7 +784,7 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     rec_hdr.time_high = pletohs(&t_high);
     rec_hdr.size = pletohs(&phdr->caplen);
     if (wdh->encap == WTAP_ENCAP_LAPB || wdh->encap == WTAP_ENCAP_PPP)
-	rec_hdr.fs = phdr->pseudo_header.x25.flags & 0x80;
+	rec_hdr.fs = (phdr->pseudo_header.x25.flags & 0x80) ? 0x00 : 0x80;
     else
 	rec_hdr.fs = 0;
     rec_hdr.flags = 0;
