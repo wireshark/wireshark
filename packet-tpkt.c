@@ -181,7 +181,7 @@ proto_register_tpkt(void)
 	};
 
 
-	proto_tpkt = proto_register_protocol("TPKT", "tpkt");
+	proto_tpkt = proto_register_protocol("TPKT", "TPKT", "tpkt");
 	proto_register_field_array(proto_tpkt, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

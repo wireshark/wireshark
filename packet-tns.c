@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for MSX tns packet dissection
  *
- * $Id: packet-tns.c,v 1.10 2000/11/19 08:54:10 guy Exp $
+ * $Id: packet-tns.c,v 1.11 2001/01/03 06:55:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -343,7 +343,7 @@ void proto_register_tns(void)
 		&ett_sql
 	};
 	proto_tns = proto_register_protocol(
-		"Transparent Network Substrate Protocol", "tns");
+		"Transparent Network Substrate Protocol", "TNS", "tns");
 	proto_register_field_array(proto_tns, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

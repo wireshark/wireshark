@@ -1,7 +1,7 @@
 /* packet-sll.c
  * Routines for disassembly of packets from Linux "cooked mode" captures
  *
- * $Id: packet-sll.c,v 1.1 2000/12/23 08:06:14 guy Exp $
+ * $Id: packet-sll.c,v 1.2 2001/01/03 06:55:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -304,7 +304,8 @@ proto_register_sll(void)
 		&ett_sll,
 	};
 
-	proto_sll = proto_register_protocol("Linux cooked-mode capture", "sll" );
+	proto_sll = proto_register_protocol("Linux cooked-mode capture",
+	    "SLL", "sll" );
 	proto_register_field_array(proto_sll, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

@@ -1,7 +1,7 @@
 /* packet-tacacs.c
  * Routines for cisco tacacs/tacplus/AAA packet dissection
  *
- * $Id: packet-tacacs.c,v 1.8 2000/11/19 08:54:09 guy Exp $
+ * $Id: packet-tacacs.c,v 1.9 2001/01/03 06:55:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -151,7 +151,7 @@ proto_register_tacacs(void)
 	static gint *ett[] = {
 		&ett_tacacs,
 	};
-	proto_tacacs = proto_register_protocol("TACACS", "tacacs");
+	proto_tacacs = proto_register_protocol("TACACS", "TACACS", "tacacs");
 	proto_register_field_array(proto_tacacs, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

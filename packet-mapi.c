@@ -1,7 +1,7 @@
 /* packet-mapi.c
  * Routines for MSX mapi packet dissection
  *
- * $Id: packet-mapi.c,v 1.11 2000/12/29 05:15:37 guy Exp $
+ * $Id: packet-mapi.c,v 1.12 2001/01/03 06:55:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -109,7 +109,7 @@ proto_register_mapi(void)
 	static gint *ett[] = {
 		&ett_mapi,
 	};
-	proto_mapi = proto_register_protocol("MAPI", "mapi");
+	proto_mapi = proto_register_protocol("MAPI", "MAPI", "mapi");
 	proto_register_field_array(proto_mapi, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

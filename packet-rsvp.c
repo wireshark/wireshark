@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.28 2000/11/19 08:54:04 guy Exp $
+ * $Id: packet-rsvp.c,v 1.29 2001/01/03 06:55:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -2027,7 +2027,8 @@ proto_register_rsvp(void)
 		&ett_rsvp_unknown_class,
 	};
 
-        proto_rsvp = proto_register_protocol("Resource ReserVation Protocol (RSVP)", "rsvp");
+        proto_rsvp = proto_register_protocol("Resource ReserVation Protocol (RSVP)",
+	    "RSVP", "rsvp");
         proto_register_field_array(proto_rsvp, rsvpf_info, array_length(rsvpf_info));
 	proto_register_subtree_array(ett, array_length(ett));
 }

@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.c,v 1.6 2000/11/19 08:54:06 guy Exp $
+ * $Id: packet-smb-browse.c,v 1.7 2001/01/03 06:55:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -579,7 +579,8 @@ register_proto_smb_browse( void){
 		&ett_browse_election_desire
 	};
 
-    	proto_smb_browse = proto_register_protocol("Microsoft Windows Browser Protocol", "browser");           
+    	proto_smb_browse = proto_register_protocol("Microsoft Windows Browser Protocol",
+	    "BROWSER", "browser");
 
 	proto_register_subtree_array(ett, array_length(ett));          
 }

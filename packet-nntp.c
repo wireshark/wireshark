@@ -2,7 +2,7 @@
  * Routines for nntp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-nntp.c,v 1.16 2000/11/19 08:54:00 guy Exp $
+ * $Id: packet-nntp.c,v 1.17 2001/01/03 06:55:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -141,7 +141,7 @@ proto_register_nntp(void)
 	};
 
 	proto_nntp = proto_register_protocol("Network News Transfer Protocol", 
-				       "nntp");
+	    "NNTP", "nntp");
 	proto_register_field_array(proto_nntp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

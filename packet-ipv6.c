@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.48 2000/12/14 18:56:22 guy Exp $
+ * $Id: packet-ipv6.c,v 1.49 2001/01/03 06:55:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -517,7 +517,8 @@ proto_register_ipv6(void)
     &ett_ipv6,
   };
 
-  proto_ipv6 = proto_register_protocol("Internet Protocol Version 6", "ipv6");
+  proto_ipv6 = proto_register_protocol("Internet Protocol Version 6",
+				       "IPv6", "ipv6");
   proto_register_field_array(proto_ipv6, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }

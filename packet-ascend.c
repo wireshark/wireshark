@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.21 2000/11/29 05:16:14 gram Exp $
+ * $Id: packet-ascend.c,v 1.22 2001/01/03 06:55:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -143,7 +143,8 @@ proto_register_ascend(void)
     &ett_raw,
   };
 
-  proto_ascend = proto_register_protocol("Lucent/Ascend debug output", "ascend");
+  proto_ascend = proto_register_protocol("Lucent/Ascend debug output",
+					 "Lucent/Ascend", "ascend");
   proto_register_field_array(proto_ascend, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }

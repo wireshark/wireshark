@@ -2,7 +2,7 @@
  * Routines for ICP (internet cache protocol) packet disassembly
  * RFC 2186 && RFC 2187
  *
- * $Id: packet-icp.c,v 1.13 2000/11/19 08:53:58 guy Exp $
+ * $Id: packet-icp.c,v 1.14 2001/01/03 06:55:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Peter Torvals
@@ -184,7 +184,8 @@ static void dissect_icp(const u_char *pd, int offset, frame_data *fd,
 
   OLD_CHECK_DISPLAY_AS_DATA(proto_icp, pd, offset, fd, tree);
 
-/* TBD: check if this is a fragment or first part of udp packet */
+/* TBD: check if this is the first fragment of a fragmented UDP datagram?
+   Or just wait for IP fragment reassembly to be implemented? */
   icph.opcode=pd[offset];
   icph.version=pd[offset+1];
   icph.message_length=pntohs(&(pd[offset+2]));
@@ -288,7 +289,8 @@ proto_register_icp(void)
 		&ett_icp_payload,
 	};
 
-	proto_icp = proto_register_protocol ("Internet Cache Protocol", "icp");
+	proto_icp = proto_register_protocol("Internet Cache Protocol",
+	    "ICP", "icp");
 	proto_register_field_array(proto_icp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

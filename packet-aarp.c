@@ -1,7 +1,7 @@
 /* packet-aarp.c
  * Routines for Appletalk ARP packet disassembly
  *
- * $Id: packet-aarp.c,v 1.25 2000/11/19 08:53:54 guy Exp $
+ * $Id: packet-aarp.c,v 1.26 2001/01/03 06:55:26 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -127,7 +127,7 @@ aarpproaddr_to_str(guint8 *ad, int ad_len, guint16 type) {
 #define	AR_OP		6
 #define MIN_AARP_HEADER_SIZE	8
 
-void
+static void
 dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   guint16     ar_hrd;
   guint16     ar_pro;
@@ -281,6 +281,7 @@ proto_register_aarp(void)
   };
 
   proto_aarp = proto_register_protocol("Appletalk Address Resolution Protocol",
+				       "AARP",
 				       "aarp");
   proto_register_field_array(proto_aarp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

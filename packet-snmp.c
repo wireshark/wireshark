@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.54 2000/12/24 09:10:12 guy Exp $
+ * $Id: packet-snmp.c,v 1.55 2001/01/03 06:55:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -2078,8 +2078,10 @@ proto_register_snmp(void)
 #endif /* linux */
 #endif /* HAVE_UCD_SNMP_SNMP_H */
 #endif /* defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H) */
-        proto_snmp = proto_register_protocol("Simple Network Management Protocol", "snmp");
-        proto_smux = proto_register_protocol("SNMP Multiplex Protocol", "smux");
+        proto_snmp = proto_register_protocol("Simple Network Management Protocol",
+	    "SNMP", "snmp");
+        proto_smux = proto_register_protocol("SNMP Multiplex Protocol",
+	    "SMUX", "smux");
         proto_register_field_array(proto_snmp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

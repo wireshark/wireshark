@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.39 2000/12/29 04:16:57 guy Exp $
+ * $Id: packet-arp.c,v 1.40 2001/01/03 06:55:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -412,6 +412,7 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   CHECK_DISPLAY_AS_DATA(proto_arp, tvb, pinfo, tree);
 
+  /* Override the setting to "ARP/RARP". */
   pinfo->current_proto = "ATMARP";
 
   ar_hrd = tvb_get_ntohs(tvb, ATM_AR_HRD);
@@ -927,7 +928,8 @@ proto_register_arp(void)
     &ett_atmarp_tl,
   };
 
-  proto_arp = proto_register_protocol("Address Resolution Protocol", "arp");
+  proto_arp = proto_register_protocol("Address Resolution Protocol",
+				      "ARP/RARP", "arp");
   proto_register_field_array(proto_arp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }

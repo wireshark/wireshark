@@ -2,7 +2,7 @@
  * Routines for ftp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-ftp.c,v 1.24 2000/12/19 02:57:49 gram Exp $
+ * $Id: packet-ftp.c,v 1.25 2001/01/03 06:55:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -254,8 +254,9 @@ proto_register_ftp(void)
     &ett_ftp_data,
   };
 
-  proto_ftp = proto_register_protocol("File Transfer Protocol (FTP)", "ftp");
-  proto_ftp_data = proto_register_protocol("FTP Data", "ftp-data");
+  proto_ftp = proto_register_protocol("File Transfer Protocol (FTP)", "FTP",
+				      "ftp");
+  proto_ftp_data = proto_register_protocol("FTP Data", "FTP-DATA", "ftp-data");
   proto_register_field_array(proto_ftp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }

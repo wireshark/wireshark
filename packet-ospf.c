@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.32 2000/12/28 00:44:49 guy Exp $
+ * $Id: packet-ospf.c,v 1.33 2001/01/03 06:55:30 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -1043,7 +1043,8 @@ proto_register_ospf(void)
 	&ett_ospf_lsa_mpls_link_stlv
     };
 
-    proto_ospf = proto_register_protocol("Open Shortest Path First", "ospf");
+    proto_ospf = proto_register_protocol("Open Shortest Path First",
+					 "OSPF", "ospf");
  /*       proto_register_field_array(proto_ospf, hf, array_length(hf));*/
     proto_register_subtree_array(ett, array_length(ett));
 }

@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.47 2000/11/19 08:53:54 guy Exp $
+ * $Id: packet-atalk.c,v 1.48 2001/01/03 06:55:27 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -554,7 +554,7 @@ proto_register_atalk(void)
 
 
   static gint *ett[] = {
-    &ett_ddp,
+	&ett_ddp,
 	&ett_nbp,
 	&ett_nbp_info,
 	&ett_nbp_node,
@@ -563,14 +563,14 @@ proto_register_atalk(void)
 	&ett_rtmp_tuple
   };
 
-  proto_ddp = proto_register_protocol("Datagram Delivery Protocol", "ddp");
+  proto_ddp = proto_register_protocol("Datagram Delivery Protocol", "DDP", "ddp");
   proto_register_field_array(proto_ddp, hf_ddp, array_length(hf_ddp));
 
-  proto_nbp = proto_register_protocol("Name Binding Protocol", "nbp");
+  proto_nbp = proto_register_protocol("Name Binding Protocol", "NBP", "nbp");
   proto_register_field_array(proto_nbp, hf_nbp, array_length(hf_nbp));
 
   proto_rtmp = proto_register_protocol("Routing Table Maintenance Protocol",
-				       "rtmp");
+				       "RTMP", "rtmp");
   proto_register_field_array(proto_rtmp, hf_rtmp, array_length(hf_rtmp));
 
   proto_register_subtree_array(ett, array_length(ett));

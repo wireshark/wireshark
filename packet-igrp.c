@@ -2,7 +2,7 @@
  * Routines for IGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  * 
- * $Id: packet-igrp.c,v 1.2 2000/11/19 08:53:58 guy Exp $
+ * $Id: packet-igrp.c,v 1.3 2001/01/03 06:55:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -196,7 +196,8 @@ void proto_register_igrp(void)
   };
 
   /* Register the protocol name and description */
-  proto_igrp = proto_register_protocol("Cisco Interior Gateway Routing Protocol", "igrp");
+  proto_igrp = proto_register_protocol("Cisco Interior Gateway Routing Protocol",
+				       "IGRP", "igrp");
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_igrp, hf, array_length(hf));

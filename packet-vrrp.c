@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-vrrp.c,v 1.9 2000/11/19 08:54:10 guy Exp $
+ * $Id: packet-vrrp.c,v 1.10 2001/01/03 06:55:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -209,7 +209,8 @@ void proto_register_vrrp(void)
                 &ett_vrrp_ver_type
         };
 
-        proto_vrrp = proto_register_protocol("Virtual Router Redundancy Protocol", "vrrp");
+        proto_vrrp = proto_register_protocol("Virtual Router Redundancy Protocol",
+	    "VRRP", "vrrp");
         proto_register_field_array(proto_vrrp, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
 

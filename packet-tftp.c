@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TFTP Option Extension
  *
- * $Id: packet-tftp.c,v 1.21 2000/12/25 23:48:14 guy Exp $
+ * $Id: packet-tftp.c,v 1.22 2001/01/03 06:55:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -270,7 +270,8 @@ proto_register_tftp(void)
     &ett_tftp,
   };
 
-  proto_tftp = proto_register_protocol("Trivial File Transfer Protocol", "tftp");
+  proto_tftp = proto_register_protocol("Trivial File Transfer Protocol",
+				       "TFTP", "tftp");
   proto_register_field_array(proto_tftp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }

@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Much stuff added by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.48 2000/11/19 16:58:57 gerald Exp $
+ * $Id: packet-nbns.c,v 1.49 2001/01/03 06:55:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1754,13 +1754,15 @@ proto_register_nbt(void)
     &ett_nbss_flags,
   };
 
-  proto_nbns = proto_register_protocol("NetBIOS Name Service", "nbns");
+  proto_nbns = proto_register_protocol("NetBIOS Name Service", "NBNS", "nbns");
   proto_register_field_array(proto_nbns, hf_nbns, array_length(hf_nbns));
   
-  proto_nbdgm = proto_register_protocol("NetBIOS Datagram Service", "nbdgm");
+  proto_nbdgm = proto_register_protocol("NetBIOS Datagram Service",
+					"NBDS", "nbdgm");
   proto_register_field_array(proto_nbdgm, hf_nbdgm, array_length(hf_nbdgm));
 
-  proto_nbss = proto_register_protocol("NetBIOS Session Service", "nbss");
+  proto_nbss = proto_register_protocol("NetBIOS Session Service",
+				       "NBSS", "nbss");
   proto_register_field_array(proto_nbss, hf_nbss, array_length(hf_nbss));
 
   proto_register_subtree_array(ett, array_length(ett));

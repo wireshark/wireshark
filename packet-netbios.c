@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.27 2000/12/03 09:47:18 guy Exp $
+ * $Id: packet-netbios.c,v 1.28 2001/01/03 06:55:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1164,7 +1164,7 @@ void proto_register_netbios(void)
 			"" }},
 		};
 
-	proto_netbios = proto_register_protocol("NetBIOS", "netbios");
+	proto_netbios = proto_register_protocol("NetBIOS", "NetBIOS", "netbios");
 	proto_register_subtree_array(ett, array_length(ett));                 
 	proto_register_field_array(proto_netbios, hf_netb, array_length(hf_netb));
 }

@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.24 2000/11/21 16:17:58 gram Exp $
+ * $Id: packet-icq.c,v 1.25 2001/01/03 06:55:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -2487,7 +2487,7 @@ proto_register_icq(void)
         &ett_icq_body_parts,
     };
     
-    proto_icq = proto_register_protocol ("ICQ Protocol", "icq");
+    proto_icq = proto_register_protocol("ICQ Protocol", "ICQ", "icq");
     
     proto_register_field_array(proto_icq, hf, array_length(hf));
 

@@ -3,7 +3,7 @@
  *
  * Jochen Friedrich <jochen@scram.de>
  *
- * $Id: packet-zebra.c,v 1.5 2000/12/02 08:41:08 guy Exp $
+ * $Id: packet-zebra.c,v 1.6 2001/01/03 06:55:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -645,7 +645,7 @@ proto_register_zebra(void)
     &ett_message,
   };
 
-  proto_zebra = proto_register_protocol("Zebra Protocol", "zebra");
+  proto_zebra = proto_register_protocol("Zebra Protocol", "ZEBRA", "zebra");
   proto_register_field_array(proto_zebra, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }

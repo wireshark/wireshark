@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.30 2000/12/27 12:48:25 guy Exp $
+ * $Id: packet-rtsp.c,v 1.31 2001/01/03 06:55:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -612,7 +612,7 @@ proto_register_rtsp(void)
 	};
 
         proto_rtsp = proto_register_protocol("Real Time Streaming Protocol",
-		"rtsp");
+		"RTSP", "rtsp");
 	proto_register_field_array(proto_rtsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

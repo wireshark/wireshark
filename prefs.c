@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.44 2000/11/18 21:41:36 guy Exp $
+ * $Id: prefs.c,v 1.45 2001/01/03 06:55:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -946,6 +946,14 @@ set_pref(gchar *pref_name, gchar *value)
       return PREFS_SET_SYNTAX_ERR;	/* no ".", so no module/name separator */
     *dotp = '\0';		/* separate module and preference name */
     module = find_module(pref_name);
+
+    /*
+     * XXX - "Diameter" rather than "diameter" was used in earlier
+     * versions of Ethereal; if we didn't find the module, and its name
+     * was "Diameter", look for "diameter" instead.
+     */
+    if (module == NULL && strcmp(pref_name, "Diameter") == 0)
+      module = find_module("diameter");
     *dotp = '.';		/* put the preference string back */
     if (module == NULL)
       return PREFS_SET_NO_SUCH_PREF;	/* no such module */

@@ -3,7 +3,7 @@
  * 
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-mpls.c,v 1.12 2000/12/14 08:20:29 guy Exp $
+ * $Id: packet-mpls.c,v 1.13 2001/01/03 06:55:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -191,7 +191,8 @@ proto_register_mpls(void)
 		&ett_mpls,
 	};
 
-	proto_mpls = proto_register_protocol("MultiProtocol Label Switching Header", "mpls");
+	proto_mpls = proto_register_protocol("MultiProtocol Label Switching Header",
+	    "MPLS", "mpls");
 	proto_register_field_array(proto_mpls, mplsf_info, array_length(mplsf_info));
 	proto_register_subtree_array(ett, array_length(ett));
 }

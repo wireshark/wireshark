@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.6 2000/12/02 09:09:25 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.7 2001/01/03 06:55:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -1735,7 +1735,8 @@ proto_register_wlan (void)
     &ett_cap_tree,
   };
 
-  proto_wlan = proto_register_protocol ("IEEE 802.11 wireless LAN", "wlan");
+  proto_wlan = proto_register_protocol ("IEEE 802.11 wireless LAN",
+					"IEEE 802.11", "wlan");
   proto_register_field_array (proto_wlan, hf, array_length (hf));
   proto_register_subtree_array (tree_array, array_length (tree_array));
 }

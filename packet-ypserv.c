@@ -1,7 +1,7 @@
 /* packet-ypserv.c
  * Routines for ypserv dissection
  *
- * $Id: packet-ypserv.c,v 1.11 2000/05/31 05:07:56 guy Exp $
+ * $Id: packet-ypserv.c,v 1.12 2001/01/03 06:55:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -240,7 +240,8 @@ proto_register_ypserv(void)
 		&ett_ypserv,
 	};
 
-	proto_ypserv = proto_register_protocol("Yellow Pages Service", "ypserv");
+	proto_ypserv = proto_register_protocol("Yellow Pages Service",
+	    "YPSERV", "ypserv");
 	proto_register_field_array(proto_ypserv, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

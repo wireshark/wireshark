@@ -3,7 +3,7 @@
  * Richard Sharpe <rsharpe@ns.aus.com> based on the lapb module by
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-lapbether.c,v 1.2 2000/12/29 02:27:21 guy Exp $
+ * $Id: packet-lapbether.c,v 1.3 2001/01/03 06:55:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -92,7 +92,8 @@ proto_register_lapbether(void)
         &ett_lapbether,
     };
 
-    proto_lapbether = proto_register_protocol ("Link Access Procedure Balanced Ethernet (LAPBETHER)", "lapbether");
+    proto_lapbether = proto_register_protocol ("Link Access Procedure Balanced Ethernet (LAPBETHER)",
+        "LAPBETHER", "lapbether");
     proto_register_field_array (proto_lapbether, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }

@@ -7,7 +7,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sip.c,v 1.8 2000/11/19 08:54:06 guy Exp $
+ * $Id: packet-sip.c,v 1.9 2001/01/03 06:55:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -185,7 +185,8 @@ void proto_register_sip(void)
         };
 
         /* Register the protocol name and description */
-        proto_sip = proto_register_protocol("Session Initiation Protocol", "sip");
+        proto_sip = proto_register_protocol("Session Initiation Protocol",
+	    "SIP", "sip");
 
         /* Required function calls to register the header fields and subtrees used */
         proto_register_field_array(proto_sip, hf, array_length(hf));

@@ -256,7 +256,8 @@ proto_register_h261(void)
 	};
 
 
-	proto_h261 = proto_register_protocol("ITU-T Recommendation H.261", "h261");
+	proto_h261 = proto_register_protocol("ITU-T Recommendation H.261",
+	    "H.261", "h261");
 	proto_register_field_array(proto_h261, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.17 2000/12/23 08:06:14 guy Exp $
+ * $Id: packet-bpdu.c,v 1.18 2001/01/03 06:55:27 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -315,7 +315,7 @@ proto_register_bpdu(void)
     &ett_bpdu,
   };
 
-  proto_bpdu = proto_register_protocol("Spanning Tree Protocol", "stp");
+  proto_bpdu = proto_register_protocol("Spanning Tree Protocol", "STP", "stp");
   proto_register_field_array(proto_bpdu, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 

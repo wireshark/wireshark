@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.19 2000/12/23 23:06:50 guy Exp $
+ * $Id: packet-clnp.c,v 1.20 2001/01/03 06:55:27 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -1873,7 +1873,7 @@ void proto_register_clnp(void)
 
   module_t *clnp_module;
 
-  proto_clnp = proto_register_protocol(PROTO_STRING_CLNP, "clnp");
+  proto_clnp = proto_register_protocol(PROTO_STRING_CLNP, "CLNP", "clnp");
   proto_register_field_array(proto_clnp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
@@ -1899,7 +1899,7 @@ void proto_register_cotp(void)
 		&ett_cotp,
 	};
 
-        proto_cotp = proto_register_protocol(PROTO_STRING_COTP, "cotp");
+        proto_cotp = proto_register_protocol(PROTO_STRING_COTP, "COTP", "cotp");
  /*       proto_register_field_array(proto_cotp, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
 
@@ -1919,7 +1919,7 @@ void proto_register_cltp(void)
 		&ett_cltp,
 	};
 
-        proto_cltp = proto_register_protocol(PROTO_STRING_CLTP, "cltp");
+        proto_cltp = proto_register_protocol(PROTO_STRING_CLTP, "CLTP", "cltp");
  /*       proto_register_field_array(proto_cotp, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
 }

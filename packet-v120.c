@@ -2,7 +2,7 @@
  * Routines for v120 frame disassembly
  * Bert Driehuis <driehuis@playbeing.org>
  *
- * $Id: packet-v120.c,v 1.15 2000/11/29 05:16:15 gram Exp $
+ * $Id: packet-v120.c,v 1.16 2001/01/03 06:55:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -226,7 +226,8 @@ proto_register_v120(void)
         &ett_v120_header,
     };
 
-    proto_v120 = proto_register_protocol ("Async data over ISDN (V.120)", "v120");
+    proto_v120 = proto_register_protocol("Async data over ISDN (V.120)",
+					 "V.120", "v120");
     proto_register_field_array (proto_v120, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }

@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-pipe.c,v 1.14 2001/01/03 04:37:07 sharpe Exp $
+ * $Id: packet-smb-pipe.c,v 1.15 2001/01/03 06:55:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1260,7 +1260,7 @@ register_proto_smb_pipe( void){
 
 
     	proto_smb_lanman = proto_register_protocol(
-    		"Microsoft Windows Lanman Protocol", "lanman");
+    		"Microsoft Windows Lanman Protocol", "LANMAN", "lanman");
 
 	proto_register_subtree_array(ett, array_length(ett));
 }

@@ -1,7 +1,7 @@
 /* packet-stat.c
  * Routines for stat dissection
  *
- * $Id: packet-stat.c,v 1.5 2000/04/04 06:46:28 guy Exp $
+ * $Id: packet-stat.c,v 1.6 2001/01/03 06:55:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -76,7 +76,7 @@ proto_register_stat(void)
 		&ett_stat,
 	};
 
-	proto_stat = proto_register_protocol("Status Service", "stat");
+	proto_stat = proto_register_protocol("Status Service", "STAT", "stat");
 #if 0
 	proto_register_field_array(proto_stat, hf, array_length(hf));
 #endif

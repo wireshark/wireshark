@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.28 2000/11/29 05:16:15 gram Exp $
+ * $Id: packet-atm.c,v 1.29 2001/01/03 06:55:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -783,10 +783,11 @@ proto_register_atm(void)
 		&ett_atm_lane_lc_flags,
 		&ett_atm_lane_lc_tlv,
 	};
-	proto_atm = proto_register_protocol("ATM", "atm");
+	proto_atm = proto_register_protocol("ATM", "ATM", "atm");
 	proto_register_field_array(proto_atm, hf, array_length(hf));
-	proto_ilmi = proto_register_protocol("ILMI", "ilmi");
-	proto_atm_lane = proto_register_protocol("ATM LANE", "lane");
+	proto_ilmi = proto_register_protocol("ILMI", "ILMI", "ilmi");
+	proto_atm_lane = proto_register_protocol("ATM LAN Emulation",
+	    "ATM LANE", "lane");
 	proto_register_subtree_array(ett, array_length(ett));
 }
 

@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.32 2000/12/14 21:45:12 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.33 2001/01/03 06:55:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1186,7 +1186,7 @@ proto_register_icmpv6(void)
   };
 
   proto_icmpv6 = proto_register_protocol("Internet Control Message Protocol v6",
-					 "icmpv6");
+					 "ICMPv6", "icmpv6");
   proto_register_field_array(proto_icmpv6, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }

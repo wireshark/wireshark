@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-xot.c,v 1.1 2000/12/17 07:38:14 guy Exp $
+ * $Id: packet-xot.c,v 1.2 2001/01/03 06:55:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -85,7 +85,7 @@ void proto_register_xot(void)
   };
 
   /* Register the protocol name and description */
-  proto_xot = proto_register_protocol("X.25 over TCP", "xot");
+  proto_xot = proto_register_protocol("X.25 over TCP", "XOT", "xot");
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_subtree_array(ett, array_length(ett));

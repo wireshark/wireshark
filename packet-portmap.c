@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.20 2000/08/24 23:16:16 guy Exp $
+ * $Id: packet-portmap.c,v 1.21 2001/01/03 06:55:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -433,7 +433,7 @@ proto_register_portmap(void)
 		&ett_portmap_entry
 	};
 
-	proto_portmap = proto_register_protocol("Portmap", "portmap");
+	proto_portmap = proto_register_protocol("Portmap", "Portmap", "portmap");
 	proto_register_field_array(proto_portmap, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

@@ -3,7 +3,7 @@
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  * derived from packet-rip.c
  *
- * $Id: packet-ripng.c,v 1.15 2000/11/17 21:00:36 gram Exp $
+ * $Id: packet-ripng.c,v 1.16 2001/01/03 06:55:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -151,7 +151,7 @@ proto_register_ripng(void)
       &ett_ripng_addr,
     };
 
-    proto_ripng = proto_register_protocol("RIPng", "ripng");
+    proto_ripng = proto_register_protocol("RIPng", "RIPng", "ripng");
     proto_register_field_array(proto_ripng, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }

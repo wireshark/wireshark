@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.43 2000/11/29 05:16:15 gram Exp $
+ * $Id: packet-fddi.c,v 1.44 2001/01/03 06:55:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -369,7 +369,8 @@ proto_register_fddi(void)
 		&ett_fddi,
 	};
 
-	proto_fddi = proto_register_protocol ("Fiber Distributed Data Interface", "fddi" );
+	proto_fddi = proto_register_protocol("Fiber Distributed Data Interface",
+	    "FDDI", "fddi");
 	proto_register_field_array(proto_fddi, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

@@ -1,7 +1,7 @@
 /* packet-vtp.c
  * Routines for the disassembly of Cisco's Virtual Trunking Protocol
  *
- * $Id: packet-vtp.c,v 1.8 2000/12/28 09:49:09 guy Exp $
+ * $Id: packet-vtp.c,v 1.9 2001/01/03 06:55:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -693,7 +693,8 @@ proto_register_vtp(void)
 		&ett_vtp_tlv,
 	};
 
-        proto_vtp = proto_register_protocol("Virtual Trunking Protocol", "vtp");
+        proto_vtp = proto_register_protocol("Virtual Trunking Protocol",
+	    "VTP", "vtp");
         proto_register_field_array(proto_vtp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

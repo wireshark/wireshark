@@ -2,7 +2,7 @@
  * Routines for LPR and LPRng packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lpd.c,v 1.23 2000/11/19 08:53:59 guy Exp $
+ * $Id: packet-lpd.c,v 1.24 2001/01/03 06:55:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -194,7 +194,7 @@ proto_register_lpd(void)
     &ett_lpd,
   };
 
-  proto_lpd = proto_register_protocol("Line Printer Daemon Protocol", "lpd");
+  proto_lpd = proto_register_protocol("Line Printer Daemon Protocol", "LPD", "lpd");
   proto_register_field_array(proto_lpd, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }

@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster<jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.3 2001/01/02 19:54:50 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.4 2001/01/03 06:56:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -987,7 +987,9 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 	GtkWidget *list_bb, *accept_bt, *close_bt;
 	GtkCTreeNode *protocol_node, *item_node;
 	header_field_info       *hfinfo;
-	int     i, len;
+	int i, len;
+	void *cookie;
+	gchar *name;
 	GHashTable *proto_array;
 
 	window = dlg_window_new("Ethereal: Filter Expression");
@@ -1132,25 +1134,21 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 
 	/* a hash table seems excessive, but I don't see support for a
 	   sparse array in glib */
-	proto_array = g_hash_table_new( g_direct_hash, g_direct_equal);
-	len = proto_registrar_n();
-	for (i = 0; i < len; i++) {
- 		if (proto_registrar_is_protocol(i)) {
-			hfinfo = proto_registrar_get_nth(i);
-			if (hfinfo->type == FT_TEXT_ONLY)
-				continue;	/* "text" isn't a filterable field */
-			/* Create a node for the protocol,
-			   and remember it for later use. */
-			protocol_node = gtk_ctree_insert_node(GTK_CTREE(tree),
-			    NULL, NULL,
-			    &hfinfo->name, 5,
-			    NULL, NULL, NULL, NULL,
-			    FALSE, FALSE);
-			gtk_ctree_node_set_row_data(GTK_CTREE(tree),
-			    protocol_node, hfinfo);
-			g_hash_table_insert(proto_array, (gpointer)i,
-			    protocol_node);
-		}
+	proto_array = g_hash_table_new(g_direct_hash, g_direct_equal);
+	for (i = proto_get_first_protocol(&cookie); i != -1;
+	    i = proto_get_next_protocol(&cookie)) {
+		hfinfo = proto_registrar_get_nth(i);
+		/* Create a node for the protocol, and remember it for
+		   later use. */
+		name = proto_get_protocol_short_name(i);
+		protocol_node = gtk_ctree_insert_node(GTK_CTREE(tree),
+		    NULL, NULL,
+		    &name, 5,
+		    NULL, NULL, NULL, NULL,
+		    FALSE, FALSE);
+		gtk_ctree_node_set_row_data(GTK_CTREE(tree), protocol_node,
+		    hfinfo);
+		g_hash_table_insert(proto_array, (gpointer)i, protocol_node);
 	}
 
 	len = proto_registrar_n();

@@ -2,7 +2,7 @@
  * Routines for LAPD frame disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lapd.c,v 1.17 2000/11/29 05:16:15 gram Exp $
+ * $Id: packet-lapd.c,v 1.18 2001/01/03 06:55:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -197,7 +197,8 @@ proto_register_lapd(void)
         &ett_lapd_control,
     };
 
-    proto_lapd = proto_register_protocol ("Link Access Procedure, Channel D (LAPD)", "lapd");
+    proto_lapd = proto_register_protocol("Link Access Procedure, Channel D (LAPD)",
+					 "LAPD", "lapd");
     proto_register_field_array (proto_lapd, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }

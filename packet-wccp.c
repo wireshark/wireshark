@@ -2,7 +2,7 @@
  * Routines for Web Cache Coordination Protocol dissection
  * Jerry Talkington <jerryt@netapp.com>
  *
- * $Id: packet-wccp.c,v 1.14 2000/11/29 07:42:35 guy Exp $
+ * $Id: packet-wccp.c,v 1.15 2001/01/03 06:55:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1228,7 +1228,7 @@ proto_register_wccp(void)
 	};
 
 	proto_wccp = proto_register_protocol("Web Cache Coordination Protocol",
-	    "wccp");
+	    "WCCP", "wccp");
 	proto_register_field_array(proto_wccp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

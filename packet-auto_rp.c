@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-auto_rp.c,v 1.10 2000/11/19 20:01:22 guy Exp $
+ * $Id: packet-auto_rp.c,v 1.11 2001/01/03 06:55:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -234,7 +234,8 @@ void proto_register_auto_rp(void)
                 &ett_auto_rp_group
         };
 
-        proto_auto_rp = proto_register_protocol("Cisco Auto-RP", "auto_rp");
+        proto_auto_rp = proto_register_protocol("Cisco Auto-RP",
+	    "Auto-RP", "auto_rp");
         proto_register_field_array(proto_auto_rp, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
 

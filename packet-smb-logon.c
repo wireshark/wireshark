@@ -2,7 +2,7 @@
  * Routines for smb net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.10 2000/11/19 08:54:06 guy Exp $
+ * $Id: packet-smb-logon.c,v 1.11 2001/01/03 06:55:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -569,7 +569,7 @@ register_proto_smb_logon( void){
 	};
 
    	proto_smb_logon = proto_register_protocol(
-   		"Microsoft Windows Logon Protocol", "netlogon");
+   		"Microsoft Windows Logon Protocol", "NETLOGON", "netlogon");
 
 	proto_register_subtree_array(ett, array_length(ett));          
 }

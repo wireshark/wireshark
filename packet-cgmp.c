@@ -1,7 +1,7 @@
 /* packet-cgmp.c
  * Routines for the disassembly of the Cisco Group Management Protocol
  *
- * $Id: packet-cgmp.c,v 1.6 2000/12/28 09:49:09 guy Exp $
+ * $Id: packet-cgmp.c,v 1.7 2001/01/03 06:55:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -135,7 +135,8 @@ proto_register_cgmp(void)
 		&ett_cgmp,
 	};
 
-        proto_cgmp = proto_register_protocol("Cisco Group Management Protocol", "cgmp");
+        proto_cgmp = proto_register_protocol("Cisco Group Management Protocol",
+	    "CGMP", "cgmp");
         proto_register_field_array(proto_cgmp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

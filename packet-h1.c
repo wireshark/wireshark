@@ -2,7 +2,7 @@
  * Routines for Sinec H1 packet disassembly
  * Gerrit Gehnen <G.Gehnen@atrie.de>
  *
- * $Id: packet-h1.c,v 1.14 2000/11/19 08:53:57 guy Exp $
+ * $Id: packet-h1.c,v 1.15 2001/01/03 06:55:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -306,7 +306,7 @@ proto_register_h1 (void)
     &ett_empty
   };
 
-  proto_h1 = proto_register_protocol ("Sinec H1 Protocol", "h1");
+  proto_h1 = proto_register_protocol ("Sinec H1 Protocol", "H1", "h1");
   proto_register_field_array (proto_h1, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 }

@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.59 2000/11/19 08:53:56 guy Exp $
+ * $Id: packet-dns.c,v 1.60 2001/01/03 06:55:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -2474,7 +2474,7 @@ proto_register_dns(void)
     &ett_t_key_flags,
   };
 
-  proto_dns = proto_register_protocol("Domain Name Service", "dns");
+  proto_dns = proto_register_protocol("Domain Name Service", "DNS", "dns");
   proto_register_field_array(proto_dns, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }

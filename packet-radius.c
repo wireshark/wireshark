@@ -1,7 +1,7 @@
 /* packet-radius.c
  * Routines for RADIUS packet disassembly
  *
- * $Id: packet-radius.c,v 1.20 2000/11/28 06:29:17 guy Exp $
+ * $Id: packet-radius.c,v 1.21 2001/01/03 06:55:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -775,7 +775,8 @@ proto_register_radius(void)
 		&ett_radius_avp,
 	};
 
-	proto_radius = proto_register_protocol ("Radius Protocol", "radius");
+	proto_radius = proto_register_protocol("Radius Protocol", "RADIUS",
+	    "radius");
 	proto_register_field_array(proto_radius, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

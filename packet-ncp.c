@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.42 2000/12/29 04:16:57 guy Exp $
+ * $Id: packet-ncp.c,v 1.43 2001/01/03 06:55:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -382,7 +382,7 @@ proto_register_ncp(void)
   };
   module_t *ncp_module;
 
-  proto_ncp = proto_register_protocol("NetWare Core Protocol", "ncp");
+  proto_ncp = proto_register_protocol("NetWare Core Protocol", "NCP", "ncp");
   proto_register_field_array(proto_ncp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   register_init_routine(&ncp_init_protocol);

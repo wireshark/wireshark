@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for DIAMETER packet disassembly
  *
- * $Id: packet-diameter.c,v 1.8 2000/11/19 08:53:56 guy Exp $
+ * $Id: packet-diameter.c,v 1.9 2001/01/03 06:55:27 guy Exp $
  *
  * Copyright (c) 2000 by David Frascone <chaos@mindspring.com>
  *
@@ -697,9 +697,14 @@ proto_register_diameter(void)
 		&ett_diameter_avpinfo
 	};
 	module_t *diameter_module;
-	
+
+	proto_diameter = proto_register_protocol (gbl_diameterString,
+	    "DIAMETER", "diameter");
+	proto_register_field_array(proto_diameter, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+
 	/* Register a configuration option for port */
-	diameter_module = prefs_register_module("Diameter", "Diameter",
+	diameter_module = prefs_register_module("Diameter", "diameter",
 	    proto_reg_handoff_diameter);
 	prefs_register_uint_preference(diameter_module, "udp.port",
 				       "DIAMETER UDP Port",
@@ -723,10 +728,6 @@ proto_register_diameter(void)
 				       "Command code in header",
 				       "Whether the command code is in the header, or in the first AVP",
 				       &gbl_commandCodeInHeader);
-
-	proto_diameter = proto_register_protocol (gbl_diameterString, "diameter");
-	proto_register_field_array(proto_diameter, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void

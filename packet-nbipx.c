@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-nbipx.c,v 1.32 2000/12/29 04:16:57 guy Exp $
+ * $Id: packet-nbipx.c,v 1.33 2001/01/03 06:55:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -471,7 +471,8 @@ proto_register_nbipx(void)
 		&ett_nbipx_name_type_flags,
 	};
 
-        proto_nbipx = proto_register_protocol("NetBIOS over IPX", "nbipx");
+        proto_nbipx = proto_register_protocol("NetBIOS over IPX",
+	    "NBIPX", "nbipx");
  /*       proto_register_field_array(proto_nbipx, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
 

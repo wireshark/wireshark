@@ -1,7 +1,7 @@
 /* packet-isis-hello.c
  * Routines for decoding isis hello packets and their CLVs
  *
- * $Id: packet-isis-hello.c,v 1.10 2000/08/13 14:08:19 deniel Exp $
+ * $Id: packet-isis-hello.c,v 1.11 2001/01/03 06:55:29 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -589,7 +589,8 @@ proto_register_isis_hello(void) {
 		&ett_isis_hello_clv_ipv4_int_addr,
 	};
 
-	proto_isis_hello = proto_register_protocol("ISIS HELLO", "isis_hello");
+	proto_isis_hello = proto_register_protocol("ISIS HELLO",
+	    "ISIS HELLO", "isis_hello");
 	proto_register_field_array(proto_isis_hello, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

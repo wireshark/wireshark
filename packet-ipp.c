@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-ipp.c,v 1.17 2000/11/19 08:53:58 guy Exp $
+ * $Id: packet-ipp.c,v 1.18 2001/01/03 06:55:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -556,7 +556,8 @@ proto_register_ipp(void)
 		&ett_ipp_attr,
 	};
 
-        proto_ipp = proto_register_protocol("Internet Printing Protocol", "ipp");
+        proto_ipp = proto_register_protocol("Internet Printing Protocol",
+	    "IPP", "ipp");
  /*       proto_register_field_array(proto_ipp, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
 

@@ -1,7 +1,7 @@
 /* packet-gryphon.c
  * Routines for Gryphon protocol packet disassembly
  *
- * $Id: packet-gryphon.c,v 1.16 2000/11/29 09:49:29 guy Exp $
+ * $Id: packet-gryphon.c,v 1.17 2001/01/03 06:56:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
@@ -1703,7 +1703,8 @@ plugin_init(plugin_address_table_t *pat)
     plugin_address_table_init(pat);
     if (proto_gryphon == -1) {
 	/* first activation */
-	proto_gryphon = proto_register_protocol("DG Gryphon Protocol", 
+	proto_gryphon = proto_register_protocol("DG Gryphon Protocol",
+						"Gryphon",
 						"gryphon");
 	proto_register_field_array(proto_gryphon, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

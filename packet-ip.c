@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.115 2000/12/29 04:16:57 guy Exp $
+ * $Id: packet-ip.c,v 1.116 2001/01/03 06:55:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1324,7 +1324,8 @@ proto_register_igmp(void)
 		&ett_igmp,
 	};
 
-	proto_igmp = proto_register_protocol ("Internet Group Management Protocol", "igmp");
+	proto_igmp = proto_register_protocol("Internet Group Management Protocol",
+	    "IGMP", "igmp");
 	proto_register_field_array(proto_igmp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
@@ -1456,7 +1457,7 @@ proto_register_ip(void)
 	};
 	module_t *ip_module;
 
-	proto_ip = proto_register_protocol ("Internet Protocol", "ip");
+	proto_ip = proto_register_protocol("Internet Protocol", "IP", "ip");
 	proto_register_field_array(proto_ip, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
@@ -1506,8 +1507,8 @@ proto_register_icmp(void)
     &ett_icmp,
   };
   
-  proto_icmp = proto_register_protocol ("Internet Control Message Protocol", 
-					"icmp");
+  proto_icmp = proto_register_protocol("Internet Control Message Protocol", 
+				       "ICMP", "icmp");
   proto_register_field_array(proto_icmp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }

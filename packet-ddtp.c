@@ -3,7 +3,7 @@
  * see http://ddt.sourceforge.net/
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-ddtp.c,v 1.11 2000/11/19 08:53:56 guy Exp $
+ * $Id: packet-ddtp.c,v 1.12 2001/01/03 06:55:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -190,7 +190,8 @@ proto_register_ddtp(void)
 
     static gint *ett[] = { &ett_ddtp };
 
-    proto_ddtp = proto_register_protocol("Dynamic DNS Tools Protocol", "ddtp");
+    proto_ddtp = proto_register_protocol("Dynamic DNS Tools Protocol",
+					 "DDTP", "ddtp");
     proto_register_field_array(proto_ddtp, hf_ddtp, array_length(hf_ddtp));
     proto_register_subtree_array(ett, array_length(ett));
 }

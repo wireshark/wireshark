@@ -1,7 +1,7 @@
 /* packet-isis-snp.c
  * Routines for decoding isis complete & partial SNP and their payload
  *
- * $Id: packet-isis-snp.c,v 1.7 2000/08/13 14:08:22 deniel Exp $
+ * $Id: packet-isis-snp.c,v 1.8 2001/01/03 06:55:29 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -463,7 +463,8 @@ proto_register_isis_csnp(void) {
 		&ett_isis_csnp_clv_unknown,
 	};
 
-	proto_isis_csnp = proto_register_protocol(PROTO_STRING_CSNP, "isis_csnp");
+	proto_isis_csnp = proto_register_protocol(PROTO_STRING_CSNP,
+	    "ISIS CSNP", "isis_csnp");
 	proto_register_field_array(proto_isis_csnp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
@@ -501,7 +502,8 @@ proto_register_isis_psnp(void) {
 		&ett_isis_psnp_clv_unknown,
 	};
 
-	proto_isis_psnp = proto_register_protocol(PROTO_STRING_PSNP, "isis_psnp");
+	proto_isis_psnp = proto_register_protocol(PROTO_STRING_PSNP,
+	    "ISIS PSNP", "isis_psnp");
 	proto_register_field_array(proto_isis_psnp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Gerald Combs <gerald@zing.org>
  *
- * $Id: packet-syslog.c,v 1.7 2000/11/19 08:54:09 guy Exp $
+ * $Id: packet-syslog.c,v 1.8 2001/01/03 06:55:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -239,7 +239,7 @@ void proto_register_syslog(void)
   };
 
   /* Register the protocol name and description */
-  proto_syslog = proto_register_protocol("Syslog message", "syslog");
+  proto_syslog = proto_register_protocol("Syslog message", "Syslog", "syslog");
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_syslog, hf, array_length(hf));

@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.17 2000/11/19 21:01:06 guy Exp $
+ * $Id: packet-sdp.c,v 1.18 2001/01/03 06:55:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -216,7 +216,8 @@ proto_register_sdp(void)
 		&ett_sdp,
 	};
 
-        proto_sdp = proto_register_protocol("Session Description Protocol", "sdp");
+        proto_sdp = proto_register_protocol("Session Description Protocol",
+	    "SDP", "sdp");
  /*       proto_register_field_array(proto_sdp, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
 

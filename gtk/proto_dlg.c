@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.5 2000/08/23 06:56:29 guy Exp $
+ * $Id: proto_dlg.c,v 1.6 2001/01/03 06:56:00 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -22,17 +22,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- */
-
-/*
- * TODO : 
- *
- * Modify proto.c to have a better protocol characteristics database
- * such as ordered list or hash table. This would allow a quick search
- * knowing the protocol abbreviation and to enhance this stuff by adding
- * other fields (hfinfo is currently limited since protocols and fields 
- * share the same structure type).
- *        
  */
 
 #ifdef HAVE_CONFIG_H
@@ -70,6 +59,7 @@ static GtkWidget *proto_w = NULL;
 static GSList *protocol_list = NULL;
 
 typedef struct protocol_data {
+  char  *name;
   char 	*abbrev;
   int  	hfinfo_index;
 } protocol_data_t;
@@ -211,19 +201,17 @@ static gboolean set_proto_selection(GtkWidget *parent_w)
 
   for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
     GtkWidget *button;
-    header_field_info *hfinfo;
     protocol_data_t *p = entry->data;
-    hfinfo = proto_registrar_get_nth(p->hfinfo_index);
+
     button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
-					       hfinfo->abbrev);      
-    /* XXX optimization but should not use display field */
-    if (hfinfo->display != GTK_TOGGLE_BUTTON (button)->active) {
+					       p->abbrev);
+    if (proto_is_protocol_enabled(p->hfinfo_index) != GTK_TOGGLE_BUTTON (button)->active) {
       proto_set_decoding(p->hfinfo_index, GTK_TOGGLE_BUTTON (button)->active);
       need_redissect = TRUE;
     }  
   }
 
-return need_redissect;
+  return need_redissect;
 
 } /* set_proto_selection */
 
@@ -242,30 +230,22 @@ static void show_proto_selection(GtkWidget *main, GtkWidget *container)
   GtkTooltips *tooltips;
   GtkWidget *table;
   int i, t = 0, l = 0, nb_line, nb_proto = 0;
+  void *cookie;
+  protocol_data_t *p;
 
-  /* Obtain the number of "true" protocols */
+  /* Iterate over all the protocols */
 
-  for (i = 0; i < proto_registrar_n() ; i++) {
-
-    if (proto_registrar_is_protocol(i)) {
-
-      protocol_data_t *p;
-      header_field_info *hfinfo;
-      hfinfo = proto_registrar_get_nth(i);	  
-
-      if (strcmp(hfinfo->abbrev, "data") == 0 ||
-	  strcmp(hfinfo->abbrev, "text") == 0 ||
-	  strcmp(hfinfo->abbrev, "malformed") == 0 ||
-	  strcmp(hfinfo->abbrev, "short") == 0 ||
-	  strcmp(hfinfo->abbrev, "frame") == 0) continue;
-
-      p = g_malloc(sizeof(protocol_data_t));
-      p->abbrev = hfinfo->abbrev;
-      p->hfinfo_index = i;
-      protocol_list = g_slist_insert_sorted(protocol_list, 
+  for (i = proto_get_first_protocol(&cookie); i != -1;
+       i = proto_get_next_protocol(&cookie)) {
+      if (proto_can_disable_protocol(i)) {
+        p = g_malloc(sizeof(protocol_data_t));
+        p->name = proto_get_protocol_name(i);
+        p->abbrev = proto_get_protocol_filter_name(i);
+        p->hfinfo_index = i;
+        protocol_list = g_slist_insert_sorted(protocol_list, 
 					    p, protocol_data_compare);     
-      nb_proto ++;
-    }
+        nb_proto ++;
+      }
   }
 
   /* create a table (n x NB_COL) of buttons */
@@ -283,15 +263,15 @@ static void show_proto_selection(GtkWidget *main, GtkWidget *container)
 
   for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
     GtkWidget *button;
-    header_field_info *hfinfo;
-    protocol_data_t *p = entry->data;
-    hfinfo = proto_registrar_get_nth(p->hfinfo_index);	  
+
+    p = entry->data;
     /* button label is the protocol abbrev */
-    button = gtk_toggle_button_new_with_label(hfinfo->abbrev);
+    button = gtk_toggle_button_new_with_label(p->abbrev);
     /* tip is the complete protocol name */
-    gtk_tooltips_set_tip(tooltips, button, hfinfo->name, NULL);
-    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), hfinfo->display);
-    gtk_object_set_data(GTK_OBJECT(main), hfinfo->abbrev, button);
+    gtk_tooltips_set_tip(tooltips, button, p->name, NULL);
+    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
+				proto_is_protocol_enabled(p->hfinfo_index));
+    gtk_object_set_data(GTK_OBJECT(main), p->abbrev, button);
     gtk_table_attach_defaults (GTK_TABLE (table), button, l, l+1, t, t+1);
     gtk_widget_show (button);
     if (++nb_proto % NB_COL) {

@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.7 2000/12/27 12:38:08 guy Exp $
+ * $Id: packet-cops.c,v 1.8 2001/01/03 06:55:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -815,7 +815,8 @@ void proto_register_cops(void)
         };
 
         /* Register the protocol name and description */
-        proto_cops = proto_register_protocol("Common Open Policy Service", "cops");
+        proto_cops = proto_register_protocol("Common Open Policy Service",
+	    "COPS", "cops");
 
         /* Required function calls to register the header fields and subtrees used */
         proto_register_field_array(proto_cops, hf, array_length(hf));

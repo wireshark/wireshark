@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.30 2000/12/28 05:13:14 itojun Exp $
+ * $Id: packet-bgp.c,v 1.31 2001/01/03 06:55:27 guy Exp $
  * 
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -1507,7 +1507,8 @@ proto_register_bgp(void)
       &ett_bgp_option,
     };
 
-    proto_bgp = proto_register_protocol("Border Gateway Protocol", "bgp");
+    proto_bgp = proto_register_protocol("Border Gateway Protocol",
+					"BGP", "bgp");
     proto_register_field_array(proto_bgp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }

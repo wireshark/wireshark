@@ -1,7 +1,7 @@
 /* packet-isl.c
  * Routines for Cisco ISL Ethernet header disassembly
  *
- * $Id: packet-isl.c,v 1.19 2000/12/29 00:51:52 guy Exp $
+ * $Id: packet-isl.c,v 1.20 2001/01/03 06:55:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -342,7 +342,7 @@ proto_register_isl(void)
 	&ett_isl,
   };
 
-  proto_isl = proto_register_protocol("Cisco ISL", "isl");
+  proto_isl = proto_register_protocol("Cisco ISL", "ISL", "isl");
   proto_register_field_array(proto_isl, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 

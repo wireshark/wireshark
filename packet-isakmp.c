@@ -3,7 +3,7 @@
  * (ISAKMP) (RFC 2408)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.32 2000/12/12 09:57:05 itojun Exp $
+ * $Id: packet-isakmp.c,v 1.33 2001/01/03 06:55:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1445,7 +1445,8 @@ proto_register_isakmp(void)
 		&ett_isakmp_payload,
 	};
 
-        proto_isakmp = proto_register_protocol("Internet Security Association and Key Management Protocol", "isakmp");
+        proto_isakmp = proto_register_protocol("Internet Security Association and Key Management Protocol",
+					       "ISAKMP", "isakmp");
  /*       proto_register_field_array(proto_isakmp, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
 }

@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.9 2000/08/13 14:08:22 deniel Exp $
+ * $Id: packet-isis-lsp.c,v 1.10 2001/01/03 06:55:29 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -950,7 +950,8 @@ proto_register_isis_lsp(void) {
 		&ett_isis_lsp_clv_ip_reachability,
 	};
 
-	proto_isis_lsp = proto_register_protocol( PROTO_STRING_LSP, "isis_lsp");
+	proto_isis_lsp = proto_register_protocol(PROTO_STRING_LSP,
+	    "ISIS LSP", "isis_lsp");
 	proto_register_field_array(proto_isis_lsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

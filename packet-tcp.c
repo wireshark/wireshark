@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.93 2000/12/30 05:23:56 itojun Exp $
+ * $Id: packet-tcp.c,v 1.94 2001/01/03 06:55:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -745,7 +745,8 @@ proto_register_tcp(void)
 	};
 	module_t *tcp_module;
 
-	proto_tcp = proto_register_protocol ("Transmission Control Protocol", "tcp");
+	proto_tcp = proto_register_protocol("Transmission Control Protocol",
+	    "TCP", "tcp");
 	proto_register_field_array(proto_tcp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 

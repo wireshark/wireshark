@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sap.c,v 1.16 2000/11/19 21:01:06 guy Exp $
+ * $Id: packet-sap.c,v 1.17 2001/01/03 06:55:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -357,7 +357,8 @@ void proto_register_sap(void)
     &ett_sap_authf,
   };
 
-  proto_sap = proto_register_protocol("Session Announcement Protocol", "sap");
+  proto_sap = proto_register_protocol("Session Announcement Protocol", "SAP",
+				      "sap");
   proto_register_field_array(proto_sap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }

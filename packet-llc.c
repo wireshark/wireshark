@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-llc.c,v 1.73 2000/12/28 09:49:09 guy Exp $
+ * $Id: packet-llc.c,v 1.74 2001/01/03 06:55:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -382,7 +382,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case OUI_CABLE_BPDU:    /* DOCSIS cable modem spanning tree BPDU */
 			if (tree) {
 				proto_tree_add_uint(llc_tree,
-				hf_llc_pid, tvb, 6, 2, etype);
+				    hf_llc_pid, tvb, 6, 2, etype);
 			}
 			call_dissector(bpdu_handle, next_tvb, pinfo, tree);
 			break;
@@ -468,7 +468,7 @@ proto_register_llc(void)
 		&ett_llc_ctrl,
 	};
 
-	proto_llc = proto_register_protocol ("Logical-Link Control", "llc" );
+	proto_llc = proto_register_protocol("Logical-Link Control", "LLC", "llc");
 	proto_register_field_array(proto_llc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 

@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.19 2000/11/18 10:38:25 guy Exp $
+ * $Id: packet-pim.c,v 1.20 2001/01/03 06:55:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -600,7 +600,7 @@ proto_register_pim(void)
     };
 
     proto_pim = proto_register_protocol("Protocol Independent Multicast",
-	"pim");
+	"PIM", "pim");
     proto_register_field_array(proto_pim, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }

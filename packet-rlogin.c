@@ -2,7 +2,7 @@
  * Routines for unix rlogin packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-rlogin.c,v 1.11 2000/11/19 08:54:04 guy Exp $
+ * $Id: packet-rlogin.c,v 1.12 2001/01/03 06:55:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -480,7 +480,7 @@ proto_register_rlogin( void){
 	
 
    	proto_rlogin = proto_register_protocol (
-   		"Rlogin Protocol", "rlogin");           
+   		"Rlogin Protocol", "Rlogin", "rlogin");
 
 	proto_register_field_array(proto_rlogin, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));  

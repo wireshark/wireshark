@@ -2,7 +2,7 @@
  * Routines for Microsoft Proxy packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-msproxy.c,v 1.14 2000/11/19 08:54:00 guy Exp $
+ * $Id: packet-msproxy.c,v 1.15 2001/01/03 06:55:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1339,7 +1339,8 @@ proto_register_msproxy( void){
 
 	};
 
-   	proto_msproxy = proto_register_protocol ( "MSProxy Protocol", "msproxy");           
+   	proto_msproxy = proto_register_protocol( "MS Proxy Protocol",
+	    "MS Proxy", "msproxy");
 
 	proto_register_field_array(proto_msproxy, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));  

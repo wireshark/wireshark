@@ -6,7 +6,7 @@
  *       In particular I have not had an opportunity to see how it 
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.16 2000/11/19 08:54:08 guy Exp $
+ * $Id: packet-srvloc.c,v 1.17 2001/01/03 06:55:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -523,7 +523,8 @@ proto_register_srvloc(void)
       &ett_srvloc_flags,
    };
 
-    proto_srvloc = proto_register_protocol("Service Location Protocol", "srvloc");
+    proto_srvloc = proto_register_protocol("Service Location Protocol",
+					   "SRVLOC", "srvloc");
     proto_register_field_array(proto_srvloc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 };

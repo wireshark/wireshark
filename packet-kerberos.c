@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.11 2000/12/26 16:44:43 nneul Exp $
+ * $Id: packet-kerberos.c,v 1.12 2001/01/03 06:55:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1292,7 +1292,7 @@ proto_register_kerberos(void) {
         &ett_addresses,
         &ett_etype,
     };
-    proto_kerberos = proto_register_protocol("Kerberos", "kerberos");
+    proto_kerberos = proto_register_protocol("Kerberos", "KRB5", "kerberos");
 /*
     proto_register_field_array(proto_kerberos, hf, array_length(hf));
 */

@@ -1,7 +1,7 @@
 /* packet-bootparams.c
  * Routines for bootparams dissection
  *
- * $Id: packet-bootparams.c,v 1.13 2000/08/14 11:36:03 girlich Exp $
+ * $Id: packet-bootparams.c,v 1.14 2001/01/03 06:55:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -179,7 +179,8 @@ proto_register_bootparams(void)
 		&ett_bootparams,
 	};
 
-	proto_bootparams = proto_register_protocol("Boot Parameters", "bootparams");
+	proto_bootparams = proto_register_protocol("Boot Parameters",
+	    "BOOTPARAMS", "bootparams");
 	proto_register_field_array(proto_bootparams, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

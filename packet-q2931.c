@@ -2,7 +2,7 @@
  * Routines for Q.2931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q2931.c,v 1.13 2000/11/19 08:54:03 guy Exp $
+ * $Id: packet-q2931.c,v 1.14 2001/01/03 06:55:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -2128,7 +2128,7 @@ proto_register_q2931(void)
 		&ett_q2931_nsap,
 	};
 
-	proto_q2931 = proto_register_protocol ("Q.2931", "q2931");
+	proto_q2931 = proto_register_protocol("Q.2931", "Q.2931", "q2931");
 	proto_register_field_array (proto_q2931, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

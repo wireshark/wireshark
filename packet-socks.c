@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.15 2000/11/19 08:54:08 guy Exp $
+ * $Id: packet-socks.c,v 1.16 2001/01/03 06:55:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1137,7 +1137,7 @@ proto_register_socks( void){
 
 
    	proto_socks = proto_register_protocol (
-   		"Socks Protocol", "socks");           
+   		"Socks Protocol", "Socks", "socks");           
 
 	proto_register_field_array(proto_socks, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));  

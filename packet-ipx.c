@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.71 2000/12/03 09:18:20 guy Exp $
+ * $Id: packet-ipx.c,v 1.72 2001/01/03 06:55:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -878,19 +878,24 @@ proto_register_ipx(void)
 		&ett_ipxsap_server,
 	};
 
-	proto_ipx = proto_register_protocol ("Internetwork Packet eXchange", "ipx");
+	proto_ipx = proto_register_protocol("Internetwork Packet eXchange",
+	    "IPX", "ipx");
 	proto_register_field_array(proto_ipx, hf_ipx, array_length(hf_ipx));
 
-	proto_spx = proto_register_protocol ("Sequenced Packet eXchange", "spx");
+	proto_spx = proto_register_protocol("Sequenced Packet eXchange",
+	    "SPX", "spx");
 	proto_register_field_array(proto_spx, hf_spx, array_length(hf_spx));
 
-	proto_ipxrip = proto_register_protocol ("IPX Routing Information Protocol", "ipxrip");
+	proto_ipxrip = proto_register_protocol("IPX Routing Information Protocol",
+	    "IPX RIP", "ipxrip");
 	proto_register_field_array(proto_ipxrip, hf_ipxrip, array_length(hf_ipxrip));
 
-	proto_ipxmsg = proto_register_protocol ("IPX Message", "ipxmsg");
+	proto_ipxmsg = proto_register_protocol("IPX Message", "IPX MSG",
+	    "ipxmsg");
 	proto_register_field_array(proto_ipxmsg, hf_ipxmsg, array_length(hf_ipxmsg));
 
-	proto_sap = proto_register_protocol ("Service Advertisement Protocol", "ipxsap");
+	proto_sap = proto_register_protocol("Service Advertisement Protocol",
+	    "IPX SAP", "ipxsap");
 	proto_register_field_array(proto_sap, hf_sap, array_length(hf_sap));
 
 	proto_register_subtree_array(ett, array_length(ett));

@@ -179,6 +179,9 @@ static int heur_init = FALSE;
 
 static char rtcp_proto[] = "RTCP";
 
+static gboolean dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *tree );
+
 void rtcp_add_address( const unsigned char* ip_addr, int prt )
 {
 	address src_addr;
@@ -231,7 +234,7 @@ static void rtcp_init( void )
 }
 #endif
 
-gboolean
+static gboolean
 dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
 	conversation_t* pconv;
@@ -1206,7 +1209,8 @@ proto_register_rtcp(void)
 	};
 
 
-	proto_rtcp = proto_register_protocol("Real-time Transport Control Protocol", "rtcp");
+	proto_rtcp = proto_register_protocol("Real-time Transport Control Protocol",
+	    "RTCP", "rtcp");
 	proto_register_field_array(proto_rtcp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 

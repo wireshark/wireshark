@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.20 2000/11/19 08:54:10 guy Exp $
+ * $Id: packet-vines.c,v 1.21 2001/01/03 06:55:34 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -397,7 +397,7 @@ proto_register_vines(void)
 	      "Vines protocol" }}
 	};
 
-	proto_vines = proto_register_protocol("Banyan Vines", "vines");
+	proto_vines = proto_register_protocol("Banyan Vines", "Vines", "vines");
 	proto_register_field_array(proto_vines, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

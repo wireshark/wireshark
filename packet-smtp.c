@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.12 2000/11/19 08:54:07 guy Exp $
+ * $Id: packet-smtp.c,v 1.13 2001/01/03 06:55:32 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -563,7 +563,8 @@ proto_register_smtp(void)
 
   /* No Configuration options to register? */
 
-  proto_smtp = proto_register_protocol("Simple Mail Transfer Protocol", "smtp");
+  proto_smtp = proto_register_protocol("Simple Mail Transfer Protocol",
+				       "SMTP", "smtp");
 
   proto_register_field_array(proto_smtp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

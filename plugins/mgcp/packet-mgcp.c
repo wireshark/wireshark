@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.11 2000/12/28 10:10:17 guy Exp $
+ * $Id: packet-mgcp.c,v 1.12 2001/01/03 06:56:03 guy Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -58,7 +58,7 @@ G_MODULE_EXPORT const gchar version[] = VERSION;
 #define TCP_PORT_MGCP_CALLAGENT 2727
 #define UDP_PORT_MGCP_CALLAGENT 2727
 
-void proto_reg_handoff_mgcp(void);
+static void proto_reg_handoff_mgcp(void);
 
 
 /* Define the mgcp proto */
@@ -476,7 +476,7 @@ proto_register_mgcp(void)
                                  &global_mgcp_dissect_tree);
 
   proto_mgcp = proto_register_protocol("Media Gateway Control Protocol",
-				       "mgcp");
+				       "MGCP", "mgcp");
 
   proto_register_field_array(proto_mgcp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -484,7 +484,7 @@ proto_register_mgcp(void)
 }
 
 /* The registration hand-off routine */
-void
+static void
 proto_reg_handoff_mgcp(void)
 {
   static int mgcp_prefs_initialized = FALSE;

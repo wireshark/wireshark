@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-hsrp.c,v 1.12 2000/12/02 08:41:07 guy Exp $
+ * $Id: packet-hsrp.c,v 1.13 2001/01/03 06:55:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -231,7 +231,8 @@ void proto_register_hsrp(void)
                 &ett_hsrp,
         };
 
-        proto_hsrp = proto_register_protocol("Cisco Hot Standby Router Protocol", "hsrp");
+        proto_hsrp = proto_register_protocol("Cisco Hot Standby Router Protocol",
+	    "HSRP", "hsrp");
         proto_register_field_array(proto_hsrp, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
 

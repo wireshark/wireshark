@@ -27,6 +27,5 @@
  */
 
 void     rtcp_add_address   ( const unsigned char* ip_addr, int prt );
-gboolean dissect_rtcp_heur  ( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree );
 void     dissect_rtcp       ( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree );
 void     proto_register_rtcp( void );

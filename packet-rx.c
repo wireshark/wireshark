@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.15 2000/11/19 08:54:05 guy Exp $
+ * $Id: packet-rx.c,v 1.16 2001/01/03 06:55:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -239,7 +239,7 @@ proto_register_rx(void)
 		&ett_rx_flags,
 	};
 
-	proto_rx = proto_register_protocol("RX Protocol", "rx");
+	proto_rx = proto_register_protocol("RX Protocol", "RX", "rx");
 	proto_register_field_array(proto_rx, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

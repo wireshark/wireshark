@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.80 2000/12/13 02:24:21 guy Exp $
+ * $Id: packet-udp.c,v 1.81 2001/01/03 06:55:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -276,7 +276,8 @@ proto_register_udp(void)
 		&ett_udp,
 	};
 
-	proto_udp = proto_register_protocol("User Datagram Protocol", "udp");
+	proto_udp = proto_register_protocol("User Datagram Protocol",
+	    "UDP", "udp");
 	proto_register_field_array(proto_udp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 

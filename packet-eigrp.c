@@ -2,7 +2,7 @@
  * Routines for EIGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-eigrp.c,v 1.9 2000/11/19 08:53:56 guy Exp $
+ * $Id: packet-eigrp.c,v 1.10 2001/01/03 06:55:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -457,7 +457,8 @@ proto_register_eigrp(void)
         &ett_eigrp,
 	&ett_tlv,
       };
-   proto_eigrp = proto_register_protocol("Enhanced Interior Gateway Routing Protocol", "eigrp");
+   proto_eigrp = proto_register_protocol("Enhanced Interior Gateway Routing Protocol",
+					 "EIGRP", "eigrp");
    proto_register_field_array(proto_eigrp, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
    }

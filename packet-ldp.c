@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for ldp packet disassembly
  *
- * $Id: packet-ldp.c,v 1.10 2000/12/04 13:40:11 sharpe Exp $
+ * $Id: packet-ldp.c,v 1.11 2001/01/03 06:55:29 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -804,7 +804,7 @@ proto_register_ldp(void)
 				 10, &global_ldp_udp_port);
 
   proto_ldp = proto_register_protocol("Label Distribution Protocol",
-				       "ldp");
+				       "LDP", "ldp");
 
   proto_register_field_array(proto_ldp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

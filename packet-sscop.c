@@ -2,7 +2,7 @@
  * Routines for SSCOP (Q.2110, Q.SAAL) frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sscop.c,v 1.12 2000/11/19 08:54:09 guy Exp $
+ * $Id: packet-sscop.c,v 1.13 2001/01/03 06:55:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -322,6 +322,6 @@ proto_register_sscop(void)
 	static gint *ett[] = {
 		&ett_sscop,
 	};
-	proto_sscop = proto_register_protocol("SSCOP", "sscop");
+	proto_sscop = proto_register_protocol("SSCOP", "SSCOP", "sscop");
 	proto_register_subtree_array(ett, array_length(ett));
 }

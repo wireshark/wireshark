@@ -4,7 +4,7 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quake.c,v 1.10 2000/12/02 08:41:08 guy Exp $
+ * $Id: packet-quake.c,v 1.11 2001/01/03 06:55:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -708,7 +708,8 @@ proto_register_quake(void)
     &ett_quake_flags,
   };
 
-  proto_quake = proto_register_protocol("Quake Network Protocol", "quake");
+  proto_quake = proto_register_protocol("Quake Network Protocol",
+					"QUAKE", "quake");
   proto_register_field_array(proto_quake, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
@@ -717,5 +718,5 @@ proto_register_quake(void)
 void
 proto_reg_handoff_quake(void)
 {
-	dissector_add("udp.port", DEFAULTnet_hostport, dissect_quake);
+  dissector_add("udp.port", DEFAULTnet_hostport, dissect_quake);
 }

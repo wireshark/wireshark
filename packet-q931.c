@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.21 2000/11/19 08:54:03 guy Exp $
+ * $Id: packet-q931.c,v 1.22 2001/01/03 06:55:31 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -2634,7 +2634,7 @@ proto_register_q931(void)
 		&ett_q931_ie,
 	};
 
-	proto_q931 = proto_register_protocol ("Q.931", "q931");
+	proto_q931 = proto_register_protocol("Q.931", "Q.931", "q931");
 	proto_register_field_array (proto_q931, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 

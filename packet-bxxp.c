@@ -1,7 +1,7 @@
 /* packet-bxxp.c
  * Routines for BXXP packet disassembly
  *
- * $Id: packet-bxxp.c,v 1.12 2000/12/02 08:41:07 guy Exp $
+ * $Id: packet-bxxp.c,v 1.13 2001/01/03 06:55:27 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -1213,6 +1213,13 @@ proto_register_bxxp(void)
   };
   module_t *bxxp_module; 
 
+  proto_bxxp = proto_register_protocol("Blocks eXtensible eXchange Protocol",
+				       "BXXP", "bxxp");
+
+  proto_register_field_array(proto_bxxp, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
+  register_init_routine(&bxxp_init_protocol);
+
   /* Register our configuration options for BXXP, particularly our port */
 
   bxxp_module = prefs_register_module("bxxp", "BXXP", proto_reg_handoff_bxxp);
@@ -1227,14 +1234,6 @@ proto_register_bxxp(void)
 				 "Specifies that BXXP requires CRLF as a "
 				 "terminator, and not just CR or LF",
 				 &global_bxxp_strict_term);
-
-  proto_bxxp = proto_register_protocol("Blocks eXtensible eXchange Protocol",
-				       "bxxp");
-
-  proto_register_field_array(proto_bxxp, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
-  register_init_routine(&bxxp_init_protocol);
-
 }
 
 /* The registration hand-off routine */

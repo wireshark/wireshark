@@ -2,7 +2,7 @@
  * Routines for raw data (default case)
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-data.c,v 1.20 2000/11/16 07:35:37 guy Exp $
+ * $Id: packet-data.c,v 1.21 2001/01/03 06:55:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -71,6 +71,15 @@ void
 proto_register_data(void)
 {
 	proto_data = proto_register_protocol (
-		/* name */	"Data",
-		/* abbrev */	"data" );
+		"Data",		/* name */
+		"Data",		/* short name */
+		"data"		/* abbrev */
+		);
+
+	/*
+	 * "Data" is used to dissect something whose normal dissector
+	 * is disabled, so it cannot itself be disabled.
+	 */
+	proto_set_cant_disable(proto_data);
+
 }

@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TIME Option Extension
  *
- * $Id: packet-time.c,v 1.9 2000/11/19 08:54:10 guy Exp $
+ * $Id: packet-time.c,v 1.10 2001/01/03 06:55:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -86,7 +86,7 @@ proto_register_time(void)
     &ett_time,
   };
 
-  proto_time = proto_register_protocol("Time Protocol", "time");
+  proto_time = proto_register_protocol("Time Protocol", "TIME", "time");
   proto_register_field_array(proto_time, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }

@@ -2,7 +2,7 @@
  * Routines for imap packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-imap.c,v 1.11 2000/12/29 02:19:14 guy Exp $
+ * $Id: packet-imap.c,v 1.12 2001/01/03 06:55:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -174,7 +174,7 @@ proto_register_imap(void)
   };
 
   proto_imap = proto_register_protocol("Internet Message Access Protocol", 
-				       "imap");
+				       "IMAP", "imap");
   proto_register_field_array(proto_imap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }

@@ -3,7 +3,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.5 2000/12/02 08:41:08 guy Exp $
+ * $Id: packet-wsp.c,v 1.6 2001/01/03 06:55:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1459,6 +1459,7 @@ proto_register_wsp(void)
 /* Register the protocol name and description */
 	proto_wsp = proto_register_protocol(
 		"Wireless Session Protocol",   	/* protocol name for use by ethereal */ 
+		"WSP",                          /* short version of name */
 		"wap-wsp"                    	/* Abbreviated protocol name, should Match IANA 
 						    < URL:http://www.isi.edu/in-notes/iana/assignments/port-numbers/ >
 						  */

@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.22 2000/11/19 08:53:58 guy Exp $
+ * $Id: packet-ipsec.c,v 1.23 2001/01/03 06:55:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -342,13 +342,15 @@ proto_register_ipsec(void)
 
   module_t *ah_module;
 
-  proto_ah = proto_register_protocol("Authentication Header", "ah");
+  proto_ah = proto_register_protocol("Authentication Header", "AH", "ah");
   proto_register_field_array(proto_ah, hf_ah, array_length(hf_ah));
 
-  proto_esp = proto_register_protocol("Encapsulated Security Payload", "esp");
+  proto_esp = proto_register_protocol("Encapsulated Security Payload",
+				      "ESP", "esp");
   proto_register_field_array(proto_esp, hf_esp, array_length(hf_esp));
 
-  proto_ipcomp = proto_register_protocol("IP Payload Compression", "ipcomp");
+  proto_ipcomp = proto_register_protocol("IP Payload Compression",
+					 "IPComp", "ipcomp");
   proto_register_field_array(proto_ipcomp, hf_ipcomp, array_length(hf_ipcomp));
 
   proto_register_subtree_array(ett, array_length(ett));

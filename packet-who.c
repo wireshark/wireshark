@@ -2,7 +2,7 @@
  * Routines for who protocol (see man rwhod)
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-who.c,v 1.11 2000/11/19 08:54:10 guy Exp $
+ * $Id: packet-who.c,v 1.12 2001/01/03 06:55:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -294,7 +294,7 @@ proto_register_who(void)
 		&ett_whoent,
 	};
 
-        proto_who = proto_register_protocol("Who", "who");
+        proto_who = proto_register_protocol("Who", "WHO", "who");
 	proto_register_field_array(proto_who, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

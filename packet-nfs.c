@@ -3,7 +3,7 @@
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
  *
- * $Id: packet-nfs.c,v 1.39 2000/12/01 00:38:18 guy Exp $
+ * $Id: packet-nfs.c,v 1.40 2001/01/03 06:55:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -5329,7 +5329,7 @@ proto_register_nfs(void)
 		&ett_nfs_client_id4,
 		&ett_nfs_bitmap4
 	};
-	proto_nfs = proto_register_protocol("Network File System", "nfs");
+	proto_nfs = proto_register_protocol("Network File System", "NFS", "nfs");
 	proto_register_field_array(proto_nfs, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

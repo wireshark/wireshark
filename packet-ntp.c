@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.20 2000/11/19 21:18:10 gerald Exp $
+ * $Id: packet-ntp.c,v 1.21 2001/01/03 06:55:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -437,7 +437,7 @@ proto_register_ntp(void)
 		&ett_ntp_flags,
 	};
 
-	proto_ntp = proto_register_protocol("Network Time Protocol", "ntp");
+	proto_ntp = proto_register_protocol("Network Time Protocol", "NTP", "ntp");
 	proto_register_field_array(proto_ntp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

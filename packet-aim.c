@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim.c,v 1.4 2000/11/28 06:38:47 guy Exp $
+ * $Id: packet-aim.c,v 1.5 2001/01/03 06:55:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -610,7 +610,7 @@ proto_register_aim(void)
   };
 
 /* Register the protocol name and description */
-  proto_aim = proto_register_protocol("AOL Instant Messenger", "aim");
+  proto_aim = proto_register_protocol("AOL Instant Messenger", "AIM", "aim");
 
 /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_aim, hf, array_length(hf));

@@ -2,7 +2,7 @@
  * Routines for Stream Control Transmission Protocol dissection
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sctp.c,v 1.7 2000/11/19 08:54:05 guy Exp $
+ * $Id: packet-sctp.c,v 1.8 2001/01/03 06:55:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -1806,7 +1806,7 @@ proto_register_sctp(void)
   
   /* Register the protocol name and description */
   proto_sctp = proto_register_protocol("Stream Control Transmission Protcol",
-				       "sctp");
+				       "SCTP", "sctp");
   
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_sctp, hf, array_length(hf));

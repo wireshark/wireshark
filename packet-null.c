@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.36 2000/12/02 08:41:07 guy Exp $
+ * $Id: packet-null.c,v 1.37 2001/01/03 06:55:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -307,7 +307,7 @@ proto_register_null(void)
 		&ett_null,
 	};
 
-	proto_null = proto_register_protocol ("Null/Loopback", "null" );
+	proto_null = proto_register_protocol("Null/Loopback", "Null", "null");
 	proto_register_field_array(proto_null, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 

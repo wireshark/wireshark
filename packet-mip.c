@@ -2,7 +2,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <Stefan.Raab@nextel.com>
  *
- * $Id: packet-mip.c,v 1.9 2000/11/19 08:54:00 guy Exp $
+ * $Id: packet-mip.c,v 1.10 2001/01/03 06:55:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -287,7 +287,7 @@ void proto_register_mip(void)
 	};
 
 /* Register the protocol name and description */
-	proto_mip = proto_register_protocol("Mobile IP", "mip");
+	proto_mip = proto_register_protocol("Mobile IP", "Mobile IP", "mip");
 
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_mip, hf, array_length(hf));

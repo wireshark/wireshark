@@ -1,7 +1,7 @@
 /* packet-ypbind.c
  * Routines for ypbind dissection
  *
- * $Id: packet-ypbind.c,v 1.5 2000/04/04 06:46:28 guy Exp $
+ * $Id: packet-ypbind.c,v 1.6 2001/01/03 06:55:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -67,7 +67,8 @@ proto_register_ypbind(void)
 		&ett_ypbind,
 	};
 
-	proto_ypbind = proto_register_protocol("Yellow Pages Bind", "ypbind");
+	proto_ypbind = proto_register_protocol("Yellow Pages Bind",
+	    "YPBIND", "ypbind");
 	proto_register_subtree_array(ett, array_length(ett));
 }
 

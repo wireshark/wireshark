@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.18 2000/12/24 09:10:12 guy Exp $
+ * $Id: packet-ldap.c,v 1.19 2001/01/03 06:55:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1195,7 +1195,8 @@ proto_register_ldap(void)
     &ett_ldap_attribute
   };
 
-  proto_ldap = proto_register_protocol("Lightweight Directory Access Protocol", "ldap");
+  proto_ldap = proto_register_protocol("Lightweight Directory Access Protocol",
+				       "LDAP", "ldap");
   proto_register_field_array(proto_ldap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }

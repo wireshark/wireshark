@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.48 2000/12/14 08:20:29 guy Exp $
+ * $Id: packet-ppp.c,v 1.49 2001/01/03 06:55:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1408,16 +1408,17 @@ proto_register_ppp(void)
 		&ett_lcp_internationalization_opt,
 	};
 
-    static enum_val_t ppp_options[] = {
-    	{"None", 0}, 
-    	{"16-Bit", 1}, 
-    	{"32-Bit", 2},
-    	{NULL, -1}
-    };
+	static enum_val_t ppp_options[] = {
+		{"None", 0}, 
+		{"16-Bit", 1}, 
+		{"32-Bit", 2},
+		{NULL, -1}
+	};
     
-    module_t *ppp_module;
+	module_t *ppp_module;
 
-        proto_ppp = proto_register_protocol("Point-to-Point Protocol", "ppp");
+        proto_ppp = proto_register_protocol("Point-to-Point Protocol",
+	    "PPP", "ppp");
  /*       proto_register_field_array(proto_ppp, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
 
@@ -1431,11 +1432,11 @@ proto_register_ppp(void)
 	ppp_module = prefs_register_module("ppp", "PPP", NULL);
 
 	prefs_register_enum_preference(ppp_module, 
-	"ppp_fcs",
-	"PPP Frame Checksum",
-    "PPP Frame Checksum", 
-    &ppp_fcs_decode,
-    ppp_options, FALSE);
+	    "ppp_fcs",
+	    "PPP Frame Checksum",
+	    "PPP Frame Checksum", 
+	    &ppp_fcs_decode,
+	    ppp_options, FALSE);
 }
 
 void
@@ -1459,7 +1460,7 @@ proto_register_mp(void)
     &ett_mp_flags,
   };
 
-  proto_mp = proto_register_protocol("PPP Multilink Protocol", "mp");
+  proto_mp = proto_register_protocol("PPP Multilink Protocol", "PPP MP", "mp");
   proto_register_field_array(proto_mp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
@@ -1467,6 +1468,6 @@ proto_register_mp(void)
 void
 proto_reg_handoff_ppp(void)
 {
-	dissector_add("wtap_encap", WTAP_ENCAP_PPP, dissect_ppp);
-	dissector_add("wtap_encap", WTAP_ENCAP_PPP_WITH_PHDR, dissect_ppp);
+  dissector_add("wtap_encap", WTAP_ENCAP_PPP, dissect_ppp);
+  dissector_add("wtap_encap", WTAP_ENCAP_PPP_WITH_PHDR, dissect_ppp);
 }

@@ -620,7 +620,8 @@ proto_register_rtp(void)
 	};
 
 
-	proto_rtp = proto_register_protocol("Real-Time Transport Protocol", "rtp");
+	proto_rtp = proto_register_protocol("Real-Time Transport Protocol",
+	    "RTP", "rtp");
 	proto_register_field_array(proto_rtp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 

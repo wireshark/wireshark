@@ -2,7 +2,7 @@
  * Routines for RIPv1 and RIPv2 packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-rip.c,v 1.20 2000/12/27 12:48:25 guy Exp $
+ * $Id: packet-rip.c,v 1.21 2001/01/03 06:55:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -193,22 +193,23 @@ dissect_rip_authentication(tvbuff_t *tvb, int offset, proto_tree *tree)
 void
 proto_register_rip(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "rip.abbreviation", TYPE, VALS_POINTER }},
-        };*/
-	static gint *ett[] = {
-		&ett_rip,
-		&ett_rip_vec,
-	};
+/*  static hf_register_info hf[] = {
+	{ &variable,
+	{ "Name",           "rip.abbreviation", TYPE, VALS_POINTER }},
+    };*/
+    static gint *ett[] = {
+	&ett_rip,
+	&ett_rip_vec,
+    };
 
-        proto_rip = proto_register_protocol("Routing Information Protocol", "rip");
- /*       proto_register_field_array(proto_rip, hf, array_length(hf));*/
-	proto_register_subtree_array(ett, array_length(ett));
+    proto_rip = proto_register_protocol("Routing Information Protocol",
+					"RIP", "rip");
+/*  proto_register_field_array(proto_rip, hf, array_length(hf));*/
+    proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_rip(void)
 {
-	dissector_add("udp.port", UDP_PORT_RIP, dissect_rip);
+    dissector_add("udp.port", UDP_PORT_RIP, dissect_rip);
 }

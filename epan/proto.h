@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.2 2000/11/16 07:35:42 guy Exp $
+ * $Id: proto.h,v 1.3 2001/01/03 06:55:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -109,7 +109,6 @@ enum {
 	BASE_BIN
 };
 
-
 /* information describing a header field */
 typedef struct header_field_info {
 	char				*name;
@@ -193,7 +192,7 @@ proto_register_field(char *name, char *abbrev, enum ftenum type, int parent,
 	struct value_string* vals);
 
 int
-proto_register_protocol(char *name, char *abbrev);
+proto_register_protocol(char *name, char *short_name, char *filter_name);
 
 void
 proto_register_field_array(int parent, hf_register_info *hf, int num_records);
@@ -501,10 +500,30 @@ int proto_registrar_get_parent(int n);
 gboolean proto_registrar_is_protocol(int n);
 
 /* Is item #n decoding enabled ? */
-gboolean proto_is_protocol_enabled(int n);
+gboolean proto_is_protocol_enabled(int proto_id);
+
+/* Can item #n decoding be disabled? */
+gboolean proto_can_disable_protocol(int proto_id);
+
+/* Routines to use to iterate over the protocols; they return the item
+ * number of the protocol in question, and keep state in "*cookie". */
+int proto_get_first_protocol(void **cookie);
+int proto_get_next_protocol(void **cookie);
+
+/* Given a protocol's item number, return its name. */
+char *proto_get_protocol_name(int n);
+
+/* Given a protocol's item number, return its short name. */
+char *proto_get_protocol_short_name(int proto_id);
+
+/* Given a protocol's item number, return its filter name. */
+char *proto_get_protocol_filter_name(int proto_id);
 
 /* Enable / Disable protocol */
-void proto_set_decoding(int n, gboolean enabled);
+void proto_set_decoding(int proto_id, gboolean enabled);
+
+/* Disable disabling of protocol */
+void proto_set_cant_disable(int proto_id);
 
 /* Get length of registered field according to field type.
  * 0 means undeterminable at registration time.

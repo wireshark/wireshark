@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.5 2000/12/29 04:16:57 guy Exp $
+ * $Id: packet-frame.c,v 1.6 2001/01/03 06:55:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -185,11 +185,20 @@ proto_register_frame(void)
 
 	wtap_encap_dissector_table = register_dissector_table("wtap_encap");
 
-	proto_frame = proto_register_protocol("Frame", "frame");
+	proto_frame = proto_register_protocol("Frame", "Frame", "frame");
 	proto_register_field_array(proto_frame, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	proto_short = proto_register_protocol("Short Frame", "short");
-	proto_malformed = proto_register_protocol("Malformed Frame", "malformed");
+	/* You can't disable dissection of "Frame", as that would be
+	   tantamount to not doing any dissection whatsoever. */
+	proto_set_cant_disable(proto_frame);
 
+	proto_short = proto_register_protocol("Short Frame", "Short frame", "short");
+	proto_malformed = proto_register_protocol("Malformed Frame",
+	    "Malformed frame", "malformed");
+
+	/* "Short Frame" and "Malformed Frame" aren't really protocols,
+	   they're error indications; disabling them makes no sense. */
+	proto_set_cant_disable(proto_short);
+	proto_set_cant_disable(proto_malformed);
 }

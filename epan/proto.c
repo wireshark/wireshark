@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.3 2000/11/13 07:19:29 guy Exp $
+ * $Id: proto.c,v 1.4 2001/01/03 06:55:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -115,19 +115,34 @@ static int proto_register_field_init(header_field_info *hfinfo, int parent);
 /* special-case header field used within proto.c */
 int hf_text_only = 1;
 
+/* Structure for information about a protocol */
+typedef struct {
+	char	*name;		/* long description */
+	char	*short_name;	/* short description */
+	char	*filter_name;	/* name of this protocol in filters */
+	int	proto_id;	/* field ID for this protocol */
+	GList	*fields;	/* fields for this protocol */
+	GList	*last_field;	/* pointer to end of list of fields */
+	gboolean is_enabled;	/* TRUE if protocol is enabled */
+	gboolean can_disable;	/* TRUE if protocol can be disabled */
+} protocol_t;
+
+/* List of all protocols */
+static GList *protocols;
+
 /* Contains information about protocols and header fields. Used when
  * dissectors register their data */
-GMemChunk *gmc_hfinfo = NULL;
+static GMemChunk *gmc_hfinfo = NULL;
 
 /* Contains information about a field when a dissector calls
  * proto_tree_add_item.  */
-GMemChunk *gmc_field_info = NULL;
+static GMemChunk *gmc_field_info = NULL;
 
 /* String space for protocol and field items for the GUI */
-GMemChunk *gmc_item_labels = NULL;
+static GMemChunk *gmc_item_labels = NULL;
 
 /* List which stores protocols and fields that have been registered */
-GPtrArray *gpa_hfinfo = NULL;
+static GPtrArray *gpa_hfinfo = NULL;
 
 /* Points to the first element of an array of Booleans, indexed by
    a subtree item type; that array element is TRUE if subtrees of
@@ -1466,59 +1481,168 @@ proto_item_add_subtree(proto_item *pi,  gint idx) {
 	return (proto_tree*) pi;
 }
 
+static gint
+proto_compare_name(gconstpointer p1_arg, gconstpointer p2_arg)
+{
+	const protocol_t *p1 = p1_arg;
+	const protocol_t *p2 = p2_arg;
+
+	return strcmp(p1->short_name, p2->short_name);
+}
 
 int
-proto_register_protocol(char *name, char *abbrev)
+proto_register_protocol(char *name, char *short_name, char *filter_name)
 {
+	protocol_t *protocol;
 	struct header_field_info *hfinfo;
+	int proto_id;
+
+	/* Add this protocol to the list of known protocols; the list
+	   is sorted by protocol short name. */
+	protocol = g_malloc(sizeof (protocol_t));
+	protocol->name = name;
+	protocol->short_name = short_name;
+	protocol->filter_name = filter_name;
+	protocol->fields = NULL;
+	protocol->is_enabled = TRUE; /* protocol is enabled by default */
+	protocol->can_disable = TRUE;
+	protocols = g_list_insert_sorted(protocols, protocol,
+	    proto_compare_name);
 
 	/* Here we do allocate a new header_field_info struct */
 	hfinfo = g_mem_chunk_alloc(gmc_hfinfo);
 	hfinfo->name = name;
-	hfinfo->abbrev = abbrev;
+	hfinfo->abbrev = filter_name;
 	hfinfo->type = FT_NONE;
 	hfinfo->strings = NULL;
 	hfinfo->bitmask = 0;
 	hfinfo->bitshift = 0;
 	hfinfo->blurb = "";
 	hfinfo->parent = -1; /* this field differentiates protos and fields */
-	hfinfo->display = TRUE; /* XXX protocol is enabled by default */
 
-	return proto_register_field_init(hfinfo, hfinfo->parent);
+	proto_id = proto_register_field_init(hfinfo, hfinfo->parent);
+	protocol->proto_id = proto_id;
+	return proto_id;
 }
 
+/*
+ * Routines to use to iterate over the protocols.
+ * The argument passed to the iterator routines is an opaque cookie to
+ * their callers; it's the GList pointer for the current element in
+ * the list.
+ * The ID of the protocol is returned, or -1 if there is no protocol.
+ */
+int
+proto_get_first_protocol(void **cookie)
+{
+	protocol_t *protocol;
+
+	if (protocols == NULL)
+		return -1;
+	*cookie = protocols;
+	protocol = protocols->data;
+	return protocol->proto_id;
+}
+
+int
+proto_get_next_protocol(void **cookie)
+{
+	GList *list_item = *cookie;
+	protocol_t *protocol;
+
+	list_item = g_list_next(list_item);
+	if (list_item == NULL)
+		return -1;
+	*cookie = list_item;
+	protocol = list_item->data;
+	return protocol->proto_id;
+}
 
 /*
- * XXX - In the future, we might need a hash table or list of procotol
- * characteristics that will be fill in each time proto_register_protocol is 
- * called.
- * A protocol entry could contain the display flag among others (such as the
- * address of the dissector function for intance). The access to an entry
- * by protocol abbrev (which shall be unique) would be faster than the actual
- * way.
+ * Find the protocol list entry for a protocol given its field ID.
  */
-
-gboolean 
-proto_is_protocol_enabled(int n)
+static gint
+compare_proto_id(gconstpointer proto_arg, gconstpointer id_arg)
 {
-	struct header_field_info *hfinfo;
+	const protocol_t *protocol = proto_arg;
+	const int *id_ptr = id_arg;
 
-	hfinfo = proto_registrar_get_nth(n);
-	if (hfinfo)
-		return (hfinfo->display);
-	else
-		return FALSE;
+	return (protocol->proto_id == *id_ptr) ? 0 : 1;
+}
 
+static protocol_t *
+find_protocol_by_id(int proto_id)
+{
+	GList *list_entry;
+	
+	list_entry = g_list_find_custom(protocols, &proto_id, compare_proto_id);
+	if (list_entry == NULL)
+		return NULL;
+	return list_entry->data;
+}
+
+char *
+proto_get_protocol_name(int proto_id)
+{
+	protocol_t *protocol;
+
+	protocol = find_protocol_by_id(proto_id);
+	return protocol->name;
+}
+
+char *
+proto_get_protocol_short_name(int proto_id)
+{
+	protocol_t *protocol;
+
+	protocol = find_protocol_by_id(proto_id);
+	return protocol->short_name;
+}
+
+char *
+proto_get_protocol_filter_name(int proto_id)
+{
+	protocol_t *protocol;
+
+	protocol = find_protocol_by_id(proto_id);
+	return protocol->filter_name;
+}
+
+gboolean
+proto_is_protocol_enabled(int proto_id)
+{
+	protocol_t *protocol;
+
+	protocol = find_protocol_by_id(proto_id);
+	return protocol->is_enabled;
+}
+
+gboolean
+proto_can_disable_protocol(int proto_id)
+{
+	protocol_t *protocol;
+
+	protocol = find_protocol_by_id(proto_id);
+	return protocol->can_disable;
 }
 
 void 
-proto_set_decoding(int n, gboolean enabled)
+proto_set_decoding(int proto_id, gboolean enabled)
 {
-	struct header_field_info *hfinfo;
+	protocol_t *protocol;
 
-	hfinfo = proto_registrar_get_nth(n);
-	if (hfinfo)
-		hfinfo->display = enabled;
+	protocol = find_protocol_by_id(proto_id);
+	g_assert(enabled || protocol->can_disable);
+	protocol->is_enabled = enabled;
+}
+
+void 
+proto_set_cant_disable(int proto_id)
+{
+	protocol_t *protocol;
+
+	protocol = find_protocol_by_id(proto_id);
+	protocol->can_disable = FALSE;
 }
 
 /* for use with static arrays only, since we don't allocate our own copies
@@ -1528,8 +1652,19 @@ proto_register_field_array(int parent, hf_register_info *hf, int num_records)
 {
 	int			field_id, i;
 	hf_register_info	*ptr = hf;
+	protocol_t		*proto;
 
+	proto = find_protocol_by_id(parent);
 	for (i = 0; i < num_records; i++, ptr++) {
+		if (proto != NULL) {
+			if (proto->fields == NULL) {
+				proto->fields = g_list_append(NULL, ptr);
+				proto->last_field = proto->fields;
+			} else {
+				proto->last_field =
+				    g_list_append(proto->last_field, ptr)->next;
+			}
+		}
 		field_id = proto_register_field_init(&ptr->hfinfo, parent);
 		*ptr->p_id = field_id;
 	}

@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs.c,v 1.25 2000/11/30 14:09:14 girlich Exp $
+ * $Id: packet-afs.c,v 1.26 2001/01/03 06:55:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1813,7 +1813,8 @@ proto_register_afs(void)
 		&ett_afs_vicestat,
 	};
 
-	proto_afs = proto_register_protocol("Andrew File System (AFS)", "afs");
+	proto_afs = proto_register_protocol("Andrew File System (AFS)",
+	    "AFS (RX)", "afs");
 	proto_register_field_array(proto_afs, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_init_routine(&afs_init_protocol);

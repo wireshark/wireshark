@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-sna.c,v 1.19 2000/11/19 08:54:07 guy Exp $
+ * $Id: packet-sna.c,v 1.20 2001/01/03 06:55:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1200,7 +1200,8 @@ proto_register_sna(void)
 		&ett_sna_rh_2,
 	};
 
-        proto_sna = proto_register_protocol("Systems Network Architecture", "sna");
+        proto_sna = proto_register_protocol("Systems Network Architecture",
+	    "SNA", "sna");
 	proto_register_field_array(proto_sna, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

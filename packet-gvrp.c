@@ -2,7 +2,7 @@
  * Routines for GVRP (GARP VLAN Registration Protocol) dissection
  * Copyright 2000, Kevin Shi <techishi@ms22.hinet.net>
  *
- * $Id: packet-gvrp.c,v 1.3 2000/12/02 08:56:40 guy Exp $
+ * $Id: packet-gvrp.c,v 1.4 2001/01/03 06:55:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -337,7 +337,7 @@ proto_register_gvrp(void)
 
     /* Register the protocol name and description for GVRP */
     proto_gvrp = proto_register_protocol("GARP VLAN Registration Protocol",
-					 "gvrp");
+					 "GVRP", "gvrp");
 
     /* Required function calls to register the header fields and subtrees
      * used by GVRP */

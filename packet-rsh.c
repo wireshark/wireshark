@@ -4,7 +4,7 @@
  * Robert Tsai <rtsai@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rsh.c,v 1.7 2000/11/19 08:54:04 guy Exp $
+ * $Id: packet-rsh.c,v 1.8 2001/01/03 06:55:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -121,7 +121,7 @@ proto_register_rsh(void)
 		&ett_rsh,
 	};
 
-	proto_rsh = proto_register_protocol("Remote Shell", "rsh");
+	proto_rsh = proto_register_protocol("Remote Shell", "RSH", "rsh");
 	proto_register_field_array(proto_rsh, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.13 2000/11/19 08:54:10 guy Exp $
+ * $Id: packet-x11.c,v 1.14 2001/01/03 06:55:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -2932,7 +2932,7 @@ void proto_register_x11(void)
       };
 
 /* Register the protocol name and description */
-      proto_x11 = proto_register_protocol("X11", "x11");
+      proto_x11 = proto_register_protocol("X11", "X11", "x11");
 
 /* Required function calls to register the header fields and subtrees used */
       proto_register_field_array(proto_x11, hf, array_length(hf));

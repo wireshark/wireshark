@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.45 2000/11/22 01:39:10 guy Exp $
+ * $Id: packet-rpc.c,v 1.46 2001/01/03 06:55:31 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -268,7 +268,6 @@ rpc_init_prog(int proto, guint32 prog, int ett)
 {
 	rpc_prog_info_key *key;
 	rpc_prog_info_value *value;
-	char *uc_progname = NULL, *lc_progname = NULL;
 
 	key = (rpc_prog_info_key *) g_malloc(sizeof(rpc_prog_info_key));
 	key->prog = prog;
@@ -276,18 +275,7 @@ rpc_init_prog(int proto, guint32 prog, int ett)
 	value = (rpc_prog_info_value *) g_malloc(sizeof(rpc_prog_info_value));
 	value->proto = proto;
 	value->ett = ett;
-
-	lc_progname = proto_registrar_get_abbrev(proto);
-	if ( lc_progname )
-	{
-		int i;
-		uc_progname = strdup(lc_progname);
-		for (i=0; i<strlen(uc_progname); i++)
-		{
-			uc_progname[i] = toupper(uc_progname[i]);
-		}
-	}
-	value->progname = uc_progname;
+	value->progname = proto_get_protocol_short_name(proto);
 
 	g_hash_table_insert(rpc_progs,key,value);
 }
@@ -1759,7 +1747,8 @@ proto_register_rpc(void)
 		&ett_rpc_gids,
 	};
 
-	proto_rpc = proto_register_protocol("Remote Procedure Call", "rpc");
+	proto_rpc = proto_register_protocol("Remote Procedure Call",
+	    "RPC", "rpc");
 	proto_register_field_array(proto_rpc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_init_routine(&rpc_init_protocol);
@@ -1786,5 +1775,3 @@ proto_reg_handoff_rpc(void)
 	heur_dissector_add("tcp", dissect_rpc);
 	heur_dissector_add("udp", dissect_rpc);
 }
-
-

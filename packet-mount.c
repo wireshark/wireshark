@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.17 2000/08/14 11:36:03 girlich Exp $
+ * $Id: packet-mount.c,v 1.18 2001/01/03 06:55:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -690,7 +690,7 @@ proto_register_mount(void)
 		&ett_mount_pathconf_mask,
 	};
 
-	proto_mount = proto_register_protocol("Mount Service", "mount");
+	proto_mount = proto_register_protocol("Mount Service", "MOUNT", "mount");
 	proto_register_field_array(proto_mount, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

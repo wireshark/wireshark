@@ -2,7 +2,7 @@
  * Routines for the Point-to-Point Tunnelling Protocol (PPTP) (RFC 2637)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-pptp.c,v 1.15 2000/12/29 04:41:30 guy Exp $
+ * $Id: packet-pptp.c,v 1.16 2001/01/03 06:55:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -824,7 +824,7 @@ proto_register_pptp(void)
   };
 
   proto_pptp = proto_register_protocol("Point-to-Point Tunnelling Protocol",
-				       "pptp");
+				       "PPTP", "pptp");
   proto_register_field_array(proto_pptp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }

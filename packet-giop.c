@@ -4,7 +4,7 @@
  * Laurent Deniel <deniel@worldnet.fr>
  * Craig Rodrigues <rodrigc@mediaone.net>
  *
- * $Id: packet-giop.c,v 1.26 2000/11/19 08:53:57 guy Exp $
+ * $Id: packet-giop.c,v 1.27 2001/01/03 06:55:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1426,7 +1426,8 @@ proto_register_giop (void)
     &ett_giop_locate_reply,
     &ett_giop_fragment
   };
-  proto_giop = proto_register_protocol ("General Inter-ORB Protocol", "giop");
+  proto_giop = proto_register_protocol("General Inter-ORB Protocol", "GIOP",
+				       "giop");
   proto_register_field_array (proto_giop, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 }

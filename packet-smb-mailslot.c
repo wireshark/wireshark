@@ -2,7 +2,7 @@
  * Routines for smb mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.c,v 1.8 2000/11/22 21:19:37 sharpe Exp $
+ * $Id: packet-smb-mailslot.c,v 1.9 2001/01/03 06:55:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -182,7 +182,7 @@ register_proto_smb_mailslot( void){
 	};
 
    	proto_smb_msp = proto_register_protocol(
-   		"SMB MailSlot Protocol", "mailslot");
+   		"SMB MailSlot Protocol", "SMB Mailslot", "mailslot");
 
 	proto_register_subtree_array(ett, array_length(ett));
 }
