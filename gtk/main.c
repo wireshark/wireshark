@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.382 2004/01/31 12:13:23 ulfl Exp $
+ * $Id: main.c,v 1.383 2004/01/31 18:32:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1539,6 +1539,118 @@ register_ethereal_tap(char *cmd, void (*func)(char *arg))
 
 }
 
+
+enum { DND_TARGET_STRING, DND_TARGET_ROOTWIN, DND_TARGET_URL };
+
+void
+dnd_open_file_cmd(gpointer cf_name)
+{
+	int       err;
+
+    
+    /* open and read the capture file (this will close an existing file) */
+	if ((err = cf_open(cf_name, FALSE, &cfile)) == 0) {
+		cf_read(&cfile);
+        add_menu_recent_capture_file(cf_name);
+	} else {
+		/* the capture file couldn't be read (doesn't exist, file format unknown, ...) */
+	}
+
+    g_free(cf_name);
+}
+
+static void 
+dnd_open_file_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
+{
+    switch(btn) {
+    case(ESD_BTN_YES):
+        /* save file first */
+        file_save_as_cmd(after_save_open_dnd_file, data);
+        break;
+    case(ESD_BTN_NO):
+        dnd_open_file_cmd(data);
+        break;
+    case(ESD_BTN_CANCEL):
+        g_free(data);
+        break;
+    default:
+        g_assert_not_reached();
+    }
+}
+
+static void 
+dnd_data_received(GtkWidget *widget _U_, GdkDragContext *dc _U_, gint x _U_, gint y _U_, 
+GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
+{
+    gchar     *cf_name, *cf_name_ori;
+    gpointer  dialog;
+
+
+    if (info == DND_TARGET_URL) {
+        /* DND_TARGET_URL on Win32:
+         * The selection_data->data is a single string, containing one or more URI's,
+         * seperated by CR/NL chars. The length of the whole field can be found 
+         * in the selection_data->length field. As we can't handle more than one 
+         * capture file at a time, we only try to load the first one. */
+
+        /* XXX: how does this string look like on other platforms? */
+
+        /* XXX: if more than one file is in the string, we might want to have 
+         * a dialog box asking to merge these files together? */
+
+        /* the name might not be zero terminated -> make a copy of it */
+        cf_name_ori = g_strndup(selection_data->data, selection_data->length);
+        cf_name = cf_name_ori;
+
+        /* replace trailing CR NL simply with zeroes */
+        g_strdelimit(cf_name, "\r\n", '\0');
+
+        /* remove uri header */ 
+        if (strncmp("file:///", cf_name, 8) == 0) {
+            cf_name += 8;
+        };
+
+        /* we need a clean name for later call to g_free() */
+        cf_name = strdup(cf_name);
+        g_free(cf_name_ori);
+
+        /* ask the user to save it's current capture file first */
+        if((cfile.state != FILE_CLOSED) && !cfile.user_saved) {
+            /* user didn't saved his current file, ask him */
+            dialog = simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, 
+                        ESD_BTN_YES | ESD_BTN_NO | ESD_BTN_CANCEL, 
+                        PRIMARY_TEXT_START "Save capture file before opening a new one?" PRIMARY_TEXT_END "\n\n"
+                        "If you open a new capture file without saving, your current capture data will be discarded.");
+            simple_dialog_set_cb(dialog, dnd_open_file_answered_cb, cf_name);
+        } else {
+            /* unchanged file */
+            dnd_open_file_cmd(cf_name);
+        }
+    }
+}
+
+static void 
+dnd_init(GtkWidget *w)
+{
+    /* we are only interested in the URI list containing filenames */
+    static GtkTargetEntry target_entry[] = {
+         /*{"STRING", 0, DND_TARGET_STRING},*/
+         /*{"text/plain", 0, DND_TARGET_STRING},*/
+         {"text/uri-list", 0, DND_TARGET_URL}
+    };
+
+    /* set this window as a dnd destination */
+    gtk_drag_dest_set(
+         w, GTK_DEST_DEFAULT_ALL, target_entry,
+         sizeof(target_entry) / sizeof(GtkTargetEntry),
+         (GdkDragAction)(GDK_ACTION_MOVE | GDK_ACTION_COPY) );
+
+    /* get notified, if some dnd coming in */
+    gtk_signal_connect(GTK_OBJECT(w), "drag_data_received",
+        GTK_SIGNAL_FUNC(dnd_data_received), NULL);
+}
+
+
 /* And now our feature presentation... [ fade to music ] */
 int
 main(int argc, char *argv[])
@@ -2386,6 +2498,8 @@ main(int argc, char *argv[])
     /* No.  Pop up the main window, and read in a capture file if
        we were told to. */
     create_main_window(pl_size, tv_size, bv_size, prefs);
+
+    dnd_init(top_level);
 
     /* Read the recent file, as we have the gui now ready for it. */
     read_recent(&rf_path, &rf_open_errno);

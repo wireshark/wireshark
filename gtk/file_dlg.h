@@ -1,7 +1,7 @@
 /* file_dlg.h
  * Definitions for dialog boxes for handling files
  *
- * $Id: file_dlg.h,v 1.8 2004/01/29 23:11:37 ulfl Exp $
+ * $Id: file_dlg.h,v 1.9 2004/01/31 18:32:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,6 +30,7 @@ typedef enum {
     after_save_close_file,
     after_save_open_dialog,
     after_save_open_recent_file,
+    after_save_open_dnd_file,
     after_save_capture_dialog,
     after_save_exit
 } action_after_save_e;

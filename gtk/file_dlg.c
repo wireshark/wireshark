@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.89 2004/01/31 14:16:43 ulfl Exp $
+ * $Id: file_dlg.c,v 1.90 2004/01/31 18:32:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1084,6 +1084,9 @@ file_save_as_ok_cb(GtkWidget *w _U_, GtkFileSelection *fs) {
       break;
   case(after_save_open_recent_file):
       menu_open_recent_file_cmd(action_after_save_data_g);
+      break;
+  case(after_save_open_dnd_file):
+      dnd_open_file_cmd(action_after_save_data_g);
       break;
 #ifdef HAVE_LIBPCAP
   case(after_save_capture_dialog):
