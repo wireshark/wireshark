@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.89 2002/05/28 02:39:15 guy Exp $
+ * $Id: file.c,v 1.90 2002/05/29 02:19:49 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -104,14 +104,15 @@ static int (*open_routines[])(wtap *, int *) = {
 	radcom_open,
 	nettl_open,
 	visual_open,
-	pppdump_open,
 
 	/* Files that don't have magic bytes at a fixed location,
 	 * but that instead require a heuristic of some sort to
 	 * identify them.  This includes the ASCII trace files that
-	 * would be saved copies of a Telnet session to some box.
+	 * would be, for example, saved copies of a Telnet session
+	 * to some box.
 	 */
 	etherpeek_open,
+	pppdump_open,
 	ascend_open,
 	toshiba_open,
 	i4btrace_open,
