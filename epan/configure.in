@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.35 2003/01/21 02:12:37 gerald Exp $
+# $Id: configure.in,v 1.36 2003/01/30 10:20:47 jmayer Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -117,7 +117,7 @@ AC_DEFINE_UNQUOTED(DATAFILE_DIR,"$DATAFILE_DIR")
 AC_SUBST(DATAFILE_DIR)
 
 AC_ARG_ENABLE(gtk2,
-[  --enable-gtk2           build Glib2/Gtk2+-based (t)ethereal.  [default=no]],enable_gtk2=yes,enable_gtk2=no)
+[  --enable-gtk2           build Glib2/Gtk2+-based (t)ethereal.  [default=no]],enable_gtk2=$enableval,enable_gtk2=no)
 
 if test "x$enable_gtk2" = "xyes" ; then
 	AM_PATH_GLIB_2_0(2.0.0, CFLAGS="$CFLAGS $GLIB_CFLAGS" LIBS="$LIBS $GLIB_LIBS", , gmodule)
@@ -134,7 +134,7 @@ AC_CHECK_HEADERS(arpa/inet.h arpa/nameser.h)
 
 dnl ipv6 check
 AC_ARG_ENABLE(ipv6,
-[  --enable-ipv6           use ipv6 name resolution, if available.  [default=yes]],,enable_ipv6=yes)
+[  --enable-ipv6           use ipv6 name resolution, if available.  [default=yes]],enable_ipv6=$enableval,enable_ipv6=yes)
 
 AC_MSG_CHECKING(whether to enable ipv6 name resolution if available)
 if test "x$enable_ipv6" = "xno" ; then

@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.194 2003/01/21 20:15:52 jmayer Exp $
+# $Id: configure.in,v 1.195 2003/01/30 10:20:41 jmayer Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -228,10 +228,10 @@ fi
 # Enable/disable tethereal
 
 AC_ARG_ENABLE(ethereal,
-[  --enable-ethereal       build GTK+-based ethereal.  [default=yes]],,enable_ethereal=yes)
+[  --enable-ethereal       build GTK+-based ethereal.  [default=yes]],enable_ethereal=$enableval,enable_ethereal=yes)
 
 AC_ARG_ENABLE(gtk2,
-[  --enable-gtk2           build Glib2/Gtk2+-based (t)ethereal.  [default=no]],enable_gtk2=yes,enable_gtk2=no)
+[  --enable-gtk2           build Glib2/Gtk2+-based (t)ethereal.  [default=no]],enable_gtk2=$enableval,enable_gtk2=no)
 AM_CONDITIONAL(USE_GTK2, test x$enable_gtk2 = xyes)
 
 # GTK checks
@@ -241,7 +241,7 @@ AM_CONDITIONAL(USE_GTK2, test x$enable_gtk2 = xyes)
 if test "x$enable_gtk2" = "xyes" -a "x$enable_ethereal" = "xyes" ; then
 	GTK_OK=two
 	AM_PATH_GTK_2_0(2.0.0, CFLAGS="$CFLAGS $GTK_CFLAGS", GTK_OK=no, gthread)
-elif test "x$enable_gtk2" = "xno" -a "x$enable_ethereal" = "xyes" ; then
+elif test "x$enable_gtk2" != "xyes" -a "x$enable_ethereal" = "xyes" ; then
 	GTK_OK=one
 	AM_PATH_GTK(1.2.0, CFLAGS="$CFLAGS $GTK_CFLAGS", GTK_OK=no )
 else
@@ -324,7 +324,7 @@ AC_SUBST(ethereal_man)
 # Enable/disable tethereal
 
 AC_ARG_ENABLE(tethereal,
-[  --enable-tethereal      build tethereal.  [default=yes]],,enable_tethereal=yes)
+[  --enable-tethereal      build tethereal.  [default=yes]],tethereal=$enableval,enable_tethereal=yes)
 
 if test "x$enable_tethereal" = "xyes" ; then
 	tethereal_bin="tethereal"
@@ -341,7 +341,7 @@ AC_SUBST(tethereal_man)
 # Enable/disable editcap
 
 AC_ARG_ENABLE(editcap,
-[  --enable-editcap        build editcap.  [default=yes]],,enable_editcap=yes)
+[  --enable-editcap        build editcap.  [default=yes]],enable_editcap=$enableval,enable_editcap=yes)
 
 if test "x$enable_editcap" = "xyes" ; then
 	editcap_bin="editcap"
@@ -357,7 +357,7 @@ AC_SUBST(editcap_man)
 # Enable/disable mergecap
 
 AC_ARG_ENABLE(mergecap,
-[  --enable-mergecap       build mergecap.  [default=yes]],,enable_mergecap=yes)
+[  --enable-mergecap       build mergecap.  [default=yes]],enable_mergecap=$enableval,enable_mergecap=yes)
 
 if test "x$enable_mergecap" = "xyes" ; then
 	mergecap_bin="mergecap"
@@ -373,7 +373,7 @@ AC_SUBST(mergecap_man)
 # Enable/disable text2pcap
 
 AC_ARG_ENABLE(text2pcap,
-[  --enable-text2pcap      build text2pcap.  [default=yes]],,enable_text2pcap=yes)
+[  --enable-text2pcap      build text2pcap.  [default=yes]],text2pcap=$enableval,enable_text2pcap=yes)
 
 if test "x$enable_text2pcap" = "xyes" ; then
 	text2pcap_bin="text2pcap"
@@ -388,7 +388,7 @@ AC_SUBST(text2pcap_man)
 # Enable/disable idl2eth
 
 AC_ARG_ENABLE(idl2eth,
-[  --enable-idl2eth        build idl2eth.  [default=yes]],,enable_idl2eth=yes)
+[  --enable-idl2eth        build idl2eth.  [default=yes]],enable_idl2eth=$enableval,enable_idl2eth=yes)
 
 if test "x$enable_idl2eth" = "xyes" ; then
 	idl2eth_bin="idl2eth"
@@ -404,7 +404,7 @@ AC_SUBST(idl2eth_man)
 # Enable/disable dftest
 
 AC_ARG_ENABLE(dftest,
-[  --enable-dftest         build dftest.  [default=no]],,enable_dftest=no)
+[  --enable-dftest         build dftest.  [default=no]],enable_dftest=$enableval,enable_dftest=no)
 
 if test "x$enable_dftest" = "xyes" ; then
 	dftest_bin="dftest"
@@ -417,7 +417,7 @@ AC_SUBST(dftest_bin)
 # Enable/disable randpkt
 
 AC_ARG_ENABLE(randpkt,
-[  --enable-randpkt        build randpkt.  [default=no]],,enable_randpkt=no)
+[  --enable-randpkt        build randpkt.  [default=no]],enable_randpkt=$enableval,enable_randpkt=no)
 
 if test "x$enable_randpkt" = "xyes" ; then
 	randpkt_bin="randpkt"
@@ -499,7 +499,7 @@ fi
 
 dnl ipv6 check
 AC_ARG_ENABLE(ipv6,
-[  --enable-ipv6           use ipv6 name resolution, if available.  [default=yes]],,enable_ipv6=yes)
+[  --enable-ipv6           use ipv6 name resolution, if available.  [default=yes]],enable_ipv6=$enableval,enable_ipv6=yes)
 
 AC_MSG_CHECKING(whether to enable ipv6 name resolution if available)
 if test "x$enable_ipv6" = "xno" ; then
@@ -512,7 +512,7 @@ fi
 
 dnl Check if ethereal should be installed setuid
 AC_ARG_ENABLE(setuid-install,
-[  --enable-setuid-install install ethereal as setuid. DANGEROUS!!! [default=no]],,enable_setuid_install=no)
+[  --enable-setuid-install install ethereal as setuid. DANGEROUS!!! [default=no]],enable_setuid_install=$enableval,enable_setuid_install=no)
 
 AC_MSG_CHECKING(whether to install ethereal setuid)
 if test "x$enable_setuid_install" = "xno" ; then

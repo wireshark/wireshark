@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.44 2002/11/28 04:21:31 guy Exp $
+# $Id: configure.in,v 1.45 2003/01/30 10:20:44 jmayer Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -106,7 +106,7 @@ else
 fi
 
 AC_ARG_ENABLE(gtk2,
-[  --enable-gtk2           build Glib2/Gtk2+-based (t)ethereal.  [default=no]],enable_gtk2=yes,enable_gtk2=no)
+[  --enable-gtk2           build Glib2/Gtk2+-based (t)ethereal.  [default=no]],enable_gtk2=$enableval,enable_gtk2=no)
 
 if test "x$enable_gtk2" = "xyes" ; then
 	AM_PATH_GLIB_2_0(2.0.0, CFLAGS="$CFLAGS $GLIB_CFLAGS" LIBS="$LIBS $GLIB_LIBS", , gmodule)
