@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.14.2.19 2002/03/04 06:00:28 gram Exp $
+$Id: ncp2222.py,v 1.14.2.20 2002/03/05 03:32:38 gram Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1005,33 +1005,33 @@ class bitfield16(bitfield, uint16):
 	type	= "bitfield16"
 	ftype	= "FT_UINT16"
 
-	def __init__(self, abbrev, descr, vars):
-		uint16.__init__(self, abbrev, descr)
+	def __init__(self, abbrev, descr, vars, endianness=LE):
+		uint16.__init__(self, abbrev, descr, endianness)
 		bitfield.__init__(self, vars)
 
 class bitfield24(bitfield, uint24):
 	type	= "bitfield24"
 	ftype	= "FT_UINT24"
 
-	def __init__(self, abbrev, descr, vars):
-		uint24.__init__(self, abbrev, descr)
+	def __init__(self, abbrev, descr, vars, endianness=LE):
+		uint24.__init__(self, abbrev, descr, endianness)
 		bitfield.__init__(self, vars)
 
 class bitfield32(bitfield, uint32):
 	type	= "bitfield32"
 	ftype	= "FT_UINT32"
 
-	def __init__(self, abbrev, descr, vars):
-		uint32.__init__(self, abbrev, descr)
+	def __init__(self, abbrev, descr, vars, endianness=LE):
+		uint32.__init__(self, abbrev, descr, endianness)
 		bitfield.__init__(self, vars)
 
 class bf_uint(Type):
 	type	= "bf_uint"
 	disp	= None
 
-	def __init__(self, bitmask, abbrev, descr):
+	def __init__(self, bitmask, abbrev, descr, endianness=LE):
 		bytes = int(self.disp) / 8
-		Type.__init__(self, abbrev, descr, bytes, NA)
+		Type.__init__(self, abbrev, descr, bytes, endianness)
 		self.bitmask = bitmask
 
 	def Mask(self):
@@ -1825,17 +1825,17 @@ ExtAttrCount			= uint32("ext_attr_count", "Extended Attributes Count")
 ExtAttrKeySize			= uint32("ext_attr_key_size", "Extended Attributes Key Size")
 ExtendedAttributesDefined	= uint32("extended_attributes_defined", "Extended Attributes Defined", LE)
 ExtendedAttributeExtantsUsed	= uint32("extended_attribute_extants_used", "Extended Attribute Extants Used", LE)
-ExtendedInfo	 	= bitfield16("ext_info", "Extended Information", [
-	bf_boolean16(0x0001, "ext_info_access", "Last Access"),
-	bf_boolean16(0x0080, "ext_info_newstyle", "New Style"),
-	bf_boolean16(0x0100, "ext_info_update", "Update"),
-	bf_boolean16(0x0200, "ext_info_dos_name", "DOS Name"),
-	bf_boolean16(0x0400, "ext_info_flush", "Flush"),
-	bf_boolean16(0x0800, "ext_info_parental", "Parental"),
-	bf_boolean16(0x1000, "ext_info_mac_finder", "MAC Finder"),
-	bf_boolean16(0x2000, "ext_info_sibling", "Sibling"),
-	bf_boolean16(0x4000, "ext_info_effective", "Effective"),
-	bf_boolean16(0x8000, "ext_info_mac_date", "MAC Date"),
+ExtendedInfo			= bitfield16("ext_info", "Extended Information", [
+        bf_boolean16(0x0100, "ext_info_access", "Last Access"),
+        bf_boolean16(0x8000, "ext_info_newstyle", "New Style"),
+        bf_boolean16(0x0001, "ext_info_update", "Update"),
+        bf_boolean16(0x0002, "ext_info_dos_name", "DOS Name"),
+        bf_boolean16(0x0004, "ext_info_flush", "Flush"),
+        bf_boolean16(0x0008, "ext_info_parental", "Parental"),
+        bf_boolean16(0x0010, "ext_info_mac_finder", "MAC Finder"),
+        bf_boolean16(0x0020, "ext_info_sibling", "Sibling"),
+        bf_boolean16(0x0040, "ext_info_effective", "Effective"),
+        bf_boolean16(0x0080, "ext_info_mac_date", "MAC Date"),
 ])
 ExtRouterActiveFlag             = boolean8("ext_router_active_flag", "External Router Active Flag")
 
@@ -3183,23 +3183,23 @@ RestrictionsEnforced 		= val_string8("restrictions_enforced", "Disk Restrictions
 	[ 0xff, "Not Enforced" ],
 ])
 ReturnInfoCount			= uint32("return_info_count", "Return Information Count")
-ReturnInfoMask 		= bitfield16("ret_info_mask", "Return Information", [
-	bf_boolean16(0x0001, "ret_info_mask_create", "Return Creation Information"),
-	bf_boolean16(0x0002, "ret_info_mask_ns", "Return Name Space Information"),
-	bf_boolean16(0x0004, "ret_info_mask_dir", "Return Directory Information"),
-	bf_boolean16(0x0008, "ret_info_mask_rights", "Return Rights Information"),
-	bf_boolean16(0x0010, "ret_info_mask_id", "Return ID Information"),
-	bf_boolean16(0x0020, "ret_info_mask_ns_attr", "Return Name Space Attributes Information"),
-	bf_boolean16(0x0040, "ret_info_mask_actual", "Return Actual Information"),
-	bf_boolean16(0x0080, "ret_info_mask_logical", "Return Logical Information"),
-	bf_boolean16(0x0100, "ret_info_mask_fname", "Return File Name Information"),
-	bf_boolean16(0x0200, "ret_info_mask_alloc", "Return Allocation Space Information"),
-	bf_boolean16(0x0400, "ret_info_mask_attr", "Return Attribute Information"),
-	bf_boolean16(0x0800, "ret_info_mask_size", "Return Size Information"),
-	bf_boolean16(0x1000, "ret_info_mask_tspace", "Return Total Space Information"),
-	bf_boolean16(0x2000, "ret_info_mask_eattr", "Return Extended Attributes Information"),
-	bf_boolean16(0x4000, "ret_info_mask_arch", "Return Archive Information"),
-	bf_boolean16(0x8000, "ret_info_mask_mod", "Return Modify Information"),
+ReturnInfoMask			= bitfield16("ret_info_mask", "Return Information)", [
+        bf_boolean16(0x0001, "ret_info_mask_fname", "Return File Name Information"),
+        bf_boolean16(0x0002, "ret_info_mask_alloc", "Return Allocation Space Information"),
+        bf_boolean16(0x0004, "ret_info_mask_attr", "Return Attribute Information"),
+        bf_boolean16(0x0008, "ret_info_mask_size", "Return Size Information"),
+        bf_boolean16(0x0010, "ret_info_mask_tspace", "Return Total Space Information"),
+        bf_boolean16(0x0020, "ret_info_mask_eattr", "Return Extended Attributes Information"),
+        bf_boolean16(0x0040, "ret_info_mask_arch", "Return Archive Information"),
+        bf_boolean16(0x0080, "ret_info_mask_mod", "Return Modify Information"),
+        bf_boolean16(0x0100, "ret_info_mask_create", "Return Creation Information"),
+        bf_boolean16(0x0200, "ret_info_mask_ns", "Return Name Space Information"),
+        bf_boolean16(0x0400, "ret_info_mask_dir", "Return Directory Information"),
+        bf_boolean16(0x0800, "ret_info_mask_rights", "Return Rights Information"),
+        bf_boolean16(0x1000, "ret_info_mask_id", "Return ID Information"),
+        bf_boolean16(0x2000, "ret_info_mask_ns_attr", "Return Name Space Attributes Information"),
+        bf_boolean16(0x4000, "ret_info_mask_actual", "Return Actual Information"),
+        bf_boolean16(0x8000, "ret_info_mask_logical", "Return Logical Information"),
 ])
 ReturnedListCount		= uint32("returned_list_count", "Returned List Count")
 Revision			= uint32("revision", "Revision", LE)
