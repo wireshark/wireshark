@@ -1,7 +1,7 @@
 /* etypes.h
  * Defines ethernet packet types, similar to tcpdump's ethertype.h
  *
- * $Id: etypes.h,v 1.38 2004/02/28 22:56:35 guy Exp $
+ * $Id: etypes.h,v 1.39 2004/04/07 06:04:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -210,6 +210,10 @@
 
 #ifndef ETHERTYPE_BRDWALK
 #define ETHERTYPE_BRDWALK       0x88AE
+#endif
+
+#ifndef ETHERTYPE_RSN_PREAUTH
+#define ETHERTYPE_RSN_PREAUTH	0x88c7  /* 802.11i Pre-Authentication */
 #endif
 
 #ifndef ETHERTYPE_LOOP

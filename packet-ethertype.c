@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.45 2004/02/21 05:12:44 guy Exp $
+ * $Id: packet-ethertype.c,v 1.46 2004/04/07 06:04:22 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -69,6 +69,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_MS_NLB_HEARTBEAT,	"MS NLB heartbeat"	},
     {ETHERTYPE_VLAN,		"802.1Q Virtual LAN"		},
     {ETHERTYPE_EAPOL,		"802.1X Authentication"         },
+    {ETHERTYPE_RSN_PREAUTH,	"802.11i Pre-Authentication"    },
     {ETHERTYPE_MPLS,		"MPLS label switched packet"	},
     {ETHERTYPE_MPLS_MULTI,	"MPLS multicast label switched packet" },
     {ETHERTYPE_3C_NBP_DGRAM,	"3Com NBP Datagram"		},

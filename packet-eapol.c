@@ -3,7 +3,7 @@
  * (From IEEE Draft P802.1X/D11; is there a later draft, or a
  * final standard?  If so, check it.)
  *
- * $Id: packet-eapol.c,v 1.18 2004/03/30 19:15:24 guy Exp $
+ * $Id: packet-eapol.c,v 1.19 2004/04/07 06:04:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -427,4 +427,5 @@ proto_reg_handoff_eapol(void)
 
   eapol_handle = create_dissector_handle(dissect_eapol, proto_eapol);
   dissector_add("ethertype", ETHERTYPE_EAPOL, eapol_handle);
+  dissector_add("ethertype", ETHERTYPE_RSN_PREAUTH, eapol_handle);
 }
