@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.11 2002/04/17 10:29:09 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.12 2002/04/17 10:41:05 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1507,6 +1507,67 @@ lsa_dissect_lsaenumerateprivileges_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+lsa_dissect_lsalookupprivilegevalue_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	/* privilege name */	
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
+		"NAME pointer: ", hf_lsa_privilege_name, 0);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsalookupprivilegevalue_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+
+	/* LUID */
+	offset = dissect_nt_LUID(tvb, offset, pinfo, tree, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsalookupprivilegename_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	/* LUID */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		dissect_nt_LUID, NDR_POINTER_REF,
+		"LUID pointer: value", -1, 0);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsalookupprivilegename_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [out, ref] LSA_UNICODE_STRING **name */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
+		"PRIVILEGE NAME pointer:", hf_lsa_privilege_name, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
 
 
 
@@ -1650,17 +1711,11 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 		lsa_dissect_lsaquerysecret_reply },
 #endif
 	{ LSA_LSALOOKUPPRIVILEGEVALUE, "LSALOOKUPPRIVILEGEVALUE",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsalookupprivilegevalue_rqst,
 		lsa_dissect_lsalookupprivilegevalue_reply },
-#endif
 	{ LSA_LSALOOKUPPRIVILEGENAME, "LSALOOKUPPRIVILEGENAME",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsalookupprivilegename_rqst,
 		lsa_dissect_lsalookupprivilegename_reply },
-#endif
 	{ LSA_LSALOOKUPPRIVILEGEDISPLAYNAME, "LSALOOKUPPRIVILEGEDISPLAYNAME",
 		NULL, NULL },
 #ifdef REMOVED
