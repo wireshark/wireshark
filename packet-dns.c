@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.119 2004/01/23 00:51:47 guy Exp $
+ * $Id: packet-dns.c,v 1.120 2004/01/23 19:16:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1552,11 +1552,58 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	} else
 	  proto_tree_add_text(rr_tree, tvb, cur_offset, data_len, "Data");
       }
-      break;
     }
     break;
 
   case T_NSEC:
+    {
+      int rr_len = data_len;
+      char next_domain_name[MAXDNAME];
+      int next_domain_name_len;
+      int rr_type;
+      guint8 bits;
+      int mask, blockbase, blocksize;
+      int i;
+
+      next_domain_name_len = get_dns_name(tvb, cur_offset, dns_data_offset,
+			next_domain_name, sizeof(next_domain_name));
+      if (cinfo != NULL)
+	col_append_fstr(cinfo, COL_INFO, " %s", next_domain_name);
+      if (dns_tree != NULL) {
+	proto_item_append_text(trr, ", next domain name %s",
+		     next_domain_name);
+	proto_tree_add_text(rr_tree, tvb, cur_offset, next_domain_name_len,
+			"Next domain name: %s", next_domain_name);
+	cur_offset += next_domain_name_len;
+	rr_len -= next_domain_name_len;
+	rr_type = 0;
+	while (rr_len != 0) {
+	  blockbase = tvb_get_guint8(tvb, cur_offset);
+	  blocksize = tvb_get_guint8(tvb, cur_offset + 1);
+	  cur_offset += 2;
+	  rr_len -= 2;
+	  rr_type = blockbase * 256;
+	  for( ; blocksize; blocksize-- ) {	    
+  	       bits = tvb_get_guint8(tvb, cur_offset);
+	       mask = 1<<7;
+	       for (i = 0; i < 8; i++) {
+		 if (bits & mask) {
+		   proto_tree_add_text(rr_tree, tvb, cur_offset, 1,
+			"RR type in bit map: %s (%s)",
+			dns_type_name(rr_type),
+			dns_long_type_name(rr_type));
+		 }
+		 mask >>= 1;
+		 rr_type++;
+	       }
+	       cur_offset += 1;
+	       rr_len -= 1;
+	  }
+        }
+      }
+    }
+    break;
+
   case T_NXT:
     {
       int rr_len = data_len;
