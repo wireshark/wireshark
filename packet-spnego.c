@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.39 2002/11/28 06:48:42 guy Exp $
+ * $Id: packet-spnego.c,v 1.40 2002/12/25 20:58:06 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -115,13 +115,12 @@ dissect_parse_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /*
  * This is the SPNEGO KRB5 dissector. It is not true KRB5, but some ASN.1
- * wrapped blob with an OID, Boolean, and a Ticket, that is also ASN.1 wrapped
- * by the looks of it.
+ * wrapped blob with an OID, USHORT token ID, and a Ticket, that is also 
+ * ASN.1 wrapped by the looks of it. It conforms to RFC1964.
  */ 
 
 #define KRB_TOKEN_AP_REQ		0x0001
 #define KRB_TOKEN_AP_REP		0x0002
-#define KRB_TOKEN_AP_ERR		0x0003
 #define KRB_TOKEN_AP_ERR		0x0003
 #define KRB_TOKEN_GETMIC		0x0101
 #define KRB_TOKEN_WRAP			0x0102
@@ -191,10 +190,10 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * The KRB5 blob conforms to RFC1964:
 	 * [APPLICATION 0] {
 	 *   OID,
-	 *   USHORT (0x0001 == AP-REQ, 0x0002 == AP-REP, 0x0003 == ERROR,
+	 *   USHORT (0x0001 == AP-REQ, 0x0002 == AP-REP, 0x0003 == ERROR),
 	 *   OCTET STRING } 
          *
-         * However, for some protocols, the KRB5 blob stars at the SHORT
+         * However, for some protocols, the KRB5 blob starts at the SHORT
 	 * and has no DER encoded header etc.
 	 *
 	 * It appears that for some other protocols the KRB5 blob is just
