@@ -1,7 +1,7 @@
 /* packet-ipv6.h
  * Definitions for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.h,v 1.8 1999/11/03 06:13:20 guy Exp $
+ * $Id: packet-ipv6.h,v 1.9 1999/11/18 01:45:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -417,12 +417,12 @@ struct icmp6_namelookup {
 struct icmp6_router_renum {	/* router renumbering header */
 	struct icmp6_hdr	rr_hdr;
 	guint8		rr_segnum;
-	guint8		rr_test : 1;
-	guint8		rr_reqresult : 1;
-	guint8		rr_forceapply : 1;
-	guint8		rr_specsite : 1;
-	guint8		rr_prevdone : 1;
-	guint8		rr_flags_reserved : 3;
+	guint32		rr_test : 1;
+	guint32		rr_reqresult : 1;
+	guint32		rr_forceapply : 1;
+	guint32		rr_specsite : 1;
+	guint32		rr_prevdone : 1;
+	guint32		rr_flags_reserved : 3;
 	guint16		rr_maxdelay;
 	guint32		rr_reserved;
 };
@@ -430,12 +430,12 @@ struct icmp6_router_renum {	/* router renumbering header */
 struct icmp6_router_renum {	/* router renumbering header */
 	struct icmp6_hdr	rr_hdr;
 	guint8		rr_segnum;
-	guint8		rr_flags_reserved : 3;
-	guint8		rr_prevdone : 1;
-	guint8		rr_specsite : 1;
-	guint8		rr_forceapply : 1;
-	guint8		rr_reqresult : 1;
-	guint8		rr_test : 1;
+	guint32		rr_flags_reserved : 3;
+	guint32		rr_prevdone : 1;
+	guint32		rr_specsite : 1;
+	guint32		rr_forceapply : 1;
+	guint32		rr_reqresult : 1;
+	guint32		rr_test : 1;
 	guint16		rr_maxdelay;
 	guint32		rr_reserved;
 };
@@ -466,12 +466,12 @@ struct rr_pco_match {		/* match prefix part */
 struct rr_pco_use {		/* use prefix part */
 	guint8	rpu_uselen;
 	guint8	rpu_keeplen;
-	guint8	rpu_mask_onlink : 1;
-	guint8	rpu_mask_autonomous : 1;
-	guint8	rpu_mask_reserved : 6;
-	guint8	rpu_onlink : 1;
-	guint8	rpu_autonomous : 1;
-	guint8	rpu_raflags_reserved : 6;
+	guint32	rpu_mask_onlink : 1;
+	guint32	rpu_mask_autonomous : 1;
+	guint32	rpu_mask_reserved : 6;
+	guint32	rpu_onlink : 1;
+	guint32	rpu_autonomous : 1;
+	guint32	rpu_raflags_reserved : 6;
 	guint32	rpu_vltime;
 	guint32	rpu_pltime;
 	guint32	rpu_decr_vltime : 1;
@@ -484,12 +484,12 @@ struct rr_pco_use {		/* use prefix part */
 struct rr_pco_use {		/* use prefix part */
 	guint8	rpu_uselen;
 	guint8	rpu_keeplen;
-	guint8	rpu_mask_reserved : 6;
-	guint8	rpu_mask_autonomous : 1;
-	guint8	rpu_mask_onlink : 1;
-	guint8	rpu_raflags_reserved : 6;
-	guint8	rpu_autonomous : 1;
-	guint8	rpu_onlink : 1;
+	guint32	rpu_mask_reserved : 6;
+	guint32	rpu_mask_autonomous : 1;
+	guint32	rpu_mask_onlink : 1;
+	guint32	rpu_raflags_reserved : 6;
+	guint32	rpu_autonomous : 1;
+	guint32	rpu_onlink : 1;
 	guint32	rpu_vltime;
 	guint32	rpu_pltime;
 	guint32	rpu_flags_reserved : 6;
@@ -503,9 +503,9 @@ struct rr_pco_use {		/* use prefix part */
 #if BYTE_ORDER == BIG_ENDIAN /* net byte order */
 struct rr_result {		/* router renumbering result message */
 	guint8	rrr_reserved;
-	guint8	rrr_flags_reserved : 6;
-	guint8	rrr_outofbound : 1;
-	guint8	rrr_forbidden : 1;
+	guint32	rrr_flags_reserved : 6;
+	guint32	rrr_outofbound : 1;
+	guint32	rrr_forbidden : 1;
 	guint8	rrr_ordinal;
 	guint8	rrr_matchedlen;
 	guint32	rrr_ifid;
@@ -514,9 +514,9 @@ struct rr_result {		/* router renumbering result message */
 #elif BYTE_ORDER == LITTLE_ENDIAN
 struct rr_result {		/* router renumbering result message */
 	guint8	rrr_reserved;
-	guint8	rrr_forbidden : 1;
-	guint8	rrr_outofbound : 1;
-	guint8	rrr_flags_reserved : 6;
+	guint32	rrr_forbidden : 1;
+	guint32	rrr_outofbound : 1;
+	guint32	rrr_flags_reserved : 6;
 	guint8	rrr_ordinal;
 	guint8	rrr_matchedlen;
 	guint32	rrr_ifid;

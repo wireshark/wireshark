@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.41 1999/11/17 21:58:28 guy Exp $
+ * $Id: packet-smb.c,v 1.42 1999/11/18 01:45:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -9934,6 +9934,7 @@ dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
       break;
 
     default:
+      break;
     }
 
     return 1;  /* Success */

@@ -4,7 +4,7 @@
  *
  * (C) Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.h,v 1.6 1999/08/27 20:10:14 guy Exp $
+ * $Id: packet-rsvp.h,v 1.7 1999/11/18 01:45:02 guy Exp $
  *
  * For license details, see the COPYING file with this distribution
  *
@@ -53,7 +53,7 @@ enum rsvp_classes {
     RSVP_CLASS_SENDER_TSPEC,
     RSVP_CLASS_ADSPEC,
     RSVP_CLASS_POLICY,
-    RSVP_CLASS_CONFIRM,
+    RSVP_CLASS_CONFIRM
 };
 
 static value_string rsvp_class_vals[] = { 
@@ -297,7 +297,7 @@ enum    qos_service_type {
     QOS_QUALITATIVE =     128,          /* Qualitative service */
     QOS_CONTROLLED_LOAD=    5,		/* Controlled Load Service */
     QOS_GUARANTEED =        2,		/* Guaranteed service */
-    QOS_TSPEC =             1,		/* Traffic specification */
+    QOS_TSPEC =             1		/* Traffic specification */
     };
 
 static value_string qos_vals[] = {
@@ -319,7 +319,7 @@ enum intsrv_services {
 	INTSRV_GENERAL = 1,
 	INTSRV_GTD = 2,
 	INTSRV_CLOAD = 5,
-	INTSRV_QUALITATIVE = 128,
+	INTSRV_QUALITATIVE = 128
 };
 
 static value_string intsrv_services_str[] = { 

@@ -2,7 +2,7 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ncp.c,v 1.22 1999/11/17 21:58:28 guy Exp $
+ * $Id: packet-ncp.c,v 1.23 1999/11/18 01:45:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -158,7 +158,7 @@ enum nfamily {
 		NCP_QUEUE_SERVICES,		/* print queues */
 		NCP_FILE_SERVICES,		/* file serving */
 		NCP_BINDERY_SERVICES,	/* bindery database */
-		NCP_CONNECTION_SERVICES, /* communication */
+		NCP_CONNECTION_SERVICES /* communication */
 };
 
 /* I had to put this function prototype after the enum nfamily declaration */
