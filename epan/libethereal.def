@@ -34,6 +34,7 @@ asn1_uint32_value_decode
 BandRejectReason_vals           DATA
 build_follow_filter
 bytes_to_str_punct
+bytes_to_str
 call_dissector
 capture_ap1394
 capture_arcnet
@@ -482,6 +483,7 @@ trans2_cmd_vals                 DATA
 tree_is_expanded                DATA
 tvb_bytes_exist
 tvb_bytes_to_str
+tvb_bytes_to_str_punct
 tvb_find_guint8
 tvb_find_line_end
 tvb_find_line_end_unquoted
