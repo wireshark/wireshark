@@ -1,7 +1,7 @@
 /* packet_info.h
  * Definitions for packet info structures and routines
  *
- * $Id: packet_info.h,v 1.37 2003/12/23 12:07:12 obiot Exp $
+ * $Id: packet_info.h,v 1.38 2003/12/29 22:44:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,8 +41,8 @@ typedef enum {
   AT_OSI,		/* OSI NSAP */
   AT_ARCNET,		/* ARCNET */
   AT_FC,                /* Fibre Channel */
-  AT_SS7PC,              /* SS7 Point Code */
-  AT_STRINGZ	/* null-terminated string */
+  AT_SS7PC,             /* SS7 Point Code */
+  AT_STRINGZ            /* null-terminated string */
 } address_type;
 
 typedef struct _address {
@@ -158,11 +158,21 @@ typedef struct _packet_info {
   guint32 match_port;
   const char *match_string;	/* Subdissectors with string dissector tables use this */
   guint16 can_desegment;	/* >0 if this segment could be desegmented.
-				   A dissector that can offer this API (e.g. TCP)
-				   sets can_desegment=2, then can_desegment is
-				   decremented by 1 each time we pass to the next
-				   subdissector. Thus only the dissector immediately
-				   above the protocol which sets the flag can use it*/
+				   A dissector that can offer this API (e.g.
+				   TCP) sets can_desegment=2, then
+				   can_desegment is decremented by 1 each time
+				   we pass to the next subdissector. Thus only
+				   the dissector immediately above the
+				   protocol which sets the flag can use it*/
+  guint16 saved_can_desegment;	/* Value of can_desegment before current
+				   dissector was called.  Supplied so that
+				   dissectors for proxy protocols such as
+				   SOCKS can restore it, allowing the
+				   dissectors that they call to use the
+				   TCP dissector's desegmentation (SOCKS
+				   just retransmits TCP segments once it's
+				   finished setting things up, so the TCP
+				   desegmentor can desegment its payload). */
   int desegment_offset;		/* offset to stuff needing desegmentation */
   guint32 desegment_len;	/* requested desegmentation additional length */
   guint16 want_pdu_tracking;	/* >0 if the subdissector has specified

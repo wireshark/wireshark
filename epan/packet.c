@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.99 2003/11/21 21:58:54 guy Exp $
+ * $Id: packet.c,v 1.100 2003/12/29 22:44:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -418,7 +418,12 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 	 * by one.
 	 * Thus only the subdissector immediately on top of whoever
 	 * offers this service can use it.
+	 * We save the current value of "can_desegment" for the
+	 * benefit of TCP proxying dissectors such as SOCKS, so they
+	 * can restore it and allow the dissectors they call to use
+	 * the desegmentation service.
 	 */
+	pinfo->saved_can_desegment = saved_can_desegment;
 	pinfo->can_desegment = saved_can_desegment-(saved_can_desegment>0);
 	if (handle->protocol != NULL) {
 		pinfo->current_proto =
@@ -1414,13 +1419,19 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 	   then everytime a subdissector is called it is decremented by one.
 	   thus only the subdissector immediately ontop of whoever offers this
 	   service can use it.
+	   We save the current value of "can_desegment" for the
+	   benefit of TCP proxying dissectors such as SOCKS, so they
+	   can restore it and allow the dissectors they call to use
+	   the desegmentation service.
 	*/
 	saved_can_desegment=pinfo->can_desegment;
+	pinfo->saved_can_desegment = saved_can_desegment;
 	pinfo->can_desegment = saved_can_desegment-(saved_can_desegment>0);
 
 	status = FALSE;
 	saved_proto = pinfo->current_proto;
 	for (entry = sub_dissectors; entry != NULL; entry = g_slist_next(entry)) {
+		/* XXX - why set this now and above? */
 		pinfo->can_desegment = saved_can_desegment-(saved_can_desegment>0);
 		dtbl_entry = (heur_dtbl_entry_t *)entry->data;
 		if (dtbl_entry->protocol != NULL &&
