@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.16 2001/01/12 04:06:24 gram Exp $
+ * $Id: plugins.c,v 1.17 2001/01/12 04:18:49 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -91,11 +91,11 @@ typedef struct _new_plugin {
 static new_plugin *new_plugin_list;
 
 #ifdef WIN32
-static gchar std_plug_dir[] = "c:/program files/ethereal/plugins/0.8.15";
-static gchar local_plug_dir[] = "c:/ethereal/plugins/0.8.15";
+static gchar std_plug_dir[] = "c:/program files/ethereal/plugins/" VERSION;
+static gchar local_plug_dir[] = "c:/ethereal/plugins/" VERSION;
 #else
-static gchar std_plug_dir[] = "/usr/lib/ethereal/plugins/0.8.15";
-static gchar local_plug_dir[] = "/usr/local/lib/ethereal/plugins/0.8.15";
+static gchar std_plug_dir[] = "/usr/lib/ethereal/plugins/" VERSION;
+static gchar local_plug_dir[] = "/usr/local/lib/ethereal/plugins/" VERSION;
 #endif
 static gchar *user_plug_dir = NULL;
 static gchar *plugin_status_file = NULL;

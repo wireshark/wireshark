@@ -1,4 +1,4 @@
-/* $Id: config.h.win32,v 1.3 2000/11/22 07:20:26 guy Exp $ */
+/* $Id: config.h.win32,v 1.4 2001/01/12 04:18:49 gram Exp $ */
 /* config.h.win32 Generated manually. :-) */
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
@@ -105,4 +105,4 @@
 #define PACKAGE "libethereal.a"
 
 /* Version number of package */
-#define VERSION "0.0.0"
+#define VERSION "0.8.15"
