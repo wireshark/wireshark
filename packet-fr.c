@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.48 2004/05/24 02:25:18 guy Exp $
+ * $Id: packet-fr.c,v 1.49 2004/07/01 08:35:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,7 +26,7 @@
  * References:
  *
  * http://www.protocols.com/pbook/frame.htm
- * http://www.frforum.com/5000/Approved/FRF.3/FRF.3.2.pdf
+ * http://www.mplsforum.org/frame/Approved/FRF.3/FRF.3.2.pdf
  * ITU Recommendations Q.922 and Q.933
  * RFC-1490
  * RFC-2427
@@ -246,6 +246,8 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (fr_octet & FRELAY_EA) {
     /*
      * Bogus!  There should be at least 2 octets.
+     * XXX - is this FRF.12 frame relay fragmentation?  If so, we
+     * should dissect it as such, if possible.
      */
     address = 0;
     if (tree) {
