@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.55 1999/07/13 04:38:14 guy Exp $
+ * $Id: ethereal.c,v 1.56 1999/07/13 07:14:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -554,12 +554,12 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data) {
 void
 packet_list_select_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
 
-#ifdef HAVE_PCAP
+#ifdef HAVE_LIBPCAP
   if (!sync_mode) {
 #endif
     if (cf.wth)
       return; 
-#ifdef HAVE_PCAP
+#ifdef HAVE_LIBPCAP
   }
 #endif
   blank_packetinfo();
