@@ -6,7 +6,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.84 2003/12/17 01:57:23 guy Exp $
+ * $Id: packet-radius.c,v 1.85 2003/12/17 02:17:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,8 +79,8 @@ typedef struct _e_avphdr {
 } e_avphdr;
 
 typedef struct _radius_attr_info {
-        guint16 val1;
-        guint16 type;
+        guint16 attr_type;
+        guint16 value_type;
 	gchar *str;
 	const value_string *vs;
 } radius_attr_info;
@@ -152,6 +152,7 @@ enum {
     RADIUS_VENDOR_SPECIFIC,
     RADIUS_TIMESTAMP,
     RADIUS_INTEGER4_TAGGED,
+    RADIUS_EAP_MESSAGE,
 
     COSINE_VPI_VCI,
 
@@ -549,7 +550,7 @@ static const radius_attr_info radius_attrib[] =
   {76,	RADIUS_INTEGER4,	"Prompt", NULL},
   {77,	RADIUS_STRING,		"Connect Info", NULL},
   {78,	RADIUS_STRING,		"Configuration Token", NULL},
-  {79,	RADIUS_STRING,		"EAP Message", NULL},
+  {79,	RADIUS_EAP_MESSAGE,	"EAP Message", NULL},
   {80,	RADIUS_BINSTRING,	"Message Authenticator", NULL},
   {81,	RADIUS_STRING_TAGGED,	"Tunnel Private Group ID", NULL},
   {82,	RADIUS_STRING_TAGGED,	"Tunnel Assignment ID", NULL},
@@ -2215,12 +2216,12 @@ static const radius_attr_info *get_attr_info_table(guint32 vendor)
 }
 
 static const radius_attr_info *
-find_radius_attr_info(guint32 val, const radius_attr_info *table)
+find_radius_attr_info(guint32 attr_type, const radius_attr_info *table)
 {
     guint32 i;
 
     for (i = 0; table[i].str; i++)
-	if (table[i].val1 == val)
+	if (table[i].attr_type == attr_type)
 	    return(&table[i]);
 
     return(NULL);
@@ -2399,7 +2400,7 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
   /* Default begin */
   strcpy(dest, "Value:");
   cont=&dest[strlen(dest)];
-  switch(attr_info->type)
+  switch(attr_info->value_type)
   {
         case( RADIUS_STRING ):
 		/* User Password, but only, if not inside vsa */
@@ -2409,9 +2410,11 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 		    rdconvertbufftostr(cont,tvb,offset+2,avph->avp_length-2);
 		}
                 break;
+
         case( RADIUS_BINSTRING ):
 		rdconvertbufftobinstr(cont,tvb,offset+2,avph->avp_length-2);
                 break;
+
         case( RADIUS_INTEGER4 ):
         	intval = tvb_get_ntohl(tvb,offset+2);
         	if (attr_info->vs != NULL)
@@ -2419,17 +2422,20 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 		else
 	                sprintf(cont,"%u", intval);
                 break;
+
         case( RADIUS_IP_ADDRESS ):
                 ip_to_str_buf(tvb_get_ptr(tvb,offset+2,4),cont);
                 break;
+
         case( RADIUS_IP6_ADDRESS ):
                 ip6_to_str_buf((const struct e_in6_addr *)tvb_get_ptr(tvb,offset+2,16),cont);
                 break;
+
         case( RADIUS_IPX_ADDRESS ):
                 pd = tvb_get_ptr(tvb,offset+2,4);
-                sprintf(cont,"%u:%u:%u:%u",(guint8)pd[0],
-                        (guint8)pd[1],(guint8)pd[2],(guint8)pd[3]);
+                sprintf(cont,"%u:%u:%u:%u",pd[0],pd[1],pd[2],pd[3]);
 		break;
+
         case( RADIUS_STRING_TAGGED ):
 		/* Tagged ? */
 		tag = tvb_get_guint8(tvb,offset+2);
@@ -2442,6 +2448,7 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 		}
 		rdconvertbufftostr(cont,tvb,offset+2,avph->avp_length-2);
                 break;
+
 	case ( RADIUS_VENDOR_SPECIFIC ):
 		intval = tvb_get_ntohl(tvb,offset+2);
 		sprintf(dest, "Vendor:%s(%u)", rd_match_strval(intval,radius_vendor_specific_vendors), intval);
@@ -2476,7 +2483,7 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 			vsa_index++;
 			vsa_len += vsa_avph->avp_length;
 			if (next_attr_info != NULL &&
-			    next_attr_info->type == THE3GPP_QOS )
+			    next_attr_info->value_type == THE3GPP_QOS )
 			{
 				cont = tmp_punt;
 				vsa_index--;
@@ -2484,6 +2491,7 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 			}
 		} while (vsa_length > vsa_len && vsa_index < VSABUFFER);
 		break;
+
 	case( COSINE_VPI_VCI ):
 		sprintf(cont,"%u/%u",
 			tvb_get_ntohs(tvb,offset+2),
@@ -2505,7 +2513,6 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 		sprintf(cont,"(not parsed)");
 		break;
 
-
 	case( THE3GPP_QOS ):
 		/* Find the ponter to the already-built label
 		 * */
@@ -2523,27 +2530,31 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 		timeval=tvb_get_ntohl(tvb,offset+2);
 		sprintf(cont,"%d (%s)", timeval, abs_time_secs_to_str(timeval));
 		break;
+
         case( RADIUS_INTEGER4_TAGGED ):
-		intval = tvb_get_ntohl(tvb,offset+2);
+		tag = tvb_get_guint8(tvb,offset+2);
+		intval = tvb_get_ntoh24(tvb,offset+3);
 		/* Tagged ? */
-		if (intval >> 24) {
+		if (tag) {
 			if (attr_info->vs != NULL) {
-				sprintf(cont, "Tag:%u, Value:%s(%u)",
-					intval >> 24,
-					rd_match_strval(intval & 0xffffff,attr_info->vs),
-					intval & 0xffffff);
+				sprintf(dest, "Tag:%u, Value:%s(%u)",
+					tag,
+					rd_match_strval(intval, attr_info->vs),
+					intval);
 			} else {
-				sprintf(cont, "Tag:%u, Value:%u",
-					intval >> 24,
-					intval & 0xffffff);
+				sprintf(dest, "Tag:%u, Value:%u",
+					tag, intval);
 			}
-			break;
+		} else {
+	        	if (attr_info->vs != NULL)
+				sprintf(cont, "%s(%u)",
+					rd_match_strval(intval, attr_info->vs),
+					intval);
+			else
+				sprintf(cont,"%u", intval);
 		}
-        	if (attr_info->vs != NULL)
-			sprintf(cont, "%s(%u)", rd_match_strval(intval, attr_info->vs), intval);
-		else
-			sprintf(cont,"%u", intval);
 		break;
+
         case( RADIUS_UNKNOWN ):
         default:
                 strcpy(cont,"Unknown Value Type");
@@ -2596,7 +2607,7 @@ dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
       break;
     }
 
-    if (avph.avp_type == 79) {	/* EAP Message */
+    if (attr_info->value_type == RADIUS_EAP_MESSAGE) {	/* EAP Message */
       proto_item *ti;
       proto_tree *eap_tree = NULL;
       gint tvb_len;
