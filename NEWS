@@ -25,7 +25,7 @@ Overview of changes in Ethereal 0.8.2:
 * Change code to use strchr() instead of index() (Guy)
 * Change code to use strrchr() instead of rindex() (Guy)
 * Pop-up menus with right-clicks (Jerry Talkington)
-* Packet scrolling option during live captures (Guy)
+* Packet scrolling option in capture dialogue window (Guy)
 * Full NFSv3 support (Uwe)
 * Fix byte-order and alignment problems in PPTP
 	(Thomas Quinot, Debian bug 55347)
@@ -39,7 +39,7 @@ Overview of changes in Ethereal 0.8.2:
 * packet_info and ethernet changes (Guy)
 * LLC updates (Guy)
 * Flag for IPv4 TOS field/DiffServ field (Heikki Vatiainen)
-* Cisco ISL support
+* Cisco ISL support (Guy)
 * Workaround for GTK+-1.2.[3-6] text widget bug (Gerald)
 * Menu updates and fixes (Gerald, Gilbert, Guy, henceforth "3G")
 * Parse multiple COMMUNITIES value in BGP (Itojun)
