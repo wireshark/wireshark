@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.38 2000/05/31 05:07:09 guy Exp $
+ * $Id: packet-ipv6.c,v 1.39 2000/06/05 03:21:03 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -351,7 +351,7 @@ again:
 	offset += advance;
 	goto again;
     case IP_PROTO_AH:
-	advance = dissect_ah(pd, offset, fd, tree);
+	advance = dissect_ah_old(pd, offset, fd, tree);
 	nxt = pd[poffset = offset];
 	offset += advance;
 	goto again;

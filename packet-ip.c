@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.91 2000/06/02 16:43:46 gram Exp $
+ * $Id: packet-ip.c,v 1.92 2000/06/05 03:21:01 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -805,7 +805,6 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   gchar      tos_str[32];
   guint      hlen, optlen, len;
   guint16    flags;
-  int        advance;
   guint8     nxt;
 
   /* To do: check for errs, etc. */
@@ -943,15 +942,6 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	ipprotostr(iph.ip_p), iph.ip_p, (iph.ip_off & IP_OFFSET) * 8);
     dissect_data(pd, offset, fd, tree);
     return;
-  }
-
-again:
-  switch (nxt) {
-    case IP_PROTO_AH:
-      advance = dissect_ah(pd, offset, fd, tree);
-      nxt = pd[offset];
-      offset += advance;
-      goto again;
   }
 
   /* do lookup with the subdissector table */

@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.16 2000/05/31 05:07:09 guy Exp $
+ * $Id: packet-ipsec.c,v 1.17 2000/06/05 03:21:02 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -101,7 +101,7 @@ static const value_string cpi2val[] = {
 #endif
 
 int
-dissect_ah(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_ah_old(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
     proto_tree *ah_tree;
     proto_item *ti;
@@ -139,6 +139,52 @@ dissect_ah(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
     /* start of the new header (could be a extension header) */
     return advance;
+}
+
+void
+dissect_ah(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+    proto_tree *ah_tree;
+    proto_item *ti;
+    struct newah ah;
+    int advance;
+
+    memcpy(&ah, (void *) &pd[offset], sizeof(ah)); 
+    advance = sizeof(ah) + ((ah.ah_len - 1) << 2);
+
+    if (check_col(fd, COL_PROTOCOL))
+	col_add_str(fd, COL_PROTOCOL, "AH");
+    if (check_col(fd, COL_INFO)) {
+	col_add_fstr(fd, COL_INFO, "AH (SPI=0x%08x)",
+	    (guint32)ntohl(ah.ah_spi));
+    }
+
+    if (tree) {
+	/* !!! specify length */
+	ti = proto_tree_add_item(tree, proto_ah, NullTVB, offset, advance, FALSE);
+	ah_tree = proto_item_add_subtree(ti, ett_ah);
+
+	proto_tree_add_text(ah_tree, NullTVB, offset + offsetof(struct newah, ah_nxt), 1,
+	    "Next Header: %s (0x%02x)", ipprotostr(ah.ah_nxt), ah.ah_nxt);
+	proto_tree_add_text(ah_tree, NullTVB, offset + offsetof(struct newah, ah_len), 1,
+	    "Length: %d", ah.ah_len << 2);
+	proto_tree_add_uint(ah_tree, hf_ah_spi, NullTVB,
+			    offset + offsetof(struct newah, ah_spi), 4,
+			    (guint32)ntohl(ah.ah_spi));
+	proto_tree_add_uint(ah_tree, hf_ah_sequence, NullTVB,
+			    offset + offsetof(struct newah, ah_seq), 4,
+			    (guint32)ntohl(ah.ah_seq));
+	proto_tree_add_text(ah_tree, NullTVB, offset + sizeof(ah), (ah.ah_len - 1) << 2,
+			    "ICV");
+    }
+
+    /* start of the new header (could be a extension header) */
+    offset += advance;
+
+  /* do lookup with the subdissector table */
+  if (!dissector_try_port(ip_dissector_table, ah.ah_nxt, pd, offset, fd, tree)) {
+    dissect_data(pd, offset, fd, tree);
+  }
 }
 
 static void
@@ -286,6 +332,7 @@ proto_register_ipsec(void)
 void
 proto_reg_handoff_ipsec(void)
 {
+  dissector_add("ip.proto", IP_PROTO_AH, dissect_ah);
   dissector_add("ip.proto", IP_PROTO_ESP, dissect_esp);
   dissector_add("ip.proto", IP_PROTO_IPCOMP, dissect_ipcomp);
 }
