@@ -9,6 +9,21 @@
 	<para>
 	This chapter will give you a short overview, how Ethereal is working.
 	</para>
+  </section>
+
+  <section id="ChWorksOverview">
+	<title>Overview</title>
+	<para>
+	The following will give you a simplified overview of Ethereals function blocks:
+	<figure id="ChWorksFigOverview">
+	  <title>
+	    <application>Ethereal</application> function blocks.
+	  </title>
+	  <graphic entityref="EtherealFunctionBlocks" format="PNG"/>
+	</figure>
+	XXX - describe the blocks in detail
+	</para>
+  </section>
 
 	<section id="ChWorksCapturePackets">
 	<title>Capturing packets</title>
@@ -55,6 +70,5 @@
 	</para>
 	</section>
 
-  </section>
 </chapter>
 <!-- End of EUG Chapter Works -->

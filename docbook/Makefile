@@ -35,8 +35,6 @@ XMLLINT="xmllint"
 # as eug_chm will stop with an error, make sure it's the last in this dependency list
 all: eug edg 
 
-eug: eug_validate eug_pdf_a4 eug_html eug_html_chunked eug_chm 
-
 clean:
 	rm -f *.html
 	rm -f htmlhelp.*
@@ -53,7 +51,9 @@ clean:
 	rm -rf edg_chm
 
 
-images:
+eug: eug_validate eug_pdf_a4 eug_html eug_html_chunked eug_chm 
+
+eug_images:
 	cp $(DOCBOOKXSL)/images/note.png ./graphics
 	cp $(DOCBOOKXSL)/images/tip.png ./graphics
 	cp $(DOCBOOKXSL)/images/warning.png ./graphics
@@ -64,7 +64,7 @@ eug_validate:
 	$(XMLLINT) --valid --noout user-guide.xml
 
 # create html single page file
-eug_html: images
+eug_html: eug_images
 	@ echo --- HTML SINGLE PAGE ---
 	mkdir -p eug_html
 	mkdir -p eug_html/graphics
@@ -74,7 +74,7 @@ eug_html: images
 	$(XSLTPROC) --nonet $(DOCBOOKXSL)/html/docbook.xsl user-guide.xml > eug_html/user-guide.html
 	
 # create html chunked page files
-eug_html_chunked: images
+eug_html_chunked: eug_images
 	@ echo --- HTML CHUNKED ---
 	mkdir -p eug_html_chunked
 	mkdir -p eug_html_chunked/graphics
@@ -85,7 +85,7 @@ eug_html_chunked: images
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
-eug_pdf_us: images
+eug_pdf_us: eug_images
 ifdef FOP
 	@ echo --- PDF US PAPER ---
 	$(XSLTPROC) --nonet custom_layer_pdf.xsl $(DOCBOOKXSL)/fo/docbook.xsl user-guide.xml > user-guide.fo
@@ -94,7 +94,7 @@ endif
 
 # create pdf file (through XSL-FO), portrait pages on A4 paper
 # you will get lot's of errors, but that's ok
-eug_pdf_a4: images
+eug_pdf_a4: eug_images
 ifdef FOP
 	@ echo --- PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl user-guide.xml > user-guide.fo
@@ -102,7 +102,7 @@ ifdef FOP
 endif
 
 # create MS html help file (through html chunked pages)
-eug_chm: images
+eug_chm: eug_images
 ifdef HHC
 	@ echo --- MICROSOFT HTML HELP ---
 	mkdir -p eug_chm
@@ -120,34 +120,36 @@ endif
 
 edg: edg_validate edg_html_chunked edg_pdf_a4 edg_html edg_chm 
 
+edg_images:
+	cp $(DOCBOOKXSL)/images/note.png ./edg_graphics
+	cp $(DOCBOOKXSL)/images/tip.png ./edg_graphics
+	cp $(DOCBOOKXSL)/images/warning.png ./edg_graphics
+
+
 # validate the content
 edg_validate:
 	@ echo --- VALIDATING XML ---
 	$(XMLLINT) --valid --noout developer-guide.xml
 
 # create html single page file
-edg_html: images
+edg_html: edg_images
 	@ echo --- HTML SINGLE PAGE ---
 	mkdir -p edg_html
-	mkdir -p edg_html/graphics
-	mkdir -p edg_html/graphics/toolbar
-	cp ./graphics/*.* edg_html/graphics
-	cp ./graphics/toolbar/*.* edg_html/graphics/toolbar
+	mkdir -p edg_html/edg_graphics
+	cp ./edg_graphics/*.* edg_html/edg_graphics
 	$(XSLTPROC) --nonet $(DOCBOOKXSL)/html/docbook.xsl developer-guide.xml > edg_html/developer-guide.html
 	
 # create html chunked page files
-edg_html_chunked: images
+edg_html_chunked: edg_images
 	@ echo --- HTML CHUNKED ---
 	mkdir -p edg_html_chunked
-	mkdir -p edg_html_chunked/graphics
-	mkdir -p edg_html_chunked/graphics/toolbar
-	cp ./graphics/*.* edg_html_chunked/graphics
-	cp ./graphics/toolbar/*.* edg_html_chunked/graphics/toolbar
-	$(XSLTPROC) --stringparam base.dir edg_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet $(DOCBOOKXSL)/html/chunk.xsl developer-guide.xml
+	mkdir -p edg_html_chunked/edg_graphics
+	cp ./edg_graphics/*.* edg_html_chunked/edg_graphics
+	$(XSLTPROC) --stringparam base.dir edg_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet $(DOCBOOKXSL)/html/chunk.xsl developer-guide.xml
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
-edg_pdf_us: images
+edg_pdf_us: edg_images
 ifdef FOP
 	@ echo --- PDF US PAPER ---
 	$(XSLTPROC) --nonet custom_layer_pdf.xsl $(DOCBOOKXSL)/fo/docbook.xsl developer-guide.xml > developer-guide.fo
@@ -156,7 +158,7 @@ endif
 
 # create pdf file (through XSL-FO), portrait pages on A4 paper
 # you will get lot's of errors, but that's ok
-edg_pdf_a4: images
+edg_pdf_a4: edg_images
 ifdef FOP
 	@ echo --- PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl developer-guide.xml > developer-guide.fo
@@ -164,15 +166,13 @@ ifdef FOP
 endif
 
 # create MS html help file (through html chunked pages)
-edg_chm: images
+edg_chm: edg_images
 ifdef HHC
 	@ echo --- MICROSOFT HTML HELP ---
 	mkdir -p edg_chm
-	mkdir -p edg_chm/graphics
-	mkdir -p edg_chm/graphics/toolbar
-	cp ./graphics/*.* edg_chm/graphics
-	cp ./graphics/toolbar/*.* edg_chm/graphics/toolbar
-	$(XSLTPROC) --stringparam base.dir edg_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet $(DOCBOOKXSL)/htmlhelp/htmlhelp.xsl developer-guide.xml
+	mkdir -p edg_chm/edg_graphics
+	cp ./edg_graphics/*.* edg_chm/edg_graphics
+	$(XSLTPROC) --stringparam base.dir edg_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet $(DOCBOOKXSL)/htmlhelp/htmlhelp.xsl developer-guide.xml
 	-$(HHC) htmlhelp.hhp
 	mv htmlhelp.chm developer-guide.chm
 	rm -r htmlhelp.hhp
