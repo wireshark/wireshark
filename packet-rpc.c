@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.32 2000/07/14 12:55:58 girlich Exp $
+ * $Id: packet-rpc.c,v 1.33 2000/07/17 20:33:51 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,13 +47,13 @@
 static struct true_false_string yesno = { "Yes", "No" };
 
 
-static const value_string rpc_msg_type[3] = {
+static const value_string rpc_msg_type[] = {
 	{ RPC_CALL, "Call" },
 	{ RPC_REPLY, "Reply" },
 	{ 0, NULL }
 };
 
-static const value_string rpc_reply_state[3] = {
+static const value_string rpc_reply_state[] = {
 	{ MSG_ACCEPTED, "accepted" },
 	{ MSG_DENIED, "denied" },
 	{ 0, NULL }
@@ -64,10 +64,26 @@ const value_string rpc_auth_flavor[] = {
 	{ AUTH_UNIX, "AUTH_UNIX" },
 	{ AUTH_SHORT, "AUTH_SHORT" },
 	{ AUTH_DES, "AUTH_DES" },
+	{ AUTH_GSS, "AUTH_GSS" },
 	{ 0, NULL }
 };
 
-static const value_string rpc_accept_state[6] = {
+static const value_string rpc_authgss_proc[] = {
+	{ AUTH_GSS_DATA, "AUTH_GSS_DATA" },
+	{ AUTH_GSS_INIT, "AUTH_GSS_INIT" },
+	{ AUTH_GSS_CONTINUE_INIT, "AUTH_GSS_CONTINUE_INIT" },
+	{ AUTH_GSS_DESTROY, "AUTH_GSS_DESTROY" },
+	{ 0, NULL }
+};
+
+static const value_string rpc_authgss_svc[] = {
+	{ AUTH_GSS_SVC_NONE, "AUTH_GSS_SVC_NONE" },
+	{ AUTH_GSS_SVC_INTEGRITY, "AUTH_GSS_SVC_INTEGRITY" },
+	{ AUTH_GSS_SVC_PRIVACY, "AUTH_GSS_SVC_PRIVACY" },
+	{ 0, NULL }
+};
+
+static const value_string rpc_accept_state[] = {
 	{ SUCCESS, "RPC executed successfully" },
 	{ PROG_UNAVAIL, "remote hasn't exported program" },
 	{ PROG_MISMATCH, "remote can't support version #" },
@@ -76,18 +92,20 @@ static const value_string rpc_accept_state[6] = {
 	{ 0, NULL }
 };
 
-static const value_string rpc_reject_state[3] = {
+static const value_string rpc_reject_state[] = {
 	{ RPC_MISMATCH, "RPC_MISMATCH" },
 	{ AUTH_ERROR, "AUTH_ERROR" },
 	{ 0, NULL }
 };
 
-static const value_string rpc_auth_state[6] = {
+static const value_string rpc_auth_state[] = {
 	{ AUTH_BADCRED, "bad credential (seal broken)" },
 	{ AUTH_REJECTEDCRED, "client must begin new session" },
 	{ AUTH_BADVERF, "bad verifier (seal broken)" },
 	{ AUTH_REJECTEDVERF, "verifier expired or replayed" },
 	{ AUTH_TOOWEAK, "rejected for security reasons" },
+	{ AUTH_GSSCREDPROB, "GSS credential problem" },
+	{ AUTH_GSSCTXPROB, "GSS context problem" },
 	{ 0, NULL }
 };
 
@@ -112,6 +130,18 @@ static int hf_rpc_auth_machinename = -1;
 static int hf_rpc_auth_stamp = -1;
 static int hf_rpc_auth_uid = -1;
 static int hf_rpc_auth_gid = -1;
+static int hf_rpc_authgss_v = -1;
+static int hf_rpc_authgss_proc = -1;
+static int hf_rpc_authgss_seq = -1;
+static int hf_rpc_authgss_svc = -1;
+static int hf_rpc_authgss_ctx = -1;
+static int hf_rpc_authgss_major = -1;
+static int hf_rpc_authgss_minor = -1;
+static int hf_rpc_authgss_window = -1;
+static int hf_rpc_authgss_token = -1;
+static int hf_rpc_authgss_data_length = -1;
+static int hf_rpc_authgss_data = -1;
+static int hf_rpc_authgss_checksum = -1;
 static int hf_rpc_state_accept = -1;
 static int hf_rpc_state_reply = -1;
 static int hf_rpc_state_reject = -1;
@@ -126,6 +156,7 @@ static gint ett_rpc_string = -1;
 static gint ett_rpc_cred = -1;
 static gint ett_rpc_verf = -1;
 static gint ett_rpc_gids = -1;
+static gint ett_rpc_gss_data = -1;
 
 /* Hash table with info on RPC program numbers */
 static GHashTable *rpc_progs;
@@ -599,85 +630,136 @@ dissect_rpc_list(const u_char *pd, int offset, frame_data *fd,
 	return offset;
 }
 
-
-void
-dissect_rpc_auth( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+static int
+dissect_rpc_authunix_cred(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
-        guint flavor;
-        guint length;
-        guint length_full;
+	guint stamp;
+	guint uid;
+	guint gid;
+	guint gids_count;
+	guint gids_i;
+	guint gids_entry;
+	proto_item *gitem;
+	proto_tree *gtree = NULL;
 
-	/* both checks are made outside */
-	/* if (!BYTES_ARE_IN_FRAME(offset,8)) return; */
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	stamp = EXTRACT_UINT(pd,offset+0);
+	if (tree)
+		proto_tree_add_uint(tree, hf_rpc_auth_stamp, NullTVB,
+			offset+0, 4, stamp);
+	offset += 4;
+
+	offset = dissect_rpc_string(pd,offset,fd,
+		tree,hf_rpc_auth_machinename,NULL);
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	uid = EXTRACT_UINT(pd,offset+0);
+	if (tree)
+		proto_tree_add_uint(tree, hf_rpc_auth_uid, NullTVB,
+			offset+0, 4, uid);
+	offset += 4;
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	gid = EXTRACT_UINT(pd,offset+0);
+	if (tree)
+		proto_tree_add_uint(tree, hf_rpc_auth_gid, NullTVB,
+			offset+0, 4, gid);
+	offset += 4;
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	gids_count = EXTRACT_UINT(pd,offset+0);
+	if (tree) {
+		gitem = proto_tree_add_text(tree, NullTVB, offset, 4+gids_count*4,
+		"Auxiliary GIDs");
+		gtree = proto_item_add_subtree(gitem, ett_rpc_gids);
+	}
+	offset += 4;
+	
+	if (!BYTES_ARE_IN_FRAME(offset,4*gids_count)) return offset;
+	for (gids_i = 0 ; gids_i < gids_count ; gids_i++) {
+		gids_entry = EXTRACT_UINT(pd,offset+0);
+		if (gtree)
+		proto_tree_add_uint(gtree, hf_rpc_auth_gid, NullTVB,
+			offset, 4, gids_entry);
+		offset+=4;
+	}
+	/* how can I NOW change the gitem to print a list with
+		the first 16 gids? */
+
+	return offset;
+}
+
+static int
+dissect_rpc_authgss_cred(const u_char *pd, int offset,
+			 frame_data *fd, proto_tree *tree)
+{
+	guint agc_v;
+	guint agc_proc;
+	guint agc_seq;
+	guint agc_svc;
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	agc_v = EXTRACT_UINT(pd, offset+0);
+	if (tree)
+		proto_tree_add_uint(tree, hf_rpc_authgss_v,
+				    NullTVB, offset+0, 4, agc_v);
+	offset += 4;
+	
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	agc_proc = EXTRACT_UINT(pd, offset+0);
+	if (tree)
+		proto_tree_add_uint(tree, hf_rpc_authgss_proc,
+				    NullTVB, offset+0, 4, agc_proc);
+	offset += 4;
+	
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	agc_seq = EXTRACT_UINT(pd, offset+0);
+	if (tree)
+		proto_tree_add_uint(tree, hf_rpc_authgss_seq,
+				    NullTVB, offset+0, 4, agc_seq);
+	offset += 4;
+	
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	agc_svc = EXTRACT_UINT(pd, offset+0);
+	if (tree)
+		proto_tree_add_uint(tree, hf_rpc_authgss_svc,
+				    NullTVB, offset+0, 4, agc_svc);
+	offset += 4;
+	
+	offset = dissect_rpc_data(pd,offset,fd,tree,
+				  hf_rpc_authgss_ctx);
+	
+	return offset;
+}
+
+static int
+dissect_rpc_cred( const u_char *pd, int offset, frame_data *fd, proto_tree *tree )
+{
+	guint flavor;
+	guint length;
+
+	proto_item *citem;
+	proto_tree *ctree;
+
+	if (!BYTES_ARE_IN_FRAME(offset,8)) return offset;
 	flavor = EXTRACT_UINT(pd,offset+0);
 	length = EXTRACT_UINT(pd,offset+4);
-	length_full = rpc_roundup(length);
-	/* if (!BYTES_ARE_IN_FRAME(offset+8,full_length)) return; */
+	length = rpc_roundup(length);
+	if (!BYTES_ARE_IN_FRAME(offset+8,length)) return offset;
 
 	if (tree) {
-		proto_tree_add_uint(tree, hf_rpc_auth_flavor, NullTVB, offset+0, 4,
-			flavor);
-		proto_tree_add_uint(tree, hf_rpc_auth_length, NullTVB, offset+4, 4,
-			length);
-	}
+		citem = proto_tree_add_text(tree, NullTVB, offset,
+					    8+length, "Credentials");
+		ctree = proto_item_add_subtree(citem, ett_rpc_cred);
+		proto_tree_add_uint(ctree, hf_rpc_auth_flavor, NullTVB,
+				    offset+0, 4, flavor);
+		proto_tree_add_uint(ctree, hf_rpc_auth_length, NullTVB,
+				    offset+4, 4, length);
 
-	offset += 8;
-
-	switch (flavor) {
-		case AUTH_UNIX: {
-			guint stamp;
-			guint uid;
-			guint gid;
-			guint gids_count;
-			guint gids_i;
-			guint gids_entry;
-			proto_item *gitem;
-			proto_tree *gtree = NULL;
-
-			if (!BYTES_ARE_IN_FRAME(offset,4)) return;
-			stamp = EXTRACT_UINT(pd,offset+0);
-			if (tree)
-				proto_tree_add_uint(tree, hf_rpc_auth_stamp, NullTVB,
-					offset+0, 4, stamp);
-			offset += 4;
-
-			offset = dissect_rpc_string(pd,offset,fd,
-				tree,hf_rpc_auth_machinename,NULL);
-
-			if (!BYTES_ARE_IN_FRAME(offset,4)) return;
-			uid = EXTRACT_UINT(pd,offset+0);
-			if (tree)
-				proto_tree_add_uint(tree, hf_rpc_auth_uid, NullTVB,
-					offset+0, 4, uid);
-			offset += 4;
-
-			if (!BYTES_ARE_IN_FRAME(offset,4)) return;
-			gid = EXTRACT_UINT(pd,offset+0);
-			if (tree)
-				proto_tree_add_uint(tree, hf_rpc_auth_gid, NullTVB,
-					offset+0, 4, gid);
-			offset += 4;
-
-			if (!BYTES_ARE_IN_FRAME(offset,4)) return;
-			gids_count = EXTRACT_UINT(pd,offset+0);
-			if (tree) {
-				gitem = proto_tree_add_text(tree, NullTVB, offset, 4+gids_count*4,
-				"Auxiliary GIDs");
-				gtree = proto_item_add_subtree(gitem, ett_rpc_gids);
-			}
-			offset += 4;
-			if (!BYTES_ARE_IN_FRAME(offset,4*gids_count)) return;
-			for (gids_i = 0 ; gids_i < gids_count ; gids_i++) {
-				gids_entry = EXTRACT_UINT(pd,offset+0);
-				if (gtree)
-				proto_tree_add_uint(gtree, hf_rpc_auth_gid, NullTVB,
-					offset, 4, gids_entry);
-				offset+=4;
-			}
-			/* how can I NOW change the gitem to print a list with
-				the first 16 gids? */
-		}
-		break;
+		switch (flavor) {
+		case AUTH_UNIX:
+			dissect_rpc_authunix_cred(pd, offset+8, fd, ctree);
+			break;
 		/*
 		case AUTH_SHORT:
 
@@ -690,64 +772,147 @@ dissect_rpc_auth( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 
 		break;
 		*/
+		case AUTH_GSS:
+			dissect_rpc_authgss_cred(pd, offset+8, fd, ctree);
+			break;
 		default:
-			if (length_full) {
-				if (tree)
-				proto_tree_add_text(tree, NullTVB,offset,
-				length_full, "opaque data");
-			}
+			if (length)
+				proto_tree_add_text(ctree, NullTVB, offset+8,
+						    length,"opaque data");
+			break;
 	}
-}
-
-int
-dissect_rpc_cred( const u_char *pd, int offset, frame_data *fd, proto_tree *tree )
-{
-	guint length;
-	guint length_full;
-	proto_item *citem;
-	proto_tree *ctree;
-
-	if (!BYTES_ARE_IN_FRAME(offset,8)) return offset;
-	length = EXTRACT_UINT(pd,offset+4);
-	length_full = rpc_roundup(length);
-	if (!BYTES_ARE_IN_FRAME(offset+8,length_full)) return offset;
-
-	if (tree) {
-		citem = proto_tree_add_text(tree, NullTVB, offset, 8+length_full,
-			"Credentials");
-		ctree = proto_item_add_subtree(citem, ett_rpc_cred);
-		dissect_rpc_auth(pd, offset, fd, ctree);
 	}
-	offset += 8 + length_full;
+	offset += 8 + length;
 
 	return offset;
 }
 
-
-int
+static int
 dissect_rpc_verf( const u_char *pd, int offset, frame_data *fd, proto_tree *tree )
 {
-	unsigned int length;
-	unsigned int length_full;
+	guint flavor;
+	guint length;
+	
 	proto_item *vitem;
 	proto_tree *vtree;
 
 	if (!BYTES_ARE_IN_FRAME(offset,8)) return offset;
+	flavor = EXTRACT_UINT(pd,offset+0);
 	length = EXTRACT_UINT(pd,offset+4);
-	length_full = rpc_roundup(length);
-	if (!BYTES_ARE_IN_FRAME(offset+8,length_full)) return offset;
+	length = rpc_roundup(length);
+	if (!BYTES_ARE_IN_FRAME(offset+8,length)) return offset;
 
 	if (tree) {
-		vitem = proto_tree_add_text(tree, NullTVB, offset, 8+length_full,
-			"Verifier");
+		vitem = proto_tree_add_text(tree, NullTVB, offset,
+					    8+length, "Verifier");
 		vtree = proto_item_add_subtree(vitem, ett_rpc_verf);
-		dissect_rpc_auth(pd, offset, fd, vtree);
+		proto_tree_add_uint(vtree, hf_rpc_auth_flavor, NullTVB,
+				    offset+0, 4, flavor);
+
+		switch (flavor) {
+		case AUTH_UNIX:
+			proto_tree_add_uint(vtree, hf_rpc_auth_length, NullTVB,
+					    offset+4, 4, length);
+			dissect_rpc_authunix_cred(pd, offset+8, fd, vtree);
+			break;
+		case AUTH_GSS:
+			dissect_rpc_data(pd, offset+4, fd, vtree,
+					 hf_rpc_authgss_checksum);
+			break;
+		default:
+			proto_tree_add_uint(vtree, hf_rpc_auth_length, NullTVB,
+					    offset+4, 4, length);
+			if (length)
+				proto_tree_add_text(vtree, NullTVB, offset+8,
+						    length, "opaque data");
+			break;
+		}
 	}
-	offset += 8 + length_full;
+	offset += 8 + length;
 
 	return offset;
 }
 
+static int
+dissect_rpc_authgss_initarg(const u_char *pd, int offset,
+			    frame_data *fd, proto_tree *tree)
+{
+	offset = dissect_rpc_data(pd, offset, fd, tree, hf_rpc_authgss_token);
+	return offset;
+}
+
+static int
+dissect_rpc_authgss_initres(const u_char *pd, int offset,
+			    frame_data *fd, proto_tree *tree)
+{
+	int major, minor, window;
+	
+	offset = dissect_rpc_data(pd, offset, fd, tree, hf_rpc_authgss_ctx);
+	
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	major = EXTRACT_UINT(pd,offset+0);
+	if (tree)
+		proto_tree_add_uint(tree, hf_rpc_authgss_major, NullTVB,
+				    offset+0, 4, major);
+	offset += 4;
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	minor = EXTRACT_UINT(pd,offset+0);
+	if (tree)
+		proto_tree_add_uint(tree, hf_rpc_authgss_minor, NullTVB,
+				    offset+0, 4, minor);
+	offset += 4;
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	window = EXTRACT_UINT(pd,offset+0);
+	if (tree)
+		proto_tree_add_uint(tree, hf_rpc_authgss_window, NullTVB,
+				    offset+0, 4, window);
+	offset += 4;
+
+	offset = dissect_rpc_data(pd, offset, fd, tree, hf_rpc_authgss_token);
+
+	return offset;
+}
+
+static int
+dissect_rpc_authgss_integ_data(const u_char *pd, int offset,
+			       frame_data *fd, proto_tree *tree,
+			       dissect_function_t *dissect_function)
+{
+	guint32 length, seq;
+	
+	proto_item *gitem;
+	proto_tree *gtree;
+
+	if (!BYTES_ARE_IN_FRAME(offset, 8)) return offset;
+	length = EXTRACT_UINT(pd, offset+0);
+	length = rpc_roundup(length);
+	seq = EXTRACT_UINT(pd,offset+4);
+
+	if (tree) {
+		gitem = proto_tree_add_text(tree, NullTVB, offset,
+					    4+length, "GSS Data");
+		gtree = proto_item_add_subtree(gitem, ett_rpc_gss_data);
+		proto_tree_add_uint(gtree, hf_rpc_authgss_data_length,
+				    NullTVB, offset+0, 4, length);
+		proto_tree_add_uint(gtree, hf_rpc_authgss_seq,
+				    NullTVB, offset+4, 4, seq);
+		if (dissect_function != NULL)
+			offset = dissect_function(pd, offset, fd, gtree);
+	}
+	offset += 8 + length;
+	offset = dissect_rpc_data(pd, offset, fd, tree, hf_rpc_authgss_checksum);
+	return offset;
+}
+
+static int
+dissect_rpc_authgss_priv_data(const u_char *pd, int offset,
+			 frame_data *fd, proto_tree *tree)
+{
+	offset = dissect_rpc_data(pd, offset, fd, tree, hf_rpc_authgss_data);
+	return offset;
+}
 
 gboolean
 dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
@@ -763,6 +928,9 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	unsigned int prog = 0;
 	unsigned int vers = 0;
 	unsigned int proc = 0;
+	unsigned int flavor = 0;
+	unsigned int gss_proc = 0;
+	unsigned int gss_svc = 0;
 	int	proto = 0;
 	int	ett = 0;
 
@@ -948,12 +1116,19 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			return TRUE;
 		proc = EXTRACT_UINT(pd,offset+12);
 
+		/* Check for RPCSEC_GSS */
+		if (proc == 0 && BYTES_ARE_IN_FRAME(offset+16,28)) {
+			flavor = EXTRACT_UINT(pd, offset+16);
+			if (flavor == AUTH_GSS) {
+				gss_proc = EXTRACT_UINT(pd, offset+28);
+				gss_svc = EXTRACT_UINT(pd, offset+34);
+			}
+		}
 		key.prog = prog;
 		key.vers = vers;
 		key.proc = proc;
 
-		value = g_hash_table_lookup(rpc_procs,&key);
-		if (value != NULL) {
+		if ((value = g_hash_table_lookup(rpc_procs,&key)) != NULL) {
 			dissect_function = value->dissect_call;
 			procname = value->name;
 		}
@@ -964,6 +1139,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			sprintf(procname_static, "proc-%u", proc);
 			procname = procname_static;
 		}
+		
 		if (rpc_tree) {
 			proto_tree_add_uint_format(rpc_tree,
 				hf_rpc_procedure, NullTVB, offset+12, 4, proc,
@@ -1016,6 +1192,9 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			rpc_call_msg.prog = prog;
 			rpc_call_msg.vers = vers;
 			rpc_call_msg.proc = proc;
+			rpc_call_msg.flavor = flavor;
+			rpc_call_msg.gss_proc = gss_proc;
+			rpc_call_msg.gss_svc = gss_svc;
 			rpc_call_msg.proc_info = value;
 			/* store it */
 			rpc_call_insert(&rpc_call_msg);
@@ -1037,6 +1216,10 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		prog = rpc_call->prog;
 		vers = rpc_call->vers;
 		proc = rpc_call->proc;
+		flavor = rpc_call->flavor;
+		gss_proc = rpc_call->gss_proc;
+		gss_svc = rpc_call->gss_svc;
+
 		if (rpc_call->proc_info != NULL) {
 			dissect_function = rpc_call->proc_info->dissect_reply;
 			if (rpc_call->proc_info->name != NULL) {
@@ -1210,8 +1393,36 @@ dissect_rpc_prog:
 		}
 	}
 
-	/* call a specific dissection */
-	if (dissect_function != NULL) {
+	/* RPCSEC_GSS processing. */
+	if (flavor == AUTH_GSS) {
+		switch (gss_proc) {
+		case AUTH_GSS_INIT:
+		case AUTH_GSS_CONTINUE_INIT:
+			if (msg_type == RPC_CALL) {
+				offset = dissect_rpc_authgss_initarg(pd, offset, fd, ptree);
+			}
+			else {
+				offset = dissect_rpc_authgss_initres(pd, offset, fd, ptree);
+			}
+			break;
+		case AUTH_GSS_DATA:
+			if (gss_svc == AUTH_GSS_SVC_NONE) {
+				if (dissect_function != NULL)
+					offset = dissect_function(pd, offset, fd, ptree);
+			}
+			else if (gss_svc == AUTH_GSS_SVC_INTEGRITY) {
+				offset = dissect_rpc_authgss_integ_data(pd, offset, fd, ptree, dissect_function);
+			}
+			else if (gss_svc == AUTH_GSS_SVC_PRIVACY) {
+				offset = dissect_rpc_authgss_priv_data(pd, offset, fd, ptree);
+			}
+			break;
+		default:
+			dissect_function = NULL;
+			break;
+		}
+	}
+	else if (dissect_function != NULL) {
 		offset = dissect_function(pd, offset, fd, ptree);
 	}
 
@@ -1301,6 +1512,42 @@ proto_register_rpc(void)
 		{ &hf_rpc_auth_gid, {
 			"GID", "rpc.auth.gid", FT_UINT32, BASE_DEC,
 			NULL, 0, "GID" }},
+		{ &hf_rpc_authgss_v, {
+			"GSS Version", "rpc.authgss.version", FT_UINT32,
+			BASE_DEC, NULL, 0, "GSS Version" }},
+		{ &hf_rpc_authgss_proc, {
+			"GSS Procedure", "rpc.authgss.procedure", FT_UINT32,
+			BASE_DEC, VALS(rpc_authgss_proc), 0, "GSS Procedure" }},
+		{ &hf_rpc_authgss_seq, {
+			"GSS Sequence Number", "rpc.authgss.seqnum", FT_UINT32,
+			BASE_DEC, NULL, 0, "GSS Sequence Number" }},
+		{ &hf_rpc_authgss_svc, {
+			"GSS Service", "rpc.authgss.service", FT_UINT32,
+			BASE_DEC, VALS(rpc_authgss_svc), 0, "GSS Service" }},
+		{ &hf_rpc_authgss_ctx, {
+			"GSS Context", "rpc.authgss.context", FT_BYTES,
+			BASE_HEX, NULL, 0, "GSS Context" }},
+		{ &hf_rpc_authgss_major, {
+			"GSS Major Status", "rpc.authgss.major", FT_UINT32,
+			BASE_DEC, NULL, 0, "GSS Major Status" }},
+		{ &hf_rpc_authgss_minor, {
+			"GSS Minor Status", "rpc.authgss.minor", FT_UINT32,
+			BASE_DEC, NULL, 0, "GSS Minor Status" }},
+		{ &hf_rpc_authgss_window, {
+			"GSS Sequence Window", "rpc.authgss.window", FT_UINT32,
+			BASE_DEC, NULL, 0, "GSS Sequence Window" }},
+		{ &hf_rpc_authgss_token, {
+			"GSS Token", "rpc.authgss.token", FT_BYTES,
+			BASE_HEX, NULL, 0, "GSS Token" }},
+		{ &hf_rpc_authgss_data_length, {
+			"Length", "rpc.authgss.data.length", FT_UINT32,
+			BASE_DEC, NULL, 0, "Length" }},
+		{ &hf_rpc_authgss_data, {
+			"GSS Data", "rpc.authgss.data", FT_BYTES,
+			BASE_HEX, NULL, 0, "GSS Data" }},
+		{ &hf_rpc_authgss_checksum, {
+			"GSS Checksum", "rpc.authgss.checksum", FT_BYTES,
+			BASE_HEX, NULL, 0, "GSS Checksum" }},
 		{ &hf_rpc_auth_machinename, {
 			"Machine Name", "rpc.auth.machinename", FT_STRING, 
 			BASE_DEC, NULL, 0, "Machine Name" }},

@@ -903,6 +903,7 @@ B<http://ethereal.zing.org>.
   Stefan Raab              <stefan.raab@nextel.com>
   Mark Clayton             <clayton@shore.net>
   Michael Rozhavsky        <mike@tochna.technion.ac.il>
+  Dug Song                 <dugsong@monkey.org>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

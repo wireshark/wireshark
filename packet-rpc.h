@@ -1,5 +1,5 @@
 /* packet-rpc.h (c) 1999 Uwe Girlich */
-/* $Id: packet-rpc.h,v 1.14 2000/03/09 12:05:32 girlich Exp $ */
+/* $Id: packet-rpc.h,v 1.15 2000/07/17 20:33:52 guy Exp $ */
 
 #ifndef __PACKET_RPC_H__
 #define __PACKET_RPC_H__
@@ -17,14 +17,10 @@
 #define AUTH_UNIX 1
 #define AUTH_SHORT 2
 #define AUTH_DES 3
+#define AUTH_GSS 6
 
 #define MSG_ACCEPTED 0
 #define MSG_DENIED 1
-
-#define AUTH_NULL 0
-#define AUTH_UNIX 1
-#define AUTH_SHORT 2
-#define AUTH_DES 3
 
 #define SUCCESS 0
 #define PROG_UNAVAIL 1
@@ -40,6 +36,17 @@
 #define AUTH_BADVERF 3
 #define AUTH_REJECTEDVERF 4
 #define AUTH_TOOWEAK 5
+#define AUTH_GSSCREDPROB 13
+#define AUTH_GSSCTXPROB 14
+
+#define AUTH_GSS_DATA 0
+#define AUTH_GSS_INIT 1
+#define AUTH_GSS_CONTINUE_INIT 2
+#define AUTH_GSS_DESTROY 3
+
+#define AUTH_GSS_SVC_NONE 1
+#define AUTH_GSS_SVC_INTEGRITY 2
+#define AUTH_GSS_SVC_PRIVACY 3
 
 typedef int (dissect_function_t)(const u_char* pd, int offset, frame_data* fd, proto_tree* tree);
 
@@ -79,6 +86,9 @@ typedef struct _rpc_call_info {
 	guint32	prog;
 	guint32	vers;
 	guint32	proc;
+	guint32 flavor;
+	guint32 gss_proc;
+	guint32 gss_svc;
 	rpc_proc_info_value*	proc_info;
 } rpc_call_info;
 
