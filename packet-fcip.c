@@ -2,7 +2,7 @@
  * Routines for FCIP dissection
  * Copyright 2001, Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-fcip.c,v 1.4 2003/07/09 06:24:48 guy Exp $
+ * $Id: packet-fcip.c,v 1.5 2003/09/02 21:10:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -101,16 +101,6 @@ static const value_string fcencap_proto_vals[] = {
 
 static const value_string fsf_conn_flag_vals[] = {
     {0, NULL},
-};
-
-static const gchar * sof_strings[] = {
-    "SOFf", "SOFi4", "", "", "", "SOFi2", "SOFi3", "", "", "SOFn4", "", "", "",
-    "SOFn2", "SOFn3", "", "", "SOFc4", "",
-};
-
-static const gchar *eof_strings[] = {
-    "EOFn", "EOFt", "", "EOFrt", "", "EOFdt", "", "", "EOFni", "", "", "", "",
-    "EOFdti", "EOFrti", "EOFa", "",
 };
 
 static guint fcip_header_2_bytes[2] = {FCIP_ENCAP_PROTO_VER,
@@ -385,7 +375,7 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint offset = 0,
          start  = 0,
          frame_len = 0;
-    guint bytes_remaining = tvb_length_remaining (tvb, offset);
+    gint bytes_remaining = tvb_length_remaining (tvb, offset);
     guint8 pflags, sof, eof;
    /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
@@ -417,6 +407,22 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "FCIP");
 
         frame_len = (tvb_get_ntohs (tvb, offset+12) & 0x03FF)*4;
+
+        if (bytes_remaining < frame_len) {
+            if(fcip_desegment && pinfo->can_desegment) {
+                /*
+                 * This frame doesn't have all of the data for
+                 * this message, but we can do reassembly on it.
+                 *
+                 * Tell the TCP dissector where the data for this
+                 * message starts in the data it handed us, and
+                 * how many more bytes we need, and return.
+                 */
+                pinfo->desegment_offset = offset;
+                pinfo->desegment_len = frame_len - bytes_remaining;
+                return (TRUE);
+            }
+        }
         
         pflags = tvb_get_guint8 (tvb, start+8);
         
@@ -426,22 +432,27 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                      FCIP_ENCAP_HEADER_LEN,
                                                      "FCIP");
             }
-            else {
-                sof = tvb_get_guint8 (tvb, offset+FCIP_ENCAP_HEADER_LEN) - 0x28;
-                eof = tvb_get_guint8 (tvb, offset+frame_len - 4) - 0x41;
+            else if (tvb_bytes_exist (tvb, offset, offset+frame_len-4)) {
+                sof = tvb_get_guint8 (tvb, offset+FCIP_ENCAP_HEADER_LEN);
+                eof = tvb_get_guint8 (tvb, offset+frame_len - 4);
 
-                if (sof > 18) {
-                    sof = 18; /* The last SOF */
-                }
-                if (eof > 15) {
-                    eof = 16;
-                }
+                ti = proto_tree_add_protocol_format (tree, proto_fcip, tvb, 0,
+                                                     FCIP_ENCAP_HEADER_LEN,
+                                                     "FCIP (%s/%s)",
+                                                     val_to_str (sof, fcip_sof_vals,
+                                                                 "0x%x"),
+                                                     val_to_str (eof, fcip_eof_vals,
+                                                                 "0x%x"));
+            }
+            else {
+                sof = tvb_get_guint8 (tvb, offset+FCIP_ENCAP_HEADER_LEN);
                 
                 ti = proto_tree_add_protocol_format (tree, proto_fcip, tvb, 0,
                                                      FCIP_ENCAP_HEADER_LEN,
                                                      "FCIP (%s/%s)",
-                                                     sof_strings[sof],
-                                                     eof_strings[eof]);
+                                                     val_to_str (sof, fcip_sof_vals,
+                                                                 "0x%x"),
+                                                     "NA");
             }
             fcip_tree = proto_item_add_subtree (ti, ett_fcip);
             /* Dissect the Common FC Encap header */
@@ -456,8 +467,10 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* print EOF */
                 
                 offset += (frame_len-FCIP_ENCAP_HEADER_LEN-4);
-                proto_tree_add_item (fcip_tree, hf_fcip_eof, tvb, offset, 1, 0);
-                proto_tree_add_item (fcip_tree, hf_fcip_eof_c, tvb, offset+2, 1, 0);
+                if (tvb_bytes_exist (tvb, offset, 4)) {
+                    proto_tree_add_item (fcip_tree, hf_fcip_eof, tvb, offset, 1, 0);
+                    proto_tree_add_item (fcip_tree, hf_fcip_eof_c, tvb, offset+2, 1, 0);
+                }
             }
         }
 
