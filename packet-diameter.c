@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.60 2004/02/21 04:26:29 guy Exp $
+ * $Id: packet-diameter.c,v 1.61 2004/02/21 10:29:52 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -41,6 +41,7 @@
 #include <epan/resolv.h>
 #include "report_err.h"
 #include "prefs.h"
+#include "packet-tcp.h"
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
@@ -988,11 +989,25 @@ diameter_avp_get_value(guint32 avpCode, guint32 vendorId, guint32 avpValue)
 
 /* Code to actually dissect the packets */
 
+static gboolean
+check_diameter(tvbuff_t *tvb)
+{
+  if (!tvb_bytes_exist(tvb, 0, 1))
+	return FALSE;	/* not enough bytes to check the version */
+  if (tvb_get_guint8(tvb, 0) != 1)
+	return FALSE;	/* not version 1 */
+
+  /* XXX - fetch length and make sure it's at least MIN_DIAMETER_SIZE?
+     Fetch flags and check that none of the DIAM_FLAGS_RESERVED bits
+     are set? */
+  return TRUE;
+}
+
 /*
  * Main dissector
  */
-static guint32 dissect_diameter_common(tvbuff_t *tvb, size_t start, packet_info *pinfo,
-									   proto_tree *tree)
+static void
+dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
   /* Set up structures needed to add the protocol subtree and manage it */
@@ -1002,7 +1017,7 @@ static guint32 dissect_diameter_common(tvbuff_t *tvb, size_t start, packet_info 
   tvbuff_t        *avp_tvb;
   proto_tree      *diameter_tree;
   e_diameterhdr    dh;
-  size_t           offset=0;
+  int              offset=0;
   size_t           avplength;
   proto_tree      *avp_tree;
   proto_item      *avptf;
@@ -1015,9 +1030,6 @@ static guint32 dissect_diameter_common(tvbuff_t *tvb, size_t start, packet_info 
   gint        i;
   guint      bpos;
   static  int initialized=FALSE;
-
-  /* set our offset */
-  offset=start;
 
   /*
    * Only parse in dictionary if there are diameter packets to
@@ -1176,7 +1188,7 @@ static guint32 dissect_diameter_common(tvbuff_t *tvb, size_t start, packet_info 
 
 	/* If we have a bad packet, don't bother trying to parse the AVPs */
 	if (BadPacket) {
-	  return (offset + MAX(pktLength,MIN_DIAMETER_SIZE));
+	  return;
 	}
 
 	/* Start looking at the AVPS */
@@ -1195,59 +1207,35 @@ static guint32 dissect_diameter_common(tvbuff_t *tvb, size_t start, packet_info 
 	if (avp_tree != NULL) {
 	  dissect_avps( avp_tvb, pinfo, avp_tree);
 	}
-	return MAX((offset + avplength), MIN_DIAMETER_SIZE);
+	return;
   }
-  return (offset + MAX(pktLength, MIN_DIAMETER_SIZE));
-
 } /* dissect_diameter_common */
 
-static void
-dissect_diameter_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+
+static guint
+get_diameter_pdu_len(tvbuff_t *tvb, int offset)
 {
-	dissect_diameter_common(tvb, 0, pinfo, tree);
+  /* Get the length of the Diameter packet. */
+  return tvb_get_ntoh24(tvb, offset + 1);
 }
 
-static void
+static int
+dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  if (!check_diameter(tvb))
+	return 0;
+  dissect_diameter_common(tvb, pinfo, tree);
+  return tvb_length(tvb);
+}
+
+static int
 dissect_diameter_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	size_t offset = 0;
-	guint32 plen;
-	guint32 available_bytes;
-/* 	guint32 noffset; */
-
-	/* Loop through the packet, dissecting multiple diameter messages */
-	do {
-		available_bytes = tvb_length_remaining(tvb, offset);
-		if (available_bytes < 4) {
-			g_warning("Diameter:  Bailing because only %d bytes of packet are available",
-					  available_bytes);
-			return; /* Bail.  We can't even get our length */
-		}
-
-		/* get our packet length */
-		plen = tvb_get_ntohl(tvb, offset);
-		plen &= 0x00ffffff; /* get rid of the flags */
-
-		/*Desegmentation */
-		if (gbl_diameter_desegment) {
-			if (pinfo->can_desegment
-				&& plen > available_bytes) {
-				pinfo->desegment_offset = offset;
-				pinfo->desegment_len = plen - available_bytes;
-/* 				g_warning("Diameter: Bailing for deseg because plen(%d) > available(%d)", */
-/* 						  plen, available_bytes); */
-				return;
-			}
-		}
-
-		/* Otherwise, dissect our packet */
-		offset = dissect_diameter_common(tvb, offset, pinfo, tree);
-
-/* 		g_warning("dissected from %d to %d bytes out of %d (available was %d plen was %d)", */
-/* 				  offset, noffset, tvb_length(tvb), available_bytes, plen); */
-/* 		offset=noffset; */
-	} while (offset < tvb_reported_length(tvb));
-
+  if (!check_diameter(tvb))
+	return 0;
+  tcp_dissect_pdus(tvb, pinfo, tree, gbl_diameter_desegment, 4,
+	get_diameter_pdu_len, dissect_diameter_common);
+  return tvb_length(tvb);
 } /* dissect_diameter_tcp */
 
 /*
@@ -1721,17 +1709,17 @@ proto_reg_handoff_diameter(void)
   static int TcpPort=0;
   static int SctpPort=0;
   static dissector_handle_t diameter_tcp_handle;
-  static dissector_handle_t diameter_sctp_handle;
+  static dissector_handle_t diameter_handle;
 
   if (!Initialized) {
-	diameter_tcp_handle = create_dissector_handle(dissect_diameter_tcp,
+	diameter_tcp_handle = new_create_dissector_handle(dissect_diameter_tcp,
 	    proto_diameter);
-	diameter_sctp_handle = create_dissector_handle(dissect_diameter_sctp,
+	diameter_handle = new_create_dissector_handle(dissect_diameter,
 	    proto_diameter);
 	Initialized=TRUE;
   } else {
 	dissector_delete("tcp.port", TcpPort, diameter_tcp_handle);
-	dissector_delete("sctp.port", SctpPort, diameter_sctp_handle);
+	dissector_delete("sctp.port", SctpPort, diameter_handle);
   }
 
   /* set port for future deletes */
@@ -1741,7 +1729,7 @@ proto_reg_handoff_diameter(void)
   /* g_warning ("Diameter: Adding tcp dissector to port %d",
 	 gbl_diameterTcpPort); */
   dissector_add("tcp.port", gbl_diameterTcpPort, diameter_tcp_handle);
-  dissector_add("sctp.port", gbl_diameterSctpPort, diameter_sctp_handle);
+  dissector_add("sctp.port", gbl_diameterSctpPort, diameter_handle);
 }
 
 /* registration with the filtering engine */
