@@ -1307,6 +1307,7 @@ Andrew Esh <Andrew.Esh[AT]tricord.com> {
 Greg Morris <GMORRIS[AT]novell.com> {
 	NCP - NetWare Core Protocol
 	NDPS - Novell Distributed Print System
+	"Find Frame" code to search for text or binary data
 }
 
 Dirk Steinberg <dws[AT]dirksteinberg.de> {

@@ -1,7 +1,7 @@
 /* cfile.h
  * capture_file definition & GUI-independent manipulation
  *
- * $Id: cfile.h,v 1.1 2002/09/06 23:14:04 sahlberg Exp $
+ * $Id: cfile.h,v 1.2 2003/07/22 23:08:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,6 +65,9 @@ typedef struct _capture_file {
 #endif
   gchar       *sfilter;   /* Search filter string */
   gboolean     sbackward;  /* TRUE if search is backward, FALSE if forward */
+  gboolean     hex;        /* TRUE is Hex search is being performed */
+  gboolean     ascii;      /* TRUE is ASCII search is being performed */
+  char         *ftype;      /* Find Frame String Type */
   union wtap_pseudo_header pseudo_header;      /* Packet pseudo_header */
   guint8       pd[WTAP_MAX_PACKET_SIZE];  /* Packet data */
   GMemChunk   *plist_chunk; /* Memory chunk for frame_data structures */

@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.28 2003/04/24 23:18:07 guy Exp $
+ * $Id: find_dlg.c,v 1.29 2003/07/22 23:08:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,10 +39,16 @@
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 #include "compat_macros.h"
+#include "prefs.h"
+#include "prefs_dlg.h"
 
 /* Capture callback data keys */
 #define E_FIND_FILT_KEY     "find_filter_te"
 #define E_FIND_BACKWARD_KEY "find_backward"
+#define E_FIND_HEXDATA_KEY "find_hex"
+#define E_FIND_ASCIIDATA_KEY "find_ascii"
+#define E_FIND_FILTERDATA_KEY "find_filter"
+#define E_FIND_STRINGTYPE_KEY "find_string_type"
 
 static void
 find_frame_ok_cb(GtkWidget *ok_bt, gpointer parent_w);
@@ -65,11 +71,14 @@ void
 find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   GtkWidget     *main_vb, *filter_hb, *filter_bt, *filter_te,
-                *direction_hb, *forward_rb, *backward_rb,
+                *direction_hb, *forward_rb, *backward_rb, 
+                *hex_hb, *hex_rb, *ascii_rb, *filter_rb,
+                *combo_hb, *combo_cb, *combo_lb,
                 *bbox, *ok_bt, *cancel_bt;
 #if GTK_MAJOR_VERSION < 2
   GtkAccelGroup *accel_group;
 #endif
+  GList *glist = NULL;
   /* No Apply button, but "OK" not only sets our text widget, it
      activates it (i.e., it causes us to do the search). */
   static construct_args_t args = {
@@ -145,6 +154,71 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(direction_hb), backward_rb, TRUE, TRUE, 0);
   gtk_widget_show(backward_rb);
 
+
+  /* Filter/Hex/Ascii Search */
+  /* Filter */
+  hex_hb = gtk_hbox_new(FALSE, 3);
+  gtk_container_add(GTK_CONTAINER(main_vb), hex_hb);
+  gtk_widget_show(hex_hb);
+
+#if GTK_MAJOR_VERSION < 2
+  filter_rb = dlg_radio_button_new_with_label_with_mnemonic(NULL, "_Display Filter",
+                                                             accel_group);
+#else
+  filter_rb = gtk_radio_button_new_with_mnemonic(NULL, "_Display Filter");
+#endif
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(filter_rb), !cfile.hex && !cfile.ascii);
+  gtk_box_pack_start(GTK_BOX(hex_hb), filter_rb, TRUE, TRUE, 0);
+  gtk_widget_show(filter_rb);
+
+  /* Hex */
+#if GTK_MAJOR_VERSION < 2
+  hex_rb = dlg_radio_button_new_with_label_with_mnemonic(
+               gtk_radio_button_group(GTK_RADIO_BUTTON(filter_rb)),
+               "_Hex", accel_group);
+#else
+  hex_rb = gtk_radio_button_new_with_mnemonic_from_widget(
+               GTK_RADIO_BUTTON(filter_rb), "_Hex");
+#endif
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(hex_rb), cfile.hex);
+  gtk_box_pack_start(GTK_BOX(hex_hb), hex_rb, TRUE, TRUE, 0);
+  gtk_widget_show(hex_rb);
+
+  /* ASCII Search */
+
+#if GTK_MAJOR_VERSION < 2
+  ascii_rb = dlg_radio_button_new_with_label_with_mnemonic(
+               gtk_radio_button_group(GTK_RADIO_BUTTON(filter_rb)),
+               "_String", accel_group);
+#else
+  ascii_rb = gtk_radio_button_new_with_mnemonic_from_widget(
+               GTK_RADIO_BUTTON(filter_rb), "_String");
+#endif
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ascii_rb), cfile.ascii);
+  gtk_box_pack_start(GTK_BOX(hex_hb), ascii_rb, TRUE, TRUE, 0);
+  gtk_widget_show(ascii_rb);
+
+  /* String Type Selection Dropdown Box */
+  combo_hb = gtk_hbox_new(FALSE, 3);
+  gtk_container_add(GTK_CONTAINER(main_vb), combo_hb);
+  gtk_widget_show(combo_hb);
+  /* Create Label */
+  combo_lb = gtk_label_new("Find String Type:");
+  gtk_box_pack_start(GTK_BOX(combo_hb), combo_lb, FALSE, FALSE, 6);
+  gtk_widget_show(combo_lb);
+  /* Create Combo Box */
+  combo_cb = gtk_combo_new();
+  /*gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(combo)->entry), "Find String Type:");*/
+
+  glist = g_list_append(glist, "ASCII Unicode & Non-Unicode");
+  glist = g_list_append(glist, "ASCII Non-Unicode");
+  glist = g_list_append(glist, "ASCII Unicode");
+  glist = g_list_append(glist, "EBCDIC");
+
+  gtk_combo_set_popdown_strings(GTK_COMBO(combo_cb), glist);
+  gtk_container_add(GTK_CONTAINER(main_vb), combo_cb);
+  gtk_widget_show(combo_cb);
+
   /* Button row: OK and cancel buttons */
   bbox = gtk_hbutton_box_new();
   gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
@@ -176,6 +250,11 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Attach pointers to needed widgets to the capture prefs window/object */
   OBJECT_SET_DATA(find_frame_w, E_FIND_FILT_KEY, filter_te);
   OBJECT_SET_DATA(find_frame_w, E_FIND_BACKWARD_KEY, backward_rb);
+  OBJECT_SET_DATA(find_frame_w, E_FIND_FILTERDATA_KEY, filter_rb);
+  OBJECT_SET_DATA(find_frame_w, E_FIND_HEXDATA_KEY, hex_rb);
+  OBJECT_SET_DATA(find_frame_w, E_FIND_ASCIIDATA_KEY, ascii_rb);
+  OBJECT_SET_DATA(find_frame_w, E_FIND_STRINGTYPE_KEY, combo_cb);
+  
 
   /* Catch the "activate" signal on the filter text entry, so that
      if the user types Return there, we act as if the "OK" button
@@ -197,29 +276,33 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 static void
 find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 {
-  GtkWidget *filter_te, *backward_rb;
-  gchar     *filter_text;
+  GtkWidget *filter_te, *backward_rb, *hex_rb, *ascii_rb, *combo_cb;
+  gchar     *filter_text, *string_type;
   dfilter_t *sfcode;
 
   filter_te = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_FILT_KEY);
   backward_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_BACKWARD_KEY);
+  hex_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_HEXDATA_KEY);
+  ascii_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_ASCIIDATA_KEY);
+  combo_cb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_STRINGTYPE_KEY);
 
   filter_text = gtk_entry_get_text(GTK_ENTRY(filter_te));
+  string_type = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(combo_cb)->entry));
 
   /*
    * Try to compile the filter.
    */
-  if (!dfilter_compile(filter_text, &sfcode)) {
+  if (!dfilter_compile(filter_text, &sfcode) && !GTK_TOGGLE_BUTTON (hex_rb)->active && !GTK_TOGGLE_BUTTON (ascii_rb)->active) {
     /* The attempt failed; report an error. */
     simple_dialog(ESD_TYPE_CRIT, NULL, dfilter_error_msg);
     return;
   }
 
   /* Was it empty? */
-  if (sfcode == NULL) {
+  if (sfcode == NULL && !GTK_TOGGLE_BUTTON (hex_rb)->active && !GTK_TOGGLE_BUTTON (ascii_rb)->active) {
     /* Yes - complain. */
     simple_dialog(ESD_TYPE_CRIT, NULL,
-       "You didn't specify a filter to use when searching for a frame.");
+       "You didn't specify valid search criteria.");
     return;
   }
 
@@ -231,13 +314,25 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   cfile.sfilter = g_strdup(filter_text);
 
   cfile.sbackward = GTK_TOGGLE_BUTTON (backward_rb)->active;
+  cfile.hex = GTK_TOGGLE_BUTTON (hex_rb)->active;
+  cfile.ascii = GTK_TOGGLE_BUTTON (ascii_rb)->active;
+  cfile.ftype = g_strdup(string_type);
 
-  if (!find_packet(&cfile, sfcode)) {
-    /* We didn't find the packet. */
-    simple_dialog(ESD_TYPE_CRIT, NULL, "No packet matched that filter.");
-    return;
+  if (!GTK_TOGGLE_BUTTON (hex_rb)->active && !GTK_TOGGLE_BUTTON (ascii_rb)->active ) {
+      if (!find_packet(&cfile, sfcode)) {
+        /* We didn't find the packet. */
+        simple_dialog(ESD_TYPE_CRIT, NULL, "No packet matched that filter.");
+        return;
+      }
   }
-
+  else
+  {
+      if (!find_ascii(&cfile, filter_text, cfile.ascii, string_type)) {
+          /* We didn't find the packet. */
+          simple_dialog(ESD_TYPE_CRIT, NULL, "No packet matched search criteria.");
+          return;
+      }
+  }
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 }
 
@@ -260,13 +355,21 @@ find_previous_next(GtkWidget *w, gpointer d, gboolean sens)
 {
   dfilter_t *sfcode;
 
+
   if (cfile.sfilter) {
-     if (!dfilter_compile(cfile.sfilter, &sfcode))
+     if (!dfilter_compile(cfile.sfilter, &sfcode) && !cfile.hex && !cfile.ascii)
         return;
-     if (sfcode == NULL)
+     if (sfcode == NULL && !cfile.hex && !cfile.ascii)
         return;
      cfile.sbackward = sens;
-     find_packet(&cfile, sfcode);
+     if (cfile.hex || cfile.ascii) 
+     {
+         find_ascii(&cfile, cfile.sfilter, cfile.ascii, cfile.ftype);
+     }
+     else 
+     {
+         find_packet(&cfile, sfcode);
+     }
   } else
      find_frame_cb(w, d);
 }

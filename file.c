@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.299 2003/06/24 06:14:46 guy Exp $
+ * $Id: file.c,v 1.300 2003/07/22 23:08:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1426,6 +1426,246 @@ change_time_formats(capture_file *cf)
 
   /* Unfreeze the packet list. */
   thaw_plist(cf);
+}
+
+guint8
+get_int_value(char char_val)
+{
+    switch (char_val) {
+    case 'a':
+    case 'A':
+        return(10);
+    case 'b':
+    case 'B':
+        return(11);
+    case 'c':
+    case 'C':
+        return(12);
+    case 'd':
+    case 'D':
+        return(13);
+    case 'e':
+    case 'E':
+        return(14);
+    case 'f':
+    case 'F':
+        return(15);
+    default:
+        return(atoi(&char_val));
+    }
+}
+
+gboolean
+find_ascii(capture_file *cf, char *ascii_text, gboolean ascii_search, char *ftype)
+{
+    frame_data *start_fd;
+    frame_data *fdata;
+    frame_data *new_fd = NULL;
+    progdlg_t  *progbar = NULL;
+    gboolean    stop_flag;
+    int         count;
+    int         err;
+    guint32     i;
+    guint16     c_match=0;
+    gboolean    frame_matched;
+    int         row;
+    float       prog_val;
+    GTimeVal    start_time;
+    gchar       status_str[100];
+    guint8      c_char=0;
+    guint32     buf_len=0;
+    guint8      hex_val=0;
+    char        char_val;
+    guint8      num1, num2;
+
+    start_fd = cf->current_frame;
+    if (start_fd != NULL)  {
+      /* Iterate through the list of packets, starting at the packet we've
+         picked, calling a routine to run the filter on the packet, see if
+         it matches, and stop if so.  */
+      count = 0;
+      fdata = start_fd;
+
+      cf->progbar_nextstep = 0;
+      /* When we reach the value that triggers a progress bar update,
+         bump that value by this amount. */
+      cf->progbar_quantum = cf->count/N_PROGBAR_UPDATES;
+
+      stop_flag = FALSE;
+      g_get_current_time(&start_time);
+
+      fdata = start_fd;
+      for (;;) {
+        /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
+           when we update it, we have to run the GTK+ main loop to get it
+           to repaint what's pending, and doing so may involve an "ioctl()"
+           to see if there's any pending input from an X server, and doing
+           that for every packet can be costly, especially on a big file. */
+        if (count >= cf->progbar_nextstep) {
+          /* let's not divide by zero. I should never be started
+           * with count == 0, so let's assert that
+           */
+          g_assert(cf->count > 0);
+
+          prog_val = (gfloat) count / cf->count;
+
+          /* Create the progress bar if necessary */
+          if (progbar == NULL)
+             progbar = delayed_create_progress_dlg("Searching", cf->sfilter, "Cancel",
+               &stop_flag, &start_time, prog_val);
+
+          if (progbar != NULL) {
+            g_snprintf(status_str, sizeof(status_str),
+                       "%4u of %u frames", count, cf->count);
+            update_progress_dlg(progbar, prog_val, status_str);
+          }
+
+          cf->progbar_nextstep += cf->progbar_quantum;
+        }
+
+        if (stop_flag) {
+          /* Well, the user decided to abort the search.  Go back to the
+             frame where we started. */
+          new_fd = start_fd;
+          break;
+        }
+
+        /* Go past the current frame. */
+        if (cf->sbackward) {
+          /* Go on to the previous frame. */
+          fdata = fdata->prev;
+          if (fdata == NULL)
+            fdata = cf->plist_end;	/* wrap around */
+        } else {
+          /* Go on to the next frame. */
+          fdata = fdata->next;
+          if (fdata == NULL)
+            fdata = cf->plist;	/* wrap around */
+        }
+
+        count++;
+
+        /* Is this packet in the display? */
+        if (fdata->flags.passed_dfilter) {
+          /* Yes.  Does it match the search filter? */
+          /* XXX - do something with "err" */
+          wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
+                  cf->pd, fdata->cap_len, &err);
+          frame_matched = FALSE;
+          buf_len = fdata->pkt_len;
+          for (i=0;i<buf_len;i++) {
+              c_char = cf->pd[i];
+              /* Check to see if this is an String or Hex search */
+              if (ascii_search) {
+                  /* Now check the String Type */
+                  if(strcmp(ftype,"ASCII Unicode & Non-Unicode")==0)
+                  {
+                      if (c_char != 0) {
+                          if (c_char == ascii_text[c_match]) {
+                              c_match++;
+                              if (c_match == strlen(ascii_text)) {
+                                  frame_matched = TRUE;
+                                  break;
+                              }
+                          }
+                          else
+                          {
+                              c_match = 0;
+                          }
+                      }
+                  }
+                  else if(strcmp(ftype,"ASCII Non-Unicode")==0)
+                  {
+                      if (c_char == ascii_text[c_match]) {
+                          c_match++;
+                          if (c_match == strlen(ascii_text)) {
+                              frame_matched = TRUE;
+                              break;
+                          }
+                      }
+                      else
+                      {
+                          c_match = 0;
+                      }
+                  }
+                  else if(strcmp(ftype, "ASCII Unicode")==0)
+                  {
+                      if (c_char == ascii_text[c_match]) {
+                          c_match++;
+                          i++;
+                          if (c_match == strlen(ascii_text)) {
+                              frame_matched = TRUE;
+                              break;
+                          }
+                      }
+                      else
+                      {
+                          c_match = 0;
+                      }
+                  }
+                  else if(strcmp(ftype,"EBCDIC")==0)
+                  {
+                      simple_dialog(ESD_TYPE_CRIT, NULL,
+                            "EBCDIC Find Not supported yet.");
+                      return TRUE;
+                  }
+                  else
+                  {
+                      simple_dialog(ESD_TYPE_CRIT, NULL,
+                            "Invalid String type specified.");
+                      return TRUE;
+                  }
+              }
+              else      /* Hex Search */
+              {
+                  char_val = ascii_text[c_match];
+                  num1 = get_int_value(char_val);
+                  char_val = ascii_text[++c_match];
+                  num2 = get_int_value(char_val);
+                  hex_val = (num1*0x10)+num2;
+                  if ( c_char == hex_val) {
+                      c_match++;
+                      if (c_match == strlen(ascii_text)) {
+                          frame_matched = TRUE;
+                          break;
+                      }
+                  }
+                  else
+                  {
+                      c_match = 0;
+                  }
+                
+              }
+          }
+          if (frame_matched) {
+            new_fd = fdata;
+            break;	/* found it! */
+          }
+        }
+
+        if (fdata == start_fd) {
+          /* We're back to the frame we were on originally, and that frame
+         doesn't match the search filter.  The search failed. */
+          break;
+        }
+      }
+
+      /* We're done scanning the packets; destroy the progress bar if it
+         was created. */
+      if (progbar != NULL)
+        destroy_progress_dlg(progbar);
+    }
+
+    if (new_fd != NULL) {
+      /* We found a frame.  Find what row it's in. */
+      row = packet_list_find_row_from_data(new_fd);
+      g_assert(row != -1);
+
+      /* Select that row, make it the focus row, and make it visible. */
+      packet_list_set_selected_row(row);
+      return TRUE;	/* success */
+    } else
+      return FALSE;	/* failure */
 }
 
 gboolean
