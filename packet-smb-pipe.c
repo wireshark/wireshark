@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.76 2002/04/30 11:03:06 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.77 2002/05/24 10:57:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,6 +54,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
 #include "smb.h"
 #include "packet-smb-pipe.h"
 #include "packet-smb-browse.h"
+#include "packet-smb-common.h"
 #include "packet-dcerpc.h"
 #include "reassemble.h"
 
@@ -195,14 +196,6 @@ static const value_string status_vals[] = {
 	{2243,  "The password cannot be changed"},
 	{2246,  "The password is too short"},
 	{0,     NULL}
-};
-
-static const value_string share_type_vals[] = {
-	{0, "Directory tree"},
-	{1, "Printer queue"},
-	{2, "Communications device"},
-	{3, "IPC"},
-	{0, NULL}
 };
 
 static const value_string privilege_vals[] = {

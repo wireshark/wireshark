@@ -2,7 +2,7 @@
  * Routines for SMB packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-common.h,v 1.11 2002/04/30 23:48:15 guy Exp $
+ * $Id: packet-smb-common.h,v 1.12 2002/05/24 10:57:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,5 +63,7 @@ int dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, char *nam
 
 int
 dissect_nt_sec_desc(tvbuff_t *tvb, int offset, proto_tree *parent_tree, int len);
+
+extern const value_string share_type_vals[];
 
 #endif

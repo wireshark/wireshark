@@ -2,7 +2,7 @@
  * Common routines for smb packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-common.c,v 1.9 2002/04/30 11:03:08 guy Exp $
+ * $Id: packet-smb-common.c,v 1.10 2002/05/24 10:57:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,6 +26,17 @@
  */
 
 #include "packet-smb-common.h"
+
+/*
+ * Share type values - used in LANMAN and in SRVSVC.
+ */
+const value_string share_type_vals[] = {
+	{0, "Directory tree"},
+	{1, "Printer queue"},
+	{2, "Communications device"},
+	{3, "IPC"},
+	{0, NULL}
+};
 
 int display_ms_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index)
 {
