@@ -1,6 +1,6 @@
 /* eyesdn.c
  *
- * $Id: eyesdn.c,v 1.7 2004/03/23 00:17:50 guy Exp $
+ * $Id: eyesdn.c,v 1.8 2004/04/02 07:40:37 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -43,7 +43,7 @@
  * Each Frame starts with the 0xff Flag byte
  * - Bytes 0-2: timestamp (long usec in network byte order)
  * - Bytes 3-7: timestamp (40bits sec since 1970 in network byte order)
- * - Byte 8: channel (0d for D channel, 0e for e channel, b1-ce for B1-B30)
+ * - Byte 8: channel (0 for D channel, 1-30 for B1-B30)
  * - Byte 9: Sender (0 NT, 1 TE)
  * - Byte 10-11: frame size in bytes
  * - Byte 12-n: Frame Payload
@@ -255,7 +255,7 @@ parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
 
         channel = hdr[8];
         direction = hdr[9];
-        pkt_len = ((unsigned long) hdr[10]) << 8;
+        pkt_len = ((unsigned long) hdr[10]);
         pkt_len = (pkt_len << 8) | ((unsigned long) hdr[11]);
 
         /* sanity checks */
