@@ -2,7 +2,7 @@
  * Definitions for extracting and translating integers safely and portably
  * via pointers.
  *
- * $Id: pint.h,v 1.6 2002/08/28 20:40:44 jmayer Exp $
+ * $Id: pint.h,v 1.7 2002/11/27 22:41:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,31 +35,31 @@
  */
 
 #define pntohs(p)   ((guint16)                       \
-                     ((guint16)*((guint8 *)(p)+0)<<8|  \
-                      (guint16)*((guint8 *)(p)+1)<<0))
+                     ((guint16)*((const guint8 *)(p)+0)<<8|  \
+                      (guint16)*((const guint8 *)(p)+1)<<0))
 
-#define pntoh24(p)  ((guint32)*((guint8 *)(p)+0)<<16|  \
-                     (guint32)*((guint8 *)(p)+1)<<8|  \
-                     (guint32)*((guint8 *)(p)+2)<<0)
+#define pntoh24(p)  ((guint32)*((const guint8 *)(p)+0)<<16|  \
+                     (guint32)*((const guint8 *)(p)+1)<<8|  \
+                     (guint32)*((const guint8 *)(p)+2)<<0)
 
-#define pntohl(p)   ((guint32)*((guint8 *)(p)+0)<<24|  \
-                     (guint32)*((guint8 *)(p)+1)<<16|  \
-                     (guint32)*((guint8 *)(p)+2)<<8|   \
-                     (guint32)*((guint8 *)(p)+3)<<0)
+#define pntohl(p)   ((guint32)*((const guint8 *)(p)+0)<<24|  \
+                     (guint32)*((const guint8 *)(p)+1)<<16|  \
+                     (guint32)*((const guint8 *)(p)+2)<<8|   \
+                     (guint32)*((const guint8 *)(p)+3)<<0)
 
 
 #define pletohs(p)  ((guint16)                       \
-                     ((guint16)*((guint8 *)(p)+1)<<8|  \
-                      (guint16)*((guint8 *)(p)+0)<<0))
+                     ((guint16)*((const guint8 *)(p)+1)<<8|  \
+                      (guint16)*((const guint8 *)(p)+0)<<0))
 
-#define pletoh24(p) ((guint32)*((guint8 *)(p)+2)<<16|  \
-                     (guint32)*((guint8 *)(p)+1)<<8|  \
-                     (guint32)*((guint8 *)(p)+0)<<0)
+#define pletoh24(p) ((guint32)*((const guint8 *)(p)+2)<<16|  \
+                     (guint32)*((const guint8 *)(p)+1)<<8|  \
+                     (guint32)*((const guint8 *)(p)+0)<<0)
 
-#define pletohl(p)  ((guint32)*((guint8 *)(p)+3)<<24|  \
-                     (guint32)*((guint8 *)(p)+2)<<16|  \
-                     (guint32)*((guint8 *)(p)+1)<<8|   \
-                     (guint32)*((guint8 *)(p)+0)<<0)
+#define pletohl(p)  ((guint32)*((const guint8 *)(p)+3)<<24|  \
+                     (guint32)*((const guint8 *)(p)+2)<<16|  \
+                     (guint32)*((const guint8 *)(p)+1)<<8|   \
+                     (guint32)*((const guint8 *)(p)+0)<<0)
 
 
 
