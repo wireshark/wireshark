@@ -1,6 +1,6 @@
 /* file_wrappers.c
  *
- * $Id: file_wrappers.c,v 1.1 2000/01/13 07:09:16 guy Exp $
+ * $Id: file_wrappers.c,v 1.2 2000/01/13 07:18:50 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -56,26 +56,28 @@
  * in the first place, so we don't know whether to include "zlib.h"
  * until we include "config.h"....
  *
- * So what we do is *undefine* HAVE_UNISTD_H before including "zlib.h",
- * and make "file_seek()" a subroutine, so that the only call to "gzseek()"
- * is in this file, which, by dint of the hackery described above,
- * manages to correctly declare "gzseek()".
+ * So what we do is *undefine* HAVE_UNISTD_H before including "wtap.h"
+ * (we need "wtap.h" to get the WTAP_ERR_ZLIB values, and it also includes
+ * "zlib.h" if HAVE_ZLIB" is defined), and make "file_seek()" a subroutine,
+ * so that the only call to "gzseek()" is in this file, which, by dint of
+ * the hackery described above, manages to correctly declare "gzseek()".
  *
  * DO NOT, UNDER ANY CIRCUMSTANCES, REMOVE THE FOLLOWING LINE, OR MOVE
- * IT AFTER THE INCLUDE OF "zlib.h"!  Doing so will cause any program
+ * IT AFTER THE INCLUDE OF "wtap.h"!  Doing so will cause any program
  * using Wiretap to read capture files to fail miserably on a FreeBSD
  * 3.2 or 3.3 system - and possibly other BSD systems - if zlib is
  * installed.  If you *must* include <unistd.h> here, do so *before*
- * including "zlib.h", and before undefining HAVE_UNISTD_H.
+ * including "wtap.h", and before undefining HAVE_UNISTD_H.  If you
+ * *must* have HAVE_UNISTD_H defined before including "wtap.h", put
+ * "file_error()" into a file by itself, which can cheerfully include
+ * "wtap.h" and get "gzseek()" misdeclared, and include just "zlib.h"
+ * in this file - *after* undefining HAVE_UNISTD_H.
  */
 #undef HAVE_UNISTD_H
 
-#ifdef HAVE_LIBZ
-#include "zlib.h"
-#endif
-
 #include <errno.h>
 #include <stdio.h>
+#include "wtap.h"
 #include "file_wrappers.h"
 
 #ifdef HAVE_LIBZ

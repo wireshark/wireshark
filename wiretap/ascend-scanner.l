@@ -1,7 +1,7 @@
 %{
 /* ascend-scanner.l
  *
- * $Id: ascend-scanner.l,v 1.10 2000/01/10 17:33:16 gram Exp $
+ * $Id: ascend-scanner.l,v 1.11 2000/01/13 07:18:50 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -38,7 +38,7 @@
 #include "ascend.h"
 #include "ascend-grammar.h"
 #include "ascend-int.h"
-#include "file.h"
+#include "file_wrappers.h"
 
 void *yy_fh;
 extern char *ascend_ra_ptr;
