@@ -2,7 +2,7 @@
  * 4.4-Lite-2 Internet checksum routine, modified to take a vector of
  * pointers/lengths giving the pieces to be checksummed.
  *
- * $Id: in_cksum.c,v 1.4 2001/06/09 01:02:29 guy Exp $
+ * $Id: in_cksum.c,v 1.5 2002/06/23 10:32:14 guy Exp $
  */
 
 /*
@@ -52,8 +52,8 @@
 #include <arpa/inet.h>
 #endif
 
-#ifdef HAVE_WINSOCK_H
-#include <winsock.h>
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>
 #endif
 
 #include <glib.h>

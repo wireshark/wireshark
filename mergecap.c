@@ -1,6 +1,6 @@
 /* Combine two dump files, either by appending or by merging by timestamp
  *
- * $Id: mergecap.c,v 1.8 2002/03/31 20:59:47 guy Exp $
+ * $Id: mergecap.c,v 1.9 2002/06/23 10:32:16 guy Exp $
  *
  * Written by Scott Renfro <scott@renfro.org> based on
  * editcap by Richard Sharpe and Guy Harris
@@ -23,8 +23,8 @@
 #include <sys/time.h>
 #endif
 
-#ifdef HAVE_WINSOCK_H
-#include <winsock.h>
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>
 #endif
 
 #include <string.h>

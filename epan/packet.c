@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.72 2002/06/04 07:03:54 guy Exp $
+ * $Id: packet.c,v 1.73 2002/06/23 10:32:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,8 +34,8 @@
 #include <sys/socket.h>
 #endif
 
-#ifdef HAVE_WINSOCK_H
-#include <winsock.h>
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>
 #endif
 
 #include <glib.h>

@@ -1,6 +1,6 @@
 /* buffer.h
  *
- * $Id: buffer.h,v 1.8 2001/11/13 23:55:43 gram Exp $
+ * $Id: buffer.h,v 1.9 2002/06/23 10:32:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -26,8 +26,8 @@
 
 #define SOME_FUNCTIONS_ARE_DEFINES
 
-#ifdef HAVE_WINSOCK_H
-#include <winsock.h>        /* to define u_char */
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>        /* to define u_char */
 #endif
 
 typedef struct Buffer {

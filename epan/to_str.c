@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.13 2001/09/14 07:23:33 guy Exp $
+ * $Id: to_str.c,v 1.14 2002/06/23 10:32:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,8 +33,8 @@
 # include <sys/types.h>
 #endif
 
-#ifdef HAVE_WINSOCK_H
-# include <winsock.h>   /* for "u_char" */
+#ifdef HAVE_WINSOCK2_H
+# include <winsock2.h>   /* for "u_char" */
 #endif
 
 #ifdef NEED_SNPRINTF_H

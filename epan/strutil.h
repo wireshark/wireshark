@@ -1,12 +1,11 @@
 /* strutil.h
  * String utility definitions
  *
- * $Id: strutil.h,v 1.6 2000/12/22 12:05:36 gram Exp $
+ * $Id: strutil.h,v 1.7 2002/06/23 10:32:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -32,8 +31,8 @@
 #include <sys/types.h>	/* for u_char */
 #endif
 
-#ifdef HAVE_WINSOCK_H
-# include <winsock.h>	/* for u_char */
+#ifdef HAVE_WINSOCK2_H
+# include <winsock2.h>	/* for u_char */
 #endif
 
 const u_char *find_line_end(const u_char *data, const u_char *dataend,

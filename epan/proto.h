@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.32 2002/05/14 10:15:10 guy Exp $
+ * $Id: proto.h,v 1.33 2002/06/23 10:32:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,8 +31,8 @@
 # include <varargs.h>
 #endif
 
-#ifdef HAVE_WINSOCK_H
-# include <winsock.h>
+#ifdef HAVE_WINSOCK2_H
+# include <winsock2.h>
 #endif
 
 #include <glib.h>
