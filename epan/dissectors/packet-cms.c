@@ -273,7 +273,7 @@ static const value_string CMSVersion_vals[] = {
 
 static int
 dissect_cms_CMSVersion(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_integer(pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
