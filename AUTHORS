@@ -1162,6 +1162,7 @@ Dinesh Dutt             <ddutt[AT]cisco.com> {
 
 Nagarjuna Venna         <nvenna[AT]Brixnet.com> {
 	Only display the reason in BYE RTCP packets if it's present
+	Support for RTCP-XR support as in RFC 3611
 }
 
 Jirka Novak             <j.novak[AT]netsystem.cz> {
@@ -2223,7 +2224,7 @@ Kelly Byrd		<kbyrd-ethereal [AT] memcpy.com> {
 	DAAP support
 }
 
-Luis Ontanon		<luis.ontanon.ibm[AT]h3g.it> {
+Luis Ontanon		<luis.ontanon[AT]gmail.com> {
 	RADIUS and ISUP enhancements
 	MATE plugin
 }
