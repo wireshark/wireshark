@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.53 2002/07/31 21:22:28 guy Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.54 2002/08/09 09:27:33 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3136,7 +3136,7 @@ lsa_dissect_lsaqueryinformationpolicy2_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsafunction_2f_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsasetinformationpolicy2_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -3154,7 +3154,7 @@ lsa_dissect_lsafunction_2f_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsafunction_2f_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsasetinformationpolicy2_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -3938,9 +3938,9 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 	{ LSA_LSAQUERYINFORMATIONPOLICY2, "QueryInformationPolicy2",
 		lsa_dissect_lsaqueryinformationpolicy2_rqst,
 		lsa_dissect_lsaqueryinformationpolicy2_reply },
-	{ LSA_LSAFUNCTION_2F, "LSAFUNCTION_2F",
-		lsa_dissect_lsafunction_2f_rqst,
-		lsa_dissect_lsafunction_2f_reply },
+	{ LSA_LSASETINFORMATIONPOLICY2, "SetInformationPolicy2",
+		lsa_dissect_lsasetinformationpolicy2_rqst,
+		lsa_dissect_lsasetinformationpolicy2_reply },
 	{ LSA_LSAQUERYTRUSTEDDOMAININFOBYNAME, "QueryTrustedDomainInfoByName",
 		lsa_dissect_lsaquerytrusteddomaininfobyname_rqst,
 		lsa_dissect_lsaquerytrusteddomaininfobyname_reply },
@@ -4028,7 +4028,7 @@ static const value_string lsa_opnum_vals[] = {
 	{ LSA_LSAOPENPOLICY2, "OpenPolicy2" },
 	{ LSA_LSAGETUSERNAME, "GetUsername" },
 	{ LSA_LSAQUERYINFORMATIONPOLICY2, "QueryInformationPolicy2" },
-	{ LSA_LSAFUNCTION_2F, "LSAFUNCTION_2F" },
+	{ LSA_LSASETINFORMATIONPOLICY2, "SetInformationPolicy2" },
 	{ LSA_LSAQUERYTRUSTEDDOMAININFOBYNAME, "QueryTrustedDomainInfoByName" },
 	{ LSA_LSASETTRUSTEDDOMAININFOBYNAME, "SetTrustedDomainInfoByName" },
 	{ LSA_LSAENUMERATETRUSTEDDOMAINSEX, "EnumTrustedDomainsEx" },

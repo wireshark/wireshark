@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\lsarpc packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-lsa.h,v 1.6 2002/07/31 21:22:29 guy Exp $
+ * $Id: packet-dcerpc-lsa.h,v 1.7 2002/08/09 09:27:33 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,7 +73,7 @@
 #define LSA_LSAOPENPOLICY2	0x2c
 #define LSA_LSAGETUSERNAME	0x2d
 #define LSA_LSAQUERYINFORMATIONPOLICY2	0x2e
-#define LSA_LSAFUNCTION_2F	0x2f
+#define LSA_LSASETINFORMATIONPOLICY2	0x2f
 #define LSA_LSAQUERYTRUSTEDDOMAININFOBYNAME	0x30
 #define LSA_LSASETTRUSTEDDOMAININFOBYNAME	0x31
 #define LSA_LSAENUMERATETRUSTEDDOMAINSEX	0x32
