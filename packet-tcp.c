@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.135 2002/03/27 04:27:05 guy Exp $
+ * $Id: packet-tcp.c,v 1.136 2002/03/31 22:43:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -182,7 +182,7 @@ typedef struct _tcp_segment_key {
 } tcp_segment_key;
 
 static gboolean
-free_all_segments(gpointer key_arg, gpointer value, gpointer user_data)
+free_all_segments(gpointer key_arg, gpointer value _U_, gpointer user_data _U_)
 {
 	tcp_segment_key *key = key_arg;
 
