@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.180 2004/03/20 06:34:09 guy Exp $
+ * $Id: menu.c,v 1.181 2004/03/23 07:57:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1645,10 +1645,6 @@ set_menus_for_selected_packet(capture_file *cf)
   set_menu_sensitivity(main_menu_factory, "/View/Expand All",
       cf->current_frame != NULL);
   set_menu_sensitivity(tree_view_menu_factory, "/Expand All",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(main_menu_factory, "/View/Expand Tree",
-      cf->current_frame != NULL);
-  set_menu_sensitivity(tree_view_menu_factory, "/Expand Tree",
       cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/View/Show Packet in New Window",
       cf->current_frame != NULL);
