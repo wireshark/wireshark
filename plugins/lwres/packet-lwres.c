@@ -1,7 +1,7 @@
 /* packet-lwres.c
  * Routines for light weight reslover (lwres, part of BIND9) packet disassembly
  *
- * $Id: packet-lwres.c,v 1.1 2003/08/05 05:03:30 guy Exp $
+ * $Id: packet-lwres.c,v 1.2 2003/08/05 17:12:07 guy Exp $
  *
  * Copyright (c) 2003 by Oleg Terletsky <oleg.terletsky@comverse.com>
  *
@@ -242,24 +242,6 @@ ip_to_str_buf(const guint8 *ad, gchar *buf)
     i++;
   }
   *p = '\0';
-}
-
-gchar *
-ip_to_str(const guint8 *ad) {
-  static gchar  str[4][16];
-  static gchar *cur;
-
-  if (cur == &str[0][0]) {
-    cur = &str[1][0];
-  } else if (cur == &str[1][0]) {
-    cur = &str[2][0];
-  } else if (cur == &str[2][0]) {
-    cur = &str[3][0];
-  } else {
-    cur = &str[0][0];
-  }
-  ip_to_str_buf(ad, cur);
-  return cur;
 }
 
 
