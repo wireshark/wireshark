@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.377 2004/01/26 18:40:44 ulfl Exp $
+ * $Id: main.c,v 1.378 2004/01/28 09:10:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -129,12 +129,6 @@
 #ifdef WIN32
 #include "capture-wpcap.h"
 #endif
-
-typedef struct column_arrows {
-  GtkWidget *table;
-  GtkWidget *ascend_pm;
-  GtkWidget *descend_pm;
-} column_arrows;
 
 capture_file cfile;
 GtkWidget   *main_display_filter_widget=NULL;
