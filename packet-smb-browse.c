@@ -2,7 +2,7 @@
  * Routines for SMB Browser packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.c,v 1.9 2001/07/12 23:37:48 guy Exp $
+ * $Id: packet-smb-browse.c,v 1.10 2001/07/13 00:01:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -432,9 +432,13 @@ dissect_election_criterion(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent
 	dissect_election_criterion_desire(tvb, pinfo, tree, offset);
 	offset += 1;
 
-	/* election revision */
-	proto_tree_add_item(tree, hf_election_revision, tvb, offset, 2, TRUE);
-	offset += 2;
+	/* browser protocol major version */
+	proto_tree_add_item(tree, hf_proto_major, tvb, offset, 1, TRUE);
+	offset += 1;
+
+	/* browser protocol minor version */
+	proto_tree_add_item(tree, hf_proto_minor, tvb, offset, 1, TRUE);
+	offset += 1;
 
 	/* election os */
 	dissect_election_criterion_os(tvb, pinfo, tree, offset);
@@ -605,17 +609,32 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		dissect_server_type_flags(tvb, pinfo, tree, offset);
 		offset += 4;
 
-		/* browser protocol major version */
-		proto_tree_add_item(tree, hf_proto_major, tvb, offset, 1, TRUE);
-		offset += 1;
+		if (cmd == BROWSE_DOMAIN_ANNOUNCEMENT) {
+			/*
+			 * Network Monitor claims this is a "Comment
+			 * Pointer".  I don't believe it.
+			 *
+			 * It's not a browser protocol major/minor
+			 * version number, and signature constant,
+			 * however.
+			 */
+			proto_tree_add_text(tree, tvb, offset, 4,
+			    "Mysterious Field: 0x%08x",
+			    tvb_get_letohl(tvb, offset));
+			offset += 4;
+		} else {
+			/* browser protocol major version */
+			proto_tree_add_item(tree, hf_proto_major, tvb, offset, 1, TRUE);
+			offset += 1;
 
-		/* browser protocol minor version */
-		proto_tree_add_item(tree, hf_proto_minor, tvb, offset, 1, TRUE);
-		offset += 1;
+			/* browser protocol minor version */
+			proto_tree_add_item(tree, hf_proto_minor, tvb, offset, 1, TRUE);
+			offset += 1;
 
-		/* signature constant */
-		proto_tree_add_item(tree, hf_sig_const, tvb, offset, 2, TRUE);
-		offset += 2;
+			/* signature constant */
+			proto_tree_add_item(tree, hf_sig_const, tvb, offset, 2, TRUE);
+			offset += 2;
+		}
 
 		/* name at end of request */
 		namelen = tvb_strnlen(tvb, offset, -1);
@@ -886,7 +905,7 @@ register_proto_smb_browse( void){
 			TFS(&tfs_domainenum), 1<<SERVER_DOMAIN_ENUM, "Is This A Domain Enum request?", HFILL }},
 
 		{ &hf_election_version,
-			{ "Election Version", "browser.election.version", FT_UINT16, BASE_DEC,
+			{ "Election Version", "browser.election.version", FT_UINT8, BASE_DEC,
 			NULL, 0, "Election Version", HFILL }},
 
 		{ &hf_proto_major,
