@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.399 2004/02/20 17:36:37 ulfl Exp $
+ * $Id: main.c,v 1.400 2004/02/20 17:43:50 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2713,6 +2713,9 @@ main(int argc, char *argv[])
 
     colors_init();
     colfilter_init();
+
+    /* the window can be sized only, if it's not already shown, so do it now! */
+    main_load_window_geometry(top_level);
 
     /*** we have finished all init things, show the main window ***/
     gtk_widget_show(top_level);
