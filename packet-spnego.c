@@ -5,7 +5,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-spnego.c,v 1.51 2003/07/17 22:17:01 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.52 2004/04/02 22:01:21 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -752,6 +752,14 @@ dissect_spnego_mechToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	offset = hnd->offset;
 
+
+	/* Dont try to create an item with more bytes than remains in the
+	 * frame or we will not even attempt to dissect those bytes we
+	 * do have. (since there will be an exception)
+	 */
+	if(nbytes>tvb_length_remaining(tvb,offset)){
+		nbytes=tvb_length_remaining(tvb,offset);
+	}
 	item = proto_tree_add_item(tree, hf_spnego_mechtoken, tvb, offset, 
 				   nbytes, FALSE);
 	subtree = proto_item_add_subtree(item, ett_spnego_mechtoken);
