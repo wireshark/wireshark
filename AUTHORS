@@ -119,7 +119,7 @@ Aaron Hillegass <aaron@classmax.com> {
 }
 
 Jason Lango <jal@netapp.com> {
-	RTSP, SDP
+	RTSP, SDP, RTCP, RTP
 }
 
 Johan Feyaerts <Johan.Feyaerts@siemens.atea.be> {

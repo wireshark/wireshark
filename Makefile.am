@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.191 2000/04/20 07:05:52 guy Exp $
+# $Id: Makefile.am,v 1.192 2000/04/21 01:45:57 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -169,6 +169,10 @@ DISSECTOR_SOURCES = \
 	packet-rpc.c   \
 	packet-rpc.h   \
 	packet-rsvp.c  \
+	packet-rtcp.c  \
+	packet-rtcp.h  \
+	packet-rtp.c   \
+	packet-rtp.h   \
 	packet-rtsp.c  \
 	packet-rx.c  \
 	packet-rx.h  \

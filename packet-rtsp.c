@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.9 2000/04/08 07:07:35 guy Exp $
+ * $Id: packet-rtsp.c,v 1.10 2000/04/21 01:45:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,9 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-sdp.h"
+#include "packet-rtp.h"
+#include "packet-rtcp.h"
+#include "conversation.h"
 
 static int proto_rtsp = -1;
 static gint ett_rtsp = -1;
@@ -80,6 +83,56 @@ is_content_sdp(const u_char *line, int linelen)
 		return 0;
 
 	return 1;
+}
+
+static const char rtsp_transport[] = "Transport:";
+static const char rtsp_sps[] = "server_port=";
+static const char rtsp_cps[] = "client_port=";
+static const char rtsp_rtp[] = "rtp/avp";
+
+static void
+rtsp_create_conversation(const u_char *trans_begin, const u_char *trans_end)
+{
+	conversation_t	*conv;
+	char		tbuf[256];
+	char		*tmp;
+	int		c_data_port, c_mon_port;
+	int		s_data_port, s_mon_port;
+
+	strncpy(tbuf, trans_begin, trans_end - trans_begin);
+	tbuf[sizeof(tbuf)-1] = 0;
+
+	tmp = tbuf + strlen(rtsp_transport);
+	while (*tmp && isspace(*tmp))
+		tmp++;
+	if (strncasecmp(tmp, rtsp_rtp, strlen(rtsp_rtp)) != 0)
+		return;
+
+	c_data_port = c_mon_port = 0;
+	s_data_port = s_mon_port = 0;
+	if ((tmp = strstr(tbuf, rtsp_sps))) {
+		tmp += strlen(rtsp_sps);
+		if (sscanf(tmp, "%u-%u", &s_data_port, &s_mon_port) < 1)
+			g_warning("rtsp: failed to parse server_port");
+	}
+	if ((tmp = strstr(tbuf, rtsp_cps))) {
+		tmp += strlen(rtsp_cps);
+		if (sscanf(tmp, "%u-%u", &c_data_port, &c_mon_port) < 1)
+			g_warning("rtsp: failed to parse client_port");
+	}
+	if (!c_data_port || !s_data_port)
+		return;
+
+	conv = conversation_new(&pi.src, &pi.dst, PT_UDP, s_data_port,
+		c_data_port, 0);
+	conv->dissector = dissect_rtp;
+
+	if (!c_mon_port || !s_mon_port)
+		return;
+
+	conv = conversation_new(&pi.src, &pi.dst, PT_UDP, s_mon_port,
+		c_mon_port, 0);
+	conv->dissector = dissect_rtcp;
 }
 
 static void dissect_rtsp(const u_char *pd, int offset, frame_data *fd,
@@ -214,6 +267,10 @@ static void dissect_rtsp(const u_char *pd, int offset, frame_data *fd,
 		 */
 		proto_tree_add_text(rtsp_tree, offset, linelen, "%s",
 			format_text(data, linelen));
+		if (linelen > strlen(rtsp_transport) &&
+			strncasecmp(data, rtsp_transport,
+				strlen(rtsp_transport)) == 0)
+			rtsp_create_conversation(data, data + linelen);
 		offset += linelen;
 		data = lineend;
 	}

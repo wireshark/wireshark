@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: nmake -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.31 2000/04/20 02:18:53 guy Exp $
+# $Id: Makefile.nmake,v 1.32 2000/04/21 01:45:58 guy Exp $
 
 include config.nmake
 
@@ -99,6 +99,8 @@ DISSECTOR_OBJECTS = \
 	packet-rlogin.obj \
 	packet-rpc.obj   \
 	packet-rsvp.obj  \
+	packet-rtcp.obj  \
+	packet-rtp.obj   \
 	packet-rtsp.obj  \
 	packet-rx.obj  \
 	packet-sap.obj   \
