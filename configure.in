@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.84 2000/03/03 03:53:08 gram Exp $
+# $Id: configure.in,v 1.85 2000/03/31 20:45:29 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -55,12 +55,11 @@ then
 	hpux*)
 		#
 		# HP's ANSI C compiler; flags suggested by Jost Martin.
-		# "-Aa" for ANSI C
-		# "-Ae" for extensions to ANSI, for "long long".
+		# "-Ae" for ANSI C plus extensions such as "long long".
 		# "+O2", for optimization.  XXX - works with "-g"?
 		#
-		CFLAGS="-Aa -Ae +O2 $CFLAGS"
-		AC_MSG_RESULT(HP ANSI C compiler - added -Aa -Ae +O2)
+		CFLAGS="-Ae +O2 $CFLAGS"
+		AC_MSG_RESULT(HP ANSI C compiler - added -Ae +O2)
 		;;
 	*)
 		AC_MSG_RESULT(none needed)
