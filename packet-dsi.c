@@ -2,7 +2,7 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.28 2004/01/06 02:20:32 guy Exp $
+ * $Id: packet-dsi.c,v 1.29 2004/01/13 21:49:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -341,8 +341,9 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 		ofs++;
 		sub_tree = proto_item_add_subtree(ti, ett_dsi_vers);
 		for (i = 0; i < nbe; i++) {
-			ti = proto_tree_add_item(sub_tree, hf_dsi_server_vers, tvb, ofs, 1, FALSE);
-			ofs += ti->finfo->length;
+			len = tvb_get_guint8(tvb, ofs);
+			proto_tree_add_item(sub_tree, hf_dsi_server_vers, tvb, ofs, 1, FALSE);
+			ofs += len + 1;
 		}
 	}
 
@@ -353,8 +354,9 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 		ofs++;
 		sub_tree = proto_item_add_subtree(ti, ett_dsi_uams);
 		for (i = 0; i < nbe; i++) {
-			ti = proto_tree_add_item(sub_tree, hf_dsi_server_uams, tvb, ofs, 1, FALSE);
-			ofs += ti->finfo->length;
+			len = tvb_get_guint8(tvb, ofs);
+			proto_tree_add_item(sub_tree, hf_dsi_server_uams, tvb, ofs, 1, FALSE);
+			ofs += len + 1;
 		}
 	}
 
@@ -438,8 +440,9 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 		ofs++;
 		sub_tree = proto_item_add_subtree(ti, ett_dsi_directory);
 		for (i = 0; i < nbe; i++) {
-			ti = proto_tree_add_item(sub_tree, hf_dsi_server_directory, tvb, ofs, 1, FALSE);
-			ofs += ti->finfo->length;
+			len = tvb_get_guint8(tvb, ofs);
+			proto_tree_add_item(sub_tree, hf_dsi_server_directory, tvb, ofs, 1, FALSE);
+			ofs += len + 1;
 		}
 	}
 	if (utf_ofs) {

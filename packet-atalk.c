@@ -2,7 +2,7 @@
  * Routines for AppleTalk packet disassembly: LLAP, DDP, NBP, ATP, ASP,
  * RTMP.
  *
- * $Id: packet-atalk.c,v 1.93 2004/01/06 02:20:32 guy Exp $
+ * $Id: packet-atalk.c,v 1.94 2004/01/13 21:49:52 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -986,8 +986,9 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		ofs++;
 		sub_tree = proto_item_add_subtree(ti, ett_asp_vers);
 		for (i = 0; i < nbe; i++) {
-			ti = proto_tree_add_item(sub_tree, hf_asp_server_vers, tvb, ofs, 1, FALSE);
-			ofs += ti->finfo->length;
+			len = tvb_get_guint8(tvb, ofs);
+			proto_tree_add_item(sub_tree, hf_asp_server_vers, tvb, ofs, 1, FALSE);
+			ofs += len + 1;
 		}
 	}
 
@@ -998,8 +999,9 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		ofs++;
 		sub_tree = proto_item_add_subtree(ti, ett_asp_uams);
 		for (i = 0; i < nbe; i++) {
-			ti = proto_tree_add_item(sub_tree, hf_asp_server_uams, tvb, ofs, 1, FALSE);
-			ofs += ti->finfo->length;
+			len = tvb_get_guint8(tvb, ofs);
+			proto_tree_add_item(sub_tree, hf_asp_server_uams, tvb, ofs, 1, FALSE);
+			ofs += len + 1;
 		}
 	}
 
@@ -1083,8 +1085,9 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		ofs++;
 		sub_tree = proto_item_add_subtree(ti, ett_asp_directory);
 		for (i = 0; i < nbe; i++) {
-			ti = proto_tree_add_item(sub_tree, hf_asp_server_directory, tvb, ofs, 1, FALSE);
-			ofs += ti->finfo->length;
+			len = tvb_get_guint8(tvb, ofs);
+			proto_tree_add_item(sub_tree, hf_asp_server_directory, tvb, ofs, 1, FALSE);
+			ofs += len + 1;
 		}
 	}
 	if (utf_ofs) {
