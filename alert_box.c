@@ -2,7 +2,7 @@
  * Routines to put up various "standard" alert boxes used in multiple
  * places
  *
- * $Id: alert_box.c,v 1.2 2004/02/11 01:23:23 guy Exp $
+ * $Id: alert_box.c,v 1.3 2004/02/11 01:37:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,6 +53,23 @@ open_failure_alert_box(const char *filename, int err, gboolean for_writing)
 {
   simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 file_open_error_message(err, for_writing), filename);
+}
+
+/*
+ * Alert box for a failed attempt to write to a file.
+ * "err" is assumed to be a UNIX-style errno.
+ *
+ * XXX - add explanatory secondary text for at least some of the errors;
+ * various HIGs suggest that you should, for example, suggest that the
+ * user remove files if the file system is full.  Perhaps that's because
+ * they're providing guidelines for people less sophisticated than the
+ * typical Ethereal user is, but....
+ */
+void
+write_failure_alert_box(const char *filename, int err)
+{
+  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                file_write_error_message(err), filename);
 }
 
 /*

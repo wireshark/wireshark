@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.87 2004/02/11 01:23:24 guy Exp $
+ * $Id: proto_draw.c,v 1.88 2004/02/11 01:37:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,7 +61,6 @@
 #include "ui_util.h"
 #include "gtkglobals.h"
 #include "compat_macros.h"
-#include <epan/filesystem.h>
 #include "alert_box.h"
 #include "simple_dialog.h"
 
@@ -923,14 +922,12 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 		return;
 	}
 	if (write(fd, data_p + start, end - start) < 0) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    file_write_error_message(errno), file);
+		write_failure_alert_box(file, errno);
 		close(fd);
 		return;
 	}
 	if (close(fd) < 0) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    file_write_error_message(errno), file);
+		write_failure_alert_box(file, errno);
 		return;
 	}
 

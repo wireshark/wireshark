@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.44 2004/02/11 01:23:24 guy Exp $
+ * $Id: follow_dlg.c,v 1.45 2004/02/11 01:37:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -796,10 +796,9 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
     if (ferror(fh))
 	goto print_error;
     if (!close_print_dest(to_file, fh)) {
-	if (to_file) {
-	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			  file_write_error_message(errno), prefs.pr_file);
-	} else {
+	if (to_file)
+	    write_failure_alert_box(prefs.pr_file, errno);
+	else {
 	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			  "Error closing print destination.");
 	}
@@ -807,10 +806,9 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
     return;
 
 print_error:
-    if (to_file) {
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		      file_write_error_message(errno), prefs.pr_file);
-    } else {
+    if (to_file)
+	write_failure_alert_box(prefs.pr_file, errno);
+    else {
 	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		      "Error writing to print command: %s", strerror(errno));
     }
@@ -989,10 +987,8 @@ follow_save_as_ok_cb(GtkWidget * w _U_, GtkFileSelection * fs)
 	switch (follow_read_stream(follow_info, follow_print_text, fh)) {
 
 	case FRS_OK:
-		if (fclose(fh) == EOF) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			    file_write_error_message(errno), to_name);
-		}
+		if (fclose(fh) == EOF)
+			write_failure_alert_box(to_name, errno);
 		break;
 
 	case FRS_OPEN_ERROR:
@@ -1001,8 +997,7 @@ follow_save_as_ok_cb(GtkWidget * w _U_, GtkFileSelection * fs)
 		break;
 
 	case FRS_PRINT_ERROR:
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    file_write_error_message(errno), to_name);
+		write_failure_alert_box(to_name, errno);
 		fclose(fh);
 		break;
 	}

@@ -1,7 +1,7 @@
 /* rtp_stream.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream.c,v 1.12 2004/02/11 01:23:25 guy Exp $
+ * $Id: rtp_stream.c,v 1.13 2004/02/11 01:37:13 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -37,8 +37,6 @@
 #include "tap.h"
 #include "register.h"
 #include "packet-rtp.h"
-
-#include <epan/filesystem.h>
 
 #include "alert_box.h"
 #include "simple_dialog.h"
@@ -292,8 +290,7 @@ gboolean rtpstream_save(rtp_stream_info_t* stream, const gchar *filename)
 
 	rtp_write_header(stream, the_tapinfo_struct.save_file);
 	if (ferror(the_tapinfo_struct.save_file)) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    file_write_error_message(errno), filename);
+		write_failure_alert_box(filename, errno);
 		fclose(the_tapinfo_struct.save_file);
 		return FALSE;
 	}
@@ -310,15 +307,13 @@ gboolean rtpstream_save(rtp_stream_info_t* stream, const gchar *filename)
 		remove_tap_listener_rtp_stream();
 
 	if (ferror(the_tapinfo_struct.save_file)) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    file_write_error_message(errno), filename);
+		write_failure_alert_box(filename, errno);
 		fclose(the_tapinfo_struct.save_file);
 		return FALSE;
 	}
 
 	if (fclose(the_tapinfo_struct.save_file) == EOF) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    file_write_error_message(errno), filename);
+		write_failure_alert_box(filename, errno);
 		return FALSE;
 	}
 	return TRUE;

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.359 2004/02/11 01:23:24 guy Exp $
+ * $Id: file.c,v 1.360 2004/02/11 01:37:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3003,8 +3003,7 @@ copy_binary_file(char *from_filename, char *to_filename)
 	err = errno;
       else
 	err = WTAP_ERR_SHORT_WRITE;
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    file_write_error_message(err), to_filename);
+      write_failure_alert_box(to_filename, err);
       close(from_fd);
       close(to_fd);
       goto done;
@@ -3021,9 +3020,7 @@ copy_binary_file(char *from_filename, char *to_filename)
   }
   close(from_fd);
   if (close(to_fd) < 0) {
-    err = errno;
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		  file_write_error_message(err), to_filename);
+    write_failure_alert_box(to_filename, errno);
     goto done;
   }
 

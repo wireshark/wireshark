@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.61 2004/02/11 01:23:24 guy Exp $
+ * $Id: print_dlg.c,v 1.62 2004/02/11 01:37:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -855,8 +855,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 
   case PP_WRITE_ERROR:
     if (print_args.to_file)
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-        file_write_error_message(errno), print_args.dest);
+      write_failure_alert_box(print_args.dest, errno);
     else
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 	"Error writing to print command: %s", strerror(errno));
