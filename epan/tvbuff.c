@@ -1624,9 +1624,9 @@ tvb_memeql(tvbuff_t *tvb, gint offset, const guint8 *str, gint size)
 }
 
 /* Convert a string from Unicode to ASCII.  At the moment we fake it by
- * assuming all characters are ASCII  )-:  The caller must free the
- * result returned.  The len parameter is the number of guint16's to
- * convert from Unicode. */
+ * replacing all non-ASCII characters with a '.' )-:  The caller must
+ * free the result returned.  The len parameter is the number of guint16's
+ * to convert from Unicode. */
 char *
 tvb_fake_unicode(tvbuff_t *tvb, int offset, int len, gboolean little_endian)
 {
@@ -1645,7 +1645,7 @@ tvb_fake_unicode(tvbuff_t *tvb, int offset, int len, gboolean little_endian)
 	for (i = 0; i < len; i++) {
 		character = little_endian ? tvb_get_letohs(tvb, offset)
 					  : tvb_get_ntohs(tvb, offset);
-		buffer[i] = character & 0xff;
+		buffer[i] = character < 256 ? character : '.';
 		offset += 2;
 	}
 
