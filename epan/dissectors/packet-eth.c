@@ -89,6 +89,19 @@ capture_eth(const guchar *pd, int offset, int len, packet_counts *ld)
 
   etype = pntohs(&pd[offset+12]);
 
+  if (etype <= IEEE_802_3_MAX_LEN) {
+    /* Oh, yuck.  Cisco ISL frames require special interpretation of the
+       destination address field; fortunately, they can be recognized by
+       checking the first 5 octets of the destination address, which are
+       01-00-0C-00-00 or 0C-00-0C-00-00 for ISL frames. */
+    if ((pd[offset] == 0x01 || pd[offset] == 0x0C) && pd[offset+1] == 0x00
+        && pd[offset+2] == 0x0C && pd[offset+3] == 0x00
+	&& pd[offset+4] == 0x00) {
+      capture_isl(pd, offset, len, ld);
+      return;
+    }
+  }
+
   /*
    * If the type/length field is <= the maximum 802.3 length,
    * and is not zero, this is an 802.3 frame, and it's a length
@@ -119,16 +132,6 @@ capture_eth(const guchar *pd, int offset, int len, packet_counts *ld)
     }
     else {
       ethhdr_type = ETHERNET_802_2;
-    }
-
-    /* Oh, yuck.  Cisco ISL frames require special interpretation of the
-       destination address field; fortunately, they can be recognized by
-       checking the first 5 octets of the destination address, which are
-       01-00-0C-00-00 for ISL frames. */
-    if (pd[offset] == 0x01 && pd[offset+1] == 0x00 && pd[offset+2] == 0x0C
-	&& pd[offset+3] == 0x00 && pd[offset+4] == 0x00) {
-      capture_isl(pd, offset, len, ld);
-      return;
     }
 
     /* Convert the LLC length from the 802.3 header to a total
@@ -199,6 +202,22 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree))
     goto end_of_eth;
 
+  if (ehdr->type <= IEEE_802_3_MAX_LEN) {
+    /* Oh, yuck.  Cisco ISL frames require special interpretation of the
+       destination address field; fortunately, they can be recognized by
+       checking the first 5 octets of the destination address, which are
+       01-00-0C-00-00 for ISL frames. */
+    if (	(tvb_get_guint8(tvb, 0) == 0x01 ||
+		 tvb_get_guint8(tvb, 0) == 0x0C) &&
+		tvb_get_guint8(tvb, 1) == 0x00 &&
+		tvb_get_guint8(tvb, 2) == 0x0C &&
+		tvb_get_guint8(tvb, 3) == 0x00 &&
+		tvb_get_guint8(tvb, 4) == 0x00 ) {
+      call_dissector(isl_handle, tvb, pinfo, tree);
+      goto end_of_eth;
+    }
+  }
+
   /*
    * If the type/length field is <= the maximum 802.3 length,
    * and is not zero, this is an 802.3 frame, and it's a length
@@ -216,19 +235,6 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    * an ethernet type of ETHERTYPE_UNK.
    */
   if (ehdr->type <= IEEE_802_3_MAX_LEN && ehdr->type != ETHERTYPE_UNK) {
-    /* Oh, yuck.  Cisco ISL frames require special interpretation of the
-       destination address field; fortunately, they can be recognized by
-       checking the first 5 octets of the destination address, which are
-       01-00-0C-00-00 for ISL frames. */
-    if (	tvb_get_guint8(tvb, 0) == 0x01 &&
-		tvb_get_guint8(tvb, 1) == 0x00 &&
-		tvb_get_guint8(tvb, 2) == 0x0C &&
-		tvb_get_guint8(tvb, 3) == 0x00 &&
-		tvb_get_guint8(tvb, 4) == 0x00 ) {
-      call_dissector(isl_handle, tvb, pinfo, tree);
-      goto end_of_eth;
-    }
-
     /* Is there an 802.2 layer? I can tell by looking at the first 2
        bytes after the 802.3 header. If they are 0xffff, then what
        follows the 802.3 header is an IPX payload, meaning no 802.2.
