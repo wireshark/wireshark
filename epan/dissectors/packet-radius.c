@@ -25,6 +25,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * References:
+ * Radius types: http://www.iana.org/assignments/radius-types
  */
 
 #ifdef HAVE_CONFIG_H
@@ -337,6 +339,13 @@ static const value_string radius_service_type_vals[] =
   {8,	"Authenticate Only"},
   {9,	"Callback NAS Prompt"},
   {10,	"Call Check"},
+  {11,	"Callback Administrative"},
+  {12,	"Voice"},								/*[Chiba]				*/
+  {13,	"Fax"},									/*[Chiba]				*/
+  {14,	"Modem Relay"},							/*[Chiba]				*/
+  {15,	"IAPP-Register"},						/*[IEEE 802.11f][Kerry]	*/
+  {16,	"IAPP-AP-Check"},						/*[IEEE 802.11f][Kerry]	*/
+  {17,	"Authorize Only"},						/*[RFC3576]				*/
   {0, NULL}
 };
 
@@ -348,6 +357,7 @@ static const value_string radius_framed_protocol_vals[] =
   {4,	"Gandalf proprietary Singlelink/Multilink Protocol"},
   {5,	"Xylogics proprietary IPX/SLIP"},
   {6,	"X.75 Synchronous"},
+  {7,	"GPRS PDP Context"},
   {255,	"Ascend ARA"},
   {256,	"Ascend MPP"},
   {257,	"Ascend EURAW"},
@@ -392,40 +402,43 @@ static const value_string radius_login_service_vals[] =
   {0,	"Telnet"},
   {0, NULL}
 };
-
+/* Values for RADIUS Attribute 29, Termination-Action: */
 static const value_string radius_terminating_action_vals[] =
 {
   {1,	"RADIUS Request"},
   {0,	"Default"},
   {0, NULL}
 };
-
+/* Values for RADIUS Attribute 40, Acct-Status-Type [RFC 2866]:*/
 static const value_string radius_accounting_status_type_vals[] =
 {
-  {1,	"Start"},
-  {2,	"Stop"},
-  {3,	"Interim Update"},
-  {7,	"Accounting On"},
-  {8,	"Accounting Off"},
-  {9,	"Tunnel Start"},	/* Tunnel accounting */
-  {10,	"Tunnel Stop"},		/* Tunnel accounting */
-  {11,	"Tunnel Reject"},	/* Tunnel accounting */
-  {12,	"Tunnel Link Start"},	/* Tunnel accounting */
-  {13,	"Tunnel Link Stop"},	/* Tunnel accounting */
-  {14,	"Tunnel Link Reject"},	/* Tunnel accounting */
+  {1,	"Start"},				/*  [RFC 2866]*/
+  {2,	"Stop"},				/*  [RFC 2866]*/
+  {3,	"Interim Update"},		/*  [RFC 2866]*/
+  {7,	"Accounting On"},		/*  [RFC 2866]*/
+  {8,	"Accounting Off"},		/*  [RFC 2866]*/
+  {9,	"Tunnel Start"},		/* Tunnel accounting [RFC 2867]	*/
+  {10,	"Tunnel Stop"},			/* Tunnel accounting [RFC 2867]	*/
+  {11,	"Tunnel Reject"},		/* Tunnel accounting [RFC 2867]	*/
+  {12,	"Tunnel Link Start"},	/* Tunnel accounting [RFC 2867]	*/
+  {13,	"Tunnel Link Stop"},	/* Tunnel accounting [RFC 2867]	*/
+  {14,	"Tunnel Link Reject"},	/* Tunnel accounting [RFC 2867]	*/
+  {15,	"Failed"},				/* [RFC 2866]					*/
+
   {0, NULL}
 };
-
+/* Values for RADIUS Attribute 45, Acct-Authentic [RFC 2866]: */
 static const value_string radius_accounting_authentication_vals[] =
 {
   {1,	"Radius"},
   {2,	"Local"},
   {3,	"Remote"},
+  {4,	"Diameter"},
   /* RFC 2866 says 3 is Remote. Is 7 a mistake? */
   {7,	"Remote"},
   {0, NULL}
 };
-
+/*Values for RADIUS Attribute 49, Acct-Terminate-Cause [RFC 2866]: */
 static const value_string radius_acct_terminate_cause_vals[] =
 {
   {1,	"User Request"},
@@ -446,6 +459,11 @@ static const value_string radius_acct_terminate_cause_vals[] =
   {16,	"Callback"},
   {17,	"User Error"},
   {18,	"Host Request"},
+  {19,	"Supplicant Restart"},					/*[RFC3580]*/
+  {20,	"Reauthentication Failure"},			/*[RFC3580]*/
+  {21,	"Port Reinitialized"},					/*[RFC3580]*/
+  {22,	"Port Administratively Disabled"},		/*[RFC3580]*/
+
   {0, NULL}
 };
 
@@ -463,6 +481,7 @@ static const value_string radius_tunnel_type_vals[] =
   {10,	"GRE"},
   {11,	"DVS"},
   {12,	"IP-IP"},
+  {12,	"VLAN"},								/*[RFC3580]*/
   {0, NULL}
 };
 
@@ -485,7 +504,7 @@ static const value_string radius_tunnel_medium_type_vals[] =
   {15,	"E.164 NSAP"},
   {0, NULL}
 };
-
+/*Values for RADIUS Attribute 61, NAS-Port-Type [RFC 2865]: */
 static const value_string radius_nas_port_type_vals[] =
 {
   {0,	"Async"},
@@ -508,6 +527,14 @@ static const value_string radius_nas_port_type_vals[] =
   {17,	"Cable"},
   {18,	"Wireless Other"},
   {19,	"Wireless IEEE 802.11"},
+  {20,	"Token-Ring"},									/*[RFC3580]*/ 
+  {21,	"FDDI"},										/*[RFC3580]*/
+  {22,	"Wireless - CDMA2000"},							/*[McCann] */
+  {23,	"Wireless - UMTS"},								/*[McCann] */	
+  {24,	"Wireless - 1X-EV"},							/*[McCann] */
+  {25,	"IAPP"},									/*[IEEE 802.11f][Kerry]*/
+  {26,	"FTTP - Fiber to the Premises"},				/*[Nyce]*/
+
   {0, NULL}
 };
 /*
@@ -818,7 +845,21 @@ static const value_string radius_vendor_acc_access_community_vals[] =
   {2,	"NETMAN"},
   {0, NULL}
 };
+static const value_string radius_vendor_acct_terminate_cause[] =
+{
+  {1,	"User Request"},
+  {4,	"Idle Timeout"},
+  {5,	"Session Timeout"},
+  {15,	"Service Unavailable"},
+  {0, NULL}
+};
 
+static const value_string radius_vendor_acc_role_vals[] =
+{
+  {1,	"Originating"},
+  {2,	"Terminating"},
+  {0, NULL}
+};
 static const radius_attr_info radius_vendor_acc_attrib[] =
 {
   {1,	RADIUS_INTEGER4,	"Acc Reason Code", radius_vendor_acc_reason_code_vals, NULL},
@@ -868,6 +909,9 @@ static const radius_attr_info radius_vendor_acc_attrib[] =
   {46,	RADIUS_STRING,		"Acc Ip Pool Name", NULL, NULL},
   {47,	RADIUS_INTEGER4,	"Acc Igmp Admin State", NULL, NULL},
   {48,	RADIUS_INTEGER4,	"Acc Igmp Version", NULL, NULL},
+  {49,	RADIUS_INTEGER4,	"Acct-Terminate-Cause", radius_vendor_acct_terminate_cause, NULL},
+  {72,	RADIUS_INTEGER4,	"Acc-Time-For-Start-Of-Charging", NULL, NULL},
+  {133, RADIUS_INTEGER4,	"Acc-Role",radius_vendor_acc_role_vals, NULL},
 
 
   {0, 0, NULL, NULL, NULL},
