@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.58 1999/08/22 00:47:45 guy Exp $
+ * $Id: capture.c,v 1.59 1999/08/22 01:02:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -582,19 +582,21 @@ fail:
     if (cf.cfilter) {
       if (pcap_lookupnet (cf.iface, &netnum, &netmask, err_str) < 0) {
         simple_dialog(ESD_TYPE_WARN, NULL,
-          "Can't use filter:  Couldn't obtain netmask info.");
+          "Can't use filter:  Couldn't obtain netmask info (%s).", err_str);
         wtap_dump_close(ld.pdh, NULL);
         unlink(cf.save_file); /* silently ignore error */
         pcap_close(pch);
         return;
       } else if (pcap_compile(pch, &cf.fcode, cf.cfilter, 1, netmask) < 0) {
-        simple_dialog(ESD_TYPE_WARN, NULL, "Unable to parse filter string.");
+        simple_dialog(ESD_TYPE_WARN, NULL, "Unable to parse filter string (%s).",
+			pcap_geterr(pch));
         wtap_dump_close(ld.pdh, NULL);
         unlink(cf.save_file); /* silently ignore error */
         pcap_close(pch);
         return;
       } else if (pcap_setfilter(pch, &cf.fcode) < 0) {
-        simple_dialog(ESD_TYPE_WARN, NULL, "Can't install filter.");
+        simple_dialog(ESD_TYPE_WARN, NULL, "Can't install filter (%s).",
+			pcap_geterr(pch));
         wtap_dump_close(ld.pdh, NULL);
         unlink(cf.save_file); /* silently ignore error */
         pcap_close(pch);
@@ -757,9 +759,9 @@ fail:
   } else {
     while (gtk_events_pending()) gtk_main_iteration();
     simple_dialog(ESD_TYPE_WARN, NULL,
-      "The capture session could not be initiated.  Please\n"
-      "check to make sure you have sufficient permissions, and\n"
-      "that you have the proper interface specified.");
+      "The capture session could not be initiated (%s).\n"
+      "Please check to make sure you have sufficient permissions, and that\n"
+      "you have the proper interface specified.", err_str);
   }
 
   if( quit_after_cap ){
