@@ -163,14 +163,17 @@ static int ett_sdp_media_attribute = -1;
 
 
 #define SDP_MAX_RTP_CHANNELS 4
+#define SDP_MAX_RTP_PAYLOAD_TYPES 10
 
 typedef struct {
 	char *connection_address;
 	char *connection_type;
 	char *media_port[SDP_MAX_RTP_CHANNELS];
 	char *media_proto[SDP_MAX_RTP_CHANNELS];
+	gint32 media_pt[SDP_MAX_RTP_PAYLOAD_TYPES];
 	gint8 media_count;
-	guint32 rtp_event_pt;
+	gint8 media_pt_count;
+	GHashTable *rtp_dyn_payload;
 } transport_info_t;
 
 /* static functions */
@@ -228,14 +231,19 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Initialise RTP channel info */
 	transport_info.connection_address=NULL;
 	transport_info.connection_type=NULL;
-	transport_info.rtp_event_pt=0;
 	for (n=0; n < SDP_MAX_RTP_CHANNELS; n++)
 	{
 	    transport_info.media_port[n]=NULL;
 	    transport_info.media_proto[n]=NULL;
 	}
+	for (n=0; n < SDP_MAX_RTP_PAYLOAD_TYPES; n++)
+	{
+	    transport_info.media_pt[n]=-1;
+	}
 	transport_info.media_count = 0;
+	transport_info.media_pt_count = 0;
 
+	transport_info.rtp_dyn_payload = g_hash_table_new( g_int_hash, g_int_equal);
 
 	/*
 	 * As RFC 2327 says, "SDP is purely a format for session
@@ -417,7 +425,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    src_addr.data=(char *)&ipaddr;
 		    if(rtp_handle){
 				rtp_add_address(pinfo, &src_addr, port, 0,
-	                "SDP", pinfo->fd->num, transport_info.rtp_event_pt);
+	                "SDP", pinfo->fd->num, transport_info.rtp_dyn_payload);
 				set_rtp = TRUE;
 		    }
 		    if(rtcp_handle){
@@ -425,7 +433,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				rtcp_add_address(pinfo, &src_addr, port, 0,
 	                 "SDP", pinfo->fd->num);
 		    }
-	    }
+		} 
 			
 	    /* Add t38 conversation, if available and only if no rtp */
 	    if((!pinfo->fd->flags.visited) && port!=0 && !set_rtp && is_t38 && is_ipv4_addr){
@@ -450,6 +458,25 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_text(sdp_tree, tvb, offset, datalen,
 		    "Data (%d bytes)", datalen);
 	}
+
+	/* Create the summary str for the Voip Call analysis */
+	for (n = 0; n < transport_info.media_pt_count; n++)
+	{
+		/* if the payload type is dynamic (96 to 127), check the hash table */
+		if ( (transport_info.media_pt[n] >=96) && (transport_info.media_pt[n] <=127) ) {
+			gchar *str_dyn_pt = g_hash_table_lookup(transport_info.rtp_dyn_payload, &transport_info.media_pt[n]);
+			if (str_dyn_pt)
+				g_snprintf(sdp_pi->summary_str, 50, "%s %s", sdp_pi->summary_str, str_dyn_pt);
+			else
+				g_snprintf(sdp_pi->summary_str, 50, "%s %d", sdp_pi->summary_str, transport_info.media_pt[n]);
+		} else 
+			g_snprintf(sdp_pi->summary_str, 50, "%s %s", sdp_pi->summary_str, val_to_str(transport_info.media_pt[n], rtp_payload_type_short_vals, "%u"));
+	}
+
+	/* Free the hash table if we don't use it */
+    if (set_rtp == FALSE) 
+		rtp_free_hash_dyn_payload(transport_info.rtp_dyn_payload);
+
     /* Report this packet to the tap */
     tap_queue_packet(sdp_tap, pinfo, sdp_pi);
 }
@@ -900,7 +927,9 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
       media_format = tvb_get_string(tvb, offset, tokenlen);
       proto_tree_add_string(sdp_media_tree, hf_media_format, tvb, offset,
                              tokenlen, val_to_str(atol(media_format), rtp_payload_type_vals, "%u"));
-      g_snprintf(sdp_pi->summary_str, 50, "%s %s", sdp_pi->summary_str, val_to_str(atol(media_format), rtp_payload_type_short_vals, "%u"));
+	  transport_info->media_pt[transport_info->media_pt_count] = atol(media_format);
+	  if (transport_info->media_pt_count < SDP_MAX_RTP_PAYLOAD_TYPES)
+		  transport_info->media_pt_count++;
       g_free(media_format);
     } else {
       proto_tree_add_item(sdp_media_tree, hf_media_format, tvb,
@@ -955,8 +984,10 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
 		      hf_media_attribute_value,
 		      tvb, offset, -1, FALSE);
 
-  /* decode the rtpmap to see if it is DynamicPayload for RTP-Events RFC2833 to dissect them automatic */
+  /* decode the rtpmap to see if it is DynamicPayload to dissect them automatic */
   if (strcmp(field_name, "rtpmap") == 0) {
+	gint *key;
+
 	next_offset = tvb_find_guint8(tvb,offset,-1,' ');
 	g_free(field_name);
 
@@ -980,11 +1011,11 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
 
     encoding_name = tvb_get_string(tvb, offset, tokenlen);
 
-    if (strcmp(encoding_name, "telephone-event") == 0)
-		transport_info->rtp_event_pt = atol(payload_type);
+	key=g_malloc( sizeof(gint) );
+	*key=atol(payload_type);
+	g_hash_table_insert(transport_info->rtp_dyn_payload, key, encoding_name);
 
     g_free(payload_type);
-    g_free(encoding_name);
   } else g_free(field_name);
 }
 

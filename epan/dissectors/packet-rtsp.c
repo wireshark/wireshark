@@ -462,7 +462,7 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 	if (rtp_transport)
 	{
 		rtp_add_address(pinfo, &pinfo->dst, c_data_port, s_data_port,
-						"RTSP", pinfo->fd->num, 0);
+						"RTSP", pinfo->fd->num, NULL);
 	
 		if (!c_mon_port)
 			return;
