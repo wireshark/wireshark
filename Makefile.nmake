@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: nmake -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.44 2000/06/12 02:38:13 guy Exp $
+# $Id: Makefile.nmake,v 1.45 2000/06/16 15:05:26 gram Exp $
 
 include config.nmake
 
@@ -213,19 +213,22 @@ EXECUTABLES=ethereal.exe tethereal.exe editcap.exe
 
 RESOURCES=image\ethereal.res image\tethereal.res image\editcap.res
 
-all: $(EXECUTABLES) $(RESOURCES)
+all: wiretap gtk $(EXECUTABLES) $(RESOURCES)
 
-ethereal.exe	: config.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res wiretap gtk plugins
+ethereal.exe	: config.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res wiretap\libwtap.lib gtk\libui.lib plugins
+	@echo Linking $@
 	$(LINK) @<<
-		/OUT:ethereal.exe $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res /NODEFAULTLIB:libcmt
+		/OUT:ethereal.exe $(LDFLAGS) /SUBSYSTEM:windows $(ethereal_LIBS) $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res
 <<
 
-tethereal.exe	: config.h $(tethereal_OBJECTS) $(EXTRA_OBJECTS) image\tethereal.res wiretap plugins
+tethereal.exe	: config.h $(tethereal_OBJECTS) $(EXTRA_OBJECTS) image\tethereal.res wiretap\libwtap.lib plugins
+	@echo Linking $@
 	$(LINK) @<<
-		/OUT:tethereal.exe $(LDFLAGS) /SUBSYSTEM:console $(tethereal_LIBS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS) image\tethereal.res  /NODEFAULTLIB:libcmt
+		/OUT:tethereal.exe $(LDFLAGS) /SUBSYSTEM:console $(tethereal_LIBS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS) image\tethereal.res
 <<
 
-editcap.exe	: config.h editcap.obj getopt.obj wiretap image\editcap.res
+editcap.exe	: config.h editcap.obj getopt.obj wiretap\libwtap.lib image\editcap.res
+	@echo Linking $@
 	$(LINK) @<<
 		/OUT:editcap.exe $(LDFLAGS) /SUBSYSTEM:console editcap.obj getopt.obj $(editcap_LIBS) image\editcap.res
 <<
