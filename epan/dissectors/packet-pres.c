@@ -1577,10 +1577,12 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 						}
 					}
 				}
+                if( ((gint)rest_len) > 0) {
 				ms = proto_tree_add_text(pres_tree, tvb, offset, rest_len,
 										val_to_str(session->spdu_type, ses_vals, "Unknown Ppdu type (0x%02x)"));
 				pres_tree_ms = proto_item_add_subtree(ms, ett_pres_ms);
 				show_user_data(&asn,pres_tree_ms,tvb,&offset,rest_len,s_type);
+                }
 			}
 	}
 /*    close asn.1 stream    */
