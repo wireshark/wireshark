@@ -135,18 +135,6 @@ gboolean capture_child;	        /* if this is the child for "-S" */
 static gboolean normal_do_capture(gboolean is_tempfile);
 static void stop_capture_signal_handler(int signo);
 
-#ifndef _WIN32
-static void cap_pipe_adjust_header(loop_data *, struct pcap_hdr *, struct pcaprec_hdr *);
-static int cap_pipe_open_live(char *, struct pcap_hdr *, loop_data *, char *, int);
-static int cap_pipe_dispatch(int, loop_data *, struct pcap_hdr *, \
-		struct pcaprec_modified_hdr *, guchar *, char *, int);
-#endif
-
-
-
-
-
-
 /* Open a specified file, or create a temporary file, and start a capture
    to the file in question.  Returns TRUE if the capture starts
    successfully, FALSE otherwise. */
