@@ -556,7 +556,7 @@ class EthCtx:
                               'ref' : [t]}
         self.eth_type[nm]['attr'].update(self.conform.use_item('ETYPE_ATTR', nm))
         if self.type[t]['attr'].get('STRINGS') == '$$':
-          self.eth_type[nm]['attr']['STRINGS'] = 'VALS(%s_vals)' % (nm)
+          self.eth_type[nm]['attr']['STRINGS'] = 'VALS(%s)' % (self.eth_vals_nm(nm))
       self.type[t]['ethname'] = nm
       if (not self.eth_type[nm]['export'] and self.type[t]['export']):  # new export
         self.eth_export_ord.append(nm)
@@ -740,12 +740,20 @@ class EthCtx:
       else:
         self.eth_value_ord1.append(v)
 
+  #--- eth_vals_nm ------------------------------------------------------------
+  def eth_vals_nm(self, tname):
+    out = ""
+    if (not self.eth_type[tname]['export'] & 0x10):
+      out += "%s_" % (self.eproto)
+    out += "%s_vals" % (tname)
+    return out
+
   #--- eth_vals ---------------------------------------------------------------
   def eth_vals(self, tname, vals):
     out = ""
     if (not self.eth_type[tname]['export'] & 0x02):
       out += "static "
-    out += "const value_string %s_vals[] = {\n" % (tname)
+    out += "const value_string %s[] = {\n" % (self.eth_vals_nm(tname))
     for (val, id) in vals:
       out += '  { %3s, "%s" },\n' % (val, id)
     out += "  { 0, NULL }\n};\n"
@@ -894,9 +902,10 @@ class EthCtx:
     for t in self.eth_export_ord:  # vals
       if (self.eth_type[t]['export'] & 0x02) and self.eth_type[t]['val'].eth_has_vals():
         if self.eth_type[t]['export'] & 0x08:
-          fx.write("ETH_VAR_IMPORT const value_string %s_vals[];\n" % (t))
+          fx.write("ETH_VAR_IMPORT ")
         else:
-          fx.write("extern const value_string %s_vals[];\n" % (t))
+          fx.write("extern ")
+        fx.write("const value_string %s[];\n" % (self.eth_vals_nm(t)))
     for t in self.eth_export_ord:  # functions
       if (self.eth_type[t]['export'] & 0x01):
         fx.write(self.eth_type_fn_h(t))
@@ -1013,7 +1022,7 @@ class EthCtx:
         if self.eth_type[t]['no_emit'] & 0x02:
           pass
         elif self.eth_type[t]['user_def'] & 0x02:
-          fx.write("extern const value_string %s_vals[];\n" % (t))
+          fx.write("extern const value_string %s[];\n" % (self.eth_vals_nm(t)))
         else:
           fx.write(self.eth_type[t]['val'].eth_type_vals(self.eth_type[t]['proto'], t, self))
       if self.eth_type[t]['no_emit'] & 0x01:
@@ -1345,19 +1354,22 @@ class EthCnf:
       elif ctx in ('EXPORTS', 'USER_DEFINED', 'NO_EMIT'):
         if empty.match(line): continue
         if ctx == 'EXPORTS':
-          par = get_par(line, 1, 3, fn=fn, lineno=lineno)
+          par = get_par(line, 1, 4, fn=fn, lineno=lineno)
         else:
           par = get_par(line, 1, 2, fn=fn, lineno=lineno)
         if not par: continue
         flag = 0x03
+        p = 2
         if (len(par)>=2):
           if (par[1] == 'WITH_VALS'):      flag = 0x03
           elif (par[1] == 'WITHOUT_VALS'): flag = 0x01
           elif (par[1] == 'ONLY_VALS'):    flag = 0x02
+          elif (ctx == 'EXPORTS'): p = 1
           else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[1]), UserWarning, fn, lineno)
-        if (len(par)>=3):
-          if (par[2] == 'ETH_VAR'):        flag |= 0x08
-          else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[2]), UserWarning, fn, lineno)
+        for i in range(p, len(par)):
+          if (par[i] == 'ETH_VAR'):          flag |= 0x08
+          elif (par[i] == 'NO_PROT_PREFIX'): flag |= 0x10
+          else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[i]), UserWarning, fn, lineno)
         self.add_item(ctx, par[0], flag=flag, fn=fn, lineno=lineno)
       elif ctx == 'PDU':
         if empty.match(line): continue
@@ -1692,7 +1704,7 @@ class Type (Node):
       minv = '-1'
       maxv = '-1'
       ext = 'FALSE'
-    elif self.constr.type == 'Size' and (self.constr.subtype.type == 'SingleValue' or self.constr.subtype.type == 'ValueRange'):
+    elif self.constr.IsSize():
       if self.constr.subtype.type == 'SingleValue':
         minv = self.constr.subtype.subtype
         maxv = self.constr.subtype.subtype
@@ -1738,6 +1750,12 @@ class Constraint (Node):
     return self.subtype.typ.to_python (ctx)
   def __str__ (self):
     return "Constraint: type=%s, subtype=%s" % (self.type, self.subtype)
+
+  def IsSize(self):
+    return self.type == 'Size' and (self.subtype.type == 'SingleValue' or self.subtype.type == 'ValueRange')
+
+  def IsPermAlph(self):
+    return self.type == 'From' and self.subtype.type == 'SingleValue'
 
   def eth_constrname(self):
     def int2str(val):
@@ -1949,7 +1967,7 @@ class SequenceOfType (SqType):
   def eth_tname(self):
     if not self.HasConstraint():
       return "SEQUNCE_OF_" + self.val.eth_tname()
-    elif self.constr.type == 'Size' and (self.constr.subtype.type == 'SingleValue' or self.constr.subtype.type == 'ValueRange'):
+    elif self.constr.IsSize():
       return 'SEQUNCE_' + self.constr.eth_constrname() + '_OF_' + self.val.eth_tname()
     else:
       return '#' + self.type + '_' + str(id(self))
@@ -2024,7 +2042,7 @@ class SetOfType (SqType):
   def eth_tname(self):
     if not self.HasConstraint():
       return "SET_OF_" + self.val.eth_tname()
-    elif self.constr.type == 'Size' and (self.constr.subtype.type == 'SingleValue' or self.constr.subtype.type == 'ValueRange'):
+    elif self.constr.IsSize():
       return 'SET_' + self.constr.eth_constrname() + '_OF_' + self.val.eth_tname()
     else:
       return '#' + self.type + '_' + str(id(self))
@@ -2650,7 +2668,7 @@ class OctetStringType (Type):
   def eth_tname(self):
     if not self.HasConstraint():
       return 'OCTET_STRING'
-    elif self.constr.type == 'Size' and (self.constr.subtype.type == 'SingleValue' or self.constr.subtype.type == 'ValueRange'):
+    elif self.constr.IsSize():
       return 'OCTET_STRING' + '_' + self.constr.eth_constrname()
     else:
       return '#' + self.type + '_' + str(id(self))
@@ -2690,7 +2708,7 @@ class CharacterStringType (Type):
   def eth_tname(self):
     if not self.HasConstraint():
       return self.eth_tsname()
-    elif self.constr.type == 'Size' and (self.constr.subtype.type == 'SingleValue' or self.constr.subtype.type == 'ValueRange'):
+    elif self.constr.IsSize():
       return self.eth_tsname() + '_' + self.constr.eth_constrname()
     else:
       return '#' + self.type + '_' + str(id(self))
@@ -2713,6 +2731,15 @@ class RestrictedCharacterStringType (CharacterStringType):
                               par=(('implicit_tag', self.GetTag(ectx)[1]),
                                    ('pinfo', 'tree', 'tvb', 'offset', 'hf_index'),
                                    ('NULL',)))
+    elif (ectx.Per() and self.HasConstraint() and self.constr.IsPermAlph()):
+      alphabet = self.constr.subtype.subtype
+      alphabet_length = 'strlen(%s)' % (alphabet)
+      if (ectx.OPer()):
+        body = ectx.eth_fn_call('dissect_per_restricted_character_string', ret='offset',
+                                par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
+                                     (minv, maxv, alphabet, alphabet_length)))
+      else:
+        body = '#error Can not decode %s' % (tname)
     elif (ectx.NPer()):
       body = ectx.eth_fn_call('dissect_pern_' + self.eth_tsname(), ret='offset',
                               par=(('tvb', 'offset', 'pinfo', 'tree'),
@@ -3010,7 +3037,7 @@ class BitStringType (Type):
       return Type.eth_tname(self)
     elif not self.HasConstraint():
       return 'BIT_STRING'
-    elif self.constr.type == 'Size' and (self.constr.subtype.type == 'SingleValue' or self.constr.subtype.type == 'ValueRange'):
+    elif self.constr.IsSize():
       return 'BIT_STRING' + '_' + self.constr.eth_constrname()
     else:
       return '#' + self.type + '_' + str(id(self))
