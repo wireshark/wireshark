@@ -1444,6 +1444,140 @@ dissect_ndr_wchar_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				FALSE, NULL);
 }
 
+/* Dissect an NDR varying string of elements.
+   The length of each element is given by the 'size_is' parameter;
+   the elements are assumed to be characters or wide characters.
+*/
+int
+dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+		     proto_tree *tree, guint8 *drep, int size_is,
+		     int hfindex, gboolean add_subtree, char **data)
+{
+    dcerpc_info *di;
+    proto_item *string_item;
+    proto_tree *string_tree;
+    guint32 len, buffer_len;
+    char *s;
+    header_field_info *hfinfo;
+
+    di=pinfo->private_data;
+    if(di->conformant_run){
+      /* just a run to handle conformant arrays, no scalars to dissect */
+      return offset;
+    }
+
+    if (add_subtree) {
+        string_item = proto_tree_add_text(tree, tvb, offset, -1, "%s",
+                                          proto_registrar_get_name(hfindex));
+        string_tree = proto_item_add_subtree(string_item, ett_dcerpc_string);
+    } else {
+        string_item = NULL;
+        string_tree = tree;
+    }
+
+    /* NDR array header */
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, string_tree, drep,
+                                hf_dcerpc_array_offset, NULL);
+
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, string_tree, drep,
+                                hf_dcerpc_array_actual_count, &len);
+
+    buffer_len = size_is * len;
+
+    /* Adjust offset */
+    if (offset % size_is)
+        offset += size_is - (offset % size_is);
+
+    if (size_is == sizeof(guint16)) {
+        /* XXX - use drep to determine the byte order? */
+        s = tvb_fake_unicode(tvb, offset, buffer_len / 2, TRUE);
+        /*
+         * XXX - we don't support a string type with Unicode
+         * characters, so if this is a string item, we make
+         * its value be the "fake Unicode" string.
+         */
+        if (tree && buffer_len) {
+            hfinfo = proto_registrar_get_nth(hfindex);
+            if (hfinfo->type == FT_STRING) {
+                proto_tree_add_string(string_tree, hfindex, tvb, offset,
+                                      buffer_len, s);
+            } else {
+                proto_tree_add_item(string_tree, hfindex, tvb, offset,
+                                    buffer_len, drep[0] & 0x10);
+            }
+        }
+    } else {
+        /*
+         * "tvb_get_string()" throws an exception if the entire string
+         * isn't in the tvbuff.  If the length is bogus, this should
+         * keep us from trying to allocate an immensely large buffer.
+         * (It won't help if the length is *valid* but immensely large,
+         * but that's another matter; in any case, that would happen only
+         * if we had an immensely large tvbuff....)
+         */
+        s = tvb_get_string(tvb, offset, buffer_len);
+        if (tree && buffer_len)
+            proto_tree_add_item(string_tree, hfindex, tvb, offset,
+                                buffer_len, drep[0] & 0x10);
+    }
+
+    if (string_item != NULL)
+        proto_item_append_text(string_item, ": %s", s);
+
+    if (data)
+	    *data = s;
+    else
+	    g_free(s);
+    
+    offset += buffer_len;
+
+    proto_item_set_end(string_item, tvb, offset);
+
+    return offset;
+}
+/* Dissect an varying string of chars.
+   This corresponds to IDL of the form '[string] char *foo'.
+
+   XXX - at least according to the DCE RPC 1.1 spec, a string has
+   a null terminator, which isn't necessary as a terminator for
+   the transfer language (as there's a length), but is presumably
+   there for the benefit of null-terminated-string languages
+   such as C.  Is this ever used for purely counted strings?
+   (Not that it matters if it is.) */
+int
+dissect_ndr_char_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+			proto_tree *tree, guint8 *drep)
+{
+    dcerpc_info *di;
+    di=pinfo->private_data;
+
+    return dissect_ndr_vstring(tvb, offset, pinfo, tree, drep,
+				sizeof(guint8), di->hf_index,
+				FALSE, NULL);
+}
+
+/* Dissect a varying string of wchars (wide characters).
+   This corresponds to IDL of the form '[string] wchar *foo'
+
+   XXX - at least according to the DCE RPC 1.1 spec, a string has
+   a null terminator, which isn't necessary as a terminator for
+   the transfer language (as there's a length), but is presumably
+   there for the benefit of null-terminated-string languages
+   such as C.  Is this ever used for purely counted strings?
+   (Not that it matters if it is.) */
+int
+dissect_ndr_wchar_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+			proto_tree *tree, guint8 *drep)
+{
+    dcerpc_info *di;
+    di=pinfo->private_data;
+
+    return dissect_ndr_vstring(tvb, offset, pinfo, tree, drep,
+				sizeof(guint16), di->hf_index,
+				FALSE, NULL);
+}
+
+
 /* ndr pointer handling */
 /* list of pointers encountered so far */
 static GSList *ndr_pointer_list = NULL;
