@@ -292,7 +292,7 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 #define ETHEREAL_STOCK_LABEL_DISPLAY_FILTER           "_Filter"
 #define ETHEREAL_STOCK_LABEL_DISPLAY_FILTER_ENTRY     "_Filter:"
 #define ETHEREAL_STOCK_LABEL_PREFS                    "_Prefs"
-#define ETHEREAL_STOCK_LABEL_BROWSE                   "..."
+#define ETHEREAL_STOCK_LABEL_BROWSE                   "_Browse..."
 #define ETHEREAL_STOCK_LABEL_CREATE_STAT              "Create _Stat"
 #define ETHEREAL_STOCK_LABEL_EXPORT                   "_Export..."
 #define ETHEREAL_STOCK_LABEL_IMPORT                   "_Import..."
