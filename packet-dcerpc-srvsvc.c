@@ -6,7 +6,11 @@
  * Copyright 2002, Ronnie Sahlberg
  *   rewrote entire dissector
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.41 2002/06/24 01:59:23 guy Exp $
+ * 2002, some share information levels implemented based on samba
+ * sources.
+ *
+ *
+ * $Id: packet-dcerpc-srvsvc.c,v 1.42 2002/08/21 09:58:59 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,8 +65,10 @@ static int hf_srvsvc_computer = -1;
 static int hf_srvsvc_user = -1;
 static int hf_srvsvc_path = -1;
 static int hf_srvsvc_share_passwd = -1;
+static int hf_srvsvc_share_alternate_name = -1;
 static int hf_srvsvc_file_id = -1;
 static int hf_srvsvc_perm = -1;
+static int hf_srvsvc_policy = -1;
 static int hf_srvsvc_file_num_locks = -1;
 static int hf_srvsvc_con_id = -1;
 static int hf_srvsvc_max_uses = -1;
@@ -103,6 +109,7 @@ static int hf_srvsvc_ulist_mtime = -1;
 static int hf_srvsvc_glist_mtime = -1;
 static int hf_srvsvc_alist_mtime = -1;
 static int hf_srvsvc_security = -1;
+static int hf_srvsvc_dfs_root_flags = -1;
 static int hf_srvsvc_numadmin = -1;
 static int hf_srvsvc_lanmask = -1;
 static int hf_srvsvc_chdevs = -1;
@@ -191,6 +198,7 @@ static int hf_srvsvc_service_bits = -1;
 static int hf_srvsvc_service_bits_of_interest = -1;
 static int hf_srvsvc_update_immediately = -1;
 static int hf_srvsvc_path_flags = -1;
+static int hf_srvsvc_share_flags = -1;
 static int hf_srvsvc_path_type = -1;
 static int hf_srvsvc_outbuflen = -1;
 static int hf_srvsvc_prefix = -1;
@@ -227,6 +235,7 @@ static int hf_srvsvc_path_len = -1;
 static gint ett_dcerpc_srvsvc = -1;
 static gint ett_srvsvc_share_info_1 = -1;
 static gint ett_srvsvc_share_info_2 = -1;
+static gint ett_srvsvc_share_info_501 = -1;
 static gint ett_srvsvc_share_info_502 = -1;
 
 
@@ -2411,6 +2420,77 @@ srvsvc_dissect_SHARE_INFO_2_CONTAINER(tvbuff_t *tvb, int offset,
   IDL    [unique] [string] wchar_t *share;
   IDL    long type;
   IDL    [unique] [string] wchar_t *comment;
+  IDL    long policy;
+  IDL } SHARE_INFO_501;
+*/
+static int
+srvsvc_dissect_SHARE_INFO_501(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+  
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if (parent_tree) {
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1, "Share");
+		tree = proto_item_add_subtree(item, ett_srvsvc_share_info_501);
+	}
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
+		"Share", hf_srvsvc_share, di->levels);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_share_type, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
+		"Comment", hf_srvsvc_comment, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_policy, NULL);
+
+	return offset;
+}
+static int
+srvsvc_dissect_SHARE_INFO_501_array(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SHARE_INFO_501);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long EntriesRead;
+ * IDL   [size_is(EntriesRead)] [unique] SHARE_INFO_501 *shares;
+ * IDL } SHARE_INFO_501_CONTAINER;
+ */
+static int
+srvsvc_dissect_SHARE_INFO_501_CONTAINER(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_num_entries, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_SHARE_INFO_501_array, NDR_POINTER_UNIQUE,
+		"SHARE_INFO_501 array:", -1, 0);
+
+	return offset;
+}
+
+
+/*
+  IDL typedef struct {
+  IDL    [unique] [string] wchar_t *share;
+  IDL    long type;
+  IDL    [unique] [string] wchar_t *comment;
   IDL    long permissions;
   IDL    long max_uses;
   IDL    long current_uses;
@@ -2553,6 +2633,52 @@ srvsvc_dissect_SHARE_INFO_1004_CONTAINER(tvbuff_t *tvb, int offset,
 
 /*
   IDL typedef struct {
+  IDL    long dfs_root_flags;
+  IDL } SHARE_INFO_1005;
+*/
+static int
+srvsvc_dissect_SHARE_INFO_1005(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char *drep)
+{
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_dfs_root_flags, NULL);
+	
+	return offset;
+}
+static int
+srvsvc_dissect_SHARE_INFO_1005_array(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SHARE_INFO_1005);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long EntriesRead;
+ * IDL   [size_is(EntriesRead)] [unique] SHARE_INFO_1005 *shares;
+ * IDL } SHARE_INFO_1005_CONTAINER;
+ */
+static int
+srvsvc_dissect_SHARE_INFO_1005_CONTAINER(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_num_entries, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_SHARE_INFO_1005_array, NDR_POINTER_UNIQUE,
+		"SHARE_INFO_1005 array:", -1, 0);
+
+	return offset;
+}
+
+
+/*
+  IDL typedef struct {
   IDL    long max_uses;
   IDL } SHARE_INFO_1006;
 */
@@ -2598,13 +2724,115 @@ srvsvc_dissect_SHARE_INFO_1006_CONTAINER(tvbuff_t *tvb, int offset,
 
 
 /*
+  IDL typedef struct {
+  IDL    long flags;
+  IDL    [unique] [string] wchar_t *alternate_directory_name;
+  IDL } SHARE_INFO_1007;
+*/
+static int
+srvsvc_dissect_SHARE_INFO_1007(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char *drep)
+{
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_share_flags, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Alternate Name",
+		hf_srvsvc_share_alternate_name, 0);
+
+	return offset;
+}
+static int
+srvsvc_dissect_SHARE_INFO_1007_array(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SHARE_INFO_1007);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long EntriesRead;
+ * IDL   [size_is(EntriesRead)] [unique] SHARE_INFO_1007 *shares;
+ * IDL } SHARE_INFO_1007_CONTAINER;
+ */
+static int
+srvsvc_dissect_SHARE_INFO_1007_CONTAINER(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_num_entries, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_SHARE_INFO_1007_array, NDR_POINTER_UNIQUE,
+		"SHARE_INFO_1007 array:", -1, 0);
+
+	return offset;
+}
+
+/*
+  IDL typedef struct {
+  IDL    SECDESC [unique] *securitysecriptor; 4byte-len followed by bytestring
+  IDL } SHARE_INFO_1501;
+*/
+static int
+srvsvc_dissect_SHARE_INFO_1501(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			lsa_dissect_LSA_SECURITY_DESCRIPTOR_data, NDR_POINTER_UNIQUE,
+			"LSA SECURITY DESCRIPTOR data:", -1, 0);
+
+	return offset;
+}
+static int
+srvsvc_dissect_SHARE_INFO_1501_array(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SHARE_INFO_1501);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long EntriesRead;
+ * IDL   [size_is(EntriesRead)] [unique] SHARE_INFO_1501 *shares;
+ * IDL } SHARE_INFO_1501_CONTAINER;
+ */
+static int
+srvsvc_dissect_SHARE_INFO_1501_CONTAINER(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_num_entries, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_SHARE_INFO_1501_array, NDR_POINTER_UNIQUE,
+		"SHARE_INFO_1501 array:", -1, 0);
+
+	return offset;
+}
+
+
+/*
  * IDL typedef [switch_type(long)] union {
  * IDL   [case(0)] [unique] SHARE_INFO_0 *share0;
  * IDL   [case(1)] [unique] SHARE_INFO_1 *share1;
  * IDL   [case(2)] [unique] SHARE_INFO_2 *share2;
+ * IDL   [case(501)] [unique] SHARE_INFO_501 *share501;
  * IDL   [case(502)] [unique] SHARE_INFO_502 *share502;
  * IDL   [case(1004)] [unique] SHARE_INFO_1004 *share1004;
+ * IDL   [case(1005)] [unique] SHARE_INFO_1005 *share1005;
  * IDL   [case(1006)] [unique] SHARE_INFO_1006 *share1006;
+ * IDL   [case(1007)] [unique] SHARE_INFO_1007 *share1007;
+ * IDL   [case(1501)] [unique] SHARE_INFO_1501 *share1501;
  * IDL } SHARE_INFO_UNION;
  */
 static int
@@ -2637,6 +2865,12 @@ srvsvc_dissect_SHARE_INFO_UNION(tvbuff_t *tvb, int offset,
 			NDR_POINTER_UNIQUE, "SHARE_INFO_2:",
 			-1, 0);
 		break;
+	case 501:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SHARE_INFO_501,
+			NDR_POINTER_UNIQUE, "SHARE_INFO_501:",
+			-1, 0);
+		break;
 	case 502:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SHARE_INFO_502,
@@ -2649,10 +2883,28 @@ srvsvc_dissect_SHARE_INFO_UNION(tvbuff_t *tvb, int offset,
 			NDR_POINTER_UNIQUE, "SHARE_INFO_1004:",
 			-1, 0);
 		break;
+	case 1005:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SHARE_INFO_1005,
+			NDR_POINTER_UNIQUE, "SHARE_INFO_1005:",
+			-1, 0);
+		break;
 	case 1006:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SHARE_INFO_1006,
 			NDR_POINTER_UNIQUE, "SHARE_INFO_1006:",
+			-1, 0);
+		break;
+	case 1007:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SHARE_INFO_1007,
+			NDR_POINTER_UNIQUE, "SHARE_INFO_1007:",
+			-1, 0);
+		break;
+	case 1501:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SHARE_INFO_1501,
+			NDR_POINTER_UNIQUE, "SHARE_INFO_1501:",
 			-1, 0);
 		break;
 	}
@@ -2714,9 +2966,13 @@ srvsvc_dissect_netrshareadd_reply(tvbuff_t *tvb, int offset,
  * IDL   [case(0)] [unique] SHARE_INFO_0_CONTAINER *share0;
  * IDL   [case(1)] [unique] SHARE_INFO_1_CONTAINER *share1;
  * IDL   [case(2)] [unique] SHARE_INFO_2_CONTAINER *share2;
+ * IDL   [case(501)] [unique] SHARE_INFO_501_CONTAINER *share501;
  * IDL   [case(502)] [unique] SHARE_INFO_502_CONTAINER *share502;
  * IDL   [case(1004)] [unique] SHARE_INFO_1004_CONTAINER *share1004;
+ * IDL   [case(1005)] [unique] SHARE_INFO_1005_CONTAINER *share1005;
  * IDL   [case(1006)] [unique] SHARE_INFO_1006_CONTAINER *share1006;
+ * IDL   [case(1007)] [unique] SHARE_INFO_1007_CONTAINER *share1007;
+ * IDL   [case(1501)] [unique] SHARE_INFO_1501_CONTAINER *share1501;
  * IDL } SHARE_ENUM_UNION;
  */
 static int
@@ -2749,6 +3005,12 @@ srvsvc_dissect_SHARE_ENUM_UNION(tvbuff_t *tvb, int offset,
 			NDR_POINTER_UNIQUE, "SHARE_INFO_2_CONTAINER:",
 			-1, 0);
 		break;
+	case 501:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SHARE_INFO_501_CONTAINER,
+			NDR_POINTER_UNIQUE, "SHARE_INFO_501_CONTAINER:",
+			-1, 0);
+		break;
 	case 502:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SHARE_INFO_502_CONTAINER,
@@ -2761,10 +3023,28 @@ srvsvc_dissect_SHARE_ENUM_UNION(tvbuff_t *tvb, int offset,
 			NDR_POINTER_UNIQUE, "SHARE_INFO_1004_CONTAINER:",
 			-1, 0);
 		break;
+	case 1005:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SHARE_INFO_1005_CONTAINER,
+			NDR_POINTER_UNIQUE, "SHARE_INFO_1005_CONTAINER:",
+			-1, 0);
+		break;
 	case 1006:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SHARE_INFO_1006_CONTAINER,
 			NDR_POINTER_UNIQUE, "SHARE_INFO_1006_CONTAINER:",
+			-1, 0);
+		break;
+	case 1007:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SHARE_INFO_1007_CONTAINER,
+			NDR_POINTER_UNIQUE, "SHARE_INFO_1007_CONTAINER:",
+			-1, 0);
+		break;
+	case 1501:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SHARE_INFO_1501_CONTAINER,
+			NDR_POINTER_UNIQUE, "SHARE_INFO_1501_CONTAINER:",
 			-1, 0);
 		break;
 	}
@@ -7041,6 +7321,9 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_share_passwd,
 	    { "Share Passwd", "srvsvc.share_passwd", FT_STRING, BASE_NONE,
 	    NULL, 0x0, "Password for this share", HFILL}},
+	  { &hf_srvsvc_share_alternate_name,
+	    { "Alternate Name", "srvsvc.share_alternate_name", FT_STRING, BASE_NONE,
+	    NULL, 0x0, "Alternate name for this share", HFILL}},
 	  { &hf_srvsvc_chrdev_status,
 	    { "Status", "srvsvc.chrdev_status", FT_UINT32, BASE_HEX,
 	    NULL, 0x0, "Char Device Status", HFILL}},
@@ -7123,6 +7406,12 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_perm,
 	    { "Permissions", "srvsvc.perm", FT_UINT32,
 	      BASE_HEX, NULL, 0x0, "Permissions", HFILL}},
+	  { &hf_srvsvc_dfs_root_flags,
+	    { "DFS Root Flags", "srvsvc.dfs_root_flags", FT_UINT32,
+	      BASE_HEX, NULL, 0x0, "DFS Root Flags. Contact ethereal developers if you know what the bits are", HFILL}},
+	  { &hf_srvsvc_policy,
+	    { "Policy", "srvsvc.policy", FT_UINT32,
+	      BASE_HEX, NULL, 0x0, "Policy", HFILL}},
 	  { &hf_srvsvc_file_num_locks,
 	    { "Num Locks", "srvsvc.file_num_locks", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Number of locks for file", HFILL}},
@@ -7444,6 +7733,9 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_path_flags,
 	    { "Flags", "srvsvc.path_flags", FT_UINT32,
 	      BASE_HEX, NULL, 0x0, "Path flags", HFILL}},
+	  { &hf_srvsvc_share_flags,
+	    { "Flags", "srvsvc.share_flags", FT_UINT32,
+	      BASE_HEX, NULL, 0x0, "Share flags", HFILL}},
 	  { &hf_srvsvc_path_type,
 	    { "Type", "srvsvc.path_type", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Path type", HFILL}},
@@ -7546,6 +7838,7 @@ proto_register_dcerpc_srvsvc(void)
                 &ett_dcerpc_srvsvc,
 		&ett_srvsvc_share_info_1,
 		&ett_srvsvc_share_info_2,
+		&ett_srvsvc_share_info_501,
 		&ett_srvsvc_share_info_502
         };
 
