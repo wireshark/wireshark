@@ -54,7 +54,19 @@ int dissect_krb5_cname(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 int dissect_krb5_realm(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 
 #ifdef HAVE_KERBEROS
-guint8 * decrypt_krb5_data(proto_tree *tree, packet_info *pinfo, int usage, int length, const char *cryptotext, int keytype);
-#endif
+#define KRB_MAX_ORIG_LEN	256
+
+#ifdef HAVE_HEIMDAL_KERBEROS
+#include <krb5.h>
+typedef struct _enc_key_t {
+	struct _enc_key_t	*next;
+	krb5_keytab_entry	key;
+	char 			key_origin[KRB_MAX_ORIG_LEN+1];
+} enc_key_t;
+extern enc_key_t *enc_key_list;
+
+#endif /* HAVE_HEIMDAL_KERBEROS */
+
+#endif /* HAVE_KERBEROS */
 
 #endif /* __PACKET_KERBEROS_H */

@@ -329,11 +329,10 @@ static char *keytab_filename = "insert filename here";
 #ifdef HAVE_MIT_KERBEROS
 #include <krb5.h>
 
-#define MAX_ORIG_LEN	256
 typedef struct _enc_key_t {
 	struct _enc_key_t	*next;
 	krb5_keytab_entry	key;
-	char 			key_origin[MAX_ORIG_LEN+1];
+	char 			key_origin[KRB_MAX_ORIG_LEN+1];
 } enc_key_t;
 static enc_key_t *enc_key_list=NULL;
 
@@ -411,7 +410,7 @@ read_keytab_file(char *filename, krb5_context *context)
 }
 
 
-guint8 *
+statis guint8 *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			int usage,
 			int length,
@@ -473,15 +472,7 @@ printf("woohoo decrypted keytype:%d in frame:%d\n", keytype, pinfo->fd->num);
 
 #elif defined(HAVE_HEIMDAL_KERBEROS)
 
-#include <krb5.h>
-
-#define MAX_ORIG_LEN	256
-typedef struct _enc_key_t {
-	struct _enc_key_t	*next;
-	krb5_keytab_entry	key;
-	char 			key_origin[MAX_ORIG_LEN+1];
-} enc_key_t;
-static enc_key_t *enc_key_list=NULL;
+enc_key_t *enc_key_list=NULL;
 
 
 static void
@@ -558,7 +549,7 @@ read_keytab_file(char *filename, krb5_context *context)
 }
 
 
-guint8 *
+static guint8 *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			int usage,
 			int length,
@@ -629,7 +620,6 @@ printf("woohoo decrypted keytype:%d in frame:%d\n", keytype, pinfo->fd->num);
 
 #elif defined (HAVE_LIBNETTLE)
 
-#define MAX_ORIG_LEN	256
 #define SERVICE_KEY_SIZE (DES3_KEY_SIZE + 2)
 #define KEYTYPE_DES3_CBC_MD5 5	/* Currently the only one supported */
 
@@ -638,7 +628,7 @@ typedef struct _service_key_t {
     int     keytype;
     int     length;
     guint8 *contents;
-    char    origin[MAX_ORIG_LEN+1];
+    char    origin[KRB_MAX_ORIG_LEN+1];
 } service_key_t;
 GSList *service_key_list = NULL;
 
@@ -726,7 +716,7 @@ g_warning("added key: %s", sk->origin);
 
 #define CONFOUNDER_PLUS_CHECKSUM 24
 
-guint8 *
+static guint8 *
 decrypt_krb5_data(proto_tree _U_ *tree, packet_info *pinfo,
 			int _U_ usage,
 			int length,
