@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.18 2000/03/14 06:03:24 guy Exp $
+ * $Id: packet-rsvp.c,v 1.19 2000/04/07 19:10:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -554,8 +554,7 @@ static value_string adspec_params[] = {
 
 typedef struct {
     rsvp_object base;
-    guint32 labels[0];
-} label;
+} label;		/* array of 32-bit labels follows */
 
 typedef struct {
     rsvp_object base;
@@ -569,8 +568,7 @@ typedef struct {
     guint8 hold_prio;
     guint8 flags;
     guint8 name_len;
-    guint8 name[0];
-} session_attribute;
+} session_attribute;	/* name follows, as string */
 
 static const value_string proto_vals[] = { {IP_PROTO_ICMP, "ICMP"},
                                            {IP_PROTO_IGMP, "IGMP"},
@@ -1750,7 +1748,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		    proto_tree_add_text(rsvp_object_tree, offset2+3, 1,
 					"Name length: %d", s_attr->name_len);
 		    memset(s_name, 0, 64);
-		    strncpy(s_name, s_attr->name, 60); 
+		    strncpy(s_name, &pd[offset2+4], 60);
 		    if (s_attr->name_len>60) sprintf(&(s_name[60]), "...");
 		    proto_tree_add_text(rsvp_object_tree, offset2+4, s_attr->name_len,
 					"Name: %s", s_name);
