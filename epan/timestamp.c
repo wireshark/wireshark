@@ -1,7 +1,7 @@
 /* timestamp.c
  * Routines for timestamp type setting.
  *
- * $Id: timestamp.c,v 1.1 2004/03/18 21:14:37 obiot Exp $
+ * $Id: timestamp.c,v 1.2 2004/03/20 08:32:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,7 +30,7 @@
 
 /* Init with an invalid value, so that "recent" in gtk/menu.c can detect this
  * and distinguish it from a command line value */
-ts_type timestamp_type = TS_NOT_SET;
+static ts_type timestamp_type = TS_NOT_SET;
 
 ts_type get_timestamp_setting(void)
 {
