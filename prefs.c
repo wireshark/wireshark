@@ -1,12 +1,11 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.51 2001/05/31 08:36:41 guy Exp $
+ * $Id: prefs.c,v 1.52 2001/06/04 08:07:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -612,9 +611,9 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
     prefs.gui_marked_bg.blue  =     0;
 
 /* set the default values for the capture dialog box */
-    prefs.capture_prom_mode   =     0;
-    prefs.capture_real_time   =     0;
-    prefs.capture_auto_scroll =     0;
+    prefs.capture_prom_mode   =  TRUE;
+    prefs.capture_real_time   = FALSE;
+    prefs.capture_auto_scroll = FALSE;
     prefs.name_resolve        = PREFS_RESOLV_ALL;
   }
 
