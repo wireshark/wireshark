@@ -216,10 +216,12 @@ Using Ethereal:
 
    5.44 How can I capture entire frames, including the FCS? 
 
-   5.45 Ethereal hangs after I stop a capture. 
+   5.45 Why does Ethereal hang after I stop a capture? 
 
    5.46 How can I search for, or filter, packets that have a particular
    string anywhere in them? 
+
+   5.47 How do I filter a capture to see traffic for virus XXX? 
 
 General Questions
 
@@ -269,13 +271,14 @@ General Questions
 
    Q 1.5: What protocols are currently supported?
 
-   A: There are currently 530 supported protocols and media, listed
+   A: There are currently 602 supported protocols and media, listed
    below. Descriptions can be found in the ethereal(1) man page.
 
             3GPP2 A11
             802.1q Virtual LAN
             802.1x Authentication
             AAL type 2 signalling protocol - Capability set 1 (Q.2630.1)
+            ACN
             AFS (4.0) Replication Server call declarations
             AIM Administrative
             AIM Advertisements
@@ -283,6 +286,7 @@ General Questions
             AIM Chat Navigation
             AIM Chat Service
             AIM Directory Search
+            AIM E-mail
             AIM Generic Service
             AIM ICQ
             AIM Invitation Service
@@ -292,6 +296,7 @@ General Questions
             AIM Popup
             AIM Privacy Management Service
             AIM Server Side Info
+            AIM Server Side Themes
             AIM Signon
             AIM Statistics
             AIM Translate
@@ -305,6 +310,7 @@ General Questions
             ANSI Mobile Application Part
             AOL Instant Messenger
             ARCNET
+            ASN.1 decoding
             ATM
             ATM AAL1
             ATM AAL3/4
@@ -325,6 +331,7 @@ General Questions
             AppleTalk Transaction Protocol packet
             Appletalk Address Resolution Protocol
             Application Configuration Access Protocol
+            Art-Net
             Async data over ISDN (V.120)
             Authentication Header
             BACnet Virtual Link Control
@@ -365,12 +372,17 @@ General Questions
             Cisco Interior Gateway Routing Protocol
             Cisco NetFlow
             Cisco SLARP
+            Cisco Session Management
             Clearcase NFS
             CoSine IPNOS L2 debug output
+            Common Industrial Protocol
             Common Open Policy Service
             Common Unix Printing System (CUPS) Browsing Protocol
             Compuserve GIF
+            Configuration Test Protocol (loopback)
             Connectionless Lightweight Directory Access Protocol
+            Coseventcomm Dissector Using GIOP API
+            Cosnaming Dissector Using GIOP API
             Cross Point Frame Injector
             Cryptographic Message Syntax
             DCE Distributed Time Service Local Server
@@ -413,26 +425,57 @@ cies
             DCOM Remote Activation
             DEC Spanning Tree Protocol
             DFS Calls
+            DG Gryphon Protocol
             DHCP Failover
             DHCPv6
             DICOM
             DNS Control Program Server
+            DOCSIS 1.1
+            DOCSIS Appendix C TLV's
+            DOCSIS Baseline Privacy Key Management Attributes
+            DOCSIS Baseline Privacy Key Management Request
+            DOCSIS Baseline Privacy Key Management Response
+            DOCSIS Dynamic Service Addition Acknowledge
+            DOCSIS Dynamic Service Addition Request
+            DOCSIS Dynamic Service Addition Response
+            DOCSIS Dynamic Service Change Acknowledgement
+            DOCSIS Dynamic Service Change Request
+            DOCSIS Dynamic Service Change Response
+            DOCSIS Dynamic Service Delete Request
+            DOCSIS Dynamic Service Delete Response
+            DOCSIS Initial Ranging Message
+            DOCSIS Mac Management
+            DOCSIS Range Request Message
+            DOCSIS Ranging Response
+            DOCSIS Registration Acknowledge
+            DOCSIS Registration Requests
+            DOCSIS Registration Responses
+            DOCSIS Upstream Bandwidth Allocation
+            DOCSIS Upstream Channel Change Request
+            DOCSIS Upstream Channel Change Response
+            DOCSIS Upstream Channel Descriptor
+            DOCSIS Upstream Channel Descriptor Type 29
+            DOCSIS Vendor Specific Endodings
             Data
             Data Link SWitching
             Data Stream Interface
             Datagram Delivery Protocol
+            Decompressed SigComp message as raw text
             Diameter Protocol
+            Digital Audio Access Protocol
             Distance Vector Multicast Routing Protocol
             Distcc Distributed Compiler
             Distributed Checksum Clearinghouse Protocol
             Distributed Network Protocol 3.0
             Domain Name Service
             Dynamic DNS Tools Protocol
+            ENTTEC
             Echo
             Encapsulating Security Payload
             Endpoint Name Resolution Protocol
             Enhanced Interior Gateway Routing Protocol
             EtherNet/IP (Industrial Protocol)
+            Etheric
             Ethernet
             Ethernet over IP
             Extensible Authentication Protocol
@@ -468,6 +511,7 @@ cies
             Generic Routing Encapsulation
             Generic Security Service Application Program Interface
             Gnutella Protocol
+            H.248 MEGACO
             H225
             H235-SECURITY-MESSAGES
             H245
@@ -489,6 +533,8 @@ cies
             IPX Message
             IPX Routing Information Protocol
             IPX WAN
+            IRemUnknown IRemUnknown Resolver
+            IRemUnknown2 IRemUnknown2 Resolver
             ISDN
             ISDN Q.921-User Adaptation Layer
             ISDN User Part
@@ -499,10 +545,12 @@ cies
             ISO 8602 CLTP ConnectionLess Transport Protocol
             ISO 8823 OSI Presentation Protocol
             ISO 9542 ESIS Routeing Information Exchange Protocol
+            ISystemActivator ISystemActivator Resolver
             ITU-T E.164 number
             ITU-T Recommendation H.261
             ITU-T Recommendation H.263 RTP Payload header (RFC2190)
             InMon sFlow
+            Information Access Protocol
             Intel ANS probe
             Intelligent Platform Management Interface
             Inter-Access-Point Protocol
@@ -510,6 +558,7 @@ cies
             InterSwitch Message Protocol
             Interbase
             Internet Cache Protocol
+            Internet Communications Engine Protocol
             Internet Content Adaptation Protocol
             Internet Control Message Protocol
             Internet Control Message Protocol v6
@@ -522,12 +571,16 @@ cies
             Internet Relay Chat
             Internet Security Association and Key Management Protocol
             Internetwork Packet eXchange
+            IrCOMM Protocol
+            IrDA Link Access Protocol
+            IrDA Link Management Protocol
             JPEG File Interchange Format
             Jabber XML Messaging
             Java RMI
             Java Serialization
             Kerberos
             Kerberos Administration
+            Kerberos v4
             Kernel Lock Manager
             LWAP Control Message
             LWAPP Encapsulated Packet
@@ -535,6 +588,7 @@ cies
             Label Distribution Protocol
             Laplink
             Layer 2 Tunneling Protocol
+            Light Weight DNS RESolver (BIND9)
             Lightweight Directory Access Protocol
             Line Printer Daemon Protocol
             Line-based text data
@@ -546,10 +600,13 @@ cies
             Linux cooked-mode capture
             Local Management Interface
             LocalTalk Link Access Protocol
+            Log Message
             Logical Link Control GPRS
             Logical-Link Control
             Lucent/Ascend debug output
+            MAC Control
             MDS Header
+            MEGACO
             MIME Multipart Media Encapsulation
             MMS Message Encapsulation
             MS Kpasswd
@@ -560,6 +617,7 @@ cies
             MTP 2 User Adaptation Layer
             MTP 3 User Adaptation Layer
             MTP2 Peer Adaptation Layer
+            Media Gateway Control Protocol
             Media Type
             Media Type: message/http
             Message Transfer Part Level 2
@@ -610,6 +668,7 @@ cies
             NetBIOS Name Service
             NetBIOS Session Service
             NetBIOS over IPX
+            NetScape Certificate Extensions
             NetWare Core Protocol
             NetWare Link Services Protocol
             NetWare Serialization Protocol
@@ -626,6 +685,7 @@ cies
             Null/Loopback
             OSI ISO 8571 FTAM Protocol
             OSI ISO/IEC 10035-1 ACSE Protocol
+            Open Policy Service Interface
             Open Shortest Path First
             OpenBSD Encapsulating device
             OpenBSD Packet Filter log file
@@ -633,6 +693,9 @@ cies
             Optimized Link State Routing Protocol
             PC NFS
             PKCS#1
+            PKINIT
+            PKIX1Explitit
+            PKIX1Implitit
             POSTGRESQL
             PPP Bandwidth Allocation Control Protocol
             PPP Bandwidth Allocation Protocol
@@ -654,9 +717,11 @@ cies
             PPP-over-Ethernet Session
             PPPMux Control Protocol
             Packed Encoding Rules (ASN.1 X.691)
+            Packet Cable Lawful Intercept
             PacketCable
             Point-to-Point Protocol
             Point-to-Point Tunnelling Protocol
+            Port Aggregation Protocol
             Portmap
             Post Office Protocol
             Pragmatic General Multicast
@@ -672,6 +737,7 @@ cies
             Quake Network Protocol
             QuakeWorld Network Protocol
             Qualified Logical Link Control
+            RDM
             RFC 2250 MPEG1
             RFC 2833 RTP Event
             RIPng
@@ -679,6 +745,8 @@ cies
             RS Interface properties
             RSTAT
             RSYNC File Synchroniser
+            RTNET
+            RTcfg
             RX Protocol
             Radio Access Network Application Part
             Radius Protocol
@@ -687,8 +755,10 @@ cies
             Real-Time Publish-Subscribe Wire Protocol
             Real-Time Transport Protocol
             Real-time Transport Control Protocol
+            Redundant Link Management Protocol
             Registry Server Attributes Manipulation Interface
             Registry server administration operations.
+            Reliable UDP
             Remote Management Control Protocol
             Remote Override interface
             Remote Procedure Call
@@ -718,6 +788,7 @@ cies
             SSH Protocol
             Secure Socket Layer
             Sequenced Packet eXchange
+            Serial Infrared
             Service Advertisement Protocol
             Service Location Protocol
             Session Announcement Protocol
@@ -750,22 +821,25 @@ cies
             TACACS
             TACACS+
             TEI Management Procedure, Channel D (LAPD)
-            TEREDO Tunneling IPv6 over UDP through NATs
             TPKT
             Tabular Data Stream
             Tazmen Sniffer Protocol
             Telnet
+            Teredo IPv6 over UDP tunneling
             Time Protocol
             Time Synchronization Protocol
+            Tiny Transport Protocol
             Token-Ring
             Token-Ring Media Access Control
             Transaction Capabilities Application Part
             Transmission Control Protocol
             Transparent Network Substrate Protocol
+            Transport Adapter Layer Interface v1.0, RFC 3094
             Trivial File Transfer Protocol
             UDP Encapsulation of IPsec Packets
             Universal Computer Protocol
             User Datagram Protocol
+            V5.2-User Adaptation Layer
             Virtual Router Redundancy Protocol
             Virtual Trunking Protocol
             WAP Binary XML
@@ -2148,7 +2222,7 @@ Using Ethereal
    thinks there is, will display it as such, and will check whether it's
    the correct CRC-32 value or not.
 
-   Q 5.45: Ethereal hangs after I stop a capture.
+   Q 5.45: Why does Ethereal hang after I stop a capture?
 
    A: The most likely reason for this is that Ethereal is trying to look
    up an IP address in the capture to convert it to a name (so that, for
@@ -2179,18 +2253,24 @@ Using Ethereal
    lookup to take a long time.
 
    If you disable network address-to-name translation - for example, by
-   turning off the "Enable network name resolution" option in the "Name
-   resolution" options in the dialog box you get by selecting
-   "Preferences" from the "Edit" menu - the lookups of the address won't
-   be done, which may speed up the process of reading the capture file
-   after the capture is stopped. You can make that setting the default by
-   using the "Save" button in that dialog box; note that this will save
-   all your current preference settings.
+   turning off the "Enable network name resolution" option in the
+   "Capture Options" dialog box for starting a network capture - the
+   lookups of the address won't be done, which may speed up the process
+   of reading the capture file after the capture is stopped. You can make
+   that setting the default by selecting "Preferences" from the "Edit"
+   menu, turning off the "Enable network name resolution" option in the
+   "Name resolution" options in the preferences disalog box, and using
+   the "Save" button in that dialog box; note that this will save all
+   your current preference settings.
 
    If Ethereal hangs when reading a capture even with network name
    resolution turned off, there might, for example, be a bug in one of
-   Ethereal's dissectors for a protocol causing it to loop infinitely.
-   The bug should be reported to the Ethereal developers' mailing list at
+   Ethereal's dissectors for a protocol causing it to loop infinitely. If
+   you're not running the most recent release of Ethereal, you should
+   first upgrade to that release, as, if there's a bug of that sort, it
+   might've been fixed in a release after the one you're running. If the
+   hang occurs in the most recent release of Ethereal, the bug should be
+   reported to the Ethereal developers' mailing list at
    ethereal-dev@ethereal.com.
 
    On UNIX-flavored OSes, please try to force Ethereal to dump core, by
@@ -2206,17 +2286,21 @@ Using Ethereal
         $
 
    The core dump file may be named "ethereal.core" rather than "core" on
-   some platforms (e.g., BSD systems)
+   some platforms (e.g., BSD systems).
 
    Also, if at all possible, please send a copy of the capture file that
    caused the problem; when capturing packets, Ethereal normally writes
    captured packets to a temporary file, which will probably be in /tmp
-   or /var/tmp on UNIX-flavored OSes and \TEMP on Windows, so the capture
-   file will probably be there. It will have a name beginning with ether,
-   with some mixture of letters and numbers after that. Please don't send
-   a trace file greater than 1 MB when compressed. If the trace file
-   contains sensitive information (e.g., passwords), then please do not
-   send it.
+   or /var/tmp on UNIX-flavored OSes, \TEMP on the main system disk
+   (normally C:) on Windows 9x/Me/NT 4.0, and \Documents and
+   Settings\your login name\Local Settings\Temp on the main system disk
+   on Windows 2000/XP/Server 2003, so the capture file will probably be
+   there. It will have a name beginning with ether, with some mixture of
+   letters and numbers after that. Please don't send a trace file greater
+   than 1 MB when compressed; instead, make it available via FTP or HTTP,
+   or say it's available but leave it up to a developer to ask for it. If
+   the trace file contains sensitive information (e.g., passwords), then
+   please do not send it.
 
    Q 5.46: How can I search for, or filter, packets that have a
    particular string anywhere in them?
@@ -2240,9 +2324,23 @@ Using Ethereal
    string or byte string fields in the packet; the "contains" operator
    can also be used in expressions used to filter the display.
 
+   Q 5.47: How do I filter a capture to see traffic for virus XXX?
+
+   A: For some viruses/worms there might be a capture filter to recognize
+   the virus traffic. Check the CaptureFilters page on the Ethereal Wiki
+   to see if anybody's added such a filter.
+
+   Note that Ethereal was not designed to be an intrusion detection
+   system; you might be able to use it as an IDS, but in most cases
+   software designed to be an IDS, such as Snort or Prelude, will
+   probably work better.
+
+   The Bleeding Edge of Snort has a collection of signatures for Snort to
+   detect various viruses, worms, and the like.
+
    Please send support questions about Ethereal to the
    ethereal-users[AT]ethereal.com mailing list.
    For corrections/additions/suggestions for this web page (and not
    Ethereal support questions), please send email to
    ethereal-web[AT]ethereal.com .
-   Last modified: Sat, September 25 2004.
+   Last modified: Thu, November 18 2004.
