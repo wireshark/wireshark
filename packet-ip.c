@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.111 2000/12/13 02:43:32 guy Exp $
+ * $Id: packet-ip.c,v 1.112 2000/12/13 16:38:20 ashokn Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -283,6 +283,7 @@ typedef struct _e_ip
 #define IPOLEN_RR_MIN   3
 #define IPOLEN_SID      4
 #define IPOLEN_SSRR_MIN 3
+#define IPOLEN_RA       4
 
 #define IPSEC_UNCLASSIFIED	0x0000
 #define	IPSEC_CONFIDENTIAL	0xF135
@@ -515,6 +516,20 @@ dissect_ipopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
   }
 }
 
+static void
+dissect_ipopt_ra(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+		guint optlen, frame_data *fd, proto_tree *opt_tree)
+{
+  /* Router-Alert, as defined by RFC2113 */
+  int opt = tvb_get_ntohs(tvb, offset + 2);
+  static const value_string ra_opts[] = { 
+	{0, "Every router examines packet"} };
+  
+  proto_tree_add_text(opt_tree, tvb, offset,      optlen,
+    "%s: %s", optp->name, val_to_str(opt, ra_opts, "Unknown (%d)"));
+  return;
+}
+
 static const ip_tcp_opt ipopts[] = {
   {
     IPOPT_END,
@@ -579,7 +594,15 @@ static const ip_tcp_opt ipopts[] = {
     VARIABLE_LENGTH,
     IPOLEN_TIMESTAMP_MIN,
     dissect_ipopt_timestamp
-  }
+  },
+  {
+    IPOPT_RA,
+    "Router Alert",
+    NULL,
+    FIXED_LENGTH,
+    IPOLEN_RA,
+    dissect_ipopt_ra
+  },
 };
 
 #define N_IP_OPTS	(sizeof ipopts / sizeof ipopts[0])
