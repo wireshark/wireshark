@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.58 2003/01/10 04:38:43 guy Exp $
+ * $Id: packet-atm.c,v 1.59 2003/01/10 09:46:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -925,12 +925,9 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /*
    * This is reassembled traffic, so the cell headers are missing;
-   * show the VPI and VCI from the pseudo-header.
+   * show the traffic type for AAL5 traffic, and the VPI and VCI,
+   * from the pseudo-header.
    */
-  proto_tree_add_uint(atm_tree, hf_atm_vpi, tvb, 0, 0,
-    		pinfo->pseudo_header->atm.vpi);
-  proto_tree_add_uint(atm_tree, hf_atm_vci, tvb, 0, 0,
-		pinfo->pseudo_header->atm.vci);
   if (pinfo->pseudo_header->atm.aal == AAL_5) {
     proto_tree_add_text(atm_tree, tvb, 0, 0, "Traffic type: %s",
 		val_to_str(pinfo->pseudo_header->atm.type, aal5_hltype_vals,
@@ -956,6 +953,10 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       break;
     }
   }
+  proto_tree_add_uint(atm_tree, hf_atm_vpi, tvb, 0, 0,
+    		pinfo->pseudo_header->atm.vpi);
+  proto_tree_add_uint(atm_tree, hf_atm_vci, tvb, 0, 0,
+		pinfo->pseudo_header->atm.vci);
 
   next_tvb = tvb;
   if (truncated) {
@@ -1061,6 +1062,13 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         call_dissector(data_handle, next_tvb, pinfo, tree);
         break;
       }
+    }
+    break;
+
+  default:
+    if (tree) {
+      /* Dump it as raw data. */
+      call_dissector(data_handle, next_tvb, pinfo, tree);
     }
     break;
   }
