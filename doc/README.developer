@@ -1764,7 +1764,19 @@ to generate a COL_INFO line for a frame.
 
 It will look up the value 'val' in the 'value_string' table pointed to
 by 'vs', and return either the corresponding string, or NULL if the
-value could not be found in the table.
+value could not be found in the table.  Note that, unless 'val' is
+guaranteed to be a value in the 'value_string' table ("guaranteed" as in
+"the code has already checked that it's one of those values" or "the
+table handles all possible values of the size of 'val'", not "the
+protocol spec says it has to be" - protocol specs do not prevent invalid
+packets from being put onto a network or into a purported packet capture
+file), you must check whether 'match_strval()' returns NULL, and arrange
+that its return value not be dereferenced if it's NULL.  In particular,
+don't use it in a call to generate a COL_INFO line for a frame such as
+
+	col_add_fstr(COL_INFO, ", %s", match_strval(val, table));
+
+unless is it certain that 'val' is in 'table'.
 
 'val_to_str()' can be used to generate a string for values not found in
 the table:
