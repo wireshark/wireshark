@@ -79,6 +79,7 @@ OBJECTS = \
 	capture-util.obj \
 	color-util.obj \
 	find-util.obj \
+	font-util.obj \
 	packet-win-util.obj \
 	prefs-dlg.obj \
 	toolbar-util.obj \

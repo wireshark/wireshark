@@ -495,9 +495,9 @@
         <toolbarbutton command="main-toolbar.goto-first" />
         <toolbarbutton command="main-toolbar.goto-last" />
         <toolbarseparator />
-        <toolbarbutton command="main-toolbar.zoom-in" />
-        <toolbarbutton command="main-toolbar.zoom-out" />
-        <toolbarbutton command="main-toolbar.zoom-norm" />
+        <toolbarbutton command="main-toolbar.zoomin" />
+        <toolbarbutton command="main-toolbar.zoomout" />
+        <toolbarbutton command="main-toolbar.normalsz" />
         <toolbarseparator />
         <toolbarbutton command="main-toolbar.cap-filt" />
         <toolbarbutton command="main-toolbar.disp-filt" />

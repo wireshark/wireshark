@@ -946,9 +946,6 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
 #ifdef WIN32
     prefs.gui_font_name1 = g_strdup("-*-lucida console-medium-r-*-*-*-100-*-*-*-*-*-*");
     prefs.gui_font_name2 = g_strdup("Lucida Console 10");
-    prefs.gui_win32_font_name = g_strdup("");
-    prefs.gui_win32_font_style = g_strdup("");
-    prefs.gui_win32_font_size = 12;
 #else
     /*
      * XXX - for now, we make the initial font name a pattern that matches
@@ -1107,7 +1104,7 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
   return &prefs;
 }
 
-/* read the preferences file (or similiar) and call the callback
+/* read the preferences file (or similiar) and call the callback 
  * function to set each key/value pair found */
 int
 read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fct)
@@ -1311,9 +1308,6 @@ prefs_set_pref(char *prefarg)
 #define PRS_GUI_HEX_DUMP_HIGHLIGHT_STYLE "gui.hex_dump_highlight_style"
 #define PRS_GUI_FONT_NAME_1              "gui.font_name"
 #define PRS_GUI_FONT_NAME_2              "gui.gtk2.font_name"
-#define PRS_GUI_WIN32_FONT_NAME          "gui.win32.font_name"
-#define PRS_GUI_WIN32_FONT_STYLE         "gui.win32.font_style"
-#define PRS_GUI_WIN32_FONT_SIZE          "gui.win32.font_size"
 #define PRS_GUI_MARKED_FG                "gui.marked_frame.fg"
 #define PRS_GUI_MARKED_BG                "gui.marked_frame.bg"
 #define PRS_GUI_CONSOLE_OPEN             "gui.console_open"
@@ -1593,19 +1587,6 @@ set_pref(gchar *pref_name, gchar *value)
     if (prefs.gui_font_name2 != NULL)
       g_free(prefs.gui_font_name2);
     prefs.gui_font_name2 = g_strdup(value);
-  } else if (strcmp(pref_name, PRS_GUI_WIN32_FONT_NAME) == 0) {
-    if (prefs.gui_win32_font_name != NULL)
-      g_free(prefs.gui_win32_font_name);
-    prefs.gui_win32_font_name = g_strdup(value);
-  } else if (strcmp(pref_name, PRS_GUI_WIN32_FONT_STYLE) == 0) {
-    if (prefs.gui_win32_font_style != NULL)
-      g_free(prefs.gui_win32_font_style);
-    prefs.gui_win32_font_style = g_strdup(value);
-  } else if (strcmp(pref_name, PRS_GUI_WIN32_FONT_SIZE) == 0) {
-    prefs.gui_win32_font_size = strtoul(value, NULL, 10);
-    if (prefs.gui_win32_font_size == 0) {
-      prefs.gui_win32_font_size = 12;
-    }
   } else if (strcmp(pref_name, PRS_GUI_MARKED_FG) == 0) {
     cval = strtoul(value, NULL, 16);
     prefs.gui_marked_fg.pixel = 0;
@@ -2159,7 +2140,7 @@ write_prefs(char **pf_path_return)
     "# Ethereal.  Making manual changes should be safe, however.\n", pf);
 
   fprintf (pf, "\n######## User Interface ########\n");
-
+  
   fprintf(pf, "\n# Vertical scrollbars should be on right side?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_SCROLLBAR_ON_RIGHT ": %s\n",
@@ -2214,12 +2195,12 @@ write_prefs(char **pf_path_return)
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_GEOMETRY_SAVE_SIZE ": %s\n",
 		  prefs.gui_geometry_save_size == TRUE ? "TRUE" : "FALSE");
-
+                  
   fprintf(pf, "\n# Save window maximized state at exit (GTK2 only)?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_GEOMETRY_SAVE_MAXIMIZED ": %s\n",
 		  prefs.gui_geometry_save_maximized == TRUE ? "TRUE" : "FALSE");
-
+                  
   fprintf(pf, "\n# Open a console window (WIN32 only)?\n");
   fprintf(pf, "# One of: NEVER, AUTOMATIC, ALWAYS\n");
   fprintf(pf, PRS_GUI_CONSOLE_OPEN ": %s\n",
@@ -2269,7 +2250,7 @@ write_prefs(char **pf_path_return)
 	          gui_layout_content_text[prefs.gui_layout_content_3]);
 
   fprintf (pf, "\n######## User Interface: Columns ########\n");
-
+  
   clp = prefs.col_list;
   col_l = NULL;
   while (clp) {
@@ -2293,15 +2274,6 @@ write_prefs(char **pf_path_return)
 
   fprintf(pf, "\n# Font name for packet list, protocol tree, and hex dump panes (GTK version 2).\n");
   fprintf(pf, PRS_GUI_FONT_NAME_2 ": %s\n", prefs.gui_font_name2);
-
-  fprintf(pf, "\n# Font name for protocol tree and hex dump panes (Windows native).\n");
-  fprintf(pf, PRS_GUI_WIN32_FONT_NAME ": %s\n", prefs.gui_win32_font_name);
-
-  fprintf(pf, "\n# Font style for protocol tree and hex dump panes (Windows native).\n");
-  fprintf(pf, PRS_GUI_WIN32_FONT_STYLE ": %s\n", prefs.gui_win32_font_style);
-
-  fprintf(pf, "\n# Font size for protocol tree and hex dump panes (Windows native).\n");
-  fprintf(pf, PRS_GUI_WIN32_FONT_SIZE ": %d\n", prefs.gui_win32_font_size);
 
   fprintf (pf, "\n######## User Interface: Colors ########\n");
 
@@ -2336,7 +2308,7 @@ write_prefs(char **pf_path_return)
     (prefs.st_server_bg.blue * 255 / 65535));
 
   fprintf(pf, "\n####### Capture ########\n");
-
+  
   if (prefs.capture_device != NULL) {
     fprintf(pf, "\n# Default capture device\n");
     fprintf(pf, PRS_CAP_DEVICE ": %s\n", prefs.capture_device);
@@ -2391,7 +2363,7 @@ write_prefs(char **pf_path_return)
     "%s: %s\n", PRS_PRINT_CMD, prefs.pr_cmd);
 
   fprintf(pf, "\n####### Name Resolution ########\n");
-
+  
   fprintf(pf, "\n# Resolve addresses to names?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive), or a list of address types to resolve.\n");
   fprintf(pf, PRS_NAME_RESOLVE ": %s\n",
@@ -2416,6 +2388,7 @@ write_prefs(char **pf_path_return)
 }
 
 /* Copy a set of preferences. */
+/* XXX - Shouldn't we free any strings that we g_strdup()? */
 void
 copy_prefs(e_prefs *dest, e_prefs *src)
 {

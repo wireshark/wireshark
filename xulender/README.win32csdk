@@ -34,6 +34,10 @@ Bugs/Caveats/To-dos
 
 - After hiding an element, the window doesn't adjust itself correctly.
 
+- Font handling attempts to duplicate some of the functionality of Pango.
+  It may not be robust enough in its current state, and we may want to
+  use Pango instead.
+
 
 Window Creation Example
 

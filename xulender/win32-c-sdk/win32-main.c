@@ -87,6 +87,7 @@
 #include "capture-util.h"
 #include "color-util.h"
 #include "find-util.h"
+#include "font-util.h"
 #include "packet-win-util.h"
 
 #include "ethereal-main.h"
@@ -149,7 +150,7 @@ static gboolean list_link_layer_types;
  * of g_hw_mainwin */
 HWND g_hw_mainwin, g_hw_capture_dlg = NULL;
 HWND g_hw_capture_info_dlg = NULL;
-HFONT g_fixed_font = NULL;
+HFONT m_r_font = NULL, m_b_font;
 
 /* XXX - Copied from gtk/main.c.  We need to consolidate this. */
 static void
@@ -457,9 +458,6 @@ WinMain( HINSTANCE h_instance, HINSTANCE h_prev_instance, LPSTR lpsz_cmd_line, i
     gboolean               rfilter_parse_failed = FALSE;
     char                   badopt;
 //    ethereal_tap_list     *tli = NULL;
-    LOGFONT                lfinfo;
-    gchar                 *font_style;
-    HDC                    hdc;
 
 #define OPTSTRING_INIT "a:b:B:c:f:Hhi:klLm:nN:o:pP:Qr:R:Ss:t:T:w:vy:z:"
 
@@ -1093,51 +1091,6 @@ WinMain( HINSTANCE h_instance, HINSTANCE h_prev_instance, LPSTR lpsz_cmd_line, i
     }
 #endif /* HAVE_LIBPCAP */
 
-    /* XXX - Is there a better way to map a name, e.g. "courier bold 12"
-       to a font and back in Windows? */
-    /* Set our fonts according to prefs */
-    ZeroMemory(&lfinfo, sizeof(lfinfo));
-    if (prefs->gui_win32_font_name == NULL || strlen(prefs->gui_win32_font_name) == 0) {
-	g_fixed_font = (HFONT) GetStockObject(ANSI_FIXED_FONT);
-	GetObject(g_fixed_font, sizeof(lfinfo), &lfinfo);
-	prefs->gui_win32_font_name = g_strdup(lfinfo.lfFaceName);
-	if (lfinfo.lfWeight == 700) {
-	    if (lfinfo.lfItalic) {
-		prefs->gui_win32_font_style = g_strdup("Bold Italic");
-	    } else {
-		prefs->gui_win32_font_style = g_strdup("Bold");
-	    }
-	} else if (lfinfo.lfItalic) {
-	    prefs->gui_win32_font_style = g_strdup("Italic");
-	} else {
-	    prefs->gui_win32_font_style = g_strdup("Regular");
-	}
-	hdc = GetDC(NULL);
-	prefs->gui_win32_font_size = MulDiv(lfinfo.lfHeight, 72, GetDeviceCaps(hdc, LOGPIXELSY));
-	ReleaseDC(NULL, hdc);
-    } else {
-	g_strlcpy(lfinfo.lfFaceName, prefs->gui_win32_font_name, LF_FACESIZE);
-	lfinfo.lfWeight = 400;
-	lfinfo.lfItalic = FALSE;
-	hdc = GetDC(NULL);
-	lfinfo.lfHeight = - MulDiv(prefs->gui_win32_font_size, GetDeviceCaps(hdc, LOGPIXELSY), 72);
-	ReleaseDC(NULL, hdc);
-	font_style = g_ascii_strdown(prefs->gui_win32_font_style, strlen(prefs->gui_win32_font_style));
-	if (strstr(font_style, "bold")) {
-	    lfinfo.lfWeight = 700;
-	}
-	if (strstr(font_style, "italic")) {
-	    lfinfo.lfItalic = TRUE;
-	}
-	g_free(font_style);
-	g_fixed_font = CreateFontIndirect(&lfinfo);
-	if (g_fixed_font == NULL) {
-	    g_warning("Failed to find font: %s %s %d", prefs->gui_win32_font_name,
-		    prefs->gui_win32_font_style, prefs->gui_win32_font_size);
-	    g_fixed_font = (HFONT) GetStockObject(ANSI_FIXED_FONT);
-	}
-    }
-
     prefs_apply_all();
 
     /* disabled protocols as per configuration file */
@@ -1161,6 +1114,9 @@ WinMain( HINSTANCE h_instance, HINSTANCE h_prev_instance, LPSTR lpsz_cmd_line, i
 	capture_opts.ring_num_files = RINGBUFFER_MIN_NUM_FILES;
 #endif
 #endif
+
+    if (!capture_child)
+	font_init();
 
     colfilter_init();
 
@@ -1578,9 +1534,17 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 		    case IDM_ETHEREAL_MAIN_VIEW_AUTOSCROLL:
 			menu_toggle_auto_scroll();
 			break;
-		    case IDM_ETHEREAL_MAIN_VIEW_RELOAD:
-		    case IDB_MAIN_TOOLBAR_RELOAD:
-			cf_reload();
+		    case IDM_ETHEREAL_MAIN_VIEW_ZOOMIN:
+		    case IDB_MAIN_TOOLBAR_ZOOMIN:
+			view_zoom_in();
+			break;
+		    case IDM_ETHEREAL_MAIN_VIEW_ZOOMOUT:
+		    case IDB_MAIN_TOOLBAR_ZOOMOUT:
+			view_zoom_out();
+			break;
+		    case IDM_ETHEREAL_MAIN_VIEW_NORMALSZ:
+		    case IDB_MAIN_TOOLBAR_NORMALSZ:
+			view_zoom_100();
 			break;
 
 		    case IDM_ETHEREAL_MAIN_VIEW_COLORING:
@@ -1589,6 +1553,10 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 			break;
 		    case IDM_ETHEREAL_MAIN_VIEW_NEWWINDOW:
 			packet_window_init(hw_mainwin);
+			break;
+		    case IDM_ETHEREAL_MAIN_VIEW_RELOAD:
+		    case IDB_MAIN_TOOLBAR_RELOAD:
+			cf_reload();
 			break;
 
 		    case IDM_ETHEREAL_MAIN_CAPTURE_START:
@@ -1943,13 +1911,6 @@ file. */
 void tap_dfilter_dlg_update (void) {
 }
 
-void
-font_apply() {
-    win32_element_t *byteview;
-    byteview = win32_identifier_get_str("main-byteview");
-    win32_element_assert(byteview);
-    SendMessage(byteview->h_wnd, WM_SETFONT, (WPARAM) g_fixed_font, TRUE);
-}
 
 static void
 main_save_window_geometry(HWND hwnd)

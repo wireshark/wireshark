@@ -309,7 +309,7 @@ win32_listbox_get_text(win32_element_t *listbox, gint row, gint column) {
     if (text[0] == '\0') {
 	return NULL;
     }
-    return text;
+    return g_strdup(text);
 }
 
 /*

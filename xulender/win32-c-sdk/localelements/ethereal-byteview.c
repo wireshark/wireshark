@@ -122,7 +122,7 @@ ethereal_byteview_new(HWND hw_parent) {
 
     /* Attach the byteview address to our HWND. */
     SetWindowLong(byteview->h_wnd, GWL_USERDATA, (LONG) byteview);
-    SendMessage(byteview->h_wnd, WM_SETFONT, (WPARAM) g_fixed_font, FALSE);
+    SendMessage(byteview->h_wnd, WM_SETFONT, (WPARAM) m_r_font, FALSE);
 
     bd = g_malloc(sizeof(byteview_data_t));
     win32_element_set_data(byteview, ETHEREAL_BYTEVIEW_DATA, bd);
@@ -501,7 +501,7 @@ add_byte_tab(HWND tab, const char *name, tvbuff_t *tvb,
 	NULL,
 	(HINSTANCE) GetWindowLong(hw_parent, GWL_HINSTANCE),
 	NULL);
-    SendMessage(edit, WM_SETFONT, (WPARAM) g_fixed_font, FALSE);
+    SendMessage(edit, WM_SETFONT, (WPARAM) m_r_font, FALSE);
     SetWindowLong(edit, GWL_USERDATA, (LONG) btd);
 
     ZeroMemory(&tci, sizeof(tci));

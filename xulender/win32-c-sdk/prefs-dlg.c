@@ -31,6 +31,7 @@
 #include "color.h"
 #include "color_filters.h"
 #include "capture_combo_utils.h"
+#include "font-util.h"
 
 #include "preferences-dialog.h"
 
@@ -102,7 +103,7 @@ typedef struct _spinner_val_map {
 #define NAMRES_MAX_CONCURRENCY 100000
 
 static color_t  tcolors[MAX_IDX];
-static HFONT    old_fixed_font = NULL;
+static HFONT    old_r_font = NULL;
 static gboolean font_changed;
 static e_prefs  saved_prefs, tmp_prefs;
 
@@ -358,7 +359,7 @@ prefs_col_list_select(win32_element_t *listbox, LPNMLISTVIEW nmlv) {
 void
 prefs_font_name_list_select(win32_element_t *listbox, LPNMLISTVIEW nmlv) {
     win32_element_t *name_tb, *style_lb, *size_lb;
-    int              sel_name, sel_style, sel_size, row = 0;
+    int              sel_name, row = 0;
     LVITEM           item;
     gchar            font_name[LF_FULLFACESIZE];
     LOGFONT          lfinfo;
@@ -375,8 +376,6 @@ prefs_font_name_list_select(win32_element_t *listbox, LPNMLISTVIEW nmlv) {
     win32_element_assert(size_lb);
 
     sel_name = ListView_GetNextItem(nmlv->hdr.hwndFrom, -1, LVNI_SELECTED);
-    sel_style = win32_listbox_get_selected(style_lb);
-    sel_size = win32_listbox_get_selected(size_lb);
     if (sel_name >= 0 && nmlv->uNewState & LVIS_SELECTED) {
 	ZeroMemory(&item, sizeof(item));
 	item.mask = LVIF_TEXT;
@@ -413,11 +412,12 @@ prefs_font_name_list_select(win32_element_t *listbox, LPNMLISTVIEW nmlv) {
     } else {
 	win32_textbox_set_text(name_tb, "");
     }
-    win32_listbox_set_selected(style_lb, sel_style);
-    win32_listbox_set_selected(size_lb, sel_size);
+    if (win32_listbox_get_selected(style_lb) < 0)
+	win32_listbox_set_selected(style_lb, 0);
+    if (win32_listbox_get_selected(size_lb) < 0)
+	win32_listbox_set_selected(size_lb, 0);
 
     show_font_selection();
-    font_changed = TRUE;
 }
 
 void
@@ -444,7 +444,6 @@ prefs_font_style_list_select(win32_element_t *listbox, LPNMLISTVIEW nmlv) {
     }
 
     show_font_selection();
-    font_changed = TRUE;
 }
 
 void
@@ -471,7 +470,6 @@ prefs_font_size_list_select(win32_element_t *listbox, LPNMLISTVIEW nmlv) {
     }
 
     show_font_selection();
-    font_changed = TRUE;
 }
 
 /* Command sent by element type <button>, id "prefs-dialog.color.set" */
@@ -759,9 +757,8 @@ static void
 font_prefs_fetch() {
     win32_element_t *style_lb, *size_lb;
     LOGFONT         *lfinfo;
-    int              row, pointsz;
-    HDC              hdc;
-    gchar           *font_style;
+    int              row;
+    gchar           *font_style, *font_size;
 
     style_lb = win32_identifier_get_str("prefs-dialog.font.lb.style");
     win32_element_assert(style_lb);
@@ -778,24 +775,40 @@ font_prefs_fetch() {
     if (font_style == NULL) {
 	return;
     }
+    if (g_ascii_strcasecmp(font_style, "Regular") == 0 || g_ascii_strcasecmp(font_style, "Normal") == 0) {
+	g_free(font_style);
+	font_style = NULL;
+    }
 
     row = win32_listbox_get_selected(size_lb);
     if (row < 0 || row >= win32_listbox_get_row_count(size_lb)) {
 	return;
     }
-    pointsz = (int) win32_listbox_get_row_data(size_lb, row);
+    lfinfo->lfHeight = (int) win32_listbox_get_row_data(size_lb, row);
+    font_size = win32_listbox_get_text(size_lb, row, 0);
+    if (font_size == NULL) {
+	g_free(font_style);
+	return;
+    }
 
-    hdc = GetDC(size_lb->h_wnd);
-    lfinfo->lfHeight = - MulDiv(pointsz, GetDeviceCaps(hdc, LOGPIXELSY), 72);
-    ReleaseDC(size_lb->h_wnd, hdc);
-    old_fixed_font = g_fixed_font;
-    g_fixed_font = CreateFontIndirect(lfinfo);
+    old_r_font = m_r_font;
+    m_r_font = CreateFontIndirect(lfinfo);
+    DeleteObject(old_r_font);
 
-    g_free(prefs.gui_win32_font_name);
-    g_free(prefs.gui_win32_font_style);
-    prefs.gui_win32_font_name = g_strdup(lfinfo->lfFaceName);
-    prefs.gui_win32_font_style = g_strdup(font_style);
-    prefs.gui_win32_font_size = pointsz;
+    if (tmp_prefs.gui_font_name2)
+	g_free(tmp_prefs.gui_font_name2);
+    if (font_style) {
+	tmp_prefs.gui_font_name2 = g_strdup_printf("%s %s %s", lfinfo->lfFaceName,
+		font_style, font_size);
+    } else {
+	tmp_prefs.gui_font_name2 = g_strdup_printf("%s %s", lfinfo->lfFaceName,
+		font_size);
+    }
+
+    if (g_ascii_strcasecmp(prefs.gui_font_name2, tmp_prefs.gui_font_name2))
+	font_changed = TRUE;
+    g_free(font_style);
+    g_free(font_size);
 }
 
 static void
@@ -1056,6 +1069,7 @@ prefs_main_fetch_all(gboolean *must_redissect)
 
     prefs_modules_foreach(module_prefs_fetch, must_redissect);
 
+    free_prefs(&prefs);
     copy_prefs(&prefs, &tmp_prefs);
 }
 
@@ -1068,7 +1082,7 @@ gui_prefs_apply() {
     }
 
     if (font_changed) {
-	font_apply();
+	user_font_apply();
     }
 
 //    redraw_hex_dump_all();
@@ -1239,11 +1253,14 @@ font_name_enum_proc(ENUMLOGFONTEX *lpelfe, NEWTEXTMETRICEX *lpntme,
 	return 1;
     }
     /*
-     * Under Windows XP (and possibly other versions of Windows), Unicode
-     * fonts appear twice -- once with '@' at the beginning of lfFaceName
-     * and once with the bare name.
+     * A Bugzilla response from Tor Lillqvist about an unrelated issue included
+     * a reference to
+     *     http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&c2coff=1&th=bb8eaff9d1d51576&rnum=1
+     * which indicates that any text face name that begins with an '@' is a simulated,
+     * rotated font generated by Windows, and can be ignored in our case.  I can't find
+     * any reference on MSDN that confirms this.
      */
-    if (!isalnum(lpelfe->elfLogFont.lfFaceName[0])) {
+    if (lpelfe->elfLogFont.lfFaceName[0] == '@') {
 	return 1;
     }
 
@@ -1254,8 +1271,9 @@ font_name_enum_proc(ENUMLOGFONTEX *lpelfe, NEWTEXTMETRICEX *lpntme,
 
     /* Fixed pitched only.  XXX - Is this too restrictive? */
     if (lpelfe->elfLogFont.lfPitchAndFamily & FIXED_PITCH) {
-	win32_listbox_add_item(name_lb, -1, NULL, lpelfe->elfFullName);
+	win32_listbox_add_item(name_lb, -1, NULL, lpelfe->elfLogFont.lfFaceName);
     }
+
 
     return 1;
 }
@@ -1264,13 +1282,21 @@ static int CALLBACK
 font_style_enum_proc(ENUMLOGFONTEX *lpelfe, NEWTEXTMETRICEX *lpntme,
 	int font_type, LPARAM l_param) {
     win32_element_t *style_lb = (win32_element_t *) l_param;
-    LOGFONT         *lfdata;
-    int              row;
+    LOGFONT         *lfdata, cur_lf;
+    int              row, objsz;
+
+    ZeroMemory(&cur_lf, sizeof(cur_lf));
+    objsz = GetObject(user_font_get_regular(), sizeof(cur_lf), &cur_lf);
 
     if (font_type & TRUETYPE_FONTTYPE) {
 	row = win32_listbox_add_item(style_lb, -1, NULL, lpelfe->elfStyle);
 	lfdata = g_memdup(&(lpelfe->elfLogFont), sizeof(LOGFONT));
 	win32_listbox_set_row_data(style_lb, row, lfdata);
+
+	if (objsz && lpelfe->elfLogFont.lfWeight == cur_lf.lfWeight &&
+		lpelfe->elfLogFont.lfItalic == cur_lf.lfItalic) {
+	    win32_listbox_set_selected(style_lb, row);
+	}
     } else if (win32_listbox_get_row_count(style_lb) == 0) {
 	row = win32_listbox_add_item(style_lb, -1, NULL, "Regular");
 	lfdata = g_memdup(&(lpelfe->elfLogFont), sizeof(LOGFONT));
@@ -1278,11 +1304,19 @@ font_style_enum_proc(ENUMLOGFONTEX *lpelfe, NEWTEXTMETRICEX *lpntme,
 	lfdata->lfItalic = FALSE;
 	win32_listbox_set_row_data(style_lb, row, lfdata);
 
+	if (objsz && cur_lf.lfWeight == FW_NORMAL && ! cur_lf.lfItalic) {
+	    win32_listbox_set_selected(style_lb, row);
+	}
+
 	row = win32_listbox_add_item(style_lb, -1, NULL, "Bold");
 	lfdata = g_memdup(&(lpelfe->elfLogFont), sizeof(LOGFONT));
 	lfdata->lfWeight = FW_BOLD;
 	lfdata->lfItalic = FALSE;
 	win32_listbox_set_row_data(style_lb, row, lfdata);
+
+	if (objsz && cur_lf.lfWeight == FW_BOLD && ! cur_lf.lfItalic) {
+	    win32_listbox_set_selected(style_lb, row);
+	}
 
 	row = win32_listbox_add_item(style_lb, -1, NULL, "Bold Italic");
 	lfdata = g_memdup(&(lpelfe->elfLogFont), sizeof(LOGFONT));
@@ -1290,11 +1324,19 @@ font_style_enum_proc(ENUMLOGFONTEX *lpelfe, NEWTEXTMETRICEX *lpntme,
 	lfdata->lfItalic = TRUE;
 	win32_listbox_set_row_data(style_lb, row, lfdata);
 
+	if (objsz && cur_lf.lfWeight == FW_BOLD && cur_lf.lfItalic) {
+	    win32_listbox_set_selected(style_lb, row);
+	}
+
 	row = win32_listbox_add_item(style_lb, -1, NULL, "Italic");
 	lfdata = g_memdup(&(lpelfe->elfLogFont), sizeof(LOGFONT));
 	lfdata->lfWeight = FW_REGULAR;
 	lfdata->lfItalic = TRUE;
 	win32_listbox_set_row_data(style_lb, row, lfdata);
+
+	if (objsz && cur_lf.lfWeight == FW_NORMAL && cur_lf.lfItalic) {
+	    win32_listbox_set_selected(style_lb, row);
+	}
     }
 
     return 1;
@@ -1305,19 +1347,32 @@ font_size_enum_proc(ENUMLOGFONTEX *lpelfe, NEWTEXTMETRICEX *lpntme,
 	int font_type, LPARAM l_param) {
     win32_element_t *size_lb = (win32_element_t *) l_param;
     TEXTMETRIC      *lptm = (TEXTMETRIC *) lpntme;
-    int              i, row, rawsz, pointsz;
+    int              i, row, rawsz, pointsz, objsz;
     HDC              hdc;
+    LOGFONT          cur_lf;
 
     static int       tt_size[] = { 8, 9, 10, 11, 12, 14, 16, 18, 20,
 	22, 24, 26, 28, 36 };
     gchar size_str[LF_FACESIZE];
+
+    ZeroMemory(&cur_lf, sizeof(cur_lf));
+    objsz = GetObject(user_font_get_regular(), sizeof(cur_lf), &cur_lf);
 
     if (font_type & TRUETYPE_FONTTYPE) {
 	if (win32_listbox_get_row_count(size_lb) == 0) {
 	    for (i = 0; i < sizeof(tt_size) / sizeof(int); i++) {
 		g_snprintf(size_str, LF_FACESIZE, "%d", tt_size[i]);
 		row = win32_listbox_add_item(size_lb, -1, NULL, size_str);
-		win32_listbox_set_row_data(size_lb, row, (gpointer) tt_size[i]);
+
+		hdc = GetDC(size_lb->h_wnd);
+		rawsz = - MulDiv(tt_size[i], GetDeviceCaps(hdc, LOGPIXELSY), 72);
+		ReleaseDC(size_lb->h_wnd, hdc);
+
+		win32_listbox_set_row_data(size_lb, row, (gpointer) rawsz);
+
+		if (objsz && cur_lf.lfHeight == rawsz) {
+		    win32_listbox_set_selected(size_lb, row);
+		}
 	    }
 	}
     } else {
@@ -1327,7 +1382,11 @@ font_size_enum_proc(ENUMLOGFONTEX *lpelfe, NEWTEXTMETRICEX *lpntme,
 	ReleaseDC(size_lb->h_wnd, hdc);
 	g_snprintf(size_str, LF_FACESIZE, "%d", pointsz);
 	row = win32_listbox_add_item(size_lb, -1, NULL, size_str);
-	win32_listbox_set_row_data(size_lb, row, (gpointer) pointsz);
+	win32_listbox_set_row_data(size_lb, row, (gpointer) rawsz);
+
+	if (objsz && cur_lf.lfHeight == rawsz) {
+	    win32_listbox_set_selected(size_lb, row);
+	}
     }
 
     return 1;
@@ -1335,19 +1394,25 @@ font_size_enum_proc(ENUMLOGFONTEX *lpelfe, NEWTEXTMETRICEX *lpntme,
 
 static void
 font_prefs_init(win32_element_t *prefs_dlg) {
-    win32_element_t *name_lb, *style_lb, *size_lb;
-    LOGFONT          lfinfo;
+    win32_element_t *name_lb, *sample_tb;
+    LOGFONT          lfinfo, cur_lf;
+    HFONT            hfont;
     HDC              hdc;
-    gchar            font_size[LF_FACESIZE];
+    gint             item;
 
     name_lb = win32_identifier_get_str("prefs-dialog.font.lb.name");
     win32_element_assert(name_lb);
 
-    style_lb = win32_identifier_get_str("prefs-dialog.font.lb.style");
-    win32_element_assert(style_lb);
+    sample_tb = win32_identifier_get_str("prefs-dialog.font.tb.sample");
+    win32_element_assert(sample_tb);
 
-    size_lb = win32_identifier_get_str("prefs-dialog.font.lb.size");
-    win32_element_assert(size_lb);
+    /* Pre-load the sample textbox with the current font so that we can
+     * call DeleteObject() on it later */
+    ZeroMemory(&cur_lf, sizeof(cur_lf));
+    if (GetObject(user_font_get_regular(), sizeof(cur_lf), &cur_lf)) {
+	hfont = CreateFontIndirect(&cur_lf);
+	SendMessage(sample_tb->h_wnd, WM_SETFONT, (WPARAM) hfont, (LPARAM) TRUE);
+    }
 
     ZeroMemory(&lfinfo, sizeof(lfinfo));
     lfinfo.lfCharSet        = ANSI_CHARSET;  /* XXX - Do we need to be this restrictive? */
@@ -1359,10 +1424,9 @@ font_prefs_init(win32_element_t *prefs_dlg) {
 	(LONG) name_lb, 0);
     ReleaseDC(prefs_dlg->h_wnd, hdc);
 
-    g_snprintf(font_size, LF_FACESIZE, "%d", prefs.gui_win32_font_size);
-    win32_listbox_set_selected(name_lb, win32_listbox_find_text(name_lb, 0, prefs.gui_win32_font_name));
-    win32_listbox_set_selected(style_lb, win32_listbox_find_text(style_lb, 0, prefs.gui_win32_font_style));
-    win32_listbox_set_selected(size_lb, win32_listbox_find_text(size_lb, 0, font_size));
+    item = win32_listbox_find_text(name_lb, 0, cur_lf.lfFaceName);
+    if (item < 0) item = 0;
+    win32_listbox_set_selected(name_lb, item);
 
     font_changed = FALSE;
 }
@@ -1371,7 +1435,7 @@ static void
 show_font_selection() {
     win32_element_t *style_lb, *size_lb, *sample_tb;
     LOGFONT         *lfinfo;
-    int              row, pointsz;
+    int              row;
     HDC              hdc;
     HFONT            hfont, old_font;
 
@@ -1396,11 +1460,10 @@ show_font_selection() {
 	return;
     }
 
-    pointsz = (int) win32_listbox_get_row_data(size_lb, row);
+    lfinfo->lfHeight = (int) win32_listbox_get_row_data(size_lb, row);
 
     old_font = (HFONT) SendMessage(sample_tb->h_wnd, WM_GETFONT, 0, 0);
     hdc = GetDC(size_lb->h_wnd);
-    lfinfo->lfHeight = - MulDiv(pointsz, GetDeviceCaps(hdc, LOGPIXELSY), 72);
     hfont = CreateFontIndirect(lfinfo);
     SelectObject(hdc, hfont);
     ReleaseDC(size_lb->h_wnd, hdc);
@@ -1689,10 +1752,6 @@ pref_show(pref_t *pref, gpointer user_data) {
 	case PREF_UINT:
 	    pref->saved_val.uint = *pref->varp.uint;
 
-	    /* XXX - there are no uint spinbuttons, so we can't use a spinbutton.
-	       Even more annoyingly, even if there were, GLib doesn't define
-	       G_MAXUINT - but I think ANSI C may define UINT_MAX, so we could
-	       use that. */
 	    switch (pref->info.base) {
 
 		case 10:

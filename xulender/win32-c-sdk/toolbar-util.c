@@ -29,9 +29,9 @@ static gboolean toolbar_init = FALSE;
 #define BMP_OFF_GOTO_NUM   5
 #define BMP_OFF_GOTO_FIRST 6
 #define BMP_OFF_GOTO_LAST  7
-#define BMP_OFF_ZOOM_IN    8
-#define BMP_OFF_ZOOM_OUT   9
-#define BMP_OFF_ZOOM_NORM 10
+#define BMP_OFF_ZOOMIN     8
+#define BMP_OFF_ZOOMOUT    9
+#define BMP_OFF_NORMALSZ  10
 #define BMP_OFF_CAP_FILT  11
 #define BMP_OFF_DISP_FILT 12
 #define BMP_OFF_COLOR_DLG 13
@@ -98,17 +98,14 @@ toolbar_new() {
     toolbar_set_button_image(toolbar->h_wnd, eth_off + BMP_OFF_GOTO_LAST,
 	IDB_MAIN_TOOLBAR_GOTO_LAST);
 
-    toolbar_set_button_image(toolbar->h_wnd, eth_off + BMP_OFF_ZOOM_IN,
-	IDB_MAIN_TOOLBAR_ZOOM_IN);
+    toolbar_set_button_image(toolbar->h_wnd, eth_off + BMP_OFF_ZOOMIN,
+	IDB_MAIN_TOOLBAR_ZOOMIN);
 
-    toolbar_set_button_image(toolbar->h_wnd, eth_off + BMP_OFF_ZOOM_OUT,
-	IDB_MAIN_TOOLBAR_ZOOM_OUT);
+    toolbar_set_button_image(toolbar->h_wnd, eth_off + BMP_OFF_ZOOMOUT,
+	IDB_MAIN_TOOLBAR_ZOOMOUT);
 
-    toolbar_set_button_image(toolbar->h_wnd, eth_off + BMP_OFF_ZOOM_NORM,
-	IDB_MAIN_TOOLBAR_ZOOM_NORM);
-
-    toolbar_set_button_image(toolbar->h_wnd, eth_off + BMP_OFF_ZOOM_NORM,
-	IDB_MAIN_TOOLBAR_ZOOM_NORM);
+    toolbar_set_button_image(toolbar->h_wnd, eth_off + BMP_OFF_NORMALSZ,
+	IDB_MAIN_TOOLBAR_NORMALSZ);
 
     toolbar_set_button_image(toolbar->h_wnd, eth_off + BMP_OFF_CAP_FILT,
 	IDB_MAIN_TOOLBAR_CAP_FILT);
@@ -236,11 +233,11 @@ void set_toolbar_for_captured_packets(gboolean have_captured_packets) {
 		(LPARAM) have_captured_packets);
 	SendMessage(toolbar->h_wnd, TB_ENABLEBUTTON, (WPARAM) IDB_MAIN_TOOLBAR_GOTO_LAST,
 		(LPARAM) have_captured_packets);
-	SendMessage(toolbar->h_wnd, TB_ENABLEBUTTON, (WPARAM) IDB_MAIN_TOOLBAR_ZOOM_IN,
+	SendMessage(toolbar->h_wnd, TB_ENABLEBUTTON, (WPARAM) IDB_MAIN_TOOLBAR_ZOOMIN,
 		(LPARAM) have_captured_packets);
-	SendMessage(toolbar->h_wnd, TB_ENABLEBUTTON, (WPARAM) IDB_MAIN_TOOLBAR_ZOOM_OUT,
+	SendMessage(toolbar->h_wnd, TB_ENABLEBUTTON, (WPARAM) IDB_MAIN_TOOLBAR_ZOOMOUT,
 		(LPARAM) have_captured_packets);
-	SendMessage(toolbar->h_wnd, TB_ENABLEBUTTON, (WPARAM) IDB_MAIN_TOOLBAR_ZOOM_NORM,
+	SendMessage(toolbar->h_wnd, TB_ENABLEBUTTON, (WPARAM) IDB_MAIN_TOOLBAR_NORMALSZ,
 		(LPARAM) have_captured_packets);
     }
 }

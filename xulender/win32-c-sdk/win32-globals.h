@@ -6,7 +6,7 @@ extern HWND g_hw_mainwin;
 extern HWND g_hw_capture_dlg;
 extern HWND g_hw_capture_info_dlg;
 
-extern HFONT g_fixed_font;
+extern HFONT m_r_font, m_b_font;
 
 extern gchar *ethereal_path;
 

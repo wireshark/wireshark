@@ -33,6 +33,7 @@ void win32_listbox_add_cell(win32_element_t *listbox, gchar *id, gchar *text);
 void win32_listbox_set_text(win32_element_t *listbox, gint row, gint column, gchar *text);
 /*
  * Get the text in a particular row/column.  Return NULL if not found.
+ * A non-null return value must be g_free()d by the caller.
  */
 gchar * win32_listbox_get_text(win32_element_t *listbox, gint row, gint column);
 
