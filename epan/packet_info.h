@@ -37,6 +37,7 @@
 #define PINFO_SOF_SOFF          0x2
 #define PINFO_EOF_LAST_FRAME    0x80
 #define PINFO_EOF_INVALID       0x40
+#define MAX_NUMBER_OF_PPIDS     2
 
 typedef struct _packet_info {
   const char *current_proto;	/* name of protocol currently being dissected */
@@ -126,6 +127,9 @@ typedef struct _packet_info {
   int     dcetransporttype;     /* Transport type, tag for private_data (DCERPC-specific)
                                  * Value -1 means "not a DCERPC packet"
                                  */
+  guint32 ppid[MAX_NUMBER_OF_PPIDS]; /* The first NUMBER_OF_PPIDS PPIDS which are present
+                                      * in the SCTP packet
+                                      */
   void    *private_data;	/* pointer to data passed from one dissector to another */
 } packet_info;
 

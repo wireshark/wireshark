@@ -1337,6 +1337,7 @@ static const true_false_string sctp_data_chunk_u_bit_value = {
 static gboolean
 dissect_data_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
 {
+  guint number_of_ppid;
   guint16 payload_length;
   guint32 payload_proto_id;
   tvbuff_t *payload_tvb;
@@ -1344,6 +1345,15 @@ dissect_data_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
   guint8 e_bit, b_bit, u_bit;
 	
   payload_proto_id  = tvb_get_ntohl(chunk_tvb, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_OFFSET);
+  
+  /* insert the PPID in the pinfo structure if it is non-zero, not already there and there is still room */
+  if (payload_proto_id) {
+    for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++)
+      if ((pinfo->ppid[number_of_ppid] == 0) || (pinfo->ppid[number_of_ppid] == payload_proto_id))
+        break;
+    if ((number_of_ppid < MAX_NUMBER_OF_PPIDS) && (pinfo->ppid[number_of_ppid] == 0))
+      pinfo->ppid[number_of_ppid] = payload_proto_id;
+  }
 
   if (chunk_tree) {
     proto_item_set_len(chunk_item, DATA_CHUNK_HEADER_LENGTH);
@@ -2107,7 +2117,8 @@ static void
 dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint16 source_port, destination_port;
-  
+  guint number_of_ppid;
+
   /* Extract the common header */
   source_port      = tvb_get_ntohs(tvb, SOURCE_PORT_OFFSET);
   destination_port = tvb_get_ntohs(tvb, DESTINATION_PORT_OFFSET);
@@ -2125,6 +2136,10 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_INFO))
     col_set_str(pinfo->cinfo, COL_INFO, "");
       
+  /* is this done automatically ? */
+  for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++)
+    pinfo->ppid[number_of_ppid] = 0;
+
   memset(&sctp_info, 0, sizeof(struct _sctp_info));
   sctp_info.verification_tag = tvb_get_ntohl(tvb, VERIFICATION_TAG_OFFSET);
   dissect_sctp_packet(tvb, pinfo, tree, FALSE);

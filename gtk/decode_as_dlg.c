@@ -69,7 +69,7 @@ enum srcdst_type {
     E_DECODE_DPORT,
     /* The "source/destination port" menu item is currently selected. */
     E_DECODE_BPORT,
-    /* For SCTP only: PPID 0 is chosen. */
+    /* For SCTP only. This MUST be the last entry! */
     E_DECODE_PPID
 };
 
@@ -81,6 +81,7 @@ enum srcdst_type {
 #define E_PAGE_ACTION "notebook_page_action"
 #define E_PAGE_DPORT "dport"
 #define E_PAGE_SPORT "sport"
+#define E_PAGE_PPID  "ppid"
 
 #define E_PAGE_LIST   "notebook_page_list"
 #define E_PAGE_TABLE  "notebook_page_table_name"
@@ -743,7 +744,7 @@ decode_transport(GtkWidget *notebook_pg)
     GtkWidget *menu, *menuitem;
     GtkWidget *list;
     gchar *table_name;
-    gint requested_srcdst, requested_port;
+    gint requested_srcdst, requested_port, ppid;
     gpointer portp;
 
     list = OBJECT_GET_DATA(notebook_pg, E_PAGE_LIST);
@@ -765,9 +766,16 @@ decode_transport(GtkWidget *notebook_pg)
 #endif
 
     table_name = OBJECT_GET_DATA(notebook_pg, E_PAGE_TABLE);
-    if (requested_srcdst == E_DECODE_PPID) {
-    	decode_change_one_dissector(table_name, 0, list);
-	return;
+    if (requested_srcdst >= E_DECODE_PPID) {
+    	if (requested_srcdst == E_DECODE_PPID)
+    	   ppid = 0;
+        else
+           if (requested_srcdst - E_DECODE_PPID - 1 < MAX_NUMBER_OF_PPIDS)
+             ppid = cfile.edt->pi.ppid[requested_srcdst - E_DECODE_PPID - 1];
+           else 
+             return;
+        decode_change_one_dissector(table_name, ppid, list);
+	    return;
     }
     if (requested_srcdst != E_DECODE_DPORT) {
         portp = OBJECT_GET_DATA(notebook_pg, E_PAGE_SPORT);
@@ -1045,18 +1053,30 @@ decode_add_ppid_menu (GtkWidget *page)
 {
     GtkWidget *optmenu, *menu, *menuitem, *alignment;
     gchar      tmp[100];
-
+    guint      number_of_ppid;
+    
     optmenu = gtk_option_menu_new();
     menu = gtk_menu_new();
+    
     g_snprintf(tmp, 100, "PPID (%u)", 0);
     menuitem = gtk_menu_item_new_with_label(tmp);
     OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_PPID));
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
-
+    
+    for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++)
+      if (cfile.edt->pi.ppid[number_of_ppid] != 0) {
+        g_snprintf(tmp, 100, "PPID (%u)", cfile.edt->pi.ppid[number_of_ppid]);
+        menuitem = gtk_menu_item_new_with_label(tmp);
+        OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));
+        gtk_menu_append(GTK_MENU(menu), menuitem);
+        gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
+      } else
+        break;
+                
     OBJECT_SET_DATA(page, E_MENU_SRCDST, menu);
     gtk_option_menu_set_menu(GTK_OPTION_MENU(optmenu), menu);
-
+    
     alignment = decode_add_pack_menu(optmenu);
 
     return(alignment);
