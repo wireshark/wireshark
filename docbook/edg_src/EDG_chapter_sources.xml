@@ -581,7 +581,30 @@ diff -ur ../ethereal-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/pa
 	have a built-in "diff" feature.
 	</para>
 	<para>
-	XXX - add details at least for recommended TortoiseSVN
+	If you use TortoiseSVN:
+	</para>
+	<para>
+	TortoiseSVN (to be precise subversion) keeps track of the files you have 
+	changed in the directories it controls, and will generate for you a 
+	unified diff file compiling the differences. To do so - after updating 
+	your sources from the SVN repository if needed - just right-click on the 
+	highest level directory and choose "TortoiseSVN" -> "Create patch...". 
+	You will be asked for a name and then the diff file will be created. The 
+	names of the files in the patch will be relative to the directory you have 
+	right-clicked on, so it will need to be applied on that level too.
+	</para>
+	<para>
+	When you create the diff file, it will include any difference TortoiseSVN 
+	finds in files in and under the directory you have right-clicked on, and 
+	nothing else. This means that changes you might have made for your 
+	specific configuration - like modifying "config.nmake" so that it uses 
+	your lib directory - will also be included, and you will need to remove 
+	these lines from the diff file. It also means that only changes will be 
+	recorded, i.e. if you have created new files -say, a new packet-xxx for a 
+	new protocol dissector- it will not be included in the diff, you need to 
+	add it separately. And, of course, if you have been working separately in 
+	two different patches, the .diff file will include both topics, which is 
+	probably not a good idea.
 	</para>
 	</section>
 

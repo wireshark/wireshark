@@ -1059,7 +1059,14 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	<section id="ChToolsWin32Diff">
 	<title>Win32 native: -</title>
 	<para>
-	The authors don't know of any working win32 native diff implementation.
+	The authors don't know of any win32 native command line diff 
+	implementation. 
+	</para>
+	<para>
+	The subversion client TortoiseSVN has a build in diff feature, see 
+	<xref linkend="ChToolsTortoiseSVN"/>. If this can be used to create diff 
+	files in the required format, so other persons can use them, is currently 
+	unknown.
 	</para>
 	</section>
 
@@ -1125,6 +1132,11 @@ written by Larry Wall and Paul Eggert]]>
 	<title>Win32 native: -</title>
 	<para>
 	The authors don't know of any working win32 native patch implementation.
+	</para>
+	<para>
+	The subversion client TortoiseSVN has a build in patch feature, see 
+	<xref linkend="ChToolsTortoiseSVN"/>. The last time tested (Version 1.1.0), 
+	this feature failed to apply patches known to be ok.
 	</para>
 	</section>
 
