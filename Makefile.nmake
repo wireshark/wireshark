@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.404 2004/02/13 02:03:14 guy Exp $
+# $Id: Makefile.nmake,v 1.405 2004/02/18 20:45:54 gerald Exp $
 
 include config.nmake
 include <win32.mak>
@@ -153,11 +153,18 @@ all: tools wiretap epan image $(EXECUTABLES) $(RESOURCES) doc
 packaging: all
 	cd packaging
 	cd nsis
+	nmake -f makefile.nmake
+	cd ..
+	cd ..
+
+seperate_packaging: all
+	cd packaging
+	cd nsis
 !IFDEF GTK1_DIR
-	nmake -f makefile.nmake GTK1="USE"
+	nmake -f makefile.nmake GTK1_ONLY="USE"
 !ENDIF
 !IFDEF GTK2_DIR
-	nmake -f makefile.nmake GTK2="USE"
+	nmake -f makefile.nmake GTK2_ONLY="USE"
 !ENDIF
 	cd ..
 	cd ..

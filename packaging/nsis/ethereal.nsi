@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.48 2004/02/16 19:07:10 ulfl Exp $
+; $Id: ethereal.nsi,v 1.49 2004/02/18 20:45:54 gerald Exp $
 
  
 !ifdef MAKENSIS_MODERN_UI
@@ -9,15 +9,16 @@
 SetCompressor lzma
 !endif
 
+!ifdef GTK1_DIR & GTK2_DIR
+InstType "Ethereal (typical)"
+InstType "Ethereal with modern GTK2 user interface"
+!endif
+
 ; ============================================================================
 ; Header configuration
 ; ============================================================================
 ; The name of the installer
-!ifndef GTK2
 !define PROGRAM_NAME "Ethereal"
-!else
-!define PROGRAM_NAME "Ethereal (GTK2)"
-!endif
 
 Name "${PROGRAM_NAME} ${VERSION}"
 
@@ -128,6 +129,9 @@ Section "-Required"
 ;
 ; Install for every user
 ;
+!ifdef GTK1_DIR & GTK2_DIR
+SectionIn 1 2 RO
+!endif
 SetShellVarContext all
 
 SetOutPath $INSTDIR
@@ -151,6 +155,8 @@ File "..\..\FAQ"
 File "..\..\README"
 File "..\..\README.win32"
 File "..\..\manuf"
+File "..\..\doc\ethereal.html"
+File "..\..\doc\ethereal-filter.html"
 
 ;
 ; Install the Diameter DTD and XML files in the "diameter" subdirectory
@@ -164,9 +170,19 @@ File "..\..\nasreq.xml"
 File "..\..\sunping.xml"
 SetOutPath $INSTDIR
 
+SetOutPath $INSTDIR\help
+File "..\..\help\toc"
+File "..\..\help\overview.txt"
+File "..\..\help\getting_started.txt"
+File "..\..\help\capturing.txt"
+File "..\..\help\capture_filters.txt"
+File "..\..\help\display_filters.txt"
+File "..\..\help\well_known.txt"
+File "..\..\help\faq.txt"
+
 ; Write the uninstall keys for Windows
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "DisplayVersion" "${VERSION}"
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "DisplayName" "${PROGRAM_NAME} ${VERSION}"
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "DisplayName" "Ethereal ${VERSION}"
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "UninstallString" '"$INSTDIR\uninstall.exe"'
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "Publisher" "The Ethereal developer community, http://www.ethereal.com"
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "HelpLink" "mailto:ethereal-users@ethereal.com"
@@ -177,16 +193,27 @@ WriteRegDWORD HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Unin
 WriteUninstaller "uninstall.exe"
 SectionEnd
 
-Section "${PROGRAM_NAME}" SecEthereal
+!ifdef GTK1_DIR
+Section "Ethereal GTK1" SecEtherealGTK1
 ;-------------------------------------------
+!ifdef GTK1_DIR & GTK2_DIR
+SectionIn 1 RO
+!endif
 SetOutPath $INSTDIR
-File /oname=ethereal.exe "..\..\${DEST}.exe"
-File "..\..\doc\ethereal.html"
-File "..\..\doc\ethereal-filter.html"
-!ifndef GTK2
+File "..\..\ethereal.exe"
 File "${GTK1_DIR}\lib\libgtk-0.dll"
 File "${GTK1_DIR}\lib\libgdk-0.dll"
-!else
+SectionEnd
+!endif
+
+!ifdef GTK2_DIR
+Section "Ethereal GTK2" SecEtherealGTK2
+;-------------------------------------------
+!ifdef GTK1_DIR & GTK2_DIR
+SectionIn 2 RO
+!endif
+SetOutPath $INSTDIR
+File /oname=ethereal.exe "..\..\ethereal-gtk2.exe"
 File "${GTK2_DIR}\bin\libgdk-win32-2.0-0.dll"
 File "${GTK2_DIR}\bin\libgdk_pixbuf-2.0-0.dll"
 File "${GTK2_DIR}\bin\libgtk-win32-2.0-0.dll"
@@ -204,20 +231,15 @@ SetOutPath $INSTDIR\lib\gtk-2.0\2.2.0\immodules
 File "${GTK2_DIR}\lib\gtk-2.0\2.2.0\immodules\im-*.dll"
 SetOutPath $INSTDIR\lib\pango\1.2.0\modules
 File "${GTK2_DIR}\lib\pango\1.2.0\modules\pango-*.dll"
-!endif
-SetOutPath $INSTDIR\help
-File "..\..\help\toc"
-File "..\..\help\overview.txt"
-File "..\..\help\getting_started.txt"
-File "..\..\help\capturing.txt"
-File "..\..\help\capture_filters.txt"
-File "..\..\help\display_filters.txt"
-File "..\..\help\well_known.txt"
-File "..\..\help\faq.txt"
+
 SectionEnd
+!endif
 
 Section "Tethereal" SecTethereal
 ;-------------------------------------------
+!ifdef GTK1_DIR & GTK2_DIR
+SectionIn 1 2
+!endif
 SetOutPath $INSTDIR
 File "..\..\tethereal.exe"
 File "..\..\doc\tethereal.html"
@@ -225,6 +247,9 @@ SectionEnd
 
 Section "Editcap" SecEditcap
 ;-------------------------------------------
+!ifdef GTK1_DIR & GTK2_DIR
+SectionIn 1 2
+!endif
 SetOutPath $INSTDIR
 File "..\..\editcap.exe"
 File "..\..\doc\editcap.html"
@@ -232,6 +257,9 @@ SectionEnd
 
 Section "Text2Pcap" SecText2Pcap
 ;-------------------------------------------
+!ifdef GTK1_DIR & GTK2_DIR
+SectionIn 1 2
+!endif
 SetOutPath $INSTDIR
 File "..\..\text2pcap.exe"
 File "..\..\doc\text2pcap.html"
@@ -239,6 +267,9 @@ SectionEnd
 
 Section "Mergecap" SecMergecap
 ;-------------------------------------------
+!ifdef GTK1_DIR & GTK2_DIR
+SectionIn 1 2
+!endif
 SetOutPath $INSTDIR
 File "..\..\mergecap.exe"
 File "..\..\doc\mergecap.html"
@@ -247,6 +278,9 @@ SectionEnd
 
 Section "Plugins" SecPlugins
 ;-------------------------------------------
+!ifdef GTK1_DIR & GTK2_DIR
+SectionIn 1 2
+!endif
 SetOutPath $INSTDIR\plugins\${VERSION}
 File "..\..\plugins\acn\acn.dll"
 File "..\..\plugins\artnet\artnet.dll"
@@ -268,6 +302,9 @@ SectionEnd
 
 Section "SNMP MIBs" SecMIBs
 ;-------------------------------------------
+!ifdef GTK1_DIR & GTK2_DIR
+SectionIn 1 2
+!endif
 SetOutPath $INSTDIR\snmp\mibs
 File "${NET_SNMP_DIR}\mibs\*.txt"
 SectionEnd
@@ -277,6 +314,9 @@ SectionEnd
 
 Section "Start Menu Shortcuts" SecShortcuts
 ;-------------------------------------------
+!ifdef GTK1_DIR & GTK2_DIR
+SectionIn 1 2
+!endif
 SetOutPath $PROFILE
 CreateDirectory "$SMPROGRAMS\Ethereal"
 
@@ -288,10 +328,14 @@ CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Manual.lnk" "$INSTDIR\ethereal.htm
 CreateShortCut "$SMPROGRAMS\Ethereal\Display Filters Manual.lnk" "$INSTDIR\ethereal-filter.html"
 CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Program Directory.lnk" \
           "$INSTDIR"
+CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Uninstall.lnk" "$INSTDIR\uninstall.exe"
 SectionEnd
 
 Section "Desktop Icon" SecDesktopIcon
 ;-------------------------------------------
+!ifdef GTK1_DIR & GTK2_DIR
+SectionIn 1 2
+!endif
 CreateShortCut "$DESKTOP\Ethereal.lnk" "$INSTDIR\ethereal.exe"
 SectionEnd
 
@@ -330,7 +374,13 @@ Delete "$INSTDIR\plugins\*.*"
 Delete "$INSTDIR\diameter\*.*"
 Delete "$INSTDIR\snmp\mibs\*.*"
 Delete "$INSTDIR\snmp\*.*"
-Delete "$INSTDIR\*.*"
+Delete "$INSTDIR\*.exe"
+Delete "$INSTDIR\*.dll"
+Delete "$INSTDIR\*.html"
+Delete "$INSTDIR\README*"
+Delete "$INSTDIR\FAQ"
+Delete "$INSTDIR\manuf"
+Delete "$INSTDIR\pcrepattern.3.txt"
 Delete "$SMPROGRAMS\Ethereal\*.*"
 Delete "$DESKTOP\Ethereal.lnk"
 
@@ -363,11 +413,12 @@ SectionEnd
 
 !ifdef MAKENSIS_MODERN_UI
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-!ifndef GTK2
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecEthereal} "${PROGRAM_NAME} is a GUI network protocol analyzer."
-!else
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecEthereal} "${PROGRAM_NAME} is a GUI network protocol analyzer (using the modern GTK2 GUI toolkit)."
-!endif
+!ifdef GTK1_DIR
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecEtherealGTK1} "${PROGRAM_NAME} is a GUI network protocol analyzer."
+!endif  
+!ifdef GTK2_DIR  
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecEtherealGTK2} "${PROGRAM_NAME} is a GUI network protocol analyzer (using the modern GTK2 GUI toolkit)."
+!endif  
   !insertmacro MUI_DESCRIPTION_TEXT ${SecTethereal} "Tethereal is a network protocol analyzer."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecEditCap} "Editcap is a program that reads a capture file and writes some or all of the packets into another capture file."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Text2pcap is a program that reads in an ASCII hex dump and writes the data into a libpcap-style capture file."
