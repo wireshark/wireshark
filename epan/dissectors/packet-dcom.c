@@ -409,15 +409,40 @@ static const value_string dcom_dcerpc_pointer_vals[] = {
 	{ 0,          NULL }
 };
 
-static const value_string hf_dcom_dualstringarray_tower_id_vals[] = {
-	{ 0x08, "UDP" },
-	{ 0x07, "TCP" },
-	{ 0x0E, "IPX" },
-	{ 0x0C, "SPX" },
-	{ 0x12, "NB_NB" },
-	{ 0x0D, "NB_IPX" },
-	{ 0x04, "DNET_NSP" },
-	{ 0x1F, "HTTP" },
+static const value_string dcom_dualstringarray_authz[] = {
+	{ 0x0000, "RPC_C_AUTHZ_NONE" },
+	{ 0x0001, "RPC_C_AUTHZ_NAME"},
+	{ 0x0002, "RPC_C_AUTHZ_DCE"},
+	{ 0xffff, "Default"},
+    { 0, NULL}
+};
+
+static const value_string dcom_dualstringarray_authn[] = {
+    {  00, "RPC_C_AUTHN_NONE" },
+    {   1, "RPC_C_AUTHN_DCE_PRIVATE"},
+    {   2, "RPC_C_AUTHN_DCE_PUBLIC"},
+    {   4, "RPC_C_AUTHN_DEC_PUBLIC"},
+    {   9, "RPC_C_AUTHN_GSS_NEGOTIATE"},
+    {  10, "RPC_C_AUTH_WINNT"},
+    {  14, "RPC_C_AUTHN_GSS_SCHANNEL"},
+    {  16, "RPC_C_AUTHN_GSS_KERBEROS"},
+    {  17, "RPC_C_AUTHN_MSN"},
+    {  18, "RPC_C_AUTHN_DPA"},
+	{ 100, "RPC_C_AUTHN_MQ"},
+	{ 0xffff, "RPC_C_AUTHN_DEFAULT"},
+    { 0, NULL}
+};
+
+static const value_string dcom_dualstringarray_tower_id_vals[] = {
+	{ 0x04, "NCACN_DNET_NSP" },
+	{ 0x07, "NCACN_IP_TCP" },
+	{ 0x08, "NCADG_IP_UDP" },
+	{ 0x09, "NCACN_IP" },
+	{ 0x0C, "NCACN_SPX" },
+	{ 0x0D, "NCACN_NB_IPX" },
+	{ 0x0E, "NCADG_IPX" },
+	{ 0x12, "NCACN_NB_NB" },
+	{ 0x1F, "NCACN_HTTP" },
 	{ 0,    NULL }
 };
 
@@ -1438,7 +1463,7 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 		proto_item_append_text(subsub_item, "[%u]: TowerId=%s, NetworkAddr=\"%s\"", 
 			u32StringBindings, 
-			val_to_str(u16TowerId, hf_dcom_dualstringarray_tower_id_vals, "Unknown (0x%04x"),
+			val_to_str(u16TowerId, dcom_dualstringarray_tower_id_vals, "Unknown (0x%04x"),
 			szStr);
 		proto_item_set_len(subsub_item, offset - u32SubSubStart);
 	}
@@ -1759,15 +1784,15 @@ proto_register_dcom (void)
 		{ &hf_dcom_dualstringarray_string,
 		{ "StringBinding", "dcom.dualstringarray.string", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
 		{ &hf_dcom_dualstringarray_string_tower_id,
-		{ "TowerId", "dcom.dualstringarray.tower_id", FT_UINT16, BASE_HEX, VALS(hf_dcom_dualstringarray_tower_id_vals), 0x0, "", HFILL }},
+		{ "TowerId", "dcom.dualstringarray.tower_id", FT_UINT16, BASE_HEX, VALS(dcom_dualstringarray_tower_id_vals), 0x0, "", HFILL }},
 		{ &hf_dcom_dualstringarray_string_network_addr,
 		{ "NetworkAddr", "dcom.dualstringarray.network_addr", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
 		{ &hf_dcom_dualstringarray_security,
 		{ "SecurityBinding", "dcom.dualstringarray.security", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
 		{ &hf_dcom_dualstringarray_security_authn_svc,
-		{ "AuthnSvc", "dcom.dualstringarray.security_authn_svc", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+		{ "AuthnSvc", "dcom.dualstringarray.security_authn_svc", FT_UINT16, BASE_HEX, VALS(dcom_dualstringarray_authn), 0x0, "", HFILL }},
 		{ &hf_dcom_dualstringarray_security_authz_svc,
-		{ "AuthzSvc", "dcom.dualstringarray.security_authz_svc", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+		{ "AuthzSvc", "dcom.dualstringarray.security_authz_svc", FT_UINT16, BASE_HEX, VALS(dcom_dualstringarray_authz), 0x0, "", HFILL }},
 		{ &hf_dcom_dualstringarray_security_princ_name,
 		{ "PrincName", "dcom.dualstringarray.security_princ_name", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }}
 	};
