@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.24 2000/08/09 05:18:37 gram Exp $
+ * $Id: follow.c,v 1.25 2000/08/11 22:18:12 deniel Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -48,9 +48,10 @@ FILE* data_out_file;
 
 gboolean incomplete_tcp_stream = FALSE;
 
-static guint32 ip_address[2];
+static guint8  ip_address[2][MAX_IPADDR_LEN];
 static u_int   tcp_port[2];
 static u_int   bytes_written[2];
+static gboolean is_ipv6 = FALSE;
 
 static int check_fragments( int, tcp_stream_chunk * );
 static void write_packet_data( int, tcp_stream_chunk *, const char * );
@@ -61,9 +62,10 @@ follow_tcp_stats(follow_tcp_stats_t* stats)
 	int i;
 
 	for (i = 0; i < 2 ; i++) {
-		stats->ip_address[i] = ip_address[i];
+		memcpy(stats->ip_address[i], ip_address[i], MAX_IPADDR_LEN);
 		stats->tcp_port[i] = tcp_port[i];
 		stats->bytes_written[i] = bytes_written[i];
+		stats->is_ipv6 = is_ipv6;
 	}
 }
 
@@ -74,6 +76,7 @@ follow_tcp_stats(follow_tcp_stats_t* stats)
 char* 
 build_follow_filter( packet_info *pi ) {
   char* buf = g_malloc(1024);
+  int len;
   if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
 	&& pi->ipproto == 6 ) {
     /* TCP over IPv4 */
@@ -82,13 +85,26 @@ build_follow_filter( packet_info *pi ) {
 	     ip_to_str( pi->net_src.data), 
 	     ip_to_str( pi->net_dst.data), 
 	     pi->srcport, pi->destport );
+    len = 4;
+    is_ipv6 = FALSE;
+  }
+  else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6
+	&& pi->ipproto == 6 ) {
+    /* TCP over IPv6 */
+    sprintf( buf, 
+	     "(ipv6.addr eq %s and ipv6.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
+	     ip6_to_str((struct e_in6_addr *)pi->net_src.data), 
+	     ip6_to_str((struct e_in6_addr *)pi->net_dst.data), 
+	     pi->srcport, pi->destport );
+    len = 16;
+    is_ipv6 = TRUE;
   }
   else { 
     g_free( buf );
     return NULL;
   }
-  memcpy(&ip_address[0], pi->net_src.data, sizeof ip_address[0]);
-  memcpy(&ip_address[1], pi->net_dst.data, sizeof ip_address[1]);
+  memcpy(ip_address[0], pi->net_src.data, len);
+  memcpy(ip_address[1], pi->net_dst.data, len);
   tcp_port[0] = pi->srcport;
   tcp_port[1] = pi->destport;
   return buf;
@@ -100,15 +116,15 @@ build_follow_filter( packet_info *pi ) {
 
 static tcp_frag *frags[2] = { 0, 0 };
 static u_long seq[2];
-static guint32 src_addr[2] = { 0, 0 };
+static guint8 src_addr[2][MAX_IPADDR_LEN];
 static u_int src_port[2] = { 0, 0 };
 
 void 
 reassemble_tcp( u_long sequence, u_long length, const char* data,
 		u_long data_length, int synflag, address *net_src,
 		address *net_dst, u_int srcport, u_int dstport) {
-  guint32 srcx, dstx;
-  int src_index, j, first = 0;
+  guint8 srcx[MAX_IPADDR_LEN], dstx[MAX_IPADDR_LEN];
+  int src_index, j, first = 0, len;
   u_long newseq;
   tcp_frag *tmp_frag;
   tcp_stream_chunk sc;
@@ -117,22 +133,28 @@ reassemble_tcp( u_long sequence, u_long length, const char* data,
   
   /* First, check if this packet should be processed. */
 
-  /* We only process IPv4 packets.
-     XXX - need to make this handle IPv6 as well. */
-  if (net_src->type != AT_IPv4 || net_dst->type != AT_IPv4)
+  if ((net_src->type != AT_IPv4 && net_src->type != AT_IPv6) ||
+      (net_dst->type != AT_IPv4 && net_dst->type != AT_IPv6))
     return;
 
+  if (net_src->type == AT_IPv4)
+    len = 4;
+  else
+    len = 16;
+
   /* Now check if the packet is for this connection. */
-  memcpy(&srcx, net_src->data, sizeof srcx);
-  memcpy(&dstx, net_dst->data, sizeof dstx);
-  if ((srcx != ip_address[0] && srcx != ip_address[1]) ||
-      (dstx != ip_address[0] && dstx != ip_address[1]) ||
+  memcpy(srcx, net_src->data, len);
+  memcpy(dstx, net_dst->data, len);
+  if ((memcmp(srcx, ip_address[0], len) != 0 && 
+       memcmp(srcx, ip_address[1], len) != 0) ||
+      (memcmp(dstx, ip_address[0], len) != 0 &&
+       memcmp(dstx, ip_address[1], len) != 0) ||
       (srcport != tcp_port[0] && srcport != tcp_port[1]) ||
       (dstport != tcp_port[0] && dstport != tcp_port[1]))
     return;
 
   /* Initialize our stream chunk.  This data gets written to disk. */
-  sc.src_addr = srcx;
+  memcpy(sc.src_addr, srcx, len);
   sc.src_port = srcport;
   sc.dlen     = data_length;
 
@@ -140,7 +162,7 @@ reassemble_tcp( u_long sequence, u_long length, const char* data,
      (Yes, we have to check both source IP and port; the connection
      might be between two different ports on the same machine.) */
   for( j=0; j<2; j++ ) {
-    if( src_addr[j] == srcx && src_port[j] == srcport ) {
+    if (memcmp(src_addr[j], srcx, len) == 0 && src_port[j] == srcport ) {
       src_index = j;
     }
   }
@@ -148,8 +170,8 @@ reassemble_tcp( u_long sequence, u_long length, const char* data,
   if( src_index < 0 ) {
     /* assign it to a src_index and get going */
     for( j=0; j<2; j++ ) {
-      if( src_addr[j] == 0 ) {
-	src_addr[j] = srcx;
+      if( src_port[j] == 0 ) {
+	memcpy(src_addr[j], srcx, len);
 	src_port[j] = srcport;
 	src_index = j;
 	first = 1;
@@ -275,9 +297,9 @@ reset_tcp_reassembly() {
   incomplete_tcp_stream = FALSE;
   for( i=0; i<2; i++ ) {
     seq[i] = 0;
-    src_addr[i] = 0;
+    memset(src_addr[i], '\0', MAX_IPADDR_LEN);
     src_port[i] = 0;
-    ip_address[i] = 0;
+    memset(ip_address[i], '\0', MAX_IPADDR_LEN);
     tcp_port[i] = 0;
     bytes_written[i] = 0;
     current = frags[i];

@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.4 2000/08/11 13:33:12 deniel Exp $
+ * $Id: follow_dlg.c,v 1.5 2000/08/11 22:18:22 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -59,6 +59,7 @@
 #include "gtkglobals.h"
 #include "main.h"
 #include "simple_dialog.h"
+#include "packet-ipv6.h"
 #include "prefs.h"
 #include "resolv.h"
 #include "util.h"
@@ -87,6 +88,7 @@ typedef struct {
 	GtkWidget	*ebcdic_bt;
 	GtkWidget	*hexdump_bt;
 	GtkWidget	*follow_save_as_w;
+	gboolean        is_ipv6;
 } follow_info_t;
 
 static void follow_destroy_cb(GtkWidget * win, gpointer data);
@@ -224,10 +226,24 @@ follow_stream_cb(GtkWidget * w, gpointer data)
 	/* Stream to show */
 	follow_tcp_stats(&stats);
 
-	hostname0 = get_hostname(stats.ip_address[0]);
-	hostname1 = get_hostname(stats.ip_address[1]);
+	if (stats.is_ipv6) {
+	  struct e_in6_addr ipaddr;
+	  memcpy(&ipaddr, stats.ip_address[0], 16);
+	  hostname0 = get_hostname6(&ipaddr);
+	  memcpy(&ipaddr, stats.ip_address[0], 16);
+	  hostname1 = get_hostname6(&ipaddr);
+	} else {
+	  guint32 ipaddr;
+	  memcpy(&ipaddr, stats.ip_address[0], 4);
+	  hostname0 = get_hostname(ipaddr);
+	  memcpy(&ipaddr, stats.ip_address[1], 4);
+	  hostname1 = get_hostname(ipaddr);
+	}
+
 	port0 = get_tcp_port(stats.tcp_port[0]);
 	port1 = get_tcp_port(stats.tcp_port[1]);
+
+	follow_info->is_ipv6 = stats.is_ipv6;
 
 	stream_om = gtk_option_menu_new();
 	stream_menu = gtk_menu_new();
@@ -406,25 +422,28 @@ follow_read_stream(follow_info_t *follow_info,
 		   void *arg)
 {
     tcp_stream_chunk	sc;
-    int			bcount;
-    guint32		client_addr = 0;
+    int			bcount, iplen;
+    guint8		client_addr[MAX_IPADDR_LEN];
     guint16		client_port = 0;
     gboolean		is_server;
     guint16		current_pos, global_client_pos = 0, global_server_pos = 0;
     guint16		*global_pos;
     gboolean		skip;
 
+    iplen = (follow_info->is_ipv6) ? 16 : 4;
+     
     data_out_file = fopen(follow_info->data_out_filename, "rb");
     if (data_out_file) {
 	char buffer[FLT_BUF_SIZE];
 	int nchars;
 	while (fread(&sc, 1, sizeof(sc), data_out_file)) {
-	    if (client_addr == 0) {
-		client_addr = sc.src_addr;
+	    if (client_port == 0) {
+		memcpy(client_addr, sc.src_addr, iplen);
 		client_port = sc.src_port;
 	    }
 	    skip = FALSE;
-	    if (client_addr == sc.src_addr && client_port == sc.src_port) {
+	    if (memcmp(client_addr, sc.src_addr, iplen) == 0 &&
+		client_port == sc.src_port) {
 		is_server = FALSE;
 		global_pos = &global_client_pos;
 		if (follow_info->show_stream == FROM_SERVER) {

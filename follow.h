@@ -1,6 +1,6 @@
 /* follow.h
  *
- * $Id: follow.h,v 1.9 2000/08/09 05:18:38 gram Exp $
+ * $Id: follow.h,v 1.10 2000/08/11 22:18:13 deniel Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -30,6 +30,8 @@
 
 #include "packet.h"
 
+#define MAX_IPADDR_LEN	16
+
 extern gboolean incomplete_tcp_stream;
 
 typedef struct _tcp_frag {
@@ -41,7 +43,7 @@ typedef struct _tcp_frag {
 } tcp_frag;
 
 typedef struct _tcp_stream_chunk {
-  guint32     src_addr;
+  guint8      src_addr[MAX_IPADDR_LEN];
   guint16     src_port;
   guint32     dlen;
 } tcp_stream_chunk;
@@ -52,9 +54,10 @@ void reassemble_tcp( u_long, u_long, const char*, u_long, int,
 void  reset_tcp_reassembly( void );
 
 typedef struct {
-	guint32		ip_address[2];
+	guint8		ip_address[2][MAX_IPADDR_LEN];
 	guint32		tcp_port[2];
 	unsigned int	bytes_written[2];
+	gboolean        is_ipv6;
 } follow_tcp_stats_t;
 
 void follow_tcp_stats(follow_tcp_stats_t* stats);

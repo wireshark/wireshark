@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.41 2000/08/08 21:49:13 gram Exp $
+ * $Id: packet-ipv6.c,v 1.42 2000/08/11 22:18:13 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -67,6 +67,7 @@ static int hf_ipv6_nxt = -1;
 static int hf_ipv6_hlim = -1;
 static int hf_ipv6_src = -1;
 static int hf_ipv6_dst = -1;
+static int hf_ipv6_addr = -1;
 #ifdef TEST_FINALHDR
 static int hf_ipv6_final = -1;
 #endif
@@ -296,6 +297,8 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
   memcpy(&ipv6, (void *) &pd[offset], sizeof(ipv6)); 
 
+  pi.ipproto = ipv6.ip6_nxt; /* XXX make work TCP follow (ipproto = 6) */
+
   SET_ADDRESS(&pi.net_src, AT_IPv6, 16, &pd[offset + IP6H_SRC]);
   SET_ADDRESS(&pi.src, AT_IPv6, 16, &pd[offset + IP6H_SRC]);
   SET_ADDRESS(&pi.net_dst, AT_IPv6, 16, &pd[offset + IP6H_DST]);
@@ -339,6 +342,13 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     proto_tree_add_uint(ipv6_tree, hf_ipv6_hlim, NullTVB,
 		offset + offsetof(struct ip6_hdr, ip6_hlim), 1,
 		ipv6.ip6_hlim);
+
+    proto_tree_add_ipv6_hidden(ipv6_tree, hf_ipv6_addr, NullTVB, 
+			       offset + offsetof(struct ip6_hdr, ip6_src), 16,
+			       ipv6.ip6_src.s6_addr8);
+    proto_tree_add_ipv6_hidden(ipv6_tree, hf_ipv6_addr, NullTVB, 
+			       offset + offsetof(struct ip6_hdr, ip6_dst), 16,
+			       ipv6.ip6_dst.s6_addr8);
 
     proto_tree_add_ipv6_format(ipv6_tree, hf_ipv6_src, NullTVB,
 		offset + offsetof(struct ip6_hdr, ip6_src), 16,
@@ -457,6 +467,10 @@ proto_register_ipv6(void)
       { "Destination",		"ipv6.dst",
 				FT_IPv6, BASE_NONE, NULL, 0x0,
 				"Destination IPv6 Address" }},
+    { &hf_ipv6_addr,
+      { "Address",		"ipv6.addr",
+				FT_IPv6, BASE_NONE, NULL, 0x0,
+				"Source or Destination IPv6 Address" }},
 #ifdef TEST_FINALHDR
     { &hf_ipv6_final,
       { "Final next header",	"ipv6.final",
