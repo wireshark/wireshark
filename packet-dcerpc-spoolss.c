@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.60 2002/11/19 05:25:04 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.61 2002/11/23 08:57:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1422,9 +1422,11 @@ static int SpoolssSetPrinterDataEx_r(tvbuff_t *tvb, int offset,
    returns the (char *) equivalent.  This really should return UTF8 or
    something but we use fake_unicode() instead. */
 
+/* XXX - "name" should be an hf_ value for an FT_STRING. */
 static int
 dissect_spoolss_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-			  proto_tree *tree, char *drep _U_, char **data)
+			  proto_tree *tree, char *drep _U_, char **data,
+			  char *name)
 {
 	gint len, remaining;
 	char *text;
@@ -1439,7 +1441,7 @@ dissect_spoolss_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	len = strlen(text);
 
 	proto_tree_add_text(tree, tvb, offset, len * 2, "%s: %s",
-			    "UINT16UNI", tvb_bytes_to_str(tvb, offset, len * 2));
+			    name ? name : "UINT16UNI", text);
 
 	if (data)
 		*data = text;
@@ -1639,7 +1641,8 @@ static int dissect_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* The device name is stored in a 32-wchar buffer */
 
-	dissect_spoolss_uint16uni(tvb, offset, pinfo, subtree, drep, NULL);
+	dissect_spoolss_uint16uni(tvb, offset, pinfo, subtree, drep, NULL,
+		"Devicename");
 	offset += 64;
 
 	offset = dissect_ndr_uint16(
@@ -1713,7 +1716,8 @@ static int dissect_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, subtree, drep, 
 		hf_spoolss_devmode_collate, NULL);
 
-	dissect_spoolss_uint16uni(tvb, offset, pinfo, subtree, drep, NULL);
+	dissect_spoolss_uint16uni(tvb, offset, pinfo, subtree, drep, NULL,
+		"Form name");
 	offset += 64;
 
 	offset = dissect_ndr_uint16(
@@ -1905,7 +1909,7 @@ dissect_spoolss_relstr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (relstr_offset)
 		relstr_end = dissect_spoolss_uint16uni(
-			tvb, relstr_start, pinfo, subtree, drep, &text);
+			tvb, relstr_start, pinfo, subtree, drep, &text, NULL);
 	else {
 		text = g_strdup("NULL");
 		relstr_end = offset;
@@ -1952,7 +1956,7 @@ dissect_spoolss_relstrarray(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (relstr_offset)
 		relstr_end = dissect_spoolss_uint16uni(
-			tvb, relstr_start, pinfo, subtree, drep, &text);
+			tvb, relstr_start, pinfo, subtree, drep, &text, NULL);
 	else {
 		text = g_strdup("NULL");
 		relstr_end = offset;
@@ -2590,7 +2594,19 @@ static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 	   pointer dissection function we should set the private data
 	   to the name of the printer. */
 
+#if 0
+	if (printer_name) {
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+					printer_name);
+
+		/* Store printer name to match with reply packet */
+
+		dcv->private_data = printer_name;
+	}
+#else
 	dcv->private_data = g_strdup("");
+#endif
 
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
