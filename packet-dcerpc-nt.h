@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.h,v 1.37 2003/01/30 08:19:38 guy Exp $
+ * $Id: packet-dcerpc-nt.h,v 1.38 2003/02/03 02:00:54 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,36 +48,21 @@ char *fake_unicode(tvbuff_t *tvb, int offset, int len);
 	}
 
 int
-dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
-			packet_info *pinfo, proto_tree *tree,
-			char *drep);
-int
-dissect_ndr_nt_UNICODE_STRING_cb(tvbuff_t *tvb, int offset,
-				 packet_info *pinfo, proto_tree *parent_tree,
-				 char *drep, int hf_index, 
-				 dcerpc_callback_fnct_t *callback,
-				 void *callback_args);
+dissect_ndr_counted_string_cb(tvbuff_t *tvb, int offset,
+			      packet_info *pinfo, proto_tree *tree,
+			      char *drep, int hf_index, 
+			      dcerpc_callback_fnct_t *callback,
+			      void *callback_args);
 
 int
-dissect_ndr_nt_UNICODE_STRING(tvbuff_t *tvb, int offset,
-			      packet_info *pinfo, proto_tree *parent_tree,
-			      char *drep, int hf_index, int levels);
+dissect_ndr_counted_string_ptr(tvbuff_t *tvb, int offset,
+			       packet_info *pinfo, proto_tree *parent_tree,
+			       char *drep);
 
 int
-dissect_ndr_nt_STRING_string(tvbuff_t *tvb, int offset,
-                             packet_info *pinfo, proto_tree *tree,
-                             char *drep);
-int
-dissect_ndr_nt_STRING_cb(tvbuff_t *tvb, int offset,
-			 packet_info *pinfo, proto_tree *parent_tree,
-			 char *drep, int hf_index, 
-			 dcerpc_callback_fnct_t *callback, 
-			 void *callback_args);
-
-int
-dissect_ndr_nt_STRING(tvbuff_t *tvb, int offset,
-		      packet_info *pinfo, proto_tree *parent_tree,
-		      char *drep, int hf_index);
+dissect_ndr_counted_string(tvbuff_t *tvb, int offset,
+			   packet_info *pinfo, proto_tree *parent_tree,
+			   char *drep, int hf_index, int levels);
 
 int
 dissect_ndr_nt_acct_ctrl(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -217,5 +202,13 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 /* Initialise DCERPC over SMB */
 
 void dcerpc_smb_init(int proto_dcerpc);
+
+int
+dissect_ndr_wchar_array(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+			proto_tree *tree, char *drep);
+
+int
+dissect_ndr_char_array(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+		       proto_tree *tree, char *drep);
 
 #endif /* packet-dcerpc-nt.h */

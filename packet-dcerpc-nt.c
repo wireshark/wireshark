@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.61 2003/01/31 06:47:55 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.62 2003/02/03 02:00:54 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,243 +70,178 @@ char *fake_unicode(tvbuff_t *tvb, int offset, int len)
 	return buffer;
 }
 
-/* following are a few functions for dissecting common structures used by NT
-   services. These might need to be cleaned up at a later time but at least we get
-   them out of the real service dissectors.
-*/
+/* Dissect an NDR array of elements.  The length of each element is
+   given by the 'size_is' parameter.  */
 
+int hf_nt_str_len = -1;		/* FIXME: make static */
+int hf_nt_str_off = -1;
+int hf_nt_str_max_len = -1;
+static int hf_nt_str_buffer = -1;
 
-/* UNICODE_STRING  BEGIN */
-/* functions to dissect a UNICODE_STRING structure, common to many
-   NT services
-   struct {
-     short len;
-     short size;
-     [size_is(size/2), length_is(len/2), ptr] unsigned short *string;
-   } UNICODE_STRING;
+static int hf_nt_string_length = -1;
+static int hf_nt_string_size = -1;
 
-   these variables can be found in packet-dcerpc-samr.c
-*/
-extern int hf_nt_str_len;
-extern int hf_nt_str_off;
-extern int hf_nt_str_max_len;
-extern int hf_nt_string_length;
-extern int hf_nt_string_size;
+gint ett_nt_unicode_string = -1; /* FIXME: make static */
 
-gint ett_nt_unicode_string = -1;
-static gint ett_nt_policy_hnd = -1;
-
-/* this function will dissect the
-     [size_is(size/2), length_is(len/2), ptr] unsigned short *string;
-  part of the unicode string
-
-   struct {
-     short len;
-     short size;
-     [size_is(size/2), length_is(len/2), ptr] unsigned short *string;
-   } UNICODE_STRING;
-  structure used by NT to transmit unicode string values.
-
-*/
-int
-dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
-			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+static int
+dissect_ndr_element_array(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+			  proto_tree *tree, char *drep, int size_is)
 {
-	guint32 len;
-	dcerpc_info *di;
-	char *text;
+	guint32 len, buffer_len;
 
-	di=pinfo->private_data;
-	if(di->conformant_run){
-		/*just a run to handle conformant arrays, nothing to dissect */
-		return offset;
-	}
+	/* NDR array header */
 
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_nt_str_max_len, NULL);
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_nt_str_off, NULL);
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_nt_str_len, &len);
 
-	if (offset % 2)
-		offset++;
+	buffer_len = size_is * len;
 
-	if (tree) {
-		text = fake_unicode(tvb, offset, len);
-		proto_tree_add_string (tree, di->hf_index, tvb, offset, len * 2, text);
-		g_free(text);
-	}
+	/* Adjust offset */
 
-	offset += len * 2;
+	if (offset % size_is)
+		offset += size_is - (offset % size_is);
 
-  	return offset;
+	if (tree && buffer_len)
+		proto_tree_add_item(
+			tree, hf_nt_str_buffer, tvb, offset, buffer_len,
+			drep[0] & 0x10);
+
+	offset += buffer_len;
+
+	return offset;
 }
 
-/* this function will dissect the
-   struct {
-     short len;
-     short size;
-     [size_is(size/2), length_is(len/2), ptr] unsigned short *string;
-   } UNICODE_STRING;
-  structure used by NT to transmit unicode string values.
-*/
+/* Dissect an array of wchars (wide characters).  This corresponds to
+   IDL of the form '[string] wchar *foo' */
+
 int
-dissect_ndr_nt_UNICODE_STRING_cb(tvbuff_t *tvb, int offset,
-				 packet_info *pinfo, proto_tree *parent_tree,
-				 char *drep, int hf_index, 
-				 dcerpc_callback_fnct_t *callback,
-				 void *callback_args)
+dissect_ndr_wchar_array(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+			proto_tree *tree, char *drep)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
-	int old_offset=offset;
-	dcerpc_info *di;
-	char *name;
+	dcerpc_info *di = pinfo->private_data;
 
-	ALIGN_TO_4_BYTES;  /* strcture starts with short, but is aligned for longs */
-
-	di=pinfo->private_data;
-	if(di->conformant_run){
-		/*just a run to handle conformant arrays, nothing to dissect */
+	if (di->conformant_run)
 		return offset;
-	}
 
-	name = proto_registrar_get_name(hf_index);
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
-			"%s", name);
-		tree = proto_item_add_subtree(item, ett_nt_unicode_string);
-	}
+	return dissect_ndr_element_array(
+		tvb, offset, pinfo, tree, drep, sizeof(guint16));
+}
 
-	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
-			hf_nt_string_length, NULL);
-	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
-			hf_nt_string_size, NULL);
+/* Dissect an array of wchars (wide characters).  This corresponds to
+   IDL of the form '[string] wchar *foo' */
+
+int
+dissect_ndr_char_array(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+		       proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = pinfo->private_data;
+
+	if (di->conformant_run)
+		return offset;
+
+	return dissect_ndr_element_array(
+		tvb, offset, pinfo, tree, drep, sizeof(guint8));
+}
+
+/* Dissect a counted string as a callback to dissect_ndr_pointer_cb() */
+
+static int hf_nt_cs_len = -1;
+static int hf_nt_cs_size = -1;
+
+int
+dissect_ndr_counted_string_cb(tvbuff_t *tvb, int offset,
+			      packet_info *pinfo, proto_tree *tree,
+			      char *drep, int hf_index, 
+			      dcerpc_callback_fnct_t *callback,
+			      void *callback_args)
+{
+	dcerpc_info *di = pinfo->private_data;
+	guint16 len, size;
+
+        /* Structure starts with short, but is aligned for longs */
+
+	ALIGN_TO_4_BYTES;
+
+	if (di->conformant_run)
+		return offset;
+	
+	/* 
+           struct {
+               short len;
+               short size;
+               [size_is(size/2), length_is(len/2), ptr] unsigned short *string;
+           } UNICODE_STRING;
+
+         */
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+			hf_nt_cs_len, &len);
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+			hf_nt_cs_size, &size);	
+
 	offset = dissect_ndr_pointer_cb(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-			name, hf_index, callback, callback_args);
+			dissect_ndr_wchar_array, NDR_POINTER_UNIQUE,
+			"Character Array", hf_index, callback, callback_args);
 
-	proto_item_set_len(item, offset-old_offset);
-	return offset;
-}
-/* UNICODE_STRING  END */
-
-int
-dissect_ndr_nt_UNICODE_STRING(tvbuff_t *tvb, int offset,
-			      packet_info *pinfo, proto_tree *parent_tree,
-			      char *drep, int hf_index, int levels)
-{
-	return dissect_ndr_nt_UNICODE_STRING_cb(
-		tvb, offset, pinfo, parent_tree, drep, hf_index,
-		cb_str_postprocess, GINT_TO_POINTER(2 + levels));
-}
-
-/* functions to dissect a STRING structure, common to many
-   NT services
-   struct {
-     short len;
-     short size;
-     [size_is(size), length_is(len), ptr] char *string;
-   } STRING;
-*/
-int
-dissect_ndr_nt_STRING_string(tvbuff_t *tvb, int offset,
-			     packet_info *pinfo, proto_tree *tree,
-			     char *drep)
-{
-	guint32 len, off, max_len;
-	const guint8 *text;
-	header_field_info *hfi;
-	dcerpc_info *di;
-
-	di=pinfo->private_data;
-	if(di->conformant_run){
-		/*just a run to handle conformant arrays, nothing to dissect */
-		return offset;
-	}
-
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_nt_str_max_len, &max_len);
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_nt_str_off, &off);
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_nt_str_len, &len);
-
-	hfi = proto_registrar_get_nth(di->hf_index);
-
-	switch(hfi->type){
-	case FT_STRING:
-		text = tvb_get_ptr(tvb, offset, len);
-		break;
-	case FT_BYTES:
-		text = NULL;
-		break;
-	default:
-		text = NULL;
-		g_assert_not_reached();
-	}
-	proto_tree_add_item(tree, di->hf_index, tvb, offset, len, FALSE);
-	offset += len;
-
-  	return offset;
-}
-
-int
-dissect_ndr_nt_STRING_cb(tvbuff_t *tvb, int offset,
-			 packet_info *pinfo, proto_tree *parent_tree,
-			 char *drep, int hf_index, 
-			 dcerpc_callback_fnct_t *callback, 
-			 void *callback_args)
-{
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
-	int old_offset=offset;
-	dcerpc_info *di;
-	char *name;
-
-	ALIGN_TO_4_BYTES;  /* strcture starts with short, but is aligned for longs */
-
-	di=pinfo->private_data;
-	if(di->conformant_run){
-		/*just a run to handle conformant arrays, nothing to dissect */
-		return offset;
-	}
-
-	name = proto_registrar_get_name(hf_index);
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
-			"%s", name);
-		tree = proto_item_add_subtree(item, ett_nt_unicode_string);
-	}
-
-        offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
-                                     hf_nt_string_length, NULL);
-        offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
-                                     hf_nt_string_size, NULL);
-        offset = dissect_ndr_pointer_cb(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_STRING_string, NDR_POINTER_UNIQUE,
-			name, hf_index, callback, callback_args);
-
-	proto_item_set_len(item, offset-old_offset);
 	return offset;
 }
 
-int
-dissect_ndr_nt_STRING(tvbuff_t *tvb, int offset,
-		      packet_info *pinfo, proto_tree *parent_tree,
-		      char *drep, int hf_index)
+static gint ett_nt_counted_string = -1;
+
+static int
+dissect_ndr_counted_string_helper(tvbuff_t *tvb, int offset,
+				  packet_info *pinfo, proto_tree *tree,
+				  char *drep, int hf_index, int levels,
+				  gboolean add_subtree)
 {
-	header_field_info *hfi;
+	proto_item *item;
+	proto_tree *subtree = tree;
 
-	hfi = proto_registrar_get_nth(hf_index);
+	if (add_subtree) {
 
-	return dissect_ndr_nt_STRING_cb(
-		tvb, offset, pinfo, parent_tree, drep, hf_index,
-		cb_str_postprocess,
-		hfi->type == FT_STRING ? GINT_TO_POINTER(1):
-					 GINT_TO_POINTER(0));
+		item = proto_tree_add_text(
+			tree, tvb, offset, 0, 
+			proto_registrar_get_name(hf_index));
+
+		subtree = proto_item_add_subtree(item, ett_nt_counted_string);
+	}
+
+	return dissect_ndr_counted_string_cb(
+		tvb, offset, pinfo, subtree, drep, hf_index,
+		cb_str_postprocess, GINT_TO_POINTER(1 + levels));
+}
+
+/* Dissect a counted string in-line. */
+
+int
+dissect_ndr_counted_string(tvbuff_t *tvb, int offset,
+			   packet_info *pinfo, proto_tree *tree,
+			   char *drep, int hf_index, int levels)
+{
+	return dissect_ndr_counted_string_helper(
+		tvb, offset, pinfo, tree, drep, hf_index, levels, TRUE);
+}
+
+/* Dissect a counted string as a callback to dissect_ndr_pointer().
+   This doesn't add a adds a proto item and subtreee for the string as
+   the pointer dissection already creates one. */
+
+int
+dissect_ndr_counted_string_ptr(tvbuff_t *tvb, int offset,
+			       packet_info *pinfo, proto_tree *tree,
+			       char *drep)
+{
+	dcerpc_info *di = pinfo->private_data;
+
+	return dissect_ndr_counted_string_helper(
+		tvb, offset, pinfo, tree, drep, di->hf_index, 1, FALSE);
 }
 
 /* This function is used to dissect a DCERPC encoded 64 bit time value.
@@ -849,6 +784,8 @@ dissect_doserror(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 static int hf_nt_policy_open_frame = -1;
 static int hf_nt_policy_close_frame = -1;
 
+static gint ett_nt_policy_hnd = -1;
+
 int
 dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		      proto_tree *tree, char *drep, int hfindex,
@@ -1046,7 +983,7 @@ int dissect_ndr_str_pointer_item(tvbuff_t *tvb, gint offset,
 {
 	return dissect_ndr_pointer_cb(
 		tvb, offset, pinfo, tree, drep, 
-		dissect_ndr_nt_UNICODE_STRING_str, type, text, hf_index, 
+		dissect_ndr_wchar_array, type, text, hf_index, 
 		cb_str_postprocess, GINT_TO_POINTER(levels + 1));
 }
 
@@ -1058,6 +995,44 @@ void dcerpc_smb_init(int proto_dcerpc)
 {
 	static hf_register_info hf[] = {
 
+		/* String handling */
+
+		{ &hf_nt_string_length,
+		  { "Length", "nt.string.length", FT_UINT16, BASE_DEC,
+		    NULL, 0x0, "Length of string in bytes", HFILL }},
+		
+		{ &hf_nt_string_size,
+		  { "Size", "nt.string.size", FT_UINT16, BASE_DEC,
+		    NULL, 0x0, "Size of string in bytes", HFILL }},
+		
+		{ &hf_nt_str_len,
+		  { "Length", "nt.str.len", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, "Length of string in short integers", HFILL }},
+		
+		{ &hf_nt_str_off,
+		  { "Offset", "nt.str.offset", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, "Offset into string in short integers", 
+		    HFILL }},
+		
+		{ &hf_nt_str_max_len,
+		  { "Max Length", "nt.str.max_len", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, "Max Length of string in short integers", 
+		    HFILL }},
+		
+		{ &hf_nt_str_buffer,
+		  { "Buffer", "nt.str.buffer", FT_BYTES, BASE_NONE,
+		    NULL, 0x0, "Buffer", HFILL }},
+		
+		{ &hf_nt_cs_size,
+		  { "Size", "nt.str.size", FT_UINT16, BASE_DEC,
+		    NULL, 0x0, "Size of string in short integers", 
+		    HFILL }},
+		
+		{ &hf_nt_cs_len,
+		  { "Length", "nt.str.len", FT_UINT16, BASE_DEC,
+		    NULL, 0x0, "Length of string in short integers", 
+		    HFILL }},
+		
 		/* Access mask */
 
 		{ &hf_access_generic_read,
@@ -1210,6 +1185,7 @@ void dcerpc_smb_init(int proto_dcerpc)
 
 	static gint *ett[] = {
 		&ett_nt_unicode_string,
+		&ett_nt_counted_string,
 		&ett_nt_policy_hnd,
 		&ett_nt_access_mask,
 		&ett_nt_access_mask_generic,
