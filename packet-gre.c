@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.10 1999/12/10 02:29:48 guy Exp $
+ * $Id: packet-gre.c,v 1.11 1999/12/10 21:27:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -83,25 +83,18 @@ dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   }
 		
   if (IS_DATA_IN_FRAME(offset) && tree) {
-    int			is_ppp;
+    gboolean		is_ppp;
     proto_item *	ti;
     proto_tree *	gre_tree;
 
-    if (type == GRE_PPP) {
-      is_ppp = 1;
-      ti = proto_tree_add_item_format(tree, proto_gre, offset, calc_len(flags_and_ver, 1),
-	NULL, "Generic Routing Encapsulation (PPP)");
-      gre_tree = proto_item_add_subtree(ti, ett_gre);
-      add_flags_and_ver(gre_tree, flags_and_ver, offset, 1);
-    }
-    else {
-      is_ppp = 0;
-      ti = proto_tree_add_item_format(tree, proto_gre, offset, calc_len(flags_and_ver, 1),
-        NULL, "Generic Routing Encapsulation (%s)",
-        val_to_str(type, typevals, "0x%04X - unknown"));
-      gre_tree = proto_item_add_subtree(ti, ett_gre);
-      add_flags_and_ver(gre_tree, flags_and_ver, offset, 0);
-    }
+    is_ppp = (type == GRE_PPP);
+
+    ti = proto_tree_add_item_format(tree, proto_gre, offset,
+      calc_len(flags_and_ver, type), NULL,
+      "Generic Routing Encapsulation (%s)",
+      val_to_str(type, typevals, "0x%04X - unknown"));
+    gre_tree = proto_item_add_subtree(ti, ett_gre);
+    add_flags_and_ver(gre_tree, flags_and_ver, offset, is_ppp);
 
     offset += sizeof(flags_and_ver);
 
@@ -180,10 +173,10 @@ dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     }
 
     switch (type) {
-       case GRE_PPP:
+      case GRE_PPP:
  	dissect_payload_ppp(pd, offset, fd, tree);
  	break;
-       case GRE_IP:
+      case GRE_IP:
         dissect_ip(pd, offset, fd, tree);
         break;
       default:
@@ -193,14 +186,23 @@ dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 }
 
 static int
-calc_len(guint16 flags_and_ver, int is_ppp) {
-  
+calc_len(guint16 flags_and_ver, int type)
+{
   int	len = 4;
   
-  if (flags_and_ver & GH_B_C || flags_and_ver & GH_B_R) len += 4;
-  if (flags_and_ver & GH_B_K) len += 4;
-  if (flags_and_ver & GH_B_S) len += 4;
-  if (is_ppp && flags_and_ver & GH_P_A) len += 4;
+  if (flags_and_ver & GH_B_C || flags_and_ver & GH_B_R)
+    len += 4;
+  if (flags_and_ver & GH_B_K)
+    len += 4;
+  if (flags_and_ver & GH_B_S)
+    len += 4;
+  switch (type) {
+
+  case GRE_PPP:
+    if (flags_and_ver & GH_P_A)
+      len += 4;
+    break;
+  }
   
   return len;
 }
