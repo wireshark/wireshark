@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.7 2000/08/17 07:56:32 guy Exp $
+ * $Id: follow_dlg.c,v 1.8 2000/08/21 13:04:05 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -485,7 +485,8 @@ follow_read_stream(follow_info_t *follow_info,
 				int i, cur;
 				/* is_server indentation : put 63 spaces at the begenning
 				 * of the string */
-				sprintf(hexbuf, is_server ?
+				sprintf(hexbuf, (is_server && 
+					follow_info->show_stream == BOTH_HOSTS) ?
 					"                                 "
 					"                              %08X  " :
 					"%08X  ", *global_pos);
