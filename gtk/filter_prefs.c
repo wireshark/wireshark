@@ -1,7 +1,7 @@
 /* filter_prefs.c
  * Dialog boxes for preferences for filter sets
  *
- * $Id: filter_prefs.c,v 1.4 1999/09/10 06:53:30 guy Exp $
+ * $Id: filter_prefs.c,v 1.5 1999/09/19 14:27:44 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -397,7 +397,7 @@ filter_sel_del_cb(GtkWidget *w, gpointer data) {
       g_free(filt->name);
       g_free(filt->strval);
       g_free(filt);
-      fl = g_list_remove(fl, flp);
+      fl = g_list_remove_link(fl, flp);
       gtk_list_clear_items(GTK_LIST(filter_l), pos, pos + 1);
     } 
   }
