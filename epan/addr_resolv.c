@@ -1504,9 +1504,10 @@ static guint ipxnet_addr_lookup(const gchar *name, gboolean *success)
 } /* ipxnet_addr_lookup */
 
 #ifdef HAVE_GNU_ADNS
-static void
-read_hosts_file (FILE *hf)
+static gboolean
+read_hosts_file (const char *hostspath)
 {
+  FILE *hf;
   char *line = NULL;
   int size = 0;
   gchar *cp;
@@ -1519,6 +1520,9 @@ read_hosts_file (FILE *hf)
    *  See the hosts(4) or hosts(5) man page for hosts file format
    *  (not available on all systems).
    */
+  if ((hf = fopen(hostspath, "r")) == NULL)
+    return FALSE;
+
   while (fgetline(&line, &size, hf) >= 0) {
     if ((cp = strchr(line, '#')))
       *cp = '\0';
@@ -1561,6 +1565,9 @@ read_hosts_file (FILE *hf)
   }
   if (line != NULL)
     g_free(line);
+
+  fclose(hf);
+  return TRUE;
 } /* read_hosts_file */
 #endif
 
@@ -1573,8 +1580,6 @@ read_hosts_file (FILE *hf)
 void
 host_name_lookup_init(void) {
 
-  FILE *hf;
-  char *hostspath;
   #ifdef WIN32
   char *sysroot;
   static char rootpath[] = "\\system32\\drivers\\etc\\hosts";
@@ -1582,23 +1587,42 @@ host_name_lookup_init(void) {
 
 #ifdef WIN32
   sysroot = getenv("SYSTEMROOT");
-  /* getenv() returns NULL, if requested environment variable can't be found */
-  if(sysroot != NULL) {
-	hostspath = g_strconcat(sysroot, rootpath, NULL);
-
-#else
-  hostspath = g_strdup("/etc/hosts");
-#endif
-
-  if ((hf = fopen(hostspath, "r")) != NULL) {
-    read_hosts_file(hf);
-    fclose(hf);
+  if (sysroot != NULL) {
+    /* The file should be under SYSTEMROOT */
+    hostspath = g_strconcat(sysroot, rootpath, NULL);
+    read_hosts_file(hostspath);
+    g_free(hostspath);
+  } else {
+    /*
+     * This might be Windows OT (95/98/Me), or it might be NT
+     * (NT 4.0/2K/XP/etc.) with SYSTEMROOT not set.
+     *
+     * The hosts file is apparently in c:\windows\hosts in
+     * OT, and under the system root in NT, but the system
+     * root in NT might be c:\winnt or c:\windows (the latter
+     * is claimed to be where it is in XP Home, presumably
+     * for compatibility with OT).
+     *
+     * We try all three of them until we either succeed or run
+     * out of files.
+     *
+     * XXX - should we use WINDIR in this case, rather than
+     * guessing?  Should we use WINDIR in *all* cases?
+     * If so, what should we use if WINDIR is null?  Should
+     * we just punt rather than using a default location?
+     * Windows OT and NT put hosts in a different subdirectory;
+     * does that mean we can't just use WINDIR, we need to
+     * check whether it's OT or NT?
+     */
+    if (!read_hosts_file("c:\\windows\\hosts")) {
+      if (!read_hosts_file("c:\\winnt\\system32\\drivers\\etc\\hosts"))
+        read_hosts_file("c:\\windows\\system32\\drivers\\etc\\hosts");
+    }
   }
-  g_free(hostspath);
-
-#ifdef WIN32
-  } /* endif(sysroot != NULL) */
+#else
+  read_hosts_file("/etc/hosts");
 #endif
+
   /* XXX - Any flags we should be using? */
   /* XXX - We could provide config settings for DNS servers, and
            pass them to ADNS with adns_init_strcfg */
