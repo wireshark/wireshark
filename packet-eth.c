@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.88 2003/10/01 07:11:44 guy Exp $
+ * $Id: packet-eth.c,v 1.89 2004/02/03 23:19:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,6 +56,7 @@ static gint ett_ether2 = -1;
 
 static dissector_handle_t isl_handle;
 static dissector_handle_t fw1_handle;
+static heur_dissector_list_t heur_subdissector_list;
 
 static int eth_tap = -1;
 
@@ -188,6 +189,15 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   SET_ADDRESS(&ehdr->dst, 	AT_ETHER, 6, dst_addr);
 
   ehdr->type = tvb_get_ntohs(tvb, 12);
+
+  /*
+   * In case the packet is a non-Ethernet packet inside
+   * Ethernet framing, allow heuristic dissectors to take
+   * a first look before we assume that it's actually an
+   * Ethernet packet.
+   */
+  if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree))
+    goto end_of_eth;
 
   /*
    * If the type/length field is <= the maximum 802.3 length,
@@ -424,6 +434,9 @@ proto_register_eth(void)
 	proto_eth = proto_register_protocol("Ethernet", "Ethernet", "eth");
 	proto_register_field_array(proto_eth, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	/* subdissector code */
+	register_heur_dissector_list("eth", &heur_subdissector_list);
 
 	/* Register configuration preferences */
 	eth_module = prefs_register_protocol(proto_eth, NULL);
