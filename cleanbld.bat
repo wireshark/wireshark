@@ -2,7 +2,7 @@ echo off
 rem cleanbld.bat
 rem Script to clean up from a build on another platform
 rem
-rem $Id: cleanbld.bat,v 1.1 2001/07/13 08:14:03 guy Exp $
+rem $Id: cleanbld.bat,v 1.2 2003/03/12 00:11:09 guy Exp $
 rem
 rem Ethereal - Network traffic analyzer
 rem By Gerald Combs <gerald@ethereal.com>
@@ -32,3 +32,4 @@ rem
 del/f config.h
 del/f epan\config.h
 del/f wiretap\config.h
+del/f epan\dfilter\scanner.c
