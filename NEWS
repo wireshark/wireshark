@@ -1,3 +1,89 @@
+== August 20, 2002
+
+Ethereal 0.9.6 has been released.
+
+Bugs Fixed
+
+Buffer overflow in ISIS fixed.
+A bad TCP header could cause problems for "Follow TCP Stream".  Fixed.
+Setting "column.format" from the command line no longer crashes Ethereal
+and tethereal.
+Problems with capture files being overwritten (e.g. if you try to save over
+the current capture file) have been fixed.
+SMB conversation handling crash bug fixed.
+Thanks to Valgrind, some memory leaks have been fixed.
+Some problems with printing under Windows have been fixed.
+
+New Features
+
+TCP sequence number analysis has been added.
+The DCE RPC NETLOGON dissector has received a major overhaul.
+Data types throughout the code have been cleaned up. 
+
+Caveats
+
+Please note that the BACnet protocol dissector added in version 0.8.17 is
+still very incomplete, according to the folks on the BACnet Committee.
+
+New Procols
+CPHA,
+DOCSIS,
+NTLMSSP,
+Xyplex terminal server protocol,
+ZIP
+
+
+Updated Prococols
+
+802.11,
+AFP,
+ASAP,
+BGP,
+DDP,
+DCERPC,
+DCERPC NT,
+DCERPC REG,
+EPM,
+FTP,
+HCLNFSD,
+HTTP,
+IPX,
+ISIS,
+IUA,
+Kerberos,
+L2TP,
+LSA,
+MMSE,
+NBNS,
+NetBIOS,
+NETLOGON,
+NFS,
+NTLMSSP,
+PPP,
+Quake2,
+RADIUS,
+RSVP,
+RTCP,
+SAMR,
+SIP,
+SMB,
+SMB Mailslot,
+SMTP,
+SPOOLSS,
+TCP,
+TNS,
+TPKT,
+Token Ring,
+VJ TCP,
+WINREG,
+WSP,
+
+
+Capture File Updates
+Added CheckPoint Firewall-1 monitor file, CoSine debug file, 
+updated pppdump, Netmon, 
+
+
 == June 28, 2002
 
 Ethereal 0.9.5 has been released. This version fixes several potential
