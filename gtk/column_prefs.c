@@ -1,7 +1,7 @@
 /* column_prefs.c
  * Dialog box for column preferences
  *
- * $Id: column_prefs.c,v 1.18 2004/01/16 21:25:21 ulfl Exp $
+ * $Id: column_prefs.c,v 1.19 2004/01/17 12:12:57 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,6 +86,8 @@ column_prefs_show() {
   GtkTreeViewColumn *column;
   GtkTreeSelection  *sel;
   GtkTreeIter        iter;
+  GtkTreeIter        first_iter;
+  gint               first_row = TRUE;
 #endif
 
   /* Container for each row of widgets */
@@ -199,6 +201,10 @@ column_prefs_show() {
     gtk_list_store_set(store, &iter, 0, cfmt->title, 1,
                        col_format_desc(get_column_format_from_str(cfmt->fmt)),
                        2, clp, -1);
+    if (first_row) {
+        first_iter = iter;
+        first_row = FALSE;
+    }
 #endif
     clp = clp->next;
   }
@@ -283,6 +289,13 @@ column_prefs_show() {
   gtk_box_pack_start(GTK_BOX(edit_hb), fmt_m, FALSE, FALSE, 0);
   gtk_widget_show(fmt_m);
 
+  /* select the first row */
+#if GTK_MAJOR_VERSION < 2
+  gtk_clist_select_row(GTK_CLIST(column_l), 0, 0);
+#else
+  gtk_tree_selection_select_iter(sel, &first_iter);
+#endif
+
   return(main_vb);
 }
 
@@ -310,12 +323,13 @@ column_list_select_cb(GtkCList *clist,
   gtk_editable_select_region(GTK_EDITABLE(title_te), 0, -1);
   gtk_widget_grab_focus(title_te);
 
-  gtk_option_menu_set_history(GTK_OPTION_MENU(fmt_m), cur_fmt);
-
   gtk_widget_set_sensitive(del_bt, TRUE);
   gtk_widget_set_sensitive(title_te, TRUE);
   gtk_widget_set_sensitive(fmt_m, TRUE);
   column_set_arrow_button_sensitivity(clp);
+
+  /* do this *after* set_sensitive(fmt_m), to have the correct "sensitive" effect */
+  gtk_option_menu_set_history(GTK_OPTION_MENU(fmt_m), cur_fmt);
 }
 
 /* A row was deselected.  Clear the text entry box and disable various widgets. */
