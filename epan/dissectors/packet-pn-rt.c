@@ -360,17 +360,17 @@ proto_register_pn_rt(void)
 	{ &hf_pn_rt_data_status_res67, { 
 		"Reserved (should be zero)", "pn_rt.ds_res67", FT_UINT8, BASE_HEX, 0, 0xc0, "", HFILL }},
 	{ &hf_pn_rt_data_status_ok, { 
-		"StationProblemIndicator: 1:Ok/0:Problem", "pn_rt.ds_ok", FT_UINT8, BASE_HEX, 0, 0x20, "", HFILL }},
+		"StationProblemIndicator (1:Ok/0:Problem)", "pn_rt.ds_ok", FT_UINT8, BASE_HEX, 0, 0x20, "", HFILL }},
 	{ &hf_pn_rt_data_status_operate, { 
-		"ProviderState: 1:Run/0:Stop", "pn_rt.ds_operate", FT_UINT8, BASE_HEX, 0, 0x10, "", HFILL }},
+		"ProviderState (1:Run/0:Stop)", "pn_rt.ds_operate", FT_UINT8, BASE_HEX, 0, 0x10, "", HFILL }},
 	{ &hf_pn_rt_data_status_res3, { 
 		"Reserved (should be zero)", "pn_rt.ds_res3", FT_UINT8, BASE_HEX, 0, 0x08, "", HFILL }},
 	{ &hf_pn_rt_data_status_valid, { 
-		"DataValid: 1:Valid/0:Invalid", "pn_rt.ds_valid", FT_UINT8, BASE_HEX, 0, 0x04, "", HFILL }},
+		"DataValid (1:Valid/0:Invalid)", "pn_rt.ds_valid", FT_UINT8, BASE_HEX, 0, 0x04, "", HFILL }},
 	{ &hf_pn_rt_data_status_res1, { 
 		"Reserved (should be zero)", "pn_rt.ds_res1", FT_UINT8, BASE_HEX, 0, 0x02, "", HFILL }},
 	{ &hf_pn_rt_data_status_primary, { 
-		"State: 1:Primary/0:Backup", "pn_rt.ds_primary", FT_UINT8, BASE_HEX, 0, 0x01, "", HFILL }},
+		"State (1:Primary/0:Backup)", "pn_rt.ds_primary", FT_UINT8, BASE_HEX, 0, 0x01, "", HFILL }},
     { &hf_pn_rt_transfer_status,
       { "TransferStatus", "pn_rt.transfer_status", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
 	{ &hf_pn_rt_malformed,

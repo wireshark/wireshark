@@ -1,6 +1,5 @@
 /* packet-dcerpc-pn-io.c
- * Routines for PROFINET IO dissection
- * (based on DCE-RPC and PN-RT protocols)
+ * Routines for PROFINET IO dissection.
  *
  * $Id$
  *
@@ -22,6 +21,29 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+/*
+ * The PN-IO protocol is a field bus protocol related to decentralized 
+ * periphery and is developed by the PROFIBUS Nutzerorganisation e.V. (PNO), 
+ * see: www.profibus.com
+ *
+ *
+ * PN-IO is based on the common DCE-RPC and the "lightweight" PN-RT 
+ * (ethernet type 0x8892) protocols.
+ *
+ * The context manager (CM) part is handling context information 
+ * (like establishing, ...) and is using DCE-RPC as it's underlying 
+ * protocol.
+ *
+ * The actual cyclic data transfer and acyclic notification uses the 
+ * "lightweight" PN-RT protocol.
+ *
+ * There are some other related PROFINET protocols (e.g. PN-DCP, which is 
+ * handling addressing topics).
+ *
+ * Please note: the PROFINET CBA protocol is independant of the PN-IO protocol!
+ */
+
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -110,13 +132,23 @@ static int hf_pn_io_var_part_len = -1;
 static int hf_pn_io_module_ident_number = -1;
 static int hf_pn_io_submodule_ident_number = -1;
 
+static int hf_pn_io_ioxs = -1;
+static int hf_pn_io_ioxs_extension = -1;
+static int hf_pn_io_ioxs_res14 = -1;
+static int hf_pn_io_ioxs_instance = -1;
+static int hf_pn_io_ioxs_datastate = -1;
+
+
 static gint ett_pn_io = -1;
 static gint ett_pn_io_block = -1;
 static gint ett_pn_io_status = -1;
+static gint ett_pn_io_rtc = -1;
 static gint ett_pn_io_rta = -1;
 static gint ett_pn_io_pdu_type = -1;
 static gint ett_pn_io_add_flags = -1;
 static gint ett_pn_io_control_command = -1;
+static gint ett_pn_io_ioxs = -1;
+
 
 static e_uuid_t uuid_pn_io_device = { 0xDEA00001, 0x6C97, 0x11D1, { 0x82, 0x71, 0x00, 0xA0, 0x24, 0x42, 0xDF, 0x7D } };
 static guint16  ver_pn_io_device = 1;
@@ -305,6 +337,12 @@ static const value_string pn_io_error_code1_pnio[] = {
     { 0, NULL }
 };
 
+static const value_string pn_io_ioxs[] = {
+	{ 0x00 /*  0*/, "detected by subslot" },
+	{ 0x01 /*  1*/, "detected by slot" },
+	{ 0x02 /*  2*/, "detected by IO device" },
+	{ 0x03 /*  3*/, "detected by IO controller" },
+};
 
 
 /* dissect the four status (error) fields */
@@ -780,6 +818,9 @@ dissect_IPNIO_rqst_header(tvbuff_t *tvb, int offset,
 	guint32 u32SubStart;
 
 
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	    col_add_str(pinfo->cinfo, COL_PROTOCOL, "PNIO-CM");
+
     /* args_max */
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_args_max, &u32ArgsMax);
@@ -820,6 +861,10 @@ dissect_IPNIO_resp_header(tvbuff_t *tvb, int offset,
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 	guint32 u32SubStart;
+
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	    col_add_str(pinfo->cinfo, COL_PROTOCOL, "PNIO-CM");
 
     offset = dissect_PNIO_status(tvb, offset, pinfo, tree, drep);
 
@@ -999,28 +1044,59 @@ dissect_IPNIO_Write_resp(tvbuff_t *tvb, int offset,
 }
 
 
-/* dissect a PN-IO Data PDU (on top of PN-RT protocol) */
+/* dissect the IOxS (IOCS, IOPS) field */
 static int
-dissect_PNIO_Data(tvbuff_t *tvb, int offset,
+dissect_PNIO_IOxS(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint8 u8IOxS;
+    proto_item *ioxs_item = NULL;
+    proto_tree *ioxs_tree = NULL;
+
+
+    u8IOxS = tvb_get_guint8(tvb, offset);
+
+    /* add ioxs subtree */
+	ioxs_item = proto_tree_add_uint_format(tree, hf_pn_io_ioxs, 
+		tvb, offset, 1, u8IOxS,
+		"IOxS: 0x%02x (%s%s)", 
+		u8IOxS, 
+		(u8IOxS & 0x01) ? "another IOxS follows " : "",
+		(u8IOxS & 0x80) ? "good" : "bad");
+	ioxs_tree = proto_item_add_subtree(ioxs_item, ett_pn_io_ioxs);
+
+	proto_tree_add_uint(ioxs_tree, hf_pn_io_ioxs_extension, tvb, offset, 1, u8IOxS);
+	proto_tree_add_uint(ioxs_tree, hf_pn_io_ioxs_res14, tvb, offset, 1, u8IOxS);
+	proto_tree_add_uint(ioxs_tree, hf_pn_io_ioxs_instance, tvb, offset, 1, u8IOxS);
+	proto_tree_add_uint(ioxs_tree, hf_pn_io_ioxs_datastate, tvb, offset, 1, u8IOxS);
+
+    return offset + 1;
+}
+
+
+/* dissect a PN-IO Cyclic Service Data Unit (on top of PN-RT protocol) */
+static int
+dissect_PNIO_C_SDU(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
     proto_item *data_item;
-/*	proto_tree *data_tree;*/
+	proto_tree *data_tree;
 
-
-    data_item = proto_tree_add_protocol_format(tree, proto_pn_io, tvb, 0, tvb_length(tvb),
-				"PROFINET IO Data: %u bytes", tvb_length(tvb));
-
-#if 0
-    /* XXX - remaining bytes: dissection not yet implemented */
-    data_tree = proto_item_add_subtree(data_item, ett_pn_io_rta);
-
-    proto_tree_add_string_format(data_tree, hf_pn_io_data, tvb, 0, tvb_length(tvb), "data", 
-        "PN-IO Data: %u bytes", tvb_length(tvb));
-#endif
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	    col_add_str(pinfo->cinfo, COL_PROTOCOL, "PNIO");
+
+	data_item = proto_tree_add_protocol_format(tree, proto_pn_io, tvb, offset, tvb_length(tvb),
+				"PROFINET IO Cyclic Service Data Unit: %u bytes", tvb_length(tvb));
+    data_tree = proto_item_add_subtree(data_item, ett_pn_io_rtc);
+
+    offset = dissect_PNIO_IOxS(tvb, offset, pinfo, data_tree, drep);
+
+    /* XXX - dissect the remaining data */
+    /* this will be one or more DataItems followed by an optional GAP and RTCPadding */
+    /* as we don't have the required context information to dissect the specific DataItems, this will be tricky :-( */
+	data_item = proto_tree_add_protocol_format(data_tree, proto_pn_io, tvb, offset, tvb_length_remaining(tvb, offset),
+				"Data: %u bytes (including GAP and RTCPadding)", tvb_length_remaining(tvb, offset));
 
     return offset;
 }
@@ -1040,6 +1116,7 @@ dissect_PNIO_RTA(tvbuff_t *tvb, int offset,
     guint16 u16SendSeqNum;
     guint16 u16AckSeqNum;
     guint16 u16VarPartLen;
+    int     start_offset = offset;
 
     proto_item *rta_item;
 	proto_tree *rta_tree;
@@ -1047,8 +1124,12 @@ dissect_PNIO_RTA(tvbuff_t *tvb, int offset,
     proto_item *sub_item;
 	proto_tree *sub_tree;
 
-	rta_item = proto_tree_add_protocol_format(tree, proto_pn_io, tvb, 0, 0,
-				"PROFINET IO Alarm");
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	    col_add_str(pinfo->cinfo, COL_PROTOCOL, "PNIO-AL");
+
+	rta_item = proto_tree_add_protocol_format(tree, proto_pn_io, tvb, offset, tvb_length(tvb), 
+        "PROFINET IO Alarm");
 	rta_tree = proto_item_add_subtree(rta_item, ett_pn_io_rta);
 
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep, 
@@ -1118,14 +1199,13 @@ dissect_PNIO_RTA(tvbuff_t *tvb, int offset,
             "PN-IO Alarm: unknown PDU type 0x%x", u8PDUType);    
     }
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	    col_add_str(pinfo->cinfo, COL_PROTOCOL, "PNIO-AL");
+    proto_item_set_len(rta_item, offset - start_offset);
 
     return offset;
 }
 
 
-/* possibly dissect a PN-IO PN-RT packet */
+/* possibly dissect a PN-IO related PN-RT packet */
 static gboolean
 dissect_PNIO_heur(tvbuff_t *tvb, 
 	packet_info *pinfo, proto_tree *tree)
@@ -1144,7 +1224,7 @@ dissect_PNIO_heur(tvbuff_t *tvb,
     /* is this a PNIO class 2 data packet? */
 	/* frame id must be in valid range (cyclic Real-Time, class=2) */
 	if (u16FrameID >= 0x8000 && u16FrameID < 0xbf00) {
-        dissect_PNIO_Data(tvb, 0, pinfo, tree, drep);
+        dissect_PNIO_C_SDU(tvb, 0, pinfo, tree, drep);
         return TRUE;
     }
 
@@ -1152,7 +1232,7 @@ dissect_PNIO_heur(tvbuff_t *tvb,
 	/* frame id must be in valid range (cyclic Real-Time, class=1) and
      * first byte (CBA version field) has to be != 0x11 */
 	if (u16FrameID >= 0xc000 && u16FrameID < 0xfb00 && u8CBAVersion != 0x11) {
-        dissect_PNIO_Data(tvb, 0, pinfo, tree, drep);
+        dissect_PNIO_C_SDU(tvb, 0, pinfo, tree, drep);
         return TRUE;
     }
 
@@ -1313,19 +1393,33 @@ proto_register_pn_io (void)
     { &hf_pn_io_module_ident_number,
       { "ModuleIdentNumber", "pn_io.module_ident_number", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_submodule_ident_number,
-      { "SubmoduleIdentNumber", "pn_io.submodule_ident_number", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }}
+      { "SubmoduleIdentNumber", "pn_io.submodule_ident_number", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+    { &hf_pn_io_ioxs,
+      { "IOxS", "pn_io.ioxs", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_ioxs_extension,
+      { "Extension (1:another IOxS follows/0:no IOxS follows)", "pn_io.ioxs.extension", FT_UINT8, BASE_HEX, NULL, 0x01, "", HFILL }},
+    { &hf_pn_io_ioxs_res14,
+      { "Reserved (should be zero)", "pn_io.ioxs.res14", FT_UINT8, BASE_HEX, NULL, 0x1E, "", HFILL }},
+    { &hf_pn_io_ioxs_instance,
+      { "Instance (only valid, if DataState is bad)", "pn_io.ioxs.instance", FT_UINT8, BASE_HEX, VALS(pn_io_ioxs), 0x60, "", HFILL }},
+    { &hf_pn_io_ioxs_datastate,
+      { "DataState (1:good/0:bad)", "pn_io.ioxs.datastate", FT_UINT8, BASE_HEX, NULL, 0x80, "", HFILL }}
     };
 
 	static gint *ett[] = {
 		&ett_pn_io,
         &ett_pn_io_block,
         &ett_pn_io_status,
+        &ett_pn_io_rtc,
         &ett_pn_io_rta,
 		&ett_pn_io_pdu_type,
         &ett_pn_io_add_flags,
-        &ett_pn_io_control_command
+        &ett_pn_io_control_command,
+        &ett_pn_io_ioxs
 	};
-	proto_pn_io = proto_register_protocol ("PROFINET IO", "PNIO-CM", "pn_io");
+
+	proto_pn_io = proto_register_protocol ("PROFINET IO", "PNIO", "pn_io");
 	proto_register_field_array (proto_pn_io, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
 }
