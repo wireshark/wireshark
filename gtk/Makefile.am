@@ -44,10 +44,10 @@ noinst_HEADERS = \
 	colors.h	\
 	column_prefs.h	\
 	compat_macros.h	\
+	conversations_table.h \
 	decode_as_dlg.h	\
 	dfilter_expr_dlg.h \
 	dlg_utils.h	\
-	endpoint_talkers_table.h \
 	file_dlg.h	\
 	filter_dlg.h	\
 	find_dlg.h	\

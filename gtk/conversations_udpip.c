@@ -1,5 +1,5 @@
-/* endpoint_talkers_fddi.c
- * endpoint_talkers_fddi   2003 Ronnie Sahlberg
+/* conversations_udpip.c
+ * conversations_udpip   2003 Ronnie Sahlberg
  *
  * $Id$
  *
@@ -36,17 +36,16 @@
 #include "tap_menu.h"
 #include "../tap.h"
 #include "../register.h"
-#include "endpoint_talkers_table.h"
-#include <epan/dissectors/packet-fddi.h>
+#include "conversations_table.h"
+#include <epan/dissectors/packet-udp.h>
 
 
 static int
-fddi_talkers_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
+udpip_talkers_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
 {
-	endpoints_table *talkers=(endpoints_table *)pit;
-	fddi_hdr *ehdr=vip;
+	e_udphdr *udphdr=vip;
 
-	add_ett_table_data(talkers, &ehdr->src, &ehdr->dst, 0, 0, 1, pinfo->fd->pkt_len, SAT_FDDI, PT_NONE);
+	add_ett_table_data((conversations_table *)pct, &udphdr->ip_src, &udphdr->ip_dst, udphdr->uh_sport, udphdr->uh_dport, 1, pinfo->fd->pkt_len, SAT_NONE, PT_UDP);
 
 	return 1;
 }
@@ -54,36 +53,36 @@ fddi_talkers_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, void
 
 
 static void
-gtk_fddi_talkers_init(char *optarg)
+gtk_udpip_talkers_init(char *optarg)
 {
 	char *filter=NULL;
 
-	if(!strncmp(optarg,"conv,fddi,",10)){
-		filter=optarg+10;
+	if(!strncmp(optarg,"conv,udp,",9)){
+		filter=optarg+9;
 	} else {
 		filter=NULL;
 	}
 
-	init_ett_table(TRUE, "FDDI", "fddi", filter, (void *)fddi_talkers_packet);
+	init_ett_table(FALSE, "UDP", "udp", filter, (void *)udpip_talkers_packet);
 
 }
 
 
 static void
-gtk_fddi_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
+gtk_udpip_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_fddi_talkers_init("conv,fddi");
+	gtk_udpip_talkers_init("conv,udp");
 }
 
 
 void
-register_tap_listener_fddi_talkers(void)
+register_tap_listener_udpip_talkers(void)
 {
-	register_ethereal_tap("conv,fddi", gtk_fddi_talkers_init);
+	register_ethereal_tap("conv,udp", gtk_udpip_talkers_init);
 
-	register_tap_menu_item("FDDI", REGISTER_TAP_GROUP_CONVERSATION_LIST,
-	    gtk_fddi_endpoints_cb, NULL, NULL, NULL);
+	register_tap_menu_item("UDP (IPv4 & IPv6)", REGISTER_TAP_GROUP_CONVERSATION_LIST,
+	    gtk_udpip_endpoints_cb, NULL, NULL, NULL);
 
-	register_ett_table(TRUE, "FDDI", "fddi", NULL /*filter*/, (void *)fddi_talkers_packet);
+    register_ett_table(FALSE, "UDP", "udp", NULL /*filter*/, (void *)udpip_talkers_packet);
 }
 

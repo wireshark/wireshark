@@ -1,6 +1,6 @@
-/* endpoint_talkers_table.h
- * endpoint_talkers_table   2003 Ronnie Sahlberg
- * Helper routines common to all endpoint talkers taps.
+/* conversations_table.h
+ * conversations_table   2003 Ronnie Sahlberg
+ * Helper routines common to all conversations taps.
  *
  * $Id$
  *
@@ -30,7 +30,7 @@
  */
 
 /** Conversation information */
-typedef struct _endpoint_talker_t {
+typedef struct _conversation_t {
 	address src_address;    /**< source address */
 	address dst_address;    /**< destination address */
 	SAT_E   sat;            /**< address type */
@@ -42,10 +42,10 @@ typedef struct _endpoint_talker_t {
 	guint32 tx_frames;      /**< number of transmitted packets */
 	guint32 rx_bytes;       /**< number of received bytes */
 	guint32 tx_bytes;       /**< number of transmitted bytes */
-} endpoint_talker_t;
+} conversation_t;
 
 /** Conversation widget */
-typedef struct _endpoints_table {
+typedef struct _conversations_table {
 	char                *name;              /**< the name of the table */
 	GtkWidget           *win;               /**< GTK window */
 	GtkWidget           *page_lb;           /**< label */
@@ -53,10 +53,10 @@ typedef struct _endpoints_table {
 	GtkCList            *table;             /**< the GTK table */
 	GtkWidget           *menu;              /**< context menu */
 	gboolean            has_ports;          /**< table has ports */
-	guint32             num_endpoints;      /**< number of endpoints (0 or 1) */
-	endpoint_talker_t   *endpoints;         /**< array of conversation values */
+	guint32             num_endpoints;      /**< number of conversations */
+	conversation_t      *endpoints;         /**< array of conversation values */
 	gboolean            resolve_names;      /**< resolve address names? */
-} endpoints_table;
+} conversations_table;
 
 /** Register the conversation table for the multiple conversation window.
  *
@@ -87,7 +87,7 @@ extern void init_ett_notebook_cb(GtkWidget *w, gpointer d);
 
 /** Add some data to the table.
  *
- * @param et the table to add the data to
+ * @param ct the table to add the data to
  * @param src source address
  * @param dst destination address
  * @param src_port source port
@@ -97,5 +97,5 @@ extern void init_ett_notebook_cb(GtkWidget *w, gpointer d);
  * @param sat address type
  * @param port_type the port type (e.g. PT_TCP)
  */
-extern void add_ett_table_data(endpoints_table *et, address *src, address *dst, 
+extern void add_ett_table_data(conversations_table *ct, address *src, address *dst, 
                         guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, SAT_E sat, int port_type);

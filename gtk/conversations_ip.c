@@ -1,5 +1,5 @@
-/* endpoint_talkers_udpip.c
- * endpoint_talkers_udpip   2003 Ronnie Sahlberg
+/* conversations_ip.c
+ * conversations_ip   2003 Ronnie Sahlberg
  *
  * $Id$
  *
@@ -36,54 +36,51 @@
 #include "tap_menu.h"
 #include "../tap.h"
 #include "../register.h"
-#include "endpoint_talkers_table.h"
-#include <epan/dissectors/packet-udp.h>
+#include "conversations_table.h"
+#include <epan/dissectors/packet-ip.h>
 
 
 static int
-udpip_talkers_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
+ip_talkers_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
 {
-	endpoints_table *talkers=(endpoints_table *)pit;
-	e_udphdr *udphdr=vip;
+	e_ip *iph=vip;
 
-	add_ett_table_data(talkers, &udphdr->ip_src, &udphdr->ip_dst, udphdr->uh_sport, udphdr->uh_dport, 1, pinfo->fd->pkt_len, SAT_NONE, PT_UDP);
+	add_ett_table_data((conversations_table *)pct, &iph->ip_src, &iph->ip_dst, 0, 0, 1, pinfo->fd->pkt_len, SAT_NONE, PT_NONE);
 
 	return 1;
 }
 
-
-
 static void
-gtk_udpip_talkers_init(char *optarg)
+gtk_ip_talkers_init(char *optarg)
 {
 	char *filter=NULL;
 
-	if(!strncmp(optarg,"conv,udp,",9)){
-		filter=optarg+9;
+	if(!strncmp(optarg,"conv,ip,",8)){
+		filter=optarg+8;
 	} else {
 		filter=NULL;
 	}
 
-	init_ett_table(FALSE, "UDP", "udp", filter, (void *)udpip_talkers_packet);
+	init_ett_table(TRUE, "IPv4", "ip", filter, (void *)ip_talkers_packet);
 
 }
 
 
 static void
-gtk_udpip_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
+gtk_ip_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_udpip_talkers_init("conv,udp");
+	gtk_ip_talkers_init("conv,ip");
 }
 
 
 void
-register_tap_listener_udpip_talkers(void)
+register_tap_listener_ip_talkers(void)
 {
-	register_ethereal_tap("conv,udp", gtk_udpip_talkers_init);
+	register_ethereal_tap("conv,ip", gtk_ip_talkers_init);
 
-	register_tap_menu_item("UDP (IPv4 & IPv6)", REGISTER_TAP_GROUP_CONVERSATION_LIST,
-	    gtk_udpip_endpoints_cb, NULL, NULL, NULL);
+	register_tap_menu_item("IPv4", REGISTER_TAP_GROUP_CONVERSATION_LIST,
+	    gtk_ip_endpoints_cb, NULL, NULL, NULL);
 
-    register_ett_table(FALSE, "UDP", "udp", NULL /*filter*/, (void *)udpip_talkers_packet);
+	register_ett_table(TRUE, "IPv4", "ip", NULL /*filter*/, (void *)ip_talkers_packet);
 }
 

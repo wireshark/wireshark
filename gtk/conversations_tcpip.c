@@ -1,5 +1,5 @@
-/* endpoint_talkers_tcpip.c
- * endpoint_talkers_tcpip   2003 Ronnie Sahlberg
+/* conversations_tcpip.c
+ * conversations_tcpip   2003 Ronnie Sahlberg
  *
  * $Id$
  *
@@ -36,17 +36,16 @@
 #include "tap_menu.h"
 #include "../tap.h"
 #include "../register.h"
-#include "endpoint_talkers_table.h"
+#include "conversations_table.h"
 #include <epan/dissectors/packet-tcp.h>
 
 
 static int
-tcpip_talkers_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
+tcpip_talkers_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
 {
-	endpoints_table *talkers=(endpoints_table *)pit;
 	struct tcpheader *tcphdr=vip;
 
-	add_ett_table_data(talkers, &tcphdr->ip_src, &tcphdr->ip_dst, tcphdr->th_sport, tcphdr->th_dport, 1, pinfo->fd->pkt_len, SAT_NONE, PT_TCP);
+	add_ett_table_data((conversations_table *)pct, &tcphdr->ip_src, &tcphdr->ip_dst, tcphdr->th_sport, tcphdr->th_dport, 1, pinfo->fd->pkt_len, SAT_NONE, PT_TCP);
 
 	return 1;
 }

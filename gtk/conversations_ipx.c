@@ -1,5 +1,5 @@
-/* endpoint_talkers_ipx.c
- * endpoint_talkers_ipx   2003 Ronnie Sahlberg
+/* conversations_ipx.c
+ * conversations_ipx   2003 Ronnie Sahlberg
  *
  * $Id$
  *
@@ -36,17 +36,16 @@
 #include "tap_menu.h"
 #include "../tap.h"
 #include "../register.h"
-#include "endpoint_talkers_table.h"
+#include "conversations_table.h"
 #include <epan/dissectors/packet-ipx.h>
 
 
 static int
-ipx_talkers_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
+ipx_talkers_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
 {
-	endpoints_table *talkers=(endpoints_table *)pit;
 	ipxhdr_t *ipxh=vip;
 
-	add_ett_table_data(talkers, &ipxh->ipx_src, &ipxh->ipx_dst, 0, 0, 1, pinfo->fd->pkt_len, SAT_NONE, PT_NONE);
+	add_ett_table_data((conversations_table *)pct, &ipxh->ipx_src, &ipxh->ipx_dst, 0, 0, 1, pinfo->fd->pkt_len, SAT_NONE, PT_NONE);
 
 	return 1;
 }

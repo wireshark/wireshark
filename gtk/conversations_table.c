@@ -1,8 +1,8 @@
 /* mem leak   should free the column_arrows when the table is destroyed */
 
-/* endpoint_talkers_table.c
- * endpoint_talkers_table   2003 Ronnie Sahlberg
- * Helper routines common to all endpoint talkers tap.
+/* conversations_table.c
+ * conversations_table   2003 Ronnie Sahlberg
+ * Helper routines common to all endpoint conversations tap.
  *
  * $Id$
  *
@@ -41,7 +41,7 @@
 #include "epan/to_str.h"
 #include "epan/resolv.h"
 #include "sat.h"
-#include "endpoint_talkers_table.h"
+#include "conversations_table.h"
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
 #include "simple_dialog.h"
@@ -208,7 +208,7 @@ typedef struct column_arrows {
 
 
 static void
-reset_ett_table_data(endpoints_table *et)
+reset_ett_table_data(conversations_table *et)
 {
     guint32 i;
     char title[256];
@@ -243,7 +243,7 @@ void unprotect_thread_critical_region(void);
 static void
 ett_win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
-	endpoints_table *talkers=(endpoints_table *)data;
+	conversations_table *talkers=(conversations_table *)data;
 
 	protect_thread_critical_region();
 	remove_tap_listener(talkers);
@@ -356,7 +356,7 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 {
 	int action, type, direction;
 	int selection;
-	endpoints_table *et = (endpoints_table *)callback_data;
+	conversations_table *et = (conversations_table *)callback_data;
 	char dirstr[128];
 	char str[256];
 	const char *current_filter;
@@ -560,7 +560,7 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 }
 
 static gint
-ett_show_popup_menu_cb(void *widg _U_, GdkEvent *event, endpoints_table *et)
+ett_show_popup_menu_cb(void *widg _U_, GdkEvent *event, conversations_table *et)
 {
 	GdkEventButton *bevent = (GdkEventButton *)event;
     gint row;
@@ -919,7 +919,7 @@ static GtkItemFactoryEntry ett_list_menu_items[] =
 };
 
 static void
-ett_create_popup_menu(endpoints_table *et)
+ett_create_popup_menu(conversations_table *et)
 {
 	GtkItemFactory *item_factory;
 
@@ -934,7 +934,7 @@ ett_create_popup_menu(endpoints_table *et)
 
 /* XXX should freeze/thaw table here and in the srt thingy? */
 static void
-draw_ett_table_addresses(endpoints_table *et)
+draw_ett_table_addresses(conversations_table *et)
 {
     guint32 i;
     int j;
@@ -1008,7 +1008,7 @@ draw_ett_table_addresses(endpoints_table *et)
 
 
 static void
-draw_ett_table_data(endpoints_table *et)
+draw_ett_table_data(conversations_table *et)
 {
     guint32 i;
     int j;
@@ -1060,7 +1060,7 @@ draw_ett_table_data(endpoints_table *et)
 
 
 gboolean
-init_ett_table_page(endpoints_table *talkers, GtkWidget *vbox, gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
+init_ett_table_page(conversations_table *talkers, GtkWidget *vbox, gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
 {
     int i;
     column_arrows *col_arrows;
@@ -1169,7 +1169,7 @@ init_ett_table_page(endpoints_table *talkers, GtkWidget *vbox, gboolean hide_por
 void
 init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
 {
-    endpoints_table *talkers;
+    conversations_table *talkers;
     char title[256];
     GtkWidget *vbox;
     GtkWidget *bbox;
@@ -1177,7 +1177,7 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
     gboolean ret;
 
 
-    talkers=g_malloc(sizeof(endpoints_table));
+    talkers=g_malloc(sizeof(conversations_table));
 
     talkers->name=table_name;
     g_snprintf(title, 255, "%s Conversations: %s", table_name, cf_get_display_name(&cfile));
@@ -1232,14 +1232,14 @@ ett_win_destroy_notebook_cb(GtkWindow *win _U_, gpointer data)
 
 
 
-static endpoints_table *
+static conversations_table *
 init_ett_notebook_page_cb(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
 {
     gboolean ret;
     GtkWidget *page_vbox;
-    endpoints_table *talkers;
+    conversations_table *talkers;
 
-    talkers=g_malloc(sizeof(endpoints_table));
+    talkers=g_malloc(sizeof(conversations_table));
     talkers->name=table_name;
     talkers->resolve_names=TRUE;
 
@@ -1291,7 +1291,7 @@ ett_resolve_toggle_dest(GtkWidget *widget, gpointer data)
     int page;
     void ** pages = data;
     gboolean resolve_names;
-    endpoints_table *talkers;
+    conversations_table *talkers;
 
 
     resolve_names = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget));
@@ -1307,7 +1307,7 @@ ett_resolve_toggle_dest(GtkWidget *widget, gpointer data)
 void
 init_ett_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-    endpoints_table *talkers;
+    conversations_table *talkers;
     char title[256];
     GtkWidget *vbox;
     GtkWidget *hbox;
@@ -1389,13 +1389,13 @@ init_ett_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
 
 void
-add_ett_table_data(endpoints_table *et, address *src, address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, SAT_E sat, int port_type)
+add_ett_table_data(conversations_table *et, address *src, address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, SAT_E sat, int port_type)
 {
     address *addr1, *addr2;
     guint32 port1, port2;
-    endpoint_talker_t *talker=NULL;
-    int talker_idx=0;
-    gboolean new_talker;
+    conversation_t *conversation=NULL;
+    int conversation_idx=0;
+    gboolean new_conversation;
 
     if(src_port>dst_port){
         addr1=src;
@@ -1420,70 +1420,70 @@ add_ett_table_data(endpoints_table *et, address *src, address *dst, guint32 src_
     }
 
 
-    new_talker=FALSE;
+    new_conversation=FALSE;
     /* XXX should be optimized to allocate n extra entries at a time
        instead of just one */
     /* if we dont have any entries at all yet */
     if(et->endpoints==NULL){
-        et->endpoints=g_malloc(sizeof(endpoint_talker_t));
+        et->endpoints=g_malloc(sizeof(conversation_t));
         et->num_endpoints=1;
-        talker=&et->endpoints[0];
-        talker_idx=0;
-        new_talker=TRUE;
+        conversation=&et->endpoints[0];
+        conversation_idx=0;
+        new_conversation=TRUE;
     }
 
-    /* try to find it among the existing known talkers */
-    if(talker==NULL){
+    /* try to find it among the existing known conversations */
+    if(conversation==NULL){
         guint32 i;
         for(i=0;i<et->num_endpoints;i++){
             if(  (!CMP_ADDRESS(&et->endpoints[i].src_address, addr1))&&(!CMP_ADDRESS(&et->endpoints[i].dst_address, addr2))&&(et->endpoints[i].src_port==port1)&&(et->endpoints[i].dst_port==port2) ){
-                talker=&et->endpoints[i];
-                talker_idx=i;
+                conversation=&et->endpoints[i];
+                conversation_idx=i;
                 break;
             }
             if( (!CMP_ADDRESS(&et->endpoints[i].src_address, addr2))&&(!CMP_ADDRESS(&et->endpoints[i].dst_address, addr1))&&(et->endpoints[i].src_port==port2)&&(et->endpoints[i].dst_port==port1) ){
-                talker=&et->endpoints[i];
-                talker_idx=i;
+                conversation=&et->endpoints[i];
+                conversation_idx=i;
                 break;
             }
         }
     }
 
-    /* if we still dont know what talker this is it has to be a new one
+    /* if we still dont know what conversation this is it has to be a new one
        and we have to allocate it and append it to the end of the list */
-    if(talker==NULL){
-        new_talker=TRUE;
+    if(conversation==NULL){
+        new_conversation=TRUE;
         et->num_endpoints++;
-        et->endpoints=g_realloc(et->endpoints, et->num_endpoints*sizeof(endpoint_talker_t));
-        talker=&et->endpoints[et->num_endpoints-1];
-        talker_idx=et->num_endpoints-1;
+        et->endpoints=g_realloc(et->endpoints, et->num_endpoints*sizeof(conversation_t));
+        conversation=&et->endpoints[et->num_endpoints-1];
+        conversation_idx=et->num_endpoints-1;
     }
 
-    /* if this is a new talker we need to initialize the struct */
-    if(new_talker){
-        COPY_ADDRESS(&talker->src_address, addr1);
-        COPY_ADDRESS(&talker->dst_address, addr2);
-        talker->sat=sat;
-        talker->port_type=port_type;
-        talker->src_port=port1;
-        talker->dst_port=port2;
-        talker->rx_frames=0;
-        talker->tx_frames=0;
-        talker->rx_bytes=0;
-        talker->tx_bytes=0;
+    /* if this is a new conversation we need to initialize the struct */
+    if(new_conversation){
+        COPY_ADDRESS(&conversation->src_address, addr1);
+        COPY_ADDRESS(&conversation->dst_address, addr2);
+        conversation->sat=sat;
+        conversation->port_type=port_type;
+        conversation->src_port=port1;
+        conversation->dst_port=port2;
+        conversation->rx_frames=0;
+        conversation->tx_frames=0;
+        conversation->rx_bytes=0;
+        conversation->tx_bytes=0;
     }
 
-    /* update the talker struct */
+    /* update the conversation struct */
     if( (!CMP_ADDRESS(src, addr1))&&(!CMP_ADDRESS(dst, addr2))&&(src_port==port1)&&(dst_port==port2) ){
-        talker->tx_frames+=num_frames;
-        talker->tx_bytes+=num_bytes;
+        conversation->tx_frames+=num_frames;
+        conversation->tx_bytes+=num_bytes;
     } else {
-        talker->rx_frames+=num_frames;
-        talker->rx_bytes+=num_bytes;
+        conversation->rx_frames+=num_frames;
+        conversation->rx_bytes+=num_bytes;
     }
 
-    /* if this was a new talker we have to create a clist row for it */
-    if(new_talker){
+    /* if this was a new conversation we have to create a clist row for it */
+    if(new_conversation){
         char *entries[NUM_COLS];
         char frames[16],bytes[16],txframes[16],txbytes[16],rxframes[16],rxbytes[16];
 
@@ -1496,23 +1496,23 @@ add_ett_table_data(endpoints_table *et, address *src, address *dst, guint32 src_
         entries[2] = "";
         entries[3] = "";
 
-        g_snprintf(frames, 16, "%u", talker->tx_frames+talker->rx_frames);
+        g_snprintf(frames, 16, "%u", conversation->tx_frames+conversation->rx_frames);
         entries[4]=frames;
-        g_snprintf(bytes, 16, "%u", talker->tx_bytes+talker->rx_bytes);
+        g_snprintf(bytes, 16, "%u", conversation->tx_bytes+conversation->rx_bytes);
         entries[5]=bytes;
 
-        g_snprintf(txframes, 16, "%u", talker->tx_frames);
+        g_snprintf(txframes, 16, "%u", conversation->tx_frames);
         entries[6]=txframes;
-        g_snprintf(txbytes, 16, "%u", talker->tx_bytes);
+        g_snprintf(txbytes, 16, "%u", conversation->tx_bytes);
         entries[7]=txbytes;
 
-        g_snprintf(rxframes, 16, "%u", talker->rx_frames);
+        g_snprintf(rxframes, 16, "%u", conversation->rx_frames);
         entries[8]=rxframes;
-        g_snprintf(rxbytes, 16, "%u", talker->rx_bytes);
+        g_snprintf(rxbytes, 16, "%u", conversation->rx_bytes);
         entries[9]=rxbytes;
 
-        gtk_clist_insert(et->table, talker_idx, entries);
-        gtk_clist_set_row_data(et->table, talker_idx, (gpointer) talker_idx);
+        gtk_clist_insert(et->table, conversation_idx, entries);
+        gtk_clist_set_row_data(et->table, conversation_idx, (gpointer) conversation_idx);
 
         gtk_clist_thaw(et->table);
     }

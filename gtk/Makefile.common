@@ -40,10 +40,10 @@ ETHEREAL_GTK_SRC = \
 	color_utils.c	\
 	colors.c	\
 	column_prefs.c	\
+	conversations_table.c	\
 	decode_as_dlg.c	\
 	dfilter_expr_dlg.c	\
 	dlg_utils.c	\
-	endpoint_talkers_table.c	\
 	ethereal-tap-register.c	\
 	file_dlg.c	\
 	filter_dlg.c	\
@@ -88,15 +88,15 @@ ETHEREAL_TAP_SRC = \
 	ansi_a_stat.c	\
 	ansi_map_stat.c	\
 	bootp_stat.c	\
+	conversations_eth.c	\
+	conversations_fc.c	\
+	conversations_fddi.c	\
+	conversations_ip.c	\
+	conversations_ipx.c	\
+	conversations_tcpip.c	\
+	conversations_tr.c	\
+	conversations_udpip.c	\
 	dcerpc_stat.c	\
-	endpoint_talkers_eth.c	\
-	endpoint_talkers_fc.c	\
-	endpoint_talkers_fddi.c	\
-	endpoint_talkers_ip.c	\
-	endpoint_talkers_ipx.c	\
-	endpoint_talkers_tcpip.c	\
-	endpoint_talkers_tr.c	\
-	endpoint_talkers_udpip.c	\
 	fc_stat.c	\
 	gsm_a_stat.c	\
 	gsm_map_stat.c	\

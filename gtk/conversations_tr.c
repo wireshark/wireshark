@@ -1,5 +1,5 @@
-/* endpoint_talkers_eth.c
- * endpoint_talkers_eth   2003 Ronnie Sahlberg
+/* conversations_tr.c
+ * conversations_tr   2003 Ronnie Sahlberg
  *
  * $Id$
  *
@@ -36,17 +36,16 @@
 #include "tap_menu.h"
 #include "../tap.h"
 #include "../register.h"
-#include "endpoint_talkers_table.h"
-#include <epan/dissectors/packet-eth.h>
+#include "conversations_table.h"
+#include <epan/dissectors/packet-tr.h>
 
 
 static int
-eth_talkers_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
+tr_talkers_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
 {
-	endpoints_table *talkers=(endpoints_table *)pit;
-	eth_hdr *ehdr=vip;
+	tr_hdr *trhdr=vip;
 
-	add_ett_table_data(talkers, &ehdr->src, &ehdr->dst, 0, 0, 1, pinfo->fd->pkt_len, SAT_ETHER, PT_NONE);
+	add_ett_table_data((conversations_table *)pct, &trhdr->src, &trhdr->dst, 0, 0, 1, pinfo->fd->pkt_len, SAT_TOKENRING, PT_NONE);
 
 	return 1;
 }
@@ -54,36 +53,36 @@ eth_talkers_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, void 
 
 
 static void
-gtk_eth_talkers_init(char *optarg)
+gtk_tr_talkers_init(char *optarg)
 {
 	char *filter=NULL;
 
-	if(!strncmp(optarg,"conv,eth,",9)){
-		filter=optarg+9;
+	if(!strncmp(optarg,"conv,tr,",8)){
+		filter=optarg+8;
 	} else {
 		filter=NULL;
 	}
 
-	init_ett_table(TRUE, "Ethernet", "eth", filter, (void *)eth_talkers_packet);
+	init_ett_table(TRUE, "Token Ring", "tr", filter, (void *)tr_talkers_packet);
 
 }
 
 
 static void
-gtk_eth_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
+gtk_tr_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_eth_talkers_init("conv,eth");
+	gtk_tr_talkers_init("conv,tr");
 }
 
 
 void
-register_tap_listener_eth_talkers(void)
+register_tap_listener_tr_talkers(void)
 {
-	register_ethereal_tap("conv,eth", gtk_eth_talkers_init);
+	register_ethereal_tap("conv,tr", gtk_tr_talkers_init);
 
-	register_tap_menu_item("Ethernet", REGISTER_TAP_GROUP_CONVERSATION_LIST,
-	    gtk_eth_endpoints_cb, NULL, NULL, NULL);
+	register_tap_menu_item("Token Ring", REGISTER_TAP_GROUP_CONVERSATION_LIST,
+	    gtk_tr_endpoints_cb, NULL, NULL, NULL);
 
-	register_ett_table(TRUE, "Ethernet", "eth", NULL /*filter*/, (void *)eth_talkers_packet);
+    register_ett_table(TRUE, "Token Ring", "tr", NULL /*filter*/, (void *)tr_talkers_packet);
 }
 

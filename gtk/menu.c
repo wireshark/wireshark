@@ -69,7 +69,7 @@
 #include "recent.h"
 #include "../ui_util.h"
 #include "proto_draw.h"
-#include "endpoint_talkers_table.h"
+#include "conversations_table.h"
 #include "hostlist_table.h"
 #include "simple_dialog.h"
 #include <epan/timestamp.h>
