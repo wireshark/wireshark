@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.38 2003/11/20 05:04:57 guy Exp $
+ * $Id: resolv.c,v 1.39 2003/12/09 05:06:22 guy Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -441,7 +441,7 @@ static guchar *host_name_lookup6(struct e_in6_addr *addr, gboolean *found)
   /* unknown host or DNS timeout */
 #endif /* INET6 */
   *found = FALSE;
-  sprintf(name, "%s", ip6_to_str(addr));
+  ip6_to_str_buf(addr, name);
   return (name);
 }
 
