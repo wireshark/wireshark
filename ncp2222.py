@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.17 2002/05/14 20:06:37 gram Exp $
+$Id: ncp2222.py,v 1.18 2002/05/15 03:33:40 guy Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -2675,6 +2675,16 @@ Name12				= fw_string("name12", "Name", 12)
 NameLen				= uint8("name_len", "Name Space Length")
 NameLength                      = uint8("name_length", "Name Length")
 NameList			= uint32("name_list", "Name List")
+#
+# XXX - should this value be used to interpret the characters in names,
+# search patterns, and the like?
+#
+# We need to handle character sets better, e.g. translating strings
+# from whatever character set they are in the packet (DOS/Windows code
+# pages, ISO character sets, UNIX EUC character sets, UTF-8, UCS-2/Unicode,
+# Mac character sets, etc.) into UCS-4 or UTF-8 and storing them as such
+# in the protocol tree, and displaying them as best we can.
+#
 NameSpace 			= val_string8("name_space", "Name Space", [
 	[ 0x00, "DOS" ],
 	[ 0x01, "MAC" ],
