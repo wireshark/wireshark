@@ -386,6 +386,11 @@ Craig Metz <cmetz@inner.net> {
 	OSPF type 7 LSA dissection
 }
 
+Per Flock <per.flock@axis.com> {
+	A6 and DNAME resource record support
+	RFC 2673 bitstring label support
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

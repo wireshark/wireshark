@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.53 2000/08/18 09:05:02 itojun Exp $
+ * $Id: packet-dns.c,v 1.54 2000/10/02 17:42:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -112,6 +112,7 @@ static gint ett_t_key_flags = -1;
 #define T_ATMA          34              /* ??? */
 #define T_NAPTR         35              /* naming authority pointer (RFC 2168) */
 #define T_A6		38              /* IPv6 address with indirection (RFC 2874) */
+#define T_DNAME         39              /* Non-terminal DNS name redirection (RFC 2672) */
 #define T_OPT		41		/* OPT pseudo-RR (RFC 2671) */
 #define T_WINS		65281		/* Microsoft's WINS RR */
 #define T_WINS_R	65282		/* Microsoft's WINS-R RR */
@@ -200,7 +201,7 @@ dns_type_name (u_int type)
     NULL,
     NULL,
     "A6",				/* RFC 2874 */
-    NULL,
+    "DNAME",				/* RFC 2672 */
     NULL,
     "OPT"				/* RFC 2671 */
   };
@@ -286,7 +287,7 @@ dns_long_type_name (u_int type)
     NULL,
     NULL,
     "IPv6 address with indirection",	/* RFC 2874 */
-    NULL,
+    "Non-terminal DNS name redirection", /* RFC 2672 */
     NULL,
     "EDNS0 option"			/* RFC 2671 */
   };
@@ -402,6 +403,34 @@ get_dns_name(const u_char *pd, int offset, int dns_data_offset,
       break;
 
     case 0x40:
+      /* Extended label (RFC 2673) */
+      switch (component_len & 0x3f) {
+
+      case 0x01:
+	/* Bitstring label */
+	{
+	  int bit_count;
+	  int label_len;
+
+	  bit_count = *dp++;
+	  label_len = (bit_count - 1) / 8 + 1;
+	
+	  np += sprintf(np, "\\[x");
+	  while(label_len--) {
+	    np += sprintf(np, "%02x", *dp++);
+	  }
+	  np += sprintf(np, "/%d]", bit_count);
+	}
+	break;
+
+      default:
+	strcpy(name, "<Unknown extended label>");
+	/* Parsing will propably fail from here on, since the */
+	/* label length is unknown... */
+	return dp - dptr;
+      }
+      break;
+
     case 0x80:
       goto error;	/* error */
 
@@ -1343,6 +1372,98 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
 		     ip6_to_str((struct e_in6_addr *)dptr));
       proto_tree_add_text(rr_tree, NullTVB, cur_offset, 16, "Addr: %s",
 		     ip6_to_str((struct e_in6_addr *)dptr));
+    }
+    break;
+
+  case T_A6:
+    {
+      unsigned short pre_len;
+      unsigned short suf_len;
+      unsigned short suf_octet_count;
+      char pname[MAXDNAME];
+      int pname_len;
+      int a6_offset;
+      int suf_offset;
+      guint8 suffix[16];
+
+      a6_offset = cur_offset;
+      if (!BYTES_ARE_IN_FRAME(cur_offset, 1)) {
+        /* We ran past the end of the captured data in the packet. */
+        return 0;
+      }
+      pre_len = pd[cur_offset++];
+      suf_len = 128 - pre_len;
+      suf_octet_count = (suf_len - 1) / 8 + 1;
+      if (!BYTES_ARE_IN_FRAME(cur_offset, suf_octet_count)) {
+        /* We ran past the end of the captured data in the packet. */
+        return 0;
+      }
+      /* Pad prefix */
+      for (suf_offset = 0; suf_offset < 16 - suf_octet_count; suf_offset++) {
+        suffix[suf_offset] = 0;
+      }
+      for (; suf_offset < 16; suf_offset++) {
+        suffix[suf_offset] = pd[cur_offset++];
+      }
+
+      pname_len = get_dns_name(pd, cur_offset, dns_data_offset, 
+                               pname, sizeof(pname));
+      if (pname_len < 0) {
+        /* We ran past the end of the captured data in the packet. */
+        return 0;
+      }
+
+      if (fd != NULL) {
+        col_append_fstr(fd, COL_INFO, " %d %s %s", 
+                        pre_len, 
+                        ip6_to_str((struct e_in6_addr *)&suffix), 
+                        pname);
+      }
+      if (dns_tree != NULL) {
+        proto_tree_add_text(rr_tree, NullTVB, a6_offset, 1, 
+                            "Prefix len: %u", pre_len);
+        a6_offset++;
+        proto_tree_add_text(rr_tree, NullTVB, a6_offset, suf_octet_count,
+                            "Address suffix: %s", 
+                            ip6_to_str((struct e_in6_addr *)&suffix));
+        a6_offset += suf_octet_count;
+        proto_tree_add_text(rr_tree, NullTVB, a6_offset, pname_len, 
+                            "Prefix name: %s", pname);
+        proto_item_set_text(trr, "%s: type %s, class %s, addr %d %s %s",
+                            name, 
+                            type_name, 
+                            class_name, 
+                            pre_len, 
+                            ip6_to_str((struct e_in6_addr *)&suffix), 
+                            pname);
+      }
+    }
+    break;
+
+  case T_DNAME:
+    {
+      char dname[MAXDNAME];
+      int dname_len;
+      
+      dname_len = get_dns_name(pd, cur_offset, dns_data_offset, 
+			       dname, sizeof(dname));
+      if (dname_len < 0) {
+	/* We ran past the end of the captured data in the packet. */
+	if (dns_tree != NULL) {
+	  proto_item_set_text(trr,
+			      "%s: type %s, class %s, <Primary name goes past end of captured data in packet>",
+			      name, type_name, class_name);
+	}
+	return 0;
+      }
+      if (fd != NULL)
+	col_append_fstr(fd, COL_INFO, " %s", dname);
+      if (dns_tree != NULL) {
+	proto_item_set_text(trr, "%s: type %s, class %s, dname %s",
+			    name, type_name, class_name, dname);
+	proto_tree_add_text(rr_tree, NullTVB, cur_offset, 
+			    dname_len, "Target name: %s", dname);
+      }
     }
     break;
 
