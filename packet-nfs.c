@@ -3,7 +3,7 @@
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2001, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
  *
- * $Id: packet-nfs.c,v 1.62 2002/01/14 12:22:58 girlich Exp $
+ * $Id: packet-nfs.c,v 1.63 2002/01/14 13:16:31 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1263,24 +1263,6 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	unsigned int fhtype = FHT_UNKNOWN;
 
-	if(nfs_file_name_snooping){
-		if(!pinfo->fd->flags.visited){
-			rpc_call_info_value *civ=pinfo->private_data;
-
-			/* MOUNT v1,v2 MNT replies might give us a filehandle*/
-			if( (civ->prog==100005)
-			  &&(civ->proc==1)
-			  &&((civ->vers==1)||(civ->vers==2))
-			  &&(!civ->request)
-			) {
-				nfs_name_snoop_add_fh(civ->xid, tvb, 
-					offset, fhlen);
-			}
-		}
-
-		nfs_name_snoop_fh(pinfo, tree, tvb, offset, fhlen);
-	}
-
 	/* filehandle too long */
 	if (fhlen>64) goto type_ready;
 	/* Not all bytes there. Any attempt to deduce the type would be
@@ -1297,6 +1279,9 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 		proto_tree_add_uint(tree, hf_nfs_fh_hash, tvb, offset, fhlen,
 			fhhash);
+	}
+	if(nfs_file_name_snooping){
+		nfs_name_snoop_fh(pinfo, tree, tvb, offset, fhlen);
 	}
 		
 	/* calculate (heuristically) fhtype */
@@ -1598,10 +1583,19 @@ dissect_fhandle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			nfs_name_snoop_add_fh(civ->xid, tvb, 
 				offset, 32);
 		}
+
+		/* MOUNT v1,v2 MNT replies might give us a filehandle*/
+		if( (civ->prog==100005)
+		  &&(civ->proc==1)
+		  &&((civ->vers==1)||(civ->vers==2))
+		  &&(!civ->request)
+		) {
+			nfs_name_snoop_add_fh(civ->xid, tvb, 
+				offset, 32);
+		}
 	}
 
-	if (ftree)
-		dissect_fhandle_data(tvb, offset, pinfo, ftree, FHSIZE);
+	dissect_fhandle_data(tvb, offset, pinfo, ftree, FHSIZE);
 
 	offset += FHSIZE;
 	return offset;
