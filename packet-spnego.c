@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $id$
+ * $Id: packet-spnego.c,v 1.17 2002/08/30 10:31:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,7 +75,7 @@ static const value_string spnego_negResult_vals[] = {
   { SPNEGO_negResult_accept_completed,   "Accept Completed" },
   { SPNEGO_negResult_accept_incomplete,  "Accept Incomplete" },
   { SPNEGO_negResult_accept_reject,      "Accept Reject"},
-  { NULL, NULL}
+  { 0, NULL}
 };
 
 /*
