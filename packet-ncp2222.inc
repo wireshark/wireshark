@@ -7,7 +7,7 @@
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp2222.inc,v 1.6 2001/12/10 00:25:31 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.7 2002/01/05 04:12:14 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -182,15 +182,19 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 		   let the user select that conversation to be displayed.) */
 		conversation = find_conversation(&pinfo->src, &pinfo->dst,
 		    PT_NCP, nw_connection, nw_connection, 0);
+
 		if (conversation == NULL) {
 			/* It's not part of any conversation - create a new one. */
 			conversation = conversation_new(&pinfo->src, &pinfo->dst,
 			    PT_NCP, nw_connection, nw_connection, 0);
 		}
-		ncp_hash_insert(conversation, sequence, 0x2222, ncp_rec);
+		ncp_hash_insert(conversation, sequence, ncp_rec);
 	}
 
 	if (ncp_tree) {
+		conversation = find_conversation(&pinfo->src, &pinfo->dst,
+		    PT_NCP, nw_connection, nw_connection, 0);
+
 		switch (type) {
 			case 0x1111:
 				; /* nothing */
@@ -247,23 +251,27 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 
 	conversation_t			*conversation;
 	const ncp_record		*ncp_rec = NULL;
-	guint16				ncp_type;
 	gboolean			found_request = FALSE;
 	guint8				completion_code;
 	guint				length;
 	ptvcursor_t			*ptvc = NULL;
 	const char			*error_string;
 
-	/* Find the conversation whence the request would have come. */
-	conversation = find_conversation(&pinfo->src, &pinfo->dst,
-		    PT_NCP, nw_connection, nw_connection, 0);
-	if (conversation != NULL) {
-		/* find the record telling us the request made that caused
-		   this reply */
-		found_request = ncp_hash_lookup(conversation, sequence,
-				&ncp_type, &ncp_rec);
+	if (!pinfo->fd->flags.visited) {
+		/* Find the conversation whence the request would have come. */
+		conversation = find_conversation(&pinfo->src, &pinfo->dst,
+			    PT_NCP, nw_connection, nw_connection, 0);
+		if (conversation != NULL) {
+			/* find the record telling us the request made that caused
+			   this reply */
+			ncp_rec = ncp_hash_lookup(conversation, sequence);
+			p_add_proto_data(pinfo->fd, proto_ncp, (void*) ncp_rec);
+		}
+		/* else... we haven't seen an NCP Request for that conversation and sequence. */
 	}
-	/* else... we haven't seen an NCP Request for that conversation and sequence. */
+	else {
+		ncp_rec = p_get_proto_data(pinfo->fd, proto_ncp);
+	}
 
 	/* A completion code of 0 always means OK. Non-zero means failure,
 	 * but each non-zero value has a different meaning. And the same value
@@ -317,7 +325,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 			if (completion_code != 0 && tvb_length(tvb) == 8) {
 				return;
 			}
-
+			/*printf("func=0x%x subfunc=0x%x\n", ncp_rec->func, ncp_rec->subfunc);*/
 			ptvc = ptvcursor_new(ncp_tree, tvb, 8);
 			process_ptvc_record(ptvc, ncp_rec->reply_ptvc);
 			ptvcursor_free(ptvc);

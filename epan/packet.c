@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.55 2001/12/18 19:09:03 gram Exp $
+ * $Id: packet.c,v 1.56 2002/01/05 04:12:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -149,6 +149,37 @@ init_all_protocols(void)
 {
 	g_slist_foreach(init_routines, &call_init_routine, NULL);
 }
+
+
+/* Allow protocols to register a "cleanup" routine to be
+ * run after the initial sequential run through the packets.
+ * Note that the file can still be open after this; this is not
+ * the final cleanup. */
+static GSList *postseq_cleanup_routines;
+
+void
+register_postseq_cleanup_routine(void (*func)(void))
+{
+	postseq_cleanup_routines = g_slist_append(postseq_cleanup_routines,
+			func);
+}
+
+/* Call all the registered "postseq_cleanup" routines. */
+static void
+call_postseq_cleanup_routine(gpointer routine, gpointer dummy)
+{
+	void (*func)(void) = routine;
+
+	(*func)();
+}
+
+void
+postseq_cleanup_all_protocols(void)
+{
+	g_slist_foreach(postseq_cleanup_routines,
+			&call_postseq_cleanup_routine, NULL);
+}
+
 
 /* Creates the top-most tvbuff and calls dissect_frame() */
 void

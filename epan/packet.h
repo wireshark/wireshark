@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.48 2001/12/18 19:09:03 gram Exp $
+ * $Id: packet.h,v 1.49 2002/01/05 04:12:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -222,6 +222,15 @@ extern void register_init_routine(void (*func)(void));
 
 /* Call all the registered "init" routines. */
 extern void init_all_protocols(void);
+
+/* Allow protocols to register a "cleanup" routine to be
+ * run after the initial sequential run through the packets.
+ * Note that the file can still be open after this; this is not
+ * the final cleanup. */
+extern void register_postseq_cleanup_routine(void (*func)(void));
+
+/* Call all the registered "postseq_cleanup" routines. */
+extern void postseq_cleanup_all_protocols(void);
 
 /*
  * Dissectors should never modify the packet data.

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.256 2002/01/03 22:27:44 guy Exp $
+ * $Id: file.c,v 1.257 2002/01/05 04:12:14 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -380,6 +380,10 @@ read_cap_file(capture_file *cf, int *err)
   /* Close the sequential I/O side, to free up memory it requires. */
   wtap_sequential_close(cf->wth);
 
+  /* Allow the protocol dissectors to free up memory that they
+   * don't need after the sequential run-through of the packets. */
+  postseq_cleanup_all_protocols();
+
   /* Set the file encapsulation type now; we don't know what it is until
      we've looked at all the packets, as we don't know until then whether
      there's more than one type (and thus whether it's
@@ -557,6 +561,10 @@ finish_tail_cap_file(capture_file *cf, int *err)
   /* We're done reading sequentially through the file; close the
      sequential I/O side, to free up memory it requires. */
   wtap_sequential_close(cf->wth);
+
+  /* Allow the protocol dissectors to free up memory that they
+   * don't need after the sequential run-through of the packets. */
+  postseq_cleanup_all_protocols();
 
   /* Set the file encapsulation type now; we don't know what it is until
      we've looked at all the packets, as we don't know until then whether

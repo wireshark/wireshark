@@ -2,7 +2,7 @@
  * Structures and functions for NetWare Core Protocol.
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp-int.h,v 1.4 2001/11/13 23:55:30 gram Exp $
+ * $Id: packet-ncp-int.h,v 1.5 2002/01/05 04:12:14 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -59,12 +59,9 @@ void dissect_ncp_reply(tvbuff_t *, packet_info*, guint16,
 		guint8, proto_tree*, proto_tree*);
 
 void ncp_hash_insert(conversation_t *conversation, guint8 nw_sequence,
-		guint16 ncp_type, const ncp_record *ncp_rec);
+		const ncp_record *ncp_rec);
 
-/* Returns TRUE or FALSE. If TRUE, the record was found and
- * ncp_type and ncp_rec are set. */
-gboolean ncp_hash_lookup(conversation_t*, guint8 nw_sequence,
-		guint16 *ncp_type, const ncp_record **ncp_rec);
+const ncp_record* ncp_hash_lookup(conversation_t*, guint8 nw_sequence);
 
 
 extern int proto_ncp;

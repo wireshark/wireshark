@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.52 2001/12/10 00:25:31 guy Exp $
+ * $Id: packet-ncp.c,v 1.53 2002/01/05 04:12:14 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -152,15 +152,9 @@ typedef struct {
 	guint8		nw_sequence;
 } ncp_request_key;
 
-typedef struct {
-	guint16			ncp_type;
-	const ncp_record	*ncp_record;
-} ncp_request_val;
-
 
 static GHashTable *ncp_request_hash = NULL;
 static GMemChunk *ncp_request_keys = NULL;
-static GMemChunk *ncp_request_records = NULL;
 
 /* Hash Functions */
 gint  ncp_equal (gconstpointer v, gconstpointer v2)
@@ -190,23 +184,33 @@ ncp_init_protocol(void)
 		g_hash_table_destroy(ncp_request_hash);
 	if (ncp_request_keys)
 		g_mem_chunk_destroy(ncp_request_keys);
-	if (ncp_request_records)
-		g_mem_chunk_destroy(ncp_request_records);
 
 	ncp_request_hash = g_hash_table_new(ncp_hash, ncp_equal);
 	ncp_request_keys = g_mem_chunk_new("ncp_request_keys",
 			sizeof(ncp_request_key),
 			ncp_packet_init_count * sizeof(ncp_request_key), G_ALLOC_AND_FREE);
-	ncp_request_records = g_mem_chunk_new("ncp_request_records",
-			sizeof(ncp_request_val),
-			ncp_packet_init_count * sizeof(ncp_request_val), G_ALLOC_AND_FREE);
+}
+
+/* After the sequential run, we don't need the ncp_request hash and keys
+ * anymore; the lookups have already been done and the vital info
+ * saved in the reply-packets' private_data in the frame_data struct. */
+static void
+ncp_postseq_cleanup(void)
+{
+	if (ncp_request_hash) {
+		g_hash_table_destroy(ncp_request_hash);
+		ncp_request_hash = NULL;
+	}
+	if (ncp_request_keys) {
+		g_mem_chunk_destroy(ncp_request_keys);
+		ncp_request_keys = NULL;
+	}
 }
 
 void
 ncp_hash_insert(conversation_t *conversation, guint8 nw_sequence,
-		guint16 ncp_type, const ncp_record *ncp_rec)
+		const ncp_record *ncp_rec)
 {
-	ncp_request_val		*request_val;
 	ncp_request_key		*request_key;
 
 	/* Now remember the request, so we can find it if we later
@@ -215,36 +219,19 @@ ncp_hash_insert(conversation_t *conversation, guint8 nw_sequence,
 	request_key->conversation = conversation;
 	request_key->nw_sequence = nw_sequence;
 
-	request_val = g_mem_chunk_alloc(ncp_request_records);
-	request_val->ncp_type = ncp_type;
-	request_val->ncp_record = ncp_rec;
-
-	g_hash_table_insert(ncp_request_hash, request_key, request_val);
+	g_hash_table_insert(ncp_request_hash, request_key, (void*)ncp_rec);
 }
 
-/* Returns TRUE or FALSE. If TRUE, the record was found and
- * ncp_type and ncp_rec are set. */
-gboolean
-ncp_hash_lookup(conversation_t *conversation, guint8 nw_sequence,
-		guint16 *ncp_type, const ncp_record **ncp_rec)
+/* Returns the ncp_rec*, or NULL if not found. */
+const ncp_record*
+ncp_hash_lookup(conversation_t *conversation, guint8 nw_sequence)
 {
-	ncp_request_val		*request_val;
 	ncp_request_key		request_key;
 
 	request_key.conversation = conversation;
 	request_key.nw_sequence = nw_sequence;
 
-	request_val = (ncp_request_val*)
-		g_hash_table_lookup(ncp_request_hash, &request_key);
-
-	if (request_val) {
-		*ncp_type	= request_val->ncp_type;
-		*ncp_rec	= request_val->ncp_record;
-		return TRUE;
-	}
-	else {
-		return FALSE;
-	}
+	return g_hash_table_lookup(ncp_request_hash, &request_key);
 }
 
 static void
@@ -386,6 +373,7 @@ proto_register_ncp(void)
   proto_register_field_array(proto_ncp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   register_init_routine(&ncp_init_protocol);
+  register_postseq_cleanup_routine(&ncp_postseq_cleanup);
 
   /* Register a configuration option for initial size of NCP hash */
   ncp_module = prefs_register_protocol(proto_ncp, NULL);
