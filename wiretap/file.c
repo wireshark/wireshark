@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.56 2000/07/26 06:04:32 guy Exp $
+ * $Id: file.c,v 1.57 2000/07/31 04:19:54 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -96,6 +96,8 @@ static int (*open_routines[])(wtap *, int *) = {
 	i4btrace_open,
 };
 
+#define	N_FILE_TYPES	(sizeof open_routines / sizeof open_routines[0])
+
 int wtap_def_seek_read(wtap *wth, int seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len)
 {
@@ -104,7 +106,18 @@ int wtap_def_seek_read(wtap *wth, int seek_off,
 	return file_read(pd, sizeof(guint8), len, wth->random_fh);
 }
 
-#define	N_FILE_TYPES	(sizeof open_routines / sizeof open_routines[0])
+#ifndef S_ISREG
+#define S_ISREG(mode)   (((mode) & S_IFMT) == S_IFREG)
+#endif
+#ifndef S_IFIFO
+#define S_IFIFO	_S_IFIFO
+#endif
+#ifndef S_ISFIFO
+#define S_ISFIFO(mode)  (((mode) & S_IFMT) == S_IFIFO)
+#endif
+#ifndef S_ISDIR
+#define S_ISDIR(mode)   (((mode) & S_IFMT) == S_IFDIR)
+#endif
 
 /* Opens a file and prepares a wtap struct.
    If "do_random" is TRUE, it opens the file twice; the second open
@@ -124,7 +137,6 @@ wtap* wtap_open_offline(const char *filename, int *err, gboolean do_random)
 		*err = errno;
 		return NULL;
 	}
-#ifndef WIN32
 	if (! S_ISREG(statb.st_mode) && ! S_ISFIFO(statb.st_mode)) {
 		if (S_ISDIR(statb.st_mode))
 			*err = EISDIR;
@@ -132,7 +144,6 @@ wtap* wtap_open_offline(const char *filename, int *err, gboolean do_random)
 			*err = WTAP_ERR_NOT_REGULAR_FILE;
 		return NULL;
 	}
-#endif
 
 	errno = ENOMEM;
 	wth = g_malloc(sizeof(wtap));
