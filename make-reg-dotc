@@ -19,7 +19,7 @@ shift
 rm -f ${outfile}-tmp
 echo '/* Do not modify this file.  */' >${outfile}-tmp
 echo '/* It is created automatically by the Makefile.  */'>>${outfile}-tmp
-echo '#include "register.h"' >>register.c-tmp
+echo '#include "register.h"' >>${outfile}-tmp
 
 #
 # Build code to call all the protocol registration routines.
