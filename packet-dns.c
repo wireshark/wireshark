@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.102 2003/05/24 17:45:10 gerald Exp $
+ * $Id: packet-dns.c,v 1.103 2003/05/24 21:05:36 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1064,8 +1064,10 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       int mask;
       int port_num;
       int i;
-      char bitnames[128+1];
-      char portnumstring[10+1];
+      static GString *bitnames = NULL;
+
+      if (bitnames == NULL)
+	bitnames = g_string_sized_new(128);
 
       wks_addr = tvb_get_ptr(tvb, cur_offset, 4);
       if (cinfo != NULL)
@@ -1088,24 +1090,23 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	  bits = tvb_get_guint8(tvb, cur_offset);
 	  if (bits != 0) {
 	    mask = 1<<7;
-	    bitnames[0] = '\0';
+	    g_string_truncate(bitnames, 0);
 	    for (i = 0; i < 8; i++) {
 	      if (bits & mask) {
-		if (bitnames[0] != '\0')
-		  strcat(bitnames, ", ");
+		if (bitnames->len != 0)
+		  g_string_append(bitnames, ", ");
 		switch (protocol) {
 
 		case IP_PROTO_TCP:
-		  strcat(bitnames, get_tcp_port(port_num));
+		  g_string_append(bitnames, get_tcp_port(port_num));
 		  break;
 
 		case IP_PROTO_UDP:
-		  strcat(bitnames, get_udp_port(port_num));
+		  g_string_append(bitnames, get_udp_port(port_num));
 		  break;
 
 		default:
-		  sprintf(portnumstring, "%u", port_num);
-		  strcat(bitnames, portnumstring);
+		  g_string_sprintfa(bitnames, "%u", port_num);
 		  break;
 	        }
 	      }
@@ -1113,7 +1114,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	      port_num++;
 	    }
 	    proto_tree_add_text(rr_tree, tvb, cur_offset, 1,
-		"Bits: 0x%02x (%s)", bits, bitnames);
+		"Bits: 0x%02x (%s)", bits, bitnames->str);
 	  } else
 	    port_num += 8;
 	  cur_offset += 1;
