@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.228 2004/04/23 04:58:54 guy Exp $
+ * $Id: packet-tcp.c,v 1.229 2004/04/29 16:33:37 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1658,7 +1658,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
 			/* add desegmented data to the data source list */
-			add_new_data_source(pinfo, next_tvb, "Desegmented");
+			add_new_data_source(pinfo, next_tvb, "Desegmented TCP");
 
 			/*
 			 * Supply the sequence number of the first of the
@@ -2771,6 +2771,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            offset + 16, 2, th_sum,
 	   "Checksum: 0x%04x (incorrect, should be 0x%04x)", th_sum,
 	   in_cksum_shouldbe(th_sum, computed_cksum));
+
+        if (check_col(pinfo->cinfo, COL_INFO))
+          col_append_fstr(pinfo->cinfo, COL_INFO, " [CHECKSUM INCORRECT]");
 
         /* Checksum is invalid, so we're not willing to desegment it. */
         desegment_ok = FALSE;
