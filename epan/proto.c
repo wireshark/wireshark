@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.39 2001/11/02 10:09:48 guy Exp $
+ * $Id: proto.c,v 1.40 2001/11/03 01:19:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -185,7 +185,7 @@ proto_init(const char *plugin_dir,void (register_all_protocols)(void),
 	if (gmc_item_labels)
 		g_mem_chunk_destroy(gmc_item_labels);
 	if (gpa_hfinfo)
-		g_ptr_array_free(gpa_hfinfo, FALSE);
+		g_ptr_array_free(gpa_hfinfo, TRUE);
 	if (tree_is_expanded != NULL)
 		g_free(tree_is_expanded);
 
@@ -252,7 +252,7 @@ proto_cleanup(void)
 	if (gmc_item_labels)
 		g_mem_chunk_destroy(gmc_item_labels);
 	if (gpa_hfinfo)
-		g_ptr_array_free(gpa_hfinfo, FALSE);
+		g_ptr_array_free(gpa_hfinfo, TRUE);
 
 	/* Cleanup the ftype subsystem */
 	ftypes_cleanup();
