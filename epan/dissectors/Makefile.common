@@ -293,6 +293,7 @@ DISSECTOR_SRC =	\
 	packet-image-gif.c	\
 	packet-image-jfif.c	\
 	packet-imap.c	\
+	packet-inap.c	\
 	packet-ip.c	\
 	packet-ipdc.c	\
 	packet-ipfc.c	\
@@ -669,6 +670,7 @@ DISSECTOR_INCLUDES =	\
 	packet-ieee802a.h	\
 	packet-igap.h	\
 	packet-igmp.h	\
+	packet-inap.h	\
 	packet-ip.h	\
 	packet-ipdc.h	\
 	packet-ipfc.h	\
