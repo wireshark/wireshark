@@ -2498,6 +2498,7 @@ static gboolean
 free_node_data(GNode *node, gpointer data _U_)
 {
 	g_free(node->data);
+	return FALSE;
 }
 
 static void
