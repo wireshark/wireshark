@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.87 1999/08/24 03:19:22 guy Exp $
+ * $Id: packet.h,v 1.88 1999/08/25 00:55:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -247,6 +247,7 @@ enum {
 	ETT_GIOP,
 	ETT_NBDGM,
 	ETT_CDP,
+	ETT_CDP_TLV,
 	ETT_HTTP,
 	ETT_TFTP,
  	ETT_AH,
