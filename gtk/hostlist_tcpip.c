@@ -41,10 +41,10 @@
 
 
 static int
-tcpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
+tcpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
 	hostlist_table *hosts=(hostlist_table *)pit;
-	struct tcpheader *tcphdr=vip;
+	const struct tcpheader *tcphdr=vip;
 
 	/* Take two "add" passes per packet, adding for each direction, ensures that all
 	packets are counted properly (even if address is sending to itself) 
@@ -68,7 +68,7 @@ gtk_tcpip_hostlist_init(char *optarg)
 		filter=NULL;
 	}
 
-	init_hostlist_table(FALSE, "TCP Endpoints", "tcp", filter, (void *)tcpip_hostlist_packet);
+	init_hostlist_table(FALSE, "TCP Endpoints", "tcp", filter, tcpip_hostlist_packet);
 
 }
 
@@ -88,6 +88,5 @@ register_tap_listener_tcpip_hostlist(void)
 	register_tap_menu_item("TCP (IPv4 & IPv6)", REGISTER_TAP_GROUP_ENDPOINT_LIST,
 	    gtk_tcpip_hostlist_cb, NULL, NULL, NULL);
 
-	register_hostlist_table(FALSE, "TCP", "tcp", NULL /*filter*/, (void *)tcpip_hostlist_packet);
+	register_hostlist_table(FALSE, "TCP", "tcp", NULL /*filter*/, tcpip_hostlist_packet);
 }
-

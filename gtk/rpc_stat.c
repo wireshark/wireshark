@@ -82,16 +82,21 @@ rpcstat_set_title(rpcstat_t *rs)
 }
 
 static void
-rpcstat_reset(rpcstat_t *rs)
+rpcstat_reset(void *arg)
 {
+	rpcstat_t *rs = arg;
+
 	reset_srt_table_data(&rs->srt_table);
 	rpcstat_set_title(rs);
 }
 
 
 static int
-rpcstat_packet(rpcstat_t *rs, packet_info *pinfo, epan_dissect_t *edt _U_, rpc_call_info_value *ri)
+rpcstat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg2)
 {
+	rpcstat_t *rs = arg;
+	const rpc_call_info_value *ri = arg2;
+
 	/* we are only interested in reply packets */
 	if(ri->request){
 		return 0;
@@ -123,8 +128,10 @@ rpcstat_packet(rpcstat_t *rs, packet_info *pinfo, epan_dissect_t *edt _U_, rpc_c
 }
 
 static void
-rpcstat_draw(rpcstat_t *rs)
+rpcstat_draw(void *arg)
 {
+	rpcstat_t *rs = arg;
+
 	draw_srt_table_data(&rs->srt_table);
 }
 
@@ -254,7 +261,7 @@ gtk_rpcstat_init(char *optarg)
 	gtk_container_add(GTK_CONTAINER(rs->win), vbox);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 	
-    title_string = rpcstat_gen_title(rs);
+	title_string = rpcstat_gen_title(rs);
 	stat_label=gtk_label_new(title_string);
 	g_free(title_string);
 	gtk_box_pack_start(GTK_BOX(vbox), stat_label, FALSE, FALSE, 0);
@@ -278,7 +285,7 @@ gtk_rpcstat_init(char *optarg)
 	}
 
 
-	error_string=register_tap_listener("rpc", rs, filter, (void*)rpcstat_reset, (void*)rpcstat_packet, (void*)rpcstat_draw);
+	error_string=register_tap_listener("rpc", rs, filter, rpcstat_reset, rpcstat_packet, rpcstat_draw);
 	if(error_string){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
 		g_string_free(error_string, TRUE);
@@ -292,15 +299,15 @@ gtk_rpcstat_init(char *optarg)
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
 	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-    window_set_cancel_button(rs->win, close_bt, window_cancel_button_cb);
+	window_set_cancel_button(rs->win, close_bt, window_cancel_button_cb);
 
-    SIGNAL_CONNECT(rs->win, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(rs->win, "delete_event", window_delete_event_cb, NULL);
 	SIGNAL_CONNECT(rs->win, "destroy", win_destroy_cb, rs);
 
-    gtk_widget_show_all(rs->win);
-    window_present(rs->win);
+	gtk_widget_show_all(rs->win);
+	window_present(rs->win);
 
-    retap_packets(&cfile);
+	retap_packets(&cfile);
 }
 
 
@@ -534,4 +541,3 @@ register_tap_listener_gtkrpcstat(void)
 	register_tap_menu_item("ONC-RPC...", REGISTER_TAP_GROUP_RESPONSE_TIME,
 	    gtk_rpcstat_cb, NULL, NULL, NULL);
 }
-

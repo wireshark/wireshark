@@ -43,10 +43,10 @@
 
 
 static int
-ip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
+ip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
 	hostlist_table *hosts=(hostlist_table *)pit;
-	e_ip *iph=vip;
+	const e_ip *iph=vip;
 
 	/* Take two "add" passes per packet, adding for each direction, ensures that all
 	packets are counted properly (even if address is sending to itself) 
@@ -67,7 +67,7 @@ gtk_ip_hostlist_init(char *optarg)
 		filter=NULL;
 	}
 
-	init_hostlist_table(TRUE, "IPv4 Hosts", "ip", filter, (void *)ip_hostlist_packet);
+	init_hostlist_table(TRUE, "IPv4 Hosts", "ip", filter, ip_hostlist_packet);
 
 }
 
@@ -87,6 +87,5 @@ register_tap_listener_ip_hostlist(void)
 	register_tap_menu_item("IPv4", REGISTER_TAP_GROUP_ENDPOINT_LIST,
 		gtk_ip_hostlist_cb, NULL, NULL, NULL);
 
-	register_hostlist_table(TRUE, "IPv4", "ip", NULL /*filter*/, (void *)ip_hostlist_packet);
+	register_hostlist_table(TRUE, "IPv4", "ip", NULL /*filter*/, ip_hostlist_packet);
 }
-

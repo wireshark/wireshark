@@ -36,17 +36,18 @@
 
 #include <gtk/gtk.h>
 
+#include <epan/packet_info.h>
+#include <epan/to_str.h>
+#include <epan/addr_resolv.h>
+#include <epan/tap.h>
+
 #include "compat_macros.h"
-#include "epan/packet_info.h"
-#include "epan/to_str.h"
-#include "epan/addr_resolv.h"
 #include "sat.h"
 #include "conversations_table.h"
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
 #include "simple_dialog.h"
 #include "globals.h"
-#include <epan/tap.h>
 #include "gtk/find_dlg.h"
 #include "color.h"
 #include "gtk/color_dlg.h"
@@ -240,6 +241,11 @@ reset_ct_table_data(conversations_table *ct)
     ct->num_conversations=0;
 }
 
+static void
+reset_ct_table_data_cb(void *arg)
+{
+    reset_ct_table_data(arg);
+}
 
 void protect_thread_critical_region(void);
 void unprotect_thread_critical_region(void);
@@ -1051,15 +1057,20 @@ draw_ct_table_data(conversations_table *ct)
 
     }
 	
-	draw_ct_table_addresses(ct);
+    draw_ct_table_addresses(ct);
 	
     gtk_clist_sort(ct->table);
 
-	/* Allow table to redraw */
+    /* Allow table to redraw */
     gtk_clist_thaw(ct->table);
-	gtk_clist_freeze(ct->table);
+    gtk_clist_freeze(ct->table);
 }
 
+static void
+draw_ct_table_data_cb(void *arg)
+{
+    draw_ct_table_data(arg);
+}
 
 #if (GTK_MAJOR_VERSION >= 2)
 static void
@@ -1101,8 +1112,8 @@ copy_as_csv_cb(GtkWindow *win _U_, gpointer data)
 #endif
 
 
-gboolean
-init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
+static gboolean
+init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean hide_ports, char *table_name, char *tap_name, char *filter, tap_packet_cb packet_func)
 {
     int i;
     column_arrows *col_arrows;
@@ -1209,7 +1220,7 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
 #endif                 
 
     /* register the tap and rerun the taps on the packet list */
-    error_string=register_tap_listener(tap_name, conversations, filter, (void *)reset_ct_table_data, packet_func, (void *)draw_ct_table_data);
+    error_string=register_tap_listener(tap_name, conversations, filter, reset_ct_table_data_cb, packet_func, draw_ct_table_data_cb);
     if(error_string){
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
         g_string_free(error_string, TRUE);
@@ -1221,7 +1232,7 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
 
 
 void
-init_conversation_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
+init_conversation_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, tap_packet_cb packet_func)
 {
     conversations_table *conversations;
     char title[256];
@@ -1291,7 +1302,7 @@ ct_win_destroy_notebook_cb(GtkWindow *win _U_, gpointer data)
 
 
 static conversations_table *
-init_ct_notebook_page_cb(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
+init_ct_notebook_page_cb(gboolean hide_ports, char *table_name, char *tap_name, char *filter, tap_packet_cb packet_func)
 {
     gboolean ret;
     GtkWidget *page_vbox;
@@ -1316,18 +1327,18 @@ init_ct_notebook_page_cb(gboolean hide_ports, char *table_name, char *tap_name, 
 
 
 typedef struct {
-    gboolean hide_ports;    /* hide TCP / UDP port columns */
-    char *table_name;       /* GUI output name */
-    char *tap_name;         /* internal name */
-    char *filter;           /* display filter string (unused) */
-    void *packet_func;      /* function to be called for new incoming packets */
+    gboolean hide_ports;       /* hide TCP / UDP port columns */
+    char *table_name;          /* GUI output name */
+    char *tap_name;            /* internal name */
+    char *filter;              /* display filter string (unused) */
+    tap_packet_cb packet_func; /* function to be called for new incoming packets */
 } register_ct_t;
 
 
 static GSList *registered_ct_tables = NULL;
 
 void
-register_conversation_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
+register_conversation_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, tap_packet_cb packet_func)
 {
     register_ct_t *table;
 
@@ -1451,9 +1462,9 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
 
 void
-add_conversation_table_data(conversations_table *ct, address *src, address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, SAT_E sat, int port_type)
+add_conversation_table_data(conversations_table *ct, const address *src, const address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, SAT_E sat, int port_type)
 {
-    address *addr1, *addr2;
+    const address *addr1, *addr2;
     guint32 port1, port2;
     conversation_t *conversation=NULL;
     int conversation_idx=0;
@@ -1576,5 +1587,3 @@ add_conversation_table_data(conversations_table *ct, address *src, address *dst,
         draw_ct_table_address(ct, conversation_idx);
     }
 }
-
-

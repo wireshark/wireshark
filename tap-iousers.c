@@ -68,9 +68,10 @@ typedef struct _io_users_item_t {
 
 
 static int
-iousers_udpip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, void *vudph)
+iousers_udpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vudph)
 {
-	e_udphdr *udph=vudph;
+	io_users_t *iu=arg;
+	const e_udphdr *udph=vudph;
 	char name1[256],name2[256];
 	io_users_item_t *iui;
 	int direction=0;
@@ -127,9 +128,10 @@ iousers_udpip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_
 
 
 static int
-iousers_tcpip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, void *vtcph)
+iousers_tcpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vtcph)
 {
-	struct tcpheader *tcph=vtcph;
+	io_users_t *iu=arg;
+	const struct tcpheader *tcph=vtcph;
 	char name1[256],name2[256];
 	io_users_item_t *iui;
 	int direction=0;
@@ -186,10 +188,11 @@ iousers_tcpip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_
 
 
 static int
-iousers_ip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
+iousers_ip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-	e_ip *iph=vip;
-	address *addr1, *addr2;
+	io_users_t *iu=arg;
+	const e_ip *iph=vip;
+	const address *addr1, *addr2;
 	io_users_item_t *iui;
 
 	if(CMP_ADDRESS(&iph->ip_src, &iph->ip_dst)>0){
@@ -233,10 +236,11 @@ iousers_ip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, v
 }
 
 static int
-iousers_ipx_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, void *vipx)
+iousers_ipx_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vipx)
 {
-	ipxhdr_t *ipxh=vipx;
-	address *addr1, *addr2;
+	io_users_t *iu=arg;
+	const ipxhdr_t *ipxh=vipx;
+	const address *addr1, *addr2;
 	io_users_item_t *iui;
 
 	if(CMP_ADDRESS(&ipxh->ipx_src, &ipxh->ipx_dst)>0){
@@ -280,10 +284,11 @@ iousers_ipx_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, 
 }
 
 static int
-iousers_fc_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, void *vfc)
+iousers_fc_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vfc)
 {
-	fc_hdr *fchdr=vfc;
-	address *addr1, *addr2;
+	io_users_t *iu=arg;
+	const fc_hdr *fchdr=vfc;
+	const address *addr1, *addr2;
 	io_users_item_t *iui;
 
 	if(CMP_ADDRESS(&fchdr->s_id, &fchdr->d_id)<0){
@@ -327,10 +332,11 @@ iousers_fc_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, v
 }
 
 static int
-iousers_eth_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, void *veth)
+iousers_eth_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *veth)
 {
-	eth_hdr *ehdr=veth;
-	address *addr1, *addr2;
+	io_users_t *iu=arg;
+	const eth_hdr *ehdr=veth;
+	const address *addr1, *addr2;
 	io_users_item_t *iui;
 
 	if(CMP_ADDRESS(&ehdr->src, &ehdr->dst)<0){
@@ -374,10 +380,11 @@ iousers_eth_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, 
 }
 
 static int
-iousers_fddi_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, void *veth)
+iousers_fddi_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *veth)
 {
-	fddi_hdr *ehdr=veth;
-	address *addr1, *addr2;
+	io_users_t *iu=arg;
+	const fddi_hdr *ehdr=veth;
+	const address *addr1, *addr2;
 	io_users_item_t *iui;
 
 	if(CMP_ADDRESS(&ehdr->src, &ehdr->dst)<0){
@@ -421,10 +428,11 @@ iousers_fddi_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_,
 }
 
 static int
-iousers_tr_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, void *vtr)
+iousers_tr_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vtr)
 {
-	tr_hdr *trhdr=vtr;
-	address *addr1, *addr2;
+	io_users_t *iu=arg;
+	const tr_hdr *trhdr=vtr;
+	const address *addr1, *addr2;
 	io_users_item_t *iui;
 
 	if(CMP_ADDRESS(&trhdr->src, &trhdr->dst)<0){
@@ -468,8 +476,9 @@ iousers_tr_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, v
 }
 
 static void
-iousers_draw(io_users_t *iu)
+iousers_draw(void *arg)
 {
+	io_users_t *iu = arg;
 	io_users_item_t *iui;
 	guint32 last_frames, max_frames;
 
@@ -514,7 +523,7 @@ iousers_init(char *optarg)
 {
 	char *filter=NULL;
 	char *tap_type, *tap_type_name;
-	static int (*packet_func)(io_users_t *, packet_info *, epan_dissect_t *, void *);
+	tap_packet_cb packet_func;
 	io_users_t *iu=NULL;
 	GString *error_string;
 
@@ -614,7 +623,7 @@ iousers_init(char *optarg)
 		iu->filter=NULL;
 	}
 
-	error_string=register_tap_listener(tap_type, iu, filter, NULL, (void*)packet_func, (void*)iousers_draw);
+	error_string=register_tap_listener(tap_type, iu, filter, NULL, packet_func, iousers_draw);
 	if(error_string){
 		if(iu->items){
 			g_free(iu->items);
@@ -633,4 +642,3 @@ register_tap_listener_iousers(void)
 {
 	register_ethereal_tap("conv,", iousers_init);
 }
-

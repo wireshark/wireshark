@@ -41,10 +41,10 @@
 
 
 static int
-fc_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
+fc_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
 	hostlist_table *hosts=(hostlist_table *)pit;
-	fc_hdr *fchdr=vip;
+	const fc_hdr *fchdr=vip;
 
 	/* Take two "add" passes per packet, adding for each direction, ensures that all
 	packets are counted properly (even if address is sending to itself) 
@@ -68,7 +68,7 @@ gtk_fc_hostlist_init(char *optarg)
 		filter=NULL;
 	}
 
-	init_hostlist_table(TRUE, "Fibre Channel Hosts", "fc", filter, (void *)fc_hostlist_packet);
+	init_hostlist_table(TRUE, "Fibre Channel Hosts", "fc", filter, fc_hostlist_packet);
 
 }
 
@@ -88,6 +88,5 @@ register_tap_listener_fc_hostlist(void)
 	register_tap_menu_item("Fibre Channel", REGISTER_TAP_GROUP_ENDPOINT_LIST,
 	    gtk_fc_hostlist_cb, NULL, NULL, NULL);
 
-	register_hostlist_table(TRUE, "Fibre Channel", "fc", NULL /*filter*/, (void *)fc_hostlist_packet);
+	register_hostlist_table(TRUE, "Fibre Channel", "fc", NULL /*filter*/, fc_hostlist_packet);
 }
-

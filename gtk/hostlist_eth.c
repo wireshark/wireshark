@@ -41,10 +41,10 @@
 
 
 static int
-eth_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
+eth_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
 	hostlist_table *hosts=(hostlist_table *)pit;
-	eth_hdr *ehdr=vip;
+	const eth_hdr *ehdr=vip;
 
 	/* Take two "add" passes per packet, adding for each direction, ensures that all
 	packets are counted properly (even if address is sending to itself) 
@@ -68,7 +68,7 @@ gtk_eth_hostlist_init(char *optarg)
 		filter=NULL;
 	}
 
-	init_hostlist_table(TRUE, "Ethernet Hosts", "eth", filter, (void *)eth_hostlist_packet);
+	init_hostlist_table(TRUE, "Ethernet Hosts", "eth", filter, eth_hostlist_packet);
 
 }
 
@@ -88,6 +88,5 @@ register_tap_listener_eth_hostlist(void)
 	register_tap_menu_item("Ethernet", REGISTER_TAP_GROUP_ENDPOINT_LIST,
 	    gtk_eth_hostlist_cb, NULL, NULL, NULL);
 
-	register_hostlist_table(TRUE, "Ethernet", "eth", NULL /*filter*/, (void *)eth_hostlist_packet);
+	register_hostlist_table(TRUE, "Ethernet", "eth", NULL /*filter*/, eth_hostlist_packet);
 }
-

@@ -41,9 +41,9 @@
 
 
 static int
-eth_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
+eth_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-	eth_hdr *ehdr=vip;
+	const eth_hdr *ehdr=vip;
 
 	add_conversation_table_data((conversations_table *)pct, &ehdr->src, &ehdr->dst, 0, 0, 1, pinfo->fd->pkt_len, SAT_ETHER, PT_NONE);
 
@@ -63,7 +63,7 @@ eth_conversation_init(char *optarg)
 		filter=NULL;
 	}
 
-	init_conversation_table(TRUE, "Ethernet", "eth", filter, (void *)eth_conversation_packet);
+	init_conversation_table(TRUE, "Ethernet", "eth", filter, eth_conversation_packet);
 
 }
 
@@ -83,6 +83,5 @@ register_tap_listener_eth_conversation(void)
 	register_tap_menu_item("Ethernet", REGISTER_TAP_GROUP_CONVERSATION_LIST,
 	    eth_endpoints_cb, NULL, NULL, NULL);
 
-	register_conversation_table(TRUE, "Ethernet", "eth", NULL /*filter*/, (void *)eth_conversation_packet);
+	register_conversation_table(TRUE, "Ethernet", "eth", NULL /*filter*/, eth_conversation_packet);
 }
-

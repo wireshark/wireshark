@@ -41,10 +41,10 @@
 
 
 static int
-ipx_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
+ipx_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
 	hostlist_table *hosts=(hostlist_table *)pit;
-	ipxhdr_t *ipxh=vip;
+	const ipxhdr_t *ipxh=vip;
 
 	/* Take two "add" passes per packet, adding for each direction, ensures that all
 	packets are counted properly (even if address is sending to itself) 
@@ -68,7 +68,7 @@ gtk_ipx_hostlist_init(char *optarg)
 		filter=NULL;
 	}
 
-	init_hostlist_table(TRUE, "IPX Hosts", "ipx", filter, (void *)ipx_hostlist_packet);
+	init_hostlist_table(TRUE, "IPX Hosts", "ipx", filter, ipx_hostlist_packet);
 
 }
 
@@ -88,6 +88,5 @@ register_tap_listener_ipx_hostlist(void)
 	register_tap_menu_item("IPX", REGISTER_TAP_GROUP_ENDPOINT_LIST,
 	    gtk_ipx_hostlist_cb, NULL, NULL, NULL);
 
-	register_hostlist_table(TRUE, "IPX", "ipx", NULL /*filter*/, (void *)ipx_hostlist_packet);
+	register_hostlist_table(TRUE, "IPX", "ipx", NULL /*filter*/, ipx_hostlist_packet);
 }
-

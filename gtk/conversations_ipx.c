@@ -41,9 +41,9 @@
 
 
 static int
-ipx_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
+ipx_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-	ipxhdr_t *ipxh=vip;
+	const ipxhdr_t *ipxh=vip;
 
 	add_conversation_table_data((conversations_table *)pct, &ipxh->ipx_src, &ipxh->ipx_dst, 0, 0, 1, pinfo->fd->pkt_len, SAT_NONE, PT_NONE);
 
@@ -63,7 +63,7 @@ ipx_conversation_init(char *optarg)
 		filter=NULL;
 	}
 
-	init_conversation_table(TRUE, "IPX", "ipx", filter, (void *)ipx_conversation_packet);
+	init_conversation_table(TRUE, "IPX", "ipx", filter, ipx_conversation_packet);
 
 }
 
@@ -83,6 +83,5 @@ register_tap_listener_ipx_conversation(void)
 	register_tap_menu_item("IPX", REGISTER_TAP_GROUP_CONVERSATION_LIST,
 	    ipx_endpoints_cb, NULL, NULL, NULL);
 
-	register_conversation_table(TRUE, "IPX", "ipx", NULL /*filter*/, (void *)ipx_conversation_packet);
+	register_conversation_table(TRUE, "IPX", "ipx", NULL /*filter*/, ipx_conversation_packet);
 }
-

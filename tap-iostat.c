@@ -67,8 +67,9 @@ typedef struct _io_stat_item_t {
 
 
 static int
-iostat_packet(io_stat_item_t *mit, packet_info *pinfo, epan_dissect_t *edt _U_, void *dummy _U_)
+iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, void *dummy _U_)
 {
+	io_stat_item_t *mit = arg;
 	io_stat_item_t *it;
 	gint32 current_time;
 	GPtrArray *gp;
@@ -249,8 +250,9 @@ iostat_packet(io_stat_item_t *mit, packet_info *pinfo, epan_dissect_t *edt _U_, 
 }
 
 static void
-iostat_draw(io_stat_item_t *mit)
+iostat_draw(void *arg)
 {
+	io_stat_item_t *mit = arg;
 	io_stat_t *iot;
 	io_stat_item_t **items;
 	guint32 *frames;
@@ -561,7 +563,7 @@ CALC_TYPE_MAX	4
 CALC_TYPE_AVG	5
 */
 
-	error_string=register_tap_listener("frame", &io->items[i], flt, NULL, (void*)iostat_packet, i?NULL:(void*)iostat_draw);
+	error_string=register_tap_listener("frame", &io->items[i], flt, NULL, iostat_packet, i?NULL:iostat_draw);
 	if(error_string){
 		g_free(io->items);
 		g_free(io);
@@ -650,4 +652,3 @@ register_tap_listener_iostat(void)
 {
 	register_ethereal_tap("io,stat,", iostat_init);
 }
-

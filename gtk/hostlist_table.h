@@ -66,7 +66,7 @@ typedef struct _hostlist_table {
  * @param filter the optional filter name or NULL
  * @param packet_func the function to be called for each incoming packet
  */
-extern void register_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func);
+extern void register_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, tap_packet_cb packet_func);
 
 /** Init the hostlist table for the single hostlist window.
  *
@@ -76,7 +76,7 @@ extern void register_hostlist_table(gboolean hide_ports, char *table_name, char 
  * @param filter the optional filter name or NULL
  * @param packet_func the function to be called for each incoming packet
  */
-extern void init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func);
+extern void init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, tap_packet_cb packet_func);
 
 /** Callback for "Endpoints" statistics item.
  *
@@ -96,5 +96,5 @@ extern void init_hostlist_notebook_cb(GtkWidget *w, gpointer d);
  * @param sat address type
  * @param port_type the port type (e.g. PT_TCP)
  */
-void add_hostlist_table_data(hostlist_table *hl, address *addr,
+void add_hostlist_table_data(hostlist_table *hl, const address *addr,
                              guint32 port, gboolean sender, int num_frames, int num_bytes, SAT_E sat, int port_type);

@@ -41,9 +41,9 @@
 
 
 static int
-udpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
+udpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-	e_udphdr *udphdr=vip;
+	const e_udphdr *udphdr=vip;
 
 	add_conversation_table_data((conversations_table *)pct, &udphdr->ip_src, &udphdr->ip_dst, udphdr->uh_sport, udphdr->uh_dport, 1, pinfo->fd->pkt_len, SAT_NONE, PT_UDP);
 
@@ -63,7 +63,7 @@ udpip_conversation_init(char *optarg)
 		filter=NULL;
 	}
 
-	init_conversation_table(FALSE, "UDP", "udp", filter, (void *)udpip_conversation_packet);
+	init_conversation_table(FALSE, "UDP", "udp", filter, udpip_conversation_packet);
 
 }
 
@@ -83,6 +83,5 @@ register_tap_listener_udpip_conversation(void)
 	register_tap_menu_item("UDP (IPv4 & IPv6)", REGISTER_TAP_GROUP_CONVERSATION_LIST,
 	    udpip_conversation_cb, NULL, NULL, NULL);
 
-    register_conversation_table(FALSE, "UDP", "udp", NULL /*filter*/, (void *)udpip_conversation_packet);
+    register_conversation_table(FALSE, "UDP", "udp", NULL /*filter*/, udpip_conversation_packet);
 }
-

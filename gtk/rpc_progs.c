@@ -154,8 +154,9 @@ add_new_program(rpc_program_t *rp)
 
 
 static int
-rpcprogs_packet(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt _U_, rpc_call_info_value *ri)
+rpcprogs_packet(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg)
 {
+	const rpc_call_info_value *ri = arg;
 	nstime_t delta;
 	rpc_program_t *rp;
 
@@ -384,7 +385,7 @@ gtk_rpcprogs_init(char *optarg _U_)
 	gtk_table_attach_defaults(GTK_TABLE(table), tmp, 5,6,0,1);
 	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
 
-	error_string=register_tap_listener("rpc", win, NULL, (void*)rpcprogs_reset, (void*)rpcprogs_packet, (void*)rpcprogs_draw);
+	error_string=register_tap_listener("rpc", win, NULL, rpcprogs_reset, rpcprogs_packet, rpcprogs_draw);
 	if(error_string){
 		fprintf(stderr, "ethereal: Couldn't register rpc,programs tap: %s\n",
 		    error_string->str);

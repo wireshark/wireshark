@@ -112,7 +112,6 @@ const h323conversations_tapinfo_t* h323conversations_get_info(void);
 * Cleans up memory of h323 conversationss tap.
 */
 void h225conversations_reset(h323conversations_tapinfo_t *tapinfo);
-void h245conversations_reset(h323conversations_tapinfo_t *tapinfo);
 
 /*
 * Marks all packets belonging to conversations.

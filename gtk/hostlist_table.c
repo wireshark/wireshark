@@ -31,17 +31,20 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+
 #include <gtk/gtk.h>
+
+#include <epan/packet_info.h>
+#include <epan/to_str.h>
+#include <epan/addr_resolv.h>
+#include <epan/tap.h>
+
 #include "compat_macros.h"
-#include "epan/packet_info.h"
-#include "epan/to_str.h"
-#include "epan/addr_resolv.h"
 #include "hostlist_table.h"
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
 #include "simple_dialog.h"
 #include "globals.h"
-#include <epan/tap.h>
 #include "gtk/find_dlg.h"
 #include "color.h"
 #include "gtk/color_dlg.h"
@@ -170,7 +173,11 @@ reset_hostlist_table_data(hostlist_table *hosts)
     hosts->num_hosts=0;
 }
 
-
+static void
+reset_hostlist_table_data_cb(void *arg)
+{
+    reset_hostlist_table_data(arg);
+}
 
 void protect_thread_critical_region(void);
 void unprotect_thread_critical_region(void);
@@ -542,13 +549,19 @@ draw_hostlist_table_data(hostlist_table *hl)
 
     }
 	
-	draw_hostlist_table_addresses(hl);
+    draw_hostlist_table_addresses(hl);
 	
     gtk_clist_sort(hl->table);
 
-	/* Allow table to redraw. */
+    /* Allow table to redraw. */
     gtk_clist_thaw(hl->table);
-	gtk_clist_freeze(hl->table);
+    gtk_clist_freeze(hl->table);
+}
+
+static void
+draw_hostlist_table_data_cb(void *arg)
+{
+    draw_hostlist_table_data(arg);
 }
 
 #if (GTK_MAJOR_VERSION >= 2)
@@ -592,7 +605,7 @@ copy_as_csv_cb(GtkWindow *win _U_, gpointer data)
 
 
 static gboolean
-init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
+init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hide_ports, char *table_name, char *tap_name, char *filter, tap_packet_cb packet_func)
 {
     int i;
     column_arrows *col_arrows;
@@ -691,7 +704,7 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
 #endif
 
     /* register the tap and rerun the taps on the packet list */
-    error_string=register_tap_listener(tap_name, hosttable, filter, (void *)reset_hostlist_table_data, packet_func, (void *)draw_hostlist_table_data);
+    error_string=register_tap_listener(tap_name, hosttable, filter, reset_hostlist_table_data_cb, packet_func, draw_hostlist_table_data_cb);
     if(error_string){
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
         g_string_free(error_string, TRUE);
@@ -704,7 +717,7 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
 
 
 void
-init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
+init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, tap_packet_cb packet_func)
 {
     hostlist_table *hosttable;
     char title[256];
@@ -773,7 +786,7 @@ hostlist_win_destroy_notebook_cb(GtkWindow *win _U_, gpointer data)
 
 
 static hostlist_table *
-init_hostlist_notebook_page_cb(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
+init_hostlist_notebook_page_cb(gboolean hide_ports, char *table_name, char *tap_name, char *filter, tap_packet_cb packet_func)
 {
     gboolean ret;
     GtkWidget *page_vbox;
@@ -798,18 +811,18 @@ init_hostlist_notebook_page_cb(gboolean hide_ports, char *table_name, char *tap_
 
 
 typedef struct {
-    gboolean hide_ports;    /* hide TCP / UDP port columns */
-    char *table_name;       /* GUI output name */
-    char *tap_name;         /* internal name */
-    char *filter;           /* display filter string (unused) */
-    void *packet_func;      /* function to be called for new incoming packets */
+    gboolean hide_ports;       /* hide TCP / UDP port columns */
+    char *table_name;          /* GUI output name */
+    char *tap_name;            /* internal name */
+    char *filter;              /* display filter string (unused) */
+    tap_packet_cb packet_func; /* function to be called for new incoming packets */
 } register_hostlist_t;
 
 
 static GSList *registered_hostlist_tables = NULL;
 
 void
-register_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
+register_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, tap_packet_cb packet_func)
 {
     register_hostlist_t *table;
 
@@ -935,7 +948,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
 
 void
-add_hostlist_table_data(hostlist_table *hl, address *addr, guint32 port, gboolean sender, int num_frames, int num_bytes, SAT_E sat, int port_type)
+add_hostlist_table_data(hostlist_table *hl, const address *addr, guint32 port, gboolean sender, int num_frames, int num_bytes, SAT_E sat, int port_type)
 {
     hostlist_talker_t *talker=NULL;
     int talker_idx=0;
@@ -1026,4 +1039,3 @@ add_hostlist_table_data(hostlist_table *hl, address *addr, guint32 port, gboolea
 		draw_hostlist_table_address(hl, talker_idx);
     }
 }
-

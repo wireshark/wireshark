@@ -41,9 +41,9 @@
 
 
 static int
-tcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
+tcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-	struct tcpheader *tcphdr=vip;
+	const struct tcpheader *tcphdr=vip;
 
 	add_conversation_table_data((conversations_table *)pct, &tcphdr->ip_src, &tcphdr->ip_dst, tcphdr->th_sport, tcphdr->th_dport, 1, pinfo->fd->pkt_len, SAT_NONE, PT_TCP);
 
@@ -63,7 +63,7 @@ tcpip_conversation_init(char *optarg)
 		filter=NULL;
 	}
 
-	init_conversation_table(FALSE, "TCP", "tcp", filter, (void *)tcpip_conversation_packet);
+	init_conversation_table(FALSE, "TCP", "tcp", filter, tcpip_conversation_packet);
 
 }
 
@@ -83,6 +83,5 @@ register_tap_listener_tcpip_conversation(void)
 	register_tap_menu_item("TCP (IPv4 & IPv6)", REGISTER_TAP_GROUP_CONVERSATION_LIST,
 	    tcpip_conversation_cb, NULL, NULL, NULL);
 
-	register_conversation_table(FALSE, "TCP", "tcp", NULL /*filter*/, (void *)tcpip_conversation_packet);
+	register_conversation_table(FALSE, "TCP", "tcp", NULL /*filter*/, tcpip_conversation_packet);
 }
-

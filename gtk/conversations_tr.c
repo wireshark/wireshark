@@ -41,9 +41,9 @@
 
 
 static int
-tr_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
+tr_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-	tr_hdr *trhdr=vip;
+	const tr_hdr *trhdr=vip;
 
 	add_conversation_table_data((conversations_table *)pct, &trhdr->src, &trhdr->dst, 0, 0, 1, pinfo->fd->pkt_len, SAT_TOKENRING, PT_NONE);
 
@@ -63,7 +63,7 @@ tr_conversation_init(char *optarg)
 		filter=NULL;
 	}
 
-	init_conversation_table(TRUE, "Token Ring", "tr", filter, (void *)tr_conversation_packet);
+	init_conversation_table(TRUE, "Token Ring", "tr", filter, tr_conversation_packet);
 
 }
 
@@ -83,6 +83,5 @@ register_tap_listener_tr_conversation(void)
 	register_tap_menu_item("Token Ring", REGISTER_TAP_GROUP_CONVERSATION_LIST,
 	    tr_conversation_cb, NULL, NULL, NULL);
 
-    register_conversation_table(TRUE, "Token Ring", "tr", NULL /*filter*/, (void *)tr_conversation_packet);
+    register_conversation_table(TRUE, "Token Ring", "tr", NULL /*filter*/, tr_conversation_packet);
 }
-

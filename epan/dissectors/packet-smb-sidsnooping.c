@@ -62,8 +62,8 @@ static int ctx_handle_init_count = 200;
 static GHashTable *ctx_handle_table = NULL;
 
 
-static void *lsa_policy_information_flag = NULL;
-static void *samr_query_dispinfo_flag = NULL;
+static gboolean lsa_policy_information_tap_installed = FALSE;
+static gboolean samr_query_dispinfo_tap_installed = FALSE;
 
 
 char *
@@ -334,13 +334,13 @@ sid_snooping_init(void)
 	header_field_info *hfi;
 	GString *error_string;
 
-	if(lsa_policy_information_flag){
-		remove_tap_listener(lsa_policy_information_flag);
-		lsa_policy_information_flag=NULL;
+	if(lsa_policy_information_tap_installed){
+		remove_tap_listener(&lsa_policy_information_tap_installed);
+		lsa_policy_information_tap_installed=FALSE;
 	}
-	if(samr_query_dispinfo_flag){
-		remove_tap_listener(samr_query_dispinfo_flag);
-		samr_query_dispinfo_flag=NULL;
+	if(samr_query_dispinfo_tap_installed){
+		remove_tap_listener(&samr_query_dispinfo_tap_installed);
+		samr_query_dispinfo_tap_installed=FALSE;
 	}
 
 	if(sid_name_table){
@@ -421,7 +421,7 @@ sid_snooping_init(void)
 
 
 
-	error_string=register_tap_listener("dcerpc", lsa_policy_information, "lsa.policy_information and ( lsa.info.level or lsa.domain or nt.domain_sid )", NULL, lsa_policy_information, NULL);
+	error_string=register_tap_listener("dcerpc", &lsa_policy_information_tap_installed, "lsa.policy_information and ( lsa.info.level or lsa.domain or nt.domain_sid )", NULL, lsa_policy_information, NULL);
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 
@@ -430,9 +430,9 @@ sid_snooping_init(void)
 		g_string_free(error_string, TRUE);
 		exit(1);
 	}
-	lsa_policy_information_flag=lsa_policy_information;
+	lsa_policy_information_tap_installed=TRUE;
 
-	error_string=register_tap_listener("dcerpc", samr_query_dispinfo, "samr and samr.opnum==40 and ( samr.hnd or samr.rid or samr.acct_name or samr.level )", NULL, samr_query_dispinfo, NULL);
+	error_string=register_tap_listener("dcerpc", &samr_query_dispinfo_tap_installed, "samr and samr.opnum==40 and ( samr.hnd or samr.rid or samr.acct_name or samr.level )", NULL, samr_query_dispinfo, NULL);
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 
@@ -441,7 +441,7 @@ sid_snooping_init(void)
 		g_string_free(error_string, TRUE);
 		exit(1);
 	}
-	samr_query_dispinfo_flag=samr_query_dispinfo;
+	samr_query_dispinfo_tap_installed=TRUE;
 }
 
 void
@@ -454,4 +454,3 @@ void
 proto_reg_handoff_smb_sidsnooping(void)
 {
 }
-

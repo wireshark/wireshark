@@ -55,6 +55,8 @@
 
 #include <string.h>
 
+static void h245conversations_reset(void *arg);
+
 char *transport_prot_name[256] ={
 	"","","","","","","tcp","","","",  /* 0 to 10 */
     "","","","","","","","udp","","",  /* 10 to 20 */
@@ -145,11 +147,16 @@ void h225conversations_reset(h323conversations_tapinfo_t *tapinfo)
 	return;
 }
 
+static void h225conversations_reset_cb(void *arg)
+{
+	h225conversations_reset(arg);
+}
+
 /****************************************************************************/
 /* redraw the output */
-void h225conversations_draw(h323conversations_tapinfo_t *tapinfo _U_)
+static void h225conversations_draw(void *arg _U_)
 {
-/* XXX: see h323conversations_on_update in h323_conversationss_dlg.c for comments
+/* XXX: see h323conversations_on_update in h323_conversations_dlg.c for comments
 	gtk_signal_emit_by_name(top_level, "signal_h225conversations_update");
 */
 	h323conversations_dlg_update(the_tapinfo_struct.strinfo_list);
@@ -160,13 +167,14 @@ void h225conversations_draw(h323conversations_tapinfo_t *tapinfo _U_)
 
 /****************************************************************************/
 /* whenever a H225 packet is seen by the tap listener */
-int h225conversations_packet(h323conversations_tapinfo_t *tapinfo _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void *h225info)
+static int h225conversations_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *h225info)
 {
+	h323conversations_tapinfo_t *tapinfo = arg;
 	h323_conversations_info_t tmp_strinfo;
 	h323_conversations_info_t *strinfo = NULL;
 	GList* list;
 
-	h225_packet_info *pi = h225info;
+	const h225_packet_info *pi = h225info;
 	
 	/* TODO: evaluate RAS Messages. Just ignore them for now*/
 	if(pi->msg_type==H225_RAS)
@@ -295,7 +303,8 @@ h225conversations_init_tap(void)
 	{
 		/* don't register tap listener, if we have it already */
 		error_string = register_tap_listener("h225", &the_tapinfo_struct, NULL,
-			(void*)h225conversations_reset, (void*)h225conversations_packet, (void*)h225conversations_draw);
+			h225conversations_reset_cb, h225conversations_packet,
+			h225conversations_draw);
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -329,8 +338,14 @@ remove_tap_listener_h225_conversations(void)
 /****************************************************************************/
 
 /****************************************************************************/
+static void h245conversations_reset(void *arg _U_)
+{
+	return;
+}
+
+/****************************************************************************/
 /* redraw the output */
-void h245conversations_draw(h323conversations_tapinfo_t *tapinfo _U_)
+static void h245conversations_draw(void *arg _U_)
 {
 	h323conversations_dlg_update(the_tapinfo_struct.strinfo_list);
 	return;
@@ -338,8 +353,9 @@ void h245conversations_draw(h323conversations_tapinfo_t *tapinfo _U_)
 
 /****************************************************************************/
 /* whenever a H245 packet is seen by the tap listener */
-int h245conversations_packet(h323conversations_tapinfo_t *tapinfo _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void *h245info _U_)
+static int h245conversations_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *h245info _U_)
 {
+	h323conversations_tapinfo_t *tapinfo = arg;
 	GList* list;
 	struct _h323_conversations_info* a;
 	guint32 src, dst;
@@ -382,8 +398,8 @@ h245conversations_init_tap(void)
 	{ 
 		/* don't register tap listener, if we have it already */
 		error_string = register_tap_listener("h245", &the_tapinfo_struct,
-			NULL,
-			(void*)h245conversations_reset, (void*)h245conversations_packet, (void*)h245conversations_draw);
+			NULL, h245conversations_reset, h245conversations_packet,
+			h245conversations_draw);
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -405,12 +421,3 @@ remove_tap_listener_h245_conversations(void)
 	
 	have_h245_tap_listener=FALSE;
 }
-
-
-/****************************************************************************/
-
-void h245conversations_reset(h323conversations_tapinfo_t *tapinfo _U_)
-{
-	return;
-}
-

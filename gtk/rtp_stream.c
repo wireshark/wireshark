@@ -116,9 +116,14 @@ void rtpstream_reset(rtpstream_tapinfo_t *tapinfo)
 	return;
 }
 
+static void rtpstream_reset_cb(void *arg)
+{
+	rtpstream_reset(arg);
+}
+
 /****************************************************************************/
 /* redraw the output */
-void rtpstream_draw(rtpstream_tapinfo_t *tapinfo _U_)
+void rtpstream_draw(void *arg _U_)
 {
 /* XXX: see rtpstream_on_update in rtp_streams_dlg.c for comments
 	gtk_signal_emit_by_name(top_level, "signal_rtpstream_update");
@@ -197,8 +202,10 @@ static void rtp_write_sample(rtp_sample_t* sample, FILE* file)
 
 /****************************************************************************/
 /* whenever a RTP packet is seen by the tap listener */
-int rtpstream_packet(rtpstream_tapinfo_t *tapinfo _U_, packet_info *pinfo, epan_dissect_t *edt _U_, struct _rtp_info *rtpinfo _U_)
+static int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg2)
 {
+	rtpstream_tapinfo_t *tapinfo = arg;
+	const struct _rtp_info *rtpinfo = arg2;
 	rtp_stream_info_t tmp_strinfo;
 	rtp_stream_info_t *strinfo = NULL;
 	GList* list;
@@ -397,8 +404,8 @@ register_tap_listener_rtp_stream(void)
 		register_ethereal_tap("rtp", rtpstream_init_tap);
 
 		error_string = register_tap_listener("rtp", &the_tapinfo_struct,
-			NULL,
-			(void*)rtpstream_reset, (void*)rtpstream_packet, (void*)rtpstream_draw);
+			NULL, rtpstream_reset_cb, rtpstream_packet,
+			rtpstream_draw);
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,

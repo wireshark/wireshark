@@ -41,10 +41,10 @@
 
 
 static int
-fddi_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
+fddi_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
 	hostlist_table *hosts=(hostlist_table *)pit;
-	fddi_hdr *ehdr=vip;
+	const fddi_hdr *ehdr=vip;
 
 	/* Take two "add" passes per packet, adding for each direction, ensures that all
 	packets are counted properly (even if address is sending to itself) 
@@ -68,7 +68,7 @@ gtk_fddi_hostlist_init(char *optarg)
 		filter=NULL;
 	}
 
-	init_hostlist_table(TRUE, "FDDI Hosts", "fddi", filter, (void *)fddi_hostlist_packet);
+	init_hostlist_table(TRUE, "FDDI Hosts", "fddi", filter, fddi_hostlist_packet);
 
 }
 
@@ -88,6 +88,5 @@ register_tap_listener_fddi_hostlist(void)
 	register_tap_menu_item("FDDI", REGISTER_TAP_GROUP_ENDPOINT_LIST,
 	    gtk_fddi_hostlist_cb, NULL, NULL, NULL);
 
-	register_hostlist_table(TRUE, "FDDI", "fddi", NULL /*filter*/, (void *)fddi_hostlist_packet);
+	register_hostlist_table(TRUE, "FDDI", "fddi", NULL /*filter*/, fddi_hostlist_packet);
 }
-
