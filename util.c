@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.6 1998/10/16 01:18:34 gerald Exp $
+ * $Id: util.c,v 1.7 1998/10/28 21:22:33 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,14 +54,13 @@ const gchar *bm_key = "button mask";
  * text.
  * 
  * Args:
- * type     : One of ESD_TYPE_*.
- * btn_mask : The address of a gint.  The value passed in determines if
- *            the 'Cancel' button is displayed.  The button pressed by the 
- *            user is passed back.
- * message  : The text displayed in the dialog.
+ * type       : One of ESD_TYPE_*.
+ * btn_mask   : The address of a gint.  The value passed in determines if
+ *              the 'Cancel' button is displayed.  The button pressed by the 
+ *              user is passed back.
+ * msg_format : Sprintf-style format of the text displayed in the dialog.
+ * ...        : Argument list for msg_format
  *
- * To do:
- * - Switch to variable args
  */
  
 #define ESD_MAX_MSG_LEN 1024
@@ -106,7 +105,7 @@ simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
   gtk_widget_show(main_vb);
 
   /* Top row: Icon and message text */
-  top_hb = gtk_hbox_new(FALSE, 5);
+  top_hb = gtk_hbox_new(FALSE, 10);
   gtk_container_add(GTK_CONTAINER(main_vb), top_hb);
   gtk_widget_show(top_hb);
   
@@ -115,6 +114,7 @@ simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
   pixmap = gdk_pixmap_colormap_create_from_xpm_d(NULL, cmap,  &mask,
     &style->bg[GTK_STATE_NORMAL], icon);
   type_pm = gtk_pixmap_new(pixmap, mask);
+  gtk_misc_set_alignment (GTK_MISC (type_pm), 0.5, 0.0);
   gtk_container_add(GTK_CONTAINER(top_hb), type_pm);
   gtk_widget_show(type_pm);
 
