@@ -2,7 +2,7 @@
  * Routines for opening EtherPeek (and TokenPeek?) files
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
- * $Id: etherpeek.c,v 1.12 2002/01/22 20:01:07 guy Exp $
+ * $Id: etherpeek.c,v 1.13 2002/01/23 06:32:51 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -48,8 +48,8 @@ typedef struct etherpeek_master_header {
 } etherpeek_master_header_t;
 #define ETHERPEEK_MASTER_HDR_SIZE 2
 
-/* secondary header (Mac V5,V6,V7) */
-typedef struct etherpeek_m567_header {
+/* secondary header (V5,V6,V7) */
+typedef struct etherpeek_v567_header {
 	guint32 filelength;
 	guint32 numPackets;
 	guint32 timeDate;
@@ -60,19 +60,19 @@ typedef struct etherpeek_m567_header {
 	guint32 appVers;    /* App Version Number Maj.Min.Bug.Build */
 	guint32 linkSpeed;  /* Link Speed Bits/sec */
 	guint32 reserved[3]; 
-} etherpeek_m567_header_t;
-#define ETHERPEEK_M567_HDR_SIZE 48
+} etherpeek_v567_header_t;
+#define ETHERPEEK_V567_HDR_SIZE 48
 
 /* full header */
 typedef struct etherpeek_header {
 	etherpeek_master_header_t master;
 	union {
-		etherpeek_m567_header_t m567;
+		etherpeek_v567_header_t v567;
 	} secondary;
 } etherpeek_header_t;
 
 /*
- * Packet header (Mac V5, V6).
+ * Packet header (V5, V6).
  *
  * NOTE: the time stamp, although it's a 32-bit number, is only aligned
  * on a 16-bit boundary.  (Does this date back to 68K Macs?  The 68000
@@ -85,17 +85,17 @@ typedef struct etherpeek_header {
  *
  * So, instead, we #define numbers as the offsets of the fields.
  */
-#define ETHERPEEK_M56_LENGTH_OFFSET		0
-#define ETHERPEEK_M56_SLICE_LENGTH_OFFSET	2
-#define ETHERPEEK_M56_FLAGS_OFFSET		4
-#define ETHERPEEK_M56_STATUS_OFFSET		5
-#define ETHERPEEK_M56_TIMESTAMP_OFFSET		6
-#define ETHERPEEK_M56_DESTNUM_OFFSET		10
-#define ETHERPEEK_M56_SRCNUM_OFFSET		12
-#define ETHERPEEK_M56_PROTONUM_OFFSET		14
-#define ETHERPEEK_M56_PROTOSTR_OFFSET		16
-#define ETHERPEEK_M56_FILTERNUM_OFFSET		24
-#define ETHERPEEK_M56_PKT_SIZE			26
+#define ETHERPEEK_V56_LENGTH_OFFSET		0
+#define ETHERPEEK_V56_SLICE_LENGTH_OFFSET	2
+#define ETHERPEEK_V56_FLAGS_OFFSET		4
+#define ETHERPEEK_V56_STATUS_OFFSET		5
+#define ETHERPEEK_V56_TIMESTAMP_OFFSET		6
+#define ETHERPEEK_V56_DESTNUM_OFFSET		10
+#define ETHERPEEK_V56_SRCNUM_OFFSET		12
+#define ETHERPEEK_V56_PROTONUM_OFFSET		14
+#define ETHERPEEK_V56_PROTOSTR_OFFSET		16
+#define ETHERPEEK_V56_FILTERNUM_OFFSET		24
+#define ETHERPEEK_V56_PKT_SIZE			26
 
 /* 64-bit time in micro seconds from the (Mac) epoch */
 typedef struct etherpeek_utime {
@@ -104,19 +104,19 @@ typedef struct etherpeek_utime {
 } etherpeek_utime;
 
 /*
- * Packet header (Mac V7).
+ * Packet header (V7).
  *
  * This doesn't have the same alignment problem, but we do it with
  * #defines anyway.
  */
-#define ETHERPEEK_M7_PROTONUM_OFFSET		0
-#define ETHERPEEK_M7_LENGTH_OFFSET		2
-#define ETHERPEEK_M7_SLICE_LENGTH_OFFSET	4
-#define ETHERPEEK_M7_FLAGS_OFFSET		6
-#define ETHERPEEK_M7_STATUS_OFFSET		7
-#define ETHERPEEK_M7_TIMESTAMP_UPPER_OFFSET	8
-#define ETHERPEEK_M7_TIMESTAMP_LOWER_OFFSET	12
-#define ETHERPEEK_M7_PKT_SIZE			16
+#define ETHERPEEK_V7_PROTONUM_OFFSET		0
+#define ETHERPEEK_V7_LENGTH_OFFSET		2
+#define ETHERPEEK_V7_SLICE_LENGTH_OFFSET	4
+#define ETHERPEEK_V7_FLAGS_OFFSET		6
+#define ETHERPEEK_V7_STATUS_OFFSET		7
+#define ETHERPEEK_V7_TIMESTAMP_UPPER_OFFSET	8
+#define ETHERPEEK_V7_TIMESTAMP_LOWER_OFFSET	12
+#define ETHERPEEK_V7_PKT_SIZE			16
 
 typedef struct etherpeek_encap_lookup {
 	guint16 protoNum;
@@ -130,19 +130,19 @@ static const etherpeek_encap_lookup_t etherpeek_encap[] = {
 #define NUM_ETHERPEEK_ENCAPS \
 	(sizeof (etherpeek_encap) / sizeof (etherpeek_encap[0]))
 
-static gboolean etherpeek_read_m7(wtap *wth, int *err, long *data_offset);
-static gboolean etherpeek_read_m56(wtap *wth, int *err, long *data_offset);
+static gboolean etherpeek_read_v7(wtap *wth, int *err, long *data_offset);
+static gboolean etherpeek_read_v56(wtap *wth, int *err, long *data_offset);
 static void etherpeek_close(wtap *wth);
 
 int etherpeek_open(wtap *wth, int *err)
 {
 	etherpeek_header_t ep_hdr;
 	struct timeval reference_time;
-	static const int etherpeek_m7_encap[] = {
+	static const int etherpeek_v7_encap[] = {
 		WTAP_ENCAP_ETHERNET,
 		WTAP_ENCAP_TOKEN_RING,
 	};
-	#define NUM_ETHERPEEK_M7_ENCAPS (sizeof etherpeek_m7_encap / sizeof etherpeek_m7_encap[0])
+	#define NUM_ETHERPEEK_V7_ENCAPS (sizeof etherpeek_v7_encap / sizeof etherpeek_v7_encap[0])
 	int file_encap;
 
 	/* EtherPeek files do not start with a magic value large enough
@@ -150,9 +150,8 @@ int etherpeek_open(wtap *wth, int *err)
 	 * the type of an unknown file:
 	 *  - populate the master header and reject file if there is no match
 	 *  - populate the secondary header and check that the reserved space
-	 *      is zero; there is an obvious flaw here so this algorithm will
-	 *      probably need to be revisiting when improving EtherPeek
-	 *      support.
+	 *      is zero, and check some other fields; this isn't perfect,
+	 *	and we may have to add more checks at some point.
 	 */
 	g_assert(sizeof(ep_hdr.master) == ETHERPEEK_MASTER_HDR_SIZE);
 	wtap_file_read_unknown_bytes(
@@ -166,60 +165,120 @@ int etherpeek_open(wtap *wth, int *err)
 	case 6:
 	case 7:
 		/* get the secondary header */
-		g_assert(sizeof(ep_hdr.secondary.m567) ==
-		        ETHERPEEK_M567_HDR_SIZE);
+		g_assert(sizeof(ep_hdr.secondary.v567) ==
+		        ETHERPEEK_V567_HDR_SIZE);
 		wtap_file_read_unknown_bytes(
-			&ep_hdr.secondary.m567,
-			sizeof(ep_hdr.secondary.m567), wth->fh, err);
-		wth->data_offset += sizeof(ep_hdr.secondary.m567);
+			&ep_hdr.secondary.v567,
+			sizeof(ep_hdr.secondary.v567), wth->fh, err);
+		wth->data_offset += sizeof(ep_hdr.secondary.v567);
 
-		if ((0 != ep_hdr.secondary.m567.reserved[0]) ||
-		    (0 != ep_hdr.secondary.m567.reserved[1]) ||
-		    (0 != ep_hdr.secondary.m567.reserved[2])) {
+		if ((0 != ep_hdr.secondary.v567.reserved[0]) ||
+		    (0 != ep_hdr.secondary.v567.reserved[1]) ||
+		    (0 != ep_hdr.secondary.v567.reserved[2])) {
 			/* still unknown */
 			return 0;
 		}
 
-		/* we have a match for a Mac V5, V6 or V7,
-		 * so it is worth performing byte swaps
+		/*
+		 * Check the mediaType and physMedium fields.
+		 * We assume it's not an EtherPeek/TokenPeek/AiroPeek
+		 * file if these aren't values we know, rather than
+		 * reporting them as invalid *Peek files, as, given
+		 * the lack of a magic number, we need all the checks
+		 * we can get.
 		 */
-		ep_hdr.secondary.m567.filelength =
-		    ntohl(ep_hdr.secondary.m567.filelength);
-		ep_hdr.secondary.m567.numPackets =
-		    ntohl(ep_hdr.secondary.m567.numPackets);
-		ep_hdr.secondary.m567.timeDate =
-		    ntohl(ep_hdr.secondary.m567.timeDate);
-		ep_hdr.secondary.m567.timeStart =
-		    ntohl(ep_hdr.secondary.m567.timeStart);
-		ep_hdr.secondary.m567.timeStop =
-		    ntohl(ep_hdr.secondary.m567.timeStop);
-		ep_hdr.secondary.m567.mediaType =
-		    ntohl(ep_hdr.secondary.m567.mediaType);
-		ep_hdr.secondary.m567.physMedium =
-		    ntohl(ep_hdr.secondary.m567.physMedium);
-		ep_hdr.secondary.m567.appVers =
-		    ntohl(ep_hdr.secondary.m567.appVers);
-		ep_hdr.secondary.m567.linkSpeed =
-		    ntohl(ep_hdr.secondary.m567.linkSpeed);
+		ep_hdr.secondary.v567.mediaType =
+		    ntohl(ep_hdr.secondary.v567.mediaType);
+		ep_hdr.secondary.v567.physMedium =
+		    ntohl(ep_hdr.secondary.v567.physMedium);
 
-		if (ep_hdr.secondary.m567.mediaType >= NUM_ETHERPEEK_M7_ENCAPS
-		    || etherpeek_m7_encap[ep_hdr.secondary.m567.mediaType] ==
-				WTAP_ENCAP_UNKNOWN) {
-			g_message("etherpeek m7: network type %u unknown or unsupported",
-			    ep_hdr.secondary.m567.mediaType);
-			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
-			return -1;
+		switch (ep_hdr.secondary.v567.physMedium) {
+
+		case 0:
+			/*
+			 * "Native" format, presumably meaning
+			 * Ethernet or Token Ring.
+			 */
+			switch (ep_hdr.secondary.v567.mediaType) {
+
+			case 0:
+				file_encap = WTAP_ENCAP_ETHERNET;
+				break;
+
+			case 1:
+				file_encap = WTAP_ENCAP_TOKEN_RING;
+				break;
+
+			default:
+				/*
+				 * Assume this isn't a *Peek file.
+				 */
+				return 0;
+			}
+			break;
+
+		case 1:
+			switch (ep_hdr.secondary.v567.mediaType) {
+
+			case 0:
+				/*
+				 * 802.11, with a private header giving
+				 * some radio information.  Presumably
+				 * this is from AiroPeek.
+				 *
+				 * We don't yet support that.
+				 */
+				g_message("etherpeek: 802.11 captures unsupported");
+				*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+				return -1;
+
+			default:
+				/*
+				 * Assume this isn't a *Peek file.
+				 */
+				return 0;
+			}
+
+		default:
+			/*
+			 * Assume this isn't a *Peek file.
+			 */
+			return 0;
 		}
-		file_encap =
-		    etherpeek_m7_encap[ep_hdr.secondary.m567.mediaType];
+		
+
+		/*
+		 * Assume this is a V5, V6 or V7 *Peek file, and byte
+		 * swap the rest of the fields in the secondary header.
+		 *
+		 * XXX - we could check the file length if the file were
+		 * uncompressed, but it might be compressed.
+		 */
+		ep_hdr.secondary.v567.filelength =
+		    ntohl(ep_hdr.secondary.v567.filelength);
+		ep_hdr.secondary.v567.numPackets =
+		    ntohl(ep_hdr.secondary.v567.numPackets);
+		ep_hdr.secondary.v567.timeDate =
+		    ntohl(ep_hdr.secondary.v567.timeDate);
+		ep_hdr.secondary.v567.timeStart =
+		    ntohl(ep_hdr.secondary.v567.timeStart);
+		ep_hdr.secondary.v567.timeStop =
+		    ntohl(ep_hdr.secondary.v567.timeStop);
+		ep_hdr.secondary.v567.appVers =
+		    ntohl(ep_hdr.secondary.v567.appVers);
+		ep_hdr.secondary.v567.linkSpeed =
+		    ntohl(ep_hdr.secondary.v567.linkSpeed);
 
 		/* Get the reference time as a "struct timeval" */
 		reference_time.tv_sec  =
-		    ep_hdr.secondary.m567.timeDate - mac2unix;
+		    ep_hdr.secondary.v567.timeDate - mac2unix;
 		reference_time.tv_usec = 0;
 		break;
 
 	default:
+		/*
+		 * Assume this isn't a *Peek file.
+		 */
 		return 0;
 	}
 
@@ -236,16 +295,20 @@ int etherpeek_open(wtap *wth, int *err)
 
 	case 5:
 	case 6:
-		wth->file_type = WTAP_FILE_ETHERPEEK_MAC_V56;
-		wth->file_encap	= WTAP_ENCAP_PER_PACKET;
-		wth->subtype_read = etherpeek_read_m56;
+		wth->file_type = WTAP_FILE_ETHERPEEK_V56;
+		/*
+		 * XXX - can we get the file encapsulation from the
+		 * header in the same way we do for V7 files?
+		 */
+		wth->file_encap = WTAP_ENCAP_PER_PACKET;
+		wth->subtype_read = etherpeek_read_v56;
 		wth->subtype_seek_read = wtap_def_seek_read;
 		break;
 
 	case 7:
-		wth->file_type = WTAP_FILE_ETHERPEEK_MAC_V7;
+		wth->file_type = WTAP_FILE_ETHERPEEK_V7;
 		wth->file_encap = file_encap;
-		wth->subtype_read = etherpeek_read_m7;
+		wth->subtype_read = etherpeek_read_v7;
 		wth->subtype_seek_read = wtap_def_seek_read;
 		break;
 
@@ -264,9 +327,9 @@ static void etherpeek_close(wtap *wth)
 	g_free(wth->capture.etherpeek);
 }
 
-static gboolean etherpeek_read_m7(wtap *wth, int *err, long *data_offset)
+static gboolean etherpeek_read_v7(wtap *wth, int *err, long *data_offset)
 {
-	guchar ep_pkt[ETHERPEEK_M7_PKT_SIZE];
+	guchar ep_pkt[ETHERPEEK_V7_PKT_SIZE];
 	guint16 protoNum;
 	guint16 length;
 	guint16 sliceLength;
@@ -280,13 +343,13 @@ static gboolean etherpeek_read_m7(wtap *wth, int *err, long *data_offset)
 	wth->data_offset += sizeof(ep_pkt);
 
 	/* Extract the fields from the packet */
-	protoNum = pntohs(&ep_pkt[ETHERPEEK_M7_PROTONUM_OFFSET]);
-	length = pntohs(&ep_pkt[ETHERPEEK_M7_LENGTH_OFFSET]);
-	sliceLength = pntohs(&ep_pkt[ETHERPEEK_M7_SLICE_LENGTH_OFFSET]);
-	flags = ep_pkt[ETHERPEEK_M7_FLAGS_OFFSET];
-	status = ep_pkt[ETHERPEEK_M7_STATUS_OFFSET];
-	timestamp.upper = pntohl(&ep_pkt[ETHERPEEK_M7_TIMESTAMP_UPPER_OFFSET]);
-	timestamp.lower = pntohl(&ep_pkt[ETHERPEEK_M7_TIMESTAMP_LOWER_OFFSET]);
+	protoNum = pntohs(&ep_pkt[ETHERPEEK_V7_PROTONUM_OFFSET]);
+	length = pntohs(&ep_pkt[ETHERPEEK_V7_LENGTH_OFFSET]);
+	sliceLength = pntohs(&ep_pkt[ETHERPEEK_V7_SLICE_LENGTH_OFFSET]);
+	flags = ep_pkt[ETHERPEEK_V7_FLAGS_OFFSET];
+	status = ep_pkt[ETHERPEEK_V7_STATUS_OFFSET];
+	timestamp.upper = pntohl(&ep_pkt[ETHERPEEK_V7_TIMESTAMP_UPPER_OFFSET]);
+	timestamp.lower = pntohl(&ep_pkt[ETHERPEEK_V7_TIMESTAMP_LOWER_OFFSET]);
 
 	/* force sliceLength to be the actual length of the packet */
 	if (0 == sliceLength) {
@@ -327,9 +390,9 @@ static gboolean etherpeek_read_m7(wtap *wth, int *err, long *data_offset)
 	return TRUE;
 }
 
-static gboolean etherpeek_read_m56(wtap *wth, int *err, long *data_offset)
+static gboolean etherpeek_read_v56(wtap *wth, int *err, long *data_offset)
 {
-	guchar ep_pkt[ETHERPEEK_M56_PKT_SIZE];
+	guchar ep_pkt[ETHERPEEK_V56_PKT_SIZE];
 	guint16 length;
 	guint16 sliceLength;
 	guint8  flags;
@@ -345,16 +408,21 @@ static gboolean etherpeek_read_m56(wtap *wth, int *err, long *data_offset)
 	wth->data_offset += sizeof(ep_pkt);
 
 	/* Extract the fields from the packet */
-	length = pntohs(&ep_pkt[ETHERPEEK_M56_LENGTH_OFFSET]);
-	sliceLength = pntohs(&ep_pkt[ETHERPEEK_M56_SLICE_LENGTH_OFFSET]);
-	flags = ep_pkt[ETHERPEEK_M56_FLAGS_OFFSET];
-	status = ep_pkt[ETHERPEEK_M56_STATUS_OFFSET];
-	timestamp = pntohl(&ep_pkt[ETHERPEEK_M56_TIMESTAMP_OFFSET]);
-	destNum = pntohs(&ep_pkt[ETHERPEEK_M56_DESTNUM_OFFSET]);
-	srcNum = pntohs(&ep_pkt[ETHERPEEK_M56_SRCNUM_OFFSET]);
-	protoNum = pntohs(&ep_pkt[ETHERPEEK_M56_PROTONUM_OFFSET]);
-	memcpy(protoStr, &ep_pkt[ETHERPEEK_M56_PROTOSTR_OFFSET],
+	length = pntohs(&ep_pkt[ETHERPEEK_V56_LENGTH_OFFSET]);
+	sliceLength = pntohs(&ep_pkt[ETHERPEEK_V56_SLICE_LENGTH_OFFSET]);
+	flags = ep_pkt[ETHERPEEK_V56_FLAGS_OFFSET];
+	status = ep_pkt[ETHERPEEK_V56_STATUS_OFFSET];
+	timestamp = pntohl(&ep_pkt[ETHERPEEK_V56_TIMESTAMP_OFFSET]);
+	destNum = pntohs(&ep_pkt[ETHERPEEK_V56_DESTNUM_OFFSET]);
+	srcNum = pntohs(&ep_pkt[ETHERPEEK_V56_SRCNUM_OFFSET]);
+	protoNum = pntohs(&ep_pkt[ETHERPEEK_V56_PROTONUM_OFFSET]);
+	memcpy(protoStr, &ep_pkt[ETHERPEEK_V56_PROTOSTR_OFFSET],
 	    sizeof protoStr);
+
+	/*
+	 * XXX - is the captured packet data padded to a multiple
+	 * of 2 bytes?
+	 */
 
 	/* force sliceLength to be the actual length of the packet */
 	if (0 == sliceLength) {

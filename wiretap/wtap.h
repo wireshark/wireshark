@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.100 2002/01/18 00:25:50 guy Exp $
+ * $Id: wtap.h,v 1.101 2002/01/23 06:32:52 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -134,8 +134,8 @@
 #define WTAP_FILE_I4BTRACE			23
 #define WTAP_FILE_CSIDS				24
 #define WTAP_FILE_PPPDUMP			25
-#define WTAP_FILE_ETHERPEEK_MAC_V56		26
-#define WTAP_FILE_ETHERPEEK_MAC_V7		27
+#define WTAP_FILE_ETHERPEEK_V56			26
+#define WTAP_FILE_ETHERPEEK_V7			27
 #define WTAP_FILE_VMS				28
 #define WTAP_FILE_DBS_ETHERWATCH		29
 #define WTAP_FILE_VISUAL_NETWORKS		30

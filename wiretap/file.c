@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.79 2002/01/22 22:38:05 guy Exp $
+ * $Id: file.c,v 1.80 2002/01/23 06:32:52 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -373,11 +373,11 @@ static const struct file_type_info {
         { "pppd log (pppdump format)", NULL,
           NULL, NULL },
 
-	/* WTAP_FILE_ETHERPEEK_MAC_V56 */
+	/* WTAP_FILE_ETHERPEEK_V56 */
 	{ "EtherPeek/TokenPeek trace (V5 & V6 file format)", NULL,
 	  NULL, NULL },
 
-	/* WTAP_FILE_ETHERPEEK_MAC_V7 */
+	/* WTAP_FILE_ETHERPEEK_V7 */
 	{ "EtherPeek/TokenPeek trace (V7 file format)", NULL,
 	  NULL, NULL },
 
