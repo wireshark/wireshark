@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.422 2004/04/06 19:02:18 ulfl Exp $
+ * $Id: main.c,v 1.423 2004/04/16 23:16:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1940,7 +1940,7 @@ main(int argc, char *argv[])
      dissectors, and we must do it before we read the preferences, in
      case any dissectors register preferences. */
   epan_init(PLUGIN_DIR,register_all_protocols,register_all_protocol_handoffs,
-            open_failure_alert_box, read_failure_alert_box);
+            failure_alert_box,open_failure_alert_box,read_failure_alert_box);
 
   /* Register all tap listeners; we do this before we parse the arguments,
      as the "-z" argument can specify a registered tap. */
@@ -2694,6 +2694,9 @@ main(int argc, char *argv[])
        we were told to. */
     create_main_window(pl_size, tv_size, bv_size, prefs);
 
+    /* Pop up any queued-up alert boxes. */
+    display_queued_messages();
+
     /* Read the recent file, as we have the gui now ready for it. */
     read_recent(&rf_path, &rf_open_errno);
 
@@ -2807,6 +2810,9 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
   }
 #endif
+
+  /* Pop up any queued-up alert boxes. */
+  display_queued_messages();
 
   /* If the global preferences file exists but we failed to open it
      or had an error reading it, pop up an alert box; we defer that

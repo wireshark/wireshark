@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.65 2004/03/23 21:19:55 guy Exp $
+ * $Id: packet-diameter.c,v 1.66 2004/04/16 23:16:28 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -322,7 +322,7 @@ xmlParseFilePush( char *filename, int checkValid) {
 
   /* Check valid */
   if (!valid) {
-	g_warning( "Error!  Invalid xml in %s!  Failed DTD check!",
+	report_failure( "Error!  Invalid xml in %s!  Failed DTD check!",
 			   filename);
 	return NULL;
   }
@@ -411,7 +411,7 @@ xmlParseAVP(xmlNodePtr cur)
 	  valueCode = XmlStub.xmlGetProp(cur, "code");
 
 	  if (!valueName || !valueCode) {
-		g_warning( "Error, bad value on avp %s", name);
+		report_failure( "Error, bad value on avp %s", name);
 		return (-1);
 	  }
 
@@ -440,11 +440,11 @@ xmlParseAVP(xmlNodePtr cur)
 	}
 
 	if (TypeValues[i].strptr == NULL) {
-	  g_warning( "Invalid Type field in dictionary! avp %s (%s)",  name, type);
+	  report_failure( "Invalid Type field in dictionary! avp %s (%s)",  name, type);
 	  return (-1);
 	}
   } else if (!vEntry) {
-	g_warning("Missing type/enum field in dictionary avpName=%s",
+	report_failure("Missing type/enum field in dictionary avpName=%s",
 			  name);
 	return (-1);
   }
@@ -486,7 +486,7 @@ addCommand(int code, char *name, char *vendorId)
   entry = (CommandCode *) g_malloc(sizeof (CommandCode));
 
   if (entry == NULL) {
-	g_warning("Unable to allocate memory");
+	report_failure("Unable to allocate memory");
 	return (-1);
   }
 
@@ -523,7 +523,7 @@ xmlParseCommand(xmlNodePtr cur)
   name = XmlStub.xmlGetProp(cur, "name");
   code = XmlStub.xmlGetProp(cur, "code");
   if (!name || !code) {
-	g_warning("Invalid command.  Name or code missing!");
+	report_failure("Invalid command.  Name or code missing!");
 	return -1;
   }
   vendorIdString = XmlStub.xmlGetProp(cur, "vendor-id");
@@ -542,14 +542,14 @@ dictionaryAddApplication(char *name, int id)
   ApplicationId *entry;
 
   if (!name || (id < 0) || (id == 0 && !allow_zero_as_app_id)) {
-	g_warning( "Diameter Error: Invalid application (name=%p, id=%d)",
+	report_failure( "Diameter Error: Invalid application (name=%p, id=%d)",
 			   name, id);
 	return (-1);
   } /* Sanity Checks */
 
   entry = g_malloc(sizeof(ApplicationId));
   if (!entry) {
-	g_warning( "Unable to allocate memory");
+	report_failure( "Unable to allocate memory");
 	return (-1);
   }
 
@@ -600,7 +600,7 @@ xmlParseVendor(xmlNodePtr cur)
   code = XmlStub.xmlGetProp(cur, "code");
 
   if (!id || !name || !code) {
-	g_warning( "Invalid vendor section.  vendor-id, name, and code must be specified");
+	report_failure( "Invalid vendor section.  vendor-id, name, and code must be specified");
 	return -1;
   }
 
@@ -623,7 +623,7 @@ xmlDictionaryParseSegment(xmlNodePtr cur, int base)
 
 	if (!name || !id) {
 	  /* ERROR!!! */
-	  g_warning("Diameter: Invalid application!: name=\"%s\", id=\"%s\"",
+	  report_failure("Diameter: Invalid application!: name=\"%s\", id=\"%s\"",
 				name?name:"NULL", id?id:"NULL");
 	  return -1;
 	}
@@ -657,7 +657,7 @@ xmlDictionaryParseSegment(xmlNodePtr cur, int base)
 	  /* WORK -- parse in valid types . . . */
 	} else {
 	  /* IF we got here, we're an error */
-	  g_warning("Error!  expecting an avp or a typedefn (got \"%s\")",
+	  report_failure("Error!  expecting an avp or a typedefn (got \"%s\")",
 				cur->name);
 	  return (-1);
 	}
@@ -686,7 +686,7 @@ xmlDictionaryParse(xmlNodePtr cur)
 	} else if (strcasecmp(cur->name, "comment") == 0) {
 	  /* Ignore text */
 	} else {
-	  g_warning( "Diameter: XML Expecting a base or an application  (got \"%s\")",
+	  report_failure( "Diameter: XML Expecting a base or an application  (got \"%s\")",
 				 cur->name);
 	  return (-1);
 	}
@@ -715,7 +715,7 @@ loadXMLDictionary(void)
 
   /* Check for invalid xml */
   if (doc == NULL) {
-	g_warning("Diameter: Unable to parse xmldictionary %s",
+	report_failure("Diameter: Unable to parse xmldictionary %s",
 			  gbl_diameterDictionary);
 	return -1;
   }
@@ -725,13 +725,13 @@ loadXMLDictionary(void)
    */
   cur = XmlStub.xmlDocGetRootElement(doc);
   if (cur == NULL) {
-	g_warning("Diameter: Error: \"%s\": empty document",
+	report_failure("Diameter: Error: \"%s\": empty document",
 			  gbl_diameterDictionary);
 	XmlStub.xmlFreeDoc(doc);
 	return -1;
   }
   if (XmlStub.xmlStrcmp(cur->name, (const xmlChar *) "dictionary")) {
-	g_warning("Diameter: Error: \"%s\": document of the wrong type, root node != dictionary",
+	report_failure("Diameter: Error: \"%s\": document of the wrong type, root node != dictionary",
 			  gbl_diameterDictionary);
 	XmlStub.xmlFreeDoc(doc);
 	return -1;
@@ -801,7 +801,7 @@ initializeDictionary(void)
   if (loadLibXML() ||
 	  (loadXMLDictionary() != 0)) {
 	/* Something failed.  Use the static dictionary */
-	g_warning("Diameter: Using static dictionary! (Unable to use XML)");
+	report_failure("Diameter: Using static dictionary! (Unable to use XML)");
 	initializeDictionaryDefaults();
   }
 } /* initializeDictionary */
@@ -1949,4 +1949,3 @@ proto_register_diameter(void)
 	prefs_register_obsolete_preference(diameter_module, "udp.port");
 	prefs_register_obsolete_preference(diameter_module, "command_in_header");
 } /* proto_register_diameter */
-

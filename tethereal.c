@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.234 2004/04/16 18:17:47 ulfl Exp $
+ * $Id: tethereal.c,v 1.235 2004/04/16 23:16:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -187,6 +187,7 @@ static int pipe_dispatch(int, loop_data *, struct pcap_hdr *, \
 
 static void open_failure_message(const char *filename, int err,
     gboolean for_writing);
+static void failure_message(const char *msg_format, va_list ap);
 static void read_failure_message(const char *filename, int err);
 
 capture_file cfile;
@@ -840,7 +841,7 @@ main(int argc, char *argv[])
      dissectors, and we must do it before we read the preferences, in
      case any dissectors register preferences. */
   epan_init(PLUGIN_DIR,register_all_protocols,register_all_protocol_handoffs,
-            open_failure_message, read_failure_message);
+            failure_message,open_failure_message,read_failure_message);
 
   /* Register all tap listeners; we do this before we parse the arguments,
      as the "-z" argument can specify a registered tap. */
@@ -2977,11 +2978,9 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
 static void
 open_failure_message(const char *filename, int err, gboolean for_writing)
 {
-  char *errmsg;
-
-  errmsg = g_strdup_printf(file_open_error_message(err, for_writing), filename);
-  fprintf(stderr, "tethereal: %s\n", errmsg);
-  g_free(errmsg);
+  fprintf(stderr, "tethereal: ");
+  fprintf(stderr, file_open_error_message(err, for_writing), filename);
+  fprintf(stderr, "\n");
 }
 
 int
@@ -3330,11 +3329,22 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
 #endif /* HAVE_LIBPCAP */
 
 /*
+ * General errors are reported with an console message in Tethereal.
+ */
+static void
+failure_message(const char *msg_format, va_list ap)
+{
+  fprintf(stderr, "tethereal: ");
+  vfprintf(stderr, msg_format, ap);
+  fprintf(stderr, "\n");
+}
+
+/*
  * Read errors are reported with an console message in Tethereal.
  */
 static void
 read_failure_message(const char *filename, int err)
 {
-  fprintf(stderr, "tethereal: An error occurred while reading from the file \"%s\": %s.",
+  fprintf(stderr, "tethereal: An error occurred while reading from the file \"%s\": %s.\n",
           filename, strerror(err));
 }

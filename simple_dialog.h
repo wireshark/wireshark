@@ -2,7 +2,7 @@
  * Definitions for alert box routines with toolkit-independent APIs but
  * toolkit-dependent implementations.
  *
- * $Id: simple_dialog.h,v 1.11 2004/02/12 22:24:27 guy Exp $
+ * $Id: simple_dialog.h,v 1.12 2004/04/16 23:16:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,10 +60,16 @@ extern "C" {
 
 /* show a simple dialog */
 #if __GNUC__ >= 2
-extern gpointer simple_dialog(gint type, gint btn_mask, gchar *msg_format, ...)
+extern gpointer simple_dialog(gint type, gint btn_mask,
+    const gchar *msg_format, ...)
     __attribute__((format (printf, 3, 4)));
+extern gpointer vsimple_dialog(gint type, gint btn_mask,
+   const gchar *msg_format, va_list ap);
 #else
-extern gpointer simple_dialog(gint type, gint btn_mask, gchar *msg_format, ...);
+extern gpointer simple_dialog(gint type, gint btn_mask,
+    const gchar *msg_format, ...);
+extern gpointer vsimple_dialog(gint type, gint btn_mask,
+    const gchar *msg_format, va_list ap);
 #endif
 
 /* callback function type */
@@ -74,6 +80,14 @@ extern void simple_dialog_set_cb(gpointer dialog, simple_dialog_cb_t callback_fc
 
 extern char *simple_dialog_primary_start(void);
 extern char *simple_dialog_primary_end(void);
+
+/*
+ * If a routine is called to display a dialog before there are any windows
+ * open, information to use to display the dialog is queued up.  This
+ * routine should be called once there are windows open, so that the queued
+ * up dialogs are displayed on top of those windows.
+ */
+extern void display_queued_messages(void);
 
 #ifdef __cplusplus
 }

@@ -2,7 +2,7 @@
  * Routines to put up various "standard" alert boxes used in multiple
  * places
  *
- * $Id: alert_box.h,v 1.4 2004/03/23 21:19:55 guy Exp $
+ * $Id: alert_box.h,v 1.5 2004/04/16 23:16:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,6 +29,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+
+/*
+ * Alert box for general errors.
+ */
+extern void failure_alert_box(const char *msg_format, va_list ap);
 
 /*
  * Alert box for a failed attempt to open or create a file.

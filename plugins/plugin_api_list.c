@@ -1,7 +1,7 @@
 /* plugin_api_list.c
  * Used to generate various included files for plugin API
  *
- * $Id: plugin_api_list.c,v 1.33 2004/03/25 23:55:21 guy Exp $
+ * $Id: plugin_api_list.c,v 1.34 2004/04/16 23:16:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -434,3 +434,6 @@ proto_item* proto_tree_get_parent(proto_tree *tree);
 proto_item* proto_item_get_parent(proto_item *ti);
 proto_item* proto_item_get_parent_nth(proto_item *ti, int gen);
 proto_item *get_ber_last_created_item(void);
+
+void report_failure(const char *msg_format, ...);
+

@@ -2,7 +2,7 @@
  * Routines to put up various "standard" alert boxes used in multiple
  * places
  *
- * $Id: alert_box.c,v 1.5 2004/03/23 21:19:55 guy Exp $
+ * $Id: alert_box.c,v 1.6 2004/04/16 23:16:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,15 @@
 #include "simple_dialog.h"
 
 /*
+ * Alert box for general errors.
+ */
+void
+failure_alert_box(const char *msg_format, va_list ap)
+{
+  vsimple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, msg_format, ap);
+}
+
+/*
  * Alert box for a failed attempt to open or create a file.
  * "err" is assumed to be a UNIX-style errno; "for_writing" is TRUE if
  * the file is being opened for writing and FALSE if it's being opened
@@ -65,7 +74,7 @@ void
 read_failure_alert_box(const char *filename, int err)
 {
   simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		"An error occurred while reading from the file \"%s\": %s.",
+                "An error occurred while reading from the file \"%s\": %s.",
                 filename, strerror(err));
 }
 

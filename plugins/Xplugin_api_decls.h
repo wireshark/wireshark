@@ -273,3 +273,4 @@ addr_proto_tree_get_parent p_proto_tree_get_parent;
 addr_proto_item_get_parent p_proto_item_get_parent;
 addr_proto_item_get_parent_nth p_proto_item_get_parent_nth;
 addr_get_ber_last_created_item p_get_ber_last_created_item;
+addr_report_failure p_report_failure;

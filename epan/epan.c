@@ -1,6 +1,6 @@
 /* epan.h
  *
- * $Id: epan.c,v 1.24 2004/03/23 21:19:56 guy Exp $
+ * $Id: epan.c,v 1.25 2004/04/16 23:16:28 guy Exp $
  *
  * Ethereal Protocol Analyzer Library
  */
@@ -22,6 +22,7 @@
 #include "../tap.h"
 #include "resolv.h"
 
+static void (*report_failure_func)(const char *, va_list);
 static void (*report_open_failure_func)(const char *, int, gboolean);
 static void (*report_read_failure_func)(const char *, int);
 
@@ -49,9 +50,11 @@ static void (*report_read_failure_func)(const char *, int);
 void
 epan_init(const char *plugin_dir, void (*register_all_protocols)(void),
 	  void (*register_all_handoffs)(void),
+	  void (*report_failure)(const char *, va_list),
 	  void (*report_open_failure)(const char *, int, gboolean),
 	  void (*report_read_failure)(const char *, int))
 {
+	report_failure_func = report_failure;
 	report_open_failure_func = report_open_failure;
 	report_read_failure_func = report_read_failure;
 	except_init();
@@ -90,7 +93,23 @@ epan_circuit_init(void)
 }
 
 /*
- * Report an error when trying to open a file.
+ * Report a general error.
+ */
+void
+report_failure(const char *msg_format, ...)
+{
+	va_list ap;
+
+	va_start(ap, msg_format);
+	(*report_failure_func)(msg_format, ap);
+	va_end(ap);
+}
+
+/*
+ * Report an error when trying to open or create a file.
+ * "err" is assumed to be an error code from Wiretap; positive values are
+ * UNIX-style errnos, so this can be used for open failures not from
+ * Wiretap as long as the failue code is just an errno.
  */
 void
 report_open_failure(const char *filename, int err,
@@ -101,6 +120,7 @@ report_open_failure(const char *filename, int err,
 
 /*
  * Report an error when trying to read a file.
+ * "err" is assumed to be a UNIX-style errno.
  */
 void
 report_read_failure(const char *filename, int err)

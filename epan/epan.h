@@ -1,6 +1,6 @@
 /* epan.h
  *
- * $Id: epan.h,v 1.16 2004/03/23 21:19:56 guy Exp $
+ * $Id: epan.h,v 1.17 2004/04/16 23:16:28 guy Exp $
  *
  * Ethereal Protocol Analyzer Library
  *
@@ -34,6 +34,7 @@ typedef struct _epan_dissect_t epan_dissect_t;
 
 void epan_init(const char * plugindir, void (*register_all_protocols)(void),
 	       void (*register_all_handoffs)(void),
+	       void (*report_failure)(const char *, va_list),
 	       void (*report_open_failure)(const char *, int, gboolean),
 	       void (*report_read_failure)(const char *, int));
 void epan_cleanup(void);

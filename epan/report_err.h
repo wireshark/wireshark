@@ -2,7 +2,7 @@
  * Declarations of routines for dissectors to use to report errors to
  * the user (e.g., problems with preference settings)
  *
- * $Id: report_err.h,v 1.1 2004/03/23 21:19:56 guy Exp $
+ * $Id: report_err.h,v 1.2 2004/04/16 23:16:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,11 @@ extern void report_open_failure(const char *filename, int err,
  * Report an error when trying to read a file.
  */
 extern void report_read_failure(const char *filename, int err);
+
+/*
+ * Report a general error.
+ */
+extern void report_failure(const char *msg_format, ...);
 
 #ifdef __cplusplus
 }

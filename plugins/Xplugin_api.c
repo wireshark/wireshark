@@ -273,3 +273,4 @@ p_proto_tree_get_parent = pat->p_proto_tree_get_parent;
 p_proto_item_get_parent = pat->p_proto_item_get_parent;
 p_proto_item_get_parent_nth = pat->p_proto_item_get_parent_nth;
 p_get_ber_last_created_item = pat->p_get_ber_last_created_item;
+p_report_failure = pat->p_report_failure;
