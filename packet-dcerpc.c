@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.46 2002/04/30 01:43:12 tpot Exp $
+ * $Id: packet-dcerpc.c,v 1.47 2002/05/02 21:47:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -369,7 +369,7 @@ dcerpc_matched_hash (gconstpointer k)
  */
 
 int
-dissect_dcerpc_uint8 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+dissect_dcerpc_uint8 (tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
                       proto_tree *tree, char *drep, 
                       int hfindex, guint8 *pdata)
 {
@@ -385,7 +385,7 @@ dissect_dcerpc_uint8 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 int
-dissect_dcerpc_uint16 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+dissect_dcerpc_uint16 (tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
                        proto_tree *tree, char *drep, 
                        int hfindex, guint16 *pdata)
 {
@@ -404,7 +404,7 @@ dissect_dcerpc_uint16 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 int
-dissect_dcerpc_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+dissect_dcerpc_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
                        proto_tree *tree, char *drep, 
                        int hfindex, guint32 *pdata)
 {
@@ -423,7 +423,7 @@ dissect_dcerpc_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 int
-dissect_dcerpc_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+dissect_dcerpc_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
                        proto_tree *tree, char *drep, 
                        int hfindex, unsigned char *pdata)
 {
@@ -596,7 +596,7 @@ init_ndr_pointer_list(packet_info *pinfo)
 }
 
 static int
-dissect_deferred_pointers(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, char *drep)
+dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, char *drep)
 {
 	int found_new_pointer;
 	dcerpc_info *di;
@@ -894,7 +894,7 @@ after_ref_id:
 	   argument */
 	if(pointers_are_top_level==TRUE){
 		pointers_are_top_level=FALSE;
-		offset = dissect_deferred_pointers(pinfo, tree, tvb, offset, drep);
+		offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 		pointers_are_top_level=TRUE;
 	}
 
@@ -1793,7 +1793,7 @@ dissect_dcerpc_cn_bs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-dissect_dcerpc_dg_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tree,
+dissect_dcerpc_dg_auth (tvbuff_t *tvb, proto_tree *dcerpc_tree,
                         e_dce_dg_common_hdr_t *hdr, int *auth_level_p)
 {
     int offset;
@@ -2012,7 +2012,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * DCE_C_AUTHN_LEVEL_PKT_PRIVACY, we can't dissect the
          * stub data.
          */
-        dissect_dcerpc_dg_auth (tvb, pinfo, dcerpc_tree, &hdr, NULL);
+        dissect_dcerpc_dg_auth (tvb, dcerpc_tree, &hdr, NULL);
     }
     /* 
      * keeping track of the conversation shouldn't really be necessary
