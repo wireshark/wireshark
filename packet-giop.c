@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-giop.c,v 1.7 1999/10/09 13:31:30 deniel Exp $
+ * $Id: packet-giop.c,v 1.8 1999/10/12 06:20:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -709,9 +709,11 @@ proto_register_giop(void)
 {
   static hf_register_info hf[] = {
     { &hf_giop_message_type,
-      { "Message type",		"giop.type",	FT_UINT8,	NULL }},
+      { "Message type",		"giop.type",	FT_UINT8,	BASE_DEC, NULL, 0x0,
+      	"" }},
     { &hf_giop_message_size,
-      { "Message size",		"giop.len",	FT_UINT32,	NULL }}
+      { "Message size",		"giop.len",	FT_UINT32,	BASE_DEC, NULL, 0x0,
+      	"" }},
   };
 
   proto_giop = proto_register_protocol("General Inter-ORB Protocol", "giop");

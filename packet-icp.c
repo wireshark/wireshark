@@ -2,7 +2,7 @@
  * Routines for ICP (internet cache protocol) packet disassembly RFC 2186 && RFC 2187
  * 
  *
- * $Id: packet-icp.c,v 1.1 1999/09/14 08:06:24 guy Exp $
+ * $Id: packet-icp.c,v 1.2 1999/10/12 06:20:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Peter Torvals
@@ -260,13 +260,21 @@ proto_register_icp(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_icp_opcode,
-		{ "Opcode","icp.opcode", FT_UINT8, NULL }},
+		{ "Opcode","icp.opcode", FT_UINT8, BASE_HEX, NULL, 0x0,
+			"" }},
+
 		{ &hf_icp_version,
-		{ "Version",	"icp.version", FT_UINT8, NULL }},
+		{ "Version",	"icp.version", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"" }},
+
 		{ &hf_icp_length,
-		{ "Length","icp.length", FT_UINT16, NULL }},
+		{ "Length","icp.length", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"" }},
+
 		{ &hf_icp_request_nr,
-		{ "Request Number","icp.nr", FT_UINT32, NULL }}	};
+		{ "Request Number","icp.nr", FT_UINT32, BASE_DEC, NULL, 0x0,
+			"" }},
+	};
 
 	proto_icp = proto_register_protocol ("Internet Cache protocol", "icp");
 	proto_register_field_array(proto_icp, hf, array_length(hf));

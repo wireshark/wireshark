@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.28 1999/10/12 05:21:07 gram Exp $
+ * $Id: dfilter-grammar.y,v 1.29 1999/10/12 06:19:58 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -140,6 +140,9 @@ dfilter *global_df = NULL;
 %token <variable>	T_FT_UINT8
 %token <variable>	T_FT_UINT16
 %token <variable>	T_FT_UINT32
+%token <variable>	T_FT_INT8
+%token <variable>	T_FT_INT16
+%token <variable>	T_FT_INT32
 %token <variable>	T_FT_ETHER
 %token <variable>	T_FT_IPv4
 %token <variable>	T_FT_IPv6
@@ -381,6 +384,9 @@ bytes_value:	T_VAL_BYTE_STRING
 numeric_variable:	T_FT_UINT8	{ $$ = dfilter_mknode_numeric_variable($1.id); }
 	|		T_FT_UINT16	{ $$ = dfilter_mknode_numeric_variable($1.id); }
 	|		T_FT_UINT32	{ $$ = dfilter_mknode_numeric_variable($1.id); }
+	|		T_FT_INT8	{ $$ = dfilter_mknode_numeric_variable($1.id); }
+	|		T_FT_INT16	{ $$ = dfilter_mknode_numeric_variable($1.id); }
+	|		T_FT_INT32	{ $$ = dfilter_mknode_numeric_variable($1.id); }
 	;
 
 ether_variable:		T_FT_ETHER	{ $$ = dfilter_mknode_ether_variable($1.id); }
@@ -421,6 +427,9 @@ bytes_variable:		any_variable_type T_VAL_BYTE_RANGE
 any_variable_type:	T_FT_UINT8 { $$ = $1; }
 	|		T_FT_UINT16 { $$ = $1; }
 	|		T_FT_UINT32 { $$ = $1; }
+	|		T_FT_INT8 { $$ = $1; }
+	|		T_FT_INT16 { $$ = $1; }
+	|		T_FT_INT32 { $$ = $1; }
 	|		T_FT_ETHER { $$ = $1; }
 	|		T_FT_IPv4 { $$ = $1; }
 	|		T_FT_IPv6 { $$ = $1; }

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.33 1999/09/17 05:56:56 guy Exp $
+ * $Id: packet-tcp.c,v 1.34 1999/10/12 06:20:17 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -528,19 +528,24 @@ proto_register_tcp(void)
 	static hf_register_info hf[] = {
 
 		{ &hf_tcp_srcport,
-		{ "Source Port",		"tcp.srcport", FT_UINT16, NULL }},
+		{ "Source Port",		"tcp.srcport", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_tcp_dstport,
-		{ "Destination Port",		"tcp.dstport", FT_UINT16, NULL }},
+		{ "Destination Port",		"tcp.dstport", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_tcp_port,
-		{ "Source or Destination Port",	"tcp.port", FT_UINT16, NULL }},
+		{ "Source or Destination Port",	"tcp.port", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_tcp_seq,
-		{ "Sequence number",		"tcp.seq", FT_UINT32, NULL }},
+		{ "Sequence number",		"tcp.seq", FT_UINT32, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_tcp_ack,
-		{ "Acknowledgement number",	"tcp.ack", FT_UINT32, NULL }},
+		{ "Acknowledgement number",	"tcp.ack", FT_UINT32, BASE_DEC, NULL, 0x0,
+			"" }},
 	};
 
 	proto_tcp = proto_register_protocol ("Transmission Control Protocol", "tcp");

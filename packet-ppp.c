@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.20 1999/09/11 22:40:30 gerald Exp $
+ * $Id: packet-ppp.c,v 1.21 1999/10/12 06:20:14 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1151,13 +1151,16 @@ proto_register_mp(void)
 {
   static hf_register_info hf[] = {
     { &hf_mp_frag_first,
-    { "First fragment",		"mp.first",	FT_BOOLEAN, NULL }},
+    { "First fragment",		"mp.first",	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+    	"" }},
 
     { &hf_mp_frag_last,
-    { "Last fragment",		"mp.last",	FT_BOOLEAN, NULL }},
+    { "Last fragment",		"mp.last",	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+    	"" }},
 
     { &hf_mp_sequence_num,
-    { "Sequence number",	"mp.seq",	FT_UINT32, NULL }}
+    { "Sequence number",	"mp.seq",	FT_UINT32, BASE_DEC, NULL, 0x0,
+    	"" }}
   };
 
   proto_mp = proto_register_protocol("PPP Multilink Protocol", "mp");

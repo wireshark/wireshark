@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.4 1999/10/11 12:37:50 deniel Exp $
+ * $Id: packet-ipsec.c,v 1.5 1999/10/12 06:20:09 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -162,16 +162,20 @@ proto_register_ipsec(void)
 
   static hf_register_info hf_ah[] = {
     { &hf_ah_spi,
-      { "SPI",		"ah.spi",	FT_UINT32,	NULL }},
+      { "SPI",		"ah.spi",	FT_UINT32,	BASE_HEX, NULL, 0x0,
+      	"" }},
     { &hf_ah_sequence,
-      { "Sequence",     "ah.sequence",	FT_UINT32,	NULL }}
+      { "Sequence",     "ah.sequence",	FT_UINT32,	BASE_HEX, NULL, 0x0,
+      	"" }}
   };
 
   static hf_register_info hf_esp[] = {
     { &hf_esp_spi,
-      { "SPI",		"esp.spi",	FT_UINT32,	NULL }},
+      { "SPI",		"esp.spi",	FT_UINT32,	BASE_HEX, NULL, 0x0,
+      	"" }},
     { &hf_esp_sequence,
-      { "Sequence",     "esp.sequence",	FT_UINT32,	NULL }}
+      { "Sequence",     "esp.sequence",	FT_UINT32,	BASE_HEX, NULL, 0x0,
+      	"" }}
   };
 
   proto_ah = proto_register_protocol("Authentication Header", "ah");

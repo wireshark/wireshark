@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.19 1999/09/15 06:26:42 gram Exp $
+ * $Id: packet-eth.c,v 1.20 1999/10/12 06:20:04 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -215,17 +215,21 @@ proto_register_eth(void)
 	static hf_register_info hf[] = {
 
 		{ &hf_eth_dst,
-		{ "Destination",	"eth.dst", FT_ETHER, NULL }},
+		{ "Destination",	"eth.dst", FT_ETHER, BASE_NONE, NULL, 0x0,
+			"Destination Hardware Address" }},
 
 		{ &hf_eth_src,
-		{ "Source",		"eth.src", FT_ETHER, NULL }},
+		{ "Source",		"eth.src", FT_ETHER, BASE_NONE, NULL, 0x0,
+			"Source Hardware Address" }},
 
 		{ &hf_eth_len,
-		{ "Length",		"eth.len", FT_UINT16, NULL }},
+		{ "Length",		"eth.len", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		/* registered here but handled in ethertype.c */
 		{ &hf_eth_type,
-		{ "Type",		"eth.type", FT_VALS_UINT16, VALS(etype_vals) }}
+		{ "Type",		"eth.type", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
+			"" }}
 	};
 
 	proto_eth = proto_register_protocol ("Ethernet", "eth" );

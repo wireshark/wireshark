@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.45 1999/09/29 22:19:12 guy Exp $
+ * $Id: packet.c,v 1.46 1999/10/12 06:20:21 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -517,7 +517,7 @@ match_strval(guint32 val, const value_string *vs) {
 
 /* Generate, into "buf", a string showing the bits of a bitfield.
    Return a pointer to the character after that string. */
-static char *
+char *
 decode_bitfield_value(char *buf, guint32 val, guint32 mask, int width)
 {
   int i;
@@ -728,19 +728,25 @@ proto_register_frame(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_frame_arrival_time,
-		{ "Arrival Time",		"frame.time", FT_ABSOLUTE_TIME, NULL }},
+		{ "Arrival Time",		"frame.time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+			""}},
 
 		{ &hf_frame_time_delta,
-		{ "Time delta from previous packet",	"frame.time_delta", FT_RELATIVE_TIME, NULL }},
+		{ "Time delta from previous packet",	"frame.time_delta", FT_RELATIVE_TIME, BASE_NONE, NULL,
+			0x0,
+			"" }},
 
 		{ &hf_frame_number,
-		{ "Frame Number",		"frame.number", FT_UINT32, NULL }},
+		{ "Frame Number",		"frame.number", FT_UINT32, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_frame_packet_len,
-		{ "Total Frame Length",		"frame.pkt_len", FT_UINT32, NULL }},
+		{ "Total Frame Length",		"frame.pkt_len", FT_UINT32, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_frame_capture_len,
-		{ "Capture Frame Length",	"frame.cap_len", FT_UINT32, NULL }}
+		{ "Capture Frame Length",	"frame.cap_len", FT_UINT32, BASE_DEC, NULL, 0x0,
+			"" }},
 	};
 
 	proto_frame = proto_register_protocol("Frame", "frame");

@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.50 1999/10/02 16:21:07 deniel Exp $
+ * $Id: packet-ip.c,v 1.51 1999/10/12 06:20:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1191,19 +1191,24 @@ proto_register_igmp(void)
 	static hf_register_info hf[] = {
 
 		{ &hf_igmp_version,
-		{ "Version",		"igmp.version", FT_UINT8, NULL }},
+		{ "Version",		"igmp.version", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_igmp_type,
-		{ "Type",		"igmp.type", FT_UINT8, NULL }},
+		{ "Type",		"igmp.type", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_igmp_unused,
-		{ "Unused",		"igmp.unused", FT_UINT8, NULL }},
+		{ "Unused",		"igmp.unused", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_igmp_checksum,
-		{ "Checksum",		"igmp.checksum", FT_UINT16, NULL }},
+		{ "Checksum",		"igmp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
+			"" }},
 
 		{ &hf_igmp_group,
-		{ "Group address",	"igmp.group", FT_IPv4, NULL }}
+		{ "Group address",	"igmp.group", FT_IPv4, BASE_NONE, NULL, 0x0,
+			"" }},
 	};
 
 	proto_igmp = proto_register_protocol ("Internet Group Management Protocol", "igmp");
@@ -1216,46 +1221,61 @@ proto_register_ip(void)
 	static hf_register_info hf[] = {
 
 		{ &hf_ip_version,
-		{ "Version",		"ip.version", FT_UINT8, NULL }},
+		{ "Version",		"ip.version", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_ip_hdr_len,
-		{ "Header Length",	"ip.hdr_len", FT_UINT8, NULL }},
+		{ "Header Length",	"ip.hdr_len", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_ip_tos,
-		{ "Type of Service",	"ip.tos", FT_UINT8, NULL }},
+		{ "Type of Service",	"ip.tos", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_ip_tos_precedence,
-		{ "Precedence",		"ip.tos.precedence", FT_VALS_UINT8, VALS(precedence_vals) }},
+		{ "Precedence",		"ip.tos.precedence", FT_UINT8, BASE_DEC, VALS(precedence_vals),
+			0x0,
+			"" }},
 
 		{ &hf_ip_len,
-		{ "Total Length",	"ip.len", FT_UINT16 }},
+		{ "Total Length",	"ip.len", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_ip_id,
-		{ "Identification",	"ip.id", FT_UINT32 }},
+		{ "Identification",	"ip.id", FT_UINT32, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_ip_dst,
-		{ "Destination",	"ip.dst", FT_IPv4, NULL }},
+		{ "Destination",	"ip.dst", FT_IPv4, BASE_NONE, NULL, 0x0,
+			"" }},
 
 		{ &hf_ip_src,
-		{ "Source",		"ip.src", FT_IPv4, NULL }},
+		{ "Source",		"ip.src", FT_IPv4, BASE_NONE, NULL, 0x0,
+			"" }},
 
 		{ &hf_ip_addr,
-		{ "Source or Destination Address", "ip.addr", FT_IPv4, NULL }},
+		{ "Source or Destination Address", "ip.addr", FT_IPv4, BASE_NONE, NULL, 0x0,
+			"" }},
 
 		{ &hf_ip_flags,
-		{ "Flags",		"ip.flags", FT_UINT8, NULL }},
+		{ "Flags",		"ip.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
+			"" }},
 
 		{ &hf_ip_frag_offset,
-		{ "Fragment offset",	"ip.frag_offset", FT_UINT16, NULL }},
+		{ "Fragment offset",	"ip.frag_offset", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_ip_ttl,
-		{ "Time to live",	"ip.ttl", FT_UINT8, NULL }},
+		{ "Time to live",	"ip.ttl", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_ip_proto,
-		{ "Protocol",		"ip.proto", FT_VALS_UINT8, VALS(proto_vals) }},
+		{ "Protocol",		"ip.proto", FT_UINT8, BASE_HEX, VALS(proto_vals), 0x0,
+			"" }},
 
 		{ &hf_ip_checksum,
-		{ "Header checksum",	"ip.checksum", FT_UINT16, NULL }}
+		{ "Header checksum",	"ip.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
+			"" }},
 	};
 
 	proto_ip = proto_register_protocol ("Internet Protocol", "ip");
@@ -1268,11 +1288,16 @@ proto_register_icmp(void)
   static hf_register_info hf[] = {
     
     { &hf_icmp_type,
-      { "Type",		"icmp.type",		FT_UINT8,	NULL }},
+      { "Type",		"icmp.type",		FT_UINT8, BASE_DEC,	NULL, 0x0,
+      	"" }},
+
     { &hf_icmp_code,
-      { "Code",		"icmp.code",		FT_UINT8,	NULL }},    
+      { "Code",		"icmp.code",		FT_UINT8, BASE_HEX,	NULL, 0x0,
+      	"" }},    
+
     { &hf_icmp_checksum,
-      { "Checksum",	"icmp.checksum",	FT_UINT16,	NULL }}
+      { "Checksum",	"icmp.checksum",	FT_UINT16, BASE_HEX,	NULL, 0x0,
+      	"" }},
   };
   
   proto_icmp = proto_register_protocol ("Internet Control Message Protocol", 

@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.18 1999/10/03 17:12:15 deniel Exp $
+ * $Id: packet-arp.c,v 1.19 1999/10/12 06:20:01 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -297,23 +297,40 @@ proto_register_arp(void)
 {
   static hf_register_info hf[] = {
     { &hf_arp_hard_type,
-      { "Hardware type",	       	"arp.hw.type",	 FT_UINT16, NULL }},
+      { "Hardware type",	       	"arp.hw.type",	 FT_UINT16, BASE_HEX, NULL, 0x0,
+      	"" }},
+
     { &hf_arp_proto_type,
-      { "Protocol type",		"arp.proto.type",FT_UINT16, NULL }},
+      { "Protocol type",		"arp.proto.type",FT_UINT16, BASE_HEX, NULL, 0x0,
+      	"" }},
+
     { &hf_arp_hard_size,
-      { "Hardware size",		"arp.hw.size",	 FT_UINT8, NULL }},
+      { "Hardware size",		"arp.hw.size",	 FT_UINT8, BASE_DEC, NULL, 0x0,
+      	"" }},
+
     { &hf_arp_proto_size,
-      { "Protocol size",		"arp.proto.size",FT_UINT8, NULL }},
+      { "Protocol size",		"arp.proto.size",FT_UINT8, BASE_DEC, NULL, 0x0,
+      	"" }},
+
     { &hf_arp_opcode,
-      { "Opcode",			"arp.opcode",	 FT_UINT16, NULL }},
+      { "Opcode",			"arp.opcode",	 FT_UINT16, BASE_HEX, NULL, 0x0,
+      	"" }},
+
     { &hf_arp_src_ether,
-      { "Sender hardware address",	"arp.src.hw",	 FT_BYTES, NULL }},
+      { "Sender hardware address",	"arp.src.hw",	 FT_BYTES, BASE_NONE, NULL, 0x0,
+      	"" }},
+
     { &hf_arp_src_proto,
-      { "Sender protocol address",	"arp.src.proto", FT_BYTES, NULL }},
+      { "Sender protocol address",	"arp.src.proto", FT_BYTES, BASE_NONE, NULL, 0x0,
+      	"" }},
+
     { &hf_arp_dst_ether,
-      { "Target hardware address",	"arp.dst.hw",	 FT_BYTES, NULL }},
+      { "Target hardware address",	"arp.dst.hw",	 FT_BYTES, BASE_NONE, NULL, 0x0,
+      	"" }},
+
     { &hf_arp_dst_proto,
-      { "Target protocol address",	"arp.dst.proto", FT_BYTES, NULL }}
+      { "Target protocol address",	"arp.dst.proto", FT_BYTES, BASE_NONE, NULL, 0x0,
+      "" }}
   };
 
   proto_arp = proto_register_protocol("Address Resolution Protocol", "arp");

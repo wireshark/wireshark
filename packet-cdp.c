@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.14 1999/09/17 05:56:53 guy Exp $
+ * $Id: packet-cdp.c,v 1.15 1999/10/12 06:20:03 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -280,10 +280,12 @@ proto_register_cdp(void)
 {
         static hf_register_info hf[] = {
                 { &hf_cdp_tlvtype,
-                { "Type",		"cdp.tlv.type", FT_VALS_UINT16, VALS(type_vals) }},
+                { "Type",		"cdp.tlv.type", FT_UINT16, BASE_HEX, VALS(type_vals), 0x0,
+			"" }},
 
                 { &hf_cdp_tlvlength,
-                { "Length",		"cdp.tlv.len", FT_UINT16, NULL }},
+                { "Length",		"cdp.tlv.len", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"" }},
         };
 
         proto_cdp = proto_register_protocol("Cisco Discovery Protocol", "cdp");

@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-bootp.c,v 1.20 1999/10/08 13:57:31 deniel Exp $
+ * $Id: packet-bootp.c,v 1.21 1999/10/12 06:20:02 gram Exp $
  *
  * The information used comes from:
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
@@ -488,11 +488,8 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				    offset + 2, 1, pd[offset+2]);
 		proto_tree_add_item(bp_tree, hf_bootp_hops,
 				    offset + 3, 1, pd[offset+3]);
-		proto_tree_add_item_format(bp_tree, hf_bootp_id,
-					   offset + 4, 4,
-					   pntohl(&pd[offset+4]),
-					   "Transaction ID: 0x%08x", 
-					   pntohl(&pd[offset+4]));
+		proto_tree_add_item(bp_tree, hf_bootp_id,
+				   offset + 4, 4, pntohl(&pd[offset+4]));
 		proto_tree_add_item(bp_tree, hf_bootp_secs,
 				    offset + 8, 2, pntohs(&pd[offset+8]));
 		proto_tree_add_item(bp_tree, hf_bootp_flag,
@@ -574,35 +571,64 @@ proto_register_bootp(void)
 {
   static hf_register_info hf[] = {
     { &hf_bootp_type,
-      { "Message type",			"bootp.type",	 FT_UINT8,  NULL }},
+      { "Message type",			"bootp.type",	 FT_UINT8,  BASE_NONE, NULL, 0x0,
+      	"" }},
+
     { &hf_bootp_hw_type,
-      { "Hardware type",	       	"bootp.hw.type", FT_UINT8,  NULL }},
+      { "Hardware type",	       	"bootp.hw.type", FT_UINT8,  BASE_HEX, NULL, 0x0,
+      	"" }},
+
     { &hf_bootp_hw_len,
-      { "Hardware address length",	"bootp.hw.len",  FT_UINT8,  NULL }},
+      { "Hardware address length",	"bootp.hw.len",  FT_UINT8,  BASE_DEC, NULL, 0x0,
+      	"" }},
+
     { &hf_bootp_hops,
-      { "Hops",			       	"bootp.hops",	 FT_UINT8,  NULL }},
+      { "Hops",			       	"bootp.hops",	 FT_UINT8,  BASE_DEC, NULL, 0x0,
+      	"" }},
+
     { &hf_bootp_id,
-      { "Transaction ID",	       	"bootp.id",	 FT_UINT32, NULL }},
+      { "Transaction ID",	       	"bootp.id",	 FT_UINT32, BASE_HEX, NULL, 0x0,
+      	"" }},
+
     { &hf_bootp_secs,
-      { "Seconds elapsed",	       	"bootp.secs",	 FT_UINT16, NULL }},
+      { "Seconds elapsed",	       	"bootp.secs",	 FT_UINT16, BASE_DEC, NULL, 0x0,
+      	"" }},
+
     { &hf_bootp_flag,
-      { "Broadcast flag",	       	"bootp.flag",    FT_UINT16, NULL }},
+      { "Broadcast flag",	       	"bootp.flag",    FT_UINT16, BASE_DEC, NULL, 0x0,
+      	"" }},
+
     { &hf_bootp_ip_client,
-      { "Client IP address",	       	"bootp.ip.client",FT_IPv4,  NULL }},
+      { "Client IP address",	       	"bootp.ip.client",FT_IPv4,  BASE_NONE, NULL, 0x0,
+      	"" }},
+
     { &hf_bootp_ip_your,
-      { "Your (client) IP address",	"bootp.ip.your",  FT_IPv4,  NULL }},
+      { "Your (client) IP address",	"bootp.ip.your",  FT_IPv4,  BASE_NONE, NULL, 0x0,
+      	"" }},
+
     { &hf_bootp_ip_server,
-      { "Next server IP address",	"bootp.ip.server",FT_IPv4,  NULL }},
+      { "Next server IP address",	"bootp.ip.server",FT_IPv4,  BASE_NONE, NULL, 0x0,
+      	"" }},
+
     { &hf_bootp_ip_relay,
-      { "Relay agent IP address",	"bootp.ip.relay", FT_IPv4,  NULL }},
+      { "Relay agent IP address",	"bootp.ip.relay", FT_IPv4,  BASE_NONE, NULL, 0x0,
+      	"" }},
+
     { &hf_bootp_hw_addr,
-      { "Client hardware address",	"bootp.hw.addr", FT_BYTES,  NULL }},
+      { "Client hardware address",	"bootp.hw.addr", FT_BYTES,  BASE_NONE, NULL, 0x0,
+      	"" }},
+
     { &hf_bootp_server,
-      { "Server host name",		"bootp.server",  FT_STRING, NULL }},
+      { "Server host name",		"bootp.server",  FT_STRING, BASE_NONE, NULL, 0x0,
+      	"" }},
+
     { &hf_bootp_file,
-      { "Boot file name",		"bootp.file",	 FT_STRING, NULL }},
+      { "Boot file name",		"bootp.file",	 FT_STRING, BASE_NONE, NULL, 0x0,
+      	"" }},
+
     { &hf_bootp_cookie,
-      { "Magic cookie",			"bootp.cookie",	 FT_IPv4,   NULL }}
+      { "Magic cookie",			"bootp.cookie",	 FT_IPv4,   BASE_NONE, NULL, 0x0,
+      	"" }},
   };
   
   proto_bootp = proto_register_protocol("Bootstrap Protocol", "bootp");

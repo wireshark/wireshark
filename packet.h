@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.103 1999/10/10 11:50:45 sharpe Exp $
+ * $Id: packet.h,v 1.104 1999/10/12 06:20:22 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -145,6 +145,13 @@ typedef struct _value_string {
   guint32  value;
   gchar   *strptr;
 } value_string;
+
+/* Struct for boolean enumerations */
+typedef struct true_false_string {
+	char	*true_string;
+	char	*false_string;
+} true_false_string;
+
 
 /* Many of the structs and definitions below and in packet-*.c files
  * were taken from include files in the Linux distribution. */
@@ -343,6 +350,14 @@ enum {
 	ETT_IPP,
 	ETT_IPP_AS,
 	ETT_IPP_ATTR,
+	ETT_SNA,
+	ETT_SNA_TH,
+	ETT_SNA_TH_FID,
+	ETT_SNA_RH,
+	ETT_SNA_RH_0,
+	ETT_SNA_RH_1,
+	ETT_SNA_RH_2,
+	ETT_SNA_RU,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
 
@@ -363,6 +378,7 @@ int        get_token_len(const u_char *linep, const u_char *lineend,
 gchar*     format_text(const u_char *line, int len);
 gchar*     val_to_str(guint32, const value_string *, const char *);
 gchar*     match_strval(guint32, const value_string*);
+char * decode_bitfield_value(char *buf, guint32 val, guint32 mask, int width);
 const char *decode_boolean_bitfield(guint32 val, guint32 mask, int width,
   const char *truedesc, const char *falsedesc);
 const char *decode_enumerated_bitfield(guint32 val, guint32 mask, int width,
@@ -430,6 +446,8 @@ void dissect_raw(const u_char *, frame_data *, proto_tree *);
  */
 void dissect_fddi(const u_char *, frame_data *, proto_tree *, gboolean);
 
+typedef void	(*DissectFunc)	(const u_char*, int, frame_data*, proto_tree*);
+
 /*
  * Routines in packet-*.c
  * Routines should take four args: packet data *, offset, frame_data *,
@@ -482,6 +500,7 @@ void dissect_rip(const u_char *, int, frame_data *, proto_tree *);
 void dissect_rsvp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_rtsp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_sdp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_sna(const u_char *, int, frame_data *, proto_tree *);
 void dissect_snmp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_tcp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_telnet(const u_char *, int, frame_data *, proto_tree *);

@@ -2,7 +2,7 @@
  * Routines for Token-Ring Media Access Control
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-trmac.c,v 1.15 1999/09/17 04:20:23 gram Exp $
+ * $Id: packet-trmac.c,v 1.16 1999/10/12 06:20:19 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -320,58 +320,76 @@ proto_register_trmac(void)
 {
         static hf_register_info hf[] = {
                 { &hf_trmac_mv,
-                { "Major Vector",			"trmac.mvec", FT_VALS_UINT8, VALS(major_vector_vs) }},
+                { "Major Vector",			"trmac.mvec", FT_UINT8, BASE_HEX, major_vector_vs, 0x0,
+			"" }},
 
                 { &hf_trmac_length,
-                { "Total Length",			"trmac.length", FT_UINT8, NULL }},
+                { "Total Length",			"trmac.length", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"" }},
 
                 { &hf_trmac_srcclass,
-                { "Source Class",			"trmac.srcclass", FT_VALS_UINT8, VALS(classes_vs) }},
+                { "Source Class",			"trmac.srcclass", FT_UINT8, BASE_HEX, classes_vs, 0x0,
+			"" }},
 
                 { &hf_trmac_dstclass,
-                { "Destination Class",			"trmac.dstclass", FT_VALS_UINT8, VALS(classes_vs) }},
+                { "Destination Class",			"trmac.dstclass", FT_UINT8, BASE_HEX, classes_vs, 0x0,
+			"" }},
 
                 { &hf_trmac_sv,
-                { "Sub-Vector",				"trmac.svec", FT_UINT8, NULL }},
+                { "Sub-Vector",				"trmac.svec", FT_UINT8, BASE_HEX, NULL, 0x0,
+			"" }},
 
 		{ &hf_trmac_errors_iso,
-		{ "Isolating Errors",			"trmac.errors.iso", FT_UINT16, NULL }},
+		{ "Isolating Errors",			"trmac.errors.iso", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_trmac_errors_line,
-		{ "Line Errors",			"trmac.errors.line", FT_UINT8, NULL }},
+		{ "Line Errors",			"trmac.errors.line", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_trmac_errors_internal,
-		{ "Internal Errors",			"trmac.errors.internal", FT_UINT8, NULL }},
+		{ "Internal Errors",			"trmac.errors.internal", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_trmac_errors_burst,
-		{ "Burst Errors",			"trmac.errors.burst", FT_UINT8, NULL }},
+		{ "Burst Errors",			"trmac.errors.burst", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_trmac_errors_ac,
-		{ "A/C Errors",				"trmac.errors.ac", FT_UINT8, NULL }},
+		{ "A/C Errors",				"trmac.errors.ac", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_trmac_errors_abort,
-		{ "Abort Delimiter Transmitted Errors",	"trmac.errors.abort", FT_UINT8, NULL }},
+		{ "Abort Delimiter Transmitted Errors",	"trmac.errors.abort", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_trmac_errors_noniso,
-		{ "Non-Isolating Errors",		"trmac.errors.noniso", FT_UINT16, NULL }},
+		{ "Non-Isolating Errors",		"trmac.errors.noniso", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_trmac_errors_lost,
-		{ "Lost Frame Errors",			"trmac.errors.lost", FT_UINT8, NULL }},
+		{ "Lost Frame Errors",			"trmac.errors.lost", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_trmac_errors_congestion,
-		{ "Receiver Congestion Errors",		"trmac.errors.congestion", FT_UINT8, NULL }},
+		{ "Receiver Congestion Errors",		"trmac.errors.congestion", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_trmac_errors_fc,
-		{ "Frame-Copied Errors",		"trmac.errors.fc", FT_UINT8, NULL }},
+		{ "Frame-Copied Errors",		"trmac.errors.fc", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_trmac_errors_freq,
-		{ "Frequency Errors",			"trmac.errors.freq", FT_UINT8, NULL }},
+		{ "Frequency Errors",			"trmac.errors.freq", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_trmac_errors_token,
-		{ "Token Errors",			"trmac.errors.token", FT_UINT8, NULL }},
+		{ "Token Errors",			"trmac.errors.token", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_trmac_naun,
-		{ "NAUN",				"trmac.naun", FT_ETHER, NULL }}
+		{ "NAUN",				"trmac.naun", FT_ETHER, BASE_DEC, NULL, 0x0,
+			"" }},
         };
 
         proto_trmac = proto_register_protocol("Token-Ring Media Access Control", "trmac");

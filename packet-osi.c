@@ -1,7 +1,7 @@
 /* packet-osi.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-osi.c,v 1.10 1999/09/18 15:51:31 deniel Exp $
+ * $Id: packet-osi.c,v 1.11 1999/10/12 06:20:12 gram Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  *
  * Ethereal - Network traffic analyzer
@@ -1633,27 +1633,48 @@ void proto_register_clnp(void)
 {
   static hf_register_info hf[] = {
     { &hf_clnp_id,
-      { "Protocol identifier",	"clnp.id",	FT_UINT8, NULL }},
+      { "Protocol identifier",	"clnp.id",	FT_UINT8, BASE_DEC, NULL, 0x0,
+      	"" }},
+
     { &hf_clnp_length,
-      { "Length",		"clnp.len",	FT_UINT8, NULL }},
+      { "Length",		"clnp.len",	FT_UINT8, BASE_DEC, NULL, 0x0,
+      	"" }},
+
     { &hf_clnp_version,
-      { "Version",		"clnp.version", FT_UINT8, NULL }},
+      { "Version",		"clnp.version", FT_UINT8, BASE_DEC, NULL, 0x0,
+      	"" }},
+
     { &hf_clnp_ttl,
-      { "TTL",			"clnp.ttl",	FT_UINT8, NULL }},
+      { "TTL",			"clnp.ttl",	FT_UINT8, BASE_DEC, NULL, 0x0,
+      	"" }},
+
     { &hf_clnp_type,
-      { "Type code",            "clnp.type",	FT_UINT8, NULL }},
+      { "Type code",            "clnp.type",	FT_UINT8, BASE_DEC, NULL, 0x0,
+      	"" }},
+
     { &hf_clnp_pdu_length,
-      { "PDU segment length",   "clnp.pdu.len", FT_UINT16, NULL }},
+      { "PDU segment length",   "clnp.pdu.len", FT_UINT16, BASE_DEC, NULL, 0x0,
+      	"" }},
+
     { &hf_clnp_checksum,
-      { "Checksum",		"clnp.checksum",FT_UINT16, NULL }},
+      { "Checksum",		"clnp.checksum",FT_UINT16, BASE_DEC, NULL, 0x0,
+      	"" }},
+
     { &hf_clnp_dest_length,
-      { "Destination address length", "clnp.dsap.len", FT_UINT8, NULL }},
+      { "Destination address length", "clnp.dsap.len", FT_UINT8, BASE_DEC, NULL, 0x0,
+      	"" }},
+
     { &hf_clnp_dest,
-      { "Destination address",  "clnp.dsap",	FT_BYTES, NULL }},
+      { "Destination address",  "clnp.dsap",	FT_BYTES, BASE_NONE, NULL, 0x0,
+      	"" }},
+
     { &hf_clnp_src_length,
-      { "Source address length","clnp.ssap.len",FT_UINT8, NULL }},
+      { "Source address length","clnp.ssap.len",FT_UINT8, BASE_DEC, NULL, 0x0,
+      	"" }},
+
     { &hf_clnp_src,
-      { "Source address",       "clnp.ssap",	FT_BYTES, NULL }},
+      { "Source address",       "clnp.ssap",	FT_BYTES, BASE_NONE, NULL, 0x0,
+      	"" }},
   };
 
   proto_clnp = proto_register_protocol("ISO CLNP", "clnp");

@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.25 1999/10/08 20:50:38 guy Exp $
+ * $Id: packet-llc.c,v 1.26 1999/10/12 06:20:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -85,7 +85,7 @@ static struct sap_info	saps[] = {
 	{ 0x00, NULL,		NULL },
 	{ 0x02, NULL,		NULL },
 	{ 0x03, NULL,		NULL },
-	{ 0x04, NULL,		NULL },
+	{ 0x04, NULL,		dissect_sna },
 	{ 0x05, NULL,		NULL },
 	{ 0x06, capture_ip,	dissect_ip },
 	{ 0x08, NULL,		NULL },
@@ -322,20 +322,25 @@ proto_register_llc(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_llc_dsap,
-		{ "DSAP",		"llc.dsap", FT_VALS_UINT8, VALS(sap_vals) }},
+		{ "DSAP",		"llc.dsap", FT_UINT8, BASE_HEX, VALS(sap_vals), 0x0,
+			"" }},
 
 		{ &hf_llc_ssap,
-		{ "SSAP",		"llc.ssap", FT_VALS_UINT8, VALS(sap_vals) }},
+		{ "SSAP",		"llc.ssap", FT_UINT8, BASE_HEX, VALS(sap_vals), 0x0,
+			"" }},
 
 		{ &hf_llc_ctrl,
-		{ "Control",		"llc.control", FT_VALS_UINT8, VALS(llc_ctrl_vals) }},
+		{ "Control",		"llc.control", FT_UINT8, BASE_HEX, VALS(llc_ctrl_vals), 0x0,
+			"" }},
 
 		/* registered here but handled in ethertype.c */
 		{ &hf_llc_type,
-		{ "Type",		"llc.type", FT_VALS_UINT16, VALS(etype_vals) }},
+		{ "Type",		"llc.type", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
+			"" }},
 
 		{ &hf_llc_oui,
-		{ "Organization Code",	"llc.oui", FT_VALS_UINT24, VALS(llc_oui_vals) }}
+		{ "Organization Code",	"llc.oui", FT_UINT24, BASE_HEX, VALS(llc_oui_vals), 0x0,
+			""}}
 	};
 
 	proto_llc = proto_register_protocol ("Logical-Link Control", "llc" );

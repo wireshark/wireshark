@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.4 1999/09/13 03:48:58 gerald Exp $
+ * $Id: packet-ascend.c,v 1.5 1999/10/12 06:20:01 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -110,13 +110,16 @@ proto_register_ascend(void)
 {
   static hf_register_info hf[] = {
     { &hf_session_id,
-    { "Session ID",	"ascend.sess",	FT_UINT32,	NULL }},
+    { "Session ID",	"ascend.sess",	FT_UINT32, BASE_DEC,	NULL, 0x0,
+    	"" }},
 
     { &hf_chunk,
-    { "WDD Chunk",	"ascend.chunk",	FT_UINT32,	NULL }},
+    { "WDD Chunk",	"ascend.chunk",	FT_UINT32, BASE_DEC,	NULL, 0x0,
+    	"" }},
 
     { &hf_task,
-    { "Task",		"ascend.task",	FT_UINT32,	NULL }}
+    { "Task",		"ascend.task",	FT_UINT32, BASE_DEC,	NULL, 0x0,
+    	"" }},
   };
 
   proto_ascend = proto_register_protocol("Lucent/Ascend debug output", "ascend");

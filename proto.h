@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.16 1999/10/12 04:21:13 gram Exp $
+ * $Id: proto.h,v 1.17 1999/10/12 06:20:24 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,6 +48,8 @@ struct value_string;
  * need this macro */
 #define VALS(x)	(struct value_string*)(x)
 
+/* ... and similarly, */
+#define TFS(x)	(struct true_false_string*)(x)
 
 /* field types */
 enum ftenum {
@@ -55,7 +57,12 @@ enum ftenum {
 	FT_BOOLEAN,	/* TRUE and FALSE come from <glib.h> */
 	FT_UINT8,
 	FT_UINT16,
+	FT_UINT24,	/* really a UINT32, but displayed as 3 hex-digits if FD_HEX*/
 	FT_UINT32,
+	FT_INT8,
+	FT_INT16,
+	FT_INT24,
+	FT_INT32,
 	FT_DOUBLE,
 	FT_ABSOLUTE_TIME,
 	FT_RELATIVE_TIME,
@@ -65,13 +72,17 @@ enum ftenum {
 	FT_IPv4,
 	FT_IPv6,
 	FT_IPXNET,
-	FT_VALS_UINT8,
-	FT_VALS_UINT16,
-	FT_VALS_UINT24,
-	FT_VALS_UINT32,
 	FT_TEXT_ONLY,	/* non-filterable, used when converting ethereal
 				from old-style proto_tree to new-style proto_tree */
 	NUM_FIELD_TYPES /* last item number plus one */
+};
+
+enum {
+	BASE_NONE,
+	BASE_DEC,
+	BASE_HEX,
+	BASE_OCT,
+	BASE_BIN
 };
 
 /* information describing a header field */
@@ -79,9 +90,14 @@ typedef struct header_field_info {
 	char				*name;
 	char				*abbrev;
 	enum ftenum			type;
-	struct value_string		*vals;
-	int				id; /* assigned by order of registration */
-	int				parent; /* parent protocol */
+	int				display;	/* for integers only, so far. Base and Endianness */
+	void				*strings;	/* val_string or true_false_string */
+	guint32				bitmask;
+	char				*blurb;		/* Brief description of field. */
+
+	int				id;		/* assigned by registration function, not programmer */
+	int				parent;		/* parent protocol */
+	int				bitshift;	/* bits to shift */
 } header_field_info;
 
 /* Used when registering many fields at once */
@@ -90,10 +106,6 @@ typedef struct hf_register_info {
 	header_field_info	hfinfo;
 } hf_register_info;
 
-#ifdef WIN32
-/* 'boolean' is a reserved word on win32 */
-#define boolean truth_value
-#endif
 
 /* Info stored in each proto_item GNode */
 typedef struct field_info {
@@ -134,9 +146,16 @@ void proto_init(void);
 /* Frees memory used by proto routines. Called at program shutdown */
 void proto_cleanup(void);
 
+/* Set length of proto_item after having already been created. */
 void proto_item_set_len(proto_item *ti, gint length);
+
+/* Creates new proto_tree root */
 proto_tree* proto_tree_create_root(void);
+
+/* Clear memory for entry proto_tree. Clears proto_tree struct also. */
 void proto_tree_free(proto_tree *tree);
+
+/* Create a subtree under an existing item; returns tree pointer */
 proto_tree* proto_item_add_subtree(proto_item *ti, gint idx);
 
 int

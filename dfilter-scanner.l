@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.19 1999/10/12 04:21:10 gram Exp $
+ * $Id: dfilter-scanner.l,v 1.20 1999/10/12 06:19:59 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -88,6 +88,7 @@ static char *in_buffer;
 whitespace	[\t ]
 hex		[A-Fa-f0-9]{1,2}
 hexsep		[-:\.]
+minus		[-]
 
 %%
 
@@ -177,17 +178,22 @@ le|\<\=		{ dfilter_lval.operand = TOK_LE; return TOK_LE; }
 			retval = T_FT_BOOLEAN;
 			break;
 		case FT_UINT8:
-		case FT_VALS_UINT8:
 			retval = T_FT_UINT8;
 			break;
 		case FT_UINT16:
-		case FT_VALS_UINT16:
 			retval = T_FT_UINT16;
 			break;
 		case FT_UINT32:
-		case FT_VALS_UINT32:
-		case FT_VALS_UINT24:
 			retval = T_FT_UINT32;
+			break;
+		case FT_INT8:
+			retval = T_FT_INT8;
+			break;
+		case FT_INT16:
+			retval = T_FT_INT16;
+			break;
+		case FT_INT32:
+			retval = T_FT_INT32;
 			break;
 		case FT_DOUBLE:
 			dfilter_fail("Sorry, you can't filter on field \"%s\", as we don't yet support filtering on floating-point values.",
@@ -225,6 +231,7 @@ le|\<\=		{ dfilter_lval.operand = TOK_LE; return TOK_LE; }
 			retval = T_FT_IPXNET;
 			break;
 		default:
+			printf("ftype for %s is %d\n", yytext, ftype);
 			g_assert_not_reached();
 			retval = 0;
 			break;
@@ -233,7 +240,7 @@ le|\<\=		{ dfilter_lval.operand = TOK_LE; return TOK_LE; }
 	return retval;
 }
 
-[0-9]+ {				/* decimal or octal values */
+{minus}?[0-9]+ {				/* decimal or octal values */
 	dfilter_lval.string = g_strdup(yytext);
 	return T_VAL_NUMBER_STRING;
 }

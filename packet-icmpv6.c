@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly 
  *
- * $Id: packet-icmpv6.c,v 1.8 1999/10/10 16:09:33 deniel Exp $
+ * $Id: packet-icmpv6.c,v 1.9 1999/10/12 06:20:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -578,11 +578,14 @@ proto_register_icmpv6(void)
 {
   static hf_register_info hf[] = {
     { &hf_icmpv6_type,
-      { "Type",           "icmpv6.type",	FT_UINT8,  NULL }},
+      { "Type",           "icmpv6.type",	FT_UINT8,  BASE_HEX, NULL, 0x0,
+      	"" }},
     { &hf_icmpv6_code,
-      { "Code",           "icmpv6.code",	FT_UINT8,  NULL }},
+      { "Code",           "icmpv6.code",	FT_UINT8,  BASE_HEX, NULL, 0x0,
+      	"" }},
     { &hf_icmpv6_checksum,
-      { "Checksum",       "icmpv6.checksum",	FT_UINT16, NULL }}
+      { "Checksum",       "icmpv6.checksum",	FT_UINT16, BASE_HEX, NULL, 0x0,
+      	"" }}
   };
 
   proto_icmpv6 = proto_register_protocol("Internet Control Message Protocol v6",

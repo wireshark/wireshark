@@ -1,7 +1,7 @@
 /* packet-ddp.c
  * Routines for DDP packet disassembly.
  *
- * $Id: packet-atalk.c,v 1.14 1999/10/07 17:11:11 deniel Exp $
+ * $Id: packet-atalk.c,v 1.15 1999/10/12 06:20:02 gram Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -135,25 +135,44 @@ proto_register_atalk(void)
 {
   static hf_register_info hf[] = {
     { &hf_ddp_hopcount,
-      { "Hop count",		"ddp.hopcount",	FT_UINT8,  NULL }},
+      { "Hop count",		"ddp.hopcount",	FT_UINT8,  BASE_DEC, NULL, 0x0,
+      	"" }},
+
     { &hf_ddp_len,
-      { "Datagram length",	"ddp.len",	FT_UINT16, NULL }},
+      { "Datagram length",	"ddp.len",	FT_UINT16, BASE_DEC, NULL, 0x0,
+      	"" }},
+
     { &hf_ddp_checksum,
-      { "Checksum",		"ddp.checksum",	FT_UINT16, NULL }},
+      { "Checksum",		"ddp.checksum",	FT_UINT16, BASE_DEC, NULL, 0x0,
+      	"" }},
+
     { &hf_ddp_dst_net,
-      { "Destination Net",	"ddp.dst.net",	FT_UINT16, NULL }},
+      { "Destination Net",	"ddp.dst.net",	FT_UINT16, BASE_DEC, NULL, 0x0,
+      	"" }},
+
     { &hf_ddp_src_net,
-      { "Source Net",		"ddp.src.net",	FT_UINT16, NULL }},
+      { "Source Net",		"ddp.src.net",	FT_UINT16, BASE_DEC, NULL, 0x0,
+      	"" }},
+
     { &hf_ddp_dst_node,
-      { "Destination Node",	"ddp.dst.node",	FT_UINT8,  NULL }},
+      { "Destination Node",	"ddp.dst.node",	FT_UINT8,  BASE_DEC, NULL, 0x0,
+      	"" }},
+
     { &hf_ddp_src_node,
-      { "Source Node",		"ddp.src.node",	FT_UINT8,  NULL }},
+      { "Source Node",		"ddp.src.node",	FT_UINT8,  BASE_DEC, NULL, 0x0,
+      	"" }},
+
     { &hf_ddp_dst_socket,
-      { "Destination Socket",	"ddp.dst.socket", FT_UINT8,  NULL }},
+      { "Destination Socket",	"ddp.dst.socket", FT_UINT8,  BASE_DEC, NULL, 0x0,
+      	"" }},
+
     { &hf_ddp_src_socket,
-      { "Source Socket",       	"ddp.src.socket", FT_UINT8,  NULL }},
+      { "Source Socket",       	"ddp.src.socket", FT_UINT8,  BASE_DEC, NULL, 0x0,
+      	"" }},
+
     { &hf_ddp_type,
-      { "Protocol type",       	"ddp.type",	FT_UINT8,  NULL }}
+      { "Protocol type",       	"ddp.type",	FT_UINT8,  BASE_DEC, NULL, 0x0,
+      	"" }},
   };
 
   proto_ddp = proto_register_protocol("Datagram Delivery Protocol", "ddp");

@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.28 1999/09/22 05:40:12 gram Exp $
+ * $Id: packet-tr.c,v 1.29 1999/10/12 06:20:18 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -59,11 +59,7 @@ static int hf_tr_rif_bridge = -1;
 #define TR_MIN_HEADER_LEN 14
 #define TR_MAX_HEADER_LEN 32
 
-static const value_string ac_vals[] = {
-	{ 0,	"Token" },
-	{ 0x10,	"Frame" },
-	{ 0,	NULL }
-};
+static const true_false_string ac_truth = { "Frame", "Token" };
 
 static const value_string pcf_vals[] = {
 	{ 0,	"Normal buffer" },
@@ -78,8 +74,8 @@ static const value_string pcf_vals[] = {
 
 static const value_string frame_vals[] = {
 	{ 0,	"MAC" },
-	{ 64,	"LLC" },
-	{ 128,	"Reserved" },
+	{ 1,	"LLC" },
+	{ 2,	"Reserved" },
 	{ 0,	NULL },
 };
 
@@ -419,33 +415,20 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		tr_tree = proto_item_add_subtree(ti, ETT_TOKEN_RING);
 
 		/* Create the Access Control bitfield tree */
-		ti = proto_tree_add_item_format(tr_tree, hf_tr_ac, offset, 1, trn_ac,
-			"Access Control (0x%02x)", trn_ac);
+		ti = proto_tree_add_item(tr_tree, hf_tr_ac, offset, 1, trn_ac);
 		bf_tree = proto_item_add_subtree(ti, ETT_TOKEN_RING_AC);
 
-		proto_tree_add_item_format(bf_tree, hf_tr_priority, offset, 1, trn_ac & 0xe0,
-			decode_numeric_bitfield(trn_ac, 0xe0, 8, "Priority = %d"));
-
-		proto_tree_add_item_format(bf_tree, hf_tr_frame, offset, 1, trn_ac & 0x10,
-			decode_enumerated_bitfield(trn_ac, 0x10, 8, ac_vals, "%s"));
-
-		proto_tree_add_item_format(bf_tree, hf_tr_monitor_cnt, offset, 1, trn_ac & 0x08,
-			decode_numeric_bitfield(trn_ac, 0x08, 8, "Monitor Count"));
-
-		proto_tree_add_item_format(bf_tree, hf_tr_priority_reservation, offset, 1, trn_ac & 0x07,
-			decode_numeric_bitfield(trn_ac, 0x07, 8, "Priority Reservation = %d"));
+		proto_tree_add_item(bf_tree, hf_tr_priority, offset, 1, trn_ac);
+		proto_tree_add_item(bf_tree, hf_tr_frame, offset, 1, trn_ac);
+		proto_tree_add_item(bf_tree, hf_tr_monitor_cnt, offset, 1, trn_ac);
+		proto_tree_add_item(bf_tree, hf_tr_priority_reservation, offset, 1, trn_ac);
 
 		/* Create the Frame Control bitfield tree */
-		ti = proto_tree_add_item_format(tr_tree, hf_tr_fc, offset + 1, 1, trn_fc,
-			"Frame Control (0x%02x)", trn_fc);
+		ti = proto_tree_add_item(tr_tree, hf_tr_fc, offset + 1, 1, trn_fc);
 		bf_tree = proto_item_add_subtree(ti, ETT_TOKEN_RING_FC);
 
-		proto_tree_add_item_format(bf_tree, hf_tr_fc_type, offset + 1, 1, trn_fc & 0xc0,
-			decode_enumerated_bitfield(trn_fc, 0xc0, 8, frame_vals, "%s"));
-
-		proto_tree_add_item_format(bf_tree, hf_tr_fc_pcf, offset + 1, 1, trn_fc & 0x0f,
-			decode_enumerated_bitfield(trn_fc, 0x0f, 8, pcf_vals, "%s"));
-
+		proto_tree_add_item(bf_tree, hf_tr_fc_type, offset + 1, 1, trn_fc);
+		proto_tree_add_item(bf_tree, hf_tr_fc_pcf,  offset + 1, 1, trn_fc);
 		proto_tree_add_item(tr_tree, hf_tr_dst, offset + 2, 6, trn_dhost);
 		proto_tree_add_item(tr_tree, hf_tr_src, offset + 8, 6, trn_shost);
 
@@ -557,58 +540,78 @@ proto_register_tr(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_tr_ac,
-		{ "Access Control",	"tr.ac", FT_UINT8, NULL }},
+		{ "Access Control",	"tr.ac", FT_UINT8, BASE_HEX, NULL, 0x0,
+			"" }},
 
 		{ &hf_tr_priority,
-		{ "Priority",		"tr.priority", FT_UINT8, NULL }},
+		{ "Priority",		"tr.priority", FT_UINT8, BASE_DEC, NULL, 0xe0,
+			"" }},
 
 		{ &hf_tr_frame,
-		{ "Frame",		"tr.frame", FT_VALS_UINT8, VALS(ac_vals) }},
+		{ "Frame",		"tr.frame", FT_BOOLEAN, 8, TFS(&ac_truth), 0x10,
+			"" }},
 
 		{ &hf_tr_monitor_cnt,
-		{ "Monitor Count",	"tr.monitor_cnt", FT_UINT8, NULL }},
+		{ "Monitor Count",	"tr.monitor_cnt", FT_UINT8, BASE_DEC, NULL, 0x08,
+			"" }},
 
 		{ &hf_tr_priority_reservation,
-		{ "Priority Reservation","tr.priority_reservation", FT_UINT8, NULL }},
+		{ "Priority Reservation","tr.priority_reservation", FT_UINT8, BASE_DEC, NULL, 0x07,
+			"" }},
 
 		{ &hf_tr_fc,
-		{ "Frame Control",	"tr.fc", FT_UINT8, NULL }},
+		{ "Frame Control",	"tr.fc", FT_UINT8, BASE_HEX, NULL, 0x0,
+			"" }},
 
 		{ &hf_tr_fc_type,
-		{ "Frame Type",		"tr.frame_type", FT_VALS_UINT8, VALS(frame_vals) }},
+		{ "Frame Type",		"tr.frame_type", FT_UINT8, BASE_DEC, VALS(frame_vals), 0xc0,
+			"" }},
 
 		{ &hf_tr_fc_pcf,
-		{ "Frame PCF",		"tr.frame_pcf", FT_VALS_UINT8, VALS(pcf_vals) }},
+		{ "Frame PCF",		"tr.frame_pcf", FT_UINT8, BASE_DEC, VALS(pcf_vals), 0x0f,
+			"" }},
 
 		{ &hf_tr_dst,
-		{ "Destination",	"tr.dst", FT_ETHER, NULL }},
+		{ "Destination",	"tr.dst", FT_ETHER, BASE_NONE,  NULL, 0x0,
+			"Destination Hardware Address" }},
 
 		{ &hf_tr_src,
-		{ "Source",		"tr.src", FT_ETHER, NULL }},
+		{ "Source",		"tr.src", FT_ETHER, BASE_NONE, NULL, 0x0,
+			"Source Hardware Address" }},
 
 		{ &hf_tr_sr,
-		{ "Source Routed",	"tr.sr", FT_BOOLEAN, NULL }},
+		{ "Source Routed",	"tr.sr", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Source Routed" }},
 
 		{ &hf_tr_rif_bytes,
-		{ "RIF Bytes",		"tr.rif_bytes", FT_UINT8, NULL }},
+		{ "RIF Bytes",		"tr.rif_bytes", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"Number of bytes in Routing Information Fields, including "
+			"the two bytes of Routing Control Field" }},
 
 		{ &hf_tr_broadcast,
-		{ "Broadcast Type",	"tr.broadcast", FT_VALS_UINT8, VALS(broadcast_vals) }},
+		{ "Broadcast Type",	"tr.broadcast", FT_UINT8, BASE_DEC, VALS(broadcast_vals), 0x0,
+			"Type of Token-Ring Broadcast" }},
 
 		{ &hf_tr_max_frame_size,
-		{ "Maximum Frame Size",	"tr.max_frame_size", FT_VALS_UINT8, VALS(max_frame_size_vals) }},
+		{ "Maximum Frame Size",	"tr.max_frame_size", FT_UINT8, BASE_DEC, VALS(max_frame_size_vals),
+			0x0,
+			"" }},
 
 		{ &hf_tr_direction,
-		{ "Direction",		"tr.direction", FT_VALS_UINT8, VALS(direction_vals) }},
+		{ "Direction",		"tr.direction", FT_UINT8, BASE_DEC, VALS(direction_vals), 0x0,
+			"Direction of RIF" }},
 
 		{ &hf_tr_rif,
-		{ "Ring-Bridge Pairs",	"tr.rif", FT_STRING, NULL }},
+		{ "Ring-Bridge Pairs",	"tr.rif", FT_STRING, BASE_NONE, NULL, 0x0,
+			"String representing Ring-Bridge Pairs" }},
 
 		{ &hf_tr_rif_ring,
-		{ "RIF Ring",		"tr.rif.ring", FT_UINT16, NULL }},
+		{ "RIF Ring",		"tr.rif.ring", FT_UINT16, BASE_HEX, NULL, 0x0,
+			"" }},
 
 		{ &hf_tr_rif_bridge,
-		{ "RIF Bridge",		"tr.rif.bridge", FT_UINT8, NULL }}
+		{ "RIF Bridge",		"tr.rif.bridge", FT_UINT8, BASE_HEX, NULL, 0x0,
+			"" }},
 	};
 
 	proto_tr = proto_register_protocol("Token-Ring", "tr");

@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <abad@daba.dhis.org>
  *
- * $Id: packet-x25.c,v 1.6 1999/09/12 18:37:00 guy Exp $
+ * $Id: packet-x25.c,v 1.7 1999/10/12 06:20:20 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1448,9 +1448,12 @@ proto_register_x25(void)
 {
     static hf_register_info hf[] = {
 	{ &hf_x25_lcn,
-	  { "Logical Channel", "x25.lcn", FT_UINT16, NULL} },
+	  { "Logical Channel", "x25.lcn", FT_UINT16, BASE_DEC, NULL, 0x0,
+	  	"" } },
+
 	{ &hf_x25_type,
-	  { "Packet Type", "x25.type", FT_STRING, NULL} },
+	  { "Packet Type", "x25.type", FT_STRING, BASE_NONE, NULL, 0x0,
+	  	"" } },
     };
 
     proto_x25 = proto_register_protocol ("X.25", "x25");

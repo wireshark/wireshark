@@ -9,14 +9,19 @@
 #	will be replaced by the pod-formatted glossary
 # STDOUT is the output
 #
-# $Id: dfilter2pod.in,v 1.3 1999/08/03 15:04:33 gram Exp $
+# $Id: dfilter2pod.in,v 1.4 1999/10/12 06:21:15 gram Exp $
 
 %ftenum_names = (
 	'FT_NONE',	'No value',
 	'FT_BOOLEAN',	'Boolean',
 	'FT_UINT8',	'Unsigned 8-bit integer',
 	'FT_UINT16',	'Unsigned 16-bit integer',
+	'FT_UINT24',	'Unsigned 24-bit integer',
 	'FT_UINT32',	'Unsigned 32-bit integer',
+	'FT_INT8',	'Signed 8-bit integer',
+	'FT_INT16',	'Signed 16-bit integer',
+	'FT_INT24',	'Signed 24-bit integer',
+	'FT_INT32',	'Signed 32-bit integer',
 	'FT_ABSOLUTE_TIME',	'Date/Time stamp',
 	'FT_RELATIVE_TIME',	'Time duration',
 	'FT_STRING',		'String',
@@ -25,10 +30,6 @@
 	'FT_IPv4',		'IPv4 address',
 	'FT_IPv6',		'IPv6 address',
 	'FT_IPXNET',		'IPX network or server name',
-	'FT_VALS_UINT8',		'Unsigned 8-bit integer',
-	'FT_VALS_UINT16',		'Unsigned 16-bit integer',
-	'FT_VALS_UINT24',		'Unsigned 24-bit integer',
-	'FT_VALS_UINT32',		'Unsigned 32-bit integer',
 	'FT_TEXT_ONLY',		'Text-only. Not filterable'
 );
 

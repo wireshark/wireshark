@@ -2,7 +2,7 @@
  * Routines for ftp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-ftp.c,v 1.8 1999/10/09 11:56:15 deniel Exp $
+ * $Id: packet-ftp.c,v 1.9 1999/10/12 06:20:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -162,17 +162,28 @@ proto_register_ftp(void)
 {
   static hf_register_info hf[] = {
     { &hf_ftp_response,
-      { "Response",           "ftp.response",		FT_BOOLEAN, NULL }},
+      { "Response",           "ftp.response",		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+      	"" }},
+
     { &hf_ftp_request,
-      { "Request",            "ftp.request",		FT_BOOLEAN, NULL }},
+      { "Request",            "ftp.request",		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+      	"" }},
+
     { &hf_ftp_request_command,
-      { "Request command",    "ftp.request.command",	FT_STRING,  NULL }},
+      { "Request command",    "ftp.request.command",	FT_STRING,  BASE_NONE, NULL, 0x0,
+      	"" }},
+
     { &hf_ftp_request_data,
-      { "Request data",	      "ftp.request.data",	FT_STRING,  NULL }},
+      { "Request data",	      "ftp.request.data",	FT_STRING,  BASE_NONE, NULL, 0x0,
+      	"" }},
+
     { &hf_ftp_response_code,
-      { "Response code",      "ftp.response.code",	FT_UINT8,   NULL }},
+      { "Response code",      "ftp.response.code",	FT_UINT8,   BASE_DEC, NULL, 0x0,
+      	"" }},
+
     { &hf_ftp_response_data,
-      { "Response data",      "ftp.reponse.data",	FT_STRING,  NULL }}
+      { "Response data",      "ftp.reponse.data",	FT_STRING,  BASE_NONE, NULL, 0x0,
+      	"" }}
   };
 
   proto_ftp = proto_register_protocol("File Transfer Protocol", "ftp");

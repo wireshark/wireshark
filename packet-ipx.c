@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.27 1999/09/15 22:33:17 gram Exp $
+ * $Id: packet-ipx.c,v 1.28 1999/10/12 06:20:10 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -285,8 +285,7 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 		ti = proto_tree_add_item(tree, proto_ipx, offset, 30, NULL);
 		ipx_tree = proto_item_add_subtree(ti, ETT_IPX);
-		proto_tree_add_item_format(ipx_tree, hf_ipx_checksum, offset, 2, ipx_checksum,
-			"Checksum: 0x%04x", ipx_checksum);
+		proto_tree_add_item(ipx_tree, hf_ipx_checksum, offset, 2, ipx_checksum);
 		proto_tree_add_item_format(ipx_tree, hf_ipx_len, offset+2, 2, ipx_length,
 			"Length: %d bytes", ipx_length);
 		proto_tree_add_item_format(ipx_tree, hf_ipx_hops, offset+4, 1, ipx_hops,
@@ -631,34 +630,45 @@ proto_register_ipx(void)
 {
 	static hf_register_info hf_ipx[] = {
 		{ &hf_ipx_checksum,
-		{ "Checksum",		"ipx.checksum", FT_UINT16, NULL }},
+		{ "Checksum",		"ipx.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
+			"" }},
 
 		{ &hf_ipx_len,
-		{ "Length",		"ipx.len", FT_UINT16, NULL }},
+		{ "Length",		"ipx.len", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_ipx_hops,
-		{ "Transport Control (Hops)", "ipx.hops", FT_UINT8, NULL }},
+		{ "Transport Control (Hops)", "ipx.hops", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_ipx_packet_type,
-		{ "Packet Type",	"ipx.packet_type", FT_VALS_UINT8, VALS(ipx_packet_type_vals) }},
+		{ "Packet Type",	"ipx.packet_type", FT_UINT8, BASE_HEX, VALS(ipx_packet_type_vals),
+			0x0,
+			"" }},
 
 		{ &hf_ipx_dnet,
-		{ "Destination Network","ipx.dstnet", FT_IPXNET, NULL }},
+		{ "Destination Network","ipx.dst.net", FT_IPXNET, BASE_NONE, NULL, 0x0,
+			"" }},
 
 		{ &hf_ipx_dnode,
-		{ "Destination Node",	"ipx.dstnode", FT_ETHER, NULL }},
+		{ "Destination Node",	"ipx.dst.node", FT_ETHER, BASE_NONE, NULL, 0x0,
+			"" }},
 
 		{ &hf_ipx_dsocket,
-		{ "Destination Socket",	"ipx.dstsocket", FT_UINT16, NULL }},
+		{ "Destination Socket",	"ipx.dst.socket", FT_UINT16, BASE_HEX, NULL, 0x0,
+			"" }},
 
 		{ &hf_ipx_snet,
-		{ "Source Network","ipx.srcnet", FT_IPXNET, NULL }},
+		{ "Source Network","ipx.src.net", FT_IPXNET, BASE_NONE, NULL, 0x0,
+			"" }},
 
 		{ &hf_ipx_snode,
-		{ "Source Node",	"ipx.srcnode", FT_ETHER, NULL }},
+		{ "Source Node",	"ipx.src.node", FT_ETHER, BASE_NONE, NULL, 0x0,
+			"" }},
 
 		{ &hf_ipx_ssocket,
-		{ "Source Socket",	"ipx.srcsocket", FT_UINT16, NULL }},
+		{ "Source Socket",	"ipx.src.socket", FT_UINT16, BASE_HEX, NULL, 0x0,
+			"" }},
 	};
 		
 	proto_ipx = proto_register_protocol ("Internetwork Packet eXchange", "ipx");

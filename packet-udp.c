@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.25 1999/10/02 16:58:41 deniel Exp $
+ * $Id: packet-udp.c,v 1.26 1999/10/12 06:20:19 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -287,19 +287,24 @@ proto_register_udp(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_udp_srcport,
-		{ "Source Port",	"udp.srcport", FT_UINT16, NULL }},
+		{ "Source Port",	"udp.srcport", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_udp_dstport,
-		{ "Destination Port",	"udp.dstport", FT_UINT16, NULL }},
+		{ "Destination Port",	"udp.dstport", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_udp_port,
-		{ "Source or Destination Port",	"udp.port", FT_UINT16, NULL }},
+		{ "Source or Destination Port",	"udp.port", FT_UINT16, BASE_DEC,  NULL, 0x0,
+			"" }},
 
 		{ &hf_udp_length,
-		{ "Length",		"udp.length", FT_UINT16, NULL }},
+		{ "Length",		"udp.length", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"" }},
 
 		{ &hf_udp_checksum,
-		{ "Checksum",		"udp.checksum", FT_UINT16, NULL }}
+		{ "Checksum",		"udp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
+			"" }},
 	};
 
 	proto_udp = proto_register_protocol("User Datagram Protocol", "udp");

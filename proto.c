@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.34 1999/10/12 04:21:12 gram Exp $
+ * $Id: proto.c,v 1.35 1999/10/12 06:20:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -81,6 +81,16 @@ static proto_item *
 proto_tree_add_item_value(proto_tree *tree, int hfindex, gint start,
 	gint length, int include_format, int visible, va_list ap);
 
+static void fill_label_boolean(field_info *fi, gchar *label_str);
+static void fill_label_uint(field_info *fi, gchar *label_str);
+static void fill_label_enumerated_uint(field_info *fi, gchar *label_str);
+static void fill_label_enumerated_bitfield(field_info *fi, gchar *label_str);
+static void fill_label_numeric_bitfield(field_info *fi, gchar *label_str);
+
+static int hfinfo_bitwidth(header_field_info *hfinfo);
+static char* hfinfo_uint_vals_format(header_field_info *hfinfo);
+static char* hfinfo_uint_format(header_field_info *hfinfo);
+
 static gboolean check_for_protocol_or_field_id(GNode *node, gpointer data);
 static gboolean check_for_field_within_protocol(GNode *node, gpointer data);
 
@@ -134,6 +144,7 @@ void proto_register_rsvp(void);
 void proto_register_rtsp(void);
 void proto_register_sdp(void);
 void proto_register_smb(void);
+void proto_register_sna(void);
 #if defined(WITH_SNMP_CMU) || defined(WITH_SNMP_UCD)
 void proto_register_snmp(void);
 #endif
@@ -172,6 +183,12 @@ gboolean proto_tree_is_visible = TRUE;
 void
 proto_init(void)
 {
+	static hf_register_info hf[] = {
+		{ &hf_text_only,
+		{ "Text",	"text", FT_TEXT_ONLY, BASE_NONE, NULL, 0x0,
+			"" }},
+	};
+
 	if (gmc_hfinfo)
 		g_mem_chunk_destroy(gmc_hfinfo);
 	if (gmc_field_info)
@@ -242,6 +259,7 @@ proto_init(void)
 	proto_register_rtsp();
 	proto_register_sdp();
 	proto_register_smb();
+	proto_register_sna();
 #if defined(WITH_SNMP_CMU) || defined(WITH_SNMP_UCD)
 	proto_register_snmp();
 #endif
@@ -256,12 +274,7 @@ proto_init(void)
 	/* Register one special-case FT_TEXT_ONLY field for use when
 		converting ethereal to new-style proto_tree. These fields
 		are merely strings on the GUI tree; they are not filterable */
-	hf_text_only = proto_register_field (
-		/* name */	"Text",
-		/* abbrev */	"text",
-		/* ftype */	FT_TEXT_ONLY,
-		/* parent */	-1,
-		/* vals[] */	NULL );
+	proto_register_field_array(-1, hf, array_length(hf));
 }
 
 void
@@ -370,6 +383,7 @@ proto_tree_add_item_value(proto_tree *tree, int hfindex, gint start,
 	proto_item	*pi;
 	field_info	*fi;
 	char		*junk, *format;
+	header_field_info *hfinfo;
 
 	if (!tree)
 		return(NULL);
@@ -386,6 +400,9 @@ proto_tree_add_item_value(proto_tree *tree, int hfindex, gint start,
 	fi->tree_type = ETT_NONE;
 	fi->visible = visible;
 
+	/* for convenience */
+
+	hfinfo = fi->hfinfo;
 /* from the stdarg man page on Solaris 2.6:
 NOTES
      It is up to the calling routine to specify  in  some  manner
@@ -400,13 +417,9 @@ NOTES
      converts  float arguments to double before passing them to a
      function.
 */
-	switch(fi->hfinfo->type) {
+	switch(hfinfo->type) {
 		case FT_NONE:
 			junk = va_arg(ap, guint8*);
-			break;
-
-		case FT_BOOLEAN:
-			fi->value.numeric = va_arg(ap, unsigned int) ? TRUE : FALSE;
 			break;
 
 		case FT_BYTES:
@@ -416,19 +429,27 @@ NOTES
 			memcpy(fi->value.bytes, va_arg(ap, guint8*), length);
 			break;
 
+		case FT_BOOLEAN:
 		case FT_UINT8:
-		case FT_VALS_UINT8:
-			fi->value.numeric = va_arg(ap, unsigned int);
-			break;
-
 		case FT_UINT16:
-		case FT_VALS_UINT16:
+		case FT_UINT24:
+		case FT_UINT32:
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT24:
+		case FT_INT32:
 			fi->value.numeric = va_arg(ap, unsigned int);
+			if (hfinfo->bitmask) {
+				/* Mask out irrelevant portions */
+				fi->value.numeric &= hfinfo->bitmask;
+
+				/* Shift bits */
+				if (hfinfo->bitshift > 0) {
+					fi->value.numeric >>= hfinfo->bitshift;
+				}
+			}
 			break;
 
-		case FT_UINT32:
-		case FT_VALS_UINT24:
-		case FT_VALS_UINT32:
 		case FT_IPv4:
 		case FT_IPXNET:
 			fi->value.numeric = va_arg(ap, unsigned int);
@@ -462,7 +483,7 @@ NOTES
 			break;
 
 		default:
-			g_error("hfinfo->type %d not handled\n", fi->hfinfo->type);
+			g_error("hfinfo->type %d not handled\n", hfinfo->type);
 			break;
 	}
 
@@ -507,7 +528,20 @@ proto_item_add_subtree(proto_item *pi,  gint idx) {
 int
 proto_register_protocol(char *name, char *abbrev)
 {
-	return proto_register_field(name, abbrev, FT_NONE, -1, NULL);
+	struct header_field_info *hfinfo;
+
+	/* Here we do allocate a new header_field_info struct */
+	hfinfo = g_mem_chunk_alloc(gmc_hfinfo);
+	hfinfo->name = name;
+	hfinfo->abbrev = abbrev;
+	hfinfo->type = FT_NONE;
+	hfinfo->strings = NULL;
+	hfinfo->bitmask = 0;
+	hfinfo->bitshift = 0;
+	hfinfo->blurb = "";
+	hfinfo->parent = -1; /* this field differentiates protos and fields */
+
+	return proto_register_field_init(hfinfo, hfinfo->parent);
 }
 
 /* for use with static arrays only, since we don't allocate our own copies
@@ -524,29 +558,26 @@ proto_register_field_array(int parent, hf_register_info *hf, int num_records)
 	}
 }
 
-
-/* Here we do allocate a new header_field_info struct */
-int
-proto_register_field(char *name, char *abbrev, enum ftenum type, int parent,
-	struct value_string* vals)
-{
-	struct header_field_info *hfinfo;
-
-	hfinfo = g_mem_chunk_alloc(gmc_hfinfo);
-	hfinfo->name = name; /* should I g_strdup? */
-	hfinfo->abbrev = abbrev; /* should I g_strdup? */
-	hfinfo->type = type;
-	hfinfo->vals = vals;
-	hfinfo->parent = parent; /* this field differentiates protos and fields */
-
-	return proto_register_field_init(hfinfo, parent);
-}
-
 static int
 proto_register_field_init(header_field_info *hfinfo, int parent)
 {
-	g_assert((hfinfo->vals == NULL) || (hfinfo->type == FT_VALS_UINT8 || hfinfo->type == FT_VALS_UINT16 ||
-		hfinfo->type == FT_VALS_UINT24 || hfinfo->type == FT_VALS_UINT32));
+	/* These types of fields are allowed to have value_strings or true_false_strings */
+	g_assert((hfinfo->strings == NULL) || (
+			(hfinfo->type == FT_UINT8) ||
+			(hfinfo->type == FT_UINT16) ||
+			(hfinfo->type == FT_UINT24) ||
+			(hfinfo->type == FT_UINT32) ||
+			(hfinfo->type == FT_INT8) ||
+			(hfinfo->type == FT_INT16) ||
+			(hfinfo->type == FT_INT24) ||
+			(hfinfo->type == FT_INT32) ||
+			(hfinfo->type == FT_BOOLEAN) ));
+
+	/* if this is a bitfield, compure bitshift */
+	if (hfinfo->bitmask) {
+		while ((hfinfo->bitmask & (1 << hfinfo->bitshift)) == 0)
+			hfinfo->bitshift++;
+	}
 
 	hfinfo->parent = parent;
 
@@ -559,32 +590,52 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 void
 proto_item_fill_label(field_info *fi, gchar *label_str)
 {
-	char *s;
+	struct header_field_info	*hfinfo = fi->hfinfo;
 
-	switch(fi->hfinfo->type) {
+	switch(hfinfo->type) {
 		case FT_NONE:
 			snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s", fi->hfinfo->name);
+				"%s", hfinfo->name);
 			break;
 
 		case FT_BOOLEAN:
-			snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: %s", fi->hfinfo->name,
-				fi->value.numeric == TRUE ? "True" : "False");
+			fill_label_boolean(fi, label_str);
 			break;
 
 		case FT_BYTES:
 			snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: %s", fi->hfinfo->name, 
+				"%s: %s", hfinfo->name, 
 				 bytes_to_str(fi->value.bytes, fi->length));
 			break;
 
+		/* Four types of integers to take care of:
+		 * 	Bitfield, with val_string
+		 * 	Bitfield, w/o val_string
+		 * 	Non-bitfield, with val_string
+		 * 	Non-bitfield, w/o val_string
+		 */
 		case FT_UINT8:
 		case FT_UINT16:
 		case FT_UINT32:
-			snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: %u", fi->hfinfo->name,
-				fi->value.numeric);
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT32:
+			if (hfinfo->bitmask) {
+				if (hfinfo->strings) {
+					fill_label_enumerated_bitfield(fi, label_str);
+				}
+				else {
+					fill_label_numeric_bitfield(fi, label_str);
+				}
+			}
+			else {
+				if (hfinfo->strings) {
+					fill_label_enumerated_uint(fi, label_str);
+				}
+				else {
+					fill_label_uint(fi, label_str);
+				}
+			}
 			break;
 
 		case FT_DOUBLE:
@@ -603,35 +654,6 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s seconds", fi->hfinfo->name,
 				rel_time_to_str(&fi->value.time));
-			break;
-
-		case FT_VALS_UINT8:
-			s = match_strval(fi->value.numeric, cVALS(fi->hfinfo->vals));
-			snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: %s (0x%02x)", fi->hfinfo->name,
-				(s ? s : "Unknown"), fi->value.numeric);
-			break;
-
-		case FT_VALS_UINT16:
-			s = match_strval(fi->value.numeric, cVALS(fi->hfinfo->vals));
-			snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: %s (0x%04x)", fi->hfinfo->name,
-				(s ? s : "Unknown"), fi->value.numeric);
-			break;
-
-		case FT_VALS_UINT24:
-			s = match_strval(fi->value.numeric, cVALS(fi->hfinfo->vals));
-			snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: %s (0x%06x)", fi->hfinfo->name,
-				(s ? s : "Unknown"), fi->value.numeric);
-			break;
-
-
-		case FT_VALS_UINT32:
-			s = match_strval(fi->value.numeric, cVALS(fi->hfinfo->vals));
-			snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: %s (0x%08x)", fi->hfinfo->name,
-				(s ? s : "Unknown"), fi->value.numeric);
 			break;
 
 		case FT_IPXNET:
@@ -670,6 +692,259 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 	}
 }
+
+static void
+fill_label_boolean(field_info *fi, gchar *label_str)
+{
+	char *p = label_str;
+	int bitfield_byte_length = 0, bitwidth;
+	guint32 unshifted_value;
+
+	struct header_field_info	*hfinfo = fi->hfinfo;
+	struct true_false_string	default_tf = { "True", "False" };
+	struct true_false_string	*tfstring = &default_tf;
+
+	if (hfinfo->strings) {
+		tfstring = (struct true_false_string*) hfinfo->strings;
+	}
+
+	if (hfinfo->bitmask) {
+		/* Figure out the bit width */
+		bitwidth = hfinfo_bitwidth(hfinfo);
+
+		/* Un-shift bits */
+		unshifted_value = fi->value.numeric;
+		if (hfinfo->bitshift > 0) {
+			unshifted_value <<= hfinfo->bitshift;
+		}
+
+		/* Create the bitfield first */
+		p = decode_bitfield_value(label_str, unshifted_value, hfinfo->bitmask, bitwidth);
+		bitfield_byte_length = p - label_str;
+	}
+
+	/* Fill in the textual info */
+	snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
+		"%s: %s",  hfinfo->name,
+		fi->value.numeric ? tfstring->true_string : tfstring->false_string);
+}
+
+
+/* Fills data for bitfield ints with val_strings */
+static void
+fill_label_enumerated_bitfield(field_info *fi, gchar *label_str)
+{
+	char *format = NULL, *p;
+	int bitfield_byte_length, bitwidth;
+	guint32 unshifted_value;
+
+	struct header_field_info	*hfinfo = fi->hfinfo;
+
+	/* Figure out the bit width */
+	bitwidth = hfinfo_bitwidth(hfinfo);
+
+	/* Pick the proper format string */
+	format = hfinfo_uint_vals_format(hfinfo);
+
+	/* Un-shift bits */
+	unshifted_value = fi->value.numeric;
+	if (hfinfo->bitshift > 0) {
+		unshifted_value <<= hfinfo->bitshift;
+	}
+
+	/* Create the bitfield first */
+	p = decode_bitfield_value(label_str, unshifted_value, hfinfo->bitmask, bitwidth);
+	bitfield_byte_length = p - label_str;
+
+	/* Fill in the textual info using stored (shifted) value */
+	snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
+			format,  hfinfo->name,
+			val_to_str(fi->value.numeric, cVALS(hfinfo->strings), "Unknown"),
+			fi->value.numeric);
+}
+
+static void
+fill_label_numeric_bitfield(field_info *fi, gchar *label_str)
+{
+	char *format = NULL, *p;
+	int bitfield_byte_length, bitwidth;
+	guint32 unshifted_value;
+
+	struct header_field_info	*hfinfo = fi->hfinfo;
+
+	/* Figure out the bit width */
+	bitwidth = hfinfo_bitwidth(hfinfo);
+
+	/* Pick the proper format string */
+	format = hfinfo_uint_format(hfinfo);
+
+	/* Un-shift bits */
+	unshifted_value = fi->value.numeric;
+	if (hfinfo->bitshift > 0) {
+		unshifted_value <<= hfinfo->bitshift;
+	}
+
+	/* Create the bitfield using */
+	p = decode_bitfield_value(label_str, unshifted_value, hfinfo->bitmask, bitwidth);
+	bitfield_byte_length = p - label_str;
+
+	/* Fill in the textual info using stored (shifted) value */
+	snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
+			format,  hfinfo->name, fi->value.numeric);
+}
+
+static void
+fill_label_enumerated_uint(field_info *fi, gchar *label_str)
+{
+	char *format = NULL;
+	struct header_field_info	*hfinfo = fi->hfinfo;
+
+	/* Pick the proper format string */
+	format = hfinfo_uint_vals_format(hfinfo);
+
+	/* Fill in the textual info */
+	snprintf(label_str, ITEM_LABEL_LENGTH,
+			format,  hfinfo->name,
+			val_to_str(fi->value.numeric, cVALS(hfinfo->strings), "Unknown"),
+			fi->value.numeric);
+}
+
+static void
+fill_label_uint(field_info *fi, gchar *label_str)
+{
+	char *format = NULL;
+	struct header_field_info	*hfinfo = fi->hfinfo;
+
+	/* Pick the proper format string */
+	format = hfinfo_uint_format(hfinfo);
+
+	/* Fill in the textual info */
+	snprintf(label_str, ITEM_LABEL_LENGTH,
+			format,  hfinfo->name, fi->value.numeric);
+}
+
+static int
+hfinfo_bitwidth(header_field_info *hfinfo)
+{
+	int bitwidth = 0;
+
+	if (!hfinfo->bitmask) {
+		return 0;
+	}
+
+	switch(hfinfo->type) {
+		case FT_UINT8:
+		case FT_INT8:
+			bitwidth = 8;
+			break;
+		case FT_UINT16:
+		case FT_INT16:
+			bitwidth = 16;
+			break;
+		case FT_UINT24:
+		case FT_INT24:
+			bitwidth = 24;
+			break;
+		case FT_UINT32:
+		case FT_INT32:
+			bitwidth = 32;
+			break;
+		case FT_BOOLEAN:
+			bitwidth = hfinfo->display; /* hacky? :) */
+			break;
+		default:
+			g_assert_not_reached();
+			;
+	}
+	return bitwidth;
+}
+
+static char*
+hfinfo_uint_vals_format(header_field_info *hfinfo)
+{
+	char *format = NULL;
+
+	switch(hfinfo->display) {
+		case BASE_DEC:
+		case BASE_NONE:
+		case BASE_OCT: /* I'm lazy */
+		case BASE_BIN: /* I'm lazy */
+			format = "%s: %s (%u)";
+			break;
+		case BASE_HEX:
+			switch(hfinfo->type) {
+				case FT_UINT8:
+				case FT_INT8:
+					format = "%s: %s (0x%02x)";
+					break;
+				case FT_UINT16:
+				case FT_INT16:
+					format = "%s: %s (0x%04x)";
+					break;
+				case FT_UINT24:
+				case FT_INT24:
+					format = "%s: %s (0x%06x)";
+					break;
+				case FT_UINT32:
+				case FT_INT32:
+					format = "%s: %s (0x%08x)";
+					break;
+				default:
+					g_assert_not_reached();
+					;
+			}
+			break;
+		default:
+			g_assert_not_reached();
+			;
+	}
+	return format;
+}
+
+static char*
+hfinfo_uint_format(header_field_info *hfinfo)
+{
+	char *format = NULL;
+
+	/* Pick the proper format string */
+	switch(hfinfo->display) {
+		case BASE_DEC:
+		case BASE_NONE:
+		case BASE_OCT: /* I'm lazy */
+		case BASE_BIN: /* I'm lazy */
+			format = "%s: %u";
+			break;
+		case BASE_HEX:
+			switch(hfinfo->type) {
+				case FT_UINT8:
+				case FT_INT8:
+					format = "%s: 0x%02x";
+					break;
+				case FT_UINT16:
+				case FT_INT16:
+					format = "%s: 0x%04x";
+					break;
+				case FT_UINT24:
+				case FT_INT24:
+					format = "%s: 0x%06x";
+					break;
+				case FT_UINT32:
+				case FT_INT32:
+					format = "%s: 0x%08x";
+					break;
+				default:
+					g_assert_not_reached();
+					;
+			}
+			break;
+		default:
+			g_assert_not_reached();
+			;
+	}
+	return format;
+}
+
+
 
 int
 proto_registrar_n(void)
@@ -752,18 +1027,19 @@ proto_registrar_get_length(int n)
 			return 0;
 
 		case FT_UINT8:
-		case FT_VALS_UINT8:
+		case FT_INT8:
 			return 1;
 
 		case FT_UINT16:
-		case FT_VALS_UINT16:
+		case FT_INT16:
 			return 2;
 
-		case FT_VALS_UINT24:
+		case FT_UINT24:
+		case FT_INT24:
 			return 3;
 
 		case FT_UINT32:
-		case FT_VALS_UINT32:
+		case FT_INT32:
 		case FT_IPXNET:
 		case FT_IPv4:
 			return 4;
@@ -926,6 +1202,18 @@ proto_registrar_dump(void)
 			case FT_UINT32:
 				enum_name = "FT_UINT32";
 				break;
+			case FT_INT8:
+				enum_name = "FT_INT8";
+				break;
+			case FT_INT16:
+				enum_name = "FT_INT16";
+				break;
+			case FT_INT24:
+				enum_name = "FT_INT24";
+				break;
+			case FT_INT32:
+				enum_name = "FT_INT32";
+				break;
 			case FT_DOUBLE:
 				enum_name = "FT_DOUBLE";
 				break;
@@ -952,18 +1240,6 @@ proto_registrar_dump(void)
 				break;
 			case FT_IPXNET:
 				enum_name = "FT_IPXNET";
-				break;
-			case FT_VALS_UINT8:
-				enum_name = "FT_VALS_UINT8";
-				break;
-			case FT_VALS_UINT16:
-				enum_name = "FT_VALS_UINT16";
-				break;
-			case FT_VALS_UINT24:
-				enum_name = "FT_VALS_UINT24";
-				break;
-			case FT_VALS_UINT32:
-				enum_name = "FT_VALS_UINT32";
 				break;
 			case FT_TEXT_ONLY:
 				enum_name = "FT_TEXT_ONLY";

@@ -1,7 +1,7 @@
 /* packet-aarp.c
  * Routines for Appletalk ARP packet disassembly
  *
- * $Id: packet-aarp.c,v 1.10 1999/10/03 15:21:11 deniel Exp $
+ * $Id: packet-aarp.c,v 1.11 1999/10/12 06:20:00 gram Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -183,23 +183,40 @@ proto_register_aarp(void)
 {
   static hf_register_info hf[] = {
     { &hf_aarp_hard_type,
-      { "Hardware type", "aarp.hard.type",	FT_UINT16,	NULL }},
+      { "Hardware type", "aarp.hard.type",	FT_UINT16, BASE_HEX, 	NULL, 0x0,
+      	"" }},
+
     { &hf_aarp_proto_type,
-      { "Protocol type", "aarp.proto.type",	FT_UINT16,	NULL }},    
+      { "Protocol type", "aarp.proto.type",	FT_UINT16, BASE_HEX, 	NULL, 0x0,
+      	"" }},    
+
     { &hf_aarp_hard_size,
-      { "Hardware size", "aarp.hard.size",	FT_UINT8,	NULL }},
+      { "Hardware size", "aarp.hard.size",	FT_UINT8, BASE_DEC, 	NULL, 0x0,
+      	"" }},
+
     { &hf_aarp_proto_size,
-      { "Protocol size", "aarp.proto.size",	FT_UINT8,	NULL }},
+      { "Protocol size", "aarp.proto.size",	FT_UINT8, BASE_DEC, 	NULL, 0x0,
+      	"" }},
+
     { &hf_aarp_opcode,
-      { "Opcode",	 "aarp.opcode",		FT_UINT16,	NULL }},
+      { "Opcode",	 "aarp.opcode",		FT_UINT16, BASE_DEC,	NULL, 0x0,
+      	"" }},
+
     { &hf_aarp_src_ether,
-      { "Sender ether",	 "aarp.src.ether",	FT_ETHER,	NULL }},
+      { "Sender ether",	 "aarp.src.ether",	FT_ETHER, BASE_NONE,	NULL, 0x0,
+      	"" }},
+
     { &hf_aarp_src_id,
-      { "Sender ID",	 "aarp.src.id",		FT_UINT32,	NULL }},
+      { "Sender ID",	 "aarp.src.id",		FT_UINT32, BASE_HEX,	NULL, 0x0,
+      	"" }},
+
     { &hf_aarp_dst_ether,
-      { "Target ether",	 "aarp.dst.ether",	FT_ETHER,	NULL }},
+      { "Target ether",	 "aarp.dst.ether",	FT_ETHER, BASE_NONE,	NULL, 0x0,
+      	"" }},
+
     { &hf_aarp_dst_id,
-      { "Target ID",	 "aarp.dst.id",		FT_UINT32,	NULL }}
+      { "Target ID",	 "aarp.dst.id",		FT_UINT32, BASE_HEX,	NULL, 0x0,
+      	"" }},
   };
 
   proto_aarp = proto_register_protocol("Appletalk Address Resolution Protocol",

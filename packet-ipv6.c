@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.14 1999/10/11 17:05:49 deniel Exp $
+ * $Id: packet-ipv6.c,v 1.15 1999/10/12 06:20:09 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -414,9 +414,11 @@ proto_register_ipv6(void)
 {
   static hf_register_info hf[] = {
     { &hf_ipv6_src,
-      { "Source",		"ipv6.src",	FT_IPv6,	NULL }},
+      { "Source",		"ipv6.src",	FT_IPv6,	BASE_NONE, NULL, 0x0,
+      	"Source IPv6 Address" }},
     { &hf_ipv6_dst,
-      { "Destination",		"ipv6.dst",	FT_IPv6,	NULL }}
+      { "Destination",		"ipv6.dst",	FT_IPv6,	BASE_NONE, NULL, 0x0,
+      	"Destination IPv6 Address" }}
   };
 
   proto_ipv6 = proto_register_protocol("Internet Protocol Version 6", "ipv6");

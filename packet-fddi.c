@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.21 1999/09/10 04:53:14 guy Exp $
+ * $Id: packet-fddi.c,v 1.22 1999/10/12 06:20:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -348,13 +348,16 @@ proto_register_fddi(void)
 		 * NULL, just show the hex value, else show the string.
 		 */
 		{ &hf_fddi_fc,
-		{ "Frame Control",	"fddi.fc", FT_UINT8, NULL }},
+		{ "Frame Control",	"fddi.fc", FT_UINT8, BASE_HEX, NULL, 0x0,
+			"" }},
 
 		{ &hf_fddi_dst,
-		{ "Destination",	"fddi.dst", FT_ETHER, NULL }},
+		{ "Destination",	"fddi.dst", FT_ETHER, BASE_NONE, NULL, 0x0,
+			"Destination Hardware Address" }},
 
 		{ &hf_fddi_src,
-		{ "Source",		"fddi.src", FT_ETHER, NULL }},
+		{ "Source",		"fddi.src", FT_ETHER, BASE_NONE, NULL, 0x0,
+			"" }},
 	};
 
 	proto_fddi = proto_register_protocol ("Fiber Distributed Data Interface", "fddi" );

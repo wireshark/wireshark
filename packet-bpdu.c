@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.3 1999/10/09 13:05:55 deniel Exp $
+ * $Id: packet-bpdu.c,v 1.4 1999/10/12 06:20:03 gram Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -212,29 +212,41 @@ proto_register_bpdu(void)
 
   static hf_register_info hf[] = {
     { &hf_bpdu_proto_id,
-      { "Protocol Identifier",	"stp.protocol",		FT_UINT16,  NULL }},
+      { "Protocol Identifier",	"stp.protocol",		FT_UINT16,  BASE_HEX, NULL, 0x0,
+      	"" }},
     { &hf_bpdu_version_id,
-      { "Protocol Version Identifier", "stp.version",	FT_UINT8,   NULL }},
+      { "Protocol Version Identifier", "stp.version",	FT_UINT8,   BASE_DEC, NULL, 0x0,
+      	"" }},
     { &hf_bpdu_type,
-      { "BPDU type",		"stp.type",		FT_UINT8,   NULL }},
+      { "BPDU type",		"stp.type",		FT_UINT8,   BASE_HEX, NULL, 0x0,
+      	"" }},
     { &hf_bpdu_flags,
-      { "BPDU flags",		"stp.flags",		FT_UINT8,   NULL }},
+      { "BPDU flags",		"stp.flags",		FT_UINT8,   BASE_HEX, NULL, 0x0,
+      	"" }},
     { &hf_bpdu_root_mac,
-      { "Root Identifier",	"stp.root.hw",		FT_ETHER,   NULL }},
+      { "Root Identifier",	"stp.root.hw",		FT_ETHER,   BASE_NONE, NULL, 0x0,
+      	"" }},
     { &hf_bpdu_root_cost,
-      { "Root Path Cost",	"stp.root.cost",	FT_UINT32,  NULL }},
+      { "Root Path Cost",	"stp.root.cost",	FT_UINT32,  BASE_DEC, NULL, 0x0,
+      	"" }},
     { &hf_bpdu_bridge_mac,
-      { "Bridge Identifier",    "stp.bridge.hw",	FT_ETHER,   NULL }},
+      { "Bridge Identifier",    "stp.bridge.hw",	FT_ETHER,   BASE_NONE, NULL, 0x0,
+      	""}},
     { &hf_bpdu_port_id,
-      { "Port identifier",      "stp.port",		FT_UINT16,  NULL }},
+      { "Port identifier",      "stp.port",		FT_UINT16,  BASE_HEX, NULL, 0x0,
+      	""}},
     { &hf_bpdu_msg_age,
-      { "Message Age",		"stp.msg_age",		FT_DOUBLE,  NULL }},
+      { "Message Age",		"stp.msg_age",		FT_DOUBLE,  BASE_NONE, NULL, 0x0,
+      	"" }},
     { &hf_bpdu_max_age,
-      { "Max Age",		"stp.max_age",		FT_DOUBLE,  NULL }},
+      { "Max Age",		"stp.max_age",		FT_DOUBLE,  BASE_NONE, NULL, 0x0,
+      	"" }},
     { &hf_bpdu_hello_time,
-      { "Hello Time",		"stp.hello",		FT_DOUBLE,  NULL }},
+      { "Hello Time",		"stp.hello",		FT_DOUBLE,  BASE_NONE, NULL, 0x0,
+      	"" }},
     { &hf_bpdu_forward_delay,
-      { "Forward Delay",       	"stp.forward",		FT_DOUBLE,  NULL }}
+      { "Forward Delay",       	"stp.forward",		FT_DOUBLE,  BASE_NONE, NULL, 0x0,
+      	"" }},
   };
 
   proto_bpdu = proto_register_protocol("Spanning Tree Protocol", "stp");
