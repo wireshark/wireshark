@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-giop.c,v 1.17 2000/08/13 14:08:11 deniel Exp $
+ * $Id: packet-giop.c,v 1.18 2000/09/01 16:02:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -300,13 +300,13 @@ dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	proto_tree_add_text(clnp_tree, NullTVB, offset +  6, 1, 
 			 "Flags: 0x%02x (%s%s)", 
 			 header.flags,
-			 (big_endian) ? "little" : "big",
+			 (big_endian) ? "big" : "little",
 			 (header.flags & 0x02) ? " fragment" : "");
 	break;
       case 0  :
 	proto_tree_add_text(clnp_tree, NullTVB, offset +  6, 1, 
 			 "Byte ordering: %s endian",
-			 (big_endian) ? "little" : "big");
+			 (big_endian) ? "big" : "little");
 	break;
       default :
 	break;
