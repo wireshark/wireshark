@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.9 2001/03/15 09:11:00 guy Exp $
+ * $Id: packet-fr.c,v 1.10 2001/03/23 19:22:02 jfoster Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,6 +23,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
+ *
+ * References:
+ *
+ * http://www.protocols.com/pbook/frame.htm
+ * http://www.frforum.com/5000/Approved/FRF.3/FRF.3.2.pdf
+ * RFC-1490 
+ * RFC-2427 
+ * Cisco encapsulation
+ * http://www.trillium.com/whats-new/wp_frmrly.html
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -42,6 +53,22 @@
 #include "oui.h"
 #include "nlpid.h"
 #include "greproto.h"
+#include "conversation.h"
+
+/*
+ * Bits in the address field.
+ */
+#define	FRELAY_DLCI	0xfcf0		/* 2 byte DLCI Address */
+#define	FRELAY_CR	0x0200		/* Command/Response bit */
+#define	FRELAY_EA	0x0001		/* Address Extension bit */
+#define	FRELAY_FECN	0x0008		/* Forward Explicit Congestion Notification */
+#define	FRELAY_BECN	0x0004		/* Backward Explicit Congestion Notification */
+#define	FRELAY_DE	0x0002		/* Discard Eligibility */
+#define	FRELAY_DC	0x0002		/* Control bits */
+
+#define FROM_DCE	0x80		/* for direction setting */
+
+#define NLPID_WCP 0xb0 			/* Wellfleet compression ip */
 
 static gint proto_fr    = -1;
 static gint ett_fr      = -1;
@@ -50,50 +77,95 @@ static gint hf_fr_cr	= -1;
 static gint hf_fr_becn  = -1;
 static gint hf_fr_fecn  = -1;
 static gint hf_fr_de    = -1;
+static gint hf_fr_ea    = -1;
+static gint hf_fr_dc    = -1;
 static gint hf_fr_nlpid = -1;
 static gint hf_fr_oui   = -1;
 static gint hf_fr_pid   = -1;
 static gint hf_fr_snaptype = -1;
 static gint hf_fr_chdlctype = -1;
 
-static dissector_table_t fr_subdissector_table;
+static const true_false_string cmd_string = {
+                "Command",
+                "Response"
+        };
+static const true_false_string ctrl_string = {
+                "DLCI Address",
+                "Control"
+        };
+static const true_false_string ea_string = {
+                "Last Octet",
+                "More Follows"
+        };
+
+dissector_table_t fr_subdissector_table;
 
 static void dissect_lapf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_fr_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-/* see RFC2427 / RFC1490 and Cisco encapsulation */
+
+static void add_dlci( tvbuff_t *tvb, proto_tree *tree) {
+
+/* Display this DLCI address. Use special format because the DLCI address */
+/* is a masked bit field with unused bits in the middle. */
+
+
+   char buf[32];
+   guint16 address = (( tvb_get_guint8( tvb, 0)& 0xfc) << 2) 
+			| ((tvb_get_guint8( tvb, 1) & 0xf0) >> 4);
+
+   decode_bitfield_value( buf, tvb_get_ntohs(tvb, 0), FRELAY_DLCI, 16);
+   proto_tree_add_uint_format( tree, hf_fr_dlci, tvb, 0, 2, address, "%sDLCI: %d", 
+      buf, address);
+}
+
 
 static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *ti;
   proto_tree *fr_tree = NULL;
   guint16 fr_header,fr_type,offset=2; /* default header length of FR is 2 bytes */
-  
+  guint16 address;
   guint8  fr_nlpid,fr_ctrl;
-    
+
+  CHECK_DISPLAY_AS_DATA(proto_fr, tvb, pinfo, tree);
+
+  pinfo->current_proto = "Frame Relay";
   if (check_col(pinfo->fd, COL_PROTOCOL)) 
       col_set_str(pinfo->fd, COL_PROTOCOL, "FR");
-  if (check_col(pinfo->fd, COL_INFO)) 
-      col_clear(pinfo->fd, COL_INFO);
 
-  fr_header = tvb_get_ntohs( tvb, 0 );
+  if (pinfo->pseudo_header->x25.flags & FROM_DCE) {
+        if(check_col(pinfo->fd, COL_RES_DL_DST))
+            col_set_str(pinfo->fd, COL_RES_DL_DST, "DTE");
+        if(check_col(pinfo->fd, COL_RES_DL_SRC))
+            col_set_str(pinfo->fd, COL_RES_DL_SRC, "DCE");
+    }
+    else {
+        if(check_col(pinfo->fd, COL_RES_DL_DST))
+            col_set_str(pinfo->fd, COL_RES_DL_DST, "DCE");
+        if(check_col(pinfo->fd, COL_RES_DL_SRC))
+            col_set_str(pinfo->fd, COL_RES_DL_SRC, "DTE");
+    }
+
+/*XXX We should check the EA bits and use that to generate the address. */
+
+  fr_header = tvb_get_ntohs(tvb, 0);
+  fr_ctrl = tvb_get_guint8( tvb, 2);
+  address = ((fr_header & 0xfc00) >> 6) | ((fr_header & 0xf0) >> 4);
+
   if (check_col(pinfo->fd, COL_INFO)) 
-      col_add_fstr(pinfo->fd, COL_INFO, "DLCI %u",
-		   ((fr_header&0x00FF)>>4)+((fr_header&0xFC00)>>6));
-  
-  fr_header = tvb_get_ntohs( tvb, 0 );
-  fr_ctrl   = tvb_get_guint8( tvb,offset);
-            	
+      col_add_fstr(pinfo->fd, COL_INFO, "DLCI %u", address);
+
   if (tree) {
       ti = proto_tree_add_protocol_format(tree, proto_fr, tvb, 0, 4, "Frame Relay");
       fr_tree = proto_item_add_subtree(ti, ett_fr);
-     
-      proto_tree_add_text(fr_tree,tvb,0,2,"The real DLCI is %u",((fr_header&0x00FF)>>4)+((fr_header&0xFC00)>>6));
-      proto_tree_add_uint(fr_tree, hf_fr_dlci, tvb, 0, 2, fr_header);
-      proto_tree_add_boolean(fr_tree, hf_fr_cr,   tvb, 0, 1, fr_header);
-      proto_tree_add_boolean(fr_tree, hf_fr_fecn, tvb, 1, 1, fr_header);
-      proto_tree_add_boolean(fr_tree, hf_fr_becn, tvb, 1, 1, fr_header);
-      proto_tree_add_boolean(fr_tree, hf_fr_de,   tvb, 1, 1, fr_header);
+
+      add_dlci(tvb, fr_tree); 
+      proto_tree_add_boolean(fr_tree, hf_fr_cr,   tvb, 0, offset, fr_header);
+      proto_tree_add_boolean(fr_tree, hf_fr_fecn, tvb, 0, offset, fr_header);
+      proto_tree_add_boolean(fr_tree, hf_fr_becn, tvb, 0, offset, fr_header);
+      proto_tree_add_boolean(fr_tree, hf_fr_de,   tvb, 0, offset, fr_header);
+      proto_tree_add_boolean(fr_tree, hf_fr_ea,   tvb, 0, offset, fr_header);
   }
 
   if (fr_ctrl == XDLC_U) {
@@ -117,6 +189,8 @@ static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (tree)
 		proto_tree_add_uint(fr_tree, hf_fr_nlpid, tvb, offset, 1, fr_nlpid );
       offset++;
+
+      SET_ADDRESS(&pinfo->dl_src, AT_DLCI, 2, (guint8*)&address);
 
       if (fr_nlpid == NLPID_SNAP) {
 		dissect_snap(tvb, offset, pinfo, tree, fr_tree, fr_ctrl,
@@ -186,21 +260,29 @@ static void dissect_fr_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void proto_register_fr(void)
 {                 
   static hf_register_info hf[] = {
+
         { &hf_fr_dlci, { 
            "DLCI", "fr.dlci", FT_UINT16, BASE_DEC, 
-            NULL, 0xFCF0, "Data-Link Connection Identifier" }},
+            NULL, FRELAY_DLCI, "Data-Link Connection Identifier" }},
         { &hf_fr_cr, { 
-           "CR", "fr.cr", FT_BOOLEAN, 16, 
-            NULL, 0x0200, "Command/Response" }},
+           "CR", "fr.cr", FT_BOOLEAN, 16, TFS(&cmd_string),
+            FRELAY_CR, "Command/Response" }},
+        { &hf_fr_dc, { 
+           "DC", "fr.dc", FT_BOOLEAN, 16, TFS(&ctrl_string),
+            FRELAY_CR, "Address/Control" }},
+
         { &hf_fr_fecn, { 
            "FECN", "fr.fecn", FT_BOOLEAN, 16, 
-            NULL, 0x0008, "Forward Explicit Congestion Notification" }},
+            NULL, FRELAY_FECN, "Forward Explicit Congestion Notification" }},
         { &hf_fr_becn, { 
            "BECN", "fr.becn", FT_BOOLEAN, 16, 
-            NULL, 0x0004, "Backward Explicit Congestion Notification" }},
+            NULL, FRELAY_BECN, "Backward Explicit Congestion Notification" }},
         { &hf_fr_de, { 
            "DE", "fr.de", FT_BOOLEAN, 16, 
-            NULL, 0x0002, "Discard Eligibility" }},
+            NULL, FRELAY_DE, "Discard Eligibility" }},
+        { &hf_fr_ea, { 
+           "EA", "fr.ea", FT_BOOLEAN, 16, TFS(&ea_string),
+            FRELAY_EA, "Extended Address" }},
         { &hf_fr_nlpid, { 
            "NLPID", "fr.nlpid", FT_UINT8, BASE_HEX, 
             NULL, 0x0, "FrameRelay Encapsulated Protocol NLPID" }},
