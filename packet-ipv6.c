@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.36 2000/05/11 08:15:14 gram Exp $
+ * $Id: packet-ipv6.c,v 1.37 2000/05/24 07:52:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -147,7 +147,7 @@ dissect_frag6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
     *fragstart = ntohs(frag.ip6f_offlg) & 0xfff8;
     if (check_col(fd, COL_INFO)) {
 	col_add_fstr(fd, COL_INFO,
-	    "IPv6 fragment (nxt=%s (0x%02x) off=0x%04x id=0x%x)",
+	    "IPv6 fragment (nxt=%s (0x%02x) off=%u id=0x%x)",
 	    ipprotostr(frag.ip6f_nxt), frag.ip6f_nxt,
 	    *fragstart, frag.ip6f_ident);
     }
