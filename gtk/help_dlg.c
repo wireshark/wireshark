@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.30 2003/01/26 19:35:31 deniel Exp $
+ * $Id: help_dlg.c,v 1.31 2003/01/29 12:58:48 jmayer Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -47,7 +47,8 @@ typedef enum {
   OVERVIEW_HELP,
   PROTOCOL_HELP,
   DFILTER_HELP,
-  CFILTER_HELP
+  CFILTER_HELP,
+  FAQ_HELP
 } help_type_t;
 
 static void help_close_cb(GtkWidget *w, gpointer data);
@@ -60,13 +61,13 @@ static void set_help_text(GtkWidget *w, help_type_t type);
  * if somebody tries to do "Help->Help" while there's already a
  * "Help" window up, we just pop up the existing one, rather than
  * creating a new one.
- */
+*/
 static GtkWidget *help_w = NULL;
 
 /*
  * Keep static pointers to the text widgets as well.
  */
-GtkWidget *overview_text, *proto_text, *dfilter_text, *cfilter_text;
+GtkWidget *overview_text, *proto_text, *dfilter_text, *faq_text, *cfilter_text;
 
 void help_cb(GtkWidget *w _U_, gpointer data _U_)
 {
@@ -79,6 +80,7 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
 #else
     *dfilter_vb,
 #endif
+    *faq_vb,
     *cfilter_vb;
 
   if (help_w != NULL) {
@@ -247,6 +249,36 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_notebook_append_page(GTK_NOTEBOOK(help_nb), dfilter_vb, label);
 #endif
 
+  /* FAQ help (this one has no horizontal scrollbar) */
+
+  faq_vb = gtk_vbox_new(FALSE, 0);
+  gtk_container_border_width(GTK_CONTAINER(faq_vb), 1);
+  txt_scrollw = scrolled_window_new(NULL, NULL);
+  gtk_box_pack_start(GTK_BOX(faq_vb), txt_scrollw, TRUE, TRUE, 0);
+#if GTK_MAJOR_VERSION < 2
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
+				 GTK_POLICY_NEVER,
+				 GTK_POLICY_ALWAYS);
+  faq_text = gtk_text_new(NULL, NULL );
+  gtk_text_set_editable(GTK_TEXT(faq_text), FALSE);
+  gtk_text_set_word_wrap(GTK_TEXT(faq_text), TRUE);
+  gtk_text_set_line_wrap(GTK_TEXT(faq_text), TRUE);
+#else
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
+				 GTK_POLICY_NEVER,
+				 GTK_POLICY_AUTOMATIC);
+  faq_text = gtk_text_view_new();
+  gtk_text_view_set_editable(GTK_TEXT_VIEW(faq_text), FALSE);
+  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(faq_text), GTK_WRAP_WORD);
+#endif
+  set_help_text(faq_text, FAQ_HELP);
+  gtk_container_add(GTK_CONTAINER(txt_scrollw), faq_text);
+  gtk_widget_show(txt_scrollw);
+  gtk_widget_show(faq_text);
+  gtk_widget_show(faq_vb);
+  label = gtk_label_new("FAQ");
+  gtk_notebook_append_page(GTK_NOTEBOOK(help_nb), faq_vb, label);
+
   /* capture filter help (this one has no horizontal scrollbar) */
 
   cfilter_vb = gtk_vbox_new(FALSE, 0);
@@ -336,6 +368,10 @@ static char *proto_help =
 static char *dfilter_help =
 "The following per-protocol fields can be used in display\n"
 "filters:\n";
+
+static char *faq_help =
+#include "../FAQ.include"
+"\n";
 
 static char *cfilter_help =
 "Packet capturing is performed with the pcap library. The capture filter "
@@ -507,6 +543,9 @@ static void set_help_text(GtkWidget *w, help_type_t type)
     height = (1 + nb_lines) * m_font_height;
     WIDGET_SET_SIZE(w, 20 + width, 20 + height);
 #endif
+    break;
+  case FAQ_HELP :
+    insert_text(w, faq_help, -1);
     break;
   case CFILTER_HELP :
     insert_text(w, cfilter_help, -1);

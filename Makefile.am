@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.548 2003/01/25 00:22:49 guy Exp $
+# $Id: Makefile.am,v 1.549 2003/01/29 12:58:45 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -1026,6 +1026,7 @@ DISTCLEANFILES =	\
 EXTRA_DIST = \
 	Ethereal.desktop	\
 	FAQ			\
+	FAQ.include		\
 	INSTALL.configure       \
 	Makefile.nmake		\
 	README.aix		\
