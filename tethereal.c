@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.246 2004/07/08 10:36:27 guy Exp $
+ * $Id: tethereal.c,v 1.247 2004/07/09 09:21:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1382,9 +1382,11 @@ main(int argc, char *argv[])
     exit(1);
   }
 
-  if (output_action != WRITE_TEXT) {
-    fprintf(stderr, "tethereal: Raw packet hex data can only be printed as text or PostScript\n");
-    exit(1);
+  if (print_hex) {
+    if (output_action != WRITE_TEXT) {
+      fprintf(stderr, "tethereal: Raw packet hex data can only be printed as text or PostScript\n");
+      exit(1);
+    }
   }
 
 #ifdef HAVE_LIBPCAP
