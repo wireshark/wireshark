@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.50 2002/02/10 22:41:48 guy Exp $
+ * $Id: packet-arp.c,v 1.51 2002/03/10 00:05:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -752,6 +752,8 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_add_fstr(pinfo->cinfo, COL_INFO, "Who is %s?  Tell %s", tha_str, sha_str);
         break;
       case ARPOP_RREPLY:
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s", tha_str, tpa_str);
+        break;
       case ARPOP_IREPLY:
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s", sha_str, spa_str);
         break;
