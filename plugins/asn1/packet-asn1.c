@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2003 by Matthijs Melchior <matthijs.melchior@xs4all.nl>
  *
- * $Id: packet-asn1.c,v 1.20 2004/02/22 23:53:57 guy Exp $
+ * $Id: packet-asn1.c,v 1.21 2004/03/02 23:45:34 jmayer Exp $
  *
  * A plugin for:
  *
@@ -97,7 +97,7 @@
 
 /* Define version if we are not building ethereal statically */
 
-#ifndef __ETHEREAL_STATIC__
+#ifndef ENABLE_STATIC
 G_MODULE_EXPORT const gchar version[] = VERSION;
 #endif
 

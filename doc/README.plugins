@@ -1,4 +1,4 @@
-$Id: README.plugins,v 1.9 2003/11/06 09:52:28 guy Exp $
+$Id: README.plugins,v 1.10 2004/03/02 23:45:33 jmayer Exp $
 
 Plugins
 
@@ -44,7 +44,7 @@ to reference the address table.
 
 Plugins need to provide the following exported constants:
 
-#ifndef __ETHEREAL_STATIC__
+#ifndef ENABLE_STATIC
 G_MODULE_EXPORT const gchar version[] = VERSION;
 #endif 
 
@@ -57,8 +57,9 @@ the object for linking into a static ethereal binary.
 
 The following two functions need to be exported by the plugin:
 
-#ifndef __ETHEREAL_STATIC__
-G_MODULE_EXPORT void plugin_init(plugin_address_table_t *pat)
+#ifndef ENABLE_STATIC
+G_MODULE_EXPORT void
+plugin_init(plugin_address_table_t *pat)
 #endif
 
 This function is called by Ethereal when the plugin is initialized; it's
@@ -76,8 +77,9 @@ Here is a sample code for the function:
 		proto_register_xxx();
 	}
 
-#ifndef __ETHEREAL_STATIC__
-G_MODULE_EXPORT void plugin_reg_handoff(void)
+#ifndef ENABLE_STATIC
+G_MODULE_EXPORT void
+plugin_reg_handoff(void)
 #endif
 
 This function is called by Ethereal after all dissectors, including all

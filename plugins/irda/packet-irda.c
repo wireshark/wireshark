@@ -6,7 +6,7 @@
  * Extended by Jan Kiszka <jan.kiszka@web.de>
  * Copyright 2003 Jan Kiszka
  *
- * $Id: packet-irda.c,v 1.5 2004/01/18 14:03:37 guy Exp $
+ * $Id: packet-irda.c,v 1.6 2004/03/02 23:45:34 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -146,7 +146,7 @@
 #define TTP_MORE               0x80
 
 
-#ifndef __ETHEREAL_STATIC__
+#ifndef ENABLE_STATIC
 G_MODULE_EXPORT const gchar version[] = VERSION;
 #endif
 
@@ -2330,14 +2330,16 @@ static void proto_reg_handoff_irda(void)
 
 /* Start the functions we need for the plugin stuff */
 
-#ifndef __ETHEREAL_STATIC__
+#ifndef ENABLE_STATIC
 
-G_MODULE_EXPORT void plugin_reg_handoff(void)
+G_MODULE_EXPORT void
+plugin_reg_handoff(void)
 {
     proto_reg_handoff_irda();
 }
 
-G_MODULE_EXPORT void plugin_init(plugin_address_table_t* pat
+G_MODULE_EXPORT void
+plugin_init(plugin_address_table_t* pat
 #ifndef PLUGINS_NEED_ADDRESS_TABLE
 _U_
 #endif
