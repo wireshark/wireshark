@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  * 
- * $Id: packet-wtp.c,v 1.31 2002/04/09 06:02:24 guy Exp $
+ * $Id: packet-wtp.c,v 1.32 2002/04/17 08:30:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -283,7 +283,7 @@ static void show_fragments(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			    "Frame:%u payload:%u-%u",
 			    fd->frame, offset, offset+fd->len-1);
 		}
-		offset = fd->len;
+		offset += fd->len;
 	}
 	if (fd_head->flags & (FD_OVERLAPCONFLICT
                         |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
