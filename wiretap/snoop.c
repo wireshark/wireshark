@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.56 2002/09/04 19:29:59 guy Exp $
+ * $Id: snoop.c,v 1.57 2002/11/13 21:49:58 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -159,14 +159,14 @@ int snoop_open(wtap *wth, int *err)
 		WTAP_ENCAP_UNKNOWN,	/* Character Synchronous, e.g. bisync */
 		WTAP_ENCAP_UNKNOWN,	/* IBM Channel-to-Channel */
 		WTAP_ENCAP_FDDI_BITSWAPPED,
-		WTAP_ENCAP_UNKNOWN,	/* Other */
+		WTAP_ENCAP_RAW_IP,	/* Other */
 		WTAP_ENCAP_UNKNOWN,	/* Frame Relay LAPF */
 		WTAP_ENCAP_UNKNOWN,	/* Multi-protocol over Frame Relay */
 		WTAP_ENCAP_UNKNOWN,	/* Character Async (e.g., SLIP and PPP?) */
 		WTAP_ENCAP_UNKNOWN,	/* X.25 Classical IP */
-		WTAP_ENCAP_UNKNOWN,	/* software loopback */
+		WTAP_ENCAP_RAW_IP,	/* software loopback */
 		WTAP_ENCAP_UNKNOWN,	/* not defined in "dlpi.h" */
-		WTAP_ENCAP_UNKNOWN,	/* Fibre Channel */
+		WTAP_ENCAP_IP_OVER_FC,	/* Fibre Channel */
 		WTAP_ENCAP_UNKNOWN,	/* ATM */
 		WTAP_ENCAP_ATM_SNIFFER,	/* ATM Classical IP */
 		WTAP_ENCAP_UNKNOWN,	/* X.25 LAPB */
