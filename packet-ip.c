@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.8 1998/10/16 01:18:31 gerald Exp $
+ * $Id: packet-ip.c,v 1.9 1998/10/20 05:31:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,7 +53,6 @@ dissect_ipopt_security(GtkWidget *opt_tree, const char *name,
 {
   GtkWidget *field_tree = NULL, *tf;
   guint      val;
-  gchar     *secl_str;
   static value_string secl_vals[] = {
     {IPSEC_UNCLASSIFIED, "Unclassified"},
     {IPSEC_CONFIDENTIAL, "Confidential"},
@@ -78,12 +77,8 @@ dissect_ipopt_security(GtkWidget *opt_tree, const char *name,
   offset += 2;
 
   val = pntohs(opd);
-  if ((secl_str = match_strval(val, secl_vals)))
-    add_item_to_tree(field_tree, offset,       2,
-              "Security: %s", secl_str);
-  else
-    add_item_to_tree(field_tree, offset,       2,
-              "Security: Unknown (0x%x)", val);
+  add_item_to_tree(field_tree, offset,       2,
+              "Security: %s", val_to_str(val, secl_vals, "Unknown (0x%x)"));
   offset += 2;
   opd += 2;
 
@@ -166,7 +161,6 @@ dissect_ipopt_timestamp(GtkWidget *opt_tree, const char *name, const u_char *opd
   int        ptr;
   int        optoffset = 0;
   int        flg;
-  gchar     *flg_str;
   static value_string flag_vals[] = {
     {IPOPT_TS_TSONLY,    "Time stamps only"                      },
     {IPOPT_TS_TSANDADDR, "Time stamp and address"                },
@@ -197,12 +191,8 @@ dissect_ipopt_timestamp(GtkWidget *opt_tree, const char *name, const u_char *opd
   add_item_to_tree(field_tree, offset + optoffset,   1,
         "Overflow: %d", flg >> 4);
   flg &= 0xF;
-  if ((flg_str = match_strval(flg, flag_vals)))
-    add_item_to_tree(field_tree, offset + optoffset, 1,
-        "Flag: %s", flg_str);
-  else
-    add_item_to_tree(field_tree, offset + optoffset, 1,
-        "Flag: Unknown (0x%x)", flg);
+  add_item_to_tree(field_tree, offset + optoffset, 1,
+        "Flag: %s", val_to_str(flg, flag_vals, "Unknown (0x%x)"));
   optoffset++;
   opd++;
   optlen--;
@@ -396,7 +386,6 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   GtkWidget *ip_tree, *ti, *field_tree, *tf;
   gchar      tos_str[32];
   guint      hlen, optlen;
-  gchar     *proto_str;
   static value_string proto_vals[] = { {IP_PROTO_ICMP, "ICMP"},
                                        {IP_PROTO_IGMP, "IGMP"},
                                        {IP_PROTO_TCP,  "TCP" },
@@ -471,11 +460,8 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       iph.ip_off & IP_OFFSET);
     add_item_to_tree(ip_tree, offset +  8, 1, "Time to live: %d",
       iph.ip_ttl);
-    if ((proto_str = match_strval(iph.ip_p, proto_vals)))
-      add_item_to_tree(ip_tree, offset +  9, 1, "Protocol: %s", proto_str);
-    else
-      add_item_to_tree(ip_tree, offset +  9, 1, "Protocol: Unknown (%x)",
-        iph.ip_p);
+    add_item_to_tree(ip_tree, offset +  9, 1, "Protocol: %s",
+      val_to_str(iph.ip_p, proto_vals, "Unknown (%x)"));
     add_item_to_tree(ip_tree, offset + 10, 2, "Header checksum: 0x%04x",
       iph.ip_sum);
     add_item_to_tree(ip_tree, offset + 12, 4, "Source address: %s",

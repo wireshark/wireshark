@@ -82,19 +82,8 @@ dissect_ddp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   
   if (fd->win_info[COL_NUM]) {
     strcpy(fd->win_info[COL_PROTOCOL], "DDP");
-    switch (ddp.type) {
-      case DDP_RTMPDATA:
-      case DDP_RTMPREQ:
-      case DDP_NBP:
-      case DDP_ATP:
-      case DDP_AEP:
-      case DDP_ZIP:
-      case DDP_ADSP:
-        strcpy(fd->win_info[COL_INFO], match_strval(ddp.type,op_vals));
-        break;
-      default:
-        sprintf(fd->win_info[COL_INFO], "Unknown DDP protocol (%02x)", ddp.type);
-    }
+    strcpy(fd->win_info[COL_INFO],
+      val_to_str(ddp.type, op_vals, "Unknown DDP protocol (%02x)"));
 
     sprintf(fd->win_info[COL_SOURCE],"%d.%d:%d",ddp.snet,ddp.snode,ddp.sport);
     sprintf(fd->win_info[COL_DESTINATION], "%d.%d:%d",ddp.dnet,ddp.dnode,ddp.dport);

@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.6 1998/10/13 07:03:34 guy Exp $
+ * $Id: packet-ospf.c,v 1.7 1998/10/20 05:31:01 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -61,33 +61,22 @@ dissect_ospf(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
     GtkWidget *ospf_header_tree;
     char auth_data[9]="";
     char *packet_type;
+    static value_string pt_vals[] = { {OSPF_HELLO,   "Hello Packet"   },
+                                      {OSPF_DB_DESC, "DB Descr."      },
+                                      {OSPF_LS_REQ,  "LS Request"     },
+                                      {OSPF_LS_UPD,  "LS Update"      },
+                                      {OSPF_LS_ACK,  "LS Acknowledge" },
+                                      {0,             NULL            } };
 
     memcpy(&ospfh, &pd[offset], sizeof(e_ospfhdr));
 
-    switch(ospfh.packet_type) {
-        case OSPF_HELLO:
-	    packet_type="Hello Packet";
-            break;
-        case OSPF_DB_DESC:
-	    packet_type="DB Descr.";
-            break;
-        case OSPF_LS_REQ:
-	    packet_type="LS Request";
-            break;
-        case OSPF_LS_UPD:
-	    packet_type="LS Update";
-            break;
-        case OSPF_LS_ACK:
-	    packet_type="LS Acknowledge";
-            break;
-       default:
-	    /* XXX - set it to some string with the value of
-	       "ospfh.packet_type"? */
-            break;
-    }
+    packet_type = match_strval(ospfh.packet_type, pt_vals);
     if (fd->win_info[COL_NUM]) {
         strcpy(fd->win_info[COL_PROTOCOL], "OSPF");
-        sprintf(fd->win_info[COL_INFO], "%s", packet_type); 
+        if (packet_type != NULL)
+            sprintf(fd->win_info[COL_INFO], "%s", packet_type); 
+        else
+            sprintf(fd->win_info[COL_INFO], "Unknown (%d)", ospfh.packet_type); 
     }  
 
     if (tree) {
@@ -101,7 +90,10 @@ dissect_ospf(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
         add_item_to_tree(ospf_header_tree, offset, 1, "OSPF Version: %d", ospfh.version);  
 	add_item_to_tree(ospf_header_tree, offset + 1 , 1, "OSPF Packet Type: %d (%s)", 
-	                                                   ospfh.packet_type, packet_type);
+	                                                   ospfh.packet_type,
+							   (packet_type != NULL ?
+							     packet_type :
+							     "Unknown"));
 	add_item_to_tree(ospf_header_tree, offset + 2 , 2, "Packet Legth: %d", 
 	                                                   ntohs(ospfh.length));
 	add_item_to_tree(ospf_header_tree, offset + 4 , 4, "Source OSPF Router ID: %s", 
