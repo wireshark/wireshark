@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.80 2002/05/04 10:00:18 guy Exp $
+ * $Id: ngsniffer.c,v 1.81 2002/06/04 21:56:45 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1360,10 +1360,12 @@ static void free_blob(gpointer data, gpointer user_data _U_)
 	g_free(data);
 }
 
+/* Close stuff used by the random I/O stream, if any, and free up any
+   private data structures.  (If there's a "sequential_close" routine
+   for a capture file type, it'll be called before the "close" routine
+   is called, so we don't have to free the sequential buffer here.) */
 static void ngsniffer_close(wtap *wth)
 {
-	if (wth->capture.ngsniffer->seq.buf != NULL)
-		g_free(wth->capture.ngsniffer->seq.buf);
 	if (wth->capture.ngsniffer->rand.buf != NULL)
 		g_free(wth->capture.ngsniffer->rand.buf);
 	if (wth->capture.ngsniffer->first_blob != NULL) {
