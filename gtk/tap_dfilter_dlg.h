@@ -2,7 +2,7 @@
  * Header file for display filter dialog used by GTK gui taps
  * Copyright 2003 Lars Roland
  *
- * $Id: tap_dfilter_dlg.h,v 1.2 2003/12/19 23:41:55 guy Exp $
+ * $Id: tap_dfilter_dlg.h,v 1.3 2004/06/02 22:13:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,4 +23,14 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-void gtk_tap_dfilter_dlg_cb(GtkWidget *w, gpointer data);
+/** @file
+ *  Display filter dialog box used by GTK gui taps.
+ */
+
+/**
+ * Create the filter dialog box.
+ *
+ * @param widget parent widget (unused)
+ * @param data the dfilter tap dialog
+ */
+void gtk_tap_dfilter_dlg_cb(GtkWidget *widget, gpointer data);

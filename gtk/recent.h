@@ -2,7 +2,7 @@
  * Definitions for recent "preference" handling routines
  * Copyright 2004, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: recent.h,v 1.9 2004/05/30 11:54:37 ulfl Exp $
+ * $Id: recent.h,v 1.10 2004/06/02 22:13:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,10 +28,17 @@
 
 #include <glib.h>
 
+/** @file
+ *  Recent user interface settings.
+ */
 
+/** ???. */
 #define RECENT_KEY_CAPTURE_FILE         "recent.capture_file"
+
+/** ???. */
 #define RECENT_KEY_DISPLAY_FILTER       "recent.display_filter"
 
+/** Recent settings. */
 typedef struct recent_settings_tag {
     gboolean    main_toolbar_show;
     gboolean    filter_toolbar_show;
@@ -54,13 +61,29 @@ typedef struct recent_settings_tag {
     gint        gui_geometry_status_pane;       /* this is valid in GTK2 only */
 } recent_settings_t;
 
+/** Global recent settings. */
 extern recent_settings_t recent;
 
-
+/** Write recent settings file.
+ *
+ * @param rf_path_return path to recent file if function failed
+ * @return 0 if succeeded, errno if failed
+ */
 extern int write_recent(char **rf_path_return);
 
+/** Read recent settings file.
+ *
+ * @param rf_path_return path to recent file if function failed
+ * @param rf_errno_return if failed
+ */
 extern void read_recent(char **rf_path_return, int *rf_errno_return);
 
+/** Write the geometry values of a single window to the recent file.
+ *
+ * @param key unused
+ * @param value the geometry values
+ * @param rf recent file handle (FILE)
+ */
 extern void write_recent_geom(gpointer key, gpointer value, gpointer rf);
 
 #endif /* recent.h */

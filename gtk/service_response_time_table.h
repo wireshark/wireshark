@@ -3,7 +3,7 @@
  * Helper routines common to all service response time statistics
  * tap.
  *
- * $Id: service_response_time_table.h,v 1.2 2003/09/05 10:26:44 sahlberg Exp $
+ * $Id: service_response_time_table.h,v 1.3 2004/06/02 22:13:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,6 +27,10 @@
 #include <gtk/gtk.h>
 #include "epan/nstime.h"
 
+/** @file
+ * Helper routines common to all service response time statistics tap.
+ *  @todo complete this?
+ */
 
 typedef struct _srt_procedure_t {
 	char *entries[6];

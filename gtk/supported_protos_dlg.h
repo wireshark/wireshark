@@ -2,7 +2,7 @@
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
- * $Id: supported_protos_dlg.h,v 1.2 2004/02/20 22:37:50 guy Exp $
+ * $Id: supported_protos_dlg.h,v 1.3 2004/06/02 22:13:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,9 +27,19 @@
 #ifndef __SUPPORTED_DLG_H__
 #define __SUPPORTED_DLG_H__
 
-void supported_cb(GtkWidget *, gpointer);
+/** @file
+ *  "Supported Protocols" dialog box.
+ */
 
-/* Redraw all the text widgets, to use a new font. */
+/**
+ * Create the supported protos dialog box.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+void supported_cb(GtkWidget *widget, gpointer data);
+
+/** Redraw all the supported protos text widgets, to use a new font. */
 void supported_redraw(void);
 
 #endif

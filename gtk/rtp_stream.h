@@ -1,7 +1,7 @@
 /* rtp_stream.h
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream.h,v 1.5 2004/01/26 19:16:30 obiot Exp $
+ * $Id: rtp_stream.h,v 1.6 2004/06/02 22:13:04 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -30,6 +30,11 @@
 
 #include <glib.h>
 #include <stdio.h>
+
+/** @file
+ *  ??? 
+ *  @todo what's this?
+ */
 
 /****************************************************************************/
 /* type for storing rtp frame information */

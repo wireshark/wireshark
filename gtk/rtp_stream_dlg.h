@@ -1,7 +1,7 @@
 /* rtp_stream_dlg.h
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream_dlg.h,v 1.1 2003/09/24 07:48:11 guy Exp $
+ * $Id: rtp_stream_dlg.h,v 1.2 2004/06/02 22:13:04 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -30,16 +30,22 @@
 
 #include <gtk/gtk.h>
 
-/*
-* Create or reactivate the rtp streams dialog box.
-* list: pointer to list of rtp_stream_info_t*
-*/
+/** @file
+ *  "RTP Stream Analysis" dialog box.
+ */
+
+/**
+ * Create or reactivate the rtp streams dialog box.
+ *
+ * @param list pointer to list of rtp_stream_info_t*
+ */
 void rtpstream_dlg_show(GList *list);
 
-/*
-* Update the contents of the dialog box clist with that of list.
-* list: pointer to list of rtp_stream_info_t*
-*/
+/**
+ * Update the contents of the dialog box clist with that of list.
+ *
+ * @param list pointer to list of rtp_stream_info_t*
+ */
 void rtpstream_dlg_update(GList *list);
 
 #endif /*RTP_STREAM_DLG_H_INCLUDED*/

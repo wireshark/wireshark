@@ -1,7 +1,7 @@
 /* tap_menu.h
  * Menu definitions for use by taps
  *
- * $Id: tap_menu.h,v 1.4 2004/02/23 20:28:31 ulfl Exp $
+ * $Id: tap_menu.h,v 1.5 2004/06/02 22:13:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,42 +29,54 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/*
+/** @file
+ * Add a new menu item for a tap.
+ */
+
+/** The menu group this tap should be registered at. */
+typedef struct {
+    REGISTER_TAP_GROUP_NONE,
+    REGISTER_TAP_GROUP_GENERIC,
+    REGISTER_TAP_GROUP_CONVERSATION_LIST,
+    REGISTER_TAP_GROUP_ENDPOINT_LIST,
+    REGISTER_TAP_GROUP_RESPONSE_TIME
+} REGISTER_TAP_GROUP_E;
+
+/**
  * Add a new menu item for a tap.
  * This must be called after we've created the main menu, so it can't
  * be called from the routine that registers taps - we have to introduce
  * another per-tap registration routine.
  *
- * "callback" gets called when the menu item is selected; it should do
+ * @param name the menu label
+ *
+ * @param group the menu group, this tap should be registered to
+ *
+ * @param callback gets called when the menu item is selected; it should do
  * the work of creating the tap window.
  *
- * "selected_packet_enabled" gets called by "set_menus_for_selected_packet()";
+ * @param selected_packet_enabled gets called by set_menus_for_selected_packet();
  * it's passed a pointer to the "frame_data" structure for the current frame,
  * if any, and to the "epan_dissect_t" structure for that frame, if any, and
  * should return TRUE if the tap will work now (which might depend on whether
  * a frame is selected and, if one is, on the frame) and FALSE if not.
  *
- * "selected_tree_row_enabled" gets called by
- * "set_menus_for_selected_tree_row()"; it's passed a pointer to the
+ * @param selected_tree_row_enabled gets called by
+ * set_menus_for_selected_tree_row(); it's passed a pointer to the
  * "field_info" structure for the currently selected field, if any,
  * and should return TRUE if the tap will work now (which might depend on
  * whether a tree row is selected and, if one is, on the tree row) and
  * FALSE if not.
- */
+ *
+ * @param callback_data data for callback function
+ */    
 extern void register_tap_menu_item(
     char *name, 
-    gint group,
+    REGISTER_TAP_GROUP_E group,
     GtkItemFactoryCallback callback,
     gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *),
     gboolean (*selected_tree_row_enabled)(field_info *),
     gpointer callback_data);
-
-/* XXX: would it better to use an enum here? */
-#define REGISTER_TAP_GROUP_GENERIC              0
-#define REGISTER_TAP_GROUP_CONVERSATION_LIST    1
-#define REGISTER_TAP_GROUP_ENDPOINT_LIST        2
-#define REGISTER_TAP_GROUP_RESPONSE_TIME        3
-#define REGISTER_TAP_GROUP_NONE                 10
 
 #ifdef __cplusplus
 }

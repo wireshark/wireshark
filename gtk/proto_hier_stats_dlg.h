@@ -1,6 +1,6 @@
 /* proto_hier_stats_dlg.h
  *
- * $Id: proto_hier_stats_dlg.h,v 1.2 2002/09/05 18:47:47 jmayer Exp $
+ * $Id: proto_hier_stats_dlg.h,v 1.3 2004/06/02 22:13:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,7 +25,15 @@
 #ifndef __PROTO_HIER_STATS_DLG_H__
 #define __PROTO_HIER_STATS_DLG_H__
 
-void
-proto_hier_stats_cb(GtkWidget *w, gpointer d);
+/** @file
+ *  "Protocol Hierarchy" statistics window.
+ */
+
+/** Show protocol hierarchy statistics.
+ * 
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void proto_hier_stats_cb(GtkWidget *widget, gpointer data);
 
 #endif

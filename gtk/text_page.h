@@ -1,7 +1,7 @@
 /* text_page.h
  * Declarations of routine to construct a simple text page from a file.
  *
- * $Id: text_page.h,v 1.1 2004/05/22 04:25:57 guy Exp $
+ * $Id: text_page.h,v 1.2 2004/06/02 22:13:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,6 +25,15 @@
 #ifndef __TEXT_PAGE_H__
 #define __TEXT_PAGE_H__
 
+/** @file
+ *  Construct a simple text page widget from a file.
+ */
+
+/** Construct a simple text page widget from a file (UTF8 encoded).
+ *
+ * @param absolute_path the path to the text file
+ * @return the new widget
+ */
 extern GtkWidget * text_page_new(const char *absolute_path);
 
 #endif /* __TEXT_PAGE_H__ */

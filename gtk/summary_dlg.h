@@ -1,7 +1,7 @@
 /* summary_dlg.h
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.h,v 1.2 2000/04/01 09:16:49 guy Exp $
+ * $Id: summary_dlg.h,v 1.3 2004/06/02 22:13:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,6 +26,16 @@
 #ifndef __SUMMARY_DLG_H__
 #define __SUMMARY_DLG_H__
 
-void summary_open_cb(GtkWidget *w, gpointer d);
+/** @file
+ *  "Summary" dialog box.
+ */
+
+/**
+ * Create the summary dialog box.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+void summary_open_cb(GtkWidget *widget, gpointer data);
 
 #endif /* __SUMMARY_DLG_H__ */
