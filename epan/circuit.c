@@ -1,7 +1,7 @@
 /* circuit.c
  * Routines for building lists of packets that are part of a "circuit"
  *
- * $Id: circuit.c,v 1.7 2002/11/28 08:25:59 guy Exp $
+ * $Id: circuit.c,v 1.8 2004/01/09 01:02:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -161,7 +161,7 @@ circuit_new(circuit_type ctype, guint32 circuit_id, guint32 first_frame)
 		/*
 		 * Yes.  Find the last circuit in the list of circuits
 		 * with this circuit ID, and if its last frame isn't
-		 * know, make it be the previous frame to this one.
+		 * known, make it be the previous frame to this one.
 		 */
 		while (old_circuit->next != NULL)
 			old_circuit = old_circuit->next;
