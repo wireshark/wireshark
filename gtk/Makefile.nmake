@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.34 2002/11/06 10:53:36 sahlberg Exp $
+# $Id: Makefile.nmake,v 1.35 2002/11/07 05:31:39 guy Exp $
 
 include ..\config.nmake
 
@@ -22,9 +22,11 @@ CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
    $(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
 
 ETHEREAL_TAP_SRC = \
-	dcerpc_stat.obj	\
-	rpc_stat.obj	\
-	rpc_progs.obj	
+	dcerpc_stat.c	\
+	rpc_stat.c	\
+	rpc_progs.c
+
+ETHEREAL_TAP_OBJECTS = $(ETHEREAL_TAP_SRC:.c=.obj)
 
 # gtkclist.obj is not in here because it is gtk+-1.2 code,
 # while the DLL for GTK+ on windows is gtk+-1.3, and there's
@@ -67,11 +69,14 @@ OBJECTS=capture_dlg.obj \
 	summary_dlg.obj \
 	tcp_graph.obj \
 	ui_util.obj	\
-	$(ETHEREAL_TAP_SRC)
+	$(ETHEREAL_TAP_OBJECTS)
 
 libui.lib	: ..\config.h $(OBJECTS)
 	lib /out:libui.lib $(OBJECTS)
 
+ethereal-tap-register.c: $(ETHEREAL_TAP_SRC)
+        @echo Making ethereal-tap-register.c
+        @$(SH) ../make-tapreg-dotc ethereal-tap-register.c . $(ETHEREAL_TAP_SRC)
 
 clean:
 	rm -f $(OBJECTS) libui.lib $(PDB_FILE)
