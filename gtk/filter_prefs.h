@@ -3,12 +3,11 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.h,v 1.14 2003/01/15 05:20:19 guy Exp $
+ * $Id: filter_prefs.h,v 1.15 2003/01/15 05:58:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -40,7 +39,7 @@ typedef struct {
 } construct_args_t;
 
 void capture_filter_construct_cb(GtkWidget *w, gpointer user_data);
-GtkWidget *display_filter_construct_cb(GtkWidget *w, gpointer construct_args_ptr);
+void display_filter_construct_cb(GtkWidget *w, gpointer construct_args_ptr);
 void filter_button_destroy_cb(GtkWidget *button, gpointer user_data);
 void cfilter_dialog_cb(GtkWidget *w);
 void dfilter_dialog_cb(GtkWidget *w);

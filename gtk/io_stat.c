@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.15 2003/01/15 05:20:19 guy Exp $
+ * $Id: io_stat.c,v 1.16 2003/01/15 05:58:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -119,7 +119,6 @@ typedef struct _io_stat_graph_t {
 	GdkGC *gc;
 	construct_args_t *args;
 	GtkWidget *filter_bt;
-	GtkWidget *filter_main_win;
 } io_stat_graph_t;
 
 typedef struct _io_stat_yscale_t {
@@ -871,7 +870,6 @@ gtk_iostat_init(char *optarg _U_)
 		io->graphs[i].args->activate_on_ok=TRUE;
 
 		io->graphs[i].filter_bt=NULL;
-		io->graphs[i].filter_main_win=NULL;
 	}
 
 	if(register_tap_listener("frame", &io->graphs[0], NULL, gtk_iostat_reset, gtk_iostat_packet, gtk_iostat_draw)){
@@ -935,11 +933,6 @@ quit(GtkWidget *widget, GdkEventExpose *event _U_)
 
 		g_free(io->graphs[i].args);
 		io->graphs[i].args=NULL;
-
-		if(io->graphs[i].filter_main_win){
-			gtk_widget_destroy(io->graphs[i].filter_main_win);
-			io->graphs[i].filter_main_win=NULL;
-		}
 	}
 	g_free(io);
 
@@ -1494,10 +1487,9 @@ create_advanced_box(io_stat_graph_t *gio, GtkWidget *box)
 static void
 filter_button_clicked(GtkWidget *w, gpointer uio)
 {
-	int i;
 	io_stat_graph_t *gio=(io_stat_graph_t *)uio;
 
-	gio->filter_main_win=display_filter_construct_cb(w, gio->args);
+	display_filter_construct_cb(w, gio->args);
 	return;
 }
 

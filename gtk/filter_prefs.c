@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.42 2003/01/15 05:20:18 guy Exp $
+ * $Id: filter_prefs.c,v 1.43 2003/01/15 05:58:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -133,13 +133,6 @@ capture_filter_construct_cb(GtkWidget *w, gpointer user_data _U_)
 	/* Now create a new dialog, without an "Add Expression..." button. */
 	filter_browse_w = filter_dialog_new(w, parent_filter_te,
 	    CFILTER_LIST, &args);
-
-	/* Set the E_FILT_BUTTON_PTR_KEY for the new dialog to point to
-	   the button. */
-	OBJECT_SET_DATA(filter_browse_w, E_FILT_BUTTON_PTR_KEY, w);
-
-	/* Set the E_FILT_DIALOG_PTR_KEY for the button to point to us */
-	OBJECT_SET_DATA(w, E_FILT_DIALOG_PTR_KEY, filter_browse_w);
 }
 #endif
 
@@ -155,7 +148,7 @@ capture_filter_construct_cb(GtkWidget *w, gpointer user_data _U_)
 
    If "wants_apply_button" is non-null, we add an "Apply" button that
    acts like "OK" but doesn't dismiss this dialog. */
-GtkWidget *
+void
 display_filter_construct_cb(GtkWidget *w, gpointer construct_args_ptr)
 {
 	construct_args_t *construct_args = construct_args_ptr;
@@ -168,7 +161,7 @@ display_filter_construct_cb(GtkWidget *w, gpointer construct_args_ptr)
 	if (filter_browse_w != NULL) {
 		/* Yes.  Just re-activate that dialog box. */
 		reactivate_window(filter_browse_w);
-		return filter_browse_w;
+		return;
 	}
 
 	/* No.  Get the text entry attached to the button. */
@@ -178,15 +171,6 @@ display_filter_construct_cb(GtkWidget *w, gpointer construct_args_ptr)
 	   definitely with an "Add Expression..." button. */
 	filter_browse_w = filter_dialog_new(w, parent_filter_te,
 	    DFILTER_LIST, construct_args);
-
-	/* Set the E_FILT_BUTTON_PTR_KEY for the new dialog to point to
-	   the button. */
-	OBJECT_SET_DATA(filter_browse_w, E_FILT_BUTTON_PTR_KEY, w);
-
-	/* Set the E_FILT_DIALOG_PTR_KEY for the button to point to us */
-	OBJECT_SET_DATA(w, E_FILT_DIALOG_PTR_KEY, filter_browse_w);
-
-	return filter_browse_w;
 }
 
 /* Should be called when a button that creates filters is destroyed; it
@@ -201,7 +185,8 @@ filter_button_destroy_cb(GtkWidget *button, gpointer user_data _U_)
 	filter_w = OBJECT_GET_DATA(button, E_FILT_DIALOG_PTR_KEY);
 
 	if (filter_w != NULL) {
-		/* Yes.  Destroy it. */
+		/* Yes.  Break the association, and destroy the dialog. */
+		OBJECT_SET_DATA(button, E_FILT_DIALOG_PTR_KEY, NULL);
 		gtk_widget_destroy(filter_w);
 	}
 }
@@ -325,7 +310,7 @@ get_filter_dialog_list(filter_list_type_t list)
 }
 
 static GtkWidget *
-filter_dialog_new(GtkWidget *button _U_, GtkWidget *parent_filter_te,
+filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
                   filter_list_type_t list, construct_args_t *construct_args)
 {
     GtkWidget  *main_w,           /* main window */
@@ -681,6 +666,16 @@ filter_dialog_new(GtkWidget *button _U_, GtkWidget *parent_filter_te,
     remember_filter_dialog(main_w, filter_dialogs);
 
     gtk_widget_show(main_w);
+
+    if (button != NULL) {
+	/* This dialog box was created by a "Filter" button.
+	   Set the E_FILT_BUTTON_PTR_KEY for the new dialog to point to
+	   the button. */
+	OBJECT_SET_DATA(main_w, E_FILT_BUTTON_PTR_KEY, button);
+
+	/* Set the E_FILT_DIALOG_PTR_KEY for the button to point to us */
+	OBJECT_SET_DATA(button, E_FILT_DIALOG_PTR_KEY, main_w);
+    }
 
     return main_w;
 }
