@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.84 2004/05/27 16:50:16 ulfl Exp $
+ * $Id: prefs_dlg.c,v 1.85 2004/05/27 18:12:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -391,7 +391,6 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gchar             label_str[MAX_TREE_NODE_NAME_LEN];
   struct ct_struct  cts;
 #if GTK_MAJOR_VERSION < 2
-  gchar             *label_ptr = label_str;
   gpointer          store = NULL;
   static gchar *fixedwidths[] = { "c", "m", NULL };
 #else
@@ -1225,7 +1224,7 @@ prefs_main_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
 
 /* Treat this as a cancel, by calling "prefs_main_cancel_cb()" */
 static gboolean
-prefs_main_delete_cb(GtkWidget *prefs_w, gpointer parent_w)
+prefs_main_delete_cb(GtkWidget *prefs_w _U_, gpointer parent_w)
 {
   prefs_main_cancel_cb(NULL, parent_w);
   return FALSE;
