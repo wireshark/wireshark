@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.55 1999/11/29 01:54:01 guy Exp $
+ * $Id: file.h,v 1.56 1999/11/29 08:51:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -74,12 +74,12 @@
 typedef struct bpf_program bpf_prog;
 
 typedef struct _capture_file {
-  FILE_T       fh;        /* Capture file */
-  int          filed;     /* Filedes of capture file */
-  gchar       *filename;  /* filename */
-  long         f_len;     /* File length */
-  guint16      cd_t;      /* Capture data type */
-  const gchar *cd_t_desc; /* Description of that data type */
+  FILE_T       fh;        /* File handle for capture file */
+  int          filed;     /* File descriptor of capture file */
+  gchar       *filename;  /* Name of capture file */
+  long         f_len;     /* Length of capture file */
+  guint16      cd_t;      /* File type of capture file */
+  const gchar *cd_t_desc; /* Description of that file type */
   guint32      vers;      /* Version.  For tcpdump minor is appended to major */
   guint32      count;     /* Packet count */
   gfloat       unfiltered_count; /* used for dfilter progress bar */
