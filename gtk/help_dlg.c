@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.51 2004/05/22 04:25:57 guy Exp $
+ * $Id: help_dlg.c,v 1.52 2004/05/22 19:56:18 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -174,7 +174,7 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
     return;
   }
 
-  help_w = window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: Help");
+  help_w = dlg_window_new("Ethereal: Help");
   SIGNAL_CONNECT(help_w, "destroy", help_destroy_cb, NULL);
   /* XXX: improve this, e.g. remember the last window size in a file */
   WIDGET_SET_SIZE(help_w, DEF_WIDTH, DEF_HEIGHT);
@@ -184,7 +184,6 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
   main_vb = gtk_vbox_new(FALSE, 1);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 1);
   gtk_container_add(GTK_CONTAINER(help_w), main_vb);
-  gtk_widget_show(main_vb);
 
   /* help topics container */
   help_nb = gtk_notebook_new();
@@ -219,13 +218,10 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
   }
   fclose(help_toc_file);
 
-  gtk_widget_show(help_nb);
 
   /* Buttons (only "Ok" for now) */
   bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
-
   gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
-  gtk_widget_show(bbox);
 
   close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
   SIGNAL_CONNECT(close_bt, "clicked", help_close_cb, help_w);
@@ -238,7 +234,8 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
      been selected. */
   dlg_set_cancel(help_w, close_bt);
 
-  gtk_widget_show(help_w);
+  gtk_widget_show_all(help_w);
+  dlg_window_present(help_w, GTK_WIN_POS_MOUSE);
 
 } /* help_cb */
 

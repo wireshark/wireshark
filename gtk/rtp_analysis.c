@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.40 2004/03/13 12:09:27 ulfl Exp $
+ * $Id: rtp_analysis.c,v 1.41 2004/05/22 19:56:19 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -1920,8 +1920,7 @@ void create_rtp_dialog(user_data_t* user_data)
 	column_arrows *col_arrows_rev;
 	
 
-	window = window_new (GTK_WINDOW_TOPLEVEL, "Ethereal: RTP Stream Analysis");
-	gtk_window_set_position (GTK_WINDOW (window), GTK_WIN_POS_CENTER);
+	window = dlg_window_new("Ethereal: RTP Stream Analysis");
 	SIGNAL_CONNECT(window, "destroy", on_destroy, user_data);
 
 	/* Container for each row of widgets */

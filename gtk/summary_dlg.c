@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.31 2004/05/21 08:55:07 ulfl Exp $
+ * $Id: summary_dlg.c,v 1.32 2004/05/22 19:56:19 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -312,6 +312,5 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
      been selected. */
   dlg_set_cancel(sum_open_w, close_bt);
 
-  gtk_window_set_position(GTK_WINDOW(sum_open_w), GTK_WIN_POS_MOUSE);
   gtk_widget_show_all(sum_open_w);
 }

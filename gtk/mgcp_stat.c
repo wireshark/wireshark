@@ -2,7 +2,7 @@
  * mgcp-statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: mgcp_stat.c,v 1.33 2004/03/27 11:13:02 guy Exp $
+ * $Id: mgcp_stat.c,v 1.34 2004/05/22 19:56:19 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -276,7 +276,7 @@ gtk_mgcpstat_init(char *optarg)
 
 	mgcpstat_reset(ms);
 
-	ms->win=window_new(GTK_WINDOW_TOPLEVEL, NULL);
+	ms->win=dlg_window_new("MGCP SRT");
 	SIGNAL_CONNECT(ms->win, "destroy", win_destroy_cb, ms);
 
 	ms->vbox=gtk_vbox_new(FALSE, 0);

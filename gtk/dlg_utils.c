@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.30 2004/05/21 00:25:04 ulfl Exp $
+ * $Id: dlg_utils.c,v 1.31 2004/05/22 19:56:18 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -286,15 +286,20 @@ dlg_button_row_new(gchar *stock_id_first, ...)
 }
 
 
-#if GTK_MAJOR_VERSION >= 2
 /* this is called, when a dialog was closed */
-void on_dialog_destroyed(GtkWidget *dialog _U_, gpointer data)
+void on_dialog_destroyed(GtkWidget *dialog _U_, gpointer data _U_)
 {
-    /* bring main window back to front (workaround for a bug in win32 GTK2.x)
-       XXX - do this only on Windows? */
-    gtk_window_present(GTK_WINDOW(data));
-}
+#if GTK_MAJOR_VERSION >= 2
+    if(top_level) {
+        /* bring main window back to front (workaround for a bug in win32 GTK2.x)
+           XXX - do this only on Windows? */
+        gtk_window_present(GTK_WINDOW(top_level));
+    }
 #endif
+
+  /* XXX - saved the size of this dialog */
+  /* currently unclear, how the dialogs should be identified */
+}
 
 
 /* Create a dialog box window that belongs to Ethereal's main window. */
@@ -325,14 +330,35 @@ dlg_window_new(const gchar *title)
   if (top_level) {
     gtk_window_set_transient_for(GTK_WINDOW(win), GTK_WINDOW(top_level));
   }
-#if GTK_MAJOR_VERSION >= 2
-  gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);
-  if(top_level)
-    SIGNAL_CONNECT(win, "destroy", on_dialog_destroyed, top_level);
-  gtk_window_present(GTK_WINDOW(win));
-#endif
+
+  SIGNAL_CONNECT(win, "destroy", on_dialog_destroyed, win);
+
   return win;
 }
+
+void
+dlg_window_present(GtkWidget *win, GtkWindowPosition pos)
+{
+
+  /* to stay compatible with GTK1.x, only these three pos values are allowed */
+  g_assert(
+      pos == GTK_WIN_POS_NONE || 
+      pos == GTK_WIN_POS_CENTER || 
+      pos == GTK_WIN_POS_MOUSE);        /* preferred for most dialogs */
+
+#if GTK_MAJOR_VERSION >= 2
+  gtk_window_present(GTK_WINDOW(win));
+
+  if(pos == GTK_WIN_POS_CENTER) {
+    pos = GTK_WIN_POS_CENTER_ON_PARENT;
+  }
+#endif
+  gtk_window_set_position(GTK_WINDOW(win), pos);
+
+  /* XXX - set a previously saved size of this dialog */
+  /* currently unclear, how the dialogs should be identified */
+}
+
 
 /* Create a file selection dialog box window that belongs to Ethereal's
    main window. */

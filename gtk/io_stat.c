@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.74 2004/04/17 01:01:22 guy Exp $
+ * $Id: io_stat.c,v 1.75 2004/05/22 19:56:18 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1886,9 +1886,7 @@ init_io_stat_window(io_stat_t *io)
     GtkWidget *bt_close;
 
 	/* create the main window */
-	io->window=window_new(GTK_WINDOW_TOPLEVEL, NULL);
-
-	gtk_widget_set_name(io->window, "I/O Statistics");
+	io->window=dlg_window_new("I/O Graphs");
 
 	vbox=gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(io->window), vbox);

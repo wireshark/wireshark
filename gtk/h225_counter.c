@@ -2,7 +2,7 @@
  * h225 message counter for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: h225_counter.c,v 1.18 2004/04/12 08:53:02 ulfl Exp $
+ * $Id: h225_counter.c,v 1.19 2004/05/22 19:56:18 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -523,7 +523,7 @@ gtk_h225counter_init(char *optarg)
 
 	h225counter_reset(hs);
 
-	hs->win=window_new(GTK_WINDOW_TOPLEVEL, NULL);
+	hs->win=dlg_window_new("Ethereal: H225 counters");
 	SIGNAL_CONNECT(hs->win, "destroy", win_destroy_cb, hs);
 
 	hs->vbox=gtk_vbox_new(FALSE, 3);

@@ -1,7 +1,7 @@
 /* dlg_utils.h
  * Declarations of utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.h,v 1.12 2004/03/29 22:55:13 guy Exp $
+ * $Id: dlg_utils.h,v 1.13 2004/05/22 19:56:18 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,6 +27,10 @@
 
 /* Create a dialog box window that belongs to Ethereal's main window. */
 extern GtkWidget *dlg_window_new(const gchar *);
+
+/* Show the created dialog box window. */
+/* use  GTK_WIN_POS_CENTER or GTK_WIN_POS_MOUSE only! */
+extern void dlg_window_present(GtkWidget *win, GtkWindowPosition pos);
 
 /* Create a file selection dialog box window that belongs to Ethereal's
    main window. */

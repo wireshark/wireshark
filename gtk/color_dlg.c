@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.47 2004/05/01 17:22:09 obiot Exp $
+ * $Id: color_dlg.c,v 1.48 2004/05/22 19:56:18 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1208,7 +1208,6 @@ edit_color_filter_dialog_new(GtkWidget *color_filters,
     /* dialog window */
     edit_dialog = dlg_window_new ("Ethereal: Edit Color Filter");
     gtk_window_set_default_size(GTK_WINDOW(edit_dialog), 500, -1);  
-    /*  gtk_window_set_position(GTK_WINDOW(edit_dialog), GTK_WIN_POS_MOUSE); */
     OBJECT_SET_DATA(edit_dialog, "edit_dialog", edit_dialog);
     colorf->edit_dialog = edit_dialog;
 

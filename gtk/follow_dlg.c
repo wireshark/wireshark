@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.58 2004/05/09 10:03:40 guy Exp $
+ * $Id: follow_dlg.c,v 1.59 2004/05/22 19:56:18 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -247,7 +247,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	fclose(data_out_file);
 
 	/* The data_out_filename file now has all the text that was in the session */
-	streamwindow = window_new(GTK_WINDOW_TOPLEVEL, "Follow TCP stream");
+	streamwindow = dlg_window_new("Follow TCP stream");
 
 	/* needed in follow_filter_out_stream(), is there a better way? */
 	follow_info->streamwindow = streamwindow;

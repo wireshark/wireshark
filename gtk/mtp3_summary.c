@@ -6,7 +6,7 @@
  *
  * Modified from gsm_map_summary.c
  *
- * $Id: mtp3_summary.c,v 1.1 2004/04/21 17:57:31 guy Exp $
+ * $Id: mtp3_summary.c,v 1.2 2004/05/22 19:56:19 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -258,7 +258,7 @@ mtp3_sum_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
   /* initial compututations */
   seconds = summary.stop_time - summary.start_time;
 
-  sum_open_w = window_new(GTK_WINDOW_TOPLEVEL, "MTP3 Statistics: Summary");
+  sum_open_w = dlg_window_new("MTP3 Statistics: Summary");
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
@@ -435,7 +435,6 @@ mtp3_sum_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
      been selected. */
   dlg_set_cancel(sum_open_w, close_bt);
 
-  gtk_window_set_position(GTK_WINDOW(sum_open_w), GTK_WIN_POS_MOUSE);
   gtk_widget_show_all(sum_open_w);
 }
 
