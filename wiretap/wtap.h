@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.138 2003/06/25 17:35:17 guy Exp $
+ * $Id: wtap.h,v 1.139 2003/07/29 19:42:01 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -169,9 +169,10 @@
 #define WTAP_FILE_DBS_ETHERWATCH		31
 #define WTAP_FILE_VISUAL_NETWORKS		32
 #define WTAP_FILE_COSINE			33
+#define WTAP_FILE_5VIEWS			34
 
 /* last WTAP_FILE_ value + 1 */
-#define WTAP_NUM_FILE_TYPES			34
+#define WTAP_NUM_FILE_TYPES			35
 
 /*
  * Maximum packet size we'll support.

@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.99 2003/05/27 10:42:22 guy Exp $
+ * $Id: file.c,v 1.100 2003/07/29 19:42:01 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -68,6 +68,7 @@
 #include "dbs-etherwatch.h"
 #include "visual.h"
 #include "cosine.h"
+#include "5views.h"
 
 /* The open_file_* routines should return:
  *
@@ -100,6 +101,7 @@ static int (*const open_routines[])(wtap *, int *) = {
 	radcom_open,
 	nettl_open,
 	visual_open,
+	_5views_open,
 
 	/* Files that don't have magic bytes at a fixed location,
 	 * but that instead require a heuristic of some sort to
@@ -442,6 +444,10 @@ static const struct file_type_info {
 	/* WTAP_FILE_COSINE */
 	{ "CoSine IPSX L2 capture", "cosine",
 	  NULL, NULL },
+
+	/* WTAP_FILE_5VIEWS */
+	{ "Accellent 5Views capture", "5views",
+	  _5views_dump_can_write_encap, _5views_dump_open },
 };
 
 /* Name that should be somewhat descriptive. */

@@ -52,12 +52,13 @@ B<IPLog> format from the Cisco Secure Intrusion Detection System, B<pppd
 logs> (pppdump format), the output from VMS's
 B<TCPIPtrace>/B<TCPtrace>/B<UCX$TRACE> utilities, the text output from
 the B<DBS Etherwatch> VMS utility, traffic capture files from Visual
-Networks' Visual UpTime, and the output from B<CoSine> L2 debug.  There
-is no need to tell B<Ethereal> what type of file you are reading; it
-will determine the file type by itself.  B<Ethereal> is also capable of
-reading any of these file formats if they are compressed using gzip. 
-B<Ethereal> recognizes this directly from the file; the '.gz' extension
-is not required for this purpose.
+Networks' Visual UpTime, the output from B<CoSine> L2 debug, and the
+output from Accellent's 5Views LAN agents.  There is no need to tell
+B<Ethereal> what type of file you are reading; it will determine the
+file type by itself.  B<Ethereal> is also capable of reading any of
+these file formats if they are compressed using gzip.  B<Ethereal>
+recognizes this directly from the file; the '.gz' extension is not
+required for this purpose.
 
 Like other protocol analyzers, B<Ethereal>'s main window shows 3 views
 of a packet.  It shows a summary line, briefly describing what the
@@ -1853,6 +1854,7 @@ B<http://www.ethereal.com>.
   Jeff Rizzo               <riz [AT] boogers.sf.ca.us>
   Christoph Wiest          <ch.wiest [AT] tesionmail.de>
   Xuan Zhang               <xz [AT] aemail4u.com>
+  Thierry Martin           <thierry.martin [AT] accellent-group.com>
   Pavel Roskin             <proski [AT] gnu.org>
   Georgi Guninski          <guninski [AT] guninski.com>
   Jason Copenhaver         <jcopenha [AT] typedef.org>

@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.30 2003/06/14 20:45:29 guy Exp $
+# $Id: Makefile.nmake,v 1.31 2003/07/29 19:42:01 guy Exp $
 #
 
 include ..\config.nmake
@@ -38,7 +38,8 @@ OBJECTS=ascend-grammar.obj \
 	toshiba.obj \
 	visual.obj \
 	vms.obj \
-	wtap.obj
+	wtap.obj \
+	5views.obj
 
 
 wiretap_LIBS = \
