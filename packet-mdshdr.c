@@ -2,7 +2,7 @@
  * Routines for dissection of Cisco MDS Switch Internal Header
  * Copyright 2001, Dinesh G Dutt <ddutt@andiamo.com>
  *
- * $Id: packet-mdshdr.c,v 1.7 2003/10/27 19:30:55 guy Exp $
+ * $Id: packet-mdshdr.c,v 1.8 2003/10/30 02:06:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -197,6 +197,22 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pinfo->src_idx = (tvb_get_ntohs (tvb, MDSHDR_SIDX_OFFSET) & 0x3FF);
     pinfo->dst_idx = (tvb_get_ntohs (tvb, MDSHDR_DIDX_OFFSET) & 0xFFC) >> 6;
     pinfo->vsan = vsan;
+    pinfo->sof_eof = 0;
+
+    if ((sof == MDSHDR_SOFi3) || (sof == MDSHDR_SOFi2) || (sof == MDSHDR_SOFi1)
+        || (sof == MDSHDR_SOFi4)) {
+        pinfo->sof_eof = PINFO_SOF_FIRST_FRAME;
+    }
+    else if (sof == MDSHDR_SOFf) {
+        pinfo->sof_eof = PINFO_SOF_SOFF;      
+    }
+
+    if (eof != MDSHDR_EOFn) {
+        pinfo->sof_eof |= PINFO_EOF_LAST_FRAME;
+    }
+    else if (eof != MDSHDR_EOFt) {
+        pinfo->sof_eof |= PINFO_EOF_INVALID;
+    }
     
     /* In the interest of speed, if "tree" is NULL, don't do any work not
        necessary to generate protocol tree items. */

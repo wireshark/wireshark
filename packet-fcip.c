@@ -2,7 +2,7 @@
  * Routines for FCIP dissection
  * Copyright 2001, Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-fcip.c,v 1.7 2003/09/09 05:02:35 guy Exp $
+ * $Id: packet-fcip.c,v 1.8 2003/10/30 02:06:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -382,7 +382,7 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          start  = 0,
          frame_len = 0;
     gint bytes_remaining = tvb_length_remaining (tvb, offset);
-    guint8 pflags, sof, eof;
+    guint8 pflags, sof = 0, eof = 0;
    /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
     proto_tree *fcip_tree = NULL;
@@ -482,6 +482,25 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Call the FC Dissector if this is carrying an FC frame */
         if (!FCIP_IS_SF(pflags)) {
+            /* Set the SOF/EOF flags in the packet_info header */
+            pinfo->sof_eof = 0;
+
+            if (sof) {
+                if ((sof == FCIP_SOFi3) || (sof == FCIP_SOFi2) || (sof == FCIP_SOFi4)) {
+                    pinfo->sof_eof = PINFO_SOF_FIRST_FRAME;
+                }
+                else if (sof == FCIP_SOFf) {
+                    pinfo->sof_eof = PINFO_SOF_SOFF;
+                }
+
+                if (eof != FCIP_EOFn) {
+                    pinfo->sof_eof |= PINFO_EOF_LAST_FRAME;
+                }
+                else if (eof != FCIP_EOFt) {
+                    pinfo->sof_eof |= PINFO_EOF_INVALID;
+                }
+            }
+            
             /* Special frame bit is not set */
             next_tvb = tvb_new_subset (tvb, FCIP_ENCAP_HEADER_LEN+4, -1, -1);
             if (fc_handle) {

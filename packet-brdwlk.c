@@ -2,7 +2,7 @@
  * Routines for decoding MDS Port Analyzer Adapter (FC in Eth) Header
  * Copyright 2001, Dinesh G Dutt <ddutt@andiamo.com>
  *
- * $Id: packet-brdwlk.c,v 1.4 2003/07/21 21:52:32 guy Exp $
+ * $Id: packet-brdwlk.c,v 1.5 2003/10/30 02:06:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,6 +50,7 @@
 
 #define BRDWLK_MAX_PACKET_CNT  0xFFFF
 #define BRDWLK_TRUNCATED_BIT   0x8
+#define BRDWLK_HAS_PLEN        0x1
 
 #define FCM_DELIM_SOFC1         0x01
 #define FCM_DELIM_SOFI1		0x02
@@ -99,6 +100,7 @@ static int hf_brdwlk_error = -1;
 static int hf_brdwlk_vsan = -1;
 static int hf_brdwlk_pktcnt = -1;
 static int hf_brdwlk_drop = -1;
+static int hf_brdwlk_plen = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_brdwlk = -1;
@@ -117,6 +119,10 @@ brdwlk_err_to_str (guint8 error, char *str)
     if (str != NULL) {
         str[0] = '\0';
 
+        if (error & 0x1) {
+            strcat (str, "Packet Length Present");
+        }
+        
         if (error & 0x2) {
             strcat (str, "Empty Frame, ");
         }
@@ -158,10 +164,10 @@ dissect_brdwlk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *ti;
     proto_tree *brdwlk_tree = NULL;
     tvbuff_t *next_tvb;
-    guint8 error;
+    guint8 error, eof, sof;
     int hdrlen = 2,
         offset = 0;
-    gint len, reported_len;
+    gint len, reported_len, plen;
     guint16 pkt_cnt;
     gboolean dropped_packets;
     gchar errstr[512];
@@ -173,6 +179,17 @@ dissect_brdwlk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_INFO)) 
         col_clear(pinfo->cinfo, COL_INFO);
 
+    pinfo->vsan = (tvb_get_ntohs (tvb, offset) & 0xFFF);
+    sof = (tvb_get_guint8 (tvb, offset) & 0xF0) >> 4;
+
+    if ((sof == FCM_DELIM_SOFI3) || (sof == FCM_DELIM_SOFI2) || (sof == FCM_DELIM_SOFI1)
+        || (sof == FCM_DELIM_SOFI4)) {
+        pinfo->sof_eof = PINFO_SOF_FIRST_FRAME;
+    }
+    else if (sof == FCM_DELIM_SOFF) {
+        pinfo->sof_eof = PINFO_SOF_SOFF;
+    }
+
     if (tree) {
         ti = proto_tree_add_protocol_format (tree, proto_brdwlk, tvb, 0,
                                              hdrlen, "Boardwalk");
@@ -182,7 +199,6 @@ dissect_brdwlk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item (brdwlk_tree, hf_brdwlk_sof, tvb, offset, 1, 0);
         proto_tree_add_item (brdwlk_tree, hf_brdwlk_vsan, tvb, offset, 2, 0);
 
-	pinfo->vsan = (tvb_get_ntohs (tvb, offset) & 0xFFF);
     }
 
     /* Locate EOF which is the last 4 bytes of the frame */
@@ -271,16 +287,33 @@ dissect_brdwlk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                         error,
                                         brdwlk_err_to_str (error, errstr));
         }
-#if 0
-        /* If received frame is truncated, set is_truncated flag */
-        if (error & BRDWLK_TRUNCATED_BIT) {
-            pinfo->is_truncated = TRUE;
+
+        eof = tvb_get_guint8 (tvb, offset+3);
+        if (eof != FCM_DELIM_EOFN) {
+            pinfo->sof_eof |= PINFO_EOF_LAST_FRAME;
         }
-#endif
+        else if (eof != FCM_DELIM_EOFT) {
+            pinfo->sof_eof |= PINFO_EOF_INVALID;
+        }
         
         if (tree) {
             proto_tree_add_item (brdwlk_tree, hf_brdwlk_eof, tvb, offset+3,
                                  1, 0);
+        }
+
+        if ((error & BRDWLK_HAS_PLEN) && tree) {
+            /* In newer Boardwalks, if this bit is set, the actual frame length
+             * is also provided. This length is the size between SOF & EOF
+             * including FC CRC.
+             */
+            plen = tvb_get_ntohl (tvb, offset-4);
+            plen *= 4;
+            proto_tree_add_uint (brdwlk_tree, hf_brdwlk_plen, tvb, offset-4,
+                                 4, plen);
+            
+            if (error & BRDWLK_TRUNCATED_BIT) {
+                tvb_set_reported_length (tvb, plen);
+            }
         }
     }
     
@@ -314,7 +347,7 @@ proto_register_brdwlk (void)
            0xF0, "SOF", HFILL}},
         { &hf_brdwlk_eof,
           {"EOF", "brdwlk.eof", FT_UINT8, BASE_HEX, VALS (brdwlk_eof_vals),
-           0x0, "EOF", HFILL}},
+           0x0F, "EOF", HFILL}},
         { &hf_brdwlk_error,
           {"Error", "brdwlk.error", FT_UINT8, BASE_DEC, NULL, 0x0, "Error",
            HFILL}},
@@ -326,6 +359,9 @@ proto_register_brdwlk (void)
            "", HFILL}},
         { &hf_brdwlk_vsan,
           {"VSAN", "brdwlk.vsan", FT_UINT16, BASE_DEC, NULL, 0xFFF, "",
+           HFILL}},
+        { &hf_brdwlk_plen,
+          {"Original Packet Length", "brdwlk.plen", FT_UINT32, BASE_DEC, NULL, 0x0, "",
            HFILL}},
     };
 
@@ -357,6 +393,7 @@ proto_reg_handoff_brdwlk(void)
 
     brdwlk_handle = create_dissector_handle (dissect_brdwlk, proto_brdwlk);
     dissector_add("ethertype", ETHERTYPE_BRDWALK, brdwlk_handle);
+    dissector_add("ethertype", 0xABCD, brdwlk_handle);
     data_handle = find_dissector("data");
     fc_dissector_handle = find_dissector ("fc");
 }

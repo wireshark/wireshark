@@ -2,7 +2,7 @@
  * Routines for FC Inter-switch link services
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fcswils.c,v 1.5 2003/06/30 21:58:41 guy Exp $
+ * $Id: packet-fcswils.c,v 1.6 2003/10/30 02:06:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -200,6 +200,7 @@ static const value_string fc_swils_opcode_key_val[] = {
     {FC_SWILS_SFC    , "SFC"},
     {FC_SWILS_UFC    , "UFC"},
     {FC_SWILS_ESC    , "ESC"},
+    {FC_SWILS_AUTH_ILS, "AUTH_ILS"},
     {0, NULL},
 };
 
@@ -382,7 +383,7 @@ GMemChunk *fcswils_req_keys = NULL;
 GMemChunk *fcswils_req_vals = NULL;
 guint32 fcswils_init_count = 25;
 
-static dissector_handle_t data_handle;
+static dissector_handle_t data_handle, fcsp_handle;
 
 static gint get_zoneobj_len (tvbuff_t *tvb, gint offset);
 
@@ -1589,6 +1590,10 @@ dissect_fcswils (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case FC_SWILS_ESC:
         dissect_swils_esc (tvb, swils_tree, isreq);
         break;
+    case FC_SWILS_AUTH_ILS:
+        if (isreq && fcsp_handle) 
+            call_dissector (fcsp_handle, tvb, pinfo, swils_tree);
+        break;
     default:
         next_tvb = tvb_new_subset (tvb, offset+4, -1, -1);
         call_dissector (data_handle, next_tvb, pinfo, tree);
@@ -1911,6 +1916,7 @@ proto_reg_handoff_fcswils (void)
     dissector_add("fc.ftype", FC_FTYPE_SWILS, swils_handle);
 
     data_handle = find_dissector ("data");
+    fcsp_handle = find_dissector ("fcsp");
 }
 
 

@@ -2,7 +2,7 @@
  * Fibre Channel Extended Link Services Definitions (ddutt@cisco.com)
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fcels.h,v 1.1 2002/12/08 02:32:17 gerald Exp $
+ * $Id: packet-fcels.h,v 1.2 2003/10/30 02:06:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,6 +56,7 @@
 #define FC_ELS_LIRR          0x7A
 #define FC_ELS_SRL           0x7B
 #define FC_ELS_RPSC          0x7D
+#define FC_ELS_AUTH          0x90
 
 static const value_string fc_els_proto_val[] = {
     {FC_ELS_LSRJT        , "LS_RJT"},
@@ -88,6 +89,7 @@ static const value_string fc_els_proto_val[] = {
     {FC_ELS_LIRR         , "LIRR"},
     {FC_ELS_SRL          , "SRL"},
     {FC_ELS_RPSC         , "RPSC"},
+    {FC_ELS_AUTH         , "AUTH"},
     {0, NULL},
 };
 

@@ -1,7 +1,7 @@
 /* packet_info.h
  * Definitions for packet info structures and routines
  *
- * $Id: packet_info.h,v 1.33 2003/10/21 07:17:16 guy Exp $
+ * $Id: packet_info.h,v 1.34 2003/10/30 02:06:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -108,7 +108,8 @@ typedef enum {
   PT_IPX,		/* IPX sockets */
   PT_NCP,		/* NCP connection */
   PT_EXCHG,     /* Fibre Channel exchange */
-  PT_DDP		/* DDP AppleTalk connection */
+  PT_DDP,               /* DDP AppleTalk connection */
+  PT_SBCCS              /* FICON */
 } port_type;
 
 /* Types of circuit IDs Ethereal knows about. */
@@ -123,6 +124,11 @@ typedef enum {
 #define P2P_DIR_UNKNOWN	-1
 #define P2P_DIR_SENT	0
 #define P2P_DIR_RECV	1
+
+#define PINFO_SOF_FIRST_FRAME   0x1
+#define PINFO_SOF_SOFF          0x2
+#define PINFO_EOF_LAST_FRAME    0x80
+#define PINFO_EOF_INVALID       0x40
 
 typedef struct _packet_info {
   const char *current_proto;	/* name of protocol currently being dissected */
@@ -188,7 +194,12 @@ typedef struct _packet_info {
   guint16 oxid;                 /* next 2 fields reqd to identify fibre */
   guint16 rxid;                 /* channel conversations */
   guint8  r_ctl;                /* R_CTL field in Fibre Channel Protocol */
-  guint8  pad;
+  guint8  sof_eof;              /* FC's SOF/EOF encoding passed to FC decoder
+                                 * Bit 7 set if Last frame in sequence
+                                 * Bit 6 set if invalid frame content
+                                 * Bit 2 set if SOFf
+                                 * Bit 1 set if first frame in sequence
+                                 */
   guint16 src_idx;              /* Source port index (Cisco MDS-specific) */
   guint16 dst_idx;              /* Dest port index (Cisco MDS-specific) */
   guint16 vsan;                 /* Fibre channel/Cisco MDS-specific */

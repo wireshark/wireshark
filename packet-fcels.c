@@ -2,7 +2,7 @@
  * Routines for FC Extended Link Services
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fcels.c,v 1.4 2003/01/31 03:17:46 guy Exp $
+ * $Id: packet-fcels.c,v 1.5 2003/10/30 02:06:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -185,7 +185,7 @@ GMemChunk *fcels_req_keys = NULL;
 GMemChunk *fcels_req_vals = NULL;
 guint32 fcels_init_count = 25;
 
-static dissector_handle_t data_handle;
+static dissector_handle_t data_handle, fcsp_handle;
 
 /*
  * Hash Functions
@@ -1719,6 +1719,10 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case FC_ELS_RPSC:
         dissect_fcels_rpsc (tvb, pinfo, tree, isreq, ti);
         break;
+    case FC_ELS_AUTH:
+        if (isreq && fcsp_handle)
+            call_dissector (fcsp_handle, tvb, pinfo, tree);
+        break;
     default:
         /* proto_tree_add_text ( */
         call_dissector (data_handle, tvb, pinfo, tree);
@@ -1982,4 +1986,5 @@ proto_reg_handoff_fcels (void)
     dissector_add("fc.ftype", FC_FTYPE_ELS, els_handle);
 
     data_handle = find_dissector ("data");
+    fcsp_handle = find_dissector ("fcsp");
 }

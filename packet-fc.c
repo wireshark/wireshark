@@ -4,7 +4,7 @@
  *   Copyright 2003  Ronnie Sahlberg, exchange first/last matching and 
  *                                    tap listener and misc updates
  *
- * $Id: packet-fc.c,v 1.15 2003/08/27 23:05:59 guy Exp $
+ * $Id: packet-fc.c,v 1.16 2003/10/30 02:06:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,6 +51,7 @@
 #include <epan/packet.h>
 #include "prefs.h"
 #include "reassemble.h"
+#include <epan/conversation.h>
 #include "etypes.h"
 #include "packet-fc.h"
 #include "packet-fclctl.h"
@@ -59,7 +60,7 @@
 
 #define FC_HEADER_SIZE         24
 #define FC_RCTL_EISL           0x50
-#define MDSHDR_TRAILER_SIZE    6
+#define MDSHDR_TRAILER_SIZE    6 
 
 /* Size of various fields in FC header in bytes */
 #define FC_RCTL_SIZE           1
@@ -140,11 +141,46 @@ static gboolean fc_reassemble = TRUE;
 static guint32  fc_max_frame_size = 1024;
 static GHashTable *fc_fragment_table = NULL;
 
+typedef struct _fcseq_conv_key {
+    guint32 conv_idx;
+} fcseq_conv_key_t;
+
+typedef struct _fcseq_conv_data {
+    guint32 seq_cnt;
+} fcseq_conv_data_t;
+
+GHashTable *fcseq_req_hash = NULL;
+GMemChunk *fcseq_req_keys = NULL;
+GMemChunk *fcseq_req_vals = NULL;
+guint32 fcseq_init_count = 25;
 
 static GHashTable *fc_exchange_unmatched = NULL;
 static GHashTable *fc_exchange_matched = NULL;
 static GMemChunk *fc_exchange_vals = NULL;
 static guint32 fc_exchange_init_count = 200;
+
+/*
+ * Hash Functions
+ */
+static gint
+fcseq_equal(gconstpointer v, gconstpointer w)
+{
+  fcseq_conv_key_t *v1 = (fcseq_conv_key_t *)v;
+  fcseq_conv_key_t *v2 = (fcseq_conv_key_t *)w;
+
+  return (v1->conv_idx == v2->conv_idx);
+}
+
+static guint
+fcseq_hash (gconstpointer v)
+{
+    fcseq_conv_key_t *key = (fcseq_conv_key_t *)v;
+    guint val;
+    
+    val = key->conv_idx;
+    
+    return val;
+}
 
 static guint
 fc_exchange_hash_unmatched(gconstpointer v)
@@ -231,22 +267,41 @@ fc_exchange_init_protocol(void)
     fc_exchange_unmatched=g_hash_table_new(fc_exchange_hash_unmatched, fc_exchange_equal_unmatched);
     fc_exchange_matched=g_hash_table_new(fc_exchange_hash_matched, fc_exchange_equal_matched);
     fc_exchange_vals=g_mem_chunk_new("fc_exchange_vals", sizeof(fc_exchange_data), fc_exchange_init_count*sizeof(fc_exchange_data), G_ALLOC_AND_FREE);
+
+    fragment_table_init(&fc_fragment_table);
+
+    if (fcseq_req_keys)
+        g_mem_chunk_destroy (fcseq_req_keys);
+    if (fcseq_req_vals)
+        g_mem_chunk_destroy (fcseq_req_vals);
+    if (fcseq_req_hash)
+        g_hash_table_destroy(fcseq_req_hash);
+    
+    fcseq_req_hash = g_hash_table_new(fcseq_hash, fcseq_equal);
+    fcseq_req_keys = g_mem_chunk_new ("fcseq_req_keys",
+                                      sizeof(fcseq_conv_key_t),
+                                      fcseq_init_count *
+                                      sizeof(fcseq_conv_key_t),
+                                      G_ALLOC_AND_FREE);
+    fcseq_req_vals = g_mem_chunk_new ("fcseq_req_vals",
+                                      sizeof(fcseq_conv_data_t),
+                                      fcseq_init_count *
+                                      sizeof(fcseq_conv_data_t),
+                                      G_ALLOC_AND_FREE);
 }
 
 
-
-
-
-
 const value_string fc_fc4_val[] = {
-    {FC_TYPE_ELS     , "Ext Link Svc"},
-    {FC_TYPE_LLCSNAP , "LLC_SNAP"},
-    {FC_TYPE_IP      , "IP/FC"},
-    {FC_TYPE_SCSI    , "FCP"},
-    {FC_TYPE_FCCT    , "FC_CT"},
-    {FC_TYPE_SWILS   , "SW_ILS"},
-    {FC_TYPE_AL      , "AL"},
-    {FC_TYPE_SNMP    , "SNMP"},
+    {FC_TYPE_ELS,        "Ext Link Svc"},
+    {FC_TYPE_LLCSNAP,    "LLC_SNAP"},
+    {FC_TYPE_IP,         "IP/FC"},
+    {FC_TYPE_SCSI,       "FCP"},
+    {FC_TYPE_FCCT,       "FC_CT"},
+    {FC_TYPE_SWILS,      "SW_ILS"},
+    {FC_TYPE_AL,         "AL"},
+    {FC_TYPE_SNMP,       "SNMP"},
+    {FC_TYPE_SB_FROM_CU, "SB-3(CU->Channel)"},
+    {FC_TYPE_SB_TO_CU,   "SB-3(Channel->CU)"},
     {0, NULL},
 };
 
@@ -261,6 +316,7 @@ static const value_string fc_ftype_vals [] = {
     {FC_FTYPE_LINKDATA,  "Link Data"},
     {FC_FTYPE_VDO,       "Video Data"},
     {FC_FTYPE_LINKCTL,   "Link Ctl"},
+    {FC_FTYPE_SBCCS,     "SBCCS"},
     {0, NULL},
 };
 
@@ -317,7 +373,7 @@ fctl_to_str (const guint8 *fctl, gchar *str, gboolean is_ack)
     if (str == NULL)
         return (str);
     
-    if (fctl[0] & 0x80) {
+    if (fctl[2] & 0x80) {
         strcpy (str, "Exchange Responder, ");
         stroff += 20;
     }
@@ -326,7 +382,7 @@ fctl_to_str (const guint8 *fctl, gchar *str, gboolean is_ack)
         stroff += 21;
     }
 
-    if (fctl[0] & 0x40) {
+    if (fctl[2] & 0x40) {
         strcpy (&str[stroff], "Seq Recipient, ");
         stroff += 15;
     }
@@ -335,22 +391,22 @@ fctl_to_str (const guint8 *fctl, gchar *str, gboolean is_ack)
         stroff += 15;
     }
 
-    if (fctl[0] & 0x20) {
+    if (fctl[2] & 0x20) {
         strcpy (&str[stroff], "Exchg First, ");
         stroff += 13;
     }
 
-    if (fctl[0] & 0x10) {
+    if (fctl[2] & 0x10) {
         strcpy (&str[stroff], "Exchg Last, ");
         stroff += 12;
     }
 
-    if (fctl[0] & 0x8) {
+    if (fctl[2] & 0x8) {
         strcpy (&str[stroff], "Seq Last, ");
         stroff += 10;
     }
 
-    if (fctl[0] & 0x2) {
+    if (fctl[2] & 0x2) {
         strcpy (&str[stroff], "Priority, ");
         stroff += 10;
     }
@@ -359,7 +415,7 @@ fctl_to_str (const guint8 *fctl, gchar *str, gboolean is_ack)
         stroff += 8;
     }
 
-    if (fctl[0] & 0x1) {
+    if (fctl[2] & 0x1) {
         strcpy (&str[stroff], "Transfer Seq Initiative, ");
         stroff += 25;
     }
@@ -378,7 +434,7 @@ fctl_to_str (const guint8 *fctl, gchar *str, gboolean is_ack)
         stroff += 15;
     }
 
-    tmp = fctl[2] & 0xC0;
+    tmp = fctl[0] & 0xC0;
     switch (tmp) {
     case 0:
         strcpy (&str[stroff], "Last Data Frame - No Info, ");
@@ -398,7 +454,7 @@ fctl_to_str (const guint8 *fctl, gchar *str, gboolean is_ack)
         break;
     }
 
-    tmp = fctl[2] & 0x30;
+    tmp = fctl[0] & 0x30;
     switch (tmp) {
     case 0:
         if (is_ack) {
@@ -442,7 +498,7 @@ fctl_to_str (const guint8 *fctl, gchar *str, gboolean is_ack)
         break;
     }
 
-    if (fctl[2] & 0x8) {
+    if (fctl[0] & 0x8) {
         strcpy (&str[stroff], "Rel Offset = 1");
         stroff += 14;
     }
@@ -533,6 +589,9 @@ fc_get_ftype (guint8 r_ctl, guint8 type)
             return FC_FTYPE_SCSI;
         case FC_TYPE_FCCT:
             return FC_FTYPE_FCCT;
+        case FC_TYPE_SB_FROM_CU:
+        case FC_TYPE_SB_TO_CU:
+            return FC_FTYPE_SBCCS;
         default:
             return FC_FTYPE_UNDEF;
         }
@@ -673,7 +732,7 @@ dissect_fc_fctl(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, 
 
 	proto_tree_add_boolean(tree, hf_fc_fctl_rel_offset, tvb, offset, 3, fctl);
 
-	fctl_to_str( ((guint8 *)&fctl)+1, str, is_ack);
+	fctl_to_str( ((guint8 *)&fctl), str, is_ack);
 	proto_item_append_text(item, "  %s", str);
 }
 
@@ -703,19 +762,24 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *fc_tree = NULL;
     tvbuff_t *next_tvb;
     int offset = 0, next_offset;
-    gboolean is_lastframe_inseq;
+    gboolean is_lastframe_inseq, is_1frame_inseq, is_valid_frame;
     gboolean is_exchg_resp = 0;
     fragment_data *fcfrag_head;
     guint32 frag_id;
     guint32 frag_size;
-    guint8 df_ctl;
+    guint8 df_ctl, seq_id;
     
     guint32 param;
+    guint16 real_seqcnt;
     guint8 ftype;
     gboolean is_ack;
 
     static fc_hdr fchdr;
     fc_exchange_data *fc_ex=NULL;
+
+    conversation_t *conversation;
+    fcseq_conv_data_t *cdata;
+    fcseq_conv_key_t ckey, *req_key;
 
     fchdr.fced=NULL;
 
@@ -744,6 +808,7 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     fchdr.oxid=tvb_get_ntohs(tvb,offset+16);
     fchdr.rxid=tvb_get_ntohs(tvb,offset+18);
     param = tvb_get_ntohl (tvb, offset+20);
+    seq_id = tvb_get_guint8 (tvb, offset+12);
 
     pinfo->oxid = fchdr.oxid;
     pinfo->rxid = fchdr.rxid;
@@ -751,6 +816,22 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pinfo->r_ctl = fchdr.r_ctl;
 
     is_ack = ((fchdr.r_ctl == 0xC0) || (fchdr.r_ctl == 0xC1));
+
+    /* There are two ways to determine if this is the first frame of a
+     * sequence. Either:
+     * (i) The SOF bits indicate that this is the first frame OR
+     * (ii) This is an SOFf frame and seqcnt is 0.
+     */
+    is_1frame_inseq = (((pinfo->sof_eof & PINFO_SOF_FIRST_FRAME) == PINFO_SOF_FIRST_FRAME) ||
+                       (((pinfo->sof_eof & PINFO_SOF_SOFF) == PINFO_SOF_SOFF) &&
+                        (fchdr.seqcnt == 0)));
+    
+    is_lastframe_inseq = ((pinfo->sof_eof & PINFO_EOF_LAST_FRAME) == PINFO_EOF_LAST_FRAME);
+
+    if ((pinfo->sof_eof & PINFO_SOF_SOFF) == PINFO_SOF_SOFF) {
+        is_lastframe_inseq = fchdr.fctl & FC_FCTL_SEQ_LAST;
+    }
+    is_valid_frame = ((pinfo->sof_eof & 0x40) == 0x40);
 
     ftype = fc_get_ftype (fchdr.r_ctl, fchdr.type);
     
@@ -1041,7 +1122,6 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          */
         is_lastframe_inseq = TRUE;
     } else {
-        is_lastframe_inseq = fchdr.fctl & FC_FCTL_SEQ_LAST;
 	/* XXX is this right?   offset 20, shouldnt it be offset 9? */
         is_exchg_resp = ((tvb_get_guint8 (tvb, offset+20) & 0x80) == 0x80);
     }
@@ -1067,15 +1147,62 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * present, if we're configured to reassemble.
      */
     if ((ftype != FC_FTYPE_LINKCTL) && (ftype != FC_FTYPE_BLS) &&
-        (!is_lastframe_inseq || fchdr.seqcnt) && fc_reassemble &&
-        tvb_bytes_exist(tvb, FC_HEADER_SIZE, frag_size)) {
+        (!is_lastframe_inseq || !is_1frame_inseq) && fc_reassemble &&
+        tvb_bytes_exist(tvb, FC_HEADER_SIZE, frag_size) && tree) {
         /* Add this to the list of fragments */
-        frag_id = (pinfo->oxid << 16) | is_exchg_resp;
+
+        /* In certain cases such as FICON, the SEQ_CNT is streaming
+         * i.e. continuously increasing. So, zero does not signify the
+         * first frame of the sequence. To fix this, we need to save the
+         * SEQ_CNT of the first frame in sequence and use this value to
+         * determine the actual offset into a frame.
+         */
+        conversation = find_conversation (&pinfo->src, &pinfo->dst,
+                                          pinfo->ptype, pinfo->oxid,
+                                          pinfo->rxid, NO_PORT2);
+        if (!conversation) {
+            conversation = conversation_new (&pinfo->src, &pinfo->dst,
+                                             pinfo->ptype, pinfo->oxid,
+                                             pinfo->rxid, NO_PORT2);
+        }
+        
+        ckey.conv_idx = conversation->index;
+        
+        cdata = (fcseq_conv_data_t *)g_hash_table_lookup (fcseq_req_hash,
+                                                          &ckey);
+
+        if (is_1frame_inseq) {
+            if (cdata) {
+                /* Since we never free the memory used by an exchange, this maybe a
+                 * case of another request using the same exchange as a previous
+                 * req. 
+                 */
+                cdata->seq_cnt = fchdr.seqcnt;
+            }
+            else {
+                req_key = g_mem_chunk_alloc (fcseq_req_keys);
+                req_key->conv_idx = conversation->index;
+                
+                cdata = g_mem_chunk_alloc (fcseq_req_vals);
+                cdata->seq_cnt = fchdr.seqcnt;
+                
+                g_hash_table_insert (fcseq_req_hash, req_key, cdata);
+            }
+            real_seqcnt = 0;
+        }
+        else if (cdata != NULL) {
+            real_seqcnt = fchdr.seqcnt - cdata->seq_cnt ;
+        }
+        else {
+            real_seqcnt = fchdr.seqcnt;
+        }
+        
+        frag_id = ((pinfo->oxid << 16) ^ seq_id) | is_exchg_resp ;
 
         /* We assume that all frames are of the same max size */
         fcfrag_head = fragment_add (tvb, FC_HEADER_SIZE, pinfo, frag_id,
                                     fc_fragment_table,
-                                    fchdr.seqcnt * fc_max_frame_size,
+                                    real_seqcnt * fc_max_frame_size,
                                     frag_size,
                                     !is_lastframe_inseq);
         
@@ -1092,7 +1219,8 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_boolean_hidden (fc_tree, hf_fc_reassembled,
                                                tvb, offset+9, 1, 1);
             }
-        } else {
+        }
+        else {
             if (tree) {
                 proto_tree_add_boolean_hidden (fc_tree, hf_fc_reassembled,
                                                tvb, offset+9, 1, 0);

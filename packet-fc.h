@@ -2,7 +2,7 @@
  * Basic Fibre Channel Header definitions
  * Copyright 2002 Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-fc.h,v 1.4 2003/08/23 13:35:05 sahlberg Exp $
+ * $Id: packet-fc.h,v 1.5 2003/10/30 02:06:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,8 @@
 #define FC_TYPE_LLCSNAP        0x4
 #define FC_TYPE_IP             0x5
 #define FC_TYPE_SCSI           0x8
+#define FC_TYPE_SB_TO_CU       0x1B
+#define FC_TYPE_SB_FROM_CU     0x1C
 #define FC_TYPE_FCCT           0x20
 #define FC_TYPE_SWILS          0x22
 #define FC_TYPE_AL             0x23
@@ -74,6 +76,7 @@ extern const value_string fc_fc4_val[];
 #define FC_FTYPE_VDO           0x9
 #define FC_FTYPE_LINKCTL       0xA
 #define FC_FTYPE_SWILS_RSP     0xB
+#define FC_FTYPE_SBCCS         0xC
 
 /* Well-known Address Definitions (in Network order) */
 #define FC_WKA_MULTICAST       0xFFFFF5
