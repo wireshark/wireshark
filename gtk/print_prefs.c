@@ -1,7 +1,7 @@
 /* print_prefs.c
  * Dialog boxes for preferences for printing
  *
- * $Id: print_prefs.c,v 1.16 2002/11/11 15:39:06 oabad Exp $
+ * $Id: print_prefs.c,v 1.17 2004/01/21 03:54:30 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,7 +73,7 @@ GtkWidget * printer_prefs_show(void)
 #ifndef _WIN32
 	GtkWidget	*cmd_te;
 #endif
-	GtkWidget	*file_bt_hb, *file_bt, *file_te;
+	GtkWidget	*file_lb_hb, *file_lb, *file_bt_hb, *file_bt, *file_te;
 
 	/* Enclosing containers for each row of widgets */
 	main_vb = gtk_vbox_new(FALSE, 5);
@@ -103,19 +103,28 @@ GtkWidget * printer_prefs_show(void)
 	OBJECT_SET_DATA(main_vb, PRINT_CMD_TE_KEY, cmd_te);
 #endif
 
+
+	file_lb_hb = gtk_hbox_new(FALSE, 0);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), file_lb_hb, 0, 1, 3, 4);
+	gtk_widget_show(file_lb_hb);
+
+    file_lb = gtk_label_new("File:");
+	gtk_box_pack_end(GTK_BOX(file_lb_hb), file_lb, FALSE, FALSE, 0);
+	gtk_widget_show(file_lb);
+
 	/* File button and text entry */
 	file_bt_hb = gtk_hbox_new(FALSE, 0);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), file_bt_hb, 0, 1, 3, 4);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), file_bt_hb, 1, 2, 3, 4);
 	gtk_widget_show(file_bt_hb);
 
-	file_bt = gtk_button_new_with_label("File:");
+    file_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_BROWSE);
 	gtk_box_pack_end(GTK_BOX(file_bt_hb), file_bt, FALSE, FALSE, 0);
 	gtk_widget_show(file_bt);
 
 	file_te = gtk_entry_new();
 	OBJECT_SET_DATA(main_vb, PRINT_FILE_TE_KEY, file_te);
 	if (prefs.pr_file) gtk_entry_set_text(GTK_ENTRY(file_te), prefs.pr_file);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), file_te, 1, 2, 3, 4);
+	gtk_box_pack_start(GTK_BOX(file_bt_hb), file_te, TRUE, TRUE, 0);
 	gtk_widget_show(file_te);
 
 	SIGNAL_CONNECT(file_bt, "clicked", printer_opts_file_cb, file_te);

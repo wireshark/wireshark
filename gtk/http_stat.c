@@ -1,7 +1,7 @@
 /* http_stat.c
  * http_stat   2003 Jean-Michel FAYARD
  *
- * $Id: http_stat.c,v 1.14 2004/01/13 22:49:14 guy Exp $
+ * $Id: http_stat.c,v 1.15 2004/01/21 03:54:30 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -574,7 +574,7 @@ gtk_httpstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_widget_show(bbox);
 
 	/* the start button */
-	start_button=gtk_button_new_with_label("Create Stat");
+	start_button=BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_CREATE_STAT);
         SIGNAL_CONNECT_OBJECT(start_button, "clicked",
                               httpstat_start_button_clicked, NULL);
 	gtk_box_pack_start(GTK_BOX(bbox), start_button, TRUE, TRUE, 0);

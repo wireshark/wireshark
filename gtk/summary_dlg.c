@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.21 2003/12/21 22:32:07 guy Exp $
+ * $Id: summary_dlg.c,v 1.22 2004/01/21 03:54:31 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -266,11 +266,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(bbox);
 
   /* Create Close Button */
-#if GTK_MAJOR_VERSION < 2
-  close_bt = gtk_button_new_with_label("Close");
-#else
-  close_bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
-#endif
+  close_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
   SIGNAL_CONNECT_OBJECT(close_bt, "clicked", gtk_widget_destroy, sum_open_w);
   GTK_WIDGET_SET_FLAGS(close_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start(GTK_BOX(bbox), close_bt, FALSE,FALSE, 0);

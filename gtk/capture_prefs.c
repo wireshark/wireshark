@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.25 2004/01/10 16:27:39 ulfl Exp $
+ * $Id: capture_prefs.c,v 1.26 2004/01/21 03:54:29 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,13 +122,13 @@ capture_prefs_show(void)
 	gtk_widget_show(if_cb);
 	OBJECT_SET_DATA(main_vb, DEVICE_KEY, if_cb);
 
-	/* Interface options */
-	ifopts_lb = gtk_label_new("Interface options:");
+	/* Interface properties */
+	ifopts_lb = gtk_label_new("Interface:");
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), ifopts_lb, 0, 1, 1, 2);
 	gtk_misc_set_alignment(GTK_MISC(ifopts_lb), 1.0, 0.5);
 	gtk_widget_show(ifopts_lb);
 
-	ifopts_bt = gtk_button_new_with_label("Edit...");
+	ifopts_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_EDIT);
 	SIGNAL_CONNECT(ifopts_bt, "clicked", ifopts_edit_cb, NULL);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), ifopts_bt, 1, 2, 1, 2 );
 

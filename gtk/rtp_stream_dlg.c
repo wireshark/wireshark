@@ -1,7 +1,7 @@
 /* rtp_stream_dlg.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream_dlg.c,v 1.8 2004/01/03 18:05:57 sharpe Exp $
+ * $Id: rtp_stream_dlg.c,v 1.9 2004/01/21 03:54:31 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -611,7 +611,7 @@ static void rtpstream_dlg_create (void)
 	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_unselect);
 	GTK_WIDGET_SET_FLAGS (bt_unselect, GTK_CAN_DEFAULT);
 /*	
-	bt_goto = gtk_button_new_with_label ("Go to Frame");
+	bt_goto = BUTTON_NEW_FROM_STOCK(GTK_STOCK_JUMP_TO);
 	gtk_widget_ref (bt_goto);
 	OBJECT_SET_DATA_FULL(rtpstream_dlg_w, "bt_goto", bt_goto,
 		             gtk_widget_unref);
@@ -619,7 +619,7 @@ static void rtpstream_dlg_create (void)
 	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_goto);
 	GTK_WIDGET_SET_FLAGS (bt_goto, GTK_CAN_DEFAULT);
 */	
-	bt_save = gtk_button_new_with_label ("Save as...");
+	bt_save = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE_AS);
 	gtk_widget_ref (bt_save);
 	OBJECT_SET_DATA_FULL(rtpstream_dlg_w, "bt_save", bt_save,
                              gtk_widget_unref);
@@ -651,7 +651,7 @@ static void rtpstream_dlg_create (void)
 	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_analyse);
 	GTK_WIDGET_SET_FLAGS (bt_analyse, GTK_CAN_DEFAULT);
 	
-	bt_close = gtk_button_new_with_label ("Close");
+    bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
 	gtk_widget_ref (bt_close);
 	OBJECT_SET_DATA_FULL(rtpstream_dlg_w, "bt_close", bt_close,
                              gtk_widget_unref);

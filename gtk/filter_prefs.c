@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.48 2004/01/18 00:40:39 ulfl Exp $
+ * $Id: filter_prefs.c,v 1.49 2004/01/21 03:54:29 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -411,7 +411,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_container_add(GTK_CONTAINER(list_bb), new_bt);
     gtk_widget_show(new_bt);
 
-    chg_bt = gtk_button_new_with_label ("Change");
+    chg_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_EDIT);
     gtk_widget_set_sensitive(chg_bt, FALSE);
     SIGNAL_CONNECT(chg_bt, "clicked", filter_chg_bt_clicked_cb, filter_list_p);
     OBJECT_SET_DATA(main_w, E_FILT_CHG_BT_KEY, chg_bt);
@@ -439,7 +439,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     if (list == DFILTER_LIST) {
         /* Create the "Add Expression..." button, to pop up a dialog
            for constructing filter comparison expressions. */
-        add_expression_bt = gtk_button_new_with_label("Add Expression...");
+        add_expression_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_ADD_EXPRESSION);
         SIGNAL_CONNECT(add_expression_bt, "clicked", filter_expr_cb, main_w);
         gtk_container_add(GTK_CONTAINER(list_bb), add_expression_bt);
         gtk_widget_show(add_expression_bt);

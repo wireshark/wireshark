@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.42 2004/01/19 23:43:29 guy Exp $
+ * $Id: dcerpc_stat.c,v 1.43 2004/01/21 03:54:29 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -619,18 +619,18 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	filter_box=gtk_hbox_new(FALSE, 3);
 
 	/* Filter label */
-	filter_bt=gtk_button_new_with_label("Filter:");
+	filter_bt=BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY);
 	SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_bt, FALSE, FALSE, 0);
 	gtk_widget_show(filter_bt);
 
 	/* Filter entry */
 	filter_entry=gtk_entry_new();
-	WIDGET_SET_SIZE(filter_entry, 300, -2);
+	WIDGET_SET_SIZE(filter_entry, 300, -1);
 
 	/* Filter entry */
 	filter_entry=gtk_entry_new();
-	WIDGET_SET_SIZE(filter_entry, 300, -2);
+	WIDGET_SET_SIZE(filter_entry, 300, -1);
 
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_entry, TRUE, TRUE, 0);
 	filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
@@ -650,7 +650,7 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_widget_show(bbox);
 
 	/* the start button */
-	start_button=gtk_button_new_with_label("Create Stat");
+	start_button=BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_CREATE_STAT);
 	SIGNAL_CONNECT_OBJECT(start_button, "clicked", 
                               dcerpcstat_start_button_clicked, NULL);
 	gtk_box_pack_start(GTK_BOX(bbox), start_button, TRUE, TRUE, 0);

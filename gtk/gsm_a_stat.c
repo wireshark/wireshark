@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: gsm_a_stat.c,v 1.7 2004/01/03 18:05:56 sharpe Exp $
+ * $Id: gsm_a_stat.c,v 1.8 2004/01/21 03:54:29 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -411,7 +411,7 @@ gsm_a_stat_gtk_win_create(
     gtk_button_box_set_layout(GTK_BUTTON_BOX(hbuttonbox), GTK_BUTTONBOX_END);
     gtk_button_box_set_spacing(GTK_BUTTON_BOX(hbuttonbox), 0);
 
-    bt_close = gtk_button_new_with_label("Close");
+    bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
     gtk_widget_ref(bt_close);
     OBJECT_SET_DATA_FULL(dlg_p->win, "bt_close", bt_close, gtk_widget_unref);
     gtk_widget_show(bt_close);

@@ -2,7 +2,7 @@
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.c,v 1.23 2004/01/20 18:47:25 ulfl Exp $
+ * $Id: toolbar.c,v 1.24 2004/01/21 03:54:31 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,8 +71,6 @@
 #ifdef HAVE_LIBPCAP
 #include "../image/toolbar/stock_stop_24.xpm"
 #endif /* HAVE_LIBPCAP */
-#include "../image/toolbar/stock_open_24.xpm"
-#include "../image/toolbar/stock_save_24.xpm"
 #include "../image/toolbar/stock_save_as_24.xpm"
 #include "../image/toolbar/stock_close_24.xpm"
 #include "../image/toolbar/stock_refresh_24.xpm"
@@ -96,7 +94,13 @@
 #include "../image/toolbar/cfilter_24.xpm"
 #endif /* HAVE_LIBPCAP */
 #include "../image/toolbar/dfilter_24.xpm"
+/* these icons are standard stock icons, but used for ethereal specific stock icon labels */
+#include "../image/toolbar/stock_add_24.xpm"
+#include "../image/toolbar/stock_open_24.xpm"
+#include "../image/toolbar/stock_ok_20.xpm"
+#include "../image/toolbar/stock_save_24.xpm"
 #include "../image/toolbar/stock_preferences_24.xpm"
+#include "../image/toolbar/stock_properties_24.xpm"
 
 
 /* XXX: add this key to some .h file, as it adds a key to the top level Widget? */
@@ -138,6 +142,12 @@ void ethereal_stock_icons(void) {
         { ETHEREAL_STOCK_DISPLAY_FILTER,        ETHEREAL_STOCK_LABEL_DISPLAY_FILTER,        0, 0, NULL },
         { ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY,  ETHEREAL_STOCK_LABEL_DISPLAY_FILTER_ENTRY,  0, 0, NULL },
         { ETHEREAL_STOCK_PREFS,                 ETHEREAL_STOCK_LABEL_PREFS,                 0, 0, NULL },
+        { ETHEREAL_STOCK_BROWSE,                ETHEREAL_STOCK_LABEL_BROWSE,                0, 0, NULL },
+        { ETHEREAL_STOCK_CREATE_STAT,           ETHEREAL_STOCK_LABEL_CREATE_STAT,           0, 0, NULL },
+        { ETHEREAL_STOCK_EXPORT,                ETHEREAL_STOCK_LABEL_EXPORT,                0, 0, NULL },
+        { ETHEREAL_STOCK_IMPORT,                ETHEREAL_STOCK_LABEL_IMPORT,                0, 0, NULL },
+        { ETHEREAL_STOCK_EDIT,                  ETHEREAL_STOCK_LABEL_EDIT,                  0, 0, NULL },
+        { ETHEREAL_STOCK_ADD_EXPRESSION,        ETHEREAL_STOCK_LABEL_ADD_EXPRESSION,        0, 0, NULL },
     };
 
     static const stock_pixmap_t pixmaps[] = {
@@ -149,6 +159,12 @@ void ethereal_stock_icons(void) {
         { ETHEREAL_STOCK_DISPLAY_FILTER,        dfilter_24_xpm },
         { ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY,  dfilter_24_xpm },
         { ETHEREAL_STOCK_PREFS,                 stock_preferences_24_xpm },
+        { ETHEREAL_STOCK_BROWSE,                stock_open_24_xpm },
+        { ETHEREAL_STOCK_CREATE_STAT,           stock_ok_20_xpm },
+        { ETHEREAL_STOCK_EXPORT,                stock_save_24_xpm },    /* XXX: needs a better icon */
+        { ETHEREAL_STOCK_IMPORT,                stock_save_24_xpm },    /* XXX: needs a better icon */
+        { ETHEREAL_STOCK_EDIT,                  stock_properties_24_xpm },
+        { ETHEREAL_STOCK_ADD_EXPRESSION,        stock_add_24_xpm },
         { NULL, NULL }
     };
 

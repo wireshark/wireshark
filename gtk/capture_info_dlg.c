@@ -1,7 +1,7 @@
 /* capture_info_dlg.c
  * Routines for packet capture info dialog
  *
- * $Id: capture_info_dlg.c,v 1.9 2004/01/05 18:11:27 ulfl Exp $
+ * $Id: capture_info_dlg.c,v 1.10 2004/01/21 03:54:29 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -202,11 +202,7 @@ capture_info    *cinfo)
 
   /* allow user to either click a stop button, or the close button on
 	the window to stop a capture in progress. */
-#if GTK_MAJOR_VERSION < 2
-  stop_bt = gtk_button_new_with_label ("Stop");
-#else
-  stop_bt = gtk_button_new_from_stock(GTK_STOCK_STOP);
-#endif
+  stop_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_STOP);
   SIGNAL_CONNECT(stop_bt, "clicked", capture_info_stop_cb,
                  cinfo->callback_data);
   SIGNAL_CONNECT(info->cap_w, "delete_event", capture_info_delete_cb,

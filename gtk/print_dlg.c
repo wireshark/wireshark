@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.54 2004/01/10 16:27:42 ulfl Exp $
+ * $Id: print_dlg.c,v 1.55 2004/01/21 03:54:30 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -430,7 +430,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   if (print_to_file)
     gtk_widget_grab_focus(file_te);
 
-  file_bt = gtk_button_new_with_label("Browse");
+  file_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_BROWSE);
   OBJECT_SET_DATA(dest_cb, PRINT_FILE_BT_KEY, file_bt);
   OBJECT_SET_DATA(file_bt, E_FILE_TE_PTR_KEY, file_te);
   gtk_tooltips_set_tip (tooltips, file_bt, ("Browse output filename in filesystem"), NULL);

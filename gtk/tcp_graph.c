@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.44 2004/01/13 08:25:00 guy Exp $
+ * $Id: tcp_graph.c,v 1.45 2004/01/21 03:54:31 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1037,13 +1037,8 @@ static void callback_create_help(GtkWidget *widget _U_, gpointer data _U_)
 	gtk_text_buffer_set_text(buf, helptext, -1);
 #endif
 	gtk_container_add (GTK_CONTAINER (scroll), text);
-#if GTK_MAJOR_VERSION < 2
-	close = gtk_button_new_with_label ("Close");
+    close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
 	gtk_box_pack_start (GTK_BOX (box), close, FALSE, FALSE, 0);
-#else
-        close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
-	gtk_box_pack_start (GTK_BOX (box), close, FALSE, FALSE, 0);
-#endif
 	SIGNAL_CONNECT(close, "clicked", callback_close_help, toplevel);
 
 	gtk_widget_show_all (toplevel);

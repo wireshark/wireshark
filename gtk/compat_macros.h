@@ -1,7 +1,7 @@
 /* compat_macros.h
  * GTK-related Global defines, etc.
  *
- * $Id: compat_macros.h,v 1.10 2004/01/20 18:47:23 ulfl Exp $
+ * $Id: compat_macros.h,v 1.11 2004/01/21 03:54:29 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,14 +25,6 @@
 #ifndef __COMPAT_MACROS_H__
 #define __COMPAT_MACROS_H__
 
-#ifdef HAVE_LIBPCAP
-#define ETHEREAL_STOCK_LABEL_CAPTURE_START            "_New"
-#define ETHEREAL_STOCK_LABEL_CAPTURE_FILTER           "_CFilter"
-#define ETHEREAL_STOCK_LABEL_CAPTURE_FILTER_ENTRY     "CFilter:"
-#endif
-#define ETHEREAL_STOCK_LABEL_DISPLAY_FILTER           "_DFilter"
-#define ETHEREAL_STOCK_LABEL_DISPLAY_FILTER_ENTRY     "DFilter:"
-#define ETHEREAL_STOCK_LABEL_PREFS                    "_Prefs"
 
 /*
  * helper macros fro gtk1.2/gtk2 compatibility :
@@ -116,11 +108,17 @@ gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name)
 #ifdef HAVE_LIBPCAP
 #define ETHEREAL_STOCK_CAPTURE_START            "New"
 #define ETHEREAL_STOCK_CAPTURE_FILTER           "CFilter"
-#define ETHEREAL_STOCK_CAPTURE_FILTER_ENTRY     "CFilter:"
+#define ETHEREAL_STOCK_CAPTURE_FILTER_ENTRY     "Capture Filter:"
 #endif
-#define ETHEREAL_STOCK_DISPLAY_FILTER           "DFilter"
-#define ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY     "DFilter:"
+#define ETHEREAL_STOCK_DISPLAY_FILTER           "Filter"
+#define ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY     "Filter:"
 #define ETHEREAL_STOCK_PREFS                    "Prefs"
+#define ETHEREAL_STOCK_BROWSE                   "Browse"
+#define ETHEREAL_STOCK_CREATE_STAT              "Create Stat"
+#define ETHEREAL_STOCK_EXPORT                   "Export..."
+#define ETHEREAL_STOCK_IMPORT                   "Import..."
+#define ETHEREAL_STOCK_EDIT                     "Edit..."
+#define ETHEREAL_STOCK_ADD_EXPRESSION           "Add Expression..."
 
 #define BUTTON_NEW_FROM_STOCK(stock_id) \
 gtk_button_new_with_label(stock_id);
@@ -178,6 +176,21 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 {path, accelerator, GTK_MENU_FUNC(callback), action, "<StockItem>", data}
 
 #ifdef HAVE_LIBPCAP
+#define ETHEREAL_STOCK_LABEL_CAPTURE_START            "_New"
+#define ETHEREAL_STOCK_LABEL_CAPTURE_FILTER           "_CFilter"
+#define ETHEREAL_STOCK_LABEL_CAPTURE_FILTER_ENTRY     "_Capture Filter:"
+#endif
+#define ETHEREAL_STOCK_LABEL_DISPLAY_FILTER           "Filter"
+#define ETHEREAL_STOCK_LABEL_DISPLAY_FILTER_ENTRY     "Filter:"
+#define ETHEREAL_STOCK_LABEL_PREFS                    "_Prefs"
+#define ETHEREAL_STOCK_LABEL_BROWSE                   "" /* icon only */
+#define ETHEREAL_STOCK_LABEL_CREATE_STAT              "Create Stat"
+#define ETHEREAL_STOCK_LABEL_EXPORT                   "Export..."
+#define ETHEREAL_STOCK_LABEL_IMPORT                   "Import..."
+#define ETHEREAL_STOCK_LABEL_EDIT                     "Edit..."
+#define ETHEREAL_STOCK_LABEL_ADD_EXPRESSION           "Expression..." /* plus sign coming from icon */
+
+#ifdef HAVE_LIBPCAP
 #define ETHEREAL_STOCK_CAPTURE_START            "Ethereal_Stock_CaptureStart"
 #define ETHEREAL_STOCK_CAPTURE_FILTER           "Ethereal_Stock_CaptureFilter"
 #define ETHEREAL_STOCK_CAPTURE_FILTER_ENTRY     "Ethereal_Stock_CaptureFilter_Entry"
@@ -185,6 +198,12 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 #define ETHEREAL_STOCK_DISPLAY_FILTER           "Ethereal_Stock_DisplayFilter"
 #define ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY     "Ethereal_Stock_DisplayFilter_Entry"
 #define ETHEREAL_STOCK_PREFS                    "Ethereal_Stock_Prefs"
+#define ETHEREAL_STOCK_BROWSE                   "Ethereal_Stock_Browse"
+#define ETHEREAL_STOCK_CREATE_STAT              "Ethereal_Stock_CreateStat"
+#define ETHEREAL_STOCK_EXPORT                   "Ethereal_Stock_Export"
+#define ETHEREAL_STOCK_IMPORT                   "Ethereal_Stock_Import"
+#define ETHEREAL_STOCK_EDIT                     "Ethereal_Stock_Edit"
+#define ETHEREAL_STOCK_ADD_EXPRESSION           "Ethereal_Stock_Edit_Add_Expression"
 
 #define BUTTON_NEW_FROM_STOCK(stock_id) \
 gtk_button_new_from_stock(stock_id);

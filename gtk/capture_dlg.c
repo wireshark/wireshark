@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.94 2004/01/20 02:21:17 ulfl Exp $
+ * $Id: capture_dlg.c,v 1.95 2004/01/21 03:54:28 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -233,7 +233,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                 *promisc_cb,
                 *filter_hb, *filter_bt, *filter_te,
                 *file_fr, *file_vb,
-                *file_hb, *file_bt, *file_te,
+                *file_hb, *file_bt, *file_lb, *file_te,
                 *ringbuffer_hb, *ringbuffer_on_tb, *ringbuffer_nbf_lb, *ringbuffer_nbf_sb,
                 *display_fr, *display_vb,
                 *sync_cb, *auto_scroll_cb,
@@ -429,13 +429,17 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(file_vb), file_hb);
   gtk_widget_show(file_hb);
 
-  file_bt = gtk_button_new_with_label("File:");
-  gtk_box_pack_start(GTK_BOX(file_hb), file_bt, FALSE, FALSE, 3);
-  gtk_widget_show(file_bt);
+  file_lb = gtk_label_new("File:");
+  gtk_box_pack_start(GTK_BOX(file_hb), file_lb, FALSE, FALSE, 3);
+  gtk_widget_show(file_lb);
 
   file_te = gtk_entry_new();
   gtk_box_pack_start(GTK_BOX(file_hb), file_te, TRUE, TRUE, 3);
   gtk_widget_show(file_te);
+
+  file_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_BROWSE);
+  gtk_box_pack_start(GTK_BOX(file_hb), file_bt, FALSE, FALSE, 3);
+  gtk_widget_show(file_bt);
 
   SIGNAL_CONNECT(file_bt, "clicked", capture_prep_file_cb, file_te);
 

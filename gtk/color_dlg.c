@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.33 2004/01/18 00:33:03 ulfl Exp $
+ * $Id: color_dlg.c,v 1.34 2004/01/21 03:54:29 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -260,7 +260,7 @@ colorize_dialog_new (char *filter)
   gtk_box_pack_start (GTK_BOX (edit_vbox), color_new, FALSE, FALSE, 5);
   gtk_tooltips_set_tip (tooltips, color_new, ("Create a new filter after the selected filter"), NULL);
 
-  color_props = BUTTON_NEW_FROM_STOCK(GTK_STOCK_PROPERTIES);
+  color_props = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_EDIT);
   gtk_widget_ref (color_props);
   OBJECT_SET_DATA_FULL(color_win, "color_props", color_props, gtk_widget_unref);
   gtk_widget_show (color_props);
@@ -296,7 +296,7 @@ colorize_dialog_new (char *filter)
   gtk_widget_show (manage_vbox);
   gtk_container_add(GTK_CONTAINER(manage_fr), manage_vbox);
 
-  color_export = gtk_button_new_with_label (("Export..."));
+  color_export = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_EXPORT);
   gtk_widget_ref(color_export);
   gtk_box_pack_start (GTK_BOX (manage_vbox), color_export, FALSE, FALSE, 5);
 #if GTK_MAJOR_VERSION < 2
@@ -305,7 +305,7 @@ colorize_dialog_new (char *filter)
   gtk_widget_show(color_export);
   gtk_tooltips_set_tip(tooltips, color_export, ("Save all/marked filters to specified file"), NULL);
 
-  color_import = gtk_button_new_with_label (("Import..."));
+  color_import = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_IMPORT);
   gtk_widget_ref(color_import);
   gtk_box_pack_start (GTK_BOX (manage_vbox), color_import, FALSE, FALSE, 5);
 #if GTK_MAJOR_VERSION < 2
@@ -1306,7 +1306,7 @@ edit_color_filter_dialog_new(GtkWidget *color_filters,
 
     /* Create the "Add Expression..." button, to pop up a dialog
        for constructing filter comparison expressions. */
-    add_expression_bt = gtk_button_new_with_label("Add Expression...");
+    add_expression_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_ADD_EXPRESSION);
     SIGNAL_CONNECT(add_expression_bt, "clicked", filter_expr_cb, *colorize_filter_text);
     gtk_box_pack_start (GTK_BOX(filter_string_hbox), add_expression_bt, FALSE, FALSE, 3);
     gtk_widget_show(add_expression_bt);
@@ -1350,7 +1350,7 @@ edit_color_filter_dialog_new(GtkWidget *color_filters,
     gtk_widget_show (button_hbox);
     gtk_box_pack_start (GTK_BOX (dialog_vbox), button_hbox, FALSE, FALSE, 5);
 
-    edit_color_filter_ok = gtk_button_new_with_label (("OK"));
+    edit_color_filter_ok = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
     gtk_widget_ref (edit_color_filter_ok);
     OBJECT_SET_DATA_FULL(edit_dialog, "edit_color_filter_ok", edit_color_filter_ok,
                          gtk_widget_unref);
@@ -1358,7 +1358,7 @@ edit_color_filter_dialog_new(GtkWidget *color_filters,
     gtk_box_pack_start (GTK_BOX (button_hbox), edit_color_filter_ok, TRUE, FALSE, 0);
     gtk_tooltips_set_tip (tooltips, edit_color_filter_ok, ("Accept filter color change"), NULL);
 
-    edit_color_filter_cancel = gtk_button_new_with_label (("Cancel"));
+    edit_color_filter_cancel = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
     gtk_widget_ref (edit_color_filter_cancel);
     OBJECT_SET_DATA_FULL(edit_dialog, "edit_color_filter_cancel",
                          edit_color_filter_cancel, gtk_widget_unref);

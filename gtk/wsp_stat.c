@@ -1,7 +1,7 @@
 /* wsp_stat.c
  * wsp_stat   2003 Jean-Michel FAYARD
  *
- * $Id: wsp_stat.c,v 1.12 2004/01/13 22:49:15 guy Exp $
+ * $Id: wsp_stat.c,v 1.13 2004/01/21 03:54:31 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -478,7 +478,7 @@ gtk_wspstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_widget_show(bbox);
 
 	/* the start button */
-	start_button=gtk_button_new_with_label("Create Stat");
+	start_button=BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_CREATE_STAT);
         SIGNAL_CONNECT_OBJECT(start_button, "clicked",
                               wspstat_start_button_clicked, NULL);
 	gtk_box_pack_start(GTK_BOX(bbox), start_button, TRUE, TRUE, 0);

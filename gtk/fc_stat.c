@@ -1,7 +1,7 @@
 /* fc_stat.c
  * fc_stat   2003 Ronnie Sahlberg
  *
- * $Id: fc_stat.c,v 1.19 2004/01/13 22:49:14 guy Exp $
+ * $Id: fc_stat.c,v 1.20 2004/01/21 03:54:29 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -252,7 +252,7 @@ gtk_fcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	filter_box=gtk_hbox_new(FALSE, 3);
 
 	/* Filter button */
-	filter_bt=gtk_button_new_with_label("Filter:");
+	filter_bt=BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY);
 	SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_bt, FALSE, FALSE, 0);
 	gtk_widget_show(filter_bt);
@@ -283,7 +283,7 @@ gtk_fcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_widget_show(bbox);
 
 	/* the start button */
-	start_button=gtk_button_new_with_label("Create Stat");
+	start_button=BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_CREATE_STAT);
         SIGNAL_CONNECT_OBJECT(start_button, "clicked",
                               fcstat_start_button_clicked, NULL);
 	gtk_box_pack_start(GTK_BOX(bbox), start_button, TRUE, TRUE, 0);

@@ -2,7 +2,7 @@
  * Routines for display filter dialog used by gui taps
  * Copyright 2003 Lars Roland
  *
- * $Id: tap_dfilter_dlg.c,v 1.3 2004/01/10 16:27:42 ulfl Exp $
+ * $Id: tap_dfilter_dlg.c,v 1.4 2004/01/21 03:54:31 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -175,7 +175,7 @@ gtk_tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
 	filter_box=gtk_hbox_new(FALSE, 3);
 
 	/* Filter button */
-	filter_bt = gtk_button_new_with_label("Filter:");
+	filter_bt=BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY);
 	SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &(current_dlg->args));
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_bt, FALSE, TRUE, 0);
 	gtk_widget_show(filter_bt);
@@ -206,7 +206,7 @@ gtk_tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
 	gtk_widget_show(bbox);
 
 	/* the start button */
-	start_button=gtk_button_new_with_label("Create Stat");
+	start_button=BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_CREATE_STAT);
         SIGNAL_CONNECT(start_button, "clicked",
                               tap_dfilter_dlg_start_button_clicked, current_dlg);
 	gtk_box_pack_start(GTK_BOX(bbox), start_button, TRUE, TRUE, 0);

@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.79 2004/01/19 00:42:10 ulfl Exp $
+ * $Id: proto_draw.c,v 1.80 2004/01/21 03:54:30 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -790,13 +790,13 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 
 	/* File entry */
 	file_entry=gtk_entry_new();
-	WIDGET_SET_SIZE(file_entry, 300, -2);
+	WIDGET_SET_SIZE(file_entry, 300, -1);
 	gtk_tooltips_set_tip(tooltips, file_entry, ("Enter Save Data filename"), NULL);
 	gtk_box_pack_start(GTK_BOX(file_box), file_entry, TRUE, TRUE, 0);
 	gtk_widget_show(file_entry);
 
 	/* File Browse button */
-	file_bt = gtk_button_new_with_label("Browse");
+	file_bt=BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_BROWSE);
 	SIGNAL_CONNECT(file_bt, "clicked", select_file_cb,
 		       "Ethereal: Save Highlighted Data to File");
 
@@ -819,8 +819,8 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 	gtk_widget_show(bbox);
 
 	/* the save button */
-	save_button=gtk_button_new_with_label("Save");
-        SIGNAL_CONNECT_OBJECT(save_button, "clicked",
+	save_button=BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE);
+    SIGNAL_CONNECT_OBJECT(save_button, "clicked",
                               savehex_save_clicked_cb, NULL);
 	gtk_box_pack_start(GTK_BOX(bbox), save_button, TRUE, TRUE, 0);
 	GTK_WIDGET_SET_FLAGS(save_button, GTK_CAN_DEFAULT);

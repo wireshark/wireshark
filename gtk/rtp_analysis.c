@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.20 2004/01/20 19:31:46 ulfl Exp $
+ * $Id: rtp_analysis.c,v 1.21 2004/01/21 03:54:31 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -1719,12 +1719,12 @@ void create_rtp_dialog(user_data_t* user_data)
 	gtk_widget_show(csv_bt);
 	SIGNAL_CONNECT(csv_bt, "clicked", save_csv_as_cb, user_data);
 /*
-	refresh_bt = gtk_button_new_with_label("Refresh");
+	refresh_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_REFRESH);
 	gtk_container_add(GTK_CONTAINER(box4), refresh_bt);
 	gtk_widget_show(refresh_bt);
 	SIGNAL_CONNECT(refresh_bt, "clicked", on_refresh_bt_clicked, user_data);
 */
-	goto_bt = gtk_button_new_with_label("Go to frame");
+	goto_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_JUMP_TO);
 	gtk_container_add(GTK_CONTAINER(box4), goto_bt);
 	gtk_widget_show(goto_bt);
 	SIGNAL_CONNECT(goto_bt, "clicked", on_goto_bt_clicked, user_data);
@@ -1736,12 +1736,12 @@ void create_rtp_dialog(user_data_t* user_data)
 	SIGNAL_CONNECT(graph_bt, "clicked", on_graph_bt_clicked, user_data);
 #endif
 
-	next_bt = gtk_button_new_with_label("Next");
+	next_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_FORWARD);
 	gtk_container_add(GTK_CONTAINER(box4), next_bt);
 	gtk_widget_show(next_bt);
 	SIGNAL_CONNECT(next_bt, "clicked", on_next_bt_clicked, user_data);
 
-	close_bt = gtk_button_new_with_label("Close");
+    close_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
 	gtk_container_add(GTK_CONTAINER(box4), close_bt);
 	gtk_widget_show(close_bt);
 	SIGNAL_CONNECT(close_bt, "clicked", on_close_bt_clicked, user_data);
