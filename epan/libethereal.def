@@ -196,7 +196,6 @@ find_dissector_table
 find_protocol_by_id
 find_tap_id
 find_val_for_string
-flags_set_truth                 DATA
 follow_tcp_stats
 fragment_add
 fragment_add_seq
