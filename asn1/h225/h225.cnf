@@ -436,7 +436,20 @@ guint32 value_len;
                                            1U, 65535U, &(h225_pi.requestSeqNum), NULL, FALSE);
 
 #----------------------------------------------------------------------------------------
+#.FN_BODY H323-UU-PDU/h4501SupplementaryService/_item
 
+	tvbuff_t *h4501_tvb;
+	guint32 h4501_offset=0;
+	guint32 h4501_len=0;
+
+	offset=dissect_per_octet_string(tvb, offset, pinfo, tree, -1, -1, -1, &h4501_offset, &h4501_len);
+
+	if(h4501_len){
+		h4501_tvb = tvb_new_subset(tvb, h4501_offset, h4501_len, h4501_len);
+		call_dissector(h4501_handle, h4501_tvb, pinfo, tree);
+	}
+#.END
+#----------------------------------------------------------------------------------------
 #.TYPE_ATTR
 H221NonStandard/t35CountryCode TYPE = FT_UINT32  DISPLAY = BASE_DEC  STRINGS = VALS(T35CountryCode_vals)
 TransportAddress/ipAddress/ip  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
@@ -445,3 +458,4 @@ H245TransportAddress/h245ipAddress/h245ipv4 TYPE = FT_IPv4  DISPLAY = BASE_NONE 
 H245TransportAddress/h245ip6Address/h245ipv6 TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL
 VendorIdentifier/productId TYPE = FT_STRING DISPLAY = BASE_HEX STRINGS = NULL
 VendorIdentifier/versionId TYPE = FT_STRING DISPLAY = BASE_HEX STRINGS = NULL
+H323-UserInformation/user-data/protocol-discriminator TYPE = FT_UINT32 DISPLAY = BASE_DEC STRINGS = VALS(q931_protocol_discriminator_vals)

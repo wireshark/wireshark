@@ -53,6 +53,7 @@
 #include "packet-ber.h"
 #include "packet-h235.h"
 #include "packet-h245.h"
+#include "packet-q931.h"
 
 #define PNAME  "h225"
 #define PSNAME "H225"
