@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.32 2003/01/28 18:35:40 guy Exp $
+ * $Id: column-utils.c,v 1.33 2003/04/16 04:52:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,6 +57,7 @@ col_init(column_info *col_info, gint num_cols)
   col_info->col_title	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
   col_info->col_data	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
   col_info->col_buf	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
+  col_info->col_fence	= (int *) g_malloc(sizeof(int) * num_cols);
   col_info->col_expr	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
   col_info->col_expr_val = (gchar **) g_malloc(sizeof(gchar *) * num_cols);
 }
@@ -89,7 +90,19 @@ check_col(column_info *cinfo, gint el) {
   return FALSE;
 }
 
+/* Sets the fence for a column to be at the end of the column. */
+void
+col_set_fence(column_info *cinfo, gint el)
+{
+  int i;
 
+  if (cinfo && cinfo->writable) {
+    for (i = 0; i < cinfo->num_cols; i++) {
+      if (cinfo->fmt_matx[i][el])
+        cinfo->col_fence[i] = strlen(cinfo->col_data[i]);
+    }
+  }
+}
 
 /* Use this to clear out a column, especially if you're going to be
    appending to it later; at least on some platforms, it's more
@@ -98,28 +111,88 @@ check_col(column_info *cinfo, gint el) {
    later append to it, as the later append will cause a string
    copy to be done. */
 void
-col_clear(column_info *cinfo, gint el) {
+col_clear(column_info *cinfo, gint el)
+{
   int    i;
+  int    fence;
 
   for (i = 0; i < cinfo->num_cols; i++) {
     if (cinfo->fmt_matx[i][el]) {
-      cinfo->col_buf[i][0] = 0;
-      cinfo->col_data[i] = cinfo->col_buf[i];
+      /*
+       * At this point, either
+       *
+       *   1) col_data[i] is equal to col_buf[i], in which case we
+       *      don't have to worry about copying col_data[i] to
+       *      col_buf[i];
+       *
+       *   2) col_data[i] isn't equal to col_buf[i], in which case
+       *      the only thing that's been done to the column is
+       *      "col_set_str()" calls and possibly "col_set_fence()"
+       *      calls, in which case the fence is either unset and
+       *      at the beginning of the string or set and at the end
+       *      of the string - if it's at the beginning, we're just
+       *      going to clear the column, and if it's at the end,
+       *      we don't do anything.
+       */
+      fence = cinfo->col_fence[i];
+      if (fence == 0 || cinfo->col_buf[i] == cinfo->col_data[i]) {
+        /*
+         * The fence isn't at the end of the column, or the column wasn't
+         * last set with "col_set_str()", so clear the column out.
+         */
+        cinfo->col_buf[i][fence] = '\0';
+        cinfo->col_data[i] = cinfo->col_buf[i];
+      }
       cinfo->col_expr[i][0] = '\0';
       cinfo->col_expr_val[i][0] = '\0';
     }
   }
 }
 
+#define COL_CHECK_APPEND(cinfo, i, max_len) \
+  if (cinfo->col_data[i] != cinfo->col_buf[i]) {		\
+    /* This was set with "col_set_str()"; copy the string they	\
+       set it to into the buffer, so we can append to it. */	\
+    strncpy(cinfo->col_buf[i], cinfo->col_data[i], max_len);	\
+    cinfo->col_buf[i][max_len - 1] = '\0';			\
+    cinfo->col_data[i] = cinfo->col_buf[i];			\
+  }
+
 /* Use this if "str" points to something that will stay around (and thus
    needn't be copied). */
 void
-col_set_str(column_info *cinfo, gint el, gchar* str) {
+col_set_str(column_info *cinfo, gint el, gchar* str)
+{
   int i;
+  int fence;
+  size_t len, max_len;
+
+  if (el == COL_INFO)
+	max_len = COL_MAX_INFO_LEN;
+  else
+	max_len = COL_MAX_LEN;
 
   for (i = 0; i < cinfo->num_cols; i++) {
-    if (cinfo->fmt_matx[i][el])
-      cinfo->col_data[i] = str;
+    if (cinfo->fmt_matx[i][el]) {
+      fence = cinfo->col_fence[i];
+      if (fence != 0) {
+        /*
+         * We will append the string after the fence.
+         * First arrange that we can append, if necessary.
+         */
+        COL_CHECK_APPEND(cinfo, i, max_len);
+
+        len = strlen(cinfo->col_buf[i]);
+        strncat(cinfo->col_buf[i], str, max_len - len);
+        cinfo->col_buf[i][max_len - 1] = 0;
+      } else {
+        /*
+         * There's no fence, so we can just set the column to point
+         * to the string.
+         */
+        cinfo->col_data[i] = str;
+      }
+    }
   }
 }
 
@@ -128,6 +201,7 @@ void
 col_add_fstr(column_info *cinfo, gint el, const gchar *format, ...) {
   va_list ap;
   int     i;
+  int     fence;
   size_t  max_len;
 
   if (el == COL_INFO)
@@ -138,8 +212,20 @@ col_add_fstr(column_info *cinfo, gint el, const gchar *format, ...) {
   va_start(ap, format);
   for (i = 0; i < cinfo->num_cols; i++) {
     if (cinfo->fmt_matx[i][el]) {
-      vsnprintf(cinfo->col_buf[i], max_len, format, ap);
-      cinfo->col_data[i] = cinfo->col_buf[i];
+      fence = cinfo->col_fence[i];
+      if (fence != 0) {
+        /*
+         * We will append the string after the fence.
+         * First arrange that we can append, if necessary.
+         */
+        COL_CHECK_APPEND(cinfo, i, max_len);
+      } else {
+        /*
+         * There's no fence, so we can just write to the string.
+         */
+        cinfo->col_data[i] = cinfo->col_buf[i];
+      }
+      vsnprintf(&cinfo->col_buf[i][fence], max_len - fence, format, ap);
     }
   }
   va_end(ap);
@@ -147,7 +233,8 @@ col_add_fstr(column_info *cinfo, gint el, const gchar *format, ...) {
 
 /* Appends a vararg list to a packet info string. */
 void
-col_append_fstr(column_info *cinfo, gint el, const gchar *format, ...) {
+col_append_fstr(column_info *cinfo, gint el, const gchar *format, ...)
+{
   va_list ap;
   int     i;
   size_t  len, max_len;
@@ -160,15 +247,12 @@ col_append_fstr(column_info *cinfo, gint el, const gchar *format, ...) {
   va_start(ap, format);
   for (i = 0; i < cinfo->num_cols; i++) {
     if (cinfo->fmt_matx[i][el]) {
-      if (cinfo->col_data[i] != cinfo->col_buf[i]) {
-      	/* This was set with "col_set_str()"; copy the string they
-	   set it to into the buffer, so we can append to it. */
-	strncpy(cinfo->col_buf[i], cinfo->col_data[i], max_len);
-	cinfo->col_buf[i][max_len - 1] = '\0';
-      }
+      /*
+       * First arrange that we can append, if necessary.
+       */
+      COL_CHECK_APPEND(cinfo, i, max_len);
       len = strlen(cinfo->col_buf[i]);
       vsnprintf(&cinfo->col_buf[i][len], max_len - len, format, ap);
-      cinfo->col_data[i] = cinfo->col_buf[i];
     }
   }
   va_end(ap);
@@ -203,6 +287,14 @@ col_prepend_fstr(column_info *cinfo, gint el, const gchar *format, ...)
 	orig[max_len - 1] = '\0';
       }
       vsnprintf(cinfo->col_buf[i], max_len, format, ap);
+      cinfo->col_buf[i][max_len - 1] = '\0';
+
+      /*
+       * Move the fence, unless it's at the beginning of the string.
+       */
+      if (cinfo->col_fence[i] > 0)
+        cinfo->col_fence[i] += strlen(cinfo->col_buf[i]);
+
       strncat(cinfo->col_buf[i], orig, max_len);
       cinfo->col_buf[i][max_len - 1] = '\0';
       cinfo->col_data[i] = cinfo->col_buf[i];
@@ -214,8 +306,10 @@ col_prepend_fstr(column_info *cinfo, gint el, const gchar *format, ...)
 /* Use this if "str" points to something that won't stay around (and
    must thus be copied). */
 void
-col_add_str(column_info *cinfo, gint el, const gchar* str) {
+col_add_str(column_info *cinfo, gint el, const gchar* str)
+{
   int    i;
+  int    fence;
   size_t max_len;
 
   if (el == COL_INFO)
@@ -225,15 +319,28 @@ col_add_str(column_info *cinfo, gint el, const gchar* str) {
 
   for (i = 0; i < cinfo->num_cols; i++) {
     if (cinfo->fmt_matx[i][el]) {
-      strncpy(cinfo->col_buf[i], str, max_len);
+      fence = cinfo->col_fence[i];
+      if (fence != 0) {
+        /*
+         * We will append the string after the fence.
+         * First arrange that we can append, if necessary.
+         */
+        COL_CHECK_APPEND(cinfo, i, max_len);
+      } else {
+        /*
+         * There's no fence, so we can just write to the string.
+         */
+        cinfo->col_data[i] = cinfo->col_buf[i];
+      }
+      strncpy(&cinfo->col_buf[i][fence], str, max_len - fence);
       cinfo->col_buf[i][max_len - 1] = 0;
-      cinfo->col_data[i] = cinfo->col_buf[i];
     }
   }
 }
 
 void
-col_append_str(column_info *cinfo, gint el, const gchar* str) {
+col_append_str(column_info *cinfo, gint el, const gchar* str)
+{
   int    i;
   size_t len, max_len;
 
@@ -244,16 +351,13 @@ col_append_str(column_info *cinfo, gint el, const gchar* str) {
 
   for (i = 0; i < cinfo->num_cols; i++) {
     if (cinfo->fmt_matx[i][el]) {
-      if (cinfo->col_data[i] != cinfo->col_buf[i]) {
-      	/* This was set with "col_set_str()"; copy the string they
-	   set it to into the buffer, so we can append to it. */
-	strncpy(cinfo->col_buf[i], cinfo->col_data[i], max_len);
-	cinfo->col_buf[i][max_len - 1] = '\0';
-      }
+      /*
+       * First arrange that we can append, if necessary.
+       */
+      COL_CHECK_APPEND(cinfo, i, max_len);
       len = strlen(cinfo->col_buf[i]);
       strncat(cinfo->col_buf[i], str, max_len - len);
       cinfo->col_buf[i][max_len - 1] = 0;
-      cinfo->col_data[i] = cinfo->col_buf[i];
     }
   }
 }

@@ -1,12 +1,11 @@
 /* column.h
  * Definitions for column structures and routines
  *
- * $Id: column_info.h,v 1.7 2003/01/22 06:26:36 guy Exp $
+ * $Id: column_info.h,v 1.8 2003/04/16 04:52:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,7 +21,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
 
 #ifndef __COLUMN_INFO_H__
 #define __COLUMN_INFO_H__
@@ -40,6 +38,7 @@ typedef struct _column_info {
   gchar    **col_title; /* Column titles */
   gchar    **col_data;  /* Column data */
   gchar    **col_buf;   /* Buffer into which to copy data for column */
+  int      *col_fence;  /* Stuff in column buffer before this index is immutable */
   gchar    **col_expr;  /* Filter expression */
   gchar    **col_expr_val;  /* Value for filter expression */
   gboolean   writable;  /* Are we stil writing to the columns? */

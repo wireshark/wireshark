@@ -1,7 +1,7 @@
 /* column-utils.h
  * Definitions for column utility structures and routines
  *
- * $Id: column-utils.h,v 1.9 2002/12/02 23:34:38 guy Exp $
+ * $Id: column-utils.h,v 1.10 2003/04/16 04:52:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,6 +42,7 @@ extern void	col_init(column_info *, gint);
 extern gboolean	col_get_writable(column_info *);
 extern void	col_set_writable(column_info *, gboolean);
 extern gint	check_col(column_info *, gint);
+extern void	col_set_fence(column_info *, gint);
 extern void	col_clear(column_info *, gint);
 extern void	col_set_str(column_info *, gint, gchar *);
 #if __GNUC__ >= 2
