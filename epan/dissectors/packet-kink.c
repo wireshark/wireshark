@@ -179,7 +179,7 @@ dissect_kink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
   guint8 type;
   guint8 major_version, minor_version, version;
   guint32 doi;
-  guint8 chsumlen;
+  guint chsumlen;
   guint8 next_payload;
   guint8 value_a_and_front_reserved;
   guint16 value_a_and_reserved;
@@ -320,7 +320,7 @@ dissect_payload_kink_ap_req(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   proto_item *ti;
   guint8 next_payload;
   guint8 reserved;
-  guint16 payload_length;
+  guint payload_length;
   guint16 krb_ap_req_length;
   time_t timer;                  /* For showing utc */
   struct tm *tp;                 /* For showing utc */
@@ -381,7 +381,7 @@ dissect_payload_kink_ap_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   proto_item *ti;
   guint8 next_payload;
   guint8 reserved;
-  guint16 payload_length;
+  guint payload_length;
   guint16 krb_ap_rep_length;
   time_t timer;
   struct tm *tp;
@@ -442,7 +442,7 @@ dissect_payload_kink_krb_error(packet_info *pinfo, tvbuff_t *tvb, int offset, pr
   proto_item *ti;
   guint8 next_payload;
   guint8 reserved;
-  guint16 payload_length;
+  guint payload_length;
   guint16 krb_error_length;
   int start_payload_offset = 0; /* Keep the begining of the payload offset  */
 
@@ -493,7 +493,7 @@ dissect_payload_kink_tgt_req(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   proto_item *ti;
   guint8 next_payload;
   guint8 reserved;
-  guint16 payload_length;
+  guint payload_length;
   guint16 realm_name_length;
   int start_payload_offset = 0; /* Keep the begining of the payload offset  */
 
@@ -537,8 +537,8 @@ dissect_payload_kink_tgt_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   proto_item *ti;
   guint8 next_payload;
   guint8 reserved;
-  guint16 payload_length;
-  guint16 princ_name_length;
+  guint payload_length;
+  guint princ_name_length;
   guint16 tgt_length;
   int start_payload_offset = 0; /* Keep the begining of the payload offset  */
 
@@ -596,7 +596,7 @@ dissect_payload_kink_isakmp(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   proto_item *ti;
   guint8 next_payload;
   guint8 reserved;
-  guint16 payload_length;
+  guint payload_length;
   guint8 inner_next_pload;
   guint8 qm, qmmaj, qmmin;
   guint16 reserved2;
@@ -666,7 +666,7 @@ dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   proto_item *ti;
   guint8 next_payload;
   guint8 reserved;
-  guint16 payload_length;
+  guint payload_length;
   guint8 inner_next_pload;
   guint32 reserved2;
   guint16 inner_payload_length;
@@ -794,7 +794,7 @@ dissect_payload_kink_not_defined(packet_info *pinfo, tvbuff_t *tvb, int offset, 
   proto_tree *payload_kink_not_defined_tree;
   proto_item *ti;
   guint8 next_payload;
-  guint16 payload_length;
+  guint payload_length;
   guint8 reserved;
   int start_payload_offset = 0;   /* Keep the begining of the payload offset */
   
@@ -881,7 +881,7 @@ proto_register_kink(void) {
     
   };
   
-  proto_kink = proto_register_protocol("Kerberized Internet Negotiation of Key", "KINK", "KINK");
+  proto_kink = proto_register_protocol("Kerberized Internet Negotiation of Key", "KINK", "kink");
   proto_register_field_array(proto_kink, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
