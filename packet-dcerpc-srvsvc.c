@@ -6,7 +6,7 @@
  * Copyright 2002, Ronnie Sahlberg
  *   rewrote entire dissector
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.35 2002/06/22 14:04:56 sahlberg Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.36 2002/06/22 22:55:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6479,12 +6479,13 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_ver_minor,
 	    { "Minor Version", "srvsvc.version.minor", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Minor Version", HFILL}},
-	  /* XXX - Should break this out. We know it from browsing. */
+	  /* XXX - Should break this out. We know it from browsing.
+	     See "dissect_smb_server_type_flags()" in "packet-smb-browse.c" */
 	  { &hf_srvsvc_server_type,
 	    { "Server Type", "srvsvc.server.type", FT_UINT32,
 	      BASE_HEX, NULL, 0x0, "Server Type", HFILL}},
 	  { &hf_srvsvc_client_type,
-	    { "Client Type", "srvsvc.Client.type", FT_STRING,
+	    { "Client Type", "srvsvc.client.type", FT_STRING,
 	      BASE_NONE, NULL, 0x0, "Client Type", HFILL}},
 	  { &hf_srvsvc_comment, 
 	    { "Comment", "srvsvc.comment", FT_STRING,
