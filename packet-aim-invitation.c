@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection, SNAC Invitation
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-invitation.c,v 1.2 2004/03/23 18:36:05 guy Exp $
+ * $Id: packet-aim-invitation.c,v 1.3 2004/03/24 06:36:32 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -87,7 +87,7 @@ proto_register_aim_invitation(void)
 void
 proto_reg_handoff_aim_invitation(void)
 {
-  dissector_handle_t aim_handle;
+  /*dissector_handle_t aim_handle;*/
   /* FIXME: Add dissector
    * aim_handle = new_create_dissector_handle(dissect_aim_invitation, proto_aim_invitation);
    * dissector_add("aim.family", FAMILY_INVITATION, aim_handle);
