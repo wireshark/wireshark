@@ -9,7 +9,7 @@
  * 2002, some share information levels implemented based on samba
  * sources.
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.59 2003/08/04 02:49:00 tpot Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.60 2003/09/27 23:34:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6604,7 +6604,7 @@ srvsvc_dissect_netrservertransportaddex_reply(tvbuff_t *tvb, int offset,
 
 
 /*
- * IDL long NetrServerSetServiceBits2(
+ * IDL long NetrServerSetServiceBitsEx(
  * IDL      [in] [string] [unique] wchar_t *ServerName,
  * IDL      [in] [string] [unique] wchar_t *EmulatedServerName,
  * IDL      [in] [string] [unique] wchar_t *Transport,
@@ -6614,7 +6614,7 @@ srvsvc_dissect_netrservertransportaddex_reply(tvbuff_t *tvb, int offset,
  * IDL );
  */
 static int
-srvsvc_dissect_netrserversetservicebits2_rqst(tvbuff_t *tvb, int offset,
+srvsvc_dissect_netrserversetservicebitsex_rqst(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
@@ -6640,7 +6640,7 @@ srvsvc_dissect_netrserversetservicebits2_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 static int
-srvsvc_dissect_netrserversetservicebits2_reply(tvbuff_t *tvb, int offset,
+srvsvc_dissect_netrserversetservicebitsex_reply(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
@@ -6747,7 +6747,7 @@ static dcerpc_sub_dissector dcerpc_srvsvc_dissectors[] = {
 	{SRV_NETRSERVERSETSERVICEBITS,	"NetrServerSetServiceBits",
 		srvsvc_dissect_netrsetserverservicebits_rqst,
 		srvsvc_dissect_netrsetserverservicebits_reply},
-	{SRV_NETRPRPATHTYPE,		"NetrPathType",
+	{SRV_NETRPRPATHTYPE,		"NetrpPathType",
 		srvsvc_dissect_netrpathtype_rqst,
 		srvsvc_dissect_netrpathtype_reply},
 	{SRV_NETRPRPATHCANONICALIZE,	"NetrpPathCanonicalize",
@@ -6783,9 +6783,31 @@ static dcerpc_sub_dissector dcerpc_srvsvc_dissectors[] = {
 	{SRV_NETRSERVERTRANSPORTADDEX,	"NetrServerTransportAddEx",
 		srvsvc_dissect_netrservertransportaddex_rqst,
 		srvsvc_dissect_netrservertransportaddex_reply},
-	{SRV_NETRSERVERSETSERVICEBITS2,	"NetrServerSetServiceBits2",
-		srvsvc_dissect_netrserversetservicebits2_rqst,
-		srvsvc_dissect_netrserversetservicebits2_reply},
+	{SRV_NETRSERVERSETSERVICEBITSEX,"NetrServerSetServiceBitsEx",
+		srvsvc_dissect_netrserversetservicebitsex_rqst,
+		srvsvc_dissect_netrserversetservicebitsex_reply},
+	{ SRV_NETRDFSGETVERSION, "NetrDfsGetVersion", 
+		NULL, NULL },
+	{ SRV_NETRDFSCREATELOCALPARTITION, "NetrDfsCreateLocalPartition", 
+		NULL, NULL },
+	{ SRV_NETRDFSDELETELOCALPARTITION, "NetrDfsDeleteLocalPartition", 
+		NULL, NULL },
+	{ SRV_NETRDFSSETLOCALVOLUMESTATE, "NetrDfsSetLocalVolumeState", 
+		NULL, NULL },
+	{ SRV_NETRDFSSETSERVERINFO, "NetrDfsSetServerInfo", 
+		NULL, NULL },
+	{ SRV_NETRDFSCREATEEXITPOINT, "NetrDfsCreateExitPoint", 
+		NULL, NULL },
+	{ SRV_NETRDFSDELETEEXITPOINT, "NetrDfsDeleteExitPoint", 
+		NULL, NULL },
+	{ SRV_NETRDFSMODIFYPREFIX, "NetrDfsModifyPrefix", 
+		NULL, NULL },
+	{ SRV_NETRDFSFIXLOCALVOLUME, "NetrDfsFixLocalVolume", 
+		NULL, NULL },
+	{ SRV_NETRDFSMANAGERREPORTSITEINFO, "NetrDfsManagerReportSiteInfo", 
+		NULL, NULL },
+	{ SRV_NETRSERVERTRANSPORTDELEX, "NetrServerTransportDelEx",
+		NULL, NULL },
 	{0, NULL, NULL, NULL}
 };
 
