@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.225 2002/03/17 11:24:16 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.226 2002/03/17 11:59:36 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -587,6 +587,8 @@ static gint ett_smb_nt_create_options = -1;
 static gint ett_smb_nt_share_access = -1;
 static gint ett_smb_nt_security_flags = -1;
 static gint ett_smb_nt_trans_setup = -1;
+static gint ett_smb_nt_trans_data = -1;
+static gint ett_smb_nt_trans_param = -1;
 static gint ett_smb_nt_notify_completion_filter = -1;
 static gint ett_smb_nt_ioctl_flags = -1;
 static gint ett_smb_security_information_mask = -1;
@@ -6950,19 +6952,51 @@ dissect_nt_sec_desc(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *p
 }
 
 static int
-dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int len, nt_trans_data *ntd)
+dissect_nt_user_quota(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 *bcp)
+{
+	int old_offset=offset;
+
+	/* first 24 bytes are unknown */
+	CHECK_BYTE_COUNT_TRANS_SUBR(24);
+	proto_tree_add_item(tree, hf_smb_unknown, tvb,
+		    offset, 24, TRUE);
+	COUNT_BYTES_TRANS_SUBR(24);
+
+	/* number of bytes for quota warning */
+	CHECK_BYTE_COUNT_TRANS_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_soft_quota_limit, tvb, offset, 8, TRUE);
+	COUNT_BYTES_TRANS_SUBR(8);
+
+	/* number of bytes for quota limit */
+	CHECK_BYTE_COUNT_TRANS_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_hard_quota_limit, tvb, offset, 8, TRUE);
+	COUNT_BYTES_TRANS_SUBR(8);
+
+	/* SID of the user */
+	old_offset=offset;
+	offset = dissect_nt_sid(tvb, pinfo, offset, tree, "Quota");
+	*bcp -= (offset-old_offset);
+
+	return offset;
+}
+
+
+static int
+dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int bc, nt_trans_data *ntd)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	smb_info_t *si;
+	int old_offset = offset;
+	guint16 bcp=bc; /* XXX fixme */
 
 	si = (smb_info_t *)pinfo->private_data;
 
 	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, len,
+		item = proto_tree_add_text(parent_tree, tvb, offset, bc,
 				"%s Data",
 				val_to_str(ntd->subcmd, nt_cmd_vals, "Unknown NT transaction (%u)"));
-		tree = proto_item_add_subtree(item, ett_smb_nt_trans_setup);
+		tree = proto_item_add_subtree(item, ett_smb_nt_trans_data);
 	}
 
 	switch(ntd->subcmd){
@@ -6981,12 +7015,12 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 		break;
 	case NT_TRANS_IOCTL:
 		/* ioctl data */
-		proto_tree_add_item(tree, hf_smb_nt_ioctl_data, tvb, offset, len, TRUE);
-		offset += len;
+		proto_tree_add_item(tree, hf_smb_nt_ioctl_data, tvb, offset, bc, TRUE);
+		offset += bc;
 
 		break;
 	case NT_TRANS_SSD:
-		offset = dissect_nt_sec_desc(tvb, pinfo, offset, tree, len);
+		offset = dissect_nt_sec_desc(tvb, pinfo, offset, tree, bc);
 		break;
 	case NT_TRANS_NOTIFY:
 		break;
@@ -6999,8 +7033,15 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 		/* not decoded yet */
 		break;
 	case NT_TRANS_SET_USER_QUOTA:
-		/* not decoded yet */
+		offset = dissect_nt_user_quota(tvb, pinfo, tree, offset, &bcp);
 		break;
+	}
+
+	/* ooops there were data we didnt know how to process */
+	if((offset-old_offset) < bc){
+		proto_tree_add_item(tree, hf_smb_unknown, tvb, offset,
+		    bc - (offset-old_offset), TRUE);
+		offset += bc - (offset-old_offset);
 	}
 
 	return offset;
@@ -7021,7 +7062,7 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		item = proto_tree_add_text(parent_tree, tvb, offset, len,
 				"%s Parameters",
 				val_to_str(ntd->subcmd, nt_cmd_vals, "Unknown NT transaction (%u)"));
-		tree = proto_item_add_subtree(item, ett_smb_nt_trans_setup);
+		tree = proto_item_add_subtree(item, ett_smb_nt_trans_param);
 	}
 
 	switch(ntd->subcmd){
@@ -7438,7 +7479,7 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 			item = proto_tree_add_text(parent_tree, tvb, offset, len,
 				"Unknown NT Transaction Data (matching request not seen)");
 		}
-		tree = proto_item_add_subtree(item, ett_smb_nt_trans_setup);
+		tree = proto_item_add_subtree(item, ett_smb_nt_trans_data);
 	}
 
 	if (nti == NULL) {
@@ -7510,7 +7551,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo, int offset, p
 			item = proto_tree_add_text(parent_tree, tvb, offset, len,
 				"Unknown NT Transaction Parameters (matching request not seen)");
 		}
-		tree = proto_item_add_subtree(item, ett_smb_nt_trans_setup);
+		tree = proto_item_add_subtree(item, ett_smb_nt_trans_param);
 	}
 
 	if (nti == NULL) {
@@ -16317,6 +16358,8 @@ proto_register_smb(void)
 		&ett_smb_nt_share_access,
 		&ett_smb_nt_security_flags,
 		&ett_smb_nt_trans_setup,
+		&ett_smb_nt_trans_data,
+		&ett_smb_nt_trans_param,
 		&ett_smb_nt_notify_completion_filter,
 		&ett_smb_nt_ioctl_flags,
 		&ett_smb_security_information_mask,
