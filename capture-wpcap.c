@@ -70,7 +70,7 @@ static int     (*p_pcap_findalldevs) (pcap_if_t **, char *);
 static void    (*p_pcap_freealldevs) (pcap_if_t *);
 #endif
 #ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
-static const char *(*p_pcap_datalink_name_to_val) (int);
+static int (*p_pcap_datalink_name_to_val) (const char *);
 #endif
 #ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
 static const char *(*p_pcap_datalink_val_to_name) (int);
@@ -267,7 +267,7 @@ int
 pcap_datalink_name_to_val(const char *name)
 {
 	g_assert(has_wpcap && p_pcap_datalink_name_to_val != NULL);
-	return p_pcap_datalink_name_to_val(dlt);
+	return p_pcap_datalink_name_to_val(name);
 }
 #endif
 
