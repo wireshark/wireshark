@@ -1,7 +1,7 @@
 /* summary.c
  * Routines for capture file summary window
  *
- * $Id: summary.c,v 1.3 1999/07/07 22:52:00 gram Exp $
+ * $Id: summary.c,v 1.4 1999/07/09 04:18:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,7 +33,6 @@
 #endif
 
 #include <gtk/gtk.h>
-#include <pcap.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -280,6 +279,7 @@ traffic_bytes/seconds);
   }
   add_string_to_box(string_buff, capture_box);
 
+#ifdef HAVE_LIBPCAP
   /* Capture filter */
   if (cf.cfilter) {
     snprintf(string_buff, SUM_STR_MAX, "Capture filter: %s", cf.cfilter);
@@ -287,6 +287,8 @@ traffic_bytes/seconds);
     sprintf(string_buff, "Capture filter: none");
   }
   add_string_to_box(string_buff, capture_box);
+#endif
+
   gtk_window_set_position(GTK_WINDOW(sum_open_w), GTK_WIN_POS_MOUSE);
   gtk_widget_show(sum_open_w);
 }

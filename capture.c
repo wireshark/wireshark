@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.29 1999/06/22 22:02:09 gram Exp $
+ * $Id: capture.c,v 1.30 1999/07/09 04:18:32 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,13 +28,13 @@
 # include "config.h"
 #endif
 
+#ifdef HAVE_LIBPCAP
+
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
 
 #include <gtk/gtk.h>
-#include <pcap.h>
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -638,3 +638,5 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   }
   
 }
+
+#endif /* HAVE_LIBPCAP */

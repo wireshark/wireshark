@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.18 1999/07/07 22:51:39 gram Exp $
+ * $Id: file.h,v 1.19 1999/07/09 04:18:35 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,8 +29,15 @@
 #include <sys/types.h>
 #include <sys/time.h>
 
+#ifndef __WTAP_H__
 #include <wtap.h>
+#endif
+
+#ifdef HAVE_LIBPCAP
+#ifndef lib_pcap_h
 #include <pcap.h>
+#endif
+#endif
 
 typedef struct bpf_program bpf_prog;
 
@@ -50,9 +57,11 @@ typedef struct _capture_file {
   gint        user_saved;/* Was capture file saved by user yet? */
   wtap       *wth;       /* Wiretap session */
   gchar      *dfilter;   /* Display filter string */
+  GNode      *dfcode;    /* Compiled display filter program */ 
+#ifdef HAVE_LIBPCAP
   gchar      *cfilter;   /* Capture filter string */
   bpf_prog    fcode;     /* Compiled capture filter program */
-  GNode      *dfcode;    /* Compiled display filter program */ 
+#endif
   /* XXX - I'm cheating for now. I'll hardcode 65536 here until I re-arrange
    * more header files so that ethereal.h is split up into two files, a
    * generic header and a gtk+-speficic header (or the gtk+ definitions are

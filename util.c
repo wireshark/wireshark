@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.15 1999/06/12 09:10:18 guy Exp $
+ * $Id: util.c,v 1.16 1999/07/09 04:18:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -73,7 +73,7 @@ const gchar *bm_key = "button mask";
  *
  */
  
-#define ESD_MAX_MSG_LEN 1024
+#define ESD_MAX_MSG_LEN 2048
 void
 simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
   GtkWidget   *win, *main_vb, *top_hb, *type_pm, *msg_label,

@@ -9,8 +9,7 @@ Installation Checklist
 
          http://www.gtk.org .
 
-         Ethereal should work with the latest 1.0.x version, as well as
-         the latest 1.2.x version.
+         Ethereal needs gtk+-1.2.0 or above.
 
          If you installed GTK+ from a binary package, you may have to
          install a "development" package; there may be separate "user's"
@@ -18,8 +17,8 @@ Installation Checklist
          header files and the like.  For example, Red Hat users will
          need to install a "gtk-devel" .rpm.
 
-  [ ] 2. Make sure you have libpcap installed.  The latest version can be
-         found at
+  [ ] 2. If you want to capture packets, make sure you have libpcap
+         installed.  The latest version can be found at
           
          ftp://ftp.ee.lbl.gov .
 
@@ -43,6 +42,10 @@ Installation Checklist
          Ethereal installs a support file (manuf) in /usr/local/etc by
          default.  You can change this location with the --sysconfdir
          option.
+
+         The --disable-pcap option allows you to compile without libpcap.
+         You won't be able to capture packets, but you can read traces
+         that have already been captured to disk by other programs.
 
   [ ] 4. Run 'make'.  Hopefully, you won't run into any problems.
 

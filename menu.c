@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.23 1999/07/07 22:51:40 gram Exp $
+ * $Id: menu.c,v 1.24 1999/07/09 04:18:35 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,12 +27,14 @@
 # include "config.h"
 #endif
 
-#include <glib.h>
-
 #include <gtk/gtk.h>
-#include <pcap.h>	/* for capture.h */
 
 #include <string.h>
+#include <stdio.h>
+
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
 
 #include "ethereal.h"
 #include "menu.h"
@@ -95,13 +97,17 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Edit/Find", "<control>F", NULL, 0, NULL},
   {"/Edit/<separator>", NULL, NULL, 0, "<Separator>"},
   {"/Edit/_Preferences...", NULL, GTK_MENU_FUNC(prefs_cb), E_PR_PG_NONE, NULL},
+#ifdef HAVE_LIBPCAP
   {"/_Capture", NULL, NULL, 0, "<Branch>" },
   {"/Capture/_Start...", "<control>K", GTK_MENU_FUNC(capture_prep_cb), 0, NULL},
+#endif
   {"/_Display", NULL, NULL, 0, "<Branch>" },
   {"/Display/_Options...", NULL, GTK_MENU_FUNC(display_opt_cb), 0, NULL},
   {"/Display/_Match Selected", NULL, GTK_MENU_FUNC(match_selected_cb), 0, NULL},
   {"/_Tools", NULL, NULL, 0, "<Branch>" },
+#ifdef HAVE_LIBPCAP
   {"/Tools/_Capture...", NULL, GTK_MENU_FUNC(capture_prep_cb), 0, NULL},
+#endif
   {"/Tools/_Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
 /*  {"/Tools/Graph", NULL, NULL, 0, NULL}, future use */
   {"/Tools/Summary", NULL, GTK_MENU_FUNC(summary_prep_cb), 0, NULL},
@@ -134,10 +140,14 @@ static GtkMenuEntry menu_items[] =
   {"<Main>/Edit/Find", "<control>F", NULL, NULL},
   {"<Main>/Edit/<separator>", NULL, NULL, NULL},
   {"<Main>/Edit/Preferences...", NULL, prefs_cb, (gpointer) E_PR_PG_NONE},
+#ifdef HAVE_LIBPCAP
   {"<Main>/Capture/Start...", "<control>K", capture_prep_cb, NULL},
+#endif
   {"<Main>/Display/Options...", NULL, display_opt_cb, NULL},
   {"<Main>/Display/Match Selected", NULL, match_selected_cb, NULL},
+#ifdef HAVE_LIBPCAP
   {"<Main>/Tools/Capture...", NULL, capture_prep_cb, NULL},
+#endif
   {"<Main>/Tools/Follow TCP Stream", NULL, follow_stream_cb, NULL},
 /*  {"<Main>/Tools/Graph", NULL, NULL, NULL}, future use */
   {"<Main>/Tools/Summary", NULL, summary_prep_cb, NULL},

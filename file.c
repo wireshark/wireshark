@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.34 1999/07/07 22:51:38 gram Exp $
+ * $Id: file.c,v 1.35 1999/07/09 04:18:35 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,8 +28,6 @@
 #endif
 
 #include <gtk/gtk.h>
-
-#include <pcap.h>
 
 #include <stdio.h>
 #include <unistd.h>

@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.28 1999/07/07 22:51:36 gram Exp $
+# $Id: configure.in,v 1.29 1999/07/09 04:18:33 gram Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
@@ -51,31 +51,40 @@ esac
 AM_PATH_GTK(1.2.0, CFLAGS="$CFLAGS $GTK_CFLAGS" LIBS="$LIBS $GTK_LIBS",
                    AC_MSG_ERROR(GTK+ distribution not found.))
 
-# Evidently, some systems have pcap.h, etc. in */include/pcap
-AC_MSG_CHECKING(for extraneous pcap header directories)
-found_pcap_dir=""
-for pcap_dir in /usr/include/pcap /usr/local/include/pcap
-do
-  if test -d $pcap_dir ; then
-    LIBS="$LIBS -L$pcap_dir"
-    CFLAGS="$CFLAGS -I$pcap_dir"
-    CPPFLAGS="$CPPFLAGS -I$pcap_dir"
-    found_pcap_dir=" $found_pcap_dir -L$pcap_dir"
-  fi
-done
+dnl pcap check
+AC_ARG_ENABLE(pcap,
+[  --enable-pcap           use libpcap for packet capturing.  [default=yes]],,enable_pcap=yes)
 
-if test "$found_pcap_dir" != "" ; then
-  AC_MSG_RESULT(found --$found_pcap_dir added to LIBS)
+AC_MSG_CHECKING(whether to use libpcap for packet capture)
+if test "x$enable_pcap" = "xno" ; then
+	AC_MSG_RESULT(no)
 else
-  AC_MSG_RESULT(not found)
+	AC_MSG_RESULT(yes)
+	# Evidently, some systems have pcap.h, etc. in */include/pcap
+	AC_MSG_CHECKING(for extraneous pcap header directories)
+	found_pcap_dir=""
+	for pcap_dir in /usr/include/pcap /usr/local/include/pcap
+	do
+	  if test -d $pcap_dir ; then
+	    LIBS="$LIBS -L$pcap_dir"
+	    CFLAGS="$CFLAGS -I$pcap_dir"
+	    CPPFLAGS="$CPPFLAGS -I$pcap_dir"
+	    found_pcap_dir=" $found_pcap_dir -L$pcap_dir"
+	  fi
+	done
+
+	if test "$found_pcap_dir" != "" ; then
+	  AC_MSG_RESULT(found --$found_pcap_dir added to LIBS)
+	else
+	  AC_MSG_RESULT(not found)
+	fi
+
+	# Pcap checks
+	AC_CHECK_HEADER(net/bpf.h,, AC_MSG_ERROR(Header file net/bpf.h not found.))
+	AC_CHECK_HEADER(pcap.h,, AC_MSG_ERROR(Header file pcap.h not found.))
+	AC_CHECK_LIB(pcap, pcap_open_offline,, AC_MSG_ERROR(Library libpcap not found.))
 fi
 
-# Pcap checks
-AC_CHECK_HEADER(net/bpf.h,, AC_MSG_ERROR(Header file net/bpf.h not found.))
-AC_CHECK_HEADER(pcap.h,, AC_MSG_ERROR(Header file pcap.h not found.))
-AC_CHECK_LIB(pcap, pcap_open_offline,, AC_MSG_ERROR(Library libpcap not found.))
-
-AC_SUBST(SUBDIRS)
 
 dnl ipv6 check
 AC_ARG_ENABLE(ipv6,
@@ -154,6 +163,9 @@ if test "$ac_cv_func_strerror" = no ; then
 fi
 AC_SUBST(STRERROR_C)
 AC_SUBST(STRERROR_O)
+
+dnl blank for now, but will be used in future
+AC_SUBST(SUBDIRS)
 
 AM_CONFIG_HEADER(config.h)
 AC_CONFIG_SUBDIRS(wiretap)

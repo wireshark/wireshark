@@ -1,7 +1,7 @@
 /* display.c
  * Routines for packet display windows
  *
- * $Id: display.c,v 1.7 1999/06/24 05:37:04 guy Exp $
+ * $Id: display.c,v 1.8 1999/07/09 04:18:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,7 +33,6 @@
 #endif
 
 #include <gtk/gtk.h>
-#include <pcap.h>
 
 #include <stdlib.h>
 #include <stdio.h>

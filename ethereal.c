@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.50 1999/07/08 04:23:02 gram Exp $
+ * $Id: ethereal.c,v 1.51 1999/07/09 04:18:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,7 +45,6 @@
 #endif
 
 #include <gtk/gtk.h>
-#include <pcap.h> /* needed for capture.h */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -627,10 +626,12 @@ void blank_packetinfo() {
 /* Things to do when the main window is realized */
 void
 main_realize_cb(GtkWidget *w, gpointer data) {
+#ifdef HAVE_LIBPCAP
   if (start_capture) {
     capture();
     start_capture = 0;
   }
+#endif
 }
 
 static void 
@@ -704,8 +705,10 @@ main(int argc, char *argv[])
   cf.wth		= NULL;
   cf.fh			= NULL;
   cf.dfilter		= NULL;
-  cf.cfilter		= NULL;
   cf.dfcode		= NULL;
+#ifdef HAVE_LIBPCAP
+  cf.cfilter		= NULL;
+#endif
   cf.iface		= NULL;
   cf.save_file		= NULL;
   cf.user_saved		= 0;
@@ -720,10 +723,16 @@ main(int argc, char *argv[])
   /* Assemble the compile-time options */
   snprintf(comp_info_str, 256,
 #ifdef GTK_MAJOR_VERSION
-    "GTK+ %d.%d.%d", GTK_MAJOR_VERSION, GTK_MINOR_VERSION,
-    GTK_MICRO_VERSION
+    "GTK+ %d.%d.%d, %s libpcap", GTK_MAJOR_VERSION, GTK_MINOR_VERSION,
+    GTK_MICRO_VERSION,
 #else
-    "GTK+ (version unknown)"
+    "GTK+ (version unknown), %s libpcap",
+#endif
+
+#ifdef HAVE_LIBPCAP
+   "with"
+#else
+   "without"
 #endif
    );
 
@@ -740,7 +749,9 @@ main(int argc, char *argv[])
         cf.count = atoi(optarg);
         break;
       case 'f':
+#ifdef HAVE_LIBPCAP
 	cf.cfilter = g_strdup(optarg);
+#endif
 	break;
       case 'F':	       /* Fork to capture */
         fork_mode = 1;

@@ -57,22 +57,12 @@ Multiple File Types
 The wiretap library is a packet-capture library currently under
 development parallel to ethereal.  In the future it is hoped that
 wiretap will have more features than libpcap, but wiretap is still in
-its infancy.  You can compile ethereal with the wiretap library by using
-'./configure --with-wiretap'.  Using wiretap will allow you to read
-libpcap, Sniffer, NetXray (and Sniffer Pro), Sun "snoop", LANalyzer,
-Microsoft Network Monitor, and AIX "iptrace" 2.0 trace files. Some minimal
-display filters now work. But because "Follow TCP Stream" relies on IP and TCP
-display filtering, and those aren't yet available in wiretap's display filter
-system, "Follow TCP Stream" is turned off when you compile --with-wiretap.
+its infancy. However, wiretap is used in ethereal for its ability
+to read mulitiple file types. You can read the following file
+formats, and create display filtes for them as well:
 
-You can still capture packets from within ethereal using libpcap, and therefore
-use libpcap-style capture filters, however.
-
-If you want to add support for other packet-capture file formats, please
-look at the wiretap source code in the wiretap directory.
-
-Please report any problems that are wiretap related to
-Gilbert Ramirez <gram@verdict.uthscsa.edu>.
+libpcap, Sniffer (uncompresed), NetXray, Sniffer Pro, snoop,
+Shomiti, LANalyzer, Network Monitor, and iptrace 2.0 (AIX)
 
 
 IPv6
