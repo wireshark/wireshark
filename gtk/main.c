@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.417 2004/03/18 19:04:32 obiot Exp $
+ * $Id: main.c,v 1.418 2004/03/19 06:23:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1064,6 +1064,39 @@ void collapse_all_cb(GtkWidget *widget _U_, gpointer data _U_) {
 void expand_all_cb(GtkWidget *widget _U_, gpointer data _U_) {
   if (cfile.edt->tree)
     expand_all_tree(cfile.edt->tree, tree_view);
+}
+
+void expand_tree_cb(GtkWidget *widget _U_, gpointer data _U_) {
+#if GTK_MAJOR_VERSION < 2    
+  GtkCTreeNode *node;
+#else
+  GtkTreeModel *model;
+  GtkTreePath  *path;
+  GtkTreeIter iter;
+  field_info *fi;
+  gboolean valid;
+#endif
+
+#if GTK_MAJOR_VERSION < 2
+  node = gtk_ctree_find_by_row_data(GTK_CTREE(tree_view), NULL, cfile.finfo_selected);
+  g_assert(node);
+  gtk_ctree_expand_recursive(GTK_CTREE(tree_view), node);
+#else
+  model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree_view));
+  path = NULL;
+  valid = gtk_tree_model_get_iter_first(model, &iter);
+  while (valid) {
+    gtk_tree_model_get(model, &iter, 1, &fi, -1);
+    if (fi == cfile.finfo_selected) {
+      path = gtk_tree_model_get_path(model, &iter);
+      break;
+    }
+    valid = gtk_tree_model_iter_next(model, &iter);
+  }
+  g_assert(path);
+  gtk_tree_view_expand_row(GTK_TREE_VIEW(tree_view), path, TRUE);
+  gtk_tree_path_free(path);
+#endif
 }
 
 void resolve_name_cb(GtkWidget *widget _U_, gpointer data _U_) {

@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.178 2004/03/18 19:04:33 obiot Exp $
+ * $Id: menu.c,v 1.179 2004/03/19 06:23:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -409,7 +409,8 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
                        prepare_selected_cb_or_ptree_not, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Collapse All", NULL, collapse_all_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Expand All", NULL, expand_all_cb, 0, NULL, NULL)
+    ITEM_FACTORY_ENTRY("/Expand All", NULL, expand_all_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Expand Tree", NULL, expand_tree_cb, 0, NULL, NULL)
 };
 
 static GtkItemFactoryEntry hexdump_menu_items[] =
@@ -1644,6 +1645,8 @@ set_menus_for_selected_packet(capture_file *cf)
       cf->current_frame != NULL);
   set_menu_sensitivity(tree_view_menu_factory, "/Expand All",
       cf->current_frame != NULL);
+  set_menu_sensitivity(tree_view_menu_factory, "/Expand Tree",
+      cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/View/Show Packet in New Window",
       cf->current_frame != NULL);
   set_menu_sensitivity(packet_list_menu_factory, "/Show Packet in New Window",
@@ -1759,6 +1762,7 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
 	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Properties...",
 	  properties);
+	set_menu_sensitivity(tree_view_menu_factory, "/Expand Tree", TRUE);
   } else {
 	set_menu_sensitivity(main_menu_factory,
 	    "/Go/Go to Corresponding Packet", FALSE);
@@ -1770,6 +1774,7 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	set_menu_sensitivity(tree_view_menu_factory, "/Prepare", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Properties...",
 	  FALSE);
+	set_menu_sensitivity(tree_view_menu_factory, "/Expand Tree", FALSE);
   }
 
   walk_menu_tree_for_selected_tree_row(tap_menu_tree_root, cf->finfo_selected);
