@@ -1,6 +1,6 @@
 # Makefile.am
 #
-# $Id: Makefile.am,v 1.10 2004/03/13 10:15:36 jmayer Exp $
+# $Id: Makefile.am,v 1.11 2004/03/24 21:27:44 obiot Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -25,6 +25,7 @@ noinst_LTLIBRARIES = libdfilter.la
 
 CLEANFILES = \
 	libdfilter.a		\
+	libdfilter.la		\
 	*~
 
 INCLUDES = -I$(srcdir)/../.. -I$(srcdir)/.. -I$(srcdir)/$(LEMON)

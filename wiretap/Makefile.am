@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Wiretap
 #
-# $Id: Makefile.am,v 1.51 2004/03/13 10:15:36 jmayer Exp $
+# $Id: Makefile.am,v 1.52 2004/03/24 21:27:44 obiot Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -28,6 +28,7 @@ libwiretap_la_LDFLAGS = -version-info 0:1:0
 
 CLEANFILES = \
 	libwiretap.a		\
+	libwiretap.la		\
 	*~
 
 MAINTAINERCLEANFILES = \

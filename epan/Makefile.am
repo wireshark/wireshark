@@ -2,7 +2,7 @@
 # Automake file for the EPAN library
 # (Ethereal Protocol ANalyzer Library)
 #
-# $Id: Makefile.am,v 1.44 2004/03/23 21:19:56 guy Exp $
+# $Id: Makefile.am,v 1.45 2004/03/24 21:27:43 obiot Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -111,6 +111,7 @@ EXTRA_DIST = \
 
 CLEANFILES = \
 	libethereal.a		\
+	libethereal.la		\
 	x11-declarations.h	\
 	x11-register-info.h	\
 	*~
