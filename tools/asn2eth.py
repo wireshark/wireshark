@@ -2438,8 +2438,8 @@ class EnumeratedType (Type):
       ext = 'TRUE'
     out += ectx.eth_type_fn_hdr(tname)
     if (ectx.Ber()):
-      body = ectx.eth_fn_call('dissect_ber_integer', ret='offset',
-                              par=(('pinfo', 'tree', 'tvb', 'offset', 'hf_index', 'NULL'),))
+      body = ectx.eth_fn_call('dissect_ber_integer_new', ret='offset',
+                              par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset', 'hf_index', 'NULL'),))
     elif (ectx.NPer()):
       body = "  offset = dissect_pern_constrained_integer_new(tvb, offset, pinfo, tree,\n"
       body += "                                               %s, %s, %s,\n" \
@@ -2874,8 +2874,8 @@ class IntegerType (Type):
     out = '\n'
     out += ectx.eth_type_fn_hdr(tname)
     if (ectx.Ber()):
-      body = ectx.eth_fn_call('dissect_ber_integer', ret='offset',
-                              par=(('pinfo', 'tree', 'tvb', 'offset', 'hf_index', 'NULL'),))
+      body = ectx.eth_fn_call('dissect_ber_integer_new', ret='offset',
+                              par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset', 'hf_index', 'NULL'),))
     elif (not self.HasConstraint()):
       if (ectx.NAPI()):
         body = ectx.eth_fn_call('dissect_pern_integer', ret='offset',
