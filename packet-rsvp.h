@@ -4,7 +4,7 @@
  *
  * (C) Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.h,v 1.5 1999/08/27 19:21:36 gram Exp $
+ * $Id: packet-rsvp.h,v 1.6 1999/08/27 20:10:14 guy Exp $
  *
  * For license details, see the COPYING file with this distribution
  *
@@ -209,7 +209,7 @@ typedef struct {
  */
 typedef struct {
     rsvp_object base;
-    long refresh_ms;
+    gint32 refresh_ms;
 } rsvp_time_values;
 
 /*
