@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.39 2002/02/18 01:08:36 guy Exp $
+ * $Id: packet-icq.c,v 1.40 2002/02/25 07:56:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -915,8 +915,8 @@ icqv5_cmd_send_text_code(proto_tree* tree, /* Tree to put the data in */
 {
     proto_tree* subtree = NULL;
     proto_item* ti = NULL;
-    guint16 len = 0;
-    guint16 x1 = -1;
+    guint16 len;
+    guint16 x1;
 
     if (tree){
 	ti = proto_tree_add_text(tree,
@@ -961,7 +961,7 @@ icqv5_cmd_add_to_list(proto_tree* tree, /* Tree to put the data in */
 		      tvbuff_t *tvb,    /* Decrypted packet content */
 		      int offset)       /* Offset from the start of the packet to the content */
 {
-    guint32 uin = -1;
+    guint32 uin;
     proto_tree* subtree;
     proto_item* ti;
 
@@ -1301,7 +1301,7 @@ icqv5_srv_multi(proto_tree* tree, /* Tree to put the data in */
 {
     proto_tree* subtree;
     proto_item* ti;
-    unsigned char num = -1;
+    guint8 num;
     guint16 pktSz;
     int i;
 
@@ -1388,7 +1388,7 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 	    /* This is almost the same as META_USER_FOUND,
 	     * however, there's an extra length field
 	     */
-	    guint16 pktLen = -1;
+	    guint16 pktLen;
 
 	    /* Read the length field */
 	    pktLen = tvb_get_letohs(tvb, offset);
@@ -1496,8 +1496,8 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 		NULL};
 	    const char** d = descr;
 	    guint16 country;
-	    unsigned char user_timezone = -1;
-	    unsigned char auth = -1;
+	    guint8 user_timezone;
+	    guint8 auth;
 	    int len = 0;
 #if 0
 	    /* Get the uin */
@@ -1583,12 +1583,11 @@ icqv5_srv_recv_message(proto_tree* tree, /* Tree to put the data in */
     proto_tree* subtree = NULL;
     proto_item* ti = NULL;
     int left = size;
-    guint32 uin = -1;
-    guint16 year = -1;
-    unsigned char month = -1;
-    unsigned char day = -1;
-    unsigned char hour = -1;
-    unsigned char minute = -1;
+    guint16 year;
+    guint8 month;
+    guint8 day;
+    guint8 hour;
+    guint8 minute;
     
     if (tree) {
 	ti = proto_tree_add_text(tree,
@@ -1597,14 +1596,12 @@ icqv5_srv_recv_message(proto_tree* tree, /* Tree to put the data in */
 				 4,
 				 "Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
-	uin = tvb_get_letohl(tvb, offset + SRV_RECV_MSG_UIN);
-	proto_tree_add_uint_format(subtree,
+	proto_tree_add_item(subtree,
 				   hf_icq_uin,
 				   tvb,
 				   offset + SRV_RECV_MSG_UIN,
 				   sizeof(guint32),
-				   uin,
-				   "UIN: %u", uin);
+				   TRUE);
 	year = tvb_get_letohs(tvb, offset + SRV_RECV_MSG_YEAR);
 	month = tvb_get_guint8(tvb, offset + SRV_RECV_MSG_MONTH);
 	day = tvb_get_guint8(tvb, offset + SRV_RECV_MSG_DAY);
@@ -1630,11 +1627,11 @@ icqv5_srv_rand_user(proto_tree* tree,      /* Tree to put the data in */
 {
     proto_tree* subtree = NULL;
     proto_item* ti = NULL;
-    guint32 uin = -1;
+    guint32 uin;
     const unsigned char* IP = NULL;
-    guint32 port = -1;
+    guint32 port;
     const unsigned char* realIP = NULL;
-    unsigned char commClass = -1;
+    guint8 commClass;
     guint32 status;
     guint16 tcpVer;
     
@@ -1658,7 +1655,8 @@ icqv5_srv_rand_user(proto_tree* tree,      /* Tree to put the data in */
 			    sizeof(guint32),
 			    "IP: %s",
 			    ip_to_str(IP));
-	/* guint32 portNum */
+	/* guint16 portNum */
+	/* XXX - 16 bits, or 32 bits? */
 	port = tvb_get_letohs(tvb, offset + SRV_RAND_USER_PORT);
 	proto_tree_add_text(subtree, tvb,
 			    offset + SRV_RAND_USER_UIN,
@@ -1670,13 +1668,14 @@ icqv5_srv_rand_user(proto_tree* tree,      /* Tree to put the data in */
 			    offset + SRV_RAND_USER_REAL_IP,
 			    sizeof(guint32),
 			    "RealIP: %s", ip_to_str(realIP));
-	/* guit16 Communication Class */
+	/* guint8 Communication Class */
 	commClass = tvb_get_guint8(tvb, offset + SRV_RAND_USER_CLASS);
 	proto_tree_add_text(subtree, tvb,
 			    offset + SRV_RAND_USER_CLASS,
-			    sizeof(unsigned char),
+			    sizeof(guint8),
 			    "Class: %s", (commClass!=4)?"User to User":"Through Server");
 	/* guint32 status */
+	/* XXX - 16 bits, or 32 bits? */
 	status = tvb_get_letohs(tvb, offset + SRV_RAND_USER_STATUS);
 	proto_tree_add_text(subtree, tvb,
 			    offset + SRV_RAND_USER_STATUS,
