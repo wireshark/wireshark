@@ -454,10 +454,23 @@ get_runtime_pcap_version(GString *str)
 	 * not and, if we have it and we have "pcap_lib_version()",
 	 * what version we have.
 	 */
+	GModule *handle;		/* handle returned by dlopen */
+	gchar *packetVer = NULL;
+
 	if (has_wpcap) {
+		/* An alternative method of obtaining the version number */
+		if ((handle = g_module_open("Packet.dll", 0)) != NULL) {
+			if (g_module_symbol(handle, "PacketLibraryVersion",
+			    (gpointer*)&packetVer) == FALSE)
+				packetVer = NULL;
+			g_module_close(handle);
+		}
+
 		g_string_sprintfa(str, "with ");
 		if (p_pcap_lib_version != NULL)
 			g_string_sprintfa(str, p_pcap_lib_version());
+		else if (packetVer != NULL)
+			g_string_sprintfa(str, "WinPcap (%s)", packetVer);
 		else
 			g_string_append(str, "WinPcap (version unknown)");
 	} else
