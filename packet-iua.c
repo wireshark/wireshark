@@ -6,9 +6,9 @@
  *   http://www.ietf.org/internet-drafts/draft-ietf-sigtran-iua-imp-guide-01.txt
  * To do: - provide better handling of length parameters
  *
- * Copyright 2002, Michael Tuexen <Michael.Tuexen[AT]siemens.com>
+ * Copyright 2002, Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-iua.c,v 1.19 2003/01/14 23:53:32 guy Exp $
+ * $Id: packet-iua.c,v 1.20 2003/04/19 20:09:00 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -789,8 +789,12 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
   message_type   = tvb_get_guint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(message_class * 256 + message_type, support_IG?message_class_type_acro_ig_values:message_class_type_acro_values, "UNKNOWN"));
-    col_append_str(pinfo->cinfo, COL_INFO, " ");
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_class * 256 + message_type, support_IG?message_class_type_acro_ig_values:message_class_type_acro_values, "UNKNOWN"));
+    if (!(message_class == MESSAGE_CLASS_QPTM_MESSAGE && ((message_type == MESSAGE_TYPE_DATA_REQUEST) ||
+    	                           	                      (message_type == MESSAGE_TYPE_DATA_INDICATION) ||
+    	                           	                      (message_type == MESSAGE_TYPE_UNIT_DATA_REQUEST) ||
+    	                           	                      (message_type == MESSAGE_TYPE_UNIT_DATA_INDICATION))))
+      col_set_fence(pinfo->cinfo, COL_INFO);
   };
 
   if (iua_tree) {

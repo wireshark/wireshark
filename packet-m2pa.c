@@ -5,9 +5,9 @@
  * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m2pa-06.txt
  *
  * Copyright 2001, 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>,
- * updated by Michael Tuexen <michael.tuexen[AT]siemens.com>
+ * updated by Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-m2pa.c,v 1.16 2003/01/14 23:53:32 guy Exp $
+ * $Id: packet-m2pa.c,v 1.17 2003/04/19 20:09:00 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -137,8 +137,19 @@ static const value_string v6_message_type_values[] = {
   { 0,                   NULL } };
 
 static void
-dissect_v2_header(tvbuff_t *header_tvb, proto_tree *m2pa_tree)
+dissect_v2_header(tvbuff_t *header_tvb, packet_info *pinfo, proto_tree *m2pa_tree)
 {
+  guint message_type;
+  
+  message_type  = tvb_get_guint8(header_tvb, V2_TYPE_OFFSET);
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, v2_message_type_values, "reserved"));
+    if (!(message_type == V2_USER_DATA_TYPE)){
+      col_set_fence(pinfo->cinfo, COL_INFO);
+    }
+  }
+
   if (m2pa_tree) {
     proto_tree_add_item(m2pa_tree, hf_version, header_tvb, VERSION_OFFSET,       VERSION_LENGTH, NETWORK_BYTE_ORDER);
     proto_tree_add_item(m2pa_tree, hf_spare,   header_tvb, SPARE_OFFSET,         SPARE_LENGTH,   NETWORK_BYTE_ORDER);
@@ -148,8 +159,18 @@ dissect_v2_header(tvbuff_t *header_tvb, proto_tree *m2pa_tree)
 }
 
 static void
-dissect_v6_header(tvbuff_t *header_tvb, proto_tree *m2pa_tree)
+dissect_v6_header(tvbuff_t *header_tvb, packet_info *pinfo, proto_tree *m2pa_tree)
 {
+  guint message_type;
+  
+  message_type  = tvb_get_guint8(header_tvb, V6_TYPE_OFFSET);
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, v6_message_type_values, "Unknown"));
+    if (!(message_type == V6_USER_DATA_TYPE)){
+      col_set_fence(pinfo->cinfo, COL_INFO);
+    }
+  }
   if (m2pa_tree) {
     proto_tree_add_item(m2pa_tree, hf_version, header_tvb, VERSION_OFFSET,       VERSION_LENGTH, NETWORK_BYTE_ORDER);
     proto_tree_add_item(m2pa_tree, hf_spare,   header_tvb, SPARE_OFFSET,         SPARE_LENGTH,   NETWORK_BYTE_ORDER);
@@ -192,9 +213,6 @@ dissect_v2_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo, pro
 
   payload_tvb = tvb_new_subset(message_data_tvb, MTP3_OFFSET, -1, -1);
   call_dissector(mtp3_handle, payload_tvb, pinfo, tree);
-    
-  if ((!(proto_is_protocol_enabled (mtp3_proto_id))) && (check_col(pinfo->cinfo, COL_INFO)))
-    col_append_str(pinfo->cinfo, COL_INFO, "User Data ");
 }
 
 #define V6_LI_SPARE_MASK         0x3f
@@ -222,12 +240,6 @@ dissect_v6_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo,
 
     payload_tvb = tvb_new_subset(message_data_tvb, MTP3_OFFSET, -1, -1);
     call_dissector(mtp3_handle, payload_tvb, pinfo, tree);
-
-    if ((!(proto_is_protocol_enabled (mtp3_proto_id))) && (check_col(pinfo->cinfo, COL_INFO)))
-      col_append_str(pinfo->cinfo, COL_INFO, "User Data ");
-    } else {
-      if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_str(pinfo->cinfo, COL_INFO, "User Data ");
   }
 }
 
@@ -244,11 +256,8 @@ static const value_string v2_link_status_values[] = {
 #define FILLER_OFFSET    (STATUS_OFFSET + STATUS_LENGTH)
 
 static void
-dissect_v2_link_status_message(tvbuff_t *message_data_tvb, packet_info *pinfo, proto_tree *m2pa_tree)
+dissect_v2_link_status_message(tvbuff_t *message_data_tvb, proto_tree *m2pa_tree)
 {
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_str(pinfo->cinfo, COL_INFO, "Link status ");
-
  if (m2pa_tree)
     proto_tree_add_item(m2pa_tree, hf_v2_status, message_data_tvb, STATUS_OFFSET, STATUS_LENGTH, NETWORK_BYTE_ORDER);
 }
@@ -266,14 +275,11 @@ static const value_string v6_link_status_values[] = {
   { 0, NULL } };
 
 static void
-dissect_v6_link_status_message(tvbuff_t *message_data_tvb, packet_info *pinfo, proto_tree *m2pa_tree)
+dissect_v6_link_status_message(tvbuff_t *message_data_tvb, proto_tree *m2pa_tree)
 {
   guint16 filler_length;
 
   filler_length = tvb_length(message_data_tvb) - STATUS_LENGTH;
-  
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_str(pinfo->cinfo, COL_INFO, "Link status ");
   
   proto_tree_add_item(m2pa_tree, hf_v6_status, message_data_tvb, STATUS_OFFSET, STATUS_LENGTH, NETWORK_BYTE_ORDER);
   if (filler_length > 0)
@@ -281,13 +287,10 @@ dissect_v6_link_status_message(tvbuff_t *message_data_tvb, packet_info *pinfo, p
 }
 
 static void
-dissect_unknown_message(tvbuff_t *message_data_tvb, packet_info *pinfo, proto_tree *m2pa_tree)
+dissect_unknown_message(tvbuff_t *message_data_tvb, proto_tree *m2pa_tree)
 {
   guint length;
    
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_str(pinfo->cinfo, COL_INFO, "Unknown ");
-
   length = tvb_length(message_data_tvb);
   if ((m2pa_tree) && (length > 0))
     proto_tree_add_item(m2pa_tree, hf_unknown_data, message_data_tvb, 0, length, NETWORK_BYTE_ORDER);
@@ -311,10 +314,10 @@ dissect_v2_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m
     dissect_v2_user_data_message(message_data_tvb, pinfo, m2pa_item, m2pa_tree, tree);
     break;
   case V2_LINK_STATUS_TYPE:
-    dissect_v2_link_status_message(message_data_tvb, pinfo, m2pa_tree);
+    dissect_v2_link_status_message(message_data_tvb, m2pa_tree);
     break;
   default:
-    dissect_unknown_message(message_data_tvb, pinfo, m2pa_tree);
+    dissect_unknown_message(message_data_tvb, m2pa_tree);
   }
 }
 
@@ -337,24 +340,24 @@ dissect_v6_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m
     dissect_v6_user_data_message(message_data_tvb, pinfo, m2pa_item, m2pa_tree, tree);
     break;
   case V6_LINK_STATUS_TYPE:
-    dissect_v6_link_status_message(message_data_tvb, pinfo, m2pa_tree);
+    dissect_v6_link_status_message(message_data_tvb, m2pa_tree);
     break;
   default:
-    dissect_unknown_message(message_data_tvb, pinfo, m2pa_tree);
+    dissect_unknown_message(message_data_tvb, m2pa_tree);
   }
 }
 
 static void
 dissect_v2_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2pa_item, proto_tree *m2pa_tree, proto_tree *tree)
 {
-  dissect_v2_header(message_tvb, m2pa_tree);
+  dissect_v2_header(message_tvb, pinfo, m2pa_tree);
   dissect_v2_message_data(message_tvb, pinfo, m2pa_item, m2pa_tree, tree);
 }
 
 static void
 dissect_v6_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2pa_item, proto_tree *m2pa_tree, proto_tree *tree)
 {
-  dissect_v6_header(message_tvb, m2pa_tree);
+  dissect_v6_header(message_tvb, pinfo, m2pa_tree);
   dissect_v6_message_data(message_tvb, pinfo, m2pa_item, m2pa_tree, tree);
 }
 

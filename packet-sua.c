@@ -3,9 +3,9 @@
  * It is hopefully (needs testing) compilant to
  * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-sua-14.txt
  *
- * Copyright 2002, 2003 Michael Tuexen <Michael.Tuexen [AT] siemens.com>
+ * Copyright 2002, 2003 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-sua.c,v 1.14 2003/01/23 19:45:37 guy Exp $
+ * $Id: packet-sua.c,v 1.15 2003/04/19 20:09:00 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -427,8 +427,8 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
   message_type   = tvb_get_guint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(message_class * 256 + message_type, message_class_type_acro_values, "reserved"));
-    col_append_str(pinfo->cinfo, COL_INFO, " ");
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_class * 256 + message_type, message_class_type_acro_values, "reserved"));
+    col_set_fence(pinfo->cinfo, COL_INFO);
   };
 
   if (sua_tree) {

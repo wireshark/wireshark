@@ -5,9 +5,9 @@
  * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m3ua-06.txt (expired)
  * http://www.ietf.org/rfc/rfc3332.txt
  *
- * Copyright 2000, 2001, 2002, 2003 Michael Tuexen <Michael.Tuexen [AT] siemens.com>
+ * Copyright 2000, 2001, 2002, 2003 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-m3ua.c,v 1.29 2003/04/12 07:54:29 guy Exp $
+ * $Id: packet-m3ua.c,v 1.30 2003/04/19 20:09:00 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -181,7 +181,7 @@ static const value_string message_class_type_values[] = {
 static const value_string v5_message_class_type_acro_values[] = {
   { MESSAGE_CLASS_MGMT_MESSAGE  * 256 + MESSAGE_TYPE_ERR,           "ERR" },
   { MESSAGE_CLASS_MGMT_MESSAGE  * 256 + MESSAGE_TYPE_NTFY,          "NTFY" },
-  { MESSAGE_CLASS_TFER_MESSAGE  * 256 + MESSAGE_TYPE_DATA,          "DATA" },
+  { MESSAGE_CLASS_TFER_MESSAGE  * 256 + MESSAGE_TYPE_DATA,          "DATA1" },
   { MESSAGE_CLASS_SSNM_MESSAGE  * 256 + MESSAGE_TYPE_DUNA,          "DUNA" },
   { MESSAGE_CLASS_SSNM_MESSAGE  * 256 + MESSAGE_TYPE_DAVA,          "DAVA" },
   { MESSAGE_CLASS_SSNM_MESSAGE  * 256 + MESSAGE_TYPE_DAUD,          "DAUD" },
@@ -224,17 +224,6 @@ static const value_string message_class_type_acro_values[] = {
   { MESSAGE_CLASS_RKM_MESSAGE   * 256 + MESSAGE_TYPE_DEREG_REQ ,    "DEREG_REQ" },
   { MESSAGE_CLASS_RKM_MESSAGE   * 256 + MESSAGE_TYPE_DEREG_RSP ,    "DEREG_RSP" },
   { 0,                           NULL } };
-
-
-
-
-
-#define PROTOCOL_DATA_OFFSET PARAMETER_VALUE_OFFSET
-
-
-
-#define TRAFFIC_MODE_TYPE_LENGTH 4
-#define TRAFFIC_MODE_TYPE_OFFSET PARAMETER_VALUE_OFFSET
 
 /* Initialize the protocol and registered fields */
 static int proto_m3ua = -1;
@@ -318,14 +307,11 @@ typedef enum {
 
 static Version_Type version = M3UA_RFC;
 
-static gboolean subdissector_called = FALSE;
-static gint32 info_messagetype = -1;
-
 static void
 dissect_parameters(tvbuff_t *, packet_info *, proto_tree *, proto_tree *);
 
 static void
-dissect_v5_common_header(tvbuff_t *common_header_tvb, proto_tree *m3ua_tree)
+dissect_v5_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tree *m3ua_tree)
 {
   guint8  message_class, message_type;
 
@@ -333,7 +319,12 @@ dissect_v5_common_header(tvbuff_t *common_header_tvb, proto_tree *m3ua_tree)
   message_class  = tvb_get_guint8(common_header_tvb, MESSAGE_CLASS_OFFSET);
   message_type   = tvb_get_guint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
 
-  info_messagetype = message_class * 256 + message_type;
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_class * 256 + message_type, v5_message_class_type_acro_values, "reserved"));
+    if (!(message_class == MESSAGE_CLASS_TFER_MESSAGE && message_type == MESSAGE_TYPE_DATA)){
+      col_set_fence(pinfo->cinfo, COL_INFO);
+    }
+  }
 
   if (m3ua_tree) {
     /* add the components of the common header to the protocol tree */
@@ -347,7 +338,7 @@ dissect_v5_common_header(tvbuff_t *common_header_tvb, proto_tree *m3ua_tree)
 }
 
 static void
-dissect_common_header(tvbuff_t *common_header_tvb, proto_tree *m3ua_tree)
+dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tree *m3ua_tree)
 {
   guint8  message_class, message_type;
 
@@ -355,7 +346,11 @@ dissect_common_header(tvbuff_t *common_header_tvb, proto_tree *m3ua_tree)
   message_class  = tvb_get_guint8(common_header_tvb, MESSAGE_CLASS_OFFSET);
   message_type   = tvb_get_guint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
 
-  info_messagetype = message_class * 256 + message_type;
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_add_fstr(pinfo->cinfo, COL_INFO,"%s ", val_to_str(message_class * 256 + message_type, message_class_type_acro_values, "reserved"));
+    if (!(message_class == MESSAGE_CLASS_TFER_MESSAGE && message_type == MESSAGE_TYPE_DATA))
+      col_set_fence(pinfo->cinfo, COL_INFO);
+  }
 
   if (m3ua_tree) {
     /* add the components of the common header to the protocol tree */
@@ -378,6 +373,8 @@ dissect_network_appearance_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
   proto_item_append_text(parameter_item, " (%u)", tvb_get_ntohl(parameter_tvb, NETWORK_APPEARANCE_OFFSET));
 }
 
+#define V5_PROTOCOL_DATA_OFFSET PARAMETER_VALUE_OFFSET
+
 static void
 dissect_v5_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_item *parameter_item)
 {
@@ -386,11 +383,10 @@ dissect_v5_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, 
 
   length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   protocol_data_length = length - PARAMETER_HEADER_LENGTH;
-  payload_tvb          = tvb_new_subset(parameter_tvb, PROTOCOL_DATA_OFFSET, protocol_data_length, protocol_data_length);
+  payload_tvb          = tvb_new_subset(parameter_tvb, V5_PROTOCOL_DATA_OFFSET, protocol_data_length, protocol_data_length);
   proto_item_append_text(parameter_item, " (SS7 message of %u byte%s)", protocol_data_length, plurality(protocol_data_length, "", "s"));
   proto_item_set_len(parameter_item, PARAMETER_HEADER_LENGTH);
   call_dissector(mtp3_handle, payload_tvb, pinfo, tree);
-  subdissector_called = TRUE;
 }
 
 #define INFO_STRING_OFFSET PARAMETER_VALUE_OFFSET
@@ -541,6 +537,9 @@ dissect_reason_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, pr
   proto_tree_add_item(parameter_tree, hf_reason, parameter_tvb, REASON_OFFSET, REASON_LENGTH, NETWORK_BYTE_ORDER);
   proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, REASON_OFFSET), reason_values, "unknown"));
 }
+
+#define TRAFFIC_MODE_TYPE_LENGTH 4
+#define TRAFFIC_MODE_TYPE_OFFSET PARAMETER_VALUE_OFFSET
 
 static const value_string v5_traffic_mode_type_values[] = {
   { 1, "Over-ride"            },
@@ -757,6 +756,8 @@ dissect_asp_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
   proto_item_append_text(parameter_item, " (%u)", tvb_get_ntohl(parameter_tvb, ASP_IDENTIFIER_OFFSET));
 }
 
+#define PROTOCOL_DATA_1_OFFSET PARAMETER_VALUE_OFFSET
+
 static void
 dissect_protocol_data_1_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_item *parameter_item)
 {
@@ -764,16 +765,15 @@ dissect_protocol_data_1_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, p
   tvbuff_t *payload_tvb;
 
   protocol_data_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
-  payload_tvb          = tvb_new_subset(parameter_tvb, PROTOCOL_DATA_OFFSET, protocol_data_length, protocol_data_length);
+  payload_tvb          = tvb_new_subset(parameter_tvb, PROTOCOL_DATA_1_OFFSET, protocol_data_length, protocol_data_length);
   proto_item_append_text(parameter_item, " (SS7 message of %u byte%s)", protocol_data_length, plurality(protocol_data_length, "", "s"));
   proto_item_set_len(parameter_item, PARAMETER_HEADER_LENGTH);
   call_dissector(mtp3_handle, payload_tvb, pinfo, tree);
-  subdissector_called = TRUE;
-
 }
 
 #define LI_OCTETT_LENGTH 1
 #define LI_OCTETT_OFFSET PARAMETER_VALUE_OFFSET
+#define PROTOCOL_DATA_2_OFFSET (PARAMETER_VALUE_OFFSET + LI_OCTETT_LENGTH)
 
 static void
 dissect_protocol_data_2_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *parameter_tree, proto_item *parameter_item)
@@ -784,12 +784,11 @@ dissect_protocol_data_2_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, p
 
   li                   = tvb_get_guint8(parameter_tvb, LI_OCTETT_OFFSET);
   protocol_data_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH - LI_OCTETT_LENGTH;
-  payload_tvb          = tvb_new_subset(parameter_tvb, PROTOCOL_DATA_OFFSET + LI_OCTETT_LENGTH, protocol_data_length, protocol_data_length);
+  payload_tvb          = tvb_new_subset(parameter_tvb, PROTOCOL_DATA_2_OFFSET, protocol_data_length, protocol_data_length);
   proto_tree_add_item(parameter_tree, hf_li, parameter_tvb, LI_OCTETT_OFFSET, LI_OCTETT_LENGTH, NETWORK_BYTE_ORDER);
   proto_item_append_text(parameter_item, " (SS7 message of %u byte%s)", protocol_data_length, plurality(protocol_data_length, "", "s"));
   proto_item_set_len(parameter_item, PARAMETER_HEADER_LENGTH + LI_OCTETT_LENGTH);
   call_dissector(mtp3_handle, payload_tvb, pinfo, tree);
-  subdissector_called = TRUE;
 }
 
 
@@ -821,16 +820,16 @@ dissect_routing_key_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto
 }
 
 static const value_string registration_result_status_values[] = {
-  { 0,           "Successfully Registered" } ,
-  { 1,           "Error - Unknown" } ,
-  { 2,           "Error - Invalid DPC" } ,
-  { 3,           "Error - Invalid Network Appearance" } ,
-  { 4,           "Error - Invalid Routing Key" } ,
-  { 5,           "Error - Permission Denied" } ,
-  { 6,           "Error - Overlapping (Non-unique) Routing Key" } ,
-  { 7,           "Error - Routing Key not Provisioned" } ,
-  { 8,           "Error - Insufficient Resources" } ,
-  { 0,           NULL } };
+  { 0, "Successfully Registered" } ,
+  { 1, "Error - Unknown" } ,
+  { 2, "Error - Invalid DPC" } ,
+  { 3, "Error - Invalid Network Appearance" } ,
+  { 4, "Error - Invalid Routing Key" } ,
+  { 5, "Error - Permission Denied" } ,
+  { 6, "Error - Overlapping (Non-unique) Routing Key" } ,
+  { 7, "Error - Routing Key not Provisioned" } ,
+  { 8, "Error - Insufficient Resources" } ,
+  { 0, NULL } };
 
 #define REG_RES_IDENTIFIER_LENGTH 4
 #define REG_RES_STATUS_LENGTH     4
@@ -1053,8 +1052,6 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
   payload_tvb = tvb_new_subset(parameter_tvb, DATA_ULP_OFFSET, ulp_length, ulp_length);
   if (!dissector_try_port(si_dissector_table, tvb_get_guint8(parameter_tvb, DATA_SI_OFFSET), payload_tvb, pinfo, tree))
     call_dissector(data_handle, payload_tvb, pinfo, tree);
-  else
-    subdissector_called = TRUE;
 }
 
 #define CORR_ID_OFFSET PARAMETER_VALUE_OFFSET
@@ -1071,18 +1068,18 @@ dissect_correlation_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
 #define REG_STATUS_OFFSET  PARAMETER_VALUE_OFFSET
 
 static const value_string registration_status_values[] = {
-  {  0,           "Successfully Registered" },
-  {  1,           "Error - Unknown" },
-  {  2,           "Error - Invalid DPC" },
-  {  3,           "Error - Invalid Network Appearance" },
-  {  4,           "Error - Invalid Routing Key" },
-  {  5,           "Error - Permission Denied" },
-  {  6,           "Error - Cannot Support Unique Routing" },
-  {  7,           "Error - Routing Key not Currently Provisioned" },
-  {  8,           "Error - Insufficient Resources" },
-  {  9,           "Error - Unsupported RK parameter Field" },
-  { 10,           "Error - Unsupported/Invalid Traffic Handling Mode" },
-  {  0,           NULL } };
+  {  0, "Successfully Registered" },
+  {  1, "Error - Unknown" },
+  {  2, "Error - Invalid DPC" },
+  {  3, "Error - Invalid Network Appearance" },
+  {  4, "Error - Invalid Routing Key" },
+  {  5, "Error - Permission Denied" },
+  {  6, "Error - Cannot Support Unique Routing" },
+  {  7, "Error - Routing Key not Currently Provisioned" },
+  {  8, "Error - Insufficient Resources" },
+  {  9, "Error - Unsupported RK parameter Field" },
+  { 10, "Error - Unsupported/Invalid Traffic Handling Mode" },
+  {  0, NULL } };
 
 static void
 dissect_registration_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
@@ -1095,13 +1092,13 @@ dissect_registration_status_parameter(tvbuff_t *parameter_tvb, proto_tree *param
 #define DEREG_STATUS_OFFSET  PARAMETER_VALUE_OFFSET
 
 static const value_string deregistration_status_values[] = {
-  { 0,          "Successfully Deregistered" },
-  { 1,          "Error - Unknown" },
-  { 2,          "Error - Invalid Routing Context" },
-  { 3,          "Error - Permission Denied" },
-  { 4,          "Error - Not Registered" },
-  { 5,          "Error - ASP Currently Active for Routing Context" },
-  { 0,          NULL } };
+  { 0, "Successfully Deregistered" },
+  { 1, "Error - Unknown" },
+  { 2, "Error - Invalid Routing Context" },
+  { 3, "Error - Permission Denied" },
+  { 4, "Error - Not Registered" },
+  { 5, "Error - ASP Currently Active for Routing Context" },
+  { 0, NULL } };
 
 static void
 dissect_deregistration_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
@@ -1611,38 +1608,17 @@ dissect_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, pro
 {
   tvbuff_t *common_header_tvb, *parameters_tvb;
 
-  /* Reset these globals prior to dissecting the message */
-  subdissector_called = FALSE;
-  info_messagetype = -1;
-
   common_header_tvb = tvb_new_subset(message_tvb, 0, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
   parameters_tvb    = tvb_new_subset(message_tvb, COMMON_HEADER_LENGTH, -1, -1);
   if (version == M3UA_V5)
-  	dissect_v5_common_header(common_header_tvb, m3ua_tree);
+  	dissect_v5_common_header(common_header_tvb, pinfo, m3ua_tree);
   else
-    dissect_common_header(common_header_tvb, m3ua_tree);
+    dissect_common_header(common_header_tvb, pinfo, m3ua_tree);
 
   /*  Need to dissect (certain) parameters even when !tree, so subdissectors
    *  (e.g., MTP3) are always called.
    */
   dissect_parameters(parameters_tvb, pinfo, tree, m3ua_tree);
-
-  /* Only put something in the Info column if no subdissector was called */
-  if (!subdissector_called && (info_messagetype != -1))
-  {
-    const value_string *message_type_values;
-
-    if (version == M3UA_V5)
-      message_type_values = v5_message_class_type_acro_values;
-    else
-      message_type_values = message_class_type_acro_values;
-
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_append_str(pinfo->cinfo, COL_INFO, val_to_str(info_messagetype, message_type_values, "reserved"));
-      col_append_str(pinfo->cinfo, COL_INFO, " ");
-    }
-  }
-
 }
 
 static void
