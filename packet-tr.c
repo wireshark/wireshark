@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.8 1998/11/17 04:29:06 gerald Exp $
+ * $Id: packet-tr.c,v 1.9 1999/01/08 04:42:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -96,13 +96,23 @@ dissect_tr(const u_char *pd, frame_data *fd, GtkTree *tree) {
 	/* non-source-routed version of source addr */
 	guint8			trn_shost_nonsr[6];
 
+	static const value_string fc_pcf[] = {
+		{ 0,	"Normal buffer" },
+		{ 1,	"Express buffer" },
+		{ 2,	"Purge" },
+		{ 3,	"Claim Token" },
+		{ 4,	"Beacon" },
+		{ 5,	"Active Monitor Present" },
+		{ 6,	"Standby Monitor Present" },
+		{ 0,	NULL },
+	};
 
 	/* Token-Ring Strings */
-	char *fc[] = { "MAC", "LLC", "Reserved" };
-	char *fc_pcf[] = {
+	char *fc[] = { "MAC", "LLC", "Reserved", "Unknown" };
+/*	char *fc_pcf[] = {
 		"Normal buffer", "Express buffer", "Purge",
 		"Claim Token", "Beacon", "Active Monitor Present",
-		"Standby Monitor Present" };
+		"Standby Monitor Present" };*/
 	char *rc_arrow[] = { "-->", "<--" };
 	char *rc_direction[] = { "From originating station",
 		"To originating station" };
@@ -204,7 +214,7 @@ dissect_tr(const u_char *pd, frame_data *fd, GtkTree *tree) {
 		add_item_to_tree(fh_tree, 1, 1,
 			"Frame Control: %s, Physical Control=%d (%s)",
 			fc[frame_type], (trn_fc & 15),
-			fc_pcf[(trn_fc & 15)]);
+			val_to_str((trn_fc & 15), fc_pcf, "Unknown"));
 
 		add_item_to_tree(fh_tree, 2, 6, "Destination: %s",
 			ether_to_str((guint8 *) trn_dhost));
