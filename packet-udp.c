@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.90 2001/04/23 17:51:34 guy Exp $
+ * $Id: packet-udp.c,v 1.91 2001/04/23 17:56:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,7 +51,6 @@
 
 #include "packet-ip.h"
 #include "conversation.h"
-#include "packet-vines.h"
 
 static int proto_udp = -1;		
 static int hf_udp_srcport = -1;
