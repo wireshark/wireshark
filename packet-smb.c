@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.238 2002/03/27 20:58:43 guy Exp $
+ * $Id: packet-smb.c,v 1.239 2002/03/29 21:55:05 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -12812,7 +12812,7 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
   const gchar *string;
   int string_len;
   smb_info_t *si;
-  int copylen;
+  unsigned int copylen;
 
   if (*bcp == 0) {
     /* Not enough data in buffer */
