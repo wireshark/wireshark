@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.32 2001/10/24 06:13:07 guy Exp $
+ * $Id: prefs_dlg.c,v 1.33 2001/11/04 02:50:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -136,6 +136,7 @@ pref_show(pref_t *pref, gpointer user_data)
   /* Save the current value of the preference, so that we can revert it if
      the user does "Apply" and then "Cancel", and create the control for
      editing the preference. */
+  widget = NULL;	/* squelch GCC complaints */
   switch (pref->type) {
 
   case PREF_UINT:
@@ -220,7 +221,7 @@ pref_show(pref_t *pref, gpointer user_data)
     pref->control = widget;
     break;
 
-  default:
+  case PREF_OBSOLETE:
     g_assert_not_reached();
     widget = NULL;
     break;
@@ -531,6 +532,10 @@ pref_fetch(pref_t *pref, gpointer user_data)
       *pref->varp.string = g_strdup(str_val);
     }
     break;
+
+  case PREF_OBSOLETE:
+    g_assert_not_reached();
+    break;
   }
 }
 
@@ -570,6 +575,10 @@ pref_clean(pref_t *pref, gpointer user_data)
       g_free(pref->saved_val.string);
       pref->saved_val.string = NULL;
     }
+    break;
+
+  case PREF_OBSOLETE:
+    g_assert_not_reached();
     break;
   }
 }
@@ -740,6 +749,10 @@ pref_revert(pref_t *pref, gpointer user_data)
         g_free(*pref->varp.string);
       *pref->varp.string = g_strdup(pref->saved_val.string);
     }
+    break;
+
+  case PREF_OBSOLETE:
+    g_assert_not_reached();
     break;
   }
 }

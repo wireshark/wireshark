@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.95 2001/10/26 18:28:16 gram Exp $
+ * $Id: tethereal.c,v 1.96 2001/11/04 02:50:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -446,6 +446,7 @@ main(int argc, char *argv[])
           break;
 
         case PREFS_SET_NO_SUCH_PREF:
+        case PREFS_SET_OBSOLETE:
           fprintf(stderr, "tethereal: -o flag \"%s\" specifies unknown preference\n",
 			optarg);
           exit(1);

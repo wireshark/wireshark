@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.32 2001/11/03 23:13:03 guy Exp $
+ * $Id: packet-diameter.c,v 1.33 2001/11/04 02:50:19 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -1801,4 +1801,9 @@ proto_register_diameter(void)
 								   "Desegment all Diameter messages spanning multiple TCP segments",
 								   "Whether the Diameter dissector should desegment all messages spanning multiple TCP segments",
 								   &gbl_diameter_desegment);
+
+	/* Register some preferences we no longer support, so we can report
+	   them as obsolete rather than just illegal. */
+	prefs_register_obsolete_preference(diameter_module, "udp.port");
+	prefs_register_obsolete_preference(diameter_module, "command_in_header");
 } /* proto_register_diameter */

@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.33 2001/10/31 07:47:25 guy Exp $
+ * $Id: prefs.h,v 1.34 2001/11/04 02:50:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -161,6 +161,12 @@ extern void prefs_register_enum_preference(module_t *module, const char *name,
 extern void prefs_register_string_preference(module_t *module, const char *name,
     const char *title, const char *description, char **var);
 
+/*
+ * Register a preference that used to be supported but no longer is.
+ */
+extern void prefs_register_obsolete_preference(module_t *module,
+    const char *name);
+
 typedef void (*pref_cb)(pref_t *pref, gpointer user_data);
 
 /*
@@ -212,6 +218,7 @@ extern void free_prefs(e_prefs *pr);
 #define PREFS_SET_OK		0	/* succeeded */
 #define PREFS_SET_SYNTAX_ERR	1	/* syntax error in string */
 #define PREFS_SET_NO_SUCH_PREF	2	/* no such preference */
+#define PREFS_SET_OBSOLETE	3	/* preference used to exist but no longer does */
 
 extern int prefs_set_pref(char *prefarg);
 

@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.69 2001/11/03 21:37:00 guy Exp $
+ * $Id: prefs.c,v 1.70 2001/11/04 02:50:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,6 +53,7 @@
 #include "prefs-int.h"
 
 /* Internal functions */
+static module_t *find_module(const char *name);
 static struct preference *find_preference(module_t *, const char *);
 static int    set_pref(gchar*, gchar*);
 static GList *get_string_list(gchar *);
@@ -111,6 +112,7 @@ prefs_register_module(const char *name, const char *title,
     void (*apply_cb)(void))
 {
 	module_t *module;
+	const guchar *p;
 
 	module = g_malloc(sizeof (module_t));
 	module->name = name;
@@ -119,6 +121,28 @@ prefs_register_module(const char *name, const char *title,
 	module->prefs = NULL;	/* no preferences, to start */
 	module->numprefs = 0;
 	module->prefs_changed = FALSE;
+
+	/*
+	 * Make sure that only lower-case ASCII letters, numbers, and
+	 * underscores appear in the module name.
+	 *
+	 * Crash if there is, as that's an error in the code;
+	 * you can make the title a nice string with capitalization,
+	 * white space, punctuation, etc., but the name can be used
+	 * on the command line, and shouldn't require quoting,
+	 * shifting, etc.
+	 */
+	for (p = name; *p != '\0'; p++)
+		g_assert(isascii(*p) &&
+		    (islower(*p) || isdigit(*p) || *p == '_'));
+
+	/*
+	 * Make sure there's not already a module with that
+	 * name.  Crash if there is, as that's an error in the
+	 * code, and the code has to be fixed not to register
+	 * more than one module with the same name.
+	 */
+	g_assert(find_module(name) == NULL);
 
 	modules = g_list_insert_sorted(modules, module, module_compare_name);
 
@@ -149,11 +173,11 @@ module_match(gconstpointer a, gconstpointer b)
 }
 
 static module_t *
-find_module(char *name)
+find_module(const char *name)
 {
 	GList *list_entry;
 
-	list_entry = g_list_find_custom(modules, name, module_match);
+	list_entry = g_list_find_custom(modules, (gpointer)name, module_match);
 	if (list_entry == NULL)
 		return NULL;	/* no such module */
 	return (module_t *) list_entry->data;
@@ -218,12 +242,27 @@ register_preference(module_t *module, const char *name, const char *title,
     const char *description)
 {
 	pref_t *preference;
+	const guchar *p;
 
 	preference = g_malloc(sizeof (pref_t));
 	preference->name = name;
 	preference->title = title;
 	preference->description = description;
 	preference->ordinal = module->numprefs;
+
+	/*
+	 * Make sure that only lower-case ASCII letters, numbers,
+	 * underscores, and dots appear in the preference name.
+	 *
+	 * Crash if there is, as that's an error in the code;
+	 * you can make the title and description nice strings
+	 * with capitalization, white space, punctuation, etc.,
+	 * but the name can be used on the command line,
+	 * and shouldn't require quoting, Shifting, etc.
+	 */
+	for (p = name; *p != '\0'; p++)
+		g_assert(isascii(*p) &&
+		    (islower(*p) || isdigit(*p) || *p == '_' || *p == '.'));
 
 	/*
 	 * Make sure there's not already a preference with that
@@ -348,6 +387,18 @@ prefs_register_string_preference(module_t *module, const char *name,
 	preference->saved_val.string = NULL;
 }
 
+/*
+ * Register a preference that used to be supported but no longer is.
+ */
+void
+prefs_register_obsolete_preference(module_t *module, const char *name)
+{
+	pref_t *preference;
+
+	preference = register_preference(module, name, NULL, NULL);
+	preference->type = PREF_OBSOLETE;
+}
+
 typedef struct {
 	pref_cb callback;
 	gpointer user_data;
@@ -358,6 +409,17 @@ do_pref_callback(gpointer data, gpointer user_data)
 {
 	pref_t *pref = data;
 	pref_cb_arg_t *arg = user_data;
+
+	if (pref->type == PREF_OBSOLETE) {
+		/*
+		 * This preference is no longer supported; it's not a
+		 * real preference, so we don't call the callback for
+		 * it (i.e., we treat it as if it weren't found in the
+		 * list of preferences, and we weren't called in the
+		 * first place).
+		 */
+		return;
+	}
 
 	(*arg->callback)(pref, arg->user_data);
 }
@@ -837,6 +899,13 @@ read_prefs_file(const char *pf_path, FILE *pf)
                 g_warning ("%s line %d: No such preference \"%s\"", pf_path,
 				pline, cur_var);
                 break;
+
+	      case PREFS_SET_OBSOLETE:
+	        /* We silently ignore attempts to set these; it's
+	           probably not the user's fault that it's in there -
+	           they may have saved preferences with a release that
+	           supported them. */
+                break;
               }
             } else {
               g_warning ("%s line %d: Incomplete preference", pf_path, pline);
@@ -897,6 +966,12 @@ read_prefs_file(const char *pf_path, FILE *pf)
       case PREFS_SET_NO_SUCH_PREF:
         g_warning ("%s line %d: No such preference \"%s\"", pf_path,
 			pline, cur_var);
+        break;
+
+      case PREFS_SET_OBSOLETE:
+	/* We silently ignore attempts to set these; it's probably not
+	   the user's fault that it's in there - they may have saved
+	   preferences with a release that supported it. */
         break;
       }
     } else {
@@ -1355,6 +1430,9 @@ set_pref(gchar *pref_name, gchar *value)
         *pref->varp.string = g_strdup(value);
       }
       break;
+
+    case PREF_OBSOLETE:
+      return PREFS_SET_OBSOLETE;	/* no such preference any more */
     }
   }
   
@@ -1376,6 +1454,16 @@ write_pref(gpointer data, gpointer user_data)
 	write_pref_arg_t *arg = user_data;
 	const enum_val_t *enum_valp;
 	const char *val_string;
+
+	if (pref->type == PREF_OBSOLETE) {
+		/*
+		 * This preference is no longer supported; it's not a
+		 * real preference, so we don't write it out (i.e., we
+		 * treat it as if it weren't found in the list of
+		 * preferences, and we weren't called in the first place).
+		 */
+		return;
+	}
 
 	fprintf(arg->pf, "\n# %s\n", pref->description);
 
@@ -1433,6 +1521,10 @@ write_pref(gpointer data, gpointer user_data)
 		fprintf(arg->pf, "# A string.\n");
 		fprintf(arg->pf, "%s.%s: %s\n", arg->module->name, pref->name,
 		    *pref->varp.string);
+		break;
+
+	case PREF_OBSOLETE:
+		g_assert_not_reached();
 		break;
 	}
 }

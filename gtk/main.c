@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.208 2001/10/24 07:18:39 guy Exp $
+ * $Id: main.c,v 1.209 2001/11/04 02:50:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1133,6 +1133,7 @@ main(int argc, char *argv[])
           break;
 
         case PREFS_SET_NO_SUCH_PREF:
+        case PREFS_SET_OBSOLETE:
           fprintf(stderr, "ethereal: -o flag \"%s\" specifies unknown preference\n",
 			optarg);
           exit(1);

@@ -2,12 +2,11 @@
  * Definitions for implementation of preference handling routines;
  * used by "friends" of the preferences type.
  *
- * $Id: prefs-int.h,v 1.3 2000/11/18 21:41:36 guy Exp $
+ * $Id: prefs-int.h,v 1.4 2001/11/04 02:50:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -36,11 +35,16 @@ struct pref_module {
 	gboolean prefs_changed;	/* if TRUE, a preference has changed since we last checked */
 };
 
+/*
+ * PREF_OBSOLETE is used for preferences that a module used to support
+ * but no longer supports; we give different error messages for them.
+ */
 typedef enum {
 	PREF_UINT,
 	PREF_BOOL,
 	PREF_ENUM,
-	PREF_STRING
+	PREF_STRING,
+	PREF_OBSOLETE
 } pref_type_t;
 
 struct preference {

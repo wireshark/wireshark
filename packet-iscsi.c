@@ -4,7 +4,7 @@
  *
  * Conforms to the protocol described in: draft-ietf-ips-iscsi-08.txt
  *
- * $Id: packet-iscsi.c,v 1.16 2001/11/04 00:58:23 guy Exp $
+ * $Id: packet-iscsi.c,v 1.17 2001/11/04 02:50:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1767,6 +1767,13 @@ proto_register_iscsi(void)
 				       "The size of a data digest (bytes)",
 				       10,
 				       &dataDigestSize);
+
+	/* Preference supported in older versions.
+	   Register them as obsolete. */
+	prefs_register_obsolete_preference(iscsi_module,
+				       "version_03_compatible");
+	prefs_register_obsolete_preference(iscsi_module,
+				       "bogus_pdu_max_digest_padding");
     }
 }
 
