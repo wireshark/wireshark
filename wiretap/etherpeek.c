@@ -1,8 +1,9 @@
 /* etherpeek.c
- * Routines for opening EtherPeek (and TokenPeek?) files
+ * Routines for opening EtherPeek and AiroPeek (and TokenPeek?) V5, V6,
+ * and V7 files
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
- * $Id: etherpeek.c,v 1.27 2004/01/27 08:06:11 guy Exp $
+ * $Id: etherpeek.c,v 1.28 2004/02/06 02:09:11 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -35,6 +36,12 @@
  *
  * This file decoder could not have been writen without examining how
  * tcptrace (http://www.tcptrace.org/) handles EtherPeek files.
+ */
+
+/*
+ * NOTE: it says "etherpeek" because the first files seen that use this
+ * format were EtherPeek files; however, AiroPeek files using it have
+ * also been seen, and I suspect TokenPeek uses it as well.
  */
 
 /* master header */
