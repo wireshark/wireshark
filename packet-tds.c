@@ -3,7 +3,7 @@
  * Copyright 2000-2002, Brian Bruns <camber@ais.org>
  * Copyright 2002, Steve Langasek <vorlon@netexpress.net>
  *
- * $Id: packet-tds.c,v 1.24 2004/02/01 21:33:12 guy Exp $
+ * $Id: packet-tds.c,v 1.25 2004/02/06 03:25:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1019,7 +1019,7 @@ dissect_tds_login_ack_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_t
 int 
 dissect_tds7_results_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_tree *tree)
 {
-	guint16 num_columns;
+	guint16 num_columns, table_len;
 	guint8 type, msg_len;
 	int i;
 	char *msg;
@@ -1030,6 +1030,7 @@ dissect_tds7_results_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_tr
 	proto_tree_add_text(tree, tvb, offset, 2, "Columns: %u", tvb_get_letohs(tvb, offset));
 	offset +=2;
 	for(i=0; i != num_columns; i++) {
+		proto_tree_add_text(tree, tvb, offset, 0, "Column %d", i + 1);
 		proto_tree_add_text(tree, tvb, offset, 2, "usertype: %d", tvb_get_letohs(tvb, offset));
 		offset +=2;
 		proto_tree_add_text(tree, tvb, offset, 2, "flags: %d", tvb_get_letohs(tvb, offset));
@@ -1037,6 +1038,31 @@ dissect_tds7_results_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_tr
 		type  = tvb_get_guint8(tvb, offset);
 		proto_tree_add_text(tree, tvb, offset, 1, "Type: %d", type);
 		offset +=1;
+		if(type == 38 || type == 104) { /* ugly, ugly hack. Wish I knew what it really means!*/
+			proto_tree_add_text(tree, tvb, offset, 1, "unknown 1 byte (%x)", tvb_get_guint8(tvb, offset));
+			offset +=1;
+		}
+		else if (type == 35) {
+			proto_tree_add_text(tree, tvb, offset, 4, "unknown 4 bytes (%x)", tvb_get_letohl(tvb, offset));
+			offset += 4;
+			collate_codepage = tvb_get_letohs(tvb, offset);
+			proto_tree_add_text(tree, tvb, offset, 2, "Codepage: %u" , collate_codepage);
+			offset += 2;
+			collate_flags = tvb_get_letohs(tvb, offset);
+			proto_tree_add_text(tree, tvb, offset, 2, "Flags: 0x%x", collate_flags);
+			offset += 2;
+			collate_charset_id = tvb_get_guint8(tvb, offset);
+			proto_tree_add_text(tree, tvb, offset, 1, "Charset ID: %u", collate_charset_id);
+			offset +=1;
+			table_len = tvb_get_letohs(tvb, offset);
+			offset +=2;
+			if(table_len != 0) {
+				msg = tvb_fake_unicode(tvb, offset, table_len, TRUE);
+				proto_tree_add_text(tree, tvb, offset, table_len*2, "Table name: %s", msg);
+ 				g_free(msg);
+				offset += table_len*2;
+			}
+		}
 		if(type > 128) {
 			proto_tree_add_text(tree, tvb, offset, 2, "Large type size: 0x%x", tvb_get_letohs(tvb, offset));
 			offset += 2;
@@ -1055,7 +1081,7 @@ dissect_tds7_results_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_tr
 		offset += 1;
 		if(msg_len != 0) {
 			msg = tvb_fake_unicode(tvb, offset, msg_len, TRUE);
-			proto_tree_add_text(tree, tvb, offset, msg_len*2, "Text: %s", format_text(msg, strlen(msg)));
+			proto_tree_add_text(tree, tvb, offset, msg_len*2, "Text: %s", msg);
 			g_free(msg);
 			offset += msg_len*2;
 		}
