@@ -69,7 +69,7 @@ struct _tree_pres {
 	GtkTreeStore*   store;
 	GtkWidget*		tree;
 #else
-	GtkText*		textbox;
+	struct GtkText*		textbox;
 #endif
 };
 
@@ -134,6 +134,8 @@ static void draw_gtk_node(stat_node* node) {
 			draw_gtk_node(child);
 	}
 }
+#else
+static void draw_gtk_node(stat_node* node _U_) {}
 #endif
 
 static void draw_gtk_tree( void *psp  ) {
@@ -147,16 +149,24 @@ static void draw_gtk_tree( void *psp  ) {
 	gtk_tree_view_set_model(GTK_TREE_VIEW(st->pr->tree),GTK_TREE_MODEL(st->pr->store));
 #else
 	GString* text = g_string_new("");
+	gchar* fmt;
+	
+	fmt = g_strdup_printf(" %%s%%-%us%%12s\t%%12s\t%%12s\n",stats_branch_max_name_len(&st->root,0));
+	g_string_sprintfa(text,fmt,"",st->name,"value","rate","percent");
+	g_free(fmt);
+	g_string_sprintfa(text,"-------------------------------------------------------------------\n");
+
 	
 	for (child = st->root.children; child; child = child->next ) {
-		stat_node_to_str(child,text,0);
+		stat_branch_to_str(child,text,0);
 	}
 	
-	gtk_text_freeze(st->textbox);
-	gtk_text_set_point(st->textbox,0);
-	gtk_text_forward_delete(st->textbox,gtk_text_get_length(st->textbox));
-	gtk_text_insert(st->textbox,NULL,st->textbox->style->black,NULL,text->str,-1);
-	gtk_text_thaw(st->textbox);
+	gtk_text_freeze(st->pr->textbox);
+	gtk_text_set_point(st->pr->textbox,0);
+	gtk_text_forward_delete(st->pr->textbox,gtk_text_get_length(st->pr->textbox));
+	gtk_text_insert(st->pr->textbox,NULL,
+					NULL,NULL,text->str,-1);
+	gtk_text_thaw(st->pr->textbox);
 	
 	g_string_free(text,TRUE);
 #endif	
@@ -172,8 +182,10 @@ static void free_gtk_tree(GtkWindow *win _U_, stats_tree *st)
 	remove_tap_listener(st);
 	unprotect_thread_critical_region();
 	
+#if GTK_MAJOR_VERSION >= 2
 	if (st->root.pr)
 		st->root.pr->iter = NULL;
+#endif
 }
 
 
@@ -184,10 +196,10 @@ static void init_gtk_tree(char* optarg) {
 	guint8* title = NULL;
 	guint8* window_name = NULL;
 	GString* error_string;
+	GtkWidget *scr_win;
 #if GTK_MAJOR_VERSION >= 2
 	GtkTreeViewColumn* column;
 	GtkCellRenderer* renderer;
-	GtkWidget *scr_win;
 #endif
 	
 	if (abbr) {
@@ -222,9 +234,10 @@ static void init_gtk_tree(char* optarg) {
 	
     gtk_window_set_title(GTK_WINDOW(st->pr->win), title);
 	g_free(title);
-	
-#if GTK_MAJOR_VERSION >= 2
+
 	scr_win = scrolled_window_new(NULL, NULL);
+
+#if GTK_MAJOR_VERSION >= 2
 	
 	st->pr->store = gtk_tree_store_new (N_COLUMNS, G_TYPE_STRING, G_TYPE_STRING,
 									G_TYPE_STRING, G_TYPE_STRING);
@@ -268,7 +281,8 @@ static void init_gtk_tree(char* optarg) {
 	gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (st->pr->tree), column);
 #else
-	pr->textbox = gtk_text_new(NULL,NULL);
+	st->pr->textbox = gtk_text_new(NULL,NULL);
+	gtk_text_set_editable(st->pr->textbox,TRUE);
 	gtk_container_add( GTK_CONTAINER(scr_win), st->pr->textbox);
 	gtk_container_add( GTK_CONTAINER(st->pr->win), scr_win);
 #endif

@@ -172,6 +172,9 @@ extern void stat_branch_to_str(const stat_node* node,
 							   GString* s,
 							   guint indent);
 
+/* used to calcuate the size of the indentation and the longest string */
+extern guint stats_branch_max_name_len(const stat_node* node, guint indent);
+
 /* a text representation of a node,
    if buffer is NULL returns a newly allocated string */
 extern guint8* stat_node_to_str(const stat_node* node,

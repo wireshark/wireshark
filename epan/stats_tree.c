@@ -29,6 +29,13 @@
 
 #include <glib.h>
 #include <epan/stats_tree_priv.h>
+#include <string.h>
+
+/*
+TODO: 
+   - sort out the sorting issue
+ 
+ */
 
 /* used to contain the registered stat trees */
 static GHashTable* registry = NULL;
@@ -70,33 +77,69 @@ extern guint8* stat_node_to_str(const stat_node* node,
 	}
 }
 
+extern guint stats_branch_max_name_len(const stat_node* node, guint indent) {
+	stat_node* child;
+	guint maxlen = 0;
+	guint len;
+	
+	indent = indent > INDENT_MAX ? INDENT_MAX : indent;
+
+	if (node->children) {
+		for (child = node->children; child; child = child->next ) {
+			len = stats_branch_max_name_len(child,indent+1); 
+			maxlen = len > maxlen ? len : maxlen;
+		}
+	}
+	
+	len = strlen(node->name) + indent;
+	maxlen = len > maxlen ? len : maxlen;
+	
+	return maxlen;
+}
+
+static gchar* format;
+
 /* populates the given GString with a tree representation of a branch given by node,
 using indent spaces as initial indentation */
 extern void stat_branch_to_str(const stat_node* node, GString* s, guint indent) {
 	stat_node* child;
-	static gchar indentation[INDENT_MAX];
+	static gchar indentation[INDENT_MAX+1];
 	static gchar value[NUM_BUF_SIZE];
 	static gchar rate[NUM_BUF_SIZE];
 	static gchar percent[NUM_BUF_SIZE];
-	guint i;
+	
+	guint i = 0;
+	
+	if (indent == 0) {
+		format = g_strdup_printf(" %%s%%-%us%%12s\t%%12s\t%%12s\n",stats_branch_max_name_len(node,0));
+	}
 	
 	get_strings_from_node(node, value, rate, percent);
 	
 	indent = indent > INDENT_MAX ? INDENT_MAX : indent;
 	
 	/* fill indentation with indent spaces */
-	for ( i = 0 ; i<(indent-1); i++) indentation[i] = ' ';
-	indentation[i] = '\0';
+	if (indent > 0) {
+		while(i<indent)
+			indentation[i++] = ' ';
+	}
 	
-	g_string_sprintfa(s,"%s%s\t%s\t%s\t%s\n",
+	indentation[i++] = '\0';
+	
+	g_string_sprintfa(s,format,
 					  indentation,node->name,value,rate,percent);
-	
+		
 	if (node->children) {
 		for (child = node->children; child; child = child->next ) {
 			stat_branch_to_str(child,s,indent+1);
 		}
 	}
+	
+	if (indent == 0) {
+		g_free(format);
+	}
 }
+
 
 /* frees the resources allocated by a stat_tree node */
 static void free_stat_node( stat_node* node ) {
@@ -193,7 +236,7 @@ extern void register_stats_tree(guint8* tapname,
 	st->filter = NULL;
 	
 	st->root.counter = 0;
-	st->root.name = STAT_TREE_ROOT;
+	st->root.name = g_strdup(name);
 	st->root.st = st;
 	st->root.parent = NULL;
 	st->root.children = NULL;
