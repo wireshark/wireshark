@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TFTP Option Extension
  *
- * $Id: packet-tftp.c,v 1.23 2001/01/09 06:31:44 guy Exp $
+ * $Id: packet-tftp.c,v 1.24 2001/02/09 06:08:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -57,21 +57,21 @@ static gint ett_tftp = -1;
 
 #define UDP_PORT_TFTP    69
 
-#define	RRQ	1
-#define	WRQ	2
-#define	DATA	3
-#define	ACK	4
-#define	ERROR	5
-#define OACK	6
+#define	TFTP_RRQ	1
+#define	TFTP_WRQ	2
+#define	TFTP_DATA	3
+#define	TFTP_ACK	4
+#define	TFTP_ERROR	5
+#define	TFTP_OACK	6
 
 static const value_string tftp_opcode_vals[] = {
-  { RRQ,   "Read Request" },
-  { WRQ,   "Write Request" },
-  { DATA,  "Data Packet" },
-  { ACK,   "Acknowledgement" },
-  { ERROR, "Error Code" },
-  { OACK,  "Option Acknowledgement" },
-  { 0,     NULL }
+  { TFTP_RRQ,   "Read Request" },
+  { TFTP_WRQ,   "Write Request" },
+  { TFTP_DATA,  "Data Packet" },
+  { TFTP_ACK,   "Acknowledgement" },
+  { TFTP_ERROR, "Error Code" },
+  { TFTP_OACK,  "Option Acknowledgement" },
+  { 0,          NULL }
 };
 
 static const value_string tftp_error_code_vals[] = {
@@ -150,7 +150,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  offset += 2;
 	    
 	  switch (opcode) {
-	  case RRQ:
+	  case TFTP_RRQ:
 	    i1 = tvb_strsize(tvb, offset);
 	    proto_tree_add_item(tftp_tree, hf_tftp_source_file,
 			    tvb, offset, i1, FALSE);
@@ -163,7 +163,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    tftp_dissect_options(tvb, offset, tftp_tree);
 	    break;
-	  case WRQ:
+	  case TFTP_WRQ:
 	    i1 = tvb_strsize(tvb, offset);
 	    proto_tree_add_item(tftp_tree, hf_tftp_destination_file,
 			    tvb, offset, i1, FALSE);
@@ -176,7 +176,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    tftp_dissect_options(tvb, offset, tftp_tree);
 	    break;
-	  case DATA:
+	  case TFTP_DATA:
 	    proto_tree_add_item(tftp_tree, hf_tftp_blocknum, tvb, offset, 2,
 	    		    FALSE);
 	    offset += 2;
@@ -184,11 +184,11 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_text(tftp_tree, tvb, offset, tvb_length_remaining(tvb, offset),
 		"Data (%d bytes)", tvb_length_remaining(tvb, offset));
 	    break;
-	  case ACK:
+	  case TFTP_ACK:
 	    proto_tree_add_item(tftp_tree, hf_tftp_blocknum, tvb, offset, 2,
 	    		    FALSE);
 	    break;
-	  case ERROR:
+	  case TFTP_ERROR:
 	    proto_tree_add_item(tftp_tree, hf_tftp_error_code, tvb, offset, 2,
 			    FALSE);
 	    offset += 2;
@@ -197,7 +197,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_item(tftp_tree, hf_tftp_error_string, tvb, offset,
 	        i1, FALSE);
 	    break;
-	  case OACK:
+	  case TFTP_OACK:
 	    tftp_dissect_options(tvb, offset, tftp_tree);
 	    break;
 	  default:
