@@ -855,6 +855,12 @@ By default the list is sorted according to the number of frames but by
 clicking on the column header; it is possible to re-sort the list in
 ascending or descending order by any column.
 
+By first selecting a conversation by clicking on it and then using the 
+right mouse button (on those platforms that have a right
+mouse button) ethereal will display a popup menu offering several different 
+filter operations to apply to the capture.
+
+
 These statistics windows can also be invoked from the Ethereal command
 line using the B<-z conv> argument. 
 
