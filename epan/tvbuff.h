@@ -38,7 +38,18 @@
 #include <glib.h>
 #include "exceptions.h"
 
-/* The different types of tvbuff's */
+/** @file
+ * "testy, virtual(-izable) buffer".  They are testy in that they get mad when
+ * an attempt is made to access data beyond the bounds of their array. In that
+ * case, they throw an exception.
+ * 
+ * They are virtualizable in that new tvbuff's can be made from other tvbuffs, 
+ * while only the original tvbuff may have data. That is, the new tvbuff has 
+ * virtual data.
+ */
+
+
+/** The different types of tvbuff's */
 typedef enum {
 	TVBUFF_REAL_DATA,
 	TVBUFF_SUBSET,
@@ -110,7 +121,7 @@ typedef struct tvbuff {
 
 
 
-/* TVBUFF_REAL_DATA contains a guint8* that points to real data.
+/** TVBUFF_REAL_DATA contains a guint8* that points to real data.
  * The data is allocated and contiguous.
  *
  * TVBUFF_SUBSET has a backing tvbuff. The TVBUFF_SUBSET is a "window"
@@ -129,21 +140,21 @@ typedef struct tvbuff {
  */
 
 
-/* "class" initialization. Called once during execution of program
+/** "class" initialization. Called once during execution of program
  * so that tvbuff.c can initialize its data. */
 extern void tvbuff_init(void);
 
-/* "class" cleanup. Called once during execution of program
+/** "class" cleanup. Called once during execution of program
  * so that tvbuff.c can clean up its data. */
 extern void tvbuff_cleanup(void);
 
 
-/* Returns a pointer to a newly initialized tvbuff. Note that
+/** Returns a pointer to a newly initialized tvbuff. Note that
  * tvbuff's of types TVBUFF_SUBSET and TVBUFF_COMPOSITE
  * require further initialization via the appropriate functions */
 extern tvbuff_t* tvb_new(tvbuff_type);
 
-/* Marks a tvbuff for freeing. The guint8* data of a TVBUFF_REAL_DATA
+/** Marks a tvbuff for freeing. The guint8* data of a TVBUFF_REAL_DATA
  * is *never* freed by the tvbuff routines. The tvbuff itself is actually freed
  * once its usage count drops to 0.
  *
@@ -164,27 +175,27 @@ extern tvbuff_t* tvb_new(tvbuff_type);
  */
 extern void tvb_free(tvbuff_t*);
 
-/* Free the tvbuff_t and all tvbuff's created from it. */
+/** Free the tvbuff_t and all tvbuff's created from it. */
 extern void tvb_free_chain(tvbuff_t*);
 
-/* Both return the new usage count, after the increment or decrement */
+/** Both return the new usage count, after the increment or decrement */
 extern guint tvb_increment_usage_count(tvbuff_t*, guint count);
 
-/* If a decrement causes the usage count to drop to 0, a the tvbuff
+/** If a decrement causes the usage count to drop to 0, a the tvbuff
  * is immediately freed. Be sure you know exactly what you're doing
  * if you decide to use this function, as another tvbuff could
  * still have a pointer to the just-freed tvbuff, causing corrupted data
  * or a segfault in the future */
 extern guint tvb_decrement_usage_count(tvbuff_t*, guint count);
 
-/* Set a callback function to call when a tvbuff is actually freed
+/** Set a callback function to call when a tvbuff is actually freed
  * (once the usage count drops to 0). One argument is passed to
  * that callback --- a void* that points to the real data.
  * Obviously, this only applies to a TVBUFF_REAL_DATA tvbuff. */
 extern void tvb_set_free_cb(tvbuff_t*, tvbuff_free_cb_t);
 
 
-/* Attach a TVBUFF_REAL_DATA tvbuff to a parent tvbuff. This connection
+/** Attach a TVBUFF_REAL_DATA tvbuff to a parent tvbuff. This connection
  * is used during a tvb_free_chain()... the "child" TVBUFF_REAL_DATA acts
  * as if is part of the chain-of-creation of the parent tvbuff, although it
  * isn't. This is useful if you need to take the data from some tvbuff,
@@ -195,16 +206,16 @@ extern void tvb_set_free_cb(tvbuff_t*, tvbuff_free_cb_t);
  * the tvbuff routines knowledgable of this fact. */
 extern void tvb_set_child_real_data_tvbuff(tvbuff_t* parent, tvbuff_t* child);
 
-/* Sets parameters for TVBUFF_REAL_DATA. Can throw ReportedBoundsError. */
+/**Sets parameters for TVBUFF_REAL_DATA. Can throw ReportedBoundsError. */
 extern void tvb_set_real_data(tvbuff_t*, const guint8* data, guint length,
     gint reported_length);
 
-/* Combination of tvb_new() and tvb_set_real_data(). Can throw ReportedBoundsError. */
+/** Combination of tvb_new() and tvb_set_real_data(). Can throw ReportedBoundsError. */
 extern tvbuff_t* tvb_new_real_data(const guint8* data, guint length,
     gint reported_length);
 
 
-/* Define the subset of the backing buffer to use.
+/** Define the subset of the backing buffer to use.
  *
  * 'backing_offset' can be negative, to indicate bytes from
  * the end of the backing buffer.
@@ -220,27 +231,27 @@ extern tvbuff_t* tvb_new_real_data(const guint8* data, guint length,
 extern void tvb_set_subset(tvbuff_t* tvb, tvbuff_t* backing,
 		gint backing_offset, gint backing_length, gint reported_length);
 
-/* Combination of tvb_new() and tvb_set_subset()
+/** Combination of tvb_new() and tvb_set_subset()
  * Can throw ReportedBoundsError. */
 extern tvbuff_t* tvb_new_subset(tvbuff_t* backing,
 		gint backing_offset, gint backing_length, gint reported_length);
 
 
-/* Both tvb_composite_append and tvb_composite_prepend can throw
+/** Both tvb_composite_append and tvb_composite_prepend can throw
  * BoundsError if member_offset/member_length goes beyond bounds of
  * the 'member' tvbuff. */
 
-/* Append to the list of tvbuffs that make up this composite tvbuff */
+/** Append to the list of tvbuffs that make up this composite tvbuff */
 extern void tvb_composite_append(tvbuff_t* tvb, tvbuff_t* member);
 
-/* Prepend to the list of tvbuffs that make up this composite tvbuff */
+/** Prepend to the list of tvbuffs that make up this composite tvbuff */
 extern void tvb_composite_prepend(tvbuff_t* tvb, tvbuff_t* member);
 
-/* Helper function that calls tvb_new(TVBUFF_COMPOSITE).
+/** Helper function that calls tvb_new(TVBUFF_COMPOSITE).
  * Provided only to maintain symmetry with other constructors */
 extern tvbuff_t* tvb_new_composite(void);
 
-/* Mark a composite tvbuff as initialized. No further appends or prepends
+/** Mark a composite tvbuff as initialized. No further appends or prepends
  * occur, data access can finally happen after this finalization. */
 extern void tvb_composite_finalize(tvbuff_t* tvb);
 
@@ -248,19 +259,19 @@ extern void tvb_composite_finalize(tvbuff_t* tvb);
 /* Get total length of buffer */
 extern guint tvb_length(tvbuff_t*);
 
-/* Computes bytes to end of buffer, from offset (which can be negative,
+/** Computes bytes to end of buffer, from offset (which can be negative,
  * to indicate bytes from end of buffer). Function returns -1 to
  * indicate that offset is out of bounds. No exception is thrown. */
 extern gint tvb_length_remaining(tvbuff_t*, gint offset);
 
-/* Same as above, but throws an exception if the offset is out of bounds. */
+/** Same as above, but throws an exception if the offset is out of bounds. */
 extern guint tvb_ensure_length_remaining(tvbuff_t*, gint offset);
 
 /* Checks (w/o throwing exception) that the bytes referred to by
  * 'offset'/'length' actually exist in the buffer */
 extern gboolean tvb_bytes_exist(tvbuff_t*, gint offset, gint length);
 
-/* Checks that the bytes referred to by 'offset'/'length' actually exist
+/** Checks that the bytes referred to by 'offset'/'length' actually exist
  * in the buffer, and throws an exception if they aren't. */
 extern void tvb_ensure_bytes_exist(tvbuff_t *tvb, gint offset, gint length);
 
@@ -270,13 +281,13 @@ extern gboolean tvb_offset_exists(tvbuff_t*, gint offset);
 /* Get reported length of buffer */
 extern guint tvb_reported_length(tvbuff_t*);
 
-/* Computes bytes of reported packet data to end of buffer, from offset
+/** Computes bytes of reported packet data to end of buffer, from offset
  * (which can be negative, to indicate bytes from end of buffer). Function
  * returns -1 to indicate that offset is out of bounds. No exception is
  * thrown. */
 extern gint tvb_reported_length_remaining(tvbuff_t *tvb, gint offset);
 
-/* Set the reported length of a tvbuff to a given value; used for protocols
+/** Set the reported length of a tvbuff to a given value; used for protocols
    whose headers contain an explicit length and where the calling
    dissector's payload may include padding as well as the packet for
    this protocol.
@@ -309,7 +320,7 @@ extern guint64 tvb_get_letoh64(tvbuff_t*, gint offset);
 extern gfloat tvb_get_letohieee_float(tvbuff_t*, gint offset);
 extern gdouble tvb_get_letohieee_double(tvbuff_t*, gint offset);
 
-/* Returns target for convenience. Does not suffer from possible
+/** Returns target for convenience. Does not suffer from possible
  * expense of tvb_get_ptr(), since this routine is smart enough
  * to copy data in chunks if the request range actually exists in
  * different TVBUFF_REAL_DATA tvbuffs. This function assumes that the
@@ -317,11 +328,11 @@ extern gdouble tvb_get_letohieee_double(tvbuff_t*, gint offset);
  * target memory. */
 extern guint8* tvb_memcpy(tvbuff_t*, guint8* target, gint offset, gint length);
 
-/* It is the user's responsibility to g_free() the memory allocated by
+/** It is the user's responsibility to g_free() the memory allocated by
  * tvb_memdup(). Calls tvb_memcpy() */
 extern guint8* tvb_memdup(tvbuff_t*, gint offset, gint length);
 
-/* WARNING! This function is possibly expensive, temporarily allocating
+/** WARNING! This function is possibly expensive, temporarily allocating
  * another copy of the packet data. Furthermore, it's dangerous because once
  * this pointer is given to the user, there's no guarantee that the user will
  * honor the 'length' and not overstep the boundaries of the buffer.
@@ -341,7 +352,7 @@ extern guint8* tvb_memdup(tvbuff_t*, gint offset, gint length);
  * tvbuff_free_cb_t() is called, if any. */
 extern const guint8* tvb_get_ptr(tvbuff_t*, gint offset, gint length);
 
-/* Find first occurence of any of the needles in tvbuff, starting at offset.
+/** Find first occurence of any of the needles in tvbuff, starting at offset.
  * Searches at most maxlength number of bytes; if maxlength is -1, searches
  * to end of tvbuff.
  * Returns the offset of the found needle, or -1 if not found.
@@ -351,7 +362,7 @@ extern const guint8* tvb_get_ptr(tvbuff_t*, gint offset, gint length);
 extern gint tvb_find_guint8(tvbuff_t*, gint offset, gint maxlength,
     guint8 needle);
 
-/* Find first occurence of any of the needles in tvbuff, starting at offset.
+/** Find first occurence of any of the needles in tvbuff, starting at offset.
  * Searches at most maxlength number of bytes. Returns the offset of the
  * found needle, or -1 if not found. Will not throw an exception, even if
  * maxlength exceeds boundary of tvbuff; in that case, -1 will be returned if
@@ -359,38 +370,38 @@ extern gint tvb_find_guint8(tvbuff_t*, gint offset, gint maxlength,
 extern gint tvb_pbrk_guint8(tvbuff_t *, gint offset, gint maxlength,
     guint8 *needles);
 
-/* Find size of stringz (NUL-terminated string) by looking for terminating
+/** Find size of stringz (NUL-terminated string) by looking for terminating
  * NUL.  The size of the string includes the terminating NUL.
  *
  * If the NUL isn't found, it throws the appropriate exception.
  */
 extern guint tvb_strsize(tvbuff_t *tvb, gint offset);
 
-/* Find length of string by looking for end of string ('\0'), up to
+/** Find length of string by looking for end of string ('\0'), up to
  * 'maxlength' characters'; if 'maxlength' is -1, searches to end
  * of tvbuff.
  * Returns -1 if 'maxlength' reached before finding EOS. */
 extern gint tvb_strnlen(tvbuff_t*, gint offset, guint maxlength);
 
-/* Convert a string from Unicode to ASCII.  At the moment we fake it by
+/** Convert a string from Unicode to ASCII.  At the moment we fake it by
  * assuming all characters are ASCII  )-:  The caller must free the
  * result returned.  The len parameter is the number of guint16's to
  * convert from Unicode. */
 extern char *tvb_fake_unicode(tvbuff_t *tvb, int offset, int len,
                               gboolean little_endian);
 
-/*
+/**
  * Format the data in the tvb from offset for size ...
  */
 extern gchar * tvb_format_text(tvbuff_t *tvb, gint offset, gint size);
 
-/*
+/**
  * Like "tvb_format_text()", but for null-padded strings; don't show
  * the null padding characters as "\000".
  */
 extern gchar *tvb_format_stringzpad(tvbuff_t *tvb, gint offset, gint size);
 
-/*
+/**
  * Given a tvbuff, an offset, and a length, allocate a buffer big enough
  * to hold a non-null-terminated string of that length at that offset,
  * plus a trailing '\0', copy the string into it, and return a pointer
@@ -400,7 +411,7 @@ extern gchar *tvb_format_stringzpad(tvbuff_t *tvb, gint offset, gint size);
  */
 extern guint8 *tvb_get_string(tvbuff_t *tvb, gint offset, gint length);
 
-/*
+/**
  * Given a tvbuff and an offset, with the offset assumed to refer to
  * a null-terminated string, find the length of that string (and throw
  * an exception if the tvbuff ends before we find the null), allocate
@@ -410,7 +421,7 @@ extern guint8 *tvb_get_string(tvbuff_t *tvb, gint offset, gint length);
  */
 extern guint8 *tvb_get_stringz(tvbuff_t *tvb, gint offset, gint *lengthp);
 
-/* Looks for a stringz (NUL-terminated string) in tvbuff and copies
+/** Looks for a stringz (NUL-terminated string) in tvbuff and copies
  * no more than bufsize number of bytes, including terminating NUL, to buffer.
  * Returns length of string (not including terminating NUL), or -1 if the string was
  * truncated in the buffer due to not having reached the terminating NUL.
@@ -426,7 +437,7 @@ extern guint8 *tvb_get_stringz(tvbuff_t *tvb, gint offset, gint *lengthp);
 extern gint tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint bufsize,
     guint8* buffer);
 
-/* Like tvb_get_nstringz(), but never returns -1. The string is guaranteed to
+/** Like tvb_get_nstringz(), but never returns -1. The string is guaranteed to
  * have a terminating NUL. If the string was truncated when copied into buffer,
  * a NUL is placed at the end of buffer to terminate it.
  *
@@ -435,7 +446,7 @@ extern gint tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint bufsize,
 extern gint tvb_get_nstringz0(tvbuff_t *tvb, gint offset, guint bufsize,
     guint8* buffer);
 
-/*
+/**
  * Given a tvbuff, an offset into the tvbuff, and a length that starts
  * at that offset (which may be -1 for "all the way to the end of the
  * tvbuff"), find the end of the (putative) line that starts at the
@@ -457,7 +468,7 @@ extern gint tvb_get_nstringz0(tvbuff_t *tvb, gint offset, guint bufsize,
 extern gint tvb_find_line_end(tvbuff_t *tvb, gint offset, int len,
     gint *next_offset, gboolean desegment);
 
-/*
+/**
  * Given a tvbuff, an offset into the tvbuff, and a length that starts
  * at that offset (which may be -1 for "all the way to the end of the
  * tvbuff"), find the end of the (putative) line that starts at the
@@ -478,28 +489,28 @@ extern gint tvb_find_line_end(tvbuff_t *tvb, gint offset, int len,
 extern gint tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
     gint *next_offset);
 
-/*
+/**
  * Call strncmp after checking if enough chars left, returning 0 if
  * it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
  */
 extern gint tvb_strneql(tvbuff_t *tvb, gint offset, const gchar *str,
     gint size);
 
-/*
+/**
  * Call strncasecmp after checking if enough chars left, returning 0 if
  * it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
  */
 extern gint tvb_strncaseeql(tvbuff_t *tvb, gint offset, const gchar *str,
     gint size);
 
-/*
+/**
  * Call memcmp after checking if enough chars left, returning 0 if
  * it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
  */
 extern gint tvb_memeql(tvbuff_t *tvb, gint offset, const guint8 *str,
     gint size);
 
-/*
+/**
  * Format a bunch of data from a tvbuff as bytes, returning a pointer
  * to the string with the formatted data, with "punct" as a byte
  * separator.
@@ -516,14 +527,14 @@ extern gchar *tvb_bytes_to_str(tvbuff_t *tvb, gint offset, gint len);
 #define TVB_GET_DS_TVB(tvb)		\
 	(tvb->ds_tvb)
 
-/* Locate a sub-tvbuff within another tvbuff, starting at position
+/** Locate a sub-tvbuff within another tvbuff, starting at position
  * 'haystack_offset'. Returns the index of the beginning of 'needle' within
  * 'haystack', or -1 if 'needle' is not found. The index is relative
  * to the start of 'haystack', not 'haystack_offset'. */
 extern gint tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb,
 	gint haystack_offset);
 
-/*
+/**
  * Uncompresses a zlib compressed packet inside a tvbuff at offset with
  * length comprlen.  Returns an uncompressed tvbuffer if uncompression
  * succeeded or NULL if uncompression failed.
