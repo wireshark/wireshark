@@ -1950,6 +1950,7 @@ Yuriy Sidelnikov <ysidelnikov [AT] hotmail.com> {
 	ISO 8327-1 Session Protocol support
 	ISO 8823 Presentation Protocol support
 	ISO 10035-1 ACSE support
+	ISO 8571 FTAM support
 }
 
 Matthias Drochner <M.Drochner [AT] fz-juelich.de> {
