@@ -95,7 +95,7 @@ proper helper routines
  *       with great support with testing and providing capturefiles
  *       from Martin Regner
  *
- * $Id: packet-h245.c,v 1.14 2003/07/09 11:02:50 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.15 2003/07/09 11:07:57 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -134,6 +134,7 @@ static dissector_handle_t MultimediaSystemControlMessage_handle;
 
 static int proto_h245 = -1;
 static int hf_h245_pdu_type = -1;
+static int hf_h245_subAddress = -1;
 static int hf_h245_domainBased = -1;
 static int hf_h245_GeneralString_length = -1;
 static int hf_h245_extension_bit = -1;
@@ -20036,7 +20037,8 @@ NOT_DECODED_YET("DialingInformationNumber_networkAddress");
 static int
 dissect_h245_DialingInformationNumber_subAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-NOT_DECODED_YET("DialingInformationNumber_subAddress");
+	offset=dissect_per_constrained_IA5String(tvb, offset, pinfo, tree, hf_h245_subAddress, 0, 40);
+
 	return offset;
 }
 
@@ -22917,7 +22919,9 @@ proto_register_h245(void)
 	{ &hf_h245_domainBased,
 		{ "domainBased", "h245.domainBased", FT_STRING, FT_NONE,
 		NULL, 0, "String for domainBased", HFILL }},
-
+	{ &hf_h245_subAddress,
+		{ "subAddress", "h245.subAddress", FT_STRING, FT_NONE,
+		NULL, 0, "String for subAddress", HFILL }},
 	};
 
 	static gint *ett[] =
