@@ -208,6 +208,8 @@ but is likely either /var/tmp or /tmp.
 
 Sets the format of the packet timestamp displayed in the packet list
 window to relative, absolute, or delta.
+Allows you to enable the automatic scrolling of the packet list while a 
+live capture is in progress.
 
 =item Display:Match Selected
 
