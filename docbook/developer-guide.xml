@@ -78,6 +78,12 @@ FILE SECTION
 &BookMetaInformation;
 &Preface;
 <part id="PartEnvironment" label="I">
+<partintro>
+<para>
+The first part of this book will describe how to set up the environment needed
+to develop Ethereal.
+</para>
+</partintro>
 <title>Ethereal Build Environment</title>
 &Introduction;
 &Tools;
@@ -86,6 +92,11 @@ FILE SECTION
 </part>
 <part id="PartDevelopment" label="II">
 <title>Ethereal Development</title>
+<partintro>
+<para>
+The second part of this book will describe how to do the actual Ethereal development.
+</para>
+</partintro>
 &UserInterface;
 </part>
 <!--
