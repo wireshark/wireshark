@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.257 2002/05/10 22:09:24 guy Exp $
+ * $Id: packet-smb.c,v 1.258 2002/05/15 19:37:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -523,6 +523,8 @@ static int hf_smb_volume_serial_num = -1;
 static int hf_smb_volume_label_len = -1;
 static int hf_smb_volume_label = -1;
 static int hf_smb_free_alloc_units64 = -1;
+static int hf_smb_caller_free_alloc_units64 = -1;
+static int hf_smb_actual_free_alloc_units64 = -1;
 static int hf_smb_max_name_len = -1;
 static int hf_smb_fs_name_len = -1;
 static int hf_smb_fs_name = -1;
@@ -8647,7 +8649,9 @@ static const value_string qfsi_vals[] = {
 	{ 0x0103,	"Query FS Size Info"},
 	{ 0x0104,	"Query FS Device Info"},
 	{ 0x0105,	"Query FS Attribute Info"},
+	{ 1003,		"Query FS Size Info"},
 	{ 1006,		"Query FS Quota Info"},
+	{ 1007,		"Query Full FS Size Info"},
 	{0, NULL}
 };
 
@@ -11461,6 +11465,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 		break;
 	case 0x0103:	/* SMB_QUERY_FS_SIZE_INFO */
+	case 1003:	/* SMB_FS_SIZE_INFORMATION */
 		/* allocation size */
 		CHECK_BYTE_COUNT_TRANS_SUBR(8);
 		proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
@@ -11522,6 +11527,33 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		break;
 	case 1006:	/* QUERY_FS_QUOTA_INFO */
 		offset = dissect_nt_quota(tvb, tree, offset, bcp);
+		break;
+	case 1007:	/* SMB_FS_FULL_SIZE_INFORMATION */
+		/* allocation size */
+		CHECK_BYTE_COUNT_TRANS_SUBR(8);
+		proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+		COUNT_BYTES_TRANS_SUBR(8);
+
+		/* caller free allocation units */
+		CHECK_BYTE_COUNT_TRANS_SUBR(8);
+		proto_tree_add_item(tree, hf_smb_caller_free_alloc_units64, tvb, offset, 8, TRUE);
+		COUNT_BYTES_TRANS_SUBR(8);
+
+		/* actual free allocation units */
+		CHECK_BYTE_COUNT_TRANS_SUBR(8);
+		proto_tree_add_item(tree, hf_smb_actual_free_alloc_units64, tvb, offset, 8, TRUE);
+		COUNT_BYTES_TRANS_SUBR(8);
+
+		/* sectors per unit */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		proto_tree_add_item(tree, hf_smb_sector_unit, tvb, offset, 4, TRUE);
+		COUNT_BYTES_TRANS_SUBR(4);
+
+		/* bytes per sector */
+		CHECK_BYTE_COUNT_TRANS_SUBR(4);
+		proto_tree_add_item(tree, hf_smb_fs_sector, tvb, offset, 4, TRUE);
+		COUNT_BYTES_TRANS_SUBR(4);
+		break;
 	}
  
 	return offset;
@@ -16401,6 +16433,14 @@ proto_register_smb(void)
 	{ &hf_smb_free_alloc_units64,
 		{ "Free Units", "smb.free_alloc_units", FT_UINT64, BASE_DEC,
 		NULL, 0, "Number of free allocation units", HFILL }},
+
+	{ &hf_smb_caller_free_alloc_units64,
+		{ "Caller Free Units", "smb.caller_free_alloc_units", FT_UINT64, BASE_DEC,
+		NULL, 0, "Number of caller free allocation units", HFILL }},
+
+	{ &hf_smb_actual_free_alloc_units64,
+		{ "Actual Free Units", "smb.actual_free_alloc_units", FT_UINT64, BASE_DEC,
+		NULL, 0, "Number of actual free allocation units", HFILL }},
 
 	{ &hf_smb_soft_quota_limit,
 		{ "(Soft) Quota Treshold", "smb.quota.soft.default", FT_UINT64, BASE_DEC,
