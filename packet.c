@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.95 2000/06/27 04:35:45 guy Exp $
+ * $Id: packet.c,v 1.96 2000/07/08 10:46:21 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -694,13 +694,21 @@ decode_numeric_bitfield(guint32 val, guint32 mask, int width,
   return buf;
 }
 
+void
+col_set_writable(frame_data *fd, gboolean writable)
+{
+	if (fd->cinfo) {
+		fd->cinfo->writable = writable;
+	}
+}
+
 /* Checks to see if a particular packet information element is needed for
    the packet list */
 gint
 check_col(frame_data *fd, gint el) {
   int i;
 
-  if (fd->cinfo) {
+  if (fd->cinfo && fd->cinfo->writable) {
     for (i = 0; i < fd->cinfo->num_cols; i++) {
       if (fd->cinfo->fmt_matx[i][el])
         return TRUE;
@@ -715,14 +723,15 @@ col_add_fstr(frame_data *fd, gint el, gchar *format, ...) {
   va_list ap;
   int     i;
   size_t  max_len;
+
+  if (el == COL_INFO)
+	max_len = COL_MAX_INFO_LEN;
+  else
+	max_len = COL_MAX_LEN;
   
   va_start(ap, format);
   for (i = 0; i < fd->cinfo->num_cols; i++) {
     if (fd->cinfo->fmt_matx[i][el]) {
-      if (el == COL_INFO)
-	max_len = COL_MAX_INFO_LEN;
-      else
-	max_len = COL_MAX_LEN;
       vsnprintf(fd->cinfo->col_data[i], max_len, format, ap);
     }
   }
@@ -733,12 +742,13 @@ col_add_str(frame_data *fd, gint el, const gchar* str) {
   int    i;
   size_t max_len;
 
+  if (el == COL_INFO)
+	max_len = COL_MAX_INFO_LEN;
+  else
+	max_len = COL_MAX_LEN;
+  
   for (i = 0; i < fd->cinfo->num_cols; i++) {
     if (fd->cinfo->fmt_matx[i][el]) {
-      if (el == COL_INFO)
-	max_len = COL_MAX_INFO_LEN;
-      else
-	max_len = COL_MAX_LEN;
       strncpy(fd->cinfo->col_data[i], str, max_len);
       fd->cinfo->col_data[i][max_len - 1] = 0;
     }
@@ -752,14 +762,15 @@ col_append_fstr(frame_data *fd, gint el, gchar *format, ...) {
   int     i;
   size_t  len, max_len;
   
+  if (el == COL_INFO)
+	max_len = COL_MAX_INFO_LEN;
+  else
+	max_len = COL_MAX_LEN;
+  
   va_start(ap, format);
   for (i = 0; i < fd->cinfo->num_cols; i++) {
     if (fd->cinfo->fmt_matx[i][el]) {
       len = strlen(fd->cinfo->col_data[i]);
-      if (el == COL_INFO)
-	max_len = COL_MAX_INFO_LEN;
-      else
-	max_len = COL_MAX_LEN;
       vsnprintf(&fd->cinfo->col_data[i][len], max_len - len, format, ap);
     }
   }
@@ -770,13 +781,14 @@ col_append_str(frame_data *fd, gint el, gchar* str) {
   int    i;
   size_t len, max_len;
 
+  if (el == COL_INFO)
+	max_len = COL_MAX_INFO_LEN;
+  else
+	max_len = COL_MAX_LEN;
+  
   for (i = 0; i < fd->cinfo->num_cols; i++) {
     if (fd->cinfo->fmt_matx[i][el]) {
       len = strlen(fd->cinfo->col_data[i]);
-      if (el == COL_INFO)
-	max_len = COL_MAX_LEN;
-      else
-	max_len = COL_MAX_INFO_LEN;
       strncat(fd->cinfo->col_data[i], str, max_len - len);
       fd->cinfo->col_data[i][max_len - 1] = 0;
     }
@@ -1172,6 +1184,8 @@ dissect_packet(union wtap_pseudo_header *pseudo_header, const u_char *pd,
 	pi.fd = fd;
 	pi.compat_top_tvb = tvb;
 	pi.pseudo_header = pseudo_header;
+
+	col_set_writable(fd, TRUE);
 
 	TRY {
 		switch (fd->lnk_t) {

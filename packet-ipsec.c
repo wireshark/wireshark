@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.17 2000/06/05 03:21:02 gram Exp $
+ * $Id: packet-ipsec.c,v 1.18 2000/07/08 10:46:20 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,6 +42,10 @@
 #include "packet-ipsec.h"
 #include "packet-ip.h"
 #include "resolv.h"
+#include "prefs.h"
+
+/* Place AH payload in sub tree */
+gboolean g_ah_payload_in_subtree = FALSE;
 
 static int proto_ah = -1;
 static int hf_ah_spi = -1;
@@ -144,7 +148,7 @@ dissect_ah_old(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 void
 dissect_ah(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
-    proto_tree *ah_tree;
+    proto_tree *ah_tree, *next_tree = NULL;
     proto_item *ti;
     struct newah ah;
     int advance;
@@ -176,15 +180,27 @@ dissect_ah(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			    (guint32)ntohl(ah.ah_seq));
 	proto_tree_add_text(ah_tree, NullTVB, offset + sizeof(ah), (ah.ah_len - 1) << 2,
 			    "ICV");
+
+	/* Decide where to place next protocol decode */
+	if (g_ah_payload_in_subtree) {
+		next_tree = ah_tree;
+	}
+	else {
+		next_tree = tree;
+	}
     }
 
     /* start of the new header (could be a extension header) */
     offset += advance;
 
-  /* do lookup with the subdissector table */
-  if (!dissector_try_port(ip_dissector_table, ah.ah_nxt, pd, offset, fd, tree)) {
-    dissect_data(pd, offset, fd, tree);
-  }
+    if (g_ah_payload_in_subtree) {
+	col_set_writable(fd, FALSE);
+    }
+
+    /* do lookup with the subdissector table */
+    if (!dissector_try_port(ip_dissector_table, ah.ah_nxt, pd, offset, fd, next_tree)) {
+      dissect_data(pd, offset, fd, next_tree);
+    }
 }
 
 static void
@@ -317,6 +333,8 @@ proto_register_ipsec(void)
     &ett_ipcomp,
   };
 
+  module_t *ah_module;
+
   proto_ah = proto_register_protocol("Authentication Header", "ah");
   proto_register_field_array(proto_ah, hf_ah, array_length(hf_ah));
 
@@ -327,6 +345,13 @@ proto_register_ipsec(void)
   proto_register_field_array(proto_ipcomp, hf_ipcomp, array_length(hf_ipcomp));
 
   proto_register_subtree_array(ett, array_length(ett));
+
+  /* Register a configuration option for placement of AH payload dissection */
+  ah_module = prefs_register_module("ah", "AH", NULL);
+  prefs_register_bool_preference(ah_module, "place_ah_payload_in_subtree",
+	    "Place AH payload in subtree",
+"Whether the AH payload decode should be placed in a subtree",
+	    &g_ah_payload_in_subtree);
 }
 
 void

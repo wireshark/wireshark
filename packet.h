@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.189 2000/05/26 22:08:16 guy Exp $
+ * $Id: packet.h,v 1.190 2000/07/08 10:46:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -94,6 +94,7 @@ typedef struct _column_info {
   gint      *col_width; /* Column widths to use during a "-S" capture */
   gchar    **col_title; /* Column titles */
   gchar    **col_data;  /* Column data */
+  gboolean   writable;  /* Are we stil writing to the columns? */
 } column_info;
 
 #define COL_MAX_LEN 256
@@ -302,6 +303,8 @@ const char *decode_enumerated_bitfield(guint32 val, guint32 mask, int width,
   const value_string *tab, const char *fmt);
 const char *decode_numeric_bitfield(guint32 val, guint32 mask, int width,
   const char *fmt);
+
+void	   col_set_writable(frame_data *fd, gboolean writable);
 gint       check_col(frame_data *, gint);
 #if __GNUC__ == 2
 void       col_add_fstr(frame_data *, gint, gchar *, ...)
