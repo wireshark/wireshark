@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.25 2002/09/05 18:47:46 jmayer Exp $
+ * $Id: help_dlg.c,v 1.26 2002/09/06 21:27:57 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -28,6 +28,7 @@
 #endif
 
 #include <gtk/gtk.h>
+#include <string.h>
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
