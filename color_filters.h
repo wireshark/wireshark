@@ -27,7 +27,6 @@
 /** @file
  *  Color filters.
  */
-#include "epan/dfilter/dfilter.h"
 
 /* Data for a color filter. */
 typedef struct _color_filter {
