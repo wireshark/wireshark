@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-vrrp.c,v 1.26 2003/04/30 02:35:20 gerald Exp $
+ * $Id: packet-vrrp.c,v 1.27 2003/06/12 06:58:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,7 +52,7 @@ static gint hf_vrrp_ip6 = -1;
 
 #define VRRP_VERSION_MASK 0xf0
 #define VRRP_TYPE_MASK 0x0f
-#define VRRP_AUTH_DATA_LEN 9
+#define VRRP_AUTH_DATA_LEN 8
 
 #define VRRP_TYPE_ADVERTISEMENT 1
 static const value_string vrrp_type_vals[] = {
@@ -107,7 +107,7 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree *vrrp_tree, *ver_type_tree;
                 guint8 priority, ip_count = 0, auth_type;
                 guint16 cksum, computed_cksum;
-                guint8 auth_buf[VRRP_AUTH_DATA_LEN];
+                guint8 auth_buf[VRRP_AUTH_DATA_LEN + 1];
 
                 ti = proto_tree_add_item(tree, proto_vrrp, tvb, 0, -1, FALSE);
                 vrrp_tree = proto_item_add_subtree(ti, ett_vrrp);
@@ -215,7 +215,7 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if (auth_type != VRRP_AUTH_TYPE_SIMPLE_TEXT)
                         return; /* Contents of the authentication data is undefined */
 
-                tvb_get_nstringz0(tvb, offset, VRRP_AUTH_DATA_LEN, auth_buf);
+                tvb_get_nstringz0(tvb, offset, sizeof auth_buf, auth_buf);
                 if (auth_buf[0] != '\0')
                         proto_tree_add_text(vrrp_tree, tvb, offset,
                                             VRRP_AUTH_DATA_LEN,
