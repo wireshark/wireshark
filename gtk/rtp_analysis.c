@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.39 2004/02/23 19:19:38 ulfl Exp $
+ * $Id: rtp_analysis.c,v 1.40 2004/03/13 12:09:27 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -516,7 +516,7 @@ static int rtp_packet_add_info(GtkCList *clist,
 	then = pinfo->fd->abs_secs;
 	msecs = (guint16)(pinfo->fd->abs_usecs/1000);
 	tm_tmp = localtime(&then);
-	snprintf(timeStr,32,"%02d/%02d/%04d %02d:%02d:%02d.%03d",
+	g_snprintf(timeStr,sizeof(timeStr),"%02d/%02d/%04d %02d:%02d:%02d.%03d",
 		tm_tmp->tm_mon + 1,
 		tm_tmp->tm_mday,
 		tm_tmp->tm_year + 1900,
@@ -526,19 +526,19 @@ static int rtp_packet_add_info(GtkCList *clist,
 		msecs);
 
 	if (statinfo->pt == PT_CN) {
-		snprintf(status,40,"Comfort noise (PT=13, RFC 3389)");
+		g_snprintf(status,sizeof(status),"Comfort noise (PT=13, RFC 3389)");
 		color = COLOR_CN;
 	}
 	else if (statinfo->pt == PT_CN_OLD) {
-		snprintf(status,40,"Comfort noise (PT=19, reserved)");
+		g_snprintf(status,sizeof(status),"Comfort noise (PT=19, reserved)");
 		color = COLOR_CN;
 	}
 	else if (statinfo->flags & STAT_FLAG_WRONG_SEQ) {
-		snprintf(status,40,"Wrong sequence nr.");
+		g_snprintf(status,sizeof(status),"Wrong sequence nr.");
 		color = COLOR_ERROR;
 	}
 	else if (statinfo->flags & STAT_FLAG_REG_PT_CHANGE) {
-		snprintf(status,40,"Payload changed to PT=%u", statinfo->pt);
+		g_snprintf(status,sizeof(status),"Payload changed to PT=%u", statinfo->pt);
 		color = COLOR_WARNING;
 	}
 	else if ((statinfo->flags & STAT_FLAG_PT_CHANGE)
@@ -546,14 +546,14 @@ static int rtp_packet_add_info(GtkCList *clist,
 		&&  !(statinfo->flags & STAT_FLAG_PT_CN)
 		&&  (statinfo->flags & STAT_FLAG_FOLLOW_PT_CN)
 		&&  !(statinfo->flags & STAT_FLAG_MARKER)) {
-		snprintf(status,40,"Marker missing?");
+		g_snprintf(status,sizeof(status),"Marker missing?");
 		color = COLOR_WARNING;
 	}
 	else {
 		if (statinfo->flags & STAT_FLAG_MARKER) {
 			color = COLOR_WARNING;
 		}
-		snprintf(status,40,OK_TEXT);
+		g_snprintf(status,sizeof(status),OK_TEXT);
 	}
 
 	/*  is this the first packet we got in this direction? */
@@ -880,7 +880,8 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 		return;
 	}
 
-	sprintf(filter_text,"rtp && (( ip.src==%s && udp.srcport==%u && ip.dst==%s && udp.dstport==%u ) || ( ip.src==%s && udp.srcport==%u && ip.dst==%s && udp.dstport==%u ))",
+	g_snprintf(filter_text,sizeof(filter_text),
+        "rtp && (( ip.src==%s && udp.srcport==%u && ip.dst==%s && udp.dstport==%u ) || ( ip.src==%s && udp.srcport==%u && ip.dst==%s && udp.dstport==%u ))",
 		ip_to_str((ip_addr_p)&(user_data->ip_src_fwd)),
 		user_data->port_src_fwd,
 		ip_to_str((ip_addr_p)&(user_data->ip_dst_fwd)),

@@ -2,7 +2,7 @@
  * Routines for display filter dialog used by gui taps
  * Copyright 2003 Lars Roland
  *
- * $Id: tap_dfilter_dlg.c,v 1.6 2004/02/27 19:07:20 ulfl Exp $
+ * $Id: tap_dfilter_dlg.c,v 1.7 2004/03/13 12:09:27 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -97,9 +97,9 @@ tap_dfilter_dlg_start_button_clicked(GtkWidget *item _U_, gpointer dialog_data)
 
 	filter=(char *)gtk_entry_get_text(GTK_ENTRY(dlg_data->filter_entry));
 	if(filter[0]==0){
-		sprintf(str,"%s", dlg_data->cont.init_string);
+		g_snprintf(str, sizeof(str), "%s", dlg_data->cont.init_string);
 	} else {
-		sprintf(str,"%s,%s", dlg_data->cont.init_string, filter);		
+		g_snprintf(str, sizeof(str), "%s,%s", dlg_data->cont.init_string, filter);		
 	}
 	(dlg_data->cont.tap_init_cb)(str);
 }

@@ -1,7 +1,7 @@
 /* rpc_progs.c
  * rpc_progs   2002 Ronnie Sahlberg
  *
- * $Id: rpc_progs.c,v 1.21 2004/02/23 19:19:38 ulfl Exp $
+ * $Id: rpc_progs.c,v 1.22 2004/03/13 12:09:27 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -268,22 +268,22 @@ rpcprogs_draw(void *dummy _U_)
 			td=0;
 		}
 
-		sprintf(rp->sprogram,"%s",rpc_prog_name(rp->program));
+		g_snprintf(rp->sprogram, sizeof(rp->sprogram), "%s",rpc_prog_name(rp->program));
 		gtk_label_set_text(GTK_LABEL(rp->wprogram), rp->sprogram);
 
-		sprintf(rp->sversion,"%d",rp->version);
+		g_snprintf(rp->sversion, sizeof(rp->sversion), "%d",rp->version);
 		gtk_label_set_text(GTK_LABEL(rp->wversion), rp->sversion);
 
-		sprintf(rp->snum,"%d",rp->num);
+		g_snprintf(rp->snum, sizeof(rp->snum), "%d",rp->num);
 		gtk_label_set_text(GTK_LABEL(rp->wnum), rp->snum);
 
-		sprintf(rp->smin,"%3d.%05d",(int)rp->min.secs,(int)rp->min.nsecs/10000);
+		g_snprintf(rp->smin, sizeof(rp->smin), "%3d.%05d",(int)rp->min.secs,(int)rp->min.nsecs/10000);
 		gtk_label_set_text(GTK_LABEL(rp->wmin), rp->smin);
 
-		sprintf(rp->smax,"%3d.%05d",(int)rp->max.secs,(int)rp->max.nsecs/10000);
+		g_snprintf(rp->smax, sizeof(rp->smax), "%3d.%05d",(int)rp->max.secs,(int)rp->max.nsecs/10000);
 		gtk_label_set_text(GTK_LABEL(rp->wmax), rp->smax);
 
-		sprintf(rp->savg,"%3d.%05d",(int)td/100000,(int)td%100000);
+		g_snprintf(rp->savg, sizeof(rp->savg), "%3d.%05d",(int)td/100000,(int)td%100000);
 		gtk_label_set_text(GTK_LABEL(rp->wavg), rp->savg);
 
 	}

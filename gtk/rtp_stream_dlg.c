@@ -1,7 +1,7 @@
 /* rtp_stream_dlg.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream_dlg.c,v 1.17 2004/02/23 22:48:52 guy Exp $
+ * $Id: rtp_stream_dlg.c,v 1.18 2004/03/13 12:09:27 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -350,48 +350,53 @@ rtpstream_on_mark                      (GtkButton       *button _U_,
 }
 
 
-#define MAX_FILTER_LENGTH 320
-
 /****************************************************************************/
 static void
 rtpstream_on_filter                    (GtkButton       *button _U_,
                                         gpointer         user_data _U_)
 {
-	gchar filter_string[MAX_FILTER_LENGTH] = "";
-	gchar filter_string_rev[MAX_FILTER_LENGTH] = "";
+	gchar *filter_string;
+	gchar *filter_string_fwd;
+	gchar *filter_string_rev;
 
 	if (selected_stream_fwd==NULL && selected_stream_rev==NULL)
 		return;
 
 	if (selected_stream_fwd)
 	{
-		g_snprintf(filter_string, MAX_FILTER_LENGTH,
+		filter_string_fwd = g_strdup_printf(
 			"(ip.src==%s && udp.srcport==%u && ip.dst==%s && udp.dstport==%u && rtp.ssrc==%u)",
 			ip_to_str((const guint8*)&(selected_stream_fwd->src_addr)),
 			selected_stream_fwd->src_port,
 			ip_to_str((const guint8*)&(selected_stream_fwd->dest_addr)),
 			selected_stream_fwd->dest_port,
 			selected_stream_fwd->ssrc);
-
-		if (selected_stream_rev)
-		{
-			strcat(filter_string, " || ");
-		}
+        filter_string = filter_string_fwd;
 	}
 
 	if (selected_stream_rev)
 	{
-		g_snprintf(filter_string_rev, MAX_FILTER_LENGTH,
+		filter_string_rev = g_strdup_printf(
 			"(ip.src==%s && udp.srcport==%u && ip.dst==%s && udp.dstport==%u && rtp.ssrc==%u)",
+            filter_string_fwd,
 			ip_to_str((const guint8*)&(selected_stream_rev->src_addr)),
 			selected_stream_rev->src_port,
 			ip_to_str((const guint8*)&(selected_stream_rev->dest_addr)),
 			selected_stream_rev->dest_port,
 			selected_stream_rev->ssrc);
-		strcat(filter_string, filter_string_rev);
-	}
+        filter_string = filter_string_rev;
 
-	gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), filter_string);
+	    if (selected_stream_fwd)
+	    {
+            filter_string = g_strdup_printf("%s || %s", filter_string, filter_string_rev);
+            g_free(filter_string_fwd);
+            g_free(filter_string_rev);
+        }
+    }
+
+    gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), filter_string);
+    g_free(filter_string);
+
 /*
 	main_filter_packets(&cfile, filter_string, FALSE);
 	rtpstream_dlg_update(rtpstream_get_info()->strinfo_list);

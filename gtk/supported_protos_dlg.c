@@ -2,7 +2,7 @@
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
- * $Id: supported_protos_dlg.c,v 1.9 2004/02/20 22:36:36 guy Exp $
+ * $Id: supported_protos_dlg.c,v 1.10 2004/03/13 12:09:27 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,10 +29,6 @@
 
 #include <gtk/gtk.h>
 #include <string.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include "supported_protos_dlg.h"
 #include "prefs.h"
@@ -269,7 +265,7 @@ static void insert_text(GtkWidget *w, const char *buffer, int nchars)
     gtk_text_buffer_get_end_iter(buf, &iter);
     gtk_widget_modify_font(w, m_r_font);
     if (!g_utf8_validate(buffer, -1, NULL))
-        printf(buffer);
+        printf("Invalid utf8 encoding: %s\n", buffer);
     gtk_text_buffer_insert(buf, &iter, buffer, nchars);
 #endif
 }
@@ -329,7 +325,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
     }
     maxlen = namel + short_namel + filter_namel;
 
-    len = snprintf(buffer, BUFF_LEN, proto_supported, count);
+    len = g_snprintf(buffer, BUFF_LEN, proto_supported, count);
 #if GTK_MAJOR_VERSION < 2
     maxlen2 = len;
     width = gdk_string_width(m_r_font, buffer);
@@ -347,7 +343,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
 	    filter_name = proto_get_protocol_filter_name(i);
  
 	    /* the name used for sorting in the left column */
-	    len = snprintf(buffer, BUFF_LEN, "%*s %*s %*s\n",
+	    len = g_snprintf(buffer, BUFF_LEN, "%*s %*s %*s\n",
 			   -short_namel,  short_name,
 			   -namel,	  name,
 			   -filter_namel, filter_name);
@@ -419,7 +415,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
 	    }
 	    fcount += count;
 
-	    len = snprintf(buffer, BUFF_LEN, "\n%s - %s (%s) [%d fields]:\n",
+	    len = g_snprintf(buffer, BUFF_LEN, "\n%s - %s (%s) [%d fields]:\n",
 			   short_name, name, filter_name, count);
 	    insert_text(w, buffer, len);
 
@@ -430,7 +426,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
 			    continue;
 
 		    type_name = ftype_pretty_name(hfinfo->type);
-		    len = snprintf(buffer, BUFF_LEN, "%*s %*s %*s (%s)\n",
+		    len = g_snprintf(buffer, BUFF_LEN, "%*s %*s %*s (%s)\n",
 				   -maxlen,  hfinfo->abbrev,
 				   -maxlen2, hfinfo->name,
 				   -maxlen4, hfinfo->blurb,
@@ -448,7 +444,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
 #endif
 	    }
     }
-    len = snprintf(buffer, BUFF_LEN, "\n-- Total %d fields\n", fcount);
+    len = g_snprintf(buffer, BUFF_LEN, "\n-- Total %d fields\n", fcount);
     insert_text(w, buffer, len);
 
 #if GTK_MAJOR_VERSION < 2

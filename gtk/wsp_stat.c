@@ -1,7 +1,7 @@
 /* wsp_stat.c
  * wsp_stat   2003 Jean-Michel FAYARD
  *
- * $Id: wsp_stat.c,v 1.22 2004/02/23 19:19:39 ulfl Exp $
+ * $Id: wsp_stat.c,v 1.23 2004/03/13 12:09:27 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -340,8 +340,7 @@ gtk_wspstat_init(char *optarg)
 	sp->num_pdus = 16;
 	sp->pdu_stats=g_malloc( (sp->num_pdus+1) * sizeof( wsp_pdu_t) );
 	if(filter){
-		sp->filter=g_malloc(strlen(filter)+1);
-		strcpy(sp->filter,filter);
+		sp->filter=g_strdup(filter);
 		title=g_strdup_printf("Ethereal: WSP statistics with filter: %s", filter);
 	} else {
 		sp->filter=NULL;

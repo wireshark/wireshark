@@ -2,7 +2,7 @@
  * mgcp-statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: mgcp_stat.c,v 1.30 2004/02/23 19:19:38 ulfl Exp $
+ * $Id: mgcp_stat.c,v 1.31 2004/03/13 12:09:27 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -215,13 +215,13 @@ mgcpstat_draw(void *pms)
 			continue;
 		}
 
-		sprintf(str[0], "%s", val_to_str(i,mgcp_mesage_type,"Other"));
-		sprintf(str[1], "%d", ms->rtd[i].num);
-		sprintf(str[2], "%8.2f msec", nstime_to_msec(&(ms->rtd[i].min)));
-		sprintf(str[3], "%8.2f msec", nstime_to_msec(&(ms->rtd[i].max)));
-		sprintf(str[4], "%8.2f msec", get_average(&(ms->rtd[i].tot), ms->rtd[i].num));
-		sprintf(str[5], "%6u", ms->rtd[i].min_num);
-		sprintf(str[6], "%6u", ms->rtd[i].max_num);
+		g_snprintf(str[0], 256, "%s", val_to_str(i,mgcp_mesage_type,"Other"));
+		g_snprintf(str[1], 256, "%d", ms->rtd[i].num);
+		g_snprintf(str[2], 256, "%8.2f msec", nstime_to_msec(&(ms->rtd[i].min)));
+		g_snprintf(str[3], 256, "%8.2f msec", nstime_to_msec(&(ms->rtd[i].max)));
+		g_snprintf(str[4], 256, "%8.2f msec", get_average(&(ms->rtd[i].tot), ms->rtd[i].num));
+		g_snprintf(str[5], 256, "%6u", ms->rtd[i].min_num);
+		g_snprintf(str[6], 256, "%6u", ms->rtd[i].max_num);
 		gtk_clist_append(ms->table, str);
 	}
 
