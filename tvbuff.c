@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.4 2000/05/29 08:57:42 guy Exp $
+ * $Id: tvbuff.c,v 1.5 2000/06/09 21:15:46 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -621,7 +621,7 @@ tvb_reported_length(tvbuff_t* tvb)
 
 
 
-guint8*
+static guint8*
 first_real_data_ptr(tvbuff_t *tvb)
 {
 	tvbuff_t	*member;
@@ -641,7 +641,7 @@ first_real_data_ptr(tvbuff_t *tvb)
 	return NULL;
 }
 
-int
+static int
 offset_from_real_beginning(tvbuff_t *tvb, int counter)
 {
 	tvbuff_t	*member;
