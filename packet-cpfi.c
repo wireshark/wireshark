@@ -5,7 +5,7 @@
  *
  * Copyright 2003, Dave Sclarsky <dave_sclarsky[AT]cnt.com>
  *
- * $Id: packet-cpfi.c,v 1.4 2003/11/19 04:26:13 guy Exp $
+ * $Id: packet-cpfi.c,v 1.5 2003/11/19 09:49:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,13 +73,9 @@ static int hf_cpfi_SOF_type = -1;
 static int hf_cpfi_speed = -1;
 static int hf_cpfi_OPM_error = -1;
 static int hf_cpfi_from_LCM = -1;
-/* SOF word 2: */
-static int hf_cpfi_time_stamp = -1;
-static int hf_cpfi_TBD = -1;
 /* EOF */
 static int hf_cpfi_CRC_32 = -1;
 static int hf_cpfi_EOF_type = -1;
-static int hf_cpfi_EOF_error = -1;
 
 static guint32 word1;
 static guint32 word2;
