@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.34 2003/10/11 11:23:52 sahlberg Exp $
+ * $Id: io_stat.c,v 1.35 2003/10/11 23:17:46 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -481,6 +481,22 @@ get_it_value(io_stat_item_t *it, int adv_type, int calc_type)
 }
 
 static void
+print_time_scale_string(char *buf, guint32 t, gboolean print_unit)
+{
+	if(t>=10000000){
+		sprintf(buf, "%d%s",t/1000000,print_unit?"s ":"  ");
+	} else if(t>=1000000){
+		sprintf(buf, "%d.%03d%s",t/1000000,(t%1000000)/1000,print_unit?"s ":"  ");
+	} else if(t>=10000){
+		sprintf(buf, "%d%s",t/1000,print_unit?"ms":"  ");
+	} else if(t>=1000){
+		sprintf(buf, "%d.%03d%s",t/1000,t%1000,print_unit?"ms":"  ");
+	} else {
+		sprintf(buf, "%d%s",t,print_unit?"us":"  ");
+	}
+}
+
+static void
 gtk_iostat_draw(void *g)
 {
 	io_stat_graph_t *git=g;
@@ -676,17 +692,7 @@ gtk_iostat_draw(void *g)
 	 * top y scale label will be the widest one
 	 */
 	if(draw_y_as_time){
-		if(max_y>=10000000){
-			sprintf(label_string, "%ds",max_y/1000000);
-		} else if(max_y>=1000000){
-			sprintf(label_string, "%d.%03ds",max_y/1000000,(max_y%1000000)/1000);
-		} else if(max_y>=10000){
-			sprintf(label_string, "%dms",max_y/1000);
-		} else if(max_y>=1000){
-			sprintf(label_string, "%d.%03dms",max_y/1000,max_y%1000);
-		} else {
-			sprintf(label_string, "%dus",max_y);
-		}
+		print_time_scale_string(label_string, max_y, TRUE);
 	} else {
 		sprintf(label_string,"%d", max_y);
 	}
@@ -735,17 +741,7 @@ gtk_iostat_draw(void *g)
 			io->pixmap_height-bottom_y_border-draw_height*i/10);
 		/* draw the label */
 		if(draw_y_as_time){
-			if(max_y>=10000000){
-				sprintf(label_string, "%ds",(max_y*i/10)/1000000);
-			} else if(max_y>=1000000){
-				sprintf(label_string, "%d.%03ds",(max_y*i/10)/1000000,((max_y*i/10)%1000000)/1000);
-			} else if(max_y>=10000){
-				sprintf(label_string, "%dms",(max_y*i/10)/1000);
-			} else if(max_y>=1000){
-				sprintf(label_string, "%d.%03dms",(max_y*i/10)/1000,(max_y*i/10)%1000);
-			} else {
-				sprintf(label_string, "%dus",(max_y*i/10));
-			}
+			print_time_scale_string(label_string, (max_y*i/10), i==10);
 		} else {
 			sprintf(label_string,"%d", max_y*i/10);
 		}
