@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.8 2000/12/24 09:10:11 guy Exp $
+ * $Id: packet-kerberos.c,v 1.9 2000/12/24 22:00:55 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -93,7 +93,7 @@ static gint proto_kerberos = -1;
 #define KRB5_BODY_TILL                   5
 #define KRB5_BODY_RTIME                  6
 #define KRB5_BODY_NONCE                  7
-#define KRB5_BODY_ETYPE                  8
+#define KRB5_BODY_ENCTYPE                  8
 #define KRB5_BODY_ADDRESSES              9
 #define KRB5_BODY_ENC_AUTHORIZATION_DATA 10
 #define KRB5_BODY_ADDITIONAL_TICKETS     11
@@ -105,14 +105,32 @@ static gint proto_kerberos = -1;
 #define KRB5_ADDR_DECNET     0x0c
 #define KRB5_ADDR_APPLETALK  0x10
 
-#define KRB5_ETYPE_NULL                0
-#define KRB5_ETYPE_DES_CBC_CRC         1
-#define KRB5_ETYPE_DES_CBC_MD4         2
-#define KRB5_ETYPE_DES_CBC_MD5         3
+#define KRB5_ENCTYPE_NULL                0
+#define KRB5_ENCTYPE_DES_CBC_CRC         1
+#define KRB5_ENCTYPE_DES_CBC_MD4         2
+#define KRB5_ENCTYPE_DES_CBC_MD5         3
+#define KRB5_ENCTYPE_DES_CBC_RAW         4
+#define KRB5_ENCTYPE_DES3_CBC_SHA        5
+#define KRB5_ENCTYPE_DES3_CBC_RAW        6
+#define KRB5_ENCTYPE_DES_HMAC_SHA1       8
+#define KRB5_ENCTYPE_DES3_CBC_SHA1          0x10 
+#define KRB5_ENCTYPE_UNKNOWN                0x1ff
+#define KRB5_ENCTYPE_LOCAL_DES3_HMAC_SHA1   0x7007
 
-#define KRB5_PA_TGS_REQ       0x01
-#define KRB5_PA_ENC_TIMESTAMP 0x02
-#define KRB5_PA_PW_SALT       0x03
+#define KRB5_PA_TGS_REQ                1
+#define KRB5_PA_ENC_TIMESTAMP          2
+#define KRB5_PA_PW_SALT                3
+#define KRB5_PA_ENC_ENCKEY             4
+#define KRB5_PA_ENC_UNIX_TIME          5
+#define KRB5_PA_ENC_SANDIA_SECURID     6
+#define KRB5_PA_SESAME                 7
+#define KRB5_PA_OSF_DCE                8
+#define KRB5_PA_CYBERSAFE_SECUREID     9
+#define KRB5_PA_AFS3_SALT              10
+#define KRB5_PA_ENCTYPE_INFO             11
+#define KRB5_PA_SAM_CHALLENGE          12
+#define KRB5_PA_SAM_RESPONSE           13
+#define KRB5_PA_DASS                   16
 
 /* Type tags within Ticket */
 #define KRB5_TKT_TKT_VNO  0
@@ -120,17 +138,52 @@ static gint proto_kerberos = -1;
 #define KRB5_TKT_SNAME    2
 #define KRB5_TKT_ENC_PART 3
 
+/* Principal name-type */
+#define KRB5_NT_UNKNOWN     0
+#define KRB5_NT_PRINCIPAL   1
+#define KRB5_NT_SRV_INST    2
+#define KRB5_NT_SRV_HST     3
+#define KRB5_NT_SRV_XHST    4
+#define KRB5_NT_UID     5
+
+static const value_string krb5_princ_types[] = {
+    { KRB5_NT_UNKNOWN              , "Unknown" },
+    { KRB5_NT_PRINCIPAL            , "Principal" },
+    { KRB5_NT_SRV_INST             , "Service and Instance" },
+    { KRB5_NT_SRV_HST              , "Service and Host" },
+    { KRB5_NT_SRV_XHST             , "Service and Host Components" },
+    { KRB5_NT_UID                  , "Unique ID" },
+};
+
 static const value_string krb5_preauthentication_types[] = {
-    { KRB5_PA_TGS_REQ      , "PA-TGS-REQ" },
-    { KRB5_PA_ENC_TIMESTAMP, "PA-ENC-TIMESTAMP" },
-    { KRB5_PA_PW_SALT      , "PA-PW-SALT" },
+    { KRB5_PA_TGS_REQ              , "PA-TGS-REQ" },
+    { KRB5_PA_ENC_TIMESTAMP        , "PA-ENC-TIMESTAMP" },
+    { KRB5_PA_PW_SALT              , "PA-PW-SALT" },
+    { KRB5_PA_ENC_ENCKEY           , "PA-ENC-ENCKEY" },
+    { KRB5_PA_ENC_UNIX_TIME        , "PA-ENC-UNIX-TIME" },
+    { KRB5_PA_ENC_SANDIA_SECURID   , "PA-PW-SALT" },
+    { KRB5_PA_SESAME               , "PA-SESAME" },
+    { KRB5_PA_OSF_DCE              , "PA-OSF-DCE" },
+    { KRB5_PA_CYBERSAFE_SECUREID   , "PA-CYBERSAFE-SECURID" },
+    { KRB5_PA_AFS3_SALT            , "PA-AFS3-SALT" },
+    { KRB5_PA_ENCTYPE_INFO         , "PA-ENCTYPE-INFO" },
+    { KRB5_PA_SAM_CHALLENGE        , "PA-SAM-CHALLENGE" },
+    { KRB5_PA_SAM_RESPONSE         , "PA-SAM-RESPONSE" },
+    { KRB5_PA_DASS                 , "PA-DASS" },
 };
 
 static const value_string krb5_encryption_types[] = {
-    { KRB5_ETYPE_NULL           , "NULL" },
-    { KRB5_ETYPE_DES_CBC_CRC    , "des-cbc-crc" },
-    { KRB5_ETYPE_DES_CBC_MD4    , "des-cbc-md4" },
-    { KRB5_ETYPE_DES_CBC_MD5    , "des-cbc-md5" },
+    { KRB5_ENCTYPE_NULL           , "NULL" },
+    { KRB5_ENCTYPE_DES_CBC_CRC    , "des-cbc-crc" },
+    { KRB5_ENCTYPE_DES_CBC_MD4    , "des-cbc-md4" },
+    { KRB5_ENCTYPE_DES_CBC_MD5    , "des-cbc-md5" },
+    { KRB5_ENCTYPE_DES_CBC_RAW    , "des-cbc-raw" },
+    { KRB5_ENCTYPE_DES3_CBC_SHA   , "des3-cbc-sha" },
+    { KRB5_ENCTYPE_DES3_CBC_RAW   , "des3-cbc-raw" },
+    { KRB5_ENCTYPE_DES_HMAC_SHA1  , "des-hmac-sha1" },
+    { KRB5_ENCTYPE_DES3_CBC_SHA1  , "des3-cbc-sha1" },
+    { KRB5_ENCTYPE_UNKNOWN        , "unknown" },
+    { KRB5_ENCTYPE_LOCAL_DES3_HMAC_SHA1    , "local-des3-hmac-sha1" },
 };
 
 static const value_string krb5_address_types[] = {
@@ -582,7 +635,7 @@ dissect_kerberos_main(const u_char *pd, int offset, frame_data *fd,
         offset += length;
         
         KRB_DECODE_CONTEXT_HEAD_OR_DIE("encryption type spot",
-                                              KRB5_BODY_ETYPE);
+                                              KRB5_BODY_ENCTYPE);
         KRB_HEAD_DECODE_OR_DIE("encryption type list");
         if (kerberos_tree) {
             item = proto_tree_add_text(request_tree, NullTVB, offset,
@@ -727,7 +780,9 @@ dissect_PrincipalName(char *title, ASN1_SCK *asn1p, frame_data *fd,
 
     if (princ_tree) {
       proto_tree_add_text(princ_tree, NullTVB, type_offset, type_len,
-                          "Type: %u", princ_type);
+						"Type: %s",
+						val_to_str(princ_type, krb5_princ_types,
+                                           "Unknown name type %#x"));
     }
 
     KRB_DECODE_CONTEXT_HEAD_OR_DIE("principal name-string", 1);
@@ -865,7 +920,7 @@ dissect_EncryptedData(char *title, ASN1_SCK *asn1p, frame_data *fd,
 
     if (encr_tree) {
         proto_tree_add_text(encr_tree, NullTVB, offset, data_len,
-                            "Cipher: %s", bytes_to_str(data, item_len));
+                            "CipherText: %s", bytes_to_str(data, item_len));
     }
     offset += data_len;
     
