@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.21 1999/12/14 05:59:16 guy Exp $
+ * $Id: packet-snmp.c,v 1.22 1999/12/14 10:16:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -65,6 +65,11 @@
 #  include <ucd-snmp/mib.h>
 
    /*
+    * XXX - for now, we assume all versions of UCD SNMP have it.
+    */
+#  define HAVE_SPRINT_VALUE
+
+   /*
     * Define values "sprint_value()" expects.
     */
 #  define VALTYPE_INTEGER	ASN_INTEGER
@@ -85,19 +90,28 @@
 #  include <snmp/snmp.h>
 
    /*
-    * Define values "sprint_value()" expects.
+    * Some older versions of CMU SNMP may lack these values (e.g., the
+    * "libsnmp3.6" package for Debian, which is based on some old
+    * CMU SNMP, perhaps 1.0); for now, we assume they also lack
+    * "sprint_value()".
     */
-#  define VALTYPE_INTEGER	SMI_INTEGER
-#  define VALTYPE_COUNTER	SMI_COUNTER32
-#  define VALTYPE_GAUGE		SMI_GAUGE32
-#  define VALTYPE_TIMETICKS	SMI_TIMETICKS
-#  define VALTYPE_STRING	SMI_STRING
-#  define VALTYPE_IPADDR	SMI_IPADDRESS
-#  define VALTYPE_OPAQUE	SMI_OPAQUE
-#  define VALTYPE_NSAP		SMI_STRING
-#  define VALTYPE_OBJECTID	SMI_OBJID
-#  define VALTYPE_BITSTR	ASN_BIT_STR
-#  define VALTYPE_COUNTER64	SMI_COUNTER64
+#  ifdef SMI_INTEGER
+#   define HAVE_SPRINT_VALUE
+    /*
+     * Define values "sprint_value()" expects.
+     */
+#   define VALTYPE_INTEGER	SMI_INTEGER
+#   define VALTYPE_COUNTER	SMI_COUNTER32
+#   define VALTYPE_GAUGE	SMI_GAUGE32
+#   define VALTYPE_TIMETICKS	SMI_TIMETICKS
+#   define VALTYPE_STRING	SMI_STRING
+#   define VALTYPE_IPADDR	SMI_IPADDRESS
+#   define VALTYPE_OPAQUE	SMI_OPAQUE
+#   define VALTYPE_NSAP		SMI_STRING
+#   define VALTYPE_OBJECTID	SMI_OBJID
+#   define VALTYPE_BITSTR	ASN_BIT_STR
+#   define VALTYPE_COUNTER64	SMI_COUNTER64
+#  endif
   /*
    * Now undo all the definitions they "helpfully" gave us, so we don't get
    * complaints about redefining them.
@@ -426,7 +440,7 @@ format_oid(gchar *buf, subid_t *oid, guint oid_length)
 	}
 }
 
-#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
+#ifdef HAVE_SPRINT_VALUE
 static void
 format_value(gchar *buf, struct variable_list *variable, subid_t *variable_oid,
     guint variable_oid_length, gushort vb_type, guint vb_length)
@@ -465,11 +479,7 @@ format_value(gchar *buf, struct variable_list *variable, subid_t *variable_oid,
 		break;
 
 	case SNMP_NSAP:
-#ifdef ASN_NSAP
-		variable->type = ASN_NSAP;
-#else
-		variable->type = VALTYPE_STRING;
-#endif
+		variable->type = VALTYPE_NSAP;
 		break;
 
 	case SNMP_OBJECTID:
@@ -512,16 +522,16 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 
 	gchar vb_display_string[MAX_STRING_LEN]; /* TBC */
 
-#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
+#ifdef HAVE_SPRINT_VALUE
 	struct variable_list variable;
 #if defined(HAVE_UCD_SNMP_SNMP_H)
 	long value;
 #endif
-#else	/* defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H) */
+#else	/* HAVE_SPRINT_VALUE */
 	int i;
 	gchar *buf;
 	int len;
-#endif	/* defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H) */
+#endif	/* HAVE_SPRINT_VALUE */
 
 	/* parse the type of the object */
 	start = asn1->pointer;
@@ -552,7 +562,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			return ret;
 		length = asn1->pointer - start;
 		if (snmp_tree) {
-#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
+#ifdef HAVE_SPRINT_VALUE
 #if defined(HAVE_UCD_SNMP_SNMP_H)
 			value = vb_integer_value;
 			variable.val.integer = &value;
@@ -581,7 +591,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			return ret;
 		length = asn1->pointer - start;
 		if (snmp_tree) {
-#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
+#ifdef HAVE_SPRINT_VALUE
 #if defined(HAVE_UCD_SNMP_SNMP_H)
 			value = vb_uinteger_value;
 			variable.val.integer = &value;
@@ -613,7 +623,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			return ret;
 		length = asn1->pointer - start;
 		if (snmp_tree) {
-#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
+#ifdef HAVE_SPRINT_VALUE
 			variable.val.string = vb_octet_string;
 			format_value(vb_display_string, &variable,
 			    variable_oid, variable_oid_length, vb_type,
@@ -675,7 +685,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			return ret;
 		length = asn1->pointer - start;
 		if (snmp_tree) {
-#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
+#ifdef HAVE_SPRINT_VALUE
 			variable.val.objid = vb_oid;
 			format_value(vb_display_string, &variable,
 			    variable_oid, variable_oid_length, vb_type,
