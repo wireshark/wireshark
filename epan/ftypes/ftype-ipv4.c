@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-ipv4.c,v 1.5 2001/06/23 19:10:27 guy Exp $
+ * $Id: ftype-ipv4.c,v 1.6 2001/07/13 00:55:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -180,6 +180,9 @@ ftype_register_ipv4(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
+
+		NULL,
+		NULL,
 	};
 
 	ftype_register(FT_IPv4, &ipv4_type);

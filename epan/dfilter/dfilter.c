@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter.c,v 1.4 2001/02/13 18:34:50 guy Exp $
+ * $Id: dfilter.c,v 1.5 2001/07/13 00:55:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,6 +26,7 @@
 #endif
 
 #include <stdio.h>
+#include <string.h>
 
 #ifdef NEED_SNPRINTF_H
 #include "snprintf.h"
@@ -211,7 +212,7 @@ dfilter_new(void)
 static void
 free_insns(GPtrArray *insns)
 {
-	int		i;
+	unsigned int	i;
 	dfvm_insn_t	*insn;
 
 	for (i = 0; i < insns->len; i++) {

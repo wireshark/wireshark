@@ -1,6 +1,6 @@
 /* csids.c
  *
- * $Id: csids.c,v 1.6 2001/03/10 06:33:57 guy Exp $
+ * $Id: csids.c,v 1.7 2001/07/13 00:55:58 guy Exp $
  *
  * Copyright (c) 2000 by Mike Hall <mlh@io.com>
  * Copyright (c) 2000 by Cisco Systems
@@ -180,9 +180,12 @@ static gboolean csids_read(wtap *wth, int *err, int *data_offset)
 
   if( wth->capture.csids->byteswapped == TRUE ) {
     guint16* swap = (guint16*)buf;
-    *(++swap) = BSWAP16(*swap); /* the ip len */
-    *(++swap) = BSWAP16(*swap); /* ip id */
-    *(++swap) = BSWAP16(*swap); /* ip flags and fragoff */
+    swap++;
+    *(swap) = BSWAP16(*swap); /* the ip len */
+    swap++;
+    *(swap) = BSWAP16(*swap); /* ip id */
+    swap++;
+    *(swap) = BSWAP16(*swap); /* ip flags and fragoff */
   }
 
   return TRUE;
@@ -228,9 +231,12 @@ csids_seek_read (wtap *wth,
 
   if( wth->capture.csids->byteswapped == TRUE ) {
     guint16* swap = (guint16*)pd;
-    *(++swap) = BSWAP16(*swap); /* the ip len */
-    *(++swap) = BSWAP16(*swap); /* ip id */
-    *(++swap) = BSWAP16(*swap); /* ip flags and fragoff */
+    swap++;
+    *(swap) = BSWAP16(*swap); /* the ip len */
+    swap++;
+    *(swap) = BSWAP16(*swap); /* ip id */
+    swap++;
+    *(swap) = BSWAP16(*swap); /* ip flags and fragoff */
   }
   
   return 0;

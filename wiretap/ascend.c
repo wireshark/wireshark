@@ -1,6 +1,6 @@
 /* ascend.c
  *
- * $Id: ascend.c,v 1.23 2001/03/10 06:33:57 guy Exp $
+ * $Id: ascend.c,v 1.24 2001/07/13 00:55:57 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -116,7 +116,7 @@ static void ascend_close(wtap *wth);
 static int ascend_seek(wtap *wth, int max_seek)
 {
   int byte, bytes_read = 0, date_off = -1, cur_off, packet_off;
-  int x_level = 0, r_level = 0, w1_level = 0, w2_level = 0;
+  unsigned int r_level = 0, x_level = 0, w1_level = 0, w2_level = 0;
 
   while (((byte = file_getc(wth->fh)) != EOF) && bytes_read < max_seek) {
     if (byte == ascend_xmagic[x_level]) {

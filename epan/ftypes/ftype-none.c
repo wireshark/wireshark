@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-none.c,v 1.2 2001/02/01 20:31:21 gram Exp $
+ * $Id: ftype-none.c,v 1.3 2001/07/13 00:55:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,7 +36,27 @@ ftype_register_none(void)
 		"FT_NONE",
 		"label",
 		0,
-	};
+		NULL,
+		NULL,
+		NULL,
 
+		NULL,
+		NULL,
+		NULL,
+
+		NULL,
+		NULL,
+		NULL,
+
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+
+		NULL,
+		NULL,
+	};
 	ftype_register(FT_NONE, &none_type);
 }

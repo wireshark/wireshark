@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.48 2001/03/15 09:11:03 guy Exp $
+ * $Id: libpcap.c,v 1.49 2001/07/13 00:55:58 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -867,7 +867,7 @@ libpcap_close(wtap *wth)
 
 int wtap_pcap_encap_to_wtap_encap(int encap)
 {
-	int i;
+	unsigned int i;
 
 	for (i = 0; i < NUM_PCAP_ENCAPS; i++) {
 		if (pcap_to_wtap_map[i].dlt_value == encap)
@@ -878,7 +878,7 @@ int wtap_pcap_encap_to_wtap_encap(int encap)
 
 static int wtap_wtap_encap_to_pcap_encap(int encap)
 {
-	int i;
+	unsigned int i;
 
 	/*
 	 * Special-case WTAP_ENCAP_FDDI and WTAP_ENCAP_FDDI_BITSWAPPED;

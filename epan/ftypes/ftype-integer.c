@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-integer.c,v 1.5 2001/03/03 00:33:24 guy Exp $
+ * $Id: ftype-integer.c,v 1.6 2001/07/13 00:55:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -232,6 +232,9 @@ ftype_register_integers(void)
 		u_cmp_ge,
 		u_cmp_lt,
 		u_cmp_le,
+
+		NULL,
+		NULL,
 	};
 	static ftype_t uint16_type = {
 		"FT_UINT16",
@@ -255,6 +258,9 @@ ftype_register_integers(void)
 		u_cmp_ge,
 		u_cmp_lt,
 		u_cmp_le,
+
+		NULL,
+		NULL,
 	};
 	static ftype_t uint24_type = {
 		"FT_UINT24",
@@ -278,6 +284,9 @@ ftype_register_integers(void)
 		u_cmp_ge,
 		u_cmp_lt,
 		u_cmp_le,
+
+		NULL,
+		NULL,
 	};
 	static ftype_t uint32_type = {
 		"FT_UINT32",
@@ -301,6 +310,9 @@ ftype_register_integers(void)
 		u_cmp_ge,
 		u_cmp_lt,
 		u_cmp_le,
+
+		NULL,
+		NULL,
 	};
 	static ftype_t int8_type = {
 		"FT_INT8",
@@ -324,6 +336,9 @@ ftype_register_integers(void)
 		s_cmp_ge,
 		s_cmp_lt,
 		s_cmp_le,
+
+		NULL,
+		NULL,
 	};
 	static ftype_t int16_type = {
 		"FT_INT16",
@@ -347,6 +362,9 @@ ftype_register_integers(void)
 		s_cmp_ge,
 		s_cmp_lt,
 		s_cmp_le,
+
+		NULL,
+		NULL,
 	};
 	static ftype_t int24_type = {
 		"FT_INT24",
@@ -370,6 +388,9 @@ ftype_register_integers(void)
 		s_cmp_ge,
 		s_cmp_lt,
 		s_cmp_le,
+
+		NULL,
+		NULL,
 	};
 	static ftype_t int32_type = {
 		"FT_INT32",
@@ -393,6 +414,9 @@ ftype_register_integers(void)
 		s_cmp_ge,
 		s_cmp_lt,
 		s_cmp_le,
+
+		NULL,
+		NULL,
 	};
 	static ftype_t boolean_type = {
 		"FT_BOOLEAN",
@@ -414,6 +438,9 @@ ftype_register_integers(void)
 		bool_ne,
 		NULL,
 		NULL,
+		NULL,
+		NULL,
+
 		NULL,
 		NULL,
 	};
@@ -440,6 +467,9 @@ ftype_register_integers(void)
 		u_cmp_ge,
 		u_cmp_lt,
 		u_cmp_le,
+
+		NULL,
+		NULL,
 	};
 
 

@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.53 2001/07/05 00:34:42 guy Exp $
+ * $Id: wtap.c,v 1.54 2001/07/13 00:55:58 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -55,7 +55,7 @@ wtap_file_encap(wtap *wth)
 }
 
 /* Table of the encapsulation types we know about. */
-const static struct encap_type_info {
+static const struct encap_type_info {
 	const char *name;
 	const char *short_name;
 } encap_table[WTAP_NUM_ENCAP_TYPES] = {
@@ -183,7 +183,7 @@ const char
 *wtap_strerror(int err)
 {
 	static char errbuf[128];
-	int wtap_errlist_index;
+	unsigned int wtap_errlist_index;
 
 	if (err < 0) {
 #ifdef HAVE_LIBZ

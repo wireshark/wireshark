@@ -1,7 +1,7 @@
 %{
 /* ascend-grammar.y
  *
- * $Id: ascend-grammar.y,v 1.18 2001/04/09 03:32:34 gerald Exp $
+ * $Id: ascend-grammar.y,v 1.19 2001/07/13 00:55:57 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -86,7 +86,7 @@ extern int at_eof;
 int yyparse(void);
 void yyerror(char *);
 
-int bcur = 0, bcount;
+unsigned int bcur = 0, bcount;
 guint32 start_time, secs, usecs, caplen, wirelen;
 ascend_pkthdr *header;
 struct ascend_phdr *pseudo_header;

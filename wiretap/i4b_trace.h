@@ -27,7 +27,7 @@
  *	i4b_trace.h - header file for trace data read device
  *	----------------------------------------------------
  *
- *	$Id: i4b_trace.h,v 1.1 1999/12/12 22:40:09 gram Exp $ 
+ *	$Id: i4b_trace.h,v 1.2 2001/07/13 00:55:58 guy Exp $ 
  *
  *      last edit-date: [Sun Feb 14 10:39:26 1999]
  *
@@ -40,7 +40,7 @@
  *	structure of the header at the beginning of every trace mbuf
  *---------------------------------------------------------------------------*/
 typedef struct {
-	int length;		/* length of the following mbuf		*/
+	unsigned int length;	/* length of the following mbuf		*/
 	int unit;		/* controller unit number		*/
 	int type;		/* type of channel			*/
 #define TRC_CH_I	0		/* Layer 1 INFO's		*/

@@ -2,7 +2,7 @@
  * Routines for opening etherpeek files
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
- * $Id: etherpeek.c,v 1.3 2001/03/10 06:33:57 guy Exp $
+ * $Id: etherpeek.c,v 1.4 2001/07/13 00:55:58 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -210,7 +210,7 @@ static gboolean etherpeek_read_m7(wtap *wth, int *err, int *data_offset)
 {
 	etherpeek_m7_packet_t ep_pkt;
 	double  t;
-	int i;
+	unsigned int i;
 
 	g_assert(sizeof(ep_pkt) == ETHERPEEK_M7_PKT_SIZE);
 	wtap_file_read_expected_bytes(&ep_pkt, sizeof(ep_pkt), wth->fh, err);
@@ -265,7 +265,7 @@ static gboolean etherpeek_read_m7(wtap *wth, int *err, int *data_offset)
 static gboolean etherpeek_read_m56(wtap *wth, int *err, int *data_offset)
 {
 	etherpeek_m56_packet_t ep_pkt;
-	int i;
+	unsigned int i;
 
 	g_assert(sizeof(ep_pkt) == ETHERPEEK_M56_PKT_SIZE);
 	wtap_file_read_expected_bytes(&ep_pkt, sizeof(ep_pkt), wth->fh, err);

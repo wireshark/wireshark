@@ -1,6 +1,6 @@
 /*
  *
- * $Id: ftype-double.c,v 1.3 2001/03/02 17:17:56 gram Exp $
+ * $Id: ftype-double.c,v 1.4 2001/07/13 00:55:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -140,6 +140,9 @@ ftype_register_double(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
+
+		NULL,
+		NULL,
 	};
 
 	ftype_register(FT_DOUBLE, &double_type);

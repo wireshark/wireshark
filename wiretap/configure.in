@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.27 2001/06/27 07:47:50 guy Exp $
+# $Id: configure.in,v 1.28 2001/07/13 00:55:57 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -29,7 +29,7 @@ AC_SUBST(FLEX_PATH)
 # If we're running gcc, add '-Wall' to CFLAGS.
 AC_MSG_CHECKING(to see if we can add '-Wall' to CFLAGS)
 if test x$GCC != x ; then
-  CFLAGS="-Wall $CFLAGS"
+  CFLAGS="-Wall -W -Wno-unused $CFLAGS"
   AC_MSG_RESULT(yes)
 else
   AC_MSG_RESULT(no)

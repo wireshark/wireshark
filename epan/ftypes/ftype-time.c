@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-time.c,v 1.9 2001/06/19 23:08:57 guy Exp $
+ * $Id: ftype-time.c,v 1.10 2001/07/13 00:55:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,6 +25,7 @@
 #endif
 
 #include <ctype.h>
+#include <string.h>
 
 /*
  * Just make sure we include the prototype for strptime as well

@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.66 2001/03/10 06:33:57 guy Exp $
+ * $Id: file.c,v 1.67 2001/07/13 00:55:58 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -149,7 +149,7 @@ wtap* wtap_open_offline(const char *filename, int *err, gboolean do_random)
 {
 	struct stat statb;
 	wtap	*wth;
-	int	i;
+	unsigned int	i;
 
 	/* First, make sure the file is valid */
 	if (stat(filename, &statb) < 0) {
@@ -252,7 +252,7 @@ success:
 }
 
 /* Table of the file types we know about. */
-const static struct file_type_info {
+static const struct file_type_info {
 	const char *name;
 	const char *short_name;
 	int	(*can_write_encap)(int, int);

@@ -6,7 +6,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.c,v 1.2 2001/05/21 03:17:14 guy Exp $
+ * $Id: text2pcap.c,v 1.3 2001/07/13 00:55:52 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -622,7 +622,7 @@ parse_options (int argc, char *argv[])
             break;
         case 'e':
             hdr_ethernet = TRUE;
-            if (!optarg || sscanf(optarg, "%0lx", &hdr_ethernet_proto) < 1) {
+            if (!optarg || sscanf(optarg, "%lx", &hdr_ethernet_proto) < 1) {
                 fprintf(stderr, "Bad argument for '-e': %s\n",
                         optarg ? optarg : "");
                 help(argv[0]);

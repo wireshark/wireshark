@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.29 2001/06/05 07:38:35 guy Exp $
+ * $Id: proto.c,v 1.30 2001/07/13 00:55:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -168,7 +168,7 @@ proto_init(const char *plugin_dir,void (register_all_protocols)(void),
 	static hf_register_info hf[] = {
 		{ &hf_text_only,
 		{ "",	"", FT_NONE, BASE_NONE, NULL, 0x0,
-			NULL }},
+			NULL, HFILL }},
 	};
 
 	if (gmc_hfinfo)
