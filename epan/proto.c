@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.123 2003/12/03 09:50:40 sahlberg Exp $
+ * $Id: proto.c,v 1.124 2003/12/04 10:59:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,7 +50,7 @@
 #define cVALS(x) (const value_string*)(x)
 
 static gboolean
-proto_tree_free_node(GNode *node, gpointer data);
+proto_tree_free_node(proto_node *node, gpointer data);
 
 static void fill_label_boolean(field_info *fi, gchar *label_str);
 static void fill_label_uint(field_info *fi, gchar *label_str);
@@ -165,7 +165,11 @@ static field_info *field_info_tmp=NULL;
 /* Contains the space for proto_nodes. */
 static proto_node *proto_node_free_list=NULL;
 #define PROTO_NODE_NEW(node)				\
-	SLAB_ALLOC(node, proto_node_free_list)
+	SLAB_ALLOC(node, proto_node_free_list)		\
+	node->first_child = NULL;			\
+	node->last_child = NULL;			\
+	node->next = NULL;
+
 #define PROTO_NODE_FREE(node)				\
 	SLAB_FREE(node, proto_node_free_list)
 
@@ -294,16 +298,101 @@ proto_cleanup(void)
 
 }
 
+typedef gboolean (*proto_tree_traverse_func)(proto_node *, gpointer);
+
+static gboolean
+proto_tree_traverse_pre_order(proto_tree *tree, proto_tree_traverse_func func,
+    gpointer data)
+{
+	proto_node *pnode = tree;
+	proto_node *child;
+	proto_node *current;
+
+	if (func(pnode, data))
+		return TRUE;
+
+	child = pnode->first_child;
+	while (child != NULL) {
+		/*
+		 * The routine we call might modify the child, e.g. by
+		 * freeing it, so we get the child's successor before
+		 * calling that routine.
+		 */
+		current = child;
+		child = current->next;
+		if (proto_tree_traverse_pre_order((proto_tree *)current, func,
+		    data))
+			return TRUE;
+	}
+
+	return FALSE;
+}
+
+static gboolean
+proto_tree_traverse_in_order(proto_tree *tree, proto_tree_traverse_func func,
+    gpointer data)
+{
+	proto_node *pnode = tree;
+	proto_node *child;
+	proto_node *current;
+
+	child = pnode->first_child;
+	if (child != NULL) {
+		/*
+		 * The routine we call might modify the child, e.g. by
+		 * freeing it, so we get the child's successor before
+		 * calling that routine.
+		 */
+		current = child;
+		child = current->next;
+
+		if (proto_tree_traverse_in_order((proto_tree *)current, func,
+		    data))
+			return TRUE;
+
+		if (func(pnode, data))
+			return TRUE;
+
+		while (child != NULL) {
+			/*
+			 * The routine we call might modify the child, e.g. by
+			 * freeing it, so we get the child's successor before
+			 * calling that routine.
+			 */
+			current = child;
+			child = current->next;
+			if (proto_tree_traverse_in_order((proto_tree *)current,
+			    func, data))
+				return TRUE;
+		}
+	} else {
+		if (func(pnode, data))
+			return TRUE;
+	}
+
+	return FALSE;
+}
+
+void
+proto_tree_children_foreach(proto_tree *tree, proto_tree_foreach_func func,
+    gpointer data)
+{
+	proto_node *node = tree;
+	proto_node *current;
+
+	node = node->first_child;
+	while (node != NULL) {
+		current = node;
+		node = current->next;
+		func((proto_tree *)current, data);
+	}
+}
+
 /* frees the resources that the dissection a proto_tree uses */
 void
 proto_tree_free(proto_tree *tree)
 {
-	/* Free all the data pointed to by the tree. */
-	g_node_traverse((GNode*)tree, G_IN_ORDER, G_TRAVERSE_ALL, -1,
-		proto_tree_free_node, NULL);
-
-	/* Then free the tree. */
-	g_node_destroy((GNode*)tree);
+	proto_tree_traverse_in_order(tree, proto_tree_free_node, NULL);
 }
 
 static void
@@ -336,25 +425,25 @@ free_node_tree_data(tree_data_t *tree_data)
 	FIELD_INFO_FREE(finfo);
 
 static gboolean
-proto_tree_free_node(GNode *node, gpointer data _U_)
+proto_tree_free_node(proto_node *node, gpointer data _U_)
 {
 	field_info *finfo = PITEM_FINFO(node);
 
 	if (finfo == NULL) {
-		/* This is the root GNode. Destroy the per-tree data.
+		/* This is the root node. Destroy the per-tree data.
 		 * There is no field_info to destroy. */
 		free_node_tree_data(PTREE_DATA(node));
 	}
 	else {
-		/* This is a child GNode. Don't free the per-tree data, but
+		/* This is a child node. Don't free the per-tree data, but
 		 * do free the field_info data. */
 		FREE_NODE_FIELD_INFO(finfo);
 	}
 
 	/* Free the proto_node. */
-	PROTO_NODE_FREE(GNODE_PNODE(node));
+	PROTO_NODE_FREE(node);
 
-	return FALSE; /* FALSE = do not end traversal of GNode tree */
+	return FALSE; /* FALSE = do not end traversal of protocol tree */
 }
 
 /* Is the parsing being done for a visible proto_tree or an invisible one?
@@ -1740,12 +1829,11 @@ proto_tree_set_int(field_info *fi, gint32 value)
 }
 
 
-/* Add a field_info struct to the proto_tree, encapsulating it in a GNode (proto_item) */
+/* Add a field_info struct to the proto_tree, encapsulating it in a proto_node */
 static proto_item *
 proto_tree_add_node(proto_tree *tree, field_info *fi)
 {
-	GNode *new_gnode;
-	proto_node *pnode, *tnode;
+	proto_node *pnode, *tnode, *sibling;
 	field_info *tfi;
 
 	/*
@@ -1757,7 +1845,7 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 	 * so it doesn't need an ett_ value to remember whether it
 	 * was expanded.
 	 */
-	tnode = GNODE_PNODE(tree);
+	tnode = tree;
 	tfi = tnode->finfo;
 	g_assert(tfi == NULL ||
 	    (tfi->tree_type >= 0 && tfi->tree_type < num_tree_types));
@@ -1766,10 +1854,15 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 	pnode->finfo = fi;
 	pnode->tree_data = PTREE_DATA(tree);
 
-	new_gnode = g_node_new(pnode);
-	g_node_append((GNode*)tree, new_gnode);
+	if (tnode->last_child != NULL) {
+		sibling = tnode->last_child;
+		g_assert(sibling->next == NULL);
+		sibling->next = pnode;
+	} else
+		tnode->first_child = pnode;
+	tnode->last_child = pnode;
 
-	return (proto_item*) new_gnode;
+	return (proto_item*)pnode;
 }
 
 
@@ -2030,7 +2123,7 @@ proto_tree_create_root(void)
 	 * changed, then we'll find out very quickly. */
 	pnode->tree_data->visible = FALSE;
 
-	return (proto_tree*) g_node_new(pnode);
+	return (proto_tree*) pnode;
 }
 
 
@@ -3224,7 +3317,7 @@ typedef struct {
 } offset_search_t;
 
 static gboolean
-check_for_offset(GNode *node, gpointer data)
+check_for_offset(proto_node *node, gpointer data)
 {
 	field_info          *fi = PITEM_FINFO(node);
 	offset_search_t		*offsearch = data;
@@ -3258,8 +3351,7 @@ proto_find_field_from_offset(proto_tree *tree, guint offset, tvbuff_t *tvb)
 	offsearch.finfo = NULL;
 	offsearch.tvb = tvb;
 
-	g_node_traverse((GNode*)tree, G_PRE_ORDER, G_TRAVERSE_ALL, -1,
-			check_for_offset, &offsearch);
+	proto_tree_traverse_pre_order(tree, check_for_offset, &offsearch);
 
 	return offsearch.finfo;
 }

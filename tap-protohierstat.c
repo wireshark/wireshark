@@ -1,7 +1,7 @@
 /* tap-protohierstat.c
  * protohierstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-protohierstat.c,v 1.5 2003/12/03 09:28:19 guy Exp $
+ * $Id: tap-protohierstat.c,v 1.6 2003/12/04 10:59:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -84,11 +84,11 @@ protohierstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, void *d
 	if(!edt->tree){
 		return 0;
 	}
-	if(!edt->tree->children){
+	if(!edt->tree->first_child){
 		return 0;
 	}
 
-	for(tree=edt->tree->children;tree;tree=tree->next){
+	for(tree=edt->tree->first_child;tree;tree=tree->next){
 		fi=PITEM_FINFO(tree);
 
 		/* first time we saw a protocol at this leaf */

@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.70 2003/12/01 02:01:56 guy Exp $
+ * $Id: proto_draw.c,v 1.71 2003/12/04 10:59:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -116,7 +116,7 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
     proto_tree *tree, GtkWidget *tree_view);
 
 static void
-proto_tree_draw_node(GNode *node, gpointer data);
+proto_tree_draw_node(proto_node *node, gpointer data);
 
 /* Get the current text window for the notebook. */
 GtkWidget *
@@ -1603,8 +1603,7 @@ proto_tree_draw(proto_tree *protocol_tree, GtkWidget *tree_view)
     gtk_tree_store_clear(store);
 #endif
 
-    g_node_children_foreach((GNode*) protocol_tree, G_TRAVERSE_ALL,
-                            proto_tree_draw_node, &info);
+    proto_tree_children_foreach(protocol_tree, proto_tree_draw_node, &info);
 
 #if GTK_MAJOR_VERSION < 2
     gtk_clist_thaw(GTK_CLIST(tree_view));
@@ -1612,7 +1611,7 @@ proto_tree_draw(proto_tree *protocol_tree, GtkWidget *tree_view)
 }
 
 static void
-proto_tree_draw_node(GNode *node, gpointer data)
+proto_tree_draw_node(proto_node *node, gpointer data)
 {
     struct proto_tree_draw_info	info;
     struct proto_tree_draw_info	*parent_info = (struct proto_tree_draw_info*) data;
@@ -1641,7 +1640,7 @@ proto_tree_draw_node(GNode *node, gpointer data)
         proto_item_fill_label(fi, label_str);
     }
 
-    if (g_node_n_children(node) > 0) {
+    if (node->first_child != NULL) {
         is_leaf = FALSE;
         g_assert(fi->tree_type >= 0 && fi->tree_type < num_tree_types);
         if (tree_is_expanded[fi->tree_type]) {
@@ -1676,8 +1675,7 @@ proto_tree_draw_node(GNode *node, gpointer data)
 #else
         info.iter = &iter;
 #endif
-        g_node_children_foreach(node, G_TRAVERSE_ALL,
-                                proto_tree_draw_node, &info);
+        proto_tree_children_foreach(node, proto_tree_draw_node, &info);
 #if GTK_MAJOR_VERSION >= 2
         path = gtk_tree_model_get_path(GTK_TREE_MODEL(store), &iter);
         if (is_expanded)

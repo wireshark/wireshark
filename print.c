@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.62 2003/12/03 09:28:19 guy Exp $
+ * $Id: print.c,v 1.63 2003/12/04 10:59:33 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -41,7 +41,7 @@
 #include "util.h"
 #include "packet-data.h"
 
-static void proto_tree_print_node(GNode *node, gpointer data);
+static void proto_tree_print_node(proto_node *node, gpointer data);
 static void print_hex_data_buffer(FILE *fh, register const guchar *cp,
     register guint length, char_enc encoding, gint format);
 static void ps_clean_string(unsigned char *out, const unsigned char *in,
@@ -95,8 +95,7 @@ void proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
 	       print uninterpreted data fields in hex as well. */
 	data.format = print_args->format;
 
-	g_node_children_foreach((GNode*) edt->tree, G_TRAVERSE_ALL,
-		proto_tree_print_node, &data);
+	proto_tree_children_foreach(edt->tree, proto_tree_print_node, &data);
 }
 
 /*
@@ -130,7 +129,7 @@ get_field_data(GSList *src_list, field_info *fi)
 
 /* Print a tree's data, and any child nodes. */
 static
-void proto_tree_print_node(GNode *node, gpointer data)
+void proto_tree_print_node(proto_node *node, gpointer data)
 {
 	field_info	*fi = PITEM_FINFO(node);
 	print_data	*pdata = (print_data*) data;
@@ -170,9 +169,9 @@ void proto_tree_print_node(GNode *node, gpointer data)
 	g_assert(fi->tree_type >= -1 && fi->tree_type < num_tree_types);
 	if (pdata->print_all_levels ||
 	    (fi->tree_type >= 0 && tree_is_expanded[fi->tree_type])) {
-		if (g_node_n_children(node) > 0) {
+		if (node->first_child != NULL) {
 			pdata->level++;
-			g_node_children_foreach(node, G_TRAVERSE_ALL,
+			proto_tree_children_foreach(node,
 				proto_tree_print_node, pdata);
 			pdata->level--;
 		}

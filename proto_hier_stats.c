@@ -1,7 +1,7 @@
 /* proto_hier_stats.c
  * Routines for calculating statistics based on protocol.
  *
- * $Id: proto_hier_stats.c,v 1.19 2003/12/03 09:28:19 guy Exp $
+ * $Id: proto_hier_stats.c,v 1.20 2003/12/04 10:59:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -76,11 +76,11 @@ find_stat_node(GNode *parent_stat_node, header_field_info *needle_hfinfo)
 
 
 static void
-process_node(proto_item *ptree_node, GNode *parent_stat_node, ph_stats_t *ps, guint pkt_len)
+process_node(proto_node *ptree_node, GNode *parent_stat_node, ph_stats_t *ps, guint pkt_len)
 {
 	field_info		*finfo;
-	ph_stats_node_t	*stats;
-	proto_item		*proto_sibling_node;
+	ph_stats_node_t		*stats;
+	proto_node		*proto_sibling_node;
 	GNode			*stat_node;
 
 	finfo = PITEM_FINFO(ptree_node);
@@ -95,7 +95,7 @@ process_node(proto_item *ptree_node, GNode *parent_stat_node, ph_stats_t *ps, gu
 	stats->num_pkts_total++;
 	stats->num_bytes_total += pkt_len;
 
-	proto_sibling_node = g_node_next_sibling(ptree_node);
+	proto_sibling_node = ptree_node->next;
 
 	if (proto_sibling_node) {
 		process_node(proto_sibling_node, stat_node, ps, pkt_len);
@@ -111,9 +111,9 @@ process_node(proto_item *ptree_node, GNode *parent_stat_node, ph_stats_t *ps, gu
 static void
 process_tree(proto_tree *protocol_tree, ph_stats_t* ps, guint pkt_len)
 {
-	proto_item	*ptree_node;
+	proto_node	*ptree_node;
 
-	ptree_node = g_node_first_child(protocol_tree);
+	ptree_node = ((proto_node *)protocol_tree)->first_child;
 	if (!ptree_node) {
 		return;
 	}

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.325 2003/12/02 23:14:30 guy Exp $
+ * $Id: file.c,v 1.326 2003/12/04 10:59:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,7 +96,7 @@ static void rescan_packets(capture_file *cf, const char *action, const char *act
 
 static gboolean match_protocol_tree(capture_file *cf, frame_data *fdata,
 	void *criterion);
-static void match_subtree_text(GNode *node, gpointer data);
+static void match_subtree_text(proto_node *node, gpointer data);
 static gboolean match_summary_line(capture_file *cf, frame_data *fdata,
 	void *criterion);
 static gboolean match_ascii_and_unicode(capture_file *cf, frame_data *fdata,
@@ -1623,14 +1623,13 @@ match_protocol_tree(capture_file *cf, frame_data *fdata, void *criterion)
   /* Iterate through all the nodes, seeing if they have text that matches. */
   mdata->cf = cf;
   mdata->frame_matched = FALSE;
-  g_node_children_foreach((GNode*) edt->tree, G_TRAVERSE_ALL,
-			  match_subtree_text, mdata);
+  proto_tree_children_foreach(edt->tree, match_subtree_text, mdata);
   epan_dissect_free(edt);
   return mdata->frame_matched;
 }
 
 static void
-match_subtree_text(GNode *node, gpointer data)
+match_subtree_text(proto_node *node, gpointer data)
 {
   match_data	*mdata = (match_data*) data;
   const gchar	*string = mdata->string;
@@ -1680,8 +1679,8 @@ match_subtree_text(GNode *node, gpointer data)
   }
   
   /* Recurse into the subtree, if it exists */
-  if (g_node_n_children(node) > 0)
-    g_node_children_foreach(node, G_TRAVERSE_ALL, match_subtree_text, mdata);
+  if (node->first_child != NULL)
+    proto_tree_children_foreach(node, match_subtree_text, mdata);
 }
 
 gboolean

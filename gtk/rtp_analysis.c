@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.12 2003/12/03 09:28:26 guy Exp $
+ * $Id: rtp_analysis.c,v 1.13 2003/12/04 10:59:34 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -1770,11 +1770,11 @@ void create_rtp_dialog(user_data_t* user_data)
 
 
 /****************************************************************************/
-static gboolean process_node(proto_item *ptree_node, header_field_info *hfinformation,
+static gboolean process_node(proto_node *ptree_node, header_field_info *hfinformation,
 							const gchar* proto_field, guint32* p_result)
 {
 	field_info            *finfo;
-	proto_item            *proto_sibling_node;
+	proto_node            *proto_sibling_node;
 	header_field_info     *hfssrc;
 	ipv4_addr             *ipv4;
 
@@ -1784,8 +1784,8 @@ static gboolean process_node(proto_item *ptree_node, header_field_info *hfinform
 		hfssrc = proto_registrar_get_byname((gchar*) proto_field);
 		if (hfssrc == NULL)
 			return FALSE;
-		for(ptree_node=g_node_first_child(ptree_node); ptree_node!=NULL; 
-					ptree_node=g_node_next_sibling(ptree_node)) {
+		for(ptree_node=ptree_node->first_child; ptree_node!=NULL; 
+					ptree_node=ptree_node->next) {
 			finfo=PITEM_FINFO(ptree_node);
 			if (hfssrc==finfo->hfinfo) {
 				if (hfinformation->type==FT_IPv4) {
@@ -1800,7 +1800,7 @@ static gboolean process_node(proto_item *ptree_node, header_field_info *hfinform
 		}
 	}
 
-	proto_sibling_node = g_node_next_sibling(ptree_node);
+	proto_sibling_node = ptree_node->next;
 
 	if (proto_sibling_node) {
 		return process_node(proto_sibling_node, hfinformation, proto_field, p_result);
@@ -1815,14 +1815,14 @@ static gboolean get_int_value_from_proto_tree(proto_tree *protocol_tree,
 											 const gchar* proto_field,
 											 guint32* p_result)
 {
-	proto_item      *ptree_node;
+	proto_node      *ptree_node;
 	header_field_info     *hfinformation;
 
 	hfinformation = proto_registrar_get_byname((gchar*) proto_name);
 	if (hfinformation == NULL)
 		return FALSE;
 
-	ptree_node = g_node_first_child(protocol_tree);
+	ptree_node = ((proto_node *)protocol_tree)->first_child;
 	if (!ptree_node)
 		return FALSE;
 

@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.51 2003/12/03 09:28:22 guy Exp $
+ * $Id: proto.h,v 1.52 2003/12/04 10:59:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -126,24 +126,28 @@ typedef struct {
     gboolean    visible;
 } tree_data_t;
 
-/* Each GNode (proto_tree, proto_item) points to one of
- * these. */
+/* Each proto_tree, proto_item is one of these. */
 typedef struct _proto_node {
+	struct _proto_node *first_child;
+	struct _proto_node *last_child;
+	struct _proto_node *next;
 	field_info  *finfo;
 	tree_data_t *tree_data;
 } proto_node;
 
-typedef GNode proto_tree;
-typedef GNode proto_item;
+typedef proto_node proto_tree;
+typedef proto_node proto_item;
 
-/* Retrieve the proto_node from a GNode. */
-#define GNODE_PNODE(t)  ((proto_node*)((GNode*)(t))->data)
+typedef void (*proto_tree_foreach_func)(proto_node *, gpointer);
+
+extern void proto_tree_children_foreach(proto_tree *tree,
+    proto_tree_foreach_func func, gpointer data);
 
 /* Retrieve the field_info from a proto_item */
-#define PITEM_FINFO(t)  (GNODE_PNODE(t)->finfo)
+#define PITEM_FINFO(t)  ((t)->finfo)
 
 /* Retrieve the tree_data_t from a proto_tree */
-#define PTREE_DATA(t)   (GNODE_PNODE(t)->tree_data)
+#define PTREE_DATA(t)   ((t)->tree_data)
 
 /* Sets up memory used by proto routines. Called at program startup */
 extern void proto_init(const char *plugin_dir,
