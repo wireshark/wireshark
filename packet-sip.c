@@ -7,7 +7,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sip.c,v 1.9 2001/01/03 06:55:32 guy Exp $
+ * $Id: packet-sip.c,v 1.10 2001/01/09 06:31:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -196,8 +196,8 @@ void proto_register_sip(void)
 void
 proto_reg_handoff_sip(void)
 {
-        dissector_add("tcp.port", TCP_PORT_SIP, dissect_sip);
-        dissector_add("udp.port", UDP_PORT_SIP, dissect_sip);
+        dissector_add("tcp.port", TCP_PORT_SIP, dissect_sip, proto_sip);
+        dissector_add("udp.port", UDP_PORT_SIP, dissect_sip, proto_sip);
 
 	/*
 	 * Get a handle for the SDP dissector.

@@ -1,7 +1,7 @@
 /* packet-aarp.c
  * Routines for Appletalk ARP packet disassembly
  *
- * $Id: packet-aarp.c,v 1.26 2001/01/03 06:55:26 guy Exp $
+ * $Id: packet-aarp.c,v 1.27 2001/01/09 06:31:33 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -290,5 +290,5 @@ proto_register_aarp(void)
 void
 proto_reg_handoff_aarp(void)
 {
-  dissector_add("ethertype", ETHERTYPE_AARP, dissect_aarp);
+  dissector_add("ethertype", ETHERTYPE_AARP, dissect_aarp, proto_aarp);
 }

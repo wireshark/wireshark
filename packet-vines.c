@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.22 2001/01/06 08:44:03 guy Exp $
+ * $Id: packet-vines.c,v 1.23 2001/01/09 06:31:44 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -164,11 +164,13 @@ proto_register_vines_frp(void)
 void
 proto_reg_handoff_vines_frp(void)
 {
-	dissector_add("ip.proto", IP_PROTO_VINES, dissect_vines_frp);
+	dissector_add("ip.proto", IP_PROTO_VINES, dissect_vines_frp,
+	    proto_vines_frp);
 
 	/* XXX: AFAIK, src and dst port must be the same; should
 	   the dissector check for that? */
-	dissector_add("udp.port", UDP_PORT_VINES, dissect_vines_frp);
+	dissector_add("udp.port", UDP_PORT_VINES, dissect_vines_frp,
+	    proto_vines_frp);
 }
 
 gchar *
@@ -362,8 +364,8 @@ proto_register_vines(void)
 void
 proto_reg_handoff_vines(void)
 {
-	dissector_add("ethertype", ETHERTYPE_VINES, dissect_vines);
-	dissector_add("ppp.protocol", PPP_VINES, dissect_vines);
+	dissector_add("ethertype", ETHERTYPE_VINES, dissect_vines, proto_vines);
+	dissector_add("ppp.protocol", PPP_VINES, dissect_vines, proto_vines);
 }
 
 static void

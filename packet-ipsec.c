@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.24 2001/01/03 07:53:43 guy Exp $
+ * $Id: packet-ipsec.c,v 1.25 2001/01/09 06:31:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -366,7 +366,8 @@ proto_register_ipsec(void)
 void
 proto_reg_handoff_ipsec(void)
 {
-  old_dissector_add("ip.proto", IP_PROTO_AH, dissect_ah);
-  old_dissector_add("ip.proto", IP_PROTO_ESP, dissect_esp);
-  old_dissector_add("ip.proto", IP_PROTO_IPCOMP, dissect_ipcomp);
+  old_dissector_add("ip.proto", IP_PROTO_AH, dissect_ah, proto_ah);
+  old_dissector_add("ip.proto", IP_PROTO_ESP, dissect_esp, proto_esp);
+  old_dissector_add("ip.proto", IP_PROTO_IPCOMP, dissect_ipcomp,
+		    proto_ipcomp);
 }

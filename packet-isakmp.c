@@ -3,7 +3,7 @@
  * (ISAKMP) (RFC 2408)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.33 2001/01/03 06:55:29 guy Exp $
+ * $Id: packet-isakmp.c,v 1.34 2001/01/09 06:31:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1454,5 +1454,6 @@ proto_register_isakmp(void)
 void
 proto_reg_handoff_isakmp(void)
 {
-	old_dissector_add("udp.port", UDP_PORT_ISAKMP, dissect_isakmp);
+	old_dissector_add("udp.port", UDP_PORT_ISAKMP, dissect_isakmp,
+	    proto_isakmp);
 }

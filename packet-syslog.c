@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Gerald Combs <gerald@zing.org>
  *
- * $Id: packet-syslog.c,v 1.8 2001/01/03 06:55:33 guy Exp $
+ * $Id: packet-syslog.c,v 1.9 2001/01/09 06:31:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -249,5 +249,5 @@ void proto_register_syslog(void)
 void
 proto_reg_handoff_syslog(void)
 {
-  dissector_add("udp.port", UDP_PORT_SYSLOG, dissect_syslog);
+  dissector_add("udp.port", UDP_PORT_SYSLOG, dissect_syslog, proto_syslog);
 }

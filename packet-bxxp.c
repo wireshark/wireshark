@@ -1,7 +1,7 @@
 /* packet-bxxp.c
  * Routines for BXXP packet disassembly
  *
- * $Id: packet-bxxp.c,v 1.14 2001/01/03 07:53:43 guy Exp $
+ * $Id: packet-bxxp.c,v 1.15 2001/01/09 06:31:34 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -1257,6 +1257,6 @@ proto_reg_handoff_bxxp(void)
 
   tcp_port = global_bxxp_tcp_port;
 
-  dissector_add("tcp.port", global_bxxp_tcp_port, dissect_bxxp);
+  dissector_add("tcp.port", global_bxxp_tcp_port, dissect_bxxp, proto_bxxp);
 
 }

@@ -2,7 +2,7 @@
  * Routines for IGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  * 
- * $Id: packet-igrp.c,v 1.3 2001/01/03 06:55:28 guy Exp $
+ * $Id: packet-igrp.c,v 1.4 2001/01/09 06:31:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -207,7 +207,7 @@ void proto_register_igrp(void)
 void
 proto_reg_handoff_igrp(void)
 {
-  dissector_add("ip.proto", IP_PROTO_IGRP , dissect_igrp);
+  dissector_add("ip.proto", IP_PROTO_IGRP , dissect_igrp, proto_igrp);
 }
 
 /*	IGRP Packet structure:

@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.9 2001/01/03 16:41:06 gram Exp $
+ * $Id: packet-cops.c,v 1.10 2001/01/09 06:31:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -828,5 +828,5 @@ void proto_register_cops(void)
 void
 proto_reg_handoff_cops(void)
 {
-        dissector_add("tcp.port", TCP_PORT_COPS, dissect_cops);
+        dissector_add("tcp.port", TCP_PORT_COPS, dissect_cops, proto_cops);
 }

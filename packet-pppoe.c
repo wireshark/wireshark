@@ -1,7 +1,7 @@
 /* packet-pppoe.c
  * Routines for PPP Over Ethernet (PPPoE) packet disassembly (RFC2516)
  *
- * $Id: packet-pppoe.c,v 1.14 2001/01/04 04:15:30 guy Exp $
+ * $Id: packet-pppoe.c,v 1.15 2001/01/09 06:31:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -222,7 +222,8 @@ proto_register_pppoed(void)
 void
 proto_reg_handoff_pppoed(void)
 {
-	dissector_add("ethertype", ETHERTYPE_PPPOED, dissect_pppoed);
+	dissector_add("ethertype", ETHERTYPE_PPPOED, dissect_pppoed,
+	    proto_pppoed);
 }
 
 static void
@@ -296,7 +297,8 @@ proto_register_pppoes(void)
 void
 proto_reg_handoff_pppoes(void)
 {
-	dissector_add("ethertype", ETHERTYPE_PPPOES, dissect_pppoes);
+	dissector_add("ethertype", ETHERTYPE_PPPOES, dissect_pppoes,
+	    proto_pppoes);
 
 	/*
 	 * Get a handle for the PPP payload dissector.

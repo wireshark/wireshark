@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.18 2001/01/03 06:55:27 guy Exp $
+ * $Id: packet-bpdu.c,v 1.19 2001/01/09 06:31:34 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -319,11 +319,11 @@ proto_register_bpdu(void)
   proto_register_field_array(proto_bpdu, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_dissector("bpdu", dissect_bpdu);
+  register_dissector("bpdu", dissect_bpdu, proto_bpdu);
 }
 
 void
 proto_reg_handoff_bpdu(void)
 {
-  dissector_add("llc.dsap", SAP_BPDU, dissect_bpdu);
+  dissector_add("llc.dsap", SAP_BPDU, dissect_bpdu, proto_bpdu);
 }

@@ -1,7 +1,7 @@
 /* packet-vlan.c
  * Routines for VLAN 802.1Q ethernet header disassembly
  *
- * $Id: packet-vlan.c,v 1.27 2001/01/03 10:34:42 guy Exp $
+ * $Id: packet-vlan.c,v 1.28 2001/01/09 06:31:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -240,5 +240,5 @@ proto_reg_handoff_vlan(void)
    */
   llc_handle = find_dissector("llc");
 
-  dissector_add("ethertype", ETHERTYPE_VLAN, dissect_vlan);
+  dissector_add("ethertype", ETHERTYPE_VLAN, dissect_vlan, proto_vlan);
 }

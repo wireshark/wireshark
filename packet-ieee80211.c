@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.8 2001/01/03 10:34:41 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.9 2001/01/09 06:31:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -1751,5 +1751,6 @@ proto_reg_handoff_wlan(void)
    */
   llc_handle = find_dissector("llc");
 
-  dissector_add("wtap_encap", WTAP_ENCAP_IEEE_802_11, dissect_ieee80211);
+  dissector_add("wtap_encap", WTAP_ENCAP_IEEE_802_11, dissect_ieee80211,
+		proto_wlan);
 }

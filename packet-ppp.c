@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.50 2001/01/03 07:53:43 guy Exp $
+ * $Id: packet-ppp.c,v 1.51 2001/01/09 06:31:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1425,8 +1425,8 @@ proto_register_ppp(void)
 /* subdissector code */
 	subdissector_table = register_dissector_table("ppp.protocol");
 
-	register_dissector("ppp", dissect_ppp);
-	register_dissector("payload_ppp", dissect_payload_ppp);
+	register_dissector("ppp", dissect_ppp, proto_ppp);
+	register_dissector("payload_ppp", dissect_payload_ppp, proto_ppp);
 
 	/* Register the preferences for the ppp protocol */
 	ppp_module = prefs_register_protocol(proto_ppp, NULL);
@@ -1468,6 +1468,6 @@ proto_register_mp(void)
 void
 proto_reg_handoff_ppp(void)
 {
-  dissector_add("wtap_encap", WTAP_ENCAP_PPP, dissect_ppp);
-  dissector_add("wtap_encap", WTAP_ENCAP_PPP_WITH_PHDR, dissect_ppp);
+  dissector_add("wtap_encap", WTAP_ENCAP_PPP, dissect_ppp, proto_ppp);
+  dissector_add("wtap_encap", WTAP_ENCAP_PPP_WITH_PHDR, dissect_ppp, proto_ppp);
 }

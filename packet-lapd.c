@@ -2,7 +2,7 @@
  * Routines for LAPD frame disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lapd.c,v 1.18 2001/01/03 06:55:29 guy Exp $
+ * $Id: packet-lapd.c,v 1.19 2001/01/09 06:31:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -206,5 +206,5 @@ proto_register_lapd(void)
 void
 proto_reg_handoff_lapd(void)
 {
-	dissector_add("wtap_encap", WTAP_ENCAP_LAPD, dissect_lapd);
+	dissector_add("wtap_encap", WTAP_ENCAP_LAPD, dissect_lapd, proto_lapd);
 }

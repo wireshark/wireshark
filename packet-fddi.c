@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.45 2001/01/03 10:34:41 guy Exp $
+ * $Id: packet-fddi.c,v 1.46 2001/01/09 06:31:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -385,6 +385,8 @@ proto_reg_handoff_fddi(void)
 	 */
 	llc_handle = find_dissector("llc");
 
-	dissector_add("wtap_encap", WTAP_ENCAP_FDDI, dissect_fddi_not_bitswapped);
-	dissector_add("wtap_encap", WTAP_ENCAP_FDDI_BITSWAPPED, dissect_fddi_bitswapped);
+	dissector_add("wtap_encap", WTAP_ENCAP_FDDI,
+	    dissect_fddi_not_bitswapped, proto_fddi);
+	dissector_add("wtap_encap", WTAP_ENCAP_FDDI_BITSWAPPED,
+	    dissect_fddi_bitswapped, proto_fddi);
 }

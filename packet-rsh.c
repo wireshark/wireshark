@@ -4,7 +4,7 @@
  * Robert Tsai <rtsai@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rsh.c,v 1.8 2001/01/03 06:55:31 guy Exp $
+ * $Id: packet-rsh.c,v 1.9 2001/01/09 06:31:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -129,5 +129,5 @@ proto_register_rsh(void)
 void
 proto_reg_handoff_rsh(void)
 {
-	dissector_add("tcp.port", TCP_PORT_RSH, dissect_rsh);
+	dissector_add("tcp.port", TCP_PORT_RSH, dissect_rsh, proto_rsh);
 }

@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.14 2001/01/03 06:55:34 guy Exp $
+ * $Id: packet-x11.c,v 1.15 2001/01/09 06:31:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -2949,7 +2949,7 @@ void proto_register_x11(void)
 void
 proto_reg_handoff_x11(void)
 {
-  dissector_add("tcp.port", TCP_PORT_X11, dissect_x11);
-  dissector_add("tcp.port", TCP_PORT_X11_2, dissect_x11);
-  dissector_add("tcp.port", TCP_PORT_X11_3, dissect_x11);
+  dissector_add("tcp.port", TCP_PORT_X11, dissect_x11, proto_x11);
+  dissector_add("tcp.port", TCP_PORT_X11_2, dissect_x11, proto_x11);
+  dissector_add("tcp.port", TCP_PORT_X11_3, dissect_x11, proto_x11);
 }

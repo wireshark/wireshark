@@ -2,7 +2,7 @@
  * Routines for who protocol (see man rwhod)
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-who.c,v 1.13 2001/01/06 06:18:54 guy Exp $
+ * $Id: packet-who.c,v 1.14 2001/01/09 06:31:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -310,5 +310,5 @@ proto_register_who(void)
 void
 proto_reg_handoff_who(void)
 {
-	dissector_add("udp.port", UDP_PORT_WHO, dissect_who);
+	dissector_add("udp.port", UDP_PORT_WHO, dissect_who, proto_who);
 }

@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.49 2001/01/03 06:55:29 guy Exp $
+ * $Id: packet-ipv6.c,v 1.50 2001/01/09 06:31:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -526,10 +526,16 @@ proto_register_ipv6(void)
 void
 proto_reg_handoff_ipv6(void)
 {
-	old_dissector_add("ethertype", ETHERTYPE_IPv6, dissect_ipv6);
-	old_dissector_add("ppp.protocol", PPP_IPV6, dissect_ipv6);
-	old_dissector_add("ip.proto", IP_PROTO_IPV6, dissect_ipv6);
-	old_dissector_add("null.type", BSD_AF_INET6_BSD, dissect_ipv6);
-	old_dissector_add("null.type", BSD_AF_INET6_FREEBSD, dissect_ipv6);
-	old_dissector_add("ip.proto", IP_PROTO_NONE, dissect_ipv6_none);
+	old_dissector_add("ethertype", ETHERTYPE_IPv6, dissect_ipv6,
+	    proto_ipv6);
+	old_dissector_add("ppp.protocol", PPP_IPV6, dissect_ipv6,
+	    proto_ipv6);
+	old_dissector_add("ip.proto", IP_PROTO_IPV6, dissect_ipv6,
+	    proto_ipv6);
+	old_dissector_add("null.type", BSD_AF_INET6_BSD, dissect_ipv6,
+	    proto_ipv6);
+	old_dissector_add("null.type", BSD_AF_INET6_FREEBSD, dissect_ipv6,
+	    proto_ipv6);
+	old_dissector_add("ip.proto", IP_PROTO_NONE, dissect_ipv6_none,
+	    proto_ipv6);
 }

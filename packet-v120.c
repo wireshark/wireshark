@@ -2,7 +2,7 @@
  * Routines for v120 frame disassembly
  * Bert Driehuis <driehuis@playbeing.org>
  *
- * $Id: packet-v120.c,v 1.16 2001/01/03 06:55:34 guy Exp $
+ * $Id: packet-v120.c,v 1.17 2001/01/09 06:31:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -235,5 +235,6 @@ proto_register_v120(void)
 void
 proto_reg_handoff_v120(void)
 {
-	dissector_add("wtap_encap", WTAP_ENCAP_V120, dissect_v120);
+	dissector_add("wtap_encap", WTAP_ENCAP_V120, dissect_v120,
+	    proto_v120);
 }

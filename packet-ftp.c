@@ -2,7 +2,7 @@
  * Routines for ftp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-ftp.c,v 1.25 2001/01/03 06:55:28 guy Exp $
+ * $Id: packet-ftp.c,v 1.26 2001/01/09 06:31:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -264,6 +264,6 @@ proto_register_ftp(void)
 void
 proto_reg_handoff_ftp(void)
 {
-  dissector_add("tcp.port", TCP_PORT_FTPDATA, &dissect_ftpdata);
-  dissector_add("tcp.port", TCP_PORT_FTP, &dissect_ftp);
+  dissector_add("tcp.port", TCP_PORT_FTPDATA, &dissect_ftpdata, proto_ftp);
+  dissector_add("tcp.port", TCP_PORT_FTP, &dissect_ftp, proto_ftp_data);
 }

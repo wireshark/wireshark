@@ -3,7 +3,7 @@
  * see http://ddt.sourceforge.net/
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-ddtp.c,v 1.13 2001/01/04 04:44:02 gram Exp $
+ * $Id: packet-ddtp.c,v 1.14 2001/01/09 06:31:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -198,5 +198,5 @@ proto_register_ddtp(void)
 void
 proto_reg_handoff_ddtp(void)
 {
-    dissector_add("udp.port", UDP_PORT_DDTP, dissect_ddtp);
+    dissector_add("udp.port", UDP_PORT_DDTP, dissect_ddtp, proto_ddtp);
 }

@@ -2,7 +2,7 @@
  * Routines for Web Cache Coordination Protocol dissection
  * Jerry Talkington <jerryt@netapp.com>
  *
- * $Id: packet-wccp.c,v 1.15 2001/01/03 06:55:34 guy Exp $
+ * $Id: packet-wccp.c,v 1.16 2001/01/09 06:31:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1236,5 +1236,5 @@ proto_register_wccp(void)
 void
 proto_reg_handoff_wccp(void)
 {
-	dissector_add("udp.port", UDP_PORT_WCCP, dissect_wccp);
+	dissector_add("udp.port", UDP_PORT_WCCP, dissect_wccp, proto_wccp);
 }

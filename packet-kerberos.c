@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.13 2001/01/03 16:41:06 gram Exp $
+ * $Id: packet-kerberos.c,v 1.14 2001/01/09 06:31:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1308,8 +1308,10 @@ proto_register_kerberos(void) {
 void
 proto_reg_handoff_kerberos(void)
 {
-	old_dissector_add("udp.port", UDP_PORT_KERBEROS, dissect_kerberos);
-	old_dissector_add("tcp.port", TCP_PORT_KERBEROS, dissect_kerberos);
+	old_dissector_add("udp.port", UDP_PORT_KERBEROS, dissect_kerberos,
+	    proto_kerberos);
+	old_dissector_add("tcp.port", TCP_PORT_KERBEROS, dissect_kerberos,
+	    proto_kerberos);
 }
 
 /*

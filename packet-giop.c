@@ -4,7 +4,7 @@
  * Laurent Deniel <deniel@worldnet.fr>
  * Craig Rodrigues <rodrigc@mediaone.net>
  *
- * $Id: packet-giop.c,v 1.27 2001/01/03 06:55:28 guy Exp $
+ * $Id: packet-giop.c,v 1.28 2001/01/09 06:31:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1435,5 +1435,5 @@ proto_register_giop (void)
 void
 proto_reg_handoff_giop (void)
 {
-  heur_dissector_add ("tcp", dissect_giop);
+  heur_dissector_add ("tcp", dissect_giop, proto_giop);
 }

@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-auto_rp.c,v 1.11 2001/01/03 06:55:27 guy Exp $
+ * $Id: packet-auto_rp.c,v 1.12 2001/01/09 06:31:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -245,7 +245,8 @@ void proto_register_auto_rp(void)
 void
 proto_reg_handoff_auto_rp(void)
 {
-	dissector_add("udp.port", UDP_PORT_PIM_RP_DISC, dissect_auto_rp);
+	dissector_add("udp.port", UDP_PORT_PIM_RP_DISC, dissect_auto_rp,
+	    proto_auto_rp);
 }
 
 /*

@@ -1,7 +1,7 @@
 /* packet-clip.c
  * Routines for clip packet disassembly
  *
- * $Id: packet-clip.c,v 1.13 2000/11/29 05:16:15 gram Exp $
+ * $Id: packet-clip.c,v 1.14 2001/01/09 06:31:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -102,5 +102,6 @@ proto_reg_handoff_clip(void)
    * Get a handle for the IP dissector.
    */
   ip_handle = find_dissector("ip");
-  dissector_add("wtap_encap", WTAP_ENCAP_LINUX_ATM_CLIP, dissect_clip);
+  dissector_add("wtap_encap", WTAP_ENCAP_LINUX_ATM_CLIP, dissect_clip,
+		-1);	/* XXX */
 }

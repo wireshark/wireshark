@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.13 2001/01/03 07:53:47 guy Exp $
+ * $Id: plugin_table.h,v 1.14 2001/01/09 06:32:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -43,13 +43,14 @@ typedef int (*addr_proto_register_protocol)(char*, char*, char*);
 typedef void (*addr_proto_register_field_array)(int, hf_register_info*, int);
 typedef void (*addr_proto_register_subtree_array)(int**, int);
 
-typedef void (*addr_dissector_add)(const char *, guint32, dissector_t);
-typedef void (*addr_old_dissector_add)(const char *, guint32, old_dissector_t);
+typedef void (*addr_dissector_add)(const char *, guint32, dissector_t, int);
+typedef void (*addr_old_dissector_add)(const char *, guint32, old_dissector_t,
+    int);
 typedef void (*addr_dissector_delete)(const char *, guint32, dissector_t);
 
-typedef void (*addr_heur_dissector_add)(const char *, heur_dissector_t);
+typedef void (*addr_heur_dissector_add)(const char *, heur_dissector_t, int);
 
-typedef void (*addr_register_dissector)(const char *, dissector_t);
+typedef void (*addr_register_dissector)(const char *, dissector_t, int);
 typedef dissector_handle_t (*addr_find_dissector)(const char *);
 typedef void (*addr_old_call_dissector)(dissector_handle_t, const u_char *,
     int, frame_data *, proto_tree *);

@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.13 2001/01/03 07:53:48 guy Exp $
+ * $Id: packet-mgcp.c,v 1.14 2001/01/09 06:32:10 guy Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -507,10 +507,14 @@ proto_reg_handoff_mgcp(void)
   callagent_tcp_port = global_mgcp_callagent_tcp_port;
   callagent_udp_port = global_mgcp_callagent_udp_port;
 
-  dissector_add("tcp.port", global_mgcp_gateway_tcp_port, dissect_mgcp);
-  dissector_add("udp.port", global_mgcp_gateway_udp_port, dissect_mgcp);
-  dissector_add("tcp.port", global_mgcp_callagent_tcp_port, dissect_mgcp);
-  dissector_add("udp.port", global_mgcp_callagent_udp_port, dissect_mgcp);
+  dissector_add("tcp.port", global_mgcp_gateway_tcp_port, dissect_mgcp,
+		proto_mgcp);
+  dissector_add("udp.port", global_mgcp_gateway_udp_port, dissect_mgcp,
+		proto_mgcp);
+  dissector_add("tcp.port", global_mgcp_callagent_tcp_port, dissect_mgcp,
+		proto_mgcp);
+  dissector_add("udp.port", global_mgcp_callagent_udp_port, dissect_mgcp,
+		proto_mgcp);
 
 }
 

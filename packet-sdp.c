@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.18 2001/01/03 06:55:32 guy Exp $
+ * $Id: packet-sdp.c,v 1.19 2001/01/09 06:31:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -227,5 +227,5 @@ proto_register_sdp(void)
 	 * (you can't refer to it directly from a plugin dissector
 	 * on Windows without stuffing it into the Big Transfer Vector).
 	 */
-	register_dissector("sdp", dissect_sdp);
+	register_dissector("sdp", dissect_sdp, proto_sdp);
 }

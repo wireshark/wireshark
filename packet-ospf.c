@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.34 2001/01/03 16:41:07 gram Exp $
+ * $Id: packet-ospf.c,v 1.35 2001/01/09 06:31:40 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -1053,5 +1053,5 @@ proto_register_ospf(void)
 void
 proto_reg_handoff_ospf(void)
 {
-    dissector_add("ip.proto", IP_PROTO_OSPF, dissect_ospf);
+    dissector_add("ip.proto", IP_PROTO_OSPF, dissect_ospf, proto_ospf);
 }

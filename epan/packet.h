@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.16 2001/01/09 05:53:21 guy Exp $
+ * $Id: packet.h,v 1.17 2001/01/09 06:32:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -211,8 +211,10 @@ dissector_table_t register_dissector_table(const char *name);
 
 /* Add a sub-dissector to a dissector table.  Called by the protocol routine */
 /* that wants to register a sub-dissector.  */
-void old_dissector_add(const char *abbrev, guint32 pattern, old_dissector_t dissector);
-void dissector_add(const char *abbrev, guint32 pattern, dissector_t dissector);
+void old_dissector_add(const char *abbrev, guint32 pattern,
+    old_dissector_t dissector, int proto);
+void dissector_add(const char *abbrev, guint32 pattern,
+    dissector_t dissector, int proto);
 
 /* Add a sub-dissector to a dissector table.  Called by the protocol routine */
 /* that wants to de-register a sub-dissector.  */
@@ -244,8 +246,10 @@ void register_heur_dissector_list(const char *name, heur_dissector_list_t *list)
 
 /* Add a sub-dissector to a heuristic dissector list.  Called by the
    protocol routine that wants to register a sub-dissector.  */
-void old_heur_dissector_add(const char *name, old_heur_dissector_t dissector);
-void heur_dissector_add(const char *name, heur_dissector_t dissector);
+void old_heur_dissector_add(const char *name, old_heur_dissector_t dissector,
+    int proto);
+void heur_dissector_add(const char *name, heur_dissector_t dissector,
+    int proto);
 
 /* Try all the dissectors in a given heuristic dissector list until
    we find one that recognizes the protocol, in which case we return
@@ -272,8 +276,10 @@ void register_conv_dissector_list(const char *name, conv_dissector_list_t *list)
 
 /* Add a sub-dissector to a conversation dissector list.  Called by the
    protocol routine that wants to register a sub-dissector.  */
-void old_conv_dissector_add(const char *name, old_dissector_t dissector);
-void conv_dissector_add(const char *name, dissector_t dissector);
+void old_conv_dissector_add(const char *name, old_dissector_t dissector,
+    int proto);
+void conv_dissector_add(const char *name, dissector_t dissector,
+    int proto);
 
 /* Handle for dissectors you call directly.
    This handle is opaque outside of "packet.c". */
@@ -281,7 +287,7 @@ struct dissector_handle;
 typedef struct dissector_handle *dissector_handle_t;
 
 /* Register a dissector. */
-void register_dissector(const char *name, dissector_t dissector);
+void register_dissector(const char *name, dissector_t dissector, int proto);
 
 /* Find a dissector by name. */
 dissector_handle_t find_dissector(const char *name);

@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for ldp packet disassembly
  *
- * $Id: packet-ldp.c,v 1.12 2001/01/03 07:53:43 guy Exp $
+ * $Id: packet-ldp.c,v 1.13 2001/01/09 06:31:38 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -834,7 +834,7 @@ proto_reg_handoff_ldp(void)
   tcp_port = global_ldp_tcp_port;
   udp_port = global_ldp_udp_port;
 
-  dissector_add("tcp.port", global_ldp_tcp_port, dissect_ldp);
-  dissector_add("udp.port", global_ldp_udp_port, dissect_ldp);
+  dissector_add("tcp.port", global_ldp_tcp_port, dissect_ldp, proto_ldp);
+  dissector_add("udp.port", global_ldp_udp_port, dissect_ldp, proto_ldp);
 
 }

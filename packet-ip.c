@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.118 2001/01/03 16:41:06 gram Exp $
+ * $Id: packet-ip.c,v 1.119 2001/01/09 06:31:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1335,7 +1335,7 @@ proto_register_igmp(void)
 void
 proto_reg_handoff_igmp(void)
 {
-	dissector_add("ip.proto", IP_PROTO_IGMP, dissect_igmp);
+	dissector_add("ip.proto", IP_PROTO_IGMP, dissect_igmp, proto_igmp);
 }
 
 void
@@ -1473,19 +1473,19 @@ proto_register_ip(void)
 "Whether the IPv4 type-of-service field should be decoded as a Differentiated Services field",
 	    &g_ip_dscp_actif);
 
-	register_dissector("ip", dissect_ip);
+	register_dissector("ip", dissect_ip, proto_ip);
 }
 
 void
 proto_reg_handoff_ip(void)
 {
-	dissector_add("ethertype", ETHERTYPE_IP, dissect_ip);
-	dissector_add("ppp.protocol", PPP_IP, dissect_ip);
-	dissector_add("ppp.protocol", CISCO_IP, dissect_ip);
-	dissector_add("llc.dsap", SAP_IP, dissect_ip);
-	dissector_add("ip.proto", IP_PROTO_IPV4, dissect_ip);
-	dissector_add("ip.proto", IP_PROTO_IPIP, dissect_ip);
-	dissector_add("null.type", BSD_AF_INET, dissect_ip);
+	dissector_add("ethertype", ETHERTYPE_IP, dissect_ip, proto_ip);
+	dissector_add("ppp.protocol", PPP_IP, dissect_ip, proto_ip);
+	dissector_add("ppp.protocol", CISCO_IP, dissect_ip, proto_ip);
+	dissector_add("llc.dsap", SAP_IP, dissect_ip, proto_ip);
+	dissector_add("ip.proto", IP_PROTO_IPV4, dissect_ip, proto_ip);
+	dissector_add("ip.proto", IP_PROTO_IPIP, dissect_ip, proto_ip);
+	dissector_add("null.type", BSD_AF_INET, dissect_ip, proto_ip);
 }
 
 void
@@ -1518,5 +1518,5 @@ proto_register_icmp(void)
 void
 proto_reg_handoff_icmp(void)
 {
-  dissector_add("ip.proto", IP_PROTO_ICMP, dissect_icmp);
+  dissector_add("ip.proto", IP_PROTO_ICMP, dissect_icmp, proto_icmp);
 }

@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.45 2001/01/03 16:41:06 gram Exp $
+ * $Id: packet-ncp.c,v 1.46 2001/01/09 06:31:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -399,8 +399,9 @@ proto_register_ncp(void)
 void
 proto_reg_handoff_ncp(void)
 {
-  dissector_add("tcp.port", TCP_PORT_NCP, dissect_ncp);
-  dissector_add("udp.port", UDP_PORT_NCP, dissect_ncp);
-  dissector_add("ipx.packet_type", IPX_PACKET_TYPE_NCP, dissect_ncp);
-  dissector_add("ipx.socket", IPX_SOCKET_NCP, dissect_ncp);
+  dissector_add("tcp.port", TCP_PORT_NCP, dissect_ncp, proto_ncp);
+  dissector_add("udp.port", UDP_PORT_NCP, dissect_ncp, proto_ncp);
+  dissector_add("ipx.packet_type", IPX_PACKET_TYPE_NCP, dissect_ncp,
+		proto_ncp);
+  dissector_add("ipx.socket", IPX_SOCKET_NCP, dissect_ncp, proto_ncp);
 }

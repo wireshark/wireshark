@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.22 2001/01/03 06:55:27 guy Exp $
+ * $Id: packet-ascend.c,v 1.23 2001/01/09 06:31:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -157,5 +157,5 @@ proto_reg_handoff_ascend(void)
    */
   eth_handle = find_dissector("eth");
   ppp_handle = find_dissector("ppp");
-  dissector_add("wtap_encap", WTAP_ENCAP_ASCEND, dissect_ascend);
+  dissector_add("wtap_encap", WTAP_ENCAP_ASCEND, dissect_ascend, proto_ascend);
 }

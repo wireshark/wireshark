@@ -2,7 +2,7 @@
  * Routines for nntp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-nntp.c,v 1.17 2001/01/03 06:55:30 guy Exp $
+ * $Id: packet-nntp.c,v 1.18 2001/01/09 06:31:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -149,5 +149,5 @@ proto_register_nntp(void)
 void
 proto_reg_handoff_nntp(void)
 {
-	dissector_add("tcp.port", TCP_PORT_NNTP, dissect_nntp);
+	dissector_add("tcp.port", TCP_PORT_NNTP, dissect_nntp, proto_nntp);
 }

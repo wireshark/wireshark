@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.30 2001/01/03 10:34:41 guy Exp $
+ * $Id: packet-atm.c,v 1.31 2001/01/09 06:31:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -801,5 +801,6 @@ proto_reg_handoff_atm(void)
 	 */
 	llc_handle = find_dissector("llc");
 
-	dissector_add("wtap_encap", WTAP_ENCAP_ATM_SNIFFER, dissect_atm);
+	dissector_add("wtap_encap", WTAP_ENCAP_ATM_SNIFFER, dissect_atm,
+	    proto_atm);
 }

@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim.c,v 1.5 2001/01/03 06:55:26 guy Exp $
+ * $Id: packet-aim.c,v 1.6 2001/01/09 06:31:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -620,5 +620,5 @@ proto_register_aim(void)
 void
 proto_reg_handoff_aim(void)
 {
-  dissector_add("tcp.port", TCP_PORT_AIM, &dissect_aim);
+  dissector_add("tcp.port", TCP_PORT_AIM, &dissect_aim, proto_aim);
 }

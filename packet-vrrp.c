@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-vrrp.c,v 1.12 2001/01/06 05:43:13 guy Exp $
+ * $Id: packet-vrrp.c,v 1.13 2001/01/09 06:31:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -238,5 +238,5 @@ void proto_register_vrrp(void)
 void
 proto_reg_handoff_vrrp(void)
 {
-        dissector_add("ip.proto", IP_PROTO_VRRP, dissect_vrrp);
+	dissector_add("ip.proto", IP_PROTO_VRRP, dissect_vrrp, proto_vrrp);
 }

@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for MSX tns packet dissection
  *
- * $Id: packet-tns.c,v 1.11 2001/01/03 06:55:34 guy Exp $
+ * $Id: packet-tns.c,v 1.12 2001/01/09 06:31:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -351,5 +351,5 @@ void proto_register_tns(void)
 void
 proto_reg_handoff_tns(void)
 {
-	old_dissector_add("tcp.port", TCP_PORT_TNS, dissect_tns);
+	old_dissector_add("tcp.port", TCP_PORT_TNS, dissect_tns, proto_tns);
 }

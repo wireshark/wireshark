@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for DIAMETER packet disassembly
  *
- * $Id: packet-diameter.c,v 1.10 2001/01/03 07:53:43 guy Exp $
+ * $Id: packet-diameter.c,v 1.11 2001/01/09 06:31:35 guy Exp $
  *
  * Copyright (c) 2000 by David Frascone <chaos@mindspring.com>
  *
@@ -761,10 +761,14 @@ proto_reg_handoff_diameter(void)
 
         /* g_warning ("Diameter: Adding tcp dissector to port %d",
 		gbl_diameterTcpPort); */
-	old_dissector_add("tcp.port", gbl_diameterTcpPort, dissect_diameter);
-	old_dissector_add("udp.port", gbl_diameterUdpPort, dissect_diameter);
+	old_dissector_add("tcp.port", gbl_diameterTcpPort, dissect_diameter,
+	    proto_diameter);
+	old_dissector_add("udp.port", gbl_diameterUdpPort, dissect_diameter,
+	    proto_diameter);
 #ifdef SCTP_DISSECTORS_ENABLED
-	old_dissector_add("sctp.srcport", gbl_diameterSctpPort, dissect_diameter);
-	old_dissector_add("sctp.destport", gbl_diameterSctpPort, dissect_diameter);
+	old_dissector_add("sctp.srcport", gbl_diameterSctpPort,
+	    dissect_diameter, proto_diameter);
+	old_dissector_add("sctp.destport", gbl_diameterSctpPort,
+	    dissect_diameter, proto_diameter);
 #endif
 }

@@ -1,7 +1,7 @@
 /* packet-radius.c
  * Routines for RADIUS packet disassembly
  *
- * $Id: packet-radius.c,v 1.21 2001/01/03 06:55:31 guy Exp $
+ * $Id: packet-radius.c,v 1.22 2001/01/09 06:31:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -784,8 +784,12 @@ proto_register_radius(void)
 void
 proto_reg_handoff_radius(void)
 {
-	old_dissector_add("udp.port", UDP_PORT_RADIUS, dissect_radius);
-	old_dissector_add("udp.port", UDP_PORT_RADIUS_NEW, dissect_radius);
-	old_dissector_add("udp.port", UDP_PORT_RADACCT, dissect_radius);
-	old_dissector_add("udp.port", UDP_PORT_RADACCT_NEW, dissect_radius);
+	old_dissector_add("udp.port", UDP_PORT_RADIUS, dissect_radius,
+	    proto_radius);
+	old_dissector_add("udp.port", UDP_PORT_RADIUS_NEW, dissect_radius,
+	    proto_radius);
+	old_dissector_add("udp.port", UDP_PORT_RADACCT, dissect_radius,
+	    proto_radius);
+	old_dissector_add("udp.port", UDP_PORT_RADACCT_NEW, dissect_radius,
+	    proto_radius);
 }

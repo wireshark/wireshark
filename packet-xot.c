@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-xot.c,v 1.2 2001/01/03 06:55:34 guy Exp $
+ * $Id: packet-xot.c,v 1.3 2001/01/09 06:31:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -94,5 +94,5 @@ void proto_register_xot(void)
 void
 proto_reg_handoff_xot(void)
 {
-  dissector_add("tcp.port", TCP_PORT_XOT, dissect_xot);
+  dissector_add("tcp.port", TCP_PORT_XOT, dissect_xot, proto_xot);
 }

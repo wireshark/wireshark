@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.19 2001/01/03 16:41:06 gram Exp $
+ * $Id: packet-l2tp.c,v 1.20 2001/01/09 06:31:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -831,7 +831,8 @@ proto_register_l2tp(void)
 void
 proto_reg_handoff_l2tp(void)
 {
-	dissector_add("udp.port", UDP_PORT_L2TP, dissect_l2tp);
+	dissector_add("udp.port", UDP_PORT_L2TP, dissect_l2tp,
+	    proto_l2tp);
 
 	/*
 	 * Get a handle for the PPP dissector.

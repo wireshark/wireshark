@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-hsrp.c,v 1.14 2001/01/03 16:41:06 gram Exp $
+ * $Id: packet-hsrp.c,v 1.15 2001/01/09 06:31:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -244,5 +244,5 @@ void proto_register_hsrp(void)
 void
 proto_reg_handoff_hsrp(void)
 {
-	dissector_add("udp.port", UDP_PORT_HSRP, dissect_hsrp);
+	dissector_add("udp.port", UDP_PORT_HSRP, dissect_hsrp, proto_hsrp);
 }

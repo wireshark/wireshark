@@ -2,7 +2,7 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-lapb.c,v 1.26 2001/01/03 06:55:29 guy Exp $
+ * $Id: packet-lapb.c,v 1.27 2001/01/09 06:31:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -136,11 +136,11 @@ proto_register_lapb(void)
     proto_register_field_array (proto_lapb, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("lapb", dissect_lapb);
+    register_dissector("lapb", dissect_lapb, proto_lapb);
 }
 
 void
 proto_reg_handoff_lapb(void)
 {
-    dissector_add("wtap_encap", WTAP_ENCAP_LAPB, dissect_lapb);
+    dissector_add("wtap_encap", WTAP_ENCAP_LAPB, dissect_lapb, proto_lapb);
 }

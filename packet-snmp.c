@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.56 2001/01/03 16:41:07 gram Exp $
+ * $Id: packet-snmp.c,v 1.57 2001/01/09 06:31:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -2090,10 +2090,16 @@ proto_register_snmp(void)
 void
 proto_reg_handoff_snmp(void)
 {
-	old_dissector_add("udp.port", UDP_PORT_SNMP, dissect_snmp);
-	old_dissector_add("udp.port", UDP_PORT_SNMP_TRAP, dissect_snmp);
-	old_dissector_add("tcp.port", TCP_PORT_SMUX, dissect_smux);
-	old_dissector_add("ethertype", ETHERTYPE_SNMP, dissect_snmp);
-	old_dissector_add("ipx.socket", IPX_SOCKET_SNMP_AGENT, dissect_snmp);
-	old_dissector_add("ipx.socket", IPX_SOCKET_SNMP_SINK, dissect_snmp);
+	old_dissector_add("udp.port", UDP_PORT_SNMP, dissect_snmp,
+	    proto_snmp);
+	old_dissector_add("udp.port", UDP_PORT_SNMP_TRAP, dissect_snmp,
+	    proto_snmp);
+	old_dissector_add("tcp.port", TCP_PORT_SMUX, dissect_smux,
+	    proto_smux);
+	old_dissector_add("ethertype", ETHERTYPE_SNMP, dissect_snmp,
+	    proto_snmp);
+	old_dissector_add("ipx.socket", IPX_SOCKET_SNMP_AGENT, dissect_snmp,
+	    proto_snmp);
+	old_dissector_add("ipx.socket", IPX_SOCKET_SNMP_SINK, dissect_snmp,
+	    proto_snmp);
 }

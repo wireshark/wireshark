@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.13 2001/01/03 06:55:32 guy Exp $
+ * $Id: packet-smtp.c,v 1.14 2001/01/09 06:31:43 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -592,6 +592,6 @@ proto_reg_handoff_smtp(void)
 
   tcp_port = global_smtp_tcp_port;
 
-  dissector_add("tcp.port", global_smtp_tcp_port, dissect_smtp);
+  dissector_add("tcp.port", global_smtp_tcp_port, dissect_smtp, proto_smtp);
 
 }

@@ -2,7 +2,7 @@
  * Routines for EIGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-eigrp.c,v 1.10 2001/01/03 06:55:27 guy Exp $
+ * $Id: packet-eigrp.c,v 1.11 2001/01/09 06:31:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -466,7 +466,7 @@ proto_register_eigrp(void)
 void
 proto_reg_handoff_eigrp(void)
 {
-    dissector_add("ip.proto", IP_PROTO_EIGRP, dissect_eigrp);
-    dissector_add("ddp.type", DDP_EIGRP, dissect_eigrp);
-    dissector_add("ipx.socket", IPX_SOCKET_EIGRP, dissect_eigrp);
+    dissector_add("ip.proto", IP_PROTO_EIGRP, dissect_eigrp, proto_eigrp);
+    dissector_add("ddp.type", DDP_EIGRP, dissect_eigrp, proto_eigrp);
+    dissector_add("ipx.socket", IPX_SOCKET_EIGRP, dissect_eigrp, proto_eigrp);
 }

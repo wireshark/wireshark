@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.72 2001/01/03 06:55:29 guy Exp $
+ * $Id: packet-ipx.c,v 1.73 2001/01/09 06:31:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -912,13 +912,17 @@ proto_reg_handoff_ipx(void)
 	 */
 	nbipx_handle = find_dissector("nbipx");
 
-	dissector_add("udp.port", UDP_PORT_IPX, dissect_ipx);
-	dissector_add("ethertype", ETHERTYPE_IPX, dissect_ipx);
-	dissector_add("ppp.protocol", PPP_IPX, dissect_ipx);
-	dissector_add("llc.dsap", SAP_NETWARE, dissect_ipx);
-	dissector_add("null.type", BSD_AF_IPX, dissect_ipx);
-	dissector_add("ipx.packet_type", IPX_PACKET_TYPE_SPX, dissect_spx);
-	dissector_add("ipx.socket", IPX_SOCKET_SAP, dissect_ipxsap);
-	dissector_add("ipx.socket", IPX_SOCKET_IPXRIP, dissect_ipxrip);
-	dissector_add("ipx.socket", IPX_SOCKET_IPX_MESSAGE, dissect_ipxmsg);
+	dissector_add("udp.port", UDP_PORT_IPX, dissect_ipx, proto_ipx);
+	dissector_add("ethertype", ETHERTYPE_IPX, dissect_ipx, proto_ipx);
+	dissector_add("ppp.protocol", PPP_IPX, dissect_ipx, proto_ipx);
+	dissector_add("llc.dsap", SAP_NETWARE, dissect_ipx, proto_ipx);
+	dissector_add("null.type", BSD_AF_IPX, dissect_ipx, proto_ipx);
+	dissector_add("ipx.packet_type", IPX_PACKET_TYPE_SPX, dissect_spx,
+	    proto_spx);
+	dissector_add("ipx.socket", IPX_SOCKET_SAP, dissect_ipxsap,
+	    proto_sap);
+	dissector_add("ipx.socket", IPX_SOCKET_IPXRIP, dissect_ipxrip,
+	    proto_sap);
+	dissector_add("ipx.socket", IPX_SOCKET_IPX_MESSAGE, dissect_ipxmsg,
+	    proto_ipxmsg);
 }

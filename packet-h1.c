@@ -2,7 +2,7 @@
  * Routines for Sinec H1 packet disassembly
  * Gerrit Gehnen <G.Gehnen@atrie.de>
  *
- * $Id: packet-h1.c,v 1.16 2001/01/05 08:34:35 guy Exp $
+ * $Id: packet-h1.c,v 1.17 2001/01/09 06:31:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -317,5 +317,5 @@ proto_register_h1 (void)
 void
 proto_reg_handoff_h1(void)
 {
-  heur_dissector_add("cotp_is", dissect_h1);
+  heur_dissector_add("cotp_is", dissect_h1, proto_h1);
 }

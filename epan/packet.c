@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.12 2001/01/09 05:53:21 guy Exp $
+ * $Id: packet.c,v 1.13 2001/01/09 06:32:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1160,6 +1160,7 @@ typedef struct {
 		old_dissector_t	old;
 		dissector_t	new;
 	} dissector;
+	int	proto_index;
 } dtbl_entry_t;
 
 /* Finds a dissector table by field name. */
@@ -1173,7 +1174,8 @@ find_dissector_table(const char *name)
 /* add an entry, lookup the dissector table for the specified field name,  */
 /* if a valid table found, add the subdissector */
 void
-old_dissector_add(const char *name, guint32 pattern, old_dissector_t dissector)
+old_dissector_add(const char *name, guint32 pattern, old_dissector_t dissector,
+    int proto)
 {
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 	dtbl_entry_t *dtbl_entry;
@@ -1184,6 +1186,7 @@ old_dissector_add(const char *name, guint32 pattern, old_dissector_t dissector)
 	dtbl_entry = g_malloc(sizeof (dtbl_entry_t));
 	dtbl_entry->is_old_dissector = TRUE;
 	dtbl_entry->dissector.old = dissector;
+	dtbl_entry->proto_index = proto;
 
 /* do the table insertion */
     	g_hash_table_insert( sub_dissectors, GUINT_TO_POINTER( pattern),
@@ -1191,7 +1194,8 @@ old_dissector_add(const char *name, guint32 pattern, old_dissector_t dissector)
 }
 
 void
-dissector_add(const char *name, guint32 pattern, dissector_t dissector)
+dissector_add(const char *name, guint32 pattern, dissector_t dissector,
+    int proto)
 {
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 	dtbl_entry_t *dtbl_entry;
@@ -1202,6 +1206,7 @@ dissector_add(const char *name, guint32 pattern, dissector_t dissector)
 	dtbl_entry = g_malloc(sizeof (dtbl_entry_t));
 	dtbl_entry->is_old_dissector = FALSE;
 	dtbl_entry->dissector.new = dissector;
+	dtbl_entry->proto_index = proto;
 
 /* do the table insertion */
     	g_hash_table_insert( sub_dissectors, GUINT_TO_POINTER( pattern),
@@ -1319,7 +1324,7 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 	dtbl_entry = g_hash_table_lookup(sub_dissectors,
 	    GUINT_TO_POINTER(port));
 	if (dtbl_entry != NULL) {
-		pi.match_port = port;
+		pinfo->match_port = port;
 		if (dtbl_entry->is_old_dissector) {
 			/*
 			 * New dissector calling old dissector; use
@@ -1373,6 +1378,7 @@ typedef struct {
 		old_heur_dissector_t	old;
 		heur_dissector_t	new;
 	} dissector;
+	int	proto_index;
 } heur_dtbl_entry_t;
 
 /* Finds a heuristic dissector table by field name. */
@@ -1384,7 +1390,8 @@ find_heur_dissector_list(const char *name)
 }
 
 void
-old_heur_dissector_add(const char *name, old_heur_dissector_t dissector)
+old_heur_dissector_add(const char *name, old_heur_dissector_t dissector,
+    int proto)
 {
 	heur_dissector_list_t *sub_dissectors = find_heur_dissector_list(name);
 	heur_dtbl_entry_t *dtbl_entry;
@@ -1395,13 +1402,14 @@ old_heur_dissector_add(const char *name, old_heur_dissector_t dissector)
 	dtbl_entry = g_malloc(sizeof (heur_dtbl_entry_t));
 	dtbl_entry->is_old_dissector = TRUE;
 	dtbl_entry->dissector.old = dissector;
+	dtbl_entry->proto_index = proto;
 
 	/* do the table insertion */
 	*sub_dissectors = g_slist_append(*sub_dissectors, (gpointer)dtbl_entry);
 }
 
 void
-heur_dissector_add(const char *name, heur_dissector_t dissector)
+heur_dissector_add(const char *name, heur_dissector_t dissector, int proto)
 {
 	heur_dissector_list_t *sub_dissectors = find_heur_dissector_list(name);
 	heur_dtbl_entry_t *dtbl_entry;
@@ -1412,6 +1420,7 @@ heur_dissector_add(const char *name, heur_dissector_t dissector)
 	dtbl_entry = g_malloc(sizeof (heur_dtbl_entry_t));
 	dtbl_entry->is_old_dissector = FALSE;
 	dtbl_entry->dissector.new = dissector;
+	dtbl_entry->proto_index = proto;
 
 	/* do the table insertion */
 	*sub_dissectors = g_slist_append(*sub_dissectors, (gpointer)dtbl_entry);
@@ -1480,6 +1489,7 @@ typedef struct {
 		old_dissector_t	old;
 		dissector_t	new;
 	} dissector;
+	int	proto_index;
 } conv_dtbl_entry_t;
 
 /* Finds a conversation dissector table by table name. */
@@ -1491,7 +1501,8 @@ find_conv_dissector_list(const char *name)
 }
 
 void
-old_conv_dissector_add(const char *name, old_dissector_t dissector)
+old_conv_dissector_add(const char *name, old_dissector_t dissector,
+    int proto)
 {
 	conv_dissector_list_t *sub_dissectors = find_conv_dissector_list(name);
 	conv_dtbl_entry_t *dtbl_entry;
@@ -1502,13 +1513,14 @@ old_conv_dissector_add(const char *name, old_dissector_t dissector)
 	dtbl_entry = g_malloc(sizeof (conv_dtbl_entry_t));
 	dtbl_entry->is_old_dissector = TRUE;
 	dtbl_entry->dissector.old = dissector;
+	dtbl_entry->proto_index = proto;
 
 	/* do the table insertion */
 	*sub_dissectors = g_slist_append(*sub_dissectors, (gpointer)dtbl_entry);
 }
 
 void
-conv_dissector_add(const char *name, dissector_t dissector)
+conv_dissector_add(const char *name, dissector_t dissector, int proto)
 {
 	conv_dissector_list_t *sub_dissectors = find_conv_dissector_list(name);
 	conv_dtbl_entry_t *dtbl_entry;
@@ -1519,6 +1531,7 @@ conv_dissector_add(const char *name, dissector_t dissector)
 	dtbl_entry = g_malloc(sizeof (conv_dtbl_entry_t));
 	dtbl_entry->is_old_dissector = FALSE;
 	dtbl_entry->dissector.new = dissector;
+	dtbl_entry->proto_index = proto;
 
 	/* do the table insertion */
 	*sub_dissectors = g_slist_append(*sub_dissectors, (gpointer)dtbl_entry);
@@ -1559,6 +1572,7 @@ static GHashTable *registered_dissectors = NULL;
 struct dissector_handle {
 	const char	*name;		/* dissector name */
 	dissector_t	dissector;
+	int		proto_index;
 };
 
 /* Find a registered dissector by name. */
@@ -1571,7 +1585,7 @@ find_dissector(const char *name)
 
 /* Register a dissector by name. */
 void
-register_dissector(const char *name, dissector_t dissector)
+register_dissector(const char *name, dissector_t dissector, int proto)
 {
 	struct dissector_handle *handle;
 
@@ -1587,6 +1601,7 @@ register_dissector(const char *name, dissector_t dissector)
 	handle = g_malloc(sizeof (struct dissector_handle));
 	handle->name = name;
 	handle->dissector = dissector;
+	handle->proto_index = proto;
 	
 	g_hash_table_insert(registered_dissectors, (gpointer)name,
 	    (gpointer) handle);

@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sap.c,v 1.17 2001/01/03 06:55:31 guy Exp $
+ * $Id: packet-sap.c,v 1.18 2001/01/09 06:31:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -366,7 +366,7 @@ void proto_register_sap(void)
 void
 proto_reg_handoff_sap(void)
 {
-  dissector_add("udp.port", UDP_PORT_SAP, dissect_sap);
+  dissector_add("udp.port", UDP_PORT_SAP, dissect_sap, proto_sap);
 
   /*
    * Get a handle for the SDP dissector.

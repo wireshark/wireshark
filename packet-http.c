@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.32 2001/01/03 06:55:28 guy Exp $
+ * $Id: packet-http.c,v 1.33 2001/01/09 06:31:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -395,13 +395,16 @@ proto_register_http(void)
 void
 proto_reg_handoff_http(void)
 {
-	dissector_add("tcp.port", TCP_PORT_HTTP, dissect_http);
-	dissector_add("tcp.port", TCP_ALT_PORT_HTTP, dissect_http);
-	dissector_add("tcp.port", TCP_PORT_PROXY_HTTP, dissect_http);
-	dissector_add("tcp.port", TCP_PORT_PROXY_ADMIN_HTTP, dissect_http);
+	dissector_add("tcp.port", TCP_PORT_HTTP, dissect_http, proto_http);
+	dissector_add("tcp.port", TCP_ALT_PORT_HTTP, dissect_http, proto_http);
+	dissector_add("tcp.port", TCP_PORT_PROXY_HTTP, dissect_http,
+	    proto_http);
+	dissector_add("tcp.port", TCP_PORT_PROXY_ADMIN_HTTP, dissect_http,
+	    proto_http);
+	dissector_add("tcp.port", 631, dissect_http, proto_http);
 				
-	dissector_add("tcp.port", TCP_PORT_SSDP, dissect_http);
-	dissector_add("udp.port", UDP_PORT_SSDP, dissect_http);
+	dissector_add("tcp.port", TCP_PORT_SSDP, dissect_http, proto_http);
+	dissector_add("udp.port", UDP_PORT_SSDP, dissect_http, proto_http);
 
 	/*
 	 * Get a handle for the IPP dissector.

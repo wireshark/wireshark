@@ -1,7 +1,7 @@
 /* packet-irc.c
  * Routines for MSX irc packet dissection
  *
- * $Id: packet-irc.c,v 1.10 2001/01/03 06:55:29 guy Exp $
+ * $Id: packet-irc.c,v 1.11 2001/01/09 06:31:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -167,6 +167,6 @@ proto_register_irc(void)
 void
 proto_reg_handoff_irc(void)
 {
-	old_dissector_add("tcp.port", TCP_PORT_IRC, dissect_irc);
+	old_dissector_add("tcp.port", TCP_PORT_IRC, dissect_irc, proto_irc);
 }
 

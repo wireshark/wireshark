@@ -3,7 +3,7 @@
  * Richard Sharpe <rsharpe@ns.aus.com> based on the lapb module by
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-lapbether.c,v 1.3 2001/01/03 06:55:29 guy Exp $
+ * $Id: packet-lapbether.c,v 1.4 2001/01/09 06:31:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -108,6 +108,6 @@ proto_reg_handoff_lapbether(void)
    */
   lapb_handle = find_dissector("lapb");
 
-  dissector_add("ethertype", ETHERTYPE_DEC, dissect_lapbether);
+  dissector_add("ethertype", ETHERTYPE_DEC, dissect_lapbether, proto_lapbether);
 
 }

@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.60 2001/01/03 06:55:27 guy Exp $
+ * $Id: packet-dns.c,v 1.61 2001/01/09 06:31:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -2482,6 +2482,6 @@ proto_register_dns(void)
 void
 proto_reg_handoff_dns(void)
 {
-  old_dissector_add("udp.port", UDP_PORT_DNS, dissect_dns);
-  old_dissector_add("tcp.port", TCP_PORT_DNS, dissect_dns_tcp);
+  old_dissector_add("udp.port", UDP_PORT_DNS, dissect_dns, proto_dns);
+  old_dissector_add("tcp.port", TCP_PORT_DNS, dissect_dns_tcp, proto_dns);
 }

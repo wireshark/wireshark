@@ -2,7 +2,7 @@
  * Routines for Microsoft Proxy packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-msproxy.c,v 1.15 2001/01/03 06:55:30 guy Exp $
+ * $Id: packet-msproxy.c,v 1.16 2001/01/09 06:31:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1354,5 +1354,6 @@ proto_reg_handoff_msproxy(void) {
 
 	/* dissector install routine */ 
  
- 	old_dissector_add("udp.port", UDP_PORT_MSPROXY, dissect_msproxy);
+ 	old_dissector_add("udp.port", UDP_PORT_MSPROXY, dissect_msproxy,
+ 	    proto_msproxy);
 }

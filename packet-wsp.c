@@ -3,7 +3,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.8 2001/01/03 16:41:07 gram Exp $
+ * $Id: packet-wsp.c,v 1.9 2001/01/09 06:31:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1477,15 +1477,15 @@ proto_register_wsp(void)
 	proto_register_field_array(proto_wsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("wsp", dissect_wsp);
+	register_dissector("wsp", dissect_wsp, proto_wsp);
 };
 
 void
 proto_reg_handoff_wsp(void)
 {
 	/* Only connection-less WSP has no previous handler */
-	dissector_add("udp.port", UDP_PORT_WSP, dissect_wsp);
-	/* dissector_add("udp.port", UDP_PORT_WTP_WSP, dissect_wsp); */
-	/* dissector_add("udp.port", UDP_PORT_WTLS_WSP, dissect_wsp); */
-	/* dissector_add("udp.port", UDP_PORT_WTLS_WTP_WSP, dissect_wsp); */
+	dissector_add("udp.port", UDP_PORT_WSP, dissect_wsp, proto_wsp);
+	/* dissector_add("udp.port", UDP_PORT_WTP_WSP, dissect_wsp, proto_wsp); */
+	/* dissector_add("udp.port", UDP_PORT_WTLS_WSP, dissect_wsp, proto_wsp); */
+	/* dissector_add("udp.port", UDP_PORT_WTLS_WTP_WSP, dissect_wsp, proto_wsp); */
 }

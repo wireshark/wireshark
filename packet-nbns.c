@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Much stuff added by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.49 2001/01/03 06:55:30 guy Exp $
+ * $Id: packet-nbns.c,v 1.50 2001/01/09 06:31:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1771,8 +1771,8 @@ proto_register_nbt(void)
 void
 proto_reg_handoff_nbt(void)
 {
-  old_dissector_add("udp.port", UDP_PORT_NBNS, dissect_nbns);
-  old_dissector_add("udp.port", UDP_PORT_NBDGM, dissect_nbdgm);
-  old_dissector_add("tcp.port", TCP_PORT_NBSS, dissect_nbss);
-  old_dissector_add("tcp.port", TCP_PORT_CIFS, dissect_nbss);
+  old_dissector_add("udp.port", UDP_PORT_NBNS, dissect_nbns, proto_nbns);
+  old_dissector_add("udp.port", UDP_PORT_NBDGM, dissect_nbdgm, proto_nbdgm);
+  old_dissector_add("tcp.port", TCP_PORT_NBSS, dissect_nbss, proto_nbss);
+  old_dissector_add("tcp.port", TCP_PORT_CIFS, dissect_nbss, proto_nbss);
 }

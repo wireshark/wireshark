@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.33 2001/01/03 06:55:28 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.34 2001/01/09 06:31:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1194,5 +1194,5 @@ proto_register_icmpv6(void)
 void
 proto_reg_handoff_icmpv6(void)
 {
-  old_dissector_add("ip.proto", IP_PROTO_ICMPV6, dissect_icmpv6);
+  old_dissector_add("ip.proto", IP_PROTO_ICMPV6, dissect_icmpv6, proto_icmpv6);
 }

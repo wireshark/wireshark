@@ -164,7 +164,7 @@ void rtp_add_address( const unsigned char* ip_addr, int prt )
 	 * know that we're interested in traffic
 	 */
 	if ( ! heur_init ) {
-		heur_dissector_add( "udp", dissect_rtp_heur );
+		heur_dissector_add( "udp", dissect_rtp_heur, proto_rtp );
 		heur_init = TRUE;
 	}
 
@@ -637,5 +637,5 @@ proto_reg_handoff_rtp(void)
 	 * Register this dissector as one that can be assigned to a
 	 * UDP conversation.
 	 */
-	conv_dissector_add("udp", dissect_rtp);
+	conv_dissector_add("udp", dissect_rtp, proto_rtp);
 }

@@ -2,7 +2,7 @@
  * Routines for Stream Control Transmission Protocol dissection
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sctp.c,v 1.8 2001/01/03 06:55:32 guy Exp $
+ * $Id: packet-sctp.c,v 1.9 2001/01/09 06:31:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -1820,5 +1820,5 @@ proto_register_sctp(void)
 void
 proto_reg_handoff_sctp(void)
 {
-	dissector_add("ip.proto", IP_PROTO_SCTP, dissect_sctp);
+  dissector_add("ip.proto", IP_PROTO_SCTP, dissect_sctp, proto_sctp);
 }

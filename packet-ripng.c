@@ -3,7 +3,7 @@
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  * derived from packet-rip.c
  *
- * $Id: packet-ripng.c,v 1.16 2001/01/03 06:55:31 guy Exp $
+ * $Id: packet-ripng.c,v 1.17 2001/01/09 06:31:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -159,5 +159,5 @@ proto_register_ripng(void)
 void
 proto_reg_handoff_ripng(void)
 {
-    old_dissector_add("udp.port", UDP_PORT_RIPNG, dissect_ripng);
+    old_dissector_add("udp.port", UDP_PORT_RIPNG, dissect_ripng, proto_ripng);
 }

@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.48 2001/01/03 06:55:27 guy Exp $
+ * $Id: packet-atalk.c,v 1.49 2001/01/09 06:31:33 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -582,10 +582,10 @@ proto_register_atalk(void)
 void
 proto_reg_handoff_atalk(void)
 {
-  dissector_add("ethertype", ETHERTYPE_ATALK, dissect_ddp);
-  dissector_add("ppp.protocol", PPP_AT, dissect_ddp);
-  dissector_add("null.type", BSD_AF_APPLETALK, dissect_ddp);
-  dissector_add("ddp.type", DDP_NBP, dissect_nbp);
-  dissector_add("ddp.type", DDP_RTMPREQ, dissect_rtmp_request);
-  dissector_add("ddp.type", DDP_RTMPDATA, dissect_rtmp_data);
+  dissector_add("ethertype", ETHERTYPE_ATALK, dissect_ddp, proto_ddp);
+  dissector_add("ppp.protocol", PPP_AT, dissect_ddp, proto_ddp);
+  dissector_add("null.type", BSD_AF_APPLETALK, dissect_ddp, proto_ddp);
+  dissector_add("ddp.type", DDP_NBP, dissect_nbp, proto_nbp);
+  dissector_add("ddp.type", DDP_RTMPREQ, dissect_rtmp_request, proto_rtmp);
+  dissector_add("ddp.type", DDP_RTMPDATA, dissect_rtmp_data, proto_rtmp);
 }

@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.35 2001/01/07 22:35:21 guy Exp $
+ * $Id: packet-gre.c,v 1.36 2001/01/09 06:31:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -384,7 +384,7 @@ proto_register_gre(void)
 void
 proto_reg_handoff_gre(void)
 {
-	dissector_add("ip.proto", IP_PROTO_GRE, dissect_gre);
+	dissector_add("ip.proto", IP_PROTO_GRE, dissect_gre, proto_gre);
 
 	/*
 	 * Get handles for the IP, PPP, and Frame Relay dissectors.

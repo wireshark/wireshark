@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.44 2001/01/05 19:07:38 guy Exp $
+ * $Id: packet-x25.c,v 1.45 2001/01/09 06:31:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -2069,5 +2069,12 @@ proto_reg_handoff_x25(void)
     ip_handle = find_dissector("ip");
     ositp_handle = find_dissector("ositp");
 
-    dissector_add("llc.dsap", SAP_X25, dissect_x25);
+    /*
+     * XXX - we can't associate this with both "proto_x25" and
+     * "proto_ex25"; we really should have only one X.25 protocol,
+     * but to do that right, we need to arrange that, for example,
+     * we can have two field definitions with the name "x.25.p_r",
+     * one for modulo-8 operation and one for modulo-128 operation.
+     */
+    dissector_add("llc.dsap", SAP_X25, dissect_x25, -1);
 }

@@ -6,7 +6,7 @@
  *       In particular I have not had an opportunity to see how it 
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.18 2001/01/03 16:41:07 gram Exp $
+ * $Id: packet-srvloc.c,v 1.19 2001/01/09 06:31:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -518,12 +518,12 @@ proto_register_srvloc(void)
             FT_UINT16, BASE_DEC, VALS(srvloc_errs), 0x0,
             ""}
         },
-   };
+    };
                   
-   static gint *ett[] = {
-      &ett_srvloc,
-      &ett_srvloc_flags,
-   };
+    static gint *ett[] = {
+	&ett_srvloc,
+	&ett_srvloc_flags,
+    };
 
     proto_srvloc = proto_register_protocol("Service Location Protocol",
 					   "SRVLOC", "srvloc");
@@ -534,7 +534,9 @@ proto_register_srvloc(void)
 void
 proto_reg_handoff_srvloc(void)
 {
-    old_dissector_add("tcp.port", TCP_PORT_SRVLOC, dissect_srvloc);
-    old_dissector_add("udp.port", UDP_PORT_SRVLOC, dissect_srvloc);
+    old_dissector_add("tcp.port", TCP_PORT_SRVLOC, dissect_srvloc,
+		      proto_srvloc);
+    old_dissector_add("udp.port", UDP_PORT_SRVLOC, dissect_srvloc,
+		      proto_srvloc);
 }
 
