@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.37 2001/10/26 10:14:43 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.38 2001/11/03 00:58:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -365,7 +365,7 @@ static int
 add_detail_level(tvbuff_t *tvb, int offset, int count, packet_info *pinfo,
     proto_tree *tree, int convert, int hf_index)
 {
-	struct smb_info *smb_info = pinfo->private;
+	struct smb_info *smb_info = pinfo->private_data;
 	struct smb_request_val *request_val = smb_info->request_val;
 	guint16 level;
 
@@ -1955,7 +1955,7 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
 static gboolean
 dissect_pipe_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
-	struct smb_info *smb_info = pinfo->private;
+	struct smb_info *smb_info = pinfo->private_data;
 	struct smb_request_val *request_val = smb_info->request_val;
 	int parameter_count = smb_info->parameter_count;
 	int offset = 0, start_offset;
@@ -2221,7 +2221,7 @@ dissect_pipe_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 gboolean
 dissect_pipe_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	struct smb_info *smb_info = pinfo->private;
+	struct smb_info *smb_info = pinfo->private_data;
 
 	if (!proto_is_protocol_enabled(proto_smb_lanman))
 		return FALSE;

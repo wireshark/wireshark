@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Much stuff added by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.62 2001/10/12 01:41:03 guy Exp $
+ * $Id: packet-nbns.c,v 1.63 2001/11/03 00:58:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1504,7 +1504,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static void
 dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	struct tcpinfo	*tcpinfo = pinfo->private;
+	struct tcpinfo	*tcpinfo = pinfo->private_data;
 	int		offset = 0;
 	int		max_data;
 	guint8		msg_type;

@@ -2,7 +2,7 @@
  * Routines for SMB mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.c,v 1.18 2001/10/04 23:19:01 guy Exp $
+ * $Id: packet-smb-mailslot.c,v 1.19 2001/11/03 00:58:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,7 +56,7 @@ gboolean
 dissect_mailslot_smb(tvbuff_t *setup_tvb, tvbuff_t *tvb, packet_info *pinfo,
 		     proto_tree *parent_tree)
 {
-	struct smb_info *smb_info = pinfo->private;
+	struct smb_info *smb_info = pinfo->private_data;
 	proto_tree      *tree = 0;
 	proto_item      *item;
 	tvbuff_t        *next_tvb = NULL;

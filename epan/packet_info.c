@@ -1,7 +1,7 @@
 /* packet_info.c
  * Routines for handling packet information
  *
- * $Id: packet_info.c,v 1.3 2001/10/01 08:29:37 guy Exp $
+ * $Id: packet_info.c,v 1.4 2001/11/03 00:58:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,7 +47,7 @@ void blank_packetinfo(void)
   pi.destport = 0;
   pi.current_proto = "<Missing Protocol Name>";
   pi.p2p_dir = P2P_DIR_UNKNOWN;
-  pi.private = NULL;
+  pi.private_data = NULL;
 }
 
 

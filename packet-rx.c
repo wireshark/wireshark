@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.26 2001/09/14 07:10:05 guy Exp $
+ * $Id: packet-rx.c,v 1.27 2001/11/03 00:58:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -542,7 +542,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		break;
 	case RX_PACKET_TYPE_DATA: {
 		tvbuff_t *next_tvb;
-		pinfo->private = &rxinfo;
+		pinfo->private_data = &rxinfo;
 		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 		call_dissector(afs_handle, next_tvb, pinfo, parent_tree);
 		};

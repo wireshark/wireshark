@@ -2,7 +2,7 @@
  * Routines for unix rlogin packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-rlogin.c,v 1.21 2001/10/01 08:29:35 guy Exp $
+ * $Id: packet-rlogin.c,v 1.22 2001/11/03 00:58:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -341,7 +341,7 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 static void
 dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	struct tcpinfo *tcpinfo = pinfo->private;
+	struct tcpinfo *tcpinfo = pinfo->private_data;
 	conversation_t *conversation;
 	rlogin_hash_entry_t *hash_info;
 	guint length;

@@ -1,7 +1,7 @@
 /* packet_info.h
  * Definitions for packet info structures and routines
  *
- * $Id: packet_info.h,v 1.7 2001/10/01 08:29:37 guy Exp $
+ * $Id: packet_info.h,v 1.8 2001/11/03 00:58:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -115,7 +115,7 @@ typedef struct _packet_info {
   int     iplen;
   int     iphdrlen;
   int	  p2p_dir;
-  void    *private;		/* pointer to data passed from one dissector to another */
+  void    *private_data;	/* pointer to data passed from one dissector to another */
 } packet_info;
 
 void blank_packetinfo(void);

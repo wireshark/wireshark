@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.112 2001/10/30 22:22:26 guy Exp $
+ * $Id: packet-tcp.c,v 1.113 2001/11/03 00:58:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -250,7 +250,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		guint32 sport, guint32 dport,
 		proto_tree *tree, proto_tree *tcp_tree)
 {
-	struct tcpinfo *tcpinfo = pinfo->private;
+	struct tcpinfo *tcpinfo = pinfo->private_data;
 	fragment_data *ipfd_head;
 	tcp_segment_key old_tsk, *tsk;
 	gboolean must_desegment = FALSE;
@@ -969,7 +969,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Assume we'll pass un-reassembled data to subdissectors. */
   tcpinfo.is_reassembled = FALSE;
 
-  pinfo->private = &tcpinfo;
+  pinfo->private_data = &tcpinfo;
 
   /*
    * Assume, initially, that we can't desegment.

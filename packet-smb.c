@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.122 2001/10/20 19:29:21 guy Exp $
+ * $Id: packet-smb.c,v 1.123 2001/11/03 00:58:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -10398,7 +10398,7 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd,
   /*
    * Pass "si" to the subdissector.
    */
-  pinfo->private = &si;
+  pinfo->private_data = &si;
 
   /*
    * Tvbuff for setup area, for mailslot call.

@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs.c,v 1.34 2001/09/03 10:33:05 guy Exp $
+ * $Id: packet-afs.c,v 1.35 2001/11/03 00:58:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -184,7 +184,7 @@ afs_init_protocol(void)
 static void
 dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	struct rxinfo *rxinfo = pinfo->private;
+	struct rxinfo *rxinfo = pinfo->private_data;
 	int reply = 0;
 	conversation_t *conversation;
 	struct afs_request_key request_key, *new_request_key;
