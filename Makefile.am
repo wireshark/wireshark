@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.467 2002/09/04 20:23:53 guy Exp $
+# $Id: Makefile.am,v 1.468 2002/09/04 20:38:00 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -491,6 +491,7 @@ noinst_HEADERS = \
 	packet-mtp3.h  \
 	packet-ncp-int.h \
 	packet-netbios.h \
+	packet-netflow.h \
 	packet-nfs.h   \
 	packet-nisplus.h \
 	packet-nlm.h   \
