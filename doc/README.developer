@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.71 2003/02/10 19:21:25 guy Exp $
+$Id: README.developer,v 1.72 2003/03/06 22:41:39 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -45,7 +45,9 @@ defined.  Also, don't assume you can use "%lld", "%llu", "%llx", or
 Don't use "uint", "ulong" or "ushort"; they aren't defined on all
 platforms.  If you want an "int-sized" unsigned quantity, use "uint"; if
 you want a 32-bit unsigned quantity, use "guint32"; and if you want a
-16-bit unsigned quantity, use "guint16".
+16-bit unsigned quantity, use "guint16".  Use "%d", "%u", "%x", and "%o"
+to print those types; don't use "%ld", "%lu", "%lx", or "%lo", as longs
+are 64 bits long on many platforms, but "guint32" is 32 bits long.
 
 Don't use "long" to mean "signed 32-bit integer", and don't use
 "unsigned long" to mean "unsigned 32-bit integer"; "long"s are 64 bits
@@ -124,6 +126,37 @@ as Ethereal header files that all dissectors must include use stuff from
 Don't put a comma after the last element of an enum - some compilers may
 either warn about it (producing extra noise) or refuse to accept it.
 
+Don't include <unistd.h> without protecting it with
+
+	#ifdef HAVE_UNISTD_H
+
+		...
+
+	#endif
+
+When opening a file with "fopen()", "freopen()", or "fdopen()", if the
+file contains ASCII text, use "r", "w", "a", and so on as the open mode
+- but if it contains binary data, use "rb", "wb", and so on.  On
+Windows, if a file is opened in a text mode, writing a byte with the
+value of octal 12 (newline) to the file causes two bytes, one with the
+value octal 15 (carriage return) and one with the value octal 12, to be
+written to the file, and causes bytes with the value octal 15 to be
+discarded when reading the file (to translate between C's UNIX-style
+lines that end with newline and Windows' DEC-style lines that end with
+carriage return/line feed).
+
+In addition, that also means that when opening or creating a binary
+file, you must use "open()" (with O_CREAT and possibly O_TRUNC if the
+file is to be created if it doesn't exist), and OR in the O_BINARY flag. 
+That flag is not present on most, if not all, UNIX systems, so you must
+also do
+
+	#ifndef O_BINARY
+	#define O_BINARY	0
+	#endif
+
+to properly define it for UNIX (it's not necessary on UNIX).
+
 1.1.2 Name convention.
 
 Ethereal uses the underscore_convention rather than the InterCapConvention for
@@ -161,7 +194,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.71 2003/02/10 19:21:25 guy Exp $"
+The "$Id: README.developer,v 1.72 2003/03/06 22:41:39 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -171,7 +204,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.71 2003/02/10 19:21:25 guy Exp $
+ * $Id: README.developer,v 1.72 2003/03/06 22:41:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
