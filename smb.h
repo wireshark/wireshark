@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.17 2001/11/12 08:46:14 guy Exp $
+ * $Id: smb.h,v 1.18 2001/11/15 10:41:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -657,6 +657,10 @@ struct smb_continuation_val {
   const gchar *transact_name;
 };
 
+#define TRANSACTION_PIPE	0x01
+#define TRANSACTION_MAILSLOT	0x02
+
+
 typedef struct smb_info {
   /* this will be cleaned up when all smb is tvbuffified */
   int cmd, tid, uid, mid, pid;	/* Any more? */
@@ -664,6 +668,7 @@ typedef struct smb_info {
   int frame_req, frame_res;
   gboolean unidir;
   int subcmd;
+  int trans_subcmd;
   int info_level;
   int info_count;
 
@@ -673,12 +678,7 @@ typedef struct smb_info {
   struct smb_continuation_val *continuation_val;
   gboolean unicode;		/* Are strings in this SMB Unicode? */
   gboolean request;		/* Is this a request? */
-  gboolean is_interim_response;	/* Is this an interim transaction response? */
-  int parameter_count;		/* Number of bytes of parameter in transaction */
-  int data_offset;		/* Offset from parameter to data in transaction */
-  int data_count;		/* Number of bytes of data in transaction */
   guint16 ddisp;		/* Data displacement for transaction commands */
-  char *trans_cmd;		/* Command for mailslot dissection */
 } smb_info_t;
 
 #endif
