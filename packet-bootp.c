@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-bootp.c,v 1.52 2001/05/24 19:21:15 guy Exp $
+ * $Id: packet-bootp.c,v 1.53 2001/05/25 06:56:53 guy Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -68,8 +68,6 @@ static int hf_bootp_dhcp = -1;
 static guint ett_bootp = -1;
 static guint ett_bootp_option = -1;
 
-static const guint8 *vendor_class_id = NULL;
-
 #define UDP_PORT_BOOTPS  67
 
 enum field_type { none, ipv4, string, toggle, yes_no, special, opaque,
@@ -117,7 +115,9 @@ get_dhcp_type(guint8 byte)
 
 /* Returns the number of bytes consumed by this option. */
 static int
-bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff)
+bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
+    gboolean first_pass, const char **dhcp_type_p,
+    const guint8 **vendor_class_id_p)
 {
 	char			*text;
 	enum field_type		ftype;
@@ -363,15 +363,23 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff)
 			}
 		}
 		i = i - voff;
-		if (bp_tree != NULL)
-			proto_tree_add_text(bp_tree, tvb, voff, i, "Padding");
+		if (!first_pass) {
+			if (bp_tree != NULL) {
+				proto_tree_add_text(bp_tree, tvb, voff, i,
+				    "Padding");
+			}
+		}
 		consumed = i;
 		return consumed;
 		break;
 
 	case 255:	/* End Option */
-		if (bp_tree != NULL)
-			proto_tree_add_text(bp_tree, tvb, voff, 1, "End Option");
+		if (!first_pass) {
+			if (bp_tree != NULL) {
+				proto_tree_add_text(bp_tree, tvb, voff, 1,
+				    "End Option");
+			}
+		}
 		consumed = 1;
 		return consumed;
 	}
@@ -383,14 +391,41 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff)
 	 */
 	vlen = tvb_get_guint8(tvb, voff+1);
 	consumed = vlen + 2;
-	/* Handling of options we need to scan for first:
-	 * 60 (Vendor class identifier)
-	 * This is ugly but I don't have any better ideas
-	 * -- Joerg Mayer
+
+	/*
+	 * In the first pass, we don't put anything into the protocol
+	 * tree; we just check for some options we have to look at
+	 * in order to properly process the packet:
+	 *
+	 *	53 (DHCP message type) - if this is present, this is DHCP
+	 *
+	 *	60 (Vendor class identifier) - we need this in order to
+	 *	   interpret the vendor-specific info
 	 */
-	if ( (code == 60) && (bp_tree == NULL) ) {
-		vendor_class_id = tvb_get_ptr(tvb, voff+2, consumed-2);
+	if (first_pass) {
+		switch (code) {
+
+		case 53:
+			*dhcp_type_p =
+			    get_dhcp_type(tvb_get_guint8(tvb, voff+2));
+			break;
+
+		case 60:
+			*vendor_class_id_p =
+			    tvb_get_ptr(tvb, voff+2, consumed-2);
+			break;
+		}
+
+		/*
+		 * We don't do anything else here.
+		 */
+		return consumed;
 	}
+
+	/*
+	 * This is the second pass - if there's a protocol tree to be
+	 * built, we put stuff into it, otherwise we just return.
+	 */
 	if (bp_tree == NULL) {
 		/* Don't put anything in the protocol tree. */
 		return consumed;
@@ -443,7 +478,8 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff)
 
 	case 43:	/* Vendor-Specific Info */
 		/* PXE protocol 2.1 as described in the intel specs */
-		if (strncmp(vendor_class_id, "PXEClient", strlen("PXEClient")) == 0) {
+		if (*vendor_class_id_p != NULL &&
+		    strncmp(*vendor_class_id_p, "PXEClient", strlen("PXEClient")) == 0) {
 			vti = proto_tree_add_text(bp_tree, tvb, voff,
 				consumed, "Option %d: %s (PXEClient)", code, text);
 			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
@@ -489,11 +525,10 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff)
 		break;
 
 	case 60:	/* Vendor class identifier */
-                        proto_tree_add_text(bp_tree, tvb, voff, consumed,
-                                        "Option %d: %s = \"%.*s\"", code, text,
-vlen,
-                                        tvb_get_ptr(tvb, voff+2, consumed-2));
-                        break;
+		proto_tree_add_text(bp_tree, tvb, voff, consumed,
+			"Option %d: %s = \"%.*s\"", code, text, vlen,
+			tvb_get_ptr(tvb, voff+2, consumed-2));
+		break;
 
 	case 61:	/* Client Identifier */
 		/* We *MAY* use hwtype/hwaddr. If we have 7 bytes, I'll
@@ -966,10 +1001,10 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		op;
 	guint8		htype, hlen;
 	const guint8	*haddr;
-	int		voff, eoff, tmpvoff; /* vender offset, end offset */
+	int		voff, eoff, tmpvoff; /* vendor offset, end offset */
 	guint32		ip_addr;
-	gboolean	is_dhcp = FALSE;
-	const char	*dhcp_type;
+	const char	*dhcp_type = NULL;
+	const guint8	*vendor_class_id = NULL;
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "BOOTP");
@@ -1090,38 +1125,49 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	voff = 240;
 	eoff = tvb_reported_length(tvb);
+
 	/*
-	 * If we are displaying the details, we need two passes:
-	 * the first to find out about vendor specific options,
-	 * the second to do the actual decoding (option 60 is needed
-	 * to decode option 43 )
+	 * In the first pass, we just look for the DHCP message type
+	 * and Vendor class identifier options.
 	 */
 	tmpvoff = voff;
-	if (bp_tree) {
-		while (tmpvoff < eoff )
-			tmpvoff += bootp_option(tvb, 0, tmpvoff, eoff);
+	while (tmpvoff < eoff) {
+		tmpvoff += bootp_option(tvb, 0, tmpvoff, eoff, TRUE,
+		    &dhcp_type, &vendor_class_id);
 	}
+
+	/*
+	 * If there was a DHCP message type option, flag this packet
+	 * as DHCP.
+	 */
+	if (dhcp_type != NULL) {
+		/*
+		 * Yes, this is a DHCP packet, and "dhcp_type" is the
+		 * packet type.
+		 */
+		if (check_col(pinfo->fd, COL_PROTOCOL))
+			col_set_str(pinfo->fd, COL_PROTOCOL, "DHCP");
+		if (check_col(pinfo->fd, COL_INFO))
+			col_add_fstr(pinfo->fd, COL_INFO, "DHCP %-8s - Transaction ID 0x%x",
+			    dhcp_type, tvb_get_ntohl(tvb, 4));
+		if (tree)
+			proto_tree_add_boolean_hidden(bp_tree, hf_bootp_dhcp,
+			    tvb, 0, 0, 1);
+	}
+
+	/*
+	 * If we're not building the protocol tree, we don't need to
+	 * make a second pass.
+	 */
+	if (tree == NULL)
+		return;
+
+	/*
+	 * OK, now build the protocol tree.
+	 */
 	while (voff < eoff) {
-		/* Handle the DHCP option specially here, so that we
-		   can flag DHCP packets as such. */
-		if (!is_dhcp && tvb_get_guint8(tvb, voff) == 53) {
-			/*
-			 * We haven't already seen a DHCP Type option, and
-			 * this is a DHCP Type option, so flag this packet
-			 * as DHCP.
-			 */
-			dhcp_type = get_dhcp_type(tvb_get_guint8(tvb, voff+2));
-			if (check_col(pinfo->fd, COL_PROTOCOL))
-				col_set_str(pinfo->fd, COL_PROTOCOL, "DHCP");
-			if (check_col(pinfo->fd, COL_INFO))
-				col_add_fstr(pinfo->fd, COL_INFO, "DHCP %-8s - Transaction ID 0x%x",
-				    dhcp_type, tvb_get_ntohl(tvb, 4));
-			if (tree)
-				proto_tree_add_boolean_hidden(bp_tree, hf_bootp_dhcp,
-				    tvb, 0, 0, 1);
-			is_dhcp = TRUE;
-		}
-		voff += bootp_option(tvb, bp_tree, voff, eoff);
+		voff += bootp_option(tvb, bp_tree, voff, eoff, FALSE,
+		    &dhcp_type, &vendor_class_id);
 	}
 }
 
