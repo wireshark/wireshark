@@ -1,8 +1,8 @@
-/* packet-msrpc-reg.c
+/* packet-dcerpc-reg.c
  * Routines for SMB \\PIPE\\winreg packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-msrpc-reg.c,v 1.1 2001/11/12 08:58:43 guy Exp $
+ * $Id: packet-dcerpc-reg.c,v 1.1 2001/11/21 02:08:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,19 +30,19 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-dcerpc.h"
-#include "packet-msrpc-reg.h"
+#include "packet-dcerpc-reg.h"
 
-static int proto_msrpc_reg = -1;
-static gint ett_msrpc_reg = -1;
+static int proto_dcerpc_reg = -1;
+static gint ett_dcerpc_reg = -1;
 
-static e_uuid_t uuid_msrpc_reg = {
+static e_uuid_t uuid_dcerpc_reg = {
         0x338cd001, 0x2244, 0x31f1,
         { 0xaa, 0xaa, 0x90, 0x00, 0x38, 0x00, 0x10, 0x03 }
 };
 
-static guint16 ver_msrpc_reg = 1;
+static guint16 ver_dcerpc_reg = 1;
 
-static dcerpc_sub_dissector msrpc_reg_dissectors[] = {
+static dcerpc_sub_dissector dcerpc_reg_dissectors[] = {
         { REG_OPEN_HKCR, "REG_OPEN_HKCR", NULL, NULL },
         { _REG_UNK_01, "_REG_UNK_01", NULL, NULL },
         { REG_OPEN_HKLM, "REG_OPEN_HKLM", NULL, NULL },
@@ -75,23 +75,23 @@ static dcerpc_sub_dissector msrpc_reg_dissectors[] = {
 };
 
 void 
-proto_register_msrpc_reg(void)
+proto_register_dcerpc_reg(void)
 {
         static gint *ett[] = {
-                &ett_msrpc_reg,
+                &ett_dcerpc_reg,
         };
 
-        proto_msrpc_reg = proto_register_protocol(
+        proto_dcerpc_reg = proto_register_protocol(
                 "Microsoft Registry", "REG", "reg");
 
         proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
-proto_reg_handoff_msrpc_reg(void)
+proto_reg_handoff_dcerpc_reg(void)
 {
         /* Register protocol as dcerpc */
 
-        dcerpc_init_uuid(proto_msrpc_reg, ett_msrpc_reg, &uuid_msrpc_reg,
-                         ver_msrpc_reg, msrpc_reg_dissectors);
+        dcerpc_init_uuid(proto_dcerpc_reg, ett_dcerpc_reg, &uuid_dcerpc_reg,
+                         ver_dcerpc_reg, dcerpc_reg_dissectors);
 }

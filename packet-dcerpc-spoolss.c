@@ -1,8 +1,8 @@
-/* packet-msrpc-spoolss.c
+/* packet-dcerpc-spoolss.c
  * Routines for SMB \\PIPE\\spoolss packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-msrpc-spoolss.c,v 1.1 2001/11/12 08:58:43 guy Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.1 2001/11/21 02:08:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,19 +30,19 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-dcerpc.h"
-#include "packet-msrpc-spoolss.h"
+#include "packet-dcerpc-spoolss.h"
 
-static int proto_msrpc_spoolss = -1;
-static gint ett_msrpc_spoolss = -1;
+static int proto_dcerpc_spoolss = -1;
+static gint ett_dcerpc_spoolss = -1;
 
-static e_uuid_t uuid_msrpc_spoolss = {
+static e_uuid_t uuid_dcerpc_spoolss = {
         0x12345678, 0x1234, 0xabcd,
         { 0xef, 0x00, 0x01, 0x23, 0x45, 0x67, 0x89, 0xab }
 };
 
-static guint16 ver_msrpc_spoolss = 1;
+static guint16 ver_dcerpc_spoolss = 1;
 
-static dcerpc_sub_dissector msrpc_spoolss_dissectors[] = {
+static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
         { SPOOLSS_ENUMPRINTERS, "SPOOLSS_ENUMPRINTERS", NULL, NULL },
         { SPOOLSS_SETJOB, "SPOOLSS_SETJOB", NULL, NULL },
         { SPOOLSS_GETJOB, "SPOOLSS_GETJOB", NULL, NULL },
@@ -94,24 +94,24 @@ static dcerpc_sub_dissector msrpc_spoolss_dissectors[] = {
 };
 
 void 
-proto_register_msrpc_spoolss(void)
+proto_register_dcerpc_spoolss(void)
 {
         static gint *ett[] = {
-                &ett_msrpc_spoolss,
+                &ett_dcerpc_spoolss,
         };
 
-        proto_msrpc_spoolss = proto_register_protocol(
+        proto_dcerpc_spoolss = proto_register_protocol(
                 "Microsoft Spool Subsystem", "SPOOLSS", "spoolss");
 
         proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
-proto_reg_handoff_msrpc_spoolss(void)
+proto_reg_handoff_dcerpc_spoolss(void)
 {
         /* Register protocol as dcerpc */
 
-        dcerpc_init_uuid(proto_msrpc_spoolss, ett_msrpc_spoolss, 
-                         &uuid_msrpc_spoolss, ver_msrpc_spoolss, 
-                         msrpc_spoolss_dissectors);
+        dcerpc_init_uuid(proto_dcerpc_spoolss, ett_dcerpc_spoolss, 
+                         &uuid_dcerpc_spoolss, ver_dcerpc_spoolss, 
+                         dcerpc_spoolss_dissectors);
 }

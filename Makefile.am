@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.381 2001/11/15 21:11:01 gram Exp $
+# $Id: Makefile.am,v 1.382 2001/11/21 02:08:56 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -98,10 +98,18 @@ DISSECTOR_SRC = \
 	packet-data.c  \
 	packet-dcerpc.c  \
 	packet-dcerpc-conv.c  \
+	packet-dcerpc-dfs.c \
 	packet-dcerpc-epm.c  \
+	packet-dcerpc-lsa.c \
 	packet-dcerpc-mgmt.c  \
-	packet-dcerpc-remact.c  \
+	packet-dcerpc-netlogon.c \
 	packet-dcerpc-oxid.c  \
+	packet-dcerpc-reg.c \
+	packet-dcerpc-remact.c  \
+	packet-dcerpc-samr.c \
+	packet-dcerpc-spoolss.c \
+	packet-dcerpc-srvsvc.c \
+	packet-dcerpc-wkssvc.c \
 	packet-ddtp.c  \
 	packet-dec-bpdu.c \
 	packet-diameter.c \
@@ -178,14 +186,6 @@ DISSECTOR_SRC = \
 	packet-msdp.c  \
 	packet-msnip.c \
 	packet-msproxy.c \
-	packet-msrpc-dfs.c \
-	packet-msrpc-lsa.c \
-	packet-msrpc-netlogon.c \
-	packet-msrpc-reg.c \
-	packet-msrpc-samr.c \
-	packet-msrpc-spoolss.c \
-	packet-msrpc-srvsvc.c \
-	packet-msrpc-wkssvc.c \
 	packet-mtp3.c \
 	packet-nbipx.c \
 	packet-nbns.c  \
@@ -335,6 +335,14 @@ noinst_HEADERS = \
 	packet-chdlc.h \
 	packet-clip.h  \
 	packet-dcerpc.h \
+	packet-dcerpc-dfs.h \
+	packet-dcerpc-lsa.h \
+	packet-dcerpc-netlogon.h \
+	packet-dcerpc-reg.h \
+	packet-dcerpc-samr.h \
+	packet-dcerpc-spoolss.h \
+	packet-dcerpc-srvsvc.h \
+	packet-dcerpc-wkssvc.h \
 	packet-ddtp.h  \
 	packet-diameter-defs.h \
 	packet-dns.h   \
@@ -366,14 +374,6 @@ noinst_HEADERS = \
 	packet-mount.h \
 	packet-mrdisc.h \
 	packet-msnip.h \
-    packet-msrpc-dfs.h \
-    packet-msrpc-lsa.h \
-    packet-msrpc-netlogon.h \
-    packet-msrpc-reg.h \
-    packet-msrpc-samr.h \
-    packet-msrpc-spoolss.h \
-    packet-msrpc-srvsvc.h \
-    packet-msrpc-wkssvc.h \
 	packet-ncp-int.h \
 	packet-netbios.h \
 	packet-nfs.h   \

@@ -1,8 +1,8 @@
-/* packet-msrpc-dfs.h
- * Routines for SMB \\PIPE\\netdfs packet disassembly
+/* packet-msrpc-netlogon.h
+ * Routines for SMB \\PIPE\\NETLOGON packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-msrpc-dfs.h,v 1.1 2001/11/12 08:58:43 guy Exp $
+ * $Id: packet-dcerpc-netlogon.h,v 1.1 2001/11/21 02:08:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,15 +23,22 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __PACKET_MSRPC_DFS_H
-#define __PACKET_MSRPC_DFS_H
+#ifndef __PACKET_MSRPC_NETLOGON_H
+#define __PACKET_MSRPC_NETLOGON_H
 
-/* Functions available on the NETDFS pipe.  From Samba, include/rpc_dfs.h */
+/* Functions available on the NETLOGON pipe.  From Samba, 
+   include/rpc_netlogon.h */
 
-#define DFS_EXIST                0x00
-#define DFS_ADD                  0x01
-#define DFS_REMOVE               0x02
-#define DFS_GET_INFO             0x04
-#define DFS_ENUM                 0x05
+#define NET_SAMLOGON           0x02
+#define NET_SAMLOGOFF          0x03
+#define NET_REQCHAL            0x04
+#define NET_AUTH               0x05
+#define NET_SRVPWSET           0x06
+#define NET_SAM_DELTAS         0x07
+#define NET_LOGON_CTRL         0x0c
+#define NET_AUTH2              0x0f
+#define NET_LOGON_CTRL2        0x0e
+#define NET_SAM_SYNC           0x10
+#define NET_TRUST_DOM_LIST     0x13
 
-#endif /* packet-msrpc-dfs.h */
+#endif /* packet-msrpc-netlogon.h */

@@ -1,8 +1,8 @@
-/* packet-msrpc-wkssvc.h
- * Routines for SMB \\PIPE\\wkssvc packet disassembly
+/* packet-msrpc-dfs.h
+ * Routines for SMB \\PIPE\\netdfs packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-msrpc-wkssvc.h,v 1.1 2001/11/12 08:58:43 guy Exp $
+ * $Id: packet-dcerpc-dfs.h,v 1.1 2001/11/21 02:08:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,11 +23,15 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __PACKET_MSRPC_WKSSVC_H
-#define __PACKET_MSRPC_WKSSVC_H
+#ifndef __PACKET_MSRPC_DFS_H
+#define __PACKET_MSRPC_DFS_H
 
-/* Functions available on the WKSSVC pipe.  From Samba, include/rpc_wkssvc.h */
+/* Functions available on the NETDFS pipe.  From Samba, include/rpc_dfs.h */
 
-#define WKS_QUERY_INFO    0x00
+#define DFS_EXIST                0x00
+#define DFS_ADD                  0x01
+#define DFS_REMOVE               0x02
+#define DFS_GET_INFO             0x04
+#define DFS_ENUM                 0x05
 
-#endif /* packet-msrpc-wkssvc.h */
+#endif /* packet-msrpc-dfs.h */

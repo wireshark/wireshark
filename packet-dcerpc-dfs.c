@@ -1,8 +1,8 @@
-/* packet-msrpc-wkssvc.c
- * Routines for SMB \\PIPE\\wkssvc packet disassembly
+/* packet-dcerpc-dfs.c
+ * Routines for SMB \\PIPE\\netdfs packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-msrpc-wkssvc.c,v 1.1 2001/11/12 08:58:43 guy Exp $
+ * $Id: packet-dcerpc-dfs.c,v 1.1 2001/11/21 02:08:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,43 +30,46 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-dcerpc.h"
-#include "packet-msrpc-wkssvc.h"
+#include "packet-dcerpc-dfs.h"
 
-static int proto_msrpc_wkssvc = -1;
-static gint ett_msrpc_wkssvc = -1;
+static int proto_dcerpc_dfs = -1;
+static gint ett_dcerpc_dfs = -1;
 
-static e_uuid_t uuid_msrpc_wkssvc = {
-        0x6bffd098, 0xa112, 0x3610,
-        { 0x98, 0x33, 0x46, 0xc3, 0xf8, 0x7e, 0x34, 0x5a }
+static e_uuid_t uuid_dcerpc_dfs = {
+        0x4fc742e0, 0x4a10, 0x11cf,
+        { 0x82, 0x73, 0x00, 0xaa, 0x00, 0x4a, 0xe6, 0x73 }
 };
 
-static guint16 ver_msrpc_wkssvc = 1;
+static guint16 ver_dcerpc_dfs = 3;
 
-static dcerpc_sub_dissector msrpc_wkssvc_dissectors[] = {
-        { WKS_QUERY_INFO, "WKS_QUERY_INFO", NULL, NULL },
+static dcerpc_sub_dissector dcerpc_dfs_dissectors[] = {
+        { DFS_EXIST, "DFS_EXIST", NULL, NULL },
+        { DFS_ADD, "DFS_ADD", NULL, NULL },
+        { DFS_REMOVE, "DFS_REMOVE", NULL, NULL },
+        { DFS_GET_INFO, "DFS_GET_INFO", NULL, NULL },
+        { DFS_ENUM, "DFS_ENUM", NULL, NULL },
 
         {0, NULL, NULL,  NULL },
 };
 
 void 
-proto_register_msrpc_wkssvc(void)
+proto_register_dcerpc_dfs(void)
 {
         static gint *ett[] = {
-                &ett_msrpc_wkssvc,
+                &ett_dcerpc_dfs,
         };
 
-        proto_msrpc_wkssvc = proto_register_protocol(
-                "Microsoft Workstation Service", "WKSSVC", "wkssvc");
+        proto_dcerpc_dfs = proto_register_protocol(
+                "Microsoft Distributed File System", "DFS", "dfs");
 
         proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
-proto_reg_handoff_msrpc_wkssvc(void)
+proto_reg_handoff_dcerpc_dfs(void)
 {
         /* Register protocol as dcerpc */
 
-        dcerpc_init_uuid(proto_msrpc_wkssvc, ett_msrpc_wkssvc, 
-                         &uuid_msrpc_wkssvc, ver_msrpc_wkssvc, 
-                         msrpc_wkssvc_dissectors);
+        dcerpc_init_uuid(proto_dcerpc_dfs, ett_dcerpc_dfs, &uuid_dcerpc_dfs,
+                         ver_dcerpc_dfs, dcerpc_dfs_dissectors);
 }

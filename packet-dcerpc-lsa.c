@@ -1,8 +1,8 @@
-/* packet-msrpc-lsa.c
+/* packet-dcerpc-lsa.c
  * Routines for SMB \\PIPE\\lsarpc packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-msrpc-lsa.c,v 1.1 2001/11/12 08:58:43 guy Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.1 2001/11/21 02:08:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,19 +30,19 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-dcerpc.h"
-#include "packet-msrpc-lsa.h"
+#include "packet-dcerpc-lsa.h"
 
-static int proto_msrpc_lsa = -1;
-static gint ett_msrpc_lsa = -1;
+static int proto_dcerpc_lsa = -1;
+static gint ett_dcerpc_lsa = -1;
 
-static e_uuid_t uuid_msrpc_lsa = {
+static e_uuid_t uuid_dcerpc_lsa = {
         0x12345778, 0x1234, 0xabcd, 
         { 0xef, 0x00, 0x01, 0x23, 0x45, 0x67, 0x89, 0xab}
 };
 
-static guint16 ver_msrpc_lsa = 0;
+static guint16 ver_dcerpc_lsa = 0;
 
-static dcerpc_sub_dissector msrpc_lsa_dissectors[] = {
+static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
         { LSA_CLOSE, "LSA_CLOSE", NULL, NULL },
         { LSA_DELETE, "LSA_DELETE", NULL, NULL },
         { LSA_ENUM_PRIVS, "LSA_ENUM_PRIVS", NULL, NULL },
@@ -94,23 +94,23 @@ static dcerpc_sub_dissector msrpc_lsa_dissectors[] = {
 };
 
 void 
-proto_register_msrpc_lsa(void)
+proto_register_dcerpc_lsa(void)
 {
         static gint *ett[] = {
-                &ett_msrpc_lsa,
+                &ett_dcerpc_lsa,
         };
 
-        proto_msrpc_lsa = proto_register_protocol(
+        proto_dcerpc_lsa = proto_register_protocol(
                 "Microsoft Local Security Architecture", "LSA", "lsa");
 
         proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
-proto_reg_handoff_msrpc_lsa(void)
+proto_reg_handoff_dcerpc_lsa(void)
 {
         /* Register protocol as dcerpc */
 
-        dcerpc_init_uuid(proto_msrpc_lsa, ett_msrpc_lsa, &uuid_msrpc_lsa,
-                         ver_msrpc_lsa, msrpc_lsa_dissectors);
+        dcerpc_init_uuid(proto_dcerpc_lsa, ett_dcerpc_lsa, &uuid_dcerpc_lsa,
+                         ver_dcerpc_lsa, dcerpc_lsa_dissectors);
 }

@@ -1,8 +1,8 @@
-/* packet-msrpc-srvsvc.c
+/* packet-dcerpc-srvsvc.c
  * Routines for SMB \\PIPE\\srvsvc packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-msrpc-srvsvc.c,v 1.1 2001/11/12 08:58:43 guy Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.1 2001/11/21 02:08:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,19 +30,19 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-dcerpc.h"
-#include "packet-msrpc-srvsvc.h"
+#include "packet-dcerpc-srvsvc.h"
 
-static int proto_msrpc_srvsvc = -1;
-static gint ett_msrpc_srvsvc = -1;
+static int proto_dcerpc_srvsvc = -1;
+static gint ett_dcerpc_srvsvc = -1;
 
-static e_uuid_t uuid_msrpc_srvsvc = {
+static e_uuid_t uuid_dcerpc_srvsvc = {
         0x4b324fc8, 0x1670, 0x01d3,
         { 0x12, 0x78, 0x5a, 0x47, 0xbf, 0x6e, 0xe1, 0x88 }
 };
 
-static guint16 ver_msrpc_srvsvc = 3;
+static guint16 ver_dcerpc_srvsvc = 3;
 
-static dcerpc_sub_dissector msrpc_srvsvc_dissectors[] = {
+static dcerpc_sub_dissector dcerpc_srvsvc_dissectors[] = {
         { SRV_NETCONNENUM, "SRV_NETCONNENUM", NULL, NULL },
         { SRV_NETFILEENUM, "SRV_NETFILEENUM", NULL, NULL },
         { SRV_NETSESSENUM, "SRV_NETSESSENUM", NULL, NULL },
@@ -64,24 +64,24 @@ static dcerpc_sub_dissector msrpc_srvsvc_dissectors[] = {
 };
 
 void 
-proto_register_msrpc_srvsvc(void)
+proto_register_dcerpc_srvsvc(void)
 {
         static gint *ett[] = {
-                &ett_msrpc_srvsvc,
+                &ett_dcerpc_srvsvc,
         };
 
-        proto_msrpc_srvsvc = proto_register_protocol(
+        proto_dcerpc_srvsvc = proto_register_protocol(
                 "Microsoft Server Service", "SRVSVC", "srvsvc");
 
         proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
-proto_reg_handoff_msrpc_srvsvc(void)
+proto_reg_handoff_dcerpc_srvsvc(void)
 {
         /* Register protocol as dcerpc */
 
-        dcerpc_init_uuid(proto_msrpc_srvsvc, ett_msrpc_srvsvc, 
-                         &uuid_msrpc_srvsvc, ver_msrpc_srvsvc, 
-                         msrpc_srvsvc_dissectors);
+        dcerpc_init_uuid(proto_dcerpc_srvsvc, ett_dcerpc_srvsvc, 
+                         &uuid_dcerpc_srvsvc, ver_dcerpc_srvsvc, 
+                         dcerpc_srvsvc_dissectors);
 }

@@ -1,8 +1,8 @@
-/* packet-msrpc-samr.c
+/* packet-dcerpc-samr.c
  * Routines for SMB \\PIPE\\samr packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-msrpc-samr.c,v 1.1 2001/11/12 08:58:43 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.1 2001/11/21 02:08:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,19 +30,19 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-dcerpc.h"
-#include "packet-msrpc-samr.h"
+#include "packet-dcerpc-samr.h"
 
-static int proto_msrpc_samr = -1;
-static gint ett_msrpc_samr = -1;
+static int proto_dcerpc_samr = -1;
+static gint ett_dcerpc_samr = -1;
 
-static e_uuid_t uuid_msrpc_samr = {
+static e_uuid_t uuid_dcerpc_samr = {
         0x12345778, 0x1234, 0xabcd, 
         { 0xef, 0x00, 0x01, 0x23, 0x45, 0x67, 0x89, 0xac}
 };
 
-static guint16 ver_msrpc_samr = 1;
+static guint16 ver_dcerpc_samr = 1;
 
-static dcerpc_sub_dissector msrpc_samr_dissectors[] = {
+static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
         { SAMR_CONNECT_ANON, "SAMR_CONNECT_ANON", NULL, NULL },
         { SAMR_CLOSE_HND, "SAMR_CLOSE_HND", NULL, NULL },
         { SAMR_UNKNOWN_2, "SAMR_UNKNOWN_2", NULL, NULL },
@@ -104,23 +104,23 @@ static dcerpc_sub_dissector msrpc_samr_dissectors[] = {
 };
 
 void 
-proto_register_msrpc_samr(void)
+proto_register_dcerpc_samr(void)
 {
         static gint *ett[] = {
-                &ett_msrpc_samr,
+                &ett_dcerpc_samr,
         };
 
-        proto_msrpc_samr = proto_register_protocol(
+        proto_dcerpc_samr = proto_register_protocol(
                 "Microsoft Security Account Manager", "SAMR", "samr");
 
         proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
-proto_reg_handoff_msrpc_samr(void)
+proto_reg_handoff_dcerpc_samr(void)
 {
         /* Register protocol as dcerpc */
 
-        dcerpc_init_uuid(proto_msrpc_samr, ett_msrpc_samr, &uuid_msrpc_samr,
-                         ver_msrpc_samr, msrpc_samr_dissectors);
+        dcerpc_init_uuid(proto_dcerpc_samr, ett_dcerpc_samr, &uuid_dcerpc_samr,
+                         ver_dcerpc_samr, dcerpc_samr_dissectors);
 }

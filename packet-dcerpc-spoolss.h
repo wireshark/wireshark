@@ -2,7 +2,7 @@
  * Routines for SMB \\PIPE\\spoolss packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-msrpc-spoolss.h,v 1.1 2001/11/12 08:58:43 guy Exp $
+ * $Id: packet-dcerpc-spoolss.h,v 1.1 2001/11/21 02:08:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

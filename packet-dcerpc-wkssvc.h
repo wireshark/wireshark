@@ -1,8 +1,8 @@
-/* packet-msrpc-netlogon.h
- * Routines for SMB \\PIPE\\NETLOGON packet disassembly
+/* packet-msrpc-wkssvc.h
+ * Routines for SMB \\PIPE\\wkssvc packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-msrpc-netlogon.h,v 1.1 2001/11/12 08:58:43 guy Exp $
+ * $Id: packet-dcerpc-wkssvc.h,v 1.1 2001/11/21 02:08:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,22 +23,11 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __PACKET_MSRPC_NETLOGON_H
-#define __PACKET_MSRPC_NETLOGON_H
+#ifndef __PACKET_MSRPC_WKSSVC_H
+#define __PACKET_MSRPC_WKSSVC_H
 
-/* Functions available on the NETLOGON pipe.  From Samba, 
-   include/rpc_netlogon.h */
+/* Functions available on the WKSSVC pipe.  From Samba, include/rpc_wkssvc.h */
 
-#define NET_SAMLOGON           0x02
-#define NET_SAMLOGOFF          0x03
-#define NET_REQCHAL            0x04
-#define NET_AUTH               0x05
-#define NET_SRVPWSET           0x06
-#define NET_SAM_DELTAS         0x07
-#define NET_LOGON_CTRL         0x0c
-#define NET_AUTH2              0x0f
-#define NET_LOGON_CTRL2        0x0e
-#define NET_SAM_SYNC           0x10
-#define NET_TRUST_DOM_LIST     0x13
+#define WKS_QUERY_INFO    0x00
 
-#endif /* packet-msrpc-netlogon.h */
+#endif /* packet-msrpc-wkssvc.h */

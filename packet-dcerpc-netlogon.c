@@ -1,8 +1,8 @@
-/* packet-msrpc-netlogon.c
+/* packet-dcerpc-netlogon.c
  * Routines for SMB \\PIPE\\NETLOGON packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-msrpc-netlogon.c,v 1.1 2001/11/12 08:58:43 guy Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.1 2001/11/21 02:08:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,19 +30,19 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-dcerpc.h"
-#include "packet-msrpc-netlogon.h"
+#include "packet-dcerpc-netlogon.h"
 
-static int proto_msrpc_netlogon = -1;
-static gint ett_msrpc_netlogon = -1;
+static int proto_dcerpc_netlogon = -1;
+static gint ett_dcerpc_netlogon = -1;
 
-static e_uuid_t uuid_msrpc_netlogon = {
+static e_uuid_t uuid_dcerpc_netlogon = {
         0x12345678, 0x1234, 0xabcd,
         { 0xef, 0x00, 0x01, 0x23, 0x45, 0x67, 0xcf, 0xfb }
 };
 
-static guint16 ver_msrpc_netlogon = 1;
+static guint16 ver_dcerpc_netlogon = 1;
 
-static dcerpc_sub_dissector msrpc_netlogon_dissectors[] = {
+static dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
         { NET_SAMLOGON, "NET_SAMLOGON", NULL, NULL },
         { NET_SAMLOGOFF, "NET_SAMLOGOFF", NULL, NULL },
         { NET_REQCHAL, "NET_REQCHAL", NULL, NULL },
@@ -59,24 +59,24 @@ static dcerpc_sub_dissector msrpc_netlogon_dissectors[] = {
 };
 
 void 
-proto_register_msrpc_netlogon(void)
+proto_register_dcerpc_netlogon(void)
 {
         static gint *ett[] = {
-                &ett_msrpc_netlogon,
+                &ett_dcerpc_netlogon,
         };
 
-        proto_msrpc_netlogon = proto_register_protocol(
+        proto_dcerpc_netlogon = proto_register_protocol(
                 "Microsoft Network Logon", "NETLOGON", "rpc_netlogon");
 
         proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
-proto_reg_handoff_msrpc_netlogon(void)
+proto_reg_handoff_dcerpc_netlogon(void)
 {
         /* Register protocol as dcerpc */
 
-        dcerpc_init_uuid(proto_msrpc_netlogon, ett_msrpc_netlogon, 
-                         &uuid_msrpc_netlogon, ver_msrpc_netlogon, 
-                         msrpc_netlogon_dissectors);
+        dcerpc_init_uuid(proto_dcerpc_netlogon, ett_dcerpc_netlogon, 
+                         &uuid_dcerpc_netlogon, ver_dcerpc_netlogon, 
+                         dcerpc_netlogon_dissectors);
 }
