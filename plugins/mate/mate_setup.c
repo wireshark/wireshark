@@ -45,6 +45,23 @@ static GHashTable* actions = NULL;
 /* aestetics: I like keywords separated from user attributes */
 static AVPL* all_keywords = NULL;
 
+/* configuration error */
+GString* config_error;
+
+static void report_error(guint8* fmt, ...) {
+	static guint8 error_buffer[DEBUG_BUFFER_SIZE];
+
+	va_list list;
+	
+	va_start( list, fmt );
+	g_vsnprintf(error_buffer,DEBUG_BUFFER_SIZE,fmt,list);
+	va_end( list );
+	
+	g_string_append(config_error,error_buffer);
+	g_string_append_c(config_error,'\n');
+	
+}
+
 /* use as:  setting = extract_named_xxx(avpl,keyword,default_value); */
 static int extract_named_int(AVPL* avpl, guint8* keyword, int value) {
 	AVP* avp = NULL;
@@ -274,18 +291,18 @@ static gboolean mate_load_config(guint8* filename) {
 			
 			if (action) {
 				if ( ! action(avpl) ) {
-					g_warning("MATE: Error on: %s",avpl->name);
+					report_error("MATE: Error on: %s",avpl->name);
 					return FALSE;
 				}
 			} else {
-				g_warning("MATE: action '%s' unknown in: %s",name,avpl->name);
+				report_error("MATE: action '%s' unknown in: %s",name,avpl->name);
 				return FALSE;
 			}
 		}
 		
 		return TRUE;
 	} else {
-		g_warning("MATE: error reading config file: %s",loal->name);
+		report_error("MATE: error reading config file: %s",loal->name);
 		return FALSE;
 	}
 }
@@ -316,7 +333,7 @@ static gboolean add_hfid(guint8* what, guint8* how, GHashTable* where) {
 		if (( as = g_hash_table_lookup(where,ip) )) {
 			g_free(ip);
 			if (! g_str_equal(as,how)) {
-				g_warning("MATE Error: add field to Pdu: attempt to add %s(%i) as %s"
+				report_error("MATE Error: add field to Pdu: attempt to add %s(%i) as %s"
 						  " failed: field already added as '%s'",what,hfi->id,how,as);
 				return FALSE;
 			}
@@ -333,7 +350,7 @@ static gboolean add_hfid(guint8* what, guint8* how, GHashTable* where) {
 	}
 
 	if (! exists) {
-		g_warning("MATE Error: cannot find field %s",what);
+		report_error("MATE Error: cannot find field %s",what);
 	}
 
 	return exists;
@@ -351,14 +368,14 @@ static gboolean config_pdu(AVPL* avpl) {
 	AVP* attr_avp;
 
 	if (! name ) {
-		g_warning("MATE: PduDef: No Name in: %s",avpl->name);
+		report_error("MATE: PduDef: No Name in: %s",avpl->name);
 		return FALSE;		
 	}
 	
 	if (! cfg) {
 		cfg = new_pducfg(name);
 	} else {
-		g_warning("MATE: PduDef: No such PDU: '%s' in: %s",cfg->name,avpl->name);
+		report_error("MATE: PduDef: No such PDU: '%s' in: %s",cfg->name,avpl->name);
 		return FALSE;
 	}
 
@@ -371,7 +388,7 @@ static gboolean config_pdu(AVPL* avpl) {
 	if (hfi) {
 		cfg->hfid_proto = hfi->id;
 	} else {
-		g_warning("MATE: PduDef: no such proto: '%s' in: %s",proto,avpl->name);
+		report_error("MATE: PduDef: no such proto: '%s' in: %s",proto,avpl->name);
 		return FALSE;
 	}
 
@@ -390,7 +407,7 @@ static gboolean config_pdu(AVPL* avpl) {
 					g_ptr_array_add(cfg->hfid_ranges,(gpointer)hfidp);
 					g_string_sprintfa(matecfg->mate_attrs_filter, "||%s",transports[i]);
 				} else {
-					g_warning("MATE: PduDef: no such proto: '%s' for Transport in: %s",proto,avpl->name);
+					report_error("MATE: PduDef: no such proto: '%s' for Transport in: %s",proto,avpl->name);
 					g_strfreev(transports);
 					return FALSE;
 				}
@@ -399,13 +416,13 @@ static gboolean config_pdu(AVPL* avpl) {
 			g_strfreev(transports);
 		}
 	} else {
-		g_warning("MATE: PduDef: no Transport for '%s' in: %s",cfg->name,avpl->name);
+		report_error("MATE: PduDef: no Transport for '%s' in: %s",cfg->name,avpl->name);
 		return FALSE;
 	}
 
 	while (( attr_avp = extract_first_avp(avpl) )) {
 		if ( ! add_hfid(attr_avp->v,attr_avp->n,cfg->hfids_attr) ) {
-			g_warning("MATE: PduDef: failed to set PDU attribute '%s' in: %s",attr_avp->n,avpl->name);
+			report_error("MATE: PduDef: failed to set PDU attribute '%s' in: %s",attr_avp->n,avpl->name);
 			return FALSE;
 		}
 		g_string_sprintfa(matecfg->mate_attrs_filter, "||%s",attr_avp->v);
@@ -420,12 +437,12 @@ static gboolean config_pduextra(AVPL* avpl) {
 	mate_cfg_pdu* cfg = lookup_using_index_avp(avpl,KEYWORD_FOR,matecfg->pducfgs,&name);
 
 	if (! name ) {
-		g_warning("MATE: PduExtra: No For in: %s",avpl->name);
+		report_error("MATE: PduExtra: No For in: %s",avpl->name);
 		return FALSE;		
 	}
 
 	if (! cfg) {
-		g_warning("MATE: PduExtra: no such Pdu '%s' in: %s",name,avpl->name);
+		report_error("MATE: PduExtra: no such Pdu '%s' in: %s",name,avpl->name);
 		return FALSE;
 	}
 
@@ -435,7 +452,7 @@ static gboolean config_pduextra(AVPL* avpl) {
 
 	while (( attr_avp = extract_first_avp(avpl) )) {
 		if ( ! add_hfid(attr_avp->v,attr_avp->n,cfg->hfids_attr) ) {
-			g_warning("MATE: PduExtra: failed to set attr '%s' in: %s",attr_avp->n,avpl->name);
+			report_error("MATE: PduExtra: failed to set attr '%s' in: %s",attr_avp->n,avpl->name);
 			delete_avp(attr_avp);
 			return FALSE;
 		}
@@ -456,12 +473,12 @@ static gboolean config_pducriteria(AVPL* avpl) {
 	guint8* mode = extract_named_str(avpl, KEYWORD_MODE, NULL);
 
 	if (! name ) {
-		g_warning("MATE: PduCriteria: No For in: %s",avpl->name);
+		report_error("MATE: PduCriteria: No For in: %s",avpl->name);
 		return FALSE;		
 	}
 	
 	if (!cfg) {
-		g_warning("MATE: PduCriteria: Pdu '%s' does not exist in: %s",name,avpl->name);
+		report_error("MATE: PduCriteria: Pdu '%s' does not exist in: %s",name,avpl->name);
 		return FALSE;
 	}
 
@@ -471,7 +488,7 @@ static gboolean config_pducriteria(AVPL* avpl) {
 		} else if ( g_strcasecmp(mode,KEYWORD_REJECT) == 0 ) {
 			mode = matecfg->reject;
 		} else {
-			g_warning("MATE: PduCriteria: no such criteria mode: '%s' in %s",mode,avpl->name);
+			report_error("MATE: PduCriteria: no such criteria mode: '%s' in %s",mode,avpl->name);
 			return FALSE;
 		}
 	} else {
@@ -488,7 +505,7 @@ static gboolean config_pducriteria(AVPL* avpl) {
 		} else if ( g_strcasecmp(match,KEYWORD_STRICT) == 0 ) {
 			match_mode = AVPL_STRICT;
 		} else {
-			g_warning("MATE: PduCriteria: Config error: no such match mode '%s' in: %s",match,avpl->name);
+			report_error("MATE: PduCriteria: Config error: no such match mode '%s' in: %s",match,avpl->name);
 			return FALSE;
 		}
 	}
@@ -497,7 +514,7 @@ static gboolean config_pducriteria(AVPL* avpl) {
 
 	if (cfg->criterium) {
 		/* FEATURE: more criteria */
-		g_warning("MATE: PduCriteria: PduCriteria alredy exists for '%s' in: %s",name,avpl->name);
+		report_error("MATE: PduCriteria: PduCriteria alredy exists for '%s' in: %s",name,avpl->name);
 		return FALSE;
 	}
 
@@ -513,12 +530,12 @@ static gboolean config_include(AVPL* avpl) {
 	guint8* lib = extract_named_str(avpl,KEYWORD_LIB,NULL);
 
 	if ( ! filename && ! lib ) {
-		g_warning("MATE: Include: no Filename or Lib given in: %s",avpl->name);
+		report_error("MATE: Include: no Filename or Lib given in: %s",avpl->name);
 		return FALSE;
 	}
 
 	if ( filename && lib ) {
-		g_warning("MATE: Include: use either Filename or Lib, not both. in: %s",avpl->name);
+		report_error("MATE: Include: use either Filename or Lib, not both. in: %s",avpl->name);
 		return FALSE;
 	}
 
@@ -528,7 +545,7 @@ static gboolean config_include(AVPL* avpl) {
 
 	/* FIXME: stop recursion */
 	if ( ! mate_load_config(filename) ) {
-		g_warning("MATE: Include: Error Loading '%s' in: %s",filename,avpl->name);
+		report_error("MATE: Include: Error Loading '%s' in: %s",filename,avpl->name);
 		if (lib) g_free(filename);
 		return FALSE;
 	}
@@ -601,7 +618,7 @@ static gboolean config_transform(AVPL* avpl) {
 		} else if ( g_strcasecmp(match,KEYWORD_STRICT) == 0 ) {
 			match_mode = AVPL_STRICT;
 		} else {
-			g_warning("MATE: Transform: no such match mode: '%s' in: %s",match,avpl->name);
+			report_error("MATE: Transform: no such match mode: '%s' in: %s",match,avpl->name);
 			return FALSE;
 		}
 	} else {
@@ -614,7 +631,7 @@ static gboolean config_transform(AVPL* avpl) {
 		} else if ( g_strcasecmp(mode,KEYWORD_REPLACE) == 0 ) {
 			replace_mode = AVPL_REPLACE;
 		} else {
-			g_warning("MATE: Transform: no such replace mode: '%s' in: %s",mode,avpl->name);
+			report_error("MATE: Transform: no such replace mode: '%s' in: %s",mode,avpl->name);
 			return FALSE;
 		}
 
@@ -623,7 +640,7 @@ static gboolean config_transform(AVPL* avpl) {
 	}
 
 	if (! name) {
-		g_warning("MATE: Transform: no Name in: %s",avpl->name);
+		report_error("MATE: Transform: no Name in: %s",avpl->name);
 		return FALSE;
 	}
 
@@ -646,22 +663,22 @@ static gboolean config_xxx_transform(AVPL* avpl, GHashTable* hash, guint8* keywo
 	mate_cfg_pdu* cfg = lookup_using_index_avp(avpl,KEYWORD_FOR,hash,&cfg_name);;
 	
 	if (! name ) {
-		g_warning("MATE: %s: no Name in: %s",keyword,avpl->name);
+		report_error("MATE: %s: no Name in: %s",keyword,avpl->name);
 		return FALSE;
 	}
 
 	if (! cfg_name ) {
-		g_warning("MATE: %s: no For in: %s",keyword,avpl->name);
+		report_error("MATE: %s: no For in: %s",keyword,avpl->name);
 		return FALSE;
 	}
 
 	if (! cfg ) {
-		g_warning("MATE: %s: '%s' doesn't exist in: %s",keyword,cfg_name,avpl->name);
+		report_error("MATE: %s: '%s' doesn't exist in: %s",keyword,cfg_name,avpl->name);
 		return FALSE;
 	}
 
 	if (!transf) {
-		g_warning("MATE: %s: Transform '%s' doesn't exist in: %s",keyword,name,avpl->name);
+		report_error("MATE: %s: Transform '%s' doesn't exist in: %s",keyword,name,avpl->name);
 		return FALSE;
 	}
 
@@ -688,24 +705,24 @@ static gboolean config_gop(AVPL* avpl) {
 	guint8* on = extract_named_str(avpl,KEYWORD_ON,NULL);
 
 	if (! name ) {
-		g_warning("MATE: GopDef: no Name in: %s",avpl->name);
+		report_error("MATE: GopDef: no Name in: %s",avpl->name);
 		return FALSE;
 	}
 	
 	if (!cfg) {
 		cfg = new_gopcfg(name);
 	} else {
-		g_warning("MATE: GopDef: Gop '%s' exists already in: %s",name,avpl->name);
+		report_error("MATE: GopDef: Gop '%s' exists already in: %s",name,avpl->name);
 		return FALSE;
 	}
 
 	if (! on ) {
-		g_warning("MATE: GopDef: no On in: %s",avpl->name);
+		report_error("MATE: GopDef: no On in: %s",avpl->name);
 		return FALSE;
 	}
 
 	if (g_hash_table_lookup(matecfg->gops_by_pduname,on) ) {
-		g_warning("MATE: GopDef: Gop for Pdu '%s' exists already in: %s",on,avpl->name);
+		report_error("MATE: GopDef: Gop for Pdu '%s' exists already in: %s",on,avpl->name);
 		return FALSE;
 	} else {
 		g_hash_table_insert(matecfg->gops_by_pduname,on,cfg);
@@ -725,18 +742,18 @@ static gboolean config_start(AVPL* avpl) {
 	mate_cfg_gop* cfg = lookup_using_index_avp(avpl, KEYWORD_FOR,matecfg->gopcfgs,&name);;
 
 	if (! name ) {
-		g_warning("MATE: GopStart: no For in: %s",avpl->name);
+		report_error("MATE: GopStart: no For in: %s",avpl->name);
 		return FALSE;
 	}
 	
 	if (!cfg) {
-		g_warning("MATE: GopStart: Gop '%s' doesn't exist in: %s",name,avpl->name);
+		report_error("MATE: GopStart: Gop '%s' doesn't exist in: %s",name,avpl->name);
 		return FALSE;
 	}
 
 	if (cfg->start) {
 		/* FEATURE: more start conditions */
-		g_warning("MATE: GopStart: GopStart for '%s' exists already in: %s",name,avpl->name);
+		report_error("MATE: GopStart: GopStart for '%s' exists already in: %s",name,avpl->name);
 		return FALSE;
 	}
 
@@ -750,17 +767,17 @@ static gboolean config_stop(AVPL* avpl) {
 	mate_cfg_gop* cfg = lookup_using_index_avp(avpl, KEYWORD_FOR,matecfg->gopcfgs,&name);;
 	
 	if (! name ) {
-		g_warning("MATE: GopStop: no For in: %s",avpl->name);
+		report_error("MATE: GopStop: no For in: %s",avpl->name);
 		return FALSE;
 	}
 	
 	if (!cfg) {
-		g_warning("MATE: GopStop: Gop '%s' doesn't exist in: %s",name,avpl->name);
+		report_error("MATE: GopStop: Gop '%s' doesn't exist in: %s",name,avpl->name);
 		return FALSE;
 	}
 
 	if (cfg->stop) {
-		g_warning("MATE: GopStop: GopStop alredy exists for '%s' in: %s",name,avpl->name);
+		report_error("MATE: GopStop: GopStop alredy exists for '%s' in: %s",name,avpl->name);
 		return FALSE;
 	}
 
@@ -774,12 +791,12 @@ static gboolean config_gopextra(AVPL* avpl) {
 	mate_cfg_gop* cfg = lookup_using_index_avp(avpl, KEYWORD_FOR,matecfg->gopcfgs,&name);;
 
 	if (! name ) {
-		g_warning("MATE: GopExtra: no For in: %s",avpl->name);
+		report_error("MATE: GopExtra: no For in: %s",avpl->name);
 		return FALSE;
 	}
 	
 	if (!cfg) {
-		g_warning("MATE: GopExtra: Gop '%s' does not exist in: %s",name,avpl->name);
+		report_error("MATE: GopExtra: Gop '%s' does not exist in: %s",name,avpl->name);
 		return FALSE;
 	}
 
@@ -797,12 +814,12 @@ static gboolean config_gog(AVPL* avpl) {
 	mate_cfg_gog* cfg = NULL;
 
 	if (! name ) {
-		g_warning("MATE: GogDef: no Name in: %s",avpl->name);
+		report_error("MATE: GogDef: no Name in: %s",avpl->name);
 		return FALSE;
 	}
 	
 	if ( g_hash_table_lookup(matecfg->gogcfgs,name) ) {
-		g_warning("MATE: GogDef: Gog '%s' exists already in: %s",name,avpl->name);
+		report_error("MATE: GogDef: Gog '%s' exists already in: %s",name,avpl->name);
 		return FALSE;
 	}
 
@@ -823,15 +840,15 @@ static gboolean config_gogkey(AVPL* avpl) {
 
 	if ( ! name || ! cfg ) {
 		if ( ! name )
-			g_warning("MATE: GogKey: no Name in %s",avpl->name);
+			report_error("MATE: GogKey: no Name in %s",avpl->name);
 		else
-			g_warning("MATE: GogKey: no such Gop '%s' in %s",name,avpl->name);
+			report_error("MATE: GogKey: no such Gop '%s' in %s",name,avpl->name);
 
 		return FALSE;
 	}
 
 	if (! on ) {
-		g_warning("MATE: GogKey: no On in %s",avpl->name);
+		report_error("MATE: GogKey: no On in %s",avpl->name);
 		return FALSE;
 	}
 
@@ -859,9 +876,9 @@ static gboolean config_gogextra(AVPL* avpl) {
 
 	if ( ! name || ! cfg ) {
 		if ( ! name )
-			g_warning("MATE: GogExtra: no Name in %s",avpl->name);
+			report_error("MATE: GogExtra: no Name in %s",avpl->name);
 		else
-			g_warning("MATE: GogExtra: no such Gop '%s' in %s",name,avpl->name);
+			report_error("MATE: GogExtra: no such Gop '%s' in %s",name,avpl->name);
 
 		return FALSE;
 	}
@@ -1595,11 +1612,15 @@ extern mate_config* mate_make_config(guint8* filename) {
 
 	matecfg->show_pdu_tree = matecfg->frame_tree;
 
+	config_error = g_string_new("");
+	
 	if ( mate_load_config(filename) ) {
 		analyze_config();
 		dbg_print (dbg_cfg,3,dbg_facility,"mate_make_config: OK");
 		if (dbg_cfg_lvl > 0) print_config();
 	} else {
+		report_failure("%s",config_error->str);
+		g_string_free(config_error,TRUE);
 		if (matecfg) destroy_mate_config(matecfg,FALSE);
 		matecfg = NULL;
 		return NULL;

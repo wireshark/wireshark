@@ -38,6 +38,7 @@ static mate_config* mc = NULL;
 static int proto_mate = -1;
 
 static char* pref_mate_config_filename = "";
+static char* current_mate_config_filename = NULL;
 
 static proto_item *mate_i = NULL;
 
@@ -223,7 +224,7 @@ extern void mate_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	
 	if ( ! mc || ! tree ) return;
 
-	analyze_frame(pinfo,tree);
+	mate_analyze_frame(pinfo,tree);
 
 	if (( pdus = mate_get_pdus(pinfo->fd->num) )) {
 		for ( ; pdus; pdus = pdus->next_in_frame) {
@@ -261,12 +262,20 @@ proto_reg_handoff_mate(void)
 {
 	if ( *pref_mate_config_filename != '\0' ) {
 		
-		mc = mate_make_config(pref_mate_config_filename);
+		if (current_mate_config_filename) {
+			report_failure("Mate cannot reconfigure itself.\n"
+						   "for changes to be applied you have to save the preferences and restart ethereal\n");
+			return;
+		} 
 		
-		if (mc) {
-			proto_register_field_array(proto_mate, (hf_register_info*) mc->hfrs->data, mc->hfrs->len );
-			proto_register_subtree_array((gint**) mc->ett->data, mc->ett->len);
-			register_init_routine(init_mate);
+		if (!mc) { 
+			mc = mate_make_config(pref_mate_config_filename);
+			current_mate_config_filename = pref_mate_config_filename;
+			if (mc) {
+				proto_register_field_array(proto_mate, (hf_register_info*) mc->hfrs->data, mc->hfrs->len );
+				proto_register_subtree_array((gint**) mc->ett->data, mc->ett->len);
+				register_init_routine(init_mate);
+			}
 		}
 	}
 }

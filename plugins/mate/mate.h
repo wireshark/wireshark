@@ -32,19 +32,26 @@
 # include "config.h"
 #endif
 
+#ifndef ENABLE_STATIC
 #include "plugins/plugin_api.h"
 #include "moduleinfo.h"
-
 #include <gmodule.h>
+#else 
+#include <glib.h>
+#endif
+
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
-#include <stdio.h>
-#include <string.h>
 #include <epan/proto.h>
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 #include <epan/filesystem.h>
+#include <epan/report_err.h>
 
 #include "mate_util.h"
 #include "plugins/plugin_api_defs.h"
@@ -52,7 +59,6 @@
 
 /* defaults */
 
-#define DEFAULT_MAX_MATE_ITEMS 0
 #define DEFAULT_GOG_EXPIRATION 2.0
 
 #ifdef WIN32
@@ -317,7 +323,7 @@ struct _mate_item {
 /* from mate_runtime.c */
 extern void initialize_mate_runtime(void);
 extern mate_pdu* mate_get_pdus(guint32 framenum);
-extern void analyze_frame(packet_info *pinfo, proto_tree* tree);
+extern void mate_analyze_frame(packet_info *pinfo, proto_tree* tree);
 extern int mate_packet(void* _U_, packet_info* _U_, epan_dissect_t* _U_,const void* _U_);
 
 /* from mate_setup.c */

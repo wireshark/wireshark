@@ -25,28 +25,7 @@
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-#include "config.h"
-#include <glib.h>
-#include <stdio.h>
-#include <string.h>
 #include "mate.h"
-#include "mate_util.h"
-
-/* TODO:
-+ fix debug_print levels
-+ chunks for scs_strings (do I realy need em??)
-	+ checking bounds in (almost) every operator
-- operators
-	+ rethink '&' operator
-	- bounds check on op_match()
-	? change &{} into []
-	? add {xxx} to get avps named xxxx from the src avpl
-	? add (yyy) to do aaa+31 or and similar stuff
-	- add perlre operator?
- - transform
-	+ map (N->M hash)
-*/
-
 
 /***************************************************************************
 *  dbg_print
@@ -324,7 +303,7 @@ static int* dbg_avpl_op = &dbg_avpl_op_level;
  * @avpl: a pointer to the level of debugging of facility "avpl"
  * @avpl_op: a pointer to the level of debugging of facility "avpl_op"
  *
- * (If enabled set's up the debug facilities for the avp library.
+ * If enabled set's up the debug facilities for the avp library.
  *
  **/
 extern void setup_avp_debug(FILE* fp, int* general, int* avp, int* avp_op, int* avpl, int* avpl_op) {
@@ -347,13 +326,10 @@ extern void setup_avp_debug(FILE* fp, int* general, int* avp, int* avp_op, int* 
  **/
 extern void avp_init(void) {
 
+	if (avp_strings) destroy_scs_collection(avp_strings);
 	avp_strings = scs_init();
 
-
-	if ( avp_chunk ) {
-		g_mem_chunk_destroy(avp_chunk);
-	}
-
+	if ( avp_chunk ) g_mem_chunk_destroy(avp_chunk);
 	avp_chunk = g_mem_chunk_new("avp_chunk", sizeof(any_avp_type),
 								AVP_CHUNK_SIZE, G_ALLOC_AND_FREE);
 
@@ -964,106 +940,6 @@ extern AVPL* new_avpl_from_avpl(guint8* name, AVPL* avpl, gboolean copy_avps) {
 
 	return newavpl;
 }
-
-
-#define TRANS_NUM   '-': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9': case '0'
-
-/* BROKEN, makes no sense right now */
-/* FIXME: Use subscribe/unsubscribe */
-#if 0
-static AVP* avp_transform(AVP* src, AVP* op) {
-	unsigned int i;
-	guint8 c;
-
-	GString* replace_str = NULL;
-	GString* num_str = NULL;
-	GString* return_str = NULL;
-	guint8* v;
-	long num = 0;
-
-	enum _tranf_state {
-		START,
-		IN_NUM,
-		IN_REPLACE,
-		END
-	} state;
-
-	state = START;
-
-	for(i = 0; i < strlen(op->v); i++) {
-		c= op->v[i];
-
-		if (state == END) break;
-
-		switch(state) {
-			case START:
-				switch(c) {
-					case '{':
-						num_str = g_string_new("");
-						state = IN_NUM;
-						continue;
-					default:
-						continue;
-				};
-			case IN_NUM:
-				switch(c) {
-					case TRANS_NUM:
-						g_string_append_c(num_str,c);
-						continue;
-					case ':':
-						num = strtol(num_str->str,NULL,10);
-						g_string_free(num_str,TRUE);
-						replace_str = g_string_new("");
-						state = IN_REPLACE;
-						continue;
-					default:
-						/* will ignore any char that is not a number */
-						continue;
-				};
-			case IN_REPLACE:
-				switch(c) {
-					case '\\':
-						continue;
-					case '}':
-						state = END;
-						continue;
-					default :
-						g_string_append_c(replace_str,c);
-						continue;
-				}
-			case END:
-				/* it will never reach */
-				continue;
-		}
-
-	}
-
-	v = src->v;
-
-	if (num > 0) {
-		return_str = g_string_new(v);
-		g_string_erase(return_str,0,num);
-		g_string_prepend(return_str,replace_str->str);
-	} else if (num < 0) {
-		return_str = g_string_new(v);
-		g_string_truncate(return_str,return_str->len+num);
-		g_string_append(return_str,replace_str->str);
-
-	} else {
-		return_str = g_string_new(replace_str->str);
-	}
-
-	g_mem_chunk_free(avp_chunk,v);
-	g_string_free(replace_str,TRUE);
-
-	src->o = '=';
-	src->v = return_str->str;
-	g_string_free(return_str,FALSE);
-
-	return src;
-}
-
-#endif
 
 /**
 * match_avp:
@@ -1796,8 +1672,7 @@ extern LoAL* loal_from_file(guint8* filename) {
 
 #ifndef _WIN32
 	if (! getuid()) {
-		g_warning( "MATE Will not run as root");
-		return NULL;
+		return load_loal_error(fp,loal,curr,linenum,"MATE Will not run as root");
 	}
 #endif
 
@@ -1808,6 +1683,7 @@ extern LoAL* loal_from_file(guint8* filename) {
 
 			if ( feof(fp) ) {
 				if ( ferror(fp) ) {
+					report_read_failure(filename,errno);
 					return load_loal_error(fp,loal,curr,linenum,"Error while reading '%f'",filename);
 				}
 				break;
@@ -1940,6 +1816,7 @@ extern LoAL* loal_from_file(guint8* filename) {
 		return loal;
 
 	} else {
+		report_open_failure(filename,errno,FALSE);
 		return load_loal_error(NULL,loal,NULL,0,"Cannot Open file '%s'",filename);
 	}
 }

@@ -740,7 +740,7 @@ static void delete_mate_pdu(mate_pdu* pdu) {
 	g_mem_chunk_free(rd->mate_items,pdu);	
 }
 
-extern void analyze_frame(packet_info *pinfo, proto_tree* tree) {
+extern void mate_analyze_frame(packet_info *pinfo, proto_tree* tree) {
 	mate_cfg_pdu* cfg;
 	GPtrArray* protos;
 	field_info* proto;
