@@ -850,6 +850,7 @@ Marc Milgram <mmilgram[AT]arrayinc.com> {
 
 Gordon McKinney <gordon[AT]night-ray.com> {
 	Enhanced Ethereal icon for Windows
+	Support for time stamping packets in text2pcap
 }
 
 Pavel Novotny <Pavel.Novotny[AT]icn.siemens.de> {

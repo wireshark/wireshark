@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.383 2001/11/22 03:07:05 hagbard Exp $
+# $Id: Makefile.am,v 1.384 2001/11/24 08:14:10 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -640,8 +640,15 @@ tethereal_static_LDADD = \
 tethereal_LDFLAGS = -export-dynamic
 tethereal_static_LDFLAGS = -Wl,-static
 
+# Optional objects that I know how to build, and that are needed by
+# text2pcap.
+text2pcap_optional_objects = @STRERROR_O@ @STRPTIME_O@
+
 text2pcap_SOURCES = text2pcap.c text2pcap-scanner.l
 text2pcap_DEPENDENCIES = text2pcap.h
+
+# This automake variable adds to the link-line for the executable
+text2pcap_LDADD = $(text2pcap_optional_objects)
 
 mergecap_SOURCES = mergecap.c
 mergecap_DEPENDENCIES = wiretap/libwiretap.a

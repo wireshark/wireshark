@@ -6,7 +6,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.c,v 1.6 2001/11/24 07:55:07 guy Exp $
+ * $Id: text2pcap.c,v 1.7 2001/11/24 08:14:10 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,9 +81,11 @@
 # include "config.h"
 #endif
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <sys/types.h>
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
@@ -99,6 +101,10 @@
 
 #ifdef NEED_GETOPT_H
 # include "getopt.h"
+#endif
+
+#ifdef NEED_STRPTIME_H
+# include "strptime.h"
 #endif
 
 #ifndef TRUE
@@ -135,12 +141,22 @@ unsigned long hdr_udp_src = 0;
 
 /* This is where we store the packet currently being built */
 #define MAX_PACKET 64000
-unsigned char   packet_buf[MAX_PACKET];
+unsigned char packet_buf[MAX_PACKET];
 unsigned long curr_offset = 0;
+
+/* This buffer contains strings present before the packet offset 0 */
+#define PACKET_PREAMBLE_MAX_LEN	2048
+static unsigned char packet_preamble[PACKET_PREAMBLE_MAX_LEN+1];
+static int packet_preamble_len = 0;
 
 /* Number of packets read and written */
 unsigned long num_packets_read = 0;
 unsigned long num_packets_written = 0;
+
+/* Time code of packet, derived from packet_preamble */
+static unsigned long ts_sec  = 0;
+static unsigned long ts_usec = 0;
+static char *ts_fmt = NULL;
 
 /* Input file */
 char *input_filename;
@@ -344,8 +360,8 @@ write_current_packet (void)
         }
 
         /* Write PCap header */
-        ph.ts_sec = num_packets_written;
-        ph.ts_usec = num_packets_written;
+        ph.ts_sec = ts_sec;
+        ph.ts_usec = ts_usec;
         ph.incl_len = length;
         ph.orig_len = length;
         fwrite(&ph, sizeof(ph), 1, output_file);
@@ -410,6 +426,116 @@ write_file_header (void)
 }
 
 /*----------------------------------------------------------------------
+ * Append a token to the packet preamble.
+ */
+static void
+append_to_preamble(char *str)
+{
+    size_t toklen;
+
+    if (packet_preamble_len != 0) {
+        if (packet_preamble_len == PACKET_PREAMBLE_MAX_LEN)
+            return;	/* no room to add more preamble */
+        /* Add a blank separator between the previous token and this token. */
+        packet_preamble[packet_preamble_len++] = ' ';
+    }
+    toklen = strlen(str);
+    if (toklen != 0) {
+        if (packet_preamble_len + toklen > PACKET_PREAMBLE_MAX_LEN)
+            return;	/* no room to add the token to the preamble */
+        strcpy(&packet_preamble[packet_preamble_len], str);
+        packet_preamble_len += toklen;
+    }
+}
+
+/*----------------------------------------------------------------------
+ * Parse the preamble to get the timecode.
+ */
+static void
+parse_preamble (void)
+{
+	struct tm timecode;
+	char *subsecs;
+	char *p;
+	int  subseclen;
+	int  i;
+
+	/*
+	 * If no "-t" flag was specified, don't attempt to parse a packet
+	 * preamble to extract a time stamp.
+	 */
+	if (ts_fmt == NULL)
+	    return;
+
+	ts_sec  = 0;
+	ts_usec = 0;
+
+	/*
+	 * Null-terminate the preamble.
+	 */
+	packet_preamble[packet_preamble_len] = '\0';
+
+	/* Ensure preamble has more than two chars before atempting to parse.
+	 * This should cover line breaks etc that get counted.
+	 */
+	if ( strlen(packet_preamble) > 2 ) {
+		memset(&timecode, '\0', sizeof timecode);
+
+		/* Get Time leaving subseconds */
+		subsecs = strptime( packet_preamble, ts_fmt, &timecode );
+		if (subsecs != NULL) {
+			/* Get the long time from the tm structure */
+			ts_sec  = (unsigned long)mktime( &timecode );
+		} else
+			ts_sec = -1;	/* we failed to parse it */
+
+		/* This will ensure incorrectly parsed dates get set to zero */
+		if ( -1L == (long)ts_sec ) 
+		{
+			ts_sec  = 0;
+			ts_usec = 0;
+		}
+		else
+		{
+			/* Parse subseconds */
+			ts_usec = strtol(subsecs, &p, 10);
+			if (subsecs == p) {
+				/* Error */
+				ts_usec = 0;
+			} else {
+				/*
+				 * Convert that number to a number
+				 * of microseconds; if it's N digits
+				 * long, it's in units of 10^(-N) seconds,
+				 * so, to convert it to units of
+				 * 10^-6 seconds, we multiply by
+				 * 10^(6-N).
+				 */
+				subseclen = p - subsecs;
+				if (subseclen > 6) {
+					/*
+					 * *More* than 6 digits; 6-N is
+					 * negative, so we divide by
+					 * 10^(N-6).
+					 */
+					for (i = subseclen - 6; i != 0; i--)
+						ts_usec /= 10;
+				} else if (subseclen < 6) {
+					for (i = 6 - subseclen; i != 0; i--)
+						ts_usec *= 10;
+				}
+			}
+		}
+	}
+
+
+	/*printf("Format(%s), time(%u), subsecs(%u)\n\n", ts_fmt, ts_sec, ts_usec);*/
+	
+	/* Clear Preamble */
+	packet_preamble_len = 0;
+}
+
+/*----------------------------------------------------------------------
  * Start a new packet 
  */
 static void
@@ -422,6 +548,9 @@ start_new_packet (void)
     write_current_packet();
     curr_offset = 0;
     num_packets_read ++;
+
+    /* Ensure we parse the packet preamble as it may contain the time */
+    parse_preamble();
 }
 
 /*----------------------------------------------------------------------
@@ -462,6 +591,9 @@ parse_token (token_t token, char *str)
     /* ----- Waiting for new packet -------------------------------------------*/
     case INIT:
         switch(token) {
+        case T_TEXT:
+            append_to_preamble(str);
+            break;
         case T_DIRECTIVE:
             process_directive(str);
             break;
@@ -481,6 +613,9 @@ parse_token (token_t token, char *str)
     /* ----- Processing packet, start of new line -----------------------------*/
     case START_OF_LINE:
         switch(token) {
+        case T_TEXT:
+            append_to_preamble(str);
+            break;
         case T_DIRECTIVE:
             process_directive(str);
             break;
@@ -590,7 +725,7 @@ help (char *progname)
     fprintf(stderr, 
             "\n"
             "Usage: %s [-d] [-q] [-o h|o] [-l typenum] [-e l3pid] [-i proto] \n"
-            "          [-u srcp destp] <input-filename> <output-filename>\n"
+            "          [-u srcp destp] [-t timefmt] <input-filename> <output-filename>\n"
             "\n"
             "where <input-filename> specifies input filename (use - for standard input)\n"
             "      <output-filename> specifies output filename (use - for standard output)\n"
@@ -610,7 +745,11 @@ help (char *progname)
             "                Automatically prepends Ethernet header as well. Example: -i 46\n"
             " -u srcp destp: Prepend dummy UDP header with specified dest and source ports (in DECIMAL).\n"
             "                Automatically prepends Ethernet and IP headers as well\n"
-            "                Example: -u 30 40"
+            "                Example: -u 30 40\n"
+            " -t timefmt   : Treats the text before the packet as a time code parsed by strptime format patterns.\n"
+            "                Example: The time \"10:15:14.5476\" has the format code \"%%H:%%M:%%S.\"\n"
+            "                NOTE:    The subsecond component delimiter must be specified (.) but no\n"
+            "                         pattern is required; the remaining number is assumed to be subseconds."
             "\n", 
             progname);
 
@@ -627,7 +766,7 @@ parse_options (int argc, char *argv[])
     char *p;
 
     /* Scan CLI parameters */
-    while ((c = getopt(argc, argv, "dqr:w:e:i:l:o:u:")) != -1) {
+    while ((c = getopt(argc, argv, "dqr:w:e:i:l:o:u:t:")) != -1) {
         switch(c) {
         case '?': help(argv[0]); break;
         case 'h': help(argv[0]); break;
@@ -657,6 +796,10 @@ parse_options (int argc, char *argv[])
             }
             hdr_ethernet = TRUE;
             hdr_ethernet_proto = 0x800;
+            break;
+
+        case 't':
+            ts_fmt = optarg;
             break;
             
         case 'u':

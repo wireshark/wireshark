@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.143 2001/11/21 02:08:57 guy Exp $
+# $Id: Makefile.nmake,v 1.144 2001/11/24 08:14:10 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -350,7 +350,7 @@ mergecap.exe	: config.h mergecap.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).
 		/OUT:mergecap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console mergecap.obj getopt.obj $(mergecap_LIBS) image\mergecap.res
 <<
 
-text2pcap.exe	: config.h text2pcap.obj text2pcap-scanner.obj getopt.obj image\text2pcap.res
+text2pcap.exe	: config.h text2pcap.obj text2pcap-scanner.obj getopt.obj strptime.obj image\text2pcap.res
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console text2pcap.obj text2pcap-scanner.obj getopt.obj image\text2pcap.res

@@ -13,6 +13,7 @@ S<[ B<-l> typenum ]>
 S<[ B<-e> l3pid ]>
 S<[ B<-i> proto ]>
 S<[ B<-u> srcport,destport ]>
+S<[ B<-t> timefmt ]>
 I<infile>
 I<outfile>
 
@@ -132,6 +133,15 @@ IP or Ethernet headers. Note that this automatically includes
 appropriate Ethernet and IP headers with each packet. Example: I<-u
 1000,69> to make the packets look like TFTP/UDP packets.
 
+=item -t timefmt
+
+Treats the text before the packet as a date/time code; I<timevmt> is a
+format string of the sort supported by L<strptime(3)>.
+Example: The time "10:15:14.5476" has the format code "%H:%M:%S."
+
+B<NOTE:> The subsecond component delimiter must be specified (.) but no
+pattern is required; the remaining number is assumed to be fractions of
+a second.
 
 =head1 SEE ALSO
 
