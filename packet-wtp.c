@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  * 
- * $Id: packet-wtp.c,v 1.11 2001/02/13 00:17:54 guy Exp $
+ * $Id: packet-wtp.c,v 1.12 2001/03/23 20:11:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -243,7 +243,8 @@ dissect_wtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pdut = pdu_type( b0 );
 
 	/* Develop the string to put in the Info column */
-	cchInfo = snprintf( szInfo, sizeof( szInfo ), "WTP %s", vals_pdu_type[ ( int )pdut ].strptr  );
+	cchInfo = snprintf( szInfo, sizeof( szInfo ), "WTP %s",
+	    val_to_str(pdut, vals_pdu_type, "Unknown PDU type 0x%x"));
 
 	switch( pdut ) {
 		case INVOKE:
