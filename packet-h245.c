@@ -48,7 +48,7 @@ All in all a lot of work.
  *       with great support with testing and providing capturefiles
  *       from Martin Regner
  *
- * $Id: packet-h245.c,v 1.23 2003/07/16 19:05:37 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.24 2003/07/19 10:25:44 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -10182,7 +10182,7 @@ static per_sequence_t T38FaxProfile_sequence[] = {
 		dissect_h245_T38FaxTcpOptions },
 	{ NULL, 0, 0, NULL }
 };
-static int
+int
 dissect_h245_T38FaxProfile(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_T38FaxProfile, ett_h245_T38FaxProfile, T38FaxProfile_sequence);
@@ -13170,7 +13170,7 @@ static per_choice_t DataProtocolCapability_choice[] = {
 			dissect_h245_NULL },
 	{  0, NULL, 0, NULL }
 };
-static int
+int
 dissect_h245_DataProtocolCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_DataProtocolCapability, ett_h245_DataProtocolCapability, DataProtocolCapability_choice, "DataProtocolCapability", NULL);

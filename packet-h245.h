@@ -2,7 +2,7 @@
  * Routines for H.245 packet dissection
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-h245.h,v 1.2 2003/07/16 19:05:37 sahlberg Exp $
+ * $Id: packet-h245.h,v 1.3 2003/07/19 10:25:45 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,3 +30,7 @@ extern int dissect_h245_OpenLogicalChannel(tvbuff_t *tvb, int offset, packet_inf
 extern int dissect_h245_h221NonStandard(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 
 extern int dissect_h245_NonStandardParameter(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+
+extern int dissect_h245_T38FaxProfile(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+
+extern int dissect_h245_DataProtocolCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
