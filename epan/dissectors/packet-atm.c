@@ -1332,6 +1332,8 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   int          err;
   guint8       vpi;
   guint16      vci;
+  guint8       pt;
+  guint8       aal;
   guint16      aal3_4_hdr, aal3_4_trlr;
   guint16      oam_crc;
   gint         length;
@@ -1350,8 +1352,9 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   octet = tvb_get_guint8(tvb, 3);
   vci |= octet >> 4;
   proto_tree_add_uint(atm_tree, hf_atm_vci, tvb, 1, 3, vci);
+  pt = (octet >> 1) & 0x7;
   proto_tree_add_text(atm_tree, tvb, 3, 1, "Payload Type: %s",
-        val_to_str((octet >> 1) & 0x7, pt_vals, "Unknown (%u)"));
+        val_to_str(pt, pt_vals, "Unknown (%u)"));
   proto_tree_add_text(atm_tree, tvb, 3, 1, "Cell Loss Priority: %s",
 	(octet & 0x01) ? "Low priority" : "High priority");
   ti = proto_tree_add_text(atm_tree, tvb, 4, 1, "Header Error Check: 0x%02x",
@@ -1365,11 +1368,29 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item_append_text(ti, " (error in bit %d)", err);
   offset = 5;
 
-  switch (pinfo->pseudo_header->atm.aal) {
+  /*
+   * Check for OAM cells.
+   * XXX - do this for all AAL values, overriding whatever information
+   * Wiretap got from the file?
+   */
+  aal = pinfo->pseudo_header->atm.aal;
+  if (aal == AAL_USER) {
+	/*
+	 * OAM F4 is VCI 3 or 4 and PT 0X0.
+	 * OAM F5 is PT 10X.
+	 */
+	if (((vci == 3 || vci == 4) && ((pt & 0x5) == 0)) ||
+	    ((pt & 0x6) == 0x4))
+		aal = AAL_OAMCELL;
+  }
+
+  switch (aal) {
 
   case AAL_1:
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "AAL1");
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_clear(pinfo->cinfo, COL_INFO);
     ti = proto_tree_add_item(tree, proto_aal1, tvb, offset, -1, FALSE);
     aal_tree = proto_item_add_subtree(ti, ett_aal1);
     octet = tvb_get_guint8(tvb, offset);
@@ -1395,6 +1416,8 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      */
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "AAL3/4");
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_clear(pinfo->cinfo, COL_INFO);
     ti = proto_tree_add_item(tree, proto_aal3_4, tvb, offset, -1, FALSE);
     aal_tree = proto_item_add_subtree(ti, ett_aal3_4);
     aal3_4_hdr = tvb_get_ntohs(tvb, offset);
@@ -1428,9 +1451,14 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case AAL_OAMCELL:
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "OAM AAL");
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_clear(pinfo->cinfo, COL_INFO);
     ti = proto_tree_add_item(tree, proto_oamaal, tvb, offset, -1, FALSE);
     aal_tree = proto_item_add_subtree(ti, ett_oamaal);
     octet = tvb_get_guint8(tvb, offset);
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+		val_to_str(octet >> 4, oam_type_vals, "Unknown (%u)"));
     proto_tree_add_text(aal_tree, tvb, offset, 1, "OAM Type: %s",
 		val_to_str(octet >> 4, oam_type_vals, "Unknown (%u)"));
     switch (octet >> 4) {
