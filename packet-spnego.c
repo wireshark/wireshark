@@ -373,13 +373,57 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	return offset; /* Not sure this is right */
 }
 
-static void
-dissect_spnego_negTokenTarg(tvbuff_t *tvb, packet_info *pinfo _U_,
-			    proto_tree *tree)
+static int
+dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+			    proto_tree *tree, ASN1_SCK *hnd)
 
 {
 	proto_item *item;
 	proto_tree *subtree;
+	gboolean def;
+	int ret;
+	guint len1, len, cls, con, tag, nbytes;
+	subid_t *oid;
+	gssapi_oid_value *value;
+
+	int length = tvb_length_remaining(tvb, offset);
+
+	item = proto_tree_add_item( tree, hf_spnego_negtokentarg, tvb, offset,
+				    length, FALSE);
+	subtree = proto_item_add_subtree(item, ett_spnego_negtokentarg);
+
+	/* 
+	 * Here is what we need to get ...
+         * NegTokenTarg ::= SEQUENCE {
+	 *          negResult [0] ENUMERATED {
+	 *              accept_completed (0),
+	 *              accept_incomplete (1),
+	 *              reject (2) } OPTIONAL,
+         *          supportedMech [1] MechType OPTIONAL,
+         *          responseToken [2] OCTET STRING OPTIONAL,
+         *          mechListMIC [3] OCTET STRING OPTIONAL }
+	 */
+
+ 	ret = asn1_header_decode(hnd, &cls, &con, &tag, &def, &len1);
+
+	if (ret != ASN1_ERR_NOERROR) {
+		dissect_parse_error(tvb, offset, pinfo, subtree,
+				    "SPNEGO sequence header", ret);
+		goto done;
+	}
+
+	if (!(cls == ASN1_UNI && con == ASN1_CON && tag == ASN1_SEQ)) {
+		proto_tree_add_text(
+			subtree, tvb, offset, 0,
+			"Unknown header (cls=%d, con=%d, tag=%d)",
+			cls, con, tag);
+		goto done;
+	}
+
+	/* Just add the blob so far ... */
+
+ done:
+	return offset;
 
 }
 
@@ -441,7 +485,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		goto done;
 	}
 
-	if (!(cls == ASN1_CTX && con == ASN1_CON && tag == 0)) {
+	if (!(cls == ASN1_CTX && con == ASN1_CON)) {
 		proto_tree_add_text(
 			subtree, tvb, offset, 0,
 			"Unknown header (cls=%d, con=%d, tag=%d)",
@@ -466,6 +510,8 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 	case SPNEGO_negTokenTarg:
 
+	  offset = dissect_spnego_negTokenTarg(tvb, offset, pinfo,
+					       subtree, &hnd);
 	  break;
 
 	default: /* Broken, what to do? */
