@@ -1,7 +1,7 @@
 /* packet-vlan.c
  * Routines for VLAN 802.1Q ethernet header disassembly
  *
- * $Id: packet-vlan.c,v 1.22 2000/11/13 04:44:14 guy Exp $
+ * $Id: packet-vlan.c,v 1.23 2000/11/13 05:22:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -114,7 +114,25 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        trailer_tvb = tvb_new_subset(tvb, 4 + encap_proto, -1, -1);
     }
     CATCH2(BoundsError, ReportedBoundsError) {
+      /* Either:
+
+           the packet doesn't have "encap_proto" bytes worth of
+           captured data left in it - or it may not even have
+           "encap_proto" bytes worth of data in it, period -
+           so the "tvb_new_subset()" creating "next_tvb"
+           threw an exception
+
+         or
+
+           the packet has exactly "encap_proto" bytes worth of
+           captured data left in it, so the "tvb_new_subset()"
+           creating "trailer_tvb" threw an exception.
+
+         In either case, this means that all the data in the frame
+         is within the length value, so we give all the data to the
+         next protocol and have no trailer. */
       next_tvb = tvb_new_subset(tvb, 4, -1, encap_proto);
+      trailer_tvb = NULL;
     }
     ENDTRY;
 
