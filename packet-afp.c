@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.12 2002/04/30 22:05:33 guy Exp $
+ * $Id: packet-afp.c,v 1.13 2002/05/01 10:01:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1327,7 +1327,7 @@ dissect_query_afp_open_vol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	len = tvb_get_guint8(tvb, offset);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-	const gchar *rep;
+		const gchar *rep;
 		rep = get_name(tvb, offset, 2);
 		col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", rep);
 	}
@@ -1349,7 +1349,7 @@ dissect_query_afp_open_vol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 /* -------------------------- */
 static gint
-dissect_reply_afp_open_vol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_reply_afp_open_vol(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	guint16 bitmap;
 	
@@ -1364,7 +1364,7 @@ dissect_reply_afp_open_vol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 /* ************************** */
 static gint
-dissect_reply_afp_get_server_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_reply_afp_get_server_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	guint8 num;
 	guint8 len;
@@ -1419,7 +1419,7 @@ dissect_reply_afp_get_server_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	AFP_OPENDT
 */
 static gint
-dissect_query_afp_with_vol_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_query_afp_with_vol_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 
 	if (!tree)
@@ -1463,7 +1463,7 @@ dissect_query_afp_open_fork(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* -------------------------- */
 static gint
-dissect_reply_afp_open_fork(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_reply_afp_open_fork(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	int f_bitmap;
 
@@ -1556,7 +1556,7 @@ loop_record(tvbuff_t *tvb, proto_tree *ptree, gint offset,
 
 /* ------------------------- */
 static gint
-dissect_reply_afp_enumerate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_reply_afp_enumerate(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
   	proto_tree *sub_tree = NULL;
   	proto_item *item;
@@ -1582,7 +1582,7 @@ dissect_reply_afp_enumerate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 /* **************************/
 static gint
-dissect_query_afp_cat_search(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, gint offset)
+dissect_query_afp_cat_search(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ptree, gint offset)
 {
   	proto_tree *tree = NULL;
   	proto_item *item;
@@ -1653,7 +1653,7 @@ dissect_query_afp_cat_search(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptre
 
 /* -------------------------- */
 static gint
-dissect_reply_afp_cat_search(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_reply_afp_cat_search(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
   	proto_tree *sub_tree = NULL;
   	proto_item *item;
@@ -1681,7 +1681,7 @@ dissect_reply_afp_cat_search(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 /* **************************/
 static gint
-dissect_query_afp_get_vol_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_query_afp_get_vol_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	PAD(1)
 	proto_tree_add_item(tree, hf_afp_vol_id, tvb, offset, 2,FALSE);
@@ -1695,7 +1695,7 @@ dissect_query_afp_get_vol_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 /* ------------------------ */
 static gint
-dissect_reply_afp_get_vol_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_reply_afp_get_vol_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	guint16 bitmap;
 
@@ -1709,7 +1709,7 @@ dissect_reply_afp_get_vol_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 /* **************************/
 static gint
-dissect_query_afp_set_vol_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_query_afp_set_vol_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	guint16 bitmap;
 
@@ -1727,7 +1727,7 @@ dissect_query_afp_set_vol_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 /* ***************************/
 static gint
-dissect_query_afp_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_query_afp_login(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	int len;
 	const char *uam;
@@ -1757,7 +1757,7 @@ dissect_query_afp_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gin
 
 /* ************************** */
 static gint
-dissect_query_afp_write(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_query_afp_write(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	proto_tree_add_item(tree, hf_afp_flag, tvb, offset, 1,FALSE);
 	offset += 1;
@@ -1775,7 +1775,7 @@ dissect_query_afp_write(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gin
 }
 
 static gint
-dissect_reply_afp_write(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_reply_afp_write(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	proto_tree_add_item(tree, hf_afp_last_written, tvb, offset, 4, FALSE);
 	offset += 4;
@@ -1785,7 +1785,7 @@ dissect_reply_afp_write(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gin
 
 /* ************************** */
 static gint
-dissect_query_afp_read(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_query_afp_read(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	PAD(1);
 	
@@ -1813,7 +1813,7 @@ dissect_query_afp_read(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
 
 */
 static gint
-dissect_reply_afp_open_dt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_reply_afp_open_dt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	proto_tree_add_item(tree, hf_afp_dt_ref, tvb, offset, 2,FALSE);
 	offset += 2;
@@ -1825,7 +1825,7 @@ dissect_reply_afp_open_dt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 	no reply
 */
 static gint
-dissect_query_afp_close_dt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_query_afp_close_dt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	PAD(1);
 	proto_tree_add_item(tree, hf_afp_dt_ref, tvb, offset, 2,FALSE);
@@ -1842,7 +1842,7 @@ dissect_query_afp_close_dt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	AFP_CLOSEFORK
 */
 static gint
-dissect_query_afp_with_fork(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_query_afp_with_fork(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	PAD(1);
 	proto_tree_add_item(tree, hf_afp_ofork, tvb, offset, 2,FALSE);
@@ -1865,7 +1865,7 @@ dissect_query_afp_get_fldr_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 /* -------------------------- */
 static gint
-dissect_reply_afp_get_fldr_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_reply_afp_get_fldr_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	guint8	flags;
 	guint16 f_bitmap, d_bitmap;
@@ -1980,7 +1980,7 @@ dissect_query_afp_create_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	AFP_MOVE
 */
 static gint
-dissect_reply_afp_create_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_reply_afp_create_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	proto_tree_add_item(tree, hf_afp_file_id, tvb, offset, 4,FALSE);
 	offset += 4;
@@ -1990,7 +1990,7 @@ dissect_reply_afp_create_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* -------------------------- */
 static gint
-dissect_reply_afp_create_dir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_reply_afp_create_dir(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	proto_tree_add_item(tree, hf_afp_did, tvb, offset, 4,FALSE);
 	offset += 4;
@@ -2002,7 +2002,7 @@ dissect_reply_afp_create_dir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	no reply
 */
 static gint
-dissect_query_afp_delete_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_query_afp_delete_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	PAD(1);
 	proto_tree_add_item(tree, hf_afp_vol_id, tvb, offset, 2,FALSE);
@@ -2017,7 +2017,7 @@ dissect_query_afp_delete_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	same reply as get_fork_param
 */
 static gint
-dissect_query_afp_resolve_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_query_afp_resolve_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	PAD(1);
 	proto_tree_add_item(tree, hf_afp_vol_id, tvb, offset, 2,FALSE);
@@ -2033,7 +2033,7 @@ dissect_query_afp_resolve_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 /* ************************** */
 static gint
-dissect_query_afp_get_fork_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_query_afp_get_fork_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 
 	PAD(1);
@@ -2047,7 +2047,7 @@ dissect_query_afp_get_fork_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 /* -------------------------- */
 static gint
-dissect_reply_afp_get_fork_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_reply_afp_get_fork_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	guint16 f_bitmap;
 
@@ -2061,7 +2061,7 @@ dissect_reply_afp_get_fork_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 /* ************************** */
 static gint
-dissect_query_afp_set_fork_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_query_afp_set_fork_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 
 	PAD(1);
@@ -2110,7 +2110,7 @@ dissect_query_afp_rename(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 
 /* ************************** */
 static gint
-dissect_query_afp_byte_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_query_afp_byte_lock(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
   	proto_tree *sub_tree = NULL;
   	proto_item *item;
@@ -2139,7 +2139,7 @@ dissect_query_afp_byte_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* -------------------------- */
 static gint
-dissect_reply_afp_byte_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_reply_afp_byte_lock(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	proto_tree_add_item(tree, hf_afp_lock_range_start, tvb, offset, 4,FALSE);
 	offset += 4;
@@ -2191,7 +2191,7 @@ dissect_query_afp_get_cmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
 /* -------------------------- */
 static gint
-dissect_reply_afp_get_cmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_reply_afp_get_cmt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	guint8 len;
 
@@ -2204,7 +2204,7 @@ dissect_reply_afp_get_cmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
 /* ************************** */
 static gint
-dissect_query_afp_get_icon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_query_afp_get_icon(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 
 	PAD(1);
@@ -2237,7 +2237,7 @@ dissect_reply_afp_get_icon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 /* ************************** */
 static gint
-dissect_query_afp_get_icon_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_query_afp_get_icon_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 
 	PAD(1);
@@ -2254,7 +2254,7 @@ dissect_query_afp_get_icon_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 /* -------------------------- */
 static gint
-dissect_reply_afp_get_icon_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_reply_afp_get_icon_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 
 	proto_tree_add_item(tree, hf_afp_icon_tag, tvb, offset, 4,FALSE);
@@ -2275,7 +2275,7 @@ dissect_reply_afp_get_icon_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 /* ************************** */
 static gint
-dissect_query_afp_add_icon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_query_afp_add_icon(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 
 	PAD(1);
@@ -2349,7 +2349,7 @@ dissect_query_afp_rmv_appl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 /* ************************** */
 static gint
-dissect_query_afp_get_appl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_query_afp_get_appl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 
 	PAD(1);
@@ -2370,7 +2370,7 @@ dissect_query_afp_get_appl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 /* -------------------------- */
 static gint
-dissect_reply_afp_get_appl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_reply_afp_get_appl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	proto_tree_add_item(tree, hf_afp_appl_tag, tvb, offset, 4,FALSE);
 	offset += 4;
