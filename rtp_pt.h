@@ -1,7 +1,7 @@
 /* rtp_pt.h
  * Defines RTP payload types
  *
- * $Id: rtp_pt.h,v 1.2 2003/09/25 19:35:02 guy Exp $
+ * $Id: rtp_pt.h,v 1.3 2004/06/01 21:40:41 etxrab Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,6 +24,8 @@
 
 #ifndef __RTP_PT_H__
 #define __RTP_PT_H__
+
+#include "epan/value_string.h"
 
 /*
  * RTP Payload types
@@ -59,5 +61,36 @@
 #define PT_MPV		32	/* RFC 2250 */
 #define PT_MP2T		33	/* RFC 2250 */
 #define PT_H263		34	/* from Chunrong Zhu of Intel; see the Web page */
+
+static const value_string rtp_payload_type_vals[] =
+{
+	{ PT_PCMU,	"ITU-T G.711 PCMU" },
+	{ PT_1016,	"USA Federal Standard FS-1016" },
+	{ PT_G721,	"ITU-T G.721" },
+	{ PT_GSM,	"GSM 06.10" },
+	{ PT_G723,	"ITU-T G.723" },
+	{ PT_DVI4_8000,	"DVI4 8000 samples/s" },
+	{ PT_DVI4_16000, "DVI4 16000 samples/s" },
+	{ PT_LPC,	"Experimental linear predictive encoding from Xerox PARC" },
+	{ PT_PCMA,	"ITU-T G.711 PCMA" },
+	{ PT_G722,	"ITU-T G.722" },
+	{ PT_L16_STEREO, "16-bit uncompressed audio, stereo" },
+	{ PT_L16_MONO,	"16-bit uncompressed audio, monaural" },
+	{ PT_QCELP,	"Qualcomm Code Excited Linear Predictive coding" },
+	{ PT_CN,	"Comfort noise" },
+	{ PT_MPA,	"MPEG-I/II Audio"},
+	{ PT_G728,	"ITU-T G.728" },
+	{ PT_DVI4_11025, "DVI4 11025 samples/s" },
+	{ PT_DVI4_22050, "DVI4 22050 samples/s" },
+	{ PT_G729,	"ITU-T G.729" },
+	{ PT_CELB,	"Sun CellB video encoding" },
+	{ PT_JPEG,	"JPEG-compressed video" },
+	{ PT_NV,	"'nv' program" },
+	{ PT_H261,	"ITU-T H.261" },
+	{ PT_MPV,	"MPEG-I/II Video"},
+	{ PT_MP2T,	"MPEG-II transport streams"},
+	{ PT_H263,	"ITU-T H.263" },
+	{ 0,		NULL },
+};
 
 #endif

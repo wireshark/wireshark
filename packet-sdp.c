@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.45 2004/01/16 19:51:55 guy Exp $
+ * $Id: packet-sdp.c,v 1.46 2004/06/01 21:40:41 etxrab Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,6 +48,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/strutil.h>
+#include "rtp_pt.h"
 
 static dissector_handle_t rtp_handle=NULL;
 static dissector_handle_t rtcp_handle=NULL;
@@ -774,6 +775,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 		  transport_info_t *transport_info){
   proto_tree *sdp_media_tree;
   gint offset, next_offset, tokenlen;
+  guint8 *media_format;
 
   offset = 0;
   next_offset = 0;
@@ -854,8 +856,14 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
       tokenlen = next_offset - offset;
     }
 
-    proto_tree_add_item(sdp_media_tree, hf_media_format, tvb,
-			offset, tokenlen, FALSE);
+    media_format = tvb_get_string(tvb, offset, tokenlen);
+    if (!strcmp(transport_info->media_proto[transport_info->media_count], "RTP/AVP")) {
+		proto_tree_add_string(sdp_media_tree, hf_media_format, tvb,
+					offset, tokenlen, val_to_str(atol(media_format), rtp_payload_type_vals, "%u"));
+	} else {
+      proto_tree_add_item(sdp_media_tree, hf_media_format, tvb,
+			  offset, tokenlen, FALSE);
+    }
   } while (next_offset != -1);
 
   /* Increase the count of media channels, but don't walk off the end
@@ -1033,7 +1041,7 @@ proto_register_sdp(void)
     { &hf_bandwidth_value,
       { "Bandwidth Value",
 	"sdp.bandwidth.value",FT_STRING, BASE_NONE, NULL, 0x0,
-	"Bandwidth Value", HFILL }},
+	"Bandwidth Value (in kbits/s)", HFILL }},
     { &hf_time_start,
       { "Session Start Time",
 	"sdp.time.start",FT_STRING, BASE_NONE, NULL, 0x0,
@@ -1093,7 +1101,7 @@ proto_register_sdp(void)
     { &hf_media_proto,
       { "Media Proto",
 	"sdp.media.proto",FT_STRING, BASE_NONE, NULL, 0x0,
-	"Media Proto", HFILL }},
+	"Media Protocol", HFILL }},
     { &hf_media_format,
       { "Media Format",
 	"sdp.media.format",FT_STRING, BASE_NONE, NULL, 0x0,

@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <h323@ramdyne.nl>
  *
- * $Id: packet-rtp.c,v 1.45 2004/02/14 22:48:53 guy Exp $
+ * $Id: packet-rtp.c,v 1.46 2004/06/01 21:40:41 etxrab Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -138,36 +138,7 @@ static const value_string rtp_version_vals[] =
 /* Payload type is the last 7 bits */
 #define RTP_PAYLOAD_TYPE(octet)	((octet) & 0x7F)
 
-static const value_string rtp_payload_type_vals[] =
-{
-	{ PT_PCMU,	"ITU-T G.711 PCMU" },
-	{ PT_1016,	"USA Federal Standard FS-1016" },
-	{ PT_G721,	"ITU-T G.721" },
-	{ PT_GSM,	"GSM 06.10" },
-	{ PT_G723,	"ITU-T G.723" },
-	{ PT_DVI4_8000,	"DVI4 8000 samples/s" },
-	{ PT_DVI4_16000, "DVI4 16000 samples/s" },
-	{ PT_LPC,	"Experimental linear predictive encoding from Xerox PARC" },
-	{ PT_PCMA,	"ITU-T G.711 PCMA" },
-	{ PT_G722,	"ITU-T G.722" },
-	{ PT_L16_STEREO, "16-bit uncompressed audio, stereo" },
-	{ PT_L16_MONO,	"16-bit uncompressed audio, monaural" },
-	{ PT_QCELP,	"Qualcomm Code Excited Linear Predictive coding" },
-	{ PT_CN,	"Comfort noise" },
-	{ PT_MPA,	"MPEG-I/II Audio"},
-	{ PT_G728,	"ITU-T G.728" },
-	{ PT_DVI4_11025, "DVI4 11025 samples/s" },
-	{ PT_DVI4_22050, "DVI4 22050 samples/s" },
-	{ PT_G729,	"ITU-T G.729" },
-	{ PT_CELB,	"Sun CellB video encoding" },
-	{ PT_JPEG,	"JPEG-compressed video" },
-	{ PT_NV,	"'nv' program" },
-	{ PT_H261,	"ITU-T H.261" },
-	{ PT_MPV,	"MPEG-I/II Video"},
-	{ PT_MP2T,	"MPEG-II transport streams"},
-	{ PT_H263,	"ITU-T H.263" },
-	{ 0,		NULL },
-};
+/* rtp_payload_type_vals[] defined in rtp_pt.h */
 
 static address fake_addr;
 static int heur_init = FALSE;

@@ -1,4 +1,4 @@
-# $Id: config.nmake,v 1.89 2004/05/23 22:21:30 guy Exp $
+# $Id: config.nmake,v 1.90 2004/06/01 21:40:41 etxrab Exp $
 
 VERSION=0.10.4
 #
@@ -54,7 +54,7 @@ GLIB_DIR=$(ETHEREAL_LIBS)\glib
 # reside.
 #
 GTK1_DIR=$(ETHEREAL_LIBS)\gtk+
-#GTK2_DIR=$(ETHEREAL_LIBS)\gtk2
+GTK2_DIR=$(ETHEREAL_LIBS)\gtk2
 
 # Declare the version of your gtk2 and pango. (MAJOR + MINOR Version number
 # but without MICRO version number) 
@@ -70,7 +70,7 @@ PANGO_INST_VERSION=1.2
 # If you don't have GTK-Wimp, comment this line out, so that GTK-Wimp isn't
 # defined.
 #
-#GTK_WIMP_DIR=$(ETHEREAL_LIBS)\gtk-wimp
+GTK_WIMP_DIR=$(ETHEREAL_LIBS)\gtk-wimp
 
 #
 # If you have Zlib, set this to the pathname of the directory in
@@ -134,7 +134,7 @@ LOCAL_CFLAGS=/Zi /W3
 LOCAL_LDFLAGS=/DEBUG
 
 # Set PDB_FILE according to your VC++ version 
-PDB_FILE=vc*.pdb
+PDB_FILE=vc60.pdb
 
 # Set path if you need to find some binary
 PATH=c:\cygwin\bin;c:\python23;$(PATH)
