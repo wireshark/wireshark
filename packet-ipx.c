@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.35 1999/11/21 16:32:14 gram Exp $
+ * $Id: packet-ipx.c,v 1.36 1999/11/22 06:03:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -230,19 +230,8 @@ static const value_string ipx_packet_type_vals[] = {
 gchar*
 ipxnet_to_string(const guint8 *ad)
 {
-	static gchar	str[3][8+3+1]; /* 8 digits, 3 spaces, 1 null */
-	static gchar	*cur;
-
-	if (cur == &str[0][0]) {
-		cur = &str[1][0];
-	} else if (cur == &str[1][0]) {
-		cur = &str[2][0];
-	} else {
-		cur = &str[0][0];
-	}
-
-	sprintf(cur, "%02X %02X %02X %02X", ad[0], ad[1], ad[2], ad[3]);
-	return cur;
+	guint32	addr = pntohl(ad);
+	return ipxnet_to_str_punct(addr, ' ');
 }
 
 /* We use a different representation of hardware addresses
@@ -274,6 +263,41 @@ ipx_addr_to_str(guint32 net, const guint8 *ad)
 		sprintf(cur, "%s.%s", get_ipxnet_name(net), ether_to_str_punct(ad, '\0'));
 	}
 	return cur;
+}
+
+gchar *
+ipxnet_to_str_punct(const guint32 ad, char punct) {
+  static gchar  str[3][12];
+  static gchar *cur;
+  gchar        *p;
+  int          i;
+  guint32      octet;
+  static const gchar hex_digits[16] = "0123456789ABCDEF";
+  static const guint32  octet_mask[4] =
+	  { 0xff000000 , 0x00ff0000, 0x0000ff00, 0x000000ff };
+
+  if (cur == &str[0][0]) {
+    cur = &str[1][0];
+  } else if (cur == &str[1][0]) {  
+    cur = &str[2][0];
+  } else {  
+    cur = &str[0][0];
+  }
+  p = &cur[12];
+  *--p = '\0';
+  i = 3;
+  for (;;) {
+    octet = (ad & octet_mask[i]) >> ((3 - i) * 8);
+    *--p = hex_digits[octet&0xF];
+    octet >>= 4;
+    *--p = hex_digits[octet&0xF];
+    if (i == 0)
+      break;
+    if (punct)
+      *--p = punct;
+    i--;
+  }
+  return p;
 }
 
 void

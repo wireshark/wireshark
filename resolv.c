@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.20 1999/11/21 16:32:16 gram Exp $
+ * $Id: resolv.c,v 1.21 1999/11/22 06:03:46 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -1181,8 +1181,10 @@ extern u_char *get_ether_addr(u_char *name)
 
 extern u_char *get_ipxnet_name(const guint32 addr)
 {
-  if (!g_resolving_actif)
-    return ipxnet_to_string((guint8 *)&addr);
+
+  if (!g_resolving_actif) {
+	  return ipxnet_to_str_punct(addr, '\0');
+  }
 
   if (!ipxnet_resolution_initialized) {
     initialize_ipxnets();
