@@ -63,8 +63,14 @@
 #include <ctype.h>
 
 #ifdef HAVE_LIBNETTLE
+#define HAVE_KERBEROS
+#ifdef _WIN32
 #include <des.h>
 #include <cbc.h>
+#else
+#include <nettle/des.h>
+#include <nettle/cbc.h>
+#endif
 #include "crypt-md5.h"
 #include <sys/stat.h>	/* For keyfile manipulation */
 #endif
@@ -688,7 +694,7 @@ read_keytab_file(char *service_key_file)
 			sk->length = DES3_KEY_SIZE;
 			sk->contents = g_malloc(DES3_KEY_SIZE);
 			memcpy(sk->contents, buf + 2, DES3_KEY_SIZE);
-			sprintf(sk->origin, "3DES service key file, key #%d, offset %d", count, ftell(skf));
+			sprintf(sk->origin, "3DES service key file, key #%d, offset %ld", count, ftell(skf));
 			service_key_list = g_slist_append(service_key_list, (gpointer) sk);
 			fseek(skf, newline_skip, SEEK_CUR);
 			count++;
@@ -701,8 +707,8 @@ g_warning("added key: %s", sk->origin);
 #define CONFOUNDER_PLUS_CHECKSUM 24
 
 static guint8 *
-decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
-			int usage,
+decrypt_krb5_data(proto_tree _U_ *tree, packet_info *pinfo,
+			int _U_ usage,
 			int length,
 			const char *cryptotext,
 			int keytype)
