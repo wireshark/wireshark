@@ -1,7 +1,7 @@
 /* about_dlg.h
  * Declarations of routines for the "About" dialog
  *
- * $Id: about_dlg.h,v 1.5 2004/06/22 16:28:27 ulfl Exp $
+ * $Id: about_dlg.h,v 1.6 2004/07/04 12:15:41 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,6 +29,27 @@
  *  "About" dialog box.
  *  @ingroup dialog_group
  */
+
+/** Create a splash screen showed when Ethereal is started. 
+ *
+ * @param message the new message to be displayed
+ * @return the newly created window handle
+ */
+extern GtkWidget *splash_new(char *message);
+
+/** Update the splash screen message. 
+ *
+ * @param win the window handle from splash_new()
+ * @param message the new message to be displayed
+ */
+extern void splash_update(GtkWidget *win, char *message);
+
+/** Destroy the splash screen. 
+ *
+ * @param win the window handle from splash_new()
+ * @return always FALSE, so this function can be used as a callback for gtk_timeout_add()
+ */
+extern guint splash_destroy(GtkWidget *win);
 
 /** User requested the "About" dialog box by menu or toolbar.
  *

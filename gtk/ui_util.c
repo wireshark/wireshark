@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.27 2004/05/30 11:54:37 ulfl Exp $
+ * $Id: ui_util.c,v 1.28 2004/07/04 12:15:41 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -493,15 +493,15 @@ window_destroy(GtkWidget *win)
 }
 
 
-/* convert an xpm to a GtkWidget, using the top_level window settings */
-/* (be sure that the top_level window is already being displayed) */
-GtkWidget *xpm_to_widget(const char ** xpm) {
+/* convert an xpm to a GtkWidget, using the window settings from it's parent */
+/* (be sure that the parent window is already being displayed) */
+GtkWidget *xpm_to_widget_from_parent(GtkWidget *parent, const char ** xpm) {
 #if GTK_MAJOR_VERSION < 2
     GdkPixmap *icon;
     GdkBitmap * mask;
 
 
-    icon = gdk_pixmap_create_from_xpm_d(top_level->window, &mask, &top_level->style->white, (char **) xpm);
+    icon = gdk_pixmap_create_from_xpm_d(parent->window, &mask, &parent->style->white, (char **) xpm);
     return gtk_pixmap_new(icon, mask);
 #else
     GdkPixbuf * pixbuf;
@@ -510,10 +510,17 @@ GtkWidget *xpm_to_widget(const char ** xpm) {
 
 
     pixbuf = gdk_pixbuf_new_from_xpm_data(xpm);
-    gdk_pixbuf_render_pixmap_and_mask_for_colormap (pixbuf, gtk_widget_get_colormap(top_level), &pixmap, &bitmap, 128);
+    gdk_pixbuf_render_pixmap_and_mask_for_colormap (pixbuf, gtk_widget_get_colormap(parent), &pixmap, &bitmap, 128);
 
     return gtk_image_new_from_pixmap (pixmap, bitmap);
 #endif
+}
+
+
+/* convert an xpm to a GtkWidget, using the top_level window settings */
+/* (be sure that the top_level window is already being displayed) */
+GtkWidget *xpm_to_widget(const char ** xpm) {
+    return xpm_to_widget_from_parent(top_level, xpm);
 }
 
 

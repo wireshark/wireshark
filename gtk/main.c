@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.451 2004/06/30 17:53:52 ulfl Exp $
+ * $Id: main.c,v 1.452 2004/07/04 12:15:41 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -101,6 +101,7 @@
 #include "util.h"
 #include "version_info.h"
 #include "capture.h"
+#include "merge.h"
 #ifdef HAVE_LIBPCAP
 #include "pcap-util.h"
 #endif
@@ -131,7 +132,7 @@
 #include "recent.h"
 #include "follow_dlg.h"
 #include "font_utils.h"
-#include "merge.h"
+#include "about_dlg.h"
 
 
 /*
@@ -1550,6 +1551,7 @@ main(int argc, char *argv[])
   char                 badopt;
   ethereal_tap_list   *tli = NULL;
   gchar               *tap_opt = NULL;
+  GtkWidget           *splash_win;
 
 #define OPTSTRING_INIT "a:b:B:c:f:Hhi:klLm:nN:o:pP:Qr:R:Ss:t:T:w:vy:z:"
 
@@ -1565,6 +1567,19 @@ main(int argc, char *argv[])
 
   char optstring[sizeof(OPTSTRING_INIT) + sizeof(OPTSTRING_CHILD) - 1] =
     OPTSTRING_INIT;
+
+
+  /* Set the current locale according to the program environment.
+   * We haven't localized anything, but some GTK widgets are localized
+   * (the file selection dialogue, for example).
+   * This also sets the C-language locale to the native environment. */
+  gtk_set_locale();
+
+  /* Let GTK get its args */
+  gtk_init (&argc, &argv);
+
+  splash_win = splash_new("Loading Ethereal ...");
+
 
   ethereal_path = argv[0];
 
@@ -1595,6 +1610,8 @@ main(int argc, char *argv[])
     strcat(optstring, OPTSTRING_CHILD);
 #endif
 
+  splash_update(splash_win, "Register dissectors ...");
+
   /* Register all dissectors; we must do this before checking for the
      "-G" flag, as the "-G" flag dumps information registered by the
      dissectors, and we must do it before we read the preferences, in
@@ -1602,9 +1619,13 @@ main(int argc, char *argv[])
   epan_init(PLUGIN_DIR,register_all_protocols,register_all_protocol_handoffs,
             failure_alert_box,open_failure_alert_box,read_failure_alert_box);
 
+  splash_update(splash_win, "Register tap listeners ...");
+
   /* Register all tap listeners; we do this before we parse the arguments,
      as the "-z" argument can specify a registered tap. */
   register_all_tap_listeners();
+
+  splash_update(splash_win, "Register preferences ...");
 
   /* Now register the preferences for any non-dissector modules.
      We must do that before we read the preferences as well. */
@@ -1669,15 +1690,7 @@ main(int argc, char *argv[])
   gtk_timeout_add(750, (GtkFunction) host_name_lookup_process, NULL);
 #endif
 
-
-  /* Set the current locale according to the program environment.
-   * We haven't localized anything, but some GTK widgets are localized
-   * (the file selection dialogue, for example).
-   * This also sets the C-language locale to the native environment. */
-  gtk_set_locale();
-
-  /* Let GTK get its args */
-  gtk_init (&argc, &argv);
+  splash_update(splash_win, "Loading configuration files ...");
 
   /* Read the preference files. */
   prefs = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
@@ -2341,6 +2354,9 @@ main(int argc, char *argv[])
   gtk_rc_parse(rc_file);
 
   font_init();
+
+  /* close the splash screen, as we are going to open the main window now */
+  splash_destroy(splash_win);
 
 #ifdef HAVE_LIBPCAP
   /* Is this a "child" ethereal, which is only supposed to pop up a

@@ -1,7 +1,7 @@
 /* ui_util.h
  * Definitions for UI utility routines
  *
- * $Id: ui_util.h,v 1.14 2004/06/04 17:16:58 ulfl Exp $
+ * $Id: ui_util.h,v 1.15 2004/07/04 12:15:41 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -206,7 +206,7 @@ extern void window_geom_recent_read_pair(const char *name, const char *key, cons
  *
  * @param win the window from window_new() to be reactivated
  */
-void reactivate_window(GtkWidget *win);
+extern void reactivate_window(GtkWidget *win);
 
 /** @} */
 
@@ -217,12 +217,12 @@ void reactivate_window(GtkWidget *win);
  * @param vadjustment vertical adjustment
  * @return the new scrolled window
  */
-GtkWidget *scrolled_window_new(GtkAdjustment *hadjustment,
+extern GtkWidget *scrolled_window_new(GtkAdjustment *hadjustment,
 			       GtkAdjustment *vadjustment);
 
 /** Set the scrollbar placement of all scrolled windows based on user
    preference. */
-void set_scrollbar_placement_all(void);
+extern void set_scrollbar_placement_all(void);
 
 #if GTK_MAJOR_VERSION < 2
 /** Create a GtkCTree, give it the right styles, and remember it.
@@ -231,7 +231,7 @@ void set_scrollbar_placement_all(void);
  * @param tree_column which column has the tree graphic
  * @return the newly created GtkCTree
  */
-GtkWidget *ctree_new(gint columns, gint tree_column);
+extern GtkWidget *ctree_new(gint columns, gint tree_column);
 /** Create a GtkCTree, give it the right styles, and remember it.
  *
  * @param columns the number of columns
@@ -239,14 +239,14 @@ GtkWidget *ctree_new(gint columns, gint tree_column);
  * @param titles the titles of all columns
  * @return the newly created GtkCTree
  */
-GtkWidget *ctree_new_with_titles(gint columns, gint tree_column,
+extern GtkWidget *ctree_new_with_titles(gint columns, gint tree_column,
 				 gchar *titles[]);
 #else
 /** Create a GtkTreeView, give it the right styles, and remember it.
  *
  * @param model the model (the data) of this tree view
  */
-GtkWidget *tree_view_new(GtkTreeModel *model);
+extern GtkWidget *tree_view_new(GtkTreeModel *model);
 #endif
 
 /** Create a simple list widget.
@@ -266,7 +266,7 @@ extern void simple_list_append(GtkWidget *list, ...);
 
 
 /** Set the styles of all Trees based upon user preferences. */
-void set_tree_styles_all(void);
+extern void set_tree_styles_all(void);
 
 /** Convert an xpm picture into a GtkWidget showing it.
  * Beware: Ethereal's main window must already be visible!
@@ -274,6 +274,15 @@ void set_tree_styles_all(void);
  * @param xpm the character array containing the picture
  * @return a newly created GtkWidget showing the picture
  */
-GtkWidget *xpm_to_widget(const char ** xpm);
+extern GtkWidget *xpm_to_widget(const char ** xpm);
+
+/** Convert an xpm picture into a GtkWidget showing it.
+ * Beware: the given parent window must already be visible!
+ *
+ * @param parent the parent window of to widget to be generated
+ * @param xpm the character array containing the picture
+ * @return a newly created GtkWidget showing the picture
+ */
+extern GtkWidget *xpm_to_widget_from_parent(GtkWidget *parent, const char ** xpm);
 
 #endif /* __GTKGUIUI_UTIL_H__ */

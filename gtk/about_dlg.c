@@ -1,6 +1,6 @@
 /* about_dlg.c
  *
- * $Id: about_dlg.c,v 1.17 2004/06/23 01:38:39 guy Exp $
+ * $Id: about_dlg.c,v 1.18 2004/07/04 12:15:40 ulfl Exp $
  *
  * Ulf Lamping <ulf.lamping@web.de>
  *
@@ -44,6 +44,7 @@
 #include "cvsversion.h"
 
 #include "../image/eicon3d64.xpm"
+#include "gtkglobals.h"
 
 extern GString *comp_info_str, *runtime_info_str;
 
@@ -63,17 +64,15 @@ static void about_ethereal_destroy_cb(GtkWidget *, gpointer);
 static GtkWidget *about_ethereal_w;
 
 
-static GtkWidget *
-about_ethereal_page_new(void)
+static
+about_ethereal(GtkWidget *parent, GtkWidget *main_vb, const char *title)
 {
-  GtkWidget   *main_vb, *msg_label, *icon;
+  GtkWidget   *msg_label, *icon;
+#if GTK_MAJOR_VERSION >= 2
   gchar       *message;
-  const char   title[] = "Ethereal - Network Protocol Analyzer";
+#endif
 
-  main_vb = gtk_vbox_new(FALSE, 6);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 12);
-
-  icon = xpm_to_widget(eicon3d64_xpm);
+  icon = xpm_to_widget_from_parent(parent, eicon3d64_xpm);
   gtk_container_add(GTK_CONTAINER(main_vb), icon);
 
   msg_label = gtk_label_new(title);
@@ -83,6 +82,75 @@ about_ethereal_page_new(void)
   g_free(message);
 #endif
   gtk_container_add(GTK_CONTAINER(main_vb), msg_label);
+}
+
+
+
+GtkWidget *splash_new(char *message)
+{
+    GtkWidget *win;
+    GtkWidget *main_lb;
+
+    GtkWidget *main_vb;
+
+    win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(win), "Ethereal");
+#if GTK_MAJOR_VERSION >= 2
+    gtk_window_set_decorated(GTK_WINDOW(win), FALSE);
+#endif
+    gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER);
+
+    main_vb = gtk_vbox_new(FALSE, 6);
+    gtk_container_border_width(GTK_CONTAINER(main_vb), 12);
+    gtk_container_add(GTK_CONTAINER(win), main_vb);
+
+    /* when calling about_ethereal(), we must have a visible window, */
+    /* otherwise GTK will throw a warning */
+    gtk_widget_show_all(win);
+    about_ethereal(win, main_vb, "Ethereal - Network Protocol Analyzer");
+    gtk_widget_hide(win);
+
+    main_lb = gtk_label_new(message);
+    gtk_container_add(GTK_CONTAINER(main_vb), main_lb);
+    OBJECT_SET_DATA(win, "splash_label", main_lb);
+    
+    gtk_widget_show_all(win);
+    gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER);
+
+    splash_update(win, message);
+
+    return win;
+}
+
+void splash_update(GtkWidget *win, char *message)
+{
+    GtkWidget *main_lb;
+
+    main_lb = OBJECT_GET_DATA(win, "splash_label");
+    gtk_label_set_text(GTK_LABEL(main_lb), message);
+
+    /* process all pending GUI events before continue */
+    while (gtk_events_pending()) gtk_main_iteration();
+}
+
+guint splash_destroy(GtkWidget *win)
+{
+    gtk_widget_destroy(win);
+    return FALSE;
+}
+
+
+static GtkWidget *
+about_ethereal_page_new(void)
+{
+  GtkWidget   *main_vb, *msg_label /*, *icon*/;
+  gchar       *message;
+  const char   title[] = "Ethereal - Network Protocol Analyzer";
+
+  main_vb = gtk_vbox_new(FALSE, 6);
+  gtk_container_border_width(GTK_CONTAINER(main_vb), 12);
+
+  about_ethereal(top_level, main_vb, title);
 
   msg_label = gtk_label_new("Version " VERSION
 #ifdef CVSVERSION
