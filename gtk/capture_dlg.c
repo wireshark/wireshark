@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.128 2004/04/28 18:39:46 ulfl Exp $
+ * $Id: capture_dlg.c,v 1.129 2004/04/28 19:13:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -633,7 +633,7 @@ capture_prep(void)
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(promisc_cb),
 		capture_opts.promisc_mode);
   gtk_tooltips_set_tip(tooltips, promisc_cb, 
-    "Usually a network card will only capture the traffic to its own network address. "
+    "Usually a network card will only capture the traffic sent to its own network address. "
     "If you want to capture all traffic that the network card can \"see\", mark this option. "
     "See the FAQ for some more details of capturing packets from a switched network.", NULL);
   gtk_container_add(GTK_CONTAINER(capture_vb), promisc_cb);
@@ -647,8 +647,8 @@ capture_prep(void)
 		capture_opts.has_snaplen);
   SIGNAL_CONNECT(snap_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
   gtk_tooltips_set_tip(tooltips, snap_cb, 
-    "Limit the maximum size to be captured of each packet, this size includes the link-layer "
-    "header and all subsequent headers. ", NULL);
+    "Limit the maximum number of bytes to be captured from each packet. This size includes the "
+    "link-layer header and all subsequent headers. ", NULL);
   gtk_box_pack_start(GTK_BOX(snap_hb), snap_cb, FALSE, FALSE, 0);
 
   snap_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat) capture_opts.snaplen,
@@ -743,7 +743,7 @@ capture_prep(void)
                  cap_open_w);
   gtk_tooltips_set_tip(tooltips, multi_files_on_cb, 
     "Instead of using a single capture file, multiple files will be created. "
-    "The generated filenames will contain an incrementing number and the start time of the capture.", NULL);
+    "The generated file names will contain an incrementing number and the start time of the capture.", NULL);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), multi_files_on_cb, 0, 1, row, row+1);
   row++;
 
@@ -753,7 +753,7 @@ capture_prep(void)
 		capture_opts.has_autostop_filesize);
   SIGNAL_CONNECT(ring_filesize_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
   gtk_tooltips_set_tip(tooltips, ring_filesize_cb, 
-    "If the selected filesize is exceeded, capturing switches to the next file.",
+    "If the selected file size is exceeded, capturing switches to the next file.",
     NULL);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), ring_filesize_cb, 0, 1, row, row+1);
 
@@ -897,7 +897,7 @@ capture_prep(void)
 		capture_opts.has_autostop_duration);
   SIGNAL_CONNECT(stop_duration_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
   gtk_tooltips_set_tip(tooltips, stop_duration_cb, 
-    "Stop capturing after the given time exceeded.", NULL);
+    "Stop capturing after the given time is exceeded.", NULL);
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_duration_cb, 0, 1, row, row+1);
 
   stop_duration_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_duration,
