@@ -2,7 +2,7 @@
  * Routines for the Internet Security Association and Key Management Protocol (ISAKMP)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.19 2000/05/21 19:59:01 guy Exp $
+ * $Id: packet-isakmp.c,v 1.20 2000/05/22 17:56:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1339,12 +1339,6 @@ attrtype2str(guint8 type) {
   return "Private use";
 }
 
-/*
- * XXX - this is here for use when we parse ISAKMP data attributes
- * (RFC 2408, section 3.3); it's not currently used, so GCC will
- * whine about that, which serves as a reminder that we should perhaps
- * add code to parse ISAKMP data attributes.
- */
 static const char * 
 cfgattrident2str(guint16 ident) {
 #define NUM_ATTR_DEFINED	12
