@@ -99,22 +99,29 @@ README.win32 for those instructions.
         is not built. Use this switch to build it.
 
     --without-pcap
-        If you chose to build a packet analyzer that can analyze
+        If you choose to build a packet analyzer that can analyze
         capture files but cannot capture packets on its own, but you
-        *do* have libpcap installed, use --without-pcap to avoid
-        using libpcap.
+        *do* have libpcap installed, or if you are trying to build
+        Ethereal on a system that doesn't have libpcap installed (in
+        which case you have no choice but to build a version that can
+        analyze capture files but cannot capture packets on its own),
+        use --without-pcap to avoid using libpcap.
 
     --with-pcap=DIR
-        Use this tell Ethereal where you have libpcap installed, if in a
-        non-standard location.
+        Use this to tell Ethereal where you have libpcap installed, if
+        it is installed in a non-standard location.
 
-    --disable-zlib
+    --without-zlib
         By default, if 'configure' finds zlib (a.k.a, libz), the
         wiretap library will be built so that it can read compressed
         capture files. If you have zlib but do not wish to build
         it into the wiretap library, used by Ethereal, Tethereal, and
         the capture-file utilities that come in this package, use
         this switch.
+
+    --with-zlib=DIR
+        Use this to tell Ethereal where you have zlib installed, if it
+        is installed in a non-standard location.
 
     --disable-ipv6
         If 'configure' finds support for IPv6 name resolution on
@@ -132,7 +139,7 @@ README.win32 for those instructions.
         SSL library is installed in a non-standard location,
         you can specify where your SSL library is with this switch.
 
-    --disable-snmp
+    --without-ucdsnmp
         If 'configure' finds a supported version of the UCD SNMP library
         on your system,  the SNMP dissector will be enhanced to use
         routines from that SNMP library.   Use this switch to avoid
