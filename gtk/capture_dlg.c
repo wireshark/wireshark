@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.17 2000/01/16 02:48:11 guy Exp $
+ * $Id: capture_dlg.c,v 1.18 2000/01/18 09:24:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -59,13 +59,14 @@
 #include "util.h"
 
 /* Capture callback data keys */
-#define E_CAP_IFACE_KEY    "cap_iface"
-#define E_CAP_FILT_KEY     "cap_filter_te"
-#define E_CAP_FILE_TE_KEY  "cap_file_te"
-#define E_CAP_COUNT_KEY    "cap_count"
-#define E_CAP_SNAP_KEY     "cap_snap"
-#define E_CAP_SYNC_KEY     "cap_sync"
-#define E_CAP_RESOLVE_KEY  "cap_resolve"
+#define E_CAP_IFACE_KEY       "cap_iface"
+#define E_CAP_FILT_KEY        "cap_filter_te"
+#define E_CAP_FILE_TE_KEY     "cap_file_te"
+#define E_CAP_COUNT_KEY       "cap_count"
+#define E_CAP_SNAP_KEY        "cap_snap"
+#define E_CAP_SYNC_KEY        "cap_sync"
+#define E_CAP_AUTO_SCROLL_KEY "cap_auto_scroll"
+#define E_CAP_RESOLVE_KEY     "cap_resolve"
 
 static void
 capture_prep_file_cb(GtkWidget *w, gpointer te);
@@ -91,7 +92,7 @@ capture_prep_cb(GtkWidget *w, gpointer d)
                 *file_hb, *file_bt, *file_te,
                 *caplen_hb,
                 *bbox, *ok_bt, *cancel_bt, *snap_lb,
-                *snap_sb, *sync_cb, *resolv_cb;
+                *snap_sb, *sync_cb, *auto_scroll_cb, *resolv_cb;
   GtkAdjustment *adj;
   GList         *if_list, *count_list = NULL;
   gchar         *count_item1 = "0 (Infinite)", count_item2[16];
@@ -213,6 +214,11 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_container_add(GTK_CONTAINER(main_vb), sync_cb);
   gtk_widget_show(sync_cb);
 
+  auto_scroll_cb = gtk_check_button_new_with_label("Automatic scrolling in live capture");
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(auto_scroll_cb), auto_scroll_live);
+  gtk_container_add(GTK_CONTAINER(main_vb), auto_scroll_cb);
+  gtk_widget_show(auto_scroll_cb);
+
   resolv_cb = gtk_check_button_new_with_label("Enable name resolution");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(resolv_cb), g_resolving_actif);
   gtk_container_add(GTK_CONTAINER(main_vb), resolv_cb);
@@ -247,6 +253,7 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_COUNT_KEY, count_cb);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_SNAP_KEY,  snap_sb);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_SYNC_KEY,  sync_cb);
+  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_AUTO_SCROLL_KEY, auto_scroll_cb);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_RESOLVE_KEY,  resolv_cb);
 
   gtk_widget_show(cap_open_w);
@@ -289,7 +296,7 @@ cap_prep_fs_cancel_cb(GtkWidget *w, gpointer data)
 static void
 capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
   GtkWidget *if_cb, *filter_te, *file_te, *count_cb, *snap_sb, *sync_cb,
-            *resolv_cb;
+            *auto_scroll_cb, *resolv_cb;
   gchar *if_text;
   gchar *if_name;
   gchar *filter_text;
@@ -301,6 +308,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
   count_cb  = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_COUNT_KEY);
   snap_sb   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_SNAP_KEY);
   sync_cb   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_SYNC_KEY);
+  auto_scroll_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_AUTO_SCROLL_KEY);
   resolv_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_RESOLVE_KEY);
 
   if_text =
@@ -349,6 +357,8 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
     cf.snap = MIN_PACKET_SIZE;
 
   sync_mode = GTK_TOGGLE_BUTTON (sync_cb)->active;
+
+  auto_scroll_live = GTK_TOGGLE_BUTTON (auto_scroll_cb)->active;
 
   g_resolving_actif = GTK_TOGGLE_BUTTON (resolv_cb)->active;
 

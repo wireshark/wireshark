@@ -478,14 +478,19 @@ The I<Capture Preferences> dialog lets you specify various parameters for
 capturing live packet data.
 
 The I<Interface:> combo box lets you specify the interface from which to
-capture packet data.  The I<Count:> entry specifies the number of packets
-to capture.  Entering 0 will capture packets indefinitely.  The I<Filter:>
-entry lets you specify the capture filter using a tcpdump-style filter
-string as described above.  The I<File:> entry specifies the file to save
-to, as in the I<Printer Options> dialog above.  You can specify the
-maximum number of bytes to capture per packet with the I<Capture length>
-entry, and can specify that the display should be updated as packets are
-captured with the I<Update list of packets in real time> check box.
+capture packet data.  The I<Count:> entry specifies the number of
+packets to capture.  Entering 0 will capture packets indefinitely.  The
+I<Filter:> entry lets you specify the capture filter using a
+tcpdump-style filter string as described above.  The I<File:> entry
+specifies the file to save to, as in the I<Printer Options> dialog
+above.  You can specify the maximum number of bytes to capture per
+packet with the I<Capture length> entry, can specify that the display
+should be updated as packets are captured with the I<Update list of
+packets in real time> check box, can specify whether in such a capture
+the packet list pane should scroll to show the most recently captured
+packets with the I<Automatic scrolling in live capture> check box, and
+can specify whether addresses should be translated to names in the
+display with the I<Enable name resolution> check box.
 
 =item Display Options
 
