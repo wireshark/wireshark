@@ -835,17 +835,6 @@ smb_trans_defragment(proto_tree *tree _U_, packet_info *pinfo, tvbuff_t *tvb,
 	if (si->sip == NULL) {
 		/*
 		 * We don't have the frame number of the request.
-		 *
-		 * XXX - is there truly nothing we can do here?
-		 * Can we not separately keep track of the original
-		 * transaction and its continuations, as we did
-		 * at one time?
-		 *
-		 * It is probably not much point in even trying to do something here
-		 * if we have never seen the initial request. Without the initial
-		 * request we probably miss all parameters and the begining of data
-		 * so we cant even call a subdissector since we can not determine
-		 * which type of transaction call this is.
 		 */
 		return NULL;
 	}
@@ -856,6 +845,18 @@ smb_trans_defragment(proto_tree *tree _U_, packet_info *pinfo, tvbuff_t *tvb,
 				       pos, count, more_frags);
 	} else {
 		fd_head = fragment_get(pinfo, si->sip->frame_req, smb_trans_fragment_table);
+	}
+
+	if (!fd_head || !(fd_head->flags&FD_DEFRAGMENTED)){
+		/* This is continued - mark it as such, so we recognize
+		   continuation responses.
+		*/
+		si->sip->flags |= SMB_SIF_IS_CONTINUED;
+	} else {
+		/* We've finished reassembling, so there are no more
+		   continuation responses.
+		*/
+		si->sip->flags &= ~SMB_SIF_IS_CONTINUED;
 	}
 
 	/* we only show the defragmented packet for the first fragment,
@@ -14739,8 +14740,8 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				}
 
 				if( (si->request) || (!cmd_match) ) {
-					/* If we are processing an SMB request but there was already
-					   another "identical" smb resuest we had not matched yet.
+					/* We are processing an SMB request but there was already
+					   another "identical" smb request we had not matched yet.
 					   This must mean that either we have a retransmission or that the
 					   response to the previous one was lost and the client has reused
 					   the MID for this conversation. In either case it's not much more
@@ -14756,12 +14757,21 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 					g_hash_table_remove(si->ct->unmatched, (void *)pid_mid);
 					sip=NULL; /* XXX should free it as well */
 				} else {
-					/* we have found a response to some request we have seen earlier.
-					   What we do now depends on whether this is the first response
-					   to that request we see (id frame_res==0) or not.
+					/* we have found a response to some
+					   request we have seen earlier.
+					   What we do now depends on whether
+					   this is the first response to that
+					   request we see (id frame_res==0) or
+					   if it's a response to a request
+					   for which we've seen an earlier
+					   response that's continued.
 					*/
-					if(sip->frame_res==0){
-						/* ok it is the first response we have seen to this packet */
+					if(sip->frame_res==0 ||
+					   sip->flags & SMB_SIF_IS_CONTINUED){
+						/* OK, it is the first response
+						   we have seen to this packet,
+						   or it's a continuation of
+						   a response we've seen. */
 						sip->frame_res = pinfo->fd->num;
 						new_key = g_mem_chunk_alloc(smb_saved_info_key_chunk);
 						new_key->frame = sip->frame_res;
