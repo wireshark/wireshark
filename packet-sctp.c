@@ -10,7 +10,7 @@
  * - support for reassembly
  * - code cleanup
  *
- * $Id: packet-sctp.c,v 1.39 2002/06/28 22:38:42 guy Exp $
+ * $Id: packet-sctp.c,v 1.40 2002/07/10 21:01:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,25 +35,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#include <stdio.h>
-#include <stdlib.h>
-
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
-#include <string.h>
-#include <glib.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
 #endif
 
 #include "prefs.h"
@@ -151,6 +132,8 @@ static gint ett_sctp_abort_chunk_flags = -1;
 static gint ett_sctp_sack_chunk_gap_block = -1;
 static gint ett_sctp_supported_address_types_parameter = -1;
 static gint ett_sctp_unrecognized_parameter_parameter = -1;
+
+static dissector_handle_t data_handle;
 
 #define SCTP_DATA_CHUNK_ID               0
 #define SCTP_INIT_CHUNK_ID               1
@@ -1316,8 +1299,7 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_t
 */
 
 static gboolean
-dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree,
-		proto_tree *chunk_tree, guint32 ppi, guint16 payload_length, guint16 padding_length)
+dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, guint32 ppi)
 {
   guint32 low_port, high_port;
 
@@ -1356,14 +1338,8 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree,
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_str(pinfo->cinfo, COL_INFO, "DATA ");
-  proto_tree_add_text(chunk_tree, payload_tvb, 0, payload_length,
-		      "Payload (%u byte%s)",
-		      payload_length, plurality(payload_length, "", "s")); 
-  if (padding_length > 0)
-    proto_tree_add_text(chunk_tree, payload_tvb, payload_length, padding_length,
-			"Padding: %u byte%s",
-			padding_length, plurality(padding_length, "", "s"));
-  return FALSE;
+  call_dissector(data_handle, payload_tvb, pinfo, tree);
+  return TRUE;
 }
 
 static gboolean
@@ -1381,7 +1357,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
   padding_length       = nr_of_padding_bytes(length);
   total_payload_length = payload_length + padding_length;
   payload_tvb          = tvb_new_subset(chunk_tvb, DATA_CHUNK_PAYLOAD_OFFSET,
-					  total_payload_length, total_payload_length);
+					                    payload_length, payload_length);
   payload_proto_id     = tvb_get_ntohl(chunk_tvb, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_OFFSET);
 
   if (chunk_tree) {
@@ -1414,11 +1390,18 @@ dissect_data_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_uint(chunk_tree, hf_sctp_data_chunk_payload_proto_id, 
 			chunk_tvb, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_OFFSET, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_LENGTH,
 			payload_proto_id);
+    if (padding_length > 0)
+      proto_tree_add_text(chunk_tree, chunk_tvb, DATA_CHUNK_PAYLOAD_OFFSET + payload_length, padding_length,
+		                  "Padding: %u byte%s",
+			               padding_length, plurality(padding_length, "", "s"));
+
     proto_item_set_text(chunk_item, "DATA chunk with TSN %u (%u:%u) containing %u byte%s of payload",
 			tsn, stream_id, stream_seq_number, 
 			payload_length, plurality(payload_length, "", "s"));
+    proto_item_set_len(chunk_item, DATA_CHUNK_HEADER_LENGTH);
+
   };   
-  return dissect_payload(payload_tvb, pinfo, tree, chunk_tree, payload_proto_id, payload_length, padding_length); 
+  return dissect_payload(payload_tvb, pinfo, tree, payload_proto_id); 
 }
 
 static void
@@ -2515,6 +2498,7 @@ proto_reg_handoff_sctp(void)
 {
   dissector_handle_t sctp_handle;
 
+  data_handle = find_dissector("data");
   sctp_handle = create_dissector_handle(dissect_sctp, proto_sctp);
   dissector_add("ip.proto", IP_PROTO_SCTP, sctp_handle);
 }
