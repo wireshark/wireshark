@@ -313,7 +313,19 @@ Exit the application.
 
 Search forward or backward, starting with the currently selected packet
 (or the most recently selected packet, if no packet is selected), for a
-packet matching a given display filter.
+packet matching a given display filter expression.
+
+=item Edit:Find Next
+
+Search forward, starting with the currently selected packet
+(or the most recently selected packet, if no packet is selected), for a
+packet matching the filter from the previous search.
+
+=item Edit:Find Previous
+
+Search backward, starting with the currently selected packet (or the
+most recently selected packet, if no packet is selected), for a packet
+matching the filter from the previous search.
 
 =item Edit:Go To Frame
 

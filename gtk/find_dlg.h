@@ -1,7 +1,7 @@
 /* find_dlg.h
  * Definitions for "find frame" window
  *
- * $Id: find_dlg.h,v 1.1 1999/11/06 06:27:09 guy Exp $
+ * $Id: find_dlg.h,v 1.2 2002/05/03 21:55:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,5 +27,7 @@
 #define __FIND_DLG_H__
 
 void   find_frame_cb(GtkWidget *, gpointer);
+void   find_next_cb(GtkWidget *, gpointer);
+void   find_previous_cb(GtkWidget *, gpointer);
 
 #endif /* find_dlg.h */

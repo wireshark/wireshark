@@ -1149,6 +1149,8 @@ Didier Gautheron <dgautheron[AT]magic.fr> {
 	Appletalk Transaction Protocol, Appletalk Stream Protocol, and
 	    Appletalk Filing Protocol support
 	"frame.marked" field set on marked frames
+	Don't show progress bar for quick "Find Frame" searches
+	Add "Find Next" and "Find Previous" to repeat searches
 }
 
 Phil Williams <csypbw[AT]comp.leeds.ac.uk> {

@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.62 2002/01/21 07:37:41 guy Exp $
+ * $Id: menu.c,v 1.63 2002/05/03 21:55:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -117,6 +117,8 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Edit/<separator>", NULL, NULL, 0, "<Separator>"},
 #endif
   {"/Edit/_Find Frame...", "<control>F", GTK_MENU_FUNC(find_frame_cb), 0, NULL},
+  {"/Edit/Find _Next", "<control>N", GTK_MENU_FUNC(find_next_cb), 0, NULL},
+  {"/Edit/Find _Previous", "<control>B", GTK_MENU_FUNC(find_previous_cb), 0, NULL},
   {"/Edit/_Go To Frame...", "<control>G", GTK_MENU_FUNC(goto_frame_cb), 0, NULL},
   {"/Edit/<separator>", NULL, NULL, 0, "<Separator>"},
   {"/Edit/_Mark Frame", "<control>M", GTK_MENU_FUNC(mark_frame_cb), 0, NULL},
@@ -465,6 +467,8 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
 {
   set_menu_sensitivity("/File/Print...", have_captured_packets);
   set_menu_sensitivity("/Edit/Find Frame...", have_captured_packets);
+  set_menu_sensitivity("/Edit/Find Next", have_captured_packets);
+  set_menu_sensitivity("/Edit/Find Previous", have_captured_packets);
   set_menu_sensitivity("/Edit/Go To Frame...", have_captured_packets);
   set_menu_sensitivity("/Display/Colorize Display...", have_captured_packets);
   set_menu_sensitivity("/Tools/Summary", have_captured_packets);

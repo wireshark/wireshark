@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.271 2002/05/03 03:24:45 guy Exp $
+ * $Id: file.c,v 1.272 2002/05/03 21:55:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1392,7 +1392,7 @@ find_packet(capture_file *cf, dfilter_t *sfcode)
   frame_data *start_fd;
   frame_data *fdata;
   frame_data *new_fd = NULL;
-  progdlg_t *progbar;
+  progdlg_t *progbar = NULL;
   gboolean stop_flag;
   guint32 progbar_quantum;
   guint32 progbar_nextstep;
@@ -1410,14 +1410,18 @@ find_packet(capture_file *cf, dfilter_t *sfcode)
     count = 0;
     fdata = start_fd;
 
-    /* Update the progress bar when it gets to this value. */
-    progbar_nextstep = 0;
+    /* Update the progress bar when it gets to this value.  We start at
+       20, not 0, so that we don't get a progress bar until we've
+       checked at least that many frames, so that a very quick search
+       doesn't pop up and immediately destroy a progress bar.
+
+       XXX - should use a timer?  Like 50 ms. */
+    progbar_nextstep = 20;
     /* When we reach the value that triggers a progress bar update,
        bump that value by this amount. */
     progbar_quantum = cf->count/N_PROGBAR_UPDATES;
 
     stop_flag = FALSE;
-    progbar = create_progress_dlg("Searching", "Cancel", &stop_flag);
 
     fdata = start_fd;
     for (;;) {
@@ -1432,6 +1436,12 @@ find_packet(capture_file *cf, dfilter_t *sfcode)
          */
         g_assert(cf->count > 0);
 
+        /* Create the progress bar if it doesn't exist; we don't create it
+           immediately, so that we don't have it appear and immediately
+           disappear if the search is quick. */
+        if (progbar == NULL)
+           progbar = create_progress_dlg("Searching", "Cancel", &stop_flag);
+        
         update_progress_dlg(progbar, (gfloat) count / cf->count);
 
         progbar_nextstep += progbar_quantum;
@@ -1483,8 +1493,10 @@ find_packet(capture_file *cf, dfilter_t *sfcode)
       }
     }
 
-    /* We're done scanning the packets; destroy the progress bar. */
-    destroy_progress_dlg(progbar);
+    /* We're done scanning the packets; destroy the progress bar, if
+       we created it. */
+    if (progbar != NULL)
+      destroy_progress_dlg(progbar);
   }
 
   if (new_fd != NULL) {

@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.21 2002/03/05 11:55:59 guy Exp $
+ * $Id: find_dlg.c,v 1.22 2002/05/03 21:55:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -251,4 +251,32 @@ find_frame_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 
   /* Note that we no longer have a "Find Frame" dialog box. */
   find_frame_w = NULL;
+}
+
+static void
+find_previous_next(GtkWidget *w, gpointer d, gboolean sens)
+{
+  dfilter_t *sfcode;
+
+  if (cfile.sfilter) {
+     if (!dfilter_compile(cfile.sfilter, &sfcode)) 
+        return;
+     if (sfcode == NULL) 
+        return;
+     cfile.sbackward = sens;
+     find_packet(&cfile, sfcode);
+  } else
+     find_frame_cb(w, d);
+}
+
+void
+find_next_cb(GtkWidget *w , gpointer d)
+{
+  find_previous_next(w, d, FALSE);
+}
+
+void
+find_previous_cb(GtkWidget *w , gpointer d)
+{
+  find_previous_next(w, d, TRUE);
 }
