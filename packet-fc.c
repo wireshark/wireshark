@@ -4,7 +4,7 @@
  *   Copyright 2003  Ronnie Sahlberg, exchange first/last matching and 
  *                                    tap listener and misc updates
  *
- * $Id: packet-fc.c,v 1.13 2003/08/23 13:35:05 sahlberg Exp $
+ * $Id: packet-fc.c,v 1.14 2003/08/24 01:06:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -943,17 +943,17 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* XXX - use "fc_wka_vals[]" on this? */
     proto_tree_add_string (fc_tree, hf_fc_did, tvb, offset+1, 3,
-                           fc32_to_str (&fchdr.d_id));
+                           fc_to_str (fchdr.d_id.data));
     proto_tree_add_string_hidden (fc_tree, hf_fc_id, tvb, offset+1, 3,
-                           fc32_to_str (&fchdr.d_id));
+                           fc_to_str (fchdr.d_id.data));
 
     proto_tree_add_uint (fc_tree, hf_fc_csctl, tvb, offset+4, 1, fchdr.cs_ctl);
 
     /* XXX - use "fc_wka_vals[]" on this? */
     proto_tree_add_string (fc_tree, hf_fc_sid, tvb, offset+5, 3,
-                           fc32_to_str (&fchdr.s_id));
+                           fc_to_str (fchdr.s_id.data));
     proto_tree_add_string_hidden (fc_tree, hf_fc_id, tvb, offset+5, 3,
-                           fc32_to_str (&fchdr.s_id));
+                           fc_to_str (fchdr.s_id.data));
         
     if (ftype == FC_FTYPE_LINKCTL) {
         if (((fchdr.r_ctl & 0x0F) == FC_LCTL_FBSYB) ||
