@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.44 2000/09/09 08:17:51 guy Exp $
+ * $Id: menu.c,v 1.45 2000/10/11 06:01:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -124,7 +124,13 @@ static GtkItemFactoryEntry menu_items[] =
 #ifdef HAVE_LIBPCAP
   {"/_Capture", NULL, NULL, 0, "<Branch>" },
   {"/Capture/_Start...", "<control>K", GTK_MENU_FUNC(capture_prep_cb), 0, NULL},
-#endif
+  /*
+   * XXX - this doesn't yet work in Win32.
+   */
+#ifndef _WIN32
+  {"/Capture/S_top", "<control>E", GTK_MENU_FUNC(capture_stop_cb), 0, NULL},
+#endif /* _WIN32 */
+#endif /* HAVE_LIBPCAP */
   {"/_Display", NULL, NULL, 0, "<Branch>" },
   {"/Display/_Options...", NULL, GTK_MENU_FUNC(display_opt_cb), 0, NULL},
   {"/Display/_Match Selected", NULL, GTK_MENU_FUNC(match_selected_cb), 0, NULL},
@@ -346,6 +352,12 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
 {
   set_menu_sensitivity("/File/Open...", !capture_in_progress);
   set_menu_sensitivity("/Capture/Start...", !capture_in_progress);
+  /*
+   * XXX - this doesn't yet work in Win32.
+   */
+#ifndef _WIN32
+  set_menu_sensitivity("/Capture/Stop", capture_in_progress);
+#endif
 }
 
 /* Enable or disable menu items based on whether you have some captured

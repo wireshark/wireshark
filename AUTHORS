@@ -401,6 +401,10 @@ Brian Wellington <bwelling@xbill.org> {
 	Partial support for DNS-over-TCP
 }
 
+Santeri Paavolainen <santtu@ssh.com> {
+	"Capture->Stop" menu bar item
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

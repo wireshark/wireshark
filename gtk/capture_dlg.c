@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.33 2000/09/15 05:32:48 guy Exp $
+ * $Id: capture_dlg.c,v 1.34 2000/10/11 06:01:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -89,6 +89,12 @@ capture_prep_close_cb(GtkWidget *close_bt, gpointer parent_w);
 
 static void
 capture_prep_destroy_cb(GtkWidget *win, gpointer user_data);
+
+void
+capture_stop_cb(GtkWidget *w, gpointer d)
+{
+    capture_stop();
+}
 
 /*
  * Keep a static pointer to the current "Capture Preferences" window, if

@@ -281,6 +281,12 @@ file can be chosen by setting your TMPDIR environment variable before
 starting B<Ethereal>.  Otherwise, the default TMPDIR location is
 system-dependent, but is likely either F</var/tmp> or F</tmp>.
 
+=item Capture:Stop
+
+In a capture that updates the packet display as packets arrive (so that
+Ethereal responds to user input other than pressing the "Stop" button in
+the capture packet statistics dialog box), stops the capture.
+
 =item Display:Options
 
 Allows you to sets the format of the packet timestamp displayed in the
@@ -988,6 +994,7 @@ B<http://www.ethereal.com>.
   Per Flock                <per.flock@axis.com>
   Jack Keane               <jkeane@OpenReach.com>
   Brian Wellington         <bwelling@xbill.org>
+  Santeri Paavolainen      <santtu@ssh.com>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

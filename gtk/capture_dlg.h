@@ -1,7 +1,7 @@
 /* capture_dlg.h
  * Definitions for packet capture windows
  *
- * $Id: capture_dlg.h,v 1.1 1999/09/09 03:32:01 gram Exp $
+ * $Id: capture_dlg.h,v 1.2 2000/10/11 06:01:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,5 +27,6 @@
 #define __CAPTURE_DLG_H__
 
 void   capture_prep_cb(GtkWidget *, gpointer);
+void   capture_stop_cb(GtkWidget *, gpointer);
 
 #endif /* capture.h */

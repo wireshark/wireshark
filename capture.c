@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.128 2000/10/08 17:16:29 gerald Exp $
+ * $Id: capture.c,v 1.129 2000/10/11 06:01:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -126,6 +126,7 @@ static void capture_pcap_cb(u_char *, const struct pcap_pkthdr *,
   const u_char *);
 static void send_errmsg_to_parent(const char *);
 static float pct(gint, gint);
+static void stop_capture(int signo);
 
 typedef struct _loop_data {
   gint           go;
@@ -1012,6 +1013,12 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr)
 }
 #endif
 
+/*
+ * This needs to be static, so that the SIGUSR1 handler can clear the "go"
+ * flag.
+ */
+static loop_data   ld;
+
 /* Do the low-level work of a capture.
    Returns TRUE if it succeeds, FALSE otherwise. */
 int
@@ -1023,7 +1030,6 @@ capture(void)
   int         pcap_encap;
   int         snaplen;
   gchar       err_str[PCAP_ERRBUF_SIZE], label_str[64];
-  loop_data   ld;
   bpf_u_int32 netnum, netmask;
   time_t      upd_time, cur_time;
   int         err, inpkts;
@@ -1316,6 +1322,14 @@ capture(void)
 #ifdef linux
   if (!ld.from_pipe) pcap_fd = pcap_fileno(pch);
 #endif
+
+#ifndef _WIN32
+  /*
+   * Catch SIGUSR1, so that we exit cleanly if the parent process
+   * kills us with it due to the user selecting "Capture->Stop".
+   */
+  signal(SIGUSR1, stop_capture);
+#endif
   while (ld.go) {
     while (gtk_events_pending()) gtk_main_iteration();
 
@@ -1527,6 +1541,12 @@ pct(gint num, gint denom) {
 }
 
 static void
+stop_capture(int signo)
+{
+  ld.go = FALSE;
+}
+
+static void
 capture_delete_cb(GtkWidget *w, GdkEvent *event, gpointer data) {
   capture_stop_cb(NULL, data);
 }
@@ -1536,6 +1556,18 @@ capture_stop_cb(GtkWidget *w, gpointer data) {
   loop_data *ld = (loop_data *) data;
   
   ld->go = FALSE;
+}
+
+void
+capture_stop(void)
+{
+  /*
+   * XXX - find some way of signaling the child in Win32.
+   */
+#ifndef _WIN32
+  if (fork_child != -1)
+      kill(fork_child, SIGUSR1);
+#endif
 }
 
 static void
