@@ -2,7 +2,7 @@
  * Routines for wbxml dissection
  * Copyright 2003, Olivier Biot <olivier.biot (ad) siemens.com>
  *
- * $Id: packet-wbxml.h,v 1.2 2003/02/12 01:17:02 guy Exp $
+ * $Id: packet-wbxml.h,v 1.3 2003/02/13 22:16:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -139,9 +139,9 @@ static const value_string vals_wbxml1x_global_tokens[] = {
 /****************************************************************************/
 
 /*******************************************
- *      WML 1.1 - Global tokens (EXT)      *
+ *      WML 1.0 - Global tokens (EXT)      *
  *******************************************/
-static const value_string vals_wmlc11_global[] = {
+static const value_string vals_wmlc10_global[] = {
 	{ 0x40, "Variable substitution - escaped" },
 	{ 0x41, "Variable substitution - unescaped" },
 	{ 0x42, "Variable substitution - no transformation" },
@@ -156,9 +156,178 @@ static const value_string vals_wmlc11_global[] = {
 };
 
 /*******************************************
+ *              WML 1.0 - Tags             *
+ *******************************************/
+static const value_string vals_wmlc10_tags[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	/* 0x05 -- 0xE1 */
+	{ 0xE2, "A" },
+	{ 0xE3, "ACCESS" },
+	{ 0xE4, "B" },
+	{ 0xE5, "BIG" },
+	{ 0xE6, "BR" },
+	{ 0xE7, "CARD" },
+	{ 0xE8, "DO" },
+	{ 0xE9, "EM" },
+	{ 0xEA, "FIELDSET" },
+	{ 0xEB, "GO" },
+	{ 0xEC, "HEAD" },
+	{ 0xED, "I" },
+	{ 0xEE, "IMG" },
+	{ 0xEF, "INPUT" },
+	{ 0xF0, "META" },
+	{ 0xF1, "NOOP" },
+	{ 0xF2, "PREV" },
+	{ 0xF3, "ONEVENT" },
+	{ 0xF4, "OPTGROUP" },
+	{ 0xF5, "OPTION" },
+	{ 0xF6, "REFRESH" },
+	{ 0xF7, "SELECT" },
+	{ 0xF8, "SMALL" },
+	{ 0xF9, "STRONG" },
+	{ 0xFA, "TAB" },
+	{ 0xFB, "TEMPLATE" },
+	{ 0xFC, "TIMER" },
+	{ 0xFD, "U" },
+	{ 0xFE, "VAR" },
+	{ 0xFF, "WML" },
+
+	{ 0x00, NULL }
+};
+
+/*******************************************
+ *       WML 1.0 - Attribute Start         *
+ *******************************************/
+static const value_string vals_wmlc10_attrStart[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "ACCEPT-CHARSET=" },
+	{ 0x06, "ALIGN='BOTTOM'" },
+	{ 0x07, "ALIGN='CENTER'" },
+	{ 0x08, "ALIGN='LEFT'" },
+	{ 0x09, "ALIGN='MIDDLE'" },
+	{ 0x0A, "ALIGN='RIGHT'" },
+	{ 0x0B, "ALIGN='TOP'" },
+	{ 0x0C, "ALT=" },
+	{ 0x0D, "CONTENT=" },
+	{ 0x0E, "DEFAULT=" },
+	{ 0x0F, "DOMAIN=" },
+	{ 0x10, "EMPTYOK='FALSE'" },
+	{ 0x11, "EMPTYOK='TRUE'" },
+	{ 0x12, "FORMAT=" },
+	{ 0x13, "HEIGHT=" },
+	{ 0x14, "HSPACE=" },
+	{ 0x15, "IDEFAULT=" },
+	{ 0x16, "IKEY=" },
+	{ 0x17, "KEY=" },
+	{ 0x18, "LABEL=" },
+	{ 0x19, "LOCALSRC=" },
+	{ 0x1A, "MAXLENGTH=" },
+	{ 0x1B, "METHOD='GET'" },
+	{ 0x1C, "METHOD='POST'" },
+	{ 0x1D, "MODE='NOWRAP'" },
+	{ 0x1E, "MODE='WRAP'" },
+	{ 0x1F, "MULTIPLE='FALSE'" },
+	{ 0x20, "MULTIPLE='TRUE'" },
+	{ 0x21, "NAME=" },
+	{ 0x22, "NEWCONTEXT='FALSE'" },
+	{ 0x23, "NEWCONTEXT='TRUE'" },
+	{ 0x24, "ONCLICK=" },
+	{ 0x25, "ONENTERBACKWARD=" },
+	{ 0x26, "ONENTERFORWARD=" },
+	{ 0x27, "ONTIMER=" },
+	{ 0x28, "OPTIONAL='FALSE'" },
+	{ 0x29, "OPTIONAL='TRUE'" },
+	{ 0x2A, "PATH=" },
+	{ 0x2B, "POSTDATA=" },
+	{ 0x2C, "PUBLIC='FALSE'" },
+	{ 0x2D, "PUBLIC='TRUE'" },
+	{ 0x2E, "SCHEME=" },
+	{ 0x2F, "SENDREFERER='FALSE'" },
+	{ 0x30, "SENDREFERER='TRUE'" },
+	{ 0x31, "SIZE=" },
+	{ 0x32, "SRC=" },
+	{ 0x33, "STYLE='LIST'" },
+	{ 0x34, "STYLE='SET'" },
+	{ 0x35, "TABINDEX=" },
+	{ 0x36, "TITLE=" },
+	{ 0x37, "TYPE=" },
+	{ 0x38, "TYPE='ACCEPT'" },
+	{ 0x39, "TYPE='DELETE'" },
+	{ 0x3A, "TYPE='HELP'" },
+	{ 0x3B, "TYPE='PASSWORD'" },
+	{ 0x3C, "TYPE='ONCLICK'" },
+	{ 0x3D, "TYPE='ONENTERBACKWARD'" },
+	{ 0x3E, "TYPE='ONENTERFORWARD'" },
+	{ 0x3F, "TYPE='ONTIMER'" },
+	/* 0x40 -- 0x44 GLOBAL */
+	{ 0x45, "TYPE='OPTIONS'" },
+	{ 0x46, "TYPE='PREV'" },
+	{ 0x47, "TYPE='RESET'" },
+	{ 0x48, "TYPE='TEXT'" },
+	{ 0x49, "TYPE='vnd.'" },
+	{ 0x4A, "URL=" },
+	{ 0x4B, "URL='http://'" },
+	{ 0x4C, "URL='https://'" },
+	{ 0x4D, "USER-AGENT=" },
+	{ 0x4E, "VALUE=" },
+	{ 0x4F, "VSPACE=" },
+	{ 0x50, "WIDTH=" },
+	{ 0x51, "xml:lang=" },
+
+	{ 0x00, NULL }
+};
+
+/*******************************************
+ *       WML 1.0 - Attribute Value         *
+ *******************************************/
+static const value_string vals_wmlc10_attrValue[] = {
+	/* 0x80 -- 0x84 GLOBAL */
+	{ 0x85, "'.com/'" },
+	{ 0x86, "'.edu/'" },
+	{ 0x87, "'.net/'" },
+	{ 0x88, "'.org/'" },
+	{ 0x89, "'ACCEPT'" },
+	{ 0x8A, "'BOTTOM'" },
+	{ 0x8B, "'CLEAR'" },
+	{ 0x8C, "'DELETE'" },
+	{ 0x8D, "'HELP'" },
+	{ 0x8E, "'http://'" },
+	{ 0x8F, "'http://www.'" },
+	{ 0x90, "'https://'" },
+	{ 0x91, "'https://www.'" },
+	{ 0x92, "'LIST'" },
+	{ 0x93, "'MIDDLE'" },
+	{ 0x94, "'NOWRAP'" },
+	{ 0x95, "'ONCLICK'" },
+	{ 0x96, "'ONENTERBACKWARD'" },
+	{ 0x97, "'ONENTERFORWARD'" },
+	{ 0x98, "'ONTIMER'" },
+	{ 0x99, "'OPTIONS'" },
+	{ 0x9A, "'PASSWORD'" },
+	{ 0x9B, "'RESET'" },
+	{ 0x9C, "'SET'" },
+	{ 0x9D, "'TEXT'" },
+	{ 0x9E, "'TOP'" },
+	{ 0x9F, "'UNKNOWN'" },
+	{ 0xA0, "'WRAP'" },
+	{ 0xA1, "'www.'" },
+
+	{ 0x00, NULL }
+};
+
+/****************************************************************************/
+
+/*******************************************
+ *      WML 1.1 - Global tokens (EXT)      *
+ *******************************************/
+#define vals_wmlc11_global  vals_wmlc10_global
+
+/*******************************************
  *              WML 1.1 - Tags             *
  *******************************************/
 static const value_string vals_wmlc11_tags[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	/* 0x05 -- 0x1B */
 	{ 0x1C, "a" },
 	{ 0x1D, "td" },
 	{ 0x1E, "tr" },
@@ -203,6 +372,7 @@ static const value_string vals_wmlc11_tags[] = {
  *       WML 1.1 - Attribute Start         *
  *******************************************/
 static const value_string vals_wmlc11_attrStart[] = {
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "accept-charset=" },
 	{ 0x06, "align='bottom'" },
 	{ 0x07, "align='center'" },
@@ -294,6 +464,7 @@ static const value_string vals_wmlc11_attrStart[] = {
  *       WML 1.1 - Attribute Value         *
  *******************************************/
 static const value_string vals_wmlc11_attrValue[] = {
+	/* 0x80 -- 0x84 GLOBAL */
 	{ 0x85, "'.com/'" },
 	{ 0x86, "'.edu/'" },
 	{ 0x87, "'.net/'" },
@@ -338,6 +509,8 @@ static const value_string vals_wmlc11_attrValue[] = {
  *              WML 1.2 - Tags             *
  *******************************************/
 static const value_string vals_wmlc12_tags[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	/* 0x05 -- 0x1A */
 	{ 0x1B, "pre" },
 	{ 0x1C, "a" },
 	{ 0x1D, "td" },
@@ -383,6 +556,7 @@ static const value_string vals_wmlc12_tags[] = {
  *       WML 1.2 - Attribute Start         *
  *******************************************/
 static const value_string vals_wmlc12_attrStart[] = {
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "accept-charset=" },
 	{ 0x06, "align='bottom'" },
 	{ 0x07, "align='center'" },
@@ -498,6 +672,7 @@ static const value_string vals_wmlc12_attrStart[] = {
  *       WML 1.3 - Attribute Start         *
  *******************************************/
 static const value_string vals_wmlc13_attrStart[] = {
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "accept-charset=" },
 	{ 0x06, "align='bottom'" },
 	{ 0x07, "align='center'" },
@@ -613,6 +788,7 @@ static const value_string vals_sic10_global[] = {
  *           SI 1.0 - Tags                 *
  *******************************************/
 static const value_string vals_sic10_tags[] = {
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "si" },
 	{ 0x06, "indication" },
 	{ 0x07, "info" },
@@ -625,6 +801,7 @@ static const value_string vals_sic10_tags[] = {
  *        SI 1.0 - Attribute Start         *
  *******************************************/
 static const value_string vals_sic10_attrStart[] = {
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "action='signal-none'" },
 	{ 0x06, "action='signal-low'" },
 	{ 0x07, "action='signal-medium'" },
@@ -647,6 +824,7 @@ static const value_string vals_sic10_attrStart[] = {
  *        SI 1.0 - Attribute Value         *
  *******************************************/
 static const value_string vals_sic10_attrValue[] = {
+	/* 0x80 -- 0x84 GLOBAL */
 	{ 0x85, "'.com/'" },
 	{ 0x86, "'.edu/'" },
 	{ 0x87, "'.net/'" },
@@ -670,6 +848,7 @@ static const value_string vals_slc10_global[] = {
  *           SL 1.0 - Tags                 *
  *******************************************/
 static const value_string vals_slc10_tags[] = {
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "sl" },
 
 	{ 0x00, NULL }
@@ -679,6 +858,7 @@ static const value_string vals_slc10_tags[] = {
  *        SL 1.0 - Attribute Start         *
  *******************************************/
 static const value_string vals_slc10_attrStart[] = {
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "action='execute-low'" },
 	{ 0x06, "action='execute-high'" },
 	{ 0x07, "action='cache'" },
@@ -695,6 +875,7 @@ static const value_string vals_slc10_attrStart[] = {
  *        SL 1.0 - Attribute Value         *
  *******************************************/
 static const value_string vals_slc10_attrValue[] = {
+	/* 0x80 -- 0x84 GLOBAL */
 	{ 0x85, "'.com/'" },
 	{ 0x86, "'.edu/'" },
 	{ 0x87, "'.net/'" },
@@ -718,6 +899,7 @@ static const value_string vals_coc10_global[] = {
  *           CO 1.0 - Tags                 *
  *******************************************/
 static const value_string vals_coc10_tags[] = {
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "co" },
 	{ 0x06, "invalidate-object" },
 	{ 0x07, "invalidate-service" },
@@ -729,6 +911,7 @@ static const value_string vals_coc10_tags[] = {
  *        CO 1.0 - Attribute Start         *
  *******************************************/
 static const value_string vals_coc10_attrStart[] = {
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "uri=" },
 	{ 0x06, "uri='http://'" },
 	{ 0x07, "uri='http://www.'" },
@@ -742,6 +925,7 @@ static const value_string vals_coc10_attrStart[] = {
  *        CO 1.0 - Attribute Value         *
  *******************************************/
 static const value_string vals_coc10_attrValue[] = {
+	/* 0x80 -- 0x84 GLOBAL */
 	{ 0x85, "'.com/'" },
 	{ 0x86, "'.edu/'" },
 	{ 0x87, "'.net/'" },
@@ -752,6 +936,178 @@ static const value_string vals_coc10_attrValue[] = {
 
 
 /****************************************************************************/
+
+
+/*******************************************
+ *      PROV 1.0 - Global tokens (EXT)       *
+ *******************************************/
+static const value_string vals_provc10_global[] = {
+	{ 0x00, NULL }
+};
+
+
+/*******************************************
+ *           PROV 1.0 - Tags                 *
+ *******************************************/
+static const value_string vals_provc10_tags[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "wap-provisioningdoc" },
+	{ 0x06, "characteristic" },
+	{ 0x07, "parm" },
+
+	{ 0x00, NULL }
+};
+
+/*******************************************
+ *        PROV 1.0 - Attribute Start         *
+ *******************************************/
+static const value_string vals_provc10_attrStart[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "name=" },
+	{ 0x06, "value=" },
+	{ 0x07, "name='NAME'" },
+	{ 0x08, "name='NAP-ADDRESS'" },
+	{ 0x09, "name='NAP-ADDRTYPE'" },
+	{ 0x0A, "name='CALLTYPE'" },
+	{ 0x0B, "name='VALIDUNTIL'" },
+	{ 0x0C, "name='AUTHTYPE'" },
+	{ 0x0D, "name='AUTHNAME'" },
+	{ 0x0E, "name='AUTHSECRET'" },
+	{ 0x0F, "name='LINGER'" },
+	{ 0x10, "name='BEARER'" },
+	{ 0x11, "name='NAPID'" },
+	{ 0x12, "name='COUNTRY'" },
+	{ 0x13, "name='NETWORK'" },
+	{ 0x14, "name='INTERNET'" },
+	{ 0x15, "name='PROXY-ID'" },
+	{ 0x16, "name='PROXY-PROVIDER-ID'" },
+	{ 0x17, "name='DOMAIN'" },
+	{ 0x18, "name='PROVURL'" },
+	{ 0x19, "name='PXAUTH-TYPE'" },
+	{ 0x1A, "name='PXAUTH-ID'" },
+	{ 0x1B, "name='PXAUTH-PW'" },
+	{ 0x1C, "name='STARTPAGE'" },
+	{ 0x1D, "name='BASAUTH-ID'" },
+	{ 0x1E, "name='BASAUTH-PW'" },
+	{ 0x1F, "name='PUSHENABLED'" },
+	{ 0x20, "name='PXADDR'" },
+	{ 0x21, "name='PXADDRTYPE'" },
+	{ 0x22, "name='TO-NAPID'" },
+	{ 0x23, "name='PORTNBR'" },
+	{ 0x24, "name='SERVICE'" },
+	{ 0x25, "name='LINKSPEED'" },
+	{ 0x26, "name='DNLINKSPEED'" },
+	{ 0x27, "name='LOCAL-ADDR'" },
+	{ 0x28, "name='LOCAL-ADDRTYPE'" },
+	{ 0x29, "name='CONTEXT-ALLOW'" },
+	{ 0x2A, "name='TRUST'" },
+	{ 0x2B, "name='MASTER'" },
+	{ 0x2C, "name='SID'" },
+	{ 0x2D, "name='SOC'" },
+	{ 0x2E, "name='WSP-VERSION'" },
+	{ 0x2F, "name='PHYSICAL-PROXY-ID'" },
+	{ 0x30, "name='CLIENT-ID'" },
+	{ 0x31, "name='DELIVERY-ERR-SDU'" },
+	{ 0x32, "name='DELIVERY-ORDER'" },
+	{ 0x33, "name='TRAFFIC-CLASS'" },
+	{ 0x34, "name='MAX-SDU-SIZE'" },
+	{ 0x35, "name='MAX-BITRATE-UPLINK'" },
+	{ 0x36, "name='MAX-BITRATE-DNLINK'" },
+	{ 0x37, "name='RESIDUAL-BER'" },
+	{ 0x38, "name='SDU-ERROR-RATIO'" },
+	{ 0x39, "name='TRAFFIC-HANDL-PRIO'" },
+	{ 0x3A, "name='TRANSFER-DELAY'" },
+	{ 0x3B, "name='GUARANTEED-BITRATE-UPLINK'" },
+	{ 0x3C, "name='GUARANTEED-BITRATE-DNLINK'" },
+	/* 0x3D -- 0x3F */
+	/* 0x40 -- 0x44 GLOBAL */
+	{ 0x45, "version=" },
+	{ 0x46, "version='1.0'" },
+	/* 0x47 -- 0x4F */
+	{ 0x50, "type=" },
+	{ 0x51, "type='PXLOGICAL'" },
+	{ 0x52, "type='PXPHYSICAL'" },
+	{ 0x53, "type='PORT'" },
+	{ 0x54, "type='VALIDITY'" },
+	{ 0x55, "type='NAPDEF'" },
+	{ 0x56, "type='BOOTSTRAP'" },
+	{ 0x57, "type='VENDORCONFIG'" },
+	{ 0x58, "type='CLIENTIDENTITY'" },
+	{ 0x59, "type='PXAUTHINFO'" },
+	{ 0x5A, "type='NAPAUTHINFO'" },
+
+	{ 0x00, NULL }
+};
+
+/*******************************************
+ *        PROV 1.0 - Attribute Value         *
+ *******************************************/
+static const value_string vals_provc10_attrValue[] = {
+	/* 0x80 -- 0x84 GLOBAL */
+	{ 0x85, "IPV4" },
+	{ 0x86, "IPV6" },
+	{ 0x87, "E164" },
+	{ 0x88, "ALPHA" },
+	{ 0x89, "APN" },
+	{ 0x8A, "SCODE" },
+	{ 0x8B, "TETRA-ITSI" },
+	{ 0x8C, "MAN" },
+	/* 0x8D -- 0x8F */
+	{ 0x90, "ANALOG-MODEM" },
+	{ 0x91, "V.120" },
+	{ 0x92, "V.110" },
+	{ 0x93, "X.31" },
+	{ 0x94, "BIT-TRANSPARENT" },
+	{ 0x95, "DIRECT-ASYNCHRONOUS-DATA-SERVICE" },
+	/* 0x96 -- 0x99 */
+	{ 0x9A, "PAP" },
+	{ 0x9B, "CHAP" },
+	{ 0x9C, "HTTP-BASIC" },
+	{ 0x9D, "HTTP-DIGEST" },
+	{ 0x9E, "WTLS-SS" },
+	/* 0x9F -- 0xA1 */
+	{ 0xA2, "GSM-USSD" },
+	{ 0xA3, "GSM-SMS" },
+	{ 0xA4, "ANSI-136-GUTS" },
+	{ 0xA5, "IS-95-CDMA-SMS" },
+	{ 0xA6, "IS-95-CDMA-CSD" },
+	{ 0xA7, "IS-95-CDMA-PACKET" },
+	{ 0xA8, "ANSI-136-CSD" },
+	{ 0xA9, "ANSI-136-GPRS" },
+	{ 0xAA, "GSM-CSD" },
+	{ 0xAB, "GSM-GPRS" },
+	{ 0xAC, "AMPS-CDPD" },
+	{ 0xAD, "PDC-CSD" },
+	{ 0xAE, "PDC-PACKET" },
+	{ 0xAF, "IDEN-SMS" },
+	{ 0xB0, "IDEN-CSD" },
+	{ 0xB1, "IDEN-PACKET" },
+	{ 0xB2, "FLEX/REFLEX" },
+	{ 0xB3, "PHS-SMS" },
+	{ 0xB4, "PHS-CSD" },
+	{ 0xB5, "TETRA-SDS" },
+	{ 0xB6, "TETRA-PACKET" },
+	{ 0xB7, "ANSI-136-GHOST" },
+	{ 0xB8, "MOBITEX-MPAK" },
+	/* 0xB9 -- 0xBF */
+	/* 0xC0 -- 0xC4 GLOBAL */
+	{ 0xC5, "AUTOBAUDING" },
+	/* 0xC6 -- 0xC9 */
+	{ 0xCA, "CL-WSP" },
+	{ 0xCB, "CO-WSP" },
+	{ 0xCC, "CL-SEC-WSP" },
+	{ 0xCD, "CO-SEC-WSP" },
+	{ 0xCE, "CL-SEC-WTA" },
+	{ 0xCF, "CO-SEC-WTA" },
+
+	{ 0x00, NULL }
+};
+
+
+/****************************************************************************/
+
+
+
 
 
 /* The following definitions must be put at the very end of this header file,
@@ -776,7 +1132,8 @@ static const wbxml_mapping_table wbxml_map[] = {
 		FALSE, NULL, NULL, NULL, NULL
 	},
 	{ /* 0x02 = WML 1.0 */
-		FALSE, NULL, NULL, NULL, NULL
+		TRUE, vals_wmlc10_global, vals_wmlc10_tags,
+		vals_wmlc10_attrStart, vals_wmlc10_attrValue
 	},
 	{ /* 0x03 = WTA 1.0 - Deprecated */
 		FALSE, NULL, NULL, NULL, NULL
@@ -809,7 +1166,8 @@ static const wbxml_mapping_table wbxml_map[] = {
 		vals_wmlc13_attrStart, vals_wmlc13_attrValue
 	},
 	{ /* 0x0B = PROV 1.0 */
-		FALSE, NULL, NULL, NULL, NULL
+		TRUE, vals_provc10_global, vals_provc10_tags,
+		vals_provc10_attrStart, vals_provc10_attrValue
 	},
 	{ /* 0x0C = WTA-WML 1.2 */
 		FALSE, NULL, NULL, NULL, NULL
