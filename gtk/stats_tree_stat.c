@@ -26,7 +26,8 @@
 /*
  TODO:
 
- - GTK1 something better than just a textbox
+ - make GTK+ 1.2[.x] implementation columns autoresize
+ - make top-level node in GTK+ 1.2[.x] implementation start out open
  
 */
 
@@ -52,8 +53,7 @@ struct _st_node_pres {
 #if GTK_MAJOR_VERSION >= 2
 	GtkTreeIter*	iter;
 #else
-	/* g_malloc(0) ??? */
-	void*		dummy;
+	GtkCTreeNode*	node;
 #endif
 };
 
@@ -62,22 +62,22 @@ struct _tree_cfg_pres {
 };
 
 struct _tree_pres {
-	GString*		text;
-	GtkWidget*		win;
-	
+	GString*	text;
+	GtkWidget*	win;
+
 #if GTK_MAJOR_VERSION >= 2
 	GtkTreeStore*   store;
-	GtkWidget*		tree;
+	GtkWidget*	tree;
 #else
-	GtkWidget*		textbox;
+	GtkWidget*	ctree;
 #endif
 };
 
 /* the columns of the tree pane */
 enum _stat_tree_columns {
+	TITLE_COLUMN,
 	COUNT_COLUMN,
 	RATE_COLUMN,
-	TITLE_COLUMN,
 	PERCENT_COLUMN,
 	N_COLUMNS
 };
@@ -91,31 +91,43 @@ enum _stat_tree_columns {
 static void setup_gtk_node_pr(stat_node* node) {
 #if GTK_MAJOR_VERSION >= 2
 	GtkTreeIter* parent =  NULL;
+#else
+	GtkCTreeNode* parent = NULL;
+	static gchar *text[] = {
+		NULL,
+		"",
+		"",
+		""
+	};
 #endif
 	
 
 	node->pr = g_malloc(sizeof(st_node_pres));
 
 #if GTK_MAJOR_VERSION >= 2
-	
-	if ( node->parent && node->parent->pr ) {
-		parent = node->parent->pr->iter;
-	}
-	
 	if (node->st->pr->store) {
 		node->pr->iter = g_malloc0(sizeof(GtkTreeIter));
 
+		if ( node->parent && node->parent->pr ) {
+			parent = node->parent->pr->iter;
+		}
 		gtk_tree_store_append (node->st->pr->store, node->pr->iter, parent);
 		gtk_tree_store_set(node->st->pr->store, node->pr->iter, TITLE_COLUMN, node->name, RATE_COLUMN, "", COUNT_COLUMN, "", -1);
 	}
 #else
-	node->pr->dummy = NULL;
-	
+	if (node->st->pr->ctree) {
+		if ( node->parent && node->parent->pr ) {
+			parent = node->parent->pr->node;
+		}
+
+		text[0] = node->name;
+		node->pr->node = gtk_ctree_insert_node(GTK_CTREE(node->st->pr->ctree),
+		    parent, NULL, text, 0, NULL, NULL, NULL, NULL, FALSE, FALSE);
+	}
 #endif
 }
 
 
-#if GTK_MAJOR_VERSION >= 2
 static void draw_gtk_node(stat_node* node) {
 	static gchar value[NUM_BUF_SIZE];
 	static gchar rate[NUM_BUF_SIZE];
@@ -124,6 +136,7 @@ static void draw_gtk_node(stat_node* node) {
 	
 	get_strings_from_node(node, value, rate, percent);
 	
+#if GTK_MAJOR_VERSION >= 2
 	if (node->st->pr->store) {
 		gtk_tree_store_set(node->st->pr->store, node->pr->iter,
 						   RATE_COLUMN, rate,
@@ -131,48 +144,30 @@ static void draw_gtk_node(stat_node* node) {
 						   PERCENT_COLUMN, percent,
 						   -1);
 	}
+#else
+	if (node->st->pr->ctree) {
+		gtk_ctree_node_set_text(GTK_CTREE(node->st->pr->ctree),
+					node->pr->node, RATE_COLUMN, rate);
+		gtk_ctree_node_set_text(GTK_CTREE(node->st->pr->ctree),
+					node->pr->node, COUNT_COLUMN, value);
+		gtk_ctree_node_set_text(GTK_CTREE(node->st->pr->ctree),
+					node->pr->node, PERCENT_COLUMN, percent);
+	}
+#endif
 	
 	if (node->children) {
 		for (child = node->children; child; child = child->next )
 			draw_gtk_node(child);
 	}
 }
-#else
-static void draw_gtk_node(stat_node* node _U_) {}
-#endif
 
 static void draw_gtk_tree( void *psp  ) {
 	stats_tree *st = psp;
 	stat_node* child;
 
-#if GTK_MAJOR_VERSION >= 2
-
 	for (child = st->root.children; child; child = child->next ) {
 		draw_gtk_node(child);
 	}
-#else
-	GString* text = g_string_new("");
-	gchar* fmt;
-	
-	fmt = g_strdup_printf(" %%s%%-%us%%12s\t%%12s\t%%12s\n",stats_branch_max_name_len(&st->root,0));
-	g_string_sprintfa(text,fmt,"",st->cfg->name,"Value","Rate","Percent");
-	g_free(fmt);
-	g_string_sprintfa(text,"-------------------------------------------------------------------\n");
-
-	
-	for (child = st->root.children; child; child = child->next ) {
-		stat_branch_to_str(child,text,0);
-	}
-	
-	gtk_text_freeze(GTK_TEXT(st->pr->textbox));
-	gtk_text_set_point(GTK_TEXT(st->pr->textbox),0);
-	gtk_text_forward_delete(GTK_TEXT(st->pr->textbox),gtk_text_get_length(GTK_TEXT(st->pr->textbox)));
-	gtk_text_insert(GTK_TEXT(st->pr->textbox),NULL,
-					NULL,NULL,text->str,-1);
-	gtk_text_thaw(GTK_TEXT(st->pr->textbox));
-	
-	g_string_free(text,TRUE);
-#endif	
 }
 
 void protect_thread_critical_region(void);
@@ -206,10 +201,17 @@ static void init_gtk_tree(char* optarg) {
 	GString* error_string;
 	GtkWidget *scr_win;
 	guint init_strlen;
-    GtkWidget *main_vb, *bbox, *bt_close;
+	GtkWidget *main_vb, *bbox, *bt_close;
 #if GTK_MAJOR_VERSION >= 2
 	GtkTreeViewColumn* column;
 	GtkCellRenderer* renderer;
+#else
+	static char *titles[] = {
+		"Topic / Item",
+		"Count",
+		"Rate",
+		"Percent",
+	};
 #endif
 	
 	if (abbr) {
@@ -250,14 +252,14 @@ static void init_gtk_tree(char* optarg) {
 		title=g_strdup_printf("%s", cfg->name);
 	}
 	
-    gtk_window_set_title(GTK_WINDOW(st->pr->win), title);
+	gtk_window_set_title(GTK_WINDOW(st->pr->win), title);
 	g_free(title);
 
 	main_vb = gtk_vbox_new(FALSE, 3);
 	gtk_container_border_width(GTK_CONTAINER(main_vb), 12);
 	gtk_container_add(GTK_CONTAINER(st->pr->win), main_vb);
 
-    scr_win = scrolled_window_new(NULL, NULL);
+	scr_win = scrolled_window_new(NULL, NULL);
 
 #if GTK_MAJOR_VERSION >= 2
 	
@@ -267,7 +269,6 @@ static void init_gtk_tree(char* optarg) {
 	st->pr->tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (st->pr->store));
 	
 	gtk_container_add( GTK_CONTAINER(scr_win), st->pr->tree);
-	gtk_container_add( GTK_CONTAINER(main_vb), scr_win);
 	
 	/* the columns */
 	renderer = gtk_cell_renderer_text_new ();
@@ -303,11 +304,14 @@ static void init_gtk_tree(char* optarg) {
 	gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (st->pr->tree), column);
 #else
-	st->pr->textbox = gtk_text_new(NULL,NULL);
-	gtk_text_set_editable(GTK_TEXT(st->pr->textbox),TRUE);
-	gtk_container_add( GTK_CONTAINER(scr_win), GTK_WIDGET(st->pr->textbox));
-	gtk_container_add( GTK_CONTAINER(main_vb), scr_win);
+
+	/* XXX - make them all autosize and all resizeable? */
+	st->pr->ctree = gtk_ctree_new_with_titles (N_COLUMNS, 0, titles);
+	
+	gtk_container_add( GTK_CONTAINER(scr_win), st->pr->ctree);
 #endif
+
+	gtk_container_add( GTK_CONTAINER(main_vb), scr_win);
 	
 	error_string = register_tap_listener( cfg->tapname,
 										  st,
@@ -325,11 +329,11 @@ static void init_gtk_tree(char* optarg) {
 	}
 		
 	/* Button row. */
-    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
-    gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
+	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+	gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 
-    bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-    window_set_cancel_button(st->pr->win, bt_close, window_cancel_button_cb);
+	bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+	window_set_cancel_button(st->pr->win, bt_close, window_cancel_button_cb);
 
 	SIGNAL_CONNECT(GTK_WINDOW(st->pr->win), "delete_event", window_delete_event_cb, NULL);
 	SIGNAL_CONNECT(GTK_WINDOW(st->pr->win), "destroy", free_gtk_tree, st);
