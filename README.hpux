@@ -23,38 +23,82 @@ HP-UX, which you should read if you're going to install and use
 
 Another note, from a mail message to the "ethereal-users" list:
 
-Date: Wed, 22 Dec 1999 09:05:47 -0600 (EST)
-From: Gerald Combs <gerald@zing.org>
-To: Lothar Seitter <lothar.seitter@arcormail.de>
-cc: ethereal-users@zing.org
-Subject: Re: [ethereal-users] permission problem with capturing
+  Date: Wed, 22 Dec 1999 09:05:47 -0600 (EST)
+  From: Gerald Combs <gerald@zing.org>
+  To: Lothar Seitter <lothar.seitter@arcormail.de>
+  cc: ethereal-users@zing.org
+  Subject: Re: [ethereal-users] permission problem with capturing
 
-On Wed, 22 Dec 1999, Lothar Seitter wrote:
+  On Wed, 22 Dec 1999, Lothar Seitter wrote:
 
-> running 'ethereal' under HP-UX 11 with root permission and
-> /dev/lan0 set to 777, I always get the message:
-> "There are no network interfaces that can be opened.
-> Please to make sure you have sufficient permission to 
-> capture packets."
-> 
-> I start ethereal with 'etheral -i lan0' and lan0 is definitely
-> the lan interface.
-> 
-> What am I missing???
+  > running 'ethereal' under HP-UX 11 with root permission and
+  > /dev/lan0 set to 777, I always get the message:
+  > "There are no network interfaces that can be opened.
+  > Please to make sure you have sufficient permission to 
+  > capture packets."
+  > 
+  > I start ethereal with 'etheral -i lan0' and lan0 is definitely
+  > the lan interface.
+  > 
+  > What am I missing???
 
-You may need to reference the card's DLPI device directly.  We were having
-trouble getting Ethereal to capture on an HP-UX 10.20 machine here.  I
-found an article on Deja News that says:
+  You may need to reference the card's DLPI device directly.  We were having
+  trouble getting Ethereal to capture on an HP-UX 10.20 machine here.  I
+  found an article on Deja News that says:
 
-"To access a particular interface, you would say "tcpdump -i /dev/dlpiN"
-where N is the PPA of the interface you wish to use. You get the PPA by
-looking at the output of lanscan. On 10.20, it is the same value as the
-NMID. On 11.X, it is the Card Instance number."
+  "To access a particular interface, you would say "tcpdump -i /dev/dlpiN"
+  where N is the PPA of the interface you wish to use. You get the PPA by
+  looking at the output of lanscan. On 10.20, it is the same value as the
+  NMID. On 11.X, it is the Card Instance number."
 
-This didn't help in our case, but it might in yours.  The full article is
-at http://x34.deja.com/[ST_rn=ps]/getdoc.xp?AN=549366486 .
+  This didn't help in our case, but it might in yours.  The full article is
+  at http://x34.deja.com/[ST_rn=ps]/getdoc.xp?AN=549366486 .
 
-Another article by the same author mentions that experimental versions of
-libpcap and tcpdump are available at
-ftp://ftp.cup.hp.com/dist/networking/tools/ .  The article itself is at
-http://x34.deja.com/[ST_rn=ps]/getdoc.xp?AN=558665378 .
+  Another article by the same author mentions that experimental versions of
+  libpcap and tcpdump are available at
+  ftp://ftp.cup.hp.com/dist/networking/tools/ .  The article itself is at
+  http://x34.deja.com/[ST_rn=ps]/getdoc.xp?AN=558665378 .
+
+The first of those articles also says:
+
+  BTW, before you have to make a follow-up post, you will find that
+  unless you have the latest lan common/DLPI/driver patches installed,
+  you will _not_ see the system's own outbound traffic.
+
+It appears that a consequence of the fact that HP-UX's DLPI doesn't work
+like Solaris's, in that, on Solaris, to get at the device "hme0", say,
+"libpcap" has to open "/dev/hme" and then tell it to use the 0th
+interface, whilst on HP-UX you have to go through "/dev/dlpi", you won't
+get a list of interfaces in the dialog box for "Capture:Start" - you'll
+have to do through the aforementioned song and dance to find the PPA of
+the interface you want to use, and supply the "dlpiN" name by hand (I
+think you can omit the "/dev/" in both "tcpdump" and Ethereal).
+
+The experimental stuff to which the second article refers is a STREAMS
+module that implements BPF-style filtering and buffering, an
+experimental version of "libpcap-0.4" that pushes that STREAMS module,
+and source to "tcpdump-3.4".
+
+The STREAMS module is in source form - no binary has been provided. 
+It's in
+
+	ftp://ftp.cup.hp.com/dist/networking/tools/bpfmod/bpfmod_0.1.tar.gz
+
+"libpcap" and "tcpdump" are in both source and binary form; they're in
+
+	ftp://ftp.cup.hp.com/dist/networking/tools/bpfmod/tcpdump_bpfmod.tar.gz
+
+NOTE: the "libpcap" source has "pcap-bpfmod.c" and "pcap-dlpi.c" and
+"pcap-dlpi.c.real".
+
+"pcap-dlpi.c.real" appears to be the "libpcap-0.4" "pcap-dlpi.c"
+modified to push the BPF STREAMS module but not to do anything with it.
+
+"pcap-dlpi.c" is the same as "pcap-bpfmod.c".
+
+"pcap-bpfmod.c"/"pcap-dlpi.c" appears to have had a pile of stuff
+removed (e.g., the SunOS 5/Solaris support), and stuff added to try to
+do the "find the PPA for the interface and do the right thing" stuff
+alluded to above, and to push the BPF STREAMS module - however, it
+doesn't appear to include anything to hand the BPF filter to the STREAMS
+module or otherwise use it.
