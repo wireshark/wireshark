@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.15 1999/02/09 00:35:37 guy Exp $
+ * $Id: packet-ip.c,v 1.16 1999/03/09 01:45:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -575,28 +575,36 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 }
 
 
-const gchar *unreach_str[] = {"Network unreachable",
-                              "Host unreachable",
-                              "Protocol unreachable",
-                              "Port unreachable",
-                              "Fragmentation needed",
-                              "Source route failed",
-                              "Administratively prohibited",
-                              "Network unreachable for TOS",
-                              "Host unreachable for TOS",
-                              "Communication administratively filtered",
-                              "Host precedence violation",
-                              "Precedence cutoff in effect"};
+static const gchar *unreach_str[] = {"Network unreachable",
+                                     "Host unreachable",
+                                     "Protocol unreachable",
+                                     "Port unreachable",
+                                     "Fragmentation needed",
+                                     "Source route failed",
+                                     "Administratively prohibited",
+                                     "Network unreachable for TOS",
+                                     "Host unreachable for TOS",
+                                     "Communication administratively filtered",
+                                     "Host precedence violation",
+                                     "Precedence cutoff in effect"};
+                                     
+#define	N_UNREACH	(sizeof unreach_str / sizeof unreach_str[0])
 
-const gchar *redir_str[] = {"Redirect for network",
-                            "Redirect for host",
-                            "Redirect for TOS and network",
-                            "Redirect for TOS and host"};
+static const gchar *redir_str[] = {"Redirect for network",
+                                   "Redirect for host",
+                                   "Redirect for TOS and network",
+                                   "Redirect for TOS and host"};
 
-const gchar *ttl_str[] = {"TTL equals 0 during transit",
-                          "TTL equals 0 during reassembly"};
+#define	N_REDIRECT	(sizeof redir_str / sizeof redir_str[0])
 
-const gchar *par_str[] = {"IP header bad", "Required option missing"};
+static const gchar *ttl_str[] = {"TTL equals 0 during transit",
+                                 "TTL equals 0 during reassembly"};
+                                 
+#define	N_TIMXCEED	(sizeof ttl_str / sizeof ttl_str[0])
+
+static const gchar *par_str[] = {"IP header bad", "Required option missing"};
+
+#define	N_PARAMPROB	(sizeof par_str / sizeof par_str[0])
 
 void
 dissect_icmp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
@@ -616,7 +624,7 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       break;
     case ICMP_UNREACH:
       strcpy(type_str, "Destination unreachable");
-      if (ih.icmp_code < 12) {
+      if (ih.icmp_code < N_UNREACH) {
         sprintf(code_str, "(%s)", unreach_str[ih.icmp_code]);
       } else {
         strcpy(code_str, "(Unknown - error?)");
@@ -627,7 +635,7 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       break;
     case ICMP_REDIRECT:
       strcpy(type_str, "Redirect");
-      if (ih.icmp_code < 4) {
+      if (ih.icmp_code < N_REDIRECT) {
         sprintf(code_str, "(%s)", redir_str[ih.icmp_code]);
       } else {
         strcpy(code_str, "(Unknown - error?)");
@@ -638,7 +646,7 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       break;
     case ICMP_TIMXCEED:
       strcpy(type_str, "Time-to-live exceeded");
-      if (ih.icmp_code < 2) {
+      if (ih.icmp_code < N_TIMXCEED) {
         sprintf(code_str, "(%s)", ttl_str[ih.icmp_code]);
       } else {
         strcpy(code_str, "(Unknown - error?)");
@@ -646,7 +654,7 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       break;
     case ICMP_PARAMPROB:
       strcpy(type_str, "Parameter problem");
-      if (ih.icmp_code < 2) {
+      if (ih.icmp_code < N_PARAMPROB) {
         sprintf(code_str, "(%s)", par_str[ih.icmp_code]);
       } else {
         strcpy(code_str, "(Unknown - error?)");
@@ -657,6 +665,12 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       break;
     case ICMP_TSTAMPREPLY:
       strcpy(type_str, "Timestamp reply");
+      break;
+    case ICMP_IREQ:
+      strcpy(type_str, "Information request");
+      break;
+    case ICMP_IREQREPLY:
+      strcpy(type_str, "Information reply");
       break;
     case ICMP_MASKREQ:
       strcpy(type_str, "Address mask request");
