@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.21 1999/04/05 21:54:39 guy Exp $
+ * $Id: packet-ip.c,v 1.22 1999/05/12 20:44:58 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -604,32 +604,33 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     col_add_str(fd, COL_RES_NET_DST, get_hostname(iph.ip_dst));
   if (check_col(fd, COL_UNRES_NET_DST))
     col_add_str(fd, COL_UNRES_NET_DST, ip_to_str((guint8 *) &iph.ip_dst));
-  
-  switch (IPTOS_TOS(iph.ip_tos)) {
-    case IPTOS_NONE:
-      strcpy(tos_str, "None");
-      break;
-    case IPTOS_LOWCOST:
-      strcpy(tos_str, "Minimize cost");
-      break;
-    case IPTOS_RELIABILITY:
-      strcpy(tos_str, "Maximize reliability");
-      break;
-    case IPTOS_THROUGHPUT:
-      strcpy(tos_str, "Maximize throughput");
-      break;
-    case IPTOS_LOWDELAY:
-      strcpy(tos_str, "Minimize delay");
-      break;
-    case IPTOS_SECURITY:
-      strcpy(tos_str, "Maximize security");
-      break;
-    default:
-      strcpy(tos_str, "Unknown.  Malformed?");
-      break;
-  }
-  
+    
   if (tree) {
+
+    switch (IPTOS_TOS(iph.ip_tos)) {
+      case IPTOS_NONE:
+        strcpy(tos_str, "None");
+        break;
+      case IPTOS_LOWCOST:
+        strcpy(tos_str, "Minimize cost");
+        break;
+      case IPTOS_RELIABILITY:
+        strcpy(tos_str, "Maximize reliability");
+        break;
+      case IPTOS_THROUGHPUT:
+        strcpy(tos_str, "Maximize throughput");
+        break;
+      case IPTOS_LOWDELAY:
+        strcpy(tos_str, "Minimize delay");
+        break;
+      case IPTOS_SECURITY:
+        strcpy(tos_str, "Maximize security");
+        break;
+      default:
+        strcpy(tos_str, "Unknown.  Malformed?");
+        break;
+    }
+
     ti = proto_tree_add_item(tree, offset, hlen, "Internet Protocol");
     ip_tree = proto_tree_new();
     proto_item_add_subtree(ti, ip_tree, ETT_IP);

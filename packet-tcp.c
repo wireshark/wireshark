@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.21 1999/04/30 03:16:02 guy Exp $
+ * $Id: packet-tcp.c,v 1.22 1999/05/12 20:44:59 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -430,18 +430,16 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   }
 
   /* Decode TCP options, if any. */
-  if (hlen > sizeof (e_tcphdr)) {
+  if (tree  && hlen > sizeof (e_tcphdr)) {
     /* There's more than just the fixed-length header.  Decode the
        options. */
     optlen = hlen - sizeof (e_tcphdr); /* length of options, in bytes */
-    if (tree) {
-      tf = proto_tree_add_item(tcp_tree, offset +  20, optlen,
-        "Options: (%d bytes)", optlen);
-      field_tree = proto_tree_new();
-      proto_item_add_subtree(tf, field_tree, ETT_TCP_OPTIONS);
-    }
+    tf = proto_tree_add_item(tcp_tree, offset +  20, optlen,
+      "Options: (%d bytes)", optlen);
+    field_tree = proto_tree_new();
+    proto_item_add_subtree(tf, field_tree, ETT_TCP_OPTIONS);
     dissect_ip_tcp_options(field_tree, &pd[offset + 20], offset + 20, optlen,
-       tcpopts, N_TCP_OPTS, TCPOPT_EOL);
+      tcpopts, N_TCP_OPTS, TCPOPT_EOL);
   }
 
   if (check_col(fd, COL_INFO))
