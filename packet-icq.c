@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.34 2001/06/18 06:31:05 guy Exp $
+ * $Id: packet-icq.c,v 1.35 2001/07/03 09:08:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,10 +65,11 @@
 #include "resolv.h"
 
 static int proto_icq = -1;
-static int hf_icq_uin =-1;
-static int hf_icq_cmd =-1;
-static int hf_icq_sessionid =-1;
-static int hf_icq_checkcode =-1;
+static int hf_icq_uin = -1;
+static int hf_icq_client_cmd = -1;
+static int hf_icq_server_cmd = -1;
+static int hf_icq_sessionid = -1;
+static int hf_icq_checkcode = -1;
 static int hf_icq_decode = -1;
 static int hf_icq_type = -1;
 
@@ -117,11 +118,6 @@ dissect_icqv5Server(tvbuff_t *tvb,
 #define ICQ5_SRV_CHECKCODE	0x11
 #define ICQ5_SRV_PARAM		0x15
 #define ICQ5_SRV_HDRSIZE	0x15
-
-typedef struct _cmdcode {
-    char* descr;
-    int code;
-} cmdcode;
 
 #define SRV_ACK			0x000a
 
@@ -192,45 +188,45 @@ typedef struct _cmdcode {
 /* This message has the same structure as cmd_send_msg */
 #define SRV_SYS_DELIVERED_MESS	0x0104
 
-cmdcode serverMetaSubCmdCode[] = {
-    { "META_USER_FOUND", META_USER_FOUND },
-    { "META_EX_USER_FOUND", META_EX_USER_FOUND },
-    { "META_ABOUT", META_ABOUT },
-    { "META_USER_INFO", META_USER_INFO },
-    { NULL, -1 }
+static const value_string serverMetaSubCmdCode[] = {
+    { META_USER_FOUND, "META_USER_FOUND" },
+    { META_EX_USER_FOUND, "META_EX_USER_FOUND"  },
+    { META_ABOUT, "META_ABOUT" },
+    { META_USER_INFO, "META_USER_INFO" },
+    { 0, NULL }
 };
 
-cmdcode serverCmdCode[] = {
-    { "SRV_ACK", SRV_ACK },
-    { "SRV_SILENT_TOO_LONG", SRV_SILENT_TOO_LONG },
-    { "SRV_GO_AWAY", SRV_GO_AWAY },
-    { "SRV_NEW_UIN", SRV_NEW_UIN },
-    { "SRV_LOGIN_REPLY", SRV_LOGIN_REPLY },
-    { "SRV_BAD_PASS", SRV_BAD_PASS },
-    { "SRV_USER_ONLINE", SRV_USER_ONLINE },
-    { "SRV_USER_OFFLINE", SRV_USER_OFFLINE },
-    { "SRV_QUERY", 130 },
-    { "SRV_USER_FOUND", 140 },
-    { "SRV_END_OF_SEARCH", 160 },
-    { "SRV_NEW_USER", 180 },
-    { "SRV_UPDATE_EXT", 200 },
-    { "SRV_RECV_MESSAGE", SRV_RECV_MESSAGE },
-    { "SRV_END_OFFLINE_MESSAGES", 230 },
-    { "SRV_NOT_CONNECTED", 240 },
-    { "SRV_TRY_AGAIN", 250 },
-    { "SRV_SYS_DELIVERED_MESS", SRV_SYS_DELIVERED_MESS },
-    { "SRV_INFO_REPLY", 280 },
-    { "SRV_EXT_INFO_REPLY", 290 },
-    { "SRV_STATUS_UPDATE", 420 },
-    { "SRV_SYSTEM_MESSAGE", 450 },
-    { "SRV_UPDATE_SUCCESS", SRV_UPDATE_SUCCESS },
-    { "SRV_UPDATE_FAIL", SRV_UPDATE_FAIL },
-    { "SRV_AUTH_UPDATE", 500 },
-    { "SRV_MULTI_PACKET", SRV_MULTI },
-    { "SRV_END_CONTACTLIST_STATUS", 540 },
-    { "SRV_RAND_USER", SRV_RAND_USER },
-    { "SRV_META_USER", SRV_META_USER },
-    { NULL, -1 }
+static const value_string serverCmdCode[] = {
+    { SRV_ACK, "SRV_ACK" },
+    { SRV_SILENT_TOO_LONG, "SRV_SILENT_TOO_LONG" },
+    { SRV_GO_AWAY, "SRV_GO_AWAY" },
+    { SRV_NEW_UIN, "SRV_NEW_UIN" },
+    { SRV_LOGIN_REPLY, "SRV_LOGIN_REPLY" },
+    { SRV_BAD_PASS, "SRV_BAD_PASS" },
+    { SRV_USER_ONLINE, "SRV_USER_ONLINE" },
+    { SRV_USER_OFFLINE, "SRV_USER_OFFLINE" },
+    { 130, "SRV_QUERY" },
+    { 140, "SRV_USER_FOUND" },
+    { 160, "SRV_END_OF_SEARCH" },
+    { 180, "SRV_NEW_USER" },
+    { 200, "SRV_UPDATE_EXT" },
+    { SRV_RECV_MESSAGE, "SRV_RECV_MESSAGE" },
+    { 230, "SRV_END_OFFLINE_MESSAGES" },
+    { 240, "SRV_NOT_CONNECTED" },
+    { 250, "SRV_TRY_AGAIN" },
+    { SRV_SYS_DELIVERED_MESS, "SRV_SYS_DELIVERED_MESS" },
+    { 280, "SRV_INFO_REPLY" },
+    { 290, "SRV_EXT_INFO_REPLY" },
+    { 420, "SRV_STATUS_UPDATE" },
+    { 450, "SRV_SYSTEM_MESSAGE" },
+    { SRV_UPDATE_SUCCESS, "SRV_UPDATE_SUCCESS" },
+    { SRV_UPDATE_FAIL, "SRV_UPDATE_FAIL" },
+    { 500, "SRV_AUTH_UPDATE" },
+    { SRV_MULTI, "SRV_MULTI_PACKET" },
+    { 540, "SRV_END_CONTACTLIST_STATUS" },
+    { SRV_RAND_USER, "SRV_RAND_USER" },
+    { SRV_META_USER, "SRV_META_USER" },
+    { 0, NULL }
 };
 
 #define MSG_TEXT		0x0001
@@ -307,62 +303,62 @@ cmdcode serverCmdCode[] = {
 
 #define CMD_META_USER		0x064a
 
-cmdcode msgTypeCode[] = {
-    { "MSG_TEXT", MSG_TEXT },
-    { "MSG_URL", MSG_URL },
-    { "MSG_AUTH_REQ", MSG_AUTH_REQ },
-    { "MSG_AUTH", MSG_AUTH },
-    { "MSG_USER_ADDED", MSG_USER_ADDED},
-    { "MSG_EMAIL", MSG_EMAIL},
-    { "MSG_CONTACTS", MSG_CONTACTS},
-    { NULL, 0}
+static const value_string msgTypeCode[] = {
+    { MSG_TEXT, "MSG_TEXT" },
+    { MSG_URL, "MSG_URL" },
+    { MSG_AUTH_REQ, "MSG_AUTH_REQ" },
+    { MSG_AUTH, "MSG_AUTH" },
+    { MSG_USER_ADDED, "MSG_USER_ADDED" },
+    { MSG_EMAIL, "MSG_EMAIL" },
+    { MSG_CONTACTS, "MSG_CONTACTS" },
+    { 0, NULL }
 };
 
-cmdcode statusCode[] = {
-    { "ONLINE", STATUS_ONLINE },
-    { "AWAY", STATUS_AWAY },
-    { "DND", STATUS_DND },
-    { "INVISIBLE", STATUS_INVISIBLE },
-    { "OCCUPIED", STATUS_OCCUPIED },
-    { "NA", STATUS_NA },
-    { "Free for Chat", STATUS_CHAT },
-    { NULL, 0}
+static const value_string statusCode[] = {
+    { STATUS_ONLINE, "ONLINE" },
+    { STATUS_AWAY, "AWAY" },
+    { STATUS_DND, "DND" },
+    { STATUS_INVISIBLE, "INVISIBLE" },
+    { STATUS_OCCUPIED, "OCCUPIED" },
+    { STATUS_NA, "NA" },
+    { STATUS_CHAT, "Free for Chat" },
+    { 0, NULL }
 };
 
-cmdcode clientCmdCode[] = {
-    { "CMD_ACK", CMD_ACK },
-    { "CMD_SEND_MESSAGE", CMD_SEND_MSG },
-    { "CMD_LOGIN", CMD_LOGIN },
-    { "CMD_REG_NEW_USER", CMD_REG_NEW_USER },
-    { "CMD_CONTACT_LIST", 1030 },
-    { "CMD_SEARCH_UIN", 1050 },
-    { "CMD_SEARCH_USER", 1060 },
-    { "CMD_KEEP_ALIVE", 1070 },
-    { "CMD_SEND_TEXT_CODE", CMD_SEND_TEXT_CODE },
-    { "CMD_ACK_MESSAGES", CMD_ACK_MESSAGES },
-    { "CMD_LOGIN_1", 1100 },
-    { "CMD_MSG_TO_NEW_USER", CMD_MSG_TO_NEW_USER },
-    { "CMD_INFO_REQ", 1120 },
-    { "CMD_EXT_INFO_REQ", 1130 },
-    { "CMD_CHANGE_PW", 1180 },
-    { "CMD_NEW_USER_INFO", 1190 },
-    { "CMD_UPDATE_EXT_INFO", 1200 },
-    { "CMD_QUERY_SERVERS", CMD_QUERY_SERVERS },
-    { "CMD_QUERY_ADDONS", CMD_QUERY_ADDONS },
-    { "CMD_STATUS_CHANGE", CMD_STATUS_CHANGE },
-    { "CMD_NEW_USER_1", 1260 },
-    { "CMD_UPDATE_INFO", 1290 },
-    { "CMD_AUTH_UPDATE", 1300 },
-    { "CMD_KEEP_ALIVE2", 1310 },
-    { "CMD_LOGIN_2", 1320 },
-    { "CMD_ADD_TO_LIST", CMD_ADD_TO_LIST },
-    { "CMD_RAND_SET", 1380 },
-    { "CMD_RAND_SEARCH", CMD_RAND_SEARCH },
-    { "CMD_META_USER", CMD_META_USER },
-    { "CMD_INVIS_LIST", 1700 },
-    { "CMD_VIS_LIST", 1710 },
-    { "CMD_UPDATE_LIST", 1720 },
-    { NULL, 0 }
+static const value_string clientCmdCode[] = {
+    { CMD_ACK, "CMD_ACK" },
+    { CMD_SEND_MSG, "CMD_SEND_MESSAGE" },
+    { CMD_LOGIN, "CMD_LOGIN" },
+    { CMD_REG_NEW_USER, "CMD_REG_NEW_USER" },
+    { 1030, "CMD_CONTACT_LIST" },
+    { 1050, "CMD_SEARCH_UIN" },
+    { 1060, "CMD_SEARCH_USER" },
+    { 1070, "CMD_KEEP_ALIVE" },
+    { CMD_SEND_TEXT_CODE, "CMD_SEND_TEXT_CODE" },
+    { CMD_ACK_MESSAGES, "CMD_ACK_MESSAGES" },
+    { 1100, "CMD_LOGIN_1" },
+    { CMD_MSG_TO_NEW_USER, "CMD_MSG_TO_NEW_USER" },
+    { 1120, "CMD_INFO_REQ" },
+    { 1130, "CMD_EXT_INFO_REQ" },
+    { 1180, "CMD_CHANGE_PW" },
+    { 1190, "CMD_NEW_USER_INFO" },
+    { 1200, "CMD_UPDATE_EXT_INFO" },
+    { CMD_QUERY_SERVERS, "CMD_QUERY_SERVERS" },
+    { CMD_QUERY_ADDONS, "CMD_QUERY_ADDONS" },
+    { CMD_STATUS_CHANGE, "CMD_STATUS_CHANGE" },
+    { 1260, "CMD_NEW_USER_1" },
+    { 1290, "CMD_UPDATE_INFO" },
+    { 1300, "CMD_AUTH_UPDATE" },
+    { 1310, "CMD_KEEP_ALIVE2" },
+    { 1320, "CMD_LOGIN_2" },
+    { CMD_ADD_TO_LIST, "CMD_ADD_TO_LIST" },
+    { 1380, "CMD_RAND_SET" },
+    { CMD_RAND_SEARCH, "CMD_RAND_SEARCH" },
+    { CMD_META_USER, "CMD_META_USER" },
+    { 1700, "CMD_INVIS_LIST" },
+    { 1710, "CMD_VIS_LIST" },
+    { 1720, "CMD_UPDATE_LIST" },
+    { 0, NULL }
 };
 
 /*
@@ -388,48 +384,33 @@ table_v5 [] = {
  0x47, 0x43, 0x69, 0x48, 0x33, 0x51, 0x54, 0x5D, 0x6E, 0x3C, 0x31, 0x64, 0x35, 0x5A, 0x00, 0x00 };
  
 static char*
-findcmd(cmdcode* c, int num)
-{
-    static char buf[16];
-    cmdcode* p = c;
-    while (p->descr != NULL) {
-	if (p->code == num) {
-	    return p->descr;
-	}
-	p++;
-    }
-    snprintf(buf, sizeof(buf), "(%x)", num);
-    return buf;
-}
-
-static char*
 findMsgType(int num)
 {
-    return findcmd(msgTypeCode, num);
+    return val_to_str(num, msgTypeCode, "Unknown");
 }
 
 static char*
 findSubCmd(int num)
 {
-    return findcmd(serverMetaSubCmdCode, num);
+    return val_to_str(num, serverMetaSubCmdCode, "Unknown (0x%04x)");
 }
 
 static char*
 findClientCmd(int num)
 {
-    return findcmd(clientCmdCode, num);
+    return val_to_str(num, clientCmdCode, "Unknown (%u)");
 }
 
 static char*
 findServerCmd(int num)
 {
-    return findcmd(serverCmdCode, num);
+    return val_to_str(num, serverCmdCode, "Unknown (%u)");
 }
 
 static char*
 findStatus(int num)
 {
-    return findcmd(statusCode, num);
+    return val_to_str(num, statusCode, "Unknown (0x%08x)");
 }
 
 static guint32
@@ -820,13 +801,11 @@ icqv5_cmd_ack(proto_tree* tree,/* Tree to put the data in */
     proto_item* ti;
 
     if (tree){
-	ti = proto_tree_add_uint_format(tree,
-					hf_icq_cmd,
-					tvb,
-					offset,
-					4,
-					CMD_ACK,
-					"Body");
+	ti = proto_tree_add_text(tree,
+				 tvb,
+				 offset,
+				 4,
+				 "Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	proto_tree_add_text(subtree, tvb,
 			    offset + CMD_ACK_RANDOM,
@@ -861,13 +840,11 @@ icqv5_cmd_rand_search(proto_tree* tree, /* Tree to put the data in */
     };
     
     if (tree){
-	ti = proto_tree_add_uint_format(tree,
-					hf_icq_cmd,
-					tvb,
-					offset,
-					4,
-					CMD_RAND_SEARCH,
-					"Body");
+	ti = proto_tree_add_text(tree,
+				 tvb,
+				 offset,
+				 4,
+				 "Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	group = tvb_get_letohs(tvb, offset + CMD_RAND_SEARCH_GROUP);
 	if (group>0 && (group<=sizeof(groups)/sizeof(const char*)))
@@ -892,13 +869,11 @@ icqv5_cmd_ack_messages(proto_tree* tree, /* Tree to put the data in */
     proto_item* ti;
 
     if (tree){
-	ti = proto_tree_add_uint_format(tree,
-					hf_icq_cmd,
-					tvb,
-					offset,
-					4,
-					CMD_ACK_MESSAGES,
-					"Body");
+	ti = proto_tree_add_text(tree,
+				 tvb,
+				 offset,
+				 4,
+				 "Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	proto_tree_add_text(subtree, tvb,
 			    offset + CMD_ACK_MESSAGES_RANDOM,
@@ -918,13 +893,11 @@ icqv5_cmd_keep_alive(proto_tree* tree, /* Tree to put the data in */
     proto_item* ti;
 
     if (tree){
-	ti = proto_tree_add_uint_format(tree,
-					hf_icq_cmd,
-					tvb,
-					offset,
-					4,
-					CMD_KEEP_ALIVE,
-					"Body");
+	ti = proto_tree_add_text(tree,
+				 tvb,
+				 offset,
+				 4,
+				 "Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	random = tvb_get_letohl(tvb, offset + CMD_KEEP_ALIVE_RANDOM);
 	proto_tree_add_text(subtree, tvb,
@@ -946,13 +919,11 @@ icqv5_cmd_send_text_code(proto_tree* tree, /* Tree to put the data in */
     guint16 x1 = -1;
 
     if (tree){
-	ti = proto_tree_add_uint_format(tree,
-					hf_icq_cmd,
-					tvb,
-					offset,
-					size,
-					CMD_KEEP_ALIVE,
-					"Body");
+	ti = proto_tree_add_text(tree,
+				 tvb,
+				 offset,
+				 size,
+				 "Body");
     }
 
     len = tvb_get_letohs(tvb, offset+CMD_SEND_TEXT_CODE_LEN);
@@ -995,13 +966,11 @@ icqv5_cmd_add_to_list(proto_tree* tree, /* Tree to put the data in */
     proto_item* ti;
 
     if (tree){
-	ti = proto_tree_add_uint_format(tree,
-					hf_icq_cmd,
-					tvb,
-					offset,
-					4,
-					CMD_ADD_TO_LIST,
-					"Body");
+	ti = proto_tree_add_text(tree,
+				 tvb,
+				 offset,
+				 4,
+				 "Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	uin = tvb_get_letohl(tvb, offset + CMD_ADD_TO_LIST);
 	proto_tree_add_text(subtree, tvb,
@@ -1021,19 +990,17 @@ icqv5_cmd_status_change(proto_tree* tree, /* Tree to put the data in */
     proto_item* ti;
 
     if (tree){
-	ti = proto_tree_add_uint_format(tree,
-					hf_icq_cmd,
-					tvb,
-					offset,
-					4,
-					CMD_STATUS_CHANGE,
-					"Body");
+	ti = proto_tree_add_text(tree,
+				 tvb,
+				 offset,
+				 4,
+				 "Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	status = tvb_get_letohl(tvb, offset + CMD_STATUS_CHANGE_STATUS);
 	proto_tree_add_text(subtree, tvb,
 			    offset + CMD_STATUS_CHANGE_STATUS,
 			    4,
-			    "Status: %08x (%s)", status, findStatus(status));
+			    "Status: %s", findStatus(status));
     }
 }
 
@@ -1049,13 +1016,11 @@ icqv5_cmd_send_msg(proto_tree* tree,
     int left = size;		/* left chars to do */
 
     if (tree) {
-	ti = proto_tree_add_uint_format(tree,
-					hf_icq_cmd,
-					tvb,
-					offset,
-					size,
-					cmd,
-					"Body");
+	ti = proto_tree_add_text(tree,
+				 tvb,
+				 offset,
+				 size,
+				 "Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	proto_tree_add_text(subtree, tvb,
 			    offset + CMD_SEND_MSG_RECV_UIN,
@@ -1087,13 +1052,11 @@ icqv5_cmd_login(proto_tree* tree,
     guint32 status;
 
     if (tree) {
-	ti = proto_tree_add_uint_format(tree,
-					hf_icq_cmd,
-					tvb,
-					offset,
-					size,
-					CMD_SEND_MSG,
-					"Body");
+	ti = proto_tree_add_text(tree,
+				 tvb,
+				 offset,
+				 size,
+				 "Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	theTime = tvb_get_letohl(tvb, offset + CMD_LOGIN_TIME);
 	aTime = ctime(&theTime);
@@ -1144,13 +1107,11 @@ icqv5_cmd_contact_list(proto_tree* tree,
     guint32 uin;
 
     if (tree) {
-	ti = proto_tree_add_uint_format(tree,
-					hf_icq_cmd,
-					tvb,
-					offset,
-					size,
-					CMD_CONTACT_LIST,
-					"Body");
+	ti = proto_tree_add_text(tree,
+				 tvb,
+				 offset,
+				 size,
+				 "Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	num = tvb_get_guint8(tvb, offset + CMD_CONTACT_LIST_NUM);
 	proto_tree_add_text(subtree, tvb,
@@ -1182,13 +1143,11 @@ icqv5_cmd_no_params(proto_tree* tree, /* Tree to put the data in */
     proto_item* ti;
 
     if (tree){
-	ti = proto_tree_add_uint_format(tree,
-					hf_icq_cmd,
-					tvb,
-					offset,
-					0,
-					cmd,
-					"Body");
+	ti = proto_tree_add_text(tree,
+				 tvb,
+				 offset,
+				 0,
+				 "Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	proto_tree_add_text(subtree, tvb,
 			    offset,
@@ -1214,13 +1173,11 @@ icqv5_srv_no_params(proto_tree* tree, /* Tree to put the data in */
     proto_item* ti;
 
     if (tree){
-	ti = proto_tree_add_uint_format(tree,
-					hf_icq_cmd,
-					tvb,
-					offset,
-					0,
-					cmd,
-					"Body");
+	ti = proto_tree_add_text(tree,
+				 tvb,
+				 offset,
+				 0,
+				 "Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	proto_tree_add_text(subtree, tvb,
 			    offset,
@@ -1240,13 +1197,11 @@ icqv5_srv_login_reply(proto_tree* tree,/* Tree to put the data in */
     const u_char *ipAddrp;
 
     if (tree) {
-	ti = proto_tree_add_uint_format(tree,
-					hf_icq_cmd,
-					tvb,
-					offset,
-					SRV_LOGIN_REPLY_IP + 8,
-					SRV_LOGIN_REPLY,
-					"Body");
+	ti = proto_tree_add_text(tree,
+				 tvb,
+				 offset,
+				 SRV_LOGIN_REPLY_IP + 8,
+				 "Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	ipAddrp = tvb_get_ptr(tvb, offset + SRV_LOGIN_REPLY_IP, 4);
 	proto_tree_add_text(subtree, tvb,
@@ -1269,13 +1224,11 @@ icqv5_srv_user_online(proto_tree* tree,/* Tree to put the data in */
     guint32 status;
 
     if (tree) {
-	ti = proto_tree_add_uint_format(tree,
-					hf_icq_cmd,
-					tvb,
-					offset,
-					SRV_LOGIN_REPLY_IP + 8,
-					SRV_LOGIN_REPLY,
-					"Body");
+	ti = proto_tree_add_text(tree,
+				 tvb,
+				 offset,
+				 SRV_LOGIN_REPLY_IP + 8,
+				 "Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	proto_tree_add_text(subtree, tvb,
 			    offset + SRV_USER_ONL_UIN,
@@ -1325,13 +1278,11 @@ icqv5_srv_user_offline(proto_tree* tree,/* Tree to put the data in */
     proto_item* ti;
 
     if (tree) {
-	ti = proto_tree_add_uint_format(tree,
-					hf_icq_cmd,
-					tvb,
-					offset,
-					SRV_USER_OFFLINE_UIN + 4,
-					SRV_USER_OFFLINE,
-					"Body");
+	ti = proto_tree_add_text(tree,
+				 tvb,
+				 offset,
+				 SRV_USER_OFFLINE_UIN + 4,
+				 "Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	proto_tree_add_text(subtree, tvb,
 			    offset + SRV_USER_OFFLINE_UIN,
@@ -1352,16 +1303,14 @@ icqv5_srv_multi(proto_tree* tree, /* Tree to put the data in */
     proto_item* ti;
     unsigned char num = -1;
     guint16 pktSz;
-    int i, left;
+    int i;
 
     if (tree) {
-	ti = proto_tree_add_uint_format(tree,
-					hf_icq_cmd,
-					tvb,
-					offset,
-					size,
-					SRV_MULTI,
-					"Body");
+	ti = proto_tree_add_text(tree,
+				 tvb,
+				 offset,
+				 size,
+				 "Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	num = tvb_get_guint8(tvb, offset + SRV_MULTI_NUM);
 	proto_tree_add_text(subtree, tvb,
@@ -1372,18 +1321,11 @@ icqv5_srv_multi(proto_tree* tree, /* Tree to put the data in */
 	 * A sequence of num times ( pktsize, packetData) follows
 	 */
 	offset += (SRV_MULTI_NUM + 1);
-	left = size;
-	for (i = 0; (i<num) && (left>0);i++) {
-	    if (left>=2) {
-		pktSz = tvb_get_letohs(tvb, offset);
-		offset += 2;
-		left -= 2;
-		if (left>=pktSz) {
-		    dissect_icqv5Server(tvb, offset, pinfo, subtree, pktSz);
-		    offset += pktSz;
-		    left -= pktSz;
-		}
-	    }
+	for (i = 0; i < num; i++) {
+	    pktSz = tvb_get_letohs(tvb, offset);
+	    offset += 2;
+	    dissect_icqv5Server(tvb, offset, pinfo, subtree, pktSz);
+	    offset += pktSz;
 	}
     }
 }
@@ -1405,13 +1347,11 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 
     if (tree) {
 #if 0
-	ti = proto_tree_add_uint_format(tree,
-					hf_icq_cmd,
-					tvb,
-					offset,
-					size,
-					SRV_META_USER,
-					"Body");
+	ti = proto_tree_add_text(tree,
+				 tvb,
+				 offset,
+				 size,
+				 "Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	subcmd = tvb_get_letohs(tvb, offset + SRV_META_USER_SUBCMD);
 	ti = proto_tree_add_text(subtree, tvb,
@@ -1651,13 +1591,11 @@ icqv5_srv_recv_message(proto_tree* tree, /* Tree to put the data in */
     unsigned char minute = -1;
     
     if (tree) {
-	ti = proto_tree_add_uint_format(tree,
-					hf_icq_cmd,
-					tvb,
-					offset,
-					4,
-					SRV_RECV_MESSAGE,
-					"Body");
+	ti = proto_tree_add_text(tree,
+				 tvb,
+				 offset,
+				 4,
+				 "Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	uin = tvb_get_letohl(tvb, offset + SRV_RECV_MSG_UIN);
 	proto_tree_add_uint_format(subtree,
@@ -1701,13 +1639,11 @@ icqv5_srv_rand_user(proto_tree* tree,      /* Tree to put the data in */
     guint16 tcpVer;
     
     if (tree) {
-	ti = proto_tree_add_uint_format(tree,
-					hf_icq_cmd,
-					tvb,
-					offset,
-					SRV_RAND_USER_TCP_VER + 2,
-					SRV_RAND_USER,
-					"Body");
+	ti = proto_tree_add_text(tree,
+				 tvb,
+				 offset,
+				 SRV_RAND_USER_TCP_VER + 2,
+				 "Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	/* guint32 UIN */
 	uin = tvb_get_letohl(tvb, offset + SRV_RAND_USER_UIN);
@@ -1745,7 +1681,7 @@ icqv5_srv_rand_user(proto_tree* tree,      /* Tree to put the data in */
 	proto_tree_add_text(subtree, tvb,
 			    offset + SRV_RAND_USER_STATUS,
 			    sizeof(guint32),
-			    "Status: (%u) %s", status, findStatus(status));
+			    "Status: %s", findStatus(status));
 	/* guint16 tcpVersion */
 	tcpVer = tvb_get_letohs(tvb, offset + SRV_RAND_USER_TCP_VER);
 	proto_tree_add_text(subtree, tvb,
@@ -1851,10 +1787,14 @@ dissect_icqv5Client(tvbuff_t *tvb,
 			    ICQ5_CL_SESSIONID,
 			    4,
 			    TRUE);
-	proto_tree_add_text(icq_header_tree, decr_tvb,
+	proto_tree_add_uint_format(icq_header_tree,
+			    hf_icq_client_cmd,
+			    decr_tvb,
 			    ICQ5_CL_CMD,
 			    2,
-			    "Command: %s (%u)", findClientCmd(cmd), cmd);
+			    cmd,
+			    "Command: %s (%u)",
+			    val_to_str(cmd, clientCmdCode, "Unknown"), cmd);
 	proto_tree_add_text(icq_header_tree, decr_tvb,
 			    ICQ5_CL_SEQNUM1,
 			    2,
@@ -1941,14 +1881,11 @@ dissect_icqv5Client(tvbuff_t *tvb,
 				cmd);
 	    break;
 	default:
-	    proto_tree_add_uint_format(icq_tree,
-				       hf_icq_cmd,
-				       decr_tvb,
-				       ICQ5_CL_CMD,
-				       2,
-				       cmd,
-				       "Command: %u (%s)",
-				       cmd, findClientCmd(cmd));
+	    proto_tree_add_text(icq_tree,
+	    			decr_tvb,
+				ICQ5_CL_HDRSIZE,
+				pktsize - ICQ5_CL_HDRSIZE,
+				"Body");
 	    fprintf(stderr,"Missing: %s\n", findClientCmd(cmd));
 	    break;
 	}
@@ -2009,10 +1946,14 @@ dissect_icqv5Server(tvbuff_t *tvb,
 			    offset + ICQ5_SRV_SESSIONID,
 			    4,
 			    TRUE);
-	proto_tree_add_text(icq_header_tree, tvb,
+	proto_tree_add_uint_format(icq_header_tree,
+			    hf_icq_server_cmd,
+			    tvb,
 			    offset + ICQ5_SRV_CMD,
 			    2,
-			    "Command: %s (%u)", findServerCmd(cmd), cmd);
+			    cmd,
+			    "Command: %s (%u)",
+			    val_to_str(cmd, serverCmdCode, "Unknown"), cmd);
 	proto_tree_add_text(icq_header_tree, tvb,
 			    offset + ICQ5_SRV_SEQNUM1,
 			    2,
@@ -2100,14 +2041,11 @@ dissect_icqv5Server(tvbuff_t *tvb,
 				cmd);
 	    break;
 	default:
-	    proto_tree_add_uint_format(icq_tree,
-				       hf_icq_cmd,
-				       tvb,
-				       ICQ5_SRV_CMD,
-				       2,
-				       cmd,
-				       "Command: %u (%s)",
-				       cmd, findServerCmd(cmd));
+	    proto_tree_add_text(icq_tree,
+	    			tvb,
+				offset + ICQ5_SRV_HDRSIZE,
+				pktsize - ICQ5_SRV_HDRSIZE,
+				"Body");
 	    fprintf(stderr,"Missing: %s\n", findServerCmd(cmd));
 	    break;
 	}
@@ -2178,8 +2116,10 @@ proto_register_icq(void)
 	  {"UIN", "icq.uin", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 	{ &hf_icq_sessionid,
 	  {"Session ID", "icq.sessionid", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
-	{ &hf_icq_cmd,
-	  {"Command", "icq.cmd", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ &hf_icq_client_cmd,
+	  {"Client command", "icq.client_cmd", FT_UINT16, BASE_HEX, VALS(clientCmdCode), 0x0, "", HFILL }},
+	{ &hf_icq_server_cmd,
+	  {"Server command", "icq.server_cmd", FT_UINT16, BASE_DEC, VALS(serverCmdCode), 0x0, "", HFILL }},
 	{ &hf_icq_checkcode,
 	  {"Checkcode", "icq.checkcode", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
 	{ &hf_icq_decode,
