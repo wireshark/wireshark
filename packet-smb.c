@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.204 2002/02/01 07:22:51 guy Exp $
+ * $Id: packet-smb.c,v 1.205 2002/02/13 04:11:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1165,7 +1165,15 @@ dissect_smb_64bit_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 			proto_tree_add_text(tree, tvb, offset, 8,
 			    "%s: No time specified (0)",
 			    proto_registrar_get_name(hf_date));
-		} else {
+		} else if(filetime_low==0 && filetime_high==0x80000000){
+			proto_tree_add_text(tree, tvb, offset, 8,
+			    "%s: Infinity (absolute time)",
+			    proto_registrar_get_name(hf_date));
+		} else if(filetime_low==0xffffffff && filetime_high==0x7fffffff){
+			proto_tree_add_text(tree, tvb, offset, 8,
+			    "%s: Infinity (relative time)",
+			    proto_registrar_get_name(hf_date));
+		} else {			
 			if (nt_time_to_nstime(filetime_high, filetime_low, &ts)) {
 				proto_tree_add_time(tree, hf_date, tvb,
 				    offset, 8, &ts);
