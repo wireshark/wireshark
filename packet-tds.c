@@ -3,7 +3,7 @@
  * Copyright 2000-2002, Brian Bruns <camber@ais.org>
  * Copyright 2002, Steve Langasek <vorlon@netexpress.net>
  *
- * $Id: packet-tds.c,v 1.5 2002/11/17 21:47:41 gerald Exp $
+ * $Id: packet-tds.c,v 1.6 2002/11/23 07:29:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,20 +26,41 @@
 
 /*
  * The NETLIB protocol is a small blocking protocol designed to allow TDS
- * to be placed within different transports (TCP, DECNet, IPX/SPX).  It
- * consist of an eight byte header containing a two byte size field, a last
- * packet indicator, a one byte packet type field, and a 4 byte field used in
- * RPC communications whose purpose is unknown (it is most likely a conversation
- * number to multiplex multiple conversations over a single socket).
+ * to be placed within different transports (TCP, DECNet, IPX/SPX).  A
+ * NETLIB packet starts with an eight byte header containing:
  *
- * The TDS protocol consists of a number of protocol data units (PDUs) marked
- * by a one byte field at the start of the PDU.  Some PDUs are fixed length
- * some are variable length with a two byte size field following the type, and
- * then there is TDS_ROW_TOKEN in which size is determined by analyzing the
- * result set returned from the server. This in effect means that we are
- * hopelessly lost if we haven't seen the result set.  Also, TDS 4/5 is byte
- * order negotiable, which is specified in the login packet.  We can attempt to
- * determine it later on, but not with 100% accuracy.
+ *	a one-byte packet type field;
+ *
+ *	a one-byte "last packet" indicator;
+ *
+ *	a two-byte size field giving the size of the packet, including
+ *	the header;
+ *
+ *	a four-byte field used in RPC communications whose purpose is
+ *	unknown;
+ *
+ * followed by payload whose size is the value in the size field minus
+ * 8.
+ *
+ * Microsoft Network Monitor 2.x dissects the 4 byte field (and indicates
+ * that the one-byte last packet indicator also contains other bits).
+ *
+ * The TDS protocol consists of a number of protocol data units (PDUs) that
+ * appear to be assembled from NETLIB packets, in the form of zero or more
+ * NETLIB packets with the last packet indicator clear and a final NETLIB
+ * packet with the last packet indicator set.  The type of the TDS PDU is
+ * specified by the packet type field of the NETLIB header (presumably that
+ * field has the same value for all NETLIB packets that make up a TDS PDU).
+ *
+ * The "server response" PDU consists of a sequence of multiple items, each
+ * one beginning with a one byte type field at the start of the PDU.  Some
+ * items are fixed length, some are variable length with a two byte size
+ * field following the item type, and then there is TDS_ROW_TOKEN in which
+ * size is determined by analyzing the result set returned from the server.
+ * This in effect means that we are hopelessly lost if we haven't seen the
+ * result set.  Also, TDS 4/5 is byte order negotiable, which is specified
+ * in the login packet.  We can attempt to determine it later on, but not
+ * with 100% accuracy.
  *
  * Some preliminary documentation on the packet format can be found at
  * http://www.freetds.org/tds.html
@@ -84,6 +105,24 @@
  * All that said, the code does deal gracefully with different boudary
  * conditions and what remains are the easier bits, IMHO.
  *
+ * XXX - "real packets" means "TCP segments", for TCP.
+ *
+ * XXX - is it *REALLY* true that you can have more than one TDS PDU (as
+ * opposed to more than one server response item) per NETLIB packet?  Or is
+ * all the data in a NETLIB packet put into a single TDS PDU?  If so, then
+ * we can reassemble NETLIB packets using the standard TCP desegmentation
+ * code, and can reassemble TDS PDUs using "fragment_add_seq_next()",
+ * and more cleanly separate the NETLIB and TDS dissectors (although the
+ * "is this NETLIB" heuristic would have to look at TDS information past
+ * the NETLIB header, in order to make the heuristic strong enough not
+ * to get too many false positives; note that the heuristic should reject
+ * any putative NETLIB packet with a length field with a value < 8).
+ *
+ * That would substantially clean the dissector up, eliminating most of
+ * the per-packet data (we might still need information to handle
+ * TDS_ROW_TOKEN), getting rid of the stuff to handle data split across
+ * TCP segment boundaries in favor of simple reassembly code, and
+ * fixing some otherwise nasty-looking crashing bugs.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -199,9 +238,9 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_tds = -1;
-static int hf_netlib_size = -1;
 static int hf_netlib_type = -1;
 static int hf_netlib_last = -1;
+static int hf_netlib_size = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_netlib = -1;
@@ -1017,9 +1056,8 @@ dissect_netlib_hdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, stru
                     "Netlib Header");
 
 		netlib_tree = proto_item_add_subtree(netlib_hdr, ett_netlib);
-		proto_tree_add_text(netlib_tree, tvb, offset, 1, "Packet Type: %02x %s",
-			nl_data->packet_type, val_to_str(nl_data->packet_type,
-			packet_type_names, "Unknown Packet Type"));
+		proto_tree_add_uint(netlib_tree, hf_netlib_type, tvb, offset, 1,
+			nl_data->packet_type);
 		proto_tree_add_uint(netlib_tree, hf_netlib_last, tvb, offset+1, 1,
 			nl_data->packet_last);
 		proto_tree_add_uint(netlib_tree, hf_netlib_size, tvb, offset+2, 2,
@@ -1038,6 +1076,8 @@ dissect_netlib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	struct _packet_data *p_data;
 	guint offset = 0;
 	guint bytes_remaining;
+
+	memset(&nl_data, '\0', sizeof nl_data);
 
 	p_data = p_get_proto_data(pinfo->fd, proto_tds);
 
@@ -1157,20 +1197,20 @@ proto_register_netlib(void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
+		{ &hf_netlib_type,
+			{ "Type",           "netlib.type",
+			FT_UINT8, BASE_HEX, VALS(packet_type_names), 0x0,
+			"Packet Type", HFILL }
+		},
+		{ &hf_netlib_last,
+			{ "Last Packet",    "netlib.last",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			"Last Packet Indicator", HFILL }
+		},
 		{ &hf_netlib_size,
 			{ "Size",           "netlib.size",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Packet Size", HFILL }
-		},
-		{ &hf_netlib_type,
-			{ "Type",           "netlib.type",
-			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"Packet Type", HFILL }
-		},
-		{ &hf_netlib_last,
-			{ "Last Packet",           "netlib.last",
-			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Last Packet Indicator", HFILL }
 		},
 	};
 
@@ -1238,5 +1278,3 @@ proto_reg_handoff_netlib(void)
 
 	ntlmssp_handle = find_dissector("ntlmssp");
 }
-
-
