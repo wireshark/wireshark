@@ -1342,9 +1342,9 @@ submit_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     int		 offset = 0;
     guint8	 flag, udhi;
     guint8	 length;
-	char *src_str = NULL;
-	char *dst_str = NULL;
-	address save_src, save_dst;
+    char *src_str = NULL;
+    char *dst_str = NULL;
+    address save_src, save_dst;
 
     smpp_handle_string_z(tree, tvb, hf_smpp_service_type, &offset, "(Default)");
     smpp_handle_int1(tree, tvb, hf_smpp_source_addr_ton, &offset);
@@ -1364,20 +1364,20 @@ submit_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     offset++;
     smpp_handle_int1(tree, tvb, hf_smpp_protocol_id, &offset);
     smpp_handle_int1(tree, tvb, hf_smpp_priority_flag, &offset);
-	if (tvb_get_guint8(tvb,offset)) {
-    smpp_handle_time(tree, tvb, hf_smpp_schedule_delivery_time,
-				hf_smpp_schedule_delivery_time_r, &offset);
-	} else { /* Time = NULL means Immediate delivery */
-		proto_tree_add_text(tree, tvb, offset++, 1,
-				"Scheduled delivery time: Immediate delivery");
-	}
-	if (tvb_get_guint8(tvb,offset)) {
-    smpp_handle_time(tree, tvb, hf_smpp_validity_period,
-				hf_smpp_validity_period_r, &offset);
-	} else { /* Time = NULL means SMSC default validity */
-		proto_tree_add_text(tree, tvb, offset++, 1,
-				"Validity period: SMSC default validity period");
-	}
+    if (tvb_get_guint8(tvb,offset)) {
+	smpp_handle_time(tree, tvb, hf_smpp_schedule_delivery_time,
+			 hf_smpp_schedule_delivery_time_r, &offset);
+    } else { /* Time = NULL means Immediate delivery */
+	proto_tree_add_text(tree, tvb, offset++, 1,
+			    "Scheduled delivery time: Immediate delivery");
+    }
+    if (tvb_get_guint8(tvb,offset)) {
+	smpp_handle_time(tree, tvb, hf_smpp_validity_period,
+			 hf_smpp_validity_period_r, &offset);
+    } else { /* Time = NULL means SMSC default validity */
+	proto_tree_add_text(tree, tvb, offset++, 1,
+			    "Validity period: SMSC default validity period");
+    }
     flag = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_smpp_regdel_receipt, tvb, offset, 1, flag);
     proto_tree_add_item(tree, hf_smpp_regdel_acks, tvb, offset, 1, flag);
@@ -1407,12 +1407,12 @@ submit_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 	    /* Restore original addresses */
 	    COPY_ADDRESS(&(pinfo->src), &save_src);
 	    COPY_ADDRESS(&(pinfo->dst), &save_dst);
-	    /* Get rid of SMPP text string addresses */
-	    g_free(src_str);
-	    g_free(dst_str);
 	}
     	offset += length;
     }
+    /* Get rid of SMPP text string addresses */
+    g_free(src_str);
+    g_free(dst_str);
     smpp_handle_tlv(tree, tvb, &offset);
 }
 
