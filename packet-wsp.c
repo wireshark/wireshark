@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.52 2002/01/24 09:20:52 guy Exp $
+ * $Id: packet-wsp.c,v 1.53 2002/02/01 07:12:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1226,7 +1226,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				/* Runs from offset+1+count+headerLength+1 to end of frame */
 				if (tvb_reported_length_remaining (tvb, offset) > 0)
 				{
-					ti = proto_tree_add_item (wsp_tree, hf_wsp_reply_data,tvb,offset,tvb_length_remaining(tvb, offset),bo_little_endian);
+					ti = proto_tree_add_item (wsp_tree, hf_wsp_reply_data,tvb,offset,-1,bo_little_endian);
 				}
 			}
 			if (tvb_reported_length_remaining(tvb, headerStart + headersLength) > 0)
@@ -1268,7 +1268,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				/* Push DATA */
 				if (tvb_reported_length_remaining (tvb, offset) > 0)
 				{
-					ti = proto_tree_add_item (wsp_tree, hf_wsp_push_data,tvb,offset,tvb_length_remaining(tvb, offset),bo_little_endian);
+					ti = proto_tree_add_item (wsp_tree, hf_wsp_push_data,tvb,offset,-1,bo_little_endian);
 				}
 			}
 			if (tvb_reported_length_remaining(tvb, headerStart + headersLength) > 0)
@@ -3329,8 +3329,8 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType,
 	guint8 peek = 0;
 	proto_item *ti;
 	
-	/* VERIFY ti = proto_tree_add_item (tree, hf_wsp_post_data,tvb,offset,tvb_length_remaining(tvb, offset),bo_little_endian); */
-	ti = proto_tree_add_item (tree, hf_wsp_post_data,tvb,offset,tvb_reported_length(tvb),bo_little_endian);
+	/* VERIFY ti = proto_tree_add_item (tree, hf_wsp_post_data,tvb,offset,-1,bo_little_endian); */
+	ti = proto_tree_add_item (tree, hf_wsp_post_data,tvb,offset,-1,bo_little_endian);
 
 	if (contentTypeStr == NULL && contentType == 0x12)
 	{
