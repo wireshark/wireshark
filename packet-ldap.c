@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.30 2001/12/10 00:25:30 guy Exp $
+ * $Id: packet-ldap.c,v 1.31 2002/01/14 02:50:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,6 +63,7 @@
 
 #include "packet-ldap.h"
 #include "asn1.h"
+#include "prefs.h"
 
 static int proto_ldap = -1;
 static int hf_ldap_length = -1;
@@ -108,6 +109,9 @@ static gint ett_ldap = -1;
 static gint ett_ldap_message = -1;
 static gint ett_ldap_referrals = -1;
 static gint ett_ldap_attribute = -1;
+
+/* desegmentation of LDAP */
+static gboolean ldap_desegment = TRUE;
 
 #define TCP_PORT_LDAP			389
 
@@ -873,16 +877,16 @@ static int dissect_ldap_request_abandon(ASN1_SCK *a, proto_tree *tree,
 static void
 dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  int offset = 0;
   proto_tree *ldap_tree = 0, *ti, *msg_tree;
   guint messageLength;
   guint messageId;
+  int next_offset;
   guint protocolOpCls, protocolOpCon, protocolOpTag;
   gchar *typestr;
   guint opLen;
   ASN1_SCK a;
   int start;
-  int first_time = 1;
+  gboolean first_time = TRUE;
   int ret;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -892,28 +896,55 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree) 
   {
-    ti = proto_tree_add_item(tree, proto_ldap, tvb, offset, tvb_length(tvb),
+    ti = proto_tree_add_item(tree, proto_ldap, tvb, 0, tvb_length(tvb),
 			     FALSE);
     ldap_tree = proto_item_add_subtree(ti, ett_ldap);
   }
 
   asn1_open(&a, tvb, 0);
 
-  while (tvb_reported_length_remaining(tvb, offset) > 0)
+  while (tvb_reported_length_remaining(tvb, a.offset) > 0)
   {
     int message_id_start;
     int message_id_length;
     int message_start;
     
+    /*
+     * XXX - should handle the initial sequence specifier split across
+     * segment boundaries.
+     */
     message_start = a.offset;
     if (read_sequence(&a, &messageLength))
     {
       if (first_time && check_col(pinfo->cinfo, COL_INFO))
         col_set_str(pinfo->cinfo, COL_INFO, "Invalid LDAP packet");
       if (ldap_tree)
-        proto_tree_add_text(ldap_tree, tvb, offset, 1, "Invalid LDAP packet");
+        proto_tree_add_text(ldap_tree, tvb, message_start, 1,
+			    "Invalid LDAP packet");
       break;
     }
+
+    /*
+     * Desegmentation check.
+     */
+    if (ldap_desegment) {
+	if (pinfo->can_desegment
+	    && messageLength > (guint)tvb_length_remaining(tvb, a.offset)) {
+	    /*
+	     * This frame doesn't have all of the data for this message,
+	     * but we can do reassembly on it.
+	     *
+	     * Tell the TCP dissector where the data for this message
+	     * starts in the data it handed us, and how many more bytes
+	     * we need, and return.
+	     */
+	    pinfo->desegment_offset = message_start;
+	    pinfo->desegment_len = messageLength -
+	        tvb_length_remaining(tvb, a.offset);
+	    return;
+	}
+    }
+    next_offset = a.offset + messageLength;
 
     message_id_start = a.offset;
     if (read_integer(&a, 0, -1, 0, &messageId, ASN1_INT))
@@ -939,9 +970,7 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (check_col(pinfo->cinfo, COL_INFO))
         col_add_fstr(pinfo->cinfo, COL_INFO, "MsgId=%u MsgType=%s",
 		     messageId, typestr);
-      first_time = 0;
-      if (!tree)
-	return;
+      first_time = FALSE;
     }
 
     if (ldap_tree) 
@@ -997,7 +1026,12 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
       }
     }
-    offset = a.offset;
+
+    /*
+     * XXX - what if "a.offset" is past the offset of the next top-level
+     * sequence?  Show that as an error?
+     */
+    a.offset = next_offset;
   }
 }
 
@@ -1207,11 +1241,18 @@ proto_register_ldap(void)
     &ett_ldap_referrals,
     &ett_ldap_attribute
   };
+  module_t *ldap_module;
 
   proto_ldap = proto_register_protocol("Lightweight Directory Access Protocol",
 				       "LDAP", "ldap");
   proto_register_field_array(proto_ldap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  ldap_module = prefs_register_protocol(proto_ldap, NULL);
+  prefs_register_bool_preference(ldap_module, "desegment_ldap_messages",
+    "Desegment all LDAP messages spanning multiple TCP segments",
+    "Whether the LDAP dissector should desegment all messages spanning multiple TCP segments",
+    &ldap_desegment);
 }
 
 void
