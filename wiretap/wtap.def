@@ -22,6 +22,7 @@ wtap_loop
 wtap_open_offline
 wtap_pcap_encap_to_wtap_encap
 wtap_phdr
+wtap_process_pcap_packet
 wtap_pseudoheader
 wtap_read
 wtap_seek_read
