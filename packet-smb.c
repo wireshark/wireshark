@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.345 2003/06/04 05:41:37 guy Exp $
+ * $Id: packet-smb.c,v 1.346 2003/06/06 02:05:38 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -371,6 +371,11 @@ static int hf_smb_root_dir_fid = -1;
 static int hf_smb_nt_create_disposition = -1;
 static int hf_smb_sd_length = -1;
 static int hf_smb_ea_length = -1;
+static int hf_smb_ea_flags = -1;
+static int hf_smb_ea_name_length = -1;
+static int hf_smb_ea_data_length = -1;
+static int hf_smb_ea_name = -1;
+static int hf_smb_ea_data = -1;
 static int hf_smb_file_name_len = -1;
 static int hf_smb_nt_impersonation_level = -1;
 static int hf_smb_nt_security_flags_context_tracking = -1;
@@ -512,8 +517,6 @@ static int hf_smb_storage_type = -1;
 static int hf_smb_resume = -1;
 static int hf_smb_max_referral_level = -1;
 static int hf_smb_qfsi_information_level = -1;
-static int hf_smb_ea_size = -1;
-static int hf_smb_list_length = -1;
 static int hf_smb_number_of_links = -1;
 static int hf_smb_delete_pending = -1;
 static int hf_smb_index_number = -1;
@@ -674,6 +677,7 @@ static gint ett_smb_sec_desc_type = -1;
 static gint ett_smb_quotaflags = -1;
 static gint ett_smb_secblob = -1;
 static gint ett_smb_unicode_password = -1;
+static gint ett_smb_ea = -1;
 
 static int smb_tap = -1;
 
@@ -10642,9 +10646,9 @@ dissect_4_2_14_1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	offset = dissect_file_attributes(tvb, tree, offset, 2);
 	*bcp -= 2;
 
-	/* ea size */
+	/* ea length */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_ea_size, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_ea_length, tvb, offset, 4, TRUE);
 	COUNT_BYTES_SUBR(4);
 
 	*trunc = FALSE;
@@ -10658,10 +10662,71 @@ static int
 dissect_4_2_14_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
-	/* list length */
+	guint8 name_len;
+	guint16 data_len;
+	/* EA size */
+
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_list_length, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_ea_length, tvb, offset, 4, TRUE);
 	COUNT_BYTES_SUBR(4);
+
+	while (*bcp > 0) {
+		proto_item *item;
+		proto_tree *subtree;
+		int start_offset = offset;
+		guint8 *name;
+
+		item = proto_tree_add_text(
+			tree, tvb, offset, 0, "Extended Attribute");
+		subtree = proto_item_add_subtree(item, ett_smb_ea);
+
+		/* EA flags */
+		
+		CHECK_BYTE_COUNT_SUBR(1);
+		proto_tree_add_item(
+			subtree, hf_smb_ea_flags, tvb, offset, 1, TRUE);
+		COUNT_BYTES_SUBR(1);
+
+		/* EA name length */
+		
+		name_len = tvb_get_guint8(tvb, offset);
+
+		CHECK_BYTE_COUNT_SUBR(1);
+		proto_tree_add_item(
+			subtree, hf_smb_ea_name_length, tvb, offset, 1, TRUE);
+		COUNT_BYTES_SUBR(1);
+
+		/* EA data length */
+
+		data_len = tvb_get_letohs(tvb, offset);
+		
+		CHECK_BYTE_COUNT_SUBR(2);
+		proto_tree_add_item(
+			subtree, hf_smb_ea_data_length, tvb, offset, 2, TRUE);
+		COUNT_BYTES_SUBR(2);
+
+		/* EA name */
+
+		name = g_malloc(name_len + 1);
+		tvb_get_nstringz(tvb, offset, name_len + 1, name);
+		proto_item_append_text(item, ": %s", name);
+		g_free(name);
+
+		CHECK_BYTE_COUNT_SUBR(name_len + 1);
+		proto_tree_add_item(
+			subtree, hf_smb_ea_name, tvb, offset, name_len + 1, 
+			TRUE);
+		COUNT_BYTES_SUBR(name_len + 1);
+
+		/* EA data */
+		
+		CHECK_BYTE_COUNT_SUBR(data_len);
+		proto_tree_add_item(
+			subtree, hf_smb_ea_data, tvb, offset, data_len, TRUE);
+		COUNT_BYTES_SUBR(data_len);
+
+		proto_item_set_len(item, offset - start_offset);
+	}
 
 	*trunc = FALSE;
 	return offset;
@@ -10769,9 +10834,9 @@ static int
 dissect_4_2_14_6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
-	/* ea size */
+	/* ea length */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_ea_size, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_ea_length, tvb, offset, 4, TRUE);
 	COUNT_BYTES_SUBR(4);
 
 	*trunc = FALSE;
@@ -11001,6 +11066,7 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	si = (smb_info_t *)pinfo->private_data;
 	switch(si->info_level){
 	case 1:		/*Info Standard*/
+		
 	case 2:		/*Info Query EA Size*/
 		offset = dissect_4_2_14_1(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
@@ -11926,9 +11992,9 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	offset = dissect_file_attributes(tvb, tree, offset, 2);
 	*bcp -= 2;
 
-	/* ea size */
+	/* ea length */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_ea_size, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_ea_length, tvb, offset, 4, TRUE);
 	COUNT_BYTES_SUBR(4);
 
 	/* file name len */
@@ -12152,9 +12218,9 @@ dissect_4_3_4_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_tree_add_uint(tree, hf_smb_file_name_len, tvb, offset, 4, fn_len);
 	COUNT_BYTES_SUBR(4);
 
-	/* ea size */
+	/* ea length */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_ea_size, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_ea_length, tvb, offset, 4, TRUE);
 	COUNT_BYTES_SUBR(4);
 
 	/* file name */
@@ -12271,9 +12337,9 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_tree_add_uint(tree, hf_smb_file_name_len, tvb, offset, 4, fn_len);
 	COUNT_BYTES_SUBR(4);
 
-	/* ea size */
+	/* ea length */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_ea_size, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_ea_length, tvb, offset, 4, TRUE);
 	COUNT_BYTES_SUBR(4);
 
 	/* short file name len */
@@ -17245,6 +17311,26 @@ proto_register_smb(void)
 		{ "EA Length", "smb.ea.length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Total EA length for opened file", HFILL }},
 
+	{ &hf_smb_ea_flags,
+		{ "EA Flags", "smb.ea.flags", FT_UINT8, BASE_HEX,
+		NULL, 0, "EA Flags", HFILL }},
+
+	{ &hf_smb_ea_name_length,
+		{ "EA Name Length", "smb.ea.name_length", FT_UINT8, BASE_DEC,
+		NULL, 0, "EA Name Length", HFILL }},
+
+	{ &hf_smb_ea_data_length,
+		{ "EA Data Length", "smb.ea.data_length", FT_UINT16, BASE_DEC,
+		NULL, 0, "EA Data Length", HFILL }},
+
+	{ &hf_smb_ea_name,
+		{ "EA Name", "smb.ea.name", FT_STRING, BASE_NONE,
+		NULL, 0, "EA Name", HFILL }},
+
+	{ &hf_smb_ea_data,
+		{ "EA Data", "smb.ea.data", FT_BYTES, BASE_NONE,
+		NULL, 0, "EA Data", HFILL }},
+
 	{ &hf_smb_file_name_len,
 		{ "File Name Len", "smb.file_name_len", FT_UINT32, BASE_DEC,
 		NULL, 0, "Length of File Name", HFILL }},
@@ -17725,14 +17811,6 @@ proto_register_smb(void)
    	{ &hf_smb_cluster_count,
 		{ "Cluster count", "smb.ntr_clu", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of clusters", HFILL }},
-
-	{ &hf_smb_ea_size,
-		{ "EA Size", "smb.ea_size", FT_UINT32, BASE_DEC,
-		NULL, 0, "Size of file's EA information", HFILL }},
-
-	{ &hf_smb_list_length,
-		{ "ListLength", "smb.list_len", FT_UINT32, BASE_DEC,
-		NULL, 0, "Length of the remaining data", HFILL }},
 
 	{ &hf_smb_number_of_links,
 		{ "Link Count", "smb.link_count", FT_UINT32, BASE_DEC,
@@ -18396,7 +18474,8 @@ proto_register_smb(void)
 		&ett_nt_access_mask_generic,
 		&ett_nt_access_mask_standard,
 		&ett_nt_access_mask_specific,
-		&ett_smb_unicode_password
+		&ett_smb_unicode_password,
+		&ett_smb_ea
 	};
 	module_t *smb_module;
 
