@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.31 1999/12/05 09:50:58 guy Exp $
+ * $Id: packet-llc.c,v 1.32 1999/12/05 22:52:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -120,6 +120,7 @@ static const value_string llc_ctrl_vals[] = {
 };
 
 #define	OUI_ENCAP_ETHER	0x000000
+#define	OUI_APPLE_ATALK	0x080007
 
 static const value_string llc_oui_vals[] = {
 	{ OUI_ENCAP_ETHER, "Encapsulated Ethernet" },
@@ -129,6 +130,7 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 	{ 0x00000c,        "Cisco" },
 	{ 0x0000f8,        "Cisco 90-Compatible" },
 	{ 0x0080c2,        "Bridged Frame-Relay" }, /* RFC 2427 */
+	{ OUI_APPLE_ATALK, "Apple (AppleTalk)" },
 	{ 0,               NULL }
 };
 
@@ -175,6 +177,10 @@ capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
 	guint16		etype;
 	capture_func_t	*capture;
 
+	if (!BYTES_ARE_IN_FRAME(offset, 2)) {
+		ld->other++;
+		return;
+	}
 	is_snap = (pd[offset] == 0xAA) && (pd[offset+1] == 0xAA);
 	llc_header_len = 2;	/* DSAP + SSAP */
 
@@ -197,6 +203,10 @@ capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
 	llc_header_len += XDLC_CONTROL_LEN(control, TRUE);
 	if (is_snap)
 		llc_header_len += 5;	/* 3 bytes of OUI, 2 bytes of protocol ID */
+	if (!BYTES_ARE_IN_FRAME(offset, llc_header_len)) {
+		ld->other++;
+		return;
+	}
 
 	if (is_snap) {
 		oui = pd[offset+3] << 16 | pd[offset+4] << 8 | pd[offset+5];
@@ -208,6 +218,14 @@ capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
 			switch (oui) {
 
 			case OUI_ENCAP_ETHER:
+			case OUI_APPLE_ATALK:
+				/* No, I have no idea why Apple used
+				   one of their own OUIs, rather than
+				   OUI_ENCAP_ETHER, and an Ethernet
+				   packet type as protocol ID, for
+				   AppleTalk data packets - but used
+				   OUI_ENCAP_ETHER and an Ethernet
+				   packet type for AARP packets. */
 				capture_ethertype(etype, offset+8, pd,
 				    cap_len, ld);
 				break;
@@ -250,13 +268,17 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	guint16		etype;
 	dissect_func_t	*dissect;
 
+	if (!BYTES_ARE_IN_FRAME(offset, 2)) {
+		dissect_data(pd, offset, fd, tree);
+		return;
+	}
 	is_snap = (pd[offset] == 0xAA) && (pd[offset+1] == 0xAA);
 	llc_header_len = 2;	/* DSAP + SSAP */
 
 	if (check_col(fd, COL_PROTOCOL)) {
 		col_add_str(fd, COL_PROTOCOL, "LLC");
 	}
-  
+
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_llc, offset, 0, NULL);
 		llc_tree = proto_item_add_subtree(ti, ett_llc);
@@ -286,6 +308,10 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	llc_header_len += XDLC_CONTROL_LEN(control, TRUE);
 	if (is_snap)
 		llc_header_len += 5;	/* 3 bytes of OUI, 2 bytes of protocol ID */
+	if (!BYTES_ARE_IN_FRAME(offset, llc_header_len)) {
+		dissect_data(pd, offset, fd, tree);
+		return;
+	}
 	if (tree)
 		proto_item_set_len(ti, llc_header_len);
 
@@ -295,10 +321,13 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	 * than overwriting it?
 	 */
 	if (is_snap) {
-		if (check_col(fd, COL_INFO)) {
-			col_add_str(fd, COL_INFO, "802.2 LLC (SNAP)");
-		}
 		oui = pd[offset+3] << 16 | pd[offset+4] << 8 | pd[offset+5];
+		etype = pntohs(&pd[offset+6]);
+		if (check_col(fd, COL_INFO)) {
+			col_add_fstr(fd, COL_INFO, "SNAP, OUI 0x%06X (%s), PID 0x%04X",
+			    oui, val_to_str(oui, llc_oui_vals, "Unknown"),
+			    etype);
+		}
 		if (tree) {
 			proto_tree_add_item(llc_tree, hf_llc_oui, offset+3, 3,
 				oui);
@@ -307,10 +336,17 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			/*
 			 * This frame has a payload to be analyzed.
 			 */
-			etype = pntohs(&pd[offset+6]);
 			switch (oui) {
 
 			case OUI_ENCAP_ETHER:
+			case OUI_APPLE_ATALK:
+				/* No, I have no idea why Apple used
+				   one of their own OUIs, rather than
+				   OUI_ENCAP_ETHER, and an Ethernet
+				   packet type as protocol ID, for
+				   AppleTalk data packets - but used
+				   OUI_ENCAP_ETHER and an Ethernet
+				   packet type for AARP packets. */
 				ethertype(etype, offset+8, pd,
 				    fd, tree, llc_tree, hf_llc_type);
 				break;
@@ -325,8 +361,9 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	}		
 	else {
 		if (check_col(fd, COL_INFO)) {
-			col_add_fstr(fd, COL_INFO, "802.2 LLC (%s)",
-				val_to_str(pd[offset], sap_vals, "%02x"));
+			col_add_fstr(fd, COL_INFO, "DSAP %s, SSAP %s",
+				val_to_str(pd[offset], sap_vals, "%02x"),
+				val_to_str(pd[offset+1], sap_vals, "%02x"));
 		}
 
 		if (XDLC_HAS_PAYLOAD(control)) {
