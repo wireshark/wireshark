@@ -2,7 +2,7 @@
  * Routines for BSSGP (BSS GPRS Protocol ETSI GSM 08.18 version 6.7.1 TS 101 343 ) dissection
  * Copyright 2000, Josef Korelus <jkor@quick.cz>
  *
- * $Id: packet-bssgp.c,v 1.2 2003/09/06 07:10:56 guy Exp $
+ * $Id: packet-bssgp.c,v 1.3 2003/09/09 09:14:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -90,6 +90,7 @@
 #define QOSO5T				0x10
 #define QOSO5A				0x08
 #define LOW3B				0x07
+#define ODD_EVEN_INDIC			0x08
 /*GSM 08.18 version 6.7.1 table 11.27*/
 
 static const value_string tab_bssgp_pdu_type[] = {
@@ -188,14 +189,20 @@ static const value_string bssgp_cause[] = {
 	{ 0x26, "PDU not compatible with protocol state" },
 	{ 0x27, "Protocol error-unspecified" },
 	{ 0,   NULL },
-           };
+};
+
+#define TOI_IMSI	0x01
+#define TOI_IMEI	0x02
+#define TOI_IMEISV	0x03
+#define TOI_TMSI_P_TMSI	0x04
+#define TOI_NO_IDENTITY	0x00
 
 static const value_string type_of_identity[] = {
-	{ 0x1 ,	"IMSI" },
-	{ 0x2 ,	"IMEI" },
-     	{ 0x3 , "IMEISV" },
-	{ 0x4 ,	"TMSI/P-TMSI" },
-	{ 0x0 , "No identity" },
+	{ TOI_IMSI,        "IMSI" },
+	{ TOI_IMEI,        "IMEI" },
+     	{ TOI_IMEISV,      "IMEISV" },
+	{ TOI_TMSI_P_TMSI, "TMSI/P-TMSI" },
+	{ TOI_NO_IDENTITY, "No identity" },
 	{ 0,	NULL },	
 };
 static const value_string radio_cause[] = {
@@ -252,6 +259,7 @@ static int hf_bssgp_cause = -1;
 static int hf_bssgp_cid = -1;
 static int hf_bssgp_imsi = -1;
 static int hf_bssgp_imsi_toi = -1;
+static int hf_bssgp_imsi_even_odd_indic = -1;
 static int hf_bssgp_imsi_lsix = -1;
 static int hf_bssgp_tlli = -1;
 /*static int hf_bssgp_tag = -1;
@@ -983,7 +991,7 @@ return len+2;
 */
 
 static int dcd_bssgp_imsi(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p){
-        guint8  hnum=0, nextb=0, first_b=0, toi=0, i, k;
+        guint8  nextb=0, first_b=0, toi=0, i, k;
 	guint8  num=0,code=0,len=0;
 	char buf[17],imsi_mccn[6],imsi_val[11], toibuf[9];
 	proto_item *ti=NULL, *ti2=NULL;
@@ -991,21 +999,40 @@ static int dcd_bssgp_imsi(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p
 
 	len = tvb_get_guint8(tvb,offset+1) & 0x7f;
 	first_b = tvb_get_guint8(tvb,offset+2);
-	toi = first_b;
-	num = first_b >> 4;
-	toi = toi & LOW3B;
-	if (toi == 1 ){
-		buf[0] = num ^ 0x30;
-		for (i=1;i<len;i++){
+	if (dprm_p->tree){
+		code = tvb_get_guint8(tvb,offset);
+		decode_bitfield_value(toibuf,toi,LOW3B,8);
+		ti = proto_tree_add_text(dprm_p->tree,tvb,offset,len+2 ,"IMSI");
+		imsi_tree = proto_item_add_subtree(ti, ett_bssgp_imsi);
+		proto_tree_add_uint_format(imsi_tree,hf_bssgp_ietype,tvb,offset,1,code,"IE type: %s %#.2x",match_strval(code,bssgp_iei),code);
+		proto_tree_add_text(imsi_tree,tvb,offset+1,1,"Length:%u",len);
+	}
+	toi = first_b & LOW3B;
+	switch (toi) {
+
+	case TOI_IMSI:
+	case TOI_IMEI:
+	case TOI_IMEISV:
+		num = first_b >> 4;
+		buf[0] = num + '0';
+		for (i=1,k=1;i<len;i++){
 			nextb = tvb_get_guint8(tvb, offset+2+i);
-			hnum = nextb;
-			hnum = hnum >> 4;
 			num = nextb & 0x0f;
-			k = 2*i;
-			buf[k] = hnum ^ 0x30;
-			buf[k-1] = num ^ 0x30;
-			buf[k+1] = '\0';
-			switch (k){
+			buf[k] = num + '0';
+			k++;
+			if (i < len - 1 || (first_b & ODD_EVEN_INDIC)) {
+				/*
+				 * Either this isn't the last octet
+				 * of the number, or it is, but there's
+				 * an odd number of digits, so the last
+				 * nibble is part of the number.
+				 */
+				num = nextb >> 4;
+				buf[k] = num + '0';
+				k++;
+			}
+			buf[k] = '\0';
+			switch (i*2){
 				case 4:
 					memcpy(&imsi_mccn,&buf,6);
 					break;
@@ -1016,21 +1043,22 @@ static int dcd_bssgp_imsi(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p
 	
 		}
 		if (check_col((dprm_p->pinfo)->cinfo, COL_INFO)){
-		col_append_fstr( (dprm_p->pinfo)->cinfo, COL_INFO, ", %s: %s %s",match_strval(toi,type_of_identity),imsi_mccn, imsi_val );
-		}	
+			col_append_fstr( (dprm_p->pinfo)->cinfo, COL_INFO,
+			    ", %s: %s %s",
+			    val_to_str(toi,type_of_identity,"Unknown TOI (0x%x)"),
+				imsi_mccn, imsi_val );
+		}
 	
 		if (dprm_p->tree){
-			code = tvb_get_guint8(tvb,offset);
-			decode_bitfield_value(toibuf,toi,LOW3B,8);
-			ti = proto_tree_add_text(dprm_p->tree,tvb,offset,len+2 ,"IMSI: %s", buf);
-			imsi_tree = proto_item_add_subtree(ti, ett_bssgp_imsi);
-			proto_tree_add_uint_format(imsi_tree,hf_bssgp_ietype,tvb,offset,1,code,"IE type: %s %#.2x",match_strval(code,bssgp_iei),code);
-			proto_tree_add_text(imsi_tree,tvb,offset+1,1,"Length:%u",len);
-			ti2 = proto_tree_add_string_format(imsi_tree,hf_bssgp_imsi,tvb,offset+2,len,buf,"IMSI: %s",buf);
+			proto_item_append_text(ti, ": %s", buf);
+			ti2 = proto_tree_add_text(imsi_tree,tvb,offset+2,len,"Mobile identity: %s",buf);
 			imsi_stru_tree = proto_item_add_subtree( ti2, ett_bssgp_imsi_stru_tree);
-			proto_tree_add_uint_format(imsi_stru_tree,hf_bssgp_imsi_toi,tvb,offset+2,1,toi,"%s %s", toibuf, match_strval(toi,type_of_identity));
-			proto_tree_add_string_hidden(imsi_tree,hf_bssgp_imsi_lsix,tvb,offset+2,len,imsi_val);
+			proto_tree_add_uint(imsi_stru_tree,hf_bssgp_imsi_toi,tvb,offset+2,1,first_b);
+			proto_tree_add_boolean(imsi_stru_tree,hf_bssgp_imsi_even_odd_indic,tvb,offset+2,1,first_b);
+			proto_tree_add_string(imsi_stru_tree,hf_bssgp_imsi,tvb,offset+2,len,buf);
+			proto_tree_add_string_hidden(imsi_stru_tree,hf_bssgp_imsi_lsix,tvb,offset+2,len,imsi_val);
 		}
+		break;
 	}
 return len+2;	
 }
@@ -1191,9 +1219,9 @@ static int dcd_bssgp_qos(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p)
 	opet = tvb_get_guint8(tvb,offset+disp);
 	disp++;
 	if (dprm_p->tree){
-	bps = 100*blr/8;
-	decode_bitfield_value(buf,opet,LOW3B,8);
-	pre = opet & LOW3B;
+		bps = 100*blr/8;
+		decode_bitfield_value(buf,opet,LOW3B,8);
+		pre = opet & LOW3B;
 		ti = proto_tree_add_text(dprm_p->tree,tvb,offset,len+disp,"QoS Profile IE");
 		qos_tree = proto_item_add_subtree(ti,ett_bssgp_qos);
 		switch (dprm_p->type){
@@ -1538,46 +1566,47 @@ proto_register_bssgp(void)
 			{"C/R bit","bssgp.qos.cr",FT_BOOLEAN,8, TFS(&cr_string),QOSO5CR,"The SDU contains LLC ACK/SACK command/responce frame type",HFILL }},
 		{&hf_bssgp_qos_t,
 			{"T bit", "bssgp.qos.t", FT_BOOLEAN, 8, TFS( &t_string) , QOSO5T, "The SDU contains signaling/data" , HFILL}},
-			
 		{&hf_bssgp_qos_a,
 			{"A bit" , "bssgp.qos.a" , FT_BOOLEAN,8, TFS( &a_string), QOSO5A, "Radio interface uses ARQ/UNITDATA functionality",HFILL}},
-			{&hf_bssgp_qos_prec,
-				{"Precedence", "bssgp.qos.prec", FT_UINT8,BASE_HEX ,VALS(prec_both), 0x0,"Precedence coding", HFILL }},
-			{&hf_bssgp_pdu_lifetime,
-				{"PDU Lifetime","bssgp.lft", FT_UINT16, BASE_HEX, NULL, 0x0, "PDU Lifetime for PDU inside the BSS",HFILL}},
-			{&hf_bssgp_imsi,
-				{"IMSI","bssgp.imsi", FT_STRING, BASE_DEC, NULL, 0x0, "International Mobile Subscriber Identity",HFILL}},
-			{&hf_bssgp_imsi_toi,
-				{ "Mobile idetity", "bssgp.mobid", FT_UINT8, BASE_HEX, VALS(type_of_identity), 0x0, "Type of mobile identity",HFILL }},
-			{&hf_bssgp_imsi_lsix,
-				{"IMSI last ten numbers","bssgp.imsi.last10num",FT_STRING, BASE_DEC, NULL, 0x0, "Last ten numbers of IMSI",HFILL}},
-			{&hf_bssgp_bvc_buck_size,
-					{"Bmax(in 100 oct incr)","bssgp.bmax", FT_UINT16, BASE_HEX, NULL, 0x0, "BVC Bucket Size in 100 octet increments",HFILL}},
-			{&hf_bssgp_buck_leak_rate,
-				{"Bucket Leak Rate","bssgp.R", FT_UINT16, BASE_HEX, NULL, 0x0, "Bucket Leak Rate in 100 bits/sec increments",HFILL}},
-			{&hf_bssgp_bmax_def_ms,
-				{"Bmax default MS","bssgp.bmaxms", FT_UINT16, BASE_HEX, NULL, 0x0, "Default bucket size in 100 octetsincrement for an MS",HFILL}},
-			{&hf_bssgp_r_defau_ms,
-				{"R default MS","bssgp.Rms", FT_UINT16, BASE_HEX,NULL, 0x0, "Dfeault bucket leak rate to be applied to a flow control bucket for an MS", HFILL}},
-			{&hf_bssgp_bvci,
-				{"BVCI","bssgp.bvci",FT_UINT16, BASE_HEX, NULL, 0x0, "BSSGP Virtual Connection Identifier", HFILL}},
-			{&hf_bssgp_cause,
-				{"Cause","bssgp.cause", FT_UINT8, BASE_HEX, NULL,0x0, " Cause information element  indicates the reason for an exception condition",HFILL }},
-			{&hf_bssgp_bvci_new,{"BVCI(New)","bssgp.bvci.new",FT_UINT16, BASE_HEX, NULL, 0x0, "BSSGP Virtual Connection Identifier", HFILL}},
-			{&hf_bssgp_frdsc,
-				{"LLC frames discarded","bssgp.llcdisc.frames", FT_UINT8, BASE_HEX, NULL, 0x0,"LLC frames that have been discarded inside BSS", HFILL}},
-			{&hf_bssgp_noaff,
-				{"Number of octets affected","bssgp.noaff", FT_UINT24, BASE_HEX,NULL,0x0,"It indicates,for MS,the number of octets transferred or deleted by BSS",HFILL}},
-			{&hf_bssgp_radio_cause,
-				{"Radio Cause","bssgp.racase", FT_UINT8, BASE_HEX, NULL, 0x0, "Reason for an exception condition on the radio interface",HFILL}},
-			{&hf_bssgp_ra_mccmnc,
-				{"MCC and MNC","bssgp.ra.mccmnc", FT_STRING, BASE_DEC, NULL, 0x0, "Mobile country code and Mobile network code", HFILL}},
-			{&hf_bssgp_ra_lac,
-				{"LAC","bssgp.ra.lac",FT_UINT16, BASE_HEX, NULL, 0x0, "Location area code",HFILL }},
-			{&hf_bssgp_ra_rac,
-				{"RAC","bssgp.ra.rac",FT_UINT8, BASE_HEX, NULL, 0x0, "Routing area code", HFILL }},
-			{&hf_bssgp_cid,
-				{"Cell id","bssgp.cid",FT_UINT16, BASE_HEX, NULL, 0x0, "Cell identity", HFILL }},
+		{&hf_bssgp_qos_prec,
+			{"Precedence", "bssgp.qos.prec", FT_UINT8,BASE_HEX ,VALS(prec_both), 0x0,"Precedence coding", HFILL }},
+		{&hf_bssgp_pdu_lifetime,
+			{"PDU Lifetime","bssgp.lft", FT_UINT16, BASE_HEX, NULL, 0x0, "PDU Lifetime for PDU inside the BSS",HFILL}},
+		{&hf_bssgp_imsi,
+			{"IMSI","bssgp.imsi", FT_STRING, BASE_DEC, NULL, 0x0, "International Mobile Subscriber Identity",HFILL}},
+		{&hf_bssgp_imsi_toi,
+			{ "Type of Mobile identity", "bssgp.mobid", FT_UINT8, BASE_HEX, VALS(type_of_identity), LOW3B, "Type of mobile identity",HFILL }},
+		{&hf_bssgp_imsi_even_odd_indic,
+			{ "Odd/even indication", "bssgp.oei", FT_BOOLEAN, 8, TFS(&imsi_odd_even), ODD_EVEN_INDIC, "Odd/even indication",HFILL }},
+		{&hf_bssgp_imsi_lsix,
+			{"IMSI last ten numbers","bssgp.imsi.last10num",FT_STRING, BASE_NONE, NULL, 0x0, "Last ten numbers of IMSI",HFILL}},
+		{&hf_bssgp_bvc_buck_size,
+			{"Bmax(in 100 oct incr)","bssgp.bmax", FT_UINT16, BASE_HEX, NULL, 0x0, "BVC Bucket Size in 100 octet increments",HFILL}},
+		{&hf_bssgp_buck_leak_rate,
+			{"Bucket Leak Rate","bssgp.R", FT_UINT16, BASE_HEX, NULL, 0x0, "Bucket Leak Rate in 100 bits/sec increments",HFILL}},
+		{&hf_bssgp_bmax_def_ms,
+			{"Bmax default MS","bssgp.bmaxms", FT_UINT16, BASE_HEX, NULL, 0x0, "Default bucket size in 100 octetsincrement for an MS",HFILL}},
+		{&hf_bssgp_r_defau_ms,
+			{"R default MS","bssgp.Rms", FT_UINT16, BASE_HEX,NULL, 0x0, "Dfeault bucket leak rate to be applied to a flow control bucket for an MS", HFILL}},
+		{&hf_bssgp_bvci,
+			{"BVCI","bssgp.bvci",FT_UINT16, BASE_HEX, NULL, 0x0, "BSSGP Virtual Connection Identifier", HFILL}},
+		{&hf_bssgp_cause,
+			{"Cause","bssgp.cause", FT_UINT8, BASE_HEX, NULL,0x0, " Cause information element  indicates the reason for an exception condition",HFILL }},
+		{&hf_bssgp_bvci_new,{"BVCI(New)","bssgp.bvci.new",FT_UINT16, BASE_HEX, NULL, 0x0, "BSSGP Virtual Connection Identifier", HFILL}},
+		{&hf_bssgp_frdsc,
+			{"LLC frames discarded","bssgp.llcdisc.frames", FT_UINT8, BASE_HEX, NULL, 0x0,"LLC frames that have been discarded inside BSS", HFILL}},
+		{&hf_bssgp_noaff,
+			{"Number of octets affected","bssgp.noaff", FT_UINT24, BASE_HEX,NULL,0x0,"It indicates,for MS,the number of octets transferred or deleted by BSS",HFILL}},
+		{&hf_bssgp_radio_cause,
+			{"Radio Cause","bssgp.racase", FT_UINT8, BASE_HEX, NULL, 0x0, "Reason for an exception condition on the radio interface",HFILL}},
+		{&hf_bssgp_ra_mccmnc,
+			{"MCC and MNC","bssgp.ra.mccmnc", FT_STRING, BASE_DEC, NULL, 0x0, "Mobile country code and Mobile network code", HFILL}},
+		{&hf_bssgp_ra_lac,
+			{"LAC","bssgp.ra.lac",FT_UINT16, BASE_HEX, NULL, 0x0, "Location area code",HFILL }},
+		{&hf_bssgp_ra_rac,
+			{"RAC","bssgp.ra.rac",FT_UINT8, BASE_HEX, NULL, 0x0, "Routing area code", HFILL }},
+		{&hf_bssgp_cid,
+			{"Cell id","bssgp.cid",FT_UINT16, BASE_HEX, NULL, 0x0, "Cell identity", HFILL }},
         };
 
 /* Setup protocol subtree array */
