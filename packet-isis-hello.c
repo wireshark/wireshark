@@ -1,7 +1,7 @@
 /* packet-isis-hello.c
  * Routines for decoding isis hello packets and their CLVs
  *
- * $Id: packet-isis-hello.c,v 1.26 2002/01/24 09:20:49 guy Exp $
+ * $Id: packet-isis-hello.c,v 1.27 2002/02/09 23:44:38 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -53,6 +53,7 @@ static int hf_isis_hello_clv_ipv4_int_addr   = -1;
 static int hf_isis_hello_clv_ipv6_int_addr   = -1;
 static int hf_isis_hello_clv_ptp_adj         = -1;
 static int hf_isis_hello_clv_mt              = -1;
+static int hf_isis_hello_clv_restart         = -1;
 
 static gint ett_isis_hello                   = -1;
 static gint ett_isis_hello_clv_area_addr     = -1;
@@ -65,6 +66,7 @@ static gint ett_isis_hello_clv_ipv4_int_addr = -1;
 static gint ett_isis_hello_clv_ipv6_int_addr = -1;
 static gint ett_isis_hello_clv_ptp_adj       = -1;
 static gint ett_isis_hello_clv_mt            = -1;
+static gint ett_isis_hello_clv_restart       = -1;
 
 static const value_string isis_hello_circuit_type_vals[] = {
 	{ ISIS_HELLO_TYPE_RESERVED,	"Reserved 0 (discard PDU)"},
@@ -101,6 +103,9 @@ static void dissect_hello_mt_clv(tvbuff_t *tvb,
 		packet_info *pinfo, proto_tree *tree, int offset, 
 		int id_length, int length);
 static void dissect_hello_nlpid_clv(tvbuff_t *tvb, 
+		packet_info *pinfo, proto_tree *tree, int offset, 
+		int id_length, int length);
+static void dissect_hello_restart_clv(tvbuff_t *tvb, 
 		packet_info *pinfo, proto_tree *tree, int offset, 
 		int id_length, int length);
 
@@ -141,6 +146,12 @@ static const isis_clv_handle_t clv_l1_hello_opts[] = {
 		"IPv6 Interface address(es)",
 		&ett_isis_hello_clv_ipv6_int_addr,
 		dissect_hello_ipv6_int_addr_clv
+	},
+	{
+		ISIS_CLV_L1H_RESTART,
+		"Restart Signaling",
+		&ett_isis_hello_clv_restart,
+		dissect_hello_restart_clv
 	},
 	{
 		ISIS_CLV_L1H_AUTHENTICATION_NS,
@@ -212,6 +223,12 @@ static const isis_clv_handle_t clv_l2_hello_opts[] = {
 		dissect_hello_auth_clv
 	},
 	{
+		ISIS_CLV_L2H_RESTART,
+		"Restart Signaling",
+		&ett_isis_hello_clv_restart,
+		dissect_hello_restart_clv
+	},
+	{
 		ISIS_CLV_L2H_AUTHENTICATION,
 		"Authentication",
 		&ett_isis_hello_clv_auth,
@@ -275,6 +292,12 @@ static const isis_clv_handle_t clv_ptp_hello_opts[] = {
 		dissect_hello_auth_clv
 	},
 	{
+		ISIS_CLV_PTP_RESTART,
+		"Restart Option",
+		&ett_isis_hello_clv_restart,
+		dissect_hello_restart_clv
+	},
+	{
 		ISIS_CLV_PTP_ADJ,
 		"Point-to-point Adjacency State",
 		&ett_isis_hello_clv_ptp_adj,
@@ -293,6 +316,35 @@ static const isis_clv_handle_t clv_ptp_hello_opts[] = {
 		NULL
 	}
 };
+
+
+/*
+ * Name: dissect_hello_restart_clv()
+ *
+ * Description:
+ *	Decode for a restart clv - only found in IIHs
+ *      hence no call in the common clv dissector
+ *
+ */
+
+static void 
+dissect_hello_restart_clv(tvbuff_t *tvb, 
+		packet_info *pinfo, proto_tree *tree, int offset, 
+		int id_length, int length)
+{
+	int restart_options;
+
+	restart_options = tvb_get_guint8(tvb, offset);
+
+	proto_tree_add_text ( tree, tvb, offset, 1,        
+			      "Restart Request bit %s, "
+			      "Restart Acknowledgement bit %s",
+			      ISIS_MASK_RESTART_RR(restart_options) ? "set" : "clear",
+			      ISIS_MASK_RESTART_RA(restart_options) ? "set" : "clear"); 
+	proto_tree_add_text ( tree, tvb, offset+1, 2,        
+			      "Remaining holding time: %us",
+			      tvb_get_ntohs(tvb, offset+1) );
+}
 
 /*
  * Name: dissect_hello_nlpid_clv()
@@ -463,7 +515,7 @@ dissect_hello_ptp_adj_clv(tvbuff_t *tvb,
 		packet_info *pinfo, proto_tree *tree, int offset, 
 		int id_length, int length)
 {
-        char adj_state[20];
+	char adj_state[20];
 
 	switch(tvb_get_guint8(tvb, offset)) {
 	  case 0:
@@ -774,7 +826,8 @@ isis_register_hello(int proto_isis) {
 		&ett_isis_hello_clv_ipv4_int_addr,
 		&ett_isis_hello_clv_ipv6_int_addr,
 		&ett_isis_hello_clv_ptp_adj,
-		&ett_isis_hello_clv_mt
+		&ett_isis_hello_clv_mt,
+		&ett_isis_hello_clv_restart
 	};
 
 	proto_register_field_array(proto_isis, hf, array_length(hf));

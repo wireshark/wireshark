@@ -1,7 +1,7 @@
 /* packet-isis-hello.h
  * Declares for hello handling inside isis.
  *
- * $Id: packet-isis-hello.h,v 1.6 2001/12/20 07:33:21 guy Exp $
+ * $Id: packet-isis-hello.h,v 1.7 2002/02/09 23:44:38 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -47,6 +47,7 @@
 #define ISIS_CLV_L1H_PADDING		 8
 #define ISIS_CLV_L1H_NLPID		 129
 #define ISIS_CLV_L1H_IP_INTERFACE_ADDR	 132
+#define ISIS_CLV_L1H_RESTART             211
 #define ISIS_CLV_L1H_MT                  229
 #define ISIS_CLV_L1H_IPv6_INTERFACE_ADDR 232
 
@@ -65,6 +66,7 @@
 #define ISIS_CLV_L2H_PADDING		 8
 #define ISIS_CLV_L2H_NLPID		 129
 #define ISIS_CLV_L2H_IP_INTERFACE_ADDR	 132
+#define ISIS_CLV_L2H_RESTART             211
 #define ISIS_CLV_L2H_MT                  229
 #define ISIS_CLV_L2H_IPv6_INTERFACE_ADDR 232
 /*
@@ -81,6 +83,7 @@
 #define ISIS_CLV_PTP_PADDING		 8
 #define ISIS_CLV_PTP_NLPID		 129
 #define ISIS_CLV_PTP_IP_INTERFACE_ADDR	 132
+#define ISIS_CLV_PTP_RESTART             211
 #define ISIS_CLV_PTP_MT                  229
 #define ISIS_CLV_PTP_IPv6_INTERFACE_ADDR 232
 #define ISIS_CLV_PTP_ADJ                 240
@@ -90,6 +93,13 @@
  */
 #define ISIS_CLV_PTP_AUTHENTICATION_NS	10	/*non spec */
 #define ISIS_CLV_PTP_AUTHENTICATION	133
+
+/*
+ * misc. bittest macros
+ */
+
+#define ISIS_MASK_RESTART_RR(x)            ((x)&0x1)
+#define ISIS_MASK_RESTART_RA(x)            ((x)&0x2)
 
 /*
  * Published API functions.  NOTE, this are "local" API functions and
