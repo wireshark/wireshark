@@ -3,8 +3,9 @@
  * Copyright 2001, Martina Obermeier <martina.obermeier@icn.siemens.de>
  * Modified 2003-09-10 by Anders Broman
  *		<anders.broman@ericsson.com>
- * Inserted routines for BICC dissection
- * $Id: packet-isup.c,v 1.25 2003/09/11 00:08:14 guy Exp $
+ * Inserted routines for BICC dissection according to Q.765.5 Q.1902 Q.1970 Q.1990,
+ * calling SDP dissector for RFC2327 decoding.
+ * $Id: packet-isup.c,v 1.26 2003/09/27 23:51:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -380,7 +381,7 @@ static const value_string isup_parameter_type_value[] = {
 #define BICC_CIC_LENGTH                        4
 #define MESSAGE_TYPE_LENGTH                    1
 #define COMMON_HEADER_LENGTH                   (CIC_LENGTH + MESSAGE_TYPE_LENGTH)
-#define BICC_COMMON_HEADER_LENGTH              (BIC_CIC_LENGTH + MESSAGE_TYPE_LENGTH)
+#define BICC_COMMON_HEADER_LENGTH              (BICC_CIC_LENGTH + MESSAGE_TYPE_LENGTH)
 
 #define MAXLENGTH                            0xFF /* since length field is 8 Bit long - used in number dissectors;
 						     max. number of address digits is 15 digits, but MAXLENGTH used
@@ -1296,20 +1297,50 @@ static int hf_isup_Discard_parameter_ind			= -1;
 static int hf_isup_Pass_on_not_possible_indicator		= -1;
 static int hf_isup_Broadband_narrowband_interworking_ind	= -1;
 
-static int hf_isup_app_cont_ident			= -1;
-static int hf_isup_app_Send_notification_ind		= -1;
-static int hf_isup_apm_segmentation_ind			= -1;
-static int hf_isup_apm_si_ind				= -1;
-static int hf_isup_app_Release_call_ind			= -1;
+static int hf_isup_app_cont_ident					= -1;
+static int hf_isup_app_Send_notification_ind				= -1;
+static int hf_isup_apm_segmentation_ind					= -1;
+static int hf_isup_apm_si_ind						= -1;
+static int hf_isup_app_Release_call_ind					= -1;
+static int hf_length_indicator						= -1;
+static int hf_bat_ase_identifier					= -1;
+static int hf_Action_Indicator						= -1;
+
+static int hf_Instruction_ind_for_general_action			= -1;	
+
+static int hf_Send_notification_ind_for_general_action			= -1;
+
+static int hf_Instruction_ind_for_pass_on_not_possible			= -1;
+
+static int hf_Send_notification_ind_for_pass_on_not_possible		= -1;
+static int hf_BCTP_Version_Indicator					= -1;
+static int hf_Tunnelled_Protocol_Indicator				= -1;
+static int hf_TPEI							= -1;
+static int hf_BVEI							= -1;
+static int hf_bnci							= -1;
+static int hf_characteristics						= -1;
+
+static int hf_Organization_Identifier					= -1;
+static int hf_codec_type						= -1;
+static int hf_bearer_control_tunneling					= -1;
+static int hf_Local_BCU_ID						= -1;
+static int hf_late_cut_trough_cap_ind					= -1;
+static int hf_bat_ase_signal						= -1;
+static int hf_bat_ase_duration						= -1;
+static int hf_bat_ase_bearer_redir_ind					= -1;
 
 /* Initialize the subtree pointers */
-static gint ett_isup = -1;
-static gint ett_isup_parameter = -1;
-static gint ett_isup_address_digits = -1;
-static gint ett_isup_pass_along_message = -1;
-static gint ett_isup_circuit_state_ind = -1;
+static gint ett_isup 							= -1;
+static gint ett_isup_parameter 						= -1;
+static gint ett_isup_address_digits 					= -1;
+static gint ett_isup_pass_along_message					= -1;
+static gint ett_isup_circuit_state_ind					= -1;
+static gint ett_bat_ase							= -1;	
+static gint ett_bicc 							= -1;
+static gint ett_bat_ase_element						= -1;
 
-static gint ett_bicc = -1;
+static dissector_handle_t sdp_handle;
+
 /* ------------------------------------------------------------------
   Mapping number to ASCII-character
  ------------------------------------------------------------------ */
@@ -1656,6 +1687,9 @@ static const value_string q850_cause_code_vals[] = {
 	{ 0,	NULL }
 };
 
+
+
+
 static void
 dissect_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 { guint length = tvb_length(parameter_tvb);
@@ -1810,11 +1844,464 @@ dissect_isup_access_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *par
   proto_item_set_text(parameter_item, "Access transport, see Q.931 (%u byte%s length)", length , plurality(length, "", "s"));
 }
 
+#define  ACTION_INDICATOR                          	0x01	
+#define  BACKBONE_NETWORK_CONNECTION_IDENTIFIER    	0x02	
+#define  INTERWORKING_FUNCTION_ADDRESS             	0x03	
+#define  CODEC_LIST                                	0x04	
+#define  CODEC                                    	0x05	
+#define  BAT_COMPATIBILITY_REPORT                	0x06	
+#define  BEARER_NETWORK_CONNECTION_CHARACTERISTICS	0x07	
+#define  BEARER_CONTROL_INFORMATION               	0x08	
+#define  BEARER_CONTROL_TUNNELLING               	0x09	
+#define  BEARER_CONTROL_UNIT_IDENTIFIER          	0x0A	
+#define  SIGNAL			                      	0x0B	
+#define  BEARER_REDIRECTION_CAPABILITY            	0x0C	
+#define  BEARER_REDIRECTION_INDICATORS            	0x0D	
+#define  SIGNAL_TYPE                                 	0x0E	
+#define  DURATION                                	0x0F
+
+	
+
+
+static const value_string bat_ase_list_of_Identifiers_vals[] = {
+
+	{ 0x00                                    	,	"spare" },
+	{ ACTION_INDICATOR                         	,	"Action Indicator" },
+	{ BACKBONE_NETWORK_CONNECTION_IDENTIFIER   	,	"Backbone Network Connection Identifier" },
+	{ INTERWORKING_FUNCTION_ADDRESS            	,	"Interworking Function Address" },
+	{ CODEC_LIST                               	,	"Codec List" },
+	{ CODEC                                    	,	"Codec" },
+	{ BAT_COMPATIBILITY_REPORT                	,	"BAT Compatibility Report" },
+	{ BEARER_NETWORK_CONNECTION_CHARACTERISTICS	,	"Bearer Network Connection Characteristics" },
+	{ BEARER_CONTROL_INFORMATION               	,	"Bearer Control Information"},
+	{ BEARER_CONTROL_TUNNELLING               	,	"Bearer Control Tunnelling"},
+	{ BEARER_CONTROL_UNIT_IDENTIFIER          	,	"Bearer Control Unit Identifier" },
+	{ SIGNAL			               	,	"Signal"},
+	{ BEARER_REDIRECTION_CAPABILITY            	,	"Bearer Redirection Capability"},
+	{ BEARER_REDIRECTION_INDICATORS            	,	"Bearer Redirection Indicators"},
+	{ SIGNAL_TYPE                                  	,	"Signal Type"},
+	{ DURATION                                	,	"Duration" },
+	{ 0,	NULL }
+};    
+
+/*ITU-T Q.765.5 (06/2000) 13*/
+static const value_string Instruction_indicator_for_general_action_vals[] =
+{
+  { 0,     "Pass on information element"},
+  { 1,     "Discard information element"},
+  { 2,     "Discard BICC data"},
+  { 3,     "Release call"},
+  { 0,     NULL}};
+
+static const value_string Instruction_indicator_for_pass_on_not_possible_vals[] = {
+  { 0,     "Release call"},
+  { 1,     "Discard information element"},
+  { 2,     "Discard BICC data"},
+  { 3,     "reserved (interpreted as 00)"},
+  { 0,     NULL}};
+
+static value_string bat_ase_action_indicator_field_vals[] = {
+      
+	{ 0x00,	"no indication"},
+	{ 0x01,	"connect backward"},
+	{ 0x02,	"connect forward"},
+	{ 0x03,	"connect forward, no notification"},
+	{ 0x04,	"connect forward, plus notification"},
+	{ 0x05,	"connect forward, no notification + selected codec"},
+	{ 0x06,	"connect forward, plus notification + selected codec"},
+	{ 0x07,	"use idle"},
+	{ 0x08,	"connected"},
+	{ 0x09,	"switched"},
+	{ 0x0a,	"selected codec"},
+	{ 0x0b,	"modify codec"},
+	{ 0x0c,	"successful codec modification"},
+	{ 0x0d,	"codec modification failure"},
+	{ 0x0e,	"mid-call codec negotiation"},
+	{ 0x0f,	"modify to selected codec information"},
+	{ 0x10,	"mid-call codec negotiation failure"},
+	{ 0x11,	"start signal, notify"},
+	{ 0x12,	"start signal, no notify"},
+	{ 0x13,	"stop signal, notify"},
+	{ 0x14,	"stop signal, no notify"},
+	{ 0x15,	"start signal acknowledge"},
+	{ 0x16,	"start signal reject"},
+	{ 0x16,	"stop signal acknowledge"},
+	{ 0x18,	"bearer redirect"},
+	{ 0,	NULL }
+};    
+
+static const true_false_string BCTP_BVEI_value  = {
+  "Version Error Indication, BCTP version not supported",
+  "No indication"
+};
+
+static value_string BCTP_Tunnelled_Protocol_Indicator_vals[] = {
+      
+	{ 0x20,	"IPBCP (text encoded)"},
+	{ 0x21,	"spare (text encoded protocol)"},
+	{ 0x22,	"not used"},
+ 	{ 0,	NULL }
+};    
+
+static const true_false_string BCTP_TPEI_value  = {
+  "Protocol Error Indication, Bearer Control Protocol not supported",
+  "No indication"
+};
+
+#define  ITU_T                          	0x01	
+
+static const value_string bat_ase_organization_identifier_subfield_vals[] = {
+
+	{ 0x00,	"no indication"},
+	{ 0x01,	"ITU-T"},
+	{ 0x02,	"ETSI (refer to TS 26.103)"},
+	{ 0,	NULL }
+};
+
+
+#define	G_711_64_A						0x01
+#define	G_711_64_U						0x02
+#define	G_711_56_A						0x03
+#define	G_711_56_U						0x04
+#define	G_722_SB_ADPCM						0x05
+#define	G_723_1							0x06
+#define	G_723_1_Annex_A						0x07
+#define	G_726_ADPCM						0x08
+#define	G_727_Embedded_ADPCM					0x09
+#define	G_728							0x0a
+#define	G_729_CS_ACELP						0x0b
+#define	G_729_Annex_B						0x0c
+
+static const value_string ITU_T_codec_type_subfield_vals[] = {
+
+	{ 0x00,				"no indication"},
+	{ G_711_64_A,			"G.711 64 kbit/s A-law"},
+	{ G_711_64_U,			"G.711 64 kbit/s -law"},
+	{ G_711_56_A,			"G.711 56 kbit/s A-law"},
+	{ G_711_56_U,			"G.711 56 kbit/s -law"},
+	{ G_722_SB_ADPCM,		"G.722 (SB-ADPCM)"},
+	{ G_723_1,			"G.723.1"},
+	{ G_723_1_Annex_A,		"G.723.1 Annex A (silence suppression)"},
+	{ G_726_ADPCM,			"G.726 (ADPCM)"},
+	{ G_727_Embedded_ADPCM,		"G.727 (Embedded ADPCM)"},
+	{ G_728,			"G.728"},
+	{ G_729_CS_ACELP,		"G.729 (CS-ACELP)"},
+	{ G_729_Annex_B,		"G.729 Annex B (silence suppression)"},
+	{ 0,	NULL }
+};
+
+
+static const value_string bearer_network_connection_characteristics_vals[] = {
+
+	{ 0x00,	"no indication"},
+	{ 0x01,	"AAL type 1"},
+	{ 0x02,	"AAL type 2"},
+	{ 0x03,	"Structured AAL type 1"},
+	{ 0x04,	"IP/RTP"},
+	{ 0,	NULL }
+};
+
+static const true_false_string Bearer_Control_Tunnelling_ind_value  = {
+  "Tunnelling to be used",
+  "No indication"
+};
+
+static const true_false_string late_cut_trough_cap_ind_value  = {
+  "Late Cut-through supported",
+  "Late Cut-through not supported"
+};
+/*  ITU-T Rec. Q.765.5/Amd.1 (07/2001) */
+static const value_string Bearer_Redirection_Indicator_vals[] = {
+	{ 0x00,	" no indication"},
+	{ 0x01,	"late cut-through request"},
+	{ 0x02,	"redirect temporary reject"},
+	{ 0x03,	"redirect backwards request"},
+	{ 0x04,	"redirect forwards request"},
+	{ 0x05,	"redirect bearer release request"},
+	{ 0x06,	"redirect bearer release proceed"},
+	{ 0x07,	" redirect bearer release complete"},
+	{ 0x08,	"redirect cut-through request"},
+	{ 0x09,	"redirect bearer connected indication"},
+	{ 0x0a,	"redirect failure"},
+	{ 0x0b,	"new connection identifier"},
+	{ 0,	NULL }
+};
+
+/*26/Q.765.5 - Signal Type */
+static const value_string BAt_ASE_Signal_Type_vals[] = {
+	{ 0x00,	"DTMF 0"},
+	{ 0x01,	"DTMF 1"},
+	{ 0x02,	"DTMF 2"},
+	{ 0x03,	"DTMF 3"},
+	{ 0x04,	"DTMF 4"},
+	{ 0x05,	"DTMF 5"},
+	{ 0x06,	"DTMF 6"},
+	{ 0x07,	"DTMF 7"},
+	{ 0x08,	"DTMF 8"},
+	{ 0x09,	"DTMF 9"},
+	{ 0x0a,	"DTMF *"},
+	{ 0x0b,	"DTMF #"},
+	{ 0x0c,	"DTMF A"},
+	{ 0x0d,	"DTMF B"},
+	{ 0x0e,	"DTMF C"},
+	{ 0x1f,	"DTMF D"},
+	{ 0x40,	"dial tone"},
+	{ 0x41,	"PABX internal dial tone"},
+	{ 0x42,	"special dial tone"},
+	{ 0x43,	"second dial tone"},
+	{ 0x44,	"ringing tone"},
+	{ 0x45,	"special ringing tone"},
+	{ 0x46,	"busy tone"},
+	{ 0x47,	"congestion tone"},
+	{ 0x48,	"special information tone"},
+	{ 0x49,	"warning tone"},
+	{ 0x4a,	"intrusion tone"},
+	{ 0x4b,	"call waiting tone"},
+	{ 0x4c,	"pay tone"},
+	{ 0x4d,	"payphone recognition tone"},
+	{ 0x4e,	"comfort tone"},
+	{ 0x4f,	"tone on hold"},
+	{ 0x50,	"record tone"},
+	{ 0x51,	"Caller waiting tone"},
+	{ 0x52,	"positive indication tone"},
+	{ 0x53,	"negative indication tone"},
+	{ 0,	NULL }
+};
+
+
+/* Dissect BAT ASE message according to Q.765.5 200006 and Amendment 1 200107	*/
+/* Layout of message								*/
+/*	Element name			Octet					*/			
+/*	Identifier 1 			1					*/
+/*	Length indicator 1 		2					*/
+/*	Compatibility information 1 	3					*/
+/*	Contents 1			4					*/
+/*	Identifier n 			m					*/
+/*	Length indicator n							*/
+/*	Compatibility information n						*/
+/*	Contents n			p					*/
 
 static void
-dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree,  gint offset, gint length)
 { 
+	tvbuff_t	*next_tvb;
+	proto_tree	*bat_ase_tree, *bat_ase_element_tree;
+	proto_item	*bat_ase_item, *bat_ase_element_item;
+	guint8 identifier,compatibility_info,content, BCTP_Indicator_field_1, BCTP_Indicator_field_2;
+	guint8 length_indicator, sdp_length, tempdata, content_len, element_no, number_of_indicators;
+	guint duration;
+	guint32 bnci, Local_BCU_ID;
+	element_no = 0;
 
+	bat_ase_item = proto_tree_add_text(parameter_tree,parameter_tvb,
+					   offset,(length-offset),
+"Bearer Association Transport (BAT) Application Service Element (ASE) Encapsulated Application Information:");
+	bat_ase_tree = proto_item_add_subtree(bat_ase_item , ett_bat_ase);
+
+	proto_tree_add_text(bat_ase_tree, parameter_tvb, offset, (length-offset), "BAT ASE Encapsulated Application Information, (%u byte%s length)", (length - offset ), plurality(length, "", "s"));
+	while(length > offset){
+		element_no = element_no + 1;
+		identifier = tvb_get_guint8(parameter_tvb, offset);
+		offset = offset + 1;
+/* length indicator may be 11 bits long 			*/
+/*        temp_length = tvb_get_ntohs(parameter_tvb, offset);*/
+	
+		length_indicator = tvb_get_guint8(parameter_tvb, offset);
+
+
+		bat_ase_element_item = proto_tree_add_text(bat_ase_tree,parameter_tvb,
+					  ( offset - 1),(length_indicator + 1),"BAT ASE Element %u, Identifier: %s",element_no,
+					val_to_str(identifier,bat_ase_list_of_Identifiers_vals,NULL));
+		bat_ase_element_tree = proto_item_add_subtree(bat_ase_element_item , ett_bat_ase_element);
+
+		proto_tree_add_uint(bat_ase_element_tree , hf_bat_ase_identifier , parameter_tvb, offset - 1, 1, identifier );
+		proto_tree_add_uint(bat_ase_element_tree , hf_length_indicator  , parameter_tvb, offset, 1, length_indicator & 0x7f );
+
+		offset = offset + 1;
+		compatibility_info = tvb_get_guint8(parameter_tvb, offset);
+		proto_tree_add_uint(bat_ase_element_tree, hf_Instruction_ind_for_general_action , parameter_tvb, offset, 1, compatibility_info );
+		proto_tree_add_boolean(bat_ase_element_tree, hf_Send_notification_ind_for_general_action , parameter_tvb, offset, 1, compatibility_info );
+		proto_tree_add_uint(bat_ase_element_tree, hf_Instruction_ind_for_pass_on_not_possible , parameter_tvb, offset, 1, compatibility_info );
+		proto_tree_add_boolean(bat_ase_element_tree, hf_Send_notification_ind_for_pass_on_not_possible , parameter_tvb, offset, 1, compatibility_info );
+		proto_tree_add_boolean(bat_ase_element_tree, hf_isup_extension_ind , parameter_tvb, offset, 1, compatibility_info );
+		offset = offset + 1;
+		content_len = ( length_indicator & 0x7f ) - 1 ; /* exclude the treated Compatibility information */
+
+		/* content will be different depending on identifier */
+		switch ( identifier ){
+
+			case ACTION_INDICATOR :
+
+				content = tvb_get_guint8(parameter_tvb, offset);
+				proto_tree_add_uint(bat_ase_element_tree, hf_Action_Indicator , parameter_tvb, offset, 1, content );
+				offset = offset + 1;
+				break;                         	
+			case BACKBONE_NETWORK_CONNECTION_IDENTIFIER :   	
+
+				bnci = tvb_get_letohl(parameter_tvb, offset);
+				switch ( content_len ){
+				case 1:
+						bnci = bnci & 0x000000ff;
+						break;  
+				case 2:
+						bnci = bnci & 0x0000ffff;
+						break;  
+				case 3:
+						bnci = bnci & 0x00ffffff;
+						break;  
+				case 4:;  
+				default:;
+				}
+				proto_tree_add_uint_format(bat_ase_element_tree, hf_bnci, parameter_tvb, offset, content_len, bnci, "BNCI: 0x%08x", bnci);
+				offset = offset + content_len;
+
+			break;
+			case INTERWORKING_FUNCTION_ADDRESS :           	
+				proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, content_len, "BIWF: %s",
+							    tvb_bytes_to_str(parameter_tvb, offset, content_len));
+				offset = offset + content_len;
+			break;
+			case CODEC_LIST :          	
+				tempdata = tvb_get_guint8(parameter_tvb, offset);
+				proto_tree_add_uint(bat_ase_element_tree, hf_Organization_Identifier , parameter_tvb, offset, 1, tempdata );
+				if ( tempdata != ITU_T ){
+					proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, content_len , "List of Codecs ( Non ITU-T ) %s",
+							    tvb_bytes_to_str(parameter_tvb, offset, content_len));
+				break;
+				}
+				offset = offset + 1;
+				tempdata = tvb_get_guint8(parameter_tvb, offset);
+				proto_tree_add_uint(bat_ase_element_tree, hf_codec_type , parameter_tvb, offset, 1, tempdata );
+				offset = offset +1;
+				proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset,content_len , "Not decoded yet, (%u byte%s length)", (content_len), plurality(length, "", "s"));
+				offset = offset + content_len - 2;
+			break;
+			case CODEC :                             	
+				proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset,content_len , "Not decoded yet, (%u byte%s length)", (content_len), plurality(length, "", "s"));
+				offset = offset + content_len;
+			break;
+			case BAT_COMPATIBILITY_REPORT :                	
+				proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset,content_len , "Not decoded yet, (%u byte%s length)", (content_len), plurality(length, "", "s"));
+				offset = offset + content_len;
+			break;
+			case BEARER_NETWORK_CONNECTION_CHARACTERISTICS :	
+				tempdata = tvb_get_guint8(parameter_tvb, offset);
+				proto_tree_add_uint(bat_ase_element_tree, hf_characteristics , parameter_tvb, offset, 1, tempdata );
+				offset = offset + content_len;
+			break;
+/* The Bearer Control Information information element contains the bearer control tunnelling protocol */
+/* ITU-T Q.1990 (2001), BICC bearer control tunnelling protocol. */
+
+			case BEARER_CONTROL_INFORMATION :              	
+				BCTP_Indicator_field_1 = tvb_get_guint8(parameter_tvb, offset);
+				proto_tree_add_uint(bat_ase_element_tree, hf_BCTP_Version_Indicator, parameter_tvb, offset, 1, BCTP_Indicator_field_1 );
+				proto_tree_add_boolean(bat_ase_element_tree, hf_BVEI, parameter_tvb, offset, 1, BCTP_Indicator_field_1 );
+				offset = offset + 1;
+
+				BCTP_Indicator_field_2 = tvb_get_guint8(parameter_tvb, offset);
+				proto_tree_add_uint(bat_ase_element_tree, hf_Tunnelled_Protocol_Indicator , parameter_tvb, offset, 1, BCTP_Indicator_field_2 );
+				proto_tree_add_boolean(bat_ase_element_tree, hf_TPEI, parameter_tvb, offset, 1, BCTP_Indicator_field_2 );
+				offset = offset + 1;
+
+				sdp_length = ( length_indicator & 0x7f) - 3;
+
+				next_tvb = tvb_new_subset(parameter_tvb, offset, sdp_length, sdp_length);
+				call_dissector(sdp_handle, next_tvb, pinfo, bat_ase_element_tree);
+				offset = offset + sdp_length;
+
+
+			break;
+			case BEARER_CONTROL_TUNNELLING :              	
+
+				tempdata = tvb_get_guint8(parameter_tvb, offset);
+				proto_tree_add_boolean(bat_ase_element_tree, hf_bearer_control_tunneling , parameter_tvb, offset, 1, tempdata );
+				offset = offset + content_len;
+			break;
+			case BEARER_CONTROL_UNIT_IDENTIFIER :          	
+				tempdata = tvb_get_guint8(parameter_tvb, offset);
+				proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, 1, "Network ID Length indicator= %u",tempdata);
+				offset = offset +1;
+				if ( tempdata > 0 ) {
+					offset = offset +1;
+				
+/* Q.765.5 amd 1
+	Network ID
+	The coding of the Network ID field is identical to the coding of the Network ID field in the
+	Global Call Reference parameter as specified in clause 6/Q.1902.3 (see [3]).
+	NOTE .When used inside a network domain, the Network ID may be omitted by setting the
+	Network ID Length indicator to the value "0".
+ 	Q.1902.3
+	The following codes are used in the subfields of the global call reference parameter field:
+	a) Network ID
+	The Network ID contains the value field (coded according to ASN.1 BER) of an object
+	identifier identifying the network. This means that the tag and length fields are omitted.
+	An example of such an object identifier can be the following:
+	.{itu-t (0) administration (2) national regulatory authority (x) network (y)}
+	The value for x is the value of the national regulatory authority (one of the Data Country
+	Codes associated to the country as specified in ITU-T X.121 shall be used for "national
+	regulatory authority"), the value for y is under the control of the national regulatory
+	authority concerned.
+	b) Node ID
+	A binary number that uniquely identifies within the network the node which generates the
+	call reference.
+	c) Call Reference ID
+	A binary number used for the call reference of the call. This is generated by the node for
+	each call.
+
+*/
+					proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, tempdata , "Network ID: %s",
+							    tvb_bytes_to_str(parameter_tvb, offset, tempdata));
+					offset = offset + tempdata;
+		} /* end if */
+
+				Local_BCU_ID = tvb_get_letohl(parameter_tvb, offset);
+				proto_tree_add_uint_format(bat_ase_element_tree, hf_Local_BCU_ID , parameter_tvb, offset, 4, Local_BCU_ID , "Local BCU ID : 0x%08x", Local_BCU_ID );
+				offset = offset + 4;
+			break;
+			case SIGNAL :          	
+				tempdata = tvb_get_guint8(parameter_tvb, offset);
+				proto_tree_add_uint(bat_ase_element_tree, hf_bat_ase_signal , parameter_tvb, offset, 1, tempdata );
+				offset = offset + 1;
+				if ( content_len > 1){
+				duration = tvb_get_letohs(parameter_tvb, offset);
+				proto_tree_add_uint(bat_ase_element_tree, hf_bat_ase_duration , parameter_tvb, offset, 2, duration );
+				offset = offset + 2;
+				}
+			break;
+			case BEARER_REDIRECTION_CAPABILITY :            	
+				tempdata = tvb_get_guint8(parameter_tvb, offset);
+				proto_tree_add_boolean(bat_ase_element_tree, hf_late_cut_trough_cap_ind , parameter_tvb, offset, 1, tempdata );
+				offset = offset + content_len;
+			break;
+			case BEARER_REDIRECTION_INDICATORS :
+				number_of_indicators = 0;
+				while ( number_of_indicators < content_len ) {        	
+					tempdata = tvb_get_guint8(parameter_tvb, offset);
+					proto_tree_add_uint(bat_ase_element_tree, hf_bat_ase_bearer_redir_ind , parameter_tvb, offset, 1, tempdata );
+					offset = offset + 1;
+					number_of_indicators = number_of_indicators + 1;
+				}
+			break;
+			case SIGNAL_TYPE :                                  	
+				tempdata = tvb_get_guint8(parameter_tvb, offset);
+				proto_tree_add_uint(bat_ase_element_tree, hf_bat_ase_signal , parameter_tvb, offset, 1, tempdata );
+				offset = offset + content_len;
+			break;
+			case DURATION :
+				duration = tvb_get_letohs(parameter_tvb, offset);
+				proto_tree_add_uint(bat_ase_element_tree, hf_bat_ase_duration , parameter_tvb, offset, 2, duration );
+				offset = offset + content_len;
+			break;
+			default :
+				proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset,content_len , "Default ?, (%u byte%s length)", (content_len), plurality(length, "", "s"));
+				offset = offset + content_len;
+			}                                	
+  	} 
+}
+
+static void
+dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
+{ 
 
   guint8 application_context_identifier;
   guint8 application_transport_instruction_ind;
@@ -1822,8 +2309,9 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, proto_tree
   guint8 apm_Segmentation_local_ref;
   guint8 pointer_to_transparent_data;
   guint16 application_context_identifier16;
-  guint8 offset = 0;
+  gint offset = 0;
   guint length = tvb_length(parameter_tvb);
+  
   proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, "Application transport parameter fields:");
   proto_item_set_text(parameter_item, "Application transport, (%u byte%s length)", length , plurality(length, "", "s"));
   application_context_identifier = tvb_get_guint8(parameter_tvb, 0);
@@ -1870,7 +2358,9 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, proto_tree
 		proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1, "Pointer to transparent data: 0x%x Don't know how to dissect further", pointer_to_transparent_data  );
    proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1, "Pointer to transparent data: 0x%x No transparent data", pointer_to_transparent_data  );
    offset = offset + 1;
-         
+ 
+   dissect_bat_ase_Encapsulated_Application_Information(parameter_tvb , pinfo, parameter_tree, offset, length);
+
 
 
 }
@@ -2539,20 +3029,22 @@ dissect_isup_parameter_compatibility_information_parameter(tvbuff_t *parameter_t
 {
   guint  length = tvb_length(parameter_tvb);
   guint  len = length;
-  guint8 upgraded_parameter;
+  guint8 upgraded_parameter, upgraded_parameter_no;
   guint8 offset;
   guint8 instruction_indicators; 
   offset = 0;
+  upgraded_parameter_no = 0;
 
   proto_item_set_text(parameter_item, "Parameter compatibility information (%u byte%s length)", length , plurality(length, "", "s"));
 /* etxrab Decoded as per Q.763 section 3.41 */
-
+  while ( len > 0 ) {
   if (len == 0)
 		return;
+  upgraded_parameter_no = upgraded_parameter_no + 1;
   upgraded_parameter = tvb_get_guint8(parameter_tvb, offset);
 
   proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1,
-	    "Upgraded parameter: %s",
+	    "Upgraded parameter no: %u = %s", upgraded_parameter_no,
 	    val_to_str(upgraded_parameter, isup_parameter_type_value, NULL));
   offset += 1;
   len -= 1;
@@ -2588,6 +3080,7 @@ dissect_isup_parameter_compatibility_information_parameter(tvbuff_t *parameter_t
    if (len == 0)
    return;
   ;
+ }
 /* etxrab */
  
 }
@@ -3131,7 +3624,7 @@ dissect_isup_unknown_parameter(tvbuff_t *parameter_tvb, proto_item *parameter_it
   Dissector all optional parameters
 */
 static void
-dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, proto_tree *isup_tree)
+dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info *pinfo, proto_tree *isup_tree)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
   gint offset = 0;
@@ -3404,7 +3897,7 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, proto_tree *i
 	  dissect_isup_generic_digits_parameter(parameter_tvb, parameter_tree, parameter_item);
 	  break;
 	case PARAM_TYPE_APPLICATON_TRANS:
-	  dissect_isup_application_transport_parameter(parameter_tvb, parameter_tree, parameter_item);
+	  dissect_isup_application_transport_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
 	  break;
 	  
 	default:
@@ -4252,7 +4745,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
        proto_tree_add_uint_format(isup_tree, hf_isup_pointer_to_start_of_optional_part, message_tvb, offset, PARAMETER_POINTER_LENGTH, opt_parameter_pointer, "Pointer to start of optional part: %u", opt_parameter_pointer);
        offset += opt_parameter_pointer;
        optional_parameter_tvb = tvb_new_subset(message_tvb, offset, -1, -1 );
-       dissect_isup_optional_parameter(optional_parameter_tvb, isup_tree);
+       dissect_isup_optional_parameter(optional_parameter_tvb, pinfo, isup_tree);
      }
      else
        proto_tree_add_uint_format(isup_tree, hf_isup_pointer_to_start_of_optional_part, message_tvb, offset, PARAMETER_POINTER_LENGTH, opt_parameter_pointer, "No optional parameter present (Pointer: %u)", opt_parameter_pointer);
@@ -4331,7 +4824,7 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* dissect CIC in main dissector since pass-along message type carrying complete BICC/ISUP message w/o CIC needs
 		   recursive message dissector call */
-		bicc_cic =          tvb_get_letohs(tvb, BICC_CIC_OFFSET);
+		bicc_cic = tvb_get_letohl(tvb, BICC_CIC_OFFSET);
 
 		proto_tree_add_uint_format(bicc_tree, hf_bicc_cic, tvb, BICC_CIC_OFFSET, BICC_CIC_LENGTH, bicc_cic, "CIC: %u", bicc_cic);
 	
@@ -4838,7 +5331,115 @@ proto_register_isup(void)
 
 		{ &hf_isup_apm_si_ind, 
 			{ "Sequence indicator (SI)",  "isup.APM_Sequence_ind",
-			FT_BOOLEAN, 8, TFS(& isup_Sequence_ind_value), G_8BIT_MASK,
+			FT_BOOLEAN, 8, TFS(&isup_Sequence_ind_value), G_8BIT_MASK,
+			"", HFILL }},
+		{ &hf_bat_ase_identifier,
+			{ "BAT ASE Identifiers",  "bicc.bat_ase_identifier",
+			FT_UINT8, BASE_HEX, VALS(bat_ase_list_of_Identifiers_vals),0x0,	
+			"", HFILL }},
+  
+		{ &hf_length_indicator,
+			{ "BAT ASE Element length indicator",  "bicc.bat_ase_length_indicator",
+			FT_UINT8, BASE_DEC, NULL,0x0,
+			"", HFILL }},
+
+		{ &hf_Action_Indicator,
+			{ "BAT ASE action indicator field",  "bicc.bat_ase_bat_ase_action_indicator_field",
+			FT_UINT8, BASE_HEX, VALS(bat_ase_action_indicator_field_vals),0x00,	
+			"", HFILL }},
+
+		{ &hf_Instruction_ind_for_general_action,
+			{ "BAT ASE Instruction indicator for general action",  "bicc.bat_ase_Instruction_ind_for_general_action",
+			FT_UINT8, BASE_HEX, VALS(Instruction_indicator_for_general_action_vals),0x03,	
+			"", HFILL }},
+
+		{ &hf_Send_notification_ind_for_general_action, 
+			{ "Send notification indicator for general action",  "bicc.bat_ase_Send_notification_ind_for_general_action",
+			FT_BOOLEAN, 8, TFS(&isup_Send_notification_ind_value), 0x04,
+			"", HFILL }},
+
+		{ &hf_Instruction_ind_for_pass_on_not_possible, 
+			{ "Instruction ind for pass-on not possible",  "bicc.bat_ase_Instruction_ind_for_pass_on_not_possible",
+			FT_UINT8, BASE_HEX, VALS(Instruction_indicator_for_pass_on_not_possible_vals),0x30,	
+			"", HFILL }},
+
+		{ &hf_Send_notification_ind_for_pass_on_not_possible, 
+			{ "Send notification indication for pass-on not possible",  "bicc.bat_ase_Send_notification_ind_for_pass_on_not_possible",
+			FT_BOOLEAN, 8, TFS(&isup_Send_notification_ind_value), 0x40,
+			"", HFILL }},
+
+		{ &hf_BCTP_Version_Indicator,
+			{ "BCTP Version Indicator",  "bicc.bat_ase_BCTP_Version_Indicator",
+			FT_UINT8, BASE_DEC, NULL,0x1f,
+			"", HFILL }},
+	
+		{ &hf_BVEI,
+			{ "BCTP Version Error Indicator",  "bicc.bat_ase_BCTP_BVEI",
+			FT_BOOLEAN, 8, TFS(&BCTP_BVEI_value), 0x40,
+			"", HFILL }},
+
+		{ &hf_Tunnelled_Protocol_Indicator,
+			{ "Tunnelled Protocol Indicator",  "bicc.bat_ase_BCTP_Tunnelled_Protocol_Indicator",
+			FT_UINT8, BASE_DEC, VALS(BCTP_Tunnelled_Protocol_Indicator_vals),0x3f,	
+			"", HFILL }},
+
+		{ &hf_TPEI,
+			{ "Tunnelled Protocol Error Indicator value",  "bicc.bat_ase_BCTP_tpei",
+			FT_BOOLEAN, 8, TFS(&BCTP_TPEI_value), 0x40,
+			"", HFILL }},
+
+		{ &hf_bnci,
+			{ "Backbone Network Connection Identifier (BNCI)", "bat_ase.bnci",
+			FT_UINT32, BASE_HEX, NULL, 0x0,
+			  "", HFILL }},
+
+		{ &hf_characteristics,
+			{ "Backbone network connection characteristics", "bat_ase.char",
+			FT_UINT8, BASE_HEX, VALS(bearer_network_connection_characteristics_vals),0x0,	
+			  "", HFILL }},
+
+		{ &hf_isup_app_cont_ident,
+			{ "Application context identifier",  "isup.app_context_identifier",
+			FT_UINT8, BASE_DEC, VALS(isup_application_transport_parameter_value),0x0,
+			"", HFILL }},
+
+		{ &hf_Organization_Identifier,
+			{ "Organization identifier subfield ",  "bat_ase.organization_identifier_subfield",
+			FT_UINT8, BASE_DEC, VALS(bat_ase_organization_identifier_subfield_vals),0x0,
+			"", HFILL }},
+
+		{ &hf_codec_type,
+			{ "ITU-T codec type subfield",  "bat_ase.ITU_T_codec_type_subfield",
+			FT_UINT8, BASE_HEX, VALS(ITU_T_codec_type_subfield_vals),0x0,
+			"", HFILL }},
+
+		{ &hf_bearer_control_tunneling,
+			{ "Bearer control tunneling",  "bat_ase.bearer_control_tunneling",
+			FT_BOOLEAN, 8, TFS(&Bearer_Control_Tunnelling_ind_value),0x01,
+			"", HFILL }},
+
+		{ &hf_Local_BCU_ID,
+			{ "Local BCU ID",  "bat_ase.Local_BCU_ID",
+			FT_UINT32, BASE_HEX, NULL, 0x0,
+			  "", HFILL }},
+
+		{ &hf_late_cut_trough_cap_ind,
+			{ "Late Cut-through capability indicator",  "bat_ase.late_cut_trough_cap_ind",
+			FT_BOOLEAN, 8, TFS(&late_cut_trough_cap_ind_value),0x01,
+			"", HFILL }},
+
+		{ &hf_bat_ase_signal,
+			{ "Q.765.5 - Signal Type",  "bat_ase.signal_type",
+			FT_UINT8, BASE_HEX, VALS(BAt_ASE_Signal_Type_vals),0x0,
+			"", HFILL }},
+
+		{ &hf_bat_ase_duration,
+			{ "Duration in ms",  "bat_ase.signal_type",
+			FT_UINT16, BASE_DEC, NULL,0x0,
+			"", HFILL }},
+		{ &hf_bat_ase_bearer_redir_ind,
+			{ "Redirection Indicator",  "bat_ase_bearer_redir_ind",
+			FT_UINT8, BASE_HEX, VALS(Bearer_Redirection_Indicator_vals),0x0,
 			"", HFILL }},
 
 
@@ -4850,7 +5451,9 @@ proto_register_isup(void)
 		&ett_isup_parameter,
 		&ett_isup_address_digits,
 		&ett_isup_pass_along_message,
-		&ett_isup_circuit_state_ind
+		&ett_isup_circuit_state_ind,
+		&ett_bat_ase,
+		&ett_bat_ase_element
 	};
 
 /* Register the protocol name and description */
@@ -4902,10 +5505,10 @@ proto_register_bicc(void)
 void
 proto_reg_handoff_bicc(void)
 {
-   dissector_handle_t bicc_handle;
+  dissector_handle_t bicc_handle;
+  sdp_handle = find_dissector("sdp");
 
   bicc_handle = create_dissector_handle(dissect_bicc, proto_bicc);
   dissector_add("mtp3.service_indicator", MTP3_BICC_SERVICE_INDICATOR, bicc_handle);
   dissector_add("m3ua.protocol_data_si", MTP3_BICC_SERVICE_INDICATOR, bicc_handle);
 }
-
