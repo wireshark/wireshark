@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.16 1999/10/22 07:17:50 guy Exp $
+ * $Id: resolv.c,v 1.17 1999/11/20 03:39:20 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -389,13 +389,17 @@ static int parse_ether_line(char *line, ether_t *eth, int six_bytes)
 
   if (six_bytes) {
     if (sscanf(cp, "%x:%x:%x:%x:%x:%x", &a0, &a1, &a2, &a3, &a4, &a5) != 6) {
-      if (sscanf(cp, "%x-%x-%x-%x-%x-%x", &a0, &a1, &a2, &a3, &a4, &a5) != 6)
-	return -1;
+      if (sscanf(cp, "%x-%x-%x-%x-%x-%x", &a0, &a1, &a2, &a3, &a4, &a5) != 6) {
+        if (sscanf(cp, "%x.%x.%x.%x.%x.%x", &a0, &a1, &a2, &a3, &a4, &a5) != 6)
+	  return -1;
+      }
     }
   } else {
     if (sscanf(cp, "%x:%x:%x", &a0, &a1, &a2) != 3) {
-      if (sscanf(cp, "%x-%x-%x", &a0, &a1, &a2) != 3)
+      if (sscanf(cp, "%x-%x-%x", &a0, &a1, &a2) != 3) {
+        if (sscanf(cp, "%x.%x.%x", &a0, &a1, &a2) != 3)
 	return -1;
+      }
     }
   }
 
