@@ -7,7 +7,7 @@ proper helper routines
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.c,v 1.9 2003/07/29 08:59:14 sahlberg Exp $
+ * $Id: packet-per.c,v 1.10 2003/07/31 10:26:35 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -374,9 +374,53 @@ dissect_per_NumericString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, pro
 	return offset;
 }
 guint32
-dissect_per_PrintableString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index _U_, int min_len _U_, int max_len _U_)
+dissect_per_PrintableString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len)
 {
 	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, min_len, max_len, " '()+,-.*0123456789:=?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 74);
+	return offset;
+}
+guint32
+dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len)
+{
+	guint32 length;
+	static char *str;
+
+	/* xx.x if the length is 0 bytes there will be no encoding */
+	if(max_len==0){
+		return offset;
+	}
+
+
+	if(min_len==-1){
+		min_len=0;
+	}
+
+
+	/* xx.x */
+	length=max_len;
+	if(min_len!=max_len){
+		offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
+			tree, hf_per_octet_string_length, min_len, max_len, 
+			&length, NULL, FALSE);
+	} 
+
+
+	/* align to byte boundary */
+	if(offset&0x07){
+		offset=(offset&0xfffffff8)+8;
+	}
+
+	if(length>=1024){
+		NOT_DECODED_YET("BMPString too long");
+		length=1024;
+	}
+
+	str = tvb_fake_unicode(tvb, offset>>3, length, FALSE);
+
+	proto_tree_add_string(tree, hf_index, tvb, offset>>3, length*2, str);
+
+	offset+=(length<<3)*2;
+
 	return offset;
 }
 
@@ -1223,11 +1267,16 @@ DEBUG_ENTRY("dissect_per_sequence");
 	16.8
 
    max_len or min_len == -1 means there is no lower/upper constraint 
+
+   hf_index can either be a FT_BYTES or an FT_STRING
 */
 guint32
 dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len)
 {
 	guint32 length;
+	header_field_info *hfi;
+
+	hfi=proto_registrar_get_nth(hf_index);
 
 DEBUG_ENTRY("dissect_per_octet_string");
 	/* 16.5 if the length is 0 bytes there will be no encoding */
@@ -1257,7 +1306,11 @@ DEBUG_ENTRY("dissect_per_octet_string");
 			}
 		}
 
-		proto_tree_add_bytes(tree, hf_index, tvb, old_offset>>3, min_len+(offset&0x07)?1:0, bytes);
+		if(hfi->type==FT_STRING){
+			proto_tree_add_string(tree, hf_index, tvb, old_offset>>3, min_len+(offset&0x07)?1:0, bytes);
+		} else {
+			proto_tree_add_bytes(tree, hf_index, tvb, old_offset>>3, min_len+(offset&0x07)?1:0, bytes);
+		}
 		return offset;
 	}
 
@@ -1269,7 +1322,11 @@ DEBUG_ENTRY("dissect_per_octet_string");
 
 	/* 16.7 if length is fixed and less than to 64k*/
 	if((min_len==max_len)&&(min_len<65536)){
-		proto_tree_add_bytes(tree, hf_index, tvb, offset>>3, min_len, tvb_get_ptr(tvb, offset>>3, min_len));
+		if(hfi->type==FT_STRING){
+			proto_tree_add_string(tree, hf_index, tvb, offset>>3, min_len, tvb_get_ptr(tvb, offset>>3, min_len));
+		} else {
+			proto_tree_add_bytes(tree, hf_index, tvb, offset>>3, min_len, tvb_get_ptr(tvb, offset>>3, min_len));
+		}
 		offset+=min_len*8;
 		return offset;
 	}
@@ -1283,7 +1340,11 @@ DEBUG_ENTRY("dissect_per_octet_string");
 		offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_per_octet_string_length, &length);
 	}
 	if(length){
-		proto_tree_add_bytes(tree, hf_index, tvb, offset>>3, length, tvb_get_ptr(tvb, offset>>3, length));
+		if(hfi->type==FT_STRING){
+			proto_tree_add_string(tree, hf_index, tvb, offset>>3, length, tvb_get_ptr(tvb, offset>>3, length));
+		} else {
+			proto_tree_add_bytes(tree, hf_index, tvb, offset>>3, length, tvb_get_ptr(tvb, offset>>3, length));
+		}
 	}
 	offset+=length*8;
 

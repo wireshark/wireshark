@@ -2,7 +2,7 @@
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.h,v 1.5 2003/07/19 03:45:04 sahlberg Exp $
+ * $Id: packet-per.h,v 1.6 2003/07/31 10:26:36 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,6 +68,8 @@ guint32 dissect_per_IA5String(tvbuff_t *tvb, guint32 offset, packet_info *pinfo,
 guint32 dissect_per_NumericString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len);
 
 guint32 dissect_per_PrintableString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len);
+
+guint32 dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len);
 
 guint32 dissect_per_constrained_sequence_of(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, int (*func)(tvbuff_t *, int , packet_info *, proto_tree *), int min_len, int max_len);
 
