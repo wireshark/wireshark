@@ -2002,6 +2002,7 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 {
 	header_field_info	*hfinfo;
 	field_info		*fi;
+    gchar           *error_descr;
 
 	/*
 	 * We only allow a null tvbuff if the item has a zero length,
@@ -2092,7 +2093,11 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 			g_assert_not_reached();
 		}
 	} else
-		g_assert(*length >= 0);
+	    if(*length < 0) {
+          error_descr = g_strdup_printf("\"%s\" - \"%s\" invalid length: %d %s/%u", 
+              hfinfo->name, hfinfo->abbrev, *length, __FILE__, __LINE__);
+          THROW_MESSAGE(FieldError, error_descr);
+        }
 
 	FIELD_INFO_NEW(fi);
 

@@ -102,7 +102,7 @@ dissect_802_3(int length, gboolean is_802_2, tvbuff_t *tvb,
        Show the exception, and then drive on to show the trailer,
        restoring the protocol value that was in effect before we
        called the subdissector. */
-    show_exception(next_tvb, pinfo, tree, EXCEPT_CODE);
+    show_exception(next_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
     pinfo->current_proto = saved_proto;
   }
   ENDTRY;

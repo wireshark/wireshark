@@ -242,7 +242,7 @@ call_acse_dissector(tvbuff_t *tvb, gint offset, gint param_len,
 		}
 		CATCH_ALL
 		{
-			show_exception(tvb, pinfo, tree, EXCEPT_CODE);
+			show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
 		}
 		ENDTRY;
 	}

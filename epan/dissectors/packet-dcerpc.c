@@ -2108,7 +2108,7 @@ else
                 } CATCH(BoundsError) {
                     RETHROW;
                 } CATCH_ALL {
-                    show_exception(decrypted_tvb, pinfo, tree, EXCEPT_CODE);
+                    show_exception(decrypted_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
                 } ENDTRY;
             }
 
@@ -2168,7 +2168,7 @@ dissect_dcerpc_verifier (tvbuff_t *tvb, packet_info *pinfo,
 		dissect_auth_verf(auth_tvb, pinfo, dcerpc_tree, auth_fns,
 				  hdr, auth_info);
 	    } CATCH_ALL {
-		show_exception(auth_tvb, pinfo, dcerpc_tree, EXCEPT_CODE);
+		show_exception(auth_tvb, pinfo, dcerpc_tree, EXCEPT_CODE, GET_MESSAGE);
 	    } ENDTRY;
 	} else {
 	    proto_tree_add_text (dcerpc_tree, auth_tvb, 0, hdr->auth_len,
@@ -2269,7 +2269,7 @@ dissect_dcerpc_cn_auth (tvbuff_t *tvb, int stub_offset, packet_info *pinfo,
                    padding is actually inside the encrypted stub */
                    auth_info->auth_size = hdr->auth_len + 8;
             } CATCH_ALL {
-                show_exception(tvb, pinfo, dcerpc_tree, EXCEPT_CODE);
+                show_exception(tvb, pinfo, dcerpc_tree, EXCEPT_CODE, GET_MESSAGE);
             } ENDTRY;
         }
     }

@@ -208,7 +208,7 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 		   to show the trailer, after noting that a dissector was
 		   found and restoring the protocol value that was in effect
 		   before we called the subdissector. */
-		show_exception(next_tvb, pinfo, tree, EXCEPT_CODE);
+		show_exception(next_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
 		dissector_found = TRUE;
 		pinfo->current_proto = saved_proto;
 	}

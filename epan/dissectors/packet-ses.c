@@ -298,7 +298,7 @@ call_pres_dissector(tvbuff_t *tvb, int offset, guint16 param_len,
 		}
 		CATCH_ALL
 		{
-			show_exception(tvb, pinfo, tree, EXCEPT_CODE);
+			show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
 		}
 		ENDTRY;
 	}

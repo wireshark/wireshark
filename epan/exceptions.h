@@ -12,6 +12,7 @@
 #define BoundsError		1	/* Index is out of range */
 #define ReportedBoundsError	2	/* Index is beyond reported length (not cap_len) */
 #define TypeError		3	/* During dfilter parsing */
+#define FieldError		4	/* A buggy dissector tried to add a field with invalid parameters */
 
 /* Usage:
  *
