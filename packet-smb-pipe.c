@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.48 2001/11/19 12:34:51 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.49 2001/11/20 06:24:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2588,7 +2588,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 	proto_tree *pipe_tree = NULL;
 	int offset;
 	int function;
-	guint16 fid = 0;
+	int fid = -1;
 	int len;
 
 	if (!proto_is_protocol_enabled(proto_smb_pipe))
@@ -2608,10 +2608,16 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		    smb_info->request ? "Request" : "Response");
 	}
 
+	if (smb_info->sip != NULL)
+		tri = smb_info->sip->extra_info;
+	else
+		tri = NULL;
+
 	/*
 	 * Set up a subtree for the pipe data, if there is any.
 	 */
-	if (s_tvb != NULL || tvb_length(sp_tvb) != 0) {
+	if (s_tvb != NULL || tvb_length(sp_tvb) != 0 ||
+	    (tri != NULL && tri->function != -1)) {
 		if (tree) {
 			pipe_item = proto_tree_add_item(tree, proto_smb_pipe,
 			    sp_tvb, 0, tvb_length(sp_tvb), FALSE);
@@ -2636,6 +2642,8 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			    val_to_str(function, functions, "Unknown function (0x%04x)"),
 			    smb_info->request ? "Request" : "Response");
 		}
+		if (tri != NULL)
+			tri->function = function;
 
 		/*
 		 * The second of them depends on the function.
@@ -2648,7 +2656,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			 * It's a priority.
 			 */
 			proto_tree_add_item(pipe_tree, hf_pipe_priority, s_tvb,
-			    2, 2, TRUE);
+			    offset, 2, TRUE);
 			break;
 
 		case PEEK_NM_PIPE:
@@ -2662,7 +2670,16 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			 * It's a FID.
 			 */
 			fid = tvb_get_letohs(s_tvb, 2);
-			add_fid(s_tvb, pinfo, pipe_tree, 2, fid);
+			add_fid(s_tvb, pinfo, pipe_tree, offset, 2, fid);
+			if (tri != NULL)
+				tri->fid = fid;
+			break;
+
+		default:
+			/*
+			 * It's something unknown.
+			 * XXX - put it into the tree?
+			 */
 			break;
 		}
 		offset += 2;
@@ -2676,8 +2693,22 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		 * In the latter case, we could get that information from
 		 * the matching request, if we saw it.  (XXX - do that.)
 		 */
-		function = -1;
-		fid = 0;
+		if (tri != NULL && tri->function != -1) {
+			function = tri->function;
+			proto_tree_add_uint(pipe_tree, hf_pipe_function, sp_tvb,
+			    0, 0, function);
+			if (check_col(pinfo->fd, COL_INFO)) {
+				col_add_fstr(pinfo->fd, COL_INFO, "%s %s",
+				    val_to_str(function, functions, "Unknown function (0x%04x)"),
+				    smb_info->request ? "Request" : "Response");
+			}
+			fid = tri->fid;
+			if (fid != -1)
+				add_fid(sp_tvb, pinfo, pipe_tree, 0, 0, fid);
+		} else {
+			function = -1;
+			fid = -1;
+		}
 	}
 
 	/*
@@ -2685,10 +2716,6 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 	 * that requires us to fetch a possibly-Unicode string.
 	 */
 
-	if (smb_info->sip != NULL)
-		tri = smb_info->sip->extra_info;
-	else
-		tri = NULL;
 	if(smb_info->request){
 		if(strncmp(pipe,"LANMAN",6) == 0){
 			tri->trans_subcmd=PIPE_LANMAN;
@@ -2708,16 +2735,36 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 
 	switch (function) {
 
-	case -1:
 	case CALL_NM_PIPE:
 	case TRANSACT_NM_PIPE:
 		switch(tri->trans_subcmd){
+
 		case PIPE_LANMAN:
 			return dissect_pipe_lanman(pd_tvb, p_tvb, d_tvb, pinfo,
 			    tree);
 			break;
+
 		case PIPE_MSRPC:
-	                return dissect_pipe_msrpc(d_tvb, pinfo, tree, fid);
+			/*
+			 * Only dissect this if we know the FID.
+			 */
+			if (fid != -1) {
+		                return dissect_pipe_msrpc(d_tvb, pinfo, tree,
+		                    fid);
+		        }
+			break;
+		}
+		break;
+
+	case -1:
+		/*
+		 * We don't know the function; we dissect only LANMAN
+		 * pipe messages, not RPC pipe messages, in that case.
+		 */
+		switch(tri->trans_subcmd){
+		case PIPE_LANMAN:
+			return dissect_pipe_lanman(pd_tvb, p_tvb, d_tvb, pinfo,
+			    tree);
 			break;
 		}
 		break;

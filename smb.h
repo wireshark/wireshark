@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.23 2001/11/19 10:06:42 guy Exp $
+ * $Id: smb.h,v 1.24 2001/11/20 06:24:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -646,6 +646,8 @@ typedef struct {
 typedef struct {
 	int subcmd;
 	int trans_subcmd;
+	int function;
+	int fid;
 	guint16 lanman_cmd;
 	guchar *param_descrip;  /* Keep these descriptors around */
 	guchar *data_descrip;
@@ -672,6 +674,6 @@ typedef struct smb_info {
  * Add a FID to the protocol tree and the Info column.
  */
 extern void add_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int offset, guint16 fid);
+    int offset, int len, guint16 fid);
 
 #endif

@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.160 2001/11/19 11:41:51 guy Exp $
+ * $Id: packet-smb.c,v 1.161 2001/11/20 06:24:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2431,9 +2431,9 @@ dissect_open_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 void
 add_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
-    guint16 fid)
+    int len, guint16 fid)
 {
-	proto_tree_add_uint(tree, hf_smb_fid, tvb, offset, 2, fid);
+	proto_tree_add_uint(tree, hf_smb_fid, tvb, offset, len, fid);
 	if (check_col(pinfo->fd, COL_INFO))
 		col_append_fstr(pinfo->fd, COL_INFO, ", FID: 0x%04x", fid);
 }
@@ -2449,7 +2449,7 @@ dissect_open_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	add_fid(tvb, pinfo, tree, offset, fid);
+	add_fid(tvb, pinfo, tree, offset, 2, fid);
 	offset += 2;
 
 	/* File Attributes */
@@ -2483,7 +2483,7 @@ dissect_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, pro
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	add_fid(tvb, pinfo, tree, offset, fid);
+	add_fid(tvb, pinfo, tree, offset, 2, fid);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -3039,7 +3039,7 @@ dissect_create_temporary_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	add_fid(tvb, pinfo, tree, offset, fid);
+	add_fid(tvb, pinfo, tree, offset, 2, fid);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -4402,7 +4402,7 @@ dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	add_fid(tvb, pinfo, tree, offset, fid);
+	add_fid(tvb, pinfo, tree, offset, 2, fid);
 	offset += 2;
 
 	/* File Attributes */
@@ -6629,7 +6629,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo, int offset, p
 		
 		/* fid */
 		fid = tvb_get_letohs(tvb, offset);
-		add_fid(tvb, pinfo, tree, offset, fid);
+		add_fid(tvb, pinfo, tree, offset, 2, fid);
 		offset += 2;
 
 		/* create action */
@@ -7265,7 +7265,7 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	add_fid(tvb, pinfo, tree, offset, fid);
+	add_fid(tvb, pinfo, tree, offset, 2, fid);
 	offset += 2;
 
 	/* create action */
@@ -9204,6 +9204,9 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					 */
 					tri = g_mem_chunk_alloc(smb_transact_info_chunk);
 					tri->subcmd = -1;
+					tri->trans_subcmd = -1;
+					tri->function = -1;
+					tri->fid = -1;
 					tri->lanman_cmd = 0;
 					tri->param_descrip = NULL;
 					tri->data_descrip = NULL;
@@ -10352,7 +10355,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 	case 0x00:	/*TRANS2_OPEN2*/
 		/* fid */
 		fid = tvb_get_letohs(tvb, offset);
-		add_fid(tvb, pinfo, tree, offset, fid);
+		add_fid(tvb, pinfo, tree, offset, 2, fid);
 		offset += 2;
 
 		/* File Attributes */
