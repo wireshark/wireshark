@@ -3177,6 +3177,7 @@ proto_register_map(void)
 	register_ber_oid_name("0.4.0.0.1.0.2.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locationCancel(2) version1(1)" );
 	register_ber_oid_name("0.4.0.0.1.0.3.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) roamingNbEnquiry(3) version2(2)" );
 	register_ber_oid_name("0.4.0.0.1.0.3.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) roamingNbEnquiry(3) version1(1)" );
+	register_ber_oid_name("0.4.0.0.1.0.5.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locInfoRetrieval(5) version3(3)" );
 	register_ber_oid_name("0.4.0.0.1.0.5.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locInfoRetrieval(5) version2(2)" );
 	register_ber_oid_name("0.4.0.0.1.0.5.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locInfoRetrieval(5) version1(1)" );
 	register_ber_oid_name("0.4.0.0.1.0.10.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) reset(10) version2(2)" );
