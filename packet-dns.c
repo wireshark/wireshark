@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.4 1998/09/27 22:12:28 gerald Exp $
+ * $Id: packet-dns.c,v 1.5 1998/10/14 19:34:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,6 +43,7 @@
 
 #include "ethereal.h"
 #include "packet.h"
+#include "packet-dns.h"
 
 
 /* DNS structs and definitions */
@@ -56,8 +57,6 @@ typedef struct _e_dns {
   guint16 dns_add;
 } e_dns;
 
-#define MAXDNAME        1025            /* maximum domain name */
-
 /* type values  */
 #define T_A             1               /* host address */
 #define T_NS            2               /* authoritative server */
@@ -70,8 +69,6 @@ typedef struct _e_dns {
 #define T_TXT           16              /* text strings */
 #define T_AAAA          28              /* IP6 Address */
 
-
-static const u_char *dns_data_ptr;
 
 static char *
 dns_type_name (int type)
@@ -116,7 +113,7 @@ dns_type_name (int type)
 }
 
 
-static char *
+char *
 dns_class_name(int class)
 {
   char *class_name;
@@ -171,7 +168,8 @@ copy_one_name_component(const u_char *dataptr, char *nameptr)
 
 
 static int
-copy_name_component_rec(const u_char *dataptr, char *nameptr, int *real_string_len)
+copy_name_component_rec(const u_char *dns_data_ptr, const u_char *dataptr,
+  char *nameptr, int *real_string_len)
 {
   int len = 0;
   int str_len;
@@ -182,7 +180,7 @@ copy_name_component_rec(const u_char *dataptr, char *nameptr, int *real_string_l
     compress = 1;
     offset = get_compressed_name_offset(dataptr);
     dataptr = dns_data_ptr + offset;
-    copy_name_component_rec(dataptr, nameptr, &str_len);
+    copy_name_component_rec(dns_data_ptr, dataptr, nameptr, &str_len);
     *real_string_len += str_len;
     nameptr += str_len;
     len = 2;
@@ -202,7 +200,7 @@ copy_name_component_rec(const u_char *dataptr, char *nameptr, int *real_string_l
 
   if (*dataptr > 0) {
     *nameptr++ = '.';
-    len += copy_name_component_rec(dataptr, nameptr, &str_len);
+    len += copy_name_component_rec(dns_data_ptr, dataptr, nameptr, &str_len);
     *real_string_len += str_len;
     return len;
   }
@@ -211,24 +209,27 @@ copy_name_component_rec(const u_char *dataptr, char *nameptr, int *real_string_l
 }
 
 
-static int
-get_dns_name(const u_char *pd, int offset, char *nameptr, int maxname)
+int
+get_dns_name(const u_char *dns_data_ptr, const u_char *pd, int offset,
+  char *nameptr, int maxname)
 {
   int len;
   const u_char *dataptr = pd + offset;
   int str_len = 0;
 
   memset (nameptr, 0, maxname);
-  len = copy_name_component_rec(dataptr, nameptr, &str_len);
+  len = copy_name_component_rec(dns_data_ptr, dataptr, nameptr, &str_len);
   
   return len;
 }
 
 
 static int
-get_dns_name_type_class (const u_char *pd,
+get_dns_name_type_class (const u_char *dns_data_ptr,
+			 const u_char *pd,
 			 int offset,
-			 char *name_ret, 
+			 char *name_ret,
+			 int *name_len_ret,
 			 int *type_ret,
 			 int *class_ret)
 {
@@ -239,19 +240,20 @@ get_dns_name_type_class (const u_char *pd,
   char name[MAXDNAME];
   const u_char *pd_save;
 
-  name_len = get_dns_name(pd, offset, name, sizeof(name));
+  name_len = get_dns_name(dns_data_ptr, pd, offset, name, sizeof(name));
   pd += offset;
   pd_save = pd;
   pd += name_len;
   
-  type = (*pd << 8) | *(pd + 1);
+  type = pntohs(pd);
   pd += 2;
-  class = (*pd << 8) | *(pd + 1);
+  class = pntohs(pd);
   pd += 2;
 
   strcpy (name_ret, name);
   *type_ret = type;
   *class_ret = class;
+  *name_len_ret = name_len;
 
   len = pd - pd_save;
   return len;
@@ -259,114 +261,141 @@ get_dns_name_type_class (const u_char *pd,
 
 
 static int
-dissect_dns_query(const u_char *pd, int offset, GtkWidget *dns_tree)
+dissect_dns_query(const u_char *dns_data_ptr, const u_char *pd, int offset,
+  GtkWidget *dns_tree)
 {
   int len;
   char name[MAXDNAME];
-  int type;
-  int class;
-  char *class_name;
-  char *type_name;
-
-  len = get_dns_name_type_class (pd, offset, name, &type, &class);
-
-  type_name = dns_type_name(type);
-  class_name = dns_class_name(class);
-  
-  add_item_to_tree(dns_tree, offset, len, "%s: type %s, class %s", 
-		   name, type_name, class_name );
-  
-  return len;
-}
-
-
-static int
-dissect_dns_answer(const u_char *pd, int offset, GtkWidget *dns_tree)
-{
-  int len;
-  char name[MAXDNAME];
+  int name_len;
   int type;
   int class;
   char *class_name;
   char *type_name;
   const u_char *dptr;
   const u_char *data_start;
-  const u_char *res_ptr;
-  u_int ttl;
-  u_short data_len;
 
   data_start = dptr = pd + offset;
 
-  len = get_dns_name_type_class (pd, offset, name, &type, &class);
+  len = get_dns_name_type_class(dns_data_ptr, pd, offset, name, &name_len,
+    &type, &class);
   dptr += len;
 
-  /* this works regardless of the alignment  */
-  ttl = (*dptr << 24) | *(dptr + 1) << 16 | *(dptr + 2) << 8 | *(dptr + 3);
-  dptr += 4;
-  data_len = (*dptr << 8) | *(dptr + 1);
-  dptr += 2;
+  add_item_to_tree(dns_tree, offset, name_len, "Name: %s", name);
+  offset += name_len;
+
+  type_name = dns_type_name(type);
+  add_item_to_tree(dns_tree, offset, 2, "Type: %s", type_name);
+  offset += 2;
+
+  class_name = dns_class_name(class);
+  add_item_to_tree(dns_tree, offset, 2, "Class: %s", class_name);
+  offset += 2;
+  
+  return dptr - data_start;
+}
+
+
+GtkWidget *
+add_rr_to_tree(GtkWidget *trr, int rr_type, int offset, const char *name,
+  int namelen, const char *type_name, const char *class_name, u_int ttl,
+  u_short data_len)
+{
+  GtkWidget *rr_tree;
+
+  rr_tree = gtk_tree_new();
+  add_subtree(trr, rr_tree, rr_type);
+  add_item_to_tree(rr_tree, offset, namelen, "Name: %s", name);
+  offset += namelen;
+  add_item_to_tree(rr_tree, offset, 2, "Type: %s", type_name);
+  offset += 2;
+  add_item_to_tree(rr_tree, offset, 2, "Class: %s", class_name);
+  offset += 2;
+  add_item_to_tree(rr_tree, offset, 4, "Time to live: %u", ttl);
+  offset += 4;
+  add_item_to_tree(rr_tree, offset, 2, "Data length: %u", data_len);
+  return rr_tree;
+}
+
+static int
+dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
+  GtkWidget *dns_tree)
+{
+  int len;
+  char name[MAXDNAME];
+  int name_len;
+  int type;
+  int class;
+  char *class_name;
+  char *type_name;
+  const u_char *dptr;
+  const u_char *data_start;
+  u_int ttl;
+  u_short data_len;
+  GtkWidget *rr_tree, *trr;
+
+  data_start = dptr = pd + offset;
+
+  len = get_dns_name_type_class(dns_data_ptr, pd, offset, name, &name_len,
+    &type, &class);
+  dptr += len;
 
   type_name = dns_type_name(type);
   class_name = dns_class_name(class);
-  res_ptr = dptr;
 
-  /* skip the resource data  */
-  dptr += data_len;
-  
-  len = dptr - data_start;
-  
+  ttl = pntohl(dptr);
+  dptr += 4;
+
+  data_len = pntohs(dptr);
+  dptr += 2;
+
   switch (type) {
   case T_A: 		/* "A" record */
-    add_item_to_tree(dns_tree, offset, len, 
+    trr = add_item_to_tree(dns_tree, offset, (dptr - data_start) + data_len,
 		     "%s: type %s, class %s, addr %d.%d.%d.%d",
 		     name, type_name, class_name,
-		     *res_ptr, *(res_ptr+1), *(res_ptr+2), *(res_ptr+3));
+		     *dptr, *(dptr+1), *(dptr+2), *(dptr+3));
+    rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len, type_name,
+                     class_name, ttl, data_len);
+    offset += (dptr - data_start);
+    add_item_to_tree(rr_tree, offset, 4, "Addr: %d.%d.%d.%d",
+		     *dptr, *(dptr+1), *(dptr+2), *(dptr+3));
     break;
 
   case T_NS: 		/* "NS" record */
     {
       char ns_name[MAXDNAME];
+      int ns_name_len;
       
-      get_dns_name(res_ptr, 0, ns_name, sizeof(ns_name));
-      add_item_to_tree(dns_tree, offset, len, 
-		       "%s: %s, type %s, class %s",
-		       name, ns_name, type_name, class_name);
-      
+      ns_name_len = get_dns_name(dns_data_ptr, dptr, 0, ns_name, sizeof(ns_name));
+      trr = add_item_to_tree(dns_tree, offset, (dptr - data_start) + data_len,
+		       "%s: type %s, class %s, ns %s",
+		       name, type_name, class_name, ns_name);
+      rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
+                       type_name, class_name, ttl, data_len);
+      offset += (dptr - data_start);
+      add_item_to_tree(rr_tree, offset, ns_name_len, "Name server: %s", ns_name);
     }
     break;
 
     /* TODO: parse more record types */
       
-    default:
-    add_item_to_tree(dns_tree, offset, len, "%s: type %s, class %s", 
+  default:
+    trr = add_item_to_tree(dns_tree, offset, (dptr - data_start) + data_len,
+                     "%s: type %s, class %s",
 		     name, type_name, class_name);
+    rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len, type_name,
+                       class_name, ttl, data_len);
+    offset += (dptr - data_start);
+    add_item_to_tree(rr_tree, offset, data_len, "Data");
   }
   
-  return len;
+  dptr += data_len;
+	
+  return dptr - data_start;
 }
 
-
 static int
-dissect_answer_records(int count, const u_char *pd, int cur_off, 
-		       GtkWidget *dns_tree, char *name)
-{
-  int start_off;
-  GtkWidget *qatree, *ti;
-  
-  qatree = gtk_tree_new();
-  start_off = cur_off;
-
-  while (count-- > 0)
-    cur_off += dissect_dns_answer(pd, cur_off, qatree);
-  ti = add_item_to_tree(GTK_WIDGET(dns_tree), start_off, cur_off - start_off, name);
-  add_subtree(ti, qatree, ETT_DNS_ANS);
-
-  return cur_off - start_off;
-}
-
-
-static int
-dissect_query_records(int count, const u_char *pd, 
+dissect_query_records(const u_char *dns_data_ptr, int count, const u_char *pd, 
 		      int cur_off, GtkWidget *dns_tree)
 {
   int start_off;
@@ -376,7 +405,7 @@ dissect_query_records(int count, const u_char *pd,
   start_off = cur_off;
   
   while (count-- > 0)
-    cur_off += dissect_dns_query(pd, cur_off, qatree);
+    cur_off += dissect_dns_query(dns_data_ptr, pd, cur_off, qatree);
   ti = add_item_to_tree(GTK_WIDGET(dns_tree), 
 			start_off, cur_off - start_off, "Queries");
   add_subtree(ti, qatree, ETT_DNS_QRY);
@@ -386,8 +415,29 @@ dissect_query_records(int count, const u_char *pd,
 
 
 
+static int
+dissect_answer_records(const u_char *dns_data_ptr, int count,
+                       const u_char *pd, int cur_off, GtkWidget *dns_tree,
+                       char *name)
+{
+  int start_off;
+  GtkWidget *qatree, *ti;
+  
+  qatree = gtk_tree_new();
+  start_off = cur_off;
+
+  while (count-- > 0)
+    cur_off += dissect_dns_answer(dns_data_ptr, pd, cur_off, qatree);
+  ti = add_item_to_tree(GTK_WIDGET(dns_tree), start_off, cur_off - start_off, name);
+  add_subtree(ti, qatree, ETT_DNS_ANS);
+
+  return cur_off - start_off;
+}
+
+
 void
 dissect_dns(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
+  const u_char *dns_data_ptr;
   e_dns     *dh;
   GtkWidget *dns_tree, *ti;
   guint16    id, flags, quest, ans, auth, add;
@@ -430,17 +480,19 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
     cur_off = offset + 12;
     
     if (quest > 0)
-      cur_off += dissect_query_records(quest, pd, cur_off, dns_tree);
+      cur_off += dissect_query_records(dns_data_ptr, quest, pd, cur_off,
+					dns_tree);
     
     if (ans > 0)
-      cur_off += dissect_answer_records(ans, pd, cur_off, dns_tree, "Answers");
+      cur_off += dissect_answer_records(dns_data_ptr, ans, pd, cur_off,
+          dns_tree, "Answers");
     
     if (auth > 0)
-      cur_off += dissect_answer_records(auth, pd, cur_off, dns_tree, 
-					"Authoritative nameservers");
+      cur_off += dissect_answer_records(dns_data_ptr, auth, pd, cur_off,
+          dns_tree, "Authoritative nameservers");
 
     if (add > 0)
-      cur_off += dissect_answer_records(add, pd, cur_off, dns_tree, 
-					"Additional records");
+      cur_off += dissect_answer_records(dns_data_ptr, add, pd, cur_off,
+          dns_tree, "Additional records");
   }
 }

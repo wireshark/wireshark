@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.5 1998/10/12 01:40:47 gerald Exp $
+ * $Id: ethereal.c,v 1.6 1998/10/14 19:34:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -520,7 +520,7 @@ main(int argc, char *argv[])
   col_width = gdk_string_width(pl_style->font, "00:00:00:00:00:00") + 2;
   gtk_clist_set_column_width(GTK_CLIST(packet_list), COL_SOURCE, col_width);
   gtk_clist_set_column_width(GTK_CLIST(packet_list), COL_DESTINATION, col_width);
-  col_width = gdk_string_width(pl_style->font, "AppleTalk") + 2;
+  col_width = gdk_string_width(pl_style->font, "NBNS (UDP)") + 2;
   gtk_clist_set_column_width(GTK_CLIST(packet_list), COL_PROTOCOL, col_width);
   gtk_widget_set_usize(packet_list, -1, pl_size);
   gtk_paned_add1(GTK_PANED(u_pane), packet_list);
