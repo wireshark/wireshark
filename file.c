@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.38 1999/07/13 03:08:05 gram Exp $
+ * $Id: file.c,v 1.39 1999/07/20 05:13:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -267,11 +267,29 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
   gtk_input_remove(cap_input_id);
   if (tail_timeout_id != -1) gtk_timeout_remove(tail_timeout_id);
 
+  /* In the BSD standard I/O library, there's a flag in a FILE structure
+     that's set whenever we encounter an EOF; if that flag is set,
+     all subsequent reads return an EOF indication.  I.e., end-of-file
+     is sticky.
+
+     This means that the stuff to continue reading a capture file, if we're
+     updating the display as the capture progresses, doesn't work - it gets
+     stuck at the point where the first read finished.
+
+     To clear that flag, we must do an "fseek()"; we do one that doesn't
+     move the seek pointer.
+
+     XXX - figure out with the configure script whether we need this,
+     and do it only if we have to? */
+  fseek(cf->wth->fh, 0, SEEK_CUR);
+
   if (read(sync_pipe[0], buffer, 256) <= 0) {
 
-    /* process data until end of file and stop capture (restore menu items) */
+    /* The child has closed the sync pipe, meaning it's not going to be
+       capturing any more packets.  Read what remains of the capture file,
+       and stop capture (restore menu items) */
     gtk_clist_freeze(GTK_CLIST(packet_list));
-    init_col_widths(cf);
+
     wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);      
 
     set_col_widths(cf);
@@ -291,7 +309,6 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
   }
 
   gtk_clist_freeze(GTK_CLIST(packet_list));
-  init_col_widths(cf);
   wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);      
 
   set_col_widths(cf);
@@ -319,12 +336,12 @@ tail_timeout_cb(gpointer data) {
   gtk_input_remove(cap_input_id);
 
   gtk_clist_freeze(GTK_CLIST(packet_list));
-  init_col_widths(cf);
   wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);      
 
   set_col_widths(cf);
   gtk_clist_thaw(GTK_CLIST(packet_list));
 
+  /* restore pipe handler */
   cap_input_id = gtk_input_add_full (sync_pipe[0],
 				     GDK_INPUT_READ,
 				     cap_file_input_cb,
@@ -341,11 +358,12 @@ tail_cap_file(char *fname, capture_file *cf) {
 
   close_cap_file(cf, info_bar, file_ctx);
 
-  /* Initialize protocol-speficic variables */
+  /* Initialize protocol-specific variables */
   ncp_init_protocol();
 
   err = open_cap_file(fname, cf);
   if ((err == 0) && (cf->cd_t != WTAP_FILE_UNKNOWN)) {
+    init_col_widths(cf);
 
     set_menu_sensitivity("/File/Open...", FALSE);
     set_menu_sensitivity("/File/Close", FALSE);
