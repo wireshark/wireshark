@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.23 2003/08/18 20:17:55 guy Exp $
+# $Id: Makefile.nmake,v 1.24 2003/08/19 02:16:26 guy Exp $
 #
 
 include ..\config.nmake
@@ -21,7 +21,7 @@ Xplugin_api.c: plugin_gen.py plugin_api_list.c
 plugin_api.obj: plugin_api.c Xplugin_api.c
 
 xyzzy: plugin_gen.py plugin_api_list.c
-	gcc -aux-info xyzzy -DHAVE_CONFIG_H -I$(GLIB_DIR) -I.. -c plugin_api_list.c
+	gcc -aux-info xyzzy -DHAVE_CONFIG_H $(GCC_GLIB_CFLAGS) -I.. -c plugin_api_list.c
 	$(PYTHON) plugin_gen.py xyzzy
 
 artnet:: 
