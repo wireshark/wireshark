@@ -263,7 +263,7 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint partial_state_len;
 	guint octet;
 	guint8 returned_feedback_field[128];
-	guint8 partial_state[9];
+	guint8 partial_state[12];
 	guint tbit;
 	guint16 len = 0;
 	guint destination;
@@ -339,8 +339,8 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * Message format 1
 		 */
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Msg format 1");
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Msg format 1");
 
 		if ( tbit == 1 ) {
 			/*
@@ -371,13 +371,14 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_bytes(sigcomp_tree,hf_sigcomp_returned_feedback_item,
 				tvb, offset, len, returned_feedback_field);
 			offset = offset + len;
-			tvb_memcpy(tvb, partial_state, offset, partial_state_len);
-			proto_tree_add_bytes(sigcomp_tree,hf_sigcomp_partial_state,
-				tvb, offset, partial_state_len, partial_state);
-			offset = offset + partial_state_len;
-			proto_tree_add_text(sigcomp_tree, tvb, offset, -1, "Remaining SigComp message %u bytes",
-				tvb_reported_length_remaining(tvb, offset));
 		}
+		tvb_memcpy(tvb, partial_state, offset, partial_state_len);
+		proto_tree_add_bytes(sigcomp_tree,hf_sigcomp_partial_state,
+			tvb, offset, partial_state_len, partial_state);
+		offset = offset + partial_state_len;
+		proto_tree_add_text(sigcomp_tree, tvb, offset, -1, "Remaining SigComp message %u bytes",
+			tvb_reported_length_remaining(tvb, offset));
+		
 
 	}
 	else{
