@@ -1,12 +1,11 @@
 .rn '' }`
-''' $RCSfile: ethereal.1,v $$Revision: 1.1 $$Date: 1998/09/16 02:39:18 $
+''' $RCSfile: ethereal.1,v $$Revision: 1.2 $$Date: 1998/09/17 02:01:47 $
 '''
 ''' $Log: ethereal.1,v $
-''' Revision 1.1  1998/09/16 02:39:18  gerald
-''' Initial revision
-'''
-''' Revision 1.1.1.1  1998/08/30 17:53:24  gerald
-''' Imported sources
+''' Revision 1.2  1998/09/17 02:01:47  gerald
+''' * Added in Laurent's OSI/ISO CNLP and COTP support.
+''' * Added Laurent's changes to the man (actually pod) page.
+''' * Copied in VERSION file so that others can make doc/Makefile
 '''
 '''
 .de Sh
@@ -99,7 +98,7 @@
 .nr % 0
 .rr F
 .\}
-.TH ETHEREAL 1 "0.3.8" "24/Aug/98" "The Ethereal Network Analyzer"
+.TH ETHEREAL 1 "0.3.16" "16/Sep/98" "The Ethereal Network Analyzer"
 .UC
 .if n .hy 0
 .if n .na
@@ -197,14 +196,18 @@
 Ethereal \- Interactively browse network traffic
 .SH "SYNOPSYS"
 \fBethereal\fR
-[\ \fB\-v\fR\ ]
 [\ \fB\-B\fR\ byte\ view\ height\ ]
+[\ \fB\-b\fR\ bold\ font\ ]
 [\ \fB\-c\fR\ count\ ]
+[\ \fB\-h\fR\ ]
 [\ \fB\-i\fR\ interface\ ] 
+[\ \fB\-m\fR\ font\ ]
+[\ \fB\-n\fR\ ]
 [\ \fB\-P\fR\ packet\ list\ height\ ]
 [\ \fB\-r\fR\ infile\ ]
 [\ \fB\-s\fR\ snaplen\ ]
 [\ \fB\-T\fR\ tree\ view\ height\ ]
+[\ \fB\-v\fR\ ]
 [\ \fB\-w\fR\ savefile]
 .SH "DESCRIPTION"
 \fBEthereal\fR is a network protocol analyzer based on the \fBGTK+\fR GUI toolkit.  It lets
@@ -213,11 +216,20 @@ you interactively browse packet data from a live network or from a \fBpcap\fR
 .SH "OPTIONS"
 .Ip "-B" 4
 Sets the initial height of the byte view (bottom) pane
+.Ip "-b" 4
+The bold font name used for packet fied display.
 .Ip "-c" 4
 The default number of packets to read when capturing live data.
+.Ip "-h" 4
+Prints the version and options and exits.
 .Ip "-i" 4
 The name of the interface to use for live packet capture.  It should match
 one of the names listed in \*(L"\fBnetstat \-i\fR\*(R" or \*(L"\fBifconfig \-a\fR\*(R".
+.Ip "-m" 4
+The font name used by \fBEthereal\fR.
+.Ip "-n" 4
+Disable network object name resolution (such as hostname, \s-1TCP\s0 and \s-1UDP\s0 port
+names).
 .Ip "-P" 4
 Sets the initial height of the packet list (top) pane
 .Ip "-r" 4
@@ -335,15 +347,17 @@ The latest version of \fBethereal\fR can be found at
 \&  -------- ------
 \&  Gerald Combs  <gerald@zing.org>
 .Ve
-.Vb 6
+.Vb 8
 \&  Contributors
 \&  ------------
 \&  Gilbert Ramirez Jr.  <gram@verdict.uthscsa.edu>
 \&  Hannes R. Boehm      <hannes@boehm.org>
 \&  Mike Hall            <mlh@io.com>
-\&  cpg                  <cpg@rocketmail.com>
+\&  Bobo Rajec           <bobo@bsp-consulting.sk>
+\&  Laurent Deniel       <deniel@worldnet.fr>
+\&  Don Lafontaine       <lafont02@cn.ca>
 .Ve
-Theo de Raadt <deraadt@cvs.openbsd.org> was kind enough to give his
+Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
 .Sp
 Dan Lasley <dlasley@promus.com> gave permission for his \fIdumpit()\fR hex-dump
@@ -363,9 +377,17 @@ routine to be used.
 
 .IX Item "-B"
 
+.IX Item "-b"
+
 .IX Item "-c"
 
+.IX Item "-h"
+
 .IX Item "-i"
+
+.IX Item "-m"
+
+.IX Item "-n"
 
 .IX Item "-P"
 

@@ -6,14 +6,18 @@ Ethereal - Interactively browse network traffic
 =head1 SYNOPSYS
 
 B<ethereal>
-S<[ B<-v> ]>
 S<[ B<-B> byte view height ]>
+S<[ B<-b> bold font ]>
 S<[ B<-c> count ]>
+S<[ B<-h> ]>
 S<[ B<-i> interface ]> 
+S<[ B<-m> font ]>
+S<[ B<-n> ]>
 S<[ B<-P> packet list height ]>
 S<[ B<-r> infile ]>
 S<[ B<-s> snaplen ]>
 S<[ B<-T> tree view height ]>
+S<[ B<-v> ]>
 S<[ B<-w> savefile]>
 
 =head1 DESCRIPTION
@@ -30,14 +34,31 @@ you interactively browse packet data from a live network or from a B<pcap>
 
 Sets the initial height of the byte view (bottom) pane
 
+=item -b
+
+The bold font name used for packet fied display.
+
 =item -c
 
 The default number of packets to read when capturing live data.
+
+=item -h
+
+Prints the version and options and exits.
 
 =item -i
 
 The name of the interface to use for live packet capture.  It should match
 one of the names listed in "B<netstat -i>" or "B<ifconfig -a>".
+
+=item -m
+
+The font name used by B<Ethereal>.
+
+=item -n
+
+Disable network object name resolution (such as hostname, TCP and UDP port
+names).
 
 =item -P
 
@@ -223,10 +244,12 @@ B<http://ethereal.zing.org>.
   Gilbert Ramirez Jr.  <gram@verdict.uthscsa.edu>
   Hannes R. Boehm      <hannes@boehm.org>
   Mike Hall            <mlh@io.com>
-  cpg                  <cpg@rocketmail.com>
+  Bobo Rajec           <bobo@bsp-consulting.sk>
+  Laurent Deniel       <deniel@worldnet.fr>
+  Don Lafontaine       <lafont02@cn.ca>
 
 
-Theo de Raadt <deraadt@cvs.openbsd.org> was kind enough to give his
+Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
 
 Dan Lasley <dlasley@promus.com> gave permission for his dumpit() hex-dump

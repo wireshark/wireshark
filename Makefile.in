@@ -89,6 +89,7 @@ ethereal_SOURCES = \
 	packet-ip.c    \
 	packet-ipv6.c  \
 	packet-ipx.c   \
+	packet-osi.c   \
 	packet-ospf.c  \
 	packet-ppp.c   \
 	packet-raw.c   \
@@ -144,9 +145,9 @@ LIBS = @LIBS@
 ethereal_OBJECTS =  capture.o ethereal.o ethertype.o file.o filter.o \
 menu.o packet.o packet-arp.o packet-bootp.o packet-data.o packet-dns.o \
 packet-eth.o packet-llc.o packet-lpd.o packet-ip.o packet-ipv6.o \
-packet-ipx.o packet-ospf.o packet-ppp.o packet-raw.o packet-rip.o \
-packet-tcp.o packet-tr.o packet-trmac.o packet-udp.o print.o ps.o \
-resolv.o util.o
+packet-ipx.o packet-osi.o packet-ospf.o packet-ppp.o packet-raw.o \
+packet-rip.o packet-tcp.o packet-tr.o packet-trmac.o packet-udp.o \
+print.o ps.o resolv.o util.o
 ethereal_LDADD = $(LDADD)
 ethereal_LDFLAGS = 
 CFLAGS = @CFLAGS@
@@ -165,6 +166,15 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP = --best
+DEP_FILES =  .deps/capture.P .deps/ethereal.P .deps/ethertype.P \
+.deps/file.P .deps/filter.P .deps/menu.P .deps/packet-arp.P \
+.deps/packet-bootp.P .deps/packet-data.P .deps/packet-dns.P \
+.deps/packet-eth.P .deps/packet-ip.P .deps/packet-ipv6.P \
+.deps/packet-ipx.P .deps/packet-llc.P .deps/packet-lpd.P \
+.deps/packet-osi.P .deps/packet-ospf.P .deps/packet-ppp.P \
+.deps/packet-raw.P .deps/packet-rip.P .deps/packet-tcp.P \
+.deps/packet-tr.P .deps/packet-trmac.P .deps/packet-udp.P \
+.deps/packet.P .deps/print.P .deps/ps.P .deps/resolv.P .deps/util.P
 SOURCES = $(ethereal_SOURCES) $(EXTRA_ethereal_SOURCES)
 OBJECTS = $(ethereal_OBJECTS)
 
@@ -173,9 +183,9 @@ all: Makefile $(PROGRAMS) $(MANS) config.h
 .SUFFIXES:
 .SUFFIXES: .S .c .o .s
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4)
-	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu Makefile
 
-Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
@@ -232,9 +242,6 @@ uninstall-binPROGRAMS:
 	list='$(bin_PROGRAMS)'; for p in $$list; do \
 	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed '$(transform)'`; \
 	done
-
-.c.o:
-	$(COMPILE) -c $<
 
 .s.o:
 	$(COMPILE) -c $<
@@ -356,6 +363,11 @@ distdir: $(DISTFILES)
 	-rm -rf $(distdir)
 	mkdir $(distdir)
 	-chmod 777 $(distdir)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	cd $(top_srcdir) \
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu Makefile
 	$(mkinstalldirs) $(distdir)/doc $(distdir)/image
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
@@ -363,41 +375,30 @@ distdir: $(DISTFILES)
 	  || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
 	  || cp -p $$d/$$file $(distdir)/$$file; \
 	done
-capture.o: capture.c config.h packet.h file.h capture.h etypes.h util.h \
-	image/icon-excl.xpm
-ethereal.o: ethereal.c config.h packet.h file.h ethereal.h menu.h \
-	etypes.h print.h resolv.h
-ethertype.o: ethertype.c config.h packet.h ethereal.h etypes.h
-file.o: file.c config.h packet.h file.h ethereal.h util.h \
-	image/icon-excl.xpm
-filter.o: filter.c config.h filter.h packet.h file.h menu.h
-menu.o: menu.c config.h menu.h ethereal.h capture.h filter.h packet.h \
-	print.h
-packet-arp.o: packet-arp.c config.h ethereal.h packet.h etypes.h
-packet-bootp.o: packet-bootp.c config.h packet.h ethereal.h etypes.h
-packet-data.o: packet-data.c config.h ethereal.h packet.h
-packet-dns.o: packet-dns.c config.h packet.h
-packet-eth.o: packet-eth.c config.h packet.h ethereal.h etypes.h
-packet-ip.o: packet-ip.c config.h ethereal.h packet.h etypes.h resolv.h
-packet-ipv6.o: packet-ipv6.c config.h ethereal.h packet.h packet-ipv6.h \
-	etypes.h
-packet-ipx.o: packet-ipx.c config.h ethereal.h packet.h
-packet-llc.o: packet-llc.c config.h packet.h ethereal.h etypes.h
-packet-lpd.o: packet-lpd.c config.h packet.h ethereal.h etypes.h
-packet-ospf.o: packet-ospf.c config.h ethereal.h packet.h packet-ospf.h
-packet-ppp.o: packet-ppp.c config.h packet.h ethereal.h
-packet-raw.o: packet-raw.c config.h packet.h ethereal.h
-packet-rip.o: packet-rip.c config.h ethereal.h packet.h packet-rip.h
-packet-tcp.o: packet-tcp.c config.h ethereal.h packet.h
-packet-tr.o: packet-tr.c config.h packet.h ethereal.h etypes.h
-packet-trmac.o: packet-trmac.c config.h packet.h ethereal.h etypes.h
-packet-udp.o: packet-udp.c config.h ethereal.h packet.h resolv.h
-packet.o: packet.c config.h packet.h ethereal.h etypes.h file.h
-print.o: print.c config.h packet.h print.h
-ps.o: ps.c ps.h
-resolv.o: resolv.c config.h packet.h resolv.h
-util.o: util.c config.h util.h image/icon-excl.xpm
 
+DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
+
+-include $(DEP_FILES)
+
+mostlyclean-depend:
+
+clean-depend:
+
+distclean-depend:
+
+maintainer-clean-depend:
+	-rm -rf .deps
+
+%.o: %.c
+	@echo '$(COMPILE) -c $<'; \
+	$(COMPILE) -Wp,-MD,.deps/$(*F).P -c $<
+
+%.lo: %.c
+	@echo '$(LTCOMPILE) -c $<'; \
+	$(LTCOMPILE) -Wp,-MD,.deps/$(*F).p -c $<
+	@-sed -e 's/^\([^:]*\)\.o:/\1.lo \1.o:/' \
+	  < .deps/$(*F).p > .deps/$(*F).P
+	@-rm -f .deps/$(*F).p
 info:
 dvi:
 check: all
@@ -435,19 +436,20 @@ maintainer-clean-generic:
 	-test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 mostlyclean:  mostlyclean-hdr mostlyclean-binPROGRAMS \
-		mostlyclean-compile mostlyclean-tags \
+		mostlyclean-compile mostlyclean-tags mostlyclean-depend \
 		mostlyclean-generic
 
 clean:  clean-hdr clean-binPROGRAMS clean-compile clean-tags \
-		clean-generic mostlyclean
+		clean-depend clean-generic mostlyclean
 
 distclean:  distclean-hdr distclean-binPROGRAMS distclean-compile \
-		distclean-tags distclean-generic clean
+		distclean-tags distclean-depend distclean-generic clean
 	-rm -f config.status
 
 maintainer-clean:  maintainer-clean-hdr maintainer-clean-binPROGRAMS \
 		maintainer-clean-compile maintainer-clean-tags \
-		maintainer-clean-generic distclean
+		maintainer-clean-depend maintainer-clean-generic \
+		distclean
 	@echo "This command is intended for maintainers to use;"
 	@echo "it deletes files that may require special tools to rebuild."
 	-rm -f config.status
@@ -458,7 +460,8 @@ maintainer-clean-binPROGRAMS uninstall-binPROGRAMS install-binPROGRAMS \
 mostlyclean-compile distclean-compile clean-compile \
 maintainer-clean-compile install-man1 uninstall-man1 install-man \
 uninstall-man tags mostlyclean-tags distclean-tags clean-tags \
-maintainer-clean-tags distdir info dvi installcheck install-exec \
+maintainer-clean-tags distdir mostlyclean-depend distclean-depend \
+clean-depend maintainer-clean-depend info dvi installcheck install-exec \
 install-data install uninstall all installdirs mostlyclean-generic \
 distclean-generic clean-generic maintainer-clean-generic clean \
 mostlyclean distclean maintainer-clean

@@ -22,12 +22,21 @@ Mike Hall            <mlh@io.com>{
 }
 
 Bobo Rajec           <bobo@bsp-consulting.sk> {
-    /* add your info here */
+    DNS protocol support
 }
 
 Laurent Deniel       <deniel@worldnet.fr> {
+    http://www.worldnet.fr/~deniel
+
+    Name resolution
+    ISO/OSI CLNP/COTP support
+    Miscellaneous enhancements and fixes
+}
+
+Don Lafontaine       <lafont02@cn.ca> {
     /* add your info here */
 }
+
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.

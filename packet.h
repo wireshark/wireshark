@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.2 1998/09/16 03:22:14 gerald Exp $
+ * $Id: packet.h,v 1.3 1998/09/17 02:01:49 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -282,9 +282,11 @@ typedef struct _e_udphdr {
 #define ETT_BOOTP        31
 #define ETT_BOOTP_OPTION 32
 #define ETT_IPv6	 33
+#define ETT_CLNP         34
+#define ETT_COTP         35
 
 /* Should be the last item number plus one */
-#define NUM_TREE_TYPES 34
+#define NUM_TREE_TYPES 36
 
 /* The version of pcap.h that comes with some systems is missing these
  * #defines.
@@ -342,6 +344,7 @@ void dissect_ipv6(const u_char *, int, frame_data *, GtkTree *);
 void dissect_ipx(const u_char *, int, frame_data *, GtkTree *);
 void dissect_llc(const u_char *, int, frame_data *, GtkTree *);
 void dissect_lpd(const u_char *, int, frame_data *, GtkTree *);
+void dissect_osi(const u_char *, int, frame_data *, GtkTree *);
 void dissect_ospf(const u_char *, int, frame_data *, GtkTree *);
 void dissect_ospf_hello(const u_char *, int, frame_data *, GtkTree *);
 void dissect_tcp(const u_char *, int, frame_data *, GtkTree *);

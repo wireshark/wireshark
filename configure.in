@@ -1,8 +1,8 @@
-# $Id: configure.in,v 1.2 1998/09/16 03:21:53 gerald Exp $
+# $Id: configure.in,v 1.3 1998/09/17 02:01:46 gerald Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
-AM_INIT_AUTOMAKE(ethereal, 0.3.15)
+AM_INIT_AUTOMAKE(ethereal, 0.3.16)
 
 dnl Checks for programs.
 AC_PROG_CC

@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-llc.c,v 1.2 1998/09/16 03:22:06 gerald Exp $
+ * $Id: packet-llc.c,v 1.3 1998/09/17 02:01:47 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -156,6 +156,9 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 				break;
 			case 0xe0:	/* NetWare (IPX) */
 				dissect_ipx(pd, offset, fd, tree);
+				break;
+			case 0xfe:      /* ISO Network Layer */
+				dissect_osi(pd, offset, fd, tree);
 				break;
 			default:
 				dissect_data(pd, offset, fd, tree);
