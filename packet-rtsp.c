@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.58 2003/12/31 09:58:55 guy Exp $
+ * $Id: packet-rtsp.c,v 1.59 2004/01/01 23:36:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -472,7 +472,7 @@ static int
 dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree)
 {
-	proto_tree	*rtsp_tree;
+	proto_tree	*rtsp_tree = NULL;
 	proto_item	*ti = NULL;
 	const guchar	*line;
 	gint		next_offset;
@@ -480,6 +480,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int		orig_offset;
 	int		first_linelen, linelen;
 	gboolean	is_request_or_reply;
+	gboolean	saw_req_resp_or_header;
 	guchar		c;
 	rtsp_type_t	rtsp_type;
 	gboolean	is_mime_header;
@@ -495,8 +496,12 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * is not longer than what's in the buffer, so the
 	 * "tvb_get_ptr()" call won't throw an exception.
 	 */
-	first_linelen = tvb_find_line_end(tvb, offset, -1, &next_offset,
+	first_linelen = tvb_find_line_end(tvb, offset,
+	    tvb_ensure_length_remaining(tvb, offset), &next_offset,
 	    FALSE);
+	/*
+	 * Is the first line a request or response?
+	 */
 	line = tvb_get_ptr(tvb, offset, first_linelen);
 	is_request_or_reply = is_rtsp_request_or_reply(line, first_linelen,
 	    &rtsp_type);
@@ -516,29 +521,32 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 
-	orig_offset = offset;
-	rtsp_tree = NULL;
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_rtsp, tvb, offset,	-1,
-		    FALSE);
-		rtsp_tree = proto_item_add_subtree(ti, ett_rtsp);
-	}
-
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTSP");
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		/*
 		 * Put the first line from the buffer into the summary
  		 * if it's an RTSP request or reply (but leave out the
 		 * line terminator).
 		 * Otherwise, just call it a continuation.
+		 *
+		 * Note that "tvb_find_line_end()" will return a value that
+		 * is not longer than what's in the buffer, so the
+		 * "tvb_get_ptr()" call won't throw an exception.
 		 */
-		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset,
-		    FALSE);
-		line = tvb_get_ptr(tvb, offset, linelen);
+		line = tvb_get_ptr(tvb, offset, first_linelen);
 		if (is_request_or_reply)
 			col_add_str(pinfo->cinfo, COL_INFO,
-			    format_text(line, linelen));
+			    format_text(line, first_linelen));
 		else
 			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
+	}
+
+	orig_offset = offset;
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_rtsp, tvb, offset,	-1,
+		    FALSE);
+		rtsp_tree = proto_item_add_subtree(ti, ett_rtsp);
 	}
 
 	/*
@@ -549,7 +557,8 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/*
 	 * Process the packet data, a line at a time.
 	 */
-	while (tvb_offset_exists(tvb, offset)) {
+	saw_req_resp_or_header = FALSE;	/* haven't seen anything yet */
+	while (tvb_reported_length_remaining(tvb, offset) != 0) {
 		/*
 		 * We haven't yet concluded that this is a MIME header.
 		 */
@@ -558,8 +567,11 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		/*
 		 * Find the end of the line.
 		 */
-		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset,
+		linelen = tvb_find_line_end(tvb, offset,
+		    tvb_ensure_length_remaining(tvb, offset), &next_offset,
 		    FALSE);
+		if (linelen < 0)
+			return -1;
 
 		/*
 		 * Get a buffer that refers to the line.
@@ -568,8 +580,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		lineend = line + linelen;
 
 		/*
-		 * OK, does it look like an RTSP request or
-		 * response?
+		 * OK, does it look like an RTSP request or response?
 		 */
 		is_request_or_reply = is_rtsp_request_or_reply(line, linelen,
 		    &rtsp_type);
@@ -577,14 +588,14 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			goto is_rtsp;
 
 		/*
-		 * No.  Does it look like a blank line (as would
-		 * appear at the end of an RTSP request)?
+		 * No.  Does it look like a blank line (as would appear
+		 * at the end of an RTSP request)?
 		 */
 		if (linelen == 0)
 			goto is_rtsp;	/* Yes. */
 
 		/*
-		 * No.  Does it look like a MIME header?
+		 * No.  Does it look like a header?
 		 */
 		linep = line;
 		while (linep < lineend) {
@@ -635,6 +646,32 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			}
 		}
 
+		/*
+		 * We haven't seen the colon, but everything else looks
+		 * OK for a header line.
+		 *
+		 * If we've already seen an RTSP request or response
+		 * line, or a header line, and we're at the end of
+		 * the tvbuff, we assume this is an incomplete header
+		 * line.  (We quit this loop after seeing a blank line,
+		 * so if we've seen a request or response line, or a
+		 * header line, this is probably more of the request
+		 * or response we're presumably seeing.  There is some
+		 * risk of false positives, but the same applies for
+		 * full request or response lines or header lines,
+		 * although that's less likely.)
+		 *
+		 * We throw an exception in that case, by checking for
+		 * the existence of the next byte after the last one
+		 * in the line.  If it exists, "tvb_ensure_bytes_exist()"
+		 * throws no exception, and we fall through to the
+		 * "not RTSP" case.  If it doesn't exist,
+		 * "tvb_ensure_bytes_exist()" will throw the appropriate
+		 * exception.
+		 */
+		if (saw_req_resp_or_header)
+			tvb_ensure_bytes_exist(tvb, offset, linelen + 1);
+
 	not_rtsp:
 		/*
 		 * We don't consider this part of an RTSP request or
@@ -646,6 +683,24 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		/*
 		 * Process this line.
 		 */
+		if (linelen == 0) {
+			/*
+			 * This is a blank line, which means that
+			 * whatever follows it isn't part of this
+			 * request or reply.
+			 */
+			proto_tree_add_text(rtsp_tree, tvb, offset,
+			    next_offset - offset, "%s",
+			    tvb_format_text(tvb, offset, next_offset - offset));
+			offset = next_offset;
+			break;
+		}
+
+		/*
+		 * Not a blank line - either a request, a reply, or a header
+		 * line.
+		 */ 
+		saw_req_resp_or_header = TRUE;
 		if (rtsp_tree) {
 			switch (rtsp_type) {
 
@@ -718,8 +773,9 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * processed as RTSP payload is the minimum of the content
 	 * length and the amount of data remaining in the frame.
 	 *
-	 * If no content length was supplied, the amount of data to be
-	 * processed is the amount of data remaining in the frame.
+	 * If no content length was supplied (or if a bad content length
+	 * was supplied), the amount of data to be processed is the amount
+	 * of data remaining in the frame.
 	 *
 	 * XXX - RFC 2326 says that a content length must be specified
 	 * in requests that have a body, although section 4.4 speaks
@@ -809,8 +865,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		/*
 		 * We've processed "datalen" bytes worth of data
 		 * (which may be no data at all); advance the
-		 * offset past whatever data we've processed, so they
-		 * don't process it.
+		 * offset past whatever data we've processed.
 		 */
 		offset += datalen;
 	}
@@ -891,11 +946,6 @@ dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int		offset = 0;
 	int		len;
-
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTSP");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
 
 	while (tvb_reported_length_remaining(tvb, offset) != 0) {
 		len = (tvb_get_guint8(tvb, offset) == RTSP_FRAMEHDR)
