@@ -2,7 +2,7 @@
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-mmse.c,v 1.7 2002/01/24 09:20:49 guy Exp $
+ * $Id: packet-mmse.c,v 1.8 2002/05/29 22:52:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -171,8 +171,8 @@ static const value_string vals_response_status[] = {
     { 0x81, "Unspecified" },
     { 0x82, "Service denied" },
     { 0x83, "Message format corrupt" },
-    { 0x84, "sending address unresolved" },
-    { 0x85, "message not found" },
+    { 0x84, "Sending address unresolved" },
+    { 0x85, "Message not found" },
     { 0x86, "Network problem" },
     { 0x87, "Content not accepted" },
     { 0x88, "Unsupported message" },
@@ -808,7 +808,7 @@ proto_register_mmse(void)
 	},
 	{   &hf_mmse_sender_visibility,
 	    {   "Sender-Visibility", "mmse.sender_visibility",
-		FT_UINT8, BASE_HEX, VALS(vals_yes_no), 0x00,
+		FT_UINT8, BASE_HEX, VALS(vals_sender_visibility), 0x00,
 		"Disclose sender identity to receiver or not.",
 		HFILL
 	    }

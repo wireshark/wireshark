@@ -1235,6 +1235,10 @@ Antti Tuominen <ajtuomin[AT]tml.hut.fi> {
 	AODV6 support
 }
 
+Martin Gignac <lmcgign[AT]mobilitylab.net> {
+	MMSE fix for Sender-Visibility field
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
