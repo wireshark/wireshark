@@ -2,7 +2,7 @@
  * Routines for Telnet packet dissection; see RFC 854 and RFC 855
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.35 2003/02/24 01:04:30 guy Exp $
+ * $Id: packet-telnet.c,v 1.36 2003/02/24 19:25:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -309,13 +309,6 @@ dissect_rfc_subopt(const char *optname _U_, tvbuff_t *tvb, int offset,
                       val_to_str(cmd, rfc_opt_vals, "Unknown (%u)"));
 }
 
-static void
-dissect_subopt(const char *optname _U_, tvbuff_t *tvb, int offset, int len,
-                    proto_tree *tree)
-{
-  proto_tree_add_text(tree, tvb, offset, len, "Option data");
-}
-
 static tn_opt options[] = {
   {
     "Binary Transmission",			/* RFC 856 */
@@ -357,7 +350,7 @@ static tn_opt options[] = {
     &ett_status_subopt,
     VARIABLE_LENGTH,
     1,
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
   {
     "Timing Mark",				/* RFC 860 */
@@ -371,28 +364,28 @@ static tn_opt options[] = {
     &ett_rcte_subopt,
     VARIABLE_LENGTH,
     1,
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
   {
     "Output Line Width",			/* DOD Protocol Handbook */
     &ett_olw_subopt,
     VARIABLE_LENGTH,				/* XXX - fill me in */
     0,						/* XXX - fill me in */
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
   {
     "Output Page Size",				/* DOD Protocol Handbook */
     &ett_ops_subopt,
     VARIABLE_LENGTH,				/* XXX - fill me in */
     0,						/* XXX - fill me in */
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
   {
     "Output Carriage-Return Disposition",	/* RFC 652 */
     &ett_crdisp_subopt,
     FIXED_LENGTH,
     2,
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
   {
     "Output Horizontal Tab Stops",		/* RFC 653 */
@@ -406,42 +399,42 @@ static tn_opt options[] = {
     &ett_htdisp_subopt,
     FIXED_LENGTH,
     2,
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
   {
     "Output Formfeed Disposition",		/* RFC 655 */
     &ett_ffdisp_subopt,
     FIXED_LENGTH,
     2,
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
   {
     "Output Vertical Tabstops",			/* RFC 656 */
     &ett_vtstops_subopt,
     VARIABLE_LENGTH,
     1,
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
   {
     "Output Vertical Tab Disposition",		/* RFC 657 */
     &ett_vtdisp_subopt,
     FIXED_LENGTH,
     2,
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
   {
     "Output Linefeed Disposition",		/* RFC 658 */
     &ett_lfdisp_subopt,
     FIXED_LENGTH,
     2,
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
   {
     "Extended ASCII",				/* RFC 698 */
     &ett_extasc_subopt,
     FIXED_LENGTH,
     2,
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
   {
     "Logout",					/* RFC 727 */
@@ -455,14 +448,14 @@ static tn_opt options[] = {
     &ett_bytemacro_subopt,
     VARIABLE_LENGTH,
     2,
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
   {
     "Data Entry Terminal",			/* RFC 732, RFC 1043 */
     &ett_det_subopt,
     VARIABLE_LENGTH,
     2,
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
   {
     "SUPDUP",					/* RFC 734, RFC 736 */
@@ -476,14 +469,14 @@ static tn_opt options[] = {
     &ett_supdupout_subopt,
     VARIABLE_LENGTH,
     1,
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
   {
     "Send Location",				/* RFC 779 */
     &ett_sendloc_subopt,
     VARIABLE_LENGTH,
     0,
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
   {
     "Terminal Type",				/* RFC 1091 */
@@ -504,7 +497,7 @@ static tn_opt options[] = {
     &ett_tacacsui_subopt,
     FIXED_LENGTH,
     4,
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
   {
     "Output Marking",				/* RFC 933 */
@@ -518,21 +511,21 @@ static tn_opt options[] = {
     &ett_tlocnum_subopt,
     VARIABLE_LENGTH,
     1,
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
   {
     "Telnet 3270 Regime",			/* RFC 1041 */
     &ett_tn3270reg_subopt,
     VARIABLE_LENGTH,
     1,
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
   {
     "X.3 PAD",					/* RFC 1053 */
     &ett_x3pad_subopt,
     VARIABLE_LENGTH,
     1,
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
   {
     "Negotiate About Window Size",		/* RFC 1073, DW183 */
@@ -546,7 +539,7 @@ static tn_opt options[] = {
     &ett_tspeed_subopt,
     VARIABLE_LENGTH,
     1,
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
   {
     "Remote Flow Control",			/* RFC 1372 */
@@ -560,7 +553,7 @@ static tn_opt options[] = {
     &ett_linemode_subopt,
     VARIABLE_LENGTH,
     1,
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
   {
     "X Display Location",			/* RFC 1096 */
@@ -574,35 +567,35 @@ static tn_opt options[] = {
     &ett_env_subopt,
     VARIABLE_LENGTH,
     1,
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
   {
     "Authentication Option",			/* RFC 2941 */
     &ett_auth_subopt,
     VARIABLE_LENGTH,
     1,
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
   {
     "Encryption Option",			/* RFC 2946 */
     &ett_enc_subopt,
     VARIABLE_LENGTH,
     1,
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
   {
     "New Environment Option",			/* RFC 1572 */
     &ett_newenv_subopt,
     VARIABLE_LENGTH,
     1,
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
   {
     "TN3270E",					/* RFC 1647 */
     &ett_tn3270e_subopt,
     VARIABLE_LENGTH,
     1,
-    dissect_subopt				/* XXX - fill me in */
+    NULL					/* XXX - fill me in */
   },
 };
 
@@ -687,7 +680,14 @@ telnet_sub_option(proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
     }
 
     /* Now dissect the suboption parameters. */
-    (*dissect)(opt, tvb, start_offset, subneg_len, option_tree);
+    if (dissect != NULL) {
+      /* We have a dissector for this suboption's parameters; call it. */
+      (*dissect)(opt, tvb, start_offset, subneg_len, option_tree);
+    } else {
+      /* We don't have a dissector for them; just show them as data. */
+      proto_tree_add_text(option_tree, tvb, start_offset, subneg_len,
+                          "Option data");
+    }
   }
   return offset;
 }
