@@ -995,27 +995,39 @@ ac_save_LIBS="$LIBS"
 LIBS="$GLIB_LIBS $LIBS"
 G_ASCII_STRTOULL_C=""
 G_ASCII_STRTOULL_O=""
-AC_CHECK_FUNC(g_ascii_strtoull, G_ASCII_STRTOULL_O="",
+G_ASCII_STRTOULL_LO=""
+AC_CHECK_FUNC(g_ascii_strtoull,
+  [G_ASCII_STRTOULL_O=""
+   G_ASCII_STRTOULL_LO=""],
   [G_ASCII_STRTOULL_O="g_ascii_strtoull.o"
+   G_ASCII_STRTOULL_LO="g_ascii_strtoull.lo"
    AC_DEFINE(NEED_G_ASCII_STRTOULL_H, 1, [Define if g_ascii_strtoull.h needs to be included])
 ])
 LIBS="$ac_save_LIBS"
 if test "$ac_cv_func_g_ascii_strtoull" = no ; then
   G_ASCII_STRTOULL_C="g_ascii_strtoull.c"
   G_ASCII_STRTOULL_O="g_ascii_strtoull.o"
+  G_ASCII_STRTOULL_LO="g_ascii_strtoull.lo"
 fi
 AC_SUBST(G_ASCII_STRTOULL_C)
 AC_SUBST(G_ASCII_STRTOULL_O)
+AC_SUBST(G_ASCII_STRTOULL_LO)
 
-AC_CHECK_FUNC(inet_aton, INET_ATON_O="",
-  INET_ATON_O="inet_aton.lo")
+AC_CHECK_FUNC(inet_aton,
+  [INET_ATON_O=""
+   INET_ATON_LO=""],
+  [INET_ATON_O="inet_aton.o"
+   INET_ATON_LO="inet_aton.lo"
+])
 if test "$ac_cv_func_inet_aton" = no ; then
   INET_ATON_C="inet_aton.c"
-  INET_ATON_O="inet_aton.lo"
+  INET_ATON_O="inet_aton.o"
+  INET_ATON_LO="inet_aton.lo"
   AC_DEFINE(NEED_INET_ATON_H, 1, [Define if inet/aton.h needs to be included])
 fi
 AC_SUBST(INET_ATON_C)
 AC_SUBST(INET_ATON_O)
+AC_SUBST(INET_ATON_LO)
 
 AC_SEARCH_LIBS(inet_pton, [socket nsl], [
   dnl check for pre-BIND82 inet_pton() bug.
@@ -1040,13 +1052,16 @@ have_inet_pton=no])],
 have_inet_pton=no)
 if test "$have_inet_pton" = no; then
   INET_PTON_C="inet_pton.c"
-  INET_PTON_O="inet_pton.lo"
+  INET_PTON_O="inet_pton.o"
+  INET_PTON_LO="inet_pton.lo"
 else
   INET_PTON_C=""
   INET_PTON_O=""
+  INET_PTON_LO=""
 fi
 AC_SUBST(INET_PTON_C)
 AC_SUBST(INET_PTON_O)
+AC_SUBST(INET_PTON_LO)
 
 AC_SEARCH_LIBS(inet_ntop, [socket nsl], [
   AC_MSG_CHECKING([for inet_ntop prototype])
@@ -1071,13 +1086,16 @@ extern const char *inet_ntop(int, const void *, char *, socklen_t);],, [
       AC_DEFINE(HAVE_INET_NTOP_PROTO, 1,
       [Define if inet_ntop() prototype exists])], [
       AC_MSG_RESULT(no)])])
-  INET_NTOP_O=""], [
+  INET_NTOP_O=""
+  INET_NTOP_LO=""], [
   INET_NTOP_C="inet_ntop.c"
-  INET_NTOP_O="inet_ntop.lo"
+  INET_NTOP_O="inet_ntop.o"
+  INET_NTOP_LO="inet_ntop.lo"
   AC_DEFINE(NEED_INET_V6DEFS_H, 1,
   [Define if inet/v6defs.h needs to be included])])
 AC_SUBST(INET_NTOP_C)
 AC_SUBST(INET_NTOP_O)
+AC_SUBST(INET_NTOP_LO)
 
 AC_CHECK_FUNC(strptime, STRPTIME_O="",
   [STRPTIME_O="strptime.o"
