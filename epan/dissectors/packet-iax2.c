@@ -43,7 +43,7 @@
 #include "iax2_codec_type.h"
 
 #define IAX2_PORT		4569
-#define PROTO_TAG_IAX2	"IAX2"
+#define PROTO_TAG_IAX2		"IAX2"
 
 /* #define DEBUG_HASHING */
 
@@ -121,6 +121,30 @@ static int hf_IAX_IE_AUTOANSWER = -1;
 static int hf_IAX_IE_MUSICONHOLD = -1;
 static int hf_IAX_IE_TRANSFERID = -1;
 static int hf_IAX_IE_RDNIS = -1;
+static int hf_IAX_IE_PROVISIONING = -1;
+static int hf_IAX_IE_AESPROVISIONING = -1;
+static int hf_IAX_IE_DATETIME = -1;
+static int hf_IAX_IE_DEVICETYPE = -1;
+static int hf_IAX_IE_SERVICEIDENT = -1;
+static int hf_IAX_IE_FIRMWAREVER = -1;
+static int hf_IAX_IE_FWBLOCKDESC = -1;
+static int hf_IAX_IE_FWBLOCKDATA = -1;
+static int hf_IAX_IE_PROVVER = -1;
+static int hf_IAX_IE_CALLINGPRES = -1;
+static int hf_IAX_IE_CALLINGTON = -1;
+static int hf_IAX_IE_CALLINGTNS = -1;
+static int hf_IAX_IE_SAMPLINGRATE = -1;
+static int hf_IAX_IE_CAUSECODE = -1;
+static int hf_IAX_IE_ENCRYPTION = -1;
+static int hf_IAX_IE_ENCKEY = -1;
+static int hf_IAX_IE_CODEC_PREFS = -1;
+static int hf_IAX_IE_RR_JITTER = -1;
+static int hf_IAX_IE_RR_LOSS = -1;
+static int hf_IAX_IE_RR_PKTS = -1;
+static int hf_IAX_IE_RR_DELAY = -1;
+static int hf_IAX_IE_RR_DROPPED = -1;
+static int hf_IAX_IE_RR_OOO = -1;
+
 static int hf_IAX_IE_DATAFORMAT = -1;
 static int hf_IAX_IE_UNKNOWN_BYTE = -1;
 static int hf_IAX_IE_UNKNOWN_I16 = -1;
@@ -193,6 +217,9 @@ static const value_string iax_iax_subclasses[] = {
   {32, "MWI"},
   {33, "UNSUPPORTED"},
   {34, "TRANSFER"},
+  {35, "PROVISION"},
+  {36, "FWDOWNL"},
+  {37, "FWDATA"},
   {0,NULL}
 };
 
@@ -243,6 +270,26 @@ static const value_string iax_ies_type[] = {
   {IAX_IE_PROVISIONING, "Provisioning info"},
   {IAX_IE_AESPROVISIONING, "AES Provisioning info"},
   {IAX_IE_DATETIME,"Date/Time"},
+  {IAX_IE_DEVICETYPE, "Device type"},
+  {IAX_IE_SERVICEIDENT, "Service Identifier"},
+  {IAX_IE_FIRMWAREVER, "Firmware revision"},
+  {IAX_IE_FWBLOCKDESC, "Firmware block description"},
+  {IAX_IE_FWBLOCKDATA, "Firmware block of data"},
+  {IAX_IE_PROVVER, "Provisioning version"},
+  {IAX_IE_CALLINGPRES, "Calling presentation"},
+  {IAX_IE_CALLINGTON, "Calling type of number"},
+  {IAX_IE_CALLINGTNS, "Calling transit network select"},
+  {IAX_IE_SAMPLINGRATE, "Supported sampling rates"},
+  {IAX_IE_CAUSECODE, "Hangup cause"},
+  {IAX_IE_ENCRYPTION, "Encryption format"},
+  {IAX_IE_ENCKEY, "Raw encryption key"},
+  {IAX_IE_CODEC_PREFS, "Codec preferences"},
+  {IAX_IE_RR_JITTER, "Received jitter"},
+  {IAX_IE_RR_LOSS, "Received loss"},
+  {IAX_IE_RR_PKTS, "Received frames"},
+  {IAX_IE_RR_DELAY, "Max playout delay in ms for received frames"},
+  {IAX_IE_RR_DROPPED, "Dropped frames"},
+  {IAX_IE_RR_OOO, "Frames received out of order"},
   {IAX_IE_DATAFORMAT, "Data call format"},
   {0,NULL}
 };
@@ -288,6 +335,54 @@ static const value_string iax_packet_types[] = {
   {0,NULL}
 };
   
+static const value_string iax_causecodes[] = {
+  {AST_CAUSE_UNALLOCATED, "Unallocated"},
+  {AST_CAUSE_NO_ROUTE_TRANSIT_NET, "No route transit net"},
+  {AST_CAUSE_NO_ROUTE_DESTINATION, "No route to destination"},
+  {AST_CAUSE_CHANNEL_UNACCEPTABLE, "Channel unacceptable"},
+  {AST_CAUSE_CALL_AWARDED_DELIVERED, "Call awarded delivered"},
+  {AST_CAUSE_NORMAL_CLEARING, "Normal clearing"},
+  {AST_CAUSE_USER_BUSY, "User busy"},
+  {AST_CAUSE_NO_USER_RESPONSE, "No user response"},
+  {AST_CAUSE_NO_ANSWER, "No answer"},
+  {AST_CAUSE_CALL_REJECTED, "Call rejected"},
+  {AST_CAUSE_NUMBER_CHANGED, "Number changed"},
+  {AST_CAUSE_DESTINATION_OUT_OF_ORDER, "Destination out of order"},
+  {AST_CAUSE_INVALID_NUMBER_FORMAT, "Invalid number format"},
+  {AST_CAUSE_FACILITY_REJECTED, "Facility rejected"},
+  {AST_CAUSE_RESPONSE_TO_STATUS_ENQUIRY, "Response to status inquiry"},
+  {AST_CAUSE_NORMAL_UNSPECIFIED, "Normal unspecified"},
+  {AST_CAUSE_NORMAL_CIRCUIT_CONGESTION, "Normal circuit congestion"},
+  {AST_CAUSE_NETWORK_OUT_OF_ORDER, "Network out of order"},
+  {AST_CAUSE_NORMAL_TEMPORARY_FAILURE, "Normal temporary failure"},
+  {AST_CAUSE_SWITCH_CONGESTION, "Switch congestion"},
+  {AST_CAUSE_ACCESS_INFO_DISCARDED, "Access info discarded"},
+  {AST_CAUSE_REQUESTED_CHAN_UNAVAIL, "Requested channel unavailable"},
+  {AST_CAUSE_PRE_EMPTED, "Preempted"},
+  {AST_CAUSE_FACILITY_NOT_SUBSCRIBED, "Facility not subscribed"},
+  {AST_CAUSE_OUTGOING_CALL_BARRED, "Outgoing call barred"},
+  {AST_CAUSE_INCOMING_CALL_BARRED, "Incoming call barred"},
+  {AST_CAUSE_BEARERCAPABILITY_NOTAUTH, "Bearer capability not authorized"},
+  {AST_CAUSE_BEARERCAPABILITY_NOTAVAIL, "Bearer capability not available"},
+  {AST_CAUSE_BEARERCAPABILITY_NOTIMPL, "Bearer capability not implemented"},
+  {AST_CAUSE_CHAN_NOT_IMPLEMENTED, "Channel not implemented"},
+  {AST_CAUSE_FACILITY_NOT_IMPLEMENTED, "Facility not implemented"},
+  {AST_CAUSE_INVALID_CALL_REFERENCE, "Invalid call reference"},
+  {AST_CAUSE_INCOMPATIBLE_DESTINATION, "Incompatible destination"},
+  {AST_CAUSE_INVALID_MSG_UNSPECIFIED, "Invalid message unspecified"},
+  {AST_CAUSE_MANDATORY_IE_MISSING, "Mandatory IE missing"},
+  {AST_CAUSE_MESSAGE_TYPE_NONEXIST, "Message type nonexistent"},
+  {AST_CAUSE_WRONG_MESSAGE, "Wrong message"},
+  {AST_CAUSE_IE_NONEXIST, "IE nonexistent"},
+  {AST_CAUSE_INVALID_IE_CONTENTS, "Invalid IE contents"},
+  {AST_CAUSE_WRONG_CALL_STATE, "Wrong call state"},
+  {AST_CAUSE_RECOVERY_ON_TIMER_EXPIRE, "Recovery on timer expire"},
+  {AST_CAUSE_MANDATORY_IE_LENGTH_ERROR, "Mandatory IE length error"},
+  {AST_CAUSE_PROTOCOL_ERROR, "Protocol error"},
+  {AST_CAUSE_INTERWORKING, "Interworking"},
+  {0, NULL}
+};
+
 
 /* ************************************************************************* */
 
@@ -1065,6 +1160,98 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_TRANSFERID, tvb,
 				   offset + 2, ies_len, FALSE);
 	      break;
+	    case IAX_IE_PROVISIONING:
+	      proto_tree_add_item (ies_tree, hf_IAX_IE_PROVISIONING, tvb,
+				  offset +2, ies_len, FALSE);
+	      break;
+	    case IAX_IE_AESPROVISIONING:
+	      proto_tree_add_item (ies_tree, hf_IAX_IE_AESPROVISIONING, tvb,
+				  offset +2, ies_len, FALSE);
+	      break;
+	    case IAX_IE_DATETIME:
+	      proto_tree_add_item (ies_tree, hf_IAX_IE_DATETIME, tvb,
+				  offset +2, ies_len, FALSE);
+	      break;
+	    case IAX_IE_DEVICETYPE:
+	      proto_tree_add_item (ies_tree, hf_IAX_IE_DEVICETYPE, tvb,
+				  offset +2, ies_len, FALSE);
+	      break;
+	    case IAX_IE_SERVICEIDENT:
+	      proto_tree_add_item (ies_tree, hf_IAX_IE_SERVICEIDENT, tvb,
+				  offset +2, ies_len, FALSE);
+	      break;
+	    case IAX_IE_FIRMWAREVER:
+	      proto_tree_add_item (ies_tree, hf_IAX_IE_FIRMWAREVER, tvb,
+				  offset +2, ies_len, FALSE);
+	      break;
+	    case IAX_IE_FWBLOCKDESC:
+	      proto_tree_add_item (ies_tree, hf_IAX_IE_FWBLOCKDESC, tvb,
+				  offset +2, ies_len, FALSE);
+	      break;
+	    case IAX_IE_FWBLOCKDATA:
+	      proto_tree_add_item (ies_tree, hf_IAX_IE_FWBLOCKDATA, tvb,
+				  offset +2, ies_len, FALSE);
+	      break;
+	    case IAX_IE_PROVVER:
+	      proto_tree_add_item (ies_tree, hf_IAX_IE_PROVVER, tvb,
+				  offset +2, ies_len, FALSE);
+	      break;
+	    case IAX_IE_CALLINGPRES:
+	      proto_tree_add_item (ies_tree, hf_IAX_IE_CALLINGPRES, tvb,
+				  offset +2, ies_len, FALSE);
+	      break;
+	    case IAX_IE_CALLINGTON:
+	      proto_tree_add_item (ies_tree, hf_IAX_IE_CALLINGTON, tvb,
+				  offset +2, ies_len, FALSE);
+	      break;
+	    case IAX_IE_CALLINGTNS:
+	      proto_tree_add_item (ies_tree, hf_IAX_IE_CALLINGTNS, tvb,
+				  offset +2, ies_len, FALSE);
+	      break;
+	    case IAX_IE_SAMPLINGRATE:
+	      proto_tree_add_item (ies_tree, hf_IAX_IE_SAMPLINGRATE, tvb,
+				  offset +2, ies_len, FALSE);
+	      break;
+	    case IAX_IE_CAUSECODE:
+	      proto_tree_add_item (ies_tree, hf_IAX_IE_CAUSECODE, tvb,
+				   offset +2, ies_len, FALSE);
+	      break;
+	    case IAX_IE_ENCRYPTION:
+	      proto_tree_add_item (ies_tree, hf_IAX_IE_ENCRYPTION, tvb,
+				  offset +2, ies_len, FALSE);
+	      break;
+	    case IAX_IE_ENCKEY:
+	      proto_tree_add_item (ies_tree, hf_IAX_IE_ENCKEY, tvb,
+				  offset +2, ies_len, FALSE);
+	      break;
+	    case IAX_IE_CODEC_PREFS:
+	      proto_tree_add_item (ies_tree, hf_IAX_IE_CODEC_PREFS, tvb,
+				  offset +2, ies_len, FALSE);
+	      break;
+	    case IAX_IE_RR_JITTER:
+	      proto_tree_add_item (ies_tree, hf_IAX_IE_RR_JITTER, tvb,
+				  offset +2, ies_len, FALSE);
+	      break;
+	    case IAX_IE_RR_LOSS:
+	      proto_tree_add_item (ies_tree, hf_IAX_IE_RR_LOSS, tvb,
+				  offset +2, ies_len, FALSE);
+	      break;
+	    case IAX_IE_RR_PKTS:
+	      proto_tree_add_item (ies_tree, hf_IAX_IE_RR_PKTS, tvb,
+				  offset +2, ies_len, FALSE);
+	      break;
+	    case IAX_IE_RR_DELAY:
+	      proto_tree_add_item (ies_tree, hf_IAX_IE_RR_DELAY, tvb,
+				  offset +2, ies_len, FALSE);
+	      break;
+	    case IAX_IE_RR_DROPPED:
+	      proto_tree_add_item (ies_tree, hf_IAX_IE_RR_DROPPED, tvb,
+				  offset +2, ies_len, FALSE);
+	      break;
+	    case IAX_IE_RR_OOO:
+	      proto_tree_add_item (ies_tree, hf_IAX_IE_RR_OOO, tvb,
+				  offset +2, ies_len, FALSE);
+	      break;
 	      
       case IAX_IE_DATAFORMAT:
 	proto_tree_add_item (ies_tree, hf_IAX_IE_DATAFORMAT, tvb,
@@ -1735,6 +1922,79 @@ proto_register_iax2 (void)
      {"Referring DNIS", "iax2.iax.rdnis", FT_STRING, BASE_NONE, NULL,
       0x0, "",
       HFILL}},
+
+    {&hf_IAX_IE_PROVISIONING,
+     {"Provisioning info","iax2.iax.provisioning", FT_STRING, BASE_NONE,
+       NULL, 0x0, "", HFILL}},
+
+    {&hf_IAX_IE_AESPROVISIONING,
+     {"AES Provisioning info","iax2.iax.aesprovisioning", FT_STRING, BASE_NONE,
+       NULL, 0x0, "", HFILL}},
+
+    {&hf_IAX_IE_DATETIME,
+     {"Date/Time", "iax2.iax.datetime", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}},
+
+    {&hf_IAX_IE_DEVICETYPE,
+     {"Device type", "iax2.iax.devicetype", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL}},
+
+    {&hf_IAX_IE_SERVICEIDENT,
+     {"Service identifier", "iax2.iax.serviceident", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL}},
+
+    {&hf_IAX_IE_FIRMWAREVER,
+     {"Firmware version", "iax2.iax.firmwarever", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}},
+
+    {&hf_IAX_IE_FWBLOCKDESC,
+     {"Firmware block description", "iax2.iax.fwblockdesc", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
+
+    {&hf_IAX_IE_FWBLOCKDATA,
+     {"Firmware block of data", "iax2.iax.fwblockdata", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL}},
+
+    {&hf_IAX_IE_PROVVER,
+     {"Provisioning version", "iax2.iax.provver", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
+
+    {&hf_IAX_IE_CALLINGPRES,
+     {"Calling presentation", "iax2.iax.callingpres", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}},
+
+    {&hf_IAX_IE_CALLINGTON,
+     {"Calling type of number", "iax2.iax.callington", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}},
+
+    {&hf_IAX_IE_CALLINGTNS,
+     {"Calling transit network select", "iax2.iax.callingtns", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}},
+
+    {&hf_IAX_IE_SAMPLINGRATE,
+     {"Supported sampling rates", "iax2.iax.samplingrate", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}},
+
+    {&hf_IAX_IE_CAUSECODE,
+     {"Hangup cause", "iax2.iax.causecode", FT_UINT8, BASE_HEX, VALS(iax_causecodes),
+       0x0, "", HFILL}},
+
+    {&hf_IAX_IE_ENCRYPTION,
+     {"Encryption format", "iax2.iax.encryption", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}},
+
+    {&hf_IAX_IE_ENCKEY,
+     {"Encryption key", "iax2.iax.enckey", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL}},
+
+    {&hf_IAX_IE_CODEC_PREFS,
+     {"Codec negotiation", "iax2.iax.codecprefs", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL}},
+
+    {&hf_IAX_IE_RR_JITTER,
+     {"Received jitter (as in RFC1889)", "iax2.iax.rrjitter", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
+
+    {&hf_IAX_IE_RR_LOSS,
+     {"Received loss (high byte loss pct, low 24 bits loss count, as in rfc1889)", "iax2.iax.rrloss",
+       FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
+
+    {&hf_IAX_IE_RR_PKTS,
+     {"Total frames received", "iax2.iax.rrpkts", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
+
+    {&hf_IAX_IE_RR_DELAY,
+     {"Max playout delay in ms for received frames", "iax2.iax.rrdelay", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}},
+
+    {&hf_IAX_IE_RR_DROPPED,
+     {"Dropped frames (presumably by jitterbuffer)", "iax2.iax.rrdropped", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
+
+    {&hf_IAX_IE_RR_OOO,
+     {"Frame received out of order", "iax2.iax.rrooo", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
 
     {&hf_IAX_IE_DATAFORMAT,
      {"Data call format", "iax2.iax.dataformat", FT_UINT32, BASE_HEX,

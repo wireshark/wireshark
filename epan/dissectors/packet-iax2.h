@@ -17,9 +17,9 @@
 #define _PACKET_IAX2_H
 
 /* Max version of IAX protocol we support */
-#define IAX_PROTO_VERSION 2
+#define IAX_PROTO_VERSION	2
 
-#define IAX_MAX_CALLS 32768
+#define IAX_MAX_CALLS		32768
 
 #define IAX_FLAG_FULL		0x8000
 
@@ -29,7 +29,7 @@
 
 #define IAX_MAX_SHIFT		0x1F
 
-#define IAX_WINDOW			64
+#define IAX_WINDOW		64
 
 #define AST_FRAME_DTMF      1       /* A DTMF digit, subclass is the digit */
 #define AST_FRAME_VOICE     2       /* Voice data, subclass is AST_FORMAT_* */
@@ -70,52 +70,121 @@
 #define IAX_COMMAND_TXREL	26	/* Transfer release */
 #define IAX_COMMAND_TXREJ	27	/* Transfer reject */
 #define IAX_COMMAND_QUELCH	28	/* Stop audio/video transmission */
-#define IAX_COMMAND_UNQUELCH 29	/* Resume audio/video transmission */
-#define IAX_COMMAND_POKE    30  /* Like ping, but does not require an open connection */
+#define IAX_COMMAND_UNQUELCH	29	/* Resume audio/video transmission */
+#define IAX_COMMAND_POKE	30	/* Like ping, but does not require an open connection */
 #define IAX_COMMAND_PAGE	31	/* Paging description */
-#define IAX_COMMAND_MWI	32	/* Stand-alone message waiting indicator */
+#define IAX_COMMAND_MWI		32	/* Stand-alone message waiting indicator */
 #define IAX_COMMAND_UNSUPPORT	33	/* Unsupported message received */
 #define IAX_COMMAND_TRANSFER	34	/* Request remote transfer */
+#define IAX_COMMAND_PROVISION   35      /* Provision device */
+#define IAX_COMMAND_FWDOWNL     36      /* Download firmware */
+#define IAX_COMMAND_FWDATA      37      /* Firmware Data */
 
 #define IAX_DEFAULT_REG_EXPIRE  60	/* By default require re-registration once per minute */
 
-#define IAX_LINGER_TIMEOUT		10 /* How long to wait before closing bridged call */
+#define IAX_LINGER_TIMEOUT	10	/* How long to wait before closing bridged call */
 
-#define IAX_DEFAULT_PORTNO		4569
+#define IAX_DEFAULT_PORTNO	4569
 
 /* IAX Information elements */
 #define IAX_IE_CALLED_NUMBER		1		/* Number/extension being called - string */
 #define IAX_IE_CALLING_NUMBER		2		/* Calling number - string */
-#define IAX_IE_CALLING_ANI			3		/* Calling number ANI for billing  - string */
-#define IAX_IE_CALLING_NAME			4		/* Name of caller - string */
+#define IAX_IE_CALLING_ANI		3		/* Calling number ANI for billing  - string */
+#define IAX_IE_CALLING_NAME		4		/* Name of caller - string */
 #define IAX_IE_CALLED_CONTEXT		5		/* Context for number - string */
-#define IAX_IE_USERNAME				6		/* Username (peer or user) for authentication - string */
-#define IAX_IE_PASSWORD				7		/* Password for authentication - string */
-#define IAX_IE_CAPABILITY			8		/* Actual codec capability - unsigned int */
-#define IAX_IE_FORMAT				9		/* Desired codec format - unsigned int */
-#define IAX_IE_LANGUAGE				10		/* Desired language - string */
-#define IAX_IE_VERSION				11		/* Protocol version - short */
-#define IAX_IE_ADSICPE				12		/* CPE ADSI capability - short */
-#define IAX_IE_DNID					13		/* Originally dialed DNID - string */
-#define IAX_IE_AUTHMETHODS			14		/* Authentication method(s) - short */
-#define IAX_IE_CHALLENGE			15		/* Challenge data for MD5/RSA - string */
-#define IAX_IE_MD5_RESULT			16		/* MD5 challenge result - string */
-#define IAX_IE_RSA_RESULT			17		/* RSA challenge result - string */
+#define IAX_IE_USERNAME			6		/* Username (peer or user) for authentication - string */
+#define IAX_IE_PASSWORD			7		/* Password for authentication - string */
+#define IAX_IE_CAPABILITY		8		/* Actual codec capability - unsigned int */
+#define IAX_IE_FORMAT			9		/* Desired codec format - unsigned int */
+#define IAX_IE_LANGUAGE			10		/* Desired language - string */
+#define IAX_IE_VERSION			11		/* Protocol version - short */
+#define IAX_IE_ADSICPE			12		/* CPE ADSI capability - short */
+#define IAX_IE_DNID			13		/* Originally dialed DNID - string */
+#define IAX_IE_AUTHMETHODS		14		/* Authentication method(s) - short */
+#define IAX_IE_CHALLENGE		15		/* Challenge data for MD5/RSA - string */
+#define IAX_IE_MD5_RESULT		16		/* MD5 challenge result - string */
+#define IAX_IE_RSA_RESULT		17		/* RSA challenge result - string */
 #define IAX_IE_APPARENT_ADDR		18		/* Apparent address of peer - struct sockaddr_in */
-#define IAX_IE_REFRESH				19		/* When to refresh registration - short */
-#define IAX_IE_DPSTATUS				20		/* Dialplan status - short */
-#define IAX_IE_CALLNO				21		/* Call number of peer - short */
-#define IAX_IE_CAUSE				22		/* Cause - string */
-#define IAX_IE_IAX_UNKNOWN			23		/* Unknown IAX command - byte */
-#define IAX_IE_MSGCOUNT				24		/* How many messages waiting - short */
-#define IAX_IE_AUTOANSWER			25		/* Request auto-answering -- none */
-#define IAX_IE_MUSICONHOLD			26		/* Request musiconhold with QUELCH -- none or string */
-#define IAX_IE_TRANSFERID			27		/* Transfer Request Identifier -- int */
-#define IAX_IE_RDNIS				28		/* Referring DNIS -- string */
-#define IAX_IE_PROVISIONING			29		/* Provisioning info */
-#define IAX_IE_AESPROVISIONING			30		/* AES Provisioning info */
-#define IAX_IE_DATETIME				31		/* Date/Time */
-#define IAX_IE_DATAFORMAT			255		/* Data call format -- iax_dataformat_t */
+#define IAX_IE_REFRESH			19		/* When to refresh registration - short */
+#define IAX_IE_DPSTATUS			20		/* Dialplan status - short */
+#define IAX_IE_CALLNO			21		/* Call number of peer - short */
+#define IAX_IE_CAUSE			22		/* Cause - string */
+#define IAX_IE_IAX_UNKNOWN		23		/* Unknown IAX command - byte */
+#define IAX_IE_MSGCOUNT			24		/* How many messages waiting - short */
+#define IAX_IE_AUTOANSWER		25		/* Request auto-answering -- none */
+#define IAX_IE_MUSICONHOLD		26		/* Request musiconhold with QUELCH -- none or string */
+#define IAX_IE_TRANSFERID		27		/* Transfer Request Identifier -- int */
+#define IAX_IE_RDNIS			28		/* Referring DNIS -- string */
+#define IAX_IE_PROVISIONING		29		/* Provisioning info */
+#define IAX_IE_AESPROVISIONING		30		/* AES Provisioning info */
+#define IAX_IE_DATETIME			31		/* Date/Time -- unsigned int */
+#define IAX_IE_DEVICETYPE		32		/* Device Type -- string */
+#define IAX_IE_SERVICEIDENT		33		/* Service Identifier -- string */
+#define IAX_IE_FIRMWAREVER		34		/* Firmware revision -- u16 */
+#define IAX_IE_FWBLOCKDESC		35		/* Firmware block description -- u32 */
+#define IAX_IE_FWBLOCKDATA		36		/* Firmware block of data -- raw */
+#define IAX_IE_PROVVER			37		/* Provisioning Version (u32) */
+#define IAX_IE_CALLINGPRES		38		/* Calling presentation (u8) */
+#define IAX_IE_CALLINGTON		39		/* Calling type of number (u8) */
+#define IAX_IE_CALLINGTNS		40		/* Calling transit network select (u16) */
+#define IAX_IE_SAMPLINGRATE		41		/* Supported sampling rates (u16) */
+#define IAX_IE_CAUSECODE		42		/* Hangup cause (u8) */
+#define IAX_IE_ENCRYPTION		43		/* Encryption format (u16) */
+#define IAX_IE_ENCKEY			44		/* Encryption key (raw) */
+#define IAX_IE_CODEC_PREFS		45		/* Codec Negotiation */
+#define IAX_IE_RR_JITTER		46		/* Received jitter (as in RFC1889) u32 */
+#define IAX_IE_RR_LOSS			47		/* Received loss (high byte loss pct, low 24 bits loss count, as in rfc1889 */
+#define IAX_IE_RR_PKTS			48		/* Received frames (total frames received) u32 */
+#define IAX_IE_RR_DELAY			49		/* Max playout delay for received frames (in ms) u16 */
+#define IAX_IE_RR_DROPPED		50		/* Dropped frames (presumably by jitterbuf) u32 */
+#define IAX_IE_RR_OOO			51		/* Frames received Out of Order u32 */
+#define IAX_IE_DATAFORMAT		255		/* Data call format -- iax_dataformat_t */
+
+/* hangup cause codes */
+#define AST_CAUSE_UNALLOCATED				1
+#define AST_CAUSE_NO_ROUTE_TRANSIT_NET			2
+#define AST_CAUSE_NO_ROUTE_DESTINATION			3
+#define AST_CAUSE_CHANNEL_UNACCEPTABLE			6
+#define AST_CAUSE_CALL_AWARDED_DELIVERED		7
+#define AST_CAUSE_NORMAL_CLEARING			16
+#define AST_CAUSE_USER_BUSY				17
+#define AST_CAUSE_NO_USER_RESPONSE			18
+#define AST_CAUSE_NO_ANSWER				19
+#define AST_CAUSE_CALL_REJECTED				21
+#define AST_CAUSE_NUMBER_CHANGED			22
+#define AST_CAUSE_DESTINATION_OUT_OF_ORDER		27
+#define AST_CAUSE_INVALID_NUMBER_FORMAT			28
+#define AST_CAUSE_FACILITY_REJECTED			29
+#define AST_CAUSE_RESPONSE_TO_STATUS_ENQUIRY		30
+#define AST_CAUSE_NORMAL_UNSPECIFIED			31
+#define AST_CAUSE_NORMAL_CIRCUIT_CONGESTION		34
+#define AST_CAUSE_NETWORK_OUT_OF_ORDER			38
+#define AST_CAUSE_NORMAL_TEMPORARY_FAILURE		41
+#define AST_CAUSE_SWITCH_CONGESTION			42
+#define AST_CAUSE_ACCESS_INFO_DISCARDED			43
+#define AST_CAUSE_REQUESTED_CHAN_UNAVAIL		44
+#define AST_CAUSE_PRE_EMPTED				45
+#define AST_CAUSE_FACILITY_NOT_SUBSCRIBED		50
+#define AST_CAUSE_OUTGOING_CALL_BARRED			52
+#define AST_CAUSE_INCOMING_CALL_BARRED			54
+#define AST_CAUSE_BEARERCAPABILITY_NOTAUTH		57
+#define AST_CAUSE_BEARERCAPABILITY_NOTAVAIL		58
+#define AST_CAUSE_BEARERCAPABILITY_NOTIMPL		65
+#define AST_CAUSE_CHAN_NOT_IMPLEMENTED			66
+#define AST_CAUSE_FACILITY_NOT_IMPLEMENTED		69
+#define AST_CAUSE_INVALID_CALL_REFERENCE		81
+#define AST_CAUSE_INCOMPATIBLE_DESTINATION		88
+#define AST_CAUSE_INVALID_MSG_UNSPECIFIED		95
+#define AST_CAUSE_MANDATORY_IE_MISSING			96
+#define AST_CAUSE_MESSAGE_TYPE_NONEXIST			97
+#define AST_CAUSE_WRONG_MESSAGE				98
+#define AST_CAUSE_IE_NONEXIST				99
+#define AST_CAUSE_INVALID_IE_CONTENTS			100
+#define AST_CAUSE_WRONG_CALL_STATE			101
+#define AST_CAUSE_RECOVERY_ON_TIMER_EXPIRE		102
+#define AST_CAUSE_MANDATORY_IE_LENGTH_ERROR		103
+#define AST_CAUSE_PROTOCOL_ERROR			111
+#define AST_CAUSE_INTERWORKING				127
 
 #define IAX_AUTH_PLAINTEXT			(1 << 0)
 #define IAX_AUTH_MD5				(1 << 1)
@@ -124,7 +193,7 @@
 #define IAX_META_TRUNK				1		/* Trunk meta-message */
 #define IAX_META_VIDEO				2		/* Video frame */
 
-#define IAX_DPSTATUS_EXISTS			(1 << 0)
+#define IAX_DPSTATUS_EXISTS		(1 << 0)
 #define IAX_DPSTATUS_CANEXIST		(1 << 1)
 #define IAX_DPSTATUS_NONEXISTANT	(1 << 2)
 #define IAX_DPSTATUS_IGNOREPAT		(1 << 14)
