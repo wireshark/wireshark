@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.11 2002/03/26 05:20:50 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.12 2002/04/03 23:32:23 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -919,6 +919,19 @@ static gint ett_PRINTER_INFO_1 = -1;
 static int prs_PRINTER_INFO_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			      proto_tree *tree, GList **dp_list, void **data)
 {
+	int struct_start = offset;
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Flags");
+	
+	offset = prs_relstr(tvb, offset, pinfo, tree, dp_list, struct_start,
+			    NULL, "Description");
+	
+	offset = prs_relstr(tvb, offset, pinfo, tree, dp_list, struct_start,
+			    NULL, "Name");
+	
+	offset = prs_relstr(tvb, offset, pinfo, tree, dp_list, struct_start,
+			    NULL, "Comment");
+	
 	return offset;
 }
 
@@ -966,6 +979,10 @@ static gint ett_PRINTER_INFO_3 = -1;
 static int prs_PRINTER_INFO_3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			      proto_tree *tree, GList **dp_list, void **data)
 {
+	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Flags");
+
+	offset = dissect_nt_sec_desc(tvb, pinfo, offset, tree, 0);
+
 	return offset;
 }
 
@@ -1666,8 +1683,18 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					   bd->tree, &dp_list, NULL);
 			break;
 			
+		case 1:
+			prs_PRINTER_INFO_1(bd->tvb, bd->offset, pinfo, 
+					   bd->tree, &dp_list, NULL);
+			break;
+			
 		case 2:
 			prs_PRINTER_INFO_2(bd->tvb, bd->offset, pinfo,
+					   bd->tree, &dp_list, NULL);
+			break;
+
+		case 3:
+			prs_PRINTER_INFO_3(bd->tvb, bd->offset, pinfo,
 					   bd->tree, &dp_list, NULL);
 			break;
 
