@@ -948,12 +948,12 @@ class EthCtx:
     #end out_field()
     def out_pdu(f):
       t = self.eth_hf[f]['ethtype']
-      out = 'static int dissect_'+f+'(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {\n'
+      out = 'static void dissect_'+f+'(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {\n'
       if (self.Ber()):
         par=(('FALSE', 'tvb', '0', 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
       else:
         par=(('tvb', '0', 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
-      out += self.eth_fn_call('dissect_%s_%s' % (self.eth_type[t]['proto'], t), ret='return',
+      out += self.eth_fn_call('dissect_%s_%s' % (self.eth_type[t]['proto'], t), ret='',
                               par=par)
       out += '}\n'
       return out
