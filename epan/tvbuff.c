@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.47 2003/06/12 08:33:31 guy Exp $
+ * $Id: tvbuff.c,v 1.48 2003/08/08 08:19:50 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -1746,6 +1746,8 @@ tvb_get_stringz(tvbuff_t *tvb, gint offset, gint *lengthp)
  * truncated in the buffer due to not having reached the terminating NUL.
  * In this way, it acts like snprintf().
  *
+ * bufsize MUST be greater than 0.
+ *
  * When processing a packet where the remaining number of bytes is less
  * than bufsize, an exception is not thrown if the end of the packet
  * is reached before the NUL is found. If no NUL is found before reaching
@@ -1767,10 +1769,11 @@ _tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint bufsize, guint8* buffer,
 
 	check_offset_length(tvb, offset, 0, &abs_offset, &junk_length);
 
-	if (bufsize == 0) {
-		*bytes_copied = 0;
-		return -1;
-	} else if (bufsize == 1) {
+	/* There must at least be room for the terminating NUL. */
+	g_assert(bufsize != 0);
+
+	/* If there's no room for anything else, just return the NUL. */
+	if (bufsize == 1) {
 		buffer[0] = 0;
 		*bytes_copied = 1;
 		return 0;
@@ -1850,8 +1853,6 @@ tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint bufsize, guint8* buffer)
 /* Like tvb_get_nstringz(), but never returns -1. The string is guaranteed to
  * have a terminating NUL. If the string was truncated when copied into buffer,
  * a NUL is placed at the end of buffer to terminate it.
- *
- * bufsize MUST be greater than 0.
  */
 gint
 tvb_get_nstringz0(tvbuff_t *tvb, gint offset, guint bufsize, guint8* buffer)
@@ -1859,10 +1860,6 @@ tvb_get_nstringz0(tvbuff_t *tvb, gint offset, guint bufsize, guint8* buffer)
 	gint	len, bytes_copied;
 
 	len = _tvb_get_nstringz(tvb, offset, bufsize, buffer, &bytes_copied);
-
-	if (len == 0) {
-		THROW(BoundsError);
-	}
 
 	if (len == -1) {
 		buffer[bufsize - 1] = 0;
