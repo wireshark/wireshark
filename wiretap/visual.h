@@ -5,10 +5,10 @@
  *
  * Based on the code that handles netmon files.
  *
- * $Id: visual.h,v 1.1 2001/12/04 22:28:19 guy Exp $
+ * $Id: visual.h,v 1.2 2001/12/05 21:42:42 guy Exp $
  *
  * Wiretap Library
- * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
+ * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
