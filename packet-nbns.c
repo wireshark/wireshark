@@ -3,7 +3,7 @@
  * to when it had only NBNS)
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.79 2002/08/28 21:00:22 jmayer Exp $
+ * $Id: packet-nbns.c,v 1.80 2002/09/12 00:10:58 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -424,8 +424,8 @@ dissect_nbns_query(tvbuff_t *tvb, int offset, int nbns_data_offset,
 }
 
 static void
-nbns_add_nbns_flags(proto_tree *nbns_tree, tvbuff_t *tvb, int offset,
-    gushort flags, int is_wack)
+nbns_add_nbns_flags(column_info *cinfo, proto_tree *nbns_tree, tvbuff_t *tvb, int offset,
+		    gushort flags, int is_wack)
 {
 	char buf[128+1];
 	guint16 opcode;
@@ -439,6 +439,11 @@ nbns_add_nbns_flags(proto_tree *nbns_tree, tvbuff_t *tvb, int offset,
 		strcat(buf, ", ");
 		strcat(buf, val_to_str(flags & F_RCODE, rcode_vals,
 		    "Unknown error"));
+
+		if ((flags & F_RCODE) && check_col(cinfo, COL_INFO))
+			col_append_fstr(cinfo, COL_INFO, ", %s",
+					val_to_str(flags & F_RCODE, rcode_vals,
+						   "Unknown error"));
 	}
 	tf = proto_tree_add_uint_format(nbns_tree, hf_nbns_flags,
 	    tvb, offset, 2, flags, "Flags: 0x%04x (%s)", flags, buf);
@@ -638,7 +643,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
 					break;
 				}
 				flags = tvb_get_ntohs(tvb, cur_offset);
-				nbns_add_nbns_flags(rr_tree, tvb, cur_offset,
+				nbns_add_nbns_flags(cinfo, rr_tree, tvb, cur_offset,
 				    flags, 1);
 				cur_offset += 2;
 				data_len -= 2;
@@ -1027,7 +1032,7 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(nbns_tree, hf_nbns_transaction_id, tvb,
 				    offset + NBNS_ID, 2, id);
 
-		nbns_add_nbns_flags(nbns_tree, tvb, offset + NBNS_FLAGS,
+		nbns_add_nbns_flags(pinfo->cinfo, nbns_tree, tvb, offset + NBNS_FLAGS,
 				    flags, 0);
 	}
 	quest = tvb_get_ntohs(tvb, offset + NBNS_QUEST);
