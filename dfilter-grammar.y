@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.27 1999/10/12 05:13:32 guy Exp $
+ * $Id: dfilter-grammar.y,v 1.28 1999/10/12 05:21:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -156,11 +156,10 @@ dfilter *global_df = NULL;
 
 %token <operand>	TOK_AND TOK_OR TOK_NOT TOK_XOR
 %token <operand>	TOK_EQ TOK_NE TOK_GT TOK_GE TOK_LT TOK_LE
-%token <operand>	TOK_TRUE TOK_FALSE
 
+%expect 4
 %left TOK_AND
-%left TOK_OR
-%left TOK_XOR
+%left TOK_OR TOK_XOR
 %nonassoc TOK_NOT
 
 %%
