@@ -980,6 +980,7 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 	  if test -x "$KRB5_CONFIG"
 	  then
 	    KRB5_FLAGS=`"$KRB5_CONFIG" --cflags`
+	    KRB5_LIBS=`"$KRB5_CONFIG" --libs`
 	    CFLAGS="$CFLAGS $KRB5_FLAGS"
 	    CPPFLAGS="$CPPFLAGS $KRB5_FLAGS"
 	    KRB5_LIBS=`"$KRB5_CONFIG" --libs`
@@ -1000,7 +1001,7 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 	    *-lcrypto*)
 		if test ! -z "$SSL_LIBS"
 		then
-		    KRB5_LIBS=`echo $KRB5_FLAGS | sed 's/-lcrypto//'`
+		    KRB5_LIBS=`echo $KRB5_LIBS | sed 's/-lcrypto//'`
 		    KRB5_LIBS="$KRB5_LIBS $SSL_LIBS"
 		else
 		    AC_MSG_ERROR([Kerberos library requires -lcrypto but --with-ssl not specified])
