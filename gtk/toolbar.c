@@ -2,7 +2,7 @@
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.c,v 1.17 2003/11/30 04:21:55 sharpe Exp $
+ * $Id: toolbar.c,v 1.18 2004/01/08 20:39:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,7 +67,9 @@
  * "ftp://ftp.gtk.org/pub/gtk/v2.0/gtk+-2.0.6.tar.bz2"
  * in the directory "gtk+-2.0.6\gtk\stock-icons" */
 #if GTK_MAJOR_VERSION < 2
+#ifdef HAVE_LIBPCAP
 #include "../image/toolbar/stock_stop_24.xpm"
+#endif /* HAVE_LIBPCAP */
 #include "../image/toolbar/stock_open_24.xpm"
 #include "../image/toolbar/stock_save_24.xpm"
 #include "../image/toolbar/stock_close_24.xpm"

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.348 2004/01/03 18:40:08 sharpe Exp $
+ * $Id: main.c,v 1.349 2004/01/08 20:39:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -166,7 +166,9 @@ static void console_log_handler(const char *log_domain,
     GLogLevelFlags log_level, const char *message, gpointer user_data);
 #endif
 
+#ifdef HAVE_LIBPCAP
 static gboolean list_link_layer_types;
+#endif
 
 static void create_main_window(gint, gint, gint, e_prefs*);
 
@@ -2777,9 +2779,6 @@ main(int argc, char *argv[])
       set_menus_for_capture_in_progress(FALSE);
     }
   }
-#else
-  set_menus_for_capture_in_progress(FALSE);
-#endif
 
   if (!start_capture && (cfile.cfilter == NULL || strlen(cfile.cfilter) == 0)) {
     if (cfile.cfilter) {
@@ -2787,6 +2786,10 @@ main(int argc, char *argv[])
     }
     cfile.cfilter = g_strdup(get_conn_cfilter());
   }
+#else
+  set_menus_for_capture_in_progress(FALSE);
+#endif
+
   gtk_main();
 
   /* If the last opened directory, or our geometry, has changed, save
