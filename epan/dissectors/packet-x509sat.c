@@ -52,6 +52,8 @@
 /* Initialize the protocol and registered fields */
 int proto_x509sat = -1;
 int hf_x509sat_countryName = -1;
+int hf_x509sat_organizationName = -1;
+/*aaa*/
 
 /*--- Included file: packet-x509sat-hf.c ---*/
 
@@ -70,6 +72,7 @@ static int hf_x509sat_approximateMatch = -1;      /* AttributeType */
 
 
 /* Initialize the subtree pointers */
+static gint ett_x509sat_DirectoryString = -1;
 
 /*--- Included file: packet-x509sat-ett.c ---*/
 
@@ -158,11 +161,72 @@ dissect_x509sat_CriteriaItem(gboolean implicit_tag, tvbuff_t *tvb, int offset, p
 
 
 
+
+
+static int DirectoryString_hf_index;
+
+static int
+dissect_printableString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ber_restricted_string(FALSE, BER_UNI_TAG_PrintableString, 
+              pinfo, tree, tvb, offset, DirectoryString_hf_index, NULL);
+}
+static int
+dissect_universalString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ber_restricted_string(FALSE, BER_UNI_TAG_UniversalString,
+              pinfo, tree, tvb, offset, DirectoryString_hf_index, NULL);
+}
+static int
+dissect_bmpString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ber_restricted_string(FALSE, BER_UNI_TAG_BMPString,
+              pinfo, tree, tvb, offset, DirectoryString_hf_index, NULL);
+}
+static int
+dissect_uTF8String(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ber_restricted_string(FALSE, BER_UNI_TAG_UTF8String,
+              pinfo, tree, tvb, offset, DirectoryString_hf_index, NULL);
+}
+
+static const value_string DirectoryString_vals[] = {
+  {   0, "printableString" },
+  {   1, "universalString" },
+  {   2, "bmpString" },
+  {   3, "uTF8String" },
+  { 0, NULL }
+};
+
+static ber_choice DirectoryString_choice[] = {
+/*XXX needs to add TeletexString */
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_printableString },
+  {   1, BER_CLASS_UNI, BER_UNI_TAG_UniversalString, BER_FLAGS_NOOWNTAG, dissect_universalString },
+  {   2, BER_CLASS_UNI, BER_UNI_TAG_BMPString, BER_FLAGS_NOOWNTAG, dissect_bmpString },
+  {   3, BER_CLASS_UNI, BER_UNI_TAG_UTF8String, BER_FLAGS_NOOWNTAG, dissect_uTF8String },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_x509sat_DirectoryString(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+  DirectoryString_hf_index = hf_index;
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                              DirectoryString_choice, -1, ett_x509sat_DirectoryString);
+
+  return offset;
+}
+
+
+
+
 static void
 dissect_x509sat_countryName_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	dissect_x509sat_CountryName(FALSE, tvb, 0, pinfo, tree, hf_x509sat_countryName);
 }
+
+static void
+dissect_x509sat_organizationName_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_organizationName);
+}
+/*bbb*/
 
 /*--- proto_register_x509sat ----------------------------------------------*/
 void proto_register_x509sat(void) {
@@ -173,6 +237,11 @@ void proto_register_x509sat(void) {
       { "countryName", "x509sat.countryName",
         FT_STRING, BASE_NONE, NULL, 0,
         "Country Name", HFILL }},
+    { &hf_x509sat_organizationName,
+      { "organizationName", "x509sat.organizationName",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Organization Name", HFILL }},
+/*ccc*/
 
 /*--- Included file: packet-x509sat-hfarr.c ---*/
 
@@ -208,6 +277,7 @@ void proto_register_x509sat(void) {
 
   /* List of subtrees */
   static gint *ett[] = {
+    &ett_x509sat_DirectoryString,
 
 /*--- Included file: packet-x509sat-ettarr.c ---*/
 
@@ -235,5 +305,7 @@ void proto_register_x509sat(void) {
 /*--- proto_reg_handoff_x509sat -------------------------------------------*/
 void proto_reg_handoff_x509sat(void) {
 	register_ber_oid_dissector("2.5.4.6", dissect_x509sat_countryName_callback, proto_x509sat, "id-at-countryName");
+	register_ber_oid_dissector("2.5.4.10", dissect_x509sat_organizationName_callback, proto_x509sat, "id-at-organizationName");
+/*ddd*/
 }
 

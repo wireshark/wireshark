@@ -37,14 +37,16 @@ IMPORTS
     FROM DirectoryAbstractService directoryAbstractService;
 
 -- Directory string type 
--- DirectoryString{INTEGER:maxSize} ::= CHOICE {
+-- XXX DirectoryString is handimplemented inside the template
+-- DirectoryString ::= CHOICE {
+--   XXX not implemented yet
 --   teletexString    TeletexString(SIZE (1..maxSize)),
---   printableString  PrintableString(SIZE (1..maxSize)),
---   universalString  UniversalString(SIZE (1..maxSize)),
---   bmpString        BMPString(SIZE (1..maxSize)),
---   uTF8String       UTF8String(SIZE (1..maxSize))
+--  printableString  PrintableString(SIZE (1..maxSize)),
+--  universalString  UniversalString(SIZE (1..maxSize)),
+--  bmpString        BMPString(SIZE (1..maxSize)),
+--  uTF8String       UTF8String(SIZE (1..maxSize))
 -- }
--- 
+--
 -- Attribute types 
 -- knowledgeInformation ATTRIBUTE ::= {
 --   WITH SYNTAX             DirectoryString {ub-knowledge-information}
@@ -993,9 +995,9 @@ id-at-countryName OBJECT IDENTIFIER ::= {id-at 6}
 -- id-at-collectiveStreetAddress OBJECT IDENTIFIER ::= {id-at 9 1}
 -- 
 -- id-at-encryptedCollectiveStreetAddress OBJECT IDENTIFIER ::= {id-at 9 1 2}
--- 
--- id-at-organizationName OBJECT IDENTIFIER ::= {id-at 10}
--- 
+
+id-at-organizationName OBJECT IDENTIFIER ::= {id-at 10}
+
 -- id-at-encryptedOrganizationName OBJECT IDENTIFIER ::= {id-at 10 2}
 -- 
 -- id-at-collectiveOrganizationName OBJECT IDENTIFIER ::= {id-at 10 1}
