@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.45 2002/08/03 10:48:46 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.46 2002/08/04 01:37:07 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,6 +70,7 @@ static int hf_netlogon_privilege_name = -1;
 static int hf_netlogon_systemflags = -1;
 static int hf_netlogon_pdc_connection_status = -1;
 static int hf_netlogon_tc_connection_status = -1;
+static int hf_netlogon_restart_state = -1;
 static int hf_netlogon_attrs = -1;
 static int hf_netlogon_count = -1;
 static int hf_netlogon_entries = -1;
@@ -165,6 +166,7 @@ static int hf_netlogon_database_id = -1;
 static int hf_netlogon_sync_context = -1;
 static int hf_netlogon_max_size = -1;
 static int hf_netlogon_max_log_size = -1;
+static int hf_netlogon_change_log_size = -1;
 static int hf_netlogon_dns_host = -1;
 static int hf_netlogon_num_pwd_pairs = -1;
 static int hf_netlogon_acct_expiry_time = -1;
@@ -3729,7 +3731,6 @@ netlogon_dissect_CONTROL_DATA_INFORMATION(tvbuff_t *tvb, int offset,
  * IDL      [out][ref] CONTROL_QUERY_INFORMATION *query
  * IDL );
  */
-
 static int
 netlogon_dissect_netlogoncontrol2_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
@@ -3821,6 +3822,182 @@ netlogon_dissect_netserverauthenticate2_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+
+/*
+ * IDL long NetDatabaseSync2(
+ * IDL      [in][string][ref] wchar_t *logonserver, # REF!!!
+ * IDL      [in][string][ref] wchar_t *computername,
+ * IDL      [in][ref] AUTHENTICATOR credential,
+ * IDL      [in][out][ref] AUTHENTICATOR return_authenticator,
+ * IDL      [in] long database_id,
+ * IDL      [in] short restart_state,
+ * IDL      [in][out][ref] long *sync_context,
+ * IDL      [in] long preferredmaximumlength,
+ * IDL      [out][unique] DELTA_ENUM_ARRAY *delta_enum_array
+ * IDL );
+ */
+static int
+netlogon_dissect_netdatabasesync2_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_REF,
+		"Server Handle", hf_netlogon_logonsrv_handle, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_REF,
+		"Computer Name", hf_netlogon_computer_name, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
+		"AUTHENTICATOR: credential", -1, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
+		"AUTHENTICATOR: return_authenticator", -1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_database_id, NULL);
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_restart_state, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_sync_context, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_max_size, NULL);
+
+	return offset;
+}
+
+static int
+netlogon_dissect_netdatabasesync2_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
+		"AUTHENTICATOR: return_authenticator", -1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_sync_context, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_DELTA_ENUM_ARRAY, NDR_POINTER_UNIQUE,
+		"DELTA_ENUM_ARRAY: deltas", -1, 0);
+
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
+
+	return offset;
+}
+
+
+/*
+ * IDL long NetDatabaseRedo(
+ * IDL      [in][string][ref] wchar_t *logonserver, # REF!!!
+ * IDL      [in][string][ref] wchar_t *computername,
+ * IDL      [in][ref] AUTHENTICATOR credential,
+ * IDL      [in][out][ref] AUTHENTICATOR return_authenticator,
+ * IDL      [in][ref][size_is(change_log_entry_size)] char *change_log_entry,
+ * IDL      [in] long change_log_entry_size,
+ * IDL      [out][unique] DELTA_ENUM_ARRAY *delta_enum_array
+ * IDL );
+ */
+static int
+netlogon_dissect_netlogondatabaseredo_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_REF,
+		"Server Handle", hf_netlogon_logonsrv_handle, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_REF,
+		"Computer Name", hf_netlogon_computer_name, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
+		"AUTHENTICATOR: credential", -1, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
+		"AUTHENTICATOR: return_authenticator", -1, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_BYTE_array, NDR_POINTER_REF,
+		"Change log entry: ", -1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_max_log_size, NULL);
+
+	return offset;
+}
+
+static int
+netlogon_dissect_netlogondatabaseredo_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
+		"AUTHENTICATOR: return_authenticator", -1, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_DELTA_ENUM_ARRAY, NDR_POINTER_UNIQUE,
+		"DELTA_ENUM_ARRAY: deltas", -1, 0);
+
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
+
+	return offset;
+}
+
+
+/* XXX NetMon does not recognize this as a valid function. Muddle however
+ * tells us what parameters it takes but not their names. 
+ * It looks similar to logoncontrol2.  perhaps it is logoncontrol3?
+ */
+/*
+ * IDL long NetFunction_12(
+ * IDL      [in][string][unique] wchar_t *logonserver,
+ * IDL      [in] long function_code,  
+ * IDL      [in] long level,
+ * IDL      [in][ref] CONTROL_DATA_INFORMATION *data,
+ * IDL      [out][ref] CONTROL_QUERY_INFORMATION *query
+ * IDL );
+ */
+static int
+netlogon_dissect_function_12_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_code, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_level, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_CONTROL_DATA_INFORMATION, NDR_POINTER_REF,
+		"CONTROL_DATA_INFORMATION: ", -1, 0);
+
+	return offset;
+}
+static int
+netlogon_dissect_function_12_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		netlogon_dissect_CONTROL_QUERY_INFORMATION, NDR_POINTER_REF,
+		"CONTROL_QUERY_INFORMATION:", -1, 0);
+
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
+
+	return offset;
+}
 
 
 
@@ -4603,145 +4780,6 @@ netlogon_dissect_TYPE_47(tvbuff_t *tvb, int offset,
 	}
 
 	proto_item_set_len(item, offset-old_offset);
-	return offset;
-}
-
-static int
-netlogon_dissect_netdatabasesync2_rqst(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
-{
-	offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
-		pinfo, tree, drep);
-
-	offset = netlogon_dissect_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
-		NDR_POINTER_REF, hf_netlogon_unknown_string, 0);
-
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
-		"AUTHENTICATOR: credential", -1, 0);
-
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
-		"AUTHENTICATOR: return_authenticator", -1, 0);
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_long, NULL);
-
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_short, NULL);
-
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_pointer_long, NDR_POINTER_REF,
-		"ULONG pointer: unknown_ULONG", hf_netlogon_unknown_long, 0);
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_long, NULL);
-
-	return offset;
-}
-
-
-static int
-netlogon_dissect_netdatabasesync2_reply(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
-{
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
-		"AUTHENTICATOR: return_authenticator", -1, 0);
-
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_pointer_long, NDR_POINTER_REF,
-		"ULONG pointer: unknown_ULONG", hf_netlogon_unknown_long, 0);
-
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_DELTA_ENUM_ARRAY, NDR_POINTER_UNIQUE,
-		"DELTA_ENUM_ARRAY: deltas", -1, 0);
-
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_netlogon_rc, NULL);
-
-	return offset;
-}
-
-static int
-netlogon_dissect_netlogondatabaseredo_rqst(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
-{
-	offset = netlogon_dissect_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
-		NDR_POINTER_REF, hf_netlogon_unknown_string, 0);
-
-	offset = netlogon_dissect_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
-		NDR_POINTER_REF, hf_netlogon_unknown_string, 0);
-
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
-		"AUTHENTICATOR: credential", -1, 0);
-
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
-		"AUTHENTICATOR: return_authenticator", -1, 0);
-
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_BYTE_array, NDR_POINTER_REF,
-		"BYTE pointer: unknown_BYTE", -1, 0);
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_long, NULL);
-
-	return offset;
-}
-
-
-static int
-netlogon_dissect_netlogondatabaseredo_reply(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
-{
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
-		"AUTHENTICATOR: return_authenticator", -1, 0);
-
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_DELTA_ENUM_ARRAY, NDR_POINTER_UNIQUE,
-		"DELTA_ENUM_ARRAY: deltas", -1, 0);
-
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_netlogon_rc, NULL);
-
-	return offset;
-}
-
-static int
-netlogon_dissect_function_12_rqst(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
-{
-	offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
-		pinfo, tree, drep);
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_long, NULL);
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_level, NULL);
-
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_CONTROL_DATA_INFORMATION, NDR_POINTER_REF,
-		"CONTROL_DATA_INFORMATION: ", -1, 0);
-
-	return offset;
-}
-
-
-static int
-netlogon_dissect_function_12_reply(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
-{
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_CONTROL_QUERY_INFORMATION, NDR_POINTER_REF,
-		"CONTROL_QUERY_INFORMATION:", -1, 0);
-
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_netlogon_rc, NULL);
-
 	return offset;
 }
 
@@ -5644,13 +5682,13 @@ static dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
 	{ NETLOGON_NETSERVERAUTHENTICATE2, "ServerAuthenticate2",
 		netlogon_dissect_netserverauthenticate2_rqst,
 		netlogon_dissect_netserverauthenticate2_reply },
-	{ NETLOGON_NETDATABASESYNC2, "NETDATABASESYNC2",
+	{ NETLOGON_NETDATABASESYNC2, "DatabaseSync2",
 		netlogon_dissect_netdatabasesync2_rqst,
 		netlogon_dissect_netdatabasesync2_reply },
 	{ NETLOGON_DATABASEREDO, "DatabaseRedo",
 		netlogon_dissect_netlogondatabaseredo_rqst,
 		netlogon_dissect_netlogondatabaseredo_reply },
-	{ NETLOGON_FUNCTION_12, "FUNCTION_12",
+	{ NETLOGON_FUNCTION_12, "UNKNOWN_FUNCTION_12",
 		netlogon_dissect_function_12_rqst,
 		netlogon_dissect_function_12_reply },
 	{ NETLOGON_NETTRUSTEDDOMAINLIST, "NETTRUSTEDDOMAINLIST",
@@ -5742,9 +5780,9 @@ static const value_string netlogon_opnum_vals[] = {
 	{ NETLOGON_GETANYDCNAME, "GetAnyDCName" },
 	{ NETLOGON_NETLOGONCONTROL2, "LogonControl2" },
 	{ NETLOGON_NETSERVERAUTHENTICATE2, "ServerAuthenticate2" },
-	{ NETLOGON_NETDATABASESYNC2, "NETDATABASESYNC2" },
+	{ NETLOGON_NETDATABASESYNC2, "DatabaseSync2" },
 	{ NETLOGON_DATABASEREDO, "DatabaseRedo" },
-	{ NETLOGON_FUNCTION_12, "FUNCTION_12" },
+	{ NETLOGON_FUNCTION_12, "UNKNOWN_FUNCTION_12" },
 	{ NETLOGON_NETTRUSTEDDOMAINLIST, "NETTRUSTEDDOMAINLIST" },
 	{ NETLOGON_DSRGETDCNAME2, "DSRGETDCNAME2" },
 	{ NETLOGON_FUNCTION_15, "FUNCTION_15" },
@@ -6165,6 +6203,10 @@ static hf_register_info hf[] = {
 		{ "Sec Chn Type", "netlogon.sec_chn_type", FT_UINT16, BASE_DEC, 
 		NULL, 0x0, "Secure Channel Type", HFILL }},
 
+	{ &hf_netlogon_restart_state,
+		{ "Restart State", "netlogon.restart_state", FT_UINT16, BASE_DEC, 
+		NULL, 0x0, "Restart State", HFILL }},
+
 	{ &hf_netlogon_delta_type,
 		{ "Delta Type", "netlogon.delta_type", FT_UINT16, BASE_DEC, 
 		VALS(delta_type_vals), 0x0, "Delta Type", HFILL }},
@@ -6248,6 +6290,10 @@ static hf_register_info hf[] = {
 	{ &hf_netlogon_max_log_size,
 		{ "Max Log Size", "netlogon.max_log_size", FT_UINT32, BASE_DEC, 
 		NULL, 0x0, "Max Size of log", HFILL }},
+
+	{ &hf_netlogon_change_log_size,
+		{ "Change Log Entry Size", "netlogon.change_log_size", FT_UINT32, BASE_DEC, 
+		NULL, 0x0, "Size of log entry change", HFILL }},
 
 	{ &hf_netlogon_pac_size,
 		{ "Pac Size", "netlogon.pac.size", FT_UINT32, BASE_DEC, 
