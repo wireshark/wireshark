@@ -1935,7 +1935,7 @@ class SequenceOfType (SqType):
     ef = ectx.field[f]['ethname']
     out = ''
     if (ectx.Ber()):
-      out = "static ber_sequence %s_sequence_of[1] = {\n" % (tname)
+      out = "static const ber_sequence %s_sequence_of[1] = {\n" % (tname)
       out += self.out_item(f, self.val, False, '', ectx)
       out += "};\n"
     out += ectx.eth_type_fn_hdr(tname)
@@ -1985,7 +1985,7 @@ class SetOfType (SqType):
     ef = ectx.field[f]['ethname']
     out = ''
     if (ectx.Ber()):
-      out = "static ber_sequence %s_set_of[1] = {\n" % (tname)
+      out = "static const ber_sequence %s_set_of[1] = {\n" % (tname)
       out += self.out_item(f, self.val, False, '', ectx)
       out += "};\n"
     out += ectx.eth_type_fn_hdr(tname)
