@@ -55,6 +55,7 @@ not continue properly and thus everything after this tree item will be
 just random dissection junk.
 
 
+
 What needs to be done?
 TODO:
 * Test the capture with as many different capture files as possible and verify
@@ -83,7 +84,7 @@ proper helper routines
  * Routines for H.245 packet dissection
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-h245.c,v 1.1 2003/07/04 09:24:00 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.2 2003/07/06 10:29:14 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -489,12 +490,15 @@ static int hf_h245_RequestChannelClose_reason = -1;
 static int hf_h245_CloseLogicalChannel_reason = -1;
 static int hf_h245_CloseLogicalChannel_source = -1;
 static int hf_h245_OpenLogicalChannelReject_cause = -1;
-static int hf_h245_OpenLogicalChannelAck_forwardMultiplexAckParameters = -1;
+static int hf_h245_forwardMultiplexAckParameters = -1;
 static int hf_h245_OpenLogicalChannelAck_reverseLogicalChannelParameters_multiplexParameters = -1;
 static int hf_h245_MulticastAddress = -1;
 static int hf_h245_UnicastAddress_iPSourceRouteAddress_routing = -1;
 static int hf_h245_UnicastAddress = -1;
-static int hf_h245_TransportAddress = -1;
+static int hf_h245_mediaControlChannel = -1;
+static int hf_h245_localAreaAddress = -1;
+static int hf_h245_mediaChannel = -1;
+static int hf_h245_signalAddress = -1;
 static int hf_h245_FECData_rfc2733_mode_separateStream = -1;
 static int hf_h245_FECData_rfc2733_mode = -1;
 static int hf_h245_FECData = -1;
@@ -1411,7 +1415,7 @@ static gint ett_h245_RequestChannelClose_reason = -1;
 static gint ett_h245_CloseLogicalChannel_reason = -1;
 static gint ett_h245_CloseLogicalChannel_source = -1;
 static gint ett_h245_OpenLogicalChannelReject_cause = -1;
-static gint ett_h245_OpenLogicalChannelAck_forwardMultiplexAckParameters = -1;
+static gint ett_h245_forwardMultiplexAckParameters = -1;
 static gint ett_h245_OpenLogicalChannelAck_reverseLogicalChannelParameters_multiplexParameters = -1;
 static gint ett_h245_MulticastAddress = -1;
 static gint ett_h245_UnicastAddress_iPSourceRouteAddress_routing = -1;
@@ -1628,7 +1632,7 @@ DEBUG_ENTRY("dissect_per_length_determinant");
 		return offset;
 	}
 	if((byte&0xc0)==0x80){
-		*length=(byte&0x7f);
+		*length=(byte&0x3f);
 		*length=((*length)<<8)+tvb_get_guint8(tvb, offset>>3);
 		offset+=8;
 		if(hf_index!=-1){
@@ -15323,9 +15327,30 @@ static per_choice_t TransportAddress_choice[] = {
 	{  0, NULL, 0, NULL }
 };
 static int
-dissect_h245_TransportAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h245_localAreaAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_TransportAddress, ett_h245_TransportAddress, TransportAddress_choice, "TransportAddress");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_localAreaAddress, ett_h245_TransportAddress, TransportAddress_choice, "localAreaAddress");
+
+	return offset;
+}
+static int
+dissect_h245_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_mediaChannel, ett_h245_TransportAddress, TransportAddress_choice, "mediaChannel");
+
+	return offset;
+}
+static int
+dissect_h245_mediaControlChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_mediaControlChannel, ett_h245_TransportAddress, TransportAddress_choice, "mediaControlChannel");
+
+	return offset;
+}
+static int
+dissect_h245_signalAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_signalAddress, ett_h245_TransportAddress, TransportAddress_choice, "signalAddress");
 
 	return offset;
 }
@@ -15334,7 +15359,7 @@ dissect_h245_TransportAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 static per_sequence_t MCLocationIndication_sequence[] = {
 	{ "signalAddress", EXTENSION_ROOT, NOT_OPTIONAL,
-		dissect_h245_TransportAddress },
+		dissect_h245_signalAddress },
 	{ NULL, 0, 0, NULL }
 };
 static int
@@ -15353,9 +15378,9 @@ static per_sequence_t H2250LogicalChannelAckParameters_sequence[] = {
 	{ "sessionID", EXTENSION_ROOT, OPTIONAL,
 		dissect_h245_sessionID_1_255 },
 	{ "mediaChannel", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_TransportAddress},
+		dissect_h245_mediaChannel },
 	{ "mediaControlChannel", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_TransportAddress },
+		dissect_h245_mediaControlChannel },
 	{ "dynamicRTPPayloadType", EXTENSION_ROOT, OPTIONAL,
 		dissect_h245_dynamicRTPPayloadType },
 	{ "flowControlToZero", NOT_EXTENSION_ROOT, NOT_OPTIONAL,
@@ -15375,19 +15400,19 @@ dissect_h245_H2250LogicalChannelAckParameters(tvbuff_t *tvb, int offset, packet_
 
 
 
-static const value_string OpenLogicalChannelAck_forwardMultiplexAckParameters_vals[] = {
+static const value_string forwardMultiplexAckParameters_vals[] = {
 	{  0, "h2250LogicalChannelAckParameters" },
 	{  0, NULL }
 };
-static per_choice_t OpenLogicalChannelAck_forwardMultiplexAckParameters_choice[] = {
+static per_choice_t forwardMultiplexAckParameters_choice[] = {
 	{  0, "h2250LogicalChannelAckParameters", EXTENSION_ROOT,
 		dissect_h245_H2250LogicalChannelAckParameters },
 	{  0, NULL, 0, NULL }
 };
 static int
-dissect_h245_OpenLogicalChannelAck_forwardMultiplexAckParameters(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h245_forwardMultiplexAckParameters(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_OpenLogicalChannelAck_forwardMultiplexAckParameters, ett_h245_OpenLogicalChannelAck_forwardMultiplexAckParameters, OpenLogicalChannelAck_forwardMultiplexAckParameters_choice, "forwardMultiplexAckParameters");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_forwardMultiplexAckParameters, ett_h245_forwardMultiplexAckParameters, forwardMultiplexAckParameters_choice, "forwardMultiplexAckParameters");
 
 	return offset;
 }
@@ -17727,11 +17752,11 @@ static per_sequence_t H2250LogicalChannelParameters_sequence[] = {
 	{ "associatedSessionID", EXTENSION_ROOT, OPTIONAL,
 		dissect_h245_associatedSessionID },
 	{ "mediaChannel", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_TransportAddress },
+		dissect_h245_mediaChannel },
 	{ "mediaGuaranteedDelivery", EXTENSION_ROOT, OPTIONAL,
 		dissect_h245_mediaGuaranteedDelivery },
 	{ "mediaControlChannel", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_TransportAddress },
+		dissect_h245_mediaControlChannel },
 	{ "mediaControlGuaranteedDelivery", EXTENSION_ROOT, OPTIONAL,
 		dissect_h245_mediaControlGuaranteedDelivery },
 	{ "silenceSuppression", EXTENSION_ROOT, OPTIONAL, 
@@ -19041,7 +19066,7 @@ static per_choice_t NetworkAccessParameters_networkAddress_choice[] = {
 	{  1, "e164Address", EXTENSION_ROOT,
 		dissect_h245_e164Address },
 	{  2, "localAreaAddress", EXTENSION_ROOT, 
-		dissect_h245_TransportAddress },
+		dissect_h245_localAreaAddress },
 	{  0, NULL, 0, NULL }
 };
 static int
@@ -19113,7 +19138,7 @@ static per_sequence_t OpenLogicalChannelAck_sequence[] = {
 	{ "separateStack", NOT_EXTENSION_ROOT, OPTIONAL,
 		dissect_h245_NetworkAccessParameters },
 	{ "forwardMultiplexAckParameters", NOT_EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_OpenLogicalChannelAck_forwardMultiplexAckParameters},
+		dissect_h245_forwardMultiplexAckParameters},
 	{ "encryptionSync", NOT_EXTENSION_ROOT, OPTIONAL,
 		dissect_h245_EncryptionSync},
 	{ NULL, 0, 0, NULL }
@@ -19584,11 +19609,11 @@ static per_sequence_t CommunicationModeTableEntry_sequence[] = {
 	{ "dataType", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h245_CommunicationModeTableEntry_dataType },
 	{ "mediaChannel", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_TransportAddress },
+		dissect_h245_mediaChannel },
 	{ "mediaGuaranteedDelivery", EXTENSION_ROOT, OPTIONAL, 
 		dissect_h245_mediaGuaranteedDelivery },
 	{ "mediaControlChannel", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_TransportAddress },
+		dissect_h245_mediaControlChannel },
 	{ "mediaControlGuaranteedDelivery", EXTENSION_ROOT, OPTIONAL, 
 		dissect_h245_mediaControlGuaranteedDelivery },
 	{ "redundancyEncoding", NOT_EXTENSION_ROOT, OPTIONAL,
@@ -20968,9 +20993,9 @@ proto_register_h245(void)
 	{ &hf_h245_OpenLogicalChannelReject_cause,
 		{ "OpenLogicalChannelReject_cause type", "h245.OpenLogicalChannelReject_cause_type", FT_UINT32, BASE_DEC,
 		VALS(OpenLogicalChannelReject_cause_vals), 0, "Type of OpenLogicalChannelReject_cause choice", HFILL }},
-	{ &hf_h245_OpenLogicalChannelAck_forwardMultiplexAckParameters,
-		{ "OpenLogicalChannelAck_forwardMultiplexAckParameters type", "h245.OpenLogicalChannelAck_forwardMultiplexAckParameters_type", FT_UINT32, BASE_DEC,
-		VALS(OpenLogicalChannelAck_forwardMultiplexAckParameters_vals), 0, "Type of OpenLogicalChannelAck_forwardMultiplexAckParameters choice", HFILL }},
+	{ &hf_h245_forwardMultiplexAckParameters,
+		{ "forwardMultiplexAckParameters type", "h245.forwardMultiplexAckParameters_type", FT_UINT32, BASE_DEC,
+		VALS(forwardMultiplexAckParameters_vals), 0, "Type of forwardMultiplexAckParameters choice", HFILL }},
 	{ &hf_h245_OpenLogicalChannelAck_reverseLogicalChannelParameters_multiplexParameters,
 		{ "OpenLogicalChannelAck_reverseLogicalChannelParameters_multiplexParameters type", "h245.OpenLogicalChannelAck_reverseLogicalChannelParameters_multiplexParameters_type", FT_UINT32, BASE_DEC,
 		VALS(OpenLogicalChannelAck_reverseLogicalChannelParameters_multiplexParameters_vals), 0, "Type of OpenLogicalChannelAck_reverseLogicalChannelParameters_multiplexParameters choice", HFILL }},
@@ -20983,9 +21008,18 @@ proto_register_h245(void)
 	{ &hf_h245_UnicastAddress,
 		{ "UnicastAddress type", "h245.UnicastAddress_type", FT_UINT32, BASE_DEC,
 		VALS(UnicastAddress_vals), 0, "Type of UnicastAddress choice", HFILL }},
-	{ &hf_h245_TransportAddress,
-		{ "TransportAddress type", "h245.TransportAddress_type", FT_UINT32, BASE_DEC,
-		VALS(TransportAddress_vals), 0, "Type of TransportAddress choice", HFILL }},
+	{ &hf_h245_mediaControlChannel,
+		{ "mediaControlChannel type", "h245.mediaControlChannel_type", FT_UINT32, BASE_DEC,
+		VALS(TransportAddress_vals), 0, "Type of mediaControlChannel choice", HFILL }},
+	{ &hf_h245_mediaChannel,
+		{ "mediaChannel type", "h245.mediaChannel_type", FT_UINT32, BASE_DEC,
+		VALS(TransportAddress_vals), 0, "Type of mediaChannel choice", HFILL }},
+	{ &hf_h245_localAreaAddress,
+		{ "localAreaAddress type", "h245.localAreaAddress_type", FT_UINT32, BASE_DEC,
+		VALS(TransportAddress_vals), 0, "Type of localAreaAddress choice", HFILL }},
+	{ &hf_h245_signalAddress,
+		{ "signalAddress type", "h245.signalAddress_type", FT_UINT32, BASE_DEC,
+		VALS(TransportAddress_vals), 0, "Type of signalAddress choice", HFILL }},
 	{ &hf_h245_FECData_rfc2733_mode_separateStream,
 		{ "FECData_rfc2733_mode_separateStream type", "h245.FECData_rfc2733_mode_separateStream_type", FT_UINT32, BASE_DEC,
 		VALS(FECData_rfc2733_mode_separateStream_vals), 0, "Type of FECData_rfc2733_mode_separateStream choice", HFILL }},
@@ -23021,7 +23055,7 @@ proto_register_h245(void)
 		&ett_h245_CloseLogicalChannel_reason,
 		&ett_h245_CloseLogicalChannel_source,
 		&ett_h245_OpenLogicalChannelReject_cause,
-		&ett_h245_OpenLogicalChannelAck_forwardMultiplexAckParameters,
+		&ett_h245_forwardMultiplexAckParameters,
 		&ett_h245_OpenLogicalChannelAck_reverseLogicalChannelParameters_multiplexParameters,
 		&ett_h245_MulticastAddress,
 		&ett_h245_UnicastAddress_iPSourceRouteAddress_routing,
@@ -23161,6 +23195,7 @@ proto_reg_handoff_h245(void)
 
 
 	dissector_add_handle("tcp.port", h245_handle);
+	dissector_add_handle("udp.port", MultimediaSystemControlMessage_handle);
 /*qqq
 	dissector_handle_t h245_handle;
 	offset=dissect_h245_MultimediaSystemControlMessage(tvb, offset, pinfo, tr);
