@@ -1,7 +1,7 @@
 /* packet-gryphon.c
  * Definitions for Gryphon packet disassembly structures and routines
  *
- * $Id: packet-gryphon.h,v 1.2 2000/11/01 00:16:18 guy Exp $
+ * $Id: packet-gryphon.h,v 1.3 2001/04/25 06:14:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
@@ -363,62 +363,10 @@
     memcpy (dest, src, size);	    	    \
     *((dest)+size) = 0;
 
-#define BUMP(ptr1, ptr2, size)	    	    \
-    ptr1 += size;   	    	    	    \
-    ptr2 += size;
-
-
 
 typedef struct val_str_dsp {
     int     value;
     char    *strptr;
-    void    (*cmd_fnct) (int, const u_char**, const u_char*, int*, int, proto_tree*);
-    void    (*rsp_fnct) (int, const u_char**, const u_char*, int*, int, proto_tree*);
+    int     (*cmd_fnct)(tvbuff_t *, int, int, int, proto_tree*);
+    int     (*rsp_fnct)(tvbuff_t *, int, int, int, proto_tree*);
 } val_str_dsp;
-
-void decode_command (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void decode_response (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void decode_data (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void decode_event (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void cmd_init (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void resp_time (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void cmd_setfilt (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void cmd_ioctl (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void cmd_addfilt (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void resp_addfilt (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void cmd_modfilt (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void resp_filthan (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void dfiltmode (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void filtmode (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void resp_events (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void cmd_register (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void resp_register (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void resp_getspeeds (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void cmd_sort (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void cmd_optimize (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void resp_config (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void cmd_sched (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void resp_blm_data (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void resp_blm_stat (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void cmd_addresp (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void resp_addresp (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void cmd_modresp (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void resp_resphan (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void resp_sched (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void cmd_desc (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void resp_desc (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void cmd_upload (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void cmd_delete (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void cmd_list (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void resp_list (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void cmd_start (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void resp_start (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void resp_status (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void cmd_options (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void cmd_files (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void resp_files (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void eventnum (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void speed (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void filter_block (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void blm_mode (int, const u_char**, const u_char*, int*, int, proto_tree*);
-void cmd_usdt (int, const u_char**, const u_char*, int*, int, proto_tree*);
