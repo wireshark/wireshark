@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.14.2.18 2002/03/04 05:35:04 gram Exp $
+$Id: ncp2222.py,v 1.14.2.19 2002/03/04 06:00:28 gram Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -876,8 +876,8 @@ class nstring16(Type, nstring):
 
 	type	= "nstring16"
 	ftype	= "FT_UINT_STRING"
-	def __init__(self, abbrev, descr):
-		Type.__init__(self, abbrev, descr, 2)
+	def __init__(self, abbrev, descr, endianness = LE):
+		Type.__init__(self, abbrev, descr, 2, endianness)
 
 class nstring32(Type, nstring):
 	"""A string of up to (2^32)-1 characters. The first byte
@@ -887,8 +887,8 @@ class nstring32(Type, nstring):
 
 	type	= "nstring32"
 	ftype	= "FT_UINT_STRING"
-	def __init__(self, abbrev, descr):
-		Type.__init__(self, abbrev, descr, 4)
+	def __init__(self, abbrev, descr, endianness = LE):
+		Type.__init__(self, abbrev, descr, 4, endianness)
 
 class fw_string(Type):
 	"""A fixed-width string of n bytes."""
@@ -1074,7 +1074,8 @@ AccessControl 			= val_string8("access_control", "Access Control", [
 	[ 0x05, "TTS holding detach" ],
 	[ 0x06, "TTS holding open" ],
 ])
-AccessDate 			= uint16("access_date", "Access Date")
+AccessDate 			= uint16("access_date", "Access Date", LE)
+AccessDate.NWDate()
 AccessMode 			= bitfield8("access_mode", "Access Mode", [
 	bf_boolean8(0x01, "acc_mode_read", "Read Access"),
 	bf_boolean8(0x02, "acc_mode_write", "Write Access"),
@@ -1137,7 +1138,7 @@ ArchivedTime			= uint16("archived_time", "Archived Time", LE)
 ArchivedTime.NWTime()
 ArchivedDate			= uint16("archived_date", "Archived Date", LE)
 ArchivedDate.NWDate()
-ArchivedDateAndTime		= uint32("archived_date_and_time", "Archived Date & Time")
+#ArchivedDateAndTime		= uint32("archived_date_and_time", "Archived Date & Time")
 ArchiverID			= uint32("archiver_id", "Archiver ID")
 ArchiverID.Display("BASE_HEX")
 AssociatedNameSpace		= uint8("associated_name_space", "Associated Name Space")
@@ -1166,6 +1167,8 @@ AttributesDefLow		= bitfield8("attr_def_low", "Attributes", [
 	bf_boolean8(0x80, "att_def_shareable", "Shareable"),
 ])
 AttributeValidFlag 		= uint32("attribute_valid_flag", "Attribute Valid Flag")
+AuditFileVersionDate            = uint16("audit_file_ver_date", "Audit File Version Date",LE)
+AuditFileVersionDate.NWDate()
 AuditFlag			= val_string8("audit_flag", "Audit Flag", [
 	[ 0x00, "Do NOT audit object" ],
 	[ 0x01, "Audit object" ],
@@ -1178,6 +1181,8 @@ AuditIDType			= val_string16("audit_id_type", "Audit ID Type", [
 	[ 0x0000, "Volume" ],
 	[ 0x0001, "Container" ],
 ])
+AuditVersionDate                = uint16("audit_ver_date", "Auditing Version Date",LE)
+AuditVersionDate.NWDate()
 AvailableBlocks			= uint32("available_blocks", "Available Blocks")
 AvailableClusters		= uint16("available_clusters", "Available Clusters")
 AvailableDirectorySlots		= uint16("available_directory_slots", "Available Directory Slots")
@@ -1369,7 +1374,7 @@ CPUType				= val_string8("cpu_type", "CPU Type", [
 ])    
 CreationDate 			= uint16("creation_date", "Creation Date", LE)
 CreationDate.NWDate()
-CreationDateAndTime		= uint32("creation_date_and_time", "Creation Date & Time")
+#CreationDateAndTime		= uint32("creation_date_and_time", "Creation Date & Time")
 CreationTime			= uint16("creation_time", "Creation Time", LE)
 CreationTime.NWTime()
 CreatorID			= uint32("creator_id", "Creator ID")
@@ -1435,10 +1440,13 @@ DayOfWeek			= val_string8("s_day_of_week", "Day of Week", [
 DeadMirrorTable 		= bytes("dead_mirror_table", "Dead Mirror Table", 32)
 DefinedDataStreams		= uint8("defined_data_streams", "Defined Data Streams")
 DefinedNameSpaces		= uint8("definded_name_spaces", "Defined Name Spaces")
-DeletedDate			= uint16("deleted_date", "Deleted Date")
-DeletedFileTime			= uint32( "deleted_file_time", "Deleted Time")
-DeletedDateAndTime		= uint32( "deleted_date_and_time", "Deleted Date & Time")
-DeletedTime			= uint16("deleted_time", "Deleted Time")
+DeletedDate			= uint16("deleted_date", "Deleted Date", LE)
+DeletedDate.NWDate()
+DeletedFileTime			= uint32( "deleted_file_time", "Deleted File Time", LE)
+DeletedFileTime.Display("BASE_HEX")
+#DeletedDateAndTime		= uint32( "deleted_date_and_time", "Deleted Date & Time")
+DeletedTime			= uint16("deleted_time", "Deleted Time", LE)
+DeletedTime.NWTime()
 DeletedID			= uint32( "delete_id", "Deleted ID")
 DeletedID.Display("BASE_HEX")
 DeleteExistingFileFlag		= val_string8("delete_existing_file_flag", "Delete Existing File Flag", [
@@ -1474,6 +1482,8 @@ DetachForBadConnectionNumber 	= uint16("detach_for_bad_connection_number", "Deta
 DirHandle			= uint8("dir_handle", "Directory Handle")
 DirHandleName			= uint8("dir_handle_name", "Handle Name")
 DirHandleLong			= uint32("dir_handle_long", "Directory Handle")
+DirectoryAccessRights           = uint8("directory_access_rights", "Directory Access Rights")
+DirectoryAttributes             = uint8("directory_attributes", "Directory Attributes")
 DirectoryBase 			= uint16("dir_base", "Directory Base")
 DirectoryBase.Display("BASE_HEX")
 DirectoryCount			= uint16("dir_count", "Directory Count")
@@ -1483,12 +1493,14 @@ DirectoryEntryNumberWord 	= uint16("directory_entry_number_word", "Directory Ent
 DirectoryID			= uint16("directory_id", "Directory ID")
 DirectoryID.Display("BASE_HEX")
 DirectoryName                   = fw_string("directory_name", "Directory Name",12)
+DirectoryName14                 = fw_string("directory_name_14", "Directory Name", 14)
 DirectoryNameLen                = uint8("directory_name_len", "Directory Name Length")
 DirectoryNumber			= uint32("directory_number", "Directory Number")
 DirectoryNumber.Display("BASE_HEX")
 DirectoryPath			= fw_string("directory_path", "Directory Path", 16)
 DirectoryServicesObjectID	= uint32("directory_services_object_id", "Directory Services Object ID", LE)
 DirectoryServicesObjectID.Display("BASE_HEX")
+DirectoryStamp                  = uint16("directory_stamp", "Directory Stamp (0xD1D1)")
 DirtyCacheBuffers 		= uint16("dirty_cache_buffers", "Dirty Cache Buffers")
 DiskChannelNumber		= uint8("disk_channel_number", "Disk Channel Number")
 DiskChannelTable 		= val_string8("disk_channel_table", "Disk Channel Table", [
@@ -1775,10 +1787,10 @@ EAFlags				= val_string16("ea_flags", "EA Flags", [
 ])
 EAHandle			= uint32("ea_handle", "EA Handle")
 EAHandleOrNetWareHandleOrVolume	= uint32("ea_handle_or_netware_handle_or_volume", "EAHandle or NetWare Handle or Volume (see EAFlags)")
-EAKeyLength			= uint16("ea_key_length", "EA Key Length")
+EAKey			        = nstring16("ea_key", "EA Key")
 EAKeySize			= uint32("ea_key_size", "Key Size", LE)
 EAKeySizeDuplicated		= uint32("ea_key_size_duplicated", "Key Size Duplicated")
-EAValueLength			= uint16("ea_value_length", "EA Value Length")
+EAValue 			= nstring16("ea_value", "EA Value")
 EchoSocket			= uint16("echo_socket", "Echo Socket")
 EchoSocket.Display('BASE_HEX')
 EffectiveRights 		= bitfield8("effective_rights", "Effective Rights", [
@@ -1833,7 +1845,8 @@ FATScanErrors			= uint16("fat_scan_errors", "FAT Scan Errors")
 FATWriteErrors			= uint16("fat_write_errors", "FAT Write Errors")
 FieldsLenTable			= bytes("fields_len_table", "Fields Len Table", 32)
 FileCount			= uint16("file_count", "File Count")
-FileDate			= uint16("file_date", "File Date")
+FileDate			= uint16("file_date", "File Date", LE)
+FileDate.NWDate()
 FileDirWindow			= uint16("file_dir_win", "File/Dir Window")
 FileDirWindow.Display("BASE_HEX")
 FileExecuteType 		= uint8("file_execute_type", "File Execute Type")
@@ -1986,7 +1999,8 @@ FileOffset			= uint32("file_offset", "File Offset")
 FilePath			= nstring8("file_path", "File Path")
 FileSize			= uint32("file_size", "File Size")
 FileSystemID			= uint8("file_system_id", "File System ID")
-FileTime			= uint16("file_time", "File Time")
+FileTime			= uint16("file_time", "File Time", LE)
+FileTime.NWTime()
 FileWriteFlags			= val_string8("file_write_flags", "File Write Flags", [
 	[ 0x01, "Writing" ],
 	[ 0x02, "Write aborted" ],
@@ -2356,7 +2370,7 @@ LANdriverSlot                   = uint16("lan_drv_slot", "LAN Driver Slot", LE)
 LANdriverSrcRouting             = uint32("lan_drv_src_route", "LAN Driver Source Routing", LE)
 LANdriverTransportTime          = uint16("lan_drv_trans_time", "LAN Driver Transport Time", LE)
 LastAccessedDate 		= uint16("last_access_date", "Last Access Date", LE)
-LastAccessedDate.Display("BASE_HEX")
+LastAccessedDate.NWDate()
 LastGarbCollect			= uint32("last_garbage_collect", "Last Garbage Collection", LE)
 LastInstance			= uint32("last_instance", "Last Instance")
 LastRecordSeen			= uint16("last_record_seen", "Last Record Seen")
@@ -2468,7 +2482,7 @@ MaxNumOfSpoolPr			= uint32("max_num_of_spool_pr", "Maximum Number Of Spool Print
 MaxNumOfStacks			= uint32("max_num_of_stacks", "Maximum Number Of Stacks", LE)
 MaxNumOfUsers			= uint32("max_num_of_users", "Maximum Number Of Users", LE)
 MaxNumOfVol			= uint32("max_num_of_vol", "Maximum Number of Volumes", LE)
-MaxSpace			= uint32("maxspace", "Maximum Space")
+MaxSpace			= uint32("maxspace", "Maximum Space", LE)
 MaxUsedDynamicSpace 		= uint32("max_used_dynamic_space", "Max Used Dynamic Space")
 MediaList                       = uint32("media_list", "Media List", LE)
 MediaListCount                  = uint32("media_list_count", "Media List Count", LE)
@@ -2749,6 +2763,7 @@ NDSStatus			= uint32("nds_status", "NDS Status")
 NetBIOSBroadcastWasPropogated	= uint32("netbios_broadcast_was_propogated", "NetBIOS Broadcast Was Propogated")
 NetIDNumber                     = uint32("net_id_number", "Net ID Number")
 NetIDNumber.Display("BASE_HEX")
+NetAddress                      = nstring32("address", "Address")
 NetStatus                       = uint16("net_status", "Network Status", LE)
 NetWareAccessHandle		= bytes("netware_access_handle", "NetWare Access Handle", 6)
 NetworkAddress			= uint32("network_address", "Network Address")
@@ -3257,6 +3272,7 @@ SearchInstance				= uint32("search_instance", "Search Instance")
 SearchNumber                            = uint32("search_number", "Search Number", LE)
 SearchPattern				= nstring8("search_pattern", "Search Pattern")
 SearchSequence				= bytes("search_sequence", "Search Sequence", 9)
+SearchSequenceWord                      = uint16("search_sequence_word", "Search Sequence")
 Second					= uint8("s_second", "Seconds")
 SecurityEquivalentList			= fw_string("security_equiv_list", "Security Equivalent List", 128) 
 SecurityFlag				= bitfield8("security_flag", "Security Flag", [
@@ -3570,9 +3586,13 @@ UnusedBlocks			= uint32("unused_blocks", "Unused Blocks")
 UnUsedDirectoryEntries		= uint32("un_used_directory_entries", "Unused Directory Entries", LE)
 UnusedDiskBlocks		= uint32("unused_disk_blocks", "Unused Disk Blocks")
 UnUsedExtendedDirectoryExtants	= uint32("un_used_extended_directory_extants", "Unused Extended Directory Extants", LE)
-UpdateDateAndTime		= uint32("update_date_and_time", "Update Date & Time")
+UpdateDate                      = uint16("update_date", "Update Date", LE)
+UpdateDate.NWDate()
+#UpdateDateAndTime		= uint32("update_date_and_time", "Update Date & Time")
 UpdateID			= uint32("update_id", "Update ID")
 UpdateID.Display("BASE_HEX")
+UpdateTime                      = uint16("update_time", "Update Time", LE)
+UpdateTime.NWTime()
 UseCount 			= val_string16("user_info_use_count", "Use Count", [
 	[ 0x0000, "Connection is not in use" ],
 	[ 0x0001, "Connection is in use" ],
@@ -3616,7 +3636,10 @@ VolumeHashedFlag 		= val_string8("volume_hashed_flag", "Volume Hashed Flag", [
 	[ 0x00, "Volume is Not Hashed" ],
 	[ 0xff, "Volume is Hashed" ],
 ])	
-VolumeLastModifiedDateAndTime	= uint32("volume_last_modified_date_and_time", "Volume Last Modified Date and Time", LE)
+VolumeLastModifiedDate  	= uint16("volume_last_modified_date", "Volume Last Modified Date", LE)
+VolumeLastModifiedDate.NWDate()
+VolumeLastModifiedTime  	= uint16("volume_last_modified_time", "Volume Last Modified Time", LE) 
+VolumeLastModifiedTime.NWTime()
 VolumeMountedFlag 		= val_string8("volume_mounted_flag", "Volume Mounted Flag", [
 	[ 0x00, "Volume is Not Mounted" ],
 	[ 0xff, "Volume is Mounted" ],
@@ -3730,7 +3753,8 @@ Year				=val_string8("year", "Year",[
 ##############################################################################
 # Structs
 ##############################################################################
-
+                
+                
 acctngInfo                      = struct("acctng_info_struct", [
         HoldTime,
         HoldAmount,
@@ -3740,11 +3764,20 @@ acctngInfo                      = struct("acctng_info_struct", [
         HeldBytesRead,
         HeldBytesWritten,
 ])        
+ArchiveDateStruct               = struct("archive_date_struct", [
+        ArchivedDate,
+])                
+ArchiveIdStruct                 = struct("archive_id_struct", [
+        ArchiverID,
+])                
 ArchiveInfoStruct		= struct("archive_info_struct", [
 	ArchivedTime,
 	ArchivedDate,
 	ArchiverID,
 ])
+ArchiveTimeStruct               = struct("archive_time_struct", [
+        ArchivedTime,
+])                
 AttributesStruct		= struct("attributes_struct", [
 	AttributesDefLow,
 	AttributesDefLow2,
@@ -3822,7 +3855,7 @@ ConnStruct			= struct("conn_struct", [
 	DirectoryEntryNumberWord,
 	FileName14,
 ])
-ConnTaskStruct		= struct("conn_task_struct", [
+ConnTaskStruct		        = struct("conn_task_struct", [
 	ConnectionNumberByte,
 	TaskNumByte,
 ])
@@ -3871,10 +3904,16 @@ CPUInformation			= struct("cpu_information", [
         CoProcessorString,
         BusString,
 ])
+CreationDateStruct              = struct("creation_date_struct", [
+        CreationDate,
+])                
 CreationInfoStruct		= struct("creation_info_struct", [
 	CreationTime,
 	CreationDate,
 	CreatorID,
+])
+CreationTimeStruct              = struct("creation_time_struct", [
+        CreationTime,
 ])
 CustomCntsInfo                  = struct("custom_cnts_info", [
         CustomVariableValue,
@@ -3904,6 +3943,19 @@ DirEntryStruct			= struct("dir_entry_struct", [
 	DOSDirectoryEntryNumber,
 	VolumeNumberLong,
 ])
+DirectoryInstance               = struct("directory_instance", [
+        SearchSequenceWord,
+        DirectoryID,
+        Reserved2,
+        DirectoryName14,
+        DirectoryAttributes,
+        DirectoryAccessRights,
+	CreationDate,
+        CreationTime,
+	CreatorID,
+        Reserved2,
+        DirectoryStamp,
+])
 DOSDirectoryEntryStruct         = struct("dos_directory_entry_struct", [
         AttributesDefLow,
 	AttributesDefLow2,
@@ -3914,11 +3966,14 @@ DOSDirectoryEntryStruct         = struct("dos_directory_entry_struct", [
 	DestNameSpace,
 	DirectoryNameLen,
 	DirectoryName,
-	CreationDateAndTime,
+        CreationTime,
+	CreationDate,
 	CreatorID,
-	ArchivedDateAndTime,
+        ArchivedTime,
+	ArchivedDate,
 	ArchiverID,
-	UpdateDateAndTime,
+        UpdateTime,
+	UpdateDate,
         NextTrusteeEntry,
         Reserved48,
         InheritedRightsMaskLow,
@@ -3934,11 +3989,14 @@ DOSFileEntryStruct              = struct("dos_file_entry_struct", [
 	DestNameSpace,
 	NameLen,
 	Name12,
-	CreationDateAndTime,
+        CreationTime,
+	CreationDate,
 	CreatorID,
-	ArchivedDateAndTime,
+        ArchivedTime,
+	ArchivedDate,
 	ArchiverID,
-	UpdateDateAndTime,
+        UpdateTime,
+	UpdateDate,
         UpdateID,
         FileSize,
         DataForkFirstFAT,
@@ -3976,12 +4034,31 @@ ExtraCacheCntrs			= struct("extra_cache_cntrs", [
 	uint32("id_get_no_read_no_wait_no_alloc_sema", "ID Get No Read No Wait No Alloc Semaphored Count", LE),
 	uint32("id_get_no_read_no_wait_no_alloc_alloc", "ID Get No Read No Wait No Alloc Allocate Count", LE),
 ])
+FileAttributesStruct		= struct("file_attributes_struct", [
+	AttributesDefLow,
+	AttributesDefLow2,
+	AttributesDefLow3,
+	Reserved,
+])
 FileInfoStruct                  = struct("file_info_struct", [
         ParentID,
         DirectoryEntryNumber,
         TotalBlocksToDecompress,
         CurrentBlockBeingDecompressed,
-])        			       
+])
+FileInstance                    = struct("file_instance", [
+        SearchSequenceWord,
+        DirectoryID,
+        Reserved2,
+        FileName14,
+        AttributesDefLow,
+        FileMode,
+        FileSize,
+	CreationDate,
+        CreationTime,
+	UpdateDate,
+        UpdateTime,
+])
 FileNameStruct                  = struct("file_name_struct", [
         FileName,
 ])       
@@ -4108,6 +4185,9 @@ LANConfigInfo                   = struct("lan_cfg_info", [
 #        LANdriverMediaType,
 #        LANCustomVariablesCount,
 ])
+LastAccessStruct                = struct("last_access_struct", [
+        LastAccessedDate,
+])
 lockInfo                        = struct("lock_info_struct", [
         LogicalLockThreshold,
         PhysicalLockThreshold,
@@ -4160,7 +4240,10 @@ LSLInformation                  = struct("lsl_information", [
         uint32("unclaimed_packets", "Unclaimed Packets", LE),
         uint8("stat_table_major_version", "Statistics Table Major Version"),
         uint8("stat_table_minor_version", "Statistics Table Minor Version"),
-])        
+])
+MaximumSpaceStruct              = struct("max_space_struct", [
+        MaxSpace,
+])
 MemoryCounters			= struct("memory_counters", [
 	uint32("orig_num_cache_buff", "Original Number Of Cache Buffers", LE),
 	uint32("curr_num_cache_buff", "Current Number Of Cache Buffers", LE),
@@ -4189,17 +4272,14 @@ nameInfo                        = struct("name_info_struct", [
         ObjectType,
         nstring8("login_name", "Login Name"),
 ])
-NCPNetworkAddress                  = struct("ncp_network_address_struct", [
-        uint32("address_type", "Address Type", LE),
-        uint32("address_len", "Address Length", LE),
-        #Need nstring32 - just like nstring8 but with long as count field
-        #nstring32("address", "Address"),
+NCPNetworkAddress               = struct("ncp_network_address_struct", [
+        TransportType,
+        Reserved3,
+        NetAddress,
 ])
 netAddr                         = struct("net_addr_struct", [
         TransportType,
-        nstring8("transport_addr", "Transport Address"),
-        #Need nstring32 - just like nstring8 but with long as count field
-        #nstring32("transport_addr", "Transport Address"),
+        nstring32("transport_addr", "Transport Address"),
 ])
 NetWareInformationStruct	= struct("netware_information_struct", [
 	DataStreamSpaceAlloc, 		# (Data Stream Alloc Bit)
@@ -4259,8 +4339,8 @@ NSInfoStruct			= struct("ns_info_struct", [
 	Reserved3,
 ])
 NWAuditStatus			= struct("nw_audit_status", [
-	uint16("audit_ver_date", "Auditing Version Date",LE),
-	uint16("audit_file_ver_date", "Audit File Version Date",LE),
+	AuditVersionDate,
+        AuditFileVersionDate,
 	val_string16("audit_enable_flag", "Auditing Enabled Flag", [
 		[ 0x0000, "Auditing Disabled" ],
 		[ 0x0100, "Auditing Enabled" ],
@@ -4303,6 +4383,9 @@ OpnFilesStruct			= struct("opn_files_struct", [
 	NameSpace,
 	FileName,
 ])
+OwnerIDStruct                   = struct("owner_id_struct", [
+        CreatorID,
+])                
 PacketBurstInformation		= struct("packet_burst_information", [
 	uint32("big_invalid_slot", "Big Invalid Slot Count", LE),
 	uint32("big_forged_packet", "Big Forged Packet Count", LE),
@@ -4389,16 +4472,16 @@ RTagStructure                   = struct("r_tag_struct", [
         ResourceCount,
         ResourceName,
 ])
-Segments                                = struct("segments", [
+Segments                        = struct("segments", [
         uint32("volume_segment_dev_num", "Volume Segment Device Number", LE),
         uint32("volume_segment_offset", "Volume Segment Offset", LE),
         uint32("volume_segment_size", "Volume Segment Size", LE),
 ])            
-SemaInfoStruct				= struct("sema_info_struct", [
+SemaInfoStruct			= struct("sema_info_struct", [
 	LogicalConnectionNumber,
 	TaskNumByte,
 ])
-SemaStruct				= struct("sema_struct", [
+SemaStruct			= struct("sema_struct", [
 	OpenCount,
 	SemaphoreValue,
 	TaskNumByte,
@@ -4497,6 +4580,15 @@ TrusteeStruct			= struct("trustee_struct", [
 	AccessRightsMask,
 	AccessRightsHigh,
 ])
+UpdateDateStruct                = struct("update_date_struct", [
+        UpdateDate,
+])
+UpdateIDStruct                  = struct("update_id_struct", [
+        UpdateID,
+])        
+UpdateTimeStruct                = struct("update_time_struct", [
+        UpdateTime,
+])                
 UserInformation			= struct("user_info", [
 	ConnectionNumber,
 	UseCount,
@@ -4565,9 +4657,10 @@ VolInfoStructure                = struct("vol_info_struct", [
         ExtendedAttributesDefined,
         ExtendedAttributeExtantsUsed,
         DirectoryServicesObjectID,
-        VolumeLastModifiedDateAndTime,
+        VolumeLastModifiedTime,
+        VolumeLastModifiedDate,
 ])
-VolumeStruct                = struct("volume_struct", [
+VolumeStruct                    = struct("volume_struct", [
         VolumeNumberLong,
         VolumeNameLen,
 ])
@@ -5803,8 +5896,8 @@ def define_ncp2222():
 	])
 	pkt.Reply(36, [
 		rec( 8, 16, DirectoryPath ),
-		rec( 24, 2, CreationDate ),
-		rec( 26, 2, CreationTime ),
+		rec( 24, 2, CreationDate, LE ),
+		rec( 26, 2, CreationTime, LE ),
 		rec( 28, 4, CreatorID ),
 		rec( 32, 1, AccessRightsMask ),
 		rec( 33, 1, Reserved ),
@@ -5889,8 +5982,8 @@ def define_ncp2222():
 	])
 	pkt.Reply(57, [
 		rec( 8, 16, DirectoryPath ),
-		rec( 24, 2, CreationDate ),
-		rec( 26, 2, CreationTime ),
+		rec( 24, 2, CreationDate, LE ),
+		rec( 26, 2, CreationTime, LE ),
 		rec( 28, 4, CreatorID ),
 		rec( 32, 4, TrusteeID, LE ),
 		rec( 36, 4, TrusteeID, LE ),
@@ -6083,11 +6176,14 @@ def define_ncp2222():
 		rec( 22, 1, DestNameSpace ),
 		rec( 23, 1, FileNameLen ),
 		rec( 24, 12, FileName12 ),
-		rec( 36, 4, CreationDateAndTime, LE ),
+                rec( 36, 2, CreationTime, LE ),
+		rec( 38, 2, CreationDate, LE ),
 		rec( 40, 4, CreatorID ),
-		rec( 44, 4, ArchivedDateAndTime, LE ),
+                rec( 44, 2, ArchivedTime, LE ),
+		rec( 46, 2, ArchivedDate, LE ),
 		rec( 48, 4, ArchiverID ),
-		rec( 52, 4, UpdateDateAndTime, LE ),
+                rec( 52, 2, UpdateTime, LE ),
+		rec( 54, 2, UpdateDate, LE ),
 		rec( 56, 4, UpdateID ),
 		rec( 60, 4, FileSize, LE ),
 		rec( 64, 44, Reserved44 ),
@@ -6095,7 +6191,8 @@ def define_ncp2222():
 		rec( 109, 1, InheritedRightsMaskHigh ),
 		rec( 110, 2, LastAccessedDate, LE ),
 		rec( 112, 4, DeletedFileTime, LE ),
-		rec( 116, 4, DeletedDateAndTime, LE ),
+                rec( 116, 2, DeletedTime, LE ),
+		rec( 118, 2, DeletedDate, LE ),
 		rec( 120, 4, DeletedID ),
 		rec( 124, 16, Reserved16 ),
 	])
@@ -6138,11 +6235,14 @@ def define_ncp2222():
 		rec( 22, 1, DestNameSpace ),
 		rec( 23, 1, NameLen ),
 		rec( 24, 12, Name12 ),
-		rec( 36, 4, CreationDateAndTime, LE ),
+                rec( 36, 2, CreationTime, LE ),
+		rec( 38, 2, CreationDate, LE ),
 		rec( 40, 4, CreatorID ),
-		rec( 44, 4, ArchivedDateAndTime, LE ),
+                rec( 44, 2, ArchivedTime, LE ),
+		rec( 46, 2, ArchivedDate, LE ),
 		rec( 48, 4, ArchiverID ),
-		rec( 52, 4, UpdateDateAndTime, LE ),
+                rec( 52, 2, UpdateTime, LE ),
+		rec( 54, 2, UpdateDate, LE ),
 		rec( 56, 4, UpdateID ),
 		rec( 60, 4, FileSize ),
 		rec( 64, 44, Reserved44 ),
@@ -6168,11 +6268,14 @@ def define_ncp2222():
 		rec( 18, 1, DestNameSpace ),
 		rec( 19, 1, NameLen ),
 		rec( 20, 12, Name12 ),
-		rec( 32, 4, CreationDateAndTime, LE ),
+                rec( 32, 2, CreationTime, LE ),
+		rec( 34, 2, CreationDate, LE ),
 		rec( 36, 4, CreatorID ),
-		rec( 40, 4, ArchivedDateAndTime, LE ),
+                rec( 40, 2, ArchivedTime, LE ),
+		rec( 42, 2, ArchivedDate, LE ), 
 		rec( 44, 4, ArchiverID ),
-		rec( 48, 4, UpdateDateAndTime, LE ),
+                rec( 48, 2, UpdateTime, LE ),
+		rec( 50, 2, UpdateDate, LE ),
 		rec( 52, 4, NextTrusteeEntry ),
 		rec( 56, 48, Reserved48 ),
 		rec( 104, 2, MaximumSpace, LE ),
@@ -6349,11 +6452,14 @@ def define_ncp2222():
 		rec( 22, 1, DestNameSpace ),
 		rec( 23, 1, NameLen ),
 		rec( 24, 12, Name12 ),
-		rec( 36, 4, CreationDateAndTime, LE ),
+                rec( 36, 2, CreationTime, LE ),
+		rec( 38, 2, CreationDate, LE ),
 		rec( 40, 4, CreatorID ),
-		rec( 44, 4, ArchivedDateAndTime, LE ),
+                rec( 44, 2, ArchivedTime, LE ),
+		rec( 46, 2, ArchivedDate, LE ),
 		rec( 48, 4, ArchiverID ),
-		rec( 52, 4, UpdateDateAndTime, LE ),
+                rec( 52, 2, UpdateTime, LE ),
+		rec( 54, 2, UpdateDate, LE ),
 		rec( 56, 4, UpdateID ),
 		rec( 60, 4, DataForkSize ),
 		rec( 64, 4, DataForkFirstFAT ),
@@ -6363,7 +6469,8 @@ def define_ncp2222():
 		rec( 109, 1, InheritedRightsMaskHigh ),
 		rec( 110, 2, LastAccessedDate, LE ),
 		rec( 112, 4, DeletedFileTime, LE ),
-		rec( 116, 4, DeletedDateAndTime, LE ),
+                rec( 116, 2, DeletedTime, LE ),
+		rec( 118, 2, DeletedDate, LE ),
 		rec( 120, 4, DeletedID ),
 		rec( 124, 8, Undefined8 ),
 		rec( 132, 4, PrimaryEntry, LE ),
@@ -6481,11 +6588,14 @@ def define_ncp2222():
 		rec( 21, 1, PurgeFlags ),
 		rec( 22, 1, SrcNameSpace ),
 		rec( 23, 12, Name12 ),
-		rec( 35, 4, CreationDateAndTime, LE ),
+                rec( 35, 2, CreationTime, LE ),
+		rec( 37, 2, CreationDate, LE ),
 		rec( 39, 4, CreatorID ),
-		rec( 43, 4, ArchivedDateAndTime, LE ),
+                rec( 43, 2, ArchivedTime, LE ),
+		rec( 45, 2, ArchivedDate, LE ),
 		rec( 47, 4, ArchiverID ),
-		rec( 51, 4, UpdateDateAndTime, LE ),
+                rec( 51, 2, UpdateTime, LE ),
+		rec( 53, 2, UpdateDate, LE ),
 		rec( 55, 4, UpdateID ),
 		rec( 59, 4, FileSize ),
 		rec( 63, 44, Reserved44 ),
@@ -6651,13 +6761,13 @@ def define_ncp2222():
 		rec( 24, 1, AttributesDefLow ),
 		rec( 25, 1, AttributesDefLow2 ),
 		rec( 26, 4, FileSize ),
-		rec( 30, 2, CreationDate ),
-		rec( 32, 2, LastAccessedDate ),
-		rec( 34, 2, ModifiedDate ),
-		rec( 36, 2, ModifiedTime ),
+		rec( 30, 2, CreationDate, LE ),
+		rec( 32, 2, LastAccessedDate, LE ),
+		rec( 34, 2, ModifiedDate, LE ),
+		rec( 36, 2, ModifiedTime, LE ),
 		rec( 38, 4, CreatorID ),
-		rec( 42, 2, ArchivedDate ),
-		rec( 44, 2, ArchivedTime ),
+		rec( 42, 2, ArchivedDate, LE ),
+		rec( 44, 2, ArchivedTime, LE ),
 		rec( 46, 56, Reserved56 ),
 	])
 	pkt.CompletionCodes([0x0000, 0x8800, 0x8900, 0x9300, 0x9400, 0x9804, 0x9b00, 0x9c00,
@@ -6668,13 +6778,13 @@ def define_ncp2222():
 		rec( 10, 1, AttributesDefLow ),
 		rec( 11, 1, AttributesDefLow2 ),
 		rec( 12, 4, FileSize ),
-		rec( 16, 2, CreationDate ),
-		rec( 18, 2, LastAccessedDate ),
-		rec( 20, 2, ModifiedDate ),
-		rec( 22, 2, ModifiedTime ),
+		rec( 16, 2, CreationDate, LE ),
+		rec( 18, 2, LastAccessedDate, LE ),
+		rec( 20, 2, ModifiedDate, LE ),
+		rec( 22, 2, ModifiedTime, LE ),
 		rec( 24, 4, CreatorID ),
-		rec( 28, 2, ArchivedDate ),
-		rec( 30, 2, ArchivedTime ),
+		rec( 28, 2, ArchivedDate, LE ),
+		rec( 30, 2, ArchivedTime, LE ),
 		rec( 32, 56, Reserved56 ),
 		rec( 88, 1, DirHandle ),
 		rec( 89, 1, SearchAttributesLow ),
@@ -8782,12 +8892,12 @@ def define_ncp2222():
 		rec( 18, 4, DataForkLen ),
 		rec( 22, 4, ResourceForkLen ),
 		rec( 26, 2, TotalOffspring	),
-		rec( 28, 2, CreationDate ),
-		rec( 30, 2, LastAccessedDate ),
-		rec( 32, 2, ModifiedDate ),
-		rec( 34, 2, ModifiedTime ),
-		rec( 36, 2, ArchivedDate ),
-		rec( 38, 2, ArchivedTime ),
+		rec( 28, 2, CreationDate, LE ),
+		rec( 30, 2, LastAccessedDate, LE ),
+		rec( 32, 2, ModifiedDate, LE ),
+		rec( 34, 2, ModifiedTime, LE ),
+		rec( 36, 2, ArchivedDate, LE ),
+		rec( 38, 2, ArchivedTime, LE ),
 		rec( 40, 4, CreatorID ),
 		rec( 44, 4, Reserved4 ),
 		rec( 48, 1, FinderAttrLow ),
@@ -8853,12 +8963,12 @@ def define_ncp2222():
 		rec( 16, 1, RequestBitMapLow ),
 		rec( 17, 1, MacAttrHigh ),
 		rec( 18, 1, MacAttrLow ),
-		rec( 19, 2, CreationDate ),
-		rec( 21, 2, LastAccessedDate ),
-		rec( 23, 2, ModifiedDate ),
-		rec( 25, 2, ModifiedTime ),
-		rec( 27, 2, ArchivedDate ),
-		rec( 29, 2, ArchivedTime ),
+		rec( 19, 2, CreationDate, LE ),
+		rec( 21, 2, LastAccessedDate, LE ),
+		rec( 23, 2, ModifiedDate, LE ),
+		rec( 25, 2, ModifiedTime, LE ),
+		rec( 27, 2, ArchivedDate, LE ),
+		rec( 29, 2, ArchivedTime, LE ),
 		rec( 31, 4, CreatorID ),
 		rec( 35, 4, Reserved4 ),
 		rec( 39, 1, FinderAttrLow ),
@@ -9007,12 +9117,12 @@ def define_ncp2222():
 		rec( 18, 4, DataForkLen ),
 		rec( 22, 4, ResourceForkLen ),
 		rec( 26, 2, TotalOffspring	),
-		rec( 28, 2, CreationDate ),
-		rec( 30, 2, LastAccessedDate ),
-		rec( 32, 2, ModifiedDate ),
-		rec( 34, 2, ModifiedTime ),
-		rec( 36, 2, ArchivedDate ),
-		rec( 38, 2, ArchivedTime ),
+		rec( 28, 2, CreationDate, LE ),
+		rec( 30, 2, LastAccessedDate, LE ),
+		rec( 32, 2, ModifiedDate, LE ),
+		rec( 34, 2, ModifiedTime, LE ),
+		rec( 36, 2, ArchivedDate, LE ),
+		rec( 38, 2, ArchivedTime, LE ),
 		rec( 40, 4, CreatorID ),
 		rec( 44, 4, Reserved4 ),
 		rec( 48, 1, FinderAttrLow ),
@@ -9039,12 +9149,12 @@ def define_ncp2222():
 		rec( 16, 1, RequestBitMapLow ),
 		rec( 17, 1, AttributesDefLow ),
 		rec( 18, 1, AttributesDefLow2 ),
-		rec( 19, 2, CreationDate ),
-		rec( 21, 2, LastAccessedDate ),
-		rec( 23, 2, ModifiedDate ),
-		rec( 25, 2, ModifiedTime ),
-		rec( 27, 2, ArchivedDate ),
-		rec( 29, 2, ArchivedTime ),
+		rec( 19, 2, CreationDate, LE ),
+		rec( 21, 2, LastAccessedDate, LE ),
+		rec( 23, 2, ModifiedDate, LE ),
+		rec( 25, 2, ModifiedTime, LE ),
+		rec( 27, 2, ArchivedDate, LE ),
+		rec( 29, 2, ArchivedTime, LE ),
 		rec( 31, 4, CreatorID ),
 		rec( 35, 4, Reserved4 ),
 		rec( 39, 1, FinderAttrLow ),
@@ -9246,16 +9356,14 @@ def define_ncp2222():
 		rec( 8, 2, DirectoryID ),
 		rec( 10, 2, SequenceNumber, LE ),
 		rec( 12, 1, SearchAttributes ),
-		rec( 13, (1,255), Path ),
+                rec( 13, (1,255), Path ),
 	])
-	pkt.Reply(28, [
-		rec( 8, 2, SequenceNumber, LE ),
-		rec( 10, 2, DirectoryID ),
-		rec( 12, 2, Reserved2 ),
-		rec( 14, 14, FileName14 ),
-		#The rest of this packet depends on whether a file or directory was search for.
-		#See SearchAttributes in request for Directory flag.
-	])
+        pkt.Reply(8)
+#	pkt.Reply( NO_LENGTH_CHECK, [
+#		srec( DirectoryInstance, req_cond="search_attr_sub == TRUE"),
+#		srec( FileInstance, req_cond="search_attr_sub == FALSE"),
+#	])
+#        pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0xff16])
 	# 2222/40, 64
 	pkt = NCP(0x40, "Search for a File", 'file')
@@ -9272,10 +9380,10 @@ def define_ncp2222():
 		rec( 26, 1, AttributesDefLow ),
 		rec( 27, 1, FileExecuteType ),
 		rec( 28, 4, FileSize ),
-		rec( 32, 2, CreationDate ),
-		rec( 34, 2, LastAccessedDate ),
-		rec( 36, 2, ModifiedDate ),
-		rec( 38, 2, ModifiedTime ),
+		rec( 32, 2, CreationDate, LE ),
+		rec( 34, 2, LastAccessedDate, LE ),
+		rec( 36, 2, ModifiedDate, LE ),
+		rec( 38, 2, ModifiedTime, LE ),
 	])
 	pkt.CompletionCodes([0x0000, 0x8900, 0x9600, 0x9804, 0x9b03,
 			     0x9c03, 0xa100, 0xfd00, 0xff16])
@@ -9293,10 +9401,10 @@ def define_ncp2222():
 		rec( 30, 1, AttributesDefLow ),
 		rec( 31, 1, FileExecuteType ),
 		rec( 32, 4, FileSize ),
-		rec( 36, 2, CreationDate ),
-		rec( 38, 2, LastAccessedDate ),
-		rec( 40, 2, ModifiedDate ),
-		rec( 42, 2, ModifiedTime ),
+		rec( 36, 2, CreationDate, LE ),
+		rec( 38, 2, LastAccessedDate, LE ),
+		rec( 40, 2, ModifiedDate, LE ),
+		rec( 42, 2, ModifiedTime, LE ),
 	])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8200, 0x9400,
 			     0x9600, 0x9804, 0x9c03, 0xa100, 0xfd00,
@@ -9323,10 +9431,10 @@ def define_ncp2222():
 		rec( 30, 1, AttributesDefLow ),
 		rec( 31, 1, FileExecuteType ),
 		rec( 32, 4, FileSize ),
-		rec( 36, 2, CreationDate ),
-		rec( 38, 2, LastAccessedDate ),
-		rec( 40, 2, ModifiedDate ),
-		rec( 42, 2, ModifiedTime ),
+		rec( 36, 2, CreationDate, LE ),
+		rec( 38, 2, LastAccessedDate, LE ),
+		rec( 40, 2, ModifiedDate, LE ),
+		rec( 42, 2, ModifiedTime, LE ),
 	])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
@@ -9383,11 +9491,11 @@ def define_ncp2222():
 	pkt.Request(20, [
 		rec( 7, 1, Reserved ),
 		rec( 8, 6, FileHandle ),
-		rec( 14, 4, FileOffset ),	# my nomenclature
-		rec( 18, 2, MaxBytes ),	# my nomenclature
+		rec( 14, 4, FileOffset ), 
+		rec( 18, 2, MaxBytes ),	
 	])
-	pkt.Reply(10, [ # XXX - (10,-1), [
-		rec( 8, 2, NumBytes ),	# my nomenclature
+	pkt.Reply(10, [ 
+		rec( 8, 2, NumBytes ),	
 	])
 	pkt.CompletionCodes([0x0000, 0x8300, 0x8800, 0x9300, 0xff00])
 	# 2222/49, 73
@@ -9395,8 +9503,8 @@ def define_ncp2222():
 	pkt.Request(20, [
 		rec( 7, 1, Reserved ),
 		rec( 8, 6, FileHandle ),
-		rec( 14, 4, FileOffset ),	# my nomenclature
-		rec( 18, 2, MaxBytes ),	# my nomenclature
+		rec( 14, 4, FileOffset ),
+		rec( 18, 2, MaxBytes ),	
 	])
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8300, 0x8800, 0x9400, 0x9500, 0xa201, 0xff1b])
@@ -9420,8 +9528,8 @@ def define_ncp2222():
 	pkt.Request(18, [
 		rec( 7, 1, Reserved ),
 		rec( 8, 6, FileHandle ),
-		rec( 14, 2, FileTime ),
-		rec( 16, 2, FileDate ),
+		rec( 14, 2, FileTime, LE ),
+		rec( 16, 2, FileDate, LE ),
 	])
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8800, 0x9600])
@@ -9440,10 +9548,10 @@ def define_ncp2222():
 		rec( 30, 1, AttributesDefLow ),
 		rec( 31, 1, FileExecuteType ),
 		rec( 32, 4, FileSize ),
-		rec( 36, 2, CreationDate ),
-		rec( 38, 2, LastAccessedDate ),
-		rec( 40, 2, ModifiedDate ),
-		rec( 42, 2, ModifiedTime ),
+		rec( 36, 2, CreationDate, LE ),
+		rec( 38, 2, LastAccessedDate, LE ),
+		rec( 40, 2, ModifiedDate, LE ),
+		rec( 42, 2, ModifiedTime, LE ),
 	])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8200, 0x9400,
 			     0x9600, 0x9804, 0x9c03, 0xa100, 0xfd00,
@@ -9462,10 +9570,10 @@ def define_ncp2222():
 		rec( 30, 1, AttributesDefLow ),
 		rec( 31, 1, FileExecuteType ),
 		rec( 32, 4, FileSize ),
-		rec( 36, 2, CreationDate ),
-		rec( 38, 2, LastAccessedDate ),
-		rec( 40, 2, ModifiedDate ),
-		rec( 42, 2, ModifiedTime ),
+		rec( 36, 2, CreationDate, LE ),
+		rec( 38, 2, LastAccessedDate, LE ),
+		rec( 40, 2, ModifiedDate, LE ),
+		rec( 42, 2, ModifiedTime, LE ),
 	])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
@@ -9499,10 +9607,10 @@ def define_ncp2222():
 		rec( 30, 1, AttributesDefLow ),
 		rec( 31, 1, FileExecuteType ),
 		rec( 32, 4, FileSize ),
-		rec( 36, 2, CreationDate ),
-		rec( 38, 2, LastAccessedDate ),
-		rec( 40, 2, ModifiedDate ),
-		rec( 42, 2, ModifiedTime ),
+		rec( 36, 2, CreationDate, LE ),
+		rec( 38, 2, LastAccessedDate, LE ),
+		rec( 40, 2, ModifiedDate, LE ),
+		rec( 42, 2, ModifiedTime, LE ),
 	])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
@@ -9529,15 +9637,15 @@ def define_ncp2222():
 	pkt.CompletionCodes([0x0000, 0xcf00, 0xd301])
 	# 2222/5602, 86/02
 	pkt = NCP(0x5602, "Write Extended Attribute", 'file', has_length=0 )
-	pkt.Request(34, [
+	pkt.Request(30, [
 		rec( 8, 2, EAFlags, LE ),
 		rec( 10, 4, EAHandleOrNetWareHandleOrVolume ),
 		rec( 14, 4, ReservedOrDirectoryNumber ),
 		rec( 18, 4, TtlWriteDataSize ),
 		rec( 22, 4, FileOffset ),
 		rec( 26, 4, EAAccessFlag ),
-		rec( 30, 2, EAValueLength ),
-		rec( 32, 2, EAKeyLength ),
+		#rec( 30, 2, EAValueLength ),
+		#rec( 32, 2, EAKeyLength ),
 		#next 2 attributes (key and value) are sizeof EAValueLength and EAKeyLength
 	])
 	pkt.Reply(20, [
@@ -9549,35 +9657,32 @@ def define_ncp2222():
 			     0xd203, 0xd301, 0xd402])
 	# 2222/5603, 86/03
 	pkt = NCP(0x5603, "Read Extended Attribute", 'file', has_length=0 )
-	pkt.Request(28, [
+	pkt.Request((28,538), [
 		rec( 8, 2, EAFlags, LE ),
 		rec( 10, 4, EAHandleOrNetWareHandleOrVolume ),
 		rec( 14, 4, ReservedOrDirectoryNumber ),
 		rec( 18, 4, FileOffset ),
 		rec( 22, 4, InspectSize ),
-		rec( 26, 2, EAKeyLength ),
-		#next attribute (key) is sizeof EAKeyLength
+		rec( 26, (2,512), EAKey ),
 	])
-	pkt.Reply(28, [
+	pkt.Reply((26,536), [
 		rec( 8, 4, EAErrorCodes ),
 		rec( 12, 4, TtlValuesLength ),
 		rec( 16, 4, NewEAHandle ),
 		rec( 20, 4, EAAccessFlag ),
-		rec( 24, 4, EAValueLength ),
-		#next attribute (value) is sizeof EAValueLength
+		rec( 24, (2,512), EAValue ),
 	])
 	pkt.CompletionCodes([0x0000, 0xc900, 0xce00, 0xcf00, 0xd101,
 			     0xd301])
 	# 2222/5604, 86/04
 	pkt = NCP(0x5604, "Enumerate Extended Attribute", 'file', has_length=0 )
-	pkt.Request(26, [
+	pkt.Request((26,536), [
 		rec( 8, 2, EAFlags, LE ),
 		rec( 10, 4, EAHandleOrNetWareHandleOrVolume ),
 		rec( 14, 4, ReservedOrDirectoryNumber ),
 		rec( 18, 4, InspectSize ),
 		rec( 22, 2, SequenceNumber, LE ),
-		rec( 24, 2, EAKeyLength ),
-		#next attribute (key) is sizeof EAKeyLength
+		rec( 24, (2,512), EAKey ),
 	])
 	pkt.Reply(28, [
 		rec( 8, 4, EAErrorCodes ),
@@ -9626,8 +9731,6 @@ def define_ncp2222():
 		rec( 29, (1,255), Path, repeat="x" ),
 	])
 	pkt.Reply( NO_LENGTH_CHECK, [
-		# The reply structure depends on the request flags in the request packet.
-		#90, [
 		rec( 8, 4, FileHandle ),
 		rec( 12, 1, OpenCreateAction ),
 		rec( 13, 1, Reserved ),
@@ -9679,37 +9782,23 @@ def define_ncp2222():
 		rec( 16, 9, SearchSequence ),
 		rec( 25, (1,255), SearchPattern ),
 	])
-	pkt.Reply( 18, [
-		# Reply format is based on the returninfomask in request packet
-		#(95,349), [
+	pkt.Reply( NO_LENGTH_CHECK, [
 		rec( 8, 9, SearchSequence ),
 		rec( 17, 1, Reserved ),
-		#rec( 18, 4, DataStreamSpaceAlloc, LE ),
-		#rec( 22, 6, AttributesStruct ),
-		#rec( 28, 4, DataStreamSize, LE ),
-		#rec( 32, 4, TtlDSDskSpaceAlloc, LE ),
-		#rec( 36, 2, NumberOfDataStreams, LE ),
-		#rec( 38, 2, CreationTime, LE ),
-		#rec( 40, 2, CreationDate, LE ),
-		#rec( 42, 4, CreatorID ),
-		#rec( 46, 2, ModifiedTime, LE ),
-		#rec( 48, 2, ModifiedDate, LE ),
-		#rec( 50, 4, ModifierID ),
-		#rec( 54, 2, LastAccessedDate, LE ),
-		#rec( 56, 2, ArchivedTime, LE ),
-		#rec( 58, 2, ArchivedDate, LE ),
-		#rec( 60, 4, ArchiverID ),
-		#rec( 64, 1, InheritedRightsMaskLow ),
-		#rec( 65, 1, InheritedRightsMaskHigh ),
-		#rec( 66, 4, DirectoryEntryNumber, LE ),
-		#rec( 70, 4, DOSDirectoryEntryNumber, LE ),
-		#rec( 74, 4, VolumeNumberLong, LE ),
-		#rec( 78, 4, EADataSize, LE ),
-		#rec( 82, 4, EACount, LE ),
-		#rec( 86, 4, EAKeySize, LE ),
-		#rec( 90, 4, CreatorNameSpaceNumber, LE ),
-		#rec( 94, (1,255), FileName ),
+		srec( DSSpaceAllocateStruct, req_cond="ncp.ret_info_mask_alloc == TRUE" ),
+		srec( AttributesStruct, req_cond="ncp.ret_info_mask_attr == TRUE" ),
+		srec( DataStreamSizeStruct, req_cond="ncp.ret_info_mask_size == TRUE" ),
+		srec( TotalStreamSizeStruct, req_cond="ncp.ret_info_mask_tspace == TRUE" ),
+		srec( CreationInfoStruct, req_cond="ncp.ret_info_mask_create == TRUE" ),
+		srec( ModifyInfoStruct, req_cond="ncp.ret_info_mask_mod == TRUE" ),
+		srec( ArchiveInfoStruct, req_cond="ncp.ret_info_mask_arch == TRUE" ),
+		srec( RightsInfoStruct, req_cond="ncp.ret_info_mask_rights == TRUE" ),
+		srec( DirEntryStruct, req_cond="ncp.ret_info_mask_dir == TRUE" ),
+		srec( EAInfoStruct, req_cond="ncp.ret_info_mask_eattr == TRUE" ),
+		srec( NSInfoStruct, req_cond="ncp.ret_info_mask_ns == TRUE" ),
+                srec( FileNameStruct, req_cond="ncp.ret_info_mask_fname == TRUE" ),
 	])
+	pkt.ReqCondSizeConstant()
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
@@ -9772,37 +9861,21 @@ def define_ncp2222():
 		rec( 24, 1, PathCount, var="x" ),
 		rec( 25, (1,255), Path, repeat="x" ),
 	])
-	pkt.Reply(8)
-#	pkt.Reply(84, [
-#		[ 8, 4, DataStreamSpaceAlloc ],
-#		[ 12, 6, AttributesStruct ],
-#		[ 18, 4, DataStreamSize ],
-#		[ 22, 4, TtlDSDskSpaceAlloc ],
-#		[ 26, 2, NumberOfDataStreams ],
-#		[ 28, 2, CreationTime ],
-#		[ 30, 2, CreationDate ],
-#		[ 32, 4, CreatorID ],
-#		[ 36, 2, ModifiedTime ],
-#		[ 38, 2, ModifiedDate ],
-#		[ 40, 4, ModifierID ],
-#		[ 44, 2, LastAccessedDate ],
-#		[ 46, 2, ArchivedTime ],
-#		[ 48, 2, ArchivedDate ],
-#		[ 50, 4, ArchiverID ],
-#		[ 54, 1, InheritedRightsMaskLow ],
-#		[ 55, 1, InheritedRightsMaskHigh ],
-#		[ 56, 4, DirectoryEntryNumber, LE ],
-#		[ 60, 4, DOSDirectoryEntryNumber, LE ],
-#		[ 64, 4, VolumeNumberLong ],
-#		[ 68, 4, EADataSize ],
-#		[ 72, 4, EACount ],
-#		[ 76, 4, EAKeySize ],
-#		[ 80, 4, CreatorNameSpaceNumber ],
-#		[ 84, (1,255), FileName ],
-# This reply packet is formated based on the ReturnInformation flags set in the
-# request packet. Need do case to evaluate what will be in the reply packet
-# decode.
-#	])
+	pkt.Reply(NO_LENGTH_CHECK, [
+            srec( DSSpaceAllocateStruct, req_cond="ncp.ret_info_mask_alloc == TRUE" ),
+            srec( AttributesStruct, req_cond="ncp.ret_info_mask_attr == TRUE" ),
+            srec( DataStreamSizeStruct, req_cond="ncp.ret_info_mask_size == TRUE" ),
+            srec( TotalStreamSizeStruct, req_cond="ncp.ret_info_mask_tspace == TRUE" ),
+            srec( CreationInfoStruct, req_cond="ncp.ret_info_mask_create == TRUE" ),
+            srec( ModifyInfoStruct, req_cond="ncp.ret_info_mask_mod == TRUE" ),
+            srec( ArchiveInfoStruct, req_cond="ncp.ret_info_mask_arch == TRUE" ),
+            srec( RightsInfoStruct, req_cond="ncp.ret_info_mask_rights == TRUE" ),
+            srec( DirEntryStruct, req_cond="ncp.ret_info_mask_dir == TRUE" ),
+            srec( EAInfoStruct, req_cond="ncp.ret_info_mask_eattr == TRUE" ),
+            srec( NSInfoStruct, req_cond="ncp.ret_info_mask_ns == TRUE" ),
+            srec( FileNameStruct, req_cond="ncp.ret_info_mask_fname == TRUE" ),
+        ])
+        pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
@@ -10024,29 +10097,23 @@ def define_ncp2222():
 		rec( 16, 1, NamesSpaceInfoMask1 ),
 		rec( 17, 1, NamesSpaceInfoMask2 ),
 	])
-	pkt.Reply(8)
-	#Information returned is based on the request flags in the NSInfoMask
-	#pkt.Reply((47,59), [
-	#	[ 8,(1, 13), FileName ],
-	#	[ -1, 1, AttributesDefLow ],
-	#	[ -1, 1, AttributesDefLow2 ],
-	#	[ -1, 1, AttributesDefLow3 ],
-	#	[ -1, 1, Reserved ],
-	#	[ -1, 2, CreationDate ],
-	#	[ -1, 2, CreationTime ],
-	#	[ -1, 4, CreatorID ],
-	#	[ -1, 2, ArchivedDate ],
-	#	[ -1, 2, ArchivedTime ],
-	#	[ -1, 4, ArchiverID ],
-	#	[ -1, 2, ModifiedDate ],
-	#	[ -1, 2, ModifiedTime ],
-	#	[ -1, 4, ModifierID ],
-	#	[ -1, 2, LastAccessedDate ],
-	#	[ -1, 1, InheritedRightsMaskLow ],
-	#	[ -1, 1, InheritedRightsMaskHigh ],
-	#	[ -1, 2, Reserved2 ],
-	#	[ -1, 4, MaxSpace ],
-	#])
+	pkt.Reply(NO_LENGTH_CHECK, [
+            srec( FileNameStruct, req_cond="ncp.ns_info_mask_modify == TRUE" ),
+            srec( FileAttributesStruct, req_cond="ncp.ns_info_mask_fatt == TRUE" ),
+            srec( CreationDateStruct, req_cond="ncp.ns_info_mask_cdate == TRUE" ),
+            srec( CreationTimeStruct, req_cond="ncp.ns_info_mask_ctime == TRUE" ),
+            srec( OwnerIDStruct, req_cond="ncp.ns_info_mask_owner == TRUE" ),
+            srec( ArchiveDateStruct, req_cond="ncp.ns_info_mask_adate == TRUE" ),
+            srec( ArchiveTimeStruct, req_cond="ncp.ns_info_mask_atime == TRUE" ),
+            srec( ArchiveIdStruct, req_cond="ncp.ns_info_mask_aid == TRUE" ),
+            srec( UpdateDateStruct, req_cond="ncp.ns_info_mask_udate == TRUE" ),
+            srec( UpdateTimeStruct, req_cond="ncp.ns_info_mask_utime == TRUE" ),
+            srec( UpdateIDStruct, req_cond="ncp.ns_info_mask_uid == TRUE" ),
+            srec( LastAccessStruct, req_cond="ncp.ns_info_mask_acc_date == TRUE" ),
+            srec( RightsInfoStruct, req_cond="ncp.ns_info_mask_max_acc_mask == TRUE" ),
+            #srec( MaximumSpaceStruct, req_cond="ncp.ns_info_mask_max_space == TRUE" ),
+        ])
+        pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
@@ -11738,8 +11805,6 @@ def define_ncp2222():
                 rec(32, 4, NextSearchNum, LE),
                 rec(36, 4, ItemsInPacket, LE, var="x"), 
                 rec(40, 20, NCPNetworkAddress, repeat="x" ),
-                #look at structure NCPNetworkAddress, The address field can't be displayed due
-                #to needing nstring32 value.
         ])
 	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B14, 123/20
