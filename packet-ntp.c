@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.8 2000/01/07 22:05:34 guy Exp $
+ * $Id: packet-ntp.c,v 1.9 2000/01/22 02:00:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -217,8 +217,8 @@ ntp_fmt_ts(unsigned char * reftime, char* buff)
 		bd = gmtime(&temptime);
 		fractime = bd->tm_sec + tempfrac / 4294967296.0;
 		snprintf(buff, NTP_TS_SIZE, "%04d-%02d-%02d %02d:%02d:%07.4f UTC",
-			 bd->tm_year + 1900, bd->tm_mon, bd->tm_mday, bd->tm_hour,
-			 bd->tm_min, fractime);
+			 bd->tm_year + 1900, bd->tm_mon + 1, bd->tm_mday,
+			 bd->tm_hour, bd->tm_min, fractime);
 	}
 	return buff;
 }

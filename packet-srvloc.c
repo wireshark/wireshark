@@ -6,7 +6,7 @@
  *       In particular I have not had an opportunity to see how it 
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.5 2000/01/07 22:05:40 guy Exp $
+ * $Id: packet-srvloc.c,v 1.6 2000/01/22 02:00:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -157,8 +157,9 @@ dissect_authblk(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     floatsec = stamp->tm_sec + pntohl(&pd[offset + 4]) / 4294967296.0;
     proto_tree_add_text(tree, offset, 8,
 			"Timestamp: %04d-%02d-%02d %02d:%02d:%07.4f UTC",
-			stamp->tm_year + 1900, stamp->tm_mon, stamp->tm_mday,
-			stamp->tm_hour, stamp->tm_min, floatsec);
+			stamp->tm_year + 1900, stamp->tm_mon + 1,
+			stamp->tm_mday, stamp->tm_hour, stamp->tm_min,
+			floatsec);
     proto_tree_add_text(tree, offset + 8, 2, "Block Structure Desciptor: %u",
 			pntohs(&pd[offset + 8]));
     length = pntohs(&pd[offset + 10]);
