@@ -23,6 +23,29 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+typedef enum _h245_msg_type {
+	H245_TermCapSet,
+	H245_TermCapSetAck,
+	H245_TermCapSetRjc,
+	H245_TermCapSetRls,
+	H245_OpenLogChn,
+	H245_OpenLogChnCnf,
+	H245_OpenLogChnAck,
+	H245_OpenLogChnRjc,	
+	H245_CloseLogChn,
+	H245_CloseLogChnAck,
+	H245_MastSlvDet,
+	H245_MastSlvDetAck,
+	H245_MastSlvDetRjc,
+	H245_MastSlvDetRls,
+        H245_OTHER
+} h245_msg_type;
+
+typedef struct _h245_packet_info {
+        h245_msg_type msg_type;         /* type of message */
+} h245_packet_info;
+
+
 extern void dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 extern int dissect_h245_OpenLogicalChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);

@@ -39,6 +39,8 @@
 #include <string.h>
 
 #include <epan/prefs.h>
+#include "tap.h"
+#include "packet-h245.h"
 #include "packet-tpkt.h"
 #include "packet-per.h"
 #include <epan/t35.h>
@@ -50,6 +52,10 @@ static dissector_handle_t rtcp_handle=NULL;
 
 static dissector_handle_t h245_handle;
 static dissector_handle_t MultimediaSystemControlMessage_handle;
+
+static void reset_h245_packet_info(h245_packet_info *pi);
+static int h245_tap = -1;
+static h245_packet_info h245_pi;
 
 static int proto_h245 = -1;		/* h245 over tpkt */
 static int hf_h245_rfc_number = -1;
@@ -1529,6 +1535,8 @@ dissect_h245_MasterSlaveDeterminationAck(tvbuff_t *tvb, int offset, packet_info 
 {
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_MasterSlaveDeterminationAck, ett_h245_MasterSlaveDeterminationAck, MasterSlaveDeterminationAck_sequence);
 
+	h245_pi.msg_type = H245_MastSlvDetAck;
+
 	return offset;
 }
 
@@ -1561,6 +1569,8 @@ static int
 dissect_h245_MasterSlaveDeterminationReject(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_MasterSlaveDeterminationReject, ett_h245_MasterSlaveDeterminationReject, MasterSlaveDeterminationReject_sequence);
+
+	h245_pi.msg_type = H245_MastSlvDetRjc;
 
 	return offset;
 }
@@ -3327,6 +3337,8 @@ dissect_h245_OpenLogicalChannelReject(tvbuff_t *tvb, int offset, packet_info *pi
 {
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_OpenLogicalChannelReject, ett_h245_OpenLogicalChannelReject, OpenLogicalChannelReject_sequence);
 
+	h245_pi.msg_type = H245_OpenLogChnRjc;
+
 	return offset;
 }
 
@@ -3347,6 +3359,8 @@ dissect_h245_CloseLogicalChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 {
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_CloseLogicalChannel, ett_h245_CloseLogicalChannel, CloseLogicalChannel_sequence);
 
+	h245_pi.msg_type = H245_CloseLogChn;
+
 	return offset;
 }
 
@@ -3362,6 +3376,8 @@ static int
 dissect_h245_CloseLogicalChannelAck(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_CloseLogicalChannelAck, ett_h245_CloseLogicalChannelAck, CloseLogicalChannelAck_sequence);
+
+	h245_pi.msg_type = H245_CloseLogChnAck;
 
 	return offset;
 }
@@ -3509,6 +3525,8 @@ dissect_h245_OpenLogicalChannelConfirm(tvbuff_t *tvb, int offset, packet_info *p
 {
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_OpenLogicalChannelConfirm, ett_h245_OpenLogicalChannelConfirm, OpenLogicalChannelConfirm_sequence);
 
+	h245_pi.msg_type = H245_OpenLogChnCnf;
+
 	return offset;
 }
 
@@ -3523,6 +3541,8 @@ static int
 dissect_h245_TerminalCapabilitySetAck(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_TerminalCapabilitySetAck, ett_h245_TerminalCapabilitySetAck, TerminalCapabilitySetAck_sequence);
+
+	h245_pi.msg_type = H245_TermCapSetAck;
 
 	return offset;
 }
@@ -7638,6 +7658,8 @@ dissect_h245_MasterSlaveDetermination(tvbuff_t *tvb, int offset, packet_info *pi
 {
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_MasterSlaveDetermination, ett_h245_MasterSlaveDetermination, MasterSlaveDetermination_sequence);
 
+	h245_pi.msg_type = H245_MastSlvDet;
+
 	return offset;
 }
 
@@ -7719,6 +7741,8 @@ static int
 dissect_h245_TerminalCapabilitySetReject(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_TerminalCapabilitySetReject, ett_h245_TerminalCapabilitySetReject, TerminalCapabilitySetReject_sequence);
+
+	h245_pi.msg_type = H245_TermCapSetRjc;
 
 	return offset;
 }
@@ -12347,6 +12371,8 @@ static int
 dissect_h245_MasterSlaveDeterminationRelease(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_MasterSlaveDeterminationRelease, ett_h245_MasterSlaveDeterminationRelease, MasterSlaveDeterminationRelease_sequence);
+
+	h245_pi.msg_type = H245_MastSlvDetRls;
 
 	return offset;
 }
@@ -17487,6 +17513,8 @@ dissect_h245_TerminalCapabilitySet(tvbuff_t *tvb, int offset, packet_info *pinfo
 {
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_TerminalCapabilitySet, ett_h245_TerminalCapabilitySet, TerminalCapabilitySet_sequence);
 
+	h245_pi.msg_type = H245_TermCapSet;
+
 	return offset;
 }
 
@@ -18065,6 +18093,8 @@ dissect_h245_TerminalCapabilitySetRelease(tvbuff_t *tvb, int offset, packet_info
 {
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_TerminalCapabilitySetRelease, ett_h245_TerminalCapabilitySetRelease, TerminalCapabilitySetRelease_sequence);
 
+	h245_pi.msg_type = H245_TermCapSetRls;
+
 	return offset;
 }
 
@@ -18204,6 +18234,8 @@ dissect_h245_OpenLogicalChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 {
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_OpenLogicalChannel, ett_h245_OpenLogicalChannel, OpenLogicalChannel_sequence);
 
+	h245_pi.msg_type = H245_OpenLogChn;
+
 	return offset;
 }
 
@@ -18227,6 +18259,8 @@ static int
 dissect_h245_OpenLogicalChannelAck(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_OpenLogicalChannelAck, ett_h245_OpenLogicalChannelAck, OpenLogicalChannelAck_sequence);
+
+	h245_pi.msg_type = H245_OpenLogChnAck;
 
 	return offset;
 }
@@ -19141,7 +19175,12 @@ dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb, packet_info *pinfo, p
 void
 dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	reset_h245_packet_info(&(h245_pi));
+        h245_pi.msg_type = H245_OTHER;
+
 	dissect_tpkt_encap(tvb, pinfo, tree, h245_reassembly, MultimediaSystemControlMessage_handle);
+
+	tap_queue_packet(h245_tap, pinfo, &h245_pi);
 }
 
 void
@@ -22444,6 +22483,8 @@ proto_register_h245(void)
 
 	nsp_object_dissector_table = register_dissector_table("h245.nsp.object", "H.245 NonStandardParameter (object)", FT_STRING, BASE_NONE);
 	nsp_h221_dissector_table = register_dissector_table("h245.nsp.h221", "H.245 NonStandardParameter (h221)", FT_UINT32, BASE_HEX);
+
+	h245_tap = register_tap("h245");
 }
 
 void
@@ -22457,3 +22498,13 @@ proto_reg_handoff_h245(void)
 	MultimediaSystemControlMessage_handle=create_dissector_handle(dissect_h245_MultimediaSystemControlMessage, proto_h245);
 	dissector_add_handle("udp.port", MultimediaSystemControlMessage_handle);
 }
+
+static void reset_h245_packet_info(h245_packet_info *pi)
+{
+        if(pi == NULL) {
+                return;
+        }
+
+        pi->msg_type = H245_OTHER;
+}
+

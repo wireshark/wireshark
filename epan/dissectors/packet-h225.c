@@ -53,7 +53,7 @@
 static void reset_h225_packet_info(h225_packet_info *pi);
 static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, h225_packet_info *pi);
 
-static h225_packet_info h225_pi;
+static h225_packet_info h225_pi; 
 
 static dissector_handle_t h225ras_handle;
 static dissector_handle_t H323UserInformation_handle;
@@ -2809,6 +2809,11 @@ dissect_h225_h245Address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_h245Address, ett_h225_TransportAddress, TransportAddress_choice, "h245Address", NULL);
 
+	/* we need this info for TAPing */
+	h225_pi.is_h245 = TRUE;
+	h225_pi.h245_address = ipv4_address;	
+	h225_pi.h245_port = ipv4_port;	
+
 	if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && h245_handle){
 		address src_addr;
 		conversation_t *conv=NULL;
@@ -5223,8 +5228,8 @@ dissect_h225_fastStart_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 					   PER dissectors, but the item length
 					   is in octets */
 	offset=dissect_h245_OpenLogicalChannel(tvb, offset, pinfo, tree);
-
 	contains_faststart = TRUE;
+	h225_pi.is_faststart = TRUE;
 
 	return newoffset;
 }
@@ -5638,6 +5643,9 @@ static int
 dissect_h225_CallProceedingUUIE(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h225_CallProceedingUUIE, ett_h225_CallProceedingUUIE, CallProceedingUUIE_sequence);
+
+	h225_pi.cs_type = H225_CALL_PROCEDING;
+
 	return offset;
 }
 
@@ -6915,6 +6923,9 @@ static int
 dissect_h225_AlertingUUIE(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h225_AlertingUUIE, ett_h225_AlertingUUIE, AlertingUUIE_sequence);
+
+	h225_pi.cs_type = H225_ALERTING;
+
 	return offset;
 }
 
@@ -6955,6 +6966,9 @@ static int
 dissect_h225_ReleaseCompleteUUIE(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h225_ReleaseCompleteUUIE, ett_h225_ReleaseCompleteUUIE, ReleaseCompleteUUIE_sequence);
+
+	h225_pi.cs_type = H225_RELEASE_COMPLET;
+
 	return offset;
 }
 
@@ -7243,6 +7257,9 @@ dissect_h225_SetupUUIE(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 {
 	contains_faststart = FALSE;
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h225_SetupUUIE, ett_h225_SetupUUIE, SetupUUIE_sequence);
+	
+	h225_pi.cs_type = H225_SETUP;
+
 	return offset;
 }
 
@@ -7299,6 +7316,9 @@ static int
 dissect_h225_ConnectUUIE(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h225_ConnectUUIE, ett_h225_ConnectUUIE, ConnectUUIE_sequence);
+
+	h225_pi.cs_type = H225_CONNECT;
+
 	return offset;
 }
 
@@ -10549,12 +10569,17 @@ static void reset_h225_packet_info(h225_packet_info *pi)
 	}
 
 	pi->msg_type = H225_OTHERS;
+	pi->cs_type = H225_OTHER;
 	pi->msg_tag = -1;
 	pi->reason = -1;
 	pi->requestSeqNum = 0;
 	memset(pi->guid,0,16);
 	pi->is_duplicate = FALSE;
 	pi->request_available = FALSE;
+	pi->is_faststart = FALSE;
+	pi->is_h245 = FALSE;
+	pi->h245_address = 0;
+	pi->h245_port = 0;
 }
 
 /*
