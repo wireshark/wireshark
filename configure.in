@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.139 2001/10/12 17:17:04 gerald Exp $
+# $Id: configure.in,v 1.140 2001/11/02 10:01:00 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -443,6 +443,7 @@ AC_CHECK_HEADERS(sys/wait.h)
 AC_CHECK_HEADERS(netinet/in.h)
 AC_CHECK_HEADERS(stddef.h)
 AC_CHECK_HEADERS(arpa/inet.h)
+AC_CHECK_HEADERS(iconv.h)
 
 dnl SSL Check
 SSL_LIBS=''

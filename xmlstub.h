@@ -97,13 +97,11 @@ extern void xmlCheckVersion(int version);
 /*
  * Whether iconv support is available
  */
-#ifndef WIN32
-#if 1
+#ifdef HAVE_ICONV_H
 #define LIBXML_ICONV_ENABLED
 #include <iconv.h>
 #else
 #define LIBXML_ICONV_DISABLED
-#endif
 #endif
 
 /*
