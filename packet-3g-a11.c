@@ -8,7 +8,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <sraab@cisco.com>
  *
- * $Id: packet-3g-a11.c,v 1.5 2004/03/12 08:42:54 guy Exp $
+ * $Id: packet-3g-a11.c,v 1.6 2004/03/21 23:46:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -600,7 +600,7 @@ dissect_a11_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 } /* dissect_a11_extensions */
 
 /* Code to actually dissect the packets */
-static void
+static int
 dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   /* Set up structures we will need to add the protocol subtree and manage it */
@@ -613,6 +613,13 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   nstime_t       ident_time;
   size_t         offset=0;
   
+  if (!tvb_bytes_exist(tvb, offset, 1))
+	return 0;	/* not enough data to check message type */
+
+  type = tvb_get_guint8(tvb, offset);
+  if (match_strval(type, a11_types) == NULL)
+	return 0;	/* not a known message type */
+
   /* Make entries in Protocol column and Info column on summary display */
   
   if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
@@ -620,7 +627,6 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_clear(pinfo->cinfo, COL_INFO);
 
-  type = tvb_get_guint8(tvb, offset);
   switch (type) {
   case REGISTRATION_REQUEST:
 	if (check_col(pinfo->cinfo, COL_INFO)) 
@@ -858,6 +864,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tvb_reported_length_remaining(tvb, offset) > 0)
 	  dissect_a11_extensions(tvb, offset, a11_tree);
   }
+  return tvb_length(tvb);
 } /* dissect_a11 */
 
 /* Register the protocol with Ethereal */
@@ -1072,15 +1079,15 @@ void proto_register_a11(void)
 		&ett_a11_flags,
 		&ett_a11_ext,
 		&ett_a11_exts,
-        &ett_a11_radius,
-        &ett_a11_radiuses,
+		&ett_a11_radius,
+		&ett_a11_radiuses,
 	};
 
 	/* Register the protocol name and description */
 	proto_a11 = proto_register_protocol("3GPP2 A11", "3GPP2 A11", "a11");
 
 	/* Register the dissector by name */
-	register_dissector("a11", dissect_a11, proto_a11);
+	new_register_dissector("a11", dissect_a11, proto_a11);
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_a11, hf, array_length(hf));
