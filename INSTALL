@@ -22,8 +22,10 @@ Installation Checklist
           
          http://www.tcpdump.org .
 
-         Make sure you install the headers ('make install-incl') when you
-         install the library.
+         If you've downloaded the 0.5.2 version, make sure you install
+         the headers ('make install-incl') when you install the library.
+         The CVS snapshots will install the headers if you do 'make
+         install', and have no 'install-incl' target.
 
          If you installed libpcap from a binary package, you may have to
          install a "development" package; for example, there's
