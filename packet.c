@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.12 1998/11/18 03:01:38 gerald Exp $
+ * $Id: packet.c,v 1.13 1998/12/04 05:59:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -165,6 +165,12 @@ add_item_to_tree(GtkWidget *tree, gint start, gint len,
   gtk_widget_show(ti);
 
   return ti;
+}
+
+void
+set_item_len(GtkWidget *ti, gint len)
+{
+  gtk_object_set_data(GTK_OBJECT(ti), E_TREEINFO_LEN_KEY, (gpointer) len);
 }
 
 void

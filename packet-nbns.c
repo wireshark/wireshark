@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.9 1998/11/21 04:00:31 guy Exp $
+ * $Id: packet-nbns.c,v 1.10 1998/12/04 05:59:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -642,14 +642,14 @@ dissect_query_records(const u_char *nbns_data_ptr, int count, const u_char *pd,
 	int start_off;
 	GtkWidget *qatree, *ti;
 	
-	qatree = gtk_tree_new();
 	start_off = cur_off;
-	
+	ti = add_item_to_tree(GTK_WIDGET(nbns_tree), 
+			start_off, 0, "Queries");
+	qatree = gtk_tree_new();
+	add_subtree(ti, qatree, ETT_NBNS_QRY);
 	while (count-- > 0)
 		cur_off += dissect_nbns_query(nbns_data_ptr, pd, cur_off, qatree);
-	ti = add_item_to_tree(GTK_WIDGET(nbns_tree), 
-			start_off, cur_off - start_off, "Queries");
-	add_subtree(ti, qatree, ETT_NBNS_QRY);
+	set_item_len(ti, cur_off - start_off);
 
 	return cur_off - start_off;
 }
@@ -663,15 +663,15 @@ dissect_answer_records(const u_char *nbns_data_ptr, int count,
 	int start_off;
 	GtkWidget *qatree, *ti;
 	
-	qatree = gtk_tree_new();
 	start_off = cur_off;
-
+	ti = add_item_to_tree(GTK_WIDGET(nbns_tree),
+			start_off, 0, name);
+	qatree = gtk_tree_new();
+	add_subtree(ti, qatree, ETT_NBNS_ANS);
 	while (count-- > 0)
 		cur_off += dissect_nbns_answer(nbns_data_ptr, pd, cur_off,
 					qatree, opcode);
-	ti = add_item_to_tree(GTK_WIDGET(nbns_tree), start_off, cur_off - start_off, name);
-	add_subtree(ti, qatree, ETT_NBNS_ANS);
-
+	set_item_len(ti, cur_off - start_off);
 	return cur_off - start_off;
 }
 

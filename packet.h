@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.26 1998/11/20 05:58:42 gram Exp $
+ * $Id: packet.h,v 1.27 1998/12/04 05:59:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -486,6 +486,7 @@ GtkWidget* add_item_to_tree(GtkWidget *, gint, gint, gchar *, ...)
 #else
 GtkWidget* add_item_to_tree(GtkWidget *, gint, gint, gchar *, ...);
 #endif
+void       set_item_len(GtkWidget *, gint);
 gchar*     val_to_str(guint32, const value_string *, const char *);
 gchar*     match_strval(guint32, const value_string*);
 gint       check_col(frame_data *, gint);

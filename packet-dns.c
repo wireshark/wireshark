@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.9 1998/11/17 04:28:51 gerald Exp $
+ * $Id: packet-dns.c,v 1.10 1998/12/04 05:59:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -407,14 +407,14 @@ dissect_query_records(const u_char *dns_data_ptr, int count, const u_char *pd,
   int start_off;
   GtkWidget *qatree, *ti;
   
-  qatree = gtk_tree_new();
   start_off = cur_off;
-  
+  ti = add_item_to_tree(GTK_WIDGET(dns_tree), 
+			start_off, 0, "Queries");
+  qatree = gtk_tree_new();
+  add_subtree(ti, qatree, ETT_DNS_QRY);
   while (count-- > 0)
     cur_off += dissect_dns_query(dns_data_ptr, pd, cur_off, qatree);
-  ti = add_item_to_tree(GTK_WIDGET(dns_tree), 
-			start_off, cur_off - start_off, "Queries");
-  add_subtree(ti, qatree, ETT_DNS_QRY);
+  set_item_len(ti, cur_off - start_off);
 
   return cur_off - start_off;
 }
@@ -429,13 +429,14 @@ dissect_answer_records(const u_char *dns_data_ptr, int count,
   int start_off;
   GtkWidget *qatree, *ti;
   
-  qatree = gtk_tree_new();
   start_off = cur_off;
-
+  ti = add_item_to_tree(GTK_WIDGET(dns_tree),
+			start_off, 0, name);
+  qatree = gtk_tree_new();
+  add_subtree(ti, qatree, ETT_DNS_ANS);
   while (count-- > 0)
     cur_off += dissect_dns_answer(dns_data_ptr, pd, cur_off, qatree);
-  ti = add_item_to_tree(GTK_WIDGET(dns_tree), start_off, cur_off - start_off, name);
-  add_subtree(ti, qatree, ETT_DNS_ANS);
+  set_item_len(ti, cur_off - start_off);
 
   return cur_off - start_off;
 }
