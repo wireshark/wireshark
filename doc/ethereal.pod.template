@@ -37,7 +37,10 @@ B<Shomiti>), B<LanAlyzer>,
 uncompressed B<Sniffer>, Microsoft B<Network Monitor>, AIX's B<iptrace>, B<NetXray>,
 B<Sniffer Pro>, B<RADCOM>'s WAN/LAN analyzer, and B<Lucent/Ascend> router debug output.
 There is no need to tell Ethereal what type of file you
-are reading; it will determine the file type by itself.
+are reading; it will determine the file type by itself. Ethereal is also capable
+of reading any of these file formats if they are compressed using gzip. Ethereal
+recognizes this directly from the file; the '.gz' extension is not required for 
+this purpose.
 
 Like other protocol analyzers, B<Ethereal>'s main window shows 3 views of a packet. It
 shows a summary line, briefly describing what the packet is. A protocol tree is shown, allowing
@@ -52,6 +55,9 @@ progresses, expect more and more protocol fields to be allowed in display filter
 
 Packet capturing is performed with the pcap library. The capture filter syntax follows
 the rules of the pcap library. This syntax is different from the display filter syntax.
+
+Compressed file support uses (and therefore requires) the zlib library. If the zlib
+library is not present, Ethereal will compile, but will be unable to read compressed files.
 
 =head1 OPTIONS
 
