@@ -3,7 +3,7 @@
  *
  * See RFC 1777 (LDAP v2), RFC 2251 (LDAP v3), and RFC 2222 (SASL).
  *
- * $Id: packet-ldap.c,v 1.65 2003/11/05 09:04:16 sahlberg Exp $
+ * $Id: packet-ldap.c,v 1.66 2003/11/05 20:10:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -158,13 +158,14 @@ static ldap_conv_info_t *ldap_info_items;
 static GMemChunk *ldap_call_response_chunk = NULL;
 static guint ldap_call_response_chunk_count = 200;
 
-static gint
+static guint
 ldap_info_hash_matched(gconstpointer k)
 {
   ldap_call_response_t *key = (ldap_call_response_t *)k;
 
   return key->messageId;
 }
+
 static gint
 ldap_info_equal_matched(gconstpointer k1, gconstpointer k2)
 {
@@ -181,13 +182,14 @@ ldap_info_equal_matched(gconstpointer k1, gconstpointer k2)
   return key1->messageId==key2->messageId;
 }
 
-static gint
+static guint
 ldap_info_hash_unmatched(gconstpointer k)
 {
   ldap_call_response_t *key = (ldap_call_response_t *)k;
 
   return key->messageId;
 }
+
 static gint
 ldap_info_equal_unmatched(gconstpointer k1, gconstpointer k2)
 {
