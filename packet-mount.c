@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.35 2002/11/01 00:48:38 sahlberg Exp $
+ * $Id: packet-mount.c,v 1.36 2002/11/13 21:45:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,9 +37,11 @@
 
 
 static int proto_mount = -1;
+static int proto_sgi_mount = -1;
 static int hf_mount_procedure_v1 = -1;
 static int hf_mount_procedure_v2 = -1;
 static int hf_mount_procedure_v3 = -1;
+static int hf_sgi_mount_procedure_v1 = -1;
 static int hf_mount_path = -1;
 static int hf_mount3_status = -1;
 static int hf_mount_mountlist_hostname = -1;
@@ -49,6 +51,8 @@ static int hf_mount_groups_group = -1;
 static int hf_mount_groups = -1;
 static int hf_mount_exportlist_directory = -1;
 static int hf_mount_exportlist = -1;
+static int hf_mount_has_options = -1;
+static int hf_mount_options = -1;
 static int hf_mount_pathconf_link_max = -1;
 static int hf_mount_pathconf_max_canon = -1;
 static int hf_mount_pathconf_max_input = -1;
@@ -67,6 +71,25 @@ static int hf_mount_pathconf_error_pipe_buf = -1;
 static int hf_mount_pathconf_chown_restricted = -1;
 static int hf_mount_pathconf_no_trunc = -1;
 static int hf_mount_pathconf_error_vdisable = -1;
+static int hf_mount_statvfs_bsize = -1;
+static int hf_mount_statvfs_frsize = -1;
+static int hf_mount_statvfs_blocks = -1;
+static int hf_mount_statvfs_bfree = -1;
+static int hf_mount_statvfs_bavail = -1;
+static int hf_mount_statvfs_files = -1;
+static int hf_mount_statvfs_ffree = -1;
+static int hf_mount_statvfs_favail = -1;
+static int hf_mount_statvfs_fsid = -1;
+static int hf_mount_statvfs_basetype = -1;
+static int hf_mount_statvfs_flag = -1;
+static int hf_mount_statvfs_flag_rdonly = -1;
+static int hf_mount_statvfs_flag_nosuid = -1;
+static int hf_mount_statvfs_flag_notrunc = -1;
+static int hf_mount_statvfs_flag_nodev = -1;
+static int hf_mount_statvfs_flag_grpid = -1;
+static int hf_mount_statvfs_flag_local = -1;
+static int hf_mount_statvfs_namemax = -1;
+static int hf_mount_statvfs_fstr = -1;
 static int hf_mount_flavors = -1;
 static int hf_mount_flavor = -1;
 
@@ -75,6 +98,7 @@ static gint ett_mount_mountlist = -1;
 static gint ett_mount_groups = -1;
 static gint ett_mount_exportlist = -1;
 static gint ett_mount_pathconf_mask = -1;
+static gint ett_mount_statvfs_flag = -1;
 
 #define MAX_GROUP_NAME_LIST 128
 static char group_name_list[MAX_GROUP_NAME_LIST];
@@ -540,6 +564,182 @@ dissect_mount3_mnt_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	return offset;
 }
 
+static int
+dissect_sgi_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_item* exportlist_item = NULL;
+	proto_tree* exportlist_tree = NULL;
+	int old_offset = offset;
+	int options_offset;
+	char* directory, *options;
+
+	if (tree) {
+		exportlist_item = proto_tree_add_item(tree, hf_mount_exportlist,
+					tvb, offset, -1, FALSE);
+		if (exportlist_item)
+			exportlist_tree = proto_item_add_subtree(exportlist_item,
+						ett_mount_exportlist);
+	}
+
+	offset = dissect_rpc_string(tvb, exportlist_tree,
+			hf_mount_exportlist_directory, offset, &directory);
+
+	offset = dissect_rpc_bool(tvb, exportlist_tree,
+			hf_mount_has_options, offset);
+	options_offset = offset;
+
+	offset = dissect_rpc_string(tvb, exportlist_tree, hf_mount_options,
+			 offset, &options);
+
+	if (exportlist_item) {
+		/* now we have a nicer string */
+		proto_item_set_text(exportlist_item,
+			"Export List Entry: %s %s", directory,
+			options);
+		/* now we know, that exportlist is shorter */
+		proto_item_set_len(exportlist_item, offset - old_offset);
+	}
+	g_free(directory);
+	g_free(options);
+
+	return offset;
+}
+
+static int
+dissect_mount_exportlist_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset = dissect_rpc_list(tvb, pinfo, tree, offset, dissect_sgi_exportlist);
+
+	return offset;
+}
+
+#define ST_RDONLY	0x00000001
+#define ST_NOSUID	0x00000002
+#define ST_NOTRUNC	0x00000004
+#define ST_NODEV	0x20000000
+#define ST_GRPID	0x40000000
+#define ST_LOCAL	0x80000000
+
+static const true_false_string tos_st_rdonly = {
+	"Read-only file system",
+	"Read/Write file system"
+};
+
+static const true_false_string tos_st_nosuid = {
+	"Does not support setuid/setgid semantics",
+	"Supports setuid/setgid semantics"
+};
+
+static const true_false_string tos_st_notrunc = {
+	"Does not trunctate filenames longer than NAME_MAX",
+	"Truncates filenames longer than NAME_MAX"
+};
+
+static const true_false_string tos_st_nodev = {
+	"Disallows opening of device files",
+	"Allows opening of device files"
+};
+
+static const true_false_string tos_st_grpid = {
+	"Group ID assigned from directory",
+	"Group ID not assigned from directory"
+};
+
+static const true_false_string tos_st_local = {
+	"File system is local",
+	"File system is not local"
+};
+
+static int
+dissect_mount_statvfs_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_item *flag_item;
+	proto_tree *flag_tree;
+ 	guint32 statvfs_flags;
+
+	statvfs_flags = tvb_get_ntohl(tvb, offset+52);
+	if (tree) {
+		dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_bsize, offset);
+	}
+	offset += 4;
+	if (tree) {
+		dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_frsize, offset);
+	}
+	offset += 4;
+	if (tree) {
+		dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_blocks, offset);
+	}
+	offset += 4;
+	if (tree) {
+		dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_bfree, offset);
+	}
+	offset += 4;
+	if (tree) {
+		dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_bavail, offset);
+	}
+	offset += 4;
+	if (tree) {
+		dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_files, offset);
+	}
+	offset += 4;
+	if (tree) {
+		dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_ffree, offset);
+	}
+	offset += 4;
+	if (tree) {
+		dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_favail, offset);
+	}
+	offset += 4;
+	if (tree) {
+		dissect_rpc_bytes(tvb, tree, hf_mount_statvfs_basetype, offset,
+			16, TRUE, NULL);
+	}
+	offset += 16;
+	if (tree) {
+		dissect_rpc_bytes(tvb, tree, hf_mount_statvfs_fstr, offset,
+			32, FALSE, NULL);
+	}
+	offset += 32;
+	if (tree) {
+		dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_fsid, offset);
+	}
+	offset += 4;
+
+	if (tree) {
+		flag_item = proto_tree_add_item(tree, hf_mount_statvfs_flag,
+				tvb, offset, 4, FALSE);
+		if (flag_item) {
+			flag_tree = proto_item_add_subtree(flag_item,
+					ett_mount_statvfs_flag);
+			proto_tree_add_boolean(flag_tree,
+				hf_mount_statvfs_flag_rdonly, tvb, offset, 4,
+				statvfs_flags);
+			proto_tree_add_boolean(flag_tree,
+				hf_mount_statvfs_flag_nosuid, tvb, offset, 4,
+				statvfs_flags);
+			proto_tree_add_boolean(flag_tree,
+				hf_mount_statvfs_flag_notrunc, tvb, offset, 4,
+				statvfs_flags);
+			proto_tree_add_boolean(flag_tree,
+				hf_mount_statvfs_flag_nodev, tvb, offset, 4,
+				statvfs_flags);
+			proto_tree_add_boolean(flag_tree,
+				hf_mount_statvfs_flag_grpid, tvb, offset, 4,
+				statvfs_flags);
+			proto_tree_add_boolean(flag_tree,
+				hf_mount_statvfs_flag_local, tvb, offset, 4,
+				statvfs_flags);
+		}
+	}
+
+	offset += 4;
+	if (tree) {
+		dissect_rpc_uint32(tvb, tree, hf_mount_statvfs_namemax, offset);
+	}
+	offset += 4;
+
+	return offset;
+}
 
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: type of arguments is "void". */
@@ -635,6 +835,42 @@ static const value_string mount3_proc_vals[] = {
 };
 /* end of Mount protocol version 3 */
 
+/* SGI mount protocol version 1; actually the same as v1 plus
+   MOUNTPROC_EXPORTLIST and MOUNTPROC_STATVFS */
+
+static const vsff sgi_mount1_proc[] = {
+    { 0, "NULL", NULL, NULL },
+    { MOUNTPROC_MNT,        "MNT",      
+		dissect_mount_dirpath_call, dissect_mount1_mnt_reply },
+    { MOUNTPROC_DUMP,       "DUMP",
+		NULL, dissect_mount_dump_reply },
+    { MOUNTPROC_UMNT,      "UMNT",        
+		dissect_mount_dirpath_call, NULL },
+    { MOUNTPROC_UMNTALL,   "UMNTALL",
+		NULL, NULL },
+    { MOUNTPROC_EXPORT,    "EXPORT",
+		NULL, dissect_mount_export_reply },
+    { MOUNTPROC_EXPORTALL, "EXPORTALL",
+		NULL, dissect_mount_export_reply },
+    { MOUNTPROC_EXPORTLIST,"EXPORTLIST",
+		NULL, dissect_mount_exportlist_reply },
+    { MOUNTPROC_STATVFS,   "STATVFS",
+		dissect_mount_dirpath_call, dissect_mount_statvfs_reply },
+    { 0, NULL, NULL, NULL }
+};
+static const value_string sgi_mount1_proc_vals[] = {
+    { 0, "NULL" },
+    { MOUNTPROC_MNT,        "MNT" },
+    { MOUNTPROC_DUMP,       "DUMP" },
+    { MOUNTPROC_UMNT,       "UMNT" },
+    { MOUNTPROC_UMNTALL,    "UMNTALL" },
+    { MOUNTPROC_EXPORT,     "EXPORT" },
+    { MOUNTPROC_EXPORTALL,  "EXPORTALL" },
+    { MOUNTPROC_EXPORTLIST, "EXPORTLIST" },
+    { MOUNTPROC_STATVFS,    "STATVFS" },
+    { 0, NULL }
+};
+/* end of SGI mount protocol version 1 */
 
 void
 proto_register_mount(void)
@@ -649,6 +885,9 @@ proto_register_mount(void)
 		{ &hf_mount_procedure_v3, {
 			"V3 Procedure", "mount.procedure_v3", FT_UINT32, BASE_DEC,
 			VALS(mount3_proc_vals), 0, "V3 Procedure", HFILL }},
+		{ &hf_sgi_mount_procedure_v1, {
+			"SGI V1 rocedure", "mount.procedure_sgi)v1", FT_UINT32, BASE_DEC,
+			VALS(sgi_mount1_proc_vals), 0, "SGI V1 Procedure", HFILL }},
 		{ &hf_mount_path, {
 			"Path", "mount.path", FT_STRING, BASE_DEC,
 			NULL, 0, "Path", HFILL }},
@@ -670,6 +909,12 @@ proto_register_mount(void)
 		{ &hf_mount_groups, {
 			"Groups", "mount.export.groups", FT_NONE, 0,
 			NULL, 0, "Groups", HFILL }},
+		{ &hf_mount_has_options, {
+			"Has options", "mount.export.has_options", FT_UINT32,
+			 BASE_DEC, NULL, 0, "Has options", HFILL }},
+		{ &hf_mount_options, {
+			"Options", "mount.export.options", FT_STRING, BASE_DEC,
+			NULL, 0, "Options", HFILL }},
 		{ &hf_mount_exportlist_directory, {
 			"Directory", "mount.export.directory", FT_STRING, BASE_DEC,
 			NULL, 0, "Directory", HFILL }},
@@ -748,6 +993,82 @@ proto_register_mount(void)
 			"ERROR_VDISABLE", "mount.pathconf.mask.error_vdisable",
 			FT_BOOLEAN, 16, TFS(&tos_error_vdisable),
 			PC_ERROR_VDISABLE, "", HFILL }},
+		{ &hf_mount_statvfs_bsize, {
+			"Block size", "mount.statvfs.f_bsize",
+			FT_UINT32, BASE_DEC, NULL, 0,
+			"File system block size", HFILL }},
+		{ &hf_mount_statvfs_frsize, {
+			"Fragment size", "mount.statvfs.f_frsize",
+			FT_UINT32, BASE_DEC, NULL, 0,
+			"File system fragment size", HFILL }},
+		{ &hf_mount_statvfs_blocks, {
+			"Blocks", "mount.statvfs.f_blocks",
+			FT_UINT32, BASE_DEC, NULL, 0,
+			"Total fragment sized blocks", HFILL }},
+		{ &hf_mount_statvfs_bfree, {
+			"Blocks Free", "mount.statvfs.f_bfree",
+			FT_UINT32, BASE_DEC, NULL, 0,
+			"Free fragment sized blocks", HFILL }},
+		{ &hf_mount_statvfs_bavail, {
+			"Blocks Available", "mount.statvfs.f_bavail",
+			FT_UINT32, BASE_DEC, NULL, 0,
+			"Available fragment sized blocks", HFILL }},
+		{ &hf_mount_statvfs_files, {
+			"Files", "mount.statvfs.f_files",
+			FT_UINT32, BASE_DEC, NULL, 0,
+			"Total files/inodes", HFILL }},
+		{ &hf_mount_statvfs_ffree, {
+			"Files Free", "mount.statvfs.f_ffree",
+			FT_UINT32, BASE_DEC, NULL, 0,
+			"Free files/inodes", HFILL }},
+		{ &hf_mount_statvfs_favail, {
+			"Files Available", "mount.statvfs.f_favail",
+			FT_UINT32, BASE_DEC, NULL, 0,
+			"Available files/inodes",  HFILL }},
+		{ &hf_mount_statvfs_fsid, {
+			"File system ID", "mount.statvfs.f_fsid",
+			FT_UINT32, BASE_DEC, NULL, 0,
+			"File system identifier", HFILL }},
+		{ &hf_mount_statvfs_basetype, {
+			"Type", "mount.statvfs.f_basetype",
+			FT_STRING, BASE_DEC, NULL, 0,
+			"File system type", HFILL }},
+		{ &hf_mount_statvfs_flag, {
+			"Flags", "mount.statvfs.f_flag",
+			FT_UINT32, BASE_HEX, NULL, 0,
+			"Flags bit-mask", HFILL }},
+		{ &hf_mount_statvfs_flag_rdonly, {
+			"ST_RDONLY", "mount.statvfs.f_flag.st_rdonly",
+			FT_BOOLEAN, 32, TFS(&tos_st_rdonly), ST_RDONLY,
+			"", HFILL }},
+		{ &hf_mount_statvfs_flag_nosuid, {
+			"ST_NOSUID", "mount.statvfs.f_flag.st_nosuid",
+			FT_BOOLEAN, 32, TFS(&tos_st_nosuid), ST_NOSUID,
+			"", HFILL }},
+		{ &hf_mount_statvfs_flag_notrunc, {
+			"ST_NOTRUNC", "mount.statvfs.f_flag.st_notrunc",
+			FT_BOOLEAN, 32, TFS(&tos_st_notrunc), ST_NOTRUNC,
+			"", HFILL }},
+		{ &hf_mount_statvfs_flag_nodev, {
+			"ST_NODEV", "mount.statvfs.f_flag.st_nodev",
+			 FT_BOOLEAN, 32, TFS(&tos_st_nodev), ST_NODEV,
+			"", HFILL }},
+		{ &hf_mount_statvfs_flag_grpid, {
+			"ST_GRPID", "mount.statvfs.f_flag.st_grpid",
+			FT_BOOLEAN, 32, TFS(&tos_st_grpid), ST_GRPID,
+			"", HFILL }},
+		{ &hf_mount_statvfs_flag_local, {
+			"ST_LOCAL", "mount.statvfs.f_flag.st_local",
+			FT_BOOLEAN, 32, TFS(&tos_st_local), ST_LOCAL,
+			"", HFILL }},
+		{ &hf_mount_statvfs_namemax, {
+			"Maximum file name length", "mount.statvfs.f_namemax",
+			FT_UINT32, BASE_DEC, NULL, 0,
+			"Maximum file name length", HFILL }},
+		{ &hf_mount_statvfs_fstr, {
+			"File system specific string", "mount.statvfs.f_fstr",
+			FT_BYTES, BASE_HEX, NULL, 0,
+			"File system specific string", HFILL }},
 		{ &hf_mount_flavors, {
 			"Flavors", "mount.flavors", FT_UINT32, BASE_DEC,
 			NULL, 0, "Flavors", HFILL }},
@@ -761,9 +1082,13 @@ proto_register_mount(void)
 		&ett_mount_groups,
 		&ett_mount_exportlist,
 		&ett_mount_pathconf_mask,
+		&ett_mount_statvfs_flag,
 	};
 
-	proto_mount = proto_register_protocol("Mount Service", "MOUNT", "mount");
+	proto_mount = proto_register_protocol("Mount Service", "MOUNT",
+	    "mount");
+	proto_sgi_mount = proto_register_protocol("SGI Mount Service",
+	    "SGI MOUNT", "sgimount");
 	proto_register_field_array(proto_mount, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
@@ -773,8 +1098,10 @@ proto_reg_handoff_mount(void)
 {
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_mount, MOUNT_PROGRAM, ett_mount);
+	rpc_init_prog(proto_sgi_mount, SGI_MOUNT_PROGRAM, ett_mount);
 	/* Register the procedure tables */
 	rpc_init_proc_table(MOUNT_PROGRAM, 1, mount1_proc, hf_mount_procedure_v1);
 	rpc_init_proc_table(MOUNT_PROGRAM, 2, mount2_proc, hf_mount_procedure_v2);
 	rpc_init_proc_table(MOUNT_PROGRAM, 3, mount3_proc, hf_mount_procedure_v3);
+	rpc_init_proc_table(SGI_MOUNT_PROGRAM, 1, sgi_mount1_proc, hf_sgi_mount_procedure_v1);
 }

@@ -1495,6 +1495,12 @@ Ronald Henderson <Ronald.Henderson [AT] CognicaseUSA.com> {
 	    TCP segments
 }
 
+Brian Ginsbach <ginsbach [AT] cray.com> {
+	"dissect_rpc_bytes()" routine to allow fixed-length opaque data
+	    to be dissected
+	Support for SGI's variant of the ONC RPC mount protocol
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

@@ -1,5 +1,5 @@
 /* packet-mount.h */
-/* $Id: packet-mount.h,v 1.3 1999/11/20 06:17:00 guy Exp $ */
+/* $Id: packet-mount.h,v 1.4 2002/11/13 21:45:56 guy Exp $ */
 
 #ifndef PACKET_MOUNT_H
 #define PACKET_MOUNT_H
@@ -15,4 +15,7 @@
 #define MOUNTPROC_EXPORTALL	6
 #define MOUNTPROC_PATHCONF	7
 
+#define SGI_MOUNT_PROGRAM	391004
+#define MOUNTPROC_EXPORTLIST	99
+#define MOUNTPROC_STATVFS	100
 #endif

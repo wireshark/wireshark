@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.107 2002/10/24 06:17:34 guy Exp $
+ * $Id: packet-rpc.c,v 1.108 2002/11/13 21:45:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -477,8 +477,9 @@ int hfindex, int offset)
 
 static int
 dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
-    proto_tree *tree, int hfindex, gboolean string_data,
-    char **string_buffer_ret)
+    proto_tree *tree, int hfindex,
+    gboolean fixed_length, guint32 length,
+    gboolean string_data, char **string_buffer_ret)
 {
 	proto_item *string_item = NULL;
 	proto_tree *string_tree = NULL;
@@ -501,10 +502,17 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 	char *string_buffer = NULL;
 	char *string_buffer_print = NULL;
 
+	if (fixed_length) {
+		string_length = length;
+		string_length_captured = tvb_length_remaining(tvb, offset);
+		string_length_packet = tvb_reported_length_remaining(tvb, offset);
+	}
+	else {
 	string_length = tvb_get_ntohl(tvb,offset+0);
-	string_length_full = rpc_roundup(string_length);
 	string_length_captured = tvb_length_remaining(tvb, offset + 4);
 	string_length_packet = tvb_reported_length_remaining(tvb, offset + 4);
+	}
+	string_length_full = rpc_roundup(string_length);
 	if (string_length_captured < string_length) {
 		/* truncated string */
 		string_length_copy = string_length_captured;
@@ -520,10 +528,18 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 		/* full string data */
 		string_length_copy = string_length;
 		fill_length = string_length_full - string_length;
+		if (fixed_length) {
+			fill_length_captured = tvb_length_remaining(tvb,
+			    offset + string_length);
+			fill_length_packet = tvb_reported_length_remaining(tvb,
+			    offset + string_length);
+		}
+		else {
 		fill_length_captured = tvb_length_remaining(tvb,
 		    offset + 4 + string_length);
 		fill_length_packet = tvb_reported_length_remaining(tvb,
 		    offset + 4 + string_length);
+		}
 		if (fill_length_captured < fill_length) {
 			/* truncated fill bytes */
 			fill_length_copy = fill_length_packet;
@@ -541,6 +557,9 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 	}
 	string_buffer = (char*)g_malloc(string_length_copy +
 			(string_data ? 1 : 0));
+	if (fixed_length)
+		tvb_memcpy(tvb,string_buffer, offset, string_length_copy);
+	else
 	tvb_memcpy(tvb,string_buffer,offset+4,string_length_copy);
 	if (string_data)
 		string_buffer[string_length_copy] = '\0';
@@ -586,17 +605,20 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 		string_item = proto_tree_add_text(tree, tvb,offset+0, -1,
 			"%s: %s", proto_registrar_get_name(hfindex), string_buffer_print);
 		if (string_data) {
-			proto_tree_add_string_hidden(tree, hfindex, tvb, offset+4,
+			proto_tree_add_string_hidden(tree, hfindex, tvb, 
+				(fixed_length)? offset : offset + 4,
 				string_length_copy, string_buffer);
 		}
 		if (string_item) {
 			string_tree = proto_item_add_subtree(string_item, ett_rpc_string);
 		}
 	}
+	if (!fixed_length) {
 	if (string_tree)
 		proto_tree_add_text(string_tree, tvb,offset+0,4,
 			"length: %u", string_length);
 	offset += 4;
+	}
 
 	if (string_tree) {
 		if (string_data) {
@@ -655,7 +677,7 @@ dissect_rpc_string(tvbuff_t *tvb, proto_tree *tree,
     int hfindex, int offset, char **string_buffer_ret)
 {
 	offset = dissect_rpc_opaque_data(tvb, offset, tree,
-	    hfindex, TRUE, string_buffer_ret);
+	    hfindex, FALSE, 0, TRUE, string_buffer_ret);
 	return offset;
 }
 
@@ -664,9 +686,19 @@ int
 dissect_rpc_data(tvbuff_t *tvb, proto_tree *tree,
     int hfindex, int offset)
 {
-	offset = dissect_rpc_opaque_data(tvb, offset, tree, hfindex,
-	    FALSE, NULL);
+	offset = dissect_rpc_opaque_data(tvb, offset, tree,
+	    hfindex, FALSE, 0, FALSE, NULL);
+	return offset;
+}
 
+
+int
+dissect_rpc_bytes(tvbuff_t *tvb, proto_tree *tree,
+    int hfindex, int offset, guint32 length,
+    gboolean string_data, char **string_buffer_ret)
+{
+	offset = dissect_rpc_opaque_data(tvb, offset, tree,
+	    hfindex, TRUE, length, string_data, string_buffer_ret);
 	return offset;
 }
 
