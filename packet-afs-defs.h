@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-defs.h,v 1.4 2000/11/03 22:11:36 nneul Exp $
+ * $Id: packet-afs-defs.h,v 1.5 2000/11/03 22:38:07 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -627,6 +627,9 @@ static int hf_afs_bos_newtime = -1;
 static int hf_afs_bos_baktime = -1;
 static int hf_afs_bos_oldtime = -1;
 static int hf_afs_bos_data = -1;
+static int hf_afs_bos_keymodtime = -1;
+static int hf_afs_bos_keychecksum = -1;
+static int hf_afs_bos_keyspare2 = -1;
 
 static int hf_afs_vldb_errcode = -1;
 static int hf_afs_vldb_name = -1;

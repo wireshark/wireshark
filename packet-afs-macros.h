@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-macros.h,v 1.4 2000/11/03 22:11:36 nneul Exp $
+ * $Id: packet-afs-macros.h,v 1.5 2000/11/03 22:38:07 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -364,7 +364,9 @@
 
 /* output a bozo_key */
 #define OUT_BOS_KEYINFO() \
-	OUT_BYTES(hf_afs_bos_key, 4*4);
+	OUT_TIMESTAMP(hf_afs_bos_keymodtime); \
+	OUT_UINT(hf_afs_bos_keychecksum); \
+	OUT_UINT(hf_afs_bos_keyspare2);
 
 /* output a bozo_netKTime */
 #define OUT_BOS_TIME() \

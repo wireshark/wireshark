@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-register-info.h,v 1.4 2000/11/03 22:11:36 nneul Exp $
+ * $Id: packet-afs-register-info.h,v 1.5 2000/11/03 22:38:07 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -332,6 +332,12 @@
 	FT_ABSOLUTE_TIME, BASE_DEC, 0, 0, "Backup Time" }},
 { &hf_afs_bos_oldtime, { "Old Time", "afs.bos.oldtime", 
 	FT_ABSOLUTE_TIME, BASE_DEC, 0, 0, "Old Time" }},
+{ &hf_afs_bos_keymodtime, { "Key Modification Time", "afs.bos.keymodtime", 
+	FT_ABSOLUTE_TIME, BASE_DEC, 0, 0, "Key Modification Time" }},
+{ &hf_afs_bos_keychecksum, { "Key Checksum", "afs.bos.keychecksum", 
+	FT_UINT32, BASE_DEC, 0, 0, "Key Checksum" }},
+{ &hf_afs_bos_keyspare2, { "Key Spare 2", "afs.bos.keyspare2", 
+	FT_UINT32, BASE_DEC, 0, 0, "Key Spare 2" }},
 
 
 /* KAUTH Server Fields */
