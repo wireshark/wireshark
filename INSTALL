@@ -1,76 +1,184 @@
-Installation Checklist
-======================
+Installation
+============
 
-  [ ] 0. This is alpha software.  Beware.
-  
-  [ ] 1. Make sure you have GTK+ installed.  Try running 'gtk-config
-         --version'.  If you need to install/reinstall GTK, you can find
-         it at
+These are installation instructions for Unix and Unix-like systems
+that can run the "configure" script in this same directory. These
+are not the installation instructions for Windows systems; see
+README.win32 for those instructions.
 
-         http://www.gtk.org .
+0. This is alpha software.  Beware.
 
-         Ethereal needs gtk+-1.2.0 or above.
+1. If you wish to build Ethereal, make sure you have GTK+ and GLIB
+    installed. Try running 'gtk-config --version' and
+    'glib-config --version' to see if you have them installed.
+    Ethereal needs versions 1.2.0 or above of both these packages.
+    If you need to install or re-install GTK+ or GLIB, you can find
+    the packages at:
 
-         If you installed GTK+ from a binary package, you may have to
-         install a "development" package; there may be separate "user's"
-         and "developer's" packages, with the former not including
-         header files and the like.  For example, Red Hat users will
-         need to install a "gtk-devel" .rpm.
+        http://www.gtk.org
 
-  [ ] 2. If you want to capture packets, make sure you have libpcap
-         installed.  The latest "official" version can be found at
-          
-         http://www.tcpdump.org .
+    If you installed GTK+ from a binary package, you may have to
+    install a "development" package; there may be separate "user's"
+    and "developer's" packages, with the former not including
+    header files and the like.  For example, Red Hat users will
+    need to install a "gtk-devel" .rpm.
 
-         If you've downloaded the 0.5.2 version, make sure you install
-         the headers ('make install-incl') when you install the library.
-         The CVS snapshots will install the headers if you do 'make
-         install', and have no 'install-incl' target.
+2. If you wish to build Tethereal, the line-mode version of Ethereal,
+    make sure you have GLIB installed.  See note #1 above for instructions
+    on checking if you have GLIB installed. You can download GLIB from
+    the same site as GTK.
 
-         If you installed libpcap from a binary package, you may have to
-         install a "development" package; for example, there's
-         apparently a "libpcap0" Debian package, but it just includes a
-         shared library, a copyright notice, changelog files, and a
-         README file - you also need to install a "libpcap-dev" package
-         to get header files, a non-shared library, and the man page.
-         Similarly, Red Hat 5.x users will need to install a "libpcap-devel"
-         .rpm to go along with the "libpcap" .rpm.
+3. If you want to capture packets, make sure you have libpcap
+    installed.  The latest "official" version can be found at
 
-  [ ] 3. Run './configure' in the Ethereal distribution directory.
-         Running './configure --help' displays a list of options.
-         The file 'INSTALL.configure' contains general instructions for
-         using 'configure' and 'make'.
+    http://www.tcpdump.org .
 
-         Ethereal installs a support file (manuf) in /usr/local/etc by
-         default.  You can change this location with the --sysconfdir
-         option.
+    If you've downloaded the 0.5.2 version, make sure you install
+    the headers ('make install-incl') when you install the library.
+    The CVS snapshots will install the headers if you do 'make
+    install', and have no 'install-incl' target.
 
-         The --disable-pcap option allows you to compile without libpcap.
-         You won't be able to capture packets, but you can read traces
-         that have already been captured to disk by other programs.
+    If you installed libpcap from a binary package, you may have to
+    install a "development" package; for example, there's
+    apparently a "libpcap0" Debian package, but it just includes a
+    shared library, a copyright notice, changelog files, and a
+    README file - you also need to install a "libpcap-dev" package
+    to get header files, a non-shared library, and the man page.
+    Similarly, Red Hat 5.x users will need to install a "libpcap-devel"
+    .rpm to go along with the "libpcap" .rpm.
 
-         You can build or not build ethereal, tethereal, editcap, and
-         mergecap with the appropriate --enable-XXX or --disable-XXX
-         flags.  The default is to build everything. If GTK+ is not
-         detected on the system, then ethereal won't be built.
+4. Run './configure' in the Ethereal distribution directory.
+    Running './configure --help' displays a list of options.
+    The file 'INSTALL.configure' contains general instructions for
+    using 'configure' and 'make'. Ethereal has some
+    non-generic configure options:
 
-  [ ] 4. Run 'make'.  Hopefully, you won't run into any problems.
+    --sysconfdir=DIR
+        Ethereal installs a support file (manuf) in ${PREFIX}/etc by
+        default, where ${PREFIX} comes from --prefix=DIR. If you do not
+        specify any --prefix option, ${PREFIX} is "/usr/local".
+        You can change the location of the manuf file with the --sysconfdir
+        option.
 
-  [ ] 5. Run './ethereal', and make sure things are working.  You must
-         have root privileges in order to capture live data.
+    --disable-usr-local
+        By default 'configure' will look in /usr/local/{include,lib} for
+        additional header files and libraries. Using this switch keeps
+        'configure' from looking there
 
-  [ ] 6. Run 'make install'.  If you wish to install the man page, run
-         'make install-man'.  If you're running a system that supports
-         the Apt, RPM, or System V Release 4 packaging systems, you can
-         run one of
+    --disable-ethereal
+        By default, if 'configure' finds the GTK+ libraries, the Makefile
+        build Ethereal, the GUI packet analyzer. You can disable the
+        build of the GUI version of Ethereal with this switch.
 
-         make debian-package	# Builds a binary package using dpkg
-         make rpm-package	# Builds a binary package using rpm
-         make srpm-package	# Builds a source package using rpm
-         make svr4-package	# Builds a source package using pkgmk
-         make solaris-package	# Same as "make svr4-package"
+    --disable-tethereal
+        By default the line-mode packet analyzer, Tethereal, is built.
+        Use this switch to avoid building it.
 
-         to make an installable package for your system.
+    --disable-editcap
+        By default the capture-file editing program is built.
+        Use this switch to avoid building it.
+
+    --disable-mergecap
+        By default the capture-file merging program is built.
+        Use this switch to avoid building it.
+
+    --disable-text2pcap
+        By default the hex-dump-to-capture file conversion program
+        is built. Use this switch to avoid building it.
+
+    --disable-idl2eth
+        By default the IDL-to-ethereal-dissector-source-code converter
+        is built. Use this switch to avoid building it.
+
+    --enable-dftest
+        By default the display-filter-compiler test program is not built.
+        Use this switch to build it.
+
+    --enable-randpkt
+        By default the program which creates random packet-capture files
+        is not built. Use this switch to build it.
+
+    --without-pcap
+        If you chose to build a packet analyzer that can analyze
+        capture files but cannot capture packets on its own, but you
+        *do* have libpcap installed, use --without-pcap to avoid
+        using libpcap.
+
+    --with-pcap=DIR
+        Use this tell Ethereal where you have libpcap installed, if in a
+        non-standard location.
+
+    --disable-zlib
+        By default, if 'configure' finds zlib (a.k.a, libz), the
+        wiretap library will be built so that it can read compressed
+        capture files. If you have zlib but do not wish to build
+        it into the wiretap library, used by Ethereal, Tethereal, and
+        the capture-file utilities that come in this package, use
+        this switch.
+
+    --disable-ipv6
+        If 'configure' finds support for IPv6 name resolution on
+        your system, the packet analyzers will make use of it.
+        To avoid using IPv6 name resolution if you have the support for it,
+        use this switch.
+
+    --enable-setuid-install
+        Use this switch to install the packet analyzers as setuid.
+        Installating Ethereal and Tethereal as setuid 'root' is
+        dangerous. Repeat: IT'S DANGEROUS. Don't do it.
+
+    --with-ssl=DIR
+        If your SNMP library needs the SSL library, and your
+        SSL library is installed in a non-standard location,
+        you can specify where your SSL library is with this switch.
+
+    --disable-snmp
+        If 'configure' finds a supported SNMP library on your system,
+        the SNMP dissector will be enhanced to use the SNMP library.
+        Use this switch to avoid using the SNMP library even if you
+        have it installed.
+
+    --with-ucdsnmp=DIR
+        Tell the 'configure' script where your UCD SNMP library
+        is located, if not in a standard location.
+
+    --without-plugins
+        By default, if your system can support run-time loadable modules,
+        the packet analyzers are build with support for plugins.
+        Use this switcht to build packet analyzers without plugin support.
+
+    --with-plugins=DIR
+        By default, plugins are installed in
+        ${LIBDIR}/ethereal/plugins/${VERSION}
+
+        ${LIBDIR} can be set with --libdir, or defaults to ${EPREFIX/lib}
+        ${EPREFIX} can be set with --exec-prefix, or defaults to ${PREFIX}
+        ${VERSION} is the Etherael version.
+
+        Use this switch to change the location where plugins
+        are installed.
+
+5. After running './configure', you will see a summary of some
+    of the options you chose. Ensure that the summary reflects
+    what you want. If it doesn't, re-run './configure' with new options.
+
+6. Run 'make'.  Hopefully, you won't run into any problems.
+
+7. Run './ethereal' or './tethereal', and make sure things are working.
+    You must have root privileges in order to capture live data.
+
+8. Run 'make install'.  If you wish to install the man page, run
+    'make install-man'.  If you're running a system that supports
+    the Apt, RPM, or System V Release 4 packaging systems, you can
+    run one of
+
+    make debian-package	# Builds a binary package using dpkg
+    make rpm-package	# Builds a binary package using rpm
+    make srpm-package	# Builds a source package using rpm
+    make svr4-package	# Builds a source package using pkgmk
+    make solaris-package	# Same as "make svr4-package"
+
+    to make an installable package for your system.
 
 If you have trouble with the build or installation process, you can
 find assistance on the ethereal-users and ethereal-dev mailing lists.
