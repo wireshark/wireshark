@@ -10,7 +10,7 @@
  *   2000 Access Network Interfaces
  *			3GPP2 A.S0001-1		TIA/EIA-2001
  *
- * $Id: packet-ansi_a.c,v 1.7 2003/11/10 20:15:28 guy Exp $
+ * $Id: packet-ansi_a.c,v 1.8 2003/11/10 22:31:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5939,7 +5939,7 @@ typedef enum
     P_SO_LIST,	/* Service Option List */
     P_S_RED_INFO,	/* Service Redirection Info */
     P_SR_ID,	/* Session Reference Identifier (SR_ID) */
-    P_SID,	/* SID */
+    P_MY_SID,	/* SID (P_SID collides with something you get when you include <stdlib.h> on HP-UX and Tru64 UNIX) */
     P_SIGNAL,	/* Signal */
     P_SCI,	/* Slot Cycle Index */
     P_SW_VER,	/* Software Version */
@@ -7469,7 +7469,7 @@ bsmap_ho_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TLV(P_HO_POW_LEV, "");
 
-    ELEM_OPT_TV(P_SID, "");
+    ELEM_OPT_TV(P_MY_SID, "");
 
     ELEM_OPT_TLV(P_EXT_HO_DIR_PARAMS, "");
 
