@@ -169,17 +169,71 @@ Overview of changes in Ethereal 0.9.3:
 * More Skinny updates. (Paul)
 * Update iSCSI to draft 11. (Mark Burton)
 * Add MESSAGE, QAUTH and DO methods to SIP. (Jakob Schlyter, Gerald)
-* 
-
-
-
-
-
-
-
-
-
-
+* Correctly set DCE RPC stub data tvbuff length. (Todd Sabin)
+* DCE RPC authentication protocol dissection and display enhancements.
+  (Guy)
+* Use somewhat nicer names for Skinny media payload types. (Guy)
+* Add more Skinny media payload names and improve existing ones. (Guy)
+* Add Issani vendor codes and VSA support to RADIUS. (Jim Sienicki)
+* Better DCE RPC request and reply tree display, add connectionless PDU
+  authentication data to the tree. (Guy)
+* Plug a SPOOLSS memory leak, get rid of an unused variable. (Guy)
+* Add names for additional SPOOLSS calls. (Steven French)
+* Better LEAP state tracking. (Guy)
+* Add a "-q" flag to Tethereal to suppress packet count display.
+  (Diana Eichert)
+* Make flag and menu descriptions in man pages more consistent, improve
+  description of "-N" flag. (Guy)
+* Re-disable linking to UCD SNMP library by default. (Guy)
+* LEAP state tracking and display improvements. (Adam)
+* Make LEAP state tracking per-conversation, #include cleanups. (Guy)
+* CGMP over Ethernet II support. (Heikki Vatiainen)
+* Fix the test for IS-IS virtual links. (Heikki)
+* Improve string/tree behavior in DCE RPC NETLOGON, NT, and SAMR 
+  dissectors. (Guy)
+* Add a generic reply handler for unimplemented spoolss dissectors. (Tim)
+* #include <string.h> to quieten compiler warning in packet-dcerpc-samr.c
+  (Tim)
+* Some refactoring of the spoolss dissector. (Tim)
+* Treat country code of 0 in "winnls.h" as the "default" in SMB. (Guy)
+* Keep TPKT information out of the Info column where needed. (Andreas)
+* Put the H.225 stuff at the top level of the Q.931 protocol tree. 
+  (Andreas)
+* Properly handle VMS TCPIPTRACE fragmented packets. (Marc Milgram)
+* Added dissectors for get/set/delete form to packet-dcerpc-spoolss.c.
+  (Tim)
+* Use dcerpc_call_value structure to fetch request/response frame numbers
+  and storage of private data. Fix memory leaks in form dissectors. (Tim)
+* Improve (remove, actually) link tags in pod documentation. (Andrew)
+* Make the UCD SNMP library read its configuration files. (Guy)
+* Fix errors in the Unicode Consortium's table in packet-smb.c. (Guy)
+* Enhanced Cisco support, Microsoft vendor ID, and #define typo fixes
+  for RADIUS. (Adam)
+* Better protocol tree display for fragmented/segmented data. (Guy)
+* Add EAP-TLS reassembly. (Adam, Guy)
+* Put a tree with information about the WTP fragments into the tree if
+  we've reassembled a message. (Guy)
+* EAP cleanups. (Adam)
+* Cisco updates for RADIUS. (Adam)
+* Update Adam's entry in AUTHORS. (Guy)
+* More Skinny updates. (Paul Erkkila)
+* Update the country code table to match the Unicode Consortium's, now
+  that it's correct. (Guy)
+* Correct a VRRPv3 checksum bug. (kazuyoshi.tomita@itg.hitachi.co.jp)
+* Properly initialize the fields in edt->pi in packet.c. (Guy)
+* Better tvbuff length handling, record header split handling, and column
+  updating in packet-ssl.c. (Guy)
+* Fix a typo, use better reassembly keys in packet-eap.c. (Guy)
+* Update packet-m2pa.c to match draft-ietf-sigtran-m2pa-04. (Michael)
+* Update packet-m3ua.c to match draft-ietf-sigtran-m3ua-12. (Michael)
+* Changed TBA GMPLS object numbers to proposed IETF numbers in RSVP.
+  (Ashok)
+* Add "PRACK" and "SPRACK" methods to SIP. (Jakob)
+* Improve unkown method handling in SIP. (Gerald)
+* Periodic manuf file update. (Gerald)
+* Fix len and max_len swappage in packet-dcerpc-nt.c's UNICODE_STRING
+  dissector. (Ronnie)
+* Fix a signed/unsigned variable issue in packet-smb.c. (Ronnie)
 
 Overview of changes in Ethereal 0.9.2:
 * SCTP checksum update to the current Internet draft. (Michael Tuexen)
