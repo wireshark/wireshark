@@ -64,4 +64,4 @@ capture_if_cb(GtkWidget *widget, gpointer data);
 void
 set_capture_if_dialog_for_capture_in_progress(gboolean capture_in_progress);
 
-#endif /* capture.h */
+#endif /* capture_dlg.h */

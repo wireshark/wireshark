@@ -1,5 +1,5 @@
-/* capture.h
- * Definitions for packet capture windows
+/* ringbuffer.h
+ * Definitions for capture ringbuffer files
  *
  * $Id$
  *

@@ -25,7 +25,13 @@
 
 /** @file
  *  
- *  Capture loop (internal interface).
+ * Capture loop (internal interface).
+ *
+ * It will open the input and output files, capture the packets, 
+ * change ringbuffer output files while capturing and close all files again.
+ * 
+ * The input file can be a network interface or capture pipe (unix only).
+ * The output file can be a single or a ringbuffer file handled by wiretap.
  *
  */
 
