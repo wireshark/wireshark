@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.6 1998/11/21 05:08:40 gram Exp $
+ * $Id: ngsniffer.c,v 1.7 1998/11/23 04:40:22 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -88,10 +88,10 @@ int ngsniffer_open(wtap *wth)
 	char record_length[4]; /* only the first 2 bytes are length,
 							  the last 2 are "reserved" and are thrown away */
 	guint16 type, length = 0;
-	char	format;
-	char	network;
-	char	version[18]; /* to hold the entire version record */
-	char	timeunit;
+	guint8	format;
+	guint8	network;
+	gchar	version[18]; /* to hold the entire version record */
+	guint8	timeunit;
 
 	/* Read in the string that should be at the start of a Sniffer file */
 	fseek(wth->fh, 0, SEEK_SET);
@@ -110,7 +110,7 @@ int ngsniffer_open(wtap *wth)
 	/* This is a ngsniffer file */
 	wth->capture.ngsniffer = g_malloc(sizeof(ngsniffer_t));
 	wth->subtype_read = ngsniffer_read;
-	wth->snapshot_length = 16384;	/* XXX - available in header? */
+	wth->snapshot_length = 16384;	/* not available in header, only in frame */
 	/*wth->frame_number = 0;*/
 	/*wth->file_byte_offset = 0x10b;*/
 

@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.5 1998/11/15 05:29:17 guy Exp $
+ * $Id: wtap.h,v 1.6 1998/11/23 04:40:21 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -127,7 +127,7 @@ void wtap_close(wtap *wth);
                     (guint32)*((guint8 *)p+0)<<0)
 
 
-
+#ifdef 0
 #define DLT_NULL	0	/* no link-layer encapsulation */
 #define DLT_EN10MB	1	/* Ethernet (10Mb) */
 #define DLT_EN3MB	2	/* Experimental Ethernet (3Mb) */
@@ -143,3 +143,4 @@ void wtap_close(wtap *wth);
 #define DLT_RAW		12	/* raw IP */
 #define DLT_SLIP_BSDOS	13	/* BSD/OS Serial Line IP */
 #define DLT_PPP_BSDOS	14	/* BSD/OS Point-to-point Protocol */
+#endif

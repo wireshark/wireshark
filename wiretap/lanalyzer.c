@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.2 1998/11/15 05:29:10 guy Exp $
+ * $Id: lanalyzer.c,v 1.3 1998/11/23 04:40:21 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -30,8 +30,9 @@ int lanalyzer_open(wtap *wth)
 	char record_type[2];
 	char record_length[2];
 	char summary[210];
-	guint16 board_type;
+	guint16 board_type, mxslc;
 	guint16 type, length;
+	guint8 cr_day, cr_month, cr_year;
 
 	fseek(wth->fh, 0, SEEK_SET);
 	bytes_read = fread(record_type, 1, 2, wth->fh);
@@ -51,7 +52,7 @@ int lanalyzer_open(wtap *wth)
 	 * Let's get some info from it */
 	wth->capture.lanalyzer = g_malloc(sizeof(lanalyzer_t));
 	wth->subtype_read = lanalyzer_read;
-	wth->snapshot_length = 16384;	/* XXX - available in header? */
+/*	wth->snapshot_length = 16384; */ /* available in header as 'mxslc' */
 
 	/* Read records until we find the start of packets */
 
@@ -72,6 +73,20 @@ int lanalyzer_open(wtap *wth)
 			/* Trace Summary Record */
 			case 0x1002:
 				fread(summary, 1, 210, wth->fh);
+
+				/* Assume that the date of the creation of the trace file
+				 * is the same date of the trace. Lanalyzer doesn't
+				 * store the creation date/time of the trace, but only of
+				 * the file. Unless you traced at 11:55 PM and saved at 00:05
+				 * AM, the assumption that trace.date == file.date is true.
+				 */
+				cr_day = summary[0];
+				cr_month = summary[1];
+				cr_year = pletohs(&summary[2]);
+
+				mxslc = pletohs(&summary[30]);
+				wth->snapshot_length = mxslc;
+
 				length = 0; /* to fake the next iteration of while() */
 				board_type = pletohs(&summary[188]);
 				switch (board_type) {
@@ -103,13 +118,15 @@ int lanalyzer_open(wtap *wth)
 /* Read the next packet */
 int lanalyzer_read(wtap *wth)
 {
-	int packet_size = wth->capture.lanalyzer->pkt_len;
+	int packet_size = wth->capture.lanalyzer->pkt_len; /* slice, really */
 	int bytes_read;
 	char record_type[2];
 	char record_length[2];
 	guint16 type, length;
 	gchar descriptor[32];
 	int	data_offset;
+	guint16 time_low, time_med, time_high, true_size;
+	double t, x;
 
 	/* If this is the very first packet, then the fh cursor will already
 	 * be at the start of the packet data instead of at the start of the Trace
@@ -145,6 +162,7 @@ int lanalyzer_read(wtap *wth)
 		return 0;
 	}
 
+	/* Read the packet data */
 	buffer_assure_space(&wth->frame_buffer, packet_size);
 	data_offset = ftell(wth->fh);
 	bytes_read = fread(buffer_start_ptr(&wth->frame_buffer), 1,
@@ -160,10 +178,22 @@ int lanalyzer_read(wtap *wth)
 		return -1;
 	}
 
-	wth->phdr.ts.tv_sec = 0;
-	wth->phdr.ts.tv_usec = 0;
+	true_size = pletohs(&descriptor[4]);
+	time_low = pletohs(&descriptor[8]);
+	time_med = pletohs(&descriptor[10]);
+	time_high = pletohs(&descriptor[12]);
+
+	x = 4.0 * (double)(1<<30);
+	t = (double)time_low+(double)(time_med)*65536.0 +
+		(double)time_high*x;
+	t = t/1000000.0 /** 0.5*/; /* t = # of secs */
+
+	wth->phdr.ts.tv_sec = (long)t;
+	wth->phdr.ts.tv_usec = (unsigned long)((t-(double)(wth->phdr.ts.tv_sec))
+			*1.0e6);
+
+	wth->phdr.len = true_size - 4;
 	wth->phdr.caplen = packet_size;
-	wth->phdr.len = packet_size;
 
 	return data_offset;
 }
