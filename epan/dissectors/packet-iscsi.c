@@ -800,7 +800,7 @@ handleDataSegmentAsTextKeys(proto_item *ti, tvbuff_t *tvb, guint offset, guint d
 
 /* Code to actually dissect the packets */
 static void
-dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 opcode, const char *opcode_str, guint32 data_segment_len) {
+dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 opcode, const char *opcode_str, guint32 data_segment_len, conversation_t *conversation) {
 
     guint original_offset = offset;
     proto_tree *ti = NULL;
@@ -808,7 +808,6 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     gboolean S_bit=FALSE;
     guint cdb_offset = offset + 32; /* offset of CDB from start of PDU */
     guint end_offset = offset + tvb_length_remaining(tvb, offset);
-    conversation_t *conversation = NULL;
     iscsi_conv_data_t *cdata = NULL;
     scsi_task_id_t task_key;
     int paddedDataSegmentLength = data_segment_len;
@@ -827,84 +826,67 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     if ((opcode == ISCSI_OPCODE_SCSI_RESPONSE) ||
         (opcode == ISCSI_OPCODE_SCSI_DATA_IN) ||
         (opcode == ISCSI_OPCODE_SCSI_DATA_OUT)) {
-        conversation = find_conversation (&pinfo->src, &pinfo->dst,
-                                          pinfo->ptype, pinfo->srcport,
-                                          pinfo->destport, 0);
-        if (conversation) {
-            if (!pinfo->fd->flags.visited){
-                iscsi_conv_data_t ckey;
-                ckey.conv_idx = conversation->index;
-                ckey.itt = tvb_get_ntohl (tvb, offset+16);
+        if (!pinfo->fd->flags.visited){
+            iscsi_conv_data_t ckey;
+            ckey.conv_idx = conversation->index;
+            ckey.itt = tvb_get_ntohl (tvb, offset+16);
 
-                /* first time we see this packet. check if we can find the request */
-                cdata = (iscsi_conv_data_t *)g_hash_table_lookup (iscsi_req_unmatched, &ckey);
-                if (cdata){
-                    if (cdata->data_in_frame+cdata->data_out_frame+cdata->response_frame==0){
-                        /* this is the first response to the request, add it to the matched table */
-                        g_hash_table_insert (iscsi_req_matched, cdata, cdata);
-                    }
-                    switch(opcode){
-                    case ISCSI_OPCODE_SCSI_RESPONSE:
-                        cdata->response_frame=pinfo->fd->num;
-                        break;
-                    case ISCSI_OPCODE_SCSI_DATA_IN:
-                        /* a bit ugly but we need to check the S bit here */
-                        if(tvb_get_guint8(tvb, offset+1)&ISCSI_SCSI_DATA_FLAG_S){
-                            cdata->response_frame=pinfo->fd->num;
-                        }
-                        cdata->data_in_frame=pinfo->fd->num;
-                        break;
-                    case ISCSI_OPCODE_SCSI_DATA_OUT:
-                        cdata->data_out_frame=pinfo->fd->num;
-                        break;
-                    }
+            /* first time we see this packet. check if we can find the request */
+            cdata = (iscsi_conv_data_t *)g_hash_table_lookup (iscsi_req_unmatched, &ckey);
+            if (cdata){
+                if (cdata->data_in_frame+cdata->data_out_frame+cdata->response_frame==0){
+                    /* this is the first response to the request, add it to the matched table */
+                    g_hash_table_insert (iscsi_req_matched, cdata, cdata);
                 }
-            } else {
-                iscsi_conv_data_t ckey;
-                ckey.conv_idx = conversation->index;
-                ckey.itt = tvb_get_ntohl (tvb, offset+16);
-                ckey.request_frame=0;
-                ckey.data_in_frame=0;
-                ckey.data_out_frame=0;
-                ckey.response_frame=0;
                 switch(opcode){
                 case ISCSI_OPCODE_SCSI_RESPONSE:
-                    ckey.response_frame=pinfo->fd->num;
+                    cdata->response_frame=pinfo->fd->num;
                     break;
                 case ISCSI_OPCODE_SCSI_DATA_IN:
-                    ckey.data_in_frame=pinfo->fd->num;
+                    /* a bit ugly but we need to check the S bit here */
+                    if(tvb_get_guint8(tvb, offset+1)&ISCSI_SCSI_DATA_FLAG_S){
+                        cdata->response_frame=pinfo->fd->num;
+                    }
+                    cdata->data_in_frame=pinfo->fd->num;
                     break;
                 case ISCSI_OPCODE_SCSI_DATA_OUT:
-                    ckey.data_out_frame=pinfo->fd->num;
+                    cdata->data_out_frame=pinfo->fd->num;
                     break;
                 }
-
-                /* we have seen this one before,   pick it up from the matched table */
-                cdata = (iscsi_conv_data_t *)g_hash_table_lookup (iscsi_req_matched, &ckey);
-            }
-
-            if (cdata){
-                task_key.conv_id = cdata->conv_idx;
-                task_key.task_id = cdata->itt;
-                pinfo->private_data = &task_key;
-            } else {
-                pinfo->private_data = NULL;
             }
         } else {
-            /* no conversation, meaning we didn't see the request */
+            iscsi_conv_data_t ckey;
+            ckey.conv_idx = conversation->index;
+            ckey.itt = tvb_get_ntohl (tvb, offset+16);
+            ckey.request_frame=0;
+            ckey.data_in_frame=0;
+            ckey.data_out_frame=0;
+            ckey.response_frame=0;
+            switch(opcode){
+            case ISCSI_OPCODE_SCSI_RESPONSE:
+                ckey.response_frame=pinfo->fd->num;
+                break;
+            case ISCSI_OPCODE_SCSI_DATA_IN:
+                ckey.data_in_frame=pinfo->fd->num;
+                break;
+            case ISCSI_OPCODE_SCSI_DATA_OUT:
+                ckey.data_out_frame=pinfo->fd->num;
+                break;
+            }
+
+            /* we have seen this one before,   pick it up from the matched table */
+            cdata = (iscsi_conv_data_t *)g_hash_table_lookup (iscsi_req_matched, &ckey);
+        }
+
+        if (cdata){
+            task_key.conv_id = cdata->conv_idx;
+            task_key.task_id = cdata->itt;
+            pinfo->private_data = &task_key;
+        } else {
             pinfo->private_data = NULL;
         }
 
     } else if (opcode == ISCSI_OPCODE_SCSI_COMMAND) {
-        conversation = find_conversation (&pinfo->src, &pinfo->dst,
-                                          pinfo->ptype, pinfo->srcport,
-                                          pinfo->destport, 0);
-        if (!conversation) {
-            conversation = conversation_new (&pinfo->src, &pinfo->dst,
-                                             pinfo->ptype, pinfo->srcport,
-                                             pinfo->destport, 0);
-        }
-
         if (!pinfo->fd->flags.visited){
             iscsi_conv_data_t ckey;
 
@@ -1652,6 +1634,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
     guint32 available_bytes = tvb_length_remaining(tvb, offset);
     guint32 pduLen = 48;
     int digestsActive = 1;
+    conversation_t *conversation = NULL;
 
     /* quick check to see if the packet is long enough to contain the
      * minimum amount of information we need */
@@ -1759,6 +1742,17 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
 		pduLen += dataDigestSize;
 	}
 
+	/* make sure we have a conversation for this session */
+        conversation = find_conversation (&pinfo->src, &pinfo->dst,
+                                          pinfo->ptype, pinfo->srcport,
+                                          pinfo->destport, 0);
+        if (!conversation) {
+            conversation = conversation_new (&pinfo->src, &pinfo->dst,
+                                             pinfo->ptype, pinfo->srcport,
+                                             pinfo->destport, 0);
+        }
+/*qqq  header digest autodetection should go in here */
+
 	/*
 	 * Desegmentation check.
 	 */
@@ -1800,7 +1794,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
 		col_append_str(pinfo->cinfo, COL_INFO, ", ");
 	}
 
-	dissect_iscsi_pdu(tvb, pinfo, tree, offset, opcode, opcode_str, data_segment_len);
+	dissect_iscsi_pdu(tvb, pinfo, tree, offset, opcode, opcode_str, data_segment_len, conversation);
 	if(pduLen > available_bytes)
 	    pduLen = available_bytes;
 	offset += pduLen;
