@@ -1,7 +1,7 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.17 2004/01/29 23:07:17 ulfl Exp $
+ * $Id: simple_dialog.c,v 1.18 2004/01/31 01:28:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,8 +40,10 @@
 #include "dlg_utils.h"
 #include "compat_macros.h"
 
-#include "image/eexcl3d64.xpm"
-#include "image/eicon3d64.xpm"
+#include "image/stock_dialog_error_48.xpm"
+#include "image/stock_dialog_info_48.xpm"
+#include "image/stock_dialog_question_48.xpm"
+#include "image/stock_dialog_warning_48.xpm"
 
 static void simple_dialog_cancel_cb(GtkWidget *, gpointer);
 
@@ -54,9 +56,7 @@ static void simple_dialog_cancel_cb(GtkWidget *, gpointer);
  *
  * Args:
  * type       : One of ESD_TYPE_*.
- * btn_mask   : The address of a gint.  The value passed in determines if
- *              the 'Cancel' button is displayed.  The button pressed by the
- *              user is passed back.
+ * btn_mask   : The value passed in determines which buttons are displayed.
  * msg_format : Sprintf-style format of the text displayed in the dialog.
  * ...        : Argument list for msg_format
  *
@@ -78,21 +78,20 @@ simple_dialog(gint type, gint btn_mask, gchar *msg_format, ...) {
   /* Main window */
   switch (type & ~ESD_TYPE_MODAL) {
   case ESD_TYPE_WARN :
-    icon = eexcl3d64_xpm;
+    icon = stock_dialog_warning_48_xpm;
     win = dlg_window_new("Ethereal: Warning");
     break;
   case ESD_TYPE_CRIT :
-    icon = eexcl3d64_xpm;
+    icon = stock_dialog_error_48_xpm;
     win = dlg_window_new("Ethereal: Error");
     break;
   case ESD_TYPE_QUEST:
-    /* XXX: we need a question mark here */
-    icon = eexcl3d64_xpm;
+    icon = stock_dialog_question_48_xpm;
     win = dlg_window_new("Ethereal: Question");
     break;
   case ESD_TYPE_INFO :
   default :
-    icon = eicon3d64_xpm;
+    icon = stock_dialog_info_48_xpm;
     win = dlg_window_new("Ethereal: Information");
     break;
   }
