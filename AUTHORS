@@ -1401,6 +1401,7 @@ Ulf Lamping <ulf.lamping[AT]web.de> {
 	Change some #define names to avoid name collisions on Windows
 	    that cause compiler warnings
 	Decoding of IEEE float and doubles for DCE-RPC
+	Win32 build cleanups
 }
 
 Matthew Smart <smart[AT]monkey.org> {
