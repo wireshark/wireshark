@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.109 2003/12/11 18:38:57 guy Exp $
+ * $Id: packet-dns.c,v 1.110 2003/12/12 23:23:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -890,8 +890,7 @@ static const value_string cert_vals[] = {
 
 /**
  *   Compute the key id of a KEY RR depending of the algorithm used.
- *   If the specified size is bad, return -1.
- *   If we don't support the algorithm, return -2.
+ *   If we don't support the algorithm, return -1.
  */
 static int
 compute_key_id(tvbuff_t *tvb, int offset, int size, guint8 algo) 
@@ -899,9 +898,7 @@ compute_key_id(tvbuff_t *tvb, int offset, int size, guint8 algo)
   guint32 ac;
   unsigned char c1, c2;
 
-  if( size < 4 ) {
-    return -1;
-  }
+  g_assert(size >= 4);
   
   switch( algo ) {
      case DNS_ALGO_RSAMD5:
@@ -919,7 +916,7 @@ compute_key_id(tvbuff_t *tvb, int offset, int size, guint8 algo)
        ac += (ac >> 16) & 0xffff;
        return (ac & 0xffff);
      default:
-       return -2;
+       return -1;
   }
 }
 
@@ -1118,6 +1115,11 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       if (bitnames == NULL)
 	bitnames = g_string_sized_new(128);
 
+      if (rr_len < 4) {
+	if (dns_tree != NULL)
+	  goto bad_rr;
+	break;
+      }
       wks_addr = tvb_get_ptr(tvb, cur_offset, 4);
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %s", ip_to_str(wks_addr));
@@ -1128,6 +1130,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	cur_offset += 4;
 	rr_len -= 4;
 
+	if (rr_len < 1)
+	  goto bad_rr;
 	protocol = tvb_get_guint8(tvb, cur_offset);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Protocol: %s",
 		     ipprotostr(protocol));
@@ -1251,6 +1255,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       int signer_name_len;
 
       if (dns_tree != NULL) {
+	if (rr_len < 2)
+	  goto bad_rr;
 	type_covered = tvb_get_ntohs(tvb, cur_offset);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Type covered: %s (%s)",
 		dns_type_name(type_covered),
@@ -1258,22 +1264,30 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	cur_offset += 2;
 	rr_len -= 2;
 
+	if (rr_len < 1)
+	  goto bad_rr;
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Algorithm: %s",
 		val_to_str(tvb_get_guint8(tvb, cur_offset), algo_vals,
 	            "Unknown (0x%02X)"));
 	cur_offset += 1;
 	rr_len -= 1;
 
+	if (rr_len < 1)
+	  goto bad_rr;
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Labels: %u",
 		tvb_get_guint8(tvb, cur_offset));
 	cur_offset += 1;
 	rr_len -= 1;
 
+	if (rr_len < 4)
+	  goto bad_rr;
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Original TTL: %s",
 		time_secs_to_str(tvb_get_ntohl(tvb, cur_offset)));
 	cur_offset += 4;
 	rr_len -= 4;
 
+	if (rr_len < 4)
+	  goto bad_rr;
 	nstime.secs = tvb_get_ntohl(tvb, cur_offset);
 	nstime.nsecs = 0;
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Signature expiration: %s",
@@ -1281,6 +1295,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	cur_offset += 4;
 	rr_len -= 4;
 
+	if (rr_len < 4)
+	  goto bad_rr;
 	nstime.secs = tvb_get_ntohl(tvb, cur_offset);
 	nstime.nsecs = 0;
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Time signed: %s",
@@ -1288,6 +1304,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	cur_offset += 4;
 	rr_len -= 4;
 
+	if (rr_len < 2)
+	  goto bad_rr;
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Id of signing key(footprint): %u",
 		tvb_get_ntohs(tvb, cur_offset));
 	cur_offset += 2;
@@ -1299,7 +1317,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	cur_offset += signer_name_len;
 	rr_len -= signer_name_len;
 
-	proto_tree_add_text(rr_tree, tvb, cur_offset, rr_len, "Signature");
+	if (rr_len != 0)
+	  proto_tree_add_text(rr_tree, tvb, cur_offset, rr_len, "Signature");
       }
     }
     break;
@@ -1314,6 +1333,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       int key_id;
 
       if (dns_tree != NULL) {
+	if (rr_len < 2)
+	  goto bad_rr;
         flags = tvb_get_ntohs(tvb, cur_offset);
 	tf = proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Flags: 0x%04X", flags);
 	flags_tree = proto_item_add_subtree(tf, ett_t_key_flags);
@@ -1358,11 +1379,15 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	cur_offset += 2;
 	rr_len -= 2;
 
+	if (rr_len < 1)
+	  goto bad_rr;
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Protocol: %u",
 		tvb_get_guint8(tvb, cur_offset));
 	cur_offset += 1;
 	rr_len -= 1;
 
+	if (rr_len < 1)
+	  goto bad_rr;
 	algo = tvb_get_guint8(tvb, cur_offset);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Algorithm: %s",
 		val_to_str(algo, algo_vals, "Unknown (0x%02X)"));
@@ -1370,14 +1395,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	rr_len -= 1;
 
 	key_id = compute_key_id(tvb, cur_offset-4, rr_len+4, algo);
-	/* XXX - -1 "can't happen", as rr_len should be >= 0; however,
-	   none of the RR dissectors check rr_len as we process the
-	   RR. */
-	if (key_id == -2)
-	  proto_tree_add_text(rr_tree, tvb, cur_offset-4, rr_len+4, "Key id: Unknown (algorithm 0x%02X not supported)", algo);
+	if (key_id == -1)
+	  proto_tree_add_text(rr_tree, tvb, 0, 0, "Key id: Unknown (algorithm 0x%02X not supported)", algo);
 	else
-	  proto_tree_add_text(rr_tree, tvb, cur_offset-4, rr_len+4, "Key id: %d", key_id);
-	proto_tree_add_text(rr_tree, tvb, cur_offset, rr_len, "Public key");
+	  proto_tree_add_text(rr_tree, tvb, 0, 0, "Key id: %d", key_id);
+
+	if (rr_len != 0)
+	  proto_tree_add_text(rr_tree, tvb, cur_offset, rr_len, "Public key");
       }
     }
     break;
@@ -1586,28 +1610,36 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       guint8 cert_keyalg;
       int rr_len = data_len;
 
-      cert_type = tvb_get_ntohs(tvb, cur_offset);
-      cur_offset += 2;
-      rr_len -= 2;
-      cert_keytag = tvb_get_ntohs(tvb, cur_offset);
-      cur_offset += 2;
-      rr_len -= 2;
-      cert_keyalg = tvb_get_guint8(tvb, cur_offset);
-      cur_offset += 1;
-      rr_len -= 1;
-
       if (dns_tree != NULL) {
-	proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Type: %s",
-		val_to_str(cert_keyalg, cert_vals,
+	if (rr_len < 2)
+	  goto bad_rr;
+	cert_type = tvb_get_ntohs(tvb, cur_offset);
+	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Type: %s",
+		val_to_str(cert_type, cert_vals,
 	            "Unknown (0x%02X)"));
+	cur_offset += 2;
+	rr_len -= 2;
+
+	if (rr_len < 2)
+	  goto bad_rr;
+	cert_keytag = tvb_get_ntohs(tvb, cur_offset);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Key footprint: 0x%04x",
 		cert_keytag);
+	cur_offset += 2;
+	rr_len -= 2;
+
+	if (rr_len < 1)
+	  goto bad_rr;
+	cert_keyalg = tvb_get_guint8(tvb, cur_offset);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Algorithm: %s",
 		val_to_str(cert_keyalg, algo_vals,
 	            "Unknown (0x%02X)"));
-	proto_tree_add_text(rr_tree, tvb, cur_offset, rr_len, "Public key");
-      }
+	cur_offset += 1;
+	rr_len -= 1;
 
+	if (rr_len != 0)
+	  proto_tree_add_text(rr_tree, tvb, cur_offset, rr_len, "Public key");
+      }
     }
     break;
 
@@ -1629,27 +1661,38 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       };
 
       if (dns_tree != NULL) {
-	
+	if (rr_len < 2)
+	  goto bad_rr;
 	keytag = tvb_get_ntohs(tvb, cur_offset);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Key id: %04u", keytag);
 	cur_offset += 2;
 	rr_len -= 2;
 
+	if (rr_len < 1)
+	  goto bad_rr;
 	ds_algorithm = tvb_get_guint8(tvb, cur_offset);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Algorithm: %s", val_to_str(ds_algorithm, algo_vals,"Unknown (0x%02X)") );
 	cur_offset += 1;
 	rr_len -= 1;
 
+	if (rr_len < 1)
+	  goto bad_rr;
 	ds_digest = tvb_get_guint8(tvb, cur_offset);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Digest type: %s", val_to_str(ds_digest, tds_digests, "Unknown (0x%02X)"));
 	cur_offset += 1;
 	rr_len -= 1;
-	if( ds_digest == TDSDIGEST_SHA1 ) digest_data_size = 20; // SHA1 key is always 20 bytes long
-	if( digest_data_size > 0 )
+
+	if (ds_digest == TDSDIGEST_SHA1)
+	  digest_data_size = 20; /* SHA1 key is always 20 bytes long */
+	if (digest_data_size > 0) {
+	  if (rr_len < digest_data_size)
+	    goto bad_rr;
 	  proto_tree_add_text(rr_tree, tvb, cur_offset, digest_data_size, "Public key"); 
+	}
       }
     }
     break;
+
   case T_TKEY:
     {
       char tkey_algname[MAXDNAME];
@@ -1675,6 +1718,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	cur_offset += tkey_algname_len;
 	rr_len -= tkey_algname_len;
 
+	if (rr_len < 4)
+	  goto bad_rr;
 	nstime.secs = tvb_get_ntohl(tvb, cur_offset);
 	nstime.nsecs = 0;
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Signature inception: %s",
@@ -1682,6 +1727,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	cur_offset += 4;
 	rr_len -= 4;
 
+	if (rr_len < 4)
+	  goto bad_rr;
 	nstime.secs = tvb_get_ntohl(tvb, cur_offset);
 	nstime.nsecs = 0;
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Signature expiration: %s",
@@ -1689,6 +1736,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	cur_offset += 4;
 	rr_len -= 4;
 
+	if (rr_len < 2)
+	  goto bad_rr;
 	tkey_mode = tvb_get_ntohs(tvb, cur_offset);
 	cur_offset += 2;
 	rr_len -= 2;
@@ -1696,6 +1745,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 		val_to_str(tkey_mode, tkey_modes,
 	            "Unknown (0x%04X)"));
 
+	if (rr_len < 2)
+	  goto bad_rr;
 	tkey_error = tvb_get_ntohs(tvb, cur_offset);
 	cur_offset += 2;
 	rr_len -= 2;
@@ -1748,13 +1799,19 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	cur_offset += tkey_keylen;
 	rr_len -= tkey_keylen;
 
+	if (rr_len < 2)
+	  goto bad_rr;
 	tkey_otherlen = tvb_get_ntohs(tvb, cur_offset);
 	cur_offset += 2;
 	rr_len -= 2;
 
-	proto_tree_add_text(rr_tree, tvb, cur_offset, tkey_otherlen, "Other");
-	cur_offset += tkey_otherlen;
-	rr_len -= tkey_otherlen;
+	if (tkey_otherlen != 0) {
+	  if (rr_len < tkey_otherlen)
+	    goto bad_rr;
+	  proto_tree_add_text(rr_tree, tvb, cur_offset, tkey_otherlen, "Other");
+	  cur_offset += tkey_otherlen;
+	  rr_len -= tkey_otherlen;
+	}
       }
     }
     break;
@@ -1776,6 +1833,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	cur_offset += tsig_algname_len;
 	rr_len -= tsig_algname_len;
 
+	if (rr_len < 6)
+	  goto bad_rr;
 	tsig_timehi = tvb_get_ntohs(tvb, cur_offset);
 	tsig_timelo = tvb_get_ntohl(tvb, cur_offset + 2);
 	nstime.secs = tsig_timelo;
@@ -1785,26 +1844,38 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	cur_offset += 6;
 	rr_len -= 6;
 
+	if (rr_len < 2)
+	  goto bad_rr;
 	tsig_fudge = tvb_get_ntohs(tvb, cur_offset);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Fudge: %u",
 		tsig_fudge);
 	cur_offset += 2;
 	rr_len -= 2;
 
+	if (rr_len < 2)
+	  goto bad_rr;
 	tsig_siglen = tvb_get_ntohs(tvb, cur_offset);
 	cur_offset += 2;
 	rr_len -= 2;
 
-	proto_tree_add_text(rr_tree, tvb, cur_offset, tsig_siglen, "Signature");
-	cur_offset += tsig_siglen;
-	rr_len -= tsig_siglen;
+	if (tsig_siglen != 0) {
+	  if (rr_len < tsig_siglen)
+	    goto bad_rr;
+	  proto_tree_add_text(rr_tree, tvb, cur_offset, tsig_siglen, "Signature");
+	  cur_offset += tsig_siglen;
+	  rr_len -= tsig_siglen;
+	}
 
+	if (rr_len < 2)
+	  goto bad_rr;
 	tsig_originalid = tvb_get_ntohs(tvb, cur_offset);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Original id: %d",
 		tsig_originalid);
 	cur_offset += 2;
 	rr_len -= 2;
 
+	if (rr_len < 2)
+	  goto bad_rr;
 	tsig_error = tvb_get_ntohs(tvb, cur_offset);
         proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Error: %s",
 		val_to_str(tsig_error, rcode_vals,
@@ -1812,13 +1883,19 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	cur_offset += 2;
 	rr_len -= 2;
 
+	if (rr_len < 2)
+	  goto bad_rr;
 	tsig_otherlen = tvb_get_ntohs(tvb, cur_offset);
 	cur_offset += 2;
 	rr_len -= 2;
 
-	proto_tree_add_text(rr_tree, tvb, cur_offset, tsig_otherlen, "Other");
-	cur_offset += tsig_otherlen;
-	rr_len -= tsig_otherlen;
+	if (tsig_otherlen != 0) {
+	  if (rr_len < tsig_otherlen)
+	    goto bad_rr;
+	  proto_tree_add_text(rr_tree, tvb, cur_offset, tsig_otherlen, "Other");
+	  cur_offset += tsig_otherlen;
+	  rr_len -= tsig_otherlen;
+	}
       }
     }
     break;
@@ -1832,6 +1909,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       guint32 nservers;
 
       if (dns_tree != NULL) {
+	if (rr_len < 4)
+	  goto bad_rr;
 	local_flag = tvb_get_ntohl(tvb, cur_offset);
 	if (dns_tree != NULL) {
 	  proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Local flag: %s",
@@ -1840,6 +1919,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	cur_offset += 4;
 	rr_len -= 4;
 
+	if (rr_len < 4)
+	  goto bad_rr;
 	lookup_timeout = tvb_get_ntohl(tvb, cur_offset);
 	if (dns_tree != NULL) {
 	  proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Lookup timeout: %u seconds",
@@ -1848,6 +1929,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	cur_offset += 4;
 	rr_len -= 4;
 
+	if (rr_len < 4)
+	  goto bad_rr;
 	cache_timeout = tvb_get_ntohl(tvb, cur_offset);
 	if (dns_tree != NULL) {
 	  proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Cache timeout: %u seconds",
@@ -1856,6 +1939,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	cur_offset += 4;
 	rr_len -= 4;
 
+	if (rr_len < 4)
+	  goto bad_rr;
 	nservers = tvb_get_ntohl(tvb, cur_offset);
 	if (dns_tree != NULL) {
 	  proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Number of WINS servers: %u",
@@ -1865,6 +1950,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	rr_len -= 4;
 
 	while (rr_len != 0 && nservers != 0) {
+	  if (rr_len < 4)
+	    goto bad_rr;
 	  if (dns_tree != NULL) {
 	    proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "WINS server address: %s",
 		     ip_to_str(tvb_get_ptr(tvb, cur_offset, 4)));
@@ -1886,6 +1973,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       char dname[MAXDNAME];
       int dname_len;
 
+      if (rr_len < 4)
+	goto bad_rr;
       local_flag = tvb_get_ntohl(tvb, cur_offset);
       if (dns_tree != NULL) {
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Local flag: %s",
@@ -1894,6 +1983,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       cur_offset += 4;
       rr_len -= 4;
 
+      if (rr_len < 4)
+	goto bad_rr;
       lookup_timeout = tvb_get_ntohl(tvb, cur_offset);
       if (dns_tree != NULL) {
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Lookup timeout: %u seconds",
@@ -1902,6 +1993,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       cur_offset += 4;
       rr_len -= 4;
 
+      if (rr_len < 4)
+	goto bad_rr;
       cache_timeout = tvb_get_ntohl(tvb, cur_offset);
       if (dns_tree != NULL) {
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Cache timeout: %u seconds",
@@ -1955,6 +2048,16 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
     if (dns_tree != NULL)
       proto_tree_add_text(rr_tree, tvb, cur_offset, data_len, "Data");
     break;
+  }
+
+  data_offset += data_len;
+
+  return data_offset - data_start;
+
+bad_rr:
+  if (dns_tree != NULL) {
+    proto_item_append_text(trr, ", bad RR length %d, too short",
+			data_len);
   }
 
   data_offset += data_len;
