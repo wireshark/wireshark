@@ -2,11 +2,15 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.32 2004/03/08 23:37:51 jmayer Exp $
+# $Id: autogen.sh,v 1.33 2004/03/15 12:21:52 jmayer Exp $
 
 DIE=true
 PROJECT="Ethereal"
 
+ACLOCAL=aclocal
+AUTOHEADER=autoheader
+AUTOMAKE=automake
+AUTOCONF=autoconf
 
 # Check for python. There's no "--version" option!
 python -c "print 'Checking for python.'"
@@ -21,10 +25,10 @@ _EOF_
 fi
 
 
-ACVER=`autoconf --version | grep '^autoconf' | sed 's/.*) *//'`
+ACVER=`$AUTOCONF --version | grep '^autoconf' | sed 's/.*) *//'`
 case "$ACVER" in
-0* | 1\.* | 2\.[0-4]* | \
-2\.5[0-1] | 2\.5[0-1][a-z]* )
+'' | 0.* | 1.* | 2.[0-4]* | \
+2.5[0-1] | 2.5[0-1][a-z]* )
   cat >&2 <<_EOF_
 
 	You must have autoconf 2.52 or later installed to compile $PROJECT.
@@ -36,9 +40,9 @@ _EOF_
 esac
 
 
-AMVER=`automake --version | grep '^automake' | sed 's/.*) *//'`
+AMVER=`$AUTOMAKE --version | grep '^automake' | sed 's/.*) *//'`
 case "$AMVER" in
-0.* | 1\.[0-5].* )
+'' | 0.* | 1.[0-5]* )
 
   cat >&2 <<_EOF_
 
@@ -69,7 +73,7 @@ else
 	LIBTOOLIZE=glibtoolize
 fi
 case "$LTVER" in
-0* | 1\.[0-3]* )
+'' | 0.* | 1.[0-3]* )
 
   cat >&2 <<_EOF_
 
@@ -109,14 +113,14 @@ for dir in . epan wiretap ;  do
     fi
     aclocal_flags=`$topdir/aclocal-flags`
     aclocalinclude="$ACLOCAL_FLAGS $aclocal_flags";
-    echo aclocal $aclocalinclude
-    aclocal $aclocalinclude || exit 1
-    echo autoheader
-    autoheader || exit 1
-    echo automake --add-missing --gnu $am_opt
-    automake --add-missing --gnu $am_opt || exit 1
-    echo autoconf
-    autoconf || exit 1
+    echo $ACLOCAL $aclocalinclude
+    $ACLOCAL $aclocalinclude || exit 1
+    echo $AUTOHEADER
+    $AUTOHEADER || exit 1
+    echo $AUTOMAKE --add-missing --gnu $am_opt
+    $AUTOMAKE --add-missing --gnu $am_opt || exit 1
+    echo $AUTOCONF
+    $AUTOCONF || exit 1
   ) || exit 1
 done
 
