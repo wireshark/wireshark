@@ -9,7 +9,7 @@
  * Copyright 2001, Michael Tuexen <tuexen [AT] fh-muenster.de>
  * Updated for ANSI and Chinese ITU support by Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-mtp3.c,v 1.19 2003/09/05 20:11:44 tuexen Exp $
+ * $Id: packet-mtp3.c,v 1.20 2003/09/05 23:43:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -333,7 +333,8 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *mtp3_tree = NULL;
 
   /* Make entries in Protocol column and Info column on summary display */
-  if (check_col(pinfo->cinfo, COL_INFO))    switch(mtp3_standard) {
+  if (check_col(pinfo->cinfo, COL_INFO))
+    switch(mtp3_standard) {
       case ITU_STANDARD:
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (Int. ITU)");
         break;
