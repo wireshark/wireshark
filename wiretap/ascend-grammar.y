@@ -1,6 +1,6 @@
 /* ascend-grammar.y
  *
- * $Id: ascend-grammar.y,v 1.5 1999/09/23 05:25:14 guy Exp $
+ * $Id: ascend-grammar.y,v 1.6 1999/10/08 07:41:32 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -59,6 +59,7 @@ WD_DIALOUT_DISP: chunk 2515EE type IP.
 #include "wtap.h"
 #include "buffer.h"
 #include "ascend.h"
+#include "ascend-int.h"
 
 #define NFH_PATH "/dev/null"
 
