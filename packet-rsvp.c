@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.63 2002/05/16 20:11:32 ashokn Exp $
+ * $Id: packet-rsvp.c,v 1.64 2002/05/18 02:05:47 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2134,6 +2134,7 @@ dissect_rsvp_flowspec (proto_tree *ti, tvbuff_t *tvb,
 	break;
 	
     default:
+	break;
     }
 
 
