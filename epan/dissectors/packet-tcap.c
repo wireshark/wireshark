@@ -2000,7 +2000,7 @@ dissect_tcap_dlg_abrt(ASN1_SCK *asn1, proto_tree *tree, packet_info *pinfo)
 }
 
 static int
-dissect_tcap_dialog_portion(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *ti,packet_info *pinfo)
+dissect_tcap_dialog_portion(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *ti _U_,packet_info *pinfo)
 {
     proto_tree *subtree;
     guint saved_offset = 0;
