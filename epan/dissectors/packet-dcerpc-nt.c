@@ -208,13 +208,61 @@ dissect_ndr_counted_byte_array_cb(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+void cb_byte_array_postprocess(packet_info *pinfo, proto_tree *tree _U_,
+			proto_item *item, tvbuff_t *tvb, 
+			int start_offset, int end_offset,
+			void *callback_args)
+{
+	gint options = GPOINTER_TO_INT(callback_args);
+	gint levels = CB_STR_ITEM_LEVELS(options);
+	char *s;
+
+	/* Align start_offset on 4-byte boundary. */
+
+	if (start_offset % 4)
+		start_offset += 4 - (start_offset % 4);
+
+	/* Get byte array value */
+
+	if ((end_offset - start_offset) <= 12)
+		return;
+
+	s = tvb_bytes_to_str(
+		tvb, start_offset + 12, (end_offset - start_offset - 12) );
+
+	/* Append string to COL_INFO */
+
+	if (options & CB_STR_COL_INFO) {
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", s);
+	}
+
+	/* Append string to upper-level proto_items */
+
+	if (levels > 0 && item && s && s[0]) {
+		proto_item_append_text(item, ": %s", s);
+		item = item->parent;
+		levels--;
+		if (levels > 0) {
+			proto_item_append_text(item, ": %s", s);
+			item = item->parent;
+			levels--;
+			while (levels > 0) {
+				proto_item_append_text(item, " %s", s);
+				item = item->parent;
+				levels--;
+			}
+		}
+	}
+}
+
 int
 dissect_ndr_counted_byte_array(tvbuff_t *tvb, int offset,
 			       packet_info *pinfo, proto_tree *tree,
 			       guint8 *drep, int hf_index, int levels)
 {
 	return dissect_ndr_counted_byte_array_cb(
-		tvb, offset, pinfo, tree, drep, hf_index, cb_str_postprocess, GINT_TO_POINTER(2 + levels));
+		tvb, offset, pinfo, tree, drep, hf_index, cb_byte_array_postprocess, GINT_TO_POINTER(2 + levels));
 }
 
 /* This function is used to dissect a DCERPC encoded 64 bit time value.
