@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.38 2002/04/30 11:03:07 guy Exp $
+ * $Id: smb.h,v 1.39 2002/05/08 05:15:11 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -156,6 +156,7 @@
 
 /* These errors seem to be only returned by the NT printer driver system */
 
+#define SMBE_invalidowner 1307	/* Invalid security descriptor owner */
 #define SMBE_invalidsecuritydescriptor 1338 /* Invalid security descriptor */
 #define SMBE_unknownprinterdriver 1797 /* Unknown printer driver */
 #define SMBE_invalidprintername 1801   /* Invalid printer name */
