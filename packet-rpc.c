@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.44 2000/11/21 14:58:07 girlich Exp $
+ * $Id: packet-rpc.c,v 1.45 2000/11/22 01:39:10 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1113,8 +1113,10 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (!proto_is_protocol_enabled(proto_rpc))
 	  return FALSE;
 
+	pinfo->current_proto = "RPC";
+
 	/* TCP uses record marking */
-	use_rm = (pi.ptype == PT_TCP);
+	use_rm = (pinfo->ptype == PT_TCP);
 
 	/* the first 4 bytes are special in "record marking  mode" */
 	if (use_rm) {
@@ -1168,8 +1170,8 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		   sent and from which the reply was sent, because there's
 		   no guarantee that the reply will come from the address
 		   to which the call was sent.) */
-		conversation = find_conversation(&null_address, &pi.dst,
-		    pi.ptype, pi.srcport, pi.destport, 0);
+		conversation = find_conversation(&null_address, &pinfo->dst,
+		    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 		if (conversation == NULL) {
 			/* We haven't seen an RPC call for that conversation,
 			   so we can't check for a reply to that call. */
@@ -1309,12 +1311,14 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		   which the reply was sent, because there's no
 		   guarantee that the reply will come from the address
 		   to which the call was sent.) */
-		conversation = find_conversation(&pi.src, &null_address,
-		    pi.ptype, pi.srcport, pi.destport, 0);
+		conversation = find_conversation(&pinfo->src, &null_address,
+		    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 		if (conversation == NULL) {
-			/* It's not part of any conversation - create a new one. */
-			conversation = conversation_new(&pi.src, &null_address,
-			    pi.ptype, pi.srcport, pi.destport, NULL, 0);
+			/* It's not part of any conversation - create a new
+			   one. */
+			conversation = conversation_new(&pinfo->src,
+			    &null_address, pinfo->ptype, pinfo->srcport,
+			    pinfo->destport, NULL, 0);
 		}
 
 		/* prepare the key data */
