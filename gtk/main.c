@@ -2250,6 +2250,7 @@ main(int argc, char *argv[])
 
   /* Read the recent file, as we have the gui now ready for it. */
   read_recent(&rf_path, &rf_open_errno);
+  color_filters_enable(recent.packet_list_colorize);
 
   /* rearrange all the widgets as we now have the recent settings for this */
   main_widgets_rearrange();

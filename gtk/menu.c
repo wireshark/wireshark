@@ -75,6 +75,7 @@
 #include "hostlist_table.h"
 #include "simple_dialog.h"
 #include "packet_history.h"
+#include "color_filters.h"
 
 GtkWidget *popup_menu_object;
 
@@ -117,6 +118,7 @@ static void name_resolution_transport_cb(GtkWidget *w _U_, gpointer d _U_);
 #ifdef HAVE_LIBPCAP
 static void auto_scroll_live_cb(GtkWidget *w _U_, gpointer d _U_);
 #endif
+static void colorize_cb(GtkWidget *w _U_, gpointer d _U_);
 
 /* This is the GtkItemFactoryEntry structure used to generate new menus.
        Item 1: The menu path. The letter after the underscore indicates an
@@ -235,6 +237,7 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/View/Packet _List", NULL, packet_list_show_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/Packet _Details", NULL, tree_view_show_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/Packet _Bytes", NULL, byte_view_show_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Colorize Packet List", NULL, colorize_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/View/_Time Display Format", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/View/Time Display Format/Time of Day", NULL, timestamp_absolute_cb, 
@@ -1336,6 +1339,14 @@ auto_scroll_live_cb(GtkWidget *w _U_, gpointer d _U_)
 }
 #endif
 
+static void 
+colorize_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    recent.packet_list_colorize = GTK_CHECK_MENU_ITEM(w)->active;
+    color_filters_enable(recent.packet_list_colorize);
+    cf_colorize_packets(&cfile);
+}
+
 /* the recent file read has finished, update the menu corresponding */
 void
 menu_recent_read_finished(void) {
@@ -1358,6 +1369,9 @@ menu_recent_read_finished(void) {
 
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Packet Bytes");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.byte_view_show);
+
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Colorize Packet List");
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.packet_list_colorize);
 
     menu_name_resolution_changed();
 

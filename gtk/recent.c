@@ -49,6 +49,7 @@
 #define RECENT_KEY_TREE_VIEW_SHOW           "gui.tree_view_show"
 #define RECENT_KEY_BYTE_VIEW_SHOW           "gui.byte_view_show"
 #define RECENT_KEY_STATUSBAR_SHOW           "gui.statusbar_show"
+#define RECENT_KEY_PACKET_LIST_COLORIZE     "gui.packet_list_colorize"
 #define RECENT_GUI_TIME_FORMAT              "gui.time_format"
 #define RECENT_GUI_ZOOM_LEVEL               "gui.zoom_level"
 #define RECENT_GUI_GEOMETRY_MAIN_X          "gui.geometry_main_x"
@@ -178,6 +179,11 @@ write_recent(void)
   fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(rf, RECENT_KEY_STATUSBAR_SHOW ": %s\n",
 		  recent.statusbar_show == TRUE ? "TRUE" : "FALSE");
+
+  fprintf(rf, "\n# Packet list colorize (hide).\n");
+  fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
+  fprintf(rf, RECENT_KEY_PACKET_LIST_COLORIZE ": %s\n",
+		  recent.packet_list_colorize == TRUE ? "TRUE" : "FALSE");
 
   fprintf(rf, "\n# Timestamp display format.\n");
   fprintf(rf, "# One of: RELATIVE, ABSOLUTE, ABSOLUTE_WITH_DATE, DELTA\n");
@@ -312,6 +318,13 @@ read_set_recent_pair(gchar *key, gchar *value)
     else {
         recent.statusbar_show = FALSE;
     }
+  } else if (strcmp(key, RECENT_KEY_PACKET_LIST_COLORIZE) == 0) {
+    if (strcasecmp(value, "true") == 0) {
+        recent.packet_list_colorize = TRUE;
+    }
+    else {
+        recent.packet_list_colorize = FALSE;
+    }
   } else if (strcmp(key, RECENT_GUI_TIME_FORMAT) == 0) {
     recent.gui_time_format =
 	find_index_from_string_array(value, ts_type_text, TS_RELATIVE);
@@ -405,6 +418,7 @@ read_recent(char **rf_path_return, int *rf_errno_return)
   recent.tree_view_show         = TRUE;
   recent.byte_view_show         = TRUE;
   recent.statusbar_show         = TRUE;
+  recent.packet_list_colorize   = TRUE;
   recent.gui_time_format        = TS_RELATIVE;
   recent.gui_zoom_level         = 0;
 

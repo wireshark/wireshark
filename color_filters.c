@@ -51,6 +51,9 @@ static gboolean read_global_filters(void);
 GSList *color_filter_list = NULL;
 GSList *removed_filter_list = NULL;
 
+/* Color Filters can en-/disabled. */
+gboolean filters_enabled = TRUE;
+
 /* Remove the specified filter from the list of existing color filters,
  * and add it to the list of removed color filters.
  * This way, unmarking and marking a packet which matches a now removed
@@ -140,7 +143,13 @@ prime_edt(gpointer data, gpointer user_data)
 gboolean 
 color_filters_used(void)
 {
-    return color_filter_list != NULL;
+    return color_filter_list != NULL && filters_enabled;
+}
+
+void
+color_filters_enable(gboolean enable)
+{
+    filters_enabled = enable;
 }
 
 

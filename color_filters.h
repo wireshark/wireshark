@@ -84,6 +84,13 @@ void color_filters_prime_edt(epan_dissect_t *edt);
  */
 gboolean color_filters_used(void);
 
+/** En-/disable color filters
+ *
+ * @param enable TRUE to enable (default)
+ */
+void
+color_filters_enable(gboolean enable);
+
 /** Colorize a specific packet.
  *
  * @param row the row in the packet list
