@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.34 1999/11/11 08:44:28 guy Exp $
+ * $Id: main.c,v 1.35 1999/11/15 22:52:02 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -548,16 +548,17 @@ packet_list_unselect_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
 void
 tree_view_cb(GtkWidget *w, gpointer data) {
 
+  field_info	*finfo;
   tree_selected_start = -1;
   tree_selected_len = -1;
 
   if (GTK_TREE(w)->selection) {
-    tree_selected_start = 
+    finfo = 
 	(gint) gtk_object_get_data(GTK_OBJECT(GTK_TREE(w)->selection->data),
-				   E_TREEINFO_START_KEY);
-    tree_selected_len   = 
-	(gint) gtk_object_get_data(GTK_OBJECT(GTK_TREE(w)->selection->data),
-				   E_TREEINFO_LEN_KEY);
+				   E_TREEINFO_FIELD_INFO_KEY);
+    g_assert(finfo);
+    tree_selected_start = finfo->start;
+    tree_selected_len   = finfo->length;
   }
 
   gtk_text_freeze(GTK_TEXT(byte_view));

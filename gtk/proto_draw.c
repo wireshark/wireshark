@@ -1,7 +1,7 @@
 /* gtkpacket.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.3 1999/09/12 20:23:43 guy Exp $
+ * $Id: proto_draw.c,v 1.4 1999/11/15 22:52:03 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -185,8 +185,8 @@ proto_tree_draw_node(GNode *node, gpointer data)
 		
 	ti = gtk_tree_item_new_with_label(label_ptr);
 	gtk_container_foreach(GTK_CONTAINER(ti), set_item_style, NULL);
-	gtk_object_set_data(GTK_OBJECT(ti), E_TREEINFO_START_KEY, (gpointer) fi->start);
-	gtk_object_set_data(GTK_OBJECT(ti), E_TREEINFO_LEN_KEY, (gpointer) fi->length);
+	
+	gtk_object_set_data(GTK_OBJECT(ti), E_TREEINFO_FIELD_INFO_KEY, (gpointer) fi);
 	gtk_tree_append(GTK_TREE(tree_view), ti);
 	gtk_widget_show(ti);
 
