@@ -40,7 +40,7 @@
 #include "prefs-int.h"
 #include "ui_util.h"
 #include "dlg_utils.h"
-
+#include "cfilter_combo_utils.h"
 
 #define RECENT_KEY_MAIN_TOOLBAR_SHOW        "gui.toolbar_main_show"
 #define RECENT_KEY_FILTER_TOOLBAR_SHOW      "gui.filter_toolbar_show"
@@ -121,6 +121,12 @@ write_recent(char **rf_path_return)
     "\n", rf);
 
   menu_recent_file_write_all(rf);
+
+  fputs("\n"
+    "######## Recent capture filters (latest last) ########\n"
+    "\n", rf);
+
+  cfilter_combo_recent_write_all(rf);
 
   fputs("\n"
     "######## Recent display filters (latest last) ########\n"
@@ -247,6 +253,8 @@ read_set_recent_pair(gchar *key, gchar *value)
 	add_menu_recent_capture_file(value);
   } else if (strcmp(key, RECENT_KEY_DISPLAY_FILTER) == 0) {
 	dfilter_combo_add_recent(value);
+  } else if (strcmp(key, RECENT_KEY_CAPTURE_FILTER) == 0) {
+	cfilter_combo_add_recent(value);
   } else if (strcmp(key, RECENT_KEY_MAIN_TOOLBAR_SHOW) == 0) {
     if (strcasecmp(value, "true") == 0) {
         recent.main_toolbar_show = TRUE;

@@ -51,6 +51,7 @@
 #include "file_dlg.h"
 #include "help_dlg.h"
 #include "gtkglobals.h"
+#include "cfilter_combo_utils.h"
 
 #ifdef _WIN32
 #include "capture-wpcap.h"
@@ -488,7 +489,7 @@ capture_prep(void)
                 *linktype_hb, *linktype_lb, *linktype_om,
                 *snap_hb, *snap_cb, *snap_sb, *snap_lb,
                 *promisc_cb,
-                *filter_hb, *filter_bt, *filter_te,
+                *filter_hb, *filter_bt, *filter_te, *filter_cm,
 
                 *file_fr, *file_vb,
                 *file_hb, *file_bt, *file_lb, *file_te,
@@ -516,7 +517,7 @@ capture_prep(void)
   GtkTooltips   *tooltips;
   GtkAdjustment *snap_adj, *ringbuffer_nbf_adj,
 		*stop_packets_adj, *stop_filesize_adj, *stop_duration_adj, *stop_files_adj, *ring_filesize_adj, *file_duration_adj;
-  GList         *if_list, *combo_list;
+  GList         *if_list, *combo_list, *filter_list;
   int           err;
   int           row;
   char          err_str[PCAP_ERRBUF_SIZE];
@@ -725,15 +726,24 @@ capture_prep(void)
     NULL);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_bt, FALSE, FALSE, 3);
 
-  filter_te = gtk_entry_new();
-  if (cfile.cfilter) gtk_entry_set_text(GTK_ENTRY(filter_te), cfile.cfilter);
-  OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);
+  /* Create the capture filter combo */
+  filter_cm = gtk_combo_new();
+
+  filter_list = OBJECT_GET_DATA(top_level, E_CFILTER_FL_KEY);
+  gtk_combo_disable_activate(GTK_COMBO(filter_cm));
+  gtk_combo_set_case_sensitive(GTK_COMBO(filter_cm), TRUE);
+  OBJECT_SET_DATA(top_level, E_CFILTER_FL_KEY, filter_list);
+  OBJECT_SET_DATA(top_level, E_CFILTER_CM_KEY, filter_cm);
+  filter_te = GTK_COMBO(filter_cm)->entry;
+
+  gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), filter_list);
+  gtk_entry_set_text(GTK_ENTRY(filter_te), ""); /* Default capture filter is empty */
   gtk_tooltips_set_tip(tooltips, filter_te,
     "Enter a capture filter to reduce the amount of packets to be captured. "
     "See \"Capture Filters\" in the online help for further information how to use it.",
     NULL);
-  gtk_box_pack_start(GTK_BOX(filter_hb), filter_te, TRUE, TRUE, 3);
-
+  WIDGET_SET_SIZE(filter_cm, 400, -1);
+  gtk_box_pack_start(GTK_BOX(filter_hb), filter_cm, FALSE, FALSE, 3);
   main_hb = gtk_hbox_new(FALSE, 5);
   gtk_container_border_width(GTK_CONTAINER(main_hb), 0);
   gtk_container_add(GTK_CONTAINER(main_vb), main_hb);
@@ -1208,7 +1218,7 @@ capture_prep_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
 
 static void
 capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
-  GtkWidget *if_cb, *snap_cb, *snap_sb, *promisc_cb, *filter_te,
+  GtkWidget *if_cb, *snap_cb, *snap_sb, *promisc_cb, *filter_te, *filter_cm,
             *file_te, *multi_files_on_cb, *ringbuffer_nbf_sb, *ringbuffer_nbf_cb,
             *linktype_om, *sync_cb, *auto_scroll_cb, *hide_info_cb,
             *stop_packets_cb, *stop_packets_sb,
@@ -1239,7 +1249,8 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   buffer_size_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_BUFFER_SIZE_SB_KEY);
 #endif
   promisc_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_PROMISC_KEY);
-  filter_te = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILT_KEY);
+  filter_cm = OBJECT_GET_DATA(top_level, E_CFILTER_CM_KEY);
+  filter_te = GTK_COMBO(filter_cm)->entry;
   file_te   = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILE_TE_KEY);
   multi_files_on_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_MULTI_FILES_ON_CB_KEY);
   ringbuffer_nbf_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_NBF_CB_KEY);
@@ -1281,6 +1292,10 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
     g_free(cfile.iface);
   cfile.iface = g_strdup(if_name);
   g_free(entry_text);
+
+  /* Add this capture filter to the recent capture filter list if it passes a syntax check */
+  if(check_capture_filter_syntax(cfile.iface, (gchar *) gtk_entry_get_text(GTK_ENTRY(filter_te))))
+    cfilter_combo_add_recent((gchar *) gtk_entry_get_text(GTK_ENTRY(filter_te)));
 
   capture_opts.linktype =
       GPOINTER_TO_INT(OBJECT_GET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY));
