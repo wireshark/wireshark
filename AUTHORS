@@ -1680,6 +1680,7 @@ Duncan Laurie <duncan [AT] sun.com> {
 
 Tony Schene <Schene_Tony [AT] emc.com> {
 	Initial stub Kerberos kadmin support
+	Kerberos-over-TCP support
 }
 
 And assorted fixes and enhancements by the people listed above and by:

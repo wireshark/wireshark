@@ -10,7 +10,7 @@
  *
  *	http://www.isi.edu/people/bcn/krb-revisions/
  *
- * $Id: packet-kerberos.c,v 1.36 2002/09/10 08:55:34 guy Exp $
+ * $Id: packet-kerberos.c,v 1.37 2003/04/25 21:29:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,11 +48,18 @@
 #include "asn1.h"
 #include "packet-netbios.h"
 #include "packet-gssapi.h"
+#include "packet-tcp.h"
+#include "prefs.h"
 
 #define UDP_PORT_KERBEROS		88
 #define TCP_PORT_KERBEROS		88
 
+/* Desegment Kerberos over TCP messages */
+static gboolean krb_desegment = TRUE;
+
 static gint proto_kerberos = -1;
+static gint hf_krb_rm_reserved = -1;
+static gint hf_krb_rm_reclen = -1;
 
 static gint ett_kerberos = -1;
 static gint ett_preauth = -1;
@@ -63,6 +70,11 @@ static gint ett_ticket = -1;
 static gint ett_encrypted = -1;
 static gint ett_etype = -1;
 static gint ett_additional_tickets = -1;
+static gint ett_recordmark = -1;
+
+/* TCP Record Mark */
+#define	KRB_RM_RESERVED	0x80000000L
+#define	KRB_RM_RECLEN	0x7fffffffL
 
 #define KRB5_MSG_AS_REQ   10	/* AS-REQ type */
 #define KRB5_MSG_AS_REP   11	/* AS-REP type */
@@ -248,6 +260,7 @@ static gint ett_additional_tickets = -1;
 #define KRB5_ET_KRB5KRB_AP_ERR_METHOD                    48
 #define KRB5_ET_KRB5KRB_AP_ERR_BADSEQ                    49
 #define KRB5_ET_KRB5KRB_AP_ERR_INAPP_CKSUM               50
+#define KRB5_ET_KRB5KRB_ERR_RESPONSE_TOO_BIG             52
 #define KRB5_ET_KRB5KRB_ERR_GENERIC                      60
 #define KRB5_ET_KRB5KRB_ERR_FIELD_TOOLONG                61
 
@@ -299,6 +312,7 @@ static const value_string krb5_error_codes[] = {
 	{ KRB5_ET_KRB5KRB_AP_ERR_METHOD, "KRB5KRB_AP_ERR_METHOD" },
 	{ KRB5_ET_KRB5KRB_AP_ERR_BADSEQ, "KRB5KRB_AP_ERR_BADSEQ" },
 	{ KRB5_ET_KRB5KRB_AP_ERR_INAPP_CKSUM, "KRB5KRB_AP_ERR_INAPP_CKSUM" },
+	{ KRB5_ET_KRB5KRB_ERR_RESPONSE_TOO_BIG, "KRB5KRB_ERR_RESPONSE_TOO_BIG"},
 	{ KRB5_ET_KRB5KRB_ERR_GENERIC, "KRB5KRB_ERR_GENERIC" },
 	{ KRB5_ET_KRB5KRB_ERR_FIELD_TOOLONG, "KRB5KRB_ERR_FIELD_TOOLONG" },
 	{ 0, NULL }
@@ -384,6 +398,8 @@ static const value_string krb5_msg_types[] = {
         { 0,                    NULL },
 };
 
+static struct { char *set; char *unset; } bitval = { "Set", "Not set" };
+
 static int dissect_PrincipalName(char *title, ASN1_SCK *asn1p,
                                  packet_info *pinfo, proto_tree *tree,
                                  int start_offset);
@@ -394,6 +410,19 @@ static int dissect_EncryptedData(char *title, ASN1_SCK *asn1p,
 				 int start_offset);
 static int dissect_Addresses(ASN1_SCK *asn1p, packet_info *pinfo,
                              proto_tree *tree, int start_offset);
+static void dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo,
+				 proto_tree *tree);
+static void dissect_kerberos_tcp(tvbuff_t *tvb, packet_info *pinfo,
+				 proto_tree *tree);
+static gint dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo,
+					proto_tree *tree, int do_col_info,
+					gboolean have_rm);
+static void show_krb_recordmark(proto_tree *kerberos_tree, tvbuff_t *tvb,
+				gint start, guint32 krb_rm);
+static gint kerberos_rm_to_reclen(guint krb_rm);
+static void dissect_kerberos_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo,
+				proto_tree *tree);
+static guint get_krb_pdu_len(tvbuff_t *tvb, int offset);
 
 static const char *
 to_error_str(int ret) {
@@ -581,8 +610,87 @@ dissect_type_value_pair(ASN1_SCK *asn1p, int *inoff,
     *inoff = offset + *val_len;
 }
 
-gboolean
+gint
 dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int do_col_info)
+{
+    return (dissect_kerberos_common(tvb, pinfo, tree, do_col_info, FALSE));
+}
+
+static void
+dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
+
+    (void)dissect_kerberos_common(tvb, pinfo, tree, TRUE, FALSE);
+}
+
+static gint
+kerberos_rm_to_reclen(guint krb_rm)
+{
+    return (krb_rm & KRB_RM_RECLEN);
+}
+
+static guint
+get_krb_pdu_len(tvbuff_t *tvb, int offset)
+{
+    guint krb_rm;
+    gint pdulen;
+
+    krb_rm = tvb_get_ntohl(tvb, offset);
+    pdulen = kerberos_rm_to_reclen(krb_rm);
+    return (pdulen + 4);
+}
+
+static void
+dissect_kerberos_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    pinfo->fragmented = TRUE;
+    if (dissect_kerberos_common(tvb, pinfo, tree, TRUE, TRUE) < 0) {
+	/*
+	 * The dissector failed to recognize this as a valid
+	 * Kerberos message.  Mark it as a continuation packet.
+	 */
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
+	}
+    }
+}
+
+static void
+dissect_kerberos_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
+
+    tcp_dissect_pdus(tvb, pinfo, tree, krb_desegment, 4, get_krb_pdu_len,
+	dissect_kerberos_tcp_pdu);
+}
+
+/*
+ * Display the TCP record mark.
+ */
+static void
+show_krb_recordmark(proto_tree *tree, tvbuff_t *tvb, gint start, guint32 krb_rm)
+{
+    gint rec_len;
+    proto_item *rm_item;
+    proto_tree *rm_tree;
+
+    if (tree == NULL)
+	return;
+
+    rec_len = kerberos_rm_to_reclen(krb_rm);
+    rm_item = proto_tree_add_text(tree, tvb, start, 4,
+	"Record Mark: %u %s", rec_len, plurality(rec_len, "byte", "bytes"));
+    rm_tree = proto_item_add_subtree(rm_item, ett_recordmark);
+    proto_tree_add_boolean(rm_tree, hf_krb_rm_reserved, tvb, start, 4, krb_rm);
+    proto_tree_add_uint(rm_tree, hf_krb_rm_reclen, tvb, start, 4, krb_rm);
+}
+
+static gint
+dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    int do_col_info, gboolean have_rm)
 {
     int offset = 0;
     proto_tree *kerberos_tree = NULL;
@@ -614,16 +722,36 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int d
     guchar *str;
     int tmp_pos1, tmp_pos2;
 
-    asn1_open(&asn1, tvb, 0);
+    /* TCP record mark and length */
+    guint32 krb_rm = 0;
+    gint krb_reclen = 0;
+
+    if (have_rm) {
+	krb_rm = tvb_get_ntohl(tvb, offset);
+	krb_reclen = kerberos_rm_to_reclen(krb_rm);
+
+	/*
+	 * What is a reasonable size limit?
+	 */
+	if (krb_reclen > 10 * 1024 * 1024) {
+	    return (-1);
+	}
+	offset += 4;
+    }
+
+    asn1_open(&asn1, tvb, offset);
 
     /* top header */
     KRB_HEAD_DECODE_OR_DIE("top");
     protocol_message_type = tag;
     if (tree) {
-        item = proto_tree_add_item(tree, proto_kerberos, tvb, offset,
-                                   item_len, FALSE);
+        item = proto_tree_add_item(tree, proto_kerberos, tvb, 0, -1, FALSE);
         kerberos_tree = proto_item_add_subtree(item, ett_kerberos);
     }
+    /*
+     * If item_len and krb_reclen disagree, which should we trust?  Stick
+     * with item_len for now.
+     */
     message_end = asn1p->offset + item_len;
 
     /* second header */
@@ -634,6 +762,9 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int d
     KRB_DECODE_UINT32_OR_DIE("version", version);
 
     if (kerberos_tree) {
+	if (have_rm) {
+	    show_krb_recordmark(kerberos_tree, tvb, 0, krb_rm);
+	}
         proto_tree_add_text(kerberos_tree, tvb, offset, length,
                             "Version: %d",
                             version);
@@ -666,7 +797,7 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int d
          tag == KRB5_KDC_REP_PADATA)) {
         /* pre-authentication supplied */
 
-        if (tree) {
+        if (kerberos_tree) {
             item = proto_tree_add_text(kerberos_tree, tvb, offset,
                                        item_len, "Pre-Authentication");
             preauth_tree = proto_item_add_subtree(item, ett_preauth);
@@ -731,7 +862,7 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int d
 */
         /* request body */
         KRB_HEAD_DECODE_OR_DIE("body-sequence");
-        if (tree) {
+        if (kerberos_tree) {
             item = proto_tree_add_text(kerberos_tree, tvb, offset,
                                        item_len, "Request");
             request_tree = proto_item_add_subtree(item, ett_request);
@@ -864,7 +995,7 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int d
         }
 
         /* additional-tickets supplied */
-        if (tree) {
+        if (kerberos_tree) {
             item = proto_tree_add_text(kerberos_tree, tvb, offset,
                                        item_len, "Additional Tickets");
             additional_tickets_tree = proto_item_add_subtree(item, ett_additional_tickets);
@@ -1104,15 +1235,6 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int d
         break;
     }
     return offset;
-}
-
-static void
-dissect_kerberos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
-
-    dissect_kerberos_main(tvb, pinfo, tree, TRUE);
 }
 
 static int
@@ -1434,11 +1556,17 @@ dissect_Ticket(ASN1_SCK *asn1p, packet_info *pinfo,
 
 
 void
-proto_register_kerberos(void) {
-/*
+proto_register_kerberos(void)
+{
     static hf_register_info hf[] = {
+	{ &hf_krb_rm_reserved, {
+	    "Reserved", "kerberos.rm.reserved", FT_BOOLEAN, 32,
+	    &bitval, KRB_RM_RESERVED, "Record mark reserved bit", HFILL }},
+	{ &hf_krb_rm_reclen, {
+	    "Record Length", "kerberos.rm.length", FT_UINT32, BASE_DEC,
+	    NULL, KRB_RM_RECLEN, "Record length", HFILL }},
     };
-*/
+
     static gint *ett[] = {
         &ett_kerberos,
         &ett_preauth,
@@ -1449,22 +1577,34 @@ proto_register_kerberos(void) {
         &ett_addresses,
         &ett_etype,
         &ett_additional_tickets,
+        &ett_recordmark,
     };
+    module_t *krb_module;
+
     proto_kerberos = proto_register_protocol("Kerberos", "KRB5", "kerberos");
-/*
     proto_register_field_array(proto_kerberos, hf, array_length(hf));
-*/
     proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register preferences */
+    krb_module = prefs_register_protocol(proto_kerberos, NULL);
+    prefs_register_bool_preference(krb_module, "desegment",
+	"Desegment Kerberos over TCP messages",
+	"Whether the dissector should desegment "
+	"multi-segment Kerberos messages", &krb_desegment);
 }
 
 void
 proto_reg_handoff_kerberos(void)
 {
-    dissector_handle_t kerberos_handle;
+    dissector_handle_t kerberos_handle_udp;
+    dissector_handle_t kerberos_handle_tcp;
 
-    kerberos_handle = create_dissector_handle(dissect_kerberos, proto_kerberos);
-    dissector_add("udp.port", UDP_PORT_KERBEROS, kerberos_handle);
-    dissector_add("tcp.port", TCP_PORT_KERBEROS, kerberos_handle);
+    kerberos_handle_udp = create_dissector_handle(dissect_kerberos_udp,
+	proto_kerberos);
+    kerberos_handle_tcp = create_dissector_handle(dissect_kerberos_tcp,
+	proto_kerberos);
+    dissector_add("udp.port", UDP_PORT_KERBEROS, kerberos_handle_udp);
+    dissector_add("tcp.port", TCP_PORT_KERBEROS, kerberos_handle_tcp);
 
 }
 
