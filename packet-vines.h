@@ -1,7 +1,7 @@
 /* packet-vines.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-vines.h,v 1.15 2003/04/18 00:32:47 guy Exp $
+ * $Id: packet-vines.h,v 1.16 2003/04/18 01:47:52 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -64,10 +64,8 @@ typedef struct _e_vip {
   guint16 vip_pktlen;
   guint8  vip_tctl;	/* Transport Control */
   guint8  vip_proto;
-  guint32 vip_dnet;
-  guint16 vip_dsub;
-  guint32 vip_snet;
-  guint16 vip_ssub;
+  guint8  vip_dst[VINES_ADDR_LEN];
+  guint8  vip_src[VINES_ADDR_LEN];
 } e_vip;
 
 /* VINES SPP and IPC structs and definitions */

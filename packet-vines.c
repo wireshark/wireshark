@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.48 2003/04/18 00:32:47 guy Exp $
+ * $Id: packet-vines.c,v 1.49 2003/04/18 01:47:52 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -55,27 +55,19 @@ static int proto_vines_llc = -1;
 
 static gint ett_vines_llc = -1;
 
-static int proto_vines_spp = -1;
-
-static gint ett_vines_spp = -1;
-static gint ett_vines_spp_control = -1;
-
 static int proto_vines_ipc = -1;
 
 static gint ett_vines_ipc = -1;
 static gint ett_vines_ipc_control = -1;
 
-static void dissect_vines_frp(tvbuff_t *, packet_info *, proto_tree *);
-#if 0
-static void dissect_vines_arp(tvbuff_t *, packet_info *, proto_tree *);
-static void dissect_vines_icp(tvbuff_t *, packet_info *, proto_tree *);
-#endif
-static void dissect_vines_ipc(tvbuff_t *, packet_info *, proto_tree *);
-#if 0
-static void dissect_vines_rtp(tvbuff_t *, packet_info *, proto_tree *);
-#endif
-static void dissect_vines_spp(tvbuff_t *, packet_info *, proto_tree *);
-static void dissect_vines(tvbuff_t *, packet_info *, proto_tree *);
+static int proto_vines_spp = -1;
+
+static gint ett_vines_spp = -1;
+static gint ett_vines_spp_control = -1;
+
+static int proto_vines_arp = -1;
+
+static gint ett_vines_arp = -1;
 
 void
 capture_vines(packet_counts *ld)
@@ -269,6 +261,10 @@ static const value_string proto_vals[] = {
 	{ 0,             NULL }
 };
 
+static const guint8 bcast_addr[VINES_ADDR_LEN] = {
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+};
+
 static void
 dissect_vines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -293,20 +289,11 @@ dissect_vines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	viph.vip_chksum = g_ntohs(viph.vip_chksum);
 	viph.vip_pktlen = g_ntohs(viph.vip_pktlen);
-	viph.vip_dnet = g_ntohl(viph.vip_dnet);
-	viph.vip_dsub = g_ntohs(viph.vip_dsub);
-	viph.vip_snet = g_ntohl(viph.vip_snet);
-	viph.vip_ssub = g_ntohs(viph.vip_ssub);
 
 	/*
 	 * Handle Vines protocols for which we don't have dissectors.
 	 */
 	switch (viph.vip_proto) {
-
-	case VIP_PROTO_ARP:
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines ARP");
-		break;
 
 	case VIP_PROTO_RTP:
 		if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -332,8 +319,8 @@ dissect_vines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	SET_ADDRESS(&pinfo->net_dst, AT_VINES, VINES_ADDR_LEN,dst_addr);
 	SET_ADDRESS(&pinfo->dst, AT_VINES, VINES_ADDR_LEN, dst_addr);
 
- 	/* helpers to decode flags */
- 	if ((viph.vip_dnet == 0xffffffff) && (viph.vip_dsub == 0xffff))
+ 	/* helpers to transport control */
+	if (memcmp(viph.vip_dst, bcast_addr, VINES_ADDR_LEN) == 0)
  		is_broadcast = TRUE;
  	hops = viph.vip_tctl & 0xf;
 
@@ -446,133 +433,6 @@ static const value_string pkttype_vals[] = {
 	{ PKTTYPE_ACK,   "Ack" },
 	{ 0,             NULL }
 };
-
-static heur_dissector_list_t vines_spp_heur_subdissector_list;
-
-static void
-dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	int          offset = 0;
-	e_vspp       viph;
-	proto_tree  *vspp_tree, *control_tree;
-	proto_item  *ti;
-	tvbuff_t    *next_tvb;
-
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSPP");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
-
-	/* To do: check for runts, errs, etc. */
-
-	/* Avoids alignment problems on many architectures. */
-	tvb_memcpy(tvb, (guint8 *)&viph, offset, sizeof(e_vspp));
-
-	viph.vspp_sport = g_ntohs(viph.vspp_sport);
-	viph.vspp_dport = g_ntohs(viph.vspp_dport);
-	viph.vspp_lclid = g_ntohs(viph.vspp_lclid);
-	viph.vspp_rmtid = g_ntohs(viph.vspp_rmtid);
-
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines SPP");
-	if (check_col(pinfo->cinfo, COL_INFO))
- 		col_add_fstr(pinfo->cinfo, COL_INFO,
-			     "%s NS=%u NR=%u Window=%u RID=%04x LID=%04x D=%04x S=%04x",
-			     val_to_str(viph.vspp_pkttype, pkttype_vals,
-			         "Unknown packet type (0x%02x)"),
-			     viph.vspp_seqno, viph.vspp_ack, viph.vspp_win,
-			     viph.vspp_rmtid, viph.vspp_lclid, viph.vspp_dport,
-			     viph.vspp_sport);
-
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_vines_spp, tvb, offset,
-		    sizeof(viph), FALSE);
-		vspp_tree = proto_item_add_subtree(ti, ett_vines_spp);
-		proto_tree_add_text(vspp_tree, tvb, offset,      2,
-				    "Source port: 0x%04x", viph.vspp_sport);
-		proto_tree_add_text(vspp_tree, tvb, offset + 2,  2,
-				    "Destination port: 0x%04x",
-				    viph.vspp_dport);
-		proto_tree_add_text(vspp_tree, tvb, offset + 4,  1,
-				    "Packet type: 0x%02x (%s)",
-				    viph.vspp_pkttype,
-				    val_to_str(viph.vspp_pkttype, pkttype_vals,
-				        "Unknown"));
-		ti = proto_tree_add_text(vspp_tree, tvb, offset + 5,  1,
-				    "Control: 0x%02x", viph.vspp_control);
-		control_tree = proto_item_add_subtree(ti, ett_vines_spp_control);
-		/*
-		 * XXX - do reassembly based on BOM/EOM bits.
-		 */
-		proto_tree_add_text(control_tree, tvb, offset + 5, 1,
-		    decode_boolean_bitfield(viph.vspp_control, 0x80, 1*8,
-		      "Send immediate acknowledgment",
-		      "Do not send immediate acknowledgement"));
-		proto_tree_add_text(control_tree, tvb, offset + 5, 1,
-		    decode_boolean_bitfield(viph.vspp_control, 0x40, 1*8,
-		      "End of message",
-		      "Not end of message"));
-		proto_tree_add_text(control_tree, tvb, offset + 5, 1,
-		    decode_boolean_bitfield(viph.vspp_control, 0x20, 1*8,
-		      "Beginning of message",
-		      "Not beginning of message"));
-		proto_tree_add_text(control_tree, tvb, offset + 5, 1,
-		    decode_boolean_bitfield(viph.vspp_control, 0x10, 1*8,
-		      "Abort current message",
-		      "Do not abort current message"));
-		proto_tree_add_text(vspp_tree, tvb, offset + 6,  2,
-				    "Local Connection ID: 0x%04x",
-				    viph.vspp_lclid);
-		proto_tree_add_text(vspp_tree, tvb, offset + 8,  2,
-				    "Remote Connection ID: 0x%04x",
-				    viph.vspp_rmtid);
-		proto_tree_add_text(vspp_tree, tvb, offset + 10, 2,
-				    "Sequence number: %u",
-				    viph.vspp_seqno);
-		proto_tree_add_text(vspp_tree, tvb, offset + 12, 2,
-				    "Ack number: %u", viph.vspp_ack);
-		proto_tree_add_text(vspp_tree, tvb, offset + 14, 2,
-				    "Window: %u", viph.vspp_win);
-	}
-	offset += 16; /* sizeof SPP */
-
-	/*
-	 * For data packets, try the heuristic dissectors for Vines SPP;
-	 * if none of them accept the packet, or if it's not a data packet,
-	 * dissect it as data.
-	 */
-	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-	if (viph.vspp_pkttype != PKTTYPE_DATA ||
-	    !dissector_try_heuristic(vines_spp_heur_subdissector_list,
-	      next_tvb, pinfo, tree))
-		call_dissector(data_handle, next_tvb, pinfo, tree);
-}
-
-void
-proto_register_vines_spp(void)
-{
-	static gint *ett[] = {
-		&ett_vines_spp,
-		&ett_vines_spp_control,
-	};
-
-	proto_vines_spp = proto_register_protocol("Banyan Vines SPP",
-	    "Vines SPP", "vines_spp");
-	proto_register_subtree_array(ett, array_length(ett));
-
-	register_heur_dissector_list("vines_spp",
-	    &vines_spp_heur_subdissector_list);
-}
-
-void
-proto_reg_handoff_vines_spp(void)
-{
-	dissector_handle_t vines_spp_handle;
-
-	vines_spp_handle = create_dissector_handle(dissect_vines_spp,
-	    proto_vines_spp);
-	dissector_add("vines_ip.protocol", VIP_PROTO_SPP, vines_spp_handle);
-}
 
 static heur_dissector_list_t vines_ipc_heur_subdissector_list;
 
@@ -793,3 +653,223 @@ proto_reg_handoff_vines_ipc(void)
 	dissector_add("vines_ip.protocol", VIP_PROTO_IPC, vines_ipc_handle);
 }
 
+static heur_dissector_list_t vines_spp_heur_subdissector_list;
+
+static void
+dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	int          offset = 0;
+	e_vspp       viph;
+	proto_tree  *vspp_tree, *control_tree;
+	proto_item  *ti;
+	tvbuff_t    *next_tvb;
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSPP");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
+
+	/* To do: check for runts, errs, etc. */
+
+	/* Avoids alignment problems on many architectures. */
+	tvb_memcpy(tvb, (guint8 *)&viph, offset, sizeof(e_vspp));
+
+	viph.vspp_sport = g_ntohs(viph.vspp_sport);
+	viph.vspp_dport = g_ntohs(viph.vspp_dport);
+	viph.vspp_lclid = g_ntohs(viph.vspp_lclid);
+	viph.vspp_rmtid = g_ntohs(viph.vspp_rmtid);
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines SPP");
+	if (check_col(pinfo->cinfo, COL_INFO))
+ 		col_add_fstr(pinfo->cinfo, COL_INFO,
+			     "%s NS=%u NR=%u Window=%u RID=%04x LID=%04x D=%04x S=%04x",
+			     val_to_str(viph.vspp_pkttype, pkttype_vals,
+			         "Unknown packet type (0x%02x)"),
+			     viph.vspp_seqno, viph.vspp_ack, viph.vspp_win,
+			     viph.vspp_rmtid, viph.vspp_lclid, viph.vspp_dport,
+			     viph.vspp_sport);
+
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_vines_spp, tvb, offset,
+		    sizeof(viph), FALSE);
+		vspp_tree = proto_item_add_subtree(ti, ett_vines_spp);
+		proto_tree_add_text(vspp_tree, tvb, offset,      2,
+				    "Source port: 0x%04x", viph.vspp_sport);
+		proto_tree_add_text(vspp_tree, tvb, offset + 2,  2,
+				    "Destination port: 0x%04x",
+				    viph.vspp_dport);
+		proto_tree_add_text(vspp_tree, tvb, offset + 4,  1,
+				    "Packet type: 0x%02x (%s)",
+				    viph.vspp_pkttype,
+				    val_to_str(viph.vspp_pkttype, pkttype_vals,
+				        "Unknown"));
+		ti = proto_tree_add_text(vspp_tree, tvb, offset + 5,  1,
+				    "Control: 0x%02x", viph.vspp_control);
+		control_tree = proto_item_add_subtree(ti, ett_vines_spp_control);
+		/*
+		 * XXX - do reassembly based on BOM/EOM bits.
+		 */
+		proto_tree_add_text(control_tree, tvb, offset + 5, 1,
+		    decode_boolean_bitfield(viph.vspp_control, 0x80, 1*8,
+		      "Send immediate acknowledgment",
+		      "Do not send immediate acknowledgement"));
+		proto_tree_add_text(control_tree, tvb, offset + 5, 1,
+		    decode_boolean_bitfield(viph.vspp_control, 0x40, 1*8,
+		      "End of message",
+		      "Not end of message"));
+		proto_tree_add_text(control_tree, tvb, offset + 5, 1,
+		    decode_boolean_bitfield(viph.vspp_control, 0x20, 1*8,
+		      "Beginning of message",
+		      "Not beginning of message"));
+		proto_tree_add_text(control_tree, tvb, offset + 5, 1,
+		    decode_boolean_bitfield(viph.vspp_control, 0x10, 1*8,
+		      "Abort current message",
+		      "Do not abort current message"));
+		proto_tree_add_text(vspp_tree, tvb, offset + 6,  2,
+				    "Local Connection ID: 0x%04x",
+				    viph.vspp_lclid);
+		proto_tree_add_text(vspp_tree, tvb, offset + 8,  2,
+				    "Remote Connection ID: 0x%04x",
+				    viph.vspp_rmtid);
+		proto_tree_add_text(vspp_tree, tvb, offset + 10, 2,
+				    "Sequence number: %u",
+				    viph.vspp_seqno);
+		proto_tree_add_text(vspp_tree, tvb, offset + 12, 2,
+				    "Ack number: %u", viph.vspp_ack);
+		proto_tree_add_text(vspp_tree, tvb, offset + 14, 2,
+				    "Window: %u", viph.vspp_win);
+	}
+	offset += 16; /* sizeof SPP */
+
+	/*
+	 * For data packets, try the heuristic dissectors for Vines SPP;
+	 * if none of them accept the packet, or if it's not a data packet,
+	 * dissect it as data.
+	 */
+	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	if (viph.vspp_pkttype != PKTTYPE_DATA ||
+	    !dissector_try_heuristic(vines_spp_heur_subdissector_list,
+	      next_tvb, pinfo, tree))
+		call_dissector(data_handle, next_tvb, pinfo, tree);
+}
+
+void
+proto_register_vines_spp(void)
+{
+	static gint *ett[] = {
+		&ett_vines_spp,
+		&ett_vines_spp_control,
+	};
+
+	proto_vines_spp = proto_register_protocol("Banyan Vines SPP",
+	    "Vines SPP", "vines_spp");
+	proto_register_subtree_array(ett, array_length(ett));
+
+	register_heur_dissector_list("vines_spp",
+	    &vines_spp_heur_subdissector_list);
+}
+
+void
+proto_reg_handoff_vines_spp(void)
+{
+	dissector_handle_t vines_spp_handle;
+
+	vines_spp_handle = create_dissector_handle(dissect_vines_spp,
+	    proto_vines_spp);
+	dissector_add("vines_ip.protocol", VIP_PROTO_SPP, vines_spp_handle);
+}
+
+static const value_string vines_arp_version_vals[] = {
+	{ 0x0000, "Pre-5.50" },
+	{ 0x0001, "5.50" },
+	{ 0,      NULL }
+};
+
+#define VARP_QUERY_REQ		0x00
+#define VARP_SERVICE_RESP	0x01
+#define VARP_ASSIGNMENT_REQ	0x02
+#define VARP_ASSIGNMENT_RESP	0x03
+
+static const value_string vines_arp_packet_type_vals[] = {
+	{ VARP_QUERY_REQ,        "Query request" },
+	{ VARP_SERVICE_RESP,    "Service response" },
+	{ VARP_ASSIGNMENT_REQ,  "Assignment request" },
+	{ VARP_ASSIGNMENT_RESP, "Assignment response" },
+	{ 0,                    NULL }
+};
+
+static void
+dissect_vines_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_tree *vines_arp_tree = NULL;
+	proto_item *ti;
+	guint8   version;
+	guint8   packet_type;
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines ARP");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
+
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_vines_arp, tvb, 0, 2,
+		    FALSE);
+		vines_arp_tree = proto_item_add_subtree(ti, ett_vines_arp);
+
+		version = tvb_get_guint8(tvb, 0);
+		proto_tree_add_text(vines_arp_tree, tvb, 0, 1,
+				    "Version: %s (0x%02x)",
+				    val_to_str(version, vines_arp_version_vals,
+				      "Unknown"),
+				    version);
+	}
+	packet_type = tvb_get_guint8(tvb, 1);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_str(pinfo->cinfo, COL_INFO,
+		    val_to_str(packet_type, vines_arp_packet_type_vals,
+		      "Unknown (0x%02x)"));
+	}
+	if (tree) {
+		proto_tree_add_text(vines_arp_tree, tvb, 1, 1,
+				    "Packet Type: %s (0x%02x)",
+				    val_to_str(packet_type,
+				      vines_arp_packet_type_vals,
+				      "Unknown"),
+				    packet_type);
+		if (packet_type == VARP_ASSIGNMENT_RESP) {
+			proto_tree_add_text(vines_arp_tree, tvb, 2,
+					    VINES_ADDR_LEN,
+					    "Address: %s",
+					    vines_addr_to_str(tvb_get_ptr(tvb, 2, VINES_ADDR_LEN)));
+		}
+		proto_tree_add_text(vines_arp_tree, tvb, 2+VINES_ADDR_LEN, 4,
+				    "Sequence Number: %u",
+				    tvb_get_ntohl(tvb, 2+VINES_ADDR_LEN));
+		proto_tree_add_text(vines_arp_tree, tvb, 2+VINES_ADDR_LEN+4, 2,
+				    "Interface Metric: %u",
+				    tvb_get_ntohs(tvb, 2+VINES_ADDR_LEN+4));
+	}
+}
+
+void
+proto_register_vines_arp(void)
+{
+	static gint *ett[] = {
+		&ett_vines_arp,
+	};
+
+	proto_vines_arp = proto_register_protocol(
+	    "Banyan Vines ARP", "Vines ARP", "vines_arp");
+	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_vines_arp(void)
+{
+	dissector_handle_t vines_arp_handle;
+
+	vines_arp_handle = create_dissector_handle(dissect_vines_arp,
+	    proto_vines_arp);
+	dissector_add("vines_ip.protocol", VIP_PROTO_ARP, vines_arp_handle);
+}
