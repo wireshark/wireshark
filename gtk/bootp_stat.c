@@ -1,7 +1,7 @@
 /* bootp_stat.c
  * boop_stat   2003 Jean-Michel FAYARD
  *
- * $Id: bootp_stat.c,v 1.14 2004/01/21 21:19:31 ulfl Exp $
+ * $Id: bootp_stat.c,v 1.15 2004/01/31 03:22:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -243,7 +243,7 @@ gtk_dhcpstat_init(char *optarg)
 			dhcpstat_draw);
 	if (error_string){
 		/* error, we failed to attach to the tap. clean up */
-		simple_dialog( ESD_TYPE_WARN, NULL, error_string->str );
+		simple_dialog( ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str );
 		g_free(sp->filter);
 		g_free(sp);
 		g_string_free(error_string, TRUE);

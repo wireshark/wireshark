@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.352 2004/01/31 02:25:43 ulfl Exp $
+ * $Id: file.c,v 1.353 2004/01/31 03:22:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -213,7 +213,7 @@ cf_open(char *fname, gboolean is_tempfile, capture_file *cf)
   return (0);
 
 fail:
-  simple_dialog(ESD_TYPE_ERROR, NULL,
+  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			cf_open_error_message(err, err_info, FALSE, 0), fname);
   return (err);
 }
@@ -506,7 +506,7 @@ cf_read(capture_file *cf)
       break;
     }
     snprintf(err_str, sizeof err_str, errmsg);
-    simple_dialog(ESD_TYPE_ERROR, NULL, err_str);
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, err_str);
     return (READ_ERROR);
   } else
     return (READ_SUCCESS);
@@ -960,7 +960,7 @@ filter_packets(capture_file *cf, gchar *dftext)
     dftext = g_strdup(dftext);
     if (!dfilter_compile(dftext, &dfcode)) {
       /* The attempt failed; report an error. */
-      simple_dialog(ESD_TYPE_ERROR, NULL, dfilter_error_msg);
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, dfilter_error_msg);
       g_free(dftext);
       return 0;
     }
@@ -1165,7 +1165,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
 
     if (!wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
     	cf->pd, fdata->cap_len, &err, &err_info)) {
-	simple_dialog(ESD_TYPE_ERROR, NULL,
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		      cf_read_error_message(err, err_info), cf->filename);
 	break;
     }
@@ -1377,8 +1377,8 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
     if (!wtap_seek_read(cf->wth, fdata->file_off, &pseudo_header,
                         pd, fdata->cap_len, &err, &err_info)) {
       /* Attempt to get the packet failed. */
-      simple_dialog(ESD_TYPE_ERROR, NULL, cf_read_error_message(err, err_info),
-                    cf->filename);
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    cf_read_error_message(err, err_info), cf->filename);
       ret = PSP_FAILED;
       break;
     }
@@ -2237,7 +2237,7 @@ find_packet(capture_file *cf,
         		cf->pd, fdata->cap_len, &err, &err_info)) {
           /* Read error.  Report the error, and go back to the frame
              where we started. */
-          simple_dialog(ESD_TYPE_ERROR, NULL,
+          simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			cf_read_error_message(err, err_info), cf->filename);
           new_fd = start_fd;
           break;
@@ -2286,14 +2286,14 @@ goto_frame(capture_file *cf, guint fnumber)
 
   if (fdata == NULL) {
     /* we didn't find a packet with that packet number */
-    simple_dialog(ESD_TYPE_ERROR, NULL,
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 	 	  "There is no packet with that packet number.");
     return FALSE;	/* we failed to go to that packet */
   }
   if (!fdata->flags.passed_dfilter) {
     /* that packet currently isn't displayed */
     /* XXX - add it to the set of displayed packets? */
-    simple_dialog(ESD_TYPE_ERROR, NULL,
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		  "That packet is not currently being displayed.");
     return FALSE;	/* we failed to go to that packet */
   }
@@ -2408,7 +2408,7 @@ select_packet(capture_file *cf, int row)
   /* Get the data in that frame. */
   if (!wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
   		       cf->pd, fdata->cap_len, &err, &err_info)) {
-    simple_dialog(ESD_TYPE_ERROR, NULL,
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		  cf_read_error_message(err, err_info), cf->filename);
     return;
   }
@@ -2516,7 +2516,7 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
 
   /* and save the packet */
   if (!wtap_dump(args->pdh, &hdr, pseudo_header, pd, &err)) {
-    simple_dialog(ESD_TYPE_ERROR, NULL, cf_write_error_message(err),
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, cf_write_error_message(err),
                   args->fname);
     return FALSE;
   }
@@ -2554,7 +2554,7 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
    stat(cf->filename, &infile);
    stat(fname, &outfile);
    if (infile.st_ino == outfile.st_ino) {
-    simple_dialog(ESD_TYPE_ERROR, NULL,
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		      "Can't save over current capture file: %s!",
 		      cf->filename);
     goto fail;
@@ -2594,7 +2594,7 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
 	     be if we didn't have permission to remove the file from
 	     the temporary directory, and that might be fixable - but
 	     is it worth requiring the user to go off and fix it?) */
-	  simple_dialog(ESD_TYPE_ERROR, NULL,
+	  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				file_rename_error_message(errno), fname);
 	  goto fail;
 	}
@@ -2621,7 +2621,7 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
        we have to do it by writing the packets out in Wiretap. */
     pdh = wtap_dump_open(fname, save_format, cf->lnk_t, cf->snap, &err);
     if (pdh == NULL) {
-      simple_dialog(ESD_TYPE_ERROR, NULL,
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			cf_open_error_message(err, NULL, TRUE, save_format), fname);
       goto fail;
     }
@@ -2661,7 +2661,8 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
     }
 
     if (!wtap_dump_close(pdh, &err)) {
-      simple_dialog(ESD_TYPE_WARN, NULL, cf_close_error_message(err), fname);
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, cf_close_error_message(err),
+                    fname);
       goto fail;
     }
   }
@@ -2937,7 +2938,7 @@ copy_binary_file(char *from_filename, char *to_filename)
   from_fd = open(from_filename, O_RDONLY | O_BINARY);
   if (from_fd < 0) {
     err = errno;
-    simple_dialog(ESD_TYPE_ERROR, NULL,
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		  file_open_error_message(err, TRUE), from_filename);
     goto done;
   }
@@ -2950,7 +2951,7 @@ copy_binary_file(char *from_filename, char *to_filename)
   to_fd = open(to_filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
   if (to_fd < 0) {
     err = errno;
-    simple_dialog(ESD_TYPE_ERROR, NULL,
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		  file_open_error_message(err, TRUE), to_filename);
     close(from_fd);
     goto done;
@@ -2963,7 +2964,7 @@ copy_binary_file(char *from_filename, char *to_filename)
 	err = errno;
       else
 	err = WTAP_ERR_SHORT_WRITE;
-      simple_dialog(ESD_TYPE_ERROR, NULL,
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    file_write_error_message(err), to_filename);
       close(from_fd);
       close(to_fd);
@@ -2972,7 +2973,7 @@ copy_binary_file(char *from_filename, char *to_filename)
   }
   if (nread < 0) {
     err = errno;
-    simple_dialog(ESD_TYPE_ERROR, NULL,
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		  "An error occurred while reading from the file \"%s\": %s.",
 		  from_filename, strerror(err));
     close(from_fd);
@@ -2982,7 +2983,7 @@ copy_binary_file(char *from_filename, char *to_filename)
   close(from_fd);
   if (close(to_fd) < 0) {
     err = errno;
-    simple_dialog(ESD_TYPE_ERROR, NULL,
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		  file_write_error_message(err), to_filename);
     goto done;
   }

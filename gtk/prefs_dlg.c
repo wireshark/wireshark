@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.77 2004/01/25 12:22:20 ulfl Exp $
+ * $Id: prefs_dlg.c,v 1.78 2004/01/31 03:22:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1123,7 +1123,7 @@ prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
   /* Create the directory that holds personal configuration files, if
      necessary.  */
   if (create_persconffile_dir(&pf_dir_path) == -1) {
-     simple_dialog(ESD_TYPE_WARN, NULL,
+     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
       "Can't create directory\n\"%s\"\nfor preferences file: %s.", pf_dir_path,
       strerror(errno));
      g_free(pf_dir_path);
@@ -1131,7 +1131,7 @@ prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
     /* Write the preferencs out. */
     err = write_prefs(&pf_path);
     if (err != 0) {
-       simple_dialog(ESD_TYPE_WARN, NULL,
+       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
         "Can't open preferences file\n\"%s\": %s.", pf_path,
         strerror(err));
        g_free(pf_path);

@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.58 2004/01/31 02:25:45 ulfl Exp $
+ * $Id: filter_prefs.c,v 1.59 2004/01/31 03:22:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -819,7 +819,7 @@ filter_dlg_save_cb(GtkWidget *save_bt _U_, gpointer data)
 	/* Create the directory that holds personal configuration files,
 	   if necessary.  */
 	if (create_persconffile_dir(&pf_dir_path) == -1) {
-		simple_dialog(ESD_TYPE_WARN, NULL,
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Can't create directory\n\"%s\"\nfor filter files: %s.",
 		    pf_dir_path, strerror(errno));
 		g_free(pf_dir_path);
@@ -844,7 +844,7 @@ filter_dlg_save_cb(GtkWidget *save_bt _U_, gpointer data)
 			filter_type = NULL;
 			break;
 		}
-		simple_dialog(ESD_TYPE_ERROR, NULL,
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Could not save to your %s filter file\n\"%s\": %s.",
 		    filter_type, f_path, strerror(f_save_errno));
 		g_free(f_path);

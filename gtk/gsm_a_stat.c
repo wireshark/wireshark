@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: gsm_a_stat.c,v 1.9 2004/01/21 21:19:33 ulfl Exp $
+ * $Id: gsm_a_stat.c,v 1.10 2004/01/31 03:22:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -687,7 +687,7 @@ register_tap_listener_gtkgsm_a_stat(void)
 
     if (err_p != NULL)
     {
-	simple_dialog(ESD_TYPE_WARN, NULL, err_p->str);
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, err_p->str);
 	g_string_free(err_p, TRUE);
 
 	exit(1);

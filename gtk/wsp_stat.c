@@ -1,7 +1,7 @@
 /* wsp_stat.c
  * wsp_stat   2003 Jean-Michel FAYARD
  *
- * $Id: wsp_stat.c,v 1.14 2004/01/21 21:19:34 ulfl Exp $
+ * $Id: wsp_stat.c,v 1.15 2004/01/31 03:22:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -394,7 +394,7 @@ gtk_wspstat_init(char *optarg)
 			wspstat_draw);
 	if (error_string){
 		/* error, we failed to attach to the tap. clean up */
-		simple_dialog( ESD_TYPE_WARN, NULL, error_string->str );
+		simple_dialog( ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str );
 		g_free(sp->pdu_stats);
 		g_free(sp->filter);
 		g_free(sp);

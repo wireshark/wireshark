@@ -1,7 +1,7 @@
 /* fc_stat.c
  * fc_stat   2003 Ronnie Sahlberg
  *
- * $Id: fc_stat.c,v 1.21 2004/01/21 21:19:32 ulfl Exp $
+ * $Id: fc_stat.c,v 1.22 2004/01/31 03:22:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -179,7 +179,7 @@ gtk_fcstat_init(char *optarg)
 
 	error_string=register_tap_listener("fc", fc, filter, fcstat_reset, fcstat_packet, fcstat_draw);
 	if(error_string){
-		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
 		g_string_free(error_string, TRUE);
 		g_free(fc);
 		return;

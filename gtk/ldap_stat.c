@@ -1,7 +1,7 @@
 /* ldap_stat.c
  * ldap_stat   2003 Ronnie Sahlberg
  *
- * $Id: ldap_stat.c,v 1.9 2004/01/21 21:19:33 ulfl Exp $
+ * $Id: ldap_stat.c,v 1.10 2004/01/31 03:22:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -214,7 +214,7 @@ gtk_ldapstat_init(char *optarg)
 
 	error_string=register_tap_listener("ldap", ldap, filter, ldapstat_reset, ldapstat_packet, ldapstat_draw);
 	if(error_string){
-		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
 		g_string_free(error_string, TRUE);
 		g_free(ldap);
 		return;

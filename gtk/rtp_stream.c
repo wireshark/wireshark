@@ -1,7 +1,7 @@
 /* rtp_stream.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream.c,v 1.9 2004/01/31 02:25:46 ulfl Exp $
+ * $Id: rtp_stream.c,v 1.10 2004/01/31 03:22:42 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -283,14 +283,14 @@ gboolean rtpstream_save(rtp_stream_info_t* stream, const gchar *filename)
 	/* open file for saving */
 	the_tapinfo_struct.save_file = fopen(filename, "wb");
 	if (the_tapinfo_struct.save_file==NULL) {
-		simple_dialog(ESD_TYPE_ERROR, NULL,
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    file_open_error_message(errno, TRUE), filename);
 		return FALSE;
 	}
 
 	rtp_write_header(stream, the_tapinfo_struct.save_file);
 	if (ferror(the_tapinfo_struct.save_file)) {
-		simple_dialog(ESD_TYPE_ERROR, NULL,
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    file_write_error_message(errno), filename);
 		fclose(the_tapinfo_struct.save_file);
 		return FALSE;
@@ -308,14 +308,14 @@ gboolean rtpstream_save(rtp_stream_info_t* stream, const gchar *filename)
 		remove_tap_listener_rtp_stream();
 
 	if (ferror(the_tapinfo_struct.save_file)) {
-		simple_dialog(ESD_TYPE_ERROR, NULL,
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    file_write_error_message(errno), filename);
 		fclose(the_tapinfo_struct.save_file);
 		return FALSE;
 	}
 
 	if (fclose(the_tapinfo_struct.save_file) == EOF) {
-		simple_dialog(ESD_TYPE_ERROR, NULL,
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    file_write_error_message(errno), filename);
 		return FALSE;
 	}
@@ -393,7 +393,8 @@ register_tap_listener_rtp_stream(void)
 			(void*)rtpstream_reset, (void*)rtpstream_packet, (void*)rtpstream_draw);
 
 		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, NULL, error_string->str);
+			simple_dialog(ESD_TYPE_ERROR | ESD_TYPE_MODAL,
+				      ESD_BTN_OK, error_string->str);
 			g_string_free(error_string, TRUE);
 			exit(1);
 		}

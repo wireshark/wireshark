@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.41 2004/01/31 02:25:45 ulfl Exp $
+ * $Id: follow_dlg.c,v 1.42 2004/01/31 03:22:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -164,7 +164,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 
 	/* we got tcp so we can follow */
 	if (cfile.edt->pi.ipproto != 6) {
-		simple_dialog(ESD_TYPE_ERROR, NULL,
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			      "Error following stream.  Please make\n"
 			      "sure you have a TCP packet selected.");
 		return;
@@ -184,7 +184,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 			sizeof follow_info->data_out_filename, "follow");
 
 	if (tmp_fd == -1) {
-	    simple_dialog(ESD_TYPE_WARN, NULL,
+	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			  "Could not create temporary file %s: %s",
 			  follow_info->data_out_filename, strerror(errno));
 	    g_free(follow_info);
@@ -193,7 +193,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 
 	data_out_file = fdopen(tmp_fd, "wb");
 	if (data_out_file == NULL) {
-	    simple_dialog(ESD_TYPE_WARN, NULL,
+	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			  "Could not create temporary file %s: %s",
 			  follow_info->data_out_filename, strerror(errno));
 	    close(tmp_fd);
@@ -525,7 +525,7 @@ follow_read_stream(follow_info_t *follow_info,
 
     data_out_file = fopen(follow_info->data_out_filename, "rb");
     if (data_out_file == NULL) {
-	simple_dialog(ESD_TYPE_WARN, NULL,
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		      "Could not open temporary file %s: %s", follow_info->data_out_filename,
 		      strerror(errno));
 	return FRS_OPEN_ERROR;
@@ -682,7 +682,7 @@ follow_read_stream(follow_info_t *follow_info,
 	}
     }
     if (ferror(data_out_file)) {
-	simple_dialog(ESD_TYPE_WARN, NULL,
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		      "Error reading temporary file %s: %s", follow_info->data_out_filename,
 		      strerror(errno));
 	fclose(data_out_file);
@@ -756,7 +756,7 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
 	to_file = TRUE;
 	break;
     default:			/* "Can't happen" */
-	simple_dialog(ESD_TYPE_ERROR, NULL,
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		      "Couldn't figure out where to send the print "
 		      "job. Check your preferences.");
 	return;
@@ -765,10 +765,10 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
     fh = open_print_dest(to_file, print_dest);
     if (fh == NULL) {
 	if (to_file) {
-	    simple_dialog(ESD_TYPE_ERROR, NULL,
+	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			  file_open_error_message(errno, TRUE), prefs.pr_file);
 	} else {
-	    simple_dialog(ESD_TYPE_ERROR, NULL,
+	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			  "Couldn't run print command %s.", prefs.pr_cmd);
 	}
 	return;
@@ -796,10 +796,10 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
 	goto print_error;
     if (!close_print_dest(to_file, fh)) {
 	if (to_file) {
-	    simple_dialog(ESD_TYPE_ERROR, NULL,
+	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			  file_write_error_message(errno), prefs.pr_file);
 	} else {
-	    simple_dialog(ESD_TYPE_ERROR, NULL,
+	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			  "Error closing print destination.");
 	}
     }
@@ -807,10 +807,10 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
 
 print_error:
     if (to_file) {
-	simple_dialog(ESD_TYPE_ERROR, NULL,
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		      file_write_error_message(errno), prefs.pr_file);
     } else {
-	simple_dialog(ESD_TYPE_ERROR, NULL,
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		      "Error writing to print command: %s", strerror(errno));
     }
     /* XXX - cancel printing? */
@@ -976,7 +976,7 @@ follow_save_as_ok_cb(GtkWidget * w _U_, GtkFileSelection * fs)
 
 	fh = fopen(to_name, "wb");
 	if (fh == NULL) {
-		simple_dialog(ESD_TYPE_WARN, NULL,
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			file_open_error_message(errno, TRUE), to_name);
 		g_free(to_name);
 		return;
@@ -990,7 +990,7 @@ follow_save_as_ok_cb(GtkWidget * w _U_, GtkFileSelection * fs)
 
 	case FRS_OK:
 		if (fclose(fh) == EOF) {
-			simple_dialog(ESD_TYPE_WARN, NULL,
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			    file_write_error_message(errno), to_name);
 		}
 		break;
@@ -1001,7 +1001,7 @@ follow_save_as_ok_cb(GtkWidget * w _U_, GtkFileSelection * fs)
 		break;
 
 	case FRS_PRINT_ERROR:
-		simple_dialog(ESD_TYPE_WARN, NULL,
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    file_write_error_message(errno), to_name);
 		fclose(fh);
 		break;

@@ -1,7 +1,7 @@
 /* smb_stat.c
  * smb_stat   2003 Ronnie Sahlberg
  *
- * $Id: smb_stat.c,v 1.32 2004/01/21 21:19:34 ulfl Exp $
+ * $Id: smb_stat.c,v 1.33 2004/01/31 03:22:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -219,7 +219,7 @@ gtk_smbstat_init(char *optarg)
 
 	error_string=register_tap_listener("smb", ss, filter, smbstat_reset, smbstat_packet, smbstat_draw);
 	if(error_string){
-		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
 		g_string_free(error_string, TRUE);
 		g_free(ss);
 		return;

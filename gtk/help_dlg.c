@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.44 2004/01/31 02:25:45 ulfl Exp $
+ * $Id: help_dlg.c,v 1.45 2004/01/31 03:22:41 guy Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -185,7 +185,7 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
     }
   }
   if(ferror(help_toc_file)) {
-    simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, "Error reading file \"%s\": %s",
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Error reading file \"%s\": %s",
                   help_toc_file_path, strerror(errno));
   }
   fclose(help_toc_file);
@@ -320,12 +320,12 @@ static void set_help_text(GtkWidget *w, const char *help_file_path)
       insert_text(w, line, strlen(line));
     }
     if(ferror(help_file)) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, "Error reading file \"%s\": %s",
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Error reading file \"%s\": %s",
                     help_file_path, strerror(errno));
     }
     fclose(help_file);
   } else {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, "Could not open file \"%s\": %s",
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not open file \"%s\": %s",
                     help_file_path, strerror(errno));
   }
 #if GTK_MAJOR_VERSION < 2

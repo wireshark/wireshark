@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.27 2004/01/21 21:19:32 ulfl Exp $
+ * $Id: capture_prefs.c,v 1.28 2004/01/31 03:22:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -667,8 +667,8 @@ ifopts_if_clist_add(GtkCList *clist)
 	
 	if_list = get_interface_list(&err, err_str);
 	if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
-		simple_dialog(ESD_TYPE_WARN, NULL, "Can't get list of interfaces: %s",
-				err_str);
+		simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+				"Can't get list of interfaces: %s", err_str);
 		return;
 	}
 	
@@ -711,7 +711,8 @@ ifopts_write_new_descr(void)
 	/* new preferences interfaces description string */
 	new_descr = g_malloc0(MAX_VAL_LEN);
 	if (new_descr == NULL) {
-		simple_dialog(ESD_TYPE_WARN, NULL, "Error (1) saving interface "
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+				"Error (1) saving interface "
 				"descriptions: malloc failure");
 		return;
 	}
@@ -725,7 +726,8 @@ ifopts_write_new_descr(void)
 	 */
 	tmp_descr = g_malloc0(IFOPTS_MAX_DESCR_LEN + MAX_WIN_IF_NAME_LEN + 4);
 	if (tmp_descr == NULL) {
-		simple_dialog(ESD_TYPE_WARN, NULL, "Error (2) saving interface "
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+				"Error (2) saving interface "
 				"descriptions: malloc failure");
 		g_free(new_descr);
 		return;
@@ -760,8 +762,10 @@ ifopts_write_new_descr(void)
 		}
 		/* interface name + description is too large */
 		else {
-			simple_dialog(ESD_TYPE_WARN, NULL, "Error saving interface "
-					"description for:\n%s\n(too long)", ifnm);
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+					"Error saving interface "
+					"description for:\n%s\n(too long)",
+					ifnm);
 			continue;
 		}
 	}
@@ -795,7 +799,8 @@ ifopts_write_new_hide(void)
 	/* new preferences "hidden" interfaces string */
 	new_hide = g_malloc0(MAX_VAL_LEN);
 	if (new_hide == NULL) {
-		simple_dialog(ESD_TYPE_WARN, NULL, "Error (1) saving \"hidden\" "
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+				"Error (1) saving \"hidden\" "
 				"interfaces: malloc failure");
 		return;
 	}
@@ -809,7 +814,8 @@ ifopts_write_new_hide(void)
 	 */
 	tmp_hide = g_malloc0(MAX_WIN_IF_NAME_LEN + 2);
 	if (tmp_hide == NULL) {
-		simple_dialog(ESD_TYPE_WARN, NULL, "Error (2) saving \"hidden\" "
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+				"Error (2) saving \"hidden\" "
 				"interfaces: malloc failure");
 		g_free(new_hide);
 		return;
@@ -841,7 +847,8 @@ ifopts_write_new_hide(void)
 		}
 		/* interface name is too large */
 		else {
-			simple_dialog(ESD_TYPE_WARN, NULL, "Error saving \"hidden\" "
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+					"Error saving \"hidden\" "
 					"interface for:\n%s\n(too long)", ifnm);
 			continue;
 		}

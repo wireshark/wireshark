@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.84 2004/01/27 20:58:19 ulfl Exp $
+ * $Id: proto_draw.c,v 1.85 2004/01/31 03:22:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,6 +61,7 @@
 #include "ui_util.h"
 #include "gtkglobals.h"
 #include "compat_macros.h"
+#include <epan/filesystem.h>
 #include "simple_dialog.h"
 
 #define BYTE_VIEW_WIDTH    16
@@ -776,16 +777,16 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
     /* don't show up the dialog, if no data has to be saved */
 	bv = get_notebook_bv_ptr(byte_nb_ptr);
 	if (bv == NULL) {
-      /* shouldn't happen */
-      simple_dialog(ESD_TYPE_WARN, NULL, "Could not find the corresponding text window!");
-	  return;
+		/* shouldn't happen */
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window!");
+		return;
 	}
 	end = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_START_KEY));
 	start = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_END_KEY));
 	data_p = get_byte_view_data_and_length(GTK_WIDGET(bv), &len);
 
 	if (data_p == NULL || start == -1 || start > end) {
-        simple_dialog(ESD_TYPE_WARN, NULL, "No data selected to save!");
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No data selected to save!");
 		return;
 	}
 
@@ -889,17 +890,17 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 	file = (char *)gtk_entry_get_text(GTK_ENTRY(file_entry));
 
 	if (!file ||! *file) {
-      simple_dialog(ESD_TYPE_WARN, NULL, "Please enter a filename!");
-	  return;
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Please enter a filename!");
+		return;
 	}
 
 	/* Must check if file name exists first */
 
 	bv = get_notebook_bv_ptr(byte_nb_ptr);
 	if (bv == NULL) {
-      /* shouldn't happen */
-      simple_dialog(ESD_TYPE_WARN, NULL, "Could not find the corresponding text window!");
-	  return;
+		/* shouldn't happen */
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window!");
+		return;
 	}
 	/*
 	 * Retrieve the info we need 
@@ -909,17 +910,28 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 	data_p = get_byte_view_data_and_length(GTK_WIDGET(bv), &len);
 
 	if (data_p == NULL || start == -1 || start > end) {
-        simple_dialog(ESD_TYPE_WARN, NULL, "No data selected to save!");
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    "No data selected to save!");
 		return;
 	}
 
 	fd = open(file, O_WRONLY|O_CREAT|O_TRUNC, 0666);
 	if (fd == -1) {
-        simple_dialog(ESD_TYPE_WARN, NULL, "Could not open file: \"%s\" - %s!", file, strerror(errno));
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    file_open_error_message(errno, TRUE), file);
 		return;
 	}
-	write(fd, data_p + start, end - start);
-	close(fd);
+	if (write(fd, data_p + start, end - start) < 0) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    file_write_error_message(errno), file);
+		close(fd);
+		return;
+	}
+	if (close(fd) < 0) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    file_write_error_message(errno), file);
+		return;
+	}
 
 	/* Get rid of the dialog box */
 	gtk_widget_destroy(GTK_WIDGET(savehex_dlg));

@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.45 2004/01/25 18:39:55 ulfl Exp $
+ * $Id: dcerpc_stat.c,v 1.46 2004/01/31 03:22:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -313,7 +313,7 @@ gtk_dcerpcstat_init(char *optarg)
 	error_string=register_tap_listener("dcerpc", rs, filter, dcerpcstat_reset, dcerpcstat_packet, dcerpcstat_draw);
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
-		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
 		g_string_free(error_string, TRUE);
 		free_srt_table_data(&rs->srt_table);
 		g_free(rs);

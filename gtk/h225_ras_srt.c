@@ -2,7 +2,7 @@
  * h225 RAS Service Response Time statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: h225_ras_srt.c,v 1.6 2004/01/03 18:05:56 sharpe Exp $
+ * $Id: h225_ras_srt.c,v 1.7 2004/01/31 03:22:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -298,7 +298,7 @@ gtk_h225rassrt_init(char *optarg)
 
 	error_string=register_tap_listener("h225", hs, filter, h225rassrt_reset, h225rassrt_packet, h225rassrt_draw);
 	if(error_string){
-		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
 		g_string_free(error_string, TRUE);
 		g_free(hs->filter);
 		g_free(hs);

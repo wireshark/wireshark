@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.86 2004/01/31 02:25:44 ulfl Exp $
+ * $Id: file_dlg.c,v 1.87 2004/01/31 03:22:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -383,7 +383,7 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   rfilter = (gchar *)gtk_entry_get_text(GTK_ENTRY(filter_te));
   if (!dfilter_compile(rfilter, &rfcode)) {
     g_free(cf_name);
-    simple_dialog(ESD_TYPE_ERROR, NULL, dfilter_error_msg);
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, dfilter_error_msg);
     return;
   }
 

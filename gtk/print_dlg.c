@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.58 2004/01/31 02:25:46 ulfl Exp $
+ * $Id: print_dlg.c,v 1.59 2004/01/31 03:22:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -786,7 +786,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
     g_dest = gtk_entry_get_text(GTK_ENTRY(OBJECT_GET_DATA(ok_bt,
                                                           PRINT_FILE_TE_KEY)));
     if (!g_dest[0]) {
-      simple_dialog(ESD_TYPE_ERROR, NULL,
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
         "Printing to file, but no file specified.");
       return;
     }
@@ -842,19 +842,19 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 
   case PP_OPEN_ERROR:
     if (print_args.to_file)
-      simple_dialog(ESD_TYPE_ERROR, NULL,
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
         file_open_error_message(errno, TRUE), print_args.dest);
     else
-      simple_dialog(ESD_TYPE_ERROR, NULL, "Couldn't run print command %s.",
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't run print command %s.",
         print_args.dest);
     break;
 
   case PP_WRITE_ERROR:
     if (print_args.to_file)
-      simple_dialog(ESD_TYPE_ERROR, NULL,
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
         file_write_error_message(errno), print_args.dest);
     else
-      simple_dialog(ESD_TYPE_ERROR, NULL,
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 	"Error writing to print command: %s", strerror(errno));
     break;
   }

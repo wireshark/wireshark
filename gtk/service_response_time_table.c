@@ -3,7 +3,7 @@
  * Helper routines common to all service response time statistics
  * tap.
  *
- * $Id: service_response_time_table.c,v 1.12 2004/01/25 18:51:26 ulfl Exp $
+ * $Id: service_response_time_table.c,v 1.13 2004/01/31 03:22:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -171,7 +171,7 @@ srt_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 
 	selection=GPOINTER_TO_INT(g_list_nth_data(GTK_CLIST(rst->table)->selection, 0));
 	if(selection>=(int)rst->num_procs){
-		simple_dialog(ESD_TYPE_WARN, NULL, "No procedure selected");
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No procedure selected");
 		return;
 	}
 	/* translate it back from row index to index in procedures array */

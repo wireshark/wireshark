@@ -2,7 +2,7 @@
  * mgcp-statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: mgcp_stat.c,v 1.23 2004/01/13 22:49:14 guy Exp $
+ * $Id: mgcp_stat.c,v 1.24 2004/01/31 03:22:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -290,7 +290,7 @@ gtk_mgcpstat_init(char *optarg)
 
 	error_string=register_tap_listener("mgcp", ms, filter, mgcpstat_reset, mgcpstat_packet, mgcpstat_draw);
 	if(error_string){
-		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
 		g_string_free(error_string, TRUE);
 		g_free(ms->filter);
 		g_free(ms);

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.380 2004/01/31 02:25:45 ulfl Exp $
+ * $Id: main.c,v 1.381 2004/01/31 03:22:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -325,7 +325,7 @@ view_zoom_in_cb(GtkWidget *w _U_, gpointer d _U_)
 
     case FA_FONT_NOT_AVAILABLE:
         /* We assume this means that the specified size isn't available. */
-        simple_dialog(ESD_TYPE_ERROR, NULL,
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
             "Your current font isn't available in the next larger size.\n");
         recent.gui_zoom_level = save_gui_zoom_level;	/* undo zoom */
         break;
@@ -351,7 +351,7 @@ view_zoom_out_cb(GtkWidget *w _U_, gpointer d _U_)
 
     case FA_FONT_NOT_AVAILABLE:
         /* We assume this means that the specified size isn't available. */
-        simple_dialog(ESD_TYPE_ERROR, NULL,
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
             "Your current font isn't available in the next smaller size.\n");
         recent.gui_zoom_level = save_gui_zoom_level;	/* undo zoom */
         break;
@@ -378,7 +378,7 @@ view_zoom_100_cb(GtkWidget *w _U_, gpointer d _U_)
     case FA_FONT_NOT_AVAILABLE:
         /* We assume this means that the specified size isn't available.
            XXX - this "shouldn't happen". */
-        simple_dialog(ESD_TYPE_ERROR, NULL,
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
             "Your current font couldn't be reloaded at the size you selected.\n");
         recent.gui_zoom_level = save_gui_zoom_level;	/* undo zoom */
         break;
@@ -585,7 +585,7 @@ get_text_from_packet_list(gpointer data)
     if (fdata != NULL) {
 	if (!wtap_seek_read(cfile.wth, fdata->file_off, &cfile.pseudo_header,
 		       cfile.pd, fdata->cap_len, &err, &err_info)) {
-	    simple_dialog(ESD_TYPE_ERROR, NULL,
+	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		          cf_read_error_message(err, err_info), cfile.filename);
 	    return NULL;
 	}
@@ -2402,7 +2402,7 @@ main(int argc, char *argv[])
     if (cf_name) {
       if (rfilter != NULL) {
         if (!dfilter_compile(rfilter, &rfcode)) {
-          simple_dialog(ESD_TYPE_ERROR, NULL, dfilter_error_msg);
+          simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, dfilter_error_msg);
           rfilter_parse_failed = TRUE;
         }
       }
@@ -2461,12 +2461,12 @@ main(int argc, char *argv[])
      the main window. */
   if (gpf_path != NULL) {
     if (gpf_open_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, NULL,
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
         "Could not open global preferences file\n\"%s\": %s.", gpf_path,
         strerror(gpf_open_errno));
     }
     if (gpf_read_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, NULL,
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
         "I/O error reading global preferences file\n\"%s\": %s.", gpf_path,
         strerror(gpf_read_errno));
     }
@@ -2478,12 +2478,12 @@ main(int argc, char *argv[])
      the main window. */
   if (pf_path != NULL) {
     if (pf_open_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, NULL,
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
         "Could not open your preferences file\n\"%s\": %s.", pf_path,
         strerror(pf_open_errno));
     }
     if (pf_read_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, NULL,
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
         "I/O error reading your preferences file\n\"%s\": %s.", pf_path,
         strerror(pf_read_errno));
     }
@@ -2495,7 +2495,7 @@ main(int argc, char *argv[])
      pop up an alert box; we defer that until now, so that the alert
      box is more likely to come up on top of the main window. */
   if (cf_path != NULL) {
-      simple_dialog(ESD_TYPE_WARN, NULL,
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
         "Could not open your capture filter file\n\"%s\": %s.", cf_path,
         strerror(cf_open_errno));
       g_free(cf_path);
@@ -2505,7 +2505,7 @@ main(int argc, char *argv[])
      pop up an alert box; we defer that until now, so that the alert
      box is more likely to come up on top of the main window. */
   if (df_path != NULL) {
-      simple_dialog(ESD_TYPE_WARN, NULL,
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
         "Could not open your display filter file\n\"%s\": %s.", df_path,
         strerror(df_open_errno));
       g_free(df_path);
@@ -2517,12 +2517,12 @@ main(int argc, char *argv[])
      window. */
   if (gdp_path != NULL) {
     if (gdp_open_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, NULL,
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
         "Could not open global disabled protocols file\n\"%s\": %s.",
 	gdp_path, strerror(gdp_open_errno));
     }
     if (gdp_read_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, NULL,
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
         "I/O error reading global disabled protocols file\n\"%s\": %s.",
 	gdp_path, strerror(gdp_read_errno));
     }
@@ -2535,12 +2535,12 @@ main(int argc, char *argv[])
      window. */
   if (dp_path != NULL) {
     if (dp_open_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, NULL,
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
         "Could not open your disabled protocols file\n\"%s\": %s.", dp_path,
         strerror(dp_open_errno));
     }
     if (dp_read_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, NULL,
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
         "I/O error reading your disabled protocols file\n\"%s\": %s.", dp_path,
         strerror(dp_read_errno));
     }
@@ -3027,7 +3027,7 @@ font_apply(void) {
     	 * We just report that for now as a font not available in
     	 * multiple sizes.
     	 */
-        simple_dialog(ESD_TYPE_ERROR, NULL,
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
             "Your current font isn't available in any other sizes.\n");
         return FA_FONT_NOT_RESIZEABLE;
     }

@@ -1,7 +1,7 @@
 /* http_stat.c
  * http_stat   2003 Jean-Michel FAYARD
  *
- * $Id: http_stat.c,v 1.16 2004/01/21 21:19:33 ulfl Exp $
+ * $Id: http_stat.c,v 1.17 2004/01/31 03:22:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -485,7 +485,7 @@ gtk_httpstat_init(char *optarg)
 			httpstat_draw);
 	if (error_string){
 		/* error, we failed to attach to the tap. clean up */
-		simple_dialog( ESD_TYPE_WARN, NULL, error_string->str );
+		simple_dialog( ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str );
 		g_free(sp->filter);
 		g_free(sp);
 		g_string_free(error_string, TRUE);

@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.48 2004/01/31 02:25:46 ulfl Exp $
+ * $Id: tcp_graph.c,v 1.49 2004/01/31 03:22:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -558,7 +558,7 @@ void tcp_graph_cb (GtkWidget *w _U_, gpointer data _U_, guint graph_type)
 		/* currently selected packet is neither TCP over IP over Ethernet II/PPP
 		 * nor TCP over IP alone - should display some
 		 * kind of warning dialog */
-		simple_dialog(ESD_TYPE_WARN, NULL,
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Selected packet is not a TCP segment");
 		return;
 	}
@@ -627,7 +627,7 @@ static void display_text (struct graph *g)
 		/*
 		 * XXX - do more than just warn.
 		 */
-		simple_dialog(ESD_TYPE_WARN, NULL,
+		simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
 		    "Could not parse color SlateGray.");
 	}
 #if GTK_MAJOR_VERSION < 2
@@ -791,14 +791,14 @@ static void create_drawing_area (struct graph *g)
 			/*
 			 * XXX - do more than just warn.
 			 */
-			simple_dialog(ESD_TYPE_WARN, NULL,
+			simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
 			    "Could not parse color gray15.");
 		}
 		if (!gdk_colormap_alloc_color (colormap, &color, FALSE, TRUE)) {
 			/*
 			 * XXX - do more than just warn.
 			 */
-			simple_dialog(ESD_TYPE_WARN, NULL,
+			simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
 			    "Could not allocate color gray15.");
 		}
 		gdk_gc_set_foreground (xor_gc, &color);
@@ -809,14 +809,14 @@ static void create_drawing_area (struct graph *g)
 		/*
 		 * XXX - do more than just warn.
 		 */
-		simple_dialog(ESD_TYPE_WARN, NULL,
+		simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
 		    "Could not parse color white.");
 	}
 	if (!gdk_colormap_alloc_color (colormap, &color, FALSE, TRUE)) {
 		/*
 		 * XXX - do more than just warn.
 		 */
-		simple_dialog(ESD_TYPE_WARN, NULL,
+		simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
 		    "Could not allocate color white.");
 	}
 	gdk_gc_set_foreground (g->bg_gc, &color);
@@ -1795,7 +1795,7 @@ static void graph_segment_list_get (struct graph *g)
 	for (ptr=cfile.plist; ptr; ptr=ptr->next) {
 		if (!wtap_seek_read (cfile.wth, ptr->file_off, &pseudo_header,
 				     pd, ptr->cap_len, &err, &err_info)) {
-			simple_dialog(ESD_TYPE_ERROR, NULL,
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				      cf_read_error_message(err, err_info),
 				      cfile.filename);
 			break;
@@ -3411,14 +3411,14 @@ static void tseq_tcptrace_read_config (struct graph *g)
 		/*
 		 * XXX - do more than just warn.
 		 */
-		simple_dialog(ESD_TYPE_WARN, NULL,
+		simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
 		    "Could not parse color black.");
 	}
 	if (!gdk_colormap_alloc_color (colormap, &color, FALSE, TRUE)) {
 		/*
 		 * XXX - do more than just warn.
 		 */
-		simple_dialog(ESD_TYPE_WARN, NULL,
+		simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
 		    "Could not allocate color black.");
 	}
 	gdk_gc_set_foreground (g->s.tseq_tcptrace.gc_seq, &color);
@@ -3426,14 +3426,14 @@ static void tseq_tcptrace_read_config (struct graph *g)
 		/*
 		 * XXX - do more than just warn.
 		 */
-		simple_dialog(ESD_TYPE_WARN, NULL,
+		simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
 		    "Could not parse color LightSlateGray.");
 	}
 	if (!gdk_colormap_alloc_color (colormap, &color, FALSE, TRUE)) {
 		/*
 		 * XXX - do more than just warn.
 		 */
-		simple_dialog(ESD_TYPE_WARN, NULL,
+		simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
 		    "Could not allocate color LightSlateGray.");
 	}
 	gdk_gc_set_foreground (g->s.tseq_tcptrace.gc_ack[0], &color);
@@ -3441,14 +3441,14 @@ static void tseq_tcptrace_read_config (struct graph *g)
 		/*
 		 * XXX - do more than just warn.
 		 */
-		simple_dialog(ESD_TYPE_WARN, NULL,
+		simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
 		    "Could not parse color LightGray.");
 	}
 	if (!gdk_colormap_alloc_color (colormap, &color, FALSE, TRUE)) {
 		/*
 		 * XXX - do more than just warn.
 		 */
-		simple_dialog(ESD_TYPE_WARN, NULL,
+		simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
 		    "Could not allocate color LightGray.");
 	}
 	gdk_gc_set_foreground (g->s.tseq_tcptrace.gc_ack[1], &color);

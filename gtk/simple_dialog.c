@@ -1,7 +1,7 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.19 2004/01/31 02:25:46 ulfl Exp $
+ * $Id: simple_dialog.c,v 1.20 2004/01/31 03:22:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -133,7 +133,6 @@ simple_dialog(gint type, gint btn_mask, gchar *msg_format, ...) {
 
   /* Button row */
   switch(btn_mask) {
-  case(0):
   case(ESD_BTN_OK):
     bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
     break;
@@ -145,6 +144,8 @@ simple_dialog(gint type, gint btn_mask, gchar *msg_format, ...) {
     break;
   default:
     g_assert_not_reached();
+    bbox = NULL;
+    break;
   }
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);

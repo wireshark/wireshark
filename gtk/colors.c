@@ -1,7 +1,7 @@
 /* colors.c
  * Routines for colors
  *
- * $Id: colors.c,v 1.27 2003/01/08 01:59:42 guy Exp $
+ * $Id: colors.c,v 1.28 2004/01/31 03:22:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,14 +54,14 @@ colors_init(void)
 	/* Got milk? */
 	if (!got_white) {
 		if (!got_black)
-			simple_dialog(ESD_TYPE_WARN, NULL,
+			simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
 			    "Could not allocate colors black or white.");
 		else
-			simple_dialog(ESD_TYPE_WARN, NULL,
+			simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
 			    "Could not allocate color white.");
 	} else {
 		if (!got_black)
-			simple_dialog(ESD_TYPE_WARN, NULL,
+			simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
 			    "Could not allocate color black.");
 	}
 }
@@ -77,7 +77,7 @@ get_color(GdkColor *new_color)
 		    TRUE)) {
 			pv = gdk_visual_get_best();
 			if (!(our_cmap = gdk_colormap_new(pv, TRUE))) {
-				simple_dialog(ESD_TYPE_WARN, NULL,
+				simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
 				    "Could not create new colormap");
 			}
 		} else

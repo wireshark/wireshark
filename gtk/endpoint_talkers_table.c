@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.28 2004/01/25 18:51:25 ulfl Exp $
+ * $Id: endpoint_talkers_table.c,v 1.29 2004/01/31 03:22:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -357,7 +357,7 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 
 	selection=GPOINTER_TO_INT(g_list_nth_data(GTK_CLIST(et->table)->selection, 0));
 	if(selection>=(int)et->num_endpoints){
-		simple_dialog(ESD_TYPE_WARN, NULL, "No conversation selected");
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No conversation selected");
 		return;
 	}
 	/* translate it back from row index to index in enndpoint array */
@@ -1061,7 +1061,7 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
 	/* register the tap and rerun the taps on the packet list */
 	error_string=register_tap_listener(tap_name, talkers, filter, (void *)reset_ett_table_data, packet_func, (void *)draw_ett_table_data);
 	if(error_string){
-		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
 		g_string_free(error_string, TRUE);
 		g_free(talkers);
 		return;

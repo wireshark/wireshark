@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.30 2004/01/21 21:19:33 ulfl Exp $
+ * $Id: proto_dlg.c,v 1.31 2004/01/31 03:22:41 guy Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -426,7 +426,7 @@ proto_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
   /* Create the directory that holds personal configuration files, if
      necessary.  */
   if (create_persconffile_dir(&pf_dir_path) == -1) {
-     simple_dialog(ESD_TYPE_WARN, NULL,
+     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
       "Can't create directory\n\"%s\"\nfor disabled protocols file: %s.", pf_dir_path,
       strerror(errno));
      g_free(pf_dir_path);
@@ -438,7 +438,7 @@ proto_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
 
     save_disabled_protos_list(&pf_path, &pf_save_errno);
     if (pf_path != NULL) {
-	simple_dialog(ESD_TYPE_WARN, NULL,
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 	    "Could not save to your disabled protocols file\n\"%s\": %s.",
 	    pf_path, strerror(pf_save_errno));
 	g_free(pf_path);

@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.34 2004/01/21 21:19:34 ulfl Exp $
+ * $Id: rpc_stat.c,v 1.35 2004/01/31 03:22:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -269,7 +269,7 @@ gtk_rpcstat_init(char *optarg)
 
 	error_string=register_tap_listener("rpc", rs, filter, (void*)rpcstat_reset, (void*)rpcstat_packet, (void*)rpcstat_draw);
 	if(error_string){
-		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
 		g_string_free(error_string, TRUE);
 		free_srt_table_data(&rs->srt_table);
 		g_free(rs);

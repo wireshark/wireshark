@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.35 2004/01/21 21:19:32 ulfl Exp $
+ * $Id: decode_as_dlg.c,v 1.36 2004/01/31 03:22:39 guy Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -672,7 +672,7 @@ decode_debug (GtkCList *clist, gchar *leadin)
     } else {
 	sprintf(string, "%s clist row (none), aka do not decode", leadin);
     }
-    simple_dialog(ESD_TYPE_INFO, NULL, string);
+    simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, string);
     g_free(string);
 }
 #endif
