@@ -1,7 +1,7 @@
 /* ipproto.c
  * Routines for converting IPv4 protocol/v6 nxthdr field into string
  *
- * $Id: ipproto.c,v 1.4 1999/11/21 14:43:52 gram Exp $
+ * $Id: ipproto.c,v 1.5 1999/12/06 18:33:49 gram Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -47,6 +47,11 @@
 #endif
 
 #include <glib.h>
+
+#ifndef __GLOBALS_H__
+#include "globals.h"
+#endif
+
 #include "packet.h"
 #include "etypes.h"
 #include "packet-ip.h"
