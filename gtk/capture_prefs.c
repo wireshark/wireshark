@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.4 2002/01/12 09:13:50 guy Exp $
+ * $Id: capture_prefs.c,v 1.5 2002/01/12 09:19:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -106,7 +106,7 @@ capture_prefs_show(void)
 	    "Update list of packets in real time", prefs.capture_real_time);
 
 	/* Auto-scroll real-time capture */
-	create_option_check_button(main_vb, CAPTURE_REAL_TIME_KEY, main_tb, 3,
+	create_option_check_button(main_vb, AUTO_SCROLL_KEY, main_tb, 3,
 	    "Automatic scrolling in live capture", prefs.capture_auto_scroll);
 
 	/* Show 'em what we got */
