@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.50 2001/12/10 00:25:26 guy Exp $
+ * $Id: packet-bgp.c,v 1.51 2002/01/15 10:12:17 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -840,10 +840,10 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
                         "bytes");
 		break;
 	    case BGPTYPE_AS_PATH:
-                /* (o + i + 3) =
-                   (o + current attribute + 3 bytes to first tuple) */
-                end = o + alen + i + 3;
-                q = o + i + 3;
+                /* (o + i + aoff) =
+                   (o + current attribute + aoff bytes to first tuple) */
+                q = o + i + aoff;
+                end = q + alen;
                 /* must be freed by second switch!                         */
                 /* "alen * 6" (5 digits + space) should be a good estimate
                    of how long the AS path string could be                 */
@@ -950,10 +950,10 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
 		if (alen % 4 != 0)
 		    goto default_attribute_top;
 
-                /* (o + i + 3) =
-                   (o + current attribute + 3 bytes to first tuple) */
-                end = o + alen + i + 3;
-                q = o + i + 3;
+                /* (o + i + aoff) =
+                   (o + current attribute + aoff bytes to first tuple) */
+                q = o + i + aoff;
+                end = q + alen;
                 /* must be freed by second switch!                          */
                 /* "alen * 12" (5 digits, a :, 5 digits + space ) should be
                    a good estimate of how long the communities string could
@@ -1004,10 +1004,10 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
 		if (alen % 4 != 0)
 		    goto default_attribute_top;
 
-                /* (o + i + 3) =
-                   (o + current attribute + 3 bytes to first tuple) */
-                end = o + alen + i + 3;
-                q = o + i + 3;
+                /* (o + i + aoff) =
+                   (o + current attribute + aoff bytes to first tuple) */
+                q = o + i + aoff;
+                end = q + alen;
                 /* must be freed by second switch!                          */
                 /* "alen * 16" (12 digits, 3 dots + space ) should be
                    a good estimate of how long the cluster_list string could
@@ -1036,25 +1036,28 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
 	    case BGPTYPE_EXTENDED_COMMUNITY:
 		if (alen %8 != 0)
 		    goto default_attribute_top;
-                q = o + i + aoff ;
-                end = o + i + aoff + alen ;
-                ext_com_str = malloc((alen / 8)*MAX_SIZE_OF_EXT_COM_NAMES) ;
-                if (ext_com_str == NULL) break ;
-                ext_com_str[0] = '\0' ;
+
+                /* (o + i + aoff) =
+                   (o + current attribute + aoff bytes to first tuple) */
+                q = o + i + aoff;
+                end = q + alen;
+                ext_com_str = malloc((alen / 8)*MAX_SIZE_OF_EXT_COM_NAMES);
+                if (ext_com_str == NULL) break;
+                ext_com_str[0] = '\0';
                 while (q < end) {
-                        ext_com = tvb_get_ntohs(tvb,q) ;
+                        ext_com = tvb_get_ntohs(tvb, q);
                         snprintf(junk_buf, sizeof(junk_buf), "%s", val_to_str(ext_com,bgpext_com_type,"Unknown"));
-                        strncat(ext_com_str,junk_buf,sizeof(junk_buf));
-                        q = q + 8 ;
-                        if (q<end) strncat(ext_com_str,",",1);
+                        strncat(ext_com_str, junk_buf, sizeof(junk_buf));
+                        q = q + 8;
+                        if (q < end) strncat(ext_com_str, ",", 1);
                 }
                 ti = proto_tree_add_text(subtree,tvb,o+i,alen+aoff,
                         "%s : %s (%u %s)",
                         val_to_str(bgpa.bgpa_type,bgpattr_type,"Unknown"),
                         ext_com_str,
                         alen,
-                        (alen ==1 ) ? "byte" : "bytes");
-                free(ext_com_str) ;
+                        (alen == 1) ? "byte" : "bytes");
+                free(ext_com_str);
                 break;
 
 	    default:
@@ -1152,10 +1155,10 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
                         "AS path: %s", as_path_str);
 	        as_paths_tree = proto_item_add_subtree(ti, ett_bgp_as_paths);
 
-                /* (o + i + 3) =
-                   (o + current attribute + 3 bytes to first tuple) */
-                end = o + alen + i + 3;
-                q = o + i + 3;
+                /* (o + i + aoff) =
+                   (o + current attribute + aoff bytes to first tuple) */
+                q = o + i + aoff;
+                end = q + alen;
 
                 /* snarf each AS path tuple, we have to step through each one
                    again to make a separate subtree so we can't just reuse
@@ -1293,10 +1296,10 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
                 communities_tree = proto_item_add_subtree(ti,
                         ett_bgp_communities);
 
-                /* (o + i + 3) =
-                   (o + current attribute + 3 bytes to first tuple) */
-                end = o + alen + i + 3;
-                q = o + i + 3;
+                /* (o + i + aoff) =
+                   (o + current attribute + aoff bytes to first tuple) */
+                q = o + i + aoff;
+                end = q + alen;
 
                 /* snarf each community */
                 while (q < end) {
@@ -1468,10 +1471,10 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
                 cluster_list_tree = proto_item_add_subtree(ti,
                         ett_bgp_cluster_list);
 
-                /* (p + i + 3) =
-                   (p + current attribute + 3 bytes to first tuple) */
-                end = o + alen + i + 3;
-                q = o + i + 3;
+                /* (o + i + aoff) =
+                   (o + current attribute + aoff bytes to first tuple) */
+                q = o + i + aoff;
+                end = q + alen;
 
                 /* snarf each cluster identifier */
                 while (q < end) {
