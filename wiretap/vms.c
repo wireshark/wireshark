@@ -1,6 +1,6 @@
 /* vms.c
  *
- * $Id: vms.c,v 1.4 2002/01/15 20:18:02 guy Exp $
+ * $Id: vms.c,v 1.5 2002/01/30 18:58:04 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <mmilgram@arrayinc.com>
@@ -74,7 +74,7 @@ static const char vms_hdr_magic[]  =
 static gboolean vms_read(wtap *wth, int *err, long *data_offset);
 static int vms_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, guint8 *pd, int len);
-static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf, long byte_offset, int remaining_bytes);
+static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf, long byte_offset, int in_off, int remaining_bytes);
 static int parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err);
 static int parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err);
 
@@ -88,6 +88,8 @@ static long vms_seek_next_packet(wtap *wth)
   unsigned int level = 0;
 
   while ((byte = file_getc(wth->fh)) != EOF) {
+    if ((level == 3) && (byte != vms_rec_magic[level]))
+      level += 2;  /* Accept TCPtrace as well as TCPIPtrace */
     if (byte == vms_rec_magic[level]) {
       level++;
       if (level >= VMS_REC_MAGIC_SIZE) {
@@ -132,6 +134,8 @@ static gboolean vms_check_file_type(wtap *wth)
             level = 0;
             for (i = 0; i < reclen; i++) {
                 byte = buf[i];
+		if ((level == 3) && (byte != vms_hdr_magic[level]))
+		    level += 2; /* Accept TCPIPtrace as well as TCPtrace */
                 if (byte == vms_hdr_magic[level]) {
                     level++;
                     if (level >= VMS_HDR_MAGIC_SIZE) {
@@ -185,8 +189,11 @@ static gboolean vms_read(wtap *wth, int *err, long *data_offset)
     /* Parse the header */
     pkt_len = parse_vms_rec_hdr(wth, wth->fh, err);
 
+    if (pkt_len == -1)
+	return FALSE;
+
     /* Make sure we have enough room for the packet */
-    buffer_assure_space(wth->frame_buffer, wth->snapshot_length);
+    buffer_assure_space(wth->frame_buffer, pkt_len);
     buf = buffer_start_ptr(wth->frame_buffer);
 
     /* Convert the ASCII hex dump to binary data */
@@ -244,53 +251,43 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err)
 {
     char    line[VMS_LINE_LENGTH];
     int    num_items_scanned;
-    int    pkt_len, pktnum, csec;
+    int	   pkt_len = 0;
+    int	   pktnum;
+    int	   csec = 101;
     struct tm time;
-    char mon[4];
+    char mon[4] = {'J', 'A', 'N', 0};
     guchar *p;
     static guchar months[] = "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC";
 
-    pkt_len = 0;
+    time.tm_year = 1970;
+    time.tm_hour = 1;
+    time.tm_min = 1;
+    time.tm_sec = 1;
 
-    /* Our file pointer should be on the first line containing the
-     * summary information for a packet. Read in that line and
-     * extract the useful information
-     */
-    if (file_gets(line, VMS_LINE_LENGTH, fh) == NULL) {
-        *err = file_error(fh);
-        if (*err == 0) {
-            *err = WTAP_ERR_SHORT_READ;
-        }
-        return -1;
-    }
-
-    p = strstr(line, "packet ");
-    if ( !p ) {
-        *err = WTAP_ERR_BAD_RECORD;
-        return 01;
-    }
-   
-    /* Find text in line starting with "packet ". */
-    num_items_scanned = sscanf(p,
-                   "packet %d at %d-%3s-%d %d:%d:%d.%d",
-                   &pktnum, &time.tm_mday, mon,
-                   &time.tm_year, &time.tm_hour, &time.tm_min,
-                   &time.tm_sec, &csec);
-
-    if (num_items_scanned != 8) {
-        *err = WTAP_ERR_BAD_RECORD;
-        return -1;
-    }
 
     /* Skip lines until one starts with a hex number */
     do {
         if (file_gets(line, VMS_LINE_LENGTH, fh) == NULL) {
             *err = file_error(fh);
-            if (*err == 0) {
-                *err = WTAP_ERR_SHORT_READ;
+	    if ((*err == 0) && (csec != 101)) {
+		*err = WTAP_ERR_SHORT_READ;
             }
             return -1;
         }
+	if ((csec == 101) && (p = strstr(line, "packet "))
+	    && (! strstr(line, "could not save "))) {
+	    /* Find text in line starting with "packet ". */
+	    num_items_scanned = sscanf(p,
+				       "packet %d at %d-%3s-%d %d:%d:%d.%d",
+				       &pktnum, &time.tm_mday, mon,
+				       &time.tm_year, &time.tm_hour,
+				       &time.tm_min, &time.tm_sec, &csec);
+
+	    if (num_items_scanned != 8) {
+	        *err = WTAP_ERR_BAD_RECORD;
+		return -1;
+	    }
+	}
         if ( (! pkt_len) && (p = strstr(line, "Length"))) {
             p += sizeof("Length ");
             while (*p && ! isdigit(*p))
@@ -328,14 +325,10 @@ static int
 parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err)
 {
     guchar line[VMS_LINE_LENGTH];
-    int    i, hex_lines;
+    int    i;
     int    offset = 0;
 
-    /* Calculate the number of hex dump lines, each
-     * containing 16 bytes of data */
-    hex_lines = pkt_len / 16 + ((pkt_len % 16) ? 1 : 0);
-
-    for (i = 0; i < hex_lines; i++) {
+    for (i = 0; i < pkt_len; i += 16) {
         if (file_gets(line, VMS_LINE_LENGTH, fh) == NULL) {
             *err = file_error(fh);
             if (*err == 0) {
@@ -355,12 +348,15 @@ parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err)
             while (line[offset] && !isxdigit(line[offset]))
                 offset++;
 	}
-        if (!parse_single_hex_dump_line(line, buf, i * 16,
-                        offset)) {
+	if (!parse_single_hex_dump_line(line, buf, i,
+					offset, pkt_len - i)) {
             *err = WTAP_ERR_BAD_RECORD;
             return -1;
         }
     }
+    /* Avoid TCPIPTRACE-W-BUFFERSFUL, TCPIPtrace could not save n packets.
+     * errors. */
+    file_gets(line, VMS_LINE_LENGTH, fh);
     return 0;
 }
 
@@ -379,13 +375,11 @@ parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err)
  * we are passed to validate the record. We place the bytes in the buffer
  * at the specified offset.
  *
- * In the process, we're going to write all over the string.
- *
  * Returns TRUE if good hex dump, FALSE if bad.
  */
 static gboolean
 parse_single_hex_dump_line(char* rec, guint8 *buf, long byte_offset,
-               int in_off) {
+               int in_off, int remaining) {
 
     int        i;
     char        *s;
@@ -402,11 +396,14 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, long byte_offset,
         return FALSE;
     }
 
+    if (remaining > 16)
+	remaining = 16;
+
     /* Read the octets right to left, as that is how they are displayed
      * in VMS.
      */
 
-    for (i = 0; i < 16; i++) {
+    for (i = 0; i < remaining; i++) {
         lbuf[0] = rec[offsets[i] + in_off];
         lbuf[1] = rec[offsets[i] + 1 + in_off];
 
