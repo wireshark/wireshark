@@ -2,7 +2,7 @@
  * Routines for PROFINET IO dissection
  * (based on DCE-RPC and PN-RT protocols)
  *
- * $ID: $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1008,11 +1008,7 @@ dissect_PNIO_Data(tvbuff_t *tvb, int offset,
 /*	proto_tree *data_tree;*/
 
 
-    /* satisfy gcc warning about "unused parameter" */
-    /* (will be used, when dissection is continued here) */
-    if(drep == drep);
-
-	data_item = proto_tree_add_protocol_format(tree, proto_pn_io, tvb, 0, tvb_length(tvb),
+    data_item = proto_tree_add_protocol_format(tree, proto_pn_io, tvb, 0, tvb_length(tvb),
 				"PROFINET IO Data: %u bytes", tvb_length(tvb));
 
 #if 0
