@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.17 2001/12/18 19:09:07 gram Exp $
+ * $Id: colors.c,v 1.18 2002/01/08 21:35:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,32 +65,35 @@ GdkColor	BLACK = { 0, 0, 0, 0 };
 colfilter *
 colfilter_new(void)
 {
-  colfilter *filter;
-  gboolean got_white, got_black;
+	colfilter *filter;
+	gboolean got_white, got_black;
 
-  /* Create the filter header */
-  filter = (colfilter *)g_malloc(sizeof(colfilter));
-  filter->num_of_filters = 0;
+	/* Create the filter header */
+	filter = (colfilter *)g_malloc(sizeof(colfilter));
+	filter->num_of_filters = 0;
 
-  sys_cmap = gdk_colormap_get_system();
+	sys_cmap = gdk_colormap_get_system();
 
-  /* Allocate "constant" colors. */
-  got_white = get_color(&WHITE);
-  got_black = get_color(&BLACK);
+	/* Allocate "constant" colors. */
+	got_white = get_color(&WHITE);
+	got_black = get_color(&BLACK);
 
-  /* Got milk? */
-  if (!got_white) {
-    if (!got_black)
-      simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate colors black or white.");
-    else
-      simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate color white.");
-  } else {
-    if (!got_black)
-      simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate color black.");
-  }
+	/* Got milk? */
+	if (!got_white) {
+		if (!got_black)
+			simple_dialog(ESD_TYPE_WARN, NULL,
+			    "Could not allocate colors black or white.");
+		else
+			simple_dialog(ESD_TYPE_WARN, NULL,
+			    "Could not allocate color white.");
+	} else {
+		if (!got_black)
+			simple_dialog(ESD_TYPE_WARN, NULL,
+			    "Could not allocate color black.");
+	}
 
-  read_filters(filter);
-  return filter;
+	read_filters(filter);
+	return filter;
 }
 
 /* Create a new filter */
@@ -112,29 +115,28 @@ new_color_filter(colfilter *filters,    /* The filter list (unused) */
         return colorf;
 }
 
-void
-
 /* delete the specified filter */
+void
 delete_color_filter(color_filter_t *colorf)
 {
 	if (colorf->filter_name != NULL)
-	  g_free(colorf->filter_name);
+		g_free(colorf->filter_name);
 	if (colorf->filter_text != NULL)
-	  g_free(colorf->filter_text);
+		g_free(colorf->filter_text);
 	if (colorf->c_colorfilter != NULL)
-	  dfilter_free(colorf->c_colorfilter);
+		dfilter_free(colorf->c_colorfilter);
 	filter_list = g_slist_remove(filter_list, colorf);
 	g_free(colorf);
 }
 
-
 static void
 prime_edt(gpointer data, gpointer user_data)
 {
-    color_filter_t  *colorf = data;
-    epan_dissect_t   *edt = user_data;
+	color_filter_t  *colorf = data;
+	epan_dissect_t   *edt = user_data;
 
-    epan_dissect_prime_dfilter(edt, colorf->c_colorfilter);
+	if (colorf->c_colorfilter != NULL)
+		epan_dissect_prime_dfilter(edt, colorf->c_colorfilter);
 } 
 
 /* Prime the epan_dissect_t with all the compiler
@@ -142,7 +144,7 @@ prime_edt(gpointer data, gpointer user_data)
 void
 filter_list_prime_edt(epan_dissect_t *edt)
 {
-    g_slist_foreach(filter_list, prime_edt, edt);
+	g_slist_foreach(filter_list, prime_edt, edt);
 }
 
 
@@ -153,12 +155,12 @@ read_filters(colfilter *filter)
 	/* TODO: Lots more syntax checking on the file */
 	/* I hate these fixed length names! TODO: make more dynamic */
 	/* XXX - buffer overflow possibility here
-   * sscanf blocks max size of name and filter_exp; buf is used for reading only */
+	 * sscanf blocks max size of name and filter_exp; buf is used for
+	 * reading only */
 	gchar name[256],filter_exp[256], buf[1024];
 	guint16 fg_r, fg_g, fg_b, bg_r, bg_g, bg_b;
 	GdkColor fg_color, bg_color;
 	color_filter_t *colorf;
-	int i;
 	const gchar *path;
 	FILE *f;
 	dfilter_t *temp_dfilter;
@@ -166,73 +168,75 @@ read_filters(colfilter *filter)
 	/* decide what file to open (from dfilter code) */
 
 	/* should only be called by colors_init */
-	if(filter == NULL)
+	if (filter == NULL)
 		return FALSE;
 	/* we have a clist */
 
 	path = get_persconffile_path("colorfilters", FALSE);
 	if ((f = fopen(path, "r")) == NULL) {
-	  if (errno != ENOENT) {
-	    simple_dialog(ESD_TYPE_CRIT, NULL,
-	      "Could not open filter file\n\"%s\": %s.", path,
-	      strerror(errno));
-	  }
-	  return FALSE;
+		if (errno != ENOENT) {
+			simple_dialog(ESD_TYPE_CRIT, NULL,
+			    "Could not open filter file\n\"%s\": %s.", path,
+			    strerror(errno));
+		}
+		return FALSE;
 	}
 
-	i = 0;
-
-	do{
-	  if(!fgets(buf,sizeof buf, f))
-      break;
+	do {
+		if (fgets(buf,sizeof buf, f) == NULL)
+			break;
 		
-	  if(strspn( buf," \t") == (size_t)((strchr(buf,'*') - buf))){
-		  /* leading # comment */
-		  continue;
-	  }
+		if (strspn(buf," \t") == (size_t)((strchr(buf,'*') - buf))) {
+			/* leading # comment */
+			continue;
+		}
 
-	  /* we get the @ delimiter.  It is not in any strings
-       * Format is @name@filter expression@[background r,g,b][foreground r,g,b]
-       */
-	  if(sscanf(buf," @%256[^@]@%256[^@]@[%hu,%hu,%hu][%hu,%hu,%hu]",
-      name, filter_exp, &bg_r, &bg_g, &bg_b, &fg_r, &fg_g, &fg_b) == 8){
-      /* we got a filter */
+		/* we get the @ delimiter.  It is not in any strings
+		 * Format is:
+		 * @name@filter expression@[background r,g,b][foreground r,g,b]
+		 */
+		if (sscanf(buf," @%256[^@]@%256[^@]@[%hu,%hu,%hu][%hu,%hu,%hu]",
+		    name, filter_exp, &bg_r, &bg_g, &bg_b, &fg_r, &fg_g, &fg_b)
+		    == 8) {
+			/* we got a filter */
 
-	    if(!dfilter_compile(filter_exp, &temp_dfilter)) {
-        simple_dialog(ESD_TYPE_CRIT, NULL,
-		    "Could not compile color filter %s from saved filters.\n%s",
-		    name, dfilter_error_msg);
-		    continue;
-	    }
-      colorf = new_color_filter(filter, name, filter_exp);
-	    colorf->c_colorfilter = temp_dfilter;
-	    filter->num_of_filters++;
-	    fg_color.red = fg_r;
-	    fg_color.green = fg_g;
-	    fg_color.blue = fg_b;
-	    bg_color.red = bg_r;
-	    bg_color.green = bg_g;
-	    bg_color.blue = bg_b;
-	    if( !get_color(&fg_color)){
-		    /* oops */
-		    simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate fg color specified"
-		    "in input file for %s.", name);
-		    i++;
-		    continue;
-	    }
-	    if( !get_color(&bg_color)){
-		    /* oops */
-		    simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate bg color specified"
-		    "in input file for %s.", name);
-		    i++;
-		    continue;
-	    }
+			if (!dfilter_compile(filter_exp, &temp_dfilter)) {
+				simple_dialog(ESD_TYPE_CRIT, NULL,
+		"Could not compile color filter %s from saved filters.\n%s",
+				    name, dfilter_error_msg);
+				continue;
+			}
+			if (!get_color(&fg_color)) {
+				/* oops */
+				simple_dialog(ESD_TYPE_CRIT, NULL,
+				    "Could not allocate foreground color "
+				    "specified in input file for %s.", name);
+				dfilter_free(temp_dfilter);
+				continue;
+			}
+			if (!get_color(&bg_color)) {
+				/* oops */
+				simple_dialog(ESD_TYPE_CRIT, NULL,
+				    "Could not allocate background color "
+				    "specified in input file for %s.", name);
+				dfilter_free(temp_dfilter);
+				continue;
+			}
 
-        colorf->bg_color = bg_color;
-        colorf->fg_color = fg_color;
-	      i++;
-	  }    /* if sscanf */
-	} while( !feof(f));
+			colorf = new_color_filter(filter, name, filter_exp);
+			colorf->c_colorfilter = temp_dfilter;
+			filter->num_of_filters++;
+			fg_color.red = fg_r;
+			fg_color.green = fg_g;
+			fg_color.blue = fg_b;
+			bg_color.red = bg_r;
+			bg_color.green = bg_g;
+			bg_color.blue = bg_b;
+
+			colorf->bg_color = bg_color;
+			colorf->fg_color = fg_color;
+		}    /* if sscanf */
+	} while(!feof(f));
 	return TRUE;
 }
 
@@ -264,19 +268,19 @@ write_filters(colfilter *filter)
 	/* Create the directory that holds personal configuration files,
 	   if necessary.  */
 	if (create_persconffile_dir(&pf_dir_path) == -1) {
-	  simple_dialog(ESD_TYPE_WARN, NULL,
-		"Can't create directory\n\"%s\"\nfor color files: %s.",
-		pf_dir_path, strerror(errno));
-	  g_free(pf_dir_path);
-	  return FALSE;
+		simple_dialog(ESD_TYPE_WARN, NULL,
+		    "Can't create directory\n\"%s\"\nfor color files: %s.",
+		    pf_dir_path, strerror(errno));
+		g_free(pf_dir_path);
+		return FALSE;
 	}
 
 	path = get_persconffile_path("colorfilters", TRUE);
 	if ((f = fopen(path, "w+")) == NULL) {
-	  simple_dialog(ESD_TYPE_CRIT, NULL,
-		"Could not open\n%s\nfor writing: %s.",
-		path, strerror(errno));
-	  return FALSE;
+		simple_dialog(ESD_TYPE_CRIT, NULL,
+		    "Could not open\n%s\nfor writing: %s.",
+		    path, strerror(errno));
+		return FALSE;
 	}
         fprintf(f,"# DO NOT EDIT THIS FILE!  It was created by Ethereal\n");
         g_slist_foreach(filter_list, write_filter, f);
