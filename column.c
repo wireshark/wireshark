@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.30 2000/11/17 21:00:35 gram Exp $
+ * $Id: column.c,v 1.31 2001/07/11 04:44:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -96,59 +96,57 @@ col_format_desc(gint fmt) {
    column format */
 void
 get_column_format_matches(gboolean *fmt_list, gint format) {
-  int i;
-  
-  for (i = 0; i < NUM_COL_FMTS; i++) {
-    /* Get the obvious: the format itself */
-    if (i == format)
-      fmt_list[i] = TRUE;
-    /* Get any formats lower down on the chain */
-    switch (format) {
-      case COL_DEF_SRC:
-        fmt_list[COL_RES_DL_SRC] = TRUE;
-        fmt_list[COL_RES_NET_SRC] = TRUE;
-        break;
-      case COL_RES_SRC:
-        fmt_list[COL_RES_DL_SRC] = TRUE;
-        fmt_list[COL_RES_NET_SRC] = TRUE;
-        break;
-      case COL_UNRES_SRC:
-        fmt_list[COL_UNRES_DL_SRC] = TRUE;
-        fmt_list[COL_UNRES_NET_SRC] = TRUE;
-        break;
-      case COL_DEF_DST:
-        fmt_list[COL_RES_DL_DST] = TRUE;
-        fmt_list[COL_RES_NET_DST] = TRUE;
-        break;
-      case COL_RES_DST:
-        fmt_list[COL_RES_DL_DST] = TRUE;
-        fmt_list[COL_RES_NET_DST] = TRUE;
-        break;
-      case COL_UNRES_DST:
-        fmt_list[COL_UNRES_DL_DST] = TRUE;
-        fmt_list[COL_UNRES_NET_DST] = TRUE;
-        break;
-      case COL_DEF_DL_SRC:
-        fmt_list[COL_RES_DL_SRC] = TRUE;
-        break;
-      case COL_DEF_DL_DST:
-        fmt_list[COL_RES_DL_DST] = TRUE;
-        break;
-      case COL_DEF_NET_SRC:
-        fmt_list[COL_RES_NET_SRC] = TRUE;
-        break;
-      case COL_DEF_NET_DST:
-        fmt_list[COL_RES_NET_DST] = TRUE;
-        break;
-      case COL_DEF_SRC_PORT:
-        fmt_list[COL_RES_SRC_PORT] = TRUE;
-        break;
-      case COL_DEF_DST_PORT:
-        fmt_list[COL_RES_DST_PORT] = TRUE;
-        break;
-      default:
-        break;
-    }
+
+  /* Get the obvious: the format itself */
+  if ((format >= 0) && (format < NUM_COL_FMTS))
+    fmt_list[format] = TRUE;
+
+  /* Get any formats lower down on the chain */
+  switch (format) {
+    case COL_DEF_SRC:
+      fmt_list[COL_RES_DL_SRC] = TRUE;
+      fmt_list[COL_RES_NET_SRC] = TRUE;
+      break;
+    case COL_RES_SRC:
+      fmt_list[COL_RES_DL_SRC] = TRUE;
+      fmt_list[COL_RES_NET_SRC] = TRUE;
+      break;
+    case COL_UNRES_SRC:
+      fmt_list[COL_UNRES_DL_SRC] = TRUE;
+      fmt_list[COL_UNRES_NET_SRC] = TRUE;
+      break;
+    case COL_DEF_DST:
+      fmt_list[COL_RES_DL_DST] = TRUE;
+      fmt_list[COL_RES_NET_DST] = TRUE;
+      break;
+    case COL_RES_DST:
+      fmt_list[COL_RES_DL_DST] = TRUE;
+      fmt_list[COL_RES_NET_DST] = TRUE;
+      break;
+    case COL_UNRES_DST:
+      fmt_list[COL_UNRES_DL_DST] = TRUE;
+      fmt_list[COL_UNRES_NET_DST] = TRUE;
+      break;
+    case COL_DEF_DL_SRC:
+      fmt_list[COL_RES_DL_SRC] = TRUE;
+      break;
+    case COL_DEF_DL_DST:
+      fmt_list[COL_RES_DL_DST] = TRUE;
+      break;
+    case COL_DEF_NET_SRC:
+      fmt_list[COL_RES_NET_SRC] = TRUE;
+      break;
+    case COL_DEF_NET_DST:
+      fmt_list[COL_RES_NET_DST] = TRUE;
+      break;
+    case COL_DEF_SRC_PORT:
+      fmt_list[COL_RES_SRC_PORT] = TRUE;
+      break;
+    case COL_DEF_DST_PORT:
+      fmt_list[COL_RES_DST_PORT] = TRUE;
+      break;
+    default:
+      break;
   }
 }
 

@@ -588,6 +588,7 @@ Charles Levert <charles@comm.polymtl.ca> {
 
 Todd Sabin <tas@webspan.net> {
 	DCE RPC support
+	Cleaned up "get_column_format_matches()"
 }
 
 Eduardo Pérez Ureta <eperez@dei.inf.uc3m.es> {
