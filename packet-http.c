@@ -7,7 +7,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.108 2004/05/09 09:07:33 obiot Exp $
+ * $Id: packet-http.c,v 1.109 2004/05/10 22:20:24 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -173,7 +173,7 @@ base64_to_tvb(const char *base64)
 	char *data = g_strdup(base64);
 	size_t len;
 
-	len = base64_decode(data);
+	len = epan_base64_decode(data);
 	tvb = tvb_new_real_data((const guint8 *)data, len, len);
 
 	tvb_set_free_cb(tvb, g_free);
@@ -1479,7 +1479,7 @@ check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value)
 				hdr_tree = NULL;
 			value += hdrlen;
 
-			len = base64_decode(value);
+			len = epan_base64_decode(value);
 			value[len] = '\0';
 			proto_tree_add_string(hdr_tree, hf_http_basic, tvb,
 			    0, 0, value);

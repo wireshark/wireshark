@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.78 2004/03/12 17:23:56 gerald Exp $
+ * $Id: util.c,v 1.79 2004/05/10 22:20:24 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -369,7 +369,7 @@ compute_timestamp_diff(gint *diffsec, gint *diffusec,
    Return length of result. Taken from rproxy/librsync/base64.c by
    Andrew Tridgell. */
 
-size_t base64_decode(char *s)
+size_t epan_base64_decode(char *s)
 {
 	static const char b64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	int bit_offset, byte_offset, idx, i, n;
