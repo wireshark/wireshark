@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.72 2003/11/18 07:49:52 guy Exp $
+ * $Id: packet-http.c,v 1.73 2003/11/18 08:04:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -816,6 +816,7 @@ process_entity_header(tvbuff_t *tvb, int offset, int next_offset,
 	int value_len;
 	char *value;
 	proto_item *hdr_item;
+	int i;
 
 	len = next_offset - offset;
 	line_end_offset = offset + linelen;
@@ -879,7 +880,26 @@ process_entity_header(tvbuff_t *tvb, int offset, int next_offset,
 		case EH_CONTENT_TYPE:
 			if (eh_ptr->content_type != NULL)
 				g_free(eh_ptr->content_type);
-			eh_ptr->content_type = g_strdup(value);
+			eh_ptr->content_type = g_malloc(value_len + 1);
+			for (i = 0; i < value_len; i++) {
+				c = value[i];
+				if (c == ';' || isspace(c)) {
+					/*
+					 * End of subtype - either
+					 * white space or a ";"
+					 * separating the subtype from
+					 * a parameter.
+					 */
+					break;
+				}
+
+				/*
+				 * Map the character to lower case;
+				 * content types are case-insensitive.
+				 */
+				eh_ptr->content_type[i] = tolower(c);
+			}
+			eh_ptr->content_type[i] = '\0';
 			break;
 		}
 
