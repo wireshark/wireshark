@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-bootp.c,v 1.65 2002/06/19 19:39:38 guy Exp $
+ * $Id: packet-bootp.c,v 1.66 2002/06/19 19:50:34 guy Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -1097,9 +1097,9 @@ static void
 dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*bp_tree = NULL;
-	proto_tree	*flag_tree = NULL;
-	proto_tree	*ftree = NULL;
 	proto_item	*ti;
+	proto_tree	*flag_tree = NULL;
+	proto_item	*fi;
 	guint8		op;
 	guint8		htype, hlen;
 	const guint8	*haddr;
@@ -1167,9 +1167,11 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(bp_tree, hf_bootp_secs, tvb,
 				    8, 2, FALSE);
 		flags = tvb_get_ntohs(tvb, 10);
-		ftree = proto_tree_add_uint(bp_tree, hf_bootp_flags, tvb,
+		fi = proto_tree_add_uint(bp_tree, hf_bootp_flags, tvb,
 				    10, 2, flags);
-    		flag_tree = proto_item_add_subtree(ftree, ett_bootp_flags);
+		proto_item_append_text(fi, " (%s)",
+		    (flags & BOOTP_BC) ? "Broadcast" : "Unicast");
+    		flag_tree = proto_item_add_subtree(fi, ett_bootp_flags);
 		proto_tree_add_boolean(flag_tree, hf_bootp_flags_broadcast, tvb,
 				    10, 2, flags);
 		proto_tree_add_uint(flag_tree, hf_bootp_flags_reserved, tvb,
