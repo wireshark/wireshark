@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-rtp.c,v 1.15 2001/06/12 06:31:14 guy Exp $
+ * $Id: packet-rtp.c,v 1.16 2001/06/14 07:05:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,6 +34,20 @@
  * RTP traffic is handled by an even UDP portnumber. This can be any 
  * port number, but there is a registered port available, port 5004
  * See Annex B of ITU-T Recommendation H.225.0, section B.7
+ *
+ * This doesn't dissect older versions of RTP, such as:
+ *
+ *    the vat protocol ("version 0") - see
+ *
+ *	ftp://ftp.ee.lbl.gov/conferencing/vat/alpha-test/vatsrc-4.0b2.tar.gz
+ *
+ *    and look in "session-vat.cc" if you want to write a dissector
+ *    (have fun - there aren't any nice header files showing the packet
+ *    format);
+ *
+ *    version 1, as documented in
+ *
+ *	ftp://gaia.cs.umass.edu/pub/hgschulz/rtp/draft-ietf-avt-rtp-04.txt
  */
 
 
@@ -310,6 +324,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	unsigned int i            = 0;
 	unsigned int hdr_extension= 0;
 	unsigned int padding_count= 0;
+	int         data_len, data_reported_len;
 	unsigned int offset = 0;
 	guint16     seq_num;
 	guint32     timestamp;
@@ -323,6 +338,30 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	/* Get the fields in the first octet */
 	octet = tvb_get_guint8( tvb, offset );
 	version = RTP_VERSION( octet );
+
+	if (version != 2) {
+		/*
+		 * Unknown or unsupported version.
+		 */
+		if ( check_col( pinfo->fd, COL_PROTOCOL ) )   {
+			col_set_str( pinfo->fd, COL_PROTOCOL, "RTP" );
+		}
+	
+		if ( check_col( pinfo->fd, COL_INFO) ) {
+			col_add_fstr( pinfo->fd, COL_INFO,
+			    "Unknown RTP version %u", version);
+		}
+
+		if ( tree ) {
+			ti = proto_tree_add_item( tree, proto_rtp, tvb, offset, tvb_length_remaining( tvb, offset ), FALSE );
+			rtp_tree = proto_item_add_subtree( ti, ett_rtp );
+		
+			proto_tree_add_uint( rtp_tree, hf_rtp_version, tvb,
+			    offset, 1, version );
+		}
+		return;
+	}
+
 	padding_set = RTP_PADDING( octet );
 	extension_set = RTP_EXTENSION( octet );
 	csrc_count = RTP_CSRC_COUNT( octet );
@@ -428,15 +467,20 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		if ( padding_set ) {
 			padding_count = tvb_get_guint8( tvb, tvb_length( tvb ) - 1 );
 			if ( padding_count > 0 ) {
-				dissect_rtp_data( tvb, pinfo, tree, rtp_tree,
-				    offset,
-				    tvb_length( tvb ) - padding_count,
-				    tvb_reported_length( tvb ) - padding_count,
-				    payload_type );
-				offset = tvb_length( tvb ) - padding_count;
-				proto_tree_add_item( rtp_tree, hf_rtp_padding_data, tvb, offset, padding_count - 1, FALSE );
-				offset += padding_count - 1;
-				proto_tree_add_item( rtp_tree, hf_rtp_padding_count, tvb, offset, 1, FALSE );
+				data_len = tvb_length( tvb ) - padding_count;
+				data_reported_len =
+				    tvb_reported_length( tvb ) - padding_count;
+				if (data_len > 0 && data_reported_len > 0) {
+					dissect_rtp_data( tvb, pinfo, tree, rtp_tree,
+					    offset,
+					    data_len,
+					    data_reported_len,
+					    payload_type );
+					offset = tvb_length( tvb ) - padding_count;
+					proto_tree_add_item( rtp_tree, hf_rtp_padding_data, tvb, offset, padding_count - 1, FALSE );
+					offset += padding_count - 1;
+					proto_tree_add_item( rtp_tree, hf_rtp_padding_count, tvb, offset, 1, FALSE );
+				}
 			}
 			else {
 				proto_tree_add_item( rtp_tree, hf_rtp_padding_count, tvb, tvb_length( tvb ) - 1, 1, FALSE );
