@@ -1,10 +1,10 @@
 /* packet-clip.c
  * Routines for clip packet disassembly
  *
- * $Id: packet-clip.c,v 1.14 2001/01/09 06:31:34 guy Exp $
+ * $Id: packet-clip.c,v 1.15 2001/09/23 23:10:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  *
  * This file created by Thierry Andry <Thierry.Andry@advalvas.be>
  * from nearly-the-same packet-raw.c created by Mike Hall <mlh@io.com>
@@ -70,13 +70,26 @@ dissect_clip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* populate a tree in the second pane with the status of the link
      layer (ie none)
 
-     XXX - the ATM on Linux code includes a patch to "tcpdump"
+     XXX - the Linux Classical IP code supports both LLC Encapsulation,
+     which puts an LLC header and possibly a SNAP header in front of
+     the network-layer header, and VC Based Multiplexing, which puts
+     no headers in front of the network-layer header.
+
+     The ATM on Linux code includes a patch to "tcpdump"
      that compares the first few bytes of the packet with the
      LLC header that Classical IP frames may have and, if there's
      a SNAP LLC header at the beginning of the packet, it gets
      the packet type from that header and uses that, otherwise
      it treats the packet as being raw IP with no link-level
-     header. */
+     header, in order to handle both of those.
+
+     This code, however, won't handle LLC Encapsulation.  We've
+     not yet seen a capture taken on a machine using LLC Encapsulation,
+     however.  If we see one, we can modify the code.
+
+     A future version of libpcap, however, will probably use DLT_LINUX_SLL
+     for both of those cases, to avoid the headache of having to
+     generate capture-filter code to handle both of those cases. */
   if(tree) {
     ti = proto_tree_add_text(tree, tvb, 0, 0, "Classical IP frame" );
     fh_tree = proto_item_add_subtree(ti, ett_clip);
