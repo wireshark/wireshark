@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.27 2003/10/27 01:35:53 sharpe Exp $
+ * $Id: dcerpc_stat.c,v 1.28 2003/11/10 07:44:47 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -388,16 +388,51 @@ dcerpcstat_program_select(GtkWidget *item _U_, gpointer key)
 }
 
 
+static GtkWidget *program_submenu_menu;
+static GtkWidget *program_submenu_item;
+static GtkWidget *program_submenu_label;
+static int program_subitem_index;
+static char *first_menu_name;
 static void 
 dcerpcstat_add_program_to_menu(dcerpc_uuid_key *k, dcerpc_uuid_value *v)
 {
 	GtkWidget *program_menu_item;
+	GtkWidget *box;
+	char str[64];
+
+	switch(program_subitem_index%15){
+	case 0:
+
+		first_menu_name=v->name;
+		snprintf(str,63,"%s ...",v->name);
+		program_submenu_item=gtk_menu_item_new();
+		box=gtk_hbox_new(TRUE,0);
+		gtk_container_add(GTK_CONTAINER(program_submenu_item), box);
+		
+		program_submenu_label=gtk_label_new(str);
+		gtk_box_pack_start(GTK_BOX(box), program_submenu_label, TRUE, TRUE, 0);
+		gtk_widget_show(program_submenu_label);
+		gtk_widget_show(box);
+
+		gtk_menu_append(GTK_MENU(prog_menu), program_submenu_item);
+		gtk_widget_show(program_submenu_item);
+
+		program_submenu_menu=gtk_menu_new();
+		gtk_menu_item_set_submenu(GTK_MENU_ITEM(program_submenu_item), program_submenu_menu);
+		break;
+	case 14:
+		snprintf(str,63,"%s - %s",first_menu_name,v->name);
+		gtk_label_set_text(GTK_LABEL(program_submenu_label), str);
+		break;
+/*qqq*/
+	}
+	program_subitem_index++;		
 
 	program_menu_item=gtk_menu_item_new_with_label(v->name);
 	SIGNAL_CONNECT(program_menu_item, "activate", dcerpcstat_program_select, k);
 
 	gtk_widget_show(program_menu_item);
-	gtk_menu_append(GTK_MENU(prog_menu), program_menu_item);
+	gtk_menu_append(GTK_MENU(program_submenu_menu), program_menu_item);
 
 	if(!dcerpc_uuid_program){
 		dcerpc_uuid_program=&k->uuid;
@@ -513,6 +548,10 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	prog_menu=gtk_menu_new();
 	current_uuid_key=NULL;
 	current_uuid_value=NULL;
+/*qqq*/
+	program_submenu_item=NULL;
+	program_submenu_menu=NULL;
+	program_subitem_index=0;
 	do {
 		new_uuid_key=NULL;
 		new_uuid_value=NULL;

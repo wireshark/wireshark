@@ -3,7 +3,7 @@
  *
  * See RFC 1777 (LDAP v2), RFC 2251 (LDAP v3), and RFC 2222 (SASL).
  *
- * $Id: packet-ldap.c,v 1.68 2003/11/07 04:03:44 sahlberg Exp $
+ * $Id: packet-ldap.c,v 1.69 2003/11/10 07:44:46 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2044,7 +2044,13 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             gtree = proto_item_add_subtree(gitem, ett_ldap_gssapi_token);
           }
           len = call_dissector(gssapi_wrap_handle, next_tvb, pinfo, gtree);
-          g_assert(len != 0);	/* GSS_Wrap() dissectors can't reject data */
+          /*
+           * if len is 0 it probably mean that we got a PDU that is not
+           * aligned to the start of the segment.
+           */
+          if(len==0){
+             return;
+          }
           if (gitem != NULL)
               proto_item_set_len(gitem, len);
 
