@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.10 1999/11/16 11:43:02 guy Exp $
+ * $Id: packet-vines.c,v 1.11 2000/01/21 00:07:53 gram Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -44,11 +44,18 @@ static gint ett_vines = -1;
 static gint ett_vines_frp = -1;
 static gint ett_vines_spp = -1;
 
+void
+capture_vines(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld)
+{
+  ld->vines++;
+}
+
+
+
 /* AFAIK Vines FRP (Fragmentation Protocol) is used on all media except Ethernet
  * and TR (and probably FDDI) - Fragmentation on these media types is not possible
  * FIXME: Do we need to use this header with PPP too?
  */
-
 void
 dissect_vines_frp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   guint8   vines_frp_ctrl, vines_frp_seqno; 
@@ -231,6 +238,9 @@ dissect_vines(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     	case VIP_PROTO_SPP:
 		dissect_vines_spp(pd, offset, fd, tree);
     		break;
+	default:
+		dissect_data(pd, offset, fd, tree);
+		break;
   		}
 	}
 #define VINES_VSPP_DATA 1
@@ -314,6 +324,8 @@ void dissect_vines_spp(const u_char *pd, int offset, frame_data *fd, proto_tree 
     	proto_tree_add_text(vspp_tree, offset+12,   2, "Ack number: 0x%04x", viph.vspp_ack);
     	proto_tree_add_text(vspp_tree, offset+14,   2, "Window: 0x%04x", viph.vspp_win);
 		}
+	offset += 16; /* sizeof SPP */
+	dissect_data(pd, offset, fd, tree);
 	}
 
 void
