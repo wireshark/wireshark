@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.109 2003/12/29 20:03:38 ulfl Exp $
+ * $Id: file.h,v 1.110 2004/01/13 22:33:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,6 +56,7 @@ int filter_packets(capture_file *cf, gchar *dfilter);
 void reftime_packets(capture_file *);
 void colorize_packets(capture_file *);
 void redissect_packets(capture_file *cf);
+int retap_packets(capture_file *cf);
 int print_packets(capture_file *cf, print_args_t *print_args);
 void change_time_formats(capture_file *);
 

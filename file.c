@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.340 2004/01/10 17:29:26 ulfl Exp $
+ * $Id: file.c,v 1.341 2004/01/13 22:33:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1374,6 +1374,54 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
     destroy_progress_dlg(progbar);
 
   return ret;
+}
+
+static gboolean
+retap_packet(capture_file *cf _U_, frame_data *fdata,
+             union wtap_pseudo_header *pseudo_header, const guint8 *pd,
+             void *argsp _U_)
+{
+  epan_dissect_t *edt;
+
+  /* If we have tap listeners, allocate a protocol tree root node, so that
+     we'll construct a protocol tree against which a filter expression can
+     be evaluated. */
+  edt = epan_dissect_new(num_tap_filters != 0, FALSE);
+  tap_queue_init(edt);
+  epan_dissect_run(edt, pseudo_header, pd, fdata, NULL);
+  tap_push_tapped_queue(edt);
+  epan_dissect_free(edt);
+
+  return TRUE;
+}
+
+int
+retap_packets(capture_file *cf)
+{
+  packet_range_t range;
+
+  /* Iterate through the list of packets, dissecting all packets and
+     re-running the taps. */
+  packet_range_init(&range);
+  packet_range_process_init(&range);
+  switch (process_specified_packets(cf, &range, "Refiltering statistics on",
+                                    "all packets", "Stop", retap_packet,
+                                    NULL)) {
+  case PSP_FINISHED:
+    /* Completed successfully. */
+    break;
+
+  case PSP_STOPPED:
+    /* Well, the user decided to abort the refiltering.
+       Return FALSE so our caller knows they did that. */
+    return FALSE;
+
+  case PSP_FAILED:
+    /* Error while retapping. */
+    return FALSE;
+  }
+
+  return TRUE;
 }
 
 typedef struct {

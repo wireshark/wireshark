@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.56 2004/01/13 21:10:38 guy Exp $
+ * $Id: io_stat.c,v 1.57 2004/01/13 22:34:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -124,7 +124,7 @@ typedef struct _io_stat_graph_t {
 	gboolean display;
 	GtkWidget *display_button;
 	GtkWidget *color_button;
-	GtkWidget *filter_button;
+	GtkWidget *filter_field;
 	GtkWidget *advanced_buttons;
 	int calc_type;
 	io_stat_calc_type_t calc_types[MAX_CALC_TYPES];
@@ -984,7 +984,7 @@ gtk_iostat_init(char *optarg _U_)
 		io->graphs[i].display=0;
 		io->graphs[i].display_button=NULL;
 		io->graphs[i].color_button=NULL;
-		io->graphs[i].filter_button=NULL;
+		io->graphs[i].filter_field=NULL;
 		io->graphs[i].advanced_buttons=NULL;
 		io->graphs[i].io=io;
 
@@ -1004,7 +1004,7 @@ gtk_iostat_init(char *optarg _U_)
 		g_string_free(error_string, TRUE);
 		io->graphs[0].display=0;
 		io->graphs[0].display_button=NULL;
-		io->graphs[0].filter_button=NULL;
+		io->graphs[0].filter_field=NULL;
 		io->graphs[0].advanced_buttons=NULL;
 		exit(10);
 	}			
@@ -1012,7 +1012,7 @@ gtk_iostat_init(char *optarg _U_)
 	/* build the GUI */
 	init_io_stat_window(io);
 
-	redissect_packets(&cfile);
+	retap_packets(&cfile);
 	io_stat_redraw(io);
 }
 
@@ -1172,7 +1172,7 @@ tick_interval_select(GtkWidget *item, gpointer key)
 	val=(int)OBJECT_GET_DATA(item, "tick_interval");
 
 	io->interval=val;
-	redissect_packets(&cfile);
+	retap_packets(&cfile);
 	io_stat_redraw(io);
 }
 
@@ -1486,7 +1486,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 	}
 
 	/* first check if the filter string is valid. */
-	filter=(char *)gtk_entry_get_text(GTK_ENTRY(gio->filter_button));
+	filter=(char *)gtk_entry_get_text(GTK_ENTRY(gio->filter_field));
 	if(!dfilter_compile(filter, &dfilter)) {
 		simple_dialog(ESD_TYPE_WARN, NULL,
 		    "Filter \"%s\" is invalid - %s", filter, dfilter_error_msg);
@@ -1514,7 +1514,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 	
 	io_stat_reset(gio->io);
 	enable_graph(gio, filter);
-	redissect_packets(&cfile);
+	retap_packets(&cfile);
 	io_stat_redraw(gio->io);
 
 	return 0;
@@ -1577,20 +1577,6 @@ create_advanced_menu(io_stat_graph_t *gio, GtkWidget *box, char *name, void (*fu
 	gtk_widget_show(option_menu);
 }
 
-
-/*
- * XXX - why are we disabling a graph when we change the filter expression
- * for it?
- */
-static gint
-field_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
-{
-	disable_graph(gio);
-	io_stat_redraw(gio->io);
-	return 0;
-}
-
-
 static void
 create_advanced_field(io_stat_graph_t *gio, GtkWidget *box)
 {
@@ -1598,7 +1584,7 @@ create_advanced_field(io_stat_graph_t *gio, GtkWidget *box)
 	gio->calc_field=gtk_entry_new_with_max_length(30);
 	gtk_box_pack_start(GTK_BOX(box), gio->calc_field, FALSE, FALSE, 0);
 	gtk_widget_show(gio->calc_field);
-	SIGNAL_CONNECT(gio->filter_button, "activate", field_callback, gio);
+	SIGNAL_CONNECT(gio->calc_field, "activate", filter_callback, gio);
 }
 
 
@@ -1702,15 +1688,15 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gtk_box_pack_start(GTK_BOX(hbox), gio->filter_bt, FALSE, TRUE, 0);
 	gtk_widget_show(gio->filter_bt);
 
-	gio->filter_button=gtk_entry_new_with_max_length(256);
+	gio->filter_field=gtk_entry_new_with_max_length(256);
 
 	/* filter prefs dialog */
-	OBJECT_SET_DATA(gio->filter_bt, E_FILT_TE_PTR_KEY, gio->filter_button);
+	OBJECT_SET_DATA(gio->filter_bt, E_FILT_TE_PTR_KEY, gio->filter_field);
 	/* filter prefs dialog */
 
-	gtk_box_pack_start(GTK_BOX(hbox), gio->filter_button, FALSE, FALSE, 0);
-	gtk_widget_show(gio->filter_button);
-	SIGNAL_CONNECT(gio->filter_button, "activate", filter_callback, gio);
+	gtk_box_pack_start(GTK_BOX(hbox), gio->filter_field, FALSE, FALSE, 0);
+	gtk_widget_show(gio->filter_field);
+	SIGNAL_CONNECT(gio->filter_field, "activate", filter_callback, gio);
 
 	create_advanced_box(gio, hbox);
 
