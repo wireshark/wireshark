@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.126 2001/11/03 12:10:34 guy Exp $
+ * $Id: packet-smb.c,v 1.127 2001/11/03 23:53:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7218,41 +7218,45 @@ dissect_logoff_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     offset += 1; /* Skip Word Count (WCT) */
 
-    /* Build display for: AndXCommand */
+    if (WordCount != 0) {
 
-    AndXCommand = GBYTE(pd, offset);
+      /* Build display for: AndXCommand */
 
-    if (tree) {
+      AndXCommand = GBYTE(pd, offset);
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "AndXCommand: %u", AndXCommand);
+      if (tree) {
+
+	proto_tree_add_text(tree, NullTVB, offset, 1, "AndXCommand: %u", AndXCommand);
+
+      }
+
+      offset += 1; /* Skip AndXCommand */
+
+      /* Build display for: AndXReserved */
+
+      AndXReserved = GBYTE(pd, offset);
+
+      if (tree) {
+
+	proto_tree_add_text(tree, NullTVB, offset, 1, "AndXReserved: %u", AndXReserved);
+
+      }
+
+      offset += 1; /* Skip AndXReserved */
+
+      /* Build display for: AndXOffset */
+
+      AndXOffset = GSHORT(pd, offset);
+
+      if (tree) {
+
+	proto_tree_add_text(tree, NullTVB, offset, 2, "AndXOffset: %u", AndXOffset);
+
+      }
+
+      offset += 2; /* Skip AndXOffset */
 
     }
-
-    offset += 1; /* Skip AndXCommand */
-
-    /* Build display for: AndXReserved */
-
-    AndXReserved = GBYTE(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 1, "AndXReserved: %u", AndXReserved);
-
-    }
-
-    offset += 1; /* Skip AndXReserved */
-
-    /* Build display for: AndXOffset */
-
-    AndXOffset = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "AndXOffset: %u", AndXOffset);
-
-    }
-
-    offset += 2; /* Skip AndXOffset */
 
     /* Build display for: Byte Count (BCC) */
 
@@ -7288,41 +7292,45 @@ dissect_logoff_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     offset += 1; /* Skip Word Count (WCT) */
 
-    /* Build display for: AndXCommand */
+    if (WordCount != 0) {
 
-    AndXCommand = GBYTE(pd, offset);
+      /* Build display for: AndXCommand */
 
-    if (tree) {
+      AndXCommand = GBYTE(pd, offset);
 
-      proto_tree_add_text(tree, NullTVB, offset, 1, "AndXCommand: %u", AndXCommand);
+      if (tree) {
+
+	proto_tree_add_text(tree, NullTVB, offset, 1, "AndXCommand: %u", AndXCommand);
+
+      }
+
+      offset += 1; /* Skip AndXCommand */
+
+      /* Build display for: AndXReserved */
+
+      AndXReserved = GBYTE(pd, offset);
+
+      if (tree) {
+
+	proto_tree_add_text(tree, NullTVB, offset, 1, "AndXReserved: %u", AndXReserved);
+
+      }
+
+      offset += 1; /* Skip AndXReserved */
+
+      /* Build display for: AndXOffset */
+
+      AndXOffset = GSHORT(pd, offset);
+
+      if (tree) {
+
+	proto_tree_add_text(tree, NullTVB, offset, 2, "AndXOffset: %u", AndXOffset);
+
+      }
+
+      offset += 2; /* Skip AndXOffset */
 
     }
-
-    offset += 1; /* Skip AndXCommand */
-
-    /* Build display for: AndXReserved */
-
-    AndXReserved = GBYTE(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 1, "AndXReserved: %u", AndXReserved);
-
-    }
-
-    offset += 1; /* Skip AndXReserved */
-
-    /* Build display for: AndXOffset */
-
-    AndXOffset = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "AndXOffset: %u", AndXOffset);
-
-    }
-
-    offset += 2; /* Skip AndXOffset */
 
     /* Build display for: Byte Count (BCC) */
 
