@@ -1,3 +1,6 @@
+January 27, 1999
+	Added token-ring support in netmon.c
+
 January 19, 1999
 	Changed number of arguments of wtap_open_offline().
 

@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.1 1999/01/18 21:34:54 gram Exp $
+ * $Id: netmon.c,v 1.2 1999/01/27 14:54:09 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -81,7 +81,9 @@ int netmon_open(wtap *wth)
 	struct netmon_hdr hdr;
 	static const int netmon_encap[] = {
 		WTAP_ENCAP_NONE,
-		WTAP_ENCAP_ETHERNET
+		WTAP_ENCAP_ETHERNET,
+		WTAP_ENCAP_TR
+
 	};
 	#define NUM_NETMON_ENCAPS (sizeof netmon_encap / sizeof netmon_encap[0])
 	struct tm tm;
