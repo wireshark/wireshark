@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.16 2000/01/26 05:30:02 guy Exp $
+ * $Id: tethereal.c,v 1.17 2000/02/11 06:53:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -363,7 +363,7 @@ main(int argc, char *argv[])
   
 #ifndef HAVE_LIBPCAP
   if (capture_option_specified)
-    fprintf(stderr, "This version of Ethereal was not built with support for capturing packets.\n");
+    fprintf(stderr, "This version of Tethereal was not built with support for capturing packets.\n");
 #endif
   if (arg_error)
     print_usage();
@@ -507,7 +507,7 @@ capture(int packet_count, int out_file_type)
     /* Set up to write to the capture file. */
     if (ld.linktype == WTAP_ENCAP_UNKNOWN) {
       strcpy(errmsg, "The network you're capturing from is of a type"
-               " that Ethereal doesn't support.");
+               " that Tethereal doesn't support.");
       goto error;
     }
     ld.pdh = wtap_dump_open(cf.save_file, out_file_type,
@@ -902,18 +902,18 @@ file_open_error_message(int err, int for_writing)
   case WTAP_ERR_FILE_UNKNOWN_FORMAT:
   case WTAP_ERR_UNSUPPORTED:
     /* Seen only when opening a capture file for reading. */
-    errmsg = "The file \"%s\" is not a capture file in a format Ethereal understands.";
+    errmsg = "The file \"%s\" is not a capture file in a format Tethereal understands.";
     break;
 
   case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
     /* Seen only when opening a capture file for writing. */
-    errmsg = "Ethereal does not support writing capture files in that format.";
+    errmsg = "Tethereal does not support writing capture files in that format.";
     break;
 
   case WTAP_ERR_UNSUPPORTED_ENCAP:
   case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
     /* Seen only when opening a capture file for writing. */
-    errmsg = "Ethereal cannot save this capture in that format.";
+    errmsg = "Tethereal cannot save this capture in that format.";
     break;
 
   case WTAP_ERR_BAD_RECORD:
