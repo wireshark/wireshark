@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.13 2001/10/12 17:17:05 gerald Exp $
+# $Id: configure.in,v 1.14 2001/10/28 01:27:59 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -155,6 +155,8 @@ if test "$ac_cv_func_inet_ntop" = no ; then
 fi
 AC_SUBST(INET_NTOP_C)
 AC_SUBST(INET_NTOP_O)
+
+AC_CHECK_FUNC(strptime, , [AC_DEFINE(NEED_STRPTIME_H)])
 
 #
 # Check whether GLib modules are supported, to determine whether we
