@@ -5,7 +5,7 @@
 # ASN.1 to Ethereal dissector compiler
 # 2004 Tomas Kukosa 
 #
-# $Id: asn2eth.py,v 1.2 2004/05/25 21:06:54 guy Exp $
+# $Id: asn2eth.py,v 1.3 2004/05/25 21:23:09 guy Exp $
 #
 
 """ASN.1 to Ethereal PER dissector compiler"""
@@ -747,10 +747,10 @@ class EthCtx:
         if (self.Ber()):
           if (i): postfix = '_impl'; impl = 'TRUE'
           else:   postfix = '';      impl = 'FALSE'
-          out = 'static guint32 dissect_'+f+postfix+'(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {\n'
+          out = 'static int dissect_'+f+postfix+'(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {\n'
           par=((impl, 'tvb', 'offset', 'pinfo', 'tree', f),)
         else:
-          out = 'static guint32 dissect_'+f+'(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {\n'
+          out = 'static int dissect_'+f+'(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {\n'
           par=(('tvb', 'offset', 'pinfo', 'tree', f),)
         out += self.eth_fn_call('dissect_%s_%s' % (self.eth_type[t]['proto'], t), ret='return',
                                 par=par)
