@@ -1,9 +1,9 @@
-/* packet-wsp.h (c) 2000 Neil Hunter
+/* packet-wtp.h (c) 2000 Neil Hunter
  * Based on original work by Ben Fowler
  *
  * Declarations for disassembly of WTP component of WAP traffic.
  *
- * $Id: packet-wtp.h,v 1.1 2000/11/04 03:30:40 guy Exp $
+ * $Id: packet-wtp.h,v 1.2 2000/11/04 07:39:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
