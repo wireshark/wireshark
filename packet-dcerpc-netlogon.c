@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.101 2004/04/21 12:08:41 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.102 2004/04/23 22:34:15 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3189,36 +3189,42 @@ netlogon_dissect_MODIFIED_COUNT(tvbuff_t *tvb, int offset,
 
 #define DT_DELTA_DOMAIN			1
 #define DT_DELTA_GROUP			2
+#define DT_DELTA_DELETE_GROUP		3
 #define DT_DELTA_RENAME_GROUP		4
 #define DT_DELTA_USER			5
+#define DT_DELTA_DELETE_USER		6
 #define DT_DELTA_RENAME_USER		7
 #define DT_DELTA_GROUP_MEMBER		8
 #define DT_DELTA_ALIAS			9
+#define DT_DELTA_DELETE_ALIAS		10
 #define DT_DELTA_RENAME_ALIAS		11
 #define DT_DELTA_ALIAS_MEMBER		12
 #define DT_DELTA_POLICY			13
 #define DT_DELTA_TRUSTED_DOMAINS	14
 #define DT_DELTA_ACCOUNTS		16
 #define DT_DELTA_SECRET			18
-#define DT_DELTA_DELETE_GROUP		20
-#define DT_DELTA_DELETE_USER		21
+#define DT_DELTA_DELETE_GROUP2		20
+#define DT_DELTA_DELETE_USER2		21
 #define DT_MODIFIED_COUNT		22
 static const value_string delta_type_vals[] = {
 	{ DT_DELTA_DOMAIN,		"Domain" },
 	{ DT_DELTA_GROUP,		"Group" },
+	{ DT_DELTA_DELETE_GROUP,	"Delete Group" },
 	{ DT_DELTA_RENAME_GROUP,	"Rename Group" },
 	{ DT_DELTA_USER,		"User" },
+	{ DT_DELTA_DELETE_USER,		"Delete User" },
 	{ DT_DELTA_RENAME_USER,		"Rename User" },
 	{ DT_DELTA_GROUP_MEMBER,	"Group Member" },
 	{ DT_DELTA_ALIAS,		"Alias" },
+	{ DT_DELTA_DELETE_ALIAS,	"Delete Alias" },
 	{ DT_DELTA_RENAME_ALIAS,	"Rename Alias" },
 	{ DT_DELTA_ALIAS_MEMBER,	"Alias Member" },
 	{ DT_DELTA_POLICY,		"Policy" },
 	{ DT_DELTA_TRUSTED_DOMAINS,	"Trusted Domains" },
 	{ DT_DELTA_ACCOUNTS,		"Accounts" },
 	{ DT_DELTA_SECRET,		"Secret" },
-	{ DT_DELTA_DELETE_GROUP,	"Delete Group" },
-	{ DT_DELTA_DELETE_USER,		"Delete User" },
+	{ DT_DELTA_DELETE_GROUP2,	"Delete Group2" },
+	{ DT_DELTA_DELETE_USER2,	"Delete User2" },
 	{ DT_MODIFIED_COUNT,		"Modified Count" },
 	{ 0, NULL }
 };
@@ -3226,19 +3232,21 @@ static const value_string delta_type_vals[] = {
  * IDL typedef [switch_type(short)] union {
  * IDL   [case(1)][unique] DELTA_DOMAIN *domain;
  * IDL   [case(2)][unique] DELTA_GROUP *group;
+ * IDL   [case(3)][unique] rid only ;
  * IDL   [case(4)][unique] DELTA_RENAME_GROUP *rename_group;
  * IDL   [case(5)][unique] DELTA_USER *user;
  * IDL   [case(7)][unique] DELTA_RENAME_USER *rename_user;
  * IDL   [case(8)][unique] DELTA_GROUP_MEMBER *group_member;
  * IDL   [case(9)][unique] DELTA_ALIAS *alias;
- * IDL   [case(11)][unique] DELTA_RENAME_ALIAS *rename_alias;
+ * IDL   [case(10)][unique] rid only ;
+ * IDL   [case(11)][unique] DELTA_RENAME_ALIAS *alias;
  * IDL   [case(12)][unique] DELTA_ALIAS_MEMBER *alias_member;
  * IDL   [case(13)][unique] DELTA_POLICY *policy;
  * IDL   [case(14)][unique] DELTA_TRUSTED_DOMAINS *trusted_domains;
  * IDL   [case(16)][unique] DELTA_ACCOUNTS *accounts;
  * IDL   [case(18)][unique] DELTA_SECRET *secret;
- * IDL   [case(20)][unique] DELTA_DELETE_USER *delete_group;
- * IDL   [case(21)][unique] DELTA_DELETE_USER *delete_user;
+ * IDL   [case(20)][unique] DELTA_DELETE_GROUP2 *delete_group;
+ * IDL   [case(21)][unique] DELTA_DELETE_USER2 *delete_user;
  * IDL   [case(22)][unique] MODIFIED_COUNT *modified_count;
  * IDL } DELTA_UNION;
  */
