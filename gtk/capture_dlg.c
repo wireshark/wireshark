@@ -823,7 +823,8 @@ capture_prep(void)
 		capture_opts->has_autostop_filesize);
   SIGNAL_CONNECT(ring_filesize_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
   gtk_tooltips_set_tip(tooltips, ring_filesize_cb,
-    "If the selected file size is exceeded, capturing switches to the next file.",
+    "If the selected file size is exceeded, capturing switches to the next file.\n"
+    "PLEASE NOTE: at least one of the \"Next file every\" options MUST be selected.",
     NULL);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), ring_filesize_cb, 0, 1, row, row+1);
 
@@ -849,7 +850,8 @@ capture_prep(void)
   SIGNAL_CONNECT(file_duration_cb, "toggled",
 		 capture_prep_adjust_sensitivity, cap_open_w);
   gtk_tooltips_set_tip(tooltips, file_duration_cb,
-    "If the selected duration is exceeded, capturing switches to the next file.",
+    "If the selected duration is exceeded, capturing switches to the next file.\n"
+    "PLEASE NOTE: at least one of the \"Next file every\" options MUST be selected.",
     NULL);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), file_duration_cb, 0, 1, row, row+1);
 
@@ -1400,6 +1402,21 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   capture_opts->multi_files_on =
     gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(multi_files_on_cb));
 
+  capture_opts->has_file_duration =
+    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(file_duration_cb));
+  if (capture_opts->has_file_duration) {
+    capture_opts->file_duration =
+      gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(file_duration_sb));
+    capture_opts->file_duration =
+      time_unit_option_menu_get_value(file_duration_om, capture_opts->file_duration);
+  }
+
+  capture_opts->has_autostop_files =
+    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stop_files_cb));
+  if (capture_opts->has_autostop_files)
+    capture_opts->autostop_files =
+      gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(stop_files_sb));
+
   if(capture_opts->sync_mode)
     capture_opts->multi_files_on = FALSE;
 
@@ -1425,10 +1442,10 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
         PRIMARY_TEXT_START "Multiple files: No capture file name given!\n\n" PRIMARY_TEXT_END
         "You must specify a filename if you want to use multiple files.");
       return;
-    } else if (!capture_opts->has_autostop_filesize) {
+    } else if (!capture_opts->has_autostop_filesize && !capture_opts->has_file_duration) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
         PRIMARY_TEXT_START "Multiple files: No file limit given!\n\n" PRIMARY_TEXT_END
-        "You must specify a file size at which is switched to the next capture file\n"
+        "You must specify a file size or duration at which is switched to the next capture file\n"
         "if you want to use multiple files.");
       g_free(capture_opts->save_file);
       capture_opts->save_file = NULL;
@@ -1450,21 +1467,6 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
       }
     }
   }
-
-  capture_opts->has_file_duration =
-    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(file_duration_cb));
-  if (capture_opts->has_file_duration) {
-    capture_opts->file_duration =
-      gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(file_duration_sb));
-    capture_opts->file_duration =
-      time_unit_option_menu_get_value(file_duration_om, capture_opts->file_duration);
-  }
-
-  capture_opts->has_autostop_files =
-    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stop_files_cb));
-  if (capture_opts->has_autostop_files)
-    capture_opts->autostop_files =
-      gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(stop_files_sb));
 
   window_destroy(GTK_WIDGET(parent_w));
 
@@ -1584,7 +1586,12 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
 
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(multi_files_on_cb))) {
     /* Ring buffer mode enabled. */
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ring_filesize_cb), TRUE);
+
+    /* Force at least one of the "file switch" conditions (we need at least one) */
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ring_filesize_cb)) == FALSE &&
+        gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(file_duration_cb)) == FALSE) {
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ring_filesize_cb), TRUE);
+    }
 
     gtk_widget_set_sensitive(GTK_WIDGET(ringbuffer_nbf_cb), TRUE);
     gtk_widget_set_sensitive(GTK_WIDGET(ringbuffer_nbf_sb),
