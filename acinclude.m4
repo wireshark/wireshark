@@ -1,6 +1,8 @@
 dnl Macros that test for specific features.
-dnl This file is part of Autoconf.
-dnl Copyright (C) 1992, 1993, 1994, 1995, 1996 Free Software Foundation, Inc.
+dnl This file is part of the Autoconf packaging for Ethereal.
+dnl Copyright (C) 1998-2000 by Gerald Combs.
+dnl
+dnl $Id: acinclude.m4,v 1.15 1999/11/30 22:45:09 gram Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -232,13 +234,18 @@ AC_DEFUN(AC_ETHEREAL_UCDSNMP_CHECK,
 
 		for d in $ucdsnmp_user_dir $prefix
 		do
-			AC_MSG_CHECKING($d)
-
-			if test x$d != x/usr/local && test -f $d/include/ucd-snmp/snmp.h
+			if test x$d != xNONE 
 			then
-				AC_MSG_RESULT(found ucd-snmp in $d)
-				ucdsnmpdir=$d
-				break
+				AC_MSG_CHECKING($d for ucd-snmp)
+
+				if test x$d != x/usr/local && test -f $d/include/ucd-snmp/snmp.h
+				then
+					AC_MSG_RESULT(found)
+					ucdsnmpdir=$d
+					break
+				else
+					AC_MSG_RESULT(not found)
+				fi
 			fi
 		done
 
