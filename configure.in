@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.222 2003/09/20 10:06:40 guy Exp $
+# $Id: configure.in,v 1.223 2003/10/01 15:09:32 jmayer Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -324,12 +324,14 @@ AC_ARG_ENABLE(tethereal,
 if test "x$enable_tethereal" = "xyes" ; then
 	tethereal_bin="tethereal"
 	tethereal_man="tethereal.1"
+	etherealfilter_man="ethereal-filter.4"
 else
 	tethereal_bin=""
 	tethereal_man=""
 fi
 AC_SUBST(tethereal_bin)
 AC_SUBST(tethereal_man)
+AC_SUBST(etherealfilter_man)
 
 
 

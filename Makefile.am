@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.631 2003/09/26 22:20:06 guy Exp $
+# $Id: Makefile.am,v 1.632 2003/10/01 15:09:32 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -63,6 +63,7 @@ ACLOCAL_AMFLAGS = `./aclocal-flags`
 bin_PROGRAMS = @ethereal_bin@ @editcap_bin@ @mergecap_bin@ @tethereal_bin@ @dftest_bin@ @randpkt_bin@ @text2pcap_bin@
 bin_SCRIPTS = @idl2eth_bin@
 man1_MANS = @ethereal_man@ @editcap_man@ @mergecap_man@ @tethereal_man@ @text2pcap_man@ @idl2eth_man@
+man4_MANS = @etherealfilter_man@
 man_MANS =
 
 EXTRA_PROGRAMS = ethereal tethereal editcap mergecap dftest text2pcap
@@ -1128,11 +1129,12 @@ EXTRA_DIST = \
 	doc/README.tvbuff	\
 	doc/dfilter2pod.pl	\
 	doc/editcap.pod		\
-	doc/ethereal.pod.template \
+	doc/ethereal-filter.pod.template \
+	doc/ethereal.pod	\
 	doc/idl2eth.pod		\
 	doc/mergecap.pod	\
 	doc/randpkt.txt		\
-	doc/tethereal.pod.template \
+	doc/tethereal.pod	\
 	doc/text2pcap.pod	\
 	editcap.c		\
 	ethereal_be.py		\
@@ -1226,13 +1228,17 @@ else
 SUBDIRS = tools wiretap doc epan packaging @ethereal_SUBDIRS@
 endif
 
-ethereal.1: ethereal doc/ethereal.pod.template
+ethereal.1: ethereal doc/ethereal.pod
 	(cd doc ; \
 	$(MAKE) ../ethereal.1 )
 
-tethereal.1: tethereal doc/tethereal.pod.template
+tethereal.1: tethereal doc/tethereal.pod
 	(cd doc ; \
 	$(MAKE) ../tethereal.1 )
+
+ethereal-filter.4: tethereal doc/ethereal-filter.pod.template
+	(cd doc ; \
+	$(MAKE) ../ethereal-filter.4 )
 
 editcap.1: doc/editcap.pod
 	(cd doc ; \
