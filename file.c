@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.197 2000/07/09 03:29:26 guy Exp $
+ * $Id: file.c,v 1.198 2000/07/09 23:22:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1203,6 +1203,11 @@ void
 change_time_formats(capture_file *cf)
 {
   frame_data *fdata;
+  progdlg_t *progbar;
+  gboolean stop_flag;
+  guint32 progbar_quantum;
+  guint32 progbar_nextstep;
+  int count;
   int row;
   int i;
   GtkStyle  *pl_style;
@@ -1211,11 +1216,49 @@ change_time_formats(capture_file *cf)
      screen updates while it happens. */
   freeze_clist(cf);
 
+  /* Update the progress bar when it gets to this value. */
+  progbar_nextstep = 0;
+  /* When we reach the value that triggers a progress bar update,
+     bump that value by this amount. */
+  progbar_quantum = cf->count/N_PROGBAR_UPDATES;
+  /* Count of packets at which we've looked. */
+  count = 0;
+
+  stop_flag = FALSE;
+  progbar = create_progress_dlg("Changing time display", "Stop", &stop_flag);
+
   /* Iterate through the list of packets, checking whether the packet
      is in a row of the summary list and, if so, whether there are
      any columns that show the time in the "command-line-specified"
      format and, if so, update that row. */
   for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
+    /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
+       when we update it, we have to run the GTK+ main loop to get it
+       to repaint what's pending, and doing so may involve an "ioctl()"
+       to see if there's any pending input from an X server, and doing
+       that for every packet can be costly, especially on a big file. */
+    if (count >= progbar_nextstep) {
+      /* let's not divide by zero. I should never be started
+       * with count == 0, so let's assert that
+       */
+      g_assert(cf->count > 0);
+
+      update_progress_dlg(progbar, (gfloat) count / cf->count);
+
+      progbar_nextstep += progbar_quantum;
+    }
+
+    if (stop_flag) {
+      /* Well, the user decided to abort the redisplay.  Just stop.
+
+         XXX - this leaves the time field in the old format in
+	 frames we haven't yet processed.  So it goes; should we
+	 simply not offer them the option of stopping? */
+      break;
+    }
+
+    count++;
+
     /* Find what row this packet is in. */
     row = gtk_clist_find_row_from_data(GTK_CLIST(packet_list), fdata);
 
@@ -1243,6 +1286,9 @@ change_time_formats(capture_file *cf)
       }
     }
   }
+
+  /* We're done redisplaying the packets; destroy the progress bar. */
+  destroy_progress_dlg(progbar);
 
   /* Set the column widths of those columns that show the time in
      "command-line-specified" format. */
