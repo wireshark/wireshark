@@ -3,7 +3,7 @@
  *
  * Huagang XIE <huagang@intruvert.com>
  *
- * $Id: packet-ssh.c,v 1.7 2003/04/17 07:39:18 guy Exp $
+ * $Id: packet-ssh.c,v 1.8 2003/12/23 21:16:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -318,14 +318,36 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				global_data->version= version;
 			}
 		} else {
-			if(version == SSH_VERSION_1) {
+			switch(version) {
+
+			case SSH_VERSION_UNKNOWN:
+				/*
+				 * We use "tvb_ensure_length_remaining()"
+				 * to make sure there actually *is* data
+				 * remaining.
+				 *
+				 * This means we're guaranteed that
+				 * "remain_length" is positive.
+				 */
+				remain_length = tvb_ensure_length_remaining(tvb,
+				    offset);
+				proto_tree_add_text(ssh_tree, tvb, offset,
+						remain_length,
+						"Unknown SSH version data");
+				offset += remain_length;
+				break;
+
+			case SSH_VERSION_1:
 				offset = ssh_dissect_ssh1(tvb, pinfo,
 						offset,ssh_tree,is_response,this_number, 
 						&need_desegmentation);
-			} else if(version == SSH_VERSION_2) {
+				break;
+
+			case SSH_VERSION_2:
 				offset = ssh_dissect_ssh2(tvb, pinfo,
 						offset,ssh_tree,is_response,this_number,
 						&need_desegmentation);
+				break;
 			}
 		}
 
