@@ -11,7 +11,7 @@
  * - support for reassembly
  * - code cleanup
  *
- * $Id: packet-sctp.c,v 1.48 2003/01/14 23:53:33 guy Exp $
+ * $Id: packet-sctp.c,v 1.49 2003/01/15 01:20:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -318,7 +318,7 @@ static const value_string sctp_payload_proto_id_values[] = {
   { ASAP_PAYLOAD_PROTOCOL_ID,            "ASAP" },
   { ENRP_PAYLOAD_PROTOCOL_ID,            "ENRP" },
   { H323_PAYLOAD_PROTOCOL_ID,            "H.323" },
-  { ASAP_PAYLOAD_PROTOCOL_ID,            "ASAP" },
+  { ASAP_OLD_PAYLOAD_PROTOCOL_ID,        "ASAP (old)" },
   { 0,                                   NULL } };
 
 /* The structure of the common header is described by the following constants */
