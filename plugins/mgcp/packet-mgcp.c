@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.26 2001/07/08 21:51:34 hagbard Exp $
+ * $Id: packet-mgcp.c,v 1.27 2001/10/31 10:40:58 guy Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -50,6 +50,8 @@
 #include "resolv.h"
 #include "prefs.h"
 #include "strutil.h"
+
+#include "plugins/plugin_api_defs.h"
 
 #ifndef __ETHEREAL_STATIC__
 G_MODULE_EXPORT const gchar version[] = VERSION;

@@ -65,6 +65,8 @@
 #include "proto.h"
 #include "packet-giop.h"
 
+#include "plugins/plugin_api_defs.h"
+
 #ifndef __ETHEREAL_STATIC__
 G_MODULE_EXPORT const gchar version[] = "0.0.1";
 #endif

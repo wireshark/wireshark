@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.14 2001/10/25 19:57:06 guy Exp $
+# $Id: ethereal_gen.py,v 1.15 2001/10/31 10:40:53 guy Exp $
 #                           
 # ethereal_gen.py (part of idl2eth)           
 #
@@ -2087,6 +2087,8 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 #include "packet.h"
 #include "proto.h"
 #include "packet-giop.h"
+
+#include "plugins/plugin_api_defs.h"
 
 #ifndef __ETHEREAL_STATIC__
 G_MODULE_EXPORT const gchar version[] = "0.0.1";
