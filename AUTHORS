@@ -716,6 +716,11 @@ Jeff Morriss <jeff.morriss@ulticom.com> {
 	Support for ANSI flavor of MTP3
 }
 
+Aamer Akhter <aakhter@cisco.com> {
+	Support for draft-rosen-vpn-ospf-bgp-mpls
+	Support for additional BGP extended communities
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

@@ -1128,6 +1128,7 @@ B<http://www.ethereal.com>.
   Laurent Rabret           <laurent.rabret@rd.francetelecom.fr>
   nuf si                   <gnippiks@yahoo.com>
   Jeff Morriss             <jeff.morriss@ulticom.com>
+  Aamer Akhter             <aakhter@cisco.com>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.43 2001/07/03 02:49:38 guy Exp $
+ * $Id: packet-bgp.c,v 1.44 2001/07/08 22:59:50 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -164,7 +164,24 @@ static const value_string bgpext_com_type[] = {
     { BGP_EXT_COM_RT_1, "Route Target" },
     { BGP_EXT_COM_RO_0, "Route Origin" },
     { BGP_EXT_COM_RO_1, "Route Origin" },
+    { BGP_EXT_COM_LINKBAND, "Link Bandwidth" },
+    { BGP_EXT_COM_VPN_ORIGIN, "OSPF Domain" },
+    { BGP_EXT_COM_OSPF_RTYPE, "OSPF Route Type" },
+    { BGP_EXT_COM_OSPF_RID, "OSPF Router ID" },
     { 0, NULL },
+};
+
+static const value_string bgpext_ospf_rtype[] = {
+  { BGP_OSPF_RTYPE_RTR, "Router" },  
+  { BGP_OSPF_RTYPE_NET, "Network" },  
+  { BGP_OSPF_RTYPE_SUM, "Summary" },  
+  { BGP_OSPF_RTYPE_EXT, "External" },  
+  { BGP_OSPF_RTYPE_NSSA,"NSSA External" },
+  { BGP_OSPF_RTYPE_SHAM,"MPLS-VPN Sham" },  
+  { 0, NULL },
+};
+
+static const value_string bgpext_osptf_rtype_metric[] = {
 };
 
 /* MUST be resized if a longer named extended community is added */
@@ -197,6 +214,7 @@ static const value_string bgpattr_nlri_safi[] = {
     { SAFNUM_UNICAST, "Unicast" },
     { SAFNUM_MULCAST, "Multicast" },
     { SAFNUM_UNIMULC, "Unicast+Multicast" },
+    { SAFNUM_MPLS_LABEL, "MPLS Labeled Prefix"},
     { SAFNUM_LBVPNIP, "Labeled VPN-IPv4" },        /* draft-rosen-rfc2547bis-03 */
     { 0, NULL },
 };
@@ -1431,27 +1449,47 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
                         subtree3 = proto_item_add_subtree(ti,ett_bgp_extended_communities) ;
 
                         while (q < end) {
-                                ext_com_str[0] = '\0' ;
-                                ext_com = tvb_get_ntohs(tvb,q) ;
-                                snprintf(junk_buf, sizeof(junk_buf), "%s", val_to_str(ext_com,bgpext_com_type,"Unknown"));
-                                strncat(ext_com_str,junk_buf,sizeof(junk_buf));
-                                switch (ext_com) {
-                                        case BGP_EXT_COM_RT_0:
-                                        case BGP_EXT_COM_RO_0:
-                                                snprintf(junk_buf, sizeof(junk_buf), ": %u%s%d",tvb_get_ntohs(tvb,q+2),":",tvb_get_ntohl(tvb,q+4));
-                                                break ;
-                                        case BGP_EXT_COM_RT_1:
-                                        case BGP_EXT_COM_RO_1:
-                                                tvb_memcpy(tvb,ipaddr,q+2,4);
-                                                snprintf(junk_buf, sizeof(junk_buf), ": %s%s%u",ip_to_str(ipaddr),":",tvb_get_ntohs(tvb,q+6));
-                                                break ;
-                                        default:
-                                                snprintf(junk_buf, sizeof(junk_buf), " ");
-                                                break ;
-                                        }
-                                strncat(ext_com_str,junk_buf,sizeof(junk_buf));
-                                proto_tree_add_text(subtree3,tvb,q,8, "%s",ext_com_str);
-                                q = q + 8 ;
+			  ext_com_str[0] = '\0' ;
+			  ext_com = tvb_get_ntohs(tvb,q) ;
+			  snprintf(junk_buf, sizeof(junk_buf), "%s", val_to_str(ext_com,bgpext_com_type,"Unknown"));
+			  strncat(ext_com_str,junk_buf,sizeof(junk_buf));
+			  switch (ext_com) {
+			  case BGP_EXT_COM_RT_0:
+			  case BGP_EXT_COM_RO_0:
+			    snprintf(junk_buf, sizeof(junk_buf), ": %u%s%d",tvb_get_ntohs(tvb,q+2),":",tvb_get_ntohl(tvb,q+4));
+			    break ;
+			  case BGP_EXT_COM_RT_1:
+			  case BGP_EXT_COM_RO_1:
+			    tvb_memcpy(tvb,ipaddr,q+2,4);
+			    snprintf(junk_buf, sizeof(junk_buf), ": %s%s%u",ip_to_str(ipaddr),":",tvb_get_ntohs(tvb,q+6));
+			    break;
+			  case BGP_EXT_COM_VPN_ORIGIN:
+			  case BGP_EXT_COM_OSPF_RID:
+			    tvb_memcpy(tvb,ipaddr,q+2,4);
+			    snprintf(junk_buf, sizeof(junk_buf), ": %s",ip_to_str(ipaddr));
+			    break;
+			  case BGP_EXT_COM_OSPF_RTYPE: 
+			    tvb_memcpy(tvb,ipaddr,q+2,4);
+			    snprintf(junk_buf, sizeof(junk_buf), ": Area:%s %s",ip_to_str(ipaddr),val_to_str(tvb_get_guint8(tvb,q+6),bgpext_ospf_rtype,"Unknown"));
+				/* print OSPF Metric type if selected */
+				/* always print E2 even if not external route -- receiving router should ignore */
+			    if ( (tvb_get_guint8(tvb,q+7)) & BGP_OSPF_RTYPE_METRIC_TYPE ) { 
+			      strcat(junk_buf," E2");
+			    } else if (tvb_get_guint8(tvb,q+6)==(BGP_OSPF_RTYPE_EXT ||BGP_OSPF_RTYPE_NSSA ) ) {
+			      strcat(junk_buf, " E1");
+			    }
+			    break;
+			  case BGP_EXT_COM_LINKBAND:
+			    tvb_memcpy(tvb,ipaddr,q+2,4); /* need to check on IEEE format on all platforms */
+			    snprintf(junk_buf, sizeof(junk_buf), ": %f bytes per second",(double)*ipaddr);
+			    break;
+			  default:
+			    snprintf(junk_buf, sizeof(junk_buf), " ");
+			    break ;
+			  }
+			  strncat(ext_com_str,junk_buf,sizeof(junk_buf));
+			  proto_tree_add_text(subtree3,tvb,q,8, "%s",ext_com_str);
+			  q = q + 8 ;
                         }
                         free(ext_com_str) ;
                 }

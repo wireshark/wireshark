@@ -1,7 +1,7 @@
 /* packet-bgp.c
  * Definitions for BGP packet disassembly structures and routine
  *
- * $Id: packet-bgp.h,v 1.13 2001/06/10 02:08:09 guy Exp $
+ * $Id: packet-bgp.h,v 1.14 2001/07/08 22:59:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -138,10 +138,27 @@ struct bgp_attr {
 #define BGPTYPE_EXTENDED_COMMUNITY 16 /* Draft Ramachandra */
 
 /* Extended community type */
+                                        /* draft-ramachandra-bgp-ext-communities */
 #define BGP_EXT_COM_RT_0        0x0002  /* Route Target,Format AS(2bytes):AN(4bytes) */
 #define BGP_EXT_COM_RT_1        0x0102  /* Route Target,Format IP address:AN(2bytes) */
 #define BGP_EXT_COM_RO_0        0x0003  /* Route Origin,Format AS(2bytes):AN(4bytes) */
 #define BGP_EXT_COM_RO_1        0x0103  /* Route Origin,Format IP address:AN(2bytes) */
+#define BGP_EXT_COM_LINKBAND    0x4004  /* Link Bandwidth,Format AS(2B):Bandwidth(4B) */
+                                        /* rfc2547 bgp-mpls-vpns */
+#define BGP_EXT_COM_VPN_ORIGIN  0x0005  /* OSPF Domin ID / VPN of Origin  */
+                                        /* draft-rosen-vpns-ospf-bgp-mpls */
+#define BGP_EXT_COM_OSPF_RTYPE  0X8000  /* OSPF Route Type,Format Area(4B):RouteType(1B):Options(1B) */
+#define BGP_EXT_COM_OSPF_RID    0x8001  /* OSPF Router ID,Format RouterID(4B):Unused(2B) */
+
+
+/* OSPF codes for  BGP_EXT_COM_OSPF_RTYPE draft-rosen-vpns-ospf-bgp-mpls  */
+#define BGP_OSPF_RTYPE_RTR      1 /* OSPF Router LSA */
+#define BGP_OSPF_RTYPE_NET      2 /* OSPF Network LSA */
+#define BGP_OSPF_RTYPE_SUM      3 /* OSPF Summary LSA */
+#define BGP_OSPF_RTYPE_EXT      5 /* OSPF External LSA, note that ASBR doesn't apply to MPLS-VPN */
+#define BGP_OSPF_RTYPE_NSSA     7 /* OSPF NSSA External*/
+#define BGP_OSPF_RTYPE_SHAM     129 /* OSPF-MPLS-VPN Sham link */
+#define BGP_OSPF_RTYPE_METRIC_TYPE 0x1 /* LSB of RTYPE Options Field */
 
 /* Extended community & Route dinstinguisher formats */
 #define FORMAT_AS2_LOC      0x00    /* Format AS(2bytes):AN(4bytes) */
@@ -169,6 +186,7 @@ struct bgp_attr {
 #define SAFNUM_UNICAST  1
 #define SAFNUM_MULCAST  2
 #define SAFNUM_UNIMULC  3
+#define SAFNUM_MPLS_LABEL 4     /* rfc3107 */
 #define SAFNUM_LBVPNIP  128     /* Draft-rosen-rfc2547bis-03 */
 
 #ifndef offsetof
