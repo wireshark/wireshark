@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.138 2000/08/20 08:08:30 guy Exp $
+ * $Id: main.c,v 1.139 2000/08/20 09:02:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1341,6 +1341,7 @@ static const struct {
 	{ "light",      "medium" },
 	{ "semilight",  "semibold" },
 	{ "medium",     "bold" },
+	{ "normal",     "bold" },
 	{ "semibold",   "extrabold" },
 	{ "bold",       "ultrabold" }
 };
