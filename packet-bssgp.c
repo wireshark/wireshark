@@ -2,7 +2,7 @@
  * Routines for BSSGP (BSS GPRS Protocol ETSI GSM 08.18 version 6.7.1 TS 101 343 ) dissection
  * Copyright 2000, Josef Korelus <jkor@quick.cz>
  *
- * $Id: packet-bssgp.c,v 1.3 2003/09/09 09:14:55 guy Exp $
+ * $Id: packet-bssgp.c,v 1.4 2003/09/15 18:49:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -317,8 +317,8 @@ static int hf_bssgp_noaff = -1;
 /*static int hf_bssgp_FIELDABBREV = -1;*/
 
 static dissector_handle_t data_handle;
-static dissector_handle_t llcgprs_handle;
-
+/*static dissector_handle_t llcgprs_handle;
+*/
 /* Initialize the subtree pointers */
 static gint ett_bssgp = -1;
 static gint ett_bssgp_tlli = -1;
@@ -350,6 +350,7 @@ typedef struct {
 	int type;
 	packet_info *pinfo;
 	proto_tree *tree;
+	int k;
 } dec_fu_param_stru_t;	
 static int dcd_bssgp_algn	( tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm );
 static int dcd_bssgp_bmaxms	( tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm );
@@ -1091,6 +1092,7 @@ static int dcd_bssgp_llc_pdu(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dpr
 		proto_tree_add_text(b_llc_tree,tvb,offset+1,k-1,"Length:%u",llen);
 	}
 	
+dprm_p->k=offset+k;	
 return llen+k;	
 };
 
@@ -1428,6 +1430,7 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static dec_fu_param_stru_t decp , *decodeparam=&decp;
 guint8 pdutype, i, j , iele , stay;
 guint16 offset=1;
+tvbuff_t *next_tvb;
 
 /* Set up structures needed to add the protocol subtree and manage it */
         proto_item *ti=NULL;
@@ -1515,6 +1518,12 @@ guint16 offset=1;
 				  }
 			          if (bssgp_pdu[i].infe[j].presence){
 				      offset=offset+( *bssgp_pdu[i].infe[j].decode)(tvb, offset, decodeparam );     
+				      if (iele == 0x0e ){
+					      next_tvb = tvb_new_subset(tvb, decodeparam->k, -1, -1);
+/*					      call_dissector(llcgprs_handle, next_tvb, pinfo, tree);
+*/
+					      call_dissector(data_handle, next_tvb, pinfo, tree);
+				      }
 				      j++;
 				  }
 				break;  
@@ -1667,5 +1676,8 @@ proto_reg_handoff_bssgp(void)
 /*        dissector_add("fr.ietf", 0x0, bssgp_handle);
 */	  
         data_handle = find_dissector("data");
-	llcgprs_handle = find_dissector ("llcgprs");
+
+/*
+    	  llcgprs_handle = find_dissector ("llcgprs");
+*/	  
 }
