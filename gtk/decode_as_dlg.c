@@ -216,6 +216,7 @@ decode_build_reset_list (gchar *table_name, ftenum_t selector_type,
 /*             Show Changed Dissectors            */
 /**************************************************/
 
+#if GTK_MAJOR_VERSION >= 2
 #define SORT_ALPHABETICAL 0
 
 gint
@@ -252,6 +253,7 @@ gpointer userdata)
     }
     return ret;
 }
+#endif
 
 
 void
