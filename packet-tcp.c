@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.217 2003/11/13 20:53:44 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.218 2003/11/18 19:46:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -517,7 +517,7 @@ tcp_analyze_get_acked_struct(guint32 frame, gboolean createflag)
 }
 
 static void
-tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint32 seglen, guint8 flags, guint16 window)
+tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint32 seglen, guint8 flags, guint32 window)
 {
 	struct tcp_analysis *tcpd=NULL;
 	int direction;
