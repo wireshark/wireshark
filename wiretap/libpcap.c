@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.46 2001/03/10 06:33:57 guy Exp $
+ * $Id: libpcap.c,v 1.47 2001/03/11 02:51:05 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -208,7 +208,7 @@ static const struct {
 	 *
 	 *	DLT_PPP_BSDOS on BSD/OS;
 	 *
-	 *	DLT_HDLC on NetBSD;
+	 *	DLT_HDLC on NetBSD (Cisco HDLC);
 	 *
 	 *	DLT_CIP with Alexey Kuznetzov's patches for
 	 *	Linux libpcap - this is WTAP_ENCAP_LINUX_ATM_CLIP;
@@ -218,6 +218,9 @@ static const struct {
 	 */
 #if defined(DLT_CIP) && (DLT_CIP == 16)
 	{ 16,		WTAP_ENCAP_LINUX_ATM_CLIP },
+#endif
+#if defined(DLT_HDLC) && (DLT_HDLC == 16)
+	{ 16,		WTAP_ENCAP_PPP },
 #endif
 
 	/*
@@ -316,9 +319,15 @@ static const struct {
 	 */
 	{ 102,		WTAP_ENCAP_SLIP_BSDOS },
 	{ 103,		WTAP_ENCAP_PPP_BSDOS },
-	{ 104,		WTAP_ENCAP_C_HDLC },	/* Cisco HDLC */
 #endif
-	/* This one is handled in Ethereal, though. */
+
+	/*
+	 * These ones are handled in Ethereal, though.
+	 * (We currently handle Cisco HDLC like PPP; the PPP dissector
+	 * distinguishes between HDLC-encapsulated PPP and Cisco HDLC
+	 * by looking at the address field.)
+	 */
+	{ 104,		WTAP_ENCAP_PPP },	/* Cisco HDLC */
 	{ 106,		WTAP_ENCAP_LINUX_ATM_CLIP },
 
 	/*
@@ -328,7 +337,11 @@ static const struct {
 	 */
 	{ 105,		WTAP_ENCAP_IEEE_802_11 },
 #if 0
-	/* Not yet handled in Ethereal. */
+	/*
+	 * Not yet handled in Ethereal; we don't know what encapsulation
+	 * BSD/OS uses, so we don't know whether it can be handed to
+	 * the Frame Relay dissector or not.
+	 */
 	{ 107,		WTAP_ENCAP_FR },	/* Frame Relay */
 #endif
 	{ 108,		WTAP_ENCAP_NULL },	/* OpenBSD loopback */
