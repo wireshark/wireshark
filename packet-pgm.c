@@ -1,7 +1,7 @@
 /* packet-pgm.c
- * Routines for pgm packet disassembly
+ * Routines for PGM packet disassembly, RFC 3208
  *
- * $Id: packet-pgm.c,v 1.21 2003/09/03 20:58:09 guy Exp $
+ * $Id: packet-pgm.c,v 1.22 2003/12/19 22:46:16 guy Exp $
  *
  * Copyright (c) 2000 by Talarian Corp
  *
@@ -1713,6 +1713,9 @@ proto_register_pgm(void)
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_opt_fragment_first_sqn,
       { "First Sequence Number", "pgm.opts.fragment.first_sqn", FT_UINT32, BASE_HEX,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_opt_fragment_offset,
+      { "Fragment Offset", "pgm.opts.fragment.fragment_offset", FT_UINT32, BASE_DEC,
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_opt_fragment_total_length,
       { "Total Length", "pgm.opts.fragment.total_length", FT_UINT32, BASE_DEC,
