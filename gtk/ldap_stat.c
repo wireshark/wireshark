@@ -1,7 +1,7 @@
 /* ldap_stat.c
  * ldap_stat   2003 Ronnie Sahlberg
  *
- * $Id: ldap_stat.c,v 1.20 2004/05/23 23:24:06 ulfl Exp $
+ * $Id: ldap_stat.c,v 1.21 2004/05/27 19:59:49 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -280,6 +280,7 @@ gtk_ldapstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	}
 
 	dlg=dlg_window_new("Ethereal: Compute LDAP Service Response Time statistics");
+	gtk_window_set_default_size(GTK_WINDOW(dlg), 300, -1);
 
 	dlg_box=gtk_vbox_new(FALSE, 10);
 	gtk_container_border_width(GTK_CONTAINER(dlg_box), 10);
@@ -297,7 +298,6 @@ gtk_ldapstat_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	/* Filter entry */
 	filter_entry=gtk_entry_new();
-	WIDGET_SET_SIZE(filter_entry, 300, -1);
     SIGNAL_CONNECT(filter_entry, "changed", filter_te_syntax_check_cb, NULL);
 
 	/* filter prefs dialog */

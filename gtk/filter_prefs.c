@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.64 2004/05/27 17:08:50 ulfl Exp $
+ * $Id: filter_prefs.c,v 1.65 2004/05/27 19:59:49 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -361,6 +361,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     tooltips = gtk_tooltips_new ();
 
     main_w = dlg_window_new(construct_args->title);
+	gtk_window_set_default_size(GTK_WINDOW(main_w), 400, 400);
     OBJECT_SET_DATA(main_w, E_FILT_CONSTRUCT_ARGS_KEY, construct_args);
 
     main_vb = gtk_vbox_new(FALSE, 0);
@@ -423,7 +424,6 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
                                    GTK_SHADOW_IN);
 #endif
 
-    WIDGET_SET_SIZE(filter_sc, 250, 150);
     gtk_container_set_border_width  (GTK_CONTAINER (filter_sc), 5);
     gtk_container_add(GTK_CONTAINER(filter_fr), filter_sc);
     gtk_widget_show(filter_sc);
@@ -455,7 +455,6 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 #else
     gtk_container_add(GTK_CONTAINER(filter_sc), filter_l);
 #endif
-    WIDGET_SET_SIZE(filter_sc, 400, 300);
     gtk_widget_show(filter_l);
 
     OBJECT_SET_DATA(filter_l, E_FILT_DBLFUNC_KEY, filter_dlg_dclick);

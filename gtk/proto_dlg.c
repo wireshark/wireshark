@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.33 2004/05/26 03:49:24 ulfl Exp $
+ * $Id: proto_dlg.c,v 1.34 2004/05/27 19:59:49 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -113,12 +113,12 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   }
 
   proto_w = dlg_window_new("Ethereal: Enabled Protocols");
-  gtk_window_set_default_size(GTK_WINDOW(proto_w), DEF_WIDTH * 2/3, DEF_HEIGHT * 2/3);
+  gtk_window_set_default_size(GTK_WINDOW(proto_w), DEF_WIDTH * 2/3, DEF_HEIGHT);
 
   /* Container for each row of widgets */
 
-  main_vb = gtk_vbox_new(FALSE, 0);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 1);
+  main_vb = gtk_vbox_new(FALSE, 6);
+  gtk_container_border_width(GTK_CONTAINER(main_vb), 6);
   gtk_container_add(GTK_CONTAINER(proto_w), main_vb);
   gtk_widget_show(main_vb);
 
@@ -126,13 +126,11 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
 
   proto_frame = gtk_frame_new("Enabled Protocols");
   gtk_box_pack_start(GTK_BOX(main_vb), proto_frame, TRUE, TRUE, 0);
-  gtk_container_border_width(GTK_CONTAINER(proto_frame), 5);
   gtk_widget_show(proto_frame);
 
   /* Protocol list */
   
   proto_vb = gtk_vbox_new(FALSE, 0);
-  gtk_container_border_width(GTK_CONTAINER(proto_vb), 1);
   gtk_container_add(GTK_CONTAINER(proto_frame), proto_vb);
   gtk_container_border_width(GTK_CONTAINER(proto_vb), 5);
   gtk_widget_show(proto_vb);
@@ -190,7 +188,7 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
 
   label = gtk_label_new("Disabling a protocol prevents higher "
 			"layer protocols from being displayed");
-  gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+  gtk_misc_set_alignment(GTK_MISC(label), 0.5, 0.5);
   gtk_widget_show(label);
   gtk_box_pack_start(GTK_BOX(proto_vb), label, FALSE, FALSE, 5);
 
@@ -376,8 +374,6 @@ proto_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
 {
   GSList *entry;
 
-  if (proto_w)
-    window_destroy(proto_w);
   proto_w = NULL;
 
   /* remove protocol list */

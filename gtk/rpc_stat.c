@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.46 2004/05/23 23:24:06 ulfl Exp $
+ * $Id: rpc_stat.c,v 1.47 2004/05/27 19:59:50 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -419,6 +419,7 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	}
 
 	dlg=dlg_window_new("Ethereal: Compute ONC-RPC SRT statistics");
+	gtk_window_set_default_size(GTK_WINDOW(dlg), 300, -1);
 
 	dlg_box=gtk_vbox_new(FALSE, 10);
 	gtk_container_border_width(GTK_CONTAINER(dlg_box), 10);
@@ -484,7 +485,6 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	/* Filter entry */
 	filter_entry=gtk_entry_new();
-	WIDGET_SET_SIZE(filter_entry, 300, -1);
     SIGNAL_CONNECT(filter_entry, "changed", filter_te_syntax_check_cb, NULL);
 
 	/* filter prefs dialog */

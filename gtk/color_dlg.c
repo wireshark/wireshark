@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.49 2004/05/26 03:49:22 ulfl Exp $
+ * $Id: color_dlg.c,v 1.50 2004/05/27 19:59:48 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,6 +47,7 @@
 #include "filter_prefs.h"
 #include "file_dlg.h"
 #include "gtkglobals.h"
+#include "prefs.h"
 
 static GtkWidget* colorize_dialog_new(char *filter);
 static void add_filter_to_list(gpointer filter_arg, gpointer list_arg);
@@ -215,7 +216,7 @@ colorize_dialog_new (char *filter)
    * All other widgets are always packed depending on the current window size. */
   color_win = dlg_window_new ("Ethereal: Coloring Rules");
   OBJECT_SET_DATA(color_win, "color_win", color_win);
-  gtk_window_set_default_size(GTK_WINDOW(color_win), 600, 350);  
+  gtk_window_set_default_size(GTK_WINDOW(color_win), DEF_WIDTH, DEF_HEIGHT * 2/3);
   dlg_vbox = gtk_vbox_new (FALSE, 0);
   gtk_widget_ref (dlg_vbox);
   OBJECT_SET_DATA_FULL(color_win, "dlg_vbox", dlg_vbox, gtk_widget_unref);

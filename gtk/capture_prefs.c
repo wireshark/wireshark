@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.33 2004/05/26 03:49:21 ulfl Exp $
+ * $Id: capture_prefs.c,v 1.34 2004/05/27 19:59:48 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -237,6 +237,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	
 	/* create a new dialog */
 	ifopts_edit_dlg = dlg_window_new("Ethereal: Preferences: Interface Options");
+	gtk_window_set_default_size(GTK_WINDOW(ifopts_edit_dlg), 570, 300);
 
     main_vb = gtk_vbox_new(FALSE, 1);
 	gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
@@ -260,7 +261,6 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	 * This avoids having to remove OS (pcap) descriptions.
 	 */
 	cur_clist = gtk_clist_new_with_titles(IFOPTS_CLIST_COLS, cur_titles);
-	WIDGET_SET_SIZE(GTK_WIDGET(cur_clist), 570, 120);
 	gtk_clist_set_column_visibility(GTK_CLIST(cur_clist), 0, FALSE);
 	gtk_clist_set_column_width(GTK_CLIST(cur_clist), 1, 230);
 	gtk_clist_set_column_width(GTK_CLIST(cur_clist), 2, 260);
@@ -287,7 +287,6 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	/* create interface CList */
 	if_clist = gtk_clist_new_with_titles(1, if_title);
 	SIGNAL_CONNECT(if_clist, "select_row", ifopts_edit_ifsel_cb, if_clist);
-	WIDGET_SET_SIZE(GTK_WIDGET(if_clist), 100, 120);
 	gtk_clist_set_column_width(GTK_CLIST(if_clist), 0, 100);
 	gtk_clist_column_titles_passive(GTK_CLIST(if_clist));
 	gtk_clist_set_selection_mode(GTK_CLIST(if_clist), GTK_SELECTION_SINGLE);
@@ -393,10 +392,6 @@ ifopts_edit_destroy_cb(GtkWidget *win, gpointer data _U_)
 		/* Tell it we no longer exist. */
 		OBJECT_SET_DATA(caller, IFOPTS_DIALOG_PTR_KEY, NULL);
 	}
-
-	/* Now nuke this window. */
-	gtk_grab_remove(GTK_WIDGET(win));
-	window_destroy(GTK_WIDGET(win));
 }
 
 /*

@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.43 2004/05/26 03:49:24 ulfl Exp $
+ * $Id: rtp_analysis.c,v 1.44 2004/05/27 19:59:50 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -1905,6 +1905,7 @@ void create_rtp_dialog(user_data_t* user_data)
 	
 
 	window = window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: RTP Stream Analysis");
+	gtk_window_set_default_size(GTK_WINDOW(window), 560, 400);
 
 	/* Container for each row of widgets */
 	main_vb = gtk_vbox_new(FALSE, 2);
@@ -1948,7 +1949,6 @@ void create_rtp_dialog(user_data_t* user_data)
 
 	/* scrolled window */
 	scrolled_window = scrolled_window_new(NULL, NULL);
-	WIDGET_SET_SIZE(scrolled_window, 560, 200);
 
 	/* packet clist */
 	clist_fwd = create_clist(user_data);
@@ -1970,7 +1970,6 @@ void create_rtp_dialog(user_data_t* user_data)
 	gtk_box_pack_end(GTK_BOX(page_r), label_stats_rev, FALSE, FALSE, 0);
 
 	scrolled_window_r = scrolled_window_new(NULL, NULL);
-	WIDGET_SET_SIZE(scrolled_window_r, 560, 200);
 
 	clist_rev = create_clist(user_data);
 	gtk_widget_show(clist_rev);
@@ -2039,6 +2038,7 @@ void create_rtp_dialog(user_data_t* user_data)
 
 	close_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
 	gtk_container_add(GTK_CONTAINER(box4), close_bt);
+    GTK_WIDGET_SET_FLAGS(close_bt, GTK_CAN_DEFAULT);
 	gtk_widget_show(close_bt);
     window_set_cancel_button(window, close_bt, window_cancel_button_cb);
 

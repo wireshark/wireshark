@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.106 2004/05/26 03:49:22 ulfl Exp $
+ * $Id: file_dlg.c,v 1.107 2004/05/27 19:59:49 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -115,6 +115,8 @@ file_open_cmd(GtkWidget *w)
 
   file_open_w = file_selection_new("Ethereal: Open Capture File",
                                    FILE_SELECTION_OPEN);
+  /* window is already shown here, gtk_window_set_default_size() will not work */
+  WIDGET_SET_SIZE(file_open_w, DEF_WIDTH, DEF_HEIGHT);
 
 #if GTK_MAJOR_VERSION < 2
   /* Accelerator group for the accelerators (or, as they're called in

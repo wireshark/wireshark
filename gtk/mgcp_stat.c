@@ -2,7 +2,7 @@
  * mgcp-statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: mgcp_stat.c,v 1.35 2004/05/23 23:24:06 ulfl Exp $
+ * $Id: mgcp_stat.c,v 1.36 2004/05/27 19:59:49 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -279,6 +279,7 @@ gtk_mgcpstat_init(char *optarg)
 	mgcpstat_reset(ms);
 
 	ms->win=window_new(GTK_WINDOW_TOPLEVEL, "MGCP SRT");
+	gtk_window_set_default_size(GTK_WINDOW(ms->win), 550, 150);
 
 	ms->vbox=gtk_vbox_new(FALSE, 3);
 
@@ -287,7 +288,6 @@ gtk_mgcpstat_init(char *optarg)
 	/* GTK1 using a scrollable clist*/
         /* init a scrolled window*/
 	ms->scrolled_window = scrolled_window_new(NULL, NULL);
-	WIDGET_SET_SIZE(ms->scrolled_window, 550, 150);
 
 	ms->table = create_stat_table(ms->scrolled_window, ms->vbox, 7, titles);
 

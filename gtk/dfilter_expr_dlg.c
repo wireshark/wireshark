@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.56 2004/05/26 03:49:22 ulfl Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.57 2004/05/27 19:59:48 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1082,6 +1082,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 #endif
 
     window = dlg_window_new("Ethereal: Filter Expression");
+	gtk_window_set_default_size(GTK_WINDOW(window), 500, 400);
     gtk_container_set_border_width(GTK_CONTAINER(window), 5);
 
     main_vb = gtk_vbox_new(FALSE, 5);
@@ -1105,9 +1106,9 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(tree_scrolled_win), 
                                    GTK_SHADOW_IN);
 #endif
+    gtk_box_pack_start(GTK_BOX(field_vb), tree_scrolled_win, TRUE, TRUE, 0);
+	WIDGET_SET_SIZE(tree_scrolled_win, 300, -1);
 
-    WIDGET_SET_SIZE(tree_scrolled_win, 300, 400);
-    gtk_box_pack_start(GTK_BOX(field_vb), tree_scrolled_win, FALSE, FALSE, 0);
 
 #if GTK_MAJOR_VERSION < 2
     field_tree = ctree_new(1, 0);

@@ -2,7 +2,7 @@
  * h225 RAS Service Response Time statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: h225_ras_srt.c,v 1.17 2004/05/23 23:24:05 ulfl Exp $
+ * $Id: h225_ras_srt.c,v 1.18 2004/05/27 19:59:49 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -304,6 +304,7 @@ gtk_h225rassrt_init(char *optarg)
 	h225rassrt_reset(hs);
 
 	hs->win=window_new(GTK_WINDOW_TOPLEVEL, "h225-ras-srt");
+	gtk_window_set_default_size(GTK_WINDOW(hs->win), 600, 300);
 
 	hs->vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_set_border_width(GTK_CONTAINER(hs->vbox), 12);
@@ -312,7 +313,6 @@ gtk_h225rassrt_init(char *optarg)
 
         /* init a scrolled window*/
 	hs->scrolled_window = scrolled_window_new(NULL, NULL);
-	WIDGET_SET_SIZE(hs->scrolled_window, 600, 160);
 
 	hs->table = create_stat_table(hs->scrolled_window, hs->vbox, 11, titles);
 
