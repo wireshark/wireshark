@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.227 2004/04/15 00:18:38 guy Exp $
+ * $Id: packet-tcp.c,v 1.228 2004/04/23 04:58:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -380,7 +380,7 @@ prune_next_pdu_list(struct tcp_next_pdu **tnp, guint32 seq)
    and let TCP try to find out what it can about this segment
 */
 static int
-scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint32 seq, guint32 nxtseq)
+scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int offset, guint32 seq, guint32 nxtseq)
 {
 	struct tcp_analysis *tcpd=NULL;
 	struct tcp_next_pdu *tnp=NULL;
@@ -415,7 +415,7 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offse
 				if (check_col(pinfo->cinfo, COL_INFO)){
 					col_prepend_fstr(pinfo->cinfo, COL_INFO, "[Continuation to #%u] ",pinfo->fd->num);
 				}
-				proto_tree_add_uint(tree, hf_tcp_continuation_to,
+				proto_tree_add_uint(tcp_tree, hf_tcp_continuation_to,
 					tvb, 0, 0, pinfo->fd->num);
 				return -1;
 			}			
@@ -436,7 +436,7 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offse
 			if (check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[Continuation to #%u] ", first_frame);
 			}
-			proto_tree_add_uint(tree, hf_tcp_continuation_to,
+			proto_tree_add_uint(tcp_tree, hf_tcp_continuation_to,
 				tvb, 0, 0, first_frame);
 			return -1;
 		}
@@ -2396,7 +2396,7 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 			/*qqq   see if it is an unaligned PDU */
 			if(tcp_analyze_seq && (!tcp_desegment)){
 				if(seq || nxtseq){
-					offset=scan_for_next_pdu(tvb, tree, pinfo, offset,
+					offset=scan_for_next_pdu(tvb, tcp_tree, pinfo, offset,
 						seq, nxtseq);
 				}
 			}
