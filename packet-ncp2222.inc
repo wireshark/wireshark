@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.41 2002/10/16 23:04:53 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.42 2002/10/16 23:24:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2476,7 +2476,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
 
         switch (values->mvtype)
         {
-                case MVTYPE_ATTR_REQUEST:         /* Attribute Request */
+                case MVTYPE_ATTR_REQUEST:	/* Attribute Request */
                         for (i = 1 ; i <= values->vvalue; i++ )
                         {
                                 ioffset += align_4(tvb, ioffset);
@@ -2489,7 +2489,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                 ioffset = ioffset + value1;        
                         }
                         break;
-                case MVTYPE_ATTR_REPLY:         /* Attribute Reply */
+
+                case MVTYPE_ATTR_REPLY:		/* Attribute Reply */
                         switch(values->vflags)
                         {
                                 case 0:
@@ -2749,7 +2750,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                         break;
                         }
                         break;
-                case MVTYPE_ATTR_REQUEST2:         /* Attribute Request */
+
+                case MVTYPE_ATTR_REQUEST2:	/* Attribute Request */
                         for (i = 1 ; i <= values->vvalue; i++ )
                         {
                                 ioffset += align_4(tvb, ioffset);
@@ -2759,7 +2761,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                 ioffset = ioffset + value1;        
                         }
                         break;
-                case MVTYPE_READ_CLASS_REQ:         /* Read Class Request */
+
+                case MVTYPE_READ_CLASS_REQ:	/* Read Class Request */
                         for (i = 1 ; i <= values->vvalue; i++ )
                         {
                                 ioffset += align_4(tvb, ioffset);
@@ -2773,7 +2776,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                 ioffset = ioffset + value1;        
                         }
                         break;
-                case MVTYPE_READ_REPLICAS:         /* Read Replicas */
+
+                case MVTYPE_READ_REPLICAS:	/* Read Replicas */
                         for (i = 1 ; i <= values->vvalue; i++ )
                         {
                                                 
@@ -2922,7 +2926,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                 }
                         }
                         break;
-                case MVTYPE_MODIFY_ATTR_REQUEST:         /* Modify Attribute Request */        
+
+                case MVTYPE_MODIFY_ATTR_REQUEST: /* Modify Attribute Request */
                         for (i = 0 ; i < values->vvalue; i++ ) 
                         {
                                ioffset += align_4(tvb, ioffset);
@@ -2951,7 +2956,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                }
                         }
                         break;
-                case MVTYPE_ADDR_REFERRAL_REQUEST:         /* Address Referral Request */        
+
+                case MVTYPE_ADDR_REFERRAL_REQUEST: /* Address Referral Request */
                         for (i = 0 ; i < values->vvalue; i++ ) 
                         {
         
@@ -2966,7 +2972,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                ioffset = ioffset+4;
                         }
                         break;
-                case MVTYPE_ADDR_REFERRAL_REPLY:         /* Address Referral Reply */
+
+                case MVTYPE_ADDR_REFERRAL_REPLY: /* Address Referral Reply */
                         number_of_referrals = values->vvalue;
                         
                         for (r = 1 ; r <= number_of_referrals; r++ )
@@ -3029,9 +3036,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                 }
                 
                         }
-                
                         break;
-                case MVTYPE_LOC_ADDR_REFERRAL_REPLY:         /* Local Address Referral Reply */
+
+                case MVTYPE_LOC_ADDR_REFERRAL_REPLY: /* Local Address Referral Reply */
                         number_of_referrals = values->vvalue;
 
                         for (r = 1 ; r <= number_of_referrals; r++ )
@@ -3089,7 +3096,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                 ioffset += align_4(tvb, ioffset);
                         }
                         break;
-                case MVTYPE_PROC_ENTRY_SPECIFIERS:                        /* Process Entry Specifiers */
+
+                case MVTYPE_PROC_ENTRY_SPECIFIERS: /* Process Entry Specifiers */
                         value2 = tvb_get_letohl(tvb, ioffset);   /* ES Type */
                         values->vstring = match_strval(value2, es_type);
                         if (values->vstring == NULL)
@@ -3147,16 +3155,19 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                ioffset = ioffset+4;
                         }
                         break;
-                case MVTYPE_PRINT_TIMESTAMP:                /* Print Timestamp */
-                                replica_num = tvb_get_letohs(tvb, ioffset);   /* Replica */
-                                proto_tree_add_item(ncp_tree, hf_nds_replica_num, tvb, ioffset, 
-                                        2, replica_num);
-                                ioffset = ioffset + 2;
-                                event_num = tvb_get_letohs(tvb, ioffset);   /* Event */
-                                proto_tree_add_item(ncp_tree, hf_nds_event_num, tvb, ioffset, 
-                                        2, event_num);
-                                ioffset = ioffset + 2;
-                case MVTYPE_LIST_PARTITIONS:        /* List Partitions */
+
+                case MVTYPE_PRINT_TIMESTAMP:	/* Print Timestamp */
+                        replica_num = tvb_get_letohs(tvb, ioffset);   /* Replica */
+                        proto_tree_add_item(ncp_tree, hf_nds_replica_num, tvb, ioffset, 
+                                2, replica_num);
+                        ioffset = ioffset + 2;
+                        event_num = tvb_get_letohs(tvb, ioffset);   /* Event */
+                        proto_tree_add_item(ncp_tree, hf_nds_event_num, tvb, ioffset, 
+                                2, event_num);
+                        ioffset = ioffset + 2;
+			/* fall through */
+
+                case MVTYPE_LIST_PARTITIONS:	/* List Partitions */
                         number_of_referrals = values->vvalue;
                         for (i = 0; i < number_of_referrals; i++)
                         {        
@@ -3457,7 +3468,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                 }
                         }
                         break;                
-                case MVTYPE_CLASS_NAMES:        /* Class Names */
+
+                case MVTYPE_CLASS_NAMES:	/* Class Names */
                         number_of_referrals = values->vvalue;
                         for (i = 0; i < number_of_referrals; i++)
                         {        
@@ -3807,7 +3819,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                 }                                        
                         }
                         break;                
-                case MVTYPE_MODIFY_CLASS:        /* Modify Class */
+
+                case MVTYPE_MODIFY_CLASS:	/* Modify Class */
                         for (i = 1 ; i <= values->vvalue; i++ )   /* Attribute Names to add*/
                         {
                                 ioffset += align_4(tvb, ioffset);
@@ -7508,12 +7521,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 						case VTYPE_STRING:
 							proto_tree_add_string_format(ncp_tree, pvalues[i].hfname, tvb, pvalues[i].voffset, 
 							    pvalues[i].vlength, pvalues[i].vstring, pvalues[i].vdesc, pvalues[i].vstring);
-							if (pvalues[i].mvtype == MVTYPE_ATTR_REQUEST || pvalues[i].mvtype == MVTYPE_PROC_ENTRY_SPECIFIERS) {
-								if (pvalues[i].mvtype == MVTYPE_PROC_ENTRY_SPECIFIERS)
-									global_object_name = pvalues[i].vstring;
-								if (check_col(pinfo->cinfo, COL_INFO))
-									col_append_str(pinfo->cinfo, COL_INFO, pvalues[i].vstring);
-							}
 							break;
 
 						case VTYPE_BITFIELD:
@@ -7522,9 +7529,20 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 
 						case VTYPE_MULTIVALUE_UINT32:
 							process_multivalues(ncp_tree, tvb, &pvalues[i]);
+							if (pvalues[i].mvtype == MVTYPE_PROC_ENTRY_SPECIFIERS) {
+								/*
+								 * The "vstring" value is set to the input ES type
+								 * by "process_multivalues()".
+								 */
+								global_object_name = pvalues[i].vstring;
+							}
 							if (pvalues[i].mvtype == MVTYPE_ATTR_REQUEST || pvalues[i].mvtype == MVTYPE_PROC_ENTRY_SPECIFIERS) {
-								if (pvalues[i].mvtype == MVTYPE_PROC_ENTRY_SPECIFIERS)
-									global_object_name = pvalues[i].vstring;
+								/*
+								 * The "vstring" value is set to the input ES type
+								 * for MVTYPE_PROC_ENTRY_SPECIFIERS,
+								 * and the last string for MVTYPE_ATTR_REQUEST,
+								 * by "process_multivalues()".
+								 */
 								if (check_col(pinfo->cinfo, COL_INFO))
 									col_append_str(pinfo->cinfo, COL_INFO, pvalues[i].vstring);
 							}
