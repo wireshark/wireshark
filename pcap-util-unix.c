@@ -60,8 +60,6 @@ struct rtentry;
 # include <sys/sockio.h>
 #endif
 
-#include "globals.h"
-
 #include "pcap-util.h"
 #include "pcap-util-int.h"
 
