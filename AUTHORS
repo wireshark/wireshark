@@ -1334,6 +1334,7 @@ Chris Waters <chris[AT]waters.co.nz> {
 	    "dissector_handle_get_protocol_index()"
 	Support Tazmen Sniffer Protocol and DLT_TZSP captures from
 	    network-based libpcaps that use that protocol
+	MSN Messenger support
 }
 
 Solomon Peachy <pizza[AT]shaftnet.org> {
