@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.61 2004/01/17 12:51:00 ulfl Exp $
+ * $Id: packet-rtsp.c,v 1.62 2004/03/05 10:36:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,6 +23,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
+ * References:
+ * RTSP is defined in RFC 2326, http://www.ietf.org/rfc/rfc2326.txt?number=2326
+ * http://www.iana.org/assignments/rsvp-parameters
+ * 
  */
 
 #include "config.h"
@@ -45,10 +50,13 @@ static int proto_rtsp		= -1;
 
 static gint ett_rtsp		= -1;
 static gint ett_rtspframe	= -1;
+static gint ett_rtsp_method = -1;
 
 static int hf_rtsp_method	= -1;
 static int hf_rtsp_url		= -1;
 static int hf_rtsp_status	= -1;
+static int hf_rtsp_session	= -1;
+static int hf_rtsp_X_Vig_Msisdn	= -1;
 
 static dissector_handle_t sdp_handle;
 static dissector_handle_t rtp_handle;
@@ -117,7 +125,7 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_item	*ti;
 	proto_tree	*rtspframe_tree = NULL;
 	int		orig_offset;
-	guint8		rf_start;	/* always RTSP_FRAMEHDR */
+	guint8		rf_start;		/* always RTSP_FRAMEHDR */
 	guint8		rf_chan;        /* interleaved channel id */
 	guint16		rf_len;         /* packet length */
 	tvbuff_t	*next_tvb;
@@ -256,9 +264,17 @@ typedef enum {
 } rtsp_type_t;
 
 static const char *rtsp_methods[] = {
-	"DESCRIBE", "ANNOUNCE", "GET_PARAMETER", "OPTIONS",
-	"PAUSE", "PLAY", "RECORD", "REDIRECT", "SETUP",
-	"SET_PARAMETER", "TEARDOWN"
+	"DESCRIBE",
+	"ANNOUNCE", 
+	"GET_PARAMETER", 
+	"OPTIONS",
+	"PAUSE", 
+	"PLAY", 
+	"RECORD", 
+	"REDIRECT", 
+	"SETUP",
+	"SET_PARAMETER", 
+	"TEARDOWN"
 };
 
 #define RTSP_NMETHODS	(sizeof rtsp_methods / sizeof rtsp_methods[0])
@@ -468,27 +484,35 @@ rtsp_get_content_length(const guchar *line_begin, size_t line_len)
 	return content_length;
 }
 
+static const char rtsp_Session[] = "Session:";
+static const char rtsp_X_Vig_Msisdn[] = "X-Vig-Msisdn";
+
 static int
 dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree)
 {
-	proto_tree	*rtsp_tree = NULL;
-	proto_item	*ti = NULL;
+	proto_tree		*rtsp_tree = NULL;
+	proto_tree		*sub_tree = NULL;
+	proto_item		*ti = NULL;
 	const guchar	*line;
-	gint		next_offset;
+	gint			next_offset;
 	const guchar	*linep, *lineend;
-	int		orig_offset;
-	int		first_linelen, linelen;
-	gboolean	is_request_or_reply;
-	gboolean	body_requires_content_len;
-	gboolean	saw_req_resp_or_header;
-	guchar		c;
-	rtsp_type_t	rtsp_type;
-	gboolean	is_mime_header;
-	int		is_sdp = FALSE;
-	int		datalen;
-	int		content_length;
-	int		reported_datalen;
+	int				orig_offset;
+	int				first_linelen, linelen;
+	int				line_end_offset;
+	int				colon_offset;
+	gboolean		is_request_or_reply;
+	gboolean		body_requires_content_len;
+	gboolean		saw_req_resp_or_header;
+	guchar			c;
+	rtsp_type_t		rtsp_type;
+	gboolean		is_mime_header;
+	int				is_sdp = FALSE;
+	int				datalen;
+	int				content_length;
+	int				reported_datalen;
+	int				value_offset;
+	int				value_len;
 
 	/*
 	 * Is this a request or response?
@@ -563,10 +587,18 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 		line = tvb_get_ptr(tvb, offset, first_linelen);
 		if (is_request_or_reply)
-			col_add_str(pinfo->cinfo, COL_INFO,
-			    format_text(line, first_linelen));
+			if ( rtsp_type == RTSP_REPLY ) {
+				col_add_str(pinfo->cinfo, COL_INFO, "Reply: ");
+				col_append_str(pinfo->cinfo, COL_INFO,
+					format_text(line, first_linelen));
+			}
+			else
+				col_add_str(pinfo->cinfo, COL_INFO,
+					format_text(line, first_linelen));
+			
 		else
 			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
+		
 	}
 
 	orig_offset = offset;
@@ -599,6 +631,12 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    FALSE);
 		if (linelen < 0)
 			return -1;
+		line_end_offset = offset + linelen;
+		/*
+		 * colon_offset may be -1 
+		 */
+		colon_offset = tvb_find_guint8(tvb, offset, linelen, ':');
+
 
 		/*
 		 * Get a buffer that refers to the line.
@@ -729,24 +767,27 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */ 
 		saw_req_resp_or_header = TRUE;
 		if (rtsp_tree) {
+			ti = proto_tree_add_text(rtsp_tree, tvb, offset,
+				next_offset - offset, "%s",
+				tvb_format_text(tvb, offset, next_offset - offset));
+
+			sub_tree = proto_item_add_subtree(ti, ett_rtsp_method);
+
 			switch (rtsp_type) {
 
 			case RTSP_REQUEST:
 				process_rtsp_request(tvb, offset, line, linelen,
-				    rtsp_tree);
+				    sub_tree);
 				break;
 
 			case RTSP_REPLY:
 				process_rtsp_reply(tvb, offset, line, linelen,
-				    rtsp_tree);
+				    sub_tree);
 				break;
 
 			case NOT_RTSP:
 				break;
 			}
-			proto_tree_add_text(rtsp_tree, tvb, offset,
-			    next_offset - offset, "%s",
-			    tvb_format_text(tvb, offset, next_offset - offset));
 		}
 		if (is_mime_header) {
 			/*
@@ -790,7 +831,60 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 */
 				content_length = rtsp_get_content_length(line,
 				    linelen);
+		
+			} else if (MIME_HDR_MATCHES(rtsp_Session)) {
+				/*
+				 * Extract the session string
+				 
+				 */
+				
+				if ( colon_offset != -1 ){
+					/*
+					* Skip whitespace after the colon.
+					* (Code from SIP dissector )
+					*/
+					value_offset = colon_offset + 1;
+					while (value_offset < line_end_offset
+						&& ((c = tvb_get_guint8(tvb,
+							value_offset)) == ' '
+						|| c == '\t'))
+						value_offset++;
+					/*
+					 * Put the value into the protocol tree
+					*/
+					value_len = line_end_offset - value_offset;
+					proto_tree_add_string(sub_tree, hf_rtsp_session,tvb,
+						value_offset, value_len ,
+						tvb_format_text(tvb, value_offset, value_len));
+				}
+					
+			} else if (MIME_HDR_MATCHES(rtsp_X_Vig_Msisdn)) {
+				/*
+				 * Extract the X_Vig_Msisdn string
+				 
+				 */
+				
+				if ( colon_offset != -1 ){
+					/*
+					 * Skip whitespace after the colon.
+					 * (Code from SIP dissector )
+					 */
+					value_offset = colon_offset + 1;
+					while (value_offset < line_end_offset
+						&& ((c = tvb_get_guint8(tvb,
+						    value_offset)) == ' '
+						  || c == '\t'))
+						value_offset++;
+					/*
+					 * Put the value into the protocol tree
+					 */
+					value_len = line_end_offset - value_offset;
+					proto_tree_add_string(sub_tree, hf_rtsp_X_Vig_Msisdn,tvb,
+						value_offset, value_len ,
+						tvb_format_text(tvb, value_offset, value_len));
+				}
 			}
+
 		}
 		offset = next_offset;
 	}
@@ -904,10 +998,10 @@ process_rtsp_request(tvbuff_t *tvb, int offset, const guchar *data,
 	size_t linelen, proto_tree *tree)
 {
 	const guchar	*lineend = data + linelen;
-	unsigned	ii;
+	unsigned		ii;
 	const guchar	*url;
 	const guchar	*url_start;
-	guchar		*tmp_url;
+	guchar			*tmp_url;
 
 	/* Request Methods */
 	for (ii = 0; ii < RTSP_NMETHODS; ii++) {
@@ -925,8 +1019,9 @@ process_rtsp_request(tvbuff_t *tvb, int offset, const guchar *data,
 	}
 
 	/* Method name */
-	proto_tree_add_string_hidden(tree, hf_rtsp_method, tvb, offset,
+	proto_tree_add_string(tree, hf_rtsp_method, tvb, offset,
 		strlen(rtsp_methods[ii]), rtsp_methods[ii]);
+	
 
 	/* URL */
 	url = data;
@@ -940,7 +1035,7 @@ process_rtsp_request(tvbuff_t *tvb, int offset, const guchar *data,
 	tmp_url = g_malloc(url - url_start + 1);
 	memcpy(tmp_url, url_start, url - url_start);
 	tmp_url[url - url_start] = 0;
-	proto_tree_add_string_hidden(tree, hf_rtsp_url, tvb,
+	proto_tree_add_string(tree, hf_rtsp_url, tvb,
 		offset + (url_start - data), url - url_start, tmp_url);
 	g_free(tmp_url);
 }
@@ -963,7 +1058,7 @@ process_rtsp_reply(tvbuff_t *tvb, int offset, const guchar *data,
 	status_i = 0;
 	while (status < lineend && isdigit(*status))
 		status_i = status_i * 10 + *status++ - '0';
-	proto_tree_add_uint_hidden(tree, hf_rtsp_status, tvb,
+	proto_tree_add_uint(tree, hf_rtsp_status, tvb,
 		offset + (status_start - data),
 		status - status_start, status_i);
 }
@@ -1012,14 +1107,26 @@ proto_register_rtsp(void)
 	static gint *ett[] = {
 		&ett_rtspframe,
 		&ett_rtsp,
+		&ett_rtsp_method,
 	};
 	static hf_register_info hf[] = {
-	{ &hf_rtsp_method,
-	{ "Method", "rtsp.method", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_rtsp_url,
-	{ "URL", "rtsp.url", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
-	{ &hf_rtsp_status,
-	{ "Status", "rtsp.status", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+		{ &hf_rtsp_method,
+			{ "Method", "rtsp.method", FT_STRING, BASE_NONE, NULL, 0, 
+			"", HFILL }},
+		{ &hf_rtsp_url,
+			{ "URL", "rtsp.url", FT_STRING, BASE_NONE, NULL, 0, 
+			"", HFILL }},
+		{ &hf_rtsp_status,
+			{ "Status", "rtsp.status", FT_UINT32, BASE_DEC, NULL, 0, 
+			"", HFILL }},
+		{ &hf_rtsp_session,
+			{ "Session", "rtsp.session", FT_STRING, BASE_NONE, NULL, 0, 
+			"", HFILL }},
+		{ &hf_rtsp_X_Vig_Msisdn,
+			{ "X-Vig-Msisdn", "X_Vig_Msisdn", FT_STRING, BASE_NONE, NULL, 0, 
+			"", HFILL }},
+
+
 	};
 	module_t *rtsp_module;
 
