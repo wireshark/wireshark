@@ -503,6 +503,12 @@ David Hampton <dhampton@mac.com> {
 	"Decode As" dialog
 }
 
+Simharajan Srishylam <Simharajan.Srishylam@netapp.com> {
+	Include Service ID field in dissection of Service Info component
+	    of WCCP 2 messages even if the service type is
+	    WCCP2_SERVICE_DYNAMIC
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

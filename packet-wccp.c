@@ -2,7 +2,7 @@
  * Routines for Web Cache Coordination Protocol dissection
  * Jerry Talkington <jerryt@netapp.com>
  *
- * $Id: packet-wccp.c,v 1.17 2001/01/22 08:03:46 guy Exp $
+ * $Id: packet-wccp.c,v 1.18 2001/02/09 00:11:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -591,12 +591,18 @@ dissect_wccp2_service_info(tvbuff_t *tvb, int offset, int length,
 		    "Service Type: Well-known service");
 		proto_tree_add_text(info_tree, tvb, offset+1, 1,
 		    "Service ID: %s",
-		    val_to_str(tvb_get_guint8(tvb, offset+1), service_id_vals, "Unknown (0x%02X)"));
+		    val_to_str(tvb_get_guint8(tvb, offset+1), service_id_vals, 
+			    "Unknown (0x%02X)"));
+
 		break;
 
 	case WCCP2_SERVICE_DYNAMIC:
 		proto_tree_add_text(info_tree, tvb, offset, 1,
 		    "Service Type: Dynamic service");
+		proto_tree_add_text(info_tree, tvb, offset+1, 1,
+		    "Service ID: %s",
+		    val_to_str(tvb_get_guint8(tvb, offset+1), service_id_vals, 
+			    "Unknown (0x%02X)"));
 		proto_tree_add_text(info_tree, tvb, offset+2, 1,
 		    "Priority: %u", tvb_get_guint8(tvb, offset+2));
 		/*
