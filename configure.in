@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.95 2000/07/14 07:11:52 guy Exp $
+# $Id: configure.in,v 1.96 2000/07/22 04:09:55 gerald Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -399,6 +399,9 @@ AC_OUTPUT(
   doc/Makefile
   doc/dfilter2pod
   gtk/Makefile
+  packaging/Makefile
+  packaging/solaris/Makefile
+  packaging/solaris/pkginfo
   plugins/Makefile
   plugins/gryphon/Makefile,
 	[chmod +x doc/dfilter2pod])

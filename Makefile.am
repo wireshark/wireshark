@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.210 2000/07/21 12:56:57 gram Exp $
+# $Id: Makefile.am,v 1.211 2000/07/22 04:09:53 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -563,3 +563,28 @@ dfilter-scanner.c : dfilter-scanner.l
 
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status --recheck
+
+# We load top_stagedir with an explicit path so that libtool doesn't freak.
+top_stagedir=`cd $(top_srcdir) && pwd`/packaging/solaris.stage
+stagedir=$(top_stagedir)/$(PACKAGE).stage
+host_cpu=@host_cpu@
+host_os=@host_os@
+
+solaris-package: $(bin_SCRIPTS) $(lib_LTLIBRARIES)
+	case x$(host_os) in \
+	xsolaris*) \
+		rm -rf $(stagedir) ; \
+		$(MAKE) DESTDIR=$(stagedir) install-strip; \
+		$(srcdir)/packaging/solaris/mkpkg \
+			$(PACKAGE) \
+			$(PACKAGE)-$(VERSION)-$(host_os)-$(host_cpu)-local \
+			$(prefix) \
+			$(top_stagedir) \
+		;; \
+	*) \
+		echo "Solaris packages can only be built on machines running Solaris." ; \
+		;; \
+	esac
+
+clean-local:
+	rm -rf $(top_stagedir)

@@ -1,0 +1,45 @@
+#!/bin/sh
+#
+# Checkinstall - perform preinstallation install checks.
+#
+# This is a modified version of a script written by mark@metalab.unc.edu .
+# The original is at http://metalab.unc.edu/pub/packages/solaris/sparc/html/creating.solaris.packages.html .
+
+
+# expected_release="5.5.1"
+expected_platform="sparc"
+#
+release=`uname -r`
+platform=`uname -p`
+gtk_major_needed="1"
+gtk_minor_needed="2"
+
+gtk_installed=`/usr/local/bin/gtk-config --version`
+if [ -n "$gtk_installed" ] ; then
+  gtk_major_installed=`echo $gtk_installed | cut -f1 -d.`
+  gtk_minor_installed=`echo $gtk_installed | cut -f2 -d.`
+else
+  gtk_major_installed="0"
+  gtk_minor_installed="0"
+fi
+
+#
+if [ ${platform} != ${expected_platform} ]; then
+  echo "\n\n\n\tThis package must be installed on a ${expected_platform} architecture\n"
+  echo "\tAborting installation.\n\n\n"
+  exit 1
+fi
+# if [ ${release} != ${expected_release} ]; then
+#     echo "\n\n\n\tThis package must be installed on a ${expected_release} machine\n"
+#     echo "\tAborting installation.\n\n\n"
+#     exit 1
+# fi
+
+if [ "$gtk_major_installed" -lt "$gtk_major_needed" -a \
+     "$gtk_minor_installed" -lt "$gtk_minor_needed" ] ; then
+  echo "\n\n\n\tThis package requires gtk+ version >= $gtk_major_needed.$gtk_minor_needed installed in /usr/local."
+  echo "\tAborting installation.\n\n\n"
+  exit 1
+fi
+
+exit 0
