@@ -2,7 +2,7 @@
  * Routines for Wellfleet BOFL dissection
  * Author: Endoh Akira (endoh@netmarks.co.jp)
  *
- * $Id: packet-bofl.c,v 1.1 2003/02/27 02:45:42 guy Exp $
+ * $Id: packet-bofl.c,v 1.2 2003/02/28 00:08:04 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -21,21 +21,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
+ * The following information was copied from
+ * http://www.protocols.com/pbook/bridge.htm#WellfleetBOFL
+ *
+ * The Wellfleet Breath of Life (BOFL) protocol is used as a line sensing
+ * protocol on:
+ *
+ * - Ethernet LANs to detect transmitter jams.
+ * - Synchronous lines running WFLT STD protocols to determine if the line
+ *   is up.
+ * - Dial backup PPP lines.
+ *
+ * The frame format of Wellfleet BOFL is shown following the Ethernet header
+ * in the following illustration:
+ *
+ *  Destination   Source    8102    PDU   Sequence   Padding
+ *       6           6        2      4       4       n bytes
  */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include <glib.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include <epan/packet.h>
 
