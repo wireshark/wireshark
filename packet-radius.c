@@ -4,7 +4,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.56 2002/05/06 00:49:19 guy Exp $
+ * $Id: packet-radius.c,v 1.57 2002/05/06 00:58:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -88,6 +88,14 @@ typedef struct _value_value_pair {
 #define RADIUS_STATUS_CLIENT 13
 #define RADIUS_RESERVED 255
 
+/*
+ * XXX - should these be read from files, such as FreeRadius dictionary
+ * files?  For example, its "dictionary" file has
+ *
+ *	ATTRIBUTE       User-Name               1       string
+ *
+ * for RD_TP_USER_NAME.
+ */
 #define RD_TP_USER_NAME 1
 #define RD_TP_USER_PASSWORD 2
 #define RD_TP_CHAP_PASSWORD 3
@@ -252,6 +260,11 @@ static value_string radius_service_type_vals[]=
  *	http://www.isi.edu/in-notes/iana/assignments/enterprise-numbers
  *
  * for a list.
+ *
+ * XXX - these also appear in FreeRadius dictionary files, with items such
+ * as
+ *
+ *	VENDOR          Cisco           9
  */
 #define VENDOR_ACC 5
 #define VENDOR_CISCO 9
@@ -648,6 +661,26 @@ static value_string radius_nas_port_type_vals[]=
 {19,"Wireless IEEE 802.11"},
 {0,NULL}};
 
+/*
+ * XXX - should these be read from files, such as FreeRadius dictionary
+ * files?  For example, its "dictionary" file has
+ *
+ *	ATTRIBUTE       User-Name               1       string
+ *
+ * for RD_TP_USER_NAME.
+ *
+ * "string" -> RADIUS_STRING
+ * "octets" -> RADIUS_BINSTRING
+ * "integer" -> RADIUS_INTEGER4
+ * "ipaddr" -> RADIUS_IP_ADDRESS
+ *
+ * Entries such as
+ *
+ *	VALUE           Service-Type            Login-User              1
+ *
+ * handle translation of integral values to strings, e.g. that one for
+ * "Service-Type".
+ */
 static value_value_pair radius_printinfo[] = {
 { RD_TP_USER_NAME, RADIUS_STRING },
 { RD_TP_USER_PASSWORD,RADIUS_BINSTRING },
