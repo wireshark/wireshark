@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.67 1999/12/10 06:28:20 guy Exp $
+ * $Id: main.c,v 1.68 1999/12/10 06:44:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -976,6 +976,7 @@ main(int argc, char *argv[])
    "without libz", "",
 #endif /* HAVE_LIBZ */
 
+/* Oh, this is pretty */
 #if defined(HAVE_UCD_SNMP_SNMP_H)
 #ifdef HAVE_UCD_SNMP_VERSION_H
    "with UCD SNMP ", VersionInfo
@@ -1211,9 +1212,9 @@ main(int argc, char *argv[])
   gtk_paned_gutter_size(GTK_PANED(u_pane), (GTK_PANED(u_pane))->handle_size);
   l_pane = gtk_vpaned_new();
   gtk_paned_gutter_size(GTK_PANED(l_pane), (GTK_PANED(l_pane))->handle_size);
-  gtk_container_add(GTK_CONTAINER(main_vbox), u_pane);
+  gtk_container_add(GTK_CONTAINER(main_vbox), l_pane);
   gtk_widget_show(u_pane);
-  gtk_paned_add2 (GTK_PANED(u_pane), l_pane);
+  gtk_paned_add1 (GTK_PANED(l_pane), u_pane);
   gtk_widget_show(l_pane);
 
   /* Packet list */
@@ -1253,16 +1254,14 @@ main(int argc, char *argv[])
   tv_scrollw = gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(tv_scrollw),
     GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-  gtk_paned_add1(GTK_PANED(l_pane), tv_scrollw);
+  gtk_paned_add2(GTK_PANED(u_pane), tv_scrollw);
   gtk_widget_set_usize(tv_scrollw, -1, tv_size);
   gtk_widget_show(tv_scrollw);
   
   tree_view = gtk_tree_new();
-  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(tv_scrollw),
-		  tree_view);
+  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(tv_scrollw), tree_view);
   gtk_tree_set_selection_mode(GTK_TREE(tree_view), GTK_SELECTION_SINGLE);
 
-  /* XXX - what's the difference between the next two lines? */
   gtk_tree_set_view_lines(GTK_TREE(tree_view), FALSE);
   gtk_tree_set_view_mode(GTK_TREE(tree_view), GTK_TREE_VIEW_ITEM);
 
