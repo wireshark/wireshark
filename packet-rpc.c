@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.132 2003/07/17 23:08:52 guy Exp $
+ * $Id: packet-rpc.c,v 1.133 2003/07/22 11:51:20 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2012,13 +2012,11 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				if (check_col(pinfo->cinfo, COL_INFO)) {
 					col_append_fstr(pinfo->cinfo, COL_INFO,
 						" dup XID 0x%x", xid);
-					if (rpc_tree) {
-						proto_tree_add_uint_hidden(rpc_tree,
-							hf_rpc_dup, tvb, 0,0, xid);
-						proto_tree_add_uint_hidden(rpc_tree,
-							hf_rpc_call_dup, tvb, 0,0, xid);
-					}
 				}
+				proto_tree_add_item(rpc_tree,
+					hf_rpc_dup, tvb, 0,0, TRUE);
+				proto_tree_add_uint(rpc_tree,
+					hf_rpc_call_dup, tvb, 0,0, rpc_call->req_num);
 			}
 		}
 		else {
@@ -2187,13 +2185,11 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				if (check_col(pinfo->cinfo, COL_INFO)) {
 					col_append_fstr(pinfo->cinfo, COL_INFO,
 						" dup XID 0x%x", xid);
-					if (rpc_tree) {
-						proto_tree_add_uint_hidden(rpc_tree,
-							hf_rpc_dup, tvb, 0,0, xid);
-						proto_tree_add_uint_hidden(rpc_tree,
-							hf_rpc_reply_dup, tvb, 0,0, xid);
-					}
 				}
+				proto_tree_add_item(rpc_tree,
+					hf_rpc_dup, tvb, 0,0, TRUE);
+				proto_tree_add_uint(rpc_tree,
+					hf_rpc_reply_dup, tvb, 0,0, rpc_call->rep_num);
 			}
 		}
 
@@ -3343,14 +3339,14 @@ proto_register_rpc(void)
 			"Machine Name", "rpc.auth.machinename", FT_STRING,
 			BASE_DEC, NULL, 0, "Machine Name", HFILL }},
 		{ &hf_rpc_dup, {
-			"Duplicate Transaction", "rpc.dup", FT_UINT32, BASE_DEC,
-			NULL, 0, "Duplicate Transaction", HFILL }},
+			"Duplicate Call/Reply", "rpc.dup", FT_NONE, BASE_NONE,
+			NULL, 0, "Duplicate Call/Reply", HFILL }},
 		{ &hf_rpc_call_dup, {
-			"Duplicate Call", "rpc.call.dup", FT_UINT32, BASE_DEC,
-			NULL, 0, "Duplicate Call", HFILL }},
+			"Duplicate call to frame", "rpc.call.dup", FT_FRAMENUM, BASE_DEC,
+			NULL, 0, "This is a duplicate to the call in frame", HFILL }},
 		{ &hf_rpc_reply_dup, {
-			"Duplicate Reply", "rpc.reply.dup", FT_UINT32, BASE_DEC,
-			NULL, 0, "Duplicate Reply", HFILL }},
+			"Duplicate reply to frame", "rpc.reply.dup", FT_FRAMENUM, BASE_DEC,
+			NULL, 0, "This is a duplicate to the reply in frame", HFILL }},
 		{ &hf_rpc_value_follows, {
 			"Value Follows", "rpc.value_follows", FT_BOOLEAN, BASE_NONE,
 			&yesno, 0, "Value Follows", HFILL }},
