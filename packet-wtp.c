@@ -3,7 +3,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  * 
- * $Id: packet-wtp.c,v 1.1 2000/11/04 03:30:40 guy Exp $
+ * $Id: packet-wtp.c,v 1.2 2000/11/04 07:38:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -228,6 +228,7 @@ dissect_wtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				col_add_fstr(fdata, COL_PROTOCOL, "WTLS+WTP+WSP" );
 				break;
 			default:
+				break;
 		}
 	}
     
@@ -257,7 +258,7 @@ dissect_wtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 
 		default:
-
+			break;
 	};
 
 	if( fRID ) {
