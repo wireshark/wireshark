@@ -397,7 +397,9 @@ capture_open_output(capture_options *capture_opts, gboolean *is_tempfile) {
 
   /* close the old file */
   cf_close(capture_opts->cf);
-  g_assert(capture_opts->save_file == NULL);
+  if(capture_opts->save_file != NULL) {
+    g_free(capture_opts->save_file);
+  }
   capture_opts->save_file = capfile_name;
   /* capture_opts.save_file is "g_free"ed later, which is equivalent to
      "g_free(capfile_name)". */
