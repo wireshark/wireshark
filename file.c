@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.16 1999/01/02 06:10:52 gram Exp $
+ * $Id: file.c,v 1.17 1999/01/03 01:57:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -330,7 +330,9 @@ pcap_dispatch_cb(u_char *user, const struct pcap_pkthdr *phdr,
 #endif
   fdata->abs_secs  = phdr->ts.tv_sec;
   fdata->abs_usecs = phdr->ts.tv_usec;
+#ifdef WITH_WIRETAP
   fdata->lnk_t = phdr->pkt_encap;
+#endif
 
   /* If we don't have the time stamp of the first packet, it's because this
      is the first packet.  Save the time stamp of this packet as the time
