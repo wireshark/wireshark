@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.51 1999/08/15 22:16:59 guy Exp $
+ * $Id: capture.c,v 1.52 1999/08/15 22:31:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -414,6 +414,15 @@ capture_prep_close_cb(GtkWidget *close_bt, gpointer parent_w)
   gtk_grab_remove(GTK_WIDGET(parent_w));
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 }
+
+typedef struct _loop_data {
+  gint           go;
+  gint           max;
+  gint           linktype;
+  gint           sync_packets;
+  packet_counts  counts;
+  pcap_dumper_t *pdh;
+} loop_data;
 
 void
 capture(void) {
