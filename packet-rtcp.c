@@ -1,6 +1,6 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.31 2002/04/09 09:04:33 guy Exp $
+ * $Id: packet-rtcp.c,v 1.32 2002/04/15 21:25:05 guy Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -405,7 +405,7 @@ dissect_rtcp_bye( tvbuff_t *tvb, int offset, proto_tree *tree,
 
 }
 
-static int
+static void
 dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
     unsigned int count )
 {
@@ -505,9 +505,6 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 
 		chunk++;
 	}
-
-
-	return offset;
 }
 
 static int
@@ -738,7 +735,8 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 					/* Packet length in 32 bit words MINUS one, 16 bits */
 					proto_tree_add_uint( rtcp_tree, hf_rtcp_length, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
 					offset += 2;
-					offset = dissect_rtcp_sdes( tvb, offset, rtcp_tree, elem_count );
+					dissect_rtcp_sdes( tvb, offset, rtcp_tree, elem_count );
+					offset += packet_length - 4;
 					break;
 				case RTCP_BYE:
 					/* Source count, 5 bits */
