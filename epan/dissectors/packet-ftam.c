@@ -150,6 +150,7 @@ static const value_string ftam_data_vals[] =
   {FTAM_ENTER_SUBTREE_DATA_ELEMENT,  "Enter subtree Data Element" },
   {FTAM_EXIT_SUBTREE_DATA_ELEMENT,  "Exit subtree Data Element" },
   {FTAM_DATATYPE_NBS9,  "Datatype NBS9" },
+  {0,             NULL           }
 };
 static const value_string ftam_pdu_vals[] =
 {
@@ -493,7 +494,7 @@ static int read_length(ASN1_SCK *a, proto_tree *tree, int hf_id, guint *len)
   }
   if (len)
     *len = length;
-  if (tree && hf_id)
+  if (hf_id)
     proto_tree_add_uint(tree, hf_id, a->tvb, start, a->offset-start,length);
 
   return ASN1_ERR_NOERROR;
@@ -521,7 +522,7 @@ static int read_integer_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
   if (i)
     *i = integer;
 
-  if (tree && hf_id)
+  if (hf_id)
     temp_item = proto_tree_add_uint(tree, hf_id, a->tvb, start,a->offset-start, integer);
 
   if (new_item)
@@ -2583,7 +2584,7 @@ dissect_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	asn1_open(&asn, tvb, offset);
 
 	/* is it data PDU  ? */
-	if( session->abort_type == DATA_BLOCK )
+	if( session->abort_type == DATA_BLOCK && (match_strval(s_type, ftam_data_vals)) )
 	{
 			proto_item *ms;
 			proto_tree *ftam_tree_ms = NULL;
@@ -2635,7 +2636,7 @@ dissect_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 			if(tree)
 				{
 				ms = proto_tree_add_text(ftam_tree, tvb, offset, rest_len+(asn.offset-offset),
-										"Unknown pdu type (0x%02x)",s_type);
+										"Unknown data pdu type (0x%02x)",s_type);
 				}
 			}
 
@@ -2690,7 +2691,6 @@ dissect_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 				}
 			return FALSE;
 			}
-			if(tree)
 			{
 				if(s_type == FTAM_F_INITIALIZE_REQUEST)
 				{
@@ -2724,7 +2724,6 @@ dissect_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 				}
 			return FALSE;
 			}
-			if(tree)
 			{
 				show_select_request(&asn,ftam_tree,tvb,pinfo,&offset,cp_type_len);
 			}
@@ -2749,7 +2748,6 @@ dissect_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 				}
 			return FALSE;
 			}
-			if(tree)
 			{
 				show_open_request(&asn,ftam_tree,tvb,pinfo,&offset,cp_type_len);
 			}
@@ -2775,7 +2773,6 @@ dissect_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 				}
 			return FALSE;
 			}
-			if(tree)
 			{
 				show_read_write_request(&asn,ftam_tree,tvb,pinfo,&offset,cp_type_len);
 			}
@@ -2793,9 +2790,9 @@ dissect_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 					return  FALSE;
 						}
 				ms = proto_tree_add_text(ftam_tree, tvb, offset, rest_len+(asn.offset-offset),
-										val_to_str(s_type, ftam_pdu_vals, "Unknown pdu type (0x%02x)"));
+										val_to_str(s_type, ftam_pdu_vals, "Unknown nodata pdu type (0x%02x)"));
 				ftam_tree_ms = proto_item_add_subtree(ms, ett_ftam_ms);
-				offset+=rest_len+(asn.offset-offset)+1;
+				offset+=rest_len+(asn.offset-offset);
 				asn.offset=offset;
 			}
 	}
@@ -2851,20 +2848,10 @@ dissect_ftam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	s_type = tvb_get_guint8(tvb, offset);
 
 	/* check PDU type */
-	if(session->abort_type != DATA_BLOCK )
-	{
-			if (match_strval(s_type, ftam_pdu_vals) == NULL)
+			if ( (match_strval(s_type, ftam_pdu_vals) == NULL) && (match_strval(s_type, ftam_data_vals) == NULL))
 				{
 					return ;  /* no, it isn't a FTAM PDU */
 				}
-	}
-	else
-	{
-			if (match_strval(s_type, ftam_data_vals) == NULL)
-				{
-					return ;  /* no, it isn't a FTAM PDU */
-				}
-	}
 
 	/*  we can't make any additional checking here   */
 	/*  postpone it before dissector will have more information */
