@@ -2,7 +2,7 @@
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-mmse.c,v 1.18 2003/06/08 16:06:04 gerald Exp $
+ * $Id: packet-mmse.c,v 1.19 2003/07/07 22:55:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -448,9 +448,10 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			nstime_t	 tmptime;
 			guint		 cnt;
 
-			tval =  get_long_integer(tvb, offset + count, &cnt);
+			tval =  get_long_integer(tvb, offset + count + 1, &cnt);
 			tmptime.secs = tval;
 			tmptime.nsecs = 0;
+
 			if (field == 0x80)
 			    proto_tree_add_time(mmse_tree,
 					        hf_mmse_delivery_time_abs,
