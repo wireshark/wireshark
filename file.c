@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.255 2001/12/18 19:09:01 gram Exp $
+ * $Id: file.c,v 1.256 2002/01/03 22:27:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1275,6 +1275,18 @@ change_time_formats(capture_file *cf)
   int i;
   GtkStyle  *pl_style;
 
+  /* Are there any columns with time stamps in the "command-line-specified"
+     format?
+
+     XXX - we have to force the "column is writable" flag on, as it
+     might be off from the last frame that was dissected. */
+  col_set_writable(&cf->cinfo, TRUE);
+  if (!check_col(&cf->cinfo, COL_CLS_TIME)) {
+    /* No, there aren't any columns in that format, so we have no work
+       to do. */
+    return;
+  }
+
   /* Freeze the packet list while we redo it, so we don't get any
      screen updates while it happens. */
   freeze_clist(cf);
@@ -1328,22 +1340,14 @@ change_time_formats(capture_file *cf)
     if (row != -1) {
       /* This packet is in the summary list, on row "row". */
 
-      /* XXX - there really should be a way of checking "cf->cinfo" for this;
-         the answer isn't going to change from packet to packet, so we should
-         simply skip all the "change_time_formats()" work if we're not
-         changing anything. */
-      if (check_col(&cf->cinfo, COL_CLS_TIME)) {
-        /* There are columns that show the time in the "command-line-specified"
-           format; update them. */
-        for (i = 0; i < cf->cinfo.num_cols; i++) {
-          if (cf->cinfo.fmt_matx[i][COL_CLS_TIME]) {
-            /* This is one of the columns that shows the time in
-               "command-line-specified" format; update it. */
-            cf->cinfo.col_buf[i][0] = '\0';
-            col_set_cls_time(fdata, &cf->cinfo, i);
-            gtk_clist_set_text(GTK_CLIST(packet_list), row, i,
-			  cf->cinfo.col_data[i]);
-	  }
+      for (i = 0; i < cf->cinfo.num_cols; i++) {
+        if (cf->cinfo.fmt_matx[i][COL_CLS_TIME]) {
+          /* This is one of the columns that shows the time in
+             "command-line-specified" format; update it. */
+          cf->cinfo.col_buf[i][0] = '\0';
+          col_set_cls_time(fdata, &cf->cinfo, i);
+          gtk_clist_set_text(GTK_CLIST(packet_list), row, i,
+			     cf->cinfo.col_data[i]);
         }
       }
     }
