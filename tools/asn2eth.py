@@ -930,6 +930,7 @@ class EthCtx:
         x = {False : False}
       x = x.values()
       x.sort()
+      out = ''
       for i in x:
         if (i):
           postfix = '_impl'
@@ -940,10 +941,10 @@ class EthCtx:
         if (self.Ber()):
           if (i): postfix = '_impl'; impl = 'TRUE'
           else:   postfix = '';      impl = 'FALSE'
-          out = 'static int dissect_'+f+postfix+'(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {\n'
+          out += 'static int dissect_'+f+postfix+'(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {\n'
           par=((impl, 'tvb', 'offset', 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
         else:
-          out = 'static int dissect_'+f+'(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {\n'
+          out += 'static int dissect_'+f+'(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {\n'
           par=(('tvb', 'offset', 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
         out += self.eth_fn_call('dissect_%s_%s' % (self.eth_type[t]['proto'], t), ret='return',
                                 par=par)
@@ -2419,13 +2420,13 @@ class EnumeratedType (Type):
 
   def eth_type_vals(self, proto, tname, ectx):
     out = '\n'
-    (vals, None) = self.get_vals_maxv(proto, tname, ectx)
+    (vals, xxxx) = self.get_vals_maxv(proto, tname, ectx)
     out += ectx.eth_vals(tname, vals)
     return out
 
   def eth_type_fn(self, proto, tname, ectx):
     fname = ectx.eth_type[tname]['ref'][0]
-    (None, maxv) = self.get_vals_maxv(proto, tname, ectx)
+    (xxxx, maxv) = self.get_vals_maxv(proto, tname, ectx)
     maxv = str(maxv)
     minv = '0'
     out = '\n'
