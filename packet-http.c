@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.58 2002/10/15 22:28:35 guy Exp $
+ * $Id: packet-http.c,v 1.59 2002/11/08 05:06:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -172,8 +172,11 @@ check_ntlmssp_auth(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo,
 	for (header = &headers[0]; *header != NULL; header++) {
 		hdrlen = strlen(*header);
 		if (strncmp(text, *header, hdrlen) == 0) {
-			hdr_tree = proto_item_add_subtree(hdr_item,
-			    ett_http_ntlmssp);
+			if (hdr_item != NULL) {
+				hdr_tree = proto_item_add_subtree(hdr_item,
+				    ett_http_ntlmssp);
+			} else
+				hdr_tree = NULL;
 			text += hdrlen;
 			dissect_http_ntlmssp(tvb, pinfo, hdr_tree, text);
 			return TRUE;
@@ -197,6 +200,8 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guchar		c;
 	http_type_t     http_type;
 	int		datalen;
+	char		*text;
+	proto_item	*hdr_item;
 
 	switch (pinfo->match_port) {
 
@@ -326,17 +331,13 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * Put this line.
 		 */
+		text = tvb_format_text(tvb, offset, next_offset - offset);
 		if (tree) {
-			proto_item *hdr_item;
-			char *text;
-
-			text = tvb_format_text(tvb, offset, next_offset - offset);
-
 			hdr_item = proto_tree_add_text(http_tree, tvb, offset,
 			    next_offset - offset, "%s", text);
-
-			check_ntlmssp_auth(hdr_item, tvb, pinfo, text);
-		}
+		} else
+			hdr_item = NULL;
+		check_ntlmssp_auth(hdr_item, tvb, pinfo, text);
 		offset = next_offset;
 	}
 
