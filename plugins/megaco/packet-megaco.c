@@ -2,7 +2,7 @@
 * Routines for megaco packet disassembly
 * RFC 3015
 *
-* $Id: packet-megaco.c,v 1.10 2003/08/26 21:36:17 sahlberg Exp $
+* $Id: packet-megaco.c,v 1.11 2003/09/03 06:48:45 guy Exp $
 *
 * Christian Falckenberg, 2002/10/17
 * Copyright (c) 2002 by Christian Falckenberg
@@ -105,7 +105,6 @@ static int hf_megaco_requestid 				= -1;
 static int hf_megaco_pkgdname				= -1;
 static int hf_megaco_mId				= -1;
 static int hf_megaco_h245				= -1;
-static int hf_megaco_raw_text				= -1;
 
 /* Define the trees for megaco */
 static int ett_megaco 					= -1;
@@ -388,9 +387,8 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				my_proto_tree_add_string(megaco_tree, hf_megaco_transid, tvb,
 				tvb_previous_offset, len,
 				tvb_format_text(tvb,tvb_previous_offset,len));
-			      if(global_megaco_raw_text){
-				tvb_raw_text_add(tvb_new_subset(tvb,0,tvb_len,-1),
-			 	 megaco_tree);
+				if(global_megaco_raw_text){
+					tvb_raw_text_add(tvb, megaco_tree);
 				}
 			return;
 			break;
@@ -901,8 +899,8 @@ nextcontext:
 			}
 		} while ( tvb_command_end_offset < tvb_len );
 	}
-      if(global_megaco_raw_text){
-	tvb_raw_text_add(tvb_new_subset(tvb,0,tvb_len,-1), megaco_tree);
+	if(global_megaco_raw_text){
+		tvb_raw_text_add(tvb, megaco_tree);
 	}
 }
 
@@ -1167,12 +1165,15 @@ dissect_megaco_mediadescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_li
 	tokenlen =  (tvb_RBRKT+1) - tvb_previous_offset;	
 	
 	
-	megaco_mediadescriptor_ti = proto_tree_add_item(megaco_tree_command_line,hf_megaco_media_descriptor,tvb,tvb_previous_offset,tokenlen, FALSE);
+	megaco_mediadescriptor_ti = proto_tree_add_text(megaco_tree_command_line,tvb,tvb_previous_offset,tokenlen,"Media Descriptor");
 	megaco_mediadescriptor_tree = proto_item_add_subtree(megaco_mediadescriptor_ti, ett_megaco_mediadescriptor);
 	
 	tvb_current_offset = tvb_find_guint8(tvb, tvb_previous_offset, tvb_RBRKT, '=');
-	tvb_next_offset = tvb_find_guint8(tvb, tvb_previous_offset, tvb_RBRKT, '{');
-	
+	tokenlen = tvb_current_offset  - tvb_previous_offset -1;
+	proto_tree_add_text(megaco_mediadescriptor_tree, tvb,	tvb_previous_offset, tokenlen,
+		"%s",	tvb_format_text(tvb, tvb_previous_offset,	tokenlen));
+
+	tvb_next_offset = tvb_find_guint8(tvb, tvb_previous_offset, tvb_RBRKT, '{');	
 	/* If a StreamID is present */
 	
 	if ( tvb_find_guint8(tvb, tvb_next_offset+1, tvb_RBRKT, '{') > tvb_current_offset && tvb_current_offset > tvb_previous_offset ){
@@ -1992,25 +1993,117 @@ dissect_megaco_Packagesdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command
 	}
 	
 }
+/* The list of error code values is fetched from http://www.iana.org/assignments/megaco-h248 	*/
+/* 2003-08-28											*/
+
+static const value_string MEGACO_error_code_vals[] = {
+
+	{400, "Syntax error in message"},
+	{401, "Protocol Error"},
+	{402, "Unauthorized"},
+	{403, "Syntax error in transaction request"},
+	{406, "Version Not Supported"},
+	{410, "Incorrect identifier"},
+	{411, "The transaction refers to an unknown ContextId"},
+	{412, "No ContextIDs available"},
+	{421, "Unknown action or illegal combination of actions"},
+	{422, "Syntax Error in Action"},
+	{430, "Unknown TerminationID"},
+	{431, "No TerminationID matched a wildcard"},
+	{432, "Out of TerminationIDs or No TerminationID available"},
+	{433, "TerminationID is already in a Context"},
+	{434, "Max number of Terminations in a Context exceeded"},
+	{435, "Termination ID is not in specified Context"},
+	{440, "Unsupported or unknown Package"},
+	{441, "Missing Remote or Local Descriptor"},
+	{442, "Syntax Error in Command"},
+	{443, "Unsupported or Unknown Command"},
+	{444, "Unsupported or Unknown Descriptor"},
+	{445, "Unsupported or Unknown Property"},
+	{446, "Unsupported or Unknown Parameter"},
+	{447, "Descriptor not legal in this command"},
+	{448, "Descriptor appears twice in a command"},
+	{450, "No such property in this package"},
+	{451, "No such event in this package"},
+	{452, "No such signal in this package"},
+	{453, "No such statistic in this package"},
+	{454, "No such parameter value in this package"},
+	{455, "Property illegal in this Descriptor"},
+	{456, "Property appears twice in this Descriptor"},
+	{457, "Missing parameter in signal or event"},
+	{458, "Unexpected Event/Request ID"},           
+	{459, "Unsupported or Unknown Profile"},                
+	{471, "Implied Add for Multiplex failure"},
+
+	{500, "Internal software Failure in MG"},
+	{501, "Not Implemented"},
+	{502, "Not ready."},
+	{503, "Service Unavailable"},
+	{504, "Command Received from unauthorized entity"},
+	{505, "Transaction Request Received before a Service Change Reply has been received"},
+	{506, "Number of Transaction Pendings Exceeded"},
+	{510, "Insufficient resources"},
+	{512, "Media Gateway unequipped to detect requested Event"},
+	{513, "Media Gateway unequipped to generate requested Signals"},
+	{514, "Media Gateway cannot send the specified announcement"},
+	{515, "Unsupported Media Type"},
+	{517, "Unsupported or invalid mode"},
+	{518, "Event buffer full"},
+	{519, "Out of space to store digit map"},
+	{520, "Digit Map undefined in the MG"},
+	{521, "Termination is ServiceChangeing"},
+	{526, "Insufficient bandwidth"},
+	{529, "Internal hardware failure in MG"},
+	{530, "Temporary Network failure"},
+	{531, "Permanent Network failure"},
+	{532, "Audited Property, Statistic, Event or Signal does not exist"},
+	{533, "Response exceeds maximum transport PDU size"},
+	{534, "Illegal write or read only property"},
+	{540, "Unexpected initial hook state"},
+	{581, "Does Not Exist"},
+	
+	{600, "Illegal syntax within an announcement specification"},
+	{601, "Variable type not supported"},
+	{602, "Variable value out of range"},
+	{603, "Category not supported"},
+	{604, "Selector type not supported"},
+	{605, "Selector value not supported"},
+	{606, "Unknown segment ID"},
+	{607, "Mismatch between play specification and provisioned data"},
+	{608, "Provisioning error"},
+	{609, "Invalid offset"},
+	{610, "No free segment IDs"},
+	{611, "Temporary segment not found"},
+	{612, "Segment in use"},
+	{613, "ISP port limit overrun"},
+	{614, "No modems available"},
+	{615, "Calling number unacceptable"},
+	{616, "Called number unacceptable"},
+	{  0, NULL }
+};
+
+
+
 static void
 dissect_megaco_errordescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_line,  gint tvb_RBRKT, gint tvb_previous_offset)
 {
 	
-	gint 	tokenlen;
+	gint 		tokenlen;
+	gint		error_code;
 	guint8	error[4];
-	gint 	tvb_next_offset, tvb_current_offset,tvb_len;
+	gint 		tvb_next_offset, tvb_current_offset,tvb_len;
 	
-	tvb_len				= tvb_length(tvb);
-	tokenlen			= 0;
+	tvb_len			= tvb_length(tvb);
+	tokenlen		= 0;
 	tvb_next_offset		= 0;
 	tvb_current_offset	= 0;
-	tvb_len				= 0;
+	tvb_len			= 0;
 
 	
 	tvb_current_offset = tvb_find_guint8(tvb, tvb_previous_offset , tvb_RBRKT, '=');
 	tvb_current_offset = tvb_skip_wsp(tvb, tvb_current_offset +1);
 	tvb_get_nstringz0(tvb,tvb_current_offset,4,error);
-	
+	error_code = atoi(error);
 	proto_tree_add_string_hidden(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
 					 		tvb_current_offset, 3,
 							tvb_format_text(tvb, tvb_current_offset,
@@ -2024,440 +2117,11 @@ dissect_megaco_errordescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_li
 							tvb_format_text(tvb, tvb_previous_offset,
 							tokenlen));
 	
-	
-	switch ( error[0] ){
-		
-	case '4':
-		
-		switch ( error[1] ){
-			
-		case '0':
-			
-			switch ( error[2] ){			
-				
-			case '0':
-				proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-					tvb_current_offset, 3,
-					"Bad Request");
-				break;
-				
-			case '1':
-				proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-					tvb_current_offset, 3,
-					"Protocol Error");
-				break;
-				
-			case '2':
-				proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-					tvb_current_offset, 3,
-					"Unauthorized");
-				break;
-				
-			case '3':
-				proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-					tvb_current_offset, 3,
-					"Syntax Error in Transaction");
-				break;
-				
-			case '6':
-				proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-					tvb_current_offset, 3,
-					"Version Not Supported");
-				break;
-				
-			}
-			
-			break;
-			
-			case '1':
-				
-				switch ( error[2] ){
-					
-				case '0':
-					proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-						tvb_current_offset, 3,
-						"Incorrect identifier");
-					break;
-					
-				case '1':
-					proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-						tvb_current_offset, 3,
-						"The Transaction refers to an unkown ContextID");
-					break;
-					
-				case '2':
-					proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-						tvb_current_offset, 3,
-						"No ContextIDs available");
-					break;
-					
-				}			
-				
-				break;
-				
-				case '2':
-					
-					switch ( error[2] ){	
-						
-					case '1':
-						proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-							tvb_current_offset, 3,
-							"Unkown action or illegal combination of actions");
-						break;
-						
-					case '2':
-						proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-							tvb_current_offset, 3,
-							"Syntax Error in Action");
-						
-						break;
-						
-					}
-					
-					break;
-					
-					case '3':
-						
-						switch ( error[2] ){	
-							
-						case '0':
-							proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-								tvb_current_offset, 3,
-								"Unknown TerminationID");
-							break;
-							
-						case '1':
-							proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-								tvb_current_offset, 3,
-								"No TertminationID matched a Wildcard");
-							break;
-							
-						case '2':
-							proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-								tvb_current_offset, 3,
-								"Out of TerminationIDs or no TerminationID available");
-							break;
-							
-						case '3':
-							proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-								tvb_current_offset, 3,
-								"TerminationID is already in Context");
-							break;
-							
-						}
-						
-						break;
-						
-						case '4':
-							
-							switch ( error[2] ){	
+	proto_tree_add_text(megaco_tree_command_line, tvb, tvb_current_offset, 3,
+	    "Error code: %s",
+	    val_to_str(error_code, MEGACO_error_code_vals,
+	      "Unknown (%u)"));
 								
-							case '0':
-								proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-									tvb_current_offset, 3,
-									"Unsupported or unknown Package");
-								break;
-								
-							case '1':
-								proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-									tvb_current_offset, 3,
-									"Missing RemoteDascriptor");
-								break;
-								
-							case '2':
-								proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-									tvb_current_offset, 3,
-									"Syntax Error in Command");
-								break;
-								
-							case '3':
-								proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-									tvb_current_offset, 3,
-									"Unsupported or Unknown Command");
-								break;
-								
-							case '4':
-								proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-									tvb_current_offset, 3,
-									"Unsupported or Unknown Descriptor");
-								break;
-								
-							case '5':
-								proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-									tvb_current_offset, 3,
-									"Unsupported or Unknown Property");
-								break;
-								
-							case '6':
-								proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-									tvb_current_offset, 3,
-									"Unsupported or Unknown Parameter");
-								break;
-								
-							case '7':
-								proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-									tvb_current_offset, 3,
-									"Descriptor not legal in this command");
-								break;
-								
-							case '8':
-								proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-									tvb_current_offset, 3,
-									"Descriptor appears twice in this command");
-								break;
-								
-							}
-							
-							break;
-							
-							case '5':
-								switch ( error[2] ){	
-									
-								case '0':
-									proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-										tvb_current_offset, 3,
-										"No such property in this package");
-									break;
-									
-								case '1':
-									proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-										tvb_current_offset, 3,
-										"No such event in this package");
-									break;
-									
-								case '2':
-									proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-										tvb_current_offset, 3,
-										"No such signal in this package");
-									break;
-									
-								case '3':
-									proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-										tvb_current_offset, 3,
-										"No such statistic in this package");
-									break;
-									
-								case '4':
-									proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-										tvb_current_offset, 3,
-										"No such parameter value in this package");
-									break;
-									
-								case '5':	
-									proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-										tvb_current_offset, 3,
-										"Parameter illegal in this Descriptor");
-									break;
-									
-								case '6':
-									proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-										tvb_current_offset, 3,
-										"Parameter or Property appears twice in this Descriptor");
-									break;
-									
-								}
-								
-								break;
-								
-								case '7':
-									
-									switch ( error[2] ){	
-										
-									case '1':
-										proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-											tvb_current_offset, 3,
-											"Implied Add for Multiplex failure");
-										break;
-										
-									}
-									
-									break;
-									
-		}		
-		
-		break;
-		
-		
-	case '5':
-		
-		switch ( error[1] ){
-			
-		case '0':
-			
-			switch ( error[2] ){
-				
-			case '0':
-				proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-					tvb_current_offset, 3,
-					"Internal Gateway Error");		
-				break;
-				
-			case '1':
-				proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-					tvb_current_offset, 3,
-					"Not Implemented");		
-				break;
-				
-			case '2':
-				proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-					tvb_current_offset, 3,
-					"Not ready");		
-				break;
-				
-			case '3':
-				proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-					tvb_current_offset, 3,
-					"Service Unavailable");		
-				break;
-				
-			case '4':
-				proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-					tvb_current_offset, 3,
-					"Command Received from unauthorized entity");		
-				break;
-				
-			case '5':
-				proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-					tvb_current_offset, 3,
-					"Command Received before Restart response");		
-				break;
-				
-			}
-			
-			break;
-			
-			case '1':
-				
-				switch ( error[2] ){
-					
-				case '0':
-					proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-						tvb_current_offset, 3,
-						"Insufficient resources");		
-					break;
-					
-				case '2':
-					proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-						tvb_current_offset, 3,
-						"Media Gateway unequipped to detect request Event");		
-					break;
-					
-				case '3':
-					proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-						tvb_current_offset, 3,
-						"Media Gateway unequipped to generate requested Signals");		
-					break;
-					
-				case '4':
-					proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-						tvb_current_offset, 3,
-						"Media Gateway cannot send the specified announcement");		
-					break;
-					
-				case '5':
-					proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-						tvb_current_offset, 3,
-						"Unsupported Media Type");		
-					break;
-					
-				case '7':
-					proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-						tvb_current_offset, 3,
-						"Unsupported or invalid mode");		
-					break;
-					
-				case '8':
-					proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-						tvb_current_offset, 3,
-						"Event buffer full");		
-					break;
-					
-				case '9':
-					proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-						tvb_current_offset, 3,
-						"Out of space to store digit map");		
-					break;
-					
-				}
-				
-				break;
-				
-				case '2':
-					
-					switch ( error[2] ){
-						
-						
-					case '0':
-						proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-							tvb_current_offset, 3,
-							"Media Gateway does not have a digit map");		
-						break;
-						
-					case '1':
-						proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-							tvb_current_offset, 3,
-							"Termination is ServiceChanging");		
-						break;
-						
-					case '6':
-						proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-							tvb_current_offset, 3,
-							"insufficient bandwidth");		
-						break;
-						
-					case '9':
-						proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-							tvb_current_offset, 3,
-							"Internal hardeware failure");		
-						break;
-						
-					}
-					
-					break;
-					
-					case '3':
-						
-						switch ( error[2] ){
-							
-						case '0':
-							proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-								tvb_current_offset, 3,
-								"Temporary Network failure");		
-							break;
-							
-						case '1':
-							proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-								tvb_current_offset, 3,
-								"Permanent Network failure");		
-							break;
-							
-							
-						}
-						
-						break;
-						
-						case '8':
-							
-							switch ( error[2] ){
-								
-							case '1':
-								proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
-									tvb_current_offset, 3,
-									"Does Not Exist");		
-								break;
-								
-								
-							}
-							
-							break;
-			}
-		
-		break;
-		
-	}
-	
-	
-	
 }
 static void
 dissect_megaco_TerminationStatedescriptor(tvbuff_t *tvb, proto_tree *megaco_mediadescriptor_tree,  gint tvb_next_offset, gint tvb_current_offset)
@@ -2828,9 +2492,6 @@ proto_register_megaco(void)
 		{ &hf_megaco_h245,
 		{ "h245", "megaco.h245", FT_STRING, BASE_DEC, NULL, 0x0,
 		"Embedded H.245 message", HFILL }},	
-		{ &hf_megaco_raw_text,
-		{ "Raw text", "megaco.raw_text", FT_STRING, BASE_DEC, NULL, 0x0,
-		"Raw text", HFILL }},		
 		
 		/* Add more fields here */
 	};
