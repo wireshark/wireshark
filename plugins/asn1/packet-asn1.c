@@ -182,10 +182,10 @@ static guint PDUerrcount = 0;   /* count of parse errors in one ASN.1 message */
 #define NEL(x) (sizeof(x)/sizeof(*x)) /* # elements in static array */
 
 
-char pabbrev[] = "asn1";	/* field prefix */
+static char pabbrev[] = "asn1";	/* field prefix */
 
-char fieldname[512];		/* for constructing full names */
-guint pabbrev_pdu_len;		/* length initial part of fieldname with 'abbrev.asn1pdu.' */
+static char fieldname[512];		/* for constructing full names */
+static guint pabbrev_pdu_len;		/* length initial part of fieldname with 'abbrev.asn1pdu.' */
 
 /*
  * Text strings describing the standard, universal, ASN.1 names.
@@ -194,13 +194,13 @@ guint pabbrev_pdu_len;		/* length initial part of fieldname with 'abbrev.asn1pdu
 #define ASN1_EOI 4 /* this is in the class number space... */
 #define ASN1_BEG 2 /* to be merged with constructed flag, first entry in sequence */
 
-char tag_class[] = "UACPX";
+static char tag_class[] = "UACPX";
 
-char *asn1_cls[] = { "Universal", "Application", "Context", "Private" };
+static char *asn1_cls[] = { "Universal", "Application", "Context", "Private" };
 
-char *asn1_con[] = { "Primitive", "Constructed" };
+static char *asn1_con[] = { "Primitive", "Constructed" };
 
-char *asn1_tag[] = {
+static char *asn1_tag[] = {
 	/*  0 */ "EOC", 	    "Boolean",        "Integer",          "BitString",
 	/*  4 */ "OctetString",     "Null",           "ObjectIdentifier", "ObjectDescriptor",
 	/*  8 */ "External",        "Real",           "Enumerated",       "tag11",
@@ -214,7 +214,7 @@ char *asn1_tag[] = {
 };
 
 /* type names used in the output of the snacc ASN.1 compiler, the TBLTypeId enum */
-gboolean tbl_types_verified = FALSE;
+static gboolean tbl_types_verified = FALSE;
 
 typedef enum {	/* copied from .../snacc/c-lib/boot/tbl.h */
         TBL_BOOLEAN = 0,
@@ -243,7 +243,7 @@ typedef enum {	/* copied from .../snacc/c-lib/boot/tbl.h */
 } TBLTypeId;
 
 /* Universal tags mapped to snacc ASN.1 table types */
-int asn1_uni_type[] = {
+static int asn1_uni_type[] = {
 	/*  0 */ TBL_INVALID,	  TBL_BOOLEAN,	   TBL_INTEGER,     TBL_BITSTRING,
 	/*  4 */ TBL_OCTETSTRING, TBL_NULL,	   TBL_OID,	    TBL_INVALID,
 	/*  8 */ TBL_INVALID,	  TBL_REAL,	   TBL_ENUMERATED,  TBL_INVALID,
@@ -270,7 +270,8 @@ int asn1_uni_type[] = {
 #define TBLTYPE(x) (tbl_types[x&TBL_TYPEmask])
 
 /* text tables for debugging and GUI */
-char *tbl_types[] = {  /*  0 */	"tbl-boolean",
+static char *tbl_types[] = {
+		       /*  0 */	"tbl-boolean",
 		       /*  1 */	"tbl-integer",
 		       /*  2 */	"tbl-bitstring",
 		       /*  2 */	"tbl-octetstring",
@@ -293,7 +294,7 @@ char *tbl_types[] = {  /*  0 */	"tbl-boolean",
 
 		       /* 19 */ "tbl-invalid",
 };
-char *tbl_types_asn1[] = {
+static char *tbl_types_asn1[] = {
 		       /*  0 */	"BOOLEAN",
 		       /*  1 */	"INTEGER",
 		       /*  2 */	"BITSTRING",
@@ -318,7 +319,7 @@ char *tbl_types_asn1[] = {
 		       /* 19 */ "INVALID entry",
 };
 /* conversion from snacc type to appropriate ethereal type */
-guint tbl_types_ethereal[] = {
+static guint tbl_types_ethereal[] = {
 		       /*  0 */	FT_BOOLEAN,	/* TBL_BOOLEAN */
 		       /*  1 */	FT_UINT32,	/* TBL_INTEGER */
 		       /*  2 */	FT_UINT32,	/* TBL_BITSTRING */
@@ -343,7 +344,7 @@ guint tbl_types_ethereal[] = {
 		       /* 19 */ FT_NONE,	/* TBL_INVALID */		
 };
 
-char *tbl_types_ethereal_txt[] = {
+static char *tbl_types_ethereal_txt[] = {
 		       /*  0 */	"FT_BOOLEAN",	/* TBL_BOOLEAN */
 		       /*  1 */	"FT_UINT32",	/* TBL_INTEGER */
 		       /*  2 */	"FT_UINT32",	/* TBL_BITSTRING */
@@ -398,7 +399,7 @@ struct _PDUinfo {
 
 #define PDU_CHOICE    0x08000000   /* manipulated by the PDUname routine */
 
-guint PDUinfo_initflags = 0;	/* default flags for newly allocated PDUinfo structs */
+static guint PDUinfo_initflags = 0;	/* default flags for newly allocated PDUinfo structs */
 
 /* description of PDU properties as passed from the matching routine
  * to the decoder and GUI.
@@ -422,10 +423,10 @@ struct _PDUprops {
 #define OUT_FLAG_noname	     0x10
 #define OUT_FLAG_constructed 0x20
 
-PDUprops *getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons);
-char *getPDUenum(PDUprops *props, guint offset, guint cls, guint tag, guint value);
+static PDUprops *getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons);
+static char *getPDUenum(PDUprops *props, guint offset, guint cls, guint tag, guint value);
 
-char empty[] = "";		/* address of the empt string, avoids many tests for NULL */
+static char empty[] = "";		/* address of the empt string, avoids many tests for NULL */
 #define MAX_OTSLEN 256		/* max printed size for an octet string */
 
 
@@ -434,12 +435,12 @@ char empty[] = "";		/* address of the empt string, avoids many tests for NULL */
 #ifdef NEST			/* only for debugging */
 /* show nesting, only for debugging... */
 #define MAXTAGS MAX_NEST
-struct {
+static struct {
 	guchar cls;
 	guchar tag;
 } taglist[MAXTAGS];
 
-char *showtaglist(guint level)
+static char *showtaglist(guint level)
 {
 	static char tagtxt[BUFLM];
 	char *p = tagtxt;
@@ -468,7 +469,7 @@ char *showtaglist(guint level)
 	return tagtxt;
 }
 
-guint
+static guint
 get_context(guint level)
 {
 	guint ctx = 0;
@@ -486,7 +487,7 @@ get_context(guint level)
 /* Convert a bit string to an ascii representation for printing
  * -- not thread safe ...
  */
-char *showbits(guchar *val, guint count)
+static char *showbits(guchar *val, guint count)
 {
 	static char str[BUFLM];
 	guint i;
@@ -506,7 +507,8 @@ char *showbits(guchar *val, guint count)
 }
 
 /* get bitnames string for bits set */
-char * showbitnames(guchar *val, guint count, PDUprops *props, guint offset)
+static char *
+showbitnames(guchar *val, guint count, PDUprops *props, guint offset)
 {
 	static char str[BUFLL];
 	guint i;
@@ -536,7 +538,7 @@ char * showbitnames(guchar *val, guint count, PDUprops *props, guint offset)
 /* Convert an oid to its conventional text representation
  * -- not thread safe...
  */
-char *showoid(subid_t *oid, guint len)
+static char *showoid(subid_t *oid, guint len)
 {
 	static char str[BUFLM];
 	guint i;
@@ -553,7 +555,8 @@ char *showoid(subid_t *oid, guint len)
 }
 
 /* show octetstring, if all ascii, show that, else hex [returnrd string must be freed by caller] */
-char *showoctets(guchar *octets, guint len, guint hexlen) /* if len <= hexlen, always show hex */
+static char *
+showoctets(guchar *octets, guint len, guint hexlen) /* if len <= hexlen, always show hex */
 {
 	guint dohex = 0;
 	guint i;
@@ -599,7 +602,7 @@ char *showoctets(guchar *octets, guint len, guint hexlen) /* if len <= hexlen, a
 }
 
 /* allow NULL pointers in strcmp, handle them as empty strings */
-int
+static int
 g_strcmp(gconstpointer a, gconstpointer b)
 {
 	if (a == 0) a = empty;
@@ -619,7 +622,8 @@ g_strcmp(gconstpointer a, gconstpointer b)
 /*************************************************************/
 
 /* check length for a reasonable value, return a corrected value */
-int checklength(int len, int def, int cls, int tag, char *lenstr, int strmax)
+static int
+checklength(int len, int def, int cls, int tag, char *lenstr, int strmax)
 {
 	int newlen = len;
 
@@ -701,8 +705,8 @@ int checklength(int len, int def, int cls, int tag, char *lenstr, int strmax)
 	return newlen;
 }
 
-guint decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint len, proto_tree *pt, int level);
-void PDUreset(int count, int counr2);
+static guint decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint len, proto_tree *pt, int level);
+static void PDUreset(int count, int counr2);
 
 static void 
 dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
@@ -932,7 +936,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 }
 
 /* decode an ASN.1 sequence, until we have consumed the specified length */
-guint
+static guint
 decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, int level)
 {
   ASN1_SCK asn1;
@@ -1706,7 +1710,7 @@ guint lev_limit = G_MAXINT;
 
 int icount = 0;			/* item counter */
 
-guint
+static guint
 parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 {
 	ASN1_SCK asn1;
@@ -1840,9 +1844,10 @@ parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 	return offset;
 }
 
-void showGNodes(GNode *p, int n);
+static void showGNodes(GNode *p, int n);
 
-gboolean
+#if 0
+static gboolean
 myLeaf(GNode *node, gpointer data)
 {
 	ASN1_SCK asn1;
@@ -1876,7 +1881,7 @@ myLeaf(GNode *node, gpointer data)
 	return FALSE;
 }
 
-void
+static void
 list_modules(void)
 {
 	if (asn1_verbose) g_message("build GNode tree:");
@@ -1890,8 +1895,9 @@ list_modules(void)
 	g_node_traverse(g_node_first_child(asn1_nodes), G_PRE_ORDER, G_TRAVERSE_LEAFS, -1, myLeaf, 0);
 
 }
+#endif
 
-void
+static void
 tt_build_tree(void)		/* build a GNode tree with all offset's to ASN.1 entities */
 {
 	if (asn1_nodes)
@@ -1904,7 +1910,7 @@ tt_build_tree(void)		/* build a GNode tree with all offset's to ASN.1 entities *
 
 /*****************************************************************************************************/
 
-guint anonCount;  /* for naming anonymous types */
+static guint anonCount;  /* for naming anonymous types */
 
 typedef struct _TBLModule 	TBLModule;
 typedef struct _TBLTypeDef	TBLTypeDef;
@@ -1925,7 +1931,8 @@ enum _tbl_t {
 };
 typedef enum _tbl_t tbl_t;
 /* text for 'tbl_t' type for debugging */
-char *data_types[] = {	"Module",
+static char *data_types[] = {
+			"Module",
 			"TypeDef",
 			"Tag",
 			"Type",
@@ -2001,7 +2008,7 @@ struct _TT {
 
 #define CHECKP(p) {if (p==0){g_warning("pointer==0, line %d **********", __LINE__);return;}}
 
-guint
+static guint
 get_asn1_int(guint want_tag, guint offset)
 {
 	ASN1_SCK asn1;
@@ -2029,7 +2036,7 @@ get_asn1_int(guint want_tag, guint offset)
 	return 0;
 }
 
-subid_t *			/* with prepended length ..... */
+static subid_t *			/* with prepended length ..... */
 get_asn1_oid(guint want_tag, guint offset)
 {
 	ASN1_SCK asn1;
@@ -2060,7 +2067,7 @@ get_asn1_oid(guint want_tag, guint offset)
 	return 0;
 }
 
-guchar *			/* 0 terminated string */
+static guchar *			/* 0 terminated string */
 get_asn1_string(guint want_tag, guint offset)
 {
 	ASN1_SCK asn1;
@@ -2090,7 +2097,7 @@ get_asn1_string(guint want_tag, guint offset)
 	return 0;
 }
 
-guint
+static guint
 get_asn1_uint(guint offset)
 {
 	ASN1_SCK asn1;
@@ -2109,7 +2116,7 @@ get_asn1_uint(guint offset)
 	return value;
 }
 
-gboolean
+static gboolean
 check_tag(guint want_tag, guint offset)
 {
 	ASN1_SCK asn1;
@@ -2128,7 +2135,8 @@ check_tag(guint want_tag, guint offset)
 	return FALSE;
 }
 
-gboolean
+#if 0
+static gboolean
 constructed(guint offset)
 {
 	ASN1_SCK asn1;
@@ -2149,8 +2157,9 @@ constructed(guint offset)
 
 	return FALSE;
 }
+#endif
 
-void
+static void
 define_constraint(GNode *p, GNode *q)
 {
 	TBLRange *range = g_malloc(sizeof(TBLRange));
@@ -2169,7 +2178,7 @@ define_constraint(GNode *p, GNode *q)
 
 }
 
-void
+static void
 define_namednumber(GNode *p, GNode *q)
 {
 	TBLNamedNumber *num = g_malloc(sizeof(TBLNamedNumber));
@@ -2187,7 +2196,7 @@ define_namednumber(GNode *p, GNode *q)
 	num->value = get_asn1_int(1, (guint)p->data);
 }
 
-void
+static void
 define_typeref(GNode *p, GNode *q)
 {
 	TBLTypeRef *ref = g_malloc(sizeof(TBLTypeRef));
@@ -2205,7 +2214,7 @@ define_typeref(GNode *p, GNode *q)
 	ref->implicit = get_asn1_int(ASN1_BOL, (guint)p->data);
 }
 
-void
+static void
 define_tag(GNode *p, GNode *q)
 {
 	TBLTag *type = g_malloc(sizeof(TBLTag));
@@ -2224,7 +2233,7 @@ define_tag(GNode *p, GNode *q)
 	
 }
 
-void
+static void
 define_type(GNode *p, GNode *q)
 {
 	GNode *r;
@@ -2304,7 +2313,7 @@ define_type(GNode *p, GNode *q)
 	}
 }
 
-void
+static void
 define_typedef(GNode *p, GNode *q)
 {
 	TBLTypeDef *type_def = g_malloc(sizeof(TBLTypeDef));
@@ -2329,7 +2338,7 @@ define_typedef(GNode *p, GNode *q)
 	type_def->isPdu = (p != 0);  /* true if it exists, value ignored */
 }
 
-void
+static void
 define_module(GNode *p, GNode *q)
 {
 	TBLModule *module = g_malloc(sizeof(TBLModule));
@@ -2367,7 +2376,7 @@ struct _SearchDef {
 	GNode *here;
 };
 
-gboolean
+static gboolean
 is_typedef(GNode *node, gpointer data)
 {
 	TBLTypeDef *d = (TBLTypeDef *)node->data;
@@ -2403,7 +2412,7 @@ struct _NameDefs {
 #define ALLOC_INCR 4
 #define CLASSREF (ASN1_PRV+1)
 
-gboolean
+static gboolean
 is_named(GNode *node, gpointer data)
 {
 	TBLNamedNumber *num = (TBLNamedNumber *)node->data;
@@ -2427,7 +2436,7 @@ is_named(GNode *node, gpointer data)
 	return FALSE;
 }
 
-gboolean
+static gboolean
 index_typedef(GNode *node, gpointer data)
 {
 	TBLTypeDef *d = (TBLTypeDef *)node->data;
@@ -2482,10 +2491,16 @@ index_typedef(GNode *node, gpointer data)
 	return FALSE;
 }
 
-TypeRef *typeDef_names = 0;
-guint numTypedefs = 0;
+static TypeRef *typeDef_names = 0;
+static guint numTypedefs = 0;
 
-void
+static gboolean
+free_node_data(GNode *node, gpointer data _U_)
+{
+	g_free(node->data);
+}
+
+static void
 get_values(void)		/* collect values from ASN.1 tree */
 				/* coded according to the tbl.asn1 description of snacc output */ 
 {				/* This routine does not leave references to the tvbuff or */
@@ -2500,8 +2515,11 @@ get_values(void)		/* collect values from ASN.1 tree */
 	if (asn1_verbose) g_message("interpreting tree");
 	typeDef_names = 0;  /* just forget allocated any data .... */
 	
-	if (data_nodes)
+	if (data_nodes) {
+		g_node_traverse(data_nodes, G_POST_ORDER, G_TRAVERSE_ALL, -1,
+		    free_node_data, NULL);
 		g_node_destroy(data_nodes);
+	}
 			
 	data_nodes = g_node_new(0);
 
@@ -2586,7 +2604,7 @@ get_values(void)		/* collect values from ASN.1 tree */
 
 }
 
-void
+static void
 showGNode(GNode *p, int n)
 {
 	if (p == 0) return;
@@ -2662,7 +2680,7 @@ showGNode(GNode *p, int n)
 	}
 }
 
-void
+static void
 showGNodes(GNode *p, int n)
 {
 	if (p == 0) return;
@@ -2671,7 +2689,7 @@ showGNodes(GNode *p, int n)
 	showGNodes(p->next, n);
 }
 
-void showGenv(GNode *p, int n, int m)
+static void showGenv(GNode *p, int n, int m)
 {
 	int i;
 
@@ -2689,7 +2707,7 @@ void showGenv(GNode *p, int n, int m)
 
 }
 
-void
+static void
 debug_dump_TT(void)		/* dump contents of TT struct, for debugging */
 {
 	if (asn1_verbose)
@@ -2702,7 +2720,7 @@ debug_dump_TT(void)		/* dump contents of TT struct, for debugging */
 			TT.totalLenStrings);
 }
 
-void
+static void
 my_log_handler(const gchar *log_domain, GLogLevelFlags log_level,
 		const gchar *message, gpointer user_data)
 {
@@ -2721,7 +2739,7 @@ static char eol[] = "\r\n";
         }
 }
 
-void
+static void
 read_asn1_type_table(char *filename)
 {
 	FILE *f;
@@ -2786,7 +2804,9 @@ read_asn1_type_table(char *filename)
 	tt_build_tree();
 	if (asn1_verbose) g_message("read %d items from %s", icount, filename);	
 
-	/* list_modules(); */
+#if 0
+	list_modules();
+#endif
 
 	get_values();
 
@@ -2808,7 +2828,7 @@ read_asn1_type_table(char *filename)
 			data_types[((TBLTag *)p->data)->type], data_types[(x)], __LINE__);}
 
 
-void
+static void
 save_reference(PDUinfo *p)
 {
 	gint i = p->mytype;
@@ -2819,13 +2839,13 @@ save_reference(PDUinfo *p)
 	g_ptr_array_add(typeDef_names[i].refs, (gpointer)p);
 }
 
-void
+static void
 tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex);
 
 
 
 	/* evaluate typeref, pointer to current pdu node and typedef */
-void
+static void
 tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 {
 	GNode *q;
@@ -2994,7 +3014,7 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 	}
 }
 
-void
+static void
 tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, source type node list */
 {
 	GNode *q, *pdu1;
@@ -3236,7 +3256,7 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 	}
 }
 
-void
+static void
 PDUtext(char *txt, PDUinfo *info) /* say everything we know about this entry */
 {
 	PDUinfo *rinfo;
@@ -3291,7 +3311,7 @@ PDUtext(char *txt, PDUinfo *info) /* say everything we know about this entry */
 }
 
 
-void
+static void
 showPDUtree(GNode *p, int n)
 {
 	PDUinfo *info;
@@ -3312,7 +3332,7 @@ showPDUtree(GNode *p, int n)
 	return;
 }
 
-gboolean
+static gboolean
 build_pdu_tree(char *pduname)
 {
 	SearchDef sd;
@@ -3322,6 +3342,10 @@ build_pdu_tree(char *pduname)
 
 	if (asn1_verbose) g_message("build msg tree from '%s' for '%s'", current_asn1, pduname);
 
+	if (!data_nodes) {
+		if (asn1_verbose) g_message("no data nodes");
+		return FALSE;
+	}
 	sd.key = pduname;
 	sd.here = 0;
 	g_node_traverse(data_nodes, G_PRE_ORDER, G_TRAVERSE_ALL, -1, is_typedef, (gpointer)&sd);
@@ -3331,6 +3355,13 @@ build_pdu_tree(char *pduname)
 	} else {
 		if (asn1_verbose) g_message("%s not found, ignored", sd.key);
 		return FALSE;
+	}
+
+	/* If there's an existing PDU tree, free it */
+	if (PDUtree) {
+		g_node_traverse(PDUtree, G_POST_ORDER, G_TRAVERSE_ALL, -1,
+		    free_node_data, NULL);
+		g_node_destroy(PDUtree);
 	}
 
 	/* initialize the PDU tree, hand craft the root entry */
@@ -3498,9 +3529,9 @@ enum
    N_COLUMNS
 };
 
-FILE *namelist = 0;
+static FILE *namelist = 0;
 
-void
+static void
 build_tree_view(GtkTreeStore *store, GNode *p, GtkTreeIter *iter)
 {
 	GtkTreeIter iter2;
@@ -3572,10 +3603,10 @@ struct DefFind {
 };
 
 #define PATHSTACKMAX 10
-GtkTreePath *pathstack[PATHSTACKMAX];
-gint pathstackp = 0;
+static GtkTreePath *pathstack[PATHSTACKMAX];
+static gint pathstackp = 0;
 
-void add_path(GtkTreePath *p)
+static void add_path(GtkTreePath *p)
 {
 	if (pathstackp >= PATHSTACKMAX) { /* shift old contents */
 		gtk_tree_path_free(pathstack[0]); /* we forget about this one */
@@ -3585,13 +3616,15 @@ void add_path(GtkTreePath *p)
 	pathstack[pathstackp++] = p;
 }
 
-GtkTreePath *pop_path() {
+static GtkTreePath *pop_path(void)
+{
 	if (pathstackp > 0)
 		return pathstack[--pathstackp];
 	return 0;
 }
 
-gboolean find_definition(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
+static gboolean
+find_definition(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
 {
 	gint def;
 
@@ -3607,7 +3640,7 @@ gboolean find_definition(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *it
 
 }
 
-void
+static void
 my_signal_handler(GtkTreeView *treeview, GtkTreePath *spath, GtkTreeViewColumn *arg2, gpointer model)
 {
 	GtkTreeIter iter;
@@ -3783,8 +3816,8 @@ static gint button_press_callback( GtkWidget      *widget,
 }
 
 
-void
-create_message_window()
+static void
+create_message_window(void)
 {
 	GtkCellRenderer *renderer;
 	GtkTreeStore *model;
@@ -3936,13 +3969,13 @@ create_message_window()
  *    routines to find names to go with the decoded data stream	 				*
  ************************************************************************************************/
 typedef struct _statestack statestack;
-struct _statestack {
+static struct _statestack {
 	GNode *node;
 	guint type;
 	guint offset;
 	char *name;
 } PDUstate[1024];
-gint PDUstatec = 0;
+static gint PDUstatec = 0;
 
 #define PUSHNODE(x)   { PDUstate[PDUstatec++] = (x); }
 #define STORENODE(x)  { PDUstate[PDUstatec-1] = (x); }
@@ -3967,7 +4000,7 @@ gint PDUstatec = 0;
 				pos.node=0;PUSHNODE(pos);return ret;}}
 
 
-void
+static void
 showstack(statestack *pos, char *txt, int n)
 {
 	char buf[1024], *name, *type, *stype;
@@ -4033,7 +4066,7 @@ showstack(statestack *pos, char *txt, int n)
 	g_message(buf);
 }
 
-void
+static void
 showrefNode(GNode *node, int n)
 {
 	char *name = empty, *type = empty, *tname = empty;
@@ -4062,7 +4095,7 @@ showrefNode(GNode *node, int n)
 		showrefNode(ref, n+1);
 }
 
-void
+static void
 showNode(GNode *node, int n, int m)
 {
 	char *name = empty, *type = empty;
@@ -4091,7 +4124,7 @@ showNode(GNode *node, int n, int m)
 	if (node->next) showNode(node->next, n, m);
 }
 
-void
+static void
 PDUreset(int count, int count2)
 {
 	statestack pos;
@@ -4116,7 +4149,7 @@ PDUreset(int count, int count2)
 	}
 }
 
-GNode *				/* find GNode for a choice element, 0 if none */
+static GNode *			/* find GNode for a choice element, 0 if none */
 makechoice(GNode *p, guint class, guint tag)
 {
 	GNode *q;
@@ -4159,7 +4192,7 @@ makechoice(GNode *p, guint class, guint tag)
 }
 
 		/* offset is for debugging only, a reference to output on screen */
-PDUprops *
+static PDUprops *
 getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 {
 	statestack pos, pos2, save_pos;
@@ -4720,7 +4753,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 	return out;
 }
 
-char *
+static char *
 getPDUenum(PDUprops *props, guint offset, guint cls, guint tag, guint value)
 {
 	GNode *list;
@@ -4773,7 +4806,7 @@ getPDUenum(PDUprops *props, guint offset, guint cls, guint tag, guint value)
 /* insert error text in front of spec
  * with a delimeter we can recognize on next attempt
  */
-void insert_error(gchar *s, int len, gchar *err, guint mark)
+static void insert_error(gchar *s, int len, gchar *err, guint mark)
 {
 	gchar *news;
 	guint slen;
@@ -4790,7 +4823,7 @@ void insert_error(gchar *s, int len, gchar *err, guint mark)
 
 /* parse a range of port numbers: a,b-c,d
  */
-GSList *parse_port_range(gchar *s, int len)
+static GSList *parse_port_range(gchar *s, int len)
 {
 	GSList *list = NULL;
 	guint n, count, fill, fillstart = 0;
@@ -4866,7 +4899,7 @@ GSList *parse_port_range(gchar *s, int len)
 
 /* build text representation of given port list
  */
-void show_port_range(GSList *list, gchar *buf, int len)
+static void show_port_range(GSList *list, gchar *buf, int len)
 {
 	gchar delim = 0;
 	int this, last, size;
@@ -4925,6 +4958,9 @@ proto_register_asn1(void) {
   int i, j;
 
   asn1_logfile = get_tempfile_path(ASN1LOGFILE);
+
+  current_asn1 = g_strdup("");
+  asn1_filename = g_strdup(current_asn1);
 
   current_pduname = g_strdup("ASN1");
   asn1_pduname = g_strdup(current_pduname);
@@ -5094,57 +5130,8 @@ proto_reg_handoff_asn1(void) {
 #endif /* JUST_ONE_PORT */
   }
 
-#ifdef JUST_ONE_PORT
-  tcp_port_asn1 = global_tcp_port_asn1;
-  udp_port_asn1 = global_udp_port_asn1;
-  sctp_port_asn1 = global_sctp_port_asn1;
-
-  dissector_add("tcp.port", global_tcp_port_asn1, asn1_handle);
-  dissector_add("udp.port", global_udp_port_asn1, asn1_handle);
-  dissector_add("sctp.port", global_sctp_port_asn1, asn1_handle);
-#else
-  len = strlen(global_tcp_ports_asn1) + 32; /* extra for possible error message */
-  global_tcp_ports_asn1 = realloc(global_tcp_ports_asn1, len);
-  tcp_ports_asn1 = parse_port_range(global_tcp_ports_asn1, len);
-  if (tcp_ports_asn1)		/* no error, normalize presentation */
-	  show_port_range(tcp_ports_asn1, global_tcp_ports_asn1, len);
-  else
-	  g_message("tcp_ports: %s\n", global_tcp_ports_asn1);
-
-  len = strlen(global_udp_ports_asn1) + 32; /* extra for possible error message */
-  global_udp_ports_asn1 = realloc(global_udp_ports_asn1, len);
-  udp_ports_asn1 = parse_port_range(global_udp_ports_asn1, len);
-  if (udp_ports_asn1)		/* no error, normalize presentation */
-	  show_port_range(udp_ports_asn1, global_udp_ports_asn1, len);
-  else
-	  g_message("udp_ports: %s\n", global_udp_ports_asn1);
-
-  len = strlen(global_sctp_ports_asn1) + 32; /* extra for possible error message */
-  global_sctp_ports_asn1 = realloc(global_sctp_ports_asn1, len);
-  sctp_ports_asn1 = parse_port_range(global_sctp_ports_asn1, len);
-  if (sctp_ports_asn1)		/* no error, normalize presentation */
-	  show_port_range(sctp_ports_asn1, global_sctp_ports_asn1, len);
-  else
-	  g_message("sctp_ports: %s\n", global_sctp_ports_asn1);
-
-  list = tcp_ports_asn1;
-  while (list) {
-	  dissector_add("tcp.port", GPOINTER_TO_INT(list->data), asn1_handle);
-	  list = g_slist_next(list);
-  }
-  list = udp_ports_asn1;
-  while (list) {
-	  dissector_add("udp.port", GPOINTER_TO_INT(list->data), asn1_handle);
-	  list = g_slist_next(list);
-  }
-  list = sctp_ports_asn1;
-  while (list) {
-	  dissector_add("sctp.port", GPOINTER_TO_INT(list->data), asn1_handle);
-	  list = g_slist_next(list);
-  }
-#endif /* JUST_ONE_PORT */
-
-  if ( g_strcmp(asn1_filename, current_asn1) != 0) { /* new defintions, parse it */
+  if (strcmp(asn1_filename, current_asn1) != 0) {
+	  /* new definitions, parse the file if we have one */
 	  /* !!! should be postponed until we really need it !!! */
 #ifdef READSYNTAX
 	  read_asn1_type_table(asn1_filename);
@@ -5152,7 +5139,8 @@ proto_reg_handoff_asn1(void) {
 	  g_free(current_asn1);
 	  current_asn1 = g_strdup(asn1_filename);
   }
-  if (g_strcmp(asn1_pduname, current_pduname) != 0) { /* new PDU type, build tree for it */
+  if (!PDUtree ||	/* no tree built yet for PDU type */
+      strcmp(asn1_pduname, current_pduname) != 0) { /* new PDU type, build tree for it */
 	  if (build_pdu_tree(asn1_pduname)) {
 		  g_free(current_pduname);
 		  current_pduname = g_strdup(asn1_pduname);
@@ -5167,6 +5155,59 @@ proto_reg_handoff_asn1(void) {
 	  create_message_window();
   }
 #endif /* SHOWPDU */
+
+  /* If we now have a PDU tree, register for the port or ports we have */
+  if (PDUtree) {
+#ifdef JUST_ONE_PORT
+    tcp_port_asn1 = global_tcp_port_asn1;
+    udp_port_asn1 = global_udp_port_asn1;
+    sctp_port_asn1 = global_sctp_port_asn1;
+
+    dissector_add("tcp.port", global_tcp_port_asn1, asn1_handle);
+    dissector_add("udp.port", global_udp_port_asn1, asn1_handle);
+    dissector_add("sctp.port", global_sctp_port_asn1, asn1_handle);
+#else
+    len = strlen(global_tcp_ports_asn1) + 32; /* extra for possible error message */
+    global_tcp_ports_asn1 = realloc(global_tcp_ports_asn1, len);
+    tcp_ports_asn1 = parse_port_range(global_tcp_ports_asn1, len);
+    if (tcp_ports_asn1)		/* no error, normalize presentation */
+	  show_port_range(tcp_ports_asn1, global_tcp_ports_asn1, len);
+    else
+	  g_message("tcp_ports: %s\n", global_tcp_ports_asn1);
+
+    len = strlen(global_udp_ports_asn1) + 32; /* extra for possible error message */
+    global_udp_ports_asn1 = realloc(global_udp_ports_asn1, len);
+    udp_ports_asn1 = parse_port_range(global_udp_ports_asn1, len);
+    if (udp_ports_asn1)		/* no error, normalize presentation */
+	  show_port_range(udp_ports_asn1, global_udp_ports_asn1, len);
+    else
+	  g_message("udp_ports: %s\n", global_udp_ports_asn1);
+
+    len = strlen(global_sctp_ports_asn1) + 32; /* extra for possible error message */
+    global_sctp_ports_asn1 = realloc(global_sctp_ports_asn1, len);
+    sctp_ports_asn1 = parse_port_range(global_sctp_ports_asn1, len);
+    if (sctp_ports_asn1)		/* no error, normalize presentation */
+	  show_port_range(sctp_ports_asn1, global_sctp_ports_asn1, len);
+    else
+	  g_message("sctp_ports: %s\n", global_sctp_ports_asn1);
+
+    list = tcp_ports_asn1;
+    while (list) {
+	  dissector_add("tcp.port", GPOINTER_TO_INT(list->data), asn1_handle);
+	  list = g_slist_next(list);
+    }
+    list = udp_ports_asn1;
+    while (list) {
+	  dissector_add("udp.port", GPOINTER_TO_INT(list->data), asn1_handle);
+	  list = g_slist_next(list);
+    }
+    list = sctp_ports_asn1;
+    while (list) {
+	  dissector_add("sctp.port", GPOINTER_TO_INT(list->data), asn1_handle);
+	  list = g_slist_next(list);
+    }
+  }
+#endif /* JUST_ONE_PORT */
 }
 
 /* Start the functions we need for the plugin stuff */
