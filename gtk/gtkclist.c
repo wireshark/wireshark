@@ -1617,7 +1617,7 @@ gtk_clist_set_column_visibility (GtkCList *clist,
 void
 gtk_clist_set_column_resizeable (GtkCList *clist,
 				 gint      column,
-				 gint      resizeable)
+				 gboolean  resizeable)
 {
   g_return_if_fail (clist != NULL);
   g_return_if_fail (GTK_IS_CLIST (clist));
