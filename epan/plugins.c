@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.49 2002/02/22 08:56:47 guy Exp $
+ * $Id: plugins.c,v 1.50 2002/02/23 02:16:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -417,11 +417,27 @@ init_plugins(const char *plugin_dir)
 
 	patable.p_register_giop_user		= register_giop_user;
 	patable.p_is_big_endian			= is_big_endian;
-	patable.p_get_CDR_string		= get_CDR_string;
-	patable.p_get_CDR_ulong			= get_CDR_ulong;
-	patable.p_get_CDR_enum			= get_CDR_enum;
-	patable.p_get_CDR_object		= get_CDR_object;
+	patable.p_get_CDR_encap_info		= get_CDR_encap_info;
+
+	patable.p_get_CDR_any			= get_CDR_any;
 	patable.p_get_CDR_boolean		= get_CDR_boolean;
+	patable.p_get_CDR_char			= get_CDR_char;
+	patable.p_get_CDR_double		= get_CDR_double;
+	patable.p_get_CDR_enum			= get_CDR_enum;
+	patable.p_get_CDR_fixed			= get_CDR_fixed;
+	patable.p_get_CDR_float			= get_CDR_float;
+	patable.p_get_CDR_interface		= get_CDR_interface;
+	patable.p_get_CDR_long			= get_CDR_long;
+	patable.p_get_CDR_object		= get_CDR_object;
+	patable.p_get_CDR_octet			= get_CDR_octet;
+	patable.p_get_CDR_octet_seq		= get_CDR_octet_seq;
+	patable.p_get_CDR_short			= get_CDR_short;
+	patable.p_get_CDR_string		= get_CDR_string;
+	patable.p_get_CDR_typeCode		= get_CDR_typeCode;
+	patable.p_get_CDR_ulong			= get_CDR_ulong;
+	patable.p_get_CDR_ushort		= get_CDR_ushort;
+	patable.p_get_CDR_wchar			= get_CDR_wchar;
+	patable.p_get_CDR_wstring		= get_CDR_wstring;
 
 	patable.p_is_tpkt			= is_tpkt;
 	patable.p_dissect_tpkt_encap		= dissect_tpkt_encap;

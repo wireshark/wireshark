@@ -1056,6 +1056,10 @@ Kari Tiirikainen <ktiirika[AT]stybba.ntc.nokia.com> {
 	COPS-PR extension support
 }
 
+John Mackenzie <John.A.Mackenzie[AT]t-online.de> {
+	Put missing initializations of table entries in "plugins.c"
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
