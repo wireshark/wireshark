@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.36 2002/12/11 19:59:08 guy Exp $
+ * $Id: packet-l2tp.c,v 1.37 2003/01/14 18:57:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -308,11 +308,10 @@ static void
 dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *l2tp_tree=NULL, *l2tp_avp_tree, *l2tp_lcp_avp_tree, *ctrl_tree;
-  proto_item *ti, *tf, *te;
+  proto_item *l2tp_item = NULL, *ti, *tf, *te;
   int rhcode;
   int index = 0;
   int tmp_index;
-  int proto_length = 0;
   guint16 length = 0;		/* Length field */
   guint16 tid;			/* Tunnel ID */
   guint16 cid;			/* Call ID */
@@ -405,15 +404,20 @@ dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (LENGTH_BIT(control)) {
-	proto_length = length;
-  }
-  else {
-	proto_length = tvb_length(tvb);
+	/*
+	 * Set the length of this tvbuff to be no longer than the length
+	 * in the header.
+	 *
+	 * XXX - complain if that length is longer than the length of
+	 * the tvbuff?  Have "set_actual_length()" return a Boolean
+	 * and have its callers check the result?
+	 */
+	set_actual_length(tvb, length);
   }
 
   if (tree) {
-        ti = proto_tree_add_item(tree,proto_l2tp, tvb, 0, proto_length, FALSE);
-	l2tp_tree = proto_item_add_subtree(ti, ett_l2tp);
+        l2tp_item = proto_tree_add_item(tree,proto_l2tp, tvb, 0, -1, FALSE);
+	l2tp_tree = proto_item_add_subtree(l2tp_item, ett_l2tp);
 
 	ti = proto_tree_add_text(l2tp_tree, tvb, 0, 2,
 			"Packet Type: %s Tunnel Id=%d Session Id=%d",
@@ -461,19 +465,23 @@ dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    offset_size);
 	}
 	index += 2;
-	if (tree) {
-		proto_tree_add_text(l2tp_tree, tvb, index, offset_size, "Offset Padding");
+	if (offset_size != 0) {
+		if (tree) {
+			proto_tree_add_text(l2tp_tree, tvb, index, offset_size, "Offset Padding");
+		}
+		index += offset_size;
 	}
-	index += offset_size;
   }
   if (tree && (LENGTH_BIT(control))&&(length==12)) {
             proto_tree_add_text(l2tp_tree, tvb, 0, 0, "Zero Length Bit message");
   }
 
   if (!CONTROL_BIT(control)) {  /* Data Messages so we are done */
+	if (tree)
+		proto_item_set_len(l2tp_item, index);
 	/* If we have data, signified by having a length bit, dissect it */
 	if (tvb_offset_exists(tvb, index)) {
-		next_tvb = tvb_new_subset(tvb, index, -1, proto_length - index);
+		next_tvb = tvb_new_subset(tvb, index, -1, -1);
 		call_dissector(ppp_hdlc_handle, next_tvb, pinfo, tree);
 	}
 	return;
