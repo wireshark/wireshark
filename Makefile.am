@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.733 2004/06/17 08:53:42 jmayer Exp $
+# $Id: Makefile.am,v 1.734 2004/06/18 12:19:24 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -200,7 +200,7 @@ ethereal_optional_objects = @SNPRINTF_O@ @STRERROR_O@ \
 ethereal_additional_libs = \
 	gtk/libui.a		\
 	wiretap/libwiretap.la	\
-	epan/libethereal.la @KRB5_LIBS@
+	epan/libethereal.la
 
 # This is the automake dependency variable for the executable
 ethereal_DEPENDENCIES = \
@@ -228,13 +228,13 @@ ethereal_LDADD = \
 	@SNMP_LIBS@ @SSL_LIBS@ 		\
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
-	@PCAP_LIBS@ @GTK_LIBS@ @ADNS_LIBS@
+	@PCAP_LIBS@ @GTK_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@
 
 # Additional libs that I know how to build. These will be
 # linked into the tethereal executable.
 tethereal_additional_libs =		\
 	wiretap/libwiretap.la		\
-	epan/libethereal.la @KRB5_LIBS@
+	epan/libethereal.la
 
 # This is the automake dependency variable for the executable
 tethereal_DEPENDENCIES = \
@@ -250,7 +250,7 @@ tethereal_LDADD = \
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
 	@GLIB_LIBS@ -lm			\
-	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@
+	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@
 
 if ENABLE_STATIC
 tethereal_LDFLAGS = -Wl,-static -all-static
@@ -342,7 +342,7 @@ randpkt_LDADD = \
 
 dftest_additional_libs =		\
 	wiretap/libwiretap.la		\
-	epan/libethereal.la @KRB5_LIBS@
+	epan/libethereal.la
 
 dftest_DEPENDENCIES = \
 	$(ethereal_optional_objects)	\
@@ -357,7 +357,7 @@ dftest_LDADD = \
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
 	@GLIB_LIBS@ -lm			\
-	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@
+	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@
 
 dftest_LDFLAGS = -export-dynamic
 
