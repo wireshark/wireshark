@@ -590,9 +590,8 @@ in the packet list.  You can select "Time of day" for absolute time stamps,
 "Seconds since previous frame" for delta time stamps.  You can also
 specify whether, when the display is updated as packets are captured,
 the list should automatically scroll to show the most recently captured
-packets or not, whether addresses should be translated to names in the
-display, and whether IPv4 TOS field should be treated as the
-Differentiated Services field.
+packets or not and whether addresses should be translated to names in the
+display.
 
 =item Plugins
 
