@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.67 2004/02/23 22:26:07 ulfl Exp $
+ * $Id: io_stat.c,v 1.68 2004/02/24 17:53:40 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,6 +50,7 @@
 #include "../globals.h"
 #include "../color.h"
 #include "compat_macros.h"
+#include "dlg_utils.h"
 
 /* filter prefs dialog */
 #include "filter_prefs.h"
@@ -1748,11 +1749,22 @@ create_filter_area(io_stat_t *io, GtkWidget *box)
 }
 
 
+static void
+io_stat_close_cb(
+    GtkButton		*button _U_,
+    gpointer		parent_w)
+{
+    gtk_grab_remove(GTK_WIDGET(parent_w));
+    gtk_widget_destroy(GTK_WIDGET(parent_w));
+}
+
+
 static void 
 init_io_stat_window(io_stat_t *io)
 {
 	GtkWidget *vbox;
 	GtkWidget *hbox;
+    GtkWidget *bt_close;
 
 	/* create the main window */
 	io->window=window_new(GTK_WINDOW_TOPLEVEL, NULL);
@@ -1774,7 +1786,21 @@ init_io_stat_window(io_stat_t *io)
 	create_ctrl_area(io, hbox);
 
 	io_stat_set_title(io);
-	gtk_widget_show(io->window);
+
+    hbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+    gtk_widget_show(hbox);
+
+    bt_close = OBJECT_GET_DATA(hbox, GTK_STOCK_CLOSE);
+    gtk_widget_grab_default(bt_close);
+    SIGNAL_CONNECT(bt_close, "clicked", io_stat_close_cb, io->window);
+
+    /* Catch the "key_press_event" signal in the window, so that we can
+	   catch the ESC key being pressed and act as if the "Cancel" button
+	   had been selected. */
+	dlg_set_cancel(io->window, bt_close);
+
+    gtk_widget_show(io->window);
 }
 
 
@@ -1792,6 +1818,6 @@ register_tap_listener_gtk_iostat(void)
 {
 	register_ethereal_tap("io,stat", gtk_iostat_init);
 
-	register_tap_menu_item("IO Graphs", REGISTER_TAP_GROUP_GENERIC,
+	register_tap_menu_item("_IO Graphs", REGISTER_TAP_GROUP_GENERIC,
         gtk_iostat_cb, NULL, NULL, NULL);
 }
