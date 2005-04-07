@@ -3549,7 +3549,7 @@ void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 	}
 	edt = epan_dissect_new(TRUE, FALSE);
 	epan_dissect_prime_dfilter(edt, sfcode);
-	epan_dissect_run(edt, &cf->pseudo_header, cf->pd, fdata, &cf->cinfo);
+	epan_dissect_run(edt, &cf->pseudo_header, cf->pd, fdata, NULL);
 	frame_matched = dfilter_apply_edt(sfcode, edt);
 	
 	/* if it is not an rtp frame, show the rtpstream dialog */

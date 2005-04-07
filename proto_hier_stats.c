@@ -145,7 +145,7 @@ process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 		return FALSE;	/* failure */
 	}
 
-	/* Dissect the frame */
+	/* Dissect the frame   tree  not visible */
 	edt = epan_dissect_new(TRUE, FALSE);
 	epan_dissect_run(edt, &phdr, pd, frame, cinfo);
 
@@ -253,8 +253,9 @@ ph_stats_new(void)
 				ps->first_time = cur_time;
 				ps->last_time = cur_time;
 			}
-
-			if (!process_frame(frame, &cfile.cinfo, ps)) {
+			
+			/* we don't care about colinfo */
+			if (!process_frame(frame, NULL, ps)) {
 				/*
 				 * Give up, and set "stop_flag" so we
 				 * just abort rather than popping up

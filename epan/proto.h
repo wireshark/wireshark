@@ -147,7 +147,7 @@ struct _header_field_info {
 	char				*abbrev;    /**< abbreviated name of this field */
 	enum ftenum			type;       /**< field type, one of FT_ (from ftypes.h) */
 	int					display;	/**< one of BASE_, or number of field bits for FT_BOOLEAN */
-	const void			*strings;	/**< _value_string (or true_false_string for FT_BOOLEAN), typically converted by VALS() or TFS() */
+	const void			*strings;	/**< _value_string (or true_false_string for FT_BOOLEAN), typically converted by VALS() or TFS() If this is an FT_PROTOCOL then it points to the associated protocol_t structure*/
 	guint32				bitmask;    /**< FT_BOOLEAN only: bitmask of interesting bits */
 	char				*blurb;		/**< Brief description of field. */
 

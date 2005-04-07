@@ -2442,7 +2442,7 @@ proto_register_protocol(char *name, char *short_name, char *filter_name)
     hfinfo->name = name;
     hfinfo->abbrev = filter_name;
     hfinfo->type = FT_PROTOCOL;
-    hfinfo->strings = NULL;
+    hfinfo->strings = protocol;
     hfinfo->bitmask = 0;
     hfinfo->bitshift = 0;
     hfinfo->blurb = "";
@@ -2515,27 +2515,17 @@ proto_get_next_protocol_field(void **cookie)
 	return &ptr->hfinfo;
 }
 
-/*
- * Find the protocol list entry for a protocol given its field ID.
- */
-static gint
-compare_proto_id(gconstpointer proto_arg, gconstpointer id_arg)
-{
-	const protocol_t *protocol = proto_arg;
-	const int *id_ptr = id_arg;
-
-	return (protocol->proto_id == *id_ptr) ? 0 : 1;
-}
-
 protocol_t *
 find_protocol_by_id(int proto_id)
 {
-	GList *list_entry;
+	header_field_info *hfinfo;
 
-	list_entry = g_list_find_custom(protocols, &proto_id, compare_proto_id);
-	if (list_entry == NULL)
+	if(proto_id<0)
 		return NULL;
-	return list_entry->data;
+
+	PROTO_REGISTRAR_GET_NTH(proto_id, hfinfo);
+	DISSECTOR_ASSERT(hfinfo->type==FT_PROTOCOL);
+	return (protocol_t *)hfinfo->strings;
 }
 
 static gint compare_filter_name(gconstpointer proto_arg,
@@ -2668,7 +2658,7 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 	DISSECTOR_ASSERT(hfinfo->name);
 	DISSECTOR_ASSERT(hfinfo->abbrev);
 
-	/* These types of fields are allowed to have value_strings or true_false_strings */
+	/* These types of fields are allowed to have value_strings, true_false_strings or a protocol_t struct*/
 	DISSECTOR_ASSERT((hfinfo->strings == NULL) || (
 			(hfinfo->type == FT_UINT8) ||
 			(hfinfo->type == FT_UINT16) ||
@@ -2679,6 +2669,7 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 			(hfinfo->type == FT_INT24) ||
 			(hfinfo->type == FT_INT32) ||
 			(hfinfo->type == FT_BOOLEAN) ||
+			(hfinfo->type == FT_PROTOCOL) ||
 			(hfinfo->type == FT_FRAMENUM) ));
 
 	switch (hfinfo->type) {
