@@ -52,12 +52,15 @@
 #include "main.h"
 #include "compat_macros.h"
 #include "../color.h"
+#include "epan/filesystem.h"
 
 #include <string.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+
+#include "simple_dialog.h"
 
 /****************************************************************************/
 
@@ -70,6 +73,9 @@
 GtkRcStyle *rc_style;
 GdkColormap *colormap;
 #endif
+
+GtkWidget *write_to_file_w = NULL;
+
 
 /****************************************************************************/
 /* Reset the user_data structure */
@@ -138,6 +144,7 @@ static void graph_analysis_init_dlg(graph_analysis_data_t* user_data)
 static void on_destroy(GtkWidget *win _U_, graph_analysis_data_t *user_data _U_)
 {
 	int i;
+
 	for (i=0; i<MAX_NUM_NODES; i++){
 		user_data->nodes[i].type = AT_NONE;
 		user_data->nodes[i].len = 0;
@@ -192,6 +199,366 @@ static void draw_arrow(GdkDrawable *pixmap, GdkGC *gc, gint x, gint y, gboolean 
 #define TOP_Y_BORDER 40
 #define BOTTOM_Y_BORDER 0
 #define COMMENT_WIDTH 400
+
+#define NODE_CHARS_WIDTH 20
+#define CONV_TIME_HEADER "Conv.| Time     "
+#define EMPTY_HEADER     "     |          "
+#define HEADER_LENGTH 16
+
+/****************************************************************************/
+/* adds trailing characters to complete the requested length                */
+/*   NB: does not allocate new memory for the string, there must be enough  */
+/****************************************************************************/
+
+static void enlarge_string(char *string, guint32 length, char pad){
+
+	guint32 i,l;
+
+	l = strlen(string);
+	
+	if (l>=length){
+		return;
+	}
+	
+	for (i=l;i<length;i++){
+		string[i]=pad;
+	}
+	string[length]='\0';
+}
+
+/****************************************************************************/
+/* overwrites the characters in a string, between positions p1 and p2, with */
+/*   the characters of text_to_insert                                       */
+/*   NB: it does not check that p1 and p2 fit into string					*/
+/****************************************************************************/
+
+static void overwrite (char *string, char *text_to_insert, guint32 p1, guint32 p2){
+
+	guint32 first, last, i;
+
+	if (p1 == p2)
+		return;
+
+	if (p1 > p2){
+		first = p2; 
+		last = p1;
+	}
+	else{
+		first = p1;
+		last = p2;
+	}
+
+	if ((unsigned int)(last - first)>strlen(text_to_insert)){
+		last = first + strlen(text_to_insert);
+	}
+
+	for (i=first;i<last;i++){
+		string[i]=text_to_insert[i-first];
+	}
+	return;
+}
+
+
+/****************************************************************************/
+gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
+{
+        guint32 i, first_item, first_node, display_items, display_nodes;
+		guint32 start_position, end_position, item_width;
+        guint32 current_item;
+		graph_analysis_item_t *gai;
+		guint16 old_conv_num = 0;
+
+        char label_string[MAX_COMMENT];
+        char  *empty_line,* separator_line,*tmp_str, *tmp_str2;
+		char src_port[8],dst_port[8];
+        
+		GList* list;
+
+		FILE *of;
+	
+		of = fopen(user_data->dlg.write_file,"w");
+		if (of==NULL){
+			return FALSE;
+		}
+
+		first_item = user_data->dlg.first_item;
+
+		/* get the items to display and fill the matrix array */
+		list = g_list_first(user_data->graph_info->list);
+		current_item = 0;
+		i = 0;
+		while (list)
+		{
+			gai = list->data;
+			if (gai->display){
+				if (i>=first_item){
+					user_data->dlg.items[current_item].frame_num = gai->frame_num;
+					user_data->dlg.items[current_item].time = gai->time;
+					user_data->dlg.items[current_item].port_src = gai->port_src;
+					user_data->dlg.items[current_item].port_dst = gai->port_dst;
+					user_data->dlg.items[current_item].frame_label = gai->frame_label;
+					user_data->dlg.items[current_item].comment = gai->comment;
+					user_data->dlg.items[current_item].conv_num = gai->conv_num;
+					user_data->dlg.items[current_item].src_node = gai->src_node;
+					user_data->dlg.items[current_item].dst_node = gai->dst_node;
+					current_item++;
+				}
+				i++;
+			}
+
+			list = g_list_next(list);
+		}
+		display_items = current_item;
+
+		/* if not items to display */
+		if (display_items == 0)	return TRUE;				
+
+		display_nodes=user_data->num_nodes;
+
+		first_node = user_data->dlg.first_node;
+
+		/* Write the conv. and time headers */
+
+		fprintf (of, CONV_TIME_HEADER);
+		empty_line = g_strdup("");
+
+
+		/* Write the node names on top */
+		for (i=0; i<display_nodes; i++){
+			/* print the node identifiers */
+			g_snprintf(label_string, NODE_CHARS_WIDTH, "| %s",
+				get_addr_name(&(user_data->nodes[i+first_node])));
+				enlarge_string(label_string,NODE_CHARS_WIDTH,' ');
+			fprintf(of,label_string);
+			strcpy(label_string,"| ");
+			enlarge_string(label_string,NODE_CHARS_WIDTH,' ');
+			tmp_str = g_strdup(empty_line);
+			g_free(empty_line);
+			empty_line = g_strdup_printf("%s%s",tmp_str,label_string);
+			g_free(tmp_str);
+		}
+		tmp_str = g_strdup(empty_line);
+		g_free(empty_line);
+		empty_line = g_strdup_printf("%s|",tmp_str);
+		g_free(tmp_str);
+
+		separator_line = g_malloc(strlen(empty_line)+HEADER_LENGTH+1);
+		separator_line[0]='\0';
+		enlarge_string(separator_line,strlen(empty_line)+HEADER_LENGTH,'-');
+		separator_line[strlen(separator_line)-1]='\n';
+
+
+		fprintf(of,"|\n");
+
+		/*
+		 * Draw the items 
+		 */
+
+		for (current_item=0; current_item<display_items; current_item++){
+
+			start_position = (user_data->dlg.items[current_item].src_node-first_node)*NODE_CHARS_WIDTH+NODE_CHARS_WIDTH/2;
+
+			end_position = (user_data->dlg.items[current_item].dst_node-first_node)*NODE_CHARS_WIDTH+NODE_CHARS_WIDTH/2;
+			
+			if (start_position > end_position){
+				item_width=start_position-end_position;
+			}
+			else if (start_position < end_position){
+				item_width=end_position-start_position;
+			}
+			else{ /* same origin and destination address */
+				end_position = start_position+NODE_CHARS_WIDTH;
+				item_width = NODE_CHARS_WIDTH;
+			}
+
+			/* separator between conversations */
+			if (user_data->dlg.items[current_item].conv_num != old_conv_num){
+				fprintf(of,separator_line);
+				old_conv_num=user_data->dlg.items[current_item].conv_num;
+			}
+
+			/* write the conversation number */
+			g_snprintf(label_string, 5, "%i", user_data->dlg.items[current_item].conv_num);
+			enlarge_string(label_string,5,' ');
+			fprintf(of,"%s",label_string);
+
+			/* write the time */
+			g_snprintf(label_string, 11, "|%.3f", user_data->dlg.items[current_item].time);
+			enlarge_string(label_string,11,' ');
+			fprintf(of,"%s",label_string);
+			
+			/* write the frame label */
+
+			tmp_str = g_strdup(empty_line);
+			overwrite(tmp_str,user_data->dlg.items[current_item].frame_label,
+				start_position,
+				end_position
+				);
+			fprintf(of,tmp_str);
+
+			/* write the comments */
+			g_snprintf(label_string, MAX_COMMENT, "%s", user_data->dlg.items[current_item].comment);
+			fprintf(of,"%s\n",label_string);
+			
+			/* write draw the arrow and frame label*/
+			fprintf(of,EMPTY_HEADER);
+
+			tmp_str = g_strdup(empty_line);
+
+			tmp_str2 = g_malloc(item_width);
+
+			tmp_str2[0]='\0';
+			enlarge_string(tmp_str2,item_width-1,'-');
+
+			if (start_position<end_position){
+				tmp_str2[item_width-1]='>';
+			}
+			else{
+				tmp_str2[0]='<';
+			}
+
+			overwrite(tmp_str,tmp_str2,
+				start_position,
+				end_position
+				);
+
+			g_snprintf(src_port,7,"(%i)", user_data->dlg.items[current_item].port_src);
+			g_snprintf(dst_port,7,"(%i)", user_data->dlg.items[current_item].port_dst);
+
+			if (start_position<end_position){
+				overwrite(tmp_str,src_port,start_position-9,start_position-1);
+				overwrite(tmp_str,dst_port,end_position+1,end_position+9);
+			}
+			else{
+				overwrite(tmp_str,src_port,start_position+1,start_position+9);
+				overwrite(tmp_str,dst_port,end_position-9,end_position+1);
+			}
+
+			fprintf(of,"%s\n",tmp_str);
+			g_free(tmp_str);
+			g_free(tmp_str2);
+
+
+		}
+		
+		fclose (of);
+		return TRUE;
+
+}
+
+/****************************************************************************/
+static void write_to_file_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
+{
+	/* Note that we no longer have a Write to file dialog box. */
+	write_to_file_w = NULL;
+}
+
+/****************************************************************************/
+/* save in a file */
+
+/* first an auxiliary function in case we need an overwrite confirmation dialog */
+
+static void overwrite_existing_file_cb(gpointer dialog _U_, gint btn, gpointer user_data _U_)
+{
+	graph_analysis_data_t *user_data_p;
+	
+	user_data_p = user_data;
+
+    switch(btn) {
+    case(ESD_BTN_YES):
+        /* overwrite the file*/
+        dialog_graph_dump_to_file(user_data);
+        break;
+    case(ESD_BTN_NO):
+        break;
+    default:
+        g_assert_not_reached();
+    }
+}
+
+/* and then the save in a file dialog itself */
+
+static void write_to_file_ok_cb(GtkWidget *ok_bt _U_, gpointer user_data _U_)
+{
+	FILE *file_test;
+	gpointer dialog;
+	graph_analysis_data_t *user_data_p;
+	
+	user_data_p = user_data;
+
+	user_data_p->dlg.write_file = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (write_to_file_w)));
+
+	/* Perhaps the user specified a directory instead of a file.
+	Check whether they did. */
+	if (test_for_directory(user_data_p->dlg.write_file) == EISDIR) {
+		/* It's a directory - set the file selection box to display it. */
+		set_last_open_dir(user_data_p->dlg.write_file);
+		g_free(user_data_p->dlg.write_file);
+		file_selection_set_current_folder(write_to_file_w, get_last_open_dir());
+		return;
+	}
+
+
+	/* check whether the file exists */
+	file_test = fopen(user_data_p->dlg.write_file,"r");
+	if (file_test!=NULL){
+
+		dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO,
+		  "%sFile: \"%s\" already exists!%s\n\n"
+		  "Do you want to overwrite it?",
+		  simple_dialog_primary_start(),user_data_p->dlg.write_file, simple_dialog_primary_end());
+		simple_dialog_set_cb(dialog, overwrite_existing_file_cb, user_data);
+  		fclose(file_test);
+	}
+	
+	else{
+		if (!dialog_graph_dump_to_file(user_data))
+			return;
+	}
+	window_destroy(GTK_WIDGET(write_to_file_w));
+
+}
+
+/****************************************************************************/
+static void
+on_write_bt_clicked                    (GtkButton       *button _U_,
+                                        gpointer         user_data _U_)
+{
+
+
+	GtkWidget *vertb;
+	GtkWidget *ok_bt;
+
+	if (write_to_file_w != NULL) {
+		/* There's already a Write to file dialog box; reactivate it. */
+		reactivate_window(write_to_file_w);
+		return;
+	}
+
+	write_to_file_w = file_selection_new("Ethereal: Write graph to file", FILE_SELECTION_SAVE);
+
+	/* Container for each row of widgets */
+	vertb = gtk_vbox_new(FALSE, 0);
+	gtk_container_border_width(GTK_CONTAINER(vertb), 5);
+	gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(write_to_file_w)->action_area),
+		vertb, FALSE, FALSE, 0);
+	gtk_widget_show (vertb);
+
+	ok_bt = GTK_FILE_SELECTION(write_to_file_w)->ok_button;
+	SIGNAL_CONNECT(ok_bt, "clicked", write_to_file_ok_cb, user_data);
+
+	window_set_cancel_button(write_to_file_w,
+	    GTK_FILE_SELECTION(write_to_file_w)->cancel_button, window_cancel_button_cb);
+
+	SIGNAL_CONNECT(write_to_file_w, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(write_to_file_w, "destroy", write_to_file_destroy_cb,
+	               NULL);
+
+	gtk_widget_show(write_to_file_w);
+	window_present(write_to_file_w);
+	
+	
+}
 
 /****************************************************************************/
 static void dialog_graph_draw(graph_analysis_data_t* user_data)
@@ -1019,8 +1386,10 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 static void dialog_graph_create_window(graph_analysis_data_t* user_data)
 {
         GtkWidget *vbox;
-        GtkWidget *hbox;
+        GtkWidget *hbuttonbox;
     	GtkWidget *bt_close;
+    	GtkWidget *bt_write;
+	    GtkTooltips *tooltips = gtk_tooltips_new();
 
         /* create the main window */
         user_data->dlg.window=window_new(GTK_WINDOW_TOPLEVEL, "Graph Analysis");
@@ -1032,11 +1401,24 @@ static void dialog_graph_create_window(graph_analysis_data_t* user_data)
 
         create_draw_area(user_data, vbox);
 
-        hbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
-        gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
-        gtk_widget_show(hbox);
+        /* button row */
+		hbuttonbox = gtk_hbutton_box_new ();
+		gtk_box_pack_start (GTK_BOX (vbox), hbuttonbox, FALSE, FALSE, 0);
+		gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_SPREAD);
+		gtk_button_box_set_spacing (GTK_BUTTON_BOX (hbuttonbox), 30);
+		gtk_widget_show(hbuttonbox);
 
-        bt_close = OBJECT_GET_DATA(hbox, GTK_STOCK_CLOSE);
+		bt_write = gtk_button_new_with_label("Write to file");
+		gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_write);
+		gtk_widget_show(bt_write);
+		SIGNAL_CONNECT(bt_write, "clicked", on_write_bt_clicked, user_data);
+		gtk_tooltips_set_tip (tooltips, bt_write, "Write an ASCII representation of the graph to a file", NULL);
+
+		bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
+		gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
+		GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
+		gtk_widget_show(bt_close);
+		gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);
         window_set_cancel_button(user_data->dlg.window, bt_close, window_cancel_button_cb);
 
         SIGNAL_CONNECT(user_data->dlg.window, "delete_event", window_delete_event_cb, NULL);

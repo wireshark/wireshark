@@ -2327,6 +2327,10 @@ Olivier Jacques		<olivier.jacques [AT] hp.com> {
 	Support for the Camel protocol.
 }
 
+Francisco Alcoba	<francisco.alcoba [AT] ericsson.com> {
+	ASCII art version of VOIP call analysis
+}
+
 
 And assorted fixes and enhancements by the people listed above
 and by:
@@ -2393,7 +2397,6 @@ Marco van den Bovenkamp	<marco [AT] linuxgoeroe.dhs.org>
 Ming Zhang		<mingz [AT] ele.uri.edu>
 Neil Piercy		<Neil.Piercy [AT] ipaccess.com>
 Rémi Denis-Courmont	<courmisch [AT] via.ecp.fr>
-Francisco Alcoba	<francisco.alcoba [AT] ericsson.com>
 Thomas Palmer		<tpalmer [AT] elmore.rr.com>
 Mårten Svantesson	<f95-msv [AT] f.kth.se>
 Thomas Boehne		<TBoehne [AT] ADwin.de>
