@@ -5,6 +5,9 @@
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
+ * Enhancements by Mark C. Brown <mbrown@hp.com>
+ * Copyright (C) 2003, 2005 Hewlett-Packard Development Company, L.P.
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2

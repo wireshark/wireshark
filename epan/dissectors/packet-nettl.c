@@ -1,8 +1,10 @@
 /* packet-nettl.c
  * Routines for nettl (HP-UX) record header dissection
- * Copyright 2005, Mark C. Brown <mbrown@nosila.net>
  *
- * $Id: packet-nettl.c 12157 2004-09-30 19:53:27Z guy $
+ * Original Author Mark C. Brown <mbrown@hp.com>
+ * Copyright (C) 2005 Hewlett-Packard Development Company, L.P.
+ *
+ * $Id: packet-nettl.c $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

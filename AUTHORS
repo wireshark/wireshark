@@ -1805,7 +1805,7 @@ Garth Bushell           <gbushell [AT] elipsan.com> {
 	iSNS support
 }
 
-Mark C. Brown           <mbrown [AT] nosila.net> {
+Mark C. Brown           <mbrown [AT] hp.com> {
 	Improvements to code that reads HP-UX nettl files
 	Cisco Port Aggregation Protocol support
 	Nettl dissector

@@ -1,6 +1,7 @@
 /* packet-pagp.c
  * Routines for PAgP (Port Aggregation Protocol - aka FEC) dissection
- * Copyright 2004, Mark C. Brown <mbrown@nosila.net>
+ * Original Author Mark C. Brown <mbrown@hp.com>
+ * Copyright (C) 2004 Hewlett-Packard Development Company, L.P.
  *
  * $Id$
  *
