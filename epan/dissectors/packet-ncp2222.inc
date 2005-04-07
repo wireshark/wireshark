@@ -4395,7 +4395,9 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
         guint32                 testvar;
 
 #ifdef FAKE_TREE_IS_VISIBLE
-	PTREE_DATA(ncp_tree)->visible=1;
+    if (ncp_tree) {
+        PTREE_DATA(ncp_tree)->visible=1;
+    }
 #endif
 
 	func = tvb_get_guint8(tvb, 6);
@@ -4775,7 +4777,9 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
         guint32                         bvalue=0;
         
 #ifdef FAKE_TREE_IS_VISIBLE
-	PTREE_DATA(ncp_tree)->visible=1;
+    if (ncp_tree) {
+        PTREE_DATA(ncp_tree)->visible=1;
+    }
 #endif
 
 	strcpy(reply_buffer.buffer, "");
@@ -6106,7 +6110,9 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 	int			i;
 
 #ifdef FAKE_TREE_IS_VISIBLE
-	PTREE_DATA(ncp_tree)->visible=1;
+    if (ncp_tree) {
+        PTREE_DATA(ncp_tree)->visible=1;
+    }
 #endif
 
 	for (i = 0; i < 9; i++) {
@@ -8486,7 +8492,9 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
 	char			string_buffer[1024];
         
 #ifdef FAKE_TREE_IS_VISIBLE
-	PTREE_DATA(ncp_tree)->visible=1;
+    if (ncp_tree) {
+        PTREE_DATA(ncp_tree)->visible=1;
+    }
 #endif
 
 	pvalue.vvalue = 0;
