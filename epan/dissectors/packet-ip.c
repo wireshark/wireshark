@@ -832,6 +832,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   static int eip_current=0;
   e_ip *iph;
   const guchar		*src_addr, *dst_addr;
+  guint32 		src32, dst32;
 
   eip_current++;
   if(eip_current==4){
@@ -976,6 +977,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_uint(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum);
   }
   src_addr = tvb_get_ptr(tvb, offset + IPH_SRC, 4);
+  src32 = tvb_get_ntohl(tvb, offset + IPH_SRC);
   SET_ADDRESS(&pinfo->net_src, AT_IPv4, 4, src_addr);
   SET_ADDRESS(&pinfo->src, AT_IPv4, 4, src_addr);
   SET_ADDRESS(&iph->ip_src, AT_IPv4, 4, src_addr);
@@ -989,6 +991,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_ipv4_hidden(ip_tree, hf_ip_addr, tvb, offset + 12, 4, addr);
   }
   dst_addr = tvb_get_ptr(tvb, offset + IPH_DST, 4);
+  dst32 = tvb_get_ntohl(tvb, offset + IPH_DST);
   SET_ADDRESS(&pinfo->net_dst, AT_IPv4, 4, dst_addr);
   SET_ADDRESS(&pinfo->dst, AT_IPv4, 4, dst_addr);
   SET_ADDRESS(&iph->ip_dst, AT_IPv4, 4, dst_addr);
@@ -1035,7 +1038,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (ip_defragment && (iph->ip_off & (IP_MF|IP_OFFSET)) &&
       tvb_bytes_exist(tvb, offset, pinfo->iplen - pinfo->iphdrlen) &&
       ipsum == 0) {
-    ipfd_head = fragment_add_check(tvb, offset, pinfo, iph->ip_id,
+    ipfd_head = fragment_add_check(tvb, offset, pinfo, 
+			     iph->ip_id ^ src32 ^ dst32,
 			     ip_fragment_table,
 			     ip_reassembled_table,
 			     (iph->ip_off & IP_OFFSET)*8,
