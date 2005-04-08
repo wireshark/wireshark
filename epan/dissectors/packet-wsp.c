@@ -5435,184 +5435,125 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, guint8 pdu_type)
 		 * Now offset points to the 1st byte of the capability type.
 		 * Get the capability identifier.
 		 */
-		peek = tvb_get_guint8(tvb, offset); if
-		(is_token_text(peek)) { /* Literal capability name */
+		peek = tvb_get_guint8(tvb, offset);
+		if (is_token_text(peek)) { /* Literal capability name */
 			/* 1. Get the string from the tvb */
 			get_token_text(capaName, tvb, offset, len, ok);
 			if (! ok) {
-				DebugLog(("add_capabilities(): expecting
-				capability name as token_text "
-							"at offset %u (1st
-							char = 0x%02x)\n",
-							offset, peek));
+				DebugLog(("add_capabilities(): expecting capability name as token_text "
+							"at offset %u (1st char = 0x%02x)\n", offset, peek));
 				return;
-			} /* 2. Look up the string capability name */ if
-			(strcasecmp(capaName, "client-sdu-size") == 0) {
+			}
+			/* 2. Look up the string capability name */
+			if (strcasecmp(capaName, "client-sdu-size") == 0) {
 				peek = WSP_CAPA_CLIENT_SDU_SIZE;
-			} else if (strcasecmp(capaName, "server-sdu-size")
-			== 0) {
+			} else if (strcasecmp(capaName, "server-sdu-size") == 0) {
 				peek = WSP_CAPA_SERVER_SDU_SIZE;
-			} else if (strcasecmp(capaName, "protocol
-			options") == 0) {
+			} else if (strcasecmp(capaName, "protocol options") == 0) {
 				peek = WSP_CAPA_PROTOCOL_OPTIONS;
-			} else if (strcasecmp(capaName, "method-mor")
-			== 0) {
+			} else if (strcasecmp(capaName, "method-mor") == 0) {
 				peek = WSP_CAPA_METHOD_MOR;
-			} else if (strcasecmp(capaName, "push-mor") ==
-			0) {
+			} else if (strcasecmp(capaName, "push-mor") == 0) {
 				peek = WSP_CAPA_PUSH_MOR;
-			} else if (strcasecmp(capaName, "extended
-			methods") == 0) {
+			} else if (strcasecmp(capaName, "extended methods") == 0) {
 				peek = WSP_CAPA_EXTENDED_METHODS;
-			} else if (strcasecmp(capaName, "header code
-			pages") == 0) {
+			} else if (strcasecmp(capaName, "header code pages") == 0) {
 				peek = WSP_CAPA_HEADER_CODE_PAGES;
 			} else if (strcasecmp(capaName, "aliases") == 0) {
 				peek = WSP_CAPA_ALIASES;
-			} else if (strcasecmp(capaName,
-			"client-message-size") == 0) {
+			} else if (strcasecmp(capaName, "client-message-size") == 0) {
 				peek = WSP_CAPA_CLIENT_MESSAGE_SIZE;
-			} else if (strcasecmp(capaName,
-			"server-message-size") == 0) {
+			} else if (strcasecmp(capaName, "server-message-size") == 0) {
 				peek = WSP_CAPA_SERVER_MESSAGE_SIZE;
 			} else {
-				DebugLog(("add_capabilities(): unknown
-				capability '%s' at offset %u\n",
-							capaName,
-							offset));
-				proto_tree_add_text(wsp_capabilities,
-				tvb, capaStart, capaLen,
-						"Unknown or invalid
-						textual capability:
-						%s", capaName);
-				g_free(capaName); /* Skip this capability
-				*/ offset = capaStart + capaLen; continue;
-			} g_free(capaName); offset += len; /* Now offset
-			points to the 1st value byte of the capability. */
+				DebugLog(("add_capabilities(): unknown capability '%s' at offset %u\n",
+							capaName, offset));
+				proto_tree_add_text(wsp_capabilities, tvb, capaStart, capaLen,
+						"Unknown or invalid textual capability: %s", capaName);
+				g_free(capaName);
+				/* Skip this capability */
+				offset = capaStart + capaLen;
+				continue;
+			}
+			g_free(capaName);
+			offset += len;
+			/* Now offset points to the 1st value byte of the capability. */
 		} else if (peek < 0x80) {
-			DebugLog(("add_capabilities(): invalid capability
-			type identifier 0x%02X at offset %u.",
+			DebugLog(("add_capabilities(): invalid capability type identifier 0x%02X at offset %u.",
 						peek, offset - 1));
-			proto_tree_add_text(wsp_capabilities, tvb,
-			capaStart, capaLen,
-					"Invalid well-known capability:
-					0x%02X", peek);
-			/* Skip further capability parsing */ return;
-		} if (peek & 0x80) { /* Well-known capability */
-			peek &= 0x7F; len = 1; offset++; /* Now offset
-			points to the 1st value byte of the capability. */
-		} /* Now the capability type is known */ switch (peek) {
+			proto_tree_add_text(wsp_capabilities, tvb, capaStart, capaLen,
+					"Invalid well-known capability: 0x%02X", peek);
+			/* Skip further capability parsing */
+			return;
+		}
+		if (peek & 0x80) { /* Well-known capability */
+			peek &= 0x7F;
+			len = 1;
+			offset++;
+			/* Now offset points to the 1st value byte of the capability. */
+		}
+		/* Now the capability type is known */
+		switch (peek) {
 			case WSP_CAPA_CLIENT_SDU_SIZE:
-				value = tvb_get_guintvar(tvb,
-				offset, &len);
-				DebugLog(("add_capabilities(client-sdu-size):
-				"
-							"guintvar = %u
-							(0x%X) at offset
-							%u (1st byte =
-							0x%02X) (len =
-							%u)\n", value,
-							value, offset,
-							tvb_get_guint8(tvb,
-							offset), len));
-				proto_tree_add_uint(wsp_capabilities,
-				hf_capa_client_sdu_size,
-						tvb, capaStart, capaLen,
-						value);
+				value = tvb_get_guintvar(tvb, offset, &len);
+				DebugLog(("add_capabilities(client-sdu-size): "
+							"guintvar = %u (0x%X) at offset %u (1st byte = 0x%02X) (len = %u)\n",
+							value, value, offset, tvb_get_guint8(tvb, offset), len));
+				proto_tree_add_uint(wsp_capabilities, hf_capa_client_sdu_size,
+						tvb, capaStart, capaLen, value);
 				break;
 			case WSP_CAPA_SERVER_SDU_SIZE:
-				value = tvb_get_guintvar(tvb,
-				offset, &len);
-				DebugLog(("add_capabilities(server-sdu-size):
-				"
-							"guintvar = %u
-							(0x%X) at offset
-							%u (1st byte =
-							0x%02X) (len =
-							%u)\n", value,
-							value, offset,
-							tvb_get_guint8(tvb,
-							offset), len));
-				proto_tree_add_uint(wsp_capabilities,
-				hf_capa_server_sdu_size,
-						tvb, capaStart, capaLen,
-						value);
+				value = tvb_get_guintvar(tvb, offset, &len);
+				DebugLog(("add_capabilities(server-sdu-size): "
+							"guintvar = %u (0x%X) at offset %u (1st byte = 0x%02X) (len = %u)\n",
+							value, value, offset, tvb_get_guint8(tvb, offset), len));
+				proto_tree_add_uint(wsp_capabilities, hf_capa_server_sdu_size,
+						tvb, capaStart, capaLen, value);
 				break;
 			case WSP_CAPA_PROTOCOL_OPTIONS:
-				ti =
-				proto_tree_add_string(wsp_capabilities,
-				hf_capa_protocol_options,
-						tvb, capaStart, capaLen,
-						"");
-				capa_subtree = proto_item_add_subtree(ti,
-				ett_capability); /*
-				 * The bits are stored in one or more
-				 octets, not an * uintvar-integer! Note
-				 that capability name and value *
-				 have length capaValueLength, and that
-				 the capability * name has length =
-				 len. Hence the remaining length is *
-				 given by capaValueLen - len.  */
+				ti = proto_tree_add_string(wsp_capabilities, hf_capa_protocol_options,
+						tvb, capaStart, capaLen, "");
+				capa_subtree = proto_item_add_subtree(ti, ett_capability);
+				/*
+				 * The bits are stored in one or more octets, not an
+				 * uintvar-integer! Note that capability name and value
+				 * have length capaValueLength, and that the capability
+				 * name has length = len. Hence the remaining length is
+				 * given by capaValueLen - len.
+				 */
 				switch (capaValueLen - len) {
 					case 1:
-						value =
-						tvb_get_guint8(tvb,
-						offset); len = 1; break;
+						value = tvb_get_guint8(tvb, offset);
+						len = 1;
+						break;
 					default:
 						/*
-						 * The WSP spec foresees
-						 that this bit field
-						 can be * extended in
-						 the future. This does
-						 not make sense yet.  */
-							DebugLog(("add_capabilities(protocol
-							options): "
-										"bit
-										field
-										too
-										large
-										(%u
-										bytes)\n",
+						 * The WSP spec foresees that this bit field can be
+						 * extended in the future. This does not make sense yet.
+						 */
+							DebugLog(("add_capabilities(protocol options): "
+										"bit field too large (%u bytes)\n",
 										capaValueLen));
 							proto_item_append_text(ti,
-									"
-									<warning:
-									bit
-									field
-									too
-									large>");
-							offset =
-							capaStart +
-							capaLen; continue;
-				} DebugLog(("add_capabilities(protocol
-				options): "
-							"guintvar = %u
-							(0x%X) at offset
-							%u (1st byte =
-							0x%02X) (len =
-							%u)\n", value,
-							value, offset,
-							tvb_get_guint8(tvb,
-							offset), len));
+									" <warning: bit field too large>");
+							offset = capaStart + capaLen;
+							continue;
+				}
+				DebugLog(("add_capabilities(protocol options): "
+							"guintvar = %u (0x%X) at offset %u (1st byte = 0x%02X) (len = %u)\n",
+							value, value, offset, tvb_get_guint8(tvb, offset), len));
 				if (value & 0x80)
-					proto_item_append_string(ti, "
-					(confirmed push facility)");
+					proto_item_append_string(ti, " (confirmed push facility)");
 				if (value & 0x40)
-					proto_item_append_string(ti, "
-					(push facility)");
+					proto_item_append_string(ti, " (push facility)");
 				if (value & 0x20)
-					proto_item_append_string(ti, "
-					(session resume facility)");
+					proto_item_append_string(ti, " (session resume facility)");
 				if (value & 0x10)
-					proto_item_append_string(ti, "
-					(acknowledgement headers)");
+					proto_item_append_string(ti, " (acknowledgement headers)");
 				if (value & 0x08)
-					proto_item_append_string(ti, "
-					(large data transfer)");
+					proto_item_append_string(ti, " (large data transfer)");
 				if (value & 0xFFFFFF07)
-					proto_item_append_text(ti,
-					" <warning: reserved bits have
-					been set>");
+					proto_item_append_text(ti, " <warning: reserved bits have been set>");
 				proto_tree_add_boolean(capa_subtree,
 						hf_capa_protocol_option_confirmed_push,
 						tvb, offset, len, value);
@@ -5633,200 +5574,120 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, guint8 pdu_type)
 				value = tvb_get_guint8(tvb, offset);
 				proto_tree_add_uint (wsp_capabilities,
 						hf_capa_method_mor,
-						tvb, capaStart, capaLen,
-						value);
+						tvb, capaStart, capaLen, value);
 				break;
 			case WSP_CAPA_PUSH_MOR:
 				value = tvb_get_guint8(tvb, offset);
 				proto_tree_add_uint (wsp_capabilities,
-						hf_capa_push_mor, tvb,
-						capaStart, capaLen,
-						value);
+						hf_capa_push_mor,
+						tvb, capaStart, capaLen, value);
 				break;
 			case WSP_CAPA_EXTENDED_METHODS:
 				/* Extended Methods capability format:
-				 * Connect PDU: collection of { Method
-				 (octet), Method-name (Token-text) } *
-				 ConnectReply PDU: collection of accepted
-				 { Method (octet) } */
-				ti =
-				proto_tree_add_string(wsp_capabilities,
+				 * Connect PDU: collection of { Method (octet), Method-name (Token-text) }
+				 * ConnectReply PDU: collection of accepted { Method (octet) }
+				 */
+				ti = proto_tree_add_string(wsp_capabilities,
 						hf_capa_extended_methods,
-						tvb, capaStart, capaLen,
-						"");
+						tvb, capaStart, capaLen, "");
 				if (pdu_type == WSP_PDU_CONNECT) {
-					while (offset < capaStart +
-					capaLen) {
-						peek = tvb_get_guint8(tvb,
-						offset++);
-						get_text_string(str,
-						tvb, offset, len, ok);
+					while (offset < capaStart + capaLen) {
+						peek = tvb_get_guint8(tvb, offset++);
+						get_text_string(str, tvb, offset, len, ok);
 						if (! ok) {
-							proto_item_append_text(ti,
-							" <error: invalid
-							capability
-							encoding>");
-							DebugLog(("add_capability(extended
-							methods): "
-										"invalid
-										method
-										name
-										at
-										offset
-										%u
-										"
-										"(octet
-										=
-										0x%02X)\n",
-										offset,
-										tvb_get_guint8(tvb,
-										offset)));
+							proto_item_append_text(ti, " <error: invalid capability encoding>");
+							DebugLog(("add_capability(extended methods): "
+										"invalid method name at offset %u "
+										"(octet = 0x%02X)\n",
+										offset, tvb_get_guint8(tvb, offset)));
 							return;
-						} valStr =
-						g_strdup_printf(" (0x%02x
-						= %s)", peek, str);
-						DebugLog(("add_capabilities(extended
-						methods):%s\n",
+						}
+						valStr = g_strdup_printf(" (0x%02x = %s)", peek, str);
+						DebugLog(("add_capabilities(extended methods):%s\n",
 									valStr));
-						proto_item_append_string(ti,
-						valStr); g_free(valStr);
-						g_free(str); offset
-						+= len;
+						proto_item_append_string(ti, valStr);
+						g_free(valStr);
+						g_free(str);
+						offset += len;
 					}
 				} else {
-					while (offset < capaStart +
-					capaLen) {
-						peek = tvb_get_guint8(tvb,
-						offset++); valStr =
-						g_strdup_printf("
-						(0x%02x)", peek);
-						DebugLog(("add_capabilities(extended
-						methods):%s\n",
+					while (offset < capaStart + capaLen) {
+						peek = tvb_get_guint8(tvb, offset++);
+						valStr = g_strdup_printf(" (0x%02x)", peek);
+						DebugLog(("add_capabilities(extended methods):%s\n",
 									valStr));
-						proto_item_append_string(ti,
-						valStr); g_free(valStr);
+						proto_item_append_string(ti, valStr);
+						g_free(valStr);
 					}
-				} break;
+				}
+				break;
 			case WSP_CAPA_HEADER_CODE_PAGES:
 				/* Header Code Pages capability format:
-				 * Connect PDU: collection of { Page-id
-				 (octet), Page-name (Token-text) } *
-				 ConnectReply PDU: collection of accepted
-				 { Page-id (octet) } */
-				ti =
-				proto_tree_add_string(wsp_capabilities,
+				 * Connect PDU: collection of { Page-id (octet), Page-name (Token-text) }
+				 * ConnectReply PDU: collection of accepted { Page-id (octet) }
+				 */
+				ti = proto_tree_add_string(wsp_capabilities,
 						hf_capa_header_code_pages,
-						tvb, capaStart, capaLen,
-						"");
+						tvb, capaStart, capaLen, "");
 				if (pdu_type == WSP_PDU_CONNECT) {
-					while (offset < capaStart +
-					capaLen) {
-						peek = tvb_get_guint8(tvb,
-						offset++);
-						get_text_string(str,
-						tvb, offset, len, ok);
+					while (offset < capaStart + capaLen) {
+						peek = tvb_get_guint8(tvb, offset++);
+						get_text_string(str, tvb, offset, len, ok);
 						if (! ok) {
 							proto_item_append_text(ti,
-									"
-									<error:
-									invalid
-									capability
-									encoding>");
-							DebugLog(("add_capability(header
-							code pages): "
-										"invalid
-										header
-										code
-										page
-										name
-										at
-										offset
-										%u
-										"
-										"(octet
-										=
-										0x%02X)\n",
-										offset,
-										tvb_get_guint8(tvb,
-										offset)));
+									" <error: invalid capability encoding>");
+							DebugLog(("add_capability(header code pages): "
+										"invalid header code page name at offset %u "
+										"(octet = 0x%02X)\n",
+										offset, tvb_get_guint8(tvb, offset)));
 							return;
-						} valStr =
-						g_strdup_printf(" (0x%02x
-						= %s)", peek, str);
-						DebugLog(("add_capabilities(header
-						code pages):%s\n",
+						}
+						valStr = g_strdup_printf(" (0x%02x = %s)", peek, str);
+						DebugLog(("add_capabilities(header code pages):%s\n",
 									valStr));
-						proto_item_append_string(ti,
-						valStr); g_free(valStr);
-						g_free(str); offset
-						+= len;
+						proto_item_append_string(ti, valStr);
+						g_free(valStr);
+						g_free(str);
+						offset += len;
 					}
 				} else {
-					while (offset < capaStart +
-					capaLen) {
-						peek = tvb_get_guint8(tvb,
-						offset++); valStr =
-						g_strdup_printf("
-						(0x%02x)", peek);
-						DebugLog(("add_capabilities(header
-						code pages):%s\n",
+					while (offset < capaStart + capaLen) {
+						peek = tvb_get_guint8(tvb, offset++);
+						valStr = g_strdup_printf(" (0x%02x)", peek);
+						DebugLog(("add_capabilities(header code pages):%s\n",
 									valStr));
-						proto_item_append_string(ti,
-						valStr); g_free(valStr);
+						proto_item_append_string(ti, valStr);
+						g_free(valStr);
 					}
-				} break;
+				}
+				break;
 			case WSP_CAPA_ALIASES:
-				/* TODO - same format
-				as redirect addresses */
-				proto_tree_add_item(wsp_capabilities,
-				hf_capa_aliases,
-						tvb, capaStart, capaLen,
-						bo_little_endian);
+				/* TODO - same format as redirect addresses */
+				proto_tree_add_item(wsp_capabilities, hf_capa_aliases,
+						tvb, capaStart, capaLen, bo_little_endian);
 				break;
 			case WSP_CAPA_CLIENT_MESSAGE_SIZE:
-				value = tvb_get_guintvar(tvb,
-				offset, &len);
-				DebugLog(("add_capabilities(client-message-size):
-				"
-							"guintvar = %u
-							(0x%X) at offset
-							%u (1st byte =
-							0x%02X) (len =
-							%u)\n", value,
-							value, offset,
-							tvb_get_guint8(tvb,
-							offset), len));
-				proto_tree_add_uint(wsp_capabilities,
-				hf_capa_client_message_size,
-						tvb, capaStart, capaLen,
-						value);
+				value = tvb_get_guintvar(tvb, offset, &len);
+				DebugLog(("add_capabilities(client-message-size): "
+							"guintvar = %u (0x%X) at offset %u (1st byte = 0x%02X) (len = %u)\n",
+							value, value, offset, tvb_get_guint8(tvb, offset), len));
+				proto_tree_add_uint(wsp_capabilities, hf_capa_client_message_size,
+						tvb, capaStart, capaLen, value);
 				break;
 			case WSP_CAPA_SERVER_MESSAGE_SIZE:
-				value = tvb_get_guintvar(tvb,
-				offset, &len);
-				DebugLog(("add_capabilities(server-message-size):
-				"
-							"guintvar = %u
-							(0x%X) at offset
-							%u (1st byte =
-							0x%02X) (len =
-							%u)\n", value,
-							value, offset,
-							tvb_get_guint8(tvb,
-							offset), len));
-				proto_tree_add_uint(wsp_capabilities,
-				hf_capa_server_message_size,
-						tvb, capaStart, capaLen,
-						value);
+				value = tvb_get_guintvar(tvb, offset, &len);
+				DebugLog(("add_capabilities(server-message-size): "
+							"guintvar = %u (0x%X) at offset %u (1st byte = 0x%02X) (len = %u)\n",
+							value, value, offset, tvb_get_guint8(tvb, offset), len));
+				proto_tree_add_uint(wsp_capabilities, hf_capa_server_message_size,
+						tvb, capaStart, capaLen, value);
 				break;
 			default:
-				proto_tree_add_text(wsp_capabilities,
-				tvb, capaStart, capaLen,
-						"Unknown well-known
-						capability: 0x%02X",
-						peek);
+				proto_tree_add_text(wsp_capabilities, tvb, capaStart, capaLen,
+						"Unknown well-known capability: 0x%02X", peek);
 				break;
-		} offset = capaStart + capaLen;
+		}
+		offset = capaStart + capaLen;
 	}
 }
 
