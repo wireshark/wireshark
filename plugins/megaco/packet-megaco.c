@@ -857,6 +857,7 @@ nextcontext:
 									
 									default:
 										tokenlen =  (tvb_RBRKT+1) - tvb_previous_offset;
+										tvb_ensure_bytes_exist(tvb, tvb_previous_offset, tokenlen);
 										proto_tree_add_string(megaco_tree, hf_megaco_error_Frame, tvb,
 											tvb_previous_offset, tokenlen,
 											"No Command detectable !");
