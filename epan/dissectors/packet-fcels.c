@@ -476,6 +476,9 @@ construct_rcptctl_string (guint16 flag, gchar *flagstr, guint8 opcode)
     }
 }
 
+/* Maximum length of possible string from, construct_*_string
+ * 296 bytes, FIX possible buffer overflow */
+#define FCELS_LOGI_MAXSTRINGLEN 512
 
 static void
 dissect_fcels_logi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
@@ -487,7 +490,7 @@ dissect_fcels_logi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         class;
     proto_tree *logi_tree, *cmnsvc_tree;
     proto_item *subti;
-    gchar flagstr[256];
+    gchar flagstr[FCELS_LOGI_MAXSTRINGLEN];
     guint16 flag;
     
     if (tree) {
@@ -1064,6 +1067,10 @@ dissect_fcels_lsts (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 }
 
+/* Maximum length of possible string from, dissect_fcels_prlilo_payload
+ * 119 bytes, FIX possible buffer overflow */
+#define FCELS_PRLILO_MAXSTRINGLEN 256
+
 static void
 dissect_fcels_prlilo_payload (tvbuff_t *tvb, packet_info *pinfo _U_,
                               guint8 isreq, proto_item *ti, guint8 opcode)
@@ -1074,7 +1081,7 @@ dissect_fcels_prlilo_payload (tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree *prli_tree, *svcpg_tree;
     int num_svcpg, payload_len, i, flag;
     proto_item *subti;
-    gchar flagstr[100];
+    gchar flagstr[FCELS_PRLILO_MAXSTRINGLEN];
 
     /* We're assuming that we're invoked only if tree is not NULL i.e.
      * we don't do the usual "if (tree)" check here, the caller must.
