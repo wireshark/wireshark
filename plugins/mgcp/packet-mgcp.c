@@ -80,6 +80,7 @@ static int hf_mgcp_transid = -1;
 static int hf_mgcp_version = -1;
 static int hf_mgcp_rsp_rspcode = -1;
 static int hf_mgcp_rsp_rspstring = -1;
+static int hf_mgcp_params = -1;
 static int hf_mgcp_param_rspack = -1;
 static int hf_mgcp_param_bearerinfo = -1;
 static int hf_mgcp_param_callid = -1;
@@ -116,7 +117,10 @@ static int hf_mgcp_param_reqinfo = -1;
 static int hf_mgcp_param_quarantinehandling = -1;
 static int hf_mgcp_param_detectedevents = -1;
 static int hf_mgcp_param_capabilities = -1;
-static int hf_mgcp_param_extention = -1;
+static int hf_mgcp_param_maxmgcpdatagram = -1;
+static int hf_mgcp_param_packagelist = -1;
+static int hf_mgcp_param_extension = -1;
+static int hf_mgcp_param_extension_critical = -1;
 static int hf_mgcp_param_invalid = -1;
 static int hf_mgcp_messagecount = -1;
 static int hf_mgcp_dup = -1;
@@ -126,6 +130,7 @@ static int hf_mgcp_rsp_dup = -1;
 static const value_string mgcp_return_code_vals[] = {
 
 	{100, "The transaction is currently being executed.  An actual completion message will follow on later."},
+	{101, "The transaction has been queued for execution.  An actual completion message will follow later."},
 	{200, "The requested transaction was executed normally."},
 	{250, "The connection was deleted."},
 	{400, "The transaction could not be executed, due to a transient error."},
@@ -133,9 +138,21 @@ static const value_string mgcp_return_code_vals[] = {
 	{402, "The phone is already on hook"},
 	{403, "The transaction could not be executed, because the endpoint does not have sufficient resources at this time"},
 	{404, "Insufficient bandwidth at this time"},
+	{405, "The transaction could not be executed, because the endpoint is \"restarting\"."},
+	{406, "Transaction time-out.  The transaction did not complete in a reasonable period of time and has been aborted."},
+	{407, "Transaction aborted.  The transaction was aborted by some external action, e.g., a ModifyConnection command aborted by a DeleteConnection command."},	
+	{409, "The transaction could not be executed because of internal overload."},
+	{410, "No endpoint available.  A valid \"any of\" wildcard was used, however there was no endpoint available to satisfy the request."},
 	{500, "The transaction could not be executed, because the endpoint is unknown."},
 	{501, "The transaction could not be executed, because the endpoint is not ready."},
 	{502, "The transaction could not be executed, because the endpoint does not have sufficient resources"},
+	{503, "\"All of\" wildcard too complicated."},
+	{504, "Unknown or unsupported command."},
+	{505, "Unsupported RemoteConnectionDescriptor."},
+	{506, "Unable to satisfy both LocalConnectionOptions and RemoteConnectionDescriptor."},
+	{507, "Unsupported functionality."},
+	{508, "Unknown or unsupported quarantine handling."},
+	{509, "Error in RemoteConnectionDescriptor."},
 	{510, "The transaction could not be executed, because a protocol error was detected."},
 	{511, "The transaction could not be executed, because the command contained an unrecognized extension."},
 	{512, "The transaction could not be executed, because the gateway is not equipped to detect one of the requested events."},
@@ -158,8 +175,34 @@ static const value_string mgcp_return_code_vals[] = {
 	{529, "Internal hardware failure"},
 	{530, "CAS signaling protocol error."},
 	{531, "failure of a grouping of trunks (e.g. facility failure)."},
+	{532, "Unsupported value(s) in LocalConnectionOptions."},
+	{533, "Response too large."},
+	{534, "Codec negotiation failure."},
+	{535, "Packetization period not supported"},
+	{536, "Unknown or unsupported RestartMethod"},
+	{537, "Unknown or unsupported digit map extension"},
+	{538, "Event/signal parameter error (e.g., missing, erroneous, unsupported, unknown, etc.)"},
+	{539, "Invalid or unsupported command parameter."},
+	{540, "Per endpoint connection limit exceeded."},
+	{541, "Invalid or unsupported LocalConnectionOptions"},
 	{  0, NULL }
 };
+
+/* TODO: add/use when tested have capture to test with */
+/*
+static const value_string mgcp_reason_code_vals[] = {
+
+	{0,   "Endpoint state is normal"},
+	{900, "Endpoint malfunctioning."},
+	{901, "Endpoint taken out-of-service."},
+	{902, "Loss of lower layer connectivity (e.g., downstream sync)."},
+	{903, "QoS resource reservation was lost."},
+	{904, "Manual intervention."},
+	{905, "Facility failure (e.g., DS-0 failure)."},
+	{  0, NULL }
+};
+*/
+
 
 /*
  * Define the trees for mgcp
@@ -557,6 +600,9 @@ proto_register_mgcp(void)
     { &hf_mgcp_rsp_rspstring,
       { "Response String", "mgcp.rsp.rspstring", FT_STRING, BASE_DEC, NULL,
 	0x0, "Response String", HFILL }},
+    { &hf_mgcp_params,
+      { "Parameters", "mgcp.params", FT_NONE, 0, NULL,
+        0x0, "MGCP parameters", HFILL }},
     { &hf_mgcp_param_rspack,
       { "ResponseAck (K)", "mgcp.param.rspack", FT_STRING, BASE_DEC, NULL,
 	0x0, "Response Ack", HFILL }},
@@ -665,9 +711,18 @@ proto_register_mgcp(void)
     { &hf_mgcp_param_capabilities,
       { "Capabilities (A)", "mgcp.param.capabilities", FT_STRING, BASE_DEC,
 	NULL, 0x0, "Capabilities", HFILL }},
-    { &hf_mgcp_param_extention,
-      { "Extention Parameter (X-*)", "mgcp.param.extention", FT_STRING,
+    { &hf_mgcp_param_maxmgcpdatagram,
+      {"MaxMGCPDatagram (MD)", "mgcp.param.maxmgcpdatagram", FT_STRING,
+	BASE_DEC, NULL, 0x0, "Maximum MGCP Datagram size", HFILL }},
+    { &hf_mgcp_param_packagelist,
+      {"PackageList (PL)", "mgcp.param.packagelist", FT_STRING,
+	BASE_DEC, NULL, 0x0, "Package List", HFILL }},
+    { &hf_mgcp_param_extension,
+      { "Extension Parameter (non-critical)", "mgcp.param.extension", FT_STRING,
 	BASE_DEC, NULL, 0x0, "Extension Parameter", HFILL }},
+    { &hf_mgcp_param_extension_critical,
+      { "Extension Parameter (critical)", "mgcp.param.extensioncritical", FT_STRING,
+	BASE_DEC, NULL, 0x0, "Critical Extension Parameter", HFILL }},
     { &hf_mgcp_param_invalid,
       { "Invalid Parameter", "mgcp.param.invalid", FT_STRING,
 	BASE_DEC, NULL, 0x0, "Invalid Parameter", HFILL }},
@@ -819,8 +874,8 @@ static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength, gchar *
         ((strncasecmp(word, "AUEP", 4) == 0) && (*verb_name = "AuditEndpoint")) ||
         ((strncasecmp(word, "AUCX", 4) == 0) && (*verb_name = "AuditConnection")) ||
         ((strncasecmp(word, "RSIP", 4) == 0) && (*verb_name = "RestartInProgress")) ||
-	(word[0] == 'X' && is_rfc2234_alpha(word[1]) && is_rfc2234_alpha(word[2]) &&
-         is_rfc2234_alpha(word[3])))
+        (word[0] == 'X' && is_rfc2234_alpha(word[1]) && is_rfc2234_alpha(word[2]) &&
+                           is_rfc2234_alpha(word[3])  && (*verb_name = "*Experimental*")))
     {
       returnvalue = TRUE;
     }
@@ -901,17 +956,18 @@ static gboolean is_rfc2234_alpha(guint8 c){
  * Returns: The offset in tvb where the value of the MGCP parameter
  *          begins.
  */
-static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf){
-  gint returnvalue, tvb_current_offset,counter;
-  guint8 tempchar;
-  gchar **buf;
+static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
+{
+  gint returnvalue = -1, tvb_current_offset,counter;
+  guint8 tempchar, plus_minus;
   tvb_current_offset = offset;
-  returnvalue = -1;  
-  buf = NULL;
   *hf = NULL;
+
   if(len > 0){
     tempchar = tvb_get_guint8(tvb,tvb_current_offset);
-    switch(tempchar){
+
+    switch(tempchar)
+    {
     case 'K':
       *hf = &hf_mgcp_param_rspack;
       break;
@@ -924,138 +980,176 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf){
     case 'I':
       tvb_current_offset++;
       if(len > (tvb_current_offset - offset) &&
-	 (tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == ':'){
-	*hf = &hf_mgcp_param_connectionid;
-	tvb_current_offset--;
+        (tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == ':')
+      {
+        *hf = &hf_mgcp_param_connectionid;
+        tvb_current_offset--;
       }
       else if ( tempchar == '2'){
-	*hf = &hf_mgcp_param_secondconnectionid;
+        *hf = &hf_mgcp_param_secondconnectionid;
       }
       break;
     case 'N':
       *hf = &hf_mgcp_param_notifiedentity;
       break;
     case 'X':
+      /* Move past 'X' */
       tvb_current_offset++;
-      if(len > (tvb_current_offset - offset) &&
-	 (tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == ':'){
-	*hf = &hf_mgcp_param_requestid;
+      
+      /* X: is RequestIdentifier */
+      if (len > (tvb_current_offset - offset) &&
+         (tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == ':')
+      {
+        *hf = &hf_mgcp_param_requestid;
+        tvb_current_offset--;
       }
-      else if(len > (tvb_current_offset - offset) && (
-	 (tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == '-' ||
-	 tempchar == '+')){
-	tvb_current_offset++;
-	for(counter = 1;(counter <= 6) && (len > (counter + tvb_current_offset
-						  - offset))
-	      && ( is_rfc2234_alpha(tempchar =
-				    tvb_get_guint8(tvb,
-						   tvb_current_offset+counter))
-		   || isdigit(tempchar));counter++);
-	if(tempchar == ':'){
-	  tvb_current_offset += counter;
-	  *hf = &hf_mgcp_param_extention;
-	}
+
+      /* X+...: or X-....: are vendor extension parameters */
+      else
+      if (len > (tvb_current_offset - offset) &&
+          ((plus_minus = tvb_get_guint8(tvb,tvb_current_offset)) == '-' ||
+          (plus_minus == '+')))
+      {
+        /* Move past + or - */
+        tvb_current_offset++;
+
+        /* Keep going, through possible vendor param name */
+        for (counter = 1;
+            ((len > (counter + tvb_current_offset-offset)) &&
+              (is_rfc2234_alpha(tempchar = tvb_get_guint8(tvb, tvb_current_offset+counter)) ||
+              isdigit(tempchar))) ;
+            counter++);
+
+        if (tempchar == ':')
+        {
+          /* Looks like a valid vendor param name */
+          tvb_current_offset += counter;
+          switch (plus_minus)
+          {
+            case '+':
+              *hf = &hf_mgcp_param_extension_critical;
+              break;
+            case '-':
+              *hf = &hf_mgcp_param_extension;
+              break;
+          }
+        }
       }
-      tvb_current_offset--;
       break;
     case 'L':
       *hf = &hf_mgcp_param_localconnoptions;
       break;
     case 'M':
-      *hf = &hf_mgcp_param_connectionmode;
+      tvb_current_offset++;
+      if(len > (tvb_current_offset - offset) &&
+        (tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == ':')
+      {
+        *hf = &hf_mgcp_param_connectionmode;
+        tvb_current_offset--;
+      }
+      else if ( tempchar == 'D'){
+        *hf = &hf_mgcp_param_maxmgcpdatagram;
+      }
       break;
     case 'R':
       tvb_current_offset++;
       if(len > (tvb_current_offset - offset) &&
-	 (tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == ':'){
-	*hf = &hf_mgcp_param_reqevents;
-	tvb_current_offset--;
+        (tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == ':'){
+        *hf = &hf_mgcp_param_reqevents;
+        tvb_current_offset--;
       }
       else if ( tempchar == 'M'){
-	*hf = &hf_mgcp_param_restartmethod;
+        *hf = &hf_mgcp_param_restartmethod;
       }
       else if ( tempchar == 'D'){
-	*hf = &hf_mgcp_param_restartdelay;
+        *hf = &hf_mgcp_param_restartdelay;
       }
       break;
     case 'S':
       *hf = &hf_mgcp_param_signalreq;
-	  buf = &(mi->signalReq);
       break;
     case 'D':
       *hf = &hf_mgcp_param_digitmap;
-	  mi->hasDigitMap = TRUE;
+      mi->hasDigitMap = TRUE;
       break;
     case 'O':
       *hf = &hf_mgcp_param_observedevent;
-	  buf = &(mi->observedEvents);
       break;
     case 'P':
-      *hf = &hf_mgcp_param_connectionparam;
+      tvb_current_offset++;
+      if(len > (tvb_current_offset - offset) &&
+        (tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == ':'){
+        *hf = &hf_mgcp_param_connectionparam;
+        tvb_current_offset--;
+      }
+      else if ( tempchar == 'L'){
+        *hf = &hf_mgcp_param_packagelist;
+      }
       break;
     case 'E':
       tvb_current_offset++;
       if(len > (tvb_current_offset - offset) &&
-	 (tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == ':'){
-	*hf = &hf_mgcp_param_reasoncode;
-	tvb_current_offset--;
+        (tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == ':'){
+        *hf = &hf_mgcp_param_reasoncode;
+        tvb_current_offset--;
       }
       else if ( tempchar == 'S'){
-	*hf = &hf_mgcp_param_eventstates;
+        *hf = &hf_mgcp_param_eventstates;
       }
       break;
     case 'Z':
       tvb_current_offset++;
       if(len > (tvb_current_offset - offset) &&
-	 (tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == ':'){
-	*hf = &hf_mgcp_param_specificendpoint;
-	tvb_current_offset--;
+        (tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == ':'){
+        *hf = &hf_mgcp_param_specificendpoint;
+        tvb_current_offset--;
       }
       else if ( tempchar == '2'){
-	*hf = &hf_mgcp_param_secondendpointid;
+        *hf = &hf_mgcp_param_secondendpointid;
       }
       break;
     case 'F':
       *hf = &hf_mgcp_param_reqinfo;
       break;
-
     case 'Q':
       *hf = &hf_mgcp_param_quarantinehandling;
       break;
-
     case 'T':
       *hf = &hf_mgcp_param_detectedevents;
       break;
-
     case 'A':
       *hf = &hf_mgcp_param_capabilities;
       break;
+
     default:
       *hf = &hf_mgcp_param_invalid;
       break;
     }
 
+    /* Move to (hopefully) the colon */
     tvb_current_offset++;
-    if(*hf != NULL && len > (tvb_current_offset - offset) &&
-       (tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == ':'){
+
+    /* Add a recognised parameter type if we have one */
+    if (*hf != NULL && len > (tvb_current_offset - offset) &&
+        (tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == ':') //||
+    {
       tvb_current_offset++;
-      tvb_current_offset = tvb_skip_wsp(tvb,tvb_current_offset,
-					(len - tvb_current_offset + offset));
+      tvb_current_offset = tvb_skip_wsp(tvb,tvb_current_offset, (len - tvb_current_offset + offset));
       returnvalue = tvb_current_offset;
-	  if (buf != NULL) {
-		  *buf = tvb_get_string(tvb, tvb_current_offset, (len - tvb_current_offset + offset));
-	  }
-    }
-    else {
-      *hf = &hf_mgcp_param_invalid;
     }
   }
-  else{
+  else {
+    /* Was an empty line */
     *hf = &hf_mgcp_param_invalid;
   }
-  if(*hf == &hf_mgcp_param_invalid){
+
+  /* For these types, show the whole line */
+  if ((*hf == &hf_mgcp_param_invalid) ||
+      (*hf == &hf_mgcp_param_extension) || (*hf == &hf_mgcp_param_extension_critical))
+  {
     returnvalue = offset;
   }
+
   return returnvalue;
 }
 
@@ -1137,9 +1231,10 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
             /* Can show verb along with code if known */
             sprintf(code_with_verb, "%s (%s)", code, verb_description);
           }
-	  my_proto_tree_add_string(tree,hf_mgcp_req_verb, tvb,
-				   tvb_previous_offset, tokenlen,
-                                   strlen(code_with_verb) ? code_with_verb : code);
+
+          proto_tree_add_string_format(tree, hf_mgcp_req_verb, tvb,
+                                       tvb_previous_offset, tokenlen,
+                                       code, "%s", strlen(code_with_verb) ? code_with_verb : code);
 	}
 	else if (is_mgcp_rspcode(tvb,tvb_previous_offset,tvb_current_len)){
 	  mgcp_type = MGCP_RESPONSE;
@@ -1267,8 +1362,8 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
 					delta.nsecs+=1000000000;
 					delta.secs--;
 				}
-				proto_tree_add_time(tree, hf_mgcp_time, tvb, 0, 0,
-					&delta);
+				item = proto_tree_add_time(tree, hf_mgcp_time, tvb, 0, 0, &delta);
+                PROTO_ITEM_SET_GENERATED(item); 
 			}
 
 			if (mgcp_call->rsp_num == 0) {
@@ -1440,7 +1535,7 @@ static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree){
   if(tree){
     if(global_mgcp_dissect_tree){
       my_proto_tree_add_string = proto_tree_add_string;
-      mgcp_param_ti = proto_tree_add_item(tree, proto_mgcp, tvb,
+      mgcp_param_ti = proto_tree_add_item(tree, hf_mgcp_params, tvb,
 					  tvb_linebegin, tvb_len, FALSE);
       proto_item_set_text(mgcp_param_ti, "Parameters");
       mgcp_param_tree = proto_item_add_subtree(mgcp_param_ti, ett_mgcp_param);
