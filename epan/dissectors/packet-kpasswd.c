@@ -189,6 +189,13 @@ dissect_kpasswd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
+	/* it might be a KERBEROS ERROR */
+	if(tvb_get_guint8(tvb, offset)==0x7e){
+		next_tvb=tvb_new_subset(tvb, offset, -1, -1);
+		dissect_kerberos_main(next_tvb, pinfo, tree, FALSE, NULL);
+		return;
+	}
+
 	message_len=tvb_get_ntohs(tvb, offset);
 	version=tvb_get_ntohs(tvb, offset+2);
 	ap_req_len=tvb_get_ntohs(tvb, offset+4);
