@@ -222,9 +222,9 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
       break;
     }
 
-    cf_callback_invoke(cf_cb_live_capture_update_started, capture_opts->cf);
+    cf_callback_invoke(cf_cb_live_capture_update_started, capture_opts);
   } else {
-    cf_callback_invoke(cf_cb_live_capture_fixed_started, capture_opts->cf);
+    cf_callback_invoke(cf_cb_live_capture_fixed_started, capture_opts);
   }
 
 

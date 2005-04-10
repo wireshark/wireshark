@@ -1306,11 +1306,7 @@ main_cf_cb_live_capture_update_started(capture_options *capture_opts)
        packets (yes, I know, we don't have any *yet*). */
     set_menus_for_captured_packets(TRUE);
 
-    if(capture_opts->iface) {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress>", get_interface_descriptive_name(capture_opts->iface));
-    } else {
-        capture_msg = g_strdup_printf(" <live capture in progress>");
-    }
+    capture_msg = g_strdup_printf(" %s: <live capture in progress>", get_interface_descriptive_name(capture_opts->iface));
 
     statusbar_push_file_msg(capture_msg);
 
@@ -1333,11 +1329,7 @@ main_cf_cb_live_capture_fixed_started(capture_options *capture_opts)
        packets (yes, I know, we don't have any *yet*). */
     /*set_menus_for_captured_packets(TRUE);*/
 
-    if(capture_opts->iface) {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress>", get_interface_descriptive_name(capture_opts->iface));
-    } else {
-        capture_msg = g_strdup_printf(" <live capture in progress>");
-    }
+    capture_msg = g_strdup_printf(" %s: <live capture in progress>", get_interface_descriptive_name(capture_opts->iface));
 
     statusbar_push_file_msg(capture_msg);
 
