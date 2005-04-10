@@ -107,6 +107,7 @@ static char *sync_pipe_signame(int);
 #endif
 
 
+static gboolean sync_pipe_input_wait_for_start(capture_options *capture_opts, int sync_pipe_read);
 static gboolean sync_pipe_input_cb(gint source, gpointer user_data);
 static void sync_pipe_wait_for_child(capture_options *capture_opts, gboolean always_report);
 
@@ -213,30 +214,27 @@ sync_pipe_quote_encapsulate(const char *string)
 
 
 
+#define ARGV_NUMBER_LEN 24
+
 gboolean
 sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
-    guint byte_count;
-    int  i;
-    guchar  c;
-    char *msg;
-    char ssnap[24];
-    char scount[24];			    /* need a constant for len of numbers */
-    char sfilesize[24];	            /* need a constant for len of numbers */
-    char sfile_duration[24];	    /* need a constant for len of numbers */
-    char sring_num_files[24];	    /* need a constant for len of numbers */
-    char sautostop_files[24];	    /* need a constant for len of numbers */
-    char sautostop_filesize[24];	/* need a constant for len of numbers */
-    char sautostop_duration[24];	/* need a constant for len of numbers */
-#ifndef _WIN32
+    char ssnap[ARGV_NUMBER_LEN];
+    char scount[ARGV_NUMBER_LEN];
+    char sfilesize[ARGV_NUMBER_LEN];
+    char sfile_duration[ARGV_NUMBER_LEN];
+    char sring_num_files[ARGV_NUMBER_LEN];
+    char sautostop_files[ARGV_NUMBER_LEN];
+    char sautostop_filesize[ARGV_NUMBER_LEN];
+    char sautostop_duration[ARGV_NUMBER_LEN];
+#ifdef _WIN32
+    char sync_pipe_fd[ARGV_NUMBER_LEN];
+    char *fontstring;
+    char *filterstring;
+#else
     char errmsg[1024+1];
 #endif
     int argc;
     char **argv;
-#ifdef _WIN32
-    char sync_pipe_fd[24];
-    char *fontstring;
-    char *filterstring;
-#endif
     enum PIPES { PIPE_READ, PIPE_WRITE };   /* Constants 0 and 1 for PIPE_READ and PIPE_WRITE */
     int sync_pipe[2];                       /* pipes used to sync between instances */
 
@@ -428,69 +426,11 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
       return FALSE;
     }
 
-    /* Read a byte count from "sync_pipe[PIPE_READ]", terminated with a
-       colon; if the count is 0, the child process created the
-       capture file and we should start reading from it, otherwise
-       the capture couldn't start and the count is a count of bytes
-       of error message, and we should display the message. */
-    byte_count = 0;
-    for (;;) {
-      i = read(sync_pipe[PIPE_READ], &c, 1);
-      if (i == 0) {
-	/* EOF - the child process died.
-	   Close the read side of the sync pipe, remove the capture file,
-	   and report the failure. */
-	close(sync_pipe[PIPE_READ]);
-	sync_pipe_wait_for_child(capture_opts, TRUE);
-	return FALSE;
-      }
-
-      /* the first message should be the capture start or an error message */
-      if (c == SP_CAPSTART || c == SP_ERROR_MSG)
-	break;
-      if (!isdigit(c)) {
-	/* Child process handed us crap.
-	   Close the read side of the sync pipe, remove the capture file,
-	   and report the failure. */
-	close(sync_pipe[PIPE_READ]);
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			"Capture child process sent us a bad message");
-	return FALSE;
-      }
-      byte_count = byte_count*10 + c - '0';
-    }
-    if (c != SP_CAPSTART) {
-      /* Failure - the child process sent us a message indicating
-	 what the problem was. */
-      if (byte_count == 0) {
-	/* Zero-length message? */
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		"Capture child process failed, but its error message was empty.");
-      } else {
-	msg = g_malloc(byte_count + 1);
-	if (msg == NULL) {
-	  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		"Capture child process failed, but its error message was too big.");
-	} else {
-	  i = read(sync_pipe[PIPE_READ], msg, byte_count);
-	  msg[byte_count] = '\0';
-	  if (i < 0) {
-	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		  "Capture child process failed: Error %s reading its error message.",
-		  strerror(errno));
-	  } else if (i == 0) {
-	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		  "Capture child process failed: EOF reading its error message.");
-	    sync_pipe_wait_for_child(capture_opts, FALSE);
-	  } else
-	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, msg);
-	  g_free(msg);
-	}
-
-	/* Close the sync pipe. */
-	close(sync_pipe[PIPE_READ]);
-      }
-      return FALSE;
+    /* the child have to send us a capture start or error message now */
+    if(!sync_pipe_input_wait_for_start(capture_opts, sync_pipe[PIPE_READ])) {
+	    /* Close the sync pipe. */
+	    close(sync_pipe[PIPE_READ]);
+        return FALSE;
     }
 
     /* We were able to set up to read the capture file;
@@ -502,6 +442,89 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
     pipe_input_set_handler(sync_pipe[PIPE_READ], (gpointer) capture_opts, 
         &capture_opts->fork_child, sync_pipe_input_cb);
 
+    return TRUE;
+}
+
+
+/* capture prepared, waiting for the child to signal us capture has indeed started */
+static gboolean
+sync_pipe_input_wait_for_start(capture_options *capture_opts, int sync_pipe_read) {
+    guint   byte_count;
+    int     i;
+    guchar  c;
+    char    *msg;
+
+
+    /* Read a byte count from "sync_pipe_read", terminated with a
+       colon; if the count is 0, the child process created the
+       capture file and we should start reading from it, otherwise
+       the capture couldn't start and the count is a count of bytes
+       of error message, and we should display the message. */
+    byte_count = 0;
+    for (;;) {
+        i = read(sync_pipe_read, &c, 1);
+        if (i == 0) {
+            /* EOF - the child process died, report the failure. */
+            sync_pipe_wait_for_child(capture_opts, TRUE);
+            return FALSE;
+        }
+
+        /* the first message should be the capture start or an error message */
+        if (c == SP_CAPSTART || c == SP_ERROR_MSG) {
+            return TRUE;
+        }
+
+        if (!isdigit(c)) {
+            /* Child process handed us crap, report the failure. */
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+            "Capture child process sent us a bad message");
+            return FALSE;
+        }
+
+        byte_count = byte_count*10 + c - '0';
+
+        if (c != SP_CAPSTART) {
+        /* Failure - the child process sent us a message indicating
+        what the problem was. */
+        if (byte_count == 0) {
+            /* Zero-length message? */
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "Capture child process failed, but its error message was empty.");
+            return FALSE;
+        }
+
+        msg = g_malloc(byte_count + 1);
+        if (msg == NULL) {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "Capture child process failed, but its error message was too big.");
+            return FALSE;
+        }
+
+        i = read(sync_pipe_read, msg, byte_count);
+        msg[byte_count] = '\0';
+        if (i < 0) {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "Capture child process failed: Error %s reading its error message.",
+            strerror(errno));
+            g_free(msg);
+            return FALSE;
+        }
+        
+        if (i == 0) {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+            "Capture child process failed: EOF reading its error message.");
+            sync_pipe_wait_for_child(capture_opts, FALSE);
+            g_free(msg);
+            return FALSE;
+        }
+
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, msg);
+        g_free(msg);
+        return FALSE;
+        }
+    }
+
+    g_assert_not_reached();
     return TRUE;
 }
 
