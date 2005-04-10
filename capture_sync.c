@@ -117,11 +117,11 @@ static void sync_pipe_wait_for_child(capture_options *capture_opts, gboolean alw
 /*
  * Indications sent out on the sync pipe.
  */
-#define SP_CAPSTART	';'	    /* capture start message */
-#define SP_PACKET_COUNT	'*'	/* followed by count of packets captured since last message */
-#define SP_ERROR_MSG	'!'	/* followed by length of error message that follows */
-#define SP_DROPS	'#'	    /* followed by count of packets dropped in capture */
-#define SP_FILE	    ':'	    /* followed by length of the name of the last opened file that follows */
+#define SP_CAPSTART     ';'	/* capture start message */
+#define SP_PACKET_COUNT '*'     /* followed by count of packets captured since last message */
+#define SP_ERROR_MSG    '!'     /* followed by length of error message that follows */
+#define SP_DROPS        '#'	/* followed by count of packets dropped in capture */
+#define SP_FILE	        ':'	/* followed by length of the name of the last opened file that follows */
 
 
 
@@ -582,7 +582,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
       q++;
       nread--;
 
-      /* Read the entire message.
+      /* Read the entire file name.
          XXX - if the child hasn't sent it all yet, this could cause us
          to hang until they do. */
       msg = g_malloc(msglen + 1);
