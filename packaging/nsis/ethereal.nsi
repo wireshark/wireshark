@@ -691,6 +691,9 @@ NoFinalErrorMsg:
 
 SectionEnd
 
+; ============================================================================
+; PLEASE MAKE SURE, THAT THE DESCRIPTIVE TEXT FITS INTO THE DESCRIPTION FIELD!
+; ============================================================================
 !ifdef MAKENSIS_MODERN_UI
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
 !ifdef GTK1_DIR
@@ -702,7 +705,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecGTKWimp} "GTKWimp is the GTK2 windows impersonator (native Win32 look and feel)."
 !endif  
 !endif
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecTethereal} "Tethereal is a network protocol analyzer."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecTethereal} "Tethereal is a text based network protocol analyzer."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecEditCap} "Editcap is a program that reads a capture file and writes some or all of the packets into another capture file."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Text2pcap is a program that reads in an ASCII hex dump and writes the data into a libpcap-style capture file."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMergecap} "Mergecap is a program that combines multiple saved capture files into a single output file."
@@ -714,7 +717,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecShortcuts} "Start menu shortcuts."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecDesktopIcon} "Ethereal desktop icon."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecFileExtensions} "Associate standard network trace files to ${PROGRAM_NAME}"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecNPFservice} "Start WinPcap's NPF service at startup, so even users with restricted privilegies can capture. Requires a reboot."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecNPFservice} "Start WinPcap's service at startup, so users with restricted privilegies can capture. Requires a reboot."
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 !endif ; MAKENSIS_MODERN_UI
 
