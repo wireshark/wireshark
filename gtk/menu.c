@@ -1725,6 +1725,8 @@ set_menus_for_selected_packet(capture_file *cf)
       cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/Edit/Unmark All Packets",
       cf->current_frame != NULL);
+  set_menu_sensitivity(main_menu_factory, "/View/Resize Columns",
+      cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/View/Collapse All",
       cf->current_frame != NULL);
   set_menu_sensitivity(tree_view_menu_factory, "/Collapse All",
