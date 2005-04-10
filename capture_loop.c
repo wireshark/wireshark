@@ -1126,16 +1126,16 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
      in other places as well - and I don't think that works all the
      time in any case, due to libpcap bugs. */
 
-    /* Well, we should be able to start capturing.
+  /* Well, we should be able to start capturing.
 
-       Sync out the capture file, so the header makes it to the file system,
-       and send a "capture started successfully and capture file created"
-       message to our parent so that they'll open the capture file and
-       update its windows to indicate that we have a live capture in
-       progress. */
-    fflush(wtap_dump_file(ld.wtap_pdh));
-    sync_pipe_capstart_to_parent();
-    sync_pipe_filename_to_parent(capture_opts->save_file);
+     Sync out the capture file, so the header makes it to the file system,
+     and send a "capture started successfully and capture file created"
+     message to our parent so that they'll open the capture file and
+     update its windows to indicate that we have a live capture in
+     progress. */
+  fflush(wtap_dump_file(ld.wtap_pdh));
+  sync_pipe_capstart_to_parent();
+  sync_pipe_filename_to_parent(capture_opts->save_file);
 
   /* initialize capture stop (and alike) conditions */
   init_capture_stop_conditions();
