@@ -282,6 +282,8 @@ capture_input_closed(capture_options *capture_opts)
               cf_is_tempfile(capture_opts->cf) ? "temporary " : "");
               cf_close(capture_opts->cf);
               /* we have closed the capture file, don't call cf_cb_live_capture_finished! */
+            } else {
+              cf_callback_invoke(cf_cb_live_capture_finished, capture_opts->cf);
             }
             break;
         case CF_READ_ERROR:
