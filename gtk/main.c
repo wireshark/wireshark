@@ -795,6 +795,7 @@ void resolve_name_cb(GtkWidget *widget _U_, gpointer data _U_) {
 void
 statusbar_push_file_msg(gchar *msg)
 {
+    /*g_warning("statusbar_push: %s", msg);*/
 	gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, msg);
 }
 
@@ -804,6 +805,7 @@ statusbar_push_file_msg(gchar *msg)
 void
 statusbar_pop_file_msg(void)
 {
+    /*g_warning("statusbar_pop");*/
 	gtk_statusbar_pop(GTK_STATUSBAR(info_bar), file_ctx);
 }
 
@@ -1292,7 +1294,7 @@ main_cf_cb_live_capture_prepare(capture_options *capture_opts)
 }
 
 static void
-main_cf_cb_live_capture_started(capture_options *capture_opts)
+main_cf_cb_live_capture_update_started(capture_options *capture_opts)
 {
     gchar *capture_msg;
 
@@ -1319,12 +1321,62 @@ main_cf_cb_live_capture_started(capture_options *capture_opts)
 }
 
 static void
-main_cf_cb_live_capture_finished(capture_file *cf)
+main_cf_cb_live_capture_fixed_started(capture_options *capture_opts)
+{
+    gchar *capture_msg;
+
+    /* Disable menu items that make no sense if you're currently running
+       a capture. */
+    set_menus_for_capture_in_progress(TRUE);
+
+    /* Enable menu items that make sense if you have some captured
+       packets (yes, I know, we don't have any *yet*). */
+    /*set_menus_for_captured_packets(TRUE);*/
+
+    if(capture_opts->iface) {
+        capture_msg = g_strdup_printf(" %s: <live capture in progress>", get_interface_descriptive_name(capture_opts->iface));
+    } else {
+        capture_msg = g_strdup_printf(" <live capture in progress>");
+    }
+
+    statusbar_push_file_msg(capture_msg);
+
+    g_free(capture_msg);
+
+    /* Set up main window for a capture file. */
+/*    main_set_for_capture_file(TRUE);*/
+    /* XXX: shouldn't be already set */
+    main_set_for_capture_file(FALSE);
+}
+
+static void
+main_cf_cb_live_capture_update_finished(capture_file *cf)
 {
     /* Pop the "<live capture in progress>" message off the status bar. */
     statusbar_pop_file_msg();
 
     set_display_filename(cf);
+
+    /* Enable menu items that make sense if you're not currently running
+     a capture. */
+    set_menus_for_capture_in_progress(FALSE);
+
+    /* Enable menu items that make sense if you have a capture file
+     you've finished reading. */
+    set_menus_for_capture_file(TRUE);
+    set_menus_for_unsaved_capture_file(!cf->user_saved);
+
+    /* Set up main window for a capture file. */
+    main_set_for_capture_file(TRUE);
+}
+
+static void
+main_cf_cb_live_capture_fixed_finished(capture_file *cf)
+{
+    /* Pop the "<live capture in progress>" message off the status bar. */
+    statusbar_pop_file_msg();
+
+    /*set_display_filename(cf);*/
 
     /* Enable menu items that make sense if you're not currently running
      a capture. */
@@ -1422,11 +1474,17 @@ void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
     case(cf_cb_live_capture_prepare):
         main_cf_cb_live_capture_prepare(data);
         break;
-    case(cf_cb_live_capture_started):
-        main_cf_cb_live_capture_started(data);
+    case(cf_cb_live_capture_update_started):
+        main_cf_cb_live_capture_update_started(data);
         break;
-    case(cf_cb_live_capture_finished):
-        main_cf_cb_live_capture_finished(data);
+    case(cf_cb_live_capture_fixed_started):
+        main_cf_cb_live_capture_fixed_started(data);
+        break;
+    case(cf_cb_live_capture_update_finished):
+        main_cf_cb_live_capture_update_finished(data);
+        break;
+    case(cf_cb_live_capture_fixed_finished):
+        main_cf_cb_live_capture_fixed_finished(data);
         break;
 #endif
     case(cf_cb_packet_selected):

@@ -221,9 +221,12 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
       return FALSE;
       break;
     }
+
+    cf_callback_invoke(cf_cb_live_capture_update_started, capture_opts->cf);
+  } else {
+    cf_callback_invoke(cf_cb_live_capture_fixed_started, capture_opts->cf);
   }
 
-  cf_callback_invoke(cf_cb_live_capture_started, capture_opts->cf);
 
   return TRUE;
 }
@@ -269,6 +272,9 @@ capture_input_closed(capture_options *capture_opts)
 
 
     if(capture_opts->real_time_mode) {
+        /* first of all, we are not doing a capture any more */
+        cf_callback_invoke(cf_cb_live_capture_update_finished, capture_opts->cf);
+
         /* Read what remains of the capture file, and finish the capture.
            XXX - do something if this fails? */
         switch (cf_finish_tail(capture_opts->cf, &err)) {
@@ -296,15 +302,12 @@ capture_input_closed(capture_options *capture_opts)
         }
 
     } else {
+        /* first of all, we are not doing a capture any more */
+        cf_callback_invoke(cf_cb_live_capture_fixed_finished, capture_opts->cf);
+
         /* this is a normal mode capture, read in the capture file data */
         capture_input_read_all(capture_opts, cf_is_tempfile(capture_opts->cf), 
             cf_get_drops_known(capture_opts->cf), cf_get_drops(capture_opts->cf));
-    }
-
-    /* if we have captured some packets, call cf_cb_live_capture_finished! */
-    /* (otherwise we already have called cf_close) */
-    if(cf_packet_count(capture_opts->cf) != 0) {
-        cf_callback_invoke(cf_cb_live_capture_finished, capture_opts->cf);
     }
 
     /* We're not doing a capture any more, so we don't have a save file. */
