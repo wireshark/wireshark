@@ -267,6 +267,9 @@ When testing for TCP SYN packets, you can write:
 
     tcp.flags & 0x02
 
+That expression will match all packets that contain a "tcp.flags" field
+with the 0x02 bit, i.e. the SYN bit, set.
+
 Similarly, filtering for all WSP GET and extended GET methods is achieved with:
 
     wsp.pdu_type & 0x40
