@@ -1228,6 +1228,23 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
           capture_info_update(&capture_ui);
       }
 
+#if _WIN32
+      /* some news from our parent (signal pipe)? -> just stop the capture */
+      {
+          HANDLE handle;
+          DWORD avail = 0;
+          gboolean result;
+
+
+          handle = (HANDLE) _get_osfhandle (0);
+          result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
+
+          if(!result || avail > 0) {
+            ld.go = FALSE;
+          }
+      }
+#endif
+
       /* Let the parent process know. */
       if (ld.packets_sync_pipe) {
         /* do sync here */

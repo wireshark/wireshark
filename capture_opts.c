@@ -81,6 +81,9 @@ capture_opts_init(capture_options *capture_opts, void *cfile)
 
 
   capture_opts->fork_child              = -1;               /* invalid process handle */
+#ifdef _WIN32
+  capture_opts->signal_pipe_fd          = -1;
+#endif
 }
 
 
@@ -112,6 +115,9 @@ capture_opts_info(capture_options *capture_opts) {
     g_warning("AutostopDuration(%u): %u", capture_opts->has_autostop_duration, capture_opts->autostop_duration);
 
     g_warning("ForkChild          : %d", capture_opts->fork_child);
+#ifdef _WIN32
+    g_warning("SignalPipeFd       : %d", capture_opts->signal_pipe_fd);
+#endif
 }
 
 /*
@@ -216,13 +222,69 @@ get_ring_arguments(capture_options *capture_opts, const char *appname, const cha
 }
 
 
+#ifdef _WIN32
+/*
+ * Given a string of the form "<pipe name>:<file descriptor>", as might appear
+ * as an argument to a "-Z" option, parse it and set the arguments in
+ * question.  Return an indication of whether it succeeded or failed
+ * in some fashion.
+ */
+static gboolean
+get_pipe_arguments(capture_options *capture_opts, const char *appname, const char *arg)
+{
+  gchar *p = NULL, *colonp;
+  int pipe_fd;
+
+
+  colonp = strchr(arg, ':');
+  if (colonp == NULL)
+    return TRUE;
+
+  p = colonp;
+  *p++ = '\0';
+
+  /*
+   * Skip over any white space (there probably won't be any, but
+   * as we allow it in the preferences file, we might as well
+   * allow it here).
+   */
+  while (isspace((guchar)*p))
+    p++;
+  if (*p == '\0') {
+    /*
+     * Put the colon back, so if our caller uses, in an
+     * error message, the string they passed us, the message
+     * looks correct.
+     */
+    *colonp = ':';
+    return FALSE;
+  }
+
+  if (strcmp(arg,"sync") == 0) {
+    /* associate stdout with sync pipe */
+    pipe_fd = get_natural_int(appname, p, "sync pipe file descriptor");
+    if (dup2(pipe_fd, 1) < 0) {
+      fprintf(stderr, "%s: Unable to dup sync pipe handle\n", appname);
+      return FALSE;
+    }
+  } else if (strcmp(arg,"signal") == 0) {
+    /* associate stdin with signal pipe */
+    pipe_fd = get_natural_int(appname, p, "signal pipe file descriptor");
+    if (dup2(pipe_fd, 0) < 0) {
+      fprintf(stderr, "%s: Unable to dup signal pipe handle\n", appname);
+      return FALSE;
+    }
+  }
+
+  *colonp = ':';	/* put the colon back */
+  return TRUE;
+}
+#endif
+
+
 void
 capture_opts_add_opt(capture_options *capture_opts, const char *appname, int opt, const char *optarg, gboolean *start_capture)
 {
-#ifdef _WIN32
-    int i;
-#endif
-
     switch(opt) {
     case 'a':        /* autostop criteria */
         if (set_autostop_criterion(capture_opts, appname, optarg) == FALSE) {
@@ -289,10 +351,8 @@ capture_opts_add_opt(capture_options *capture_opts, const char *appname, int opt
 #ifdef _WIN32
       /* Hidden option supporting Sync mode */
     case 'Z':        /* Write to pipe FD XXX */
-        /* associate stdout with pipe */
-        i = atoi(optarg);
-        if (dup2(i, 1) < 0) {
-          fprintf(stderr, "%s: Unable to dup pipe handle\n", appname);
+       if (get_pipe_arguments(capture_opts, appname, optarg) == FALSE) {
+          fprintf(stderr, "%s: Invalid or unknown -Z flag \"%s\"\n", appname, optarg);
           exit(1);
         }
         break;

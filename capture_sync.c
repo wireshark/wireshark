@@ -173,6 +173,19 @@ sync_pipe_drops_to_parent(int drops)
 }
 
 
+#ifdef _WIN32
+#define SP_CAPEND 'q'
+
+static void
+signal_pipe_capend_to_child(capture_options *capture_opts)
+{
+    static const char capend_msg = SP_CAPEND;
+
+    write(capture_opts->signal_pipe_fd, &capend_msg, 1);
+}
+#endif
+
+
 /* Add a string pointer to a NULL-terminated array of string pointers. */
 static char **
 sync_pipe_add_arg(char **args, int *argc, char *arg)
@@ -228,15 +241,17 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
     char sautostop_duration[ARGV_NUMBER_LEN];
 #ifdef _WIN32
     char sync_pipe_fd[ARGV_NUMBER_LEN];
+    char signal_pipe_fd[ARGV_NUMBER_LEN];
     char *fontstring;
     char *filterstring;
+    int signal_pipe[2];                     /* pipe used to send messages from parent to child (currently only stop) */
 #else
     char errmsg[1024+1];
 #endif
     int argc;
     char **argv;
     enum PIPES { PIPE_READ, PIPE_WRITE };   /* Constants 0 and 1 for PIPE_READ and PIPE_WRITE */
-    int sync_pipe[2];                       /* pipes used to sync between instances */
+    int sync_pipe[2];                       /* pipe used to send messages from child to parent */
 
 
     /*g_warning("sync_pipe_do_capture");
@@ -335,18 +350,37 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
       /* Couldn't create the pipe between parent and child. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't create sync pipe: %s",
                         strerror(errno));
+      g_free(argv);
       return FALSE;
     }
+
+    /* Create a pipe for the parent process */
+    if(_pipe(signal_pipe, 512, O_BINARY) < 0) {
+      /* Couldn't create the signal pipe between parent and child. */
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't create signal pipe: %s",
+                        strerror(errno));
+      close(sync_pipe[PIPE_READ]);
+      close(sync_pipe[PIPE_WRITE]);
+      g_free(argv);
+      return FALSE;
+    }
+
+    capture_opts->signal_pipe_fd = signal_pipe[PIPE_WRITE];
 
     /* Convert font name to a quote-encapsulated string and pass to child */
     argv = sync_pipe_add_arg(argv, &argc, "-m");
     fontstring = sync_pipe_quote_encapsulate(prefs.PREFS_GUI_FONT_NAME);
     argv = sync_pipe_add_arg(argv, &argc, fontstring);
 
-    /* Convert pipe write handle to a string and pass to child */
+    /* Convert sync pipe write handle to a string and pass to child */
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
-    itoa(sync_pipe[PIPE_WRITE], sync_pipe_fd, 10);
+    sprintf(sync_pipe_fd,"sync:%d",sync_pipe[PIPE_WRITE]);
     argv = sync_pipe_add_arg(argv, &argc, sync_pipe_fd);
+
+    /* Convert signal pipe read handle to a string and pass to child */
+    argv = sync_pipe_add_arg(argv, &argc, "-Z");
+    sprintf(signal_pipe_fd,"signal:%d",signal_pipe[PIPE_READ]);
+    argv = sync_pipe_add_arg(argv, &argc, signal_pipe_fd);
 
     /* Convert filter string to a quote delimited string and pass to child */
     filterstring = NULL;
@@ -362,11 +396,15 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
     if (filterstring) {
       g_free(filterstring);
     }
+
+    /* child own's the read side now, close our handle */
+    close(signal_pipe[PIPE_READ]);
 #else
     if (pipe(sync_pipe) < 0) {
       /* Couldn't create the pipe between parent and child. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't create sync pipe: %s",
 			strerror(errno));
+      g_free(argv);
       return FALSE;
     }
 
@@ -423,13 +461,22 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Couldn't create child process: %s", strerror(errno));
       close(sync_pipe[PIPE_READ]);
+#ifdef _WIN32
+      close(signal_pipe[PIPE_WRITE]);
+#endif
       return FALSE;
     }
+
+    /* we might wait for a moment till child is ready, so update screen now */
+    main_window_update();
 
     /* the child have to send us a capture start or error message now */
     if(!sync_pipe_input_wait_for_start(capture_opts, sync_pipe[PIPE_READ])) {
 	    /* Close the sync pipe. */
 	    close(sync_pipe[PIPE_READ]);
+#ifdef _WIN32
+        close(signal_pipe[PIPE_WRITE]);
+#endif
         return FALSE;
     }
 
@@ -547,6 +594,9 @@ sync_pipe_input_cb(gint source, gpointer user_data)
        capturing any more packets.  Pick up its exit status, and
        complain if it did anything other than exit with status 0. */
     sync_pipe_wait_for_child(capture_opts, FALSE);
+#ifdef _WIN32
+    close(capture_opts->signal_pipe_fd);
+#endif
     capture_input_closed(capture_opts);
     return FALSE;
   }
@@ -806,25 +856,9 @@ sync_pipe_stop(capture_options *capture_opts)
   /* XXX - in which cases this will be 0? */
   if (capture_opts->fork_child != -1 && capture_opts->fork_child != 0) {
 #ifndef _WIN32
-      kill(capture_opts->fork_child, SIGUSR1);
+    kill(capture_opts->fork_child, SIGUSR1);
 #else
-      /* XXX: this is not the preferred method of closing a process!
-       * the clean way would be getting the process id of the child process,
-       * then getting window handle hWnd of that process (using EnumChildWindows),
-       * and then do a SendMessage(hWnd, WM_CLOSE, 0, 0) 
-       *
-       * Unfortunately, I don't know how to get the process id from the
-       * handle.  OpenProcess will get an handle (not a window handle)
-       * from the process ID; it will not get a window handle from the
-       * process ID.  (How could it?  A process can have more than one
-       * window.)
-       *
-       * Hint: GenerateConsoleCtrlEvent() will only work if both processes are 
-       * running in the same console; that's not necessarily the case for
-       * us, as we might not be running in a console.
-       * And this also will require to have the process id.
-       */
-      TerminateProcess((HANDLE) (capture_opts->fork_child), 0);
+    signal_pipe_capend_to_child(capture_opts);
 #endif
   }
 }
