@@ -439,7 +439,6 @@ int main(int argc, char *argv[])
               err_type = rand() / (RAND_MAX / ERR_WT_TOTAL + 1);
 
               if (err_type < ERR_WT_BYTE) {
-printf("err_wt_byte: %d\n", i);
                 buf[i] = rand() / (RAND_MAX / 255 + 1);
                 err_type = ERR_WT_TOTAL;
               } else {
@@ -447,7 +446,6 @@ printf("err_wt_byte: %d\n", i);
               }
 
               if (err_type < ERR_WT_ALNUM) {
-printf("err_wt_alnum: %d\n", i);
                 buf[i] = ALNUM_CHARS[rand() / (RAND_MAX / ALNUM_LEN + 1)];
                 err_type = ERR_WT_TOTAL;
               } else {
@@ -455,7 +453,6 @@ printf("err_wt_alnum: %d\n", i);
               }
 
               if (err_type < ERR_WT_FMT) {
-printf("err_wt_fmt: %d\n", i);
                 if (i < phdr->caplen - 2)
                   strcpy(&buf[i],  "%s");
                 err_type = ERR_WT_TOTAL;
@@ -464,7 +461,6 @@ printf("err_wt_fmt: %d\n", i);
               }
 
               if (err_type < ERR_WT_AA) {
-printf("err_wt_aa: %d\n", i);
                 for (j = i; j < (int) phdr->caplen; j++) {
                   buf[j] = 0xAA;
                 }
