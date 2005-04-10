@@ -1228,7 +1228,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
           capture_info_update(&capture_ui);
       }
 
-#if _WIN32
+#ifdef _WIN32
       /* some news from our parent (signal pipe)? -> just stop the capture */
       {
           HANDLE handle;
