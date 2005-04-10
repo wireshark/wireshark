@@ -104,78 +104,78 @@ static gboolean
 capture_input_read_all(capture_options *capture_opts, gboolean is_tempfile, gboolean drops_known,
 guint32 drops)
 {
-    int err;
+  int err;
 
 
-    /* Capture succeeded; attempt to open the capture file. */
-    if (cf_open(capture_opts->cf, capture_opts->save_file, is_tempfile, &err) != CF_OK) {
-      /* We're not doing a capture any more, so we don't have a save
-	 file. */
-      return FALSE;
-    }
+  /* Capture succeeded; attempt to open the capture file. */
+  if (cf_open(capture_opts->cf, capture_opts->save_file, is_tempfile, &err) != CF_OK) {
+    /* We're not doing a capture any more, so we don't have a save
+       file. */
+    return FALSE;
+  }
 
-    /* Set the read filter to NULL. */
-    /* XXX - this is odd here, try to put it somewhere, where it fits better */
-    cf_set_rfcode(capture_opts->cf, NULL);
+  /* Set the read filter to NULL. */
+  /* XXX - this is odd here, try to put it somewhere, where it fits better */
+  cf_set_rfcode(capture_opts->cf, NULL);
 
-    /* Get the packet-drop statistics.
+  /* Get the packet-drop statistics.
 
-       XXX - there are currently no packet-drop statistics stored
-       in libpcap captures, and that's what we're reading.
+     XXX - there are currently no packet-drop statistics stored
+     in libpcap captures, and that's what we're reading.
 
-       At some point, we will add support in Wiretap to return
-       packet-drop statistics for capture file formats that store it,
-       and will make "cf_read()" get those statistics from Wiretap.
-       We clear the statistics (marking them as "not known") in
-       "cf_open()", and "cf_read()" will only fetch them and mark
-       them as known if Wiretap supplies them, so if we get the
-       statistics now, after calling "cf_open()" but before calling
-       "cf_read()", the values we store will be used by "cf_read()".
+     At some point, we will add support in Wiretap to return
+     packet-drop statistics for capture file formats that store it,
+     and will make "cf_read()" get those statistics from Wiretap.
+     We clear the statistics (marking them as "not known") in
+     "cf_open()", and "cf_read()" will only fetch them and mark
+     them as known if Wiretap supplies them, so if we get the
+     statistics now, after calling "cf_open()" but before calling
+     "cf_read()", the values we store will be used by "cf_read()".
 
-       If a future libpcap capture file format stores the statistics,
-       we'll put them into the capture file that we write, and will
-       thus not have to set them here - "cf_read()" will get them from
-       the file and use them. */
-    if (drops_known) {
-      cf_set_drops_known(capture_opts->cf, TRUE);
+     If a future libpcap capture file format stores the statistics,
+     we'll put them into the capture file that we write, and will
+     thus not have to set them here - "cf_read()" will get them from
+     the file and use them. */
+  if (drops_known) {
+    cf_set_drops_known(capture_opts->cf, TRUE);
 
-      /* XXX - on some systems, libpcap doesn't bother filling in
-         "ps_ifdrop" - it doesn't even set it to zero - so we don't
-         bother looking at it.
+    /* XXX - on some systems, libpcap doesn't bother filling in
+       "ps_ifdrop" - it doesn't even set it to zero - so we don't
+       bother looking at it.
 
-         Ideally, libpcap would have an interface that gave us
-         several statistics - perhaps including various interface
-         error statistics - and would tell us which of them it
-         supplies, allowing us to display only the ones it does. */
-      cf_set_drops(capture_opts->cf, drops);
-    }
+       Ideally, libpcap would have an interface that gave us
+       several statistics - perhaps including various interface
+       error statistics - and would tell us which of them it
+       supplies, allowing us to display only the ones it does. */
+    cf_set_drops(capture_opts->cf, drops);
+  }
 
-    /* read in the packet data */
-    switch (cf_read(capture_opts->cf)) {
+  /* read in the packet data */
+  switch (cf_read(capture_opts->cf)) {
 
-    case CF_READ_OK:
-    case CF_READ_ERROR:
-      /* Just because we got an error, that doesn't mean we were unable
-         to read any of the file; we handle what we could get from the
-         file. */
-      break;
+  case CF_READ_OK:
+  case CF_READ_ERROR:
+    /* Just because we got an error, that doesn't mean we were unable
+       to read any of the file; we handle what we could get from the
+       file. */
+    break;
 
-    case CF_READ_ABORTED:
-      /* User wants to quit program. Exit by leaving the main loop, 
-         so that any quit functions we registered get called. */
-      main_window_nested_quit();
-      return FALSE;
-    }
+  case CF_READ_ABORTED:
+    /* User wants to quit program. Exit by leaving the main loop, 
+       so that any quit functions we registered get called. */
+    main_window_nested_quit();
+    return FALSE;
+  }
 
-    /* if we didn't captured even a single packet, close the file again */
-    if(cf_packet_count(capture_opts->cf) == 0) {
-      simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
-      "%sNo packets captured!%s\n\n"
-      "As no data was captured, closing the %scapture file!",
-      simple_dialog_primary_start(), simple_dialog_primary_end(),
-      (cf_is_tempfile(capture_opts->cf)) ? "temporary " : "");
-      cf_close(capture_opts->cf);
-    }
+  /* if we didn't captured even a single packet, close the file again */
+  if(cf_packet_count(capture_opts->cf) == 0) {
+    simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
+    "%sNo packets captured!%s\n\n"
+    "As no data was captured, closing the %scapture file!",
+    simple_dialog_primary_start(), simple_dialog_primary_end(),
+    (cf_is_tempfile(capture_opts->cf)) ? "temporary " : "");
+    cf_close(capture_opts->cf);
+  }
   return TRUE;
 }
 
@@ -188,44 +188,44 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
   int  err;
 
 
-      /*g_warning("New capture file: %s", new_file);*/
+  /*g_warning("New capture file: %s", new_file);*/
 
-      /* free the old filename */
-      if(capture_opts->save_file != NULL) {
-        /* we start a new capture file, simply close the old one */
-        /* XXX - is it enough to call cf_close here? */
-        /* XXX - is it safe to call cf_close even if the file is close before? */
-        cf_close(capture_opts->cf);
-        g_free(capture_opts->save_file);
-        is_tempfile = FALSE;
-      } else {
-        /* we didn't had a save_file before, must be a tempfile */
-        is_tempfile = TRUE;
-        cf_set_tempfile(capture_opts->cf, TRUE);
-      }
+  /* free the old filename */
+  if(capture_opts->save_file != NULL) {
+    /* we start a new capture file, simply close the old one */
+    /* XXX - is it enough to call cf_close here? */
+    /* XXX - is it safe to call cf_close even if the file is close before? */
+    cf_close(capture_opts->cf);
+    g_free(capture_opts->save_file);
+    is_tempfile = FALSE;
+  } else {
+    /* we didn't had a save_file before, must be a tempfile */
+    is_tempfile = TRUE;
+    cf_set_tempfile(capture_opts->cf, TRUE);
+  }
 
-      /* save the new filename */
-      capture_opts->save_file = g_strdup(new_file);
+  /* save the new filename */
+  capture_opts->save_file = g_strdup(new_file);
 
-      /* if we are in real-time mode, open the new file now */
-    if(capture_opts->real_time_mode) {
-        /* Attempt to open the capture file and set up to read from it. */
-        switch(cf_start_tail(capture_opts->cf, capture_opts->save_file, is_tempfile, &err)) {
-        case CF_OK:
-            break;
-        case CF_ERROR:
-            /* Don't unlink (delete) the save file - leave it around, 
-               for debugging purposes. */
-            g_free(capture_opts->save_file);
-            capture_opts->save_file = NULL;
-            return FALSE;
-            break;
-        }
+  /* if we are in real-time mode, open the new file now */
+  if(capture_opts->real_time_mode) {
+    /* Attempt to open the capture file and set up to read from it. */
+       switch(cf_start_tail(capture_opts->cf, capture_opts->save_file, is_tempfile, &err)) {
+    case CF_OK:
+      break;
+    case CF_ERROR:
+      /* Don't unlink (delete) the save file - leave it around, 
+         for debugging purposes. */
+      g_free(capture_opts->save_file);
+      capture_opts->save_file = NULL;
+      return FALSE;
+      break;
     }
+  }
 
-    cf_callback_invoke(cf_cb_live_capture_started, capture_opts->cf);
+  cf_callback_invoke(cf_cb_live_capture_started, capture_opts->cf);
 
-    return TRUE;
+  return TRUE;
 }
 
     
@@ -237,26 +237,26 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
 
 
   if(capture_opts->real_time_mode) {
-      /* Read from the capture file the number of records the child told us
-         it added.
-         XXX - do something if this fails? */
-      switch (cf_continue_tail(capture_opts->cf, to_read, &err)) {
+    /* Read from the capture file the number of records the child told us
+       it added.
+       XXX - do something if this fails? */
+    switch (cf_continue_tail(capture_opts->cf, to_read, &err)) {
 
-      case CF_READ_OK:
-      case CF_READ_ERROR:
-        /* Just because we got an error, that doesn't mean we were unable
-           to read any of the file; we handle what we could get from the
-           file.
+    case CF_READ_OK:
+    case CF_READ_ERROR:
+      /* Just because we got an error, that doesn't mean we were unable
+         to read any of the file; we handle what we could get from the
+         file.
 
-           XXX - abort on a read error? */
-        break;
+         XXX - abort on a read error? */
+      break;
 
-      case CF_READ_ABORTED:
-        /* Kill the child capture process; the user wants to exit, and we
-           shouldn't just leave it running. */
-        capture_kill_child(capture_opts);
-        break;
-      }
+    case CF_READ_ABORTED:
+      /* Kill the child capture process; the user wants to exit, and we
+         shouldn't just leave it running. */
+      capture_kill_child(capture_opts);
+      break;
+    }
   }
 }
 
