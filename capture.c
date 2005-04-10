@@ -281,27 +281,29 @@ capture_input_closed(capture_options *capture_opts)
               simple_dialog_primary_start(), simple_dialog_primary_end(),
               cf_is_tempfile(capture_opts->cf) ? "temporary " : "");
               cf_close(capture_opts->cf);
+              /* we have closed the capture file, don't call cf_cb_live_capture_finished! */
             }
             break;
         case CF_READ_ERROR:
           /* Just because we got an error, that doesn't mean we were unable
              to read any of the file; we handle what we could get from the
              file. */
+          cf_callback_invoke(cf_cb_live_capture_finished, capture_opts->cf);
           break;
 
         case CF_READ_ABORTED:
           /* Exit by leaving the main loop, so that any quit functions
              we registered get called. */
           main_window_quit();
+          cf_callback_invoke(cf_cb_live_capture_finished, capture_opts->cf);
         }
 
     } else {
         /* this is a normal mode capture, read in the capture file data */
         capture_input_read_all(capture_opts, cf_is_tempfile(capture_opts->cf), 
             cf_get_drops_known(capture_opts->cf), cf_get_drops(capture_opts->cf));
+        cf_callback_invoke(cf_cb_live_capture_finished, capture_opts->cf);
     }
-
-    cf_callback_invoke(cf_cb_live_capture_finished, capture_opts->cf);
 
     /* We're not doing a capture any more, so we don't have a save file. */
     g_assert(capture_opts->save_file);
