@@ -20,6 +20,7 @@
 #include <unistd.h>
 #endif
 
+#include <time.h>
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
@@ -44,6 +45,19 @@ struct select_item {
 
 #define ONE_MILLION 1000000
 
+/* Weights of different errors we can introduce */
+/* We should probably make these command-line arguments */
+/* XXX - Should we add a bit-level error? */
+#define ERR_WT_BYTE  5  /* Substitute a random byte */
+#define ERR_WT_ALNUM 5  /* Substitute a random character in [A-Za-z0-9] */
+#define ERR_WT_FMT   2  /* Substitute "%s" */
+#define ERR_WT_AA    1  /* Fill the remainder of the buffer with 0xAA */
+#define ERR_WT_TOTAL (ERR_WT_BYTE + ERR_WT_ALNUM + ERR_WT_FMT + ERR_WT_AA)
+
+#define ALNUM_CHARS "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+#define ALNUM_LEN (sizeof(ALNUM_CHARS) - 1)
+
+
 struct time_adjustment {
   struct timeval tv;
   int is_negative;
@@ -56,6 +70,7 @@ static int out_file_type = WTAP_FILE_PCAP;   /* default to "libpcap"   */
 static int out_frame_type = -2;              /* Leave frame type alone */
 static int verbose = 0;                      /* Not so verbose         */
 static struct time_adjustment time_adj = {{0, 0}, 0}; /* no adjustment */
+static double err_prob = 0.0;
 
 /* Add a selection item, a simple parser for now */
 
@@ -193,10 +208,23 @@ static void usage(void)
   fprintf(stderr, "Usage: editcap [-r] [-h] [-v] [-T <encap type>] [-F <capture type>]\n");
   fprintf(stderr, "               [-s <snaplen>] [-t <time adjustment>]\n");
   fprintf(stderr, "               <infile> <outfile> [ <record#>[-<record#>] ... ]\n");
-  fprintf(stderr, "  where\t-r specifies that the records specified should be kept, not deleted, \n");
-  fprintf(stderr, "                           default is to delete\n");
-  fprintf(stderr, "       \t-v specifies verbose operation, default is silent\n");
+  fprintf(stderr, "  where\n");
+  fprintf(stderr, "       \t-E <probability> specifies the probability (between 0 and 1)\n");
+  fprintf(stderr, "       \t    that a particular byte will will have an error.\n");
+  fprintf(stderr, "       \t-F <capture type> specifies the capture file type to write:\n");
+  for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
+    if (wtap_dump_can_open(i))
+      fprintf(stderr, "       \t    %s - %s\n",
+        wtap_file_type_short_string(i), wtap_file_type_string(i));
+  }
+  fprintf(stderr, "       \t    default is libpcap\n");
   fprintf(stderr, "       \t-h produces this help listing.\n");
+  fprintf(stderr, "       \t-r specifies that the records specified should be kept, not deleted, \n");
+  fprintf(stderr, "                           default is to delete\n");
+  fprintf(stderr, "       \t-s <snaplen> specifies that packets should be truncated to\n");
+  fprintf(stderr, "       \t   <snaplen> bytes of data\n");
+  fprintf(stderr, "       \t-t <time adjustment> specifies the time adjustment\n");
+  fprintf(stderr, "       \t   to be applied to selected packets\n");
   fprintf(stderr, "       \t-T <encap type> specifies the encapsulation type to use:\n");
   for (i = 0; i < WTAP_NUM_ENCAP_TYPES; i++) {
       string = wtap_encap_short_string(i);
@@ -205,17 +233,7 @@ static void usage(void)
           string, wtap_encap_string(i));
   }
   fprintf(stderr, "       \t    default is the same as the input file\n");
-  fprintf(stderr, "       \t-F <capture type> specifies the capture file type to write:\n");
-  for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
-    if (wtap_dump_can_open(i))
-      fprintf(stderr, "       \t    %s - %s\n",
-        wtap_file_type_short_string(i), wtap_file_type_string(i));
-  }
-  fprintf(stderr, "       \t    default is libpcap\n");
-  fprintf(stderr, "       \t-s <snaplen> specifies that packets should be truncated to\n");
-  fprintf(stderr, "       \t   <snaplen> bytes of data\n");
-  fprintf(stderr, "       \t-t <time adjustment> specifies the time adjustment\n");
-  fprintf(stderr, "       \t   to be applied to selected packets\n");
+  fprintf(stderr, "       \t-v specifies verbose operation, default is silent\n");
   fprintf(stderr, "\n      \t    A range of records can be specified as well\n");
 }
 
@@ -223,7 +241,7 @@ int main(int argc, char *argv[])
 
 {
   wtap *wth;
-  int i, err;
+  int i, j, err;
   gchar *err_info;
   extern char *optarg;
   extern int optind;
@@ -235,20 +253,23 @@ int main(int argc, char *argv[])
   long data_offset;
   struct wtap_pkthdr snap_phdr;
   const struct wtap_pkthdr *phdr;
+  int err_type;
+  guint8 *buf;
 
   /* Process the options first */
 
-  while ((opt = getopt(argc, argv, "T:F:rvs:t:h")) !=-1) {
+  while ((opt = getopt(argc, argv, "E:F:hrs:t:T:v")) !=-1) {
 
     switch (opt) {
 
-    case 'T':
-      out_frame_type = wtap_short_string_to_encap(optarg);
-      if (out_frame_type < 0) {
-      	fprintf(stderr, "editcap: \"%s\" isn't a valid encapsulation type\n",
+    case 'E':
+      err_prob = strtod(optarg, &p);
+      if (p == optarg || err_prob < 0.0 || err_prob > 1.0) {
+      	fprintf(stderr, "editcap: probability \"%s\" must be between 0.0 and 1.0\n",
       	    optarg);
       	exit(1);
       }
+      srand(time(NULL) + getpid());
       break;
 
     case 'F':
@@ -260,8 +281,10 @@ int main(int argc, char *argv[])
       }
       break;
 
-    case 'v':
-      verbose = !verbose;  /* Just invert */
+    case 'h':
+    case '?':              /* Bad options if GNU getopt */
+      usage();
+      exit(1);
       break;
 
     case 'r':
@@ -281,14 +304,17 @@ int main(int argc, char *argv[])
       set_time_adjustment(optarg);
       break;
 
-    case 'h':
-      usage();
-      exit(1);
+    case 'T':
+      out_frame_type = wtap_short_string_to_encap(optarg);
+      if (out_frame_type < 0) {
+      	fprintf(stderr, "editcap: \"%s\" isn't a valid encapsulation type\n",
+      	    optarg);
+      	exit(1);
+      }
       break;
 
-    case '?':              /* Bad options if GNU getopt */
-      usage();
-      exit(1);
+    case 'v':
+      verbose = !verbose;  /* Just invert */
       break;
 
     }
@@ -404,6 +430,48 @@ int main(int argc, char *argv[])
             }
           }
           phdr = &snap_phdr;
+        }
+
+        if (err_prob > 0.0) {
+          buf = wtap_buf_ptr(wth);
+          for (i = 0; i < (int) phdr->caplen; i++) {
+            if (rand() <= err_prob * RAND_MAX) {
+              err_type = rand() / (RAND_MAX / ERR_WT_TOTAL + 1);
+
+              if (err_type < ERR_WT_BYTE) {
+printf("err_wt_byte: %d\n", i);
+                buf[i] = rand() / (RAND_MAX / 255 + 1);
+                err_type = ERR_WT_TOTAL;
+              } else {
+                err_type -= ERR_WT_BYTE;
+              }
+
+              if (err_type < ERR_WT_ALNUM) {
+printf("err_wt_alnum: %d\n", i);
+                buf[i] = ALNUM_CHARS[rand() / (RAND_MAX / ALNUM_LEN + 1)];
+                err_type = ERR_WT_TOTAL;
+              } else {
+                err_type -= ERR_WT_ALNUM;
+              }
+
+              if (err_type < ERR_WT_FMT) {
+printf("err_wt_fmt: %d\n", i);
+                if (i < phdr->caplen - 2)
+                  strcpy(&buf[i],  "%s");
+                err_type = ERR_WT_TOTAL;
+              } else {
+                err_type -= ERR_WT_FMT;
+              }
+
+              if (err_type < ERR_WT_AA) {
+printf("err_wt_aa: %d\n", i);
+                for (j = i; j < (int) phdr->caplen; j++) {
+                  buf[j] = 0xAA;
+                }
+                i = phdr->caplen;
+              }
+            }
+          }
         }
 
         if (!wtap_dump(pdh, phdr, wtap_pseudoheader(wth), wtap_buf_ptr(wth),

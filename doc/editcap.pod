@@ -6,13 +6,14 @@ editcap - Edit and/or translate the format of capture files
 =head1 SYNOPSYS
 
 B<editcap>
+S<[ B<-E> error probability]>
 S<[ B<-F> file format ]>
-S<[ B<-T> encapsulation type ]>
+S<[ B<-h> ]>
 S<[ B<-r> ]>
-S<[ B<-v> ]>
 S<[ B<-s> snaplen ]>
 S<[ B<-t> time adjustment ]>
-S<[ B<-h> ]>
+S<[ B<-T> encapsulation type ]>
+S<[ B<-v> ]>
 I<infile>
 I<outfile>
 S<[ I<record#> ... ]>
@@ -163,6 +164,12 @@ encapsulation type of the input capture file to the specified
 encapsulation type (for example, it will not translate an Ethernet
 capture to an FDDI capture if an Ethernet capture is read and 'B<-T
 fddi>' is specified).
+
+If the B<-E> flag is used to specify a probability (between 0.0 and
+1.0 inclusive), Editcap uses that probability to apply errors to each
+data byte in the file.  For instance, a probability of 0.02 means that
+each byte has a 2% chance of having an error.  This option is meant to
+be used for fuzz-testing protocol dissectors.
 
 =head1 OPTIONS
 
