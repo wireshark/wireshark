@@ -7,7 +7,7 @@ ethereal - Interactively browse network traffic
 
 B<ethereal>
 S<[ B<-a> capture autostop condition ] ...>
-S<[ B<-b> number of ring buffer files [:duration] ]>
+S<[ B<-b> ring buffer options] ...>
 S<[ B<-B> byte view height ]>
 S<[ B<-c> count ]>
 S<[ B<-f> capture filter expression ]>
@@ -197,20 +197,32 @@ Stop writing to capture files after I<value> number of files were written.
 
 =item -b
 
-If a maximum capture file size was specified, cause B<Ethereal> to run
-in "ring buffer" mode, with the specified number of files.  In "ring
-buffer" mode, B<Ethereal> will write to several capture files. 
+Cause B<Ethereal> to run in "multiple files" mode.  In "multiple files" mode, 
+B<Ethereal> will write to several capture files. When the first capture file 
+fills up, B<Ethereal> will switch writing to the next file.
 Their name is based on the number of the file and on the creation date 
 and time.
 
-When the first capture file fills up, B<Ethereal> will switch to writing
-to the next file, until it fills up the last file, at which point it'll
-discard the data in the first file (unless 0 is specified, in which case,
-the number of files is unlimited) and start writing to that file and so on.
+If the I<files> option is set, B<Ethereal> will fill up files until the last 
+file, at which point it'll discard the data in the first file and start 
+writing to that file and so on. If the I<files> option is not set, B<Ethereal> 
+will fill up new files until one of the capture stop conditions match.
 
-If the optional duration is specified, B<Ethereal> will switch also 
+If the optional I<duration> is specified, B<Ethereal> will switch also 
 to the next file when the specified number of seconds has elapsed even
-if the current file is not completely fills up.
+if the current file is not completely filled up.
+
+The criterion is of the form I<key>B<:>I<value>,
+where I<key> is one of:
+
+B<duration>:I<value> switch to the next file after I<value> seconds have 
+elapsed.
+
+B<filesize>:I<value> switch to the next file after it reaches a size of 
+I<value> kilobytes (where a kilobyte is 1000 bytes, not 1024 bytes). 
+
+B<files>:I<value> begin again with the first file after I<value> number of 
+files were written (form a ring buffer).
 
 =item -B
 
@@ -593,6 +605,12 @@ filter is applied to all packets read from the file, and packets not
 matching the filter are discarded. The I<File:Open Recent> is a submenu 
 and will show a list of previously opened files.
 
+=item File:Merge
+
+Merge another capture file to the currently loaded one. The I<File:Merge> 
+dialog box allows the merge "Prepended", "Chronologically" or "Appended",
+relative to the already loaded one.
+
 =item File:Save
 
 =item File:Save As
@@ -648,7 +666,7 @@ Search forward / backward for a packet matching the filter from the previous
 search, starting with the currently selected packet (or the most recently 
 selected packet, if no packet is selected).
 
-=item Edit:Time Reference:Set Time Reference
+=item Edit:Time Reference:Set Time Reference (toggle)
 
 Set (or unset if currently set) the selected packet as a Time Reference packet.
 When a packet is set as a Time Reference packet, the timestamps in the packet
@@ -670,7 +688,7 @@ be reset at every Time Reference packet.
 
 Search forward / backward for a time referenced packet.
 
-=item Edit:Mark Packet
+=item Edit:Mark Packet (toggle)
 
 Mark (or unmark if currently marked) the selected packet.  The field
 "frame.marked" is set for packets that are marked, so that, for example,
@@ -686,8 +704,8 @@ Mark / Unmark all packets that are currently displayed.
 
 =item Edit:Preferences
 
-Set the packet printing, column display, TCP stream coloring, and GUI
-options (see L<Preferences|/item_preferences> dialog below).
+Set the GUI, capture, printing and protocol options
+(see L<Preferences|/item_preferences> dialog below).
 
 =item View:Main Toolbar
 
@@ -704,6 +722,10 @@ Show or hide the main window controls.
 =item View:Packet Bytes
 
 Show or hide the main window panes.
+
+=item View:Colorize Packet List
+
+Enable or disable the coloring rules. Disabling will improve performance.
 
 =item View:Time Display Format
 
@@ -728,6 +750,10 @@ Zoom into / out of the main window data (by changing the font size).
 =item View:Normal Size
 
 Reset the zoom factor of zoom in / zoom out back to normal font size.
+
+=item View:Resize Columns
+
+Resize the columns to best fit the current packet display.
 
 =item View:Collapse All
 
@@ -784,6 +810,14 @@ selected.
 Reload a capture file.  Same as I<File:Close> and I<File:Open> the same 
 file again.
 
+=item Go:Back
+
+Go back in previously visited packets history.
+
+=item Go:Forward
+
+Go forward in previously visited packets history.
+
 =item Go:Go To Packet
 
 Go to a particular numbered packet.
@@ -817,6 +851,12 @@ system-dependent, but is likely either F</var/tmp> or F</tmp>.
 In a capture that updates the packet display as packets arrive (so that
 Ethereal responds to user input other than pressing the "Stop" button in
 the capture packet statistics dialog box), stop the capture.
+
+=item Capture:Interfaces
+
+Shows a dialogs box with all currently known interfaces and displaying the
+current network traffic amount. Capture sessions can be started from here.
+Beware: keeping this box open results in high system load!
 
 =item Capture:Capture Filters
 
@@ -1233,6 +1273,14 @@ Some help texts.
 =item Help:Supported Protocols
 
 List of supported protocols and display filter protocol fields.
+
+=item Help:Manual Pages
+
+Display locally installed HTML versions of these manual pages in a web browser.
+
+=item Help:Ethereal Online
+
+Various links to online resources to be open in a web browser, like http://www.ethereal.com.
 
 =item Help:About Ethereal
 
