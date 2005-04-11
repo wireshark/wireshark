@@ -959,7 +959,9 @@ capture_loop_dispatch(capture_options *capture_opts, loop_data *ld,
 /* open the output file (temporary/specified name/ringbuffer) */
 /* Returns TRUE if the file opened successfully, FALSE otherwise. */
 static gboolean
-capture_loop_open_output(capture_options *capture_opts, int *save_file_fd) {
+capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
+		      char *errmsg, int errmsg_len) {
+
   char tmpname[128+1];
   gchar *capfile_name;
   gboolean is_tempfile;
@@ -977,8 +979,10 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd) {
           (capture_opts->has_ring_num_files) ? capture_opts->ring_num_files : 0);
 
       /* we need the ringbuf name */
-      g_free(capfile_name);
-      capfile_name = g_strdup(ringbuf_current_filename());
+      if(*save_file_fd != -1) {
+          g_free(capfile_name);
+          capfile_name = g_strdup(ringbuf_current_filename());
+      }
     } else {
       /* Try to open/create the specified file for use as a capture buffer. */
       *save_file_fd = open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT,
@@ -1002,7 +1006,13 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd) {
       if (capture_opts->multi_files_on) {
         ringbuf_error_cleanup();
       }
-      open_failure_alert_box(capfile_name, errno, TRUE);
+
+      g_snprintf(errmsg, errmsg_len,
+	    "The file to which the capture would be saved (\"%s\") "
+        "could not be opened: %s.", capfile_name, 
+        strerror(errno));
+
+      /*open_failure_alert_box(capfile_name, errno, TRUE);*/
     }
     g_free(capfile_name);
     return FALSE;
@@ -1101,7 +1111,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
 
   /* open the output file (temporary/specified name/ringbuffer) */
-  if (!capture_loop_open_output(capture_opts, &save_file_fd)) {
+  if (!capture_loop_open_output(capture_opts, &save_file_fd, errmsg, sizeof(errmsg))) {
     goto error;    
   }
 
@@ -1197,6 +1207,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             if (cnd_file_duration) {
               cnd_reset(cnd_file_duration);
             }
+            fflush(wtap_dump_file(ld.wtap_pdh));
             sync_pipe_filename_to_parent(capture_opts->save_file);
           } else {
             /* File switch failed: stop here */
@@ -1280,6 +1291,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             cnd_reset(cnd_file_duration);
             if(cnd_autostop_size)
               cnd_reset(cnd_autostop_size);
+            fflush(wtap_dump_file(ld.wtap_pdh));
             sync_pipe_filename_to_parent(capture_opts->save_file);
           } else {
             /* File switch failed: stop here */
