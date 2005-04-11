@@ -27,7 +27,8 @@
  *  
  *  Sync mode capture (internal interface).
  *
- *  Will start a new Ethereal child instance which will do the actual capture work.
+ *  Will start a new Ethereal child instance which will do the actual capture 
+ *  work.
  */
 
 #ifndef __CAPTURE_SYNC_H__
@@ -36,6 +37,8 @@
 /** 
  * Start a new capture session.
  *  Create a capture child which is doing the real capture work.
+ *  The various capture_input_... functions will be called, if something had 
+ *  happened.
  *
  *  Most of the parameters are passed through the global capture_opts.
  *
@@ -44,7 +47,7 @@
  *  @return             TRUE if a capture could be started, FALSE if not
  */
 extern gboolean 
-sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile);
+sync_pipe_start(capture_options *capture_opts, gboolean is_tempfile);
 
 /** User wants to stop capturing, gracefully close the capture child */
 extern void

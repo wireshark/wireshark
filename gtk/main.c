@@ -1082,7 +1082,7 @@ print_usage(gboolean print_ver) {
 #ifdef HAVE_LIBPCAP
   fprintf(output, "\n%s [ -vh ] [ -klLnpQS ] [ -a <capture autostop condition> ] ...\n",
 	  PACKAGE);
-  fprintf(output, "\t[ -b <number of ringbuffer files>[:<duration>] ]\n");
+  fprintf(output, "\t[ -b <ringbuffer files options> ] ...]\n");
   fprintf(output, "\t[ -B <byte view height> ] [ -c <count> ] [ -f <capture filter> ]\n");
   fprintf(output, "\t[ -i <interface> ] [ -m <medium font> ] [ -N <resolving> ]\n");
   fprintf(output, "\t[ -o <preference setting> ] ... [ -P <packet list height> ]\n");
@@ -1282,8 +1282,9 @@ main_cf_cb_file_read_finished(capture_file *cf)
 
 #ifdef HAVE_LIBPCAP
 static void
-main_cf_cb_live_capture_prepare(capture_options *capture_opts)
+main_cf_cb_live_capture_update_started(capture_options *capture_opts)
 {
+    gchar *capture_msg;
     gchar *title;
 
 
@@ -1291,12 +1292,6 @@ main_cf_cb_live_capture_prepare(capture_options *capture_opts)
                             get_interface_descriptive_name(capture_opts->iface));
     set_main_window_name(title);
     g_free(title);
-}
-
-static void
-main_cf_cb_live_capture_update_started(capture_options *capture_opts)
-{
-    gchar *capture_msg;
 
     /* Disable menu items that make no sense if you're currently running
        a capture. */
@@ -1306,7 +1301,8 @@ main_cf_cb_live_capture_update_started(capture_options *capture_opts)
        packets (yes, I know, we don't have any *yet*). */
     set_menus_for_captured_packets(TRUE);
 
-    capture_msg = g_strdup_printf(" %s: <live capture in progress>", get_interface_descriptive_name(capture_opts->iface));
+    capture_msg = g_strdup_printf(" %s: <live capture in progress> to file: %s", 
+        get_interface_descriptive_name(capture_opts->iface), capture_opts->save_file);
 
     statusbar_push_file_msg(capture_msg);
 
@@ -1320,6 +1316,13 @@ static void
 main_cf_cb_live_capture_fixed_started(capture_options *capture_opts)
 {
     gchar *capture_msg;
+    gchar *title;
+
+
+    title = g_strdup_printf("%s: Capturing - Ethereal",
+                            get_interface_descriptive_name(capture_opts->iface));
+    set_main_window_name(title);
+    g_free(title);
 
     /* Disable menu items that make no sense if you're currently running
        a capture. */
@@ -1329,15 +1332,15 @@ main_cf_cb_live_capture_fixed_started(capture_options *capture_opts)
        packets (yes, I know, we don't have any *yet*). */
     /*set_menus_for_captured_packets(TRUE);*/
 
-    capture_msg = g_strdup_printf(" %s: <live capture in progress>", get_interface_descriptive_name(capture_opts->iface));
+    capture_msg = g_strdup_printf(" %s: <live capture in progress> to file: %s", 
+        get_interface_descriptive_name(capture_opts->iface), capture_opts->save_file);
 
     statusbar_push_file_msg(capture_msg);
+    gtk_statusbar_push(GTK_STATUSBAR(packets_bar), packets_ctx, " <capturing>");
 
     g_free(capture_msg);
 
-    /* Set up main window for a capture file. */
-/*    main_set_for_capture_file(TRUE);*/
-    /* XXX: shouldn't be already set */
+    /* Don't set up main window for a capture file. */
     main_set_for_capture_file(FALSE);
 }
 
@@ -1367,6 +1370,9 @@ main_cf_cb_live_capture_fixed_finished(capture_file *cf)
 {
     /* Pop the "<live capture in progress>" message off the status bar. */
     statusbar_pop_file_msg();
+
+    /* Pop the "<capturing>" message off the status bar */
+	gtk_statusbar_pop(GTK_STATUSBAR(packets_bar), packets_ctx);
 
     /*set_display_filename(cf);*/
 
@@ -1463,9 +1469,6 @@ void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
         main_cf_cb_file_read_finished(data);
         break;
 #ifdef HAVE_LIBPCAP
-    case(cf_cb_live_capture_prepare):
-        main_cf_cb_live_capture_prepare(data);
-        break;
     case(cf_cb_live_capture_update_started):
         main_cf_cb_live_capture_update_started(data);
         break;

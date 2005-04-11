@@ -83,12 +83,8 @@ capture_start(capture_options *capture_opts)
   cf_close(capture_opts->cf);
 
   /* try to start the capture child process */
-  ret = sync_pipe_do_capture(capture_opts, capture_opts->save_file == NULL);
-
-  if(ret) {
-      /* tell callbacks (menu, ...) that capture is running now */
-      cf_callback_invoke(cf_cb_live_capture_prepare, capture_opts);
-  } else {
+  ret = sync_pipe_start(capture_opts, capture_opts->save_file == NULL);
+  if(!ret) {
       if(capture_opts->save_file != NULL) {
           g_free(capture_opts->save_file);
           capture_opts->save_file = NULL;
@@ -97,6 +93,22 @@ capture_start(capture_options *capture_opts)
 
   return ret;
 }
+
+
+void
+capture_stop(capture_options *capture_opts)
+{
+  /* stop the capture child gracefully */
+  sync_pipe_stop(capture_opts);
+}
+
+void
+capture_kill_child(capture_options *capture_opts)
+{
+  /* kill the capture child */
+  sync_pipe_kill(capture_opts);
+}
+
 
 
 /* We've succeeded a (non real-time) capture, try to read it into a new capture file */
@@ -192,12 +204,15 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
 
   /* free the old filename */
   if(capture_opts->save_file != NULL) {
-    /* we start a new capture file, simply close the old one */
-    /* XXX - is it enough to call cf_close here? */
-    /* XXX - is it safe to call cf_close even if the file is close before? */
-    cf_close(capture_opts->cf);
+    /* we start a new capture file, close the old one (if we had one before) */
+    if( ((capture_file *) capture_opts->cf)->state != FILE_CLOSED) {
+        cf_callback_invoke(cf_cb_live_capture_update_finished, capture_opts->cf);
+        cf_finish_tail(capture_opts->cf, &err);
+        cf_close(capture_opts->cf);
+    }
     g_free(capture_opts->save_file);
     is_tempfile = FALSE;
+    cf_set_tempfile(capture_opts->cf, FALSE);
   } else {
     /* we didn't had a save_file before, must be a tempfile */
     is_tempfile = TRUE;
@@ -314,21 +329,6 @@ capture_input_closed(capture_options *capture_opts)
     g_assert(capture_opts->save_file);
     g_free(capture_opts->save_file);
     capture_opts->save_file = NULL;
-}
-
-
-void
-capture_stop(capture_options *capture_opts)
-{
-  /* stop the capture child gracefully, if we have one */
-  sync_pipe_stop(capture_opts);
-}
-
-void
-capture_kill_child(capture_options *capture_opts)
-{
-  /* kill the capture child, if we have one */
-  sync_pipe_kill(capture_opts);
 }
 
 
