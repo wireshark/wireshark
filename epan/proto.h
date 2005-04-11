@@ -154,6 +154,12 @@ struct _header_field_info {
 	/* ------- set by proto routines (prefilled by HFILL macro, see below) ------ */
 	int				id;		/**< Field ID */
 	int				parent;		/**< parent protocol tree */
+		/* This field keeps track of whether a field is 
+		 * referenced in any filter or not and if so how 
+		 * many times. If a filter is being referenced the 
+		 * refcount for the parent protocol is updated as well 
+		 */
+	int				ref_count;	/**< is this field referenced by a filter or not */
 	int				bitshift;	/**< bits to shift (FT_BOOLEAN only) */
 	header_field_info		*same_name_next; /**< Link to next hfinfo with same abbrev*/
 	header_field_info		*same_name_prev; /**< Link to previous hfinfo with same abbrev*/
@@ -164,7 +170,7 @@ struct _header_field_info {
  * _header_field_info. If new fields are added or removed, it should
  * be changed as necessary.
  */
-#define HFILL 0, 0, 0, NULL, NULL
+#define HFILL 0, 0, 0, 0, NULL, NULL
 
 /** Used when registering many fields at once, using proto_register_field_array() */
 typedef struct hf_register_info {
@@ -264,6 +270,21 @@ extern void proto_init(const char *plugin_dir,
 
 /** Frees memory used by proto routines. Called at program shutdown */
 extern void proto_cleanup(void);
+
+/** This function takes a tree and a protocol id as parameter and
+    will return TRUE/FALSE for whether the protocol or any of the filterable
+    fields in the protocol is referenced by any fitlers.
+    If this function returns FALSE then it is safe to skip any 
+	proto_tree_add_...() calls and just treat the call as if the 
+    dissector was called with tree==NULL.
+    If you reset the tree to NULL by this dissector returning FALSE,
+    you will still need to call any subdissector with the original value of 
+    tree or filtering will break.
+
+    The purpose of this is to optimize ethereal for speed and make it
+    faster for when filters are being used.
+*/
+extern gboolean proto_field_is_referenced(proto_tree *tree, int proto_id);
 
 
 

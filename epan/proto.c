@@ -48,6 +48,35 @@
 
 #define cVALS(x) (const value_string*)(x)
 
+#if 1
+#define TRY_TO_FAKE_THIS_ITEM(tree, hfindex) \
+	/* If this item is not referenced we dont have to do much work	\
+	   at all but we should still return a node so that		\
+	   field items below this node ( think proto_item_add_subtree() )\
+	   will still have somewhere to attach to			\
+	   or else filtering will not work (they would be ignored since tree\
+	   would be NULL).						\
+	   DONT try to fake a node where PITEM_FINFO(pi) is NULL	\
+	   since dissectors that want to do proto_item_set_len() ot	\
+	   other operations that dereference this would crash.		\
+	   We dont fake FT_PROTOCOL either since these are cheap and    \
+	   some stuff (proto hier stat) assumes they always exist.	\
+	*/								\
+	if(!(PTREE_DATA(tree)->visible)){				\
+		if(PITEM_FINFO(tree)){					\
+			register header_field_info *hfinfo;		\
+			PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);	\
+			if((hfinfo->ref_count == 0)			\
+			&& (hfinfo->type!=FT_PROTOCOL)){		\
+				/* just return tree back to the caller */\
+				return tree;				\
+			}						\
+		}							\
+	}
+#else
+#define TRY_TO_FAKE_THIS_ITEM(tree, hfindex) ;
+#endif
+
 static gboolean
 proto_tree_free_node(proto_node *node, gpointer data);
 
@@ -186,6 +215,10 @@ static SLAB_FREE_LIST_DEFINE(item_label_t)
 #define ITEM_LABEL_FREE(il)				\
 	SLAB_FREE(il, item_label_t)
 
+
+#define PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo) \
+	DISSECTOR_ASSERT((guint)hfindex < gpa_hfinfo.len); \
+	hfinfo=gpa_hfinfo.hfi[hfindex];		
 
 
 /* List which stores protocols and fields that have been registered */
@@ -426,6 +459,23 @@ static void
 free_GPtrArray_value(gpointer key _U_, gpointer value, gpointer user_data _U_)
 {
 	GPtrArray   *ptrs = value;
+	gint hfid = (gint)key;
+	header_field_info *hfinfo;
+
+	
+	PROTO_REGISTRAR_GET_NTH(hfid, hfinfo);
+	if(hfinfo->ref_count){
+		/* when a field is referenced by a filter this also 
+		   affects the refcount for the parent protocol so we need
+		   to adjust the refcount for the parent as well
+		*/
+		if( (hfinfo->parent != -1) && (hfinfo->ref_count) ){
+			header_field_info *parent_hfinfo;
+			PROTO_REGISTRAR_GET_NTH(hfinfo->parent, parent_hfinfo);
+			parent_hfinfo->ref_count -= hfinfo->ref_count;
+		}
+		hfinfo->ref_count = 0;
+	}
 
 	g_ptr_array_free(ptrs, TRUE);
 }
@@ -483,9 +533,32 @@ proto_tree_set_visible(proto_tree *tree, gboolean visible)
 	PTREE_DATA(tree)->visible = visible;
 }
 
-#define PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo) \
-	DISSECTOR_ASSERT((guint)hfindex < gpa_hfinfo.len); \
-	hfinfo=gpa_hfinfo.hfi[hfindex];		
+/* Assume dissector set only its protocol fields.
+   This function is called by dissectors and allowes to speed up filtering
+   in ethereal, if this function returns FALSE it is safe to reset tree to NULL
+   and thus skip calling most of the expensive proto_tree_add_...()
+   functions.
+   If the tree is visible we implicitely assume the field is referenced.
+*/
+gboolean
+proto_field_is_referenced(proto_tree *tree, int proto_id)
+{
+	register header_field_info *hfinfo;
+
+
+	if (!tree)
+		return FALSE;
+
+	if (PTREE_DATA(tree)->visible)
+		return TRUE;
+
+	PROTO_REGISTRAR_GET_NTH(proto_id, hfinfo);
+	if (hfinfo->ref_count != 0)
+		return TRUE;
+
+	return FALSE;
+}
+
 
 /* Finds a record in the hf_info_records array by id. */
 header_field_info*
@@ -666,6 +739,8 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	if (!tree)
 		return(NULL);
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex);
 
 	new_fi = alloc_field_info(tree, hfindex, tvb, start, &length);
 
@@ -891,10 +966,12 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	/* If the proto_tree wants to keep a record of this finfo
 	 * for quick lookup, then record it. */
-	hash = PTREE_DATA(tree)->interesting_hfids;
-	ptrs = g_hash_table_lookup(hash, GINT_TO_POINTER(hfindex));
-	if (ptrs) {
-		g_ptr_array_add(ptrs, new_fi);
+	if (new_fi->hfinfo->ref_count) {
+		hash = PTREE_DATA(tree)->interesting_hfids;
+		ptrs = g_hash_table_lookup(hash, GINT_TO_POINTER(hfindex));
+		if (ptrs) {
+			g_ptr_array_add(ptrs, new_fi);
+		}
 	}
 
 	return pi;
@@ -992,6 +1069,8 @@ proto_tree_add_bytes(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	if (!tree)
 		return (NULL);
 
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex);
+
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	DISSECTOR_ASSERT(hfinfo->type == FT_BYTES);
 
@@ -1065,6 +1144,8 @@ proto_tree_add_time(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gi
 	if (!tree)
 		return (NULL);
 
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex);
+
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	DISSECTOR_ASSERT(hfinfo->type == FT_ABSOLUTE_TIME ||
 				hfinfo->type == FT_RELATIVE_TIME);
@@ -1127,6 +1208,8 @@ proto_tree_add_ipxnet(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, 
 	if (!tree)
 		return (NULL);
 
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex);
+
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	DISSECTOR_ASSERT(hfinfo->type == FT_IPXNET);
 
@@ -1188,6 +1271,8 @@ proto_tree_add_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gi
 	if (!tree)
 		return (NULL);
 
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex);
+
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	DISSECTOR_ASSERT(hfinfo->type == FT_IPv4);
 
@@ -1248,6 +1333,8 @@ proto_tree_add_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gi
 
 	if (!tree)
 		return (NULL);
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex);
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	DISSECTOR_ASSERT(hfinfo->type == FT_IPv6);
@@ -1333,6 +1420,8 @@ proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 
 	if (!tree)
 		return (NULL);
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex);
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	DISSECTOR_ASSERT(hfinfo->type == FT_STRING || hfinfo->type == FT_STRINGZ);
@@ -1436,6 +1525,8 @@ proto_tree_add_ether(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, g
 	if (!tree)
 		return (NULL);
 
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex);
+
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	DISSECTOR_ASSERT(hfinfo->type == FT_ETHER);
 
@@ -1503,6 +1594,8 @@ proto_tree_add_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	if (!tree)
 		return (NULL);
 
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex);
+
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	DISSECTOR_ASSERT(hfinfo->type == FT_BOOLEAN);
 
@@ -1563,6 +1656,8 @@ proto_tree_add_float(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, g
 
 	if (!tree)
 		return (NULL);
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex);
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	DISSECTOR_ASSERT(hfinfo->type == FT_FLOAT);
@@ -1625,6 +1720,8 @@ proto_tree_add_double(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, 
 	if (!tree)
 		return (NULL);
 
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex);
+
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	DISSECTOR_ASSERT(hfinfo->type == FT_DOUBLE);
 
@@ -1685,6 +1782,8 @@ proto_tree_add_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gi
 
 	if (!tree)
 		return (NULL);
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex);
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	switch(hfinfo->type) {
@@ -1772,6 +1871,8 @@ proto_tree_add_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, 
 	if (!tree)
 		return (NULL);
 
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex);
+
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	DISSECTOR_ASSERT(hfinfo->type == FT_UINT64);
 
@@ -1810,6 +1911,8 @@ proto_tree_add_int(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gin
 
 	if (!tree)
 		return (NULL);
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex);
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	switch(hfinfo->type) {
@@ -1895,6 +1998,8 @@ proto_tree_add_int64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, g
 
 	if (!tree)
 		return (NULL);
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex);
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	DISSECTOR_ASSERT(hfinfo->type == FT_INT64);
@@ -1988,10 +2093,12 @@ proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 
 	/* If the proto_tree wants to keep a record of this finfo
 	 * for quick lookup, then record it. */
-	hash = PTREE_DATA(tree)->interesting_hfids;
-	ptrs = g_hash_table_lookup(hash, GINT_TO_POINTER(hfindex));
-	if (ptrs) {
-		g_ptr_array_add(ptrs, fi);
+	if (fi->hfinfo->ref_count) {
+		hash = PTREE_DATA(tree)->interesting_hfids;
+		ptrs = g_hash_table_lookup(hash, GINT_TO_POINTER(hfindex));
+		if (ptrs) {
+			g_ptr_array_add(ptrs, fi);
+		}
 	}
 
 	/* Does the caller want to know the fi pointer? */
@@ -2299,10 +2406,26 @@ proto_tree_create_root(void)
 void
 proto_tree_prime_hfid(proto_tree *tree, gint hfid)
 {
+	header_field_info *hfinfo;
+
 	g_hash_table_insert(PTREE_DATA(tree)->interesting_hfids,
 		GINT_TO_POINTER(hfid), g_ptr_array_new());
-}
 
+	PROTO_REGISTRAR_GET_NTH(hfid, hfinfo);
+	/* this field is referenced by a filter so increase the refcount.
+	   also increase the refcount for the parent, i.e the protocol.
+	*/
+	hfinfo->ref_count++;
+	/* only increase the refcount if there is a parent.
+	   if this is a protocol and not a field then parent will be -1
+	   and there is no parent to add any refcounting for.
+	*/
+	if (hfinfo->parent != -1) {
+		header_field_info *parent_hfinfo;
+		PROTO_REGISTRAR_GET_NTH(hfinfo->parent, parent_hfinfo);
+		parent_hfinfo->ref_count++;
+	}
+}
 
 proto_tree*
 proto_item_add_subtree(proto_item *pi,  gint idx) {
@@ -2314,6 +2437,7 @@ proto_item_add_subtree(proto_item *pi,  gint idx) {
 	fi = PITEM_FINFO(pi);
 	DISSECTOR_ASSERT(idx >= 0 && idx < num_tree_types);
 	fi->tree_type = idx;
+
 	return (proto_tree*) pi;
 }
 
@@ -2331,14 +2455,16 @@ proto_item_get_subtree(proto_item *pi) {
 
 proto_item*
 proto_item_get_parent(proto_item *ti) {
-	if (!ti)
+	/* dont bother if tree is not visible */
+	if( (!ti) || (!(PTREE_DATA(ti)->visible)) )
 		return (NULL);
 	return ti->parent;
 }
 
 proto_item*
 proto_item_get_parent_nth(proto_item *ti, int gen) {
-	if (!ti)
+	/* dont bother if tree is not visible */
+	if( (!ti) || (!(PTREE_DATA(ti)->visible)) )
 		return (NULL);
 	while (gen--) {
 		ti = ti->parent;
@@ -2351,7 +2477,8 @@ proto_item_get_parent_nth(proto_item *ti, int gen) {
 
 proto_item* 
 proto_tree_get_parent(proto_tree *tree) {
-	if (!tree)
+	/* dont bother if tree is not visible */
+	if( (!tree) || (!(PTREE_DATA(tree)->visible)) )
 		return (NULL);
 	return (proto_item*) tree;
 }
@@ -2445,6 +2572,7 @@ proto_register_protocol(char *name, char *short_name, char *filter_name)
     hfinfo->strings = protocol;
     hfinfo->bitmask = 0;
     hfinfo->bitshift = 0;
+    hfinfo->ref_count = 0;
     hfinfo->blurb = "";
     hfinfo->parent = -1; /* this field differentiates protos and fields */
 

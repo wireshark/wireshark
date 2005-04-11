@@ -3673,7 +3673,7 @@ static ber_sequence_t ERROR_sequence[] = {
 		dissect_krb5_e_checksum }, /* used by PacketCable */
 	{ 0, 0, 0, NULL }
 };
-static int
+int
 dissect_krb5_ERROR(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, ERROR_sequence, -1, -1);

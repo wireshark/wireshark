@@ -160,7 +160,7 @@ capture_eth(const guchar *pd, int offset, int len, packet_counts *ld)
 }
 
 static void
-dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	int fcs_len)
 {
   proto_item		*ti;
@@ -170,6 +170,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   const char		*src_addr, *dst_addr;
   static eth_hdr 	ehdrs[4];
   static int		ehdr_num=0;
+  proto_tree		*tree;
 
   ehdr_num++;
   if(ehdr_num>=4){
@@ -177,6 +178,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
   ehdr=&ehdrs[ehdr_num];
 
+  tree=parent_tree;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Ethernet");
@@ -198,7 +200,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    * a first look before we assume that it's actually an
    * Ethernet packet.
    */
-  if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree))
+  if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, parent_tree))
     goto end_of_eth;
 
   if (ehdr->type <= IEEE_802_3_MAX_LEN) {
@@ -212,7 +214,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		tvb_get_guint8(tvb, 2) == 0x0C &&
 		tvb_get_guint8(tvb, 3) == 0x00 &&
 		tvb_get_guint8(tvb, 4) == 0x00 ) {
-      dissect_isl(tvb, pinfo, tree, fcs_len);
+      dissect_isl(tvb, pinfo, parent_tree, fcs_len);
       goto end_of_eth;
     }
   }
@@ -263,6 +265,15 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       fh_tree = proto_item_add_subtree(ti, ett_ieee8023);
     }
 
+    /* if IP is not referenced from any filters we dont need to worry about
+       generating any tree items.  We must do this after we created the actual
+       protocol above so that proto hier stat still works though.
+    */
+    if(!proto_field_is_referenced(parent_tree, proto_eth)){
+      tree=NULL;
+      fh_tree=NULL;
+    }
+
     proto_tree_add_ether(fh_tree, hf_eth_dst, tvb, 0, 6, dst_addr);
     proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src_addr);
 
@@ -270,21 +281,21 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 0, 6, dst_addr);
     proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 6, 6, src_addr);
 
-    dissect_802_3(ehdr->type, is_802_2, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree,
+    dissect_802_3(ehdr->type, is_802_2, tvb, ETH_HEADER_SIZE, pinfo, parent_tree, fh_tree,
 		  hf_eth_len, hf_eth_trailer, fcs_len);
   } else {
     if (eth_interpret_as_fw1_monitor) {
 	if ((dst_addr[0] == 'i') || (dst_addr[0] == 'I') ||
 	    (dst_addr[0] == 'o') || (dst_addr[0] == 'O')) {
-	  call_dissector(fw1_handle, tvb, pinfo, tree);
+	  call_dissector(fw1_handle, tvb, pinfo, parent_tree);
 	  goto end_of_eth;
 	}
     }
 
     if (check_col(pinfo->cinfo, COL_INFO))
       col_set_str(pinfo->cinfo, COL_INFO, "Ethernet II");
-    if (tree) {
-      ti = proto_tree_add_protocol_format(tree, proto_eth, tvb, 0, ETH_HEADER_SIZE,
+    if (parent_tree) {
+      ti = proto_tree_add_protocol_format(parent_tree, proto_eth, tvb, 0, ETH_HEADER_SIZE,
 		"Ethernet II, Src: %s, Dst: %s",
 		ether_to_str(src_addr), ether_to_str(dst_addr));
 
@@ -297,7 +308,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 0, 6, dst_addr);
     proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 6, 6, src_addr);
 
-    ethertype(ehdr->type, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree, hf_eth_type,
+    ethertype(ehdr->type, tvb, ETH_HEADER_SIZE, pinfo, parent_tree, fh_tree, hf_eth_type,
           hf_eth_trailer, fcs_len);
   }
 

@@ -73,12 +73,15 @@ static const value_string p2p_dirs[] = {
 static dissector_table_t wtap_encap_dissector_table;
 
 static void
-dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
-	proto_tree	*fh_tree;
+	proto_tree	*fh_tree=NULL;
 	proto_item	*volatile ti = NULL;
 	nstime_t	ts;
 	int		cap_len, pkt_len;
+	proto_tree	*tree;
+
+	tree=parent_tree;
 
 	pinfo->current_proto = "Frame";
 
@@ -123,7 +126,6 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Put in frame header information. */
 	if (tree) {
-
 	  cap_len = tvb_length(tvb);
 	  pkt_len = tvb_reported_length(tvb);
 
@@ -131,7 +133,19 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    "Frame %u (%u bytes on wire, %u bytes captured)", pinfo->fd->num, pkt_len, cap_len);
 
 	  fh_tree = proto_item_add_subtree(ti, ett_frame);
+	}
 
+	/* if IP is not referenced from any filters we dont need to worry about
+	   generating any tree items.  We must do this after we created the actual
+	   protocol above so that proto hier stat still works though.
+	*/
+	if(!proto_field_is_referenced(tree, proto_frame)){
+		tree=NULL;
+		fh_tree = NULL;
+	}
+
+       
+	if (fh_tree) {
 	  proto_tree_add_boolean_hidden(fh_tree, hf_frame_marked, tvb, 0, 0,pinfo->fd->flags.marked);
 
 	  if(pinfo->fd->flags.ref_time){
@@ -187,18 +201,18 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	TRY {
 		if (!dissector_try_port(wtap_encap_dissector_table, pinfo->fd->lnk_t,
-					tvb, pinfo, tree)) {
+					tvb, pinfo, parent_tree)) {
 
 			if (check_col(pinfo->cinfo, COL_PROTOCOL))
 				col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
 			if (check_col(pinfo->cinfo, COL_INFO))
 				col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %u",
 				    pinfo->fd->lnk_t);
-			call_dissector(data_handle,tvb, pinfo, tree);
+			call_dissector(data_handle,tvb, pinfo, parent_tree);
 		}
 	}
 	CATCH_ALL {
-		show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+		show_exception(tvb, pinfo, parent_tree, EXCEPT_CODE, GET_MESSAGE);
 	}
 	ENDTRY;
 
@@ -210,7 +224,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	tap_queue_packet(frame_tap, pinfo, NULL);
 
-	if (mate_handle) call_dissector(mate_handle,tvb, pinfo, tree);
+	if (mate_handle) call_dissector(mate_handle,tvb, pinfo, parent_tree);
 
 }
 

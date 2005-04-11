@@ -814,7 +814,7 @@ static guint16 ip_checksum(const guint8 *ptr, int len)
 }
 
 static void
-dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
   proto_tree *ip_tree = NULL, *field_tree;
   proto_item *ti = NULL, *tf;
@@ -833,6 +833,9 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   e_ip *iph;
   const guchar		*src_addr, *dst_addr;
   guint32 		src32, dst32;
+  proto_tree *tree;
+
+  tree=parent_tree;
 
   eip_current++;
   if(eip_current==4){
@@ -854,6 +857,14 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_tree_add_uint(ip_tree, hf_ip_version, tvb, offset, 1,
 	hi_nibble(iph->ip_v_hl));
+  }
+
+  /* if IP is not referenced from any filters we dont need to worry about
+     generating any tree items.  We must do this after we created the actual
+     protocol above so that proto hier stat still works though.
+  */
+  if(!proto_field_is_referenced(parent_tree, proto_ip)){
+    tree=NULL;
   }
 
   if (hlen < IPH_MIN_LEN) {
@@ -1088,7 +1099,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo,
-                   tree);
+                   parent_tree);
     pinfo->fragmented = save_fragmented;
     goto end_of_ip;
   }
@@ -1100,13 +1111,13 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      even be labelled as an IP frame; ideally, if a frame being dissected
      throws an exception, it'll be labelled as a mangled frame of the
      type in question. */
-  if (!dissector_try_port(ip_dissector_table, nxt, next_tvb, pinfo, tree)) {
+  if (!dissector_try_port(ip_dissector_table, nxt, next_tvb, pinfo, parent_tree)) {
     /* Unknown protocol */
     if (update_col_info) {
       if (check_col(pinfo->cinfo, COL_INFO))
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%02x)", ipprotostr(iph->ip_p), iph->ip_p);
     }
-    call_dissector(data_handle,next_tvb, pinfo, tree);
+    call_dissector(data_handle,next_tvb, pinfo, parent_tree);
   }
   pinfo->fragmented = save_fragmented;
 
