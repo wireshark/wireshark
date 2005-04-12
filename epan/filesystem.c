@@ -793,8 +793,8 @@ files_identical(const char *fname1, const char *fname2)
    */
    infile.st_ino = 1;   /* These prevent us from getting equality         */
    outfile.st_ino = 2;  /* If one or other of the files is not accessible */
-   stat(cf->filename, &infile);
-   stat(fname, &outfile);
+   stat(fname1, &infile);
+   stat(fname2, &outfile);
    if (infile.st_ino == outfile.st_ino) {
        return TRUE;
    } else {
