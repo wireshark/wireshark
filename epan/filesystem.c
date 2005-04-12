@@ -778,9 +778,6 @@ files_identical(const char *fname1, const char *fname2)
     }
 #else
   struct stat   infile, outfile;
-  save_callback_args_t callback_args;
-
-  cf_callback_invoke(cf_cb_file_safe_started, (gpointer) fname);
 
   /*
    * Check that the from file is not the same as to file
