@@ -2945,7 +2945,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	   in_cksum_shouldbe(th_sum, computed_cksum));
 
         if (check_col(pinfo->cinfo, COL_INFO))
-          col_append_fstr(pinfo->cinfo, COL_INFO, " [CHECKSUM INCORRECT]");
+          col_append_fstr(pinfo->cinfo, COL_INFO, " [TCP CHECKSUM INCORRECT]");
 
         /* Checksum is invalid, so we're not willing to desegment it. */
         desegment_ok = FALSE;
