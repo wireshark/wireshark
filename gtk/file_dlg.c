@@ -1394,48 +1394,20 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   file_save_as_cmd(after_save_no_action, NULL);
 }
 
+
+/* all tests ok, we only have to save the file */
+/* (and probably continue with a pending operation) */
 static void
-file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
+file_save_as_cb(GtkWidget *w _U_, gpointer fs) {
   gchar	*cf_name;
   gchar	*dirname;
+
 
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
 #else
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
 #endif
-
-  /* Perhaps the user specified a directory instead of a file.
-     Check whether they did. */
-  if (test_for_directory(cf_name) == EISDIR) {
-        /* It's a directory - set the file selection box to display that
-           directory, and leave the selection box displayed. */
-        set_last_open_dir(cf_name);
-        g_free(cf_name);
-        file_selection_set_current_folder(fs, get_last_open_dir());
-        return;
-  }
-
-  /* Check whether the range is valid. */
-  if (!range_check_validity(&range)) {
-    /* The range isn't valid; don't dismiss the open dialog box,
-       just leave it around so that the user can, after they
-       dismiss the alert box popped up for the error, try again. */
-    g_free(cf_name);
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-    /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
-     * as this will prevent the user from closing the now existing error
-     * message, simply close the dialog (this is the best we can do here). */
-    if (file_save_as_w)
-      window_destroy(GTK_WIDGET (fs));
-#else
-    gtk_widget_show(GTK_WIDGET (fs));
-#endif
-    return;
-  }
-
-  /* don't show the dialog while saving */
-  gtk_widget_hide(GTK_WIDGET (fs));
 
   /* Write out the packets (all, or only the ones from the current
      range) to the file with the specified name. */
@@ -1498,6 +1470,116 @@ file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
   }
 
   action_after_save_g = after_save_no_action;
+}
+
+
+static void file_save_as_exists_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
+{
+    gchar	*cf_name;
+
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+    cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(data)));
+#else
+    cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(data)));
+#endif
+
+    switch(btn) {
+    case(ESD_BTN_OK):
+        /* save file */
+        unlink(cf_name);
+        file_save_as_cb(NULL, data);
+        break;
+    case(ESD_BTN_CANCEL):
+        break;
+    default:
+        g_assert_not_reached();
+    }
+}
+
+
+/* user pressed "Save" dialog "Ok" button */
+static void
+file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
+  gchar	*cf_name;
+  gpointer  dialog;
+  
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
+#else
+  cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
+#endif
+
+  /* Perhaps the user specified a directory instead of a file.
+     Check whether they did. */
+  if (test_for_directory(cf_name) == EISDIR) {
+        /* It's a directory - set the file selection box to display that
+           directory, and leave the selection box displayed. */
+        set_last_open_dir(cf_name);
+        g_free(cf_name);
+        file_selection_set_current_folder(fs, get_last_open_dir());
+        return;
+  }
+
+  /* Check whether the range is valid. */
+  if (!range_check_validity(&range)) {
+    /* The range isn't valid; don't dismiss the open dialog box,
+       just leave it around so that the user can, after they
+       dismiss the alert box popped up for the error, try again. */
+    g_free(cf_name);
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+    /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
+     * as this will prevent the user from closing the now existing error
+     * message, simply close the dialog (this is the best we can do here). */
+    if (file_save_as_w)
+      window_destroy(GTK_WIDGET (fs));
+#else
+    gtk_widget_show(GTK_WIDGET (fs));
+#endif
+    return;
+  }
+
+  /*
+   * Check that the from file is not the same as to file
+   * We do it here so we catch all cases ...
+   * Unfortunately, the file requester gives us an absolute file
+   * name and the read file name may be relative (if supplied on
+   * the command line). From Joerg Mayer.
+   */
+  if (files_identical(cfile.filename, cf_name)) {
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      "%sCapture file: \"%s\" identical to loaded file!%s\n\n"
+      "Please choose a different filename.",
+      simple_dialog_primary_start(), cf_name, simple_dialog_primary_end());
+    g_free(cf_name);
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+    /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
+     * as this will prevent the user from closing the now existing error
+     * message, simply close the dialog (this is the best we can do here). */
+    if (file_save_as_w)
+      window_destroy(GTK_WIDGET (fs));
+#else
+    gtk_widget_show(GTK_WIDGET (fs));
+#endif
+    return;
+  }
+
+  /* don't show the dialog while saving (or asking) */
+  gtk_widget_hide(GTK_WIDGET (fs));
+
+  /* it the file doesn't exist, simply try to save it */
+  if (!file_exists(cf_name)) {
+    file_save_as_cb(NULL, fs);
+    g_free(cf_name);
+    return;
+  }
+
+  /* the file exists, ask the user to remove it first */
+  dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_OK_CANCEL,
+      PRIMARY_TEXT_START "Capture file: \"%s\" already exists!" PRIMARY_TEXT_END "\n\n"
+      "Replace the current file?", cf_name);
+  simple_dialog_set_cb(dialog, file_save_as_exists_answered_cb, fs);
+
+  g_free(cf_name);
 }
 
 void
