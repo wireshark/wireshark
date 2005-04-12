@@ -517,6 +517,7 @@ EXTRA_DIST = \
 	image/toolbar/dfilter_24.xpm	\
 	image/toolbar/stock_add_24.xpm	\
 	image/toolbar/stock_bottom_24.xpm \
+	image/toolbar/stock_clear_24.xpm	\
 	image/toolbar/stock_close_24.xpm	\
 	image/toolbar/stock_colorselector_24.xpm	\
 	image/toolbar/stock_help_24.xpm	\

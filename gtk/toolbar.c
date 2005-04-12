@@ -71,6 +71,7 @@
 #if GTK_MAJOR_VERSION < 2
 #ifdef HAVE_LIBPCAP
 #include "../image/toolbar/stock_stop_24.xpm"
+#include "../image/toolbar/stock_clear_24.xpm"
 #endif /* HAVE_LIBPCAP */
 #include "../image/toolbar/stock_save_as_24.xpm"
 #include "../image/toolbar/stock_close_24.xpm"
