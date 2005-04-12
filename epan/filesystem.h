@@ -127,4 +127,14 @@ char *file_open_error_message(int err, gboolean for_writing);
  */
 char *file_write_error_message(int err);
 
+/*
+ * Check, if file is existing.
+ */
+extern gboolean file_exists(const char *fname);
+
+/*
+ * Check, if two filenames are identical (with absolute and relative paths).
+ */
+extern gboolean files_identical(const char *fname1, const char *fname2);
+
 #endif /* FILESYSTEM_H */

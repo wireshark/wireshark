@@ -726,3 +726,84 @@ file_write_error_message(int err)
 	return errmsg;
 }
 
+
+gboolean
+file_exists(const char *fname)
+{
+  struct stat   file_stat;
+
+
+  /*
+   * This is a bit tricky on win32. The st_ino field is documented as:
+   * "The inode, and therefore st_ino, has no meaning in the FAT, ..."
+   * but it *is* set to zero if stat() returns without an error,
+   * so this is working, but maybe not quite the way expected. ULFL
+   */
+   file_stat.st_ino = 1;   /* this will make things work if an error occured */
+   stat(fname, &file_stat);
+   if (file_stat.st_ino == 0) {
+       return TRUE;
+   } else {
+       return FALSE;
+   }
+
+}
+
+
+gboolean
+files_identical(const char *fname1, const char *fname2)
+{
+    /* Two different implementations, because:
+     * - _fullpath is not available on unix 
+     * - the stat inode will not work as expected on Win32, so two different implementations.
+     *
+     * XXX - will _fullpath work with UNC?
+     */
+#ifdef _WIN32
+    char full1[MAX_PATH], full2[MAX_PATH];
+
+
+    if( _fullpath( full1, fname1, MAX_PATH ) == NULL ) {
+        return FALSE;
+    }
+
+    if( _fullpath( full2, fname2, MAX_PATH ) == NULL ) {
+        return FALSE;
+    }
+    
+    if(strcmp(full1, full2) == 0) {
+        return TRUE;
+    } else {
+        return FALSE;
+    }
+#else
+  struct stat   infile, outfile;
+  save_callback_args_t callback_args;
+
+  cf_callback_invoke(cf_cb_file_safe_started, (gpointer) fname);
+
+  /*
+   * Check that the from file is not the same as to file
+   * We do it here so we catch all cases ...
+   * Unfortunately, the file requester gives us an absolute file
+   * name and the read file name may be relative (if supplied on
+   * the command line). From Joerg Mayer.
+   *
+   * This is a bit tricky on win32. The st_ino field is documented as:
+   * "The inode, and therefore st_ino, has no meaning in the FAT, ..."
+   * but it *is* set to zero if stat() returns without an error,
+   * so this is not working, as it only checks if both files existing. ULFL
+   */
+   infile.st_ino = 1;   /* These prevent us from getting equality         */
+   outfile.st_ino = 2;  /* If one or other of the files is not accessible */
+   stat(cf->filename, &infile);
+   stat(fname, &outfile);
+   if (infile.st_ino == outfile.st_ino) {
+       return TRUE;
+   } else {
+       return FALSE;
+   }
+
+#endif
+}
+

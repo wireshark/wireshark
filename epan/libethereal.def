@@ -204,6 +204,8 @@ FacilityReason_vals             DATA
 fc_fc4_val                      DATA
 file_open_error_message
 file_write_error_message
+file_exists
+files_identical
 find_conversation
 find_dissector
 find_dissector_table

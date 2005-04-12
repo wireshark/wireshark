@@ -3074,28 +3074,13 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
   int           err;
   gboolean      do_copy;
   wtap_dumper  *pdh;
-  struct stat   infile, outfile;
   save_callback_args_t callback_args;
 
   cf_callback_invoke(cf_cb_file_safe_started, (gpointer) fname);
 
-  /*
-   * Check that the from file is not the same as to file
-   * We do it here so we catch all cases ...
-   * Unfortunately, the file requester gives us an absolute file
-   * name and the read file name may be relative (if supplied on
-   * the command line). From Joerg Mayer.
-   *
-   * This is a bit tricky on win32. The st_ino field is documented as:
-   * "The inode, and therefore st_ino, has no meaning in the FAT, ..."
-   * but it *is* set to zero if stat() returns without an error,
-   * so this is working, but maybe not quite the way expected. ULFL
-   */
-   infile.st_ino = 1;   /* These prevent us from getting equality         */
-   outfile.st_ino = 2;  /* If one or other of the files is not accessible */
-   stat(cf->filename, &infile);
-   stat(fname, &outfile);
-   if (infile.st_ino == outfile.st_ino) {
+  /* don't write over an existing file. */
+  /* this should've been already checked by our caller, just to be sure... */
+  if (file_exists(fname)) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
       "%sCapture file: \"%s\" already exists!%s\n\n"
       "Please choose a different filename.",
