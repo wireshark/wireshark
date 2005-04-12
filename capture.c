@@ -326,9 +326,10 @@ capture_input_closed(capture_options *capture_opts)
     }
 
     /* We're not doing a capture any more, so we don't have a save file. */
-    g_assert(capture_opts->save_file);
-    g_free(capture_opts->save_file);
-    capture_opts->save_file = NULL;
+    if(capture_opts->save_file) {
+        g_free(capture_opts->save_file);
+        capture_opts->save_file = NULL;
+    }
 }
 
 

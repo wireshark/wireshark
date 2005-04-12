@@ -1252,6 +1252,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
           if(!result || avail > 0) {
             ld.go = FALSE;
+            /*g_warning("loop closing");*/
           }
       }
 #endif
@@ -1384,6 +1385,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   /* close the input file (pcap or capture pipe) */
   capture_loop_close_input(&ld);
 
+  /*g_warning("loop closed");*/
+
   /* ok, if the write and the close were successful. */
   return write_ok && close_ok;
 
@@ -1406,6 +1409,8 @@ error:
 
   /* close the input file (pcap or cap_pipe) */
   capture_loop_close_input(&ld);
+
+  /*g_warning("loop error");*/
 
   return FALSE;
 }

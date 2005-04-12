@@ -118,70 +118,162 @@ static void sync_pipe_wait_for_child(capture_options *capture_opts, gboolean alw
 /*
  * Indications sent out on the sync pipe.
  */
-#define SP_CAPSTART     ';'	/* capture start message */
-#define SP_PACKET_COUNT '*'     /* followed by count of packets captured since last message */
-#define SP_ERROR_MSG    '!'     /* followed by length of error message that follows */
-#define SP_DROPS        '#'	/* followed by count of packets dropped in capture */
-#define SP_FILE	        ':'	/* followed by length of the name of the last opened file that follows */
+#define SP_CAPSTART     'S'	    /* capture start message */
+#define SP_CAPQUIT      'Q'     /* capture quit message */
+#define SP_PACKET_COUNT 'P'     /* count of packets captured since last message */
+#define SP_ERROR_MSG    'E'     /* error message */
+#define SP_DROPS        'D'	    /* count of packets dropped in capture */
+#define SP_FILE	        'F'	    /* the name of the recently opened file */
 
 
+/* write a message to the recipient pipe in the standard format 
+   (3 digit message length (excluding length and indicator field), 
+   1 byte message indicator and the rest is the message) */
+static void
+pipe_write_block(int pipe, char indicator, int len, const char *msg)
+{
+    char lenbuf[SP_DECISIZE+1+1];
+    int ret;
+
+    /*g_warning("write %d enter", pipe);*/
+
+    g_assert(len < 1000);
+    g_assert(indicator < '0' || indicator > '9');
+
+    /* write header (3 digit len + indicator + zero terminator) */
+    g_snprintf(lenbuf, 5, "%03u%c", len, indicator);
+
+    ret = write(pipe, lenbuf, strlen(lenbuf));
+    g_assert(ret != -1);
+
+    /* write value (if we have one) */
+    if(len) {
+        /*g_warning("write %d indicator: %c value len: %u msg: %s", pipe, indicator, len, msg);*/
+        ret = write(pipe, msg, len);
+        g_assert(ret != -1);
+    } else {
+        /*g_warning("write %d indicator: %c no value", pipe, indicator);*/
+    }
+
+    /*g_warning("write %d leave", pipe);*/
+}
+
+
+/* read a message from the sending pipe in the standard format 
+   (3 digit message length (excluding length and indicator field), 
+   1 byte message indicator and the rest is the message) */
+int
+pipe_read_block(int pipe, char *indicator, int len, char *msg) {
+    int required;
+    int newly;
+    char header[4];
+    int offset;
+
+
+    /* read header (3 digit len and indicator) */
+    required = 4;
+    offset = 0;
+    while(required) {
+        newly = read(pipe, &header[offset], required);
+        if (newly == 0) {
+            /* EOF */
+            /*g_warning("read %d header empty (capture closed)", pipe);*/
+            return newly;
+        }
+        if (newly < 0) {
+            /* error */
+            /*g_warning("read %d header error: %s", pipe, strerror(errno));*/
+            return newly;
+        }
+
+        required -= newly;
+        offset += newly;
+    }
+
+    /* convert header values */
+    *indicator = header[3];
+    required = atoi(header);
+
+    /* only indicator with no value? */
+    if(required == 0) {
+        /*g_warning("read %d indicator: %c empty value", pipe, *indicator);*/
+        return 4;
+    }
+
+    g_assert(required <= len);
+    len = required;
+
+    /* read value */
+    offset = 0;
+    while(required) {
+        newly = read(pipe, &msg[offset], required);
+        if (newly == -1) {
+            /* error */
+            /*g_warning("read %d value error, indicator: %u", pipe, *indicator);*/
+            return newly;
+        }
+
+        required -= newly;
+        offset += newly;
+    }
+
+    /*g_warning("read %d ok indicator: %c len: %u msg: %s", pipe, *indicator, len, msg);*/
+    return len + 4;
+}
 
 void
 sync_pipe_capstart_to_parent(void)
 {
-    static const char capstart_msg = SP_CAPSTART;
+/*    static const char capstart_msg = SP_CAPSTART;
 
-    write(1, &capstart_msg, 1);
+    write(1, &capstart_msg, 1);*/
+
+    pipe_write_block(1, SP_CAPSTART, 0, NULL);
 }
 
 void
 sync_pipe_packet_count_to_parent(int packet_count)
 {
     char tmp[SP_DECISIZE+1+1];
-    sprintf(tmp, "%d%c", packet_count, SP_PACKET_COUNT);
-    write(1, tmp, strlen(tmp));
+
+
+    g_snprintf(tmp, SP_DECISIZE, "%d", packet_count);
+
+    pipe_write_block(1, SP_PACKET_COUNT, strlen(tmp)+1, tmp);
 }
 
 void
 sync_pipe_filename_to_parent(const char *filename)
 {
-    int msglen = strlen(filename);
-    char lenbuf[SP_DECISIZE+1+1];
-
-    sprintf(lenbuf, "%u%c", msglen, SP_FILE);
-    write(1, lenbuf, strlen(lenbuf));
-    write(1, filename, msglen);
+    pipe_write_block(1, SP_FILE, strlen(filename)+1, filename);
 }
 
 void
 sync_pipe_errmsg_to_parent(const char *errmsg)
 {
-    int msglen = strlen(errmsg);
-    char lenbuf[SP_DECISIZE+1+1];
-
-    sprintf(lenbuf, "%u%c", msglen, SP_ERROR_MSG);
-    write(1, lenbuf, strlen(lenbuf));
-    write(1, errmsg, msglen);
+    pipe_write_block(1, SP_ERROR_MSG, strlen(errmsg)+1, errmsg);
 }
 
 void
 sync_pipe_drops_to_parent(int drops)
 {
 	char tmp[SP_DECISIZE+1+1];
-	sprintf(tmp, "%d%c", drops, SP_DROPS);
-	write(1, tmp, strlen(tmp));
+
+
+    g_snprintf(tmp, SP_DROPS, "%d", drops);
+
+    pipe_write_block(1, SP_DROPS, strlen(tmp)+1, tmp);
 }
 
 
 #ifdef _WIN32
-#define SP_CAPEND 'q'
 
 static void
 signal_pipe_capend_to_child(capture_options *capture_opts)
 {
-    static const char capend_msg = SP_CAPEND;
 
-    write(capture_opts->signal_pipe_fd, &capend_msg, 1);
+
+    pipe_write_block(capture_opts->signal_pipe_fd, SP_CAPQUIT, 0, NULL);
 }
 #endif
 
@@ -346,7 +438,8 @@ sync_pipe_start(capture_options *capture_opts, gboolean is_tempfile) {
 
 #ifdef _WIN32
     /* Create a pipe for the child process */
-    if(_pipe(sync_pipe, 512, O_BINARY) < 0) {
+    /* (inrease this value if you have trouble while fast capture file switches) */
+    if(_pipe(sync_pipe, 5120, O_BINARY) < 0) {
       /* Couldn't create the pipe between parent and child. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't create sync pipe: %s",
                         strerror(errno));
@@ -470,16 +563,6 @@ sync_pipe_start(capture_options *capture_opts, gboolean is_tempfile) {
     /* we might wait for a moment till child is ready, so update screen now */
     main_window_update();
 
-    /* the child have to send us a capture start or error message now */
-    if(!sync_pipe_input_wait_for_start(capture_opts, sync_pipe[PIPE_READ])) {
-	    /* Close the sync pipe. */
-	    close(sync_pipe[PIPE_READ]);
-#ifdef _WIN32
-        close(signal_pipe[PIPE_WRITE]);
-#endif
-        return FALSE;
-    }
-
     /* We were able to set up to read the capture file;
        arrange that our callback be called whenever it's possible
        to read from the sync pipe, so that it's called when
@@ -493,76 +576,6 @@ sync_pipe_start(capture_options *capture_opts, gboolean is_tempfile) {
 }
 
 
-/* capture prepared, waiting for the child to signal us capture has indeed started */
-static gboolean
-sync_pipe_input_wait_for_start(capture_options *capture_opts, int sync_pipe_read) {
-    guint   byte_count;
-    int     i;
-    guchar  c;
-    char    *msg;
-
-
-    /* Read a byte count from "sync_pipe[PIPE_READ]", terminated with a
-       colon; if the count is 0, the child process created the
-       capture file and we should start reading from it, otherwise
-       the capture couldn't start and the count is a count of bytes
-       of error message, and we should display the message. */
-    byte_count = 0;
-    for (;;) {
-      i = read(sync_pipe_read, &c, 1);
-      if (i == 0) {
-	/* EOF - the child process died, report the failure. */
-	sync_pipe_wait_for_child(capture_opts, TRUE);
-	return FALSE;
-      }
-
-      /* the first message should be the capture start or an error message */
-      if (c == SP_CAPSTART || c == SP_ERROR_MSG)
-	break;
-      if (!isdigit(c)) {
-            /* Child process handed us crap, report the failure. */
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			"Capture child process sent us a bad message");
-	return FALSE;
-      }
-      byte_count = byte_count*10 + c - '0';
-    }
-    if (c != SP_CAPSTART) {
-      /* Failure - the child process sent us a message indicating
-	 what the problem was. */
-      if (byte_count == 0) {
-	/* Zero-length message? */
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		"Capture child process failed, but its error message was empty.");
-      } else {
-	msg = g_malloc(byte_count + 1);
-	if (msg == NULL) {
-	  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		"Capture child process failed, but its error message was too big.");
-	} else {
-	  i = read(sync_pipe_read, msg, byte_count);
-	  msg[byte_count] = '\0';
-	  if (i < 0) {
-	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		  "Capture child process failed: Error %s reading its error message.",
-		  strerror(errno));
-	  } else if (i == 0) {
-	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		  "Capture child process failed: EOF reading its error message.");
-	    sync_pipe_wait_for_child(capture_opts, FALSE);
-	  } else
-	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, msg);
-	  g_free(msg);
-	}
-
-      }
-      return FALSE;
-    }
-
-    return TRUE;
-}
-
-
 /* There's stuff to read from the sync pipe, meaning the child has sent
    us a message, or the sync pipe has closed, meaning the child has
    closed it (perhaps because it exited). */
@@ -571,12 +584,13 @@ sync_pipe_input_cb(gint source, gpointer user_data)
 {
   capture_options *capture_opts = (capture_options *)user_data;
 #define BUFSIZE	4096
-  char buffer[BUFSIZE+1], *p = buffer, *q = buffer, *msg, *r;
-  int  nread, msglen, chars_to_copy;
-  int  to_read = 0;
+  char buffer[BUFSIZE+1];
+  int  nread;
+  char indicator;
 
 
-  if ((nread = read(source, buffer, BUFSIZE)) <= 0) {
+  nread = pipe_read_block(source, &indicator, BUFSIZE, buffer);
+  if(nread <= 0) {
     /* The child has closed the sync pipe, meaning it's not going to be
        capturing any more packets.  Pick up its exit status, and
        complain if it did anything other than exit with status 0. */
@@ -588,106 +602,45 @@ sync_pipe_input_cb(gint source, gpointer user_data)
     return FALSE;
   }
 
-  buffer[nread] = '\0';
-
-  while (nread != 0) {
-    /* look for (possibly multiple) indications */
-    switch (*q) {
-    case SP_PACKET_COUNT :
-      to_read += atoi(p);
-      p = q + 1;
-      q++;
-      nread--;
-      break;
-    case SP_DROPS :
-      cf_set_drops_known(capture_opts->cf, TRUE);
-      cf_set_drops(capture_opts->cf, atoi(p));
-      p = q + 1;
-      q++;
-      nread--;
-      break;
-    case SP_ERROR_MSG :
-      msglen = atoi(p);
-      p = q + 1;
-      q++;
-      nread--;
-
-      /* Read the entire message.
-         XXX - if the child hasn't sent it all yet, this could cause us
-         to hang until they do. */
-      msg = g_malloc(msglen + 1);
-      r = msg;
-      while (msglen != 0) {
-      	if (nread == 0) {
-      	  /* Read more. */
-          if ((nread = read(source, buffer, BUFSIZE)) <= 0)
-            break;
-          p = buffer;
-          q = buffer;
-        }
-      	chars_to_copy = MIN(msglen, nread);
-        memcpy(r, q, chars_to_copy);
-        r += chars_to_copy;
-        q += chars_to_copy;
-        nread -= chars_to_copy;
-        msglen -= chars_to_copy;
-      }
-      *r = '\0';
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, msg);
-      g_free(msg);
-      break;
-    case SP_FILE :
-      msglen = atoi(p);
-      p = q + 1;
-      q++;
-      nread--;
-
-      /* Read the entire file name.
-         XXX - if the child hasn't sent it all yet, this could cause us
-         to hang until they do. */
-      msg = g_malloc(msglen + 1);
-      r = msg;
-      while (msglen != 0) {
-      	if (nread == 0) {
-      	  /* Read more. */
-          if ((nread = read(source, buffer, BUFSIZE)) <= 0)
-            break;
-          p = buffer;
-          q = buffer;
-        }
-      	chars_to_copy = MIN(msglen, nread);
-        memcpy(r, q, chars_to_copy);
-        r += chars_to_copy;
-        q += chars_to_copy;
-        nread -= chars_to_copy;
-        msglen -= chars_to_copy;
-      }
-      *r = '\0';
-
-      if(!capture_input_new_file(capture_opts, msg)) {
+  switch(indicator) {
+  case(SP_CAPSTART):
+    break;
+  case SP_PACKET_COUNT:
+    nread = atoi(buffer);
+    capture_input_new_packets(capture_opts, nread);
+    break;
+  case SP_DROPS:
+    cf_set_drops_known(capture_opts->cf, TRUE);
+    cf_set_drops(capture_opts->cf, atoi(buffer));
+    break;
+  case SP_ERROR_MSG:
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, buffer);
+    break;
+  case SP_FILE:
+      if(!capture_input_new_file(capture_opts, buffer)) {
          /* We weren't able to open the new capture file; user has been
             alerted. Close the sync pipe. */
-/*            close(sync_pipe[PIPE_READ]);*/
 
             /* XXX - how to kill things here ? */
             /* XXX - is it safe to close the pipe inside this callback? */
             close(source);
+
+            /* the child has send us a filename which we couldn't open.
+               this probably means, the child is creating files faster than we can handle it.
+               this should only be the case for very fast file switches
+               we can't do much more than telling the child to stop
+               (this is the emergency brake if user e.g. wants to switch files every second) */
+            sync_pipe_stop(capture_opts);
       }
 
-      g_free(msg);
-
       break;
-    default :
-      q++;
-      nread--;
-      break;
-    }
+  default:
+      g_assert_not_reached();
   }
-
-  capture_input_new_packets(capture_opts, to_read);
 
   return TRUE;
 }
+
 
 
 /* the child process is going down, wait until it's completely terminated */

@@ -557,6 +557,12 @@ cf_finish_tail(capture_file *cf, int *err)
   int         fd;
   struct stat cf_stat;
 
+
+  if(cf->wth == NULL) {
+    cf_close(cf);
+    return CF_READ_ERROR;
+  }
+
   packet_list_freeze();
 
   while ((wtap_read(cf->wth, err, &err_info, &data_offset))) {

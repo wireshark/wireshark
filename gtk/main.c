@@ -1190,7 +1190,7 @@ set_display_filename(capture_file *cf)
 
   name_ptr = cf_get_display_name(cf);
 	
-  if (!cf->is_tempfile) {
+  if (!cf->is_tempfile && cf->filename) {
     /* Add this filename to the list of recent files in the "Recent Files" submenu */
     add_menu_recent_capture_file(cf->filename);
   }
@@ -2107,7 +2107,8 @@ main(int argc, char *argv[])
       }*/
       if (!capture_opts->has_autostop_filesize && !capture_opts->has_file_duration) {
 	fprintf(stderr, "ethereal: Ring buffer requested, but no maximum capture file size or duration were specified.\n");
-	capture_opts->multi_files_on = FALSE;
+/* XXX - this must be redesigned as the conditions changed */
+/*	capture_opts->multi_files_on = FALSE;*/
       }
     }
   }

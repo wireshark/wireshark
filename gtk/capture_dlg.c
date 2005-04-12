@@ -1417,8 +1417,8 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
     capture_opts->autostop_files =
       gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(stop_files_sb));
 
-  if(capture_opts->real_time_mode)
-    capture_opts->multi_files_on = FALSE;
+/*  if(capture_opts->real_time_mode)
+    capture_opts->multi_files_on = FALSE;*/
 
   if (capture_opts->multi_files_on) {
     capture_opts->has_autostop_filesize =
@@ -1563,25 +1563,25 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
        mode off if it's on, and make its toggle button, and the spin
        button for the number of ring buffer files (and the spin button's
        label), insensitive. */
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(multi_files_on_cb), FALSE);
-    gtk_widget_set_sensitive(GTK_WIDGET(multi_files_on_cb), FALSE);
+/*    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(multi_files_on_cb), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(multi_files_on_cb), FALSE);*/
 
     /* Auto-scroll mode is meaningful only in "Update list of packets
        in real time" captures, so make its toggle button sensitive. */
     gtk_widget_set_sensitive(GTK_WIDGET(auto_scroll_cb), TRUE);
 
-    gtk_widget_set_sensitive(GTK_WIDGET(hide_info_cb), TRUE);
+    /*gtk_widget_set_sensitive(GTK_WIDGET(hide_info_cb), TRUE);*/
   } else {
     /* "Update list of packets in real time" captures disabled; that
        means ring buffer mode is OK, so make its toggle button
        sensitive. */
-    gtk_widget_set_sensitive(GTK_WIDGET(multi_files_on_cb), TRUE);
+/*    gtk_widget_set_sensitive(GTK_WIDGET(multi_files_on_cb), TRUE);*/
 
     /* Auto-scroll mode is meaningful only in "Update list of packets
        in real time" captures, so make its toggle button insensitive. */
     gtk_widget_set_sensitive(GTK_WIDGET(auto_scroll_cb), FALSE);
 
-    gtk_widget_set_sensitive(GTK_WIDGET(hide_info_cb), FALSE);
+    /*gtk_widget_set_sensitive(GTK_WIDGET(hide_info_cb), FALSE);*/
   }
 
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(multi_files_on_cb))) {
