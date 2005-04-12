@@ -362,8 +362,9 @@ vines_addr_to_str_buf(const guint8 *addrp, gchar *buf)
 /*
  * Maximum length of a string showing days/hours/minutes/seconds.
  * (Does not include the terminating '\0'.)
+ * Includes space for a '-' sign for any negative compunents.
  */
-#define TIME_SECS_LEN	(8+1+4+2+2+5+2+2+7+2+2+7)
+#define TIME_SECS_LEN	(8+1+4+2+2+5+2+2+7+2+2+7+4)
 
 /*
  * Convert a value in seconds and fractions of a second to a string,
@@ -371,14 +372,21 @@ vines_addr_to_str_buf(const guint8 *addrp, gchar *buf)
  * into a buffer.
  * "is_nsecs" says that "frac" is microseconds if true and milliseconds
  * if false.
+ * If time is negative, add a '-' to all non-null components.
  */
 static void
-time_secs_to_str_buf(guint32 time, guint32 frac, gboolean is_nsecs,
+time_secs_to_str_buf(gint32 time, guint32 frac, gboolean is_nsecs,
 			   gchar *buf)
 {
   static gchar *p;
   int hours, mins, secs;
+  gchar *msign = "";
   gboolean do_comma = FALSE;
+
+  if(time<0){
+    time= -time;
+    msign="-";
+  }
 
   secs = time % 60;
   time /= 60;
@@ -389,33 +397,33 @@ time_secs_to_str_buf(guint32 time, guint32 frac, gboolean is_nsecs,
 
   p = buf;
   if (time != 0) {
-    sprintf(p, "%u day%s", time, PLURALIZE(time));
+    sprintf(p, "%s%u day%s", time?msign:"", time, PLURALIZE(time));
     p += strlen(p);
     do_comma = TRUE;
   }
   if (hours != 0) {
-    sprintf(p, "%s%u hour%s", COMMA(do_comma), hours, PLURALIZE(hours));
+    sprintf(p, "%s%s%u hour%s", COMMA(do_comma), hours?msign:"", hours, PLURALIZE(hours));
     p += strlen(p);
     do_comma = TRUE;
   }
   if (mins != 0) {
-    sprintf(p, "%s%u minute%s", COMMA(do_comma), mins, PLURALIZE(mins));
+    sprintf(p, "%s%s%u minute%s", COMMA(do_comma), mins?msign:"", mins, PLURALIZE(mins));
     p += strlen(p);
     do_comma = TRUE;
   }
   if (secs != 0 || frac != 0) {
     if (frac != 0) {
       if (is_nsecs)
-        sprintf(p, "%s%u.%09u seconds", COMMA(do_comma), secs, frac);
+        sprintf(p, "%s%s%u.%09u seconds", COMMA(do_comma), msign, secs, frac);
       else
-        sprintf(p, "%s%u.%03u seconds", COMMA(do_comma), secs, frac);
+        sprintf(p, "%s%s%u.%03u seconds", COMMA(do_comma), msign, secs, frac);
     } else
-      sprintf(p, "%s%u second%s", COMMA(do_comma), secs, PLURALIZE(secs));
+      sprintf(p, "%s%s%u second%s", COMMA(do_comma), msign, secs, PLURALIZE(secs));
   }
 }
 
 gchar *
-time_secs_to_str(guint32 time)
+time_secs_to_str(gint32 time)
 {
   static gchar  str[3][TIME_SECS_LEN+1];
   static gchar *cur;
@@ -438,7 +446,7 @@ time_secs_to_str(guint32 time)
 }
 
 gchar *
-time_msecs_to_str(guint32 time)
+time_msecs_to_str(gint32 time)
 {
   static gchar  str[3][TIME_SECS_LEN+1+3+1];
   static gchar *cur;
@@ -457,8 +465,16 @@ time_msecs_to_str(guint32 time)
     return cur;
   }
 
-  msecs = time % 1000;
-  time /= 1000;
+  if(time<0){
+    /* oops we got passed a negative time */
+    time= -time;
+    msecs = time % 1000;
+    time /= 1000;
+    time= -time;
+  } else {
+    msecs = time % 1000;
+    time /= 1000;
+  }
 
   time_secs_to_str_buf(time, msecs, FALSE, cur);
   return cur;
@@ -580,7 +596,7 @@ rel_time_to_str(nstime_t *rel_time)
 	static char str[3][1+TIME_SECS_LEN+1+6+1];
 	char *p;
 	char *sign;
-	guint32 time;
+	gint32 time;
 	gint32 nsec;
 
 	if (cur == &str[0][0]) {
