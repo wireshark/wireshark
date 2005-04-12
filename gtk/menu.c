@@ -300,9 +300,11 @@ static GtkItemFactoryEntry menu_items[] =
                              capture_prep_cb, 0, ETHEREAL_STOCK_CAPTURE_START),
     ITEM_FACTORY_STOCK_ENTRY("/Capture/S_top", "<control>E", capture_stop_cb,
                              0, GTK_STOCK_STOP),
+    ITEM_FACTORY_STOCK_ENTRY("/Capture/_Clear", NULL, capture_clear_cb,
+                             0, GTK_STOCK_CLEAR),
     ITEM_FACTORY_ENTRY("/Capture/_Interfaces...", NULL,
                              capture_if_cb, 0, NULL, NULL),
-    ITEM_FACTORY_STOCK_ENTRY("/Capture/_Capture Filters...", NULL, cfilter_dialog_cb,
+    ITEM_FACTORY_STOCK_ENTRY("/Capture/Capture _Filters...", NULL, cfilter_dialog_cb,
                        0, ETHEREAL_STOCK_CAPTURE_FILTER),
 #endif /* HAVE_LIBPCAP */
     ITEM_FACTORY_ENTRY("/_Analyze", NULL, NULL, 0, "<Branch>", NULL),
@@ -566,6 +568,7 @@ menus_init(void) {
     set_menus_for_captured_packets(FALSE);
     set_menus_for_selected_packet(&cfile);
     set_menus_for_selected_tree_row(&cfile);
+    set_menus_for_capture_in_progress(FALSE);
 
     /* init with an empty recent files list */
     clear_menu_recent_capture_file_cmd_cb(NULL, NULL);
@@ -1537,6 +1540,8 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
   set_menu_sensitivity(main_menu_factory, "/Capture/Start...",
       !capture_in_progress);
   set_menu_sensitivity(main_menu_factory, "/Capture/Stop",
+      capture_in_progress);
+  set_menu_sensitivity(main_menu_factory, "/Capture/Clear",
       capture_in_progress);
   set_toolbar_for_capture_in_progress(capture_in_progress);
 

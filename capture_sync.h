@@ -58,10 +58,6 @@ extern void
 sync_pipe_kill(capture_options *capture_opts);
 
 
-/** the child will immediately start capturing, notify the parent */
-extern void
-sync_pipe_capstart_to_parent(void);
-
 /** the child has opened a new capture file, notify the parent */
 extern void
 sync_pipe_filename_to_parent(const char *filename);

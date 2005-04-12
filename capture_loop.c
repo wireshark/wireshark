@@ -1037,6 +1037,11 @@ capture_loop_stop_signal_handler(int signo _U_)
 }
 #endif
 
+#ifdef _WIN32
+#define TIME_GET() GetTickCount()
+#else
+#define TIME_GET() time(NULL)
+#endif
 
 /*
  * This needs to be static, so that the SIGUSR1 handler can clear the "go"
@@ -1144,7 +1149,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
      update its windows to indicate that we have a live capture in
      progress. */
   fflush(wtap_dump_file(ld.wtap_pdh));
-  sync_pipe_capstart_to_parent();
   sync_pipe_filename_to_parent(capture_opts->save_file);
 
   /* initialize capture stop (and alike) conditions */
@@ -1175,8 +1179,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   }
 
   /* init the time values */
-  start_time = time(NULL);
-  upd_time = time(NULL);
+  start_time = TIME_GET();
+  upd_time = TIME_GET();
 
   /* WOW, everything is prepared! */
   /* please fasten your seat belts, we will enter now the actual capture loop */
@@ -1185,6 +1189,26 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
     /* dispatch incoming packets */
     inpkts = capture_loop_dispatch(capture_opts, &ld, errmsg, sizeof(errmsg));
+
+    main_window_update();
+
+#ifdef _WIN32
+      /* some news from our parent (signal pipe)? -> just stop the capture */
+      {
+          HANDLE handle;
+          DWORD avail = 0;
+          gboolean result;
+
+
+          handle = (HANDLE) _get_osfhandle (0);
+          result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
+
+          if(!result || avail > 0) {
+            ld.go = FALSE;
+            /*g_warning("loop closing");*/
+          }
+      }
+#endif
 
     if (inpkts > 0) {
       ld.packets_sync_pipe += inpkts;
@@ -1223,9 +1247,13 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     } /* inpkts */
 
     /* Only update once a second so as not to overload slow displays */
-    cur_time = time(NULL);
-    if (cur_time > upd_time) {
-      upd_time = cur_time;
+    cur_time = TIME_GET();
+#ifdef _WIN32
+    if ( (cur_time - upd_time) > 500) {
+#else
+    if (cur_time - upd_time > 0) {
+#endif
+        upd_time = cur_time;
 
       /*if (pcap_stats(pch, stats) >= 0) {
         *stats_known = TRUE;
@@ -1234,28 +1262,14 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
       /* calculate and display running time */
       if(capture_opts->show_info) {
           cur_time -= start_time;
+#ifdef _WIN32
+          capture_ui.running_time   = cur_time / 1000;
+#else
           capture_ui.running_time   = cur_time;
+#endif
           capture_ui.new_packets    = ld.packets_sync_pipe;
           capture_info_update(&capture_ui);
       }
-
-#ifdef _WIN32
-      /* some news from our parent (signal pipe)? -> just stop the capture */
-      {
-          HANDLE handle;
-          DWORD avail = 0;
-          gboolean result;
-
-
-          handle = (HANDLE) _get_osfhandle (0);
-          result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
-
-          if(!result || avail > 0) {
-            ld.go = FALSE;
-            /*g_warning("loop closing");*/
-          }
-      }
-#endif
 
       /* Let the parent process know. */
       if (ld.packets_sync_pipe) {

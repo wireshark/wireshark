@@ -102,6 +102,15 @@ capture_stop(capture_options *capture_opts)
   sync_pipe_stop(capture_opts);
 }
 
+
+void
+capture_clear(capture_options *capture_opts)
+{
+    capture_opts->restart = TRUE;
+    capture_stop(capture_opts);
+}
+
+
 void
 capture_kill_child(capture_options *capture_opts)
 {
@@ -267,6 +276,7 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
          file.
 
          XXX - abort on a read error? */
+         main_window_update();
       break;
 
     case CF_READ_ABORTED:
@@ -325,8 +335,22 @@ capture_input_closed(capture_options *capture_opts)
             cf_get_drops_known(capture_opts->cf), cf_get_drops(capture_opts->cf));
     }
 
-    /* We're not doing a capture any more, so we don't have a save file. */
-    if(capture_opts->save_file) {
+    /* does the user wants to restart the current capture? */
+    if(capture_opts->restart) {
+        capture_opts->restart = FALSE;
+
+        unlink(capture_opts->save_file);
+
+        /* if it was a tempfile, throw away the old filename (so it will become a tempfile again) */
+        if(cf_is_tempfile(capture_opts->cf)) {
+            g_free(capture_opts->save_file);
+            capture_opts->save_file = NULL;
+        }
+
+        /* ... and start the capture again */
+        capture_start(capture_opts);
+    } else {
+        /* We're not doing a capture any more, so we don't have a save file. */
         g_free(capture_opts->save_file);
         capture_opts->save_file = NULL;
     }

@@ -63,6 +63,7 @@ capture_opts_init(capture_options *capture_opts, void *cfile)
   capture_opts->real_time_mode          = TRUE;
   capture_opts->show_info               = TRUE;
   capture_opts->quit_after_cap          = FALSE;
+  capture_opts->restart                 = FALSE;
 
   capture_opts->multi_files_on          = FALSE;
   capture_opts->has_file_duration       = FALSE;

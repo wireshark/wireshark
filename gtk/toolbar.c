@@ -117,7 +117,7 @@
 static gboolean toolbar_init = FALSE;
 
 #ifdef HAVE_LIBPCAP
-static GtkWidget *new_button, *stop_button;
+static GtkWidget *new_button, *stop_button, *clear_button;
 static GtkWidget *capture_filter_button;
 #endif /* HAVE_LIBPCAP */
 static GtkWidget *open_button, *save_button, *save_as_button, *close_button, *reload_button;
@@ -283,13 +283,15 @@ void set_toolbar_for_capture_in_progress(gboolean capture_in_progress) {
     if (toolbar_init) {
 #ifdef HAVE_LIBPCAP
         gtk_widget_set_sensitive(new_button, !capture_in_progress);
-        if (capture_in_progress) {
+        gtk_widget_set_sensitive(stop_button, capture_in_progress);
+        gtk_widget_set_sensitive(clear_button, capture_in_progress);
+        /*if (capture_in_progress) {
             gtk_widget_hide(new_button);
             gtk_widget_show(stop_button);
         } else {
             gtk_widget_show(new_button);
             gtk_widget_hide(stop_button);
-        }
+        }*/
 #endif /* HAVE_LIBPCAP */
         gtk_widget_set_sensitive(open_button, !capture_in_progress);
     }
@@ -391,13 +393,12 @@ toolbar_new(void)
 
 
 #ifdef HAVE_LIBPCAP
-    /* either start OR stop button can be valid at a time, so no space 
-     * between them is needed here (stop button is hidden by default) */
-
     toolbar_item(new_button, window, main_tb, 
         ETHEREAL_STOCK_CAPTURE_START, "Start a new live capture...", capture_24_xpm, capture_prep_cb, NULL);
     toolbar_item(stop_button, window, main_tb, 
         GTK_STOCK_STOP, "Stop the running live capture", stock_stop_24_xpm, capture_stop_cb, NULL);
+    toolbar_item(clear_button, window, main_tb, 
+        GTK_STOCK_CLEAR, "Clear the captured packets", stock_clear_24_xpm, capture_clear_cb, NULL);
     toolbar_append_separator(main_tb);
 #endif /* HAVE_LIBPCAP */
 

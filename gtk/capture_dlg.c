@@ -126,6 +126,12 @@ capture_stop_cb(GtkWidget *w _U_, gpointer d _U_)
     capture_stop(capture_opts);
 }
 
+void
+capture_clear_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    capture_clear(capture_opts);
+}
+
 /*
  * Keep a static pointer to the current "Capture Options" window, if
  * any, so that if somebody tries to do "Capture:Start" while there's

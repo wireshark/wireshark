@@ -118,12 +118,11 @@ static void sync_pipe_wait_for_child(capture_options *capture_opts, gboolean alw
 /*
  * Indications sent out on the sync pipe.
  */
-#define SP_CAPSTART     'S'	    /* capture start message */
-#define SP_CAPQUIT      'Q'     /* capture quit message */
-#define SP_PACKET_COUNT 'P'     /* count of packets captured since last message */
-#define SP_ERROR_MSG    'E'     /* error message */
-#define SP_DROPS        'D'	    /* count of packets dropped in capture */
 #define SP_FILE	        'F'	    /* the name of the recently opened file */
+#define SP_ERROR_MSG    'E'     /* error message */
+#define SP_PACKET_COUNT 'P'     /* count of packets captured since last message */
+#define SP_DROPS        'D'	    /* count of packets dropped in capture */
+#define SP_QUIT         'Q'     /* capture quit message (from parent to child) */
 
 
 /* write a message to the recipient pipe in the standard format 
@@ -132,7 +131,7 @@ static void sync_pipe_wait_for_child(capture_options *capture_opts, gboolean alw
 static void
 pipe_write_block(int pipe, char indicator, int len, const char *msg)
 {
-    char lenbuf[SP_DECISIZE+1+1];
+    char lenbuf[3+1+1]; /* 3 digit len + indicator + zero terminator */
     int ret;
 
     /*g_warning("write %d enter", pipe);*/
@@ -140,17 +139,21 @@ pipe_write_block(int pipe, char indicator, int len, const char *msg)
     g_assert(len < 1000);
     g_assert(indicator < '0' || indicator > '9');
 
-    /* write header (3 digit len + indicator + zero terminator) */
+    /* write header (3 digit len + indicator) */
     g_snprintf(lenbuf, 5, "%03u%c", len, indicator);
 
     ret = write(pipe, lenbuf, strlen(lenbuf));
-    g_assert(ret != -1);
+    if(ret == -1) {
+        return;
+    }
 
     /* write value (if we have one) */
     if(len) {
         /*g_warning("write %d indicator: %c value len: %u msg: %s", pipe, indicator, len, msg);*/
         ret = write(pipe, msg, len);
-        g_assert(ret != -1);
+        if(ret == -1) {
+            return;
+        }
     } else {
         /*g_warning("write %d indicator: %c no value", pipe, indicator);*/
     }
@@ -222,22 +225,12 @@ pipe_read_block(int pipe, char *indicator, int len, char *msg) {
 }
 
 void
-sync_pipe_capstart_to_parent(void)
-{
-/*    static const char capstart_msg = SP_CAPSTART;
-
-    write(1, &capstart_msg, 1);*/
-
-    pipe_write_block(1, SP_CAPSTART, 0, NULL);
-}
-
-void
 sync_pipe_packet_count_to_parent(int packet_count)
 {
     char tmp[SP_DECISIZE+1+1];
 
 
-    g_snprintf(tmp, SP_DECISIZE, "%d", packet_count);
+    g_snprintf(tmp, sizeof(tmp), "%d", packet_count);
 
     pipe_write_block(1, SP_PACKET_COUNT, strlen(tmp)+1, tmp);
 }
@@ -260,7 +253,7 @@ sync_pipe_drops_to_parent(int drops)
 	char tmp[SP_DECISIZE+1+1];
 
 
-    g_snprintf(tmp, SP_DROPS, "%d", drops);
+    g_snprintf(tmp, sizeof(tmp), "%d", drops);
 
     pipe_write_block(1, SP_DROPS, strlen(tmp)+1, tmp);
 }
@@ -269,11 +262,11 @@ sync_pipe_drops_to_parent(int drops)
 #ifdef _WIN32
 
 static void
-signal_pipe_capend_to_child(capture_options *capture_opts)
+signal_pipe_capquit_to_child(capture_options *capture_opts)
 {
 
 
-    pipe_write_block(capture_opts->signal_pipe_fd, SP_CAPQUIT, 0, NULL);
+    pipe_write_block(capture_opts->signal_pipe_fd, SP_QUIT, 0, NULL);
 }
 #endif
 
@@ -603,37 +596,32 @@ sync_pipe_input_cb(gint source, gpointer user_data)
   }
 
   switch(indicator) {
-  case(SP_CAPSTART):
-    break;
+  case SP_FILE:
+      if(!capture_input_new_file(capture_opts, buffer)) {
+        /* We weren't able to open the new capture file; user has been
+           alerted. Close the sync pipe. */
+        /* XXX - is it safe to close the pipe inside this callback? */
+        close(source);
+
+        /* the child has send us a filename which we couldn't open.
+           this probably means, the child is creating files faster than we can handle it.
+           this should only be the case for very fast file switches
+           we can't do much more than telling the child to stop
+           (this is the emergency brake if user e.g. wants to switch files every second) */
+        sync_pipe_stop(capture_opts);
+      }
+      break;
   case SP_PACKET_COUNT:
     nread = atoi(buffer);
     capture_input_new_packets(capture_opts, nread);
+    break;
+  case SP_ERROR_MSG:
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, buffer);
     break;
   case SP_DROPS:
     cf_set_drops_known(capture_opts->cf, TRUE);
     cf_set_drops(capture_opts->cf, atoi(buffer));
     break;
-  case SP_ERROR_MSG:
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, buffer);
-    break;
-  case SP_FILE:
-      if(!capture_input_new_file(capture_opts, buffer)) {
-         /* We weren't able to open the new capture file; user has been
-            alerted. Close the sync pipe. */
-
-            /* XXX - how to kill things here ? */
-            /* XXX - is it safe to close the pipe inside this callback? */
-            close(source);
-
-            /* the child has send us a filename which we couldn't open.
-               this probably means, the child is creating files faster than we can handle it.
-               this should only be the case for very fast file switches
-               we can't do much more than telling the child to stop
-               (this is the emergency brake if user e.g. wants to switch files every second) */
-            sync_pipe_stop(capture_opts);
-      }
-
-      break;
   default:
       g_assert_not_reached();
   }
@@ -803,7 +791,7 @@ sync_pipe_stop(capture_options *capture_opts)
 #else
     /* Win32 doesn't have the kill() system call, use the special signal pipe 
        instead to close the capture child gracefully. */
-    signal_pipe_capend_to_child(capture_opts);
+    signal_pipe_capquit_to_child(capture_opts);
 #endif
   }
 }

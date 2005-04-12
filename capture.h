@@ -53,9 +53,10 @@ typedef struct capture_options_tag {
     gchar    *save_file;    /**< the capture file name */
 
     /* GUI related */
-    gboolean real_time_mode;/**< Update list of packets in real time */
-    gboolean show_info;     /**< show the info dialog */
+    gboolean real_time_mode;    /**< Update list of packets in real time */
+    gboolean show_info;         /**< show the info dialog */
     gboolean quit_after_cap;    /** Makes a "capture only mode". Implies -k */
+    gboolean restart;           /**< restart after closing is done */
 
     /* multiple files (and ringbuffer) */
     gboolean multi_files_on;    /**< TRUE if ring buffer in use */
@@ -105,6 +106,9 @@ extern gboolean capture_start(capture_options *capture_opts);
 
 /** Stop a capture session (usually from a menu item). */
 extern void capture_stop(capture_options *capture_opts);
+
+/** Clear the current captured packets and start again. */
+extern void capture_clear(capture_options *capture_opts);
 
 /** Terminate the capture child cleanly when exiting. */
 extern void capture_kill_child(capture_options *capture_opts);
