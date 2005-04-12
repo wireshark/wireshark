@@ -189,7 +189,7 @@ guint32 drops)
   }
 
   /* if we didn't captured even a single packet, close the file again */
-  if(cf_packet_count(capture_opts->cf) == 0) {
+  if(cf_packet_count(capture_opts->cf) == 0 && !capture_opts->restart) {
     simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
     "%sNo packets captured!%s\n\n"
     "As no data was captured, closing the %scapture file!",
@@ -305,7 +305,7 @@ capture_input_closed(capture_options *capture_opts)
         switch (cf_finish_tail(capture_opts->cf, &err)) {
 
         case CF_READ_OK:
-            if(cf_packet_count(capture_opts->cf) == 0) {
+            if(cf_packet_count(capture_opts->cf) == 0 && !capture_opts->restart) {
               simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
               "%sNo packets captured!%s\n\n"
               "As no data was captured, closing the %scapture file!",
