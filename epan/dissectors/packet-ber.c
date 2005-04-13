@@ -865,6 +865,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) subdissector ate %d bytes\n",name,coun
 
 	/* if we didnt end up at exactly offset, then we ate too many bytes */
 	if (offset != end_offset) {
+		tvb_ensure_bytes_exist(tvb, offset-2, 2);
 		proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: Sequence ate %d too many bytes", offset-end_offset);
 	}
 
