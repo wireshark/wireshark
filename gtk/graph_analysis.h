@@ -100,7 +100,7 @@ typedef struct _dialog_data_t {
 	guint32	selected_item;		/* the selected item */
 	display_items_t items[NUM_DISPLAY_ITEMS];
     guint32 left_x_border;
-    char *write_file;
+    char *save_file;
 } dialog_data_t;
 
 

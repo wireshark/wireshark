@@ -74,7 +74,7 @@ GtkRcStyle *rc_style;
 GdkColormap *colormap;
 #endif
 
-GtkWidget *write_to_file_w = NULL;
+static GtkWidget *save_to_file_w = NULL;
 
 
 /****************************************************************************/
@@ -276,7 +276,7 @@ gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 
 		FILE *of;
 	
-		of = fopen(user_data->dlg.write_file,"w");
+		of = fopen(user_data->dlg.save_file,"w");
 		if (of==NULL){
 			return FALSE;
 		}
@@ -447,10 +447,10 @@ gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 }
 
 /****************************************************************************/
-static void write_to_file_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
+static void save_to_file_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 {
-	/* Note that we no longer have a Write to file dialog box. */
-	write_to_file_w = NULL;
+	/* Note that we no longer have a Save to file dialog box. */
+	save_to_file_w = NULL;
 }
 
 /****************************************************************************/
@@ -478,7 +478,7 @@ static void overwrite_existing_file_cb(gpointer dialog _U_, gint btn, gpointer u
 
 /* and then the save in a file dialog itself */
 
-static void write_to_file_ok_cb(GtkWidget *ok_bt _U_, gpointer user_data _U_)
+static void save_to_file_ok_cb(GtkWidget *ok_bt _U_, gpointer user_data _U_)
 {
 	FILE *file_test;
 	gpointer dialog;
@@ -486,27 +486,27 @@ static void write_to_file_ok_cb(GtkWidget *ok_bt _U_, gpointer user_data _U_)
 	
 	user_data_p = user_data;
 
-	user_data_p->dlg.write_file = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (write_to_file_w)));
+	user_data_p->dlg.save_file = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (save_to_file_w)));
 
 	/* Perhaps the user specified a directory instead of a file.
 	Check whether they did. */
-	if (test_for_directory(user_data_p->dlg.write_file) == EISDIR) {
+	if (test_for_directory(user_data_p->dlg.save_file) == EISDIR) {
 		/* It's a directory - set the file selection box to display it. */
-		set_last_open_dir(user_data_p->dlg.write_file);
-		g_free(user_data_p->dlg.write_file);
-		file_selection_set_current_folder(write_to_file_w, get_last_open_dir());
+		set_last_open_dir(user_data_p->dlg.save_file);
+		g_free(user_data_p->dlg.save_file);
+		file_selection_set_current_folder(save_to_file_w, get_last_open_dir());
 		return;
 	}
 
 
 	/* check whether the file exists */
-	file_test = fopen(user_data_p->dlg.write_file,"r");
+	file_test = fopen(user_data_p->dlg.save_file,"r");
 	if (file_test!=NULL){
 
 		dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO,
 		  "%sFile: \"%s\" already exists!%s\n\n"
 		  "Do you want to overwrite it?",
-		  simple_dialog_primary_start(),user_data_p->dlg.write_file, simple_dialog_primary_end());
+		  simple_dialog_primary_start(),user_data_p->dlg.save_file, simple_dialog_primary_end());
 		simple_dialog_set_cb(dialog, overwrite_existing_file_cb, user_data);
   		fclose(file_test);
 	}
@@ -515,13 +515,13 @@ static void write_to_file_ok_cb(GtkWidget *ok_bt _U_, gpointer user_data _U_)
 		if (!dialog_graph_dump_to_file(user_data))
 			return;
 	}
-	window_destroy(GTK_WIDGET(write_to_file_w));
+	window_destroy(GTK_WIDGET(save_to_file_w));
 
 }
 
 /****************************************************************************/
 static void
-on_write_bt_clicked                    (GtkButton       *button _U_,
+on_save_bt_clicked                    (GtkButton       *button _U_,
                                         gpointer         user_data _U_)
 {
 
@@ -529,33 +529,33 @@ on_write_bt_clicked                    (GtkButton       *button _U_,
 	GtkWidget *vertb;
 	GtkWidget *ok_bt;
 
-	if (write_to_file_w != NULL) {
-		/* There's already a Write to file dialog box; reactivate it. */
-		reactivate_window(write_to_file_w);
+	if (save_to_file_w != NULL) {
+		/* There's already a Save to file dialog box; reactivate it. */
+		reactivate_window(save_to_file_w);
 		return;
 	}
 
-	write_to_file_w = file_selection_new("Ethereal: Write graph to file", FILE_SELECTION_SAVE);
+	save_to_file_w = gtk_file_selection_new("Ethereal: Save graph to file");
 
 	/* Container for each row of widgets */
 	vertb = gtk_vbox_new(FALSE, 0);
 	gtk_container_border_width(GTK_CONTAINER(vertb), 5);
-	gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(write_to_file_w)->action_area),
+	gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(save_to_file_w)->action_area),
 		vertb, FALSE, FALSE, 0);
 	gtk_widget_show (vertb);
 
-	ok_bt = GTK_FILE_SELECTION(write_to_file_w)->ok_button;
-	SIGNAL_CONNECT(ok_bt, "clicked", write_to_file_ok_cb, user_data);
+	ok_bt = GTK_FILE_SELECTION(save_to_file_w)->ok_button;
+	SIGNAL_CONNECT(ok_bt, "clicked", save_to_file_ok_cb, user_data);
 
-	window_set_cancel_button(write_to_file_w,
-	    GTK_FILE_SELECTION(write_to_file_w)->cancel_button, window_cancel_button_cb);
+	window_set_cancel_button(save_to_file_w,
+	    GTK_FILE_SELECTION(save_to_file_w)->cancel_button, window_cancel_button_cb);
 
-	SIGNAL_CONNECT(write_to_file_w, "delete_event", window_delete_event_cb, NULL);
-	SIGNAL_CONNECT(write_to_file_w, "destroy", write_to_file_destroy_cb,
+	SIGNAL_CONNECT(save_to_file_w, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(save_to_file_w, "destroy", save_to_file_destroy_cb,
 	               NULL);
 
-	gtk_widget_show(write_to_file_w);
-	window_present(write_to_file_w);
+	gtk_widget_show(save_to_file_w);
+	window_present(save_to_file_w);
 	
 	
 }
@@ -1388,7 +1388,7 @@ static void dialog_graph_create_window(graph_analysis_data_t* user_data)
         GtkWidget *vbox;
         GtkWidget *hbuttonbox;
     	GtkWidget *bt_close;
-    	GtkWidget *bt_write;
+    	GtkWidget *bt_save;
 	    GtkTooltips *tooltips = gtk_tooltips_new();
 
         /* create the main window */
@@ -1408,11 +1408,11 @@ static void dialog_graph_create_window(graph_analysis_data_t* user_data)
 		gtk_button_box_set_spacing (GTK_BUTTON_BOX (hbuttonbox), 30);
 		gtk_widget_show(hbuttonbox);
 
-		bt_write = gtk_button_new_with_label("Write to file");
-		gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_write);
-		gtk_widget_show(bt_write);
-		SIGNAL_CONNECT(bt_write, "clicked", on_write_bt_clicked, user_data);
-		gtk_tooltips_set_tip (tooltips, bt_write, "Write an ASCII representation of the graph to a file", NULL);
+	    bt_save = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE_AS);
+		gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_save);
+		gtk_widget_show(bt_save);
+		SIGNAL_CONNECT(bt_save, "clicked", on_save_bt_clicked, user_data);
+		gtk_tooltips_set_tip (tooltips, bt_save, "Save an ASCII representation of the graph to a file", NULL);
 
 		bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
 		gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
