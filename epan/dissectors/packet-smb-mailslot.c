@@ -103,7 +103,7 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB Mailslot");
 	}
 
-	if ((tvb==NULL) || (tvb_reported_length(tvb)==0)) {
+	if (check_col (pinfo->cinfo, COL_INFO) && ((tvb==NULL) || (tvb_reported_length(tvb)==0))) {
 		/* Interim reply */
 		col_set_str(pinfo->cinfo, COL_INFO, "Interim reply");
 		return TRUE;
