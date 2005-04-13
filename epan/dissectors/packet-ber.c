@@ -506,10 +506,10 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 
 int dissect_ber_octet_string_wcb(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, ber_callback func)
 {
-	tvbuff_t *out_tvb;
+	tvbuff_t *out_tvb = NULL;
 
 	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_id, (func)?&out_tvb:NULL);
-	if (func && (tvb_length(out_tvb)>0)) {
+	if (func && out_tvb && (tvb_length(out_tvb)>0)) {
 		if (hf_id != -1)
 			tree = proto_item_add_subtree(ber_last_created_item, ett_ber_octet_string);
 		func(pinfo, tree, out_tvb, 0);
@@ -1139,15 +1139,15 @@ printf("RESTRICTED STRING dissect_ber_octet_string(%s) entered\n",name);
 int
 dissect_ber_GeneralString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, char *name_string, guint name_len)
 {
-	tvbuff_t *out_tvb;
+	tvbuff_t *out_tvb = NULL;
 
 	offset = dissect_ber_restricted_string(FALSE, BER_UNI_TAG_GeneralString, pinfo, tree, tvb, offset, hf_id, (name_string)?&out_tvb:NULL);
 
 	if (name_string) {
-		if (tvb_length(out_tvb) >= name_len) {
+		if (out_tvb && tvb_length(out_tvb) >= name_len) {
 			tvb_memcpy(out_tvb, name_string, 0, name_len-1);
 			name_string[name_len-1] = '\0';
-		} else {
+		} else if (out_tvb) {
 			tvb_memcpy(out_tvb, name_string, 0, -1);
 			name_string[tvb_length(out_tvb)] = '\0';
 		}
