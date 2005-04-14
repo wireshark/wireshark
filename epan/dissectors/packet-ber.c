@@ -460,6 +460,7 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 		/* sanity check: we only handle Constructed Universal Sequences */
 		if( (class!=BER_CLASS_UNI) 
 		  ||((tag<BER_UNI_TAG_NumericString)&&(tag!=BER_UNI_TAG_OCTETSTRING)&&(tag!=BER_UNI_TAG_UTF8String)) ){
+		    tvb_ensure_bytes_exist(tvb, offset-2, 2);
 	    	    proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: OctetString expected but Class:%d PC:%d Tag:%d was unexpected", class, pc, tag);
 			if(out_tvb)
 				*out_tvb=NULL;
@@ -698,6 +699,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n",name);
 		if ((!pc)
 		||(!implicit_tag&&((class!=BER_CLASS_UNI)
 							||(tag!=BER_UNI_TAG_SEQUENCE)))) {
+			tvb_ensure_bytes_exist(tvb, offset-2, 2);
 			proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: Sequence expected but Class:%d(%s) PC:%d Tag:%d was unexpected", class,val_to_str(class,ber_class_codes,"Unknown"), pc, tag);
 			return end_offset;
 		}
@@ -1075,6 +1077,7 @@ dissect_ber_GeneralString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 	/* sanity check: we only handle Universal GeneralString*/
 	if( (class!=BER_CLASS_UNI)
 	  ||(tag!=BER_UNI_TAG_GENSTR) ){
+		tvb_ensure_bytes_exist(tvb, offset-2, 2);
 	        proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: GeneralString expected but Class:%d PC:%d Tag:%d was unexpected", class, pc, tag);
 		return end_offset;
 	}
@@ -1128,6 +1131,7 @@ printf("RESTRICTED STRING dissect_ber_octet_string(%s) entered\n",name);
 		/* sanity check */
 		if( (class!=BER_CLASS_UNI)
 		  ||(tag != type) ){
+	            tvb_ensure_bytes_exist(tvb, offset-2, 2);
 	    	    proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: String with tag=%d expected but Class:%d PC:%d Tag:%d was unexpected", type, class, pc, tag);
 			return eoffset;
 		}
@@ -1198,6 +1202,7 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
 		eoffset = offset + len;
 		if( (class!=BER_CLASS_UNI)
 		  ||(tag != BER_UNI_TAG_OID) ){
+	            tvb_ensure_bytes_exist(tvb, offset-2, 2);
 	    	    proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: Object Identifier expected but Class:%d PC:%d Tag:%d was unexpected", class, pc, tag);
 			return eoffset;
 		}
@@ -1295,6 +1300,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 		if (!pc
 			||(!implicit_tag&&((class!=BER_CLASS_UNI)
 							||(tag!=type)))) {
+			tvb_ensure_bytes_exist(tvb, offset-2, 2);
 			proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: %s Of expected but Class:%d PC:%d Tag:%d was unexpected", 
 							(type==BER_UNI_TAG_SEQUENCE)?"Set":"Sequence", class, pc, tag);
 			return end_offset;
@@ -1404,6 +1410,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 
 	/* if we didnt end up at exactly offset, then we ate too many bytes */
 	if (offset != end_offset) {
+		tvb_ensure_bytes_exist(tvb, offset-2, 2);
 		proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: %s Of ate %d too many bytes", 
 							(type==BER_UNI_TAG_SEQUENCE)?"Set":"Sequence", offset-end_offset);
 	}
@@ -1438,6 +1445,7 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, packet_info *pinfo, proto_tre
 	  /* sanity check. we only handle universal/generalized time */
 	  if( (class!=BER_CLASS_UNI)
 	  ||(tag!=BER_UNI_TAG_GeneralizedTime)){
+		tvb_ensure_bytes_exist(tvb, offset-2, 2);
 	        proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: GeneralizedTime expected but Class:%d PC:%d Tag:%d was unexpected", class, pc, tag);
 		return end_offset;
 		end_offset=offset+len;
@@ -1487,6 +1495,7 @@ int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree 
 	  if (!implicit_tag) {
 		if( (class!=BER_CLASS_UNI)
 		  ||(tag!=BER_UNI_TAG_BITSTRING) ){
+		    tvb_ensure_bytes_exist(tvb, offset-2, 2);
 	    	    proto_tree_add_text(parent_tree, tvb, offset-2, 2, "BER Error: BitString expected but Class:%d PC:%d Tag:%d was unexpected", class, pc, tag);
 			return end_offset;
 		}
