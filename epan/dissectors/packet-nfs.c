@@ -686,14 +686,15 @@ nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, i
 		nns->parent=NULL;
 	}
 
-	nns->name_len=name_len;
 	if(name){
-		nns->name=name;
+		nns->name_len=strlen(name);
+		nns->name=g_strdup(name);
 	} else {
+		nns->name_len=name_len;
 		nns->name=g_malloc(name_len+1);
 		memcpy(nns->name, ptr, name_len);
 	}
-	nns->name[name_len]=0;
+	nns->name[nns->name_len]=0;
 
 	nns->full_name_len=0;
 	nns->full_name=NULL;
@@ -3207,11 +3208,12 @@ dissect_nfs_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if((!pinfo->fd->flags.visited) && nfs_file_name_snooping){
 		rpc_call_info_value *civ=pinfo->private_data;
 
-		/* NFS v3 LOOKUP, CREATE, MKDIR calls might give us a mapping*/
+		/* NFS v3 LOOKUP, CREATE, MKDIR, READDIRPLUS 
+			calls might give us a mapping*/
 		if( (civ->prog==100003)
 		  &&(civ->vers==3)
 		  &&(!civ->request)
-		  &&((civ->proc==3)||(civ->proc==8)||(civ->proc==9))
+		  &&((civ->proc==3)||(civ->proc==8)||(civ->proc==9)||(civ->proc==17))
 		) {
 			fh_length=tvb_get_ntohl(tvb, offset);
 			fh_offset=offset+4;
@@ -5009,7 +5011,12 @@ dissect_entryplus3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_item* entry_item = NULL;
 	proto_tree* entry_tree = NULL;
 	int old_offset = offset;
-	char *name=NULL;
+	static char *name=NULL;
+
+	if(name){
+		g_free(name);
+		name=NULL;
+	}
 
 	if (tree) {
 		entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry, tvb,
@@ -5022,19 +5029,35 @@ dissect_entryplus3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_filename3(tvb, offset, entry_tree,
 		hf_nfs_readdirplus_entry_name, &name);
+
+	/* are we snooping fh to filenames ?*/
+	if((!pinfo->fd->flags.visited) && nfs_file_name_snooping){
+		rpc_call_info_value *civ=pinfo->private_data;
+		/* v3 READDIRPLUS replies will give us a mapping */
+		if( (civ->prog==100003)
+		  &&(civ->vers==3)
+		  &&(!civ->request)
+		  &&((civ->proc==17))
+		) {
+			nfs_name_snoop_add_name(civ->xid, tvb, 0, 0, 
+				0/*parent offset*/, 0/*parent len*/, 
+				name);
+		}
+	}
+
 	if (entry_item)
 		proto_item_set_text(entry_item, "Entry: name %s", name);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO," %s", name);
 	}
-	g_free(name);
 
 	offset = dissect_rpc_uint64(tvb, entry_tree, hf_nfs_readdirplus_entry_cookie,
 		offset);
 
 	offset = dissect_nfs_post_op_attr(tvb, offset, entry_tree,
 		"name_attributes");
+
 	offset = dissect_post_op_fh3(tvb, offset, pinfo, entry_tree, "name_handle");
 
 	/* now we know, that a readdirplus entry is shorter */
