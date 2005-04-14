@@ -197,7 +197,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (flags_and_ver & GH_B_K) {
-    if (is_ppp) {
+    if (is_ppp && type!=ETHERTYPE_CDMA2000_A10_UBS) {
       if (tree) {
 	proto_tree_add_text(gre_tree, tvb, offset, 2,
 			    "Payload length: %u", tvb_get_ntohs(tvb, offset));
