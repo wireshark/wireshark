@@ -1,6 +1,7 @@
 /* packet-bacnet.c
  * Routines for BACnet (NPDU) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
+ * Enhanced by Steve Karg, 2005, <skarg@users.sourceforge.net>
  *
  * $Id$
  *
@@ -148,10 +149,12 @@ static int hf_bacnet_control_prio_low = -1;
 static int hf_bacnet_dnet = -1;
 static int hf_bacnet_dlen = -1;
 static int hf_bacnet_dadr_eth = -1;
+static int hf_bacnet_dadr_mstp = -1;
 static int hf_bacnet_dadr_tmp = -1;
 static int hf_bacnet_snet = -1;
 static int hf_bacnet_slen = -1;
 static int hf_bacnet_sadr_eth = -1;
+static int hf_bacnet_sadr_mstp = -1;
 static int hf_bacnet_sadr_tmp = -1;
 static int hf_bacnet_hopc = -1;
 static int hf_bacnet_mesgtyp = -1;
@@ -258,6 +261,15 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				hf_bacnet_dadr_eth, tvb, offset,
 				bacnet_dlen, FALSE);
 			offset += bacnet_dlen;
+		} else if (bacnet_dlen==1) {
+			proto_tree_add_uint(bacnet_tree, hf_bacnet_dlen,
+				tvb, offset, 1, bacnet_dlen);
+			offset ++;
+			/* MS/TP or ARCNET MAC */
+			proto_tree_add_item(bacnet_tree,
+				hf_bacnet_dadr_mstp, tvb, offset,
+				bacnet_dlen, FALSE);
+			offset += bacnet_dlen;
 		} else if (bacnet_dlen<7) {
 			proto_tree_add_uint(bacnet_tree, hf_bacnet_dlen,
 				tvb, offset, 1, bacnet_dlen);
@@ -296,7 +308,17 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				hf_bacnet_sadr_eth, tvb, offset,
 				bacnet_slen, FALSE);
 			offset += bacnet_slen;
-		} else if (bacnet_slen<6) { /* LON,ARCNET,MS/TP MAC */
+		} else if (bacnet_slen==1) {
+			/* SLEN */
+			 proto_tree_add_uint(bacnet_tree, hf_bacnet_slen,
+				tvb, offset, 1, bacnet_slen);
+			offset ++;
+			/* MS/TP or ARCNET MAC */
+			proto_tree_add_item(bacnet_tree,
+				hf_bacnet_sadr_mstp, tvb, offset,
+				bacnet_slen, FALSE);
+			offset += bacnet_slen;
+		} else if (bacnet_slen<6) { /* LON MAC */
 			/* SLEN */
 			 proto_tree_add_uint(bacnet_tree, hf_bacnet_slen,
 				tvb, offset, 1, bacnet_slen);
@@ -480,7 +502,7 @@ proto_register_bacnet(void)
 		},
 		{ &hf_bacnet_dnet,
 			{ "Destination Network Address", "bacnet.dnet",
-			FT_UINT16, BASE_HEX, NULL, 0,
+			FT_UINT16, BASE_DEC, NULL, 0,
 			"Destination Network Address", HFILL }
 		},
 		{ &hf_bacnet_dlen,
@@ -493,6 +515,11 @@ proto_register_bacnet(void)
 			FT_ETHER, BASE_HEX, NULL, 0,
 			"Destination ISO 8802-3 MAC Address", HFILL }
 		},
+		{ &hf_bacnet_dadr_mstp,
+			{ "DADR", "bacnet.dadr_mstp",
+			FT_UINT8, BASE_DEC, NULL, 0,
+			"Destination MS/TP or ARCNET MAC Address", HFILL }
+		},
 		{ &hf_bacnet_dadr_tmp,
 			{ "Unknown Destination MAC", "bacnet.dadr_tmp",
 			FT_BYTES, BASE_HEX, NULL, 0,
@@ -500,7 +527,7 @@ proto_register_bacnet(void)
 		},
 		{ &hf_bacnet_snet,
 			{ "Source Network Address", "bacnet.snet",
-			FT_UINT16, BASE_HEX, NULL, 0,
+			FT_UINT16, BASE_DEC, NULL, 0,
 			"Source Network Address", HFILL }
 		},
 		{ &hf_bacnet_slen,
@@ -512,6 +539,11 @@ proto_register_bacnet(void)
 			{ "SADR", "bacnet.sadr_eth",
 			FT_ETHER, BASE_HEX, NULL, 0,
 			"Source ISO 8802-3 MAC Address", HFILL }
+		},
+		{ &hf_bacnet_sadr_mstp,
+			{ "SADR", "bacnet.sadr_mstp",
+			FT_UINT8, BASE_DEC, NULL, 0,
+			"Source MS/TP or ARCNET MAC Address", HFILL }
 		},
 		{ &hf_bacnet_sadr_tmp,
 			{ "Unknown Source MAC", "bacnet.sadr_tmp",
@@ -530,7 +562,7 @@ proto_register_bacnet(void)
 		},
 		{ &hf_bacnet_vendor,
 			{ "Vendor ID", "bacnet.vendor",
-			FT_UINT16, BASE_HEX, NULL, 0,
+			FT_UINT16, BASE_DEC, NULL, 0,
 			"Vendor ID", HFILL }
 		},
 		{ &hf_bacnet_perf,

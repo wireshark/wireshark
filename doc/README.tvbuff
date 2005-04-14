@@ -96,7 +96,7 @@ the usage count on the tvbuff (tvb_increment_usage_count()). But
 in all normal cases you really want to take advantage of the default
 behavior.
 
-Even though the definition of tvbuff is in tvbuff.h, you sholud treat a tvbuff
+Even though the definition of tvbuff is in tvbuff.h, you should treat a tvbuff
 as an opaque structure. You should not access its members directly.  You must
 use one of the provided accessor methods to retrieve data from the tvbuff. All
 accessors will throw an exception if an attempt is made to read beyond the
