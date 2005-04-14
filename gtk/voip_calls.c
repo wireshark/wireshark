@@ -80,7 +80,20 @@ char *voip_protocol_name[4]={
 	"MGCP"
 	};
 
+typedef struct {
+	gchar *frame_label;
+	gchar *comment;
+} graph_str;
 
+#define H245_MAX 6
+
+typedef struct {
+	guint32	frame_num;
+	gint8 labels_count;
+	graph_str labels[H245_MAX];
+} h245_labels_t;
+
+static h245_labels_t h245_labels = {0, 0};
 
 /****************************************************************************/
 /* the one and only global voip_calls_tapinfo_t structure */
@@ -230,6 +243,42 @@ int append_to_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 frame_num, 
 
 			if (new_comment != NULL){
 				gai->comment = g_strdup_printf("%s %s", gai->comment, new_comment);
+				g_free(tmp_str2);
+			}
+			break;
+		}
+		list = g_list_next (list);
+	}
+	if (tmp_str == NULL) return 0;		/* it is not in the list */
+	return 1;
+
+}
+
+/****************************************************************************/
+/* Change the frame_label and comment in a graph item if not NULL*/
+/* return 0 if the frame_num is not in the graph list */
+int change_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 frame_num, const gchar *new_frame_label, const gchar *new_comment)
+{
+	graph_analysis_item_t *gai;
+	GList* list;
+	gchar *tmp_str = NULL;
+	gchar *tmp_str2 = NULL;
+
+	list = g_list_first(tapinfo->graph_analysis->list);
+	while (list)
+	{
+		gai = list->data;
+		if (gai->frame_num == frame_num){
+			tmp_str = gai->frame_label;
+			tmp_str2 = gai->comment;
+
+			if (new_frame_label != NULL){
+				gai->frame_label = g_strdup(new_frame_label);
+				g_free(tmp_str);
+			}
+
+			if (new_comment != NULL){
+				gai->comment = g_strdup(new_comment);
 				g_free(tmp_str2);
 			}
 			break;
@@ -548,6 +597,10 @@ remove_tap_listener_rtp(void)
 }
 
 /****************************************************************************/
+static gchar *sdp_summary = NULL;
+static guint32 sdp_frame_num = 0;
+
+/****************************************************************************/
 /* ***************************TAP for SIP **********************************/
 /****************************************************************************/
 
@@ -683,6 +736,13 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		g_free(frame_label);
 		g_free((void *)tmp_src.data);
 		g_free((void *)tmp_dst.data);
+
+		/* add SDP info if apply */
+		if ( (sdp_summary != NULL) && (sdp_frame_num == pinfo->fd->num) ){
+				append_to_frame_graph(tapinfo, pinfo->fd->num, sdp_summary, NULL);
+				g_free(sdp_summary);
+				sdp_summary = NULL;
+		}
 	}
 	return 1;  /* refresh output */
 }
@@ -1038,6 +1098,10 @@ remove_tap_listener_mtp3_calls(void)
 /****************************************************************************/
 /* ***************************TAP for Q931 **********************************/
 /****************************************************************************/
+void h245_add_to_graph(guint32 new_frame_num);
+#define GUID_LEN	16
+static const guint8 guid_allzero[GUID_LEN] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+/* defines specific H323 data */
 
 static gchar *q931_calling_number;
 static gchar *q931_called_number;
@@ -1045,12 +1109,24 @@ static guint8 q931_cause_value;
 static gint32 q931_crv;
 static guint32 q931_frame_num;
 
+static guint32 h225_frame_num = 0;
+static guint16 h225_call_num = 0;
+static h225_cs_type h225_cstype = H225_OTHER;
+static gboolean h225_is_faststart;
+
 /****************************************************************************/
 /* whenever a q931_ packet is seen by the tap listener */
 static int 
 q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *q931_info _U_)
 {
-	/*voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct; */
+	GList *list,*list2;
+	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct; 
+	h323_calls_info_t *tmp_h323info,*tmp2_h323info;
+	voip_calls_info_t *tmp_listinfo;
+	voip_calls_info_t *strinfo = NULL;
+	h245_address_t *h245_add = NULL;
+	gchar *comment;
+
 	const q931_packet_info *pi = q931_info;
 
 	/* free previously allocated q931_calling/ed_number */
@@ -1070,6 +1146,128 @@ q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 	q931_frame_num = pinfo->fd->num;
 	q931_crv = pi->crv;
 
+
+	/* add staff to H323 calls */
+	if (h225_frame_num == q931_frame_num) {
+		list = g_list_first(tapinfo->strinfo_list);
+		while (list)
+		{
+			tmp_listinfo=list->data;
+			if ( (tmp_listinfo->protocol == VOIP_H323) && (tmp_listinfo->call_num == h225_call_num) ){
+				tmp_h323info = tmp_listinfo->prot_info;
+				strinfo = (voip_calls_info_t*)(list->data);
+
+				/* Add the CRV to the h323 call */
+				if (tmp_h323info->q931_crv == -1) {
+					tmp_h323info->q931_crv = q931_crv;
+				} else if (tmp_h323info->q931_crv != q931_crv) {
+					tmp_h323info->q931_crv2 = q931_crv;
+				}
+				break;
+			}
+			list = g_list_next (list);
+		}
+
+		if (strinfo != NULL) {
+			comment = NULL;
+			if (h225_cstype == H225_SETUP) {
+				/* set te calling and called number from the Q931 packet */
+				if (q931_calling_number != NULL){
+					g_free(strinfo->from_identity);
+					strinfo->from_identity=g_strdup(q931_calling_number);
+				}
+				if (q931_called_number != NULL){
+					g_free(strinfo->to_identity);
+					strinfo->to_identity=g_strdup(q931_called_number);
+				}
+
+				/* check if there is an LRQ/LCF that match this Setup */
+				/* TODO: we are just checking the DialedNumer in LRQ/LCF agains the Setup 
+					we should also check if the h225 signaling IP and port match the destination 
+					Setup ip and port */
+				list = g_list_first(tapinfo->strinfo_list);
+				while (list)
+				{
+					tmp_listinfo=list->data;
+					if (tmp_listinfo->protocol == VOIP_H323){
+						tmp2_h323info = tmp_listinfo->prot_info;
+						
+						/* check if the called number match a LRQ/LCF */
+						if ( (strcmp(strinfo->to_identity, tmp_listinfo->to_identity)==0)  
+							 && (memcmp(tmp2_h323info->guid, guid_allzero, GUID_LEN) == 0) ){ 
+							/* change the call graph to the LRQ/LCF to belong to this call */
+							strinfo->npackets += change_call_num_graph(tapinfo, tmp_listinfo->call_num, strinfo->call_num);
+							
+							/* remove this LRQ/LCF call entry because we have found the Setup that match them */
+							g_free(tmp_listinfo->from_identity);
+							g_free(tmp_listinfo->to_identity);
+							g_free(tmp2_h323info->guid);
+							
+							list2 = g_list_first(tmp2_h323info->h245_list);
+							while (list2)
+							{
+								h245_add=list2->data;
+								g_free((void *)h245_add->h245_address.data);
+								g_free(list2->data);
+								list2 = g_list_next(list2);
+							}
+							g_list_free(tmp_h323info->h245_list);
+							tmp_h323info->h245_list = NULL;
+							g_free(tmp_listinfo->prot_info);
+							tapinfo->strinfo_list = g_list_remove(tapinfo->strinfo_list, tmp_listinfo);
+							break;
+						}
+					}
+			        list = g_list_next (list);
+				}
+
+				comment = g_strdup_printf("H225 From: %s To:%s  TunnH245:%s FS:%s", strinfo->from_identity, strinfo->to_identity, (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"), 
+							  (h225_is_faststart==TRUE?"on":"off"));
+			} else if (h225_cstype == H225_RELEASE_COMPLET) {
+				/* get the Q931 Release cause code */
+				if (q931_cause_value != 0xFF){		
+					comment = g_strdup_printf("H225 Q931 Rel Cause (%i):%s", q931_cause_value, val_to_str(q931_cause_value, q931_cause_code_vals, "<unknown>"));
+				} else { /* Cause not set */
+					comment = g_strdup("H225 No Q931 Rel Cause");
+				}
+			}
+			/* change the graph comment for this new one */
+			if (comment != NULL) {
+				change_frame_graph(tapinfo, h225_frame_num, NULL, comment);
+				g_free(comment);
+			}
+		}
+		/* we reset the h225_frame_num to 0 because there could be empty h225 in the same frame
+		   as non empty h225 (e.g connect), so we don't have to be here twice */
+		h225_frame_num = 0;
+	} else if (h245_labels.frame_num == q931_frame_num) {
+	/* there are empty H225 frames that don't have guid (guaid=0) but they have h245 info, 
+	   so the only way to match those frames is with the Q931 CRV number */ 
+		list = g_list_first(tapinfo->strinfo_list);
+		while (list)
+		{
+			tmp_listinfo=list->data;
+			if (tmp_listinfo->protocol == VOIP_H323){
+				tmp_h323info = tmp_listinfo->prot_info;
+				if ( ((tmp_h323info->q931_crv == q931_crv) || (tmp_h323info->q931_crv2 == q931_crv)) && (q931_crv!=-1)){
+
+					comment = g_strdup("");
+
+					/* if the frame number exists in graph, append to it*/
+					if (!append_to_frame_graph(tapinfo, q931_frame_num, "", comment)) {
+						/* if not exist, add to the graph */
+						add_to_graph(tapinfo, pinfo, "", comment, tmp_listinfo->call_num);
+					}
+					
+					/* Add the H245 info if exists to the Graph */
+					h245_add_to_graph(pinfo->fd->num);
+					g_free(comment);
+					break;
+				}
+			}
+			list = g_list_next (list);
+		}
+	}
 	return 0;
 }
 
@@ -1117,11 +1315,6 @@ remove_tap_listener_q931_calls(void)
 /****************************TAP for H323 ***********************************/
 /****************************************************************************/
 
-#define GUID_LEN	16
-static const guint8 guid_allzero[GUID_LEN] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-/* defines specific H323 data */
-
-
 void add_h245_Address(h323_calls_info_t *h323info,  h245_address_t *h245_address)
 {
 	h323info->h245_list = g_list_append(h323info->h245_list, h245_address);				
@@ -1136,38 +1329,22 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	voip_calls_info_t *tmp_listinfo;
 	voip_calls_info_t *strinfo = NULL;
 	h323_calls_info_t *tmp_h323info = NULL;
-	h323_calls_info_t *tmp2_h323info;
 	gchar *frame_label;
 	gchar *comment;
-	GList *list, *list2;
+	GList *list;
 	address tmp_src, tmp_dst;
 	h245_address_t *h245_add = NULL;
-	guint foo;
 	
 	const h225_packet_info *pi = H225info;
 	
 	/* if not guid and RAS and not LRQ, LCF or LRJ return because did not belong to a call */
-	if ((memcmp(pi->guid, guid_allzero, GUID_LEN) == 0) && (pi->msg_type == H225_RAS) && ((pi->msg_tag < 18) || (pi->msg_tag > 20)))
-		return 0;
+	/* OR, if not guid and is H225 return because doesn't belong to a call */
+	if ((memcmp(pi->guid, guid_allzero, GUID_LEN) == 0))
+		if ( ((pi->msg_type == H225_RAS) && ((pi->msg_tag < 18) || (pi->msg_tag > 20))) || (pi->msg_type != H225_RAS) )
+			return 0;
 	
-	
-	if ( (memcmp(pi->guid, guid_allzero, GUID_LEN) == 0) && (q931_frame_num == pinfo->fd->num) ){
-		/* check wether we already have a call with this Q931 CRV */
-		list = g_list_first(tapinfo->strinfo_list);
-		while (list)
-		{
-			tmp_listinfo=list->data;
-			if (tmp_listinfo->protocol == VOIP_H323){
-				tmp_h323info = tmp_listinfo->prot_info;
-				if ( ((tmp_h323info->q931_crv == q931_crv) || (tmp_h323info->q931_crv2 == q931_crv)) && (q931_crv!=-1)){
-					strinfo = (voip_calls_info_t*)(list->data);
-					break;
-				}
-			}
-			list = g_list_next (list);
-		}
-		if (strinfo==NULL) 	return 0;		
-	} else if ( (pi->msg_type == H225_RAS) && ((pi->msg_tag == 19) || (pi->msg_tag == 20))) { /* RAS LCF or LRJ*/
+	/* if it is RAS LCF or LRJ*/
+	if ( (pi->msg_type == H225_RAS) && ((pi->msg_tag == 19) || (pi->msg_tag == 20))) { 
 		/* if the LCF/LRJ doesn't match to a LRQ, just return */
 		if (!pi->request_available) return 0;
 		
@@ -1202,6 +1379,9 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		}
 	}
 	
+	h225_cstype = pi->cs_type;
+	h225_is_faststart = pi->is_faststart;
+
 	/* not in the list? then create a new entry */
 	if ((strinfo==NULL)){
 		strinfo = g_malloc(sizeof(voip_calls_info_t));
@@ -1236,6 +1416,9 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 
 	if (strinfo!=NULL){
 
+		h225_frame_num = pinfo->fd->num;
+		h225_call_num = strinfo->call_num;
+
 		/* let's analyze the call state */
 
 		COPY_ADDRESS(&(tmp_src),&(pinfo->src));
@@ -1254,11 +1437,6 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 
 		/* change the status */
 		if (pi->msg_type == H225_CS){
-			if (tmp_h323info->q931_crv == -1) {
-				tmp_h323info->q931_crv = q931_crv;
-			} else if (tmp_h323info->q931_crv != q931_crv) {
-				tmp_h323info->q931_crv2 = q931_crv;
-			}
 
 			/* this is still IPv4 only, because the dissector is */
 			if (pi->is_h245 == TRUE){
@@ -1278,63 +1456,12 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			switch(pi->cs_type){
 			case H225_SETUP:
 				tmp_h323info->is_faststart_Setup = pi->is_faststart;
-				/* set te calling and called number from the Q931 packet */
-				if (q931_frame_num == pinfo->fd->num){
-					if (q931_calling_number != NULL){
-						g_free(strinfo->from_identity);
-						strinfo->from_identity=g_strdup(q931_calling_number);
-					}
-					if (q931_called_number != NULL){
-						g_free(strinfo->to_identity);
-						strinfo->to_identity=g_strdup(q931_called_number);
-					}
-				}
-					/* check if there is an LRQ/LCF that match this Setup */
-					/* TODO: we are just checking the DialedNumer in LRQ/LCF agains the Setup 
-					we should also check if the h225 signaling IP and port match the destination 
-					Setup ip and port */
-					list = g_list_first(tapinfo->strinfo_list);
-				foo=	g_list_length(list);
-				while (list)
-				{
-					tmp_listinfo=list->data;
-					if (tmp_listinfo->protocol == VOIP_H323){
-						tmp2_h323info = tmp_listinfo->prot_info;
-						
-						/* check if there called number match a LRQ/LCF */
-						if ( (strcmp(strinfo->to_identity, tmp_listinfo->to_identity)==0)  
-							 && (memcmp(tmp2_h323info->guid, guid_allzero, GUID_LEN) == 0) ){ 
-							/* change the call graph to the LRQ/LCF to belong to this call */
-							strinfo->npackets += change_call_num_graph(tapinfo, tmp_listinfo->call_num, strinfo->call_num);
-							
-							/* remove this LRQ/LCF call entry because we have found the Setup that match them */
-							g_free(tmp_listinfo->from_identity);
-							g_free(tmp_listinfo->to_identity);
-							g_free(tmp2_h323info->guid);
-							
-							list2 = g_list_first(tmp2_h323info->h245_list);
-							while (list2)
-							{
-								h245_add=list2->data;
-								g_free((void *)h245_add->h245_address.data);
-								g_free(list2->data);
-								list2 = g_list_next(list2);
-							}
-							g_list_free(tmp_h323info->h245_list);
-							tmp_h323info->h245_list = NULL;
-							g_free(tmp_listinfo->prot_info);
-							tapinfo->strinfo_list = g_list_remove(tapinfo->strinfo_list, tmp_listinfo);
-							break;
-						}
-					}
-			        list = g_list_next (list);
-				}
-					foo = g_list_length(list);
+
 				/* Set the Setup address if it was not set */
 				if (tmp_h323info->h225SetupAddr.type == AT_NONE) 
 				  COPY_ADDRESS(&(tmp_h323info->h225SetupAddr), &(pinfo->src));
 					strinfo->call_state=VOIP_CALL_SETUP;
-				comment = g_strdup_printf("H225 From: %s To:%s  TunnH245:%s FS:%s", strinfo->from_identity, strinfo->to_identity, (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"), 
+				comment = g_strdup_printf("H225 TunnH245:%s FS:%s", (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"), 
 										  (pi->is_faststart==TRUE?"on":"off"));
 				break;
 			case H225_CONNECT:
@@ -1357,13 +1484,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 						strinfo->call_state=VOIP_COMPLETED;
 						tapinfo->completed_calls++;
 				}
-				/* get the Q931 Release cause code */
-				if (q931_frame_num == pinfo->fd->num &&
-					q931_cause_value != 0xFF){		
-					comment = g_strdup_printf("H225 Q931 Rel Cause (%i):%s", q931_cause_value, val_to_str(q931_cause_value, q931_cause_code_vals, "<unknown>"));
-				} else {			/* Cause not set */
-					comment = g_strdup("H225 No Q931 Rel Cause");
-				}
+				comment = g_strdup("H225 No Q931 Rel Cause");
 				break;
 			case H225_PROGRESS:
 			case H225_ALERTING:
@@ -1376,8 +1497,8 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 				comment = g_strdup_printf("H225 TunnH245:%s FS:%s", (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"), 
 										  (pi->is_faststart==TRUE?"on":"off"));
 				
-			} /* switch pi->cs_type*/
-		} /* if pi->msg_type == H225_CS */
+			} 
+		} 
 		else if (pi->msg_type == H225_RAS){
 		switch(pi->msg_tag){
 			case 18:  /* LRQ */
@@ -1411,10 +1532,13 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		g_free((void *)tmp_dst.data);
 	}
 
+	/* Add the H245 info if exists to the Graph */
+	h245_add_to_graph(pinfo->fd->num);
+
 	g_free(frame_label);
 	g_free(comment);
 	
-	} /* if strinfo!=NULL */
+	} 
 	
 	return 1;  /* refresh output */
 }
@@ -1466,6 +1590,54 @@ remove_tap_listener_h225_calls(void)
 	have_H225_tap_listener=FALSE;
 }
 
+/* Add the h245 label info to the graph */ 
+void h245_add_to_graph(guint32 new_frame_num)
+{
+	gint8 n;
+	
+	if (new_frame_num != h245_labels.frame_num) return;
+
+	for (n=0; n<h245_labels.labels_count; n++) {
+		append_to_frame_graph(&the_tapinfo_struct, new_frame_num, h245_labels.labels[n].frame_label, h245_labels.labels[n].comment);
+		g_free(h245_labels.labels[n].frame_label);
+		h245_labels.labels[n].frame_label = NULL;
+		g_free(h245_labels.labels[n].comment);
+		h245_labels.labels[n].comment = NULL;
+	}
+	h245_labels.frame_num = 0;
+	h245_labels.labels_count = 0;
+}
+
+/* free the h245_labels if the frame number is different */ 
+void h245_free_labels(guint32 new_frame_num)
+{
+	gint8 n;
+	
+	if (new_frame_num == h245_labels.frame_num) return;
+
+	for (n=0; n<h245_labels.labels_count; n++) {
+		g_free(h245_labels.labels[n].frame_label);
+		h245_labels.labels[n].frame_label = NULL;
+		g_free(h245_labels.labels[n].comment);
+		h245_labels.labels[n].comment = NULL;
+	}
+	h245_labels.frame_num = 0;
+	h245_labels.labels_count = 0;
+}
+
+/* add the frame_label and comment to h245_labels and free the actual one if it is different frame num */ 
+void h245_add_label(guint32 new_frame_num, gchar *frame_label, gchar *comment)
+{
+	h245_free_labels(new_frame_num);
+
+	h245_labels.frame_num = new_frame_num;
+	h245_labels.labels[h245_labels.labels_count].frame_label = g_strdup(frame_label);
+	h245_labels.labels[h245_labels.labels_count].comment = g_strdup(comment);
+
+	if (h245_labels.labels_count < (H245_MAX-1))
+		h245_labels.labels_count++;
+
+}
 
 /****************************************************************************/
 /* whenever a H245dg packet is seen by the tap listener (when H245 tunneling is ON) */
@@ -1485,12 +1657,7 @@ H245dgcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 
 	const h245_packet_info *pi = H245info;
 
-	/* if H245 tunneling is on, append to graph */
-	if (append_to_frame_graph(tapinfo, pinfo->fd->num, pi->frame_label, pi->comment)) return 1;
-
-
-	/* it is not Tunneling or it is not in the list. So check if there is no tunneling
-	   and there is a call with this H245 address */
+	/* check if Tunneling is OFF and we have a call with this H245 add */
 	list = g_list_first(tapinfo->strinfo_list);
 	while (list)
 	{
@@ -1523,12 +1690,23 @@ H245dgcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 		list = g_list_next(list);
 	}
 
+	/* Tunnel is OFF, and we matched the h245 add so we add it to graph */
 	if (strinfo!=NULL){
 		frame_label = g_strdup(pi->frame_label);
 		comment = g_strdup(pi->comment);
-		add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num);
+		/* if the frame number exists in graph, append to it*/
+		if (!append_to_frame_graph(tapinfo, pinfo->fd->num, frame_label, comment)) {
+			/* if not exist, add to the graph */
+			add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num);
+		}
 		g_free(frame_label);
 		g_free(comment);
+	} else { 
+	/* Tunnel is ON, so we save the label info to use it into h225 or q931 tap. OR may be 
+		 tunnel OFF but we did not matched the h245 add, in this case nobady will set this label 
+		 since the frame_num will not match */ 
+	
+		h245_add_label(pinfo->fd->num, (gchar *) pi->frame_label, (gchar *) pi->comment);
 	}
 
 	return 1;  /* refresh output */
@@ -1580,9 +1758,6 @@ remove_tap_listener_h245dg_calls(void)
 	have_H245dg_tap_listener=FALSE;
 }
 
-static gchar *sdp_summary = NULL;
-static guint32 sdp_frame_num = 0;
-
 /****************************************************************************/
 /****************************TAP for SDP PROTOCOL ***************************/
 /****************************************************************************/
@@ -1593,8 +1768,8 @@ SDPcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
 	const sdp_packet_info *pi = SDPinfo;
 
-	/* There are protocols like MGCP where the SDP is called before the tap for the
-	   MGCP packet, in those cases we assign the SPD summary to global lastSDPsummary
+	/* There are protocols like MGCP/SIP where the SDP is called before the tap for the
+	   MGCP/SIP packet, in those cases we assign the SPD summary to global lastSDPsummary
 	   to use it later 
 	*/
 	g_free(sdp_summary);
