@@ -616,24 +616,44 @@ get_runtime_pcap_version(GString *str)
 	 * what version we have.
 	 */
 	GModule *handle;		/* handle returned by dlopen */
-	gchar *packetVer = NULL;
+	static gchar *packetVer;
+	gchar *blankp;
 
 	if (has_wpcap) {
-		/* An alternative method of obtaining the version number */
-		if ((handle = g_module_open("Packet.dll", 0)) != NULL) {
-			if (g_module_symbol(handle, "PacketLibraryVersion",
-			    (gpointer*)&packetVer) == FALSE)
-				packetVer = NULL;
-			g_module_close(handle);
-		}
-
 		g_string_sprintfa(str, "with ");
 		if (p_pcap_lib_version != NULL)
 			g_string_sprintfa(str, p_pcap_lib_version());
-		else if (packetVer != NULL)
+		else {
+			/*
+			 * An alternative method of obtaining the version
+			 * number, by using the PacketLibraryVersion"
+			 * string from packet.dll.
+			 *
+			 * Unfortunately, in WinPcap 3.0, it returns
+			 * "3.0 alpha3", even in the final version of
+			 * WinPcap 3.0, so if there's a blank in the
+			 * string, we strip it and everything after
+			 * it from the string, so we don't misleadingly
+			 * report that 3.0 alpha3 is being used when
+			 * the final version is being used.
+			 */
+			if (packetVer == NULL) {
+				packetVer = "version unknown";
+				handle = g_module_open("Packet.dll", 0);
+				if (handle != NULL) {
+					if (g_module_symbol(handle,
+					    "PacketLibraryVersion",
+					    (gpointer*)&packetVer)) {
+						packetVer = g_strdup(packetVer);
+						blankp = strchr(packetVer, ' ');
+						if (blankp != NULL)
+							*blankp = '\0';
+					}
+					g_module_close(handle);
+				}
+			}
 			g_string_sprintfa(str, "WinPcap (%s)", packetVer);
-		else
-			g_string_append(str, "WinPcap (version unknown)");
+		}
 	} else
 		g_string_append(str, "without WinPcap");
 	g_string_append(str, " ");
