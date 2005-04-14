@@ -480,6 +480,7 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 	} else {
 		/* primitive */
 		if (hf_id != -1) {
+			tvb_ensure_bytes_exist(tvb, offset, len);
 			it = proto_tree_add_item(tree, hf_id, tvb, offset, len, FALSE);
 			ber_last_created_item = it;
 		} else {
