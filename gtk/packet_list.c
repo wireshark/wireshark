@@ -646,8 +646,12 @@ packet_list_resize_columns(void) {
         break;
       }
 
+        /* auto resize the current column */
         eth_clist_set_column_auto_resize(ETH_CLIST(packet_list), i, TRUE);
-        eth_clist_set_column_auto_resize(ETH_CLIST(packet_list), i, FALSE);
+
+        /* the current column should be resizeable by the user again */
+        /* (will turn off auto resize again) */
+        eth_clist_set_column_resizeable(ETH_CLIST(packet_list), i, TRUE);
     }
 
     /* We're done resizing the columns; destroy the progress bar if it
