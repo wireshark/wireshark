@@ -604,8 +604,12 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d len:%d\n",nam
 	ber_last_created_item=NULL;
 
 	if(hf_id!=-1){	
-		/* XXX - what if "len" is not 1, 2, 3, or 4? */
-		ber_last_created_item=proto_tree_add_item(tree, hf_id, tvb, offset-len, len, FALSE);
+		/*  */
+		if (len < 1 || len > 4) {
+			proto_tree_add_text(tree, tvb, offset-len, len, "Can't handle integer length: %u", len);
+		} else {
+			ber_last_created_item=proto_tree_add_item(tree, hf_id, tvb, offset-len, len, FALSE);
+		}
 	}
 	if(value){
 		*value=val;
