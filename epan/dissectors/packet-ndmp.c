@@ -1649,6 +1649,15 @@ dissect_ndmp_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 static int
+dissect_data_connect_msg(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree, guint32 seq _U_)
+{
+	/* ndmp addr */
+	offset=dissect_ndmp_addr(tvb, offset, pinfo, tree);
+}
+
+
+static int
 dissect_mover_get_state_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, guint32 seq)
 {
@@ -2581,7 +2590,7 @@ static const ndmp_command ndmp_commands[] = {
 	{NDMP_DATA_LISTEN,
 		dissect_ndmp_addr_msg, dissect_mover_listen_reply},
 	{NDMP_DATA_CONNECT,
-		dissect_ndmp_addr_msg, dissect_error},
+		dissect_data_connect_msg, dissect_error},
 	{NDMP_NOTIFY_DATA_HALTED,
 		dissect_notify_data_halted_request, NULL},
 	{NDMP_NOTIFY_CONNECTED,
