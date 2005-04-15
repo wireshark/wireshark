@@ -257,19 +257,65 @@ BEGIN
 -- locally refd 5 times, import refd 0 times
 AccessPointName ::=
 
-OCTET STRING (SIZE (1..100))
+OCTET STRING (SIZE (cAPSpecificBoundSetminAccessPointNameLength .. cAPSpecificBoundSetmaxAccessPointNameLength ))
 
 -- AChBillingChargingCharacteristics notes: not recursive, exported,
 -- locally refd 2 times, import refd 0 times
-AChBillingChargingCharacteristics ::=
+AChBillingChargingCharacteristics ::= CHOICE
+{
+    timeDurationCharging [0]   SEQUENCE
+    {
+        maxCallPeriodDuration     [0] INTEGER (1..864000),
+        releaseIfdurationExceeded [1] BOOLEAN               DEFAULT FALSE,
+        tariffSwitchInterval      [2] INTEGER (1..86400)    OPTIONAL,
+        tone                      [3] BOOLEAN               DEFAULT FALSE,
+        extensions                [4] ExtensionsArray       OPTIONAL
+    }
+}
 
-OCTET STRING (SIZE (5..177))
+-- AdditionalCallingPartyNumber notes: not recursive, exported,
+-- locally refd 2 times, import refd 0 times
+AdditionalCallingPartyNumber ::= Digits
 
 -- AlertingPattern notes: not recursive, exported,
 -- locally refd 2 times, import refd 0 times
 AlertingPattern ::=
 
 OCTET STRING (SIZE (3))
+
+
+-- This one Commented out by Javier Acuña (javier.acuna@sixbell.cl)
+-- Because I added a new Errortypes section at the end.
+
+--CancelFailedPARAM ::= SEQUENCE 
+--{
+  --  operation [1] InvokeID
+--}
+
+-- AOCBeforeAnswer notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+
+AOCBeforeAnswer ::= SEQUENCE
+{
+    aOCInitial    [0] CAI-Gsm0224,
+    aOCSubsequent [1] AOCSubsequent OPTIONAL
+}
+
+-- AOCGprs notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+AOCGprs ::= SEQUENCE
+{
+    aOCInitial    [0] CAI-Gsm0224,
+    aOCSubsequent [1] AOCSubsequent OPTIONAL
+}
+
+-- AOCSubsequent notes: not recursive, exported,
+-- locally refd 3 times, import refd 0 times
+AOCSubsequent ::= SEQUENCE
+{
+    cAI-GSM0224          [0] CAI-Gsm0224,
+    tariffSwitchInterval [1] INTEGER (1..86400) OPTIONAL
+}
 
 -- AppendFreeFormatData notes: not recursive, exported,
 -- locally refd 3 times, import refd 0 times
@@ -283,56 +329,199 @@ AppendFreeFormatData ::= ENUMERATED
 -- locally refd 1 times, import refd 0 times
 ApplicationTimer ::= INTEGER (0..2047)
 
+-- AssistingSSPIPRoutingAddress notes: not recursive, exported,
+-- locally refd 2 times, import refd 0 times
+AssistingSSPIPRoutingAddress ::= Digits
+
+-- BackwardServiceInteractionInd notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+BackwardServiceInteractionInd ::=   SEQUENCE
+{
+    conferenceTreatmentIndicator [1]
+
+OCTET STRING (SIZE (1)) OPTIONAL,
+    callCompletionTreatmentIndicator [2]
+
+OCTET STRING (SIZE (1)) OPTIONAL
+}
+
+-- BasicGapCriteria notes: not recursive, exported,
+-- locally refd 2 times, import refd 0 times
+BasicGapCriteria ::= CHOICE
+{
+    calledAddressValue       [0] Digits,
+    gapOnService             [2] GapOnService,
+    calledAddressAndService  [29]   SEQUENCE
+    {
+        calledAddressValue [0] Digits,
+        serviceKey         [1] ServiceKey
+    },
+    callingAddressAndService [30]   SEQUENCE
+    {
+        callingAddressValue [0] Digits,
+        serviceKey          [1] ServiceKey
+    }
+}
+
+-- BCSMEvent notes: not recursive, exported,
+-- locally refd 2 times, import refd 0 times
+BCSMEvent ::= SEQUENCE
+{
+    eventTypeBCSM       [0]  EventTypeBCSM,
+    monitorMode         [1]  MonitorMode,
+    legID               [2]  LegID              OPTIONAL,
+    dpSpecificCriteria  [30] DpSpecificCriteria OPTIONAL
+}
+
+-- BearerCapability notes: not recursive, exported,
+-- locally refd 2 times, import refd 0 times
+BearerCapability ::= CHOICE
+{
+    bearerCap [0]
+
+OCTET STRING (SIZE (2..cAPSpecificBoundSetmaxBearerCapabilityLength ))
+}
+
+-- CAI-Gsm0224 notes: not recursive, exported,
+-- locally refd 3 times, import refd 0 times
+CAI-Gsm0224 ::= SEQUENCE
+{
+    e1 [0] INTEGER (0..8191) OPTIONAL,
+    e2 [1] INTEGER (0..8191) OPTIONAL,
+    e3 [2] INTEGER (0..8191) OPTIONAL,
+    e4 [3] INTEGER (0..8191) OPTIONAL,
+    e5 [4] INTEGER (0..8191) OPTIONAL,
+    e6 [5] INTEGER (0..8191) OPTIONAL,
+    e7 [6] INTEGER (0..8191) OPTIONAL
+}
+
 -- CalledPartyBCDNumber notes: not recursive, exported,
 -- locally refd 4 times, import refd 0 times
 -- See 3GPP TS 29.078
 -- and 3GPP TS 24.008, section 10.5.4.7
-CalledPartyBCDNumber ::=
-
-
-OCTET STRING (SIZE (1..41))
+CalledPartyBCDNumber ::= ISDN-AddressString
 
 -- CalledPartyNumber notes: not recursive, exported,
 -- locally refd 6 times, import refd 0 times
 CalledPartyNumber ::=
   
   
-  OCTET STRING (SIZE (2..18))
+  OCTET STRING (SIZE (cAPSpecificBoundSetminCalledPartyNumberLength ..cAPSpecificBoundSetmaxCalledPartyNumberLength ))
 
 -- CallingPartyNumber notes: not recursive, exported,
 -- locally refd 2 times, import refd 0 times
 CallingPartyNumber ::=
 	
 	
-	OCTET STRING (SIZE (2..10))
+	OCTET STRING (SIZE (cAPSpecificBoundSetminCallingPartyNumberLength ..cAPSpecificBoundSetmaxCallingPartyNumberLength ))
 
 -- CallResult notes: not recursive, exported,
 -- locally refd 2 times, import refd 0 times
-CallResult ::=
+CallResult ::=  CamelCallResult
 
-OCTET STRING (SIZE (cAPSpecificBoundSetminCallResultLength..cAPSpecificBoundSetmaxCallResultLength))
+--OCTET STRING (SIZE (cAPSpecificBoundSetminCallResultLength..cAPSpecificBoundSetmaxCallResultLength))
 -- shall be the result of the BER-encoded value of type
 -- CamelCallResult
 
+-- CAMEL-AChBillingChargingCharacteristics notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+CamelAChBillingChargingCharacteristics ::=  CHOICE
+{
+    timeDurationCharging [0]   SEQUENCE
+    {
+        maxCallPeriodDuration     [0] INTEGER (1..864000),
+        releaseIfdurationExceeded [1] BOOLEAN               DEFAULT FALSE,
+        tariffSwitchInterval      [2] INTEGER (1..86400)    OPTIONAL,
+        tone                      [3] BOOLEAN               DEFAULT FALSE,
+        extensions                [4] ExtensionsArray       OPTIONAL
+    }
+}
 
-CAPGPRSReferenceNumber ::=  SEQUENCE {
-	destinationReference	[0] EXPLICIT Integer4			OPTIONAL,
-	originationReference	[1] EXPLICIT Integer4			OPTIONAL
-	}
+-- CAMEL-CallResult notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+CamelCallResult ::=  CHOICE
+{
+    timeDurationChargingResult [0]   SEQUENCE
+    {
+        partyToCharge           [0] ReceivingSideID,
+        timeInformation         [1] TimeInformation,
+        callActive              [2] BOOLEAN DEFAULT TRUE,
+        callReleasedAtTcpExpiry [3] NULL OPTIONAL,
+        extensions              [4] ExtensionsArray OPTIONAL
+    }
+}
 
+
+-- CAMEL-FCIBillingChargingCharacteristics notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+CamelFCIBillingChargingCharacteristics ::=  CHOICE
+{
+    fCIBCCCAMELsequence1 [0] SEQUENCE
+    {
+        freeFormatData       [0] FreeFormatData,
+        partyToCharge        [1] SendingSideID        DEFAULT '01'H,
+        appendFreeFormatData [2] AppendFreeFormatData DEFAULT overwrite
+    }
+}
+
+
+-- CAMEL-FCIGPRSBillingChargingCharacteristics notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+CamelFCIGPRSBillingChargingCharacteristics ::=
+
+SEQUENCE
+{
+    fCIBCCCAMELsequence1 [0]  SEQUENCE
+    {
+        freeFormatData       [0] FreeFormatData,
+        pDPID                [1] PDPId OPTIONAL,
+        appendFreeFormatData [2] AppendFreeFormatData DEFAULT overwrite
+    }
+}
+
+
+-- CAMEL-FCISMSBillingChargingCharacteristics notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+CamelFCISMSBillingChargingCharacteristics ::=  CHOICE
+{
+    fCIBCCCAMELsequence1 [0] SEQUENCE
+    {
+        freeFormatData       [0] FreeFormatData,
+        appendFreeFormatData [1] AppendFreeFormatData DEFAULT overwrite
+    }
+}
+
+
+-- CAMEL-SCIBillingChargingCharacteristics notes: not recursive, exported,
+-- locally refd 0 times, import refd 0 times
+CamelSCIBillingChargingCharacteristics ::=  CHOICE
+{
+    aOCBeforeAnswer [0] AOCBeforeAnswer,
+    aOCAfterAnswer  [1] AOCSubsequent
+}
+
+-- CAMEL-SCIGPRSBillingChargingCharacteristics notes: not recursive, exported,
+-- locally refd 0 times, import refd 0 times
+CamelSCIGPRSBillingChargingCharacteristics ::=
+
+ SEQUENCE
+{
+    aOCGPRS [0] AOCGprs,
+    pDPID   [1] PDPId   OPTIONAL
+}
 
 -- Carrier notes: not recursive, exported,
 -- locally refd 5 times, import refd 0 times
 Carrier ::=
 
-OCTET STRING (SIZE (4..4))
+OCTET STRING (SIZE (cAPSpecificBoundSetminCarrierLength ..cAPSpecificBoundSetmaxCarrierLength ))
 
 -- Cause notes: not recursive, exported,
 -- locally refd 10 times, import refd 0 times
 Cause ::=
     
     
-    OCTET STRING (SIZE (minCauseLength..32))
+    OCTET STRING (SIZE (minCauseLength..cAPSpecificBoundSetmaxCauseLength))
 
 -- CGEncountered notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
@@ -342,6 +531,59 @@ CGEncountered ::= ENUMERATED
         manualCGencountered (1),
         scpOverload (2)
 }
+
+-- ChargeNumber notes: not recursive, exported,
+-- locally refd 4 times, import refd 0 times
+ChargeNumber ::= LocationNumber
+
+-- ChargingCharacteristics notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+ChargingCharacteristics ::= CHOICE
+{
+    maxTransferredVolume [0] INTEGER (1..2147483647),
+    maxElapsedTime [1] INTEGER (1..86400)
+}
+
+-- ChargingResult notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+ChargingResult ::= CHOICE
+{
+    transferredVolume [0] TransferredVolume,
+    elapsedTime       [1] ElapsedTime
+}
+
+ChargingRollOver ::= CHOICE {
+    transferredVolumeRollOver [0] TransferredVolumeRollOver,
+    elapsedTimeRollOver [1] ElapsedTimeRollOver
+}
+
+-- CollectedDigits notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+CollectedDigits ::= SEQUENCE
+{
+    minimumNbOfDigits   [0] INTEGER (1..30) DEFAULT 1,
+    maximumNbOfDigits   [1] INTEGER (1..30),
+    endOfReplyDigit     [2] 
+                             OCTET STRING (SIZE (1..2)) OPTIONAL,
+    cancelDigit         [3] 
+                             OCTET STRING (SIZE (1..2)) OPTIONAL,
+    startDigit          [4] 
+                             OCTET STRING (SIZE (1..2)) OPTIONAL,
+    firstDigitTimeOut   [5] INTEGER (1..127) OPTIONAL,
+    interDigitTimeOut   [6] INTEGER (1..127) OPTIONAL,
+    errorTreatment      [7] ErrorTreatment DEFAULT stdErrorAndInfo,
+    interruptableAnnInd [8] BOOLEAN DEFAULT TRUE,
+    voiceInformation    [9] BOOLEAN DEFAULT FALSE,
+    voiceBack          [10] BOOLEAN DEFAULT FALSE
+}
+
+-- CollectedInfo notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+CollectedInfo ::= CHOICE
+{
+    collectedDigits [0] CollectedDigits
+}
+
 
 -- ConnectedNumberTreatmentInd notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
@@ -361,22 +603,79 @@ ControlType ::= ENUMERATED
     manuallyInitiated (1)
 }
 
-
-ChargingRollOver ::= CHOICE {
-    transferredVolumeRollOver [0] TransferredVolumeRollOver,
-    elapsedTimeRollOver [1] ElapsedTimeRollOver
+-- CompoundCriteria notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+CompoundCriteria ::= SEQUENCE
+{
+    basicGapCriteria [0] BasicGapCriteria,
+    scfID            [1] ScfID              OPTIONAL
 }
+
+-- CorrelationID notes: not recursive, exported,
+-- locally refd 3 times, import refd 0 times
+CorrelationID ::= Digits
 
 -- DateAndTime notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
 DateAndTime ::= 
                  OCTET STRING (SIZE (7))
 
+-- DestinationRoutingAddress notes: not recursive, exported,
+-- locally refd 2 times, import refd 0 times
+DestinationRoutingAddress ::=
+
+SEQUENCE SIZE (1) OF CalledPartyNumber
+
 -- Digits notes: not recursive, exported,
 -- locally refd 9 times, import refd 0 times
 Digits ::=
 
-OCTET STRING (SIZE (2..16))
+OCTET STRING (SIZE (cAPSpecificBoundSetminDigitsLength ..cAPSpecificBoundSetmaxDigitsLength ))
+
+-- DpSpecificCriteria notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+DpSpecificCriteria ::= CHOICE
+{
+    applicationTimer [1] ApplicationTimer
+}
+
+-- ElapsedTime notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+ElapsedTime ::= CHOICE
+{
+    timeGPRSIfNoTariffSwitch [0] INTEGER (0..86400),
+    timeGPRSIfTariffSwitch   [1] SEQUENCE
+    {
+        timeGPRSSinceLastTariffSwitch [0] INTEGER (0..86400),
+        timeGPRSTariffSwitchInterval  [1] INTEGER (0..86400)  OPTIONAL
+    }
+}
+
+
+ElapsedTimeRollOver ::= CHOICE {
+    rOTimeGPRSIfNoTariffSwitch [0] INTEGER (0..255),
+    rOTimeGPRSIfTariffSwitch   [1] SEQUENCE {
+        rOTimeGPRSSinceLastTariffSwitch [0] INTEGER (0..255) OPTIONAL,
+        rOTimeGPRSTariffSwitchInterval  [1] INTEGER (0..255) OPTIONAL
+    }
+}
+
+-- Indicates the EndUserAddress, refer to 3GPP TS 29.060 for the encoding.
+-- The pDPTypeOrganization shall use the least significant 4 bits of the octet encoded. 
+-- The sender of this parameter shall set the most significant 4 bits of the octet to 1. 
+-- The receiver of this parameter shall ignore the most significant 4 bits of this octet. 
+EndUserAddress ::= SEQUENCE
+{
+    pDPTypeOrganization [0]
+        
+        OCTET STRING (SIZE (1)),
+    pDPTypeNumber [1]
+        
+        OCTET STRING (SIZE (1)),
+    pDPAddress [2]
+        
+        OCTET STRING (SIZE (1..63)) OPTIONAL
+}
 
 -- ErrorTreatment notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
@@ -385,6 +684,68 @@ ErrorTreatment ::= ENUMERATED
     stdErrorAndInfo (0),
         help (1),
         repeatPrompt (2)
+}
+
+-- EventSpecificInformationBCSM notes: not recursive, exported,
+-- locally refd 2 times, import refd 0 times
+EventSpecificInformationBCSM ::= CHOICE
+{
+    routeSelectFailureSpecificInfo [2]   SEQUENCE
+    {
+        failureCause        [0] Cause             OPTIONAL
+    },
+    oCalledPartyBusySpecificInfo [3]   SEQUENCE
+    {
+        busyCause           [0] Cause             OPTIONAL
+    },
+    oNoAnswerSpecificInfo          [4]   SEQUENCE
+    {
+        foo INTEGER(0) OPTIONAL
+    },
+    oAnswerSpecificInfo [5]   SEQUENCE
+    {
+        destinationAddress [50] CalledPartyNumber OPTIONAL,
+        or-Call            [51] NULL              OPTIONAL,
+        forwardedCall      [52] NULL              OPTIONAL
+    },
+    oDisconnectSpecificInfo [7]   SEQUENCE
+    {
+        releaseCause       [0] Cause              OPTIONAL
+    },
+    tBusySpecificInfo [8]   SEQUENCE
+    {
+        busyCause          [0]  Cause             OPTIONAL,
+        callForwarded      [50] NULL              OPTIONAL,
+        routeNotPermitted  [51] NULL              OPTIONAL
+    },
+    tNoAnswerSpecificInfo [9]   SEQUENCE
+    {
+        callForwarded      [50] NULL              OPTIONAL
+    },
+    tAnswerSpecificInfo [10]   SEQUENCE
+    {
+        destinationAddress [50] CalledPartyNumber OPTIONAL,
+        or-Call            [51] NULL              OPTIONAL,
+        forwardedCall      [52] NULL              OPTIONAL
+    },
+    tDisconnectSpecificInfo [12]   SEQUENCE
+    {
+        releaseCause       [0] Cause              OPTIONAL
+    }
+}
+
+-- EventSpecificInformationSMS notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+EventSpecificInformationSMS ::= CHOICE
+{
+    o-smsFailureSpecificInfo [0]   SEQUENCE
+    {
+        failureCause [0] SMSCause OPTIONAL
+    },
+    o-smsSubmittedSpecificInfo [1]   SEQUENCE
+    {
+        foo INTEGER(0) OPTIONAL
+    }
 }
 
 -- EventTypeBCSM notes: not recursive, exported,
@@ -416,25 +777,17 @@ EventTypeSMS ::= ENUMERATED
         o-smsSubmitted (3)
 }
 
--- CriticalityType notes: not recursive, exported,
--- locally refd 2 times, import refd 0 times
-CriticalityType ::= ENUMERATED
-{
-    ignore (0),
-        abort (1)
-}
+Extensions ::=  SEQUENCE SIZE (1..cAPSpecificBoundSetnumOfExtensions) OF ExtensionField
+
 
 -- FCIBillingChargingCharacteristics notes: not recursive, exported,
 -- locally refd 2 times, import refd 0 times
-FCIBillingChargingCharacteristics ::=
-
-OCTET STRING (SIZE (5..225))
+FCIBillingChargingCharacteristics ::= CamelFCIBillingChargingCharacteristics
 
 -- FCIGPRSBillingChargingCharacteristics notes: not recursive, exported,
 -- locally refd 2 times, import refd 0 times
-FCIGPRSBillingChargingCharacteristics ::=
+FCIGPRSBillingChargingCharacteristics ::= CamelFCIGPRSBillingChargingCharacteristics
 
-OCTET STRING (SIZE (5..225))
 -- shall be the result of the BER-encoded value of type
 -- CamelFCIGPRSBillingChargingCharacteristics
 
@@ -442,14 +795,79 @@ OCTET STRING (SIZE (5..225))
 -- locally refd 2 times, import refd 0 times
 FCISMSBillingChargingCharacteristics ::=
 
-OCTET STRING (SIZE (5..225))
+OCTET STRING (SIZE (cAPSpecificBoundSetminFCIBillingChargingLength ..cAPSpecificBoundSetmaxFCIBillingChargingLength ))
+
+-- ForwardServiceInteractionInd notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+ForwardServiceInteractionInd ::=   SEQUENCE
+{
+    conferenceTreatmentIndicator [1]
+        
+        OCTET STRING (SIZE (1)) OPTIONAL,
+    callDiversionTreatmentIndicator [2]
+        
+        OCTET STRING (SIZE (1)) OPTIONAL,
+    callingPartyRestrictionIndicator [4]
+        
+        OCTET STRING (SIZE (1)) OPTIONAL
+}
+
+-- GapCriteria notes: not recursive, exported,
+-- locally refd 2 times, import refd 0 times
+GapCriteria ::= CHOICE
+{
+    basicGapCriteria BasicGapCriteria,
+    compoundGapCriteria CompoundCriteria
+}
+
+
+-- GapIndicators notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+GapIndicators ::=   SEQUENCE
+{
+    duration    [0] Duration,
+    gapInterval [1] Interval
+}
+
+
+
+-- GapOnService notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+GapOnService ::=   SEQUENCE
+{
+    serviceKey [0] ServiceKey
+}
+
+
+-- GapTreatment notes: not recursive, exported,
+-- locally refd 2 times, import refd 0 times
+GapTreatment ::= CHOICE
+{
+    informationToSend [0] InformationToSend,
+    releaseCause [1] Cause
+}
 
 -- GenericNumber notes: not recursive, exported,
 -- locally refd 2 times, import refd 0 times
 GenericNumber ::=
     
     
-    OCTET STRING (SIZE (3..11))
+    OCTET STRING (SIZE (cAPSpecificBoundSetminGenericNumberLength..cAPSpecificBoundSetmaxGenericNumberLength))
+
+-- GenericNumbers notes: not recursive, exported,
+-- locally refd 3 times, import refd 0 times
+GenericNumbers ::=
+
+SET SIZE (1..5) OF GenericNumber
+
+
+-- GPRS-QoS notes: not recursive, exported,
+-- locally refd 3 times, import refd 0 times
+GPRS-QoS ::= CHOICE
+{
+    short-QoS-format [0] QoS-Subscribed,
+    long-QoS-format [1] Ext-QoS-Subscribed
+}
 
 -- GPRSCause notes: not recursive, exported,
 -- locally refd 3 times, import refd 0 times
@@ -457,18 +875,69 @@ GPRSCause ::=
 
 	OCTET STRING (SIZE (1))
 
+
 -- GPRSChargingID notes: not recursive, exported,
 -- locally refd 3 times, import refd 0 times
 GPRSChargingID ::=
 	
 	OCTET STRING (SIZE (4))
 
--- PDPInitiationType notes: not recursive, exported,
--- locally refd 2 times, import refd 0 times
-PDPInitiationType ::= ENUMERATED
+-- GPRSEvent notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+GPRSEvent ::= SEQUENCE
 {
-    mSInitiated      (0),
-    networkInitiated (1)
+    gPRSEventType [0] GPRSEventType,
+    monitorMode   [1] MonitorMode
+}
+
+-- GPRSEventSpecificInformation notes: not recursive, exported,
+-- locally refd 2 times, import refd 0 times
+GPRSEventSpecificInformation ::= CHOICE
+{
+    attachChangeOfPositionSpecificInformation [0]  SEQUENCE
+    {
+        locationInformationGPRS [0] LocationInformationGPRS OPTIONAL
+    },
+    pdp-ContextchangeOfPositionSpecificInformation [1]  SEQUENCE
+    {
+        accessPointName         [0] AccessPointName         OPTIONAL,
+        chargingID              [1] GPRSChargingID          OPTIONAL,
+        locationInformationGPRS [2] LocationInformationGPRS OPTIONAL,
+        pDPType                 [3] PDPType                 OPTIONAL,
+        qualityOfService        [4] QualityOfService        OPTIONAL,
+        timeAndTimeZone         [5] TimeAndTimezone         OPTIONAL,
+        gGSNAddress             [6] GSNAddress              OPTIONAL
+    },
+    detachSpecificInformation [2]  SEQUENCE
+    {
+        inititatingEntity       [0] InitiatingEntity        OPTIONAL,
+        routeingAreaUpdate      [1] NULL                    OPTIONAL
+    },
+    disconnectSpecificInformation [3]  SEQUENCE
+    {
+        inititatingEntity       [0] InitiatingEntity        OPTIONAL,
+        routeingAreaUpdate      [1] NULL                    OPTIONAL
+    },
+    pDPContextEstablishmentSpecificInformation [4]  SEQUENCE
+    {
+        accessPointName         [0] AccessPointName         OPTIONAL,
+        pDPType                 [1] PDPType                 OPTIONAL,
+        qualityOfService        [2] QualityOfService        OPTIONAL,
+        locationInformationGPRS [3] LocationInformationGPRS OPTIONAL,
+        timeAndTimeZone         [4] TimeAndTimezone         OPTIONAL,
+        pDPInitiationType       [5] PDPInitiationType       OPTIONAL,
+        secondaryPDPContext     [6] NULL                    OPTIONAL
+    },
+    pDPContextEstablishmentAcknowledgementSpecificInformation [5] SEQUENCE
+    {
+        accessPointName         [0] AccessPointName         OPTIONAL,
+        chargingID              [1] GPRSChargingID          OPTIONAL,
+        pDPType                 [2] PDPType                 OPTIONAL,
+        qualityOfService        [3] QualityOfService        OPTIONAL,
+        locationInformationGPRS [4] LocationInformationGPRS OPTIONAL,
+        timeAndTimeZone         [5] TimeAndTimezone         OPTIONAL,
+        gGSNAddress             [6] GSNAddress              OPTIONAL
+    }
 }
 
 -- GPRSEventType notes: not recursive, exported,
@@ -484,6 +953,33 @@ GPRSEventType ::= ENUMERATED
         pdp-ContextChangeOfPosition (14)
 }
 
+-- GPRSMSClass notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+GPRSMSClass ::= SEQUENCE
+{
+    mSNetworkCapability     [0] MSNetworkCapability,
+    mSRadioAccessCapability [1] MSRadioAccessCapability OPTIONAL
+}
+
+-- InbandInfo notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+InbandInfo ::=   SEQUENCE
+{
+    messageID           [0] MessageID,
+    numberOfRepetitions [1] INTEGER (1..127)   OPTIONAL,
+    duration            [2] INTEGER (0..32767) OPTIONAL,
+    interval            [3] INTEGER (0..32767) OPTIONAL
+}
+
+
+-- InformationToSend notes: not recursive, exported,
+-- locally refd 3 times, import refd 0 times
+InformationToSend ::= CHOICE
+{
+    inbandInfo [0] InbandInfo,
+    tone [1] Tone
+}
+
 -- InitiatingEntity notes: not recursive, exported,
 -- locally refd 2 times, import refd 0 times
 InitiatingEntity ::= ENUMERATED
@@ -494,12 +990,20 @@ InitiatingEntity ::= ENUMERATED
         ggsn (3)
 }
 
+-- InvokeID notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+InvokeID ::= TCInvokeIdSet
+
+-- IPRoutingAddress notes: not recursive, exported,
+-- locally refd 2 times, import refd 0 times
+IPRoutingAddress ::= CalledPartyNumber
+
 -- IPSSPCapabilities notes: not recursive, exported,
 -- locally refd 3 times, import refd 0 times
 IPSSPCapabilities ::=
 
 
-OCTET STRING (SIZE (1..4))
+OCTET STRING (SIZE (cAPSpecificBoundSetminIPSSPCapabilitiesLength ..cAPSpecificBoundSetmaxIPSSPCapabilitiesLength ))
 
 -- LegType notes: not recursive, exported,
 -- locally refd 6 times, import refd 0 times
@@ -507,12 +1011,48 @@ LegType ::=
 
 OCTET STRING (SIZE (1))
 
+-- LocationInformationGPRS notes: not recursive, exported,
+-- locally refd 6 times, import refd 0 times
+LocationInformationGPRS ::=   SEQUENCE
+{
+    cellGlobalIdOrServiceAreaIdOrLAI [0] CellGlobalIdOrServiceAreaIdOrLAI OPTIONAL,
+    routeingAreaIdentity             [1] RAIdentity                       OPTIONAL,
+    geographicalInformation          [2] GeographicalInformation          OPTIONAL,
+    sgsn-Number                      [3] ISDN-AddressString               OPTIONAL,
+    selectedLSAIdentity              [4] LSAIdentity                      OPTIONAL,
+    extensionContainer               [5] ExtensionContainer               OPTIONAL,
+    saiPresent                       [6] NULL                             OPTIONAL
+}
+
 -- LocationNumber notes: not recursive, exported,
 -- locally refd 4 times, import refd 0 times
 LocationNumber ::=
-    
 	  
-	  OCTET STRING (SIZE (2..10))
+	  OCTET STRING (SIZE (cAPSpecificBoundSetminLocationNumberLength ..cAPSpecificBoundSetmaxLocationNumberLength ))
+
+-- MessageID notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+MessageID ::= CHOICE
+{
+    elementaryMessageID  [0] Integer4,
+    text                 [1] SEQUENCE
+    {
+        messageContent   [0]
+                             
+                             IA5String (SIZE (1..127)),
+        attributes       [1]
+                             
+                             OCTET STRING (SIZE (2..10)) OPTIONAL
+    },
+    elementaryMessageIDs [29]
+                             
+                             SEQUENCE SIZE (1..16) OF Integer4,
+    variableMessage      [30] SEQUENCE
+    {
+        elementaryMessageID [0] Integer4,
+        variableParts       [1] VariablePartsArray
+    }
+}
 
 -- MonitorMode notes: not recursive, exported,
 -- locally refd 3 times, import refd 0 times
@@ -556,7 +1096,7 @@ OCTET STRING (SIZE (1))
 -- locally refd 3 times, import refd 0 times
 OriginalCalledPartyID ::=
 
-OCTET STRING (SIZE (2..10))
+OCTET STRING (SIZE (cAPSpecificBoundSetminOriginalCalledPartyIDLength ..cAPSpecificBoundSetmaxOriginalCalledPartyIDLength ))
 
 -- OCSIApplicable notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
@@ -568,6 +1108,24 @@ PDPId ::=
 
 OCTET STRING (SIZE (1))
 
+-- PDPInitiationType notes: not recursive, exported,
+-- locally refd 2 times, import refd 0 times
+PDPInitiationType ::= ENUMERATED
+{
+    mSInitiated      (0),
+    networkInitiated (1)
+}
+
+-- QualityOfService notes: not recursive, exported,
+-- locally refd 5 times, import refd 0 times
+QualityOfService ::=
+ SEQUENCE
+{
+    requested-QoS  [0] GPRS-QoS OPTIONAL,
+    subscribed-QoS [1] GPRS-QoS OPTIONAL,
+    negotiated-QoS [2] GPRS-QoS OPTIONAL
+}
+
 -- RAIdentity notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
 RAIdentity ::=
@@ -577,11 +1135,39 @@ OCTET STRING (SIZE (6..7))
 -- It shall contain the value part defined in 3GPP TS 29.060 only. I.e. the 3GPP TS 29.060
 -- type identifier octet shall not be included.
 
+-- ReceivingSideID notes: not recursive, exported,
+-- locally refd 3 times, import refd 0 times
+ReceivingSideID ::= CHOICE
+{
+    receivingSideID [1] LegType
+}
+
 -- RedirectingPartyID notes: not recursive, exported,
 -- locally refd 3 times, import refd 0 times
 RedirectingPartyID ::=
 
-OCTET STRING (SIZE (2..10))
+OCTET STRING (SIZE (cAPSpecificBoundSetminRedirectingPartyIDLength ..cAPSpecificBoundSetmaxRedirectingPartyIDLength ))
+
+
+-- RequestedInformationList notes: not recursive, exported,
+-- locally refd 2 times, import refd 0 times
+RequestedInformationList ::=
+
+SEQUENCE SIZE (1..numOfInfoItems) OF RequestedInformation
+
+-- RequestedInformationTypeList notes: not recursive, exported,
+-- locally refd 2 times, import refd 0 times
+RequestedInformationTypeList ::=
+
+SEQUENCE SIZE (1..numOfInfoItems) OF RequestedInformationType
+
+-- RequestedInformation notes: not recursive, exported,
+-- locally refd 2 times, import refd 0 times
+RequestedInformation ::=   SEQUENCE
+{
+    requestedInformationType  [0] RequestedInformationType,
+    requestedInformationValue [1] RequestedInformationValue
+}
 
 -- RequestedInformationType notes: not recursive, exported,
 -- locally refd 2 times, import refd 0 times
@@ -591,6 +1177,16 @@ RequestedInformationType ::= ENUMERATED
         callStopTime (1),
         callConnectedElapsedTime (2),
         releaseCause (30)
+}
+
+-- RequestedInformationValue notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+RequestedInformationValue ::= CHOICE
+{
+    callAttemptElapsedTimeValue [0] INTEGER (0..255),
+    callStopTimeValue [1] DateAndTime,
+    callConnectedElapsedTimeValue [2] Integer4,
+    releaseCauseValue [30] Cause
 }
 
 -- RPCause notes: not recursive, exported,
@@ -603,19 +1199,46 @@ OCTET STRING (SIZE (1))
 -- locally refd 2 times, import refd 0 times
 ScfID ::=
 
-OCTET STRING (SIZE (2..10))
+OCTET STRING (SIZE (cAPSpecificBoundSetminScfIDLength ..cAPSpecificBoundSetmaxScfIDLength ))
 
 -- SCIBillingChargingCharacteristics notes: not recursive, exported,
 -- locally refd 2 times, import refd 0 times
 SCIBillingChargingCharacteristics ::=
 
-OCTET STRING (SIZE (4..124))
+OCTET STRING (SIZE (cAPSpecificBoundSetminSCIBillingChargingLength ..cAPSpecificBoundSetmaxSCIBillingChargingLength ))
 
 -- SCIGPRSBillingChargingCharacteristics notes: not recursive, exported,
 -- locally refd 2 times, import refd 0 times
 SCIGPRSBillingChargingCharacteristics ::=
 
 OCTET STRING (SIZE (4..69))
+
+-- SendingSideID notes: not recursive, exported,
+-- locally refd 4 times, import refd 0 times
+SendingSideID ::= CHOICE
+{
+    sendingSideID [0] LegType
+}
+
+-- ServiceInteractionIndicatorsTwo notes: not recursive, exported,
+-- locally refd 5 times, import refd 0 times
+ServiceInteractionIndicatorsTwo ::=   SEQUENCE
+{
+    forwardServiceInteractionInd  [0]  ForwardServiceInteractionInd  OPTIONAL,
+    backwardServiceInteractionInd [1]  BackwardServiceInteractionInd OPTIONAL,
+    bothwayThroughConnectionInd   [2]  BothwayThroughConnectionInd   OPTIONAL,
+    connectedNumberTreatmentInd   [4]  ConnectedNumberTreatmentInd   OPTIONAL,
+    nonCUGCall                    [13] NULL                          OPTIONAL,
+    holdTreatmentIndicator        [50]
+                                       
+                                       OCTET STRING (SIZE (1))       OPTIONAL,
+    cwTreatmentIndicator          [51]
+                                       
+                                       OCTET STRING (SIZE (1))       OPTIONAL,
+    ectTreatmentIndicator         [52]
+                                       
+                                       OCTET STRING (SIZE (1))       OPTIONAL
+}
 
 -- SGSNCapabilities notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
@@ -635,9 +1258,33 @@ SMSCause ::= ENUMERATED
         releaseFromRadioInterface (4)
 }
 
+-- SMSEvent notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+SMSEvent ::= SEQUENCE
+{
+    eventTypeSMS [0] EventTypeSMS,
+    monitorMode  [1] MonitorMode
+}
+
+-- TimeInformation notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+TimeInformation ::= CHOICE
+{
+    timeIfNoTariffSwitch [0] TimeIfNoTariffSwitch,
+    timeIfTariffSwitch [1] TimeIfTariffSwitch
+}
+
 -- TimeIfNoTariffSwitch notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
 TimeIfNoTariffSwitch ::= INTEGER (0..864000)
+
+-- TimeIfTariffSwitch notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+TimeIfTariffSwitch ::= SEQUENCE
+{
+    timeSinceTariffSwitch [0] INTEGER (0..864000),
+    tariffSwitchInterval  [1] INTEGER (1..864000) OPTIONAL
+}
 
 -- TimerID notes: not recursive, exported,
 -- locally refd 3 times, import refd 0 times
@@ -646,10 +1293,22 @@ TimerID ::= ENUMERATED
     tssf (0)
 }
 
+-- TimerValue notes: not recursive, exported,
+-- locally refd 3 times, import refd 0 times
+TimerValue ::= Integer4
+
 -- TimeAndTimezone notes: not recursive, exported,
 -- locally refd 7 times, import refd 0 times
 TimeAndTimezone ::= 
-                     OCTET STRING (SIZE (8..8))
+                     OCTET STRING (SIZE (cAPSpecificBoundSetminTimeAndTimezoneLength..cAPSpecificBoundSetmaxTimeAndTimezoneLength))
+
+-- Tone notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+Tone ::=   SEQUENCE
+{
+    toneID [0] Integer4,
+    duration [1] Integer4 OPTIONAL
+}
 
 -- TPDataCodingScheme notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
@@ -675,6 +1334,26 @@ TPValidityPeriod ::=
 
 OCTET STRING (SIZE (1..7))
 
+-- TransferredVolume notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+TransferredVolume ::= CHOICE
+{
+    volumeIfNoTariffSwitch [0] INTEGER (0..2147483647),
+    volumeIfTariffSwitch [1] SEQUENCE
+    {
+        volumeSinceLastTariffSwitch [0] INTEGER (0..2147483647),
+        volumeTariffSwitchInterval [1] INTEGER (0..2147483647) OPTIONAL
+    }
+}
+
+TransferredVolumeRollOver ::= CHOICE {
+    rOVolumeIfNoTariffSwitch    [0] INTEGER (0.. 255),
+    rOVolumeIfTariffSwitch      [1] SEQUENCE {
+        rOVolumeSinceLastTariffSwitch   [0] INTEGER (0.. 255) OPTIONAL,
+        rOVolumeTariffSwitchInterval    [1] INTEGER (0.. 255) OPTIONAL
+    }
+}
+
 -- UnavailableNetworkResource notes: not recursive, exported,
 -- locally refd 0 times, import refd 0 times
 UnavailableNetworkResource ::=  ENUMERATED
@@ -684,6 +1363,20 @@ UnavailableNetworkResource ::=  ENUMERATED
     basicCallProcessingException (2),
     resourceStatusFailure        (3),
     endUserFailure               (4)
+}
+
+-- VariablePart notes: not recursive, exported,
+-- locally refd 1 times, import refd 0 times
+VariablePart ::= CHOICE
+{
+    integer [0] Integer4,
+    number  [1] Digits,
+    time    [2] 
+                 OCTET STRING (SIZE (2)),
+    date    [3] 
+                 OCTET STRING (SIZE (4)),
+    price   [4] 
+                 OCTET STRING (SIZE (4))
 }
 
 -- SpecializedResourceReportArg notes: not recursive, exported,
@@ -869,90 +1562,11 @@ TCInvokeIdSet ::= INTEGER (-128..127)
 ExtensionSetextensionId ::= OBJECT IDENTIFIER
 
 
--- BackwardServiceInteractionInd notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-BackwardServiceInteractionInd ::=   SEQUENCE
-{
-    conferenceTreatmentIndicator [1]
-
-OCTET STRING (SIZE (1)) OPTIONAL,
-    callCompletionTreatmentIndicator [2]
-
-OCTET STRING (SIZE (1)) OPTIONAL
-}
-
-
-
--- BearerCapability notes: not recursive, exported,
--- locally refd 2 times, import refd 0 times
-BearerCapability ::= CHOICE
-{
-    bearerCap [0]
-
-OCTET STRING (SIZE (2..11))
-}
-
--- CAI-Gsm0224 notes: not recursive, exported,
--- locally refd 3 times, import refd 0 times
-CAI-Gsm0224 ::= SEQUENCE
-{
-    e1 [0] INTEGER (0..8191) OPTIONAL,
-    e2 [1] INTEGER (0..8191) OPTIONAL,
-    e3 [2] INTEGER (0..8191) OPTIONAL,
-    e4 [3] INTEGER (0..8191) OPTIONAL,
-    e5 [4] INTEGER (0..8191) OPTIONAL,
-    e6 [5] INTEGER (0..8191) OPTIONAL,
-    e7 [6] INTEGER (0..8191) OPTIONAL
-}
-
--- ChargingCharacteristics notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-ChargingCharacteristics ::= CHOICE
-{
-    maxTransferredVolume [0] INTEGER (1..2147483647),
-    maxElapsedTime [1] INTEGER (1..86400)
-}
-
--- ElapsedTime notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-ElapsedTime ::= CHOICE
-{
-    timeGPRSIfNoTariffSwitch [0] INTEGER (0..86400),
-    timeGPRSIfTariffSwitch   [1] SEQUENCE
-    {
-        timeGPRSSinceLastTariffSwitch [0] INTEGER (0..86400),
-        timeGPRSTariffSwitchInterval  [1] INTEGER (0..86400)  OPTIONAL
-    }
-}
-
-
-ElapsedTimeRollOver ::= CHOICE {
-    rOTimeGPRSIfNoTariffSwitch [0] INTEGER (0..255),
-    rOTimeGPRSIfTariffSwitch   [1] SEQUENCE {
-        rOTimeGPRSSinceLastTariffSwitch [0] INTEGER (0..255) OPTIONAL,
-        rOTimeGPRSTariffSwitchInterval  [1] INTEGER (0..255) OPTIONAL
-    }
-}
 
 GSNAddress ::=
 
 
 OCTET STRING (SIZE (5..17))
-
--- ForwardServiceInteractionInd notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-ForwardServiceInteractionInd ::=   SEQUENCE
-{
-    conferenceTreatmentIndicator [1]
-        
-        OCTET STRING (SIZE (1)) OPTIONAL,
-    callDiversionTreatmentIndicator [2]
-        
-        OCTET STRING (SIZE (1)) OPTIONAL,
-    callingPartyRestrictionIndicator [4]
-        
-        OCTET STRING (SIZE (1)) OPTIONAL
-}
 
 
 
@@ -972,33 +1586,6 @@ PDPType ::= SEQUENCE
         OCTET STRING (SIZE (1..63)) OPTIONAL
 }
 
--- TimeIfTariffSwitch notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-TimeIfTariffSwitch ::= SEQUENCE
-{
-    timeSinceTariffSwitch [0] INTEGER (0..864000),
-    tariffSwitchInterval  [1] INTEGER (1..864000) OPTIONAL
-}
-
--- TransferredVolume notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-TransferredVolume ::= CHOICE
-{
-    volumeIfNoTariffSwitch [0] INTEGER (0..2147483647),
-    volumeIfTariffSwitch [1] SEQUENCE
-    {
-        volumeSinceLastTariffSwitch [0] INTEGER (0..2147483647),
-        volumeTariffSwitchInterval [1] INTEGER (0..2147483647) OPTIONAL
-    }
-}
-
-TransferredVolumeRollOver ::= CHOICE {
-    rOVolumeIfNoTariffSwitch    [0] INTEGER (0.. 255),
-    rOVolumeIfTariffSwitch      [1] SEQUENCE {
-        rOVolumeSinceLastTariffSwitch   [0] INTEGER (0.. 255) OPTIONAL,
-        rOVolumeTariffSwitchInterval    [1] INTEGER (0.. 255) OPTIONAL
-    }
-}
 
 
 -- Code notes: not recursive, exported,
@@ -1045,337 +1632,19 @@ PrivateExtension ::= SEQUENCE
     -- FIXME: add to decode this: extType ExtensionSetExtensionType OPTIONAL
 }
 
--- AdditionalCallingPartyNumber notes: not recursive, exported,
--- locally refd 2 times, import refd 0 times
-AdditionalCallingPartyNumber ::= Digits
-
--- AOCSubsequent notes: not recursive, exported,
--- locally refd 3 times, import refd 0 times
-AOCSubsequent ::= SEQUENCE
-{
-    cAI-GSM0224          [0] CAI-Gsm0224,
-    tariffSwitchInterval [1] INTEGER (1..86400) OPTIONAL
-}
-
--- AssistingSSPIPRoutingAddress notes: not recursive, exported,
--- locally refd 2 times, import refd 0 times
-AssistingSSPIPRoutingAddress ::= Digits
-
--- CAMEL-FCIGPRSBillingChargingCharacteristics notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-CamelFCIGPRSBillingChargingCharacteristics ::=
-
-SEQUENCE
-{
-    fCIBCCCAMELsequence1 [0]  SEQUENCE
-    {
-        freeFormatData       [0] FreeFormatData,
-        pDPID                [1] PDPId OPTIONAL,
-        appendFreeFormatData [2] AppendFreeFormatData DEFAULT overwrite
-    }
-}
 
 FreeFormatData ::=
 
 OCTET STRING (SIZE (1..160))
 
 
--- CAMEL-FCISMSBillingChargingCharacteristics notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-CamelFCISMSBillingChargingCharacteristics ::=  CHOICE
-{
-    fCIBCCCAMELsequence1 [0] SEQUENCE
-    {
-        freeFormatData       [0] FreeFormatData,
-        appendFreeFormatData [1] AppendFreeFormatData DEFAULT overwrite
-    }
-}
-
--- ChargeNumber notes: not recursive, exported,
--- locally refd 4 times, import refd 0 times
-ChargeNumber ::= LocationNumber
-
--- ChargingResult notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-ChargingResult ::= CHOICE
-{
-    transferredVolume [0] TransferredVolume,
-    elapsedTime       [1] ElapsedTime
-}
-
--- CollectedDigits notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-CollectedDigits ::= SEQUENCE
-{
-    minimumNbOfDigits   [0] INTEGER (1..30) DEFAULT 1,
-    maximumNbOfDigits   [1] INTEGER (1..30),
-    endOfReplyDigit     [2] 
-                             OCTET STRING (SIZE (1..2)) OPTIONAL,
-    cancelDigit         [3] 
-                             OCTET STRING (SIZE (1..2)) OPTIONAL,
-    startDigit          [4] 
-                             OCTET STRING (SIZE (1..2)) OPTIONAL,
-    firstDigitTimeOut   [5] INTEGER (1..127) OPTIONAL,
-    interDigitTimeOut   [6] INTEGER (1..127) OPTIONAL,
-    errorTreatment      [7] ErrorTreatment DEFAULT stdErrorAndInfo,
-    interruptableAnnInd [8] BOOLEAN DEFAULT TRUE,
-    voiceInformation    [9] BOOLEAN DEFAULT FALSE,
-    voiceBack          [10] BOOLEAN DEFAULT FALSE
-}
 -- The endOfReplyDigit, cancelDigit, and startDigit parameters have been
 -- designated as OCTET STRING, and are to be encoded as BCD, one digit per octet
 -- only, contained in the four least significant bits of each OCTET. The following encoding shall
 -- be applied for the non-decimal characters:
 -- 1011 (*), 1100 (#).
 
--- CollectedInfo notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-CollectedInfo ::= CHOICE
-{
-    collectedDigits [0] CollectedDigits
-}
 
--- CorrelationID notes: not recursive, exported,
--- locally refd 3 times, import refd 0 times
-CorrelationID ::= Digits
-
--- DestinationRoutingAddress notes: not recursive, exported,
--- locally refd 2 times, import refd 0 times
-DestinationRoutingAddress ::=
-
-SEQUENCE SIZE (1) OF CalledPartyNumber
-
--- DpSpecificCriteria notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-DpSpecificCriteria ::= CHOICE
-{
-    applicationTimer [1] ApplicationTimer
-}
-
--- EventSpecificInformationBCSM notes: not recursive, exported,
--- locally refd 2 times, import refd 0 times
-EventSpecificInformationBCSM ::= CHOICE
-{
-    routeSelectFailureSpecificInfo [2]   SEQUENCE
-    {
-        failureCause        [0] Cause             OPTIONAL
-    },
-    oCalledPartyBusySpecificInfo [3]   SEQUENCE
-    {
-        busyCause           [0] Cause             OPTIONAL
-    },
-    oNoAnswerSpecificInfo          [4]   SEQUENCE
-    {
-        foo INTEGER(0) OPTIONAL
-    },
-    oAnswerSpecificInfo [5]   SEQUENCE
-    {
-        destinationAddress [50] CalledPartyNumber OPTIONAL,
-        or-Call            [51] NULL              OPTIONAL,
-        forwardedCall      [52] NULL              OPTIONAL
-    },
-    oDisconnectSpecificInfo [7]   SEQUENCE
-    {
-        releaseCause       [0] Cause              OPTIONAL
-    },
-    tBusySpecificInfo [8]   SEQUENCE
-    {
-        busyCause          [0]  Cause             OPTIONAL,
-        callForwarded      [50] NULL              OPTIONAL,
-        routeNotPermitted  [51] NULL              OPTIONAL
-    },
-    tNoAnswerSpecificInfo [9]   SEQUENCE
-    {
-        callForwarded      [50] NULL              OPTIONAL
-    },
-    tAnswerSpecificInfo [10]   SEQUENCE
-    {
-        destinationAddress [50] CalledPartyNumber OPTIONAL,
-        or-Call            [51] NULL              OPTIONAL,
-        forwardedCall      [52] NULL              OPTIONAL
-    },
-    tDisconnectSpecificInfo [12]   SEQUENCE
-    {
-        releaseCause       [0] Cause              OPTIONAL
-    }
-}
-
--- EventSpecificInformationSMS notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-EventSpecificInformationSMS ::= CHOICE
-{
-    o-smsFailureSpecificInfo [0]   SEQUENCE
-    {
-        failureCause [0] SMSCause OPTIONAL
-    },
-    o-smsSubmittedSpecificInfo [1]   SEQUENCE
-    {
-        foo INTEGER(0) OPTIONAL
-    }
-}
-
--- GapIndicators notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-GapIndicators ::=   SEQUENCE
-{
-    duration    [0] Duration,
-    gapInterval [1] Interval
-}
-
-
-
--- GapOnService notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-GapOnService ::=   SEQUENCE
-{
-    serviceKey [0] ServiceKey
-}
-
-
-
--- GenericNumbers notes: not recursive, exported,
--- locally refd 3 times, import refd 0 times
-GenericNumbers ::=
-
-SET SIZE (1..5) OF GenericNumber
-
--- GPRS-QoS notes: not recursive, exported,
--- locally refd 3 times, import refd 0 times
-GPRS-QoS ::= CHOICE
-{
-    short-QoS-format [0] QoS-Subscribed,
-    long-QoS-format [1] Ext-QoS-Subscribed
-}
-
--- GPRSEvent notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-GPRSEvent ::= SEQUENCE
-{
-    gPRSEventType [0] GPRSEventType,
-    monitorMode   [1] MonitorMode
-}
-
--- GPRSMSClass notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-GPRSMSClass ::= SEQUENCE
-{
-    mSNetworkCapability     [0] MSNetworkCapability,
-    mSRadioAccessCapability [1] MSRadioAccessCapability OPTIONAL
-}
-
--- InvokeID notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-InvokeID ::= TCInvokeIdSet
-
--- IPRoutingAddress notes: not recursive, exported,
--- locally refd 2 times, import refd 0 times
-IPRoutingAddress ::= CalledPartyNumber
-
--- QualityOfService notes: not recursive, exported,
--- locally refd 5 times, import refd 0 times
-QualityOfService ::=
- SEQUENCE
-{
-    requested-QoS  [0] GPRS-QoS OPTIONAL,
-    subscribed-QoS [1] GPRS-QoS OPTIONAL,
-    negotiated-QoS [2] GPRS-QoS OPTIONAL
-}
-
--- ReceivingSideID notes: not recursive, exported,
--- locally refd 3 times, import refd 0 times
-ReceivingSideID ::= CHOICE
-{
-    receivingSideID [1] LegType
-}
-
--- RequestedInformationTypeList notes: not recursive, exported,
--- locally refd 2 times, import refd 0 times
-RequestedInformationTypeList ::=
-
-SEQUENCE SIZE (1..numOfInfoItems) OF RequestedInformationType
-
--- RequestedInformationValue notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-RequestedInformationValue ::= CHOICE
-{
-    callAttemptElapsedTimeValue [0] INTEGER (0..255),
-    callStopTimeValue [1] DateAndTime,
-    callConnectedElapsedTimeValue [2] Integer4,
-    releaseCauseValue [30] Cause
-}
-
--- SendingSideID notes: not recursive, exported,
--- locally refd 4 times, import refd 0 times
-SendingSideID ::= CHOICE
-{
-    sendingSideID [0] LegType
-}
-
--- ServiceInteractionIndicatorsTwo notes: not recursive, exported,
--- locally refd 5 times, import refd 0 times
-ServiceInteractionIndicatorsTwo ::=   SEQUENCE
-{
-    forwardServiceInteractionInd  [0]  ForwardServiceInteractionInd  OPTIONAL,
-    backwardServiceInteractionInd [1]  BackwardServiceInteractionInd OPTIONAL,
-    bothwayThroughConnectionInd   [2]  BothwayThroughConnectionInd   OPTIONAL,
-    connectedNumberTreatmentInd   [4]  ConnectedNumberTreatmentInd   OPTIONAL,
-    nonCUGCall                    [13] NULL                          OPTIONAL,
-    holdTreatmentIndicator        [50]
-                                       
-                                       OCTET STRING (SIZE (1))       OPTIONAL,
-    cwTreatmentIndicator          [51]
-                                       
-                                       OCTET STRING (SIZE (1))       OPTIONAL,
-    ectTreatmentIndicator         [52]
-                                       
-                                       OCTET STRING (SIZE (1))       OPTIONAL
-}
-
-
-
--- SMSEvent notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-SMSEvent ::= SEQUENCE
-{
-    eventTypeSMS [0] EventTypeSMS,
-    monitorMode  [1] MonitorMode
-}
-
--- TimeInformation notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-TimeInformation ::= CHOICE
-{
-    timeIfNoTariffSwitch [0] TimeIfNoTariffSwitch,
-    timeIfTariffSwitch [1] TimeIfTariffSwitch
-}
-
--- TimerValue notes: not recursive, exported,
--- locally refd 3 times, import refd 0 times
-TimerValue ::= Integer4
-
--- Tone notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-Tone ::=   SEQUENCE
-{
-    toneID [0] Integer4,
-    duration [1] Integer4 OPTIONAL
-}
-
-
-
--- VariablePart notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-VariablePart ::= CHOICE
-{
-    integer [0] Integer4,
-    number  [1] Digits,
-    time    [2] 
-                 OCTET STRING (SIZE (2)),
-    date    [3] 
-                 OCTET STRING (SIZE (4)),
-    price   [4] 
-                 OCTET STRING (SIZE (4))
-}
 
 -- ApplyChargingReportArg notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
@@ -1398,10 +1667,8 @@ CHOICE
 
 -- FurnishChargingInformationArg notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
-FurnishChargingInformationArg ::=
+FurnishChargingInformationArg ::= CamelFCIBillingChargingCharacteristics
 
-
-OCTET STRING (SIZE (5..225))
 -- FCIBillingChargingCharacteristics type.
 
 -- ReleaseCallArg notes: not recursive, exported,
@@ -1451,10 +1718,8 @@ EntityReleasedGPRSArg ::=
 
 -- FurnishChargingInformationGPRSArg notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
-FurnishChargingInformationGPRSArg ::=
+FurnishChargingInformationGPRSArg ::= CamelFCIGPRSBillingChargingCharacteristics
 
-
-OCTET STRING (SIZE (5..225))
 -- FCIGPRSBillingChargingCharacteristics type.
 -- Shall be the result of the BER-encoded value of type
 -- CamelFCIGPRSBillingChargingCharacteristics
@@ -1542,113 +1807,9 @@ LegID ::= CHOICE
     receivingSideID [1] LegType
 }
 
--- AOCBeforeAnswer notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-AOCBeforeAnswer ::= SEQUENCE
-{
-    aOCInitial    [0] CAI-Gsm0224,
-    aOCSubsequent [1] AOCSubsequent OPTIONAL
-}
-
--- AOCGprs notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-AOCGprs ::= SEQUENCE
-{
-    aOCInitial    [0] CAI-Gsm0224,
-    aOCSubsequent [1] AOCSubsequent OPTIONAL
-}
-
--- BasicGapCriteria notes: not recursive, exported,
--- locally refd 2 times, import refd 0 times
-BasicGapCriteria ::= CHOICE
-{
-    calledAddressValue       [0] Digits,
-    gapOnService             [2] GapOnService,
-    calledAddressAndService  [29]   SEQUENCE
-    {
-        calledAddressValue [0] Digits,
-        serviceKey         [1] ServiceKey
-    },
-    callingAddressAndService [30]   SEQUENCE
-    {
-        callingAddressValue [0] Digits,
-        serviceKey          [1] ServiceKey
-    }
-}
-
--- BCSMEvent notes: not recursive, exported,
--- locally refd 2 times, import refd 0 times
-BCSMEvent ::= SEQUENCE
-{
-    eventTypeBCSM       [0]  EventTypeBCSM,
-    monitorMode         [1]  MonitorMode,
-    legID               [2]  LegID              OPTIONAL,
-    dpSpecificCriteria  [30] DpSpecificCriteria OPTIONAL
-}
-
--- CAMEL-FCIBillingChargingCharacteristics notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-CamelFCIBillingChargingCharacteristics ::=  CHOICE
-{
-    fCIBCCCAMELsequence1 [0] SEQUENCE
-    {
-        freeFormatData       [0] FreeFormatData,
-        partyToCharge        [1] SendingSideID        DEFAULT '01'H,
-        appendFreeFormatData [2] AppendFreeFormatData DEFAULT overwrite
-    }
-}
-
--- CompoundCriteria notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-CompoundCriteria ::= SEQUENCE
-{
-    basicGapCriteria [0] BasicGapCriteria,
-    scfID            [1] ScfID              OPTIONAL
-}
-
--- GapCriteria notes: not recursive, exported,
--- locally refd 2 times, import refd 0 times
-GapCriteria ::= CHOICE
-{
-    basicGapCriteria BasicGapCriteria,
-    compoundGapCriteria CompoundCriteria
-}
-
--- MessageID notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-MessageID ::= CHOICE
-{
-    elementaryMessageID  [0] Integer4,
-    text                 [1] SEQUENCE
-    {
-        messageContent   [0]
-                             
-                             IA5String (SIZE (1..127)),
-        attributes       [1]
-                             
-                             OCTET STRING (SIZE (2..10)) OPTIONAL
-    },
-    elementaryMessageIDs [29]
-                             
-                             SEQUENCE SIZE (1..16) OF Integer4,
-    variableMessage      [30] SEQUENCE
-    {
-        elementaryMessageID [0] Integer4,
-        variableParts       [1] VariablePartsArray
-    }
-}
 
 VariablePartsArray ::= 
                        SEQUENCE SIZE (1..5) OF VariablePart
-
--- RequestedInformation notes: not recursive, exported,
--- locally refd 2 times, import refd 0 times
-RequestedInformation ::=   SEQUENCE
-{
-    requestedInformationType  [0] RequestedInformationType,
-    requestedInformationValue [1] RequestedInformationValue
-}
-
 
 
 -- InitialDPArgExtension notes: not recursive, exported,
@@ -1660,38 +1821,6 @@ InitialDPArgExtension ::=   SEQUENCE
 
 
 
--- InbandInfo notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-InbandInfo ::=   SEQUENCE
-{
-    messageID           [0] MessageID,
-    numberOfRepetitions [1] INTEGER (1..127)   OPTIONAL,
-    duration            [2] INTEGER (0..32767) OPTIONAL,
-    interval            [3] INTEGER (0..32767) OPTIONAL
-}
-
-
-
--- InformationToSend notes: not recursive, exported,
--- locally refd 3 times, import refd 0 times
-InformationToSend ::= CHOICE
-{
-    inbandInfo [0] InbandInfo,
-    tone [1] Tone
-}
-
--- LocationInformationGPRS notes: not recursive, exported,
--- locally refd 6 times, import refd 0 times
-LocationInformationGPRS ::=   SEQUENCE
-{
-    cellGlobalIdOrServiceAreaIdOrLAI [0] CellGlobalIdOrServiceAreaIdOrLAI OPTIONAL,
-    routeingAreaIdentity             [1] RAIdentity                       OPTIONAL,
-    geographicalInformation          [2] GeographicalInformation          OPTIONAL,
-    sgsn-Number                      [3] ISDN-AddressString               OPTIONAL,
-    selectedLSAIdentity              [4] LSAIdentity                      OPTIONAL,
-    extensionContainer               [5] ExtensionContainer               OPTIONAL,
-    saiPresent                       [6] NULL                             OPTIONAL
-}
 
 CellGlobalIdOrServiceAreaIdOrLAI ::=
 
@@ -1714,12 +1843,6 @@ OCTET STRING (SIZE (5..7))
 -- This coding would disrupt the backward compatibillity, so the cellGlobalIdOrServiceAreaIdOrLAI
 -- parameter is set as an OCTET STRING, as it was in previous implementations.
 
-
--- RequestedInformationList notes: not recursive, exported,
--- locally refd 2 times, import refd 0 times
-RequestedInformationList ::=
-
-SEQUENCE SIZE (1..numOfInfoItems) OF RequestedInformation
 
 -- LocationInformation notes: not recursive, exported,
 -- locally refd 2 times, import refd 0 times
@@ -1744,63 +1867,8 @@ GeodeticInformation ::=
 OCTET STRING (SIZE(10))
 
 
--- GapTreatment notes: not recursive, exported,
--- locally refd 2 times, import refd 0 times
-GapTreatment ::= CHOICE
-{
-    informationToSend [0] InformationToSend,
-    releaseCause [1] Cause
-}
 
--- GPRSEventSpecificInformation notes: not recursive, exported,
--- locally refd 2 times, import refd 0 times
-GPRSEventSpecificInformation ::= CHOICE
-{
-    attachChangeOfPositionSpecificInformation [0]  SEQUENCE
-    {
-        locationInformationGPRS [0] LocationInformationGPRS OPTIONAL
-    },
-    pdp-ContextchangeOfPositionSpecificInformation [1]  SEQUENCE
-    {
-        accessPointName         [0] AccessPointName         OPTIONAL,
-        chargingID              [1] GPRSChargingID          OPTIONAL,
-        locationInformationGPRS [2] LocationInformationGPRS OPTIONAL,
-        pDPType                 [3] PDPType                 OPTIONAL,
-        qualityOfService        [4] QualityOfService        OPTIONAL,
-        timeAndTimeZone         [5] TimeAndTimezone         OPTIONAL,
-        gGSNAddress             [6] GSNAddress              OPTIONAL
-    },
-    detachSpecificInformation [2]  SEQUENCE
-    {
-        inititatingEntity       [0] InitiatingEntity        OPTIONAL,
-        routeingAreaUpdate      [1] NULL                    OPTIONAL
-    },
-    disconnectSpecificInformation [3]  SEQUENCE
-    {
-        inititatingEntity       [0] InitiatingEntity        OPTIONAL,
-        routeingAreaUpdate      [1] NULL                    OPTIONAL
-    },
-    pDPContextEstablishmentSpecificInformation [4]  SEQUENCE
-    {
-        accessPointName         [0] AccessPointName         OPTIONAL,
-        pDPType                 [1] PDPType                 OPTIONAL,
-        qualityOfService        [2] QualityOfService        OPTIONAL,
-        locationInformationGPRS [3] LocationInformationGPRS OPTIONAL,
-        timeAndTimeZone         [4] TimeAndTimezone         OPTIONAL,
-        pDPInitiationType       [5] PDPInitiationType       OPTIONAL,
-        secondaryPDPContext     [6] NULL                    OPTIONAL
-    },
-    pDPContextEstablishmentAcknowledgementSpecificInformation [5] SEQUENCE
-    {
-        accessPointName         [0] AccessPointName         OPTIONAL,
-        chargingID              [1] GPRSChargingID          OPTIONAL,
-        pDPType                 [2] PDPType                 OPTIONAL,
-        qualityOfService        [3] QualityOfService        OPTIONAL,
-        locationInformationGPRS [4] LocationInformationGPRS OPTIONAL,
-        timeAndTimeZone         [5] TimeAndTimezone         OPTIONAL,
-        gGSNAddress             [6] GSNAddress              OPTIONAL
-    }
-}
+
 
 -- EventReportGPRSArg notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
@@ -1995,6 +2063,10 @@ SendChargingInformationArg ::=
 }
 
 
+CAPGPRSReferenceNumber ::=  SEQUENCE {
+	destinationReference	[0] EXPLICIT Integer4			OPTIONAL,
+	originationReference	[1] EXPLICIT Integer4			OPTIONAL
+	}
 
 -- EventReportSMSArg notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
@@ -2038,33 +2110,6 @@ ResetTimerSMSArg ::=
 
 
 
--- CAMEL-AChBillingChargingCharacteristics notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-CamelAChBillingChargingCharacteristics ::=  CHOICE
-{
-    timeDurationCharging [0]   SEQUENCE
-    {
-        maxCallPeriodDuration     [0] INTEGER (1..864000),
-        releaseIfdurationExceeded [1] BOOLEAN               DEFAULT FALSE,
-        tariffSwitchInterval      [2] INTEGER (1..86400)    OPTIONAL,
-        tone                      [3] BOOLEAN               DEFAULT FALSE,
-        extensions                [4] ExtensionsArray       OPTIONAL
-    }
-}
-
--- CAMEL-CallResult notes: not recursive, exported,
--- locally refd 1 times, import refd 0 times
-CamelCallResult ::=  CHOICE
-{
-    timeDurationChargingResult [0]   SEQUENCE
-    {
-        partyToCharge           [0] ReceivingSideID,
-        timeInformation         [1] TimeInformation,
-        callActive              [2] BOOLEAN DEFAULT TRUE,
-        callReleasedAtTcpExpiry [3] NULL OPTIONAL,
-        extensions              [4] ExtensionsArray OPTIONAL
-    }
-}
 
 -- RequestReportBCSMEventArg notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
@@ -2254,25 +2299,6 @@ ExtensionContainer ::=   SEQUENCE
 }
 
 
-
--- CAMEL-SCIBillingChargingCharacteristics notes: not recursive, exported,
--- locally refd 0 times, import refd 0 times
-CamelSCIBillingChargingCharacteristics ::=  CHOICE
-{
-    aOCBeforeAnswer [0] AOCBeforeAnswer,
-    aOCAfterAnswer  [1] AOCSubsequent
-}
-
--- CAMEL-SCIGPRSBillingChargingCharacteristics notes: not recursive, exported,
--- locally refd 0 times, import refd 0 times
-CamelSCIGPRSBillingChargingCharacteristics ::=
-
- SEQUENCE
-{
-    aOCGPRS [0] AOCGprs,
-    pDPID   [1] PDPId   OPTIONAL
-}
-
 -- ReleaseSMSArg notes: not recursive, exported,
 -- locally refd 0 times, import refd 0 times
 ReleaseSMSArg ::=
@@ -2282,14 +2308,19 @@ OCTET STRING (SIZE (1))
 
 -- ApplyChargingGPRSArg notes: not recursive, exported,
 -- locally refd 0 times, import refd 0 times
-ApplyChargingGPRSArg ::=
-
-
-SEQUENCE
+ApplyChargingGPRSArg ::= SEQUENCE
 {
     chargingCharacteristics [0] ChargingCharacteristics,
     tariffSwitchInterval    [1] INTEGER (1..86400)      OPTIONAL,
     pDPID                   [2] PDPId                   OPTIONAL
+}
+	    
+-- CriticalityType notes: not recursive, exported,
+-- locally refd 2 times, import refd 0 times
+CriticalityType ::= ENUMERATED
+{
+    ignore (0),
+        abort (1)
 }
 
 -- ApplyChargingReportGPRSArg notes: not recursive, exported,
@@ -2332,7 +2363,6 @@ ResetTimerGPRSArg ::=
     timerID    [0] TimerID DEFAULT tssf,
     timervalue [1] TimerValue
 }
-
 
 -- #############################
 -- Definition of range constants
@@ -2466,4 +2496,57 @@ cAPSpecificBoundSetnumOfMessageIDs                 INTEGER ::= 16
 
 END
 
+
+-- #############################
+-- CAP ErrorTypes
+-- #############################
+
+
+CAP-errortypes --{ccitt(0) identified-organization(4) etsi(0) mobileDomain(0) umts-network(1) modules(3) cap-errortypes(51) version3(2)}
+-- This module contains the type definitions for the CAP Error Types.
+-- Where a parameter of type CHOICE is tagged with a specific tag value, the tag is automatically 
+-- replaced with an EXPLICIT tag of the same value.
+
+DEFINITIONS IMPLICIT TAGS ::= BEGIN
+
+
+
+-- TYPE DEFINITION FOR CAP ERROR TYPES FOLLOWS
+
+
+--cancelFailed ERROR 			
+--	PARAMETER 	
+CancelFailedPARAM ::= SEQUENCE 
+{
+  problem					[0] ENUMERATED 
+    {
+      unknownOperation		(0),
+      tooLate			(1),
+      operationNotCancellable	(2)
+    },
+  operation			[1] InvokeID
+
+}
+-- The operation failed to be canceled.
+
+
+--requestedInfoError ERROR 	::= {
+--	PARAMETER	 
+RequestedInfoErrorPARAM ::= ENUMERATED 
+{
+  unknownRequestedInfo		(1),
+  requestedInfoNotAvailable	(2)
+}
+-- The requested information cannot be found.
+
+--taskRefused ERROR 			::= {
+--	PARAMETER	
+TaskRefusedPARAM ::= ENUMERATED 
+{
+  generic			(0),
+  unobtainable 			(1),
+  congestion			(2)
+}
+
+END
 

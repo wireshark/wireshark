@@ -62,6 +62,15 @@ static int hf_camel_returnResult = -1;          /* InvokePDU */
 static int hf_camel_returnResult_result = -1;
 static int hf_camel_getPassword = -1;  
 static int hf_camel_currentPassword = -1;  
+static int hf_camel_nature_of_number = -1;
+static int hf_camel_number_plan = -1;
+static int hf_camel_imsi_digits = -1;
+static int hf_camel_addr_extension = -1;
+static int hf_camel_addr_natureOfAddressIndicator = -1;
+static int hf_camel_addr_nature_of_number = -1;
+static int hf_camel_addr_numberingPlanInd = -1;
+static int hf_camel_addr_digits = -1;
+static int hf_camel_cause_indicator = -1;
 #include "packet-camel-hf.c"
 static guint global_tcap_itu_ssn = 0;
 
@@ -73,11 +82,9 @@ static gint ett_camel_ReturnResultPDU = -1;
 static gint ett_camel_ReturnResult_result = -1;
 static gint ett_camel_camelPDU = -1;
 static gint ett_camelisup_parameter = -1;
+static gint ett_camel_addr = -1;
 #include "packet-camel-ett.c"
 
-static int hf_camel_nature_of_number = -1;
-static int hf_camel_number_plan = -1;
-static int hf_camel_cause_indicator = -1;
 
 /* Preference settings default */
 #define MAX_SSN 254
@@ -91,12 +98,11 @@ static int application_context_version;
 
 static int  dissect_invokeCmd(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 
-
 static const true_false_string camel_extension_value = {
   "No Extension",
   "Extension"
 };
-static const value_string camel_nature_of_number_values[] = {
+static const value_string camel_nature_of_addr_indicator_values[] = {
   {   0x00,  "unknown" },
   {   0x01,  "International Number" },
   {   0x02,  "National Significant Number" },
@@ -569,23 +575,27 @@ void proto_register_camel(void) {
       { "returnResult", "camel.returnResult",
         FT_NONE, BASE_NONE, NULL, 0,
         "camelPDU/returnResult", HFILL }},
-#ifdef REMOVED
-    { &hf_camel_extension,
-     { "Extension", "camel.extension",
+    { &hf_camel_imsi_digits,
+      { "Imsi digits", "camel.imsi_digits",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Imsi digits", HFILL }},
+    { &hf_camel_addr_extension,
+     { "Extension", "camel.addr_extension",
         FT_BOOLEAN, 8, TFS(&camel_extension_value), 0x80,
         "Extension", HFILL }},
-    { &hf_camel_nature_of_number,
-      { "Nature of number", "gsm_map.nature_of_number",
-        FT_UINT8, BASE_HEX, VALS(camel_nature_of_number_values), 0x70,
-        "Nature of number", HFILL }},
-    { &hf_camel_number_plan,
-      { "Number plan", "camel.number_plan",
+    { &hf_camel_addr_natureOfAddressIndicator,
+      { "Nature of address", "camel.addr_nature_of_addr",
+        FT_UINT8, BASE_HEX, VALS(camel_nature_of_addr_indicator_values), 0x70,
+        "Nature of address", HFILL }},
+    { &hf_camel_addr_numberingPlanInd,
+      { "Numbering plan indicator", "camel.addr_numbering_plan",
         FT_UINT8, BASE_HEX, VALS(camel_number_plan_values), 0x0f,
-        "Number plan", HFILL }},
-  { &hf_camel_digits,
+        "Numbering plan indicator", HFILL }},
+  { &hf_camel_addr_digits,
       { "Address digits", "camel.address_digits",
         FT_STRING, BASE_NONE, NULL, 0,
         "Address digits", HFILL }},
+#ifdef REMOVED
 #endif
 #include "packet-camel-hfarr.c"
   };
@@ -599,6 +609,7 @@ void proto_register_camel(void) {
     &ett_camel_ReturnResult_result,
     &ett_camel_camelPDU,
     &ett_camelisup_parameter,
+    &ett_camel_addr,
 #include "packet-camel-ettarr.c"
   };
 
