@@ -69,10 +69,14 @@
 #include <epan/packet.h>
 #include "prefs.h"
 #include "packet-bssap.h"
+#include "packet-rtp.h"
+#include "packet-rtcp.h"
 
 static dissector_handle_t uma_tcp_handle = NULL;
 static dissector_handle_t data_handle = NULL;
 static dissector_table_t bssap_pdu_type_table=NULL;
+static dissector_handle_t rtp_handle = NULL;
+static dissector_handle_t rtcp_handle = NULL;
 
 /* Initialize the protocol and registered fields */
 static int proto_uma					= -1;
@@ -224,6 +228,8 @@ static guint gbl_umaTcpPort1 = 14001;
 /* Global variables */
 	guint32		sgw_ipv4_address;
 	guint32		unc_ipv4_address;
+	guint32		rtp_ipv4_address;
+	guint32		rtcp_ipv4_address;
 	guint32		GPRS_user_data_ipv4_address;
 
 /* 
@@ -1655,12 +1661,14 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 */
 		octet = tvb_get_guint8(tvb,ie_offset);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_IP_Address_type, tvb, ie_offset, 1, FALSE);
+		if (ie_len > 4 )
 		ie_offset++;
 		if ( octet == 0x57 ){ /* IPv6 */
 
 		}else{ /* All other values shall be interpreted as Ipv4 address in this version of the protocol.*/
 			tvb_memcpy(tvb, (char *)&unc_ipv4_address, ie_offset, 4);
 			proto_tree_add_ipv4(urr_ie_tree, hf_uma_urr_unc_ipv4, tvb, ie_offset, 4, unc_ipv4_address);
+			rtp_ipv4_address = unc_ipv4_address;
 
 		}
 		break;
@@ -1729,10 +1737,39 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	case 104:		/* RTP UDP port */
 		RTP_UDP_port = tvb_get_ntohs(tvb,ie_offset);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RTP_port, tvb, ie_offset, 2, FALSE);
+		/* TODO find out exactly which element contains IP addr */
+		/* Debug
+		proto_tree_add_text(urr_ie_tree,tvb,ie_offset,ie_len,"IP %u, Port %u Handle %u",
+			rtp_ipv4_address,RTP_UDP_port,rtp_handle);
+			*/
+
+		if((!pinfo->fd->flags.visited) && rtp_ipv4_address!=0 && RTP_UDP_port!=0 && rtp_handle){
+			address src_addr;
+
+			src_addr.type=AT_IPv4;
+			src_addr.len=4;
+			src_addr.data=(char *)&rtp_ipv4_address;
+
+			rtp_add_address(pinfo, &src_addr, RTP_UDP_port, 0, "UMA", pinfo->fd->num, 0);
+			if ((RTP_UDP_port & 0x1) == 0){ /* Even number RTP port RTCP should follow on odd number */
+				RTCP_UDP_port = RTP_UDP_port + 1;
+				rtcp_add_address(pinfo, &src_addr, RTCP_UDP_port, 0, "UMA", pinfo->fd->num);
+			}
+		}
 		break;
 	case 105:		/* RTCP UDP port */
 		RTCP_UDP_port = tvb_get_ntohs(tvb,ie_offset);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RTCP_port, tvb, ie_offset, 2, FALSE);
+		/* TODO find out exactly which element contains IP addr */
+		if((!pinfo->fd->flags.visited) && rtcp_ipv4_address!=0 && RTCP_UDP_port!=0 && rtcp_handle){
+			address src_addr;
+
+			src_addr.type=AT_IPv4;
+			src_addr.len=4;
+			src_addr.data=(char *)&rtcp_ipv4_address;
+
+			rtcp_add_address(pinfo, &src_addr, RTCP_UDP_port, 0, "UMA", pinfo->fd->num);
+		}
 		break;
 	default:
 		proto_tree_add_text(urr_ie_tree,tvb,ie_offset,ie_len,"DATA");
@@ -1834,6 +1871,9 @@ proto_reg_handoff_uma(void)
 	TcpPort1=gbl_umaTcpPort1;
 	dissector_add("tcp.port", gbl_umaTcpPort1, uma_tcp_handle);
 	data_handle = find_dissector("data");
+	rtp_handle = find_dissector("rtp");
+	rtcp_handle = find_dissector("rtcp");
+
 
 }
 
