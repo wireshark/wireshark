@@ -2382,6 +2382,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* now we know, that RPC was shorter */
 	if (rpc_item) {
+		tvb_ensure_bytes_exist(tvb, offset, 0);
 		proto_item_set_end(rpc_item, tvb, offset);
 	}
 
