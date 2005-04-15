@@ -512,17 +512,21 @@ EXTRA_DIST = \
 	image/stock_dialog_info_48.xpm	\
 	image/tethereal.rc.in	\
 	image/text2pcap.rc.in	\
-	image/toolbar/capture_24.xpm	\
-	image/toolbar/cfilter_24.xpm	\
-	image/toolbar/dfilter_24.xpm	\
+	image/toolbar/capture_filter_24.xpm	\
+	image/toolbar/capture_interfaces_24.xpm	\
+	image/toolbar/capture_options_24.xpm	\
+	image/toolbar/capture_restart_24.xpm	\
+	image/toolbar/capture_start_24.xpm	\
+	image/toolbar/capture_stop_24.xpm	\
+	image/toolbar/display_filter_24.xpm	\
 	image/toolbar/stock_add_24.xpm	\
-	image/toolbar/stock_bottom_24.xpm \
+	image/toolbar/stock_bottom_24.xpm	\
 	image/toolbar/stock_clear_24.xpm	\
 	image/toolbar/stock_close_24.xpm	\
 	image/toolbar/stock_colorselector_24.xpm	\
 	image/toolbar/stock_help_24.xpm	\
 	image/toolbar/stock_jump_to_24.xpm	\
-	image/toolbar/stock_left_arrow_24.xpm \
+	image/toolbar/stock_left_arrow_24.xpm	\
 	image/toolbar/stock_ok_20.xpm	\
 	image/toolbar/stock_open_24.xpm	\
 	image/toolbar/stock_preferences_24.xpm	\
@@ -531,13 +535,13 @@ EXTRA_DIST = \
 	image/toolbar/stock_refresh_24.xpm	\
 	image/toolbar/stock_right_arrow_24.xpm	\
 	image/toolbar/stock_save_24.xpm	\
-	image/toolbar/stock_save_as_24.xpm \
+	image/toolbar/stock_save_as_24.xpm	\
 	image/toolbar/stock_search_24.xpm	\
 	image/toolbar/stock_stop_24.xpm	\
-	image/toolbar/stock_top_24.xpm \
-	image/toolbar/stock_zoom_1_24.xpm \
-	image/toolbar/stock_zoom_in_24.xpm \
-	image/toolbar/stock_zoom_out_24.xpm \
+	image/toolbar/stock_top_24.xpm	\
+	image/toolbar/stock_zoom_1_24.xpm	\
+	image/toolbar/stock_zoom_in_24.xpm
+	image/toolbar/stock_zoom_out_24.xpm	\
 	image/up_arrow.xpm	\
 	image/icon_layout_1.xpm \
 	image/icon_layout_2.xpm \
