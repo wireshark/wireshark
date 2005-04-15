@@ -1408,7 +1408,7 @@ dissect_isup_transmission_medium_requirement_parameter(tvbuff_t *parameter_tvb, 
 /* ------------------------------------------------------------------
   Dissector Parameter Called party number
  */
-static void
+void
 dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_item *address_digits_item;
@@ -1679,7 +1679,7 @@ const value_string q850_cause_code_vals[] = {
 
 
 
-static void
+void
 dissect_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 { guint length = tvb_reported_length(parameter_tvb);
   proto_tree_add_text(parameter_tree, parameter_tvb,0, -1, "Cause indicators (-> Q.850)");
@@ -2813,7 +2813,7 @@ dissect_isup_optional_forward_call_indicators_parameter(tvbuff_t *parameter_tvb,
 /* ------------------------------------------------------------------
   Dissector Parameter calling party number
  */
-static void
+void
 dissect_isup_calling_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_item *address_digits_item;
