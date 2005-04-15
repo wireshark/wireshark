@@ -186,7 +186,11 @@ gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name)
 #define GTK_STOCK_ZOOM_100          "Zoom 100%"
 
 #ifdef HAVE_LIBPCAP
+#define ETHEREAL_STOCK_CAPTURE_INTERFACES       "Interfaces"
+#define ETHEREAL_STOCK_CAPTURE_OPTIONS          "Options"
 #define ETHEREAL_STOCK_CAPTURE_START            "Capture"
+#define ETHEREAL_STOCK_CAPTURE_STOP             "Stop"
+#define ETHEREAL_STOCK_CAPTURE_RESTART          "Restart"
 #define ETHEREAL_STOCK_CAPTURE_FILTER           "CFilter"
 #define ETHEREAL_STOCK_CAPTURE_FILTER_ENTRY     "Capture Filter:"
 #endif
@@ -286,7 +290,11 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 {path, accelerator, GTK_MENU_FUNC(callback), action, "<StockItem>", data}
 
 #ifdef HAVE_LIBPCAP
+#define ETHEREAL_STOCK_LABEL_CAPTURE_INTERFACES       "_Interfaces"
+#define ETHEREAL_STOCK_LABEL_CAPTURE_OPTIONS          "_Options"
 #define ETHEREAL_STOCK_LABEL_CAPTURE_START            "_Capture"
+#define ETHEREAL_STOCK_LABEL_CAPTURE_STOP             "_Stop"
+#define ETHEREAL_STOCK_LABEL_CAPTURE_RESTART          "_Restart"
 #define ETHEREAL_STOCK_LABEL_CAPTURE_FILTER           "_CFilter"
 #define ETHEREAL_STOCK_LABEL_CAPTURE_FILTER_ENTRY     "_Capture Filter:"
 #endif
@@ -302,7 +310,11 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 #define ETHEREAL_STOCK_LABEL_DONT_SAVE                "Continue _without Saving"
 
 #ifdef HAVE_LIBPCAP
+#define ETHEREAL_STOCK_CAPTURE_INTERFACES       "Ethereal_Stock_CaptureInterfaces"
+#define ETHEREAL_STOCK_CAPTURE_OPTIONS          "Ethereal_Stock_CaptureOptionss"
 #define ETHEREAL_STOCK_CAPTURE_START            "Ethereal_Stock_CaptureStart"
+#define ETHEREAL_STOCK_CAPTURE_STOP             "Ethereal_Stock_CaptureStop"
+#define ETHEREAL_STOCK_CAPTURE_RESTART          "Ethereal_Stock_CaptureRestart"
 #define ETHEREAL_STOCK_CAPTURE_FILTER           "Ethereal_Stock_CaptureFilter"
 #define ETHEREAL_STOCK_CAPTURE_FILTER_ENTRY     "Ethereal_Stock_CaptureFilter_Entry"
 #endif

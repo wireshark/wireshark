@@ -296,14 +296,16 @@ static GtkItemFactoryEntry menu_items[] =
                              goto_bottom_frame_cb, 0, GTK_STOCK_GOTO_BOTTOM),
 #ifdef HAVE_LIBPCAP
     ITEM_FACTORY_ENTRY("/_Capture", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_STOCK_ENTRY("/Capture/_Start...", "<control>K",
-                             capture_prep_cb, 0, ETHEREAL_STOCK_CAPTURE_START),
+    ITEM_FACTORY_STOCK_ENTRY("/Capture/_Interfaces...", NULL,
+                             capture_if_cb, 0, ETHEREAL_STOCK_CAPTURE_INTERFACES),
+    ITEM_FACTORY_STOCK_ENTRY("/Capture/_Options...", "<control>K",
+                             capture_prep_cb, 0, ETHEREAL_STOCK_CAPTURE_OPTIONS),
+    ITEM_FACTORY_STOCK_ENTRY("/Capture/_Start", NULL,
+                             capture_start_cb, 0, ETHEREAL_STOCK_CAPTURE_START),
     ITEM_FACTORY_STOCK_ENTRY("/Capture/S_top", "<control>E", capture_stop_cb,
-                             0, GTK_STOCK_STOP),
-    ITEM_FACTORY_STOCK_ENTRY("/Capture/_Clear", NULL, capture_clear_cb,
-                             0, GTK_STOCK_CLEAR),
-    ITEM_FACTORY_ENTRY("/Capture/_Interfaces...", NULL,
-                             capture_if_cb, 0, NULL, NULL),
+                             0, ETHEREAL_STOCK_CAPTURE_STOP),
+    ITEM_FACTORY_STOCK_ENTRY("/Capture/_Restart", NULL, capture_clear_cb,
+                             0, ETHEREAL_STOCK_CAPTURE_RESTART),
     ITEM_FACTORY_STOCK_ENTRY("/Capture/Capture _Filters...", NULL, cfilter_dialog_cb,
                        0, ETHEREAL_STOCK_CAPTURE_FILTER),
 #endif /* HAVE_LIBPCAP */
@@ -1537,11 +1539,13 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
   set_menu_sensitivity(main_menu_factory, "/File/Open Recent", 
       !capture_in_progress);
 #ifdef HAVE_LIBPCAP
-  set_menu_sensitivity(main_menu_factory, "/Capture/Start...",
+  set_menu_sensitivity(main_menu_factory, "/Capture/Options...",
+      !capture_in_progress);
+  set_menu_sensitivity(main_menu_factory, "/Capture/Start",
       !capture_in_progress);
   set_menu_sensitivity(main_menu_factory, "/Capture/Stop",
       capture_in_progress);
-  set_menu_sensitivity(main_menu_factory, "/Capture/Clear",
+  set_menu_sensitivity(main_menu_factory, "/Capture/Restart",
       capture_in_progress);
   set_toolbar_for_capture_in_progress(capture_in_progress);
 

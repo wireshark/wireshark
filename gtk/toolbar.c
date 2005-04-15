@@ -63,16 +63,20 @@
 #include "recent.h"
 #include "packet_history.h"
 
-/* All of the icons used here are coming (or are derived) from GTK2 stock icons.
+/* Most of the icons used here are coming (or are derived) from GTK2 stock icons.
  * They were converted using "The Gimp" with standard conversion from png to xpm.
  * All stock icons can be (currently) found at: 
  * "ftp://ftp.gtk.org/pub/gtk/v2.0/gtk+-2.0.6.tar.bz2"
  * in the directory "gtk+-2.0.6\gtk\stock-icons" */
+
+/* The base for the new capture icons was GNOME's Connection-Ethernet.png and it's 
+ * 16x16 counterpart, which are released under the GPL (or LGPL?). These icons were 
+ * merged together with some icons of the tremendous ximian icon collection (>1200!)
+ * for  OpenOffice? (LGPL'ed), which can be found at:
+ * http://www.novell.com/coolsolutions/feature/1637.html
+ */
+
 #if GTK_MAJOR_VERSION < 2
-#ifdef HAVE_LIBPCAP
-#include "../image/toolbar/stock_stop_24.xpm"
-#include "../image/toolbar/stock_clear_24.xpm"
-#endif /* HAVE_LIBPCAP */
 #include "../image/toolbar/stock_save_as_24.xpm"
 #include "../image/toolbar/stock_close_24.xpm"
 #include "../image/toolbar/stock_refresh_24.xpm"
@@ -92,10 +96,14 @@
 
 /* these icons are derived from the original stock icons */
 #ifdef HAVE_LIBPCAP
-#include "../image/toolbar/capture_24.xpm"
-#include "../image/toolbar/cfilter_24.xpm"
+#include "../image/toolbar/capture_interfaces_24.xpm"
+#include "../image/toolbar/capture_options_24.xpm"
+#include "../image/toolbar/capture_start_24.xpm"
+#include "../image/toolbar/capture_stop_24.xpm"
+#include "../image/toolbar/capture_restart_24.xpm"
+#include "../image/toolbar/capture_filter_24.xpm"
 #endif /* HAVE_LIBPCAP */
-#include "../image/toolbar/dfilter_24.xpm"
+#include "../image/toolbar/display_filter_24.xpm"
 /* these icons are standard stock icons, but used for ethereal specific stock icon labels */
 #if GTK_MAJOR_VERSION >= 2
 #include "../image/toolbar/stock_add_24.xpm"
@@ -118,7 +126,7 @@
 static gboolean toolbar_init = FALSE;
 
 #ifdef HAVE_LIBPCAP
-static GtkWidget *new_button, *stop_button, *clear_button;
+static GtkWidget *capture_options_button, *new_button, *stop_button, *clear_button, *if_button;
 static GtkWidget *capture_filter_button;
 #endif /* HAVE_LIBPCAP */
 static GtkWidget *open_button, *save_button, *save_as_button, *close_button, *reload_button;
@@ -143,7 +151,11 @@ static void ethereal_stock_icons(void) {
     /* register non-standard pixmaps with the gtk-stock engine */
     static const GtkStockItem stock_items[] = {
 #ifdef HAVE_LIBPCAP
+        { ETHEREAL_STOCK_CAPTURE_INTERFACES,    ETHEREAL_STOCK_LABEL_CAPTURE_INTERFACES,    0, 0, NULL },
+        { ETHEREAL_STOCK_CAPTURE_OPTIONS,       ETHEREAL_STOCK_LABEL_CAPTURE_OPTIONS,       0, 0, NULL },
         { ETHEREAL_STOCK_CAPTURE_START,         ETHEREAL_STOCK_LABEL_CAPTURE_START,         0, 0, NULL },
+        { ETHEREAL_STOCK_CAPTURE_STOP,          ETHEREAL_STOCK_LABEL_CAPTURE_STOP,          0, 0, NULL },
+        { ETHEREAL_STOCK_CAPTURE_RESTART,       ETHEREAL_STOCK_LABEL_CAPTURE_RESTART,       0, 0, NULL },
         { ETHEREAL_STOCK_CAPTURE_FILTER,        ETHEREAL_STOCK_LABEL_CAPTURE_FILTER,        0, 0, NULL },
         { ETHEREAL_STOCK_CAPTURE_FILTER_ENTRY,  ETHEREAL_STOCK_LABEL_CAPTURE_FILTER_ENTRY,  0, 0, NULL },
 #endif
@@ -161,12 +173,16 @@ static void ethereal_stock_icons(void) {
 
     static const stock_pixmap_t pixmaps[] = {
 #ifdef HAVE_LIBPCAP
-        { ETHEREAL_STOCK_CAPTURE_START,         capture_24_xpm },
-        { ETHEREAL_STOCK_CAPTURE_FILTER,        cfilter_24_xpm },
-        { ETHEREAL_STOCK_CAPTURE_FILTER_ENTRY,  cfilter_24_xpm },
+        { ETHEREAL_STOCK_CAPTURE_INTERFACES,    capture_interfaces_24_xpm },
+        { ETHEREAL_STOCK_CAPTURE_OPTIONS,       capture_options_24_xpm },
+        { ETHEREAL_STOCK_CAPTURE_START,         capture_start_24_xpm },
+        { ETHEREAL_STOCK_CAPTURE_STOP,          capture_stop_24_xpm },
+        { ETHEREAL_STOCK_CAPTURE_RESTART,       capture_restart_24_xpm },
+        { ETHEREAL_STOCK_CAPTURE_FILTER,        capture_filter_24_xpm },
+        { ETHEREAL_STOCK_CAPTURE_FILTER_ENTRY,  capture_filter_24_xpm },
 #endif
-        { ETHEREAL_STOCK_DISPLAY_FILTER,        dfilter_24_xpm },
-        { ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY,  dfilter_24_xpm },
+        { ETHEREAL_STOCK_DISPLAY_FILTER,        display_filter_24_xpm },
+        { ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY,  display_filter_24_xpm },
         { ETHEREAL_STOCK_PREFS,                 stock_preferences_24_xpm },
         { ETHEREAL_STOCK_BROWSE,                stock_open_24_xpm },
         { ETHEREAL_STOCK_CREATE_STAT,           stock_ok_20_xpm },
@@ -283,6 +299,7 @@ void set_toolbar_for_capture_in_progress(gboolean capture_in_progress) {
 
     if (toolbar_init) {
 #ifdef HAVE_LIBPCAP
+        gtk_widget_set_sensitive(capture_options_button, !capture_in_progress);
         gtk_widget_set_sensitive(new_button, !capture_in_progress);
         gtk_widget_set_sensitive(stop_button, capture_in_progress);
         gtk_widget_set_sensitive(clear_button, capture_in_progress);
@@ -394,12 +411,16 @@ toolbar_new(void)
 
 
 #ifdef HAVE_LIBPCAP
+    toolbar_item(if_button, window, main_tb, 
+        ETHEREAL_STOCK_CAPTURE_INTERFACES, "List the available capture interfaces...", capture_interfaces_24_xpm, capture_if_cb, NULL);
+    toolbar_item(capture_options_button, window, main_tb, 
+        ETHEREAL_STOCK_CAPTURE_OPTIONS, "Show the capture options...", capture_options_24_xpm, capture_prep_cb, NULL);
     toolbar_item(new_button, window, main_tb, 
-        ETHEREAL_STOCK_CAPTURE_START, "Start a new live capture...", capture_24_xpm, capture_prep_cb, NULL);
+        ETHEREAL_STOCK_CAPTURE_START, "Start a new live capture", capture_start_24_xpm, capture_start_cb, NULL);
     toolbar_item(stop_button, window, main_tb, 
-        GTK_STOCK_STOP, "Stop the running live capture", stock_stop_24_xpm, capture_stop_cb, NULL);
+        ETHEREAL_STOCK_CAPTURE_STOP, "Stop the running live capture", capture_stop_24_xpm, capture_stop_cb, NULL);
     toolbar_item(clear_button, window, main_tb, 
-        GTK_STOCK_CLEAR, "Clear the captured packets", stock_clear_24_xpm, capture_clear_cb, NULL);
+        ETHEREAL_STOCK_CAPTURE_RESTART, "Restart the running live capture", capture_restart_24_xpm, capture_clear_cb, NULL);
     toolbar_append_separator(main_tb);
 #endif /* HAVE_LIBPCAP */
 
@@ -441,10 +462,10 @@ toolbar_new(void)
     
 #ifdef HAVE_LIBPCAP
     toolbar_item(capture_filter_button, window, main_tb, 
-        ETHEREAL_STOCK_CAPTURE_FILTER, "Edit capture filter...", cfilter_24_xpm, cfilter_dialog_cb, NULL);
+        ETHEREAL_STOCK_CAPTURE_FILTER, "Edit capture filter...", capture_filter_24_xpm, cfilter_dialog_cb, NULL);
 #endif /* HAVE_LIBPCAP */
     toolbar_item(display_filter_button, window, main_tb, 
-        ETHEREAL_STOCK_DISPLAY_FILTER, "Edit/apply display filter...", dfilter_24_xpm, dfilter_dialog_cb, NULL);
+        ETHEREAL_STOCK_DISPLAY_FILTER, "Edit/apply display filter...", display_filter_24_xpm, dfilter_dialog_cb, NULL);
     toolbar_item(color_display_button, window, main_tb, 
         GTK_STOCK_SELECT_COLOR, "Edit coloring rules...", stock_colorselector_24_xpm, color_display_cb, NULL);
     /* the preference button uses it's own Stock icon label "Prefs", as "Preferences" is too long */

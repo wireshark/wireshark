@@ -38,6 +38,13 @@
  */
 void capture_prep_cb(GtkWidget *widget, gpointer data);
 
+/** User requested capture start by menu or toolbar.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+void capture_start_cb(GtkWidget *widget, gpointer data);
+
 /** User requested capture stop by menu or toolbar.
  *
  * @param widget parent widget (unused)

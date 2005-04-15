@@ -102,6 +102,16 @@
 
 #define E_CAP_OM_LT_VALUE_KEY       "cap_om_lt_value"
 
+
+/*
+ * Keep a static pointer to the current "Capture Options" window, if
+ * any, so that if somebody tries to do "Capture:Start" while there's
+ * already a "Capture Options" window up, we just pop up the existing
+ * one, rather than creating a new one.
+ */
+static GtkWidget *cap_open_w;
+
+
 static void
 capture_prep_file_cb(GtkWidget *file_bt, GtkWidget *file_te);
 
@@ -121,6 +131,34 @@ static void
 capture_prep_interface_changed_cb(GtkWidget *entry, gpointer parent_w);
 
 void
+capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+
+    /* do we have an open prepare window? */
+    if(cap_open_w) {
+        /* yes, just act like we'd pressed the Ok button */
+        capture_prep_ok_cb(NULL, cap_open_w);
+        return;        
+    }
+
+    /* init iface, if never used before */
+    /* XXX - would better be doing this in main.c */
+    if(capture_opts->iface == NULL) {
+        gchar *if_device;
+        gchar *if_name;
+
+        if_device = g_strdup(prefs.capture_device);
+        if_name = get_if_name(if_device);
+        capture_opts->iface = g_strdup(if_name);
+
+        g_free(if_device);
+    }
+
+    /* XXX - we might need to init other pref data as well... */
+    capture_start(capture_opts);
+}
+
+void
 capture_stop_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     capture_stop(capture_opts);
@@ -131,14 +169,6 @@ capture_clear_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     capture_clear(capture_opts);
 }
-
-/*
- * Keep a static pointer to the current "Capture Options" window, if
- * any, so that if somebody tries to do "Capture:Start" while there's
- * already a "Capture Options" window up, we just pop up the existing
- * one, rather than creating a new one.
- */
-static GtkWidget *cap_open_w;
 
 static void
 set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
