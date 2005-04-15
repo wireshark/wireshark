@@ -490,15 +490,15 @@ static void
 fragment_unhash(GHashTable *fragment_table, fragment_key *key)
 {
 	/*
+	 * Remove the entry from the fragment table.
+	 */
+	g_hash_table_remove(fragment_table, key);
+
+	/*
 	 * Free up the copies of the addresses from the old key.
 	 */
 	g_free((gpointer)key->src.data);
 	g_free((gpointer)key->dst.data);
-
-	/*
-	 * Remove the entry from the fragment table.
-	 */
-	g_hash_table_remove(fragment_table, key);
 
 	/*
 	 * Free the key itself.
