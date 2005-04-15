@@ -540,7 +540,7 @@ EXTRA_DIST = \
 	image/toolbar/stock_stop_24.xpm	\
 	image/toolbar/stock_top_24.xpm	\
 	image/toolbar/stock_zoom_1_24.xpm	\
-	image/toolbar/stock_zoom_in_24.xpm
+	image/toolbar/stock_zoom_in_24.xpm	\
 	image/toolbar/stock_zoom_out_24.xpm	\
 	image/up_arrow.xpm	\
 	image/icon_layout_1.xpm \
