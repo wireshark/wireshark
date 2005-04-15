@@ -648,7 +648,25 @@ const gchar *gsm_a_pd_str[] = {
     "Reserved for extension of the PD to one octet length",
     "Reserved for tests procedures"
 };
-
+static const value_string gsm_a_pd_short_str_vals[] = {
+	{0x0,		"GCC"},				/* Group Call Control */
+	{0x1,		"BCC"},				/* Broadcast Call Control */
+	{0x2,		"Reserved"},		/* : was allocated in earlier phases of the protocol */
+	{0x3,		"CC"},				/* Call Control; call related SS messages */
+	{0x4,		"GTTP"},			/* GPRS Transparent Transport Protocol (GTTP) */
+	{0x5,		"MM"},				/* Mobility Management messages */
+	{0x6,		"RR"},				/* Radio Resources Management messages */
+	{0x7,		"Unknown"},
+	{0x8,		"GMM"},				/* GPRS Session Management messages */
+	{0x9,		"SMS"},
+	{0xa,		"SM"},				/* GPRS Session Management messages */
+	{0xb,		"SS"},
+	{0xc,		"LS"},				/* Location Services */
+	{0xd,		"Unknown"},
+	{0xe,		"Reserved"},		/*  for extension of the PD to one octet length  */
+	{0xf,		"Reserved"},		/*  for tests procedures described in 3GPP TS 44.014 [5a] and 3GPP TS 34.109 [17a].*/
+	{ 0,	NULL }
+};
 static const value_string bssap_cc_values[] = {
     { 0x00,		"not further specified" },
     { 0x80,		"FACCH or SDCCH" },
@@ -16098,7 +16116,7 @@ dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * add RP message name
      */
     proto_tree_add_uint_format(rp_tree, hf_gsm_a_rp_msg_type,
-	tvb, saved_offset, 1, oct, "Message Type");
+	tvb, saved_offset, 1, oct, "Message Type %s",str);
 
     if (str == NULL) return;
 
@@ -16197,7 +16215,7 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * add BSSMAP message name
      */
     proto_tree_add_uint_format(bssmap_tree, hf_gsm_a_bssmap_msg_type,
-	tvb, saved_offset, 1, oct, "Message Type");
+	tvb, saved_offset, 1, oct, "Message Type %s",str);
 
     tap_p->pdu_type = BSSAP_PDU_TYPE_BSSMAP;
     tap_p->message_type = oct;
@@ -16306,6 +16324,10 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     hf_idx = -1;
     msg_fcn = NULL;
     nsd = FALSE;
+    if (check_col(pinfo->cinfo, COL_INFO))
+    {
+	col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",val_to_str(pd,gsm_a_pd_short_str_vals,"unknown"));
+    }
 
     /*
      * octet 1
@@ -16491,7 +16513,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     proto_tree_add_uint_format(dtap_tree, hf_idx,
 	tvb, offset, 1, oct,
-	"Message Type");
+	"Message Type %s",str);
 
     offset++;
 
