@@ -1575,7 +1575,7 @@ int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree 
 
 int dissect_ber_bitstring32(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, int **bit_fields, gint hf_id, gint ett_id, tvbuff_t **out_tvb) 
 {
-	tvbuff_t *tmp_tvb;
+	tvbuff_t *tmp_tvb = NULL;
 	proto_tree *tree;
 	guint32 val;
 	int **bf;
@@ -1587,7 +1587,7 @@ int dissect_ber_bitstring32(gboolean implicit_tag, packet_info *pinfo, proto_tre
 	offset = dissect_ber_bitstring(implicit_tag, pinfo, parent_tree, tvb, offset, NULL, hf_id, ett_id, &tmp_tvb);
 	
 	tree = proto_item_get_subtree(ber_last_created_item);
-	if (bit_fields && tree) {
+	if (bit_fields && tree && tmp_tvb) {
 		/* tmp_tvb points to the actual bitstring (including any pad bits at the end.
 		 * note that this bitstring is not neccessarily always encoded as 4 bytes
 		 * so we have to read it byte by byte.
