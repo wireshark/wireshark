@@ -13,8 +13,8 @@
 
 
 #.TYPE_RENAME
-InsertSubscriberDataArg/bearerServiceList bearerServiceList
-InsertSubscriberDataRes/bearerServiceList bearerServiceList
+InsertSubscriberDataArg/bearerserviceList bearerServiceList
+InsertSubscriberDataRes/bearerserviceList bearerServiceList
 InsertSubscriberDataRes/ss-List ss_List
 DeleteSubscriberDataArg/ss-List ss_List
 SendRoutingInfoRes/ss-List ss_List
@@ -293,6 +293,7 @@ O-BcsmCamelTDP-CriteriaList/_item/o-BcsmTriggerDetectionPoint o-BcsmTriggerDetec
 #.TYPE_ATTR
 Ss-Code  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ssCode_vals)
 Teleservice  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Teleservice_vals)
+Bearerservice  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Bearerservice_vals)
 
 #.END
 

@@ -108,6 +108,7 @@ PcsExtensions ::= SEQUENCE {
           ...
  }
 Teleservice ::= OCTET STRING ( SIZE( 1 .. 5 ) )
+Bearerservice ::= OCTET STRING ( SIZE( 1 .. 5 ) )
 Msc-Number  ::= OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ) 
 -- End Ethereal adaptation 
 
@@ -453,7 +454,7 @@ OverrideCategory ::= ENUMERATED {
    overrideDisabled    ( 1 ) }
 
 BasicService ::= CHOICE {
-  bearerService     [2] IMPLICIT OCTET STRING, 
+  bearerservice     [2] IMPLICIT Bearerservice, 
   teleservice       [3] IMPLICIT Teleservice}
 
 BasicServiceGroupList ::= SEQUENCE OF BasicService
@@ -546,8 +547,8 @@ InsertSubscriberDataArg ::= SEQUENCE {
          msisdn                                      [1] IMPLICIT Msisdn OPTIONAL, 
          category                                    [2] IMPLICIT OCTET STRING ( SIZE( 1 ) ) OPTIONAL, 
          subscriberStatus                            [3] IMPLICIT SubscriberStatus OPTIONAL, 
-         bearerServiceList                           [4] IMPLICIT SEQUENCE  ( SIZE( 1 .. 50 ) ) OF
-            OCTET STRING ( SIZE( 1 .. 5 ) ) OPTIONAL, 
+         bearerserviceList                           [4] IMPLICIT SEQUENCE  ( SIZE( 1 .. 50 ) ) OF
+            Bearerservice OPTIONAL, 
          teleserviceList                             [6] IMPLICIT SEQUENCE  ( SIZE( 1 .. 20 ) ) OF
             Teleservice OPTIONAL, 
          provisionedSS                               [7] IMPLICIT SEQUENCE  ( SIZE( 1 .. 30 ) ) OF
@@ -683,8 +684,8 @@ InsertSubscriberDataArg ::= SEQUENCE {
 InsertSubscriberDataRes ::= SEQUENCE {
          teleserviceList                [1] IMPLICIT SEQUENCE  ( SIZE( 1 .. 20 ) ) OF
             Teleservice OPTIONAL, 
-         bearerServiceList              [2] IMPLICIT SEQUENCE  ( SIZE( 1 .. 50 ) ) OF
-            OCTET STRING ( SIZE( 1 .. 5 ) ) OPTIONAL, 
+         bearerserviceList              [2] IMPLICIT SEQUENCE  ( SIZE( 1 .. 50 ) ) OF
+            Bearerservice OPTIONAL, 
          ss-List                        [3] IMPLICIT SEQUENCE  ( SIZE( 1 .. 30 ) ) OF
             OCTET STRING ( SIZE( 1 ) ) OPTIONAL, 
          odb-GeneralData                [4] IMPLICIT Odb-GeneralData OPTIONAL, 

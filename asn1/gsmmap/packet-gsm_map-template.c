@@ -491,7 +491,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_CheckIMEIArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 45: /*sendRoutingInfoForSM*/
-    offset=dissect_gsm_map_RoutingInfoForSMRes(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_RoutingInfoForSMArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 46: /*mo-forwardSM*/
     offset=dissect_gsm_map_Mo_forwardSM_Arg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -699,7 +699,7 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     offset=dissect_gsm_map_Mo_forwardSM_Res(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 48: /*reportSM-DeliveryStatus*/
-    offset=dissect_gsm_map_ReportSM_DeliveryStatusArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_ReportSM_DeliveryStatusRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 50: /*activateTraceMode*/
     offset=dissect_gsm_map_ActivateTraceModeRes(FALSE, tvb, offset, pinfo, tree, -1);
@@ -1126,6 +1126,69 @@ static const value_string Teleservice_vals[] = {
 {0xde, "plmn-specificTS-E" },
 {0xdf, "plmn-specificTS-F" },
   { 0, NULL }
+};
+
+static const value_string Bearerservice_vals[] = {
+{0x00, "allBearerServices" },
+{0x10, "allDataCDA-Services" },
+{0x11, "dataCDA-300bps" },
+{0x12, "dataCDA-1200bps" },
+{0x13, "dataCDA-1200-75bps" },
+{0x14, "dataCDA-2400bps" },
+{0x15, "dataCDA-4800bps" },
+{0x16, "dataCDA-9600bps" },
+{0x17, "general-dataCDA" },
+
+{0x18, "allDataCDS-Services" },
+{0x1A, "dataCDS-1200bps" },
+{0x1C, "dataCDS-2400bps" },
+{0x1D, "dataCDS-4800bps" },
+{0x1E, "dataCDS-9600bps" },
+{0x1F, "general-dataCDS" },
+
+{0x20, "allPadAccessCA-Services" },
+{0x21, "padAccessCA-300bps" },
+{0x22, "padAccessCA-1200bps" },
+{0x23, "padAccessCA-1200-75bps" },
+{0x24, "padAccessCA-2400bps" },
+{0x25, "padAccessCA-4800bps" },
+{0x26, "padAccessCA-9600bps" },
+{0x27, "general-padAccessCA" },
+
+{0x28, "allDataPDS-Services" },
+{0x2C, "dataPDS-2400bps" },
+{0x2D, "dataPDS-4800bps" },
+{0x2E, "dataPDS-9600bps" },
+{0x2F, "general-dataPDS" },
+
+{0x30, "allAlternateSpeech-DataCDA" },
+{0x38, "allAlternateSpeech-DataCDS" },
+{0x40, "allSpeechFollowedByDataCDA" },
+{0x48, "allSpeechFollowedByDataCDS" },
+
+{0x50, "allDataCircuitAsynchronous" },
+{0x60, "allAsynchronousServices" },
+{0x58, "allDataCircuitSynchronous" },
+{0x68, "allSynchronousServices" },
+
+{0xD0, "allPLMN-specificBS" },
+{0xD1, "plmn-specificBS-1" },
+{0xD2, "plmn-specificBS-2" },
+{0xD3, "plmn-specificBS-3" },
+{0xD4, "plmn-specificBS-4" },
+{0xD5, "plmn-specificBS-5" },
+{0xD6, "plmn-specificBS-6" },
+{0xD7, "plmn-specificBS-7" },
+{0xD8, "plmn-specificBS-8" },
+{0xD9, "plmn-specificBS-9" },
+{0xDA, "plmn-specificBS-A" },
+{0xDB, "plmn-specificBS-B" },
+{0xDC, "plmn-specificBS-C" },
+{0xDD, "plmn-specificBS-D" },
+{0xDE, "plmn-specificBS-E" },
+{0xDF, "plmn-specificBS-F" },
+
+{ 0, NULL }
 };
 
 /*--- proto_reg_handoff_gsm_map ---------------------------------------*/
