@@ -364,7 +364,7 @@ vines_addr_to_str_buf(const guint8 *addrp, gchar *buf)
  * (Does not include the terminating '\0'.)
  * Includes space for a '-' sign for any negative compunents.
  */
-#define TIME_SECS_LEN	(8+1+4+2+2+5+2+2+7+2+2+7+4)
+#define TIME_SECS_LEN	(10+1+4+2+2+5+2+2+7+2+2+7+4)
 
 /*
  * Convert a value in seconds and fractions of a second to a string,
@@ -388,6 +388,11 @@ time_secs_to_str_buf(gint32 time, guint32 frac, gboolean is_nsecs,
     msign="-";
   }
 
+  if(time<0){	/* We've overflowed. */
+    sprintf(buf, "Unable to cope with time value %d", time);
+    return;
+  }
+
   secs = time % 60;
   time /= 60;
   mins = time % 60;
@@ -395,6 +400,7 @@ time_secs_to_str_buf(gint32 time, guint32 frac, gboolean is_nsecs,
   hours = time % 24;
   time /= 24;
 
+  /* This would probably be cleaner if we used GStrings instead. */
   p = buf;
   if (time != 0) {
     sprintf(p, "%s%u day%s", time?msign:"", time, PLURALIZE(time));
