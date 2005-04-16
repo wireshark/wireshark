@@ -2197,12 +2197,14 @@ wkh_ ## underscored (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_
 	proto_tree *parameter_tree = NULL; \
 	\
 	wkh_1_WellKnownValue; \
+		tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 		ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 				tvb, hdr_start, offset - hdr_start, \
 				val_to_str(val_id & 0x7F, valueString, \
 					"<Unknown " valueName " identifier 0x%X>")); \
 		ok = TRUE; \
 	wkh_2_TextualValue; \
+		tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 		ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 				tvb, hdr_start, offset - hdr_start, val_str); \
 		ok = TRUE; \
@@ -2213,11 +2215,13 @@ wkh_ ## underscored (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_
 			get_token_text(val_str, tvb, off, len, ok); \
 			/* As we're using val_str, it is automatically g_free()d */ \
 			off += len; /* off now points to 1st byte after string */ \
+			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 			ti = proto_tree_add_string (tree, hf_hdr_ ## underscored, \
 					tvb, hdr_start, offset - hdr_start, val_str); \
 		} else if (is_integer_value(peek)) { \
 			get_integer_value(val, tvb, off, len, ok); \
 			if (ok) { \
+				tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 						tvb, hdr_start, offset - hdr_start, \
 						val_to_str(val, valueString, \
