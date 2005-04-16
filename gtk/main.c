@@ -1234,6 +1234,9 @@ main_cf_cb_file_closed(capture_file *cf)
        will there ever be more than one on the stack? */
     statusbar_pop_file_msg();
 
+    /* go back to "No packets" */
+    packets_bar_update();
+
     /* Restore the standard title bar message. */
     set_main_window_name("The Ethereal Network Analyzer");
 
@@ -1313,6 +1316,27 @@ main_cf_cb_live_capture_update_started(capture_options *capture_opts)
 }
 
 static void
+main_cf_cb_live_capture_update_finished(capture_file *cf)
+{
+    /* Pop the "<live capture in progress>" message off the status bar. */
+    statusbar_pop_file_msg();
+
+    set_display_filename(cf);
+
+    /* Enable menu items that make sense if you're not currently running
+     a capture. */
+    set_menus_for_capture_in_progress(FALSE);
+
+    /* Enable menu items that make sense if you have a capture file
+     you've finished reading. */
+    set_menus_for_capture_file(TRUE);
+    set_menus_for_unsaved_capture_file(!cf->user_saved);
+
+    /* Set up main window for a capture file. */
+    main_set_for_capture_file(TRUE);
+}
+
+static void
 main_cf_cb_live_capture_fixed_started(capture_options *capture_opts)
 {
     gchar *capture_msg;
@@ -1345,27 +1369,6 @@ main_cf_cb_live_capture_fixed_started(capture_options *capture_opts)
 }
 
 static void
-main_cf_cb_live_capture_update_finished(capture_file *cf)
-{
-    /* Pop the "<live capture in progress>" message off the status bar. */
-    statusbar_pop_file_msg();
-
-    set_display_filename(cf);
-
-    /* Enable menu items that make sense if you're not currently running
-     a capture. */
-    set_menus_for_capture_in_progress(FALSE);
-
-    /* Enable menu items that make sense if you have a capture file
-     you've finished reading. */
-    set_menus_for_capture_file(TRUE);
-    set_menus_for_unsaved_capture_file(!cf->user_saved);
-
-    /* Set up main window for a capture file. */
-    main_set_for_capture_file(TRUE);
-}
-
-static void
 main_cf_cb_live_capture_fixed_finished(capture_file *cf)
 {
     /* Pop the "<live capture in progress>" message off the status bar. */
@@ -1380,13 +1383,8 @@ main_cf_cb_live_capture_fixed_finished(capture_file *cf)
      a capture. */
     set_menus_for_capture_in_progress(FALSE);
 
-    /* Enable menu items that make sense if you have a capture file
-     you've finished reading. */
-    set_menus_for_capture_file(TRUE);
-    set_menus_for_unsaved_capture_file(!cf->user_saved);
-
-    /* Set up main window for a capture file. */
-    main_set_for_capture_file(TRUE);
+    /* We don't have loaded the capture file, this will be done later.
+     * For now we still have simply a blank screen. */
 }
 #endif
 
