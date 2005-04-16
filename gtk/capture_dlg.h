@@ -52,12 +52,12 @@ void capture_start_cb(GtkWidget *widget, gpointer data);
  */
 void capture_stop_cb(GtkWidget *widget, gpointer data);
 
-/** User requested capture clear by menu or toolbar.
+/** User requested capture restart by menu or toolbar.
  *
  * @param widget parent widget (unused)
  * @param data unused
  */
-void capture_clear_cb(GtkWidget *widget, gpointer data);
+void capture_restart_cb(GtkWidget *widget, gpointer data);
 
 /** Create the "Capture Options" dialog box.
  */

@@ -104,7 +104,7 @@ capture_stop(capture_options *capture_opts)
 
 
 void
-capture_clear(capture_options *capture_opts)
+capture_restart(capture_options *capture_opts)
 {
     capture_opts->restart = TRUE;
     capture_stop(capture_opts);
@@ -263,6 +263,8 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
   int  err;
 
 
+  g_assert(capture_opts->save_file);
+
   if(capture_opts->real_time_mode) {
     /* Read from the capture file the number of records the child told us
        it added.
@@ -295,6 +297,15 @@ capture_input_closed(capture_options *capture_opts)
 {
     int  err;
 
+
+    /* if we have no file (happens if an error occured), do a fake start */
+    if(capture_opts->save_file == NULL) {
+        if(capture_opts->real_time_mode) {
+            cf_callback_invoke(cf_cb_live_capture_update_started, capture_opts);
+        } else {
+            cf_callback_invoke(cf_cb_live_capture_fixed_started, capture_opts);
+        }
+    }
 
     if(capture_opts->real_time_mode) {
         /* first of all, we are not doing a capture any more */
@@ -339,6 +350,7 @@ capture_input_closed(capture_options *capture_opts)
 
     /* if we couldn't open a capture file, there's nothing more for us to do */
     if(capture_opts->save_file == NULL) {
+        cf_close(capture_opts->cf);
         return;
     }
 

@@ -165,9 +165,9 @@ capture_stop_cb(GtkWidget *w _U_, gpointer d _U_)
 }
 
 void
-capture_clear_cb(GtkWidget *w _U_, gpointer d _U_)
+capture_restart_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-    capture_clear(capture_opts);
+    capture_restart(capture_opts);
 }
 
 static void

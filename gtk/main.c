@@ -1357,7 +1357,8 @@ main_cf_cb_live_capture_fixed_started(capture_options *capture_opts)
     /*set_menus_for_captured_packets(TRUE);*/
 
     capture_msg = g_strdup_printf(" %s: <live capture in progress> to file: %s", 
-        get_interface_descriptive_name(capture_opts->iface), capture_opts->save_file);
+        get_interface_descriptive_name(capture_opts->iface), 
+        (capture_opts->save_file) ? capture_opts->save_file : "");
 
     statusbar_push_file_msg(capture_msg);
     gtk_statusbar_push(GTK_STATUSBAR(packets_bar), packets_ctx, " <capturing>");

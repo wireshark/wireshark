@@ -502,7 +502,7 @@ toolbar_new(void)
     toolbar_item(stop_button, window, main_tb, 
         ETHEREAL_STOCK_CAPTURE_STOP, "Stop the running live capture", capture_stop_24_xpm, capture_stop_cb, NULL);
     toolbar_item(clear_button, window, main_tb, 
-        ETHEREAL_STOCK_CAPTURE_RESTART, "Restart the running live capture", capture_restart_24_xpm, capture_clear_cb, NULL);
+        ETHEREAL_STOCK_CAPTURE_RESTART, "Restart the running live capture", capture_restart_24_xpm, capture_restart_cb, NULL);
     toolbar_append_separator(main_tb);
 #endif /* HAVE_LIBPCAP */
 

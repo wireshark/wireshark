@@ -305,7 +305,7 @@ static GtkItemFactoryEntry menu_items[] =
                              capture_start_cb, 0, ETHEREAL_STOCK_CAPTURE_START),
     ITEM_FACTORY_STOCK_ENTRY("/Capture/S_top", "<control>E", capture_stop_cb,
                              0, ETHEREAL_STOCK_CAPTURE_STOP),
-    ITEM_FACTORY_STOCK_ENTRY("/Capture/_Restart", NULL, capture_clear_cb,
+    ITEM_FACTORY_STOCK_ENTRY("/Capture/_Restart", NULL, capture_restart_cb,
                              0, ETHEREAL_STOCK_CAPTURE_RESTART),
     ITEM_FACTORY_STOCK_ENTRY("/Capture/Capture _Filters...", NULL, cfilter_dialog_cb,
                        0, ETHEREAL_STOCK_CAPTURE_FILTER),

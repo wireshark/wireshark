@@ -107,8 +107,8 @@ extern gboolean capture_start(capture_options *capture_opts);
 /** Stop a capture session (usually from a menu item). */
 extern void capture_stop(capture_options *capture_opts);
 
-/** Clear the current captured packets and start again. */
-extern void capture_clear(capture_options *capture_opts);
+/** Restart the current captured packets and start again. */
+extern void capture_restart(capture_options *capture_opts);
 
 /** Terminate the capture child cleanly when exiting. */
 extern void capture_kill_child(capture_options *capture_opts);
