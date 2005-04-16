@@ -47,6 +47,7 @@ static void simple_dialog_cancel_cb(GtkWidget *, gpointer);
 #define CALLBACK_FCT_KEY    "ESD_Callback_Fct"
 #define CALLBACK_BTN_KEY    "ESD_Callback_Btn"
 #define CALLBACK_DATA_KEY   "ESD_Callback_Data"
+#define CHECK_BUTTON        "ESD_Check_Button"
 
 /*
  * Queue for messages requested before we have a main window.
@@ -62,7 +63,7 @@ static GSList *message_queue;
 static GtkWidget *
 display_simple_dialog(gint type, gint btn_mask, char *message)
 {
-  GtkWidget   *win, *main_vb, *top_hb, *type_pm, *msg_label,
+  GtkWidget   *win, *main_vb, *top_hb, *msg_vb, *type_pm, *msg_label, *ask_cb,
               *bbox, *ok_bt, *yes_bt, *bt, *save_bt, *dont_save_bt;
   GdkPixmap   *pixmap;
   GdkBitmap   *mask;
@@ -141,6 +142,7 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   gtk_container_add(GTK_CONTAINER(main_vb), top_hb);
   gtk_widget_show(top_hb);
 
+  /* icon */
   style = gtk_widget_get_style(win);
   cmap  = gdk_colormap_get_system();
   pixmap = gdk_pixmap_colormap_create_from_xpm_d(NULL, cmap,  &mask,
@@ -150,6 +152,13 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   gtk_container_add(GTK_CONTAINER(top_hb), type_pm);
   gtk_widget_show(type_pm);
 
+  /* column for message and optional check button */
+  msg_vb = gtk_vbox_new(FALSE, 6);
+  gtk_box_set_spacing(GTK_BOX(msg_vb), 24);
+  gtk_container_add(GTK_CONTAINER(top_hb), msg_vb);
+  gtk_widget_show(msg_vb);
+
+  /* message */
   msg_label = gtk_label_new(message);
 
 #if GTK_MAJOR_VERSION >= 2
@@ -159,8 +168,13 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
 
   gtk_label_set_justify(GTK_LABEL(msg_label), GTK_JUSTIFY_FILL);
   gtk_misc_set_alignment (GTK_MISC (type_pm), 0.5, 0.0);
-  gtk_container_add(GTK_CONTAINER(top_hb), msg_label);
+  gtk_container_add(GTK_CONTAINER(msg_vb), msg_label);
   gtk_widget_show(msg_label);
+
+  /* optional check button */
+  ask_cb = gtk_check_button_new_with_label("replace with text...");
+  gtk_container_add(GTK_CONTAINER(msg_vb), ask_cb);
+  OBJECT_SET_DATA(win, CHECK_BUTTON, ask_cb);
 
   /* Button row */
   switch(btn_mask) {
@@ -357,6 +371,19 @@ void simple_dialog_set_cb(gpointer dialog, simple_dialog_cb_t callback_fct, gpoi
 
     OBJECT_SET_DATA(GTK_WIDGET(dialog), CALLBACK_FCT_KEY, callback_fct);
     OBJECT_SET_DATA(GTK_WIDGET(dialog), CALLBACK_DATA_KEY, data);
+}
+
+void simple_dialog_check_set(gpointer dialog, gchar *text) {
+    GtkWidget *ask_cb = OBJECT_GET_DATA(dialog, CHECK_BUTTON);
+
+    gtk_button_set_label(GTK_BUTTON(ask_cb), text);
+    gtk_widget_show(ask_cb);
+}
+
+gboolean simple_dialog_check_get(gpointer dialog) {
+    GtkWidget *ask_cb = OBJECT_GET_DATA(dialog, CHECK_BUTTON);
+
+    return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ask_cb));
 }
 
 char *

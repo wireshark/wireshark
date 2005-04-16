@@ -126,6 +126,20 @@ typedef void (* simple_dialog_cb_t) (gpointer dialog, gint btn, gpointer data);
  */
 extern void simple_dialog_set_cb(gpointer dialog, simple_dialog_cb_t callback_fct, gpointer data);
 
+/** Add a check button to the dialog (e.g. "Don't show this message again")
+ * 
+ * @param dialog the dialog from simple_dialog()
+ * @param text the text to display 
+ */
+extern void simple_dialog_check_set(gpointer dialog, gchar *text);
+
+/** Get the check buttons state.
+ * 
+ * @param dialog the dialog from simple_dialog()
+ * @return current button state (TRUE is checked)
+ */
+extern gboolean simple_dialog_check_get(gpointer dialog);
+
 /** Surround the primary dialog message text by 
  *  simple_dialog_primary_start() and simple_dialog_primary_end().
  *  To highlight the first sentence (will take effect on GTK2 only).
