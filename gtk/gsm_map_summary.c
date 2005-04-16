@@ -290,6 +290,6 @@ gsm_map_stat_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtkgsm_map_summary(void)
 {
-    register_tap_menu_item("GSM/MAP Summary",  REGISTER_TAP_GROUP_NONE,
+    register_tap_menu_item("GSM/MAP Summary",  REGISTER_TAP_GROUP_TELEPHONY,
         gsm_map_stat_gtk_sum_cb, NULL, NULL, NULL);
 }

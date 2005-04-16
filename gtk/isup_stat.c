@@ -416,6 +416,6 @@ register_tap_listener_gtkisup_stat(void)
 	exit(1);
     }
 
-    register_tap_menu_item("ISUP Message Types", REGISTER_TAP_GROUP_NONE,
+    register_tap_menu_item("ISUP Message Types", REGISTER_TAP_GROUP_TELEPHONY,
         isup_stat_gtk_cb, NULL, NULL, NULL);
 }

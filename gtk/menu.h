@@ -51,6 +51,14 @@ extern void menu_recent_read_finished(void);
 /** One of the name resolution menu items changed. */
 extern void menu_name_resolution_changed(void);
 
+/** The "Colorize Packet List" option changed. */
+extern void menu_colorize_changed(gboolean packet_list_colorize);
+
+#ifdef HAVE_LIBPCAP
+/** The "Auto Scroll Packet List in Live Capture" option changed. */
+extern void menu_auto_scroll_live_changed(gboolean auto_scroll_in);
+#endif
+
 /** Create a new menu.
  *
  * @param accel the created accelerator group

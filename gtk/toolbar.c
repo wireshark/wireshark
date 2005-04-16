@@ -62,6 +62,9 @@
 #include "compat_macros.h"
 #include "recent.h"
 #include "packet_history.h"
+#include "packet_list.h"
+#include "color_filters.h"
+#include "menu.h"
 
 /* Most of the icons used here are coming (or are derived) from GTK2 stock icons.
  * They were converted using "The Gimp" with standard conversion from png to xpm.
@@ -69,8 +72,9 @@
  * "ftp://ftp.gtk.org/pub/gtk/v2.0/gtk+-2.0.6.tar.bz2"
  * in the directory "gtk+-2.0.6\gtk\stock-icons" */
 
-/* The base for the new capture icons was GNOME's Connection-Ethernet.png and it's 
- * 16x16 counterpart, which are released under the GPL (or LGPL?). These icons were 
+/* The base for the new capture icons were GNOME system tools: Connection-Ethernet.png 
+ * see http://cvs.gnome.org/viewcvs/gnome-system-tools/pixmaps/ and it's 16x16 counterpart, 
+ * which are released under the GPL (or LGPL?). These icons were 
  * merged together with some icons of the tremendous ximian icon collection (>1200!)
  * for  OpenOffice? (LGPL'ed), which can be found at:
  * http://www.novell.com/coolsolutions/feature/1637.html
@@ -117,6 +121,18 @@
 #if GTK_MAJOR_VERSION >= 2
 #include "../image/toolbar/stock_properties_24.xpm"
 #endif
+#include "../image/eicon3d16.xpm"
+#include "../image/toolbar/colorize_24.xpm"
+#include "../image/toolbar/autoscroll_24.xpm"
+#include "../image/toolbar/resize_columns_24.xpm"
+#include "../image/toolbar/time_24.xpm"
+#include "../image/toolbar/internet_24.xpm"
+#include "../image/toolbar/web_support_24.xpm"
+#include "../image/toolbar/wiki_24.xpm"
+#include "../image/toolbar/conversations_16.xpm"
+#include "../image/toolbar/endpoints_16.xpm"
+#include "../image/toolbar/graphs_16.xpm"
+#include "../image/toolbar/telephony_16.xpm"
 
 
 /* XXX: add this key to some .h file, as it adds a key to the top level Widget? */
@@ -133,7 +149,7 @@ static GtkWidget *open_button, *save_button, *save_as_button, *close_button, *re
 static GtkWidget *print_button, *find_button, *history_forward_button, *history_back_button;
 static GtkWidget *go_to_button, *go_to_top_button, *go_to_bottom_button;
 static GtkWidget *display_filter_button;
-static GtkWidget *zoom_in_button, *zoom_out_button, *zoom_100_button;
+static GtkWidget *zoom_in_button, *zoom_out_button, *zoom_100_button, *colorize_button, *autoscroll_button, *resize_columns_button;
 static GtkWidget *color_display_button, *prefs_button, *help_button;
 
 #if GTK_MAJOR_VERSION >= 2
@@ -168,7 +184,19 @@ static void ethereal_stock_icons(void) {
         { ETHEREAL_STOCK_IMPORT,                ETHEREAL_STOCK_LABEL_IMPORT,                0, 0, NULL },
         { ETHEREAL_STOCK_EDIT,                  ETHEREAL_STOCK_LABEL_EDIT,                  0, 0, NULL },
         { ETHEREAL_STOCK_ADD_EXPRESSION,        ETHEREAL_STOCK_LABEL_ADD_EXPRESSION,        0, 0, NULL },
-        { ETHEREAL_STOCK_DONT_SAVE,             ETHEREAL_STOCK_LABEL_DONT_SAVE,             0, 0, NULL }
+        { ETHEREAL_STOCK_DONT_SAVE,             ETHEREAL_STOCK_LABEL_DONT_SAVE,             0, 0, NULL },
+        { ETHEREAL_STOCK_ABOUT,                 ETHEREAL_STOCK_LABEL_ABOUT,                 0, 0, NULL },
+        { ETHEREAL_STOCK_COLORIZE,              ETHEREAL_STOCK_LABEL_COLORIZE,              0, 0, NULL },
+        { ETHEREAL_STOCK_AUTOSCROLL,            ETHEREAL_STOCK_LABEL_AUTOSCROLL,            0, 0, NULL },
+        { ETHEREAL_STOCK_RESIZE_COLUMNS,        ETHEREAL_STOCK_LABEL_RESIZE_COLUMNS,        0, 0, NULL },
+        { ETHEREAL_STOCK_TIME,                  ETHEREAL_STOCK_LABEL_TIME,                  0, 0, NULL },
+        { ETHEREAL_STOCK_INTERNET,              ETHEREAL_STOCK_LABEL_INTERNET,              0, 0, NULL },
+        { ETHEREAL_STOCK_WEB_SUPPORT,           ETHEREAL_STOCK_LABEL_WEB_SUPPORT,           0, 0, NULL },
+        { ETHEREAL_STOCK_WIKI,                  ETHEREAL_STOCK_LABEL_WIKI,                  0, 0, NULL },
+        { ETHEREAL_STOCK_CONVERSATIONS,         ETHEREAL_STOCK_LABEL_CONVERSATIONS,         0, 0, NULL },
+        { ETHEREAL_STOCK_ENDPOINTS,             ETHEREAL_STOCK_LABEL_ENDPOINTS,             0, 0, NULL },
+        { ETHEREAL_STOCK_GRAPHS,                ETHEREAL_STOCK_LABEL_GRAPHS,                0, 0, NULL },
+        { ETHEREAL_STOCK_TELEPHONY,             ETHEREAL_STOCK_LABEL_TELEPHONY,             0, 0, NULL }
     };
 
     static const stock_pixmap_t pixmaps[] = {
@@ -190,6 +218,18 @@ static void ethereal_stock_icons(void) {
         { ETHEREAL_STOCK_IMPORT,                stock_save_24_xpm },    /* XXX: needs a better icon */
         { ETHEREAL_STOCK_EDIT,                  stock_properties_24_xpm },
         { ETHEREAL_STOCK_ADD_EXPRESSION,        stock_add_24_xpm },
+        { ETHEREAL_STOCK_ABOUT,                 eicon3d16_xpm },
+        { ETHEREAL_STOCK_COLORIZE,              colorize_24_xpm },
+        { ETHEREAL_STOCK_AUTOSCROLL,            autoscroll_24_xpm },
+        { ETHEREAL_STOCK_RESIZE_COLUMNS,        resize_columns_24_xpm},
+        { ETHEREAL_STOCK_TIME,                  time_24_xpm},
+        { ETHEREAL_STOCK_INTERNET,              internet_24_xpm},
+        { ETHEREAL_STOCK_WEB_SUPPORT,           web_support_24_xpm},
+        { ETHEREAL_STOCK_WIKI,                  wiki_24_xpm},
+        { ETHEREAL_STOCK_CONVERSATIONS,         conversations_16_xpm},
+        { ETHEREAL_STOCK_ENDPOINTS,             endpoints_16_xpm},
+        { ETHEREAL_STOCK_GRAPHS,                graphs_16_xpm},
+        { ETHEREAL_STOCK_TELEPHONY,             telephony_16_xpm},
         { NULL, NULL }
     };
 
@@ -365,6 +405,48 @@ static void toolbar_append_separator(GtkWidget *toolbar) {
 #endif /* GTK_MAJOR_VERSION */
 
 
+#define toolbar_icon(new_icon, window, xpm) { \
+    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask, &window->style->white, xpm); \
+    new_icon = gtk_pixmap_new(icon, mask); \
+    }
+
+
+#define toolbar_toggle_button(new_item, window, toolbar, stock, tooltip, xpm, callback, user_data) {\
+    toolbar_icon(iconw, window, xpm); \
+    new_item = gtk_toolbar_append_element(GTK_TOOLBAR(toolbar), \
+        GTK_TOOLBAR_CHILD_TOGGLEBUTTON, NULL, \
+        stock, tooltip, "Private", iconw, GTK_SIGNAL_FUNC(callback), user_data);\
+    }
+
+
+
+static void
+colorize_toggle_cb(GtkWidget *toggle_button, gpointer user_data _U_) {
+    menu_colorize_changed(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggle_button)));
+}
+
+void
+toolbar_colorize_changed(gboolean packet_list_colorize) {
+    if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(colorize_button)) != packet_list_colorize) {
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(colorize_button), packet_list_colorize);
+    }
+}
+
+
+#ifdef HAVE_LIBPCAP
+static void
+auto_scroll_live_toggle_cb(GtkWidget *autoscroll_button, gpointer user_data _U_) {
+    menu_auto_scroll_live_changed(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(autoscroll_button)));
+}
+
+void
+toolbar_auto_scroll_live_changed(gboolean auto_scroll_live) {
+    if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(autoscroll_button)) != auto_scroll_live) {
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(autoscroll_button), auto_scroll_live);
+    }
+}
+#endif
+
 /*
  * Create all toolbars (currently only the main toolbar)
  */
@@ -374,10 +456,10 @@ toolbar_new(void)
     GtkWidget *main_tb;
     GtkWidget *window = top_level;
 #if GTK_MAJOR_VERSION < 2
-    GdkPixmap *icon;
-    GtkWidget *iconw;
-    GdkBitmap * mask;
 #endif /* GTK_MAJOR_VERSION */
+    GdkPixmap *icon;
+    GdkBitmap * mask;
+    GtkWidget *iconw;
 
     
 #if GTK_MAJOR_VERSION >= 2
@@ -452,12 +534,22 @@ toolbar_new(void)
         GTK_STOCK_GOTO_BOTTOM, "Go to the last packet", stock_bottom_24_xpm, goto_bottom_frame_cb, NULL);
     toolbar_append_separator(main_tb);
 
+    toolbar_toggle_button(colorize_button, window, main_tb, 
+        ETHEREAL_STOCK_CAPTURE_INTERFACES, "Colorize Packet List", colorize_24_xpm, colorize_toggle_cb, NULL);
+#ifdef HAVE_LIBPCAP
+    toolbar_toggle_button(autoscroll_button, window, main_tb, 
+        ETHEREAL_STOCK_AUTOSCROLL, "Auto Scroll Packet List in Live Capture", autoscroll_24_xpm, auto_scroll_live_toggle_cb, NULL);
+#endif
+    toolbar_append_separator(main_tb);
+
     toolbar_item(zoom_in_button, window, main_tb, 
         GTK_STOCK_ZOOM_IN, "Zoom in", stock_zoom_in_24_xpm, view_zoom_in_cb, NULL);
     toolbar_item(zoom_out_button, window, main_tb, 
         GTK_STOCK_ZOOM_OUT, "Zoom out", stock_zoom_out_24_xpm, view_zoom_out_cb, NULL);
     toolbar_item(zoom_100_button, window, main_tb, 
         GTK_STOCK_ZOOM_100, "Zoom 100%", stock_zoom_1_24_xpm, view_zoom_100_cb, NULL);
+    toolbar_item(resize_columns_button, window, main_tb, 
+        ETHEREAL_STOCK_RESIZE_COLUMNS, "Resize All Columns", resize_columns_24_xpm, packet_list_resize_columns_cb, NULL);
     toolbar_append_separator(main_tb);
     
 #ifdef HAVE_LIBPCAP

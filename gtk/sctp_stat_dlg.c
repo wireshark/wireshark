@@ -607,7 +607,7 @@ void sctp_stat_start(GtkWidget *w _U_, gpointer data _U_)
 void
 register_tap_listener_sctp_stat_dlg(void)
 {
-	register_tap_menu_item("SCTP/Show All Associations...", REGISTER_TAP_GROUP_NONE,
+	register_tap_menu_item("SCTP/Show All Associations...", REGISTER_TAP_GROUP_TELEPHONY,
 	    sctp_stat_start, NULL, NULL, NULL);
 }
 

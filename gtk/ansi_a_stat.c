@@ -478,8 +478,8 @@ register_tap_listener_gtkansi_a_stat(void)
 	exit(1);
     }
 
-    register_tap_menu_item("ANSI/A-Interface BSMAP", REGISTER_TAP_GROUP_NONE, 
+    register_tap_menu_item("ANSI/A-Interface BSMAP", REGISTER_TAP_GROUP_TELEPHONY, 
         ansi_a_stat_gtk_bsmap_cb, NULL, NULL ,NULL);
-    register_tap_menu_item("ANSI/A-Interface DTAP", REGISTER_TAP_GROUP_NONE,
+    register_tap_menu_item("ANSI/A-Interface DTAP", REGISTER_TAP_GROUP_TELEPHONY,
         ansi_a_stat_gtk_dtap_cb, NULL, NULL ,NULL);
 }

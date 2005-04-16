@@ -465,6 +465,6 @@ register_tap_listener_gtkmtp3_stat(void)
 	exit(1);
     }
 
-    register_tap_menu_item("MTP3/MSUs",  REGISTER_TAP_GROUP_NONE,
+    register_tap_menu_item("MTP3/MSUs",  REGISTER_TAP_GROUP_TELEPHONY,
         mtp3_stat_gtk_cb, NULL, NULL, NULL);
 }

@@ -877,6 +877,6 @@ void sctp_analyse_start(GtkWidget *w _U_, gpointer data _U_)
 void
 register_tap_listener_sctp_analyse(void)
 {
-	register_tap_menu_item("SCTP/Analyse Association", REGISTER_TAP_GROUP_NONE,
+	register_tap_menu_item("SCTP/Analyse Association", REGISTER_TAP_GROUP_TELEPHONY,
 	                       sctp_analyse_start, NULL, NULL, NULL);
 }

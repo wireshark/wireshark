@@ -217,7 +217,8 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Edit/Find Pre_vious", "<control>B", find_previous_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Edit/_Time Reference", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/Edit/Time Reference/Set Time Reference (toggle)", "<control>T", reftime_frame_cb, REFTIME_TOGGLE, NULL, NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Edit/Time Reference/Set Time Reference (toggle)", "<control>T", reftime_frame_cb, 
+                        REFTIME_TOGGLE, ETHEREAL_STOCK_TIME),
     ITEM_FACTORY_ENTRY("/Edit/Time Reference/Find Next", NULL, reftime_frame_cb, REFTIME_FIND_NEXT, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/Time Reference/Find Previous", NULL, reftime_frame_cb, REFTIME_FIND_PREV, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/_Mark Packet (toggle)", "<control>M", mark_frame_cb,
@@ -237,7 +238,6 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/View/Packet _List", NULL, packet_list_show_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/Packet _Details", NULL, tree_view_show_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/Packet _Bytes", NULL, byte_view_show_cb, 0, "<CheckItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Colorize Packet List", NULL, colorize_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/View/_Time Display Format", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/View/Time Display Format/Time of Day", NULL, timestamp_absolute_cb, 
@@ -254,6 +254,7 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable for _MAC Layer", NULL, name_resolution_mac_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable for _Network Layer", NULL, name_resolution_network_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable for _Transport Layer", NULL, name_resolution_transport_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Colorize Packet List", NULL, colorize_cb, 0, "<CheckItem>", NULL),
 #ifdef HAVE_LIBPCAP
     ITEM_FACTORY_ENTRY("/View/Auto Scroll in Li_ve Capture", NULL, auto_scroll_live_cb, 0, "<CheckItem>", NULL),
 #endif
@@ -264,9 +265,9 @@ static GtkItemFactoryEntry menu_items[] =
                              0, GTK_STOCK_ZOOM_OUT),
     ITEM_FACTORY_STOCK_ENTRY("/View/_Normal Size", "<control>equal", view_zoom_100_cb,
                              0, GTK_STOCK_ZOOM_100),
+    ITEM_FACTORY_STOCK_ENTRY("/View/Resize All Columns", NULL, packet_list_resize_columns_cb,
+                       0, ETHEREAL_STOCK_RESIZE_COLUMNS),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Resize Columns", NULL, packet_list_resize_columns_cb,
-                       0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/View/Collapse _All", NULL, collapse_all_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/View/_Expand All", NULL, expand_all_cb,
@@ -348,13 +349,13 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Analyze/_Follow TCP Stream", NULL,
                        follow_stream_cb, 0, NULL, NULL),    
     ITEM_FACTORY_ENTRY("/_Statistics", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/Statistics/_Summary", NULL, summary_open_cb, 0, NULL, NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Statistics/_Summary", NULL, summary_open_cb, 0, GTK_STOCK_PROPERTIES),
     ITEM_FACTORY_ENTRY("/Statistics/_Protocol Hierarchy", NULL,
                        proto_hier_stats_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Statistics/Conversations", NULL,
-                       init_conversation_notebook_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Statistics/Endpoints", NULL,
-                       init_hostlist_notebook_cb, 0, NULL, NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Statistics/Conversations", NULL,
+                       init_conversation_notebook_cb, 0, ETHEREAL_STOCK_CONVERSATIONS),
+    ITEM_FACTORY_STOCK_ENTRY("/Statistics/Endpoints", NULL,
+                       init_hostlist_notebook_cb, 0, ETHEREAL_STOCK_ENDPOINTS),
     ITEM_FACTORY_ENTRY("/_Help", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Help/_Contents", "F1", topic_menu_cb, HELP_CONTENT, GTK_STOCK_HELP),
     ITEM_FACTORY_ENTRY("/Help/_Supported Protocols", NULL, supported_cb, 0, NULL, NULL),
@@ -372,15 +373,15 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Help/Manual Pages/Text2pcap", NULL, topic_menu_cb, LOCALPAGE_MAN_TEXT2PCAP, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Ethereal Online", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Help/Ethereal Online/Home Page", NULL, topic_menu_cb, ONLINEPAGE_HOME, GTK_STOCK_HOME),
-    ITEM_FACTORY_ENTRY("/Help/Ethereal Online/Wiki", NULL, topic_menu_cb, ONLINEPAGE_WIKI, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Help/Ethereal Online/User's Guide", NULL, topic_menu_cb, ONLINEPAGE_USERGUIDE, NULL, NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Help/Ethereal Online/Wiki", NULL, topic_menu_cb, ONLINEPAGE_WIKI, ETHEREAL_STOCK_WIKI),
+    ITEM_FACTORY_STOCK_ENTRY("/Help/Ethereal Online/User's Guide", NULL, topic_menu_cb, ONLINEPAGE_USERGUIDE, ETHEREAL_STOCK_WEB_SUPPORT),
     ITEM_FACTORY_ENTRY("/Help/Ethereal Online/FAQ's", NULL, topic_menu_cb, ONLINEPAGE_FAQ, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Ethereal Online/Downloads", NULL, topic_menu_cb, ONLINEPAGE_DOWNLOAD, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Ethereal Online/Example Files", NULL, topic_menu_cb, ONLINEPAGE_SAMPLE_FILES, NULL, NULL),
 #endif
     ITEM_FACTORY_ENTRY("/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/Help/_About Ethereal", NULL, about_ethereal_cb,
-                       0, NULL, NULL)
+    ITEM_FACTORY_STOCK_ENTRY("/Help/_About Ethereal", NULL, about_ethereal_cb,
+                       0, ETHEREAL_STOCK_ABOUT)
 };
 
 
@@ -392,7 +393,7 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
 {
     ITEM_FACTORY_ENTRY("/Mark Packet (toggle)", NULL, mark_frame_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Time Reference", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/Time Reference/Set Time Reference (toggle)", NULL, reftime_frame_cb, REFTIME_TOGGLE, NULL, NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Time Reference/Set Time Reference (toggle)", NULL, reftime_frame_cb, REFTIME_TOGGLE, ETHEREAL_STOCK_TIME),
     ITEM_FACTORY_ENTRY("/Time Reference/Find Next", NULL, reftime_frame_cb, REFTIME_FIND_NEXT, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Time Reference/Find Previous", NULL, reftime_frame_cb, REFTIME_FIND_PREV, NULL, NULL),
 
@@ -479,9 +480,9 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
 
     ITEM_FACTORY_STOCK_ENTRY("/Wiki Protocol Page", NULL, selected_ptree_info_cb,
-                       0, GTK_STOCK_HOME),
+                       0, ETHEREAL_STOCK_WIKI),
     ITEM_FACTORY_STOCK_ENTRY("/Filter Field Reference", NULL, selected_ptree_ref_cb,
-                       0, GTK_STOCK_HOME),
+                       0, ETHEREAL_STOCK_INTERNET),
     ITEM_FACTORY_ENTRY("/Protocol Preferences...", NULL, properties_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
@@ -668,6 +669,7 @@ register_tap_menu_item(
     case(REGISTER_TAP_GROUP_CONVERSATION_LIST): toolspath = "/Statistics/_Conversation List/"; break;
     case(REGISTER_TAP_GROUP_ENDPOINT_LIST): toolspath = "/Statistics/_Endpoint List/"; break;
     case(REGISTER_TAP_GROUP_RESPONSE_TIME): toolspath = "/Statistics/Service _Response Time/"; break;
+    case(REGISTER_TAP_GROUP_TELEPHONY): toolspath = "/Statistics/"; break;
     case(REGISTER_TAP_GROUP_NONE): toolspath = "/Statistics/"; break;
     default:
         g_assert(0);
@@ -770,6 +772,32 @@ guint merge_tap_menus_layered(GList *node, gint group) {
             entry = g_malloc0(sizeof (GtkItemFactoryEntry));
             entry->path = node_data->name;
             entry->callback = node_data->callback;
+#if GTK_MAJOR_VERSION >= 2
+            switch(group) {
+            case(REGISTER_TAP_GROUP_NONE):
+                break;
+            case(REGISTER_TAP_GROUP_GENERIC):
+                break;
+            case(REGISTER_TAP_GROUP_CONVERSATION_LIST):
+                entry->item_type = "<StockItem>";
+                entry->extra_data = ETHEREAL_STOCK_CONVERSATIONS;
+                break;
+            case(REGISTER_TAP_GROUP_ENDPOINT_LIST):
+                entry->item_type = "<StockItem>";
+                entry->extra_data = ETHEREAL_STOCK_ENDPOINTS;
+                break;
+            case(REGISTER_TAP_GROUP_RESPONSE_TIME):
+                entry->item_type = "<StockItem>";
+                entry->extra_data = ETHEREAL_STOCK_TIME;
+                break;
+            case(REGISTER_TAP_GROUP_TELEPHONY):
+                entry->item_type = "<StockItem>";
+                entry->extra_data = ETHEREAL_STOCK_TELEPHONY;
+                break;
+            default:
+                g_assert_not_reached();
+            }
+#endif
             gtk_item_factory_create_item(main_menu_factory, entry, node_data->callback_data, 2);
             set_menu_sensitivity(main_menu_factory, node_data->name, FALSE); /* no capture file yet */
             added++;
@@ -826,6 +854,9 @@ void merge_all_tap_menus(GList *node) {
         /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
     }
     if (merge_tap_menus_layered(node, REGISTER_TAP_GROUP_RESPONSE_TIME)) {
+        gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
+    }
+    if (merge_tap_menus_layered(node, REGISTER_TAP_GROUP_TELEPHONY)) {
         gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
     }
     if (merge_tap_menus_layered(node, REGISTER_TAP_GROUP_NONE)) {
@@ -1337,20 +1368,62 @@ name_resolution_transport_cb(GtkWidget *w _U_, gpointer d _U_)
 }
 
 #ifdef HAVE_LIBPCAP
+void
+menu_auto_scroll_live_changed(gboolean auto_scroll_live_in) {
+    GtkWidget *menu;
+
+
+    /* tell menu about it */
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Auto Scroll in Live Capture");
+    if( ((gboolean) GTK_CHECK_MENU_ITEM(menu)->active) != auto_scroll_live_in) {
+        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), auto_scroll_live_in);
+    }
+
+    /* tell toolbar about it */
+    toolbar_auto_scroll_live_changed(auto_scroll_live_in);
+
+    /* change auto scroll */
+    if(auto_scroll_live_in != auto_scroll_live) {
+        auto_scroll_live  = auto_scroll_live_in;
+    }
+}
+
 static void 
 auto_scroll_live_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-    auto_scroll_live = GTK_CHECK_MENU_ITEM(w)->active;
+    menu_auto_scroll_live_changed(GTK_CHECK_MENU_ITEM(w)->active);
 }
 #endif
 
-static void 
-colorize_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-    recent.packet_list_colorize = GTK_CHECK_MENU_ITEM(w)->active;
-    color_filters_enable(recent.packet_list_colorize);
-    cf_colorize_packets(&cfile);
+
+void
+menu_colorize_changed(gboolean packet_list_colorize) {
+    GtkWidget *menu;
+
+
+    /* tell menu about it */
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Colorize Packet List");
+    if( ((gboolean) GTK_CHECK_MENU_ITEM(menu)->active) != packet_list_colorize) {
+        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), packet_list_colorize);
+    }
+
+    /* tell toolbar about it */
+    toolbar_colorize_changed(packet_list_colorize);
+
+    /* change colorization */
+    if(packet_list_colorize != recent.packet_list_colorize) {
+        recent.packet_list_colorize = packet_list_colorize;
+        color_filters_enable(packet_list_colorize);
+        cf_colorize_packets(&cfile);
+    }
 }
+
+static void 
+colorize_cb(GtkWidget *w, gpointer d _U_)
+{
+    menu_colorize_changed(GTK_CHECK_MENU_ITEM(w)->active);
+}
+
 
 /* the recent file read has finished, update the menu corresponding */
 void
@@ -1422,6 +1495,8 @@ menu_recent_read_finished(void) {
     default:
         g_assert_not_reached();
     }
+
+    menu_colorize_changed(recent.packet_list_colorize);
 }
 
 
@@ -1734,7 +1809,7 @@ set_menus_for_selected_packet(capture_file *cf)
       cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/Edit/Unmark All Packets",
       cf->current_frame != NULL);
-  set_menu_sensitivity(main_menu_factory, "/View/Resize Columns",
+  set_menu_sensitivity(main_menu_factory, "/View/Resize All Columns",
       cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/View/Collapse All",
       cf->current_frame != NULL);

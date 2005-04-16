@@ -204,6 +204,18 @@ gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name)
 #define ETHEREAL_STOCK_EDIT                     "Edit..."
 #define ETHEREAL_STOCK_ADD_EXPRESSION           "Add Expression..."
 #define ETHEREAL_STOCK_DONT_SAVE                "Continue without Saving"
+#define ETHEREAL_STOCK_ABOUT                    "About"
+#define ETHEREAL_STOCK_COLORIZE                 "Colorize"
+#define ETHEREAL_STOCK_AUTOSCROLL               "Auto Scroll in Live Capture"
+#define ETHEREAL_STOCK_RESIZE_COLUMNS           "Resize Columns"
+#define ETHEREAL_STOCK_TIME                     "Time"
+#define ETHEREAL_STOCK_INTERNET                 "Internet"
+#define ETHEREAL_STOCK_WEB_SUPPORT              "Web Support"
+#define ETHEREAL_STOCK_WIKI                     "Wiki"
+#define ETHEREAL_STOCK_CONVERSATIONS            "Conversations"
+#define ETHEREAL_STOCK_ENDPOINTS                "Endpoints"
+#define ETHEREAL_STOCK_GRAPHS                   "Graphs"
+#define ETHEREAL_STOCK_TELEPHONY                "Telephony"
 
 /** Create a stock button. Will create a "normal" button for GTK1.
  *
@@ -308,6 +320,18 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 #define ETHEREAL_STOCK_LABEL_EDIT                     "_Edit..."
 #define ETHEREAL_STOCK_LABEL_ADD_EXPRESSION           "_Expression..." /* plus sign coming from icon */
 #define ETHEREAL_STOCK_LABEL_DONT_SAVE                "Continue _without Saving"
+#define ETHEREAL_STOCK_LABEL_ABOUT                    "_About"
+#define ETHEREAL_STOCK_LABEL_COLORIZE                 "_Colorize"
+#define ETHEREAL_STOCK_LABEL_AUTOSCROLL               "_Auto Scroll in Live Capture"
+#define ETHEREAL_STOCK_LABEL_RESIZE_COLUMNS           "Resize Columns"
+#define ETHEREAL_STOCK_LABEL_TIME                     "Time"
+#define ETHEREAL_STOCK_LABEL_INTERNET                 "Internet"
+#define ETHEREAL_STOCK_LABEL_WEB_SUPPORT              "Web Support"
+#define ETHEREAL_STOCK_LABEL_WIKI                     "Wiki"
+#define ETHEREAL_STOCK_LABEL_CONVERSATIONS            "Conversations"
+#define ETHEREAL_STOCK_LABEL_ENDPOINTS                "Endpoints"
+#define ETHEREAL_STOCK_LABEL_GRAPHS                   "Graphs"
+#define ETHEREAL_STOCK_LABEL_TELEPHONY                "Telephony"
 
 #ifdef HAVE_LIBPCAP
 #define ETHEREAL_STOCK_CAPTURE_INTERFACES       "Ethereal_Stock_CaptureInterfaces"
@@ -328,6 +352,18 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 #define ETHEREAL_STOCK_EDIT                     "Ethereal_Stock_Edit"
 #define ETHEREAL_STOCK_ADD_EXPRESSION           "Ethereal_Stock_Edit_Add_Expression"
 #define ETHEREAL_STOCK_DONT_SAVE                "Ethereal_Stock_Continue_without_Saving"
+#define ETHEREAL_STOCK_ABOUT                    "Ethereal_Stock_About"
+#define ETHEREAL_STOCK_COLORIZE                 "Ethereal_Stock_Colorize"
+#define ETHEREAL_STOCK_AUTOSCROLL               "Ethereal_Stock_Autoscroll"
+#define ETHEREAL_STOCK_RESIZE_COLUMNS           "Ethereal_Stock_Resize_Columns"
+#define ETHEREAL_STOCK_TIME                     "Ethereal_Stock_Time"
+#define ETHEREAL_STOCK_INTERNET                 "Ethereal_Stock_Internet"
+#define ETHEREAL_STOCK_WEB_SUPPORT              "Ethereal_Stock_Web_Support"
+#define ETHEREAL_STOCK_WIKI                     "Ethereal_Stock_Wiki"
+#define ETHEREAL_STOCK_CONVERSATIONS            "Ethereal_Stock_Conversations"
+#define ETHEREAL_STOCK_ENDPOINTS                "Ethereal_Stock_Endpoints"
+#define ETHEREAL_STOCK_GRAPHS                   "Ethereal_Stock_Graphs"
+#define ETHEREAL_STOCK_TELEPHONY                "Ethereal_Stock_Telephony"
 
 #define BUTTON_NEW_FROM_STOCK(stock_id) \
 gtk_button_new_from_stock(stock_id);

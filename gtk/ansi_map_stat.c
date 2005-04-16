@@ -442,6 +442,6 @@ register_tap_listener_gtkansi_map_stat(void)
 	exit(1);
     }
 
-    register_tap_menu_item("ANSI/MAP Operation", REGISTER_TAP_GROUP_NONE,
+    register_tap_menu_item("ANSI/MAP Operation", REGISTER_TAP_GROUP_TELEPHONY,
         ansi_map_stat_gtk_cb, NULL, NULL, NULL);
 }

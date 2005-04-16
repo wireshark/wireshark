@@ -294,6 +294,6 @@ void sctp_error_dlg_show(sctp_assoc_info_t* assoc)
 /*void
 register_tap_listener_sctp_error_dlg(void)
 {
-	register_tap_menu_item("SCTP/Show All Malformed Packets...", REGISTER_TAP_GROUP_NONE,
+	register_tap_menu_item("SCTP/Show All Malformed Packets...", REGISTER_TAP_GROUP_TELEPHONY,
 	    sctp_error_start, NULL, NULL, NULL);
 }*/

@@ -512,13 +512,20 @@ EXTRA_DIST = \
 	image/stock_dialog_info_48.xpm	\
 	image/tethereal.rc.in	\
 	image/text2pcap.rc.in	\
+	image/toolbar/autoscroll_24.xpm	\
 	image/toolbar/capture_filter_24.xpm	\
 	image/toolbar/capture_interfaces_24.xpm	\
 	image/toolbar/capture_options_24.xpm	\
 	image/toolbar/capture_restart_24.xpm	\
 	image/toolbar/capture_start_24.xpm	\
 	image/toolbar/capture_stop_24.xpm	\
+	image/toolbar/colorize_24.xpm	\
+	image/toolbar/conversations_16.xpm	\
 	image/toolbar/display_filter_24.xpm	\
+	image/toolbar/endpoints_16.xpm	\
+	image/toolbar/graphs_16.xpm	\
+	image/toolbar/internet_24.xpm	\
+	image/toolbar/resize_columns_24.xpm	\
 	image/toolbar/stock_add_24.xpm	\
 	image/toolbar/stock_bottom_24.xpm	\
 	image/toolbar/stock_clear_24.xpm	\
@@ -542,6 +549,10 @@ EXTRA_DIST = \
 	image/toolbar/stock_zoom_1_24.xpm	\
 	image/toolbar/stock_zoom_in_24.xpm	\
 	image/toolbar/stock_zoom_out_24.xpm	\
+	image/toolbar/telephony_16.xpm	\
+	image/toolbar/time_24.xpm	\
+	image/toolbar/web_support_24.xpm	\
+	image/toolbar/wiki_24.xpm	\
 	image/up_arrow.xpm	\
 	image/icon_layout_1.xpm \
 	image/icon_layout_2.xpm \

@@ -767,7 +767,7 @@ void
 register_tap_listener_voip_calls_dlg(void)
 {
 	register_tap_listener_cmd_arg("voip,calls",voip_calls_init_tap);
-	register_tap_menu_item("VoIP Calls...", REGISTER_TAP_GROUP_NONE,
+	register_tap_menu_item("VoIP Calls...", REGISTER_TAP_GROUP_TELEPHONY,
 	    voip_calls_launch, NULL, NULL, NULL);
 	    
 }
