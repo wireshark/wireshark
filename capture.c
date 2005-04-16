@@ -330,9 +330,16 @@ capture_input_closed(capture_options *capture_opts)
         /* first of all, we are not doing a capture any more */
         cf_callback_invoke(cf_cb_live_capture_fixed_finished, capture_opts->cf);
 
-        /* this is a normal mode capture, read in the capture file data */
-        capture_input_read_all(capture_opts, cf_is_tempfile(capture_opts->cf), 
-            cf_get_drops_known(capture_opts->cf), cf_get_drops(capture_opts->cf));
+        /* this is a normal mode capture and if no error happened, read in the capture file data */
+        if(capture_opts->save_file != NULL) {
+            capture_input_read_all(capture_opts, cf_is_tempfile(capture_opts->cf), 
+                cf_get_drops_known(capture_opts->cf), cf_get_drops(capture_opts->cf));
+        }
+    }
+
+    /* if we couldn't open a capture file, there's nothing more for us to do */
+    if(capture_opts->save_file == NULL) {
+        return;
     }
 
     /* does the user wants to restart the current capture? */
