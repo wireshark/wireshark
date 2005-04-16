@@ -3262,6 +3262,7 @@ dissect_read_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 		/* remember the FID for the processing of the response */
 		si = (smb_info_t *)pinfo->private_data;
 		si->sip->extra_info=GUINT_TO_POINTER(fid);
+		si->sip->extra_info_type=SMB_EI_FID;
 	}
 
 	/* read count */
@@ -3385,7 +3386,7 @@ dissect_read_file_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 	/* If we have seen the request, then print which FID this refers to */
 	/* first check if we have seen the request */
-	if(si->sip != NULL && si->sip->frame_req>0){
+	if(si->sip != NULL && si->sip->frame_req>0 && si->sip->extra_info_type == SMB_EI_FID){
 		fid=GPOINTER_TO_INT(si->sip->extra_info);
 		add_fid(tvb, pinfo, tree, 0, 0, (guint16) fid);
 	}
@@ -5192,6 +5193,7 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 		/* remember the FID for the processing of the response */
 		si = (smb_info_t *)pinfo->private_data;
 		si->sip->extra_info=GUINT_TO_POINTER(fid);
+		si->sip->extra_info_type=SMB_EI_FID;
 	}
 
 	/* offset */
@@ -5300,7 +5302,7 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* If we have seen the request, then print which FID this refers to */
 	/* first check if we have seen the request */
-	if(si->sip != NULL && si->sip->frame_req>0){
+	if(si->sip != NULL && si->sip->frame_req>0 && si->sip->extra_info_type==SMB_EI_FID){
 		fid=GPOINTER_TO_INT(si->sip->extra_info);
 		add_fid(tvb, pinfo, tree, 0, 0, (guint16) fid);
 	}
@@ -5406,6 +5408,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	if (!pinfo->fd->flags.visited) {
 		/* remember the FID for the processing of the response */
 		si->sip->extra_info=GUINT_TO_POINTER(fid);
+		si->sip->extra_info_type=SMB_EI_FID;
 	}
 
 	/* offset */
@@ -5534,7 +5537,7 @@ dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* If we have seen the request, then print which FID this refers to */
 	si = (smb_info_t *)pinfo->private_data;
 	/* first check if we have seen the request */
-	if(si->sip != NULL && si->sip->frame_req>0){
+	if(si->sip != NULL && si->sip->frame_req>0 && si->sip->extra_info_type==SMB_EI_FID){
 		add_fid(tvb, pinfo, tree, 0, 0, (guint16) GPOINTER_TO_UINT(si->sip->extra_info));
 	}
 
@@ -7573,6 +7576,7 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 				nti = g_mem_chunk_alloc(smb_nt_transact_info_chunk);
 				nti->subcmd = subcmd;
 				sip->extra_info = nti;
+				sip->extra_info_type = SMB_EI_NTI;
 			}
 		}
 	} else {
@@ -7650,7 +7654,7 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo,
 	guint16 bcp;
 
 	si = (smb_info_t *)pinfo->private_data;
-	if (si->sip != NULL)
+	if (si->sip != NULL && si->sip->extra_info_type == SMB_EI_NTI)
 		nti = si->sip->extra_info;
 	else
 		nti = NULL;
@@ -7731,7 +7735,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 	int padcnt;
 
 	si = (smb_info_t *)pinfo->private_data;
-	if (si->sip != NULL)
+	if (si->sip != NULL && si->sip->extra_info_type == SMB_EI_NTI)
 		nti = si->sip->extra_info;
 	else
 		nti = NULL;
@@ -7919,7 +7923,7 @@ dissect_nt_trans_setup_response(tvbuff_t *tvb, packet_info *pinfo,
 	smb_nt_transact_info_t *nti;
 
 	si = (smb_info_t *)pinfo->private_data;
-	if (si->sip != NULL)
+	if (si->sip != NULL && si->sip->extra_info_type == SMB_EI_NTI)
 		nti = si->sip->extra_info;
 	else
 		nti = NULL;
@@ -7986,7 +7990,7 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	gboolean save_fragmented;
 
 	si = (smb_info_t *)pinfo->private_data;
-	if (si->sip != NULL)
+	if (si->sip != NULL && si->sip->extra_info_type == SMB_EI_NTI)
 		nti = si->sip->extra_info;
 	else
 		nti = NULL;
@@ -9129,7 +9133,7 @@ dissect_ff2_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 	mask = tvb_get_letohs(tvb, offset);
 
 	si = (smb_info_t *)pinfo->private_data;
-	if (si->sip != NULL) {
+	if (si->sip != NULL && si->sip->extra_info_type == SMB_EI_T2I) {
 		t2i = si->sip->extra_info;
 		if (t2i != NULL) {
 			if (!pinfo->fd->flags.visited)
@@ -9198,7 +9202,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 	const char *fn;
 
 	si = (smb_info_t *)pinfo->private_data;
-	if (si->sip != NULL)
+	if (si->sip != NULL && si->sip->extra_info_type == SMB_EI_T2I)
 		t2i = si->sip->extra_info;
 	else
 		t2i = NULL;
@@ -11334,6 +11338,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						t2i->info_level = -1;
 						t2i->resume_keys = FALSE;
 						si->sip->extra_info = t2i;
+						si->sip->extra_info_type = SMB_EI_T2I;
 					}
 				}
 
@@ -11490,6 +11495,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					tri->aux_data_descrip = NULL;
 					tri->info_level = -1;
 					si->sip->extra_info = tri;
+					si->sip->extra_info_type = SMB_EI_TRI;
 				} else {
 					/*
 					 * We already filled the structure
@@ -11579,7 +11585,7 @@ dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	gboolean resume_keys = FALSE;
 
 	si = (smb_info_t *)pinfo->private_data;
-	if (si->sip != NULL) {
+	if (si->sip != NULL && si->sip->extra_info_type == SMB_EI_T2I) {
 		t2i = si->sip->extra_info;
 		if (t2i != NULL)
 			resume_keys = t2i->resume_keys;
@@ -11678,7 +11684,7 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	gboolean resume_keys = FALSE;
 
 	si = (smb_info_t *)pinfo->private_data;
-	if (si->sip != NULL) {
+	if (si->sip != NULL && si->sip->extra_info_type == SMB_EI_T2I) {
 		t2i = si->sip->extra_info;
 		if (t2i != NULL)
 			resume_keys = t2i->resume_keys;
@@ -12835,7 +12841,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 	dc = tvb_reported_length(tvb);
 
 	si = (smb_info_t *)pinfo->private_data;
-	if (si->sip != NULL)
+	if (si->sip != NULL && si->sip->extra_info_type == SMB_EI_T2I)
 		t2i = si->sip->extra_info;
 	else
 		t2i = NULL;
@@ -13002,7 +13008,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 	pc = tvb_reported_length(tvb);
 
 	si = (smb_info_t *)pinfo->private_data;
-	if (si->sip != NULL)
+	if (si->sip != NULL && si->sip->extra_info_type == SMB_EI_T2I)
 		t2i = si->sip->extra_info;
 	else
 		t2i = NULL;
@@ -13265,7 +13271,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	switch(si->cmd){
 	case SMB_COM_TRANSACTION2:
 		/* transaction2 */
-		if (si->sip != NULL) {
+		if (si->sip != NULL && si->sip->extra_info_type == SMB_EI_T2I) {
 			t2i = si->sip->extra_info;
 		} else
 			t2i = NULL;
@@ -13511,7 +13517,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		smb_transact_info_t *tri;
 
 		dissected_trans = FALSE;
-		if (si->sip != NULL)
+		if (si->sip != NULL && si->sip->extra_info_type == SMB_EI_TRI)
 			tri = si->sip->extra_info;
 		else
 			tri = NULL;
@@ -14852,6 +14858,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				}
 				sip->cmd = si->cmd;
 				sip->extra_info = NULL;
+				sip->extra_info_type = SMB_EI_NONE;
 				g_hash_table_insert(si->ct->unmatched, GUINT_TO_POINTER(pid_mid), sip);
 				new_key = g_mem_chunk_alloc(smb_saved_info_key_chunk);
 				new_key->frame = sip->frame_req;

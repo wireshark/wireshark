@@ -438,8 +438,11 @@ add_detail_level(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo,
     proto_tree *tree, int convert _U_, int hf_index)
 {
 	struct smb_info *smb_info = pinfo->private_data;
-	smb_transact_info_t *trp = smb_info->sip->extra_info;
+	smb_transact_info_t *trp = NULL;
 	guint16 level;
+
+	if (smb_info->sip->extra_info_type == SMB_EI_TRI)
+		trp = smb_info->sip->extra_info;
 
 	level = tvb_get_letohs(tvb, offset);
 	if (!pinfo->fd->flags.visited)
@@ -2459,7 +2462,7 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
     const struct lanman_desc *lanman, gboolean has_ent_count,
     guint16 ent_count)
 {
-	smb_transact_info_t *trp = smb_info->sip->extra_info;
+	smb_transact_info_t *trp = NULL;
 	const item_list_t *resp_data_list;
 	int offset, start_offset;
 	const char *label;
@@ -2471,6 +2474,9 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
 	proto_tree *entry_tree;
 	guint i, j;
 	guint16 aux_count;
+
+	if (smb_info->sip->extra_info_type == SMB_EI_TRI)
+		trp = smb_info->sip->extra_info;
 
 	/*
 	 * Find the item table for the matching request's detail level.
@@ -2607,7 +2613,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		    packet_info *pinfo, proto_tree *parent_tree)
 {
 	smb_info_t *smb_info = pinfo->private_data;
-	smb_transact_info_t *trp = smb_info->sip->extra_info;
+	smb_transact_info_t *trp = NULL;
 	int offset = 0, start_offset;
 	guint16 cmd;
 	guint16 status;
@@ -2623,6 +2629,9 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 	guint i;
 	proto_item *data_item;
 	proto_tree *data_tree;
+
+	if (smb_info->sip->extra_info_type == SMB_EI_TRI)
+		trp = smb_info->sip->extra_info;
 
 	if (!proto_is_protocol_enabled(find_protocol_by_id(proto_smb_lanman)))
 		return FALSE;
@@ -3536,7 +3545,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		    smb_info->request ? "Request" : "Response");
 	}
 
-	if (smb_info->sip != NULL)
+	if (smb_info->sip != NULL && smb_info->sip->extra_info_type == SMB_EI_TRI)
 		tri = smb_info->sip->extra_info;
 	else
 		tri = NULL;

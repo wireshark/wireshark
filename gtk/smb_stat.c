@@ -101,13 +101,13 @@ smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 
 	add_srt_table_data(&ss->smb_srt_table, si->cmd, &si->sip->req_time, pinfo);
 
-	if(si->cmd==0xA0){
+	if(si->cmd==0xA0 && si->sip->extra_info_type == SMB_EI_NTI){
 		smb_nt_transact_info_t *sti=(smb_nt_transact_info_t *)si->sip->extra_info;
 
 		if(sti){
 			add_srt_table_data(&ss->nt_trans_srt_table, sti->subcmd, &si->sip->req_time, pinfo);
 		}
-	} else if(si->cmd==0x32){
+	} else if(si->cmd==0x32 && si->sip->extra_info == SMB_EI_T2I){
 		smb_transact2_info_t *st2i=(smb_transact2_info_t *)si->sip->extra_info;
 
 		if(st2i){

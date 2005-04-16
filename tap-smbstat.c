@@ -67,14 +67,14 @@ smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 		return 0;
 	}
 
-	if(si->cmd==0xA0){
+	if(si->cmd==0xA0 && si->sip->extra_info_type == SMB_EI_NTI){
 		smb_nt_transact_info_t *sti=(smb_nt_transact_info_t *)si->sip->extra_info;
 
 		/*nt transaction*/
 		if(sti){
 			sp=&(ss->nt_trans[sti->subcmd]);
 		}
-	} else if(si->cmd==0x32){
+	} else if(si->cmd==0x32 && si->sip->extra_info_type == SMB_EI_T2I){
 		smb_transact2_info_t *st2i=(smb_transact2_info_t *)si->sip->extra_info;
 
 		/*transaction2*/
