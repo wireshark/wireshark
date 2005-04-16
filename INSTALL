@@ -6,7 +6,7 @@ that can run the "configure" script in this same directory. These
 are not the installation instructions for Windows systems; see
 README.win32 for those instructions.
 
-0. This is alpha software.  Beware.
+0. This is beta software.  Beware.
 
 1. If you wish to build Ethereal, make sure you have GTK+ and GLIB
     installed. Try running 'gtk-config --version' and
