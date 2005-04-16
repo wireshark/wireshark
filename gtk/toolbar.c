@@ -361,12 +361,15 @@ void set_toolbar_for_captured_packets(gboolean have_captured_packets) {
     if (toolbar_init) {
         gtk_widget_set_sensitive(print_button, have_captured_packets);
         gtk_widget_set_sensitive(find_button, have_captured_packets);
+        gtk_widget_set_sensitive(history_back_button, have_captured_packets);
+        gtk_widget_set_sensitive(history_forward_button, have_captured_packets);
         gtk_widget_set_sensitive(go_to_button, have_captured_packets);
         gtk_widget_set_sensitive(go_to_top_button, have_captured_packets);
         gtk_widget_set_sensitive(go_to_bottom_button, have_captured_packets);
         gtk_widget_set_sensitive(zoom_in_button, have_captured_packets);
         gtk_widget_set_sensitive(zoom_out_button, have_captured_packets);
         gtk_widget_set_sensitive(zoom_100_button, have_captured_packets);        
+        gtk_widget_set_sensitive(resize_columns_button, have_captured_packets);
         /* XXX - I don't see a reason why this should be done (as it is in the
          * menus) */
         /* gtk_widget_set_sensitive(color_display_button, have_captured_packets);*/
@@ -377,7 +380,7 @@ void set_toolbar_for_captured_packets(gboolean have_captured_packets) {
 /* helper function: add a separator to the toolbar */
 static void toolbar_append_separator(GtkWidget *toolbar) {
 #if GTK_MAJOR_VERSION < 2
-    /* XXX - the usage of a gtk_separator doesn't seem to work for a toolbar.
+    /* the usage of a gtk_separator doesn't seem to work for a toolbar.
      * (at least in the win32 port of gtk 1.3)
      * So simply add a few spaces */
     gtk_toolbar_append_space(GTK_TOOLBAR(toolbar)); /* space after item */
