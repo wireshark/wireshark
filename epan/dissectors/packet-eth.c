@@ -379,6 +379,7 @@ add_ethernet_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
       }
     }
     if (trailer_length != 0) {
+      tvb_ensure_bytes_exist(tvb, 0, trailer_length);
       proto_tree_add_item(fh_tree, trailer_id, trailer_tvb, 0,
 			  trailer_length, FALSE);
     }
