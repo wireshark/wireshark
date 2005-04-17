@@ -1947,10 +1947,12 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 			proto_item_append_text(ti, \
 					" <Error: Invalid header value>"); \
 		} else if (hf > 0) { /* Create protocol tree item */ \
+			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 			proto_tree_add_string(tree, hf, \
 					tvb, hdr_start, offset - hdr_start, \
 					" <Error: Invalid header value>"); \
 		} else { /* Create anonymous header field entry */ \
+			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 			proto_tree_add_text(tree, tvb, hdr_start, offset - hdr_start, \
 					"%s: <Error: Invalid header value>", \
 					val_to_str (hdr_id, vals_field_names, \
@@ -2003,6 +2005,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 	proto_tree *parameter_tree = NULL; \
 	\
 	wkh_1_WellKnownValue; \
+		tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 		ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 				tvb, hdr_start, offset - hdr_start, \
 				val_to_str(val_id & 0x7F, vals_content_types, \
@@ -2012,10 +2015,12 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 		/* Sometimes with a No-Content response, a NULL content type \
 		 * is reported. Process this correctly! */ \
 		if (*val_str) { \
+			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 			ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 					tvb, hdr_start, offset - hdr_start, \
 					val_str); \
 		} else { \
+			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 			ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 					tvb, hdr_start, offset - hdr_start, \
 					"<no content type has been specified>"); \
@@ -2028,11 +2033,13 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 			get_extension_media(val_str, tvb, off, len, ok); \
 			/* As we're using val_str, it is automatically g_free()d */ \
 			off += len; /* off now points to 1st byte after string */ \
+			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 			ti = proto_tree_add_string (tree, hf_hdr_ ## underscored, \
 					tvb, hdr_start, offset - hdr_start, val_str); \
 		} else if (is_integer_value(peek)) { \
 			get_integer_value(val, tvb, off, len, ok); \
 			if (ok) { \
+				tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 						tvb, hdr_start, offset - hdr_start, \
 						val_to_str(val, vals_content_types, \
@@ -2699,6 +2706,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 	wkh_1_WellKnownValue; \
 		/* Invalid */ \
 	wkh_2_TextualValue; \
+		tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 		ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 				tvb, hdr_start, offset - hdr_start, val_str); \
 		ok = TRUE; \
@@ -2745,10 +2753,12 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 			} else { /* OK (no trailing quote) */ \
 				str = g_strdup_printf("%s\"", val_str); \
 			} \
+			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 			ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 					tvb, hdr_start, offset - hdr_start, str); \
 			g_free(str); \
 		} else { \
+			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 			ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 					tvb, hdr_start, offset - hdr_start, val_str); \
 			proto_item_append_text(ti, \
@@ -2779,6 +2789,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 	wkh_1_WellKnownValue; \
 		/* Invalid */ \
 	wkh_2_TextualValue; \
+		tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 		ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 				tvb, hdr_start, offset - hdr_start, val_str); \
 		ok = TRUE; \
@@ -2789,6 +2800,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 				tv.secs = val; \
 				tv.nsecs = 0; \
 				str = abs_time_to_str(&tv); \
+				tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 						tvb, hdr_start, offset - hdr_start, str); \
 				/* BEHOLD: do NOT try to free str, as this generates a core
@@ -2827,6 +2839,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 				tv.secs = val; \
 				tv.nsecs = 0; \
 				str = abs_time_to_str(&tv); \
+				tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 						tvb, hdr_start, offset - hdr_start, str); \
 				/* BEHOLD: do NOT try to free str, as this generates a core
@@ -2857,6 +2870,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 	\
 	wkh_1_WellKnownValue; \
 		if (val_id == 0x80) { /* Openwave TOD header uses this format */ \
+			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 			ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 					tvb, hdr_start, offset - hdr_start, \
 					"Requesting Time Of Day"); \
@@ -2874,6 +2888,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 			get_date_value(val, tvb, off, len, ok); \
 			if (ok) { \
 				if (val == 0) { \
+					tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 					ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 							tvb, hdr_start, offset - hdr_start, \
 							"Requesting Time Of Day"); \
@@ -2881,6 +2896,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 					tv.secs = val; \
 					tv.nsecs = 0; \
 					str = abs_time_to_str(&tv); \
+					tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 					ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 							tvb, hdr_start, offset - hdr_start, str); \
 				} \
@@ -2935,12 +2951,14 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 	guint32 val = 0, off = val_start, len; \
 	\
 	wkh_1_WellKnownValue; \
+		tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 		ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 				tvb, hdr_start, offset - hdr_start, \
 				val_to_str(val_id & 0x7F, valueString, \
 				"(Unknown " valueName " identifier 0x%X)")); \
 		ok = TRUE; \
 	wkh_2_TextualValue; \
+		tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 		ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 				tvb, hdr_start, offset - hdr_start, val_str); \
 		ok = TRUE; \
@@ -2948,6 +2966,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 		if (val_id <= 4) { /* Length field already parsed by macro! */ \
 			get_long_integer(val, tvb, off, len, ok); \
 			if (ok) { \
+				tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 						tvb, hdr_start, offset - hdr_start, \
 						val_to_str(val_id & 0x7F, valueString, \
@@ -2999,6 +3018,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
 		off = val_start + val_len_len; \
 		peek = tvb_get_guint8(tvb, off); \
 		if (peek == 0x80) { /* Basic */ \
+			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 			ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 					tvb, hdr_start, offset - hdr_start, "basic"); \
 			subtree = proto_item_add_subtree(ti, ett_header); \
@@ -3020,9 +3040,11 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
 		} else { /* Authentication-scheme: token-text */ \
 			get_token_text(str, tvb, off, len, ok); \
 			if (ok) { \
+				tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 						tvb, hdr_start, off - hdr_start, str); \
 				subtree = proto_item_add_subtree(ti, ett_header); \
+				tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 				proto_tree_add_string(subtree, \
 						hf_hdr_ ## underscored ## _scheme, \
 						tvb, hdr_start, off - hdr_start, str); \
@@ -3080,6 +3102,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
 		off = val_start + val_len_len; \
 		peek = tvb_get_guint8(tvb, off); \
 		if (peek == 0x80) { /* Basic */ \
+			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 			ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 					tvb, hdr_start, offset - hdr_start, "basic"); \
 			subtree = proto_item_add_subtree(ti, ett_header); \
@@ -3113,6 +3136,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
 		} else { /* Authentication-scheme: token-text */ \
 			get_token_text(str, tvb, off, len, ok); \
 			if (ok) { \
+				tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 						tvb, hdr_start, off - hdr_start, str); \
 				subtree = proto_item_add_subtree(ti, ett_header); \
@@ -3222,6 +3246,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 	\
 	wkh_1_WellKnownValue; \
 		str = g_strdup_printf("%u", val_id & 0x7F); \
+		tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 		ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 				tvb, hdr_start, offset - hdr_start, str); \
 		g_free(str); \
@@ -3233,6 +3258,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 			get_long_integer(val, tvb, off, len, ok); \
 			if (ok) { \
 				str = g_strdup_printf("%u", val); \
+				tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 						tvb, hdr_start, offset - hdr_start, str); \
 				g_free(str); \
@@ -3255,10 +3281,12 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 	wkh_1_WellKnownValue; \
 		val_str = match_strval(val_id & 0x7F, valueString); \
 		if (val_str) { \
+			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 			ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 				tvb, hdr_start, offset - hdr_start, val_str); \
 			ok = TRUE; \
 		} else { \
+			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 			ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 				tvb, hdr_start, offset - hdr_start, \
 				"<Unknown " valueName ">"); \
@@ -3271,10 +3299,12 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 			if (ok) { \
 				val_str = match_strval(val_id & 0x7F, valueString); \
 				if (val_str) { \
+					tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 					ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 						tvb, hdr_start, offset - hdr_start, val_str); \
 					ok = TRUE; \
 				} else { \
+					tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 					ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 						tvb, hdr_start, offset - hdr_start, \
 						"<Unknown " valueName ">"); \
@@ -3782,10 +3812,12 @@ static guint32 wkh_te (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packe
 			proto_item_append_text(ti, \
 					"<Error: Invalid header value>"); \
 		} else if (hf > 0) { /* Create protocol tree item */ \
+			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 			proto_tree_add_string(tree, hf, \
 					tvb, hdr_start, offset - hdr_start, \
 					" <Error: Invalid header value>"); \
 		} else { /* Create anonymous header field entry */ \
+			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 			proto_tree_add_text(tree, tvb, hdr_start, offset - hdr_start, \
 					"%s: <Error: Invalid header value>", \
 					val_to_str (hdr_id, vals_openwave_field_names, \
