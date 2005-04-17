@@ -625,6 +625,20 @@ cf_finish_tail(capture_file *cf, int *err)
 }
 #endif /* HAVE_LIBPCAP */
 
+
+/* update the f_len field */
+cf_update_f_len(capture_file *cf) {
+  int         fd;
+  struct stat cf_stat;
+
+
+  fd = wtap_fd(cf->wth);
+  if (fstat(fd, &cf_stat) >= 0) {
+      cf->f_len = cf_stat.st_size;
+  }
+}
+
+
 const gchar *
 cf_get_display_name(capture_file *cf)
 {
