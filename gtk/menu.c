@@ -340,11 +340,11 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Analyze/Prepare a Filter/... o_r not Selected", NULL, match_selected_ptree_cb, 
                        MATCH_SELECTED_OR_NOT, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/_Enabled Protocols...", "<shift><control>R", proto_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/Decode _As...", NULL, decode_as_cb,
-                       0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/_User Specified Decodes...", NULL,
-                       decode_show_cb, 0, NULL, NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Analyze/_Enabled Protocols...", "<shift><control>R", proto_cb, 0, ETHEREAL_STOCK_CHECKBOX),
+    ITEM_FACTORY_STOCK_ENTRY("/Analyze/Decode _As...", NULL, decode_as_cb,
+                       0, ETHEREAL_STOCK_DECODE_AS),
+    ITEM_FACTORY_STOCK_ENTRY("/Analyze/_User Specified Decodes...", NULL,
+                       decode_show_cb, 0, ETHEREAL_STOCK_DECODE_AS),
     ITEM_FACTORY_ENTRY("/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Analyze/_Follow TCP Stream", NULL,
                        follow_stream_cb, 0, NULL, NULL),    
@@ -432,8 +432,8 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
 
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
 
-    ITEM_FACTORY_ENTRY("/Decode As...", NULL, decode_as_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Print...", NULL, file_print_selected_cmd_cb, 0, NULL, NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Decode As...", NULL, decode_as_cb, 0, ETHEREAL_STOCK_DECODE_AS),
+    ITEM_FACTORY_STOCK_ENTRY("/Print...", NULL, file_print_selected_cmd_cb, 0, GTK_STOCK_PRINT),
     ITEM_FACTORY_ENTRY("/Show Packet in New Window", NULL, new_window_cb,
                        0, NULL, NULL)
 };
@@ -486,7 +486,7 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
     ITEM_FACTORY_ENTRY("/Protocol Preferences...", NULL, properties_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/Decode As...", NULL, decode_as_cb, 0, NULL, NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Decode As...", NULL, decode_as_cb, 0, ETHEREAL_STOCK_DECODE_AS),
     ITEM_FACTORY_ENTRY("/_Resolve Name", NULL, resolve_name_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/_Go to Corresponding Packet", NULL, goto_framenum_cb, 0, NULL, NULL),
 };

@@ -519,8 +519,10 @@ EXTRA_DIST = \
 	image/toolbar/capture_restart_24.xpm	\
 	image/toolbar/capture_start_24.xpm	\
 	image/toolbar/capture_stop_24.xpm	\
+	image/toolbar/checkbox_16.xpm	\
 	image/toolbar/colorize_24.xpm	\
 	image/toolbar/conversations_16.xpm	\
+	image/toolbar/decode_as_16.xpm	\
 	image/toolbar/display_filter_24.xpm	\
 	image/toolbar/endpoints_16.xpm	\
 	image/toolbar/graphs_16.xpm	\

@@ -133,6 +133,8 @@
 #include "../image/toolbar/endpoints_16.xpm"
 #include "../image/toolbar/graphs_16.xpm"
 #include "../image/toolbar/telephony_16.xpm"
+#include "../image/toolbar/decode_as_16.xpm"
+#include "../image/toolbar/checkbox_16.xpm"
 
 
 /* XXX: add this key to some .h file, as it adds a key to the top level Widget? */
@@ -196,7 +198,9 @@ static void ethereal_stock_icons(void) {
         { ETHEREAL_STOCK_CONVERSATIONS,         ETHEREAL_STOCK_LABEL_CONVERSATIONS,         0, 0, NULL },
         { ETHEREAL_STOCK_ENDPOINTS,             ETHEREAL_STOCK_LABEL_ENDPOINTS,             0, 0, NULL },
         { ETHEREAL_STOCK_GRAPHS,                ETHEREAL_STOCK_LABEL_GRAPHS,                0, 0, NULL },
-        { ETHEREAL_STOCK_TELEPHONY,             ETHEREAL_STOCK_LABEL_TELEPHONY,             0, 0, NULL }
+        { ETHEREAL_STOCK_TELEPHONY,             ETHEREAL_STOCK_LABEL_TELEPHONY,             0, 0, NULL },
+        { ETHEREAL_STOCK_DECODE_AS,             ETHEREAL_STOCK_LABEL_DECODE_AS,             0, 0, NULL },
+        { ETHEREAL_STOCK_CHECKBOX,              ETHEREAL_STOCK_LABEL_CHECKBOX,              0, 0, NULL }
     };
 
     static const stock_pixmap_t pixmaps[] = {
@@ -230,6 +234,8 @@ static void ethereal_stock_icons(void) {
         { ETHEREAL_STOCK_ENDPOINTS,             endpoints_16_xpm},
         { ETHEREAL_STOCK_GRAPHS,                graphs_16_xpm},
         { ETHEREAL_STOCK_TELEPHONY,             telephony_16_xpm},
+        { ETHEREAL_STOCK_DECODE_AS,             decode_as_16_xpm},
+        { ETHEREAL_STOCK_CHECKBOX,              checkbox_16_xpm},
         { NULL, NULL }
     };
 

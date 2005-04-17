@@ -216,6 +216,8 @@ gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name)
 #define ETHEREAL_STOCK_ENDPOINTS                "Endpoints"
 #define ETHEREAL_STOCK_GRAPHS                   "Graphs"
 #define ETHEREAL_STOCK_TELEPHONY                "Telephony"
+#define ETHEREAL_STOCK_DECODE_AS                "Decode As"
+#define ETHEREAL_STOCK_CHECKBOX                 "Checkbox"
 
 /** Create a stock button. Will create a "normal" button for GTK1.
  *
@@ -332,6 +334,8 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 #define ETHEREAL_STOCK_LABEL_ENDPOINTS                "Endpoints"
 #define ETHEREAL_STOCK_LABEL_GRAPHS                   "Graphs"
 #define ETHEREAL_STOCK_LABEL_TELEPHONY                "Telephony"
+#define ETHEREAL_STOCK_LABEL_DECODE_AS                "Decode As"
+#define ETHEREAL_STOCK_LABEL_CHECKBOX                 "Checkbox"
 
 #ifdef HAVE_LIBPCAP
 #define ETHEREAL_STOCK_CAPTURE_INTERFACES       "Ethereal_Stock_CaptureInterfaces"
@@ -364,6 +368,8 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 #define ETHEREAL_STOCK_ENDPOINTS                "Ethereal_Stock_Endpoints"
 #define ETHEREAL_STOCK_GRAPHS                   "Ethereal_Stock_Graphs"
 #define ETHEREAL_STOCK_TELEPHONY                "Ethereal_Stock_Telephony"
+#define ETHEREAL_STOCK_DECODE_AS                "Ethereal_Stock_DecodeAs"
+#define ETHEREAL_STOCK_CHECKBOX                 "Ethereal_Stock_Checkbox"
 
 #define BUTTON_NEW_FROM_STOCK(stock_id) \
 gtk_button_new_from_stock(stock_id);
