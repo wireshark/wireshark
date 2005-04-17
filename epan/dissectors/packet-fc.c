@@ -1134,12 +1134,19 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         is_exchg_resp = ((tvb_get_guint8 (tvb, offset+20) & 0x80) == 0x80);
     }
 
+    if (tvb_reported_length (tvb) <= FC_HEADER_SIZE)
+        THROW(ReportedBoundsError);
+
     frag_size = tvb_reported_length (tvb)-FC_HEADER_SIZE;
 
     /* If there is an MDS header, we need to subtract the MDS trailer size */
     if ((pinfo->ethertype == ETHERTYPE_UNK) || (pinfo->ethertype == ETHERTYPE_FCFT)) {
+        if (frag_size <= MDSHDR_TRAILER_SIZE)
+	    THROW(ReportedBoundsError);
         frag_size -= MDSHDR_TRAILER_SIZE;
     } else if (pinfo->ethertype == ETHERTYPE_BRDWALK) {
+        if (frag_size <= 8)
+	    THROW(ReportedBoundsError);
         frag_size -= 8;         /* 4 byte of FC CRC +
                                    4 bytes of error+EOF = 8 bytes  */
     }
