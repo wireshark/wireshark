@@ -629,26 +629,20 @@ dissect_dcm_assoc(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb, int offse
 	offset += 4;
 	switch (id) {
 	case 0x10:		/* App context */
-	    name = g_malloc(1 + len);
-	    tvb_memcpy(tvb, name, offset, len);
-	    *(name + len) = 0;
-	    proto_tree_add_string(dcm_tree, hf_dcm_pdi_name, tvb, offset, len, name);
-	    g_free(name);
+	    proto_tree_add_item(dcm_tree, hf_dcm_pdi_name, tvb, offset, len, FALSE);
 	    offset += len;
 	    break;
 	case 0x30:		/* Abstract syntax */
-	    dcm_data->last->abs = name = g_malloc(1 + len);
-	    tvb_memcpy(tvb, name, offset, len);
-	    *(name + len) = 0;
-	    proto_tree_add_string(dcm_tree, hf_dcm_pdi_syntax, tvb, offset, len, name);
+	    proto_tree_add_item(dcm_tree, hf_dcm_pdi_syntax, tvb, offset, len, FALSE);
 	    offset += len;
 	    break;
 	case 0x40:		/* Transfer syntax */
-	    name = g_malloc(1 + len);
-	    tvb_memcpy(tvb, name, offset, len);
-	    *(name + len) = 0;
-	    proto_tree_add_string(dcm_tree, hf_dcm_pdi_syntax, tvb, offset, len, name);
-	    if (reply && di && di->valid) dcm_setSyntax(di, name);
+	    proto_tree_add_item(dcm_tree, hf_dcm_pdi_syntax, tvb, offset, len, FALSE);
+	    if (reply && di && di->valid) {
+		/* XXX - This is a memory leak. */
+		name = tvb_get_string(tvb, offset, len);
+		dcm_setSyntax(di, name);
+	    }
 	    reply = 0;
 	    offset += len;
 	    break;
@@ -692,19 +686,11 @@ dissect_dcm_assoc(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb, int offse
 	    offset += len;
 	    break;
 	case 0x52:		/* UID? */
-	    name = g_malloc(1 + len);
-	    tvb_memcpy(tvb, name, offset, len);
-	    *(name + len) = 0;
-	    proto_tree_add_string(dcm_tree, hf_dcm_impl, tvb, offset, len, name);
-	    g_free(name);
+	    proto_tree_add_item(dcm_tree, hf_dcm_impl, tvb, offset, len, FALSE);
 	    offset += len;
 	    break;
 	case 0x55:		/* version? */
-	    name = g_malloc(1 + len);
-	    tvb_memcpy(tvb, name, offset, len);
-	    *(name + len) = 0;
-	    proto_tree_add_string(dcm_tree, hf_dcm_vers, tvb, offset, len, name);
-	    g_free(name);
+	    proto_tree_add_item(dcm_tree, hf_dcm_vers, tvb, offset, len, FALSE);
 	    offset += len;
 	    break;
 	default:
