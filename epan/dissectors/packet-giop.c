@@ -4787,8 +4787,11 @@ void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *ptree, int *offset,
   /* return if zero length sequence */
 
   if (seqlen == 0) {
-    if (tf)
+    if (tf) {
+      if (*offset - start_offset <= 0)
+        THROW(ReportedBoundsError);
       proto_item_set_len(tf, *offset - start_offset);
+    }
 
     return;
   }
@@ -4876,8 +4879,11 @@ void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *ptree, int *offset,
 
   } /* for seqlen  */
 
-  if (tf)
+  if (tf) {
+    if (*offset - start_offset <= 0)
+      THROW(ReportedBoundsError);
     proto_item_set_len(tf, *offset - start_offset);
+  }
 
 }
 
