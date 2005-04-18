@@ -1521,7 +1521,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
  */
 static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree){
   int linelen, tokenlen, *my_param;
-  gint tvb_lineend,tvb_current_len, tvb_linebegin,tvb_len;
+  gint tvb_lineend,tvb_current_len, tvb_linebegin, tvb_len, old_lineend;
   gint tvb_tokenbegin;
   proto_tree *mgcp_param_ti, *mgcp_param_tree;
   proto_item* (*my_proto_tree_add_string)(proto_tree*, int, tvbuff_t*, gint,
@@ -1548,6 +1548,7 @@ static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree){
 
     /* Parse the parameters */
     while(tvb_lineend < tvb_len){
+      old_lineend = tvb_lineend;
       linelen = tvb_find_line_end(tvb, tvb_linebegin, -1,&tvb_lineend,FALSE);
       tvb_tokenbegin = tvb_parse_param(tvb, tvb_linebegin, linelen,
 				       &my_param);
@@ -1563,6 +1564,8 @@ static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree){
 						 tokenlen));
       }
       tvb_linebegin = tvb_lineend;
+      if (old_lineend <= tvb_lineend)
+        THROW(ReportedBoundsError);
     }
   }
 }
