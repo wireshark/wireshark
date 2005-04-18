@@ -24,12 +24,14 @@
  * BOOTP and DHCP Parameters
  *     http://www.iana.org/assignments/bootp-dhcp-parameters
  * DOCSIS(TM) 2.0 Radio Frequency Interface Specification
- *     http://www.cablemodem.com/downloads/specs/CM-SP-RFIv2.0-I06-040804.pdf
- * PacketCable(TM) MTA Device Provisioning Specification
+ *     http://www.cablemodem.com/downloads/specs/CM-SP-RFIv2.0-I08-050408.pdf
+ * PacketCable(TM) 1.0 MTA Device Provisioning Specification
  *     http://www.packetcable.com/downloads/specs/PKT-SP-PROV-I10-040730.pdf
  *     http://www.cablelabs.com/specifications/archives/PKT-SP-PROV-I05-021127.pdf (superseded by above)
+ * PacketCable(TM) 1.5 MTA Device Provisioning Specification
+ *     http://www.packetcable.com/downloads/specs/PKT-SP-PROV1.5-I01-050128.pdf
  * CableHome(TM) 1.1 Specification
- *     http://www.cablelabs.com/projects/cablehome/downloads/specs/CH-SP-CH1.1-I05-040806.pdf
+ *     http://www.cablelabs.com/projects/cablehome/downloads/specs/CH-SP-CH1.1-I08-050408.pdf
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -182,7 +184,7 @@ static const true_false_string flag_set_broadcast = {
 };
 
 
-/* PacketCable definitions */
+/* PacketCable/DOCSIS definitions */
 #define PACKETCABLE_MTA_CAP10 "pktc1.0:"
 #define PACKETCABLE_MTA_CAP15 "pktc1.5:"
 #define PACKETCABLE_CM_CAP11  "docsis1.1:"

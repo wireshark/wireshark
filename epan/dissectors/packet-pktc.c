@@ -3,7 +3,7 @@
  *              PacketCable (PKTC) MTA FQDN                  packet disassembly
  *
  * References: 
- * [1] PacketCable Security Specification, PKT-SP-SEC-I10-040113, January 13, 
+ * [1] PacketCable 1.0 Security Specification, PKT-SP-SEC-I11-040730, July 30, 
  *     2004, Cable Television Laboratories, Inc., http://www.PacketCable.com/
  *
  * Ronnie Sahlberg 2004
