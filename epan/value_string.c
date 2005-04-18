@@ -44,6 +44,8 @@ val_to_str(guint32 val, const value_string *vs, const char *fmt) {
   static gchar  str[3][64];
   static gchar *cur;
 
+  g_assert(fmt != NULL);
+
   ret = match_strval(val, vs);
   if (ret != NULL)
     return ret;

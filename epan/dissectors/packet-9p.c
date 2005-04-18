@@ -2,7 +2,7 @@
  * Routines for 9P dissection
  * Copyright 2005, Nils O. SelÃ¥sdal
  *
- * $Id: $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -171,7 +171,7 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	ninesz = tvb_get_letohl(tvb, offset);
 	ninemsg = tvb_get_guint8(tvb, offset + 4);
 
-	mname = val_to_str(ninemsg, ninep_msg_type,NULL);
+	mname = val_to_str(ninemsg, ninep_msg_type, "unknown: %u");
 	
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		if(mname == NULL) {
