@@ -277,6 +277,7 @@ dissect_pktc_list_of_ciphersuites(packet_info *pinfo _U_, proto_tree *parent_tre
 
             /* SNMPv3 encryption transform id */
             proto_tree_add_item(tree, hf_pktc_snmpEncryptionTransformID, tvb, offset, 1, FALSE);
+            proto_item_append_text(tree, "/%s", val_to_str(tvb_get_guint8(tvb, offset), snmp_transform_id_vals, "%0x"));
             offset+=1;
 	}
 	break;
@@ -289,7 +290,7 @@ dissect_pktc_list_of_ciphersuites(packet_info *pinfo _U_, proto_tree *parent_tre
 
             /* IPsec encryption transform id */
             proto_tree_add_item(tree, hf_pktc_ipsecEncryptionTransformID, tvb, offset, 1, FALSE);
-            proto_item_append_text(tree, "/%s", val_to_str(tvb_get_guint8(tvb, offset), snmp_transform_id_vals, "%0x"));
+            proto_item_append_text(tree, "/%s", val_to_str(tvb_get_guint8(tvb, offset), ipsec_transform_id_vals, "%0x"));
             offset+=1;
 	}
         break;
@@ -696,7 +697,7 @@ proto_register_pktc(void)
            "SNMPv3 USM User Name", "pktc.asd.snmp_usm_username", FT_STRING, BASE_DEC,
            NULL, 0, "SNMPv3 USM User Name", HFILL }},
 	{ &hf_pktc_ipsec_spi, {
-           "IPsec Security Parameter Index", "pktc.asd.ipsec_spi", FT_UINT32, BASE_DEC,
+           "IPsec Security Parameter Index", "pktc.asd.ipsec_spi", FT_UINT32, BASE_HEX,
            NULL, 0, "Security Parameter Index for inbound Security Association (IPsec)", HFILL }},
 	{ &hf_pktc_reestablish_flag, {
 	    "Re-establish Flag", "pktc.reestablish", FT_BOOLEAN, BASE_NONE,
