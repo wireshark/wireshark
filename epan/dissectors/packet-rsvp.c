@@ -3330,6 +3330,8 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 
 	}
 
+	if(tvb_get_guint8(tvb, offset+l+1) == 0)
+	    THROW(ReportedBoundsError);
 	l += tvb_get_guint8(tvb, offset+l+1);
 	if (l < obj_length - 4) {
 	    if (i < 4)
