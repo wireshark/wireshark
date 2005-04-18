@@ -846,8 +846,13 @@ void packets_bar_update(void)
 
         /* do we have any packets? */
         if(cfile.count) {
-            packets_str = g_strdup_printf(" P: %u D: %u M: %u", 
-                cfile.count, cfile.displayed_count, cfile.marked_count);
+            if(cfile.drops_known) {
+                packets_str = g_strdup_printf(" P: %u D: %u M: %u Drops: %u", 
+                    cfile.count, cfile.displayed_count, cfile.marked_count, cfile.drops);
+            } else {
+                packets_str = g_strdup_printf(" P: %u D: %u M: %u", 
+                    cfile.count, cfile.displayed_count, cfile.marked_count);
+            }
         } else {
             packets_str = g_strdup(" No Packets");
         }
@@ -1181,8 +1186,7 @@ set_display_filename(capture_file *cf)
 {
   const gchar *name_ptr;
   size_t       msg_len;
-  static const gchar done_fmt_nodrops[] = " File: %s %s %02u:%02u:%02u";
-  static const gchar done_fmt_drops[] = " File: %s %s %02u:%02u:%02u Drops: %u";
+  static const gchar done_fmt[] = " File: %s %s %02u:%02u:%02u";
   gchar       *done_msg;
   gchar       *win_name_fmt = "%s - Ethereal";
   gchar       *win_name;
@@ -1200,16 +1204,11 @@ set_display_filename(capture_file *cf)
   } else if (cf->f_len/1024 > 10) {
     size_str = g_strdup_printf("%ld KB", cf->f_len/1024);
   } else {
-    size_str = g_strdup_printf("%ld bytes", cf->f_len);
+    size_str = g_strdup_printf("%ld Bytes", cf->f_len);
   }
 
-  if (cf->drops_known) {
-    done_msg = g_strdup_printf(done_fmt_drops, name_ptr, size_str, 
-        cf->esec/3600, cf->esec%3600/60, cf->esec%60, cf->drops);
-  } else {
-    done_msg = g_strdup_printf(done_fmt_nodrops, name_ptr, size_str,
-        cf->esec/3600, cf->esec%3600/60, cf->esec%60);
-  }
+  done_msg = g_strdup_printf(done_fmt, name_ptr, size_str,
+    cf->esec/3600, cf->esec%3600/60, cf->esec%60);
   g_free(size_str);
   statusbar_push_file_msg(done_msg);
   g_free(done_msg);
@@ -1305,7 +1304,8 @@ main_cf_cb_live_capture_update_started(capture_options *capture_opts)
     set_menus_for_captured_packets(TRUE);
 
     capture_msg = g_strdup_printf(" %s: <live capture in progress> to file: %s", 
-        get_interface_descriptive_name(capture_opts->iface), capture_opts->save_file);
+        get_interface_descriptive_name(capture_opts->iface), 
+        (capture_opts->save_file) ? capture_opts->save_file : "");
 
     statusbar_push_file_msg(capture_msg);
 
@@ -1313,6 +1313,34 @@ main_cf_cb_live_capture_update_started(capture_options *capture_opts)
 
     /* Set up main window for a capture file. */
     main_set_for_capture_file(TRUE);
+}
+
+static void
+main_cf_cb_live_capture_update_continue(capture_file *cf)
+{
+    gchar *capture_msg;
+
+
+    statusbar_pop_file_msg();
+
+    if (cf->f_len/1024/1024 > 10) {
+        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %ld MB", 
+            get_interface_descriptive_name(capture_opts->iface), 
+            capture_opts->save_file,
+            cf->f_len/1024/1024);
+    } else if (cf->f_len/1024 > 10) {
+        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %ld KB", 
+            get_interface_descriptive_name(capture_opts->iface), 
+            capture_opts->save_file,
+            cf->f_len/1024);
+    } else {
+        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %ld Bytes", 
+            get_interface_descriptive_name(capture_opts->iface), 
+            capture_opts->save_file,
+            cf->f_len);
+    }
+
+    statusbar_push_file_msg(capture_msg);
 }
 
 static void
@@ -1470,6 +1498,9 @@ void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
 #ifdef HAVE_LIBPCAP
     case(cf_cb_live_capture_update_started):
         main_cf_cb_live_capture_update_started(data);
+        break;
+    case(cf_cb_live_capture_update_continue):
+        main_cf_cb_live_capture_update_continue(data);
         break;
     case(cf_cb_live_capture_fixed_started):
         main_cf_cb_live_capture_fixed_started(data);

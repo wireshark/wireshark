@@ -278,6 +278,7 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
          file.
 
          XXX - abort on a read error? */
+         cf_callback_invoke(cf_cb_live_capture_update_continue, capture_opts->cf);
          main_window_update();
       break;
 
@@ -308,10 +309,7 @@ capture_input_closed(capture_options *capture_opts)
     }
 
     if(capture_opts->real_time_mode) {
-        /* first of all, update the file length field */
-        cf_update_f_len(capture_opts->cf);
-
-        /* we are not doing a capture any more */
+        /* first of all, we are not doing a capture any more */
         cf_callback_invoke(cf_cb_live_capture_update_finished, capture_opts->cf);
 
         /* Read what remains of the capture file, and finish the capture.
