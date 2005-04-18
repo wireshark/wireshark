@@ -39,7 +39,7 @@
 #define NINEPORT 564
 
 /*Message types for 9P */
-/*See man 5 intro on Plan9 - or;
+/*See man 5 intro on Plan 9 - or;
 	http://www.cs.bell-labs.com/sys/man/5/INDEX.html
 */
 enum {
@@ -655,7 +655,7 @@ void proto_register_9P(void)
 		&ett_9P
 	};
 
-	proto_9P = proto_register_protocol("Plan9 9P", "9P", "9p");
+	proto_9P = proto_register_protocol("Plan 9 9P", "9P", "9p");
 
 	proto_register_field_array(proto_9P, hf, array_length(hf));
 
