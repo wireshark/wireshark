@@ -1553,7 +1553,7 @@ static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree){
       tvb_tokenbegin = tvb_parse_param(tvb, tvb_linebegin, linelen,
 				       &my_param);
 
-      if (*my_param == hf_mgcp_param_connectionparam) {
+      if (my_param && *my_param == hf_mgcp_param_connectionparam) {
 	tokenlen = tvb_find_line_end(tvb,tvb_tokenbegin,-1,&tvb_lineend,FALSE);
 	dissect_mgcp_connectionparams(mgcp_param_tree, tvb, tvb_linebegin, tvb_tokenbegin - tvb_linebegin, tokenlen);
       } else {
