@@ -49,6 +49,7 @@ GENERATED_FILES = $(GENERATED_HEADER_FILES) $(GENERATED_C_FILES)
 DISSECTOR_SRC =	\
 	packet-3com-xns.c	\
 	packet-3g-a11.c	\
+	packet-9p.c	\
 	packet-aarp.c	\
 	packet-acap.c	\
 	packet-acse.c	\

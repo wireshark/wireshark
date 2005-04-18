@@ -2331,6 +2331,11 @@ Francisco Alcoba	<francisco.alcoba [AT] ericsson.com> {
 	ASCII art version of VOIP call analysis
 }
 
+Nils O. SelÃ¥sdal	<noselasd@asgaard.homelinux.org> {
+	9P support
+}
+
+
 
 And assorted fixes and enhancements by the people listed above
 and by:
