@@ -28,6 +28,7 @@ EXTRA_DIST = \
 	Makefile.nmake		\
 	cvsdiff-fix.py		\
 	dfilter-test.py 	\
+	fuzz-test.sh		\
 	msnchat			\
 	netscreen2dump.py	\
 	pkt-from-core.py	\
