@@ -34,9 +34,9 @@
  * if get_interface_list() supplies a description, use that,
  * otherwise use the interface name.
  *
- * @param if_name The name if the interface.
+ * @param if_name The name of the interface.
  *
- * @return The descriptive name.
+ * @return The descriptive name (must be g_free'd later)
  */
 char *get_interface_descriptive_name(const char *if_name);
 
@@ -45,7 +45,7 @@ char *get_interface_descriptive_name(const char *if_name);
  * @param if_list An interface list from get_interface_list().
  * @param do_hide Hide the "hidden" interfaces.
  *
- * @return A list of if_info_t structs.
+ * @return A list of if_info_t structs (use free_capture_combo_list() later).
  */
 GList *build_capture_combo_list(GList *if_list, gboolean do_hide);
 
@@ -63,8 +63,16 @@ void free_capture_combo_list(GList *combo_list);
  * This is usually the data from one of the list elements returned by
  * build_capture_combo_list().
  *
- * @return The raw interface name, sans description.
+ * @return The raw interface name, without description (must NOT be g_free'd later)
  */
 char *get_if_name(char *if_text);
+
+/** Convert plain interface name to the displayed name in the combo box.
+ *
+ * @param if_name The name of the interface.
+ *
+ * @return The descriptive name (must be g_free'd later)
+ */
+char * build_capture_combo_name(GList *if_list, gchar *if_name);
 
 #endif

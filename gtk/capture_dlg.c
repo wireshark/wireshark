@@ -551,6 +551,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #endif
   guint32       value;
   gchar         *cap_title;
+  gchar         *if_device;
+
 
   if (cap_open_w != NULL) {
     /* There's already a "Capture Options" dialog box; reactivate it. */
@@ -633,11 +635,15 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     /* No interface was specified on the command line or in a previous
        capture, but there is one specified in the preferences file;
        make the one from the preferences file the default */
-    capture_opts->iface	= g_strdup(prefs.capture_device);
+    if_device = g_strdup(prefs.capture_device);
+    capture_opts->iface = g_strdup(get_if_name(if_device));
+    g_free(if_device);
   }
-  if (capture_opts->iface != NULL)
-    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry), capture_opts->iface);
-  else if (combo_list != NULL) {
+  if (capture_opts->iface != NULL) {
+    if_device = build_capture_combo_name(if_list, capture_opts->iface);
+    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry), if_device);
+    g_free(if_device);
+  } else if (combo_list != NULL) {
     gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry),
 		       (char *)combo_list->data);
   }
