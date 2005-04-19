@@ -2134,16 +2134,22 @@ are know when conversation_new is called.  See section 2.4 for more
 information on usage of the options parameter.
 
 The conversation_new prototype:
-	conversation_t *conversation_new(address *addr1, address *addr2,
-	    port_type ptype, guint32 port1, guint32 port2, guint options);
+	conversation_t *conversation_new(guint32 setup_frame, address *addr1,
+	    address *addr2, port_type ptype, guint32 port1, guint32 port2,
+	    guint options);
 
 Where:
-	address* addr1 	= first data packet address
-	address* addr2 	= second data packet address
-	port_type ptype = port type, this is defined in packet.h
-	guint32 port1	= first data packet port
-	guint32 port2	= second data packet port
-	guint options	= conversation options, NO_ADDR2 and/or NO_PORT2
+	guint32 setup_frame = The lowest numbered frame for this conversation
+	address* addr1 	    = first data packet address
+	address* addr2 	    = second data packet address
+	port_type ptype     = port type, this is defined in packet.h
+	guint32 port1	    = first data packet port
+	guint32 port2	    = second data packet port
+	guint options	    = conversation options, NO_ADDR2 and/or NO_PORT2
+
+setup_frame indicates the first frame for this conversation, and is used to
+distinguish multiple conversations with the same addr1/port1 and addr2/port2
+pair that occur within the same capture session.
 
 "addr1" and "port1" are the first address/port pair; "addr2" and "port2"
 are the second address/port pair.  A conversation doesn't have source
@@ -2168,16 +2174,29 @@ the routine will return a NULL value.
 
 The find_conversation prototype:
 
-	conversation_t *find_conversation(address *addr_a, address *addr_b,
-	    port_type ptype, guint32 port_a, guint32 port_b, guint options);
+	conversation_t *find_conversation(guint32 frame_num, address *addr_a,
+	    address *addr_b, port_type ptype, guint32 port_a, guint32 port_b,
+	    guint options);
 
 Where:
+	guint32 frame_num = a frame number to match
 	address* addr_a = first address
 	address* addr_b = second address
 	port_type ptype = port type
 	guint32 port_a	= first data packet port
 	guint32 port_b	= second data packet port
 	guint options	= conversation options, NO_ADDR_B and/or NO_PORT_B
+
+frame_num is a frame number to match. The conversation returned is where
+	(frame_num >= conversation->setup_frame
+	&& frame_num < conversation->next->setup_frame)
+Suppose there are a total of 3 conversations (A, B, and C) that match
+addr_a/port_a and addr_b/port_b, where the setup_frame used in
+conversation_new() for A, B and C are 10, 50, and 100 respectively. The
+frame_num passed in find_conversation is compared to the setup_frame of each
+conversation. So if (frame_num >= 10 && frame_num < 50), conversation A is
+returned. If (frame_num >= 50 && frame_num < 100), conversation B is returned.
+If (frame_num >= 100) conversation C is returned.
 
 "addr_a" and "port_a" are the first address/port pair; "addr_b" and
 "port_b" are the second address/port pair.  Again, as a conversation
@@ -2259,7 +2278,6 @@ Where:
 is a unique protocol number acreated with proto_register_protocol,
 typically in the proto_register_XXXX portion of a dissector.
 
-
 2.2.7 The example conversation code with GMemChunk's
 
 For a conversation between two IP addresses and ports you can use this as an
@@ -2297,8 +2315,8 @@ my_entry_t *data_ptr
 
 /* look up the conversation */
 
-conversation = find_conversation( &pinfo->src, &pinfo->dst, pinfo->ptype,
-	pinfo->srcport, pinfo->destport, 0);
+conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+	pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 
 /* if conversation found get the data pointer that you stored */
 if ( conversation)
@@ -2314,7 +2332,7 @@ else {
 
     /* create the conversation with your data pointer  */
 
-    conversation_new( &pinfo->src, &pinfo->dst, pinfo->ptype,
+    conversation_new(pinfo->fd->num,  &pinfo->src, &pinfo->dst, pinfo->ptype,
 	    pinfo->srcport, pinfo->destport, 0);
     conversation_add_proto_data(conversation, my_proto, (void *) data_ptr);
 }
@@ -2351,7 +2369,31 @@ register_init_routine( &my_dissector_init);
 my_proto = proto_register_protocol("My Protocol", "My Protocol", "my_proto");
 
 
-2.2.8 The example conversation code using conversation index field
+2.2.8 An example conversation code that starts at a specific frame number
+
+Sometimes a disector has determined that a new conversation is needed that
+starts at a specific frame number, when a capture session encompasses multiple
+conversation that reuse the same src/dest ip/port pairs. You can use the
+compare the conversation->setup_frame returned by find_conversation with
+pinfo->fd->num to determine whether or not there already exists a conversation
+that starts at the specific frame number.
+
+/* in the dissector routine */
+
+	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+	    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	if (conversation == NULL || (conversation->setup_frame != pinfo->fd->num)) {
+		/* It's not part of any conversation or the returned
+		 * conversation->setup_frame doesn't match the current frame
+		 * create a new one.
+		 */
+		conversation = conversation_new(pinfo->fd->num, &pinfo->src,
+		    &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport,
+		    NULL, 0);
+	}
+
+
+2.2.9 The example conversation code using conversation index field
 
 Sometimes the conversation isn't enough to define a unique data storage
 value for the network traffic.  For example if you are storing information
@@ -2373,12 +2415,13 @@ upon the conversation index and values inside the request packets.
         /* then used the conversation index, and request data to find data */
         /* in the local hash table */
 
-	conversation = find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype,
-	    pinfo->srcport, pinfo->destport, 0);
+	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+	    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	if (conversation == NULL) {
 		/* It's not part of any conversation - create a new one. */
-		conversation = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype,
-		    pinfo->srcport, pinfo->destport, NULL, 0);
+		conversation = conversation_new(pinfo->fd->num, &pinfo->src,
+		    &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport,
+		    NULL, 0);
 	}
 
 	request_key.conversation = conversation->index;	
