@@ -122,10 +122,15 @@ static const value_string type_vals[] = {
 };
 
 static const value_string ether_user_vals[] = {
-	{0x0, "Normal priority"},
-	{0x1, "Priority 1"},
-	{0x2, "Priority 2"},
-	{0x3, "Highest priority"},
+	/* User values are defined by IEEE 802.1D-2004, annex G */
+	{0x0, "Best effort (default priority)"},
+	{0x1, "Background"},
+	{0x2, "[spare priority]"},
+	{0x3, "Excellent effort"},
+	{0x4, "Controlled load"},
+	{0x5, "\"Video\", < 100ms latency and jitter"},
+	{0x6, "\"Voice\", < 10ms latency and jitter"},
+	{0x7, "Network control"},
 	{0,   NULL}
 };
 
@@ -163,7 +168,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
     ti = proto_tree_add_protocol_format(tree, proto_isl, tvb, 0, ISL_HEADER_SIZE,
 		"ISL");
     fh_tree = proto_item_add_subtree(ti, ett_isl);
-    proto_tree_add_item(fh_tree, hf_isl_dst, tvb, 0, 6, FALSE);
+    proto_tree_add_item(fh_tree, hf_isl_dst, tvb, 0, 5, FALSE);
     proto_tree_add_item_hidden(fh_tree, hf_isl_addr, tvb, 0, 6, FALSE);
     proto_tree_add_item(fh_tree, hf_isl_type, tvb, 5, 1, FALSE);
     switch (type) {
@@ -324,7 +329,7 @@ proto_register_isl(void)
 {
   static hf_register_info hf[] = {
 	{ &hf_isl_dst,
-	{ "Destination",	"isl.dst", FT_ETHER, BASE_NONE, NULL, 0x0,
+	{ "Destination",	"isl.dst", FT_BYTES, BASE_HEX, NULL, 0x0,
 		"Destination Address", HFILL }},
 	{ &hf_isl_type,
 	{ "Type",		"isl.type", FT_UINT8, BASE_DEC,
