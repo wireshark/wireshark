@@ -725,13 +725,18 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 			}
 			/* dfpos is always >= than fd_i->offset */
 			/* No gaps can exist here, max_loop(above) does this */
-			if( fd_i->offset+fd_i->len > dfpos )
-				memcpy(fd_head->data+dfpos, fd_i->data+(dfpos-fd_i->offset),
+			if( fd_i->offset+fd_i->len > dfpos ) {
+				if( !(fd_i->flags & FD_NOT_MALLOCED) ) {
+					memcpy(fd_head->data+dfpos, fd_i->data+(dfpos-fd_i->offset),
 					fd_i->len-(dfpos-fd_i->offset));
-			if( fd_i->flags & FD_NOT_MALLOCED )
-				fd_i->flags ^= FD_NOT_MALLOCED;
-			else
-				g_free(fd_i->data);
+					g_free(fd_i->data);
+				} else {
+					g_warning("Reassemble error in frame %d", pinfo->fd->num);
+					fd_i->flags ^= FD_NOT_MALLOCED;
+				}
+			} 
+
+
 			fd_i->data=NULL;
 
 			dfpos=MAX(dfpos,(fd_i->offset+fd_i->len));
