@@ -1290,8 +1290,12 @@ main_cf_cb_live_capture_update_started(capture_options *capture_opts)
     gchar *title;
 
 
-    title = g_strdup_printf("%s: Capturing - Ethereal",
+    if(capture_opts->iface) {
+        title = g_strdup_printf("%s: Capturing - Ethereal",
                             get_interface_descriptive_name(capture_opts->iface));
+    } else {
+        title = g_strdup_printf("Capturing - Ethereal");
+    }
     set_main_window_name(title);
     g_free(title);
 
