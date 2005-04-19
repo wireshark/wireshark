@@ -2448,7 +2448,7 @@ proto_item_get_subtree(proto_item *pi) {
 	if (!pi)
 		return(NULL);
 	fi = PITEM_FINFO(pi);
-	if (fi->tree_type == -1)
+	if ( (!fi) || (fi->tree_type == -1) )
 		return(NULL);
 	return (proto_tree*) pi;
 }
