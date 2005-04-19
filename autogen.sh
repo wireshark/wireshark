@@ -7,9 +7,14 @@
 DIE=true
 PROJECT="Ethereal"
 
-ACLOCAL=aclocal
+# If you are going to use the non-default name for automake becase your OS
+# installaion has multiple versions, you need to call both aclocal and automake
+# with that version number, as they come from the same package.
+#AM_VERSION='-1.8'
+
+ACLOCAL=aclocal$AM_VERSION
 AUTOHEADER=autoheader
-AUTOMAKE=automake
+AUTOMAKE=automake$AM_VERSION
 AUTOCONF=autoconf
 
 # Check for python. There's no "--version" option!
