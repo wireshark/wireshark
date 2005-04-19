@@ -59,9 +59,8 @@ void capture_stop_cb(GtkWidget *widget, gpointer data);
  */
 void capture_restart_cb(GtkWidget *widget, gpointer data);
 
-/** Create the "Capture Options" dialog box.
- */
-void capture_prep(void);
+/* capture start confirmed by "Save unsaved capture", so do it now */
+void capture_start_confirmed(void);
 
 /** User requested the "Capture Interfaces" dialog box by menu or toolbar.
  *

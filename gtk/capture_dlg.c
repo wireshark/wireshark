@@ -122,44 +122,14 @@ static void
 capture_prep_adjust_sensitivity(GtkWidget *tb, gpointer parent_w);
 
 static void
-capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w);
-
-static void
 capture_prep_destroy_cb(GtkWidget *win, gpointer user_data);
 
 static void
 capture_prep_interface_changed_cb(GtkWidget *entry, gpointer parent_w);
 
+static void
+capture_dlg_prep(gpointer parent_w);
 
-/* immediately start a new capture */
-/* XXX - we should ask to save old unsaved capture file */
-void
-capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-
-    /* do we have an open prepare window? */
-    if(cap_open_w) {
-        /* yes, just act like we'd pressed the Ok button */
-        capture_prep_ok_cb(NULL, cap_open_w);
-        return;        
-    }
-
-    /* init iface, if never used before */
-    /* XXX - would better be doing this in main.c */
-    if(capture_opts->iface == NULL) {
-        gchar *if_device;
-        gchar *if_name;
-
-        if_device = g_strdup(prefs.capture_device);
-        if_name = get_if_name(if_device);
-        capture_opts->iface = g_strdup(if_name);
-
-        g_free(if_device);
-    }
-
-    /* XXX - we might need to init other pref data as well... */
-    capture_start(capture_opts);
-}
 
 /* stop the currently running capture */
 void
@@ -531,7 +501,7 @@ guint32 value)
 
 /* show capture prepare (options) dialog */
 void
-capture_prep(void)
+capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   GtkWidget     *main_vb,
                 *main_hb, *left_vb, *right_vb,
@@ -1117,12 +1087,12 @@ capture_prep(void)
     "Perform transport layer name resolution while capturing.", NULL);
   gtk_container_add(GTK_CONTAINER(resolv_vb), t_resolv_cb);
 
-  /* Button row: OK and cancel buttons */
-  bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
+  /* Button row: "Start" and "Cancel" buttons */
+  bbox = dlg_button_row_new(ETHEREAL_STOCK_CAPTURE_START, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
 
-  ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
-  SIGNAL_CONNECT(ok_bt, "clicked", capture_prep_ok_cb, cap_open_w);
+  ok_bt = OBJECT_GET_DATA(bbox, ETHEREAL_STOCK_CAPTURE_START);
+  SIGNAL_CONNECT(ok_bt, "clicked", capture_start_cb, cap_open_w);
   gtk_tooltips_set_tip(tooltips, ok_bt,
     "Start the capture process.", NULL);
 
@@ -1223,8 +1193,36 @@ capture_prep(void)
   window_present(cap_open_w);
 }
 
+/* everythings prepared, now it's really time to start the capture */
+void
+capture_start_confirmed(void) {
+
+
+    /* init iface, if never used before */
+    /* XXX - would better be doing this in main.c */
+    if(capture_opts->iface == NULL) {
+        gchar *if_device;
+        gchar *if_name;
+
+        if_device = g_strdup(prefs.capture_device);
+        if_name = get_if_name(if_device);
+        capture_opts->iface = g_strdup(if_name);
+
+        g_free(if_device);
+    }
+
+    /* XXX - we might need to init other pref data as well... */
+
+    if (capture_start(capture_opts)) {
+        /* The capture succeeded, which means the capture filter syntax is
+        valid; add this capture filter to the recent capture filter list. */
+        cfilter_combo_add_recent(capture_opts->cfilter);
+    }
+}
+
+/* user confirmed the "Save capture file..." dialog */
 static void
-capture_prep_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
+capture_start_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
 {
     switch(btn) {
     case(ESD_BTN_SAVE):
@@ -1233,7 +1231,8 @@ capture_prep_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
         break;
     case(ESD_BTN_DONT_SAVE):
         /* XXX - unlink old file? */
-        capture_prep();
+        /* start the capture */
+        capture_start_confirmed();
         break;
     case(ESD_BTN_CANCEL):
         break;
@@ -1242,20 +1241,28 @@ capture_prep_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
     }
 }
 
+/* user pressed the "Start" button (in dialog or toolbar) */
 void
-capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
+capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   gpointer  dialog;
+
+
+  /* get the values and close the options dialog */
+  if(cap_open_w) {
+    capture_dlg_prep(cap_open_w);
+    window_destroy(GTK_WIDGET(cap_open_w));
+  }
 
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
     /* user didn't saved his current file, ask him */
     dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE_CANCEL,
                 PRIMARY_TEXT_START "Save capture file before starting a new capture?" PRIMARY_TEXT_END "\n\n"
                 "If you start a new capture without saving, your current capture data will\nbe discarded.");
-    simple_dialog_set_cb(dialog, capture_prep_answered_cb, NULL);
+    simple_dialog_set_cb(dialog, capture_start_answered_cb, NULL);
   } else {
     /* unchanged file, just capture a new one */
-    capture_prep();
+    capture_start_confirmed();
   }
 }
 
@@ -1279,9 +1286,9 @@ capture_prep_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
 }
 
 
-/* user pressed "Ok" button" */
+/* convert dialog settings into capture_opts values */
 static void
-capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
+capture_dlg_prep(gpointer parent_w) {
   GtkWidget *if_cb, *snap_cb, *snap_sb, *promisc_cb, *filter_te, *filter_cm,
             *file_te, *multi_files_on_cb, *ringbuffer_nbf_sb, *ringbuffer_nbf_cb,
             *linktype_om, *sync_cb, *auto_scroll_cb, *hide_info_cb,
@@ -1519,15 +1526,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
         return;
       }
     }
-  }
-
-  window_destroy(GTK_WIDGET(parent_w));
-
-  if (capture_start(capture_opts)) {
-    /* The capture succeeded, which means the capture filter syntax is
-       valid; add this capture filter to the recent capture filter list. */
-    cfilter_combo_add_recent(capture_opts->cfilter);
-  }
+  } /* multi_files_on */
 }
 
 /* user requested to destroy the dialog */

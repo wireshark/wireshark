@@ -1456,7 +1456,7 @@ file_save_as_cb(GtkWidget *w _U_, gpointer fs) {
       break;
 #ifdef HAVE_LIBPCAP
   case(after_save_capture_dialog):
-      capture_prep();
+      capture_start_confirmed();
       break;
 #endif
   case(after_save_close_file):

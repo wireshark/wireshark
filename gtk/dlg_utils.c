@@ -104,6 +104,7 @@ dlg_button_row_new(gchar *stock_id_first, ...)
     gchar *cancel       = NULL;
     gchar *close        = NULL;
     gchar *clear        = NULL;
+    gchar *start        = NULL;
     gchar *stop         = NULL;
     gchar *create_stat  = NULL;
     gchar *help         = NULL;
@@ -134,6 +135,8 @@ dlg_button_row_new(gchar *stock_id_first, ...)
             close = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_CLEAR) == 0) {
             clear = stock_id;
+        } else if (strcmp(stock_id, ETHEREAL_STOCK_CAPTURE_START) == 0) {
+            start = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_STOP) == 0) {
             stop = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_HELP) == 0) {
@@ -239,6 +242,11 @@ dlg_button_row_new(gchar *stock_id_first, ...)
             dlg_button_new(hbox, button_hbox, create_stat);
             return hbox;
         }
+        if (start && cancel) {
+            dlg_button_new(hbox, button_hbox, cancel);
+            dlg_button_new(hbox, button_hbox, start);
+            return hbox;
+        }
     }
     if (buttons == 3) {
         if (ok && save && close) {
@@ -301,6 +309,7 @@ dlg_button_row_new(gchar *stock_id_first, ...)
     if (no      != NULL) dlg_button_new(hbox, button_hbox, no);
     if (save    != NULL) dlg_button_new(hbox, button_hbox, save);
     if (dont_save != NULL) dlg_button_new(hbox, button_hbox, dont_save);
+    if (start   != NULL) dlg_button_new(hbox, button_hbox, start);
     if (stop    != NULL) dlg_button_new(hbox, button_hbox, stop);
     if (close   != NULL) dlg_button_new(hbox, button_hbox, close);
     if (clear   != NULL) dlg_button_new(hbox, button_hbox, clear);

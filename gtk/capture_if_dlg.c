@@ -113,12 +113,13 @@ capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data)
 
   capture_opts->iface = g_strdup(if_dlg_data->device);
 
+  /* XXX - remove this? */
   if (capture_opts->save_file) {
     g_free(capture_opts->save_file);
     capture_opts->save_file = NULL;
   }
 
-  capture_start(capture_opts);
+  capture_start_cb(NULL, NULL);
 }
 
 
