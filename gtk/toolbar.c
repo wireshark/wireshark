@@ -544,10 +544,10 @@ toolbar_new(void)
     toolbar_append_separator(main_tb);
 
     toolbar_toggle_button(colorize_button, window, main_tb, 
-        ETHEREAL_STOCK_CAPTURE_INTERFACES, "Colorize Packet List", colorize_24_xpm, colorize_toggle_cb, NULL);
+        "Colorize"/*ETHEREAL_STOCK_COLORIZE*/, "Colorize Packet List", colorize_24_xpm, colorize_toggle_cb, NULL);
 #ifdef HAVE_LIBPCAP
     toolbar_toggle_button(autoscroll_button, window, main_tb, 
-        ETHEREAL_STOCK_AUTOSCROLL, "Auto Scroll Packet List in Live Capture", autoscroll_24_xpm, auto_scroll_live_toggle_cb, NULL);
+        "Auto Scroll" /*ETHEREAL_STOCK_AUTOSCROLL*/, "Auto Scroll Packet List in Live Capture", autoscroll_24_xpm, auto_scroll_live_toggle_cb, NULL);
 #endif
     toolbar_append_separator(main_tb);
 

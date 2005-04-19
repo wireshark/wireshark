@@ -206,7 +206,7 @@ gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name)
 #define ETHEREAL_STOCK_DONT_SAVE                "Continue without Saving"
 #define ETHEREAL_STOCK_ABOUT                    "About"
 #define ETHEREAL_STOCK_COLORIZE                 "Colorize"
-#define ETHEREAL_STOCK_AUTOSCROLL               "Auto Scroll in Live Capture"
+#define ETHEREAL_STOCK_AUTOSCROLL               "Auto Scroll"
 #define ETHEREAL_STOCK_RESIZE_COLUMNS           "Resize Columns"
 #define ETHEREAL_STOCK_TIME                     "Time"
 #define ETHEREAL_STOCK_INTERNET                 "Internet"
