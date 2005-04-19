@@ -130,6 +130,9 @@ capture_prep_destroy_cb(GtkWidget *win, gpointer user_data);
 static void
 capture_prep_interface_changed_cb(GtkWidget *entry, gpointer parent_w);
 
+
+/* immediately start a new capture */
+/* XXX - we should ask to save old unsaved capture file */
 void
 capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
 {
@@ -158,18 +161,22 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
     capture_start(capture_opts);
 }
 
+/* stop the currently running capture */
 void
 capture_stop_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     capture_stop(capture_opts);
 }
 
+/* restart (stop - delete old file - start) running capture */
 void
 capture_restart_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     capture_restart(capture_opts);
 }
 
+/* init the link type list */
+/* (often this list has only one entry and will therefore be disabled) */
 static void
 set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
 {
@@ -308,6 +315,8 @@ static char *time_unit_name[MAX_TIME_UNITS] = {
 	"day(s)",
 };
 
+/* create one of the duration options */
+/* (and select the matching unit depending on the given value) */
 static GtkWidget *time_unit_option_menu_new(guint32 value) {
     GtkWidget *unit_om, *menu, *menu_item;
     int i;
@@ -345,6 +354,7 @@ static GtkWidget *time_unit_option_menu_new(guint32 value) {
     return unit_om;
 }
 
+/* convert time value from raw to displayed (e.g. 60s -> 1min) */
 static guint32 time_unit_option_menu_convert_value(
 guint32 value)
 {
@@ -367,6 +377,7 @@ guint32 value)
     return value;
 }
 
+/* get raw value from unit and value fields */
 static guint32 time_unit_option_menu_get_value(
 GtkWidget *unit_om,
 guint32 value)
@@ -411,6 +422,8 @@ static char *size_unit_name[MAX_SIZE_UNITS] = {
 	"gigabyte(s)",
 };
 
+/* create one of the size options */
+/* (and select the matching unit depending on the given value) */
 static GtkWidget *size_unit_option_menu_new(guint32 value) {
     GtkWidget *unit_om, *menu, *menu_item;
     int i;
@@ -448,6 +461,7 @@ static GtkWidget *size_unit_option_menu_new(guint32 value) {
     return unit_om;
 }
 
+/* convert size value from raw to displayed (e.g. 1024 Bytes -> 1 KB) */
 static guint32 size_unit_option_menu_set_value(
 guint32 value)
 {
@@ -470,6 +484,7 @@ guint32 value)
     return value;
 }
 
+/* get raw value from unit and value fields */
 static guint32 size_unit_option_menu_convert_value(
 GtkWidget *unit_om,
 guint32 value)
@@ -514,6 +529,7 @@ guint32 value)
 }
 
 
+/* show capture prepare (options) dialog */
 void
 capture_prep(void)
 {
@@ -1216,6 +1232,7 @@ capture_prep_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
         file_save_as_cmd(after_save_capture_dialog, data);
         break;
     case(ESD_BTN_DONT_SAVE):
+        /* XXX - unlink old file? */
         capture_prep();
         break;
     case(ESD_BTN_CANCEL):
@@ -1242,6 +1259,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 }
 
+/* user selected a link type, convert to internal value */
 static void
 select_link_type_cb(GtkWidget *w, gpointer data)
 {
@@ -1253,6 +1271,7 @@ select_link_type_cb(GtkWidget *w, gpointer data)
     OBJECT_SET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(new_linktype));
 }
 
+/* user pressed "File" button */
 static void
 capture_prep_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
 {
@@ -1260,6 +1279,7 @@ capture_prep_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
 }
 
 
+/* user pressed "Ok" button" */
 static void
 capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   GtkWidget *if_cb, *snap_cb, *snap_sb, *promisc_cb, *filter_te, *filter_cm,
@@ -1453,9 +1473,6 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
     capture_opts->autostop_files =
       gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(stop_files_sb));
 
-/*  if(capture_opts->real_time_mode)
-    capture_opts->multi_files_on = FALSE;*/
-
   if (capture_opts->multi_files_on) {
     capture_opts->has_autostop_filesize =
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ring_filesize_cb));
@@ -1513,6 +1530,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   }
 }
 
+/* user requested to destroy the dialog */
 static void
 capture_prep_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 {
@@ -1531,6 +1549,7 @@ capture_prep_destroy_cb(GtkWidget *win, gpointer user_data _U_)
   cap_open_w = NULL;
 }
 
+/* user changed the interface entry */
 static void
 capture_prep_interface_changed_cb(GtkWidget *entry, gpointer argp)
 {
