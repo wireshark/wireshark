@@ -72,6 +72,15 @@ enum {
 	TWSTAT = 126,
 	RWSTAT
 };
+/* File open modes */
+#define P9_OREAD 	   0x0 
+#define P9_OWRITE 	   0x1 
+#define P9_ORDWR  	   0x2 
+#define P9_OEXEC	   0x3
+#define P9_MODEMASK	   0x3 
+#define P9_OTRUNC	  0x10 
+#define P9_ORCLOSE	  0x40 
+#define P9_OEXCL	0x1000 
 
 /* Initialize the protocol and registered fields */
 static int proto_9P = -1;
@@ -84,6 +93,10 @@ static int hf_9P_maxsize = -1;
 static int hf_9P_fid = -1;
 static int hf_9P_nqid = -1;
 static int hf_9P_mode = -1;
+static int hf_9P_mode_rwx = -1;
+static int hf_9P_mode_t = -1;
+static int hf_9P_mode_c = -1;
+static int hf_9P_mode_x = -1;
 static int hf_9P_iounit = -1;
 static int hf_9P_count = -1;
 static int hf_9P_offset = -1;
@@ -117,6 +130,7 @@ static dissector_handle_t data_handle;
 
 /* subtree pointers */
 static gint ett_9P = -1;
+static gint ett_9P_omode = -1;
 
 /*9P Msg types to name mapping */
 static const value_string ninep_msg_type[] = 
@@ -149,6 +163,17 @@ static const value_string ninep_msg_type[] =
 	{RWSTAT,	"Rwstat"},
 	{0,		NULL},
 };
+/* Open/Create modes */
+static const value_string ninep_mode_vals[] = 
+{
+	{P9_OREAD,	"Read Access"},
+	{P9_OWRITE,	"Write Access"},
+	{P9_ORDWR,	"Read/Write Access "},
+	{P9_OEXEC,	"Execute Access"},
+	{0,		NULL}
+};
+	
+static void dissect_9P_mode(tvbuff_t * tvb,  proto_tree * tree,int offset,int iscreate);
 
 /* Dissect 9P messages*/
 static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
@@ -161,7 +186,8 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	gint len,reportedlen;
 	tvbuff_t *next_tvb;
 	proto_item *ti;
-	proto_tree *ninep_tree;
+	proto_tree *ninep_tree,*tmp_tree;
+	nstime_t tv;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "9P");
@@ -171,18 +197,17 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	ninesz = tvb_get_letohl(tvb, offset);
 	ninemsg = tvb_get_guint8(tvb, offset + 4);
 
-	mname = val_to_str(ninemsg, ninep_msg_type, "unknown: %u");
+	mname = val_to_str(ninemsg, ninep_msg_type,"Unknown");
 	
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		if(mname == NULL) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Data Continuitation ? (Tag %d %s)", ninemsg,mname);
-			return;
-		} else {
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%s Tag=%u",mname,(guint)tvb_get_letohs(tvb,offset+5));
-		}
-		
-	} else if (mname == NULL)
+	if(strcmp(mname,"Unknown") == 0) {
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_add_fstr(pinfo->cinfo, COL_INFO, "9P Data Continuitation(?) (Tag %u)",(guint)ninemsg);
+
 		return;
+	}
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s Tag=%u",mname,(guint)tvb_get_letohs(tvb,offset+5));
 
 	if (!tree) /*not much more of one line summary interrest yet.. */
 		return;
@@ -282,6 +307,14 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		tmp16 = tvb_get_letohs(tvb,offset);
 		proto_tree_add_item(ninep_tree, hf_9P_nwalk, tvb, offset, 2, TRUE);
 		offset +=2;
+		/* I can't imagine anyone having a directory depth more than 25,
+		   Limit to 10 times that to be sure, 2^16 is too much */
+		if(tmp16 > 250) {
+			tmp16 = 250;
+			tmp_tree = proto_tree_add_text(ninep_tree, tvb, 0, 0, "Only first 250 items shown");
+    			PROTO_ITEM_SET_GENERATED(tmp_tree);
+		}
+
 		for(i = 0 ; i < tmp16; i++) {
 			guint16 tmplen;
 
@@ -297,6 +330,14 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		tmp16 = tvb_get_letohs(tvb,offset);
 		proto_tree_add_item(ninep_tree, hf_9P_nqid, tvb, offset, 2, TRUE);
 		offset +=2;
+		/* I can't imagine anyone having a directory depth more than 25,
+		   Limit to 10 times that to be sure, 2^16 is too much */
+		if(tmp16 > 250) {
+			tmp16 = 250;
+			tmp_tree = proto_tree_add_text(ninep_tree, tvb, 0, 0, "Only first 250 items shown");
+    			PROTO_ITEM_SET_GENERATED(tmp_tree);
+		}
+
 		for(i = 0; i < tmp16; i++) {
 			proto_tree_add_item(ninep_tree, hf_9P_qidtype, tvb, offset, 1, TRUE);
 			++offset;
@@ -311,7 +352,8 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	case TOPEN:
 		proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, TRUE);
 		offset +=4;
-		proto_tree_add_item(ninep_tree, hf_9P_mode, tvb, offset, 1, TRUE);
+		tmp_tree = proto_tree_add_item(ninep_tree, hf_9P_mode, tvb, offset, 1, TRUE);
+		dissect_9P_mode(tvb,tmp_tree,offset,0);
 		break;
 	case ROPEN:
 
@@ -339,7 +381,8 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		proto_tree_add_item(ninep_tree, hf_9P_perm, tvb, offset, 4, TRUE);
 		offset +=4;
 
-		proto_tree_add_item(ninep_tree, hf_9P_mode, tvb, offset, 1, TRUE);
+		tmp_tree = proto_tree_add_item(ninep_tree, hf_9P_mode, tvb, offset, 1, TRUE);
+		dissect_9P_mode(tvb,tmp_tree,offset,1);
 
 		break;
 	case RCREATE:
@@ -431,10 +474,14 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		proto_tree_add_item(ninep_tree, hf_9P_statmode, tvb, offset, 4, TRUE);
 		offset +=4;
 
-		proto_tree_add_item(ninep_tree, hf_9P_atime, tvb, offset, 4, TRUE);
+		tv.secs = tvb_get_letohl(tvb,offset);
+		tv.nsecs = 0;
+		proto_tree_add_time(ninep_tree, hf_9P_atime, tvb, offset, 4, &tv);
 		offset +=4;
 
-		proto_tree_add_item(ninep_tree, hf_9P_mtime, tvb, offset, 4, TRUE);
+		tv.secs = tvb_get_letohl(tvb,offset);
+		tv.nsecs = 0;
+		proto_tree_add_time(ninep_tree, hf_9P_mtime, tvb, offset, 4, &tv);
 		offset +=4;
 
 		proto_tree_add_item(ninep_tree, hf_9P_length, tvb, offset, 8, TRUE);
@@ -495,10 +542,14 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		proto_tree_add_item(ninep_tree, hf_9P_statmode, tvb, offset, 4, TRUE);
 		offset +=4;
 
-		proto_tree_add_item(ninep_tree, hf_9P_atime, tvb, offset, 4, TRUE);
+		tv.secs = tvb_get_letohl(tvb,offset);
+		tv.nsecs = 0;
+		proto_tree_add_time(ninep_tree, hf_9P_atime, tvb, offset, 4, &tv);
 		offset +=4;
 
-		proto_tree_add_item(ninep_tree, hf_9P_mtime, tvb, offset, 4, TRUE);
+		tv.secs = tvb_get_letohl(tvb,offset);
+		tv.nsecs = 0;
+		proto_tree_add_time(ninep_tree, hf_9P_mtime, tvb, offset, 4, &tv);
 		offset +=4;
 
 		proto_tree_add_item(ninep_tree, hf_9P_length, tvb, offset, 8, TRUE);
@@ -536,6 +587,23 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 }
 
 
+static void dissect_9P_mode(tvbuff_t * tvb,  proto_tree * tree,int offset,int iscreate)
+{
+	proto_item *mode_tree;
+	guint8 mode;
+
+	if(!tree)
+		return;
+
+	mode = tvb_get_guint8(tvb,offset);
+	mode_tree = proto_item_add_subtree(tree, ett_9P_omode);
+	proto_tree_add_item(mode_tree, hf_9P_mode_rwx, tvb, offset, 1, mode);
+	proto_tree_add_boolean(mode_tree, hf_9P_mode_t, tvb, offset, 1, mode);
+	proto_tree_add_boolean(mode_tree, hf_9P_mode_c, tvb, offset, 1, mode);
+	if(iscreate) /* only in create calls */
+		proto_tree_add_boolean(mode_tree, hf_9P_mode_x, tvb, offset, 1, mode);
+}
+
 /* Register 9P with Ethereal */
 void proto_register_9P(void)
 {
@@ -567,6 +635,18 @@ void proto_register_9P(void)
 		{&hf_9P_mode,
 		 {"Mode", "9p.mode", FT_UINT8, BASE_HEX, NULL, 0x0,
 		  "Mode", HFILL}},
+		{&hf_9P_mode_rwx,
+		 {"Open/Create Mode", "9p.mode.rwx", FT_UINT8, BASE_DEC,VALS(ninep_mode_vals),P9_MODEMASK,
+		  "Open/Create Mode", HFILL}},
+		{&hf_9P_mode_t,
+		 {"Trunc", "9p.mode.trunc", FT_BOOLEAN, 8, TFS(&flags_set_truth), P9_OTRUNC,
+		  "Truncate", HFILL}},
+		{&hf_9P_mode_c,
+		 {"Remove on close", "9p.mode.orclose", FT_BOOLEAN, 8, TFS(&flags_set_truth), P9_ORCLOSE,
+		  "", HFILL}},
+		{&hf_9P_mode_x,
+		 {"Exclusive", "9p.mode.excl", FT_BOOLEAN, 8, TFS(&flags_set_truth), P9_OEXCL,
+		  "", HFILL}},
 		{&hf_9P_iounit,
 		 {"I/O Unit", "9p.iounit", FT_UINT32, BASE_DEC, NULL, 0x0,
 		  "I/O Unit", HFILL}},
@@ -595,10 +675,10 @@ void proto_register_9P(void)
 		 {"Stat type", "9p.stattype", FT_UINT16, BASE_DEC, NULL, 0x0,
 		  "Stat type", HFILL}},
 		{&hf_9P_atime,
-		 {"Atime", "9p.atime", FT_UINT32, BASE_DEC, NULL, 0x0,
+		 {"Atime", "9p.atime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
 		  "Access Time", HFILL}},
 		{&hf_9P_mtime,
-		 {"Mtime", "9p.mtime", FT_UINT32, BASE_DEC, NULL, 0x0,
+		 {"Mtime", "9p.mtime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
 		  "Modified Time", HFILL}},
 		{&hf_9P_length,
 		 {"Length", "9p.length", FT_UINT64, BASE_DEC, NULL, 0x0,
@@ -652,7 +732,8 @@ void proto_register_9P(void)
 	};
 
 	static gint *ett[] = {
-		&ett_9P
+		&ett_9P,
+		&ett_9P_omode,
 	};
 
 	proto_9P = proto_register_protocol("Plan 9 9P", "9P", "9p");
