@@ -361,7 +361,7 @@ static const value_string fc_iu_val[] = {
 
 static void fc_defragment_init(void)
 {
-  fragment_table_init(&fc_fragment_table);
+  fragment_table_init (&fc_fragment_table);
 }
 
 
@@ -838,7 +838,8 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ftype = fc_get_ftype (fchdr.r_ctl, fchdr.type);
     
     if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_add_str (pinfo->cinfo, COL_INFO, match_strval (ftype, fc_ftype_vals));
+         col_add_str (pinfo->cinfo, COL_INFO, val_to_str (ftype, fc_ftype_vals,
+                                                          "Unknown Type (0x%x)"));
 
         if (ftype == FC_FTYPE_LINKCTL)
             col_append_fstr (pinfo->cinfo, COL_INFO, ", %s",
@@ -1211,38 +1212,51 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         else {
             real_seqcnt = fchdr.seqcnt;
         }
-        
-        frag_id = ((pinfo->oxid << 16) ^ seq_id) | is_exchg_resp ;
 
-        /* We assume that all frames are of the same max size */
-        fcfrag_head = fragment_add (tvb, FC_HEADER_SIZE, pinfo, frag_id,
-                                    fc_fragment_table,
-                                    real_seqcnt * fc_max_frame_size,
-                                    frag_size,
-                                    !is_lastframe_inseq);
+        /* Verify that this is a valid fragment */
+        if (is_lastframe_inseq && !is_1frame_inseq && !real_seqcnt) {
+             /* This is a frame that purports to be the last frame in a
+              * sequence, is not the first frame, but has a seqcnt that is
+              * 0. This is a bogus frame, don't attempt to reassemble it.
+              */
+             next_tvb = tvb_new_subset (tvb, next_offset, -1, -1);
+             if (check_col (pinfo->cinfo, COL_INFO)) {
+                  col_append_str (pinfo->cinfo, COL_INFO, " (Bogus Fragment)");
+             }
+        } else {
         
-        if (fcfrag_head) {
-            next_tvb = tvb_new_real_data (fcfrag_head->data,
-                                          fcfrag_head->datalen,
-                                          fcfrag_head->datalen);
-            tvb_set_child_real_data_tvbuff(tvb, next_tvb);
-            
-            /* Add the defragmented data to the data source list. */
+             frag_id = ((pinfo->oxid << 16) ^ seq_id) | is_exchg_resp ;
+
+             /* We assume that all frames are of the same max size */
+             fcfrag_head = fragment_add (tvb, FC_HEADER_SIZE, pinfo, frag_id,
+                                         fc_fragment_table,
+                                         real_seqcnt * fc_max_frame_size,
+                                         frag_size,
+                                         !is_lastframe_inseq);
+             
+             if (fcfrag_head) {
+                  next_tvb = tvb_new_real_data (fcfrag_head->data,
+                                                fcfrag_head->datalen,
+                                                fcfrag_head->datalen);
+                  tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+                  
+                  /* Add the defragmented data to the data source list. */
             add_new_data_source(pinfo, next_tvb, "Reassembled FC");
             
             if (tree) {
-                proto_tree_add_boolean_hidden (fc_tree, hf_fc_reassembled,
-                                               tvb, offset+9, 1, 1);
+                 proto_tree_add_boolean_hidden (fc_tree, hf_fc_reassembled,
+                                                tvb, offset+9, 1, 1);
             }
-        }
-        else {
-            if (tree) {
-                proto_tree_add_boolean_hidden (fc_tree, hf_fc_reassembled,
-                                               tvb, offset+9, 1, 0);
+             }
+             else {
+                  if (tree) {
+                       proto_tree_add_boolean_hidden (fc_tree, hf_fc_reassembled,
+                                                      tvb, offset+9, 1, 0);
             }
-            next_tvb = tvb_new_subset (tvb, next_offset, -1, -1);
-            call_dissector (data_handle, next_tvb, pinfo, tree);
-            return;
+                  next_tvb = tvb_new_subset (tvb, next_offset, -1, -1);
+                  call_dissector (data_handle, next_tvb, pinfo, tree);
+                  return;
+             }
         }
     } else {
         if (tree) {
